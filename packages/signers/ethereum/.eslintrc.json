@@ -1,0 +1,66 @@
+{
+  "extends": [
+    "airbnb-base",
+    "plugin:import/errors",
+    "plugin:import/warnings",
+    "plugin:import/typescript",
+    "plugin:@typescript-eslint/recommended",
+    "prettier"
+  ],
+  "plugins": ["@typescript-eslint"],
+  "root": true,
+  "globals": {},
+  "rules": {
+    "@typescript-eslint/no-var-requires": "off",
+    "no-multi-assign": "off",
+    "no-param-reassign": "off",
+    "no-underscore-dangle": "off",
+    "no-continue": "off",
+    "@typescript-eslint/ban-ts-comment": "off",
+    "no-console": "off",
+    "no-plusplus": "off",
+    "import/extensions": [
+      "error",
+      "ignorePackages",
+      {
+        "js": "never",
+        "jsx": "never",
+        "ts": "never",
+        "tsx": "never"
+      }
+    ],
+    "import/no-unresolved": [
+      2,
+      {
+        "commonjs": true,
+        "amd": true
+      }
+    ],
+    "import/prefer-default-export": "off",
+    "max-len": [
+      "error",
+      {
+        "code": 150,
+        "ignoreComments": true,
+        "ignoreTrailingComments": true,
+        "ignoreUrls": true,
+        "ignoreStrings": true,
+        "ignoreTemplateLiterals": true
+      }
+    ]
+  },
+  "parser": "@typescript-eslint/parser",
+  "env": {},
+  "overrides": [],
+  "settings": {
+    "import/resolver": {
+      "alias": {
+        "map": [
+          ["@src", "./src"],
+          ["@tests", "./tests"]
+        ],
+        "extensions": [".ts", ".js"]
+      }
+    }
+  }
+}
