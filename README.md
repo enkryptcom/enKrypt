@@ -1,12 +1,3 @@
-[![Contributors][contributors-shield]][contributors-url]
-[![Forks][forks-shield]][forks-url]
-[![Stargazers][stars-shield]][stars-url]
-[![Issues][issues-shield]][issues-url]
-[![MIT License][license-shield]][license-url]
-
-
-
-<!-- PROJECT LOGO -->
 <br />
 <div align="center">
   <a href="https://github.com/enkryptcom/enKrypt">
@@ -128,17 +119,3 @@ Your Name - [@enkryptcom](https://twitter.com/enkryptcom) - info@enkrypt.com
 Project Link: [https://github.com/enkryptcom/enKrypt](https://github.com/enkryptcom/enKrypt)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
-
-
-<!-- MARKDOWN LINKS & IMAGES -->
-<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[contributors-shield]: https://img.shields.io/github/contributors/enkryptcom/enKrypt.svg?style=for-the-badge
-[contributors-url]: https://github.com/enkryptcom/enKrypt/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/enkryptcom/enKrypt.svg?style=for-the-badge
-[forks-url]: https://github.com/enkryptcom/enKrypt/network/members
-[stars-shield]: https://img.shields.io/github/stars/enkryptcom/enKrypt.svg?style=for-the-badge
-[stars-url]: https://github.com/enkryptcom/enKrypt/stargazers
-[issues-shield]: https://img.shields.io/github/issues/enkryptcom/enKrypt.svg?style=for-the-badge
-[issues-url]: https://github.com/enkryptcom/enKrypt/issues
-[license-shield]: https://img.shields.io/github/license/enkryptcom/enKrypt.svg?style=for-the-badge
-[license-url]: https://github.com/enkryptcom/enKrypt/blob/main/README.md
