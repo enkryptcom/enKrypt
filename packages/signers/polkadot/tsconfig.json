@@ -1,18 +1,19 @@
 {
   "extends": "./tsconfig.paths.json",
   "compilerOptions": {
+    "lib": ["ESNext", "dom"],
     "moduleResolution": "node",
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "removeComments": true,
     "sourceMap": true,
-    "target": "esnext",
+    "target": "es5",
     "module": "commonjs",
     "outDir": "dist",
     "resolveJsonModule": true,
     "esModuleInterop": true
   },
-  "include": ["src/**/*.ts", "src/**/*.d.ts", "tests/**/*.ts"],
+  "include": ["src/**/*.ts", "tests/**/*.ts"],
   "exclude": [
     "node_modules/**/*",
     "_warmup/**/*",

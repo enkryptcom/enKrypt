@@ -1,4 +1,4 @@
-import { stripHexPrefix } from "web3-utils"
+import { stripHexPrefix, bytesToHex, hexToBytes } from "web3-utils"
 
 const bufferToHex = (buf: Buffer, nozerox = false): string => nozerox ? buf.toString("hex") : `0x${buf.toString('hex')}`
 const hexToBuffer = (hex: string): Buffer => Buffer.from(stripHexPrefix(hex), "hex")
@@ -6,5 +6,7 @@ const hexToBuffer = (hex: string): Buffer => Buffer.from(stripHexPrefix(hex), "h
 export {
     stripHexPrefix,
     bufferToHex,
-    hexToBuffer
+    hexToBuffer,
+    bytesToHex,
+    hexToBytes
 }
