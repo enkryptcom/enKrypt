@@ -1,7 +1,7 @@
 {
-  "name": "@enkryptcom/signer-ethereum",
+  "name": "@enkryptcom/utils",
   "version": "0.0.1",
-  "description": "Ethereum blockchain signer",
+  "description": "utility functions for enkrypt extension",
   "main": "src/index.ts",
   "scripts": {
     "build": "tsc",
@@ -12,10 +12,7 @@
     "node": ">=14.15.0"
   },
   "dependencies": {
-    "@enkryptcom/types": "^0.0.1",
-    "@enkryptcom/utils": "^0.0.1",
-    "ethereum-cryptography": "^1.0.0",
-    "ethereumjs-util": "^7.1.4"
+    "web3-utils": "^1.7.0"
   },
   "devDependencies": {
     "@types/jest": "^27.0.2",
@@ -39,7 +36,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/enkryptcom/enKrypt/tree/main/packages/signers/ethereum"
+    "url": "git+https://github.com/<FILL_IT>"
   },
   "keywords": [],
   "author": "kvhnuke",
