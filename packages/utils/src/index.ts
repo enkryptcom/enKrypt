@@ -1,6 +1,7 @@
 import { stripHexPrefix, bytesToHex, hexToBytes } from "web3-utils"
+import { encrypt, decrypt } from "./encrypt"
 
-const bufferToHex = (buf: Buffer, nozerox = false): string => nozerox ? buf.toString("hex") : `0x${buf.toString('hex')}`
+const bufferToHex = (buf: Buffer | Uint8Array, nozerox = false): string => nozerox ? Buffer.from(buf).toString("hex") : `0x${Buffer.from(buf).toString('hex')}`
 const hexToBuffer = (hex: string): Buffer => Buffer.from(stripHexPrefix(hex), "hex")
 
 export {
@@ -8,5 +9,7 @@ export {
     bufferToHex,
     hexToBuffer,
     bytesToHex,
-    hexToBytes
+    hexToBytes,
+    encrypt,
+    decrypt
 }

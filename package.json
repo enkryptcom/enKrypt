@@ -3,6 +3,7 @@
   "workspaces": [
     "packages/signers/*",
     "packages/types",
-    "packages/utils"
+    "packages/utils",
+    "packages/keyring"
   ]
 }

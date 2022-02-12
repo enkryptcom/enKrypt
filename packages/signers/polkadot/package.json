@@ -2,7 +2,7 @@
   "name": "@enkryptcom/signer-polkadot",
   "version": "0.0.1",
   "description": "Polkadot blockchain signers",
-  "main": "dist/index.js",
+  "main": "src/index.ts",
   "scripts": {
     "build": "tsc",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
