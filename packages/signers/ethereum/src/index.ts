@@ -1,19 +1,35 @@
-import { ecsign, ecrecover, privateToPublic, ECDSASignature, toRpcSig } from "ethereumjs-util"
-import { Errors, SignerInterface } from "@enkryptcom/types"
-import { hexToBuffer } from "@enkryptcom/utils"
+import { ecsign, ecrecover, fromRpcSig, toRpcSig, privateToPublic, privateToAddress } from "ethereumjs-util"
+import { mnemonicToSeed } from "bip39"
+import { Errors, SignerInterface, KeyPair } from "@enkryptcom/types"
+import { hexToBuffer, bufferToHex } from "@enkryptcom/utils"
+
+const HDkey = require("hdkey")
 
 class Signer implements SignerInterface {
 
-    verify(msgHash: Buffer, sig: ECDSASignature, publicKey: Buffer): boolean {
-        const rpubkey = ecrecover(msgHash, sig.v, sig.r, sig.s)
-        return rpubkey.toString("hex") === publicKey.toString("hex")
+    async generate(mnemonic: string, derivationPath = ""): Promise<KeyPair> {
+        const seed = await mnemonicToSeed(mnemonic)
+        const hdkey = HDkey.fromMasterSeed(seed)
+        const key = hdkey.derive(derivationPath)
+        return {
+            address: bufferToHex(privateToAddress(key.privateKey)),
+            privateKey: bufferToHex(key.privateKey),
+            publicKey: bufferToHex(privateToPublic(key.privateKey))
+        }
     }
 
-    async sign(msgHash: string, privateKey: string): Promise<string> {
+    async verify(msgHash: string, sig: string, publicKey: string): Promise<boolean> {
+        const sigdecoded = fromRpcSig(sig)
+        const rpubkey = ecrecover(hexToBuffer(msgHash), sigdecoded.v, sigdecoded.r, sigdecoded.s)
+        return bufferToHex(rpubkey) === publicKey
+    }
+
+    async sign(msgHash: string, keyPair: KeyPair): Promise<string> {
         const msgHashBuffer = hexToBuffer(msgHash)
-        const privateKeyBuffer = hexToBuffer(privateKey)
+        const privateKeyBuffer = hexToBuffer(keyPair.privateKey)
         const signature = ecsign(msgHashBuffer, privateKeyBuffer)
-        if (!this.verify(msgHashBuffer, signature, privateToPublic(privateKeyBuffer))) {
+        const rpcSig = toRpcSig(signature.v, signature.r, signature.s)
+        if (!this.verify(bufferToHex(msgHashBuffer), rpcSig, keyPair.publicKey)) {
             throw new Error(Errors.SigningErrors.UnableToVerify)
         }
         return toRpcSig(signature.v, signature.r, signature.s)
