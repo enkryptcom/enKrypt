@@ -4,9 +4,16 @@
     "packages/signers/*",
     "packages/types",
     "packages/utils",
-    "packages/keyring"
+    "packages/keyring",
+    "packages/extension-bridge"
   ],
   "scripts": {
-    "test": "yarn workspaces run test"
+    "test": "yarn workspaces run test",
+    "build:all": "ultra -r build",
+    "watch:all": "nodemon --exec 'yarn run build:all'"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15",
+    "ultra-runner": "^3.10.5"
   }
 }
