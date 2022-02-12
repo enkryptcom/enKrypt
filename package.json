@@ -5,5 +5,8 @@
     "packages/types",
     "packages/utils",
     "packages/keyring"
-  ]
+  ],
+  "scripts": {
+    "test": "yarn workspaces run test"
+  }
 }
