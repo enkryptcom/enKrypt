@@ -2,7 +2,7 @@
 import { SignerInterface, Errors, SignerType, KeyPair as KRKeyPair } from "@enkryptcom/types"
 import { bufferToHex, hexToBuffer } from "@enkryptcom/utils"
 import { waitReady } from '@polkadot/wasm-crypto';
-import { sr25519PairFromSeed, ed25519PairFromSeed, secp256k1PairFromSeed, ed25519Sign, secp256k1Sign, sr25519Sign, signatureVerify, keyExtractSuri, keyFromPath, mnemonicToMiniSecret, encodeAddress } from '@polkadot/util-crypto';
+import { sr25519PairFromSeed, ed25519PairFromSeed, secp256k1PairFromSeed, ed25519Sign, secp256k1Sign, sr25519Sign, signatureVerify, keyExtractSuri, keyFromPath, mnemonicToMiniSecret, encodeAddress, blake2AsU8a } from '@polkadot/util-crypto';
 import assert from "assert";
 import { KeyPair, SignOptions } from "./types";
 
@@ -34,7 +34,7 @@ class Signer implements SignerInterface {
                 throw new Error(Errors.SigningErrors.NotSupported)
         }
         return {
-            address: encodeAddress(pair.publicKey, SUBSTRATE_PREFIX),
+            address: this.type === SignerType.ecdsa ? encodeAddress(blake2AsU8a(pair.publicKey), SUBSTRATE_PREFIX) : encodeAddress(pair.publicKey, SUBSTRATE_PREFIX),
             privateKey: bufferToHex(pair.secretKey),
             publicKey: bufferToHex(pair.publicKey)
         }

@@ -67,9 +67,22 @@ describe('Polkadot Address generate', () => { // the tests container
             expect(keypair.address).equals(item.ss);
         })
     });
-    xit('ecdsa addresses should work', async () => {
+    it('ecdsa addresses should work', async () => {
         const signer = new Signer(SignerType.ecdsa)
-        const keypair = await signer.generate(PHRASE, "//Alice")
+        let keypair = await signer.generate(PHRASE, "//Alice")
         expect(keypair.address).equals("5C7C2Z5sWbytvHpuLTvzKunnnRwQxft1jiqrLD5rhucQ5S9X");
+        keypair = await signer.generate(PHRASE, "//0")
+        expect(keypair.address).equals("5EYLKPDaH7gGuon5vesr5QX8S9c22wYvgWwdRoGj3FykwoE8");
+        keypair = await signer.generate(PHRASE)
+        expect(keypair.address).equals("5GKyBtzbxKU1qjhZrKpMiwtJj7o6jJcXbKQVtYq74DCPerXN");
+    });
+    it('ed25519 addresses should work', async () => {
+        const signer = new Signer(SignerType.ed25519)
+        let keypair = await signer.generate(PHRASE, "//Alice")
+        expect(keypair.address).equals("5FA9nQDVg267DEd8m1ZypXLBnvN7SFxYwV7ndqSYGiN9TTpu");
+        keypair = await signer.generate(PHRASE, "//0")
+        expect(keypair.address).equals("5HrCphkqYygSXWt9rHebqaqbfEYekhzjyjQNjZiPxpb3XsKY");
+        keypair = await signer.generate(PHRASE)
+        expect(keypair.address).equals("5DFJF7tY4bpbpcKPJcBTQaKuCDEPCpiz8TRjpmLeTtweqmXL");
     });
 });

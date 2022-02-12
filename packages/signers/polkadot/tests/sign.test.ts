@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { SignerType } from "@enkryptcom/types"
 import Signer from "../src"
 
-xdescribe('Polkadot signers', () => { // the tests container
+describe('Polkadot signers', () => { // the tests container
 
     const MNEMONIC = "error fish boy absent drop next ice keep meadow little air include"
     const MSG_HASH = "82ff40c0a986c6a5cfad4ddf4c3aa6996f1a7837f9c398e17e5de5cbd5a12b28";
