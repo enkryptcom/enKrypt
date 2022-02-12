@@ -1,43 +1,71 @@
-import { SignerInterface, Errors } from "@enkryptcom/types"
+/* eslint-disable class-methods-use-this */
+import { SignerInterface, Errors, SignerType, KeyPair as KRKeyPair } from "@enkryptcom/types"
 import { bufferToHex, hexToBuffer } from "@enkryptcom/utils"
 import { waitReady } from '@polkadot/wasm-crypto';
-import { sr25519PairFromSeed, ed25519PairFromSeed, secp256k1PairFromSeed, ed25519Sign, secp256k1Sign, sr25519Sign, signatureVerify } from '@polkadot/util-crypto';
+import { sr25519PairFromSeed, ed25519PairFromSeed, secp256k1PairFromSeed, ed25519Sign, secp256k1Sign, sr25519Sign, signatureVerify, keyExtractSuri, keyFromPath, mnemonicToMiniSecret, encodeAddress } from '@polkadot/util-crypto';
+import assert from "assert";
+import { KeyPair, SignOptions } from "./types";
 
-import { KeyPair, SignerTypes, SignOptions } from "./types";
+const SUBSTRATE_PREFIX = 42
 
 class Signer implements SignerInterface {
-    type: SignerTypes
+    type: SignerType
 
-    constructor(signer: SignerTypes) {
+    constructor(signer: SignerType) {
         this.type = signer
     }
 
-    verify(msgHash: Buffer, sig: Buffer, publicKey: Buffer): boolean {
+    async generate(mnemonic: string, derivationPath = "", options: SignOptions = { onlyJS: false }): Promise<KRKeyPair> {
+        await waitReady()
+        const { path, phrase, password } = keyExtractSuri(`${mnemonic}${derivationPath}`);
+        const seed = mnemonicToMiniSecret(phrase, password, options.onlyJS);
+        let pair: KeyPair
+        switch (this.type) {
+            case SignerType.ecdsa:
+                pair = keyFromPath(secp256k1PairFromSeed(seed, options.onlyJS), path, "ecdsa");
+                break;
+            case SignerType.ed25519:
+                pair = keyFromPath(ed25519PairFromSeed(seed, options.onlyJS), path, "ed25519");
+                break;
+            case SignerType.sr25519:
+                pair = keyFromPath(sr25519PairFromSeed(seed), path, "sr25519");
+                break;
+            default:
+                throw new Error(Errors.SigningErrors.NotSupported)
+        }
+        return {
+            address: encodeAddress(pair.publicKey, SUBSTRATE_PREFIX),
+            privateKey: bufferToHex(pair.secretKey),
+            publicKey: bufferToHex(pair.publicKey)
+        }
+    }
+
+    async verify(msgHash: string, sig: string, publicKey: string): Promise<boolean> {
+        await waitReady()
         const rpubkey = signatureVerify(msgHash, sig, publicKey)
         return rpubkey.isValid
     }
 
-    async sign(msgHash: string, privateKey: string, options: SignOptions = { onlyJS: false }): Promise<string> {
+    async sign(msgHash: string, keyPair: KRKeyPair, options: SignOptions = { onlyJS: false }): Promise<string> {
         const msgHashBuffer = hexToBuffer(msgHash)
-        const privateKeyBuffer = hexToBuffer(privateKey)
         let sig: Buffer
-        let pair: KeyPair
+        const pair: KeyPair = {
+            secretKey: hexToBuffer(keyPair.privateKey),
+            publicKey: hexToBuffer(keyPair.publicKey)
+        }
         await waitReady()
         switch (this.type) {
-            case SignerTypes.ecdsa:
-                pair = secp256k1PairFromSeed(privateKeyBuffer, options.onlyJS)
+            case SignerType.ecdsa:
                 sig = Buffer.from(secp256k1Sign(msgHashBuffer, pair, 'blake2', options.onlyJS))
-                if (!this.verify(msgHashBuffer, sig, Buffer.from(pair.publicKey))) throw new Error(Errors.SigningErrors.UnableToVerify)
+                assert(this.verify(bufferToHex(msgHashBuffer), bufferToHex(sig), bufferToHex(pair.publicKey)), Errors.SigningErrors.UnableToVerify)
                 return bufferToHex(sig);
-            case SignerTypes.ed25519:
-                pair = ed25519PairFromSeed(privateKeyBuffer, options.onlyJS)
+            case SignerType.ed25519:
                 sig = Buffer.from(ed25519Sign(msgHashBuffer, pair, options.onlyJS))
-                if (!this.verify(msgHashBuffer, sig, Buffer.from(pair.publicKey))) throw new Error(Errors.SigningErrors.UnableToVerify)
+                assert(this.verify(bufferToHex(msgHashBuffer), bufferToHex(sig), bufferToHex(pair.publicKey)), Errors.SigningErrors.UnableToVerify)
                 return bufferToHex(sig);
-            case SignerTypes.sr25519:
-                pair = sr25519PairFromSeed(privateKeyBuffer)
+            case SignerType.sr25519:
                 sig = Buffer.from(sr25519Sign(msgHashBuffer, pair))
-                if (!this.verify(msgHashBuffer, sig, Buffer.from(pair.publicKey))) throw new Error(Errors.SigningErrors.UnableToVerify)
+                assert(this.verify(bufferToHex(msgHashBuffer), bufferToHex(sig), bufferToHex(pair.publicKey)), Errors.SigningErrors.UnableToVerify)
                 return bufferToHex(sig);
             default:
                 throw new Error(Errors.SigningErrors.NotSupported)

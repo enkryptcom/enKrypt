@@ -16,6 +16,7 @@
     "@enkryptcom/utils": "^0.0.1",
     "@polkadot/util-crypto": "^8.3.3",
     "@polkadot/wasm-crypto": "^4.5.1",
+    "assert": "^2.0.0",
     "chai": "^4.3.6"
   },
   "devDependencies": {

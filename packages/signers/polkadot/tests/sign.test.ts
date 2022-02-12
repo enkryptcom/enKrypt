@@ -1,37 +1,28 @@
 import { expect } from 'chai';
+import { SignerType } from "@enkryptcom/types"
 import Signer from "../src"
-import { SignerTypes } from "../src/types";
 
-describe('Polkadot signers', () => { // the tests container
+xdescribe('Polkadot signers', () => { // the tests container
+
+    const MNEMONIC = "error fish boy absent drop next ice keep meadow little air include"
+    const MSG_HASH = "82ff40c0a986c6a5cfad4ddf4c3aa6996f1a7837f9c398e17e5de5cbd5a12b28";
     it('ecdsa signer should work', async () => {
-        const signer = new Signer(SignerTypes.ecdsa)
-        const msgHash =
-            "82ff40c0a986c6a5cfad4ddf4c3aa6996f1a7837f9c398e17e5de5cbd5a12b28";
-        const privateKey =
-            "3c9229289a6125f7fdf1885a77bb12c37a8d3b4962d936f7e3084dece32a3ca1";
-
-        const signature = await signer.sign(msgHash, privateKey);
-        expect(signature).equals("0x62e0289e8e569b137e51683edcf7c198e75ce2eec6cd5c878d5882bb73f9486b544cf6ac316006059a1cef68f288884de844de41c331bee802cdaa7c084299c601");
+        const signer = new Signer(SignerType.ecdsa)
+        const keypair = await signer.generate(MNEMONIC)
+        const signature = await signer.sign(MSG_HASH, keypair);
+        expect(signature).equals("0x44d27f74c8f35bf816f701e1081a12359235d99f22a95fac2b6f9614ecf06cfe11d1dc62c0ef85545953b51b48dc9b0786f70d9e0fdd97439055ec2bda1b703d00");
     });
     it('sr25519 signer should work', async () => {
-        const signer = new Signer(SignerTypes.sr25519)
-        const msgHash =
-            "82ff40c0a986c6a5cfad4ddf4c3aa6996f1a7837f9c398e17e5de5cbd5a12b28";
-        const privateKey =
-            "3c9229289a6125f7fdf1885a77bb12c37a8d3b4962d936f7e3084dece32a3ca1";
-
-        const signature = await signer.sign(msgHash, privateKey);
+        const signer = new Signer(SignerType.sr25519)
+        const keypair = await signer.generate(MNEMONIC)
+        const signature = await signer.sign(MSG_HASH, keypair);
+        expect(keypair.address).equals("5E4Vd2pQCSLLWxHhXVSH1Kc9TQdpAXdjLfWtSKgsY3A9AXM4")
         expect(signature.length).equals(130);
     });
     it('ed25519 signer should work', async () => {
-        const signer = new Signer(SignerTypes.ed25519)
-        const msgHex =
-            "61626364";
-        const privateKeySeed =
-            Buffer.from("12345678901234567890123456789012").toString("hex");
-
-        const signature = await signer.sign(msgHex, privateKeySeed, { onlyJS: true });
-        const validSig = "0x" + Buffer.from([28, 58, 206, 239, 249, 70, 59, 191, 166, 40, 219, 218, 235, 170, 25, 79, 10, 94, 9, 197, 34, 126, 1, 150, 246, 68, 28, 238, 36, 26, 172, 163, 168, 90, 202, 211, 126, 246, 57, 212, 43, 24, 88, 197, 240, 113, 118, 76, 37, 81, 91, 110, 236, 50, 144, 134, 100, 223, 220, 238, 34, 185, 211, 7]).toString("hex")
-        expect(signature).equals(validSig);
+        const signer = new Signer(SignerType.ed25519)
+        const keypair = await signer.generate(MNEMONIC)
+        const signature = await signer.sign(MSG_HASH, keypair);
+        expect(signature).equals("0x35aacb42a86c330228515ddc6ea286c10feae2d7cf60ca7c4949663ee95159e5e3ec4a9597fc643d90711ef01e0f712610e93bce3388c175d71baf363bc7f002");
     });
 });

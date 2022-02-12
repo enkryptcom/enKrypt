@@ -20,6 +20,7 @@
     "@typescript-eslint/ban-ts-comment": "off",
     "no-console": "off",
     "no-plusplus": "off",
+    "class-methods-use-this": "off",
     "import/extensions": [
       "error",
       "ignorePackages",
@@ -41,7 +42,7 @@
     "max-len": [
       "error",
       {
-        "code": 150,
+        "code": 180,
         "ignoreComments": true,
         "ignoreTrailingComments": true,
         "ignoreUrls": true,
