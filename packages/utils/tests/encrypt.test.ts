@@ -9,5 +9,5 @@ describe("Encrypt Decrypt Functions", () => {
         const encryptedData = await encrypt(buf, password)
         const decryptedBuf = await decrypt(encryptedData, password)
         expect(bufferToHex(decryptedBuf)).equals(bufferToHex(decryptedBuf))
-    }).timeout(5000);
+    }).timeout(10000);
 })

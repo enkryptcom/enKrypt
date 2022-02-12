@@ -9,7 +9,7 @@ describe('Keyring locking tests', () => {
     const password = "helloworld"
     // eslint-disable-next-line prefer-arrow-callback,func-names
     it('keyring should lock and unlock properly', function (done) {
-        this.timeout(8000)
+        this.timeout(10000)
         keyring.init(password).then(() => {
             expect(keyring.isLocked()).to.be.equals(true)
             keyring.unlockMnemonic(password).then(() => {
