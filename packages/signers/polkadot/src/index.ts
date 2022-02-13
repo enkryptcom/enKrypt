@@ -72,4 +72,7 @@ class Signer implements SignerInterface {
         }
     };
 }
+export {
+    SignerType
+}
 export default Signer

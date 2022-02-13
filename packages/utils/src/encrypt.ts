@@ -1,5 +1,5 @@
 import { randomBytes, createCipheriv, createDecipheriv, Cipher, Decipher } from "crypto"
-import { scrypt } from "scrypt-js"
+import { scrypt } from "ethereum-cryptography/scrypt"
 import { keccak256 } from "web3-utils"
 import { EncryptedData, Errors } from "@enkryptcom/types"
 import { bufferToHex, hexToBuffer } from "."
@@ -8,8 +8,7 @@ const scryptParams = {
     cipher: 'aes-128-ctr',
     kdf: 'scrypt',
     dklen: 32,
-    c: 262144,
-    n: 262144,
+    n: 524288,
     r: 8,
     p: 1,
 }
@@ -25,7 +24,7 @@ export const encrypt = async (msg: Buffer, password: string): Promise<EncryptedD
         },
         ...scryptParams
     }
-    const derivedKey = await scrypt(Buffer.from(password), sparams.salt, sparams.n, sparams.r, sparams.p, sparams.dklen)
+    const derivedKey = await scrypt(Buffer.from(password), sparams.salt, sparams.n, sparams.p, sparams.r, sparams.dklen)
     const cipher = createCipheriv(sparams.cipher, derivedKey.slice(0, 16), sparams.iv)
     const ciphertext = runCipherBuffer(cipher, msg)
     const mac = keccak256(
@@ -50,7 +49,7 @@ export const decrypt = async (encryptedData: EncryptedData, password: string): P
             mac: encryptedData.mac
         }, ...scryptParams
     }
-    const derivedKey = await scrypt(Buffer.from(password), sparams.salt, sparams.n, sparams.r, sparams.p, sparams.dklen)
+    const derivedKey = await scrypt(Buffer.from(password), sparams.salt, sparams.n, sparams.p, sparams.r, sparams.dklen)
     const mac = keccak256(bufferToHex(Buffer.concat([Buffer.from(derivedKey.slice(16, 32)), sparams.ciphertext])))
     if (mac !== sparams.mac) throw new Error(Errors.OtherErrors.WrongPassword)
     const decipher = createDecipheriv(

@@ -20,6 +20,7 @@
     "no-console": "off",
     "no-plusplus": "off",
     "class-methods-use-this": "off",
+    "import/no-extraneous-dependencies": "off",
     "import/extensions": [
       "error",
       "ignorePackages",

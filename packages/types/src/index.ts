@@ -42,7 +42,7 @@ interface KeyPair {
 }
 
 interface KeyRingStorage {
-    getItem: (key: string) => string;
+    getItem: (key: string) => string | null;
     setItem: (key: string, value: string) => void;
     removeItem: (key: string) => void;
     clear: () => void;
