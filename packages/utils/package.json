@@ -16,13 +16,13 @@
     "node": ">=14.15.0"
   },
   "dependencies": {
-    "@enkryptcom/types": "^0.0.1",
     "bip39": "^3.0.4",
     "chai": "^4.3.6",
     "scrypt-js": "^3.0.1",
     "web3-utils": "^1.7.0"
   },
   "devDependencies": {
+    "@enkryptcom/types": "^0.0.1",
     "@types/chai": "^4.3.0",
     "@types/mocha": "^9.1.0",
     "@types/node": "^17.0.17",
