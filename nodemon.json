@@ -1,6 +1,12 @@
 {
   "restartable": "rs",
-  "ignore": [".git", "node_modules/**/node_modules", "**/dist/**/*"],
+  "ignore": [
+    ".git",
+    "node_modules/**/node_modules",
+    "**/dist/**/*",
+    "*auto-imports.d.ts",
+    "*components.d.ts"
+  ],
   "verbose": true,
   "watch": ["packages/**/src/**/*"],
   "env": {

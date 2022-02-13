@@ -5,7 +5,8 @@
     "packages/types",
     "packages/utils",
     "packages/keyring",
-    "packages/extension-bridge"
+    "packages/extension-bridge",
+    "packages/extension"
   ],
   "scripts": {
     "test": "yarn workspaces run test",

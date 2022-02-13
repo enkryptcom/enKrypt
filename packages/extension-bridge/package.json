@@ -22,9 +22,10 @@
   },
   "author": "Neek Sandhu <neek.sandhu@outlook.com>",
   "main": "dist/index.js",
+  "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc",
+    "build": "tsup src/index.ts --format esm,cjs --dts",
     "test": "echo 'no-tests'",
     "lint": "eslint --fix"
   },
@@ -55,6 +56,7 @@
     "prettier": "^2.5.1",
     "ts-node": "^10.5.0",
     "tsconfig-paths": "^3.12.0",
+    "tsup": "^5.11.13",
     "type-fest": "^2.11.2",
     "typescript": "^4.5.5",
     "typescript-eslint": "0.0.1-alpha.0"
