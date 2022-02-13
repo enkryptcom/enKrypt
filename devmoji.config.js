@@ -1,4 +1,23 @@
 module.exports = {
+  types: [
+    "build",
+    "ui",
+    "feature",
+    "ci",
+    "devop",
+    "chore",
+    "docs",
+    "feat",
+    "fix",
+    "refactor",
+    "revert",
+    "style",
+    "lint",
+    "test",
+    "translation",
+    "sentry",
+    "release",
+  ],
   devmoji: [
     { code: "ui", gitmoji: "art" },
     { code: "feature", gitmoji: "sparkles" },
