@@ -6,7 +6,8 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
-    "test": "echo 'no tests'"
+    "test": "echo 'no tests'",
+    "inspectWebpack": "vue-cli-service inspect > webpack.log"
   },
   "dependencies": {
     "@enkryptcom/keyring": "^0.0.1",
@@ -30,6 +31,7 @@
     "eslint-plugin-prettier": "^3.3.1",
     "eslint-plugin-vue": "^7.0.0",
     "prettier": "^2.2.1",
-    "typescript": "~4.1.5"
+    "typescript": "~4.1.5",
+    "webextension-polyfill": "^0.8.0"
   }
 }

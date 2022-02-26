@@ -42,10 +42,10 @@ interface KeyPair {
 }
 
 interface KeyRingStorage {
-    getItem: (key: string) => string | null;
-    setItem: (key: string, value: string) => void;
-    removeItem: (key: string) => void;
-    clear: () => void;
+    get: (key: string) => Promise<string | null>;
+    set: (key: string, value: string) => Promise<void>;
+    remove: (key: string) => Promise<void>;
+    clear: () => Promise<void>;
 }
 interface SignerInterface {
     sign: (msgHash: string, keypair: KeyPair, options?: unknown) => Promise<string>;
@@ -65,7 +65,12 @@ interface EncryptedData {
     version: number
     mac: string
 }
-
+interface BrowserStorageArea {
+    get(keys?: null | string | string[] | Record<string, any>): Promise<Record<string, any>>;
+    set(items: Record<string, any>): Promise<void>;
+    remove(keys: string | string[]): Promise<void>;
+    clear(): Promise<void>;
+}
 export {
     Errors,
     SignerInterface,
@@ -74,5 +79,6 @@ export {
     KeyRecord,
     KeyRecordAdd,
     KeyPair,
-    EncryptedData
+    EncryptedData,
+    BrowserStorageArea
 }
