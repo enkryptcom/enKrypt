@@ -1,15 +1,17 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { expect } from 'chai';
 import { KeyRecordAdd, SignerType } from '@enkryptcom/types';
+import { MemoryStorage } from "@enkryptcom/utils"
+import Storage from '@enkryptcom/storage';
 import KeyRing from "../src"
-import MemoryStorage from "./memoryStorage"
 
 describe('Keyring create tests', () => {
     const password = "helloworld"
     const MNEMONIC = "bottom drive obey lake curtain smoke basket hold race lonely fit walk"
     // eslint-disable-next-line prefer-arrow-callback,func-names
     it('keyring should generate sr25519 keys', async () => {
-        const storage = new MemoryStorage()
+        const memStorage = new MemoryStorage()
+        const storage = new Storage("keyring", { storage: memStorage })
         const keyring = new KeyRing(storage)
         await keyring.init(password, { mnemonic: MNEMONIC })
         const keyAdd: KeyRecordAdd = {
@@ -25,7 +27,8 @@ describe('Keyring create tests', () => {
         keyring.lock()
     }).timeout(20000)
     it('keyring should generate ecdsa keys', async () => {
-        const storage = new MemoryStorage()
+        const memStorage = new MemoryStorage()
+        const storage = new Storage("keyring", { storage: memStorage })
         const keyring = new KeyRing(storage)
         await keyring.init(password, { mnemonic: MNEMONIC })
         const keyAdd: KeyRecordAdd = {
@@ -40,7 +43,8 @@ describe('Keyring create tests', () => {
         expect(pair.address).equals("5GKyBtzbxKU1qjhZrKpMiwtJj7o6jJcXbKQVtYq74DCPerXN")
     }).timeout(20000)
     it('keyring should generate ed25519 keys', async () => {
-        const storage = new MemoryStorage()
+        const memStorage = new MemoryStorage()
+        const storage = new Storage("keyring", { storage: memStorage })
         const keyring = new KeyRing(storage)
         await keyring.init(password, { mnemonic: MNEMONIC })
         const keyAdd: KeyRecordAdd = {
@@ -55,7 +59,8 @@ describe('Keyring create tests', () => {
         expect(pair.address).equals("5DFJF7tY4bpbpcKPJcBTQaKuCDEPCpiz8TRjpmLeTtweqmXL")
     }).timeout(20000)
     it('keyring should generate ethereum keys', async () => {
-        const storage = new MemoryStorage()
+        const memStorage = new MemoryStorage()
+        const storage = new Storage("keyring", { storage: memStorage })
         const keyring = new KeyRing(storage)
         await keyring.init(password, { mnemonic: MNEMONIC })
         const keyAdd: KeyRecordAdd = {

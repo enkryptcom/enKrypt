@@ -1,4 +1,5 @@
-import { KeyRingStorage, KeyRecordAdd, KeyRecord, Errors, SignerInterface, SignerType } from "@enkryptcom/types"
+import { KeyRecordAdd, KeyRecord, Errors, SignerInterface, SignerType } from "@enkryptcom/types"
+import Storage from "@enkryptcom/storage"
 import { entropyToMnemonic, generateMnemonic, mnemonicToEntropy } from "bip39"
 import { hexToBuffer, encrypt, decrypt } from "@enkryptcom/utils"
 import PolkadotSigner from "@enkryptcom/signer-polkadot"
@@ -9,7 +10,7 @@ import { pathParser } from "./utils"
 
 class KeyRing {
 
-    storage: KeyRingStorage
+    storage: Storage
 
     private _isLocked: boolean
 
@@ -23,7 +24,7 @@ class KeyRing {
 
     autoLockTime: number
 
-    constructor(storage: KeyRingStorage, locktime = 30 * 60 * 1000) {
+    constructor(storage: Storage, locktime = 30 * 60 * 1000) {
         this.storage = storage
         this._isLocked = true;
         this.autoLockTime = locktime;
@@ -40,11 +41,11 @@ class KeyRing {
         strength = configs.MNEMONIC_STRENGTH,
         mnemonic = generateMnemonic(strength)
     }: { strength?: number, mnemonic?: string } = {}): Promise<void> {
-        assert(!this.storage.getItem(configs.STORAGE_KEYS.ENCRYPTED_MNEMONIC), Errors.KeyringErrors.MnemonicExists)
+        assert(!await this.storage.get(configs.STORAGE_KEYS.ENCRYPTED_MNEMONIC), Errors.KeyringErrors.MnemonicExists)
         assert(password, Errors.KeyringErrors.NoPassword)
         const entropy = hexToBuffer(mnemonicToEntropy(mnemonic))
         const encrypted = await encrypt(entropy, password)
-        this.storage.setItem(configs.STORAGE_KEYS.ENCRYPTED_MNEMONIC, JSON.stringify(encrypted))
+        await this.storage.set(configs.STORAGE_KEYS.ENCRYPTED_MNEMONIC, encrypted)
     }
 
     async getPathIndex(basePath: string): Promise<number> {
@@ -53,10 +54,9 @@ class KeyRing {
     }
 
     private async _getMnemonic(password: string): Promise<string> {
-        const encrypted = this.storage.getItem(configs.STORAGE_KEYS.ENCRYPTED_MNEMONIC)
+        const encrypted = await this.storage.get(configs.STORAGE_KEYS.ENCRYPTED_MNEMONIC)
         assert(encrypted, Errors.KeyringErrors.NotInitialized)
-        const jdecrypted = JSON.parse(encrypted)
-        const decryptedEntropy = await decrypt(jdecrypted, password)
+        const decryptedEntropy = await decrypt(encrypted, password)
         return entropyToMnemonic(decryptedEntropy)
     }
 
@@ -91,9 +91,9 @@ class KeyRing {
     }
 
     async getKeysObject(): Promise<{ [key: string]: KeyRecord }> {
-        const jsonstr = this.storage.getItem(configs.STORAGE_KEYS.KEY_INFO)
+        const jsonstr = await this.storage.get(configs.STORAGE_KEYS.KEY_INFO)
         if (!jsonstr) return {}
-        return JSON.parse(jsonstr)
+        return jsonstr
     }
 
     async getKeysArray(): Promise<KeyRecord[]> {

@@ -1,10 +1,12 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { expect } from 'chai';
+import { MemoryStorage } from "@enkryptcom/utils"
+import Storage from '@enkryptcom/storage';
 import KeyRing from "../src"
-import MemoryStorage from "./memoryStorage"
 
 describe('Keyring locking tests', () => {
-    const storage = new MemoryStorage()
+    const memStorage = new MemoryStorage()
+    const storage = new Storage("keyring", { storage: memStorage })
     const keyring = new KeyRing(storage, 2000)
     const password = "helloworld"
     // eslint-disable-next-line prefer-arrow-callback,func-names
