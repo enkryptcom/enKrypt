@@ -17,7 +17,6 @@
   },
   "dependencies": {
     "@enkryptcom/types": "^0.0.1",
-    "webextension-polyfill": "^0.8.0",
     "chai": "^4.3.6"
   },
   "devDependencies": {

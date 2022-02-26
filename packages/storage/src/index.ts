@@ -1,5 +1,4 @@
 import { BrowserStorageArea } from '@enkryptcom/types'
-import browser from 'webextension-polyfill'
 import { StorageOptions } from './types'
 
 class Storage {
@@ -8,7 +7,7 @@ class Storage {
 
     storage: BrowserStorageArea
 
-    constructor(namespace, options: StorageOptions = { storage: browser.storage.local }) {
+    constructor(namespace, options: StorageOptions) {
         this.namespace = namespace
         this.storage = options.storage
     }
@@ -19,7 +18,7 @@ class Storage {
         return null;
     }
 
-    async set(key: string, val: string) {
+    async set(key: string, val: Record<string, any>) {
         const vals = await this.storage.get(this.namespace)
         vals[key] = val;
         return this.storage.set({
@@ -36,9 +35,7 @@ class Storage {
     }
 
     async clear() {
-        return this.storage.set({
-            [this.namespace]: {}
-        })
+        return this.storage.remove(this.namespace)
     }
 }
 

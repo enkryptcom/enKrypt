@@ -21,6 +21,10 @@ class MemoryStorage implements BrowserStorageArea {
     async clear(): Promise<void> {
         this.storage = {}
     }
+
+    async getWholeStorage(): Promise<Record<string, any>> {
+        return this.storage
+    }
 }
 
 export default MemoryStorage

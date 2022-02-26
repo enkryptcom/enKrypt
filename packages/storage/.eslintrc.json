@@ -17,6 +17,7 @@
     "no-underscore-dangle": "off",
     "no-continue": "off",
     "@typescript-eslint/ban-ts-comment": "off",
+    "@typescript-eslint/no-explicit-any": "off",
     "no-console": "off",
     "no-plusplus": "off",
     "import/extensions": [
