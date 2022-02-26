@@ -1,10 +1,13 @@
 import KeyRing from "@enkryptcom/keyring"
 import { SignerType } from "@enkryptcom/types";
-import browser from 'webextension-polyfill'
+import BrowseStorage from "@/libs/browser-storage"
 
 console.log("here")
-const kr = new KeyRing(browser.storage.local)
-// kr.init("test pass")
+const storage = new BrowseStorage("KeyRing")
+const kr = new KeyRing(storage)
+// kr.init("test pass").then(() => {
+//     console.log("success")
+// }).catch(console.error)
 kr.unlockMnemonic("test pass").then(() => {
     console.log("start")
     kr.createKey({

@@ -5,7 +5,7 @@ class MemoryStorage implements BrowserStorageArea {
     private storage: { [key: string]: any } = {}
 
     async get(key: string): Promise<Record<string, any>> {
-        return this.storage[key] ? this.storage[key] : {}
+        return this.storage[key] ? { [key]: this.storage[key] } : {}
     }
 
     async set(items: Record<string, any>): Promise<void> {

@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@enkryptcom/keyring": "^0.0.1",
+    "@enkryptcom/storage": "^0.0.1",
     "core-js": "^3.21.0",
     "vue": "^3.2.31",
     "vue-router": "^4.0.6"

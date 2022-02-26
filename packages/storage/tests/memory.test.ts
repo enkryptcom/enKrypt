@@ -1,9 +1,9 @@
 import { expect } from 'chai';
+import { MemoryStorage } from "@enkryptcom/utils"
 import Storage from "../src"
-import MemStore from "./memoryStorage"
 
 describe('Simple addition', () => { // the tests container
-    const memStore = new MemStore()
+    const memStore = new MemoryStorage()
     const storage1 = new Storage("test-namespace1", { storage: memStore })
     const storage2 = new Storage("test-namespace2", { storage: memStore })
     it('it should properly handle storage operations', async () => {

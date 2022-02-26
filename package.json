@@ -18,13 +18,14 @@
   "scripts": {
     "test": "yarn workspaces run test",
     "build:all": "ultra -r build",
-    "watch:all": "nodemon --exec 'yarn run build:all'"
+    "watch:all": "nodemon --exec 'yarn run build:all && node scripts/compile-done.js'"
   },
   "devDependencies": {
     "@commitlint/cli": "^16.1.0",
     "@commitlint/config-conventional": "^16.0.0",
     "devmoji": "^2.3.0",
     "husky": "^7.0.4",
+    "node-notifier": "^10.0.1",
     "nodemon": "^2.0.15",
     "ultra-runner": "^3.10.5"
   }

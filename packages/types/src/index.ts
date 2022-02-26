@@ -41,12 +41,6 @@ interface KeyPair {
     publicKey: string
 }
 
-interface KeyRingStorage {
-    get: (key: string) => Promise<string | null>;
-    set: (key: string, value: string) => Promise<void>;
-    remove: (key: string) => Promise<void>;
-    clear: () => Promise<void>;
-}
 interface SignerInterface {
     sign: (msgHash: string, keypair: KeyPair, options?: unknown) => Promise<string>;
     verify: (msgHash: string, sig: string, publicKey: string, options?: unknown) => Promise<boolean>;
@@ -75,7 +69,6 @@ export {
     Errors,
     SignerInterface,
     SignerType,
-    KeyRingStorage,
     KeyRecord,
     KeyRecordAdd,
     KeyPair,

@@ -14,20 +14,23 @@ class Storage {
 
     async get(key: string) {
         const vals = await this.storage.get(this.namespace)
-        if (vals[key]) return vals[key]
+        if (vals[this.namespace] && vals[this.namespace][key]) return vals[this.namespace][key]
         return null;
     }
 
     async set(key: string, val: Record<string, any>) {
-        const vals = await this.storage.get(this.namespace)
+        let vals = await this.storage.get(this.namespace)
+        vals = vals[this.namespace] ? vals[this.namespace] : {}
         vals[key] = val;
+        console.log("set", this.namespace, vals)
         return this.storage.set({
             [this.namespace]: vals
         })
     }
 
     async remove(key: string) {
-        const vals = await this.storage.get(this.namespace)
+        let vals = await this.storage.get(this.namespace)
+        vals = vals[this.namespace] ? vals[this.namespace] : {}
         delete vals[key]
         return this.storage.set({
             [this.namespace]: vals
