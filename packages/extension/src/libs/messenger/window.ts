@@ -17,12 +17,9 @@ export const sendToBackgroundFromWindow = (
   type: MessageType,
   message: Message
 ): Promise<Response> => {
-  return sendMessage(type, message, Destination.background).then((res) => {
-    const strRes = res as string;
-    return {
-      response: strRes,
-    };
-  });
+  return sendMessage(type, message, Destination.background).then(
+    (res) => res as unknown as Response
+  );
 };
 
 export const setWindowNamespace = (): void => {
@@ -35,7 +32,7 @@ export const windowOnMessage = (type: MessageType, cb: onMessgeType): void => {
       message.sender.context === "background",
       "Message didnt come from backroung"
     );
-    const msg = message.data as string;
+    const msg = message.data as Message;
     cb(msg);
   });
 };

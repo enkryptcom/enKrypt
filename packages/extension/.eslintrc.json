@@ -14,7 +14,7 @@
     "ecmaVersion": 2020
   },
   "rules": {
-    "no-console": "warn",
+    "no-console": "off",
     "no-debugger": "warn",
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/no-var-requires": "off",

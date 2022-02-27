@@ -19,12 +19,7 @@ export const sendToWindow = (
   tabId: number
 ): Promise<Response> => {
   return sendMessage(type, message, `${Destination.window}@${tabId}`).then(
-    (res) => {
-      const strRes = res as string;
-      return {
-        response: strRes,
-      };
-    }
+    (res) => res as unknown as Response
   );
 };
 
@@ -41,7 +36,7 @@ export const backgroundOnMessage = (
       message.sender.context === "window" || message.sender.context === "popup",
       "Message didnt come from window or popup"
     );
-    const msg = message.data as unknown as string;
+    const msg = message.data as Message;
     return cb(msg);
   });
 };

@@ -15,7 +15,8 @@ export interface Message {
   message: string;
 }
 export interface Response {
-  response: string;
+  result: string;
+  error?: Error;
 }
 
-export type onMessgeType = (messge: string) => Promise<Response>;
+export type onMessgeType = (messge: Message) => Promise<Response>;
