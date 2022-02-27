@@ -1,5 +1,4 @@
 const CopyWebpackPlugin = require("copy-webpack-plugin");
-const { configs } = require("eslint-plugin-prettier");
 
 const scripts = {
   background: "./src/scripts/background.ts",

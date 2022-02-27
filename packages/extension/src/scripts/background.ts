@@ -1,9 +1,10 @@
-import KeyRing from "@enkryptcom/keyring";
-import { SignerType } from "@enkryptcom/types";
-import BrowseStorage from "@/libs/browser-storage";
-import { onMessage, sendMessage } from "@enkryptcom/extension-bridge";
-const storage = new BrowseStorage("KeyRing");
-const kr = new KeyRing(storage);
+// import KeyRing from "@enkryptcom/keyring";
+// import { SignerType } from "@enkryptcom/types";
+// import BrowseStorage from "@/libs/browser-storage";
+import { sendToWindow, backgroundOnMessage } from "@/libs/messenger/extension";
+import { MessageType, Response, Provider } from "@/types/messenger";
+// const storage = new BrowseStorage("KeyRing");
+// const kr = new KeyRing(storage);
 // kr.init("test pass").then(() => {
 //     console.log("success")
 // }).catch(console.error)
@@ -19,10 +20,10 @@ const kr = new KeyRing(storage);
 //     })
 // })
 
-onMessage("show-message", async (message) => {
-  console.log(JSON.stringify(message), "background-script");
+backgroundOnMessage(MessageType.REQUEST, async (msg): Promise<Response> => {
+  console.log(msg);
   return {
-    msg: "return msg from background",
+    response: "hello from background",
   };
 });
 

@@ -1,15 +1,7 @@
 import browser from "webextension-polyfill";
-import { EXTENSION_NAMESPACE } from "../configs/constants";
-import {
-  sendMessage,
-  onMessage,
-  allowWindowMessaging,
-} from "@enkryptcom/extension-bridge";
+import { setContentScriptNamespace } from "@/libs/messenger/extension";
 
-onMessage("show-message", async (message) => {
-  console.log(JSON.stringify(message), "content-script");
-  return "abc from content";
-});
+setContentScriptNamespace();
 
 const injectURL = browser.runtime.getURL("scripts/inject.js");
 fetch(injectURL).then((response) => {
@@ -27,10 +19,8 @@ function injectScript(content: string) {
     scriptTag.textContent = content;
     container.insertBefore(scriptTag, container.children[0]);
     container.removeChild(scriptTag);
-    allowWindowMessaging(EXTENSION_NAMESPACE);
-    sendMessage("show-message", { injected: true }, "background");
-    console.log("hello");
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error("Enkrypt: Provider injection failed.", error);
   }
 }

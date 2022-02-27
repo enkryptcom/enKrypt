@@ -1,6 +1,7 @@
 import typescript from "@rollup/plugin-typescript";
 import commonjs from "@rollup/plugin-commonjs";
 import nodeResolve from "@rollup/plugin-node-resolve";
+import nodePolyfills from "rollup-plugin-node-polyfills";
 
 export default {
   input: ["src/scripts/contentscript.ts"],
@@ -9,5 +10,10 @@ export default {
     format: "cjs",
     sourcemap: true,
   },
-  plugins: [typescript(), commonjs(), nodeResolve()],
+  plugins: [
+    typescript(),
+    commonjs(),
+    nodePolyfills(),
+    nodeResolve({ preferBuiltins: false }),
+  ],
 };
