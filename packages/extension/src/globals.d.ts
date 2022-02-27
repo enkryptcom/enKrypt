@@ -1,3 +1,3 @@
 interface Window {
-    enkrypt: any
+  enkrypt: any;
 }

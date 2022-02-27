@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build && npm run build:rollup",
+    "build": "vue-cli-service build --no-clean && npm run build:rollup",
+    "build:prod": "vue-cli-service build && npm run build:rollup",
     "lint": "vue-cli-service lint",
     "test": "echo 'no tests'",
     "build:rollup": "rollup --config configs/rollup.config.contentscript.js && rollup --config configs/rollup.config.inject.js",
@@ -15,6 +16,7 @@
     "@enkryptcom/keyring": "^0.0.1",
     "@enkryptcom/storage": "^0.0.1",
     "core-js": "^3.21.0",
+    "crx-hotreload": "^1.0.6",
     "vue": "^3.2.31",
     "vue-router": "^4.0.6",
     "webext-bridge": "^5.0.3"

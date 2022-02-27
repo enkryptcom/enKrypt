@@ -23,7 +23,7 @@
     "notifications"
   ],
   "background": {
-    "scripts": ["scripts/background.js"],
+    "scripts": ["scripts/background.js", "dev/hot-reload.js"],
     "persistent": true
   },
   "commands": {
