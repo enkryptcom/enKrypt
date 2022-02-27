@@ -2,14 +2,13 @@
 
 Messaging in WebExtension made super easy. Out of the box.
 
-
 > Forked from [crx-bridge](https://github.com/antfu/webext-bridge) by [Anthony Fu
-](https://github.com/antfu)
+> ](https://github.com/antfu)
 
 > Forked from [crx-bridge](https://github.com/NeekSandhu/crx-bridge) by [NeekSandhu](https://github.com/NeekSandhu)
 
-
 ##### Changes in @enkryptcom/extension-bridge Fork
+
 - Typescript formating
 - Changes necessary for enKrypt extension
 
@@ -19,7 +18,7 @@ Messaging in WebExtension made super easy. Out of the box.
 - use `nanoevents` instead of `events` (decoupled form node module)
 - [type safe protocols](#type-safe-protocols)
 
-----
+---
 
 ## How much easy exactly?
 
@@ -29,39 +28,50 @@ This much
 
 ```javascript
 // Inside devtools script
-import { sendMessage } from 'webext-bridge'
+import { sendMessage } from "webext-bridge";
 
 // ...
 
-button.addEventListener('click', async () => {
-  const res = await sendMessage('get-selection',  { ignoreCasing: true },  'content-script')  
-  console.log(res)   // > "The brown fox is alive and well"
-})
+button.addEventListener("click", async () => {
+  const res = await sendMessage(
+    "get-selection",
+    { ignoreCasing: true },
+    "content-script"
+  );
+  console.log(res); // > "The brown fox is alive and well"
+});
 ```
 
 ```javascript
 // Inside content script
-import { sendMessage, onMessage } from 'webext-bridge'  
+import { sendMessage, onMessage } from "webext-bridge";
 
-onMessage('get-selection', async (message) => {
-  const { sender, data: { ignoreCasing } } = message  
+onMessage("get-selection", async (message) => {
+  const {
+    sender,
+    data: { ignoreCasing },
+  } = message;
 
-  console.log(sender.context, sender.tabId)   // > content-script  156
+  console.log(sender.context, sender.tabId); // > content-script  156
 
-  const { selection } = await sendMessage('get-preferences', { sync: false }, 'background')  
-  return calculateSelection(data.ignoreCasing, selection)  
-})  
+  const { selection } = await sendMessage(
+    "get-preferences",
+    { sync: false },
+    "background"
+  );
+  return calculateSelection(data.ignoreCasing, selection);
+});
 ```
 
 ```javascript
 // Inside background script
-import { onMessage } from 'webext-bridge'  
+import { onMessage } from "webext-bridge";
 
-onMessage('get-preferences', ({ data }) => {
-  const { sync } = data  
+onMessage("get-preferences", ({ data }) => {
+  const { sync } = data;
 
-  return loadUserPreferences(sync)  
-})  
+  return loadUserPreferences(sync);
+});
 ```
 
 > Examples above require transpilation and/or bundling using `webpack`/`babel`/`rollup`
@@ -95,14 +105,14 @@ Create `shim.d.ts` file with the following content and make sure it's been inclu
 
 ```ts
 // shim.d.ts
-import { ProtocolWithReturn } from 'webext-bridge'
+import { ProtocolWithReturn } from "webext-bridge";
 
-declare module 'webext-bridge' {
+declare module "webext-bridge" {
   export interface ProtocolMap {
-    foo: { title: string }
+    foo: { title: string };
     // to specify the return type of the message,
     // use the `ProtocolWithReturn` type wrapper
-    bar: ProtocolWithReturn<CustomDataType, CustomReturnType>
+    bar: ProtocolWithReturn<CustomDataType, CustomReturnType>;
   }
 }
 ```
@@ -117,9 +127,11 @@ onMessage('foo', ({ data }) => {
 ```
 
 ```ts
-import { sendMessage } from 'webext-bridge'
+import { sendMessage } from "webext-bridge";
 
-const returnData = await sendMessage('bar', { /* ... */ })
+const returnData = await sendMessage("bar", {
+  /* ... */
+});
 // type of `returnData` will be `CustomReturnType` as specified
 ```
 
@@ -151,7 +163,7 @@ Any serializable value you want to pass to other side, latter can access this va
 
 ##### `destination`
 
-> Required | `string | ` 
+> Required | `string | `
 
 The actual identifier of other endpoint.
 Example: `devtools` or `content-script` or `background` or `content-script@133` or `devtools@453`
@@ -307,16 +319,16 @@ As an example if you plan on having something critical, **always** verify the `s
 
 ```javascript
 // background.js
-import { onMessage, isInternalEndpoint } from 'webext-bridge'  
+import { onMessage, isInternalEndpoint } from "webext-bridge";
 
-onMessage('getUserBrowsingHistory', (message) => {
-  const { data, sender } = message  
+onMessage("getUserBrowsingHistory", (message) => {
+  const { data, sender } = message;
   // Respond only if request is from 'devtools', 'content-script' or 'background' endpoint
   if (isInternalEndpoint(sender)) {
-    const { range } = data  
-    return getHistory(range)  
+    const { range } = data;
+    return getHistory(range);
   }
-})  
+});
 ```
 
 <a name="troubleshooting"></a>
@@ -329,7 +341,7 @@ onMessage('getUserBrowsingHistory', (message) => {
 ```javascript
 // background.js (requires transpiration/bundling using webpack(recommended))
 
-import 'webext-bridge'  
+import "webext-bridge";
 ```
 
 ```javascript

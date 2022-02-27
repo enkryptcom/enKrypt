@@ -9,7 +9,7 @@
   ],
   "scripts": {
     "build": "tsc",
-    "lint": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
+    "lint": "prettier --write .",
     "test": "ts-mocha -p tsconfig.json tests/**/*.test.ts"
   },
   "engines": {

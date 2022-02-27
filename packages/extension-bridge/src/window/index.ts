@@ -1,10 +1,7 @@
 export {
-    allowWindowMessaging,
-    setNamespace,
-    getCurrentContext,
-} from './internal'
+  allowWindowMessaging,
+  setNamespace,
+  getCurrentContext,
+} from "./internal";
 
-export {
-    sendMessage,
-    onMessage,
-} from './apis'
+export { sendMessage, onMessage } from "./apis";

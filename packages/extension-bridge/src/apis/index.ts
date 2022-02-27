@@ -1,2 +1,2 @@
-export * from './onMessage'
-export * from './sendMessage'
+export * from "./onMessage";
+export * from "./sendMessage";

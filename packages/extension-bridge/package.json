@@ -27,7 +27,7 @@
   "scripts": {
     "build": "tsup src/index.ts src/window/index.ts --format esm,cjs --dts",
     "test": "echo 'no-tests'",
-    "lint": "eslint --fix"
+    "lint": "prettier --write ."
   },
   "files": [
     "dist"
