@@ -1,8 +1,7 @@
 import KeyRing from "@enkryptcom/keyring"
 import { SignerType } from "@enkryptcom/types";
 import BrowseStorage from "@/libs/browser-storage"
-
-console.log("here")
+import { onMessage, sendMessage } from '@enkryptcom/extension-bridge'
 const storage = new BrowseStorage("KeyRing")
 const kr = new KeyRing(storage)
 // kr.init("test pass").then(() => {
@@ -20,4 +19,12 @@ kr.unlockMnemonic("test pass").then(() => {
     })
 })
 
+onMessage('show-message', async (message) => {
+    console.log(JSON.stringify(message), "background-script")
+})
+
+
+// setInterval(() => {
+//     sendMessage('show-message', { frombackground: true }, 'content-script@642')
+// }, 3000)
 console.log("hello from background script");

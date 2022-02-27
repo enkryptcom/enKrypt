@@ -1,6 +1,6 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { JsonValue } from 'type-fest'
-import { GetDataType, GetReturnType, OnMessageCallback, DataTypeKey } from '../types'
+import { GetDataType, GetReturnType, OnMessageCallback, DataTypeKey } from '../../types'
 import { onMessageListeners } from '../internal'
 
 export function onMessage<

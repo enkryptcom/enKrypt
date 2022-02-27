@@ -3,12 +3,11 @@ const { configs } = require("eslint-plugin-prettier");
 
 const scripts = {
   background: "./src/scripts/background.ts",
-  contentscript: "./src/scripts/contentscript.ts",
 };
 
 const setConfig = (config) => {
   for (let [name, path] of Object.entries(scripts)) {
-    config.entry(name).add(path);
+    config.entry(name).add(path).end();
   }
   const userScripts = Object.keys(scripts);
 

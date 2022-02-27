@@ -1,20 +1,10 @@
 import type { JsonValue } from 'type-fest'
-import browser, { Runtime } from 'webextension-polyfill'
+import { Runtime } from 'webextension-polyfill'
 import { serializeError } from 'serialize-error'
 import uuid from 'tiny-uid'
-import { RuntimeContext, OnMessageCallback, IQueuedMessage, IInternalMessage, IBridgeMessage } from './types'
-import { hasAPI, parseEndpoint, getBackgroundPageType } from './utils'
+import { RuntimeContext, OnMessageCallback, IQueuedMessage, IInternalMessage, IBridgeMessage } from '../types'
 
-export const context: RuntimeContext
-  = hasAPI('devtools')
-    ? 'devtools'
-    : hasAPI('tabs')
-      ? getBackgroundPageType()
-      : hasAPI('extension')
-        ? 'content-script'
-        : (typeof document !== 'undefined')
-          ? 'window'
-          : null
+export const context: RuntimeContext = 'window'
 
 const runtimeId: string = uuid()
 export const openTransactions = new Map<string, { resolve: (v: void | JsonValue | PromiseLike<JsonValue>) => void; reject: (e: JsonValue) => void }>()
@@ -22,7 +12,7 @@ export const onMessageListeners = new Map<string, OnMessageCallback<JsonValue>>(
 const messageQueue = new Set<IQueuedMessage>()
 const portMap = new Map<string, Runtime.Port>()
 
-let port: Runtime.Port = null
+const port: Runtime.Port = null
 
 // these facilitate communication with window contexts ("injected scripts")
 let namespace: string
@@ -108,98 +98,7 @@ const handleInboundMessage = async (message: IInternalMessage): Promise<void> =>
 }
 
 const initIntercoms = () => {
-  if (context === null)
-    throw new Error('Unable to detect runtime context i.e webext-bridge can\'t figure out what to do')
-
-  if (context === 'window' || context === 'content-script')
-    window.addEventListener('message', handleWindowOnMessage)
-
-  if (context === 'content-script' && top === window) {
-    port = browser.runtime.connect()
-    port.onMessage.addListener((message: IInternalMessage) => {
-      routeMessage(message)
-    })
-  }
-
-  if (context === 'content-script' && top !== window) {
-    // This check will pass only if this is run inside an iframe. This is not necessary,
-    // as it does the same as the above, but the `top === window` can be important in the future.
-    port = browser.runtime.connect()
-    port.onMessage.addListener((message: IInternalMessage) => {
-      routeMessage(message)
-    })
-  }
-
-  if (context === 'devtools') {
-    const { tabId } = browser.devtools.inspectedWindow
-    const name = `devtools@${tabId}`
-
-    port = browser.runtime.connect(undefined, { name })
-
-    port.onMessage.addListener((message: IInternalMessage) => {
-      routeMessage(message)
-    })
-
-    port.onDisconnect.addListener(() => {
-      port = null
-    })
-  }
-
-  if (context === 'popup' || context === 'options') {
-    const name = `${context}`
-
-    port = browser.runtime.connect(undefined, { name })
-
-    port.onMessage.addListener((message: IInternalMessage) => {
-      routeMessage(message)
-    })
-
-    port.onDisconnect.addListener(() => {
-      port = null
-    })
-  }
-
-  if (context === 'background') {
-    browser.runtime.onConnect.addListener((incomingPort) => {
-      // when coming from devtools, it's should pre-fabricated with inspected tab as linked tab id
-
-      let portId = incomingPort.name || `content-script@${incomingPort.sender.tab.id}`
-
-      const portFrame = incomingPort.sender.frameId
-
-      if (portFrame)
-        portId = `${portId}.${portFrame}`
-
-      // literal tab id in case of content script, however tab id of inspected page in case of devtools context
-      const { context: _context, tabId: linkedTabId } = parseEndpoint(portId)
-
-      // in-case the port handshake is from something else
-      if (!linkedTabId && _context !== 'popup' && _context !== 'options')
-        return
-
-      portMap.set(portId, incomingPort)
-
-      messageQueue.forEach((queuedMsg) => {
-        if (queuedMsg.resolvedDestination === portId) {
-          incomingPort.postMessage(queuedMsg.message)
-          messageQueue.delete(queuedMsg)
-        }
-      })
-
-      incomingPort.onDisconnect.addListener(() => {
-        portMap.delete(portId)
-      })
-
-      incomingPort.onMessage.addListener((message: IInternalMessage) => {
-        if (message?.origin?.context) {
-          // origin tab ID is resolved from the port identifier (also prevent "MITM attacks" of extensions)
-          message.origin.tabId = linkedTabId
-
-          routeMessage(message)
-        }
-      })
-    })
-  }
+  window.addEventListener('message', handleWindowOnMessage)
 }
 
 initIntercoms()
@@ -212,16 +111,13 @@ export const routeMessage = (message: IInternalMessage): void | Promise<void> =>
 
   message.hops.push(runtimeId)
 
-  if (context === 'content-script'
-    && [destination, origin].some(endpoint => endpoint?.context === 'window')
-    && !isWindowMessagingAllowed)
-    return
-
   // if previous hop removed the destination before forwarding the message, then this itself is the recipient
   if (!destination) {
     handleInboundMessage(message)
     return;
   }
+
+
   if (destination.context) {
     if (context === 'window') {
       routeMessageThroughWindow(window, message)
@@ -293,8 +189,8 @@ async function handleWindowOnMessage({ data, ports }: MessageEvent) {
         context: 'window',
         tabId: null,
       }
-      delete payload.destination
     }
+
     routeMessage(payload)
   }
 }
