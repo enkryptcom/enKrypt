@@ -12,7 +12,7 @@ const kr = new KeyRing(storage);
 //     kr.createKey({
 //         basePath: "//",
 //         name: "abc",
-//         type: SignerType.sr25519
+//         type: SignerType.sr25519``
 //     }).then((key) => {
 //         console.log("end")
 //         console.log(key)

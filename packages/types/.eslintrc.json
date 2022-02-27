@@ -12,6 +12,7 @@
   "globals": {},
   "rules": {
     "@typescript-eslint/no-var-requires": "off",
+    "@typescript-eslint/no-explicit-any": "off",
     "no-multi-assign": "off",
     "no-param-reassign": "off",
     "no-underscore-dangle": "off",

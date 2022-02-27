@@ -17,6 +17,7 @@
   },
   "scripts": {
     "test": "yarn workspaces run test",
+    "lint": "yarn workspaces run lint",
     "build:all": "ultra -r build",
     "watch:all": "nodemon --exec 'yarn run build:all && node scripts/compile-done.js'"
   },

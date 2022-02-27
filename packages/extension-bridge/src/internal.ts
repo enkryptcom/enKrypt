@@ -293,7 +293,8 @@ async function handleWindowOnMessage({ data, ports }: MessageEvent) {
         context: 'window',
         tabId: null,
       }
-      delete payload.destination
+      if (payload.destination.context === 'content-script')
+        delete payload.destination
     }
     routeMessage(payload)
   }
