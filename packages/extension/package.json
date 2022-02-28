@@ -7,7 +7,7 @@
     "build": "vue-cli-service build --no-clean && npm run build:rollup",
     "build:prod": "vue-cli-service build && npm run build:rollup",
     "lint": "vue-cli-service lint --fix",
-    "test": "echo 'no tests'",
+    "test": "ts-mocha --paths -p tsconfig.json ./**/*.test.ts",
     "build:rollup": "rollup --config configs/rollup.config.contentscript.js && rollup --config configs/rollup.config.inject.js",
     "inspectWebpack": "vue-cli-service inspect > webpack.log"
   },
@@ -30,6 +30,7 @@
     "@rollup/plugin-commonjs": "^21.0.2",
     "@rollup/plugin-node-resolve": "^13.1.3",
     "@rollup/plugin-typescript": "^8.3.1",
+    "@types/mocha": "^9.1.0",
     "@typescript-eslint/eslint-plugin": "^4.33.0",
     "@typescript-eslint/parser": "^4.33.0",
     "@vue/cli-plugin-babel": "~4.5.15",
@@ -43,12 +44,15 @@
     "eslint-plugin-prettier": "^3.3.1",
     "eslint-plugin-vue": "^7.0.0",
     "events": "^3.3.0",
+    "mocha": "^9.2.0",
     "prettier": "^2.2.1",
     "rollup": "^2.68.0",
     "rollup-plugin-node-builtins": "^2.1.2",
     "rollup-plugin-node-globals": "^1.4.0",
     "rollup-plugin-node-polyfills": "^0.2.1",
     "rollup-plugin-uglify": "^6.0.4",
+    "ts-mocha": "^9.0.2",
+    "tsconfig-paths": "^3.12.0",
     "typescript": "~4.1.5",
     "webextension-polyfill": "^0.8.0"
   }

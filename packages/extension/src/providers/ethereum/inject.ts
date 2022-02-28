@@ -1,6 +1,7 @@
 import { EventEmitter } from "events";
 import MessageHandler from "./libs/message-handler";
 import { ProviderMessage } from "./types";
+import { Provider as ProviderType } from "@/types/messenger";
 export class Provider extends EventEmitter {
   chainId: string;
   isEnkrypt: boolean;
@@ -43,6 +44,6 @@ export class Provider extends EventEmitter {
   }
 }
 export default {
-  name: "ethereum1",
+  name: ProviderType.ethereum,
   provider: Provider,
 };
