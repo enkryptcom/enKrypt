@@ -12,6 +12,7 @@ import {
   Destination,
   onMessgeType,
 } from "@/types/messenger";
+import { Provider } from "@/types/provider";
 import { assert } from "chai";
 
 export const sendToBackgroundFromWindow = (
@@ -23,6 +24,15 @@ export const sendToBackgroundFromWindow = (
   );
 };
 
+export const providerSendMessage = (
+  provider: Provider,
+  message: string
+): Promise<Response> => {
+  return sendToBackgroundFromWindow(MessageType.REQUEST, {
+    provider: provider.name,
+    message: message,
+  });
+};
 export const setWindowNamespace = (): void => {
   setNamespace(EXTENSION_NAMESPACE);
 };

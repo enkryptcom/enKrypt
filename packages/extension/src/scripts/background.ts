@@ -2,7 +2,8 @@
 // import { SignerType } from "@enkryptcom/types";
 // import BrowseStorage from "@/libs/browser-storage";
 import { backgroundOnMessage, sendToWindow } from "@/libs/messenger/extension";
-import { MessageType, Provider, Response } from "@/types/messenger";
+import { MessageType, Response } from "@/types/messenger";
+import { ProviderName } from "@/types/provider";
 // const storage = new BrowseStorage("KeyRing");
 // const kr = new KeyRing(storage);
 // kr.init("test pass").then(() => {
@@ -25,7 +26,7 @@ backgroundOnMessage(MessageType.REQUEST, async (msg): Promise<Response> => {
   sendToWindow(
     MessageType.REQUEST,
     {
-      provider: Provider.ethereum,
+      provider: ProviderName.ethereum,
       message: JSON.stringify({
         method: "changeConnected",
         params: [true, "0x1"],

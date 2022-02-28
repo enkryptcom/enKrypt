@@ -5,9 +5,17 @@ import {
   EmitEvent,
   ProviderConnectInfo,
 } from "../types";
+import {
+  handleIncomingMessage as handleIncomingMessageType,
+  handleOutgoingMessage as handleOutgoingMessageType,
+} from "@/types/provider";
+import { Response } from "@/types/messenger";
 import { getError } from "./error-handler";
 
-const handleMessage = (provider: Provider, message: string): void => {
+const handleIncomingMessage: handleIncomingMessageType = (
+  provider: Provider,
+  message: string
+): void => {
   try {
     const jsonMsg = JSON.parse(message) as ProviderMessage;
     if (jsonMsg.method === MessageMethod.changeConnected) {
@@ -47,5 +55,12 @@ const handleMessage = (provider: Provider, message: string): void => {
     console.error(e);
   }
 };
-
-export default handleMessage;
+const handleOutgoingMessage: handleOutgoingMessageType = async (
+  provider: Provider,
+  message: string
+): Promise<Response> => {
+  return {
+    result: "hello",
+  };
+};
+export { handleIncomingMessage };
