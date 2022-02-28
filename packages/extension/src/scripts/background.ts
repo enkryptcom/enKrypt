@@ -1,8 +1,8 @@
 // import KeyRing from "@enkryptcom/keyring";
 // import { SignerType } from "@enkryptcom/types";
 // import BrowseStorage from "@/libs/browser-storage";
-import { backgroundOnMessage } from "@/libs/messenger/extension";
-import { MessageType, Response } from "@/types/messenger";
+import { backgroundOnMessage, sendToWindow } from "@/libs/messenger/extension";
+import { MessageType, Provider, Response } from "@/types/messenger";
 // const storage = new BrowseStorage("KeyRing");
 // const kr = new KeyRing(storage);
 // kr.init("test pass").then(() => {
@@ -22,6 +22,14 @@ import { MessageType, Response } from "@/types/messenger";
 
 backgroundOnMessage(MessageType.REQUEST, async (msg): Promise<Response> => {
   console.log(msg);
+  sendToWindow(
+    MessageType.REQUEST,
+    {
+      provider: Provider.ethereum,
+      message: "hello window",
+    },
+    msg.sender.tabId
+  ).then(console.log);
   return {
     result: "hello from background",
   };

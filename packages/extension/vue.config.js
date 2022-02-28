@@ -4,8 +4,13 @@ module.exports = {
   pages: {
     action: {
       template: "public/index.html",
-      entry: "./src/action/main.ts",
+      entry: "./src/ui/action/main.ts",
       title: "Action",
+    },
+    onboard: {
+      template: "public/index.html",
+      entry: "./src/ui/onboard/main.ts",
+      title: "onboard",
     },
   },
   devServer: {

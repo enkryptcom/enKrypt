@@ -8,7 +8,7 @@ export default {
   input: [],
   output: {
     dir: "dist/scripts",
-    format: "cjs",
+    format: "iife",
     sourcemap: true,
   },
   plugins: [

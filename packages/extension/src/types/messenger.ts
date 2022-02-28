@@ -1,3 +1,5 @@
+import { Endpoint } from "@enkryptcom/extension-bridge/dist/types";
+
 export enum MessageType {
   REQUEST = "enkrypt_request",
 }
@@ -7,12 +9,15 @@ export enum Destination {
   window = "window",
 }
 export enum Provider {
-  ethreum = "ethereum",
+  ethereum = "ethereum",
 }
-export interface Message {
-  [key: string]: string;
+export interface SendMessage {
+  [key: string]: any;
   provider: Provider;
   message: string;
+}
+export interface Message extends SendMessage {
+  sender: Endpoint;
 }
 export interface Response {
   result: string;

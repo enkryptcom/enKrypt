@@ -10,12 +10,13 @@ import {
   Response,
   Destination,
   onMessgeType,
+  SendMessage,
 } from "@/types/messenger";
-import assert from "assert";
+import { assert } from "chai";
 
 export const sendToWindow = (
   type: MessageType,
-  message: Message,
+  message: SendMessage,
   tabId: number
 ): Promise<Response> => {
   return sendMessage(type, message, `${Destination.window}@${tabId}`).then(
@@ -37,6 +38,7 @@ export const backgroundOnMessage = (
       "Message didnt come from window or popup"
     );
     const msg = message.data as Message;
+    msg.sender = message.sender;
     return cb(msg);
   });
 };

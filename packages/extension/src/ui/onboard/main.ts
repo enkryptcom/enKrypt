@@ -1,6 +1,6 @@
 import { createApp } from "vue";
 // import KeyRing from "@enkryptcom/keyring"
-import App from "@/App.vue";
+import App from "./App.vue";
 // import { SignerType } from "@enkryptcom/types";
 
 // import "bootstrap";
