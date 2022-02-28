@@ -9,6 +9,7 @@ export enum Destination {
   window = "window",
 }
 export enum Provider {
+  enkrypt = "enkrypt",
   ethereum = "ethereum",
 }
 export interface SendMessage {
@@ -24,4 +25,4 @@ export interface Response {
   error?: Error;
 }
 
-export type onMessgeType = (messge: Message) => Promise<Response>;
+export type onMessgeType = (messge: Message) => Promise<Response | void>;

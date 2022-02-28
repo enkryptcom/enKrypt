@@ -26,7 +26,10 @@ backgroundOnMessage(MessageType.REQUEST, async (msg): Promise<Response> => {
     MessageType.REQUEST,
     {
       provider: Provider.ethereum,
-      message: "hello window",
+      message: JSON.stringify({
+        method: "changeConnected",
+        params: [true, "0x1"],
+      }),
     },
     msg.sender.tabId
   ).then(console.log);

@@ -1,37 +1,48 @@
 import { EventEmitter } from "events";
-
-class Provider extends EventEmitter {
+import MessageHandler from "./libs/message-handler";
+import { ProviderMessage } from "./types";
+export class Provider extends EventEmitter {
   chainId: string;
-  isMetaMask: boolean;
-  networkVersion: string;
-  selectedAddress: string;
+  isEnkrypt: boolean;
+  selectedAddress: string | null;
+  connected: boolean;
   constructor() {
     super();
-    this.chainId = "0x1";
-    this.isMetaMask = true;
-    this.networkVersion = "1";
-    this.selectedAddress = "0xDECAF9CD2367cdbb726E904cD6397eDFcAe6068D";
+    this.chainId = "0x1"; //deprecated
+    this.isEnkrypt = true;
+    this.selectedAddress = null; //deprecated
+    this.connected = true;
   }
-  request(req: unknown) {
+  async request(req: unknown) {
     console.log("request", req);
   }
   enable() {
     return this.request({ method: "eth_requestAccounts" });
   }
-  netVersion() {
-    return this.request({ method: "net_version" });
-  }
   isConnected(): boolean {
-    return true;
+    return this.connected;
   }
-  send(msg: unknown): void {
-    console.log("send", msg);
+  //deprecated
+  send(data: unknown, callback: (err: Error | null, res?: any) => void): void {
+    const { method, params } = data as ProviderMessage;
+    this.request({ method, params })
+      .then((res) => {
+        callback(null, res);
+      })
+      .catch((err) => callback(err));
   }
-  sendAsync(msg: unknown): void {
-    console.log("sendAsync", msg);
+  //deprecated
+  sendAsync(
+    data: unknown,
+    callback: (err: Error | null, res?: any) => void
+  ): void {
+    this.send(data, callback);
+  }
+  handleMessage(msg: string): void {
+    MessageHandler(this, msg);
   }
 }
 export default {
-  name: "ethereum",
+  name: "ethereum1",
   provider: Provider,
 };

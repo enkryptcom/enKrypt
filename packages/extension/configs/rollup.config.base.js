@@ -16,6 +16,6 @@ export default {
     commonjs(),
     nodePolyfills(),
     nodeResolve({ preferBuiltins: false }),
-    uglify(),
+    // uglify(),
   ],
 };
