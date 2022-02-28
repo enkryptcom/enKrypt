@@ -17,11 +17,11 @@ const handleMessage = (provider: Provider, message: string): void => {
         const connectionInfo: ProviderConnectInfo = {
           chainId: jsonMsg.params[1] as string,
         };
-        provider.emit(EmitEvent.connect, connectionInfo);
         if (provider.chainId !== connectionInfo.chainId) {
           provider.chainId = connectionInfo.chainId;
           provider.emit(EmitEvent.chainChanged, connectionInfo.chainId);
         }
+        provider.emit(EmitEvent.connect, connectionInfo);
       } else {
         provider.emit(
           EmitEvent.disconnect,
