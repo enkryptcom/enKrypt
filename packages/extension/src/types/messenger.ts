@@ -18,7 +18,7 @@ export interface Message extends SendMessage {
   sender: Endpoint;
 }
 export interface Response {
-  result: string;
-  error?: string | Error;
+  result?: string;
+  error?: string;
 }
 export type onMessgeType = (messge: Message) => Promise<Response | void>;

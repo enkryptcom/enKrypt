@@ -1,10 +1,5 @@
 import { expect } from "chai";
-import {
-  ProviderName,
-  ProviderOptions,
-  ProviderType,
-  Provider,
-} from "@/types/provider";
+import { ProviderName, ProviderType, Provider } from "@/types/provider";
 import EthereumInject from "../inject";
 import { MessageMethod, EmitEvent } from "../types";
 import { Response } from "@/types/messenger";
@@ -14,7 +9,7 @@ const providerSendMessage = async (
   message: string
 ): Promise<Response> => {
   return {
-    result: "test",
+    result: `dummy-response-${provider.name}-${message}`,
   };
 };
 const options = {

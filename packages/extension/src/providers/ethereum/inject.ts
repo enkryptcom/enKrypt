@@ -1,6 +1,6 @@
 import { EventEmitter } from "events";
 import { handleIncomingMessage } from "./libs/message-handler";
-import { ProviderMessage, EthereumRequest, EthereumResponse } from "./types";
+import { EthereumRequest, EthereumResponse } from "./types";
 import {
   ProviderName,
   ProviderOptions,
@@ -27,12 +27,12 @@ export class Provider extends EventEmitter implements ProviderInterface {
     this.type = options.type;
     this.sendMessageHandler = options.sendMessageHandler;
   }
-  [x: number]: unknown;
-  [x: string]: unknown;
-
   async request(request: EthereumRequest): Promise<EthereumResponse> {
-    const response = this.sendMessageHandler(this, JSON.stringify(request));
-    return response as EthereumResponse;
+    const res = (await this.sendMessageHandler(
+      this,
+      JSON.stringify(request)
+    )) as EthereumResponse;
+    return res;
   }
   enable(): Promise<any> {
     return this.request({ method: "eth_requestAccounts" });
@@ -41,20 +41,20 @@ export class Provider extends EventEmitter implements ProviderInterface {
     return this.connected;
   }
   //deprecated
-  send(data: unknown, callback: (err: Error | null, res?: any) => void): void {
-    const { method, params } = data as ProviderMessage;
-    this.request({ method, params })
-      .then((res) => {
-        callback(null, res);
-      })
-      .catch((err) => callback(err));
+  send(method: string, params?: Array<unknown>): Promise<EthereumResponse> {
+    return this.request({ method, params });
   }
   //deprecated
   sendAsync(
     data: unknown,
     callback: (err: Error | null, res?: any) => void
   ): void {
-    this.send(data, callback);
+    const { method, params } = data as EthereumRequest;
+    this.request({ method, params })
+      .then((res) => {
+        callback(null, res);
+      })
+      .catch((err) => callback(err));
   }
   handleMessage(msg: string): void {
     handleIncomingMessage(this, msg);

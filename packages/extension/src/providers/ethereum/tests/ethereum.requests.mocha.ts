@@ -1,0 +1,70 @@
+import { expect } from "chai";
+import { ProviderName, ProviderType, Provider } from "@/types/provider";
+import EthereumInject from "../inject";
+import { EthereumRequest } from "../types";
+import { Response } from "@/types/messenger";
+import { getError } from "../libs/error-handler";
+
+const requestHandler = (request: string): Response => {
+  const req = JSON.parse(request) as EthereumRequest;
+  if (req.method === "eth_chainId")
+    return {
+      result: JSON.stringify("0x1"),
+    };
+  else if (req.method === "eth_requestAccounts")
+    return {
+      error: JSON.stringify(getError(4001)),
+    };
+  else if (req.method === "eth_accounts")
+    return {
+      result: JSON.stringify(["0xDECAF9CD2367cdbb726E904cD6397eDFcAe6068D"]),
+    };
+  return {
+    error: JSON.stringify(getError(4200)),
+  };
+};
+const providerSendMessage = async (
+  provider: Provider,
+  message: string
+): Promise<any> => {
+  if (provider.name === ProviderName.ethereum) {
+    const res = requestHandler(message);
+    if (res.error) throw JSON.parse(res.error);
+    else return JSON.parse(res.result as string);
+  }
+};
+const options = {
+  name: ProviderName.ethereum,
+  type: ProviderType.evm,
+  sendMessageHandler: providerSendMessage,
+};
+const tempWindow: EnkryptWindow = {
+  enkrypt: {
+    providers: {},
+  },
+};
+describe("Test Ethereum reponses", () => {
+  it("should send proper responses", async () => {
+    EthereumInject(tempWindow, options);
+    const provider = tempWindow[ProviderName.ethereum] as Provider;
+    expect(await provider.request({ method: "eth_chainId" })).to.equal("0x1");
+    await provider.request({ method: "eth_requestAccounts" }).catch((e) => {
+      expect(e).to.be.deep.equal({
+        code: 4001,
+        message: "User Rejected Request: The user rejected the request.",
+      });
+    });
+    await provider.request({ method: "eth_unknownMethod" }).catch((e) => {
+      expect(e).to.be.deep.equal({
+        code: 4200,
+        message:
+          "Unsupported Method: The Provider does not support the requested method.",
+      });
+    });
+    await provider.request({ method: "eth_accounts" }).then((res) => {
+      expect(res).to.be.deep.equal([
+        "0xDECAF9CD2367cdbb726E904cD6397eDFcAe6068D",
+      ]);
+    });
+  });
+});

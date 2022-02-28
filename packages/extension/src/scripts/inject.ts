@@ -1,6 +1,5 @@
 import {
   setWindowNamespace,
-  sendToBackgroundFromWindow,
   windowOnMessage,
   providerSendMessage,
 } from "@/libs/messenger/window";
@@ -17,7 +16,7 @@ window.enkrypt = {
 // }).then(console.log);
 
 windowOnMessage(MessageType.REQUEST, async (msg): Promise<Response | void> => {
-  window[msg.provider].handleMessage(msg.message);
+  window["enkrypt"]["providers"][msg.provider].handleMessage(msg.message);
 });
 
 console.log("hello from injected code");

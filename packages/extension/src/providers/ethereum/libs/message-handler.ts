@@ -5,11 +5,7 @@ import {
   EmitEvent,
   ProviderConnectInfo,
 } from "../types";
-import {
-  handleIncomingMessage as handleIncomingMessageType,
-  handleOutgoingMessage as handleOutgoingMessageType,
-} from "@/types/provider";
-import { Response } from "@/types/messenger";
+import { handleIncomingMessage as handleIncomingMessageType } from "@/types/provider";
 import { getError } from "./error-handler";
 
 const handleIncomingMessage: handleIncomingMessageType = (
@@ -55,12 +51,5 @@ const handleIncomingMessage: handleIncomingMessageType = (
     console.error(e);
   }
 };
-const handleOutgoingMessage: handleOutgoingMessageType = async (
-  provider: Provider,
-  message: string
-): Promise<Response> => {
-  return {
-    result: "hello",
-  };
-};
+
 export { handleIncomingMessage };

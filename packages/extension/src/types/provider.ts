@@ -39,6 +39,6 @@ export type handleIncomingMessage = (
 export type handleOutgoingMessage = (
   provider: Provider,
   message: string
-) => Promise<Response>;
+) => Promise<any>;
 
 export type Provider = EthereumProvider;

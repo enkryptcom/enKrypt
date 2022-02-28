@@ -27,10 +27,13 @@ export const sendToBackgroundFromWindow = (
 export const providerSendMessage = (
   provider: Provider,
   message: string
-): Promise<Response> => {
+): Promise<any> => {
   return sendToBackgroundFromWindow(MessageType.REQUEST, {
     provider: provider.name,
     message: message,
+  }).then((res) => {
+    if (res.error) throw JSON.parse(res.error);
+    else return JSON.parse(res.result as string);
   });
 };
 export const setWindowNamespace = (): void => {
