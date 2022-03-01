@@ -51,8 +51,8 @@ class RPCClient extends EventEmitter implements RequestClass {
 
     return new Promise((resolve, reject) => {
       const callback = (error, result) => {
-        if (error) return reject(error.error);
-        return resolve(result.result);
+        if (error) return reject(error);
+        return resolve(result);
       };
       this.middleware
         .run(req, callback)

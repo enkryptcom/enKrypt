@@ -16,7 +16,7 @@ export interface WSQueueType {
     request: RPCRequestType;
   };
 }
-export type CallbackFunction = (err: Error, result: any) => void;
+export type CallbackFunction = (err: Error, result?: any) => void;
 export type NextFunction = () => void;
 export type MiddlewareFunction = (
   payload: RPCRequestType,

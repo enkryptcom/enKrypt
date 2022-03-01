@@ -93,8 +93,8 @@ class WSClient extends EventEmitter implements RequestClass {
     if (this.isOpen()) {
       return new Promise((resolve, reject) => {
         const callback = (error, result) => {
-          if (error) return reject(error.error);
-          return resolve(result.result);
+          if (error) return reject(error);
+          return resolve(result);
         };
         this.middleware.run(req, callback).then(() =>
           this.client.request(req.method, req.params).then(
