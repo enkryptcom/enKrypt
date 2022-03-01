@@ -20,9 +20,8 @@ class RPCClient extends EventEmitter implements RequestClass {
     this.middleware = new MiddleWare();
     middlewares.forEach((mw) => this.middleware.use(mw));
     this.url = url;
-    this.client = new JSONRPCClient((jsonRPCRequest) => {
-      console.log(jsonRPCRequest);
-      return fetch(this.url, {
+    this.client = new JSONRPCClient((jsonRPCRequest) =>
+      fetch(this.url, {
         method: "POST",
         headers: {
           "content-type": "application/json",
@@ -38,8 +37,8 @@ class RPCClient extends EventEmitter implements RequestClass {
           return Promise.reject(new Error(response.statusText));
         }
         return Promise.reject(new Error(`unknown error: ${response.status}`));
-      });
-    });
+      })
+    );
   }
 
   changeNetwork(url: string): void {

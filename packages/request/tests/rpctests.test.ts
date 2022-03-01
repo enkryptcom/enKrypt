@@ -1,11 +1,9 @@
 import { expect } from "chai";
 import Request from "../src";
 
-describe("Websocket RPC calls", () => {
-  const wsRequest = Request("wss://nodes.mewapi.io/ws/eth", [], {
-    headers: { "User-Agent": " Mozilla/5.0" },
-  });
-  it("websockets calls should properly respond", async () => {
+describe("RPC calls", () => {
+  const wsRequest = Request("https://nodes.mewapi.io/rpc/eth", []);
+  it("rpc calls should properly respond", async () => {
     const chainId = await wsRequest.request({ method: "eth_chainId" });
     expect(chainId).to.equal("0x1");
     await wsRequest.request({ method: "eth_wrongMethod" }).catch((e) => {

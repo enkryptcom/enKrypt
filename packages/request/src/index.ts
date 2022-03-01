@@ -5,7 +5,7 @@ import RPCClient from "./libs/rpcClient";
 export default (
   url: string,
   middlewares: MiddlewareFunction[],
-  options: any
+  options?: any
 ): RequestClass => {
   if (/^http(s)?:\/\//i.test(url)) {
     return new RPCClient(url, middlewares);

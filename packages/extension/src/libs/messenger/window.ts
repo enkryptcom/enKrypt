@@ -32,7 +32,7 @@ export const providerSendMessage = (
     provider: provider.name,
     message: message,
   }).then((res) => {
-    if (res.error) throw JSON.parse(res.error);
+    if (res.error) return Promise.reject(JSON.parse(res.error));
     else return JSON.parse(res.result as string);
   });
 };

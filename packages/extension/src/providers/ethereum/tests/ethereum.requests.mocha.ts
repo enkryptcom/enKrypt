@@ -29,7 +29,7 @@ const providerSendMessage = async (
 ): Promise<any> => {
   if (provider.name === ProviderName.ethereum) {
     const res = requestHandler(message);
-    if (res.error) throw JSON.parse(res.error);
+    if (res.error) return Promise.reject(JSON.parse(res.error));
     else return JSON.parse(res.result as string);
   }
 };

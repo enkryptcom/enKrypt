@@ -43,7 +43,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/<FILL_IT>"
+    "url": "git+https://github.com/enkryptcom/enKrypt/tree/main/packages/storage"
   },
   "keywords": [],
   "author": "kvhnuke",
