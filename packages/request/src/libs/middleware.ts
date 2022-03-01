@@ -1,4 +1,8 @@
-import { MiddlewareFunction, RPCRequestType, CallbackFunction } from "../types";
+import {
+  MiddlewareFunction,
+  RPCRequestType,
+  CallbackFunction,
+} from "@enkryptcom/types";
 
 class Middleware {
   middlewares: MiddlewareFunction[];

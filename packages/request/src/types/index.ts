@@ -1,14 +1,5 @@
 import EventEmitter from "events";
-
-export interface RPCRequestType {
-  method: string;
-  params?: Array<any>;
-}
-
-export interface RPCResponseType {
-  result?: any;
-  error?: any;
-}
+import { RPCRequestType, MiddlewareFunction } from "@enkryptcom/types";
 
 export interface WSQueueType {
   [key: string]: {
@@ -16,13 +7,6 @@ export interface WSQueueType {
     request: RPCRequestType;
   };
 }
-export type CallbackFunction = (err: Error, result?: any) => void;
-export type NextFunction = () => void;
-export type MiddlewareFunction = (
-  payload: RPCRequestType,
-  response: CallbackFunction,
-  next: NextFunction
-) => void;
 
 export interface WSOptions {
   headers?: Record<string, string>;

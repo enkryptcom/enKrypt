@@ -1,4 +1,5 @@
-import { RequestClass, MiddlewareFunction } from "./types";
+import { MiddlewareFunction } from "@enkryptcom/types";
+import { RequestClass } from "./types";
 import WSClient from "./libs/wsClient";
 import RPCClient from "./libs/rpcClient";
 

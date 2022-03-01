@@ -1,9 +1,9 @@
 import EventEmitter from "events";
 import { JSONRPCClient } from "json-rpc-2.0";
 import fetch from "node-fetch";
+import { MiddlewareFunction, RPCRequestType } from "@enkryptcom/types";
+import { RequestClass } from "../types";
 import MiddleWare from "./middleware";
-
-import { MiddlewareFunction, RPCRequestType, RequestClass } from "../types";
 
 class RPCClient extends EventEmitter implements RequestClass {
   url: string;

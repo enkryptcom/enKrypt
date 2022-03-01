@@ -16,6 +16,7 @@
     "node": ">=14.15.0"
   },
   "dependencies": {
+    "@enkryptcom/types": "^0.0.1",
     "isomorphic-ws": "^4.0.1",
     "json-rpc-2.0": "^1.1.0",
     "node-fetch": "2",

@@ -1,6 +1,6 @@
 import { expect } from "chai";
+import { MiddlewareFunction } from "@enkryptcom/types";
 import Request from "../src";
-import { MiddlewareFunction } from "../src/types";
 
 describe("Request calls test", () => {
   const rpcRequest = Request("https://nodes.mewapi.io/rpc/eth", []);

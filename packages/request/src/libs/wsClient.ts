@@ -2,15 +2,10 @@ import { JSONRPCClient } from "json-rpc-2.0";
 import EventEmitter from "events";
 import { v4 as uuidv4 } from "uuid";
 import IsomorphicWS from "isomorphic-ws";
+import { MiddlewareFunction, RPCRequestType } from "@enkryptcom/types";
 import WebSocket from "./reconnectingWS";
 import MiddleWare from "./middleware";
-import {
-  MiddlewareFunction,
-  RPCRequestType,
-  RequestClass,
-  WSQueueType,
-  WSOptions,
-} from "../types";
+import { RequestClass, WSQueueType, WSOptions } from "../types";
 
 class WSClient extends EventEmitter implements RequestClass {
   url: string;
