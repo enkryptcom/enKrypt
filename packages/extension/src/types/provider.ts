@@ -1,9 +1,12 @@
 import { InjectedProvider as EthereumProvider } from "../providers/ethereum/types";
 import { OnMessageResponse } from "@enkryptcom/types";
 import EventEmitter from "eventemitter3";
+import { EXTENSION_VERSION } from "@/configs/constants";
+
 export enum ProviderName {
   enkrypt = "enkrypt",
   ethereum = "ethereum",
+  polkadot = "polkadot",
 }
 export enum ProviderType {
   evm,
@@ -24,6 +27,7 @@ export interface ProviderOptions {
 export abstract class ProviderInterface extends EventEmitter {
   name: ProviderName;
   type: ProviderType;
+  version: string = EXTENSION_VERSION;
   sendMessageHandler: SendMessageHandler;
   constructor(options: ProviderOptions) {
     super();
@@ -31,6 +35,7 @@ export abstract class ProviderInterface extends EventEmitter {
     this.type = options.type;
     this.sendMessageHandler = options.sendMessageHandler;
   }
+  abstract handleMessage(msg: string): void;
 }
 
 export type handleIncomingMessage = (

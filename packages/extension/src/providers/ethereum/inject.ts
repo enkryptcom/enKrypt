@@ -8,6 +8,7 @@ import {
   ProviderInterface,
   SendMessageHandler,
 } from "@/types/provider";
+import { EXTENSION_VERSION } from "@/configs/constants";
 
 export class Provider extends EventEmitter implements ProviderInterface {
   chainId: string;
@@ -16,6 +17,7 @@ export class Provider extends EventEmitter implements ProviderInterface {
   connected: boolean;
   name: ProviderName;
   type: ProviderType;
+  version: string = EXTENSION_VERSION;
   sendMessageHandler: SendMessageHandler;
   constructor(options: ProviderOptions) {
     super();
@@ -67,7 +69,7 @@ const injectDocument = (
   options: ProviderOptions
 ): void => {
   const provider = new Provider(options);
-  document[ProviderName.ethereum] = provider;
-  document["enkrypt"]["providers"][ProviderName.ethereum] = provider;
+  document[options.name] = provider;
+  document["enkrypt"]["providers"][options.name] = provider;
 };
 export default injectDocument;

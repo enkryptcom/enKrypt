@@ -5,20 +5,34 @@ import type {
 } from "@polkadot/extension-inject/types";
 
 export default class Accounts implements InjectedAccounts {
-  constructor(_sendRequest: SendRequest) {
+  constructor() {
     // sendRequest = _sendRequest;
   }
 
   public get(anyType?: boolean): Promise<InjectedAccount[]> {
-    // return sendRequest("pub(accounts.list)", { anyType });
+    console.log("get accounts");
+    return Promise.resolve([
+      {
+        address: "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY",
+        genesisHash: "",
+        name: "abcd",
+        type: "sr25519",
+      },
+    ]);
   }
 
   public subscribe(cb: (accounts: InjectedAccount[]) => unknown): Unsubcall {
-    // sendRequest("pub(accounts.subscribe)", null, cb).catch((error: Error) =>
-    //   console.error(error)
-    // );
-    // return (): void => {
-    //   // FIXME we need the ability to unsubscribe
-    // };
+    console.log("acccount subsribe called");
+    cb([
+      {
+        address: "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY",
+        genesisHash: "",
+        name: "abcd",
+        type: "sr25519",
+      },
+    ]);
+    return (): void => {
+      // FIXME we need the ability to unsubscribe
+    };
   }
 }

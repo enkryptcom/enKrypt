@@ -6,6 +6,7 @@ import {
 import { MessageType } from "@/types/messenger";
 import { ProviderName, ProviderType } from "@/types/provider";
 import EthereumProvider from "@/providers/ethereum/inject";
+import PolkadotProvider from "@/providers/polkadot/inject";
 setWindowNamespace();
 window.enkrypt = {
   providers: {},
@@ -17,6 +18,11 @@ windowOnMessage(MessageType.REQUEST, async (msg): Promise<void> => {
 
 console.log("hello from injected code");
 
+PolkadotProvider(window, {
+  name: ProviderName.polkadot,
+  type: ProviderType.substrate,
+  sendMessageHandler: providerSendMessage,
+});
 EthereumProvider(window, {
   name: ProviderName.ethereum,
   type: ProviderType.evm,
