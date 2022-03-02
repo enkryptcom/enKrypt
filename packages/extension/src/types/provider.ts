@@ -1,5 +1,5 @@
 import { InjectedProvider as EthereumProvider } from "../providers/ethereum/types";
-import { Response } from "./messenger";
+import { OnMessageResponse } from "@enkryptcom/types";
 export enum ProviderName {
   enkrypt = "enkrypt",
   ethereum = "ethereum",
@@ -12,7 +12,7 @@ export enum ProviderType {
 export type SendMessageHandler = (
   provider: Provider,
   message: string
-) => Promise<Response>;
+) => Promise<OnMessageResponse>;
 
 export interface ProviderOptions {
   name: ProviderName;

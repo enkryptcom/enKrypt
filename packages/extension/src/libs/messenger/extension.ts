@@ -7,20 +7,20 @@ import { EXTENSION_NAMESPACE } from "@/configs/constants";
 import {
   Message,
   MessageType,
-  Response,
   Destination,
   onMessgeType,
   SendMessage,
 } from "@/types/messenger";
+import { OnMessageResponse } from "@enkryptcom/types";
 import { assert } from "chai";
 
 export const sendToWindow = (
   type: MessageType,
   message: SendMessage,
   tabId: number
-): Promise<Response> => {
+): Promise<OnMessageResponse> => {
   return sendMessage(type, message, `${Destination.window}@${tabId}`).then(
-    (res) => res as unknown as Response
+    (res) => res as unknown as OnMessageResponse
   );
 };
 
@@ -40,5 +40,17 @@ export const backgroundOnMessage = (
     const msg = message.data as Message;
     msg.sender = message.sender;
     return cb(msg);
+  });
+};
+export const backgroundOnMessageFromWindow = (
+  type: MessageType,
+  cb: onMessgeType
+): void => {
+  backgroundOnMessage(type, async (message) => {
+    assert(
+      message.sender.context === "window",
+      "Message didnt come from window"
+    );
+    return cb(message);
   });
 };

@@ -8,6 +8,7 @@ export enum MessageMethod {
   changeChainId = "changeChainId",
   changeAddress = "changeAddress",
   changeConnected = "changeConnected",
+  subscription = "eth_subscription",
 }
 
 export enum EmitEvent {
@@ -47,6 +48,17 @@ export interface ProviderConnectInfo {
 export interface EthereumRequest {
   method: string;
   params?: Array<any>;
+}
+export interface EthereumNodeType {
+  name: string;
+  name_long: string;
+  homePage: string;
+  blockExplorerTX: string;
+  blockExplorerAddr: string;
+  chainID: number;
+  isTestNetwork: boolean;
+  currencyName: string;
+  node: string;
 }
 
 export { InjectedProvider };

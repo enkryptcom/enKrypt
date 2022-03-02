@@ -17,6 +17,8 @@ export abstract class RequestClass extends EventEmitter {
 
   middlewares: MiddlewareFunction[];
 
+  on: any;
+
   constructor(url: string, middlewares: MiddlewareFunction[]) {
     super();
     this.url = url;

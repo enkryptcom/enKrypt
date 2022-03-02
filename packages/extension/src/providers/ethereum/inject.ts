@@ -28,10 +28,12 @@ export class Provider extends EventEmitter implements ProviderInterface {
     this.sendMessageHandler = options.sendMessageHandler;
   }
   async request(request: EthereumRequest): Promise<EthereumResponse> {
+    console.log(request);
     const res = (await this.sendMessageHandler(
       this,
       JSON.stringify(request)
     )) as EthereumResponse;
+    console.log(res);
     return res;
   }
   enable(): Promise<any> {
@@ -44,7 +46,7 @@ export class Provider extends EventEmitter implements ProviderInterface {
   send(method: string, params?: Array<unknown>): Promise<EthereumResponse> {
     return this.request({ method, params });
   }
-  //deprecated
+  // //deprecated
   sendAsync(
     data: unknown,
     callback: (err: Error | null, res?: any) => void

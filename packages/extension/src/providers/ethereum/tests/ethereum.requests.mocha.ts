@@ -2,10 +2,10 @@ import { expect } from "chai";
 import { ProviderName, ProviderType, Provider } from "@/types/provider";
 import EthereumInject from "../inject";
 import { EthereumRequest } from "../types";
-import { Response } from "@/types/messenger";
+import { OnMessageResponse } from "@enkryptcom/types";
 import { getError } from "../libs/error-handler";
 
-const requestHandler = (request: string): Response => {
+const requestHandler = (request: string): OnMessageResponse => {
   const req = JSON.parse(request) as EthereumRequest;
   if (req.method === "eth_chainId")
     return {

@@ -14,6 +14,7 @@
   "dependencies": {
     "@enkryptcom/extension-bridge": "^0.0.1",
     "@enkryptcom/keyring": "^0.0.1",
+    "@enkryptcom/request": "^0.0.1",
     "@enkryptcom/storage": "^0.0.1",
     "@types/events": "^3.0.0",
     "chai": "^4.3.6",

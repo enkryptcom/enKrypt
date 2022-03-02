@@ -16,3 +16,5 @@ export default (
   }
   throw new Error(`Unable to set requrst provider: ${url}`);
 };
+
+export { RequestClass };

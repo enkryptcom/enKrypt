@@ -2,12 +2,12 @@ import { expect } from "chai";
 import { ProviderName, ProviderType, Provider } from "@/types/provider";
 import EthereumInject from "../inject";
 import { MessageMethod, EmitEvent } from "../types";
-import { Response } from "@/types/messenger";
+import { OnMessageResponse } from "@enkryptcom/types";
 
 const providerSendMessage = async (
   provider: Provider,
   message: string
-): Promise<Response> => {
+): Promise<OnMessageResponse> => {
   return {
     result: `dummy-response-${provider.name}-${message}`,
   };

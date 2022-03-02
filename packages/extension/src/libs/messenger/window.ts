@@ -8,19 +8,19 @@ import {
   Message,
   SendMessage,
   MessageType,
-  Response,
   Destination,
   onMessgeType,
 } from "@/types/messenger";
+import { OnMessageResponse } from "@enkryptcom/types";
 import { Provider } from "@/types/provider";
 import { assert } from "chai";
 
 export const sendToBackgroundFromWindow = (
   type: MessageType,
   message: SendMessage
-): Promise<Response> => {
+): Promise<OnMessageResponse> => {
   return sendMessage(type, message, Destination.background).then(
-    (res) => res as unknown as Response
+    (res) => res as unknown as OnMessageResponse
   );
 };
 

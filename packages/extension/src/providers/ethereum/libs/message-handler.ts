@@ -44,6 +44,11 @@ const handleIncomingMessage: handleIncomingMessageType = (
         provider.selectedAddress = address;
         provider.emit(EmitEvent.accountsChanged, [address]);
       }
+    } else if (jsonMsg.method === MessageMethod.subscription) {
+      provider.emit(EmitEvent.message, {
+        data: jsonMsg.params,
+        type: jsonMsg.method,
+      });
     } else {
       console.error(`Unable to process message:${message}`);
     }

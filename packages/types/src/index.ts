@@ -79,6 +79,31 @@ interface BrowserStorageArea {
   remove(keys: string | string[]): Promise<void>;
   clear(): Promise<void>;
 }
+
+interface RPCRequestType {
+  method: string;
+  params?: Array<any>;
+}
+
+interface RPCResponseType {
+  result?: any;
+  error?: any;
+}
+type CallbackFunction = (err: Error | null, result?: any) => void;
+
+type NextFunction = () => void;
+
+type MiddlewareFunction = (
+  payload: RPCRequestType,
+  response: CallbackFunction,
+  next: NextFunction
+) => void;
+
+interface OnMessageResponse {
+  result?: string;
+  error?: string;
+}
+
 export {
   Errors,
   SignerInterface,
@@ -88,4 +113,9 @@ export {
   KeyPair,
   EncryptedData,
   BrowserStorageArea,
+  MiddlewareFunction,
+  RPCRequestType,
+  RPCResponseType,
+  CallbackFunction,
+  OnMessageResponse,
 };

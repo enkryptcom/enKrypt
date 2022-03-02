@@ -1,10 +1,30 @@
 // import KeyRing from "@enkryptcom/keyring";
 // import { SignerType } from "@enkryptcom/types";
 // import BrowseStorage from "@/libs/browser-storage";
-import { backgroundOnMessage, sendToWindow } from "@/libs/messenger/extension";
-import { MessageType, Response } from "@/types/messenger";
+import {
+  backgroundOnMessageFromWindow,
+  sendToWindow,
+} from "@/libs/messenger/extension";
+import { MessageType } from "@/types/messenger";
+import { MessageMethod } from "@/providers/ethereum/types";
 import { ProviderName } from "@/types/provider";
 import { getError } from "@/providers/ethereum/libs/error-handler";
+import Request, { RequestClass } from "@enkryptcom/request";
+import { RPCRequestType, OnMessageResponse } from "@enkryptcom/types";
+import EthereumProvider from "@/providers/ethereum";
+
+interface TabProviderType {
+  [key: string]: Record<number, EthereumProvider>;
+}
+interface ProviderType {
+  [key: string]: typeof EthereumProvider;
+}
+const providers: ProviderType = {
+  [ProviderName.ethereum]: EthereumProvider,
+};
+const tabProviders: TabProviderType = {
+  [ProviderName.ethereum]: {},
+};
 // const storage = new BrowseStorage("KeyRing");
 // const kr = new KeyRing(storage);
 // kr.init("test pass").then(() => {
@@ -21,24 +41,54 @@ import { getError } from "@/providers/ethereum/libs/error-handler";
 //         console.log(key)
 //     })
 // })
-
-backgroundOnMessage(MessageType.REQUEST, async (msg): Promise<Response> => {
-  console.log(msg);
-  const req = JSON.parse(msg.message);
-  if (req.method === "eth_requestAccounts" || req.method === "eth_accounts") {
-    return {
-      result: JSON.stringify(["0xDECAF9CD2367cdbb726E904cD6397eDFcAe6068D"]),
-    };
-  } else if (req.method === "eth_chainId") {
-    return {
-      result: JSON.stringify("0x1"),
-    };
-  } else if (req.method === "net_version") {
-    return {
-      result: JSON.stringify(1),
-    };
+// const rpcProviders: Record<number, RequestClass> = {};
+backgroundOnMessageFromWindow(
+  MessageType.REQUEST,
+  async (msg): Promise<OnMessageResponse> => {
+    const { method, params } = JSON.parse(msg.message);
+    const _provider = msg.provider;
+    const _tabid = msg.sender.tabId;
+    if (!tabProviders[_provider][_tabid]) {
+      tabProviders[_provider][_tabid] = new providers[_provider]();
+    }
+    return tabProviders[_provider][_tabid].request({ method, params });
+    // if (method === "eth_requestAccounts" || method === "eth_accounts") {
+    //   return {
+    //     result: JSON.stringify(["0xe5DC07BdCDB8C98850050C7f67De7E164b1eA391"]),
+    //   };
+    // } else {
+    //   let request = null;
+    //   if (rpcProviders[msg.sender.tabId]) {
+    //     request = rpcProviders[msg.sender.tabId];
+    //   } else {
+    //     const tabId = msg.sender.tabId;
+    //     rpcProviders[tabId] = Request("wss://nodes.mewapi.io/ws/eth", []);
+    //     rpcProviders[tabId].on("notification", (notif: RPCRequestType) => {
+    //       const { method, params } = notif;
+    //       sendToWindow(
+    //         MessageType.REQUEST,
+    //         {
+    //           provider: ProviderName.ethereum,
+    //           message: JSON.stringify({ method, params }),
+    //         },
+    //         tabId
+    //       );
+    //     });
+    //     request = rpcProviders[msg.sender.tabId];
+    //   }
+    //   return request
+    //     .request({ method, params })
+    //     .then((res: any) => {
+    //       return {
+    //         result: JSON.stringify(res),
+    //       };
+    //     })
+    //     .catch((err: Error) => {
+    //       console.log(method, params, err.message);
+    //       return {
+    //         error: JSON.stringify(err.message),
+    //       };
+    //     });
+    // }
   }
-  return {
-    error: JSON.stringify(getError(4200)),
-  };
-});
+);
