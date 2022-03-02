@@ -1,5 +1,5 @@
 import { JSONRPCClient } from "json-rpc-2.0";
-import EventEmitter from "events";
+import EventEmitter from "eventemitter3";
 import { v4 as uuidv4 } from "uuid";
 import IsomorphicWS from "isomorphic-ws";
 import { MiddlewareFunction, RPCRequestType } from "@enkryptcom/types";

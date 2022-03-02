@@ -1,4 +1,4 @@
-import EventEmitter from "events";
+import EventEmitter from "eventemitter3";
 import { JSONRPCClient } from "json-rpc-2.0";
 import fetch from "node-fetch";
 import { MiddlewareFunction, RPCRequestType } from "@enkryptcom/types";

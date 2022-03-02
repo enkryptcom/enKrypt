@@ -7,7 +7,7 @@ import {
   RPCRequestType,
 } from "@enkryptcom/types";
 import Middlewares from "./methods";
-import { EventEmitter } from "events";
+import EventEmitter from "eventemitter3";
 class EthereumProvider extends EventEmitter {
   network: EthereumNodeType;
   requestProvider: RequestClass;
