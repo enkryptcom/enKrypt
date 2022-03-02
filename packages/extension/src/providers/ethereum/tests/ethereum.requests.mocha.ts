@@ -24,10 +24,10 @@ const requestHandler = (request: string): OnMessageResponse => {
   };
 };
 const providerSendMessage = async (
-  provider: Provider,
+  provider: ProviderName,
   message: string
 ): Promise<any> => {
-  if (provider.name === ProviderName.ethereum) {
+  if (provider === ProviderName.ethereum) {
     const res = requestHandler(message);
     if (res.error) return Promise.reject(JSON.parse(res.error));
     else return JSON.parse(res.result as string);

@@ -3,19 +3,21 @@ import type {
   InjectedMetadataKnown,
   MetadataDef,
 } from "@polkadot/extension-inject/types";
+import { InjectedSendMessageHandler, InjectLibOptions } from "../types";
 
 export default class Metadata implements InjectedMetadata {
-  constructor() {}
+  sendMessageHandler: InjectedSendMessageHandler;
+  id: number;
+  constructor(options: InjectLibOptions) {
+    this.sendMessageHandler = options.sendMessageHandler;
+    this.id = options.id;
+  }
 
   public get(): Promise<InjectedMetadataKnown[]> {
     console.log("metadata get called");
-    return Promise.resolve([
-      //   {
-      //     genesisHash:
-      //       "0xfc41b9bd8ef8fe53d58c7ea67c794c7ec9a73daf05e6d54b14ff6342c99ba64c",
-      //     specVersion: 2034,
-      //   },
-    ]);
+    return this.sendMessageHandler(this.id, {
+      method: "dot_getMetadata",
+    });
   }
 
   public provide(definition: MetadataDef): Promise<boolean> {

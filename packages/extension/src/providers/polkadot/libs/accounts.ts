@@ -3,36 +3,31 @@ import type {
   InjectedAccounts,
   Unsubcall,
 } from "@polkadot/extension-inject/types";
+import { InjectLibOptions, InjectedSendMessageHandler } from "../types";
 
 export default class Accounts implements InjectedAccounts {
-  constructor() {
-    // sendRequest = _sendRequest;
+  sendMessageHandler: InjectedSendMessageHandler;
+  id: number;
+  constructor(options: InjectLibOptions) {
+    this.sendMessageHandler = options.sendMessageHandler;
+    this.id = options.id;
   }
 
   public get(anyType?: boolean): Promise<InjectedAccount[]> {
-    console.log("get accounts");
-    return Promise.resolve([
-      {
-        address: "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY",
-        genesisHash: "",
-        name: "abcd",
-        type: "sr25519",
-      },
-    ]);
+    return this.sendMessageHandler(this.id, {
+      method: "dot_accounts",
+      params: [!!anyType],
+    });
   }
 
   public subscribe(cb: (accounts: InjectedAccount[]) => unknown): Unsubcall {
-    console.log("acccount subsribe called");
-    cb([
-      {
-        address: "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY",
-        genesisHash: "",
-        name: "abcd",
-        type: "sr25519",
-      },
-    ]);
+    this.sendMessageHandler(this.id, {
+      method: "dot_accounts",
+    }).then((res) => {
+      cb(res);
+    });
     return (): void => {
-      // FIXME we need the ability to unsubscribe
+      //onshot for now since, not even polkadotjs has subscriptions
     };
   }
 }

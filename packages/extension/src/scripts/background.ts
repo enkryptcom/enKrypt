@@ -12,18 +12,21 @@ import { getError } from "@/providers/ethereum/libs/error-handler";
 import Request, { RequestClass } from "@enkryptcom/request";
 import { RPCRequestType, OnMessageResponse } from "@enkryptcom/types";
 import EthereumProvider from "@/providers/ethereum";
+import PolkadotProvider from "@/providers/polkadot";
 
 interface TabProviderType {
-  [key: string]: Record<number, EthereumProvider>;
+  [key: string]: Record<number, EthereumProvider | PolkadotProvider>;
 }
 interface ProviderType {
-  [key: string]: typeof EthereumProvider;
+  [key: string]: typeof EthereumProvider | typeof PolkadotProvider;
 }
 const providers: ProviderType = {
   [ProviderName.ethereum]: EthereumProvider,
+  [ProviderName.polkadot]: PolkadotProvider,
 };
 const tabProviders: TabProviderType = {
   [ProviderName.ethereum]: {},
+  [ProviderName.polkadot]: {},
 };
 // const storage = new BrowseStorage("KeyRing");
 // const kr = new KeyRing(storage);
@@ -46,6 +49,7 @@ const tabProviders: TabProviderType = {
 backgroundOnMessageFromWindow(
   MessageType.REQUEST,
   async (msg): Promise<OnMessageResponse> => {
+    console.log(msg);
     const { method, params } = JSON.parse(msg.message);
     const _provider = msg.provider;
     const _tabid = msg.sender.tabId;

@@ -5,11 +5,11 @@ import { MessageMethod, EmitEvent } from "../types";
 import { OnMessageResponse } from "@enkryptcom/types";
 
 const providerSendMessage = async (
-  provider: Provider,
+  provider: ProviderName,
   message: string
 ): Promise<OnMessageResponse> => {
   return {
-    result: `dummy-response-${provider.name}-${message}`,
+    result: `dummy-response-${provider}-${message}`,
   };
 };
 const options = {

@@ -14,7 +14,7 @@ export enum ProviderType {
 }
 
 export type SendMessageHandler = (
-  provider: Provider,
+  provider: ProviderName,
   message: string
 ) => Promise<OnMessageResponse>;
 

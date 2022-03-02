@@ -6,13 +6,15 @@ import type {
   SignerPayloadJSON,
   SignerPayloadRaw,
 } from "@polkadot/types/types";
+import { InjectedSendMessageHandler, InjectLibOptions } from "../types";
 
 // External to class, this.# is not private enough (yet)
 // let nextId = 0;
 
 export default class Signer implements SignerInterface {
-  constructor() {
-    // sendRequest = _sendRequest;
+  sendMessageHandler: InjectedSendMessageHandler;
+  constructor(options: InjectLibOptions) {
+    this.sendMessageHandler = options.sendMessageHandler;
   }
 
   public async signPayload(payload: SignerPayloadJSON): Promise<SignerResult> {

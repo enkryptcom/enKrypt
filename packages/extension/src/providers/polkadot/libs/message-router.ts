@@ -10,11 +10,11 @@ class MessageRouter {
     return this.providers.length;
   }
   handleMessage(message: string): void {
-    const { providerId, action } = JSON.parse(message) as RouterOnMessage;
-    if (this.providers[providerId]) {
-      this.providers[providerId]?.handleMessage(action);
+    const { id, method, params } = JSON.parse(message) as RouterOnMessage;
+    if (this.providers[id]) {
+      this.providers[id]?.handleMessage({ method, params });
     } else {
-      console.error(`Provider id is missing: ${message} id: ${providerId}`);
+      console.error(`Provider id is missing: ${message} id: ${id}`);
     }
   }
 }

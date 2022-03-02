@@ -12,7 +12,7 @@ import {
   onMessgeType,
 } from "@/types/messenger";
 import { OnMessageResponse } from "@enkryptcom/types";
-import { Provider } from "@/types/provider";
+import { ProviderName } from "@/types/provider";
 import { assert } from "chai";
 
 export const sendToBackgroundFromWindow = (
@@ -25,11 +25,11 @@ export const sendToBackgroundFromWindow = (
 };
 
 export const providerSendMessage = (
-  provider: Provider,
+  provider: ProviderName,
   message: string
 ): Promise<any> => {
   return sendToBackgroundFromWindow(MessageType.REQUEST, {
-    provider: provider.name,
+    provider: provider,
     message: message,
   }).then((res) => {
     if (res.error) return Promise.reject(JSON.parse(res.error));

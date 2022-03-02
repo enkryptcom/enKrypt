@@ -1,4 +1,9 @@
-import { SubstrateInjectedProvider, SubstrateInjectOptions } from "../types";
+import {
+  InjectedSendMessageHandler,
+  InjectLibOptions,
+  SubstrateInjectedProvider,
+  SubstrateInjectOptions,
+} from "../types";
 import { SendMessageHandler } from "@/types/provider";
 import Accounts from "./accounts";
 import Metadata from "./metadata";
@@ -12,13 +17,15 @@ class InjectedProvider implements SubstrateInjectedProvider {
   provider: Provider;
   signer: Signer;
   dappName: string;
-  sendMessageHandler: SendMessageHandler;
-  constructor(options: SubstrateInjectOptions) {
+  id: number;
+  sendMessageHandler: InjectedSendMessageHandler;
+  constructor(options: InjectLibOptions) {
     this.dappName = options.dappName;
-    this.accounts = new Accounts();
-    this.metadata = new Metadata();
-    this.provider = new Provider();
-    this.signer = new Signer();
+    this.id = options.id;
+    this.accounts = new Accounts(options);
+    this.metadata = new Metadata(options);
+    this.provider = new Provider(options);
+    this.signer = new Signer(options);
     this.sendMessageHandler = options.sendMessageHandler;
   }
   handleMessage(request: RPCRequestType): void {

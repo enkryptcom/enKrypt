@@ -32,7 +32,7 @@ export class Provider extends EventEmitter implements ProviderInterface {
   async request(request: EthereumRequest): Promise<EthereumResponse> {
     console.log(request);
     const res = (await this.sendMessageHandler(
-      this,
+      this.name,
       JSON.stringify(request)
     )) as EthereumResponse;
     console.log(res);

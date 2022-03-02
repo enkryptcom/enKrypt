@@ -10,6 +10,7 @@ import type {
 import type { AnyFunction } from "@polkadot/types/types";
 
 import EventEmitter from "eventemitter3";
+import { InjectedSendMessageHandler, InjectLibOptions } from "../types";
 
 type CallbackHandler = (error?: null | Error, value?: unknown) => void;
 
@@ -20,13 +21,17 @@ interface SubscriptionHandler {
 
 export default class PostMessageProvider implements InjectedProvider {
   eventEmitter: EventEmitter;
-  constructor() {
+  sendMessageHandler: InjectedSendMessageHandler;
+  options: InjectLibOptions;
+  constructor(options: InjectLibOptions) {
     this.eventEmitter = new EventEmitter();
+    this.sendMessageHandler = options.sendMessageHandler;
+    this.options = options;
   }
 
   public clone(): PostMessageProvider {
     console.error("PostMessageProvider.clone() is not implemented.");
-    return new PostMessageProvider();
+    return new PostMessageProvider(this.options);
   }
 
   public async connect(): Promise<void> {
