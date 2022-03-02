@@ -42,6 +42,7 @@ const tabProviders: TabProviderType = {
 //     })
 // })
 // const rpcProviders: Record<number, RequestClass> = {};
+
 backgroundOnMessageFromWindow(
   MessageType.REQUEST,
   async (msg): Promise<OnMessageResponse> => {
@@ -49,9 +50,23 @@ backgroundOnMessageFromWindow(
     const _provider = msg.provider;
     const _tabid = msg.sender.tabId;
     if (!tabProviders[_provider][_tabid]) {
-      tabProviders[_provider][_tabid] = new providers[_provider]();
+      const toWindow = (message: string) => {
+        sendToWindow(
+          MessageType.REQUEST,
+          {
+            provider: _provider,
+            message,
+          },
+          _tabid
+        );
+      };
+      tabProviders[_provider][_tabid] = new providers[_provider](
+        undefined,
+        toWindow
+      );
     }
     return tabProviders[_provider][_tabid].request({ method, params });
+
     // if (method === "eth_requestAccounts" || method === "eth_accounts") {
     //   return {
     //     result: JSON.stringify(["0xe5DC07BdCDB8C98850050C7f67De7E164b1eA391"]),

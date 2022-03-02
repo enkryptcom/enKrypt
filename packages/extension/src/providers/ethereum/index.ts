@@ -7,21 +7,29 @@ import {
   RPCRequestType,
 } from "@enkryptcom/types";
 import Middlewares from "./methods";
-class EthereumProvider {
+import { EventEmitter } from "events";
+class EthereumProvider extends EventEmitter {
   network: EthereumNodeType;
   requestProvider: RequestClass;
   middlewares: MiddlewareFunction[] = [];
-  constructor(network: EthereumNodeType = Networks.ethereum) {
+  constructor(
+    network: EthereumNodeType = Networks.ethereum,
+    toWindow: (message: string) => void
+  ) {
+    super();
     this.network = network;
     this.setMiddleWares();
     this.requestProvider = getRequestProvider(network.node, this.middlewares);
+    this.requestProvider.on("notification", (notif: any) => {
+      toWindow(JSON.stringify(notif));
+    });
   }
   private setMiddleWares(): void {
     this.middlewares = Middlewares.map((mw) => mw.bind(this));
   }
   setRequestProvider(network: EthereumNodeType): void {
     this.network = network;
-    this.requestProvider = getRequestProvider(network.node, this.middlewares);
+    this.requestProvider.changeNetwork(network.node);
   }
   request(request: RPCRequestType): Promise<OnMessageResponse> {
     return this.requestProvider
