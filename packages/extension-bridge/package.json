@@ -25,7 +25,7 @@
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsup src/index.ts src/window/index.ts --format esm,cjs --dts",
+    "build": "tsup src/index.ts src/window/index.ts src/types.ts --clean --format esm,cjs --dts",
     "test": "echo 'no-tests'",
     "lint": "prettier --write ."
   },

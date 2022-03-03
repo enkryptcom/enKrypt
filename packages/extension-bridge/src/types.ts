@@ -6,7 +6,8 @@ export type RuntimeContext =
   | "popup"
   | "options"
   | "content-script"
-  | "window";
+  | "window"
+  | "new-window";
 
 export type Endpoint = {
   context: RuntimeContext;

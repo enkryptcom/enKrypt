@@ -165,7 +165,11 @@ const initIntercoms = () => {
     });
   }
 
-  if (context === "popup" || context === "options") {
+  if (
+    context === "popup" ||
+    context === "options" ||
+    context === "new-window"
+  ) {
     const name = `${context}`;
 
     port = browser.runtime.connect(undefined, { name });
@@ -185,6 +189,8 @@ const initIntercoms = () => {
 
       let portId =
         incomingPort.name || `content-script@${incomingPort.sender.tab.id}`;
+      if (portId === "new-window")
+        portId = `new-window@${incomingPort.sender.tab.id}`;
 
       const portFrame = incomingPort.sender.frameId;
 
@@ -192,11 +198,14 @@ const initIntercoms = () => {
 
       // literal tab id in case of content script, however tab id of inspected page in case of devtools context
       const { context: _context, tabId: linkedTabId } = parseEndpoint(portId);
-
       // in-case the port handshake is from something else
-      if (!linkedTabId && _context !== "popup" && _context !== "options")
+      if (
+        !linkedTabId &&
+        _context !== "popup" &&
+        _context !== "options" &&
+        _context !== "new-window"
+      )
         return;
-
       portMap.set(portId, incomingPort);
 
       messageQueue.forEach((queuedMsg) => {
@@ -255,7 +264,9 @@ export const routeMessage = (
       message.destination = null;
       routeMessageThroughWindow(window, message);
     } else if (
-      ["devtools", "content-script", "popup", "options"].includes(context)
+      ["devtools", "content-script", "popup", "options", "new-window"].includes(
+        context
+      )
     ) {
       if (destination.context === "background") message.destination = null;
       port.postMessage(message);
