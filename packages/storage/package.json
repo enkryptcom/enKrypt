@@ -18,7 +18,8 @@
   "dependencies": {
     "@enkryptcom/types": "^0.0.1",
     "@enkryptcom/utils": "^0.0.1",
-    "chai": "^4.3.6"
+    "chai": "^4.3.6",
+    "localforage": "^1.10.0"
   },
   "devDependencies": {
     "@types/chai": "^4.3.0",

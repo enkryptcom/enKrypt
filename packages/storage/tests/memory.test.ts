@@ -2,7 +2,7 @@ import { expect } from "chai";
 import { MemoryStorage } from "@enkryptcom/utils";
 import Storage from "../src";
 
-describe("Simple addition", () => {
+describe("Storage checker", () => {
   // the tests container
   const memStore = new MemoryStorage();
   const storage1 = new Storage("test-namespace1", { storage: memStore });

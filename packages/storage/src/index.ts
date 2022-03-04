@@ -1,12 +1,16 @@
 import { BrowserStorageArea } from "@enkryptcom/types";
 import { StorageOptions } from "./types";
+import LocalForage from "./local-forage";
 
 class Storage {
   namespace: string;
 
   storage: BrowserStorageArea;
 
-  constructor(namespace, options: StorageOptions) {
+  constructor(
+    namespace,
+    options: StorageOptions = { storage: new LocalForage(namespace) }
+  ) {
     this.namespace = namespace;
     this.storage = options.storage;
   }
