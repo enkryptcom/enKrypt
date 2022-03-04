@@ -4,6 +4,7 @@ import {
   Errors,
   SignerInterface,
   SignerType,
+  SignOptions,
 } from "@enkryptcom/types";
 import Storage from "@enkryptcom/storage";
 import { entropyToMnemonic, generateMnemonic, mnemonicToEntropy } from "bip39";
@@ -15,13 +16,11 @@ import configs from "./configs";
 import { pathParser } from "./utils";
 
 class KeyRing {
-  storage: Storage;
+  private storage: Storage;
 
   private _isLocked: boolean;
 
   signers: { [key in SignerType]: SignerInterface };
-
-  pathIndexCounter: { [key: string]: number } = {};
 
   private _mnemonic: string;
 
@@ -60,8 +59,10 @@ class KeyRing {
   }
 
   async getPathIndex(basePath: string): Promise<number> {
-    if (!this.pathIndexCounter[basePath]) return 0;
-    return this.pathIndexCounter[basePath] + 1;
+    const pathIndexes =
+      (await this.storage.get(configs.STORAGE_KEYS.PATH_INDEXES)) || {};
+    if (pathIndexes[basePath] === undefined) return 0;
+    return pathIndexes[basePath] + 1;
   }
 
   private async _getMnemonic(password: string): Promise<string> {
@@ -104,6 +105,31 @@ class KeyRing {
       publicKey: keypair.publicKey,
       type: key.type,
     };
+  }
+
+  async createAndSaveKey(key: KeyRecordAdd): Promise<KeyRecord> {
+    const keyRecord = await this.createKey(key);
+    const existingKeys = await this.getKeysObject();
+    assert(
+      !existingKeys[keyRecord.address],
+      Errors.KeyringErrors.AddressExists
+    );
+    existingKeys[keyRecord.address] = keyRecord;
+    await this.storage.set(configs.STORAGE_KEYS.KEY_INFO, existingKeys);
+    const pathIndexes =
+      (await this.storage.get(configs.STORAGE_KEYS.PATH_INDEXES)) || {};
+    pathIndexes[keyRecord.basePath] = keyRecord.pathIndex;
+    await this.storage.set(configs.STORAGE_KEYS.PATH_INDEXES, pathIndexes);
+    return keyRecord;
+  }
+
+  async sign(msgHash: string, options: SignOptions): Promise<string> {
+    assert(!this._isLocked, Errors.KeyringErrors.Locked);
+    const keypair = await this.signers[options.type].generate(
+      this._mnemonic,
+      pathParser(options.basePath, options.pathIndex, options.type)
+    );
+    return this.signers[options.type].sign(msgHash, keypair);
   }
 
   async getKeysObject(): Promise<{ [key: string]: KeyRecord }> {
