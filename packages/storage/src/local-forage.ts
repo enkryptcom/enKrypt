@@ -4,7 +4,7 @@ import LocalForageLib from "localforage";
 class LocalForage implements BrowserStorageArea {
   namespace: string;
 
-  storage: globalThis.LocalForage;
+  private storage: globalThis.LocalForage;
 
   constructor(
     namespace: string,
@@ -17,6 +17,7 @@ class LocalForage implements BrowserStorageArea {
     this.storage = LocalForageLib.createInstance({
       name: this.namespace,
       driver: drivers,
+      storeName: "enkrypt_db",
     });
   }
 

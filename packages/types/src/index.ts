@@ -103,7 +103,11 @@ interface OnMessageResponse {
   result?: string;
   error?: string;
 }
-
+interface SignOptions {
+  basePath: string;
+  pathIndex: number;
+  type: SignerType;
+}
 export {
   Errors,
   SignerInterface,
@@ -118,4 +122,5 @@ export {
   RPCResponseType,
   CallbackFunction,
   OnMessageResponse,
+  SignOptions,
 };

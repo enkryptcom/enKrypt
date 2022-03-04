@@ -1,6 +1,6 @@
-// import KeyRing from "@enkryptcom/keyring";
-// import { SignerType } from "@enkryptcom/types";
-// import BrowseStorage from "@/libs/browser-storage";
+import KeyRing from "@enkryptcom/keyring";
+import { SignerType } from "@enkryptcom/types";
+import BrowseStorage from "@/libs/common/browser-storage";
 import {
   backgroundOnMessageFromWindow,
   backgroundOnMessageFromNewWindow,
@@ -27,22 +27,26 @@ const tabProviders: TabProviderType = {
   [ProviderName.ethereum]: {},
   [ProviderName.polkadot]: {},
 };
-// const storage = new BrowseStorage("KeyRing");
-// const kr = new KeyRing(storage);
-// kr.init("test pass").then(() => {
-//     console.log("success")
-// }).catch(console.error)
-// kr.unlockMnemonic("test pass").then(() => {
-//     console.log("start")
-//     kr.createKey({
-//         basePath: "//",
-//         name: "abc",
-//         type: SignerType.sr25519``
-//     }).then((key) => {
-//         console.log("end")
-//         console.log(key)
-//     })
-// })
+const storage = new BrowseStorage("KeyRing");
+const kr = new KeyRing(storage);
+kr.init("test pass")
+  .then(() => {
+    console.log("success");
+  })
+  .finally(() => {
+    kr.unlockMnemonic("test pass").then(() => {
+      console.log("start");
+      kr.createAndSaveKey({
+        basePath: "m/44'/60'/0'/0",
+        name: "abc-eth",
+        type: SignerType.secp256k1,
+      }).then((key) => {
+        console.log("end1");
+        console.log(key);
+      });
+    });
+  });
+
 // const rpcProviders: Record<number, RequestClass> = {};
 backgroundOnMessageFromNewWindow(async (msg): Promise<OnMessageResponse> => {
   console.log(msg);

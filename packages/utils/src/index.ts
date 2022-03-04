@@ -1,4 +1,10 @@
-import { stripHexPrefix, bytesToHex, hexToBytes } from "web3-utils";
+import {
+  stripHexPrefix,
+  bytesToHex,
+  hexToBytes,
+  keccak256,
+  utf8ToHex,
+} from "web3-utils";
 import { encrypt, decrypt } from "./encrypt";
 import MemoryStorage from "./memory-storage";
 
@@ -11,6 +17,7 @@ const hexToBuffer = (hex: string): Buffer =>
 
 export {
   stripHexPrefix,
+  utf8ToHex,
   bufferToHex,
   hexToBuffer,
   bytesToHex,
@@ -18,4 +25,5 @@ export {
   encrypt,
   decrypt,
   MemoryStorage,
+  keccak256,
 };

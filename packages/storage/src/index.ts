@@ -5,12 +5,10 @@ import LocalForage from "./local-forage";
 class Storage {
   namespace: string;
 
-  storage: BrowserStorageArea;
+  private storage: BrowserStorageArea;
 
-  constructor(
-    namespace,
-    options: StorageOptions = { storage: new LocalForage(namespace) }
-  ) {
+  constructor(namespace, options: StorageOptions) {
+    if (!options.storage) options.storage = new LocalForage(namespace);
     this.namespace = namespace;
     this.storage = options.storage;
   }
