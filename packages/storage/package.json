@@ -8,7 +8,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsup src/index.ts --format esm,cjs --dts",
+    "build": "tsup src/index.ts --format esm,cjs --dts --clean",
     "lint": "prettier --write .",
     "test": "ts-mocha -p tsconfig.json tests/**/*.test.ts"
   },

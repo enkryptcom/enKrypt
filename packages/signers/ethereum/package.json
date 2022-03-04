@@ -8,7 +8,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsc",
+    "build": "tsup src/index.ts --format esm,cjs --dts --clean",
     "lint": "prettier --write .",
     "test": "ts-mocha -p tsconfig.json tests/**/*.test.ts"
   },
@@ -43,7 +43,8 @@
     "ts-node": "^10.5.0",
     "tsconfig-paths": "^3.12.0",
     "typescript": "^4.5.5",
-    "typescript-eslint": "0.0.1-alpha.0"
+    "typescript-eslint": "0.0.1-alpha.0",
+    "tsup": "^5.11.13"
   },
   "repository": {
     "type": "git",
