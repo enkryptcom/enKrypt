@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "serve": "vue-cli-service serve",
+    "serve": "vue-cli-service build --watch",
     "build:vue": "vue-cli-service build --no-clean",
     "build": "npm run build:vue && npm run build:rollup",
     "build:prod": "vue-cli-service build && npm run build:rollup",
@@ -17,6 +17,8 @@
     "@enkryptcom/keyring": "^0.0.1",
     "@enkryptcom/request": "^0.0.1",
     "@enkryptcom/storage": "^0.0.1",
+    "@enkryptcom/utils": "^0.0.1",
+    "@polkadot/util": "^8.4.1",
     "@types/events": "^3.0.0",
     "chai": "^4.3.6",
     "core-js": "^3.21.0",
@@ -25,7 +27,7 @@
     "rollup-plugin-node-builtins": "^2.1.2",
     "url-parse": "^1.5.10",
     "vue": "^3.2.31",
-    "vue-router": "^4.0.6"
+    "vue-router": "4"
   },
   "devDependencies": {
     "@babel/plugin-proposal-class-properties": "^7.16.7",

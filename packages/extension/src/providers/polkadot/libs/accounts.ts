@@ -15,14 +15,14 @@ export default class Accounts implements InjectedAccounts {
 
   public get(anyType?: boolean): Promise<InjectedAccount[]> {
     return this.sendMessageHandler(this.id, {
-      method: "dot_accounts",
+      method: "dot_accounts_get",
       params: [!!anyType],
     });
   }
 
   public subscribe(cb: (accounts: InjectedAccount[]) => unknown): Unsubcall {
     this.sendMessageHandler(this.id, {
-      method: "dot_accounts",
+      method: "dot_accounts_get",
     }).then((res) => {
       cb(res);
     });

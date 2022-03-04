@@ -6,14 +6,13 @@ const method: MiddlewareFunction = function (
   res,
   next
 ): void {
-  if (payload.method !== "dot_accounts") return next();
+  if (payload.method !== "dot_metadata_get") return next();
   else {
     return res(null, [
       {
-        address: "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY",
-        genesisHash: "",
-        name: "abcd",
-        type: "sr25519",
+        genesisHash:
+          "0xfc41b9bd8ef8fe53d58c7ea67c794c7ec9a73daf05e6d54b14ff6342c99ba64c",
+        specVersion: 2034,
       },
     ]);
   }

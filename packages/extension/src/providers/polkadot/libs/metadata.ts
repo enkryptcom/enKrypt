@@ -16,7 +16,7 @@ export default class Metadata implements InjectedMetadata {
   public get(): Promise<InjectedMetadataKnown[]> {
     console.log("metadata get called");
     return this.sendMessageHandler(this.id, {
-      method: "dot_getMetadata",
+      method: "dot_metadata_get",
     });
   }
 

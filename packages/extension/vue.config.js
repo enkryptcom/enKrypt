@@ -7,12 +7,13 @@ module.exports = {
       entry: "./src/ui/action/main.ts",
       title: "Action",
     },
-    extension: {
+    index: {
       template: "public/index.html",
       entry: "./src/ui/extension/main.ts",
-      title: "extension",
+      title: "enkrypt extension",
     },
   },
+  indexPath: "index.html",
   devServer: {
     https: true,
     host: "localhost",

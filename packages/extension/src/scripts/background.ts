@@ -1,13 +1,12 @@
 import KeyRing from "@enkryptcom/keyring";
-import { SignerType } from "@enkryptcom/types";
-import BrowseStorage from "@/libs/common/browser-storage";
+import BrowserStorage from "@/libs/common/browser-storage";
 import {
   backgroundOnMessageFromWindow,
   backgroundOnMessageFromNewWindow,
   sendToWindow,
 } from "@/libs/messenger/extension";
-import { ProviderName } from "@/types/provider";
-import { OnMessageResponse } from "@enkryptcom/types";
+import { ProviderName, InternalStorageNamespace } from "@/types/provider";
+import { OnMessageResponse, SignerType } from "@enkryptcom/types";
 import EthereumProvider from "@/providers/ethereum";
 import PolkadotProvider from "@/providers/polkadot";
 import Browser from "webextension-polyfill";
@@ -27,25 +26,27 @@ const tabProviders: TabProviderType = {
   [ProviderName.ethereum]: {},
   [ProviderName.polkadot]: {},
 };
-const storage = new BrowseStorage("KeyRing");
-const kr = new KeyRing(storage);
-kr.init("test pass")
-  .then(() => {
-    console.log("success");
-  })
-  .finally(() => {
-    kr.unlockMnemonic("test pass").then(() => {
-      console.log("start");
-      kr.createAndSaveKey({
-        basePath: "m/44'/60'/0'/0",
-        name: "abc-eth",
-        type: SignerType.secp256k1,
-      }).then((key) => {
-        console.log("end1");
-        console.log(key);
-      });
-    });
-  });
+// const storage = new BrowserStorage(InternalStorageNamespace.keyring);
+
+// const kr = new KeyRing(storage);
+// kr.init("test pass")
+//   .then(() => {
+//     console.log("success");
+//   })
+//   .finally(() => {
+//     kr.getMnemonic("test pass").then(console.log);
+//     // kr.unlockMnemonic("test pass").then(() => {
+//     //   console.log("start");
+//     //   kr.createAndSaveKey({
+//     //     basePath: "m/44'/60'/0'/0",
+//     //     name: "abc-eth",
+//     //     type: SignerType.secp256k1,
+//     //   }).then((key) => {
+//     //     console.log("end1");
+//     //     console.log(key);
+//     //   });
+//     // });
+//   });
 
 // const rpcProviders: Record<number, RequestClass> = {};
 backgroundOnMessageFromNewWindow(async (msg): Promise<OnMessageResponse> => {
@@ -63,7 +64,6 @@ backgroundOnMessageFromNewWindow(async (msg): Promise<OnMessageResponse> => {
   };
 });
 backgroundOnMessageFromWindow(async (msg): Promise<OnMessageResponse> => {
-  console.log(msg);
   const { method, params } = JSON.parse(msg.message);
   const _provider = msg.provider;
   const _tabid = msg.sender.tabId;

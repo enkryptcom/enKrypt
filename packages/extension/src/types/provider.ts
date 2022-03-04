@@ -3,12 +3,17 @@ import type { InjectedProvider as PolkadotProvider } from "@/providers/polkadot/
 import EventEmitter from "eventemitter3";
 import { EXTENSION_VERSION } from "@/configs/constants";
 import { RPCRequestType } from "@enkryptcom/types";
+import { RouteRecordRaw } from "vue-router";
 
 export enum ProviderName {
   enkrypt = "enkrypt",
   ethereum = "ethereum",
   polkadot = "polkadot",
 }
+export enum InternalStorageNamespace {
+  keyring = "KeyRing",
+}
+export type StorageNamespace = ProviderName | InternalStorageNamespace;
 export enum ProviderType {
   evm,
   substrate,
@@ -59,4 +64,9 @@ export interface ProviderRequestOptions {
 }
 export interface ProviderRPCRequest extends RPCRequestType {
   options?: ProviderRequestOptions;
+}
+
+export interface UIExportOptions {
+  providerName: ProviderName;
+  routes: RouteRecordRaw[];
 }

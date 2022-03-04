@@ -3,7 +3,7 @@ import { ProviderName } from "@/types/provider";
 import { OnMessageResponse } from "@enkryptcom/types";
 import Browser from "webextension-polyfill";
 class WindowPromise {
-  async getResponse(url: string): Promise<OnMessageResponse> {
+  async getResponse(url: string, msg: string): Promise<OnMessageResponse> {
     Browser.tabs.get;
     return Browser.windows
       .create({
@@ -21,7 +21,7 @@ class WindowPromise {
         return sendToNewWindowFromBackground(
           {
             provider: ProviderName.enkrypt,
-            message: "this is a good message",
+            message: msg,
           },
           tabId
         ).then((response) => {
