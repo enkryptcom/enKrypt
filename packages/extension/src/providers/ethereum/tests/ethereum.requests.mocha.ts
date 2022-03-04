@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { ProviderName, ProviderType, Provider } from "@/types/provider";
+import { ProviderName, ProviderType, EthereumProvider } from "@/types/provider";
 import EthereumInject from "../inject";
 import { EthereumRequest } from "../types";
 import { OnMessageResponse } from "@enkryptcom/types";
@@ -46,7 +46,7 @@ const tempWindow: EnkryptWindow = {
 describe("Test Ethereum reponses", () => {
   it("should send proper responses", async () => {
     EthereumInject(tempWindow, options);
-    const provider = tempWindow[ProviderName.ethereum] as Provider;
+    const provider = tempWindow[ProviderName.ethereum] as EthereumProvider;
     expect(await provider.request({ method: "eth_chainId" })).to.equal("0x1");
     await provider.request({ method: "eth_requestAccounts" }).catch((e) => {
       expect(e).to.be.deep.equal({

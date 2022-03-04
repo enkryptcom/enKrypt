@@ -1,10 +1,11 @@
-import { SendMessageHandler } from "@/types/provider";
-import Accounts from "../libs/accounts";
-import Metadata from "../libs/metadata";
-import Provider from "../libs/provider";
-import Signer from "../libs/signer";
-import { RPCRequestType } from "@enkryptcom/types";
-import { OnMessageResponse } from "@enkryptcom/types";
+import type { SendMessageHandler } from "@/types/provider";
+import type Accounts from "../libs/accounts";
+import type Metadata from "../libs/metadata";
+import type Provider from "../libs/provider";
+import type Signer from "../libs/signer";
+import type { RPCRequestType } from "@enkryptcom/types";
+import type { Injected } from "@polkadot/extension-inject/types";
+import type { Provider as InjectedProvider } from "../inject";
 
 export interface SubstrateInjectOptions {
   dappName: string;
@@ -12,25 +13,14 @@ export interface SubstrateInjectOptions {
   id: number;
 }
 
-import type { Injected } from "@polkadot/extension-inject/types";
-
 export abstract class SubstrateInjectedProvider implements Injected {
-  accounts: Accounts;
-  metadata: Metadata;
-  provider: Provider;
-  signer: Signer;
-  dappName: string;
-  id: number;
-  sendMessageHandler: InjectedSendMessageHandler;
-  constructor(options: InjectLibOptions) {
-    this.dappName = options.dappName;
-    this.sendMessageHandler = options.sendMessageHandler;
-    this.id = options.id;
-    this.accounts = new Accounts(options);
-    this.metadata = new Metadata(options);
-    this.provider = new Provider(options);
-    this.signer = new Signer(options);
-  }
+  abstract accounts: Accounts;
+  abstract metadata: Metadata;
+  abstract provider: Provider;
+  abstract signer: Signer;
+  abstract dappName: string;
+  abstract id: number;
+  abstract sendMessageHandler: InjectedSendMessageHandler;
   abstract handleMessage(request: RPCRequestType): void;
 }
 
@@ -48,3 +38,5 @@ export interface InjectLibOptions {
   sendMessageHandler: InjectedSendMessageHandler;
   id: number;
 }
+
+export { InjectedProvider };

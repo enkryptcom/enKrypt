@@ -1,51 +1,54 @@
-import { Provider } from "../inject";
 import {
   ProviderMessage,
   MessageMethod,
   EmitEvent,
   ProviderConnectInfo,
 } from "../types";
-import { handleIncomingMessage as handleIncomingMessageType } from "@/types/provider";
+import {
+  EthereumProvider,
+  handleIncomingMessage as handleIncomingMessageType,
+} from "@/types/provider";
 import { getError } from "./error-handler";
 
 const handleIncomingMessage: handleIncomingMessageType = (
-  provider: Provider,
-  message: string
+  provider,
+  message
 ): void => {
   try {
+    const _provider = provider as EthereumProvider;
     const jsonMsg = JSON.parse(message) as ProviderMessage;
     if (jsonMsg.method === MessageMethod.changeConnected) {
       const isConnected = jsonMsg.params[0] as boolean;
-      provider.connected = isConnected;
+      _provider.connected = isConnected;
       if (isConnected) {
         const connectionInfo: ProviderConnectInfo = {
           chainId: jsonMsg.params[1] as string,
         };
-        if (provider.chainId !== connectionInfo.chainId) {
-          provider.chainId = connectionInfo.chainId;
-          provider.emit(EmitEvent.chainChanged, connectionInfo.chainId);
+        if (_provider.chainId !== connectionInfo.chainId) {
+          _provider.chainId = connectionInfo.chainId;
+          _provider.emit(EmitEvent.chainChanged, connectionInfo.chainId);
         }
-        provider.emit(EmitEvent.connect, connectionInfo);
+        _provider.emit(EmitEvent.connect, connectionInfo);
       } else {
-        provider.emit(
+        _provider.emit(
           EmitEvent.disconnect,
           getError(jsonMsg.params[1] as number)
         );
       }
     } else if (jsonMsg.method === MessageMethod.changeChainId) {
       const chainId = jsonMsg.params[0] as string;
-      if (provider.chainId !== chainId) {
-        provider.chainId = chainId;
-        provider.emit(EmitEvent.chainChanged, chainId);
+      if (_provider.chainId !== chainId) {
+        _provider.chainId = chainId;
+        _provider.emit(EmitEvent.chainChanged, chainId);
       }
     } else if (jsonMsg.method === MessageMethod.changeAddress) {
       const address = jsonMsg.params[0] as string;
-      if (provider.selectedAddress !== address) {
-        provider.selectedAddress = address;
-        provider.emit(EmitEvent.accountsChanged, [address]);
+      if (_provider.selectedAddress !== address) {
+        _provider.selectedAddress = address;
+        _provider.emit(EmitEvent.accountsChanged, [address]);
       }
     } else if (jsonMsg.method === MessageMethod.subscription) {
-      provider.emit(EmitEvent.message, {
+      _provider.emit(EmitEvent.message, {
         data: jsonMsg.params,
         type: jsonMsg.method,
       });

@@ -59,7 +59,9 @@ export default class PostMessageProvider implements InjectedProvider {
   public async send(
     method: string,
     params: unknown[],
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _?: boolean,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     subscription?: SubscriptionHandler
   ): Promise<any> {
     console.error(
@@ -103,8 +105,11 @@ export default class PostMessageProvider implements InjectedProvider {
   }
 
   public async unsubscribe(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     type: string,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     method: string,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     id: number
   ): Promise<boolean> {
     console.error("PostMessageProvider.unsubscribe() is not implemented.");

@@ -3,16 +3,15 @@
 // import BrowseStorage from "@/libs/browser-storage";
 import {
   backgroundOnMessageFromWindow,
+  backgroundOnMessageFromNewWindow,
   sendToWindow,
 } from "@/libs/messenger/extension";
-import { MessageType } from "@/types/messenger";
-import { MessageMethod } from "@/providers/ethereum/types";
 import { ProviderName } from "@/types/provider";
-import { getError } from "@/providers/ethereum/libs/error-handler";
-import Request, { RequestClass } from "@enkryptcom/request";
-import { RPCRequestType, OnMessageResponse } from "@enkryptcom/types";
+import { OnMessageResponse } from "@enkryptcom/types";
 import EthereumProvider from "@/providers/ethereum";
 import PolkadotProvider from "@/providers/polkadot";
+import Browser from "webextension-polyfill";
+import TabInfo from "@/libs/utils/tab-info";
 
 interface TabProviderType {
   [key: string]: Record<number, EthereumProvider | PolkadotProvider>;
@@ -45,30 +44,43 @@ const tabProviders: TabProviderType = {
 //     })
 // })
 // const rpcProviders: Record<number, RequestClass> = {};
-
-backgroundOnMessageFromWindow(
-  MessageType.REQUEST,
-  async (msg): Promise<OnMessageResponse> => {
-    console.log(msg);
-    const { method, params } = JSON.parse(msg.message);
-    const _provider = msg.provider;
-    const _tabid = msg.sender.tabId;
-    if (!tabProviders[_provider][_tabid]) {
-      const toWindow = (message: string) => {
-        sendToWindow(
-          MessageType.REQUEST,
-          {
-            provider: _provider,
-            message,
-          },
-          _tabid
-        );
-      };
-      tabProviders[_provider][_tabid] = new providers[_provider](
-        undefined,
-        toWindow
+backgroundOnMessageFromNewWindow(async (msg): Promise<OnMessageResponse> => {
+  console.log(msg);
+  // windowPromise.getResponse("onboard.html");
+  // sendToNewWindowFromBackground(
+  //   {
+  //     provider: ProviderName.enkrypt,
+  //     message: "sending message from background",
+  //   },
+  //   msg.sender.tabId
+  // );
+  return {
+    result: "hello from background",
+  };
+});
+backgroundOnMessageFromWindow(async (msg): Promise<OnMessageResponse> => {
+  console.log(msg);
+  const { method, params } = JSON.parse(msg.message);
+  const _provider = msg.provider;
+  const _tabid = msg.sender.tabId;
+  if (!tabProviders[_provider][_tabid]) {
+    const toWindow = (message: string) => {
+      sendToWindow(
+        {
+          provider: _provider,
+          message,
+        },
+        _tabid
       );
-    }
-    return tabProviders[_provider][_tabid].request({ method, params });
+    };
+    tabProviders[_provider][_tabid] = new providers[_provider](
+      undefined,
+      toWindow
+    );
   }
-);
+  return tabProviders[_provider][_tabid].request({
+    method,
+    params,
+    options: TabInfo(await Browser.tabs.get(_tabid)),
+  });
+});

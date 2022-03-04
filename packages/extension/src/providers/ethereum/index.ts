@@ -1,13 +1,10 @@
 import { EthereumNodeType } from "./types";
 import getRequestProvider, { RequestClass } from "@enkryptcom/request";
 import Networks from "./networks";
-import {
-  MiddlewareFunction,
-  OnMessageResponse,
-  RPCRequestType,
-} from "@enkryptcom/types";
+import { MiddlewareFunction, OnMessageResponse } from "@enkryptcom/types";
 import Middlewares from "./methods";
 import EventEmitter from "eventemitter3";
+import { ProviderRPCRequest } from "@/types/provider";
 class EthereumProvider extends EventEmitter {
   network: EthereumNodeType;
   requestProvider: RequestClass;
@@ -31,7 +28,7 @@ class EthereumProvider extends EventEmitter {
     this.network = network;
     this.requestProvider.changeNetwork(network.node);
   }
-  request(request: RPCRequestType): Promise<OnMessageResponse> {
+  request(request: ProviderRPCRequest): Promise<OnMessageResponse> {
     return this.requestProvider
       .request(request)
       .then((res) => {

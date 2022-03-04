@@ -2,9 +2,7 @@ import {
   InjectedSendMessageHandler,
   InjectLibOptions,
   SubstrateInjectedProvider,
-  SubstrateInjectOptions,
 } from "../types";
-import { SendMessageHandler } from "@/types/provider";
 import Accounts from "./accounts";
 import Metadata from "./metadata";
 import Provider from "./provider";

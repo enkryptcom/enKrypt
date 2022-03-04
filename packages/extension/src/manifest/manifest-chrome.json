@@ -20,7 +20,8 @@
     "unlimitedStorage",
     "clipboardWrite",
     "activeTab",
-    "notifications"
+    "notifications",
+    "tabs"
   ],
   "background": {
     "scripts": ["scripts/background.js", "dev/hot-reload.js"],

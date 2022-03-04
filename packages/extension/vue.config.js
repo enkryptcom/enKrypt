@@ -7,10 +7,10 @@ module.exports = {
       entry: "./src/ui/action/main.ts",
       title: "Action",
     },
-    onboard: {
+    extension: {
       template: "public/index.html",
-      entry: "./src/ui/onboard/main.ts",
-      title: "onboard",
+      entry: "./src/ui/extension/main.ts",
+      title: "extension",
     },
   },
   devServer: {

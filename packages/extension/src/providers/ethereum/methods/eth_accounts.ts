@@ -1,8 +1,10 @@
-import { MiddlewareFunction } from "@enkryptcom/types";
-import EthereumProvider from "..";
+import type { MiddlewareFunction } from "@enkryptcom/types";
+import type EthereumProvider from "..";
+import WindowPromise from "@/libs/window-promise";
+import { ProviderRPCRequest } from "@/types/provider";
 const method: MiddlewareFunction = function (
   this: EthereumProvider,
-  payload,
+  payload: ProviderRPCRequest,
   res,
   next
 ): void {
@@ -12,7 +14,12 @@ const method: MiddlewareFunction = function (
   )
     return next();
   else {
-    return res(null, ["0xe5DC07BdCDB8C98850050C7f67De7E164b1eA391"]);
+    console.log(payload.options);
+    const windowPromise = new WindowPromise();
+    windowPromise.getResponse("extension.html").then(({ error, result }) => {
+      if (error) res(JSON.parse(error));
+      res(null, JSON.parse(result || "[]"));
+    });
   }
 };
 export default method;

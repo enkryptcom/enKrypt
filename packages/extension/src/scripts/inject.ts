@@ -3,7 +3,6 @@ import {
   windowOnMessage,
   providerSendMessage,
 } from "@/libs/messenger/window";
-import { MessageType } from "@/types/messenger";
 import { ProviderName, ProviderType } from "@/types/provider";
 import EthereumProvider from "@/providers/ethereum/inject";
 import PolkadotProvider from "@/providers/polkadot/inject";
@@ -12,7 +11,7 @@ window.enkrypt = {
   providers: {},
 };
 
-windowOnMessage(MessageType.REQUEST, async (msg): Promise<void> => {
+windowOnMessage(async (msg): Promise<void> => {
   window["enkrypt"]["providers"][msg.provider].handleMessage(msg.message);
 });
 

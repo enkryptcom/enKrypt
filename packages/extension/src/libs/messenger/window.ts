@@ -16,19 +16,20 @@ import { ProviderName } from "@/types/provider";
 import { assert } from "chai";
 
 export const sendToBackgroundFromWindow = (
-  type: MessageType,
   message: SendMessage
 ): Promise<OnMessageResponse> => {
-  return sendMessage(type, message, Destination.background).then(
-    (res) => res as unknown as OnMessageResponse
-  );
+  return sendMessage(
+    MessageType.WINDOW_REQUEST,
+    message,
+    Destination.background
+  ).then((res) => res as unknown as OnMessageResponse);
 };
 
 export const providerSendMessage = (
   provider: ProviderName,
   message: string
 ): Promise<any> => {
-  return sendToBackgroundFromWindow(MessageType.REQUEST, {
+  return sendToBackgroundFromWindow({
     provider: provider,
     message: message,
   }).then((res) => {
@@ -40,8 +41,8 @@ export const setWindowNamespace = (): void => {
   setNamespace(EXTENSION_NAMESPACE);
 };
 
-export const windowOnMessage = (type: MessageType, cb: onMessgeType): void => {
-  onMessage(type, async (message) => {
+export const windowOnMessage = (cb: onMessgeType): void => {
+  onMessage(MessageType.WINDOW_REQUEST, async (message) => {
     assert(
       message.sender.context === "background",
       "Message didnt come from background"

@@ -6,6 +6,7 @@ import {
 } from "@enkryptcom/types";
 import Middlewares from "./methods";
 import EventEmitter from "eventemitter3";
+import { ProviderRPCRequest } from "@/types/provider";
 class PolkadotProvider extends EventEmitter {
   requestProvider: RequestClass;
   middlewares: MiddlewareFunction[] = [];
@@ -26,7 +27,7 @@ class PolkadotProvider extends EventEmitter {
   setRequestProvider(url: string): void {
     this.requestProvider.changeNetwork(url);
   }
-  request(request: RPCRequestType): Promise<OnMessageResponse> {
+  request(request: ProviderRPCRequest): Promise<OnMessageResponse> {
     return this.requestProvider
       .request(request)
       .then((res) => {

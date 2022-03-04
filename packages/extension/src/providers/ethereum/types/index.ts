@@ -1,4 +1,4 @@
-import { Provider as InjectedProvider } from "../inject";
+import type { Provider as InjectedProvider } from "../inject";
 
 export interface ProviderMessage {
   method: MessageMethod;

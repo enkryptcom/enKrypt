@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { ProviderName, ProviderType, Provider } from "@/types/provider";
+import { ProviderName, ProviderType, EthereumProvider } from "@/types/provider";
 import EthereumInject from "../inject";
 import { MessageMethod, EmitEvent } from "../types";
 import { OnMessageResponse } from "@enkryptcom/types";
@@ -25,7 +25,7 @@ const tempWindow: EnkryptWindow = {
 describe("Test injected Ethereum", () => {
   it("should have default values", async () => {
     EthereumInject(tempWindow, options);
-    const provider = tempWindow[ProviderName.ethereum] as Provider;
+    const provider = tempWindow[ProviderName.ethereum] as EthereumProvider;
     expect(provider.name).to.equal(ProviderName.ethereum);
     expect(provider.chainId).to.equal("0x1");
     expect(provider.isEnkrypt).to.equal(true);
@@ -36,7 +36,7 @@ describe("Test injected Ethereum", () => {
 describe("Test emitted events", () => {
   it("should emit chainChanged", (done) => {
     EthereumInject(tempWindow, options);
-    const provider = tempWindow[ProviderName.ethereum] as Provider;
+    const provider = tempWindow[ProviderName.ethereum] as EthereumProvider;
     const chainId = "0x5";
     provider.on(EmitEvent.chainChanged, (_chainId) => {
       expect(provider.chainId).to.equal(chainId);
@@ -52,7 +52,7 @@ describe("Test emitted events", () => {
   });
   it("should emit accountsChanged", (done) => {
     EthereumInject(tempWindow, options);
-    const provider = tempWindow[ProviderName.ethereum] as Provider;
+    const provider = tempWindow[ProviderName.ethereum] as EthereumProvider;
     const address = "0xDECAF9CD2367cdbb726E904cD6397eDFcAe6068D";
     provider.on(EmitEvent.accountsChanged, (addresses) => {
       expect(addresses).deep.equal([address]);
@@ -68,7 +68,7 @@ describe("Test emitted events", () => {
   });
   it("should emit connect", (done) => {
     EthereumInject(tempWindow, options);
-    const provider = tempWindow[ProviderName.ethereum] as Provider;
+    const provider = tempWindow[ProviderName.ethereum] as EthereumProvider;
     const chainId = "0x5";
     provider.on(EmitEvent.connect, (connectionInfo) => {
       expect(connectionInfo).deep.equal({
@@ -86,7 +86,7 @@ describe("Test emitted events", () => {
   });
   it("should emit disconnect", (done) => {
     EthereumInject(tempWindow, options);
-    const provider = tempWindow[ProviderName.ethereum] as Provider;
+    const provider = tempWindow[ProviderName.ethereum] as EthereumProvider;
     const disconnectCode = 4901;
     provider.on(EmitEvent.disconnect, (connectionInfo) => {
       expect(connectionInfo).deep.equal({

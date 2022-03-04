@@ -17,13 +17,15 @@ export default class Signer implements SignerInterface {
     this.sendMessageHandler = options.sendMessageHandler;
   }
 
-  public async signPayload(payload: SignerPayloadJSON): Promise<SignerResult> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public async signPayload(_payload: SignerPayloadJSON): Promise<SignerResult> {
     return {
       id: 0,
       signature: "0xabc",
     };
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async signRaw(payload: SignerPayloadRaw): Promise<SignerResult> {
     return {
       id: 0,

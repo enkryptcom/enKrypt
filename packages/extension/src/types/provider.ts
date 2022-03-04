@@ -1,7 +1,8 @@
-import { InjectedProvider as EthereumProvider } from "../providers/ethereum/types";
-import { OnMessageResponse } from "@enkryptcom/types";
+import type { InjectedProvider as EthereumProvider } from "../providers/ethereum/types";
+import type { InjectedProvider as PolkadotProvider } from "@/providers/polkadot/types";
 import EventEmitter from "eventemitter3";
 import { EXTENSION_VERSION } from "@/configs/constants";
+import { RPCRequestType } from "@enkryptcom/types";
 
 export enum ProviderName {
   enkrypt = "enkrypt",
@@ -16,7 +17,7 @@ export enum ProviderType {
 export type SendMessageHandler = (
   provider: ProviderName,
   message: string
-) => Promise<OnMessageResponse>;
+) => Promise<any>;
 
 export interface ProviderOptions {
   name: ProviderName;
@@ -47,5 +48,15 @@ export type handleOutgoingMessage = (
   provider: Provider,
   message: string
 ) => Promise<any>;
+export { EthereumProvider, PolkadotProvider };
+export type Provider = EthereumProvider | PolkadotProvider;
 
-export type Provider = EthereumProvider;
+export interface ProviderRequestOptions {
+  url: string;
+  domain: string;
+  faviconURL: string;
+  title: string;
+}
+export interface ProviderRPCRequest extends RPCRequestType {
+  options?: ProviderRequestOptions;
+}
