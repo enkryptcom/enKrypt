@@ -18,11 +18,18 @@ export default class Signer implements SignerInterface {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public async signPayload(_payload: SignerPayloadJSON): Promise<SignerResult> {
-    return {
-      id: 0,
-      signature: "0xabc",
-    };
+  public async signPayload(payload: SignerPayloadJSON): Promise<SignerResult> {
+    return this.sendMessageHandler(this.id, {
+      method: "dot_signer_signPayload",
+      params: [payload],
+    }).then((sig) => {
+      console.log("signed", sig);
+      nextId++;
+      return {
+        signature: sig,
+        id: nextId,
+      };
+    });
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
