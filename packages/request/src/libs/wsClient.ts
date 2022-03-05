@@ -72,7 +72,7 @@ class WSClient extends EventEmitter implements RequestClass {
       if (curQueue.length) {
         curQueue.forEach((id) => {
           const item = this.queue[id];
-          this.request(item.request).then(item.resolve);
+          this.request(item.request).then(item.resolve).catch(item.reject);
           delete this.queue[id];
         });
       }
@@ -103,9 +103,10 @@ class WSClient extends EventEmitter implements RequestClass {
         );
       });
     }
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       this.queue[uuidv4()] = {
         resolve,
+        reject,
         request: req,
       };
     });

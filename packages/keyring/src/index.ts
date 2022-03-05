@@ -16,24 +16,24 @@ import configs from "./configs";
 import { pathParser } from "./utils";
 
 class KeyRing {
-  private storage: Storage;
+  #storage: Storage;
 
-  private _isLocked: boolean;
+  #_isLocked: boolean;
 
-  signers: { [key in SignerType]: SignerInterface };
+  #signers: { [key in SignerType]: SignerInterface };
 
-  private _mnemonic: string;
+  #_mnemonic: string;
 
-  private _autoLock: number;
+  #_autoLock: number;
 
-  autoLockTime: number;
+  readonly autoLockTime: number;
 
   constructor(storage: Storage, locktime = 30 * 60 * 1000) {
-    this.storage = storage;
-    this._isLocked = true;
+    this.#storage = storage;
+    this.#_isLocked = true;
     this.autoLockTime = locktime;
 
-    this.signers = {
+    this.#signers = {
       [SignerType.secp256k1]: new EthereumSigner(),
       [SignerType.ecdsa]: new PolkadotSigner(SignerType.ecdsa),
       [SignerType.ed25519]: new PolkadotSigner(SignerType.ed25519),
@@ -49,24 +49,24 @@ class KeyRing {
     }: { strength?: number; mnemonic?: string } = {}
   ): Promise<void> {
     assert(
-      !(await this.storage.get(configs.STORAGE_KEYS.ENCRYPTED_MNEMONIC)),
+      !(await this.#storage.get(configs.STORAGE_KEYS.ENCRYPTED_MNEMONIC)),
       Errors.KeyringErrors.MnemonicExists
     );
     assert(password, Errors.KeyringErrors.NoPassword);
     const entropy = hexToBuffer(mnemonicToEntropy(mnemonic));
     const encrypted = await encrypt(entropy, password);
-    await this.storage.set(configs.STORAGE_KEYS.ENCRYPTED_MNEMONIC, encrypted);
+    await this.#storage.set(configs.STORAGE_KEYS.ENCRYPTED_MNEMONIC, encrypted);
   }
 
   async getPathIndex(basePath: string): Promise<number> {
     const pathIndexes =
-      (await this.storage.get(configs.STORAGE_KEYS.PATH_INDEXES)) || {};
+      (await this.#storage.get(configs.STORAGE_KEYS.PATH_INDEXES)) || {};
     if (pathIndexes[basePath] === undefined) return 0;
     return pathIndexes[basePath] + 1;
   }
 
   private async _getMnemonic(password: string): Promise<string> {
-    const encrypted = await this.storage.get(
+    const encrypted = await this.#storage.get(
       configs.STORAGE_KEYS.ENCRYPTED_MNEMONIC
     );
     assert(encrypted, Errors.KeyringErrors.NotInitialized);
@@ -75,13 +75,13 @@ class KeyRing {
   }
 
   async unlockMnemonic(password: string): Promise<void> {
-    this._mnemonic = await this._getMnemonic(password);
-    this._isLocked = false;
+    this.#_mnemonic = await this._getMnemonic(password);
+    this.#_isLocked = false;
     if (this.autoLockTime !== 0) {
-      clearTimeout(this._autoLock);
+      clearTimeout(this.#_autoLock);
       setTimeout(() => {
-        this._mnemonic = null;
-        this._isLocked = true;
+        this.#_mnemonic = null;
+        this.#_isLocked = true;
       }, this.autoLockTime);
     }
   }
@@ -91,10 +91,10 @@ class KeyRing {
   }
 
   async createKey(key: KeyRecordAdd): Promise<KeyRecord> {
-    assert(!this._isLocked, Errors.KeyringErrors.Locked);
+    assert(!this.#_isLocked, Errors.KeyringErrors.Locked);
     const nextIndex = await this.getPathIndex(key.basePath);
-    const keypair = await this.signers[key.type].generate(
-      this._mnemonic,
+    const keypair = await this.#signers[key.type].generate(
+      this.#_mnemonic,
       pathParser(key.basePath, nextIndex, key.type)
     );
     return {
@@ -115,25 +115,25 @@ class KeyRing {
       Errors.KeyringErrors.AddressExists
     );
     existingKeys[keyRecord.address] = keyRecord;
-    await this.storage.set(configs.STORAGE_KEYS.KEY_INFO, existingKeys);
+    await this.#storage.set(configs.STORAGE_KEYS.KEY_INFO, existingKeys);
     const pathIndexes =
-      (await this.storage.get(configs.STORAGE_KEYS.PATH_INDEXES)) || {};
+      (await this.#storage.get(configs.STORAGE_KEYS.PATH_INDEXES)) || {};
     pathIndexes[keyRecord.basePath] = keyRecord.pathIndex;
-    await this.storage.set(configs.STORAGE_KEYS.PATH_INDEXES, pathIndexes);
+    await this.#storage.set(configs.STORAGE_KEYS.PATH_INDEXES, pathIndexes);
     return keyRecord;
   }
 
   async sign(msgHash: string, options: SignOptions): Promise<string> {
-    assert(!this._isLocked, Errors.KeyringErrors.Locked);
-    const keypair = await this.signers[options.type].generate(
-      this._mnemonic,
+    assert(!this.#_isLocked, Errors.KeyringErrors.Locked);
+    const keypair = await this.#signers[options.type].generate(
+      this.#_mnemonic,
       pathParser(options.basePath, options.pathIndex, options.type)
     );
-    return this.signers[options.type].sign(msgHash, keypair);
+    return this.#signers[options.type].sign(msgHash, keypair);
   }
 
   async getKeysObject(): Promise<{ [key: string]: KeyRecord }> {
-    const jsonstr = await this.storage.get(configs.STORAGE_KEYS.KEY_INFO);
+    const jsonstr = await this.#storage.get(configs.STORAGE_KEYS.KEY_INFO);
     if (!jsonstr) return {};
     return jsonstr;
   }
@@ -143,13 +143,13 @@ class KeyRing {
   }
 
   isLocked(): boolean {
-    return this._isLocked;
+    return this.#_isLocked;
   }
 
   lock(): void {
-    clearTimeout(this._autoLock);
-    this._mnemonic = null;
-    this._isLocked = true;
+    clearTimeout(this.#_autoLock);
+    this.#_mnemonic = null;
+    this.#_isLocked = true;
   }
 }
 

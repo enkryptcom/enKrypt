@@ -5,6 +5,7 @@ import {
   keccak256,
   utf8ToHex,
 } from "web3-utils";
+import { encodeAddress as polkadotEncodeAddress } from "@polkadot/util-crypto";
 import { encrypt, decrypt } from "./encrypt";
 import MemoryStorage from "./memory-storage";
 
@@ -13,7 +14,12 @@ const bufferToHex = (buf: Buffer | Uint8Array, nozerox = false): string =>
     ? Buffer.from(buf).toString("hex")
     : `0x${Buffer.from(buf).toString("hex")}`;
 const hexToBuffer = (hex: string): Buffer =>
-  Buffer.from(stripHexPrefix(hex), "hex");
+  Buffer.from(
+    stripHexPrefix(hex).length % 2 === 1
+      ? `0${stripHexPrefix(hex)}`
+      : stripHexPrefix(hex),
+    "hex"
+  );
 
 export {
   stripHexPrefix,
@@ -26,4 +32,5 @@ export {
   decrypt,
   MemoryStorage,
   keccak256,
+  polkadotEncodeAddress,
 };

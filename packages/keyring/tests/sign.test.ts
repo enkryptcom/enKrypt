@@ -1,6 +1,6 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { expect } from "chai";
-import { MemoryStorage, keccak256, utf8ToHex } from "@enkryptcom/utils";
+import { MemoryStorage, keccak256 } from "@enkryptcom/utils";
 import Storage from "@enkryptcom/storage";
 import { SignerType } from "@enkryptcom/types";
 import { u8aWrapBytes, u8aToHex, stringToU8a } from "@polkadot/util";

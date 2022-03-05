@@ -4,6 +4,7 @@ import { RPCRequestType, MiddlewareFunction } from "@enkryptcom/types";
 export interface WSQueueType {
   [key: string]: {
     resolve: (a: any) => void;
+    reject: (a: any) => void;
     request: RPCRequestType;
   };
 }

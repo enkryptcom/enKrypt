@@ -4,20 +4,9 @@ import WindowPromise from "@/libs/window-promise";
 import BrowserStorage from "@/libs/common/browser-storage";
 import KeyRing from "@enkryptcom/keyring";
 import { InternalStorageNamespace, ProviderRPCRequest } from "@/types/provider";
-import {
-  polkadotEncodeAddress,
-  utf8ToHex,
-  bytesToHex,
-} from "@enkryptcom/utils";
-import {
-  isAscii,
-  u8aToString,
-  u8aUnwrapBytes,
-  u8aToHex,
-  u8aConcat,
-  hexToU8a,
-} from "@polkadot/util";
-import { SignerPayloadJSON, SignerPayloadRaw } from "@polkadot/types/types";
+import { polkadotEncodeAddress } from "@enkryptcom/utils";
+import { u8aToHex, u8aConcat, hexToU8a } from "@polkadot/util";
+import { SignerPayloadJSON } from "@polkadot/types/types";
 import { TypeRegistry } from "@polkadot/types";
 const method: MiddlewareFunction = function (
   this: EthereumProvider,
@@ -31,17 +20,8 @@ const method: MiddlewareFunction = function (
     const kr = new KeyRing(storage);
     if (!payload.params?.length)
       return res(new Error("Missing Params: signer_signPayload"));
-    console.log(payload);
     const reqPayload = payload.params[0] as SignerPayloadJSON;
     const registry = new TypeRegistry();
-
-    // const currentMetadata = this.#state.knownMetadata.find(
-    //   (meta: MetadataDef) => meta.genesisHash === payload.genesisHash
-    // );
-    //  if (currentMetadata) {
-    //    registry.register(currentMetadata?.types);
-    //  }
-
     registry.setSignedExtensions(reqPayload.signedExtensions);
     const pAddress = polkadotEncodeAddress(reqPayload.address);
     const TYPE_PREFIX = {
@@ -64,10 +44,6 @@ const method: MiddlewareFunction = function (
               pathIndex: key.pathIndex,
               type: key.type,
             }).then((sig) => {
-              console.log(
-                sig,
-                u8aToHex(u8aConcat(new Uint8Array([1]), hexToU8a(sig)))
-              );
               res(
                 null,
                 u8aToHex(
@@ -81,26 +57,10 @@ const method: MiddlewareFunction = function (
               );
             });
           },
-          address: "",
-          addressRaw: new Uint8Array([1]),
-          publicKey: new Uint8Array([1]),
+          address: "", //dont need it since we are not using the keypair
+          addressRaw: new Uint8Array(), //dont need it since we are not using the keypair
+          publicKey: new Uint8Array(), //dont need it since we are not using the keypair
         });
-        // const extBytes = extType.toU8a({ method: true });
-        // console.log(extBytes.length);
-        // const signBytes =
-        //   extBytes.length > 256 ? registy.hash(extBytes) : extBytes;
-        // console.log(u8aToHex(signBytes), key, 2);
-        // kr.sign(u8aToHex(signBytes), {
-        //   basePath: key.basePath,
-        //   pathIndex: key.pathIndex,
-        //   type: key.type,
-        // }).then((sig) => {
-        //   console.log(
-        //     sig,
-        //     u8aToHex(u8aConcat(new Uint8Array([1]), hexToU8a(sig)))
-        //   );
-        //   res(null, u8aToHex(u8aConcat(new Uint8Array([1]), hexToU8a(sig))));
-        // });
       });
     });
 
@@ -143,5 +103,3 @@ export default method;
 //     registry.register(currentMetadata?.types);
 //   }
 // }
-
-// const result = request.sign(registry, pair);

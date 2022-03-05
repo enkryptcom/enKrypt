@@ -38,7 +38,6 @@ export async function sendMessage<
     throw new TypeError(
       `${errFn} Destination must be any one of known destinations`
     );
-  console.log(context, data);
   if (context === "background") {
     const { context: dest, tabId: destTabId } = endpoint;
     if (dest !== "background" && !destTabId)

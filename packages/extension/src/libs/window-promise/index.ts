@@ -3,7 +3,11 @@ import { ProviderName } from "@/types/provider";
 import { OnMessageResponse } from "@enkryptcom/types";
 import Browser from "webextension-polyfill";
 class WindowPromise {
-  async getResponse(url: string, msg: string): Promise<OnMessageResponse> {
+  async getResponse(
+    url: string,
+    msg: string,
+    unlockKeyring = false
+  ): Promise<OnMessageResponse> {
     Browser.tabs.get;
     return Browser.windows
       .create({
@@ -25,7 +29,7 @@ class WindowPromise {
           },
           tabId
         ).then((response) => {
-          Browser.tabs.remove(tabId);
+          // Browser.tabs.remove(tabId);
           return response;
         });
       });
