@@ -22,7 +22,7 @@ const requestHandler = (request: string): OnMessageResponse => {
     return {
       result: JSON.stringify("0xabcdef"),
     };
-  if (req.method === "dot_accounts")
+  if (req.method === "dot_accounts_get")
     return {
       result: JSON.stringify(sampleAccount),
     };

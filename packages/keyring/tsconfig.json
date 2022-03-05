@@ -7,7 +7,7 @@
     "removeComments": true,
     "sourceMap": true,
     "target": "esnext",
-    "module": "esnext",
+    "module": "commonjs",
     "outDir": "dist",
     "resolveJsonModule": true,
     "esModuleInterop": true,
