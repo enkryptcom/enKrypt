@@ -1,9 +1,14 @@
 <template>
   <div id="app">
-    <h1>Polkadot Transaction Approve</h1>
+    <h1>Unlock Keyring Request</h1>
     <nav class="navbar navbar-expand navbar-dark bg-dark">
       <div class="navbar-nav mr-auto">
-        Domain: {{ domain }} would like to send a transaction
+        Domain: {{ domain }} would like to unlock keyring
+      </div>
+      <div>
+        <input v-model="password" />
+        <br />
+        {{ errorMsg }}
       </div>
       <button @click="approve">approve</button>
       <button @click="deny">deny</button>
@@ -13,23 +18,20 @@
 
 <script setup lang="ts">
 import { newWindowOnMessageFromBackground } from "@/libs/messenger/extension";
-import { KeyRecord } from "@enkryptcom/types";
+import { OnMessageResponse, SignerType } from "@enkryptcom/types";
 import KeyRing from "@/libs/keyring/keyring";
 import { ProviderRPCRequest } from "@/types/provider";
-import { getCustomError, getError } from "@/libs/error";
+import { getError } from "@/libs/error";
 import { ErrorCodes } from "@/providers/ethereum/types";
 import { ref } from "vue";
 import { InternalOnMessageResponse } from "@/types/messenger";
 let domain = ref("[domainName]");
-let msgParams: any[] = [];
+let password = ref("");
+let errorMsg = ref("");
 let PromiseResolve: (res: InternalOnMessageResponse) => void;
 newWindowOnMessageFromBackground(
   (message): Promise<InternalOnMessageResponse> => {
-    console.log(message);
-    const { options, params } = JSON.parse(
-      message.message
-    ) as ProviderRPCRequest;
-    msgParams = params as any[];
+    const { options } = JSON.parse(message.message) as ProviderRPCRequest;
     domain.value = options?.domain ? options?.domain : "unknown site";
     return new Promise((resolve) => {
       PromiseResolve = resolve;
@@ -38,18 +40,15 @@ newWindowOnMessageFromBackground(
 );
 const approve = () => {
   const kr = KeyRing;
-  const msg = msgParams[0] as `0x{string}`;
-  const account = msgParams[1] as KeyRecord;
-  kr.sign(msg, account)
-    .then((sig) => {
+  console.log(password.value);
+  kr.unlock(password.value)
+    .then(() => {
       PromiseResolve({
-        result: JSON.stringify(sig),
+        result: JSON.stringify(true),
       });
     })
-    .catch((e) => {
-      PromiseResolve({
-        error: getCustomError(e.message),
-      });
+    .catch((err) => {
+      errorMsg.value = err.message;
     });
 };
 const deny = () => {

@@ -1,4 +1,5 @@
-import { ProviderRpcError, ErrorCodes, JSONError } from "../types";
+import { ErrorCodes, JSONError } from "../../providers/ethereum/types";
+import { ProviderError } from "@enkryptcom/types";
 import { assert } from "chai";
 const errors: Record<number, any> = {
   4001: {
@@ -24,12 +25,16 @@ const errors: Record<number, any> = {
   },
 };
 
-export const getError = (
-  code: ErrorCodes,
-  data?: unknown
-): ProviderRpcError => {
+export const getCustomError = (msg: string, code = 8546): ProviderError => {
+  const ret: ProviderError = {
+    code,
+    message: `${code}: ${msg}`,
+  };
+  return ret;
+};
+export const getError = (code: ErrorCodes, data?: unknown): ProviderError => {
   assert(errors[code], "error code is invalid");
-  const ret: ProviderRpcError = {
+  const ret: ProviderError = {
     code,
     message: `${errors[code].name}: ${errors[code].description}`,
   };

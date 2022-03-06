@@ -8,8 +8,10 @@ import {
   Message,
   MessageType,
   Destination,
-  onMessgeType,
+  onMessageType,
   SendMessage,
+  InternalMessageType,
+  InternalOnMessageResponse,
 } from "@/types/messenger";
 import { OnMessageResponse } from "@enkryptcom/types";
 import { assert } from "chai";
@@ -31,34 +33,37 @@ export const setContentScriptNamespace = (): void => {
 
 export const sendToBackgroundFromNewWindow = (
   message: SendMessage
-): Promise<OnMessageResponse> => {
+): Promise<InternalOnMessageResponse> => {
   return sendMessage(
     MessageType.NEWWINDOW_REQUEST,
     message,
     Destination.background
-  ).then((res) => res as unknown as OnMessageResponse);
+  ).then((res) => res as unknown as InternalOnMessageResponse);
 };
 
 export const sendToNewWindowFromBackground = (
   message: SendMessage,
   tabId: number
-): Promise<OnMessageResponse> => {
+): Promise<InternalOnMessageResponse> => {
   return sendMessage(
     MessageType.NEWWINDOW_REQUEST,
     message,
     `${Destination.newWindow}@${tabId}`
-  ).then((res) => res as unknown as OnMessageResponse);
+  ).then((res) => res as unknown as InternalOnMessageResponse);
 };
 
-const backgroundOnMessage = (type: MessageType, cb: onMessgeType): void => {
+const backgroundOnMessage = (
+  type: MessageType,
+  cb: onMessageType | InternalMessageType
+): void => {
   onMessage(type, async (message) => {
     const msg = message.data as Message;
     msg.sender = message.sender;
     return cb(msg);
   });
 };
-export const backgroundOnMessageFromWindow = (cb: onMessgeType): void => {
-  backgroundOnMessage(MessageType.WINDOW_REQUEST, async (message) => {
+export const backgroundOnMessageFromWindow = (cb: onMessageType): void => {
+  backgroundOnMessage(MessageType.WINDOW_REQUEST, (message) => {
     assert(
       message.sender.context === "window",
       "Message didnt come from window"
@@ -67,7 +72,9 @@ export const backgroundOnMessageFromWindow = (cb: onMessgeType): void => {
   });
 };
 
-export const backgroundOnMessageFromNewWindow = (cb: onMessgeType): void => {
+export const backgroundOnMessageFromNewWindow = (
+  cb: InternalMessageType
+): void => {
   backgroundOnMessage(MessageType.NEWWINDOW_REQUEST, async (message) => {
     assert(
       message.sender.context === "new-window",
@@ -77,7 +84,9 @@ export const backgroundOnMessageFromNewWindow = (cb: onMessgeType): void => {
   });
 };
 
-export const newWindowOnMessageFromBackground = (cb: onMessgeType): void => {
+export const newWindowOnMessageFromBackground = (
+  cb: InternalMessageType
+): void => {
   backgroundOnMessage(MessageType.NEWWINDOW_REQUEST, async (message) => {
     assert(
       message.sender.context === "background",

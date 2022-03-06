@@ -13,7 +13,7 @@ const method: MiddlewareFunction = function (
     windowPromise
       .getResponse("index.html#/polkadot/dotaccounts", JSON.stringify(payload))
       .then(({ error, result }) => {
-        if (error) res(JSON.parse(error));
+        if (error) res(error);
         res(null, JSON.parse(result || "[]"));
       });
   }

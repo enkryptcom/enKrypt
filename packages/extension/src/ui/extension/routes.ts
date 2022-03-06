@@ -3,7 +3,8 @@ import Home from "./home.vue";
 
 import EthereumUI from "./ethereum";
 import PolkadotUI from "./polkadot";
-const uiproviders = [EthereumUI, PolkadotUI];
+import EnkryptUI from "./enkrypt";
+const uiproviders = [EthereumUI, PolkadotUI, EnkryptUI];
 let uiRoutes: RouteRecordRaw[] = [];
 uiproviders.forEach((provider) => {
   uiRoutes = uiRoutes.concat(provider.routes);

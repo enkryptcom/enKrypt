@@ -1,5 +1,5 @@
 import type { Provider as InjectedProvider } from "../inject";
-
+import { ProviderError } from "@enkryptcom/types";
 export interface ProviderMessage {
   method: MessageMethod;
   params: Array<any>;
@@ -19,19 +19,13 @@ export enum EmitEvent {
   message = "message",
 }
 
-export interface ProviderRpcError {
-  message: string;
-  code: number;
-  data?: unknown;
-}
-
 export interface JSONError {
-  error: ProviderRpcError;
+  error: ProviderError;
 }
 
 export interface EthereumResponse {
   result?: any;
-  error?: ProviderRpcError;
+  error?: ProviderError;
 }
 
 export enum ErrorCodes {

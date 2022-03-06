@@ -12,6 +12,7 @@ enum KeyringErrors {
   NotInitialized = "Key ring not initialized",
   NoPassword = "No password set",
   AddressExists = "Address already exists",
+  AddressDoesntExists = "Address doesnt exists in the keyring",
   Locked = "Keyring locked",
 }
 
@@ -89,7 +90,14 @@ interface RPCResponseType {
   result?: any;
   error?: any;
 }
-type CallbackFunction = (err: Error | null, result?: any) => void;
+
+interface ProviderError {
+  message: string;
+  code?: number;
+  data?: unknown;
+}
+
+type CallbackFunction = (err: ProviderError | null, result?: any) => void;
 
 type NextFunction = () => void;
 
@@ -108,6 +116,7 @@ interface SignOptions {
   pathIndex: number;
   type: SignerType;
 }
+
 export {
   Errors,
   SignerInterface,
@@ -123,4 +132,5 @@ export {
   CallbackFunction,
   OnMessageResponse,
   SignOptions,
+  ProviderError,
 };

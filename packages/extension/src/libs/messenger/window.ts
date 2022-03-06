@@ -9,7 +9,7 @@ import {
   SendMessage,
   MessageType,
   Destination,
-  onMessgeType,
+  onMessageType,
 } from "@/types/messenger";
 import { OnMessageResponse } from "@enkryptcom/types";
 import { ProviderName } from "@/types/provider";
@@ -41,7 +41,7 @@ export const setWindowNamespace = (): void => {
   setNamespace(EXTENSION_NAMESPACE);
 };
 
-export const windowOnMessage = (cb: onMessgeType): void => {
+export const windowOnMessage = (cb: onMessageType): void => {
   onMessage(MessageType.WINDOW_REQUEST, async (message) => {
     assert(
       message.sender.context === "background",

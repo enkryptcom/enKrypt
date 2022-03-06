@@ -5,12 +5,13 @@
     "node_modules/**/node_modules",
     "**/dist/**/*",
     "*auto-imports.d.ts",
-    "*components.d.ts"
+    "*components.d.ts",
+    "packages/extension/**/*"
   ],
   "verbose": true,
   "watch": ["packages/**/src/**/*"],
   "env": {
     "NODE_ENV": "development"
   },
-  "ext": "ts,vue"
+  "ext": "ts"
 }

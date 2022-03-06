@@ -7,6 +7,7 @@ import { InternalStorageNamespace, ProviderRPCRequest } from "@/types/provider";
 import { polkadotEncodeAddress, utf8ToHex } from "@enkryptcom/utils";
 import { isAscii, u8aToString, u8aUnwrapBytes } from "@polkadot/util";
 import { SignerPayloadRaw } from "@polkadot/types/types";
+import { getCustomError } from "@/libs/error";
 const method: MiddlewareFunction = function (
   this: EthereumProvider,
   payload: ProviderRPCRequest,
@@ -18,10 +19,10 @@ const method: MiddlewareFunction = function (
     const storage = new BrowserStorage(InternalStorageNamespace.keyring);
     const kr = new KeyRing(storage);
     if (!payload.params?.length)
-      return res(new Error("Missing Params: signer_signRaw"));
+      return res(getCustomError("Missing Params: signer_signRaw"));
     const reqPayload = payload.params[0] as SignerPayloadRaw;
     if (reqPayload.type !== "bytes")
-      return res(new Error("type is not bytes: signer_signRaw"));
+      return res(getCustomError("type is not bytes: signer_signRaw"));
     const pAddress = polkadotEncodeAddress(reqPayload.address);
     kr.getKeysObject().then((keys) => {
       const key = keys[pAddress];

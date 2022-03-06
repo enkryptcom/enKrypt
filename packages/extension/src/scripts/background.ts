@@ -6,6 +6,7 @@ import {
   sendToWindow,
 } from "@/libs/messenger/extension";
 import { ProviderName, InternalStorageNamespace } from "@/types/provider";
+import { InternalOnMessageResponse } from "@/types/messenger";
 import { OnMessageResponse, SignerType } from "@enkryptcom/types";
 import EthereumProvider from "@/providers/ethereum";
 import PolkadotProvider from "@/providers/polkadot";
@@ -49,20 +50,22 @@ const tabProviders: TabProviderType = {
 //   });
 
 // const rpcProviders: Record<number, RequestClass> = {};
-backgroundOnMessageFromNewWindow(async (msg): Promise<OnMessageResponse> => {
-  console.log(msg);
-  // windowPromise.getResponse("onboard.html");
-  // sendToNewWindowFromBackground(
-  //   {
-  //     provider: ProviderName.enkrypt,
-  //     message: "sending message from background",
-  //   },
-  //   msg.sender.tabId
-  // );
-  return {
-    result: "hello from background",
-  };
-});
+backgroundOnMessageFromNewWindow(
+  async (msg): Promise<InternalOnMessageResponse> => {
+    console.log(msg);
+    // windowPromise.getResponse("onboard.html");
+    // sendToNewWindowFromBackground(
+    //   {
+    //     provider: ProviderName.enkrypt,
+    //     message: "sending message from background",
+    //   },
+    //   msg.sender.tabId
+    // );
+    return {
+      result: "hello from background",
+    };
+  }
+);
 backgroundOnMessageFromWindow(async (msg): Promise<OnMessageResponse> => {
   const { method, params } = JSON.parse(msg.message);
   const _provider = msg.provider;

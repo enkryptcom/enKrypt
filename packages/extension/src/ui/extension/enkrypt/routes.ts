@@ -1,9 +1,7 @@
-import dotAccounts from "./dot-accounts.vue";
-import dotTxApprove from "./dot-approvetx.vue";
+import unlockKeyring from "./unlock-keyring.vue";
 import { RouteRecordRaw } from "vue-router";
 const routes: RouteRecordRaw[] = [
-  { path: "/dotaccounts", component: dotAccounts, name: "dotaccounts" },
-  { path: "/dotTxApprove", component: dotTxApprove, name: "dotTxApprove" },
+  { path: "/unlock-keyring", component: unlockKeyring, name: "unlockKeyring" },
 ];
 export default (namespace: string): RouteRecordRaw[] => {
   return routes.map((route) => {
