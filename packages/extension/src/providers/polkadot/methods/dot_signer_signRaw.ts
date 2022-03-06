@@ -1,6 +1,5 @@
 import { MiddlewareFunction } from "@enkryptcom/types";
 import EthereumProvider from "..";
-import WindowPromise from "@/libs/window-promise";
 import BrowserStorage from "@/libs/common/browser-storage";
 import KeyRing from "@enkryptcom/keyring";
 import { InternalStorageNamespace, ProviderRPCRequest } from "@/types/provider";

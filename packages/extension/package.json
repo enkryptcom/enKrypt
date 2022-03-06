@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "watch-vue": "vue-cli-service build --watch --no-clean",
-    "watch-ic": "nodemon --exec 'npm run build:rollup'",
+    "watch-inject": "rollup --watch --config configs/rollup.config.inject.js",
+    "watch-contentscript": "rollup --watch --config configs/rollup.config.contentscript.js",
     "watch": "concurrently 'npm:watch-*'",
     "build:vue": "vue-cli-service build --no-clean",
     "build": "npm run build:vue && npm run build:rollup",
@@ -28,7 +29,6 @@
     "core-js": "^3.21.0",
     "crx-hotreload": "^1.0.6",
     "eventemitter3": "^4.0.7",
-    "nodemon": "^2.0.15",
     "rollup-plugin-node-builtins": "^2.1.2",
     "url-parse": "^1.5.10",
     "vue": "^3.2.31",

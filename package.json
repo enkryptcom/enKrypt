@@ -20,11 +20,14 @@
     "test": "yarn workspaces run test",
     "lint": "yarn workspaces run lint",
     "build:all": "ultra -r build",
-    "watch": "nodemon --exec 'yarn run build:all && node scripts/compile-done.js'"
+    "watch": "concurrently 'npm:watch-*'",
+    "watch-extension": "cd packages/extension && npm run watch",
+    "watch-ts": "nodemon --exec 'yarn run build:all && node scripts/compile-done.js'"
   },
   "devDependencies": {
     "@commitlint/cli": "^16.1.0",
     "@commitlint/config-conventional": "^16.0.0",
+    "concurrently": "^7.0.0",
     "devmoji": "^2.3.0",
     "husky": "^7.0.4",
     "node-notifier": "^10.0.1",

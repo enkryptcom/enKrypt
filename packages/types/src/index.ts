@@ -93,7 +93,7 @@ interface RPCResponseType {
 
 interface ProviderError {
   message: string;
-  code?: number;
+  code: number;
   data?: unknown;
 }
 

@@ -18,7 +18,6 @@
 
 <script setup lang="ts">
 import { newWindowOnMessageFromBackground } from "@/libs/messenger/extension";
-import { OnMessageResponse, SignerType } from "@enkryptcom/types";
 import KeyRing from "@/libs/keyring/keyring";
 import { ProviderRPCRequest } from "@/types/provider";
 import { getError } from "@/libs/error";

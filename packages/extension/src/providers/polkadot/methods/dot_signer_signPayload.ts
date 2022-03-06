@@ -1,10 +1,8 @@
 import { MiddlewareFunction } from "@enkryptcom/types";
 import EthereumProvider from "..";
 import WindowPromise from "@/libs/window-promise";
-import BrowserStorage from "@/libs/common/browser-storage";
 import KeyRing from "@/libs/keyring/public-keyring";
 import { ProviderRPCRequest } from "@/types/provider";
-import { u8aToHex, u8aConcat, hexToU8a } from "@polkadot/util";
 import { SignerPayloadJSON } from "@polkadot/types/types";
 import { TypeRegistry } from "@polkadot/types";
 import {
