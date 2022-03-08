@@ -9,7 +9,7 @@ import {
 } from "@enkryptcom/types";
 import { RouteRecordRaw } from "vue-router";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
-import { RoutesType } from "@/ui/extension/types";
+import { RoutesType } from "./ui";
 
 export enum ProviderName {
   enkrypt = "enkrypt",

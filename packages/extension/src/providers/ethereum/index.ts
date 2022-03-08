@@ -11,7 +11,7 @@ import {
 } from "@/types/provider";
 import GetUIPath from "@/libs/utils/get-ui-path";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
-import { routes as UIRoutes } from "@/ui/extension/ethereum/routes";
+import { routes as UIRoutes } from "./ui/routes";
 class EthereumProvider
   extends EventEmitter
   implements BackgroundProviderInterface

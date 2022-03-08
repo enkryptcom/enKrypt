@@ -1,8 +1,8 @@
 import { RouteRecordRaw } from "vue-router";
 import Home from "./home.vue";
 
-import EthereumUI from "./ethereum";
-import PolkadotUI from "./polkadot";
+import EthereumUI from "@/providers/ethereum/ui";
+import PolkadotUI from "@/providers/polkadot/ui";
 import EnkryptUI from "./enkrypt";
 const uiproviders = [EthereumUI, PolkadotUI, EnkryptUI];
 let uiRoutes: RouteRecordRaw[] = [];
