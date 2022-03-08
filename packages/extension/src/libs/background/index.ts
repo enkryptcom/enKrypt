@@ -1,14 +1,62 @@
-import { InternalMethods, InternalOnMessageResponse } from "@/types/messenger";
-
+import {
+  InternalMethods,
+  InternalOnMessageResponse,
+  Message,
+} from "@/types/messenger";
 import { KeyRecord, RPCRequestType } from "@enkryptcom/types";
 import { getCustomError } from "../error";
 import KeyRingBase from "../keyring/keyring";
+import { sendToWindow } from "@/libs/messenger/extension";
+import { ProviderName } from "@/types/provider";
+import { OnMessageResponse } from "@enkryptcom/types";
+import EthereumProvider from "@/providers/ethereum";
+import PolkadotProvider from "@/providers/polkadot";
+import Browser from "webextension-polyfill";
+import TabInfo from "@/libs/utils/tab-info";
+import { TabProviderType, ProviderType } from "./types";
+
 class BackgroundHandler {
   #keyring: KeyRingBase;
+  #tabProviders: TabProviderType;
+  #providers: ProviderType;
   constructor() {
     this.#keyring = new KeyRingBase();
+    this.#tabProviders = {
+      [ProviderName.ethereum]: {},
+      [ProviderName.polkadot]: {},
+    };
+    this.#providers = {
+      [ProviderName.ethereum]: EthereumProvider,
+      [ProviderName.polkadot]: PolkadotProvider,
+    };
   }
-  internalHandler(message: RPCRequestType): Promise<InternalOnMessageResponse> {
+  async externalHandler(msg: Message): Promise<OnMessageResponse> {
+    const { method, params } = JSON.parse(msg.message);
+    const _provider = msg.provider;
+    const _tabid = msg.sender.tabId;
+    if (!this.#tabProviders[_provider][_tabid]) {
+      const toWindow = (message: string) => {
+        sendToWindow(
+          {
+            provider: _provider,
+            message,
+          },
+          _tabid
+        );
+      };
+      this.#tabProviders[_provider][_tabid] = new this.#providers[_provider](
+        undefined,
+        toWindow
+      );
+    }
+    return this.#tabProviders[_provider][_tabid].request({
+      method,
+      params,
+      options: TabInfo(await Browser.tabs.get(_tabid)),
+    });
+  }
+  internalHandler(msg: Message): Promise<InternalOnMessageResponse> {
+    const message = JSON.parse(msg.message) as RPCRequestType;
     if (message.method === InternalMethods.sign) {
       if (!message.params || message.params.length < 2)
         return Promise.resolve({

@@ -1,5 +1,8 @@
 import { onMounted, reactive, ref, Ref, UnwrapNestedRefs } from "vue";
-import { newWindowOnMessageFromBackground } from "@/libs/messenger/extension";
+import {
+  newWindowOnMessageFromBackground,
+  sendToBackgroundFromNewWindow,
+} from "@/libs/messenger/extension";
 import {
   ProviderRPCRequest,
   ProviderRequestOptions,
@@ -9,7 +12,8 @@ import { Destination, InternalOnMessageResponse } from "@/types/messenger";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
 import type { WindoPromiseType } from "../types";
 import { getCustomError } from "@/libs/error";
-import sendToBackground from "@/libs/utils/send-to-background";
+import { RPCRequestType } from "@enkryptcom/types";
+
 export default (): WindoPromiseType => {
   const options: UnwrapNestedRefs<ProviderRequestOptions> = reactive({
     url: "",
@@ -24,6 +28,21 @@ export default (): WindoPromiseType => {
   );
   const Request: Ref<ProviderRPCRequest> = ref({ method: "", value: "" });
   const KeyRing: PublicKeyRing = new PublicKeyRing();
+
+  const sendToBackground = (
+    req: RPCRequestType
+  ): Promise<InternalOnMessageResponse> => {
+    return sendToBackgroundFromNewWindow({
+      provider: ProviderName.enkrypt,
+      message: JSON.stringify(req),
+    }).then((response) => {
+      if (response.error) return response;
+      else
+        return {
+          result: JSON.parse(response.result as string),
+        };
+    });
+  };
 
   onMounted(() => {
     newWindowOnMessageFromBackground(
