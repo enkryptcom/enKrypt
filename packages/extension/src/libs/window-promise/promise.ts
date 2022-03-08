@@ -2,12 +2,13 @@ import { sendToNewWindowFromBackground } from "@/libs/messenger/extension";
 import { ProviderName } from "@/types/provider";
 import Browser from "webextension-polyfill";
 import { InternalOnMessageResponse } from "@/types/messenger";
-import { getCustomError } from "../error";
+import { getCustomError, getError } from "../error";
 import getUiPath from "../utils/get-ui-path";
 import { routes as UIRoutes } from "@/ui/enkrypt/routes";
+import { ErrorCodes } from "@/providers/ethereum/types";
 const UNLOCK_PATH = getUiPath(UIRoutes.unlock.path, ProviderName.enkrypt);
 class WindowPromise {
-  async getRawResponse(
+  private async getRawResponse(
     url: string,
     msg: string,
     tabId: number
@@ -39,34 +40,49 @@ class WindowPromise {
         error: getCustomError("unknown error, no tabId"),
       });
     }
-    if (unlockKeyring) {
-      const unlockKeyring = await this.getRawResponse(
-        Browser.runtime.getURL(UNLOCK_PATH),
-        msg,
-        tabId
-      );
-      if (unlockKeyring.error) {
-        Browser.tabs.remove(tabId);
-        return unlockKeyring;
-      } else {
-        return await this.getRawResponse(
-          Browser.runtime.getURL(url),
+    const monitorTabs = (): Promise<InternalOnMessageResponse> => {
+      return new Promise((resolve) => {
+        Browser.tabs.onRemoved.addListener(function tabListener(_tabId) {
+          if (_tabId === tabId) {
+            Browser.tabs.onRemoved.removeListener(tabListener);
+            resolve({
+              error: getError(ErrorCodes.userRejected),
+            });
+          }
+        });
+      });
+    };
+    const executePromise = async (): Promise<InternalOnMessageResponse> => {
+      if (unlockKeyring) {
+        const unlockKeyring = await this.getRawResponse(
+          Browser.runtime.getURL(UNLOCK_PATH),
           msg,
           tabId
-        ).then((res) => {
+        );
+        if (unlockKeyring.error) {
           Browser.tabs.remove(tabId);
-          return res;
-        });
+          return unlockKeyring;
+        } else {
+          return await this.getRawResponse(
+            Browser.runtime.getURL(url),
+            msg,
+            tabId
+          ).then((res) => {
+            Browser.tabs.remove(tabId);
+            return res;
+          });
+        }
       }
-    }
-    return await this.getRawResponse(
-      Browser.runtime.getURL(url),
-      msg,
-      tabId
-    ).then((res) => {
-      Browser.tabs.remove(tabId);
-      return res;
-    });
+      return await this.getRawResponse(
+        Browser.runtime.getURL(url),
+        msg,
+        tabId
+      ).then((res) => {
+        Browser.tabs.remove(tabId);
+        return res;
+      });
+    };
+    return Promise.race([monitorTabs(), executePromise()]);
   }
 }
 export default WindowPromise;

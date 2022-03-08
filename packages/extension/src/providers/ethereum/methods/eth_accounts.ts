@@ -17,7 +17,7 @@ const method: MiddlewareFunction = function (
     const windowPromise = new WindowPromise();
     windowPromise
       .getResponse(
-        this.getUIPath(this.UIRoutes.ethaccounts.path),
+        this.getUIPath(this.UIRoutes.ethAccounts.path),
         JSON.stringify(payload)
       )
       .then(({ error, result }) => {

@@ -1,16 +1,22 @@
 import dotAccounts from "./dot-accounts.vue";
 import dotTxApprove from "./dot-approvetx.vue";
+import dotApproveSign from "./dot-approvesign.vue";
 import { RouteRecordRaw } from "vue-router";
 export const routes = {
   dotAccounts: {
     path: "dot-accounts",
     component: dotAccounts,
-    name: "dotaccounts",
+    name: "dotAccounts",
   },
   dotTxApprove: {
     path: "dot-tx-approve",
     component: dotTxApprove,
     name: "dotTxApprove",
+  },
+  dotMsgSignApprove: {
+    path: "dot-sign-msg-approve",
+    component: dotApproveSign,
+    name: "dotMsgSignApprove",
   },
 };
 

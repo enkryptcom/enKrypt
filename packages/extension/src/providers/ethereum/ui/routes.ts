@@ -1,10 +1,16 @@
 import ethAccounts from "./eth-accounts.vue";
+import ethSign from "./eth-sign.vue";
 import { RouteRecordRaw } from "vue-router";
 export const routes = {
-  ethaccounts: {
-    path: "ethaccounts",
+  ethAccounts: {
+    path: "eth-accounts",
     component: ethAccounts,
-    name: "ethaccounts",
+    name: "ethAccounts",
+  },
+  ethSign: {
+    path: "eth-sign",
+    component: ethSign,
+    name: "ethSign",
   },
 };
 export default (namespace: string): RouteRecordRaw[] => {

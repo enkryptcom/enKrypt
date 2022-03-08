@@ -10,15 +10,15 @@ const method: MiddlewareFunction = function (
   res,
   next
 ): void {
-  if (payload.method !== "eth_sign") return next();
+  if (payload.method !== "personal_sign") return next();
   else {
     if (!payload.params || payload.params.length < 2) {
-      return res(getCustomError("eth_sign: invalid params"));
+      return res(getCustomError("personal_sign: invalid params"));
     }
     const msg = bufferToHex(
-      hashPersonalMessage(Buffer.from(stripHexPrefix(payload.params[1])))
+      hashPersonalMessage(Buffer.from(stripHexPrefix(payload.params[0])))
     );
-    this.KeyRing.getAccount(payload.params[0].toLowerCase()).then((account) => {
+    this.KeyRing.getAccount(payload.params[1].toLowerCase()).then((account) => {
       const windowPromise = new WindowPromise();
       windowPromise
         .getResponse(
