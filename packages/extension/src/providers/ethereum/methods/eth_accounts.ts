@@ -18,7 +18,6 @@ const method: MiddlewareFunction = function (
     windowPromise
       .getResponse("index.html#/ethereum/ethaccounts", JSON.stringify(payload))
       .then(({ error, result }) => {
-        console.log(error, result);
         if (error) res(error as any);
         res(null, JSON.parse(result || "[]"));
       });

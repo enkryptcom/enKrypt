@@ -35,7 +35,10 @@ const method: MiddlewareFunction = function (
         windowPromise
           .getResponse(
             "index.html#/polkadot/dotTxApprove",
-            JSON.stringify({ params: [signMsg, account] }),
+            JSON.stringify({
+              ...payload,
+              params: [signMsg, account],
+            }),
             true
           )
           .then(({ error, result }) => {

@@ -3,7 +3,7 @@
     <h1>Unlock Keyring Request</h1>
     <nav class="navbar navbar-expand navbar-dark bg-dark">
       <div class="navbar-nav mr-auto">
-        Domain: {{ domain }} would like to unlock keyring
+        Domain: {{ options.domain }} would like to unlock keyring
       </div>
       <div>
         <input v-model="password" />
@@ -17,41 +17,40 @@
 </template>
 
 <script setup lang="ts">
-import { newWindowOnMessageFromBackground } from "@/libs/messenger/extension";
-import KeyRing from "@/libs/keyring/keyring";
-import { ProviderRPCRequest } from "@/types/provider";
 import { getError } from "@/libs/error";
 import { ErrorCodes } from "@/providers/ethereum/types";
 import { ref } from "vue";
-import { InternalOnMessageResponse } from "@/types/messenger";
-let domain = ref("[domainName]");
+import WindowPromise from "../libs/window-promise-handler";
+import { InternalMethods } from "@/types/messenger";
+const { PromiseResolve, options, sendToBackground } = WindowPromise();
 let password = ref("");
 let errorMsg = ref("");
-let PromiseResolve: (res: InternalOnMessageResponse) => void;
-newWindowOnMessageFromBackground(
-  (message): Promise<InternalOnMessageResponse> => {
-    const { options } = JSON.parse(message.message) as ProviderRPCRequest;
-    domain.value = options?.domain ? options?.domain : "unknown site";
-    return new Promise((resolve) => {
-      PromiseResolve = resolve;
+sendToBackground({
+  method: InternalMethods.isLocked,
+}).then((res) => {
+  const isLocked = res.result as unknown as boolean;
+  if (isLocked === false) {
+    PromiseResolve.value({
+      result: JSON.stringify(res.result),
     });
   }
-);
+});
 const approve = () => {
-  const kr = KeyRing;
-  console.log(password.value);
-  kr.unlock(password.value)
-    .then(() => {
-      PromiseResolve({
-        result: JSON.stringify(true),
+  sendToBackground({
+    method: InternalMethods.unlock,
+    params: [password.value],
+  }).then((res) => {
+    if (res.error) {
+      errorMsg.value = res.error.message;
+    } else {
+      PromiseResolve.value({
+        result: JSON.stringify(res.result),
       });
-    })
-    .catch((err) => {
-      errorMsg.value = err.message;
-    });
+    }
+  });
 };
 const deny = () => {
-  PromiseResolve({
+  PromiseResolve.value({
     error: getError(ErrorCodes.userRejected),
   });
 };

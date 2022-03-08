@@ -29,5 +29,4 @@ export class KeyRingBase {
     return this.#keyring.unlockMnemonic(password);
   }
 }
-const KeyRingInstance = new KeyRingBase();
-export default KeyRingInstance;
+export default KeyRingBase;

@@ -7,12 +7,17 @@ import {
 } from "@/libs/messenger/extension";
 import { ProviderName, InternalStorageNamespace } from "@/types/provider";
 import { InternalOnMessageResponse } from "@/types/messenger";
-import { OnMessageResponse, SignerType } from "@enkryptcom/types";
+import {
+  OnMessageResponse,
+  RPCRequestType,
+  SignerType,
+} from "@enkryptcom/types";
 import EthereumProvider from "@/providers/ethereum";
 import PolkadotProvider from "@/providers/polkadot";
 import Browser from "webextension-polyfill";
 import TabInfo from "@/libs/utils/tab-info";
-
+import BackgroundHandler from "@/libs/background";
+const backgroundHandler = new BackgroundHandler();
 interface TabProviderType {
   [key: string]: Record<number, EthereumProvider | PolkadotProvider>;
 }
@@ -27,43 +32,11 @@ const tabProviders: TabProviderType = {
   [ProviderName.ethereum]: {},
   [ProviderName.polkadot]: {},
 };
-// const storage = new BrowserStorage(InternalStorageNamespace.keyring);
-
-// const kr = new KeyRing(storage);
-// kr.init("test pass")
-//   .then(() => {
-//     console.log("success");
-//   })
-//   .finally(() => {
-//     kr.getMnemonic("test pass").then(console.log);
-//     // kr.unlockMnemonic("test pass").then(() => {
-//     //   console.log("start");
-//     //   kr.createAndSaveKey({
-//     //     basePath: "m/44'/60'/0'/0",
-//     //     name: "abc-eth",
-//     //     type: SignerType.secp256k1,
-//     //   }).then((key) => {
-//     //     console.log("end1");
-//     //     console.log(key);
-//     //   });
-//     // });
-//   });
-
-// const rpcProviders: Record<number, RequestClass> = {};
 backgroundOnMessageFromNewWindow(
   async (msg): Promise<InternalOnMessageResponse> => {
-    console.log(msg);
-    // windowPromise.getResponse("onboard.html");
-    // sendToNewWindowFromBackground(
-    //   {
-    //     provider: ProviderName.enkrypt,
-    //     message: "sending message from background",
-    //   },
-    //   msg.sender.tabId
-    // );
-    return {
-      result: "hello from background",
-    };
+    return backgroundHandler.internalHandler(
+      JSON.parse(msg.message) as RPCRequestType
+    );
   }
 );
 backgroundOnMessageFromWindow(async (msg): Promise<OnMessageResponse> => {

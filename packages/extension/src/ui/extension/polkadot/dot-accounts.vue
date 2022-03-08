@@ -3,7 +3,7 @@
     <h1>Polkadot Account Request</h1>
     <nav class="navbar navbar-expand navbar-dark bg-dark">
       <div class="navbar-nav mr-auto">
-        Domain: {{ domain }} would like to access your accounts
+        Domain: {{ options.domain }} would like to access your accounts
       </div>
       <button @click="approve">approve</button>
       <button @click="deny">deny</button>
@@ -12,45 +12,31 @@
 </template>
 
 <script setup lang="ts">
-import { newWindowOnMessageFromBackground } from "@/libs/messenger/extension";
-import { OnMessageResponse, SignerType } from "@enkryptcom/types";
-import PublicKeyRing from "@/libs/keyring/public-keyring";
-import { ProviderRPCRequest } from "@/types/provider";
+import { SignerType } from "@enkryptcom/types";
 import { getError } from "@/libs/error";
 import { ErrorCodes } from "@/providers/ethereum/types";
-import { ref } from "vue";
-import { InternalOnMessageResponse } from "@/types/messenger";
-let domain = ref("[domainName]");
-let PromiseResolve: (res: InternalOnMessageResponse) => void;
-newWindowOnMessageFromBackground(
-  (message): Promise<InternalOnMessageResponse> => {
-    const { options } = JSON.parse(message.message) as ProviderRPCRequest;
-    domain.value = options?.domain ? options?.domain : "unknown site";
-    return new Promise((resolve) => {
-      PromiseResolve = resolve;
-      approve();
-    });
-  }
-);
+import WindowPromise from "../libs/window-promise-handler";
+const { PromiseResolve, options, KeyRing } = WindowPromise();
 const approve = () => {
-  const kr = new PublicKeyRing();
-  kr.getAccounts([SignerType.ed25519, SignerType.sr25519]).then((accounts) => {
-    PromiseResolve({
-      result: JSON.stringify(
-        accounts.map((acc) => {
-          return {
-            address: acc.address,
-            genesisHash: "",
-            name: acc.name,
-            type: acc.type,
-          };
-        })
-      ),
-    });
-  });
+  KeyRing.getAccounts([SignerType.ed25519, SignerType.sr25519]).then(
+    (accounts) => {
+      PromiseResolve.value({
+        result: JSON.stringify(
+          accounts.map((acc) => {
+            return {
+              address: acc.address,
+              genesisHash: "",
+              name: acc.name,
+              type: acc.type,
+            };
+          })
+        ),
+      });
+    }
+  );
 };
 const deny = () => {
-  PromiseResolve({
+  PromiseResolve.value({
     error: getError(ErrorCodes.userRejected),
   });
 };

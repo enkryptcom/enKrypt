@@ -12,6 +12,11 @@ export enum Destination {
   window = "window",
   newWindow = "new-window",
 }
+export enum InternalMethods {
+  sign = "enkrypt_sign_hash",
+  unlock = "enkrypt_unlock_keyring",
+  isLocked = "enkrypt_is_locked_keyring",
+}
 export interface SendMessage {
   [key: string]: any;
   provider: ProviderName;
@@ -30,5 +35,5 @@ export interface InternalOnMessageResponse {
   error?: ProviderError;
 }
 export type InternalMessageType = (
-  messge: Message
+  message: Message
 ) => Promise<InternalOnMessageResponse>;

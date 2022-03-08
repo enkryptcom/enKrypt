@@ -1,7 +1,5 @@
 import { sendToNewWindowFromBackground } from "@/libs/messenger/extension";
 import { ProviderName } from "@/types/provider";
-import { OnMessageResponse } from "@enkryptcom/types";
-import PublicKeyRing from "../keyring/public-keyring";
 import Browser from "webextension-polyfill";
 import { InternalOnMessageResponse } from "@/types/messenger";
 import { getCustomError } from "../error";
@@ -26,7 +24,6 @@ class WindowPromise {
     msg: string,
     unlockKeyring = false
   ): Promise<InternalOnMessageResponse> {
-    console.log(msg);
     const windowInfo = await Browser.windows.create({
       url: "#",
       type: "popup",
@@ -40,7 +37,7 @@ class WindowPromise {
         error: getCustomError("unknown error, no tabId"),
       });
     }
-    if (unlockKeyring && new PublicKeyRing().isLocked()) {
+    if (unlockKeyring) {
       const unlockKeyring = await this.getRawResponse(
         Browser.runtime.getURL(UNLOCK_PATH),
         msg,
@@ -65,7 +62,6 @@ class WindowPromise {
       msg,
       tabId
     ).then((res) => {
-      console.log(res, 1);
       Browser.tabs.remove(tabId);
       return res;
     });

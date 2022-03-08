@@ -3,7 +3,7 @@
     <h1>Polkadot Transaction Approve</h1>
     <nav class="navbar navbar-expand navbar-dark bg-dark">
       <div class="navbar-nav mr-auto">
-        Domain: {{ domain }} would like to send a transaction
+        Domain: {{ options.domain }} would like to send a transaction
       </div>
       <button @click="approve">approve</button>
       <button @click="deny">deny</button>
@@ -12,48 +12,33 @@
 </template>
 
 <script setup lang="ts">
-import { newWindowOnMessageFromBackground } from "@/libs/messenger/extension";
 import { KeyRecord } from "@enkryptcom/types";
-import KeyRing from "@/libs/keyring/keyring";
-import { ProviderRPCRequest } from "@/types/provider";
 import { getCustomError, getError } from "@/libs/error";
 import { ErrorCodes } from "@/providers/ethereum/types";
-import { ref } from "vue";
-import { InternalOnMessageResponse } from "@/types/messenger";
-let domain = ref("[domainName]");
-let msgParams: any[] = [];
-let PromiseResolve: (res: InternalOnMessageResponse) => void;
-newWindowOnMessageFromBackground(
-  (message): Promise<InternalOnMessageResponse> => {
-    console.log(message);
-    const { options, params } = JSON.parse(
-      message.message
-    ) as ProviderRPCRequest;
-    msgParams = params as any[];
-    domain.value = options?.domain ? options?.domain : "unknown site";
-    return new Promise((resolve) => {
-      PromiseResolve = resolve;
-    });
-  }
-);
+import WindowPromise from "../libs/window-promise-handler";
+import { InternalMethods } from "@/types/messenger";
+const { PromiseResolve, options, Request, sendToBackground } = WindowPromise();
 const approve = () => {
-  const kr = KeyRing;
-  const msg = msgParams[0] as `0x{string}`;
-  const account = msgParams[1] as KeyRecord;
-  kr.sign(msg, account)
-    .then((sig) => {
-      PromiseResolve({
-        result: JSON.stringify(sig),
+  if (!Request.value.params || Request.value.params.length < 2) {
+    return PromiseResolve.value({ error: getCustomError("No params") });
+  }
+  const msg = Request.value.params[0] as `0x{string}`;
+  const account = Request.value.params[1] as KeyRecord;
+  sendToBackground({
+    method: InternalMethods.sign,
+    params: [msg, account],
+  }).then((res) => {
+    if (res.error) {
+      PromiseResolve.value(res);
+    } else {
+      PromiseResolve.value({
+        result: JSON.stringify(res.result),
       });
-    })
-    .catch((e) => {
-      PromiseResolve({
-        error: getCustomError(e.message),
-      });
-    });
+    }
+  });
 };
 const deny = () => {
-  PromiseResolve({
+  PromiseResolve.value({
     error: getError(ErrorCodes.userRejected),
   });
 };

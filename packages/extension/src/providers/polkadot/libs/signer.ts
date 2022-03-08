@@ -23,7 +23,6 @@ export default class Signer implements SignerInterface {
       method: "dot_signer_signPayload",
       params: [payload],
     }).then((sig) => {
-      console.log("signed", sig);
       nextId++;
       return {
         signature: sig,
