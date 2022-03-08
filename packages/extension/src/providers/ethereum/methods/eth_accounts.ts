@@ -1,6 +1,6 @@
 import type { MiddlewareFunction } from "@enkryptcom/types";
 import type EthereumProvider from "..";
-import WindowPromise from "@/libs/window-promise";
+import { WindowPromise } from "@/libs/window-promise";
 import { ProviderRPCRequest } from "@/types/provider";
 const method: MiddlewareFunction = function (
   this: EthereumProvider,
@@ -16,7 +16,10 @@ const method: MiddlewareFunction = function (
   else {
     const windowPromise = new WindowPromise();
     windowPromise
-      .getResponse("index.html#/ethereum/ethaccounts", JSON.stringify(payload))
+      .getResponse(
+        this.getUIPath(this.UIRoutes.ethaccounts.path),
+        JSON.stringify(payload)
+      )
       .then(({ error, result }) => {
         if (error) res(error as any);
         res(null, JSON.parse(result || "[]"));

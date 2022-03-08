@@ -45,7 +45,6 @@ class BackgroundHandler {
         );
       };
       this.#tabProviders[_provider][_tabid] = new this.#providers[_provider](
-        undefined,
         toWindow
       );
     }

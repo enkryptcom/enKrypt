@@ -1,6 +1,6 @@
 import { MiddlewareFunction } from "@enkryptcom/types";
 import EthereumProvider from "..";
-import WindowPromise from "@/libs/window-promise";
+import { WindowPromise } from "@/libs/window-promise";
 const method: MiddlewareFunction = function (
   this: EthereumProvider,
   payload,
@@ -11,7 +11,10 @@ const method: MiddlewareFunction = function (
   else {
     const windowPromise = new WindowPromise();
     windowPromise
-      .getResponse("index.html#/polkadot/dotaccounts", JSON.stringify(payload))
+      .getResponse(
+        this.getUIPath(this.UIRoutes.dotAccounts.path),
+        JSON.stringify(payload)
+      )
       .then(({ error, result }) => {
         if (error) res(error);
         res(null, JSON.parse(result || "[]"));

@@ -15,9 +15,10 @@
 import { KeyRecord } from "@enkryptcom/types";
 import { getCustomError, getError } from "@/libs/error";
 import { ErrorCodes } from "@/providers/ethereum/types";
-import WindowPromise from "../libs/window-promise-handler";
+import { WindowPromiseHandler } from "@/libs/window-promise";
 import { InternalMethods } from "@/types/messenger";
-const { PromiseResolve, options, Request, sendToBackground } = WindowPromise();
+const { PromiseResolve, options, Request, sendToBackground } =
+  WindowPromiseHandler();
 const approve = () => {
   if (!Request.value.params || Request.value.params.length < 2) {
     return PromiseResolve.value({ error: getCustomError("No params") });

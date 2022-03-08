@@ -10,7 +10,7 @@ import {
 } from "@/types/provider";
 import { Destination, InternalOnMessageResponse } from "@/types/messenger";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
-import type { WindoPromiseType } from "../types";
+import type { WindoPromiseType } from "@/ui/extension/types";
 import { getCustomError } from "@/libs/error";
 import { RPCRequestType } from "@enkryptcom/types";
 

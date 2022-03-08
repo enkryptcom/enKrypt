@@ -2,8 +2,14 @@ import type { InjectedProvider as EthereumProvider } from "../providers/ethereum
 import type { InjectedProvider as PolkadotProvider } from "@/providers/polkadot/types";
 import EventEmitter from "eventemitter3";
 import { EXTENSION_VERSION } from "@/configs/constants";
-import { RPCRequestType } from "@enkryptcom/types";
+import {
+  MiddlewareFunction,
+  OnMessageResponse,
+  RPCRequestType,
+} from "@enkryptcom/types";
 import { RouteRecordRaw } from "vue-router";
+import PublicKeyRing from "@/libs/keyring/public-keyring";
+import { RoutesType } from "@/ui/extension/types";
 
 export enum ProviderName {
   enkrypt = "enkrypt",
@@ -42,6 +48,20 @@ export abstract class ProviderInterface extends EventEmitter {
     this.sendMessageHandler = options.sendMessageHandler;
   }
   abstract handleMessage(msg: string): void;
+}
+
+export abstract class BackgroundProviderInterface extends EventEmitter {
+  middlewares: MiddlewareFunction[] = [];
+  abstract namespace: string;
+  abstract KeyRing: PublicKeyRing;
+  abstract UIRoutes: RoutesType;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  constructor(_toWindow: (message: string) => void, options: unknown) {
+    super();
+  }
+  abstract setRequestProvider(network: unknown): void;
+  abstract request(request: ProviderRPCRequest): Promise<OnMessageResponse>;
+  abstract getUIPath(page: string): string;
 }
 
 export type handleIncomingMessage = (

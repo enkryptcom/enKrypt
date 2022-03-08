@@ -15,8 +15,8 @@
 import { SignerType } from "@enkryptcom/types";
 import { getError } from "@/libs/error";
 import { ErrorCodes } from "@/providers/ethereum/types";
-import WindowPromise from "../libs/window-promise-handler";
-const { PromiseResolve, options, KeyRing } = WindowPromise();
+import { WindowPromiseHandler } from "@/libs/window-promise";
+const { PromiseResolve, options, KeyRing } = WindowPromiseHandler();
 const approve = () => {
   KeyRing.getAccounts([SignerType.ed25519, SignerType.sr25519]).then(
     (accounts) => {

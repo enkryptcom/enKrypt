@@ -20,9 +20,9 @@
 import { getError } from "@/libs/error";
 import { ErrorCodes } from "@/providers/ethereum/types";
 import { ref } from "vue";
-import WindowPromise from "../libs/window-promise-handler";
+import { WindowPromiseHandler } from "@/libs/window-promise";
 import { InternalMethods } from "@/types/messenger";
-const { PromiseResolve, options, sendToBackground } = WindowPromise();
+const { PromiseResolve, options, sendToBackground } = WindowPromiseHandler();
 let password = ref("");
 let errorMsg = ref("");
 sendToBackground({
