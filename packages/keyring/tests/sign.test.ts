@@ -36,7 +36,7 @@ describe("Keyring signing test", () => {
     expect(sig).to.be.equal(
       `0xc0cd7923162bbcf6065ca563f69eb44503ac67e9edb9870f8651ff926c9a007c5d26b90e29819915df9cda30e974722edf69c6d1f69a02b76716b74db57767d71b`
     );
-  }).timeout(5000);
+  }).timeout(10000);
   it("keyring should sign substrate messages", async () => {
     const memStorage = new MemoryStorage();
     const storage = new Storage("keyring", { storage: memStorage });
@@ -60,5 +60,5 @@ describe("Keyring signing test", () => {
     expect(sig).to.be.equal(
       `0x55fef6ded518726c589c1eb524f9a6d53e5853e3f94e1d425d018424373604d2769800c174adc6d4ee75b09f4037037495438cbcfed4c77dfbdeeef7d38e0707`
     );
-  }).timeout(5000);
+  }).timeout(10000);
 });
