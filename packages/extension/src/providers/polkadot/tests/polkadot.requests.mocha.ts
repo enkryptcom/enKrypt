@@ -1,10 +1,5 @@
 import { expect } from "chai";
-import {
-  ProviderName,
-  ProviderType,
-  Provider,
-  PolkadotProvider,
-} from "@/types/provider";
+import { ProviderName, ProviderType, PolkadotProvider } from "@/types/provider";
 import PolkadotInject from "../inject";
 import { OnMessageResponse, RPCRequestType } from "@enkryptcom/types";
 

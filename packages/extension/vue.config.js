@@ -7,6 +7,11 @@ module.exports = {
       entry: "./src/ui/main.ts",
       title: "enkrypt extension",
     },
+    popup: {
+      template: "public/index.html",
+      entry: "./src/ui/popup/index.ts",
+      title: "enkrypt extension popup",
+    },
   },
   indexPath: "index.html",
   devServer: {

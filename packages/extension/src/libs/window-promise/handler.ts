@@ -11,9 +11,8 @@ import {
 import { Destination, InternalOnMessageResponse } from "@/types/messenger";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
 import type { WindoPromiseType } from "@/types/ui";
-import { getCustomError, getError } from "@/libs/error";
+import { getCustomError } from "@/libs/error";
 import { RPCRequestType } from "@enkryptcom/types";
-import { ErrorCodes } from "@/providers/ethereum/types";
 
 export default (): WindoPromiseType => {
   const options: UnwrapNestedRefs<ProviderRequestOptions> = reactive({
