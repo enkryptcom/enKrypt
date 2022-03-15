@@ -1,8 +1,6 @@
 import { MiddlewareFunction } from "@enkryptcom/types";
 import EthereumProvider from "..";
-import BrowserStorage from "@/libs/common/browser-storage";
-import KeyRing from "@enkryptcom/keyring";
-import { InternalStorageNamespace, ProviderRPCRequest } from "@/types/provider";
+import { ProviderRPCRequest } from "@/types/provider";
 import { polkadotEncodeAddress, utf8ToHex } from "@enkryptcom/utils";
 import { isAscii, u8aToString, u8aUnwrapBytes } from "@polkadot/util";
 import { SignerPayloadRaw } from "@polkadot/types/types";

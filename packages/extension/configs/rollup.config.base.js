@@ -3,7 +3,6 @@ import commonjs from "@rollup/plugin-commonjs";
 import nodeResolve from "@rollup/plugin-node-resolve";
 import nodePolyfills from "rollup-plugin-node-polyfills";
 import { uglify } from "rollup-plugin-uglify";
-
 export default {
   input: [],
   output: {
@@ -16,6 +15,6 @@ export default {
     commonjs(),
     nodePolyfills(),
     nodeResolve({ preferBuiltins: false }),
-    // uglify(),
+    uglify(),
   ],
 };
