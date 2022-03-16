@@ -19,7 +19,7 @@ const setConfig = (config) => {
     .end(); //polkadot-js has private object fields that start with # //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes/Private_class_fields
   config.resolve.alias.set(
     "@popup",
-    path.resolve(__dirname, "../src/ui/popup")
+    path.resolve(__dirname, "../src/ui/action")
   );
 };
 

@@ -9,7 +9,7 @@ module.exports = {
     },
     popup: {
       template: "public/index.html",
-      entry: "./src/ui/popup/main.ts",
+      entry: "./src/ui/action/main.ts",
       title: "enkrypt extension popup",
     },
   },
