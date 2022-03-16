@@ -18,7 +18,7 @@ export default defineComponent({
 </script>
 
 <style lang="less" scoped>
-@import "../../../theme/theme.less";
+@import "../../../styles/theme.less";
 
 .explore__search {
   width: 100%;

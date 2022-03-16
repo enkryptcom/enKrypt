@@ -43,64 +43,64 @@ export default defineComponent({
         {
           id: 1,
           title: "Ethereum",
-          image: "https://mpolev.ru/enkrypt/eth-logo.png",
+          image: require("../../icons/raw/eth-logo.png"),
         },
         {
           id: 2,
           title: "Polygon",
-          image: "https://mpolev.ru/enkrypt/polygon-logo.png",
+          image: require("../../icons/raw/polygon-logo.png"),
         },
         {
           id: 3,
           title: "Polkadot",
-          image: "https://mpolev.ru/enkrypt/polkadot.png",
+          image: require("../../icons/raw/polkadot.png"),
         },
         {
           id: 4,
           title: "Moonbeam",
-          image: "https://mpolev.ru/enkrypt/moonbeam.png",
+          image: require("../../icons/raw/moonbeam.png"),
         },
       ],
       all: [
         {
           id: 1,
           title: "Ethereum",
-          image: "https://mpolev.ru/enkrypt/eth-logo.png",
+          image: require("../../icons/raw/eth-logo.png"),
         },
         {
           id: 2,
           title: "Polygon",
-          image: "https://mpolev.ru/enkrypt/polygon-logo.png",
+          image: require("../../icons/raw/polygon-logo.png"),
         },
         {
           id: 3,
           title: "Polkadot",
-          image: "https://mpolev.ru/enkrypt/polkadot.png",
+          image: require("../../icons/raw/polkadot.png"),
         },
         {
           id: 4,
           title: "Moonbeam",
-          image: "https://mpolev.ru/enkrypt/moonbeam.png",
+          image: require("../../icons/raw/moonbeam.png"),
         },
         {
           id: 1,
           title: "Ethereum",
-          image: "https://mpolev.ru/enkrypt/eth-logo.png",
+          image: require("../../icons/raw/eth-logo.png"),
         },
         {
           id: 2,
           title: "Polygon",
-          image: "https://mpolev.ru/enkrypt/polygon-logo.png",
+          image: require("../../icons/raw/polygon-logo.png"),
         },
         {
           id: 3,
           title: "Polkadot",
-          image: "https://mpolev.ru/enkrypt/polkadot.png",
+          image: require("../../icons/raw/polkadot.png"),
         },
         {
           id: 4,
           title: "Moonbeam",
-          image: "https://mpolev.ru/enkrypt/moonbeam.png",
+          image: require("../../icons/raw/moonbeam.png"),
         },
       ],
     };
@@ -109,8 +109,8 @@ export default defineComponent({
 </script>
 
 <style lang="less" scoped>
-@import "../../theme/theme.less";
-@import "../../theme/custom-scroll.less";
+@import "../../styles/theme.less";
+@import "../../styles/custom-scroll.less";
 
 .container {
   width: 100%;

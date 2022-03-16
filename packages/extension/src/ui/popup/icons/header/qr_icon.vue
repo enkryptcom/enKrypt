@@ -32,13 +32,6 @@
     <path d="M21 19H19V21H21V19Z" fill="#202124" />
   </svg>
 </template>
-
-<script lang="ts">
-import { defineComponent } from "vue";
-
-export default defineComponent({});
-</script>
-
 <style scoped>
 svg {
   display: inline-block;

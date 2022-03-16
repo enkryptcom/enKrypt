@@ -1,19 +1,31 @@
 <template>
   <div class="network-activity__action">
     <div class="network-activity__action-wrap">
-      <a class="network-activity__action-item" @click="depositAction">
+      <a
+        class="network-activity__action-item"
+        @click="(depositAction as (e: MouseEvent)=>void)"
+      >
         <Deposit /><br />Deposit
       </a>
       <div class="network-activity__action-devider"></div>
-      <a class="network-activity__action-item" @click="buyAction">
+      <a
+        class="network-activity__action-item"
+        @click="(buyAction as (e: MouseEvent)=>void)"
+      >
         <Buy /><br />Buy
       </a>
       <div class="network-activity__action-devider"></div>
-      <a class="network-activity__action-item" @click="sendAction">
+      <a
+        class="network-activity__action-item"
+        @click="(sendAction as (e: MouseEvent)=>void)"
+      >
         <Send /><br />Send
       </a>
       <div class="network-activity__action-devider"></div>
-      <a class="network-activity__action-item" @click="swapAction">
+      <a
+        class="network-activity__action-item"
+        @click="(swapAction as (e: MouseEvent)=>void)"
+      >
         <Swap /><br />Swap
       </a>
     </div>
@@ -57,7 +69,7 @@ export default defineComponent({
 </script>
 
 <style lang="less">
-@import "../../../theme/theme.less";
+@import "../../../styles/theme.less";
 
 .network-activity {
   &__action {

@@ -69,7 +69,7 @@ export default defineComponent({
 </script>
 
 <style lang="less">
-@import "../../../theme/theme.less";
+@import "../../../styles/theme.less";
 .account {
   border-radius: 12px;
   width: 100%;

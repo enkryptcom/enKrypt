@@ -73,7 +73,7 @@ export default defineComponent({
 </script>
 
 <style lang="less">
-@import "../../theme/theme.less";
+@import "../../styles/theme.less";
 
 .network-header {
   position: fixed;

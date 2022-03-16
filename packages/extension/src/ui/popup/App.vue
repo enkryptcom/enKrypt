@@ -62,7 +62,6 @@ import HoldIcon from "./icons/common/hold-icon.vue";
 import { NetworkItem } from "./types/network";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
-
 export default defineComponent({
   name: "App",
   components: {
@@ -82,7 +81,7 @@ export default defineComponent({
     store.dispatch("setNetwork", {
       id: 1,
       title: "Ethereum",
-      image: "https://mpolev.ru/enkrypt/eth-logo.png",
+      image: require("./icons/raw/eth-logo.png"),
     });
 
     router.push({ name: "activity", params: { id: 1 } });
@@ -97,7 +96,7 @@ export default defineComponent({
         primaryToken: {
           name: "Ethereum",
           symbol: "eth",
-          icon: "https://mpolev.ru/enkrypt/eth.png",
+          icon: require("./icons/raw/eth-logo.png"),
           amount: 0.5,
           price: 2500,
         },
@@ -119,22 +118,22 @@ export default defineComponent({
         {
           id: 1,
           title: "Ethereum",
-          image: "https://mpolev.ru/enkrypt/eth-logo.png",
+          image: require("./icons/raw/eth-logo.png"),
         },
         {
           id: 2,
           title: "Polygon",
-          image: "https://mpolev.ru/enkrypt/polygon-logo.png",
+          image: require("./icons/raw/polygon-logo.png"),
         },
         {
           id: 3,
           title: "Polkadot",
-          image: "https://mpolev.ru/enkrypt/polkadot.png",
+          image: require("./icons/raw/polkadot.png"),
         },
         {
           id: 4,
           title: "Moonbeam",
-          image: "https://mpolev.ru/enkrypt/moonbeam.png",
+          image: require("./icons/raw/moonbeam.png"),
         },
       ],
     };
@@ -170,7 +169,6 @@ export default defineComponent({
   },
   created() {
     this.$router.beforeEach((to, from, next) => {
-      this.transitionName = "fade";
       next();
     });
   },
@@ -178,7 +176,7 @@ export default defineComponent({
 </script>
 
 <style lang="less">
-@import "./theme/theme.less";
+@import "./styles/theme.less";
 
 body {
   margin: 0;

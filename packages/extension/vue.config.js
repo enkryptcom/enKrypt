@@ -4,12 +4,12 @@ module.exports = {
   pages: {
     index: {
       template: "public/index.html",
-      entry: "./src/ui/main.ts",
+      entry: "./src/ui/provider-pages/main.ts",
       title: "enkrypt extension",
     },
     popup: {
       template: "public/index.html",
-      entry: "./src/ui/popup/index.ts",
+      entry: "./src/ui/popup/main.ts",
       title: "enkrypt extension popup",
     },
   },

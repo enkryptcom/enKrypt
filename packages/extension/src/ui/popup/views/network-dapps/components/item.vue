@@ -23,7 +23,7 @@ export default defineComponent({
 </script>
 
 <style lang="less">
-@import "../../../theme/theme.less";
+@import "../../../styles/theme.less";
 
 .network-dapps {
   font-size: 0;

@@ -91,8 +91,8 @@ export default defineComponent({
 </script>
 
 <style lang="less">
-@import "../../theme/theme.less";
-@import "../../theme/custom-scroll.less";
+@import "../../styles/theme.less";
+@import "../../styles/custom-scroll.less";
 
 .accounts {
   width: 100%;

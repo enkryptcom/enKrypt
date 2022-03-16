@@ -1,9 +1,11 @@
 <template>
   <div class="deposit" :class="{ show: showDeposit }">
     <div class="deposit__wrap" :class="{ show: showDeposit }">
-      <a class="deposit__close" @click="toggle"><CloseIcon /></a>
+      <a class="deposit__close" @click="(toggle as (e: MouseEvent)=>void)"
+        ><CloseIcon
+      /></a>
 
-      <img class="deposit__logo" src="https://mpolev.ru/enkrypt/polkadot.png" />
+      <img class="deposit__logo" src="../../icons/raw/eth-logo.png" />
 
       <h2>Your Polkadot address</h2>
       <p>You can send DOT to this address using Polkadot chain network.</p>
@@ -13,7 +15,7 @@
       </div>
 
       <div class="deposit__account">
-        <img src="https://mpolev.ru/enkrypt/account.png" />
+        <img src="../../icons/raw/account.png" />
 
         <div class="deposit__account-info">
           <h4>{{ account.name }}</h4>
@@ -62,7 +64,7 @@ export default defineComponent({
 </script>
 
 <style lang="less" scoped>
-@import "../../theme/theme.less";
+@import "../../styles/theme.less";
 
 .deposit {
   width: 100%;

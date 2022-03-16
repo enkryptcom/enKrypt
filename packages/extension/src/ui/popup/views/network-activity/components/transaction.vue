@@ -1,7 +1,7 @@
 <template>
   <div class="network-activity__transaction">
     <div class="network-activity__transaction-info">
-      <img src="https://mpolev.ru/enkrypt/account.png" />
+      <img src="../../../icons/raw/account.png" />
 
       <div class="network-activity__transaction-info-name">
         <h4>
@@ -96,7 +96,7 @@ export default defineComponent({
 </script>
 
 <style lang="less">
-@import "../../../theme/theme.less";
+@import "../../../styles/theme.less";
 
 .network-activity {
   &__transaction {
