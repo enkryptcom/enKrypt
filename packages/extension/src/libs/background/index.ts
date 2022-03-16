@@ -29,6 +29,15 @@ class BackgroundHandler {
       [ProviderName.ethereum]: EthereumProvider,
       [ProviderName.polkadot]: PolkadotProvider,
     };
+    // this.#keyring.generate("test pass");
+    // this.#keyring.unlock("test pass").then(() => {
+    //   this.#keyring.addEthereumAddress("abc").then((key) => {
+    //     console.log("added", key);
+    //   });
+    //   this.#keyring.addPolkadotAddress("def").then((key) => {
+    //     console.log("added", key);
+    //   });
+    // });
   }
   async externalHandler(msg: Message): Promise<OnMessageResponse> {
     const { method, params } = JSON.parse(msg.message);
