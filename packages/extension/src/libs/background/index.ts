@@ -29,7 +29,12 @@ class BackgroundHandler {
       [ProviderName.ethereum]: EthereumProvider,
       [ProviderName.polkadot]: PolkadotProvider,
     };
-    // this.#keyring.generate("test pass");
+    // this.#keyring
+    //   .generate("test pass")
+    //   .then(() => {
+    //     console.log("keyring created");
+    //   })
+    //   .catch(console.error);
     // this.#keyring.unlock("test pass").then(() => {
     //   this.#keyring.addEthereumAddress("abc").then((key) => {
     //     console.log("added", key);
