@@ -28,7 +28,7 @@ export default defineComponent({
 </script>
 
 <style lang="less">
-@import "../../styles/theme.less";
+@import "~@popup/styles/theme.less";
 
 /* The switch - the box around the slider */
 .switch {

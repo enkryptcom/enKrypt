@@ -12,7 +12,7 @@ import { useRoute } from "vue-router";
 import { useStore } from "vuex";
 import Item from "./components/item.vue";
 
-import { dapps } from "../../types/mock";
+import { dapps } from "@popup/types/mock";
 
 export default defineComponent({
   name: "NetworkDApps",
@@ -38,8 +38,8 @@ export default defineComponent({
 </script>
 
 <style lang="less" scoped>
-@import "../../styles/theme.less";
-@import "../../styles/custom-scroll.less";
+@import "~@popup/styles/theme.less";
+@import "~@popup/styles/custom-scroll.less";
 
 .container {
   width: 100%;

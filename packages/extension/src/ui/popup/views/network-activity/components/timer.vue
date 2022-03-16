@@ -8,7 +8,7 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import moment from "moment";
-import LottieStatusJson from "../../../assets/animation/status.json";
+import LottieStatusJson from "@popup/assets/animation/status.json";
 export default defineComponent({
   name: "StatusTimer",
   props: {
@@ -39,7 +39,7 @@ export default defineComponent({
 </script>
 
 <style lang="less">
-@import "../../../styles/theme.less";
+@import "~@popup/styles/theme.less";
 
 .status-timer {
   display: inline-block;

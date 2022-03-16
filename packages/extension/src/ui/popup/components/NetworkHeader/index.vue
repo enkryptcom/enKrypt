@@ -22,11 +22,11 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from "vue";
-import { NetworkItem } from "../../types/network";
-import { Account } from "../../types/account";
+import { NetworkItem } from "@popup/types/network";
+import { Account } from "@popup/types/account";
 import AccountItem from "./components/Account.vue";
-import AccountsList from "../../views/accounts/index.vue";
-import Deposit from "../../views/deposit/index.vue";
+import AccountsList from "@popup/views/accounts/index.vue";
+import Deposit from "@popup/views/deposit/index.vue";
 
 export default defineComponent({
   name: "NetworkHeader",
@@ -73,7 +73,7 @@ export default defineComponent({
 </script>
 
 <style lang="less">
-@import "../../styles/theme.less";
+@import "~@popup/styles/theme.less";
 
 .network-header {
   position: fixed;

@@ -27,7 +27,7 @@ import Total from "../network-activity/components/total.vue";
 import Action from "../network-activity/components/action.vue";
 import Item from "./components/asset.vue";
 
-import { assets } from "../../types/mock";
+import { assets } from "@popup/types/mock";
 
 export default defineComponent({
   name: "NetworkAssets",
@@ -74,8 +74,8 @@ export default defineComponent({
 </script>
 
 <style lang="less" scoped>
-@import "../../styles/theme.less";
-@import "../../styles/custom-scroll.less";
+@import "~@popup/styles/theme.less";
+@import "~@popup/styles/custom-scroll.less";
 
 .container {
   width: 100%;

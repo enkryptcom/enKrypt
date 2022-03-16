@@ -13,7 +13,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from "vue";
-import { NetworkItem } from "../../types/network";
+import { NetworkItem } from "@popup/types/network";
 import Item from "./components/Item.vue";
 
 export default defineComponent({

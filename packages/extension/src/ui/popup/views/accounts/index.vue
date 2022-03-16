@@ -41,7 +41,7 @@ import { defineComponent } from "vue";
 import Search from "./components/Search.vue";
 import Item from "./components/Item.vue";
 import { useRoute } from "vue-router";
-import { accountsActive, accountsInActive } from "../../types/mock";
+import { accountsActive, accountsInActive } from "@popup/types/mock";
 
 export default defineComponent({
   name: "Accounts",
@@ -91,8 +91,8 @@ export default defineComponent({
 </script>
 
 <style lang="less">
-@import "../../styles/theme.less";
-@import "../../styles/custom-scroll.less";
+@import "~@popup/styles/theme.less";
+@import "~@popup/styles/custom-scroll.less";
 
 .accounts {
   width: 100%;

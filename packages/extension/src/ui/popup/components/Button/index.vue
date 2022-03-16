@@ -22,7 +22,7 @@ export default defineComponent({
 </script>
 
 <style lang="less">
-@import "../../styles/theme.less";
+@import "~@popup/styles/theme.less";
 
 .button {
   background: @primary;

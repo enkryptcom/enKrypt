@@ -16,9 +16,9 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from "vue";
-import { NetworkItem } from "../../../types/network";
-import Switch from "../../../components/Switch/index.vue";
-import InfoIcon from "../../../icons/common/info-icon.vue";
+import { NetworkItem } from "@popup/types/network";
+import Switch from "@popup/components/Switch/index.vue";
+import InfoIcon from "@popup/icons/common/info-icon.vue";
 
 export default defineComponent({
   name: "AddNetworkItem",
@@ -46,7 +46,7 @@ export default defineComponent({
 </script>
 
 <style lang="less">
-@import "../../../styles/theme.less";
+@import "~@popup/styles/theme.less";
 
 .add-network {
   &__block {

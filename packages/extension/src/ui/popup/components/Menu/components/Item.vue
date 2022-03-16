@@ -7,7 +7,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from "vue";
-import { NetworkItem } from "../../../types/network";
+import { NetworkItem } from "@popup/types/network";
 
 export default defineComponent({
   name: "AppMenuItem",
@@ -24,7 +24,7 @@ export default defineComponent({
 </script>
 
 <style lang="less">
-@import "../../../styles/theme.less";
+@import "~@popup/styles/theme.less";
 
 .app-menu {
   &__link {

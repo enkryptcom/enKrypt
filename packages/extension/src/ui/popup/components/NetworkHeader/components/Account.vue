@@ -21,9 +21,9 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import SwitchArrow from "../../../icons/header/switch_arrow.vue";
-import IconQr from "../../../icons/header/qr_icon.vue";
-import IconCopy from "../../../icons/header/copy_icon.vue";
+import SwitchArrow from "@popup/icons/header/switch_arrow.vue";
+import IconQr from "@popup/icons/header/qr_icon.vue";
+import IconCopy from "@popup/icons/header/copy_icon.vue";
 
 export default defineComponent({
   name: "Account",
@@ -69,7 +69,7 @@ export default defineComponent({
 </script>
 
 <style lang="less">
-@import "../../../styles/theme.less";
+@import "~@popup/styles/theme.less";
 .account {
   border-radius: 12px;
   width: 100%;

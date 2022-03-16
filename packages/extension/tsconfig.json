@@ -14,7 +14,8 @@
     "types": ["mocha", "webpack-env"],
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@popup/*": ["./src/ui/popup/*"]
     },
     "lib": ["esnext", "dom", "dom.iterable", "scripthost"]
   },

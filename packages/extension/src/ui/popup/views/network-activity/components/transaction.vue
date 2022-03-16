@@ -1,7 +1,7 @@
 <template>
   <div class="network-activity__transaction">
     <div class="network-activity__transaction-info">
-      <img src="../../../icons/raw/account.png" />
+      <img src="@popup/icons/raw/account.png" />
 
       <div class="network-activity__transaction-info-name">
         <h4>
@@ -35,7 +35,7 @@ import {
   Transaction,
   TransactionStatus,
   TransactionDirection,
-} from "../../../types/transaction";
+} from "@popup/types/transaction";
 import moment from "moment";
 import Timer from "./timer.vue";
 
@@ -96,7 +96,7 @@ export default defineComponent({
 </script>
 
 <style lang="less">
-@import "../../../styles/theme.less";
+@import "~@popup/styles/theme.less";
 
 .network-activity {
   &__transaction {

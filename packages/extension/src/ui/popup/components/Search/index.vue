@@ -13,7 +13,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import SearchIcon from "../../icons/common/search.vue";
+import SearchIcon from "@popup/icons/common/search.vue";
 
 export default defineComponent({
   name: "AppSearch",
@@ -27,7 +27,7 @@ export default defineComponent({
 </script>
 
 <style lang="less">
-@import "../../styles/theme.less";
+@import "~@popup/styles/theme.less";
 
 .app-search {
   background: @white;

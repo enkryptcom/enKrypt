@@ -1,3 +1,5 @@
+const path = require("path");
+
 const setConfig = (config) => {
   config.resolve.symlinks(false);
   config.module
@@ -15,9 +17,10 @@ const setConfig = (config) => {
     .use("private-fields-loader")
     .loader("./configs/private-fields-loader.js")
     .end(); //polkadot-js has private object fields that start with # //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes/Private_class_fields
+  config.resolve.alias.set(
+    "@popup",
+    path.resolve(__dirname, "../src/ui/popup")
+  );
 };
 
 exports.setConfig = setConfig;
-// .test(
-//       /DeriveJunction|DoNotConstruct|Base|Map|Set|Struct|BTreeSet|Vote|Vec|AbstractInt|Text|Option|BitVec|Range|Enum|StorageKey|registry|ExtrinsicPayload|Compact|ExtrinsicSignature|Extrinsic|SignerPayload|WrapperKeepOpaque|VecFixed|Event|Tuple|MetadataVersioned|Null\.js$/
-//     )
