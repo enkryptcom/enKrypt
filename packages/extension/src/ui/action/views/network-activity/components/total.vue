@@ -30,7 +30,7 @@ export default defineComponent({
 </script>
 
 <style lang="less">
-@import "~@popup/styles/theme.less";
+@import "~@action/styles/theme.less";
 
 .network-activity {
   &__total {

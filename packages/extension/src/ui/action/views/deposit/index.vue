@@ -32,9 +32,9 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from "vue";
-import CloseIcon from "@popup/icons/common/close-icon.vue";
-import CopyIcon from "@popup/icons/header/copy_icon.vue";
-import { Account } from "@popup/types/account";
+import CloseIcon from "@action/icons/common/close-icon.vue";
+import CopyIcon from "@action/icons/header/copy_icon.vue";
+import { Account } from "@action/types/account";
 
 export default defineComponent({
   name: "Deposit",
@@ -64,7 +64,7 @@ export default defineComponent({
 </script>
 
 <style lang="less" scoped>
-@import "~@popup/styles/theme.less";
+@import "~@action/styles/theme.less";
 
 .deposit {
   width: 100%;

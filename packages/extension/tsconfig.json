@@ -15,7 +15,7 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
-      "@popup/*": ["./src/ui/action/*"]
+      "@action/*": ["./src/ui/action/*"]
     },
     "lib": ["esnext", "dom", "dom.iterable", "scripthost"]
   },

@@ -109,8 +109,8 @@ export default defineComponent({
 </script>
 
 <style lang="less" scoped>
-@import "~@popup/styles/theme.less";
-@import "~@popup/styles/custom-scroll.less";
+@import "~@action/styles/theme.less";
+@import "~@action/styles/custom-scroll.less";
 
 .container {
   width: 100%;

@@ -39,7 +39,7 @@ import Total from "./components/total.vue";
 import Action from "./components/action.vue";
 import TransactionItem from "./components/transaction.vue";
 
-import { transactionsOne, transactionsTwo } from "@popup/types/mock";
+import { transactionsOne, transactionsTwo } from "@action/types/mock";
 
 export default defineComponent({
   name: "NetworkActivity",
@@ -87,8 +87,8 @@ export default defineComponent({
 </script>
 
 <style lang="less" scoped>
-@import "~@popup/styles/theme.less";
-@import "~@popup/styles/custom-scroll.less";
+@import "~@action/styles/theme.less";
+@import "~@action/styles/custom-scroll.less";
 
 .container {
   width: 100%;

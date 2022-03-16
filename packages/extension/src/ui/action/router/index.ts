@@ -1,10 +1,10 @@
 import { createRouter, createWebHashHistory } from "vue-router";
-import Intro from "@popup/views/intro/index.vue";
-import AddNetwork from "@popup/views/add-network/index.vue";
-import NetworkActivity from "@popup/views/network-activity/index.vue";
-import NetworkAssets from "@popup/views/network-assets/index.vue";
-import NetworkDApps from "@popup/views/network-dapps/index.vue";
-import NetworkNFTs from "@popup/views/network-nfts/index.vue";
+import Intro from "@action/views/intro/index.vue";
+import AddNetwork from "@action/views/add-network/index.vue";
+import NetworkActivity from "@action/views/network-activity/index.vue";
+import NetworkAssets from "@action/views/network-assets/index.vue";
+import NetworkDApps from "@action/views/network-dapps/index.vue";
+import NetworkNFTs from "@action/views/network-nfts/index.vue";
 
 const routes = [
   {

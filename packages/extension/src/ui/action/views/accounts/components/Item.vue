@@ -18,7 +18,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import DoneIcon from "@popup/icons/common/done_icon.vue";
+import DoneIcon from "@action/icons/common/done_icon.vue";
 
 export default defineComponent({
   name: "AccountsItem",
@@ -60,7 +60,7 @@ export default defineComponent({
 </script>
 
 <style lang="less">
-@import "~@popup/styles/theme.less";
+@import "~@action/styles/theme.less";
 
 .accounts-item {
   width: 100%;

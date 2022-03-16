@@ -7,7 +7,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from "vue";
-import { DAppsItem } from "@popup/types/dapps";
+import { DAppsItem } from "@action/types/dapps";
 
 export default defineComponent({
   name: "NetworkDAppsItem",
@@ -23,7 +23,7 @@ export default defineComponent({
 </script>
 
 <style lang="less">
-@import "~@popup/styles/theme.less";
+@import "~@action/styles/theme.less";
 
 .network-dapps {
   font-size: 0;

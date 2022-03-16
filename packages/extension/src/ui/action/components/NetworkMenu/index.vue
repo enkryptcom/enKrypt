@@ -28,11 +28,11 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from "vue";
-import { NetworkItem } from "@popup/types/network";
-import Activity from "@popup/icons/tabs/activity.vue";
-import Assets from "@popup/icons/tabs/assets.vue";
-import NFTs from "@popup/icons/tabs/nfts.vue";
-import DApps from "@popup/icons/tabs/dapps.vue";
+import { NetworkItem } from "@action/types/network";
+import Activity from "@action/icons/tabs/activity.vue";
+import Assets from "@action/icons/tabs/assets.vue";
+import NFTs from "@action/icons/tabs/nfts.vue";
+import DApps from "@action/icons/tabs/dapps.vue";
 
 export default defineComponent({
   name: "NetworkMenu",
@@ -54,7 +54,7 @@ export default defineComponent({
 </script>
 
 <style lang="less">
-@import "~@popup/styles/theme.less";
+@import "~@action/styles/theme.less";
 
 .network-menu {
   position: fixed;

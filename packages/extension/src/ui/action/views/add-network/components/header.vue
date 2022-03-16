@@ -14,8 +14,8 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import Search from "@popup/components/Search/index.vue";
-import Button from "@popup/components/Button/index.vue";
+import Search from "@action/components/Search/index.vue";
+import Button from "@action/components/Button/index.vue";
 
 export default defineComponent({
   name: "AddNetworkHeader",
@@ -34,7 +34,7 @@ export default defineComponent({
 </script>
 
 <style lang="less" scoped>
-@import "~@popup/styles/theme.less";
+@import "~@action/styles/theme.less";
 
 .add-network {
   &__header {

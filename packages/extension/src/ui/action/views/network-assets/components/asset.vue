@@ -25,8 +25,8 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from "vue";
-import { Token } from "@popup/types/token";
-import Up from "@popup/icons/asset/sparkline-up.vue";
+import { Token } from "@action/types/token";
+import Up from "@action/icons/asset/sparkline-up.vue";
 
 export default defineComponent({
   name: "NetworkAssetsToken",
@@ -54,7 +54,7 @@ export default defineComponent({
 </script>
 
 <style lang="less">
-@import "~@popup/styles/theme.less";
+@import "~@action/styles/theme.less";
 
 .network-assets {
   &__token {

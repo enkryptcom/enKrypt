@@ -7,7 +7,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import SearchIcon from "@popup/icons/common/search.vue";
+import SearchIcon from "@action/icons/common/search.vue";
 
 export default defineComponent({
   name: "Search",
@@ -18,7 +18,7 @@ export default defineComponent({
 </script>
 
 <style lang="less" scoped>
-@import "~@popup/styles/theme.less";
+@import "~@action/styles/theme.less";
 
 .explore__search {
   width: 100%;

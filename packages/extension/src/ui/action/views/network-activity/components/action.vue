@@ -34,10 +34,10 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import Deposit from "@popup/icons/actions/deposit.vue";
-import Buy from "@popup/icons/actions/buy.vue";
-import Send from "@popup/icons/actions/send.vue";
-import Swap from "@popup/icons/actions/swap.vue";
+import Deposit from "@action/icons/actions/deposit.vue";
+import Buy from "@action/icons/actions/buy.vue";
+import Send from "@action/icons/actions/send.vue";
+import Swap from "@action/icons/actions/swap.vue";
 
 export default defineComponent({
   name: "NetworkActivityAction",
@@ -69,7 +69,7 @@ export default defineComponent({
 </script>
 
 <style lang="less">
-@import "~@popup/styles/theme.less";
+@import "~@action/styles/theme.less";
 
 .network-activity {
   &__action {
