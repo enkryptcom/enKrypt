@@ -11,37 +11,30 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, PropType } from "vue";
+<script setup lang="ts">
+import { PropType, defineProps } from "vue";
 import { NetworkItem } from "@action/types/network";
 import Item from "./components/Item.vue";
-
-export default defineComponent({
-  name: "AppMenu",
-  components: {
-    Item,
+defineProps({
+  networks: {
+    type: Array as PropType<Array<NetworkItem>>,
+    default: () => [],
   },
-  props: {
-    networks: {
-      type: Array as PropType<Array<NetworkItem>>,
-      default: () => [],
+  selected: {
+    type: Object as PropType<NetworkItem>,
+    default: () => {
+      return {};
     },
-    selected: {
-      type: Object as PropType<NetworkItem>,
-      default: () => {
-        return {};
-      },
-    },
-    setNetwork: {
-      type: Function,
-      default: () => ({}),
-    },
+  },
+  setNetwork: {
+    type: Function,
+    default: () => ({}),
   },
 });
 </script>
 
 <style lang="less">
-@import "../../styles/theme.less";
+@import "~@action/styles/theme.less";
 
 .app-menu {
   margin: 16px 0;
