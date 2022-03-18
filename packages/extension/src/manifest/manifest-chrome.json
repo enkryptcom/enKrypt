@@ -1,7 +1,7 @@
 {
   "author": "https://www.enkrypt.com",
   "homepage_url": "https://www.enkrypt.com",
-  "browser_action": {
+  "action": {
     "default_icon": {
       "16": "assets/img/icons/icon16.png",
       "32": "assets/img/icons/icon32.png",
@@ -11,8 +11,8 @@
     "default_title": "Enkrypt",
     "default_popup": "popup.html"
   },
-  "version": "0.1.0",
-  "manifest_version": 2,
+  "version": "0.3.0",
+  "manifest_version": 3,
   "name": "Enkrypt",
   "short_name": "Enkrypt",
   "permissions": [
@@ -21,11 +21,11 @@
     "clipboardWrite",
     "activeTab",
     "notifications",
-    "tabs"
+    "tabs",
+    "scripting"
   ],
   "background": {
-    "scripts": ["scripts/background.js", "dev/hot-reload.js"],
-    "persistent": true
+    "service_worker": "scripts/background.js"
   },
   "commands": {
     "_execute_browser_action": {
@@ -52,7 +52,15 @@
     "48": "assets/img/icons/icon48.png",
     "192": "assets/img/icons/icon192.png"
   },
-  "web_accessible_resources": ["scripts/inject.js"],
+  "web_accessible_resources": [
+    {
+      "resources": ["scripts/inject.js"],
+      "use_dynamic_url": false,
+      "matches": ["file://*/*", "http://*/*", "https://*/*"]
+    }
+  ],
   "minimum_chrome_version": "63",
-  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'"
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  }
 }
