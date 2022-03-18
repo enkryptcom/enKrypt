@@ -39,11 +39,10 @@ module.exports = function (source) {
     found = true;
     return `({ url: getAbsoluteUrl('${browserPath}/${fileName}') })`;
   });
-
+  //chrome-extension://llljoldclncpfdfgdpbeoidehcmlcjaa/adot/types/packageInfo.js
   if (found) {
     return `
       function getAbsoluteUrl(relativeUrl) {
-          console.log(relativeUrl,__webpack_public_path__)
         const publicPath = __webpack_public_path__;
 
         let url = '';
@@ -57,7 +56,7 @@ module.exports = function (source) {
         } else {
           url += '/';
         }
-
+        console.log(url + relativeUrl)
         return url + relativeUrl;
       }
 ${rewrittenSource}`;
