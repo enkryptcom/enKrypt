@@ -16,9 +16,12 @@
     "node": ">=14.15.0"
   },
   "dependencies": {
+    "@commitlint/cli": "^16.1.0",
     "@enkryptcom/utils": "^0.0.1",
+    "@polkadot/util": "^8.5.1",
     "@polkadot/util-crypto": "^8.4.1",
-    "@polkadot/wasm-crypto": "^4.5.1",
+    "@polkadot/wasm-crypto": "^4.6.1",
+    "@polkadot/wasm-crypto-asmjs": "^4.6.1",
     "assert": "^2.0.0",
     "chai": "^4.3.6"
   },
@@ -40,9 +43,9 @@
     "ts-mocha": "^9.0.2",
     "ts-node": "^10.5.0",
     "tsconfig-paths": "^3.12.0",
+    "tsup": "^5.11.13",
     "typescript": "^4.5.5",
-    "typescript-eslint": "0.0.1-alpha.0",
-    "tsup": "^5.11.13"
+    "typescript-eslint": "0.0.1-alpha.0"
   },
   "repository": {
     "type": "git",

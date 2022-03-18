@@ -4,7 +4,6 @@ import Signer from "../src";
 
 describe("Polkadot Address generate", () => {
   // the tests container
-
   const MNEMONIC =
     "error fish boy absent drop next ice keep meadow little air include";
   const PHRASE =
@@ -12,15 +11,15 @@ describe("Polkadot Address generate", () => {
 
   it("sr25519 addresses should work", async () => {
     const signer = new Signer(SignerType.sr25519);
-    let keypair = await signer.generate(MNEMONIC, "//0");
+    let keypair = await signer.generate(MNEMONIC, "//0", { onlyJS: true });
     expect(keypair.address).equals(
       "5FqSRmrJGMEdb5xk58k6x9RUw7Ri9oEKckDApupjMDysDrZL"
     );
-    keypair = await signer.generate(MNEMONIC, "//1");
+    keypair = await signer.generate(MNEMONIC, "//1", { onlyJS: true });
     expect(keypair.address).equals(
       "5F2NJSfSZ1ZtUiHXKc3XLKY6SwU3Y1jVw4CD2mKW4okBHNnx"
     );
-    keypair = await signer.generate(MNEMONIC, "//0//0");
+    keypair = await signer.generate(MNEMONIC, "//0//0", { onlyJS: true });
     expect(keypair.address).equals(
       "5GKwdnFRMxHP8hTjPY39eF88oCzoUQURawFpx2sJhCMCP15D"
     );
@@ -72,36 +71,36 @@ describe("Polkadot Address generate", () => {
       },
     ];
     list.forEach(async (item) => {
-      keypair = await signer.generate(PHRASE, item.uri);
+      keypair = await signer.generate(PHRASE, item.uri, { onlyJS: true });
       expect(keypair.address).equals(item.ss);
     });
-  });
+  }).timeout(5000);
   it("ecdsa addresses should work", async () => {
     const signer = new Signer(SignerType.ecdsa);
-    let keypair = await signer.generate(PHRASE, "//Alice");
+    let keypair = await signer.generate(PHRASE, "//Alice", { onlyJS: true });
     expect(keypair.address).equals(
       "5C7C2Z5sWbytvHpuLTvzKunnnRwQxft1jiqrLD5rhucQ5S9X"
     );
-    keypair = await signer.generate(PHRASE, "//0");
+    keypair = await signer.generate(PHRASE, "//0", { onlyJS: true });
     expect(keypair.address).equals(
       "5EYLKPDaH7gGuon5vesr5QX8S9c22wYvgWwdRoGj3FykwoE8"
     );
-    keypair = await signer.generate(PHRASE);
+    keypair = await signer.generate(PHRASE, "", { onlyJS: true });
     expect(keypair.address).equals(
       "5GKyBtzbxKU1qjhZrKpMiwtJj7o6jJcXbKQVtYq74DCPerXN"
     );
   });
   it("ed25519 addresses should work", async () => {
     const signer = new Signer(SignerType.ed25519);
-    let keypair = await signer.generate(PHRASE, "//Alice");
+    let keypair = await signer.generate(PHRASE, "//Alice", { onlyJS: true });
     expect(keypair.address).equals(
       "5FA9nQDVg267DEd8m1ZypXLBnvN7SFxYwV7ndqSYGiN9TTpu"
     );
-    keypair = await signer.generate(PHRASE, "//0");
+    keypair = await signer.generate(PHRASE, "//0", { onlyJS: true });
     expect(keypair.address).equals(
       "5HrCphkqYygSXWt9rHebqaqbfEYekhzjyjQNjZiPxpb3XsKY"
     );
-    keypair = await signer.generate(PHRASE);
+    keypair = await signer.generate(PHRASE, "", { onlyJS: true });
     expect(keypair.address).equals(
       "5DFJF7tY4bpbpcKPJcBTQaKuCDEPCpiz8TRjpmLeTtweqmXL"
     );

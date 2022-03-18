@@ -1,4 +1,5 @@
 require("../libs/utils/hot-reload");
+
 import {
   backgroundOnMessageFromWindow,
   backgroundOnMessageFromNewWindow,

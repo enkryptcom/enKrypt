@@ -2,6 +2,11 @@ const path = require("path");
 
 const setConfig = (config) => {
   config.devtool("source-map");
+  // config.resolve.mainFields
+  //   .add("module")
+  //   .add("react-native")
+  //   .add("browser")
+  //   .add("main");
   config.resolve.symlinks(false);
   config.module
     .rule("metaimport")
