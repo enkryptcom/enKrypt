@@ -1,89 +1,85 @@
 <template>
   <div class="container">
-    <div v-if="!!selected" class="network-activity">
-      <Total
-        :crypto-amount="total.cryptoAmount"
-        :amount="total.amount"
-        :symbol="total.symbol"
-      />
+    <custom-scrollbar
+      class="network-activity__scroll-area"
+      :settings="settings"
+      @ps-scroll-y="handleScroll"
+    >
+      <div v-if="!!selected" class="network-activity">
+        <network-activity-total
+          :crypto-amount="total.cryptoAmount"
+          :amount="total.amount"
+          :symbol="total.symbol"
+        />
 
-      <Action
-        :deposit-action="depositAction"
-        :buy-action="buyAction"
-        :send-action="sendAction"
-        :swap-action="swapAction"
-      />
+        <network-activity-action
+          :deposit-action="depositAction"
+          :buy-action="buyAction"
+          :send-action="sendAction"
+          :swap-action="swapAction"
+        />
 
-      <TransactionItem
-        v-for="(item, index) in transactionsOne"
-        :key="index"
-        :transaction="item"
-      ></TransactionItem>
+        <network-activity-transaction
+          v-for="(item, index) in transactionsOne"
+          :key="index"
+          :transaction="item"
+        />
 
-      <div class="network-activity__header">July</div>
+        <div class="network-activity__header">July</div>
 
-      <TransactionItem
-        v-for="(item, index) in transactionsTwo"
-        :key="index"
-        :transaction="item"
-      ></TransactionItem>
-    </div>
+        <network-activity-transaction
+          v-for="(item, index) in transactionsTwo"
+          :key="index"
+          :transaction="item"
+        />
+      </div>
+    </custom-scrollbar>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, computed } from "vue";
-import { useRoute } from "vue-router";
-import { useStore } from "vuex";
-import Total from "./components/total.vue";
-import Action from "./components/action.vue";
-import TransactionItem from "./components/transaction.vue";
-
-import { transactionsOne, transactionsTwo } from "@action/types/mock";
-
-export default defineComponent({
+export default {
   name: "NetworkActivity",
-  components: {
-    Total,
-    Action,
-    TransactionItem,
-  },
-  setup() {
-    const route = useRoute();
-    const store = useStore();
+};
+</script>
 
-    return {
-      id: computed(() => route.params.id),
-      selected: computed(() => store.getters.selected),
-      transactionsOne: transactionsOne,
-      transactionsTwo: transactionsTwo,
-      total: {
-        cryptoAmount: 63.466,
-        amount: 3245.24,
-        symbol: "dot",
-      },
-      settings: {
-        suppressScrollY: false,
-        suppressScrollX: true,
-        wheelPropagation: false,
-      },
-    };
-  },
-  methods: {
-    depositAction: function () {
-      console.log("depositAction");
-    },
-    buyAction: function () {
-      console.log("buyAction");
-    },
-    sendAction: function () {
-      console.log("sendAction");
-    },
-    swapAction: function () {
-      console.log("swapAction");
-    },
-  },
-});
+<script setup lang="ts">
+import { defineProps } from "vue";
+import { useRoute } from "vue-router";
+import NetworkActivityTotal from "./components/network-activity-total.vue";
+import NetworkActivityAction from "./components/network-activity-action.vue";
+import NetworkActivityTransaction from "./components/network-activity-transaction.vue";
+import { transactionsOne, transactionsTwo } from "@action/types/mock";
+import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
+
+const route = useRoute();
+
+const selected: number = +route.params.id;
+const total = {
+  cryptoAmount: 63.466,
+  amount: 3245.24,
+  symbol: "dot",
+};
+const settings = {
+  suppressScrollY: false,
+  suppressScrollX: true,
+  wheelPropagation: false,
+};
+
+defineProps({});
+
+const depositAction = () => {
+  console.log("depositAction");
+};
+const buyAction = () => {
+  console.log("buyAction");
+};
+const sendAction = () => {
+  console.log("sendAction");
+};
+const swapAction = () => {
+  console.log("swapAction");
+};
 </script>
 
 <style lang="less" scoped>

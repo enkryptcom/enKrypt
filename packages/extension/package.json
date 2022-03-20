@@ -35,8 +35,7 @@
     "url-parse": "^1.5.10",
     "vue": "^3.2.31",
     "vue-router": "4",
-    "vue3-lottie": "^2.1.0",
-    "vuex": "^4.0.2"
+    "vue3-lottie": "^2.1.0"
   },
   "devDependencies": {
     "@babel/plugin-proposal-class-properties": "^7.16.7",

@@ -1,21 +1,21 @@
 <template>
   <div class="deposit" :class="{ show: showDeposit }">
     <div class="deposit__wrap" :class="{ show: showDeposit }">
-      <a class="deposit__close" @click="(toggle as (e: MouseEvent)=>void)"
-        ><CloseIcon
-      /></a>
+      <a class="deposit__close" @click="(toggle as (e: MouseEvent)=>void)">
+        <close-icon />
+      </a>
 
-      <img class="deposit__logo" src="../../icons/raw/eth-logo.png" />
+      <img class="deposit__logo" src="@/ui/action/icons/raw/eth-logo.png" />
 
       <h2>Your Polkadot address</h2>
       <p>You can send DOT to this address using Polkadot chain network.</p>
 
       <div class="deposit__code">
-        <img src="../../assets/qr.png" />
+        <img src="@/ui/action/assets/qr.png" />
       </div>
 
       <div class="deposit__account">
-        <img src="../../icons/raw/account.png" />
+        <img src="@/ui/action/icons/raw/account.png" />
 
         <div class="deposit__account-info">
           <h4>{{ account.name }}</h4>
@@ -31,36 +31,37 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from "vue";
+export default {
+  name: "Deposit",
+};
+</script>
+
+<script setup lang="ts">
+import { defineProps, PropType } from "vue";
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import CopyIcon from "@action/icons/header/copy_icon.vue";
 import { Account } from "@action/types/account";
 
-export default defineComponent({
-  name: "Deposit",
-  components: {
-    CloseIcon,
-    CopyIcon,
-  },
-  props: {
-    account: {
-      type: Object as PropType<Account>,
-      default: () => {
-        return {};
-      },
-    },
-    showDeposit: Boolean,
-    toggle: {
-      type: Function,
-      default: () => ({}),
+defineProps({
+  account: {
+    type: Object as PropType<Account>,
+    default: () => {
+      return {};
     },
   },
-  methods: {
-    copy: function (address: string) {
-      navigator.clipboard.writeText(address);
-    },
+  showDeposit: {
+    type: Boolean,
+    default: () => false,
+  },
+  toggle: {
+    type: Function,
+    default: () => ({}),
   },
 });
+
+const copy = (address: string) => {
+  navigator.clipboard.writeText(address);
+};
 </script>
 
 <style lang="less" scoped>

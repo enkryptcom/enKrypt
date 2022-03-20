@@ -8,7 +8,7 @@ import {
   EthereumProvider,
   handleIncomingMessage as handleIncomingMessageType,
 } from "@/types/provider";
-import { getError } from "../../../libs/error";
+import { getError } from "@/libs/error";
 
 const handleIncomingMessage: handleIncomingMessageType = (
   provider,

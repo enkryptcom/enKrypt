@@ -1,11 +1,11 @@
 <template>
   <div class="app">
-    <div class="app__menu" :class="classObject">
-      <LogoMin :selected="selected" class="app__menu-logo" />
-      <AppSearch :is-border="false" />
-      <AppMenu
+    <div class="app__menu" :class="classObject()">
+      <logo-min :selected="+route.params.id" class="app__menu-logo" />
+      <base-search :is-border="false" />
+      <app-menu
         :networks="networks"
-        :selected="selected"
+        :selected="+route.params.id"
         :set-network="setNetwork"
       />
       <div class="app__menu-footer">
@@ -14,26 +14,26 @@
           :class="{ active: $route.name == 'add-network' }"
           @click="addNetwork()"
         >
-          <AddIcon />
+          <add-icon />
           Add a network
         </a>
 
         <div>
           <a class="app__menu-link">
-            <HoldIcon />
+            <hold-icon />
           </a>
 
           <a class="app__menu-link">
-            <SettingsIcon />
+            <settings-icon />
           </a>
         </div>
       </div>
     </div>
 
     <div class="app__content">
-      <NetworkHeader
-        v-show="showNetworkMenu"
-        :selected="selected"
+      <network-header
+        v-show="showNetworkMenu()"
+        :selected="+route.params.id"
         :account="account"
       />
 
@@ -43,136 +43,66 @@
       <router-view name="modal"></router-view>
       <router-view name="accounts"></router-view>
 
-      <NetworkMenu v-show="showNetworkMenu" :selected="selected" />
+      <network-menu v-show="showNetworkMenu()" :selected="+route.params.id" />
     </div>
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, computed } from "vue";
-import AppMenu from "./components/Menu/index.vue";
-import NetworkMenu from "./components/NetworkMenu/index.vue";
-import NetworkHeader from "./components/NetworkHeader/index.vue";
-import AppSearch from "./components/Search/index.vue";
+<script setup lang="ts">
+import { onMounted } from "vue";
+import AppMenu from "./components/app-menu/index.vue";
+import NetworkMenu from "./components/network-menu/index.vue";
+import NetworkHeader from "./components/network-header/index.vue";
+import BaseSearch from "./components/base-search/index.vue";
 import LogoMin from "./icons/common/logo-min.vue";
 import AddIcon from "./icons/common/add-icon.vue";
 import SettingsIcon from "./icons/common/settings-icon.vue";
 import HoldIcon from "./icons/common/hold-icon.vue";
-
 import { NetworkItem } from "./types/network";
-import { useStore } from "vuex";
-import { useRouter } from "vue-router";
-export default defineComponent({
-  name: "App",
-  components: {
-    AppMenu,
-    NetworkMenu,
-    NetworkHeader,
-    AppSearch,
-    LogoMin,
-    AddIcon,
-    SettingsIcon,
-    HoldIcon,
-  },
-  setup() {
-    const store = useStore();
-    const router = useRouter();
+import { useRouter, useRoute } from "vue-router";
+import { singleAccount, networkList } from "@action/types/mock";
+import { Account } from "@action/types/account";
 
-    store.dispatch("setNetwork", {
-      id: 1,
-      title: "Ethereum",
-      image: require("./icons/raw/eth-logo.png"),
-    });
+const router = useRouter();
+const route = useRoute();
 
-    router.push({ name: "activity", params: { id: 1 } });
-
-    return {
-      selected: computed(() => store.getters.selected),
-      transitionName: computed(() => "fade"),
-      account: {
-        name: "My Main Account",
-        address: "0x03502CF6C0A13167Dc2D0E25Dabf5FBDB68C5968",
-        amount: 1.321,
-        primaryToken: {
-          name: "Ethereum",
-          symbol: "eth",
-          icon: require("./icons/raw/eth-logo.png"),
-          amount: 0.5,
-          price: 2500,
-        },
-      },
-      setNetwork: (network: NetworkItem) => {
-        store.dispatch("setNetwork", network);
-        router.push({ name: "activity", params: { id: network.id } });
-      },
-      addNetwork: () => {
-        store
-          .dispatch("setNetwork", undefined)
-          .then(() => router.push({ name: "add-network" }));
-      },
-    };
-  },
-  data() {
-    return {
-      networks: [
-        {
-          id: 1,
-          title: "Ethereum",
-          image: require("./icons/raw/eth-logo.png"),
-        },
-        {
-          id: 2,
-          title: "Polygon",
-          image: require("./icons/raw/polygon-logo.png"),
-        },
-        {
-          id: 3,
-          title: "Polkadot",
-          image: require("./icons/raw/polkadot.png"),
-        },
-        {
-          id: 4,
-          title: "Moonbeam",
-          image: require("./icons/raw/moonbeam.png"),
-        },
-      ],
-    };
-  },
-  computed: {
-    classObject() {
-      const store = useStore();
-      const selected = store.getters.selected;
-
-      if (selected) {
-        return {
-          ethereum: selected.id == 1,
-          polygon: selected.id == 2,
-          polkadot: selected.id == 3,
-          moonbeam: selected.id == 4,
-        };
-      }
-
-      return {};
-    },
-    showNetworkMenu() {
-      const store = useStore();
-      const selected = store.getters.selected;
-
-      return (
-        !!selected &&
-        (this.$route.name == "activity" ||
-          this.$route.name == "assets" ||
-          this.$route.name == "nfts" ||
-          this.$route.name == "dapps")
-      );
-    },
-  },
-  created() {
-    this.$router.beforeEach((to, from, next) => {
-      next();
-    });
-  },
+onMounted(() => {
+  router.push({ name: "activity", params: { id: 1 } });
 });
+const transitionName = "fade";
+const account: Account = singleAccount;
+const networks: NetworkItem[] = networkList;
+const setNetwork = (network: NetworkItem) => {
+  router.push({ name: "activity", params: { id: network.id } });
+};
+const addNetwork = () => {
+  router.push({ name: "add-network" });
+};
+const classObject = () => {
+  const selected = +route.params.id;
+
+  if (selected) {
+    return {
+      ethereum: selected == 1,
+      polygon: selected == 2,
+      polkadot: selected == 3,
+      moonbeam: selected == 4,
+    };
+  }
+
+  return {};
+};
+const showNetworkMenu = () => {
+  const selected = +route.params.id;
+
+  return (
+    !!selected &&
+    (route.name == "activity" ||
+      route.name == "assets" ||
+      route.name == "nfts" ||
+      route.name == "dapps")
+  );
+};
 </script>
 
 <style lang="less">
@@ -181,6 +111,7 @@ export default defineComponent({
 body {
   margin: 0;
   padding: 0;
+  overflow: hidden;
 }
 .app {
   width: 800px;
