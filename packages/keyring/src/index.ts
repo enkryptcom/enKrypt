@@ -95,8 +95,7 @@ class KeyRing {
     const nextIndex = await this.getPathIndex(key.basePath);
     const keypair = await this.#signers[key.type].generate(
       this.#_mnemonic,
-      pathParser(key.basePath, nextIndex, key.type),
-      { onlyJS: true }
+      pathParser(key.basePath, nextIndex, key.type)
     );
     return {
       address: keypair.address,
