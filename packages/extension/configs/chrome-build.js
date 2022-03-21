@@ -1,7 +1,7 @@
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 
 const scripts = {
-  background: "./src/scripts/background.ts",
+  background: "./src/scripts/chrome/background.ts",
 };
 
 const setConfig = (config) => {

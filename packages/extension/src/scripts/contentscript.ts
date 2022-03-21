@@ -3,25 +3,21 @@ import { setContentScriptNamespace } from "@/libs/messenger/extension";
 
 setContentScriptNamespace();
 
-const injectURL = browser.runtime.getURL("scripts/inject.js");
-fetch(injectURL).then((response) => {
-  response.text().then((inpageContent) => {
-    const inpageSuffix = `//# sourceURL=${injectURL}\n`;
-    const inpageBundle = inpageContent + inpageSuffix;
-    injectScript(inpageBundle);
-  });
-});
-function injectScript(content: string) {
+function injectScript() {
   try {
+    const injectURL = browser.runtime.getURL("scripts/inject.js");
     const container = document.head || document.documentElement;
     const scriptTag = document.createElement("script");
     scriptTag.setAttribute("async", "false");
-    scriptTag.textContent = content;
+    scriptTag.src = injectURL;
+    scriptTag.onload = function () {
+      console.log("Hello from the content-script");
+      container.removeChild(scriptTag);
+    };
     container.insertBefore(scriptTag, container.children[0]);
-    container.removeChild(scriptTag);
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error("Enkrypt: Provider injection failed.", error);
   }
 }
-console.log("Hello from the content-script");
+injectScript();

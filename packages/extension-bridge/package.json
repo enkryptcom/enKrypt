@@ -34,7 +34,7 @@
   ],
   "dependencies": {
     "nanoevents": "^6.0.2",
-    "serialize-error": "^9.0.0",
+    "serialize-error": "9.1.0",
     "tiny-uid": "^1.1.1",
     "webextension-polyfill": "^0.8.0"
   },

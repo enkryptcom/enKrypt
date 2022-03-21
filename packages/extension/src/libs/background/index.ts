@@ -39,7 +39,7 @@ class BackgroundHandler {
     //   this.#keyring.addEthereumAddress("abc").then((key) => {
     //     console.log("added", key);
     //   });
-    //   this.#keyring.addPolkadotAddress("def").then((key) => {
+    //   this.#keyring.addPolkadotAddress("def1").then((key) => {
     //     console.log("added", key);
     //   });
     // });
