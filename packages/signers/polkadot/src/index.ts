@@ -123,9 +123,7 @@ class Signer implements SignerInterface {
         );
         return bufferToHex(sig);
       case SignerType.sr25519:
-        sig = Buffer.from(
-          sr25519Sign(msgHashBuffer, pair)
-        );
+        sig = Buffer.from(sr25519Sign(msgHashBuffer, pair));
         assert(
           this.verify(
             bufferToHex(msgHashBuffer),
