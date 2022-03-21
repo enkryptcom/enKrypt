@@ -11,6 +11,8 @@ const setConfig = (config) => {
   config.module
     .rule("metaimport")
     .test(/packageInfo\.js$/)
+    .include.add((path) => path.match(/@polkadot/))
+    .end()
     .use("webpack-import-loader")
     //.loader("@open-wc/webpack-import-meta-loader")
     .loader("./configs/meta-loader.js")
@@ -18,7 +20,7 @@ const setConfig = (config) => {
   //polkadot-js has import.meta with # //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import.meta
   config.module
     .rule("private-fields-loader")
-    .test(/\.js$/)
+    .test(/\.(js|cjs)$/)
     .include.add((path) => path.match(/@polkadot/))
     .end()
     .use("private-fields-loader")

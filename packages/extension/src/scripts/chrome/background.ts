@@ -1,4 +1,5 @@
-require("../libs/utils/hot-reload");
+import "./hot-reload";
+import "@polkadot/wasm-crypto/initOnlyAsm"; //chrome extension v3 doesnt support webassembly
 
 import {
   backgroundOnMessageFromWindow,
