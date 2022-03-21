@@ -40,7 +40,6 @@
   },
   "devDependencies": {
     "@babel/plugin-proposal-class-properties": "^7.16.7",
-    "@open-wc/webpack-import-meta-loader": "^0.4.7",
     "@polkadot/api": "^7.10.1",
     "@polkadot/extension-inject": "^0.42.7",
     "@polkadot/rpc-provider": "^7.10.1",

@@ -2,11 +2,6 @@ const path = require("path");
 
 const setConfig = (config) => {
   config.devtool("source-map");
-  // config.resolve.mainFields
-  //   .add("module")
-  //   .add("react-native")
-  //   .add("browser")
-  //   .add("main");
   config.resolve.symlinks(false);
   config.module
     .rule("metaimport")
@@ -14,7 +9,6 @@ const setConfig = (config) => {
     .include.add((path) => path.match(/@polkadot/))
     .end()
     .use("webpack-import-loader")
-    //.loader("@open-wc/webpack-import-meta-loader")
     .loader("./configs/meta-loader.js")
     .end();
   //polkadot-js has import.meta with # //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import.meta

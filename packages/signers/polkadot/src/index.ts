@@ -22,11 +22,6 @@ import {
   blake2AsU8a,
 } from "@polkadot/util-crypto";
 import assert from "assert";
-import {
-  sr25519KeypairFromSeedASM,
-  sr25519SignASM,
-  keyFromPathSr25519ASM,
-} from "./libs/sr25519-asm";
 import { KeyPair, SignOptions } from "./types";
 
 const SUBSTRATE_PREFIX = 42;
@@ -43,7 +38,7 @@ class Signer implements SignerInterface {
     derivationPath = "",
     options: SignOptions = { onlyJS: false }
   ): Promise<KRKeyPair> {
-    if (!options.onlyJS) await waitReady();
+    await waitReady();
     const { path, phrase, password } = keyExtractSuri(
       `${mnemonic}${derivationPath}`
     );
@@ -65,9 +60,7 @@ class Signer implements SignerInterface {
         );
         break;
       case SignerType.sr25519:
-        pair = options.onlyJS
-          ? keyFromPathSr25519ASM(sr25519KeypairFromSeedASM(seed), path)
-          : keyFromPath(sr25519PairFromSeed(seed), path, "sr25519");
+        pair = keyFromPath(sr25519PairFromSeed(seed), path, "sr25519");
         break;
       default:
         throw new Error(Errors.SigningErrors.NotSupported);
@@ -87,6 +80,7 @@ class Signer implements SignerInterface {
     sig: string,
     publicKey: string
   ): Promise<boolean> {
+    await waitReady();
     const rpubkey = signatureVerify(msgHash, sig, publicKey);
     return rpubkey.isValid;
   }
@@ -102,7 +96,7 @@ class Signer implements SignerInterface {
       secretKey: hexToBuffer(keyPair.privateKey),
       publicKey: hexToBuffer(keyPair.publicKey),
     };
-    if (!options.onlyJS) await waitReady();
+    await waitReady();
     switch (this.type) {
       case SignerType.ecdsa:
         sig = Buffer.from(
@@ -130,18 +124,16 @@ class Signer implements SignerInterface {
         return bufferToHex(sig);
       case SignerType.sr25519:
         sig = Buffer.from(
-          options.onlyJS
-            ? sr25519SignASM(msgHashBuffer, pair)
-            : sr25519Sign(msgHashBuffer, pair)
+          sr25519Sign(msgHashBuffer, pair)
         );
-        // assert(
-        //   this.verify(
-        //     bufferToHex(msgHashBuffer),
-        //     bufferToHex(sig),
-        //     bufferToHex(pair.publicKey)
-        //   ),
-        //   Errors.SigningErrors.UnableToVerify
-        // );
+        assert(
+          this.verify(
+            bufferToHex(msgHashBuffer),
+            bufferToHex(sig),
+            bufferToHex(pair.publicKey)
+          ),
+          Errors.SigningErrors.UnableToVerify
+        );
         return bufferToHex(sig);
       default:
         throw new Error(Errors.SigningErrors.NotSupported);
