@@ -1,24 +1,20 @@
 {
+  "name": "enkrypt",
+  "packageManager": "yarn@3.2.0",
   "private": true,
-  "workspaces": {
-    "packages": [
-      "packages/signers/*",
-      "packages/types",
-      "packages/utils",
-      "packages/keyring",
-      "packages/extension-bridge",
-      "packages/extension",
-      "packages/storage",
-      "packages/request"
-    ],
-    "nohoist": [
-      "**/@vue/cli-plugin-eslint",
-      "**/@vue/cli-plugin-eslint/**"
-    ]
-  },
+  "workspaces": [
+    "packages/signers/*",
+    "packages/types",
+    "packages/utils",
+    "packages/keyring",
+    "packages/extension-bridge",
+    "packages/extension",
+    "packages/storage",
+    "packages/request"
+  ],
   "scripts": {
-    "test": "yarn workspaces run test",
-    "lint": "yarn workspaces run lint",
+    "test": "yarn workspaces foreach -pv run test",
+    "lint": "yarn workspaces foreach run lint",
     "build:all": "ultra -r build",
     "watch": "concurrently 'npm:watch-*'",
     "watch-extension": "cd packages/extension && npm run watch",

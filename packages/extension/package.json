@@ -1,6 +1,6 @@
 {
   "name": "@enkryptcom/extension",
-  "version": "0.1.0",
+  "version": "0.3.1",
   "private": true,
   "scripts": {
     "watch-vue": "vue-cli-service build --watch --no-clean",
@@ -12,8 +12,11 @@
     "build:prod": "vue-cli-service build && npm run build:rollup",
     "lint": "vue-cli-service lint --fix",
     "test": "ts-mocha --paths -p configs/tsconfig.test.json ./**/*.mocha.ts",
-    "build:rollup": "rollup --config configs/rollup.config.contentscript.js && rollup --config configs/rollup.config.inject.js",
+    "build:rollup": "(minify=on rollup --config configs/rollup.config.contentscript.js) && (minify=on rollup --config configs/rollup.config.inject.js)",
     "inspectWebpack": "vue-cli-service inspect > webpack.log"
+  },
+  "installConfig": {
+    "hoistingLimits": "workspaces"
   },
   "dependencies": {
     "@enkryptcom/extension-bridge": "^0.0.1",
@@ -55,7 +58,6 @@
     "@vue/cli-plugin-eslint": "~4.5.0",
     "@vue/cli-plugin-typescript": "~4.5.0",
     "@vue/cli-service": "~4.5.15",
-    "@vue/compiler-sfc": "^3.2.31",
     "@vue/eslint-config-prettier": "^6.0.0",
     "@vue/eslint-config-typescript": "^7.0.0",
     "eslint": "^6.7.2",
@@ -74,5 +76,9 @@
     "tsconfig-paths": "^3.12.0",
     "typescript": "~4.1.5",
     "webextension-polyfill": "^0.8.0"
-  }
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions"
+  ]
 }

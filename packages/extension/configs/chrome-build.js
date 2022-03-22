@@ -1,5 +1,14 @@
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 
+let package = require("../package.json");
+
+function modifyManifest(buffer) {
+  const manifest = JSON.parse(buffer.toString());
+  manifest.version = package.version;
+  const manifest_JSON = JSON.stringify(manifest, null, 2);
+  return manifest_JSON;
+}
+
 const scripts = {
   background: "./src/scripts/chrome/background.ts",
 };
@@ -23,7 +32,7 @@ const setConfig = (config) => {
       {
         from: "./src/manifest/manifest-chrome.json",
         to: "manifest.json",
-        //transform: ()
+        transform: modifyManifest,
       },
     ],
   ]);
