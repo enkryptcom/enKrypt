@@ -7,6 +7,7 @@ import { Account } from "./account";
 import { Token } from "./token";
 import { DAppsItem } from "./dapps";
 import { NetworkItem } from "./network";
+import { NFTAuthor } from "./nft";
 
 export const transactionsOne: Transaction[] = [
   {
@@ -510,5 +511,46 @@ export const networkList: NetworkItem[] = [
     id: 4,
     title: "Moonbeam",
     image: require("@/ui/action/icons/raw/moonbeam.png"),
+  },
+];
+
+export const nfts: NFTAuthor[] = [
+  {
+    id: 1,
+    name: "Azuki",
+    image: require("@/ui/action/icons/raw/azuki.png"),
+    items: [
+      {
+        id: 1,
+        name: "Azuki #4262",
+        image: require("@/ui/action/icons/raw/azuki-pic-1.png"),
+        price: 9.9,
+      },
+    ],
+  },
+  {
+    id: 2,
+    name: "Cool Cats",
+    image: require("@/ui/action/icons/raw/cool-cats.png"),
+    items: [
+      {
+        id: 1,
+        name: "Cool Cat #6288",
+        image: require("@/ui/action/icons/raw/cool-cats-pic-1.png"),
+        price: 2.9,
+      },
+      {
+        id: 2,
+        name: "Cool Cat #6486",
+        image: require("@/ui/action/icons/raw/cool-cats-pic-2.png"),
+        price: 0.9,
+      },
+      {
+        id: 3,
+        name: "Cool Cat #2486",
+        image: require("@/ui/action/icons/raw/cool-cats-pic-3.png"),
+        price: 10.9,
+      },
+    ],
   },
 ];

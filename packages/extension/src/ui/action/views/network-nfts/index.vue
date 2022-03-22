@@ -6,7 +6,13 @@
       @ps-scroll-y="handleScroll"
     >
       <div v-if="!!selected" class="network-nfts">
-        NetworkNFTs {{ selected.title }}
+        <network-nfts-total :amount="150335" />
+
+        <network-nfts-category
+          v-for="(item, index) in nfts"
+          :key="index"
+          :author="item"
+        ></network-nfts-category>
       </div>
     </custom-scrollbar>
   </div>
@@ -22,6 +28,10 @@ export default {
 import { defineProps } from "vue";
 import { useRoute } from "vue-router";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
+import NetworkNftsTotal from "./components/network-nfts-total.vue";
+import NetworkNftsCategory from "./components/network-nfts-category.vue";
+
+import { nfts } from "@action/types/mock";
 
 const route = useRoute();
 
@@ -45,7 +55,7 @@ const settings = {
   background-color: @white;
   box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.16);
   margin: 56px 0;
-  padding-top: 20px;
+  padding-top: 14px;
   box-sizing: border-box;
 }
 
