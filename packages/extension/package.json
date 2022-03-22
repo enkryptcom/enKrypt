@@ -7,12 +7,10 @@
     "watch-inject": "rollup --watch --config configs/rollup.config.inject.js",
     "watch-contentscript": "rollup --watch --config configs/rollup.config.contentscript.js",
     "watch": "concurrently 'npm:watch-*'",
-    "build:vue": "vue-cli-service build --no-clean",
-    "build": "npm run build:vue && npm run build:rollup",
-    "build:prod": "vue-cli-service build && npm run build:rollup",
+    "build": "vue-cli-service build && npm run build:rollup",
     "lint": "vue-cli-service lint --fix",
     "test": "ts-mocha --paths -p configs/tsconfig.test.json ./**/*.mocha.ts",
-    "build:rollup": "(minify=on rollup --config configs/rollup.config.contentscript.js) && (minify=on rollup --config configs/rollup.config.inject.js)",
+    "build:rollup": "cross-env minify=on rollup --config configs/rollup.config.contentscript.js && cross-env minify=on rollup --config configs/rollup.config.inject.js",
     "inspectWebpack": "vue-cli-service inspect > webpack.log"
   },
   "installConfig": {
@@ -60,6 +58,7 @@
     "@vue/cli-service": "~4.5.15",
     "@vue/eslint-config-prettier": "^6.0.0",
     "@vue/eslint-config-typescript": "^7.0.0",
+    "cross-env": "^7.0.3",
     "eslint": "^6.7.2",
     "eslint-plugin-prettier": "^3.3.1",
     "eslint-plugin-vue": "^7.0.0",
@@ -79,6 +78,6 @@
   },
   "browserslist": [
     "> 1%",
-    "last 2 versions"
+    "not dead"
   ]
 }
