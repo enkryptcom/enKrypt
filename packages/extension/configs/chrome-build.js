@@ -27,15 +27,15 @@ const setConfig = (config) => {
   });
 
   //copy manifest
-  config.plugin("copy-manifest").use(CopyWebpackPlugin, [
-    [
-      {
-        from: "./src/manifest/manifest-chrome.json",
-        to: "manifest.json",
-        transform: modifyManifest,
-      },
-    ],
-  ]);
+  // config.plugin("copy-manifest").use(CopyWebpackPlugin, [
+  //   [
+  //     {
+  //       from: "./src/manifest/manifest-chrome.json",
+  //       to: "manifest.json",
+  //       transform: modifyManifest,
+  //     },
+  //   ],
+  // ]);
 
   // prevent codesplitting on scripts
   const omitUserScripts = ({ name }) => {

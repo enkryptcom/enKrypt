@@ -1,8 +1,10 @@
 const path = require("path");
+const NodePolyfillPlugin = require("node-polyfill-webpack-plugin");
 
 const setConfig = (config) => {
   config.devtool("source-map");
   config.resolve.symlinks(false);
+  config.plugin("node-polyfill").use(NodePolyfillPlugin);
   config.module
     .rule("metaimport")
     .test(/packageInfo\.js$/)
