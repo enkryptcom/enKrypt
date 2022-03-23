@@ -1644,6 +1644,7 @@ __metadata:
     "@enkryptcom/storage": ^0.0.1
     "@enkryptcom/types": ^0.0.1
     "@enkryptcom/utils": ^0.0.1
+    "@polkadot/types": ^7.13.1
     "@polkadot/util": ^8.4.1
     "@polkadot/wasm-crypto": ^5.0.1
     "@rollup/plugin-commonjs": ^21.0.2
@@ -2117,6 +2118,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@polkadot/keyring@npm:^8.6.1":
+  version: 8.6.1
+  resolution: "@polkadot/keyring@npm:8.6.1"
+  dependencies:
+    "@babel/runtime": ^7.17.8
+    "@polkadot/util": 8.6.1
+    "@polkadot/util-crypto": 8.6.1
+  peerDependencies:
+    "@polkadot/util": 8.6.1
+    "@polkadot/util-crypto": 8.6.1
+  checksum: 12307cea2aaef2d153605a7653a21a6dab0f506f0e5f57f2a45def30d15ff3ebefeb591ae10002397ab3dd1ff13f9c17afa8fc93b074d0b91327dc068ac60cfc
+  languageName: node
+  linkType: hard
+
 "@polkadot/networks@npm:8.6.1":
   version: 8.6.1
   resolution: "@polkadot/networks@npm:8.6.1"
@@ -2128,7 +2143,56 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@polkadot/util-crypto@npm:^8.4.1, @polkadot/util-crypto@npm:^8.6.1":
+"@polkadot/types-augment@npm:7.13.1":
+  version: 7.13.1
+  resolution: "@polkadot/types-augment@npm:7.13.1"
+  dependencies:
+    "@babel/runtime": ^7.17.8
+    "@polkadot/types": 7.13.1
+    "@polkadot/types-codec": 7.13.1
+    "@polkadot/util": ^8.6.1
+  checksum: 4991e46235d7d42b898f98e0f9a90c1ee4a199c604ab6ce9027b7d8d9be91cc7546ca8014ca8719be80f9df977f542dd448e0a728537210b6cf5d6459b566bf3
+  languageName: node
+  linkType: hard
+
+"@polkadot/types-codec@npm:7.13.1":
+  version: 7.13.1
+  resolution: "@polkadot/types-codec@npm:7.13.1"
+  dependencies:
+    "@babel/runtime": ^7.17.8
+    "@polkadot/util": ^8.6.1
+  checksum: ce098af762c439649bfd24b826baf6531bc7e5d0fd02a2c1dcbdb6237d7991853fbdd44dd50b082bdec051b9ab4e7cbfc152b68c8e2b475f10a5529b5bb176f9
+  languageName: node
+  linkType: hard
+
+"@polkadot/types-create@npm:7.13.1":
+  version: 7.13.1
+  resolution: "@polkadot/types-create@npm:7.13.1"
+  dependencies:
+    "@babel/runtime": ^7.17.8
+    "@polkadot/types-codec": 7.13.1
+    "@polkadot/util": ^8.6.1
+  checksum: 374301abd0888d964df092a736adff792135ece44116b93a902d16ef5a4aed176a83d39c9d23c91ea2be7360b20937e8017d38e7e10eeec1520a072170f2d423
+  languageName: node
+  linkType: hard
+
+"@polkadot/types@npm:7.13.1, @polkadot/types@npm:^7.13.1":
+  version: 7.13.1
+  resolution: "@polkadot/types@npm:7.13.1"
+  dependencies:
+    "@babel/runtime": ^7.17.8
+    "@polkadot/keyring": ^8.6.1
+    "@polkadot/types-augment": 7.13.1
+    "@polkadot/types-codec": 7.13.1
+    "@polkadot/types-create": 7.13.1
+    "@polkadot/util": ^8.6.1
+    "@polkadot/util-crypto": ^8.6.1
+    rxjs: ^7.5.5
+  checksum: d5556a188cd5f00d060ac6b7a41018983482f2c774bea03ddfde4251db6495ddc859540834047c18b2123f13077b5bb0837d6e0d6b1b7c87008b3cb112620894
+  languageName: node
+  linkType: hard
+
+"@polkadot/util-crypto@npm:8.6.1, @polkadot/util-crypto@npm:^8.4.1, @polkadot/util-crypto@npm:^8.6.1":
   version: 8.6.1
   resolution: "@polkadot/util-crypto@npm:8.6.1"
   dependencies:
@@ -2149,7 +2213,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@polkadot/util@npm:8.6.1, @polkadot/util@npm:^8.4.1, @polkadot/util@npm:^8.5.1":
+"@polkadot/util@npm:8.6.1, @polkadot/util@npm:^8.4.1, @polkadot/util@npm:^8.5.1, @polkadot/util@npm:^8.6.1":
   version: 8.6.1
   resolution: "@polkadot/util@npm:8.6.1"
   dependencies:
@@ -12273,6 +12337,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"rxjs@npm:^7.5.5":
+  version: 7.5.5
+  resolution: "rxjs@npm:7.5.5"
+  dependencies:
+    tslib: ^2.1.0
+  checksum: e034f60805210cce756dd2f49664a8108780b117cf5d0e2281506e9e6387f7b4f1532d974a8c8b09314fa7a16dd2f6cff3462072a5789672b5dcb45c4173f3c6
+  languageName: node
+  linkType: hard
+
 "safe-buffer@npm:5.1.2, safe-buffer@npm:~5.1.0, safe-buffer@npm:~5.1.1":
   version: 5.1.2
   resolution: "safe-buffer@npm:5.1.2"
@@ -13522,7 +13595,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tslib@npm:^2.0.3, tslib@npm:^2.3.0":
+"tslib@npm:^2.0.3, tslib@npm:^2.1.0, tslib@npm:^2.3.0":
   version: 2.3.1
   resolution: "tslib@npm:2.3.1"
   checksum: de17a98d4614481f7fcb5cd53ffc1aaf8654313be0291e1bfaee4b4bb31a20494b7d218ff2e15017883e8ea9626599b3b0e0229c18383ba9dce89da2adf15cb9

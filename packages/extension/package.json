@@ -3,8 +3,7 @@
   "version": "0.3.1",
   "private": true,
   "scripts": {
-    "build": "npm run watch",
-    "build:prod": "vue-cli-service build && npm run build:rollup",
+    "build": "vue-cli-service build && npm run build:rollup",
     "lint": "vue-cli-service lint --fix",
     "build:rollup": "cross-env minify=on rollup --config configs/rollup.config.contentscript.js && cross-env minify=on rollup --config configs/rollup.config.inject.js",
     "inspectWebpack": "vue-cli-service inspect > webpack.log",
@@ -21,6 +20,7 @@
     "@enkryptcom/storage": "^0.0.1",
     "@enkryptcom/types": "^0.0.1",
     "@enkryptcom/utils": "^0.0.1",
+    "@polkadot/types": "^7.13.1",
     "@polkadot/util": "^8.4.1",
     "@polkadot/wasm-crypto": "^5.0.1",
     "@types/chrome": "^0.0.180",

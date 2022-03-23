@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "description": "Key management for enkrypt extension",
   "main": "dist/index.js",
+  "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "files": [
     "dist"

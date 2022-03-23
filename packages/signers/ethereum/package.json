@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "description": "Ethereum blockchain signer",
   "main": "dist/index.js",
+  "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "files": [
     "dist"
