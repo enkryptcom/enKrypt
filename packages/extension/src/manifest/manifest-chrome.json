@@ -9,7 +9,7 @@
       "192": "assets/img/icons/icon192.png"
     },
     "default_title": "Enkrypt",
-    "default_popup": "popup.html"
+    "default_popup": "action.html"
   },
   "version": "0.3.0",
   "manifest_version": 3,
