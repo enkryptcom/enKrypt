@@ -3,7 +3,8 @@
   "version": "0.3.1",
   "private": true,
   "scripts": {
-    "build": "vue-cli-service build && npm run build:rollup",
+    "build": "npm run watch",
+    "build:prod": "vue-cli-service build && npm run build:rollup",
     "lint": "vue-cli-service lint --fix",
     "build:rollup": "cross-env minify=on rollup --config configs/rollup.config.contentscript.js && cross-env minify=on rollup --config configs/rollup.config.inject.js",
     "inspectWebpack": "vue-cli-service inspect > webpack.log",
@@ -18,9 +19,11 @@
     "@enkryptcom/keyring": "^0.0.1",
     "@enkryptcom/request": "^0.0.1",
     "@enkryptcom/storage": "^0.0.1",
+    "@enkryptcom/types": "^0.0.1",
     "@enkryptcom/utils": "^0.0.1",
     "@polkadot/types": "^7.10.1",
     "@polkadot/util": "^8.4.1",
+    "@polkadot/wasm-crypto": "^5.0.1",
     "@types/chrome": "^0.0.180",
     "@types/events": "^3.0.0",
     "chai": "^4.3.6",
@@ -78,24 +81,7 @@
     "webextension-polyfill": "^0.8.0",
     "worker-rpc": "^0.2.0"
   },
-  "browserslist": [
-    "last 2 versions",
-    "not dead",
-    "not safari > 0",
-    "not ios_saf > 0",
-    "not baidu > 0",
-    "not ie > 0",
-    "not op_mini all",
-    "not samsung > 0",
-    "not op_mob > 0",
-    "not android > 0",
-    "not kaios > 0",
-    "not and_chr > 0",
-    "not and_ff > 0",
-    "not and_qq > 0",
-    "not and_uc > 0"
-  ],
   "installConfig": {
-    "hoistingLimits": "workspaces"
+    "hoistingLimits": "none"
   }
 }

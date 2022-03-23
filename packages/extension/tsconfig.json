@@ -11,7 +11,7 @@
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
     "sourceMap": true,
-    "types": ["mocha", "webpack-env", "chrome"],
+    "types": ["mocha", "chrome"],
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],

@@ -27,16 +27,16 @@ const setConfig = (config) => {
   });
 
   //copy manifest
-  // config.plugin("copy-manifest").use(CopyWebpackPlugin, [
-  //   [
-  //     {
-  //       from: "./src/manifest/manifest-chrome.json",
-  //       to: "manifest.json",
-  //       transform: modifyManifest,
-  //     },
-  //   ],
-  // ]);
-
+  const copyManifest = new CopyWebpackPlugin({
+    patterns: [
+      {
+        from: "./src/manifest/manifest-chrome.json",
+        to: "manifest.json",
+        transform: modifyManifest,
+      },
+    ],
+  });
+  config.plugin("copy-manifest").use(copyManifest);
   // prevent codesplitting on scripts
   const omitUserScripts = ({ name }) => {
     return userScripts.includes(name) ? false : "initial";
