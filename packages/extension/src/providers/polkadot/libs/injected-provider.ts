@@ -28,7 +28,7 @@ class InjectedProvider implements SubstrateInjectedProvider {
   }
   handleMessage(request: RPCRequestType): void {
     const { method, params } = request;
-    console.log(method, params);
+    console.info(method, params);
   }
 }
 

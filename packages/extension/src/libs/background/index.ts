@@ -7,20 +7,23 @@ import { KeyRecord, RPCRequestType } from "@enkryptcom/types";
 import { getCustomError } from "../error";
 import KeyRingBase from "../keyring/keyring";
 import { sendToWindow } from "@/libs/messenger/extension";
-import { ProviderName } from "@/types/provider";
+import { EnkryptProviderEventMethods, ProviderName } from "@/types/provider";
 import { OnMessageResponse } from "@enkryptcom/types";
 import EthereumProvider from "@/providers/ethereum";
 import PolkadotProvider from "@/providers/polkadot";
 import Browser from "webextension-polyfill";
 import TabInfo from "@/libs/utils/tab-info";
-import { TabProviderType, ProviderType } from "./types";
+import PersistentEvents from "@/libs/persistent-events";
+import { TabProviderType, ProviderType, ExternalMessageOptions } from "./types";
 
 class BackgroundHandler {
   #keyring: KeyRingBase;
   #tabProviders: TabProviderType;
   #providers: ProviderType;
+  #persistentEvents: PersistentEvents;
   constructor() {
     this.#keyring = new KeyRingBase();
+    this.#persistentEvents = new PersistentEvents();
     this.#tabProviders = {
       [ProviderName.ethereum]: {},
       [ProviderName.polkadot]: {},
@@ -44,10 +47,65 @@ class BackgroundHandler {
     //   });
     // });
   }
-  async externalHandler(msg: Message): Promise<OnMessageResponse> {
+  async init(): Promise<void> {
+    const allPersistentEvents = await this.#persistentEvents.getAllEvents();
+    const tabs = Object.keys(allPersistentEvents).map((s) => parseInt(s));
+    tabs.forEach((tab) => {
+      Browser.tabs
+        .get(tab)
+        .then(() => {
+          allPersistentEvents[tab].forEach((persistentEvent) => {
+            this.externalHandler(persistentEvent.event, {
+              savePersistentEvents: false,
+            }).then((newResponse) => {
+              if (
+                !newResponse.error &&
+                newResponse.result !== persistentEvent.response.result
+              ) {
+                sendToWindow(
+                  {
+                    provider: persistentEvent.event.provider,
+                    message: JSON.stringify({
+                      method: EnkryptProviderEventMethods.persistentEvents,
+                      params: [
+                        JSON.parse(persistentEvent.event.message),
+                        persistentEvent.response.result,
+                        newResponse.result,
+                      ],
+                    }),
+                  },
+                  tab
+                );
+              }
+            });
+          });
+        })
+        .catch((e) => {
+          this.#persistentEvents.deleteEvents(tab);
+        });
+    });
+  }
+  async externalHandler(
+    msg: Message,
+    options: ExternalMessageOptions = { savePersistentEvents: true }
+  ): Promise<OnMessageResponse> {
     const { method, params } = JSON.parse(msg.message);
     const _provider = msg.provider;
     const _tabid = msg.sender.tabId;
+    if (_provider === ProviderName.enkrypt) {
+      if (
+        method === InternalMethods.newWindowInit ||
+        method === InternalMethods.newWindowUnload
+      ) {
+        this.#persistentEvents.deleteEvents(_tabid);
+        return {
+          result: JSON.stringify(true),
+        };
+      }
+      return {
+        error: JSON.stringify(getCustomError("Enkrypt: not implemented")),
+      };
+    }
     if (!this.#tabProviders[_provider][_tabid]) {
       const toWindow = (message: string) => {
         sendToWindow(
@@ -62,11 +120,22 @@ class BackgroundHandler {
         toWindow
       );
     }
-    return this.#tabProviders[_provider][_tabid].request({
-      method,
-      params,
-      options: TabInfo(await Browser.tabs.get(_tabid)),
-    });
+    const isPersistent = await this.#tabProviders[_provider][
+      _tabid
+    ].isPersistentEvent({ method, params });
+    return this.#tabProviders[_provider][_tabid]
+      .request({
+        method,
+        params,
+        options: TabInfo(await Browser.tabs.get(_tabid)),
+      })
+      .then((response) => {
+        if (isPersistent && !response.error && options.savePersistentEvents)
+          return this.#persistentEvents
+            .addEvent(_tabid, msg, response)
+            .then(() => response);
+        return response;
+      });
   }
   internalHandler(msg: Message): Promise<InternalOnMessageResponse> {
     const message = JSON.parse(msg.message) as RPCRequestType;

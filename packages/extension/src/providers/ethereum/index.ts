@@ -43,6 +43,10 @@ class EthereumProvider
     this.network = network;
     this.requestProvider.changeNetwork(network.node);
   }
+  async isPersistentEvent(request: ProviderRPCRequest): Promise<boolean> {
+    if (request.method === "eth_subscribe") return true;
+    return false;
+  }
   request(request: ProviderRPCRequest): Promise<OnMessageResponse> {
     return this.requestProvider
       .request(request)

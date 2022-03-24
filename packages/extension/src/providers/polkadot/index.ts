@@ -49,6 +49,9 @@ class PolkadotProvider
         };
       });
   }
+  async isPersistentEvent(): Promise<boolean> {
+    return false;
+  }
   getUIPath(page: string): string {
     return GetUIPath(page, this.namespace);
   }

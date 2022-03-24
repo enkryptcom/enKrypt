@@ -7,3 +7,6 @@ export interface TabProviderType {
 export interface ProviderType {
   [key: string]: typeof EthereumProvider | typeof PolkadotProvider;
 }
+export interface ExternalMessageOptions {
+  savePersistentEvents: boolean;
+}

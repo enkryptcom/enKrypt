@@ -18,6 +18,10 @@ export enum ProviderName {
 }
 export enum InternalStorageNamespace {
   keyring = "KeyRing",
+  persistentEvents = "PersistentEvents",
+}
+export enum EnkryptProviderEventMethods {
+  persistentEvents = "PersistentEvents",
 }
 export type StorageNamespace = ProviderName | InternalStorageNamespace;
 export enum ProviderType {
@@ -62,6 +66,7 @@ export abstract class BackgroundProviderInterface extends EventEmitter {
   abstract setRequestProvider(network: unknown): void;
   abstract request(request: ProviderRPCRequest): Promise<OnMessageResponse>;
   abstract getUIPath(page: string): string;
+  abstract isPersistentEvent(request: ProviderRPCRequest): Promise<boolean>;
 }
 
 export type handleIncomingMessage = (

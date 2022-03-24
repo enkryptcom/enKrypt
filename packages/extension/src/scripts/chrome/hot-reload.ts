@@ -54,10 +54,10 @@ const watchChanges = async () => {
 browser.management.getSelf().then((self) => {
   if (self.installType === "development") {
     watchChanges();
-    chrome.tabs.query({ active: true, lastFocusedWindow: true }, (tabs) => {
-      if (tabs[0] && tabs[0].id) {
-        chrome.tabs.reload(tabs[0].id);
-      }
-    });
+    // chrome.tabs.query({ active: true, lastFocusedWindow: true }, (tabs) => {
+    //   if (tabs[0] && tabs[0].id) {
+    //     chrome.tabs.reload(tabs[0].id);
+    //   }
+    // }); // disable tab reload
   }
 });
