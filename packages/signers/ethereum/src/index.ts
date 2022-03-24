@@ -9,8 +9,7 @@ import {
 import { mnemonicToSeed } from "bip39";
 import { Errors, SignerInterface, KeyPair } from "@enkryptcom/types";
 import { hexToBuffer, bufferToHex } from "@enkryptcom/utils";
-
-const HDkey = require("hdkey");
+import HDkey from "hdkey";
 
 class Signer implements SignerInterface {
   async generate(mnemonic: string, derivationPath = ""): Promise<KeyPair> {

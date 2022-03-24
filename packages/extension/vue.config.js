@@ -7,7 +7,7 @@ module.exports = {
       entry: "./src/ui/provider-pages/main.ts",
       title: "enkrypt extension",
     },
-    popup: {
+    action: {
       template: "public/index.html",
       entry: "./src/ui/action/main.ts",
       title: "enkrypt extension popup",

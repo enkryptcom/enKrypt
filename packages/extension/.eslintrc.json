@@ -11,13 +11,15 @@
     "@vue/prettier"
   ],
   "parserOptions": {
-    "ecmaVersion": 2020
+    "ecmaVersion": 2020,
+    "parser": "@typescript-eslint/parser"
   },
   "rules": {
     "no-console": "off",
     "no-debugger": "warn",
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/no-var-requires": "off",
+    "vue/multi-word-component-names": "off",
     "@typescript-eslint/no-unused-vars": "warn"
   }
 }

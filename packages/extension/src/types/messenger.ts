@@ -16,6 +16,8 @@ export enum InternalMethods {
   sign = "enkrypt_sign_hash",
   unlock = "enkrypt_unlock_keyring",
   isLocked = "enkrypt_is_locked_keyring",
+  newWindowInit = "enkrypt_newWindowInit",
+  newWindowUnload = "enkrypt_newWindowUnload",
 }
 export interface SendMessage {
   [key: string]: any;

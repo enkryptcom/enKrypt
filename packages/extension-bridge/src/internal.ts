@@ -135,34 +135,32 @@ const initIntercoms = () => {
     window.addEventListener("message", handleWindowOnMessage);
 
   if (context === "content-script" && top === window) {
-    port = browser.runtime.connect();
-    port.onMessage.addListener((message: IInternalMessage) => {
-      routeMessage(message);
-    });
-  }
-
-  if (context === "content-script" && top !== window) {
-    // This check will pass only if this is run inside an iframe. This is not necessary,
-    // as it does the same as the above, but the `top === window` can be important in the future.
-    port = browser.runtime.connect();
-    port.onMessage.addListener((message: IInternalMessage) => {
-      routeMessage(message);
-    });
+    // support for manifest v3
+    const connectToBackgroundWithDisconnect = () => {
+      port = browser.runtime.connect();
+      port.onMessage.addListener((message: IInternalMessage) => {
+        routeMessage(message);
+      });
+      port.onDisconnect.addListener(() => {
+        connectToBackgroundWithDisconnect();
+      });
+    };
+    connectToBackgroundWithDisconnect();
   }
 
   if (context === "devtools") {
     const { tabId } = browser.devtools.inspectedWindow;
     const name = `devtools@${tabId}`;
-
-    port = browser.runtime.connect(undefined, { name });
-
-    port.onMessage.addListener((message: IInternalMessage) => {
-      routeMessage(message);
-    });
-
-    port.onDisconnect.addListener(() => {
-      port = null;
-    });
+    const connectToBackgroundWithDisconnect = () => {
+      port = browser.runtime.connect(undefined, { name });
+      port.onMessage.addListener((message: IInternalMessage) => {
+        routeMessage(message);
+      });
+      port.onDisconnect.addListener(() => {
+        connectToBackgroundWithDisconnect();
+      });
+    };
+    connectToBackgroundWithDisconnect();
   }
 
   if (
@@ -171,16 +169,16 @@ const initIntercoms = () => {
     context === "new-window"
   ) {
     const name = `${context}`;
-
-    port = browser.runtime.connect(undefined, { name });
-
-    port.onMessage.addListener((message: IInternalMessage) => {
-      routeMessage(message);
-    });
-
-    port.onDisconnect.addListener(() => {
-      port = null;
-    });
+    const connectToBackgroundWithDisconnect = () => {
+      port = browser.runtime.connect(undefined, { name });
+      port.onMessage.addListener((message: IInternalMessage) => {
+        routeMessage(message);
+      });
+      port.onDisconnect.addListener(() => {
+        connectToBackgroundWithDisconnect();
+      });
+    };
+    connectToBackgroundWithDisconnect();
   }
 
   if (context === "background") {

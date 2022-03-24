@@ -1,7 +1,16 @@
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 
+let package = require("../package.json");
+
+function modifyManifest(buffer) {
+  const manifest = JSON.parse(buffer.toString());
+  manifest.version = package.version;
+  const manifest_JSON = JSON.stringify(manifest, null, 2);
+  return manifest_JSON;
+}
+
 const scripts = {
-  background: "./src/scripts/background.ts",
+  background: "./src/scripts/chrome/background.ts",
 };
 
 const setConfig = (config) => {
@@ -18,16 +27,16 @@ const setConfig = (config) => {
   });
 
   //copy manifest
-  config.plugin("copy-manifest").use(CopyWebpackPlugin, [
-    [
+  const copyManifest = new CopyWebpackPlugin({
+    patterns: [
       {
         from: "./src/manifest/manifest-chrome.json",
         to: "manifest.json",
-        //transform: ()
+        transform: modifyManifest,
       },
     ],
-  ]);
-
+  });
+  config.plugin("copy-manifest").use(copyManifest);
   // prevent codesplitting on scripts
   const omitUserScripts = ({ name }) => {
     return userScripts.includes(name) ? false : "initial";
