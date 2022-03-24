@@ -1,5 +1,11 @@
 <template>
-  <a class="button">{{ title }}</a>
+  <a
+    class="button"
+    :class="{ alternative: noBackground, disabled: disabled }"
+    @click="click()"
+  >
+    {{ title }}
+  </a>
 </template>
 
 <script lang="ts">
@@ -16,10 +22,15 @@ defineProps({
     type: String,
     default: "",
   },
+  noBackground: {
+    type: Boolean,
+    default: false,
+  },
   click: {
     type: Function,
     default: () => ({}),
   },
+  disabled: Boolean,
 });
 </script>
 
@@ -42,5 +53,17 @@ defineProps({
   color: @white;
   text-align: center;
   cursor: pointer;
+
+  &.disabled {
+    pointer-events: none;
+    background: rgba(95, 99, 104, 0.1);
+    color: rgba(0, 0, 0, 0.2);
+  }
+
+  &.alternative {
+    color: @primaryLabel;
+    background: transparent;
+    box-shadow: none;
+  }
 }
 </style>

@@ -8,6 +8,10 @@
         :selected="+route.params.id"
         :set-network="setNetwork"
       />
+      <br /><br />
+      <a href="javascript:void(0);" @click="openCreate()">
+        to Cretate / Restore
+      </a>
       <div class="app__menu-footer">
         <a
           class="app__menu-add"
@@ -62,6 +66,7 @@ import { NetworkItem } from "./types/network";
 import { useRouter, useRoute } from "vue-router";
 import { singleAccount, networkList } from "@action/types/mock";
 import { Account } from "@action/types/account";
+import { WindowPromise } from "@/libs/window-promise";
 
 const router = useRouter();
 const route = useRoute();
@@ -102,6 +107,15 @@ const showNetworkMenu = () => {
       route.name == "nfts" ||
       route.name == "dapps")
   );
+};
+
+const openCreate = () => {
+  const windowPromise = new WindowPromise();
+  windowPromise
+    .getResponse("onboard.html", JSON.stringify({ info: "test" }))
+    .then(({ error }) => {
+      console.log(error);
+    });
 };
 </script>
 
