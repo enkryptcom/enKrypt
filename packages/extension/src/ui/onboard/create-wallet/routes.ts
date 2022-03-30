@@ -1,6 +1,8 @@
 import PickPassword from "./pick-password.vue";
 import TypePassword from "./type-password.vue";
 import RecoveryPhrase from "./recovery-phrase.vue";
+import CheckPhrase from "./double-check-phrase.vue";
+import WalletReady from "./wallet-ready.vue";
 import { RouteRecordRaw } from "vue-router";
 export const routes = {
   pickPassword: {
@@ -17,6 +19,16 @@ export const routes = {
     path: "recovery-phrase",
     name: "recovery-phrase",
     component: RecoveryPhrase,
+  },
+  checkPhrase: {
+    path: "check-phrase",
+    name: "check-phrase",
+    component: CheckPhrase,
+  },
+  walletReady: {
+    path: "wallet-ready",
+    name: "wallet-ready",
+    component: WalletReady
   },
 };
 
