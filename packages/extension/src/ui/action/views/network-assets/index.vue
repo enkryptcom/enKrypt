@@ -49,7 +49,7 @@ const route = useRoute();
 
 defineProps({});
 
-const selected: number = +route.params.id;
+const selected: number = +route.params.networkId;
 const total = {
   cryptoAmount: 63.466,
   amount: 3245.24,

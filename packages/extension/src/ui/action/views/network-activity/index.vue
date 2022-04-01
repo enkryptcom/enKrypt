@@ -54,7 +54,7 @@ import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 
 const route = useRoute();
 
-const selected: number = +route.params.id;
+const selected: number = +route.params.networkId;
 const total = {
   cryptoAmount: 63.466,
   amount: 3245.24,

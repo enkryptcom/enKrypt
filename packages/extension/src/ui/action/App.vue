@@ -1,11 +1,11 @@
 <template>
   <div class="app">
     <div class="app__menu" :class="classObject()">
-      <logo-min :selected="+route.params.id" class="app__menu-logo" />
+      <logo-min :selected="+route.params.networkId" class="app__menu-logo" />
       <base-search :is-border="false" />
       <app-menu
         :networks="networks"
-        :selected="+route.params.id"
+        :selected="+route.params.networkId"
         :set-network="setNetwork"
       />
       <br /><br />
@@ -37,7 +37,7 @@
     <div class="app__content">
       <network-header
         v-show="showNetworkMenu()"
-        :selected="+route.params.id"
+        :selected="+route.params.networkId"
         :account="account"
       />
 
@@ -47,7 +47,7 @@
       <router-view name="modal"></router-view>
       <router-view name="accounts"></router-view>
 
-      <network-menu v-show="showNetworkMenu()" :selected="+route.params.id" />
+      <network-menu v-show="showNetworkMenu()" :selected="+route.params.networkId" />
     </div>
   </div>
 </template>
@@ -72,19 +72,19 @@ const router = useRouter();
 const route = useRoute();
 
 onMounted(() => {
-  router.push({ name: "activity", params: { id: 1 } });
+  router.push({ name: "activity", params: { networkId: 1 } });
 });
 const transitionName = "fade";
 const account: Account = singleAccount;
 const networks: NetworkItem[] = networkList;
 const setNetwork = (network: NetworkItem) => {
-  router.push({ name: "activity", params: { id: network.id } });
+  router.push({ name: "activity", params: { networkId: network.id } });
 };
 const addNetwork = () => {
   router.push({ name: "add-network" });
 };
 const classObject = () => {
-  const selected = +route.params.id;
+  const selected = +route.params.networkId;
 
   if (selected) {
     return {
@@ -98,7 +98,7 @@ const classObject = () => {
   return {};
 };
 const showNetworkMenu = () => {
-  const selected = +route.params.id;
+  const selected = +route.params.networkId;
 
   return (
     !!selected &&

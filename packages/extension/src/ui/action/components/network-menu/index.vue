@@ -1,25 +1,25 @@
 <template>
   <div class="network-menu">
     <router-link
-      :to="{ name: 'assets', params: { id: !!selected ? selected : null } }"
+      :to="{ name: 'assets', params: { networkId: !!selected ? selected : null } }"
     >
       <Assets /><br />Assets
     </router-link>
     <router-link
       :to="{
         name: 'activity',
-        params: { id: !!selected ? selected : null },
+        params: { networkId: !!selected ? selected : null },
       }"
     >
       <Activity /><br />Activity
     </router-link>
     <router-link
-      :to="{ name: 'nfts', params: { id: !!selected ? selected : null } }"
+      :to="{ name: 'nfts', params: { networkId: !!selected ? selected : null } }"
     >
       <NFTs /><br />NFTs
     </router-link>
     <router-link
-      :to="{ name: 'dapps', params: { id: !!selected ? selected : null } }"
+      :to="{ name: 'dapps', params: { networkId: !!selected ? selected : null } }"
     >
       <DApps /><br />DApps
     </router-link>

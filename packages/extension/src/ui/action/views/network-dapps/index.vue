@@ -34,7 +34,7 @@ const route = useRoute();
 
 defineProps({});
 
-const selected: number = +route.params.id;
+const selected: number = +route.params.networkId;
 const settings = {
   suppressScrollY: false,
   suppressScrollX: true,
