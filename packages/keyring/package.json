@@ -22,7 +22,7 @@
     "@enkryptcom/storage": "^0.0.1",
     "@enkryptcom/types": "^0.0.1",
     "@enkryptcom/utils": "^0.0.1",
-    "@polkadot/util": "^8.4.1",
+    "@polkadot/util": "^9.0.1",
     "assert": "^2.0.0",
     "bip39": "^3.0.4"
   },
