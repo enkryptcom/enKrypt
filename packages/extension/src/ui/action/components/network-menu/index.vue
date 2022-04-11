@@ -33,7 +33,6 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { defineProps } from "vue";
 import Activity from "@action/icons/tabs/activity.vue";
 import Assets from "@action/icons/tabs/assets.vue";
 import NFTs from "@action/icons/tabs/nfts.vue";

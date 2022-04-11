@@ -43,7 +43,6 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { defineProps } from "vue";
 import AccountsSearch from "./components/accounts-search.vue";
 import AccountsListItem from "./components/accounts-list-item.vue";
 import { useRoute } from "vue-router";

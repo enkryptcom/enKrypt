@@ -1,9 +1,6 @@
 <template>
   <label class="switch">
-    <input
-      type="checkbox"
-      :checked="isChecked"
-      @change="checkLocal($event)" />
+    <input type="checkbox" :checked="isChecked" @change="checkLocal($event)" />
     <span class="slider round"></span>
   </label>
 </template>
@@ -15,8 +12,6 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { defineProps } from "vue";
-
 const props = defineProps({
   isChecked: Boolean,
   check: {

@@ -10,7 +10,7 @@ import {
   handleIncomingMessage as handleIncomingMessageType,
 } from "@/types/provider";
 import { getError } from "../../../libs/error";
-import { RPCRequestType, RPCResponseType } from "@enkryptcom/types";
+import { RPCRequestType } from "@enkryptcom/types";
 const subscriptionMap: Record<string, any> = {};
 const handleIncomingMessage: handleIncomingMessageType = (
   provider,

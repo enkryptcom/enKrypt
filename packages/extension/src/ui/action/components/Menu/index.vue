@@ -1,33 +1,27 @@
 <template>
   <div class="app-menu">
-    <app-menu-item
+    <Item
       v-for="(item, index) in networks"
       :key="index"
       :network="item"
-      :is-active="!!selected && item.id === selected"
+      :is-active="!!selected && item.id === selected.id"
       :selected="selected"
       @click="setNetwork(item)"
-    ></app-menu-item>
+    ></Item>
   </div>
 </template>
-
-<script lang="ts">
-export default {
-  name: "AppMenu",
-};
-</script>
 
 <script setup lang="ts">
 import { PropType } from "vue";
 import { NetworkItem } from "@action/types/network";
-import AppMenuItem from "./components/app-menu-item.vue";
+import Item from "./components/Item.vue";
 defineProps({
   networks: {
     type: Array as PropType<Array<NetworkItem>>,
     default: () => [],
   },
   selected: {
-    type: Number,
+    type: Object as PropType<NetworkItem>,
     default: () => {
       return {};
     },

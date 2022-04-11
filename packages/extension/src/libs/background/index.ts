@@ -80,7 +80,7 @@ class BackgroundHandler {
             });
           });
         })
-        .catch((e) => {
+        .catch(() => {
           this.#persistentEvents.deleteEvents(tab);
         });
     });

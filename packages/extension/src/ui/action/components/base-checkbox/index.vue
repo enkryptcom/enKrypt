@@ -1,9 +1,6 @@
 <template>
   <label class="base-checkbox">
-    <input
-      type="checkbox"
-      :checked="isChecked"
-      @change="checkLocal($event)" />
+    <input type="checkbox" :checked="isChecked" @change="checkLocal($event)" />
     <div class="base-checkbox__wrap">
       <checkbox-active />
     </div>
@@ -17,8 +14,7 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { defineProps } from "vue";
-import CheckboxActive from "@action/icons/common/checkbox-active.vue"
+import CheckboxActive from "@action/icons/common/checkbox-active.vue";
 
 const props = defineProps({
   isChecked: Boolean,

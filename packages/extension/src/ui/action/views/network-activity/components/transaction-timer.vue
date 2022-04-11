@@ -15,7 +15,7 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { defineProps, onMounted } from "vue";
+import { onMounted } from "vue";
 import moment from "moment";
 import LottieStatusJson from "@action/assets/animation/status.json";
 

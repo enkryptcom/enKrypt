@@ -36,7 +36,6 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { defineProps } from "vue";
 import { useRoute } from "vue-router";
 import NetworkActivityTotal from "../network-activity/components/network-activity-total.vue";
 import NetworkActivityAction from "../network-activity/components/network-activity-action.vue";
@@ -46,8 +45,6 @@ import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 import { assets } from "@action/types/mock";
 
 const route = useRoute();
-
-defineProps({});
 
 const selected: number = +route.params.id;
 const total = {

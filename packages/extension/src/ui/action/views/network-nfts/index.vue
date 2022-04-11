@@ -25,7 +25,6 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { defineProps } from "vue";
 import { useRoute } from "vue-router";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 import NetworkNftsTotal from "./components/network-nfts-total.vue";
@@ -34,8 +33,6 @@ import NetworkNftsCategory from "./components/network-nfts-category.vue";
 import { nfts } from "@action/types/mock";
 
 const route = useRoute();
-
-defineProps({});
 
 const selected: number = +route.params.id;
 const settings = {

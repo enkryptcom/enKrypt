@@ -1,9 +1,6 @@
 <template>
   <label class="phrase-checkbox">
-    <input
-      type="checkbox"
-      :checked="isChecked"
-      @change="checkLocal($event)" />
+    <input type="checkbox" :checked="isChecked" @change="checkLocal($event)" />
     <div class="base-checkbox__wrap">
       <span>{{ title }}</span>
     </div>
@@ -17,11 +14,12 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { defineProps } from "vue";
-
 const props = defineProps({
   isChecked: Boolean,
-  title: String,
+  title: {
+    type: String,
+    default: "",
+  },
   check: {
     type: Function,
     default: () => ({}),

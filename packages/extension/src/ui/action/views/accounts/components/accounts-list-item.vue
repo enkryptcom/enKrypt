@@ -23,7 +23,6 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { defineProps } from "vue";
 import DoneIcon from "@action/icons/common/done_icon.vue";
 
 defineProps({

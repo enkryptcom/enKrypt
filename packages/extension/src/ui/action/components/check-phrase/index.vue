@@ -5,7 +5,7 @@
       <PhraseCheckbox
         v-for="(phrase, index) in phrases"
         :key="index"
-        :isChecked="false"
+        :is-checked="false"
         :check="check"
         :title="phrase.title"
       />
@@ -20,13 +20,19 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { defineProps, PropType } from "vue";
+import { PropType } from "vue";
 import PhraseCheckbox from "@action/components/phrase-checkbox/index.vue";
 import { RecoveryPhrase } from "@action/types/phrase";
 
-const props = defineProps({
-  id: Number,
-  phrases: Object as PropType<Array<RecoveryPhrase>>,
+defineProps({
+  id: {
+    type: Number,
+    default: 0,
+  },
+  phrases: {
+    type: Object as PropType<Array<RecoveryPhrase>>,
+    default: () => ({}),
+  },
   update: {
     type: Function,
     default: () => ({}),

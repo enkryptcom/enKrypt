@@ -30,7 +30,7 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { defineProps, PropType } from "vue";
+import { PropType } from "vue";
 import { Token } from "@action/types/token";
 import SparklineUp from "@action/icons/asset/sparkline-up.vue";
 

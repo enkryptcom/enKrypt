@@ -15,13 +15,13 @@ window.enkrypt = {
 windowOnMessage(async (msg): Promise<void> => {
   window["enkrypt"]["providers"][msg.provider].handleMessage(msg.message);
 });
-window.addEventListener("load", (event) => {
+window.addEventListener("load", () => {
   providerSendMessage(
     ProviderName.enkrypt,
     JSON.stringify({ method: InternalMethods.newWindowInit })
   );
 });
-window.addEventListener("beforeunload", (event) => {
+window.addEventListener("beforeunload", () => {
   providerSendMessage(
     ProviderName.enkrypt,
     JSON.stringify({ method: InternalMethods.newWindowUnload })

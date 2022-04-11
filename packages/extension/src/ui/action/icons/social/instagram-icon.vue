@@ -15,14 +15,14 @@
       />
     </g>
     <defs>
-    <clipPath id="clip0_1857_10967">
-      <rect
-        width="30"
-        height="30"
-        fill="white"
-        transform="translate(0 0.5)"
-      />
-    </clipPath>
+      <clipPath id="clip0_1857_10967">
+        <rect
+          width="30"
+          height="30"
+          fill="white"
+          transform="translate(0 0.5)"
+        />
+      </clipPath>
     </defs>
   </svg>
 </template>

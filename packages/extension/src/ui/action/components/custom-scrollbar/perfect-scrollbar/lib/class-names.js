@@ -1,16 +1,16 @@
 const cls = {
-  main: 'ps',
-  rtl: 'ps__rtl',
+  main: "ps",
+  rtl: "ps__rtl",
   element: {
-    thumb: x => `ps__thumb-${x}`,
-    rail: x => `ps__rail-${x}`,
-    consuming: 'ps__child--consume',
+    thumb: (x) => `ps__thumb-${x}`,
+    rail: (x) => `ps__rail-${x}`,
+    consuming: "ps__child--consume",
   },
   state: {
-    focus: 'ps--focus',
-    clicking: 'ps--clicking',
-    active: x => `ps--active-${x}`,
-    scrolling: x => `ps--scrolling-${x}`,
+    focus: "ps--focus",
+    clicking: "ps--clicking",
+    active: (x) => `ps--active-${x}`,
+    scrolling: (x) => `ps--scrolling-${x}`,
   },
 };
 

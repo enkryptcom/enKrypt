@@ -90,7 +90,7 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { defineProps, onUpdated, ref } from "vue";
+import { onUpdated, ref } from "vue";
 import HelpIcon from "@action/icons/password/help-icon.vue";
 import { PasswordStrenght } from "@action/types/password";
 

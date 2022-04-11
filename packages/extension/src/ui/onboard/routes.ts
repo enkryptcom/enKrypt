@@ -5,5 +5,8 @@ import RestoreWalletUI from "./restore-wallet/index";
 let uiRoutes: RouteRecordRaw[] = [];
 uiRoutes = uiRoutes.concat(CreateWalletUI);
 uiRoutes = uiRoutes.concat(RestoreWalletUI);
-const routes = [{ path: "/", component: NewWallet, name: "new-wallet" }, ...uiRoutes];
+const routes = [
+  { path: "/", component: NewWallet, name: "new-wallet" },
+  ...uiRoutes,
+];
 export default routes;

@@ -23,7 +23,6 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { defineProps } from "vue";
 import { useRoute } from "vue-router";
 import NetworkDappsItem from "./components/network-dapps-item.vue";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";

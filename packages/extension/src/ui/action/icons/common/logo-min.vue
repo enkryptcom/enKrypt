@@ -45,7 +45,6 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps } from "vue";
 const props = defineProps({
   selected: {
     type: Number,
@@ -53,7 +52,7 @@ const props = defineProps({
       return {};
     },
   },
-})
+});
 const color = () => {
   let color = "#05C0A5";
 
@@ -75,13 +74,13 @@ const color = () => {
   }
 
   return color;
-}
+};
 </script>
 
 <script lang="ts">
-  export default {
-    name: 'LogoMin',
-  }
+export default {
+  name: "LogoMin",
+};
 </script>
 
 <style scoped>

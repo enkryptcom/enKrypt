@@ -6,12 +6,14 @@
 
       <div class="select-account-item__name">
         <h4>{{ $filters.replaceWithEllipsis(account.address, 6, 4) }}</h4>
-        <p>{{ account.amount }} <span>{{ account.primaryToken.symbol }}</span></p>
+        <p>
+          {{ account.amount }} <span>{{ account.primaryToken.symbol }}</span>
+        </p>
       </div>
     </div>
 
     <div class="select-account-item__action">
-      <BaseCheckbox :check="check" :isChecked="isActive" />
+      <BaseCheckbox :check="check" :is-checked="isActive" />
     </div>
   </div>
 </template>
@@ -23,11 +25,11 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { defineProps, PropType } from "vue";
+import { PropType } from "vue";
 import { Account } from "@action/types/account";
 import BaseCheckbox from "@action/components/base-checkbox/index.vue";
 
-const props = defineProps({
+defineProps({
   account: {
     type: Object as PropType<Account>,
     default: () => {
@@ -35,7 +37,10 @@ const props = defineProps({
     },
   },
   isActive: Boolean,
-  number: Number,
+  number: {
+    type: Number,
+    default: 0,
+  },
 });
 
 const check = (isChecked: boolean) => {

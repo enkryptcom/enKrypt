@@ -14,8 +14,6 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { defineProps } from "vue";
-
 defineProps({
   cryptoAmount: {
     type: Number,
