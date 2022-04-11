@@ -40,10 +40,12 @@
         :selected="+route.params.id"
         :account="account"
       />
+      <router-view v-slot="{ Component }" name="view">
+        <transition :name="transitionName" mode="out-in">
+          <component :is="Component" />
+        </transition>
+      </router-view>
 
-      <transition :name="transitionName" mode="out-in">
-        <router-view name="view"></router-view>
-      </transition>
       <router-view name="modal"></router-view>
       <router-view name="accounts"></router-view>
 

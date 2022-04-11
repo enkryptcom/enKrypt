@@ -3,7 +3,6 @@
     <custom-scrollbar
       class="network-activity__scroll-area"
       :settings="settings"
-      @ps-scroll-y="handleScroll"
     >
       <div v-if="!!selected" class="network-activity">
         <network-activity-total

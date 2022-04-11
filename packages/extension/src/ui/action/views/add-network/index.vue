@@ -1,11 +1,7 @@
 <template>
   <div class="container">
     <add-network-header />
-    <custom-scrollbar
-      class="add-network__scroll-area"
-      :settings="settings"
-      @ps-scroll-y="handleScroll"
-    >
+    <custom-scrollbar class="add-network__scroll-area" :settings="settings">
       <h3 class="add-network__list-header">Popular</h3>
 
       <add-network-item
