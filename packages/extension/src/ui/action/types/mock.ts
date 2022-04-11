@@ -6,6 +6,8 @@ import {
 import { Account } from "./account";
 import { Token } from "./token";
 import { DAppsItem } from "./dapps";
+import { NetworkItem } from "./network";
+import { NFTAuthor } from "./nft";
 
 export const transactionsOne: Transaction[] = [
   {
@@ -473,5 +475,82 @@ export const dapps: DAppsItem[] = [
     description: "Decentralized Layer 2 exchange.",
     isFavorites: false,
     image: "https://mpolev.ru/cx/rarible.png",
+  },
+];
+
+export const singleAccount: Account = {
+  name: "My Main Account",
+  address: "0x03502CF6C0A13167Dc2D0E25Dabf5FBDB68C5968",
+  amount: 1.321,
+  primaryToken: {
+    name: "Ethereum",
+    symbol: "eth",
+    icon: require("@/ui/action/icons/raw/eth-logo.png"),
+    amount: 0.5,
+    price: 2500,
+  },
+};
+
+export const networkList: NetworkItem[] = [
+  {
+    id: 1,
+    title: "Ethereum",
+    image: require("@/ui/action/icons/raw/eth-logo.png"),
+  },
+  {
+    id: 2,
+    title: "Polygon",
+    image: require("@/ui/action/icons/raw/polygon-logo.png"),
+  },
+  {
+    id: 3,
+    title: "Polkadot",
+    image: require("@/ui/action/icons/raw/polkadot.png"),
+  },
+  {
+    id: 4,
+    title: "Moonbeam",
+    image: require("@/ui/action/icons/raw/moonbeam.png"),
+  },
+];
+
+export const nfts: NFTAuthor[] = [
+  {
+    id: 1,
+    name: "Azuki",
+    image: require("@/ui/action/icons/raw/azuki.png"),
+    items: [
+      {
+        id: 1,
+        name: "Azuki #4262",
+        image: require("@/ui/action/icons/raw/azuki-pic-1.png"),
+        price: 9.9,
+      },
+    ],
+  },
+  {
+    id: 2,
+    name: "Cool Cats",
+    image: require("@/ui/action/icons/raw/cool-cats.png"),
+    items: [
+      {
+        id: 1,
+        name: "Cool Cat #6288",
+        image: require("@/ui/action/icons/raw/cool-cats-pic-1.png"),
+        price: 2.9,
+      },
+      {
+        id: 2,
+        name: "Cool Cat #6486",
+        image: require("@/ui/action/icons/raw/cool-cats-pic-2.png"),
+        price: 0.9,
+      },
+      {
+        id: 3,
+        name: "Cool Cat #2486",
+        image: require("@/ui/action/icons/raw/cool-cats-pic-3.png"),
+        price: 10.9,
+      },
+    ],
   },
 ];

@@ -6,7 +6,6 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-// import MEWLogo from '../../icons/common/mew_logo.vue'
 
 export default defineComponent({
   name: "Intro",
@@ -31,11 +30,5 @@ export default defineComponent({
   width: 100%;
   height: 100%;
   box-sizing: border-box;
-
-  &__block {
-  }
-
-  &__link-block {
-  }
 }
 </style>

@@ -2,10 +2,10 @@
   <div class="accounts" :class="{ show: showAccounts }">
     <div class="accounts__overlay" @click="close()"></div>
     <div class="accounts__wrap" :class="{ show: showAccounts }">
-      <Search></Search>
-      <vue-custom-scrollbar class="accounts__scroll-area" :settings="settings">
-        <Item
-          v-for="(account, index) in accountsActive"
+      <accounts-search />
+      <custom-scrollbar class="accounts__scroll-area" :settings="settings">
+        <accounts-list-item
+          v-for="(account, index) in active"
           :key="index"
           :name="account.name"
           :address="account.address"
@@ -14,14 +14,14 @@
           :is-checked="address == account.address"
           :select="select"
           :active="true"
-        ></Item>
+        ></accounts-list-item>
 
         <div class="accounts__info">
           Incompatible accounts <a href="#">why?</a>
         </div>
 
-        <Item
-          v-for="(account, index) in accountsInActive"
+        <accounts-list-item
+          v-for="(account, index) in inActive"
           :key="index"
           :name="account.name"
           :address="account.address"
@@ -30,64 +30,60 @@
           :is-checked="address == account.address"
           :select="select"
           :active="false"
-        ></Item>
-      </vue-custom-scrollbar>
+        ></accounts-list-item>
+      </custom-scrollbar>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
-import Search from "./components/Search.vue";
-import Item from "./components/Item.vue";
+export default {
+  name: "AccountsList",
+};
+</script>
+
+<script setup lang="ts">
+import { defineProps } from "vue";
+import AccountsSearch from "./components/accounts-search.vue";
+import AccountsListItem from "./components/accounts-list-item.vue";
 import { useRoute } from "vue-router";
 import { accountsActive, accountsInActive } from "@action/types/mock";
+import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 
-export default defineComponent({
-  name: "Accounts",
-  components: {
-    Search,
-    Item,
-  },
-  props: {
-    showAccounts: Boolean,
-    toggle: {
-      type: Function,
-      default: () => ({}),
-    },
-  },
-  setup() {
-    const route = useRoute();
-    return {
-      settings: {
-        suppressScrollY: false,
-        suppressScrollX: true,
-        wheelPropagation: false,
-      },
-      accountsActive: accountsActive,
-      accountsInActive: accountsInActive,
-      name: route.params.name,
-      address: route.params.address,
-    };
-  },
-  methods: {
-    close: function () {
-      setTimeout(() => {
-        this.$props.toggle();
-      }, 300);
-    },
-    select: function (account: string) {
-      this.changeAccount(account);
+const route = useRoute();
 
-      setTimeout(() => {
-        this.$props.toggle();
-      }, 300);
-    },
-    changeAccount: function (account: string) {
-      console.log("change account button clicked", account);
-    },
+const settings = {
+  suppressScrollY: false,
+  suppressScrollX: true,
+  wheelPropagation: false,
+};
+const active = accountsActive;
+const inActive = accountsInActive;
+const address = route.params.address;
+
+const props = defineProps({
+  showAccounts: Boolean,
+  toggle: {
+    type: Function,
+    default: () => ({}),
   },
 });
+
+const close = () => {
+  setTimeout(() => {
+    props.toggle();
+  }, 300);
+};
+const select = (account: string) => {
+  changeAccount(account);
+
+  setTimeout(() => {
+    props.toggle();
+  }, 300);
+};
+const changeAccount = (account: string) => {
+  console.log("change account button clicked", account);
+};
 </script>
 
 <style lang="less">

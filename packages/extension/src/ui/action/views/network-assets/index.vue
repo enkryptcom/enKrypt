@@ -1,76 +1,78 @@
 <template>
   <div class="container">
-    <div v-if="!!selected" class="network-assets">
-      <Total
-        :crypto-amount="total.cryptoAmount"
-        :amount="total.amount"
-        :symbol="total.symbol"
-      />
+    <custom-scrollbar
+      class="network-assets__scroll-area"
+      :settings="settings"
+      @ps-scroll-y="handleScroll"
+    >
+      <div v-if="!!selected" class="network-assets">
+        <network-activity-total
+          :crypto-amount="total.cryptoAmount"
+          :amount="total.amount"
+          :symbol="total.symbol"
+        />
 
-      <Action
-        :deposit-action="depositAction"
-        :buy-action="buyAction"
-        :send-action="sendAction"
-        :swap-action="swapAction"
-      />
+        <network-activity-action
+          :deposit-action="depositAction"
+          :buy-action="buyAction"
+          :send-action="sendAction"
+          :swap-action="swapAction"
+        />
 
-      <Item v-for="(item, index) in assets" :key="index" :token="item"></Item>
-    </div>
+        <network-assets-item
+          v-for="(item, index) in assets"
+          :key="index"
+          :token="item"
+        ></network-assets-item>
+      </div>
+    </custom-scrollbar>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, computed } from "vue";
+export default {
+  name: "NetworkAssets",
+};
+</script>
+
+<script setup lang="ts">
+import { defineProps } from "vue";
 import { useRoute } from "vue-router";
-import { useStore } from "vuex";
-import Total from "../network-activity/components/total.vue";
-import Action from "../network-activity/components/action.vue";
-import Item from "./components/asset.vue";
+import NetworkActivityTotal from "../network-activity/components/network-activity-total.vue";
+import NetworkActivityAction from "../network-activity/components/network-activity-action.vue";
+import NetworkAssetsItem from "./components/network-assets-item.vue";
+import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 
 import { assets } from "@action/types/mock";
 
-export default defineComponent({
-  name: "NetworkAssets",
-  components: {
-    Total,
-    Action,
-    Item,
-  },
-  setup() {
-    const route = useRoute();
-    const store = useStore();
+const route = useRoute();
 
-    return {
-      id: computed(() => route.params.id),
-      selected: computed(() => store.getters.selected),
-      total: {
-        cryptoAmount: 63.466,
-        amount: 3245.24,
-        symbol: "dot",
-      },
-      assets: assets,
-      settings: {
-        suppressScrollY: false,
-        suppressScrollX: true,
-        wheelPropagation: false,
-      },
-    };
-  },
-  methods: {
-    depositAction: function () {
-      console.log("depositAction");
-    },
-    buyAction: function () {
-      console.log("buyAction");
-    },
-    sendAction: function () {
-      console.log("sendAction");
-    },
-    swapAction: function () {
-      console.log("swapAction");
-    },
-  },
-});
+defineProps({});
+
+const selected: number = +route.params.id;
+const total = {
+  cryptoAmount: 63.466,
+  amount: 3245.24,
+  symbol: "dot",
+};
+const settings = {
+  suppressScrollY: false,
+  suppressScrollX: true,
+  wheelPropagation: false,
+};
+
+const depositAction = () => {
+  console.log("depositAction");
+};
+const buyAction = () => {
+  console.log("buyAction");
+};
+const sendAction = () => {
+  console.log("sendAction");
+};
+const swapAction = () => {
+  console.log("swapAction");
+};
 </script>
 
 <style lang="less" scoped>

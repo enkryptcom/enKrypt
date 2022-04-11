@@ -1,29 +1,48 @@
 <template>
   <div class="container">
-    <div v-if="!!selected" class="network-nfts">
-      NetworkNFTs {{ selected.title }}
-    </div>
+    <custom-scrollbar
+      class="network-nfts__scroll-area"
+      :settings="settings"
+      @ps-scroll-y="handleScroll"
+    >
+      <div v-if="!!selected" class="network-nfts">
+        <network-nfts-total :amount="150335" />
+
+        <network-nfts-category
+          v-for="(item, index) in nfts"
+          :key="index"
+          :author="item"
+        ></network-nfts-category>
+      </div>
+    </custom-scrollbar>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, computed } from "vue";
-import { useRoute } from "vue-router";
-import { useStore } from "vuex";
-
-export default defineComponent({
+export default {
   name: "NetworkNFTs",
-  components: {},
-  setup() {
-    const route = useRoute();
-    const store = useStore();
+};
+</script>
 
-    return {
-      id: computed(() => route.params.id),
-      selected: computed(() => store.getters.selected),
-    };
-  },
-});
+<script setup lang="ts">
+import { defineProps } from "vue";
+import { useRoute } from "vue-router";
+import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
+import NetworkNftsTotal from "./components/network-nfts-total.vue";
+import NetworkNftsCategory from "./components/network-nfts-category.vue";
+
+import { nfts } from "@action/types/mock";
+
+const route = useRoute();
+
+defineProps({});
+
+const selected: number = +route.params.id;
+const settings = {
+  suppressScrollY: false,
+  suppressScrollX: true,
+  wheelPropagation: false,
+};
 </script>
 
 <style lang="less" scoped>
@@ -33,16 +52,31 @@ export default defineComponent({
 .container {
   width: 100%;
   height: 488px;
-  overflow-x: hidden;
-  overflow-y: scroll;
   background-color: @white;
   box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.16);
   margin: 56px 0;
+  padding-top: 14px;
+  box-sizing: border-box;
 }
 
 .network-nfts {
   width: 100%;
   height: 100%;
   box-sizing: border-box;
+  padding: 0 20px;
+
+  &__scroll-area {
+    position: relative;
+    margin: auto;
+    width: 100%;
+    max-height: 460px;
+    margin: 0 0 8px 0;
+    padding: 0 !important;
+    box-sizing: border-box;
+
+    &.ps--active-y {
+      padding-right: 0;
+    }
+  }
 }
 </style>

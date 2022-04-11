@@ -12,6 +12,11 @@ module.exports = {
       entry: "./src/ui/action/main.ts",
       title: "enkrypt extension popup",
     },
+    onboard: {
+      template: "public/index.html",
+      entry: "./src/ui/onboard/main.ts",
+      title: "enkrypt extension onboard",
+    },
   },
   indexPath: "index.html",
   devServer: {

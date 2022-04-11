@@ -3,7 +3,7 @@ import { ProviderName, ProviderType, EthereumProvider } from "@/types/provider";
 import EthereumInject from "../inject";
 import { EthereumRequest } from "../types";
 import { OnMessageResponse } from "@enkryptcom/types";
-import { getError } from "../../../libs/error";
+import { getError } from "@/libs/error";
 
 const requestHandler = (request: string): OnMessageResponse => {
   const req = JSON.parse(request) as EthereumRequest;

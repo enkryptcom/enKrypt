@@ -1,30 +1,33 @@
 <template>
   <label class="switch">
-    <input type="checkbox" :checked="isChecked" @change="checkLocal($event)" />
+    <input
+      type="checkbox"
+      :checked="isChecked"
+      @change="checkLocal($event)" />
     <span class="slider round"></span>
   </label>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
-
-export default defineComponent({
+export default {
   name: "Switch",
-  props: {
-    isChecked: Boolean,
-    check: {
-      type: Function,
-      default: () => ({}),
-    },
-  },
-  setup(props) {
-    return {
-      checkLocal: (e: any) => {
-        props.check(e.target.checked);
-      },
-    };
+};
+</script>
+
+<script setup lang="ts">
+import { defineProps } from "vue";
+
+const props = defineProps({
+  isChecked: Boolean,
+  check: {
+    type: Function,
+    default: () => ({}),
   },
 });
+
+const checkLocal = (e: any) => {
+  props.check(e.target.checked);
+};
 </script>
 
 <style lang="less">

@@ -1,40 +1,45 @@
 <template>
   <div class="container">
-    <div v-if="!!selected" class="network-dapps">
-      <Item v-for="(item, index) in dapps" :key="index" :app="item"></Item>
-    </div>
+    <custom-scrollbar
+      class="network-dapps__scroll-area"
+      :settings="settings"
+      @ps-scroll-y="handleScroll"
+    >
+      <div v-if="!!selected" class="network-dapps">
+        <network-dapps-item
+          v-for="(item, index) in dapps"
+          :key="index"
+          :app="item"
+        ></network-dapps-item>
+      </div>
+    </custom-scrollbar>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, computed } from "vue";
+export default {
+  name: "NetworkDApps",
+};
+</script>
+
+<script setup lang="ts">
+import { defineProps } from "vue";
 import { useRoute } from "vue-router";
-import { useStore } from "vuex";
-import Item from "./components/item.vue";
+import NetworkDappsItem from "./components/network-dapps-item.vue";
+import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 
 import { dapps } from "@action/types/mock";
 
-export default defineComponent({
-  name: "NetworkDApps",
-  components: {
-    Item,
-  },
-  setup() {
-    const route = useRoute();
-    const store = useStore();
+const route = useRoute();
 
-    return {
-      id: computed(() => route.params.id),
-      selected: computed(() => store.getters.selected),
-      dapps: dapps,
-      settings: {
-        suppressScrollY: false,
-        suppressScrollX: true,
-        wheelPropagation: false,
-      },
-    };
-  },
-});
+defineProps({});
+
+const selected: number = +route.params.id;
+const settings = {
+  suppressScrollY: false,
+  suppressScrollX: true,
+  wheelPropagation: false,
+};
 </script>
 
 <style lang="less" scoped>
