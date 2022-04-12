@@ -1,3 +1,4 @@
+import { SignerType } from "@enkryptcom/types";
 import { EthereumNodeType } from "../types";
 const bscNode: EthereumNodeType = {
   name: "BSC",
@@ -9,5 +10,8 @@ const bscNode: EthereumNodeType = {
   isTestNetwork: false,
   currencyName: "BNB",
   node: "wss://nodes.mewapi.io/ws/bsc",
+  icon: require("./icons/bsc.svg"),
+  signer: SignerType.secp256k1,
+  gradient: "#E6007A",
 };
 export default bscNode;

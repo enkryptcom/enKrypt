@@ -1,7 +1,7 @@
 <template>
   <a class="app-menu__link" :class="{ active: isActive }">
-    <img :src="network.image" alt="" />
-    <span>{{ network.title }}</span>
+    <img :src="network.icon" alt="" />
+    <span>{{ network.name_long }}</span>
   </a>
 </template>
 
@@ -12,12 +12,12 @@ export default {
 </script>
 
 <script setup lang="ts">
+import { NodeType } from "@/types/provider";
 import { PropType } from "vue";
-import { NetworkItem } from "@action/types/network";
 
 defineProps({
   network: {
-    type: Object as PropType<NetworkItem>,
+    type: Object as PropType<NodeType>,
     default: () => {
       return {};
     },

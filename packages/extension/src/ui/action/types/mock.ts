@@ -6,7 +6,6 @@ import {
 import { Account } from "./account";
 import { Token } from "./token";
 import { DAppsItem } from "./dapps";
-import { NetworkItem } from "./network";
 import { NFTAuthor } from "./nft";
 
 export const transactionsOne: Transaction[] = [
@@ -490,29 +489,6 @@ export const singleAccount: Account = {
     price: 2500,
   },
 };
-
-export const networkList: NetworkItem[] = [
-  {
-    id: 1,
-    title: "Ethereum",
-    image: require("@/ui/action/icons/raw/eth-logo.png"),
-  },
-  {
-    id: 2,
-    title: "Polygon",
-    image: require("@/ui/action/icons/raw/polygon-logo.png"),
-  },
-  {
-    id: 3,
-    title: "Polkadot",
-    image: require("@/ui/action/icons/raw/polkadot.png"),
-  },
-  {
-    id: 4,
-    title: "Moonbeam",
-    image: require("@/ui/action/icons/raw/moonbeam.png"),
-  },
-];
 
 export const nfts: NFTAuthor[] = [
   {

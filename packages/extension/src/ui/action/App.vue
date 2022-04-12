@@ -1,11 +1,11 @@
 <template>
   <div class="app">
-    <div class="app__menu" :class="classObject()">
+    <div ref="appMenu" class="app__menu">
       <logo-min :selected="+route.params.id" class="app__menu-logo" />
       <base-search :is-border="false" />
       <app-menu
         :networks="networks"
-        :selected="+route.params.id"
+        :selected="(route.params.id as string)"
         :set-network="setNetwork"
       />
       <br /><br />
@@ -55,7 +55,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from "vue";
+import { onMounted, defineExpose, ref } from "vue";
 import AppMenu from "./components/app-menu/index.vue";
 import NetworkMenu from "./components/network-menu/index.vue";
 import NetworkHeader from "./components/network-header/index.vue";
@@ -64,12 +64,16 @@ import LogoMin from "./icons/common/logo-min.vue";
 import AddIcon from "./icons/common/add-icon.vue";
 import SettingsIcon from "./icons/common/settings-icon.vue";
 import HoldIcon from "./icons/common/hold-icon.vue";
-import { NetworkItem } from "./types/network";
 import { useRouter, useRoute } from "vue-router";
-import { singleAccount, networkList } from "@action/types/mock";
+import { singleAccount } from "@action/types/mock";
 import { Account } from "@action/types/account";
 import { WindowPromise } from "@/libs/window-promise";
+import { NodeType } from "@/types/provider";
+import { getAllNetworks } from "@/libs/utils/networks";
+import less from "less";
 
+const appMenu = ref(null);
+defineExpose({ appMenu });
 const router = useRouter();
 const route = useRoute();
 
@@ -78,27 +82,16 @@ onMounted(() => {
 });
 const transitionName = "fade";
 const account: Account = singleAccount;
-const networks: NetworkItem[] = networkList;
-const setNetwork = (network: NetworkItem) => {
-  router.push({ name: "activity", params: { id: network.id } });
+const networks: NodeType[] = getAllNetworks();
+const setNetwork = (network: NodeType) => {
+  //hack may be there is a better way less.modifyVars doesnt work
+  appMenu.value.style.background = `radial-gradient(100% 50% at 100% 50%, rgba(250, 250, 250, 0.92) 0%, rgba(250, 250, 250, 0.98) 100%), ${network.gradient}`;
+  router.push({ name: "activity", params: { id: network.name } });
 };
 const addNetwork = () => {
   router.push({ name: "add-network" });
 };
-const classObject = () => {
-  const selected = +route.params.id;
 
-  if (selected) {
-    return {
-      ethereum: selected == 1,
-      polygon: selected == 2,
-      polkadot: selected == 3,
-      moonbeam: selected == 4,
-    };
-  }
-
-  return {};
-};
 const showNetworkMenu = () => {
   const selected = +route.params.id;
 
@@ -150,21 +143,21 @@ body {
       margin-left: 8px;
     }
 
-    &.ethereum {
-      background: @ethereumGradient;
-    }
+    // &.ethereum {
+    //   background: @ethereumGradient;
+    // }
 
-    &.polygon {
-      background: @polygonGradient;
-    }
+    // &.polygon {
+    //   background: @polygonGradient;
+    // }
 
-    &.polkadot {
-      background: @polkadotGradient;
-    }
+    // &.polkadot {
+    //   background: @polkadotGradient;
+    // }
 
-    &.moonbeam {
-      background: @moonbeamGradient;
-    }
+    // &.moonbeam {
+    //   background: @moonbeamGradient;
+    // }
 
     &-footer {
       position: absolute;

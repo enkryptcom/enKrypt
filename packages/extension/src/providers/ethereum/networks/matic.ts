@@ -1,3 +1,4 @@
+import { SignerType } from "@enkryptcom/types";
 import { EthereumNodeType } from "../types";
 const maticNode: EthereumNodeType = {
   name: "MATIC",
@@ -9,5 +10,8 @@ const maticNode: EthereumNodeType = {
   isTestNetwork: false,
   currencyName: "MATIC",
   node: "wss://nodes.mewapi.io/ws/matic",
+  icon: require("./icons/matic.svg"),
+  signer: SignerType.secp256k1,
+  gradient: "#53CBC9",
 };
 export default maticNode;

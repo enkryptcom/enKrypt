@@ -10,6 +10,7 @@ import {
 import { RouteRecordRaw } from "vue-router";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
 import { RoutesType } from "./ui";
+import { SignerType } from "@enkryptcom/types";
 
 export enum ProviderName {
   enkrypt = "enkrypt",
@@ -94,4 +95,17 @@ export interface ProviderRPCRequest extends RPCRequestType {
 export interface UIExportOptions {
   providerName: ProviderName;
   routes: RouteRecordRaw[];
+}
+
+export interface NodeType {
+  name: string;
+  name_long: string;
+  homePage: string;
+  blockExplorerTX: string;
+  blockExplorerAddr: string;
+  isTestNetwork: boolean;
+  currencyName: string;
+  icon: any;
+  signer: SignerType;
+  gradient: string;
 }

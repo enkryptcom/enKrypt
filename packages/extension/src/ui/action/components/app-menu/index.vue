@@ -4,7 +4,7 @@
       v-for="(item, index) in networks"
       :key="index"
       :network="item"
-      :is-active="!!selected && item.id === selected"
+      :is-active="!!selected && item.name === selected"
       :selected="selected"
       @click="setNetwork(item)"
     ></app-menu-item>
@@ -18,19 +18,17 @@ export default {
 </script>
 
 <script setup lang="ts">
+import { NodeType } from "@/types/provider";
 import { PropType } from "vue";
-import { NetworkItem } from "@action/types/network";
 import AppMenuItem from "./components/app-menu-item.vue";
 defineProps({
   networks: {
-    type: Array as PropType<Array<NetworkItem>>,
+    type: Array as PropType<Array<NodeType>>,
     default: () => [],
   },
   selected: {
-    type: Number,
-    default: () => {
-      return {};
-    },
+    type: String,
+    default: "",
   },
   setNetwork: {
     type: Function,

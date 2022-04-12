@@ -1,3 +1,4 @@
+import { SignerType } from "@enkryptcom/types";
 import { EthereumNodeType } from "../types";
 const goerliNode: EthereumNodeType = {
   name: "GOERLI",
@@ -9,5 +10,8 @@ const goerliNode: EthereumNodeType = {
   isTestNetwork: true,
   currencyName: "GöETH",
   node: "wss://nodes.mewapi.io/ws/goerli",
+  icon: require("./icons/eth.svg"),
+  signer: SignerType.secp256k1,
+  gradient: "#C4C4C4",
 };
 export default goerliNode;
