@@ -9,9 +9,9 @@ const moonbeamNode: EthereumNodeType = {
   chainID: 1284,
   isTestNetwork: false,
   currencyName: "GLMR",
-  node: "https://rpc.api.moonbeam.network",
+  node: "wss://wss.api.moonbeam.network/",
   icon: require("./icons/moonbeam.png"),
-  signer: SignerType.secp256k1,
+  signer: [SignerType.secp256k1],
   gradient: "#8247E5",
 };
 export default moonbeamNode;

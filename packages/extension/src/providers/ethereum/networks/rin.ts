@@ -11,7 +11,7 @@ const rinkebyNode: EthereumNodeType = {
   currencyName: "RIN",
   node: "wss://nodes.mewapi.io/ws/rinkeby",
   icon: require("./icons/eth.svg"),
-  signer: SignerType.secp256k1,
+  signer: [SignerType.secp256k1],
   gradient: "#C4C4C4",
 };
 export default rinkebyNode;

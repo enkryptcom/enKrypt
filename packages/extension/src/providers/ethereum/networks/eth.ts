@@ -11,7 +11,7 @@ const ethNode: EthereumNodeType = {
   currencyName: "ETH",
   node: "wss://nodes.mewapi.io/ws/eth",
   icon: require("./icons/eth.svg"),
-  signer: SignerType.secp256k1,
+  signer: [SignerType.secp256k1],
   gradient: "#8247E5",
 };
 export default ethNode;

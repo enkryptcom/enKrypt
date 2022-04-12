@@ -35,9 +35,9 @@
     </div>
 
     <div class="app__content">
-      <network-header
-        :selected="(route.params.id as string)"
-        :account="account"
+      <accounts-header
+        :account-info="accountHeaderData"
+        :network="currentNetwork"
       />
       <router-view v-slot="{ Component }" name="view">
         <transition :name="transitionName" mode="out-in">
@@ -45,8 +45,8 @@
         </transition>
       </router-view>
 
-      <router-view name="modal"></router-view>
-      <router-view name="accounts"></router-view>
+      <!-- <router-view name="modal"></router-view>
+      <router-view name="accounts"></router-view> -->
 
       <network-menu :selected="(route.params.id as string)" />
     </div>
@@ -57,45 +57,65 @@
 import { onMounted, defineExpose, ref } from "vue";
 import AppMenu from "./components/app-menu/index.vue";
 import NetworkMenu from "./components/network-menu/index.vue";
-import NetworkHeader from "./components/network-header/index.vue";
+import AccountsHeader from "./components/accounts-header/index.vue";
 import BaseSearch from "./components/base-search/index.vue";
 import LogoMin from "./icons/common/logo-min.vue";
 import AddIcon from "./icons/common/add-icon.vue";
 import SettingsIcon from "./icons/common/settings-icon.vue";
 import HoldIcon from "./icons/common/hold-icon.vue";
 import { useRouter, useRoute } from "vue-router";
-import { singleAccount } from "@action/types/mock";
-import { Account } from "@action/types/account";
 import { WindowPromise } from "@/libs/window-promise";
 import { NodeType } from "@/types/provider";
-import { getAllNetworks } from "@/libs/utils/networks";
+import { getAllNetworks, DEFAULT_NETWORK_NAME } from "@/libs/utils/networks";
 import TabState from "@/libs/tab-state";
+import { getOtherSigners } from "@/libs/utils/accounts";
+import { AccountsHeaderData } from "./types/account";
+import PublicKeyRing from "@/libs/keyring/public-keyring";
 
 const tabstate = new TabState();
 const appMenuRef = ref(null);
-const networkGradient = ref();
+const networkGradient = ref("");
+const currentNetwork = ref<NodeType | null>(null);
+const accountHeaderData = ref<AccountsHeaderData>({
+  activeAccounts: [],
+  inactiveAccounts: [],
+  selectedAccount: null,
+});
 defineExpose({ appMenuRef });
 const router = useRouter();
 const route = useRoute();
 const transitionName = "fade";
-const account: Account = singleAccount;
 const networks: NodeType[] = getAllNetworks();
+const kr = new PublicKeyRing();
 
 onMounted(async () => {
   const curNetwork = await tabstate.getSelectedNetWork();
   if (curNetwork) {
     setNetwork(networks.find((net) => net.name === curNetwork) as NodeType);
   } else {
-    setNetwork(networks.find((net) => net.name === "ETH") as NodeType);
+    setNetwork(
+      networks.find((net) => net.name === DEFAULT_NETWORK_NAME) as NodeType
+    );
   }
 });
-const setNetwork = (network: NodeType) => {
-  //hack may be there is a better way less.modifyVars doesnt work
+const setNetwork = async (network: NodeType) => {
+  //hack may be there is a better way. less.modifyVars doesnt work
   if (appMenuRef.value)
     (
       appMenuRef.value as HTMLElement
     ).style.background = `radial-gradient(100% 50% at 100% 50%, rgba(250, 250, 250, 0.92) 0%, rgba(250, 250, 250, 0.98) 100%), ${network.gradient}`;
   networkGradient.value = network.gradient;
+  const activeAccounts = await kr.getAccounts(network.signer);
+  const inactiveAccounts = await kr.getAccounts(
+    getOtherSigners(network.signer)
+  );
+  const selectedAccount = activeAccounts[0];
+  accountHeaderData.value = {
+    activeAccounts,
+    inactiveAccounts,
+    selectedAccount,
+  };
+  currentNetwork.value = network;
   tabstate.setSelectedNetwork(network.name);
   router.push({ name: "activity", params: { id: network.name } });
 };

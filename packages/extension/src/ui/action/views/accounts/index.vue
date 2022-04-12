@@ -5,13 +5,13 @@
       <accounts-search />
       <custom-scrollbar class="accounts__scroll-area" :settings="settings">
         <accounts-list-item
-          v-for="(account, index) in active"
+          v-for="(account, index) in accountInfo.activeAccounts"
           :key="index"
           :name="account.name"
           :address="account.address"
-          :amount="account.amount"
-          :symbol="account.primaryToken.symbol"
-          :is-checked="address == account.address"
+          amount="0"
+          :symbol="network.currencyName"
+          :is-checked="accountInfo.selectedAccount?.address == account.address"
           :select="select"
           :active="true"
         ></accounts-list-item>
@@ -21,14 +21,11 @@
         </div>
 
         <accounts-list-item
-          v-for="(account, index) in inActive"
+          v-for="(account, index) in accountInfo.inactiveAccounts"
           :key="index"
           :name="account.name"
           :address="account.address"
-          :amount="account.amount"
-          :symbol="account.primaryToken.symbol"
-          :is-checked="address == account.address"
-          :select="select"
+          :is-checked="false"
           :active="false"
         ></accounts-list-item>
       </custom-scrollbar>
@@ -45,22 +42,26 @@ export default {
 <script setup lang="ts">
 import AccountsSearch from "./components/accounts-search.vue";
 import AccountsListItem from "./components/accounts-list-item.vue";
-import { useRoute } from "vue-router";
-import { accountsActive, accountsInActive } from "@action/types/mock";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
-
-const route = useRoute();
+import { AccountsHeaderData } from "../../types/account";
+import { PropType } from "vue";
+import { NodeType } from "@/types/provider";
 
 const settings = {
   suppressScrollY: false,
   suppressScrollX: true,
   wheelPropagation: false,
 };
-const active = accountsActive;
-const inActive = accountsInActive;
-const address = route.params.address;
 
 const props = defineProps({
+  network: {
+    type: Object as PropType<NodeType>,
+    default: () => ({}),
+  },
+  accountInfo: {
+    type: Object as PropType<AccountsHeaderData>,
+    default: () => ({}),
+  },
   showAccounts: Boolean,
   toggle: {
     type: Function,
@@ -74,6 +75,7 @@ const close = () => {
   }, 300);
 };
 const select = (account: string) => {
+  console.log(props.network);
   changeAccount(account);
 
   setTimeout(() => {

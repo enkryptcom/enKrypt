@@ -107,6 +107,7 @@ export interface NodeType {
   isTestNetwork: boolean;
   currencyName: string;
   icon: any;
-  signer: SignerType;
+  signer: SignerType[];
   gradient: string;
+  node: string;
 }

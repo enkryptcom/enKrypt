@@ -11,7 +11,7 @@ const kovanNode: EthereumNodeType = {
   currencyName: "KOV",
   node: "wss://nodes.mewapi.io/ws/kovan",
   icon: require("./icons/eth.svg"),
-  signer: SignerType.secp256k1,
+  signer: [SignerType.secp256k1],
   gradient: "#E6007A",
 };
 export default kovanNode;

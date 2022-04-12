@@ -6,5 +6,8 @@ const getAllNetworks = (): NodeType[] => {
     Object.values(PolkadotNetworks) as NodeType[]
   );
 };
-
-export { getAllNetworks };
+const getNetworkByName = (name: string): NodeType | undefined => {
+  return getAllNetworks().find((net) => net.name === name);
+};
+const DEFAULT_NETWORK_NAME = "ETH";
+export { getAllNetworks, getNetworkByName, DEFAULT_NETWORK_NAME };

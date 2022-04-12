@@ -11,7 +11,8 @@ const dotNode: PolkadotNodeType = {
   icon: require("./icons/polkadot.svg"),
   decimals: 10,
   prefix: 0,
-  signer: SignerType.sr25519,
+  signer: [SignerType.sr25519, SignerType.ed25519],
   gradient: "#8247E5",
+  node: "wss://rpc.polkadot.io/",
 };
 export default dotNode;

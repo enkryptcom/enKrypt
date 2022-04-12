@@ -45,7 +45,7 @@
 </template>
 
 <script setup lang="ts">
-const props = defineProps({
+defineProps({
   color: {
     type: String,
     default: "",
