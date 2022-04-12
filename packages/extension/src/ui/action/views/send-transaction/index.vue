@@ -1,30 +1,42 @@
 <template>
   <div class="container">
-
-      <div v-if="!!selected" class="send-transaction">
-        <div class="send-transaction__header">
-          <h3>Send</h3>
-          <a class="send-transaction__close" @click="close">
-            <close-icon />
-          </a>
-        </div>
-
-        <send-address-input
-          :input="input"
-          :changeFocus="changeFocus"
-        ></send-address-input>
-
-        <div class="send-transaction__scroll-content">
-          <custom-scrollbar
-            class="send-transaction__scroll-area"
-            :settings="settings"
-            @ps-scroll-y="handleScroll"
-          >    
-            <send-contacts-list v-if="isFocus"></send-contacts-list>
-            <send-token-list v-if="!isFocus && address.length > 0"></send-token-list>
-          </custom-scrollbar>
-        </div>
+    <div v-if="!!selected" class="send-transaction">
+      <div class="send-transaction__header">
+        <h3>Send</h3>
+        <a class="send-transaction__close" @click="close">
+          <close-icon />
+        </a>
       </div>
+
+      <send-address-input
+        :input="inputAddress"
+        :toggleSelect="toggleSelectContact"
+        :value="address"
+      ></send-address-input>
+
+      <send-contacts-list
+        :showAccounts="isOpenSelectContact"
+        :close="toggleSelectContact"
+        :selectAccount="selectAccount"
+      ></send-contacts-list>
+
+      <send-token-select
+        :token="selectedToken"
+        :toggleSelect="toggleSelectToken"
+      ></send-token-select>
+
+      <send-token-list
+        :showTokens="isOpenSelectToken"
+        :close="toggleSelectToken"
+        :selectToken="selectToken"
+      >
+      </send-token-list>
+
+      <send-input-amount
+        :input="inputAmount"
+        :value="amount"
+      ></send-input-amount>
+    </div>
   </div>
 </template>
 
@@ -37,17 +49,24 @@ export default {
 <script setup lang="ts">
 import { defineProps, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import SendAddressInput from "./components/send-address-input.vue";
 import SendContactsList from "./components/send-contacts-list.vue";
+import SendTokenSelect from "./components/send-token-select.vue";
 import SendTokenList from "./components/send-token-list.vue";
+import SendInputAmount from "./components/send-input-amount.vue";
+import { Account } from "@action/types/account";
+import { Token } from "@action/types/token";
+import { ethereum } from "@action/types/mock";
 
 const route = useRoute();
 const router = useRouter();
 
-let isFocus = ref(false);
+let isOpenSelectContact = ref(false);
 let address = ref("");
+let isOpenSelectToken = ref(false);
+let selectedToken = ref(ethereum);
+let amount = ref(0);
 
 const selected: number = +route.params.networkId;
 const settings = {
@@ -62,12 +81,30 @@ const close = () => {
   router.go(-1);
 };
 
-const input = (text: string) => {
+const inputAddress = (text: string) => {
   address.value = text;
 };
 
-const changeFocus = (focus: boolean) => {
-  isFocus.value = focus;
+const toggleSelectContact = (open: boolean) => {
+  isOpenSelectContact.value = open;
+};
+
+const toggleSelectToken = (open: boolean) => {
+  isOpenSelectToken.value = open;
+};
+
+const selectAccount = (account: Account) => {
+  address.value = account.address;
+  isOpenSelectContact.value = false;
+};
+
+const selectToken = (token: Token) => {
+  selectedToken.value = token;
+  isOpenSelectToken.value = false;
+};
+
+const inputAmount = (number: number) => {
+  amount.value = number;
 };
 </script>
 
@@ -82,6 +119,7 @@ const changeFocus = (focus: boolean) => {
   box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.16);
   margin: 0;
   box-sizing: border-box;
+  position: relative;
 }
 
 .send-transaction {
@@ -113,24 +151,6 @@ const changeFocus = (focus: boolean) => {
     &:hover {
       background: @black007;
     }
-  }
-
-  &__scroll-area {
-    position: relative;
-    margin: auto;
-    width: 100%;
-    max-height: 468px;
-    margin: 0 0 8px 0;
-    padding: 0 !important;
-    box-sizing: border-box;
-
-    &.ps--active-y {
-      padding-right: 0;
-    }
-  }
-
-  &__scroll-content {
-    height: 476px;
   }
 }
 </style>

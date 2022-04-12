@@ -1,5 +1,5 @@
 <template>
-  <div class="send-address-item">
+  <a @click="select" class="send-address-item">
     <div class="send-address-item__info">
       <img :src="getImgUrl(account.address)" alt="" />
 
@@ -8,7 +8,7 @@
         <p>{{ $filters.replaceWithEllipsis(account.address, 6, 4) }}</p>
       </div>
     </div>
-  </div>
+  </a>
 </template>
 
 <script lang="ts">
@@ -28,11 +28,21 @@ const props = defineProps({
       return {};
     },
   },
+  selectAccount: {
+    type: Function,
+    default: () => {
+      return null;
+    },
+  },
 });
 
 const getImgUrl = (address: string) => {
   return "https://mewcard.mewapi.io/?address=" + address;
 };
+
+const select = () => {
+  props.selectAccount(props.account)
+}
 </script>
 
 <style lang="less">
@@ -46,6 +56,8 @@ const getImgUrl = (address: string) => {
   flex-direction: row;
   width: 100%;
   height: 56px;
+  cursor: pointer;
+  text-decoration: none;
 
   &__number {
     font-style: normal;

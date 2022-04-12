@@ -554,3 +554,11 @@ export const nfts: NFTAuthor[] = [
     ],
   },
 ];
+
+export const ethereum: Token = {
+  name: "Ethereum",
+  symbol: "eth",
+  icon: "https://mpolev.ru/enkrypt/eth.png",
+  amount: 0.5,
+  price: 2500,
+};
