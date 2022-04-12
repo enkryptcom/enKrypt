@@ -1,4 +1,5 @@
 import { SignerType } from "@enkryptcom/types";
+import { toChecksumAddress } from "ethereumjs-util";
 import { EthereumNodeType } from "../types";
 const moonbeamNode: EthereumNodeType = {
   name: "GLMR",
@@ -13,5 +14,6 @@ const moonbeamNode: EthereumNodeType = {
   icon: require("./icons/moonbeam.png"),
   signer: [SignerType.secp256k1],
   gradient: "#8247E5",
+  displayAddress: (address: string) => toChecksumAddress(address),
 };
 export default moonbeamNode;

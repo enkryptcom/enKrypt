@@ -110,4 +110,5 @@ export interface NodeType {
   signer: SignerType[];
   gradient: string;
   node: string;
+  displayAddress: (address: string) => string;
 }

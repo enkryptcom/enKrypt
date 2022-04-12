@@ -3,7 +3,7 @@
     <accounts-header-account
       v-if="!!accountInfo.selectedAccount"
       :name="accountInfo.selectedAccount.name"
-      :address="accountInfo.selectedAccount.address"
+      :address="network.displayAddress(accountInfo.selectedAccount.address)"
       :toggle-accounts="toggleAccounts"
       :toggle-deposit="toggleDeposit"
       :active="showAccounts"

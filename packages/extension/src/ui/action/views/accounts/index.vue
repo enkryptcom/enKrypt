@@ -8,11 +8,11 @@
           v-for="(account, index) in accountInfo.activeAccounts"
           :key="index"
           :name="account.name"
-          :address="account.address"
+          :address="network.displayAddress(account.address)"
           amount="0"
           :symbol="network.currencyName"
           :is-checked="accountInfo.selectedAccount?.address == account.address"
-          :select="select"
+          :select="selectAccount"
           :active="true"
         ></accounts-list-item>
 
@@ -72,18 +72,12 @@ const props = defineProps({
 const close = () => {
   setTimeout(() => {
     props.toggle();
-  }, 300);
+  }, 150);
 };
-const select = (account: string) => {
-  console.log(props.network);
-  changeAccount(account);
-
+const selectAccount = (account: string) => {
   setTimeout(() => {
     props.toggle();
-  }, 300);
-};
-const changeAccount = (account: string) => {
-  console.log("change account button clicked", account);
+  }, 150);
 };
 </script>
 

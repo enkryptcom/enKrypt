@@ -1,4 +1,5 @@
 import { SignerType } from "@enkryptcom/types";
+import { toChecksumAddress } from "ethereumjs-util";
 import { EthereumNodeType } from "../types";
 const bscNode: EthereumNodeType = {
   name: "BSC",
@@ -13,5 +14,6 @@ const bscNode: EthereumNodeType = {
   icon: require("./icons/bsc.svg"),
   signer: [SignerType.secp256k1],
   gradient: "#E6007A",
+  displayAddress: (address: string) => toChecksumAddress(address),
 };
 export default bscNode;

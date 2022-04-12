@@ -1,4 +1,5 @@
 import { SignerType } from "@enkryptcom/types";
+import { toChecksumAddress } from "ethereumjs-util";
 import { EthereumNodeType } from "../types";
 const kovanNode: EthereumNodeType = {
   name: "KOV",
@@ -13,5 +14,6 @@ const kovanNode: EthereumNodeType = {
   icon: require("./icons/eth.svg"),
   signer: [SignerType.secp256k1],
   gradient: "#E6007A",
+  displayAddress: (address: string) => toChecksumAddress(address),
 };
 export default kovanNode;

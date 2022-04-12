@@ -1,4 +1,5 @@
 import { SignerType } from "@enkryptcom/types";
+import { polkadotEncodeAddress } from "@enkryptcom/utils";
 import { PolkadotNodeType } from "../types";
 const dotNode: PolkadotNodeType = {
   name: "DOT",
@@ -14,5 +15,6 @@ const dotNode: PolkadotNodeType = {
   signer: [SignerType.sr25519, SignerType.ed25519],
   gradient: "#8247E5",
   node: "wss://rpc.polkadot.io/",
+  displayAddress: (address: string) => polkadotEncodeAddress(address, 0),
 };
 export default dotNode;

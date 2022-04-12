@@ -1,4 +1,5 @@
 import { SignerType } from "@enkryptcom/types";
+import { polkadotEncodeAddress } from "@enkryptcom/utils";
 import { PolkadotNodeType } from "../types";
 const acaNode: PolkadotNodeType = {
   name: "ACA",
@@ -14,5 +15,6 @@ const acaNode: PolkadotNodeType = {
   signer: [SignerType.sr25519, SignerType.ed25519],
   gradient: "#53CBC9",
   node: "wss://acala-rpc-0.aca-api.network/",
+  displayAddress: (address: string) => polkadotEncodeAddress(address, 10),
 };
 export default acaNode;
