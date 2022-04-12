@@ -41,10 +41,8 @@ let showDeposit = ref(false);
 
 defineProps({
   selected: {
-    type: Number,
-    default: () => {
-      return {};
-    },
+    type: String,
+    default: "",
   },
   account: {
     type: Object as PropType<Account>,

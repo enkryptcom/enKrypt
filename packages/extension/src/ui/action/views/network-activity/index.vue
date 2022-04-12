@@ -52,7 +52,7 @@ import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 
 const route = useRoute();
 
-const selected: number = +route.params.id;
+const selected: string = route.params.id as string;
 const total = {
   cryptoAmount: 63.466,
   amount: 3245.24,
@@ -63,8 +63,6 @@ const settings = {
   suppressScrollX: true,
   wheelPropagation: false,
 };
-
-defineProps({});
 
 const depositAction = () => {
   console.log("depositAction");

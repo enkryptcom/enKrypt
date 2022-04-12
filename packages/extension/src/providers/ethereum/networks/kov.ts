@@ -2,7 +2,7 @@ import { SignerType } from "@enkryptcom/types";
 import { EthereumNodeType } from "../types";
 const kovanNode: EthereumNodeType = {
   name: "KOV",
-  name_long: "KOVAN",
+  name_long: "Kovan",
   homePage: "https://github.com/kovan-testnet",
   blockExplorerTX: "https://kovan.etherscan.io/tx/[[txHash]]",
   blockExplorerAddr: "https://kovan.etherscan.io/address/[[address]]",

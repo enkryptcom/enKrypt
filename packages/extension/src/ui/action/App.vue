@@ -1,7 +1,7 @@
 <template>
   <div class="app">
-    <div ref="appMenu" class="app__menu">
-      <logo-min :selected="+route.params.id" class="app__menu-logo" />
+    <div ref="appMenuRef" class="app__menu">
+      <logo-min :color="networkGradient" class="app__menu-logo" />
       <base-search :is-border="false" />
       <app-menu
         :networks="networks"
@@ -36,8 +36,7 @@
 
     <div class="app__content">
       <network-header
-        v-show="showNetworkMenu()"
-        :selected="+route.params.id"
+        :selected="(route.params.id as string)"
         :account="account"
       />
       <router-view v-slot="{ Component }" name="view">
@@ -49,7 +48,7 @@
       <router-view name="modal"></router-view>
       <router-view name="accounts"></router-view>
 
-      <network-menu v-show="showNetworkMenu()" :selected="+route.params.id" />
+      <network-menu :selected="(route.params.id as string)" />
     </div>
   </div>
 </template>
@@ -70,38 +69,38 @@ import { Account } from "@action/types/account";
 import { WindowPromise } from "@/libs/window-promise";
 import { NodeType } from "@/types/provider";
 import { getAllNetworks } from "@/libs/utils/networks";
-import less from "less";
+import TabState from "@/libs/tab-state";
 
-const appMenu = ref(null);
-defineExpose({ appMenu });
+const tabstate = new TabState();
+const appMenuRef = ref(null);
+const networkGradient = ref();
+defineExpose({ appMenuRef });
 const router = useRouter();
 const route = useRoute();
-
-onMounted(() => {
-  router.push({ name: "activity", params: { id: 1 } });
-});
 const transitionName = "fade";
 const account: Account = singleAccount;
 const networks: NodeType[] = getAllNetworks();
+
+onMounted(async () => {
+  const curNetwork = await tabstate.getSelectedNetWork();
+  if (curNetwork) {
+    setNetwork(networks.find((net) => net.name === curNetwork) as NodeType);
+  } else {
+    setNetwork(networks.find((net) => net.name === "ETH") as NodeType);
+  }
+});
 const setNetwork = (network: NodeType) => {
   //hack may be there is a better way less.modifyVars doesnt work
-  appMenu.value.style.background = `radial-gradient(100% 50% at 100% 50%, rgba(250, 250, 250, 0.92) 0%, rgba(250, 250, 250, 0.98) 100%), ${network.gradient}`;
+  if (appMenuRef.value)
+    (
+      appMenuRef.value as HTMLElement
+    ).style.background = `radial-gradient(100% 50% at 100% 50%, rgba(250, 250, 250, 0.92) 0%, rgba(250, 250, 250, 0.98) 100%), ${network.gradient}`;
+  networkGradient.value = network.gradient;
+  tabstate.setSelectedNetwork(network.name);
   router.push({ name: "activity", params: { id: network.name } });
 };
 const addNetwork = () => {
   router.push({ name: "add-network" });
-};
-
-const showNetworkMenu = () => {
-  const selected = +route.params.id;
-
-  return (
-    !!selected &&
-    (route.name == "activity" ||
-      route.name == "assets" ||
-      route.name == "nfts" ||
-      route.name == "dapps")
-  );
 };
 
 const openCreate = () => {

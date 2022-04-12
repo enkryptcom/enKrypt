@@ -20,6 +20,7 @@ export enum ProviderName {
 export enum InternalStorageNamespace {
   keyring = "KeyRing",
   persistentEvents = "PersistentEvents",
+  tabState = "TabState",
 }
 export enum EnkryptProviderEventMethods {
   persistentEvents = "PersistentEvents",

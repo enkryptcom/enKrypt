@@ -29,7 +29,7 @@ const route = useRoute();
 
 defineProps({});
 
-const selected: number = +route.params.id;
+const selected: string = route.params.id as string;
 const settings = {
   suppressScrollY: false,
   suppressScrollX: true,

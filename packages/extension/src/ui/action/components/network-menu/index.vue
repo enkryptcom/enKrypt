@@ -40,10 +40,8 @@ import DApps from "@action/icons/tabs/dapps.vue";
 
 defineProps({
   selected: {
-    type: Number,
-    default: () => {
-      return {};
-    },
+    type: String,
+    default: "",
   },
 });
 </script>

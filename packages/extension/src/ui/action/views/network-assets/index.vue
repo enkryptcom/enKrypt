@@ -42,7 +42,7 @@ import { assets } from "@action/types/mock";
 
 const route = useRoute();
 
-const selected: number = +route.params.id;
+const selected: string = route.params.id as string;
 const total = {
   cryptoAmount: 63.466,
   amount: 3245.24,

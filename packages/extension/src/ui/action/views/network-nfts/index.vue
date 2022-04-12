@@ -30,7 +30,7 @@ import { nfts } from "@action/types/mock";
 
 const route = useRoute();
 
-const selected: number = +route.params.id;
+const selected: string = route.params.id as string;
 const settings = {
   suppressScrollY: false,
   suppressScrollX: true,

@@ -14,6 +14,7 @@ import PolkadotProvider from "@/providers/polkadot";
 import Browser from "webextension-polyfill";
 import TabInfo from "@/libs/utils/tab-info";
 import PersistentEvents from "@/libs/persistent-events";
+import TabStates from "@/libs/tab-state";
 import { TabProviderType, ProviderType, ExternalMessageOptions } from "./types";
 
 class BackgroundHandler {
@@ -21,9 +22,11 @@ class BackgroundHandler {
   #tabProviders: TabProviderType;
   #providers: ProviderType;
   #persistentEvents: PersistentEvents;
+  #tabStates: TabStates;
   constructor() {
     this.#keyring = new KeyRingBase();
     this.#persistentEvents = new PersistentEvents();
+    this.#tabStates = new TabStates();
     this.#tabProviders = {
       [ProviderName.ethereum]: {},
       [ProviderName.polkadot]: {},
@@ -98,6 +101,7 @@ class BackgroundHandler {
         method === InternalMethods.newWindowUnload
       ) {
         this.#persistentEvents.deleteEvents(_tabid);
+        this.#tabStates.deleteStateById(_tabid);
         return {
           result: JSON.stringify(true),
         };
