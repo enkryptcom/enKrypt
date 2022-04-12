@@ -6,6 +6,7 @@ import rinkebyNode from "./rin";
 import etcNode from "./etc";
 import maticNode from "./matic";
 import bscNode from "./bsc";
+import moonbeamNode from "./moonbeam";
 
 export default {
   goerli: goerliNode,
@@ -16,4 +17,5 @@ export default {
   etc: etcNode,
   matic: maticNode,
   bsc: bscNode,
+  moonbeam: moonbeamNode,
 };

@@ -3,10 +3,18 @@
     <logo class="onboard__logo"></logo>
     <div
       class="onboard__wrap"
-      :class="{ 'onboard__wrap--ready': $route.name == 'create-wallet-wallet-ready' || $route.name == 'restore-wallet-wallet-ready' }"
+      :class="{
+        'onboard__wrap--ready':
+          $route.name == 'create-wallet-wallet-ready' ||
+          $route.name == 'restore-wallet-wallet-ready',
+      }"
     >
       <a
-        v-if="$route.name != 'new-wallet' && $route.name != 'create-wallet-wallet-ready' && $route.name != 'restore-wallet-wallet-ready'"
+        v-if="
+          $route.name != 'new-wallet' &&
+          $route.name != 'create-wallet-wallet-ready' &&
+          $route.name != 'restore-wallet-wallet-ready'
+        "
         class="onboard__back"
         @click="$router.go(-1)"
       >
@@ -16,8 +24,11 @@
     </div>
 
     <div
+      v-if="
+        $route.name == 'create-wallet-wallet-ready' ||
+        $route.name == 'restore-wallet-wallet-ready'
+      "
       class="onboard__info"
-      v-if="$route.name == 'create-wallet-wallet-ready' || $route.name == 'restore-wallet-wallet-ready'"
     >
       <h4>Pin the Enkrypt extension</h4>
       <p>Click on <extension-icon /> in your browser</p>

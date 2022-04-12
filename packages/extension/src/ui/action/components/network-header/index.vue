@@ -27,7 +27,7 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { defineProps, PropType, onMounted, ref } from "vue";
+import { PropType, onMounted, ref } from "vue";
 import { Account } from "@action/types/account";
 import NetworkHeaderAccount from "./components/network-header-account.vue";
 import AccountsList from "@action/views/accounts/index.vue";
@@ -41,10 +41,8 @@ let showDeposit = ref(false);
 
 defineProps({
   selected: {
-    type: Number,
-    default: () => {
-      return {};
-    },
+    type: String,
+    default: "",
   },
   account: {
     type: Object as PropType<Account>,

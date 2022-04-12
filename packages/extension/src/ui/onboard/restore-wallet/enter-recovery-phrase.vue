@@ -3,15 +3,19 @@
     <h3>Enter your<br />recovery phrase</h3>
 
     <textarea
-      class="enter-recovery-phrase__input"  
-      placeholder="witch collapse practice feed shame open despair creek road again ice least">
+      class="enter-recovery-phrase__input"
+      placeholder="witch collapse practice feed shame open despair creek road again ice least"
+    >
     </textarea>
-  
+
     <div class="enter-recovery-phrase__buttons">
       <base-button title="Next" :click="nextAction" />
     </div>
 
-    <p>You can use 12, 15, 18, 21 or 24 words phrase to restore your wallet. Just enter as many words as you have in your phrase.</p>
+    <p>
+      You can use 12, 15, 18, 21 or 24 words phrase to restore your wallet. Just
+      enter as many words as you have in your phrase.
+    </p>
   </div>
 </template>
 <script setup lang="ts">
@@ -59,7 +63,8 @@ const nextAction = () => {
     color: @primaryLabel;
     outline: none !important;
 
-    &:active, &:focus {
+    &:active,
+    &:focus {
       border: 1.5px solid @primary;
     }
   }

@@ -1,10 +1,6 @@
 <template>
   <div class="container">
-    <custom-scrollbar
-      class="network-dapps__scroll-area"
-      :settings="settings"
-      @ps-scroll-y="handleScroll"
-    >
+    <custom-scrollbar class="network-dapps__scroll-area" :settings="settings">
       <div v-if="!!selected" class="network-dapps">
         <network-dapps-item
           v-for="(item, index) in dapps"
@@ -23,7 +19,6 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { defineProps } from "vue";
 import { useRoute } from "vue-router";
 import NetworkDappsItem from "./components/network-dapps-item.vue";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
@@ -34,7 +29,7 @@ const route = useRoute();
 
 defineProps({});
 
-const selected: number = +route.params.networkId;
+const selected: string = route.params.id as string;
 const settings = {
   suppressScrollY: false,
   suppressScrollX: true,

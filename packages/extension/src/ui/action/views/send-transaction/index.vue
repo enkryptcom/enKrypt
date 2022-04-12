@@ -10,25 +10,25 @@
 
       <send-address-input
         :input="inputAddress"
-        :toggleSelect="toggleSelectContact"
+        :toggle-select="toggleSelectContact"
         :value="address"
       ></send-address-input>
 
       <send-contacts-list
-        :showAccounts="isOpenSelectContact"
+        :show-accounts="isOpenSelectContact"
         :close="toggleSelectContact"
-        :selectAccount="selectAccount"
+        :select-account="selectAccount"
       ></send-contacts-list>
 
       <send-token-select
         :token="selectedToken"
-        :toggleSelect="toggleSelectToken"
+        :toggle-select="toggleSelectToken"
       ></send-token-select>
 
       <send-token-list
-        :showTokens="isOpenSelectToken"
+        :show-tokens="isOpenSelectToken"
         :close="toggleSelectToken"
-        :selectToken="selectToken"
+        :select-token="selectToken"
       >
       </send-token-list>
 
@@ -69,11 +69,6 @@ let selectedToken = ref(ethereum);
 let amount = ref(0);
 
 const selected: number = +route.params.networkId;
-const settings = {
-  suppressScrollY: false,
-  suppressScrollX: true,
-  wheelPropagation: false,
-};
 
 defineProps({});
 
@@ -130,7 +125,7 @@ const inputAmount = (number: number) => {
   &__header {
     position: relative;
     padding: 24px 72px 12px 32px;
- 
+
     h3 {
       font-style: normal;
       font-weight: 700;

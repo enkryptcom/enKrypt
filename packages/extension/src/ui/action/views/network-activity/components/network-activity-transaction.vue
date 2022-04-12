@@ -39,7 +39,7 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { defineProps, PropType } from "vue";
+import { PropType } from "vue";
 import {
   Transaction,
   TransactionStatus,

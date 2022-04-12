@@ -19,9 +19,9 @@
   "dependencies": {
     "@commitlint/cli": "^16.1.0",
     "@enkryptcom/utils": "^0.0.1",
-    "@polkadot/util": "^8.5.1",
-    "@polkadot/util-crypto": "^8.6.1",
-    "@polkadot/wasm-crypto": "^5.0.1",
+    "@polkadot/util": "^9.0.1",
+    "@polkadot/util-crypto": "^9.0.1",
+    "@polkadot/wasm-crypto": "^6.0.1",
     "assert": "^2.0.0",
     "chai": "^4.3.6"
   },

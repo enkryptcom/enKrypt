@@ -2,14 +2,17 @@
   <div class="add-accounts">
     <custom-scrollbar class="add-accounts__scroll-area" :settings="settings">
       <h3>Add accounts</h3>
-      <p>If you had more than one account, and want to restore all of them, please select them.</p>
+      <p>
+        If you had more than one account, and want to restore all of them,
+        please select them.
+      </p>
 
       <select-account-item
         v-for="(account, index) in accountsActive"
         :key="index"
         :number="index + 1"
         :account="account"
-        :isActive="false"
+        :is-active="false"
       ></select-account-item>
     </custom-scrollbar>
 
@@ -65,7 +68,7 @@ const nextAction = () => {
   &__scroll-area {
     position: relative;
     margin: auto;
-    width: calc(~'100% + 15px');
+    width: calc(~"100% + 15px");
     max-height: 488px;
     padding-right: 15px;
     box-sizing: border-box;

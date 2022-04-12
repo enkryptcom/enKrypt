@@ -3,7 +3,6 @@
     <custom-scrollbar
       class="network-activity__scroll-area"
       :settings="settings"
-      @ps-scroll-y="handleScroll"
     >
       <div v-if="!!selected" class="network-activity">
         <network-activity-total
@@ -44,7 +43,6 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { defineProps } from "vue";
 import { useRoute } from "vue-router";
 import NetworkActivityTotal from "./components/network-activity-total.vue";
 import NetworkActivityAction from "./components/network-activity-action.vue";
@@ -54,7 +52,7 @@ import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 
 const route = useRoute();
 
-const selected: number = +route.params.networkId;
+const selected: string = route.params.id as string;
 const total = {
   cryptoAmount: 63.466,
   amount: 3245.24,
@@ -65,8 +63,6 @@ const settings = {
   suppressScrollX: true,
   wheelPropagation: false,
 };
-
-defineProps({});
 
 const depositAction = () => {
   console.log("depositAction");

@@ -17,7 +17,7 @@
       <base-button title="Create a new wallet" :click="createAction" />
       <base-button
         title="Restore existing wallet"
-        :noBackground="true"
+        :no-background="true"
         :click="restoreAction"
       />
     </div>

@@ -21,7 +21,7 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { defineProps, PropType } from "vue";
+import { PropType } from "vue";
 import { NetworkItem } from "@action/types/network";
 import Switch from "@action/components/switch/index.vue";
 import InfoIcon from "@action/icons/common/info-icon.vue";

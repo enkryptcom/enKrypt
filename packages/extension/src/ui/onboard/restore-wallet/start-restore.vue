@@ -1,13 +1,16 @@
 <template>
   <div class="restore-wallet">
     <h3>Restore<br />existing wallet</h3>
-    <p>Do you have your recovery phrase handy? Recovery phrase is a 24 or 12 word phrase that you wrote down when you backed up your wallet.</p>
-  
+    <p>
+      Do you have your recovery phrase handy? Recovery phrase is a 24 or 12 word
+      phrase that you wrote down when you backed up your wallet.
+    </p>
+
     <div class="restore-wallet__buttons">
       <base-button title="Use recovery phrase" :click="restoreAction" />
       <base-button
         title="Other options"
-        :noBackground="true"
+        :no-background="true"
         :click="otherAction"
       />
     </div>

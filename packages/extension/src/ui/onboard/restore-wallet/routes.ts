@@ -40,7 +40,7 @@ export const routes = {
   walletReady: {
     path: "wallet-ready",
     name: "wallet-ready",
-    component: WalletReady
+    component: WalletReady,
   },
 };
 

@@ -8,10 +8,10 @@
       <input
         type="text"
         placeholder="0x… address or ENS name"
+        :value="isFocus ? value : $filters.replaceWithEllipsis(value, 6, 6)"
         @input="changeValue($event.target.value)"
         @focus="changeFocus"
         @blur="changeFocus"
-        :value="isFocus ? value : $filters.replaceWithEllipsis(value, 6, 6)"
       />
     </div>
 
@@ -65,7 +65,7 @@ const changeFocus = () => {
 
 const open = () => {
   isOpen.value = !isOpen.value;
-  props.toggleSelect(isOpen)
+  props.toggleSelect(isOpen);
 };
 
 const getImgUrl = (address: string) => {
@@ -78,7 +78,7 @@ const getImgUrl = (address: string) => {
 
 .send-address-input {
   height: 64px;
-  background: #FFFFFF;
+  background: #ffffff;
   margin: 12px 32px 8px 32px;
   box-sizing: border-box;
   border: 1px solid @gray02;

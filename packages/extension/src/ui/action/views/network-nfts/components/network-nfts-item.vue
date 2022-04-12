@@ -13,7 +13,7 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { defineProps, PropType } from "vue";
+import { PropType } from "vue";
 import { NFTItem } from "@action/types/nft";
 
 defineProps({
@@ -32,7 +32,7 @@ defineProps({
 .network-nfts {
   &__item {
     margin-bottom: 8px;
-    
+
     img {
       border-radius: 12px;
       max-width: 128px;
@@ -59,7 +59,7 @@ defineProps({
 
       span {
         font-variant: small-caps;
-      } 
+      }
     }
   }
 }

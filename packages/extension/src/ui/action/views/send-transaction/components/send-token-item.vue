@@ -1,5 +1,5 @@
 <template>
-  <a @click="select" class="send-token-item">
+  <a class="send-token-item" @click="select">
     <div class="send-token-item__info">
       <img :src="token.icon" />
 
@@ -48,8 +48,8 @@ if (props.token) {
 }
 
 const select = () => {
-  props.selectToken(props.token)
-}
+  props.selectToken(props.token);
+};
 </script>
 
 <style lang="less">

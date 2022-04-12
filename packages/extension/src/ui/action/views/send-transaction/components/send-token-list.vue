@@ -3,15 +3,18 @@
     <div class="send-token-list__overlay" @click="close"></div>
     <div class="send-token-list__wrap" :class="{ show: showTokens }">
       <list-search :input="search" placeholder="Search asset" />
-      <custom-scrollbar class="send-token-list__scroll-area" :settings="settings">
+      <custom-scrollbar
+        class="send-token-list__scroll-area"
+        :settings="settings"
+      >
         <send-token-item
           v-for="(token, index) in assets"
           :key="index"
           :token="token"
-          :selectToken="selectToken"
+          :select-token="selectToken"
         ></send-token-item>
       </custom-scrollbar>
-    </div>    
+    </div>
   </div>
 </template>
 

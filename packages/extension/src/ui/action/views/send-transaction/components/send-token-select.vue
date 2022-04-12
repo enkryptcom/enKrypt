@@ -1,11 +1,13 @@
 <template>
-  <a @click="open" class="send-token-select">
+  <a class="send-token-select" @click="open">
     <div class="send-token-select__image">
       <img :src="token.icon" alt="" />
     </div>
     <div class="send-token-select__info">
-      <h5>{{ token.name }}</h5>  
-      <p>{{ token.amount }} <span>{{ token.symbol }}</span></p>
+      <h5>{{ token.name }}</h5>
+      <p>
+        {{ token.amount }} <span>{{ token.symbol }}</span>
+      </p>
     </div>
 
     <div class="send-token-select__arrow">
@@ -44,7 +46,7 @@ const props = defineProps({
 
 const open = () => {
   isOpen.value = !isOpen.value;
-  props.toggleSelect(isOpen)
+  props.toggleSelect(isOpen);
 };
 </script>
 
@@ -53,7 +55,7 @@ const open = () => {
 
 .send-token-select {
   height: 64px;
-  background: #FFFFFF;
+  background: #ffffff;
   margin: 0 32px 8px 32px;
   box-sizing: border-box;
   border: 1px solid @gray02;
@@ -93,7 +95,7 @@ const open = () => {
       color: @primaryLabel;
       width: 290px;
       margin: 0 0 1px 0;
-    }  
+    }
 
     p {
       font-style: normal;

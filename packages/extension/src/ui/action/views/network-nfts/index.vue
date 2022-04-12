@@ -1,10 +1,6 @@
 <template>
   <div class="container">
-    <custom-scrollbar
-      class="network-nfts__scroll-area"
-      :settings="settings"
-      @ps-scroll-y="handleScroll"
-    >
+    <custom-scrollbar class="network-nfts__scroll-area" :settings="settings">
       <div v-if="!!selected" class="network-nfts">
         <network-nfts-total :amount="150335" />
 
@@ -25,7 +21,6 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { defineProps } from "vue";
 import { useRoute } from "vue-router";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 import NetworkNftsTotal from "./components/network-nfts-total.vue";
@@ -35,9 +30,7 @@ import { nfts } from "@action/types/mock";
 
 const route = useRoute();
 
-defineProps({});
-
-const selected: number = +route.params.networkId;
+const selected: string = route.params.id as string;
 const settings = {
   suppressScrollY: false,
   suppressScrollX: true,

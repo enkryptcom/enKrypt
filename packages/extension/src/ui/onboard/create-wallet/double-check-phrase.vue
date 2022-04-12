@@ -4,11 +4,11 @@
 
     <check-phrase
       v-for="(item, index) in phrases"
-      :key="index"
       :id="item.id"
+      :key="index"
       :phrases="item.items"
     ></check-phrase>
-    
+
     <base-button title="Next" :click="nextAction" />
   </div>
 </template>

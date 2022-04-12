@@ -1,7 +1,10 @@
 <template>
   <div class="network-menu">
     <router-link
-      :to="{ name: 'assets', params: { networkId: !!selected ? selected : null } }"
+      :to="{
+        name: 'assets',
+        params: { networkId: !!selected ? selected : null },
+      }"
     >
       <Assets /><br />Assets
     </router-link>
@@ -14,12 +17,18 @@
       <Activity /><br />Activity
     </router-link>
     <router-link
-      :to="{ name: 'nfts', params: { networkId: !!selected ? selected : null } }"
+      :to="{
+        name: 'nfts',
+        params: { networkId: !!selected ? selected : null },
+      }"
     >
       <NFTs /><br />NFTs
     </router-link>
     <router-link
-      :to="{ name: 'dapps', params: { networkId: !!selected ? selected : null } }"
+      :to="{
+        name: 'dapps',
+        params: { networkId: !!selected ? selected : null },
+      }"
     >
       <DApps /><br />DApps
     </router-link>
@@ -33,7 +42,6 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { defineProps } from "vue";
 import Activity from "@action/icons/tabs/activity.vue";
 import Assets from "@action/icons/tabs/assets.vue";
 import NFTs from "@action/icons/tabs/nfts.vue";
@@ -41,10 +49,8 @@ import DApps from "@action/icons/tabs/dapps.vue";
 
 defineProps({
   selected: {
-    type: Number,
-    default: () => {
-      return {};
-    },
+    type: String,
+    default: "",
   },
 });
 </script>

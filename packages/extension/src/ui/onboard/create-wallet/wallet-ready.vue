@@ -4,7 +4,7 @@
     <h3>Your wallet is ready</h3>
 
     <div class="wallet-ready__social">
-      <h4>Follow us</h4>  
+      <h4>Follow us</h4>
       <div class="wallet-ready__social-wrap">
         <a href="#">
           <github-icon />
@@ -33,7 +33,7 @@ import RedditIcon from "@action/icons/social/reddit-icon.vue";
 import TwitterIcon from "@action/icons/social/twitter-icon.vue";
 
 const finishAction = () => {
-  console.log("finishAction")
+  console.log("finishAction");
 };
 </script>
 

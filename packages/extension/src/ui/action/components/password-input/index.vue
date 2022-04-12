@@ -18,7 +18,7 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { defineProps, ref } from "vue";
+import { ref } from "vue";
 import BaseInput from "@action/components/base-input/index.vue";
 import PasswordInputStrenght from "./components/password-input-strenght.vue";
 

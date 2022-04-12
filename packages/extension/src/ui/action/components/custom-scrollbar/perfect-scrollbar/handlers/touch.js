@@ -1,9 +1,9 @@
-import updateGeometry from '../update-geometry';
-import cls from '../lib/class-names';
-import * as CSS from '../lib/css';
-import { env } from '../lib/util';
+import updateGeometry from "../update-geometry";
+import cls from "../lib/class-names";
+import * as CSS from "../lib/css";
+import { env } from "../lib/util";
 
-export default function(i) {
+export default function (i) {
   if (!env.supportsTouch && !env.supportsIePointer) {
     return;
   }
@@ -62,7 +62,7 @@ export default function(i) {
   }
 
   function shouldHandle(e) {
-    if (e.pointerType && e.pointerType === 'pen' && e.buttons === 0) {
+    if (e.pointerType && e.pointerType === "pen" && e.buttons === 0) {
       return false;
     }
     if (e.targetTouches && e.targetTouches.length === 1) {
@@ -70,7 +70,7 @@ export default function(i) {
     }
     if (
       e.pointerType &&
-      e.pointerType !== 'mouse' &&
+      e.pointerType !== "mouse" &&
       e.pointerType !== e.MSPOINTER_TYPE_MOUSE
     ) {
       return true;
@@ -173,7 +173,7 @@ export default function(i) {
   function touchEnd() {
     if (i.settings.swipeEasing) {
       clearInterval(easingLoop);
-      easingLoop = setInterval(function() {
+      easingLoop = setInterval(function () {
         if (i.isInitialized) {
           clearInterval(easingLoop);
           return;
@@ -203,18 +203,18 @@ export default function(i) {
   }
 
   if (env.supportsTouch) {
-    i.event.bind(element, 'touchstart', touchStart);
-    i.event.bind(element, 'touchmove', touchMove);
-    i.event.bind(element, 'touchend', touchEnd);
+    i.event.bind(element, "touchstart", touchStart);
+    i.event.bind(element, "touchmove", touchMove);
+    i.event.bind(element, "touchend", touchEnd);
   } else if (env.supportsIePointer) {
     if (window.PointerEvent) {
-      i.event.bind(element, 'pointerdown', touchStart);
-      i.event.bind(element, 'pointermove', touchMove);
-      i.event.bind(element, 'pointerup', touchEnd);
+      i.event.bind(element, "pointerdown", touchStart);
+      i.event.bind(element, "pointermove", touchMove);
+      i.event.bind(element, "pointerup", touchEnd);
     } else if (window.MSPointerEvent) {
-      i.event.bind(element, 'MSPointerDown', touchStart);
-      i.event.bind(element, 'MSPointerMove', touchMove);
-      i.event.bind(element, 'MSPointerUp', touchEnd);
+      i.event.bind(element, "MSPointerDown", touchStart);
+      i.event.bind(element, "MSPointerMove", touchMove);
+      i.event.bind(element, "MSPointerUp", touchEnd);
     }
   }
 }

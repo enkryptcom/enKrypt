@@ -21,9 +21,9 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { defineProps, PropType } from "vue";
+import { PropType } from "vue";
 import { NFTAuthor } from "@action/types/nft";
-import NetworkNftsItem from "./network-nfts-item.vue"
+import NetworkNftsItem from "./network-nfts-item.vue";
 
 defineProps({
   author: {

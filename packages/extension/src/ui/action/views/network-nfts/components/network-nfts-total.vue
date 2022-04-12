@@ -12,8 +12,6 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { defineProps } from "vue";
-
 defineProps({
   amount: {
     type: Number,

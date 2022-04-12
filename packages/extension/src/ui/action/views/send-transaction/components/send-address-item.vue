@@ -1,5 +1,5 @@
 <template>
-  <a @click="select" class="send-address-item">
+  <a class="send-address-item" @click="select">
     <div class="send-address-item__info">
       <img :src="getImgUrl(account.address)" alt="" />
 
@@ -41,8 +41,8 @@ const getImgUrl = (address: string) => {
 };
 
 const select = () => {
-  props.selectAccount(props.account)
-}
+  props.selectAccount(props.account);
+};
 </script>
 
 <style lang="less">

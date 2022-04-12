@@ -12,10 +12,7 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { defineProps } from "vue";
 import SearchIcon from "@action/icons/common/search.vue";
-
-defineProps({});
 </script>
 
 <style lang="less" scoped>

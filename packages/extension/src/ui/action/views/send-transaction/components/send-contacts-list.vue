@@ -3,22 +3,25 @@
     <div class="send-contacts-list__overlay" @click="close"></div>
     <div class="send-contacts-list__wrap" :class="{ show: showAccounts }">
       <list-search :input="search" placeholder="Search contact" />
-      <custom-scrollbar class="send-contacts-list__scroll-area" :settings="settings">
+      <custom-scrollbar
+        class="send-contacts-list__scroll-area"
+        :settings="settings"
+      >
         <h3>Recent</h3>
         <send-address-item
           v-for="(account, index) in accountsActive"
           :key="index"
           :account="account"
-          :selectAccount="selectAccount"
+          :select-account="selectAccount"
         ></send-address-item>
         <h3>All Contacts</h3>
         <send-address-item
           v-for="(account, index) in accountsInActive"
           :key="index"
           :account="account"
-          :selectAccount="selectAccount"
+          :select-account="selectAccount"
         ></send-address-item>
-      </custom-scrollbar>  
+      </custom-scrollbar>
     </div>
   </div>
 </template>
@@ -140,6 +143,6 @@ const selectAccount = (account: Account) => {
     text-transform: uppercase;
     color: @secondaryLabel;
     margin: 24px 0 0 0;
-  }  
+  }
 }
 </style>
