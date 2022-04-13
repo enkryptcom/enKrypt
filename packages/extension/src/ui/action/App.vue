@@ -10,7 +10,7 @@
       />
       <br /><br />
       <a href="javascript:void(0);" @click="openCreate()">
-        to Cretate / Restore
+        to Create / Restore
       </a>
       <div class="app__menu-footer">
         <a
