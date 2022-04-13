@@ -16,8 +16,8 @@ export default {
 <script setup lang="ts">
 defineProps({
   cryptoAmount: {
-    type: Number,
-    default: 0,
+    type: String,
+    default: "0",
   },
   amount: {
     type: Number,

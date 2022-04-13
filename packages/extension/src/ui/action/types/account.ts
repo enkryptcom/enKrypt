@@ -12,4 +12,5 @@ export interface AccountsHeaderData {
   selectedAccount: KeyRecord | null;
   activeAccounts: KeyRecord[];
   inactiveAccounts: KeyRecord[];
+  activeBalances: string[];
 }

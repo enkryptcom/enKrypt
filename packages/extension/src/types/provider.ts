@@ -71,6 +71,15 @@ export abstract class BackgroundProviderInterface extends EventEmitter {
   abstract isPersistentEvent(request: ProviderRPCRequest): Promise<boolean>;
 }
 
+export abstract class ProviderAPIInterface {
+  abstract node: string;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function
+  constructor(node: string, options?: unknown) {}
+  abstract init(): Promise<void>;
+  abstract getBalance(address: string): Promise<string>;
+  abstract getBaseBalance(address: string): Promise<string>;
+}
+
 export type handleIncomingMessage = (
   provider: Provider,
   message: string
@@ -111,4 +120,5 @@ export interface NodeType {
   gradient: string;
   node: string;
   displayAddress: (address: string) => string;
+  api?: () => Promise<ProviderAPIInterface>;
 }

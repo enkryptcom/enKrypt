@@ -9,7 +9,7 @@
           :key="index"
           :name="account.name"
           :address="network.displayAddress(account.address)"
-          amount="0"
+          :amount="accountInfo.activeBalances[index]"
           :symbol="network.currencyName"
           :is-checked="accountInfo.selectedAccount?.address == account.address"
           :select="selectAccount"

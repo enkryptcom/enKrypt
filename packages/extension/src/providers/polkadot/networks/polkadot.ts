@@ -1,5 +1,6 @@
 import { SignerType } from "@enkryptcom/types";
 import { polkadotEncodeAddress } from "@enkryptcom/utils";
+import API from "../libs/api";
 import { PolkadotNodeType } from "../types";
 const dotNode: PolkadotNodeType = {
   name: "DOT",
@@ -16,5 +17,10 @@ const dotNode: PolkadotNodeType = {
   gradient: "#8247E5",
   node: "wss://rpc.polkadot.io/",
   displayAddress: (address: string) => polkadotEncodeAddress(address, 0),
+};
+dotNode.api = async () => {
+  const api = new API(dotNode.node, { decimals: dotNode.decimals });
+  await api.init();
+  return api;
 };
 export default dotNode;

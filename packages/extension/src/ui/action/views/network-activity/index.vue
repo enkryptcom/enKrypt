@@ -6,7 +6,7 @@
     >
       <div v-if="!!selected" class="network-activity">
         <network-activity-total
-          :crypto-amount="total.cryptoAmount"
+          :crypto-amount="props.accountInfo.activeBalances[0]"
           :amount="total.amount"
           :symbol="total.symbol"
         />
@@ -49,12 +49,24 @@ import NetworkActivityAction from "./components/network-activity-action.vue";
 import NetworkActivityTransaction from "./components/network-activity-transaction.vue";
 import { transactionsOne, transactionsTwo } from "@action/types/mock";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
+import { PropType } from "vue";
+import { NodeType } from "@/types/provider";
+import { AccountsHeaderData } from "../../types/account";
 
 const route = useRoute();
-
+const props = defineProps({
+  network: {
+    type: Object as PropType<NodeType>,
+    default: () => ({}),
+  },
+  accountInfo: {
+    type: Object as PropType<AccountsHeaderData>,
+    default: () => ({}),
+  },
+});
 const selected: string = route.params.id as string;
 const total = {
-  cryptoAmount: 63.466,
+  cryptoAmount: props.accountInfo.activeBalances[0] || 0,
   amount: 3245.24,
   symbol: "dot",
 };

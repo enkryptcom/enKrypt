@@ -41,7 +41,11 @@
       />
       <router-view v-slot="{ Component }" name="view">
         <transition :name="transitionName" mode="out-in">
-          <component :is="Component" />
+          <component
+            :is="Component"
+            :network="currentNetwork"
+            :account-info="accountHeaderData"
+          />
         </transition>
       </router-view>
 
@@ -54,7 +58,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, defineExpose, ref } from "vue";
+import { onMounted, ref } from "vue";
 import AppMenu from "./components/app-menu/index.vue";
 import NetworkMenu from "./components/network-menu/index.vue";
 import AccountsHeader from "./components/accounts-header/index.vue";
@@ -75,27 +79,33 @@ import PublicKeyRing from "@/libs/keyring/public-keyring";
 const tabstate = new TabState();
 const appMenuRef = ref(null);
 const networkGradient = ref("");
-const currentNetwork = ref<NodeType | null>(null);
 const accountHeaderData = ref<AccountsHeaderData>({
   activeAccounts: [],
   inactiveAccounts: [],
   selectedAccount: null,
+  activeBalances: [],
 });
 defineExpose({ appMenuRef });
 const router = useRouter();
 const route = useRoute();
 const transitionName = "fade";
-const networks: NodeType[] = getAllNetworks();
+const networks: NodeType[] = getAllNetworks().filter(
+  (net) => !net.isTestNetwork //hide testnetworks for now
+);
+const defaultNetwork = networks.find(
+  (net) => net.name === DEFAULT_NETWORK_NAME
+) as NodeType;
+const currentNetwork = ref<NodeType>(defaultNetwork);
 const kr = new PublicKeyRing();
 
 onMounted(async () => {
   const curNetwork = await tabstate.getSelectedNetWork();
   if (curNetwork) {
-    setNetwork(networks.find((net) => net.name === curNetwork) as NodeType);
+    const savedNetwork = networks.find((net) => net.name === curNetwork);
+    if (savedNetwork) setNetwork(savedNetwork);
+    else setNetwork(defaultNetwork);
   } else {
-    setNetwork(
-      networks.find((net) => net.name === DEFAULT_NETWORK_NAME) as NodeType
-    );
+    setNetwork(defaultNetwork);
   }
 });
 const setNetwork = async (network: NodeType) => {
@@ -114,10 +124,25 @@ const setNetwork = async (network: NodeType) => {
     activeAccounts,
     inactiveAccounts,
     selectedAccount,
+    activeBalances: activeAccounts.map(() => "~"),
   };
   currentNetwork.value = network;
-  tabstate.setSelectedNetwork(network.name);
   router.push({ name: "activity", params: { id: network.name } });
+  tabstate.setSelectedNetwork(network.name);
+  if (network.api) {
+    try {
+      const api = await network.api();
+      const activeBalancePromises = activeAccounts.map((acc) =>
+        api.getBaseBalance(acc.address)
+      );
+      Promise.all(activeBalancePromises).then((balances) => {
+        console.log(balances);
+        accountHeaderData.value.activeBalances = balances;
+      });
+    } catch (e) {
+      console.log(e);
+    }
+  }
 };
 const addNetwork = () => {
   router.push({ name: "add-network" });

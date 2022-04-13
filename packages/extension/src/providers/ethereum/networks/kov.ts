@@ -1,5 +1,6 @@
 import { SignerType } from "@enkryptcom/types";
 import { toChecksumAddress } from "ethereumjs-util";
+import API from "../libs/api";
 import { EthereumNodeType } from "../types";
 const kovanNode: EthereumNodeType = {
   name: "KOV",
@@ -15,5 +16,10 @@ const kovanNode: EthereumNodeType = {
   signer: [SignerType.secp256k1],
   gradient: "#E6007A",
   displayAddress: (address: string) => toChecksumAddress(address),
+};
+kovanNode.api = async () => {
+  const api = new API(kovanNode.node);
+  await api.init();
+  return api;
 };
 export default kovanNode;

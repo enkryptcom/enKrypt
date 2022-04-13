@@ -1,5 +1,6 @@
 import { SignerType } from "@enkryptcom/types";
 import { toChecksumAddress } from "ethereumjs-util";
+import API from "../libs/api";
 import { EthereumNodeType } from "../types";
 const ethNode: EthereumNodeType = {
   name: "ETH",
@@ -15,5 +16,10 @@ const ethNode: EthereumNodeType = {
   signer: [SignerType.secp256k1],
   gradient: "#8247E5",
   displayAddress: (address: string) => toChecksumAddress(address),
+};
+ethNode.api = async () => {
+  const api = new API(ethNode.node);
+  await api.init();
+  return api;
 };
 export default ethNode;

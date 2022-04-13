@@ -51,4 +51,7 @@ export interface PolkadotNodeType extends NodeType {
   decimals: number;
 }
 
+export interface PolkadotAPIOptions {
+  decimals: number;
+}
 export { InjectedProvider };

@@ -1,5 +1,6 @@
 import { SignerType } from "@enkryptcom/types";
 import { toChecksumAddress } from "ethereumjs-util";
+import API from "../libs/api";
 import { EthereumNodeType } from "../types";
 const maticNode: EthereumNodeType = {
   name: "MATIC",
@@ -15,5 +16,10 @@ const maticNode: EthereumNodeType = {
   signer: [SignerType.secp256k1],
   gradient: "#53CBC9",
   displayAddress: (address: string) => toChecksumAddress(address),
+};
+maticNode.api = async () => {
+  const api = new API(maticNode.node);
+  await api.init();
+  return api;
 };
 export default maticNode;

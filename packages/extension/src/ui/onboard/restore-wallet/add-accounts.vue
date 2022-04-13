@@ -25,11 +25,10 @@
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 import SelectAccountItem from "@action/components/select-account-item/index.vue";
 import BaseButton from "@action/components/base-button/index.vue";
-import { accountsActive } from "@action/types/mock";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
-
+const accountsActive: any[] = [];
 const settings = {
   suppressScrollY: false,
   suppressScrollX: true,
