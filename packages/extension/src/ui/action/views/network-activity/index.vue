@@ -7,7 +7,7 @@
       <div class="network-activity">
         <network-activity-total
           :crypto-amount="totalValues.cryptoAmount"
-          :amount="totalValues.fiatAmount"
+          :fiat-amount="totalValues.fiatAmount"
           :symbol="props.network.currencyName"
         />
 

@@ -33,76 +33,17 @@ export default {
 import AddNetworkHeader from "./components/add-network-header.vue";
 import AddNetworkItem from "./components/add-network-item.vue";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
-
+import { getAllNetworks } from "@/libs/utils/networks";
 const settings = {
   suppressScrollY: false,
   suppressScrollX: true,
   wheelPropagation: false,
 };
-const popular = [
-  {
-    id: 1,
-    title: "Ethereum",
-    image: require("@/ui/action/icons/raw/eth-logo.png"),
-  },
-  {
-    id: 2,
-    title: "Polygon",
-    image: require("@/ui/action/icons/raw/polygon-logo.png"),
-  },
-  {
-    id: 3,
-    title: "Polkadot",
-    image: require("@/ui/action/icons/raw/polkadot.png"),
-  },
-  {
-    id: 4,
-    title: "Moonbeam",
-    image: require("@/ui/action/icons/raw/moonbeam.png"),
-  },
-];
-const all = [
-  {
-    id: 1,
-    title: "Ethereum",
-    image: require("@/ui/action/icons/raw/eth-logo.png"),
-  },
-  {
-    id: 2,
-    title: "Polygon",
-    image: require("@/ui/action/icons/raw/polygon-logo.png"),
-  },
-  {
-    id: 3,
-    title: "Polkadot",
-    image: require("@/ui/action/icons/raw/polkadot.png"),
-  },
-  {
-    id: 4,
-    title: "Moonbeam",
-    image: require("@/ui/action/icons/raw/moonbeam.png"),
-  },
-  {
-    id: 1,
-    title: "Ethereum",
-    image: require("@/ui/action/icons/raw/eth-logo.png"),
-  },
-  {
-    id: 2,
-    title: "Polygon",
-    image: require("@/ui/action/icons/raw/polygon-logo.png"),
-  },
-  {
-    id: 3,
-    title: "Polkadot",
-    image: require("@/ui/action/icons/raw/polkadot.png"),
-  },
-  {
-    id: 4,
-    title: "Moonbeam",
-    image: require("@/ui/action/icons/raw/moonbeam.png"),
-  },
-];
+const popularNames = ["ETH", "MATIC", "DOT", "GLMR"];
+const popular = getAllNetworks().filter((net) =>
+  popularNames.includes(net.name)
+);
+const all = getAllNetworks();
 </script>
 
 <style lang="less" scoped>
