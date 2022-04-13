@@ -38,6 +38,7 @@
       <accounts-header
         :account-info="accountHeaderData"
         :network="currentNetwork"
+        @address-changed="onSelectedAddressChanged"
       />
       <router-view v-slot="{ Component }" name="view">
         <transition :name="transitionName" mode="out-in">
@@ -75,6 +76,7 @@ import TabState from "@/libs/tab-state";
 import { getOtherSigners } from "@/libs/utils/accounts";
 import { AccountsHeaderData } from "./types/account";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
+import { KeyRecord } from "@enkryptcom/types";
 
 const tabstate = new TabState();
 const appMenuRef = ref(null);
@@ -119,7 +121,12 @@ const setNetwork = async (network: NodeType) => {
   const inactiveAccounts = await kr.getAccounts(
     getOtherSigners(network.signer)
   );
-  const selectedAccount = activeAccounts[0];
+  const selectedAddress = await tabstate.getSelectedAddress();
+  let selectedAccount = activeAccounts[0];
+  if (selectedAddress) {
+    const found = activeAccounts.find((acc) => acc.address === selectedAddress);
+    if (found) selectedAccount = found;
+  }
   accountHeaderData.value = {
     activeAccounts,
     inactiveAccounts,
@@ -147,7 +154,10 @@ const setNetwork = async (network: NodeType) => {
 const addNetwork = () => {
   router.push({ name: "add-network" });
 };
-
+const onSelectedAddressChanged = async (newAccount: KeyRecord) => {
+  accountHeaderData.value.selectedAccount = newAccount;
+  await tabstate.setSelectedAddress(newAccount.address);
+};
 const openCreate = () => {
   const windowPromise = new WindowPromise();
   windowPromise

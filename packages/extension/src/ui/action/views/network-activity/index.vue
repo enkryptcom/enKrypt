@@ -4,11 +4,11 @@
       class="network-activity__scroll-area"
       :settings="settings"
     >
-      <div v-if="!!selected" class="network-activity">
+      <div class="network-activity">
         <network-activity-total
-          :crypto-amount="props.accountInfo.activeBalances[0]"
-          :amount="total.amount"
-          :symbol="total.symbol"
+          :crypto-amount="totalValues.cryptoAmount"
+          :amount="totalValues.fiatAmount"
+          :symbol="props.network.currencyName"
         />
 
         <network-activity-action
@@ -43,17 +43,15 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { useRoute } from "vue-router";
 import NetworkActivityTotal from "./components/network-activity-total.vue";
 import NetworkActivityAction from "./components/network-activity-action.vue";
 import NetworkActivityTransaction from "./components/network-activity-transaction.vue";
 import { transactionsOne, transactionsTwo } from "@action/types/mock";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
-import { PropType } from "vue";
+import { PropType, computed } from "vue";
 import { NodeType } from "@/types/provider";
 import { AccountsHeaderData } from "../../types/account";
 
-const route = useRoute();
 const props = defineProps({
   network: {
     type: Object as PropType<NodeType>,
@@ -64,12 +62,20 @@ const props = defineProps({
     default: () => ({}),
   },
 });
-const selected: string = route.params.id as string;
-const total = {
-  cryptoAmount: props.accountInfo.activeBalances[0] || 0,
-  amount: 3245.24,
-  symbol: "dot",
-};
+
+const totalValues = computed(() => {
+  const selectedAccountIdx = props.accountInfo.activeAccounts.findIndex(
+    (acc) => acc.address === props.accountInfo.selectedAccount?.address
+  );
+  let balance = "0";
+  if (selectedAccountIdx > -1) {
+    balance = props.accountInfo.activeBalances[selectedAccountIdx];
+  }
+  return {
+    cryptoAmount: balance,
+    fiatAmount: 3245.24,
+  };
+});
 const settings = {
   suppressScrollY: false,
   suppressScrollX: true,

@@ -14,6 +14,7 @@
       :account-info="accountInfo"
       :show-accounts="showAccounts"
       :toggle="toggleAccounts"
+      v-bind="$attrs"
     />
 
     <deposit

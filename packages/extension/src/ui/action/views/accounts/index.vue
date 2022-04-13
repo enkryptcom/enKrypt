@@ -46,12 +46,16 @@ import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 import { AccountsHeaderData } from "../../types/account";
 import { PropType } from "vue";
 import { NodeType } from "@/types/provider";
+import { KeyRecord } from "@enkryptcom/types";
 
 const settings = {
   suppressScrollY: false,
   suppressScrollX: true,
   wheelPropagation: false,
 };
+const emit = defineEmits<{
+  (e: "addressChanged", account: KeyRecord): void;
+}>();
 
 const props = defineProps({
   network: {
@@ -74,7 +78,13 @@ const close = () => {
     props.toggle();
   }, 150);
 };
-const selectAccount = (account: string) => {
+const selectAccount = (address: string) => {
+  for (const acc of props.accountInfo.activeAccounts) {
+    if (props.network.displayAddress(acc.address) === address) {
+      emit("addressChanged", acc);
+      break;
+    }
+  }
   setTimeout(() => {
     props.toggle();
   }, 150);
