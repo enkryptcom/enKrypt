@@ -22,16 +22,18 @@ class EthereumProvider
   namespace: string;
   KeyRing: PublicKeyRing;
   UIRoutes = UIRoutes;
+  toWindow: (message: string) => void;
   constructor(
     toWindow: (message: string) => void,
     network: EthereumNodeType = Networks.ethereum
   ) {
     super();
     this.network = network;
+    this.toWindow = toWindow;
     this.setMiddleWares();
     this.requestProvider = getRequestProvider(network.node, this.middlewares);
     this.requestProvider.on("notification", (notif: any) => {
-      toWindow(JSON.stringify(notif));
+      this.sendNotification(JSON.stringify(notif));
     });
     this.namespace = ProviderName.ethereum;
     this.KeyRing = new PublicKeyRing();
@@ -46,6 +48,9 @@ class EthereumProvider
   async isPersistentEvent(request: ProviderRPCRequest): Promise<boolean> {
     if (request.method === "eth_subscribe") return true;
     return false;
+  }
+  async sendNotification(notif: string): Promise<void> {
+    return this.toWindow(notif);
   }
   request(request: ProviderRPCRequest): Promise<OnMessageResponse> {
     return this.requestProvider

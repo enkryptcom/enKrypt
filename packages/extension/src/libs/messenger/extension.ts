@@ -12,6 +12,7 @@ import {
   SendMessage,
   InternalMessageType,
   InternalOnMessageResponse,
+  ActionSendMessage,
 } from "@/types/messenger";
 import { OnMessageResponse } from "@enkryptcom/types";
 import { assert } from "chai";
@@ -36,6 +37,16 @@ export const sendToBackgroundFromNewWindow = (
 ): Promise<InternalOnMessageResponse> => {
   return sendMessage(
     MessageType.NEWWINDOW_REQUEST,
+    message,
+    Destination.background
+  ).then((res) => res as unknown as InternalOnMessageResponse);
+};
+
+export const sendToBackgroundFromAction = (
+  message: ActionSendMessage
+): Promise<InternalOnMessageResponse> => {
+  return sendMessage(
+    MessageType.ACTION_REQUEST,
     message,
     Destination.background
   ).then((res) => res as unknown as InternalOnMessageResponse);
@@ -80,6 +91,15 @@ export const backgroundOnMessageFromNewWindow = (
       message.sender.context === "new-window",
       "Message didnt come from new-window"
     );
+    return cb(message);
+  });
+};
+
+export const backgroundOnMessageFromAction = (
+  cb: InternalMessageType
+): void => {
+  backgroundOnMessage(MessageType.ACTION_REQUEST, async (message) => {
+    assert(message.sender.context === "popup", "Message didnt come from popup");
     return cb(message);
   });
 };

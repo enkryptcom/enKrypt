@@ -1,4 +1,5 @@
 import {
+  ActionSendMessage,
   InternalMethods,
   InternalOnMessageResponse,
   Message,
@@ -53,19 +54,21 @@ class BackgroundHandler {
   async init(): Promise<void> {
     const allPersistentEvents = await this.#persistentEvents.getAllEvents();
     const tabs = Object.keys(allPersistentEvents).map((s) => parseInt(s));
+    const persistentEventPromises: Promise<void>[] = [];
     tabs.forEach((tab) => {
-      Browser.tabs
+      const tabPromise = Browser.tabs
         .get(tab)
         .then(() => {
+          const eventPromises: Promise<OnMessageResponse | undefined>[] = [];
           allPersistentEvents[tab].forEach((persistentEvent) => {
-            this.externalHandler(persistentEvent.event, {
+            const promise = this.externalHandler(persistentEvent.event, {
               savePersistentEvents: false,
             }).then((newResponse) => {
               if (
                 !newResponse.error &&
                 newResponse.result !== persistentEvent.response.result
               ) {
-                sendToWindow(
+                return sendToWindow(
                   {
                     provider: persistentEvent.event.provider,
                     message: JSON.stringify({
@@ -81,12 +84,16 @@ class BackgroundHandler {
                 );
               }
             });
+            eventPromises.push(promise);
           });
+          return Promise.all(eventPromises);
         })
         .catch(() => {
           this.#persistentEvents.deleteEvents(tab);
         });
+      persistentEventPromises.push(tabPromise as any);
     });
+    await Promise.all(persistentEventPromises);
   }
   async externalHandler(
     msg: Message,
@@ -187,6 +194,22 @@ class BackgroundHandler {
     } else {
       return Promise.resolve({
         error: getCustomError(`background: unknown method: ${message.method}`),
+      });
+    }
+  }
+  actionHandler(msg: Message): Promise<InternalOnMessageResponse> {
+    const actionMsg = msg as any as ActionSendMessage;
+    console.log(actionMsg.message, actionMsg.tabId);
+    if (this.#tabProviders[actionMsg.provider][actionMsg.tabId]) {
+      this.#tabProviders[actionMsg.provider][actionMsg.tabId].sendNotification(
+        actionMsg.message
+      );
+      return Promise.resolve({
+        result: JSON.stringify(true),
+      });
+    } else {
+      return Promise.resolve({
+        result: JSON.stringify(false),
       });
     }
   }
