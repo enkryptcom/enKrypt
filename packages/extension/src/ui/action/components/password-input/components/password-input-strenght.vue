@@ -93,6 +93,7 @@ export default {
 import { onUpdated, ref } from "vue";
 import HelpIcon from "@action/icons/password/help-icon.vue";
 import { PasswordStrength } from "@action/types/password";
+import zxcvbn from "zxcvbn";
 
 let length = ref(2);
 let strenght = ref(PasswordStrength.veryWeak);
@@ -108,23 +109,23 @@ const props = defineProps({
 });
 
 onUpdated(() => {
-  testPassword(props.value);
+  testPassword(zxcvbn(props.value));
 });
 
-const testPassword = (password: string) => {
-  if (password.length > 7) {
+const testPassword = (password: { password: string; score: number }) => {
+  if (password.score === 4) {
     length.value = 100;
     strenght.value = PasswordStrength.veryStrong;
-  } else if (password.length > 6) {
+  } else if (password.score === 3) {
     length.value = 84;
     strenght.value = PasswordStrength.strong;
-  } else if (password.length > 5) {
+  } else if (password.score === 2) {
     length.value = 42;
     strenght.value = PasswordStrength.medium;
-  } else if (password.length > 4) {
+  } else if (password.score === 1) {
     length.value = 21;
     strenght.value = PasswordStrength.weak;
-  } else if (password.length > 0) {
+  } else if (password.score === 0) {
     length.value = 4;
     strenght.value = PasswordStrength.veryWeak;
   }
