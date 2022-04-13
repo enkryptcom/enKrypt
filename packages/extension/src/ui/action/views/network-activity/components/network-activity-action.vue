@@ -18,7 +18,7 @@
       <router-link
         :to="{
           name: 'send-transaction',
-          params: { networkId: !!selected ? selected : null },
+          params: { id: !!selected ? selected : null },
         }"
         class="network-activity__action-item"
       >
@@ -50,7 +50,7 @@ import { useRoute } from "vue-router";
 
 const route = useRoute();
 
-const selected = +route.params.networkId;
+const selected: string = route.params.id as string;
 
 defineProps({
   depositAction: {

@@ -8,7 +8,7 @@
         :selected="(route.params.id as string)"
         :set-network="setNetwork"
       />
-      <br /><br />
+      <br />
       <a href="javascript:void(0);" @click="openCreate()">
         to Cretate / Restore
       </a>
@@ -36,6 +36,7 @@
 
     <div class="app__content">
       <network-header
+        v-show="showNetworkMenu()"
         :selected="(route.params.id as string)"
         :account="account"
       />
@@ -48,7 +49,10 @@
       <router-view name="modal"></router-view>
       <router-view name="accounts"></router-view>
 
-      <network-menu :selected="(route.params.id as string)" />
+      <network-menu
+        v-show="showNetworkMenu()"
+        :selected="(route.params.id as string)"
+      />
     </div>
   </div>
 </template>
@@ -110,6 +114,17 @@ const openCreate = () => {
     .then(({ error }) => {
       console.log(error);
     });
+};
+
+const showNetworkMenu = () => {
+  const selected = route.params.id as string;
+  return (
+    !!selected &&
+    (route.name == "activity" ||
+      route.name == "assets" ||
+      route.name == "nfts" ||
+      route.name == "dapps")
+  );
 };
 </script>
 

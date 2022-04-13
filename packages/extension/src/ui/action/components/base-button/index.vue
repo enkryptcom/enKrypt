@@ -1,7 +1,7 @@
 <template>
   <a
     class="button"
-    :class="{ alternative: noBackground, disabled: disabled }"
+    :class="{ alternative: noBackground, disabled: disabled, gray: gray }"
     @click="click()"
   >
     {{ title }}
@@ -21,6 +21,10 @@ defineProps({
     default: "",
   },
   noBackground: {
+    type: Boolean,
+    default: false,
+  },
+  gray: {
     type: Boolean,
     default: false,
   },
@@ -56,12 +60,19 @@ defineProps({
     pointer-events: none;
     background: rgba(95, 99, 104, 0.1);
     color: rgba(0, 0, 0, 0.2);
+    box-shadow: none;
   }
 
   &.alternative {
     color: @primaryLabel;
     background: transparent;
     box-shadow: none;
+  }
+
+  &.gray {
+    background: @buttonBg;
+    box-shadow: none;
+    color: @primaryLabel;
   }
 }
 </style>

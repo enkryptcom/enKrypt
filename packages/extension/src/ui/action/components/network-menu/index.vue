@@ -3,7 +3,7 @@
     <router-link
       :to="{
         name: 'assets',
-        params: { networkId: !!selected ? selected : null },
+        params: { id: !!selected ? selected : null },
       }"
     >
       <Assets /><br />Assets
@@ -11,7 +11,7 @@
     <router-link
       :to="{
         name: 'activity',
-        params: { networkId: !!selected ? selected : null },
+        params: { id: !!selected ? selected : null },
       }"
     >
       <Activity /><br />Activity
@@ -19,7 +19,7 @@
     <router-link
       :to="{
         name: 'nfts',
-        params: { networkId: !!selected ? selected : null },
+        params: { id: !!selected ? selected : null },
       }"
     >
       <NFTs /><br />NFTs
@@ -27,7 +27,7 @@
     <router-link
       :to="{
         name: 'dapps',
-        params: { networkId: !!selected ? selected : null },
+        params: { id: !!selected ? selected : null },
       }"
     >
       <DApps /><br />DApps
