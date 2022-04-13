@@ -78,7 +78,7 @@ import { AccountsHeaderData } from "./types/account";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
 import { KeyRecord } from "@enkryptcom/types";
 import { sendToBackgroundFromAction } from "@/libs/messenger/extension";
-import { MessageMethod } from "@/providers/ethereum/types";
+import { EthereumNodeType, MessageMethod } from "@/providers/ethereum/types";
 
 const tabstate = new TabState();
 const appMenuRef = ref(null);
@@ -136,6 +136,16 @@ const setNetwork = async (network: NodeType) => {
     activeBalances: activeAccounts.map(() => "~"),
   };
   currentNetwork.value = network;
+  if ((currentNetwork.value as EthereumNodeType).chainID) {
+    await sendToBackgroundFromAction({
+      message: JSON.stringify({
+        method: MessageMethod.changeChainId,
+        params: [(currentNetwork.value as EthereumNodeType).chainID],
+      }),
+      provider: currentNetwork.value.provider,
+      tabId: await tabstate.getCurrentTabId(),
+    });
+  }
   router.push({ name: "activity", params: { id: network.name } });
   tabstate.setSelectedNetwork(network.name);
   if (network.api) {
