@@ -16,6 +16,20 @@
           v-show="!!selectedNetwork"
           :network="selectedNetwork"
         ></verify-transaction-network>
+        <verify-transaction-account
+          name="My personal account"
+          address="0x14502CF6C0A13167Dc2D0E25Dabf5FBDB68C2967"
+          :from="true"
+        ></verify-transaction-account>
+        <verify-transaction-account
+          address="0x1FBa2e3B8B2303B2a22AA8A8202Fee3a183B2ED"
+        ></verify-transaction-account>
+        <verify-transaction-amount :token="ethereum" :amount="1.5">
+        </verify-transaction-amount>
+        <verify-transaction-fee
+          :fee="recommendedFee"
+          :amount="1.5"
+        ></verify-transaction-fee>
       </div>
 
       <div class="verify-transaction__buttons">
@@ -27,6 +41,8 @@
         </div>
       </div>
     </div>
+
+    <send-process v-show="isProcessing"></send-process>
   </div>
 </template>
 
@@ -42,9 +58,14 @@ import { useRoute, useRouter } from "vue-router";
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import VerifyTransactionNetwork from "./components/verify-transaction-network.vue";
+import VerifyTransactionAccount from "./components/verify-transaction-account.vue";
+import VerifyTransactionAmount from "./components/verify-transaction-amount.vue";
+import VerifyTransactionFee from "./components/verify-transaction-fee.vue";
+import SendProcess from "@action/views/send-process/index.vue";
 import TabState from "@/libs/tab-state";
 import { NodeType } from "@/types/provider";
 import { getAllNetworks } from "@/libs/utils/networks";
+import { ethereum, recommendedFee } from "@action/types/mock";
 
 const tabstate = new TabState();
 const route = useRoute();
@@ -53,6 +74,7 @@ const networks: NodeType[] = getAllNetworks();
 
 const selected: string = route.params.id as string;
 let selectedNetwork = ref(undefined);
+let isProcessing = ref(false);
 defineExpose({ selectedNetwork });
 
 onMounted(async () => {
@@ -69,7 +91,15 @@ const close = () => {
 };
 
 const sendAction = () => {
-  console.log("sendAction");
+  isProcessing.value = true;
+
+  setTimeout(() => {
+    isProcessing.value = false;
+  }, 4000);
+
+  setTimeout(() => {
+    router.go(-2);
+  }, 4500);
 };
 </script>
 

@@ -20,7 +20,19 @@
         <p>{{ fee.price.description }}</p>
       </div>
 
-      <div class="transaction-fee-item__block-amount"></div>
+      <div
+        v-show="fee.price.speed == TransactionFeeSpeed.economy"
+        class="transaction-fee-item__block-amount down"
+      >
+        -{{ $filters.currencyFormat(2.23, "USD") }}
+      </div>
+
+      <div
+        v-show="fee.price.speed != TransactionFeeSpeed.economy"
+        class="transaction-fee-item__block-amount"
+      >
+        +{{ $filters.currencyFormat(1.23, "USD") }}
+      </div>
     </div>
   </a>
 </template>
@@ -80,6 +92,7 @@ const select = () => {
   text-decoration: none;
   padding: 4px 8px;
   box-sizing: border-box;
+  position: relative;
 
   &__block {
     display: flex;
@@ -89,10 +102,6 @@ const select = () => {
     height: 80px;
     border-radius: 8px;
     width: 100%;
-
-    &.active {
-      background-color: @primary01;
-    }
 
     svg {
       width: 24px;
@@ -120,6 +129,30 @@ const select = () => {
         line-height: 16px;
         color: @secondaryLabel;
         margin: 0;
+      }
+    }
+
+    &-amount {
+      font-style: normal;
+      font-weight: 400;
+      font-size: 16px;
+      line-height: 24px;
+      text-align: right;
+      color: @primary;
+      position: absolute;
+      right: 20px;
+      top: 16px;
+
+      &.down {
+        color: @secondaryLabel;
+      }
+    }
+
+    &.active {
+      background-color: @primary01;
+
+      .transaction-fee-item__block-amount {
+        display: none;
       }
     }
   }
