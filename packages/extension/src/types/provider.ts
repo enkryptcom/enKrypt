@@ -61,6 +61,7 @@ export abstract class BackgroundProviderInterface extends EventEmitter {
   abstract namespace: string;
   abstract KeyRing: PublicKeyRing;
   abstract UIRoutes: RoutesType;
+  abstract toWindow: (message: string) => void;
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   constructor(_toWindow: (message: string) => void, options: unknown) {
     super();
@@ -69,6 +70,16 @@ export abstract class BackgroundProviderInterface extends EventEmitter {
   abstract request(request: ProviderRPCRequest): Promise<OnMessageResponse>;
   abstract getUIPath(page: string): string;
   abstract isPersistentEvent(request: ProviderRPCRequest): Promise<boolean>;
+  abstract sendNotification(notif: string): Promise<void>;
+}
+
+export abstract class ProviderAPIInterface {
+  abstract node: string;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function
+  constructor(node: string, options?: unknown) {}
+  abstract init(): Promise<void>;
+  abstract getBalance(address: string): Promise<string>;
+  abstract getBaseBalance(address: string): Promise<string>;
 }
 
 export type handleIncomingMessage = (
@@ -107,6 +118,10 @@ export interface NodeType {
   isTestNetwork: boolean;
   currencyName: string;
   icon: any;
-  signer: SignerType;
+  signer: SignerType[];
   gradient: string;
+  node: string;
+  displayAddress: (address: string) => string;
+  api?: () => Promise<ProviderAPIInterface>;
+  provider: ProviderName;
 }

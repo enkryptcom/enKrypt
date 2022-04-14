@@ -35,19 +35,21 @@
     </div>
 
     <div class="app__content">
-      <network-header
+      <accounts-header
         v-show="showNetworkMenu()"
-        :selected="(route.params.id as string)"
-        :account="account"
+        :account-info="accountHeaderData"
+        :network="currentNetwork"
+        @address-changed="onSelectedAddressChanged"
       />
       <router-view v-slot="{ Component }" name="view">
         <transition :name="transitionName" mode="out-in">
-          <component :is="Component" />
+          <component
+            :is="Component"
+            :network="currentNetwork"
+            :account-info="accountHeaderData"
+          />
         </transition>
       </router-view>
-
-      <router-view name="modal"></router-view>
-      <router-view name="accounts"></router-view>
 
       <network-menu
         v-show="showNetworkMenu()"
@@ -58,55 +60,125 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, defineExpose, ref } from "vue";
+import { onMounted, ref } from "vue";
 import AppMenu from "./components/app-menu/index.vue";
 import NetworkMenu from "./components/network-menu/index.vue";
-import NetworkHeader from "./components/network-header/index.vue";
+import AccountsHeader from "./components/accounts-header/index.vue";
 import BaseSearch from "./components/base-search/index.vue";
 import LogoMin from "./icons/common/logo-min.vue";
 import AddIcon from "./icons/common/add-icon.vue";
 import SettingsIcon from "./icons/common/settings-icon.vue";
 import HoldIcon from "./icons/common/hold-icon.vue";
 import { useRouter, useRoute } from "vue-router";
-import { singleAccount } from "@action/types/mock";
-import { Account } from "@action/types/account";
 import { WindowPromise } from "@/libs/window-promise";
-import { NodeType } from "@/types/provider";
-import { getAllNetworks } from "@/libs/utils/networks";
+import { NodeType, ProviderName } from "@/types/provider";
+import { getAllNetworks, DEFAULT_NETWORK_NAME } from "@/libs/utils/networks";
 import TabState from "@/libs/tab-state";
+import { getOtherSigners } from "@/libs/utils/accounts";
+import { AccountsHeaderData } from "./types/account";
+import PublicKeyRing from "@/libs/keyring/public-keyring";
+import { KeyRecord } from "@enkryptcom/types";
+import { sendToBackgroundFromAction } from "@/libs/messenger/extension";
+import { EthereumNodeType, MessageMethod } from "@/providers/ethereum/types";
 
 const tabstate = new TabState();
 const appMenuRef = ref(null);
-const networkGradient = ref();
+const networkGradient = ref("");
+const accountHeaderData = ref<AccountsHeaderData>({
+  activeAccounts: [],
+  inactiveAccounts: [],
+  selectedAccount: null,
+  activeBalances: [],
+});
 defineExpose({ appMenuRef });
 const router = useRouter();
 const route = useRoute();
 const transitionName = "fade";
-const account: Account = singleAccount;
-const networks: NodeType[] = getAllNetworks();
+const networks: NodeType[] = getAllNetworks().filter(
+  (net) => !net.isTestNetwork //hide testnetworks for now
+);
+const defaultNetwork = networks.find(
+  (net) => net.name === DEFAULT_NETWORK_NAME
+) as NodeType;
+const currentNetwork = ref<NodeType>(defaultNetwork);
+const kr = new PublicKeyRing();
 
 onMounted(async () => {
   const curNetwork = await tabstate.getSelectedNetWork();
   if (curNetwork) {
-    setNetwork(networks.find((net) => net.name === curNetwork) as NodeType);
+    const savedNetwork = networks.find((net) => net.name === curNetwork);
+    if (savedNetwork) setNetwork(savedNetwork);
+    else setNetwork(defaultNetwork);
   } else {
-    setNetwork(networks.find((net) => net.name === "ETH") as NodeType);
+    setNetwork(defaultNetwork);
   }
 });
-const setNetwork = (network: NodeType) => {
-  //hack may be there is a better way less.modifyVars doesnt work
+const setNetwork = async (network: NodeType) => {
+  //hack may be there is a better way. less.modifyVars doesnt work
   if (appMenuRef.value)
     (
       appMenuRef.value as HTMLElement
     ).style.background = `radial-gradient(100% 50% at 100% 50%, rgba(250, 250, 250, 0.92) 0%, rgba(250, 250, 250, 0.98) 100%), ${network.gradient}`;
   networkGradient.value = network.gradient;
-  tabstate.setSelectedNetwork(network.name);
+  const activeAccounts = await kr.getAccounts(network.signer);
+  const inactiveAccounts = await kr.getAccounts(
+    getOtherSigners(network.signer)
+  );
+  const selectedAddress = await tabstate.getSelectedAddress();
+  let selectedAccount = activeAccounts[0];
+  if (selectedAddress) {
+    const found = activeAccounts.find((acc) => acc.address === selectedAddress);
+    if (found) selectedAccount = found;
+  }
+  accountHeaderData.value = {
+    activeAccounts,
+    inactiveAccounts,
+    selectedAccount,
+    activeBalances: activeAccounts.map(() => "~"),
+  };
+  currentNetwork.value = network;
+  if ((currentNetwork.value as EthereumNodeType).chainID) {
+    await sendToBackgroundFromAction({
+      message: JSON.stringify({
+        method: MessageMethod.changeChainId,
+        params: [(currentNetwork.value as EthereumNodeType).chainID],
+      }),
+      provider: currentNetwork.value.provider,
+      tabId: await tabstate.getCurrentTabId(),
+    });
+  }
   router.push({ name: "activity", params: { id: network.name } });
+  tabstate.setSelectedNetwork(network.name);
+  if (network.api) {
+    try {
+      const api = await network.api();
+      const activeBalancePromises = activeAccounts.map((acc) =>
+        api.getBaseBalance(acc.address)
+      );
+      Promise.all(activeBalancePromises).then((balances) => {
+        console.log(balances);
+        accountHeaderData.value.activeBalances = balances;
+      });
+    } catch (e) {
+      console.log(e);
+    }
+  }
 };
 const addNetwork = () => {
   router.push({ name: "add-network" });
 };
-
+const onSelectedAddressChanged = async (newAccount: KeyRecord) => {
+  accountHeaderData.value.selectedAccount = newAccount;
+  await tabstate.setSelectedAddress(newAccount.address);
+  await sendToBackgroundFromAction({
+    message: JSON.stringify({
+      method: MessageMethod.changeAddress,
+      params: [newAccount.address],
+    }),
+    provider: currentNetwork.value.provider,
+    tabId: await tabstate.getCurrentTabId(),
+  });
+};
 const openCreate = () => {
   const windowPromise = new WindowPromise();
   windowPromise

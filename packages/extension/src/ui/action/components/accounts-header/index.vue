@@ -1,19 +1,25 @@
 <template>
   <div class="network-header">
-    <network-header-account
-      v-if="!!account"
-      :name="account.name"
-      :address="account.address"
+    <accounts-header-account
+      v-if="!!accountInfo.selectedAccount"
+      :name="accountInfo.selectedAccount.name"
+      :address="network.displayAddress(accountInfo.selectedAccount.address)"
       :toggle-accounts="toggleAccounts"
       :toggle-deposit="toggleDeposit"
       :active="showAccounts"
-    ></network-header-account>
+    ></accounts-header-account>
 
-    <accounts-list :show-accounts="showAccounts" :toggle="toggleAccounts" />
+    <accounts-list
+      :network="network"
+      :account-info="accountInfo"
+      :show-accounts="showAccounts"
+      :toggle="toggleAccounts"
+      v-bind="$attrs"
+    />
 
     <deposit
-      v-if="!!account"
-      :account="account"
+      v-if="!!accountInfo.selectedAccount"
+      :account="accountInfo.selectedAccount"
       :show-deposit="showDeposit"
       :toggle="toggleDeposit"
     />
@@ -27,32 +33,30 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { PropType, onMounted, ref } from "vue";
-import { Account } from "@action/types/account";
-import NetworkHeaderAccount from "./components/network-header-account.vue";
+import { onMounted, ref, PropType } from "vue";
+import AccountsHeaderAccount from "./components/header-accounts.vue";
 import AccountsList from "@action/views/accounts/index.vue";
 import Deposit from "@action/views/deposit/index.vue";
 import { useRouter } from "vue-router";
-
+import type { AccountsHeaderData } from "@action/types/account";
+import { NodeType } from "@/types/provider";
 const router = useRouter();
 
 let showAccounts = ref(false);
 let showDeposit = ref(false);
 
 defineProps({
-  selected: {
-    type: String,
-    default: "",
+  network: {
+    type: Object as PropType<NodeType>,
+    default: () => ({}),
   },
-  account: {
-    type: Object as PropType<Account>,
-    default: () => {
-      return {};
-    },
+  accountInfo: {
+    type: Object as PropType<AccountsHeaderData>,
+    default: () => ({}),
   },
 });
 
-onMounted(() => {
+onMounted(async () => {
   router.beforeEach((to, from, next) => {
     showAccounts.value = false;
     next();

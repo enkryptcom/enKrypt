@@ -1,4 +1,7 @@
+import { ProviderName } from "@/types/provider";
 import { SignerType } from "@enkryptcom/types";
+import { toChecksumAddress } from "ethereumjs-util";
+import API from "../libs/api";
 import { EthereumNodeType } from "../types";
 const ropstenNode: EthereumNodeType = {
   name: "ROP",
@@ -11,7 +14,14 @@ const ropstenNode: EthereumNodeType = {
   currencyName: "ROP",
   node: "wss://nodes.mewapi.io/ws/rop",
   icon: require("./icons/eth.svg"),
-  signer: SignerType.secp256k1,
+  signer: [SignerType.secp256k1],
   gradient: "#E6007A",
+  displayAddress: (address: string) => toChecksumAddress(address),
+  provider: ProviderName.ethereum,
+};
+ropstenNode.api = async () => {
+  const api = new API(ropstenNode.node);
+  await api.init();
+  return api;
 };
 export default ropstenNode;

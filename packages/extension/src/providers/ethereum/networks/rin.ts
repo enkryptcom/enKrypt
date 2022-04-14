@@ -1,4 +1,7 @@
+import { ProviderName } from "@/types/provider";
 import { SignerType } from "@enkryptcom/types";
+import { toChecksumAddress } from "ethereumjs-util";
+import API from "../libs/api";
 import { EthereumNodeType } from "../types";
 const rinkebyNode: EthereumNodeType = {
   name: "RIN",
@@ -11,7 +14,14 @@ const rinkebyNode: EthereumNodeType = {
   currencyName: "RIN",
   node: "wss://nodes.mewapi.io/ws/rinkeby",
   icon: require("./icons/eth.svg"),
-  signer: SignerType.secp256k1,
+  signer: [SignerType.secp256k1],
   gradient: "#C4C4C4",
+  displayAddress: (address: string) => toChecksumAddress(address),
+  provider: ProviderName.ethereum,
+};
+rinkebyNode.api = async () => {
+  const api = new API(rinkebyNode.node);
+  await api.init();
+  return api;
 };
 export default rinkebyNode;

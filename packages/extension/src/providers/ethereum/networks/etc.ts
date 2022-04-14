@@ -1,4 +1,7 @@
+import { ProviderName } from "@/types/provider";
 import { SignerType } from "@enkryptcom/types";
+import { toChecksumAddress } from "ethereumjs-util";
+import API from "../libs/api";
 import { EthereumNodeType } from "../types";
 const etcNode: EthereumNodeType = {
   name: "ETC",
@@ -11,7 +14,14 @@ const etcNode: EthereumNodeType = {
   currencyName: "ETC",
   node: "wss://www.ethercluster.com/ws-etc",
   icon: require("./icons/etc.svg"),
-  signer: SignerType.secp256k1,
+  signer: [SignerType.secp256k1],
   gradient: "#53CBC9",
+  displayAddress: (address: string) => toChecksumAddress(address),
+  provider: ProviderName.ethereum,
+};
+etcNode.api = async () => {
+  const api = new API(etcNode.node);
+  await api.init();
+  return api;
 };
 export default etcNode;

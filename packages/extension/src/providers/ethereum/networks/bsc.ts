@@ -1,4 +1,7 @@
+import { ProviderName } from "@/types/provider";
 import { SignerType } from "@enkryptcom/types";
+import { toChecksumAddress } from "ethereumjs-util";
+import API from "../libs/api";
 import { EthereumNodeType } from "../types";
 const bscNode: EthereumNodeType = {
   name: "BSC",
@@ -11,7 +14,14 @@ const bscNode: EthereumNodeType = {
   currencyName: "BNB",
   node: "wss://nodes.mewapi.io/ws/bsc",
   icon: require("./icons/bsc.svg"),
-  signer: SignerType.secp256k1,
+  signer: [SignerType.secp256k1],
   gradient: "#E6007A",
+  displayAddress: (address: string) => toChecksumAddress(address),
+  provider: ProviderName.ethereum,
+};
+bscNode.api = async () => {
+  const api = new API(bscNode.node);
+  await api.init();
+  return api;
 };
 export default bscNode;

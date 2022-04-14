@@ -5,6 +5,7 @@ import type { OnMessageResponse, ProviderError } from "@enkryptcom/types";
 export enum MessageType {
   WINDOW_REQUEST = "enkrypt_window_request",
   NEWWINDOW_REQUEST = "enkrypt_new_window_request",
+  ACTION_REQUEST = "enkrypt_action_request",
 }
 export enum Destination {
   contentScript = "content-script",
@@ -23,6 +24,12 @@ export interface SendMessage {
   [key: string]: any;
   provider: ProviderName;
   message: string;
+}
+export interface ActionSendMessage {
+  [key: string]: any;
+  provider: ProviderName;
+  message: string;
+  tabId: number;
 }
 export interface Message extends SendMessage {
   sender: Endpoint;

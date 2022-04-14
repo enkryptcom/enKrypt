@@ -19,12 +19,14 @@ class PolkadotProvider
   namespace: string;
   KeyRing: PublicKeyRing;
   UIRoutes = UIRoutes;
+  toWindow: (message: string) => void;
   constructor(toWindow: (message: string) => void) {
     super();
     this.setMiddleWares();
     this.requestProvider = getRequestProvider("", this.middlewares);
+    this.toWindow = toWindow;
     this.requestProvider.on("notification", (notif: any) => {
-      toWindow(JSON.stringify(notif));
+      this.sendNotification(JSON.stringify(notif));
     });
     this.namespace = ProviderName.polkadot;
     this.KeyRing = new PublicKeyRing();
@@ -48,6 +50,9 @@ class PolkadotProvider
           error: JSON.stringify(e.message),
         };
       });
+  }
+  async sendNotification(notif: string): Promise<void> {
+    return this.toWindow(notif);
   }
   async isPersistentEvent(): Promise<boolean> {
     return false;

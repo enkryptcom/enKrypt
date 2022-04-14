@@ -35,8 +35,8 @@ defineProps({
     default: "",
   },
   amount: {
-    type: Number,
-    default: 0,
+    type: String,
+    default: "",
   },
   symbol: {
     type: String,

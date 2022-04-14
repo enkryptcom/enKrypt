@@ -46,9 +46,8 @@ export interface EthereumRequest {
 }
 
 export interface EthereumNodeType extends NodeType {
-  signer: SignerType.secp256k1;
+  signer: [SignerType.secp256k1];
   chainID: number;
-  node: string;
 }
 
 export { InjectedProvider };

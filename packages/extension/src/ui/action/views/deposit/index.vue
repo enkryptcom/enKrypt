@@ -1,7 +1,7 @@
 <template>
   <div class="deposit" :class="{ show: showDeposit }">
     <div class="deposit__wrap" :class="{ show: showDeposit }">
-      <a class="deposit__close" @click="(toggle as (e: MouseEvent)=>void)">
+      <a class="deposit__close" @click="(toggle as ()=>void)">
         <close-icon />
       </a>
 
@@ -40,11 +40,11 @@ export default {
 import { PropType } from "vue";
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import CopyIcon from "@action/icons/header/copy_icon.vue";
-import { Account } from "@action/types/account";
+import { KeyRecord } from "@enkryptcom/types";
 
 defineProps({
   account: {
-    type: Object as PropType<Account>,
+    type: Object as PropType<KeyRecord>,
     default: () => {
       return {};
     },

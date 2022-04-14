@@ -40,10 +40,18 @@ export interface InjectLibOptions {
   id: number;
 }
 
+export type PolkadotSignerTypes =
+  | SignerType.ecdsa
+  | SignerType.ed25519
+  | SignerType.sr25519;
+
 export interface PolkadotNodeType extends NodeType {
-  signer: SignerType.ecdsa | SignerType.ed25519 | SignerType.sr25519;
+  signer: PolkadotSignerTypes[];
   prefix: number;
   decimals: number;
 }
 
+export interface PolkadotAPIOptions {
+  decimals: number;
+}
 export { InjectedProvider };
