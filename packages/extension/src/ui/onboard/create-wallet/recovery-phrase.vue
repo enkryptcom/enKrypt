@@ -12,35 +12,67 @@
 
     <div class="recovery-phrase__wrap">
       <div class="recovery-phrase__block">
-        <div class="recovery-phrase__item"><span>1</span> witch</div>
-        <div class="recovery-phrase__item"><span>2</span> collapse</div>
-        <div class="recovery-phrase__item"><span>3</span> practice</div>
-        <div class="recovery-phrase__item"><span>4</span> feed</div>
-        <div class="recovery-phrase__item"><span>5</span> shame</div>
-        <div class="recovery-phrase__item"><span>6</span> open</div>
+        <div
+          v-for="(phrase, index) in firstSet"
+          :key="index"
+          class="recovery-phrase__item"
+        >
+          <span>{{ index + 1 }}</span> {{ phrase }}
+        </div>
       </div>
 
       <div class="recovery-phrase__block">
-        <div class="recovery-phrase__item"><span>7</span> despair</div>
-        <div class="recovery-phrase__item"><span>8</span> creek</div>
-        <div class="recovery-phrase__item"><span>9</span> road</div>
-        <div class="recovery-phrase__item"><span>10</span> again</div>
-        <div class="recovery-phrase__item"><span>11</span> ice</div>
-        <div class="recovery-phrase__item"><span>12</span> least</div>
+        <div
+          v-for="(phrase, index) in secondSet"
+          :key="index"
+          class="recovery-phrase__item"
+        >
+          <span>{{ index + 7 }}</span> {{ phrase }}
+        </div>
       </div>
     </div>
-
     <base-button title="Next" :click="nextAction" />
   </div>
 </template>
 <script setup lang="ts">
 import BaseButton from "@action/components/base-button/index.vue";
+import KeyStore from "@myetherwallet/eth2-keystore";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
 
 const nextAction = () => {
   router.push({ name: "create-wallet-check-phrase", params: {} });
+};
+</script>
+
+<script lang="ts">
+export default {
+  name: "RecoveryPhrase",
+  data() {
+    return {
+      keystore: {},
+      mnemonic: [],
+    };
+  },
+  computed: {
+    firstSet() {
+      return this.mnemonic.splice(0, 6);
+    },
+    secondSet() {
+      return this.mnemonic.splice(-6);
+    },
+  },
+  mounted() {
+    this.keystore = new KeyStore();
+    this.createMnemonic();
+  },
+  methods: {
+    async createMnemonic() {
+      const mnemonic = await this.keystore.getMnemonic();
+      this.mnemonic = mnemonic.split(" ", 12);
+    },
+  },
 };
 </script>
 
