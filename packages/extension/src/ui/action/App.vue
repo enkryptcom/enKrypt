@@ -77,7 +77,8 @@ import { getOtherSigners } from "@/libs/utils/accounts";
 import { AccountsHeaderData } from "./types/account";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
 import { KeyRecord } from "@enkryptcom/types";
-
+import { sendToBackgroundFromAction } from "@/libs/messenger/extension";
+import { EthereumNodeType, MessageMethod } from "@/providers/ethereum/types";
 const tabstate = new TabState();
 const appMenuRef = ref(null);
 const networkGradient = ref("");
@@ -134,6 +135,16 @@ const setNetwork = async (network: NodeType) => {
     activeBalances: activeAccounts.map(() => "~"),
   };
   currentNetwork.value = network;
+  if ((currentNetwork.value as EthereumNodeType).chainID) {
+    await sendToBackgroundFromAction({
+      message: JSON.stringify({
+        method: MessageMethod.changeChainId,
+        params: [(currentNetwork.value as EthereumNodeType).chainID],
+      }),
+      provider: currentNetwork.value.provider,
+      tabId: await tabstate.getCurrentTabId(),
+    });
+  }
   router.push({ name: "activity", params: { id: network.name } });
   tabstate.setSelectedNetwork(network.name);
   if (network.api) {
@@ -157,6 +168,14 @@ const addNetwork = () => {
 const onSelectedAddressChanged = async (newAccount: KeyRecord) => {
   accountHeaderData.value.selectedAccount = newAccount;
   await tabstate.setSelectedAddress(newAccount.address);
+  await sendToBackgroundFromAction({
+    message: JSON.stringify({
+      method: MessageMethod.changeAddress,
+      params: [newAccount.address],
+    }),
+    provider: currentNetwork.value.provider,
+    tabId: await tabstate.getCurrentTabId(),
+  });
 };
 const openCreate = () => {
   const windowPromise = new WindowPromise();

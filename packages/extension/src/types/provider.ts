@@ -21,6 +21,7 @@ export enum InternalStorageNamespace {
   keyring = "KeyRing",
   persistentEvents = "PersistentEvents",
   tabState = "TabState",
+  marketData = "MarketData",
 }
 export enum EnkryptProviderEventMethods {
   persistentEvents = "PersistentEvents",
@@ -61,6 +62,7 @@ export abstract class BackgroundProviderInterface extends EventEmitter {
   abstract namespace: string;
   abstract KeyRing: PublicKeyRing;
   abstract UIRoutes: RoutesType;
+  abstract toWindow: (message: string) => void;
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   constructor(_toWindow: (message: string) => void, options: unknown) {
     super();
@@ -69,6 +71,7 @@ export abstract class BackgroundProviderInterface extends EventEmitter {
   abstract request(request: ProviderRPCRequest): Promise<OnMessageResponse>;
   abstract getUIPath(page: string): string;
   abstract isPersistentEvent(request: ProviderRPCRequest): Promise<boolean>;
+  abstract sendNotification(notif: string): Promise<void>;
 }
 
 export abstract class ProviderAPIInterface {
@@ -121,4 +124,6 @@ export interface NodeType {
   node: string;
   displayAddress: (address: string) => string;
   api?: () => Promise<ProviderAPIInterface>;
+  provider: ProviderName;
+  coingeckoID?: string;
 }

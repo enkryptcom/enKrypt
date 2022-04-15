@@ -1,3 +1,4 @@
+import { ProviderName } from "@/types/provider";
 import { SignerType } from "@enkryptcom/types";
 import { toChecksumAddress } from "ethereumjs-util";
 import API from "../libs/api";
@@ -16,6 +17,8 @@ const moonbeamNode: EthereumNodeType = {
   signer: [SignerType.secp256k1],
   gradient: "#8247E5",
   displayAddress: (address: string) => toChecksumAddress(address),
+  provider: ProviderName.ethereum,
+  coingeckoID: "moonbeam",
 };
 moonbeamNode.api = async () => {
   const api = new API(moonbeamNode.node);
