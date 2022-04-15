@@ -9,7 +9,7 @@
         type="text"
         placeholder="0x… address or ENS name"
         :value="isFocus ? value : $filters.replaceWithEllipsis(value, 6, 6)"
-        @input="changeValue($event.target.value)"
+        @input="changeValue"
         @focus="changeFocus"
         @blur="changeFocus"
       />
@@ -55,8 +55,8 @@ const props = defineProps({
   },
 });
 
-const changeValue = (text: string) => {
-  props.input(text);
+const changeValue = (e: any) => {
+  props.input(e.target.value);
 };
 
 const changeFocus = () => {
