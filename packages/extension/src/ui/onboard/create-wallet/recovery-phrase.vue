@@ -38,42 +38,38 @@
 import BaseButton from "@action/components/base-button/index.vue";
 import KeyStore from "@myetherwallet/eth2-keystore";
 import { useRouter } from "vue-router";
+import { reactive, onMounted, computed } from "vue";
 
 const router = useRouter();
 
-const nextAction = () => {
-  router.push({ name: "create-wallet-check-phrase", params: {} });
-};
-</script>
+let mnemonic = reactive({ phrases: [] });
 
-<script lang="ts">
-export default {
-  name: "RecoveryPhrase",
-  data() {
-    return {
-      keystore: {},
-      mnemonic: [],
-    };
-  },
-  computed: {
-    firstSet() {
-      return this.mnemonic.splice(0, 6);
-    },
-    secondSet() {
-      return this.mnemonic.splice(-6);
-    },
-  },
-  mounted() {
-    this.keystore = new KeyStore();
-    this.createMnemonic();
-  },
-  methods: {
-    async createMnemonic() {
-      const mnemonic = await this.keystore.getMnemonic();
-      this.mnemonic = mnemonic.split(" ", 12);
-    },
-  },
+const nextAction = () => {
+  router.push({
+    name: "create-wallet-check-phrase",
+    params: { mnemonic: mnemonic.phrases },
+  });
 };
+
+onMounted(() => {
+  createMnemonic();
+});
+
+const createMnemonic = () => {
+  const ks = new KeyStore();
+  const phrases = ks.mnemonic.split(" ", 12);
+  mnemonic.phrases = [...mnemonic.phrases, ...phrases];
+  mnemonic.phrases.push(...phrases);
+};
+
+const firstSet = computed(() => {
+  let copy = mnemonic.phrases;
+  return copy.splice(0, 6);
+});
+const secondSet = computed(() => {
+  let copy = mnemonic.phrases;
+  return copy.splice(0, 6);
+});
 </script>
 
 <style lang="less">
