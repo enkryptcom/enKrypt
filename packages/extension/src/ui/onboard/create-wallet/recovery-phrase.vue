@@ -36,9 +36,9 @@
 </template>
 <script setup lang="ts">
 import BaseButton from "@action/components/base-button/index.vue";
-import KeyStore from "@myetherwallet/eth2-keystore";
 import { useRouter } from "vue-router";
 import { reactive, onMounted, computed } from "vue";
+import { generateMnemonic } from "bip39";
 
 const router = useRouter();
 
@@ -56,8 +56,7 @@ onMounted(() => {
 });
 
 const createMnemonic = () => {
-  const ks = new KeyStore();
-  const phrases = ks.mnemonic.split(" ", 12);
+  const phrases = generateMnemonic(128).split(" ");
   mnemonic.phrases = [...mnemonic.phrases, ...phrases];
   mnemonic.phrases.push(...phrases);
 };
