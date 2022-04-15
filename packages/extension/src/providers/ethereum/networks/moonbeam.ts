@@ -18,6 +18,7 @@ const moonbeamNode: EthereumNodeType = {
   gradient: "#8247E5",
   displayAddress: (address: string) => toChecksumAddress(address),
   provider: ProviderName.ethereum,
+  coingeckoID: "moonbeam",
 };
 moonbeamNode.api = async () => {
   const api = new API(moonbeamNode.node);

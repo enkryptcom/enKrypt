@@ -199,7 +199,6 @@ class BackgroundHandler {
   }
   actionHandler(msg: Message): Promise<InternalOnMessageResponse> {
     const actionMsg = msg as any as ActionSendMessage;
-    console.log(actionMsg.message, actionMsg.tabId);
     if (this.#tabProviders[actionMsg.provider][actionMsg.tabId]) {
       this.#tabProviders[actionMsg.provider][actionMsg.tabId].sendNotification(
         actionMsg.message

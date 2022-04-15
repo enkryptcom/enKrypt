@@ -21,6 +21,7 @@ export enum InternalStorageNamespace {
   keyring = "KeyRing",
   persistentEvents = "PersistentEvents",
   tabState = "TabState",
+  marketData = "MarketData",
 }
 export enum EnkryptProviderEventMethods {
   persistentEvents = "PersistentEvents",
@@ -124,4 +125,5 @@ export interface NodeType {
   displayAddress: (address: string) => string;
   api?: () => Promise<ProviderAPIInterface>;
   provider: ProviderName;
+  coingeckoID?: string;
 }

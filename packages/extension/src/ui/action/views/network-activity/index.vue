@@ -6,8 +6,8 @@
     >
       <div class="network-activity">
         <network-activity-total
-          :crypto-amount="totalValues.cryptoAmount"
-          :fiat-amount="totalValues.fiatAmount"
+          :crypto-amount="cryptoAmount"
+          :fiat-amount="fiatAmount"
           :symbol="props.network.currencyName"
         />
 
@@ -48,10 +48,10 @@ import NetworkActivityAction from "./components/network-activity-action.vue";
 import NetworkActivityTransaction from "./components/network-activity-transaction.vue";
 import { transactionsOne, transactionsTwo } from "@action/types/mock";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
-import { PropType, computed } from "vue";
+import { PropType, toRef } from "vue";
 import { NodeType } from "@/types/provider";
 import { AccountsHeaderData } from "../../types/account";
-
+import accountInfo from "@action/composables/account-info";
 const props = defineProps({
   network: {
     type: Object as PropType<NodeType>,
@@ -62,20 +62,10 @@ const props = defineProps({
     default: () => ({}),
   },
 });
-
-const totalValues = computed(() => {
-  const selectedAccountIdx = props.accountInfo.activeAccounts.findIndex(
-    (acc) => acc.address === props.accountInfo.selectedAccount?.address
-  );
-  let balance = "0";
-  if (selectedAccountIdx > -1) {
-    balance = props.accountInfo.activeBalances[selectedAccountIdx];
-  }
-  return {
-    cryptoAmount: balance,
-    fiatAmount: 3245.24,
-  };
-});
+const { cryptoAmount, fiatAmount } = accountInfo(
+  toRef(props, "network"),
+  toRef(props, "accountInfo")
+);
 const settings = {
   suppressScrollY: false,
   suppressScrollX: true,

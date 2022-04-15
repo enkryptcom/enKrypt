@@ -18,6 +18,7 @@ const ethNode: EthereumNodeType = {
   gradient: "#8247E5",
   displayAddress: (address: string) => toChecksumAddress(address),
   provider: ProviderName.ethereum,
+  coingeckoID: "ethereum",
 };
 ethNode.api = async () => {
   const api = new API(ethNode.node);

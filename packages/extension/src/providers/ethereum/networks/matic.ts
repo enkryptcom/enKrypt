@@ -18,6 +18,7 @@ const maticNode: EthereumNodeType = {
   gradient: "#53CBC9",
   displayAddress: (address: string) => toChecksumAddress(address),
   provider: ProviderName.ethereum,
+  coingeckoID: "matic-network",
 };
 maticNode.api = async () => {
   const api = new API(maticNode.node);
