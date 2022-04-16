@@ -7,9 +7,12 @@
       :id="item.id"
       :key="index"
       :phrases="item.items"
+      :increment="increment"
+      :reset="reset"
+      :count="correctPhrasesChecked"
     ></check-phrase>
 
-    <base-button title="Next" :click="nextAction" />
+    <base-button title="Next" :click="nextAction" :disabled="!validate" />
   </div>
 </template>
 <script setup lang="ts">
@@ -17,7 +20,25 @@ import BaseButton from "@action/components/base-button/index.vue";
 import CheckPhrase from "@action/components/check-phrase/index.vue";
 import { useRoute, useRouter } from "vue-router";
 import { random, chunk, flattenDeep } from "lodash";
-import { ref, onMounted } from "@vue/runtime-core";
+import { ref, onMounted, computed } from "@vue/runtime-core";
+
+const correctPhrasesChecked = ref(0);
+
+const increment = () => {
+  correctPhrasesChecked.value++;
+};
+
+const reset = () => {
+  if (correctPhrasesChecked.value === 0) {
+    correctPhrasesChecked.value = 0;
+  } else {
+    correctPhrasesChecked.value--;
+  }
+};
+
+const validate = computed(() => {
+  return correctPhrasesChecked.value === 3;
+});
 
 const route = useRoute();
 const router = useRouter();

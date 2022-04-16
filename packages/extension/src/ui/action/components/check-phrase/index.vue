@@ -8,6 +8,7 @@
         :is-checked="false"
         :check="check"
         :title="phrase.title"
+        :checked="checked"
       />
     </div>
   </div>
@@ -23,8 +24,12 @@ export default {
 import { PropType } from "vue";
 import PhraseCheckbox from "@action/components/phrase-checkbox/index.vue";
 import { RecoveryPhrase } from "@action/types/phrase";
+import { ref } from "vue";
+import { find } from "lodash";
 
-defineProps({
+const checked = ref([]);
+
+const props = defineProps({
   id: {
     type: Number,
     default: 0,
@@ -37,10 +42,33 @@ defineProps({
     type: Function,
     default: () => ({}),
   },
+  increment: {
+    type: Function,
+    default: () => ({}),
+  },
+  reset: {
+    type: Function,
+    default: () => ({}),
+  },
+  count: {
+    type: Number,
+    default: 0,
+  },
 });
 
-const check = (isChecked: boolean) => {
-  console.log(isChecked);
+const check = (e: any) => {
+  checked.value = [];
+  const { title } = find(props.phrases, ["isTrue", true]);
+
+  if (e.target.checked) {
+    checked.value.push(e.target.value);
+
+    if (checked.value[0] === title) {
+      props.increment();
+    } else {
+      props.reset();
+    }
+  }
 };
 </script>
 
