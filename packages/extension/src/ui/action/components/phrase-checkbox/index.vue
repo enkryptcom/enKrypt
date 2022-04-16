@@ -13,13 +13,10 @@
   </label>
 </template>
 
-<script lang="ts">
-export default {
-  name: "PhraseCheckbox",
-};
-</script>
-
 <script setup lang="ts">
+import { PhraseCheckbox } from "@action/types/phrase-checkbox";
+import { PropType } from "vue";
+
 const props = defineProps({
   isChecked: Boolean,
   title: {
@@ -31,7 +28,7 @@ const props = defineProps({
     default: () => ({}),
   },
   checked: {
-    type: Array,
+    type: Object as PropType<Array<PhraseCheckbox>>,
     default: () => [],
   },
 });
