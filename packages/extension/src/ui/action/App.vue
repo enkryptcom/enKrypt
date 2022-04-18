@@ -71,7 +71,7 @@ import SettingsIcon from "./icons/common/settings-icon.vue";
 import HoldIcon from "./icons/common/hold-icon.vue";
 import { useRouter, useRoute } from "vue-router";
 import { WindowPromise } from "@/libs/window-promise";
-import { NodeType, ProviderName } from "@/types/provider";
+import { NodeType } from "@/types/provider";
 import { getAllNetworks, DEFAULT_NETWORK_NAME } from "@/libs/utils/networks";
 import TabState from "@/libs/tab-state";
 import { getOtherSigners } from "@/libs/utils/accounts";
@@ -80,7 +80,6 @@ import PublicKeyRing from "@/libs/keyring/public-keyring";
 import { KeyRecord } from "@enkryptcom/types";
 import { sendToBackgroundFromAction } from "@/libs/messenger/extension";
 import { EthereumNodeType, MessageMethod } from "@/providers/ethereum/types";
-
 const tabstate = new TabState();
 const appMenuRef = ref(null);
 const networkGradient = ref("");

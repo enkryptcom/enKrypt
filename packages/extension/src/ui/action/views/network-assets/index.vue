@@ -3,9 +3,9 @@
     <custom-scrollbar class="network-assets__scroll-area" :settings="settings">
       <div v-if="!!selected" class="network-assets">
         <network-activity-total
-          :crypto-amount="total.cryptoAmount"
-          :amount="total.amount"
-          :symbol="total.symbol"
+          :crypto-amount="cryptoAmount"
+          :fiat-amount="fiatAmount"
+          :symbol="network.currencyName"
         />
 
         <network-activity-action
@@ -39,14 +39,27 @@ import NetworkAssetsItem from "./components/network-assets-item.vue";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 
 import { assets } from "@action/types/mock";
-
+import { PropType, toRef } from "vue";
+import { NodeType } from "@/types/provider";
+import { AccountsHeaderData } from "../../types/account";
+import accountInfo from "@action/composables/account-info";
 const route = useRoute();
+const props = defineProps({
+  network: {
+    type: Object as PropType<NodeType>,
+    default: () => ({}),
+  },
+  accountInfo: {
+    type: Object as PropType<AccountsHeaderData>,
+    default: () => ({}),
+  },
+});
+const { cryptoAmount, fiatAmount } = accountInfo(
+  toRef(props, "network"),
+  toRef(props, "accountInfo")
+);
 const selected: string = route.params.id as string;
-const total = {
-  cryptoAmount: 63.466,
-  amount: 3245.24,
-  symbol: "dot",
-};
+
 const settings = {
   suppressScrollY: false,
   suppressScrollX: true,

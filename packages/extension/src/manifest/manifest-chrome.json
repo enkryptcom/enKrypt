@@ -41,7 +41,7 @@
       "matches": ["file://*/*", "http://*/*", "https://*/*"],
       "js": ["scripts/contentscript.js"],
       "run_at": "document_start",
-      "all_frames": true
+      "all_frames": false
     }
   ],
   "description": "Enkrypt Chrome Extension - One extension to rule them all",

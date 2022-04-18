@@ -18,6 +18,7 @@ const bscNode: EthereumNodeType = {
   gradient: "#E6007A",
   displayAddress: (address: string) => toChecksumAddress(address),
   provider: ProviderName.ethereum,
+  coingeckoID: "binancecoin",
 };
 bscNode.api = async () => {
   const api = new API(bscNode.node);

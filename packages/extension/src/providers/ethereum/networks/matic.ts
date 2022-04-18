@@ -1,3 +1,4 @@
+import rarible from "@/libs/nft-handlers/rarible";
 import { ProviderName } from "@/types/provider";
 import { SignerType } from "@enkryptcom/types";
 import { toChecksumAddress } from "ethereumjs-util";
@@ -18,6 +19,8 @@ const maticNode: EthereumNodeType = {
   gradient: "#53CBC9",
   displayAddress: (address: string) => toChecksumAddress(address),
   provider: ProviderName.ethereum,
+  coingeckoID: "matic-network",
+  NFTHandler: rarible,
 };
 maticNode.api = async () => {
   const api = new API(maticNode.node);

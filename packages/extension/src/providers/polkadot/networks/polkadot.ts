@@ -19,6 +19,7 @@ const dotNode: PolkadotNodeType = {
   node: "wss://rpc.polkadot.io/",
   displayAddress: (address: string) => polkadotEncodeAddress(address, 0),
   provider: ProviderName.polkadot,
+  coingeckoID: "polkadot",
 };
 dotNode.api = async () => {
   const api = new API(dotNode.node, { decimals: dotNode.decimals });

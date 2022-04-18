@@ -11,6 +11,7 @@ import { RouteRecordRaw } from "vue-router";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
 import { RoutesType } from "./ui";
 import { SignerType } from "@enkryptcom/types";
+import { NFTCollection } from "./nft";
 
 export enum ProviderName {
   enkrypt = "enkrypt",
@@ -21,6 +22,7 @@ export enum InternalStorageNamespace {
   keyring = "KeyRing",
   persistentEvents = "PersistentEvents",
   tabState = "TabState",
+  marketData = "MarketData",
 }
 export enum EnkryptProviderEventMethods {
   persistentEvents = "PersistentEvents",
@@ -124,4 +126,6 @@ export interface NodeType {
   displayAddress: (address: string) => string;
   api?: () => Promise<ProviderAPIInterface>;
   provider: ProviderName;
+  coingeckoID?: string;
+  NFTHandler?: (network: NodeType, address: string) => Promise<NFTCollection[]>;
 }

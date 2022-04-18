@@ -1,8 +1,8 @@
 <template>
   <div class="add-network__block">
     <div class="add-network__text">
-      <img :src="network.image" alt="" />
-      <span>{{ network.title }}</span>
+      <img :src="network.icon" alt="" />
+      <span>{{ network.name_long }}</span>
     </div>
 
     <div class="add-network__action">
@@ -22,13 +22,13 @@ export default {
 
 <script setup lang="ts">
 import { PropType } from "vue";
-import { NetworkItem } from "@action/types/network";
 import Switch from "@action/components/switch/index.vue";
 import InfoIcon from "@action/icons/common/info-icon.vue";
+import { NodeType } from "@/types/provider";
 
 const props = defineProps({
   network: {
-    type: Object as PropType<NetworkItem>,
+    type: Object as PropType<NodeType>,
     default: () => {
       return {};
     },
@@ -37,7 +37,7 @@ const props = defineProps({
 });
 
 const check = (isChecked: boolean) => {
-  console.log(props.network?.id, isChecked);
+  console.log(props.network.name, isChecked);
 };
 </script>
 
