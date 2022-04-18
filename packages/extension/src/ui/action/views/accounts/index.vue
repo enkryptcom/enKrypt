@@ -43,6 +43,7 @@
     </div>
     <add-account-form
       v-show="isAddAccount"
+      :network="network"
       :close="closeAddAccount"
     ></add-account-form>
   </div>

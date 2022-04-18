@@ -32,6 +32,17 @@ class PublicKeyRing {
     assert(allKeys[address], Errors.KeyringErrors.AddressDoesntExists);
     return allKeys[address];
   }
+  async addAccount(name: string, type: SignerType): Promise<KeyRecord> {
+    assert(
+      [SignerType.sr25519, SignerType.secp256k1].includes(type),
+      Errors.SigningErrors.NotSupported
+    );
+    if (type === SignerType.secp256k1)
+      return this.#keyring.addEthereumAddress(name);
+    else if (type === SignerType.sr25519)
+      return this.#keyring.addPolkadotAddress(name);
+    throw new Error("PKeyRing: not supported");
+  }
   isLocked(): boolean {
     return this.#keyring.isLocked();
   }

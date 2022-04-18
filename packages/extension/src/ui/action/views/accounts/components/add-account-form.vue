@@ -1,13 +1,13 @@
 <template>
   <div class="add-account-form">
-    <h3>Add new Polkadot chain account</h3>
+    <h3>Add new {{ network.name_long }} account</h3>
 
     <div class="add-account-form__input" :class="{ focus: isFocus }">
       <img src="@/ui/action/icons/raw/account.png" />
       <input
+        v-model="name"
         type="text"
         placeholder="Account name"
-        @input="changeValue"
         @focus="changeFocus"
         @blur="changeFocus"
       />
@@ -25,7 +25,7 @@
       <div class="add-account-form__buttons-send">
         <base-button
           title="Add account"
-          :click="sendAction"
+          :click="createAccount"
           :disabled="isDisabled()"
         />
       </div>
@@ -40,22 +40,29 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { defineProps, ref } from "vue";
+import { defineProps, ref, PropType, onMounted } from "vue";
 import BaseButton from "@action/components/base-button/index.vue";
+import { NodeType } from "@/types/provider";
+import KeyRing from "@/libs/keyring/public-keyring";
 
+const kr = new KeyRing();
 let isFocus = ref(false);
 let name = ref("");
+const allNames = ref<string[]>([]);
 
+onMounted(async () => {
+  allNames.value = (await kr.getAccounts()).map((acc) => acc.name);
+});
 const props = defineProps({
   close: {
     type: Function,
     default: () => ({}),
   },
+  network: {
+    type: Object as PropType<NodeType>,
+    default: () => ({}),
+  },
 });
-
-const changeValue = (e: any) => {
-  name.value = e.target.value;
-};
 
 const changeFocus = () => {
   isFocus.value = !isFocus.value;
@@ -67,14 +74,13 @@ const close = () => {
 
 const isDisabled = () => {
   let isDisabled = true;
-
-  if (name.value.length > 2) isDisabled = false;
-
+  if (name.value.length > 3 && !allNames.value.includes(name.value))
+    isDisabled = false;
   return isDisabled;
 };
 
-const sendAction = () => {
-  console.log("sendAction");
+const createAccount = () => {
+  kr.addAccount(name.value, props.network.signer[0]).then(close);
 };
 </script>
 
