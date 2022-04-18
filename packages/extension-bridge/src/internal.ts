@@ -134,7 +134,7 @@ const initIntercoms = () => {
   if (context === "window" || context === "content-script")
     window.addEventListener("message", handleWindowOnMessage);
 
-  if (context === "content-script" && window === top) {
+  if (context === "content-script") {
     // support for manifest v3
     const connectToBackgroundWithDisconnect = () => {
       port = browser.runtime.connect();

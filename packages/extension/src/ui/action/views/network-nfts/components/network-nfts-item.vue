@@ -1,8 +1,8 @@
 <template>
   <div class="network-nfts__item">
-    <img :src="item.image" alt="" />
+    <img :src="item.image" alt="" @error="imageLoadError" />
     <h4>{{ item.name }}</h4>
-    <p>{{ item.price }} <span>eth</span></p>
+    <p>{{ $filters.currencyFormat(item.valueUSD, "USD") }} <span>USD</span></p>
   </div>
 </template>
 
@@ -13,9 +13,12 @@ export default {
 </script>
 
 <script setup lang="ts">
+import { NFTItem } from "@/types/nft";
 import { PropType } from "vue";
-import { NFTItem } from "@action/types/nft";
-
+const notfoundimg = require("@action/assets/common/not-found.jpg");
+const imageLoadError = (img: any) => {
+  img.target.src = notfoundimg;
+};
 defineProps({
   item: {
     type: Object as PropType<NFTItem>,
