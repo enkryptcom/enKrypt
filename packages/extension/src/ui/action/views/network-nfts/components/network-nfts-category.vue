@@ -68,9 +68,10 @@ defineProps({
     &-items {
       padding-top: 8px;
       display: flex;
-      justify-content: space-between;
+      justify-content: flex-start;
       align-items: flex-start;
       flex-direction: row;
+      flex-wrap: wrap;
     }
   }
 }
