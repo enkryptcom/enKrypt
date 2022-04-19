@@ -1,7 +1,9 @@
+import rarible from "@/libs/nft-handlers/rarible";
 import { ProviderName } from "@/types/provider";
 import { SignerType } from "@enkryptcom/types";
 import { toChecksumAddress } from "ethereumjs-util";
 import API from "../libs/api";
+import createIcon from "../libs/blockies";
 import { EthereumNodeType } from "../types";
 const ethNode: EthereumNodeType = {
   name: "ETH",
@@ -18,6 +20,9 @@ const ethNode: EthereumNodeType = {
   gradient: "#8247E5",
   displayAddress: (address: string) => toChecksumAddress(address),
   provider: ProviderName.ethereum,
+  coingeckoID: "ethereum",
+  NFTHandler: rarible,
+  identicon: createIcon,
 };
 ethNode.api = async () => {
   const api = new API(ethNode.node);

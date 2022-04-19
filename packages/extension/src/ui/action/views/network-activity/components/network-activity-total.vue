@@ -20,8 +20,8 @@ defineProps({
     default: "0",
   },
   fiatAmount: {
-    type: Number,
-    default: 0,
+    type: String,
+    default: "0",
   },
   symbol: {
     type: String,

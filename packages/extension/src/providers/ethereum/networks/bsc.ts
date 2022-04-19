@@ -3,6 +3,7 @@ import { SignerType } from "@enkryptcom/types";
 import { toChecksumAddress } from "ethereumjs-util";
 import API from "../libs/api";
 import { EthereumNodeType } from "../types";
+import createIcon from "../libs/blockies";
 const bscNode: EthereumNodeType = {
   name: "BSC",
   name_long: "Binance Smart Chain",
@@ -18,6 +19,8 @@ const bscNode: EthereumNodeType = {
   gradient: "#E6007A",
   displayAddress: (address: string) => toChecksumAddress(address),
   provider: ProviderName.ethereum,
+  coingeckoID: "binancecoin",
+  identicon: createIcon,
 };
 bscNode.api = async () => {
   const api = new API(bscNode.node);

@@ -7,6 +7,7 @@
       :toggle-accounts="toggleAccounts"
       :toggle-deposit="toggleDeposit"
       :active="showAccounts"
+      :network="network"
     ></accounts-header-account>
 
     <accounts-list

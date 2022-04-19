@@ -4,7 +4,7 @@
     :class="{ disabled: !active }"
     @click="select(address)"
   >
-    <img :src="getImgUrl(address)" />
+    <img :src="identiconElement(address)" />
     <div class="accounts-item__info">
       <p class="accounts-item__info-name">{{ name }}</p>
       <p class="accounts-item__info-amount">
@@ -24,6 +24,7 @@ export default {
 
 <script setup lang="ts">
 import DoneIcon from "@action/icons/common/done_icon.vue";
+import { PropType } from "vue";
 
 defineProps({
   name: {
@@ -49,12 +50,12 @@ defineProps({
       return {};
     },
   },
+  identiconElement: {
+    type: Function as PropType<(address: string, options: any) => string>,
+    default: () => ({}),
+  },
   active: Boolean,
 });
-
-const getImgUrl = (address: string) => {
-  return "https://mewcard.mewapi.io/?address=" + address;
-};
 </script>
 
 <style lang="less">
@@ -80,9 +81,9 @@ const getImgUrl = (address: string) => {
 
   img {
     width: 32px;
-    height: 24px;
+    height: 32px;
     margin-right: 12px;
-    border-radius: 5px;
+    border-radius: 50%;
   }
 
   &__info {

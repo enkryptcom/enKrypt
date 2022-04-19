@@ -1,12 +1,12 @@
 <template>
   <div class="network-nfts__category">
     <div class="network-nfts__category-head">
-      <img :src="author.image" alt="" />
-      <p>{{ author.name }}</p>
+      <img :src="collection.image" alt="" />
+      <p>{{ collection.name }}</p>
     </div>
     <div class="network-nfts__category-items">
       <network-nfts-item
-        v-for="(item, index) in author.items"
+        v-for="(item, index) in collection.items"
         :key="index"
         :item="item"
       ></network-nfts-item>
@@ -22,12 +22,12 @@ export default {
 
 <script setup lang="ts">
 import { PropType } from "vue";
-import { NFTAuthor } from "@action/types/nft";
 import NetworkNftsItem from "./network-nfts-item.vue";
+import { NFTCollection } from "@/types/nft";
 
 defineProps({
-  author: {
-    type: Object as PropType<NFTAuthor>,
+  collection: {
+    type: Object as PropType<NFTCollection>,
     default: () => {
       return {};
     },

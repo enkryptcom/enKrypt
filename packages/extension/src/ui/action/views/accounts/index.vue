@@ -18,6 +18,7 @@
           :is-checked="accountInfo.selectedAccount?.address == account.address"
           :select="selectAccount"
           :active="true"
+          :identicon-element="network.identicon"
         ></accounts-list-item>
 
         <div class="accounts__info">
@@ -31,6 +32,7 @@
           :address="account.address"
           :is-checked="false"
           :active="false"
+          :identicon-element="network.identicon"
         ></accounts-list-item>
       </custom-scrollbar>
 

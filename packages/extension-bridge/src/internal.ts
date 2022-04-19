@@ -134,7 +134,7 @@ const initIntercoms = () => {
   if (context === "window" || context === "content-script")
     window.addEventListener("message", handleWindowOnMessage);
 
-  if (context === "content-script" && top === window) {
+  if (context === "content-script") {
     // support for manifest v3
     const connectToBackgroundWithDisconnect = () => {
       port = browser.runtime.connect();
@@ -221,7 +221,7 @@ const initIntercoms = () => {
         if (message?.origin?.context) {
           // origin tab ID is resolved from the port identifier (also prevent "MITM attacks" of extensions)
           message.origin.tabId = linkedTabId;
-
+          if (portFrame) message.origin.frameId = portFrame;
           routeMessage(message);
         }
       });
@@ -230,12 +230,10 @@ const initIntercoms = () => {
 };
 
 initIntercoms();
-
 export const routeMessage = (
   message: IInternalMessage
 ): void | Promise<void> => {
   const { origin, destination } = message;
-
   if (message.hops.includes(runtimeId)) return;
 
   message.hops.push(runtimeId);

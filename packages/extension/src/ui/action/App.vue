@@ -54,6 +54,7 @@
       <network-menu
         v-show="showNetworkMenu()"
         :selected="(route.params.id as string)"
+        :network="currentNetwork"
       />
     </div>
   </div>
@@ -80,7 +81,6 @@ import PublicKeyRing from "@/libs/keyring/public-keyring";
 import { KeyRecord } from "@enkryptcom/types";
 import { sendToBackgroundFromAction } from "@/libs/messenger/extension";
 import { EthereumNodeType, MessageMethod } from "@/providers/ethereum/types";
-
 const tabstate = new TabState();
 const appMenuRef = ref(null);
 const networkGradient = ref("");
