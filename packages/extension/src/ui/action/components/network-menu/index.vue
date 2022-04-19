@@ -14,6 +14,7 @@
       <Activity /><br />Activity
     </router-link>
     <router-link
+      v-if="network.NFTHandler"
       :to="{ name: 'nfts', params: { id: !!selected ? selected : null } }"
     >
       <NFTs /><br />NFTs
@@ -37,11 +38,17 @@ import Activity from "@action/icons/tabs/activity.vue";
 import Assets from "@action/icons/tabs/assets.vue";
 import NFTs from "@action/icons/tabs/nfts.vue";
 import DApps from "@action/icons/tabs/dapps.vue";
+import { PropType } from "vue";
+import { NodeType } from "@/types/provider";
 
 defineProps({
   selected: {
     type: String,
     default: "",
+  },
+  network: {
+    type: Object as PropType<NodeType>,
+    default: () => ({}),
   },
 });
 </script>

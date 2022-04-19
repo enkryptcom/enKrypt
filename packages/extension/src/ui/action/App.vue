@@ -53,7 +53,10 @@
       <!-- <router-view name="modal"></router-view>
       <router-view name="accounts"></router-view> -->
 
-      <network-menu :selected="(route.params.id as string)" />
+      <network-menu
+        :selected="(route.params.id as string)"
+        :network="currentNetwork"
+      />
     </div>
   </div>
 </template>
