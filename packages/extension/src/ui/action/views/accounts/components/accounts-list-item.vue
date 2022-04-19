@@ -8,7 +8,7 @@
     <div class="accounts-item__info">
       <p class="accounts-item__info-name">{{ name }}</p>
       <p class="accounts-item__info-amount">
-        {{ amount }} {{ symbol }}
+        {{ $filters.formatFloatingPointValue(amount).value }} {{ symbol }}
         <span>{{ $filters.replaceWithEllipsis(address, 6, 4) }}</span>
       </p>
     </div>

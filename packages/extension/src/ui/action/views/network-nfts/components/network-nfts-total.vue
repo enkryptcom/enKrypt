@@ -1,7 +1,7 @@
 <template>
   <div class="network-nfts__total">
     <p>NFTs Net Worth</p>
-    <h3>{{ $filters.currencyFormat(amount, "USD") }} USD</h3>
+    <h3>{{ $filters.formatFiatValue(amount).value }} USD</h3>
   </div>
 </template>
 

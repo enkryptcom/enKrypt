@@ -2,7 +2,7 @@
   <div class="network-nfts__item">
     <img :src="item.image" alt="" @error="imageLoadError" />
     <h4>{{ item.name }}</h4>
-    <p>{{ $filters.currencyFormat(item.valueUSD, "USD") }} <span>USD</span></p>
+    <p>{{ $filters.formatFiatValue(item.valueUSD).value }} <span>USD</span></p>
   </div>
 </template>
 

@@ -3,7 +3,7 @@
     <h3>
       {{ cryptoAmount }} <span>{{ symbol }}</span>
     </h3>
-    <p>{{ $filters.currencyFormat(fiatAmount, "USD") }}</p>
+    <p>{{ fiatAmount }}</p>
   </div>
 </template>
 
