@@ -71,7 +71,7 @@ import SettingsIcon from "./icons/common/settings-icon.vue";
 import HoldIcon from "./icons/common/hold-icon.vue";
 import { useRouter, useRoute } from "vue-router";
 import { WindowPromise } from "@/libs/window-promise";
-import { NodeType, ProviderName } from "@/types/provider";
+import { NodeType } from "@/types/provider";
 import { getAllNetworks, DEFAULT_NETWORK_NAME } from "@/libs/utils/networks";
 import TabState from "@/libs/tab-state";
 import { getOtherSigners } from "@/libs/utils/accounts";
