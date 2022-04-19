@@ -6,7 +6,7 @@
       :placeholder="placeholder"
       class="base-input"
       :class="{ error: isError }"
-      @input="changeValue($event.target.value)"
+      @input="changeValue"
     />
     <a
       v-if="type == 'password'"
@@ -64,8 +64,8 @@ const props = defineProps({
   },
 });
 
-const changeValue = (text: string) => {
-  props.input(text);
+const changeValue = (e: any) => {
+  props.input(e.target.value);
 };
 const toggleVisibility = () => {
   showPassword.value = !showPassword.value;
@@ -87,19 +87,18 @@ const toggleVisibility = () => {
   font-size: 14px;
   line-height: 40px;
   letter-spacing: 0.25px;
-  background: none;
   color: @primaryLabel;
   width: 100%;
   box-sizing: border-box;
 
   &:focus {
-    border: 1.5px solid @primary;
-    line-height: 39px;
+    border: 2px solid @primary;
+    line-height: 38px;
   }
 
   &.error {
-    border: 1.5px solid @error;
-    line-height: 39px;
+    border: 2px solid @error;
+    line-height: 38px;
   }
 
   &__wrap {
