@@ -3,6 +3,7 @@ import { SignerType } from "@enkryptcom/types";
 import { toChecksumAddress } from "ethereumjs-util";
 import API from "../libs/api";
 import { EthereumNodeType } from "../types";
+import createIcon from "../libs/blockies";
 const moonbeamNode: EthereumNodeType = {
   name: "GLMR",
   name_long: "Moonbeam",
@@ -19,6 +20,7 @@ const moonbeamNode: EthereumNodeType = {
   displayAddress: (address: string) => toChecksumAddress(address),
   provider: ProviderName.ethereum,
   coingeckoID: "moonbeam",
+  identicon: createIcon,
 };
 moonbeamNode.api = async () => {
   const api = new API(moonbeamNode.node);

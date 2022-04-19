@@ -3,6 +3,7 @@ import { SignerType } from "@enkryptcom/types";
 import { toChecksumAddress } from "ethereumjs-util";
 import API from "../libs/api";
 import { EthereumNodeType } from "../types";
+import createIcon from "../libs/blockies";
 const etcNode: EthereumNodeType = {
   name: "ETC",
   name_long: "Ethereum Classic",
@@ -19,6 +20,7 @@ const etcNode: EthereumNodeType = {
   displayAddress: (address: string) => toChecksumAddress(address),
   provider: ProviderName.ethereum,
   coingeckoID: "ethereum-classic",
+  identicon: createIcon,
 };
 etcNode.api = async () => {
   const api = new API(etcNode.node);
