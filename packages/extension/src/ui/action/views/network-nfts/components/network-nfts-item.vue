@@ -55,6 +55,7 @@ defineProps({
       letter-spacing: 0.25px;
       color: @primaryLabel;
       margin: 8px 0 0 0;
+      word-break: break-all;
     }
 
     p {
@@ -65,6 +66,7 @@ defineProps({
       letter-spacing: 0.25px;
       color: @secondaryLabel;
       margin: 0;
+      word-break: break-all;
 
       span {
         font-variant: small-caps;
