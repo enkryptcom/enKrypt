@@ -1,11 +1,11 @@
 export enum StorageKeys {
   lastTimestamp = "last-time-stamp",
   allTokens = "all-tokens",
-  marketInfo = "market-info",
   fiatInfo = "fiat-info",
 }
 
 export interface CoingeckPlatforms {
+  [key: string]: any;
   ethereum?: string;
   "ethereum-classic"?: string;
   "binance-smart-chain"?: string;

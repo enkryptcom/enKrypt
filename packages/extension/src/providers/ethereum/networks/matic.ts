@@ -5,6 +5,7 @@ import { toChecksumAddress } from "ethereumjs-util";
 import API from "../libs/api";
 import { EthereumNodeType } from "../types";
 import createIcon from "../libs/blockies";
+import tokenbalanceMew from "@/libs/assets-handlers/tokenbalance-mew";
 const maticNode: EthereumNodeType = {
   name: "MATIC",
   name_long: "Polygon (Matic)",
@@ -23,6 +24,7 @@ const maticNode: EthereumNodeType = {
   coingeckoID: "matic-network",
   NFTHandler: rarible,
   identicon: createIcon,
+  assetsHandler: tokenbalanceMew,
 };
 maticNode.api = async () => {
   const api = new API(maticNode.node);

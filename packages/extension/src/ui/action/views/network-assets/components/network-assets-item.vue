@@ -6,7 +6,7 @@
       <div class="network-assets__token-info-name">
         <h4>{{ token.name }}</h4>
         <p>
-          {{ token.amount }} <span>{{ token.symbol }}</span>
+          {{ token.balancef }} <span>{{ token.symbol }}</span>
         </p>
       </div>
     </div>
@@ -17,8 +17,8 @@
     </div>
 
     <div class="network-assets__token-price">
-      <h4>{{ $filters.formatFiatValue(amount).value }}</h4>
-      <p>@{{ $filters.formatFiatValue(token.price).value }}</p>
+      <h4>{{ token.balanceUSDf }}</h4>
+      <p>@{{ token.valuef }}</p>
     </div>
   </div>
 </template>
@@ -31,21 +31,14 @@ export default {
 
 <script setup lang="ts">
 import { PropType } from "vue";
-import { Token } from "@action/types/token";
 import SparklineUp from "@action/icons/asset/sparkline-up.vue";
-
-const props = defineProps({
+import { AssetsType } from "@/types/provider";
+defineProps({
   token: {
-    type: Object as PropType<Token>,
+    type: Object as PropType<AssetsType>,
     default: () => ({}),
   },
 });
-
-let amount = 0;
-
-if (props.token) {
-  amount = props.token.price * props.token.amount;
-}
 </script>
 
 <style lang="less">

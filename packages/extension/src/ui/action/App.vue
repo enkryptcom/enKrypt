@@ -157,7 +157,6 @@ const setNetwork = async (network: NodeType) => {
         api.getBaseBalance(acc.address)
       );
       Promise.all(activeBalancePromises).then((balances) => {
-        console.log(balances);
         accountHeaderData.value.activeBalances = balances;
       });
     } catch (e) {
