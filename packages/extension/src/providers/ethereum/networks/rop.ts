@@ -3,6 +3,7 @@ import { SignerType } from "@enkryptcom/types";
 import { toChecksumAddress } from "ethereumjs-util";
 import API from "../libs/api";
 import { EthereumNodeType } from "../types";
+import createIcon from "../libs/blockies";
 const ropstenNode: EthereumNodeType = {
   name: "ROP",
   name_long: "Ropsten",
@@ -18,6 +19,7 @@ const ropstenNode: EthereumNodeType = {
   gradient: "#E6007A",
   displayAddress: (address: string) => toChecksumAddress(address),
   provider: ProviderName.ethereum,
+  identicon: createIcon,
 };
 ropstenNode.api = async () => {
   const api = new API(ropstenNode.node);

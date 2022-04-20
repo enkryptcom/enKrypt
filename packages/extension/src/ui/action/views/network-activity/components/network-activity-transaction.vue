@@ -27,7 +27,7 @@
         {{ transaction.cryptoAmount }}
         <span>{{ transaction.token.symbol }}</span>
       </h4>
-      <p>{{ $filters.currencyFormat(transaction.amount, "USD") }}</p>
+      <p>{{ $filters.formatFiatValue(transaction.amount).value }}</p>
     </div>
   </div>
 </template>

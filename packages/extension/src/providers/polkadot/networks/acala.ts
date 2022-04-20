@@ -2,6 +2,7 @@ import { ProviderName } from "@/types/provider";
 import { SignerType } from "@enkryptcom/types";
 import { polkadotEncodeAddress } from "@enkryptcom/utils";
 import API from "../libs/api";
+import createIcon from "../libs/blockies";
 import { PolkadotNodeType } from "../types";
 const acaNode: PolkadotNodeType = {
   name: "ACA",
@@ -20,6 +21,7 @@ const acaNode: PolkadotNodeType = {
   displayAddress: (address: string) => polkadotEncodeAddress(address, 10),
   provider: ProviderName.polkadot,
   coingeckoID: "acala",
+  identicon: createIcon,
 };
 acaNode.api = async () => {
   const api = new API(acaNode.node, { decimals: acaNode.decimals });

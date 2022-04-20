@@ -1,11 +1,17 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 import {
-  currencyFormat,
   formatDuration,
   replaceWithEllipsis,
+  formatFiatValue,
+  formatFloatingPointValue,
 } from "../utils/filters";
 declare global {
   namespace $filters {
-    export { currencyFormat, formatDuration, replaceWithEllipsis };
+    export {
+      formatDuration,
+      replaceWithEllipsis,
+      formatFiatValue,
+      formatFloatingPointValue,
+    };
   }
 }
