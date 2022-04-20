@@ -1,6 +1,8 @@
 import { ProviderAPIInterface } from "@/types/provider";
 import Web3 from "web3";
 import { fromWei } from "web3-utils";
+import { ERC20TokenInfo } from "../types";
+import erc20 from "./abi/erc20";
 class API implements ProviderAPIInterface {
   node: string;
   web3: Web3;
@@ -16,5 +18,24 @@ class API implements ProviderAPIInterface {
   getBaseBalance(address: string): Promise<string> {
     return this.getBalance(address).then((bal) => fromWei(bal));
   }
+  getTokenInfo = async (contractAddress: string): Promise<ERC20TokenInfo> => {
+    const contract = new this.web3.eth.Contract(erc20 as any, contractAddress);
+    try {
+      const name = await contract.methods.name().call();
+      const symbol = await contract.methods.symbol().call();
+      const decimals = await contract.methods.decimals().call();
+      return {
+        name,
+        symbol,
+        decimals: parseInt(decimals),
+      };
+    } catch (e) {
+      return {
+        name: "Unknown",
+        symbol: "UNKNWN",
+        decimals: 18,
+      };
+    }
+  };
 }
 export default API;

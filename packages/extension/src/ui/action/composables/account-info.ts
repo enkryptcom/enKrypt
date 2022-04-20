@@ -18,7 +18,7 @@ export default (
     if (selectedAccountIdx > -1) {
       balance = accountInfo.value.activeBalances[selectedAccountIdx];
     }
-    return formatFloatingPointValue(balance).value;
+    return balance !== "~" ? formatFloatingPointValue(balance).value : balance;
   });
 
   const updateFiatValues = async () => {

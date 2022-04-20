@@ -7,7 +7,7 @@ import {
   FiatMarket,
 } from "./types";
 import BigNumber from "bignumber.js";
-
+import cacheFetch from "../cache-fetch";
 const COINGECKO_ENDPOINT = "https://api.coingecko.com/api/v3/";
 const FIAT_EXCHANGE_RATE_ENDPOINT =
   "https://mainnet.mewwallet.dev/v2/prices/exchange-rates";
@@ -71,20 +71,21 @@ class MarketData {
   async getMarketData(
     coingeckoIDs: string[]
   ): Promise<Array<CoinGeckoTokenMarket | null>> {
-    return await fetch(
-      `${COINGECKO_ENDPOINT}coins/markets?vs_currency=usd&order=market_cap_desc&per_page=250&page=1&sparkline=false&ids=${coingeckoIDs.join(
-        ","
-      )}`
-    )
-      .then((res) => res.json())
-      .then((json) => {
-        const markets = json as CoinGeckoTokenMarket[];
-        const retMarkets: Array<CoinGeckoTokenMarket | null> = [];
-        coingeckoIDs.forEach((id) => {
-          retMarkets.push(markets.find((m) => m.id === id) || null);
-        });
-        return retMarkets;
+    return await cacheFetch(
+      {
+        url: `${COINGECKO_ENDPOINT}coins/markets?vs_currency=usd&order=market_cap_desc&per_page=250&page=1&sparkline=false&ids=${coingeckoIDs.join(
+          ","
+        )}`,
+      },
+      REFRESH_DELAY
+    ).then((json) => {
+      const markets = json as CoinGeckoTokenMarket[];
+      const retMarkets: Array<CoinGeckoTokenMarket | null> = [];
+      coingeckoIDs.forEach((id) => {
+        retMarkets.push(markets.find((m) => m.id === id) || null);
       });
+      return retMarkets;
+    });
   }
   async getFiatValue(symbol: string): Promise<FiatMarket | null> {
     await this.setMarketInfo();

@@ -13,27 +13,25 @@ import {
   formatFiatValue,
   formatFloatingPointValue,
 } from "../utils/number-formatter";
+import API from "@/providers/ethereum/libs/api";
 const API_ENPOINT = "https://tokenbalance.mewapi.io/";
 const NATIVE_CONTRACT = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
-const TOKEN_FETCH_TTL = 1000 * 60 * 5;
+const TOKEN_FETCH_TTL = 1000 * 60 * 60;
 export default (network: NodeType, address: string): Promise<AssetsType[]> => {
   const supportedNetworks: Record<string, SupportedNetwork> = {
     BNB: {
       tbName: "bsc",
-      tokenurl:
-        "https://requestcache.mewapi.io/?url=https://tokens.coingecko.com/binance-smart-chain/all.json",
+      tokenurl: "https://tokens.coingecko.com/binance-smart-chain/all.json",
       cgPlatform: "binance-smart-chain",
     },
     ETH: {
       tbName: "eth",
-      tokenurl:
-        "https://requestcache.mewapi.io/?url=https://tokens.coingecko.com/ethereum/all.json",
+      tokenurl: "https://tokens.coingecko.com/ethereum/all.json",
       cgPlatform: "ethereum",
     },
     MATIC: {
       tbName: "matic",
-      tokenurl:
-        "https://requestcache.mewapi.io/?url=https://tokens.coingecko.com/polygon-pos/all.json",
+      tokenurl: "https://tokens.coingecko.com/polygon-pos/all.json",
       cgPlatform: "polygon-pos",
     },
   };
@@ -78,6 +76,7 @@ export default (network: NodeType, address: string): Promise<AssetsType[]> => {
           });
           return tObject;
         });
+        const unknownTokens: string[] = [];
 
         for (const [address, market] of Object.entries(marketInfo)) {
           if (market && tokenInfo[address]) {
@@ -102,6 +101,8 @@ export default (network: NodeType, address: string): Promise<AssetsType[]> => {
               decimals: tokenInfo[address].decimals,
             };
             assets.push(asset);
+          } else {
+            unknownTokens.push(address);
           }
         }
         assets.sort((a, b) => {
@@ -127,6 +128,32 @@ export default (network: NodeType, address: string): Promise<AssetsType[]> => {
               .value,
             contract: NATIVE_CONTRACT,
             decimals: 18,
+          });
+        }
+        if (unknownTokens.length && network.api) {
+          const api = (await network.api()) as API;
+          const promises = unknownTokens.map((t) => api.getTokenInfo(t));
+          await Promise.all(promises).then((tokenInfo) => {
+            tokenInfo.forEach((tInfo, idx) => {
+              const userBalance = fromBase(
+                balances[unknownTokens[idx]].balance,
+                tInfo.decimals
+              );
+              const asset: AssetsType = {
+                balance: toBN(balances[unknownTokens[idx]].balance).toString(),
+                balancef: formatFloatingPointValue(userBalance).value,
+                balanceUSD: 0,
+                balanceUSDf: formatFiatValue("0").value,
+                icon: nativeMarket[0]?.image || "",
+                name: tInfo.name,
+                symbol: tInfo.symbol,
+                value: "0",
+                valuef: formatFiatValue("0").value,
+                contract: address,
+                decimals: tInfo.decimals,
+              };
+              assets.push(asset);
+            });
           });
         }
         return assets;
