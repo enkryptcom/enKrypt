@@ -2,7 +2,7 @@
   <div class="enter-recovery-phrase">
     <h3>Enter your<br />recovery phrase</h3>
 
-    <textarea class="enter-recovery-phrase__input" v-model="mnemonic">
+    <textarea v-model="mnemonic" class="enter-recovery-phrase__input">
     </textarea>
 
     <div class="enter-recovery-phrase__buttons">
