@@ -1659,6 +1659,7 @@ __metadata:
     "@vue/cli-service": ~5.0.4
     "@vue/eslint-config-prettier": ^6.0.0
     "@vue/eslint-config-typescript": ^9.1.0
+    add: ^2.0.6
     bignumber.js: ^9.0.2
     buffer: ^6.0.3
     chai: ^4.3.6
@@ -1676,6 +1677,7 @@ __metadata:
     less: ^4.1.2
     less-loader: ^5.0.0
     lodash: ^4.17.21
+    memoize-one: ^6.0.0
     mocha: ^9.2.0
     moment: ^2.29.1
     prettier: ^2.4.1
@@ -1697,6 +1699,7 @@ __metadata:
     web3: ^1.7.3
     web3-utils: ^1.7.3
     webextension-polyfill: ^0.8.0
+    yarn: ^1.22.18
   languageName: unknown
   linkType: soft
 
@@ -4334,6 +4337,13 @@ __metadata:
   bin:
     acorn: bin/acorn
   checksum: e0f79409d68923fbf1aa6d4166f3eedc47955320d25c89a20cc822e6ba7c48c5963d5bc657bc242d68f7a4ac9faf96eef033e8f73656da6c640d4219935fdfd0
+  languageName: node
+  linkType: hard
+
+"add@npm:^2.0.6":
+  version: 2.0.6
+  resolution: "add@npm:2.0.6"
+  checksum: e2d23d40494565dfed4acd65e478570c444db5ac6c053551ed429c39ea0f2c99d83df63e7befec936df601827d2254d06a2fb6f7dcfd2022e810b25eab818b8c
   languageName: node
   linkType: hard
 
@@ -10990,6 +11000,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"memoize-one@npm:^6.0.0":
+  version: 6.0.0
+  resolution: "memoize-one@npm:6.0.0"
+  checksum: f185ea69f7cceae5d1cb596266dcffccf545e8e7b4106ec6aa93b71ab9d16460dd118ac8b12982c55f6d6322fcc1485de139df07eacffaae94888b9b3ad7675f
+  languageName: node
+  linkType: hard
+
 "meow@npm:^8.0.0":
   version: 8.1.2
   resolution: "meow@npm:8.1.2"
@@ -16720,6 +16737,16 @@ __metadata:
     y18n: ^5.0.5
     yargs-parser: ^21.0.0
   checksum: e9012322870d7e4e912a6ae1f63b203e365f911c0cf158be92c36edefddfb3bd38ce17eb9ef0d18858a4777f047c50589ea22dacb44bd949169ba37dc6d34bee
+  languageName: node
+  linkType: hard
+
+"yarn@npm:^1.22.18":
+  version: 1.22.18
+  resolution: "yarn@npm:1.22.18"
+  bin:
+    yarn: bin/yarn.js
+    yarnpkg: bin/yarn.js
+  checksum: ffd9a4872caa5fce83e914592dd6a40bb978bf992d3dca839bc3853b9e6de951d7596f7e8c4a88bec3af3a049e46097f9139a51740d9074582fd923af8762f7a
   languageName: node
   linkType: hard
 

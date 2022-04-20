@@ -11,9 +11,20 @@
       </div>
     </div>
 
-    <div class="network-assets__token-sparkline">
-      <p><sparkline-up />10.20%</p>
-      <img src="@/ui/action/assets/sparkline.png" />
+    <div
+      v-if="token.priceChangePercentage !== 0"
+      class="network-assets__token-sparkline"
+      :class="{
+        down: token.priceChangePercentage < 0,
+        up: token.priceChangePercentage >= 0,
+      }"
+    >
+      <p>
+        <sparkline-up v-if="token.priceChangePercentage >= 0" /><sparkline-down
+          v-if="token.priceChangePercentage < 0"
+        />{{ token.priceChangePercentage.toFixed(2) }}%
+      </p>
+      <img :src="token.sparkline" />
     </div>
 
     <div class="network-assets__token-price">
@@ -32,6 +43,7 @@ export default {
 <script setup lang="ts">
 import { PropType } from "vue";
 import SparklineUp from "@action/icons/asset/sparkline-up.vue";
+import SparklineDown from "@action/icons/asset/sparkline-down.vue";
 import { AssetsType } from "@/types/provider";
 defineProps({
   token: {
@@ -44,6 +56,12 @@ defineProps({
 <style lang="less">
 @import "~@action/styles/theme.less";
 
+.down {
+  color: @error;
+}
+.up {
+  color: @primary;
+}
 .network-assets {
   &__token {
     height: 72px;
@@ -102,7 +120,9 @@ defineProps({
 
     &-sparkline {
       text-align: center;
-
+      img {
+        max-height: 32px;
+      }
       p {
         display: flex;
         justify-content: center;
@@ -114,7 +134,6 @@ defineProps({
         line-height: 14px;
         text-align: right;
         letter-spacing: 0.5px;
-        color: @primary;
         margin: 0 0 2px 0;
 
         svg {

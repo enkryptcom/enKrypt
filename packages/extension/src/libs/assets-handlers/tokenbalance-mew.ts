@@ -14,6 +14,8 @@ import {
   formatFloatingPointValue,
 } from "../utils/number-formatter";
 import API from "@/providers/ethereum/libs/api";
+import Sparkline from "../sparkline";
+import { EthereumNodeType } from "@/providers/ethereum/types";
 const API_ENPOINT = "https://tokenbalance.mewapi.io/";
 const NATIVE_CONTRACT = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
 const TOKEN_FETCH_TTL = 1000 * 60 * 60;
@@ -50,8 +52,6 @@ export default (network: NodeType, address: string): Promise<AssetsType[]> => {
         ).reduce((obj, cur) => ({ ...obj, [cur.contract]: cur }), {});
 
         const marketData = new MarketData();
-        const nativeBalance = balances[NATIVE_CONTRACT];
-
         const nativeMarket = await marketData.getMarketData(
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           [network.coingeckoID!] //it wont be null since all supported networks have coingeckoID
@@ -62,6 +62,8 @@ export default (network: NodeType, address: string): Promise<AssetsType[]> => {
           ),
           supportedNetworks[network.name].cgPlatform
         );
+        marketInfo[NATIVE_CONTRACT] = nativeMarket[0];
+
         const assets: AssetsType[] = [];
         const tokenInfo: Record<string, CGToken> = await cacheFetch(
           {
@@ -76,8 +78,18 @@ export default (network: NodeType, address: string): Promise<AssetsType[]> => {
           });
           return tObject;
         });
-        const unknownTokens: string[] = [];
 
+        tokenInfo[NATIVE_CONTRACT] = {
+          chainId: (network as EthereumNodeType).chainID,
+          name: network.name_long,
+          decimals: 18,
+          address: NATIVE_CONTRACT,
+          logoURI: network.icon,
+          symbol: network.currencyName,
+        };
+
+        const unknownTokens: string[] = [];
+        let nativeAsset: AssetsType | null = null;
         for (const [address, market] of Object.entries(marketInfo)) {
           if (market && tokenInfo[address]) {
             const userBalance = fromBase(
@@ -99,8 +111,13 @@ export default (network: NodeType, address: string): Promise<AssetsType[]> => {
               valuef: formatFiatValue(market.current_price.toString()).value,
               contract: address,
               decimals: tokenInfo[address].decimals,
+              sparkline: new Sparkline(market.sparkline_in_7d.price, 25)
+                .dataUri,
+              priceChangePercentage:
+                market.price_change_percentage_7d_in_currency,
             };
-            assets.push(asset);
+            if (address !== NATIVE_CONTRACT) assets.push(asset);
+            else nativeAsset = asset;
           } else {
             unknownTokens.push(address);
           }
@@ -110,26 +127,7 @@ export default (network: NodeType, address: string): Promise<AssetsType[]> => {
           else if (a.balanceUSD < b.balanceUSD) return -1;
           else return 0;
         });
-        if (nativeBalance && nativeMarket.length && nativeMarket[0]) {
-          const userBalance = fromBase(balances[NATIVE_CONTRACT].balance, 18);
-          const usdBalance = new BigNumber(userBalance).times(
-            nativeMarket[0].current_price
-          );
-          assets.unshift({
-            balance: toBN(balances[NATIVE_CONTRACT].balance).toString(),
-            balancef: formatFloatingPointValue(userBalance).value,
-            balanceUSD: usdBalance.toNumber(),
-            balanceUSDf: formatFiatValue(usdBalance.toString()).value,
-            icon: nativeMarket[0].image,
-            name: nativeMarket[0].name,
-            symbol: nativeMarket[0].symbol,
-            value: nativeMarket[0].current_price.toString(),
-            valuef: formatFiatValue(nativeMarket[0].current_price.toString())
-              .value,
-            contract: NATIVE_CONTRACT,
-            decimals: 18,
-          });
-        }
+        assets.unshift(nativeAsset as AssetsType);
         if (unknownTokens.length && network.api) {
           const api = (await network.api()) as API;
           const promises = unknownTokens.map((t) => api.getTokenInfo(t));
@@ -151,6 +149,8 @@ export default (network: NodeType, address: string): Promise<AssetsType[]> => {
                 valuef: formatFiatValue("0").value,
                 contract: address,
                 decimals: tInfo.decimals,
+                sparkline: "",
+                priceChangePercentage: 0,
               };
               assets.push(asset);
             });

@@ -145,4 +145,6 @@ export interface AssetsType {
   valuef: string;
   contract: string;
   decimals: number;
+  sparkline: string;
+  priceChangePercentage: number;
 }
