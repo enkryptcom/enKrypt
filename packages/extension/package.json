@@ -37,6 +37,7 @@
     "lodash": "^4.17.21",
     "memoize-one": "^6.0.0",
     "moment": "^2.29.1",
+    "qrcode.vue": "^3.3.3",
     "rollup-plugin-node-builtins": "^2.1.2",
     "url-parse": "^1.5.10",
     "vue": "^3.2.31",

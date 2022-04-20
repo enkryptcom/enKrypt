@@ -1681,6 +1681,7 @@ __metadata:
     mocha: ^9.2.0
     moment: ^2.29.1
     prettier: ^2.4.1
+    qrcode.vue: ^3.3.3
     rollup: ^2.68.0
     rollup-plugin-node-builtins: ^2.1.2
     rollup-plugin-node-globals: ^1.4.0
@@ -13117,6 +13118,15 @@ __metadata:
   version: 1.5.1
   resolution: "q@npm:1.5.1"
   checksum: 147baa93c805bc1200ed698bdf9c72e9e42c05f96d007e33a558b5fdfd63e5ea130e99313f28efc1783e90e6bdb4e48b67a36fcc026b7b09202437ae88a1fb12
+  languageName: node
+  linkType: hard
+
+"qrcode.vue@npm:^3.3.3":
+  version: 3.3.3
+  resolution: "qrcode.vue@npm:3.3.3"
+  peerDependencies:
+    vue: ^3.0.0
+  checksum: 6f1fb0fbdfac972115b6d48937b42fbe6dff41297be77fcc461f1287e21e1d76a1d695eb50230cca1929619ab75423a4bbace73a6d05ef1f5c45d0966d2170c1
   languageName: node
   linkType: hard
 

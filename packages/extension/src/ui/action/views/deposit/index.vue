@@ -5,24 +5,38 @@
         <close-icon />
       </a>
 
-      <img class="deposit__logo" src="@/ui/action/icons/raw/eth-logo.png" />
+      <img class="deposit__logo" :src="network.icon" />
 
-      <h2>Your Polkadot address</h2>
-      <p>You can send DOT to this address using Polkadot chain network.</p>
+      <h2>Your {{ network.name_long }} address</h2>
+      <p>
+        You can send {{ network.currencyName }} to this address using
+        {{ network.name_long }} network.
+      </p>
 
       <div class="deposit__code">
-        <img src="@/ui/action/assets/qr.png" />
+        <qrcode-vue
+          :value="
+            network.provider + ':' + network.displayAddress(account.address)
+          "
+          :size="150"
+          level="H"
+        />
       </div>
 
       <div class="deposit__account">
-        <img src="@/ui/action/icons/raw/account.png" />
+        <img
+          :src="network.identicon(network.displayAddress(account.address))"
+        />
 
         <div class="deposit__account-info">
           <h4>{{ account.name }}</h4>
-          <p>{{ account.address }}</p>
+          <p>{{ network.displayAddress(account.address) }}</p>
         </div>
 
-        <a class="deposit__account-copy" @click="copy(account.address)">
+        <a
+          class="deposit__account-copy"
+          @click="copy(network.displayAddress(account.address))"
+        >
           <CopyIcon /><span>copy</span>
         </a>
       </div>
@@ -41,8 +55,14 @@ import { PropType } from "vue";
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import CopyIcon from "@action/icons/header/copy_icon.vue";
 import { KeyRecord } from "@enkryptcom/types";
+import { NodeType } from "@/types/provider";
+import QrcodeVue from "qrcode.vue";
 
 defineProps({
+  network: {
+    type: Object as PropType<NodeType>,
+    default: () => ({}),
+  },
   account: {
     type: Object as PropType<KeyRecord>,
     default: () => {
@@ -139,7 +159,8 @@ const copy = (address: string) => {
 
   &__logo {
     display: block;
-    max-width: 32px;
+    height: 32px;
+    width: 32px;
     margin-bottom: 4px;
   }
 
