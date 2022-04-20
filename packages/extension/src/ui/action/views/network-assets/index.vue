@@ -3,9 +3,9 @@
     <custom-scrollbar class="network-assets__scroll-area" :settings="settings">
       <div v-if="!!selected" class="network-assets">
         <network-activity-total
-          :crypto-amount="total.cryptoAmount"
-          :amount="total.amount"
-          :symbol="total.symbol"
+          :crypto-amount="cryptoAmount"
+          :fiat-amount="fiatAmount"
+          :symbol="network.currencyName"
         />
 
         <network-activity-action
@@ -37,16 +37,29 @@ import NetworkActivityTotal from "../network-activity/components/network-activit
 import NetworkActivityAction from "../network-activity/components/network-activity-action.vue";
 import NetworkAssetsItem from "./components/network-assets-item.vue";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
-
-import { assets } from "@action/types/mock";
-
+import { onMounted, PropType, ref, toRef, watch } from "vue";
+import { AssetsType, NodeType } from "@/types/provider";
+import { AccountsHeaderData } from "../../types/account";
+import accountInfo from "@action/composables/account-info";
 const route = useRoute();
+const props = defineProps({
+  network: {
+    type: Object as PropType<NodeType>,
+    default: () => ({}),
+  },
+  accountInfo: {
+    type: Object as PropType<AccountsHeaderData>,
+    default: () => ({}),
+  },
+});
+const assets = ref<AssetsType[]>([]);
+
+const { cryptoAmount, fiatAmount } = accountInfo(
+  toRef(props, "network"),
+  toRef(props, "accountInfo")
+);
 const selected: string = route.params.id as string;
-const total = {
-  cryptoAmount: 63.466,
-  amount: 3245.24,
-  symbol: "dot",
-};
+
 const settings = {
   suppressScrollY: false,
   suppressScrollX: true,
@@ -65,6 +78,22 @@ const sendAction = () => {
 const swapAction = () => {
   console.log("swapAction");
 };
+const updateAssets = () => {
+  if (props.network.assetsHandler) {
+    props.network
+      .assetsHandler(
+        props.network,
+        props.accountInfo.selectedAccount?.address || ""
+      )
+      .then((_assets) => {
+        assets.value = _assets;
+      });
+  }
+};
+watch([props.network, props.accountInfo], updateAssets);
+onMounted(() => {
+  updateAssets();
+});
 </script>
 
 <style lang="less" scoped>

@@ -3,7 +3,7 @@
     <h3>
       {{ cryptoAmount }} <span>{{ symbol }}</span>
     </h3>
-    <p>{{ $filters.currencyFormat(fiatAmount, "USD") }}</p>
+    <p>{{ fiatAmount }}</p>
   </div>
 </template>
 
@@ -20,8 +20,8 @@ defineProps({
     default: "0",
   },
   fiatAmount: {
-    type: Number,
-    default: 0,
+    type: String,
+    default: "0",
   },
   symbol: {
     type: String,

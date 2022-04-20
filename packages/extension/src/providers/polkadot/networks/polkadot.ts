@@ -2,6 +2,7 @@ import { ProviderName } from "@/types/provider";
 import { SignerType } from "@enkryptcom/types";
 import { polkadotEncodeAddress } from "@enkryptcom/utils";
 import API from "../libs/api";
+import createIcon from "../libs/blockies";
 import { PolkadotNodeType } from "../types";
 const dotNode: PolkadotNodeType = {
   name: "DOT",
@@ -19,6 +20,8 @@ const dotNode: PolkadotNodeType = {
   node: "wss://rpc.polkadot.io/",
   displayAddress: (address: string) => polkadotEncodeAddress(address, 0),
   provider: ProviderName.polkadot,
+  coingeckoID: "polkadot",
+  identicon: createIcon,
 };
 dotNode.api = async () => {
   const api = new API(dotNode.node, { decimals: dotNode.decimals });

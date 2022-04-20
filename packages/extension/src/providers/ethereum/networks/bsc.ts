@@ -3,9 +3,11 @@ import { SignerType } from "@enkryptcom/types";
 import { toChecksumAddress } from "ethereumjs-util";
 import API from "../libs/api";
 import { EthereumNodeType } from "../types";
+import createIcon from "../libs/blockies";
+import tokenbalanceMew from "@/libs/assets-handlers/tokenbalance-mew";
 const bscNode: EthereumNodeType = {
-  name: "BSC",
-  name_long: "Binance Smart Chain",
+  name: "BNB",
+  name_long: "BNB Chain",
   homePage: "https://www.binance.org/en/smartChain",
   blockExplorerTX: "https://bscscan.com/tx/[[txHash]]",
   blockExplorerAddr: "https://bscscan.com/address/[[address]]",
@@ -18,6 +20,9 @@ const bscNode: EthereumNodeType = {
   gradient: "#E6007A",
   displayAddress: (address: string) => toChecksumAddress(address),
   provider: ProviderName.ethereum,
+  coingeckoID: "binancecoin",
+  identicon: createIcon,
+  assetsHandler: tokenbalanceMew,
 };
 bscNode.api = async () => {
   const api = new API(bscNode.node);

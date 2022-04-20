@@ -1,7 +1,7 @@
 <template>
   <div class="account">
     <a class="account__info" :class="{ active: active }" @click="showAccounts">
-      <img :src="getImgUrl(address)" />
+      <img :src="network.identicon(address)" />
       <div class="account__info-name">
         <p>{{ name }}</p>
         <span>{{ $filters.replaceWithEllipsis(address, 6, 4) }}</span>
@@ -29,6 +29,8 @@ export default {
 import SwitchArrow from "@action/icons/header/switch_arrow.vue";
 import IconQr from "@action/icons/header/qr_icon.vue";
 import IconCopy from "@action/icons/header/copy_icon.vue";
+import { PropType } from "vue";
+import { NodeType } from "@/types/provider";
 
 const props = defineProps({
   name: {
@@ -48,11 +50,12 @@ const props = defineProps({
     type: Function,
     default: () => ({}),
   },
+  network: {
+    type: Object as PropType<NodeType>,
+    default: () => ({}),
+  },
 });
 
-const getImgUrl = (address: string) => {
-  return "https://mewcard.mewapi.io/?address=" + address;
-};
 const copy = (address: string) => {
   navigator.clipboard.writeText(address);
 };
@@ -103,9 +106,9 @@ const showDeposit = () => {
 
     img {
       width: 32px;
-      height: 24px;
+      height: 32px;
       margin-right: 12px;
-      border-radius: 5px;
+      border-radius: 50%;
     }
 
     &-name {

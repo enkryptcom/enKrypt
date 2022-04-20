@@ -3,6 +3,7 @@ import { SignerType } from "@enkryptcom/types";
 import { toChecksumAddress } from "ethereumjs-util";
 import API from "../libs/api";
 import { EthereumNodeType } from "../types";
+import createIcon from "../libs/blockies";
 const goerliNode: EthereumNodeType = {
   name: "GOERLI",
   name_long: "Goerli",
@@ -18,6 +19,7 @@ const goerliNode: EthereumNodeType = {
   gradient: "#C4C4C4",
   displayAddress: (address: string) => toChecksumAddress(address),
   provider: ProviderName.ethereum,
+  identicon: createIcon,
 };
 goerliNode.api = async () => {
   const api = new API(goerliNode.node);

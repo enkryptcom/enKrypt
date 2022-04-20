@@ -28,14 +28,13 @@ window.addEventListener("beforeunload", () => {
   );
 });
 console.log("hello from injected code");
-
-PolkadotProvider(window, {
-  name: ProviderName.polkadot,
-  type: ProviderType.substrate,
-  sendMessageHandler: providerSendMessage,
-});
 EthereumProvider(window, {
   name: ProviderName.ethereum,
   type: ProviderType.evm,
+  sendMessageHandler: providerSendMessage,
+});
+PolkadotProvider(window, {
+  name: ProviderName.polkadot,
+  type: ProviderType.substrate,
   sendMessageHandler: providerSendMessage,
 });

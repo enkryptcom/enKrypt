@@ -1,10 +1,8 @@
 <template>
   <div class="network-menu">
     <router-link
-      :to="{
-        name: 'assets',
-        params: { id: !!selected ? selected : null },
-      }"
+      v-if="network.assetsHandler"
+      :to="{ name: 'assets', params: { id: !!selected ? selected : null } }"
     >
       <Assets /><br />Assets
     </router-link>
@@ -17,10 +15,8 @@
       <Activity /><br />Activity
     </router-link>
     <router-link
-      :to="{
-        name: 'nfts',
-        params: { id: !!selected ? selected : null },
-      }"
+      v-if="network.NFTHandler"
+      :to="{ name: 'nfts', params: { id: !!selected ? selected : null } }"
     >
       <NFTs /><br />NFTs
     </router-link>
@@ -46,11 +42,17 @@ import Activity from "@action/icons/tabs/activity.vue";
 import Assets from "@action/icons/tabs/assets.vue";
 import NFTs from "@action/icons/tabs/nfts.vue";
 import DApps from "@action/icons/tabs/dapps.vue";
+import { PropType } from "vue";
+import { NodeType } from "@/types/provider";
 
 defineProps({
   selected: {
     type: String,
     default: "",
+  },
+  network: {
+    type: Object as PropType<NodeType>,
+    default: () => ({}),
   },
 });
 </script>

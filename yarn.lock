@@ -1639,6 +1639,7 @@ __metadata:
     "@polkadot/extension-inject": ^0.43.1
     "@polkadot/rpc-provider": ^8.0.2
     "@polkadot/types": ^8.0.2
+    "@polkadot/ui-shared": ^2.0.1
     "@polkadot/util": ^9.0.1
     "@polkadot/wasm-crypto": ^6.0.1
     "@rollup/plugin-commonjs": ^21.0.2
@@ -1647,6 +1648,7 @@ __metadata:
     "@types/chrome": ^0.0.180
     "@types/events": ^3.0.0
     "@types/less": ^3.0.3
+    "@types/lodash": ^4.14.182
     "@types/mocha": ^9.1.0
     "@types/url-parse": ^1.4.8
     "@typescript-eslint/eslint-plugin": ^5.4.0
@@ -1657,6 +1659,7 @@ __metadata:
     "@vue/cli-service": ~5.0.4
     "@vue/eslint-config-prettier": ^6.0.0
     "@vue/eslint-config-typescript": ^9.1.0
+    bignumber.js: ^9.0.2
     buffer: ^6.0.3
     chai: ^4.3.6
     concurrently: ^7.0.0
@@ -1672,6 +1675,7 @@ __metadata:
     https-browserify: ^1.0.0
     less: ^4.1.2
     less-loader: ^5.0.0
+    lodash: ^4.17.21
     mocha: ^9.2.0
     moment: ^2.29.1
     prettier: ^2.4.1
@@ -2589,6 +2593,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@polkadot/ui-shared@npm:^2.0.1":
+  version: 2.0.1
+  resolution: "@polkadot/ui-shared@npm:2.0.1"
+  dependencies:
+    "@babel/runtime": ^7.17.9
+    color: ^3.2.1
+  peerDependencies:
+    "@polkadot/util": "*"
+    "@polkadot/util-crypto": "*"
+  checksum: 52b8dd3e1e8a3a386d21cbe03ad4a918364e5ccbe52fca63545ea356fc378383bda79a31a45a59b3dd1f9bca4280d97778a514a7b8d8ed73ff1cb7b1189ca6f0
+  languageName: node
+  linkType: hard
+
 "@polkadot/util-crypto@npm:9.0.1, @polkadot/util-crypto@npm:^9.0.1":
   version: 9.0.1
   resolution: "@polkadot/util-crypto@npm:9.0.1"
@@ -3183,6 +3200,13 @@ __metadata:
   version: 3.0.3
   resolution: "@types/less@npm:3.0.3"
   checksum: 389ce4c843fb88484ffbe4e3b63da0db1cea3e594c57086a5e642431f031f569819b4a210ae4ca109207d2307daa7e48e0e00315892fa7582748e0f434e62881
+  languageName: node
+  linkType: hard
+
+"@types/lodash@npm:^4.14.182":
+  version: 4.14.182
+  resolution: "@types/lodash@npm:4.14.182"
+  checksum: 7dd137aa9dbabd632408bd37009d984655164fa1ecc3f2b6eb94afe35bf0a5852cbab6183148d883e9c73a958b7fec9a9bcf7c8e45d41195add6a18c34958209
   languageName: node
   linkType: hard
 
@@ -4853,7 +4877,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"bignumber.js@npm:^9.0.0":
+"bignumber.js@npm:^9.0.0, bignumber.js@npm:^9.0.2":
   version: 9.0.2
   resolution: "bignumber.js@npm:9.0.2"
   checksum: 8637b71d0a99104b20413c47578953970006fec6b4df796b9dcfd9835ea9c402ea0e727eba9a5ca9f9a393c1d88b6168c5bbe0887598b708d4f8b4870ad62e1f
@@ -5690,7 +5714,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"color-convert@npm:^1.9.0":
+"color-convert@npm:^1.9.0, color-convert@npm:^1.9.3":
   version: 1.9.3
   resolution: "color-convert@npm:1.9.3"
   dependencies:
@@ -5715,10 +5739,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"color-name@npm:~1.1.4":
+"color-name@npm:^1.0.0, color-name@npm:~1.1.4":
   version: 1.1.4
   resolution: "color-name@npm:1.1.4"
   checksum: b0445859521eb4021cd0fb0cc1a75cecf67fceecae89b63f62b201cca8d345baf8b952c966862a9d9a2632987d4f6581f0ec8d957dfacece86f0a7919316f610
+  languageName: node
+  linkType: hard
+
+"color-string@npm:^1.6.0":
+  version: 1.9.0
+  resolution: "color-string@npm:1.9.0"
+  dependencies:
+    color-name: ^1.0.0
+    simple-swizzle: ^0.2.2
+  checksum: 93c6678b847f8cfa47d19677fd19e1d4b19d7a33f100644400357c298266080b5bca64e5f874fa8ac8cc0aa0606ad44f7a838b4e6fd05e6affea190a68555bb4
   languageName: node
   linkType: hard
 
@@ -5728,6 +5762,16 @@ __metadata:
   bin:
     color-support: bin.js
   checksum: 9b7356817670b9a13a26ca5af1c21615463b500783b739b7634a0c2047c16cef4b2865d7576875c31c3cddf9dd621fa19285e628f20198b233a5cfdda6d0793b
+  languageName: node
+  linkType: hard
+
+"color@npm:^3.2.1":
+  version: 3.2.1
+  resolution: "color@npm:3.2.1"
+  dependencies:
+    color-convert: ^1.9.3
+    color-string: ^1.6.0
+  checksum: f81220e8b774d35865c2561be921f5652117638dcda7ca4029262046e37fc2444ac7bbfdd110cf1fd9c074a4ee5eda8f85944ffbdda26186b602dd9bb05f6400
   languageName: node
   linkType: hard
 
@@ -9551,6 +9595,13 @@ __metadata:
   version: 0.2.1
   resolution: "is-arrayish@npm:0.2.1"
   checksum: eef4417e3c10e60e2c810b6084942b3ead455af16c4509959a27e490e7aee87cfb3f38e01bbde92220b528a0ee1a18d52b787e1458ee86174d8c7f0e58cd488f
+  languageName: node
+  linkType: hard
+
+"is-arrayish@npm:^0.3.1":
+  version: 0.3.2
+  resolution: "is-arrayish@npm:0.3.2"
+  checksum: 977e64f54d91c8f169b59afcd80ff19227e9f5c791fa28fa2e5bce355cbaf6c2c356711b734656e80c9dd4a854dd7efcf7894402f1031dfc5de5d620775b4d5f
   languageName: node
   linkType: hard
 
@@ -14127,6 +14178,15 @@ __metadata:
     once: ^1.3.1
     simple-concat: ^1.0.0
   checksum: 230bd931d3198f21a5a1a566687a5ee1ef651b13b61c7a01b547b2a0c2bf72769b5fe14a3b4dd518e99a18ba1002ba8af3901c0e61e8a0d1e7631a3c2eb1f7a9
+  languageName: node
+  linkType: hard
+
+"simple-swizzle@npm:^0.2.2":
+  version: 0.2.2
+  resolution: "simple-swizzle@npm:0.2.2"
+  dependencies:
+    is-arrayish: ^0.3.1
+  checksum: a7f3f2ab5c76c4472d5c578df892e857323e452d9f392e1b5cf74b74db66e6294a1e1b8b390b519fa1b96b5b613f2a37db6cffef52c3f1f8f3c5ea64eb2d54c0
   languageName: node
   linkType: hard
 

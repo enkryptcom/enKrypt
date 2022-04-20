@@ -1,5 +1,8 @@
 import moment from "moment";
-
+import {
+  formatFiatValue,
+  formatFloatingPointValue,
+} from "@/libs/utils/number-formatter";
 export const replaceWithEllipsis = (
   value: string,
   keepLeft: number,
@@ -12,16 +15,6 @@ export const replaceWithEllipsis = (
     "..." +
     value.substring(value.length - keepRight, value.length)
   );
-};
-export const currencyFormat = (value: number, currency: string): string => {
-  if (typeof value !== "number") {
-    return value;
-  }
-  const formatter = new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: currency,
-  });
-  return formatter.format(value);
 };
 export const formatDuration = (
   duration: moment.Duration,
@@ -38,3 +31,4 @@ export const formatDuration = (
 
   return `${m.padStart(2, "0")}:${s.padStart(2, "0")}`;
 };
+export { formatFiatValue, formatFloatingPointValue };

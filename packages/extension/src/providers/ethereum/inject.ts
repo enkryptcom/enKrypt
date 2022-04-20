@@ -28,6 +28,7 @@ export class Provider extends EventEmitter implements ProviderInterface {
     this.name = options.name;
     this.type = options.type;
     this.sendMessageHandler = options.sendMessageHandler;
+    window.dispatchEvent(new Event("ethereum#initialized"));
   }
   async request(request: EthereumRequest): Promise<EthereumResponse> {
     const res = (await this.sendMessageHandler(

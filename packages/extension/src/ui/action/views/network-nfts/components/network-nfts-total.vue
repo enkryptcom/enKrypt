@@ -1,7 +1,7 @@
 <template>
   <div class="network-nfts__total">
     <p>NFTs Net Worth</p>
-    <h3>{{ $filters.currencyFormat(amount, "USD") }}</h3>
+    <h3>{{ $filters.formatFiatValue(amount).value }} USD</h3>
   </div>
 </template>
 
@@ -14,10 +14,8 @@ export default {
 <script setup lang="ts">
 defineProps({
   amount: {
-    type: Number,
-    default: () => {
-      return 0;
-    },
+    type: String,
+    default: "0",
   },
 });
 </script>
