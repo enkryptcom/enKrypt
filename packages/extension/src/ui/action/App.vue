@@ -203,11 +203,14 @@ const showNetworkMenu = () => {
 
 <style lang="less">
 @import "./styles/theme.less";
+@import (css)
+  url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap");
 
 body {
   margin: 0;
   padding: 0;
   overflow: hidden;
+  font-family: "Roboto", sans-serif;
 }
 .app {
   width: 800px;
