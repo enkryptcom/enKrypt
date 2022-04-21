@@ -1,12 +1,11 @@
 <template>
   <div class="base-input__wrap">
     <input
-      v-model="text"
+      v-model="textValue"
       :type="showPassword ? 'text' : type"
       :placeholder="placeholder"
       class="base-input"
       :class="{ error: isError }"
-      @input="changeValue"
     />
     <a
       v-if="type == 'password'"
@@ -25,10 +24,9 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import HideIcon from "@action/icons/password/hide-icon.vue";
 let showPassword = ref(false);
-let text = "";
 const props = defineProps({
   placeholder: {
     type: String,
@@ -61,9 +59,11 @@ const props = defineProps({
     },
   },
 });
-const changeValue = (e: any) => {
-  props.input(e.target.value);
-};
+const emit = defineEmits(["update:value"]);
+const textValue = computed({
+  get: () => props.value,
+  set: (value) => emit("update:value", value),
+});
 const toggleVisibility = () => {
   showPassword.value = !showPassword.value;
 };

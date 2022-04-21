@@ -5,10 +5,17 @@ import NetworkAssets from "@action/views/network-assets/index.vue";
 import NetworkDApps from "@action/views/network-dapps/index.vue";
 import NetworkNFTs from "@action/views/network-nfts/index.vue";
 import LockScreen from "@action/views/lock-screen/index.vue";
-
+import Intro from "@action/views/intro/index.vue";
 const routes = [
   {
     path: "/",
+    components: {
+      view: Intro,
+    },
+    name: "lock-screen",
+  },
+  {
+    path: "/locked",
     components: {
       view: LockScreen,
     },

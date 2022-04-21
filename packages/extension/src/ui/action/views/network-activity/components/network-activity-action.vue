@@ -3,28 +3,25 @@
     <div class="network-activity__action-wrap">
       <a
         class="network-activity__action-item"
-        @click="(depositAction as (e: MouseEvent)=>void)"
+        @click="(depositAction as ()=>void)"
       >
         <Deposit /><br />Deposit
       </a>
       <div class="network-activity__action-devider"></div>
-      <a
-        class="network-activity__action-item"
-        @click="(buyAction as (e: MouseEvent)=>void)"
-      >
+      <a class="network-activity__action-item" @click="(buyAction as ()=>void)">
         <Buy /><br />Buy
       </a>
       <div class="network-activity__action-devider"></div>
       <a
         class="network-activity__action-item"
-        @click="(sendAction as (e: MouseEvent)=>void)"
+        @click="(sendAction as ()=>void)"
       >
         <Send /><br />Send
       </a>
       <div class="network-activity__action-devider"></div>
       <a
         class="network-activity__action-item"
-        @click="(swapAction as (e: MouseEvent)=>void)"
+        @click="(swapAction as ()=>void)"
       >
         <Swap /><br />Swap
       </a>
@@ -84,7 +81,6 @@ defineProps({
       align-items: center;
       flex-direction: row;
     }
-
     &-item {
       display: block;
       text-align: center;
@@ -103,7 +99,6 @@ defineProps({
         margin-bottom: 0;
       }
     }
-
     &-devider {
       height: 48px;
       width: 1px;

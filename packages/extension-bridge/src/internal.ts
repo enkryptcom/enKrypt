@@ -142,7 +142,8 @@ const initIntercoms = () => {
         routeMessage(message);
       });
       port.onDisconnect.addListener(() => {
-        connectToBackgroundWithDisconnect();
+        port = null;
+        initIntercoms();
       });
     };
     connectToBackgroundWithDisconnect();
@@ -157,7 +158,8 @@ const initIntercoms = () => {
         routeMessage(message);
       });
       port.onDisconnect.addListener(() => {
-        connectToBackgroundWithDisconnect();
+        port = null;
+        initIntercoms();
       });
     };
     connectToBackgroundWithDisconnect();
@@ -175,7 +177,8 @@ const initIntercoms = () => {
         routeMessage(message);
       });
       port.onDisconnect.addListener(() => {
-        connectToBackgroundWithDisconnect();
+        port = null;
+        initIntercoms();
       });
     };
     connectToBackgroundWithDisconnect();

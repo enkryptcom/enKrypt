@@ -19,6 +19,6 @@ backgroundHandler.init().then(() => {
     return backgroundHandler.externalHandler(msg);
   });
   backgroundOnMessageFromAction((msg): Promise<InternalOnMessageResponse> => {
-    return backgroundHandler.actionHandler(msg);
+    return backgroundHandler.internalHandler(msg);
   });
 });

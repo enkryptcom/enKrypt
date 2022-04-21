@@ -54,6 +54,7 @@ defineProps({
 
     img {
       max-width: 24px;
+      max-height: 24px;
       margin: 0 8px;
     }
 

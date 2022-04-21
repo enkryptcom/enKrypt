@@ -46,6 +46,7 @@
             :is="Component"
             :network="currentNetwork"
             :account-info="accountHeaderData"
+            :init="init"
           />
         </transition>
       </router-view>
@@ -82,6 +83,7 @@ import PublicKeyRing from "@/libs/keyring/public-keyring";
 import { KeyRecord } from "@enkryptcom/types";
 import { sendToBackgroundFromAction } from "@/libs/messenger/extension";
 import { EthereumNodeType, MessageMethod } from "@/providers/ethereum/types";
+import { InternalMethods } from "@/types/messenger";
 const tabstate = new TabState();
 const appMenuRef = ref(null);
 const networkGradient = ref("");
@@ -104,7 +106,17 @@ const defaultNetwork = networks.find(
 const currentNetwork = ref<NodeType>(defaultNetwork);
 const kr = new PublicKeyRing();
 
-onMounted(async () => {
+const isKeyRingLocked = async (): Promise<boolean> => {
+  return await sendToBackgroundFromAction({
+    message: JSON.stringify({
+      method: InternalMethods.isLocked,
+      params: [],
+    }),
+    provider: currentNetwork.value.provider,
+    tabId: await tabstate.getCurrentTabId(),
+  }).then((res) => JSON.parse(res.result || "true"));
+};
+const init = async () => {
   const curNetwork = await tabstate.getSelectedNetWork();
   if (curNetwork) {
     const savedNetwork = networks.find((net) => net.name === curNetwork);
@@ -112,6 +124,14 @@ onMounted(async () => {
     else setNetwork(defaultNetwork);
   } else {
     setNetwork(defaultNetwork);
+  }
+};
+onMounted(async () => {
+  const _isLocked = await isKeyRingLocked();
+  if (_isLocked) {
+    router.push({ name: "lock-screen" });
+  } else {
+    init();
   }
 });
 const setNetwork = async (network: NodeType) => {
@@ -141,8 +161,13 @@ const setNetwork = async (network: NodeType) => {
   if ((currentNetwork.value as EthereumNodeType).chainID) {
     await sendToBackgroundFromAction({
       message: JSON.stringify({
-        method: MessageMethod.changeChainId,
-        params: [(currentNetwork.value as EthereumNodeType).chainID],
+        method: InternalMethods.sendToTab,
+        params: [
+          {
+            method: MessageMethod.changeChainId,
+            params: [(currentNetwork.value as EthereumNodeType).chainID],
+          },
+        ],
       }),
       provider: currentNetwork.value.provider,
       tabId: await tabstate.getCurrentTabId(),
@@ -172,8 +197,13 @@ const onSelectedAddressChanged = async (newAccount: KeyRecord) => {
   await tabstate.setSelectedAddress(newAccount.address);
   await sendToBackgroundFromAction({
     message: JSON.stringify({
-      method: MessageMethod.changeAddress,
-      params: [newAccount.address],
+      method: InternalMethods.sendToTab,
+      params: [
+        {
+          method: MessageMethod.changeAddress,
+          params: [newAccount.address],
+        },
+      ],
     }),
     provider: currentNetwork.value.provider,
     tabId: await tabstate.getCurrentTabId(),

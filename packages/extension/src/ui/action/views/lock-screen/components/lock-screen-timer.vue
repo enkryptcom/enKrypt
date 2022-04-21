@@ -15,7 +15,7 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { defineProps, onMounted, ref } from "vue";
+import { onMounted, ref } from "vue";
 import LogoBig from "@action/icons/common/logo-big.vue";
 let timer = ref(60);
 onMounted(() => {

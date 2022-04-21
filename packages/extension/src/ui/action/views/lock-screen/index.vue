@@ -3,7 +3,11 @@
     <div v-show="!isForgot && !isLocked" class="lock-screen__wrap">
       <logo-big class="lock-screen__logo" />
       <h4>Unlock with password</h4>
-      <lock-screen-password-input :input="input" :is-error="isError" />
+      <lock-screen-password-input
+        :is-error="isError"
+        :value="password"
+        @update:value="passwordChanged"
+      />
       <base-button
         title="Unlock"
         :click="unlockAction"
@@ -36,32 +40,59 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { defineProps, ref } from "vue";
+import { PropType, ref } from "vue";
 import LogoBig from "@action/icons/common/logo-big.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import LockScreenPasswordInput from "./components/lock-screen-password-input.vue";
 import LockScreenForgot from "./components/lock-screen-forgot.vue";
 import LockScreenTimer from "./components/lock-screen-timer.vue";
-var password = ref("");
-var isDisabled = ref(true);
+import { sendToBackgroundFromAction } from "@/libs/messenger/extension";
+import { InternalMethods } from "@/types/messenger";
+
+const props = defineProps({
+  init: {
+    type: Function as PropType<() => void>,
+    default: () => ({}),
+  },
+});
+
+const password = ref("");
+const isDisabled = ref(true);
 const isError = ref(false);
 let isForgot = ref(false);
 let isLocked = ref(false);
-defineProps({});
-const unlockAction = () => {
-  console.log("unlockAction");
+
+const unlockAction = async () => {
+  isDisabled.value = true;
+  const unlockStatus = await sendToBackgroundFromAction({
+    message: JSON.stringify({
+      method: InternalMethods.unlock,
+      params: [password.value.trim()],
+    }),
+  });
+  if (unlockStatus.error) {
+    isError.value = true;
+  } else {
+    isError.value = false;
+    password.value = "";
+    props.init();
+  }
+  isDisabled.value = false;
 };
 const forgotAction = () => {
   toggleForgot();
 };
-const input = (text: string, isValid: boolean) => {
+const passwordChanged = (text: string) => {
   password.value = text;
-  isDisabled.value = !isValid;
+  isError.value = false;
+  if (text.length < 5) isDisabled.value = true;
+  else isDisabled.value = false;
 };
 const toggleForgot = () => {
   isForgot.value = !isForgot.value;
 };
 const resetAction = () => {
+  password.value = "";
   console.log("reset");
 };
 const closeLockedAction = () => {
@@ -79,7 +110,7 @@ const closeLockedAction = () => {
     width: 800px;
     height: 600px;
     overflow-x: hidden;
-    overflow-y: scroll;
+    overflow-y: hidden;
     position: fixed;
     left: 0;
     top: 0;

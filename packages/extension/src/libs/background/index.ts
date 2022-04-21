@@ -191,24 +191,29 @@ class BackgroundHandler {
       return Promise.resolve({
         result: JSON.stringify(this.#keyring.isLocked()),
       });
+    } else if (message.method === InternalMethods.sendToTab) {
+      const actionMsg = msg as any as ActionSendMessage;
+      if (
+        actionMsg.provider &&
+        actionMsg.tabId &&
+        this.#tabProviders[actionMsg.provider][actionMsg.tabId]
+      ) {
+        this.#tabProviders[actionMsg.provider][
+          actionMsg.tabId
+        ].sendNotification(
+          JSON.stringify(message.params?.length ? message.params[0] : {})
+        );
+        return Promise.resolve({
+          result: JSON.stringify(true),
+        });
+      } else {
+        return Promise.resolve({
+          result: JSON.stringify(false),
+        });
+      }
     } else {
       return Promise.resolve({
         error: getCustomError(`background: unknown method: ${message.method}`),
-      });
-    }
-  }
-  actionHandler(msg: Message): Promise<InternalOnMessageResponse> {
-    const actionMsg = msg as any as ActionSendMessage;
-    if (this.#tabProviders[actionMsg.provider][actionMsg.tabId]) {
-      this.#tabProviders[actionMsg.provider][actionMsg.tabId].sendNotification(
-        actionMsg.message
-      );
-      return Promise.resolve({
-        result: JSON.stringify(true),
-      });
-    } else {
-      return Promise.resolve({
-        result: JSON.stringify(false),
       });
     }
   }

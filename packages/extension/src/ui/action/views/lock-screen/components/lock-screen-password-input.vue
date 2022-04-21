@@ -2,11 +2,9 @@
   <div class="lock-screen-password-input">
     <base-input
       type="password"
-      value=""
       placeholder="Password"
       class="lock-screen-password-input__input"
-      :is-error="isError"
-      :input="input"
+      v-bind="$attrs"
     />
     <p v-show="isError" class="lock-screen-password-input__error">
       Wrong password
@@ -21,16 +19,8 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { ref } from "vue";
 import BaseInput from "@action/components/base-input/index.vue";
-var password = ref("");
-const props = defineProps({
-  input: {
-    type: Function,
-    default: () => {
-      return null;
-    },
-  },
+defineProps({
   isError: {
     type: Boolean,
     default: () => {
@@ -38,11 +28,6 @@ const props = defineProps({
     },
   },
 });
-const input = (text: string) => {
-  password.value = text;
-  const isValid = text.length > 6;
-  props.input(text, isValid);
-};
 </script>
 
 <style lang="less">
