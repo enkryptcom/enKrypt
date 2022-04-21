@@ -5,6 +5,8 @@ import NetworkActivity from "@action/views/network-activity/index.vue";
 import NetworkAssets from "@action/views/network-assets/index.vue";
 import NetworkDApps from "@action/views/network-dapps/index.vue";
 import NetworkNFTs from "@action/views/network-nfts/index.vue";
+import SendTransaction from "@action/views/send-transaction/index.vue";
+import VerifyTransaction from "@action/views/verify-transaction/index.vue";
 
 const routes = [
   {
@@ -41,6 +43,20 @@ const routes = [
       view: NetworkNFTs,
     },
     name: "nfts",
+  },
+  {
+    path: "/send/:id?",
+    components: {
+      view: SendTransaction,
+    },
+    name: "send-transaction",
+  },
+  {
+    path: "/verify-transaction/:id?",
+    components: {
+      view: VerifyTransaction,
+    },
+    name: "verify-transaction",
   },
   {
     path: "/add-network",

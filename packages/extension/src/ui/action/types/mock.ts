@@ -6,6 +6,7 @@ import {
 import { Token } from "./token";
 import { DAppsItem } from "./dapps";
 import { NFTAuthor } from "./nft";
+import { TransactionFee, TransactionFeeSpeed } from "./fee";
 
 export const transactionsOne: Transaction[] = [
   {
@@ -402,3 +403,71 @@ export const nfts: NFTAuthor[] = [
     ],
   },
 ];
+
+export const ethereum: Token = {
+  name: "Ethereum",
+  symbol: "eth",
+  icon: "https://mpolev.ru/enkrypt/eth.png",
+  amount: 0.5,
+  price: 2500,
+};
+
+export const fees: TransactionFee[] = [
+  {
+    limit: 0.0001,
+    price: {
+      speed: TransactionFeeSpeed.economy,
+      baseFee: 0.002,
+      tip: 0.0002,
+      totalFee: 0.0022,
+      title: "Economy",
+      description: "Will likely go trough unless activity increases",
+    },
+  },
+  {
+    limit: 0.001,
+    price: {
+      speed: TransactionFeeSpeed.recommended,
+      baseFee: 0.02,
+      tip: 0.002,
+      totalFee: 0.022,
+      title: "Recommended",
+      description: "Will reliably go through in most scenatios",
+    },
+  },
+  {
+    limit: 0.01,
+    price: {
+      speed: TransactionFeeSpeed.higherPriority,
+      baseFee: 0.2,
+      tip: 0.02,
+      totalFee: 0.22,
+      title: "Higher priority",
+      description:
+        "Will go through even if there is a sudden activity increase",
+    },
+  },
+  {
+    limit: 0.015,
+    price: {
+      speed: TransactionFeeSpeed.highestPriority,
+      baseFee: 0.3,
+      tip: 0.03,
+      totalFee: 0.33,
+      title: "Highest priority",
+      description: "Will go through, fast, in 99.99% of the cases",
+    },
+  },
+];
+
+export const recommendedFee: TransactionFee = {
+  limit: 0.001,
+  price: {
+    speed: TransactionFeeSpeed.recommended,
+    baseFee: 0.02,
+    tip: 0.002,
+    totalFee: 0.022,
+    title: "Recommended",
+    description: "Will reliably go through in most scenatios",
+  },
+};
