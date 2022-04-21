@@ -2,6 +2,7 @@ import { ProviderName } from "@/types/provider";
 import { SignerType } from "@enkryptcom/types";
 import { polkadotEncodeAddress } from "@enkryptcom/utils";
 import API from "../libs/api";
+import acalaAssetsHandler from "../libs/assets-handlers/acala";
 import createIcon from "../libs/blockies";
 import { PolkadotNodeType } from "../types";
 const acaNode: PolkadotNodeType = {
@@ -12,7 +13,7 @@ const acaNode: PolkadotNodeType = {
   blockExplorerAddr: "https://acala.subscan.io/account/[[address]]",
   isTestNetwork: false,
   currencyName: "ACA",
-  icon: require("./icons/polkadot.svg"),
+  icon: require("./icons/acala.svg"),
   decimals: 12,
   prefix: 10,
   signer: [SignerType.sr25519, SignerType.ed25519],
@@ -22,6 +23,7 @@ const acaNode: PolkadotNodeType = {
   provider: ProviderName.polkadot,
   coingeckoID: "acala",
   identicon: createIcon,
+  assetsHandler: acalaAssetsHandler,
 };
 acaNode.api = async () => {
   const api = new API(acaNode.node, { decimals: acaNode.decimals });

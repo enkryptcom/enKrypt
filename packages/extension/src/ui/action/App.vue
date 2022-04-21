@@ -218,22 +218,6 @@ body {
       margin-left: 8px;
     }
 
-    // &.ethereum {
-    //   background: @ethereumGradient;
-    // }
-
-    // &.polygon {
-    //   background: @polygonGradient;
-    // }
-
-    // &.polkadot {
-    //   background: @polkadotGradient;
-    // }
-
-    // &.moonbeam {
-    //   background: @moonbeamGradient;
-    // }
-
     &-footer {
       position: absolute;
       width: 100%;

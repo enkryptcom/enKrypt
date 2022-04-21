@@ -1,4 +1,4 @@
-import tokenbalanceMew from "@/libs/assets-handlers/tokenbalance-mew";
+import tokenbalanceMew from "@/providers/ethereum/libs/assets-handlers/tokenbalance-mew";
 import rarible from "@/libs/nft-handlers/rarible";
 import { ProviderName } from "@/types/provider";
 import { SignerType } from "@enkryptcom/types";

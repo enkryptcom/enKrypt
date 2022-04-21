@@ -14,6 +14,7 @@
     "watch-vue": "vue-cli-service build --watch --no-clean"
   },
   "dependencies": {
+    "@acala-network/api": "^4.1.1",
     "@enkryptcom/extension-bridge": "^0.0.1",
     "@enkryptcom/keyring": "^0.0.1",
     "@enkryptcom/request": "^0.0.1",

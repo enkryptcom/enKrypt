@@ -143,7 +143,7 @@ export interface AssetsType {
   balanceUSDf: string;
   value: string;
   valuef: string;
-  contract: string;
+  contract?: string;
   decimals: number;
   sparkline: string;
   priceChangePercentage: number;

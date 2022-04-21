@@ -5,7 +5,7 @@ import { toChecksumAddress } from "ethereumjs-util";
 import API from "../libs/api";
 import { EthereumNodeType } from "../types";
 import createIcon from "../libs/blockies";
-import tokenbalanceMew from "@/libs/assets-handlers/tokenbalance-mew";
+import tokenbalanceMew from "@/providers/ethereum/libs/assets-handlers/tokenbalance-mew";
 const maticNode: EthereumNodeType = {
   name: "MATIC",
   name_long: "Polygon (Matic)",

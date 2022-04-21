@@ -4,17 +4,17 @@ import {
   SupportedNetwork,
   TokenBalance,
 } from "./types/tokenbalance-mew";
-import MarketData from "../market-data";
-import cacheFetch from "../cache-fetch";
-import { fromBase } from "../utils/units";
+import MarketData from "@/libs/market-data";
+import cacheFetch from "@/libs/cache-fetch";
+import { fromBase } from "@/libs/utils/units";
 import { toBN } from "web3-utils";
 import BigNumber from "bignumber.js";
 import {
   formatFiatValue,
   formatFloatingPointValue,
-} from "../utils/number-formatter";
+} from "@/libs/utils/number-formatter";
 import API from "@/providers/ethereum/libs/api";
-import Sparkline from "../sparkline";
+import Sparkline from "@/libs/sparkline";
 import { EthereumNodeType } from "@/providers/ethereum/types";
 const API_ENPOINT = "https://tokenbalance.mewapi.io/";
 const NATIVE_CONTRACT = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
@@ -123,8 +123,8 @@ export default (network: NodeType, address: string): Promise<AssetsType[]> => {
           }
         }
         assets.sort((a, b) => {
-          if (a.balanceUSD > b.balanceUSD) return 1;
-          else if (a.balanceUSD < b.balanceUSD) return -1;
+          if (a.balanceUSD < b.balanceUSD) return 1;
+          else if (a.balanceUSD > b.balanceUSD) return -1;
           else return 0;
         });
         assets.unshift(nativeAsset as AssetsType);
