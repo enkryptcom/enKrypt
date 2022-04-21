@@ -35,6 +35,12 @@ defineProps({
 .network-nfts {
   &__item {
     margin-bottom: 8px;
+    width: 128px;
+    margin-right: 18px;
+
+    &:nth-child(3n) {
+      margin-right: 0;
+    }
 
     img {
       border-radius: 12px;
