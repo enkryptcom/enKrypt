@@ -7,6 +7,7 @@
       placeholder="Search networks"
       class="app-search__input"
       :class="{ border: isBorder }"
+      autocomplete="off"
     />
   </div>
 </template>

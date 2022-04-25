@@ -4,7 +4,7 @@ import {
   InternalOnMessageResponse,
   Message,
 } from "@/types/messenger";
-import { KeyRecord, RPCRequestType } from "@enkryptcom/types";
+import { KeyRecord, KeyRecordAdd, RPCRequestType } from "@enkryptcom/types";
 import { getCustomError } from "../error";
 import KeyRingBase from "../keyring/keyring";
 import { sendToWindow } from "@/libs/messenger/extension";
@@ -36,20 +36,6 @@ class BackgroundHandler {
       [ProviderName.ethereum]: EthereumProvider,
       [ProviderName.polkadot]: PolkadotProvider,
     };
-    // this.#keyring
-    //   .generate("test pass")
-    //   .then(() => {
-    //     console.log("keyring created");
-    //   })
-    //   .catch(console.error);
-    // this.#keyring.unlock("test pass").then(() => {
-    //   this.#keyring.addEthereumAddress("abc").then((key) => {
-    //     console.log("added", key);
-    //   });
-    //   this.#keyring.addPolkadotAddress("def1").then((key) => {
-    //     console.log("added", key);
-    //   });
-    // });
   }
   async init(): Promise<void> {
     const allPersistentEvents = await this.#persistentEvents.getAllEvents();
@@ -191,24 +177,54 @@ class BackgroundHandler {
       return Promise.resolve({
         result: JSON.stringify(this.#keyring.isLocked()),
       });
+    } else if (message.method === InternalMethods.sendToTab) {
+      const actionMsg = msg as any as ActionSendMessage;
+      if (
+        actionMsg.provider &&
+        actionMsg.tabId &&
+        this.#tabProviders[actionMsg.provider][actionMsg.tabId]
+      ) {
+        this.#tabProviders[actionMsg.provider][
+          actionMsg.tabId
+        ].sendNotification(
+          JSON.stringify(message.params?.length ? message.params[0] : {})
+        );
+        return Promise.resolve({
+          result: JSON.stringify(true),
+        });
+      } else {
+        return Promise.resolve({
+          result: JSON.stringify(false),
+        });
+      }
+    } else if (
+      message.method === InternalMethods.getNewAccount ||
+      message.method === InternalMethods.saveNewAccount
+    ) {
+      if (!message.params || message.params.length < 1)
+        return Promise.resolve({
+          error: getCustomError("background: invalid params for new account"),
+        });
+      const method =
+        message.method === InternalMethods.getNewAccount
+          ? "getNewAccount"
+          : "saveNewAccount";
+      const keyrecord = message.params[0] as KeyRecordAdd;
+      return this.#keyring
+        [method](keyrecord)
+        .then((res) => {
+          return {
+            result: JSON.stringify(res),
+          };
+        })
+        .catch((e) => {
+          return {
+            error: getCustomError(e.message),
+          };
+        });
     } else {
       return Promise.resolve({
         error: getCustomError(`background: unknown method: ${message.method}`),
-      });
-    }
-  }
-  actionHandler(msg: Message): Promise<InternalOnMessageResponse> {
-    const actionMsg = msg as any as ActionSendMessage;
-    if (this.#tabProviders[actionMsg.provider][actionMsg.tabId]) {
-      this.#tabProviders[actionMsg.provider][actionMsg.tabId].sendNotification(
-        actionMsg.message
-      );
-      return Promise.resolve({
-        result: JSON.stringify(true),
-      });
-    } else {
-      return Promise.resolve({
-        result: JSON.stringify(false),
       });
     }
   }

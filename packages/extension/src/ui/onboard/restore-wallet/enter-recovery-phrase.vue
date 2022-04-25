@@ -2,7 +2,12 @@
   <div class="enter-recovery-phrase">
     <h3>Enter your<br />recovery phrase</h3>
 
-    <textarea v-model="mnemonic" class="enter-recovery-phrase__input">
+    <textarea
+      v-model="mnemonic"
+      autocomplete="off"
+      class="enter-recovery-phrase__input"
+      placeholder="witch collapse practice feed shame open despair creek road again ice least"
+    >
     </textarea>
 
     <div class="enter-recovery-phrase__buttons">

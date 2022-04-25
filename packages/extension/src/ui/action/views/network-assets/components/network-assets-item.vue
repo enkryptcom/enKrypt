@@ -6,19 +6,30 @@
       <div class="network-assets__token-info-name">
         <h4>{{ token.name }}</h4>
         <p>
-          {{ token.amount }} <span>{{ token.symbol }}</span>
+          {{ token.balancef }} <span>{{ token.symbol }}</span>
         </p>
       </div>
     </div>
 
-    <div class="network-assets__token-sparkline">
-      <p><sparkline-up />10.20%</p>
-      <img src="@/ui/action/assets/sparkline.png" />
+    <div
+      v-if="token.priceChangePercentage !== 0"
+      class="network-assets__token-sparkline"
+      :class="{
+        down: token.priceChangePercentage < 0,
+        up: token.priceChangePercentage >= 0,
+      }"
+    >
+      <p>
+        <sparkline-up v-if="token.priceChangePercentage >= 0" /><sparkline-down
+          v-if="token.priceChangePercentage < 0"
+        />{{ token.priceChangePercentage.toFixed(2) }}%
+      </p>
+      <img :src="token.sparkline" />
     </div>
 
     <div class="network-assets__token-price">
-      <h4>{{ $filters.formatFiatValue(amount).value }}</h4>
-      <p>@{{ $filters.formatFiatValue(token.price).value }}</p>
+      <h4>{{ token.balanceUSDf }}</h4>
+      <p>@{{ token.valuef }}</p>
     </div>
   </div>
 </template>
@@ -31,26 +42,26 @@ export default {
 
 <script setup lang="ts">
 import { PropType } from "vue";
-import { Token } from "@action/types/token";
 import SparklineUp from "@action/icons/asset/sparkline-up.vue";
-
-const props = defineProps({
+import SparklineDown from "@action/icons/asset/sparkline-down.vue";
+import { AssetsType } from "@/types/provider";
+defineProps({
   token: {
-    type: Object as PropType<Token>,
+    type: Object as PropType<AssetsType>,
     default: () => ({}),
   },
 });
-
-let amount = 0;
-
-if (props.token) {
-  amount = props.token.price * props.token.amount;
-}
 </script>
 
 <style lang="less">
 @import "~@action/styles/theme.less";
 
+.down {
+  color: @error;
+}
+.up {
+  color: @primary;
+}
 .network-assets {
   &__token {
     height: 72px;
@@ -109,7 +120,9 @@ if (props.token) {
 
     &-sparkline {
       text-align: center;
-
+      img {
+        max-height: 32px;
+      }
       p {
         display: flex;
         justify-content: center;
@@ -121,7 +134,6 @@ if (props.token) {
         line-height: 14px;
         text-align: right;
         letter-spacing: 0.5px;
-        color: @primary;
         margin: 0 0 2px 0;
 
         svg {

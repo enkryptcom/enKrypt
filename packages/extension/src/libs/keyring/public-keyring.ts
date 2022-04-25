@@ -17,6 +17,14 @@ class PublicKeyRing {
         type: SignerType.secp256k1,
       }); //this is a fake account for testing
       records.push({
+        address: "0xe5dc07bdcdb8c98850050c7f67de7e164b1ea391",
+        basePath: "m/44'/60'/1'/1",
+        name: "fake account #3",
+        pathIndex: 0,
+        publicKey: "0x0",
+        type: SignerType.secp256k1,
+      }); //this is a fake account for testing
+      records.push({
         address: "5FUX5eiga7k8pT6siY9KAiEhyxMAfEVgKomLB6qb2YAZakfo",
         basePath: "//",
         name: "fake account #2",

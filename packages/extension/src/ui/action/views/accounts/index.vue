@@ -31,8 +31,23 @@
           :identicon-element="network.identicon"
         ></accounts-list-item>
       </custom-scrollbar>
+
+      <div class="accounts__add">
+        <a class="accounts__add-button" @click="addAccount()">
+          <add-icon />
+          Add account
+        </a>
+      </div>
     </div>
   </div>
+
+  <add-account-form
+    v-if="isAddAccount"
+    :close="closeAddAccount"
+    :network="network"
+    :init="init"
+    :select-account="selectAccount"
+  ></add-account-form>
 </template>
 
 <script lang="ts">
@@ -45,8 +60,10 @@ export default {
 import AccountsSearch from "./components/accounts-search.vue";
 import AccountsListItem from "./components/accounts-list-item.vue";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
+import AddIcon from "@action/icons/common/add-icon.vue";
+import AddAccountForm from "./components/add-account-form.vue";
 import { AccountsHeaderData } from "../../types/account";
-import { PropType } from "vue";
+import { PropType, ref } from "vue";
 import { NodeType } from "@/types/provider";
 import { KeyRecord } from "@enkryptcom/types";
 
@@ -58,7 +75,7 @@ const settings = {
 const emit = defineEmits<{
   (e: "addressChanged", account: KeyRecord): void;
 }>();
-
+let isAddAccount = ref(false);
 const props = defineProps({
   network: {
     type: Object as PropType<NodeType>,
@@ -73,8 +90,11 @@ const props = defineProps({
     type: Function,
     default: () => ({}),
   },
+  init: {
+    type: Function as PropType<() => void>,
+    default: () => ({}),
+  },
 });
-
 const close = () => {
   setTimeout(() => {
     props.toggle();
@@ -90,6 +110,16 @@ const selectAccount = (address: string) => {
   setTimeout(() => {
     props.toggle();
   }, 150);
+};
+const addAccount = () => {
+  props.toggle();
+
+  setTimeout(() => {
+    isAddAccount.value = true;
+  }, 150);
+};
+const closeAddAccount = () => {
+  isAddAccount.value = false;
 };
 </script>
 
@@ -137,6 +167,7 @@ const selectAccount = (address: string) => {
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.3s, visibility 0s ease-in-out 0.3s;
+    padding-bottom: 56px;
 
     &.show {
       opacity: 1;
@@ -149,7 +180,7 @@ const selectAccount = (address: string) => {
     position: relative;
     margin: auto;
     width: 100%;
-    max-height: 476px;
+    max-height: 420px;
   }
 
   &__info {
@@ -166,6 +197,45 @@ const selectAccount = (address: string) => {
 
       &:hover {
         text-decoration: none;
+      }
+    }
+  }
+
+  &__add {
+    height: 56px;
+    left: 0px;
+    bottom: 0px;
+    width: 100%;
+    background: @white;
+    box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.05), 0px 0px 1px rgba(0, 0, 0, 0.25);
+    position: absolute;
+    padding: 8px;
+    box-sizing: border-box;
+
+    &-button {
+      display: flex;
+      box-sizing: border-box;
+      justify-content: space-between;
+      align-items: center;
+      flex-direction: row;
+      height: 40px;
+      padding: 10px 16px 10px 8px;
+      font-style: normal;
+      font-weight: normal;
+      font-size: 14px;
+      line-height: 20px;
+      letter-spacing: 0.25px;
+      color: @primaryLabel;
+      text-decoration: none;
+      cursor: pointer;
+      width: 144px;
+      &.active,
+      &:hover {
+        background: @black007;
+        border-radius: 10px;
+      }
+      svg {
+        margin-right: 8px;
       }
     }
   }

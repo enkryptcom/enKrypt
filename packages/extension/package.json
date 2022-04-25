@@ -14,6 +14,7 @@
     "watch-vue": "vue-cli-service build --watch --no-clean"
   },
   "dependencies": {
+    "@acala-network/api": "^4.1.1",
     "@enkryptcom/extension-bridge": "^0.0.1",
     "@enkryptcom/keyring": "^0.0.1",
     "@enkryptcom/request": "^0.0.1",
@@ -27,6 +28,7 @@
     "@types/events": "^3.0.0",
     "@types/less": "^3.0.3",
     "@types/lodash": "^4.14.182",
+    "add": "^2.0.6",
     "bignumber.js": "^9.0.2",
     "bip39": "^3.0.4",
     "chai": "^4.3.6",
@@ -35,7 +37,9 @@
     "ethereumjs-util": "^7.1.4",
     "eventemitter3": "^4.0.7",
     "lodash": "^4.17.21",
+    "memoize-one": "^6.0.0",
     "moment": "^2.29.1",
+    "qrcode.vue": "^3.3.3",
     "rollup-plugin-node-builtins": "^2.1.2",
     "url-parse": "^1.5.10",
     "vue": "^3.2.31",
@@ -86,7 +90,7 @@
     "tsconfig-paths": "^3.12.0",
     "typescript": "^4.5.5",
     "url": "^0.11.0",
-    "webextension-polyfill": "^0.8.0"
+    "webextension-polyfill": "^0.9.0"
   },
   "installConfig": {
     "hoistingLimits": "none"

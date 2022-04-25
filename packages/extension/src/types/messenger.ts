@@ -19,6 +19,9 @@ export enum InternalMethods {
   isLocked = "enkrypt_is_locked_keyring",
   newWindowInit = "enkrypt_newWindowInit",
   newWindowUnload = "enkrypt_newWindowUnload",
+  sendToTab = "enkrypt_sendToTab",
+  getNewAccount = "enkrypt_getNewAccount",
+  saveNewAccount = "enkrypt_saveNewAccount",
 }
 export interface SendMessage {
   [key: string]: any;
@@ -27,9 +30,9 @@ export interface SendMessage {
 }
 export interface ActionSendMessage {
   [key: string]: any;
-  provider: ProviderName;
+  provider?: ProviderName;
   message: string;
-  tabId: number;
+  tabId?: number;
 }
 export interface Message extends SendMessage {
   sender: Endpoint;

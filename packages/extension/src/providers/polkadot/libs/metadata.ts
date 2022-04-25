@@ -14,14 +14,14 @@ export default class Metadata implements InjectedMetadata {
   }
 
   public get(): Promise<InjectedMetadataKnown[]> {
-    console.log("metadata get called");
+    console.info("metadata get called");
     return this.sendMessageHandler(this.id, {
       method: "dot_metadata_get",
     });
   }
 
   public provide(definition: MetadataDef): Promise<boolean> {
-    console.log(definition);
+    console.info(definition);
     return Promise.resolve(true);
   }
 }

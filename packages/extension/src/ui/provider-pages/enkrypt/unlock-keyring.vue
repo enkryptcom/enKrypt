@@ -6,7 +6,7 @@
         Domain: {{ options.domain }} would like to unlock keyring
       </div>
       <div>
-        <input v-model="password" />
+        <input v-model="password" autocomplete="off" />
         <br />
         {{ errorMsg }}
       </div>

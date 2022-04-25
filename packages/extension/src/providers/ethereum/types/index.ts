@@ -50,4 +50,10 @@ export interface EthereumNodeType extends NodeType {
   chainID: number;
 }
 
+export interface ERC20TokenInfo {
+  name: string;
+  symbol: string;
+  decimals: number;
+}
+
 export { InjectedProvider };

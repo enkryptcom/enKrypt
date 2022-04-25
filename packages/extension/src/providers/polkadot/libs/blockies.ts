@@ -5,7 +5,6 @@ type options = {
 };
 const createIcon = (address: string, options?: options): string => {
   options = options || {};
-  console.log(address);
   const circles = polkadotIcon(address, {
     isAlternative: options.isAlternative || true,
   })

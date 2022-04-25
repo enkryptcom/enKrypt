@@ -23,6 +23,7 @@ export enum InternalStorageNamespace {
   persistentEvents = "PersistentEvents",
   tabState = "TabState",
   marketData = "MarketData",
+  cacheFetch = "CacheFetch",
 }
 export enum EnkryptProviderEventMethods {
   persistentEvents = "PersistentEvents",
@@ -129,4 +130,22 @@ export interface NodeType {
   coingeckoID?: string;
   NFTHandler?: (network: NodeType, address: string) => Promise<NFTCollection[]>;
   identicon: (address: string, options: any) => string;
+  assetsHandler?: (network: NodeType, address: string) => Promise<AssetsType[]>;
+  basePath: string;
+}
+
+export interface AssetsType {
+  name: string;
+  symbol: string;
+  icon: string;
+  balance: string;
+  balancef: string;
+  balanceUSD: number;
+  balanceUSDf: string;
+  value: string;
+  valuef: string;
+  contract?: string;
+  decimals: number;
+  sparkline: string;
+  priceChangePercentage: number;
 }

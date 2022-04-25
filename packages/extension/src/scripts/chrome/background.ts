@@ -15,10 +15,10 @@ backgroundHandler.init().then(() => {
       return backgroundHandler.internalHandler(msg);
     }
   );
-  backgroundOnMessageFromWindow((msg): Promise<OnMessageResponse> => {
-    return backgroundHandler.externalHandler(msg);
-  });
-  backgroundOnMessageFromAction((msg): Promise<InternalOnMessageResponse> => {
-    return backgroundHandler.actionHandler(msg);
-  });
+});
+backgroundOnMessageFromWindow((msg): Promise<OnMessageResponse> => {
+  return backgroundHandler.externalHandler(msg);
+});
+backgroundOnMessageFromAction((msg): Promise<InternalOnMessageResponse> => {
+  return backgroundHandler.internalHandler(msg);
 });

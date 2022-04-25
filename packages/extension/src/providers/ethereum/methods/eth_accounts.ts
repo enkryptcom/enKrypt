@@ -1,6 +1,6 @@
 import { MiddlewareFunction, SignerType } from "@enkryptcom/types";
 import type EthereumProvider from "..";
-import { WindowPromise } from "@/libs/window-promise";
+// import { WindowPromise } from "@/libs/window-promise";
 import { ProviderRPCRequest } from "@/types/provider";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
 const method: MiddlewareFunction = function (

@@ -1,7 +1,12 @@
 <template>
   <a
     class="button"
-    :class="{ alternative: noBackground, disabled: disabled }"
+    :class="{
+      alternative: noBackground,
+      disabled: disabled,
+      gray: gray,
+      red: red,
+    }"
     @click="click()"
   >
     {{ title }}
@@ -29,6 +34,14 @@ defineProps({
     default: () => ({}),
   },
   disabled: Boolean,
+  gray: {
+    type: Boolean,
+    default: false,
+  },
+  red: {
+    type: Boolean,
+    default: false,
+  },
 });
 </script>
 
@@ -54,14 +67,26 @@ defineProps({
 
   &.disabled {
     pointer-events: none;
-    background: rgba(95, 99, 104, 0.1);
-    color: rgba(0, 0, 0, 0.2);
+    background: rgba(95, 99, 104, 0.1) !important;
+    color: rgba(0, 0, 0, 0.2) !important;
+    box-shadow: none !important;
   }
 
   &.alternative {
     color: @primaryLabel;
     background: transparent;
     box-shadow: none;
+  }
+
+  &.gray {
+    background: @buttonBg;
+    box-shadow: none;
+    color: @primaryLabel;
+  }
+
+  &.red {
+    background: @error;
+    color: @white;
   }
 }
 </style>

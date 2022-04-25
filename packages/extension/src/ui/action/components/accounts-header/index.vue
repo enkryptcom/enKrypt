@@ -22,6 +22,7 @@
       v-if="!!accountInfo.selectedAccount"
       :account="accountInfo.selectedAccount"
       :show-deposit="showDeposit"
+      :network="network"
       :toggle="toggleDeposit"
     />
   </div>

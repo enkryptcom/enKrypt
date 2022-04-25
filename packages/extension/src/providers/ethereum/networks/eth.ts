@@ -1,3 +1,4 @@
+import tokenbalanceMew from "@/providers/ethereum/libs/assets-handlers/tokenbalance-mew";
 import rarible from "@/libs/nft-handlers/rarible";
 import { ProviderName } from "@/types/provider";
 import { SignerType } from "@enkryptcom/types";
@@ -23,6 +24,8 @@ const ethNode: EthereumNodeType = {
   coingeckoID: "ethereum",
   NFTHandler: rarible,
   identicon: createIcon,
+  assetsHandler: tokenbalanceMew,
+  basePath: "m/44'/60'/0'/0",
 };
 ethNode.api = async () => {
   const api = new API(ethNode.node);
