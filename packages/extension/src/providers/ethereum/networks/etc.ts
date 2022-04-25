@@ -21,6 +21,7 @@ const etcNode: EthereumNodeType = {
   provider: ProviderName.ethereum,
   coingeckoID: "ethereum-classic",
   identicon: createIcon,
+  basePath: "m/44'/61'/0'/0",
 };
 etcNode.api = async () => {
   const api = new API(etcNode.node);

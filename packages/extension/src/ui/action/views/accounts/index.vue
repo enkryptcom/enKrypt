@@ -42,8 +42,11 @@
   </div>
 
   <add-account-form
-    v-show="isAddAccount"
+    v-if="isAddAccount"
     :close="closeAddAccount"
+    :network="network"
+    :init="init"
+    :select-account="selectAccount"
   ></add-account-form>
 </template>
 
@@ -87,8 +90,11 @@ const props = defineProps({
     type: Function,
     default: () => ({}),
   },
+  init: {
+    type: Function as PropType<() => void>,
+    default: () => ({}),
+  },
 });
-
 const close = () => {
   setTimeout(() => {
     props.toggle();

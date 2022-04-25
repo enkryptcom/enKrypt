@@ -20,6 +20,7 @@ const kovanNode: EthereumNodeType = {
   displayAddress: (address: string) => toChecksumAddress(address),
   provider: ProviderName.ethereum,
   identicon: createIcon,
+  basePath: "m/44'/60'/0'/0",
 };
 kovanNode.api = async () => {
   const api = new API(kovanNode.node);

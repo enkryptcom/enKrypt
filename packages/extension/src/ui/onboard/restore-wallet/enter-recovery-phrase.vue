@@ -3,6 +3,7 @@
     <h3>Enter your<br />recovery phrase</h3>
 
     <textarea
+      autocomplete="off"
       class="enter-recovery-phrase__input"
       placeholder="witch collapse practice feed shame open despair creek road again ice least"
     >

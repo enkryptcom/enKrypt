@@ -2,14 +2,15 @@
   <div class="add-account-form__container">
     <div class="add-account-form__overlay" @click="close"></div>
     <div class="add-account-form">
-      <h3>Add new Polkadot chain account</h3>
+      <h3>Add new {{ network.name_long }} account</h3>
 
       <div class="add-account-form__input" :class="{ focus: isFocus }">
-        <img src="@/ui/action/icons/raw/account.png" />
+        <img :src="network.identicon(newAccount?.address || '')" />
         <input
+          v-model="accountName"
           type="text"
           placeholder="Account name"
-          @input="changeValue"
+          autocomplete="off"
           @focus="changeFocus"
           @blur="changeFocus"
         />
@@ -27,8 +28,8 @@
         <div class="add-account-form__buttons-send">
           <base-button
             title="Add account"
-            :click="sendAction"
-            :disabled="isDisabled()"
+            :click="addAccount"
+            :disabled="isDisabled"
           />
         </div>
       </div>
@@ -36,39 +37,85 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "AddAccountForm",
-};
-</script>
-
 <script setup lang="ts">
-import { defineProps, ref } from "vue";
+import { onMounted, PropType, ref, watch } from "vue";
 import BaseButton from "@action/components/base-button/index.vue";
-let isFocus = ref(false);
-let name = ref("");
+import { NodeType } from "@/types/provider";
+import { sendToBackgroundFromAction } from "@/libs/messenger/extension";
+import { InternalMethods } from "@/types/messenger";
+import { KeyRecord, KeyRecordAdd } from "@enkryptcom/types";
+import Keyring from "@/libs/keyring/public-keyring";
+
+const isFocus = ref(false);
+const accountName = ref("");
+const newAccount = ref<KeyRecord | null>(null);
+const isDisabled = ref(true);
 const props = defineProps({
   close: {
     type: Function,
     default: () => ({}),
   },
+  network: {
+    type: Object as PropType<NodeType>,
+    default: () => ({}),
+  },
+  init: {
+    type: Function as PropType<() => void>,
+    default: () => ({}),
+  },
+  selectAccount: {
+    type: Function as PropType<(address: string) => void>,
+    default: () => ({}),
+  },
 });
-const changeValue = (e: any) => {
-  name.value = e.target.value;
+const kr = new Keyring();
+const setNewAccountInfo = async () => {
+  const keyReq: KeyRecordAdd = {
+    name: "",
+    basePath: props.network.basePath,
+    type: props.network.signer[0],
+  };
+  await sendToBackgroundFromAction({
+    message: JSON.stringify({
+      method: InternalMethods.getNewAccount,
+      params: [keyReq],
+    }),
+  }).then((res) => {
+    if (res.result) {
+      newAccount.value = JSON.parse(res.result) as KeyRecord;
+    }
+  });
 };
+onMounted(() => {
+  setNewAccountInfo();
+});
+watch(accountName, async () => {
+  isDisabled.value = false;
+  if (accountName.value.length < 3) return (isDisabled.value = true);
+  const allNames = await kr.getAccounts().then((all) => all.map((a) => a.name));
+  if (allNames.includes(accountName.value.trim())) isDisabled.value = true;
+});
 const changeFocus = () => {
   isFocus.value = !isFocus.value;
 };
 const close = () => {
   props.close();
 };
-const isDisabled = () => {
-  let isDisabled = true;
-  if (name.value.length > 2) isDisabled = false;
-  return isDisabled;
-};
-const sendAction = () => {
-  console.log("sendAction");
+const addAccount = async () => {
+  const keyReq: KeyRecordAdd = {
+    name: accountName.value.trim(),
+    basePath: props.network.basePath,
+    type: props.network.signer[0],
+  };
+  await sendToBackgroundFromAction({
+    message: JSON.stringify({
+      method: InternalMethods.saveNewAccount,
+      params: [keyReq],
+    }),
+  }).then(() => {
+    props.init();
+    close();
+  });
 };
 </script>
 
@@ -146,6 +193,7 @@ const sendAction = () => {
       width: 32px;
       height: 32px;
       margin-right: 12px;
+      border-radius: 50%;
     }
     input {
       width: 100%;

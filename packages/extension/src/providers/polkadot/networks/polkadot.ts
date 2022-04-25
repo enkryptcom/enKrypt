@@ -24,6 +24,7 @@ const dotNode: PolkadotNodeType = {
   coingeckoID: "polkadot",
   identicon: createIcon,
   assetsHandler: dot,
+  basePath: "//",
 };
 dotNode.api = async () => {
   const api = new API(dotNode.node, { decimals: dotNode.decimals });

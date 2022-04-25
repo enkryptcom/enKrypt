@@ -23,6 +23,7 @@ const bscNode: EthereumNodeType = {
   coingeckoID: "binancecoin",
   identicon: createIcon,
   assetsHandler: tokenbalanceMew,
+  basePath: "m/44'/714'",
 };
 bscNode.api = async () => {
   const api = new API(bscNode.node);

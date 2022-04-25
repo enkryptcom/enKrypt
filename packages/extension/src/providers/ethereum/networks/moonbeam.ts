@@ -21,6 +21,7 @@ const moonbeamNode: EthereumNodeType = {
   provider: ProviderName.ethereum,
   coingeckoID: "moonbeam",
   identicon: createIcon,
+  basePath: "m/44'/60'/0'/0",
 };
 moonbeamNode.api = async () => {
   const api = new API(moonbeamNode.node);

@@ -1,7 +1,7 @@
 <template>
   <div class="explore__search">
     <search-icon></search-icon>
-    <input type="text" placeholder="Search accounts" />
+    <input type="text" placeholder="Search accounts" autocomplete="off" />
   </div>
 </template>
 

@@ -7,6 +7,7 @@
         :is-error="isError"
         :value="password"
         @update:value="passwordChanged"
+        @keyup.enter="unlockAction"
       />
       <base-button
         title="Unlock"
@@ -48,6 +49,7 @@ import LockScreenForgot from "./components/lock-screen-forgot.vue";
 import LockScreenTimer from "./components/lock-screen-timer.vue";
 import { sendToBackgroundFromAction } from "@/libs/messenger/extension";
 import { InternalMethods } from "@/types/messenger";
+import { computed } from "@vue/reactivity";
 
 const props = defineProps({
   init: {
@@ -56,14 +58,17 @@ const props = defineProps({
   },
 });
 
-const password = ref("");
-const isDisabled = ref(true);
+const password = ref("test pass");
+const isDisabled = computed(() => {
+  return password.value.length < 5 || isUnlocking.value;
+});
 const isError = ref(false);
 let isForgot = ref(false);
 let isLocked = ref(false);
+const isUnlocking = ref(false);
 
 const unlockAction = async () => {
-  isDisabled.value = true;
+  isUnlocking.value = true;
   const unlockStatus = await sendToBackgroundFromAction({
     message: JSON.stringify({
       method: InternalMethods.unlock,
@@ -77,7 +82,7 @@ const unlockAction = async () => {
     password.value = "";
     props.init();
   }
-  isDisabled.value = false;
+  isUnlocking.value = false;
 };
 const forgotAction = () => {
   toggleForgot();
@@ -85,8 +90,6 @@ const forgotAction = () => {
 const passwordChanged = (text: string) => {
   password.value = text;
   isError.value = false;
-  if (text.length < 5) isDisabled.value = true;
-  else isDisabled.value = false;
 };
 const toggleForgot = () => {
   isForgot.value = !isForgot.value;

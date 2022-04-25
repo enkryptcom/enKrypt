@@ -6,6 +6,8 @@
       :placeholder="placeholder"
       class="base-input"
       :class="{ error: isError }"
+      autofocus
+      autocomplete="off"
     />
     <a
       v-if="type == 'password'"

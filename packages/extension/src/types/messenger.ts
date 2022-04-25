@@ -20,6 +20,8 @@ export enum InternalMethods {
   newWindowInit = "enkrypt_newWindowInit",
   newWindowUnload = "enkrypt_newWindowUnload",
   sendToTab = "enkrypt_sendToTab",
+  getNewAccount = "enkrypt_getNewAccount",
+  saveNewAccount = "enkrypt_saveNewAccount",
 }
 export interface SendMessage {
   [key: string]: any;

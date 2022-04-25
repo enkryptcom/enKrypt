@@ -25,6 +25,7 @@ const ethNode: EthereumNodeType = {
   NFTHandler: rarible,
   identicon: createIcon,
   assetsHandler: tokenbalanceMew,
+  basePath: "m/44'/60'/0'/0",
 };
 ethNode.api = async () => {
   const api = new API(ethNode.node);

@@ -27,7 +27,7 @@ window.addEventListener("beforeunload", () => {
     JSON.stringify({ method: InternalMethods.newWindowUnload })
   );
 });
-console.log("hello from injected code");
+console.info("hello from injected code");
 EthereumProvider(window, {
   name: ProviderName.ethereum,
   type: ProviderType.evm,

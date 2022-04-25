@@ -114,7 +114,7 @@ export default (network: NodeType, address: string): Promise<AssetsType[]> => {
               sparkline: new Sparkline(market.sparkline_in_7d.price, 25)
                 .dataUri,
               priceChangePercentage:
-                market.price_change_percentage_7d_in_currency,
+                market.price_change_percentage_7d_in_currency || 0,
             };
             if (address !== NATIVE_CONTRACT) assets.push(asset);
             else nativeAsset = asset;

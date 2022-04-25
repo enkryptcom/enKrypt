@@ -24,6 +24,7 @@ const acaNode: PolkadotNodeType = {
   coingeckoID: "acala",
   identicon: createIcon,
   assetsHandler: acalaAssetsHandler,
+  basePath: "//",
 };
 acaNode.api = async () => {
   const api = new API(acaNode.node, { decimals: acaNode.decimals });

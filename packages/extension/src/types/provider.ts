@@ -131,6 +131,7 @@ export interface NodeType {
   NFTHandler?: (network: NodeType, address: string) => Promise<NFTCollection[]>;
   identicon: (address: string, options: any) => string;
   assetsHandler?: (network: NodeType, address: string) => Promise<AssetsType[]>;
+  basePath: string;
 }
 
 export interface AssetsType {

@@ -38,6 +38,7 @@
       <accounts-header
         :account-info="accountHeaderData"
         :network="currentNetwork"
+        :init="init"
         @address-changed="onSelectedAddressChanged"
       />
       <router-view v-slot="{ Component }" name="view">
@@ -185,7 +186,7 @@ const setNetwork = async (network: NodeType) => {
         accountHeaderData.value.activeBalances = balances;
       });
     } catch (e) {
-      console.log(e);
+      console.error(e);
     }
   }
 };
@@ -214,7 +215,7 @@ const openCreate = () => {
   windowPromise
     .getResponse("onboard.html", JSON.stringify({ info: "test" }))
     .then(({ error }) => {
-      console.log(error);
+      console.error(error);
     });
 };
 </script>

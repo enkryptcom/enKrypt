@@ -25,6 +25,7 @@ const maticNode: EthereumNodeType = {
   NFTHandler: rarible,
   identicon: createIcon,
   assetsHandler: tokenbalanceMew,
+  basePath: "m/44'/60'/0'/0",
 };
 maticNode.api = async () => {
   const api = new API(maticNode.node);

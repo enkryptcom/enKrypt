@@ -69,10 +69,8 @@ export default class Sparkline {
         100
       );
     });
-    console.log(this._values);
     this._viewBoxHeight = 100;
     this._viewBoxWidth = 100;
-    console.log(this._values.length, "----------------");
   }
 
   public get d(): string {
