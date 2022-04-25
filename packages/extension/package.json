@@ -30,6 +30,7 @@
     "@types/lodash": "^4.14.182",
     "add": "^2.0.6",
     "bignumber.js": "^9.0.2",
+    "bip39": "^3.0.4",
     "chai": "^4.3.6",
     "concurrently": "^7.0.0",
     "core-js": "^3.21.0",
@@ -46,7 +47,7 @@
     "vue3-lottie": "^2.1.0",
     "web3": "^1.7.3",
     "web3-utils": "^1.7.3",
-    "yarn": "^1.22.18"
+    "zxcvbn": "^4.4.2"
   },
   "devDependencies": {
     "@polkadot/api": "^8.0.2",

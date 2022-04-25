@@ -6,17 +6,17 @@
         class="password-input-strenght__progress"
         :style="{ width: length + '%' }"
         :class="{
-          'very-weak': strenght == PasswordStrenght.veryWeak,
-          weak: strenght == PasswordStrenght.weak,
-          medium: strenght == PasswordStrenght.medium,
-          strong: strenght == PasswordStrenght.strong,
-          'very-strong': strenght == PasswordStrenght.veryStrong,
+          'very-weak': strenght == PasswordStrength.veryWeak,
+          weak: strenght == PasswordStrength.weak,
+          medium: strenght == PasswordStrength.medium,
+          strong: strenght == PasswordStrength.strong,
+          'very-strong': strenght == PasswordStrength.veryStrong,
         }"
       ></div>
     </div>
 
     <p
-      v-if="strenght == PasswordStrenght.veryWeak"
+      v-if="strenght == PasswordStrength.veryWeak"
       class="password-input-strenght__label very-weak"
       :class="{ visible: value.length > 0 }"
     >
@@ -24,7 +24,7 @@
     </p>
 
     <p
-      v-if="strenght == PasswordStrenght.weak"
+      v-if="strenght == PasswordStrength.weak"
       class="password-input-strenght__label weak"
       :class="{ visible: value.length > 0 }"
     >
@@ -32,7 +32,7 @@
     </p>
 
     <p
-      v-if="strenght == PasswordStrenght.medium"
+      v-if="strenght == PasswordStrength.medium"
       class="password-input-strenght__label medium"
       :class="{ visible: value.length > 0 }"
     >
@@ -40,7 +40,7 @@
     </p>
 
     <p
-      v-if="strenght == PasswordStrenght.strong"
+      v-if="strenght == PasswordStrength.strong"
       class="password-input-strenght__label strong"
       :class="{ visible: value.length > 0 }"
     >
@@ -48,7 +48,7 @@
     </p>
 
     <p
-      v-if="strenght == PasswordStrenght.veryStrong"
+      v-if="strenght == PasswordStrength.veryStrong"
       class="password-input-strenght__label very-strong"
       :class="{ visible: value.length > 0 }"
     >
@@ -65,15 +65,15 @@
 
     <div v-if="isTooltip" class="password-input-strenght__help-tooltip">
       <p>Your password would be cracked</p>
-      <h4 v-if="strenght == PasswordStrenght.veryWeak" class="weak">
+      <h4 v-if="strenght == PasswordStrength.veryWeak" class="weak">
         Instantly
       </h4>
-      <h4 v-if="strenght == PasswordStrenght.weak" class="weak">1 minute</h4>
-      <h4 v-if="strenght == PasswordStrenght.medium" class="medium">5 years</h4>
+      <h4 v-if="strenght == PasswordStrength.weak" class="weak">1 minute</h4>
+      <h4 v-if="strenght == PasswordStrength.medium" class="medium">5 years</h4>
       <h4
         v-if="
-          strenght == PasswordStrenght.strong ||
-          strenght == PasswordStrenght.veryStrong
+          strenght == PasswordStrength.strong ||
+          strenght == PasswordStrength.veryStrong
         "
         class="strong"
       >
@@ -92,10 +92,11 @@ export default {
 <script setup lang="ts">
 import { onUpdated, ref } from "vue";
 import HelpIcon from "@action/icons/password/help-icon.vue";
-import { PasswordStrenght } from "@action/types/password";
+import { PasswordStrength } from "@action/types/password";
+import zxcvbn from "zxcvbn";
 
 let length = ref(2);
-let strenght = ref(PasswordStrenght.veryWeak);
+let strenght = ref(PasswordStrength.veryWeak);
 let isTooltip = ref(false);
 
 const props = defineProps({
@@ -108,25 +109,25 @@ const props = defineProps({
 });
 
 onUpdated(() => {
-  testPassword(props.value);
+  testPassword(zxcvbn(props.value));
 });
 
-const testPassword = (password: string) => {
-  if (password.length > 7) {
+const testPassword = (password: { password: string; score: number }) => {
+  if (password.score === 4) {
     length.value = 100;
-    strenght.value = PasswordStrenght.veryStrong;
-  } else if (password.length > 6) {
+    strenght.value = PasswordStrength.veryStrong;
+  } else if (password.score === 3) {
     length.value = 84;
-    strenght.value = PasswordStrenght.strong;
-  } else if (password.length > 5) {
+    strenght.value = PasswordStrength.strong;
+  } else if (password.score === 2) {
     length.value = 42;
-    strenght.value = PasswordStrenght.medium;
-  } else if (password.length > 4) {
+    strenght.value = PasswordStrength.medium;
+  } else if (password.score === 1) {
     length.value = 21;
-    strenght.value = PasswordStrenght.weak;
-  } else if (password.length > 0) {
+    strenght.value = PasswordStrength.weak;
+  } else if (password.score === 0) {
     length.value = 4;
-    strenght.value = PasswordStrenght.veryWeak;
+    strenght.value = PasswordStrength.veryWeak;
   }
 };
 

@@ -1,4 +1,4 @@
-export enum PasswordStrenght {
+export enum PasswordStrength {
   veryWeak,
   weak,
   medium,

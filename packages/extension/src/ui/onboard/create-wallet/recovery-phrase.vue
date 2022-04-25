@@ -12,36 +12,63 @@
 
     <div class="recovery-phrase__wrap">
       <div class="recovery-phrase__block">
-        <div class="recovery-phrase__item"><span>1</span> witch</div>
-        <div class="recovery-phrase__item"><span>2</span> collapse</div>
-        <div class="recovery-phrase__item"><span>3</span> practice</div>
-        <div class="recovery-phrase__item"><span>4</span> feed</div>
-        <div class="recovery-phrase__item"><span>5</span> shame</div>
-        <div class="recovery-phrase__item"><span>6</span> open</div>
+        <div
+          v-for="(phrase, index) in firstSet"
+          :key="index"
+          class="recovery-phrase__item"
+        >
+          <span>{{ index + 1 }}</span> {{ phrase }}
+        </div>
       </div>
 
       <div class="recovery-phrase__block">
-        <div class="recovery-phrase__item"><span>7</span> despair</div>
-        <div class="recovery-phrase__item"><span>8</span> creek</div>
-        <div class="recovery-phrase__item"><span>9</span> road</div>
-        <div class="recovery-phrase__item"><span>10</span> again</div>
-        <div class="recovery-phrase__item"><span>11</span> ice</div>
-        <div class="recovery-phrase__item"><span>12</span> least</div>
+        <div
+          v-for="(phrase, index) in secondSet"
+          :key="index"
+          class="recovery-phrase__item"
+        >
+          <span>{{ index + 7 }}</span> {{ phrase }}
+        </div>
       </div>
     </div>
-
     <base-button title="Next" :click="nextAction" />
   </div>
 </template>
 <script setup lang="ts">
 import BaseButton from "@action/components/base-button/index.vue";
 import { useRouter } from "vue-router";
+import { reactive, onMounted, computed } from "vue";
+import { generateMnemonic } from "bip39";
 
 const router = useRouter();
 
+let mnemonic = reactive({ phrases: [] });
+
 const nextAction = () => {
-  router.push({ name: "create-wallet-check-phrase", params: {} });
+  router.push({
+    name: "create-wallet-check-phrase",
+    params: { mnemonic: mnemonic.phrases },
+  });
 };
+
+onMounted(() => {
+  createMnemonic();
+});
+
+const createMnemonic = () => {
+  const phrases = generateMnemonic(128).split(" ");
+  mnemonic.phrases = [...mnemonic.phrases, ...phrases];
+  mnemonic.phrases.push(...phrases);
+};
+
+const firstSet = computed(() => {
+  let copy = mnemonic.phrases;
+  return copy.splice(0, 6);
+});
+const secondSet = computed(() => {
+  let copy = mnemonic.phrases;
+  return copy.splice(0, 6);
+});
 </script>
 
 <style lang="less">

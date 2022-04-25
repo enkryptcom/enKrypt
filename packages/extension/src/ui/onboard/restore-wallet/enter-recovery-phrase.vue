@@ -3,6 +3,7 @@
     <h3>Enter your<br />recovery phrase</h3>
 
     <textarea
+      v-model="mnemonic"
       autocomplete="off"
       class="enter-recovery-phrase__input"
       placeholder="witch collapse practice feed shame open despair creek road again ice least"
@@ -10,7 +11,7 @@
     </textarea>
 
     <div class="enter-recovery-phrase__buttons">
-      <base-button title="Next" :click="nextAction" />
+      <base-button title="Next" :click="nextAction" :disabled="!validate" />
     </div>
 
     <p>
@@ -22,12 +23,19 @@
 <script setup lang="ts">
 import BaseButton from "@action/components/base-button/index.vue";
 import { useRouter } from "vue-router";
+import { validateMnemonic } from "bip39";
+import { ref, computed } from "vue";
 
+const mnemonic = ref("");
 const router = useRouter();
 
 const nextAction = () => {
   router.push({ name: "restore-wallet-pick-password", params: {} });
 };
+
+const validate = computed(() => {
+  return validateMnemonic(mnemonic.value);
+});
 </script>
 
 <style lang="less">

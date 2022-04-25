@@ -1,19 +1,24 @@
 <template>
   <label class="phrase-checkbox">
-    <input type="checkbox" :checked="isChecked" @change="checkLocal($event)" />
+    <input
+      v-model="checkedLocal"
+      type="checkbox"
+      :checked="isChecked"
+      :value="title"
+      @change="checkLocal($event)"
+    />
     <div class="base-checkbox__wrap">
       <span>{{ title }}</span>
     </div>
   </label>
 </template>
 
-<script lang="ts">
-export default {
-  name: "PhraseCheckbox",
-};
-</script>
-
 <script setup lang="ts">
+import { PhraseCheckbox } from "@action/types/phrase-checkbox";
+import { PropType, ref } from "vue";
+
+const checkedLocal = ref(props.checked);
+
 const props = defineProps({
   isChecked: Boolean,
   title: {
@@ -24,10 +29,14 @@ const props = defineProps({
     type: Function,
     default: () => ({}),
   },
+  checked: {
+    type: Array as PropType<Array<PhraseCheckbox>>,
+    default: () => [],
+  },
 });
 
 const checkLocal = (e: any) => {
-  props.check(e.target.checked);
+  props.check(e);
 };
 </script>
 
