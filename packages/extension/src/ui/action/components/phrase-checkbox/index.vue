@@ -1,7 +1,7 @@
 <template>
   <label class="phrase-checkbox">
     <input type="checkbox" :checked="isChecked" @change="checkLocal($event)" />
-    <div class="base-checkbox__wrap">
+    <div class="phrase-checkbox__wrap">
       <span>{{ title }}</span>
     </div>
   </label>
@@ -67,7 +67,7 @@ const checkLocal = (e: any) => {
     display: none;
 
     &:checked {
-      & + .base-checkbox__wrap {
+      & + .phrase-checkbox__wrap {
         background: @primary;
         border: 0 none;
 

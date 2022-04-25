@@ -90,9 +90,7 @@ const props = defineProps({
 });
 
 const close = () => {
-  setTimeout(() => {
-    props.toggle();
-  }, 150);
+  props.toggle();
 };
 const selectAccount = (address: string) => {
   for (const acc of props.accountInfo.activeAccounts) {
@@ -103,14 +101,14 @@ const selectAccount = (address: string) => {
   }
   setTimeout(() => {
     props.toggle();
-  }, 150);
+  }, 100);
 };
 const addAccount = () => {
   props.toggle();
 
   setTimeout(() => {
     isAddAccount.value = true;
-  }, 150);
+  }, 100);
 };
 const closeAddAccount = () => {
   isAddAccount.value = false;
@@ -122,12 +120,12 @@ const closeAddAccount = () => {
 @import "~@action/styles/custom-scroll.less";
 
 .accounts {
-  width: 100%;
-  height: 100%;
+  width: 800px;
+  height: 600px;
   position: absolute;
-  left: 0;
+  left: -340px;
   top: 0;
-  z-index: 101;
+  z-index: 105;
   display: none;
 
   &.show {
@@ -140,7 +138,7 @@ const closeAddAccount = () => {
     position: absolute;
     left: 0;
     top: 0;
-    z-index: 102;
+    z-index: 106;
   }
 
   &__wrap {
@@ -148,13 +146,13 @@ const closeAddAccount = () => {
     width: 344px;
     height: auto;
     max-height: 530px;
-    left: 8px;
+    left: 348px;
     top: 50px;
     background: #ffffff;
     box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.039),
       0px 7px 24px rgba(0, 0, 0, 0.19);
     border-radius: 12px;
-    z-index: 103;
+    z-index: 107;
     overflow: hidden;
     padding-top: 56px;
     box-sizing: border-box;
