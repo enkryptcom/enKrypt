@@ -2,7 +2,7 @@
   <div class="type-password">
     <h3 class="type-password__title">Type your password again</h3>
     <p class="type-password__description">
-      There will be NO ‘Restore password’ button. Make sure you remember it.
+      There will be NO 'Restore password' button. Make sure you remember it.
     </p>
 
     <div class="type-password__form">
@@ -40,6 +40,7 @@ const router = useRouter();
 const route = useRoute();
 
 const password = route.params.password;
+const mnemonic = route.params.mnemonic;
 
 const typePassword = ref("");
 const isDisabled = ref(true);
@@ -47,7 +48,7 @@ const isDisabled = ref(true);
 const nextAction = () => {
   router.push({
     name: routes.walletReady.name,
-    params: { password, mnemonic: route.params.mnemonic },
+    params: { password, mnemonic },
   });
 };
 
@@ -57,12 +58,14 @@ const passwordUpdated = (value: string) => {
   if (value.trim() === password) isDisabled.value = false;
 };
 
-const checkForPassword = () => {
-  if (!password) router.push({ path: routes.start.path });
+const checkMnemonicAndPassword = () => {
+  if (!password || !mnemonic) {
+    router.push({ path: routes.start.path });
+  }
 };
 
 onMounted(() => {
-  checkForPassword();
+  checkMnemonicAndPassword();
 });
 </script>
 
