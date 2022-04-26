@@ -30,11 +30,11 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import BaseInput from "@action/components/base-input/index.vue";
 import { useRouter, useRoute } from "vue-router";
-import { routes } from "../create-wallet/routes";
+import { routes } from "../restore-wallet/routes";
 
 const router = useRouter();
 const route = useRoute();
@@ -56,6 +56,14 @@ const passwordUpdated = (value: string) => {
   typePassword.value = value.trim();
   if (value.trim() === password) isDisabled.value = false;
 };
+
+const checkForPassword = () => {
+  if (!password) router.push({ path: routes.start.path });
+};
+
+onMounted(() => {
+  checkForPassword();
+});
 </script>
 
 <style lang="less">
