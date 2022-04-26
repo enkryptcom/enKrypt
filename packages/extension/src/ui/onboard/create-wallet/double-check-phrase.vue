@@ -26,7 +26,7 @@ const router = useRouter();
 const phrase = route.params.mnemonic as string;
 let phraseArr: string[] = [];
 if (!phrase) {
-  router.back();
+  router.push({ path: "/" });
 } else {
   phraseArr = phrase.split(" ");
 }

@@ -61,7 +61,7 @@ onMounted(() => {
 
 const checkForPassword = () => {
   if (!password) {
-    router.push({ name: "create-wallet-pick-password", params: {} });
+    router.push({ path: "/", params: {} });
   }
 };
 
