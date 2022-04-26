@@ -56,7 +56,9 @@ const passwordUpdated = (value: string) => {
 };
 
 onMounted(() => {
-  if (!password) router.back();
+  if (!password) {
+    router.push({ path: routes.pickPassword.path });
+  }
 });
 </script>
 
