@@ -62,7 +62,7 @@ onMounted(() => {
 
 const checkForPassword = () => {
   if (!password) {
-    router.push({ path: onboardRoute[0].path, params: {} });
+    router.push({ path: onboardRoute[0].path });
   }
 };
 
