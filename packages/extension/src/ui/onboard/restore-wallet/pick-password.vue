@@ -17,7 +17,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import PasswordInput from "@action/components/password-input/index.vue";
 import { useRoute, useRouter } from "vue-router";
@@ -40,6 +40,12 @@ const passwordUpdated = (info: { password: string; strength: number }) => {
   isDisabled.value = true;
   if (info.strength > 1) isDisabled.value = false;
 };
+
+onMounted(() => {
+  if (!route.params.mnemonic) {
+    router.push({ name: routes.start.name });
+  }
+});
 </script>
 
 <style lang="less">

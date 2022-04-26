@@ -27,7 +27,12 @@ const route = useRoute();
 const router = useRouter();
 const phrase = route.params.mnemonic as string;
 const password = route.params.password as string;
-const phraseArr = phrase.split(" ");
+let phraseArr: string[] = [];
+if (!phrase) {
+  router.push({ path: routes.pickPassword.path });
+} else {
+  phraseArr = phrase.split(" ");
+}
 const shuffledArr = shuffle(phraseArr);
 const chunkedArr = chunk(shuffledArr, 3);
 const phraseItems: { id: number; items: string[]; validIndex: number }[] = [];

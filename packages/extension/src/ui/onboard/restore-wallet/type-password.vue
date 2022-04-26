@@ -2,7 +2,7 @@
   <div class="type-password">
     <h3 class="type-password__title">Type your password again</h3>
     <p class="type-password__description">
-      There will be NO ‘Restore password’ button. Make sure you remember it.
+      There will be NO 'Restore password' button. Make sure you remember it.
     </p>
 
     <div class="type-password__form">
@@ -30,11 +30,11 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { onMounted, ref, computed } from "vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import BaseInput from "@action/components/base-input/index.vue";
 import { useRouter, useRoute } from "vue-router";
-import { routes } from "../create-wallet/routes";
+import { routes } from "../restore-wallet/routes";
 import initializeWallet from "@/libs/utils/initialize-wallet";
 
 const router = useRouter();
@@ -60,6 +60,16 @@ const isDisabled = computed(() => {
 const passwordUpdated = (value: string) => {
   typePassword.value = value.trim();
 };
+
+const checkMnemonicAndPassword = () => {
+  if (!password || !mnemonic) {
+    router.push({ path: routes.start.path });
+  }
+};
+
+onMounted(() => {
+  checkMnemonicAndPassword();
+});
 </script>
 
 <style lang="less">

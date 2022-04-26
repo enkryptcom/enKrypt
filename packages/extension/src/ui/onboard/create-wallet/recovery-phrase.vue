@@ -56,7 +56,14 @@ const nextAction = () => {
 onMounted(() => {
   createMnemonic();
   console.log(password);
+  checkForPassword();
 });
+
+const checkForPassword = () => {
+  if (!password) {
+    router.push({ path: routes.pickPassword.path });
+  }
+};
 
 const createMnemonic = () => {
   mnemonic.value = generateMnemonic(128);
