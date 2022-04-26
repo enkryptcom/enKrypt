@@ -17,7 +17,7 @@
 <script setup lang="ts">
 import BaseButton from "@action/components/base-button/index.vue";
 import CheckPhrase from "@action/components/check-phrase/index.vue";
-import routes from "../routes";
+import { routes } from "./routes";
 import { useRoute, useRouter } from "vue-router";
 import { ref, computed } from "vue";
 import { chunk, shuffle, sample } from "lodash";
@@ -26,7 +26,7 @@ const router = useRouter();
 const phrase = route.params.mnemonic as string;
 let phraseArr: string[] = [];
 if (!phrase) {
-  router.push({ path: routes[0].path });
+  router.push({ path: routes.pickPassword.path });
 } else {
   phraseArr = phrase.split(" ");
 }
