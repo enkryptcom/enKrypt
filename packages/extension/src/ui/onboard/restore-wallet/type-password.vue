@@ -14,7 +14,7 @@
       />
 
       <div
-        v-if="isDisabled && typePassword.length > 0"
+        v-if="isDisabled && typePassword.length > 0 && !isInitializing"
         class="type-password__error"
       >
         Passwords don't match
@@ -30,31 +30,35 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import BaseInput from "@action/components/base-input/index.vue";
 import { useRouter, useRoute } from "vue-router";
 import { routes } from "../create-wallet/routes";
+import initializeWallet from "@/libs/utils/initialize-wallet";
 
 const router = useRouter();
 const route = useRoute();
 
-const password = route.params.password;
+const password = route.params.password as string;
+const mnemonic = route.params.mnemonic as string;
 
 const typePassword = ref("");
-const isDisabled = ref(true);
-
+const isInitializing = ref(false);
 const nextAction = () => {
-  router.push({
-    name: routes.walletReady.name,
-    params: { password, mnemonic: route.params.mnemonic },
+  isInitializing.value = true;
+  initializeWallet(mnemonic, password).then(() => {
+    isInitializing.value = false;
+    router.push({
+      name: routes.walletReady.name,
+    });
   });
 };
-
+const isDisabled = computed(() => {
+  return typePassword.value !== password || isInitializing.value;
+});
 const passwordUpdated = (value: string) => {
-  isDisabled.value = true;
   typePassword.value = value.trim();
-  if (value.trim() === password) isDisabled.value = false;
 };
 </script>
 

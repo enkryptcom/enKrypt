@@ -13,8 +13,8 @@ export class KeyRingBase {
     const browserStorage = new BrowserStorage(InternalStorageNamespace.keyring);
     this.#keyring = new KeyRing(browserStorage);
   }
-  generate(password: string): Promise<void> {
-    return this.#keyring.init(password);
+  init(mnemonic: string, password: string): Promise<void> {
+    return this.#keyring.init(password, { mnemonic });
   }
   getNewAccount(options: {
     basePath: string;
@@ -48,6 +48,9 @@ export class KeyRingBase {
   }
   unlock(password: string): Promise<void> {
     return this.#keyring.unlockMnemonic(password);
+  }
+  isInitialized(): Promise<boolean> {
+    return this.#keyring.isInitialized();
   }
 }
 export default KeyRingBase;

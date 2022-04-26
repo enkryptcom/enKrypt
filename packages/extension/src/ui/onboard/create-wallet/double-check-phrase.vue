@@ -21,17 +21,22 @@ import { routes } from "./routes";
 import { useRoute, useRouter } from "vue-router";
 import { ref, computed } from "vue";
 import { chunk, shuffle, sample } from "lodash";
+import initializeWallet from "@/libs/utils/initialize-wallet";
+
 const route = useRoute();
 const router = useRouter();
 const phrase = route.params.mnemonic as string;
+const password = route.params.password as string;
 const phraseArr = phrase.split(" ");
 const shuffledArr = shuffle(phraseArr);
 const chunkedArr = chunk(shuffledArr, 3);
 const phraseItems: { id: number; items: string[]; validIndex: number }[] = [];
 const validSelection = ref<boolean[]>(chunkedArr.map(() => false));
+const isInitializing = ref(false);
 const isDisabled = computed<boolean>(() => {
-  return validSelection.value.includes(false);
+  return validSelection.value.includes(false) || isInitializing.value;
 });
+
 chunkedArr.forEach((chunk) => {
   const randWord = sample(chunk) || "";
   phraseItems.push({
@@ -46,7 +51,11 @@ const updateSelection = (idx: number, val: boolean) => {
 };
 
 const nextAction = () => {
-  router.push({ name: routes.walletReady.name });
+  isInitializing.value = true;
+  initializeWallet(phrase, password).then(() => {
+    isInitializing.value = false;
+    router.push({ name: routes.walletReady.name });
+  });
 };
 </script>
 

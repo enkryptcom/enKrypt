@@ -43,5 +43,8 @@ class PublicKeyRing {
   isLocked(): boolean {
     return this.#keyring.isLocked();
   }
+  isInitialized(): Promise<boolean> {
+    return this.#keyring.isInitialized();
+  }
 }
 export default PublicKeyRing;
