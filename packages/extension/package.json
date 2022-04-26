@@ -3,6 +3,7 @@
   "version": "0.3.1",
   "private": true,
   "scripts": {
+    "zip": "cd dist; zip -r release.zip *;",
     "build": "vue-cli-service build && npm run build:rollup",
     "lint": "vue-cli-service lint --fix",
     "build:rollup": "cross-env minify=on rollup --config configs/rollup.config.contentscript.js && cross-env minify=on rollup --config configs/rollup.config.inject.js",
