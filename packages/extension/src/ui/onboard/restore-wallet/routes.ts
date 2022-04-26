@@ -3,7 +3,6 @@ import OtherInfo from "./other-info.vue";
 import EnterRecoveryPhrase from "./enter-recovery-phrase.vue";
 import PickPassword from "./pick-password.vue";
 import TypePassword from "./type-password.vue";
-import AddAccounts from "./add-accounts.vue";
 import WalletReady from "../create-wallet/wallet-ready.vue";
 import { RouteRecordRaw } from "vue-router";
 export const routes = {
@@ -32,19 +31,15 @@ export const routes = {
     name: "type-password",
     component: TypePassword,
   },
-  addAccounts: {
-    path: "add-accounts",
-    name: "add-accounts",
-    component: AddAccounts,
-  },
   walletReady: {
     path: "wallet-ready",
     name: "wallet-ready",
     component: WalletReady,
   },
 };
+export const namespace = "restore-wallet";
 
-export default (namespace: string): RouteRecordRaw[] => {
+export default (): RouteRecordRaw[] => {
   return Object.values(routes).map((route) => {
     route.path = `/${namespace}/${route.path}`;
     route.name = `${namespace}-${String(route.name)}`;

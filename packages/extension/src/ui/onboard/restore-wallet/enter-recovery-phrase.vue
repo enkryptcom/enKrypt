@@ -25,12 +25,16 @@ import BaseButton from "@action/components/base-button/index.vue";
 import { useRouter } from "vue-router";
 import { validateMnemonic } from "bip39";
 import { ref, computed } from "vue";
+import { routes } from "./routes";
 
 const mnemonic = ref("");
 const router = useRouter();
 
 const nextAction = () => {
-  router.push({ name: "restore-wallet-pick-password", params: {} });
+  router.push({
+    name: routes.pickPassword.name,
+    params: { mnemonic: mnemonic.value },
+  });
 };
 
 const validate = computed(() => {

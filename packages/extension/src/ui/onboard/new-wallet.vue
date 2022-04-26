@@ -26,16 +26,18 @@
 <script setup lang="ts">
 import LogoBig from "@action/icons/common/logo-big.vue";
 import BaseButton from "@action/components/base-button/index.vue";
+import { routes as cwalletRoutes } from "./create-wallet/routes";
+import { routes as rwalletRoutes } from "./restore-wallet/routes";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
 
 const createAction = () => {
-  router.push({ name: "create-wallet-pick-password", params: {} });
+  router.push({ name: cwalletRoutes.pickPassword.name });
 };
 
 const restoreAction = () => {
-  router.push({ name: "restore-wallet-start", params: {} });
+  router.push({ name: rwalletRoutes.start.name, params: {} });
 };
 </script>
 

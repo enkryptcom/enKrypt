@@ -35,6 +35,7 @@ import BaseButton from "@action/components/base-button/index.vue";
 import BaseInput from "@action/components/base-input/index.vue";
 import { useRouter, useRoute } from "vue-router";
 import { onMounted } from "vue";
+import { routes } from "./routes";
 
 const router = useRouter();
 const route = useRoute();
@@ -45,11 +46,12 @@ const typePassword = ref("");
 const isDisabled = ref(true);
 
 const nextAction = () => {
-  router.push({ name: "create-wallet-recovery-phrase", params: { password } });
+  router.push({ name: routes.recoveryPhrase.name, params: { password } });
 };
 
 const passwordUpdated = (value: string) => {
   isDisabled.value = true;
+  typePassword.value = value.trim();
   if (value.trim() === password) isDisabled.value = false;
 };
 
