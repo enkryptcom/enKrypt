@@ -36,38 +36,39 @@
 </template>
 <script setup lang="ts">
 import BaseButton from "@action/components/base-button/index.vue";
-import { useRouter } from "vue-router";
-import { reactive, onMounted, computed } from "vue";
+import { useRouter, useRoute } from "vue-router";
+import { onMounted, computed, ref } from "vue";
 import { generateMnemonic } from "bip39";
 
 const router = useRouter();
-
-let mnemonic = reactive({ phrases: [] });
+const route = useRoute();
+const password = route.params.password;
+const mnemonic = ref("");
 
 const nextAction = () => {
   router.push({
     name: "create-wallet-check-phrase",
-    params: { mnemonic: mnemonic.phrases },
+    params: { mnemonic: mnemonic.value },
   });
 };
 
 onMounted(() => {
   createMnemonic();
+  console.log(password);
 });
 
 const createMnemonic = () => {
-  const phrases = generateMnemonic(128).split(" ");
-  mnemonic.phrases = [...mnemonic.phrases, ...phrases];
-  mnemonic.phrases.push(...phrases);
+  mnemonic.value = generateMnemonic(128);
+  console.log(mnemonic.value);
 };
 
 const firstSet = computed(() => {
-  let copy = mnemonic.phrases;
+  let copy = mnemonic.value.split(" ");
   return copy.splice(0, 6);
 });
 const secondSet = computed(() => {
-  let copy = mnemonic.phrases;
-  return copy.splice(0, 6);
+  let copy = mnemonic.value.split(" ");
+  return copy.splice(6);
 });
 </script>
 

@@ -2,19 +2,19 @@
   <div class="type-password">
     <h3 class="type-password__title">Type your password again</h3>
     <p class="type-password__description">
-      There will be NO ‘Restore password’ button. Make sure you remember it.
+      There will be NO 'Restore password' button. Make sure you remember it.
     </p>
 
     <div class="type-password__form">
       <base-input
         type="password"
-        value=""
+        :value="typePassword"
         placeholder="Password"
-        :input="input"
+        @update:value="passwordUpdated"
       />
 
       <div
-        v-if="isDisabled && typePassowrd.length > 0"
+        v-if="isDisabled && typePassword.length > 0"
         class="type-password__error"
       >
         Passwords don't match
@@ -24,7 +24,7 @@
     </div>
 
     <p class="type-password__label">
-      Since you’re going to be your own bank, we won’t be able to help if you
+      Since you're going to be your own bank, we won't be able to help if you
       loose your password.
     </p>
   </div>
@@ -39,16 +39,17 @@ const router = useRouter();
 const route = useRoute();
 
 const password = route.params.password;
-const typePassowrd = ref("");
-var isDisabled = ref(true);
+
+const typePassword = ref("");
+const isDisabled = ref(true);
 
 const nextAction = () => {
-  router.push({ name: "create-wallet-recovery-phrase", params: {} });
+  router.push({ name: "create-wallet-recovery-phrase", params: { password } });
 };
 
-const input = (value: string) => {
-  typePassowrd.value = value;
-  isDisabled.value = typePassowrd.value != password;
+const passwordUpdated = (value: string) => {
+  isDisabled.value = true;
+  if (value.trim() === password) isDisabled.value = false;
 };
 </script>
 

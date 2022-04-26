@@ -1,23 +1,14 @@
 <template>
   <label class="phrase-checkbox">
-    <input
-      v-model="checkedLocal"
-      type="checkbox"
-      :checked="isChecked"
-      :value="title"
-      @change="checkLocal($event)"
-    />
-    <div class="base-checkbox__wrap">
+    <input v-model="checked" type="checkbox" />
+    <div class="phrase-checkbox__wrap">
       <span>{{ title }}</span>
     </div>
   </label>
 </template>
 
 <script setup lang="ts">
-import { PhraseCheckbox } from "@action/types/phrase-checkbox";
-import { PropType, ref } from "vue";
-
-const checkedLocal = ref(props.checked);
+import { computed } from "vue";
 
 const props = defineProps({
   isChecked: Boolean,
@@ -25,19 +16,14 @@ const props = defineProps({
     type: String,
     default: "",
   },
-  check: {
-    type: Function,
-    default: () => ({}),
-  },
-  checked: {
-    type: Array as PropType<Array<PhraseCheckbox>>,
-    default: () => [],
-  },
 });
-
-const checkLocal = (e: any) => {
-  props.check(e);
-};
+const emit = defineEmits<{
+  (e: "update:checked", checked: boolean): void;
+}>();
+const checked = computed<boolean>({
+  get: () => props.isChecked,
+  set: (value) => emit("update:checked", value),
+});
 </script>
 
 <style lang="less">
@@ -76,7 +62,7 @@ const checkLocal = (e: any) => {
     display: none;
 
     &:checked {
-      & + .base-checkbox__wrap {
+      & + .phrase-checkbox__wrap {
         background: @primary;
         border: 0 none;
 

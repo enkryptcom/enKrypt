@@ -54,12 +54,6 @@ const props = defineProps({
       return false;
     },
   },
-  input: {
-    type: Function,
-    default: () => {
-      return null;
-    },
-  },
 });
 const emit = defineEmits(["update:value"]);
 const textValue = computed({

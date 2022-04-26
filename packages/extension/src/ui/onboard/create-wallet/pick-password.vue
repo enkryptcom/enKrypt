@@ -6,7 +6,7 @@
     </p>
 
     <div class="pick-password__form">
-      <password-input :input="input" />
+      <password-input @update:strength-and-password="passwordUpdated" />
       <base-button title="Next" :click="nextAction" :disabled="isDisabled" />
     </div>
 
@@ -24,8 +24,8 @@ import { useRouter } from "vue-router";
 
 const router = useRouter();
 
-var password = ref("");
-var isDisabled = ref(true);
+const password = ref("");
+const isDisabled = ref(true);
 
 const nextAction = () => {
   router.push({
@@ -34,9 +34,10 @@ const nextAction = () => {
   });
 };
 
-const input = (text: string, isValid: boolean) => {
-  password.value = text;
-  isDisabled.value = !isValid;
+const passwordUpdated = (info: { password: string; strength: number }) => {
+  password.value = info.password.trim();
+  isDisabled.value = true;
+  if (info.strength > 1) isDisabled.value = false;
 };
 </script>
 

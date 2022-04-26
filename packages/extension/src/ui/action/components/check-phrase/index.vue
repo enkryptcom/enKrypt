@@ -1,14 +1,13 @@
 <template>
   <div class="check-phrase">
-    <p>Select word #{{ id }}</p>
+    <p>Select word #{{ id + 1 }}</p>
     <div class="check-phrase__wrap">
       <PhraseCheckbox
         v-for="(phrase, index) in phrases"
         :key="index"
-        :is-checked="false"
-        :check="check"
-        :title="phrase.title"
-        :checked="checked"
+        :title="phrase"
+        :is-checked="isChecked[index]"
+        @update:checked="onChecked(index, $event)"
       />
     </div>
   </div>
@@ -23,11 +22,7 @@ export default {
 <script setup lang="ts">
 import { PropType } from "vue";
 import PhraseCheckbox from "@action/components/phrase-checkbox/index.vue";
-import { RecoveryPhrase } from "@action/types/phrase";
 import { ref } from "vue";
-import { find } from "lodash";
-
-const checked = ref([]);
 
 const props = defineProps({
   id: {
@@ -35,40 +30,23 @@ const props = defineProps({
     default: 0,
   },
   phrases: {
-    type: Object as PropType<Array<RecoveryPhrase>>,
+    type: Object as PropType<string[]>,
     default: () => ({}),
   },
-  update: {
-    type: Function,
-    default: () => ({}),
-  },
-  increment: {
-    type: Function,
-    default: () => ({}),
-  },
-  reset: {
-    type: Function,
-    default: () => ({}),
-  },
-  count: {
+  validIndex: {
     type: Number,
     default: 0,
   },
 });
-
-const check = (e: any) => {
-  checked.value = [];
-  const { title } = find(props.phrases, ["isTrue", true]);
-
-  if (e.target.checked) {
-    checked.value.push(e.target.value);
-
-    if (checked.value[0] === title) {
-      props.increment();
-    } else {
-      props.reset();
-    }
-  }
+const emit = defineEmits<{
+  (e: "update:phrasevalidity", checked: boolean): void;
+}>();
+const isChecked = ref<boolean[]>(props.phrases.map(() => false));
+const onChecked = (key: number, val: boolean) => {
+  isChecked.value = props.phrases.map(() => false);
+  isChecked.value[key] = val;
+  if (key === props.validIndex && val) emit("update:phrasevalidity", true);
+  else emit("update:phrasevalidity", false);
 };
 </script>
 

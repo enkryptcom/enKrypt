@@ -1,83 +1,82 @@
 <template>
-  <div class="password-input-strenght">
-    <div class="password-input-strenght__bar">
+  <div class="password-input-strength">
+    <div class="password-input-strength__bar">
       <div
         v-if="value.length > 0"
-        class="password-input-strenght__progress"
+        class="password-input-strength__progress"
         :style="{ width: length + '%' }"
         :class="{
-          'very-weak': strenght == PasswordStrength.veryWeak,
-          weak: strenght == PasswordStrength.weak,
-          medium: strenght == PasswordStrength.medium,
-          strong: strenght == PasswordStrength.strong,
-          'very-strong': strenght == PasswordStrength.veryStrong,
+          'very-weak': strength == PasswordStrength.veryWeak,
+          weak: strength == PasswordStrength.weak,
+          medium: strength == PasswordStrength.medium,
+          strong: strength == PasswordStrength.strong,
+          'very-strong': strength == PasswordStrength.veryStrong,
         }"
       ></div>
     </div>
 
     <p
-      v-if="strenght == PasswordStrength.veryWeak"
-      class="password-input-strenght__label very-weak"
-      :class="{ visible: value.length > 0 }"
+      v-if="strength == PasswordStrength.veryWeak && value.length > 0"
+      class="password-input-strength__label very-weak visible visible"
     >
       Very weak
     </p>
 
     <p
-      v-if="strenght == PasswordStrength.weak"
-      class="password-input-strenght__label weak"
-      :class="{ visible: value.length > 0 }"
+      v-if="strength == PasswordStrength.weak"
+      class="password-input-strength__label weak visible visible"
     >
       Weak
     </p>
 
     <p
-      v-if="strenght == PasswordStrength.medium"
-      class="password-input-strenght__label medium"
-      :class="{ visible: value.length > 0 }"
+      v-if="strength == PasswordStrength.medium"
+      class="password-input-strength__label medium visible visible"
     >
       Medium
     </p>
 
     <p
-      v-if="strenght == PasswordStrength.strong"
-      class="password-input-strenght__label strong"
-      :class="{ visible: value.length > 0 }"
+      v-if="strength == PasswordStrength.strong"
+      class="password-input-strength__label strong visible visible"
     >
       Strong
     </p>
 
     <p
-      v-if="strenght == PasswordStrength.veryStrong"
-      class="password-input-strenght__label very-strong"
-      :class="{ visible: value.length > 0 }"
+      v-if="strength == PasswordStrength.veryStrong"
+      class="password-input-strength__label very-strong visible"
     >
       Very strong
     </p>
 
     <a
-      class="password-input-strenght__help"
-      :class="{ visible: value.length > 0 }"
+      v-if="value.length > 0"
+      class="password-input-strength__help visible"
       @click="toggleTooltip"
     >
       <help-icon />
     </a>
 
-    <div v-if="isTooltip" class="password-input-strenght__help-tooltip">
+    <div v-if="isTooltip" class="password-input-strength__help-tooltip">
       <p>Your password would be cracked</p>
-      <h4 v-if="strenght == PasswordStrength.veryWeak" class="weak">
-        Instantly
+      <h4 v-if="strength == PasswordStrength.veryWeak" class="weak">
+        {{ toolTipInfo }}
       </h4>
-      <h4 v-if="strenght == PasswordStrength.weak" class="weak">1 minute</h4>
-      <h4 v-if="strenght == PasswordStrength.medium" class="medium">5 years</h4>
+      <h4 v-if="strength == PasswordStrength.weak" class="weak">
+        {{ toolTipInfo }}
+      </h4>
+      <h4 v-if="strength == PasswordStrength.medium" class="medium">
+        {{ toolTipInfo }}
+      </h4>
       <h4
         v-if="
-          strenght == PasswordStrength.strong ||
-          strenght == PasswordStrength.veryStrong
+          strength == PasswordStrength.strong ||
+          strength == PasswordStrength.veryStrong
         "
         class="strong"
       >
-        2 million years
+        {{ toolTipInfo }}
       </h4>
     </div>
   </div>
@@ -85,52 +84,59 @@
 
 <script lang="ts">
 export default {
-  name: "PasswordInputStrenght",
+  name: "PasswordInputstrength",
 };
 </script>
 
 <script setup lang="ts">
-import { onUpdated, ref } from "vue";
+import { ref, watch } from "vue";
 import HelpIcon from "@action/icons/password/help-icon.vue";
 import { PasswordStrength } from "@action/types/password";
 import zxcvbn from "zxcvbn";
+import { computed } from "@vue/reactivity";
 
-let length = ref(2);
-let strenght = ref(PasswordStrength.veryWeak);
-let isTooltip = ref(false);
-
+const length = ref(2);
+const isTooltip = ref(false);
+const toolTipInfo = ref("");
 const props = defineProps({
   value: {
     type: String,
-    default: () => {
-      return "";
-    },
+    default: "",
   },
 });
-
-onUpdated(() => {
-  testPassword(zxcvbn(props.value));
-});
-
-const testPassword = (password: { password: string; score: number }) => {
-  if (password.score === 4) {
+const emit = defineEmits<{
+  (
+    e: "update:strengthAndPassword",
+    info: { password: string; strength: number }
+  ): void;
+}>();
+const strength = computed(() => {
+  const passStrength = zxcvbn(props.value);
+  toolTipInfo.value =
+    passStrength.crack_times_display.offline_slow_hashing_1e4_per_second.toString();
+  if (passStrength.score === 4) {
     length.value = 100;
-    strenght.value = PasswordStrength.veryStrong;
-  } else if (password.score === 3) {
+    return PasswordStrength.veryStrong;
+  } else if (passStrength.score === 3) {
     length.value = 84;
-    strenght.value = PasswordStrength.strong;
-  } else if (password.score === 2) {
+    return PasswordStrength.strong;
+  } else if (passStrength.score === 2) {
     length.value = 42;
-    strenght.value = PasswordStrength.medium;
-  } else if (password.score === 1) {
+    return PasswordStrength.medium;
+  } else if (passStrength.score === 1) {
     length.value = 21;
-    strenght.value = PasswordStrength.weak;
-  } else if (password.score === 0) {
+    return PasswordStrength.weak;
+  } else {
     length.value = 4;
-    strenght.value = PasswordStrength.veryWeak;
+    return PasswordStrength.veryWeak;
   }
-};
-
+});
+watch([strength, props], () => {
+  emit("update:strengthAndPassword", {
+    password: props.value,
+    strength: strength.value,
+  });
+});
 const toggleTooltip = () => {
   isTooltip.value = !isTooltip.value;
 };
@@ -139,7 +145,7 @@ const toggleTooltip = () => {
 <style lang="less">
 @import "~@action/styles/theme.less";
 
-.password-input-strenght {
+.password-input-strength {
   margin: 0 0 16px 0;
   width: 100%;
   position: relative;
@@ -240,7 +246,7 @@ const toggleTooltip = () => {
 
     &-tooltip {
       width: 197px;
-      height: 92px;
+      height: 110px;
       background: @white;
       box-shadow: 0px 0.5px 1.75px rgba(0, 0, 0, 0.039),
         0px 1.85px 6.25px rgba(0, 0, 0, 0.19);
@@ -248,7 +254,7 @@ const toggleTooltip = () => {
       padding: 12px 16px;
       position: absolute;
       right: 4px;
-      bottom: -94px;
+      bottom: -110px;
       box-sizing: border-box;
 
       p {

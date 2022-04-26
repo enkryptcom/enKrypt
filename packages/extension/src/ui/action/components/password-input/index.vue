@@ -2,12 +2,12 @@
   <div class="password-input">
     <base-input
       type="password"
-      value=""
       placeholder="Password"
       class="password-input__input"
-      :input="input"
+      :value="password"
+      @update:value="passwordChanged"
     />
-    <password-input-strenght :value="password" />
+    <password-input-strength :value="password" v-bind="$attrs" />
   </div>
 </template>
 
@@ -20,23 +20,11 @@ export default {
 <script setup lang="ts">
 import { ref } from "vue";
 import BaseInput from "@action/components/base-input/index.vue";
-import PasswordInputStrenght from "./components/password-input-strenght.vue";
+import PasswordInputStrength from "./components/password-input-strength.vue";
 
-var password = ref("");
-
-const props = defineProps({
-  input: {
-    type: Function,
-    default: () => {
-      return null;
-    },
-  },
-});
-
-const input = (text: string) => {
-  password.value = text;
-  const isValid = text.length > 6;
-  props.input(text, isValid);
+const password = ref("");
+const passwordChanged = (newVal: string) => {
+  password.value = newVal;
 };
 </script>
 
