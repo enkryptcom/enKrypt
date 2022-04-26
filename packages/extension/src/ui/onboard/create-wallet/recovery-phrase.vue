@@ -40,6 +40,7 @@ import { useRouter, useRoute } from "vue-router";
 import { onMounted, computed, ref } from "vue";
 import { generateMnemonic } from "bip39";
 import { routes } from "./routes";
+import onboardRoute from "../routes";
 
 const router = useRouter();
 const route = useRoute();
@@ -61,7 +62,7 @@ onMounted(() => {
 
 const checkForPassword = () => {
   if (!password) {
-    router.push({ path: "/", params: {} });
+    router.push({ path: onboardRoute[0].path, params: {} });
   }
 };
 
