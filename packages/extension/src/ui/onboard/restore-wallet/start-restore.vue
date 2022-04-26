@@ -19,15 +19,15 @@
 <script setup lang="ts">
 import BaseButton from "@action/components/base-button/index.vue";
 import { useRouter } from "vue-router";
-
+import { routes } from "./routes";
 const router = useRouter();
 
 const restoreAction = () => {
-  router.push({ name: "restore-wallet-enter-recovery-phrase", params: {} });
+  router.push({ name: routes.enterRecoveryPhrase.name });
 };
 
 const otherAction = () => {
-  router.push({ name: "restore-wallet-other-info", params: {} });
+  router.push({ name: routes.otherInfo.name });
 };
 </script>
 

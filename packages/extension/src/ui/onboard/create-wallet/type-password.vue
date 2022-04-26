@@ -50,6 +50,7 @@ const nextAction = () => {
 
 const passwordUpdated = (value: string) => {
   isDisabled.value = true;
+  typePassword.value = value.trim();
   if (value.trim() === password) isDisabled.value = false;
 };
 </script>

@@ -6,7 +6,7 @@
     >
       <h3>Your safety and security is our #1 priority</h3>
       <p>
-        We don’t support keystore file and private key imports in Enkrypt, as
+        We don't support keystore file and private key imports in Enkrypt, as
         they are highly unsafe.
       </p>
       <p>

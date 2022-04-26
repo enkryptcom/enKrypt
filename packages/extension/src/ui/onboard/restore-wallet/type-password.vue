@@ -8,13 +8,13 @@
     <div class="type-password__form">
       <base-input
         type="password"
-        value=""
+        :value="typePassword"
         placeholder="Password"
-        :input="input"
+        @update:value="passwordUpdated"
       />
 
       <div
-        v-if="isDisabled && typePassowrd.length > 0"
+        v-if="isDisabled && typePassword.length > 0"
         class="type-password__error"
       >
         Passwords don't match
@@ -24,7 +24,7 @@
     </div>
 
     <p class="type-password__label">
-      Since you’re going to be your own bank, we won’t be able to help if you
+      Since you're going to be your own bank, we won't be able to help if you
       loose your password.
     </p>
   </div>
@@ -34,21 +34,27 @@ import { ref } from "vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import BaseInput from "@action/components/base-input/index.vue";
 import { useRouter, useRoute } from "vue-router";
+import { routes } from "../create-wallet/routes";
 
 const router = useRouter();
 const route = useRoute();
 
 const password = route.params.password;
-const typePassowrd = ref("");
-var isDisabled = ref(true);
+
+const typePassword = ref("");
+const isDisabled = ref(true);
 
 const nextAction = () => {
-  router.push({ name: "restore-wallet-add-accounts", params: {} });
+  router.push({
+    name: routes.walletReady.name,
+    params: { password, mnemonic: route.params.mnemonic },
+  });
 };
 
-const input = (value: string) => {
-  typePassowrd.value = value;
-  isDisabled.value = typePassowrd.value != password;
+const passwordUpdated = (value: string) => {
+  isDisabled.value = true;
+  typePassword.value = value.trim();
+  if (value.trim() === password) isDisabled.value = false;
 };
 </script>
 

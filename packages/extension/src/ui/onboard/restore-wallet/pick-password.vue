@@ -6,7 +6,7 @@
     </p>
 
     <div class="pick-password__form">
-      <password-input :input="input" />
+      <password-input @update:strength-and-password="passwordUpdated" />
       <base-button title="Next" :click="nextAction" :disabled="isDisabled" />
     </div>
 
@@ -20,23 +20,25 @@
 import { ref } from "vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import PasswordInput from "@action/components/password-input/index.vue";
-import { useRouter } from "vue-router";
-
+import { useRoute, useRouter } from "vue-router";
+import { routes } from "./routes";
 const router = useRouter();
+const route = useRoute();
 
-var password = ref("");
-var isDisabled = ref(true);
+const password = ref("");
+const isDisabled = ref(true);
 
 const nextAction = () => {
   router.push({
-    name: "restore-wallet-type-password",
-    params: { password: password.value },
+    name: routes.typePassword.name,
+    params: { password: password.value, mnemonic: route.params.mnemonic },
   });
 };
 
-const input = (text: string, isValid: boolean) => {
-  password.value = text;
-  isDisabled.value = !isValid;
+const passwordUpdated = (info: { password: string; strength: number }) => {
+  password.value = info.password.trim();
+  isDisabled.value = true;
+  if (info.strength > 1) isDisabled.value = false;
 };
 </script>
 
