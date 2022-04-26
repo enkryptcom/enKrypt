@@ -55,7 +55,14 @@ const nextAction = () => {
 onMounted(() => {
   createMnemonic();
   console.log(password);
+  checkForPassword();
 });
+
+const checkForPassword = () => {
+  if (!password) {
+    router.push({ name: "create-wallet-pick-password", params: {} });
+  }
+};
 
 const createMnemonic = () => {
   mnemonic.value = generateMnemonic(128);

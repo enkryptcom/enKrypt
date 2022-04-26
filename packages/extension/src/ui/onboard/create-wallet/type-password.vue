@@ -34,6 +34,7 @@ import { ref } from "vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import BaseInput from "@action/components/base-input/index.vue";
 import { useRouter, useRoute } from "vue-router";
+import { onMounted } from "vue";
 
 const router = useRouter();
 const route = useRoute();
@@ -51,6 +52,10 @@ const passwordUpdated = (value: string) => {
   isDisabled.value = true;
   if (value.trim() === password) isDisabled.value = false;
 };
+
+onMounted(() => {
+  if (!password) router.back();
+});
 </script>
 
 <style lang="less">
