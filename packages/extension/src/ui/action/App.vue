@@ -85,6 +85,8 @@ import { KeyRecord } from "@enkryptcom/types";
 import { sendToBackgroundFromAction } from "@/libs/messenger/extension";
 import { EthereumNodeType, MessageMethod } from "@/providers/ethereum/types";
 import { InternalMethods } from "@/types/messenger";
+import openOnboard from "@/libs/utils/open-onboard";
+
 const tabstate = new TabState();
 const appMenuRef = ref(null);
 const networkGradient = ref("");
@@ -128,11 +130,16 @@ const init = async () => {
   }
 };
 onMounted(async () => {
-  const _isLocked = await isKeyRingLocked();
-  if (_isLocked) {
-    router.push({ name: "lock-screen" });
+  const isInitialized = await kr.isInitialized();
+  if (isInitialized) {
+    const _isLocked = await isKeyRingLocked();
+    if (_isLocked) {
+      router.push({ name: "lock-screen" });
+    } else {
+      init();
+    }
   } else {
-    init();
+    openOnboard();
   }
 });
 const setNetwork = async (network: NodeType) => {

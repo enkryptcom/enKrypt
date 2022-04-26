@@ -58,6 +58,12 @@ class KeyRing {
     await this.#storage.set(configs.STORAGE_KEYS.ENCRYPTED_MNEMONIC, encrypted);
   }
 
+  async isInitialized(): Promise<boolean> {
+    if (await this.#storage.get(configs.STORAGE_KEYS.ENCRYPTED_MNEMONIC))
+      return true;
+    return false;
+  }
+
   async getPathIndex(basePath: string): Promise<number> {
     const pathIndexes =
       (await this.#storage.get(configs.STORAGE_KEYS.PATH_INDEXES)) || {};

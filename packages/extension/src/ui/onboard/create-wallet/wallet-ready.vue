@@ -33,7 +33,7 @@ import RedditIcon from "@action/icons/social/reddit-icon.vue";
 import TwitterIcon from "@action/icons/social/twitter-icon.vue";
 
 const finishAction = () => {
-  console.log("finishAction");
+  window.close();
 };
 </script>
 
