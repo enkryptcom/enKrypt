@@ -21,6 +21,7 @@ import { ref } from "vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import PasswordInput from "@action/components/password-input/index.vue";
 import { useRouter } from "vue-router";
+import { routes } from "./routes";
 
 const router = useRouter();
 
@@ -29,7 +30,7 @@ const isDisabled = ref(true);
 
 const nextAction = () => {
   router.push({
-    name: "create-wallet-type-password",
+    name: routes.typePassword.name,
     params: { password: password.value },
   });
 };

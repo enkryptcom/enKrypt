@@ -17,6 +17,7 @@
 <script setup lang="ts">
 import BaseButton from "@action/components/base-button/index.vue";
 import CheckPhrase from "@action/components/check-phrase/index.vue";
+import { routes } from "./routes";
 import { useRoute, useRouter } from "vue-router";
 import { ref, computed } from "vue";
 import { chunk, shuffle, sample } from "lodash";
@@ -45,7 +46,7 @@ const updateSelection = (idx: number, val: boolean) => {
 };
 
 const nextAction = () => {
-  router.push({ name: "create-wallet-wallet-ready", params: {} });
+  router.push({ name: routes.walletReady.name });
 };
 </script>
 

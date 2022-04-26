@@ -39,6 +39,7 @@ import BaseButton from "@action/components/base-button/index.vue";
 import { useRouter, useRoute } from "vue-router";
 import { onMounted, computed, ref } from "vue";
 import { generateMnemonic } from "bip39";
+import { routes } from "./routes";
 
 const router = useRouter();
 const route = useRoute();
@@ -47,8 +48,8 @@ const mnemonic = ref("");
 
 const nextAction = () => {
   router.push({
-    name: "create-wallet-check-phrase",
-    params: { mnemonic: mnemonic.value },
+    name: routes.checkPhrase.name,
+    params: { mnemonic: mnemonic.value, password },
   });
 };
 
