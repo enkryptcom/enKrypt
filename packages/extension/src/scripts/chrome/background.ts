@@ -12,12 +12,9 @@ import Browser from "webextension-polyfill";
 import openOnboard from "@/libs/utils/open-onboard";
 
 const backgroundHandler = new BackgroundHandler();
-backgroundHandler.init().then(() => {
-  backgroundOnMessageFromNewWindow(
-    (msg): Promise<InternalOnMessageResponse> => {
-      return backgroundHandler.internalHandler(msg);
-    }
-  );
+backgroundHandler.init(); //.then(() => {});
+backgroundOnMessageFromNewWindow((msg): Promise<InternalOnMessageResponse> => {
+  return backgroundHandler.internalHandler(msg);
 });
 backgroundOnMessageFromWindow((msg): Promise<OnMessageResponse> => {
   return backgroundHandler.externalHandler(msg);

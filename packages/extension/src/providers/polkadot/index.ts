@@ -9,7 +9,7 @@ import {
 } from "@/types/provider";
 import GetUIPath from "@/libs/utils/get-ui-path";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
-import { routes as UIRoutes } from "./ui/routes";
+import UIRoutes from "./ui/routes/names";
 class PolkadotProvider
   extends EventEmitter
   implements BackgroundProviderInterface

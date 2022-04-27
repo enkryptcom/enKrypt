@@ -5,47 +5,34 @@
 
     <div class="sign-message__block">
       <div class="sign-message__account">
-        <img src="@/ui/action/icons/raw/account.png" />
+        <img :src="identicon" />
         <div class="sign-message__account-info">
-          <h4>My account nickname</h4>
+          <h4>{{ account.name }}</h4>
           <p>
-            {{
-              $filters.replaceWithEllipsis(
-                "0x14502CF6C0A13167Dc340E25Dabf5FBDB68R5967",
-                6,
-                4
-              )
-            }}
+            {{ $filters.replaceWithEllipsis(account.address, 6, 4) }}
           </p>
         </div>
       </div>
     </div>
     <div class="sign-message__block">
       <div class="sign-message__info">
-        <img src="@/ui/action/icons/raw/matchchain.png" />
+        <img :src="options.faviconURL" />
         <div class="sign-message__info-info">
-          <h4>Mathchain</h4>
-          <p>https://explorer-galois.mathchain.org/#/</p>
+          <h4>{{ options.title }}</h4>
+          <p>{{ options.domain }}</p>
         </div>
       </div>
 
       <p class="sign-message__message">
-        Sign message text Sign message text Sign message text Sign message text
-        Sign message text Sign message text Sign message text Sign message text
-        Sign message text Sign message text Sign message text Sign message text
-        Sign message text Sign message text
+        {{ message }}
       </p>
     </div>
     <div class="sign-message__buttons">
       <div class="sign-message__buttons-cancel">
-        <base-button
-          title="Cancel"
-          :click="cancelAction"
-          :no-background="true"
-        />
+        <base-button title="Cancel" :click="deny" :no-background="true" />
       </div>
       <div class="sign-message__buttons-send">
-        <base-button title="Sign" :click="signAction" />
+        <base-button title="Sign" :click="approve" />
       </div>
     </div>
   </div>
@@ -54,11 +41,69 @@
 <script setup lang="ts">
 import SignLogo from "@action/icons/common/sign-logo.vue";
 import BaseButton from "@action/components/base-button/index.vue";
-const cancelAction = () => {
-  console.log("cancelAction");
+import { KeyRecord } from "@enkryptcom/types";
+import { getCustomError, getError } from "@/libs/error";
+import { ErrorCodes } from "@/providers/ethereum/types";
+import { WindowPromiseHandler } from "@/libs/window-promise";
+import { InternalMethods } from "@/types/messenger";
+import { computed } from "vue";
+import { bufferToHex, hexToBuffer } from "@enkryptcom/utils";
+import { hexToUtf8 } from "web3-utils";
+import { hashPersonalMessage } from "ethereumjs-util";
+import { DEFAULT_NETWORK_NAME, getNetworkByName } from "@/libs/utils/networks";
+import { NodeType } from "@/types/provider";
+import { isAscii } from "@polkadot/util";
+
+const { PromiseResolve, options, Request, sendToBackground } =
+  WindowPromiseHandler();
+const message = computed(() => {
+  if (Request.value.params && Request.value.params.length > 1)
+    return isAscii(Request.value.params[0])
+      ? hexToUtf8(Request.value.params[0])
+      : Request.value.params[0];
+  return "";
+});
+const network = computed(() => {
+  if (Request.value.params && Request.value.params.length > 2)
+    return getNetworkByName(Request.value.params[2]) as NodeType;
+  else return getNetworkByName(DEFAULT_NETWORK_NAME) as NodeType;
+});
+const account = computed(() => {
+  if (Request.value.params && Request.value.params.length > 1) {
+    return Request.value.params[1] as KeyRecord;
+  } else
+    return {
+      name: "",
+      address: "",
+    } as KeyRecord;
+});
+const identicon = computed(() => {
+  return network.value.identicon(account.value.address);
+});
+const approve = () => {
+  if (!Request.value.params || Request.value.params.length < 2) {
+    return PromiseResolve.value({ error: getCustomError("No params") });
+  }
+  const msg = Request.value.params[0] as `0x{string}`;
+  const msgHash = bufferToHex(hashPersonalMessage(hexToBuffer(msg)));
+  const account = Request.value.params[1] as KeyRecord;
+  sendToBackground({
+    method: InternalMethods.sign,
+    params: [msgHash, account],
+  }).then((res) => {
+    if (res.error) {
+      PromiseResolve.value(res);
+    } else {
+      PromiseResolve.value({
+        result: JSON.stringify(res.result),
+      });
+    }
+  });
 };
-const signAction = () => {
-  console.log("signAction");
+const deny = () => {
+  PromiseResolve.value({
+    error: getError(ErrorCodes.userRejected),
+  });
 };
 </script>
 

@@ -41,7 +41,6 @@ export class Provider extends EventEmitter implements ProviderInterface {
       this.name,
       JSON.stringify(request)
     )) as EthereumResponse;
-    console.log(res);
     return res;
   }
   enable(): Promise<any> {

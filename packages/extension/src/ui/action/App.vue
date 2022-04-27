@@ -76,7 +76,11 @@ import HoldIcon from "./icons/common/hold-icon.vue";
 import { useRouter, useRoute } from "vue-router";
 import { WindowPromise } from "@/libs/window-promise";
 import { NodeType } from "@/types/provider";
-import { getAllNetworks, DEFAULT_NETWORK_NAME } from "@/libs/utils/networks";
+import {
+  getAllNetworks,
+  DEFAULT_NETWORK_NAME,
+  getNetworkByName,
+} from "@/libs/utils/networks";
 import TabState from "@/libs/tab-state";
 import { getOtherSigners } from "@/libs/utils/accounts";
 import { AccountsHeaderData } from "./types/account";
@@ -103,9 +107,7 @@ const transitionName = "fade";
 const networks: NodeType[] = getAllNetworks().filter(
   (net) => !net.isTestNetwork //hide testnetworks for now
 );
-const defaultNetwork = networks.find(
-  (net) => net.name === DEFAULT_NETWORK_NAME
-) as NodeType;
+const defaultNetwork = getNetworkByName(DEFAULT_NETWORK_NAME) as NodeType;
 const currentNetwork = ref<NodeType>(defaultNetwork);
 const kr = new PublicKeyRing();
 
@@ -122,7 +124,7 @@ const isKeyRingLocked = async (): Promise<boolean> => {
 const init = async () => {
   const curNetwork = await tabstate.getSelectedNetWork();
   if (curNetwork) {
-    const savedNetwork = networks.find((net) => net.name === curNetwork);
+    const savedNetwork = getNetworkByName(curNetwork);
     if (savedNetwork) setNetwork(savedNetwork);
     else setNetwork(defaultNetwork);
   } else {

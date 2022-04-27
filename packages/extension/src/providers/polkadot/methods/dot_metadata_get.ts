@@ -1,5 +1,6 @@
 import { MiddlewareFunction } from "@enkryptcom/types";
 import EthereumProvider from "..";
+import MetadataStorage from "../libs/metadata-storage";
 const method: MiddlewareFunction = function (
   this: EthereumProvider,
   payload,
@@ -8,13 +9,16 @@ const method: MiddlewareFunction = function (
 ): void {
   if (payload.method !== "dot_metadata_get") return next();
   else {
-    return res(null, [
-      {
-        genesisHash:
-          "0xfc41b9bd8ef8fe53d58c7ea67c794c7ec9a73daf05e6d54b14ff6342c99ba64c",
-        specVersion: 2034,
-      },
-    ]);
+    const mstorage = new MetadataStorage();
+    mstorage.getAllMetadata().then((allMeta) => {
+      const response = Object.keys(allMeta).map((key) => {
+        return {
+          genesisHash: key,
+          specVersion: allMeta[key].specVersion,
+        };
+      });
+      return res(null, response);
+    });
   }
 };
 export default method;

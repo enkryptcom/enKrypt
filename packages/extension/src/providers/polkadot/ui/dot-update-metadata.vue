@@ -1,51 +1,40 @@
 <template>
   <div class="update-metadata">
-    <sign-logo color="#E6007A" class="update-metadata__logo"></sign-logo>
+    <sign-logo
+      :color="metadata.color || '#E6007A'"
+      class="update-metadata__logo"
+    ></sign-logo>
     <h2>Update metadata</h2>
-
-    <div class="update-metadata__block">
-      <div class="update-metadata__account">
-        <img src="@/ui/action/icons/raw/account.png" />
-        <div class="update-metadata__account-info">
-          <h4>My account nickname</h4>
-          <p>
-            {{
-              $filters.replaceWithEllipsis(
-                "0x14502CF6C0A13167Dc340E25Dabf5FBDB68R5967",
-                6,
-                4
-              )
-            }}
-          </p>
-        </div>
-      </div>
-    </div>
     <div class="update-metadata__block">
       <div class="update-metadata__block-row">
         <div class="update-metadata__block-row-left">From</div>
-        <div class="update-metadata__block-row-right">
-          https://polkadot.js.org/apps/?rps=wss%3A%2F%2polkadot-rpc.dwellir.com#/signing
-        </div>
+        <div class="update-metadata__block-row-right">{{ options.domain }}</div>
       </div>
       <div class="update-metadata__block-row">
         <div class="update-metadata__block-row-left">Chain</div>
-        <div class="update-metadata__block-row-right">Polkadot</div>
+        <div class="update-metadata__block-row-right">{{ metadata.chain }}</div>
       </div>
       <div class="update-metadata__block-row">
         <div class="update-metadata__block-row-left">Icon</div>
-        <div class="update-metadata__block-row-right">polkadot</div>
+        <div class="update-metadata__block-row-right">{{ metadata.icon }}</div>
       </div>
       <div class="update-metadata__block-row">
         <div class="update-metadata__block-row-left">Decimals</div>
-        <div class="update-metadata__block-row-right">10</div>
+        <div class="update-metadata__block-row-right">
+          {{ metadata.tokenDecimals }}
+        </div>
       </div>
       <div class="update-metadata__block-row">
         <div class="update-metadata__block-row-left">Symbol</div>
-        <div class="update-metadata__block-row-right">DOT</div>
+        <div class="update-metadata__block-row-right">
+          {{ metadata.tokenSymbol }}
+        </div>
       </div>
       <div class="update-metadata__block-row">
         <div class="update-metadata__block-row-left">Upgrade</div>
-        <div class="update-metadata__block-row-right">unknown -> 9170</div>
+        <div class="update-metadata__block-row-right">
+          {{ currentVersion }} -> {{ metadata.specVersion }}
+        </div>
       </div>
     </div>
     <p class="update-metadata__info">
@@ -54,14 +43,10 @@
     </p>
     <div class="update-metadata__buttons">
       <div class="update-metadata__buttons-cancel">
-        <base-button
-          title="Cancel"
-          :click="cancelAction"
-          :no-background="true"
-        />
+        <base-button title="Cancel" :click="deny" :no-background="true" />
       </div>
       <div class="update-metadata__buttons-send">
-        <base-button title="Update" :click="updateAction" />
+        <base-button title="Update" :click="approve" />
       </div>
     </div>
   </div>
@@ -70,11 +55,48 @@
 <script setup lang="ts">
 import SignLogo from "@action/icons/common/sign-logo.vue";
 import BaseButton from "@action/components/base-button/index.vue";
-const cancelAction = () => {
-  console.log("cancelAction");
+import { getCustomError } from "@/libs/error";
+import { WindowPromiseHandler } from "@/libs/window-promise";
+import { computed, ref, watch } from "vue";
+import { MetadataDef } from "@polkadot/extension-inject/types";
+import MetadataStorage from "@/providers/polkadot/libs/metadata-storage";
+const { PromiseResolve, options, Request } = WindowPromiseHandler();
+const mstorage = new MetadataStorage();
+const currentVersion = ref("unknown");
+const metadata = computed(() => {
+  if (Request.value.params) return Request.value.params[0] as MetadataDef;
+  return {} as MetadataDef;
+});
+watch(metadata, () => {
+  if (metadata.value.genesisHash) {
+    mstorage.getMetadata(metadata.value.genesisHash).then((m) => {
+      if (m) {
+        currentVersion.value = m.specVersion.toString();
+      }
+    });
+  }
+});
+const approve = () => {
+  if (
+    !Request.value.params ||
+    Request.value.params.length < 1 ||
+    !metadata.value.genesisHash
+  ) {
+    return PromiseResolve.value({ error: getCustomError("No params") });
+  }
+
+  mstorage
+    .addMetadata(metadata.value.genesisHash, JSON.stringify(metadata.value))
+    .then(() => {
+      PromiseResolve.value({
+        result: JSON.stringify(true),
+      });
+    });
 };
-const updateAction = () => {
-  console.log("updateAction");
+const deny = () => {
+  PromiseResolve.value({
+    result: JSON.stringify(false),
+  });
 };
 </script>
 

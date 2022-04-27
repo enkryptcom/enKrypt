@@ -96,7 +96,6 @@ const toggleForgot = () => {
 };
 const resetAction = () => {
   password.value = "";
-  console.log("reset");
 };
 const closeLockedAction = () => {
   isLocked.value = false;

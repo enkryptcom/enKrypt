@@ -54,4 +54,8 @@ export interface PolkadotNodeType extends NodeType {
 export interface PolkadotAPIOptions {
   decimals: number;
 }
+export enum PolkadotStorageNamespace {
+  metadata = "polkadot_metadata",
+}
+
 export { InjectedProvider };

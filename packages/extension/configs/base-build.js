@@ -12,6 +12,8 @@ const setConfig = (config) => {
     os: false,
     https: require.resolve("https-browserify"),
     http: require.resolve("stream-http"),
+    path: require.resolve("path-browserify"),
+    fs: false,
   });
   config
     .plugin("buffer") // <-arbitrary name to give this plugin entry I guess?
