@@ -55,5 +55,17 @@ export interface ERC20TokenInfo {
   symbol: string;
   decimals: number;
 }
+export interface JsonRpcRequest {
+  id: string;
+  jsonrpc: "2.0";
+  method: string;
+  params?: any[];
+}
 
+export interface JsonRpcResponse {
+  id: string;
+  jsonrpc: "2.0";
+  result?: unknown;
+  error?: Error;
+}
 export { InjectedProvider };

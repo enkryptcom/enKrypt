@@ -1,6 +1,11 @@
 import EventEmitter from "eventemitter3";
 import { handleIncomingMessage } from "./libs/message-handler";
-import { EthereumRequest, EthereumResponse } from "./types";
+import {
+  EthereumRequest,
+  EthereumResponse,
+  JsonRpcRequest,
+  JsonRpcResponse,
+} from "./types";
 import {
   ProviderName,
   ProviderOptions,
@@ -13,6 +18,7 @@ import { EXTENSION_VERSION } from "@/configs/constants";
 export class Provider extends EventEmitter implements ProviderInterface {
   chainId: string;
   isEnkrypt: boolean;
+  //isMetaMask: boolean;
   selectedAddress: string | null;
   connected: boolean;
   name: ProviderName;
@@ -23,6 +29,7 @@ export class Provider extends EventEmitter implements ProviderInterface {
     super();
     this.chainId = "0x1"; //deprecated
     this.isEnkrypt = true;
+    //this.isMetaMask = true;
     this.selectedAddress = null; //deprecated
     this.connected = true;
     this.name = options.name;
@@ -34,6 +41,7 @@ export class Provider extends EventEmitter implements ProviderInterface {
       this.name,
       JSON.stringify(request)
     )) as EthereumResponse;
+    console.log(res);
     return res;
   }
   enable(): Promise<any> {
@@ -48,13 +56,17 @@ export class Provider extends EventEmitter implements ProviderInterface {
   }
   // //deprecated
   sendAsync(
-    data: unknown,
-    callback: (err: Error | null, res?: any) => void
+    data: JsonRpcRequest,
+    callback: (err: Error | null, res?: JsonRpcResponse) => void
   ): void {
     const { method, params } = data as EthereumRequest;
     this.request({ method, params })
       .then((res) => {
-        callback(null, res);
+        callback(null, {
+          id: data.id,
+          jsonrpc: "2.0",
+          result: res,
+        });
       })
       .catch((err) => callback(err));
   }

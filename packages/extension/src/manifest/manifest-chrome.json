@@ -15,14 +15,7 @@
   "manifest_version": 3,
   "name": "Enkrypt",
   "short_name": "Enkrypt",
-  "permissions": [
-    "storage",
-    "unlimitedStorage",
-    "clipboardWrite",
-    "activeTab",
-    "notifications",
-    "tabs"
-  ],
+  "permissions": ["storage", "unlimitedStorage", "notifications", "tabs"],
   "background": {
     "service_worker": "scripts/background.js"
   },
@@ -38,7 +31,7 @@
   },
   "content_scripts": [
     {
-      "matches": ["file://*/*", "http://*/*", "https://*/*"],
+      "matches": ["http://*/*", "https://*/*"],
       "js": ["scripts/contentscript.js"],
       "run_at": "document_start",
       "all_frames": false
@@ -55,10 +48,10 @@
     {
       "resources": ["scripts/inject.js"],
       "use_dynamic_url": false,
-      "matches": ["file://*/*", "http://*/*", "https://*/*"]
+      "matches": ["http://*/*", "https://*/*"]
     }
   ],
-  "minimum_chrome_version": "63",
+  "minimum_chrome_version": "95",
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'self'"
   }
