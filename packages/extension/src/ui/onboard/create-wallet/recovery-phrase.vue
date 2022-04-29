@@ -55,7 +55,6 @@ const nextAction = () => {
 
 onMounted(() => {
   createMnemonic();
-  console.log(password);
   checkForPassword();
 });
 
@@ -67,7 +66,6 @@ const checkForPassword = () => {
 
 const createMnemonic = () => {
   mnemonic.value = generateMnemonic(128);
-  console.log(mnemonic.value);
 };
 
 const firstSet = computed(() => {

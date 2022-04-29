@@ -14,33 +14,29 @@ import {
   ProviderName,
 } from "@/types/provider";
 import { OnMessageResponse } from "@enkryptcom/types";
-import EthereumProvider from "@/providers/ethereum";
-import PolkadotProvider from "@/providers/polkadot";
+import Providers from "@/providers";
 import Browser from "webextension-polyfill";
 import TabInfo from "@/libs/utils/tab-info";
 import PersistentEvents from "@/libs/persistent-events";
-import TabStates from "@/libs/tab-state";
+import DomainState from "@/libs/domain-state";
 import { TabProviderType, ProviderType, ExternalMessageOptions } from "./types";
-import { getNetworkByName } from "../utils/networks";
+import { getNetworkByName, getProviderNetworkByName } from "../utils/networks";
 
 class BackgroundHandler {
   #keyring: KeyRingBase;
   #tabProviders: TabProviderType;
   #providers: ProviderType;
   #persistentEvents: PersistentEvents;
-  #tabStates: TabStates;
+  #domainState: DomainState;
   constructor() {
     this.#keyring = new KeyRingBase();
     this.#persistentEvents = new PersistentEvents();
-    this.#tabStates = new TabStates();
+    this.#domainState = new DomainState();
     this.#tabProviders = {
       [ProviderName.ethereum]: {},
       [ProviderName.polkadot]: {},
     };
-    this.#providers = {
-      [ProviderName.ethereum]: EthereumProvider,
-      [ProviderName.polkadot]: PolkadotProvider,
-    };
+    this.#providers = Providers;
   }
   async init(): Promise<void> {
     const allPersistentEvents = await this.#persistentEvents.getAllEvents();
@@ -99,7 +95,6 @@ class BackgroundHandler {
         method === InternalMethods.newWindowUnload
       ) {
         this.#persistentEvents.deleteEvents(_tabid);
-        this.#tabStates.deleteStateById(_tabid);
         return {
           result: JSON.stringify(true),
         };
@@ -108,6 +103,7 @@ class BackgroundHandler {
         error: JSON.stringify(getCustomError("Enkrypt: not implemented")),
       };
     }
+    const tabInfo = TabInfo(await Browser.tabs.get(_tabid));
     if (!this.#tabProviders[_provider][_tabid]) {
       const toWindow = (message: string) => {
         sendToWindow(
@@ -121,6 +117,19 @@ class BackgroundHandler {
       this.#tabProviders[_provider][_tabid] = new this.#providers[_provider](
         toWindow
       );
+      const domainState = await this.#domainState.getStateByDomain(
+        tabInfo.domain
+      );
+      if (domainState.selectedNetwork) {
+        const providerNetwork = getProviderNetworkByName(
+          _provider,
+          domainState.selectedNetwork
+        );
+        if (providerNetwork)
+          this.#tabProviders[_provider][_tabid].setRequestProvider(
+            providerNetwork
+          );
+      }
     }
     const isPersistent = await this.#tabProviders[_provider][
       _tabid
@@ -129,7 +138,7 @@ class BackgroundHandler {
       .request({
         method,
         params,
-        options: TabInfo(await Browser.tabs.get(_tabid)),
+        options: tabInfo,
       })
       .then((response) => {
         if (isPersistent && !response.error && options.savePersistentEvents)

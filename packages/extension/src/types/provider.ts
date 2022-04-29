@@ -21,7 +21,7 @@ export enum ProviderName {
 export enum InternalStorageNamespace {
   keyring = "KeyRing",
   persistentEvents = "PersistentEvents",
-  tabState = "TabState",
+  domainState = "DomainState",
   marketData = "MarketData",
   cacheFetch = "CacheFetch",
 }

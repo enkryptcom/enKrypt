@@ -81,7 +81,7 @@ import {
   DEFAULT_NETWORK_NAME,
   getNetworkByName,
 } from "@/libs/utils/networks";
-import TabState from "@/libs/tab-state";
+import DomainState from "@/libs/domain-state";
 import { getOtherSigners } from "@/libs/utils/accounts";
 import { AccountsHeaderData } from "./types/account";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
@@ -91,7 +91,7 @@ import { EthereumNodeType, MessageMethod } from "@/providers/ethereum/types";
 import { InternalMethods } from "@/types/messenger";
 import openOnboard from "@/libs/utils/open-onboard";
 
-const tabstate = new TabState();
+const domainState = new DomainState();
 const appMenuRef = ref(null);
 const networkGradient = ref("");
 const accountHeaderData = ref<AccountsHeaderData>({
@@ -118,11 +118,11 @@ const isKeyRingLocked = async (): Promise<boolean> => {
       params: [],
     }),
     provider: currentNetwork.value.provider,
-    tabId: await tabstate.getCurrentTabId(),
+    tabId: await domainState.getCurrentTabId(),
   }).then((res) => JSON.parse(res.result || "true"));
 };
 const init = async () => {
-  const curNetwork = await tabstate.getSelectedNetWork();
+  const curNetwork = await domainState.getSelectedNetWork();
   if (curNetwork) {
     const savedNetwork = getNetworkByName(curNetwork);
     if (savedNetwork) setNetwork(savedNetwork);
@@ -155,7 +155,7 @@ const setNetwork = async (network: NodeType) => {
   const inactiveAccounts = await kr.getAccounts(
     getOtherSigners(network.signer)
   );
-  const selectedAddress = await tabstate.getSelectedAddress();
+  const selectedAddress = await domainState.getSelectedAddress();
   let selectedAccount = activeAccounts[0];
   if (selectedAddress) {
     const found = activeAccounts.find((acc) => acc.address === selectedAddress);
@@ -168,7 +168,7 @@ const setNetwork = async (network: NodeType) => {
     activeBalances: activeAccounts.map(() => "~"),
   };
   currentNetwork.value = network;
-  const tabId = await tabstate.getCurrentTabId();
+  const tabId = await domainState.getCurrentTabId();
   if ((currentNetwork.value as EthereumNodeType).chainID) {
     await sendToBackgroundFromAction({
       message: JSON.stringify({
@@ -193,7 +193,7 @@ const setNetwork = async (network: NodeType) => {
     });
   }
   router.push({ name: "activity", params: { id: network.name } });
-  tabstate.setSelectedNetwork(network.name);
+  domainState.setSelectedNetwork(network.name);
   if (network.api) {
     try {
       const api = await network.api();
@@ -213,7 +213,7 @@ const addNetwork = () => {
 };
 const onSelectedAddressChanged = async (newAccount: KeyRecord) => {
   accountHeaderData.value.selectedAccount = newAccount;
-  await tabstate.setSelectedAddress(newAccount.address);
+  await domainState.setSelectedAddress(newAccount.address);
   await sendToBackgroundFromAction({
     message: JSON.stringify({
       method: InternalMethods.sendToTab,
@@ -225,7 +225,7 @@ const onSelectedAddressChanged = async (newAccount: KeyRecord) => {
       ],
     }),
     provider: currentNetwork.value.provider,
-    tabId: await tabstate.getCurrentTabId(),
+    tabId: await domainState.getCurrentTabId(),
   });
 };
 const openCreate = () => {

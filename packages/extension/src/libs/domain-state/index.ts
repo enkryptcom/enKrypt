@@ -1,11 +1,15 @@
-import { InternalStorageNamespace } from "@/types/provider";
+import {
+  InternalStorageNamespace,
+  ProviderRequestOptions,
+} from "@/types/provider";
 import Browser from "webextension-polyfill";
 import BrowserStorage from "../common/browser-storage";
+import tabInfo from "../utils/tab-info";
 import { IState, StorageKeys } from "./types";
-class TabState {
+class DomainState {
   #storage: BrowserStorage;
   constructor() {
-    this.#storage = new BrowserStorage(InternalStorageNamespace.tabState);
+    this.#storage = new BrowserStorage(InternalStorageNamespace.domainState);
   }
   async setSelectedNetwork(name: string): Promise<void> {
     const state = await this.getState();
@@ -29,16 +33,16 @@ class TabState {
   }
   async deleteState(): Promise<void> {
     const allStates = await this.getAllStates();
-    const tabId = await this.getCurrentTabId();
-    if (allStates[tabId]) {
-      delete allStates[tabId];
+    const domain = await this.getCurrentDomain();
+    if (allStates[domain]) {
+      delete allStates[domain];
       await this.#storage.set(StorageKeys.providerInfo, allStates);
     }
   }
-  async deleteStateById(id: number): Promise<void> {
+  async deleteStateByDomain(domain: string): Promise<void> {
     const allStates = await this.getAllStates();
-    if (allStates[id]) {
-      delete allStates[id];
+    if (allStates[domain]) {
+      delete allStates[domain];
       await this.#storage.set(StorageKeys.providerInfo, allStates);
     }
   }
@@ -50,24 +54,37 @@ class TabState {
       .query({ active: true, currentWindow: true })
       .then((tabs) => tabs[0].id as number);
   }
+  async getCurrentTabInfo(): Promise<ProviderRequestOptions> {
+    return Browser.tabs
+      .query({ active: true, currentWindow: true })
+      .then((tabs) => tabInfo(tabs[0]));
+  }
+  async getCurrentDomain(): Promise<string> {
+    return this.getCurrentTabInfo().then((info) => info.domain);
+  }
   async setState(state: IState): Promise<void> {
-    const tabId = await this.getCurrentTabId();
+    const domain = await this.getCurrentDomain();
     const allStates = await this.getAllStates();
-    allStates[tabId] = state;
+    allStates[domain] = state;
     await this.#storage.set(StorageKeys.providerInfo, allStates);
   }
-  async getState(): Promise<IState> {
-    const allStates: Record<number, IState> = await this.getAllStates();
-    const tabId = await this.getCurrentTabId();
-    if (!allStates[tabId]) return {};
-    else return allStates[tabId];
+  async getStateByDomain(domain: string): Promise<IState> {
+    const allStates: Record<string, IState> = await this.getAllStates();
+    if (!allStates[domain]) return {};
+    else return allStates[domain];
   }
-  async getAllStates(): Promise<Record<number, IState>> {
-    const allStates: Record<number, IState> = await this.#storage.get(
+  async getState(): Promise<IState> {
+    const allStates: Record<string, IState> = await this.getAllStates();
+    const domain = await this.getCurrentDomain();
+    if (!allStates[domain]) return {};
+    else return allStates[domain];
+  }
+  async getAllStates(): Promise<Record<string, IState>> {
+    const allStates: Record<string, IState> = await this.#storage.get(
       StorageKeys.providerInfo
     );
     if (!allStates) return {};
     return allStates;
   }
 }
-export default TabState;
+export default DomainState;

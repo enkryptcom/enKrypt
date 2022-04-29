@@ -51,7 +51,6 @@ chunkedArr.forEach((chunk) => {
   });
 });
 const updateSelection = (idx: number, val: boolean) => {
-  console.log(idx, val, "isvalid selection");
   validSelection.value[idx] = val;
 };
 
