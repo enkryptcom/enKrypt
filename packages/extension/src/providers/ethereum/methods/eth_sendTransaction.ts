@@ -3,6 +3,7 @@ import { MiddlewareFunction } from "@enkryptcom/types";
 import EthereumProvider from "..";
 import { EthereumTransaction } from "../libs/transaction/types";
 import { WindowPromise } from "@/libs/window-promise";
+import { numberToHex } from "web3-utils";
 const method: MiddlewareFunction = function (
   this: EthereumProvider,
   payload,
@@ -17,6 +18,8 @@ const method: MiddlewareFunction = function (
       );
     }
     const tx = payload.params[0] as EthereumTransaction;
+    if (!tx.chainId)
+      tx.chainId = numberToHex(this.network.chainID) as `0x${string}`;
     this.KeyRing.getAccount(tx.from.toLowerCase()).then((account) => {
       const windowPromise = new WindowPromise();
       windowPromise

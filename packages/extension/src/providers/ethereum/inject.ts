@@ -18,7 +18,7 @@ import { EXTENSION_VERSION } from "@/configs/constants";
 export class Provider extends EventEmitter implements ProviderInterface {
   chainId: string;
   isEnkrypt: boolean;
-  //isMetaMask: boolean;
+  isMetaMask: boolean;
   selectedAddress: string | null;
   connected: boolean;
   name: ProviderName;
@@ -29,7 +29,7 @@ export class Provider extends EventEmitter implements ProviderInterface {
     super();
     this.chainId = "0x1"; //deprecated
     this.isEnkrypt = true;
-    //this.isMetaMask = true;
+    this.isMetaMask = true;
     this.selectedAddress = null; //deprecated
     this.connected = true;
     this.name = options.name;

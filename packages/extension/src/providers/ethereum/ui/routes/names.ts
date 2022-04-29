@@ -14,4 +14,9 @@ export default {
     name: "ethSendTransaction",
     component: {},
   },
+  ethSignTypedData: {
+    path: "eth-sign-typedData",
+    name: "ethSignTypedData",
+    component: {},
+  },
 };
