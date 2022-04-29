@@ -36,6 +36,7 @@
 
     <div class="app__content">
       <accounts-header
+        v-show="showNetworkMenu()"
         :account-info="accountHeaderData"
         :network="currentNetwork"
         :init="init"
@@ -56,6 +57,7 @@
       <router-view name="accounts"></router-view> -->
 
       <network-menu
+        v-show="showNetworkMenu()"
         :selected="(route.params.id as string)"
         :network="currentNetwork"
       />
@@ -209,6 +211,16 @@ const onSelectedAddressChanged = async (newAccount: KeyRecord) => {
     provider: currentNetwork.value.provider,
     tabId: await tabstate.getCurrentTabId(),
   });
+};
+const showNetworkMenu = () => {
+  const selected = route.params.id as string;
+  return (
+    !!selected &&
+    (route.name == "activity" ||
+      route.name == "assets" ||
+      route.name == "nfts" ||
+      route.name == "dapps")
+  );
 };
 const openCreate = () => {
   const windowPromise = new WindowPromise();

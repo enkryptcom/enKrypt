@@ -6,6 +6,8 @@ import NetworkDApps from "@action/views/network-dapps/index.vue";
 import NetworkNFTs from "@action/views/network-nfts/index.vue";
 import LockScreen from "@action/views/lock-screen/index.vue";
 import Intro from "@action/views/intro/index.vue";
+import Swap from "@action/views/swap/index.vue";
+
 const routes = [
   {
     path: "/",
@@ -48,6 +50,13 @@ const routes = [
       view: NetworkNFTs,
     },
     name: "nfts",
+  },
+  {
+    path: "/swap/:id?",
+    components: {
+      view: Swap,
+    },
+    name: "swap",
   },
   {
     path: "/add-network",
