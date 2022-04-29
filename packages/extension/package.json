@@ -1,6 +1,6 @@
 {
   "name": "@enkryptcom/extension",
-  "version": "0.3.1",
+  "version": "0.4.3",
   "private": true,
   "scripts": {
     "zip": "cd dist; zip -r release.zip *;",
@@ -24,6 +24,7 @@
     "@enkryptcom/utils": "^0.0.1",
     "@ethereumjs/common": "^2.6.4",
     "@ethereumjs/tx": "^3.5.1",
+    "@metamask/eth-sig-util": "^4.0.1",
     "@polkadot/ui-shared": "^2.0.1",
     "@polkadot/util": "^9.0.1",
     "@polkadot/wasm-crypto": "^6.0.1",

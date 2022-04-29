@@ -4,6 +4,7 @@ import personalSign from "./personal_sign";
 import ethAccounts from "./eth_accounts";
 import ethCoinbase from "./eth_coinbase";
 import ethSignTransaction from "./eth_signTransaction";
+import ethSignTypedData from "./eth_signTypedData";
 export default [
   ethSendTransaction,
   ethSign,
@@ -11,4 +12,5 @@ export default [
   ethAccounts,
   ethCoinbase,
   ethSignTransaction,
+  ethSignTypedData,
 ];

@@ -1,6 +1,7 @@
 import ethAccounts from "../eth-accounts.vue";
 import ethSign from "../eth-sign-message.vue";
 import ethSendTransaction from "../eth-send-transaction.vue";
+import ethSignTypedData from "../eth-sign-typedata.vue";
 import { RouteRecordRaw } from "vue-router";
 import RouteNames from "./names";
 const routes = Object.assign({}, RouteNames);
@@ -8,7 +9,7 @@ const routes = Object.assign({}, RouteNames);
 routes.ethAccounts.component = ethAccounts;
 routes.ethSign.component = ethSign;
 routes.ethSendTransaction.component = ethSendTransaction;
-
+routes.ethSignTypedData.component = ethSignTypedData;
 export default (namespace: string): RouteRecordRaw[] => {
   return Object.values(routes).map((route) => {
     route.path = `/${namespace}/${route.path}`;
