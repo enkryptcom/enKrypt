@@ -14,7 +14,7 @@ const scryptParams = {
   cipher: "aes-128-ctr",
   kdf: "scrypt",
   dklen: 32,
-  n: 524288, // 2^19, 2^18 seems little too fast now adays
+  n: 262144,
   r: 8,
   p: 1,
 };

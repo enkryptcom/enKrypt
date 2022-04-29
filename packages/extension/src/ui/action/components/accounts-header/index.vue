@@ -1,0 +1,90 @@
+<template>
+  <div class="network-header">
+    <accounts-header-account
+      v-if="!!accountInfo.selectedAccount"
+      :name="accountInfo.selectedAccount.name"
+      :address="network.displayAddress(accountInfo.selectedAccount.address)"
+      :toggle-accounts="toggleAccounts"
+      :toggle-deposit="toggleDeposit"
+      :active="showAccounts"
+      :network="network"
+    ></accounts-header-account>
+
+    <accounts-list
+      :network="network"
+      :account-info="accountInfo"
+      :show-accounts="showAccounts"
+      :toggle="toggleAccounts"
+      v-bind="$attrs"
+    />
+
+    <deposit
+      v-if="!!accountInfo.selectedAccount"
+      :account="accountInfo.selectedAccount"
+      :show-deposit="showDeposit"
+      :network="network"
+      :toggle="toggleDeposit"
+    />
+  </div>
+</template>
+
+<script lang="ts">
+export default {
+  name: "NetworkHeader",
+};
+</script>
+
+<script setup lang="ts">
+import { onMounted, ref, PropType } from "vue";
+import AccountsHeaderAccount from "./components/header-accounts.vue";
+import AccountsList from "@action/views/accounts/index.vue";
+import Deposit from "@action/views/deposit/index.vue";
+import { useRouter } from "vue-router";
+import type { AccountsHeaderData } from "@action/types/account";
+import { NodeType } from "@/types/provider";
+const router = useRouter();
+
+let showAccounts = ref(false);
+let showDeposit = ref(false);
+
+defineProps({
+  network: {
+    type: Object as PropType<NodeType>,
+    default: () => ({}),
+  },
+  accountInfo: {
+    type: Object as PropType<AccountsHeaderData>,
+    default: () => ({}),
+  },
+});
+
+onMounted(async () => {
+  router.beforeEach((to, from, next) => {
+    showAccounts.value = false;
+    next();
+  });
+});
+
+const toggleAccounts = () => {
+  showAccounts.value = !showAccounts.value;
+};
+
+const toggleDeposit = () => {
+  showDeposit.value = !showDeposit.value;
+};
+</script>
+
+<style lang="less">
+@import "~@action/styles/theme.less";
+
+.network-header {
+  position: fixed;
+  width: 460px;
+  height: 56px;
+  left: 340px;
+  top: 0;
+  background: @white;
+  box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.05), 0px 0px 1px rgba(0, 0, 0, 0.25);
+  z-index: 2;
+}
+</style>

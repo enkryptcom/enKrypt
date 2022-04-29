@@ -8,6 +8,12 @@ const setConfig = (config) => {
     crypto: require.resolve("crypto-browserify"),
     util: require.resolve("util/"),
     stream: require.resolve("stream-browserify"),
+    url: require.resolve("url/"),
+    os: false,
+    https: require.resolve("https-browserify"),
+    http: require.resolve("stream-http"),
+    path: require.resolve("path-browserify"),
+    fs: false,
   });
   config
     .plugin("buffer") // <-arbitrary name to give this plugin entry I guess?

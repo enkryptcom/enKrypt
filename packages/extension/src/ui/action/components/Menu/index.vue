@@ -12,7 +12,7 @@
 </template>
 
 <script setup lang="ts">
-import { PropType, defineProps } from "vue";
+import { PropType } from "vue";
 import { NetworkItem } from "@action/types/network";
 import Item from "./components/Item.vue";
 defineProps({

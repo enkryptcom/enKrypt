@@ -3,9 +3,9 @@ import {
   TransactionStatus,
   TransactionDirection,
 } from "./transaction";
-import { Account } from "./account";
 import { Token } from "./token";
 import { DAppsItem } from "./dapps";
+import { NFTAuthor } from "./nft";
 
 export const transactionsOne: Transaction[] = [
   {
@@ -279,120 +279,6 @@ export const transactionsTwo: Transaction[] = [
   },
 ];
 
-export const accountsActive: Account[] = [
-  {
-    name: "My Main Account",
-    address: "0x03502CF6C0A13167Dc2D0E25Dabf5FBDB68C5968",
-    amount: 1.321,
-    primaryToken: {
-      name: "Ethereum",
-      symbol: "eth",
-      icon: "https://mpolev.ru/enkrypt/eth.png",
-      amount: 0.5,
-      price: 2500,
-    },
-  },
-  {
-    name: "My Main Account 2",
-    address: "0x03502CF6C0A13167Dc2D0E25Dabf5FBDB68C5967",
-    amount: 2.332,
-    primaryToken: {
-      name: "Ethereum",
-      symbol: "eth",
-      icon: "https://mpolev.ru/enkrypt/eth.png",
-      amount: 0.5,
-      price: 2500,
-    },
-  },
-  {
-    name: "My Main Account 3",
-    address: "0x14502CF6C0A13167Dc2D0E25Dabf5FBDB68C2967",
-    amount: 0.2,
-    primaryToken: {
-      name: "Ethereum",
-      symbol: "eth",
-      icon: "https://mpolev.ru/enkrypt/eth.png",
-      amount: 0.5,
-      price: 2500,
-    },
-  },
-];
-
-export const accountsInActive: Account[] = [
-  {
-    name: "My Main Account 4",
-    address: "0x13202CF6C0A13167Dc2D0E25Dabf5FBDB68C5967",
-    amount: 0.22,
-    primaryToken: {
-      name: "Ethereum",
-      symbol: "eth",
-      icon: "https://mpolev.ru/enkrypt/eth.png",
-      amount: 0.5,
-      price: 2500,
-    },
-  },
-  {
-    name: "My Main Account 5",
-    address: "0x14502CF6C0A13167Dc2D0E25Dabf5FBDB68C2967",
-    amount: 0.2,
-    primaryToken: {
-      name: "Ethereum",
-      symbol: "eth",
-      icon: "https://mpolev.ru/enkrypt/eth.png",
-      amount: 0.5,
-      price: 2500,
-    },
-  },
-  {
-    name: "My Main Account 6",
-    address: "0x14502CF6C0A13167Dc2D0E25Dabf5FBDB68C2967",
-    amount: 0.2,
-    primaryToken: {
-      name: "Ethereum",
-      symbol: "eth",
-      icon: "https://mpolev.ru/enkrypt/eth.png",
-      amount: 0.5,
-      price: 2500,
-    },
-  },
-  {
-    name: "My Main Account 7",
-    address: "0x14502CF6C0A13167Dc2D0E25Dabf5FBDB68C2967",
-    amount: 0.2,
-    primaryToken: {
-      name: "Ethereum",
-      symbol: "eth",
-      icon: "https://mpolev.ru/enkrypt/eth.png",
-      amount: 0.5,
-      price: 2500,
-    },
-  },
-  {
-    name: "My Main Account 8",
-    address: "0x14502CF6C0A13167Dc2D0E25Dabf5FBDB68C2967",
-    amount: 0.2,
-    primaryToken: {
-      name: "Ethereum",
-      symbol: "eth",
-      icon: "https://mpolev.ru/enkrypt/eth.png",
-      amount: 0.5,
-      price: 2500,
-    },
-  },
-  {
-    name: "My Main Account 9",
-    address: "0x14502CF6C0A13167Dc2D0E25Dabf5FBDB68C2967",
-    amount: 0.2,
-    primaryToken: {
-      name: "Ethereum",
-      symbol: "eth",
-      icon: "https://mpolev.ru/enkrypt/eth.png",
-      amount: 0.5,
-      price: 2500,
-    },
-  },
-];
-
 export const assets: Token[] = [
   {
     name: "Ethereum",
@@ -473,5 +359,46 @@ export const dapps: DAppsItem[] = [
     description: "Decentralized Layer 2 exchange.",
     isFavorites: false,
     image: "https://mpolev.ru/cx/rarible.png",
+  },
+];
+
+export const nfts: NFTAuthor[] = [
+  {
+    id: 1,
+    name: "Azuki",
+    image: require("@/ui/action/icons/raw/azuki.png"),
+    items: [
+      {
+        id: 1,
+        name: "Azuki #4262",
+        image: require("@/ui/action/icons/raw/azuki-pic-1.png"),
+        price: 9.9,
+      },
+    ],
+  },
+  {
+    id: 2,
+    name: "Cool Cats",
+    image: require("@/ui/action/icons/raw/cool-cats.png"),
+    items: [
+      {
+        id: 1,
+        name: "Cool Cat #6288",
+        image: require("@/ui/action/icons/raw/cool-cats-pic-1.png"),
+        price: 2.9,
+      },
+      {
+        id: 2,
+        name: "Cool Cat #6486",
+        image: require("@/ui/action/icons/raw/cool-cats-pic-2.png"),
+        price: 0.9,
+      },
+      {
+        id: 3,
+        name: "Cool Cat #2486",
+        image: require("@/ui/action/icons/raw/cool-cats-pic-3.png"),
+        price: 10.9,
+      },
+    ],
   },
 ];

@@ -2,92 +2,125 @@
   <div class="accounts" :class="{ show: showAccounts }">
     <div class="accounts__overlay" @click="close()"></div>
     <div class="accounts__wrap" :class="{ show: showAccounts }">
-      <Search></Search>
-      <vue-custom-scrollbar class="accounts__scroll-area" :settings="settings">
-        <Item
-          v-for="(account, index) in accountsActive"
+      <accounts-search />
+      <custom-scrollbar class="accounts__scroll-area" :settings="settings">
+        <accounts-list-item
+          v-for="(account, index) in accountInfo.activeAccounts"
           :key="index"
           :name="account.name"
-          :address="account.address"
-          :amount="account.amount"
-          :symbol="account.primaryToken.symbol"
-          :is-checked="address == account.address"
-          :select="select"
+          :address="network.displayAddress(account.address)"
+          :amount="accountInfo.activeBalances[index]"
+          :symbol="network.currencyName"
+          :is-checked="accountInfo.selectedAccount?.address == account.address"
+          :select="selectAccount"
           :active="true"
-        ></Item>
+          :identicon-element="network.identicon"
+        ></accounts-list-item>
 
         <div class="accounts__info">
           Incompatible accounts <a href="#">why?</a>
         </div>
 
-        <Item
-          v-for="(account, index) in accountsInActive"
+        <accounts-list-item
+          v-for="(account, index) in accountInfo.inactiveAccounts"
           :key="index"
           :name="account.name"
           :address="account.address"
-          :amount="account.amount"
-          :symbol="account.primaryToken.symbol"
-          :is-checked="address == account.address"
-          :select="select"
+          :is-checked="false"
           :active="false"
-        ></Item>
-      </vue-custom-scrollbar>
+          :identicon-element="network.identicon"
+        ></accounts-list-item>
+      </custom-scrollbar>
+
+      <div class="accounts__add">
+        <a class="accounts__add-button" @click="addAccount()">
+          <add-icon />
+          Add account
+        </a>
+      </div>
     </div>
   </div>
+
+  <add-account-form
+    v-if="isAddAccount"
+    :close="closeAddAccount"
+    :network="network"
+    :init="init"
+    :select-account="selectAccount"
+  ></add-account-form>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
-import Search from "./components/Search.vue";
-import Item from "./components/Item.vue";
-import { useRoute } from "vue-router";
-import { accountsActive, accountsInActive } from "@action/types/mock";
+export default {
+  name: "AccountsList",
+};
+</script>
 
-export default defineComponent({
-  name: "Accounts",
-  components: {
-    Search,
-    Item,
-  },
-  props: {
-    showAccounts: Boolean,
-    toggle: {
-      type: Function,
-      default: () => ({}),
-    },
-  },
-  setup() {
-    const route = useRoute();
-    return {
-      settings: {
-        suppressScrollY: false,
-        suppressScrollX: true,
-        wheelPropagation: false,
-      },
-      accountsActive: accountsActive,
-      accountsInActive: accountsInActive,
-      name: route.params.name,
-      address: route.params.address,
-    };
-  },
-  methods: {
-    close: function () {
-      setTimeout(() => {
-        this.$props.toggle();
-      }, 300);
-    },
-    select: function (account: string) {
-      this.changeAccount(account);
+<script setup lang="ts">
+import AccountsSearch from "./components/accounts-search.vue";
+import AccountsListItem from "./components/accounts-list-item.vue";
+import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
+import AddIcon from "@action/icons/common/add-icon.vue";
+import AddAccountForm from "./components/add-account-form.vue";
+import { AccountsHeaderData } from "../../types/account";
+import { PropType, ref } from "vue";
+import { NodeType } from "@/types/provider";
+import { KeyRecord } from "@enkryptcom/types";
 
-      setTimeout(() => {
-        this.$props.toggle();
-      }, 300);
-    },
-    changeAccount: function (account: string) {
-      console.log("change account button clicked", account);
-    },
+const settings = {
+  suppressScrollY: false,
+  suppressScrollX: true,
+  wheelPropagation: false,
+};
+const emit = defineEmits<{
+  (e: "addressChanged", account: KeyRecord): void;
+}>();
+let isAddAccount = ref(false);
+const props = defineProps({
+  network: {
+    type: Object as PropType<NodeType>,
+    default: () => ({}),
+  },
+  accountInfo: {
+    type: Object as PropType<AccountsHeaderData>,
+    default: () => ({}),
+  },
+  showAccounts: Boolean,
+  toggle: {
+    type: Function,
+    default: () => ({}),
+  },
+  init: {
+    type: Function as PropType<() => void>,
+    default: () => ({}),
   },
 });
+const close = () => {
+  setTimeout(() => {
+    props.toggle();
+  }, 150);
+};
+const selectAccount = (address: string) => {
+  for (const acc of props.accountInfo.activeAccounts) {
+    if (props.network.displayAddress(acc.address) === address) {
+      emit("addressChanged", acc);
+      break;
+    }
+  }
+  setTimeout(() => {
+    props.toggle();
+  }, 150);
+};
+const addAccount = () => {
+  props.toggle();
+
+  setTimeout(() => {
+    isAddAccount.value = true;
+  }, 150);
+};
+const closeAddAccount = () => {
+  isAddAccount.value = false;
+};
 </script>
 
 <style lang="less">
@@ -134,6 +167,7 @@ export default defineComponent({
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.3s, visibility 0s ease-in-out 0.3s;
+    padding-bottom: 56px;
 
     &.show {
       opacity: 1;
@@ -146,7 +180,7 @@ export default defineComponent({
     position: relative;
     margin: auto;
     width: 100%;
-    max-height: 476px;
+    max-height: 420px;
   }
 
   &__info {
@@ -163,6 +197,45 @@ export default defineComponent({
 
       &:hover {
         text-decoration: none;
+      }
+    }
+  }
+
+  &__add {
+    height: 56px;
+    left: 0px;
+    bottom: 0px;
+    width: 100%;
+    background: @white;
+    box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.05), 0px 0px 1px rgba(0, 0, 0, 0.25);
+    position: absolute;
+    padding: 8px;
+    box-sizing: border-box;
+
+    &-button {
+      display: flex;
+      box-sizing: border-box;
+      justify-content: space-between;
+      align-items: center;
+      flex-direction: row;
+      height: 40px;
+      padding: 10px 16px 10px 8px;
+      font-style: normal;
+      font-weight: normal;
+      font-size: 14px;
+      line-height: 20px;
+      letter-spacing: 0.25px;
+      color: @primaryLabel;
+      text-decoration: none;
+      cursor: pointer;
+      width: 144px;
+      &.active,
+      &:hover {
+        background: @black007;
+        border-radius: 10px;
+      }
+      svg {
+        margin-right: 8px;
       }
     }
   }

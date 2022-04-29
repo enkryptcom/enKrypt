@@ -1,111 +1,49 @@
 <template>
   <div class="container">
-    <Header />
-    <h3 class="add-network__list-header">Popular</h3>
+    <add-network-header />
+    <custom-scrollbar class="add-network__scroll-area" :settings="settings">
+      <h3 class="add-network__list-header">Popular</h3>
 
-    <Item
-      v-for="(item, index) in popular"
-      :key="index"
-      :network="item"
-      :is-active="true"
-    ></Item>
+      <add-network-item
+        v-for="(item, index) in popular"
+        :key="index"
+        :network="item"
+        :is-active="true"
+      ></add-network-item>
 
-    <h3 class="add-network__list-header">All networks</h3>
+      <h3 class="add-network__list-header">All networks</h3>
 
-    <Item
-      v-for="(item, index) in all"
-      :key="index"
-      :network="item"
-      :is-active="true"
-    ></Item>
+      <add-network-item
+        v-for="(item, index) in all"
+        :key="index"
+        :network="item"
+        :is-active="true"
+      ></add-network-item>
+    </custom-scrollbar>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
-import Header from "./components/header.vue";
-import Item from "./components/item.vue";
-
-export default defineComponent({
+export default {
   name: "AddNetwork",
-  components: {
-    Header,
-    Item,
-  },
-  setup() {
-    return {
-      settings: {
-        suppressScrollY: false,
-        suppressScrollX: true,
-        wheelPropagation: false,
-      },
-      popular: [
-        {
-          id: 1,
-          title: "Ethereum",
-          image: require("../../icons/raw/eth-logo.png"),
-        },
-        {
-          id: 2,
-          title: "Polygon",
-          image: require("../../icons/raw/polygon-logo.png"),
-        },
-        {
-          id: 3,
-          title: "Polkadot",
-          image: require("../../icons/raw/polkadot.png"),
-        },
-        {
-          id: 4,
-          title: "Moonbeam",
-          image: require("../../icons/raw/moonbeam.png"),
-        },
-      ],
-      all: [
-        {
-          id: 1,
-          title: "Ethereum",
-          image: require("../../icons/raw/eth-logo.png"),
-        },
-        {
-          id: 2,
-          title: "Polygon",
-          image: require("../../icons/raw/polygon-logo.png"),
-        },
-        {
-          id: 3,
-          title: "Polkadot",
-          image: require("../../icons/raw/polkadot.png"),
-        },
-        {
-          id: 4,
-          title: "Moonbeam",
-          image: require("../../icons/raw/moonbeam.png"),
-        },
-        {
-          id: 1,
-          title: "Ethereum",
-          image: require("../../icons/raw/eth-logo.png"),
-        },
-        {
-          id: 2,
-          title: "Polygon",
-          image: require("../../icons/raw/polygon-logo.png"),
-        },
-        {
-          id: 3,
-          title: "Polkadot",
-          image: require("../../icons/raw/polkadot.png"),
-        },
-        {
-          id: 4,
-          title: "Moonbeam",
-          image: require("../../icons/raw/moonbeam.png"),
-        },
-      ],
-    };
-  },
-});
+};
+</script>
+
+<script setup lang="ts">
+import AddNetworkHeader from "./components/add-network-header.vue";
+import AddNetworkItem from "./components/add-network-item.vue";
+import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
+import { getAllNetworks } from "@/libs/utils/networks";
+const settings = {
+  suppressScrollY: false,
+  suppressScrollX: true,
+  wheelPropagation: false,
+};
+const popularNames = ["ETH", "MATIC", "DOT", "GLMR"];
+const popular = getAllNetworks().filter((net) =>
+  popularNames.includes(net.name)
+);
+const all = getAllNetworks();
 </script>
 
 <style lang="less" scoped>

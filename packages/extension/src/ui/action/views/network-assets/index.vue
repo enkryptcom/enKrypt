@@ -1,75 +1,98 @@
 <template>
   <div class="container">
-    <div v-if="!!selected" class="network-assets">
-      <Total
-        :crypto-amount="total.cryptoAmount"
-        :amount="total.amount"
-        :symbol="total.symbol"
-      />
+    <custom-scrollbar class="network-assets__scroll-area" :settings="settings">
+      <div v-if="!!selected" class="network-assets">
+        <network-activity-total
+          :crypto-amount="cryptoAmount"
+          :fiat-amount="fiatAmount"
+          :symbol="network.currencyName"
+        />
 
-      <Action
-        :deposit-action="depositAction"
-        :buy-action="buyAction"
-        :send-action="sendAction"
-        :swap-action="swapAction"
-      />
+        <network-activity-action
+          :deposit-action="depositAction"
+          :buy-action="buyAction"
+          :send-action="sendAction"
+          :swap-action="swapAction"
+        />
 
-      <Item v-for="(item, index) in assets" :key="index" :token="item"></Item>
-    </div>
+        <network-assets-item
+          v-for="(item, index) in assets"
+          :key="index"
+          :token="item"
+        ></network-assets-item>
+      </div>
+    </custom-scrollbar>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, computed } from "vue";
-import { useRoute } from "vue-router";
-import { useStore } from "vuex";
-import Total from "../network-activity/components/total.vue";
-import Action from "../network-activity/components/action.vue";
-import Item from "./components/asset.vue";
-
-import { assets } from "@action/types/mock";
-
-export default defineComponent({
+export default {
   name: "NetworkAssets",
-  components: {
-    Total,
-    Action,
-    Item,
-  },
-  setup() {
-    const route = useRoute();
-    const store = useStore();
+};
+</script>
 
-    return {
-      id: computed(() => route.params.id),
-      selected: computed(() => store.getters.selected),
-      total: {
-        cryptoAmount: 63.466,
-        amount: 3245.24,
-        symbol: "dot",
-      },
-      assets: assets,
-      settings: {
-        suppressScrollY: false,
-        suppressScrollX: true,
-        wheelPropagation: false,
-      },
-    };
+<script setup lang="ts">
+import { useRoute } from "vue-router";
+import NetworkActivityTotal from "../network-activity/components/network-activity-total.vue";
+import NetworkActivityAction from "../network-activity/components/network-activity-action.vue";
+import NetworkAssetsItem from "./components/network-assets-item.vue";
+import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
+import { onMounted, PropType, ref, toRef, watch } from "vue";
+import { AssetsType, NodeType } from "@/types/provider";
+import { AccountsHeaderData } from "../../types/account";
+import accountInfo from "@action/composables/account-info";
+const route = useRoute();
+const props = defineProps({
+  network: {
+    type: Object as PropType<NodeType>,
+    default: () => ({}),
   },
-  methods: {
-    depositAction: function () {
-      console.log("depositAction");
-    },
-    buyAction: function () {
-      console.log("buyAction");
-    },
-    sendAction: function () {
-      console.log("sendAction");
-    },
-    swapAction: function () {
-      console.log("swapAction");
-    },
+  accountInfo: {
+    type: Object as PropType<AccountsHeaderData>,
+    default: () => ({}),
   },
+});
+const assets = ref<AssetsType[]>([]);
+
+const { cryptoAmount, fiatAmount } = accountInfo(
+  toRef(props, "network"),
+  toRef(props, "accountInfo")
+);
+const selected: string = route.params.id as string;
+
+const settings = {
+  suppressScrollY: false,
+  suppressScrollX: true,
+  wheelPropagation: false,
+};
+
+const depositAction = () => {
+  console.log("depositAction");
+};
+const buyAction = () => {
+  console.log("buyAction");
+};
+const sendAction = () => {
+  console.log("sendAction");
+};
+const swapAction = () => {
+  console.log("swapAction");
+};
+const updateAssets = () => {
+  if (props.network.assetsHandler) {
+    props.network
+      .assetsHandler(
+        props.network,
+        props.accountInfo.selectedAccount?.address || ""
+      )
+      .then((_assets) => {
+        assets.value = _assets;
+      });
+  }
+};
+watch([props.network, props.accountInfo], updateAssets);
+onMounted(() => {
+  updateAssets();
 });
 </script>
 

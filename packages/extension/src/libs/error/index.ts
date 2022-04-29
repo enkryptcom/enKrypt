@@ -1,4 +1,4 @@
-import { ErrorCodes, JSONError } from "../../providers/ethereum/types";
+import { ErrorCodes, JSONError } from "@/providers/ethereum/types";
 import { ProviderError } from "@enkryptcom/types";
 import { assert } from "chai";
 const errors: Record<number, any> = {

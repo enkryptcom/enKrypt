@@ -44,45 +44,19 @@
   </svg>
 </template>
 
-<script lang="ts">
-import { defineComponent, PropType } from "vue";
-import { NetworkItem } from "../../types/network";
-
-export default defineComponent({
-  props: {
-    selected: {
-      type: Object as PropType<NetworkItem>,
-      default: () => {
-        return {};
-      },
-    },
-  },
-  computed: {
-    // computed property that auto-updates when the prop changes
-    color() {
-      let color = "#05C0A5";
-
-      switch (this.selected?.id) {
-        case 1:
-          color = "#05C0A5";
-          break;
-        case 2:
-          color = "#8247E5";
-          break;
-        case 3:
-          color = "#E6007A";
-          break;
-        case 4:
-          color = "#53CBC9";
-          break;
-        default:
-          color = "#05C0A5";
-      }
-
-      return color;
-    },
+<script setup lang="ts">
+defineProps({
+  color: {
+    type: String,
+    default: "",
   },
 });
+</script>
+
+<script lang="ts">
+export default {
+  name: "LogoMin",
+};
 </script>
 
 <style scoped>

@@ -4,12 +4,13 @@ import Middlewares from "./methods";
 import EventEmitter from "eventemitter3";
 import {
   BackgroundProviderInterface,
+  NodeType,
   ProviderName,
   ProviderRPCRequest,
 } from "@/types/provider";
 import GetUIPath from "@/libs/utils/get-ui-path";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
-import { routes as UIRoutes } from "./ui/routes";
+import UIRoutes from "./ui/routes/names";
 class PolkadotProvider
   extends EventEmitter
   implements BackgroundProviderInterface
@@ -19,12 +20,14 @@ class PolkadotProvider
   namespace: string;
   KeyRing: PublicKeyRing;
   UIRoutes = UIRoutes;
+  toWindow: (message: string) => void;
   constructor(toWindow: (message: string) => void) {
     super();
     this.setMiddleWares();
     this.requestProvider = getRequestProvider("", this.middlewares);
+    this.toWindow = toWindow;
     this.requestProvider.on("notification", (notif: any) => {
-      toWindow(JSON.stringify(notif));
+      this.sendNotification(JSON.stringify(notif));
     });
     this.namespace = ProviderName.polkadot;
     this.KeyRing = new PublicKeyRing();
@@ -32,8 +35,8 @@ class PolkadotProvider
   private setMiddleWares(): void {
     this.middlewares = Middlewares.map((mw) => mw.bind(this));
   }
-  setRequestProvider(url: string): void {
-    this.requestProvider.changeNetwork(url);
+  setRequestProvider(network: NodeType): void {
+    this.requestProvider.changeNetwork(network.node);
   }
   request(request: ProviderRPCRequest): Promise<OnMessageResponse> {
     return this.requestProvider
@@ -48,6 +51,9 @@ class PolkadotProvider
           error: JSON.stringify(e.message),
         };
       });
+  }
+  async sendNotification(notif: string): Promise<void> {
+    return this.toWindow(notif);
   }
   async isPersistentEvent(): Promise<boolean> {
     return false;

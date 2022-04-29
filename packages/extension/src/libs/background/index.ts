@@ -1,68 +1,61 @@
 import {
+  ActionSendMessage,
   InternalMethods,
   InternalOnMessageResponse,
   Message,
 } from "@/types/messenger";
-import { KeyRecord, RPCRequestType } from "@enkryptcom/types";
+import { KeyRecord, KeyRecordAdd, RPCRequestType } from "@enkryptcom/types";
 import { getCustomError } from "../error";
 import KeyRingBase from "../keyring/keyring";
 import { sendToWindow } from "@/libs/messenger/extension";
-import { EnkryptProviderEventMethods, ProviderName } from "@/types/provider";
+import {
+  EnkryptProviderEventMethods,
+  NodeType,
+  ProviderName,
+} from "@/types/provider";
 import { OnMessageResponse } from "@enkryptcom/types";
-import EthereumProvider from "@/providers/ethereum";
-import PolkadotProvider from "@/providers/polkadot";
+import Providers from "@/providers";
 import Browser from "webextension-polyfill";
 import TabInfo from "@/libs/utils/tab-info";
 import PersistentEvents from "@/libs/persistent-events";
+import DomainState from "@/libs/domain-state";
 import { TabProviderType, ProviderType, ExternalMessageOptions } from "./types";
+import { getNetworkByName, getProviderNetworkByName } from "../utils/networks";
 
 class BackgroundHandler {
   #keyring: KeyRingBase;
   #tabProviders: TabProviderType;
   #providers: ProviderType;
   #persistentEvents: PersistentEvents;
+  #domainState: DomainState;
   constructor() {
     this.#keyring = new KeyRingBase();
     this.#persistentEvents = new PersistentEvents();
+    this.#domainState = new DomainState();
     this.#tabProviders = {
       [ProviderName.ethereum]: {},
       [ProviderName.polkadot]: {},
     };
-    this.#providers = {
-      [ProviderName.ethereum]: EthereumProvider,
-      [ProviderName.polkadot]: PolkadotProvider,
-    };
-    // this.#keyring
-    //   .generate("test pass")
-    //   .then(() => {
-    //     console.log("keyring created");
-    //   })
-    //   .catch(console.error);
-    // this.#keyring.unlock("test pass").then(() => {
-    //   this.#keyring.addEthereumAddress("abc").then((key) => {
-    //     console.log("added", key);
-    //   });
-    //   this.#keyring.addPolkadotAddress("def1").then((key) => {
-    //     console.log("added", key);
-    //   });
-    // });
+    this.#providers = Providers;
   }
   async init(): Promise<void> {
     const allPersistentEvents = await this.#persistentEvents.getAllEvents();
     const tabs = Object.keys(allPersistentEvents).map((s) => parseInt(s));
+    const persistentEventPromises: Promise<void>[] = [];
     tabs.forEach((tab) => {
-      Browser.tabs
+      const tabPromise = Browser.tabs
         .get(tab)
         .then(() => {
+          const eventPromises: Promise<OnMessageResponse | undefined>[] = [];
           allPersistentEvents[tab].forEach((persistentEvent) => {
-            this.externalHandler(persistentEvent.event, {
+            const promise = this.externalHandler(persistentEvent.event, {
               savePersistentEvents: false,
             }).then((newResponse) => {
               if (
                 !newResponse.error &&
                 newResponse.result !== persistentEvent.response.result
               ) {
-                sendToWindow(
+                return sendToWindow(
                   {
                     provider: persistentEvent.event.provider,
                     message: JSON.stringify({
@@ -78,12 +71,16 @@ class BackgroundHandler {
                 );
               }
             });
+            eventPromises.push(promise);
           });
+          return Promise.all(eventPromises);
         })
-        .catch((e) => {
+        .catch(() => {
           this.#persistentEvents.deleteEvents(tab);
         });
+      persistentEventPromises.push(tabPromise as any);
     });
+    await Promise.all(persistentEventPromises);
   }
   async externalHandler(
     msg: Message,
@@ -106,6 +103,7 @@ class BackgroundHandler {
         error: JSON.stringify(getCustomError("Enkrypt: not implemented")),
       };
     }
+    const tabInfo = TabInfo(await Browser.tabs.get(_tabid));
     if (!this.#tabProviders[_provider][_tabid]) {
       const toWindow = (message: string) => {
         sendToWindow(
@@ -119,6 +117,19 @@ class BackgroundHandler {
       this.#tabProviders[_provider][_tabid] = new this.#providers[_provider](
         toWindow
       );
+      const domainState = await this.#domainState.getStateByDomain(
+        tabInfo.domain
+      );
+      if (domainState.selectedNetwork) {
+        const providerNetwork = getProviderNetworkByName(
+          _provider,
+          domainState.selectedNetwork
+        );
+        if (providerNetwork)
+          this.#tabProviders[_provider][_tabid].setRequestProvider(
+            providerNetwork
+          );
+      }
     }
     const isPersistent = await this.#tabProviders[_provider][
       _tabid
@@ -127,7 +138,7 @@ class BackgroundHandler {
       .request({
         method,
         params,
-        options: TabInfo(await Browser.tabs.get(_tabid)),
+        options: tabInfo,
       })
       .then((response) => {
         if (isPersistent && !response.error && options.savePersistentEvents)
@@ -176,10 +187,77 @@ class BackgroundHandler {
             error: getCustomError(e.message),
           };
         });
+    } else if (message.method === InternalMethods.changeNetwork) {
+      if (!message.params || message.params.length < 1)
+        return Promise.resolve({
+          error: getCustomError(
+            "background: invalid params for change network"
+          ),
+        });
+      const networkName = message.params[0] as string;
+      const network = getNetworkByName(networkName) as NodeType;
+      const actionMsg = msg as any as ActionSendMessage;
+      if (
+        actionMsg.provider &&
+        actionMsg.tabId &&
+        this.#tabProviders[actionMsg.provider][actionMsg.tabId]
+      ) {
+        this.#tabProviders[actionMsg.provider][
+          actionMsg.tabId
+        ].setRequestProvider(network);
+      }
+      return Promise.resolve({
+        result: JSON.stringify(true),
+      });
     } else if (message.method === InternalMethods.isLocked) {
       return Promise.resolve({
         result: JSON.stringify(this.#keyring.isLocked()),
       });
+    } else if (message.method === InternalMethods.sendToTab) {
+      const actionMsg = msg as any as ActionSendMessage;
+      if (
+        actionMsg.provider &&
+        actionMsg.tabId &&
+        this.#tabProviders[actionMsg.provider][actionMsg.tabId]
+      ) {
+        this.#tabProviders[actionMsg.provider][
+          actionMsg.tabId
+        ].sendNotification(
+          JSON.stringify(message.params?.length ? message.params[0] : {})
+        );
+        return Promise.resolve({
+          result: JSON.stringify(true),
+        });
+      } else {
+        return Promise.resolve({
+          result: JSON.stringify(false),
+        });
+      }
+    } else if (
+      message.method === InternalMethods.getNewAccount ||
+      message.method === InternalMethods.saveNewAccount
+    ) {
+      if (!message.params || message.params.length < 1)
+        return Promise.resolve({
+          error: getCustomError("background: invalid params for new account"),
+        });
+      const method =
+        message.method === InternalMethods.getNewAccount
+          ? "getNewAccount"
+          : "saveNewAccount";
+      const keyrecord = message.params[0] as KeyRecordAdd;
+      return this.#keyring
+        [method](keyrecord)
+        .then((res) => {
+          return {
+            result: JSON.stringify(res),
+          };
+        })
+        .catch((e) => {
+          return {
+            error: getCustomError(e.message),
+          };
+        });
     } else {
       return Promise.resolve({
         error: getCustomError(`background: unknown method: ${message.method}`),

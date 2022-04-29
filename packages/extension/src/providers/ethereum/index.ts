@@ -6,12 +6,13 @@ import Middlewares from "./methods";
 import EventEmitter from "eventemitter3";
 import {
   BackgroundProviderInterface,
+  NodeType,
   ProviderName,
   ProviderRPCRequest,
 } from "@/types/provider";
 import GetUIPath from "@/libs/utils/get-ui-path";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
-import { routes as UIRoutes } from "./ui/routes";
+import UIRoutes from "./ui/routes/names";
 class EthereumProvider
   extends EventEmitter
   implements BackgroundProviderInterface
@@ -22,16 +23,18 @@ class EthereumProvider
   namespace: string;
   KeyRing: PublicKeyRing;
   UIRoutes = UIRoutes;
+  toWindow: (message: string) => void;
   constructor(
     toWindow: (message: string) => void,
     network: EthereumNodeType = Networks.ethereum
   ) {
     super();
     this.network = network;
+    this.toWindow = toWindow;
     this.setMiddleWares();
     this.requestProvider = getRequestProvider(network.node, this.middlewares);
     this.requestProvider.on("notification", (notif: any) => {
-      toWindow(JSON.stringify(notif));
+      this.sendNotification(JSON.stringify(notif));
     });
     this.namespace = ProviderName.ethereum;
     this.KeyRing = new PublicKeyRing();
@@ -39,13 +42,16 @@ class EthereumProvider
   private setMiddleWares(): void {
     this.middlewares = Middlewares.map((mw) => mw.bind(this));
   }
-  setRequestProvider(network: EthereumNodeType): void {
-    this.network = network;
+  setRequestProvider(network: NodeType): void {
+    this.network = network as EthereumNodeType;
     this.requestProvider.changeNetwork(network.node);
   }
   async isPersistentEvent(request: ProviderRPCRequest): Promise<boolean> {
     if (request.method === "eth_subscribe") return true;
     return false;
+  }
+  async sendNotification(notif: string): Promise<void> {
+    return this.toWindow(notif);
   }
   request(request: ProviderRPCRequest): Promise<OnMessageResponse> {
     return this.requestProvider

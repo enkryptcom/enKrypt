@@ -10,6 +10,8 @@ import {
 import { RouteRecordRaw } from "vue-router";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
 import { RoutesType } from "./ui";
+import { SignerType } from "@enkryptcom/types";
+import { NFTCollection } from "./nft";
 
 export enum ProviderName {
   enkrypt = "enkrypt",
@@ -19,6 +21,9 @@ export enum ProviderName {
 export enum InternalStorageNamespace {
   keyring = "KeyRing",
   persistentEvents = "PersistentEvents",
+  domainState = "DomainState",
+  marketData = "MarketData",
+  cacheFetch = "CacheFetch",
 }
 export enum EnkryptProviderEventMethods {
   persistentEvents = "PersistentEvents",
@@ -59,14 +64,25 @@ export abstract class BackgroundProviderInterface extends EventEmitter {
   abstract namespace: string;
   abstract KeyRing: PublicKeyRing;
   abstract UIRoutes: RoutesType;
+  abstract toWindow: (message: string) => void;
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   constructor(_toWindow: (message: string) => void, options: unknown) {
     super();
   }
-  abstract setRequestProvider(network: unknown): void;
+  abstract setRequestProvider(network: NodeType): void;
   abstract request(request: ProviderRPCRequest): Promise<OnMessageResponse>;
   abstract getUIPath(page: string): string;
   abstract isPersistentEvent(request: ProviderRPCRequest): Promise<boolean>;
+  abstract sendNotification(notif: string): Promise<void>;
+}
+
+export abstract class ProviderAPIInterface {
+  abstract node: string;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function
+  constructor(node: string, options?: unknown) {}
+  abstract init(): Promise<void>;
+  abstract getBalance(address: string): Promise<string>;
+  abstract getBaseBalance(address: string): Promise<string>;
 }
 
 export type handleIncomingMessage = (
@@ -94,4 +110,42 @@ export interface ProviderRPCRequest extends RPCRequestType {
 export interface UIExportOptions {
   providerName: ProviderName;
   routes: RouteRecordRaw[];
+}
+
+export interface NodeType {
+  name: string;
+  name_long: string;
+  homePage: string;
+  blockExplorerTX: string;
+  blockExplorerAddr: string;
+  isTestNetwork: boolean;
+  currencyName: string;
+  icon: any;
+  signer: SignerType[];
+  gradient: string;
+  node: string;
+  displayAddress: (address: string) => string;
+  api?: () => Promise<ProviderAPIInterface>;
+  provider: ProviderName;
+  coingeckoID?: string;
+  NFTHandler?: (network: NodeType, address: string) => Promise<NFTCollection[]>;
+  identicon: (address: string, options?: any) => string;
+  assetsHandler?: (network: NodeType, address: string) => Promise<AssetsType[]>;
+  basePath: string;
+}
+
+export interface AssetsType {
+  name: string;
+  symbol: string;
+  icon: string;
+  balance: string;
+  balancef: string;
+  balanceUSD: number;
+  balanceUSDf: string;
+  value: string;
+  valuef: string;
+  contract?: string;
+  decimals: number;
+  sparkline: string;
+  priceChangePercentage: number;
 }

@@ -11,7 +11,7 @@ function injectScript() {
     scriptTag.setAttribute("async", "false");
     scriptTag.src = injectURL;
     scriptTag.onload = function () {
-      console.log("Hello from the content-script");
+      console.info("Hello from the content-script");
       container.removeChild(scriptTag);
     };
     container.insertBefore(scriptTag, container.children[0]);

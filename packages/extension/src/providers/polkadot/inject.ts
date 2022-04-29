@@ -60,6 +60,7 @@ const injectDocument = (
   const provider = new Provider(options);
   document.injectedWeb3 = document.injectedWeb3 || {};
   document.injectedWeb3["enkrypt"] = provider;
+  document.injectedWeb3["polkadot-js"] = provider;
   document["enkrypt"]["providers"][options.name] = provider;
 };
 

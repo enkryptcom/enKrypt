@@ -1,4 +1,4 @@
-import type { SendMessageHandler } from "@/types/provider";
+import type { SendMessageHandler, NodeType } from "@/types/provider";
 import type Accounts from "../libs/accounts";
 import type Metadata from "../libs/metadata";
 import type Provider from "../libs/provider";
@@ -6,6 +6,7 @@ import type Signer from "../libs/signer";
 import type { RPCRequestType } from "@enkryptcom/types";
 import type { Injected } from "@polkadot/extension-inject/types";
 import type { Provider as InjectedProvider } from "../inject";
+import { SignerType } from "@enkryptcom/types";
 
 export interface SubstrateInjectOptions {
   dappName: string;
@@ -37,6 +38,24 @@ export interface InjectLibOptions {
   dappName: string;
   sendMessageHandler: InjectedSendMessageHandler;
   id: number;
+}
+
+export type PolkadotSignerTypes =
+  | SignerType.ecdsa
+  | SignerType.ed25519
+  | SignerType.sr25519;
+
+export interface PolkadotNodeType extends NodeType {
+  signer: PolkadotSignerTypes[];
+  prefix: number;
+  decimals: number;
+}
+
+export interface PolkadotAPIOptions {
+  decimals: number;
+}
+export enum PolkadotStorageNamespace {
+  metadata = "polkadot_metadata",
 }
 
 export { InjectedProvider };

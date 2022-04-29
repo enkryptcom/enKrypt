@@ -1,28 +1,42 @@
 <template>
   <div class="deposit" :class="{ show: showDeposit }">
     <div class="deposit__wrap" :class="{ show: showDeposit }">
-      <a class="deposit__close" @click="(toggle as (e: MouseEvent)=>void)"
-        ><CloseIcon
-      /></a>
+      <a class="deposit__close" @click="(toggle as ()=>void)">
+        <close-icon />
+      </a>
 
-      <img class="deposit__logo" src="../../icons/raw/eth-logo.png" />
+      <img class="deposit__logo" :src="network.icon" />
 
-      <h2>Your Polkadot address</h2>
-      <p>You can send DOT to this address using Polkadot chain network.</p>
+      <h2>Your {{ network.name_long }} address</h2>
+      <p>
+        You can send {{ network.currencyName }} to this address using
+        {{ network.name_long }} network.
+      </p>
 
       <div class="deposit__code">
-        <img src="../../assets/qr.png" />
+        <qrcode-vue
+          :value="
+            network.provider + ':' + network.displayAddress(account.address)
+          "
+          :size="150"
+          level="H"
+        />
       </div>
 
       <div class="deposit__account">
-        <img src="../../icons/raw/account.png" />
+        <img
+          :src="network.identicon(network.displayAddress(account.address))"
+        />
 
         <div class="deposit__account-info">
           <h4>{{ account.name }}</h4>
-          <p>{{ account.address }}</p>
+          <p>{{ network.displayAddress(account.address) }}</p>
         </div>
 
-        <a class="deposit__account-copy" @click="copy(account.address)">
+        <a
+          class="deposit__account-copy"
+          @click="copy(network.displayAddress(account.address))"
+        >
           <CopyIcon /><span>copy</span>
         </a>
       </div>
@@ -31,36 +45,43 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from "vue";
+export default {
+  name: "Deposit",
+};
+</script>
+
+<script setup lang="ts">
+import { PropType } from "vue";
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import CopyIcon from "@action/icons/header/copy_icon.vue";
-import { Account } from "@action/types/account";
+import { KeyRecord } from "@enkryptcom/types";
+import { NodeType } from "@/types/provider";
+import QrcodeVue from "qrcode.vue";
 
-export default defineComponent({
-  name: "Deposit",
-  components: {
-    CloseIcon,
-    CopyIcon,
+defineProps({
+  network: {
+    type: Object as PropType<NodeType>,
+    default: () => ({}),
   },
-  props: {
-    account: {
-      type: Object as PropType<Account>,
-      default: () => {
-        return {};
-      },
-    },
-    showDeposit: Boolean,
-    toggle: {
-      type: Function,
-      default: () => ({}),
+  account: {
+    type: Object as PropType<KeyRecord>,
+    default: () => {
+      return {};
     },
   },
-  methods: {
-    copy: function (address: string) {
-      navigator.clipboard.writeText(address);
-    },
+  showDeposit: {
+    type: Boolean,
+    default: () => false,
+  },
+  toggle: {
+    type: Function,
+    default: () => ({}),
   },
 });
+
+const copy = (address: string) => {
+  navigator.clipboard.writeText(address);
+};
 </script>
 
 <style lang="less" scoped>
@@ -138,7 +159,8 @@ export default defineComponent({
 
   &__logo {
     display: block;
-    max-width: 32px;
+    height: 32px;
+    width: 32px;
     margin-bottom: 4px;
   }
 

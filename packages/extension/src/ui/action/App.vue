@@ -1,186 +1,253 @@
 <template>
   <div class="app">
-    <div class="app__menu" :class="classObject">
-      <LogoMin :selected="selected" class="app__menu-logo" />
-      <AppSearch :is-border="false" />
-      <AppMenu
+    <div ref="appMenuRef" class="app__menu">
+      <logo-min :color="networkGradient" class="app__menu-logo" />
+      <base-search :is-border="false" />
+      <app-menu
         :networks="networks"
-        :selected="selected"
+        :selected="(route.params.id as string)"
         :set-network="setNetwork"
       />
+      <br /><br />
+      <a href="javascript:void(0);" @click="openCreate()">
+        to Create / Restore
+      </a>
       <div class="app__menu-footer">
         <a
           class="app__menu-add"
           :class="{ active: $route.name == 'add-network' }"
           @click="addNetwork()"
         >
-          <AddIcon />
+          <add-icon />
           Add a network
         </a>
 
         <div>
           <a class="app__menu-link">
-            <HoldIcon />
+            <hold-icon />
           </a>
 
           <a class="app__menu-link">
-            <SettingsIcon />
+            <settings-icon />
           </a>
         </div>
       </div>
     </div>
 
     <div class="app__content">
-      <NetworkHeader
-        v-show="showNetworkMenu"
-        :selected="selected"
-        :account="account"
+      <accounts-header
+        :account-info="accountHeaderData"
+        :network="currentNetwork"
+        :init="init"
+        @address-changed="onSelectedAddressChanged"
       />
+      <router-view v-slot="{ Component }" name="view">
+        <transition :name="transitionName" mode="out-in">
+          <component
+            :is="Component"
+            :network="currentNetwork"
+            :account-info="accountHeaderData"
+            :init="init"
+          />
+        </transition>
+      </router-view>
 
-      <transition :name="transitionName" mode="out-in">
-        <router-view name="view"></router-view>
-      </transition>
-      <router-view name="modal"></router-view>
-      <router-view name="accounts"></router-view>
+      <!-- <router-view name="modal"></router-view>
+      <router-view name="accounts"></router-view> -->
 
-      <NetworkMenu v-show="showNetworkMenu" :selected="selected" />
+      <network-menu
+        :selected="(route.params.id as string)"
+        :network="currentNetwork"
+      />
     </div>
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, computed } from "vue";
-import AppMenu from "./components/Menu/index.vue";
-import NetworkMenu from "./components/NetworkMenu/index.vue";
-import NetworkHeader from "./components/NetworkHeader/index.vue";
-import AppSearch from "./components/Search/index.vue";
+<script setup lang="ts">
+import { onMounted, ref } from "vue";
+import AppMenu from "./components/app-menu/index.vue";
+import NetworkMenu from "./components/network-menu/index.vue";
+import AccountsHeader from "./components/accounts-header/index.vue";
+import BaseSearch from "./components/base-search/index.vue";
 import LogoMin from "./icons/common/logo-min.vue";
 import AddIcon from "./icons/common/add-icon.vue";
 import SettingsIcon from "./icons/common/settings-icon.vue";
 import HoldIcon from "./icons/common/hold-icon.vue";
+import { useRouter, useRoute } from "vue-router";
+import { WindowPromise } from "@/libs/window-promise";
+import { NodeType } from "@/types/provider";
+import {
+  getAllNetworks,
+  DEFAULT_NETWORK_NAME,
+  getNetworkByName,
+} from "@/libs/utils/networks";
+import DomainState from "@/libs/domain-state";
+import { getOtherSigners } from "@/libs/utils/accounts";
+import { AccountsHeaderData } from "./types/account";
+import PublicKeyRing from "@/libs/keyring/public-keyring";
+import { KeyRecord } from "@enkryptcom/types";
+import { sendToBackgroundFromAction } from "@/libs/messenger/extension";
+import { EthereumNodeType, MessageMethod } from "@/providers/ethereum/types";
+import { InternalMethods } from "@/types/messenger";
+import openOnboard from "@/libs/utils/open-onboard";
 
-import { NetworkItem } from "./types/network";
-import { useStore } from "vuex";
-import { useRouter } from "vue-router";
-export default defineComponent({
-  name: "App",
-  components: {
-    AppMenu,
-    NetworkMenu,
-    NetworkHeader,
-    AppSearch,
-    LogoMin,
-    AddIcon,
-    SettingsIcon,
-    HoldIcon,
-  },
-  setup() {
-    const store = useStore();
-    const router = useRouter();
+const domainState = new DomainState();
+const appMenuRef = ref(null);
+const networkGradient = ref("");
+const accountHeaderData = ref<AccountsHeaderData>({
+  activeAccounts: [],
+  inactiveAccounts: [],
+  selectedAccount: null,
+  activeBalances: [],
+});
+defineExpose({ appMenuRef });
+const router = useRouter();
+const route = useRoute();
+const transitionName = "fade";
+const networks: NodeType[] = getAllNetworks().filter(
+  (net) => !net.isTestNetwork //hide testnetworks for now
+);
+const defaultNetwork = getNetworkByName(DEFAULT_NETWORK_NAME) as NodeType;
+const currentNetwork = ref<NodeType>(defaultNetwork);
+const kr = new PublicKeyRing();
 
-    store.dispatch("setNetwork", {
-      id: 1,
-      title: "Ethereum",
-      image: require("./icons/raw/eth-logo.png"),
+const isKeyRingLocked = async (): Promise<boolean> => {
+  return await sendToBackgroundFromAction({
+    message: JSON.stringify({
+      method: InternalMethods.isLocked,
+      params: [],
+    }),
+    provider: currentNetwork.value.provider,
+    tabId: await domainState.getCurrentTabId(),
+  }).then((res) => JSON.parse(res.result || "true"));
+};
+const init = async () => {
+  const curNetwork = await domainState.getSelectedNetWork();
+  if (curNetwork) {
+    const savedNetwork = getNetworkByName(curNetwork);
+    if (savedNetwork) setNetwork(savedNetwork);
+    else setNetwork(defaultNetwork);
+  } else {
+    setNetwork(defaultNetwork);
+  }
+};
+onMounted(async () => {
+  const isInitialized = await kr.isInitialized();
+  if (isInitialized) {
+    const _isLocked = await isKeyRingLocked();
+    if (_isLocked) {
+      router.push({ name: "lock-screen" });
+    } else {
+      init();
+    }
+  } else {
+    openOnboard();
+  }
+});
+const setNetwork = async (network: NodeType) => {
+  //hack may be there is a better way. less.modifyVars doesnt work
+  if (appMenuRef.value)
+    (
+      appMenuRef.value as HTMLElement
+    ).style.background = `radial-gradient(100% 50% at 100% 50%, rgba(250, 250, 250, 0.92) 0%, rgba(250, 250, 250, 0.98) 100%), ${network.gradient}`;
+  networkGradient.value = network.gradient;
+  const activeAccounts = await kr.getAccounts(network.signer);
+  const inactiveAccounts = await kr.getAccounts(
+    getOtherSigners(network.signer)
+  );
+  const selectedAddress = await domainState.getSelectedAddress();
+  let selectedAccount = activeAccounts[0];
+  if (selectedAddress) {
+    const found = activeAccounts.find((acc) => acc.address === selectedAddress);
+    if (found) selectedAccount = found;
+  }
+  accountHeaderData.value = {
+    activeAccounts,
+    inactiveAccounts,
+    selectedAccount,
+    activeBalances: activeAccounts.map(() => "~"),
+  };
+  currentNetwork.value = network;
+  const tabId = await domainState.getCurrentTabId();
+  if ((currentNetwork.value as EthereumNodeType).chainID) {
+    await sendToBackgroundFromAction({
+      message: JSON.stringify({
+        method: InternalMethods.changeNetwork,
+        params: [currentNetwork.value.name],
+      }),
+      provider: currentNetwork.value.provider,
+      tabId,
     });
-
-    router.push({ name: "activity", params: { id: 1 } });
-
-    return {
-      selected: computed(() => store.getters.selected),
-      transitionName: computed(() => "fade"),
-      account: {
-        name: "My Main Account",
-        address: "0x03502CF6C0A13167Dc2D0E25Dabf5FBDB68C5968",
-        amount: 1.321,
-        primaryToken: {
-          name: "Ethereum",
-          symbol: "eth",
-          icon: require("./icons/raw/eth-logo.png"),
-          amount: 0.5,
-          price: 2500,
-        },
-      },
-      setNetwork: (network: NetworkItem) => {
-        store.dispatch("setNetwork", network);
-        router.push({ name: "activity", params: { id: network.id } });
-      },
-      addNetwork: () => {
-        store
-          .dispatch("setNetwork", undefined)
-          .then(() => router.push({ name: "add-network" }));
-      },
-    };
-  },
-  data() {
-    return {
-      networks: [
+    await sendToBackgroundFromAction({
+      message: JSON.stringify({
+        method: InternalMethods.sendToTab,
+        params: [
+          {
+            method: MessageMethod.changeChainId,
+            params: [(currentNetwork.value as EthereumNodeType).chainID],
+          },
+        ],
+      }),
+      provider: currentNetwork.value.provider,
+      tabId,
+    });
+  }
+  router.push({ name: "activity", params: { id: network.name } });
+  domainState.setSelectedNetwork(network.name);
+  if (network.api) {
+    try {
+      const api = await network.api();
+      const activeBalancePromises = activeAccounts.map((acc) =>
+        api.getBaseBalance(acc.address)
+      );
+      Promise.all(activeBalancePromises).then((balances) => {
+        accountHeaderData.value.activeBalances = balances;
+      });
+    } catch (e) {
+      console.error(e);
+    }
+  }
+};
+const addNetwork = () => {
+  router.push({ name: "add-network" });
+};
+const onSelectedAddressChanged = async (newAccount: KeyRecord) => {
+  accountHeaderData.value.selectedAccount = newAccount;
+  await domainState.setSelectedAddress(newAccount.address);
+  await sendToBackgroundFromAction({
+    message: JSON.stringify({
+      method: InternalMethods.sendToTab,
+      params: [
         {
-          id: 1,
-          title: "Ethereum",
-          image: require("./icons/raw/eth-logo.png"),
-        },
-        {
-          id: 2,
-          title: "Polygon",
-          image: require("./icons/raw/polygon-logo.png"),
-        },
-        {
-          id: 3,
-          title: "Polkadot",
-          image: require("./icons/raw/polkadot.png"),
-        },
-        {
-          id: 4,
-          title: "Moonbeam",
-          image: require("./icons/raw/moonbeam.png"),
+          method: MessageMethod.changeAddress,
+          params: [newAccount.address],
         },
       ],
-    };
-  },
-  computed: {
-    classObject() {
-      const store = useStore();
-      const selected = store.getters.selected;
-
-      if (selected) {
-        return {
-          ethereum: selected.id == 1,
-          polygon: selected.id == 2,
-          polkadot: selected.id == 3,
-          moonbeam: selected.id == 4,
-        };
-      }
-
-      return {};
-    },
-    showNetworkMenu() {
-      const store = useStore();
-      const selected = store.getters.selected;
-
-      return (
-        !!selected &&
-        (this.$route.name == "activity" ||
-          this.$route.name == "assets" ||
-          this.$route.name == "nfts" ||
-          this.$route.name == "dapps")
-      );
-    },
-  },
-  created() {
-    this.$router.beforeEach((to, from, next) => {
-      next();
+    }),
+    provider: currentNetwork.value.provider,
+    tabId: await domainState.getCurrentTabId(),
+  });
+};
+const openCreate = () => {
+  const windowPromise = new WindowPromise();
+  windowPromise
+    .getResponse("onboard.html", JSON.stringify({ info: "test" }))
+    .then(({ error }) => {
+      console.error(error);
     });
-  },
-});
+};
 </script>
 
 <style lang="less">
 @import "./styles/theme.less";
+@import (css)
+  url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap");
 
 body {
   margin: 0;
   padding: 0;
+  overflow: hidden;
+  font-family: "Roboto", sans-serif;
 }
 .app {
   width: 800px;
@@ -201,22 +268,6 @@ body {
 
     &-logo {
       margin-left: 8px;
-    }
-
-    &.ethereum {
-      background: @ethereumGradient;
-    }
-
-    &.polygon {
-      background: @polygonGradient;
-    }
-
-    &.polkadot {
-      background: @polkadotGradient;
-    }
-
-    &.moonbeam {
-      background: @moonbeamGradient;
     }
 
     &-footer {

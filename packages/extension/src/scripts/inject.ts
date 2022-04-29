@@ -15,27 +15,26 @@ window.enkrypt = {
 windowOnMessage(async (msg): Promise<void> => {
   window["enkrypt"]["providers"][msg.provider].handleMessage(msg.message);
 });
-window.addEventListener("load", (event) => {
+window.addEventListener("load", () => {
   providerSendMessage(
     ProviderName.enkrypt,
     JSON.stringify({ method: InternalMethods.newWindowInit })
   );
 });
-window.addEventListener("beforeunload", (event) => {
+window.addEventListener("beforeunload", () => {
   providerSendMessage(
     ProviderName.enkrypt,
     JSON.stringify({ method: InternalMethods.newWindowUnload })
   );
 });
-console.log("hello from injected code");
-
-PolkadotProvider(window, {
-  name: ProviderName.polkadot,
-  type: ProviderType.substrate,
-  sendMessageHandler: providerSendMessage,
-});
+console.info("hello from injected code");
 EthereumProvider(window, {
   name: ProviderName.ethereum,
   type: ProviderType.evm,
+  sendMessageHandler: providerSendMessage,
+});
+PolkadotProvider(window, {
+  name: ProviderName.polkadot,
+  type: ProviderType.substrate,
   sendMessageHandler: providerSendMessage,
 });

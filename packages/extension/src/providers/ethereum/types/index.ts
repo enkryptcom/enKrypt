@@ -1,5 +1,6 @@
 import type { Provider as InjectedProvider } from "../inject";
-import { ProviderError } from "@enkryptcom/types";
+import { ProviderError, SignerType } from "@enkryptcom/types";
+import { NodeType } from "@/types/provider";
 export interface ProviderMessage {
   method: MessageMethod;
   params: Array<any>;
@@ -43,16 +44,28 @@ export interface EthereumRequest {
   method: string;
   params?: Array<any>;
 }
-export interface EthereumNodeType {
-  name: string;
-  name_long: string;
-  homePage: string;
-  blockExplorerTX: string;
-  blockExplorerAddr: string;
+
+export interface EthereumNodeType extends NodeType {
+  signer: [SignerType.secp256k1];
   chainID: number;
-  isTestNetwork: boolean;
-  currencyName: string;
-  node: string;
 }
 
+export interface ERC20TokenInfo {
+  name: string;
+  symbol: string;
+  decimals: number;
+}
+export interface JsonRpcRequest {
+  id: string;
+  jsonrpc: "2.0";
+  method: string;
+  params?: any[];
+}
+
+export interface JsonRpcResponse {
+  id: string;
+  jsonrpc: "2.0";
+  result?: unknown;
+  error?: Error;
+}
 export { InjectedProvider };

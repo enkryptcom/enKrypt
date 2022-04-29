@@ -1,6 +1,8 @@
 import { getCustomError } from "@/libs/error";
 import { MiddlewareFunction } from "@enkryptcom/types";
 import EthereumProvider from "..";
+import { EthereumTransaction } from "../libs/transaction/types";
+import { WindowPromise } from "@/libs/window-promise";
 const method: MiddlewareFunction = function (
   this: EthereumProvider,
   payload,
@@ -8,6 +10,29 @@ const method: MiddlewareFunction = function (
   next
 ): void {
   if (payload.method !== "eth_sendTransaction") return next();
-  else return res(getCustomError("Not implemented"));
+  else {
+    if (!payload.params || payload.params.length < 1) {
+      return res(
+        getCustomError("eth_sendTransaction: invalid request not enough params")
+      );
+    }
+    const tx = payload.params[0] as EthereumTransaction;
+    this.KeyRing.getAccount(tx.from.toLowerCase()).then((account) => {
+      const windowPromise = new WindowPromise();
+      windowPromise
+        .getResponse(
+          this.getUIPath(this.UIRoutes.ethSendTransaction.path),
+          JSON.stringify({
+            ...payload,
+            params: [tx, account, this.network.name],
+          }),
+          true
+        )
+        .then(({ error, result }) => {
+          if (error) return res(error);
+          res(null, JSON.parse(result as string));
+        });
+    });
+  }
 };
 export default method;

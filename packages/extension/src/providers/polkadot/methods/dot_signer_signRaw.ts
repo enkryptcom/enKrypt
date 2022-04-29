@@ -1,8 +1,7 @@
 import { MiddlewareFunction } from "@enkryptcom/types";
 import EthereumProvider from "..";
 import { ProviderRPCRequest } from "@/types/provider";
-import { polkadotEncodeAddress, utf8ToHex } from "@enkryptcom/utils";
-import { isAscii, u8aToString, u8aUnwrapBytes } from "@polkadot/util";
+import { polkadotEncodeAddress } from "@enkryptcom/utils";
 import { SignerPayloadRaw } from "@polkadot/types/types";
 import { getCustomError } from "@/libs/error";
 import { WindowPromise } from "@/libs/window-promise";
@@ -21,16 +20,13 @@ const method: MiddlewareFunction = function (
       return res(getCustomError("type is not bytes: signer_signRaw"));
     this.KeyRing.getAccount(polkadotEncodeAddress(reqPayload.address)).then(
       (account) => {
-        const bytes = isAscii(reqPayload.data)
-          ? utf8ToHex(u8aToString(u8aUnwrapBytes(reqPayload.data)))
-          : reqPayload.data;
         const windowPromise = new WindowPromise();
         windowPromise
           .getResponse(
-            this.getUIPath(this.UIRoutes.dotMsgSignApprove.path),
+            this.getUIPath(this.UIRoutes.dotSignMessage.path),
             JSON.stringify({
               ...payload,
-              params: [bytes, account],
+              params: [reqPayload.data, account],
             }),
             true
           )
