@@ -6,6 +6,7 @@ import Middlewares from "./methods";
 import EventEmitter from "eventemitter3";
 import {
   BackgroundProviderInterface,
+  NodeType,
   ProviderName,
   ProviderRPCRequest,
 } from "@/types/provider";
@@ -41,8 +42,8 @@ class EthereumProvider
   private setMiddleWares(): void {
     this.middlewares = Middlewares.map((mw) => mw.bind(this));
   }
-  setRequestProvider(network: EthereumNodeType): void {
-    this.network = network;
+  setRequestProvider(network: NodeType): void {
+    this.network = network as EthereumNodeType;
     this.requestProvider.changeNetwork(network.node);
   }
   async isPersistentEvent(request: ProviderRPCRequest): Promise<boolean> {

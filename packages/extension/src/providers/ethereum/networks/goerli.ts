@@ -11,7 +11,7 @@ const goerliNode: EthereumNodeType = {
   blockExplorerTX: "https://goerli.etherscan.io/tx/[[txHash]]",
   blockExplorerAddr: "https://goerli.etherscan.io/address/[[address]]",
   chainID: 5,
-  isTestNetwork: true,
+  isTestNetwork: false,
   currencyName: "GöETH",
   node: "wss://nodes.mewapi.io/ws/goerli",
   icon: require("./icons/eth.svg"),
@@ -20,6 +20,7 @@ const goerliNode: EthereumNodeType = {
   displayAddress: (address: string) => toChecksumAddress(address),
   provider: ProviderName.ethereum,
   identicon: createIcon,
+  coingeckoID: "ethereum",
   basePath: "m/44'/60'/0'/0",
 };
 goerliNode.api = async () => {

@@ -22,6 +22,8 @@
     "@enkryptcom/storage": "^0.0.1",
     "@enkryptcom/types": "^0.0.1",
     "@enkryptcom/utils": "^0.0.1",
+    "@ethereumjs/common": "^2.6.4",
+    "@ethereumjs/tx": "^3.5.1",
     "@polkadot/ui-shared": "^2.0.1",
     "@polkadot/util": "^9.0.1",
     "@polkadot/wasm-crypto": "^6.0.1",

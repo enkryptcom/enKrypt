@@ -22,6 +22,7 @@ export enum InternalMethods {
   sendToTab = "enkrypt_sendToTab",
   getNewAccount = "enkrypt_getNewAccount",
   saveNewAccount = "enkrypt_saveNewAccount",
+  changeNetwork = "enkrypt_changeNetwork",
 }
 export interface SendMessage {
   [key: string]: any;

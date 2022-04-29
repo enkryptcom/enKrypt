@@ -8,7 +8,11 @@ import { KeyRecord, KeyRecordAdd, RPCRequestType } from "@enkryptcom/types";
 import { getCustomError } from "../error";
 import KeyRingBase from "../keyring/keyring";
 import { sendToWindow } from "@/libs/messenger/extension";
-import { EnkryptProviderEventMethods, ProviderName } from "@/types/provider";
+import {
+  EnkryptProviderEventMethods,
+  NodeType,
+  ProviderName,
+} from "@/types/provider";
 import { OnMessageResponse } from "@enkryptcom/types";
 import EthereumProvider from "@/providers/ethereum";
 import PolkadotProvider from "@/providers/polkadot";
@@ -17,6 +21,7 @@ import TabInfo from "@/libs/utils/tab-info";
 import PersistentEvents from "@/libs/persistent-events";
 import TabStates from "@/libs/tab-state";
 import { TabProviderType, ProviderType, ExternalMessageOptions } from "./types";
+import { getNetworkByName } from "../utils/networks";
 
 class BackgroundHandler {
   #keyring: KeyRingBase;
@@ -173,6 +178,28 @@ class BackgroundHandler {
             error: getCustomError(e.message),
           };
         });
+    } else if (message.method === InternalMethods.changeNetwork) {
+      if (!message.params || message.params.length < 1)
+        return Promise.resolve({
+          error: getCustomError(
+            "background: invalid params for change network"
+          ),
+        });
+      const networkName = message.params[0] as string;
+      const network = getNetworkByName(networkName) as NodeType;
+      const actionMsg = msg as any as ActionSendMessage;
+      if (
+        actionMsg.provider &&
+        actionMsg.tabId &&
+        this.#tabProviders[actionMsg.provider][actionMsg.tabId]
+      ) {
+        this.#tabProviders[actionMsg.provider][
+          actionMsg.tabId
+        ].setRequestProvider(network);
+      }
+      return Promise.resolve({
+        result: JSON.stringify(true),
+      });
     } else if (message.method === InternalMethods.isLocked) {
       return Promise.resolve({
         result: JSON.stringify(this.#keyring.isLocked()),

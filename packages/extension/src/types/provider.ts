@@ -69,7 +69,7 @@ export abstract class BackgroundProviderInterface extends EventEmitter {
   constructor(_toWindow: (message: string) => void, options: unknown) {
     super();
   }
-  abstract setRequestProvider(network: unknown): void;
+  abstract setRequestProvider(network: NodeType): void;
   abstract request(request: ProviderRPCRequest): Promise<OnMessageResponse>;
   abstract getUIPath(page: string): string;
   abstract isPersistentEvent(request: ProviderRPCRequest): Promise<boolean>;

@@ -168,7 +168,16 @@ const setNetwork = async (network: NodeType) => {
     activeBalances: activeAccounts.map(() => "~"),
   };
   currentNetwork.value = network;
+  const tabId = await tabstate.getCurrentTabId();
   if ((currentNetwork.value as EthereumNodeType).chainID) {
+    await sendToBackgroundFromAction({
+      message: JSON.stringify({
+        method: InternalMethods.changeNetwork,
+        params: [currentNetwork.value.name],
+      }),
+      provider: currentNetwork.value.provider,
+      tabId,
+    });
     await sendToBackgroundFromAction({
       message: JSON.stringify({
         method: InternalMethods.sendToTab,
@@ -180,7 +189,7 @@ const setNetwork = async (network: NodeType) => {
         ],
       }),
       provider: currentNetwork.value.provider,
-      tabId: await tabstate.getCurrentTabId(),
+      tabId,
     });
   }
   router.push({ name: "activity", params: { id: network.name } });

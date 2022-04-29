@@ -4,6 +4,7 @@ import Middlewares from "./methods";
 import EventEmitter from "eventemitter3";
 import {
   BackgroundProviderInterface,
+  NodeType,
   ProviderName,
   ProviderRPCRequest,
 } from "@/types/provider";
@@ -34,8 +35,8 @@ class PolkadotProvider
   private setMiddleWares(): void {
     this.middlewares = Middlewares.map((mw) => mw.bind(this));
   }
-  setRequestProvider(url: string): void {
-    this.requestProvider.changeNetwork(url);
+  setRequestProvider(network: NodeType): void {
+    this.requestProvider.changeNetwork(network.node);
   }
   request(request: ProviderRPCRequest): Promise<OnMessageResponse> {
     return this.requestProvider

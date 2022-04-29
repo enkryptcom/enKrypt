@@ -9,4 +9,9 @@ export default {
     name: "ethSign",
     component: {},
   },
+  ethSendTransaction: {
+    path: "eth-send-transaction",
+    name: "ethSendTransaction",
+    component: {},
+  },
 };

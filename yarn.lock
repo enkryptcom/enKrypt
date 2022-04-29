@@ -1708,6 +1708,8 @@ __metadata:
     "@enkryptcom/storage": ^0.0.1
     "@enkryptcom/types": ^0.0.1
     "@enkryptcom/utils": ^0.0.1
+    "@ethereumjs/common": ^2.6.4
+    "@ethereumjs/tx": ^3.5.1
     "@polkadot/api": ^8.0.2
     "@polkadot/extension-inject": ^0.43.1
     "@polkadot/rpc-provider": ^8.0.2
@@ -2037,7 +2039,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ethereumjs/common@npm:^2.5.0, @ethereumjs/common@npm:^2.6.3":
+"@ethereumjs/common@npm:^2.5.0, @ethereumjs/common@npm:^2.6.3, @ethereumjs/common@npm:^2.6.4":
   version: 2.6.4
   resolution: "@ethereumjs/common@npm:2.6.4"
   dependencies:
@@ -2047,7 +2049,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ethereumjs/tx@npm:^3.3.2":
+"@ethereumjs/tx@npm:^3.3.2, @ethereumjs/tx@npm:^3.5.1":
   version: 3.5.1
   resolution: "@ethereumjs/tx@npm:3.5.1"
   dependencies:
