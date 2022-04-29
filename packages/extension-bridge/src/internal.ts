@@ -215,11 +215,19 @@ const initIntercoms = () => {
           messageQueue.delete(queuedMsg);
         }
       });
-
       incomingPort.onDisconnect.addListener(() => {
         portMap.delete(portId);
+        incomingPort = null;
       });
-
+      if (chrome) {
+        setTimeout(() => {
+          if (incomingPort) {
+            portMap.delete(portId);
+            incomingPort = null;
+            incomingPort.disconnect();
+          }
+        }, 250e3); // on chrome force reconnect as this is a way of keeping the background running forever //https://stackoverflow.com/questions/66618136/persistent-service-worker-in-chrome-extension
+      }
       incomingPort.onMessage.addListener((message: IInternalMessage) => {
         if (message?.origin?.context) {
           // origin tab ID is resolved from the port identifier (also prevent "MITM attacks" of extensions)
