@@ -11,7 +11,7 @@
 
     <div class="send-input-amount__fiat">
       <switch-arrow-icon></switch-arrow-icon>
-      <span>{{ $filters.currencyFormat(0, "USD") }}</span>
+      <span>{{ $filters.formatFiatValue(0).value }}</span>
     </div>
 
     <a class="send-input-amount__max" @click="maxAction">Max</a>

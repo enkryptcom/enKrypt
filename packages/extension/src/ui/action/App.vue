@@ -238,17 +238,6 @@ const openCreate = () => {
     });
 };
 
-const showNetworkMenu = () => {
-  const selected = route.params.id as string;
-  return (
-    !!selected &&
-    (route.name == "activity" ||
-      route.name == "assets" ||
-      route.name == "nfts" ||
-      route.name == "dapps")
-  );
-};
-
 const searchInput = (text: string) => {
   console.log(text);
 };

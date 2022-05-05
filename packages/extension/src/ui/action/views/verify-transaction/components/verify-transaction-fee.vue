@@ -1,7 +1,7 @@
 <template>
   <div class="verify-transaction-fee">
     <p class="verify-transaction-fee__fiat">
-      Network fee: {{ $filters.currencyFormat(7.12, "USD") }}
+      Network fee: {{ $filters.formatFiatValue(7.12).value }}
     </p>
     <p class="verify-transaction-fee__crypto">0.0000123 <span>eth</span></p>
   </div>

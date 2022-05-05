@@ -1,59 +1,61 @@
 <template>
-  <div class="container">
-    <div class="swap">
-      <div class="swap__header">
-        <h3>Swap</h3>
-        <a class="swap__close" @click="close">
-          <close-icon />
-        </a>
-      </div>
-
-      <div class="swap__wrap">
-        <swap-token-amount-input
-          :toggle-select="toggleFromToken"
-          :token="fromToken"
-          :input-amount="inputAmountFrom"
-        ></swap-token-amount-input>
-
-        <div class="swap__arrows"><swap-arrows></swap-arrows></div>
-
-        <swap-token-amount-input
-          :toggle-select="toggleToToken"
-          :token="toToken"
-          :input-amount="inputAmountTo"
-          :select-token="selectTokenTo"
-        ></swap-token-amount-input>
-      </div>
-
-      <div class="swap__buttons">
-        <div class="swap__buttons-cancel">
-          <base-button title="Cancel" :click="close" :gray="true" />
+  <div>
+    <div class="container">
+      <div v-if="!!selected" class="swap">
+        <div class="swap__header">
+          <h3>Swap</h3>
+          <a class="swap__close" @click="$router.go(-1)">
+            <close-icon />
+          </a>
         </div>
-        <div class="swap__buttons-send">
-          <base-button
-            :title="sendButtonTitle()"
-            :click="sendAction"
-            :disabled="isDisabled()"
-          />
+
+        <div class="swap__wrap">
+          <swap-token-amount-input
+            :toggle-select="toggleFromToken"
+            :token="fromToken"
+            :input-amount="inputAmountFrom"
+          ></swap-token-amount-input>
+
+          <div class="swap__arrows"><swap-arrows></swap-arrows></div>
+
+          <swap-token-amount-input
+            :toggle-select="toggleToToken"
+            :token="toToken"
+            :input-amount="inputAmountTo"
+            :select-token="selectTokenTo"
+          ></swap-token-amount-input>
+        </div>
+
+        <div class="swap__buttons">
+          <div class="swap__buttons-cancel">
+            <base-button title="Cancel" :gray="true" @click="$router.go(-1)" />
+          </div>
+          <div class="swap__buttons-send">
+            <base-button
+              :title="sendButtonTitle()"
+              :click="sendAction"
+              :disabled="isDisabled()"
+            />
+          </div>
         </div>
       </div>
     </div>
+
+    <swap-token-list
+      v-show="fromSelectOpened"
+      :close="toggleFromToken"
+      :select-token="selectTokenFrom"
+    ></swap-token-list>
+
+    <swap-token-list
+      v-show="toSelectOpened"
+      :close="toggleToToken"
+      :select-token="selectTokenTo"
+      :is-select-to-token="true"
+    ></swap-token-list>
+
+    <swap-looking v-show="isLooking" :close="toggleLooking"></swap-looking>
   </div>
-
-  <swap-token-list
-    v-show="fromSelectOpened"
-    :close="toggleFromToken"
-    :select-token="selectTokenFrom"
-  ></swap-token-list>
-
-  <swap-token-list
-    v-show="toSelectOpened"
-    :close="toggleToToken"
-    :select-token="selectTokenTo"
-    :is-select-to-token="true"
-  ></swap-token-list>
-
-  <swap-looking v-show="isLooking" :close="toggleLooking"></swap-looking>
 </template>
 
 <script lang="ts">
@@ -63,7 +65,7 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { defineProps, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import SwapArrows from "@action/icons/swap/swap-arrows.vue";
@@ -91,6 +93,10 @@ const ethereum: AssetsType = {
 const router = useRouter();
 const route = useRoute();
 
+const selected: string = route.params.id as string;
+
+defineProps({});
+
 let fromToken = ref(ethereum);
 let fromAmount = ref<number | null>(null);
 
@@ -102,9 +108,6 @@ let toSelectOpened = ref(false);
 
 let isLooking = ref(false);
 
-const close = () => {
-  router.go(-1);
-};
 const selectTokenFrom = (token: AssetsType) => {
   fromToken.value = token;
   fromSelectOpened.value = false;
@@ -156,7 +159,7 @@ const sendAction = () => {
   setTimeout(() => {
     router.push({
       name: "swap-best-offer",
-      params: { id: route.params.id as string },
+      params: { id: selected },
     });
   }, 3000);
 };

@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <div class="swap-best-offer">
+    <div v-if="!!selected" class="swap-best-offer">
       <div
         class="swap-best-offer__header"
         :class="{ border: isHasScroll() && scrollProgress > 0 }"
@@ -21,7 +21,19 @@
         >
           <swap-best-offer-block></swap-best-offer-block>
           <best-offer-error :not-enought-e-t-h="true"></best-offer-error>
+          <send-fee-select
+            :fee="fee"
+            :toggle-select="toggleSelectFee"
+            :in-swap="true"
+          ></send-fee-select>
         </custom-scrollbar>
+
+        <transaction-fee-view
+          :show-fees="isOpenSelectFee"
+          :close="toggleSelectFee"
+          :select-fee="selectFee"
+          :selected="fee.price.speed"
+        ></transaction-fee-view>
       </div>
 
       <div class="swap-best-offer__buttons" :class="{ border: isHasScroll() }">
@@ -51,16 +63,22 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { ref } from "vue";
-import { useRouter } from "vue-router";
+import { defineProps, ref } from "vue";
+import { useRouter, useRoute } from "vue-router";
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import SwapBestOfferBlock from "./components/swap-best-offer-block/index.vue";
 import SwapInitiated from "@action/views/swap-initiated/index.vue";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 import BestOfferError from "./components/swap-best-offer-block/components/best-offer-error.vue";
+import SendFeeSelect from "@action/views/send-transaction/components/send-fee-select.vue";
+import TransactionFeeView from "@action/views/transaction-fee/index.vue";
+import { TransactionFee } from "@action/types/fee";
+import { recommendedFee } from "@action/types/mock";
 
 const router = useRouter();
+const route = useRoute();
+
 let isInitiated = ref(false);
 const settings = {
   suppressScrollY: false,
@@ -70,6 +88,9 @@ const settings = {
 const bestOfferScrollRef = ref(null);
 let scrollProgress = ref(0);
 let height = ref(460);
+const selected: string = route.params.id as string;
+let isOpenSelectFee = ref(false);
+let fee = ref(recommendedFee);
 
 defineExpose({ bestOfferScrollRef });
 const back = () => {
@@ -79,6 +100,8 @@ const back = () => {
 const close = () => {
   router.go(-2);
 };
+
+defineProps({});
 
 const sendButtonTitle = () => {
   let title = "Proceed with swap";
@@ -112,6 +135,14 @@ const isHasScroll = () => {
   }
 
   return false;
+};
+const toggleSelectFee = (open: boolean) => {
+  isOpenSelectFee.value = open;
+};
+
+const selectFee = (option: TransactionFee) => {
+  fee.value = option;
+  isOpenSelectFee.value = false;
 };
 </script>
 

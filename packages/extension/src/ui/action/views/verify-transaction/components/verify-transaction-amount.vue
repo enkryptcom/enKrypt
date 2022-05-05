@@ -7,7 +7,7 @@
       <h4>
         {{ amount }} <span>{{ token.symbol }}</span>
       </h4>
-      <h6>{{ $filters.currencyFormat(amount * token.price, "USD") }}</h6>
+      <h6>{{ $filters.formatFiatValue(amount).value }}</h6>
     </div>
   </div>
 </template>

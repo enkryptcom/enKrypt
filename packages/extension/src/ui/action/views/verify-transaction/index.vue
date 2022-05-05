@@ -42,7 +42,7 @@
       </div>
     </div>
 
-    <send-process v-show="isProcessing"></send-process>
+    <send-process v-if="isProcessing"></send-process>
   </div>
 </template>
 

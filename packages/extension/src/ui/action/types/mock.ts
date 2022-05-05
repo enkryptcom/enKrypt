@@ -8,6 +8,7 @@ import { DAppsItem } from "./dapps";
 import { NFTAuthor } from "./nft";
 import { AssetsType } from "@/types/provider";
 import { TransactionFee, TransactionFeeSpeed } from "./fee";
+import { Account } from "./account";
 
 export const transactionsOne: Transaction[] = [
   {
@@ -730,3 +731,117 @@ export const recommendedFee: TransactionFee = {
     description: "Will reliably go through in most scenatios",
   },
 };
+
+export const accountsActive: Account[] = [
+  {
+    name: "My Main Account",
+    address: "0x03502CF6C0A13167Dc2D0E25Dabf5FBDB68C5968",
+    amount: 1.321,
+    primaryToken: {
+      name: "Ethereum",
+      symbol: "eth",
+      icon: "https://mpolev.ru/enkrypt/eth.png",
+      amount: 0.5,
+      price: 2500,
+    },
+  },
+  {
+    name: "My Main Account 2",
+    address: "0x03502CF6C0A13167Dc2D0E25Dabf5FBDB68C5967",
+    amount: 2.332,
+    primaryToken: {
+      name: "Ethereum",
+      symbol: "eth",
+      icon: "https://mpolev.ru/enkrypt/eth.png",
+      amount: 0.5,
+      price: 2500,
+    },
+  },
+  {
+    name: "My Main Account 3",
+    address: "0x14502CF6C0A13167Dc2D0E25Dabf5FBDB68C2967",
+    amount: 0.2,
+    primaryToken: {
+      name: "Ethereum",
+      symbol: "eth",
+      icon: "https://mpolev.ru/enkrypt/eth.png",
+      amount: 0.5,
+      price: 2500,
+    },
+  },
+];
+
+export const accountsInActive: Account[] = [
+  {
+    name: "My Main Account 4",
+    address: "0x13202CF6C0A13167Dc2D0E25Dabf5FBDB68C5967",
+    amount: 0.22,
+    primaryToken: {
+      name: "Ethereum",
+      symbol: "eth",
+      icon: "https://mpolev.ru/enkrypt/eth.png",
+      amount: 0.5,
+      price: 2500,
+    },
+  },
+  {
+    name: "My Main Account 5",
+    address: "0x14502CF6C0A13167Dc2D0E25Dabf5FBDB68C2967",
+    amount: 0.2,
+    primaryToken: {
+      name: "Ethereum",
+      symbol: "eth",
+      icon: "https://mpolev.ru/enkrypt/eth.png",
+      amount: 0.5,
+      price: 2500,
+    },
+  },
+  {
+    name: "My Main Account 6",
+    address: "0x14502CF6C0A13167Dc2D0E25Dabf5FBDB68C2967",
+    amount: 0.2,
+    primaryToken: {
+      name: "Ethereum",
+      symbol: "eth",
+      icon: "https://mpolev.ru/enkrypt/eth.png",
+      amount: 0.5,
+      price: 2500,
+    },
+  },
+  {
+    name: "My Main Account 7",
+    address: "0x14502CF6C0A13167Dc2D0E25Dabf5FBDB68C2967",
+    amount: 0.2,
+    primaryToken: {
+      name: "Ethereum",
+      symbol: "eth",
+      icon: "https://mpolev.ru/enkrypt/eth.png",
+      amount: 0.5,
+      price: 2500,
+    },
+  },
+  {
+    name: "My Main Account 8",
+    address: "0x14502CF6C0A13167Dc2D0E25Dabf5FBDB68C2967",
+    amount: 0.2,
+    primaryToken: {
+      name: "Ethereum",
+      symbol: "eth",
+      icon: "https://mpolev.ru/enkrypt/eth.png",
+      amount: 0.5,
+      price: 2500,
+    },
+  },
+  {
+    name: "My Main Account 9",
+    address: "0x14502CF6C0A13167Dc2D0E25Dabf5FBDB68C2967",
+    amount: 0.2,
+    primaryToken: {
+      name: "Ethereum",
+      symbol: "eth",
+      icon: "https://mpolev.ru/enkrypt/eth.png",
+      amount: 0.5,
+      price: 2500,
+    },
+  },
+];

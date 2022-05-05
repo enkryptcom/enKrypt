@@ -1,8 +1,8 @@
 <template>
-  <a class="send-fee-select" @click="open">
+  <a class="send-fee-select" :class="{ swap: inSwap }" @click="open">
     <div class="send-fee-select__value">
       <p class="send-fee-select__value-fiat">
-        Fee: {{ $filters.currencyFormat(7.12, "USD") }}
+        Fee: {{ $filters.formatFiatValue(7.12).value }}
       </p>
       <p class="send-fee-select__value-crypto">0.0000123 <span>eth</span></p>
     </div>
@@ -44,6 +44,12 @@ const props = defineProps({
       return {};
     },
   },
+  inSwap: {
+    type: Boolean,
+    default: () => {
+      return false;
+    },
+  },
 });
 
 const open = () => {
@@ -72,6 +78,11 @@ const open = () => {
   position: relative;
   cursor: pointer;
   text-decoration: none;
+
+  &.swap {
+    margin: 0 0 8px 0;
+    width: 100%;
+  }
 
   &__value {
     display: flex;
