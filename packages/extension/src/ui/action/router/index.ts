@@ -7,6 +7,7 @@ import NetworkNFTs from "@action/views/network-nfts/index.vue";
 import LockScreen from "@action/views/lock-screen/index.vue";
 import Intro from "@action/views/intro/index.vue";
 import Swap from "@action/views/swap/index.vue";
+import SwapBestOffer from "@action/views/swap-best-offer/index.vue";
 
 const routes = [
   {
@@ -57,6 +58,13 @@ const routes = [
       view: Swap,
     },
     name: "swap",
+  },
+  {
+    path: "/swap-best-offer/:id?",
+    components: {
+      view: SwapBestOffer,
+    },
+    name: "swap-best-offer",
   },
   {
     path: "/add-network",

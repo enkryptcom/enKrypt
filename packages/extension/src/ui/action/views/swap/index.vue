@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <div v-if="!!selected" class="swap">
+    <div class="swap">
       <div class="swap__header">
         <h3>Swap</h3>
         <a class="swap__close" @click="close">
@@ -52,6 +52,8 @@
     :select-token="selectTokenTo"
     :is-select-to-token="true"
   ></swap-token-list>
+
+  <swap-looking v-show="isLooking" :close="toggleLooking"></swap-looking>
 </template>
 
 <script lang="ts">
@@ -68,6 +70,7 @@ import SwapArrows from "@action/icons/swap/swap-arrows.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import SwapTokenAmountInput from "./components/swap-token-amount-input/index.vue";
 import SwapTokenList from "./components/swap-token-list/index.vue";
+import SwapLooking from "./components/swap-looking/index.vue";
 import { AssetsType } from "@/types/provider";
 
 const ethereum: AssetsType = {
@@ -85,10 +88,8 @@ const ethereum: AssetsType = {
   priceChangePercentage: 0,
 };
 
-const route = useRoute();
 const router = useRouter();
-
-const selected: string = route.params.id as string;
+const route = useRoute();
 
 let fromToken = ref(ethereum);
 let fromAmount = ref<number | null>(null);
@@ -98,6 +99,8 @@ let toAmount = ref<number | null>(null);
 
 let fromSelectOpened = ref(false);
 let toSelectOpened = ref(false);
+
+let isLooking = ref(false);
 
 const close = () => {
   router.go(-1);
@@ -122,17 +125,40 @@ const toggleFromToken = () => {
 const toggleToToken = () => {
   toSelectOpened.value = !toSelectOpened.value;
 };
+const toggleLooking = () => {
+  isLooking.value = !isLooking.value;
+};
 const sendButtonTitle = () => {
   let title = "Select  token";
+
+  if (!!fromToken.value && !!toToken.value) {
+    title = "Preview swap";
+  }
 
   return title;
 };
 const isDisabled = () => {
   let isDisabled = true;
+
+  if (
+    !!fromToken.value &&
+    !!toToken.value &&
+    Number(fromAmount.value) > 0 &&
+    Number(toAmount.value) > 0
+  ) {
+    isDisabled = false;
+  }
   return isDisabled;
 };
 const sendAction = () => {
-  console.log("sendAction");
+  toggleLooking();
+
+  setTimeout(() => {
+    router.push({
+      name: "swap-best-offer",
+      params: { id: route.params.id as string },
+    });
+  }, 3000);
 };
 </script>
 
