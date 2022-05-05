@@ -46,15 +46,14 @@ defineProps({
     margin-bottom: 4px;
     cursor: pointer;
 
-    &.active,
     &:hover {
-      background: @black007;
+      background: @black004;
       border-radius: 10px;
     }
 
     img {
-      max-width: 24px;
-      max-height: 24px;
+      width: 24px;
+      height: 24px;
       margin: 0 8px;
     }
 
@@ -65,6 +64,15 @@ defineProps({
       line-height: 20px;
       letter-spacing: 0.25px;
       color: @primaryLabel;
+    }
+
+    &.active {
+      background: @black007;
+      border-radius: 10px;
+
+      span {
+        font-weight: 500;
+      }
     }
   }
 }

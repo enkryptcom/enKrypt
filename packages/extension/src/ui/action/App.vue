@@ -2,22 +2,18 @@
   <div class="app">
     <div ref="appMenuRef" class="app__menu">
       <logo-min :color="networkGradient" class="app__menu-logo" />
-      <base-search :is-border="false" />
+      <base-search :input="searchInput" :is-border="false" />
       <app-menu
         :networks="networks"
         :selected="(route.params.id as string)"
         :set-network="setNetwork"
       />
-      <br /><br />
+      <br />
       <a href="javascript:void(0);" @click="openCreate()">
         to Create / Restore
       </a>
       <div class="app__menu-footer">
-        <a
-          class="app__menu-add"
-          :class="{ active: $route.name == 'add-network' }"
-          @click="addNetwork()"
-        >
+        <a class="app__menu-add" @click="addNetworkToggle()">
           <add-icon />
           Add a network
         </a>
@@ -27,7 +23,7 @@
             <hold-icon />
           </a>
 
-          <a class="app__menu-link">
+          <a class="app__menu-link" @click="settingsToggle()">
             <settings-icon />
           </a>
         </div>
@@ -53,15 +49,19 @@
         </transition>
       </router-view>
 
-      <!-- <router-view name="modal"></router-view>
-      <router-view name="accounts"></router-view> -->
-
       <network-menu
         v-show="showNetworkMenu()"
         :selected="(route.params.id as string)"
         :network="currentNetwork"
       />
     </div>
+
+    <add-network
+      v-show="addNetworkShow"
+      :close="addNetworkToggle"
+    ></add-network>
+
+    <settings v-show="settingsShow" :close="settingsToggle"></settings>
   </div>
 </template>
 
@@ -75,6 +75,8 @@ import LogoMin from "./icons/common/logo-min.vue";
 import AddIcon from "./icons/common/add-icon.vue";
 import SettingsIcon from "./icons/common/settings-icon.vue";
 import HoldIcon from "./icons/common/hold-icon.vue";
+import AddNetwork from "./views/add-network/index.vue";
+import Settings from "./views/settings/index.vue";
 import { useRouter, useRoute } from "vue-router";
 import { WindowPromise } from "@/libs/window-promise";
 import { NodeType } from "@/types/provider";
@@ -108,6 +110,8 @@ const defaultNetwork = networks.find(
 ) as NodeType;
 const currentNetwork = ref<NodeType>(defaultNetwork);
 const kr = new PublicKeyRing();
+const addNetworkShow = ref(false);
+const settingsShow = ref(false);
 
 const isKeyRingLocked = async (): Promise<boolean> => {
   return await sendToBackgroundFromAction({
@@ -192,8 +196,11 @@ const setNetwork = async (network: NodeType) => {
     }
   }
 };
-const addNetwork = () => {
-  router.push({ name: "add-network" });
+const addNetworkToggle = () => {
+  addNetworkShow.value = !addNetworkShow.value;
+};
+const settingsToggle = () => {
+  settingsShow.value = !settingsShow.value;
 };
 const onSelectedAddressChanged = async (newAccount: KeyRecord) => {
   accountHeaderData.value.selectedAccount = newAccount;
@@ -229,6 +236,21 @@ const openCreate = () => {
     .then(({ error }) => {
       console.error(error);
     });
+};
+
+const showNetworkMenu = () => {
+  const selected = route.params.id as string;
+  return (
+    !!selected &&
+    (route.name == "activity" ||
+      route.name == "assets" ||
+      route.name == "nfts" ||
+      route.name == "dapps")
+  );
+};
+
+const searchInput = (text: string) => {
+  console.log(text);
 };
 </script>
 

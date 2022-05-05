@@ -1,5 +1,5 @@
 <template>
-  <div class="network-activity__transaction">
+  <a href="#" class="network-activity__transaction">
     <div class="network-activity__transaction-info">
       <img src="@action/icons/raw/account.png" />
 
@@ -29,7 +29,7 @@
       </h4>
       <p>{{ $filters.formatFiatValue(transaction.amount).value }}</p>
     </div>
-  </div>
+  </a>
 </template>
 
 <script lang="ts">
@@ -105,6 +105,8 @@ if (props.transaction) {
     justify-content: space-between;
     align-items: center;
     flex-direction: row;
+    text-decoration: none;
+    cursor: pointer;
 
     &-info {
       display: flex;

@@ -129,7 +129,7 @@ const addAccount = async () => {
   box-sizing: border-box;
   width: 344px;
   height: auto;
-  z-index: 103;
+  z-index: 107;
   position: relative;
 
   &__container {
@@ -138,7 +138,7 @@ const addAccount = async () => {
     left: 0px;
     top: 0px;
     position: fixed;
-    z-index: 101;
+    z-index: 105;
     display: flex;
     box-sizing: border-box;
     justify-content: center;
@@ -153,7 +153,7 @@ const addAccount = async () => {
     left: 0px;
     top: 0px;
     position: absolute;
-    z-index: 102;
+    z-index: 106;
   }
 
   h3 {

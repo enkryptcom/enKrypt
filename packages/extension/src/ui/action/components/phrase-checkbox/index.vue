@@ -7,7 +7,7 @@
       :value="title"
       @change="checkLocal($event)"
     />
-    <div class="base-checkbox__wrap">
+    <div class="phrase-checkbox__wrap">
       <span>{{ title }}</span>
     </div>
   </label>
@@ -16,8 +16,6 @@
 <script setup lang="ts">
 import { PhraseCheckbox } from "@action/types/phrase-checkbox";
 import { PropType, ref } from "vue";
-
-const checkedLocal = ref(props.checked);
 
 const props = defineProps({
   isChecked: Boolean,
@@ -34,6 +32,8 @@ const props = defineProps({
     default: () => [],
   },
 });
+
+const checkedLocal = ref(props.checked);
 
 const checkLocal = (e: any) => {
   props.check(e);
@@ -76,7 +76,7 @@ const checkLocal = (e: any) => {
     display: none;
 
     &:checked {
-      & + .base-checkbox__wrap {
+      & + .phrase-checkbox__wrap {
         background: @primary;
         border: 0 none;
 

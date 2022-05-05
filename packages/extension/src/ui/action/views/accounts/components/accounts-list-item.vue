@@ -62,7 +62,7 @@ defineProps({
 @import "~@action/styles/theme.less";
 
 .accounts-item {
-  width: 100%;
+  width: calc(~"100% - 16px");
   height: 56px;
   text-decoration: none;
   display: flex;
@@ -71,8 +71,18 @@ defineProps({
   position: relative;
   flex-direction: row;
   box-sizing: border-box;
-  padding: 0 12px 0 12px;
+  padding: 0 8px 0 8px;
   cursor: pointer;
+  margin-left: 8px;
+
+  &:first-child {
+    margin-top: 9px;
+  }
+
+  &:hover {
+    background: @black004;
+    border-radius: 10px;
+  }
 
   &.disabled {
     opacity: 0.16;

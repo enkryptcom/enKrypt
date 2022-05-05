@@ -1,14 +1,10 @@
 <template>
   <div class="add-network__header">
     <h2>Add network</h2>
-  </div>
-  <div class="add-network__search">
-    <div class="add-network__search-input">
-      <base-search :is-border="true" />
-    </div>
-    <div class="add-network__search-add">
-      <base-button title="Custom network" :click="action" />
-    </div>
+
+    <a class="add-network__close" @click="close()">
+      <close-icon />
+    </a>
   </div>
 </template>
 
@@ -19,12 +15,14 @@ export default {
 </script>
 
 <script setup lang="ts">
-import BaseSearch from "@action/components/base-search/index.vue";
-import BaseButton from "@action/components/base-button/index.vue";
+import CloseIcon from "@action/icons/common/close-icon.vue";
 
-const action = () => {
-  console.log("Custom network action");
-};
+defineProps({
+  close: {
+    type: Function,
+    default: () => ({}),
+  },
+});
 </script>
 
 <style lang="less" scoped>
@@ -48,24 +46,15 @@ const action = () => {
     }
   }
 
-  &__search {
-    width: 100%;
-    height: 56px;
-    background: @white;
-    box-sizing: border-box;
-    padding: 8px 32px 8px 32px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-direction: row;
+  &__close {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    border-radius: 8px;
+    cursor: pointer;
 
-    &-input {
-      width: 238px;
-      margin-right: 16px;
-    }
-
-    &-add {
-      width: 142px;
+    &:hover {
+      background: @black007;
     }
   }
 }

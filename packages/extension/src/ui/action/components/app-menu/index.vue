@@ -1,6 +1,6 @@
 <template>
   <div class="app-menu">
-    <custom-scrollbar class="scroll-area">
+    <custom-scrollbar class="app-menu__scroll-area">
       <app-menu-item
         v-for="(item, index) in networks"
         :key="index"
@@ -46,11 +46,20 @@ defineProps({
 .app-menu {
   margin: 16px 0;
   overflow-y: auto;
-}
-.scroll-area {
-  position: relative;
-  margin: auto;
-  width: 100%;
-  max-height: 400px;
+
+  &__scroll-area {
+    position: relative;
+    margin: auto;
+    width: 100%;
+    max-height: 400px;
+
+    &.ps--active-y {
+      padding-right: 0 !important;
+    }
+
+    .ps__rail-y {
+      right: 4px !important;
+    }
+  }
 }
 </style>
