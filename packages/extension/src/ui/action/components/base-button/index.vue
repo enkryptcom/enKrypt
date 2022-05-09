@@ -10,7 +10,7 @@
     }"
     @click="click()"
   >
-    {{ title }}
+    <span>{{ title }}</span>
   </a>
 </template>
 
@@ -54,7 +54,7 @@ defineProps({
 @import "~@action/styles/theme.less";
 
 .button {
-  background: @primary;
+  background-color: @primary;
   box-shadow: 0px 0.25px 1px rgba(0, 0, 0, 0.039),
     0px 0.85px 3px rgba(0, 0, 0, 0.19);
   border-radius: 10px;
@@ -69,6 +69,41 @@ defineProps({
   color: @white;
   text-align: center;
   cursor: pointer;
+  position: relative;
+  overflow: hidden;
+
+  span {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    left: 0;
+    top: 0;
+  }
+
+  &::after {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+    z-index: 1;
+    opacity: 0;
+    background: linear-gradient(
+        0deg,
+        rgba(255, 255, 255, 0.08),
+        rgba(255, 255, 255, 0.08)
+      ),
+      @primary;
+    transition: opacity 300ms ease-in-out;
+  }
+
+  &:hover {
+    &::after {
+      opacity: 1;
+    }
+  }
 
   &.disabled {
     pointer-events: none;
@@ -81,22 +116,53 @@ defineProps({
     color: @primaryLabel;
     background: transparent;
     box-shadow: none;
+
+    &::after {
+      background: rgba(0, 0, 0, 0.04);
+    }
   }
 
   &.gray {
     background: @buttonBg;
     box-shadow: none;
     color: @primaryLabel;
+
+    &::after {
+      background: linear-gradient(
+          0deg,
+          rgba(255, 255, 255, 0.08),
+          rgba(255, 255, 255, 0.08)
+        ),
+        @buttonBg !important;
+    }
   }
 
   &.red {
     background: @error;
     color: @white;
+
+    &::after {
+      background: linear-gradient(
+          0deg,
+          rgba(255, 255, 255, 0.08),
+          rgba(255, 255, 255, 0.08)
+        ),
+        @error !important;
+    }
   }
 
   &.orange {
     background: @orange;
     color: @white;
+
+    &::after {
+      background: linear-gradient(
+          0deg,
+          rgba(255, 255, 255, 0.08),
+          rgba(255, 255, 255, 0.08)
+        ),
+        @orange !important;
+    }
   }
 }
 </style>

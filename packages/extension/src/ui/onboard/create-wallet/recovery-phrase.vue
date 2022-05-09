@@ -1,6 +1,6 @@
 <template>
   <div class="recovery-phrase">
-    <h3>Secret recovery phrase</h3>
+    <h3>Your secret recovery phrase</h3>
     <p>
       Write it down on paper. Resist temptation to email it to yourself or
       screenshot it.

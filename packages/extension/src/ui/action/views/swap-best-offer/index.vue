@@ -38,7 +38,7 @@
 
       <div class="swap-best-offer__buttons" :class="{ border: isHasScroll() }">
         <div class="swap-best-offer__buttons-cancel">
-          <base-button title="Back" :click="back" :gray="true" />
+          <base-button title="Back" :click="back" :no-background="true" />
         </div>
         <div class="swap-best-offer__buttons-send">
           <base-button
@@ -63,7 +63,7 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { defineProps, ref } from "vue";
+import { defineProps, defineExpose, ref } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import BaseButton from "@action/components/base-button/index.vue";

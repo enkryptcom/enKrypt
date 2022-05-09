@@ -4,7 +4,18 @@
       <base-search :input="searchInput" :is-border="true" />
     </div>
     <div class="add-network__search-add">
-      <base-button title="Custom network" :click="action" />
+      <a @click="action">
+        <slider-icon />
+      </a>
+    </div>
+    <div v-show="openList" class="add-network__search-list">
+      <a class="add-network__search-list-item">
+        <custom-network-icon /><span>Custom network</span>
+      </a>
+      <div class="add-network__search-list-item">
+        <test-network-icon /><span>Show testnets</span>
+        <Switch :check="testNetwork" :is-checked="false" />
+      </div>
     </div>
   </div>
 </template>
@@ -16,8 +27,14 @@ export default {
 </script>
 
 <script setup lang="ts">
+import { ref } from "vue";
 import BaseSearch from "@action/components/base-search/index.vue";
-import BaseButton from "@action/components/base-button/index.vue";
+import SliderIcon from "@action/icons/common/slider-icon.vue";
+import CustomNetworkIcon from "@action/icons/common/custom-network-icon.vue";
+import TestNetworkIcon from "@action/icons/common/test-network-icon.vue";
+import Switch from "@action/components/switch/index.vue";
+
+let openList = ref(false);
 
 const props = defineProps({
   input: {
@@ -33,7 +50,11 @@ const searchInput = (text: string) => {
 };
 
 const action = () => {
-  console.log("Custom network action");
+  openList.value = !openList.value;
+};
+
+const testNetwork = () => {
+  console.log("testNetwork");
 };
 </script>
 
@@ -51,14 +72,74 @@ const action = () => {
     justify-content: space-between;
     align-items: center;
     flex-direction: row;
+    position: relative;
 
     &-input {
-      width: 238px;
-      margin-right: 16px;
+      width: 348px;
+      margin-right: 8px;
     }
 
     &-add {
-      width: 142px;
+      width: 40px;
+      font-size: 0;
+      border-radius: 8px;
+
+      &:hover {
+        background: @black007;
+      }
+
+      a {
+        cursor: pointer;
+      }
+    }
+
+    &-list {
+      width: 256px;
+      height: 104px;
+      background: @white;
+      box-shadow: 0px 0.5px 5px rgba(0, 0, 0, 0.039),
+        0px 3.75px 11px rgba(0, 0, 0, 0.19);
+      border-radius: 12px;
+      position: absolute;
+      top: 52px;
+      right: 0;
+      z-index: 4;
+      padding: 4px;
+      box-sizing: border-box;
+
+      &-item {
+        width: 100%;
+        height: 48px;
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        flex-direction: row;
+        cursor: pointer;
+
+        &:hover,
+        &.active {
+          background: rgba(0, 0, 0, 0.04);
+          border-radius: 8px;
+        }
+
+        svg {
+          margin-right: 12px;
+          margin-left: 12px;
+        }
+
+        span {
+          font-style: normal;
+          font-weight: 400;
+          font-size: 14px;
+          line-height: 20px;
+          letter-spacing: 0.25px;
+          color: @primaryLabel;
+        }
+
+        .switch {
+          margin-left: 52px;
+        }
+      }
     }
   }
 }

@@ -15,7 +15,7 @@
       <div class="app__menu-footer">
         <a class="app__menu-add" @click="addNetworkToggle()">
           <add-icon />
-          Add a network
+          Manage networks
         </a>
 
         <div>

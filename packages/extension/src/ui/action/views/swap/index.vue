@@ -28,7 +28,11 @@
 
         <div class="swap__buttons">
           <div class="swap__buttons-cancel">
-            <base-button title="Cancel" :gray="true" @click="$router.go(-1)" />
+            <base-button
+              title="Cancel"
+              :no-background="true"
+              @click="$router.go(-1)"
+            />
           </div>
           <div class="swap__buttons-send">
             <base-button

@@ -164,6 +164,7 @@ const copy = (address: string) => {
     right: 8px;
     border-radius: 8px;
     cursor: pointer;
+    font-size: 0;
 
     &:hover {
       background: @black007;

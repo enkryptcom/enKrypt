@@ -14,7 +14,8 @@
       class="base-input__hide"
       @click="toggleVisibility"
     >
-      <hide-icon />
+      <visible-icon v-if="showPassword" />
+      <hide-icon v-else />
     </a>
   </div>
 </template>
@@ -28,6 +29,7 @@ export default {
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import HideIcon from "@action/icons/password/hide-icon.vue";
+import VisibleIcon from "@action/icons/password/visible-icon.vue";
 let showPassword = ref(false);
 const props = defineProps({
   placeholder: {

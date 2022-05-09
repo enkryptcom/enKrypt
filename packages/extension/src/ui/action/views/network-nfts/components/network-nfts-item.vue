@@ -1,6 +1,8 @@
 <template>
   <div class="network-nfts__item">
-    <img :src="item.image" alt="" @error="imageLoadError" />
+    <div class="network-nfts__item-image">
+      <img :src="item.image" alt="" @error="imageLoadError" />
+    </div>
     <h4>{{ item.name }}</h4>
     <p>{{ $filters.formatFiatValue(item.valueUSD).value }} <span>USD</span></p>
   </div>
@@ -42,9 +44,16 @@ defineProps({
       margin-right: 0;
     }
 
+    &-image {
+      border-radius: 12px;
+      width: 128px;
+      height: 128px;
+      background: @buttonBg;
+    }
+
     img {
       border-radius: 12px;
-      max-width: 128px;
+      width: 128px;
     }
 
     h4 {
