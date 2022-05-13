@@ -56,6 +56,7 @@ defineProps({
       max-width: 24px;
       max-height: 24px;
       margin: 0 8px;
+      border-radius: 50%;
     }
 
     span {

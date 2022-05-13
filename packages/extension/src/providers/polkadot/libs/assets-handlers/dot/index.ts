@@ -1,5 +1,4 @@
 import { AssetsType, NodeType } from "@/types/provider";
-import supported from "./supportedTokens";
 import { options } from "@acala-network/api";
 import { ApiPromise, WsProvider } from "@polkadot/api";
 import MarketData from "@/libs/market-data";
@@ -14,6 +13,7 @@ import {
   AccountData,
   AccountInfoWithRefCount,
 } from "@polkadot/types/interfaces";
+import { PolkadotNodeType } from "@/providers/polkadot/types";
 
 export default async (
   network: NodeType,
@@ -22,6 +22,7 @@ export default async (
   const provider = new WsProvider(network.node);
   const api = new ApiPromise(options({ provider }));
   await api.isReadyOrError;
+  const supported = [network as PolkadotNodeType];
   const balancePromises = supported.map(() => {
     return api.query.system
       .account<AccountInfoWithRefCount>(address)
@@ -29,7 +30,9 @@ export default async (
   });
   const marketData = new MarketData();
   const market = await marketData.getMarketData(
-    supported.map((supported) => supported.coingeckoID)
+    supported
+      .filter((s) => !!s.coingeckoID)
+      .map((supported) => supported.coingeckoID as string)
   );
   const balances = (await Promise.all(
     balancePromises
@@ -46,9 +49,9 @@ export default async (
       balanceUSD: usdBalance.toNumber(),
       balanceUSDf: formatFiatValue(usdBalance.toString()).value,
       decimals: st.decimals,
-      icon: st.image,
+      icon: st.icon,
       name: st.name,
-      symbol: st.symbol,
+      symbol: st.currencyName,
       priceChangePercentage:
         market[idx]?.price_change_percentage_7d_in_currency || 0,
       sparkline: market[idx]

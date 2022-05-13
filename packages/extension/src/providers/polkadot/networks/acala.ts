@@ -5,6 +5,7 @@ import API from "../libs/api";
 import acalaAssetsHandler from "../libs/assets-handlers/acala";
 import createIcon from "../libs/blockies";
 import { PolkadotNodeType } from "../types";
+const prefix = 10;
 const acaNode: PolkadotNodeType = {
   name: "ACA",
   name_long: "Acala",
@@ -15,11 +16,11 @@ const acaNode: PolkadotNodeType = {
   currencyName: "ACA",
   icon: require("./icons/acala.svg"),
   decimals: 12,
-  prefix: 10,
+  prefix,
   signer: [SignerType.sr25519, SignerType.ed25519],
   gradient: "#53CBC9",
   node: "wss://acala-rpc-0.aca-api.network/",
-  displayAddress: (address: string) => polkadotEncodeAddress(address, 10),
+  displayAddress: (address: string) => polkadotEncodeAddress(address, prefix),
   provider: ProviderName.polkadot,
   coingeckoID: "acala",
   identicon: createIcon,
