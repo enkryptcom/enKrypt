@@ -13,6 +13,7 @@ enum KeyringErrors {
   NoPassword = "No password set",
   AddressExists = "Address already exists",
   AddressDoesntExists = "Address doesnt exists in the keyring",
+  EnckryptDecryptNotSupported = "This Keytype doesnt support encrypt and decrypt",
   Locked = "Keyring locked",
 }
 
@@ -117,6 +118,13 @@ interface SignOptions {
   type: SignerType;
 }
 
+interface EthEncryptedData {
+  version: string;
+  nonce: string;
+  ephemPublicKey: string;
+  ciphertext: string;
+}
+
 export {
   Errors,
   SignerInterface,
@@ -133,4 +141,5 @@ export {
   OnMessageResponse,
   SignOptions,
   ProviderError,
+  EthEncryptedData,
 };

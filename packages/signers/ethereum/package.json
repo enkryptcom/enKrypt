@@ -22,7 +22,9 @@
     "chai": "^4.3.6",
     "ethereum-cryptography": "^1.0.0",
     "ethereumjs-util": "^7.1.4",
-    "hdkey": "^2.0.1"
+    "hdkey": "^2.0.1",
+    "tweetnacl": "^1.0.3",
+    "tweetnacl-util": "^0.15.1"
   },
   "devDependencies": {
     "@enkryptcom/types": "^0.0.1",
