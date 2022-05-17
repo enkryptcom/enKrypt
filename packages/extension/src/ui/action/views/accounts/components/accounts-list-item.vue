@@ -97,8 +97,6 @@ defineProps({
   }
 
   &__info {
-    font-variant: small-caps;
-
     &-name {
       font-style: normal;
       font-weight: 500;

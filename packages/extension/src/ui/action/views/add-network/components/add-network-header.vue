@@ -1,6 +1,6 @@
 <template>
-  <div class="add-network__header">
-    <h2>Add network</h2>
+  <div class="add-network__header" :class="{ border: isScroll }">
+    <h3>Manage networks {{ isScroll }}</h3>
 
     <a class="add-network__close" @click="close()">
       <close-icon />
@@ -22,6 +22,10 @@ defineProps({
     type: Function,
     default: () => ({}),
   },
+  isScroll: {
+    type: Boolean,
+    default: false,
+  },
 });
 </script>
 
@@ -31,18 +35,30 @@ defineProps({
 .add-network {
   &__header {
     width: 100%;
-    height: 68px;
     background: @white;
     box-sizing: border-box;
     padding: 24px 72px 12px 32px;
+    position: relative;
+    z-index: 4;
 
-    h2 {
+    h3 {
       font-style: normal;
       font-weight: bold;
       font-size: 24px;
       line-height: 32px;
       margin: 0;
       color: @primaryLabel;
+    }
+
+    &.border {
+      box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.05),
+        0px 0px 1px rgba(0, 0, 0, 0.25);
+      padding: 14px 72px 12px 32px;
+
+      h3 {
+        font-size: 20px;
+        line-height: 28px;
+      }
     }
   }
 
@@ -52,6 +68,7 @@ defineProps({
     right: 8px;
     border-radius: 8px;
     cursor: pointer;
+    font-size: 0;
 
     &:hover {
       background: @black007;

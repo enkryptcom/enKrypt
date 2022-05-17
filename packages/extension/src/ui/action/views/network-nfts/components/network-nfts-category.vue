@@ -71,6 +71,7 @@ defineProps({
       justify-content: flex-start;
       align-items: flex-start;
       flex-direction: row;
+      flex-wrap: wrap;
     }
   }
 }

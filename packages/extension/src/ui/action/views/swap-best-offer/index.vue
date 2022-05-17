@@ -38,7 +38,7 @@
 
       <div class="swap-best-offer__buttons" :class="{ border: isHasScroll() }">
         <div class="swap-best-offer__buttons-cancel">
-          <base-button title="Back" :click="back" :gray="true" />
+          <base-button title="Back" :click="back" :no-background="true" />
         </div>
         <div class="swap-best-offer__buttons-send">
           <base-button
@@ -127,7 +127,7 @@ const handleScroll = (e: any) => {
 };
 const isHasScroll = () => {
   if (bestOfferScrollRef.value) {
-    return (bestOfferScrollRef.value as HTMLElement).$el.classList.contains(
+    return (bestOfferScrollRef.value as HTMLElement).classList.contains(
       "ps--active-y"
     );
   }

@@ -90,6 +90,10 @@ defineProps({
     svg {
       margin-bottom: 1px;
     }
+
+    &:hover {
+      opacity: 0.6;
+    }
   }
 
   .router-link-active {

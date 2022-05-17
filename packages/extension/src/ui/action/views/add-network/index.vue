@@ -2,8 +2,22 @@
   <div class="add-network__container">
     <div class="add-network__overlay" @click="close()"></div>
     <div class="add-network__wrap">
-      <add-network-header :close="close" />
-      <custom-scrollbar class="add-network__scroll-area" :settings="settings">
+      <div
+        class="add-network__header"
+        :class="{ border: isHasScroll() && scrollProgress > 0 }"
+      >
+        <h3>Manage networks</h3>
+
+        <a class="add-network__close" @click="close()">
+          <close-icon />
+        </a>
+      </div>
+      <custom-scrollbar
+        ref="manageNetworkScrollRef"
+        class="add-network__scroll-area"
+        :settings="settings"
+        @ps-scroll-y="handleScroll"
+      >
         <add-network-search :input="search" />
 
         <h3 class="add-network__list-header">Popular</h3>
@@ -35,7 +49,8 @@ export default {
 </script>
 
 <script setup lang="ts">
-import AddNetworkHeader from "./components/add-network-header.vue";
+import { ref, defineExpose } from "vue";
+import CloseIcon from "@action/icons/common/close-icon.vue";
 import AddNetworkSearch from "./components/add-network-search.vue";
 import AddNetworkItem from "./components/add-network-item.vue";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
@@ -50,7 +65,10 @@ const popular = getAllNetworks().filter((net) =>
   popularNames.includes(net.name)
 );
 const all = getAllNetworks();
+let scrollProgress = ref(0);
+const manageNetworkScrollRef = ref(null);
 
+defineExpose({ manageNetworkScrollRef });
 defineProps({
   close: {
     type: Function,
@@ -60,6 +78,20 @@ defineProps({
 
 const search = (value: string) => {
   console.log(value);
+};
+const handleScroll = (e: any) => {
+  let progress = Number(e.target.lastChild.style.top.replace("px", ""));
+  scrollProgress.value = progress;
+  console.log(isHasScroll() && scrollProgress.value > 0);
+};
+const isHasScroll = () => {
+  if (manageNetworkScrollRef.value) {
+    return (manageNetworkScrollRef.value as HTMLElement).$el.classList.contains(
+      "ps--active-y"
+    );
+  }
+
+  return false;
 };
 </script>
 
@@ -71,6 +103,48 @@ const search = (value: string) => {
   width: 100%;
   height: auto;
   box-sizing: border-box;
+
+  &__header {
+    width: 100%;
+    background: @white;
+    box-sizing: border-box;
+    padding: 24px 72px 12px 32px;
+    position: relative;
+    z-index: 4;
+
+    h3 {
+      font-style: normal;
+      font-weight: bold;
+      font-size: 24px;
+      line-height: 32px;
+      margin: 0;
+      color: @primaryLabel;
+    }
+
+    &.border {
+      box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.05),
+        0px 0px 1px rgba(0, 0, 0, 0.25);
+      padding: 14px 72px 12px 32px;
+
+      h3 {
+        font-size: 20px;
+        line-height: 28px;
+      }
+    }
+  }
+
+  &__close {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0;
+
+    &:hover {
+      background: @black007;
+    }
+  }
 
   &__wrap {
     background: @white;
