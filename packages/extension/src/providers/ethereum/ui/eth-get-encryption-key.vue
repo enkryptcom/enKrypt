@@ -1,7 +1,7 @@
 <template>
   <div class="common-popup">
     <sign-logo color="#05C0A5" class="common-popup__logo"></sign-logo>
-    <h2>Send Transaction</h2>
+    <h2>Get Encryption Key</h2>
 
     <div class="common-popup__block">
       <div class="common-popup__account">
@@ -24,7 +24,7 @@
       </div>
 
       <p class="common-popup__message">
-        {{ message }}
+        {{ options.domain }} would like to access the encryption public key
       </p>
     </div>
     <div class="common-popup__buttons">
@@ -32,7 +32,7 @@
         <base-button title="Cancel" :click="deny" :no-background="true" />
       </div>
       <div class="common-popup__buttons-send">
-        <base-button title="Sign" :click="approve" />
+        <base-button title="Provide" :click="approve" />
       </div>
     </div>
   </div>
@@ -47,27 +47,19 @@ import { ErrorCodes } from "@/providers/ethereum/types";
 import { WindowPromiseHandler } from "@/libs/window-promise";
 import { InternalMethods } from "@/types/messenger";
 import { computed } from "vue";
-import { bufferToHex } from "@enkryptcom/utils";
-import { fromRpcSig } from "ethereumjs-util";
 import { DEFAULT_NETWORK_NAME, getNetworkByName } from "@/libs/utils/networks";
 import { NodeType } from "@/types/provider";
-import { EthereumTransaction } from "../libs/transaction/types";
-import Transaction from "@/providers/ethereum/libs/transaction";
-import Web3 from "web3";
-import { FeeMarketEIP1559Transaction } from "@ethereumjs/tx";
+
 const { PromiseResolve, options, Request, sendToBackground } =
   WindowPromiseHandler();
-const message = computed(() => {
-  return "tx signing";
-});
 const network = computed(() => {
-  if (Request.value.params && Request.value.params.length > 2)
-    return getNetworkByName(Request.value.params[2]) as NodeType;
+  if (Request.value.params && Request.value.params.length > 1)
+    return getNetworkByName(Request.value.params[1]) as NodeType;
   else return getNetworkByName(DEFAULT_NETWORK_NAME) as NodeType;
 });
 const account = computed(() => {
-  if (Request.value.params && Request.value.params.length > 1) {
-    return Request.value.params[1] as KeyRecord;
+  if (Request.value.params && Request.value.params.length > 0) {
+    return Request.value.params[0] as KeyRecord;
   } else
     return {
       name: "",
@@ -78,41 +70,21 @@ const identicon = computed(() => {
   return network.value.identicon(account.value.address);
 });
 const approve = () => {
-  if (!Request.value.params || Request.value.params.length < 2) {
+  if (!Request.value.params || Request.value.params.length < 1) {
     return PromiseResolve.value({ error: getCustomError("No params") });
   }
-  const web3 = new Web3(network.value.node);
-  const tx = new Transaction(
-    Request.value.params[0] as EthereumTransaction,
-    web3
-  );
-  tx.getFinalizedTransaction().then((finalizedTx) => {
-    const msgHash = bufferToHex(finalizedTx.getMessageToSign(true));
-    sendToBackground({
-      method: InternalMethods.sign,
-      params: [msgHash, account.value],
-    }).then((res) => {
-      if (res.error) {
-        PromiseResolve.value(res);
-      } else {
-        const rpcSig = fromRpcSig(res.result || "0x");
-        const signedTx = (
-          finalizedTx as FeeMarketEIP1559Transaction
-        )._processSignature(rpcSig.v, rpcSig.r, rpcSig.s);
-        web3.eth
-          .sendSignedTransaction("0x" + signedTx.serialize().toString("hex"))
-          .on("transactionHash", (hash) => {
-            PromiseResolve.value({
-              result: JSON.stringify(hash),
-            });
-          })
-          .on("error", (error) => {
-            PromiseResolve.value({
-              error: getCustomError(error.message),
-            });
-          });
-      }
-    });
+  const account = Request.value.params[0] as KeyRecord;
+  sendToBackground({
+    method: InternalMethods.getEthereumEncryptionPublicKey,
+    params: [account],
+  }).then((res) => {
+    if (res.error) {
+      PromiseResolve.value(res);
+    } else {
+      PromiseResolve.value({
+        result: JSON.stringify(res.result),
+      });
+    }
   });
 };
 const deny = () => {

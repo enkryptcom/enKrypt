@@ -35,7 +35,16 @@ export class KeyRingBase {
   ): Promise<`0x${string}`> {
     return this.#keyring
       .sign(hexMessage, options)
-      .then((hex) => hex as `0x${string}`);
+      .then((hex: string) => hex as `0x${string}`);
+  }
+  getEthereumEncryptionPublicKey(options: SignOptions): Promise<string> {
+    return this.#keyring.getEthereumEncryptionPublicKey(options);
+  }
+  ethereumDecrypt(
+    encryptedMessage: string,
+    options: SignOptions
+  ): Promise<string> {
+    return this.#keyring.ethereumDecrypt(encryptedMessage, options);
   }
   getKeysArray(): Promise<KeyRecord[]> {
     return this.#keyring.getKeysArray();

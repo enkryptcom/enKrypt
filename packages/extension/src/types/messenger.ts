@@ -14,6 +14,8 @@ export enum Destination {
   newWindow = "new-window",
 }
 export enum InternalMethods {
+  getEthereumEncryptionPublicKey = "enkrypt_eth_encryption_pubkey",
+  ethereumDecrypt = "enkrypt_eth_decrypt",
   sign = "enkrypt_sign_hash",
   unlock = "enkrypt_unlock_keyring",
   isLocked = "enkrypt_is_locked_keyring",
