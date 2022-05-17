@@ -1,12 +1,12 @@
 <template>
-  <div class="sign-message">
-    <sign-logo color="#05C0A5" class="sign-message__logo"></sign-logo>
+  <div class="sign-typed-data">
+    <sign-logo color="#05C0A5" class="sign-typed-data__logo"></sign-logo>
     <h2>Sign Typed Data</h2>
 
-    <div class="sign-message__block">
-      <div class="sign-message__account">
+    <div class="sign-typed-data__block">
+      <div class="sign-typed-data__account">
         <img :src="identicon" />
-        <div class="sign-message__account-info">
+        <div class="sign-typed-data__account-info">
           <h4>{{ account.name }}</h4>
           <p>
             {{ $filters.replaceWithEllipsis(account.address, 6, 4) }}
@@ -14,24 +14,24 @@
         </div>
       </div>
     </div>
-    <div class="sign-message__block">
-      <div class="sign-message__info">
+    <div class="sign-typed-data__block">
+      <div class="sign-typed-data__info">
         <img :src="options.faviconURL" />
-        <div class="sign-message__info-info">
+        <div class="sign-typed-data__info-info">
           <h4>{{ options.title }}</h4>
           <p>{{ options.domain }}</p>
         </div>
       </div>
 
-      <div class="sign-message__message">
+      <div class="sign-typed-data__message">
         {{ message }}
       </div>
     </div>
-    <div class="sign-message__buttons">
-      <div class="sign-message__buttons-cancel">
+    <div class="sign-typed-data__buttons">
+      <div class="sign-typed-data__buttons-cancel">
         <base-button title="Cancel" :click="deny" :no-background="true" />
       </div>
-      <div class="sign-message__buttons-send">
+      <div class="sign-typed-data__buttons-send">
         <base-button title="Sign" :click="approve" />
       </div>
     </div>
@@ -130,7 +130,7 @@ const deny = () => {
 
 <style lang="less" scoped>
 @import "~@action/styles/theme.less";
-.sign-message {
+.sign-typed-data {
   width: 100%;
   &__logo {
     margin-bottom: 8px;

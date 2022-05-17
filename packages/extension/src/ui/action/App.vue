@@ -8,7 +8,7 @@
         :selected="(route.params.id as string)"
         :set-network="setNetwork"
       />
-      <br /><br />
+      <br />
       <a href="javascript:void(0);" @click="openCreate()">
         to Create / Restore
       </a>
@@ -36,6 +36,7 @@
 
     <div class="app__content">
       <accounts-header
+        v-show="showNetworkMenu()"
         :account-info="accountHeaderData"
         :network="currentNetwork"
         :init="init"
@@ -235,6 +236,17 @@ const openCreate = () => {
     .then(({ error }) => {
       console.error(error);
     });
+};
+
+const showNetworkMenu = () => {
+  const selected = route.params.id as string;
+  return (
+    !!selected &&
+    (route.name == "activity" ||
+      route.name == "assets" ||
+      route.name == "nfts" ||
+      route.name == "dapps")
+  );
 };
 </script>
 

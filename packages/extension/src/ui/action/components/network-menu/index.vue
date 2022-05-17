@@ -21,7 +21,10 @@
       <NFTs /><br />NFTs
     </router-link>
     <router-link
-      :to="{ name: 'dapps', params: { id: !!selected ? selected : null } }"
+      :to="{
+        name: 'dapps',
+        params: { id: !!selected ? selected : null },
+      }"
     >
       <DApps /><br />DApps
     </router-link>

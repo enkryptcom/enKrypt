@@ -6,6 +6,7 @@ import {
 import { Token } from "./token";
 import { DAppsItem } from "./dapps";
 import { NFTAuthor } from "./nft";
+import { TransactionFee, TransactionFeeSpeed } from "./fee";
 
 export const transactionsOne: Transaction[] = [
   {
@@ -123,7 +124,119 @@ export const transactionsOne: Transaction[] = [
     direction: TransactionDirection.outgoing,
   },
 ];
+export const accountsActive = [
+  {
+    name: "My Main Account",
+    address: "0x03502CF6C0A13167Dc2D0E25Dabf5FBDB68C5968",
+    amount: 1.321,
+    primaryToken: {
+      name: "Ethereum",
+      symbol: "eth",
+      icon: "https://mpolev.ru/enkrypt/eth.png",
+      amount: 0.5,
+      price: 2500,
+    },
+  },
+  {
+    name: "My Main Account 2",
+    address: "0x03502CF6C0A13167Dc2D0E25Dabf5FBDB68C5967",
+    amount: 2.332,
+    primaryToken: {
+      name: "Ethereum",
+      symbol: "eth",
+      icon: "https://mpolev.ru/enkrypt/eth.png",
+      amount: 0.5,
+      price: 2500,
+    },
+  },
+  {
+    name: "My Main Account 3",
+    address: "0x14502CF6C0A13167Dc2D0E25Dabf5FBDB68C2967",
+    amount: 0.2,
+    primaryToken: {
+      name: "Ethereum",
+      symbol: "eth",
+      icon: "https://mpolev.ru/enkrypt/eth.png",
+      amount: 0.5,
+      price: 2500,
+    },
+  },
+];
 
+export const accountsInActive = [
+  {
+    name: "My Main Account 4",
+    address: "0x13202CF6C0A13167Dc2D0E25Dabf5FBDB68C5967",
+    amount: 0.22,
+    primaryToken: {
+      name: "Ethereum",
+      symbol: "eth",
+      icon: "https://mpolev.ru/enkrypt/eth.png",
+      amount: 0.5,
+      price: 2500,
+    },
+  },
+  {
+    name: "My Main Account 5",
+    address: "0x14502CF6C0A13167Dc2D0E25Dabf5FBDB68C2967",
+    amount: 0.2,
+    primaryToken: {
+      name: "Ethereum",
+      symbol: "eth",
+      icon: "https://mpolev.ru/enkrypt/eth.png",
+      amount: 0.5,
+      price: 2500,
+    },
+  },
+  {
+    name: "My Main Account 6",
+    address: "0x14502CF6C0A13167Dc2D0E25Dabf5FBDB68C2967",
+    amount: 0.2,
+    primaryToken: {
+      name: "Ethereum",
+      symbol: "eth",
+      icon: "https://mpolev.ru/enkrypt/eth.png",
+      amount: 0.5,
+      price: 2500,
+    },
+  },
+  {
+    name: "My Main Account 7",
+    address: "0x14502CF6C0A13167Dc2D0E25Dabf5FBDB68C2967",
+    amount: 0.2,
+    primaryToken: {
+      name: "Ethereum",
+      symbol: "eth",
+      icon: "https://mpolev.ru/enkrypt/eth.png",
+      amount: 0.5,
+      price: 2500,
+    },
+  },
+  {
+    name: "My Main Account 8",
+    address: "0x14502CF6C0A13167Dc2D0E25Dabf5FBDB68C2967",
+    amount: 0.2,
+    primaryToken: {
+      name: "Ethereum",
+      symbol: "eth",
+      icon: "https://mpolev.ru/enkrypt/eth.png",
+      amount: 0.5,
+      price: 2500,
+    },
+  },
+  {
+    name: "My Main Account 9",
+    address: "0x14502CF6C0A13167Dc2D0E25Dabf5FBDB68C2967",
+    amount: 0.2,
+    primaryToken: {
+      name: "Ethereum",
+      symbol: "eth",
+      icon: "https://mpolev.ru/enkrypt/eth.png",
+      amount: 0.5,
+      price: 2500,
+    },
+  },
+];
 export const transactionsTwo: Transaction[] = [
   {
     from: {
@@ -402,3 +515,71 @@ export const nfts: NFTAuthor[] = [
     ],
   },
 ];
+
+export const ethereum: Token = {
+  name: "Ethereum",
+  symbol: "eth",
+  icon: "https://mpolev.ru/enkrypt/eth.png",
+  amount: 0.5,
+  price: 2500,
+};
+
+export const fees: TransactionFee[] = [
+  {
+    limit: 0.0001,
+    price: {
+      speed: TransactionFeeSpeed.economy,
+      baseFee: 0.002,
+      tip: 0.0002,
+      totalFee: 0.0022,
+      title: "Economy",
+      description: "Will likely go trough unless activity increases",
+    },
+  },
+  {
+    limit: 0.001,
+    price: {
+      speed: TransactionFeeSpeed.recommended,
+      baseFee: 0.02,
+      tip: 0.002,
+      totalFee: 0.022,
+      title: "Recommended",
+      description: "Will reliably go through in most scenatios",
+    },
+  },
+  {
+    limit: 0.01,
+    price: {
+      speed: TransactionFeeSpeed.higherPriority,
+      baseFee: 0.2,
+      tip: 0.02,
+      totalFee: 0.22,
+      title: "Higher priority",
+      description:
+        "Will go through even if there is a sudden activity increase",
+    },
+  },
+  {
+    limit: 0.015,
+    price: {
+      speed: TransactionFeeSpeed.highestPriority,
+      baseFee: 0.3,
+      tip: 0.03,
+      totalFee: 0.33,
+      title: "Highest priority",
+      description: "Will go through, fast, in 99.99% of the cases",
+    },
+  },
+];
+
+export const recommendedFee: TransactionFee = {
+  limit: 0.001,
+  price: {
+    speed: TransactionFeeSpeed.recommended,
+    baseFee: 0.02,
+    tip: 0.002,
+    totalFee: 0.022,
+    title: "Recommended",
+    description: "Will reliably go through in most scenatios",
+  },
+};
