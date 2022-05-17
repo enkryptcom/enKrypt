@@ -52,6 +52,14 @@ defineProps({
     margin: auto;
     width: 100%;
     max-height: 400px;
+
+    &.ps--active-y {
+      padding-right: 0 !important;
+    }
+
+    .ps__rail-y {
+      right: 4px !important;
+    }
   }
 }
 </style>

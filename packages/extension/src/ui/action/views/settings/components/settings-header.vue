@@ -1,8 +1,8 @@
 <template>
-  <div class="add-network__header">
-    <h2>Add network</h2>
+  <div class="settings__header">
+    <h2>Settings</h2>
 
-    <a class="add-network__close" @click="close()">
+    <a class="settings__close" @click="close()">
       <close-icon />
     </a>
   </div>
@@ -10,7 +10,7 @@
 
 <script lang="ts">
 export default {
-  name: "AddNetworkHeader",
+  name: "SettingsHeader",
 };
 </script>
 
@@ -28,13 +28,14 @@ defineProps({
 <style lang="less" scoped>
 @import "~@action/styles/theme.less";
 
-.add-network {
+.settings {
   &__header {
     width: 100%;
     height: 68px;
     background: @white;
     box-sizing: border-box;
     padding: 24px 72px 12px 32px;
+    margin-bottom: 8px;
 
     h2 {
       font-style: normal;

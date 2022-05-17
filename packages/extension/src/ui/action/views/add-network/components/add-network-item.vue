@@ -62,7 +62,8 @@ const check = (isChecked: boolean) => {
     flex-direction: row;
 
     img {
-      max-width: 16px;
+      width: 16px;
+      height: 16px;
       margin-right: 8px;
     }
 

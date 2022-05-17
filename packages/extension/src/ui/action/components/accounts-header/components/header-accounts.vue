@@ -9,6 +9,9 @@
       <switch-arrow />
     </a>
     <div class="account__actions">
+      <a class="account__actions--copy" href="#">
+        <icon-external />
+      </a>
       <a class="account__actions--copy" @click="copy(address)">
         <icon-copy />
       </a>
@@ -29,6 +32,7 @@ export default {
 import SwitchArrow from "@action/icons/header/switch_arrow.vue";
 import IconQr from "@action/icons/header/qr_icon.vue";
 import IconCopy from "@action/icons/header/copy_icon.vue";
+import IconExternal from "@action/icons/header/external-icon.vue";
 import { PropType } from "vue";
 import { NodeType } from "@/types/provider";
 

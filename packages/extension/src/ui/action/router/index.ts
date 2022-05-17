@@ -53,20 +53,6 @@ const routes = [
     name: "nfts",
   },
   {
-    path: "/send/:id?",
-    components: {
-      view: SendTransaction,
-    },
-    name: "send-transaction",
-  },
-  {
-    path: "/verify-transaction/:id?",
-    components: {
-      view: VerifyTransaction,
-    },
-    name: "verify-transaction",
-  },
-  {
     path: "/add-network",
     components: {
       view: AddNetwork,
