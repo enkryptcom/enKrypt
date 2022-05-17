@@ -12,8 +12,8 @@
     </div>
 
     <div class="send-token-item__price">
-      <h4>{{ $filters.currencyFormat(amount, "USD") }}</h4>
-      <p>@{{ $filters.currencyFormat(token.price, "USD") }}</p>
+      <h4>{{ $filters.formatFiatValue(amount).value }}</h4>
+      <p>@{{ $filters.formatFiatValue(token.price).value }}</p>
     </div>
   </a>
 </template>

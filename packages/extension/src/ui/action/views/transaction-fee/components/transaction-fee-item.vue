@@ -24,14 +24,14 @@
         v-show="fee.price.speed == TransactionFeeSpeed.economy"
         class="transaction-fee-item__block-amount down"
       >
-        -{{ $filters.currencyFormat(2.23, "USD") }}
+        -{{ $filters.formatFiatValue(2.23).value }}
       </div>
 
       <div
         v-show="fee.price.speed != TransactionFeeSpeed.economy"
         class="transaction-fee-item__block-amount"
       >
-        +{{ $filters.currencyFormat(1.23, "USD") }}
+        +{{ $filters.formatFiatValue(1.23).value }}
       </div>
     </div>
   </a>

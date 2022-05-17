@@ -42,7 +42,7 @@
       </div>
     </div>
 
-    <send-process v-show="isProcessing"></send-process>
+    <send-process v-if="isProcessing"></send-process>
   </div>
 </template>
 
@@ -83,8 +83,6 @@ onMounted(async () => {
     (net) => net.name === curNetwork
   ) as NodeType;
 });
-
-defineProps({});
 
 const close = () => {
   router.go(-1);

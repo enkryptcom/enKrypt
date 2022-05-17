@@ -6,6 +6,7 @@
       disabled: disabled,
       gray: gray,
       red: red,
+      orange: orange,
     }"
     @click="click()"
   >
@@ -39,6 +40,10 @@ defineProps({
     default: false,
   },
   gray: {
+    type: Boolean,
+    default: false,
+  },
+  orange: {
     type: Boolean,
     default: false,
   },
@@ -86,6 +91,11 @@ defineProps({
 
   &.red {
     background: @error;
+    color: @white;
+  }
+
+  &.orange {
+    background: @orange;
     color: @white;
   }
 }

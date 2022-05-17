@@ -50,6 +50,7 @@
       </router-view>
 
       <network-menu
+        v-show="showNetworkMenu()"
         :selected="(route.params.id as string)"
         :network="currentNetwork"
       />
@@ -236,15 +237,6 @@ const onSelectedAddressChanged = async (newAccount: KeyRecord) => {
     tabId: await domainState.getCurrentTabId(),
   });
 };
-const openCreate = () => {
-  const windowPromise = new WindowPromise();
-  windowPromise
-    .getResponse("onboard.html", JSON.stringify({ info: "test" }))
-    .then(({ error }) => {
-      console.error(error);
-    });
-};
-
 const showNetworkMenu = () => {
   const selected = route.params.id as string;
   return (
@@ -254,6 +246,14 @@ const showNetworkMenu = () => {
       route.name == "nfts" ||
       route.name == "dapps")
   );
+};
+const openCreate = () => {
+  const windowPromise = new WindowPromise();
+  windowPromise
+    .getResponse("onboard.html", JSON.stringify({ info: "test" }))
+    .then(({ error }) => {
+      console.error(error);
+    });
 };
 
 const searchInput = (text: string) => {

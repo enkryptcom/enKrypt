@@ -1,0 +1,222 @@
+<template>
+  <div class="swap-best-offer-block">
+    <h3>Best offer from *Provider name*</h3>
+    <div class="swap-best-offer-block__for">
+      for<img :src="require('@/ui/action/icons/raw/uni.png')" />
+      <p>10 <span>eth</span></p>
+      you will get:
+    </div>
+    <div class="swap-best-offer-block__token">
+      <img :src="require('@/ui/action/icons/raw/yearn.png')" />
+      <div class="swap-best-offer-block__token-info">
+        <h4>129.634 <span>comp</span></h4>
+        <p>≈ $41,011.8</p>
+      </div>
+    </div>
+    <best-offer-warning :fee-warning="true"></best-offer-warning>
+    <best-offer-warning :token-warning="true"></best-offer-warning>
+    <best-offer-error :bad-trade="true"></best-offer-error>
+    <div class="swap-best-offer-block__offers">
+      <a
+        class="swap-best-offer-block__offers-link"
+        :class="{ opened: isOffersOpen }"
+        @click="toggleOffers"
+        >2 other offers <switch-arrow
+      /></a>
+      <best-offer-list v-show="isOffersOpen" :select="select"></best-offer-list>
+    </div>
+    <div class="swap-best-offer-block__info">
+      <p>Rate: 1 ETH ≈ 12.07 COMP</p>
+      <p>Price impact: –0.07%</p>
+      <p>Max. slippage: 1.3%</p>
+      <p>Minimum received: 128.345 COMP</p>
+      <p>Offer includes 2.5% MEW fee</p>
+    </div>
+  </div>
+</template>
+
+<script lang="ts">
+export default {
+  name: "SwapBestOfferBlock",
+};
+</script>
+
+<script setup lang="ts">
+import { ref } from "vue";
+import SwitchArrow from "@action/icons/header/switch_arrow.vue";
+import BestOfferList from "./components/best-offer-list.vue";
+import BestOfferWarning from "./components/best-offer-warning.vue";
+import BestOfferError from "./components/best-offer-error.vue";
+
+let isOffersOpen = ref(false);
+
+const select = () => {
+  console.log("select");
+  toggleOffers();
+};
+
+const toggleOffers = () => {
+  isOffersOpen.value = !isOffersOpen.value;
+};
+</script>
+
+<style lang="less" scoped>
+@import "~@action/styles/theme.less";
+
+.swap-best-offer-block {
+  width: 100%;
+  border: 1px solid rgba(95, 99, 104, 0.2);
+  box-sizing: border-box;
+  border-radius: 10px;
+  padding: 16px;
+
+  h3 {
+    font-style: normal;
+    font-weight: 700;
+    font-size: 20px;
+    line-height: 28px;
+    letter-spacing: 0.15px;
+    color: @primaryLabel;
+    margin: 0 0 8px 0;
+  }
+
+  &__for {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    flex-direction: row;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 20px;
+    line-height: 28px;
+    letter-spacing: 0.15px;
+    color: @primaryLabel;
+    margin-bottom: 8px;
+
+    img {
+      width: 32px;
+      height: 32px;
+      margin: 0 8px;
+    }
+
+    p {
+      font-style: normal;
+      font-weight: 700;
+      font-size: 20px;
+      line-height: 28px;
+      letter-spacing: 0.15px;
+      color: @primaryLabel;
+      margin: 0 8px 0 0;
+
+      span {
+        font-variant: small-caps;
+      }
+    }
+  }
+
+  &__token {
+    width: 100%;
+    height: 96px;
+    background: @buttonBg;
+    border-radius: 10px;
+    margin: 0 0 8px 0px;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    flex-direction: row;
+    padding: 16px;
+    box-sizing: border-box;
+
+    img {
+      width: 64px;
+      height: 64px;
+      margin-right: 16px;
+    }
+
+    &-info {
+      h4 {
+        font-style: normal;
+        font-weight: 700;
+        font-size: 24px;
+        line-height: 32px;
+        color: @primaryLabel;
+        margin: 0 0 4px 0;
+
+        span {
+          font-variant: small-caps;
+        }
+      }
+
+      p {
+        font-style: normal;
+        font-weight: 400;
+        font-size: 12px;
+        line-height: 16px;
+        letter-spacing: 0.5px;
+        color: @secondaryLabel;
+        margin: 0;
+      }
+    }
+  }
+
+  &__offers {
+    display: block;
+    position: relative;
+    margin-bottom: 8px;
+    font-size: 0;
+    height: 40px;
+
+    &-link {
+      text-decoration: none;
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      flex-direction: row;
+      height: 40px;
+      font-style: normal;
+      font-weight: 500;
+      font-size: 14px;
+      line-height: 24px;
+      letter-spacing: 0.5px;
+      color: @primaryLabel;
+      cursor: pointer;
+
+      svg {
+        -webkit-transition: all 300ms ease-in-out;
+        -moz-transition: all 300ms ease-in-out;
+        -ms-transition: all 300ms ease-in-out;
+        -o-transition: all 300ms ease-in-out;
+        transition: all 300ms ease-in-out;
+      }
+
+      &.opened {
+        color: @secondaryLabel;
+
+        svg {
+          -moz-transform: rotate(180deg);
+          -webkit-transform: rotate(180deg);
+          -o-transform: rotate(180deg);
+          -ms-transform: rotate(180deg);
+          transform: rotate(180deg);
+        }
+      }
+    }
+  }
+
+  &__info {
+    p {
+      font-style: normal;
+      font-weight: 400;
+      font-size: 14px;
+      line-height: 20px;
+      letter-spacing: 0.25px;
+      color: @secondaryLabel;
+      margin: 0 0 2px 0;
+
+      &:last-child {
+        margin: 0;
+      }
+    }
+  }
+}
+</style>

@@ -23,12 +23,15 @@
         <Send /><br />Send
       </router-link>
       <div class="network-activity__action-devider"></div>
-      <a
+      <router-link
         class="network-activity__action-item"
-        @click="(swapAction as ()=>void)"
+        :to="{
+          name: 'swap',
+          params: { id: !!selected ? selected : null },
+        }"
       >
         <Swap /><br />Swap
-      </a>
+      </router-link>
     </div>
   </div>
 </template>
@@ -47,7 +50,6 @@ import Swap from "@action/icons/actions/swap.vue";
 import { useRoute } from "vue-router";
 
 const route = useRoute();
-
 const selected: string = route.params.id as string;
 
 defineProps({
