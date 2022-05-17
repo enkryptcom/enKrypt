@@ -3,6 +3,7 @@ import dotTxApprove from "./dot-approvetx.vue";
 import dotApproveSign from "./dot-approvesign.vue";
 import dotSignMessage from "./dot-sign-message.vue";
 import dotUpdateMetadata from "./dot-update-metadata.vue";
+import dotVerifyTransaction from "./dot-verify-transaction.vue";
 import { RouteRecordRaw } from "vue-router";
 export const routes = {
   dotAccounts: {
@@ -29,6 +30,11 @@ export const routes = {
     path: "dot-update-metadata",
     component: dotUpdateMetadata,
     name: "dotUpdateMetadata",
+  },
+  dotVerifyTransaction: {
+    path: "dot-verify-transaction",
+    component: dotVerifyTransaction,
+    name: "dotVerifyTransaction",
   },
 };
 

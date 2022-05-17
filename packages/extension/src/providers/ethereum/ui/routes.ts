@@ -1,6 +1,8 @@
 import ethAccounts from "./eth-accounts.vue";
 import ethSign from "./eth-sign.vue";
 import ethSignMessage from "./eth-sign-message.vue";
+import ethVerifyTransaction from "./eth-verify-transaction.vue";
+
 import { RouteRecordRaw } from "vue-router";
 export const routes = {
   ethAccounts: {
@@ -17,6 +19,11 @@ export const routes = {
     path: "eth-sign-message",
     component: ethSignMessage,
     name: "ethSignMessage",
+  },
+  ethVerifyTransaction: {
+    path: "eth-verify-transaction",
+    component: ethVerifyTransaction,
+    name: "ethVerifyTransaction",
   },
 };
 export default (namespace: string): RouteRecordRaw[] => {
