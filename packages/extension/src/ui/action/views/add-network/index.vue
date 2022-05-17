@@ -49,7 +49,7 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { ref, defineExpose } from "vue";
+import { ref } from "vue";
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import AddNetworkSearch from "./components/add-network-search.vue";
 import AddNetworkItem from "./components/add-network-item.vue";

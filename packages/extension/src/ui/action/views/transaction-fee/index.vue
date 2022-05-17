@@ -1,7 +1,17 @@
 <template>
   <div class="transaction-fee" :class="{ show: showFees }">
     <div class="transaction-fee__overlay" @click="close"></div>
-    <div class="transaction-fee__wrap" :class="{ show: showFees }">
+    <div
+      class="transaction-fee__wrap"
+      :class="{ show: showFees, header: isHeader }"
+    >
+      <div v-if="isHeader" class="transaction-fee__header">
+        <h3>Choose transaction fee</h3>
+
+        <a class="transaction-fee__close" @click="close()">
+          <close-icon />
+        </a>
+      </div>
       <div class="transaction-fee__info">
         <div class="transaction-fee__info-amount">
           <p class="transaction-fee__info-amount-fiat">
@@ -44,9 +54,16 @@ import TransactionFeeItem from "./components/transaction-fee-item.vue";
 import { fees } from "@action/types/mock";
 import { TransactionFee, TransactionFeeSpeed } from "@action/types/fee";
 import TimeIcon from "@action/icons/fee/time-icon.vue";
+import CloseIcon from "@action/icons/common/close-icon.vue";
 
 const props = defineProps({
   showFees: Boolean,
+  isHeader: {
+    type: Boolean,
+    default: () => {
+      return false;
+    },
+  },
   close: {
     type: Function,
     default: () => {
@@ -118,11 +135,18 @@ const selectFee = (fee: TransactionFee) => {
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.3s, visibility 0s ease-in-out 0.3s;
+    overflow: hidden;
 
     &.show {
       opacity: 1;
       visibility: visible;
       transition-delay: 0s;
+    }
+
+    &.header {
+      padding: 0;
+      max-height: 512px;
+      bottom: 52px;
     }
   }
 
@@ -191,6 +215,38 @@ const selectFee = (fee: TransactionFee) => {
       svg {
         margin-right: 4px;
       }
+    }
+  }
+
+  &__header {
+    width: 100%;
+    background: @white;
+    box-sizing: border-box;
+    padding: 14px 84px 14px 16px;
+    position: relative;
+    z-index: 4;
+    margin-bottom: 16px;
+
+    h3 {
+      font-style: normal;
+      font-weight: bold;
+      font-size: 24px;
+      line-height: 32px;
+      margin: 0;
+      color: @primaryLabel;
+    }
+  }
+
+  &__close {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0;
+
+    &:hover {
+      background: @black007;
     }
   }
 }

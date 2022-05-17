@@ -11,7 +11,15 @@
       short.
     </p>
 
-    <a v-if="notEnoughtETH" href="#" class="best-offer-error__buy-eth">
+    <p v-if="notEnoughtVerify">
+      Not enough funds. You are<br />~0.041 ETH ($70) short.
+    </p>
+
+    <a
+      v-if="notEnoughtETH || notEnoughtVerify"
+      href="#"
+      class="best-offer-error__buy-eth"
+    >
       Buy ETH
     </a>
   </div>
@@ -31,6 +39,10 @@ defineProps({
     default: false,
   },
   notEnoughtETH: {
+    type: Boolean,
+    default: false,
+  },
+  notEnoughtVerify: {
     type: Boolean,
     default: false,
   },
