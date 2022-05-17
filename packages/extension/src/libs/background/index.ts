@@ -169,6 +169,45 @@ class BackgroundHandler {
             error: getCustomError(e.message),
           };
         });
+    } else if (
+      message.method === InternalMethods.getEthereumEncryptionPublicKey
+    ) {
+      if (!message.params || message.params.length < 1)
+        return Promise.resolve({
+          error: getCustomError("background: invalid params for public key"),
+        });
+      const account = message.params[0] as KeyRecord;
+      return this.#keyring
+        .getEthereumEncryptionPublicKey(account)
+        .then((pubkey) => {
+          return {
+            result: JSON.stringify(pubkey),
+          };
+        })
+        .catch((e) => {
+          return {
+            error: getCustomError(e.message),
+          };
+        });
+    } else if (message.method === InternalMethods.ethereumDecrypt) {
+      if (!message.params || message.params.length < 2)
+        return Promise.resolve({
+          error: getCustomError("background: invalid params for decrypt"),
+        });
+      const encryptedMessage = message.params[0] as string;
+      const account = message.params[1] as KeyRecord;
+      return this.#keyring
+        .ethereumDecrypt(encryptedMessage, account)
+        .then((msg) => {
+          return {
+            result: JSON.stringify(msg),
+          };
+        })
+        .catch((e) => {
+          return {
+            error: getCustomError(e.message),
+          };
+        });
     } else if (message.method === InternalMethods.unlock) {
       if (!message.params || message.params.length < 1)
         return Promise.resolve({

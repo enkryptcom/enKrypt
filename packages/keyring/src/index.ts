@@ -138,6 +138,40 @@ class KeyRing {
     return this.#signers[options.type].sign(msgHash, keypair);
   }
 
+  async getEthereumEncryptionPublicKey(options: SignOptions): Promise<string> {
+    assert(!this.#_isLocked, Errors.KeyringErrors.Locked);
+    assert(
+      options.type === SignerType.secp256k1,
+      Errors.KeyringErrors.EnckryptDecryptNotSupported
+    );
+    const keypair = await this.#signers[options.type].generate(
+      this.#_mnemonic,
+      pathParser(options.basePath, options.pathIndex, options.type)
+    );
+    return (
+      this.#signers[options.type] as EthereumSigner
+    ).getEncryptionPublicKey(keypair);
+  }
+
+  async ethereumDecrypt(
+    encryptedMessage: string,
+    options: SignOptions
+  ): Promise<string> {
+    assert(!this.#_isLocked, Errors.KeyringErrors.Locked);
+    assert(
+      options.type === SignerType.secp256k1,
+      Errors.KeyringErrors.EnckryptDecryptNotSupported
+    );
+    const keypair = await this.#signers[options.type].generate(
+      this.#_mnemonic,
+      pathParser(options.basePath, options.pathIndex, options.type)
+    );
+    return (this.#signers[options.type] as EthereumSigner).decrypt(
+      encryptedMessage,
+      keypair
+    );
+  }
+
   async getKeysObject(): Promise<{ [key: string]: KeyRecord }> {
     const jsonstr = await this.#storage.get(configs.STORAGE_KEYS.KEY_INFO);
     if (!jsonstr) return {};

@@ -1,12 +1,12 @@
 <template>
-  <div class="sign-message">
-    <sign-logo color="#05C0A5" class="sign-message__logo"></sign-logo>
+  <div class="common-popup">
+    <sign-logo color="#05C0A5" class="common-popup__logo"></sign-logo>
     <h2>Sign Typed Data</h2>
 
-    <div class="sign-message__block">
-      <div class="sign-message__account">
+    <div class="common-popup__block">
+      <div class="common-popup__account">
         <img :src="identicon" />
-        <div class="sign-message__account-info">
+        <div class="common-popup__account-info">
           <h4>{{ account.name }}</h4>
           <p>
             {{ $filters.replaceWithEllipsis(account.address, 6, 4) }}
@@ -14,24 +14,24 @@
         </div>
       </div>
     </div>
-    <div class="sign-message__block">
-      <div class="sign-message__info">
+    <div class="common-popup__block">
+      <div class="common-popup__info">
         <img :src="options.faviconURL" />
-        <div class="sign-message__info-info">
+        <div class="common-popup__info-info">
           <h4>{{ options.title }}</h4>
           <p>{{ options.domain }}</p>
         </div>
       </div>
 
-      <div class="sign-message__message">
+      <div class="common-popup__message">
         {{ message }}
       </div>
     </div>
-    <div class="sign-message__buttons">
-      <div class="sign-message__buttons-cancel">
+    <div class="common-popup__buttons">
+      <div class="common-popup__buttons-cancel">
         <base-button title="Cancel" :click="deny" :no-background="true" />
       </div>
-      <div class="sign-message__buttons-send">
+      <div class="common-popup__buttons-send">
         <base-button title="Sign" :click="approve" />
       </div>
     </div>
@@ -129,121 +129,5 @@ const deny = () => {
 </script>
 
 <style lang="less" scoped>
-@import "~@action/styles/theme.less";
-.sign-message {
-  width: 100%;
-  &__logo {
-    margin-bottom: 8px;
-  }
-  h2 {
-    font-style: normal;
-    font-weight: 700;
-    font-size: 34px;
-    line-height: 40px;
-    letter-spacing: 0.25px;
-    color: @primaryLabel;
-    margin: 0 0 16px 0;
-  }
-  &__block {
-    background: @lightBg;
-    border: 1px solid @gray01;
-    box-sizing: border-box;
-    border-radius: 12px;
-    padding: 10px 16px;
-    width: 100%;
-    margin: 0 0 16px 0;
-  }
-  &__message {
-    font-style: normal;
-    font-weight: 400;
-    font-size: 14px;
-    line-height: 20px;
-    letter-spacing: 0.25px;
-    color: @primaryLabel;
-    margin: 0 0 6px 0;
-    height: 180px;
-    overflow: auto;
-  }
-  &__account {
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    flex-direction: row;
-    img {
-      width: 32px;
-      height: 32px;
-      margin-right: 12px;
-      border-radius: 100%;
-    }
-    &-info {
-      h4 {
-        font-style: normal;
-        font-weight: 500;
-        font-size: 14px;
-        line-height: 20px;
-        letter-spacing: 0.25px;
-        color: @primaryLabel;
-        margin: 0;
-      }
-      p {
-        font-style: normal;
-        font-weight: 400;
-        font-size: 12px;
-        line-height: 16px;
-        letter-spacing: 0.5px;
-        color: @secondaryLabel;
-        margin: 0;
-        word-break: break-all;
-      }
-    }
-  }
-  &__info {
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    flex-direction: row;
-    padding: 6px 0;
-    margin-bottom: 6px;
-    img {
-      width: 32px;
-      height: 32px;
-      margin-right: 12px;
-    }
-    &-info {
-      h4 {
-        font-style: normal;
-        font-weight: 500;
-        font-size: 14px;
-        line-height: 20px;
-        letter-spacing: 0.25px;
-        color: @primaryLabel;
-        margin: 0;
-      }
-      p {
-        font-style: normal;
-        font-weight: 400;
-        font-size: 12px;
-        line-height: 16px;
-        letter-spacing: 0.5px;
-        color: @secondaryLabel;
-        margin: 0;
-        word-break: break-all;
-      }
-    }
-  }
-  &__buttons {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-direction: row;
-    width: 100%;
-    box-sizing: border-box;
-    &-cancel {
-      width: 108px;
-    }
-    &-send {
-      width: 232px;
-    }
-  }
-}
+@import "~@/providers/ethereum/ui/styles/common-popup.less";
 </style>
