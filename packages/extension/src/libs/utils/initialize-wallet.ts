@@ -7,12 +7,12 @@ export default async (mnemonic: string, password: string): Promise<void> => {
   await kr.unlock(password);
   await kr.saveNewAccount({
     basePath: EthereumNetworks.ethereum.basePath,
-    name: "Account 1",
+    name: "EVM Account 1",
     type: EthereumNetworks.ethereum.signer[0],
   });
   await kr.saveNewAccount({
     basePath: PolkadotNetworks.polkadot.basePath,
-    name: "Account 2",
+    name: "Substrate Account 1",
     type: PolkadotNetworks.polkadot.signer[0],
   });
 };

@@ -1,11 +1,7 @@
 <template>
   <div class="list-search">
     <search-icon></search-icon>
-    <input
-      type="text"
-      :placeholder="placeholder"
-      @input="changeValue($event.target.value)"
-    />
+    <input type="text" :placeholder="placeholder" @input="changeValue('')" />
   </div>
 </template>
 
