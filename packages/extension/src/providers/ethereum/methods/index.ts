@@ -7,6 +7,7 @@ import ethSignTransaction from "./eth_signTransaction";
 import ethSignTypedData from "./eth_signTypedData";
 import ethgetEncryptionKey from "./eth_getEncryptionPublicKey";
 import ethDecrypt from "./eth_decrypt";
+import personalEcRecover from "./personal_ecRecover";
 export default [
   ethSendTransaction,
   ethSign,
@@ -17,4 +18,5 @@ export default [
   ethSignTypedData,
   ethgetEncryptionKey,
   ethDecrypt,
+  personalEcRecover,
 ];
