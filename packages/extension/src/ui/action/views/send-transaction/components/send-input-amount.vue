@@ -3,6 +3,7 @@
     <input
       type="text"
       placeholder="0"
+      :style="{ color: hasEnoughBalance ? 'red' : 'black' }"
       :value="value == 0 ? null : value"
       @input="changeValue"
       @focus="changeFocus"
@@ -25,8 +26,9 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, computed, PropType } from "vue";
 import SwitchArrowIcon from "@action/icons/send/switch-arrow-icon.vue";
+import type { AccountsHeaderData } from "@action/types/account";
 
 let isFocus = ref(false);
 
@@ -43,6 +45,10 @@ const props = defineProps({
       return 0;
     },
   },
+  accountInfo: {
+    type: Object as PropType<AccountsHeaderData>,
+    default: () => ({}),
+  },
 });
 
 const changeValue = (e: any) => {
@@ -52,6 +58,23 @@ const changeValue = (e: any) => {
 const changeFocus = () => {
   isFocus.value = !isFocus.value;
 };
+
+const hasEnoughBalance = computed(() => {
+  const currAddress = props.accountInfo.selectedAccount?.address;
+  const addresses = props.accountInfo.activeAccounts;
+  const activeBalances = props.accountInfo.activeBalances;
+  const index = addresses.findIndex((a) => {
+    return a.address === currAddress;
+  });
+
+  const balance = activeBalances[index];
+  if (balance === "~") return false;
+  if (props.value > parseFloat(balance)) {
+    return true;
+  } else {
+    return false;
+  }
+});
 
 const maxAction = () => {
   console.log(maxAction);

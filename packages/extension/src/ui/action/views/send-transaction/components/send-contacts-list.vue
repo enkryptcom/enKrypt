@@ -7,16 +7,16 @@
         class="send-contacts-list__scroll-area"
         :settings="settings"
       >
-        <h3>Recent</h3>
+        <!-- <h3>Recent</h3>
         <send-address-item
           v-for="(account, index) in []"
           :key="index"
           :account="account"
           :select-account="selectAccount"
-        ></send-address-item>
+        ></send-address-item> -->
         <h3>All Contacts</h3>
         <send-address-item
-          v-for="(account, index) in []"
+          v-for="(account, index) in accountInfo.activeAccounts"
           :key="index"
           :account="account"
           :select-account="selectAccount"
@@ -33,10 +33,12 @@ export default {
 </script>
 
 <script setup lang="ts">
+import { PropType } from "vue";
 import SendAddressItem from "./send-address-item.vue";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 import ListSearch from "@action/components/list-search/index.vue";
 import { Account } from "@action/types/account";
+import { AccountsHeaderData } from "../../../types/account";
 
 const settings = {
   suppressScrollY: false,
@@ -57,6 +59,10 @@ const props = defineProps({
     default: () => {
       return null;
     },
+  },
+  accountInfo: {
+    type: Object as PropType<AccountsHeaderData>,
+    default: () => ({}),
   },
 });
 

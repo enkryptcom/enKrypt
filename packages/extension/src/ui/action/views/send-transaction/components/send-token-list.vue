@@ -25,17 +25,22 @@ export default {
 </script>
 
 <script setup lang="ts">
+import { ref, PropType, onMounted, watch } from "vue";
 import SendTokenItem from "./send-token-item.vue";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 import ListSearch from "@action/components/list-search/index.vue";
-import { assets } from "@action/types/mock";
+// import { assets } from "@action/types/mock";
 import { Token } from "@action/types/token";
+import { AssetsType, NodeType } from "@/types/provider";
+import type { AccountsHeaderData } from "@action/types/account";
 
 const settings = {
   suppressScrollY: false,
   suppressScrollX: true,
   wheelPropagation: false,
 };
+
+const assets = ref<AssetsType[]>([]);
 
 const props = defineProps({
   showTokens: Boolean,
@@ -51,8 +56,32 @@ const props = defineProps({
       return null;
     },
   },
+  network: {
+    type: Object as PropType<NodeType>,
+    default: () => ({}),
+  },
+  accountInfo: {
+    type: Object as PropType<AccountsHeaderData>,
+    default: () => ({}),
+  },
 });
 
+const updateAssets = () => {
+  if (props.network.assetsHandler) {
+    props.network
+      .assetsHandler(
+        props.network,
+        props.accountInfo.selectedAccount?.address || ""
+      )
+      .then((_assets) => {
+        assets.value = _assets;
+      });
+  }
+};
+watch([props.network, props.accountInfo], updateAssets);
+onMounted(() => {
+  updateAssets();
+});
 const close = () => {
   props.close(false);
 };

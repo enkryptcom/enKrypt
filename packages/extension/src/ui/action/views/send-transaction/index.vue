@@ -18,6 +18,7 @@
         :show-accounts="isOpenSelectContact"
         :close="toggleSelectContact"
         :select-account="selectAccount"
+        :account-info="props.accountInfo"
       ></send-contacts-list>
 
       <send-token-select
@@ -29,12 +30,15 @@
         :show-tokens="isOpenSelectToken"
         :close="toggleSelectToken"
         :select-token="selectToken"
+        :network="props.network"
+        :account-info="props.accountInfo"
       >
       </send-token-list>
 
       <send-input-amount
         :input="inputAmount"
         :value="amount"
+        :account-info="props.accountInfo"
       ></send-input-amount>
 
       <send-fee-select
@@ -74,7 +78,7 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, PropType } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import SendAddressInput from "./components/send-address-input.vue";
@@ -90,9 +94,22 @@ import { Account } from "@action/types/account";
 import { Token } from "@action/types/token";
 import { TransactionFee } from "@action/types/fee";
 import { ethereum, recommendedFee } from "@action/types/mock";
+import { AccountsHeaderData } from "@action/types/account";
+import { NodeType } from "@/types/provider";
 
 const route = useRoute();
 const router = useRouter();
+
+const props = defineProps({
+  network: {
+    type: Object as PropType<NodeType>,
+    default: () => ({}),
+  },
+  accountInfo: {
+    type: Object as PropType<AccountsHeaderData>,
+    default: () => ({}),
+  },
+});
 
 let isOpenSelectContact = ref(false);
 let address = ref("");
