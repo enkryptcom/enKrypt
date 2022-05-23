@@ -26,16 +26,15 @@
           v-for="(item, index) in popular"
           :key="index"
           :network="item"
-          :is-active="true"
+          :is-active="item.active"
         ></add-network-item>
 
         <h3 class="add-network__list-header">All networks</h3>
-
         <add-network-item
           v-for="(item, index) in all"
           :key="index"
           :network="item"
-          :is-active="true"
+          :is-active="item.active"
         ></add-network-item>
       </custom-scrollbar>
     </div>
@@ -49,22 +48,40 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, onBeforeMount } from "vue";
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import AddNetworkSearch from "./components/add-network-search.vue";
 import AddNetworkItem from "./components/add-network-item.vue";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
+import { NodeType } from "@/types/provider";
 import { getAllNetworks } from "@/libs/utils/networks";
+import NetworksState from "@/libs/networks-state";
 const settings = {
   suppressScrollY: false,
   suppressScrollX: true,
   wheelPropagation: false,
 };
-const popularNames = ["ETH", "MATIC", "DOT", "GLMR"];
-const popular = getAllNetworks().filter((net) =>
-  popularNames.includes(net.name)
-);
-const all = getAllNetworks();
+
+const all = ref([]);
+const popular = ref([]);
+
+onBeforeMount(async () => {
+  const networksState = await new NetworksState().getState();
+
+  const allNetworks: Array<{ network: NodeType; active: boolean }> =
+    getAllNetworks().map((net) => {
+      const ns = networksState.find(([name]) => net.name === name);
+      return { ...net, active: ns !== null ? ns[1] : false };
+    });
+  const popularNames = ["ETH", "MATIC", "DOT", "GLMR"];
+
+  const popularNetworks = allNetworks.filter((net) =>
+    popularNames.includes(net.name)
+  );
+
+  all.value = allNetworks;
+  popular.value = popularNetworks;
+});
 let scrollProgress = ref(0);
 const manageNetworkScrollRef = ref(null);
 

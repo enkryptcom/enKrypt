@@ -14,6 +14,7 @@ import Browser from "webextension-polyfill";
 import TabInfo from "@/libs/utils/tab-info";
 import PersistentEvents from "@/libs/persistent-events";
 import DomainState from "@/libs/domain-state";
+import NetworksState from "@/libs/networks-state";
 import { TabProviderType, ProviderType, ExternalMessageOptions } from "./types";
 import { getProviderNetworkByName } from "../utils/networks";
 import {
@@ -33,10 +34,12 @@ class BackgroundHandler {
   #providers: ProviderType;
   #persistentEvents: PersistentEvents;
   #domainState: DomainState;
+  #networksState: NetworksState;
   constructor() {
     this.#keyring = new KeyRingBase();
     this.#persistentEvents = new PersistentEvents();
     this.#domainState = new DomainState();
+    this.#networksState = new NetworksState();
     this.#tabProviders = {
       [ProviderName.ethereum]: {},
       [ProviderName.polkadot]: {},
@@ -44,6 +47,7 @@ class BackgroundHandler {
     this.#providers = Providers;
   }
   async init(): Promise<void> {
+    await this.#networksState.setInitialActiveNetworks();
     await handlePersistentEvents.bind(this)();
   }
   async externalHandler(
