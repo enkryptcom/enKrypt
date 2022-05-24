@@ -1,3 +1,5 @@
+export * from "./networks";
+
 enum SigningErrors {
   UnableToVerify = "Signing verification failed",
   NotSupported = "Sign type not supported",

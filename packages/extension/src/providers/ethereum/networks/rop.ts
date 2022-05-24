@@ -1,11 +1,11 @@
 import { ProviderName } from "@/types/provider";
-import { SignerType } from "@enkryptcom/types";
+import { NetworkNames, SignerType } from "@enkryptcom/types";
 import { toChecksumAddress } from "ethereumjs-util";
 import API from "../libs/api";
 import { EthereumNodeType } from "../types";
 import createIcon from "../libs/blockies";
 const ropstenNode: EthereumNodeType = {
-  name: "ROP",
+  name: NetworkNames.Ropsten,
   name_long: "Ropsten",
   homePage: "https://github.com/ethereum/ropsten",
   blockExplorerTX: "https://ropsten.etherscan.io/tx/[[txHash]]",

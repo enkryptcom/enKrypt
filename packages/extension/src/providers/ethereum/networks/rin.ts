@@ -1,11 +1,11 @@
 import { ProviderName } from "@/types/provider";
-import { SignerType } from "@enkryptcom/types";
+import { NetworkNames, SignerType } from "@enkryptcom/types";
 import { toChecksumAddress } from "ethereumjs-util";
 import API from "../libs/api";
 import { EthereumNodeType } from "../types";
 import createIcon from "../libs/blockies";
 const rinkebyNode: EthereumNodeType = {
-  name: "RIN",
+  name: NetworkNames.Rinkeby,
   name_long: "Rinkeby",
   homePage: "https://www.rinkeby.io/",
   blockExplorerTX: "https://rinkeby.etherscan.io/tx/[[txHash]]",
