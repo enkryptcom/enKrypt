@@ -1,13 +1,13 @@
 import rarible from "@/libs/nft-handlers/rarible";
 import { ProviderName } from "@/types/provider";
-import { SignerType } from "@enkryptcom/types";
+import { NetworkNames, SignerType } from "@enkryptcom/types";
 import { toChecksumAddress } from "ethereumjs-util";
 import API from "../libs/api";
 import { EthereumNodeType } from "../types";
 import createIcon from "../libs/blockies";
 import tokenbalanceMew from "@/providers/ethereum/libs/assets-handlers/tokenbalance-mew";
 const maticNode: EthereumNodeType = {
-  name: "MATIC",
+  name: NetworkNames.Matic,
   name_long: "Polygon (Matic)",
   homePage: "https://polygonscan.com/",
   blockExplorerTX: "https://polygonscan.com/tx/[[txHash]]",

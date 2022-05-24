@@ -1,5 +1,5 @@
 import { ProviderName } from "@/types/provider";
-import { SignerType } from "@enkryptcom/types";
+import { NetworkNames, SignerType } from "@enkryptcom/types";
 import { polkadotEncodeAddress } from "@enkryptcom/utils";
 import API from "../libs/api";
 import dot from "../libs/assets-handlers/dot";
@@ -7,7 +7,7 @@ import createIcon from "../libs/blockies";
 import { PolkadotNodeType } from "../types";
 const prefix = 0;
 const dotNode: PolkadotNodeType = {
-  name: "DOT",
+  name: NetworkNames.Polkadot,
   name_long: "Polkadot",
   homePage: "https://polkadot.network",
   blockExplorerTX: "https://polkascan.io/polkadot/transaction/[[txHash]]",

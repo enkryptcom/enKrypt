@@ -4,6 +4,7 @@ import EventEmitter from "eventemitter3";
 import { EXTENSION_VERSION } from "@/configs/constants";
 import {
   MiddlewareFunction,
+  NetworkNames,
   OnMessageResponse,
   RPCRequestType,
 } from "@enkryptcom/types";
@@ -113,7 +114,7 @@ export interface UIExportOptions {
 }
 
 export interface NodeType {
-  name: string;
+  name: NetworkNames;
   name_long: string;
   homePage: string;
   blockExplorerTX: string;

@@ -1,11 +1,11 @@
 import { ProviderName } from "@/types/provider";
-import { SignerType } from "@enkryptcom/types";
+import { NetworkNames, SignerType } from "@enkryptcom/types";
 import { toChecksumAddress } from "ethereumjs-util";
 import API from "../libs/api";
 import { EthereumNodeType } from "../types";
 import createIcon from "../libs/blockies";
 const kovanNode: EthereumNodeType = {
-  name: "KOV",
+  name: NetworkNames.Kovan,
   name_long: "Kovan",
   homePage: "https://github.com/kovan-testnet",
   blockExplorerTX: "https://kovan.etherscan.io/tx/[[txHash]]",
