@@ -1,5 +1,5 @@
 import BrowserStorage from "../common/browser-storage";
-import { getAllNetworks } from "../utils/networks";
+import { getAllNetworks, POPULAR_NAMES } from "../utils/networks";
 import { InternalStorageNamespace } from "@/types/provider";
 import { IState, StorageKeys } from "./types";
 
@@ -11,36 +11,51 @@ class NetworksState {
   }
 
   async setInitialActiveNetworks(): Promise<void> {
-    const popularNames = ["ETH", "MATIC", "DOT", "GLMR"];
-
     const networks = getAllNetworks().map(({ name }) => {
-      if (popularNames.includes(name)) {
+      if (POPULAR_NAMES.includes(name)) {
         return [name, true];
       } else {
         return [name, false];
       }
     });
-    await this.storage.set(StorageKeys.networkInfo, networks);
+    await this.storage.set(StorageKeys.networkInfo, { networks });
   }
 
-  async toggleNetwork(networkName: string): Promise<void> {
+  async setNetworkStatus(
+    networkName: string,
+    isActive: boolean
+  ): Promise<void> {
     const state: IState = await this.storage.get(StorageKeys.networkInfo);
-    const networkIndex = state.networks?.findIndex(
-      ([name]) => networkName === name
-    );
 
-    if (networkIndex !== undefined) {
-      const network = state.networks?.at(networkIndex);
+    if (state.networks) {
+      const networkIndex = state.networks?.findIndex(
+        ([name]) => networkName === name
+      );
 
-      if (network) {
-        network[1] = !network[1];
+      if (networkIndex !== undefined && networkIndex !== -1) {
+        const network = state.networks?.at(networkIndex);
 
-        state.networks![networkIndex] = network;
-        await this.storage.set(StorageKeys.networkInfo, state);
+        if (network) {
+          network[1] = isActive;
+
+          state.networks[networkIndex] = network;
+          await this.storage.set(StorageKeys.networkInfo, state);
+        }
       }
     }
+  }
 
-    state.networks?.findIndex;
+  async getActiveNetworkNames(): Promise<string[]> {
+    const state: IState | undefined = await this.storage.get(
+      StorageKeys.networkInfo
+    );
+    if (state && state.networks) {
+      return state.networks
+        .filter((network) => network[1])
+        .map(([name]) => name);
+    } else {
+      return [];
+    }
   }
 
   async getState(): Promise<IState> {

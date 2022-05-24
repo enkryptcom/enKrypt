@@ -26,7 +26,8 @@
           v-for="(item, index) in popular"
           :key="index"
           :network="item"
-          :is-active="item.active"
+          :is-active="item.isActive"
+          @network-toggled="onToggle"
         ></add-network-item>
 
         <h3 class="add-network__list-header">All networks</h3>
@@ -34,7 +35,8 @@
           v-for="(item, index) in all"
           :key="index"
           :network="item"
-          :is-active="item.active"
+          :is-active="item.isActive"
+          @network-toggled="onToggle"
         ></add-network-item>
       </custom-scrollbar>
     </div>
@@ -48,13 +50,13 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { ref, onBeforeMount } from "vue";
+import { ref, onBeforeMount, inject } from "vue";
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import AddNetworkSearch from "./components/add-network-search.vue";
 import AddNetworkItem from "./components/add-network-item.vue";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 import { NodeType } from "@/types/provider";
-import { getAllNetworks } from "@/libs/utils/networks";
+import { getAllNetworks, POPULAR_NAMES } from "@/libs/utils/networks";
 import NetworksState from "@/libs/networks-state";
 const settings = {
   suppressScrollY: false,
@@ -62,21 +64,48 @@ const settings = {
   wheelPropagation: false,
 };
 
-const all = ref([]);
-const popular = ref([]);
+interface NodeTypesWithActive extends NodeType {
+  isActive: boolean;
+}
+
+const all = ref<Array<NodeTypesWithActive>>([]);
+const popular = ref<Array<NodeTypesWithActive>>([]);
+
+const networksState = new NetworksState();
+
+const setActiveNetworks: (() => Promise<void>) | undefined =
+  inject("setActiveNetworks");
+
+const onToggle = async (networkName: string, isActive: boolean) => {
+  try {
+    await networksState.setNetworkStatus(networkName, isActive);
+    if (setActiveNetworks) setActiveNetworks();
+    all.value = all.value.map((network) => {
+      if (network.name === networkName) {
+        network.isActive = isActive;
+      }
+
+      return network;
+    });
+
+    popular.value = all.value.filter(({ name }) =>
+      POPULAR_NAMES.includes(name)
+    );
+  } catch (e) {
+    console.error(e);
+  }
+};
 
 onBeforeMount(async () => {
-  const networksState = await new NetworksState().getState();
+  const currentState = await networksState.getState();
 
-  const allNetworks: Array<{ network: NodeType; active: boolean }> =
-    getAllNetworks().map((net) => {
-      const ns = networksState.find(([name]) => net.name === name);
-      return { ...net, active: ns !== null ? ns[1] : false };
-    });
-  const popularNames = ["ETH", "MATIC", "DOT", "GLMR"];
+  const allNetworks = getAllNetworks().map((net) => {
+    const ns = currentState.networks?.find(([name]) => net.name === name);
+    return { ...net, isActive: ns ? ns[1] : false };
+  });
 
   const popularNetworks = allNetworks.filter((net) =>
-    popularNames.includes(net.name)
+    POPULAR_NAMES.includes(net.name)
   );
 
   all.value = allNetworks;

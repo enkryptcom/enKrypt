@@ -23,9 +23,11 @@ const getProviderNetworkByName = (
   );
 };
 const DEFAULT_NETWORK_NAME = "ETH";
+const POPULAR_NAMES = ["ETH", "MATIC", "DOT", "GLMR"];
 export {
   getAllNetworks,
   getNetworkByName,
   getProviderNetworkByName,
   DEFAULT_NETWORK_NAME,
+  POPULAR_NAMES,
 };
