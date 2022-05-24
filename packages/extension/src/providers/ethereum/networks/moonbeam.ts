@@ -1,11 +1,11 @@
 import { ProviderName } from "@/types/provider";
-import { SignerType } from "@enkryptcom/types";
+import { NetworkNames, SignerType } from "@enkryptcom/types";
 import { toChecksumAddress } from "ethereumjs-util";
 import API from "../libs/api";
 import { EthereumNodeType } from "../types";
 import createIcon from "../libs/blockies";
 const moonbeamNode: EthereumNodeType = {
-  name: "GLMR",
+  name: NetworkNames.Moonbeam,
   name_long: "Moonbeam",
   homePage: "https://moonbeam.network",
   blockExplorerTX: "https://moonscan.io/tx/[[txHash]]",

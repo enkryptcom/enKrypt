@@ -1,11 +1,11 @@
 import { ProviderName } from "@/types/provider";
-import { SignerType } from "@enkryptcom/types";
+import { NetworkNames, SignerType } from "@enkryptcom/types";
 import { toChecksumAddress } from "ethereumjs-util";
 import API from "../libs/api";
 import { EthereumNodeType } from "../types";
 import createIcon from "../libs/blockies";
 const goerliNode: EthereumNodeType = {
-  name: "GOERLI",
+  name: NetworkNames.Goerli,
   name_long: "Goerli",
   homePage: "https://github.com/goerli/testnet",
   blockExplorerTX: "https://goerli.etherscan.io/tx/[[txHash]]",

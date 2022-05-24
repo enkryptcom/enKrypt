@@ -1,12 +1,12 @@
 import { ProviderName } from "@/types/provider";
-import { SignerType } from "@enkryptcom/types";
+import { NetworkNames, SignerType } from "@enkryptcom/types";
 import { toChecksumAddress } from "ethereumjs-util";
 import API from "../libs/api";
 import { EthereumNodeType } from "../types";
 import createIcon from "../libs/blockies";
 import tokenbalanceMew from "@/providers/ethereum/libs/assets-handlers/tokenbalance-mew";
 const bscNode: EthereumNodeType = {
-  name: "BNB",
+  name: NetworkNames.Binance,
   name_long: "BNB Chain",
   homePage: "https://www.binance.org/en/smartChain",
   blockExplorerTX: "https://bscscan.com/tx/[[txHash]]",

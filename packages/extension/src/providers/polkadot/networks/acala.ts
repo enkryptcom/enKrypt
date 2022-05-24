@@ -1,5 +1,5 @@
 import { ProviderName } from "@/types/provider";
-import { SignerType } from "@enkryptcom/types";
+import { NetworkNames, SignerType } from "@enkryptcom/types";
 import { polkadotEncodeAddress } from "@enkryptcom/utils";
 import API from "../libs/api";
 import acalaAssetsHandler from "../libs/assets-handlers/acala";
@@ -7,7 +7,7 @@ import createIcon from "../libs/blockies";
 import { PolkadotNodeType } from "../types";
 const prefix = 10;
 const acaNode: PolkadotNodeType = {
-  name: "ACA",
+  name: NetworkNames.Acala,
   name_long: "Acala",
   homePage: "https://acala.network/",
   blockExplorerTX: "https://acala.subscan.io/extrinsic/[[txHash]]",
