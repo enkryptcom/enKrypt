@@ -58,23 +58,51 @@ import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 import { NodeType } from "@/types/provider";
 import { getAllNetworks, POPULAR_NAMES } from "@/libs/utils/networks";
 import NetworksState from "@/libs/networks-state";
+
+interface NodeTypesWithActive extends NodeType {
+  isActive: boolean;
+}
+
+//Provided in packages/extension/src/ui/action/App.vue
+const setActiveNetworks: (() => Promise<void>) | undefined =
+  inject("setActiveNetworks");
+
 const settings = {
   suppressScrollY: false,
   suppressScrollX: true,
   wheelPropagation: false,
 };
 
-interface NodeTypesWithActive extends NodeType {
-  isActive: boolean;
-}
+const networksState = new NetworksState();
 
 const all = ref<Array<NodeTypesWithActive>>([]);
 const popular = ref<Array<NodeTypesWithActive>>([]);
+let scrollProgress = ref(0);
+const manageNetworkScrollRef = ref(null);
 
-const networksState = new NetworksState();
+defineExpose({ manageNetworkScrollRef });
+defineProps({
+  close: {
+    type: Function,
+    default: () => ({}),
+  },
+});
 
-const setActiveNetworks: (() => Promise<void>) | undefined =
-  inject("setActiveNetworks");
+onBeforeMount(async () => {
+  const currentState = await networksState.getState();
+
+  const allNetworks = getAllNetworks().map((net) => {
+    const ns = currentState.networks?.find(([name]) => net.name === name);
+    return { ...net, isActive: ns ? ns[1] : false };
+  });
+
+  const popularNetworks = allNetworks.filter((net) =>
+    POPULAR_NAMES.includes(net.name)
+  );
+
+  all.value = allNetworks;
+  popular.value = popularNetworks;
+});
 
 const onToggle = async (networkName: string, isActive: boolean) => {
   try {
@@ -95,32 +123,6 @@ const onToggle = async (networkName: string, isActive: boolean) => {
     console.error(e);
   }
 };
-
-onBeforeMount(async () => {
-  const currentState = await networksState.getState();
-
-  const allNetworks = getAllNetworks().map((net) => {
-    const ns = currentState.networks?.find(([name]) => net.name === name);
-    return { ...net, isActive: ns ? ns[1] : false };
-  });
-
-  const popularNetworks = allNetworks.filter((net) =>
-    POPULAR_NAMES.includes(net.name)
-  );
-
-  all.value = allNetworks;
-  popular.value = popularNetworks;
-});
-let scrollProgress = ref(0);
-const manageNetworkScrollRef = ref(null);
-
-defineExpose({ manageNetworkScrollRef });
-defineProps({
-  close: {
-    type: Function,
-    default: () => ({}),
-  },
-});
 
 const search = (value: string) => {
   console.log(value);
