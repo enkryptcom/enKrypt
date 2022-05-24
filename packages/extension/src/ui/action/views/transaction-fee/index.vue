@@ -120,10 +120,10 @@ const selectFee = (fee: TransactionFee) => {
 
   &__wrap {
     position: absolute;
-    width: 360px;
+    width: 428px;
     height: auto;
     max-height: 440px;
-    left: 50px;
+    left: 16px;
     bottom: 100px;
     background: #ffffff;
     box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.039),

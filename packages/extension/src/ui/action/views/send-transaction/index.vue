@@ -1,13 +1,11 @@
 <template>
   <div class="container">
     <div v-if="!!selected" class="send-transaction">
-      <div class="send-transaction__header">
-        <h3>Send</h3>
-        <a class="send-transaction__close" @click="close">
-          <close-icon />
-        </a>
-      </div>
-
+      <send-header
+        :close="close"
+        :toggle-type="toggleSelector"
+        :is-send-token="isSendToken"
+      ></send-header>
       <send-address-input
         :input="inputAddress"
         :toggle-select="toggleSelectContact"
@@ -18,21 +16,36 @@
         :show-accounts="isOpenSelectContact"
         :close="toggleSelectContact"
         :select-account="selectAccount"
+        :address="address"
       ></send-contacts-list>
 
       <send-token-select
+        v-if="isSendToken"
         :token="selectedToken"
         :toggle-select="toggleSelectToken"
       ></send-token-select>
 
-      <send-token-list
-        :show-tokens="isOpenSelectToken"
+      <assets-select-list
+        v-show="isOpenSelectToken"
         :close="toggleSelectToken"
         :select-token="selectToken"
-      >
-      </send-token-list>
+        :is-send="true"
+      ></assets-select-list>
+
+      <send-nft-select
+        v-if="!isSendToken"
+        :item="selectedNft"
+        :toggle-select="toggleSelectNft"
+      ></send-nft-select>
+
+      <nft-select-list
+        v-show="isOpenSelectNft"
+        :close="toggleSelectNft"
+        :select-item="selectItem"
+      ></nft-select-list>
 
       <send-input-amount
+        v-if="isSendToken"
         :input="inputAmount"
         :value="amount"
       ></send-input-amount>
@@ -47,6 +60,7 @@
         :close="toggleSelectFee"
         :select-fee="selectFee"
         :selected="fee.price.speed"
+        :is-header="true"
       ></transaction-fee-view>
 
       <send-alert></send-alert>
@@ -76,11 +90,13 @@ export default {
 <script setup lang="ts">
 import { ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import CloseIcon from "@action/icons/common/close-icon.vue";
+import SendHeader from "./components/send-header.vue";
 import SendAddressInput from "./components/send-address-input.vue";
 import SendContactsList from "./components/send-contacts-list.vue";
+import AssetsSelectList from "@action/views/assets-select-list/index.vue";
+import NftSelectList from "@action/views/nft-select-list/index.vue";
 import SendTokenSelect from "./components/send-token-select.vue";
-import SendTokenList from "./components/send-token-list.vue";
+import SendNftSelect from "./components/send-nft-select.vue";
 import SendInputAmount from "./components/send-input-amount.vue";
 import SendFeeSelect from "./components/send-fee-select.vue";
 import TransactionFeeView from "@action/views/transaction-fee/index.vue";
@@ -88,8 +104,9 @@ import SendAlert from "./components/send-alert.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import { Account } from "@action/types/account";
 import { Token } from "@action/types/token";
+import { NFTItem } from "@action/types/nft";
 import { TransactionFee } from "@action/types/fee";
-import { ethereum, recommendedFee } from "@action/types/mock";
+import { ethereum, recommendedFee, nft } from "@action/types/mock";
 
 const route = useRoute();
 const router = useRouter();
@@ -101,6 +118,9 @@ let selectedToken = ref(ethereum);
 let amount = ref(0);
 let isOpenSelectFee = ref(false);
 let fee = ref(recommendedFee);
+let isSendToken = ref(true);
+let selectedNft = ref(nft);
+let isOpenSelectNft = ref(false);
 
 const selected: string = route.params.id as string;
 
@@ -150,6 +170,10 @@ const sendButtonTitle = () => {
     title =
       "Send " + amount.value + " " + selectedToken.value.symbol.toUpperCase();
 
+  if (!isSendToken.value) {
+    title = "Send NFT";
+  }
+
   return title;
 };
 
@@ -158,11 +182,31 @@ const isDisabled = () => {
 
   if (amount.value > 0) isDisabled = false;
 
+  if (!isSendToken.value) {
+    isDisabled = false;
+  }
+
   return isDisabled;
 };
 
 const sendAction = () => {
-  router.push({ name: "verify-transaction", params: { id: selected } });
+  router.push({
+    name: "verify-transaction",
+    params: { id: selected, isNft: isSendToken.value ? 0 : 1 },
+  });
+};
+
+const toggleSelector = () => {
+  isSendToken.value = !isSendToken.value;
+};
+
+const toggleSelectNft = (open: boolean) => {
+  isOpenSelectNft.value = open;
+};
+
+const selectItem = (item: NFTItem) => {
+  selectedNft.value = item;
+  isOpenSelectNft.value = false;
 };
 </script>
 
@@ -185,32 +229,6 @@ const sendAction = () => {
   height: 100%;
   box-sizing: border-box;
   position: relative;
-
-  &__header {
-    position: relative;
-    padding: 24px 72px 12px 32px;
-
-    h3 {
-      font-style: normal;
-      font-weight: 700;
-      font-size: 24px;
-      line-height: 32px;
-      color: @primaryLabel;
-      margin: 0;
-    }
-  }
-
-  &__close {
-    position: absolute;
-    top: 20px;
-    right: 24px;
-    border-radius: 8px;
-    cursor: pointer;
-
-    &:hover {
-      background: @black007;
-    }
-  }
 
   &__buttons {
     position: absolute;

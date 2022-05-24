@@ -1,37 +1,34 @@
 <template>
-  <a class="swap-token-list__token" @click="select">
-    <div class="swap-token-list__token-info">
-      <img :src="token.icon" />
+  <a class="nft-select-list__token" @click="select">
+    <div class="nft-select-list__token-info">
+      <img :src="item.image" />
 
-      <div class="swap-token-list__token-info-name">
-        <h4>{{ token.name }}</h4>
+      <div class="nft-select-list__token-info-name">
+        <h4>{{ item.name }}</h4>
         <p>
-          {{ token.balancef }} <span>{{ token.symbol }}</span>
+          {{ item.author }}
         </p>
       </div>
-    </div>
-
-    <div class="swap-token-list__token-price">
-      <h4>{{ token.balanceUSDf }}</h4>
     </div>
   </a>
 </template>
 
 <script lang="ts">
 export default {
-  name: "SwapTokenListItem",
+  name: "NftSelectListItem",
 };
 </script>
 
 <script setup lang="ts">
 import { PropType } from "vue";
-import { AssetsType } from "@/types/provider";
+import { NFTItem } from "@action/types/nft";
+
 const props = defineProps({
-  token: {
-    type: Object as PropType<AssetsType>,
+  item: {
+    type: Object as PropType<NFTItem>,
     default: () => ({}),
   },
-  selectToken: {
+  selectItem: {
     type: Function,
     default: () => {
       return null;
@@ -40,14 +37,14 @@ const props = defineProps({
 });
 
 const select = () => {
-  props.selectToken(props.token);
+  props.selectItem(props.item);
 };
 </script>
 
 <style lang="less">
 @import "~@action/styles/theme.less";
 
-.swap-token-list {
+.nft-select-list {
   &__token {
     height: 64px;
     padding: 0 16px;
@@ -69,8 +66,8 @@ const select = () => {
         width: 32px;
         height: 32px;
         margin-right: 16px;
-        border-radius: 100%;
         box-shadow: inset 0px 0px 1px rgba(0, 0, 0, 0.16);
+        border-radius: 8px;
       }
 
       &-name {

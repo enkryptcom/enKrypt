@@ -155,6 +155,12 @@ let isOpenSign = ref(false);
 let isForgot = ref(false);
 let isProcessing = ref(false);
 
+const settings = {
+  suppressScrollY: false,
+  suppressScrollX: true,
+  wheelPropagation: false,
+};
+
 defineExpose({ providerVerifyTransactionScrollRef });
 
 const cancelAction = () => {

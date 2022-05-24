@@ -63,7 +63,7 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, defineExpose } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import BaseButton from "@action/components/base-button/index.vue";
@@ -85,7 +85,7 @@ const settings = {
   suppressScrollX: true,
   wheelPropagation: false,
 };
-const bestOfferScrollRef = ref(null);
+let bestOfferScrollRef = ref(null);
 let scrollProgress = ref(0);
 let height = ref(460);
 const selected: string = route.params.id as string;
@@ -127,7 +127,7 @@ const handleScroll = (e: any) => {
 };
 const isHasScroll = () => {
   if (bestOfferScrollRef.value) {
-    return (bestOfferScrollRef.value as HTMLElement).classList.contains(
+    return (bestOfferScrollRef.value as HTMLElement).$el.classList.contains(
       "ps--active-y"
     );
   }

@@ -2,21 +2,23 @@
   <div class="send-contacts-list" :class="{ show: showAccounts }">
     <div class="send-contacts-list__overlay" @click="close"></div>
     <div class="send-contacts-list__wrap" :class="{ show: showAccounts }">
-      <list-search :input="search" placeholder="Search contact" />
       <custom-scrollbar
         class="send-contacts-list__scroll-area"
         :settings="settings"
       >
+        <div v-show="address.length == 0" class="send-contacts-list__buttons">
+          <base-button
+            title="Send to my address"
+            :click="sendToMyAddress"
+          ></base-button>
+          <base-button
+            title="Paste from clipboard"
+            :click="pasteFromClipboard"
+          ></base-button>
+        </div>
         <h3>Recent</h3>
         <send-address-item
-          v-for="(account, index) in []"
-          :key="index"
-          :account="account"
-          :select-account="selectAccount"
-        ></send-address-item>
-        <h3>All Contacts</h3>
-        <send-address-item
-          v-for="(account, index) in []"
+          v-for="(account, index) in accountsActive"
           :key="index"
           :account="account"
           :select-account="selectAccount"
@@ -35,8 +37,9 @@ export default {
 <script setup lang="ts">
 import SendAddressItem from "./send-address-item.vue";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
-import ListSearch from "@action/components/list-search/index.vue";
+import BaseButton from "@action/components/base-button/index.vue";
 import { Account } from "@action/types/account";
+import { accountsActive } from "@action/types/mock";
 
 const settings = {
   suppressScrollY: false,
@@ -58,18 +61,28 @@ const props = defineProps({
       return null;
     },
   },
+  address: {
+    type: String,
+    default: () => {
+      return "";
+    },
+  },
 });
 
 const close = () => {
   props.close(false);
 };
 
-const search = (text: string) => {
-  console.log(text);
-};
-
 const selectAccount = (account: Account) => {
   props.selectAccount(account);
+};
+
+const sendToMyAddress = () => {
+  console.log("sendToMyAddress");
+};
+
+const pasteFromClipboard = () => {
+  console.log("pasteFromClipboard");
 };
 </script>
 
@@ -111,8 +124,7 @@ const selectAccount = (account: Account) => {
     border-radius: 12px;
     z-index: 103;
     overflow: hidden;
-    padding-top: 56px;
-    padding: 56px 0 0 16px;
+    padding: 0 0 0 16px;
     box-sizing: border-box;
     opacity: 0;
     visibility: hidden;
@@ -141,6 +153,29 @@ const selectAccount = (account: Account) => {
     text-transform: uppercase;
     color: @secondaryLabel;
     margin: 24px 0 0 0;
+  }
+
+  &__buttons {
+    padding-top: 16px;
+
+    a {
+      font-style: normal;
+      font-weight: 500;
+      font-size: 12px;
+      line-height: 32px;
+      letter-spacing: 0.8px;
+
+      &:first-child {
+        width: 144px;
+        height: 32px;
+        margin-right: 8px;
+      }
+
+      &:last-child {
+        width: 152px;
+        height: 32px;
+      }
+    }
   }
 }
 </style>

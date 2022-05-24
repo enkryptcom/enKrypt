@@ -8,10 +8,6 @@
         :selected="(route.params.id as string)"
         :set-network="setNetwork"
       />
-      <br />
-      <a href="javascript:void(0);" @click="openCreate()">
-        to Create / Restore
-      </a>
       <div class="app__menu-footer">
         <a class="app__menu-add" @click="addNetworkToggle()">
           <add-icon />
@@ -78,7 +74,6 @@ import HoldIcon from "./icons/common/hold-icon.vue";
 import AddNetwork from "./views/add-network/index.vue";
 import Settings from "./views/settings/index.vue";
 import { useRouter, useRoute } from "vue-router";
-import { WindowPromise } from "@/libs/window-promise";
 import { NodeType } from "@/types/provider";
 import {
   getAllNetworks,
@@ -247,15 +242,6 @@ const showNetworkMenu = () => {
       route.name == "dapps")
   );
 };
-const openCreate = () => {
-  const windowPromise = new WindowPromise();
-  windowPromise
-    .getResponse("onboard.html", JSON.stringify({ info: "test" }))
-    .then(({ error }) => {
-      console.error(error);
-    });
-};
-
 const searchInput = (text: string) => {
   console.log(text);
 };
