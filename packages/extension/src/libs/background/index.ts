@@ -34,12 +34,10 @@ class BackgroundHandler {
   #providers: ProviderType;
   #persistentEvents: PersistentEvents;
   #domainState: DomainState;
-  #networksState: NetworksState;
   constructor() {
     this.#keyring = new KeyRingBase();
     this.#persistentEvents = new PersistentEvents();
     this.#domainState = new DomainState();
-    this.#networksState = new NetworksState();
     this.#tabProviders = {
       [ProviderName.ethereum]: {},
       [ProviderName.polkadot]: {},
@@ -47,7 +45,6 @@ class BackgroundHandler {
     this.#providers = Providers;
   }
   async init(): Promise<void> {
-    await this.#networksState.setInitialActiveNetworks();
     await handlePersistentEvents.bind(this)();
   }
   async externalHandler(

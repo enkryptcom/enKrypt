@@ -10,12 +10,12 @@ class NetworksState {
     this.storage = new BrowserStorage(InternalStorageNamespace.networksState);
   }
 
-  async setInitialActiveNetworks(): Promise<void> {
+  private async setInitialActiveNetworks(): Promise<void> {
     const networks = getAllNetworks().map(({ name }) => {
       if (POPULAR_NAMES.includes(name)) {
-        return [name, true];
+        return { name, isActive: true };
       } else {
-        return [name, false];
+        return { name, isActive: false };
       }
     });
     await this.storage.set(StorageKeys.networkInfo, { networks });
@@ -29,14 +29,14 @@ class NetworksState {
 
     if (state.networks) {
       const networkIndex = state.networks?.findIndex(
-        ([name]) => networkName === name
+        ({ name }) => networkName === name
       );
 
       if (networkIndex !== undefined && networkIndex !== -1) {
         const network = state.networks?.at(networkIndex);
 
         if (network) {
-          network[1] = isActive;
+          network.isActive = isActive;
 
           state.networks[networkIndex] = network;
           await this.storage.set(StorageKeys.networkInfo, state);
@@ -51,10 +51,11 @@ class NetworksState {
     );
     if (state && state.networks) {
       return state.networks
-        .filter((network) => network[1])
-        .map(([name]) => name);
+        .filter((network) => network.isActive)
+        .map(({ name }) => name);
     } else {
-      return [];
+      await this.setInitialActiveNetworks();
+      return POPULAR_NAMES;
     }
   }
 

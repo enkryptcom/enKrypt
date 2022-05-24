@@ -3,5 +3,5 @@ export enum StorageKeys {
 }
 
 export interface IState {
-  networks?: Array<[string, boolean]>;
+  networks?: Array<{ name: string; isActive: boolean }>;
 }

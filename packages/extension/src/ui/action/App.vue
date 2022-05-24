@@ -144,7 +144,6 @@ const isKeyRingLocked = async (): Promise<boolean> => {
   }).then((res) => JSON.parse(res.result || "true"));
 };
 const init = async () => {
-  await setActiveNetworks();
   const curNetwork = await domainState.getSelectedNetWork();
   if (curNetwork) {
     const savedNetwork = getNetworkByName(curNetwork);
@@ -153,6 +152,7 @@ const init = async () => {
   } else {
     setNetwork(defaultNetwork);
   }
+  await setActiveNetworks();
 };
 onMounted(async () => {
   const isInitialized = await kr.isInitialized();

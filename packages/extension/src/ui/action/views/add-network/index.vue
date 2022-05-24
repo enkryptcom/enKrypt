@@ -89,11 +89,13 @@ defineProps({
 });
 
 onBeforeMount(async () => {
-  const currentState = await networksState.getState();
+  const activeNetworks = await networksState.getActiveNetworkNames();
 
   const allNetworks = getAllNetworks().map((net) => {
-    const ns = currentState.networks?.find(([name]) => net.name === name);
-    return { ...net, isActive: ns ? ns[1] : false };
+    return {
+      ...net,
+      isActive: activeNetworks.includes(net.name),
+    };
   });
 
   const popularNetworks = allNetworks.filter((net) =>
