@@ -22,9 +22,9 @@
           :from="true"
         ></verify-transaction-account>
         <verify-transaction-account
-          address="0x1FBa2e3B8B2303B2a22AA8A8202Fee3a183B2ED"
+          :address="address"
         ></verify-transaction-account>
-        <verify-transaction-amount :token="ethereum" :amount="1.5">
+        <verify-transaction-amount :token="ethereum" :amount="amount">
         </verify-transaction-amount>
         <verify-transaction-fee
           :fee="recommendedFee"
@@ -66,15 +66,22 @@ import DomainState from "@/libs/domain-state";
 import { NodeType } from "@/types/provider";
 import { getAllNetworks } from "@/libs/utils/networks";
 import { ethereum, recommendedFee } from "@action/types/mock";
+import { EthereumTransaction } from "@/providers/ethereum/libs/transaction/types";
+import Web3 from "web3";
+import Transaction from "@/providers/ethereum/libs/transaction/";
 
+let web3: any;
 const domainState = new DomainState();
 const route = useRoute();
 const router = useRouter();
 const networks: NodeType[] = getAllNetworks();
 
 const selected: string = route.params.id as string;
+const address: string = route.params.address as string;
+const amount = route.params.amount;
 let selectedNetwork = ref(undefined);
 let isProcessing = ref(false);
+
 defineExpose({ selectedNetwork });
 
 onMounted(async () => {
@@ -82,22 +89,68 @@ onMounted(async () => {
   (selectedNetwork.value as unknown as NodeType) = networks.find(
     (net) => net.name === curNetwork
   ) as NodeType;
+  web3 = await new Web3(selectedNetwork.value?.node);
 });
 
 const close = () => {
   router.go(-1);
 };
 
-const sendAction = () => {
+const sendAction = async () => {
   isProcessing.value = true;
 
-  setTimeout(() => {
-    isProcessing.value = false;
-  }, 4000);
+  const txObj = (await setUpTx()) as unknown as EthereumTransaction;
+  const tx = await new Transaction(txObj, web3);
 
-  setTimeout(() => {
-    router.go(-2);
-  }, 4500);
+  await tx.getFinalizedTransaction().then((finalizedTx) => {
+    console.log("tx hash", finalizedTx);
+  });
+
+  // setTimeout(() => {
+  //   isProcessing.value = false;
+  // }, 4000);
+
+  // setTimeout(() => {
+  //   router.go(-2);
+  // }, 4500);
+};
+
+const getNonce = async () => {
+  web3 = await new Web3(selectedNetwork.value?.node);
+  return await web3.eth.getTransactionCount(address);
+};
+
+const setUpTx = async () => {
+  const nonce = await getNonce();
+  return {
+    from: "0x2C73D95131f0860f65e5666fEC29931aC9E0FBeA",
+    to: "0x2C73D95131f0860f65e5666fEC29931aC9E0FBeA",
+    value: "1000000000000000",
+    gas: "0x5208",
+    // gasPrice: `0x${}`,
+    // data: `0x${}`,
+    // gasLimit: `0x${}`,
+    nonce: `0x${nonce}`,
+    // chainId: `0x${selectedNetwork.value?.chainID}`,
+  };
+
+  // TEMPLATE
+  //   from: `${address}`;
+  //   data: `0x${string}`;
+  //   gasLimit: `0x${string}`;
+  //   gas: `0x5208`;
+  //   maxPriorityFeePerGas?: `0x${string}`;
+  //   maxFeePerGas?: `0x${string}`;
+  //   gasPrice: `1000000000`;
+  //   nonce: `0x${4}`;
+  //   to: `${address}`;
+  //   value: `0x${0}`;
+  //   v?: `0x${string}`;
+  //   r?: `0x${string}`;
+  //   s?: `0x${string}`;
+  //   chainId: 1;
+  //   accessList?: AccessList[];
+  //   type?: `0x${string}`;
 };
 </script>
 

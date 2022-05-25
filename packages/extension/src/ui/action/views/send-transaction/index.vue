@@ -111,12 +111,12 @@ const props = defineProps({
   },
 });
 
-let isOpenSelectContact = ref(false);
-let address = ref("");
-let isOpenSelectToken = ref(false);
+let isOpenSelectContact = ref<boolean>(false);
+let address = ref<string>("");
+let isOpenSelectToken = ref<boolean>(false);
 let selectedToken = ref(ethereum);
-let amount = ref(0);
-let isOpenSelectFee = ref(false);
+let amount = ref<number>(0);
+let isOpenSelectFee = ref<boolean>(false);
 let fee = ref(recommendedFee);
 
 const selected: string = route.params.id as string;
@@ -179,7 +179,17 @@ const isDisabled = () => {
 };
 
 const sendAction = () => {
-  router.push({ name: "verify-transaction", params: { id: selected } });
+  router.push({
+    name: "verify-transaction",
+    params: {
+      id: selected,
+      address: address.value,
+      selectedToken: selectedToken.value.toString(),
+      amount: amount.value,
+      fee: fee.value.toString(),
+      network: props.network.toString(),
+    },
+  });
 };
 </script>
 

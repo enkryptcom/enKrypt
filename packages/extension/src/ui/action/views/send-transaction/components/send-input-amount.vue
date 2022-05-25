@@ -70,7 +70,7 @@ const hasEnoughBalance = computed(() => {
 
   const balance = activeBalances[index];
   if (balance === "~") return false;
-  if (toBN(toWei(props.value.toString())).gte(toBN(balance))) {
+  if (toBN(toWei(props.value.toString())).gte(toBN(toWei(balance)))) {
     return true;
   } else {
     return false;
