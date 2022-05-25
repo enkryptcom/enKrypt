@@ -15,7 +15,7 @@ const wndNode: PolkadotNodeType = {
   isTestNetwork: true,
   currencyName: "WND",
   icon: require("./icons/westend.svg"),
-  decimals: 10,
+  decimals: 12,
   prefix,
   signer: [SignerType.sr25519, SignerType.ed25519],
   gradient: "#8247E5",
