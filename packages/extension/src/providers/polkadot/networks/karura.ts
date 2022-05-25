@@ -2,7 +2,7 @@ import { ProviderName } from "@/types/provider";
 import { NetworkNames, SignerType } from "@enkryptcom/types";
 import { polkadotEncodeAddress } from "@enkryptcom/utils";
 import API from "../libs/api";
-import karuraAssetsHandler from "../libs/assets-handlers/karura";
+import karuraAssetsHandler from "../libs/assets-handlers/acala";
 import createIcon from "../libs/blockies";
 import { PolkadotNodeType } from "../types";
 const prefix = 8;

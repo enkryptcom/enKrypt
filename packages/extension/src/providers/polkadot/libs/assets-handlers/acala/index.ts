@@ -1,5 +1,7 @@
 import { AssetsType, NodeType } from "@/types/provider";
-import supported from "./supportedTokens";
+import { NetworkNames } from "@enkryptcom/types";
+import acalaSupported from "./supportedTokens";
+import karuraSupported from "./karuraSupportedTokens";
 import { options } from "@acala-network/api";
 import { ApiPromise, WsProvider } from "@polkadot/api";
 import MarketData from "@/libs/market-data";
@@ -17,13 +19,27 @@ export default async (
   network: NodeType,
   address: string
 ): Promise<AssetsType[]> => {
+  const supported =
+    network.name === NetworkNames.Acala ? acalaSupported : karuraSupported;
   const provider = new WsProvider(network.node);
   const api = new ApiPromise(options({ provider }));
   await api.isReadyOrError;
   const balancePromises = supported.map(async (token) => {
-    if (token.crowdloanId) {
+    if (token.foreignAssetId !== undefined) {
+      return api.query.tokens.accounts(address, {
+        ForeignAsset: token.foreignAssetId,
+      });
+    } else if (token.crowdloanId !== undefined) {
       return api.query.tokens.accounts(address, {
         LiquidCrowdloan: token.crowdloanId,
+      });
+    } else if (token.stableAssetId !== undefined) {
+      return api.query.tokens.accounts(address, {
+        StableAssetPoolToken: token.stableAssetId,
+      });
+    } else if (token.erc20Address !== undefined) {
+      return api.query.tokens.accounts(address, {
+        Erc20: token.erc20Address,
       });
     } else if (token.native) {
       return api.query.system
@@ -36,7 +52,7 @@ export default async (
   });
   const marketData = new MarketData();
   const market = await marketData.getMarketData(
-    supported.map((supported) => supported.coingeckoID)
+    supported.map(({ coingeckoID }) => coingeckoID || "")
   );
   const balances = (await Promise.all(
     balancePromises

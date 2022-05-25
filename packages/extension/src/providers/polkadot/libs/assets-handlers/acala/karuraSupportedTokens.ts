@@ -1,6 +1,6 @@
-import { KaruraTokenType } from "./types";
+import { AcalaTokenType } from "./types";
 
-const supported: KaruraTokenType[] = [
+const supported: AcalaTokenType[] = [
   {
     name: "Karura",
     symbol: "KAR",

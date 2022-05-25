@@ -3,7 +3,10 @@ export interface AcalaTokenType {
   symbol: string;
   image: string;
   decimals: number;
-  coingeckoID: string;
+  coingeckoID?: string;
+  foreignAssetId?: number;
+  stableAssetId?: number;
+  erc20Address?: string;
   crowdloanId?: number;
   native?: boolean;
 }
