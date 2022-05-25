@@ -18,7 +18,10 @@
         :settings="settings"
         @ps-scroll-y="handleScroll"
       >
-        <add-network-search :input="search" />
+        <add-network-search
+          :input="search"
+          :on-test-net-check="onTestNetCheck"
+        />
 
         <h3 class="add-network__list-header">Popular</h3>
 
@@ -32,8 +35,8 @@
 
         <h3 class="add-network__list-header">All networks</h3>
         <add-network-item
-          v-for="(item, index) in all"
-          :key="index"
+          v-for="item in all"
+          :key="item.name"
           :network="item"
           :is-active="item.isActive"
           @network-toggled="onToggle"
@@ -79,6 +82,7 @@ const all = ref<Array<NodeTypesWithActive>>([]);
 const popular = ref<Array<NodeTypesWithActive>>([]);
 let scrollProgress = ref(0);
 const manageNetworkScrollRef = ref(null);
+const showTestNets = ref(false);
 
 defineExpose({ manageNetworkScrollRef });
 defineProps({
@@ -88,7 +92,7 @@ defineProps({
   },
 });
 
-onBeforeMount(async () => {
+const getAllNetworksAndStatus = async () => {
   const activeNetworks = await networksState.getActiveNetworkNames();
 
   const allNetworks = getAllNetworks().map((net) => {
@@ -98,13 +102,31 @@ onBeforeMount(async () => {
     };
   });
 
-  const popularNetworks = allNetworks.filter((net) =>
+  return allNetworks;
+};
+
+onBeforeMount(async () => {
+  const allNetworksNotTestNets = (await getAllNetworksAndStatus()).filter(
+    ({ isTestNetwork }) => !isTestNetwork
+  );
+
+  const popularNetworks = allNetworksNotTestNets.filter((net) =>
     POPULAR_NAMES.includes(net.name)
   );
 
-  all.value = allNetworks;
+  all.value = allNetworksNotTestNets;
   popular.value = popularNetworks;
 });
+
+const onTestNetCheck = async () => {
+  showTestNets.value = !showTestNets.value;
+
+  if (showTestNets.value) {
+    all.value = await getAllNetworksAndStatus();
+  } else {
+    all.value = all.value.filter(({ isTestNetwork }) => !isTestNetwork);
+  }
+};
 
 const onToggle = async (networkName: string, isActive: boolean) => {
   try {
