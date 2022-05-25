@@ -9,6 +9,7 @@ export enum NetworkNames {
   Rinkeby = "RIN",
   Ropsten = "ROP",
   Acala = "ACA",
+  Karura = "KAR",
   Kusama = "KSM",
   Polkadot = "DOT",
 }
