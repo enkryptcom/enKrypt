@@ -22,7 +22,6 @@ const wndNode: PolkadotNodeType = {
   node: "wss://rpc.pinknode.io/westend/explorer",
   displayAddress: (address: string) => polkadotEncodeAddress(address, prefix),
   provider: ProviderName.polkadot,
-  coingeckoID: "",
   identicon: createIcon,
   assetsHandler: dot,
   basePath: "//",
