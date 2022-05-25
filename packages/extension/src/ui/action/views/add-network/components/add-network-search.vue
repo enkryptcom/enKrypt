@@ -43,6 +43,12 @@ const props = defineProps({
       return null;
     },
   },
+  onTestNetCheck: {
+    type: Function,
+    default: () => {
+      return null;
+    },
+  },
 });
 
 const searchInput = (text: string) => {
@@ -54,7 +60,8 @@ const action = () => {
 };
 
 const testNetwork = () => {
-  console.log("testNetwork");
+  props.onTestNetCheck();
+  props.console.log("testNetwork");
 };
 </script>
 
