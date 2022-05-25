@@ -11,6 +11,7 @@ export enum NetworkNames {
   Ropsten = "ROP",
   Acala = "ACA",
   Karura = "KAR",
+  KaruraEVM = "evmKAR",
   Kusama = "KSM",
   Polkadot = "DOT",
 }
