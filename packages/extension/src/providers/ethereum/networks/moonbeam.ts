@@ -14,7 +14,7 @@ const moonbeamNode: EthereumNodeType = {
   isTestNetwork: false,
   currencyName: "GLMR",
   node: "wss://wss.api.moonbeam.network/",
-  icon: require("./icons/moonbeam.png"),
+  icon: require("./icons/moonbeam.svg"),
   signer: [SignerType.secp256k1],
   gradient: "#8247E5",
   displayAddress: (address: string) => toChecksumAddress(address),
