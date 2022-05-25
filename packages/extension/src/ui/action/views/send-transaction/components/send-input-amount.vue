@@ -29,6 +29,7 @@ export default {
 import { ref, computed, PropType } from "vue";
 import SwitchArrowIcon from "@action/icons/send/switch-arrow-icon.vue";
 import type { AccountsHeaderData } from "@action/types/account";
+import { toBN, toWei } from "web3-utils";
 
 let isFocus = ref(false);
 
@@ -69,7 +70,9 @@ const hasEnoughBalance = computed(() => {
 
   const balance = activeBalances[index];
   if (balance === "~") return false;
-  if (props.value > parseFloat(balance)) {
+  if (
+    toBN(toWei(props.value.toString())).gte(toBN(toWei(balance.toString())))
+  ) {
     return true;
   } else {
     return false;
