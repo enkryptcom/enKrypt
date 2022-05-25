@@ -14,6 +14,7 @@ import Browser from "webextension-polyfill";
 import TabInfo from "@/libs/utils/tab-info";
 import PersistentEvents from "@/libs/persistent-events";
 import DomainState from "@/libs/domain-state";
+import NetworksState from "@/libs/networks-state";
 import { TabProviderType, ProviderType, ExternalMessageOptions } from "./types";
 import { getProviderNetworkByName } from "../utils/networks";
 import {
