@@ -14,4 +14,5 @@ export enum NetworkNames {
   KaruraEVM = "evmKAR",
   Kusama = "KSM",
   Polkadot = "DOT",
+  Westend = "WND",
 }
