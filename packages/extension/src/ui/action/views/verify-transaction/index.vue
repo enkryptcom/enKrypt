@@ -53,7 +53,7 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { onMounted, ref, computed } from "vue";
+import { onMounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import BaseButton from "@action/components/base-button/index.vue";
@@ -88,6 +88,7 @@ const router = useRouter();
 const networks: NodeType[] = getAllNetworks();
 const selected: string = route.params.id as string;
 const address: string = route.params.address as string;
+const fromAddress: string = route.params.fromAddress as string;
 const amount = route.params.amount;
 let selectedNetwork = ref(undefined);
 let isProcessing = ref(false);
@@ -114,7 +115,7 @@ const sendAction = async () => {
 
   await tx.getFinalizedTransaction().then(async (finalizedTx) => {
     const msgHash = bufferToHex(finalizedTx.getMessageToSign(true));
-    const account = await KeyRing.getAccount(address);
+    const account = await KeyRing.getAccount(fromAddress);
 
     return await sendToBackgroundFromAction({
       message: JSON.stringify({
@@ -152,18 +153,26 @@ const sendAction = async () => {
 };
 
 const getNonce = async () => {
-  return await web3.eth.getTransactionCount(address);
+  return await web3.eth.getTransactionCount(fromAddress);
+};
+
+const estimateGas = async () => {
+  return web3.eth.getGasPrice().then((data: string) => {
+    return numberToHex(data);
+  });
 };
 
 const setUpTx = async () => {
+  const value = numberToHex(toWei(amount.toString()));
   const nonce = await getNonce();
+  const gasPrice = await estimateGas();
   return {
-    from: toChecksumAddress(address),
+    from: toChecksumAddress(fromAddress),
     to: toChecksumAddress(address),
-    value: numberToHex(toWei(amount.toString())),
-    gas: "0x5208", // 2100
-    // gasPrice: `0x${}`,
-    // data: `0x${}`,
+    value: value,
+    gas: "0x5208", // 21000
+    gasPrice: gasPrice,
+    data: `0x`,
     // gasLimit: `0x${}`,
     nonce: `0x${nonce}`,
     chainId: `0x${selectedNetwork.value?.chainID}`, // 1

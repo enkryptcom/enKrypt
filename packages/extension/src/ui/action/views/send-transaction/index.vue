@@ -183,6 +183,7 @@ const sendAction = () => {
     name: "verify-transaction",
     params: {
       id: selected,
+      fromAddress: props.accountInfo.selectedAccount?.address,
       address: address.value,
       selectedToken: selectedToken.value.toString(),
       amount: amount.value,
