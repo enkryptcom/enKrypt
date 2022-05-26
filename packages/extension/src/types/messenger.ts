@@ -44,7 +44,7 @@ export interface Message extends SendMessage {
 }
 
 export type onMessageType = (
-  messge: Message
+  message: Message
 ) => Promise<OnMessageResponse | void>;
 
 export interface InternalOnMessageResponse {

@@ -9,9 +9,7 @@
         :set-network="setNetwork"
       />
       <br />
-      <a href="javascript:void(0);" @click="openCreate()">
-        to Create / Restore
-      </a>
+      <a @click="abc()"> hw wallet test </a>
       <div class="app__menu-footer">
         <a class="app__menu-add" @click="addNetworkToggle()">
           <add-icon />
@@ -78,7 +76,6 @@ import HoldIcon from "./icons/common/hold-icon.vue";
 import AddNetwork from "./views/add-network/index.vue";
 import Settings from "./views/settings/index.vue";
 import { useRouter, useRoute } from "vue-router";
-import { WindowPromise } from "@/libs/window-promise";
 import { NodeType } from "@/types/provider";
 import {
   getAllNetworks,
@@ -89,11 +86,25 @@ import DomainState from "@/libs/domain-state";
 import { getOtherSigners } from "@/libs/utils/accounts";
 import { AccountsHeaderData } from "./types/account";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
-import { KeyRecord } from "@enkryptcom/types";
+import { KeyRecord, NetworkNames } from "@enkryptcom/types";
 import { sendToBackgroundFromAction } from "@/libs/messenger/extension";
 import { EthereumNodeType, MessageMethod } from "@/providers/ethereum/types";
 import { InternalMethods } from "@/types/messenger";
 import openOnboard from "@/libs/utils/open-onboard";
+
+import { Ledger, LedgerExtensionTransport } from "@enkryptcom/hw-wallets";
+
+const abc = async () => {
+  const transport = new LedgerExtensionTransport();
+  const l = new Ledger(transport);
+  console.log(
+    await l.getAddress({
+      confirmAddress: false,
+      networkName: NetworkNames.Polkadot,
+      path: "m/0'/0'/0'/0",
+    })
+  );
+};
 
 const domainState = new DomainState();
 const appMenuRef = ref(null);
@@ -247,15 +258,6 @@ const showNetworkMenu = () => {
       route.name == "dapps")
   );
 };
-const openCreate = () => {
-  const windowPromise = new WindowPromise();
-  windowPromise
-    .getResponse("onboard.html", JSON.stringify({ info: "test" }))
-    .then(({ error }) => {
-      console.error(error);
-    });
-};
-
 const searchInput = (text: string) => {
   console.log(text);
 };
