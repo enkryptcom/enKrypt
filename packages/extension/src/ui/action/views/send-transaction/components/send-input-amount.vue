@@ -4,7 +4,7 @@
       type="text"
       placeholder="0"
       :style="{ color: hasEnoughBalance ? 'red' : 'black' }"
-      :value="value == 0 ? null : value"
+      :value="!value ? 0 : value"
       @input="changeValue"
       @focus="changeFocus"
       @blur="changeFocus"

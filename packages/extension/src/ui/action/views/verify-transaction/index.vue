@@ -89,7 +89,7 @@ const networks: NodeType[] = getAllNetworks();
 const selected: string = route.params.id as string;
 const address: string = route.params.address as string;
 const fromAddress: string = route.params.fromAddress as string;
-const amount = route.params.amount;
+const amount = route.params.amount as unknown as number;
 let selectedNetwork = ref(undefined);
 let isProcessing = ref(false);
 
@@ -132,12 +132,12 @@ const sendAction = async () => {
 
       web3.eth
         .sendSignedTransaction(signedTx.serialize().toString("hex"))
-        .on("transactionHash", (hash) => {
+        .on("transactionHash", (hash: string) => {
           PromiseResolve.value({
             result: JSON.stringify(hash),
           });
         })
-        .on("error", (error) => {
+        .on("error", (error: any) => {
           console.log("ERROR", error);
         });
     });

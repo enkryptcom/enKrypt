@@ -63,7 +63,7 @@
           <base-button
             :title="sendButtonTitle()"
             :click="sendAction"
-            :disabled="isDisabled()"
+            :disabled="isDisabled"
           />
         </div>
       </div>
@@ -78,7 +78,7 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { ref, PropType } from "vue";
+import { ref, PropType, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import SendAddressInput from "./components/send-address-input.vue";
@@ -96,6 +96,7 @@ import { TransactionFee } from "@action/types/fee";
 import { ethereum, recommendedFee } from "@action/types/mock";
 import { AccountsHeaderData } from "@action/types/account";
 import { NodeType } from "@/types/provider";
+import { toBN, toWei } from "web3-utils";
 
 const route = useRoute();
 const router = useRouter();
@@ -170,13 +171,11 @@ const sendButtonTitle = () => {
   return title;
 };
 
-const isDisabled = () => {
-  let isDisabled = true;
-
-  if (amount.value > 0) isDisabled = false;
-
-  return isDisabled;
-};
+const isDisabled = computed(() => {
+  if (amount.value === 0) return true;
+  const amountInWei = toWei(amount.value.toString());
+  return !toBN(amountInWei).gt(toBN(0));
+});
 
 const sendAction = () => {
   router.push({
