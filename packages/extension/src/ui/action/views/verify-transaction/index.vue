@@ -90,7 +90,7 @@ const selected: string = route.params.id as string;
 const address: string = route.params.address as string;
 const fromAddress: string = route.params.fromAddress as string;
 const amount = route.params.amount as unknown as number;
-let selectedNetwork = ref(undefined);
+let selectedNetwork = ref<any>(undefined);
 let isProcessing = ref(false);
 
 defineExpose({ selectedNetwork });
