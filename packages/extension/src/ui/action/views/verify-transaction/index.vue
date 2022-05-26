@@ -73,13 +73,11 @@ import { toWei, numberToHex, toChecksumAddress } from "web3-utils";
 import { bufferToHex } from "@enkryptcom/utils";
 import { sendToBackgroundFromAction } from "@/libs/messenger/extension";
 import { InternalMethods } from "@/types/messenger";
-import { WindowPromiseHandler } from "@/libs/window-promise";
 import { KeyRecord } from "@enkryptcom/types";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
 import { fromRpcSig } from "ethereumjs-util";
 import { FeeMarketEIP1559Transaction } from "@ethereumjs/tx";
 
-const { PromiseResolve } = WindowPromiseHandler();
 const KeyRing = new PublicKeyRing();
 let web3: any;
 const domainState = new DomainState();
@@ -126,7 +124,7 @@ const sendAction = async () => {
       tabId: await domainState.getCurrentTabId(),
     }).then((res: any) => {
       if (res.error) {
-        PromiseResolve.value(res);
+        console.log("error", res.error);
       } else {
         const rpcSig = fromRpcSig(res.result.replace(/['"]+/g, "") || "0x");
         const signedTx = (
@@ -137,9 +135,6 @@ const sendAction = async () => {
           .sendSignedTransaction("0x" + signedTx.serialize().toString("hex"))
           .on("transactionHash", (hash: string) => {
             console.log("hash", hash);
-            PromiseResolve.value({
-              result: JSON.stringify(hash),
-            });
           })
           .on("error", (error: any) => {
             console.log("ERROR", error);
