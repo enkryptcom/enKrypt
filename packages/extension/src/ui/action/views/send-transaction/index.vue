@@ -53,7 +53,7 @@
         :selected="fee.price.speed"
       ></transaction-fee-view>
 
-      <send-alert></send-alert>
+      <!-- <send-alert></send-alert> -->
 
       <div class="send-transaction__buttons">
         <div class="send-transaction__buttons-cancel">
@@ -88,7 +88,7 @@ import SendTokenList from "./components/send-token-list.vue";
 import SendInputAmount from "./components/send-input-amount.vue";
 import SendFeeSelect from "./components/send-fee-select.vue";
 import TransactionFeeView from "@action/views/transaction-fee/index.vue";
-import SendAlert from "./components/send-alert.vue";
+// import SendAlert from "./components/send-alert.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import { Account } from "@action/types/account";
 import { Token } from "@action/types/token";

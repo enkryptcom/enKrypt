@@ -6,14 +6,14 @@
       <div class="send-token-item__info-name">
         <h4>{{ token.name }}</h4>
         <p>
-          {{ token.amount }} <span>{{ token.symbol }}</span>
+          {{ token.balancef }} <span>{{ token.symbol }}</span>
         </p>
       </div>
     </div>
 
     <div class="send-token-item__price">
-      <h4>{{ $filters.formatFiatValue(amount).value }}</h4>
-      <p>@{{ $filters.formatFiatValue(token.price).value }}</p>
+      <h4>{{ props.token.balanceUSDf }}</h4>
+      <p>@{{ props.token.valuef }}</p>
     </div>
   </a>
 </template>
@@ -26,11 +26,11 @@ export default {
 
 <script setup lang="ts">
 import { PropType } from "vue";
-import { Token } from "@action/types/token";
+import { AssetsType } from "@/types/provider";
 
 const props = defineProps({
   token: {
-    type: Object as PropType<Token>,
+    type: Object as PropType<AssetsType>,
     default: () => ({}),
   },
   selectToken: {
@@ -40,12 +40,6 @@ const props = defineProps({
     },
   },
 });
-
-let amount = 0;
-
-if (props.token) {
-  amount = props.token.price * props.token.amount;
-}
 
 const select = () => {
   props.selectToken(props.token);

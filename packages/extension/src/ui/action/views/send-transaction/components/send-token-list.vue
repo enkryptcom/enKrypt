@@ -29,7 +29,6 @@ import { ref, PropType, onMounted, watch } from "vue";
 import SendTokenItem from "./send-token-item.vue";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 import ListSearch from "@action/components/list-search/index.vue";
-// import { assets } from "@action/types/mock";
 import { Token } from "@action/types/token";
 import { AssetsType, NodeType } from "@/types/provider";
 import type { AccountsHeaderData } from "@action/types/account";
