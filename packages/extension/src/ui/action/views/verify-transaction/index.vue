@@ -53,7 +53,7 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { onMounted, ref, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import BaseButton from "@action/components/base-button/index.vue";
@@ -69,13 +69,23 @@ import { ethereum, recommendedFee } from "@action/types/mock";
 import { EthereumTransaction } from "@/providers/ethereum/libs/transaction/types";
 import Web3 from "web3";
 import Transaction from "@/providers/ethereum/libs/transaction/";
+import { toWei, numberToHex, toChecksumAddress } from "web3-utils";
+import { bufferToHex } from "@enkryptcom/utils";
+import { sendToBackgroundFromAction } from "@/libs/messenger/extension";
+import { InternalMethods } from "@/types/messenger";
+import { WindowPromiseHandler } from "@/libs/window-promise";
+import { KeyRecord } from "@enkryptcom/types";
+import PublicKeyRing from "@/libs/keyring/public-keyring";
+import { fromRpcSig } from "ethereumjs-util";
+import { FeeMarketEIP1559Transaction } from "@ethereumjs/tx";
 
+const { PromiseResolve } = WindowPromiseHandler();
+const KeyRing = new PublicKeyRing();
 let web3: any;
 const domainState = new DomainState();
 const route = useRoute();
 const router = useRouter();
 const networks: NodeType[] = getAllNetworks();
-
 const selected: string = route.params.id as string;
 const address: string = route.params.address as string;
 const amount = route.params.amount;
@@ -102,55 +112,62 @@ const sendAction = async () => {
   const txObj = (await setUpTx()) as unknown as EthereumTransaction;
   const tx = await new Transaction(txObj, web3);
 
-  await tx.getFinalizedTransaction().then((finalizedTx) => {
-    console.log("tx hash", finalizedTx);
+  await tx.getFinalizedTransaction().then(async (finalizedTx) => {
+    const msgHash = bufferToHex(finalizedTx.getMessageToSign(true));
+    const account = await KeyRing.getAccount(address);
+
+    return await sendToBackgroundFromAction({
+      message: JSON.stringify({
+        method: InternalMethods.sign,
+        params: [msgHash, account as KeyRecord],
+      }),
+      provider: selectedNetwork.value?.provider,
+      tabId: await domainState.getCurrentTabId(),
+    }).then((res) => {
+      const rpcSig = fromRpcSig(res.result || "0x");
+      const signedTx = (
+        finalizedTx as FeeMarketEIP1559Transaction
+      )._processSignature(rpcSig.v, rpcSig.r, rpcSig.s);
+
+      web3.eth
+        .sendSignedTransaction(signedTx.serialize().toString("hex"))
+        .on("transactionHash", (hash) => {
+          PromiseResolve.value({
+            result: JSON.stringify(hash),
+          });
+        })
+        .on("error", (error) => {
+          console.log("ERROR", error);
+        });
+    });
   });
 
-  // setTimeout(() => {
-  //   isProcessing.value = false;
-  // }, 4000);
+  setTimeout(() => {
+    isProcessing.value = false;
+  }, 4000);
 
-  // setTimeout(() => {
-  //   router.go(-2);
-  // }, 4500);
+  setTimeout(() => {
+    router.go(-2);
+  }, 4500);
 };
 
 const getNonce = async () => {
-  web3 = await new Web3(selectedNetwork.value?.node);
   return await web3.eth.getTransactionCount(address);
 };
 
 const setUpTx = async () => {
   const nonce = await getNonce();
   return {
-    from: "0x2C73D95131f0860f65e5666fEC29931aC9E0FBeA",
-    to: "0x2C73D95131f0860f65e5666fEC29931aC9E0FBeA",
-    value: "1000000000000000",
-    gas: "0x5208",
+    from: toChecksumAddress(address),
+    to: toChecksumAddress(address),
+    value: numberToHex(toWei(amount.toString())),
+    gas: "0x5208", // 2100
     // gasPrice: `0x${}`,
     // data: `0x${}`,
     // gasLimit: `0x${}`,
     nonce: `0x${nonce}`,
-    // chainId: `0x${selectedNetwork.value?.chainID}`,
+    chainId: `0x${selectedNetwork.value?.chainID}`, // 1
   };
-
-  // TEMPLATE
-  //   from: `${address}`;
-  //   data: `0x${string}`;
-  //   gasLimit: `0x${string}`;
-  //   gas: `0x5208`;
-  //   maxPriorityFeePerGas?: `0x${string}`;
-  //   maxFeePerGas?: `0x${string}`;
-  //   gasPrice: `1000000000`;
-  //   nonce: `0x${4}`;
-  //   to: `${address}`;
-  //   value: `0x${0}`;
-  //   v?: `0x${string}`;
-  //   r?: `0x${string}`;
-  //   s?: `0x${string}`;
-  //   chainId: 1;
-  //   accessList?: AccessList[];
-  //   type?: `0x${string}`;
 };
 </script>
 
