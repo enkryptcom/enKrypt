@@ -124,22 +124,27 @@ const sendAction = async () => {
       }),
       provider: selectedNetwork.value?.provider,
       tabId: await domainState.getCurrentTabId(),
-    }).then((res) => {
-      const rpcSig = fromRpcSig(res.result || "0x");
-      const signedTx = (
-        finalizedTx as FeeMarketEIP1559Transaction
-      )._processSignature(rpcSig.v, rpcSig.r, rpcSig.s);
+    }).then((res: any) => {
+      if (res.error) {
+        PromiseResolve.value(res);
+      } else {
+        const rpcSig = fromRpcSig(res.result.replace(/['"]+/g, "") || "0x");
+        const signedTx = (
+          finalizedTx as FeeMarketEIP1559Transaction
+        )._processSignature(rpcSig.v, rpcSig.r, rpcSig.s);
 
-      web3.eth
-        .sendSignedTransaction(signedTx.serialize().toString("hex"))
-        .on("transactionHash", (hash: string) => {
-          PromiseResolve.value({
-            result: JSON.stringify(hash),
+        web3.eth
+          .sendSignedTransaction("0x" + signedTx.serialize().toString("hex"))
+          .on("transactionHash", (hash: string) => {
+            console.log("hash", hash);
+            PromiseResolve.value({
+              result: JSON.stringify(hash),
+            });
+          })
+          .on("error", (error: any) => {
+            console.log("ERROR", error);
           });
-        })
-        .on("error", (error: any) => {
-          console.log("ERROR", error);
-        });
+      }
     });
   });
 
