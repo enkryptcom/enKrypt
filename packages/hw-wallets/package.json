@@ -8,7 +8,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsup src/index.ts src/content-script/index.ts --format esm,cjs --dts --clean",
+    "build": "tsup src/index.ts --format esm,cjs --dts --clean",
     "lint": "prettier --write .",
     "test": "ts-mocha -p tsconfig.json tests/**/*.test.ts"
   },
@@ -48,10 +48,12 @@
     "@enkryptcom/types": "^0.0.1",
     "@enkryptcom/utils": "^0.0.1",
     "@ledgerhq/errors": "^6.10.0",
+    "@ledgerhq/hw-app-eth": "^6.28.2",
     "@ledgerhq/hw-transport": "^6.27.1",
     "@ledgerhq/hw-transport-webusb": "^6.27.1",
     "@polkadot/types": "^8.5.1",
     "@zondax/ledger-substrate": "^0.29.0",
+    "trezor-connect": "^8.2.8",
     "webextension-polyfill": "^0.9.0"
   }
 }

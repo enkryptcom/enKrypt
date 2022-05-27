@@ -1,28 +1,39 @@
-import { NetworkNames } from "@enkryptcom/types";
+import { NetworkNames, HWwalletNames } from "@enkryptcom/types";
 import type { ExtrinsicPayload } from "@polkadot/types/interfaces";
 
-export enum WalletType {
-  ledger = "ledger",
-}
-export interface TransportMessage {
-  wallet: WalletType;
-  msg: `0x${string}`;
-}
 export interface LedgerSignature {
   signature: `0x${string}`;
 }
-export interface SignRequest {
-  message: Buffer;
+export interface BaseRequest {
   path: string;
+  wallet: HWwalletNames;
   networkName: NetworkNames;
 }
-export interface getAddressRequest {
+export interface SignRequest extends BaseRequest {
+  message: Buffer;
+}
+export interface getAddressRequest extends BaseRequest {
   confirmAddress: boolean;
-  path: string;
-  networkName: NetworkNames;
 }
 
 export interface LedgerSignTransactionRequest
   extends Omit<SignRequest, "message"> {
   message: ExtrinsicPayload;
+}
+
+export abstract class HWWalletProvider {
+  abstract network: NetworkNames;
+
+  // eslint-disable-next-line no-useless-constructor,@typescript-eslint/no-unused-vars,@typescript-eslint/no-empty-function
+  constructor(_network: NetworkNames) {}
+
+  abstract init(): Promise<boolean>;
+
+  abstract getAddress(options: getAddressRequest): Promise<string>;
+
+  abstract getSupportedPaths(): string[];
+
+  static getSupportedNetworks(): NetworkNames[] {
+    return [];
+  }
 }

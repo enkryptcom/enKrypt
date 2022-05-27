@@ -48,7 +48,7 @@
     "moment": "^2.29.1",
     "nanoevents": "^6.0.2",
     "qrcode.vue": "^3.3.3",
-    "rollup-plugin-node-builtins": "^2.1.2",
+    "trezor-connect": "^8.2.8",
     "url-parse": "^1.5.10",
     "vue": "^3.2.31",
     "vue-router": "4",

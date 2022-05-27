@@ -1,8 +1,6 @@
 import browser from "webextension-polyfill";
 import { setContentScriptNamespace } from "@/libs/messenger/extension";
-import HWwalletContentScriptHandler from "@enkryptcom/hw-wallets/dist/content-script";
 setContentScriptNamespace();
-HWwalletContentScriptHandler();
 function injectScript() {
   try {
     const injectURL = browser.runtime.getURL("scripts/inject.js");

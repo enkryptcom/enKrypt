@@ -1,5 +1,10 @@
 export * from "./networks";
 
+export enum HWwalletNames {
+  ledger = "ledger",
+  trezor = "trezor",
+}
+
 enum SigningErrors {
   UnableToVerify = "Signing verification failed",
   NotSupported = "Sign type not supported",
