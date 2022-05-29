@@ -46,4 +46,5 @@ export enum GasPriceTypes {
   ECONOMY,
   REGULAR,
   FAST,
+  FASTER,
 }

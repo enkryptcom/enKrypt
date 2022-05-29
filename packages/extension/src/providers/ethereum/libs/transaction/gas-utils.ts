@@ -87,6 +87,8 @@ const getBaseFeeBasedOnType = (
       return baseFeeBN.muln(1.5);
     case GasPriceTypes.FAST:
       return baseFeeBN.muln(1.75);
+    case GasPriceTypes.FASTER:
+      return baseFeeBN.muln(2);
     default:
       return baseFeeBN;
   }
