@@ -24,6 +24,8 @@
       <send-token-select
         :token="selectedToken"
         :toggle-select="toggleSelectToken"
+        :network="props.network"
+        :account-info="props.accountInfo"
       ></send-token-select>
 
       <send-token-list
@@ -51,6 +53,8 @@
         :close="toggleSelectFee"
         :select-fee="selectFee"
         :selected="fee.price.speed"
+        :fee="fee"
+        :fees="fees"
       ></transaction-fee-view>
 
       <!-- <send-alert></send-alert> -->
@@ -78,7 +82,8 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { ref, PropType, computed } from "vue";
+import Web3 from "web3";
+import { ref, onMounted, PropType, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import SendAddressInput from "./components/send-address-input.vue";
@@ -93,10 +98,12 @@ import BaseButton from "@action/components/base-button/index.vue";
 import { Account } from "@action/types/account";
 import { Token } from "@action/types/token";
 import { TransactionFee } from "@action/types/fee";
-import { ethereum, recommendedFee } from "@action/types/mock";
+import { ethereum } from "@action/types/mock";
 import { AccountsHeaderData } from "@action/types/account";
 import { NodeType } from "@/types/provider";
 import { toBN, toWei } from "web3-utils";
+import { getPriorityFeeBasedOnType } from "@/providers/ethereum/libs/transaction/gas-utils";
+import { PRIORITIES, FEES } from "./template/fee";
 
 const route = useRoute();
 const router = useRouter();
@@ -112,13 +119,25 @@ const props = defineProps({
   },
 });
 
+let web3: any;
 let isOpenSelectContact = ref<boolean>(false);
 let address = ref<string>("");
 let isOpenSelectToken = ref<boolean>(false);
 let selectedToken = ref(ethereum);
 let amount = ref<number>(0);
 let isOpenSelectFee = ref<boolean>(false);
-let fee = ref(recommendedFee);
+let fees = ref<TransactionFee[]>([]);
+let fee = ref<TransactionFee>({
+  limit: 0.0001,
+  price: {
+    speed: 1,
+    baseFee: 0,
+    tip: 0,
+    totalFee: 0,
+    title: "Recommended",
+    description: "Will reliably go through in most scenarios",
+  },
+});
 
 const selected: string = route.params.id as string;
 
@@ -161,6 +180,46 @@ const selectFee = (option: TransactionFee) => {
   isOpenSelectFee.value = false;
 };
 
+const getBaseFeePerGas = async () => {
+  return await web3.eth.getBlockNumber().then((blockNum: any) => {
+    return web3.eth
+      .getBlock(blockNum, false)
+      .then((block: any) => block.baseFeePerGas);
+  });
+};
+
+const getGasPrice = async () => {
+  return await web3.eth.getGasPrice();
+};
+
+const getPriorityFees = async () => {
+  const gasPrice = await getGasPrice();
+  const baseFeePerGas = await getBaseFeePerGas();
+
+  for await (const priority of PRIORITIES) {
+    const price = await getPriorityFeeBasedOnType(
+      baseFeePerGas?.toString() as string,
+      gasPrice.toString(),
+      priority
+    );
+
+    fees.value.push({
+      limit: 0.0001,
+      price: {
+        speed: FEES[priority].speed,
+        baseFee: 0,
+        tip: 0,
+        totalFee: price,
+        title: FEES[priority].title,
+        description: FEES[priority].description,
+      },
+    });
+
+    if (priority === 1) selectFee(fees.value[1]);
+  }
+  return fees;
+};
+
 const sendButtonTitle = () => {
   let title = "Send";
 
@@ -191,6 +250,11 @@ const sendAction = () => {
     },
   });
 };
+
+onMounted(async () => {
+  web3 = await new Web3(props.network.node);
+  await getPriorityFees();
+});
 </script>
 
 <style lang="less" scoped>

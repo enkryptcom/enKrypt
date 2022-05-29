@@ -15,10 +15,10 @@
       <div class="transaction-fee__info">
         <div class="transaction-fee__info-amount">
           <p class="transaction-fee__info-amount-fiat">
-            {{ $filters.formatFiatValue(10.12).value }}
+            {{ $filters.formatFiatValue(balance).value }}
           </p>
           <p class="transaction-fee__info-amount-crypto">
-            0.0000123 <span>eth</span>
+            {{ balance }} <span>eth</span>
           </p>
         </div>
 
@@ -49,9 +49,10 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { PropType } from "vue";
+import { PropType, computed } from "vue";
 import TransactionFeeItem from "./components/transaction-fee-item.vue";
-import { fees } from "@action/types/mock";
+// import { fees } from "@action/types/mock";
+import { fromWei } from "web3-utils";
 import { TransactionFee, TransactionFeeSpeed } from "@action/types/fee";
 import TimeIcon from "@action/icons/fee/time-icon.vue";
 import CloseIcon from "@action/icons/common/close-icon.vue";
@@ -82,6 +83,18 @@ const props = defineProps({
       return {};
     },
   },
+  fee: {
+    type: Object as PropType<TransactionFee>,
+    default: () => {
+      return {};
+    },
+  },
+  fees: {
+    type: Array as PropType<Array<TransactionFee>>,
+    default: () => {
+      return {};
+    },
+  },
 });
 
 const close = () => {
@@ -91,6 +104,10 @@ const close = () => {
 const selectFee = (fee: TransactionFee) => {
   props.selectFee(fee);
 };
+
+const balance = computed(() => {
+  return fromWei(props.fee.price.totalFee.toString());
+});
 </script>
 
 <style lang="less">

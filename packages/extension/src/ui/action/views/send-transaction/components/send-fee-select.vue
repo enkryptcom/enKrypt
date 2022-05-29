@@ -2,9 +2,11 @@
   <a class="send-fee-select" :class="{ swap: inSwap }" @click="open">
     <div class="send-fee-select__value">
       <p class="send-fee-select__value-fiat">
-        Fee: {{ $filters.formatFiatValue(7.12).value }}
+        Fee: {{ $filters.formatFiatValue(balance).value }}
       </p>
-      <p class="send-fee-select__value-crypto">0.0000123 <span>eth</span></p>
+      <p class="send-fee-select__value-crypto">
+        {{ balance }} <span>eth</span>
+      </p>
     </div>
 
     <div class="send-fee-select__arrow">
@@ -24,10 +26,11 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { ref, PropType } from "vue";
+import { ref, PropType, computed } from "vue";
 import SwitchArrow from "@action/icons/header/switch_arrow.vue";
 import { TransactionFee } from "@action/types/fee";
 import TimeIcon from "@action/icons/fee/time-icon.vue";
+import { fromWei } from "web3-utils";
 
 let isOpen = ref(false);
 
@@ -56,6 +59,10 @@ const open = () => {
   isOpen.value = !isOpen.value;
   props.toggleSelect(isOpen);
 };
+
+const balance = computed(() => {
+  return fromWei(props.fee.price.totalFee.toString());
+});
 </script>
 
 <style lang="less">
