@@ -60,6 +60,7 @@ const select = () => {
   justify-content: space-between;
   align-items: center;
   flex-direction: row;
+  padding-right: 5px;
 
   &__info {
     display: flex;
