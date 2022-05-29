@@ -31,7 +31,7 @@ import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 import ListSearch from "@action/components/list-search/index.vue";
 import { Token } from "@action/types/token";
 import { AssetsType, NodeType } from "@/types/provider";
-import type { AccountsHeaderData } from "@action/types/account";
+import { AccountsHeaderData } from "@action/types/account";
 
 const settings = {
   suppressScrollY: false,
