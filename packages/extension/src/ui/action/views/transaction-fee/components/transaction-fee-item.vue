@@ -24,14 +24,14 @@
         v-show="fee.price.speed == TransactionFeeSpeed.economy"
         class="transaction-fee-item__block-amount down"
       >
-        -{{ $filters.formatFiatValue(2.23).value }}
+        - {{ $filters.formatFiatValue(price).value }}
       </div>
 
       <div
         v-show="fee.price.speed != TransactionFeeSpeed.economy"
         class="transaction-fee-item__block-amount"
       >
-        +{{ $filters.formatFiatValue(1.23).value }}
+        + {{ $filters.formatFiatValue(price).value }}
       </div>
     </div>
   </a>
@@ -44,12 +44,13 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { PropType } from "vue";
+import { PropType, computed } from "vue";
 import { TransactionFee, TransactionFeeSpeed } from "@action/types/fee";
 import EconomyIcon from "@action/icons/fee/economy-icon.vue";
 import RecomendedIcon from "@action/icons/fee/recomended-icon.vue";
 import HigherIcon from "@action/icons/fee/higher-icon.vue";
 import HighestIcon from "@action/icons/fee/highest-icon.vue";
+import { fromWei } from "web3-utils";
 
 const props = defineProps({
   fee: {
@@ -75,6 +76,10 @@ const props = defineProps({
 const select = () => {
   props.selectFee(props.fee);
 };
+
+const price = computed(() => {
+  return fromWei(props.fee.price.totalFee.toString());
+});
 </script>
 
 <style lang="less">

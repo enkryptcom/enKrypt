@@ -52,7 +52,7 @@
         :show-fees="isOpenSelectFee"
         :close="toggleSelectFee"
         :select-fee="selectFee"
-        :selected="fee.price.speed"
+        :selected="fee.price.totalFee"
         :fee="fee"
         :fees="fees"
       ></transaction-fee-view>
@@ -98,7 +98,6 @@ import BaseButton from "@action/components/base-button/index.vue";
 import { Account } from "@action/types/account";
 import { Token } from "@action/types/token";
 import { TransactionFee } from "@action/types/fee";
-import { ethereum } from "@action/types/mock";
 import { AccountsHeaderData } from "@action/types/account";
 import { NodeType } from "@/types/provider";
 import { toBN, toWei } from "web3-utils";
@@ -123,7 +122,13 @@ let web3: any;
 let isOpenSelectContact = ref<boolean>(false);
 let address = ref<string>("");
 let isOpenSelectToken = ref<boolean>(false);
-let selectedToken = ref(ethereum);
+let selectedToken = ref({
+  name: "Ethereum",
+  symbol: "eth",
+  icon: "https://mpolev.ru/enkrypt/eth.png",
+  amount: 0,
+  price: 0,
+});
 let amount = ref<number>(0);
 let isOpenSelectFee = ref<boolean>(false);
 let fees = ref<TransactionFee[]>([]);
@@ -180,6 +185,28 @@ const selectFee = (option: TransactionFee) => {
   isOpenSelectFee.value = false;
 };
 
+const fetchToken = () => {
+  if (props.network.assetsHandler) {
+    props.network
+      .assetsHandler(
+        props.network,
+        props.accountInfo.selectedAccount?.address || ""
+      )
+      .then((_assets) => {
+        let token = _assets.find((asset) => asset.name === "Ethereum");
+        if (!token) token = _assets[0];
+
+        selectedToken.value = {
+          name: token.name as string,
+          symbol: token.symbol as string,
+          icon: token.icon as string,
+          amount: token.balancef as unknown as number,
+          price: token.balanceUSDf as unknown as number,
+        };
+      });
+  }
+};
+
 const getBaseFeePerGas = async () => {
   return await web3.eth.getBlockNumber().then((blockNum: any) => {
     return web3.eth
@@ -209,7 +236,7 @@ const getPriorityFees = async () => {
         speed: FEES[priority].speed,
         baseFee: 0,
         tip: 0,
-        totalFee: price,
+        totalFee: price as unknown as number,
         title: FEES[priority].title,
         description: FEES[priority].description,
       },
@@ -254,6 +281,7 @@ const sendAction = () => {
 onMounted(async () => {
   web3 = await new Web3(props.network.node);
   await getPriorityFees();
+  fetchToken();
 });
 </script>
 
