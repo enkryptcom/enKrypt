@@ -69,7 +69,7 @@ import { ethereum, recommendedFee } from "@action/types/mock";
 import { EthereumTransaction } from "@/providers/ethereum/libs/transaction/types";
 import Web3 from "web3";
 import Transaction from "@/providers/ethereum/libs/transaction/";
-import { toWei, numberToHex, toChecksumAddress } from "web3-utils";
+import { toWei, numberToHex, toChecksumAddress, toBN } from "web3-utils";
 import { bufferToHex } from "@enkryptcom/utils";
 import { sendToBackgroundFromAction } from "@/libs/messenger/extension";
 import { InternalMethods } from "@/types/messenger";
@@ -90,6 +90,7 @@ const fromAddress: string = route.params.fromAddress as string;
 const amount = route.params.amount as unknown as number;
 let selectedNetwork = ref<any>(undefined);
 let isProcessing = ref(false);
+const MAIN_TOKEN_ADDRESS = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
 
 defineExpose({ selectedNetwork });
 
@@ -162,17 +163,58 @@ const estimateGas = async () => {
   });
 };
 
+const getTokenTransferABI = async (amount: any, _toAddress: string) => {
+  amount = toBN(amount);
+  const jsonInterface = [
+    {
+      constant: false,
+      inputs: [
+        { name: "_to", type: "address" },
+        { name: "_amount", type: "uint256" },
+      ],
+      name: "transfer",
+      outputs: [{ name: "", type: "bool" }],
+      payable: false,
+      stateMutability: "nonpayable",
+      type: "function",
+    },
+  ];
+  const contract = new web3(jsonInterface);
+  return contract.methods
+    .transfer(_toAddress.toLowerCase(), amount)
+    .encodeABI();
+};
+
+const isToken = async () => {
+  if (selectedNetwork.value) {
+    const token = selectedNetwork.value
+      .assetsHandler(selectedNetwork.value, fromAddress || "")
+      .then((assets: any) => {
+        return assets.find((asset: any) => {
+          return asset.name === selectedNetwork.value.name_long;
+        });
+      });
+    if (!token) return false;
+    return token.address !== MAIN_TOKEN_ADDRESS;
+  }
+  return false;
+};
+
 const setUpTx = async () => {
-  const value = numberToHex(toWei(amount.toString()));
+  const value = (await isToken())
+    ? "0x00"
+    : numberToHex(toWei(amount.toString()));
   const nonce = await getNonce();
   const gasPrice = await estimateGas();
+  const abi = await getTokenTransferABI(amount, fromAddress);
+  const data = (await isToken) ? abi : "0x00";
   return {
     from: toChecksumAddress(fromAddress),
     to: toChecksumAddress(address),
     value: value,
     gas: "0x5208", // 21000
     gasPrice: gasPrice,
-    data: `0x`,
+    data: data,
     // gasLimit: `0x${}`,
     nonce: `0x${nonce}`,
     chainId: `0x${selectedNetwork.value?.chainID}`, // 1
