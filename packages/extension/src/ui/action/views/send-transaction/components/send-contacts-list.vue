@@ -13,13 +13,15 @@
           :key="index"
           :account="account"
           :select-account="selectAccount"
+          :identicon="identicon"
         ></send-address-item>
         <h3>All Contacts</h3>
         <send-address-item
-          v-for="(account, index) in []"
+          v-for="(account, index) in searchAccounts"
           :key="index"
           :account="account"
           :select-account="selectAccount"
+          :identicon="identicon"
         ></send-address-item>
       </custom-scrollbar>
     </div>
@@ -37,6 +39,15 @@ import SendAddressItem from "./send-address-item.vue";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 import ListSearch from "@action/components/list-search/index.vue";
 import { Account } from "@action/types/account";
+import { onUpdated, ref } from "vue";
+
+interface IProps {
+  showAccounts: boolean;
+  close: (close: boolean) => void;
+  selectAccount: (account: Account) => void;
+  identicon?: (address: string) => string;
+  accounts: Account[];
+}
 
 const settings = {
   suppressScrollY: false,
@@ -44,28 +55,31 @@ const settings = {
   wheelPropagation: false,
 };
 
-const props = defineProps({
-  showAccounts: Boolean,
-  close: {
-    type: Function,
-    default: () => {
-      return null;
-    },
-  },
-  selectAccount: {
-    type: Function,
-    default: () => {
-      return null;
-    },
-  },
+const props = defineProps<IProps>();
+
+const searchAccounts = ref<Account[]>(props.accounts);
+
+onUpdated(() => {
+  searchAccounts.value = props.accounts;
 });
 
 const close = () => {
   props.close(false);
 };
 
-const search = (text: string) => {
-  console.log(text);
+const search = (searchParam: string) => {
+  if (searchParam === "") {
+    searchAccounts.value = props.accounts;
+  } else {
+    const lowerSearchParam = searchParam.toLowerCase();
+    searchAccounts.value = props.accounts.filter(
+      (account) =>
+        account.address.toLowerCase().startsWith(lowerSearchParam) ||
+        account.name.toLowerCase().startsWith(lowerSearchParam)
+    );
+  }
+
+  console.log(searchParam);
 };
 
 const selectAccount = (account: Account) => {

@@ -12,23 +12,32 @@
         :input="inputAddress"
         :toggle-select="toggleSelectContact"
         :value="address"
+        :identicon="identicon"
       ></send-address-input>
 
       <send-contacts-list
         :show-accounts="isOpenSelectContact"
         :close="toggleSelectContact"
         :select-account="selectAccount"
+        :active-network="activeNetwork"
+        :accounts="accounts"
+        :identicon="identicon"
       ></send-contacts-list>
 
       <send-token-select
         :token="selectedToken"
         :toggle-select="toggleSelectToken"
+        :api="api"
+        :active-account="activeAccount"
       ></send-token-select>
 
       <send-token-list
         :show-tokens="isOpenSelectToken"
         :close="toggleSelectToken"
         :select-token="selectToken"
+        :active-account="activeAccount"
+        :api="api"
+        :assets="assets"
       >
       </send-token-list>
 
@@ -74,7 +83,7 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { onBeforeMount, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import SendAddressInput from "./components/send-address-input.vue";
@@ -86,23 +95,78 @@ import SendFeeSelect from "./components/send-fee-select.vue";
 import TransactionFeeView from "@action/views/transaction-fee/index.vue";
 import SendAlert from "./components/send-alert.vue";
 import BaseButton from "@action/components/base-button/index.vue";
-import { Account } from "@action/types/account";
-import { Token } from "@action/types/token";
 import { TransactionFee } from "@action/types/fee";
-import { ethereum, recommendedFee } from "@action/types/mock";
+import { recommendedFee } from "@action/types/mock";
+import DomainState from "@/libs/domain-state";
+import { BaseNetwork } from "@/types/base-network";
+import { getNetworkByName } from "@/libs/utils/networks";
+import { BaseToken } from "@/types/base-token";
+import EvmAPI from "@/providers/ethereum/libs/api";
+import { ApiPromise } from "@polkadot/api";
+import PublicKeyRing from "@/libs/keyring/public-keyring";
+import { Account } from "@action/types/account";
 
 const route = useRoute();
 const router = useRouter();
+const domainState = new DomainState();
+const keyRing = new PublicKeyRing();
 
 let isOpenSelectContact = ref(false);
 let address = ref("");
 let isOpenSelectToken = ref(false);
-let selectedToken = ref(ethereum);
+let selectedToken = ref<BaseToken | undefined>();
 let amount = ref(0);
 let isOpenSelectFee = ref(false);
 let fee = ref(recommendedFee);
 
+const activeAccount = ref<string | undefined>();
+const activeNetwork = ref<BaseNetwork | undefined>();
+const accounts = ref<Account[]>([]);
+const identicon = ref<((address: string) => string) | undefined>();
+const assets = ref<BaseToken[]>([]);
+const api = ref<EvmAPI | ApiPromise>();
+
 const selected: string = route.params.id as string;
+
+onBeforeMount(async () => {
+  const activeNetworkName = await domainState.getSelectedNetWork();
+  const network = getNetworkByName(activeNetworkName || "");
+
+  if (network) {
+    activeNetwork.value = network;
+    identicon.value = network.identicon;
+    assets.value = network.getAllTokens();
+    selectedToken.value = assets.value[0];
+    const address = await domainState.getSelectedAddress();
+
+    const networkApi = await network.api();
+
+    await networkApi.init();
+
+    api.value = networkApi.api;
+
+    if (address) {
+      activeAccount.value = network.displayAddress(address);
+
+      accounts.value = (await keyRing.getAccounts(network.signer))
+        .filter((account) => account.address !== address)
+        .map((account) => {
+          return {
+            name: account.name,
+            address: network.displayAddress(account.address),
+            amount: 0,
+            primaryToken: {
+              name: "",
+              symbol: "",
+              icon: "",
+              amount: 0,
+              price: 0,
+            },
+          };
+        });
+    }
+  }
+});
 
 const close = () => {
   router.go(-1);
@@ -125,7 +189,7 @@ const selectAccount = (account: Account) => {
   isOpenSelectContact.value = false;
 };
 
-const selectToken = (token: Token) => {
+const selectToken = (token: BaseToken) => {
   selectedToken.value = token;
   isOpenSelectToken.value = false;
 };
@@ -147,8 +211,9 @@ const sendButtonTitle = () => {
   let title = "Send";
 
   if (amount.value > 0)
-    title =
-      "Send " + amount.value + " " + selectedToken.value.symbol.toUpperCase();
+    title = `Send ${amount.value} ${
+      selectedToken.value ? selectedToken.value.symbol.toUpperCase() : ""
+    }`;
 
   return title;
 };

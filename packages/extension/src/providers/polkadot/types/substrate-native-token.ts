@@ -1,17 +1,17 @@
 import { BaseToken, BaseTokenOptions } from "@/types/base-token";
 import { ApiPromise } from "@polkadot/api";
 import { AccountInfoWithRefCount } from "@polkadot/types/interfaces";
+import { fromBase } from "@/libs/utils/units";
 
 export class SubstrateNativeToken extends BaseToken {
   constructor(options: BaseTokenOptions) {
     super(options);
   }
 
-  public async getUserBalance(api: any, address: any): Promise<number> {
-    console.log(api);
-    return (api as ApiPromise).query.system
+  public async getUserBalance(api: ApiPromise, address: any): Promise<string> {
+    return api.query.system
       .account<AccountInfoWithRefCount>(address)
-      .then(({ data }) => data.free.toNumber());
+      .then(({ data }) => fromBase(data.free.toString(), this.decimals));
   }
 
   public async send(api: any, to: string, amount: number): Promise<any> {

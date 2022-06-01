@@ -6,14 +6,14 @@
       <div class="send-token-item__info-name">
         <h4>{{ token.name }}</h4>
         <p>
-          {{ token.amount }} <span>{{ token.symbol }}</span>
+          {{ tokenBalance ?? "~" }} <span>{{ token.symbol }}</span>
         </p>
       </div>
     </div>
 
     <div class="send-token-item__price">
-      <h4>{{ $filters.formatFiatValue(amount).value }}</h4>
-      <p>@{{ $filters.formatFiatValue(token.price).value }}</p>
+      <h4>{{ $filters.formatFiatValue(tokenBalance).value }}</h4>
+      <p>@{{ $filters.formatFiatValue(tokenPrice).value }}</p>
     </div>
   </a>
 </template>
@@ -25,27 +25,39 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { PropType } from "vue";
-import { Token } from "@action/types/token";
+import { onBeforeMount, onUpdated, ref } from "vue";
+import { BaseToken } from "@/types/base-token";
+import EvmAPI from "@/providers/ethereum/libs/api";
+import { ApiPromise } from "@polkadot/api";
 
-const props = defineProps({
-  token: {
-    type: Object as PropType<Token>,
-    default: () => ({}),
-  },
-  selectToken: {
-    type: Function,
-    default: () => {
-      return null;
-    },
-  },
-});
-
-let amount = 0;
-
-if (props.token) {
-  amount = props.token.price * props.token.amount;
+interface IProps {
+  token: BaseToken;
+  selectToken: (token: BaseToken) => void;
+  activeAccount?: string;
+  api?: EvmAPI | ApiPromise;
 }
+
+const props = defineProps<IProps>();
+
+const tokenPrice = ref<number | undefined>();
+const tokenBalance = ref<string | undefined>();
+
+const init = async () => {
+  if (props.api && props.activeAccount) {
+    props.token
+      .getUserBalance(props.api, props.activeAccount)
+      .then((balance) => {
+        tokenBalance.value = balance;
+      });
+    props.token.getTokenPrice().then((fiatValue) => {
+      console.log(fiatValue);
+    });
+  }
+};
+
+onBeforeMount(() => init());
+
+onUpdated(() => init());
 
 const select = () => {
   props.selectToken(props.token);

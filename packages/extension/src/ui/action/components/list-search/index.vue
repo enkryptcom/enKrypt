@@ -1,7 +1,7 @@
 <template>
   <div class="list-search">
     <search-icon></search-icon>
-    <input type="text" :placeholder="placeholder" @input="changeValue('')" />
+    <input type="text" :placeholder="placeholder" @input="changeValue" />
   </div>
 </template>
 
@@ -29,8 +29,9 @@ const props = defineProps({
   },
 });
 
-const changeValue = (text: string) => {
-  props.input(text);
+const changeValue = (event: Event) => {
+  const inputTarget = event.target as HTMLInputElement;
+  props.input(inputTarget.value);
 };
 </script>
 

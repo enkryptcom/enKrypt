@@ -34,9 +34,17 @@ const props = defineProps({
       return null;
     },
   },
+  identicon: {
+    type: Function,
+    default: () => null,
+  },
 });
 
 const getImgUrl = (address: string) => {
+  if (props.identicon) {
+    return props.identicon(address);
+  }
+
   return "https://mewcard.mewapi.io/?address=" + address;
 };
 

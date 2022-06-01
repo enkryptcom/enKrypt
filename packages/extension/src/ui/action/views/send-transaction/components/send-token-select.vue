@@ -1,12 +1,12 @@
 <template>
   <a class="send-token-select" @click="open">
     <div class="send-token-select__image">
-      <img :src="token.icon" alt="" />
+      <img :src="token ? token.icon : ''" alt="" />
     </div>
     <div class="send-token-select__info">
-      <h5>{{ token.name }}</h5>
+      <h5>{{ token ? token.name : "~" }}</h5>
       <p>
-        {{ token.amount }} <span>{{ token.symbol }}</span>
+        {{ tokenBalance ?? "~" }} <span>{{ token ? token.symbol : "~" }}</span>
       </p>
     </div>
 
@@ -23,25 +23,33 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { ref, PropType } from "vue";
+import { ref, onUpdated } from "vue";
 import SwitchArrow from "@action/icons/header/switch_arrow.vue";
-import { Token } from "@action/types/token";
+import { BaseToken } from "@/types/base-token";
+import EvmAPI from "@/providers/ethereum/libs/api";
+import { ApiPromise } from "@polkadot/api/promise/Api";
+
+interface IProps {
+  toggleSelect: (arg: any) => void;
+  activeAccount?: string;
+  token?: BaseToken;
+  api?: EvmAPI | ApiPromise;
+}
 
 let isOpen = ref(false);
 
-const props = defineProps({
-  toggleSelect: {
-    type: Function,
-    default: () => {
-      return null;
-    },
-  },
-  token: {
-    type: Object as PropType<Token>,
-    default: () => {
-      return {};
-    },
-  },
+const props = defineProps<IProps>();
+
+const tokenBalance = ref<string | undefined>();
+
+onUpdated(async () => {
+  if (props.api && props.token && props.activeAccount) {
+    props.token
+      .getUserBalance(props.api, props.activeAccount)
+      .then((balance) => {
+        tokenBalance.value = balance;
+      });
+  }
 });
 
 const open = () => {

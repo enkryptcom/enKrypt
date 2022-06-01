@@ -1,4 +1,5 @@
 import { BaseNetwork } from "@/types/base-network";
+import { BaseToken } from "@/types/base-token";
 import { AssetsType, ProviderName } from "@/types/provider";
 import { NetworkNames, SignerType } from "@enkryptcom/types";
 import { toChecksumAddress } from "ethereumjs-util";
@@ -53,6 +54,10 @@ export class EvmNetwork extends BaseNetwork {
 
     this.chainID = options.chainID;
     this.assetsHandler = options.assetsHandler;
+  }
+
+  public getAllTokens(): BaseToken[] {
+    return [];
   }
 
   public async getAllTokenInfo(address: string): Promise<AssetsType[]> {

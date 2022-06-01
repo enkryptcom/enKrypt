@@ -1,7 +1,7 @@
 <template>
   <div class="send-address-input" :class="{ focus: isFocus }">
     <div class="send-address-input__avatar">
-      <img v-if="value.length == 42" :src="getImgUrl(value)" alt="" />
+      <img :src="getImgUrl(value)" alt="" />
     </div>
     <div class="send-address-input__address">
       <p>To:</p>
@@ -9,7 +9,7 @@
         type="text"
         placeholder="0x… address or ENS name"
         :value="isFocus ? value : $filters.replaceWithEllipsis(value, 6, 6)"
-        @input="changeValue('')"
+        @input="changeValue"
         @focus="changeFocus"
         @blur="changeFocus"
       />
@@ -53,10 +53,15 @@ const props = defineProps({
       return "";
     },
   },
+  identicon: {
+    type: Function,
+    default: () => null,
+  },
 });
 
-const changeValue = (text: string) => {
-  props.input(text);
+const changeValue = (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  props.input(target.value);
 };
 
 const changeFocus = () => {
@@ -69,6 +74,12 @@ const open = () => {
 };
 
 const getImgUrl = (address: string) => {
+  let imgUrl;
+  if (props.identicon) {
+    imgUrl = props.identicon(address);
+  }
+
+  if (imgUrl) return imgUrl;
   return "https://mewcard.mewapi.io/?address=" + address;
 };
 </script>

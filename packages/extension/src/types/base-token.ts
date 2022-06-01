@@ -1,3 +1,8 @@
+import EvmAPI from "@/providers/ethereum/libs/api";
+import MarketData from "@/libs/market-data";
+import { FiatMarket } from "@/libs/market-data/types";
+import { ApiPromise } from "@polkadot/api";
+
 export interface BaseTokenOptions {
   name: string;
   symbol: string;
@@ -21,15 +26,18 @@ export abstract class BaseToken {
     this.coingeckoID = options.coingeckoID;
   }
 
-  public async getTokenPrice(): Promise<number> {
+  public async getTokenPrice(): Promise<FiatMarket | null> {
     if (this.coingeckoID) {
-      // return getPriceFromCoingeko(this);
-      return 0;
-    } else {
-      return 0;
+      const market = new MarketData();
+      return market.getFiatValue(this.symbol);
     }
+
+    return null;
   }
 
-  public abstract getUserBalance(api: any, address: string): Promise<number>;
+  public abstract getUserBalance(
+    api: EvmAPI | ApiPromise,
+    address: string
+  ): Promise<string>;
   public abstract send(api: any, to: string, amount: number): Promise<any>;
 }
