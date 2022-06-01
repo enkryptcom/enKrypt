@@ -21,7 +21,7 @@ const abc = async () => {
       confirmAddress: false,
       networkName: NetworkNames.Ethereum,
       path: "m/44'/60'/5'/0/0",
-      wallet: HWwalletNames.ledger,
+      wallet: HWwalletNames.trezor,
     })
   );
 };
