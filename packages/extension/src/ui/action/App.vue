@@ -66,7 +66,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { onMounted, provide, ref } from "vue";
 import AppMenu from "./components/app-menu/index.vue";
 import NetworkMenu from "./components/network-menu/index.vue";
 import AccountsHeader from "./components/accounts-header/index.vue";
@@ -93,9 +93,11 @@ import { KeyRecord } from "@enkryptcom/types";
 import { sendToBackgroundFromAction } from "@/libs/messenger/extension";
 import { EthereumNodeType, MessageMethod } from "@/providers/ethereum/types";
 import { InternalMethods } from "@/types/messenger";
+import NetworksState from "@/libs/networks-state";
 import openOnboard from "@/libs/utils/open-onboard";
 
 const domainState = new DomainState();
+const networksState = new NetworksState();
 const appMenuRef = ref(null);
 const networkGradient = ref("");
 const accountHeaderData = ref<AccountsHeaderData>({
@@ -108,14 +110,28 @@ defineExpose({ appMenuRef });
 const router = useRouter();
 const route = useRoute();
 const transitionName = "fade";
-const networks: NodeType[] = getAllNetworks().filter(
-  (net) => !net.isTestNetwork //hide testnetworks for now
-);
+
+const networks = ref<NodeType[]>([]);
 const defaultNetwork = getNetworkByName(DEFAULT_NETWORK_NAME) as NodeType;
 const currentNetwork = ref<NodeType>(defaultNetwork);
 const kr = new PublicKeyRing();
 const addNetworkShow = ref(false);
 const settingsShow = ref(false);
+
+const setActiveNetworks = async () => {
+  const activeNetworkNames = await networksState.getActiveNetworkNames();
+
+  networks.value = getAllNetworks().filter(({ name }) =>
+    activeNetworkNames.includes(name)
+  );
+
+  if (!networks.value.includes(currentNetwork.value)) {
+    setNetwork(networks.value[0]);
+  }
+};
+
+// Injected in add-network/index.vue
+provide("setActiveNetworks", setActiveNetworks);
 
 const isKeyRingLocked = async (): Promise<boolean> => {
   return await sendToBackgroundFromAction({
@@ -136,6 +152,7 @@ const init = async () => {
   } else {
     setNetwork(defaultNetwork);
   }
+  await setActiveNetworks();
 };
 onMounted(async () => {
   const isInitialized = await kr.isInitialized();

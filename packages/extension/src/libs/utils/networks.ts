@@ -1,4 +1,5 @@
 import { NodeType, ProviderName } from "@/types/provider";
+import { NetworkNames } from "@enkryptcom/types";
 import EthereumNetworks from "@/providers/ethereum/networks";
 import PolkadotNetworks from "@/providers/polkadot/networks";
 const providerNetworks: Record<ProviderName, Record<string, NodeType>> = {
@@ -22,10 +23,17 @@ const getProviderNetworkByName = (
     (net) => net.name === networkName
   );
 };
-const DEFAULT_NETWORK_NAME = "ETH";
+const DEFAULT_NETWORK_NAME = NetworkNames.Ethereum;
+const POPULAR_NAMES = [
+  NetworkNames.Ethereum,
+  NetworkNames.Matic,
+  NetworkNames.Polkadot,
+  NetworkNames.Moonbeam,
+];
 export {
   getAllNetworks,
   getNetworkByName,
   getProviderNetworkByName,
   DEFAULT_NETWORK_NAME,
+  POPULAR_NAMES,
 };

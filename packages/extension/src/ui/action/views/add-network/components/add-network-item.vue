@@ -26,6 +26,10 @@ import Switch from "@action/components/switch/index.vue";
 import InfoIcon from "@action/icons/common/info-icon.vue";
 import { NodeType } from "@/types/provider";
 
+const emit = defineEmits<{
+  (e: "networkToggled", name: string, isActive: boolean): void;
+}>();
+
 const props = defineProps({
   network: {
     type: Object as PropType<NodeType>,
@@ -36,7 +40,8 @@ const props = defineProps({
   isActive: Boolean,
 });
 
-const check = (isChecked: boolean) => {
+const check = async (isChecked: boolean) => {
+  emit("networkToggled", props.network.name, isChecked);
   console.log(props.network.name, isChecked);
 };
 </script>
