@@ -219,14 +219,21 @@ const getGasPrice = async () => {
   return await web3.eth.getGasPrice();
 };
 
+const getGasLimit = async () => {
+  return await web3.eth.estimateGas({
+    from: props.accountInfo.selectedAccount?.address,
+  });
+};
+
 const getPriorityFees = async () => {
   const gasPrice = await getGasPrice();
+  const gasLimit = await getGasLimit();
   const baseFeePerGas = await getBaseFeePerGas();
 
   for await (const priority of PRIORITIES) {
     const price = await getPriorityFeeBasedOnType(
       baseFeePerGas?.toString() as string,
-      gasPrice.toString(),
+      toBN(gasPrice).mul(toBN(gasLimit)).toString(),
       priority
     );
 
