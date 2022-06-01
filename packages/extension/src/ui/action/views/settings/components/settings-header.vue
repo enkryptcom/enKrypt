@@ -25,7 +25,7 @@ defineProps({
 });
 </script>
 
-<style lang="less" scoped>
+<style lang="less">
 @import "~@action/styles/theme.less";
 
 .settings {
@@ -53,6 +53,7 @@ defineProps({
     right: 8px;
     border-radius: 8px;
     cursor: pointer;
+    font-size: 0;
 
     &:hover {
       background: @black007;

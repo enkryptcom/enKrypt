@@ -1,28 +1,22 @@
 <template>
-  <a
-    class="settings-button"
-    :class="{ red: isRed }"
-    @click="(action as (e: MouseEvent)=>void)"
-  >
+  <div class="settings-switch">
     <h5>{{ title }}</h5>
-    <div class="settings-button__arrow">
-      <right-arrow v-if="!isLink" />
-      <external-icon v-else />
+    <div class="settings-switch__switch">
+      <Switch :check="check" :is-checked="isActive" />
     </div>
-  </a>
+  </div>
 </template>
 
 <script lang="ts">
 export default {
-  name: "SettingsButton",
+  name: "SettingsSwitch",
 };
 </script>
 
 <script setup lang="ts">
-import RightArrow from "@action/icons/common/right-arrow.vue";
-import ExternalIcon from "@action/icons/common/external-icon.vue";
+import Switch from "@action/components/switch/index.vue";
 
-defineProps({
+const props = defineProps({
   action: {
     type: Function,
     default: () => {
@@ -35,25 +29,23 @@ defineProps({
       return "";
     },
   },
-  isRed: {
-    type: Boolean,
-    default: () => {
-      return false;
-    },
-  },
-  isLink: {
+  isActive: {
     type: Boolean,
     default: () => {
       return false;
     },
   },
 });
+
+const check = async (isChecked: boolean) => {
+  props.action(isChecked);
+};
 </script>
 
 <style lang="less">
 @import "~@action/styles/theme.less";
 
-.settings-button {
+.settings-switch {
   height: 48px;
   background: #ffffff;
   margin: 0 32px 12px 32px;
@@ -86,26 +78,13 @@ defineProps({
     margin: 0;
   }
 
-  &__arrow {
+  &__switch {
     position: absolute;
     font-size: 0;
     padding: 4px;
     right: 8px;
     top: 50%;
     margin-top: -16px;
-  }
-
-  &.red {
-    background: @error01;
-    border: 1px solid @error01;
-
-    h5 {
-      color: @error;
-    }
-
-    .settings-button__arrow {
-      display: none;
-    }
   }
 }
 </style>
