@@ -1,24 +1,35 @@
 <template>
-  <div class="container">
+  <div v-if="!!selected" class="container">
     <custom-scrollbar
       v-if="!!NFTs"
       class="network-nfts__scroll-area"
       :settings="settings"
     >
-      <div v-if="!!selected" class="network-nfts">
-        <!-- <network-nfts-total :amount="totalValue" /> -->
-        <network-nfts-favorite :favorites="favorites"></network-nfts-favorite>
+      <div class="network-nfts">
+        <network-nfts-favorite
+          v-if="favoriteNFTs.length"
+          :favorites="favoriteNFTs"
+          @update:fav-clicked="favClicked"
+          @update:hide-clicked="hideClicked"
+        ></network-nfts-favorite>
         <network-nfts-category
           v-for="(item, index) in NFTs"
           :key="index"
           :collection="item"
+          @update:fav-clicked="favClicked"
+          @update:hide-clicked="hideClicked"
         ></network-nfts-category>
-        <network-nfts-hidden :hiddens="hiddens"></network-nfts-hidden>
+        <network-nfts-hidden
+          v-if="hiddenNFTs.length"
+          :hiddens="hiddenNFTs"
+          @update:fav-clicked="favClicked"
+          @update:hide-clicked="hideClicked"
+        ></network-nfts-hidden>
       </div>
     </custom-scrollbar>
 
     <network-nfts-empty
-      v-if="!NFTs && !favorites && !hiddens"
+      v-if="!NFTs.length && !favoriteNFTs.length && !hiddenNFTs.length"
     ></network-nfts-empty>
   </div>
 </template>
@@ -40,8 +51,9 @@ import NetworkNftsEmpty from "./components/network-nfts-empty.vue";
 import { onMounted, PropType, ref, watch } from "vue";
 import { NodeType } from "@/types/provider";
 import { AccountsHeaderData } from "../../types/account";
-import { NFTCollection } from "@/types/nft";
-import BigNumber from "bignumber.js";
+import { NFTCollection, NFTItem } from "@/types/nft";
+import NFTState from "@/libs/nft-state";
+const nftState = new NFTState();
 const props = defineProps({
   network: {
     type: Object as PropType<NodeType>,
@@ -52,53 +64,56 @@ const props = defineProps({
     default: () => ({}),
   },
 });
-const totalValue = ref("0");
-const NFTs = ref<NFTCollection[] | null>(null);
-const favorites = [
-  {
-    collection: "ETHEREUM:0xef9e3414339a236cbfc8bf84c7fac24c2513b317",
-    contract: "0xef9e3414339a236cbfc8bf84c7fac24c2513b317",
-    id: "7411",
-    image:
-      "https://ipfs.infura.io/ipfs/QmfUaffettmFaX7G4J7NUQzfXcnKG1BAvKrWnWoureHz14/7411.png",
-    name: "Eyes of Fashion #7411",
-    valueUSD: "0",
-  },
-];
-const hiddens = [
-  {
-    collection: "ETHEREUM:0xef9e3414339a236cbfc8bf84c7fac24c2513b317",
-    contract: "0xef9e3414339a236cbfc8bf84c7fac24c2513b317",
-    id: "7411",
-    image:
-      "https://ipfs.infura.io/ipfs/QmfUaffettmFaX7G4J7NUQzfXcnKG1BAvKrWnWoureHz14/7411.png",
-    name: "Eyes of Fashion #7411",
-    valueUSD: "0",
-  },
-];
+const NFTs = ref<NFTCollection[]>([]);
+const favoriteNFTs = ref<NFTItem[]>([]);
+const hiddenNFTs = ref<NFTItem[]>([]);
+const liveNFTCollection = ref<NFTCollection[]>([]);
 watch([props.accountInfo, props.network], () => {
   updateNFTInfo();
 });
 onMounted(() => {
   updateNFTInfo();
 });
-const updateNFTInfo = () => {
-  if (props.network.NFTHandler)
+const localUpdate = async () => {
+  const favs = await nftState.getFavoriteNFTs();
+  const hidden = await nftState.getHiddenNFTs();
+  favoriteNFTs.value = [];
+  hiddenNFTs.value = [];
+  const collections = JSON.parse(
+    JSON.stringify(liveNFTCollection.value)
+  ) as NFTCollection[];
+  collections.forEach((col) => {
+    if (favs[col.contract]) {
+      col.items.forEach((item) => {
+        if (favs[col.contract].includes(item.id)) favoriteNFTs.value.push(item);
+      });
+      col.items = col.items.filter(
+        (item) => !favs[col.contract].includes(item.id)
+      );
+    }
+    if (hidden[col.contract]) {
+      col.items.forEach((item) => {
+        if (hidden[col.contract].includes(item.id)) hiddenNFTs.value.push(item);
+      });
+      col.items = col.items.filter(
+        (item) => !hidden[col.contract].includes(item.id)
+      );
+    }
+  });
+  NFTs.value = collections.filter((col) => col.items.length);
+};
+const updateNFTInfo = async () => {
+  if (props.network.NFTHandler) {
     props.network
       .NFTHandler(
         props.network,
         props.accountInfo.selectedAccount?.address || ""
       )
       .then((collections) => {
-        NFTs.value = collections;
-        let total = new BigNumber("0");
-        collections.forEach((col) => {
-          col.items.forEach((item) => {
-            total = new BigNumber(item.valueUSD).plus(total);
-          });
-        });
-        totalValue.value = total.toFixed(2);
+        liveNFTCollection.value = collections;
+        localUpdate();
       });
+  }
 };
 const route = useRoute();
 
@@ -107,6 +122,25 @@ const settings = {
   suppressScrollY: false,
   suppressScrollX: true,
   wheelPropagation: false,
+};
+const favClicked = async (isFav: boolean, item: NFTItem) => {
+  if (isFav) {
+    await nftState.setFavoriteNFT(item.contract, item.id);
+  } else {
+    await nftState.deleteFavoriteNFT(item.contract, item.id);
+    //favoriteNFTs.value = favoriteNFTs.value.filter((i) => i.id !== item.id);
+  }
+  localUpdate();
+};
+const hideClicked = async (isHidden: boolean, item: NFTItem) => {
+  if (isHidden) {
+    await nftState.setHiddenNFT(item.contract, item.id);
+    //hiddenNFTs.value.push(item);
+  } else {
+    await nftState.deleteHiddenNFT(item.contract, item.id);
+    // hiddenNFTs.value = hiddenNFTs.value.filter((i) => i.id !== item.id);
+  }
+  localUpdate();
 };
 </script>
 

@@ -1,10 +1,10 @@
 <template>
   <div class="network-nfts-category__sort-menu">
-    <a @click="abcSort">
+    <a @click="abcSort(true)">
       <span>Collections: A — Z</span>
       <done-icon v-if="isAbcSort"></done-icon>
     </a>
-    <a @click="recentlySort">
+    <a @click="abcSort(false)">
       <span>Recently added</span>
       <done-icon v-if="!isAbcSort"></done-icon>
     </a>
@@ -23,13 +23,7 @@ import DoneIcon from "@action/icons/common/done_icon.vue";
 
 defineProps({
   abcSort: {
-    type: Function as PropType<() => void>,
-    default: () => {
-      return null;
-    },
-  },
-  recentlySort: {
-    type: Function as PropType<() => void>,
+    type: Function as PropType<(isAbc: boolean) => void>,
     default: () => {
       return null;
     },

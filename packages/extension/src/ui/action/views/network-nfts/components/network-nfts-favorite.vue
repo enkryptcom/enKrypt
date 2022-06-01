@@ -10,6 +10,7 @@
         :key="index"
         :item="item"
         :is-favorite="true"
+        v-bind="$attrs"
       ></network-nfts-item>
     </div>
   </div>
@@ -26,11 +27,11 @@ import { PropType, ref } from "vue";
 import NetworkNftsItem from "./network-nfts-item.vue";
 import SwitchArrow from "@action/icons/header/switch_arrow.vue";
 import { NFTItem } from "@/types/nft";
-let isOpen = ref(false);
+let isOpen = ref(true);
 
 defineProps({
   favorites: {
-    type: Object as PropType<Array<[NFTItem]>>,
+    type: Object as PropType<NFTItem[]>,
     default: () => {
       return {};
     },

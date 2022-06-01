@@ -4,19 +4,19 @@
       <nft-more-send />
       <span>Send</span>
     </a>
-    <a v-if="!isFavorite">
+    <a v-if="!isFavorite && !isHidden" @click="favClicked(true)">
       <nft-more-add-to-favorite />
       <span>Add to favorites</span>
     </a>
-    <a v-else>
+    <a v-else-if="isFavorite && !isHidden" @click="favClicked(false)">
       <nft-more-delete-from-favorite />
       <span>Delete from favorites</span>
     </a>
-    <a v-if="!isHidden">
+    <a v-if="!isHidden && !isFavorite" @click="hideClicked(true)">
       <nft-more-hide />
       <span>Hide</span>
     </a>
-    <a v-else>
+    <a v-else-if="isHidden && !isFavorite" @click="hideClicked(false)">
       <nft-more-show />
       <span>Show</span>
     </a>
@@ -35,8 +35,10 @@ import NftMoreAddToFavorite from "@action/icons/nft/nft-more-add-to-favorite.vue
 import NftMoreDeleteFromFavorite from "@action/icons/nft/nft-more-delete-from-favorite.vue";
 import NftMoreHide from "@action/icons/nft/nft-more-hide.vue";
 import NftMoreShow from "@action/icons/nft/nft-more-show.vue";
+import { NFTItem } from "@/types/nft";
+import { PropType } from "vue";
 
-defineProps({
+const props = defineProps({
   send: {
     type: Function,
     default: () => {
@@ -45,17 +47,33 @@ defineProps({
   },
   isFavorite: {
     type: Boolean,
-    default: () => {
-      return false;
-    },
+    default: false,
   },
   isHidden: {
     type: Boolean,
+    default: false,
+  },
+  item: {
+    type: Object as PropType<NFTItem>,
+    required: true,
     default: () => {
-      return false;
+      return {};
     },
   },
 });
+const emit = defineEmits<{
+  (e: "update:favClicked", isFav: boolean, item: NFTItem): void;
+  (e: "update:hideClicked", isHide: boolean, item: NFTItem): void;
+  (e: "update:hideMe"): void;
+}>();
+const favClicked = (isFav: boolean) => {
+  emit("update:favClicked", isFav, props.item);
+  emit("update:hideMe");
+};
+const hideClicked = (isHide: boolean) => {
+  emit("update:hideClicked", isHide, props.item);
+  emit("update:hideMe");
+};
 </script>
 
 <style lang="less">

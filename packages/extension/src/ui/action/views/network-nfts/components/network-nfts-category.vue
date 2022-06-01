@@ -10,9 +10,10 @@
     </div>
     <div class="network-nfts__category-items">
       <network-nfts-item
-        v-for="(item, index) in collection.items"
+        v-for="(item, index) in reactiveCollection.items"
         :key="index"
         :item="item"
+        v-bind="$attrs"
       ></network-nfts-item>
     </div>
 
@@ -20,7 +21,6 @@
       v-show="isOpenSort"
       :is-abc-sort="isAbcSort"
       :abc-sort="abcSortAction"
-      :recently-sort="recentlySortAction"
       @mouseleave="toggleSortMenu"
     ></network-nfts-category-sort-menu>
   </div>
@@ -33,7 +33,7 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { PropType, ref } from "vue";
+import { computed, PropType, ref } from "vue";
 import NetworkNftsItem from "./network-nfts-item.vue";
 import NftSortMenu from "@action/icons/nft/nft-sort-menu.vue";
 import NetworkNftsCategorySortMenu from "./network-nfts-category-sort-menu.vue";
@@ -41,7 +41,7 @@ import { NFTCollection } from "@/types/nft";
 let isOpenSort = ref(false);
 let isAbcSort = ref(true);
 
-defineProps({
+const props = defineProps({
   collection: {
     type: Object as PropType<NFTCollection>,
     default: () => {
@@ -49,15 +49,21 @@ defineProps({
     },
   },
 });
-
+const reactiveCollection = computed<NFTCollection>(() => {
+  const collectionCopy = JSON.parse(
+    JSON.stringify(props.collection)
+  ) as NFTCollection;
+  if (isAbcSort.value)
+    collectionCopy.items.sort((a, b) =>
+      a.name > b.name ? 1 : b.name > a.name ? -1 : 0
+    );
+  return collectionCopy;
+});
 const toggleSortMenu = () => {
   isOpenSort.value = !isOpenSort.value;
 };
-const abcSortAction = () => {
-  isAbcSort.value = true;
-};
-const recentlySortAction = () => {
-  isAbcSort.value = false;
+const abcSortAction = (isAbc: boolean) => {
+  isAbcSort.value = isAbc;
 };
 </script>
 

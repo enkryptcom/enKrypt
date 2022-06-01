@@ -16,6 +16,9 @@
       v-show="isOpenMore"
       :is-favorite="isFavorite"
       :is-hidden="isHidden"
+      :item="item"
+      v-bind="$attrs"
+      @update:hide-me="toggleMoreMenu"
       @mouseleave="toggleMoreMenu"
     ></network-nfts-item-more-menu>
   </div>

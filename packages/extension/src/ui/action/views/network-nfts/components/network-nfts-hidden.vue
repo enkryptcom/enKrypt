@@ -10,6 +10,7 @@
         :key="index"
         :item="item"
         :is-hidden="true"
+        v-bind="$attrs"
       ></network-nfts-item>
     </div>
   </div>
@@ -30,7 +31,7 @@ let isOpen = ref(false);
 
 defineProps({
   hiddens: {
-    type: Object as PropType<Array<[NFTItem]>>,
+    type: Object as PropType<NFTItem[]>,
     default: () => {
       return {};
     },
