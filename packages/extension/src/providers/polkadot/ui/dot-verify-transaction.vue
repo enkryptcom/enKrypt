@@ -37,7 +37,7 @@
       </div>
       <div class="provider-verify-transaction__block">
         <div class="provider-verify-transaction__info">
-          <img src="@/ui/action/icons/raw/matchchain.png" />
+          <img src="@/ui/action/icons/raw/polkadot.png" />
           <div class="provider-verify-transaction__info-info">
             <h4>Polkadot</h4>
             <p>
@@ -198,3 +198,8 @@ const unlockAction = () => {
   isProcessing.value = !isProcessing.value;
 };
 </script>
+
+<style lang="less">
+@import "~@action/styles/theme.less";
+@import "~@action/styles/provider-verify-transaction.less";
+</style>
