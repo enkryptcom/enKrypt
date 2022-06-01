@@ -273,7 +273,6 @@ const sendAction = () => {
       selectedToken: selectedToken.value.toString(),
       amount: amount.value,
       fee: fee.value.toString(),
-      network: props.network.toString(),
     },
   });
 };

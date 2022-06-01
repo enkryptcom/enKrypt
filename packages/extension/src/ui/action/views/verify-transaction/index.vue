@@ -53,7 +53,7 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { ref, PropType, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import BaseButton from "@action/components/base-button/index.vue";
@@ -77,6 +77,7 @@ import { KeyRecord } from "@enkryptcom/types";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
 import { fromRpcSig } from "ethereumjs-util";
 import { FeeMarketEIP1559Transaction } from "@ethereumjs/tx";
+import { AccountsHeaderData } from "@action/types/account";
 
 const KeyRing = new PublicKeyRing();
 let web3: any;
@@ -100,6 +101,17 @@ onMounted(async () => {
     (net) => net.name === curNetwork
   ) as NodeType;
   web3 = await new Web3(selectedNetwork.value?.node);
+});
+
+const props = defineProps({
+  network: {
+    type: Object as PropType<NodeType>,
+    default: () => ({}),
+  },
+  accountInfo: {
+    type: Object as PropType<AccountsHeaderData>,
+    default: () => ({}),
+  },
 });
 
 const close = () => {
@@ -186,12 +198,15 @@ const getTokenTransferABI = async (amount: any, _toAddress: string) => {
 };
 
 const isToken = async () => {
-  if (selectedNetwork.value) {
-    const token = selectedNetwork.value
-      .assetsHandler(selectedNetwork.value, fromAddress || "")
+  if (props.network.assetsHandler) {
+    const token = await props.network
+      .assetsHandler(
+        props.network,
+        props.accountInfo.selectedAccount?.address || ""
+      )
       .then((assets: any) => {
         return assets.find((asset: any) => {
-          return asset.name === selectedNetwork.value.name_long;
+          return asset.name === props.network.name_long;
         });
       });
     if (!token) return false;
