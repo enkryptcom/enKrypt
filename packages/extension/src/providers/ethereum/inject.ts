@@ -73,12 +73,20 @@ export class Provider extends EventEmitter implements ProviderInterface {
     handleIncomingMessage(this, msg);
   }
 }
+const ProxyHandler = {
+  get(target: Provider, prop: keyof Provider) {
+    if (typeof target[prop] === "function") {
+      return (target[prop] as () => any).bind(target);
+    }
+    return target[prop];
+  },
+};
 const injectDocument = (
   document: EnkryptWindow | Window,
   options: ProviderOptions
 ): void => {
   const provider = new Provider(options);
-  document[options.name] = provider;
+  document[options.name] = new Proxy(provider, ProxyHandler); //proxy is needed due to web3js 1.3.0 callbackify issue. Used in superrare
   document["enkrypt"]["providers"][options.name] = provider;
 };
 export default injectDocument;
