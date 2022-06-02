@@ -26,6 +26,7 @@ export enum InternalStorageNamespace {
   domainState = "DomainState",
   marketData = "MarketData",
   cacheFetch = "CacheFetch",
+  nftState = "NFTState",
   networksState = "NetworksState",
 }
 export enum EnkryptProviderEventMethods {
