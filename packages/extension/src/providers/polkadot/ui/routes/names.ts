@@ -19,4 +19,9 @@ export default {
     component: {},
     name: "dotUpdateMetadata",
   },
+  dotVerifyTransaction: {
+    path: "dot-verify-transaction",
+    component: {},
+    name: "dotVerifyTransaction",
+  },
 };
