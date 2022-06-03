@@ -130,8 +130,7 @@ import { getCustomError, getError } from "@/libs/error";
 import { ErrorCodes } from "@/providers/ethereum/types";
 import { WindowPromiseHandler } from "@/libs/window-promise";
 import { InternalMethods } from "@/types/messenger";
-const { PromiseResolve, options, Request, sendToBackground } =
-  WindowPromiseHandler();
+const { PromiseResolve, Request, sendToBackground } = WindowPromiseHandler();
 
 let isOpenSelectFee = ref(false);
 let fee = ref(recommendedFee);

@@ -24,6 +24,7 @@ export class Provider extends EventEmitter implements ProviderInterface {
   name: ProviderName;
   type: ProviderType;
   version: string = EXTENSION_VERSION;
+  autoRefreshOnNetworkChange = false;
   sendMessageHandler: SendMessageHandler;
   constructor(options: ProviderOptions) {
     super();
@@ -73,12 +74,33 @@ export class Provider extends EventEmitter implements ProviderInterface {
     handleIncomingMessage(this, msg);
   }
 }
+
 const ProxyHandler = {
+  proxymethods: ["request", "sendAsync", "send"],
+  writableVars: ["autoRefreshOnNetworkChange"],
+  ownKeys(target: Provider) {
+    return Object.keys(target).concat(this.proxymethods);
+  },
+  set(target: Provider, name: keyof Provider, value: any) {
+    if (!this.ownKeys(target).includes(name)) this.proxymethods.push(name);
+    return Reflect.set(target, name, value);
+  },
+  getOwnPropertyDescriptor(target: Provider, name: keyof Provider) {
+    return {
+      value: this.get(target, name),
+      configurable: true,
+      writable: this.writableVars.includes(name),
+      enumerable: true,
+    };
+  },
   get(target: Provider, prop: keyof Provider) {
     if (typeof target[prop] === "function") {
       return (target[prop] as () => any).bind(target);
     }
     return target[prop];
+  },
+  has(target: Provider, name: keyof Provider) {
+    return this.ownKeys(target).includes(name);
   },
 };
 const injectDocument = (
