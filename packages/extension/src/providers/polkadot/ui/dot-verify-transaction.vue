@@ -13,6 +13,7 @@
     <custom-scrollbar
       ref="providerVerifyTransactionScrollRef"
       class="provider-verify-transaction__scroll-area"
+      :settings="ScrollSettings"
     >
       <div class="provider-verify-transaction__block">
         <div class="provider-verify-transaction__account">
@@ -124,7 +125,7 @@ import { recommendedFee } from "@action/types/mock";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 import BestOfferError from "@action/views/swap-best-offer/components/swap-best-offer-block/components/best-offer-error.vue";
 import AlertIcon from "@action/icons/send/alert-icon.vue";
-
+import ScrollSettings from "@/libs/utils/scroll-settings";
 import { KeyRecord } from "@enkryptcom/types";
 import { getCustomError, getError } from "@/libs/error";
 import { ErrorCodes } from "@/providers/ethereum/types";
@@ -186,5 +187,5 @@ const deny = () => {
 
 <style lang="less">
 @import "~@action/styles/theme.less";
-@import "~@action/styles/provider-verify-transaction.less";
+@import "./styles/verify-transaction.less";
 </style>

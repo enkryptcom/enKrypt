@@ -1,6 +1,6 @@
 <template>
   <div class="transaction-fee" :class="{ show: showFees }">
-    <div class="transaction-fee__overlay" @click="close"></div>
+    <div class="transaction-fee__overlay" @click="props.close"></div>
     <div
       class="transaction-fee__wrap"
       :class="{ show: showFees, header: isHeader }"
@@ -8,7 +8,7 @@
       <div v-if="isHeader" class="transaction-fee__header">
         <h3>Choose transaction fee</h3>
 
-        <a class="transaction-fee__close" @click="close()">
+        <a class="transaction-fee__close" @click="props.close">
           <close-icon />
         </a>
       </div>
@@ -55,6 +55,7 @@ import { fees } from "@action/types/mock";
 import { TransactionFee, TransactionFeeSpeed } from "@action/types/fee";
 import TimeIcon from "@action/icons/fee/time-icon.vue";
 import CloseIcon from "@action/icons/common/close-icon.vue";
+import { VoidFn } from "@polkadot/api/types";
 
 const props = defineProps({
   showFees: Boolean,
@@ -65,7 +66,7 @@ const props = defineProps({
     },
   },
   close: {
-    type: Function,
+    type: Function as () => any,
     default: () => {
       return null;
     },
@@ -83,10 +84,6 @@ const props = defineProps({
     },
   },
 });
-
-const close = () => {
-  props.close(false);
-};
 
 const selectFee = (fee: TransactionFee) => {
   props.selectFee(fee);

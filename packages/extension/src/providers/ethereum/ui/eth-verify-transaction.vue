@@ -5,31 +5,25 @@
       class="provider-verify-transaction__logo"
     ></sign-logo>
     <div class="provider-verify-transaction__network">
-      <img src="@/ui/action/icons/raw/eth-green.png" />
-      <p>Ethereum</p>
+      <img :src="network.icon" />
+      <p>{{ network.name_long }}</p>
     </div>
     <h2>Verify transaction</h2>
 
     <custom-scrollbar
-      ref="providerVerifyTransactionScrollRef"
+      tem="providerVerifyTransactionScrollRef"
       class="provider-verify-transaction__scroll-area"
-      :settings="settings"
+      :settings="ScrollSettings({ suppressScrollX: true })"
     >
       <div class="provider-verify-transaction__block">
         <div class="provider-verify-transaction__account">
-          <img src="@/ui/action/icons/raw/account.png" />
+          <img :src="identicon" />
           <div class="provider-verify-transaction__account-info">
-            <h4>My account nickname</h4>
+            <h4>{{ account.name }}</h4>
             <div>
               <p>12.34 <span>dot</span></p>
               <p>
-                {{
-                  $filters.replaceWithEllipsis(
-                    "0x14502CF6C0A13167Dc340E25Dabf5FBDB68R5967",
-                    6,
-                    4
-                  )
-                }}
+                {{ $filters.replaceWithEllipsis(account.address, 6, 4) }}
               </p>
             </div>
           </div>
@@ -37,10 +31,10 @@
       </div>
       <div class="provider-verify-transaction__block">
         <div class="provider-verify-transaction__info">
-          <img src="@/ui/action/icons/raw/matchchain.png" />
+          <img :src="options.faviconURL" />
           <div class="provider-verify-transaction__info-info">
-            <h4>Mathchain</h4>
-            <p>https://explorer-galois.mathchain.org/#/</p>
+            <h4>{{ options.title }}</h4>
+            <p>{{ options.domain }}</p>
           </div>
         </div>
 
@@ -132,7 +126,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, ComponentPublicInstance } from "vue";
 import SignLogo from "@action/icons/common/sign-logo.vue";
 import RightChevron from "@action/icons/common/right-chevron.vue";
 import BaseButton from "@action/components/base-button/index.vue";
@@ -146,10 +140,88 @@ import AlertIcon from "@action/icons/send/alert-icon.vue";
 import ModalSign from "@action/views/modal-sign/index.vue";
 import ModalForgot from "@action/views/modal-forgot/index.vue";
 import ModalPreload from "@action/views/modal-preload/index.vue";
+import ScrollSettings from "@/libs/utils/scroll-settings";
+
+import { KeyRecord } from "@enkryptcom/types";
+import { getCustomError, getError } from "@/libs/error";
+import { ErrorCodes } from "@/providers/ethereum/types";
+import { WindowPromiseHandler } from "@/libs/window-promise";
+import { InternalMethods } from "@/types/messenger";
+import { computed } from "vue";
+import { bufferToHex } from "@enkryptcom/utils";
+import { fromRpcSig } from "ethereumjs-util";
+import { DEFAULT_NETWORK_NAME, getNetworkByName } from "@/libs/utils/networks";
+import { NodeType } from "@/types/provider";
+import { EthereumTransaction } from "../libs/transaction/types";
+import Transaction from "@/providers/ethereum/libs/transaction";
+import Web3 from "web3";
+import { FeeMarketEIP1559Transaction } from "@ethereumjs/tx";
+const { PromiseResolve, options, Request, sendToBackground } =
+  WindowPromiseHandler();
+const network = computed(() => {
+  if (Request.value.params && Request.value.params.length > 2)
+    return getNetworkByName(Request.value.params[2]) as NodeType;
+  else return getNetworkByName(DEFAULT_NETWORK_NAME) as NodeType;
+});
+const account = computed(() => {
+  if (Request.value.params && Request.value.params.length > 1) {
+    return Request.value.params[1] as KeyRecord;
+  } else
+    return {
+      name: "",
+      address: "",
+    } as KeyRecord;
+});
+const identicon = computed(() => {
+  return network.value.identicon(account.value.address);
+});
+const approve = () => {
+  if (!Request.value.params || Request.value.params.length < 2) {
+    return PromiseResolve.value({ error: getCustomError("No params") });
+  }
+  const web3 = new Web3(network.value.node);
+  const tx = new Transaction(
+    Request.value.params[0] as EthereumTransaction,
+    web3
+  );
+  tx.getFinalizedTransaction().then((finalizedTx) => {
+    const msgHash = bufferToHex(finalizedTx.getMessageToSign(true));
+    sendToBackground({
+      method: InternalMethods.sign,
+      params: [msgHash, account.value],
+    }).then((res) => {
+      if (res.error) {
+        PromiseResolve.value(res);
+      } else {
+        const rpcSig = fromRpcSig(res.result || "0x");
+        const signedTx = (
+          finalizedTx as FeeMarketEIP1559Transaction
+        )._processSignature(rpcSig.v, rpcSig.r, rpcSig.s);
+        web3.eth
+          .sendSignedTransaction("0x" + signedTx.serialize().toString("hex"))
+          .on("transactionHash", (hash) => {
+            PromiseResolve.value({
+              result: JSON.stringify(hash),
+            });
+          })
+          .on("error", (error) => {
+            PromiseResolve.value({
+              error: getCustomError(error.message),
+            });
+          });
+      }
+    });
+  });
+};
+const deny = () => {
+  PromiseResolve.value({
+    error: getError(ErrorCodes.userRejected),
+  });
+};
 
 let isOpenSelectFee = ref(false);
 let fee = ref(recommendedFee);
-const providerVerifyTransactionScrollRef = ref(null);
+const providerVerifyTransactionScrollRef = ref<ComponentPublicInstance>();
 let isOpenData = ref(false);
 let isOpenSign = ref(false);
 let isForgot = ref(false);
@@ -163,20 +235,19 @@ const cancelAction = () => {
 const signAction = () => {
   toggleSign();
 };
-const toggleSelectFee = (open: boolean) => {
-  isOpenSelectFee.value = open;
+const toggleSelectFee = () => {
+  isOpenSelectFee.value = !isOpenSelectFee.value;
 };
 const selectFee = (option: TransactionFee) => {
   fee.value = option;
-  isOpenSelectFee.value = false;
+  toggleSelectFee();
 };
 const isHasScroll = () => {
   if (providerVerifyTransactionScrollRef.value) {
-    return (
-      providerVerifyTransactionScrollRef.value as HTMLElement
-    ).$el.classList.contains("ps--active-y");
+    return providerVerifyTransactionScrollRef.value.$el.classList.contains(
+      "ps--active-y"
+    );
   }
-
   return false;
 };
 const toggleData = () => {
@@ -199,5 +270,5 @@ const unlockAction = () => {
 
 <style lang="less">
 @import "~@action/styles/theme.less";
-@import "~@action/styles/provider-verify-transaction.less";
+@import "./styles/verify-transaction.less";
 </style>
