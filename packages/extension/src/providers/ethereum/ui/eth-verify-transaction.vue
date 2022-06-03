@@ -8,7 +8,7 @@
       <img :src="network.icon" />
       <p>{{ network.name_long }}</p>
     </div>
-    <h2>Verify transaction</h2>
+    <h2>Verify Transaction</h2>
 
     <custom-scrollbar
       tem="providerVerifyTransactionScrollRef"
@@ -21,7 +21,14 @@
           <div class="provider-verify-transaction__account-info">
             <h4>{{ account.name }}</h4>
             <div>
-              <p>12.34 <span>dot</span></p>
+              <p>
+                {{
+                  TokenBalance == "~"
+                    ? "~"
+                    : $filters.formatFloatingPointValue(TokenBalance).value
+                }}
+                <span>{{ network.currencyName }}</span>
+              </p>
               <p>
                 {{ $filters.replaceWithEllipsis(account.address, 6, 4) }}
               </p>
@@ -39,21 +46,31 @@
         </div>
 
         <div class="provider-verify-transaction__amount">
-          <img src="@/ui/action/icons/raw/eth-logo.png" />
+          <img :src="decodedTx?.tokenImage" />
 
           <div class="provider-verify-transaction__amount-info">
-            <h4>1.56 <span>eth</span></h4>
+            <h4>
+              {{
+                $filters.formatFloatingPointValue(
+                  fromBase(
+                    decodedTx?.tokenValue || "0x0",
+                    decodedTx?.tokenDecimals || 18
+                  )
+                ).value
+              }}
+              <span>{{ decodedTx?.tokenName || network.currencyName }}</span>
+            </h4>
             <p>$4520.54</p>
           </div>
         </div>
 
-        <div class="provider-verify-transaction__error">
+        <!-- <div class="provider-verify-transaction__error">
           <alert-icon />
           <p>
             Warning: you will allow this DApp to spend any amount of ETH at any
             time in the future. Please proceed only if you are trust this DApp.
           </p>
-        </div>
+        </div> -->
       </div>
 
       <send-fee-select
@@ -62,7 +79,7 @@
         :in-swap="true"
       ></send-fee-select>
 
-      <best-offer-error :not-enought-verify="true"></best-offer-error>
+      <!-- <best-offer-error :not-enought-verify="true"></best-offer-error> -->
 
       <div class="provider-verify-transaction__data">
         <a
@@ -96,37 +113,17 @@
       :class="{ border: isHasScroll() }"
     >
       <div class="provider-verify-transaction__buttons-cancel">
-        <base-button
-          title="Decline"
-          :click="cancelAction"
-          :no-background="true"
-        />
+        <base-button title="Decline" :click="deny" :no-background="true" />
       </div>
       <div class="provider-verify-transaction__buttons-send">
-        <base-button title="Sign" :click="signAction" />
+        <base-button title="Sign" :click="approve" />
       </div>
     </div>
-
-    <modal-sign
-      v-if="isOpenSign"
-      :close="toggleSign"
-      :forgot="toggleForgot"
-      :unlock="unlockAction"
-    ></modal-sign>
-
-    <modal-forgot
-      v-if="isForgot"
-      :is-forgot="isForgot"
-      :toggle-forgot="toggleForgot"
-      :reset-action="resetAction"
-    ></modal-forgot>
-
-    <modal-preload v-show="isProcessing"></modal-preload>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, ComponentPublicInstance } from "vue";
+import { ref, ComponentPublicInstance, watch } from "vue";
 import SignLogo from "@action/icons/common/sign-logo.vue";
 import RightChevron from "@action/icons/common/right-chevron.vue";
 import BaseButton from "@action/components/base-button/index.vue";
@@ -135,13 +132,9 @@ import TransactionFeeView from "@action/views/transaction-fee/index.vue";
 import { TransactionFee } from "@action/types/fee";
 import { recommendedFee } from "@action/types/mock";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
-import BestOfferError from "@action/views/swap-best-offer/components/swap-best-offer-block/components/best-offer-error.vue";
-import AlertIcon from "@action/icons/send/alert-icon.vue";
-import ModalSign from "@action/views/modal-sign/index.vue";
-import ModalForgot from "@action/views/modal-forgot/index.vue";
-import ModalPreload from "@action/views/modal-preload/index.vue";
+//import BestOfferError from "@action/views/swap-best-offer/components/swap-best-offer-block/components/best-offer-error.vue";
+// import AlertIcon from "@action/icons/send/alert-icon.vue";
 import ScrollSettings from "@/libs/utils/scroll-settings";
-
 import { KeyRecord } from "@enkryptcom/types";
 import { getCustomError, getError } from "@/libs/error";
 import { ErrorCodes } from "@/providers/ethereum/types";
@@ -151,17 +144,29 @@ import { computed } from "vue";
 import { bufferToHex } from "@enkryptcom/utils";
 import { fromRpcSig } from "ethereumjs-util";
 import { DEFAULT_NETWORK_NAME, getNetworkByName } from "@/libs/utils/networks";
-import { NodeType } from "@/types/provider";
-import { EthereumTransaction } from "../libs/transaction/types";
+import { DecodedTx, EthereumTransaction } from "../libs/transaction/types";
 import Transaction from "@/providers/ethereum/libs/transaction";
 import Web3 from "web3";
 import { FeeMarketEIP1559Transaction } from "@ethereumjs/tx";
+import { EvmNetwork } from "../types/evm-network";
+import { fromBase } from "@/libs/utils/units";
+import { decodeTx } from "../libs/transaction/decoder";
+
+const isOpenSelectFee = ref(false);
+const fee = ref(recommendedFee);
+const providerVerifyTransactionScrollRef = ref<ComponentPublicInstance>();
+const isOpenData = ref(false);
+const TokenBalance = ref<string>("~");
+const decodedTx = ref<DecodedTx>();
 const { PromiseResolve, options, Request, sendToBackground } =
   WindowPromiseHandler();
+
+defineExpose({ providerVerifyTransactionScrollRef });
+
 const network = computed(() => {
   if (Request.value.params && Request.value.params.length > 2)
-    return getNetworkByName(Request.value.params[2]) as NodeType;
-  else return getNetworkByName(DEFAULT_NETWORK_NAME) as NodeType;
+    return getNetworkByName(Request.value.params[2]) as EvmNetwork;
+  else return getNetworkByName(DEFAULT_NETWORK_NAME) as EvmNetwork;
 });
 const account = computed(() => {
   if (Request.value.params && Request.value.params.length > 1) {
@@ -174,6 +179,19 @@ const account = computed(() => {
 });
 const identicon = computed(() => {
   return network.value.identicon(account.value.address);
+});
+watch(account, async () => {
+  if (account.value.address != "" && network.value.api) {
+    const api = await network.value.api();
+    const balance = await api.getBalance(account.value.address);
+    TokenBalance.value = fromBase(balance, network.value.decimals);
+  }
+  if (Request.value.params && Request.value.params.length > 1) {
+    decodeTx(
+      Request.value.params[0] as EthereumTransaction,
+      network.value
+    ).then((decoded) => (decodedTx.value = decoded));
+  }
 });
 const approve = () => {
   if (!Request.value.params || Request.value.params.length < 2) {
@@ -219,22 +237,6 @@ const deny = () => {
   });
 };
 
-let isOpenSelectFee = ref(false);
-let fee = ref(recommendedFee);
-const providerVerifyTransactionScrollRef = ref<ComponentPublicInstance>();
-let isOpenData = ref(false);
-let isOpenSign = ref(false);
-let isForgot = ref(false);
-let isProcessing = ref(false);
-
-defineExpose({ providerVerifyTransactionScrollRef });
-
-const cancelAction = () => {
-  console.log("cancelAction");
-};
-const signAction = () => {
-  toggleSign();
-};
 const toggleSelectFee = () => {
   isOpenSelectFee.value = !isOpenSelectFee.value;
 };
@@ -252,19 +254,6 @@ const isHasScroll = () => {
 };
 const toggleData = () => {
   isOpenData.value = !isOpenData.value;
-};
-const toggleSign = () => {
-  isOpenSign.value = !isOpenSign.value;
-};
-const toggleForgot = () => {
-  isOpenSign.value = false;
-  isForgot.value = !isForgot.value;
-};
-const resetAction = () => {
-  console.log("resetAction");
-};
-const unlockAction = () => {
-  isProcessing.value = !isProcessing.value;
 };
 </script>
 

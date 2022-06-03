@@ -55,7 +55,6 @@ import { fees } from "@action/types/mock";
 import { TransactionFee, TransactionFeeSpeed } from "@action/types/fee";
 import TimeIcon from "@action/icons/fee/time-icon.vue";
 import CloseIcon from "@action/icons/common/close-icon.vue";
-import { VoidFn } from "@polkadot/api/types";
 
 const props = defineProps({
   showFees: Boolean,

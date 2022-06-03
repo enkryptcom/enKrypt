@@ -17,6 +17,8 @@ import API from "@/providers/ethereum/libs/api";
 import Sparkline from "@/libs/sparkline";
 import { BaseNetwork } from "@/types/base-network";
 import { EvmNetwork } from "../../types/evm-network";
+import TokenLists from "./token-lists";
+import networks from "../../networks";
 const API_ENPOINT = "https://tokenbalance.mewapi.io/";
 const NATIVE_CONTRACT = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
 const TOKEN_FETCH_TTL = 1000 * 60 * 60;
@@ -25,20 +27,20 @@ export default (
   address: string
 ): Promise<AssetsType[]> => {
   const supportedNetworks: Record<string, SupportedNetwork> = {
-    BNB: {
+    [networks.bsc.name]: {
       tbName: "bsc",
-      tokenurl: "https://tokens.coingecko.com/binance-smart-chain/all.json",
-      cgPlatform: "binance-smart-chain",
+      tokenurl: TokenLists[networks.bsc.name],
+      cgPlatform: networks.bsc.coingeckoID as string,
     },
-    ETH: {
+    [networks.ethereum.name]: {
       tbName: "eth",
-      tokenurl: "https://tokens.coingecko.com/ethereum/all.json",
-      cgPlatform: "ethereum",
+      tokenurl: TokenLists[networks.ethereum.name],
+      cgPlatform: networks.ethereum.coingeckoID as string,
     },
-    MATIC: {
+    [networks.matic.name]: {
       tbName: "matic",
-      tokenurl: "https://tokens.coingecko.com/polygon-pos/all.json",
-      cgPlatform: "polygon-pos",
+      tokenurl: TokenLists[networks.matic.name],
+      cgPlatform: networks.matic.coingeckoID as string,
     },
   };
   if (!Object.keys(supportedNetworks).includes(network.name))

@@ -223,7 +223,7 @@ const setNetwork = async (network: BaseNetwork) => {
     try {
       const api = await network.api();
       const activeBalancePromises = activeAccounts.map((acc) =>
-        api.getBaseBalance(acc.address)
+        api.getBalance(acc.address)
       );
       Promise.all(activeBalancePromises).then((balances) => {
         accountHeaderData.value.activeBalances = balances;
