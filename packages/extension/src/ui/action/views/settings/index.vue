@@ -31,6 +31,11 @@
         :back="startAction"
         :close="close"
       ></settings-recovery>
+      <reset-wallet
+        v-if="isReset"
+        :back="startAction"
+        :close="close"
+      ></reset-wallet>
     </div>
   </div>
 </template>
@@ -48,12 +53,14 @@ import SettingsGeneral from "@action/views/settings-general/index.vue";
 import SettingsSupport from "@action/views/settings-support/index.vue";
 import SettingsAbout from "@action/views/settings-about/index.vue";
 import SettingsRecovery from "@action/views/settings-recovery/index.vue";
+import ResetWallet from "@action/views/reset-wallet/index.vue";
 
 const isStart = ref(true);
 const isGeneral = ref(false);
 const isAbout = ref(false);
 const isSupport = ref(false);
 const isPhrase = ref(false);
+const isReset = ref(false);
 
 defineProps({
   close: {
@@ -68,10 +75,16 @@ const recoveryPhraseAction = () => {
   isAbout.value = false;
   isSupport.value = false;
   isPhrase.value = true;
+  isReset.value = false;
 };
 
 const resetAction = () => {
-  console.log("resetAction");
+  isStart.value = false;
+  isGeneral.value = false;
+  isAbout.value = false;
+  isSupport.value = false;
+  isPhrase.value = false;
+  isReset.value = true;
 };
 
 const supportAction = () => {
@@ -80,6 +93,7 @@ const supportAction = () => {
   isAbout.value = false;
   isSupport.value = true;
   isPhrase.value = false;
+  isReset.value = false;
 };
 
 const generalAction = () => {
@@ -88,6 +102,7 @@ const generalAction = () => {
   isAbout.value = false;
   isSupport.value = false;
   isPhrase.value = false;
+  isReset.value = false;
 };
 
 const aboutAction = () => {
@@ -96,6 +111,7 @@ const aboutAction = () => {
   isAbout.value = true;
   isSupport.value = false;
   isPhrase.value = false;
+  isReset.value = false;
 };
 
 const startAction = () => {
@@ -104,6 +120,7 @@ const startAction = () => {
   isAbout.value = false;
   isSupport.value = false;
   isPhrase.value = false;
+  isReset.value = false;
 };
 </script>
 

@@ -30,7 +30,7 @@
     <div class="settings__block">
       <settings-button
         title="View my recovery phrase"
-        :action="recoveryPhraseAction"
+        :action="toggleSign"
       ></settings-button>
       <settings-button
         title="Reset wallet"
@@ -43,6 +43,21 @@
       <p>Version 0.1.4 build 2</p>
       <p>© 2022 by MyEtherWallet Inc.</p>
     </div>
+
+    <modal-sign
+      v-if="isOpenSign"
+      :close="toggleSign"
+      :forgot="toggleForgot"
+      :unlock="unlockAction"
+      :is-unlock="true"
+    ></modal-sign>
+
+    <modal-forgot
+      v-if="isForgot"
+      :is-forgot="isForgot"
+      :toggle-forgot="toggleForgot"
+      :reset-action="resetAction"
+    ></modal-forgot>
   </div>
 </template>
 
@@ -53,11 +68,16 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { PropType } from "vue";
+import { PropType, ref } from "vue";
 import SettingsHeader from "@action/views/settings/components/settings-header.vue";
 import SettingsButton from "@action/views/settings/components/settings-button.vue";
+import ModalSign from "@action/views/modal-sign/index.vue";
+import ModalForgot from "@action/views/modal-forgot/index.vue";
 
-defineProps({
+let isOpenSign = ref(false);
+let isForgot = ref(false);
+
+const props = defineProps({
   close: {
     type: Function as PropType<() => void>,
     default: () => ({}),
@@ -90,6 +110,18 @@ const bugAction = () => {
 
 const privacyAction = () => {
   window.open("https://www.myetherwallet.com/privacy-policy", "blanck");
+};
+
+const toggleSign = () => {
+  isOpenSign.value = !isOpenSign.value;
+};
+const toggleForgot = () => {
+  isOpenSign.value = false;
+  isForgot.value = !isForgot.value;
+};
+
+const unlockAction = () => {
+  props.recoveryPhraseAction();
 };
 </script>
 

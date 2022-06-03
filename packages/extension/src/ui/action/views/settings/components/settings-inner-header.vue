@@ -7,6 +7,7 @@
     <h2 v-show="isAbout">About</h2>
     <h2 v-show="isSupport">Support</h2>
     <h2 v-show="isPhrase">Recovery phrase</h2>
+    <h2 v-show="isReset">Reset wallet?</h2>
 
     <a class="settings__close" @click="close()">
       <close-icon />
@@ -46,6 +47,10 @@ defineProps({
     default: false,
   },
   isPhrase: {
+    type: Boolean,
+    default: false,
+  },
+  isReset: {
     type: Boolean,
     default: false,
   },

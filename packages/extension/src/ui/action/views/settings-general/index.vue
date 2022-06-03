@@ -51,8 +51,8 @@ const currencyList = [
 ];
 let currency = ref("US Dollar");
 let isHideZeroBalance = ref(false);
-const timerList = ["15 min", "30 min", "1 hour"];
-let timer = ref("15 min");
+const timerList = ["1 min", "5 min", "15 min"];
+let timer = ref("5 min");
 
 defineProps({
   close: {
