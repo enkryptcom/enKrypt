@@ -1,5 +1,5 @@
 import tokenbalanceMew from "@/providers/ethereum/libs/assets-handlers/tokenbalance-mew";
-import rarible from "@/libs/nft-handlers/rarible";
+import mewNFTHandler from "@/libs/nft-handlers/mew";
 import { ProviderName } from "@/types/provider";
 import { NetworkNames, SignerType } from "@enkryptcom/types";
 import { toChecksumAddress } from "ethereumjs-util";
@@ -22,7 +22,7 @@ const ethNode: EthereumNodeType = {
   displayAddress: (address: string) => toChecksumAddress(address),
   provider: ProviderName.ethereum,
   coingeckoID: "ethereum",
-  NFTHandler: rarible,
+  NFTHandler: mewNFTHandler,
   identicon: createIcon,
   assetsHandler: tokenbalanceMew,
   basePath: "m/44'/60'/0'/0",

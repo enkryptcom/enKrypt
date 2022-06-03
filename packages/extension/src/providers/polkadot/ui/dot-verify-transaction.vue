@@ -13,7 +13,6 @@
     <custom-scrollbar
       ref="providerVerifyTransactionScrollRef"
       class="provider-verify-transaction__scroll-area"
-      :settings="settings"
     >
       <div class="provider-verify-transaction__block">
         <div class="provider-verify-transaction__account">
@@ -37,7 +36,7 @@
       </div>
       <div class="provider-verify-transaction__block">
         <div class="provider-verify-transaction__info">
-          <img src="@/ui/action/icons/raw/matchchain.png" />
+          <img src="@/ui/action/icons/raw/polkadot.png" />
           <div class="provider-verify-transaction__info-info">
             <h4>Polkadot</h4>
             <p>
@@ -104,32 +103,12 @@
       :class="{ border: isHasScroll() }"
     >
       <div class="provider-verify-transaction__buttons-cancel">
-        <base-button
-          title="Decline"
-          :click="cancelAction"
-          :no-background="true"
-        />
+        <base-button title="Decline" :click="deny" :no-background="true" />
       </div>
       <div class="provider-verify-transaction__buttons-send">
-        <base-button title="Sign" :click="signAction" />
+        <base-button title="Sign" :click="approve" />
       </div>
     </div>
-
-    <modal-sign
-      v-if="isOpenSign"
-      :close="toggleSign"
-      :forgot="toggleForgot"
-      :unlock="unlockAction"
-    ></modal-sign>
-
-    <modal-forgot
-      v-if="isForgot"
-      :is-forgot="isForgot"
-      :toggle-forgot="toggleForgot"
-      :reset-action="resetAction"
-    ></modal-forgot>
-
-    <modal-preload v-show="isProcessing"></modal-preload>
   </div>
 </template>
 
@@ -145,26 +124,22 @@ import { recommendedFee } from "@action/types/mock";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 import BestOfferError from "@action/views/swap-best-offer/components/swap-best-offer-block/components/best-offer-error.vue";
 import AlertIcon from "@action/icons/send/alert-icon.vue";
-import ModalSign from "@action/views/modal-sign/index.vue";
-import ModalForgot from "@action/views/modal-forgot/index.vue";
-import ModalPreload from "@action/views/modal-preload/index.vue";
+
+import { KeyRecord } from "@enkryptcom/types";
+import { getCustomError, getError } from "@/libs/error";
+import { ErrorCodes } from "@/providers/ethereum/types";
+import { WindowPromiseHandler } from "@/libs/window-promise";
+import { InternalMethods } from "@/types/messenger";
+const { PromiseResolve, options, Request, sendToBackground } =
+  WindowPromiseHandler();
 
 let isOpenSelectFee = ref(false);
 let fee = ref(recommendedFee);
 const providerVerifyTransactionScrollRef = ref(null);
 let isOpenData = ref(false);
-let isOpenSign = ref(false);
-let isForgot = ref(false);
-let isProcessing = ref(false);
 
 defineExpose({ providerVerifyTransactionScrollRef });
 
-const cancelAction = () => {
-  console.log("cancelAction");
-};
-const signAction = () => {
-  toggleSign();
-};
 const toggleSelectFee = (open: boolean) => {
   isOpenSelectFee.value = open;
 };
@@ -176,7 +151,7 @@ const isHasScroll = () => {
   if (providerVerifyTransactionScrollRef.value) {
     return (
       providerVerifyTransactionScrollRef.value as HTMLElement
-    ).$el.classList.contains("ps--active-y");
+    ).classList.contains("ps--active-y");
   }
 
   return false;
@@ -184,17 +159,33 @@ const isHasScroll = () => {
 const toggleData = () => {
   isOpenData.value = !isOpenData.value;
 };
-const toggleSign = () => {
-  isOpenSign.value = !isOpenSign.value;
+const approve = () => {
+  if (!Request.value.params || Request.value.params.length < 2) {
+    return PromiseResolve.value({ error: getCustomError("No params") });
+  }
+  const msg = Request.value.params[0] as `0x{string}`;
+  const account = Request.value.params[1] as KeyRecord;
+  sendToBackground({
+    method: InternalMethods.sign,
+    params: [msg, account],
+  }).then((res) => {
+    if (res.error) {
+      PromiseResolve.value(res);
+    } else {
+      PromiseResolve.value({
+        result: JSON.stringify(res.result),
+      });
+    }
+  });
 };
-const toggleForgot = () => {
-  isOpenSign.value = false;
-  isForgot.value = !isForgot.value;
-};
-const resetAction = () => {
-  console.log("resetAction");
-};
-const unlockAction = () => {
-  isProcessing.value = !isProcessing.value;
+const deny = () => {
+  PromiseResolve.value({
+    error: getError(ErrorCodes.userRejected),
+  });
 };
 </script>
+
+<style lang="less">
+@import "~@action/styles/theme.less";
+@import "~@action/styles/provider-verify-transaction.less";
+</style>
