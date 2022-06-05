@@ -6,16 +6,16 @@
     <div class="wallet-ready__social">
       <h4>Follow us</h4>
       <div class="wallet-ready__social-wrap">
-        <a href="#">
+        <a href="https://github.com/myetherwallet" target="_blank">
           <github-icon />
         </a>
-        <a href="#">
+        <a href="https://www.instagram.com/myetherwallet/" target="_blank">
           <instagram-icon />
         </a>
-        <a href="#">
+        <a href="https://www.reddit.com/r/MyEtherWallet/" target="_blank">
           <reddit-icon />
         </a>
-        <a href="#">
+        <a href="https://twitter.com/myetherwallet" target="_blank">
           <twitter-icon />
         </a>
       </div>

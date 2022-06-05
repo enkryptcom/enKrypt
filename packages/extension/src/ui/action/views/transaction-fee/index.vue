@@ -1,5 +1,5 @@
 <template>
-  <div class="transaction-fee" :class="{ show: showFees }">
+  <div class="transaction-fee" :class="{ show: showFees, popup: isPopup }">
     <div class="transaction-fee__overlay" @click="close"></div>
     <div
       class="transaction-fee__wrap"
@@ -64,6 +64,12 @@ const props = defineProps({
       return false;
     },
   },
+  isPopup: {
+    type: Boolean,
+    default: () => {
+      return false;
+    },
+  },
   close: {
     type: Function,
     default: () => {
@@ -107,6 +113,10 @@ const selectFee = (fee: TransactionFee) => {
 
   &.show {
     display: block;
+  }
+
+  &.popup {
+    position: fixed;
   }
 
   &__overlay {

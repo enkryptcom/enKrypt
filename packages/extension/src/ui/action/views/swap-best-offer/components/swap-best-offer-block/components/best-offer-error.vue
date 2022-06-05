@@ -6,12 +6,12 @@
       get a rate that is YY% lower than the market. We highly recommend you
       reconsider.
     </p>
-    <p v-if="notEnoughtETH">
+    <p v-if="notEnoughtETH" class="with-link">
       Not enough ETH to pay the network<br />fee. You are ~0.041 ETH ($70)
       short.
     </p>
 
-    <p v-if="notEnoughtVerify">
+    <p v-if="notEnoughtVerify" class="with-link">
       Not enough funds. You are<br />~0.041 ETH ($70) short.
     </p>
 
@@ -92,6 +92,10 @@ defineProps({
     letter-spacing: 0.25px;
     color: @error;
     margin: 0;
+
+    &.with-link {
+      padding-right: 68px;
+    }
     a {
       color: @error;
       &:hover {

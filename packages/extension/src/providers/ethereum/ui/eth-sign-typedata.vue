@@ -1,41 +1,46 @@
 <template>
-  <div class="common-popup">
-    <sign-logo color="#05C0A5" class="common-popup__logo"></sign-logo>
-    <h2>Sign Typed Data</h2>
+  <common-popup>
+    <template #header>
+      <sign-logo color="#05C0A5" class="common-popup__logo"></sign-logo>
+    </template>
 
-    <div class="common-popup__block">
-      <div class="common-popup__account">
-        <img :src="identicon" />
-        <div class="common-popup__account-info">
-          <h4>{{ account.name }}</h4>
-          <p>
-            {{ $filters.replaceWithEllipsis(account.address, 6, 4) }}
-          </p>
+    <template #content>
+      <h2>Sign Typed Data</h2>
+
+      <div class="common-popup__block">
+        <div class="common-popup__account">
+          <img :src="identicon" />
+          <div class="common-popup__account-info">
+            <h4>{{ account.name }}</h4>
+            <p>
+              {{ $filters.replaceWithEllipsis(account.address, 6, 4) }}
+            </p>
+          </div>
         </div>
       </div>
-    </div>
-    <div class="common-popup__block">
-      <div class="common-popup__info">
-        <img :src="options.faviconURL" />
-        <div class="common-popup__info-info">
-          <h4>{{ options.title }}</h4>
-          <p>{{ options.domain }}</p>
+      <div class="common-popup__block">
+        <div class="common-popup__info">
+          <img :src="options.faviconURL" />
+          <div class="common-popup__info-info">
+            <h4>{{ options.title }}</h4>
+            <p>{{ options.domain }}</p>
+          </div>
+        </div>
+
+        <div class="common-popup__message">
+          {{ message }}
         </div>
       </div>
+    </template>
 
-      <div class="common-popup__message">
-        {{ message }}
-      </div>
-    </div>
-    <div class="common-popup__buttons">
-      <div class="common-popup__buttons-cancel">
-        <base-button title="Cancel" :click="deny" :no-background="true" />
-      </div>
-      <div class="common-popup__buttons-send">
-        <base-button title="Sign" :click="approve" />
-      </div>
-    </div>
-  </div>
+    <template #button-left>
+      <base-button title="Cancel" :click="deny" :no-background="true" />
+    </template>
+
+    <template #button-right>
+      <base-button title="Sign" :click="approve" />
+    </template>
+  </common-popup>
 </template>
 
 <script setup lang="ts">

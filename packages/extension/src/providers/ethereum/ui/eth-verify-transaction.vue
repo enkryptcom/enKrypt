@@ -1,20 +1,16 @@
 <template>
-  <div class="provider-verify-transaction">
-    <sign-logo
-      color="#05C0A5"
-      class="provider-verify-transaction__logo"
-    ></sign-logo>
-    <div class="provider-verify-transaction__network">
-      <img src="@/ui/action/icons/raw/eth-green.png" />
-      <p>Ethereum</p>
-    </div>
-    <h2>Verify transaction</h2>
+  <common-popup>
+    <template #header>
+      <sign-logo color="#05C0A5" class="common-popup__logo"></sign-logo>
+      <div class="common-popup__network">
+        <img src="@/ui/action/icons/raw/eth-green.png" />
+        <p>Ethereum</p>
+      </div>
+    </template>
 
-    <custom-scrollbar
-      ref="providerVerifyTransactionScrollRef"
-      class="provider-verify-transaction__scroll-area"
-      :settings="settings"
-    >
+    <template #content>
+      <h2>Verify transaction</h2>
+
       <div class="provider-verify-transaction__block">
         <div class="provider-verify-transaction__account">
           <img src="@/ui/action/icons/raw/account.png" />
@@ -87,48 +83,44 @@
           <p>Decoded by Truffle</p>
         </div>
       </div>
-    </custom-scrollbar>
 
-    <transaction-fee-view
-      :show-fees="isOpenSelectFee"
-      :close="toggleSelectFee"
-      :select-fee="selectFee"
-      :selected="fee.price.speed"
-      :is-header="true"
-    ></transaction-fee-view>
+      <transaction-fee-view
+        :show-fees="isOpenSelectFee"
+        :close="toggleSelectFee"
+        :select-fee="selectFee"
+        :selected="fee.price.speed"
+        :is-header="true"
+      ></transaction-fee-view>
 
-    <div
-      class="provider-verify-transaction__buttons"
-      :class="{ border: isHasScroll() }"
-    >
-      <div class="provider-verify-transaction__buttons-cancel">
-        <base-button
-          title="Decline"
-          :click="cancelAction"
-          :no-background="true"
-        />
-      </div>
-      <div class="provider-verify-transaction__buttons-send">
-        <base-button title="Sign" :click="signAction" />
-      </div>
-    </div>
+      <modal-sign
+        v-if="isOpenSign"
+        :close="toggleSign"
+        :forgot="toggleForgot"
+        :unlock="unlockAction"
+      ></modal-sign>
 
-    <modal-sign
-      v-if="isOpenSign"
-      :close="toggleSign"
-      :forgot="toggleForgot"
-      :unlock="unlockAction"
-    ></modal-sign>
+      <modal-forgot
+        v-if="isForgot"
+        :is-forgot="isForgot"
+        :toggle-forgot="toggleForgot"
+        :reset-action="resetAction"
+      ></modal-forgot>
 
-    <modal-forgot
-      v-if="isForgot"
-      :is-forgot="isForgot"
-      :toggle-forgot="toggleForgot"
-      :reset-action="resetAction"
-    ></modal-forgot>
+      <modal-preload v-show="isProcessing"></modal-preload>
+    </template>
 
-    <modal-preload v-show="isProcessing"></modal-preload>
-  </div>
+    <template #button-left>
+      <base-button
+        title="Decline"
+        :click="cancelAction"
+        :no-background="true"
+      />
+    </template>
+
+    <template #button-right>
+      <base-button title="Sign" :click="signAction" />
+    </template>
+  </common-popup>
 </template>
 
 <script setup lang="ts">
@@ -136,11 +128,11 @@ import { ref } from "vue";
 import SignLogo from "@action/icons/common/sign-logo.vue";
 import RightChevron from "@action/icons/common/right-chevron.vue";
 import BaseButton from "@action/components/base-button/index.vue";
+import CommonPopup from "@action/views/common-popup/index.vue";
 import SendFeeSelect from "@action/views/send-transaction/components/send-fee-select.vue";
 import TransactionFeeView from "@action/views/transaction-fee/index.vue";
 import { TransactionFee } from "@action/types/fee";
 import { recommendedFee } from "@action/types/mock";
-import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 import BestOfferError from "@action/views/swap-best-offer/components/swap-best-offer-block/components/best-offer-error.vue";
 import AlertIcon from "@action/icons/send/alert-icon.vue";
 import ModalSign from "@action/views/modal-sign/index.vue";
@@ -149,13 +141,10 @@ import ModalPreload from "@action/views/modal-preload/index.vue";
 
 let isOpenSelectFee = ref(false);
 let fee = ref(recommendedFee);
-const providerVerifyTransactionScrollRef = ref(null);
 let isOpenData = ref(false);
 let isOpenSign = ref(false);
 let isForgot = ref(false);
 let isProcessing = ref(false);
-
-defineExpose({ providerVerifyTransactionScrollRef });
 
 const cancelAction = () => {
   console.log("cancelAction");
@@ -169,15 +158,6 @@ const toggleSelectFee = (open: boolean) => {
 const selectFee = (option: TransactionFee) => {
   fee.value = option;
   isOpenSelectFee.value = false;
-};
-const isHasScroll = () => {
-  if (providerVerifyTransactionScrollRef.value) {
-    return (
-      providerVerifyTransactionScrollRef.value as HTMLElement
-    ).$el.classList.contains("ps--active-y");
-  }
-
-  return false;
 };
 const toggleData = () => {
   isOpenData.value = !isOpenData.value;

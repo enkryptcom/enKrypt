@@ -1,46 +1,52 @@
 <template>
-  <div class="common-popup">
-    <sign-logo color="#05C0A5" class="common-popup__logo"></sign-logo>
-    <h2>Get Encryption Key</h2>
+  <common-popup>
+    <template #header>
+      <sign-logo color="#05C0A5" class="common-popup__logo"></sign-logo>
+    </template>
 
-    <div class="common-popup__block">
-      <div class="common-popup__account">
-        <img :src="identicon" />
-        <div class="common-popup__account-info">
-          <h4>{{ account.name }}</h4>
-          <p>
-            {{ $filters.replaceWithEllipsis(account.address, 6, 4) }}
-          </p>
+    <template #content>
+      <h2>Get Encryption Key</h2>
+
+      <div class="common-popup__block">
+        <div class="common-popup__account">
+          <img :src="identicon" />
+          <div class="common-popup__account-info">
+            <h4>{{ account.name }}</h4>
+            <p>
+              {{ $filters.replaceWithEllipsis(account.address, 6, 4) }}
+            </p>
+          </div>
         </div>
       </div>
-    </div>
-    <div class="common-popup__block">
-      <div class="common-popup__info">
-        <img :src="options.faviconURL" />
-        <div class="common-popup__info-info">
-          <h4>{{ options.title }}</h4>
-          <p>{{ options.domain }}</p>
+      <div class="common-popup__block">
+        <div class="common-popup__info">
+          <img :src="options.faviconURL" />
+          <div class="common-popup__info-info">
+            <h4>{{ options.title }}</h4>
+            <p>{{ options.domain }}</p>
+          </div>
         </div>
-      </div>
 
-      <p class="common-popup__message">
-        {{ options.domain }} would like to access the encryption public key
-      </p>
-    </div>
-    <div class="common-popup__buttons">
-      <div class="common-popup__buttons-cancel">
-        <base-button title="Cancel" :click="deny" :no-background="true" />
+        <p class="common-popup__message">
+          {{ options.domain }} would like to access the encryption public key
+        </p>
       </div>
-      <div class="common-popup__buttons-send">
-        <base-button title="Provide" :click="approve" />
-      </div>
-    </div>
-  </div>
+    </template>
+
+    <template #button-left>
+      <base-button title="Cancel" :click="deny" :no-background="true" />
+    </template>
+
+    <template #button-right>
+      <base-button title="Provide" :click="approve" />
+    </template>
+  </common-popup>
 </template>
 
 <script setup lang="ts">
 import SignLogo from "@action/icons/common/sign-logo.vue";
 import BaseButton from "@action/components/base-button/index.vue";
+import CommonPopup from "@action/views/common-popup/index.vue";
 import { KeyRecord } from "@enkryptcom/types";
 import { getCustomError, getError } from "@/libs/error";
 import { ErrorCodes } from "@/providers/ethereum/types";
