@@ -1,7 +1,10 @@
-import networks from "../../networks";
-export default {
-  [networks.bsc.name]:
+import { NetworkNames } from "@enkryptcom/types";
+import { SupportedNetworkNames } from "./types/tokenbalance-mew";
+const tokenList: Record<SupportedNetworkNames, string> = {
+  [NetworkNames.Binance]:
     "https://tokens.coingecko.com/binance-smart-chain/all.json",
-  [networks.ethereum.name]: "https://tokens.coingecko.com/ethereum/all.json",
-  [networks.matic.name]: "https://tokens.coingecko.com/polygon-pos/all.json",
+  [NetworkNames.Ethereum]: "https://tokens.coingecko.com/ethereum/all.json",
+  [NetworkNames.Matic]: "https://tokens.coingecko.com/polygon-pos/all.json",
 };
+
+export default tokenList;

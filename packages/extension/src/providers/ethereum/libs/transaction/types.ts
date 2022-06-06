@@ -56,3 +56,10 @@ export enum GasPriceTypes {
   REGULAR,
   FAST,
 }
+
+export interface DataDecodeResponse {
+  decoded: boolean;
+  values: any[];
+  function?: string;
+  isToken: boolean;
+}
