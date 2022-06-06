@@ -8,10 +8,7 @@
         :selected="(route.params.id as string)"
         :set-network="setNetwork"
       />
-      <br />
-      <a href="javascript:void(0);" @click="openCreate()">
-        to Create / Restore
-      </a>
+
       <div class="app__menu-footer">
         <a class="app__menu-add" @click="addNetworkToggle()">
           <add-icon />
@@ -19,13 +16,16 @@
         </a>
 
         <div>
-          <a class="app__menu-link">
-            <hold-icon />
-          </a>
-
-          <a class="app__menu-link" @click="settingsToggle()">
-            <settings-icon />
-          </a>
+          <tooltip text="Lock Enkrypt">
+            <a class="app__menu-link">
+              <hold-icon />
+            </a>
+          </tooltip>
+          <tooltip text="Settings">
+            <a class="app__menu-link" @click="settingsToggle()">
+              <settings-icon />
+            </a>
+          </tooltip>
         </div>
       </div>
     </div>
@@ -77,8 +77,8 @@ import SettingsIcon from "./icons/common/settings-icon.vue";
 import HoldIcon from "./icons/common/hold-icon.vue";
 import AddNetwork from "./views/add-network/index.vue";
 import Settings from "./views/settings/index.vue";
+import Tooltip from "./components/tooltip/index.vue";
 import { useRouter, useRoute } from "vue-router";
-import { WindowPromise } from "@/libs/window-promise";
 import { NodeType } from "@/types/provider";
 import {
   getAllNetworks,
@@ -264,14 +264,6 @@ const showNetworkMenu = () => {
       route.name == "dapps")
   );
 };
-const openCreate = () => {
-  const windowPromise = new WindowPromise();
-  windowPromise
-    .getResponse("onboard.html", JSON.stringify({ info: "test" }))
-    .then(({ error }) => {
-      console.error(error);
-    });
-};
 
 const searchInput = (text: string) => {
   console.log(text);
@@ -340,11 +332,12 @@ body {
       color: @primaryLabel;
       text-decoration: none;
       cursor: pointer;
+      border-radius: 10px;
+      transition: background 300ms ease-in-out;
 
       &.active,
       &:hover {
         background: @black007;
-        border-radius: 10px;
       }
 
       svg {
@@ -359,11 +352,12 @@ body {
       text-decoration: none;
       cursor: pointer;
       font-size: 0;
+      border-radius: 10px;
+      transition: background 300ms ease-in-out;
 
       &.active,
       &:hover {
         background: @black007;
-        border-radius: 10px;
       }
     }
   }

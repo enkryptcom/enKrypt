@@ -53,6 +53,7 @@ defineProps({
     right: 8px;
     border-radius: 8px;
     cursor: pointer;
+    transition: background 300ms ease-in-out;
 
     &:hover {
       background: @black007;

@@ -74,6 +74,8 @@ defineProps({
   padding: 0 8px 0 8px;
   cursor: pointer;
   margin-left: 8px;
+  transition: background 300ms ease-in-out;
+  border-radius: 10px;
 
   &:first-child {
     margin-top: 9px;
@@ -81,7 +83,6 @@ defineProps({
 
   &:hover {
     background: @black004;
-    border-radius: 10px;
   }
 
   &.disabled {
