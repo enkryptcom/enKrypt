@@ -1,5 +1,5 @@
 import { bufferToHex, hexToBuffer } from "@enkryptcom/utils";
-import { isHexStrict } from "web3-utils";
+import { isHexStrict, toHex } from "web3-utils";
 import { rawDecode } from "ethereumjs-abi";
 import { DataDecodeResponse } from "./types";
 import funcSigs from "./lists/4bytes";
@@ -15,12 +15,24 @@ class DataDecode {
   readonly functionSig: string;
   readonly valueData: string;
   readonly isTokenAction: boolean;
-  constructor(data: string) {
+  readonly value: string;
+  readonly to?: string;
+  constructor({
+    data = "0x",
+    value = "0x0",
+    to,
+  }: {
+    data: string;
+    value: string;
+    to?: string;
+  }) {
     if (!isHexStrict(data)) throw new Error("data-decoder: not a valid hex");
     this.data = hexToBuffer(data);
     this.functionSig = bufferToHex(this.data.slice(0, 4));
     this.valueData = bufferToHex(this.data.slice(4));
     this.isTokenAction = Object.values(tokenSigs).includes(this.functionSig);
+    this.value = value;
+    this.to = to;
   }
   decode(): DataDecodeResponse {
     const sig = funcSigs[this.functionSig];
@@ -35,7 +47,7 @@ class DataDecode {
       const decoded = rawDecode(params, hexToBuffer(this.valueData));
       return {
         decoded: true,
-        values: decoded,
+        values: decoded.map((a) => toHex(a)),
         function: sig[0],
         isToken: this.isTokenAction,
       };

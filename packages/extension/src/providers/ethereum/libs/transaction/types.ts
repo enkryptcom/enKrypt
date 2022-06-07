@@ -59,7 +59,7 @@ export enum GasPriceTypes {
 
 export interface DataDecodeResponse {
   decoded: boolean;
-  values: any[];
+  values: string[];
   function?: string;
   isToken: boolean;
 }

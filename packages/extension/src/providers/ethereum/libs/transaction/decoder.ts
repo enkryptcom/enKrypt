@@ -6,20 +6,9 @@ import {
   CGToken,
   SupportedNetworkNames,
 } from "../assets-handlers/types/tokenbalance-mew";
-import tokenSigs from "./lists/tokenSigs";
 import DataDecode from "./data-decoder";
-import { numberToHex } from "web3-utils";
+import { bufferToHex } from "@enkryptcom/utils";
 
-const getTokenTransferValue = (data: DataDecode): string => {
-  if (data.functionSig === tokenSigs.transfer) {
-    const decoded = data.decode();
-    return numberToHex(decoded.values[1]);
-  } else if (data.functionSig === tokenSigs.transferFrom) {
-    const decoded = data.decode();
-    return numberToHex(decoded.values[2]);
-  }
-  return "0x0";
-};
 const decodeTx = async (
   tx: EthereumTransaction,
   network: EvmNetwork
@@ -29,7 +18,11 @@ const decodeTx = async (
   let tokenValue: string = tx.value && tx.value != "0x" ? tx.value : "0x0";
   let tokenDecimals: number = network.decimals;
   let tokenImage: string = network.icon;
-  const dataDecoder = new DataDecode(tx.data || "0x");
+  const dataDecoder = new DataDecode({
+    data: tx.data as string,
+    to: tx.to,
+    value: tx.value as string,
+  });
   if (
     tokenValue === "0x0" &&
     dataDecoder.isTokenAction &&
@@ -44,15 +37,15 @@ const decodeTx = async (
         tokenName = curToken.name;
         tokenImage = curToken.logoURI;
         tokenDecimals = curToken.decimals;
-        tokenValue = getTokenTransferValue(dataDecoder);
+        tokenValue = dataDecoder.decode().values[1];
       }
     });
   }
   return {
     isContractCreation,
-    dataHex: tx.data ? tx.data : "0x",
+    dataHex: bufferToHex(dataDecoder.data),
     toAddress: tx.to,
-    decodedHex: [],
+    decodedHex: dataDecoder.decode().values,
     tokenDecimals,
     tokenImage,
     tokenName,
