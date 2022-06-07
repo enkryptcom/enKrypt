@@ -51,6 +51,7 @@
     "vue": "^3.2.31",
     "vue-router": "4",
     "vue3-lottie": "^2.1.0",
+    "vuedraggable": "next",
     "web3": "^1.7.3",
     "web3-utils": "^1.7.3",
     "zxcvbn": "^4.4.2"

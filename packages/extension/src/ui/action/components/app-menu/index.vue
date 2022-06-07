@@ -1,14 +1,16 @@
 <template>
   <div class="app-menu">
-    <custom-scrollbar class="app-menu__scroll-area">
-      <app-menu-item
-        v-for="(item, index) in networks"
-        :key="index"
-        :network="item"
-        :is-active="!!selected && item.name === selected"
-        :selected="selected"
-        @click="setNetwork(item)"
-      ></app-menu-item>
+    <custom-scrollbar v-if="!!networks" class="app-menu__scroll-area">
+      <draggable :list="networks" item-key="name">
+        <template #item="{ element }">
+          <app-menu-item
+            :network="element"
+            :is-active="!!selected && element.name === selected"
+            :selected="selected"
+            @click="setNetwork(element)"
+          ></app-menu-item>
+        </template>
+      </draggable>
     </custom-scrollbar>
   </div>
 </template>
@@ -24,6 +26,8 @@ import { NodeType } from "@/types/provider";
 import { PropType } from "vue";
 import AppMenuItem from "./components/app-menu-item.vue";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
+import draggable from "vuedraggable";
+
 defineProps({
   networks: {
     type: Array as PropType<Array<NodeType>>,
