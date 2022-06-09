@@ -1,10 +1,7 @@
-import { ProviderName } from "@/types/provider";
-import { NetworkNames, SignerType } from "@enkryptcom/types";
-import { toChecksumAddress } from "ethereumjs-util";
-import API from "../libs/api";
-import { EthereumNodeType } from "../types";
-import createIcon from "../libs/blockies";
-const etcNode: EthereumNodeType = {
+import { NetworkNames } from "@enkryptcom/types";
+import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
+
+const etcOptions: EvmNetworkOptions = {
   name: NetworkNames.EthereumClassic,
   name_long: "Ethereum Classic",
   homePage: "https://ethereumclassic.org/",
@@ -15,17 +12,11 @@ const etcNode: EthereumNodeType = {
   currencyName: "ETC",
   node: "wss://www.ethercluster.com/ws-etc",
   icon: require("./icons/etc.svg"),
-  signer: [SignerType.secp256k1],
   gradient: "#53CBC9",
-  displayAddress: (address: string) => toChecksumAddress(address),
-  provider: ProviderName.ethereum,
-  coingeckoID: "ethereum-classic",
-  identicon: createIcon,
   basePath: "m/44'/61'/0'/0",
+  coingeckoID: "ethereum-classic",
 };
-etcNode.api = async () => {
-  const api = new API(etcNode.node);
-  await api.init();
-  return api;
-};
-export default etcNode;
+
+const etc = new EvmNetwork(etcOptions);
+
+export default etc;

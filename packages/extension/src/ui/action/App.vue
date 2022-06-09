@@ -79,7 +79,8 @@ import AddNetwork from "./views/add-network/index.vue";
 import Settings from "./views/settings/index.vue";
 import { useRouter, useRoute } from "vue-router";
 import { WindowPromise } from "@/libs/window-promise";
-import { NodeType } from "@/types/provider";
+// import { NodeType } from "@/types/provider";
+import { BaseNetwork } from "@/types/base-network";
 import {
   getAllNetworks,
   DEFAULT_NETWORK_NAME,
@@ -91,10 +92,11 @@ import { AccountsHeaderData } from "./types/account";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
 import { KeyRecord } from "@enkryptcom/types";
 import { sendToBackgroundFromAction } from "@/libs/messenger/extension";
-import { EthereumNodeType, MessageMethod } from "@/providers/ethereum/types";
+import { MessageMethod } from "@/providers/ethereum/types";
 import { InternalMethods } from "@/types/messenger";
 import NetworksState from "@/libs/networks-state";
 import openOnboard from "@/libs/utils/open-onboard";
+import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
 
 const domainState = new DomainState();
 const networksState = new NetworksState();
@@ -111,9 +113,9 @@ const router = useRouter();
 const route = useRoute();
 const transitionName = "fade";
 
-const networks = ref<NodeType[]>([]);
-const defaultNetwork = getNetworkByName(DEFAULT_NETWORK_NAME) as NodeType;
-const currentNetwork = ref<NodeType>(defaultNetwork);
+const networks = ref<BaseNetwork[]>([]);
+const defaultNetwork = getNetworkByName(DEFAULT_NETWORK_NAME) as BaseNetwork;
+const currentNetwork = ref<BaseNetwork>(defaultNetwork);
 const kr = new PublicKeyRing();
 const addNetworkShow = ref(false);
 const settingsShow = ref(false);
@@ -167,7 +169,7 @@ onMounted(async () => {
     openOnboard();
   }
 });
-const setNetwork = async (network: NodeType) => {
+const setNetwork = async (network: BaseNetwork) => {
   //hack may be there is a better way. less.modifyVars doesnt work
   if (appMenuRef.value)
     (
@@ -192,7 +194,7 @@ const setNetwork = async (network: NodeType) => {
   };
   currentNetwork.value = network;
   const tabId = await domainState.getCurrentTabId();
-  if ((currentNetwork.value as EthereumNodeType).chainID) {
+  if ((currentNetwork.value as EvmNetwork).chainID) {
     await sendToBackgroundFromAction({
       message: JSON.stringify({
         method: InternalMethods.changeNetwork,
@@ -207,7 +209,7 @@ const setNetwork = async (network: NodeType) => {
         params: [
           {
             method: MessageMethod.changeChainId,
-            params: [(currentNetwork.value as EthereumNodeType).chainID],
+            params: [(currentNetwork.value as EvmNetwork).chainID],
           },
         ],
       }),

@@ -13,6 +13,7 @@ import PublicKeyRing from "@/libs/keyring/public-keyring";
 import { RoutesType } from "./ui";
 import { SignerType } from "@enkryptcom/types";
 import { NFTCollection } from "./nft";
+import { BaseNetwork } from "./base-network";
 
 export enum ProviderName {
   enkrypt = "enkrypt",
@@ -72,7 +73,7 @@ export abstract class BackgroundProviderInterface extends EventEmitter {
   constructor(_toWindow: (message: string) => void, options: unknown) {
     super();
   }
-  abstract setRequestProvider(network: NodeType): void;
+  abstract setRequestProvider(network: BaseNetwork): void;
   abstract request(request: ProviderRPCRequest): Promise<OnMessageResponse>;
   abstract getUIPath(page: string): string;
   abstract isPersistentEvent(request: ProviderRPCRequest): Promise<boolean>;

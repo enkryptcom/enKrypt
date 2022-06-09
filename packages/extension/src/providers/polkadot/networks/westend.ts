@@ -1,12 +1,10 @@
-import { ProviderName } from "@/types/provider";
-import { NetworkNames, SignerType } from "@enkryptcom/types";
-import { polkadotEncodeAddress } from "@enkryptcom/utils";
-import API from "../libs/api";
-import dot from "../libs/assets-handlers/dot";
-import createIcon from "../libs/blockies";
-import { PolkadotNodeType } from "../types";
-const prefix = 0;
-const wndNode: PolkadotNodeType = {
+import { NetworkNames } from "@enkryptcom/types";
+import {
+  SubstrateNetwork,
+  SubstrateNetworkOptions,
+} from "../types/substrate-network";
+
+const wndOptions: SubstrateNetworkOptions = {
   name: NetworkNames.Westend,
   name_long: "Westend",
   homePage: "https://polkadot.network",
@@ -16,19 +14,11 @@ const wndNode: PolkadotNodeType = {
   currencyName: "WND",
   icon: require("./icons/westend.svg"),
   decimals: 12,
-  prefix,
-  signer: [SignerType.sr25519, SignerType.ed25519],
+  prefix: 42,
   gradient: "#8247E5",
   node: "wss://rpc.pinknode.io/westend/explorer",
-  displayAddress: (address: string) => polkadotEncodeAddress(address, prefix),
-  provider: ProviderName.polkadot,
-  identicon: createIcon,
-  assetsHandler: dot,
-  basePath: "//",
 };
-wndNode.api = async () => {
-  const api = new API(wndNode.node, { decimals: wndNode.decimals });
-  await api.init();
-  return api;
-};
-export default wndNode;
+
+const wnd = new SubstrateNetwork(wndOptions);
+
+export default wnd;

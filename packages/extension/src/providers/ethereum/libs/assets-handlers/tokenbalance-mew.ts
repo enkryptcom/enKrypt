@@ -1,4 +1,4 @@
-import { AssetsType, NodeType } from "@/types/provider";
+import { AssetsType } from "@/types/provider";
 import {
   CGToken,
   SupportedNetwork,
@@ -15,11 +15,15 @@ import {
 } from "@/libs/utils/number-formatter";
 import API from "@/providers/ethereum/libs/api";
 import Sparkline from "@/libs/sparkline";
-import { EthereumNodeType } from "@/providers/ethereum/types";
+import { BaseNetwork } from "@/types/base-network";
+import { EvmNetwork } from "../../types/evm-network";
 const API_ENPOINT = "https://tokenbalance.mewapi.io/";
 const NATIVE_CONTRACT = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
 const TOKEN_FETCH_TTL = 1000 * 60 * 60;
-export default (network: NodeType, address: string): Promise<AssetsType[]> => {
+export default (
+  network: BaseNetwork,
+  address: string
+): Promise<AssetsType[]> => {
   const supportedNetworks: Record<string, SupportedNetwork> = {
     BNB: {
       tbName: "bsc",
@@ -80,7 +84,7 @@ export default (network: NodeType, address: string): Promise<AssetsType[]> => {
         });
 
         tokenInfo[NATIVE_CONTRACT] = {
-          chainId: (network as EthereumNodeType).chainID,
+          chainId: (network as EvmNetwork).chainID,
           name: network.name_long,
           decimals: 18,
           address: NATIVE_CONTRACT,
