@@ -19,6 +19,8 @@ const karuraOptions: SubstrateNetworkOptions = {
   gradient: "#FF4C3B",
   node: "wss://karura.api.onfinality.io/public-ws",
   coingeckoID: "karura",
+  genesisHash:
+    "0xbaf5aabe40646d11f0ee8abbdc64f4a4b7674925cba08e4a05ff9ebed6e2126b",
 };
 
 const karura = new SubstrateNetwork(karuraOptions);

@@ -31,6 +31,7 @@ export interface SubstrateNetworkOptions {
   gradient: string;
   node: string;
   coingeckoID?: string;
+  genesisHash: string;
 }
 
 export class SubstrateNetwork extends BaseNetwork {

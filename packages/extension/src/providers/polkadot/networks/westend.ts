@@ -17,6 +17,8 @@ const wndOptions: SubstrateNetworkOptions = {
   prefix: 42,
   gradient: "#8247E5",
   node: "wss://rpc.pinknode.io/westend/explorer",
+  genesisHash:
+    "0xe143f23803ac50e8f6f8e62695d1ce9e4e1d68aa36c1cd2cfd15340213f3423e",
 };
 
 const wnd = new SubstrateNetwork(wndOptions);

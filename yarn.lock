@@ -1719,6 +1719,7 @@ __metadata:
     "@polkadot/util": ^9.0.1
     "@polkadot/wasm-crypto": ^6.0.1
     "@rollup/plugin-commonjs": ^21.0.2
+    "@rollup/plugin-json": ^4.1.0
     "@rollup/plugin-node-resolve": ^13.1.3
     "@rollup/plugin-typescript": ^8.3.1
     "@types/chrome": ^0.0.180
@@ -3308,6 +3309,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@rollup/plugin-json@npm:^4.1.0":
+  version: 4.1.0
+  resolution: "@rollup/plugin-json@npm:4.1.0"
+  dependencies:
+    "@rollup/pluginutils": ^3.0.8
+  peerDependencies:
+    rollup: ^1.20.0 || ^2.0.0
+  checksum: 867bc9339b4ccf0b9ff3b2617a95b3b8920115163f86c8e3b1f068a14ca25949472d3c05b09a5ac38ca0fe2185756e34617eaeb219d4a2b6e2307c501c7d4552
+  languageName: node
+  linkType: hard
+
 "@rollup/plugin-node-resolve@npm:^13.1.3":
   version: 13.2.1
   resolution: "@rollup/plugin-node-resolve@npm:13.2.1"
@@ -3338,7 +3350,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@rollup/pluginutils@npm:^3.1.0":
+"@rollup/pluginutils@npm:^3.0.8, @rollup/pluginutils@npm:^3.1.0":
   version: 3.1.0
   resolution: "@rollup/pluginutils@npm:3.1.0"
   dependencies:

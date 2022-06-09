@@ -140,7 +140,6 @@ import { getCustomError, getError } from "@/libs/error";
 import { ErrorCodes } from "@/providers/ethereum/types";
 import { WindowPromiseHandler } from "@/libs/window-promise";
 import { InternalMethods } from "@/types/messenger";
-<<<<<<< HEAD
 import { TypeRegistry, Metadata } from "@polkadot/types";
 import { SignerPayloadJSON } from "@polkadot/types/types";
 import { signPayload } from "../libs/signing-utils";
@@ -149,9 +148,6 @@ import { CallData } from "./types";
 
 const { PromiseResolve, options, Request, sendToBackground } =
   WindowPromiseHandler();
-=======
-const { PromiseResolve, Request, sendToBackground } = WindowPromiseHandler();
->>>>>>> refactor/tokens-networks
 
 const isOpenSelectFee = ref(false);
 const fee = ref(recommendedFee);
