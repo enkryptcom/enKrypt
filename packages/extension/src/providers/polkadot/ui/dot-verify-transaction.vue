@@ -54,13 +54,13 @@
           </div>
         </div>
 
-        <div class="provider-verify-transaction__error">
+        <!-- <div class="provider-verify-transaction__error">
           <alert-icon />
           <p>
             Warning: you will allow this DApp to spend any amount of ETH at any
             time in the future. Please proceed only if you are trust this DApp.
           </p>
-        </div>
+        </div> -->
       </div>
 
       <send-fee-select
@@ -80,12 +80,21 @@
         /></a>
 
         <div v-show="isOpenData" class="provider-verify-transaction__data-text">
-          <p>Function type: Register Proxy 0xddd81f82</p>
-          <p>Parameters: []</p>
-          <p>HEX data: 4 BYTES</p>
-          <p>0xddd81f82</p>
-          <p>Verified contract on <a href="#">Etherscan</a></p>
-          <p>Decoded by Truffle</p>
+          <p>
+            Call:
+            {{
+              callData.method
+                ? `${callData.section}.${callData.method}`
+                : "Loading"
+            }}
+          </p>
+          <p>Parameters:</p>
+          <li
+            v-for="(item, index) in Object.keys(callData.args ?? {})"
+            :key="index"
+          >
+            {{ `${item}: ${JSON.stringify(callData.args[item])}` }}
+          </li>
         </div>
       </div>
     </custom-scrollbar>
@@ -113,7 +122,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { reactive, ref, watch } from "vue";
+import { base64Decode } from "@polkadot/util-crypto";
 import SignLogo from "@action/icons/common/sign-logo.vue";
 import RightChevron from "@action/icons/common/right-chevron.vue";
 import BaseButton from "@action/components/base-button/index.vue";
@@ -130,13 +140,45 @@ import { getCustomError, getError } from "@/libs/error";
 import { ErrorCodes } from "@/providers/ethereum/types";
 import { WindowPromiseHandler } from "@/libs/window-promise";
 import { InternalMethods } from "@/types/messenger";
+import { TypeRegistry, Metadata } from "@polkadot/types";
+import { SignerPayloadJSON } from "@polkadot/types/types";
+import { signPayload } from "../libs/signing-utils";
+import MetadataStorage from "../libs/metadata-storage";
+import { CallData } from "./types";
+
 const { PromiseResolve, options, Request, sendToBackground } =
   WindowPromiseHandler();
 
-let isOpenSelectFee = ref(false);
-let fee = ref(recommendedFee);
+const isOpenSelectFee = ref(false);
+const fee = ref(recommendedFee);
 const providerVerifyTransactionScrollRef = ref(null);
-let isOpenData = ref(false);
+const isOpenData = ref(false);
+const callData = reactive<CallData>({});
+
+const metadataStorage = new MetadataStorage();
+
+watch(Request, async () => {
+  console.log(Request);
+  console.log("options", options);
+  if (Request.value.params && Request.value.params.length >= 2) {
+    const reqPayload = Request.value.params[0] as SignerPayloadJSON;
+
+    const metadata = await metadataStorage.getMetadata(reqPayload.genesisHash);
+
+    if (metadata && metadata.metaCalls) {
+      const registry = new TypeRegistry();
+      registry.setMetadata(
+        new Metadata(registry, base64Decode(metadata.metaCalls))
+      );
+      registry.setSignedExtensions(reqPayload.signedExtensions);
+
+      let data = registry.createType("Call", reqPayload.method).toHuman();
+      callData.method = data.method as string;
+      callData.section = data.section as string;
+      callData.args = data.args;
+    }
+  }
+});
 
 defineExpose({ providerVerifyTransactionScrollRef });
 
@@ -163,11 +205,19 @@ const approve = () => {
   if (!Request.value.params || Request.value.params.length < 2) {
     return PromiseResolve.value({ error: getCustomError("No params") });
   }
-  const msg = Request.value.params[0] as `0x{string}`;
+
+  const registry = new TypeRegistry();
+  const reqPayload = Request.value.params[0] as SignerPayloadJSON;
+  registry.setSignedExtensions(reqPayload.signedExtensions);
+  const extType = registry.createType("ExtrinsicPayload", reqPayload, {
+    version: reqPayload.version,
+  });
+  const signMsg = signPayload(extType);
+
   const account = Request.value.params[1] as KeyRecord;
   sendToBackground({
     method: InternalMethods.sign,
-    params: [msg, account],
+    params: [signMsg, account],
   }).then((res) => {
     if (res.error) {
       PromiseResolve.value(res);
