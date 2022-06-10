@@ -4,8 +4,8 @@ import { InternalOnMessageResponse } from "@/types/messenger";
 import type PublicKeyRing from "@/libs/keyring/public-keyring";
 import { RPCRequestType } from "@enkryptcom/types";
 import { RouteRecordRaw } from "vue-router";
-export interface WindoPromiseType {
-  PromiseResolve: Ref<(res: InternalOnMessageResponse) => void>;
+export interface WindowPromiseType {
+  Resolve: Ref<(res: InternalOnMessageResponse) => void>;
   options: UnwrapNestedRefs<ProviderRequestOptions>;
   Request: Ref<ProviderRPCRequest>;
   KeyRing: PublicKeyRing;

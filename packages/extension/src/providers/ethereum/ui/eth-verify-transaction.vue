@@ -38,10 +38,10 @@
       </div>
       <div class="provider-verify-transaction__block">
         <div class="provider-verify-transaction__info">
-          <img :src="options.faviconURL" />
+          <img :src="Options.faviconURL" />
           <div class="provider-verify-transaction__info-info">
-            <h4>{{ options.title }}</h4>
-            <p>{{ options.domain }}</p>
+            <h4>{{ Options.title }}</h4>
+            <p>{{ Options.domain }}</p>
           </div>
         </div>
 
@@ -79,7 +79,7 @@
         :in-swap="true"
       ></send-fee-select>
 
-      <!-- <best-offer-error :not-enought-verify="true"></best-offer-error> -->
+      <!-- <best-offer-error :not-enough-verify="true"></best-offer-error> -->
 
       <div class="provider-verify-transaction__data">
         <a
@@ -123,7 +123,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, ComponentPublicInstance, watch } from "vue";
+import { ref, ComponentPublicInstance, onBeforeMount } from "vue";
 import SignLogo from "@action/icons/common/sign-logo.vue";
 import RightChevron from "@action/icons/common/right-chevron.vue";
 import BaseButton from "@action/components/base-button/index.vue";
@@ -132,15 +132,12 @@ import TransactionFeeView from "@action/views/transaction-fee/index.vue";
 import { TransactionFee } from "@action/types/fee";
 import { recommendedFee } from "@action/types/mock";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
-//import BestOfferError from "@action/views/swap-best-offer/components/swap-best-offer-block/components/best-offer-error.vue";
-// import AlertIcon from "@action/icons/send/alert-icon.vue";
 import ScrollSettings from "@/libs/utils/scroll-settings";
 import { KeyRecord } from "@enkryptcom/types";
 import { getCustomError, getError } from "@/libs/error";
 import { ErrorCodes } from "@/providers/ethereum/types";
 import { WindowPromiseHandler } from "@/libs/window-promise";
 import { InternalMethods } from "@/types/messenger";
-import { computed } from "vue";
 import { bufferToHex } from "@enkryptcom/utils";
 import { fromRpcSig } from "ethereumjs-util";
 import { DEFAULT_NETWORK_NAME, getNetworkByName } from "@/libs/utils/networks";
@@ -151,6 +148,7 @@ import { FeeMarketEIP1559Transaction } from "@ethereumjs/tx";
 import { EvmNetwork } from "../types/evm-network";
 import { fromBase } from "@/libs/utils/units";
 import { decodeTx } from "../libs/transaction/decoder";
+import { ProviderRequestOptions } from "@/types/provider";
 
 const isOpenSelectFee = ref(false);
 const fee = ref(recommendedFee);
@@ -158,48 +156,46 @@ const providerVerifyTransactionScrollRef = ref<ComponentPublicInstance>();
 const isOpenData = ref(false);
 const TokenBalance = ref<string>("~");
 const decodedTx = ref<DecodedTx>();
-const { PromiseResolve, options, Request, sendToBackground } =
-  WindowPromiseHandler();
+const network = ref<EvmNetwork>(
+  getNetworkByName(DEFAULT_NETWORK_NAME) as EvmNetwork
+);
+const account = ref<KeyRecord>({
+  name: "",
+  address: "",
+} as KeyRecord);
+const identicon = ref<string>("");
+const windowPromise = WindowPromiseHandler(3);
+const Options = ref<ProviderRequestOptions>({
+  domain: "",
+  faviconURL: "",
+  title: "",
+  url: "",
+});
 
 defineExpose({ providerVerifyTransactionScrollRef });
 
-const network = computed(() => {
-  if (Request.value.params && Request.value.params.length > 2)
-    return getNetworkByName(Request.value.params[2]) as EvmNetwork;
-  else return getNetworkByName(DEFAULT_NETWORK_NAME) as EvmNetwork;
-});
-const account = computed(() => {
-  if (Request.value.params && Request.value.params.length > 1) {
-    return Request.value.params[1] as KeyRecord;
-  } else
-    return {
-      name: "",
-      address: "",
-    } as KeyRecord;
-});
-const identicon = computed(() => {
-  return network.value.identicon(account.value.address);
-});
-watch(account, async () => {
-  if (account.value.address != "" && network.value.api) {
+onBeforeMount(async () => {
+  const { Request, options } = await windowPromise;
+  network.value = getNetworkByName(Request.value.params![2]) as EvmNetwork;
+  account.value = Request.value.params![1] as KeyRecord;
+  identicon.value = network.value.identicon(account.value.address);
+  Options.value = options;
+  if (network.value.api) {
     const api = await network.value.api();
     const balance = await api.getBalance(account.value.address);
     TokenBalance.value = fromBase(balance, network.value.decimals);
   }
-  if (Request.value.params && Request.value.params.length > 1) {
-    decodeTx(
-      Request.value.params[0] as EthereumTransaction,
-      network.value
-    ).then((decoded) => (decodedTx.value = decoded));
-  }
+  decodeTx(
+    Request.value.params![0] as EthereumTransaction,
+    network.value as EvmNetwork
+  ).then((decoded) => (decodedTx.value = decoded));
 });
-const approve = () => {
-  if (!Request.value.params || Request.value.params.length < 2) {
-    return PromiseResolve.value({ error: getCustomError("No params") });
-  }
+
+const approve = async () => {
+  const { Request, sendToBackground, Resolve } = await windowPromise;
   const web3 = new Web3(network.value.node);
   const tx = new Transaction(
-    Request.value.params[0] as EthereumTransaction,
+    Request.value.params![0] as EthereumTransaction,
     web3
   );
   tx.getFinalizedTransaction().then((finalizedTx) => {
@@ -209,7 +205,7 @@ const approve = () => {
       params: [msgHash, account.value],
     }).then((res) => {
       if (res.error) {
-        PromiseResolve.value(res);
+        Resolve.value(res);
       } else {
         const rpcSig = fromRpcSig(res.result || "0x");
         const signedTx = (
@@ -218,12 +214,12 @@ const approve = () => {
         web3.eth
           .sendSignedTransaction("0x" + signedTx.serialize().toString("hex"))
           .on("transactionHash", (hash) => {
-            PromiseResolve.value({
+            Resolve.value({
               result: JSON.stringify(hash),
             });
           })
           .on("error", (error) => {
-            PromiseResolve.value({
+            Resolve.value({
               error: getCustomError(error.message),
             });
           });
@@ -231,8 +227,9 @@ const approve = () => {
     });
   });
 };
-const deny = () => {
-  PromiseResolve.value({
+const deny = async () => {
+  const { Resolve } = await windowPromise;
+  Resolve.value({
     error: getError(ErrorCodes.userRejected),
   });
 };
