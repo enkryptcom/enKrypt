@@ -24,14 +24,14 @@
         v-show="fee.price.speed == TransactionFeeSpeed.economy"
         class="transaction-fee-item__block-amount down"
       >
-        -{{ $filters.formatFiatValue(2.23).value }}
+        -${{ $filters.formatFiatValue(2.23).value }}
       </div>
 
       <div
         v-show="fee.price.speed != TransactionFeeSpeed.economy"
         class="transaction-fee-item__block-amount"
       >
-        +{{ $filters.formatFiatValue(1.23).value }}
+        +${{ $filters.formatFiatValue(1.23).value }}
       </div>
     </div>
   </a>
@@ -149,7 +149,7 @@ const select = () => {
     }
 
     &.active {
-      background-color: @primary01;
+      background-color: @black007;
 
       .transaction-fee-item__block-amount {
         display: none;

@@ -15,7 +15,7 @@
       <div class="transaction-fee__info">
         <div class="transaction-fee__info-amount">
           <p class="transaction-fee__info-amount-fiat">
-            {{ $filters.formatFiatValue(10.12).value }}
+            ${{ $filters.formatFiatValue(10.12).value }}
           </p>
           <p class="transaction-fee__info-amount-crypto">
             0.0000123 <span>eth</span>

@@ -33,6 +33,7 @@
           :close="toggleSelectFee"
           :select-fee="selectFee"
           :selected="fee.price.speed"
+          :is-header="true"
         ></transaction-fee-view>
       </div>
 

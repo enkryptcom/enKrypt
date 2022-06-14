@@ -9,6 +9,7 @@
       v-show="!!token"
       placeholder="Enter amount"
       :value="tokenAmount"
+      :autofocus="autofocus"
       :change-focus="changeFocus"
       @update:value="amountChanged"
     ></swap-token-amount-input>
@@ -70,6 +71,12 @@ const props = defineProps({
     type: Object as PropType<AssetsType | null>,
     default: () => {
       return null;
+    },
+  },
+  autofocus: {
+    type: Boolean,
+    default: () => {
+      return false;
     },
   },
 });
