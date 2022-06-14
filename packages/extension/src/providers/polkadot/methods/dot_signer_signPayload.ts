@@ -3,10 +3,8 @@ import EthereumProvider from "..";
 import { WindowPromise } from "@/libs/window-promise";
 import { ProviderRPCRequest } from "@/types/provider";
 import { SignerPayloadJSON } from "@polkadot/types/types";
-import { TypeRegistry } from "@polkadot/types";
 import {
   polkadotEncodeAddress,
-  signPayload,
   payloadSignTransform,
 } from "../libs/signing-utils";
 import { getCustomError } from "@/libs/error";

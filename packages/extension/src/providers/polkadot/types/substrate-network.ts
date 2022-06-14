@@ -32,11 +32,29 @@ export interface SubstrateNetworkOptions {
   node: string;
   coingeckoID?: string;
   genesisHash: string;
+  transferMethods?: Record<string, (args: any) => any>;
 }
 
 export class SubstrateNetwork extends BaseNetwork {
   public prefix: number;
   public assets: BaseToken[] = [];
+  public genesisHash: string;
+  public transferMethods: Record<string, (args: any) => any> = {
+    "balances.transferKeepAlive": (args: any) => {
+      console.log(args);
+      const to = args.dest["Id"];
+      const token = new SubstrateNativeToken({
+        name: this.name_long,
+        symbol: this.name,
+        coingeckoID: this.coingeckoID,
+        decimals: this.decimals,
+        icon: this.icon,
+      });
+      const amount =
+        Number(args.value.replaceAll(",", "")) / 10 ** this.decimals;
+      return { to, token, amount };
+    },
+  };
 
   constructor(options: SubstrateNetworkOptions) {
     const api = async () => {
@@ -59,6 +77,14 @@ export class SubstrateNetwork extends BaseNetwork {
     };
     super(baseOptions);
     this.prefix = options.prefix;
+    this.genesisHash = options.genesisHash;
+
+    if (options.transferMethods) {
+      this.transferMethods = {
+        ...options.transferMethods,
+        ...this.transferMethods,
+      };
+    }
   }
 
   public async getAllTokenInfo(address: string): Promise<AssetsType[]> {

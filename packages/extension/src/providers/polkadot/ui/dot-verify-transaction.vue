@@ -5,8 +5,10 @@
       class="provider-verify-transaction__logo"
     ></sign-logo>
     <div class="provider-verify-transaction__network">
-      <img src="@/ui/action/icons/raw/polkadot.png" />
-      <p>Polkadot</p>
+      <img
+        :src="network ? network.icon : '@/ui/action/icons/raw/polkadot.png'"
+      />
+      <p>{{ network ? network.name_long : "" }}</p>
     </div>
     <h2>Verify transaction</h2>
 
@@ -18,16 +20,14 @@
         <div class="provider-verify-transaction__account">
           <img src="@/ui/action/icons/raw/account.png" />
           <div class="provider-verify-transaction__account-info">
-            <h4>My account nickname</h4>
+            <h4>{{ typeof account === "string" ? account : account?.name }}</h4>
             <div>
               <p>12.34 <span>dot</span></p>
               <p>
                 {{
-                  $filters.replaceWithEllipsis(
-                    "0x14502CF6C0A13167Dc340E25Dabf5FBDB68R5967",
-                    6,
-                    4
-                  )
+                  typeof account !== "string"
+                    ? $filters.replaceWithEllipsis(account?.address, 4, 4)
+                    : ""
                 }}
               </p>
             </div>
@@ -36,38 +36,19 @@
       </div>
       <div class="provider-verify-transaction__block">
         <div class="provider-verify-transaction__info">
-          <img src="@/ui/action/icons/raw/polkadot.png" />
+          <img
+            :src="network ? network.icon : '@/ui/action/icons/raw/polkadot.png'"
+          />
           <div class="provider-verify-transaction__info-info">
-            <h4>Polkadot</h4>
+            <h4>{{ network ? network.name_long : "Loading.." }}</h4>
             <p>
-              https://polkadot.js.org/apps/?rpc=wss%3A%2F%2Frpc.polkadot.io#/explorer
+              {{ options.url }}
             </p>
           </div>
         </div>
-
-        <div class="provider-verify-transaction__amount">
-          <img src="@/ui/action/icons/raw/polkadot.png" />
-
-          <div class="provider-verify-transaction__amount-info">
-            <h4>1.56 <span>dot</span></h4>
-            <p>$4520.54</p>
-          </div>
-        </div>
-
-        <!-- <div class="provider-verify-transaction__error">
-          <alert-icon />
-          <p>
-            Warning: you will allow this DApp to spend any amount of ETH at any
-            time in the future. Please proceed only if you are trust this DApp.
-          </p>
-        </div> -->
       </div>
 
-      <send-fee-select
-        :fee="fee"
-        :toggle-select="toggleSelectFee"
-        :in-swap="true"
-      ></send-fee-select>
+      <component :is="txView" v-bind="props" />
 
       <best-offer-error :not-enought-verify="true"></best-offer-error>
 
@@ -127,13 +108,11 @@ import { base64Decode } from "@polkadot/util-crypto";
 import SignLogo from "@action/icons/common/sign-logo.vue";
 import RightChevron from "@action/icons/common/right-chevron.vue";
 import BaseButton from "@action/components/base-button/index.vue";
-import SendFeeSelect from "@action/views/send-transaction/components/send-fee-select.vue";
 import TransactionFeeView from "@action/views/transaction-fee/index.vue";
 import { TransactionFee } from "@action/types/fee";
 import { recommendedFee } from "@action/types/mock";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 import BestOfferError from "@action/views/swap-best-offer/components/swap-best-offer-block/components/best-offer-error.vue";
-import AlertIcon from "@action/icons/send/alert-icon.vue";
 
 import { KeyRecord } from "@enkryptcom/types";
 import { getCustomError, getError } from "@/libs/error";
@@ -145,6 +124,13 @@ import { SignerPayloadJSON } from "@polkadot/types/types";
 import { signPayload } from "../libs/signing-utils";
 import MetadataStorage from "../libs/metadata-storage";
 import { CallData } from "./types";
+import { getAllNetworks } from "@/libs/utils/networks";
+import { SubstrateNetwork } from "../types/substrate-network";
+import { BaseNetwork } from "@/types/base-network";
+import BlindVerifyView from "./custom-views/blind-approvetx.vue";
+import { polkadotEncodeAddress } from "@enkryptcom/utils";
+import { getViewAndProps } from "./custom-views";
+import PublicKeyRing from "@/libs/keyring/public-keyring";
 
 const { PromiseResolve, options, Request, sendToBackground } =
   WindowPromiseHandler();
@@ -154,14 +140,42 @@ const fee = ref(recommendedFee);
 const providerVerifyTransactionScrollRef = ref(null);
 const isOpenData = ref(false);
 const callData = reactive<CallData>({});
+const network = ref<BaseNetwork | undefined>();
+const txView = ref<any>(BlindVerifyView);
+const account = ref<KeyRecord | string>();
 
 const metadataStorage = new MetadataStorage();
 
+const props = ref({});
+
+const keyring = new PublicKeyRing();
+
 watch(Request, async () => {
-  console.log(Request);
-  console.log("options", options);
   if (Request.value.params && Request.value.params.length >= 2) {
     const reqPayload = Request.value.params[0] as SignerPayloadJSON;
+    const targetNetwork = getAllNetworks().find(
+      (network) =>
+        (network as SubstrateNetwork).genesisHash === reqPayload.genesisHash
+    );
+
+    if (targetNetwork) {
+      network.value = targetNetwork;
+      console.log(network.value);
+      const address = reqPayload.address;
+      const savedAccount = await keyring.getAccount(
+        polkadotEncodeAddress(address, 42)
+      );
+
+      if (savedAccount) {
+        savedAccount.address = polkadotEncodeAddress(
+          savedAccount.address,
+          (targetNetwork as SubstrateNetwork).prefix
+        );
+        account.value = savedAccount;
+      } else {
+        account.value = address;
+      }
+    }
 
     const metadata = await metadataStorage.getMetadata(reqPayload.genesisHash);
 
@@ -176,6 +190,19 @@ watch(Request, async () => {
       callData.method = data.method as string;
       callData.section = data.section as string;
       callData.args = data.args;
+
+      if (targetNetwork) {
+        const fullMethod = `${data.section}.${data.method}`;
+        const [view, viewProps] = getViewAndProps(
+          targetNetwork as SubstrateNetwork,
+          fullMethod,
+          data.args
+        );
+
+        console.log(viewProps);
+        props.value = viewProps;
+        txView.value = view;
+      }
     }
   }
 });
