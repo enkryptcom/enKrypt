@@ -22,7 +22,11 @@
           <div class="provider-verify-transaction__account-info">
             <h4>{{ typeof account === "string" ? account : account?.name }}</h4>
             <div>
-              <p>12.34 <span>dot</span></p>
+              <p v-if="userBalance">
+                {{ userBalance.balance }}
+                <span> {{ userBalance.symbol }} </span>
+              </p>
+              <p v-else>~</p>
               <p>
                 {{
                   typeof account !== "string"
@@ -63,21 +67,26 @@
         /></a>
 
         <div v-show="isOpenData" class="provider-verify-transaction__data-text">
-          <p>
-            Call:
-            {{
-              callData.method
-                ? `${callData.section}.${callData.method}`
-                : "Loading"
-            }}
-          </p>
-          <p>Parameters:</p>
-          <li
-            v-for="(item, index) in Object.keys(callData.args ?? {})"
-            :key="index"
-          >
-            {{ `${item}: ${JSON.stringify(callData.args[item])}` }}
-          </li>
+          <div v-if="callData">
+            <p>
+              Call:
+              {{
+                callData.method
+                  ? `${callData.section}.${callData.method}`
+                  : "Loading"
+              }}
+            </p>
+            <p>Parameters:</p>
+            <li
+              v-for="(item, index) in Object.keys(callData.args ?? {})"
+              :key="index"
+            >
+              {{ `${item}: ${JSON.stringify(callData.args[item])}` }}
+            </li>
+          </div>
+          <div v-else>
+            <p>Loading</p>
+          </div>
         </div>
       </div>
     </custom-scrollbar>
@@ -105,7 +114,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, watch } from "vue";
+import { ref, watch } from "vue";
 import { base64Decode } from "@polkadot/util-crypto";
 import SignLogo from "@action/icons/common/sign-logo.vue";
 import RightChevron from "@action/icons/common/right-chevron.vue";
@@ -135,6 +144,7 @@ import { getViewAndProps } from "./custom-views";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
 import SubstrateAPI from "../libs/api";
 import BigNumber from "bignumber.js";
+import { FrameSystemAccountInfo } from "@acala-network/types/interfaces/types-lookup";
 
 const { PromiseResolve, options, Request, sendToBackground } =
   WindowPromiseHandler();
@@ -143,17 +153,101 @@ const isOpenSelectFee = ref(false);
 const fee = ref(recommendedFee);
 const providerVerifyTransactionScrollRef = ref(null);
 const isOpenData = ref(false);
-const callData = reactive<CallData>({});
+const callData = ref<CallData>();
 const network = ref<BaseNetwork | undefined>();
 const txView = ref<any>(BlindVerifyView);
 const account = ref<KeyRecord | string>();
 const txFee = ref<string>("Loading");
+const userBalance = ref<{ balance: string; symbol: string }>();
 
 const metadataStorage = new MetadataStorage();
 
 const props = ref({});
 
 const keyring = new PublicKeyRing();
+
+const setAccount = async (address: string) => {
+  const savedAccount = await keyring.getAccount(
+    polkadotEncodeAddress(address, 42)
+  );
+
+  if (savedAccount) {
+    if (network.value) {
+      savedAccount.address = polkadotEncodeAddress(
+        savedAccount.address,
+        (network.value as SubstrateNetwork).prefix
+      );
+    }
+
+    account.value = savedAccount;
+  } else {
+    account.value = address;
+  }
+};
+
+const setCallData = (reqPayload: SignerPayloadJSON, metaCalls: string) => {
+  const registry = new TypeRegistry();
+  registry.setMetadata(new Metadata(registry, base64Decode(metaCalls)));
+  registry.setSignedExtensions(reqPayload.signedExtensions);
+
+  const data = registry.createType("Call", reqPayload.method).toHuman();
+
+  callData.value = {
+    method: data.method as string,
+    section: data.section as string,
+    args: data.args,
+  };
+};
+
+const setViewAndProps = (network: BaseNetwork) => {
+  if (network && callData.value) {
+    const fullMethod = `${callData.value.section}.${callData.value.method}`;
+    const [view, viewProps] = getViewAndProps(
+      network as SubstrateNetwork,
+      fullMethod,
+      callData.value.args
+    );
+
+    props.value = viewProps;
+    txView.value = view;
+  }
+};
+
+const setBalanceAndFees = (
+  network: BaseNetwork,
+  payload: SignerPayloadJSON,
+  metaCalls: string
+) => {
+  const registry = new TypeRegistry();
+  registry.setMetadata(new Metadata(registry, base64Decode(metaCalls)));
+  registry.setSignedExtensions(payload.signedExtensions);
+
+  const extrinsic = registry.createType("Extrinsic", payload, {
+    version: payload.version,
+  });
+
+  (network.api() as Promise<SubstrateAPI>).then((api) => {
+    api.api
+      .tx(extrinsic)
+      .paymentInfo(payload.address, { era: 0 })
+      .then((info) => {
+        const { partialFee } = info.toJSON();
+        const feeHuman = new BigNumber(partialFee as string | number)
+          .div(new BigNumber(10 ** network.decimals))
+          .toString();
+        txFee.value = `${feeHuman} ${network.name}`;
+      });
+    api.api.query.system.account(payload.address).then((accountInfo) => {
+      const { data } =
+        accountInfo.toHuman() as unknown as FrameSystemAccountInfo;
+      const balance = {
+        balance: data.free.toString(),
+        symbol: network.name,
+      };
+      userBalance.value = balance;
+    });
+  });
+};
 
 watch(Request, async () => {
   if (Request.value.params && Request.value.params.length >= 2) {
@@ -165,65 +259,17 @@ watch(Request, async () => {
 
     if (targetNetwork) {
       network.value = targetNetwork;
-      const address = reqPayload.address;
-      const savedAccount = await keyring.getAccount(
-        polkadotEncodeAddress(address, 42)
-      );
-
-      if (savedAccount) {
-        savedAccount.address = polkadotEncodeAddress(
-          savedAccount.address,
-          (targetNetwork as SubstrateNetwork).prefix
-        );
-        account.value = savedAccount;
-      } else {
-        account.value = address;
-      }
     }
 
+    setAccount(reqPayload.address);
     const metadata = await metadataStorage.getMetadata(reqPayload.genesisHash);
 
     if (metadata && metadata.metaCalls) {
-      const registry = new TypeRegistry();
-      registry.setMetadata(
-        new Metadata(registry, base64Decode(metadata.metaCalls))
-      );
-      registry.setSignedExtensions(reqPayload.signedExtensions);
+      setCallData(reqPayload, metadata.metaCalls);
 
-      let data = registry.createType("Call", reqPayload.method).toHuman();
-
-      callData.method = data.method as string;
-      callData.section = data.section as string;
-      callData.args = data.args;
-
-      if (targetNetwork) {
-        const fullMethod = `${data.section}.${data.method}`;
-        const [view, viewProps] = getViewAndProps(
-          targetNetwork as SubstrateNetwork,
-          fullMethod,
-          data.args
-        );
-
-        props.value = viewProps;
-        txView.value = view;
-
-        const extrinsic = registry.createType("Extrinsic", reqPayload, {
-          version: reqPayload.version,
-        });
-
-        (targetNetwork.api() as Promise<SubstrateAPI>).then((api) => {
-          api.api
-            .tx(extrinsic)
-            .paymentInfo(reqPayload.address, { era: 0 })
-            .then((info) => {
-              const { partialFee } = info.toJSON();
-              const feeHuman = new BigNumber(partialFee as string | number)
-                .div(new BigNumber(10 ** targetNetwork.decimals))
-                .toString();
-
-              txFee.value = `${feeHuman} ${targetNetwork.name}`;
-            });
-        });
+      if (targetNetwork && callData.value) {
+        setViewAndProps(targetNetwork);
+        setBalanceAndFees(targetNetwork, reqPayload, metadata.metaCalls);
       } else {
         txFee.value = "N/A";
       }
