@@ -18,21 +18,23 @@
     >
       <div class="provider-verify-transaction__block">
         <div class="provider-verify-transaction__account">
-          <img src="@/ui/action/icons/raw/account.png" />
+          <img
+            :src="
+              account
+                ? createIcon(account.address)
+                : '@/ui/action/icons/raw/account.png'
+            "
+          />
           <div class="provider-verify-transaction__account-info">
-            <h4>{{ typeof account === "string" ? account : account?.name }}</h4>
+            <h4>{{ account?.name }}</h4>
             <div>
               <p v-if="userBalance">
-                {{ userBalance.balance }}
+                {{ formatBalance(userBalance.balance) }}
                 <span> {{ userBalance.symbol }} </span>
               </p>
               <p v-else>~</p>
               <p>
-                {{
-                  typeof account !== "string"
-                    ? $filters.replaceWithEllipsis(account?.address, 4, 4)
-                    : ""
-                }}
+                {{ $filters.replaceWithEllipsis(account?.address, 4, 4) }}
               </p>
             </div>
           </div>
@@ -52,11 +54,14 @@
         </div>
       </div>
 
-      <component :is="txView" v-bind="props" />
+      <component :is="txView" v-bind="txViewProps" />
 
-      <p>Fee: {{ txFee }}</p>
+      <p>Fee: {{ txFee ? formatBalance(txFee) : "Loading..." }}</p>
 
-      <best-offer-error :not-enought-verify="true"></best-offer-error>
+      <best-offer-error
+        v-if="insufficientBalance"
+        :not-enought-verify="true"
+      ></best-offer-error>
 
       <div class="provider-verify-transaction__data">
         <a
@@ -145,6 +150,7 @@ import PublicKeyRing from "@/libs/keyring/public-keyring";
 import SubstrateAPI from "../libs/api";
 import BigNumber from "bignumber.js";
 import { FrameSystemAccountInfo } from "@acala-network/types/interfaces/types-lookup";
+import createIcon from "../libs/blockies";
 
 const { PromiseResolve, options, Request, sendToBackground } =
   WindowPromiseHandler();
@@ -156,13 +162,14 @@ const isOpenData = ref(false);
 const callData = ref<CallData>();
 const network = ref<BaseNetwork | undefined>();
 const txView = ref<any>(BlindVerifyView);
-const account = ref<KeyRecord | string>();
-const txFee = ref<string>("Loading");
-const userBalance = ref<{ balance: string; symbol: string }>();
+const account = ref<KeyRecord>();
+const txFee = ref<BigNumber>();
+const userBalance = ref<{ balance: BigNumber; symbol: string }>();
+const insufficientBalance = ref(false);
 
 const metadataStorage = new MetadataStorage();
 
-const props = ref({});
+const txViewProps = ref({});
 
 const keyring = new PublicKeyRing();
 
@@ -171,18 +178,14 @@ const setAccount = async (address: string) => {
     polkadotEncodeAddress(address, 42)
   );
 
-  if (savedAccount) {
-    if (network.value) {
-      savedAccount.address = polkadotEncodeAddress(
-        savedAccount.address,
-        (network.value as SubstrateNetwork).prefix
-      );
-    }
-
-    account.value = savedAccount;
-  } else {
-    account.value = address;
+  if (network.value) {
+    savedAccount.address = polkadotEncodeAddress(
+      savedAccount.address,
+      (network.value as SubstrateNetwork).prefix
+    );
   }
+
+  account.value = savedAccount;
 };
 
 const setCallData = (reqPayload: SignerPayloadJSON, metaCalls: string) => {
@@ -208,7 +211,7 @@ const setViewAndProps = (network: BaseNetwork) => {
       callData.value.args
     );
 
-    props.value = viewProps;
+    txViewProps.value = viewProps;
     txView.value = view;
   }
 };
@@ -232,22 +235,35 @@ const setBalanceAndFees = (
       .paymentInfo(payload.address, { era: 0 })
       .then((info) => {
         const { partialFee } = info.toJSON();
-        const feeHuman = new BigNumber(partialFee as string | number)
-          .div(new BigNumber(10 ** network.decimals))
-          .toString();
-        txFee.value = `${feeHuman} ${network.name}`;
+        txFee.value = new BigNumber(partialFee as string | number);
       });
     api.api.query.system.account(payload.address).then((accountInfo) => {
       const { data } =
-        accountInfo.toHuman() as unknown as FrameSystemAccountInfo;
+        accountInfo.toJSON() as unknown as FrameSystemAccountInfo;
       const balance = {
-        balance: data.free.toString(),
+        balance: new BigNumber(data.free.toString()),
         symbol: network.name,
       };
       userBalance.value = balance;
     });
   });
 };
+
+const formatBalance = (balance: BigNumber): string => {
+  if (network.value) {
+    return balance.div(new BigNumber(10 ** network.value.decimals)).toString();
+  }
+
+  return "~";
+};
+
+watch([txFee, userBalance], () => {
+  if (txFee.value && userBalance.value) {
+    if (userBalance.value.balance.lt(txFee.value)) {
+      insufficientBalance.value = true;
+    }
+  }
+});
 
 watch(Request, async () => {
   if (Request.value.params && Request.value.params.length >= 2) {
@@ -270,8 +286,6 @@ watch(Request, async () => {
       if (targetNetwork && callData.value) {
         setViewAndProps(targetNetwork);
         setBalanceAndFees(targetNetwork, reqPayload, metadata.metaCalls);
-      } else {
-        txFee.value = "N/A";
       }
     }
   }

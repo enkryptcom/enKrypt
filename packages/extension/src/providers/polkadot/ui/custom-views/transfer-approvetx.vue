@@ -15,7 +15,7 @@
   <div class="provider-verify-transaction__block">
     <div class="provider-verify-transaction__info">
       <img :src="createIcon(props.to)" />
-      <div v-if="destName" class="provider-verify-transaction__info-info">
+      <div v-if="destName" class="provider-verify-transaction__account-info">
         <h3>{{ destName }}</h3>
         <p>
           {{
@@ -23,7 +23,7 @@
           }}
         </p>
       </div>
-      <div v-else class="provider-verify-transaction__info-info">
+      <div v-else class="provider-verify-transaction__account-info">
         <h4>
           {{
             `${props.to.slice(0, 5)}...${props.to.slice(props.to.length - 5)}`
