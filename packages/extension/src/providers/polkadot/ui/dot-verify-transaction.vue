@@ -40,7 +40,7 @@
           </div>
         </div>
       </div>
-      <div class="provider-verify-transaction__block">
+      <div v-if="!networkIsUnknown" class="provider-verify-transaction__block">
         <div class="provider-verify-transaction__info">
           <img
             :src="network ? network.icon : '@/ui/action/icons/raw/polkadot.png'"
@@ -56,7 +56,9 @@
 
       <component :is="txView" v-bind="txViewProps" />
 
-      <p>Fee: {{ txFee ? formatBalance(txFee) : "Loading..." }}</p>
+      <p v-if="!networkIsUnknown">
+        Fee: {{ txFee ? `${formatBalance(txFee)}` : "~" }}
+      </p>
 
       <best-offer-error
         v-if="insufficientBalance"
@@ -161,6 +163,7 @@ const providerVerifyTransactionScrollRef = ref(null);
 const isOpenData = ref(false);
 const callData = ref<CallData>();
 const network = ref<BaseNetwork | undefined>();
+const networkIsUnknown = ref(false);
 const txView = ref<any>(BlindVerifyView);
 const account = ref<KeyRecord>();
 const txFee = ref<BigNumber>();
@@ -275,6 +278,8 @@ watch(Request, async () => {
 
     if (targetNetwork) {
       network.value = targetNetwork;
+    } else {
+      networkIsUnknown.value = true;
     }
 
     setAccount(reqPayload.address);
