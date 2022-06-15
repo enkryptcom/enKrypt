@@ -50,6 +50,8 @@
 
       <component :is="txView" v-bind="props" />
 
+      <p>Fee: {{ txFee }}</p>
+
       <best-offer-error :not-enought-verify="true"></best-offer-error>
 
       <div class="provider-verify-transaction__data">
@@ -131,6 +133,8 @@ import BlindVerifyView from "./custom-views/blind-approvetx.vue";
 import { polkadotEncodeAddress } from "@enkryptcom/utils";
 import { getViewAndProps } from "./custom-views";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
+import SubstrateAPI from "../libs/api";
+import BigNumber from "bignumber.js";
 
 const { PromiseResolve, options, Request, sendToBackground } =
   WindowPromiseHandler();
@@ -143,6 +147,7 @@ const callData = reactive<CallData>({});
 const network = ref<BaseNetwork | undefined>();
 const txView = ref<any>(BlindVerifyView);
 const account = ref<KeyRecord | string>();
+const txFee = ref<string>("Loading");
 
 const metadataStorage = new MetadataStorage();
 
@@ -160,7 +165,6 @@ watch(Request, async () => {
 
     if (targetNetwork) {
       network.value = targetNetwork;
-      console.log(network.value);
       const address = reqPayload.address;
       const savedAccount = await keyring.getAccount(
         polkadotEncodeAddress(address, 42)
@@ -187,6 +191,7 @@ watch(Request, async () => {
       registry.setSignedExtensions(reqPayload.signedExtensions);
 
       let data = registry.createType("Call", reqPayload.method).toHuman();
+
       callData.method = data.method as string;
       callData.section = data.section as string;
       callData.args = data.args;
@@ -199,9 +204,28 @@ watch(Request, async () => {
           data.args
         );
 
-        console.log(viewProps);
         props.value = viewProps;
         txView.value = view;
+
+        const extrinsic = registry.createType("Extrinsic", reqPayload, {
+          version: reqPayload.version,
+        });
+
+        (targetNetwork.api() as Promise<SubstrateAPI>).then((api) => {
+          api.api
+            .tx(extrinsic)
+            .paymentInfo(reqPayload.address, { era: 0 })
+            .then((info) => {
+              const { partialFee } = info.toJSON();
+              const feeHuman = new BigNumber(partialFee as string | number)
+                .div(new BigNumber(10 ** targetNetwork.decimals))
+                .toString();
+
+              txFee.value = `${feeHuman} ${targetNetwork.name}`;
+            });
+        });
+      } else {
+        txFee.value = "N/A";
       }
     }
   }
