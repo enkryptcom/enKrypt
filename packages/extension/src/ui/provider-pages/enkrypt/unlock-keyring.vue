@@ -3,7 +3,7 @@
     <h1>Unlock Keyring Request</h1>
     <nav class="navbar navbar-expand navbar-dark bg-dark">
       <div class="navbar-nav mr-auto">
-        Domain: {{ options.domain }} would like to unlock keyring
+        Domain: {{ Options.domain }} would like to unlock keyring
       </div>
       <div>
         <input v-model="password" autocomplete="off" />
@@ -19,23 +19,25 @@
 <script setup lang="ts">
 import { getError } from "@/libs/error";
 import { ErrorCodes } from "@/providers/ethereum/types";
-import { ref } from "vue";
+import { onBeforeMount, ref } from "vue";
 import { WindowPromiseHandler } from "@/libs/window-promise";
 import { InternalMethods } from "@/types/messenger";
-const { PromiseResolve, options, sendToBackground } = WindowPromiseHandler();
-let password = ref("");
-let errorMsg = ref("");
-sendToBackground({
-  method: InternalMethods.isLocked,
-}).then((res) => {
-  const isLocked = res.result as unknown as boolean;
-  if (isLocked === false) {
-    PromiseResolve.value({
-      result: JSON.stringify(res.result),
-    });
-  }
+import { ProviderRequestOptions } from "@/types/provider";
+const windowPromise = WindowPromiseHandler(0);
+const password = ref("");
+const errorMsg = ref("");
+const Options = ref<ProviderRequestOptions>({
+  domain: "",
+  faviconURL: "",
+  title: "",
+  url: "",
 });
-const approve = () => {
+onBeforeMount(async () => {
+  const { options } = await windowPromise;
+  Options.value = options;
+});
+const approve = async () => {
+  const { sendToBackground, Resolve } = await windowPromise;
   sendToBackground({
     method: InternalMethods.unlock,
     params: [password.value],
@@ -43,14 +45,15 @@ const approve = () => {
     if (res.error) {
       errorMsg.value = res.error.message;
     } else {
-      PromiseResolve.value({
+      Resolve.value({
         result: JSON.stringify(res.result),
       });
     }
   });
 };
-const deny = () => {
-  PromiseResolve.value({
+const deny = async () => {
+  const { Resolve } = await windowPromise;
+  Resolve.value({
     error: getError(ErrorCodes.userRejected),
   });
 };

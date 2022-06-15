@@ -69,5 +69,5 @@ onBeforeMount(async () => {
 
 <style lang="less">
 @import "~@action/styles/theme.less";
-@import "~@action/styles/provider-verify-transaction.less";
+@import "../styles/verify-transaction.less";
 </style>

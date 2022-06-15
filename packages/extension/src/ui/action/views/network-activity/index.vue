@@ -49,12 +49,12 @@ import NetworkActivityTransaction from "./components/network-activity-transactio
 import { transactionsOne, transactionsTwo } from "@action/types/mock";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 import { PropType, toRef } from "vue";
-import { NodeType } from "@/types/provider";
 import { AccountsHeaderData } from "../../types/account";
 import accountInfo from "@action/composables/account-info";
+import { BaseNetwork } from "@/types/base-network";
 const props = defineProps({
   network: {
-    type: Object as PropType<NodeType>,
+    type: Object as PropType<BaseNetwork>,
     default: () => ({}),
   },
   accountInfo: {

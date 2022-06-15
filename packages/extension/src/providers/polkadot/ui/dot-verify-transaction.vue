@@ -48,7 +48,7 @@
           <div class="provider-verify-transaction__info-info">
             <h4>{{ network ? network.name_long : "Loading.." }}</h4>
             <p>
-              {{ options.url }}
+              {{ Options.url }}
             </p>
           </div>
         </div>
@@ -121,7 +121,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { onBeforeMount, ref, watch } from "vue";
 import { base64Decode } from "@polkadot/util-crypto";
 import SignLogo from "@action/icons/common/sign-logo.vue";
 import RightChevron from "@action/icons/common/right-chevron.vue";
@@ -153,9 +153,9 @@ import SubstrateAPI from "../libs/api";
 import BigNumber from "bignumber.js";
 import { FrameSystemAccountInfo } from "@acala-network/types/interfaces/types-lookup";
 import createIcon from "../libs/blockies";
+import { ProviderRequestOptions } from "@/types/provider";
 
-const { PromiseResolve, options, Request, sendToBackground } =
-  WindowPromiseHandler();
+const windowPromise = WindowPromiseHandler(0);
 
 const isOpenSelectFee = ref(false);
 const fee = ref(recommendedFee);
@@ -169,12 +169,49 @@ const account = ref<KeyRecord>();
 const txFee = ref<BigNumber>();
 const userBalance = ref<{ balance: BigNumber; symbol: string }>();
 const insufficientBalance = ref(false);
+const Options = ref<ProviderRequestOptions>({
+  domain: "",
+  faviconURL: "",
+  title: "",
+  url: "",
+});
 
 const metadataStorage = new MetadataStorage();
 
 const txViewProps = ref({});
 
 const keyring = new PublicKeyRing();
+
+onBeforeMount(async () => {
+  const { Request, options } = await windowPromise;
+  Options.value = options;
+
+  if (Request.value.params && Request.value.params.length >= 2) {
+    const reqPayload = Request.value.params[0] as SignerPayloadJSON;
+    const targetNetwork = getAllNetworks().find(
+      (network) =>
+        (network as SubstrateNetwork).genesisHash === reqPayload.genesisHash
+    );
+
+    if (targetNetwork) {
+      network.value = targetNetwork;
+    } else {
+      networkIsUnknown.value = true;
+    }
+
+    setAccount(reqPayload.address);
+    const metadata = await metadataStorage.getMetadata(reqPayload.genesisHash);
+
+    if (metadata && metadata.metaCalls) {
+      setCallData(reqPayload, metadata.metaCalls);
+
+      if (targetNetwork && callData.value) {
+        setViewAndProps(targetNetwork);
+        setBalanceAndFees(targetNetwork, reqPayload, metadata.metaCalls);
+      }
+    }
+  }
+});
 
 const setAccount = async (address: string) => {
   const savedAccount = await keyring.getAccount(
@@ -268,34 +305,6 @@ watch([txFee, userBalance], () => {
   }
 });
 
-watch(Request, async () => {
-  if (Request.value.params && Request.value.params.length >= 2) {
-    const reqPayload = Request.value.params[0] as SignerPayloadJSON;
-    const targetNetwork = getAllNetworks().find(
-      (network) =>
-        (network as SubstrateNetwork).genesisHash === reqPayload.genesisHash
-    );
-
-    if (targetNetwork) {
-      network.value = targetNetwork;
-    } else {
-      networkIsUnknown.value = true;
-    }
-
-    setAccount(reqPayload.address);
-    const metadata = await metadataStorage.getMetadata(reqPayload.genesisHash);
-
-    if (metadata && metadata.metaCalls) {
-      setCallData(reqPayload, metadata.metaCalls);
-
-      if (targetNetwork && callData.value) {
-        setViewAndProps(targetNetwork);
-        setBalanceAndFees(targetNetwork, reqPayload, metadata.metaCalls);
-      }
-    }
-  }
-});
-
 defineExpose({ providerVerifyTransactionScrollRef });
 
 const toggleSelectFee = (open: boolean) => {
@@ -317,9 +326,10 @@ const isHasScroll = () => {
 const toggleData = () => {
   isOpenData.value = !isOpenData.value;
 };
-const approve = () => {
+const approve = async () => {
+  const { Request, sendToBackground, Resolve } = await windowPromise;
   if (!Request.value.params || Request.value.params.length < 2) {
-    return PromiseResolve.value({ error: getCustomError("No params") });
+    return Resolve.value({ error: getCustomError("No params") });
   }
 
   const registry = new TypeRegistry();
@@ -336,16 +346,17 @@ const approve = () => {
     params: [signMsg, account],
   }).then((res) => {
     if (res.error) {
-      PromiseResolve.value(res);
+      Resolve.value(res);
     } else {
-      PromiseResolve.value({
+      Resolve.value({
         result: JSON.stringify(res.result),
       });
     }
   });
 };
-const deny = () => {
-  PromiseResolve.value({
+const deny = async () => {
+  const { Resolve } = await windowPromise;
+  Resolve.value({
     error: getError(ErrorCodes.userRejected),
   });
 };
@@ -353,5 +364,5 @@ const deny = () => {
 
 <style lang="less">
 @import "~@action/styles/theme.less";
-@import "~@action/styles/provider-verify-transaction.less";
+@import "./styles/verify-transaction.less";
 </style>

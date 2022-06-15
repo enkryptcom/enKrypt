@@ -8,7 +8,7 @@
     <div class="update-metadata__block">
       <div class="update-metadata__block-row">
         <div class="update-metadata__block-row-left">From</div>
-        <div class="update-metadata__block-row-right">{{ options.domain }}</div>
+        <div class="update-metadata__block-row-right">{{ Options.domain }}</div>
       </div>
       <div class="update-metadata__block-row">
         <div class="update-metadata__block-row-left">Chain</div>
@@ -57,16 +57,35 @@ import SignLogo from "@action/icons/common/sign-logo.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import { getCustomError } from "@/libs/error";
 import { WindowPromiseHandler } from "@/libs/window-promise";
-import { computed, ref, watch } from "vue";
+import { computed, onBeforeMount, ref, watch } from "vue";
 import { MetadataDef } from "@polkadot/extension-inject/types";
 import MetadataStorage from "@/providers/polkadot/libs/metadata-storage";
-const { PromiseResolve, options, Request } = WindowPromiseHandler();
+import { ProviderRequestOptions, ProviderRPCRequest } from "@/types/provider";
+
+const windowPromise = WindowPromiseHandler(0);
+
 const mstorage = new MetadataStorage();
 const currentVersion = ref("unknown");
+const Options = ref<ProviderRequestOptions>({
+  domain: "",
+  faviconURL: "",
+  title: "",
+  url: "",
+});
+const request = ref<ProviderRPCRequest>();
+
+onBeforeMount(async () => {
+  const { options, Request } = await windowPromise;
+  Options.value = options;
+  request.value = Request.value;
+});
+
 const metadata = computed(() => {
-  if (Request.value.params) return Request.value.params[0] as MetadataDef;
+  if (request.value && request.value.params)
+    return request.value.params[0] as MetadataDef;
   return {} as MetadataDef;
 });
+
 watch(metadata, () => {
   if (metadata.value.genesisHash) {
     mstorage.getMetadata(metadata.value.genesisHash).then((m) => {
@@ -76,25 +95,28 @@ watch(metadata, () => {
     });
   }
 });
-const approve = () => {
+
+const approve = async () => {
+  const { Resolve, Request } = await windowPromise;
   if (
     !Request.value.params ||
     Request.value.params.length < 1 ||
     !metadata.value.genesisHash
   ) {
-    return PromiseResolve.value({ error: getCustomError("No params") });
+    return Resolve.value({ error: getCustomError("No params") });
   }
 
   mstorage
     .addMetadata(metadata.value.genesisHash, JSON.stringify(metadata.value))
     .then(() => {
-      PromiseResolve.value({
+      Resolve.value({
         result: JSON.stringify(true),
       });
     });
 };
-const deny = () => {
-  PromiseResolve.value({
+const deny = async () => {
+  const { Resolve } = await windowPromise;
+  Resolve.value({
     result: JSON.stringify(false),
   });
 };

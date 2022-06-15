@@ -1723,6 +1723,7 @@ __metadata:
     "@rollup/plugin-node-resolve": ^13.1.3
     "@rollup/plugin-typescript": ^8.3.1
     "@types/chrome": ^0.0.180
+    "@types/ethereumjs-abi": ^0.6.3
     "@types/events": ^3.0.0
     "@types/less": ^3.0.3
     "@types/lodash": ^4.14.182
@@ -1751,6 +1752,7 @@ __metadata:
     eslint-config-prettier: ^8.3.0
     eslint-plugin-prettier: ^4.0.0
     eslint-plugin-vue: ^8.0.3
+    ethereumjs-abi: ^0.6.8
     ethereumjs-util: ^7.1.4
     eventemitter3: ^4.0.7
     https-browserify: ^1.0.0
@@ -3665,6 +3667,15 @@ __metadata:
   version: 0.0.39
   resolution: "@types/estree@npm:0.0.39"
   checksum: 412fb5b9868f2c418126451821833414189b75cc6bf84361156feed733e3d92ec220b9d74a89e52722e03d5e241b2932732711b7497374a404fad49087adc248
+  languageName: node
+  linkType: hard
+
+"@types/ethereumjs-abi@npm:^0.6.3":
+  version: 0.6.3
+  resolution: "@types/ethereumjs-abi@npm:0.6.3"
+  dependencies:
+    "@types/node": "*"
+  checksum: 4a89d30e78f590f750acf344b8f193fe82642320445bbc5eccb17156fa8637c99822fa45e3b7a2c43d108c4346cec07dac71638191db76417181ca58df0d62cf
   languageName: node
   linkType: hard
 

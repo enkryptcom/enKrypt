@@ -2,6 +2,7 @@ import { AssetsType } from "@/types/provider";
 import {
   CGToken,
   SupportedNetwork,
+  SupportedNetworkNames,
   TokenBalance,
 } from "./types/tokenbalance-mew";
 import MarketData from "@/libs/market-data";
@@ -17,6 +18,9 @@ import API from "@/providers/ethereum/libs/api";
 import Sparkline from "@/libs/sparkline";
 import { BaseNetwork } from "@/types/base-network";
 import { EvmNetwork } from "../../types/evm-network";
+import TokenLists from "./token-lists";
+import networks from "../../networks";
+import { NetworkNames } from "@enkryptcom/types";
 const API_ENPOINT = "https://tokenbalance.mewapi.io/";
 const NATIVE_CONTRACT = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
 const TOKEN_FETCH_TTL = 1000 * 60 * 60;
@@ -24,28 +28,27 @@ export default (
   network: BaseNetwork,
   address: string
 ): Promise<AssetsType[]> => {
-  const supportedNetworks: Record<string, SupportedNetwork> = {
-    BNB: {
+  const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
+    [NetworkNames.Binance]: {
       tbName: "bsc",
-      tokenurl: "https://tokens.coingecko.com/binance-smart-chain/all.json",
-      cgPlatform: "binance-smart-chain",
+      tokenurl: TokenLists[NetworkNames.Binance],
+      cgPlatform: networks.bsc.coingeckoID as string,
     },
-    ETH: {
+    [NetworkNames.Ethereum]: {
       tbName: "eth",
-      tokenurl: "https://tokens.coingecko.com/ethereum/all.json",
-      cgPlatform: "ethereum",
+      tokenurl: TokenLists[NetworkNames.Ethereum],
+      cgPlatform: networks.ethereum.coingeckoID as string,
     },
-    MATIC: {
+    [NetworkNames.Matic]: {
       tbName: "matic",
-      tokenurl: "https://tokens.coingecko.com/polygon-pos/all.json",
-      cgPlatform: "polygon-pos",
+      tokenurl: TokenLists[NetworkNames.Matic],
+      cgPlatform: networks.matic.coingeckoID as string,
     },
   };
   if (!Object.keys(supportedNetworks).includes(network.name))
     throw new Error("TOKENBALANCE-MEW: network not supported");
-  const query = `${API_ENPOINT}${
-    supportedNetworks[network.name].tbName
-  }?address=${address}`;
+  const networkName = network.name as SupportedNetworkNames;
+  const query = `${API_ENPOINT}${supportedNetworks[networkName].tbName}?address=${address}`;
   return fetch(query)
     .then((res) => res.json())
     .then(async (json) => {
@@ -64,14 +67,14 @@ export default (
           Object.keys(balances).filter(
             (contract) => contract !== NATIVE_CONTRACT
           ),
-          supportedNetworks[network.name].cgPlatform
+          supportedNetworks[networkName].cgPlatform
         );
         marketInfo[NATIVE_CONTRACT] = nativeMarket[0];
 
         const assets: AssetsType[] = [];
         const tokenInfo: Record<string, CGToken> = await cacheFetch(
           {
-            url: supportedNetworks[network.name].tokenurl,
+            url: supportedNetworks[networkName].tokenurl,
           },
           TOKEN_FETCH_TTL
         ).then((json) => {

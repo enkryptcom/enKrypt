@@ -97,6 +97,7 @@ import { InternalMethods } from "@/types/messenger";
 import NetworksState from "@/libs/networks-state";
 import openOnboard from "@/libs/utils/open-onboard";
 import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
+import { fromBase } from "@/libs/utils/units";
 
 const domainState = new DomainState();
 const networksState = new NetworksState();
@@ -223,10 +224,12 @@ const setNetwork = async (network: BaseNetwork) => {
     try {
       const api = await network.api();
       const activeBalancePromises = activeAccounts.map((acc) =>
-        api.getBaseBalance(acc.address)
+        api.getBalance(acc.address)
       );
       Promise.all(activeBalancePromises).then((balances) => {
-        accountHeaderData.value.activeBalances = balances;
+        accountHeaderData.value.activeBalances = balances.map((bal) =>
+          fromBase(bal, network.decimals)
+        );
       });
     } catch (e) {
       console.error(e);

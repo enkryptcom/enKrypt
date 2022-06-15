@@ -16,10 +16,10 @@
     </div>
     <div class="common-popup__block">
       <div class="common-popup__info">
-        <img :src="options.faviconURL" />
+        <img :src="Options.faviconURL" />
         <div class="common-popup__info-info">
-          <h4>{{ options.title }}</h4>
-          <p>{{ options.domain }}</p>
+          <h4>{{ Options.title }}</h4>
+          <p>{{ Options.domain }}</p>
         </div>
       </div>
 
@@ -42,66 +42,66 @@
 import SignLogo from "@action/icons/common/sign-logo.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import { KeyRecord } from "@enkryptcom/types";
-import { getCustomError, getError } from "@/libs/error";
+import { getError } from "@/libs/error";
 import { ErrorCodes } from "@/providers/ethereum/types";
 import { WindowPromiseHandler } from "@/libs/window-promise";
 import { InternalMethods } from "@/types/messenger";
-import { computed } from "vue";
+import { onBeforeMount, ref } from "vue";
 import { bufferToHex, hexToBuffer } from "@enkryptcom/utils";
 import { hexToUtf8 } from "web3-utils";
 import { hashPersonalMessage } from "ethereumjs-util";
 import { DEFAULT_NETWORK_NAME, getNetworkByName } from "@/libs/utils/networks";
-import { NodeType } from "@/types/provider";
+import { ProviderRequestOptions } from "@/types/provider";
 import { isAscii } from "@polkadot/util";
+import { EvmNetwork } from "../types/evm-network";
 
-const { PromiseResolve, options, Request, sendToBackground } =
-  WindowPromiseHandler();
-const message = computed(() => {
-  if (Request.value.params && Request.value.params.length > 1)
-    return isAscii(Request.value.params[0])
-      ? hexToUtf8(Request.value.params[0])
-      : Request.value.params[0];
-  return "";
+const windowPromise = WindowPromiseHandler(3);
+const network = ref<EvmNetwork>(
+  getNetworkByName(DEFAULT_NETWORK_NAME) as EvmNetwork
+);
+const account = ref<KeyRecord>({
+  name: "",
+  address: "",
+} as KeyRecord);
+const identicon = ref<string>("");
+const Options = ref<ProviderRequestOptions>({
+  domain: "",
+  faviconURL: "",
+  title: "",
+  url: "",
 });
-const network = computed(() => {
-  if (Request.value.params && Request.value.params.length > 2)
-    return getNetworkByName(Request.value.params[2]) as NodeType;
-  else return getNetworkByName(DEFAULT_NETWORK_NAME) as NodeType;
+const message = ref<string>("");
+onBeforeMount(async () => {
+  const { Request, options } = await windowPromise;
+  network.value = getNetworkByName(Request.value.params![2]) as EvmNetwork;
+  account.value = Request.value.params![1] as KeyRecord;
+  identicon.value = network.value.identicon(account.value.address);
+  Options.value = options;
+  message.value = isAscii(Request.value.params![0])
+    ? hexToUtf8(Request.value.params![0])
+    : Request.value.params![0];
 });
-const account = computed(() => {
-  if (Request.value.params && Request.value.params.length > 1) {
-    return Request.value.params[1] as KeyRecord;
-  } else
-    return {
-      name: "",
-      address: "",
-    } as KeyRecord;
-});
-const identicon = computed(() => {
-  return network.value.identicon(account.value.address);
-});
-const approve = () => {
-  if (!Request.value.params || Request.value.params.length < 2) {
-    return PromiseResolve.value({ error: getCustomError("No params") });
-  }
-  const msg = Request.value.params[0] as `0x{string}`;
+
+const approve = async () => {
+  const { Request, sendToBackground, Resolve } = await windowPromise;
+  const msg = Request.value.params![0] as `0x{string}`;
   const msgHash = bufferToHex(hashPersonalMessage(hexToBuffer(msg)));
-  const account = Request.value.params[1] as KeyRecord;
   sendToBackground({
     method: InternalMethods.sign,
-    params: [msgHash, account],
+    params: [msgHash, account.value],
   }).then((res) => {
     if (res.error) {
-      PromiseResolve.value(res);
+      Resolve.value(res);
     } else {
-      PromiseResolve.value({
+      Resolve.value({
         result: JSON.stringify(res.result),
       });
     }
   });
 };
-const deny = () => {
-  PromiseResolve.value({
+const deny = async () => {
+  const { Resolve } = await windowPromise;
+  Resolve.value({
     error: getError(ErrorCodes.userRejected),
   });
 };

@@ -16,10 +16,10 @@
     </div>
     <div class="sign-message__block">
       <div class="sign-message__info">
-        <img :src="options.faviconURL" />
+        <img :src="Options.faviconURL" />
         <div class="sign-message__info-info">
-          <h4>{{ options.title }}</h4>
-          <p>{{ options.domain }}</p>
+          <h4>{{ Options.title }}</h4>
+          <p>{{ Options.domain }}</p>
         </div>
       </div>
 
@@ -46,31 +46,53 @@ import { getCustomError, getError } from "@/libs/error";
 import { ErrorCodes } from "@/providers/ethereum/types";
 import { WindowPromiseHandler } from "@/libs/window-promise";
 import { InternalMethods } from "@/types/messenger";
-import { computed } from "vue";
+import { computed, onBeforeMount, ref } from "vue";
 import { utf8ToHex } from "web3-utils";
 import { isAscii, u8aToString, u8aUnwrapBytes } from "@polkadot/util";
 import networks from "../networks";
+import { ProviderRequestOptions, ProviderRPCRequest } from "@/types/provider";
 
-const { PromiseResolve, options, Request, sendToBackground } =
-  WindowPromiseHandler();
+const Options = ref<ProviderRequestOptions>({
+  domain: "",
+  faviconURL: "",
+  title: "",
+  url: "",
+});
+
+const request = ref<ProviderRPCRequest>();
+
+const windowPromise = WindowPromiseHandler(0);
+
+onBeforeMount(async () => {
+  const { Request, options } = await windowPromise;
+  Options.value = options;
+  request.value = Request.value;
+});
+
 const message = computed(() => {
-  if (Request.value.params && Request.value.params.length > 0)
-    return isAscii(Request.value.params[0])
-      ? u8aToString(u8aUnwrapBytes(Request.value.params[0]))
-      : Request.value.params[0];
+  if (request.value && request.value.params && request.value.params.length > 0)
+    return isAscii(request.value.params[0])
+      ? u8aToString(u8aUnwrapBytes(request.value.params[0]))
+      : request.value.params[0];
   return "";
 });
 const account = computed(() => {
-  if (Request.value.params && Request.value.params.length > 1) {
-    return Request.value.params[1] as KeyRecord;
+  if (
+    request.value &&
+    request.value.params &&
+    request.value.params.length > 1
+  ) {
+    return request.value.params[1] as KeyRecord;
   } else return { address: "" } as KeyRecord;
 });
 const identicon = computed(() => {
   return networks.polkadot.identicon(account.value.address);
 });
-const approve = () => {
+const approve = async () => {
+  const { Request, Resolve, sendToBackground } = await windowPromise;
+
   if (!Request.value.params || Request.value.params.length < 2) {
-    return PromiseResolve.value({ error: getCustomError("No params") });
+    return Resolve.value({ error: getCustomError("No params") });
   }
   const msg = Request.value.params[0] as `0x{string}`;
   const bytes = isAscii(msg)
@@ -82,16 +104,18 @@ const approve = () => {
     params: [bytes, account],
   }).then((res) => {
     if (res.error) {
-      PromiseResolve.value(res);
+      Resolve.value(res);
     } else {
-      PromiseResolve.value({
+      Resolve.value({
         result: JSON.stringify(res.result),
       });
     }
   });
 };
-const deny = () => {
-  PromiseResolve.value({
+const deny = async () => {
+  const { Resolve } = await windowPromise;
+
+  Resolve.value({
     error: getError(ErrorCodes.userRejected),
   });
 };
