@@ -16,15 +16,15 @@
     </div>
     <div class="common-popup__block">
       <div class="common-popup__info">
-        <img :src="options.faviconURL" />
+        <img :src="Options.faviconURL" />
         <div class="common-popup__info-info">
-          <h4>{{ options.title }}</h4>
-          <p>{{ options.domain }}</p>
+          <h4>{{ Options.title }}</h4>
+          <p>{{ Options.domain }}</p>
         </div>
       </div>
 
       <p class="common-popup__message">
-        {{ options.domain }} would like to access the encryption public key
+        {{ Options.domain }} would like to access the encryption public key
       </p>
     </div>
     <div class="common-popup__buttons">
@@ -42,53 +42,54 @@
 import SignLogo from "@action/icons/common/sign-logo.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import { KeyRecord } from "@enkryptcom/types";
-import { getCustomError, getError } from "@/libs/error";
+import { getError } from "@/libs/error";
 import { ErrorCodes } from "@/providers/ethereum/types";
 import { WindowPromiseHandler } from "@/libs/window-promise";
 import { InternalMethods } from "@/types/messenger";
-import { computed } from "vue";
+import { onBeforeMount, ref } from "vue";
 import { DEFAULT_NETWORK_NAME, getNetworkByName } from "@/libs/utils/networks";
-import { NodeType } from "@/types/provider";
-
-const { PromiseResolve, options, Request, sendToBackground } =
-  WindowPromiseHandler();
-const network = computed(() => {
-  if (Request.value.params && Request.value.params.length > 1)
-    return getNetworkByName(Request.value.params[1]) as NodeType;
-  else return getNetworkByName(DEFAULT_NETWORK_NAME) as NodeType;
+import { EvmNetwork } from "../types/evm-network";
+import { ProviderRequestOptions } from "@/types/provider";
+const windowPromise = WindowPromiseHandler(2);
+const network = ref<EvmNetwork>(
+  getNetworkByName(DEFAULT_NETWORK_NAME) as EvmNetwork
+);
+const account = ref<KeyRecord>({
+  name: "",
+  address: "",
+} as KeyRecord);
+const identicon = ref<string>("");
+const Options = ref<ProviderRequestOptions>({
+  domain: "",
+  faviconURL: "",
+  title: "",
+  url: "",
 });
-const account = computed(() => {
-  if (Request.value.params && Request.value.params.length > 0) {
-    return Request.value.params[0] as KeyRecord;
-  } else
-    return {
-      name: "",
-      address: "",
-    } as KeyRecord;
+onBeforeMount(async () => {
+  const { Request, options } = await windowPromise;
+  network.value = getNetworkByName(Request.value.params![1]) as EvmNetwork;
+  account.value = Request.value.params![0] as KeyRecord;
+  identicon.value = network.value.identicon(account.value.address);
+  Options.value = options;
 });
-const identicon = computed(() => {
-  return network.value.identicon(account.value.address);
-});
-const approve = () => {
-  if (!Request.value.params || Request.value.params.length < 1) {
-    return PromiseResolve.value({ error: getCustomError("No params") });
-  }
-  const account = Request.value.params[0] as KeyRecord;
+const approve = async () => {
+  const { sendToBackground, Resolve } = await windowPromise;
   sendToBackground({
     method: InternalMethods.getEthereumEncryptionPublicKey,
-    params: [account],
+    params: [account.value],
   }).then((res) => {
     if (res.error) {
-      PromiseResolve.value(res);
+      Resolve.value(res);
     } else {
-      PromiseResolve.value({
+      Resolve.value({
         result: JSON.stringify(res.result),
       });
     }
   });
 };
-const deny = () => {
-  PromiseResolve.value({
+const deny = async () => {
+  const { Resolve } = await windowPromise;
+  Resolve.value({
     error: getError(ErrorCodes.userRejected),
   });
 };

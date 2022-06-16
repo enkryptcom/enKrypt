@@ -2,7 +2,6 @@ import { ProviderAPIInterface } from "@/types/provider";
 import { ApiPromise, WsProvider } from "@polkadot/api";
 import { PolkadotAPIOptions } from "../types";
 import { AccountInfoWithRefCount } from "@polkadot/types/interfaces";
-import { fromBase } from "@/libs/utils/units";
 class API implements ProviderAPIInterface {
   node: string;
   decimals: number;
@@ -21,9 +20,6 @@ class API implements ProviderAPIInterface {
     const { data: balance } =
       await this.api.query.system.account<AccountInfoWithRefCount>(address);
     return balance.free.toString();
-  }
-  getBaseBalance(address: string): Promise<string> {
-    return this.getBalance(address).then((bal) => fromBase(bal, this.decimals));
   }
 }
 export default API;

@@ -38,13 +38,14 @@ import NetworkActivityAction from "../network-activity/components/network-activi
 import NetworkAssetsItem from "./components/network-assets-item.vue";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 import { onMounted, PropType, ref, toRef, watch } from "vue";
-import { AssetsType, NodeType } from "@/types/provider";
+import { AssetsType } from "@/types/provider";
 import { AccountsHeaderData } from "../../types/account";
 import accountInfo from "@action/composables/account-info";
+import { BaseNetwork } from "@/types/base-network";
 const route = useRoute();
 const props = defineProps({
   network: {
-    type: Object as PropType<NodeType>,
+    type: Object as PropType<BaseNetwork>,
     default: () => ({}),
   },
   accountInfo: {
@@ -79,16 +80,20 @@ const swapAction = () => {
   console.log("swapAction");
 };
 const updateAssets = () => {
-  if (props.network.assetsHandler) {
-    props.network
-      .assetsHandler(
-        props.network,
-        props.accountInfo.selectedAccount?.address || ""
-      )
-      .then((_assets) => {
-        assets.value = _assets;
-      });
-  }
+  props.network
+    .getAllTokenInfo(props.accountInfo.selectedAccount?.address || "")
+    .then((_assets) => (assets.value = _assets));
+  // props.network
+  // if (props.network.assetsHandler) {
+  //   props.network
+  //     .assetsHandler(
+  //       props.network,
+  //       props.accountInfo.selectedAccount?.address || ""
+  //     )
+  //     .then((_assets) => {
+  //       assets.value = _assets;
+  //     });
+  // }
 };
 watch([props.network, props.accountInfo], updateAssets);
 onMounted(() => {
