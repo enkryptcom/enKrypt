@@ -19,6 +19,8 @@ const acalaOptions: SubstrateNetworkOptions = {
   gradient: "#53CBC9",
   node: "wss://acala-rpc-0.aca-api.network/",
   coingeckoID: "acala",
+  genesisHash:
+    "0xfc41b9bd8ef8fe53d58c7ea67c794c7ec9a73daf05e6d54b14ff6342c99ba64c",
 };
 
 const acala = new SubstrateNetwork(acalaOptions);

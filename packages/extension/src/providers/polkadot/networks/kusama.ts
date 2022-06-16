@@ -18,6 +18,8 @@ const ksmOptions: SubstrateNetworkOptions = {
   gradient: "#82D359",
   node: "wss://kusama-rpc.polkadot.io/",
   coingeckoID: "kusama",
+  genesisHash:
+    "0xb0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe",
 };
 
 const ksm = new SubstrateNetwork(ksmOptions);
