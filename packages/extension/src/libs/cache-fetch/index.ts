@@ -4,7 +4,10 @@ import { InternalStorageNamespace } from "@/types/provider";
 import { keccak256 } from "web3-utils";
 const STORAGE_TTL = 1000 * 60 * 60 * 24;
 const TIMESTAMP = "timestamp";
-const cacheFetch = async (options: RequestOptions, ttl: number) => {
+const cacheFetch = async (
+  options: RequestOptions,
+  ttl: number = STORAGE_TTL
+) => {
   const storage = new BrowserStorage(InternalStorageNamespace.cacheFetch);
   const storagetimestamp = await storage.get(TIMESTAMP);
   if (

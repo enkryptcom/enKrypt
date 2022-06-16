@@ -45,10 +45,11 @@ defineProps({
     height: 40px;
     margin-bottom: 4px;
     cursor: pointer;
+    transition: background 300ms ease-in-out;
+    border-radius: 10px;
 
     &:hover {
       background: @black004;
-      border-radius: 10px;
     }
 
     img {

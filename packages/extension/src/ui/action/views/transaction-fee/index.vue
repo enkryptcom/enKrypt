@@ -1,6 +1,6 @@
 <template>
-  <div class="transaction-fee" :class="{ show: showFees }">
-    <div class="transaction-fee__overlay" @click="close"></div>
+  <div class="transaction-fee" :class="{ show: showFees, popup: isPopup }">
+    <div class="transaction-fee__overlay" @click="closepopup"></div>
     <div
       class="transaction-fee__wrap"
       :class="{ show: showFees, header: isHeader }"
@@ -8,17 +8,22 @@
       <div v-if="isHeader" class="transaction-fee__header">
         <h3>Choose transaction fee</h3>
 
-        <a class="transaction-fee__close" @click="close()">
+        <a class="transaction-fee__close" @click="closepopup">
           <close-icon />
         </a>
       </div>
       <div class="transaction-fee__info">
         <div class="transaction-fee__info-amount">
           <p class="transaction-fee__info-amount-fiat">
-            {{ $filters.formatFiatValue(10.12).value }}
+            ${{ $filters.formatFiatValue(fees[selected].fiatValue).value }}
+            {{ fees[selected].fiatSymbol }}
           </p>
           <p class="transaction-fee__info-amount-crypto">
-            0.0000123 <span>eth</span>
+            {{
+              $filters.formatFloatingPointValue(fees[selected].nativeValue)
+                .value
+            }}
+            <span>{{ fees[selected].nativeSymbol }}</span>
           </p>
         </div>
 
@@ -28,15 +33,16 @@
 
         <div class="transaction-fee__info-time">
           <time-icon />
-          <span>5 min</span>
+          <span>{{ FeeDescriptions[selected].eta }}</span>
         </div>
       </div>
       <transaction-fee-item
-        v-for="(item, index) in fees"
-        :key="index"
-        :fee="item"
-        :select-fee="selectFee"
+        v-for="(value, type) in fees"
+        :key="type"
+        :all-fees="fees"
         :selected="selected"
+        :type="type"
+        v-bind="$attrs"
       ></transaction-fee-item>
     </div>
   </div>
@@ -51,14 +57,27 @@ export default {
 <script setup lang="ts">
 import { PropType } from "vue";
 import TransactionFeeItem from "./components/transaction-fee-item.vue";
-import { fees } from "@action/types/mock";
-import { TransactionFee, TransactionFeeSpeed } from "@action/types/fee";
 import TimeIcon from "@action/icons/fee/time-icon.vue";
 import CloseIcon from "@action/icons/common/close-icon.vue";
-
-const props = defineProps({
+import { GasPriceTypes } from "@/providers/ethereum/libs/transaction/types";
+import { GasFeeType } from "@/providers/ethereum/ui/types";
+import { FeeDescriptions } from "@/providers/ethereum/libs/transaction/gas-utils";
+const emit = defineEmits<{
+  (e: "closePopup"): void;
+}>();
+defineProps({
   showFees: Boolean,
+  fees: {
+    type: Object as PropType<GasFeeType>,
+    default: () => ({}),
+  },
   isHeader: {
+    type: Boolean,
+    default: () => {
+      return false;
+    },
+  },
+  isPopup: {
     type: Boolean,
     default: () => {
       return false;
@@ -77,19 +96,13 @@ const props = defineProps({
     },
   },
   selected: {
-    type: Object as PropType<TransactionFeeSpeed>,
-    default: () => {
-      return {};
-    },
+    type: String as PropType<GasPriceTypes>,
+    default: GasPriceTypes.ECONOMY,
   },
 });
 
-const close = () => {
-  props.close(false);
-};
-
-const selectFee = (fee: TransactionFee) => {
-  props.selectFee(fee);
+const closepopup = () => {
+  emit("closePopup");
 };
 </script>
 
@@ -107,6 +120,10 @@ const selectFee = (fee: TransactionFee) => {
 
   &.show {
     display: block;
+  }
+
+  &.popup {
+    position: fixed;
   }
 
   &__overlay {
@@ -244,6 +261,7 @@ const selectFee = (fee: TransactionFee) => {
     border-radius: 8px;
     cursor: pointer;
     font-size: 0;
+    transition: background 300ms ease-in-out;
 
     &:hover {
       background: @black007;

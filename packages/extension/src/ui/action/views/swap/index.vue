@@ -14,6 +14,7 @@
             :toggle-select="toggleFromToken"
             :token="fromToken"
             :input-amount="inputAmountFrom"
+            :autofocus="true"
           ></swap-token-amount-input>
 
           <div class="swap__arrows"><swap-arrows></swap-arrows></div>
@@ -205,6 +206,7 @@ const sendAction = () => {
     border-radius: 8px;
     cursor: pointer;
     font-size: 0;
+    transition: background 300ms ease-in-out;
 
     &:hover {
       background: @black007;

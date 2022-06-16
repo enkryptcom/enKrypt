@@ -6,7 +6,7 @@
     <div class="send-address-input__address">
       <p>To:</p>
       <input
-        ref="addressInput"
+        ref="sendAddressInput"
         type="text"
         placeholder="0x… address or ENS name"
         :value="isFocus ? value : $filters.replaceWithEllipsis(value, 6, 6)"

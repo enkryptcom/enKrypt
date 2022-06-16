@@ -4,6 +4,7 @@ import EventEmitter from "eventemitter3";
 import { EXTENSION_VERSION } from "@/configs/constants";
 import {
   MiddlewareFunction,
+  NetworkNames,
   OnMessageResponse,
   RPCRequestType,
 } from "@enkryptcom/types";
@@ -12,6 +13,7 @@ import PublicKeyRing from "@/libs/keyring/public-keyring";
 import { RoutesType } from "./ui";
 import { SignerType } from "@enkryptcom/types";
 import { NFTCollection } from "./nft";
+import { BaseNetwork } from "./base-network";
 
 export enum ProviderName {
   enkrypt = "enkrypt",
@@ -24,6 +26,8 @@ export enum InternalStorageNamespace {
   domainState = "DomainState",
   marketData = "MarketData",
   cacheFetch = "CacheFetch",
+  nftState = "NFTState",
+  networksState = "NetworksState",
 }
 export enum EnkryptProviderEventMethods {
   persistentEvents = "PersistentEvents",
@@ -69,7 +73,7 @@ export abstract class BackgroundProviderInterface extends EventEmitter {
   constructor(_toWindow: (message: string) => void, options: unknown) {
     super();
   }
-  abstract setRequestProvider(network: NodeType): void;
+  abstract setRequestProvider(network: BaseNetwork): void;
   abstract request(request: ProviderRPCRequest): Promise<OnMessageResponse>;
   abstract getUIPath(page: string): string;
   abstract isPersistentEvent(request: ProviderRPCRequest): Promise<boolean>;
@@ -82,7 +86,6 @@ export abstract class ProviderAPIInterface {
   constructor(node: string, options?: unknown) {}
   abstract init(): Promise<void>;
   abstract getBalance(address: string): Promise<string>;
-  abstract getBaseBalance(address: string): Promise<string>;
 }
 
 export type handleIncomingMessage = (
@@ -113,7 +116,7 @@ export interface UIExportOptions {
 }
 
 export interface NodeType {
-  name: string;
+  name: NetworkNames;
   name_long: string;
   homePage: string;
   blockExplorerTX: string;

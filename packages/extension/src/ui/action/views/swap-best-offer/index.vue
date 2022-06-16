@@ -33,6 +33,7 @@
           :close="toggleSelectFee"
           :select-fee="selectFee"
           :selected="fee.price.speed"
+          :is-header="true"
         ></transaction-fee-view>
       </div>
 
@@ -63,7 +64,7 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { ref, defineExpose } from "vue";
+import { ref } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import BaseButton from "@action/components/base-button/index.vue";
@@ -194,6 +195,7 @@ const selectFee = (option: TransactionFee) => {
     border-radius: 8px;
     cursor: pointer;
     font-size: 0;
+    transition: background 300ms ease-in-out;
 
     &:hover {
       background: @black007;

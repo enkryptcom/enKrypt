@@ -1,16 +1,28 @@
 <template>
   <div class="network-nfts__category">
     <div class="network-nfts__category-head">
-      <img :src="collection.image" alt="" />
+      <!-- <img :src="collection.image" alt="" /> -->
       <p>{{ collection.name }}</p>
+
+      <a class="network-nfts__category-sort" @mouseenter="toggleSortMenu">
+        <nft-sort-menu></nft-sort-menu>
+      </a>
     </div>
     <div class="network-nfts__category-items">
       <network-nfts-item
-        v-for="(item, index) in collection.items"
+        v-for="(item, index) in reactiveCollection.items"
         :key="index"
         :item="item"
+        v-bind="$attrs"
       ></network-nfts-item>
     </div>
+
+    <network-nfts-category-sort-menu
+      v-show="isOpenSort"
+      :is-abc-sort="isAbcSort"
+      :abc-sort="abcSortAction"
+      @mouseleave="toggleSortMenu"
+    ></network-nfts-category-sort-menu>
   </div>
 </template>
 
@@ -21,11 +33,15 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { PropType } from "vue";
+import { computed, PropType, ref } from "vue";
 import NetworkNftsItem from "./network-nfts-item.vue";
+import NftSortMenu from "@action/icons/nft/nft-sort-menu.vue";
+import NetworkNftsCategorySortMenu from "./network-nfts-category-sort-menu.vue";
 import { NFTCollection } from "@/types/nft";
+let isOpenSort = ref(false);
+let isAbcSort = ref(true);
 
-defineProps({
+const props = defineProps({
   collection: {
     type: Object as PropType<NFTCollection>,
     default: () => {
@@ -33,6 +49,22 @@ defineProps({
     },
   },
 });
+const reactiveCollection = computed<NFTCollection>(() => {
+  const collectionCopy = JSON.parse(
+    JSON.stringify(props.collection)
+  ) as NFTCollection;
+  if (isAbcSort.value)
+    collectionCopy.items.sort((a, b) =>
+      a.name > b.name ? 1 : b.name > a.name ? -1 : 0
+    );
+  return collectionCopy;
+});
+const toggleSortMenu = () => {
+  isOpenSort.value = !isOpenSort.value;
+};
+const abcSortAction = (isAbc: boolean) => {
+  isAbcSort.value = isAbc;
+};
 </script>
 
 <style lang="less">
@@ -40,13 +72,15 @@ defineProps({
 
 .network-nfts {
   &__category {
-    padding-top: 8px;
+    padding-top: 10px;
+    position: relative;
 
     &-head {
       display: flex;
       justify-content: flex-start;
       align-items: center;
       flex-direction: row;
+      position: relative;
 
       img {
         max-width: 24px;
@@ -58,15 +92,23 @@ defineProps({
       p {
         font-style: normal;
         font-weight: 700;
-        font-size: 16px;
-        line-height: 24px;
+        font-size: 20px;
+        line-height: 28px;
         color: @primaryLabel;
         margin: 0;
       }
     }
 
+    &-sort {
+      position: absolute;
+      top: 50%;
+      right: 8px;
+      margin-top: -12px;
+      cursor: pointer;
+    }
+
     &-items {
-      padding-top: 8px;
+      padding-top: 10px;
       display: flex;
       justify-content: flex-start;
       align-items: flex-start;

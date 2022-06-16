@@ -18,7 +18,10 @@
         :settings="settings"
         @ps-scroll-y="handleScroll"
       >
-        <add-network-search :input="search" />
+        <add-network-search
+          :input="search"
+          :on-test-net-check="onTestNetCheck"
+        />
 
         <h3 class="add-network__list-header">Popular</h3>
 
@@ -26,16 +29,17 @@
           v-for="(item, index) in popular"
           :key="index"
           :network="item"
-          :is-active="true"
+          :is-active="item.isActive"
+          @network-toggled="onToggle"
         ></add-network-item>
 
         <h3 class="add-network__list-header">All networks</h3>
-
         <add-network-item
-          v-for="(item, index) in all"
-          :key="index"
+          v-for="item in all"
+          :key="item.name"
           :network="item"
-          :is-active="true"
+          :is-active="item.isActive"
+          @network-toggled="onToggle"
         ></add-network-item>
       </custom-scrollbar>
     </div>
@@ -49,24 +53,36 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, onBeforeMount, inject } from "vue";
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import AddNetworkSearch from "./components/add-network-search.vue";
 import AddNetworkItem from "./components/add-network-item.vue";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
-import { getAllNetworks } from "@/libs/utils/networks";
+import { NodeType } from "@/types/provider";
+import { getAllNetworks, POPULAR_NAMES } from "@/libs/utils/networks";
+import NetworksState from "@/libs/networks-state";
+
+interface NodeTypesWithActive extends NodeType {
+  isActive: boolean;
+}
+
+//Provided in packages/extension/src/ui/action/App.vue
+const setActiveNetworks: (() => Promise<void>) | undefined =
+  inject("setActiveNetworks");
+
 const settings = {
   suppressScrollY: false,
   suppressScrollX: true,
   wheelPropagation: false,
 };
-const popularNames = ["ETH", "MATIC", "DOT", "GLMR"];
-const popular = getAllNetworks().filter((net) =>
-  popularNames.includes(net.name)
-);
-const all = getAllNetworks();
+
+const networksState = new NetworksState();
+
+const all = ref<Array<NodeTypesWithActive>>([]);
+const popular = ref<Array<NodeTypesWithActive>>([]);
 let scrollProgress = ref(0);
 const manageNetworkScrollRef = ref(null);
+const showTestNets = ref(false);
 
 defineExpose({ manageNetworkScrollRef });
 defineProps({
@@ -76,13 +92,68 @@ defineProps({
   },
 });
 
+const getAllNetworksAndStatus = async () => {
+  const activeNetworks = await networksState.getActiveNetworkNames();
+
+  const allNetworks = getAllNetworks().map((net) => {
+    return {
+      ...net,
+      isActive: activeNetworks.includes(net.name),
+    };
+  });
+
+  return allNetworks;
+};
+
+onBeforeMount(async () => {
+  const allNetworksNotTestNets = (await getAllNetworksAndStatus()).filter(
+    ({ isTestNetwork }) => !isTestNetwork
+  );
+
+  const popularNetworks = allNetworksNotTestNets.filter((net) =>
+    POPULAR_NAMES.includes(net.name)
+  );
+
+  all.value = allNetworksNotTestNets;
+  popular.value = popularNetworks;
+});
+
+const onTestNetCheck = async () => {
+  showTestNets.value = !showTestNets.value;
+
+  if (showTestNets.value) {
+    all.value = await getAllNetworksAndStatus();
+  } else {
+    all.value = all.value.filter(({ isTestNetwork }) => !isTestNetwork);
+  }
+};
+
+const onToggle = async (networkName: string, isActive: boolean) => {
+  try {
+    await networksState.setNetworkStatus(networkName, isActive);
+    if (setActiveNetworks) setActiveNetworks();
+    all.value = all.value.map((network) => {
+      if (network.name === networkName) {
+        network.isActive = isActive;
+      }
+
+      return network;
+    });
+
+    popular.value = all.value.filter(({ name }) =>
+      POPULAR_NAMES.includes(name)
+    );
+  } catch (e) {
+    console.error(e);
+  }
+};
+
 const search = (value: string) => {
   console.log(value);
 };
 const handleScroll = (e: any) => {
   let progress = Number(e.target.lastChild.style.top.replace("px", ""));
   scrollProgress.value = progress;
-  console.log(isHasScroll() && scrollProgress.value > 0);
 };
 const isHasScroll = () => {
   if (manageNetworkScrollRef.value) {
@@ -140,6 +211,7 @@ const isHasScroll = () => {
     border-radius: 8px;
     cursor: pointer;
     font-size: 0;
+    transition: background 300ms ease-in-out;
 
     &:hover {
       background: @black007;

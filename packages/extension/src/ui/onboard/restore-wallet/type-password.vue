@@ -11,6 +11,7 @@
         :value="typePassword"
         placeholder="Password"
         @update:value="passwordUpdated"
+        @keyup.enter="nextAction()"
       />
 
       <div
@@ -46,13 +47,15 @@ const mnemonic = route.params.mnemonic as string;
 const typePassword = ref("");
 const isInitializing = ref(false);
 const nextAction = () => {
-  isInitializing.value = true;
-  initializeWallet(mnemonic, password).then(() => {
-    isInitializing.value = false;
-    router.push({
-      name: routes.walletReady.name,
+  if (!isDisabled.value) {
+    isInitializing.value = true;
+    initializeWallet(mnemonic, password).then(() => {
+      isInitializing.value = false;
+      router.push({
+        name: routes.walletReady.name,
+      });
     });
-  });
+  }
 };
 const isDisabled = computed(() => {
   return typePassword.value !== password || isInitializing.value;

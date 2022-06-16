@@ -6,19 +6,21 @@
   >
     <h5>{{ title }}</h5>
     <div class="settings-button__arrow">
-      <right-arrow />
+      <right-arrow v-if="!isLink" />
+      <external-icon v-else />
     </div>
   </a>
 </template>
 
 <script lang="ts">
 export default {
-  name: "BaseSelect",
+  name: "SettingsButton",
 };
 </script>
 
 <script setup lang="ts">
 import RightArrow from "@action/icons/common/right-arrow.vue";
+import ExternalIcon from "@action/icons/common/external-icon.vue";
 
 defineProps({
   action: {
@@ -39,6 +41,12 @@ defineProps({
       return false;
     },
   },
+  isLink: {
+    type: Boolean,
+    default: () => {
+      return false;
+    },
+  },
 });
 </script>
 
@@ -46,15 +54,15 @@ defineProps({
 @import "~@action/styles/theme.less";
 
 .settings-button {
-  height: 56px;
+  height: 48px;
   background: #ffffff;
-  margin: 0 32px 16px 32px;
+  margin: 0 32px 12px 32px;
   box-sizing: border-box;
   border: 1px solid @gray02;
   box-sizing: border-box;
   border-radius: 10px;
   width: calc(~"100% - 64px");
-  padding: 8px 16px;
+  padding: 12px 16px;
   display: block;
   position: relative;
   cursor: pointer;
@@ -63,6 +71,10 @@ defineProps({
   justify-content: flex-start;
   align-items: center;
   flex-direction: row;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
 
   h5 {
     font-style: normal;
