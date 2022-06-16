@@ -1,6 +1,6 @@
 import ethAccounts from "../eth-accounts.vue";
 import ethSign from "../eth-sign-message.vue";
-import ethSendTransaction from "../eth-send-transaction.vue";
+import ethSendTransaction from "../eth-verify-transaction.vue";
 import ethSignTypedData from "../eth-sign-typedata.vue";
 import ethEncryptionKey from "../eth-get-encryption-key.vue";
 import ethDecrypt from "../eth-decrypt.vue";

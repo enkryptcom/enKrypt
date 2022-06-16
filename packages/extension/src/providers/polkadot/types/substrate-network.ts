@@ -92,8 +92,6 @@ export class SubstrateNetwork extends BaseNetwork {
       balancePromises
     )) as unknown as number[];
 
-    console.log(balances);
-
     const tokens: AssetsType[] = supported.map((st, idx) => {
       const userBalance = fromBase(balances[idx].toString(), st.decimals);
       const usdBalance = new BigNumber(userBalance).times(
@@ -120,7 +118,6 @@ export class SubstrateNetwork extends BaseNetwork {
       };
     });
 
-    console.log(tokens);
     const sorted = [...tokens].filter((val, idx) => idx !== 0);
     sorted.sort((a, b) => {
       if (a.balanceUSD < b.balanceUSD) return 1;
@@ -129,7 +126,6 @@ export class SubstrateNetwork extends BaseNetwork {
     });
     sorted.unshift(tokens[0]);
 
-    console.log(sorted);
     return sorted;
   }
 }

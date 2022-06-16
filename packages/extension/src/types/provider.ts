@@ -86,7 +86,6 @@ export abstract class ProviderAPIInterface {
   constructor(node: string, options?: unknown) {}
   abstract init(): Promise<void>;
   abstract getBalance(address: string): Promise<string>;
-  abstract getBaseBalance(address: string): Promise<string>;
 }
 
 export type handleIncomingMessage = (

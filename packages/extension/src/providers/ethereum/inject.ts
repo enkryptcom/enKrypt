@@ -112,3 +112,5 @@ const injectDocument = (
   document["enkrypt"]["providers"][options.name] = provider;
 };
 export default injectDocument;
+
+// if anyone change anything in this file, please make sure to test it against superrare.com and app.multichain.org
