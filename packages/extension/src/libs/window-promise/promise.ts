@@ -35,8 +35,8 @@ class WindowPromise {
       url: "#",
       type: "popup",
       focused: true,
-      height: 500,
-      width: 400,
+      height: 600,
+      width: 460,
     });
     const tabId: number | undefined = windowInfo.tabs?.length
       ? windowInfo.tabs[0].id

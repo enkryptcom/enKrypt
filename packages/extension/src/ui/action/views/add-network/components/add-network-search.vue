@@ -61,7 +61,6 @@ const action = () => {
 
 const testNetwork = () => {
   props.onTestNetCheck();
-  console.log("testNetwork");
 };
 </script>
 

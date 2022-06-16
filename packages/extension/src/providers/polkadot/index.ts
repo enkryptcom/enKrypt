@@ -4,13 +4,13 @@ import Middlewares from "./methods";
 import EventEmitter from "eventemitter3";
 import {
   BackgroundProviderInterface,
-  NodeType,
   ProviderName,
   ProviderRPCRequest,
 } from "@/types/provider";
 import GetUIPath from "@/libs/utils/get-ui-path";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
 import UIRoutes from "./ui/routes/names";
+import { BaseNetwork } from "@/types/base-network";
 class PolkadotProvider
   extends EventEmitter
   implements BackgroundProviderInterface
@@ -35,7 +35,7 @@ class PolkadotProvider
   private setMiddleWares(): void {
     this.middlewares = Middlewares.map((mw) => mw.bind(this));
   }
-  setRequestProvider(network: NodeType): void {
+  setRequestProvider(network: BaseNetwork): void {
     this.requestProvider.changeNetwork(network.node);
   }
   request(request: ProviderRPCRequest): Promise<OnMessageResponse> {

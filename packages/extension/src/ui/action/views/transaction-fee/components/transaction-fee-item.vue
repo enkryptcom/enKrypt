@@ -2,36 +2,23 @@
   <a class="transaction-fee-item" @click="select">
     <div
       class="transaction-fee-item__block"
-      :class="{ active: selected == fee.price.speed }"
+      :class="{ active: selected == type }"
     >
-      <economy-icon v-show="fee.price.speed == TransactionFeeSpeed.economy" />
-      <recomended-icon
-        v-show="fee.price.speed == TransactionFeeSpeed.recommended"
-      />
-      <higher-icon
-        v-show="fee.price.speed == TransactionFeeSpeed.higherPriority"
-      />
-      <highest-icon
-        v-show="fee.price.speed == TransactionFeeSpeed.highestPriority"
-      />
+      <economy-icon v-show="type == GasPriceTypes.ECONOMY" />
+      <recomended-icon v-show="type == GasPriceTypes.REGULAR" />
+      <higher-icon v-show="type == GasPriceTypes.FAST" />
+      <highest-icon v-show="type == GasPriceTypes.FASTEST" />
 
       <div class="transaction-fee-item__block-info">
-        <h4>{{ fee.price.title }}</h4>
-        <p>{{ fee.price.description }}</p>
+        <h4>{{ FeeDescriptions[type].title }}</h4>
+        <p>{{ FeeDescriptions[type].description }}</p>
       </div>
 
       <div
-        v-show="fee.price.speed == TransactionFeeSpeed.economy"
-        class="transaction-fee-item__block-amount down"
-      >
-        -${{ $filters.formatFiatValue(2.23).value }}
-      </div>
-
-      <div
-        v-show="fee.price.speed != TransactionFeeSpeed.economy"
         class="transaction-fee-item__block-amount"
+        :class="{ down: parseFloat(diff) < 0 }"
       >
-        +${{ $filters.formatFiatValue(1.23).value }}
+        {{ parseFloat(diff) < 0 ? "" : "+" }}{{ diff }}
       </div>
     </div>
   </a>
@@ -44,36 +31,45 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { PropType } from "vue";
-import { TransactionFee, TransactionFeeSpeed } from "@action/types/fee";
 import EconomyIcon from "@action/icons/fee/economy-icon.vue";
 import RecomendedIcon from "@action/icons/fee/recomended-icon.vue";
 import HigherIcon from "@action/icons/fee/higher-icon.vue";
 import HighestIcon from "@action/icons/fee/highest-icon.vue";
-
+import { GasPriceTypes } from "@/providers/ethereum/libs/transaction/types";
+import { computed, PropType } from "vue";
+import { GasFeeType } from "@/providers/ethereum/ui/types";
+import { FeeDescriptions } from "@/providers/ethereum/libs/transaction/gas-utils";
+import BigNumber from "bignumber.js";
+const emit = defineEmits<{
+  (e: "gasTypeChanged", type: GasPriceTypes): void;
+}>();
 const props = defineProps({
-  fee: {
-    type: Object as PropType<TransactionFee>,
-    default: () => {
-      return {};
-    },
+  allFees: {
+    type: Object as PropType<GasFeeType>,
+    default: () => ({}),
   },
-  selectFee: {
-    type: Function,
-    default: () => {
-      return null;
-    },
+  type: {
+    type: String as PropType<GasPriceTypes>,
+    default: GasPriceTypes.ECONOMY,
   },
   selected: {
-    type: Object as PropType<TransactionFeeSpeed>,
-    default: () => {
-      return {};
-    },
+    type: String as PropType<GasPriceTypes>,
+    default: GasPriceTypes.ECONOMY,
   },
 });
-
+const diff = computed(() => {
+  if (props.allFees[props.selected]) {
+    const selectedVal = props.allFees[props.selected];
+    const curVal = props.allFees[props.type];
+    return new BigNumber(curVal.fiatValue)
+      .minus(selectedVal.fiatValue)
+      .toFixed(2);
+  } else {
+    return "0";
+  }
+});
 const select = () => {
-  props.selectFee(props.fee);
+  emit("gasTypeChanged", props.type);
 };
 </script>
 

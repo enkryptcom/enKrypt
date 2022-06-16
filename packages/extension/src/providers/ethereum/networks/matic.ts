@@ -1,12 +1,9 @@
-import rarible from "@/libs/nft-handlers/rarible";
-import { ProviderName } from "@/types/provider";
-import { NetworkNames, SignerType } from "@enkryptcom/types";
-import { toChecksumAddress } from "ethereumjs-util";
-import API from "../libs/api";
-import { EthereumNodeType } from "../types";
-import createIcon from "../libs/blockies";
+import { NetworkNames } from "@enkryptcom/types";
+import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
 import tokenbalanceMew from "@/providers/ethereum/libs/assets-handlers/tokenbalance-mew";
-const maticNode: EthereumNodeType = {
+import RaribleNFTHandler from "@/libs/nft-handlers/rarible";
+
+const maticOptions: EvmNetworkOptions = {
   name: NetworkNames.Matic,
   name_long: "Polygon (Matic)",
   homePage: "https://polygonscan.com/",
@@ -17,19 +14,12 @@ const maticNode: EthereumNodeType = {
   currencyName: "MATIC",
   node: "wss://nodes.mewapi.io/ws/matic",
   icon: require("./icons/matic.svg"),
-  signer: [SignerType.secp256k1],
   gradient: "#53CBC9",
-  displayAddress: (address: string) => toChecksumAddress(address),
-  provider: ProviderName.ethereum,
   coingeckoID: "matic-network",
-  NFTHandler: rarible,
-  identicon: createIcon,
+  NFTHandler: RaribleNFTHandler,
   assetsHandler: tokenbalanceMew,
-  basePath: "m/44'/60'/0'/0",
 };
-maticNode.api = async () => {
-  const api = new API(maticNode.node);
-  await api.init();
-  return api;
-};
-export default maticNode;
+
+const matic = new EvmNetwork(maticOptions);
+
+export default matic;

@@ -1,3 +1,5 @@
+import { NetworkNames } from "@enkryptcom/types";
+
 export interface TokenBalance {
   contract: string;
   balance: string;
@@ -15,3 +17,8 @@ export interface CGToken {
   decimals: number;
   logoURI: string;
 }
+
+export type SupportedNetworkNames =
+  | NetworkNames.Binance
+  | NetworkNames.Ethereum
+  | NetworkNames.Matic;
