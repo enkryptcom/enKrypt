@@ -8,7 +8,6 @@ export class SubstrateNativeToken extends BaseToken {
   }
 
   public async getUserBalance(api: any, address: any): Promise<number> {
-    console.log(api);
     return (api as ApiPromise).query.system
       .account<AccountInfoWithRefCount>(address)
       .then(({ data }) => data.free.toNumber());

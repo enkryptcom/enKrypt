@@ -80,9 +80,10 @@
       </div>
 
       <send-fee-select
-        :fee="fee"
-        :toggle-select="toggleSelectFee"
         :in-swap="true"
+        :selected="selectedFee"
+        :fee="gasCostValues[selectedFee]"
+        @open-popup="toggleSelectFee"
       ></send-fee-select>
 
       <!-- <best-offer-error :not-enough-verify="true"></best-offer-error> -->
@@ -96,22 +97,18 @@
         /></a>
 
         <div v-show="isOpenData" class="provider-verify-transaction__data-text">
-          <p>Function type: Register Proxy 0xddd81f82</p>
-          <p>Parameters: []</p>
-          <p>HEX data: 4 BYTES</p>
-          <p>0xddd81f82</p>
-          <p>Verified contract on <a href="#">Etherscan</a></p>
-          <p>Decoded by Truffle</p>
+          <p>Data Hex: {{ decodedTx?.dataHex || "0x" }}</p>
         </div>
       </div>
     </custom-scrollbar>
 
     <transaction-fee-view
+      :fees="gasCostValues"
       :show-fees="isOpenSelectFee"
-      :close="toggleSelectFee"
-      :select-fee="selectFee"
-      :selected="fee.price.speed"
+      :selected="selectedFee"
       :is-header="true"
+      @close-popup="toggleSelectFee"
+      @gas-type-changed="selectFee"
     ></transaction-fee-view>
 
     <div
@@ -135,8 +132,6 @@ import RightChevron from "@action/icons/common/right-chevron.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import SendFeeSelect from "@action/views/send-transaction/components/send-fee-select.vue";
 import TransactionFeeView from "@action/views/transaction-fee/index.vue";
-import { TransactionFee } from "@action/types/fee";
-import { recommendedFee } from "@action/types/mock";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 import ScrollSettings from "@/libs/utils/scroll-settings";
 import { KeyRecord } from "@enkryptcom/types";
@@ -147,7 +142,11 @@ import { InternalMethods } from "@/types/messenger";
 import { bufferToHex } from "@enkryptcom/utils";
 import { fromRpcSig } from "ethereumjs-util";
 import { DEFAULT_NETWORK_NAME, getNetworkByName } from "@/libs/utils/networks";
-import { DecodedTx, EthereumTransaction } from "../libs/transaction/types";
+import {
+  DecodedTx,
+  EthereumTransaction,
+  GasPriceTypes,
+} from "../libs/transaction/types";
 import Transaction from "@/providers/ethereum/libs/transaction";
 import Web3 from "web3";
 import { FeeMarketEIP1559Transaction } from "@ethereumjs/tx";
@@ -156,9 +155,10 @@ import { fromBase } from "@/libs/utils/units";
 import { decodeTx } from "../libs/transaction/decoder";
 import { ProviderRequestOptions } from "@/types/provider";
 import BigNumber from "bignumber.js";
+import { GasFeeType } from "./types";
+import MarketData from "@/libs/market-data";
 
 const isOpenSelectFee = ref(false);
-const fee = ref(recommendedFee);
 const providerVerifyTransactionScrollRef = ref<ComponentPublicInstance>();
 const isOpenData = ref(false);
 const TokenBalance = ref<string>("~");
@@ -167,6 +167,33 @@ const decodedTx = ref<DecodedTx>();
 const network = ref<EvmNetwork>(
   getNetworkByName(DEFAULT_NETWORK_NAME) as EvmNetwork
 );
+const marketdata = new MarketData();
+const gasCostValues = ref<GasFeeType>({
+  [GasPriceTypes.ECONOMY]: {
+    nativeValue: "0",
+    fiatValue: "0.00",
+    nativeSymbol: "ETH",
+    fiatSymbol: "USD",
+  },
+  [GasPriceTypes.REGULAR]: {
+    nativeValue: "0",
+    fiatValue: "0.00",
+    nativeSymbol: "ETH",
+    fiatSymbol: "USD",
+  },
+  [GasPriceTypes.FAST]: {
+    nativeValue: "0",
+    fiatValue: "0.00",
+    nativeSymbol: "ETH",
+    fiatSymbol: "USD",
+  },
+  [GasPriceTypes.FASTEST]: {
+    nativeValue: "0",
+    fiatValue: "0.00",
+    nativeSymbol: "ETH",
+    fiatSymbol: "USD",
+  },
+});
 const account = ref<KeyRecord>({
   name: "",
   address: "",
@@ -179,7 +206,7 @@ const Options = ref<ProviderRequestOptions>({
   title: "",
   url: "",
 });
-
+const selectedFee = ref<GasPriceTypes>(GasPriceTypes.ECONOMY);
 defineExpose({ providerVerifyTransactionScrollRef });
 
 onBeforeMount(async () => {
@@ -204,6 +231,56 @@ onBeforeMount(async () => {
       .times(decoded.currentPriceUSD)
       .toFixed(2);
   });
+  const web3 = new Web3(network.value.node);
+  const tx = new Transaction(
+    Request.value.params![0] as EthereumTransaction,
+    web3
+  );
+  await tx.getGasCosts().then(async (gasvals) => {
+    let nativeVal = "0";
+    if (network.value.coingeckoID) {
+      await marketdata
+        .getTokenValue("1", network.value.coingeckoID, "USD")
+        .then((val) => (nativeVal = val));
+    }
+    const getConvertedVal = (type: GasPriceTypes) =>
+      fromBase(gasvals[type], network.value.decimals);
+
+    gasCostValues.value = {
+      [GasPriceTypes.ECONOMY]: {
+        nativeValue: getConvertedVal(GasPriceTypes.ECONOMY),
+        fiatValue: new BigNumber(getConvertedVal(GasPriceTypes.ECONOMY))
+          .times(nativeVal)
+          .toString(),
+        nativeSymbol: network.value.currencyName,
+        fiatSymbol: "USD",
+      },
+      [GasPriceTypes.REGULAR]: {
+        nativeValue: getConvertedVal(GasPriceTypes.REGULAR),
+        fiatValue: new BigNumber(getConvertedVal(GasPriceTypes.REGULAR))
+          .times(nativeVal)
+          .toString(),
+        nativeSymbol: network.value.currencyName,
+        fiatSymbol: "USD",
+      },
+      [GasPriceTypes.FAST]: {
+        nativeValue: getConvertedVal(GasPriceTypes.FAST),
+        fiatValue: new BigNumber(getConvertedVal(GasPriceTypes.FAST))
+          .times(nativeVal)
+          .toString(),
+        nativeSymbol: network.value.currencyName,
+        fiatSymbol: "USD",
+      },
+      [GasPriceTypes.FASTEST]: {
+        nativeValue: getConvertedVal(GasPriceTypes.FASTEST),
+        fiatValue: new BigNumber(getConvertedVal(GasPriceTypes.FASTEST))
+          .times(nativeVal)
+          .toString(),
+        nativeSymbol: network.value.currencyName,
+        fiatSymbol: "USD",
+      },
+    };
+  });
 });
 
 const approve = async () => {
@@ -213,34 +290,36 @@ const approve = async () => {
     Request.value.params![0] as EthereumTransaction,
     web3
   );
-  tx.getFinalizedTransaction().then((finalizedTx) => {
-    const msgHash = bufferToHex(finalizedTx.getMessageToSign(true));
-    sendToBackground({
-      method: InternalMethods.sign,
-      params: [msgHash, account.value],
-    }).then((res) => {
-      if (res.error) {
-        Resolve.value(res);
-      } else {
-        const rpcSig = fromRpcSig(res.result || "0x");
-        const signedTx = (
-          finalizedTx as FeeMarketEIP1559Transaction
-        )._processSignature(rpcSig.v, rpcSig.r, rpcSig.s);
-        web3.eth
-          .sendSignedTransaction("0x" + signedTx.serialize().toString("hex"))
-          .on("transactionHash", (hash) => {
-            Resolve.value({
-              result: JSON.stringify(hash),
+  tx.getFinalizedTransaction({ gasPriceType: selectedFee.value }).then(
+    (finalizedTx) => {
+      const msgHash = bufferToHex(finalizedTx.getMessageToSign(true));
+      sendToBackground({
+        method: InternalMethods.sign,
+        params: [msgHash, account.value],
+      }).then((res) => {
+        if (res.error) {
+          Resolve.value(res);
+        } else {
+          const rpcSig = fromRpcSig(res.result || "0x");
+          const signedTx = (
+            finalizedTx as FeeMarketEIP1559Transaction
+          )._processSignature(rpcSig.v, rpcSig.r, rpcSig.s);
+          web3.eth
+            .sendSignedTransaction("0x" + signedTx.serialize().toString("hex"))
+            .on("transactionHash", (hash) => {
+              Resolve.value({
+                result: JSON.stringify(hash),
+              });
+            })
+            .on("error", (error) => {
+              Resolve.value({
+                error: getCustomError(error.message),
+              });
             });
-          })
-          .on("error", (error) => {
-            Resolve.value({
-              error: getCustomError(error.message),
-            });
-          });
-      }
-    });
-  });
+        }
+      });
+    }
+  );
 };
 const deny = async () => {
   const { Resolve } = await windowPromise;
@@ -252,8 +331,8 @@ const deny = async () => {
 const toggleSelectFee = () => {
   isOpenSelectFee.value = !isOpenSelectFee.value;
 };
-const selectFee = (option: TransactionFee) => {
-  fee.value = option;
+const selectFee = (type: GasPriceTypes) => {
+  selectedFee.value = type;
   toggleSelectFee();
 };
 const isHasScroll = () => {

@@ -24,7 +24,7 @@ import { WindowPromiseHandler } from "@/libs/window-promise";
 import { InternalMethods } from "@/types/messenger";
 import { ProviderRequestOptions } from "@/types/provider";
 const windowPromise = WindowPromiseHandler(0);
-const password = ref("");
+const password = ref("test pass");
 const errorMsg = ref("");
 const Options = ref<ProviderRequestOptions>({
   domain: "",
