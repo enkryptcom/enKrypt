@@ -1,12 +1,10 @@
-import { ProviderName } from "@/types/provider";
-import { NetworkNames, SignerType } from "@enkryptcom/types";
-import { polkadotEncodeAddress } from "@enkryptcom/utils";
-import API from "../libs/api";
-import dot from "../libs/assets-handlers/dot";
-import createIcon from "../libs/blockies";
-import { PolkadotNodeType } from "../types";
-const prefix = 2;
-const dotNode: PolkadotNodeType = {
+import { NetworkNames } from "@enkryptcom/types";
+import {
+  SubstrateNetwork,
+  SubstrateNetworkOptions,
+} from "../types/substrate-network";
+
+const ksmOptions: SubstrateNetworkOptions = {
   name: NetworkNames.Kusama,
   name_long: "Kusama",
   homePage: "https://kusama.network/",
@@ -16,20 +14,14 @@ const dotNode: PolkadotNodeType = {
   currencyName: "KSM",
   icon: require("./icons/kusama.svg"),
   decimals: 12,
-  prefix,
-  signer: [SignerType.sr25519, SignerType.ed25519],
+  prefix: 2,
   gradient: "#82D359",
   node: "wss://kusama-rpc.polkadot.io/",
-  displayAddress: (address: string) => polkadotEncodeAddress(address, prefix),
-  provider: ProviderName.polkadot,
   coingeckoID: "kusama",
-  identicon: createIcon,
-  assetsHandler: dot,
-  basePath: "//",
+  genesisHash:
+    "0xb0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe",
 };
-dotNode.api = async () => {
-  const api = new API(dotNode.node, { decimals: dotNode.decimals });
-  await api.init();
-  return api;
-};
-export default dotNode;
+
+const ksm = new SubstrateNetwork(ksmOptions);
+
+export default ksm;

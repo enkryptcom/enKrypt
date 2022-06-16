@@ -1,11 +1,11 @@
 import MarketData from "@/libs/market-data";
-import { NodeType } from "@/types/provider";
+import { BaseNetwork } from "@/types/base-network";
 import { computed, ref, watch, onMounted, Ref } from "vue";
 import { AccountsHeaderData } from "../types/account";
 import { formatFloatingPointValue, formatFiatValue } from "../utils/filters";
 const defaultFiatVal = "~";
 export default (
-  network: Ref<NodeType>,
+  network: Ref<BaseNetwork>,
   accountInfo: Ref<AccountsHeaderData>
 ) => {
   const marketData = new MarketData();

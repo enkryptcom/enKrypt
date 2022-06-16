@@ -1,4 +1,4 @@
-import * as filters from "./utils/filters";
+import * as filters from "@action/utils/filters";
 
 declare module "@vue/runtime-core" {
   interface ComponentCustomProperties {
