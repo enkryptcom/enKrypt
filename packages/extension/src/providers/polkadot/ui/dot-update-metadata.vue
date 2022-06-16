@@ -1,7 +1,7 @@
 <template>
   <div class="update-metadata">
     <sign-logo
-      :color="metadata.color || '#E6007A'"
+      :color="metadata ? metadata.color : '#E6007A'"
       class="update-metadata__logo"
     ></sign-logo>
     <h2>Update metadata</h2>
@@ -12,28 +12,32 @@
       </div>
       <div class="update-metadata__block-row">
         <div class="update-metadata__block-row-left">Chain</div>
-        <div class="update-metadata__block-row-right">{{ metadata.chain }}</div>
+        <div class="update-metadata__block-row-right">
+          {{ metadata ? metadata.chain : "" }}
+        </div>
       </div>
       <div class="update-metadata__block-row">
         <div class="update-metadata__block-row-left">Icon</div>
-        <div class="update-metadata__block-row-right">{{ metadata.icon }}</div>
+        <div class="update-metadata__block-row-right">
+          {{ metadata ? metadata.icon : "" }}
+        </div>
       </div>
       <div class="update-metadata__block-row">
         <div class="update-metadata__block-row-left">Decimals</div>
         <div class="update-metadata__block-row-right">
-          {{ metadata.tokenDecimals }}
+          {{ metadata ? metadata.tokenDecimals : "" }}
         </div>
       </div>
       <div class="update-metadata__block-row">
         <div class="update-metadata__block-row-left">Symbol</div>
         <div class="update-metadata__block-row-right">
-          {{ metadata.tokenSymbol }}
+          {{ metadata ? metadata.tokenSymbol : "" }}
         </div>
       </div>
       <div class="update-metadata__block-row">
         <div class="update-metadata__block-row-left">Upgrade</div>
         <div class="update-metadata__block-row-right">
-          {{ currentVersion }} -> {{ metadata.specVersion }}
+          {{ currentVersion }} -> {{ metadata ? metadata.specVersion : "" }}
         </div>
       </div>
     </div>
@@ -57,10 +61,10 @@ import SignLogo from "@action/icons/common/sign-logo.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import { getCustomError } from "@/libs/error";
 import { WindowPromiseHandler } from "@/libs/window-promise";
-import { computed, onBeforeMount, ref, watch } from "vue";
+import { onBeforeMount, ref, watch } from "vue";
 import { MetadataDef } from "@polkadot/extension-inject/types";
 import MetadataStorage from "@/providers/polkadot/libs/metadata-storage";
-import { ProviderRequestOptions, ProviderRPCRequest } from "@/types/provider";
+import { ProviderRequestOptions } from "@/types/provider";
 
 const windowPromise = WindowPromiseHandler(0);
 
@@ -72,22 +76,23 @@ const Options = ref<ProviderRequestOptions>({
   title: "",
   url: "",
 });
-const request = ref<ProviderRPCRequest>();
+const metadata = ref<MetadataDef | null>(null);
 
 onBeforeMount(async () => {
   const { options, Request } = await windowPromise;
   Options.value = options;
-  request.value = Request.value;
-});
-
-const metadata = computed(() => {
-  if (request.value && request.value.params)
-    return request.value.params[0] as MetadataDef;
-  return {} as MetadataDef;
+  metadata.value = Request.value.params![0] as MetadataDef;
+  if (metadata.value.genesisHash) {
+    mstorage.getMetadata(metadata.value.genesisHash).then((m) => {
+      if (m) {
+        currentVersion.value = m.specVersion.toString();
+      }
+    });
+  }
 });
 
 watch(metadata, () => {
-  if (metadata.value.genesisHash) {
+  if (metadata.value && metadata.value.genesisHash) {
     mstorage.getMetadata(metadata.value.genesisHash).then((m) => {
       if (m) {
         currentVersion.value = m.specVersion.toString();
@@ -101,6 +106,7 @@ const approve = async () => {
   if (
     !Request.value.params ||
     Request.value.params.length < 1 ||
+    !metadata.value ||
     !metadata.value.genesisHash
   ) {
     return Resolve.value({ error: getCustomError("No params") });

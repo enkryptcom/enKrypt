@@ -13,7 +13,7 @@
 
 <script setup lang="ts">
 import { KeyRecord } from "@enkryptcom/types";
-import { getCustomError, getError } from "@/libs/error";
+import { getError } from "@/libs/error";
 import { ErrorCodes } from "@/providers/ethereum/types";
 import { WindowPromiseHandler } from "@/libs/window-promise";
 import { InternalMethods } from "@/types/messenger";
@@ -36,11 +36,8 @@ onBeforeMount(async () => {
 
 const approve = async () => {
   const { Request, Resolve, sendToBackground } = await windowPromise;
-  if (!Request.value.params || Request.value.params.length < 2) {
-    return Resolve.value({ error: getCustomError("No params") });
-  }
-  const msg = Request.value.params[0] as `0x{string}`;
-  const account = Request.value.params[1] as KeyRecord;
+  const msg = Request.value.params![0] as `0x{string}`;
+  const account = Request.value.params![1] as KeyRecord;
   sendToBackground({
     method: InternalMethods.sign,
     params: [msg, account],

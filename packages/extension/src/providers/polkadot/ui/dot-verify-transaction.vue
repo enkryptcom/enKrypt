@@ -148,7 +148,6 @@ import { BaseNetwork } from "@/types/base-network";
 import BlindVerifyView from "./custom-views/blind-approvetx.vue";
 import { polkadotEncodeAddress } from "@enkryptcom/utils";
 import { getViewAndProps } from "./custom-views";
-import PublicKeyRing from "@/libs/keyring/public-keyring";
 import SubstrateAPI from "../libs/api";
 import BigNumber from "bignumber.js";
 import { FrameSystemAccountInfo } from "@acala-network/types/interfaces/types-lookup";
@@ -180,52 +179,45 @@ const metadataStorage = new MetadataStorage();
 
 const txViewProps = ref({});
 
-const keyring = new PublicKeyRing();
-
 onBeforeMount(async () => {
   const { Request, options } = await windowPromise;
   Options.value = options;
 
-  if (Request.value.params && Request.value.params.length >= 2) {
-    const reqPayload = Request.value.params[0] as SignerPayloadJSON;
-    const targetNetwork = getAllNetworks().find(
-      (network) =>
-        (network as SubstrateNetwork).genesisHash === reqPayload.genesisHash
-    );
+  const reqPayload = Request.value.params![0] as SignerPayloadJSON;
+  const reqAccount = Request.value.params![1] as KeyRecord;
+  const targetNetwork = getAllNetworks().find(
+    (network) =>
+      (network as SubstrateNetwork).genesisHash === reqPayload.genesisHash
+  );
 
-    if (targetNetwork) {
-      network.value = targetNetwork;
-    } else {
-      networkIsUnknown.value = true;
-    }
+  if (targetNetwork) {
+    network.value = targetNetwork;
+  } else {
+    networkIsUnknown.value = true;
+  }
 
-    setAccount(reqPayload.address);
-    const metadata = await metadataStorage.getMetadata(reqPayload.genesisHash);
+  setAccount(reqAccount);
+  const metadata = await metadataStorage.getMetadata(reqPayload.genesisHash);
 
-    if (metadata && metadata.metaCalls) {
-      setCallData(reqPayload, metadata.metaCalls);
+  if (metadata && metadata.metaCalls) {
+    setCallData(reqPayload, metadata.metaCalls);
 
-      if (targetNetwork && callData.value) {
-        setViewAndProps(targetNetwork);
-        setBalanceAndFees(targetNetwork, reqPayload, metadata.metaCalls);
-      }
+    if (targetNetwork && callData.value) {
+      setViewAndProps(targetNetwork);
+      setBalanceAndFees(targetNetwork, reqPayload, metadata.metaCalls);
     }
   }
 });
 
-const setAccount = async (address: string) => {
-  const savedAccount = await keyring.getAccount(
-    polkadotEncodeAddress(address, 42)
-  );
-
+const setAccount = async (reqAccount: KeyRecord) => {
   if (network.value) {
-    savedAccount.address = polkadotEncodeAddress(
-      savedAccount.address,
+    reqAccount.address = polkadotEncodeAddress(
+      reqAccount.address,
       (network.value as SubstrateNetwork).prefix
     );
   }
 
-  account.value = savedAccount;
+  account.value = reqAccount;
 };
 
 const setCallData = (reqPayload: SignerPayloadJSON, metaCalls: string) => {

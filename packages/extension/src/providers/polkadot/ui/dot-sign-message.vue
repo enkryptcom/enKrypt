@@ -5,7 +5,7 @@
 
     <div class="sign-message__block">
       <div class="sign-message__account">
-        <img :src="identicon" />
+        <img :src="networks.polkadot.identicon(account.address)" />
         <div class="sign-message__account-info">
           <h4>{{ account.name }}</h4>
           <p>
@@ -42,15 +42,17 @@
 import SignLogo from "@action/icons/common/sign-logo.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import { KeyRecord } from "@enkryptcom/types";
-import { getCustomError, getError } from "@/libs/error";
+import { getError } from "@/libs/error";
 import { ErrorCodes } from "@/providers/ethereum/types";
 import { WindowPromiseHandler } from "@/libs/window-promise";
 import { InternalMethods } from "@/types/messenger";
-import { computed, onBeforeMount, ref } from "vue";
+import { onBeforeMount, ref } from "vue";
 import { utf8ToHex } from "web3-utils";
 import { isAscii, u8aToString, u8aUnwrapBytes } from "@polkadot/util";
 import networks from "../networks";
-import { ProviderRequestOptions, ProviderRPCRequest } from "@/types/provider";
+import { ProviderRequestOptions } from "@/types/provider";
+
+const windowPromise = WindowPromiseHandler(0);
 
 const Options = ref<ProviderRequestOptions>({
   domain: "",
@@ -58,47 +60,28 @@ const Options = ref<ProviderRequestOptions>({
   title: "",
   url: "",
 });
-
-const request = ref<ProviderRPCRequest>();
-
-const windowPromise = WindowPromiseHandler(0);
+const message = ref("");
+const account = ref({ address: "" } as KeyRecord);
 
 onBeforeMount(async () => {
   const { Request, options } = await windowPromise;
   Options.value = options;
-  request.value = Request.value;
+
+  message.value = isAscii(Request.value.params![0])
+    ? u8aToString(u8aUnwrapBytes(Request.value.params![0]))
+    : Request.value.params![0];
+
+  account.value = Request.value.params![1] as KeyRecord;
 });
 
-const message = computed(() => {
-  if (request.value && request.value.params && request.value.params.length > 0)
-    return isAscii(request.value.params[0])
-      ? u8aToString(u8aUnwrapBytes(request.value.params[0]))
-      : request.value.params[0];
-  return "";
-});
-const account = computed(() => {
-  if (
-    request.value &&
-    request.value.params &&
-    request.value.params.length > 1
-  ) {
-    return request.value.params[1] as KeyRecord;
-  } else return { address: "" } as KeyRecord;
-});
-const identicon = computed(() => {
-  return networks.polkadot.identicon(account.value.address);
-});
 const approve = async () => {
   const { Request, Resolve, sendToBackground } = await windowPromise;
 
-  if (!Request.value.params || Request.value.params.length < 2) {
-    return Resolve.value({ error: getCustomError("No params") });
-  }
-  const msg = Request.value.params[0] as `0x{string}`;
+  const msg = Request.value.params![0] as `0x{string}`;
   const bytes = isAscii(msg)
     ? utf8ToHex(u8aToString(u8aUnwrapBytes(msg)))
     : msg;
-  const account = Request.value.params[1] as KeyRecord;
+  const account = Request.value.params![1] as KeyRecord;
   sendToBackground({
     method: InternalMethods.sign,
     params: [bytes, account],
