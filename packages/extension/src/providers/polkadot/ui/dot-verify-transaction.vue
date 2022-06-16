@@ -98,14 +98,6 @@
       </div>
     </custom-scrollbar>
 
-    <transaction-fee-view
-      :show-fees="isOpenSelectFee"
-      :close="toggleSelectFee"
-      :select-fee="selectFee"
-      :selected="fee.price.speed"
-      :is-header="true"
-    ></transaction-fee-view>
-
     <div
       class="provider-verify-transaction__buttons"
       :class="{ border: isHasScroll() }"
@@ -126,9 +118,6 @@ import { base64Decode } from "@polkadot/util-crypto";
 import SignLogo from "@action/icons/common/sign-logo.vue";
 import RightChevron from "@action/icons/common/right-chevron.vue";
 import BaseButton from "@action/components/base-button/index.vue";
-import TransactionFeeView from "@action/views/transaction-fee/index.vue";
-import { TransactionFee } from "@action/types/fee";
-import { recommendedFee } from "@action/types/mock";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 import BestOfferError from "@action/views/swap-best-offer/components/swap-best-offer-block/components/best-offer-error.vue";
 
@@ -156,8 +145,6 @@ import { ProviderRequestOptions } from "@/types/provider";
 
 const windowPromise = WindowPromiseHandler(0);
 
-const isOpenSelectFee = ref(false);
-const fee = ref(recommendedFee);
 const providerVerifyTransactionScrollRef = ref(null);
 const isOpenData = ref(false);
 const callData = ref<CallData>();
@@ -299,13 +286,6 @@ watch([txFee, userBalance], () => {
 
 defineExpose({ providerVerifyTransactionScrollRef });
 
-const toggleSelectFee = (open: boolean) => {
-  isOpenSelectFee.value = open;
-};
-const selectFee = (option: TransactionFee) => {
-  fee.value = option;
-  isOpenSelectFee.value = false;
-};
 const isHasScroll = () => {
   if (providerVerifyTransactionScrollRef.value) {
     return (
