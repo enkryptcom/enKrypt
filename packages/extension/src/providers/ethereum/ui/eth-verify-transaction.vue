@@ -1,20 +1,16 @@
 <template>
-  <div class="provider-verify-transaction">
-    <sign-logo
-      color="#05C0A5"
-      class="provider-verify-transaction__logo"
-    ></sign-logo>
-    <div class="provider-verify-transaction__network">
-      <img :src="network.icon" />
-      <p>{{ network.name_long }}</p>
-    </div>
-    <h2>Verify Transaction</h2>
+  <common-popup>
+    <template #header>
+      <sign-logo color="#05C0A5" class="common-popup__logo"></sign-logo>
+      <div class="common-popup__network">
+        <img :src="network.icon" />
+        <p>{{ network.name_long }}</p>
+      </div>
+    </template>
 
-    <custom-scrollbar
-      tem="providerVerifyTransactionScrollRef"
-      class="provider-verify-transaction__scroll-area"
-      :settings="ScrollSettings({ suppressScrollX: true })"
-    >
+    <template #content>
+      <h2>Verify transaction</h2>
+
       <div class="provider-verify-transaction__block">
         <div class="provider-verify-transaction__account">
           <img :src="identicon" />
@@ -100,29 +96,25 @@
           <p>Data Hex: {{ decodedTx?.dataHex || "0x" }}</p>
         </div>
       </div>
-    </custom-scrollbar>
 
-    <transaction-fee-view
-      :fees="gasCostValues"
-      :show-fees="isOpenSelectFee"
-      :selected="selectedFee"
-      :is-header="true"
-      @close-popup="toggleSelectFee"
-      @gas-type-changed="selectFee"
-    ></transaction-fee-view>
+      <transaction-fee-view
+        :fees="gasCostValues"
+        :show-fees="isOpenSelectFee"
+        :selected="selectedFee"
+        :is-header="true"
+        @close-popup="toggleSelectFee"
+        @gas-type-changed="selectFee"
+      ></transaction-fee-view>
+    </template>
 
-    <div
-      class="provider-verify-transaction__buttons"
-      :class="{ border: isHasScroll() }"
-    >
-      <div class="provider-verify-transaction__buttons-cancel">
-        <base-button title="Decline" :click="deny" :no-background="true" />
-      </div>
-      <div class="provider-verify-transaction__buttons-send">
-        <base-button title="Sign" :click="approve" />
-      </div>
-    </div>
-  </div>
+    <template #button-left>
+      <base-button title="Decline" :click="deny" :no-background="true" />
+    </template>
+
+    <template #button-right>
+      <base-button title="Sign" :click="approve" />
+    </template>
+  </common-popup>
 </template>
 
 <script setup lang="ts">
@@ -130,10 +122,9 @@ import { ref, ComponentPublicInstance, onBeforeMount } from "vue";
 import SignLogo from "@action/icons/common/sign-logo.vue";
 import RightChevron from "@action/icons/common/right-chevron.vue";
 import BaseButton from "@action/components/base-button/index.vue";
+import CommonPopup from "@action/views/common-popup/index.vue";
 import SendFeeSelect from "@action/views/send-transaction/components/send-fee-select.vue";
 import TransactionFeeView from "@action/views/transaction-fee/index.vue";
-import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
-import ScrollSettings from "@/libs/utils/scroll-settings";
 import { KeyRecord } from "@enkryptcom/types";
 import { getCustomError, getError } from "@/libs/error";
 import { ErrorCodes } from "@/providers/ethereum/types";
@@ -334,14 +325,6 @@ const toggleSelectFee = () => {
 const selectFee = (type: GasPriceTypes) => {
   selectedFee.value = type;
   toggleSelectFee();
-};
-const isHasScroll = () => {
-  if (providerVerifyTransactionScrollRef.value) {
-    return providerVerifyTransactionScrollRef.value.$el.classList.contains(
-      "ps--active-y"
-    );
-  }
-  return false;
 };
 const toggleData = () => {
   isOpenData.value = !isOpenData.value;

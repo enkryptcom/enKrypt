@@ -1,21 +1,18 @@
 <template>
-  <div class="provider-verify-transaction">
-    <sign-logo
-      color="#E6007A"
-      class="provider-verify-transaction__logo"
-    ></sign-logo>
-    <div class="provider-verify-transaction__network">
-      <img
-        :src="network ? network.icon : '@/ui/action/icons/raw/polkadot.png'"
-      />
-      <p>{{ network ? network.name_long : "" }}</p>
-    </div>
-    <h2>Verify transaction</h2>
+  <common-popup>
+    <template #header>
+      <sign-logo color="#E6007A" class="common-popup__logo"></sign-logo>
+      <div class="common-popup__network">
+        <img
+          :src="network ? network.icon : '@/ui/action/icons/raw/polkadot.png'"
+        />
+        <p>{{ network ? network.name_long : "" }}</p>
+      </div>
+    </template>
 
-    <custom-scrollbar
-      ref="providerVerifyTransactionScrollRef"
-      class="provider-verify-transaction__scroll-area"
-    >
+    <template #content>
+      <h2>Verify transaction</h2>
+
       <div class="provider-verify-transaction__block">
         <div class="provider-verify-transaction__account">
           <img
@@ -96,20 +93,16 @@
           </div>
         </div>
       </div>
-    </custom-scrollbar>
+    </template>
 
-    <div
-      class="provider-verify-transaction__buttons"
-      :class="{ border: isHasScroll() }"
-    >
-      <div class="provider-verify-transaction__buttons-cancel">
-        <base-button title="Decline" :click="deny" :no-background="true" />
-      </div>
-      <div class="provider-verify-transaction__buttons-send">
-        <base-button title="Sign" :click="approve" />
-      </div>
-    </div>
-  </div>
+    <template #button-left>
+      <base-button title="Decline" :click="deny" :no-background="true" />
+    </template>
+
+    <template #button-right>
+      <base-button title="Sign" :click="approve" />
+    </template>
+  </common-popup>
 </template>
 
 <script setup lang="ts">
@@ -118,9 +111,7 @@ import { base64Decode } from "@polkadot/util-crypto";
 import SignLogo from "@action/icons/common/sign-logo.vue";
 import RightChevron from "@action/icons/common/right-chevron.vue";
 import BaseButton from "@action/components/base-button/index.vue";
-import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 import BestOfferError from "@action/views/swap-best-offer/components/swap-best-offer-block/components/best-offer-error.vue";
-
 import { KeyRecord } from "@enkryptcom/types";
 import { getCustomError, getError } from "@/libs/error";
 import { ErrorCodes } from "@/providers/ethereum/types";
@@ -286,15 +277,6 @@ watch([txFee, userBalance], () => {
 
 defineExpose({ providerVerifyTransactionScrollRef });
 
-const isHasScroll = () => {
-  if (providerVerifyTransactionScrollRef.value) {
-    return (
-      providerVerifyTransactionScrollRef.value as HTMLElement
-    ).classList.contains("ps--active-y");
-  }
-
-  return false;
-};
 const toggleData = () => {
   isOpenData.value = !isOpenData.value;
 };
@@ -336,5 +318,6 @@ const deny = async () => {
 
 <style lang="less">
 @import "~@action/styles/theme.less";
+@import "~@/providers/ethereum/ui/styles/common-popup.less";
 @import "./styles/verify-transaction.less";
 </style>

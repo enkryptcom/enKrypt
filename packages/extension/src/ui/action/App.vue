@@ -8,10 +8,6 @@
         :selected="(route.params.id as string)"
         :set-network="setNetwork"
       />
-      <br />
-      <a href="javascript:void(0);" @click="openCreate()">
-        to Create / Restore
-      </a>
       <div class="app__menu-footer">
         <a class="app__menu-add" @click="addNetworkToggle()">
           <add-icon />

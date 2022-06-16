@@ -1,5 +1,5 @@
 <template>
-  <div class="transaction-fee" :class="{ show: showFees }">
+  <div class="transaction-fee" :class="{ show: showFees, popup: isPopup }">
     <div class="transaction-fee__overlay" @click="closepopup"></div>
     <div
       class="transaction-fee__wrap"
@@ -77,6 +77,24 @@ defineProps({
       return false;
     },
   },
+  isPopup: {
+    type: Boolean,
+    default: () => {
+      return false;
+    },
+  },
+  close: {
+    type: Function,
+    default: () => {
+      return null;
+    },
+  },
+  selectFee: {
+    type: Function,
+    default: () => {
+      return null;
+    },
+  },
   selected: {
     type: String as PropType<GasPriceTypes>,
     default: GasPriceTypes.ECONOMY,
@@ -102,6 +120,10 @@ const closepopup = () => {
 
   &.show {
     display: block;
+  }
+
+  &.popup {
+    position: fixed;
   }
 
   &__overlay {

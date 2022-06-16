@@ -4,6 +4,7 @@ import ethSendTransaction from "../eth-verify-transaction.vue";
 import ethSignTypedData from "../eth-sign-typedata.vue";
 import ethEncryptionKey from "../eth-get-encryption-key.vue";
 import ethDecrypt from "../eth-decrypt.vue";
+import ethConnectDApp from "../eth-connect-dapp.vue";
 import { RouteRecordRaw } from "vue-router";
 import RouteNames from "./names";
 const routes = Object.assign({}, RouteNames);
@@ -14,6 +15,7 @@ routes.ethSendTransaction.component = ethSendTransaction;
 routes.ethSignTypedData.component = ethSignTypedData;
 routes.ethGetEncryptionKey.component = ethEncryptionKey;
 routes.ethDecrypt.component = ethDecrypt;
+routes.ethConnectDApp.component = ethConnectDApp;
 export default (namespace: string): RouteRecordRaw[] => {
   return Object.values(routes).map((route) => {
     route.path = `/${namespace}/${route.path}`;
