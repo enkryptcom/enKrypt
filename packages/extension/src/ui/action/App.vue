@@ -267,7 +267,6 @@ const showNetworkMenu = () => {
       route.name == "dapps")
   );
 };
-
 const searchInput = (text: string) => {
   console.log(text);
 };

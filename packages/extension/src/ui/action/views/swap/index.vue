@@ -46,18 +46,18 @@
       </div>
     </div>
 
-    <swap-token-list
+    <assets-select-list
       v-show="fromSelectOpened"
       :close="toggleFromToken"
       :select-token="selectTokenFrom"
-    ></swap-token-list>
+    ></assets-select-list>
 
-    <swap-token-list
+    <assets-select-list
       v-show="toSelectOpened"
       :close="toggleToToken"
       :select-token="selectTokenTo"
       :is-select-to-token="true"
-    ></swap-token-list>
+    ></assets-select-list>
 
     <swap-looking v-show="isLooking" :close="toggleLooking"></swap-looking>
   </div>
@@ -76,7 +76,7 @@ import CloseIcon from "@action/icons/common/close-icon.vue";
 import SwapArrows from "@action/icons/swap/swap-arrows.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import SwapTokenAmountInput from "./components/swap-token-amount-input/index.vue";
-import SwapTokenList from "./components/swap-token-list/index.vue";
+import AssetsSelectList from "@action/views/assets-select-list/index.vue";
 import SwapLooking from "./components/swap-looking/index.vue";
 import { AssetsType } from "@/types/provider";
 

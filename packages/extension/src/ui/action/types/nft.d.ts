@@ -10,4 +10,5 @@ export interface NFTItem {
   name: string;
   image: string;
   price: number;
+  author: string;
 }

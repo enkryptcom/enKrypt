@@ -1,5 +1,5 @@
 <template>
-  <div class="swap-token-list-search">
+  <div class="assets-select-list-search">
     <search-icon></search-icon>
     <input type="text" placeholder="Search tokens" autocomplete="off" />
   </div>
@@ -7,7 +7,7 @@
 
 <script lang="ts">
 export default {
-  name: "SwapTokenListSearch",
+  name: "AssetsSelectListSearch",
 };
 </script>
 
@@ -18,7 +18,7 @@ import SearchIcon from "@action/icons/common/search.vue";
 <style lang="less" scoped>
 @import "~@action/styles/theme.less";
 
-.swap-token-list-search {
+.assets-select-list-search {
   width: 100%;
   height: 56px;
   background: @primaryBg;

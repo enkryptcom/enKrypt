@@ -1,43 +1,47 @@
 <template>
-  <div class="swap-token-list">
-    <div class="swap-token-list__header">
-      <h3 v-if="!isSelectToToken">Select token to swap</h3>
-      <h3 v-else>Select token to receive</h3>
-      <a class="swap-token-list__close" @click="close">
+  <div class="assets-select-list">
+    <div class="assets-select-list__header">
+      <h3 v-if="!isSelectToToken && !isSend">Select token to swap</h3>
+      <h3 v-if="isSelectToToken">Select token to receive</h3>
+      <h3 v-if="isSend">Select asset to send</h3>
+      <a class="assets-select-list__close" @click="close">
         <close-icon />
       </a>
     </div>
 
-    <swap-token-list-search></swap-token-list-search>
+    <assets-select-list-search></assets-select-list-search>
 
-    <custom-scrollbar class="swap-token-list__scroll-area" :settings="settings">
-      <div v-show="isSelectToToken" class="swap-token-list__fast-tokens">
+    <custom-scrollbar
+      class="assets-select-list__scroll-area"
+      :settings="settings"
+    >
+      <div v-show="isSelectToToken" class="assets-select-list__fast-tokens">
         <swap-token-fast-list
           :select-token="selectToken"
         ></swap-token-fast-list>
       </div>
-      <swap-token-list-item
+      <assets-select-list-item
         v-for="(item, index) in assets2"
         :key="index"
         :token="item"
         :select-token="selectToken"
-      ></swap-token-list-item>
+      ></assets-select-list-item>
     </custom-scrollbar>
   </div>
 </template>
 
 <script lang="ts">
 export default {
-  name: "SwapTokenList",
+  name: "AssetsSelectList",
 };
 </script>
 
 <script setup lang="ts">
 import CloseIcon from "@action/icons/common/close-icon.vue";
-import SwapTokenListItem from "./components/swap-token-list-item.vue";
+import AssetsSelectListItem from "./components/assets-select-list-item.vue";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
-import SwapTokenListSearch from "./components/swap-token-list-search.vue";
-import SwapTokenFastList from "../swap-token-fast-list/index.vue";
+import AssetsSelectListSearch from "./components/assets-select-list-search.vue";
+import SwapTokenFastList from "@action/views/swap/components/swap-token-fast-list/index.vue";
 
 import { assets2 } from "@action/types/mock";
 
@@ -66,6 +70,12 @@ const props = defineProps({
       return false;
     },
   },
+  isSend: {
+    type: Boolean,
+    default: () => {
+      return false;
+    },
+  },
 });
 
 const close = () => {
@@ -77,7 +87,7 @@ const close = () => {
 @import "~@action/styles/theme.less";
 @import "~@action/styles/custom-scroll.less";
 
-.swap-token-list {
+.assets-select-list {
   width: 100%;
   background: #ffffff;
   position: fixed;
@@ -87,7 +97,7 @@ const close = () => {
   height: 568px;
   left: 356px;
   top: 16px;
-  z-index: 11;
+  z-index: 12;
 
   &__header {
     position: relative;

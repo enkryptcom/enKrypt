@@ -10,15 +10,11 @@
         type="text"
         placeholder="0x… address or ENS name"
         :value="isFocus ? value : $filters.replaceWithEllipsis(value, 6, 6)"
-        @input="changeValue('')"
+        @input="changeValue"
         @focus="changeFocus"
         @blur="changeFocus"
       />
     </div>
-
-    <a class="send-address-input__arrow" @click="open">
-      <switch-arrow />
-    </a>
   </div>
 </template>
 
@@ -29,14 +25,13 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
-import SwitchArrow from "@action/icons/header/switch_arrow.vue";
+import { ref } from "vue";
 
 let isFocus = ref(false);
 let isOpen = ref(false);
-const sendAddressInput = ref(null);
+const addressInput = ref(null);
 
-defineExpose({ sendAddressInput });
+defineExpose({ addressInput });
 
 const props = defineProps({
   input: {
@@ -59,18 +54,15 @@ const props = defineProps({
   },
 });
 
-onMounted(() => {
-  if (sendAddressInput.value) {
-    (sendAddressInput.value as HTMLInputElement).focus();
+const changeValue = (e: any) => {
+  if (addressInput.value) {
+    props.input((addressInput.value as HTMLInputElement).value);
   }
-});
-
-const changeValue = (text: string) => {
-  props.input(text);
 };
 
 const changeFocus = () => {
   isFocus.value = !isFocus.value;
+  open();
 };
 
 const open = () => {
