@@ -14,6 +14,7 @@
         :key="index"
         :title="(item as string)"
         :select="selectLanguage"
+        :is-select="value == item"
       ></base-select-option>
     </div>
   </div>
