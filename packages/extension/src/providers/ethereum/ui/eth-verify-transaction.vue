@@ -46,7 +46,7 @@
         </div>
 
         <div class="provider-verify-transaction__amount">
-          <img :src="decodedTx?.tokenImage" />
+          <img :src="decodedTx?.tokenImage || network.icon" />
 
           <div class="provider-verify-transaction__amount-info">
             <h4>
@@ -60,7 +60,13 @@
               }}
               <span>{{ decodedTx?.tokenName || network.currencyName }}</span>
             </h4>
-            <p>$4520.54</p>
+            <p>
+              ${{
+                fiatValue !== "~"
+                  ? $filters.formatFiatValue(fiatValue).value
+                  : fiatValue
+              }}
+            </p>
           </div>
         </div>
 
@@ -149,12 +155,14 @@ import { EvmNetwork } from "../types/evm-network";
 import { fromBase } from "@/libs/utils/units";
 import { decodeTx } from "../libs/transaction/decoder";
 import { ProviderRequestOptions } from "@/types/provider";
+import BigNumber from "bignumber.js";
 
 const isOpenSelectFee = ref(false);
 const fee = ref(recommendedFee);
 const providerVerifyTransactionScrollRef = ref<ComponentPublicInstance>();
 const isOpenData = ref(false);
 const TokenBalance = ref<string>("~");
+const fiatValue = ref<string>("~");
 const decodedTx = ref<DecodedTx>();
 const network = ref<EvmNetwork>(
   getNetworkByName(DEFAULT_NETWORK_NAME) as EvmNetwork
@@ -185,10 +193,17 @@ onBeforeMount(async () => {
     const balance = await api.getBalance(account.value.address);
     TokenBalance.value = fromBase(balance, network.value.decimals);
   }
-  decodeTx(
+  await decodeTx(
     Request.value.params![0] as EthereumTransaction,
     network.value as EvmNetwork
-  ).then((decoded) => (decodedTx.value = decoded));
+  ).then((decoded) => {
+    decodedTx.value = decoded;
+    fiatValue.value = new BigNumber(
+      fromBase(decoded.tokenValue, decoded.tokenDecimals)
+    )
+      .times(decoded.currentPriceUSD)
+      .toFixed(2);
+  });
 });
 
 const approve = async () => {

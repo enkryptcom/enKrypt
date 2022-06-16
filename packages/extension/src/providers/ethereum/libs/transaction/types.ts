@@ -44,6 +44,7 @@ export interface FinalizedFeeMarketEthereumTransaction
 export interface DecodedTx {
   toAddress?: string;
   isContractCreation: boolean;
+  currentPriceUSD: number;
   tokenValue: string;
   tokenDecimals: number;
   tokenName: string;
