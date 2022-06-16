@@ -87,6 +87,7 @@ const close = () => {
   height: 568px;
   left: 356px;
   top: 16px;
+  z-index: 11;
 
   &__header {
     position: relative;

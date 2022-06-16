@@ -145,7 +145,7 @@ const select = () => {
     }
 
     &.active {
-      background-color: @primary01;
+      background-color: @black007;
 
       .transaction-fee-item__block-amount {
         display: none;

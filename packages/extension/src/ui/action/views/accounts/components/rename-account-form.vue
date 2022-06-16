@@ -1,13 +1,13 @@
 <template>
-  <div class="add-account-form__container">
-    <div class="add-account-form__overlay" @click="close"></div>
-    <div class="add-account-form">
-      <h3>Add new {{ network.name_long }} account</h3>
+  <div class="rename-account-form__container">
+    <div class="rename-account-form__overlay" @click="close"></div>
+    <div class="rename-account-form">
+      <h3>Rename account</h3>
 
-      <div class="add-account-form__input" :class="{ focus: isFocus }">
-        <img :src="network.identicon(newAccount?.address || '')" />
+      <div class="rename-account-form__input" :class="{ focus: isFocus }">
+        <img :src="network.identicon(account.address || '')" />
         <input
-          ref="addAccountInput"
+          ref="renameAccountInput"
           v-model="accountName"
           type="text"
           placeholder="Account name"
@@ -23,15 +23,15 @@
         Airdrops
       </p>
 
-      <div class="add-account-form__buttons">
-        <div class="add-account-form__buttons-cancel">
+      <div class="rename-account-form__buttons">
+        <div class="rename-account-form__buttons-cancel">
           <base-button title="Cancel" :click="close" :no-background="true" />
         </div>
-        <div class="add-account-form__buttons-send">
+        <div class="rename-account-form__buttons-send">
           <base-button
-            title="Add account"
-            :click="addAccount"
-            :disabled="isDisabled"
+            title="Rename account"
+            :click="renameAccount"
+            :disabled="false"
           />
         </div>
       </div>
@@ -41,26 +41,21 @@
 
 <script lang="ts">
 export default {
-  name: "AddAccountForm",
+  name: "RenameAccountForm",
 };
 </script>
 
 <script setup lang="ts">
-import { onMounted, PropType, ref, watch } from "vue";
+import { PropType, ref, onMounted } from "vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import { NodeType } from "@/types/provider";
-import { sendToBackgroundFromAction } from "@/libs/messenger/extension";
-import { InternalMethods } from "@/types/messenger";
-import { KeyRecord, KeyRecordAdd } from "@enkryptcom/types";
-import Keyring from "@/libs/keyring/public-keyring";
+import { KeyRecord } from "@enkryptcom/types";
 
 const isFocus = ref(false);
 const accountName = ref("");
-const newAccount = ref<KeyRecord | null>(null);
-const isDisabled = ref(true);
-const addAccountInput = ref(null);
+const renameAccountInput = ref(null);
 
-defineExpose({ addAccountInput });
+defineExpose({ renameAccountInput });
 
 const props = defineProps({
   close: {
@@ -71,45 +66,15 @@ const props = defineProps({
     type: Object as PropType<NodeType>,
     default: () => ({}),
   },
-  init: {
-    type: Function as PropType<() => void>,
-    default: () => ({}),
-  },
-  selectAccount: {
-    type: Function as PropType<(address: string) => void>,
+  account: {
+    type: Object as PropType<KeyRecord>,
     default: () => ({}),
   },
 });
-const kr = new Keyring();
-const setNewAccountInfo = async () => {
-  const keyReq: KeyRecordAdd = {
-    name: "",
-    basePath: props.network.basePath,
-    type: props.network.signer[0],
-  };
-  await sendToBackgroundFromAction({
-    message: JSON.stringify({
-      method: InternalMethods.getNewAccount,
-      params: [keyReq],
-    }),
-  }).then((res) => {
-    if (res.result) {
-      newAccount.value = JSON.parse(res.result) as KeyRecord;
-    }
-  });
-};
 onMounted(() => {
-  setNewAccountInfo();
-
-  if (addAccountInput.value) {
-    (addAccountInput.value as HTMLInputElement).focus();
+  if (renameAccountInput.value) {
+    (renameAccountInput.value as HTMLInputElement).focus();
   }
-});
-watch(accountName, async () => {
-  isDisabled.value = false;
-  if (accountName.value.length < 3) return (isDisabled.value = true);
-  const allNames = await kr.getAccounts().then((all) => all.map((a) => a.name));
-  if (allNames.includes(accountName.value.trim())) isDisabled.value = true;
 });
 const changeFocus = () => {
   isFocus.value = !isFocus.value;
@@ -117,27 +82,14 @@ const changeFocus = () => {
 const close = () => {
   props.close();
 };
-const addAccount = async () => {
-  const keyReq: KeyRecordAdd = {
-    name: accountName.value.trim(),
-    basePath: props.network.basePath,
-    type: props.network.signer[0],
-  };
-  await sendToBackgroundFromAction({
-    message: JSON.stringify({
-      method: InternalMethods.saveNewAccount,
-      params: [keyReq],
-    }),
-  }).then(() => {
-    props.init();
-    close();
-  });
+const renameAccount = () => {
+  console.log("renameAccount");
 };
 </script>
 
 <style lang="less" scoped>
 @import "~@action/styles/theme.less";
-.add-account-form {
+.rename-account-form {
   background: @white;
   box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.039), 0px 7px 24px rgba(0, 0, 0, 0.19);
   border-radius: 12px;
