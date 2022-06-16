@@ -25,7 +25,7 @@ defineProps({
 });
 </script>
 
-<style lang="less" scoped>
+<style lang="less">
 @import "~@action/styles/theme.less";
 
 .settings {

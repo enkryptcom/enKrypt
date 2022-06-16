@@ -3,6 +3,7 @@
     class="accounts-item"
     :class="{ disabled: !active }"
     @click="select(address)"
+    @mouseleave="closeMenu"
   >
     <img :src="identiconElement(address)" />
     <div class="accounts-item__info">
@@ -12,7 +13,15 @@
         <span>{{ $filters.replaceWithEllipsis(address, 6, 4) }}</span>
       </p>
     </div>
-    <done-icon v-show="isChecked"></done-icon>
+    <done-icon v-show="isChecked" class="accounts-item__checked"></done-icon>
+    <more-icon class="accounts-item__more" @mouseenter="toggleEdit"></more-icon>
+
+    <accounts-list-item-menu
+      v-show="openEdit"
+      :rename-action="renameAction"
+      :delete-action="deleteAction"
+      @mouseleave="toggleEdit"
+    ></accounts-list-item-menu>
   </a>
 </template>
 
@@ -24,9 +33,13 @@ export default {
 
 <script setup lang="ts">
 import DoneIcon from "@action/icons/common/done_icon.vue";
-import { PropType } from "vue";
+import MoreIcon from "@action/icons/common/more-icon.vue";
+import AccountsListItemMenu from "./accounts-list-item-menu.vue";
+import { PropType, ref } from "vue";
 
-defineProps({
+let openEdit = ref(false);
+
+const props = defineProps({
   name: {
     type: String,
     default: "",
@@ -51,11 +64,37 @@ defineProps({
     },
   },
   identiconElement: {
-    type: Function as PropType<(address: string, options: any) => string>,
+    type: Function as PropType<(address: string, options?: any) => string>,
     default: () => ({}),
   },
   active: Boolean,
+  renameAction: {
+    type: Function as PropType<() => void>,
+    default: () => ({}),
+  },
+  deleteAction: {
+    type: Function as PropType<() => void>,
+    default: () => ({}),
+  },
 });
+
+const toggleEdit = () => {
+  openEdit.value = !openEdit.value;
+};
+
+const closeMenu = () => {
+  openEdit.value = false;
+};
+
+const renameAction = () => {
+  openEdit.value = false;
+  props.renameAction();
+};
+
+const deleteAction = () => {
+  openEdit.value = false;
+  props.deleteAction();
+};
 </script>
 
 <style lang="less">
@@ -128,6 +167,11 @@ defineProps({
     position: absolute;
     top: 16px;
     right: 12px;
+  }
+
+  &__more {
+    display: none !important;
+    cursor: pointer;
   }
 }
 </style>

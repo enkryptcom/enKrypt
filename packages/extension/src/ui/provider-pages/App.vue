@@ -25,16 +25,14 @@ body {
     justify-content: center;
   }
   &__wrap {
-    width: 460px;
-    height: 600px;
+    max-width: 460px;
+    max-height: 600px;
+    width: 100%;
+    height: 100%;
     background: @white;
-    padding: 12px 56px;
+    padding: 0 56px;
     box-sizing: border-box;
     position: relative;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: flex-start;
     overflow: hidden;
   }
 }

@@ -1,4 +1,4 @@
-import { EthereumNodeType } from "./types";
+import { BaseNetwork } from "@/types/base-network";
 import getRequestProvider, { RequestClass } from "@enkryptcom/request";
 import Networks from "./networks";
 import { MiddlewareFunction, OnMessageResponse } from "@enkryptcom/types";
@@ -6,18 +6,18 @@ import Middlewares from "./methods";
 import EventEmitter from "eventemitter3";
 import {
   BackgroundProviderInterface,
-  NodeType,
   ProviderName,
   ProviderRPCRequest,
 } from "@/types/provider";
 import GetUIPath from "@/libs/utils/get-ui-path";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
 import UIRoutes from "./ui/routes/names";
+import { EvmNetwork } from "./types/evm-network";
 class EthereumProvider
   extends EventEmitter
   implements BackgroundProviderInterface
 {
-  network: EthereumNodeType;
+  network: EvmNetwork;
   requestProvider: RequestClass;
   middlewares: MiddlewareFunction[] = [];
   namespace: string;
@@ -26,7 +26,7 @@ class EthereumProvider
   toWindow: (message: string) => void;
   constructor(
     toWindow: (message: string) => void,
-    network: EthereumNodeType = Networks.ethereum
+    network: EvmNetwork = Networks.ethereum
   ) {
     super();
     this.network = network;
@@ -42,8 +42,8 @@ class EthereumProvider
   private setMiddleWares(): void {
     this.middlewares = Middlewares.map((mw) => mw.bind(this));
   }
-  setRequestProvider(network: NodeType): void {
-    this.network = network as EthereumNodeType;
+  setRequestProvider(network: BaseNetwork): void {
+    this.network = network as EvmNetwork;
     this.requestProvider.changeNetwork(network.node);
   }
   async isPersistentEvent(request: ProviderRPCRequest): Promise<boolean> {

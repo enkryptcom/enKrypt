@@ -1,7 +1,7 @@
 <template>
   <div class="network-menu">
     <router-link
-      v-if="network.assetsHandler"
+      v-if="network"
       :to="{ name: 'assets', params: { id: !!selected ? selected : null } }"
     >
       <Assets /><br />Assets
