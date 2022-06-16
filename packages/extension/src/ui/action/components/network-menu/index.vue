@@ -72,7 +72,6 @@ defineProps({
   justify-content: space-around;
   align-items: center;
   flex-direction: row;
-  z-index: 1;
 
   a {
     display: block;
@@ -86,6 +85,7 @@ defineProps({
     letter-spacing: 0.5px;
     color: @primaryLabel;
     opacity: 0.38;
+    transition: opacity 300ms ease-in-out;
 
     svg {
       margin-bottom: 1px;

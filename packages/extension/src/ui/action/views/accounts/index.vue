@@ -264,10 +264,12 @@ const closeDeleteAccount = () => {
       text-decoration: none;
       cursor: pointer;
       width: 144px;
+      transition: background 300ms ease-in-out;
+      border-radius: 10px;
+
       &.active,
       &:hover {
         background: @black007;
-        border-radius: 10px;
       }
       svg {
         margin-right: 8px;

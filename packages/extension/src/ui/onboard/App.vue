@@ -70,6 +70,7 @@ body {
     border-radius: 8px;
     cursor: pointer;
     padding: 8px;
+    transition: background 300ms ease-in-out;
 
     &:hover {
       background: @black007;
