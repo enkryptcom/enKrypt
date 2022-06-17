@@ -365,7 +365,7 @@ const sendAction = () => {
       selectedToken: selectedToken.value.toString(),
       amount: amount.value,
       isNft: isSendToken.value ? 0 : 1,
-      selectedFee: JSON.stringify(selectedFee.value),
+      selectedFee: selectedFee.value.toString(),
     },
   });
 };

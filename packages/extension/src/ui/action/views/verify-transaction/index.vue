@@ -107,7 +107,6 @@ const MAIN_TOKEN_ADDRESS = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
 defineExpose({ selectedNetwork });
 
 onMounted(async () => {
-  console.log("adsf", selectedFee);
   const curNetwork = await domainState.getSelectedNetWork();
   (selectedNetwork.value as unknown as NodeType) = networks.find(
     (net) => net.name === curNetwork

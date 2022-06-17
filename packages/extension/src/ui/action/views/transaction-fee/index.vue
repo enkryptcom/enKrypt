@@ -55,10 +55,8 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { PropType, computed } from "vue";
+import { PropType } from "vue";
 import TransactionFeeItem from "./components/transaction-fee-item.vue";
-// import { fees } from "@action/types/mock";
-import { fromWei } from "web3-utils";
 import { TransactionFee } from "@action/types/fee";
 import TimeIcon from "@action/icons/fee/time-icon.vue";
 import CloseIcon from "@action/icons/common/close-icon.vue";
@@ -69,7 +67,7 @@ const emit = defineEmits<{
   (e: "closePopup"): void;
 }>();
 
-const props = defineProps({
+defineProps({
   showFees: Boolean,
   fees: {
     type: Object as PropType<GasFeeType>,
@@ -109,21 +107,11 @@ const props = defineProps({
       return {};
     },
   },
-  // fees: {
-  //   type: Array as PropType<Array<TransactionFee>>,
-  //   default: () => {
-  //     return {};
-  //   },
-  // },
 });
 
 const closepopup = () => {
   emit("closePopup");
 };
-
-const balance = computed(() => {
-  return fromWei(props.fee.price.totalFee.toString());
-});
 </script>
 
 <style lang="less">

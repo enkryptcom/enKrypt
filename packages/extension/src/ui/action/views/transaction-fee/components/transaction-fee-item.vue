@@ -40,7 +40,6 @@ import { GasPriceTypes } from "@/providers/ethereum/libs/transaction/types";
 import { GasFeeType } from "@/providers/ethereum/ui/types";
 import { FeeDescriptions } from "@/providers/ethereum/libs/transaction/gas-utils";
 import BigNumber from "bignumber.js";
-// import { fromWei } from "web3-utils";
 
 const emit = defineEmits<{
   (e: "gasTypeChanged", type: GasPriceTypes): void;
@@ -73,10 +72,6 @@ const diff = computed(() => {
 const select = () => {
   emit("gasTypeChanged", props.type);
 };
-
-// const price = computed(() => {
-//   return fromWei(props.fee.price.totalFee.toString());
-// });
 </script>
 
 <style lang="less">
