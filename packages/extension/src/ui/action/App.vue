@@ -121,10 +121,18 @@ const settingsShow = ref(false);
 
 const setActiveNetworks = async () => {
   const activeNetworkNames = await networksState.getActiveNetworkNames();
+  const allNetworks = getAllNetworks();
+  const networksToShow: BaseNetwork[] = [];
 
-  networks.value = getAllNetworks().filter(({ name }) =>
-    activeNetworkNames.includes(name)
-  );
+  activeNetworkNames.forEach((name) => {
+    const network = allNetworks.find((network) => network.name === name);
+    if (network !== undefined) networksToShow.push(network);
+  });
+
+  networks.value = networksToShow;
+  // networks.value = getAllNetworks().filter(({ name }) =>
+  //   activeNetworkNames.includes(name)
+  // );
 
   if (!networks.value.includes(currentNetwork.value)) {
     setNetwork(networks.value[0]);

@@ -1,7 +1,7 @@
 <template>
   <div class="app-menu">
     <custom-scrollbar v-if="!!networks" class="app-menu__scroll-area">
-      <draggable :list="networks" item-key="name">
+      <draggable :list="networks" item-key="name" @change="onChange">
         <template #item="{ element }">
           <app-menu-item
             :network="element"
@@ -27,8 +27,10 @@ import { PropType } from "vue";
 import AppMenuItem from "./components/app-menu-item.vue";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 import draggable from "vuedraggable";
+import NetworksState from "@/libs/networks-state";
+import { BaseNetwork } from "@/types/base-network";
 
-defineProps({
+const props = defineProps({
   networks: {
     type: Array as PropType<Array<NodeType>>,
     default: () => [],
@@ -42,6 +44,21 @@ defineProps({
     default: () => ({}),
   },
 });
+
+const networksState = new NetworksState();
+
+const onChange = (evt: any) => {
+  if (evt.moved) {
+    const { element, newIndex }: { element: BaseNetwork; newIndex: number } =
+      evt.moved;
+
+    const beforeNetworkName = props.networks[newIndex - 1]
+      ? props.networks[newIndex - 1].name
+      : undefined;
+
+    networksState.reorderNetwork(element.name, beforeNetworkName);
+  }
+};
 </script>
 
 <style lang="less">
