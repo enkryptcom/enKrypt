@@ -41,10 +41,37 @@ export interface FinalizedFeeMarketEthereumTransaction
   value: `0x${string}`;
   type: "0x02";
 }
-
+export interface DecodedTx {
+  toAddress?: string;
+  isContractCreation: boolean;
+  currentPriceUSD: number;
+  tokenValue: string;
+  tokenDecimals: number;
+  tokenName: string;
+  tokenImage: string;
+  dataHex: string;
+  decodedHex?: string[];
+}
 export enum GasPriceTypes {
-  ECONOMY,
-  REGULAR,
-  FAST,
-  FASTER,
+  ECONOMY = "ECONOMY",
+  REGULAR = "REGULAR",
+  FAST = "FAST",
+  FASTEST = "FASTEST",
+}
+
+export interface TransactionOptions {
+  gasPriceType: GasPriceTypes;
+}
+export interface DataDecodeResponse {
+  decoded: boolean;
+  values: string[];
+  function?: string;
+  isToken: boolean;
+}
+
+export interface GasCosts {
+  [GasPriceTypes.ECONOMY]: string;
+  [GasPriceTypes.REGULAR]: string;
+  [GasPriceTypes.FAST]: string;
+  [GasPriceTypes.FASTEST]: string;
 }

@@ -1,73 +1,95 @@
 <template>
-  <div class="update-metadata">
-    <sign-logo
-      :color="metadata.color || '#E6007A'"
-      class="update-metadata__logo"
-    ></sign-logo>
-    <h2>Update metadata</h2>
-    <div class="update-metadata__block">
-      <div class="update-metadata__block-row">
-        <div class="update-metadata__block-row-left">From</div>
-        <div class="update-metadata__block-row-right">{{ options.domain }}</div>
-      </div>
-      <div class="update-metadata__block-row">
-        <div class="update-metadata__block-row-left">Chain</div>
-        <div class="update-metadata__block-row-right">{{ metadata.chain }}</div>
-      </div>
-      <div class="update-metadata__block-row">
-        <div class="update-metadata__block-row-left">Icon</div>
-        <div class="update-metadata__block-row-right">{{ metadata.icon }}</div>
-      </div>
-      <div class="update-metadata__block-row">
-        <div class="update-metadata__block-row-left">Decimals</div>
-        <div class="update-metadata__block-row-right">
-          {{ metadata.tokenDecimals }}
+  <common-popup>
+    <template #header>
+      <sign-logo
+        :color="metadata ? metadata.color : '#E6007A'"
+        class="common-popup__logo"
+      ></sign-logo>
+    </template>
+
+    <template #content>
+      <h2>Update metadata</h2>
+      <div class="update-metadata__block">
+        <div class="update-metadata__block-row">
+          <div class="update-metadata__block-row-left">From</div>
+          <div class="update-metadata__block-row-right">
+            {{ Options.domain }}
+          </div>
+        </div>
+        <div class="update-metadata__block-row">
+          <div class="update-metadata__block-row-left">Chain</div>
+          <div class="update-metadata__block-row-right">
+            {{ metadata ? metadata.chain : "" }}
+          </div>
+        </div>
+        <div class="update-metadata__block-row">
+          <div class="update-metadata__block-row-left">Icon</div>
+          <div class="update-metadata__block-row-right">
+            {{ metadata ? metadata.icon : "" }}
+          </div>
+        </div>
+        <div class="update-metadata__block-row">
+          <div class="update-metadata__block-row-left">Decimals</div>
+          <div class="update-metadata__block-row-right">
+            {{ metadata ? metadata.tokenDecimals : "" }}
+          </div>
+        </div>
+        <div class="update-metadata__block-row">
+          <div class="update-metadata__block-row-left">Symbol</div>
+          <div class="update-metadata__block-row-right">
+            {{ metadata ? metadata.tokenSymbol : "" }}
+          </div>
+        </div>
+        <div class="update-metadata__block-row">
+          <div class="update-metadata__block-row-left">Upgrade</div>
+          <div class="update-metadata__block-row-right">
+            {{ currentVersion }} -> {{ metadata ? metadata.specVersion : "" }}
+          </div>
         </div>
       </div>
-      <div class="update-metadata__block-row">
-        <div class="update-metadata__block-row-left">Symbol</div>
-        <div class="update-metadata__block-row-right">
-          {{ metadata.tokenSymbol }}
-        </div>
-      </div>
-      <div class="update-metadata__block-row">
-        <div class="update-metadata__block-row-left">Upgrade</div>
-        <div class="update-metadata__block-row-right">
-          {{ currentVersion }} -> {{ metadata.specVersion }}
-        </div>
-      </div>
-    </div>
-    <p class="update-metadata__info">
-      This approval will add the metadata to your extension instance, allowing
-      future request to be decoding using this metadata.
-    </p>
-    <div class="update-metadata__buttons">
-      <div class="update-metadata__buttons-cancel">
-        <base-button title="Cancel" :click="deny" :no-background="true" />
-      </div>
-      <div class="update-metadata__buttons-send">
-        <base-button title="Update" :click="approve" />
-      </div>
-    </div>
-  </div>
+      <p class="update-metadata__info">
+        This approval will add the metadata to your extension instance, allowing
+        future request to be decoding using this metadata.
+      </p>
+    </template>
+
+    <template #button-left>
+      <base-button title="Cancel" :click="deny" :no-background="true" />
+    </template>
+
+    <template #button-right>
+      <base-button title="Update" :click="approve" />
+    </template>
+  </common-popup>
 </template>
 
 <script setup lang="ts">
 import SignLogo from "@action/icons/common/sign-logo.vue";
 import BaseButton from "@action/components/base-button/index.vue";
+import CommonPopup from "@action/views/common-popup/index.vue";
 import { getCustomError } from "@/libs/error";
 import { WindowPromiseHandler } from "@/libs/window-promise";
-import { computed, ref, watch } from "vue";
+import { onBeforeMount, ref, watch } from "vue";
 import { MetadataDef } from "@polkadot/extension-inject/types";
 import MetadataStorage from "@/providers/polkadot/libs/metadata-storage";
-const { PromiseResolve, options, Request } = WindowPromiseHandler();
+import { ProviderRequestOptions } from "@/types/provider";
+
+const windowPromise = WindowPromiseHandler(0);
+
 const mstorage = new MetadataStorage();
 const currentVersion = ref("unknown");
-const metadata = computed(() => {
-  if (Request.value.params) return Request.value.params[0] as MetadataDef;
-  return {} as MetadataDef;
+const Options = ref<ProviderRequestOptions>({
+  domain: "",
+  faviconURL: "",
+  title: "",
+  url: "",
 });
-watch(metadata, () => {
+const metadata = ref<MetadataDef | null>(null);
+
+onBeforeMount(async () => {
+  const { options, Request } = await windowPromise;
+  Options.value = options;
+  metadata.value = Request.value.params![0] as MetadataDef;
   if (metadata.value.genesisHash) {
     mstorage.getMetadata(metadata.value.genesisHash).then((m) => {
       if (m) {
@@ -76,25 +98,39 @@ watch(metadata, () => {
     });
   }
 });
-const approve = () => {
+
+watch(metadata, () => {
+  if (metadata.value && metadata.value.genesisHash) {
+    mstorage.getMetadata(metadata.value.genesisHash).then((m) => {
+      if (m) {
+        currentVersion.value = m.specVersion.toString();
+      }
+    });
+  }
+});
+
+const approve = async () => {
+  const { Resolve, Request } = await windowPromise;
   if (
     !Request.value.params ||
     Request.value.params.length < 1 ||
+    !metadata.value ||
     !metadata.value.genesisHash
   ) {
-    return PromiseResolve.value({ error: getCustomError("No params") });
+    return Resolve.value({ error: getCustomError("No params") });
   }
 
   mstorage
     .addMetadata(metadata.value.genesisHash, JSON.stringify(metadata.value))
     .then(() => {
-      PromiseResolve.value({
+      Resolve.value({
         result: JSON.stringify(true),
       });
     });
 };
-const deny = () => {
-  PromiseResolve.value({
+const deny = async () => {
+  const { Resolve } = await windowPromise;
+  Resolve.value({
     result: JSON.stringify(false),
   });
 };
@@ -102,20 +138,9 @@ const deny = () => {
 
 <style lang="less" scoped>
 @import "~@action/styles/theme.less";
+@import "~@/providers/ethereum/ui/styles/common-popup.less";
+
 .update-metadata {
-  width: 100%;
-  &__logo {
-    margin-bottom: 8px;
-  }
-  h2 {
-    font-style: normal;
-    font-weight: 700;
-    font-size: 34px;
-    line-height: 40px;
-    letter-spacing: 0.25px;
-    color: @primaryLabel;
-    margin: 0 0 16px 0;
-  }
   &__block {
     background: @lightBg;
     border: 1px solid @gray01;
@@ -161,39 +186,6 @@ const deny = () => {
       }
     }
   }
-  &__account {
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    flex-direction: row;
-    img {
-      width: 32px;
-      height: 32px;
-      margin-right: 12px;
-      border-radius: 100%;
-    }
-    &-info {
-      h4 {
-        font-style: normal;
-        font-weight: 500;
-        font-size: 14px;
-        line-height: 20px;
-        letter-spacing: 0.25px;
-        color: @primaryLabel;
-        margin: 0;
-      }
-      p {
-        font-style: normal;
-        font-weight: 400;
-        font-size: 12px;
-        line-height: 16px;
-        letter-spacing: 0.5px;
-        color: @secondaryLabel;
-        margin: 0;
-        word-break: break-all;
-      }
-    }
-  }
   &__info {
     font-style: normal;
     font-weight: 400;
@@ -202,20 +194,6 @@ const deny = () => {
     color: @secondaryLabel;
     margin: 0 0 16px 0;
     width: 100%;
-  }
-  &__buttons {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-direction: row;
-    width: 100%;
-    box-sizing: border-box;
-    &-cancel {
-      width: 108px;
-    }
-    &-send {
-      width: 232px;
-    }
   }
 }
 </style>

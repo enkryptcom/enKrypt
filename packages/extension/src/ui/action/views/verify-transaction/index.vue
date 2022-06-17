@@ -24,8 +24,16 @@
         <verify-transaction-account
           :address="address"
         ></verify-transaction-account>
-        <verify-transaction-amount :token="ethereum" :amount="amount">
+        <verify-transaction-amount
+          v-if="!isNft"
+          :token="ethereum"
+          :amount="amount"
+        >
         </verify-transaction-amount>
+        <verify-transaction-nft
+          v-if="isNft"
+          :item="nft"
+        ></verify-transaction-nft>
         <verify-transaction-fee
           :fee="recommendedFee"
           :amount="1.5"
@@ -42,7 +50,7 @@
       </div>
     </div>
 
-    <send-process v-if="isProcessing"></send-process>
+    <send-process v-if="isProcessing" :is-nft="isNft"></send-process>
   </div>
 </template>
 
@@ -61,11 +69,12 @@ import VerifyTransactionNetwork from "./components/verify-transaction-network.vu
 import VerifyTransactionAccount from "./components/verify-transaction-account.vue";
 import VerifyTransactionAmount from "./components/verify-transaction-amount.vue";
 import VerifyTransactionFee from "./components/verify-transaction-fee.vue";
+import VerifyTransactionNft from "./components/verify-transaction-nft.vue";
 import SendProcess from "@action/views/send-process/index.vue";
 import DomainState from "@/libs/domain-state";
 import { NodeType } from "@/types/provider";
 import { getAllNetworks } from "@/libs/utils/networks";
-import { ethereum, recommendedFee } from "@action/types/mock";
+import { ethereum, recommendedFee, nft } from "@action/types/mock";
 import { EthereumTransaction } from "@/providers/ethereum/libs/transaction/types";
 import Web3 from "web3";
 import Transaction from "@/providers/ethereum/libs/transaction/";
@@ -89,13 +98,16 @@ const selected: string = route.params.id as string;
 const address: string = route.params.address as string;
 const fromAddress: string = route.params.fromAddress as string;
 const amount = route.params.amount as unknown as number;
+const selectedFee = route.params.selectedFee;
 let selectedNetwork = ref<any>(undefined);
+const isNft: boolean = (route.params.isNft as string) == "1";
 let isProcessing = ref(false);
 const MAIN_TOKEN_ADDRESS = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
 
 defineExpose({ selectedNetwork });
 
 onMounted(async () => {
+  console.log("adsf", selectedFee);
   const curNetwork = await domainState.getSelectedNetWork();
   (selectedNetwork.value as unknown as NodeType) = networks.find(
     (net) => net.name === curNetwork
@@ -124,37 +136,39 @@ const sendAction = async () => {
   const txObj = (await setUpTx()) as unknown as EthereumTransaction;
   const tx = await new Transaction(txObj, web3);
 
-  await tx.getFinalizedTransaction().then(async (finalizedTx) => {
-    const msgHash = bufferToHex(finalizedTx.getMessageToSign(true));
-    const account = await KeyRing.getAccount(fromAddress);
+  await tx
+    .getFinalizedTransaction({ gasPriceType: selectedFee })
+    .then(async (finalizedTx) => {
+      const msgHash = bufferToHex(finalizedTx.getMessageToSign(true));
+      const account = await KeyRing.getAccount(fromAddress);
 
-    return await sendToBackgroundFromAction({
-      message: JSON.stringify({
-        method: InternalMethods.sign,
-        params: [msgHash, account as KeyRecord],
-      }),
-      provider: selectedNetwork.value?.provider,
-      tabId: await domainState.getCurrentTabId(),
-    }).then((res: any) => {
-      if (res.error) {
-        console.log("error", res.error);
-      } else {
-        const rpcSig = fromRpcSig(res.result.replace(/['"]+/g, "") || "0x");
-        const signedTx = (
-          finalizedTx as FeeMarketEIP1559Transaction
-        )._processSignature(rpcSig.v, rpcSig.r, rpcSig.s);
+      return await sendToBackgroundFromAction({
+        message: JSON.stringify({
+          method: InternalMethods.sign,
+          params: [msgHash, account as KeyRecord],
+        }),
+        provider: selectedNetwork.value?.provider,
+        tabId: await domainState.getCurrentTabId(),
+      }).then((res: any) => {
+        if (res.error) {
+          console.log("error", res.error);
+        } else {
+          const rpcSig = fromRpcSig(res.result.replace(/['"]+/g, "") || "0x");
+          const signedTx = (
+            finalizedTx as FeeMarketEIP1559Transaction
+          )._processSignature(rpcSig.v, rpcSig.r, rpcSig.s);
 
-        web3.eth
-          .sendSignedTransaction("0x" + signedTx.serialize().toString("hex"))
-          .on("transactionHash", (hash: string) => {
-            console.log("hash", hash);
-          })
-          .on("error", (error: any) => {
-            console.log("ERROR", error);
-          });
-      }
+          web3.eth
+            .sendSignedTransaction("0x" + signedTx.serialize().toString("hex"))
+            .on("transactionHash", (hash: string) => {
+              console.log("hash", hash);
+            })
+            .on("error", (error: any) => {
+              console.log("ERROR", error);
+            });
+        }
+      });
     });
-  });
 
   setTimeout(() => {
     isProcessing.value = false;
@@ -176,7 +190,7 @@ const estimateGas = async () => {
 };
 
 const getTokenTransferABI = async (amount: any, _toAddress: string) => {
-  amount = toBN(amount);
+  amount = toBN(toWei(amount).toString());
   const jsonInterface = [
     {
       constant: false,
@@ -276,6 +290,7 @@ const setUpTx = async () => {
     right: 24px;
     border-radius: 8px;
     cursor: pointer;
+    transition: background 300ms ease-in-out;
 
     &:hover {
       background: @black007;

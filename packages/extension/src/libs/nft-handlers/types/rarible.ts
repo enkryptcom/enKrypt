@@ -10,6 +10,7 @@ export enum ContentRepresentation {
   ORIGINAL = "ORIGINAL",
   BIG = "BIG",
   PREVIEW = "PREVIEW",
+  IMAGE = "IMAGE",
 }
 export interface NFTContent {
   "@type": "IMAGE";

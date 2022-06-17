@@ -33,6 +33,7 @@
           :close="toggleSelectFee"
           :select-fee="selectFee"
           :selected="fee.price.speed"
+          :is-header="true"
         ></transaction-fee-view>
       </div>
 
@@ -85,7 +86,7 @@ const settings = {
   suppressScrollX: true,
   wheelPropagation: false,
 };
-const bestOfferScrollRef = ref(null);
+let bestOfferScrollRef = ref(null);
 let scrollProgress = ref(0);
 let height = ref(460);
 const selected: string = route.params.id as string;
@@ -127,7 +128,7 @@ const handleScroll = (e: any) => {
 };
 const isHasScroll = () => {
   if (bestOfferScrollRef.value) {
-    return (bestOfferScrollRef.value as HTMLElement).classList.contains(
+    return (bestOfferScrollRef.value as HTMLElement).$el.classList.contains(
       "ps--active-y"
     );
   }
@@ -194,6 +195,7 @@ const selectFee = (option: TransactionFee) => {
     border-radius: 8px;
     cursor: pointer;
     font-size: 0;
+    transition: background 300ms ease-in-out;
 
     &:hover {
       background: @black007;

@@ -2,17 +2,19 @@
   <a class="send-fee-select" :class="{ swap: inSwap }" @click="open">
     <div class="send-fee-select__value">
       <p class="send-fee-select__value-fiat">
-        Fee: {{ $filters.formatFiatValue(balance).value }}
+        Fee: {{ $filters.formatFiatValue(fee.fiatValue).value }}
+        {{ fee.fiatSymbol }}
       </p>
       <p class="send-fee-select__value-crypto">
-        {{ balance }} <span>eth</span>
+        {{ $filters.formatFloatingPointValue(fee.nativeValue).value }}
+        <span>{{ fee.nativeSymbol }}</span>
       </p>
     </div>
 
     <div class="send-fee-select__arrow">
       <div class="send-fee-select__time">
         <time-icon />
-        <span>5 min</span>
+        <span>{{ FeeDescriptions[selected].eta }}</span>
       </div>
       <switch-arrow />
     </div>
@@ -26,15 +28,18 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { ref, PropType, computed } from "vue";
+import { PropType } from "vue";
 import SwitchArrow from "@action/icons/header/switch_arrow.vue";
-import { TransactionFee } from "@action/types/fee";
 import TimeIcon from "@action/icons/fee/time-icon.vue";
-import { fromWei } from "web3-utils";
+import { GasFeeInfo } from "@/providers/ethereum/ui/types";
+import { GasPriceTypes } from "@/providers/ethereum/libs/transaction/types";
+import { FeeDescriptions } from "@/providers/ethereum/libs/transaction/gas-utils";
 
-let isOpen = ref(false);
+const emit = defineEmits<{
+  (e: "openPopup"): void;
+}>();
 
-const props = defineProps({
+defineProps({
   toggleSelect: {
     type: Function,
     default: () => {
@@ -42,10 +47,14 @@ const props = defineProps({
     },
   },
   fee: {
-    type: Object as PropType<TransactionFee>,
+    type: Object as PropType<GasFeeInfo>,
     default: () => {
       return {};
     },
+  },
+  selected: {
+    type: String as PropType<GasPriceTypes>,
+    default: GasPriceTypes.REGULAR,
   },
   inSwap: {
     type: Boolean,
@@ -56,13 +65,12 @@ const props = defineProps({
 });
 
 const open = () => {
-  isOpen.value = !isOpen.value;
-  props.toggleSelect(isOpen);
+  emit("openPopup");
 };
 
-const balance = computed(() => {
-  return fromWei(props.fee.price.totalFee.toString());
-});
+// const balance = computed(() => {
+//   return fromWei(props.fee.price.totalFee.toString());
+// });
 </script>
 
 <style lang="less">
@@ -100,7 +108,7 @@ const balance = computed(() => {
     &-fiat {
       font-style: normal;
       font-weight: 400;
-      font-size: 14px;
+      font-size: 10px;
       line-height: 20px;
       letter-spacing: 0.25px;
       color: @secondaryLabel;
@@ -110,7 +118,7 @@ const balance = computed(() => {
     &-crypto {
       font-style: normal;
       font-weight: 400;
-      font-size: 14px;
+      font-size: 10px;
       line-height: 20px;
       letter-spacing: 0.25px;
       color: @tertiaryLabel;

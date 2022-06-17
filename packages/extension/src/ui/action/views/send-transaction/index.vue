@@ -1,13 +1,11 @@
 <template>
   <div class="container">
     <div v-if="!!selected" class="send-transaction">
-      <div class="send-transaction__header">
-        <h3>Send</h3>
-        <a class="send-transaction__close" @click="close">
-          <close-icon />
-        </a>
-      </div>
-
+      <send-header
+        :close="close"
+        :toggle-type="toggleSelector"
+        :is-send-token="isSendToken"
+      ></send-header>
       <send-address-input
         :input="inputAddress"
         :toggle-select="toggleSelectContact"
@@ -19,42 +17,59 @@
         :close="toggleSelectContact"
         :select-account="selectAccount"
         :account-info="props.accountInfo"
+        :address="address"
       ></send-contacts-list>
 
       <send-token-select
+        v-if="isSendToken"
         :token="selectedToken"
         :toggle-select="toggleSelectToken"
         :network="props.network"
         :account-info="props.accountInfo"
       ></send-token-select>
 
-      <send-token-list
-        :show-tokens="isOpenSelectToken"
+      <assets-select-list
+        v-show="isOpenSelectToken"
         :close="toggleSelectToken"
         :select-token="selectToken"
+        :is-send="true"
         :network="props.network"
         :account-info="props.accountInfo"
-      >
-      </send-token-list>
+      ></assets-select-list>
+
+      <send-nft-select
+        v-if="!isSendToken"
+        :item="selectedNft"
+        :toggle-select="toggleSelectNft"
+      ></send-nft-select>
+
+      <nft-select-list
+        v-show="isOpenSelectNft"
+        :close="toggleSelectNft"
+        :select-item="selectItem"
+      ></nft-select-list>
 
       <send-input-amount
+        v-if="isSendToken"
         :input="inputAmount"
         :value="amount"
         :account-info="props.accountInfo"
       ></send-input-amount>
 
       <send-fee-select
-        :fee="fee"
-        :toggle-select="toggleSelectFee"
+        :in-swap="false"
+        :selected="selectedFee"
+        :fee="gasCostValues[selectedFee]"
+        @open-popup="toggleSelectFee"
       ></send-fee-select>
 
       <transaction-fee-view
+        :fees="gasCostValues"
         :show-fees="isOpenSelectFee"
-        :close="toggleSelectFee"
-        :select-fee="selectFee"
-        :selected="fee.price.totalFee"
-        :fee="fee"
-        :fees="fees"
+        :selected="selectedFee"
+        :is-header="true"
+        @close-popup="toggleSelectFee"
+        @gas-type-changed="selectFee"
       ></transaction-fee-view>
 
       <!-- <send-alert></send-alert> -->
@@ -85,27 +100,27 @@ export default {
 import Web3 from "web3";
 import { ref, onMounted, PropType, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import CloseIcon from "@action/icons/common/close-icon.vue";
+import SendHeader from "./components/send-header.vue";
 import SendAddressInput from "./components/send-address-input.vue";
 import SendContactsList from "./components/send-contacts-list.vue";
+import AssetsSelectList from "@action/views/assets-select-list/index.vue";
+import NftSelectList from "@action/views/nft-select-list/index.vue";
 import SendTokenSelect from "./components/send-token-select.vue";
-import SendTokenList from "./components/send-token-list.vue";
+import SendNftSelect from "./components/send-nft-select.vue";
 import SendInputAmount from "./components/send-input-amount.vue";
 import SendFeeSelect from "./components/send-fee-select.vue";
 import TransactionFeeView from "@action/views/transaction-fee/index.vue";
-// import SendAlert from "./components/send-alert.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import { Account } from "@action/types/account";
 import { Token } from "@action/types/token";
-import { TransactionFee } from "@action/types/fee";
+import { NFTItem } from "@action/types/nft";
 import { AccountsHeaderData } from "@action/types/account";
 import { NodeType } from "@/types/provider";
-import { toBN, toWei } from "web3-utils";
+import { fromWei, toBN, toWei } from "web3-utils";
 import { getPriorityFeeBasedOnType } from "@/providers/ethereum/libs/transaction/gas-utils";
-import { PRIORITIES, FEES } from "./template/fee";
-
-const route = useRoute();
-const router = useRouter();
+import { nft } from "@action/types/mock";
+import { GasPriceTypes } from "../../../../providers/ethereum/libs/transaction/types";
+import { GasFeeType } from "../../../../providers/ethereum/ui/types";
 
 const props = defineProps({
   network: {
@@ -118,6 +133,8 @@ const props = defineProps({
   },
 });
 
+const route = useRoute();
+const router = useRouter();
 let web3: any;
 let isOpenSelectContact = ref<boolean>(false);
 let address = ref<string>("");
@@ -131,20 +148,100 @@ let selectedToken = ref({
 });
 let amount = ref<number>(0);
 let isOpenSelectFee = ref<boolean>(false);
-let fees = ref<TransactionFee[]>([]);
-let fee = ref<TransactionFee>({
-  limit: 0.0001,
-  price: {
-    speed: 1,
-    baseFee: 0,
-    tip: 0,
-    totalFee: 0,
-    title: "Recommended",
-    description: "Will reliably go through in most scenarios",
+let isSendToken = ref(true);
+let selectedNft = ref(nft);
+let isOpenSelectNft = ref(false);
+
+const selected: string = route.params.id as string;
+const selectedFee = ref<GasPriceTypes>(GasPriceTypes.ECONOMY);
+
+const gasCostValues = ref<GasFeeType>({
+  [GasPriceTypes.ECONOMY]: {
+    nativeValue: "0",
+    fiatValue: "0.00",
+    nativeSymbol: "ETH",
+    fiatSymbol: "USD",
+  },
+  [GasPriceTypes.REGULAR]: {
+    nativeValue: "0",
+    fiatValue: "0.00",
+    nativeSymbol: "ETH",
+    fiatSymbol: "USD",
+  },
+  [GasPriceTypes.FAST]: {
+    nativeValue: "0",
+    fiatValue: "0.00",
+    nativeSymbol: "ETH",
+    fiatSymbol: "USD",
+  },
+  [GasPriceTypes.FASTEST]: {
+    nativeValue: "0",
+    fiatValue: "0.00",
+    nativeSymbol: "ETH",
+    fiatSymbol: "USD",
   },
 });
 
-const selected: string = route.params.id as string;
+const getPriorityFees = async () => {
+  const gasPrice = await getGasPrice();
+  const gasLimit = await getGasLimit();
+  const baseFeePerGas = await getBaseFeePerGas();
+
+  gasCostValues.value = {
+    [GasPriceTypes.ECONOMY]: {
+      nativeValue: await getFees(
+        GasPriceTypes.ECONOMY,
+        gasPrice,
+        gasLimit,
+        baseFeePerGas
+      ).toString(),
+      fiatValue: fromWei(
+        await getFees(GasPriceTypes.ECONOMY, gasPrice, gasLimit, baseFeePerGas)
+      ).toString(),
+      nativeSymbol: props.network.currencyName,
+      fiatSymbol: "USD",
+    },
+    [GasPriceTypes.REGULAR]: {
+      nativeValue: await getFees(
+        GasPriceTypes.REGULAR,
+        gasPrice,
+        gasLimit,
+        baseFeePerGas
+      ).toString(),
+      fiatValue: fromWei(
+        await getFees(GasPriceTypes.REGULAR, gasPrice, gasLimit, baseFeePerGas)
+      ).toString(),
+      nativeSymbol: props.network.currencyName,
+      fiatSymbol: "USD",
+    },
+    [GasPriceTypes.FAST]: {
+      nativeValue: await getFees(
+        GasPriceTypes.REGULAR,
+        gasPrice,
+        gasLimit,
+        baseFeePerGas
+      ).toString(),
+      fiatValue: fromWei(
+        await getFees(GasPriceTypes.FAST, gasPrice, gasLimit, baseFeePerGas)
+      ).toString(),
+      nativeSymbol: props.network.currencyName,
+      fiatSymbol: "USD",
+    },
+    [GasPriceTypes.FASTEST]: {
+      nativeValue: await getFees(
+        GasPriceTypes.FASTEST,
+        gasPrice,
+        gasLimit,
+        baseFeePerGas
+      ).toString(),
+      fiatValue: fromWei(
+        await getFees(GasPriceTypes.FASTEST, gasPrice, gasLimit, baseFeePerGas)
+      ).toString(),
+      nativeSymbol: props.network.currencyName,
+      fiatSymbol: "USD",
+    },
+  };
+};
 
 const close = () => {
   router.go(-1);
@@ -176,12 +273,12 @@ const inputAmount = (number: number) => {
   amount.value = number;
 };
 
-const toggleSelectFee = (open: boolean) => {
-  isOpenSelectFee.value = open;
+const toggleSelectFee = () => {
+  isOpenSelectFee.value = !isOpenSelectToken.value;
 };
 
-const selectFee = (option: TransactionFee) => {
-  fee.value = option;
+const selectFee = (type: GasPriceTypes) => {
+  selectedFee.value = type;
   isOpenSelectFee.value = false;
 };
 
@@ -225,33 +322,17 @@ const getGasLimit = async () => {
   });
 };
 
-const getPriorityFees = async () => {
-  const gasPrice = await getGasPrice();
-  const gasLimit = await getGasLimit();
-  const baseFeePerGas = await getBaseFeePerGas();
-
-  for await (const priority of PRIORITIES) {
-    const price = await getPriorityFeeBasedOnType(
-      baseFeePerGas?.toString() as string,
-      toBN(gasPrice).mul(toBN(gasLimit)).toString(),
-      priority
-    );
-
-    fees.value.push({
-      limit: 0.0001,
-      price: {
-        speed: FEES[priority].speed,
-        baseFee: 0,
-        tip: 0,
-        totalFee: price as unknown as number,
-        title: FEES[priority].title,
-        description: FEES[priority].description,
-      },
-    });
-
-    if (priority === 1) selectFee(fees.value[1]);
-  }
-  return fees;
+const getFees = async (
+  priority: any,
+  price: string,
+  limit: number,
+  base: number
+) => {
+  return getPriorityFeeBasedOnType(
+    base?.toString() as string,
+    toBN(price).mul(toBN(limit)).toString(),
+    priority
+  );
 };
 
 const sendButtonTitle = () => {
@@ -260,6 +341,10 @@ const sendButtonTitle = () => {
   if (amount.value > 0)
     title =
       "Send " + amount.value + " " + selectedToken.value.symbol.toUpperCase();
+
+  if (!isSendToken.value) {
+    title = "Send NFT";
+  }
 
   return title;
 };
@@ -279,9 +364,23 @@ const sendAction = () => {
       address: address.value,
       selectedToken: selectedToken.value.toString(),
       amount: amount.value,
-      fee: fee.value.toString(),
+      isNft: isSendToken.value ? 0 : 1,
+      selectedFee: JSON.stringify(selectedFee.value),
     },
   });
+};
+
+const toggleSelector = () => {
+  isSendToken.value = !isSendToken.value;
+};
+
+const toggleSelectNft = (open: boolean) => {
+  isOpenSelectNft.value = open;
+};
+
+const selectItem = (item: NFTItem) => {
+  selectedNft.value = item;
+  isOpenSelectNft.value = false;
 };
 
 onMounted(async () => {
@@ -310,32 +409,6 @@ onMounted(async () => {
   height: 100%;
   box-sizing: border-box;
   position: relative;
-
-  &__header {
-    position: relative;
-    padding: 24px 72px 12px 32px;
-
-    h3 {
-      font-style: normal;
-      font-weight: 700;
-      font-size: 24px;
-      line-height: 32px;
-      color: @primaryLabel;
-      margin: 0;
-    }
-  }
-
-  &__close {
-    position: absolute;
-    top: 20px;
-    right: 24px;
-    border-radius: 8px;
-    cursor: pointer;
-
-    &:hover {
-      background: @black007;
-    }
-  }
 
   &__buttons {
     position: absolute;

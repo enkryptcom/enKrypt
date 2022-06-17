@@ -7,6 +7,8 @@ const MED_CONST = 21428571428.571;
 const MED_MULTIPLIER = 1.0714285714286;
 const FAST_CONST = 42857142857.145;
 const FAST_MULTIPLIER = 1.1428571428571;
+const FASTEST_CONST = 64285714285.7;
+const FASTEST_MULTIPLIER = 1.21828571429;
 const LIMITER = 25000000000;
 
 const getEconomy = (gasPrice: string): BN => {
@@ -30,6 +32,15 @@ const getFast = (gasPrice: string): BN => {
   }
   return toBN(new BigNumber(gasPrice).times(1.5).toFixed(0));
 };
+const getFastest = (gasPrice: string): BN => {
+  const gpBN = toBN(gasPrice);
+  if (gpBN.gt(toBN(LIMITER))) {
+    let initialValue = new BigNumber(gasPrice).times(FASTEST_MULTIPLIER);
+    initialValue = initialValue.plus(FASTEST_CONST);
+    return toBN(new BigNumber(initialValue).toFixed(0));
+  }
+  return toBN(new BigNumber(gasPrice).times(1.75).toFixed(0));
+};
 
 const getGasBasedOnType = (
   gasPrice: string,
@@ -42,6 +53,8 @@ const getGasBasedOnType = (
       return getRegular(gasPrice);
     case GasPriceTypes.FAST:
       return getFast(gasPrice);
+    case GasPriceTypes.FASTEST:
+      return getFastest(gasPrice);
     default:
       return getEconomy(gasPrice);
   }
@@ -69,6 +82,9 @@ const getPriorityFeeBasedOnType = (
     case GasPriceTypes.FAST:
       returnVal = mediumTip.muln(1.25);
       break;
+    case GasPriceTypes.FASTEST:
+      returnVal = mediumTip.muln(1.5);
+      break;
     default:
       returnVal = minFee;
   }
@@ -87,11 +103,37 @@ const getBaseFeeBasedOnType = (
       return baseFeeBN.muln(1.5);
     case GasPriceTypes.FAST:
       return baseFeeBN.muln(1.75);
-    case GasPriceTypes.FASTER:
+    case GasPriceTypes.FASTEST:
       return baseFeeBN.muln(2);
     default:
       return baseFeeBN;
   }
 };
-
-export { getBaseFeeBasedOnType, getPriorityFeeBasedOnType, getGasBasedOnType };
+const FeeDescriptions = {
+  [GasPriceTypes.ECONOMY]: {
+    title: "Economy",
+    description: "Will likely go trough unless activity increases",
+    eta: "15 mins",
+  },
+  [GasPriceTypes.REGULAR]: {
+    title: "Recommended",
+    description: "Will reliably go through in most scenatios",
+    eta: "5 mins",
+  },
+  [GasPriceTypes.FAST]: {
+    title: "Higher priority",
+    description: "Will go through even if there is a sudden activity increase",
+    eta: "2 mins",
+  },
+  [GasPriceTypes.FASTEST]: {
+    title: "Highest priority",
+    description: "Will go through, fast, in 99.99% of the cases",
+    eta: "1 min",
+  },
+};
+export {
+  getBaseFeeBasedOnType,
+  getPriorityFeeBasedOnType,
+  getGasBasedOnType,
+  FeeDescriptions,
+};

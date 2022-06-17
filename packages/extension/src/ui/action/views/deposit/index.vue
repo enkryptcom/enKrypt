@@ -165,6 +165,7 @@ const copy = (address: string) => {
     border-radius: 8px;
     cursor: pointer;
     font-size: 0;
+    transition: background 300ms ease-in-out;
 
     &:hover {
       background: @black007;
@@ -252,6 +253,7 @@ const copy = (address: string) => {
       align-items: center;
       flex-direction: row;
       cursor: pointer;
+      transition: opacity 300ms ease-in-out;
 
       &:hover {
         opacity: 0.8;

@@ -1,7 +1,20 @@
 <template>
   <div class="explore__search">
-    <search-icon></search-icon>
-    <input type="text" placeholder="Search accounts" autocomplete="off" />
+    <span class="explore__search-icon"><search-icon></search-icon></span>
+    <input
+      v-model="searchText"
+      type="text"
+      placeholder="Search accounts"
+      autocomplete="off"
+    />
+
+    <a
+      v-if="searchText.length > 0"
+      class="explore__search-clear"
+      @click="clear"
+    >
+      <clear-icon />
+    </a>
   </div>
 </template>
 
@@ -12,7 +25,15 @@ export default {
 </script>
 
 <script setup lang="ts">
+import { ref } from "vue";
 import SearchIcon from "@action/icons/common/search.vue";
+import ClearIcon from "@action/icons/common/clear-icon.vue";
+
+let searchText = ref("");
+
+const clear = () => {
+  searchText.value = "";
+};
 </script>
 
 <style lang="less" scoped>
@@ -24,13 +45,13 @@ import SearchIcon from "@action/icons/common/search.vue";
   background: @primaryBg;
   position: relative;
   box-sizing: border-box;
-  padding: 17px 20px 17px 56px;
+  padding: 17px 48px 17px 56px;
   border-bottom: 1px solid @gray02;
   position: absolute;
   left: 0;
   top: 0;
 
-  svg {
+  &-icon {
     position: absolute;
     left: 16px;
     top: 16px;
@@ -46,6 +67,14 @@ import SearchIcon from "@action/icons/common/search.vue";
     color: @primaryLabel;
     border: 0 none;
     outline: none;
+  }
+
+  &-clear {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    cursor: pointer;
+    margin-top: -8px;
   }
 }
 </style>

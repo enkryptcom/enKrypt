@@ -43,6 +43,12 @@ const props = defineProps({
       return null;
     },
   },
+  onTestNetCheck: {
+    type: Function,
+    default: () => {
+      return null;
+    },
+  },
 });
 
 const searchInput = (text: string) => {
@@ -54,7 +60,7 @@ const action = () => {
 };
 
 const testNetwork = () => {
-  console.log("testNetwork");
+  props.onTestNetCheck();
 };
 </script>
 
@@ -83,6 +89,7 @@ const testNetwork = () => {
       width: 40px;
       font-size: 0;
       border-radius: 8px;
+      transition: background 300ms ease-in-out;
 
       &:hover {
         background: @black007;
@@ -115,11 +122,12 @@ const testNetwork = () => {
         align-items: center;
         flex-direction: row;
         cursor: pointer;
+        transition: background 300ms ease-in-out;
+        border-radius: 8px;
 
         &:hover,
         &.active {
           background: rgba(0, 0, 0, 0.04);
-          border-radius: 8px;
         }
 
         svg {

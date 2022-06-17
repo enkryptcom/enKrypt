@@ -1,11 +1,15 @@
-import { sendToNewWindowFromBackground } from "@/libs/messenger/extension";
+import {
+  sendToBackgroundFromBackground,
+  sendToNewWindowFromBackground,
+} from "@/libs/messenger/extension";
 import { ProviderName } from "@/types/provider";
 import Browser from "webextension-polyfill";
-import { InternalOnMessageResponse } from "@/types/messenger";
+import { InternalMethods, InternalOnMessageResponse } from "@/types/messenger";
 import { getCustomError, getError } from "../error";
 import getUiPath from "../utils/get-ui-path";
 import { routes as UIRoutes } from "@/ui/provider-pages/enkrypt/routes";
 import { ErrorCodes } from "@/providers/ethereum/types";
+
 const UNLOCK_PATH = getUiPath(UIRoutes.unlock.path, ProviderName.enkrypt);
 class WindowPromise {
   private async getRawResponse(
@@ -31,8 +35,8 @@ class WindowPromise {
       url: "#",
       type: "popup",
       focused: true,
-      height: 500,
-      width: 400,
+      height: 600,
+      width: 460,
     });
     const tabId: number | undefined = windowInfo.tabs?.length
       ? windowInfo.tabs[0].id
@@ -55,7 +59,14 @@ class WindowPromise {
       });
     };
     const executePromise = async (): Promise<InternalOnMessageResponse> => {
-      if (unlockKeyring) {
+      const isKeyRingLocked = await sendToBackgroundFromBackground({
+        provider: ProviderName.enkrypt,
+        message: JSON.stringify({
+          method: InternalMethods.isLocked,
+          params: [],
+        }),
+      }).then((res) => JSON.parse(res.result as string));
+      if (unlockKeyring && isKeyRingLocked) {
         const unlockKeyring = await this.getRawResponse(
           Browser.runtime.getURL(UNLOCK_PATH),
           msg,

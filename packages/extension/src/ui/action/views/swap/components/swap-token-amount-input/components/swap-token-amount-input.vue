@@ -1,5 +1,6 @@
 <template>
   <input
+    ref="swapAmountInput"
     v-model="textValue"
     type="text"
     :placeholder="placeholder"
@@ -17,8 +18,12 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, ref, onMounted } from "vue";
 const isFocus = ref(false);
+const swapAmountInput = ref(null);
+
+defineExpose({ swapAmountInput });
+
 const props = defineProps({
   placeholder: {
     type: String,
@@ -38,6 +43,17 @@ const props = defineProps({
       return null;
     },
   },
+  autofocus: {
+    type: Boolean,
+    default: () => {
+      return false;
+    },
+  },
+});
+onMounted(() => {
+  if (swapAmountInput.value && props.autofocus) {
+    (swapAmountInput.value as HTMLInputElement).focus();
+  }
 });
 const emit = defineEmits(["update:value"]);
 const textValue = computed({

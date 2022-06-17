@@ -17,8 +17,9 @@
           />
         </div>
         <div class="send-process__info">
-          <send-process-amount :token="ethereum" :amount="1.5">
+          <send-process-amount v-if="!isNft" :token="ethereum" :amount="1.5">
           </send-process-amount>
+          <send-process-nft v-if="isNft" :item="nft"> </send-process-nft>
           <div class="send-process__info-arrow">
             <arrow-down />
           </div>
@@ -44,7 +45,8 @@ import LottieSendCheckmark from "@action/assets/animation/send-checkmark.json";
 import ArrowDown from "@action/icons/send/arrow-down.vue";
 import SendProcessAccount from "./components/send-process-account.vue";
 import SendProcessAmount from "./components/send-process-amount.vue";
-import { ethereum } from "@action/types/mock";
+import SendProcessNft from "./components/send-process-nft.vue";
+import { ethereum, nft } from "@action/types/mock";
 
 let isDone = ref(false);
 
@@ -52,6 +54,15 @@ onMounted(() => {
   setTimeout(() => {
     isDone.value = true;
   }, 3000);
+});
+
+defineProps({
+  isNft: {
+    type: Boolean,
+    default: () => {
+      return false;
+    },
+  },
 });
 </script>
 

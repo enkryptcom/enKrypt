@@ -15,10 +15,12 @@
           :select="selectAccount"
           :active="true"
           :identicon-element="network.identicon"
+          :rename-action="renameAccount"
+          :delete-action="deleteAccount"
         ></accounts-list-item>
 
         <div class="accounts__info">
-          Incompatible accounts <a href="#">why?</a>
+          Incompatible accounts&nbsp;&nbsp;<a href="#">why?</a>
         </div>
 
         <accounts-list-item
@@ -48,6 +50,17 @@
     :init="init"
     :select-account="selectAccount"
   ></add-account-form>
+
+  <rename-account-form
+    v-if="isRenameAccount"
+    :close="closeRenameAccount"
+    :network="network"
+  ></rename-account-form>
+
+  <delete-account-form
+    v-if="isDeleteAccount"
+    :close="closeDeleteAccount"
+  ></delete-account-form>
 </template>
 
 <script lang="ts">
@@ -62,6 +75,8 @@ import AccountsListItem from "./components/accounts-list-item.vue";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 import AddIcon from "@action/icons/common/add-icon.vue";
 import AddAccountForm from "./components/add-account-form.vue";
+import RenameAccountForm from "./components/rename-account-form.vue";
+import DeleteAccountForm from "./components/delete-account-form.vue";
 import { AccountsHeaderData } from "../../types/account";
 import { PropType, ref } from "vue";
 import { NodeType } from "@/types/provider";
@@ -76,6 +91,8 @@ const emit = defineEmits<{
   (e: "addressChanged", account: KeyRecord): void;
 }>();
 let isAddAccount = ref(false);
+let isRenameAccount = ref(false);
+let isDeleteAccount = ref(false);
 const props = defineProps({
   network: {
     type: Object as PropType<NodeType>,
@@ -118,6 +135,26 @@ const addAccount = () => {
 };
 const closeAddAccount = () => {
   isAddAccount.value = false;
+};
+const renameAccount = () => {
+  props.toggle();
+
+  setTimeout(() => {
+    isRenameAccount.value = true;
+  }, 100);
+};
+const closeRenameAccount = () => {
+  isRenameAccount.value = false;
+};
+const deleteAccount = () => {
+  props.toggle();
+
+  setTimeout(() => {
+    isDeleteAccount.value = true;
+  }, 100);
+};
+const closeDeleteAccount = () => {
+  isDeleteAccount.value = false;
 };
 </script>
 
@@ -182,7 +219,7 @@ const closeAddAccount = () => {
   }
 
   &__info {
-    padding: 12px;
+    padding: 24px 12px 0 60px;
     font-style: normal;
     font-weight: 400;
     font-size: 12px;
@@ -227,10 +264,12 @@ const closeAddAccount = () => {
       text-decoration: none;
       cursor: pointer;
       width: 144px;
+      transition: background 300ms ease-in-out;
+      border-radius: 10px;
+
       &.active,
       &:hover {
         background: @black007;
-        border-radius: 10px;
       }
       svg {
         margin-right: 8px;
