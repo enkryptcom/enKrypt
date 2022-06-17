@@ -130,9 +130,6 @@ const setActiveNetworks = async () => {
   });
 
   networks.value = networksToShow;
-  // networks.value = getAllNetworks().filter(({ name }) =>
-  //   activeNetworkNames.includes(name)
-  // );
 
   if (!networks.value.includes(currentNetwork.value)) {
     setNetwork(networks.value[0]);
