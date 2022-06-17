@@ -9,15 +9,23 @@
       <switch-arrow />
     </a>
     <div class="account__actions">
-      <a class="account__actions--copy" href="#">
-        <icon-external />
-      </a>
-      <a class="account__actions--copy" @click="copy(address)">
-        <icon-copy />
-      </a>
-      <a showDeposit class="account__actions--copy" @click="showDeposit">
-        <icon-qr />
-      </a>
+      <tooltip text="View on Blockchain Explorer">
+        <a class="account__actions--copy" href="#">
+          <icon-external />
+        </a>
+      </tooltip>
+
+      <tooltip text="Copy address">
+        <a class="account__actions--copy" @click="copy(address)">
+          <icon-copy />
+        </a>
+      </tooltip>
+
+      <tooltip text="Account’s QR code">
+        <a showDeposit class="account__actions--copy" @click="showDeposit">
+          <icon-qr />
+        </a>
+      </tooltip>
     </div>
   </div>
 </template>
@@ -33,6 +41,7 @@ import SwitchArrow from "@action/icons/header/switch_arrow.vue";
 import IconQr from "@action/icons/header/qr_icon.vue";
 import IconCopy from "@action/icons/header/copy_icon.vue";
 import IconExternal from "@action/icons/header/external-icon.vue";
+import Tooltip from "@action/components/tooltip/index.vue";
 import { PropType } from "vue";
 import { NodeType } from "@/types/provider";
 
@@ -102,6 +111,7 @@ const showDeposit = () => {
     border-radius: 10px;
     height: 44px;
     cursor: pointer;
+    transition: background 300ms ease-in-out;
 
     &:hover,
     &.active {
@@ -162,6 +172,7 @@ const showDeposit = () => {
       align-items: center;
       border-radius: 8px;
       cursor: pointer;
+      transition: background 300ms ease-in-out;
 
       &:hover {
         background: @black007;

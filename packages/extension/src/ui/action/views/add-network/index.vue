@@ -154,7 +154,6 @@ const search = (value: string) => {
 const handleScroll = (e: any) => {
   let progress = Number(e.target.lastChild.style.top.replace("px", ""));
   scrollProgress.value = progress;
-  console.log(isHasScroll() && scrollProgress.value > 0);
 };
 const isHasScroll = () => {
   if (manageNetworkScrollRef.value) {
@@ -212,6 +211,7 @@ const isHasScroll = () => {
     border-radius: 8px;
     cursor: pointer;
     font-size: 0;
+    transition: background 300ms ease-in-out;
 
     &:hover {
       background: @black007;

@@ -112,10 +112,11 @@ defineProps({
       align-items: center;
       flex-direction: column;
       min-width: 100px;
+      transition: background 300ms ease-in-out;
+      border-radius: 8px;
 
       &:hover {
         background: rgba(0, 0, 0, 0.04);
-        border-radius: 8px;
       }
 
       svg {
