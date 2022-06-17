@@ -54,8 +54,8 @@
       <transaction-fee-view
         :show-fees="isOpenSelectFee"
         :close="toggleSelectFee"
-        :select-fee="selectFee"
-        :selected="fee.price.speed"
+        :select-fee="() => null"
+        :selected="6"
       ></transaction-fee-view>
 
       <send-alert></send-alert>
@@ -83,7 +83,7 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { onBeforeMount, ref } from "vue";
+import { onBeforeMount, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import SendAddressInput from "./components/send-address-input.vue";
@@ -105,6 +105,8 @@ import EvmAPI from "@/providers/ethereum/libs/api";
 import { ApiPromise } from "@polkadot/api";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
 import { Account } from "@action/types/account";
+import BigNumber from "bignumber.js";
+import { add } from "lodash";
 
 const route = useRoute();
 const router = useRouter();
@@ -125,12 +127,13 @@ const accounts = ref<Account[]>([]);
 const identicon = ref<((address: string) => string) | undefined>();
 const assets = ref<BaseToken[]>([]);
 const api = ref<EvmAPI | ApiPromise>();
+const txFee = ref<BigNumber | null>(null);
 
 const selected: string = route.params.id as string;
 
 onBeforeMount(async () => {
   const activeNetworkName = await domainState.getSelectedNetWork();
-  const network = getNetworkByName(activeNetworkName || "");
+  const network = getNetworkByName(activeNetworkName ?? "");
 
   if (network) {
     activeNetwork.value = network;
@@ -165,6 +168,20 @@ onBeforeMount(async () => {
           };
         });
     }
+  }
+});
+
+watch([selectedToken, amount, address], async () => {
+  if (selectedToken.value && amount.value && address.value) {
+    console.log(selectedToken.value, amount.value, address.value);
+    const tx = await selectedToken.value.send(
+      api.value,
+      address.value,
+      Number(amount.value)
+    );
+    const fees = await tx.paymentInfo(activeAccount.value);
+
+    console.log(fees);
   }
 });
 

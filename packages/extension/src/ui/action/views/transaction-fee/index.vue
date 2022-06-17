@@ -28,7 +28,7 @@
 
         <div class="transaction-fee__info-time">
           <time-icon />
-          <span>5 min</span>
+          <span>6 sec</span>
         </div>
       </div>
       <transaction-fee-item

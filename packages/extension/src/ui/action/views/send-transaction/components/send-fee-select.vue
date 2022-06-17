@@ -10,7 +10,7 @@
     <div class="send-fee-select__arrow">
       <div class="send-fee-select__time">
         <time-icon />
-        <span>5 min</span>
+        <span>6 sec</span>
       </div>
       <switch-arrow />
     </div>
