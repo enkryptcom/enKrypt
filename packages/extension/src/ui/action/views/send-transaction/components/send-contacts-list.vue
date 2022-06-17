@@ -35,7 +35,7 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { PropType, onMounted } from "vue";
+import { PropType } from "vue";
 import SendAddressItem from "./send-address-item.vue";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 import BaseButton from "@action/components/base-button/index.vue";
@@ -72,10 +72,6 @@ const props = defineProps({
       return "";
     },
   },
-});
-
-onMounted(() => {
-  console.log("child", props.accountInfo);
 });
 
 const close = () => {

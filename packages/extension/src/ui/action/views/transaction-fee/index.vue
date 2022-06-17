@@ -57,7 +57,6 @@ export default {
 <script setup lang="ts">
 import { PropType } from "vue";
 import TransactionFeeItem from "./components/transaction-fee-item.vue";
-import { TransactionFee } from "@action/types/fee";
 import TimeIcon from "@action/icons/fee/time-icon.vue";
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import { GasPriceTypes } from "@/providers/ethereum/libs/transaction/types";
@@ -100,12 +99,6 @@ defineProps({
   selected: {
     type: String as PropType<GasPriceTypes>,
     default: GasPriceTypes.ECONOMY,
-  },
-  fee: {
-    type: Object as PropType<TransactionFee>,
-    default: () => {
-      return {};
-    },
   },
 });
 
