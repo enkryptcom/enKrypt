@@ -204,7 +204,7 @@ const getTokenTransferABI = async (amount: any, _toAddress: string) => {
       type: "function",
     },
   ];
-  const contract = new web3(jsonInterface);
+  const contract = new web3.eth.Contract(jsonInterface);
   return contract.methods
     .transfer(_toAddress.toLowerCase(), amount)
     .encodeABI();
