@@ -182,10 +182,28 @@ const getNonce = async () => {
   return await web3.eth.getTransactionCount(fromAddress);
 };
 
-const estimateGas = async () => {
+const getGasPrice = async () => {
   return web3.eth.getGasPrice().then((data: string) => {
     return numberToHex(data);
   });
+};
+
+const estimateGas = async (
+  address: string,
+  nonce: string,
+  to: string,
+  data: string
+) => {
+  return await web3.eth
+    .estimateGas({
+      from: address,
+      nonce: nonce,
+      to: to,
+      data: data,
+    })
+    .then((data: number) => {
+      return numberToHex(data);
+    });
 };
 
 const getTokenTransferABI = async (amount: any, _toAddress: string) => {
@@ -233,17 +251,17 @@ const setUpTx = async () => {
     ? "0x00"
     : numberToHex(toWei(amount.toString()));
   const nonce = await getNonce();
-  const gasPrice = await estimateGas();
+  const gasPrice = await getGasPrice();
   const abi = await getTokenTransferABI(amount, fromAddress);
   const data = (await isToken) ? abi : "0x00";
+  const gasLimit = await estimateGas(fromAddress, nonce, address, data);
   return {
     from: toChecksumAddress(fromAddress),
     to: toChecksumAddress(address),
     value: value,
-    gas: "0x5208", // 21000
+    gas: gasLimit,
     gasPrice: gasPrice,
     data: data,
-    // gasLimit: `0x${}`,
     nonce: `0x${nonce}`,
     chainId: `0x${selectedNetwork.value?.chainID}`, // 1
   };
