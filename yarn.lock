@@ -1781,6 +1781,7 @@ __metadata:
     vue: ^3.2.31
     vue-router: 4
     vue3-lottie: ^2.1.0
+    vuedraggable: next
     web3: ^1.7.3
     web3-utils: ^1.7.3
     webextension-polyfill: ^0.9.0
@@ -15084,6 +15085,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"sortablejs@npm:1.14.0":
+  version: 1.14.0
+  resolution: "sortablejs@npm:1.14.0"
+  checksum: 7b9d2cbb0331f3f259b8703a17174ff46a941b6d59c77c75ca05a5bd484bf2b409a9c1d21344f9c933939880450803b254825c7c7d7f88034e8c7e675420b389
+  languageName: node
+  linkType: hard
+
 "source-map-js@npm:^1.0.2":
   version: 1.0.2
   resolution: "source-map-js@npm:1.0.2"
@@ -16656,6 +16664,17 @@ __metadata:
     "@vue/server-renderer": 3.2.33
     "@vue/shared": 3.2.33
   checksum: 878a63cc19dc6b2e255929cee3a47ea416668446d44d7c7f61ba785836a112a3814fd014e9472f92183ed05c8113946c4c83c831f2ec142d0c975a84976a2de9
+  languageName: node
+  linkType: hard
+
+"vuedraggable@npm:next":
+  version: 4.1.0
+  resolution: "vuedraggable@npm:4.1.0"
+  dependencies:
+    sortablejs: 1.14.0
+  peerDependencies:
+    vue: ^3.0.1
+  checksum: 8b4c5a6b384361df97f7a3595d7772dfbb086bf97c6702a1117b532a9e49db2908cb5d21b7959cb10179714c4c2225e4be0b77b29f778923169ea8a8197a429f
   languageName: node
   linkType: hard
 

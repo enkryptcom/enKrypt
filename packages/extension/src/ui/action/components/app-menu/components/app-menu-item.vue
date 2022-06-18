@@ -2,6 +2,10 @@
   <a class="app-menu__link" :class="{ active: isActive }">
     <img :src="network.icon" alt="" />
     <span>{{ network.name_long }}</span>
+
+    <div class="app-menu__link-drag">
+      <drag-icon />
+    </div>
   </a>
 </template>
 
@@ -14,6 +18,7 @@ export default {
 <script setup lang="ts">
 import { NodeType } from "@/types/provider";
 import { PropType } from "vue";
+import DragIcon from "@action/icons/common/drag-icon.vue";
 
 defineProps({
   network: {
@@ -45,11 +50,15 @@ defineProps({
     height: 40px;
     margin-bottom: 4px;
     cursor: pointer;
-    transition: background 300ms ease-in-out;
-    border-radius: 10px;
+    position: relative;
 
     &:hover {
       background: @black004;
+      border-radius: 10px;
+
+      .app-menu__link-drag {
+        display: block !important;
+      }
     }
 
     img {
@@ -75,6 +84,16 @@ defineProps({
       span {
         font-weight: 500;
       }
+    }
+
+    &-drag {
+      position: absolute;
+      right: 8px;
+      padding: 4px;
+      top: 50%;
+      margin-top: -12px;
+      cursor: grab;
+      display: none;
     }
   }
 }
