@@ -46,6 +46,7 @@
 <script setup lang="ts">
 import SignLogo from "@action/icons/common/sign-logo.vue";
 import BaseButton from "@action/components/base-button/index.vue";
+import CommonPopup from "@action/views/common-popup/index.vue";
 import { KeyRecord } from "@enkryptcom/types";
 import { getCustomError, getError } from "@/libs/error";
 import { ErrorCodes } from "@/providers/ethereum/types";

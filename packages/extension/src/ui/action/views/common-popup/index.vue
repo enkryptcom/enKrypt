@@ -31,17 +31,15 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ComponentPublicInstance, ref } from "vue";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 
-const commonPopupScrollRef = ref(null);
+const commonPopupScrollRef = ref<ComponentPublicInstance<HTMLElement>>();
 defineExpose({ commonPopupScrollRef });
 
 const isHasScroll = () => {
   if (commonPopupScrollRef.value) {
-    return (commonPopupScrollRef.value as HTMLElement).$el.classList.contains(
-      "ps--active-y"
-    );
+    return commonPopupScrollRef.value.$el.classList.contains("ps--active-y");
   }
 
   return false;
