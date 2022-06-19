@@ -24,8 +24,16 @@
         <verify-transaction-account
           address="0x1FBa2e3B8B2303B2a22AA8A8202Fee3a183B2ED"
         ></verify-transaction-account>
-        <verify-transaction-amount :token="ethereum" :amount="1.5">
+        <verify-transaction-amount
+          v-if="!isNft"
+          :token="ethereum"
+          :amount="1.5"
+        >
         </verify-transaction-amount>
+        <verify-transaction-nft
+          v-if="isNft"
+          :item="nft"
+        ></verify-transaction-nft>
         <verify-transaction-fee
           :fee="recommendedFee"
           :amount="1.5"
@@ -42,7 +50,7 @@
       </div>
     </div>
 
-    <send-process v-if="isProcessing"></send-process>
+    <send-process v-if="isProcessing" :is-nft="isNft"></send-process>
   </div>
 </template>
 
@@ -61,11 +69,12 @@ import VerifyTransactionNetwork from "./components/verify-transaction-network.vu
 import VerifyTransactionAccount from "./components/verify-transaction-account.vue";
 import VerifyTransactionAmount from "./components/verify-transaction-amount.vue";
 import VerifyTransactionFee from "./components/verify-transaction-fee.vue";
+import VerifyTransactionNft from "./components/verify-transaction-nft.vue";
 import SendProcess from "@action/views/send-process/index.vue";
 import DomainState from "@/libs/domain-state";
 import { NodeType } from "@/types/provider";
 import { getAllNetworks } from "@/libs/utils/networks";
-import { ethereum, recommendedFee } from "@action/types/mock";
+import { ethereum, recommendedFee, nft } from "@action/types/mock";
 
 const domainState = new DomainState();
 const route = useRoute();
@@ -73,6 +82,7 @@ const router = useRouter();
 const networks: NodeType[] = getAllNetworks();
 
 const selected: string = route.params.id as string;
+const isNft: boolean = (route.params.isNft as string) == "1";
 let selectedNetwork = ref(undefined);
 let isProcessing = ref(false);
 defineExpose({ selectedNetwork });
@@ -140,6 +150,7 @@ const sendAction = () => {
     right: 24px;
     border-radius: 8px;
     cursor: pointer;
+    transition: background 300ms ease-in-out;
 
     &:hover {
       background: @black007;

@@ -1,11 +1,11 @@
 import { getCustomError } from "@/libs/error";
 import { getNetworkByName } from "@/libs/utils/networks";
+import { BaseNetwork } from "@/types/base-network";
 import {
   ActionSendMessage,
   InternalOnMessageResponse,
   Message,
 } from "@/types/messenger";
-import { NodeType } from "@/types/provider";
 import { RPCRequestType } from "@enkryptcom/types";
 import { TabProviderType } from "../types";
 
@@ -19,7 +19,7 @@ const changeNetwork = (
       error: getCustomError("background: invalid params for change network"),
     });
   const networkName = message.params[0] as string;
-  const network = getNetworkByName(networkName) as NodeType;
+  const network = getNetworkByName(networkName) as BaseNetwork;
   const actionMsg = msg as any as ActionSendMessage;
   if (
     actionMsg.provider &&

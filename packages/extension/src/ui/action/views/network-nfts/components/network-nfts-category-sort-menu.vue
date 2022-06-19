@@ -64,10 +64,11 @@ defineProps({
       padding: 0 16px;
       box-sizing: border-box;
       cursor: pointer;
+      transition: background 300ms ease-in-out;
+      border-radius: 10px;
 
       &:hover {
         background: rgba(0, 0, 0, 0.04);
-        border-radius: 10px;
       }
 
       svg {

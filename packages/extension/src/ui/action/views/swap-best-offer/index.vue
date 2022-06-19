@@ -33,6 +33,7 @@
           :close="toggleSelectFee"
           :select-fee="selectFee"
           :selected="fee.price.speed"
+          :is-header="true"
         ></transaction-fee-view>
       </div>
 
@@ -63,7 +64,7 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ComponentPublicInstance, ref } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import BaseButton from "@action/components/base-button/index.vue";
@@ -85,7 +86,7 @@ const settings = {
   suppressScrollX: true,
   wheelPropagation: false,
 };
-const bestOfferScrollRef = ref(null);
+let bestOfferScrollRef = ref<ComponentPublicInstance<HTMLElement>>();
 let scrollProgress = ref(0);
 let height = ref(460);
 const selected: string = route.params.id as string;
@@ -127,9 +128,7 @@ const handleScroll = (e: any) => {
 };
 const isHasScroll = () => {
   if (bestOfferScrollRef.value) {
-    return (bestOfferScrollRef.value as HTMLElement).classList.contains(
-      "ps--active-y"
-    );
+    return bestOfferScrollRef.value.$el.classList.contains("ps--active-y");
   }
 
   return false;
@@ -194,6 +193,7 @@ const selectFee = (option: TransactionFee) => {
     border-radius: 8px;
     cursor: pointer;
     font-size: 0;
+    transition: background 300ms ease-in-out;
 
     &:hover {
       background: @black007;

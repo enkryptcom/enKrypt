@@ -3,8 +3,8 @@
     <alert-icon />
     <p>
       After sending this transaction your balance will go below Existential
-      Limit (<a href="#">What is it?</a>), which will drop your remaining
-      balance to 0.
+      Limit, which will drop your remaining balance to 0.<br />
+      <a href="#">What is Existential Limit?</a>
     </p>
   </div>
 </template>
