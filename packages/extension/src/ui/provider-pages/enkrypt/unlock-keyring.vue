@@ -37,8 +37,6 @@
 </template>
 
 <script setup lang="ts">
-import { getError } from "@/libs/error";
-import { ErrorCodes } from "@/providers/ethereum/types";
 import { onBeforeMount, ref, computed } from "vue";
 import { WindowPromiseHandler } from "@/libs/window-promise";
 import { InternalMethods } from "@/types/messenger";
@@ -82,12 +80,6 @@ const approve = async () => {
     }
   });
 };
-const deny = async () => {
-  const { Resolve } = await windowPromise;
-  Resolve.value({
-    error: getError(ErrorCodes.userRejected),
-  });
-};
 const passwordChanged = (text: string) => {
   password.value = text;
   isError.value = false;
@@ -97,7 +89,7 @@ const toggleForgot = () => {
 };
 const resetAction = () => {
   console.log("resetAction");
-}
+};
 </script>
 
 <style lang="less">
