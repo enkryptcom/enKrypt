@@ -95,7 +95,6 @@ import SendFeeSelect from "./components/send-fee-select.vue";
 import TransactionFeeView from "@action/views/transaction-fee/index.vue";
 import SendAlert from "./components/send-alert.vue";
 import BaseButton from "@action/components/base-button/index.vue";
-import { TransactionFee } from "@action/types/fee";
 import { recommendedFee } from "@action/types/mock";
 import DomainState from "@/libs/domain-state";
 import { BaseNetwork } from "@/types/base-network";
@@ -106,20 +105,19 @@ import { ApiPromise } from "@polkadot/api";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
 import { Account } from "@action/types/account";
 import BigNumber from "bignumber.js";
-import { add } from "lodash";
 
 const route = useRoute();
 const router = useRouter();
 const domainState = new DomainState();
 const keyRing = new PublicKeyRing();
 
-let isOpenSelectContact = ref(false);
-let address = ref("");
-let isOpenSelectToken = ref(false);
-let selectedToken = ref<BaseToken | undefined>();
-let amount = ref(0);
-let isOpenSelectFee = ref(false);
-let fee = ref(recommendedFee);
+const isOpenSelectContact = ref(false);
+const address = ref("");
+const isOpenSelectToken = ref(false);
+const selectedToken = ref<BaseToken | undefined>();
+const amount = ref(0);
+const isOpenSelectFee = ref(false);
+const fee = ref(recommendedFee);
 
 const activeAccount = ref<string | undefined>();
 const activeNetwork = ref<BaseNetwork | undefined>();
@@ -127,29 +125,26 @@ const accounts = ref<Account[]>([]);
 const identicon = ref<((address: string) => string) | undefined>();
 const assets = ref<BaseToken[]>([]);
 const api = ref<EvmAPI | ApiPromise>();
-const txFee = ref<BigNumber | null>(null);
+const txFee = ref<string | null>(null);
 
 const selected: string = route.params.id as string;
 
 onBeforeMount(async () => {
+  const address = await domainState.getSelectedAddress();
   const activeNetworkName = await domainState.getSelectedNetWork();
   const network = getNetworkByName(activeNetworkName ?? "");
+
+  console.log(activeNetworkName, address);
 
   if (network) {
     activeNetwork.value = network;
     identicon.value = network.identicon;
     assets.value = network.getAllTokens();
     selectedToken.value = assets.value[0];
-    const address = await domainState.getSelectedAddress();
-
-    const networkApi = await network.api();
-
-    await networkApi.init();
-
-    api.value = networkApi.api;
 
     if (address) {
       activeAccount.value = network.displayAddress(address);
+      console.log("test");
 
       accounts.value = (await keyRing.getAccounts(network.signer))
         .filter((account) => account.address !== address)
@@ -167,21 +162,36 @@ onBeforeMount(async () => {
             },
           };
         });
+
+      console.log(accounts.value);
     }
+
+    const networkApi = await network.api();
+
+    await networkApi.init();
+
+    api.value = networkApi.api;
   }
 });
 
-watch([selectedToken, amount, address], async () => {
-  if (selectedToken.value && amount.value && address.value) {
+watch([selectedToken, amount, address, activeNetwork], async () => {
+  if (
+    selectedToken.value &&
+    amount.value &&
+    address.value &&
+    activeNetwork.value
+  ) {
     console.log(selectedToken.value, amount.value, address.value);
     const tx = await selectedToken.value.send(
       api.value,
       address.value,
       Number(amount.value)
     );
-    const fees = await tx.paymentInfo(activeAccount.value);
+    const { partialFee } = (await tx.paymentInfo(activeAccount.value)).toJSON();
 
-    console.log(fees);
+    txFee.value = new BigNumber(partialFee)
+      .div(new BigNumber(10 ** activeNetwork.value?.decimals))
+      .toString();
   }
 });
 
@@ -217,11 +227,6 @@ const inputAmount = (number: number) => {
 
 const toggleSelectFee = (open: boolean) => {
   isOpenSelectFee.value = open;
-};
-
-const selectFee = (option: TransactionFee) => {
-  fee.value = option;
-  isOpenSelectFee.value = false;
 };
 
 const sendButtonTitle = () => {
