@@ -34,10 +34,25 @@
         ></accounts-list-item>
       </custom-scrollbar>
 
-      <div class="accounts__add">
-        <a class="accounts__add-button" @click="addAccount()">
-          <add-icon />
+      <div class="accounts__action">
+        <a class="accounts__action-button" @click="addAccountAction()">
+          <add-account />
           Add account
+        </a>
+
+        <div class="accounts__action-divider"></div>
+
+        <a
+          class="accounts__action-button hardware"
+          @click="addHardwareAction()"
+        >
+          <add-hardware-account />
+          Add hardware wallet account
+        </a>
+
+        <a class="accounts__action-button import" @click="importAction()">
+          <import-account />
+          Import account from another wallet
         </a>
       </div>
     </div>
@@ -73,14 +88,17 @@ export default {
 import AccountsSearch from "./components/accounts-search.vue";
 import AccountsListItem from "./components/accounts-list-item.vue";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
-import AddIcon from "@action/icons/common/add-icon.vue";
+import AddAccount from "@action/icons/common/add-account.vue";
 import AddAccountForm from "./components/add-account-form.vue";
 import RenameAccountForm from "./components/rename-account-form.vue";
 import DeleteAccountForm from "./components/delete-account-form.vue";
+import AddHardwareAccount from "@action/icons/actions/add-hardware-account.vue";
+import ImportAccount from "@action/icons/actions/import-account.vue";
 import { AccountsHeaderData } from "../../types/account";
 import { PropType, ref } from "vue";
 import { NodeType } from "@/types/provider";
 import { KeyRecord } from "@enkryptcom/types";
+import openHardware from "@/libs/utils/open-hardware";
 
 const settings = {
   suppressScrollY: false,
@@ -126,7 +144,7 @@ const selectAccount = (address: string) => {
     props.toggle();
   }, 100);
 };
-const addAccount = () => {
+const addAccountAction = () => {
   props.toggle();
 
   setTimeout(() => {
@@ -155,6 +173,12 @@ const deleteAccount = () => {
 };
 const closeDeleteAccount = () => {
   isDeleteAccount.value = false;
+};
+const addHardwareAction = () => {
+  openHardware();
+};
+const importAction = () => {
+  console.log("importAction");
 };
 </script>
 
@@ -202,7 +226,7 @@ const closeDeleteAccount = () => {
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.3s, visibility 0s ease-in-out 0.3s;
-    padding-bottom: 56px;
+    padding-bottom: 153px;
 
     &.show {
       opacity: 1;
@@ -236,8 +260,8 @@ const closeDeleteAccount = () => {
     }
   }
 
-  &__add {
-    height: 56px;
+  &__action {
+    height: 153px;
     left: 0px;
     bottom: 0px;
     width: 100%;
@@ -267,6 +291,14 @@ const closeDeleteAccount = () => {
       transition: background 300ms ease-in-out;
       border-radius: 10px;
 
+      &.hardware {
+        width: 248px;
+      }
+
+      &.import {
+        width: 289px;
+      }
+
       &.active,
       &:hover {
         background: @black007;
@@ -274,6 +306,13 @@ const closeDeleteAccount = () => {
       svg {
         margin-right: 8px;
       }
+    }
+
+    &-divider {
+      height: 1px;
+      width: 312px;
+      margin: 8px;
+      background: @gray02;
     }
   }
 }

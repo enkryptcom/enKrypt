@@ -1,21 +1,21 @@
 <template>
-  <div class="ledger-select-account">
+  <div class="trezor-select-account">
     <h3>Select an account</h3>
     <hardware-select-path :select="selectPatch"></hardware-select-path>
-    <div class="ledger-select-account__list">
+    <div class="trezor-select-account__list">
       <hardware-select-account></hardware-select-account>
       <hardware-select-account></hardware-select-account>
       <hardware-select-account></hardware-select-account>
       <hardware-select-account></hardware-select-account>
       <hardware-select-account></hardware-select-account>
     </div>
-    <div class="ledger-select-account__controls">
+    <div class="trezor-select-account__controls">
       <a class="prev disable"><arrow-prev />Previous</a>
       <a>Next<arrow-next /></a>
     </div>
 
     <base-button
-      class="ledger-select-account__button"
+      class="trezor-select-account__button"
       title="Continue"
       :click="continueAction"
     />
@@ -37,20 +37,20 @@ const selectPatch = () => {
 };
 
 const continueAction = () => {
-  router.push({ path: routes.ledgerImportingAccount.path });
+  router.push({ path: routes.trezorImportingAccount.path });
 };
 </script>
 
 <script lang="ts">
 export default {
-  name: "LedgerSelectAccount",
+  name: "TrezorSelectAccount",
 };
 </script>
 
 <style lang="less" scoped>
 @import "~@action/styles/theme.less";
 
-.ledger-select-account {
+.trezor-select-account {
   width: 100%;
   h3 {
     font-style: normal;

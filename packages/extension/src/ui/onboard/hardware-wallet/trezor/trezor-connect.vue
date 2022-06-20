@@ -1,29 +1,28 @@
 <template>
-  <div class="ledger-connect">
-    <ledger-logo />
-    <h3>Connect to your Ledger</h3>
+  <div class="trezor-connect">
+    <trezor-logo />
+    <h3>Connect to your Trezor</h3>
     <p>
-      Connect your wallet to your computer. Unlock your Ledger and open the
-      <b>Ethereum app.</b><a href="#">Learn more</a>
+      Connect your wallet to your computer. Follow the instructions in the
+      Trezor connection tab. <a href="#">Learn more</a>
     </p>
 
     <base-button title="Connect" :click="connectAction" />
 
     <hardware-wallet-process
       v-if="isProcessing"
-      :is-ledger="true"
+      :is-ledger="false"
       :is-connetion="true"
     ></hardware-wallet-process>
     <hardware-wallet-error
       v-if="isError"
       :retry="tryAgainAction"
-      :is-ledger="true"
     ></hardware-wallet-error>
   </div>
 </template>
 <script setup lang="ts">
 import { ref } from "vue";
-import LedgerLogo from "@action/icons/hardware/ledger-logo.vue";
+import TrezorLogo from "@action/icons/hardware/trezor-logo.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import HardwareWalletProcess from "../components/hardware-wallet-process.vue";
 import HardwareWalletError from "../components/hardware-wallet-error.vue";
@@ -49,7 +48,7 @@ const tryAgainAction = () => {
   isError.value = false;
 
   setTimeout(() => {
-    router.push({ path: routes.ledgerSelectAccount.path });
+    router.push({ path: routes.trezorSelectAccount.path });
   }, 2000);
 };
 </script>
@@ -57,7 +56,7 @@ const tryAgainAction = () => {
 <style lang="less">
 @import "~@action/styles/theme.less";
 
-.ledger-connect {
+.trezor-connect {
   width: 100%;
   position: relative;
 

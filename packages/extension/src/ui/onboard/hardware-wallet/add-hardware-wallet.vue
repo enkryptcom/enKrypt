@@ -14,7 +14,13 @@
       <ledger-logo />
       <right-arrow />
     </router-link>
-    <router-link :to="{}" class="add-hardware-wallet__button">
+    <router-link
+      :to="{
+        name: 'hardware-wallet-trezor-connect',
+        params: {},
+      }"
+      class="add-hardware-wallet__button"
+    >
       <trezor-logo />
       <right-arrow />
     </router-link>

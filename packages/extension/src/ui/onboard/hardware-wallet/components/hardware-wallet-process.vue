@@ -1,11 +1,26 @@
 <template>
   <div class="hardware-wallet-process">
-    <ledger-connection />
-    <p>Connecting to your Ledger</p>
+    <ledger-connection v-if="isLedger" />
+    <trezor-connection v-else />
+    <p v-if="isLedger && isConnetion">Connecting to your Ledger</p>
+    <p v-if="!isLedger && isConnetion">Connecting to your Trezor</p>
+    <p v-if="!isConnetion">Importing account</p>
   </div>
 </template>
 <script setup lang="ts">
 import LedgerConnection from "@action/icons/hardware/ledger-connection.vue";
+import TrezorConnection from "@action/icons/hardware/trezor-connection.vue";
+
+defineProps({
+  isLedger: {
+    type: Boolean,
+    default: false,
+  },
+  isConnetion: {
+    type: Boolean,
+    default: false,
+  },
+});
 </script>
 
 <script lang="ts">

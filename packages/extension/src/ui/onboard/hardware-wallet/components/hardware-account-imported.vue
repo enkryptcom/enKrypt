@@ -1,47 +1,24 @@
 <template>
-  <div class="hardware-wallet-error">
-    <connection-error />
-    <h3 v-if="isLedger">Unable to connect to Ledger</h3>
-    <h3 v-else>Unable to connect to Trezor</h3>
-
-    <p>
-      Make sure it is unlocked, not used in another site, and Ethereum app was
-      opened after unlock.
-    </p>
-    <base-button title="Retry" :click="retryAction" />
+  <div class="hardware-account-imported">
+    <connection-success />
+    <h3>Account imported</h3>
+    <p>Now you can close this tab and open Enkrypt.</p>
   </div>
 </template>
 <script setup lang="ts">
-import ConnectionError from "@action/icons/hardware/connection-error.vue";
-import BaseButton from "@action/components/base-button/index.vue";
-
-const props = defineProps({
-  retry: {
-    type: Function,
-    default: () => {
-      return null;
-    },
-  },
-  isLedger: {
-    type: Boolean,
-    default: false,
-  },
-});
-const retryAction = () => {
-  props.retry();
-};
+import ConnectionSuccess from "@action/icons/hardware/connection-success.vue";
 </script>
 
 <script lang="ts">
 export default {
-  name: "HardwareWalletError",
+  name: "HardwareAccountImported",
 };
 </script>
 
 <style lang="less" scoped>
 @import "~@action/styles/theme.less";
 
-.hardware-wallet-error {
+.hardware-account-imported {
   width: calc(~"100% + 112px");
   height: calc(~"100% + 112px");
   display: flex;
@@ -63,7 +40,7 @@ export default {
     line-height: 28px;
     text-align: center;
     letter-spacing: 0.15px;
-    color: @error;
+    color: @primary;
     margin: 24px 0 0 0;
   }
 
