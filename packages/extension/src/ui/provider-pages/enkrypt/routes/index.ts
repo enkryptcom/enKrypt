@@ -1,12 +1,8 @@
-import unlockKeyring from "./unlock-keyring.vue";
+import unlockKeyring from "../unlock-keyring.vue";
 import { RouteRecordRaw } from "vue-router";
-export const routes = {
-  unlock: {
-    path: "unlock-keyring",
-    name: "unlockKeyring",
-    component: unlockKeyring,
-  },
-};
+import RouteNames from "./names";
+const routes = Object.assign({}, RouteNames);
+routes.unlock.component = unlockKeyring;
 
 export default (namespace: string): RouteRecordRaw[] => {
   return Object.values(routes).map((route) => {
