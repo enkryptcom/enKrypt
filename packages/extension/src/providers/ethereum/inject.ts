@@ -17,6 +17,7 @@ import { EXTENSION_VERSION } from "@/configs/constants";
 
 export class Provider extends EventEmitter implements ProviderInterface {
   chainId: string;
+  networkVersion: string;
   isEnkrypt: boolean;
   isMetaMask: boolean;
   selectedAddress: string | null;
@@ -28,10 +29,11 @@ export class Provider extends EventEmitter implements ProviderInterface {
   sendMessageHandler: SendMessageHandler;
   constructor(options: ProviderOptions) {
     super();
-    this.chainId = "0x1"; //deprecated
+    this.chainId = "0x1"; //deprecated //todo
+    this.networkVersion = "0x1"; //todo zed run
     this.isEnkrypt = true;
     this.isMetaMask = true;
-    this.selectedAddress = null; //deprecated
+    this.selectedAddress = null; //deprecated //todo
     this.connected = true;
     this.name = options.name;
     this.type = options.type;
@@ -76,13 +78,13 @@ export class Provider extends EventEmitter implements ProviderInterface {
 }
 
 const ProxyHandler = {
-  proxymethods: ["request", "sendAsync", "send"],
+  proxyMethods: ["request", "sendAsync", "send"],
   writableVars: ["autoRefreshOnNetworkChange"],
   ownKeys(target: Provider) {
-    return Object.keys(target).concat(this.proxymethods);
+    return Object.keys(target).concat(this.proxyMethods);
   },
   set(target: Provider, name: keyof Provider, value: any) {
-    if (!this.ownKeys(target).includes(name)) this.proxymethods.push(name);
+    if (!this.ownKeys(target).includes(name)) this.proxyMethods.push(name);
     return Reflect.set(target, name, value);
   },
   getOwnPropertyDescriptor(target: Provider, name: keyof Provider) {
