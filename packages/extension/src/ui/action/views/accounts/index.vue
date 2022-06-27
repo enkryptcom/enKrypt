@@ -51,7 +51,7 @@
         </a>
 
         <a class="accounts__action-button import" @click="importAction()">
-          <import-account />
+          <import-account-icon />
           Import account from another wallet
         </a>
       </div>
@@ -76,6 +76,12 @@
     v-if="isDeleteAccount"
     :close="closeDeleteAccount"
   ></delete-account-form>
+
+  <import-account
+    v-if="isImportAccount"
+    :close="closeImportAccount"
+    :is-dot="network.name == 'DOT'"
+  ></import-account>
 </template>
 
 <script lang="ts">
@@ -93,7 +99,8 @@ import AddAccountForm from "./components/add-account-form.vue";
 import RenameAccountForm from "./components/rename-account-form.vue";
 import DeleteAccountForm from "./components/delete-account-form.vue";
 import AddHardwareAccount from "@action/icons/actions/add-hardware-account.vue";
-import ImportAccount from "@action/icons/actions/import-account.vue";
+import ImportAccountIcon from "@action/icons/actions/import-account-icon.vue";
+import ImportAccount from "@action/views/import-account/index.vue";
 import { AccountsHeaderData } from "../../types/account";
 import { PropType, ref } from "vue";
 import { NodeType } from "@/types/provider";
@@ -111,6 +118,7 @@ const emit = defineEmits<{
 let isAddAccount = ref(false);
 let isRenameAccount = ref(false);
 let isDeleteAccount = ref(false);
+let isImportAccount = ref(false);
 const props = defineProps({
   network: {
     type: Object as PropType<NodeType>,
@@ -178,7 +186,14 @@ const addHardwareAction = () => {
   openHardware();
 };
 const importAction = () => {
-  console.log("importAction");
+  props.toggle();
+
+  setTimeout(() => {
+    isImportAccount.value = true;
+  }, 100);
+};
+const closeImportAccount = () => {
+  isImportAccount.value = false;
 };
 </script>
 

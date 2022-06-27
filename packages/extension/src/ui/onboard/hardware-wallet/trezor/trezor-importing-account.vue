@@ -1,5 +1,8 @@
 <template>
-  <div class="trezor-importing-account">
+  <div
+    class="trezor-importing-account"
+    :class="{ process: isProcessing || isProcessDone }"
+  >
     <custom-scrollbar
       ref="importingAccountScrollRef"
       class="trezor-importing-account__scroll-area"
@@ -26,13 +29,13 @@
     >
       <base-button title="Add accounts" :click="addAction" />
     </div>
-
-    <hardware-wallet-process
-      v-if="isProcessing"
-      :is-ledger="false"
-    ></hardware-wallet-process>
-    <hardware-account-imported v-if="isProcessDone"></hardware-account-imported>
   </div>
+
+  <hardware-wallet-process
+    v-if="isProcessing"
+    :is-ledger="false"
+  ></hardware-wallet-process>
+  <hardware-account-imported v-if="isProcessDone"></hardware-account-imported>
 </template>
 <script setup lang="ts">
 import { ref, ComponentPublicInstance } from "vue";
@@ -76,6 +79,12 @@ const addAction = () => {
   width: 100%;
   position: relative;
   padding-bottom: 32px;
+
+  &.process {
+    height: 348px;
+    overflow: hidden;
+    padding: 0;
+  }
 
   h3 {
     font-style: normal;

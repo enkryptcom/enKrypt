@@ -1,7 +1,7 @@
 <template>
   <div class="hardware-importing-account">
     <div class="hardware-importing-account__wrap">
-      <div class="hardware-importing-account__number">0</div>
+      <div v-if="!noIndex" class="hardware-importing-account__number">0</div>
       <img :src="require('@/ui/action/icons/raw/account.png')" />
       <div class="hardware-importing-account__info">
         <p class="hardware-importing-account__info-name">
@@ -41,6 +41,13 @@ import { ref } from "vue";
 import LabelInput from "@action/components/label-input/index.vue";
 
 const name = ref("EVM Ethereum Ledger 1");
+
+defineProps({
+  noIndex: {
+    type: Boolean,
+    default: false,
+  },
+});
 
 const nameChanged = (newVal: string) => {
   name.value = newVal;
