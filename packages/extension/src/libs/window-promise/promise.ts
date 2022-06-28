@@ -7,7 +7,7 @@ import Browser from "webextension-polyfill";
 import { InternalMethods, InternalOnMessageResponse } from "@/types/messenger";
 import { getCustomError, getError } from "../error";
 import getUiPath from "../utils/get-ui-path";
-import { routes as UIRoutes } from "@/ui/provider-pages/enkrypt/routes";
+import UIRoutes from "@/ui/provider-pages/enkrypt/routes/names";
 import { ErrorCodes } from "@/providers/ethereum/types";
 
 const UNLOCK_PATH = getUiPath(UIRoutes.unlock.path, ProviderName.enkrypt);
