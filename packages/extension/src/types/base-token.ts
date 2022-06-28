@@ -2,6 +2,7 @@ import EvmAPI from "@/providers/ethereum/libs/api";
 import MarketData from "@/libs/market-data";
 import { FiatMarket } from "@/libs/market-data/types";
 import { ApiPromise } from "@polkadot/api";
+import BigNumber from "bignumber.js";
 
 export interface BaseTokenOptions {
   name: string;
@@ -9,6 +10,7 @@ export interface BaseTokenOptions {
   decimals: number;
   icon: string;
   coingeckoID?: string;
+  existentialDeposit?: BigNumber;
 }
 
 export abstract class BaseToken {
@@ -17,6 +19,7 @@ export abstract class BaseToken {
   public decimals: number;
   public icon: string;
   public coingeckoID: string | undefined;
+  public existentialDeposit: BigNumber | undefined;
 
   constructor(options: BaseTokenOptions) {
     this.name = options.name;
@@ -24,6 +27,7 @@ export abstract class BaseToken {
     this.decimals = options.decimals;
     this.icon = options.icon;
     this.coingeckoID = options.coingeckoID;
+    this.existentialDeposit = options.existentialDeposit;
   }
 
   public async getTokenPrice(): Promise<FiatMarket | null> {

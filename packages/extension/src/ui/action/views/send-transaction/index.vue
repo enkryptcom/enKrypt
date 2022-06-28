@@ -47,6 +47,7 @@
       ></send-input-amount>
 
       <send-fee-select
+        v-if="fee"
         :fee="fee"
         :toggle-select="toggleSelectFee"
       ></send-fee-select>
@@ -55,10 +56,10 @@
         :show-fees="isOpenSelectFee"
         :close="toggleSelectFee"
         :select-fee="() => null"
-        :selected="6"
+        :selected="0"
       ></transaction-fee-view>
 
-      <send-alert></send-alert>
+      <send-alert v-if="edWarn"></send-alert>
 
       <div class="send-transaction__buttons">
         <div class="send-transaction__buttons-cancel">
@@ -95,7 +96,6 @@ import SendFeeSelect from "./components/send-fee-select.vue";
 import TransactionFeeView from "@action/views/transaction-fee/index.vue";
 import SendAlert from "./components/send-alert.vue";
 import BaseButton from "@action/components/base-button/index.vue";
-import { recommendedFee } from "@action/types/mock";
 import DomainState from "@/libs/domain-state";
 import { BaseNetwork } from "@/types/base-network";
 import { getNetworkByName } from "@/libs/utils/networks";
@@ -105,6 +105,7 @@ import { ApiPromise } from "@polkadot/api";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
 import { Account } from "@action/types/account";
 import BigNumber from "bignumber.js";
+import { TransactionFee } from "../../types/fee";
 
 const route = useRoute();
 const router = useRouter();
@@ -117,15 +118,14 @@ const isOpenSelectToken = ref(false);
 const selectedToken = ref<BaseToken | undefined>();
 const amount = ref(0);
 const isOpenSelectFee = ref(false);
-const fee = ref(recommendedFee);
-
+const fee = ref<TransactionFee | null>(null);
+const edWarn = ref(false);
 const activeAccount = ref<string | undefined>();
 const activeNetwork = ref<BaseNetwork | undefined>();
 const accounts = ref<Account[]>([]);
 const identicon = ref<((address: string) => string) | undefined>();
 const assets = ref<BaseToken[]>([]);
 const api = ref<EvmAPI | ApiPromise>();
-const txFee = ref<string | null>(null);
 
 const selected: string = route.params.id as string;
 
@@ -139,12 +139,13 @@ onBeforeMount(async () => {
   if (network) {
     activeNetwork.value = network;
     identicon.value = network.identicon;
-    assets.value = network.getAllTokens();
-    selectedToken.value = assets.value[0];
+    const networkAssets = network.getAllTokens();
+    selectedToken.value = networkAssets[0];
+    assets.value = networkAssets;
+    console.log(selectedToken.value);
 
     if (address) {
       activeAccount.value = network.displayAddress(address);
-      console.log("test");
 
       accounts.value = (await keyRing.getAccounts(network.signer))
         .filter((account) => account.address !== address)
@@ -179,19 +180,51 @@ watch([selectedToken, amount, address, activeNetwork], async () => {
     selectedToken.value &&
     amount.value &&
     address.value &&
-    activeNetwork.value
+    activeNetwork.value &&
+    api.value &&
+    activeAccount.value
   ) {
-    console.log(selectedToken.value, amount.value, address.value);
+    const rawAmount = new BigNumber(amount.value).times(
+      10 ** selectedToken.value.decimals
+    );
+
     const tx = await selectedToken.value.send(
       api.value,
       address.value,
-      Number(amount.value)
+      rawAmount.toNumber()
     );
     const { partialFee } = (await tx.paymentInfo(activeAccount.value)).toJSON();
 
-    txFee.value = new BigNumber(partialFee)
-      .div(new BigNumber(10 ** activeNetwork.value?.decimals))
-      .toString();
+    fee.value = {
+      limit: new BigNumber(partialFee)
+        .div(new BigNumber(10 ** activeNetwork.value?.decimals))
+        .toNumber(),
+      symbol: activeNetwork.value.name,
+      price: {
+        speed: 0,
+        baseFee: 0,
+        tip: 0,
+        totalFee: 0,
+        title: "Recommended",
+        description: "Will reliably go through in most scenatios",
+      },
+    };
+
+    const txFee = new BigNumber(partialFee);
+    const ed = selectedToken.value.existentialDeposit ?? new BigNumber(0);
+    const userBalance = new BigNumber(
+      await selectedToken.value.getUserBalance(api.value, activeAccount.value)
+    ).times(10 ** selectedToken.value.decimals);
+
+    console.log(
+      userBalance.minus(txFee).minus(rawAmount).toNumber(),
+      new BigNumber(ed).toString()
+    );
+    if (userBalance.minus(txFee).minus(rawAmount).lt(new BigNumber(ed))) {
+      edWarn.value = true;
+    } else {
+      edWarn.value = false;
+    }
   }
 });
 

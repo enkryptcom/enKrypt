@@ -77,7 +77,7 @@ const props = defineProps({
     },
   },
   selected: {
-    type: Object as PropType<TransactionFeeSpeed>,
+    type: Number as PropType<TransactionFeeSpeed>,
     default: () => {
       return {};
     },

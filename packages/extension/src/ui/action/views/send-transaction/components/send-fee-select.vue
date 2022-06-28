@@ -4,16 +4,18 @@
       <p class="send-fee-select__value-fiat">
         Fee: {{ $filters.formatFiatValue(7.12).value }}
       </p>
-      <p class="send-fee-select__value-crypto">0.0000123 <span>eth</span></p>
+      <p class="send-fee-select__value-crypto">
+        {{ props.fee.limit }} <span>{{ props.fee.symbol ?? "" }}</span>
+      </p>
     </div>
 
-    <div class="send-fee-select__arrow">
+    <!-- <div class="send-fee-select__arrow">
       <div class="send-fee-select__time">
         <time-icon />
         <span>6 sec</span>
       </div>
       <switch-arrow />
-    </div>
+    </div> -->
   </a>
 </template>
 
