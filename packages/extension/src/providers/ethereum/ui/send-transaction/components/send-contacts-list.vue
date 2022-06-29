@@ -4,7 +4,7 @@
     <div class="send-contacts-list__wrap" :class="{ show: showAccounts }">
       <custom-scrollbar
         class="send-contacts-list__scroll-area"
-        :settings="settings"
+        :settings="scrollSettings({ suppressScrollX: true })"
       >
         <div v-show="address.length == 0" class="send-contacts-list__buttons">
           <base-button
@@ -16,12 +16,13 @@
             :click="pasteFromClipboard"
           ></base-button>
         </div>
-        <h3>Recent</h3>
+        <h3>My Accounts</h3>
         <send-address-item
           v-for="(account, index) in accountInfo.activeAccounts"
           :key="index"
           :account="account"
-          :select-account="selectAccount"
+          :network="network"
+          v-bind="$attrs"
         ></send-address-item>
       </custom-scrollbar>
     </div>
@@ -39,24 +40,15 @@ import { PropType } from "vue";
 import SendAddressItem from "./send-address-item.vue";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 import BaseButton from "@action/components/base-button/index.vue";
-import { Account } from "@action/types/account";
 import { AccountsHeaderData } from "@action/types/account";
-
-const settings = {
-  suppressScrollY: false,
-  suppressScrollX: true,
-  wheelPropagation: false,
-};
-
+import scrollSettings from "@/libs/utils/scroll-settings";
+import { BaseNetwork } from "@/types/base-network";
+const emit = defineEmits<{
+  (e: "update:pasteFromClipboard"): void;
+}>();
 const props = defineProps({
   showAccounts: Boolean,
   close: {
-    type: Function,
-    default: () => {
-      return null;
-    },
-  },
-  selectAccount: {
     type: Function,
     default: () => {
       return null;
@@ -72,14 +64,14 @@ const props = defineProps({
       return "";
     },
   },
+  network: {
+    type: Object as PropType<BaseNetwork>,
+    default: () => ({}),
+  },
 });
 
 const close = () => {
   props.close(false);
-};
-
-const selectAccount = (account: Account) => {
-  props.selectAccount(account);
 };
 
 const sendToMyAddress = () => {
@@ -87,7 +79,7 @@ const sendToMyAddress = () => {
 };
 
 const pasteFromClipboard = () => {
-  console.log("pasteFromClipboard");
+  emit("update:pasteFromClipboard");
 };
 </script>
 

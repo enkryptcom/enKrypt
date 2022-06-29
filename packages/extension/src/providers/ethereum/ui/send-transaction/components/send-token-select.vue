@@ -6,7 +6,7 @@
     <div class="send-token-select__info">
       <h5>{{ token.name }}</h5>
       <p>
-        {{ token.amount }} <span>{{ token.symbol }}</span>
+        {{ token.balancef }} <span>{{ token.symbol }}</span>
       </p>
     </div>
 
@@ -25,7 +25,7 @@ export default {
 <script setup lang="ts">
 import { ref, PropType } from "vue";
 import SwitchArrow from "@action/icons/header/switch_arrow.vue";
-import { Token } from "@action/types/token";
+import { AssetsType } from "@/types/provider";
 
 let isOpen = ref(false);
 
@@ -37,7 +37,7 @@ const props = defineProps({
     },
   },
   token: {
-    type: Object as PropType<Token>,
+    type: Object as PropType<Partial<AssetsType>>,
     default: () => {
       return {};
     },

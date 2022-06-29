@@ -1,11 +1,19 @@
 <template>
   <a class="send-address-item" @click="select">
     <div class="send-address-item__info">
-      <img :src="getImgUrl(account.address)" alt="" />
+      <img :src="network.identicon(account.address)" />
 
       <div class="send-address-item__name">
         <h4>{{ account.name }}</h4>
-        <p>{{ $filters.replaceWithEllipsis(account.address, 6, 4) }}</p>
+        <p>
+          {{
+            $filters.replaceWithEllipsis(
+              network.displayAddress(account.address),
+              6,
+              4
+            )
+          }}
+        </p>
       </div>
     </div>
   </a>
@@ -19,29 +27,27 @@ export default {
 
 <script setup lang="ts">
 import { PropType } from "vue";
-import { Account } from "@action/types/account";
-
+import { KeyRecord } from "@enkryptcom/types";
+import { BaseNetwork } from "@/types/base-network";
+const emit = defineEmits<{
+  (e: "selected:account", address: string): void;
+}>();
 const props = defineProps({
+  network: {
+    type: Object as PropType<BaseNetwork>,
+    default: () => ({}),
+  },
   account: {
-    type: Object as PropType<Account>,
+    type: Object as PropType<KeyRecord>,
     default: () => {
       return {};
     },
   },
-  selectAccount: {
-    type: Function,
-    default: () => {
-      return null;
-    },
-  },
 });
 
-const getImgUrl = (address: string) => {
-  return "https://mewcard.mewapi.io/?address=" + address;
-};
-
 const select = () => {
-  props.selectAccount(props.account);
+  console.log(props.account.address);
+  emit("selected:account", props.account.address);
 };
 </script>
 

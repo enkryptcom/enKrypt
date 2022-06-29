@@ -15,7 +15,7 @@
       <custom-scrollbar
         ref="manageNetworkScrollRef"
         class="add-network__scroll-area"
-        :settings="settings"
+        :settings="scrollSettings({ suppressScrollX: true })"
         @ps-scroll-y="handleScroll"
       >
         <add-network-search
@@ -61,6 +61,7 @@ import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 import { NodeType } from "@/types/provider";
 import { getAllNetworks, POPULAR_NAMES } from "@/libs/utils/networks";
 import NetworksState from "@/libs/networks-state";
+import scrollSettings from "@/libs/utils/scroll-settings";
 
 interface NodeTypesWithActive extends NodeType {
   isActive: boolean;
@@ -69,12 +70,6 @@ interface NodeTypesWithActive extends NodeType {
 //Provided in packages/extension/src/ui/action/App.vue
 const setActiveNetworks: (() => Promise<void>) | undefined =
   inject("setActiveNetworks");
-
-const settings = {
-  suppressScrollY: false,
-  suppressScrollX: true,
-  wheelPropagation: false,
-};
 
 const networksState = new NetworksState();
 

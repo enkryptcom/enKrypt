@@ -7,34 +7,37 @@
         :is-send-token="isSendToken"
       ></send-header>
       <send-address-input
-        :input="inputAddress"
-        :toggle-select="toggleSelectContact"
+        ref="addressInput"
         :value="address"
+        :network="network"
+        @update:input-address="inputAddress"
+        @toggle:show-contacts="toggleSelectContact"
       ></send-address-input>
 
       <send-contacts-list
         :show-accounts="isOpenSelectContact"
         :close="toggleSelectContact"
-        :select-account="selectAccount"
-        :account-info="props.accountInfo"
+        :account-info="accountInfo"
         :address="address"
+        :network="network"
+        @selected:account="selectAccount"
+        @update:paste-from-clipboard="addressInput.pasteFromClipboard()"
       ></send-contacts-list>
 
       <send-token-select
         v-if="isSendToken"
-        :token="selectedToken"
+        :token="selectedAsset"
         :toggle-select="toggleSelectToken"
-        :network="props.network"
-        :account-info="props.accountInfo"
+        :network="network"
+        :account-info="accountInfo"
       ></send-token-select>
 
       <assets-select-list
         v-show="isOpenSelectToken"
-        :close="toggleSelectToken"
-        :select-token="selectToken"
         :is-send="true"
-        :network="props.network"
-        :account-info="props.accountInfo"
+        :assets="accountAssets"
+        @close="toggleSelectToken"
+        @update:select-asset="selectToken"
       ></assets-select-list>
 
       <send-nft-select
@@ -53,7 +56,7 @@
         v-if="isSendToken"
         :input="inputAmount"
         :value="amount"
-        :account-info="props.accountInfo"
+        :account-info="accountInfo"
       ></send-input-amount>
 
       <send-fee-select
@@ -111,20 +114,19 @@ import SendInputAmount from "./components/send-input-amount.vue";
 import SendFeeSelect from "./components/send-fee-select.vue";
 import TransactionFeeView from "@action/views/transaction-fee/index.vue";
 import BaseButton from "@action/components/base-button/index.vue";
-import { Account } from "@action/types/account";
-import { Token } from "@action/types/token";
 import { NFTItem } from "@action/types/nft";
 import { AccountsHeaderData } from "@action/types/account";
-import { NodeType } from "@/types/provider";
 import { fromWei, toBN, toWei } from "web3-utils";
 import { getPriorityFeeBasedOnType } from "@/providers/ethereum/libs/transaction/gas-utils";
 import { nft } from "@action/types/mock";
 import { GasPriceTypes } from "../../../../providers/ethereum/libs/transaction/types";
 import { GasFeeType } from "../../../../providers/ethereum/ui/types";
+import { EvmNetwork } from "../../types/evm-network";
+import { AssetsType } from "@/types/provider";
 
 const props = defineProps({
   network: {
-    type: Object as PropType<NodeType>,
+    type: Object as PropType<EvmNetwork>,
     default: () => ({}),
   },
   accountInfo: {
@@ -133,26 +135,28 @@ const props = defineProps({
   },
 });
 
+const addressInput = ref();
 const route = useRoute();
 const router = useRouter();
+const selected: string = route.params.id as string;
+const accountAssets = ref<AssetsType[]>([]);
+const selectedAsset = ref<AssetsType | Partial<AssetsType>>({
+  icon: props.network.icon,
+  balancef: "0.00",
+  name: "loading",
+});
+
 let web3: any;
 let isOpenSelectContact = ref<boolean>(false);
 let address = ref<string>("");
 let isOpenSelectToken = ref<boolean>(false);
-let selectedToken = ref({
-  name: "Ethereum",
-  symbol: "eth",
-  icon: "https://mpolev.ru/enkrypt/eth.png",
-  amount: 0,
-  price: 0,
-});
+
 let amount = ref<number>(0);
 let isOpenSelectFee = ref<boolean>(false);
 let isSendToken = ref(true);
 let selectedNft = ref(nft);
 let isOpenSelectNft = ref(false);
 
-const selected: string = route.params.id as string;
 const selectedFee = ref<GasPriceTypes>(GasPriceTypes.ECONOMY);
 
 const gasCostValues = ref<GasFeeType>({
@@ -248,6 +252,7 @@ const close = () => {
 };
 
 const inputAddress = (text: string) => {
+  console.log(text, "sdfdf");
   address.value = text;
 };
 
@@ -259,13 +264,13 @@ const toggleSelectToken = (open: boolean) => {
   isOpenSelectToken.value = open;
 };
 
-const selectAccount = (account: Account) => {
-  address.value = account.address;
+const selectAccount = (account: string) => {
+  address.value = account;
   isOpenSelectContact.value = false;
 };
 
-const selectToken = (token: Token) => {
-  selectedToken.value = token;
+const selectToken = (token: AssetsType) => {
+  selectedAsset.value = token;
   isOpenSelectToken.value = false;
 };
 
@@ -282,26 +287,31 @@ const selectFee = (type: GasPriceTypes) => {
   isOpenSelectFee.value = false;
 };
 
-const fetchToken = () => {
-  if (props.network.assetsHandler) {
-    props.network
-      .assetsHandler(
-        props.network,
-        props.accountInfo.selectedAccount?.address || ""
-      )
-      .then((_assets) => {
-        let token = _assets.find((asset) => asset.name === "Ethereum");
-        if (!token) token = _assets[0];
-
-        selectedToken.value = {
-          name: token.name as string,
-          symbol: token.symbol as string,
-          icon: token.icon as string,
-          amount: token.balancef as unknown as number,
-          price: token.balanceUSDf as unknown as number,
-        };
-      });
-  }
+const fetchAssets = () => {
+  props.network
+    .getAllTokenInfo(props.accountInfo.selectedAccount!.address)
+    .then((allAssets) => {
+      accountAssets.value = allAssets;
+      selectedAsset.value = allAssets[0];
+    });
+  // if (props.network.getAllTokenInfo) {
+  //   props.network
+  //     .assetsHandler(
+  //       props.network,
+  //       props.accountInfo.selectedAccount?.address || ""
+  //     )
+  //     .then((_assets) => {
+  //       let token = _assets.find((asset) => asset.name === "Ethereum");
+  //       if (!token) token = _assets[0];
+  //       selectedToken.value = {
+  //         name: token.name as string,
+  //         symbol: token.symbol as string,
+  //         icon: token.icon as string,
+  //         amount: token.balancef as unknown as number,
+  //         price: token.balanceUSDf as unknown as number,
+  //       };
+  //     });
+  // }
 };
 
 const getBaseFeePerGas = async () => {
@@ -340,7 +350,7 @@ const sendButtonTitle = () => {
 
   if (amount.value > 0)
     title =
-      "Send " + amount.value + " " + selectedToken.value.symbol.toUpperCase();
+      "Send " + amount.value + " " + selectedAsset.value?.symbol!.toUpperCase();
 
   if (!isSendToken.value) {
     title = "Send NFT";
@@ -362,7 +372,7 @@ const sendAction = () => {
       id: selected,
       fromAddress: props.accountInfo.selectedAccount?.address,
       address: address.value,
-      selectedToken: selectedToken.value.toString(),
+      selectedToken: selectedAsset.value?.toString(),
       amount: amount.value,
       isNft: isSendToken.value ? 0 : 1,
       selectedFee: selectedFee.value.toString(),
@@ -384,9 +394,9 @@ const selectItem = (item: NFTItem) => {
 };
 
 onMounted(async () => {
-  web3 = await new Web3(props.network.node);
-  await getPriorityFees();
-  fetchToken();
+  // web3 = await new Web3(props.network.node);
+  // await getPriorityFees();
+  fetchAssets();
 });
 </script>
 

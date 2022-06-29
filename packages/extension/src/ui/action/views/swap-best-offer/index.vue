@@ -15,7 +15,7 @@
         <custom-scrollbar
           ref="bestOfferScrollRef"
           class="swap-best-offer__scroll-area"
-          :settings="settings"
+          :settings="scrollSettings({ suppressScrollX: true })"
           :style="{ maxHeight: height + 'px' }"
           @ps-scroll-y="handleScroll"
         >
@@ -76,16 +76,13 @@ import SendFeeSelect from "@/providers/ethereum/ui/send-transaction/components/s
 import TransactionFeeView from "@action/views/transaction-fee/index.vue";
 import { TransactionFee } from "@action/types/fee";
 import { recommendedFee } from "@action/types/mock";
+import scrollSettings from "@/libs/utils/scroll-settings";
 
 const router = useRouter();
 const route = useRoute();
 
 let isInitiated = ref(false);
-const settings = {
-  suppressScrollY: false,
-  suppressScrollX: true,
-  wheelPropagation: false,
-};
+
 let bestOfferScrollRef = ref<ComponentPublicInstance<HTMLElement>>();
 let scrollProgress = ref(0);
 let height = ref(460);

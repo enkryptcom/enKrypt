@@ -3,7 +3,7 @@
     <custom-scrollbar
       v-if="!!NFTs"
       class="network-nfts__scroll-area"
-      :settings="settings"
+      :settings="scrollSettings({ suppressScrollX: true })"
     >
       <div class="network-nfts">
         <network-nfts-favorite
@@ -53,6 +53,8 @@ import { NodeType } from "@/types/provider";
 import { AccountsHeaderData } from "../../types/account";
 import { NFTCollection, NFTItem } from "@/types/nft";
 import NFTState from "@/libs/nft-state";
+import scrollSettings from "@/libs/utils/scroll-settings";
+
 const nftState = new NFTState();
 const props = defineProps({
   network: {
@@ -118,11 +120,7 @@ const updateNFTInfo = async () => {
 const route = useRoute();
 
 const selected: string = route.params.id as string;
-const settings = {
-  suppressScrollY: false,
-  suppressScrollX: true,
-  wheelPropagation: false,
-};
+
 const favClicked = async (isFav: boolean, item: NFTItem) => {
   if (isFav) {
     await nftState.setFavoriteNFT(item.contract, item.id);

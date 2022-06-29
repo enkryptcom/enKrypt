@@ -15,6 +15,7 @@
       <router-link
         :to="{
           name: 'send-transaction',
+          params: { id: !!selected ? selected : null },
         }"
         class="network-activity__action-item"
       >
@@ -25,6 +26,7 @@
         class="network-activity__action-item"
         :to="{
           name: 'swap',
+          params: { id: !!selected ? selected : null },
         }"
       >
         <Swap />Swap
@@ -44,7 +46,9 @@ import Deposit from "@action/icons/actions/deposit.vue";
 import Buy from "@action/icons/actions/buy.vue";
 import Send from "@action/icons/actions/send.vue";
 import Swap from "@action/icons/actions/swap.vue";
-
+import { useRoute } from "vue-router";
+const route = useRoute();
+const selected: string = route.params.id as string;
 defineProps({
   depositAction: {
     type: Function,
