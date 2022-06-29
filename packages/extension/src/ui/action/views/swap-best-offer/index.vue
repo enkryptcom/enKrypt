@@ -72,7 +72,7 @@ import SwapBestOfferBlock from "./components/swap-best-offer-block/index.vue";
 import SwapInitiated from "@action/views/swap-initiated/index.vue";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 import BestOfferError from "./components/swap-best-offer-block/components/best-offer-error.vue";
-import SendFeeSelect from "@action/views/send-transaction/components/send-fee-select.vue";
+import SendFeeSelect from "@/providers/ethereum/ui/send-transaction/components/send-fee-select.vue";
 import TransactionFeeView from "@action/views/transaction-fee/index.vue";
 import { TransactionFee } from "@action/types/fee";
 import { recommendedFee } from "@action/types/mock";

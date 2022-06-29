@@ -75,7 +75,10 @@ import DomainState from "@/libs/domain-state";
 import { NodeType } from "@/types/provider";
 import { getAllNetworks } from "@/libs/utils/networks";
 import { ethereum, recommendedFee, nft } from "@action/types/mock";
-import { EthereumTransaction } from "@/providers/ethereum/libs/transaction/types";
+import {
+  EthereumTransaction,
+  GasPriceTypes,
+} from "@/providers/ethereum/libs/transaction/types";
 import Web3 from "web3";
 import Transaction from "@/providers/ethereum/libs/transaction/";
 import { toWei, numberToHex, toChecksumAddress, toBN } from "web3-utils";
@@ -136,7 +139,7 @@ const sendAction = async () => {
   const tx = await new Transaction(txObj, web3);
 
   await tx
-    .getFinalizedTransaction({ gasPriceType: selectedFee })
+    .getFinalizedTransaction({ gasPriceType: GasPriceTypes.ECONOMY })
     .then(async (finalizedTx) => {
       const msgHash = bufferToHex(finalizedTx.getMessageToSign(true));
       const account = await KeyRing.getAccount(fromAddress);

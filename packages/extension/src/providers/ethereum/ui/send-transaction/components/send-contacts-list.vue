@@ -40,7 +40,7 @@ import SendAddressItem from "./send-address-item.vue";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import { Account } from "@action/types/account";
-import { AccountsHeaderData } from "../../../types/account";
+import { AccountsHeaderData } from "@action/types/account";
 
 const settings = {
   suppressScrollY: false,
