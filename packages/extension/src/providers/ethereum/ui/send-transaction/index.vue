@@ -27,9 +27,7 @@
       <send-token-select
         v-if="isSendToken"
         :token="selectedAsset"
-        :toggle-select="toggleSelectToken"
-        :network="network"
-        :account-info="accountInfo"
+        @update:toggle-token-select="toggleSelectToken"
       ></send-token-select>
 
       <assets-select-list
@@ -54,9 +52,11 @@
 
       <send-input-amount
         v-if="isSendToken"
-        :input="inputAmount"
-        :value="amount"
-        :account-info="accountInfo"
+        :amount="amount"
+        :fiat-value="fiatValue"
+        :has-enough-balance="hasEnoughBalance"
+        @update:input-amount="inputAmount"
+        @update:input-set-max="setMaxValue"
       ></send-input-amount>
 
       <send-fee-select
@@ -83,7 +83,7 @@
         </div>
         <div class="send-transaction__buttons-send">
           <base-button
-            :title="sendButtonTitle()"
+            :title="sendButtonTitle"
             :click="sendAction"
             :disabled="isDisabled"
           />
@@ -93,14 +93,7 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "SendTransaction",
-};
-</script>
-
 <script setup lang="ts">
-import Web3 from "web3";
 import { ref, onMounted, PropType, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import SendHeader from "./components/send-header.vue";
@@ -116,14 +109,15 @@ import TransactionFeeView from "@action/views/transaction-fee/index.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import { NFTItem } from "@action/types/nft";
 import { AccountsHeaderData } from "@action/types/account";
-import { fromWei, toBN, toWei } from "web3-utils";
+import { toBN, toWei } from "web3-utils";
 import { getPriorityFeeBasedOnType } from "@/providers/ethereum/libs/transaction/gas-utils";
 import { nft } from "@action/types/mock";
 import { GasPriceTypes } from "../../../../providers/ethereum/libs/transaction/types";
 import { GasFeeType } from "../../../../providers/ethereum/ui/types";
 import { EvmNetwork } from "../../types/evm-network";
 import { AssetsType } from "@/types/provider";
-
+import BigNumber from "bignumber.js";
+import { defaultGasCostVals } from "../common/default-vals";
 const props = defineProps({
   network: {
     type: Object as PropType<EvmNetwork>,
@@ -143,7 +137,21 @@ const accountAssets = ref<AssetsType[]>([]);
 const selectedAsset = ref<AssetsType | Partial<AssetsType>>({
   icon: props.network.icon,
   balancef: "0.00",
+  balanceUSDf: "0.00",
   name: "loading",
+});
+const amount = ref<string>("0.00");
+const fiatValue = computed(() => {
+  return new BigNumber(selectedAsset.value.balanceUSDf || "0")
+    .div(selectedAsset.value.balancef || "1")
+    .toString();
+});
+const hasEnoughBalance = computed(() => {
+  return new BigNumber(selectedAsset.value.balancef || "0").gte(amount.value);
+});
+
+onMounted(async () => {
+  fetchAssets();
 });
 
 let web3: any;
@@ -151,7 +159,6 @@ let isOpenSelectContact = ref<boolean>(false);
 let address = ref<string>("");
 let isOpenSelectToken = ref<boolean>(false);
 
-let amount = ref<number>(0);
 let isOpenSelectFee = ref<boolean>(false);
 let isSendToken = ref(true);
 let selectedNft = ref(nft);
@@ -159,100 +166,16 @@ let isOpenSelectNft = ref(false);
 
 const selectedFee = ref<GasPriceTypes>(GasPriceTypes.ECONOMY);
 
-const gasCostValues = ref<GasFeeType>({
-  [GasPriceTypes.ECONOMY]: {
-    nativeValue: "0",
-    fiatValue: "0.00",
-    nativeSymbol: "ETH",
-    fiatSymbol: "USD",
-  },
-  [GasPriceTypes.REGULAR]: {
-    nativeValue: "0",
-    fiatValue: "0.00",
-    nativeSymbol: "ETH",
-    fiatSymbol: "USD",
-  },
-  [GasPriceTypes.FAST]: {
-    nativeValue: "0",
-    fiatValue: "0.00",
-    nativeSymbol: "ETH",
-    fiatSymbol: "USD",
-  },
-  [GasPriceTypes.FASTEST]: {
-    nativeValue: "0",
-    fiatValue: "0.00",
-    nativeSymbol: "ETH",
-    fiatSymbol: "USD",
-  },
-});
-
-const getPriorityFees = async () => {
-  const gasPrice = await getGasPrice();
-  const gasLimit = await getGasLimit();
-  const baseFeePerGas = await getBaseFeePerGas();
-
-  gasCostValues.value = {
-    [GasPriceTypes.ECONOMY]: {
-      nativeValue: await getFees(
-        GasPriceTypes.ECONOMY,
-        gasPrice,
-        gasLimit,
-        baseFeePerGas
-      ).toString(),
-      fiatValue: fromWei(
-        await getFees(GasPriceTypes.ECONOMY, gasPrice, gasLimit, baseFeePerGas)
-      ).toString(),
-      nativeSymbol: props.network.currencyName,
-      fiatSymbol: "USD",
-    },
-    [GasPriceTypes.REGULAR]: {
-      nativeValue: await getFees(
-        GasPriceTypes.REGULAR,
-        gasPrice,
-        gasLimit,
-        baseFeePerGas
-      ).toString(),
-      fiatValue: fromWei(
-        await getFees(GasPriceTypes.REGULAR, gasPrice, gasLimit, baseFeePerGas)
-      ).toString(),
-      nativeSymbol: props.network.currencyName,
-      fiatSymbol: "USD",
-    },
-    [GasPriceTypes.FAST]: {
-      nativeValue: await getFees(
-        GasPriceTypes.REGULAR,
-        gasPrice,
-        gasLimit,
-        baseFeePerGas
-      ).toString(),
-      fiatValue: fromWei(
-        await getFees(GasPriceTypes.FAST, gasPrice, gasLimit, baseFeePerGas)
-      ).toString(),
-      nativeSymbol: props.network.currencyName,
-      fiatSymbol: "USD",
-    },
-    [GasPriceTypes.FASTEST]: {
-      nativeValue: await getFees(
-        GasPriceTypes.FASTEST,
-        gasPrice,
-        gasLimit,
-        baseFeePerGas
-      ).toString(),
-      fiatValue: fromWei(
-        await getFees(GasPriceTypes.FASTEST, gasPrice, gasLimit, baseFeePerGas)
-      ).toString(),
-      nativeSymbol: props.network.currencyName,
-      fiatSymbol: "USD",
-    },
-  };
-};
+const gasCostValues = ref<GasFeeType>(defaultGasCostVals);
 
 const close = () => {
   router.go(-1);
 };
 
+const setMaxValue = () => {
+  amount.value = selectedAsset.value.balancef || "0.00";
+};
 const inputAddress = (text: string) => {
-  console.log(text, "sdfdf");
   address.value = text;
 };
 
@@ -260,8 +183,8 @@ const toggleSelectContact = (open: boolean) => {
   isOpenSelectContact.value = open;
 };
 
-const toggleSelectToken = (open: boolean) => {
-  isOpenSelectToken.value = open;
+const toggleSelectToken = () => {
+  isOpenSelectToken.value = !isOpenSelectToken.value;
 };
 
 const selectAccount = (account: string) => {
@@ -274,8 +197,8 @@ const selectToken = (token: AssetsType) => {
   isOpenSelectToken.value = false;
 };
 
-const inputAmount = (number: number) => {
-  amount.value = number;
+const inputAmount = (inputAmount: string) => {
+  amount.value = inputAmount;
 };
 
 const toggleSelectFee = () => {
@@ -294,73 +217,21 @@ const fetchAssets = () => {
       accountAssets.value = allAssets;
       selectedAsset.value = allAssets[0];
     });
-  // if (props.network.getAllTokenInfo) {
-  //   props.network
-  //     .assetsHandler(
-  //       props.network,
-  //       props.accountInfo.selectedAccount?.address || ""
-  //     )
-  //     .then((_assets) => {
-  //       let token = _assets.find((asset) => asset.name === "Ethereum");
-  //       if (!token) token = _assets[0];
-  //       selectedToken.value = {
-  //         name: token.name as string,
-  //         symbol: token.symbol as string,
-  //         icon: token.icon as string,
-  //         amount: token.balancef as unknown as number,
-  //         price: token.balanceUSDf as unknown as number,
-  //       };
-  //     });
-  // }
 };
 
-const getBaseFeePerGas = async () => {
-  return await web3.eth.getBlockNumber().then((blockNum: any) => {
-    return web3.eth
-      .getBlock(blockNum, false)
-      .then((block: any) => block.baseFeePerGas);
-  });
-};
-
-const getGasPrice = async () => {
-  return await web3.eth.getGasPrice();
-};
-
-const getGasLimit = async () => {
-  return await web3.eth.estimateGas({
-    from: props.accountInfo.selectedAccount?.address,
-  });
-};
-
-const getFees = async (
-  priority: any,
-  price: string,
-  limit: number,
-  base: number
-) => {
-  return getPriorityFeeBasedOnType(
-    base?.toString() as string,
-    toBN(price).mul(toBN(limit)).toString(),
-    priority
-  );
-};
-
-const sendButtonTitle = () => {
+const sendButtonTitle = computed(() => {
   let title = "Send";
-
-  if (amount.value > 0)
+  if (parseInt(amount.value) > 0)
     title =
       "Send " + amount.value + " " + selectedAsset.value?.symbol!.toUpperCase();
-
   if (!isSendToken.value) {
     title = "Send NFT";
   }
-
   return title;
-};
+});
 
 const isDisabled = computed(() => {
-  if (amount.value === 0) return true;
+  if (parseInt(amount.value) === 0) return true;
   const amountInWei = toWei(amount.value.toString());
   return !toBN(amountInWei).gt(toBN(0));
 });
@@ -392,12 +263,6 @@ const selectItem = (item: NFTItem) => {
   selectedNft.value = item;
   isOpenSelectNft.value = false;
 };
-
-onMounted(async () => {
-  // web3 = await new Web3(props.network.node);
-  // await getPriorityFees();
-  fetchAssets();
-});
 </script>
 
 <style lang="less" scoped>

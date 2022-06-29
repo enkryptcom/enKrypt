@@ -148,6 +148,7 @@ import { ProviderRequestOptions } from "@/types/provider";
 import BigNumber from "bignumber.js";
 import { GasFeeType } from "./types";
 import MarketData from "@/libs/market-data";
+import { defaultGasCostVals } from "./common/default-vals";
 
 const isOpenSelectFee = ref(false);
 const providerVerifyTransactionScrollRef = ref<ComponentPublicInstance>();
@@ -159,32 +160,7 @@ const network = ref<EvmNetwork>(
   getNetworkByName(DEFAULT_NETWORK_NAME) as EvmNetwork
 );
 const marketdata = new MarketData();
-const gasCostValues = ref<GasFeeType>({
-  [GasPriceTypes.ECONOMY]: {
-    nativeValue: "0",
-    fiatValue: "0.00",
-    nativeSymbol: "ETH",
-    fiatSymbol: "USD",
-  },
-  [GasPriceTypes.REGULAR]: {
-    nativeValue: "0",
-    fiatValue: "0.00",
-    nativeSymbol: "ETH",
-    fiatSymbol: "USD",
-  },
-  [GasPriceTypes.FAST]: {
-    nativeValue: "0",
-    fiatValue: "0.00",
-    nativeSymbol: "ETH",
-    fiatSymbol: "USD",
-  },
-  [GasPriceTypes.FASTEST]: {
-    nativeValue: "0",
-    fiatValue: "0.00",
-    nativeSymbol: "ETH",
-    fiatSymbol: "USD",
-  },
-});
+const gasCostValues = ref<GasFeeType>(defaultGasCostVals);
 const account = ref<KeyRecord>({
   name: "",
   address: "",

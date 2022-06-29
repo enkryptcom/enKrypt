@@ -1,84 +1,61 @@
 <template>
   <div class="send-input-amount" :class="{ focus: isFocus }">
     <input
-      type="text"
+      v-model="amount"
+      type="number"
       placeholder="0"
-      :style="{ color: hasEnoughBalance ? 'red' : 'black' }"
-      :value="!value ? 0 : value"
-      @input="changeValue"
+      :style="{ color: !hasEnoughBalance ? 'red' : 'black' }"
       @focus="changeFocus"
       @blur="changeFocus"
     />
 
     <div class="send-input-amount__fiat">
       <switch-arrow-icon></switch-arrow-icon>
-      <span>{{ $filters.formatFiatValue(0).value }}</span>
+      <span>${{ $filters.formatFiatValue(fiatEquivalent).value }}</span>
     </div>
 
-    <a class="send-input-amount__max" @click="maxAction">Max</a>
+    <a class="send-input-amount__max" @click="emit('update:inputSetMax')"
+      >Max</a
+    >
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "SendInputAmount",
-};
-</script>
-
 <script setup lang="ts">
-import { ref, computed, PropType } from "vue";
+import { ref, computed } from "vue";
 import SwitchArrowIcon from "@action/icons/send/switch-arrow-icon.vue";
-import type { AccountsHeaderData } from "@action/types/account";
-import { toBN, toWei } from "web3-utils";
+import BigNumber from "bignumber.js";
 
-let isFocus = ref(false);
+const emit = defineEmits<{
+  (e: "update:inputAmount", address: string): void;
+  (e: "update:inputSetMax"): void;
+}>();
+
+const isFocus = ref(false);
 
 const props = defineProps({
-  input: {
-    type: Function,
-    default: () => {
-      return null;
-    },
+  hasEnoughBalance: {
+    type: Boolean,
+    default: false,
   },
-  value: {
-    type: Number,
-    default: () => {
-      return 0;
-    },
+  fiatValue: {
+    type: String,
+    default: "1",
   },
-  accountInfo: {
-    type: Object as PropType<AccountsHeaderData>,
-    default: () => ({}),
+  amount: {
+    type: String,
+    default: "0",
   },
 });
-
-const changeValue = (e: any) => {
-  props.input(e.target.value);
-};
+const fiatEquivalent = computed(() => {
+  return new BigNumber(props.fiatValue).times(props.amount).toString();
+});
+const amount = computed({
+  get: () => props.amount,
+  set: (value) => emit("update:inputAmount", value),
+});
 
 const changeFocus = () => {
   isFocus.value = !isFocus.value;
-};
-
-const hasEnoughBalance = computed(() => {
-  const currAddress = props.accountInfo.selectedAccount?.address;
-  const addresses = props.accountInfo.activeAccounts;
-  const activeBalances = props.accountInfo.activeBalances;
-  const index = addresses.findIndex((a) => {
-    return a.address === currAddress;
-  });
-
-  const balance = activeBalances[index];
-  if (balance === "~") return false;
-  if (toBN(toWei(props.value.toString())).gte(toBN(toWei(balance)))) {
-    return true;
-  } else {
-    return false;
-  }
-});
-
-const maxAction = () => {
-  console.log(maxAction);
 };
 </script>
 
@@ -119,6 +96,14 @@ const maxAction = () => {
     outline: none;
     padding: 0;
     caret-color: @primary;
+  }
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input[type="number"] {
+    -moz-appearance: textfield;
   }
 
   &__fiat {

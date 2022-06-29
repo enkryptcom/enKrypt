@@ -1,5 +1,5 @@
 <template>
-  <a class="send-token-select" @click="open">
+  <a class="send-token-select" @click="emit('update:toggleTokenSelect')">
     <div class="send-token-select__image">
       <img :src="token.icon" alt="" />
     </div>
@@ -23,19 +23,13 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { ref, PropType } from "vue";
+import { PropType } from "vue";
 import SwitchArrow from "@action/icons/header/switch_arrow.vue";
 import { AssetsType } from "@/types/provider";
-
-let isOpen = ref(false);
-
-const props = defineProps({
-  toggleSelect: {
-    type: Function,
-    default: () => {
-      return null;
-    },
-  },
+const emit = defineEmits<{
+  (e: "update:toggleTokenSelect"): void;
+}>();
+defineProps({
   token: {
     type: Object as PropType<Partial<AssetsType>>,
     default: () => {
@@ -43,11 +37,6 @@ const props = defineProps({
     },
   },
 });
-
-const open = () => {
-  isOpen.value = !isOpen.value;
-  props.toggleSelect(isOpen);
-};
 </script>
 
 <style lang="less">

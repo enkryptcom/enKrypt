@@ -1,5 +1,8 @@
 <template>
-  <a class="send-address-item" @click="select">
+  <a
+    class="send-address-item"
+    @click="emit('selected:account', account.address)"
+  >
     <div class="send-address-item__info">
       <img :src="network.identicon(account.address)" />
 
@@ -32,7 +35,7 @@ import { BaseNetwork } from "@/types/base-network";
 const emit = defineEmits<{
   (e: "selected:account", address: string): void;
 }>();
-const props = defineProps({
+defineProps({
   network: {
     type: Object as PropType<BaseNetwork>,
     default: () => ({}),
@@ -44,11 +47,6 @@ const props = defineProps({
     },
   },
 });
-
-const select = () => {
-  console.log(props.account.address);
-  emit("selected:account", props.account.address);
-};
 </script>
 
 <style lang="less">

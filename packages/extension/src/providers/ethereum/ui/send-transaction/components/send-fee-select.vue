@@ -1,5 +1,9 @@
 <template>
-  <a class="send-fee-select" :class="{ swap: inSwap }" @click="open">
+  <a
+    class="send-fee-select"
+    :class="{ swap: inSwap }"
+    @click="emit('openPopup')"
+  >
     <div class="send-fee-select__value">
       <p class="send-fee-select__value-fiat">
         Fee: {{ $filters.formatFiatValue(fee.fiatValue).value }}
@@ -63,14 +67,6 @@ defineProps({
     },
   },
 });
-
-const open = () => {
-  emit("openPopup");
-};
-
-// const balance = computed(() => {
-//   return fromWei(props.fee.price.totalFee.toString());
-// });
 </script>
 
 <style lang="less">

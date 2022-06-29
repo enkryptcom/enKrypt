@@ -6,7 +6,7 @@
         class="send-contacts-list__scroll-area"
         :settings="scrollSettings({ suppressScrollX: true })"
       >
-        <div v-show="address.length == 0" class="send-contacts-list__buttons">
+        <div class="send-contacts-list__buttons">
           <base-button
             title="Send to my address"
             :click="sendToMyAddress"
@@ -57,12 +57,6 @@ const props = defineProps({
   accountInfo: {
     type: Object as PropType<AccountsHeaderData>,
     default: () => ({}),
-  },
-  address: {
-    type: String,
-    default: () => {
-      return "";
-    },
   },
   network: {
     type: Object as PropType<BaseNetwork>,
