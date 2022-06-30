@@ -25,12 +25,6 @@
   </a>
 </template>
 
-<script lang="ts">
-export default {
-  name: "SendFeeSelect",
-};
-</script>
-
 <script setup lang="ts">
 import { PropType } from "vue";
 import SwitchArrow from "@action/icons/header/switch_arrow.vue";

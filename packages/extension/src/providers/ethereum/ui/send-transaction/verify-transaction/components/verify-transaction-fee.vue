@@ -10,12 +10,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "VerifyTransactionFee",
-};
-</script>
-
 <script setup lang="ts">
 import { PropType } from "vue";
 import { GasFeeInfo } from "../../../types";

@@ -9,12 +9,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "VerifyTransactionNetwork",
-};
-</script>
-
 <script setup lang="ts">
 import { PropType } from "vue";
 import { BaseNetwork } from "@/types/base-network";

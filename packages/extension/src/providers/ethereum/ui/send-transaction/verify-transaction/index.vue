@@ -54,12 +54,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "VerifyTransaction",
-};
-</script>
-
 <script setup lang="ts">
 import { ref, PropType, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";

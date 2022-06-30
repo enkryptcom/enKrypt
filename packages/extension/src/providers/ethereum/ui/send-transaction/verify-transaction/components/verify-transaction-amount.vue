@@ -12,12 +12,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "VerifyTransactionAmount",
-};
-</script>
-
 <script setup lang="ts">
 import { ToTokenData } from "@/ui/action/types/token";
 import { PropType } from "vue";

@@ -29,12 +29,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "SendContactsList",
-};
-</script>
-
 <script setup lang="ts">
 import { PropType } from "vue";
 import SendAddressItem from "./send-address-item.vue";

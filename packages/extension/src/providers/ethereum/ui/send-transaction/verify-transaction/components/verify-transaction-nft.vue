@@ -12,12 +12,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "VerifyTransactionNft",
-};
-</script>
-
 <script setup lang="ts">
 import { PropType } from "vue";
 import { NFTItem } from "@action/types/nft";

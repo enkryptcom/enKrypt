@@ -21,12 +21,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "SendHeader",
-};
-</script>
-
 <script setup lang="ts">
 import { ref } from "vue";
 import CloseIcon from "@action/icons/common/close-icon.vue";

@@ -23,12 +23,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "VerifyTransactionAccount",
-};
-</script>
-
 <script setup lang="ts">
 import { BaseNetwork } from "@/types/base-network";
 import { PropType } from "vue";

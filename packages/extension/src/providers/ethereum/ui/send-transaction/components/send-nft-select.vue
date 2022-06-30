@@ -20,12 +20,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "SendNftSelect",
-};
-</script>
-
 <script setup lang="ts">
 import { ref, PropType } from "vue";
 import SwitchArrow from "@action/icons/header/switch_arrow.vue";
