@@ -13,6 +13,7 @@ const etcOptions: EvmNetworkOptions = {
   node: "wss://www.ethercluster.com/ws-etc",
   icon: require("./icons/etc.svg"),
   gradient: "#53CBC9",
+  basePath: "m/44'/61'/0'/0",
   coingeckoID: "ethereum-classic",
 };
 

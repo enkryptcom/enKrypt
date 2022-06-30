@@ -14,21 +14,18 @@ export default {
 <script setup lang="ts">
 import { PropType } from "vue";
 import { AssetsType } from "@/types/provider";
+const emit = defineEmits<{
+  (e: "update:selectAsset", asset: AssetsType): void;
+}>();
 const props = defineProps({
   token: {
     type: Object as PropType<AssetsType>,
     default: () => ({}),
   },
-  selectToken: {
-    type: Function,
-    default: () => {
-      return null;
-    },
-  },
 });
 
 const select = () => {
-  props.selectToken(props.token);
+  emit("update:selectAsset", props.token);
 };
 </script>
 

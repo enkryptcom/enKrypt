@@ -8,10 +8,6 @@
         :selected="(route.params.id as string)"
         :set-network="setNetwork"
       />
-      <br />
-      <a href="javascript:void(0);" @click="openCreate()">
-        to Create / Restore
-      </a>
       <div class="app__menu-footer">
         <a class="app__menu-add" @click="addNetworkToggle()">
           <add-icon />
@@ -19,13 +15,16 @@
         </a>
 
         <div>
-          <a class="app__menu-link">
-            <hold-icon />
-          </a>
-
-          <a class="app__menu-link" @click="settingsToggle()">
-            <settings-icon />
-          </a>
+          <tooltip text="Lock Enkrypt">
+            <a class="app__menu-link">
+              <hold-icon />
+            </a>
+          </tooltip>
+          <tooltip text="Settings">
+            <a class="app__menu-link" @click="settingsToggle()">
+              <settings-icon />
+            </a>
+          </tooltip>
         </div>
       </div>
     </div>
@@ -77,9 +76,8 @@ import SettingsIcon from "./icons/common/settings-icon.vue";
 import HoldIcon from "./icons/common/hold-icon.vue";
 import AddNetwork from "./views/add-network/index.vue";
 import Settings from "./views/settings/index.vue";
+import Tooltip from "./components/tooltip/index.vue";
 import { useRouter, useRoute } from "vue-router";
-import { WindowPromise } from "@/libs/window-promise";
-// import { NodeType } from "@/types/provider";
 import { BaseNetwork } from "@/types/base-network";
 import {
   getAllNetworks,
@@ -97,6 +95,7 @@ import { InternalMethods } from "@/types/messenger";
 import NetworksState from "@/libs/networks-state";
 import openOnboard from "@/libs/utils/open-onboard";
 import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
+import { fromBase } from "@/libs/utils/units";
 
 const domainState = new DomainState();
 const networksState = new NetworksState();
@@ -122,10 +121,15 @@ const settingsShow = ref(false);
 
 const setActiveNetworks = async () => {
   const activeNetworkNames = await networksState.getActiveNetworkNames();
+  const allNetworks = getAllNetworks();
+  const networksToShow: BaseNetwork[] = [];
 
-  networks.value = getAllNetworks().filter(({ name }) =>
-    activeNetworkNames.includes(name)
-  );
+  activeNetworkNames.forEach((name) => {
+    const network = allNetworks.find((network) => network.name === name);
+    if (network !== undefined) networksToShow.push(network);
+  });
+
+  networks.value = networksToShow;
 
   if (!networks.value.includes(currentNetwork.value)) {
     setNetwork(networks.value[0]);
@@ -223,10 +227,12 @@ const setNetwork = async (network: BaseNetwork) => {
     try {
       const api = await network.api();
       const activeBalancePromises = activeAccounts.map((acc) =>
-        api.getBaseBalance(acc.address)
+        api.getBalance(acc.address)
       );
       Promise.all(activeBalancePromises).then((balances) => {
-        accountHeaderData.value.activeBalances = balances;
+        accountHeaderData.value.activeBalances = balances.map((bal) =>
+          fromBase(bal, network.decimals)
+        );
       });
     } catch (e) {
       console.error(e);
@@ -266,15 +272,6 @@ const showNetworkMenu = () => {
       route.name == "dapps")
   );
 };
-const openCreate = () => {
-  const windowPromise = new WindowPromise();
-  windowPromise
-    .getResponse("onboard.html", JSON.stringify({ info: "test" }))
-    .then(({ error }) => {
-      console.error(error);
-    });
-};
-
 const searchInput = (text: string) => {
   console.log(text);
 };
@@ -342,11 +339,12 @@ body {
       color: @primaryLabel;
       text-decoration: none;
       cursor: pointer;
+      border-radius: 10px;
+      transition: background 300ms ease-in-out;
 
       &.active,
       &:hover {
         background: @black007;
-        border-radius: 10px;
       }
 
       svg {
@@ -361,11 +359,12 @@ body {
       text-decoration: none;
       cursor: pointer;
       font-size: 0;
+      border-radius: 10px;
+      transition: background 300ms ease-in-out;
 
       &.active,
       &:hover {
         background: @black007;
-        border-radius: 10px;
       }
     }
   }

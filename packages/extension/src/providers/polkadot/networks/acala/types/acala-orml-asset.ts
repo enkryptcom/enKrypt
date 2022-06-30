@@ -3,18 +3,20 @@ import { ApiPromise } from "@polkadot/api";
 import { OrmlTokensAccountData } from "@acala-network/types/interfaces/types-lookup";
 import { fromBase } from "@/libs/utils/units";
 
+type AssetType =
+  | "token"
+  | "foreignAsset"
+  | "stableAssetPoolToken"
+  | "liquidCrowdloan";
+
 interface AcalaOrmlAssetOptions extends BaseTokenOptions {
-  assetType:
-    | "token"
-    | "foreignAsset"
-    | "stableAssetPoolToken"
-    | "liquidCrowdloan";
+  assetType: AssetType;
   lookupValue: string | number;
 }
 
 export class AcalaOrmlAsset extends BaseToken {
-  private assetType: string;
-  private lookupValue: string | number;
+  public assetType: AssetType;
+  public lookupValue: string | number;
 
   constructor(options: AcalaOrmlAssetOptions) {
     super(options);

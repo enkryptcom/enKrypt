@@ -1,6 +1,9 @@
 <template>
   <div class="container">
-    <custom-scrollbar class="network-assets__scroll-area" :settings="settings">
+    <custom-scrollbar
+      class="network-assets__scroll-area"
+      :settings="scrollSettings({ suppressScrollX: true })"
+    >
       <div v-if="!!selected" class="network-assets">
         <network-activity-total
           :crypto-amount="cryptoAmount"
@@ -42,6 +45,8 @@ import { AssetsType } from "@/types/provider";
 import { AccountsHeaderData } from "../../types/account";
 import accountInfo from "@action/composables/account-info";
 import { BaseNetwork } from "@/types/base-network";
+import scrollSettings from "@/libs/utils/scroll-settings";
+
 const route = useRoute();
 const props = defineProps({
   network: {
@@ -61,12 +66,6 @@ const { cryptoAmount, fiatAmount } = accountInfo(
 );
 const selected: string = route.params.id as string;
 
-const settings = {
-  suppressScrollY: false,
-  suppressScrollX: true,
-  wheelPropagation: false,
-};
-
 const depositAction = () => {
   console.log("depositAction");
 };
@@ -83,17 +82,6 @@ const updateAssets = () => {
   props.network
     .getAllTokenInfo(props.accountInfo.selectedAccount?.address || "")
     .then((_assets) => (assets.value = _assets));
-  // props.network
-  // if (props.network.assetsHandler) {
-  //   props.network
-  //     .assetsHandler(
-  //       props.network,
-  //       props.accountInfo.selectedAccount?.address || ""
-  //     )
-  //     .then((_assets) => {
-  //       assets.value = _assets;
-  //     });
-  // }
 };
 watch([props.network, props.accountInfo], updateAssets);
 onMounted(() => {

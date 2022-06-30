@@ -3,7 +3,8 @@
     <div class="modal-sign__overlay" @click="close()"></div>
     <div class="modal-sign__wrap">
       <div class="modal-sign__header">
-        <h3>Confirm with password</h3>
+        <h3 v-if="isUnlock">Unlock with password</h3>
+        <h3 v-else>Confirm with password</h3>
 
         <a class="modal-sign__close" @click="close()">
           <close-icon />
@@ -16,7 +17,11 @@
           @update:value="passwordChanged"
           @keyup.enter="unlock"
         />
-        <base-button title="Confirm" :click="unlock" :disabled="isDisabled" />
+        <base-button
+          :title="buttonTitle()"
+          :click="unlock"
+          :disabled="isDisabled"
+        />
 
         <base-button
           title="I forgot my password"
@@ -47,7 +52,7 @@ const isDisabled = computed(() => {
 });
 const isError = ref(false);
 
-defineProps({
+const props = defineProps({
   close: {
     type: Function,
     default: () => ({}),
@@ -60,11 +65,25 @@ defineProps({
     type: Function,
     default: () => ({}),
   },
+  isUnlock: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const passwordChanged = (text: string) => {
   password.value = text;
   isError.value = false;
+};
+
+const buttonTitle = () => {
+  let title = "Confirm";
+
+  if (props.isUnlock) {
+    title = "Unlock";
+  }
+
+  return title;
 };
 </script>
 
@@ -101,6 +120,7 @@ const passwordChanged = (text: string) => {
     border-radius: 8px;
     cursor: pointer;
     font-size: 0;
+    transition: background 300ms ease-in-out;
 
     &:hover {
       background: @black007;

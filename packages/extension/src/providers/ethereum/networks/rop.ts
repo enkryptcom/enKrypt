@@ -12,6 +12,7 @@ const ropOptions: EvmNetworkOptions = {
   currencyName: "ROP",
   node: "wss://nodes.mewapi.io/ws/rop",
   icon: require("./icons/eth.svg"),
+  basePath: "m/44'/1'/0'/0",
   gradient: "#E6007A",
 };
 

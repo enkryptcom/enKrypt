@@ -1,10 +1,14 @@
+import { formatFloatingPointValue } from "@/libs/utils/number-formatter";
+import { fromBase } from "@/libs/utils/units";
 import { BaseNetwork } from "@/types/base-network";
 import { BaseToken } from "@/types/base-token";
+import { NFTCollection } from "@/types/nft";
 import { AssetsType, ProviderName } from "@/types/provider";
 import { NetworkNames, SignerType } from "@enkryptcom/types";
 import { toChecksumAddress } from "ethereumjs-util";
 import API from "../libs/api";
 import createIcon from "../libs/blockies";
+import { NATIVE_TOKEN_ADDRESS } from "../libs/common";
 
 export interface EvmNetworkOptions {
   name: NetworkNames;
@@ -19,6 +23,11 @@ export interface EvmNetworkOptions {
   icon: string;
   gradient: string;
   coingeckoID?: string;
+  basePath?: string;
+  NFTHandler?: (
+    network: BaseNetwork,
+    address: string
+  ) => Promise<NFTCollection[]>;
   assetsHandler?: (
     network: BaseNetwork,
     address: string
@@ -31,7 +40,9 @@ export class EvmNetwork extends BaseNetwork {
   private assetsHandler:
     | ((network: BaseNetwork, address: string) => Promise<AssetsType[]>)
     | undefined;
-
+  private NFTHandler:
+    | ((network: BaseNetwork, address: string) => Promise<NFTCollection[]>)
+    | undefined;
   constructor(options: EvmNetworkOptions) {
     const api = async () => {
       const api = new API(options.node);
@@ -44,7 +55,7 @@ export class EvmNetwork extends BaseNetwork {
       provider: ProviderName.ethereum,
       displayAddress: (address: string) => toChecksumAddress(address),
       identicon: createIcon,
-      basePath: "m/44'/60'/0'/0",
+      basePath: options.basePath ? options.basePath : "m/44'/60'/0'/0",
       decimals: 18,
       api,
       ...options,
@@ -54,6 +65,7 @@ export class EvmNetwork extends BaseNetwork {
 
     this.chainID = options.chainID;
     this.assetsHandler = options.assetsHandler;
+    this.NFTHandler = options.NFTHandler;
   }
 
   public getAllTokens(): BaseToken[] {
@@ -71,7 +83,8 @@ export class EvmNetwork extends BaseNetwork {
         symbol: this.name,
         icon: this.icon,
         balance,
-        balancef: balance.toString(),
+        balancef: formatFloatingPointValue(fromBase(balance, this.decimals))
+          .value,
         balanceUSD: 0,
         balanceUSDf: "0",
         value: "0",
@@ -79,6 +92,7 @@ export class EvmNetwork extends BaseNetwork {
         decimals: this.decimals,
         sparkline: "",
         priceChangePercentage: 0,
+        contract: NATIVE_TOKEN_ADDRESS,
       };
 
       return [nativeAsset];

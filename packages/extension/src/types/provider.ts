@@ -26,6 +26,7 @@ export enum InternalStorageNamespace {
   domainState = "DomainState",
   marketData = "MarketData",
   cacheFetch = "CacheFetch",
+  nftState = "NFTState",
   networksState = "NetworksState",
 }
 export enum EnkryptProviderEventMethods {
@@ -85,7 +86,6 @@ export abstract class ProviderAPIInterface {
   constructor(node: string, options?: unknown) {}
   abstract init(): Promise<void>;
   abstract getBalance(address: string): Promise<string>;
-  abstract getBaseBalance(address: string): Promise<string>;
 }
 
 export type handleIncomingMessage = (

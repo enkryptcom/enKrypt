@@ -15,7 +15,7 @@
       <custom-scrollbar
         ref="manageNetworkScrollRef"
         class="add-network__scroll-area"
-        :settings="settings"
+        :settings="scrollSettings({ suppressScrollX: true })"
         @ps-scroll-y="handleScroll"
       >
         <add-network-search
@@ -53,7 +53,7 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { ref, onBeforeMount, inject } from "vue";
+import { ref, onBeforeMount, inject, ComponentPublicInstance } from "vue";
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import AddNetworkSearch from "./components/add-network-search.vue";
 import AddNetworkItem from "./components/add-network-item.vue";
@@ -61,6 +61,7 @@ import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 import { NodeType } from "@/types/provider";
 import { getAllNetworks, POPULAR_NAMES } from "@/libs/utils/networks";
 import NetworksState from "@/libs/networks-state";
+import scrollSettings from "@/libs/utils/scroll-settings";
 
 interface NodeTypesWithActive extends NodeType {
   isActive: boolean;
@@ -70,18 +71,12 @@ interface NodeTypesWithActive extends NodeType {
 const setActiveNetworks: (() => Promise<void>) | undefined =
   inject("setActiveNetworks");
 
-const settings = {
-  suppressScrollY: false,
-  suppressScrollX: true,
-  wheelPropagation: false,
-};
-
 const networksState = new NetworksState();
 
 const all = ref<Array<NodeTypesWithActive>>([]);
 const popular = ref<Array<NodeTypesWithActive>>([]);
 let scrollProgress = ref(0);
-const manageNetworkScrollRef = ref(null);
+const manageNetworkScrollRef = ref<ComponentPublicInstance<HTMLElement>>();
 const showTestNets = ref(false);
 
 defineExpose({ manageNetworkScrollRef });
@@ -154,13 +149,10 @@ const search = (value: string) => {
 const handleScroll = (e: any) => {
   let progress = Number(e.target.lastChild.style.top.replace("px", ""));
   scrollProgress.value = progress;
-  console.log(isHasScroll() && scrollProgress.value > 0);
 };
 const isHasScroll = () => {
   if (manageNetworkScrollRef.value) {
-    return (manageNetworkScrollRef.value as HTMLElement).$el.classList.contains(
-      "ps--active-y"
-    );
+    return manageNetworkScrollRef.value.$el.classList.contains("ps--active-y");
   }
 
   return false;
@@ -212,6 +204,7 @@ const isHasScroll = () => {
     border-radius: 8px;
     cursor: pointer;
     font-size: 0;
+    transition: background 300ms ease-in-out;
 
     &:hover {
       background: @black007;

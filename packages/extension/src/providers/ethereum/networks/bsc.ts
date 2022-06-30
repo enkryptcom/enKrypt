@@ -4,7 +4,7 @@ import tokenbalanceMew from "@/providers/ethereum/libs/assets-handlers/tokenbala
 
 const bscOptions: EvmNetworkOptions = {
   name: NetworkNames.Binance,
-  name_long: "BNB Chain",
+  name_long: "BNB Smart Chain",
   homePage: "https://www.binance.org/en/smartChain",
   blockExplorerTX: "https://bscscan.com/tx/[[txHash]]",
   blockExplorerAddr: "https://bscscan.com/address/[[address]]",
@@ -15,6 +15,7 @@ const bscOptions: EvmNetworkOptions = {
   icon: require("./icons/bsc.svg"),
   gradient: "#E6007A",
   coingeckoID: "binancecoin",
+  basePath: "m/44'/714'",
   assetsHandler: tokenbalanceMew,
 };
 

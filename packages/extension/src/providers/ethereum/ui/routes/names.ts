@@ -29,4 +29,9 @@ export default {
     name: "ethDecrypt",
     component: {},
   },
+  ethConnectDApp: {
+    path: "eth-conncet-dapp",
+    name: "ethConnectDApp",
+    component: {},
+  },
 };

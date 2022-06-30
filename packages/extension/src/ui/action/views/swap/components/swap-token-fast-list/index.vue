@@ -4,7 +4,7 @@
       v-for="(item, index) in assets3"
       :key="index"
       :token="item"
-      :select-token="selectToken"
+      v-bind="$attrs"
     ></swap-token-fast-item>
     <div class="swap-token-fast-list__all">+1245 tokens</div>
   </div>
@@ -19,15 +19,6 @@ export default {
 <script setup lang="ts">
 import SwapTokenFastItem from "./components/swap-token-fast-item.vue";
 import { assets3 } from "@action/types/mock";
-
-defineProps({
-  selectToken: {
-    type: Function,
-    default: () => {
-      return null;
-    },
-  },
-});
 </script>
 
 <style lang="less">

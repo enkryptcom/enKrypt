@@ -2,7 +2,7 @@
   <div class="container">
     <custom-scrollbar
       class="network-activity__scroll-area"
-      :settings="settings"
+      :settings="scrollSettings({ suppressScrollX: true })"
     >
       <div class="network-activity">
         <network-activity-total
@@ -49,12 +49,13 @@ import NetworkActivityTransaction from "./components/network-activity-transactio
 import { transactionsOne, transactionsTwo } from "@action/types/mock";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 import { PropType, toRef } from "vue";
-import { NodeType } from "@/types/provider";
 import { AccountsHeaderData } from "../../types/account";
 import accountInfo from "@action/composables/account-info";
+import { BaseNetwork } from "@/types/base-network";
+import scrollSettings from "@/libs/utils/scroll-settings";
 const props = defineProps({
   network: {
-    type: Object as PropType<NodeType>,
+    type: Object as PropType<BaseNetwork>,
     default: () => ({}),
   },
   accountInfo: {
@@ -66,11 +67,6 @@ const { cryptoAmount, fiatAmount } = accountInfo(
   toRef(props, "network"),
   toRef(props, "accountInfo")
 );
-const settings = {
-  suppressScrollY: false,
-  suppressScrollX: true,
-  wheelPropagation: false,
-};
 
 const depositAction = () => {
   console.log("depositAction");

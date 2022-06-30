@@ -42,7 +42,6 @@ const props = defineProps({
 
 const check = async (isChecked: boolean) => {
   emit("networkToggled", props.network.name, isChecked);
-  console.log(props.network.name, isChecked);
 };
 </script>
 
