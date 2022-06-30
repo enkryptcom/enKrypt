@@ -8,14 +8,6 @@
         {{ props.fee.limit }} <span>{{ props.fee.symbol ?? "" }}</span>
       </p>
     </div>
-
-    <!-- <div class="send-fee-select__arrow">
-      <div class="send-fee-select__time">
-        <time-icon />
-        <span>6 sec</span>
-      </div>
-      <switch-arrow />
-    </div> -->
   </a>
 </template>
 
@@ -27,9 +19,7 @@ export default {
 
 <script setup lang="ts">
 import { ref, PropType } from "vue";
-import SwitchArrow from "@action/icons/header/switch_arrow.vue";
 import { TransactionFee } from "@action/types/fee";
-import TimeIcon from "@action/icons/fee/time-icon.vue";
 
 let isOpen = ref(false);
 

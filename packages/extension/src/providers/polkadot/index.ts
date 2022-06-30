@@ -4,7 +4,6 @@ import Middlewares from "./methods";
 import EventEmitter from "eventemitter3";
 import {
   BackgroundProviderInterface,
-  NodeType,
   ProviderName,
   ProviderRPCRequest,
 } from "@/types/provider";
