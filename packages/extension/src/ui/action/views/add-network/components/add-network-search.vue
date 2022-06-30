@@ -8,7 +8,7 @@
         <slider-icon />
       </a>
     </div>
-    <div v-show="openList" class="add-network__search-list">
+    <div v-show="openList" ref="tooltip" class="add-network__search-list">
       <a class="add-network__search-list-item">
         <custom-network-icon /><span>Custom network</span>
       </a>
@@ -33,8 +33,10 @@ import SliderIcon from "@action/icons/common/slider-icon.vue";
 import CustomNetworkIcon from "@action/icons/common/custom-network-icon.vue";
 import TestNetworkIcon from "@action/icons/common/test-network-icon.vue";
 import Switch from "@action/components/switch/index.vue";
+import { onClickOutside } from "@vueuse/core";
 
 let openList = ref(false);
+const tooltip = ref(null);
 
 const props = defineProps({
   input: {
@@ -62,6 +64,10 @@ const action = () => {
 const testNetwork = () => {
   props.onTestNetCheck();
 };
+
+onClickOutside(tooltip, (event) => {
+  if (openList.value) openList.value = false;
+});
 </script>
 
 <style lang="less" scoped>

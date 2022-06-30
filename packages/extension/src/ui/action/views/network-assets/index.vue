@@ -22,6 +22,8 @@
         ></network-assets-item>
       </div>
     </custom-scrollbar>
+
+    <network-assets-loading v-if="isLoading"></network-assets-loading>
   </div>
 </template>
 
@@ -36,6 +38,7 @@ import { useRoute } from "vue-router";
 import NetworkActivityTotal from "../network-activity/components/network-activity-total.vue";
 import NetworkActivityAction from "../network-activity/components/network-activity-action.vue";
 import NetworkAssetsItem from "./components/network-assets-item.vue";
+import NetworkAssetsLoading from "./components/network-assets-loading.vue";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 import { onMounted, PropType, ref, toRef, watch } from "vue";
 import { AssetsType } from "@/types/provider";
@@ -54,6 +57,7 @@ const props = defineProps({
   },
 });
 const assets = ref<AssetsType[]>([]);
+const isLoading = ref(false);
 
 const { cryptoAmount, fiatAmount } = accountInfo(
   toRef(props, "network"),
@@ -80,9 +84,13 @@ const swapAction = () => {
   console.log("swapAction");
 };
 const updateAssets = () => {
+  isLoading.value = true;
   props.network
     .getAllTokenInfo(props.accountInfo.selectedAccount?.address || "")
-    .then((_assets) => (assets.value = _assets));
+    .then((_assets) => {
+      assets.value = _assets;
+      isLoading.value = true;
+    });
   // props.network
   // if (props.network.assetsHandler) {
   //   props.network
@@ -107,11 +115,11 @@ onMounted(() => {
 
 .container {
   width: 100%;
-  height: 488px;
+  height: 600px;
   background-color: @white;
   box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.16);
-  margin: 56px 0;
-  padding-top: 12px;
+  margin: 0;
+  padding-top: 0;
   box-sizing: border-box;
 }
 
@@ -124,14 +132,23 @@ onMounted(() => {
     position: relative;
     margin: auto;
     width: 100%;
-    max-height: 468px;
-    margin: 0 0 8px 0;
-    padding: 0 !important;
+    max-height: 600px;
+    margin: 0;
+    padding: 68px 0 0 0 !important;
     box-sizing: border-box;
 
     &.ps--active-y {
       padding-right: 0;
     }
+  }
+}
+</style>
+
+<style lang="less">
+.network-assets__scroll-area {
+  .ps__rail-y {
+    right: 3px !important;
+    margin: 59px 0 !important;
   }
 }
 </style>
