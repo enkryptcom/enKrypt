@@ -1,9 +1,12 @@
 <template>
   <div class="verify-transaction-fee">
     <p class="verify-transaction-fee__fiat">
-      Network fee: {{ $filters.formatFiatValue(7.12).value }}
+      Network fee: ${{ $filters.formatFiatValue(fee.fiatValue).value }}
     </p>
-    <p class="verify-transaction-fee__crypto">0.0000123 <span>eth</span></p>
+    <p class="verify-transaction-fee__crypto">
+      {{ $filters.formatFloatingPointValue(fee.nativeValue).value }}
+      <span>{{ fee.nativeSymbol }}</span>
+    </p>
   </div>
 </template>
 
@@ -15,19 +18,13 @@ export default {
 
 <script setup lang="ts">
 import { PropType } from "vue";
-import { TransactionFee } from "@action/types/fee";
+import { GasFeeInfo } from "../../../types";
 
 defineProps({
   fee: {
-    type: Object as PropType<TransactionFee>,
+    type: Object as PropType<GasFeeInfo>,
     default: () => {
       return {};
-    },
-  },
-  amount: {
-    type: Number,
-    default: () => {
-      return 0;
     },
   },
 });

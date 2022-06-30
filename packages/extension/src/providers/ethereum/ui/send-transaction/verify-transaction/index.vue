@@ -13,31 +13,25 @@
       </p>
       <div class="verify-transaction__info">
         <verify-transaction-network
-          v-show="!!selectedNetwork"
-          :network="selectedNetwork"
+          :network="network"
         ></verify-transaction-network>
         <verify-transaction-account
-          name="My personal account"
-          address="0x14502CF6C0A13167Dc2D0E25Dabf5FBDB68C2967"
+          :name="txData.fromAddressName"
+          :address="network.displayAddress(txData.fromAddress)"
           :from="true"
+          :network="network"
         ></verify-transaction-account>
         <verify-transaction-account
-          :address="address"
+          :address="network.displayAddress(txData.toAddress)"
+          :network="network"
         ></verify-transaction-account>
-        <verify-transaction-amount
-          v-if="!isNft"
-          :token="ethereum"
-          :amount="amount"
-        >
+        <verify-transaction-amount v-if="!isNft" :token="txData.toToken">
         </verify-transaction-amount>
         <verify-transaction-nft
           v-if="isNft"
           :item="nft"
         ></verify-transaction-nft>
-        <verify-transaction-fee
-          :fee="recommendedFee"
-          :amount="1.5"
-        ></verify-transaction-fee>
+        <verify-transaction-fee :fee="txData.gasFee"></verify-transaction-fee>
       </div>
 
       <div class="verify-transaction__buttons">
@@ -50,7 +44,13 @@
       </div>
     </div>
 
-    <send-process v-if="isProcessing" :is-nft="isNft"></send-process>
+    <send-process
+      v-if="isProcessing"
+      :is-nft="isNft"
+      :to-address="txData.toAddress"
+      :network="network"
+      :token="txData.toToken"
+    ></send-process>
   </div>
 </template>
 
@@ -71,59 +71,30 @@ import VerifyTransactionAmount from "./components/verify-transaction-amount.vue"
 import VerifyTransactionFee from "./components/verify-transaction-fee.vue";
 import VerifyTransactionNft from "./components/verify-transaction-nft.vue";
 import SendProcess from "@action/views/send-process/index.vue";
-import DomainState from "@/libs/domain-state";
-import { NodeType } from "@/types/provider";
-import { getAllNetworks } from "@/libs/utils/networks";
-import { ethereum, recommendedFee, nft } from "@action/types/mock";
-import {
-  EthereumTransaction,
-  GasPriceTypes,
-} from "@/providers/ethereum/libs/transaction/types";
+import { nft } from "@action/types/mock";
+import PublicKeyRing from "@/libs/keyring/public-keyring";
+import { VerifyTransactionParams } from "../../types";
+import { BaseNetwork } from "@/types/base-network";
+import Transaction from "@/providers/ethereum/libs/transaction";
 import Web3 from "web3";
-import Transaction from "@/providers/ethereum/libs/transaction/";
-import { toWei, numberToHex, toChecksumAddress, toBN } from "web3-utils";
-import { bufferToHex } from "@enkryptcom/utils";
+import { bufferToHex, fromRpcSig } from "ethereumjs-util";
 import { sendToBackgroundFromAction } from "@/libs/messenger/extension";
 import { InternalMethods } from "@/types/messenger";
-import { KeyRecord } from "@enkryptcom/types";
-import PublicKeyRing from "@/libs/keyring/public-keyring";
-import { fromRpcSig } from "ethereumjs-util";
 import { FeeMarketEIP1559Transaction } from "@ethereumjs/tx";
-import { AccountsHeaderData } from "@action/types/account";
 
 const KeyRing = new PublicKeyRing();
-let web3: any;
-const domainState = new DomainState();
 const route = useRoute();
 const router = useRouter();
-const networks: NodeType[] = getAllNetworks();
 const selected: string = route.params.id as string;
-const address: string = route.params.address as string;
-const fromAddress: string = route.params.fromAddress as string;
-const amount = route.params.amount as unknown as number;
-const selectedFee = route.params.selectedFee;
-let selectedNetwork = ref<any>(undefined);
-const isNft: boolean = (route.params.isNft as string) == "1";
+const txData: VerifyTransactionParams = JSON.parse(
+  route.params.txData as string
+);
+const isNft = false;
 let isProcessing = ref(false);
-const MAIN_TOKEN_ADDRESS = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
-
-defineExpose({ selectedNetwork });
-
-onMounted(async () => {
-  const curNetwork = await domainState.getSelectedNetWork();
-  (selectedNetwork.value as unknown as NodeType) = networks.find(
-    (net) => net.name === curNetwork
-  ) as NodeType;
-  web3 = await new Web3(selectedNetwork.value?.node);
-});
 
 const props = defineProps({
   network: {
-    type: Object as PropType<NodeType>,
-    default: () => ({}),
-  },
-  accountInfo: {
-    type: Object as PropType<AccountsHeaderData>,
+    type: Object as PropType<BaseNetwork>,
     default: () => ({}),
   },
 });
@@ -134,32 +105,26 @@ const close = () => {
 
 const sendAction = async () => {
   isProcessing.value = true;
-
-  const txObj = (await setUpTx()) as unknown as EthereumTransaction;
-  const tx = await new Transaction(txObj, web3);
-
+  const web3 = new Web3(props.network.node);
+  const tx = new Transaction(txData.TransactionData, web3);
   await tx
-    .getFinalizedTransaction({ gasPriceType: GasPriceTypes.ECONOMY })
+    .getFinalizedTransaction({ gasPriceType: txData.gasPriceType })
     .then(async (finalizedTx) => {
       const msgHash = bufferToHex(finalizedTx.getMessageToSign(true));
-      const account = await KeyRing.getAccount(fromAddress);
-
-      return await sendToBackgroundFromAction({
+      const account = await KeyRing.getAccount(txData.fromAddress);
+      return sendToBackgroundFromAction({
         message: JSON.stringify({
           method: InternalMethods.sign,
-          params: [msgHash, account as KeyRecord],
+          params: [msgHash, account],
         }),
-        provider: selectedNetwork.value?.provider,
-        tabId: await domainState.getCurrentTabId(),
       }).then((res: any) => {
         if (res.error) {
           console.log("error", res.error);
         } else {
-          const rpcSig = fromRpcSig(res.result.replace(/['"]+/g, "") || "0x");
+          const rpcSig = fromRpcSig(JSON.parse(res.result) || "0x");
           const signedTx = (
             finalizedTx as FeeMarketEIP1559Transaction
           )._processSignature(rpcSig.v, rpcSig.r, rpcSig.s);
-
           web3.eth
             .sendSignedTransaction("0x" + signedTx.serialize().toString("hex"))
             .on("transactionHash", (hash: string) => {
@@ -171,103 +136,12 @@ const sendAction = async () => {
         }
       });
     });
-
   setTimeout(() => {
     isProcessing.value = false;
   }, 4000);
-
   setTimeout(() => {
     router.go(-2);
   }, 4500);
-};
-
-const getNonce = async () => {
-  return await web3.eth.getTransactionCount(fromAddress);
-};
-
-const getGasPrice = async () => {
-  return web3.eth.getGasPrice().then((data: string) => {
-    return numberToHex(data);
-  });
-};
-
-const estimateGas = async (
-  address: string,
-  nonce: string,
-  to: string,
-  data: string
-) => {
-  return await web3.eth
-    .estimateGas({
-      from: address,
-      nonce: nonce,
-      to: to,
-      data: data,
-    })
-    .then((data: number) => {
-      return numberToHex(data);
-    });
-};
-
-const getTokenTransferABI = async (amount: any, _toAddress: string) => {
-  amount = toBN(toWei(amount).toString());
-  const jsonInterface = [
-    {
-      constant: false,
-      inputs: [
-        { name: "_to", type: "address" },
-        { name: "_amount", type: "uint256" },
-      ],
-      name: "transfer",
-      outputs: [{ name: "", type: "bool" }],
-      payable: false,
-      stateMutability: "nonpayable",
-      type: "function",
-    },
-  ];
-  const contract = new web3.eth.Contract(jsonInterface);
-  return contract.methods
-    .transfer(_toAddress.toLowerCase(), amount)
-    .encodeABI();
-};
-
-const isToken = async () => {
-  if (props.network.assetsHandler) {
-    const token = await props.network
-      .assetsHandler(
-        props.network,
-        props.accountInfo.selectedAccount?.address || ""
-      )
-      .then((assets: any) => {
-        return assets.find((asset: any) => {
-          return asset.name === props.network.name_long;
-        });
-      });
-    if (!token) return false;
-    return token.address !== MAIN_TOKEN_ADDRESS;
-  }
-  return false;
-};
-
-const setUpTx = async () => {
-  const value = (await isToken())
-    ? "0x00"
-    : numberToHex(toWei(amount.toString()));
-  const nonce = await getNonce();
-  const gasPrice = await getGasPrice();
-  const abi = await getTokenTransferABI(amount, fromAddress);
-  const data = (await isToken) ? abi : "0x00";
-  const gasLimit = await estimateGas(fromAddress, nonce, address, data);
-  return {
-    from: toChecksumAddress(fromAddress),
-    to: toChecksumAddress(address),
-    value: value,
-    gas: gasLimit,
-    gasPrice: gasPrice,
-    data: data,
-    nonce: `0x${nonce}`,
-    chainId: `0x${selectedNetwork.value?.chainID}`, // 1
-  };
 };
 </script>
 

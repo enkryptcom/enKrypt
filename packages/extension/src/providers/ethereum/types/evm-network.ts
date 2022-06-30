@@ -1,3 +1,5 @@
+import { formatFloatingPointValue } from "@/libs/utils/number-formatter";
+import { fromBase } from "@/libs/utils/units";
 import { BaseNetwork } from "@/types/base-network";
 import { NFTCollection } from "@/types/nft";
 import { AssetsType, ProviderName } from "@/types/provider";
@@ -5,6 +7,7 @@ import { NetworkNames, SignerType } from "@enkryptcom/types";
 import { toChecksumAddress } from "ethereumjs-util";
 import API from "../libs/api";
 import createIcon from "../libs/blockies";
+import { NATIVE_TOKEN_ADDRESS } from "../libs/common";
 
 export interface EvmNetworkOptions {
   name: NetworkNames;
@@ -75,7 +78,8 @@ export class EvmNetwork extends BaseNetwork {
         symbol: this.name,
         icon: this.icon,
         balance,
-        balancef: balance.toString(),
+        balancef: formatFloatingPointValue(fromBase(balance, this.decimals))
+          .value,
         balanceUSD: 0,
         balanceUSDf: "0",
         value: "0",
@@ -83,6 +87,7 @@ export class EvmNetwork extends BaseNetwork {
         decimals: this.decimals,
         sparkline: "",
         priceChangePercentage: 0,
+        contract: NATIVE_TOKEN_ADDRESS,
       };
 
       return [nativeAsset];

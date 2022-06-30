@@ -9,7 +9,8 @@
         ref="addressInput"
         v-model="address"
         type="text"
-        placeholder="0x… address or ENS name"
+        placeholder="0x… address"
+        :style="{ color: !isAddress(value) ? 'red' : 'black' }"
         @focus="changeFocus"
         @blur="changeFocus"
       />

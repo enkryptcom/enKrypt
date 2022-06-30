@@ -8,15 +8,19 @@
     />
     <img
       v-else
-      :src="getImgUrl(address)"
+      :src="network.identicon(address)"
       class="send-process-account__img avatar"
       alt=""
     />
 
     <div class="send-process-account__name">
       <p>To</p>
-      <h4>{{ name ? name : address }}</h4>
-      <h6 v-show="!!name">{{ $filters.replaceWithEllipsis(address, 6, 4) }}</h6>
+      <h4>{{ name ? name : network.displayAddress(address) }}</h4>
+      <h6 v-show="!!name">
+        {{
+          $filters.replaceWithEllipsis(network.displayAddress(address), 6, 4)
+        }}
+      </h6>
     </div>
   </div>
 </template>
@@ -28,6 +32,9 @@ export default {
 </script>
 
 <script setup lang="ts">
+import { BaseNetwork } from "@/types/base-network";
+import { PropType } from "vue";
+
 defineProps({
   address: {
     type: String,
@@ -41,6 +48,12 @@ defineProps({
       return null;
     },
   },
+  network: {
+    type: Object as PropType<BaseNetwork>,
+    default: () => {
+      return {};
+    },
+  },
   avatar: {
     type: String,
     default: () => {
@@ -48,10 +61,6 @@ defineProps({
     },
   },
 });
-
-const getImgUrl = (address: string) => {
-  return "https://mewcard.mewapi.io/?address=" + address;
-};
 </script>
 
 <style lang="less">

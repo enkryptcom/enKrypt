@@ -51,7 +51,7 @@ const fiatEquivalent = computed(() => {
 });
 const amount = computed({
   get: () => props.amount,
-  set: (value) => emit("update:inputAmount", value),
+  set: (value) => emit("update:inputAmount", value.toString()),
 });
 
 const changeFocus = () => {

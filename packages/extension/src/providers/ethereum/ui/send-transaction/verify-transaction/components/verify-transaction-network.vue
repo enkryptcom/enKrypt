@@ -17,11 +17,11 @@ export default {
 
 <script setup lang="ts">
 import { PropType } from "vue";
-import { NodeType } from "@/types/provider";
+import { BaseNetwork } from "@/types/base-network";
 
 defineProps({
   network: {
-    type: Object as PropType<NodeType>,
+    type: Object as PropType<BaseNetwork>,
     default: () => {
       return {};
     },
