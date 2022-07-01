@@ -1,6 +1,6 @@
 <template>
   <div class="add-network__container">
-    <div class="add-network__overlay" @click="close()"></div>
+    <div class="add-network__overlay" @click="emit('close:popup')"></div>
     <div class="add-network__wrap">
       <div
         class="add-network__header"
@@ -8,7 +8,7 @@
       >
         <h3>Manage networks</h3>
 
-        <a class="add-network__close" @click="close()">
+        <a class="add-network__close" @click="emit('close:popup')">
           <close-icon />
         </a>
       </div>
@@ -53,7 +53,7 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { ref, onBeforeMount, inject, ComponentPublicInstance } from "vue";
+import { ref, onBeforeMount, ComponentPublicInstance } from "vue";
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import AddNetworkSearch from "./components/add-network-search.vue";
 import AddNetworkItem from "./components/add-network-item.vue";
@@ -66,10 +66,10 @@ import scrollSettings from "@/libs/utils/scroll-settings";
 interface NodeTypesWithActive extends NodeType {
   isActive: boolean;
 }
-
-//Provided in packages/extension/src/ui/action/App.vue
-const setActiveNetworks: (() => Promise<void>) | undefined =
-  inject("setActiveNetworks");
+const emit = defineEmits<{
+  (e: "close:popup"): void;
+  (e: "update:activeNetworks"): void;
+}>();
 
 const networksState = new NetworksState();
 
@@ -80,12 +80,6 @@ const manageNetworkScrollRef = ref<ComponentPublicInstance<HTMLElement>>();
 const showTestNets = ref(false);
 
 defineExpose({ manageNetworkScrollRef });
-defineProps({
-  close: {
-    type: Function,
-    default: () => ({}),
-  },
-});
 
 const getAllNetworksAndStatus = async () => {
   const activeNetworks = await networksState.getActiveNetworkNames();
@@ -126,7 +120,7 @@ const onTestNetCheck = async () => {
 const onToggle = async (networkName: string, isActive: boolean) => {
   try {
     await networksState.setNetworkStatus(networkName, isActive);
-    if (setActiveNetworks) setActiveNetworks();
+    emit("update:activeNetworks");
     all.value = all.value.map((network) => {
       if (network.name === networkName) {
         network.isActive = isActive;

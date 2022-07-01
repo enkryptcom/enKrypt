@@ -50,8 +50,7 @@
     v-if="isAddAccount"
     :close="closeAddAccount"
     :network="network"
-    :init="init"
-    :select-account="selectAccount"
+    v-bind="$attrs"
   ></add-account-form>
 
   <rename-account-form
@@ -104,10 +103,6 @@ const props = defineProps({
   showAccounts: Boolean,
   toggle: {
     type: Function,
-    default: () => ({}),
-  },
-  init: {
-    type: Function as PropType<() => void>,
     default: () => ({}),
   },
 });
