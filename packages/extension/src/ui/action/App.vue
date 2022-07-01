@@ -10,13 +10,13 @@
       />
       <div class="app__menu-footer">
         <a class="app__menu-add" @click="addNetworkShow = !addNetworkShow">
-          <add-icon />
+          <manage-networks-icon />
           Manage networks
         </a>
 
         <div>
           <tooltip text="Lock Enkrypt">
-            <a class="app__menu-link">
+            <a class="app__menu-link" @click="lockAction()">
               <hold-icon />
             </a>
           </tooltip>
@@ -75,7 +75,7 @@ import NetworkMenu from "./components/network-menu/index.vue";
 import AccountsHeader from "./components/accounts-header/index.vue";
 import BaseSearch from "./components/base-search/index.vue";
 import LogoMin from "./icons/common/logo-min.vue";
-import AddIcon from "./icons/common/add-icon.vue";
+import ManageNetworksIcon from "./icons/common/manage-networks-icon.vue";
 import SettingsIcon from "./icons/common/settings-icon.vue";
 import HoldIcon from "./icons/common/hold-icon.vue";
 import AddNetwork from "./views/add-network/index.vue";
@@ -270,6 +270,9 @@ const showNetworkMenu = computed(() => {
 });
 const searchInput = (text: string) => {
   console.log(text);
+};
+const lockAction = () => {
+  router.push({ name: "lock-screen" });
 };
 </script>
 

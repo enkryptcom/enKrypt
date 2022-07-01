@@ -10,7 +10,7 @@
         <p>Send token</p>
         <done-icon v-show="isSendToken"></done-icon>
       </a>
-      <a class="send-transaction__dropdown-item" @click="toggleType(true)">
+      <a class="send-transaction__dropdown-item" @click="toggleType(false)">
         <p>Send NFT</p>
         <done-icon v-show="!isSendToken"></done-icon>
       </a>
@@ -22,7 +22,7 @@
 </template>
 
 <script setup lang="ts">
-import { PropType, ref } from "vue";
+import { ref, PropType } from "vue";
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import SwitchArrow from "@action/icons/header/switch_arrow.vue";
 import DoneIcon from "@action/icons/common/done_icon.vue";

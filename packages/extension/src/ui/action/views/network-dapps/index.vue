@@ -41,11 +41,11 @@ const selected: string = route.params.id as string;
 
 .container {
   width: 100%;
-  height: 488px;
+  height: 600px;
   background-color: @white;
   box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.16);
-  margin: 56px 0;
-  padding-top: 20px;
+  margin: 0;
+  padding-top: 0;
   box-sizing: border-box;
 }
 
@@ -59,14 +59,23 @@ const selected: string = route.params.id as string;
     position: relative;
     margin: auto;
     width: 100%;
-    max-height: 460px;
-    margin: 0 0 8px 0;
-    padding: 0 !important;
+    max-height: 600px;
+    margin: 0;
+    padding: 68px 0 0 0 !important;
     box-sizing: border-box;
 
     &.ps--active-y {
       padding-right: 0;
     }
+  }
+}
+</style>
+
+<style lang="less">
+.network-dapps__scroll-area {
+  .ps__rail-y {
+    right: 3px !important;
+    margin: 59px 0 !important;
   }
 }
 </style>

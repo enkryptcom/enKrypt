@@ -72,6 +72,12 @@ const open = () => {
   position: relative;
   cursor: pointer;
   text-decoration: none;
+  transition: background 300ms ease-in-out;
+
+  &:hover {
+    background: @black007;
+  }
+
   &__image {
     background: @buttonBg;
     box-shadow: inset 0px 0px 1px rgba(0, 0, 0, 0.16);
