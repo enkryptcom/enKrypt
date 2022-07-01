@@ -6,16 +6,16 @@
       <switch-arrow></switch-arrow>
     </a>
     <div v-show="isOpenSelector" class="send-transaction__dropdown">
-      <a class="send-transaction__dropdown-item" @click="toggleType">
+      <a class="send-transaction__dropdown-item" @click="toggleType(true)">
         <p>Send token</p>
         <done-icon v-show="isSendToken"></done-icon>
       </a>
-      <a class="send-transaction__dropdown-item" @click="toggleType">
+      <a class="send-transaction__dropdown-item" @click="toggleType(false)">
         <p>Send NFT</p>
         <done-icon v-show="!isSendToken"></done-icon>
       </a>
     </div>
-    <a class="send-transaction__close" @click="(close as ()=>void)">
+    <a class="send-transaction__close" @click="close">
       <close-icon />
     </a>
   </div>
@@ -28,7 +28,7 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, PropType } from "vue";
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import SwitchArrow from "@action/icons/header/switch_arrow.vue";
 import DoneIcon from "@action/icons/common/done_icon.vue";
@@ -37,13 +37,13 @@ let isOpenSelector = ref(false);
 
 const props = defineProps({
   close: {
-    type: Function,
+    type: Function as PropType<() => void>,
     default: () => {
       return null;
     },
   },
   toggleType: {
-    type: Function,
+    type: Function as PropType<(isTokenSend: boolean) => void>,
     default: () => {
       return null;
     },
@@ -60,9 +60,9 @@ const toggleSelector = () => {
   isOpenSelector.value = !isOpenSelector.value;
 };
 
-const toggleType = () => {
+const toggleType = (isTokenSend: boolean) => {
   isOpenSelector.value = false;
-  props.toggleType();
+  props.toggleType(isTokenSend);
 };
 </script>
 
@@ -82,10 +82,12 @@ const toggleType = () => {
 
   &__close {
     position: absolute;
-    top: 20px;
-    right: 24px;
+    top: 8px;
+    right: 8px;
     border-radius: 8px;
     cursor: pointer;
+    transition: background 300ms ease-in-out;
+    font-size: 0;
 
     &:hover {
       background: @black007;
@@ -132,6 +134,12 @@ const toggleType = () => {
       padding: 0 12px 0 16px;
       box-sizing: border-box;
       text-decoration: none;
+      border-radius: 8px;
+      transition: background 300ms ease-in-out;
+
+      &:hover {
+        background: @black007;
+      }
 
       p {
         font-style: normal;

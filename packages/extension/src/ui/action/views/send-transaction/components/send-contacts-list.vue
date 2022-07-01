@@ -124,7 +124,7 @@ const pasteFromClipboard = () => {
     border-radius: 12px;
     z-index: 103;
     overflow: hidden;
-    padding: 0 0 0 16px;
+    padding: 0 16px 0 16px;
     box-sizing: border-box;
     opacity: 0;
     visibility: hidden;

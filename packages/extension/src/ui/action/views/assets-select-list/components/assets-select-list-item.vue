@@ -50,7 +50,8 @@ const select = () => {
 .assets-select-list {
   &__token {
     height: 64px;
-    padding: 0 16px;
+    margin: 0 8px;
+    padding: 0 8px;
     position: relative;
     box-sizing: border-box;
     display: flex;
@@ -58,6 +59,12 @@ const select = () => {
     align-items: center;
     flex-direction: row;
     cursor: pointer;
+    border-radius: 10px;
+    transition: background 300ms ease-in-out;
+
+    &:hover {
+      background: @black007;
+    }
 
     &-info {
       display: flex;
