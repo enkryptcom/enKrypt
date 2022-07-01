@@ -14,8 +14,6 @@
         <network-activity-action
           :deposit-action="depositAction"
           :buy-action="buyAction"
-          :send-action="sendAction"
-          :swap-action="swapAction"
         />
 
         <network-assets-item
@@ -76,35 +74,14 @@ const depositAction = () => {
 const buyAction = () => {
   console.log("buyAction");
 };
-const sendAction = () => {
-  console.log("sendAction");
-};
-const swapAction = () => {
-  console.log("swapAction");
-};
 const updateAssets = () => {
   isLoading.value = true;
   props.network
     .getAllTokenInfo(props.accountInfo.selectedAccount?.address || "")
-<<<<<<< HEAD
-    .then((_assets) => (assets.value = _assets));
-=======
     .then((_assets) => {
       assets.value = _assets;
-      isLoading.value = true;
+      isLoading.value = false;
     });
-  // props.network
-  // if (props.network.assetsHandler) {
-  //   props.network
-  //     .assetsHandler(
-  //       props.network,
-  //       props.accountInfo.selectedAccount?.address || ""
-  //     )
-  //     .then((_assets) => {
-  //       assets.value = _assets;
-  //     });
-  // }
->>>>>>> ui/fix-0.5.0
 };
 watch([props.network, props.accountInfo], updateAssets);
 onMounted(() => {

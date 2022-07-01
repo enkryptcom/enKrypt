@@ -14,8 +14,6 @@
         <network-activity-action
           :deposit-action="depositAction"
           :buy-action="buyAction"
-          :send-action="sendAction"
-          :swap-action="swapAction"
         />
 
         <network-activity-transaction
@@ -73,12 +71,6 @@ const depositAction = () => {
 };
 const buyAction = () => {
   console.log("buyAction");
-};
-const sendAction = () => {
-  console.log("sendAction");
-};
-const swapAction = () => {
-  console.log("swapAction");
 };
 </script>
 
