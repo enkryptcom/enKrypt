@@ -1,5 +1,5 @@
 import { NetworkNames } from "@enkryptcom/types";
-import BigNumber from "bignumber.js";
+import { toBN } from "web3-utils";
 import { SubstrateNativeToken } from "../types/substrate-native-token";
 import {
   SubstrateNetwork,
@@ -30,9 +30,9 @@ const nativeAsset = new SubstrateNativeToken({
   name: "Kusama",
   symbol: "KSM",
   coingeckoID: "kusama",
-  icon: "",
+  icon: require("./icons/kusama.svg"),
   decimals: 12,
-  existentialDeposit: new BigNumber("33333300"),
+  existentialDeposit: toBN("33333300"),
 });
 
 ksm.assets = [nativeAsset];

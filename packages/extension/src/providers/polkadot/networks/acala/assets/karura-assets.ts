@@ -1,6 +1,6 @@
 import { SubstrateNativeToken } from "@/providers/polkadot/types/substrate-native-token";
 import { BaseToken } from "@/types/base-token";
-import BigNumber from "bignumber.js";
+import { toBN } from "web3-utils";
 import { AcalaOrmlAsset } from "../types/acala-orml-asset";
 
 const assets: BaseToken[] = [
@@ -10,7 +10,7 @@ const assets: BaseToken[] = [
     decimals: 12,
     icon: require("./icons/KAR.svg"),
     coingeckoID: "acala",
-    existentialDeposit: new BigNumber("100000000000"),
+    existentialDeposit: toBN("100000000000"),
   }),
   new AcalaOrmlAsset({
     name: "Acala Dollar",
@@ -20,7 +20,7 @@ const assets: BaseToken[] = [
     coingeckoID: "usd-coin",
     assetType: "token",
     lookupValue: "kUSD",
-    existentialDeposit: new BigNumber("10000000000"),
+    existentialDeposit: toBN("10000000000"),
   }),
   new AcalaOrmlAsset({
     name: "Kusama",
@@ -30,7 +30,7 @@ const assets: BaseToken[] = [
     coingeckoID: "kusama",
     assetType: "token",
     lookupValue: "KSM",
-    existentialDeposit: new BigNumber("100000000"),
+    existentialDeposit: toBN("100000000"),
   }),
   new AcalaOrmlAsset({
     name: "Liquid KSM",
@@ -40,7 +40,7 @@ const assets: BaseToken[] = [
     coingeckoID: "kusama",
     assetType: "token",
     lookupValue: "KSM",
-    existentialDeposit: new BigNumber("500000000"),
+    existentialDeposit: toBN("500000000"),
   }),
   new AcalaOrmlAsset({
     name: "Bifrost",
@@ -50,7 +50,7 @@ const assets: BaseToken[] = [
     coingeckoID: "bifrost-native-coin",
     assetType: "token",
     lookupValue: "BNC",
-    existentialDeposit: new BigNumber("8000000000"),
+    existentialDeposit: toBN("8000000000"),
   }),
   new AcalaOrmlAsset({
     name: "Kintsugi",
@@ -60,7 +60,7 @@ const assets: BaseToken[] = [
     coingeckoID: "kintsugi",
     assetType: "token",
     lookupValue: "KINT",
-    existentialDeposit: new BigNumber("133330000"),
+    existentialDeposit: toBN("133330000"),
   }),
   new AcalaOrmlAsset({
     name: "Phala",
@@ -70,7 +70,7 @@ const assets: BaseToken[] = [
     coingeckoID: "pha",
     assetType: "token",
     lookupValue: "PHA",
-    existentialDeposit: new BigNumber("40000000000"),
+    existentialDeposit: toBN("40000000000"),
   }),
   new AcalaOrmlAsset({
     name: "Crab",
@@ -80,7 +80,7 @@ const assets: BaseToken[] = [
     coingeckoID: "darwinia-crab-network-native-token",
     assetType: "foreignAsset",
     lookupValue: 13,
-    existentialDeposit: new BigNumber("1000000000000000000"),
+    existentialDeposit: toBN("1000000000000000000"),
   }),
   new AcalaOrmlAsset({
     name: "Crust Shadow",
@@ -90,7 +90,7 @@ const assets: BaseToken[] = [
     coingeckoID: "crust-shadow",
     assetType: "foreignAsset",
     lookupValue: 5,
-    existentialDeposit: new BigNumber("1000000000000"),
+    existentialDeposit: toBN("1000000000000"),
   }),
   new AcalaOrmlAsset({
     name: "Genshiro",
@@ -100,7 +100,7 @@ const assets: BaseToken[] = [
     coingeckoID: "genshiro",
     assetType: "foreignAsset",
     lookupValue: 14,
-    existentialDeposit: new BigNumber("1000000000000"),
+    existentialDeposit: toBN("1000000000000"),
   }),
   new AcalaOrmlAsset({
     name: "Kintsugi Wrapped BTC",
@@ -110,7 +110,7 @@ const assets: BaseToken[] = [
     coingeckoID: "bitcoin",
     assetType: "token",
     lookupValue: "kBTC",
-    existentialDeposit: new BigNumber("66"),
+    existentialDeposit: toBN("66"),
   }),
   new AcalaOrmlAsset({
     name: "Calamari",
@@ -120,7 +120,7 @@ const assets: BaseToken[] = [
     coingeckoID: "calamari-network",
     assetType: "foreignAsset",
     lookupValue: 10,
-    existentialDeposit: new BigNumber("100000000000"),
+    existentialDeposit: toBN("100000000000"),
   }),
   new AcalaOrmlAsset({
     name: "Moonriver",
@@ -130,7 +130,7 @@ const assets: BaseToken[] = [
     coingeckoID: "moonriver",
     assetType: "foreignAsset",
     lookupValue: 3,
-    existentialDeposit: new BigNumber("1000000000000000"),
+    existentialDeposit: toBN("1000000000000000"),
   }),
   new AcalaOrmlAsset({
     name: "Quartz",
@@ -140,7 +140,7 @@ const assets: BaseToken[] = [
     coingeckoID: "quartz",
     assetType: "foreignAsset",
     lookupValue: 2,
-    existentialDeposit: new BigNumber("1000000000000000000"),
+    existentialDeposit: toBN("1000000000000000000"),
   }),
   new AcalaOrmlAsset({
     name: "Integritee",
@@ -150,7 +150,7 @@ const assets: BaseToken[] = [
     coingeckoID: "integritee",
     assetType: "foreignAsset",
     lookupValue: 8,
-    existentialDeposit: new BigNumber("100000000000"),
+    existentialDeposit: toBN("100000000000"),
   }),
 
   // const usdc = new AcalaOrmlAsset(
@@ -171,7 +171,7 @@ const assets: BaseToken[] = [
     coingeckoID: "tether",
     assetType: "foreignAsset",
     lookupValue: 7,
-    existentialDeposit: new BigNumber("10000"),
+    existentialDeposit: toBN("10000"),
   }),
 
   new AcalaOrmlAsset({
@@ -182,7 +182,7 @@ const assets: BaseToken[] = [
     coingeckoID: "altair",
     assetType: "foreignAsset",
     lookupValue: 12,
-    existentialDeposit: new BigNumber("100000000000000000"),
+    existentialDeposit: toBN("100000000000000000"),
   }),
   new AcalaOrmlAsset({
     name: "PolarisDAO",
@@ -191,7 +191,7 @@ const assets: BaseToken[] = [
     icon: require("./icons/ARIS.png"),
     assetType: "foreignAsset",
     lookupValue: 1,
-    existentialDeposit: new BigNumber("1000000000000"),
+    existentialDeposit: toBN("1000000000000"),
   }),
   new AcalaOrmlAsset({
     name: "Turing",
@@ -200,7 +200,7 @@ const assets: BaseToken[] = [
     icon: require("./icons/TUR.png"),
     assetType: "foreignAsset",
     lookupValue: 16,
-    existentialDeposit: new BigNumber("40000000000"),
+    existentialDeposit: toBN("40000000000"),
   }),
   new AcalaOrmlAsset({
     name: "Metaverse.Network",
@@ -209,7 +209,7 @@ const assets: BaseToken[] = [
     icon: require("./icons/NEER.png"),
     assetType: "foreignAsset",
     lookupValue: 9,
-    existentialDeposit: new BigNumber("100000000000000000"),
+    existentialDeposit: toBN("100000000000000000"),
   }),
 
   new AcalaOrmlAsset({
@@ -219,7 +219,7 @@ const assets: BaseToken[] = [
     icon: require("./icons/KICO.png"),
     assetType: "foreignAsset",
     lookupValue: 6,
-    existentialDeposit: new BigNumber("100000000000000"),
+    existentialDeposit: toBN("100000000000000"),
   }),
   new AcalaOrmlAsset({
     name: "Heiko",
@@ -228,7 +228,7 @@ const assets: BaseToken[] = [
     icon: require("./icons/HKO.png"),
     assetType: "foreignAsset",
     lookupValue: 4,
-    existentialDeposit: new BigNumber("100000000000"),
+    existentialDeposit: toBN("100000000000"),
   }),
   new AcalaOrmlAsset({
     name: "RMRK",
@@ -238,7 +238,7 @@ const assets: BaseToken[] = [
     coingeckoID: "rmrk",
     assetType: "foreignAsset",
     lookupValue: 0,
-    existentialDeposit: new BigNumber("100000000"),
+    existentialDeposit: toBN("100000000"),
   }),
   new AcalaOrmlAsset({
     name: "Basilisk",
@@ -247,7 +247,7 @@ const assets: BaseToken[] = [
     icon: require("./icons/BSX.png"),
     assetType: "foreignAsset",
     lookupValue: 12,
-    existentialDeposit: new BigNumber("1000000000000"),
+    existentialDeposit: toBN("1000000000000"),
   }),
   new AcalaOrmlAsset({
     name: "Taiga",
@@ -256,7 +256,7 @@ const assets: BaseToken[] = [
     icon: require("./icons/TAI.png"),
     assetType: "token",
     lookupValue: "TAI",
-    existentialDeposit: new BigNumber("100000000"),
+    existentialDeposit: toBN("100000000"),
   }),
   new AcalaOrmlAsset({
     name: "Taiga KSM",
@@ -266,7 +266,7 @@ const assets: BaseToken[] = [
     coingeckoID: "kusama",
     assetType: "stableAssetPoolToken",
     lookupValue: 0,
-    existentialDeposit: new BigNumber("100000000"),
+    existentialDeposit: toBN("100000000"),
   }),
 ];
 

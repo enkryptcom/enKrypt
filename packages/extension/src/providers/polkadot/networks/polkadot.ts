@@ -1,5 +1,5 @@
 import { NetworkNames } from "@enkryptcom/types";
-import BigNumber from "bignumber.js";
+import { toBN } from "web3-utils";
 import { SubstrateNativeToken } from "../types/substrate-native-token";
 import {
   SubstrateNetwork,
@@ -30,9 +30,9 @@ const nativeAsset = new SubstrateNativeToken({
   name: "Polkadot",
   symbol: "DOT",
   coingeckoID: "polkadot",
-  icon: "",
+  icon: require("./icons/polkadot.svg"),
   decimals: 10,
-  existentialDeposit: new BigNumber("10000000000"),
+  existentialDeposit: toBN("10000000000"),
 });
 
 polkadot.assets = [nativeAsset];

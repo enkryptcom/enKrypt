@@ -6,7 +6,12 @@
     <div class="send-token-select__info">
       <h5>{{ token ? token.name : "~" }}</h5>
       <p>
-        {{ tokenBalance ?? "~" }} <span>{{ token ? token.symbol : "~" }}</span>
+        {{
+          tokenBalance
+            ? $filters.formatFloatingPointValue(tokenBalance).value
+            : "~"
+        }}
+        <span>{{ token ? token.symbol : "~" }}</span>
       </p>
     </div>
 
@@ -28,6 +33,7 @@ import SwitchArrow from "@action/icons/header/switch_arrow.vue";
 import { BaseToken } from "@/types/base-token";
 import EvmAPI from "@/providers/ethereum/libs/api";
 import { ApiPromise } from "@polkadot/api/promise/Api";
+import { fromBase } from "@/libs/utils/units";
 
 interface IProps {
   toggleSelect: (arg: any) => void;
@@ -47,7 +53,7 @@ onUpdated(async () => {
     props.token
       .getUserBalance(props.api, props.activeAccount)
       .then((balance) => {
-        tokenBalance.value = balance;
+        tokenBalance.value = fromBase(balance, props.token!.decimals);
       });
   }
 });

@@ -1,7 +1,6 @@
 import { BaseToken, BaseTokenOptions } from "@/types/base-token";
 import { ApiPromise } from "@polkadot/api";
 import { OrmlTokensAccountData } from "@acala-network/types/interfaces/types-lookup";
-import { fromBase } from "@/libs/utils/units";
 
 type AssetType =
   | "token"
@@ -30,14 +29,11 @@ export class AcalaOrmlAsset extends BaseToken {
     tokenLookup[this.assetType] = this.lookupValue;
 
     return api.query.tokens.accounts(address, tokenLookup).then((res) => {
-      return fromBase(
-        (res as unknown as OrmlTokensAccountData).free.toString(),
-        this.decimals
-      );
+      return (res as unknown as OrmlTokensAccountData).free.toString();
     });
   }
 
-  public async send(api: any, to: string, amount: number): Promise<any> {
+  public async send(api: any, to: string, amount: string): Promise<any> {
     return (api as ApiPromise).tx.balances.transferKeepAlive(to, amount);
   }
 }

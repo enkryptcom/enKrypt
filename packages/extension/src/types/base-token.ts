@@ -2,7 +2,7 @@ import EvmAPI from "@/providers/ethereum/libs/api";
 import MarketData from "@/libs/market-data";
 import { FiatMarket } from "@/libs/market-data/types";
 import { ApiPromise } from "@polkadot/api";
-import BigNumber from "bignumber.js";
+import { BN } from "ethereumjs-util";
 
 export interface BaseTokenOptions {
   name: string;
@@ -10,7 +10,7 @@ export interface BaseTokenOptions {
   decimals: number;
   icon: string;
   coingeckoID?: string;
-  existentialDeposit?: BigNumber;
+  existentialDeposit?: BN;
 }
 
 export abstract class BaseToken {
@@ -19,7 +19,7 @@ export abstract class BaseToken {
   public decimals: number;
   public icon: string;
   public coingeckoID: string | undefined;
-  public existentialDeposit: BigNumber | undefined;
+  public existentialDeposit: BN | undefined;
 
   constructor(options: BaseTokenOptions) {
     this.name = options.name;
@@ -43,5 +43,5 @@ export abstract class BaseToken {
     api: EvmAPI | ApiPromise,
     address: string
   ): Promise<string>;
-  public abstract send(api: any, to: string, amount: number): Promise<any>;
+  public abstract send(api: any, to: string, amount: string): Promise<any>;
 }

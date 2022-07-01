@@ -1,6 +1,6 @@
 import { SubstrateNativeToken } from "@/providers/polkadot/types/substrate-native-token";
 import { BaseToken } from "@/types/base-token";
-import BigNumber from "bignumber.js";
+import { toBN } from "web3-utils";
 import { AcalaOrmlAsset } from "../types/acala-orml-asset";
 
 const assets: BaseToken[] = [
@@ -10,7 +10,7 @@ const assets: BaseToken[] = [
     coingeckoID: "acala",
     icon: require("./icons/ACA.png"),
     decimals: 12,
-    existentialDeposit: new BigNumber("100000000000"),
+    existentialDeposit: toBN("100000000000"),
   }),
   new AcalaOrmlAsset({
     name: "Polkadot",
@@ -20,7 +20,7 @@ const assets: BaseToken[] = [
     decimals: 10,
     assetType: "token",
     lookupValue: "DOT",
-    existentialDeposit: new BigNumber("100000000"),
+    existentialDeposit: toBN("100000000"),
   }),
   new AcalaOrmlAsset({
     name: "Crowdloan DOT",
@@ -30,7 +30,7 @@ const assets: BaseToken[] = [
     decimals: 10,
     assetType: "liquidCrowdloan",
     lookupValue: 13,
-    existentialDeposit: new BigNumber("100000000"),
+    existentialDeposit: toBN("100000000"),
   }),
   new AcalaOrmlAsset({
     name: "Acala Dollar",
@@ -40,7 +40,7 @@ const assets: BaseToken[] = [
     coingeckoID: "usd-coin",
     assetType: "token",
     lookupValue: "aUSD",
-    existentialDeposit: new BigNumber("100000000000"),
+    existentialDeposit: toBN("100000000000"),
   }),
   new AcalaOrmlAsset({
     name: "Liquid DOT",
@@ -50,7 +50,7 @@ const assets: BaseToken[] = [
     coingeckoID: "polkadot",
     assetType: "token",
     lookupValue: "LDOT",
-    existentialDeposit: new BigNumber("500000000"),
+    existentialDeposit: toBN("500000000"),
   }),
 ];
 

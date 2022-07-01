@@ -1,11 +1,13 @@
 <template>
-  <a class="send-fee-select" :class="{ swap: inSwap }" @click="open">
+  <a class="send-fee-select" :class="{ swap: inSwap }">
     <div class="send-fee-select__value">
       <p class="send-fee-select__value-fiat">
-        Fee: {{ $filters.formatFiatValue(7.12).value }}
+        Fee: {{ $filters.formatFiatValue(fee.fiatValue).value }}
+        {{ fee.fiatSymbol }}
       </p>
       <p class="send-fee-select__value-crypto">
-        {{ props.fee.limit }} <span>{{ props.fee.symbol ?? "" }}</span>
+        {{ $filters.formatFloatingPointValue(fee.nativeValue).value }}
+        <span>{{ fee.nativeSymbol }}</span>
       </p>
     </div>
   </a>
@@ -18,12 +20,10 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { ref, PropType } from "vue";
-import { TransactionFee } from "@action/types/fee";
+import { PropType } from "vue";
+import { GasFeeInfo } from "@/providers/ethereum/ui/types";
 
-let isOpen = ref(false);
-
-const props = defineProps({
+defineProps({
   toggleSelect: {
     type: Function,
     default: () => {
@@ -31,7 +31,7 @@ const props = defineProps({
     },
   },
   fee: {
-    type: Object as PropType<TransactionFee>,
+    type: Object as PropType<GasFeeInfo>,
     default: () => {
       return {};
     },
@@ -43,11 +43,6 @@ const props = defineProps({
     },
   },
 });
-
-const open = () => {
-  isOpen.value = !isOpen.value;
-  props.toggleSelect(isOpen);
-};
 </script>
 
 <style lang="less">

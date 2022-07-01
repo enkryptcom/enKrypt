@@ -63,7 +63,6 @@ import VerifyTransactionNetwork from "./components/verify-transaction-network.vu
 import VerifyTransactionAccount from "./components/verify-transaction-account.vue";
 import VerifyTransactionAmount from "./components/verify-transaction-amount.vue";
 import VerifyTransactionFee from "./components/verify-transaction-fee.vue";
-import VerifyTransactionNft from "./components/verify-transaction-nft.vue";
 import SendProcess from "@action/views/send-process/index.vue";
 import { nft } from "@action/types/mock";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
@@ -74,6 +73,7 @@ import { bufferToHex, fromRpcSig } from "ethereumjs-util";
 import { sendToBackgroundFromAction } from "@/libs/messenger/extension";
 import { InternalMethods } from "@/types/messenger";
 import { FeeMarketEIP1559Transaction } from "@ethereumjs/tx";
+import { VerifyTransactionParams } from "@/providers/ethereum/ui/types";
 
 const KeyRing = new PublicKeyRing();
 const route = useRoute();

@@ -6,7 +6,12 @@
       <div class="send-token-item__info-name">
         <h4>{{ token.name }}</h4>
         <p>
-          {{ tokenBalance ?? "~" }} <span>{{ token.symbol }}</span>
+          {{
+            tokenBalance
+              ? $filters.formatFloatingPointValue(tokenBalance).value
+              : "~"
+          }}
+          <span>{{ token.symbol }}</span>
         </p>
       </div>
     </div>
@@ -29,6 +34,7 @@ import { onBeforeMount, onUpdated, ref } from "vue";
 import { BaseToken } from "@/types/base-token";
 import EvmAPI from "@/providers/ethereum/libs/api";
 import { ApiPromise } from "@polkadot/api";
+import { fromBase } from "@/libs/utils/units";
 
 interface IProps {
   token: BaseToken;
@@ -47,7 +53,7 @@ const init = async () => {
     props.token
       .getUserBalance(props.api, props.activeAccount)
       .then((balance) => {
-        tokenBalance.value = balance;
+        tokenBalance.value = fromBase(balance, props.token.decimals);
       });
     props.token.getTokenPrice().then((fiatValue) => {
       console.log(fiatValue);

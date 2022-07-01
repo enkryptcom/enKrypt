@@ -19,7 +19,7 @@
         :show-accounts="isOpenSelectContact"
         :close="toggleSelectContact"
         :select-account="selectAccount"
-        :active-network="activeNetwork"
+        :active-network="props.network"
         :accounts="accounts"
         :identicon="identicon"
       ></send-contacts-list>
@@ -28,16 +28,16 @@
         :token="selectedToken"
         :toggle-select="toggleSelectToken"
         :api="api"
-        :active-account="activeAccount"
+        :active-account="props.accountInfo.selectedAccount!.address"
       ></send-token-select>
 
       <send-token-list
         :show-tokens="isOpenSelectToken"
         :close="toggleSelectToken"
         :select-token="selectToken"
-        :active-account="activeAccount"
+        :active-account="props.accountInfo.selectedAccount!.address"
         :api="api"
-        :assets="assets"
+        :assets="userAssets"
       >
       </send-token-list>
 
@@ -46,18 +46,7 @@
         :value="amount"
       ></send-input-amount>
 
-      <send-fee-select
-        v-if="fee"
-        :fee="fee"
-        :toggle-select="toggleSelectFee"
-      ></send-fee-select>
-
-      <transaction-fee-view
-        :show-fees="isOpenSelectFee"
-        :close="toggleSelectFee"
-        :select-fee="() => null"
-        :selected="0"
-      ></transaction-fee-view>
+      <send-fee-select v-if="fee" :fee="fee"></send-fee-select>
 
       <send-alert v-if="edWarn"></send-alert>
 
@@ -67,7 +56,7 @@
         </div>
         <div class="send-transaction__buttons-send">
           <base-button
-            :title="sendButtonTitle()"
+            :title="sendButtonTitle"
             :click="sendAction"
             :disabled="isDisabled()"
           />
@@ -84,7 +73,7 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { onBeforeMount, ref, watch } from "vue";
+import { computed, onMounted, PropType, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import SendAddressInput from "./components/send-address-input.vue";
@@ -93,140 +82,93 @@ import SendTokenSelect from "./components/send-token-select.vue";
 import SendTokenList from "./components/send-token-list.vue";
 import SendInputAmount from "./components/send-input-amount.vue";
 import SendFeeSelect from "./components/send-fee-select.vue";
-import TransactionFeeView from "@action/views/transaction-fee/index.vue";
 import SendAlert from "./components/send-alert.vue";
 import BaseButton from "@action/components/base-button/index.vue";
-import DomainState from "@/libs/domain-state";
-import { BaseNetwork } from "@/types/base-network";
-import { getNetworkByName } from "@/libs/utils/networks";
 import { BaseToken } from "@/types/base-token";
 import EvmAPI from "@/providers/ethereum/libs/api";
 import { ApiPromise } from "@polkadot/api";
-import PublicKeyRing from "@/libs/keyring/public-keyring";
-import { Account } from "@action/types/account";
-import BigNumber from "bignumber.js";
-import { TransactionFee } from "../../types/fee";
+import { Account, AccountsHeaderData } from "@action/types/account";
+import { GasFeeInfo } from "@/providers/ethereum/ui/types";
+import { SubstrateNetwork } from "../../types/substrate-network";
+import { toBase } from "@/libs/utils/units";
+import { toBN } from "web3-utils";
+import { formatFloatingPointValue } from "@/libs/utils/number-formatter";
 
 const route = useRoute();
 const router = useRouter();
-const domainState = new DomainState();
-const keyRing = new PublicKeyRing();
 
 const isOpenSelectContact = ref(false);
 const address = ref("");
 const isOpenSelectToken = ref(false);
 const selectedToken = ref<BaseToken | undefined>();
-const amount = ref(0);
-const isOpenSelectFee = ref(false);
-const fee = ref<TransactionFee | null>(null);
+const amount = ref("0");
+const fee = ref<GasFeeInfo | null>(null);
 const edWarn = ref(false);
-const activeAccount = ref<string | undefined>();
-const activeNetwork = ref<BaseNetwork | undefined>();
 const accounts = ref<Account[]>([]);
 const identicon = ref<((address: string) => string) | undefined>();
-const assets = ref<BaseToken[]>([]);
+const userAssets = ref<BaseToken[]>([]);
 const api = ref<EvmAPI | ApiPromise>();
 
 const selected: string = route.params.id as string;
 
-onBeforeMount(async () => {
-  const address = await domainState.getSelectedAddress();
-  const activeNetworkName = await domainState.getSelectedNetWork();
-  const network = getNetworkByName(activeNetworkName ?? "");
-
-  console.log(activeNetworkName, address);
-
-  if (network) {
-    activeNetwork.value = network;
-    identicon.value = network.identicon;
-    const networkAssets = network.getAllTokens();
-    selectedToken.value = networkAssets[0];
-    assets.value = networkAssets;
-    console.log(selectedToken.value);
-
-    if (address) {
-      activeAccount.value = network.displayAddress(address);
-
-      accounts.value = (await keyRing.getAccounts(network.signer))
-        .filter((account) => account.address !== address)
-        .map((account) => {
-          return {
-            name: account.name,
-            address: network.displayAddress(account.address),
-            amount: 0,
-            primaryToken: {
-              name: "",
-              symbol: "",
-              icon: "",
-              amount: 0,
-              price: 0,
-            },
-          };
-        });
-
-      console.log(accounts.value);
-    }
-
-    const networkApi = await network.api();
-
-    await networkApi.init();
-
-    api.value = networkApi.api;
-  }
+const props = defineProps({
+  network: {
+    type: Object as PropType<SubstrateNetwork>,
+    default: () => ({}),
+  },
+  accountInfo: {
+    type: Object as PropType<AccountsHeaderData>,
+    default: () => ({}),
+  },
 });
 
-watch([selectedToken, amount, address, activeNetwork], async () => {
-  if (
-    selectedToken.value &&
-    amount.value &&
-    address.value &&
-    activeNetwork.value &&
-    api.value &&
-    activeAccount.value
-  ) {
-    const rawAmount = new BigNumber(amount.value).times(
-      10 ** selectedToken.value.decimals
-    );
-
-    const tx = await selectedToken.value.send(
-      api.value,
-      address.value,
-      rawAmount.toNumber()
-    );
-    const { partialFee } = (await tx.paymentInfo(activeAccount.value)).toJSON();
-
-    fee.value = {
-      limit: new BigNumber(partialFee)
-        .div(new BigNumber(10 ** activeNetwork.value?.decimals))
-        .toNumber(),
-      symbol: activeNetwork.value.name,
-      price: {
-        speed: 0,
-        baseFee: 0,
-        tip: 0,
-        totalFee: 0,
-        title: "Recommended",
-        description: "Will reliably go through in most scenatios",
-      },
-    };
-
-    const txFee = new BigNumber(partialFee);
-    const ed = selectedToken.value.existentialDeposit ?? new BigNumber(0);
-    const userBalance = new BigNumber(
-      await selectedToken.value.getUserBalance(api.value, activeAccount.value)
-    ).times(10 ** selectedToken.value.decimals);
-
-    console.log(
-      userBalance.minus(txFee).minus(rawAmount).toNumber(),
-      new BigNumber(ed).toString()
-    );
-    if (userBalance.minus(txFee).minus(rawAmount).lt(new BigNumber(ed))) {
-      edWarn.value = true;
-    } else {
-      edWarn.value = false;
-    }
-  }
+onMounted(async () => {
+  const networkAssets = props.network.getAllTokens();
+  console.log(networkAssets);
+  selectedToken.value = networkAssets[0];
+  userAssets.value = networkAssets;
+  const networkApi = await props.network.api();
+  await networkApi.init();
+  api.value = networkApi.api;
 });
+
+// watch([selectedToken, amount, address], async () => {
+//   if (selectedToken.value && amount.value && address.value && api.value) {
+//     const rawAmount = toBN(
+//       toBase(amount.value.toString(), selectedToken.value.decimals)
+//     );
+
+//     const tx = await selectedToken.value.send(
+//       api.value,
+//       address.value,
+//       rawAmount.toString()
+//     );
+//     const { partialFee } = (
+//       await tx.paymentInfo(props.accountInfo.selectedAccount!.address)
+//     ).toJSON();
+
+//     fee.value = {
+//       fiatSymbol: "USD",
+//       fiatValue: "0",
+//       nativeSymbol: "DOT",
+//       nativeValue: "0",
+//     };
+
+//     const txFee = toBN(partialFee);
+//     const ed = selectedToken.value.existentialDeposit ?? toBN(0);
+//     const userBalance = toBN(
+//       await selectedToken.value.getUserBalance(
+//         api.value,
+//         props.accountInfo.selectedAccount!.address
+//       )
+//     );
+//     if (userBalance.sub(txFee).sub(rawAmount).lt(ed)) {
+//       edWarn.value = true;
+//     } else {
+//       edWarn.value = false;
+//     }
+//   }
+// });
 
 const close = () => {
   router.go(-1);
@@ -254,30 +196,24 @@ const selectToken = (token: BaseToken) => {
   isOpenSelectToken.value = false;
 };
 
-const inputAmount = (number: number) => {
+const inputAmount = (number: string) => {
   amount.value = number;
 };
 
-const toggleSelectFee = (open: boolean) => {
-  isOpenSelectFee.value = open;
-};
-
-const sendButtonTitle = () => {
+const sendButtonTitle = computed(() => {
   let title = "Send";
-
-  if (amount.value > 0)
-    title = `Send ${amount.value} ${
-      selectedToken.value ? selectedToken.value.symbol.toUpperCase() : ""
-    }`;
-
+  if (parseInt(amount.value) > 0)
+    title =
+      "Send " +
+      formatFloatingPointValue(amount.value).value +
+      " " +
+      selectedToken.value?.symbol!.toUpperCase();
   return title;
-};
+});
 
 const isDisabled = () => {
   let isDisabled = true;
-
-  if (amount.value > 0) isDisabled = false;
-
+  if (parseInt(amount.value) > 0) isDisabled = false;
   return isDisabled;
 };
 
