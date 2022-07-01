@@ -56,6 +56,11 @@ defineProps({
   height: 56px;
   cursor: pointer;
   text-decoration: none;
+  transition: background 300ms ease-in-out;
+  border-radius: 10px;
+  &:hover {
+    background: @black007;
+  }
 
   &__number {
     font-style: normal;

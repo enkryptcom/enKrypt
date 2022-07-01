@@ -82,7 +82,9 @@ const changeFocus = (val: FocusEvent) => {
   position: relative;
 
   &.focus {
-    border: 1px solid @primary;
+    border: 2px solid @primary;
+    width: calc(~"100% - 62px");
+    margin: 12px 31px 8px 31px;
   }
 
   &__avatar {

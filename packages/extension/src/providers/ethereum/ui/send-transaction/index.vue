@@ -79,7 +79,7 @@
 
       <div class="send-transaction__buttons">
         <div class="send-transaction__buttons-cancel">
-          <base-button title="Cancel" :click="close" :gray="true" />
+          <base-button title="Cancel" :click="close" :no-background="true" />
         </div>
         <div class="send-transaction__buttons-send">
           <base-button
@@ -388,8 +388,8 @@ const sendAction = () => {
   });
 };
 
-const toggleSelector = () => {
-  isSendToken.value = !isSendToken.value;
+const toggleSelector = (isTokenSend: boolean) => {
+  isSendToken.value = isTokenSend;
 };
 
 const toggleSelectNft = (open: boolean) => {

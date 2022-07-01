@@ -98,7 +98,7 @@ defineProps({
     &-fiat {
       font-style: normal;
       font-weight: 400;
-      font-size: 10px;
+      font-size: 14px;
       line-height: 20px;
       letter-spacing: 0.25px;
       color: @secondaryLabel;
@@ -108,7 +108,7 @@ defineProps({
     &-crypto {
       font-style: normal;
       font-weight: 400;
-      font-size: 10px;
+      font-size: 14px;
       line-height: 20px;
       letter-spacing: 0.25px;
       color: @tertiaryLabel;

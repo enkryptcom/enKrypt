@@ -57,7 +57,6 @@ const select = () => {
 @import "~@action/styles/theme.less";
 
 .send-address-item {
-  text-decoration: none;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -66,6 +65,12 @@ const select = () => {
   height: 56px;
   cursor: pointer;
   text-decoration: none;
+  transition: background 300ms ease-in-out;
+  border-radius: 10px;
+
+  &:hover {
+    background: @black007;
+  }
 
   &__number {
     font-style: normal;
