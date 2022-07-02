@@ -38,15 +38,16 @@ export default {
 import SendAddressItem from "./send-address-item.vue";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 import ListSearch from "@action/components/list-search/index.vue";
-import { Account } from "@action/types/account";
+import { Account, AccountsHeaderData } from "@action/types/account";
 import { onUpdated, ref } from "vue";
+import { KeyRecord } from "@enkryptcom/types";
 
 interface IProps {
   showAccounts: boolean;
   close: (close: boolean) => void;
   selectAccount: (account: Account) => void;
   identicon?: (address: string) => string;
-  accounts: Account[];
+  accountInfo: AccountsHeaderData;
 }
 
 const settings = {
@@ -57,10 +58,10 @@ const settings = {
 
 const props = defineProps<IProps>();
 
-const searchAccounts = ref<Account[]>(props.accounts);
+const searchAccounts = ref<KeyRecord[]>(props.accountInfo.activeAccounts);
 
 onUpdated(() => {
-  searchAccounts.value = props.accounts;
+  searchAccounts.value = props.accountInfo.activeAccounts;
 });
 
 const close = () => {
@@ -69,17 +70,15 @@ const close = () => {
 
 const search = (searchParam: string) => {
   if (searchParam === "") {
-    searchAccounts.value = props.accounts;
+    searchAccounts.value = props.accountInfo.activeAccounts;
   } else {
     const lowerSearchParam = searchParam.toLowerCase();
-    searchAccounts.value = props.accounts.filter(
+    searchAccounts.value = props.accountInfo.activeAccounts.filter(
       (account) =>
         account.address.toLowerCase().startsWith(lowerSearchParam) ||
         account.name.toLowerCase().startsWith(lowerSearchParam)
     );
   }
-
-  console.log(searchParam);
 };
 
 const selectAccount = (account: Account) => {

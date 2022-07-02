@@ -107,7 +107,7 @@ export class SubstrateNetwork extends BaseNetwork {
 
     const api = await this.api();
 
-    const balancePromises = supported.map(async (token) =>
+    const balancePromises = supported.map((token) =>
       token.getUserBalance((api as SubstrateAPI).api, address)
     );
     const marketData = new MarketData();
@@ -144,6 +144,7 @@ export class SubstrateNetwork extends BaseNetwork {
         valuef: formatFloatingPointValue(
           market[idx]?.current_price.toString() || "0"
         ).value,
+        baseToken: st,
       };
     });
 

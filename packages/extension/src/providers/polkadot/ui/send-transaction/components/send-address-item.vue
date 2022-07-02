@@ -19,11 +19,11 @@ export default {
 
 <script setup lang="ts">
 import { PropType } from "vue";
-import { Account } from "@action/types/account";
+import { KeyRecord } from "@enkryptcom/types";
 
 const props = defineProps({
   account: {
-    type: Object as PropType<Account>,
+    type: Object as PropType<KeyRecord>,
     default: () => {
       return {};
     },

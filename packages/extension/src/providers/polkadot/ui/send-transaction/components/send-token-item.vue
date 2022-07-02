@@ -30,15 +30,15 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { onBeforeMount, onUpdated, ref } from "vue";
-import { BaseToken } from "@/types/base-token";
+import { onBeforeMount, ref } from "vue";
 import EvmAPI from "@/providers/ethereum/libs/api";
 import { ApiPromise } from "@polkadot/api";
-import { fromBase } from "@/libs/utils/units";
+import { AssetsType } from "@/types/provider";
+import BigNumber from "bignumber.js";
 
 interface IProps {
-  token: BaseToken;
-  selectToken: (token: BaseToken) => void;
+  token: AssetsType | Partial<AssetsType>;
+  selectToken: (token: AssetsType | Partial<AssetsType>) => void;
   activeAccount?: string;
   api?: EvmAPI | ApiPromise;
 }
@@ -46,24 +46,15 @@ interface IProps {
 const props = defineProps<IProps>();
 
 const tokenPrice = ref<number | undefined>();
-const tokenBalance = ref<string | undefined>();
+const tokenBalance = ref<string | undefined>("~");
 
-const init = async () => {
-  if (props.api && props.activeAccount) {
-    props.token
-      .getUserBalance(props.api, props.activeAccount)
-      .then((balance) => {
-        tokenBalance.value = fromBase(balance, props.token.decimals);
-      });
-    props.token.getTokenPrice().then((fiatValue) => {
-      console.log(fiatValue);
-    });
+onBeforeMount(() => {
+  if (props.token) {
+    tokenBalance.value = new BigNumber(props.token.balance!)
+      .div(new BigNumber(10 ** props.token.decimals!))
+      .toString();
   }
-};
-
-onBeforeMount(() => init());
-
-onUpdated(() => init());
+});
 
 const select = () => {
   props.selectToken(props.token);

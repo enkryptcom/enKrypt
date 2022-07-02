@@ -34,14 +34,15 @@ import { BaseToken } from "@/types/base-token";
 import EvmAPI from "@/providers/ethereum/libs/api";
 import { ApiPromise } from "@polkadot/api";
 import { onUpdated, ref } from "vue";
+import { AssetsType } from "@/types/provider";
 
 interface IProps {
   showTokens: boolean;
   close: (shouldClose: boolean) => void;
-  selectToken: (token: BaseToken) => void;
+  selectToken: (token: AssetsType | Partial<AssetsType>) => void;
   activeAccount?: string;
   api?: EvmAPI | ApiPromise;
-  assets: BaseToken[];
+  assets: AssetsType[] | Partial<AssetsType>[];
 }
 
 const settings = {
@@ -52,7 +53,7 @@ const settings = {
 
 const props = defineProps<IProps>();
 
-const searchAssets = ref<BaseToken[]>(props.assets);
+const searchAssets = ref<AssetsType[] | Partial<AssetsType>[]>(props.assets);
 
 onUpdated(() => {
   searchAssets.value = props.assets;
@@ -69,11 +70,10 @@ const search = (searchParam: string) => {
     const lowerSearchParam = searchParam.toLowerCase();
     searchAssets.value = props.assets.filter(
       (asset) =>
-        asset.name.toLowerCase().startsWith(lowerSearchParam) ||
-        asset.symbol.toLowerCase().startsWith(lowerSearchParam)
+        asset.name?.toLowerCase().startsWith(lowerSearchParam) ||
+        asset.symbol?.toLowerCase().startsWith(lowerSearchParam)
     );
   }
-  console.log(searchParam);
 };
 
 const selectToken = (token: BaseToken) => {

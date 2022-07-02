@@ -20,12 +20,12 @@
         :close="toggleSelectContact"
         :select-account="selectAccount"
         :active-network="props.network"
-        :accounts="accounts"
+        :account-info="accountInfo"
         :identicon="identicon"
       ></send-contacts-list>
 
       <send-token-select
-        :token="selectedToken"
+        :token="selectedAsset"
         :toggle-select="toggleSelectToken"
         :api="api"
         :active-account="props.accountInfo.selectedAccount!.address"
@@ -37,13 +37,16 @@
         :select-token="selectToken"
         :active-account="props.accountInfo.selectedAccount!.address"
         :api="api"
-        :assets="userAssets"
+        :assets="accountAssets"
       >
       </send-token-list>
 
       <send-input-amount
-        :input="inputAmount"
-        :value="amount"
+        :amount="amount"
+        :fiat-value="selectedAsset.value"
+        :has-enough-balance="hasEnough"
+        @update:input-amount="inputAmount"
+        @update:input-set-max="setSendMax()"
       ></send-input-amount>
 
       <send-fee-select v-if="fee" :fee="fee"></send-fee-select>
@@ -84,32 +87,17 @@ import SendInputAmount from "./components/send-input-amount.vue";
 import SendFeeSelect from "./components/send-fee-select.vue";
 import SendAlert from "./components/send-alert.vue";
 import BaseButton from "@action/components/base-button/index.vue";
-import { BaseToken } from "@/types/base-token";
 import EvmAPI from "@/providers/ethereum/libs/api";
 import { ApiPromise } from "@polkadot/api";
 import { Account, AccountsHeaderData } from "@action/types/account";
 import { GasFeeInfo } from "@/providers/ethereum/ui/types";
 import { SubstrateNetwork } from "../../types/substrate-network";
-import { toBase } from "@/libs/utils/units";
 import { toBN } from "web3-utils";
 import { formatFloatingPointValue } from "@/libs/utils/number-formatter";
-
-const route = useRoute();
-const router = useRouter();
-
-const isOpenSelectContact = ref(false);
-const address = ref("");
-const isOpenSelectToken = ref(false);
-const selectedToken = ref<BaseToken | undefined>();
-const amount = ref("0");
-const fee = ref<GasFeeInfo | null>(null);
-const edWarn = ref(false);
-const accounts = ref<Account[]>([]);
-const identicon = ref<((address: string) => string) | undefined>();
-const userAssets = ref<BaseToken[]>([]);
-const api = ref<EvmAPI | ApiPromise>();
-
-const selected: string = route.params.id as string;
+import createIcon from "../../libs/blockies";
+import { AssetsType } from "@/types/provider";
+import { toBase } from "@/libs/utils/units";
+import BigNumber from "bignumber.js";
 
 const props = defineProps({
   network: {
@@ -122,53 +110,90 @@ const props = defineProps({
   },
 });
 
+const route = useRoute();
+const router = useRouter();
+const identicon = createIcon;
+
+const isOpenSelectContact = ref(false);
+const address = ref("");
+const isOpenSelectToken = ref(false);
+const amount = ref("0");
+const fee = ref<GasFeeInfo | null>(null);
+const edWarn = ref(false);
+const api = ref<EvmAPI | ApiPromise>();
+const accountAssets = ref<AssetsType[]>([]);
+const selectedAsset = ref<AssetsType | Partial<AssetsType>>({
+  icon: props.network.icon,
+  balancef: "0.00",
+  balanceUSDf: "0.00",
+  value: "0",
+  name: "loading",
+  decimals: 18,
+});
+const hasEnough = ref(true);
+const sendMax = ref(false);
+
+const selected: string = route.params.id as string;
+
 onMounted(async () => {
-  const networkAssets = props.network.getAllTokens();
-  console.log(networkAssets);
-  selectedToken.value = networkAssets[0];
-  userAssets.value = networkAssets;
+  const networkAssets = await props.network.getAllTokenInfo(
+    props.accountInfo.selectedAccount?.address ?? ""
+  );
+  selectedAsset.value = networkAssets[0];
+  accountAssets.value = networkAssets;
   const networkApi = await props.network.api();
   await networkApi.init();
   api.value = networkApi.api;
 });
 
-// watch([selectedToken, amount, address], async () => {
-//   if (selectedToken.value && amount.value && address.value && api.value) {
-//     const rawAmount = toBN(
-//       toBase(amount.value.toString(), selectedToken.value.decimals)
-//     );
+watch([selectedAsset, amount, address], async () => {
+  if (selectedAsset.value && amount.value && address.value && api.value) {
+    const rawAmount = toBN(
+      toBase(amount.value.toString(), selectedAsset.value.decimals!)
+    );
 
-//     const tx = await selectedToken.value.send(
-//       api.value,
-//       address.value,
-//       rawAmount.toString()
-//     );
-//     const { partialFee } = (
-//       await tx.paymentInfo(props.accountInfo.selectedAccount!.address)
-//     ).toJSON();
+    const rawBalance = toBN(selectedAsset.value.balance!);
 
-//     fee.value = {
-//       fiatSymbol: "USD",
-//       fiatValue: "0",
-//       nativeSymbol: "DOT",
-//       nativeValue: "0",
-//     };
+    if (rawAmount.gt(rawBalance)) {
+      hasEnough.value = false;
+    } else {
+      hasEnough.value = true;
+    }
 
-//     const txFee = toBN(partialFee);
-//     const ed = selectedToken.value.existentialDeposit ?? toBN(0);
-//     const userBalance = toBN(
-//       await selectedToken.value.getUserBalance(
-//         api.value,
-//         props.accountInfo.selectedAccount!.address
-//       )
-//     );
-//     if (userBalance.sub(txFee).sub(rawAmount).lt(ed)) {
-//       edWarn.value = true;
-//     } else {
-//       edWarn.value = false;
-//     }
-//   }
-// });
+    const tx = await selectedAsset.value.baseToken!.send(
+      api.value,
+      address.value,
+      rawAmount.toString()
+    );
+    const { partialFee } = (
+      await tx.paymentInfo(props.accountInfo.selectedAccount!.address)
+    ).toJSON();
+
+    const txFee = toBN(partialFee);
+    const txFeeHuman = new BigNumber(partialFee).div(
+      new BigNumber(10 ** selectedAsset.value.decimals!)
+    );
+    const txPrice = new BigNumber(selectedAsset.value.value!).times(txFeeHuman);
+
+    fee.value = {
+      fiatSymbol: "USD",
+      fiatValue: txPrice.toString(),
+      nativeSymbol: selectedAsset.value.symbol ?? "",
+      nativeValue: txFeeHuman.toString(),
+    };
+
+    const ed = selectedAsset.value.baseToken!.existentialDeposit ?? toBN(0);
+    const userBalance = toBN(selectedAsset.value.balance ?? 0);
+    if (
+      !userBalance.eq(rawAmount) &&
+      userBalance.sub(txFee).sub(rawAmount).lt(ed)
+    ) {
+      edWarn.value = true;
+    } else {
+      edWarn.value = false;
+    }
+  }
+});
 
 const close = () => {
   router.go(-1);
@@ -191,8 +216,8 @@ const selectAccount = (account: Account) => {
   isOpenSelectContact.value = false;
 };
 
-const selectToken = (token: BaseToken) => {
-  selectedToken.value = token;
+const selectToken = (token: AssetsType | Partial<AssetsType>) => {
+  selectedAsset.value = token;
   isOpenSelectToken.value = false;
 };
 
@@ -207,13 +232,24 @@ const sendButtonTitle = computed(() => {
       "Send " +
       formatFloatingPointValue(amount.value).value +
       " " +
-      selectedToken.value?.symbol!.toUpperCase();
+      selectedAsset.value?.symbol!.toUpperCase();
   return title;
 });
 
+const setSendMax = () => {
+  if (selectedAsset.value) {
+    const humanBalance = new BigNumber(selectedAsset.value.balance!).div(
+      10 ** selectedAsset.value.decimals!
+    );
+
+    amount.value = humanBalance.toString();
+    sendMax.value = true;
+  }
+};
+
 const isDisabled = () => {
   let isDisabled = true;
-  if (parseInt(amount.value) > 0) isDisabled = false;
+  if (hasEnough.value && address.value !== undefined) isDisabled = false;
   return isDisabled;
 };
 

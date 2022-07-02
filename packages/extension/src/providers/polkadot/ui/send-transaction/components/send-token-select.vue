@@ -30,15 +30,15 @@ export default {
 <script setup lang="ts">
 import { ref, onUpdated } from "vue";
 import SwitchArrow from "@action/icons/header/switch_arrow.vue";
-import { BaseToken } from "@/types/base-token";
 import EvmAPI from "@/providers/ethereum/libs/api";
 import { ApiPromise } from "@polkadot/api/promise/Api";
-import { fromBase } from "@/libs/utils/units";
+import { AssetsType } from "@/types/provider";
+import BigNumber from "bignumber.js";
 
 interface IProps {
   toggleSelect: (arg: any) => void;
   activeAccount?: string;
-  token?: BaseToken;
+  token?: AssetsType | Partial<AssetsType>;
   api?: EvmAPI | ApiPromise;
 }
 
@@ -46,15 +46,13 @@ let isOpen = ref(false);
 
 const props = defineProps<IProps>();
 
-const tokenBalance = ref<string | undefined>();
+const tokenBalance = ref<string | undefined>("~");
 
 onUpdated(async () => {
-  if (props.api && props.token && props.activeAccount) {
-    props.token
-      .getUserBalance(props.api, props.activeAccount)
-      .then((balance) => {
-        tokenBalance.value = fromBase(balance, props.token!.decimals);
-      });
+  if (props.token) {
+    tokenBalance.value = new BigNumber(props.token.balance!)
+      .div(new BigNumber(10 ** props.token.decimals!))
+      .toString();
   }
 });
 
