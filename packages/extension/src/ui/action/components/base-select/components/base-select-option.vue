@@ -52,6 +52,12 @@ const select = () => {
     box-sizing: border-box;
     display: block;
     position: relative;
+    transition: background 300ms ease-in-out;
+    border-radius: 10px;
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.04);
+    }
 
     h5 {
       font-style: normal;

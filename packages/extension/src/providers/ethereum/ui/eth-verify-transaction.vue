@@ -102,6 +102,7 @@
         :show-fees="isOpenSelectFee"
         :selected="selectedFee"
         :is-header="true"
+        :is-popup="true"
         @close-popup="toggleSelectFee"
         @gas-type-changed="selectFee"
       ></transaction-fee-view>

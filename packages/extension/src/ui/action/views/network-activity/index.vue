@@ -14,8 +14,6 @@
         <network-activity-action
           :deposit-action="depositAction"
           :buy-action="buyAction"
-          :send-action="sendAction"
-          :swap-action="swapAction"
         />
 
         <network-activity-transaction
@@ -74,12 +72,6 @@ const depositAction = () => {
 const buyAction = () => {
   console.log("buyAction");
 };
-const sendAction = () => {
-  console.log("sendAction");
-};
-const swapAction = () => {
-  console.log("swapAction");
-};
 </script>
 
 <style lang="less" scoped>
@@ -88,11 +80,11 @@ const swapAction = () => {
 
 .container {
   width: 100%;
-  height: 488px;
+  height: 600px;
   background-color: @white;
   box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.16);
-  margin: 56px 0;
-  padding-top: 12px;
+  margin: 0;
+  padding-top: 0;
   box-sizing: border-box;
 }
 
@@ -105,9 +97,9 @@ const swapAction = () => {
     position: relative;
     margin: auto;
     width: 100%;
-    max-height: 468px;
-    margin: 0 0 8px 0;
-    padding: 0 !important;
+    max-height: 600px;
+    margin: 0;
+    padding: 68px 0 0 0 !important;
     box-sizing: border-box;
 
     &.ps--active-y {
@@ -123,6 +115,15 @@ const swapAction = () => {
     line-height: 24px;
     color: @primaryLabel;
     margin: 0;
+  }
+}
+</style>
+
+<style lang="less">
+.network-activity__scroll-area {
+  .ps__rail-y {
+    right: 3px !important;
+    margin: 59px 0 !important;
   }
 }
 </style>
