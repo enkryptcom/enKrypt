@@ -1,12 +1,12 @@
 <template>
   <div class="hardware-account-imported">
-    <connection-success />
+    <import-done-animation />
     <h3>Account imported</h3>
     <p>Now you can close this tab and open Enkrypt.</p>
   </div>
 </template>
 <script setup lang="ts">
-import ConnectionSuccess from "@action/icons/hardware/connection-success.vue";
+import ImportDoneAnimation from "@action/icons/import/import-done-animation.vue";
 </script>
 
 <script lang="ts">
@@ -19,15 +19,15 @@ export default {
 @import "~@action/styles/theme.less";
 
 .hardware-account-imported {
-  width: calc(~"100% + 112px");
-  height: calc(~"100% + 112px");
+  width: 100%;
+  height: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
   flex-direction: column;
   position: absolute;
-  left: -56px;
-  top: -56px;
+  left: 0;
+  top: 0;
   z-index: 5;
   background-color: @white;
   padding: 56px;
@@ -52,6 +52,11 @@ export default {
     color: @secondaryLabel;
     text-align: center;
     margin: 8px 0 24px 0;
+  }
+
+  svg {
+    width: 72px;
+    height: 72px;
   }
 }
 </style>

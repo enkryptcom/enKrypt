@@ -1,5 +1,5 @@
 <template>
-  <div class="ledger-connect">
+  <div class="ledger-connect" :class="{ process: isProcessing || isError }">
     <ledger-logo />
     <h3>Connect to your Ledger</h3>
     <p>
@@ -8,18 +8,18 @@
     </p>
 
     <base-button title="Connect" :click="connectAction" />
-
-    <hardware-wallet-process
-      v-if="isProcessing"
-      :is-ledger="true"
-      :is-connetion="true"
-    ></hardware-wallet-process>
-    <hardware-wallet-error
-      v-if="isError"
-      :retry="tryAgainAction"
-      :is-ledger="true"
-    ></hardware-wallet-error>
   </div>
+
+  <hardware-wallet-process
+    v-if="isProcessing"
+    :is-ledger="true"
+    :is-connetion="true"
+  ></hardware-wallet-process>
+  <hardware-wallet-error
+    v-if="isError"
+    :retry="tryAgainAction"
+    :is-ledger="true"
+  ></hardware-wallet-error>
 </template>
 <script setup lang="ts">
 import { ref } from "vue";
@@ -60,6 +60,11 @@ const tryAgainAction = () => {
 .ledger-connect {
   width: 100%;
   position: relative;
+
+  &.process {
+    height: 348px;
+    overflow: hidden;
+  }
 
   h3 {
     font-style: normal;

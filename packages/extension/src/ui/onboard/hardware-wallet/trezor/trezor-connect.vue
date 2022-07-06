@@ -1,5 +1,5 @@
 <template>
-  <div class="trezor-connect">
+  <div class="trezor-connect" :class="{ process: isProcessing || isError }">
     <trezor-logo />
     <h3>Connect to your Trezor</h3>
     <p>
@@ -8,17 +8,17 @@
     </p>
 
     <base-button title="Connect" :click="connectAction" />
-
-    <hardware-wallet-process
-      v-if="isProcessing"
-      :is-ledger="false"
-      :is-connetion="true"
-    ></hardware-wallet-process>
-    <hardware-wallet-error
-      v-if="isError"
-      :retry="tryAgainAction"
-    ></hardware-wallet-error>
   </div>
+
+  <hardware-wallet-process
+    v-if="isProcessing"
+    :is-ledger="false"
+    :is-connetion="true"
+  ></hardware-wallet-process>
+  <hardware-wallet-error
+    v-if="isError"
+    :retry="tryAgainAction"
+  ></hardware-wallet-error>
 </template>
 <script setup lang="ts">
 import { ref } from "vue";
@@ -59,6 +59,11 @@ const tryAgainAction = () => {
 .trezor-connect {
   width: 100%;
   position: relative;
+
+  &.process {
+    height: 348px;
+    overflow: hidden;
+  }
 
   h3 {
     font-style: normal;
