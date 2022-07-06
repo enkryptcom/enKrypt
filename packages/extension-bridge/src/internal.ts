@@ -223,8 +223,8 @@ const initIntercoms = () => {
         setTimeout(() => {
           if (incomingPort) {
             portMap.delete(portId);
-            incomingPort = null;
             incomingPort.disconnect();
+            incomingPort = null;
           }
         }, 250e3); // on chrome force reconnect as this is a way of keeping the background running forever //https://stackoverflow.com/questions/66618136/persistent-service-worker-in-chrome-extension
       }

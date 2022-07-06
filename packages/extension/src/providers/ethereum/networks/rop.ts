@@ -1,11 +1,8 @@
-import { ProviderName } from "@/types/provider";
-import { SignerType } from "@enkryptcom/types";
-import { toChecksumAddress } from "ethereumjs-util";
-import API from "../libs/api";
-import { EthereumNodeType } from "../types";
-import createIcon from "../libs/blockies";
-const ropstenNode: EthereumNodeType = {
-  name: "ROP",
+import { NetworkNames } from "@enkryptcom/types";
+import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
+
+const ropOptions: EvmNetworkOptions = {
+  name: NetworkNames.Ropsten,
   name_long: "Ropsten",
   homePage: "https://github.com/ethereum/ropsten",
   blockExplorerTX: "https://ropsten.etherscan.io/tx/[[txHash]]",
@@ -15,16 +12,10 @@ const ropstenNode: EthereumNodeType = {
   currencyName: "ROP",
   node: "wss://nodes.mewapi.io/ws/rop",
   icon: require("./icons/eth.svg"),
-  signer: [SignerType.secp256k1],
+  basePath: "m/44'/1'/0'/0",
   gradient: "#E6007A",
-  displayAddress: (address: string) => toChecksumAddress(address),
-  provider: ProviderName.ethereum,
-  identicon: createIcon,
-  basePath: "m/44'/60'/0'/0",
 };
-ropstenNode.api = async () => {
-  const api = new API(ropstenNode.node);
-  await api.init();
-  return api;
-};
-export default ropstenNode;
+
+const rop = new EvmNetwork(ropOptions);
+
+export default rop;

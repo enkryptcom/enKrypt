@@ -6,14 +6,18 @@ export enum MessageType {
   WINDOW_REQUEST = "enkrypt_window_request",
   NEWWINDOW_REQUEST = "enkrypt_new_window_request",
   ACTION_REQUEST = "enkrypt_action_request",
+  BACKGROUND_REQUEST = "enkrypt_background_request",
 }
 export enum Destination {
   contentScript = "content-script",
   background = "background",
   window = "window",
   newWindow = "new-window",
+  popup = "popup",
 }
 export enum InternalMethods {
+  getEthereumEncryptionPublicKey = "enkrypt_eth_encryption_pubkey",
+  ethereumDecrypt = "enkrypt_eth_decrypt",
   sign = "enkrypt_sign_hash",
   unlock = "enkrypt_unlock_keyring",
   isLocked = "enkrypt_is_locked_keyring",

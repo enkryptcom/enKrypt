@@ -10,11 +10,30 @@
       your wallet.
     </p>
 
+    <div class="lock-screen-forgot__alert">
+      <alert-icon />
+      <p>
+        Warning: you can lose your account and funds forever. Don’t reset if you
+        didn’t saved your secret recovery phrase, as there will be NO WAY to
+        restore your account after you reset.
+      </p>
+    </div>
+
+    <base-input
+      type="text"
+      placeholder="Type Reset"
+      class="lock-screen-forgot__input"
+      :value="reset"
+      :autofocus="true"
+      @update:value="resetChanged"
+    />
+
     <base-button
       title="Reset wallet"
-      :click="reset"
+      :click="resetAction"
       :red="true"
       class="lock-screen-forgot__reset"
+      :disabled="isDisabled"
     />
 
     <p class="lock-screen-forgot__info">
@@ -30,27 +49,33 @@ export default {
 </script>
 
 <script setup lang="ts">
+import { PropType, ref, computed } from "vue";
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import BaseButton from "@action/components/base-button/index.vue";
-const props = defineProps({
+import AlertIcon from "@action/icons/send/alert-icon.vue";
+import BaseInput from "@action/components/base-input/index.vue";
+
+const reset = ref("");
+
+defineProps({
   close: {
-    type: Function,
-    default: () => {
-      return null;
-    },
-  },
-  reset: {
-    type: Function,
+    type: Function as PropType<() => void>,
     default: () => {
       return null;
     },
   },
 });
-const close = () => {
-  props.close();
+
+const resetChanged = (newVal: string) => {
+  reset.value = newVal;
 };
-const reset = () => {
-  props.reset();
+
+const isDisabled = computed(() => {
+  return reset.value !== "reset";
+});
+
+const resetAction = () => {
+  console.log("resetAction");
 };
 </script>
 
@@ -72,6 +97,8 @@ const reset = () => {
     border-radius: 8px;
     cursor: pointer;
     font-size: 0;
+    transition: background 300ms ease-in-out;
+
     &:hover {
       background: @black007;
     }
@@ -94,8 +121,7 @@ const reset = () => {
   }
   &__reset {
     width: 100%;
-    margin-top: 24px;
-    margin-bottom: 36px;
+    margin-bottom: 24px;
   }
   &__info {
     font-size: 14px !important;
@@ -107,6 +133,50 @@ const reset = () => {
         text-decoration: none;
       }
     }
+  }
+  &__alert {
+    background: @error01;
+    border-radius: 10px;
+    padding: 12px 16px 12px 56px;
+    position: relative;
+    box-sizing: border-box;
+    margin: 24px 0 24px 0;
+
+    svg {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      margin-top: -12px;
+    }
+
+    p {
+      font-weight: 400;
+      font-size: 14px;
+      line-height: 20px;
+      letter-spacing: 0.25px;
+      color: @error;
+      margin: 0;
+
+      a {
+        color: @error;
+
+        &:hover {
+          text-decoration: none;
+        }
+      }
+    }
+  }
+  &__label {
+    font-style: normal;
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 24px;
+    color: @primaryLabel;
+    margin: 0 0 8px 0;
+    display: block;
+  }
+  &__input {
+    margin: 0 0 24px 0;
   }
 }
 </style>

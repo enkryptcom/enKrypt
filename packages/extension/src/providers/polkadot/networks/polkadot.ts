@@ -1,12 +1,13 @@
-import { ProviderName } from "@/types/provider";
-import { SignerType } from "@enkryptcom/types";
-import { polkadotEncodeAddress } from "@enkryptcom/utils";
-import API from "../libs/api";
-import dot from "../libs/assets-handlers/dot";
-import createIcon from "../libs/blockies";
-import { PolkadotNodeType } from "../types";
-const dotNode: PolkadotNodeType = {
-  name: "DOT",
+import { NetworkNames } from "@enkryptcom/types";
+import { toBN } from "web3-utils";
+import { SubstrateNativeToken } from "../types/substrate-native-token";
+import {
+  SubstrateNetwork,
+  SubstrateNetworkOptions,
+} from "../types/substrate-network";
+
+const polkadotOptions: SubstrateNetworkOptions = {
+  name: NetworkNames.Polkadot,
   name_long: "Polkadot",
   homePage: "https://polkadot.network",
   blockExplorerTX: "https://polkascan.io/polkadot/transaction/[[txHash]]",
@@ -16,19 +17,24 @@ const dotNode: PolkadotNodeType = {
   icon: require("./icons/polkadot.svg"),
   decimals: 10,
   prefix: 0,
-  signer: [SignerType.sr25519, SignerType.ed25519],
   gradient: "#8247E5",
   node: "wss://rpc.polkadot.io/",
-  displayAddress: (address: string) => polkadotEncodeAddress(address, 0),
-  provider: ProviderName.polkadot,
   coingeckoID: "polkadot",
-  identicon: createIcon,
-  assetsHandler: dot,
-  basePath: "//",
+  genesisHash:
+    "0x91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3",
 };
-dotNode.api = async () => {
-  const api = new API(dotNode.node, { decimals: dotNode.decimals });
-  await api.init();
-  return api;
-};
-export default dotNode;
+
+const polkadot = new SubstrateNetwork(polkadotOptions);
+
+const nativeAsset = new SubstrateNativeToken({
+  name: "Polkadot",
+  symbol: "DOT",
+  coingeckoID: "polkadot",
+  icon: require("./icons/polkadot.svg"),
+  decimals: 10,
+  existentialDeposit: toBN("10000000000"),
+});
+
+polkadot.assets = [nativeAsset];
+
+export default polkadot;

@@ -16,6 +16,7 @@ import {
 } from "@/types/messenger";
 import { OnMessageResponse } from "@enkryptcom/types";
 import { assert } from "chai";
+import { EventBusEmit, EventBusOn } from "./eventbus";
 
 export const sendToWindow = (
   message: SendMessage,
@@ -30,6 +31,14 @@ export const sendToWindow = (
 
 export const setContentScriptNamespace = (): void => {
   allowWindowMessaging(EXTENSION_NAMESPACE);
+};
+
+export const sendToBackgroundFromBackground = (
+  message: SendMessage
+): Promise<InternalOnMessageResponse> => {
+  return EventBusEmit(MessageType.BACKGROUND_REQUEST, message).then(
+    (res) => res as unknown as InternalOnMessageResponse
+  );
 };
 
 export const sendToBackgroundFromNewWindow = (
@@ -76,7 +85,7 @@ const backgroundOnMessage = (
 export const backgroundOnMessageFromWindow = (cb: onMessageType): void => {
   backgroundOnMessage(MessageType.WINDOW_REQUEST, (message) => {
     assert(
-      message.sender.context === "window",
+      message.sender.context === Destination.window,
       "Message didnt come from window"
     );
     return cb(message);
@@ -88,7 +97,7 @@ export const backgroundOnMessageFromNewWindow = (
 ): void => {
   backgroundOnMessage(MessageType.NEWWINDOW_REQUEST, async (message) => {
     assert(
-      message.sender.context === "new-window",
+      message.sender.context === Destination.newWindow,
       "Message didnt come from new-window"
     );
     return cb(message);
@@ -99,7 +108,10 @@ export const backgroundOnMessageFromAction = (
   cb: InternalMessageType
 ): void => {
   backgroundOnMessage(MessageType.ACTION_REQUEST, async (message) => {
-    assert(message.sender.context === "popup", "Message didnt come from popup");
+    assert(
+      message.sender.context === Destination.popup,
+      "Message didnt come from popup"
+    );
     return cb(message);
   });
 };
@@ -109,9 +121,17 @@ export const newWindowOnMessageFromBackground = (
 ): void => {
   backgroundOnMessage(MessageType.NEWWINDOW_REQUEST, async (message) => {
     assert(
-      message.sender.context === "background",
+      message.sender.context === Destination.background,
       "Message didnt come from background"
     );
+    return cb(message);
+  });
+};
+
+export const backgroundOnMessageFromBackground = (
+  cb: InternalMessageType
+): void => {
+  EventBusOn(MessageType.BACKGROUND_REQUEST, async (message) => {
     return cb(message);
   });
 };

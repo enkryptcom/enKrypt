@@ -19,4 +19,19 @@ export default {
     name: "ethSignTypedData",
     component: {},
   },
+  ethGetEncryptionKey: {
+    path: "eth-get-encryption-key",
+    name: "ethGetEncryptionKey",
+    component: {},
+  },
+  ethDecrypt: {
+    path: "eth-decrypt",
+    name: "ethDecrypt",
+    component: {},
+  },
+  ethConnectDApp: {
+    path: "eth-conncet-dapp",
+    name: "ethConnectDApp",
+    component: {},
+  },
 };

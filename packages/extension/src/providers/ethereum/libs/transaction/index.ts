@@ -3,10 +3,16 @@ import {
   EthereumTransaction,
   FinalizedFeeMarketEthereumTransaction,
   FinalizedLegacyEthereumTransaction,
+  GasCosts,
   GasPriceTypes,
+  TransactionOptions,
 } from "./types";
 import { numberToHex, toBN } from "web3-utils";
-import { getBaseFeeBasedOnType, getPriorityFeeBasedOnType } from "./gas-utils";
+import {
+  getBaseFeeBasedOnType,
+  getGasBasedOnType,
+  getPriorityFeeBasedOnType,
+} from "./gas-utils";
 import Common, { Hardfork } from "@ethereumjs/common";
 import {
   FeeMarketEIP1559Transaction,
@@ -27,9 +33,16 @@ class Transaction {
       data: this.tx.data || "0x",
     });
   }
-  async finalizeTransaction(): Promise<
-    FinalizedFeeMarketEthereumTransaction | FinalizedLegacyEthereumTransaction
-  > {
+  async finalizeTransaction(options: TransactionOptions): Promise<{
+    transaction:
+      | FinalizedFeeMarketEthereumTransaction
+      | FinalizedLegacyEthereumTransaction;
+    gasPrice?: string;
+    baseFeePerGas?: string;
+    maxPriorityFeePerGas?: string;
+    maxFeePerGas?: string;
+    gasLimit: string;
+  }> {
     const { isFeeMarketNetwork, baseFeePerGas } = await this.web3.eth
       .getBlockNumber()
       .then((blockNum) => {
@@ -54,20 +67,26 @@ class Transaction {
         gasLimit:
           this.tx.gasLimit ||
           (numberToHex(await this.estimateGas()) as `0x${string}`),
-        gasPrice: numberToHex(gasPrice) as `0x${string}`,
+        gasPrice: numberToHex(
+          getGasBasedOnType(gasPrice, options.gasPriceType)
+        ) as `0x${string}`,
         nonce: this.tx.nonce || (numberToHex(nonce) as `0x${string}`),
         value: this.tx.value || "0x0",
       };
-      return legacyTx;
+      return {
+        transaction: legacyTx,
+        gasPrice: gasPrice,
+        gasLimit: legacyTx.gasLimit,
+      };
     } else {
       let maxFeePerGas = getBaseFeeBasedOnType(
         baseFeePerGas?.toString() as string,
-        GasPriceTypes.REGULAR
+        options.gasPriceType
       );
       const maxPriorityFeePerGas = getPriorityFeeBasedOnType(
         baseFeePerGas?.toString() as string,
         gasPrice.toString(),
-        GasPriceTypes.REGULAR
+        options.gasPriceType
       );
       if (maxPriorityFeePerGas.gt(maxFeePerGas)) {
         maxFeePerGas = maxPriorityFeePerGas;
@@ -89,40 +108,91 @@ class Transaction {
         type: "0x02",
         accessList: this.tx.accessList || [],
       };
-      return feeMarketTx;
+      return {
+        transaction: feeMarketTx,
+        gasLimit: feeMarketTx.gasLimit,
+        baseFeePerGas: numberToHex(baseFeePerGas!),
+        maxFeePerGas: numberToHex(maxFeePerGas),
+        maxPriorityFeePerGas: numberToHex(maxPriorityFeePerGas),
+      };
     }
   }
-  async getFinalizedTransaction(): Promise<
-    LegacyTransaction | FeeMarketEIP1559Transaction
-  > {
-    const finalizedTx = await this.finalizeTransaction();
+  async getFinalizedTransaction(
+    options: TransactionOptions
+  ): Promise<LegacyTransaction | FeeMarketEIP1559Transaction> {
+    const { transaction } = await this.finalizeTransaction(options);
 
-    if (!finalizedTx.maxFeePerGas) {
+    if (!transaction.maxFeePerGas) {
       const common = Common.custom({
-        chainId: toBN(finalizedTx.chainId),
+        chainId: toBN(transaction.chainId),
       });
       return LegacyTransaction.fromTxData(
-        finalizedTx as FinalizedLegacyEthereumTransaction,
+        transaction as FinalizedLegacyEthereumTransaction,
         {
           common,
         }
       );
     } else {
       const common = Common.custom({
-        chainId: toBN(finalizedTx.chainId),
+        chainId: toBN(transaction.chainId),
         defaultHardfork: Hardfork.London,
       });
       return FeeMarketEIP1559Transaction.fromTxData(
-        finalizedTx as FinalizedFeeMarketEthereumTransaction,
+        transaction as FinalizedFeeMarketEthereumTransaction,
         {
           common,
         }
       );
     }
   }
-  async getMessageToSign(): Promise<Buffer> {
-    const tx = await this.getFinalizedTransaction();
+  async getMessageToSign(options: TransactionOptions): Promise<Buffer> {
+    const tx = await this.getFinalizedTransaction(options);
     return tx.getMessageToSign(true);
+  }
+  async getGasCosts(): Promise<GasCosts> {
+    const { gasLimit, gasPrice, baseFeePerGas } =
+      await this.finalizeTransaction({
+        gasPriceType: GasPriceTypes.ECONOMY,
+      });
+    if (gasPrice) {
+      return {
+        [GasPriceTypes.ECONOMY]: numberToHex(
+          getGasBasedOnType(gasPrice, GasPriceTypes.ECONOMY).mul(toBN(gasLimit))
+        ),
+        [GasPriceTypes.REGULAR]: numberToHex(
+          getGasBasedOnType(gasPrice, GasPriceTypes.REGULAR).mul(toBN(gasLimit))
+        ),
+        [GasPriceTypes.FAST]: numberToHex(
+          getGasBasedOnType(gasPrice, GasPriceTypes.FAST).mul(toBN(gasLimit))
+        ),
+        [GasPriceTypes.FASTEST]: numberToHex(
+          getGasBasedOnType(gasPrice, GasPriceTypes.FASTEST).mul(toBN(gasLimit))
+        ),
+      };
+    } else {
+      return {
+        [GasPriceTypes.ECONOMY]: numberToHex(
+          getBaseFeeBasedOnType(baseFeePerGas!, GasPriceTypes.ECONOMY).mul(
+            toBN(gasLimit)
+          )
+        ),
+        [GasPriceTypes.REGULAR]: numberToHex(
+          getBaseFeeBasedOnType(baseFeePerGas!, GasPriceTypes.REGULAR).mul(
+            toBN(gasLimit)
+          )
+        ),
+        [GasPriceTypes.FAST]: numberToHex(
+          getBaseFeeBasedOnType(baseFeePerGas!, GasPriceTypes.FAST).mul(
+            toBN(gasLimit)
+          )
+        ),
+        [GasPriceTypes.FASTEST]: numberToHex(
+          getBaseFeeBasedOnType(baseFeePerGas!, GasPriceTypes.FASTEST).mul(
+            toBN(gasLimit)
+          )
+        ),
+      };
+    }
   }
 }
 

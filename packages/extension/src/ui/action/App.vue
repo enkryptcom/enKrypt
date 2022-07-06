@@ -2,43 +2,39 @@
   <div class="app">
     <div ref="appMenuRef" class="app__menu">
       <logo-min :color="networkGradient" class="app__menu-logo" />
-      <base-search :is-border="false" />
+      <base-search :input="searchInput" :is-border="false" />
       <app-menu
         :networks="networks"
         :selected="(route.params.id as string)"
-        :set-network="setNetwork"
+        @update:network="setNetwork"
       />
-      <br /><br />
-      <a href="javascript:void(0);" @click="openCreate()">
-        to Create / Restore
-      </a>
       <div class="app__menu-footer">
-        <a
-          class="app__menu-add"
-          :class="{ active: $route.name == 'add-network' }"
-          @click="addNetwork()"
-        >
-          <add-icon />
-          Add a network
+        <a class="app__menu-add" @click="addNetworkShow = !addNetworkShow">
+          <manage-networks-icon />
+          Manage networks
         </a>
 
         <div>
-          <a class="app__menu-link">
-            <hold-icon />
-          </a>
-
-          <a class="app__menu-link">
-            <settings-icon />
-          </a>
+          <tooltip text="Lock Enkrypt">
+            <a class="app__menu-link" @click="lockAction()">
+              <hold-icon />
+            </a>
+          </tooltip>
+          <tooltip text="Settings">
+            <a class="app__menu-link" @click="settingsShow = !settingsShow">
+              <settings-icon />
+            </a>
+          </tooltip>
         </div>
       </div>
     </div>
 
     <div class="app__content">
       <accounts-header
+        v-show="showNetworkMenu"
         :account-info="accountHeaderData"
         :network="currentNetwork"
-        :init="init"
+        @update:init="init"
         @address-changed="onSelectedAddressChanged"
       />
       <router-view v-slot="{ Component }" name="view">
@@ -47,35 +43,46 @@
             :is="Component"
             :network="currentNetwork"
             :account-info="accountHeaderData"
-            :init="init"
+            @update:init="init"
           />
         </transition>
       </router-view>
 
-      <!-- <router-view name="modal"></router-view>
-      <router-view name="accounts"></router-view> -->
-
       <network-menu
+        v-show="showNetworkMenu"
         :selected="(route.params.id as string)"
         :network="currentNetwork"
       />
     </div>
+
+    <add-network
+      v-show="addNetworkShow"
+      @close:popup="addNetworkShow = !addNetworkShow"
+      @update:active-networks="setActiveNetworks"
+    ></add-network>
+
+    <settings
+      v-show="settingsShow"
+      @close:popup="settingsShow = !settingsShow"
+    ></settings>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import AppMenu from "./components/app-menu/index.vue";
 import NetworkMenu from "./components/network-menu/index.vue";
 import AccountsHeader from "./components/accounts-header/index.vue";
 import BaseSearch from "./components/base-search/index.vue";
 import LogoMin from "./icons/common/logo-min.vue";
-import AddIcon from "./icons/common/add-icon.vue";
+import ManageNetworksIcon from "./icons/common/manage-networks-icon.vue";
 import SettingsIcon from "./icons/common/settings-icon.vue";
 import HoldIcon from "./icons/common/hold-icon.vue";
+import AddNetwork from "./views/add-network/index.vue";
+import Settings from "./views/settings/index.vue";
+import Tooltip from "./components/tooltip/index.vue";
 import { useRouter, useRoute } from "vue-router";
-import { WindowPromise } from "@/libs/window-promise";
-import { NodeType } from "@/types/provider";
+import { BaseNetwork } from "@/types/base-network";
 import {
   getAllNetworks,
   DEFAULT_NETWORK_NAME,
@@ -87,11 +94,15 @@ import { AccountsHeaderData } from "./types/account";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
 import { KeyRecord } from "@enkryptcom/types";
 import { sendToBackgroundFromAction } from "@/libs/messenger/extension";
-import { EthereumNodeType, MessageMethod } from "@/providers/ethereum/types";
+import { MessageMethod } from "@/providers/ethereum/types";
 import { InternalMethods } from "@/types/messenger";
+import NetworksState from "@/libs/networks-state";
 import openOnboard from "@/libs/utils/open-onboard";
+import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
+import { fromBase } from "@/libs/utils/units";
 
 const domainState = new DomainState();
+const networksState = new NetworksState();
 const appMenuRef = ref(null);
 const networkGradient = ref("");
 const accountHeaderData = ref<AccountsHeaderData>({
@@ -104,12 +115,30 @@ defineExpose({ appMenuRef });
 const router = useRouter();
 const route = useRoute();
 const transitionName = "fade";
-const networks: NodeType[] = getAllNetworks().filter(
-  (net) => !net.isTestNetwork //hide testnetworks for now
-);
-const defaultNetwork = getNetworkByName(DEFAULT_NETWORK_NAME) as NodeType;
-const currentNetwork = ref<NodeType>(defaultNetwork);
+
+const networks = ref<BaseNetwork[]>([]);
+const defaultNetwork = getNetworkByName(DEFAULT_NETWORK_NAME) as BaseNetwork;
+const currentNetwork = ref<BaseNetwork>(defaultNetwork);
 const kr = new PublicKeyRing();
+const addNetworkShow = ref(false);
+const settingsShow = ref(false);
+
+const setActiveNetworks = async () => {
+  const activeNetworkNames = await networksState.getActiveNetworkNames();
+  const allNetworks = getAllNetworks();
+  const networksToShow: BaseNetwork[] = [];
+
+  activeNetworkNames.forEach((name) => {
+    const network = allNetworks.find((network) => network.name === name);
+    if (network !== undefined) networksToShow.push(network);
+  });
+
+  networks.value = networksToShow;
+
+  if (!networks.value.includes(currentNetwork.value)) {
+    setNetwork(networks.value[0]);
+  }
+};
 
 const isKeyRingLocked = async (): Promise<boolean> => {
   return await sendToBackgroundFromAction({
@@ -130,6 +159,7 @@ const init = async () => {
   } else {
     setNetwork(defaultNetwork);
   }
+  await setActiveNetworks();
 };
 onMounted(async () => {
   const isInitialized = await kr.isInitialized();
@@ -144,7 +174,7 @@ onMounted(async () => {
     openOnboard();
   }
 });
-const setNetwork = async (network: NodeType) => {
+const setNetwork = async (network: BaseNetwork) => {
   //hack may be there is a better way. less.modifyVars doesnt work
   if (appMenuRef.value)
     (
@@ -169,7 +199,7 @@ const setNetwork = async (network: NodeType) => {
   };
   currentNetwork.value = network;
   const tabId = await domainState.getCurrentTabId();
-  if ((currentNetwork.value as EthereumNodeType).chainID) {
+  if ((currentNetwork.value as EvmNetwork).chainID) {
     await sendToBackgroundFromAction({
       message: JSON.stringify({
         method: InternalMethods.changeNetwork,
@@ -184,7 +214,7 @@ const setNetwork = async (network: NodeType) => {
         params: [
           {
             method: MessageMethod.changeChainId,
-            params: [(currentNetwork.value as EthereumNodeType).chainID],
+            params: [(currentNetwork.value as EvmNetwork).chainID],
           },
         ],
       }),
@@ -198,19 +228,19 @@ const setNetwork = async (network: NodeType) => {
     try {
       const api = await network.api();
       const activeBalancePromises = activeAccounts.map((acc) =>
-        api.getBaseBalance(acc.address)
+        api.getBalance(acc.address)
       );
       Promise.all(activeBalancePromises).then((balances) => {
-        accountHeaderData.value.activeBalances = balances;
+        accountHeaderData.value.activeBalances = balances.map((bal) =>
+          fromBase(bal, network.decimals)
+        );
       });
     } catch (e) {
       console.error(e);
     }
   }
 };
-const addNetwork = () => {
-  router.push({ name: "add-network" });
-};
+
 const onSelectedAddressChanged = async (newAccount: KeyRecord) => {
   accountHeaderData.value.selectedAccount = newAccount;
   await domainState.setSelectedAddress(newAccount.address);
@@ -228,13 +258,21 @@ const onSelectedAddressChanged = async (newAccount: KeyRecord) => {
     tabId: await domainState.getCurrentTabId(),
   });
 };
-const openCreate = () => {
-  const windowPromise = new WindowPromise();
-  windowPromise
-    .getResponse("onboard.html", JSON.stringify({ info: "test" }))
-    .then(({ error }) => {
-      console.error(error);
-    });
+const showNetworkMenu = computed(() => {
+  const selected = route.params.id as string;
+  return (
+    !!selected &&
+    (route.name == "activity" ||
+      route.name == "assets" ||
+      route.name == "nfts" ||
+      route.name == "dapps")
+  );
+});
+const searchInput = (text: string) => {
+  console.log(text);
+};
+const lockAction = () => {
+  router.push({ name: "lock-screen" });
 };
 </script>
 
@@ -300,11 +338,12 @@ body {
       color: @primaryLabel;
       text-decoration: none;
       cursor: pointer;
+      border-radius: 10px;
+      transition: background 300ms ease-in-out;
 
       &.active,
       &:hover {
         background: @black007;
-        border-radius: 10px;
       }
 
       svg {
@@ -319,11 +358,12 @@ body {
       text-decoration: none;
       cursor: pointer;
       font-size: 0;
+      border-radius: 10px;
+      transition: background 300ms ease-in-out;
 
       &.active,
       &:hover {
         background: @black007;
-        border-radius: 10px;
       }
     }
   }
