@@ -90,11 +90,11 @@ import { ApiPromise } from "@polkadot/api";
 import { AccountsHeaderData } from "@action/types/account";
 import { GasFeeInfo } from "@/providers/ethereum/ui/types";
 import { SubstrateNetwork } from "../../types/substrate-network";
-import { stringToHex, toBN } from "web3-utils";
+import { toBN } from "web3-utils";
 import { formatFloatingPointValue } from "@/libs/utils/number-formatter";
 import createIcon from "../../libs/blockies";
 import { AssetsType } from "@/types/provider";
-import { toBase } from "@/libs/utils/units";
+import { fromBase, toBase } from "@/libs/utils/units";
 import BigNumber from "bignumber.js";
 import { VerifyTransactionParams } from "../types";
 import { SendOptions } from "@/types/base-token";
@@ -180,9 +180,8 @@ watch([selectedAsset, amount, address], async () => {
     ).toJSON();
 
     const txFee = toBN(partialFee);
-    const txFeeHuman = new BigNumber(partialFee).div(
-      new BigNumber(10 ** selectedAsset.value.decimals!)
-    );
+    const txFeeHuman = fromBase(partialFee, selectedAsset.value.decimals!);
+
     const txPrice = new BigNumber(selectedAsset.value.value!).times(txFeeHuman);
 
     fee.value = {
@@ -248,11 +247,12 @@ const sendButtonTitle = computed(() => {
 
 const setSendMax = () => {
   if (selectedAsset.value) {
-    const humanBalance = new BigNumber(selectedAsset.value.balance!).div(
-      10 ** selectedAsset.value.decimals!
+    const humanBalance = fromBase(
+      selectedAsset.value.balance!,
+      selectedAsset.value.decimals!
     );
 
-    amount.value = humanBalance.toString();
+    amount.value = humanBalance;
     sendMax.value = true;
   }
 };
@@ -274,13 +274,10 @@ const isDisabled = () => {
 };
 
 const sendAction = async () => {
-  const sendAmount = new BigNumber(amount.value)
-    .times(
-      new BigNumber(10).pow(
-        new BigNumber(selectedAsset.value.baseToken!.decimals)
-      )
-    )
-    .toString();
+  const sendAmount = toBase(
+    amount.value,
+    selectedAsset.value.baseToken!.decimals
+  );
 
   const sendOptions: SendOptions | undefined = sendMax.value
     ? { type: "all" }
@@ -296,13 +293,10 @@ const sendAction = async () => {
 
   const txVerifyInfo: VerifyTransactionParams = {
     TransactionData: {
-      chainName: stringToHex(props.network.name_long) as `0x{string}`,
-      from: stringToHex(
-        props.accountInfo.selectedAccount!.address
-      ) as `0x{string}`,
-      to: stringToHex(address.value) as `0x{string}`,
+      from: props.accountInfo.selectedAccount!.address,
+      to: address.value,
       data: tx.toHex() as `0x{string}`,
-      value: stringToHex(amount.value) as `0x{string}`,
+      value: amount.value,
     },
     toToken: {
       amount: amount.value,
@@ -310,7 +304,7 @@ const sendAction = async () => {
       symbol: selectedAsset.value.symbol || "unknown",
       valueUSD: new BigNumber(selectedAsset.value.value || "0")
         .times(amount.value)
-        .toString(),
+        .toFixed(),
     },
     fromAddress: props.accountInfo.selectedAccount!.address,
     fromAddressName: props.accountInfo.selectedAccount!.name,
