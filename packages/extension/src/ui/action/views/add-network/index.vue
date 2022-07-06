@@ -1,6 +1,6 @@
 <template>
   <div class="add-network__container">
-    <div class="add-network__overlay" @click="close()"></div>
+    <div class="add-network__overlay" @click="emit('close:popup')"></div>
     <div class="add-network__wrap">
       <div
         class="add-network__header"
@@ -8,17 +8,20 @@
       >
         <h3>Manage networks</h3>
 
-        <a class="add-network__close" @click="close()">
+        <a class="add-network__close" @click="emit('close:popup')">
           <close-icon />
         </a>
       </div>
       <custom-scrollbar
         ref="manageNetworkScrollRef"
         class="add-network__scroll-area"
-        :settings="settings"
+        :settings="scrollSettings({ suppressScrollX: true })"
         @ps-scroll-y="handleScroll"
       >
-        <add-network-search :input="search" />
+        <add-network-search
+          :input="search"
+          :on-test-net-check="onTestNetCheck"
+        />
 
         <h3 class="add-network__list-header">Popular</h3>
 
@@ -26,16 +29,17 @@
           v-for="(item, index) in popular"
           :key="index"
           :network="item"
-          :is-active="true"
+          :is-active="item.isActive"
+          @network-toggled="onToggle"
         ></add-network-item>
 
         <h3 class="add-network__list-header">All networks</h3>
-
         <add-network-item
-          v-for="(item, index) in all"
-          :key="index"
+          v-for="item in all"
+          :key="item.name"
           :network="item"
-          :is-active="true"
+          :is-active="item.isActive"
+          @network-toggled="onToggle"
         ></add-network-item>
       </custom-scrollbar>
     </div>
@@ -49,32 +53,89 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, onBeforeMount, ComponentPublicInstance } from "vue";
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import AddNetworkSearch from "./components/add-network-search.vue";
 import AddNetworkItem from "./components/add-network-item.vue";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
-import { getAllNetworks } from "@/libs/utils/networks";
-const settings = {
-  suppressScrollY: false,
-  suppressScrollX: true,
-  wheelPropagation: false,
-};
-const popularNames = ["ETH", "MATIC", "DOT", "GLMR"];
-const popular = getAllNetworks().filter((net) =>
-  popularNames.includes(net.name)
-);
-const all = getAllNetworks();
+import { NodeType } from "@/types/provider";
+import { getAllNetworks, POPULAR_NAMES } from "@/libs/utils/networks";
+import NetworksState from "@/libs/networks-state";
+import scrollSettings from "@/libs/utils/scroll-settings";
+
+interface NodeTypesWithActive extends NodeType {
+  isActive: boolean;
+}
+const emit = defineEmits<{
+  (e: "close:popup"): void;
+  (e: "update:activeNetworks"): void;
+}>();
+
+const networksState = new NetworksState();
+
+const all = ref<Array<NodeTypesWithActive>>([]);
+const popular = ref<Array<NodeTypesWithActive>>([]);
 let scrollProgress = ref(0);
-const manageNetworkScrollRef = ref(null);
+const manageNetworkScrollRef = ref<ComponentPublicInstance<HTMLElement>>();
+const showTestNets = ref(false);
 
 defineExpose({ manageNetworkScrollRef });
-defineProps({
-  close: {
-    type: Function,
-    default: () => ({}),
-  },
+
+const getAllNetworksAndStatus = async () => {
+  const activeNetworks = await networksState.getActiveNetworkNames();
+
+  const allNetworks = getAllNetworks().map((net) => {
+    return {
+      ...net,
+      isActive: activeNetworks.includes(net.name),
+    };
+  });
+
+  return allNetworks;
+};
+
+onBeforeMount(async () => {
+  const allNetworksNotTestNets = (await getAllNetworksAndStatus()).filter(
+    ({ isTestNetwork }) => !isTestNetwork
+  );
+
+  const popularNetworks = allNetworksNotTestNets.filter((net) =>
+    POPULAR_NAMES.includes(net.name)
+  );
+
+  all.value = allNetworksNotTestNets;
+  popular.value = popularNetworks;
 });
+
+const onTestNetCheck = async () => {
+  showTestNets.value = !showTestNets.value;
+
+  if (showTestNets.value) {
+    all.value = await getAllNetworksAndStatus();
+  } else {
+    all.value = all.value.filter(({ isTestNetwork }) => !isTestNetwork);
+  }
+};
+
+const onToggle = async (networkName: string, isActive: boolean) => {
+  try {
+    await networksState.setNetworkStatus(networkName, isActive);
+    emit("update:activeNetworks");
+    all.value = all.value.map((network) => {
+      if (network.name === networkName) {
+        network.isActive = isActive;
+      }
+
+      return network;
+    });
+
+    popular.value = all.value.filter(({ name }) =>
+      POPULAR_NAMES.includes(name)
+    );
+  } catch (e) {
+    console.error(e);
+  }
+};
 
 const search = (value: string) => {
   console.log(value);
@@ -82,13 +143,10 @@ const search = (value: string) => {
 const handleScroll = (e: any) => {
   let progress = Number(e.target.lastChild.style.top.replace("px", ""));
   scrollProgress.value = progress;
-  console.log(isHasScroll() && scrollProgress.value > 0);
 };
 const isHasScroll = () => {
   if (manageNetworkScrollRef.value) {
-    return (manageNetworkScrollRef.value as HTMLElement).$el.classList.contains(
-      "ps--active-y"
-    );
+    return manageNetworkScrollRef.value.$el.classList.contains("ps--active-y");
   }
 
   return false;
@@ -140,6 +198,7 @@ const isHasScroll = () => {
     border-radius: 8px;
     cursor: pointer;
     font-size: 0;
+    transition: background 300ms ease-in-out;
 
     &:hover {
       background: @black007;

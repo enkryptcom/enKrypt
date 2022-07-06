@@ -1,76 +1,66 @@
 <template>
-  <div class="provider-verify-transaction">
-    <sign-logo
-      color="#E6007A"
-      class="provider-verify-transaction__logo"
-    ></sign-logo>
-    <div class="provider-verify-transaction__network">
-      <img src="@/ui/action/icons/raw/polkadot.png" />
-      <p>Polkadot</p>
-    </div>
-    <h2>Verify transaction</h2>
+  <common-popup>
+    <template #header>
+      <sign-logo color="#E6007A" class="common-popup__logo"></sign-logo>
+      <div class="common-popup__network">
+        <img
+          :src="network ? network.icon : '@/ui/action/icons/raw/polkadot.png'"
+        />
+        <p>{{ network ? network.name_long : "" }}</p>
+      </div>
+    </template>
 
-    <custom-scrollbar
-      ref="providerVerifyTransactionScrollRef"
-      class="provider-verify-transaction__scroll-area"
-      :settings="settings"
-    >
+    <template #content>
+      <h2>Verify transaction</h2>
+
       <div class="provider-verify-transaction__block">
         <div class="provider-verify-transaction__account">
-          <img src="@/ui/action/icons/raw/account.png" />
+          <img
+            :src="
+              account
+                ? createIcon(account.address)
+                : '@/ui/action/icons/raw/account.png'
+            "
+          />
           <div class="provider-verify-transaction__account-info">
-            <h4>My account nickname</h4>
+            <h4>{{ account?.name }}</h4>
             <div>
-              <p>12.34 <span>dot</span></p>
+              <p v-if="userBalance">
+                {{ formatBalance(userBalance.balance) }}
+                <span> {{ userBalance.symbol }} </span>
+              </p>
+              <p v-else>~</p>
               <p>
-                {{
-                  $filters.replaceWithEllipsis(
-                    "0x14502CF6C0A13167Dc340E25Dabf5FBDB68R5967",
-                    6,
-                    4
-                  )
-                }}
+                {{ $filters.replaceWithEllipsis(account?.address, 4, 4) }}
               </p>
             </div>
           </div>
         </div>
       </div>
-      <div class="provider-verify-transaction__block">
+      <div v-if="!networkIsUnknown" class="provider-verify-transaction__block">
         <div class="provider-verify-transaction__info">
-          <img src="@/ui/action/icons/raw/matchchain.png" />
+          <img
+            :src="network ? network.icon : '@/ui/action/icons/raw/polkadot.png'"
+          />
           <div class="provider-verify-transaction__info-info">
-            <h4>Polkadot</h4>
+            <h4>{{ network ? network.name_long : "Loading.." }}</h4>
             <p>
-              https://polkadot.js.org/apps/?rpc=wss%3A%2F%2Frpc.polkadot.io#/explorer
+              {{ Options.url }}
             </p>
           </div>
         </div>
-
-        <div class="provider-verify-transaction__amount">
-          <img src="@/ui/action/icons/raw/polkadot.png" />
-
-          <div class="provider-verify-transaction__amount-info">
-            <h4>1.56 <span>dot</span></h4>
-            <p>$4520.54</p>
-          </div>
-        </div>
-
-        <div class="provider-verify-transaction__error">
-          <alert-icon />
-          <p>
-            Warning: you will allow this DApp to spend any amount of ETH at any
-            time in the future. Please proceed only if you are trust this DApp.
-          </p>
-        </div>
       </div>
 
-      <send-fee-select
-        :fee="fee"
-        :toggle-select="toggleSelectFee"
-        :in-swap="true"
-      ></send-fee-select>
+      <component :is="txView" v-bind="txViewProps" />
 
-      <best-offer-error :not-enought-verify="true"></best-offer-error>
+      <p v-if="!networkIsUnknown">
+        Fee: {{ txFee ? `${formatBalance(txFee)}` : "~" }}
+      </p>
+
+      <best-offer-error
+        v-if="insufficientBalance"
+        :not-enought-verify="true"
+      ></best-offer-error>
 
       <div class="provider-verify-transaction__data">
         <a
@@ -81,120 +71,254 @@
         /></a>
 
         <div v-show="isOpenData" class="provider-verify-transaction__data-text">
-          <p>Function type: Register Proxy 0xddd81f82</p>
-          <p>Parameters: []</p>
-          <p>HEX data: 4 BYTES</p>
-          <p>0xddd81f82</p>
-          <p>Verified contract on <a href="#">Etherscan</a></p>
-          <p>Decoded by Truffle</p>
+          <div v-if="callData">
+            <p>
+              Call:
+              {{
+                callData.method
+                  ? `${callData.section}.${callData.method}`
+                  : "Loading"
+              }}
+            </p>
+            <p>Parameters:</p>
+            <li
+              v-for="(item, index) in Object.keys(callData.args ?? {})"
+              :key="index"
+            >
+              {{ `${item}: ${JSON.stringify(callData.args[item])}` }}
+            </li>
+          </div>
+          <div v-else>
+            <p>Loading</p>
+          </div>
         </div>
       </div>
-    </custom-scrollbar>
+    </template>
 
-    <transaction-fee-view
-      :show-fees="isOpenSelectFee"
-      :close="toggleSelectFee"
-      :select-fee="selectFee"
-      :selected="fee.price.speed"
-      :is-header="true"
-    ></transaction-fee-view>
+    <template #button-left>
+      <base-button title="Decline" :click="deny" :no-background="true" />
+    </template>
 
-    <div
-      class="provider-verify-transaction__buttons"
-      :class="{ border: isHasScroll() }"
-    >
-      <div class="provider-verify-transaction__buttons-cancel">
-        <base-button
-          title="Decline"
-          :click="cancelAction"
-          :no-background="true"
-        />
-      </div>
-      <div class="provider-verify-transaction__buttons-send">
-        <base-button title="Sign" :click="signAction" />
-      </div>
-    </div>
-
-    <modal-sign
-      v-if="isOpenSign"
-      :close="toggleSign"
-      :forgot="toggleForgot"
-      :unlock="unlockAction"
-    ></modal-sign>
-
-    <modal-forgot
-      v-if="isForgot"
-      :is-forgot="isForgot"
-      :toggle-forgot="toggleForgot"
-      :reset-action="resetAction"
-    ></modal-forgot>
-
-    <modal-preload v-show="isProcessing"></modal-preload>
-  </div>
+    <template #button-right>
+      <base-button title="Sign" :click="approve" />
+    </template>
+  </common-popup>
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { onBeforeMount, ref, watch } from "vue";
+import { base64Decode } from "@polkadot/util-crypto";
 import SignLogo from "@action/icons/common/sign-logo.vue";
+import CommonPopup from "@action/views/common-popup/index.vue";
 import RightChevron from "@action/icons/common/right-chevron.vue";
 import BaseButton from "@action/components/base-button/index.vue";
-import SendFeeSelect from "@action/views/send-transaction/components/send-fee-select.vue";
-import TransactionFeeView from "@action/views/transaction-fee/index.vue";
-import { TransactionFee } from "@action/types/fee";
-import { recommendedFee } from "@action/types/mock";
-import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 import BestOfferError from "@action/views/swap-best-offer/components/swap-best-offer-block/components/best-offer-error.vue";
-import AlertIcon from "@action/icons/send/alert-icon.vue";
-import ModalSign from "@action/views/modal-sign/index.vue";
-import ModalForgot from "@action/views/modal-forgot/index.vue";
-import ModalPreload from "@action/views/modal-preload/index.vue";
+import { KeyRecord } from "@enkryptcom/types";
+import { getCustomError, getError } from "@/libs/error";
+import { ErrorCodes } from "@/providers/ethereum/types";
+import { WindowPromiseHandler } from "@/libs/window-promise";
+import { InternalMethods } from "@/types/messenger";
+import { TypeRegistry, Metadata } from "@polkadot/types";
+import { SignerPayloadJSON } from "@polkadot/types/types";
+import { signPayload } from "../libs/signing-utils";
+import MetadataStorage from "../libs/metadata-storage";
+import { CallData } from "./types";
+import { getAllNetworks } from "@/libs/utils/networks";
+import { SubstrateNetwork } from "../types/substrate-network";
+import { BaseNetwork } from "@/types/base-network";
+import BlindVerifyView from "./custom-views/blind-approvetx.vue";
+import { polkadotEncodeAddress } from "@enkryptcom/utils";
+import { getViewAndProps } from "./custom-views";
+import SubstrateAPI from "../libs/api";
+import BigNumber from "bignumber.js";
+import { FrameSystemAccountInfo } from "@acala-network/types/interfaces/types-lookup";
+import createIcon from "../libs/blockies";
+import { ProviderRequestOptions } from "@/types/provider";
 
-let isOpenSelectFee = ref(false);
-let fee = ref(recommendedFee);
+const windowPromise = WindowPromiseHandler(0);
+
 const providerVerifyTransactionScrollRef = ref(null);
-let isOpenData = ref(false);
-let isOpenSign = ref(false);
-let isForgot = ref(false);
-let isProcessing = ref(false);
+const isOpenData = ref(false);
+const callData = ref<CallData>();
+const network = ref<BaseNetwork | undefined>();
+const networkIsUnknown = ref(false);
+const txView = ref<any>(BlindVerifyView);
+const account = ref<KeyRecord>();
+const txFee = ref<BigNumber>();
+const userBalance = ref<{ balance: BigNumber; symbol: string }>();
+const insufficientBalance = ref(false);
+const Options = ref<ProviderRequestOptions>({
+  domain: "",
+  faviconURL: "",
+  title: "",
+  url: "",
+});
+
+const metadataStorage = new MetadataStorage();
+
+const txViewProps = ref({});
+
+onBeforeMount(async () => {
+  const { Request, options } = await windowPromise;
+  Options.value = options;
+
+  const reqPayload = Request.value.params![0] as SignerPayloadJSON;
+  const reqAccount = Request.value.params![1] as KeyRecord;
+  const targetNetwork = getAllNetworks().find(
+    (network) =>
+      (network as SubstrateNetwork).genesisHash === reqPayload.genesisHash
+  );
+
+  if (targetNetwork) {
+    network.value = targetNetwork;
+  } else {
+    networkIsUnknown.value = true;
+  }
+
+  setAccount(reqAccount);
+  const metadata = await metadataStorage.getMetadata(reqPayload.genesisHash);
+
+  if (metadata && metadata.metaCalls) {
+    setCallData(reqPayload, metadata.metaCalls);
+
+    if (targetNetwork && callData.value) {
+      setViewAndProps(targetNetwork);
+      setBalanceAndFees(targetNetwork, reqPayload, metadata.metaCalls);
+    }
+  }
+});
+
+const setAccount = async (reqAccount: KeyRecord) => {
+  if (network.value) {
+    reqAccount.address = polkadotEncodeAddress(
+      reqAccount.address,
+      (network.value as SubstrateNetwork).prefix
+    );
+  }
+
+  account.value = reqAccount;
+};
+
+const setCallData = (reqPayload: SignerPayloadJSON, metaCalls: string) => {
+  const registry = new TypeRegistry();
+  registry.setMetadata(new Metadata(registry, base64Decode(metaCalls)));
+  registry.setSignedExtensions(reqPayload.signedExtensions);
+
+  const data = registry.createType("Call", reqPayload.method).toHuman();
+
+  callData.value = {
+    method: data.method as string,
+    section: data.section as string,
+    args: data.args,
+  };
+};
+
+const setViewAndProps = (network: BaseNetwork) => {
+  if (network && callData.value) {
+    const fullMethod = `${callData.value.section}.${callData.value.method}`;
+    const [view, viewProps] = getViewAndProps(
+      network as SubstrateNetwork,
+      fullMethod,
+      callData.value.args
+    );
+
+    txViewProps.value = viewProps;
+    txView.value = view;
+  }
+};
+
+const setBalanceAndFees = (
+  network: BaseNetwork,
+  payload: SignerPayloadJSON,
+  metaCalls: string
+) => {
+  const registry = new TypeRegistry();
+  registry.setMetadata(new Metadata(registry, base64Decode(metaCalls)));
+  registry.setSignedExtensions(payload.signedExtensions);
+
+  const extrinsic = registry.createType("Extrinsic", payload, {
+    version: payload.version,
+  });
+
+  (network.api() as Promise<SubstrateAPI>).then((api) => {
+    api.api
+      .tx(extrinsic)
+      .paymentInfo(payload.address, { era: 0 })
+      .then((info) => {
+        const { partialFee } = info.toJSON();
+        txFee.value = new BigNumber(partialFee as string | number);
+      });
+    api.api.query.system.account(payload.address).then((accountInfo) => {
+      const { data } =
+        accountInfo.toJSON() as unknown as FrameSystemAccountInfo;
+      const balance = {
+        balance: new BigNumber(data.free.toString()),
+        symbol: network.name,
+      };
+      userBalance.value = balance;
+    });
+  });
+};
+
+const formatBalance = (balance: BigNumber): string => {
+  if (network.value) {
+    return balance.div(new BigNumber(10 ** network.value.decimals)).toString();
+  }
+
+  return "~";
+};
+
+watch([txFee, userBalance], () => {
+  if (txFee.value && userBalance.value) {
+    if (userBalance.value.balance.lt(txFee.value)) {
+      insufficientBalance.value = true;
+    }
+  }
+});
 
 defineExpose({ providerVerifyTransactionScrollRef });
 
-const cancelAction = () => {
-  console.log("cancelAction");
-};
-const signAction = () => {
-  toggleSign();
-};
-const toggleSelectFee = (open: boolean) => {
-  isOpenSelectFee.value = open;
-};
-const selectFee = (option: TransactionFee) => {
-  fee.value = option;
-  isOpenSelectFee.value = false;
-};
-const isHasScroll = () => {
-  if (providerVerifyTransactionScrollRef.value) {
-    return (
-      providerVerifyTransactionScrollRef.value as HTMLElement
-    ).$el.classList.contains("ps--active-y");
-  }
-
-  return false;
-};
 const toggleData = () => {
   isOpenData.value = !isOpenData.value;
 };
-const toggleSign = () => {
-  isOpenSign.value = !isOpenSign.value;
+const approve = async () => {
+  const { Request, sendToBackground, Resolve } = await windowPromise;
+  if (!Request.value.params || Request.value.params.length < 2) {
+    return Resolve.value({ error: getCustomError("No params") });
+  }
+
+  const registry = new TypeRegistry();
+  const reqPayload = Request.value.params[0] as SignerPayloadJSON;
+  registry.setSignedExtensions(reqPayload.signedExtensions);
+  const extType = registry.createType("ExtrinsicPayload", reqPayload, {
+    version: reqPayload.version,
+  });
+  const signMsg = signPayload(extType);
+
+  const account = Request.value.params[1] as KeyRecord;
+  sendToBackground({
+    method: InternalMethods.sign,
+    params: [signMsg, account],
+  }).then((res) => {
+    if (res.error) {
+      Resolve.value(res);
+    } else {
+      Resolve.value({
+        result: JSON.stringify(res.result),
+      });
+    }
+  });
 };
-const toggleForgot = () => {
-  isOpenSign.value = false;
-  isForgot.value = !isForgot.value;
-};
-const resetAction = () => {
-  console.log("resetAction");
-};
-const unlockAction = () => {
-  isProcessing.value = !isProcessing.value;
+const deny = async () => {
+  const { Resolve } = await windowPromise;
+  Resolve.value({
+    error: getError(ErrorCodes.userRejected),
+  });
 };
 </script>
+
+<style lang="less">
+@import "~@action/styles/theme.less";
+@import "~@/providers/ethereum/ui/styles/common-popup.less";
+@import "./styles/verify-transaction.less";
+</style>

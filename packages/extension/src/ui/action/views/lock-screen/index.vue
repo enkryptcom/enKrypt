@@ -41,7 +41,7 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { PropType, ref } from "vue";
+import { ref } from "vue";
 import LogoBig from "@action/icons/common/logo-big.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import LockScreenPasswordInput from "./components/lock-screen-password-input.vue";
@@ -51,12 +51,9 @@ import { sendToBackgroundFromAction } from "@/libs/messenger/extension";
 import { InternalMethods } from "@/types/messenger";
 import { computed } from "@vue/reactivity";
 
-const props = defineProps({
-  init: {
-    type: Function as PropType<() => void>,
-    default: () => ({}),
-  },
-});
+const emit = defineEmits<{
+  (e: "update:init"): void;
+}>();
 
 const password = ref("test pass");
 const isDisabled = computed(() => {
@@ -80,7 +77,7 @@ const unlockAction = async () => {
   } else {
     isError.value = false;
     password.value = "";
-    props.init();
+    emit("update:init");
   }
   isUnlocking.value = false;
 };

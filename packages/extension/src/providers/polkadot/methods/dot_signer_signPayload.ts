@@ -3,10 +3,8 @@ import EthereumProvider from "..";
 import { WindowPromise } from "@/libs/window-promise";
 import { ProviderRPCRequest } from "@/types/provider";
 import { SignerPayloadJSON } from "@polkadot/types/types";
-import { TypeRegistry } from "@polkadot/types";
 import {
   polkadotEncodeAddress,
-  signPayload,
   payloadSignTransform,
 } from "../libs/signing-utils";
 import { getCustomError } from "@/libs/error";
@@ -23,19 +21,19 @@ const method: MiddlewareFunction = function (
     const reqPayload = payload.params[0] as SignerPayloadJSON;
     this.KeyRing.getAccount(polkadotEncodeAddress(reqPayload.address))
       .then((account) => {
-        const registry = new TypeRegistry();
-        registry.setSignedExtensions(reqPayload.signedExtensions);
-        const extType = registry.createType("ExtrinsicPayload", reqPayload, {
-          version: reqPayload.version,
-        });
-        const signMsg = signPayload(extType);
+        // const registry = new TypeRegistry();
+        // registry.setSignedExtensions(reqPayload.signedExtensions);
+        // const extType = registry.createType("ExtrinsicPayload", reqPayload, {
+        //   version: reqPayload.version,
+        // });
+        // const signMsg = signPayload(extType);
         const windowPromise = new WindowPromise();
         windowPromise
           .getResponse(
             this.getUIPath(this.UIRoutes.dotTxApprove.path),
             JSON.stringify({
               ...payload,
-              params: [signMsg, account],
+              params: [reqPayload, account],
             }),
             true
           )

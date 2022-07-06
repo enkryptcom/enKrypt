@@ -1,100 +1,108 @@
 <template>
-  <div class="common-popup">
-    <sign-logo color="#05C0A5" class="common-popup__logo"></sign-logo>
-    <h2>Sign Typed Data</h2>
+  <common-popup>
+    <template #header>
+      <sign-logo color="#05C0A5" class="common-popup__logo"></sign-logo>
+    </template>
 
-    <div class="common-popup__block">
-      <div class="common-popup__account">
-        <img :src="identicon" />
-        <div class="common-popup__account-info">
-          <h4>{{ account.name }}</h4>
-          <p>
-            {{ $filters.replaceWithEllipsis(account.address, 6, 4) }}
-          </p>
+    <template #content>
+      <h2>Sign Typed Data</h2>
+
+      <div class="common-popup__block">
+        <div class="common-popup__account">
+          <img :src="identicon" />
+          <div class="common-popup__account-info">
+            <h4>{{ account.name }}</h4>
+            <p>
+              {{ $filters.replaceWithEllipsis(account.address, 6, 4) }}
+            </p>
+          </div>
         </div>
       </div>
-    </div>
-    <div class="common-popup__block">
-      <div class="common-popup__info">
-        <img :src="options.faviconURL" />
-        <div class="common-popup__info-info">
-          <h4>{{ options.title }}</h4>
-          <p>{{ options.domain }}</p>
+      <div class="common-popup__block">
+        <div class="common-popup__info">
+          <img :src="Options.faviconURL" />
+          <div class="common-popup__info-info">
+            <h4>{{ Options.title }}</h4>
+            <p>{{ Options.domain }}</p>
+          </div>
+        </div>
+
+        <div class="common-popup__message">
+          {{ message }}
         </div>
       </div>
+    </template>
 
-      <div class="common-popup__message">
-        {{ message }}
-      </div>
-    </div>
-    <div class="common-popup__buttons">
-      <div class="common-popup__buttons-cancel">
-        <base-button title="Cancel" :click="deny" :no-background="true" />
-      </div>
-      <div class="common-popup__buttons-send">
-        <base-button title="Sign" :click="approve" />
-      </div>
-    </div>
-  </div>
+    <template #button-left>
+      <base-button title="Cancel" :click="deny" :no-background="true" />
+    </template>
+
+    <template #button-right>
+      <base-button title="Sign" :click="approve" />
+    </template>
+  </common-popup>
 </template>
 
 <script setup lang="ts">
 import SignLogo from "@action/icons/common/sign-logo.vue";
 import BaseButton from "@action/components/base-button/index.vue";
+import CommonPopup from "@action/views/common-popup/index.vue";
 import { KeyRecord } from "@enkryptcom/types";
 import { getCustomError, getError } from "@/libs/error";
 import { ErrorCodes } from "@/providers/ethereum/types";
 import { WindowPromiseHandler } from "@/libs/window-promise";
 import { InternalMethods } from "@/types/messenger";
-import { computed } from "vue";
+import { onMounted, ref } from "vue";
 import { DEFAULT_NETWORK_NAME, getNetworkByName } from "@/libs/utils/networks";
-import { NodeType } from "@/types/provider";
+import { ProviderRequestOptions } from "@/types/provider";
 import {
   typedSignatureHash,
   TypedDataUtils,
   SignTypedDataVersion,
 } from "@metamask/eth-sig-util";
 import { bufferToHex } from "@enkryptcom/utils";
+import { EvmNetwork } from "../types/evm-network";
 
-const PARAMS_LENGTH = 4;
-const { PromiseResolve, options, Request, sendToBackground } =
-  WindowPromiseHandler();
-const message = computed(() => {
-  if (Request.value.params && Request.value.params.length == PARAMS_LENGTH) {
-    try {
-      return JSON.stringify(JSON.parse(Request.value.params[0]), null, 2);
-    } catch (e) {
-      return JSON.stringify(Request.value.params[0], null, 2);
-    }
+const network = ref<EvmNetwork>(
+  getNetworkByName(DEFAULT_NETWORK_NAME) as EvmNetwork
+);
+const account = ref<KeyRecord>({
+  name: "",
+  address: "",
+} as KeyRecord);
+const identicon = ref<string>("");
+const windowPromise = WindowPromiseHandler(4);
+const Options = ref<ProviderRequestOptions>({
+  domain: "",
+  faviconURL: "",
+  title: "",
+  url: "",
+});
+const message = ref<string>("");
+onMounted(async () => {
+  const { Request, options } = await windowPromise;
+  network.value = getNetworkByName(Request.value.params![3]) as EvmNetwork;
+  account.value = Request.value.params![1] as KeyRecord;
+  identicon.value = network.value.identicon(account.value.address);
+  Options.value = options;
+  try {
+    message.value = JSON.stringify(
+      JSON.parse(Request.value.params![0]),
+      null,
+      2
+    );
+  } catch (e) {
+    message.value = JSON.stringify(Request.value.params![0], null, 2);
   }
-  return "";
 });
-const network = computed(() => {
-  if (Request.value.params && Request.value.params.length == PARAMS_LENGTH)
-    return getNetworkByName(Request.value.params[3]) as NodeType;
-  else return getNetworkByName(DEFAULT_NETWORK_NAME) as NodeType;
-});
-const account = computed(() => {
-  if (Request.value.params && Request.value.params.length == PARAMS_LENGTH) {
-    return Request.value.params[1] as KeyRecord;
-  } else
-    return {
-      name: "",
-      address: "",
-    } as KeyRecord;
-});
-const identicon = computed(() => {
-  return network.value.identicon(account.value.address);
-});
-const approve = () => {
-  if (!Request.value.params || Request.value.params.length < PARAMS_LENGTH) {
-    return PromiseResolve.value({ error: getCustomError("No params") });
-  }
-  const version = Request.value.params[2] as SignTypedDataVersion;
+
+const approve = async () => {
+  const { Request, Resolve, sendToBackground } = await windowPromise;
+  const version = Request.value.params![2] as SignTypedDataVersion;
   const typedData =
     version !== "V1"
-      ? JSON.parse(Request.value.params[0])
-      : Request.value.params[0];
+      ? JSON.parse(Request.value.params![0])
+      : Request.value.params![0];
   let msgHash;
   try {
     if (version === SignTypedDataVersion.V1) {
@@ -103,26 +111,26 @@ const approve = () => {
       msgHash = bufferToHex(TypedDataUtils.eip712Hash(typedData, version));
     }
   } catch (e: any) {
-    PromiseResolve.value({
+    Resolve.value({
       error: getCustomError(e.message),
     });
   }
-  const account = Request.value.params[1] as KeyRecord;
   sendToBackground({
     method: InternalMethods.sign,
-    params: [msgHash, account],
+    params: [msgHash, account.value],
   }).then((res) => {
     if (res.error) {
-      PromiseResolve.value(res);
+      Resolve.value(res);
     } else {
-      PromiseResolve.value({
+      Resolve.value({
         result: JSON.stringify(res.result),
       });
     }
   });
 };
-const deny = () => {
-  PromiseResolve.value({
+const deny = async () => {
+  const { Resolve } = await windowPromise;
+  Resolve.value({
     error: getError(ErrorCodes.userRejected),
   });
 };

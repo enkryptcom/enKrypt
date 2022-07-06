@@ -77,11 +77,12 @@ defineProps({
   flex-direction: row;
   position: relative;
   cursor: pointer;
+  transition: background 300ms ease-in-out;
+  border-radius: 8px;
 
   &:hover,
   &.active {
     background: rgba(0, 0, 0, 0.04);
-    border-radius: 8px;
   }
 
   img {

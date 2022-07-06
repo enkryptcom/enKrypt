@@ -256,6 +256,7 @@ const toggleTooltip = () => {
       right: 4px;
       bottom: -110px;
       box-sizing: border-box;
+      z-index: 3;
 
       p {
         font-style: normal;

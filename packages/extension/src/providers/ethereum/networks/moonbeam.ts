@@ -1,10 +1,7 @@
-import { ProviderName } from "@/types/provider";
-import { NetworkNames, SignerType } from "@enkryptcom/types";
-import { toChecksumAddress } from "ethereumjs-util";
-import API from "../libs/api";
-import { EthereumNodeType } from "../types";
-import createIcon from "../libs/blockies";
-const moonbeamNode: EthereumNodeType = {
+import { NetworkNames } from "@enkryptcom/types";
+import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
+
+const moonbeamOptions: EvmNetworkOptions = {
   name: NetworkNames.Moonbeam,
   name_long: "Moonbeam",
   homePage: "https://moonbeam.network",
@@ -14,18 +11,11 @@ const moonbeamNode: EthereumNodeType = {
   isTestNetwork: false,
   currencyName: "GLMR",
   node: "wss://wss.api.moonbeam.network/",
-  icon: require("./icons/moonbeam.png"),
-  signer: [SignerType.secp256k1],
+  icon: require("./icons/moonbeam.svg"),
   gradient: "#8247E5",
-  displayAddress: (address: string) => toChecksumAddress(address),
-  provider: ProviderName.ethereum,
   coingeckoID: "moonbeam",
-  identicon: createIcon,
-  basePath: "m/44'/60'/0'/0",
 };
-moonbeamNode.api = async () => {
-  const api = new API(moonbeamNode.node);
-  await api.init();
-  return api;
-};
-export default moonbeamNode;
+
+const moonbeam = new EvmNetwork(moonbeamOptions);
+
+export default moonbeam;

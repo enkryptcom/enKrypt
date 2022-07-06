@@ -7,10 +7,12 @@
       <div class="add-account-form__input" :class="{ focus: isFocus }">
         <img :src="network.identicon(newAccount?.address || '')" />
         <input
+          ref="addAccountInput"
           v-model="accountName"
           type="text"
           placeholder="Account name"
           autocomplete="off"
+          autofocus
           @focus="changeFocus"
           @blur="changeFocus"
         />
@@ -37,6 +39,12 @@
   </div>
 </template>
 
+<script lang="ts">
+export default {
+  name: "AddAccountForm",
+};
+</script>
+
 <script setup lang="ts">
 import { onMounted, PropType, ref, watch } from "vue";
 import BaseButton from "@action/components/base-button/index.vue";
@@ -50,6 +58,13 @@ const isFocus = ref(false);
 const accountName = ref("");
 const newAccount = ref<KeyRecord | null>(null);
 const isDisabled = ref(true);
+const addAccountInput = ref(null);
+
+defineExpose({ addAccountInput });
+const emit = defineEmits<{
+  (e: "update:init"): void;
+}>();
+
 const props = defineProps({
   close: {
     type: Function,
@@ -57,14 +72,6 @@ const props = defineProps({
   },
   network: {
     type: Object as PropType<NodeType>,
-    default: () => ({}),
-  },
-  init: {
-    type: Function as PropType<() => void>,
-    default: () => ({}),
-  },
-  selectAccount: {
-    type: Function as PropType<(address: string) => void>,
     default: () => ({}),
   },
 });
@@ -88,6 +95,9 @@ const setNewAccountInfo = async () => {
 };
 onMounted(() => {
   setNewAccountInfo();
+  if (addAccountInput.value) {
+    (addAccountInput.value as HTMLInputElement).focus();
+  }
 });
 watch(accountName, async () => {
   isDisabled.value = false;
@@ -113,7 +123,7 @@ const addAccount = async () => {
       params: [keyReq],
     }),
   }).then(() => {
-    props.init();
+    emit("update:init");
     close();
   });
 };
@@ -171,7 +181,6 @@ const addAccount = async () => {
     line-height: 16px;
     letter-spacing: 0.5px;
     color: @tertiaryLabel;
-    padding: 0 16px;
     margin: 0 0 20px 0;
   }
   &__input {

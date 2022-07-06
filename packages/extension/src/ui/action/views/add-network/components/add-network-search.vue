@@ -8,7 +8,7 @@
         <slider-icon />
       </a>
     </div>
-    <div v-show="openList" class="add-network__search-list">
+    <div v-show="openList" ref="tooltip" class="add-network__search-list">
       <a class="add-network__search-list-item">
         <custom-network-icon /><span>Custom network</span>
       </a>
@@ -33,11 +33,19 @@ import SliderIcon from "@action/icons/common/slider-icon.vue";
 import CustomNetworkIcon from "@action/icons/common/custom-network-icon.vue";
 import TestNetworkIcon from "@action/icons/common/test-network-icon.vue";
 import Switch from "@action/components/switch/index.vue";
+import { onClickOutside } from "@vueuse/core";
 
 let openList = ref(false);
+const tooltip = ref(null);
 
 const props = defineProps({
   input: {
+    type: Function,
+    default: () => {
+      return null;
+    },
+  },
+  onTestNetCheck: {
     type: Function,
     default: () => {
       return null;
@@ -54,8 +62,12 @@ const action = () => {
 };
 
 const testNetwork = () => {
-  console.log("testNetwork");
+  props.onTestNetCheck();
 };
+
+onClickOutside(tooltip, (event) => {
+  if (openList.value) openList.value = false;
+});
 </script>
 
 <style lang="less" scoped>
@@ -83,6 +95,7 @@ const testNetwork = () => {
       width: 40px;
       font-size: 0;
       border-radius: 8px;
+      transition: background 300ms ease-in-out;
 
       &:hover {
         background: @black007;
@@ -115,11 +128,12 @@ const testNetwork = () => {
         align-items: center;
         flex-direction: row;
         cursor: pointer;
+        transition: background 300ms ease-in-out;
+        border-radius: 8px;
 
         &:hover,
         &.active {
           background: rgba(0, 0, 0, 0.04);
-          border-radius: 8px;
         }
 
         svg {

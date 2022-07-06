@@ -6,9 +6,13 @@ export enum NetworkNames {
   Kovan = "KOV",
   Matic = "MATIC",
   Moonbeam = "GLMR",
+  Moonriver = "MOVR",
   Rinkeby = "RIN",
   Ropsten = "ROP",
   Acala = "ACA",
+  Karura = "KAR",
+  KaruraEVM = "evmKAR",
   Kusama = "KSM",
   Polkadot = "DOT",
+  Westend = "WND",
 }

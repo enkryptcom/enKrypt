@@ -98,7 +98,7 @@ if (props.transaction) {
 .network-activity {
   &__transaction {
     height: 64px;
-    padding: 0 20px;
+    padding: 0 8px;
     position: relative;
     box-sizing: border-box;
     display: flex;
@@ -107,6 +107,13 @@ if (props.transaction) {
     flex-direction: row;
     text-decoration: none;
     cursor: pointer;
+    margin: 0 12px;
+    border-radius: 10px;
+    transition: background 300ms ease-in-out;
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.04);
+    }
 
     &-info {
       display: flex;

@@ -14,9 +14,12 @@
             :toggle-select="toggleFromToken"
             :token="fromToken"
             :input-amount="inputAmountFrom"
+            :autofocus="true"
           ></swap-token-amount-input>
 
-          <div class="swap__arrows"><swap-arrows></swap-arrows></div>
+          <a class="swap__arrows" @click="swapTokens"
+            ><swap-arrows></swap-arrows
+          ></a>
 
           <swap-token-amount-input
             :toggle-select="toggleToToken"
@@ -45,18 +48,18 @@
       </div>
     </div>
 
-    <swap-token-list
+    <assets-select-list
       v-show="fromSelectOpened"
       :close="toggleFromToken"
       :select-token="selectTokenFrom"
-    ></swap-token-list>
+    ></assets-select-list>
 
-    <swap-token-list
+    <assets-select-list
       v-show="toSelectOpened"
       :close="toggleToToken"
       :select-token="selectTokenTo"
       :is-select-to-token="true"
-    ></swap-token-list>
+    ></assets-select-list>
 
     <swap-looking v-show="isLooking" :close="toggleLooking"></swap-looking>
   </div>
@@ -75,7 +78,7 @@ import CloseIcon from "@action/icons/common/close-icon.vue";
 import SwapArrows from "@action/icons/swap/swap-arrows.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import SwapTokenAmountInput from "./components/swap-token-amount-input/index.vue";
-import SwapTokenList from "./components/swap-token-list/index.vue";
+import AssetsSelectList from "@action/views/assets-select-list/index.vue";
 import SwapLooking from "./components/swap-looking/index.vue";
 import { AssetsType } from "@/types/provider";
 
@@ -99,7 +102,7 @@ const route = useRoute();
 
 const selected: string = route.params.id as string;
 
-let fromToken = ref(ethereum);
+let fromToken = ref<AssetsType | null>(ethereum);
 let fromAmount = ref<number | null>(null);
 
 let toToken = ref<AssetsType | null>(null);
@@ -165,6 +168,19 @@ const sendAction = () => {
     });
   }, 3000);
 };
+const swapTokens = () => {
+  const tokenTo = fromToken.value;
+  const amountTo = fromAmount.value;
+
+  const tokenFrom = toToken.value;
+  const amountFrom = toAmount.value;
+
+  fromToken.value = tokenFrom;
+  fromAmount.value = amountFrom;
+
+  toToken.value = tokenTo;
+  toAmount.value = amountTo;
+};
 </script>
 
 <style lang="less" scoped>
@@ -205,6 +221,7 @@ const sendAction = () => {
     border-radius: 8px;
     cursor: pointer;
     font-size: 0;
+    transition: background 300ms ease-in-out;
 
     &:hover {
       background: @black007;
@@ -226,6 +243,9 @@ const sendAction = () => {
     padding: 8px 0;
     text-align: center;
     font-size: 0;
+    display: block;
+    text-decoration: none;
+    cursor: pointer;
   }
 
   &__buttons {

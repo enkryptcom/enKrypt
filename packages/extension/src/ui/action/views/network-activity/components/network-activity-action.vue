@@ -7,27 +7,26 @@
       >
         <Deposit />Deposit
       </a>
-      <div class="network-activity__action-devider"></div>
+      <div class="network-activity__action-divider"></div>
       <a class="network-activity__action-item" @click="(buyAction as ()=>void)">
         <Buy />Buy
       </a>
-      <div class="network-activity__action-devider"></div>
+      <div class="network-activity__action-divider"></div>
       <router-link
         :to="{
           name: 'send-transaction',
-          params: { id: !!selected ? selected : null },
+          params: { id: route.params.id },
         }"
         class="network-activity__action-item"
-        @click="(sendAction as ()=>void)"
       >
         <Send />Send
       </router-link>
-      <div class="network-activity__action-devider"></div>
+      <div class="network-activity__action-divider"></div>
       <router-link
         class="network-activity__action-item"
         :to="{
           name: 'swap',
-          params: { id: !!selected ? selected : null },
+          params: { id: route.params.id },
         }"
       >
         <Swap />Swap
@@ -48,9 +47,7 @@ import Buy from "@action/icons/actions/buy.vue";
 import Send from "@action/icons/actions/send.vue";
 import Swap from "@action/icons/actions/swap.vue";
 import { useRoute } from "vue-router";
-
 const route = useRoute();
-const selected: string = route.params.id as string;
 
 defineProps({
   depositAction: {
@@ -58,14 +55,6 @@ defineProps({
     default: () => ({}),
   },
   buyAction: {
-    type: Function,
-    default: () => ({}),
-  },
-  sendAction: {
-    type: Function,
-    default: () => ({}),
-  },
-  swapAction: {
     type: Function,
     default: () => ({}),
   },
@@ -112,17 +101,18 @@ defineProps({
       align-items: center;
       flex-direction: column;
       min-width: 100px;
+      transition: background 300ms ease-in-out;
+      border-radius: 8px;
 
       &:hover {
         background: rgba(0, 0, 0, 0.04);
-        border-radius: 8px;
       }
 
       svg {
         margin-bottom: 0;
       }
     }
-    &-devider {
+    &-divider {
       height: 48px;
       width: 1px;
       background: @darkBg;

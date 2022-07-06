@@ -1,6 +1,7 @@
 <template>
   <a class="base-select__option" @click="select()">
     <h5>{{ title }}</h5>
+    <done-icon v-show="isSelect"></done-icon>
   </a>
 </template>
 
@@ -11,6 +12,7 @@ export default {
 </script>
 
 <script setup lang="ts">
+import DoneIcon from "@action/icons/common/done_icon.vue";
 const props = defineProps({
   select: {
     type: Function,
@@ -22,6 +24,12 @@ const props = defineProps({
     type: String,
     default: () => {
       return "";
+    },
+  },
+  isSelect: {
+    type: Boolean,
+    default: () => {
+      return false;
     },
   },
 });
@@ -43,6 +51,13 @@ const select = () => {
     padding-left: 12px;
     box-sizing: border-box;
     display: block;
+    position: relative;
+    transition: background 300ms ease-in-out;
+    border-radius: 10px;
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.04);
+    }
 
     h5 {
       font-style: normal;
@@ -52,6 +67,13 @@ const select = () => {
       letter-spacing: 0.25px;
       color: @primaryLabel;
       margin: 0;
+    }
+
+    svg {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      margin-top: -12px;
     }
   }
 }

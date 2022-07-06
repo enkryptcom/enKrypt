@@ -15,7 +15,7 @@
         <custom-scrollbar
           ref="bestOfferScrollRef"
           class="swap-best-offer__scroll-area"
-          :settings="settings"
+          :settings="scrollSettings({ suppressScrollX: true })"
           :style="{ maxHeight: height + 'px' }"
           @ps-scroll-y="handleScroll"
         >
@@ -33,6 +33,7 @@
           :close="toggleSelectFee"
           :select-fee="selectFee"
           :selected="fee.price.speed"
+          :is-header="true"
         ></transaction-fee-view>
       </div>
 
@@ -63,7 +64,7 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ComponentPublicInstance, ref } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import BaseButton from "@action/components/base-button/index.vue";
@@ -71,21 +72,18 @@ import SwapBestOfferBlock from "./components/swap-best-offer-block/index.vue";
 import SwapInitiated from "@action/views/swap-initiated/index.vue";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 import BestOfferError from "./components/swap-best-offer-block/components/best-offer-error.vue";
-import SendFeeSelect from "@action/views/send-transaction/components/send-fee-select.vue";
+import SendFeeSelect from "@/providers/ethereum/ui/send-transaction/components/send-fee-select.vue";
 import TransactionFeeView from "@action/views/transaction-fee/index.vue";
 import { TransactionFee } from "@action/types/fee";
 import { recommendedFee } from "@action/types/mock";
+import scrollSettings from "@/libs/utils/scroll-settings";
 
 const router = useRouter();
 const route = useRoute();
 
 let isInitiated = ref(false);
-const settings = {
-  suppressScrollY: false,
-  suppressScrollX: true,
-  wheelPropagation: false,
-};
-const bestOfferScrollRef = ref(null);
+
+let bestOfferScrollRef = ref<ComponentPublicInstance<HTMLElement>>();
 let scrollProgress = ref(0);
 let height = ref(460);
 const selected: string = route.params.id as string;
@@ -127,9 +125,7 @@ const handleScroll = (e: any) => {
 };
 const isHasScroll = () => {
   if (bestOfferScrollRef.value) {
-    return (bestOfferScrollRef.value as HTMLElement).classList.contains(
-      "ps--active-y"
-    );
+    return bestOfferScrollRef.value.$el.classList.contains("ps--active-y");
   }
 
   return false;
@@ -194,6 +190,7 @@ const selectFee = (option: TransactionFee) => {
     border-radius: 8px;
     cursor: pointer;
     font-size: 0;
+    transition: background 300ms ease-in-out;
 
     &:hover {
       background: @black007;
