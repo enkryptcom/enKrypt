@@ -270,7 +270,7 @@ const sendAction = async () => {
     address.value,
     sendAmount
   );
-
+  // console.log(tx.era, "era");
   // console.log(typeof tx.toRawType());
 
   const txVerifyInfo: VerifyTransactionParams = {
@@ -280,7 +280,7 @@ const sendAction = async () => {
         props.accountInfo.selectedAccount!.address
       ) as `0x{string}`,
       to: stringToHex(address.value) as `0x{string}`,
-      data: tx.toJSON() as `0x{string}`,
+      data: tx.toHex() as `0x{string}`,
       value: stringToHex(amount.value) as `0x{string}`,
     },
     toToken: {
