@@ -4,6 +4,12 @@ import { FiatMarket } from "@/libs/market-data/types";
 import { ApiPromise } from "@polkadot/api";
 import { BN } from "ethereumjs-util";
 
+export type TransferType = "keepAlive" | "all" | "allKeepAlive" | "transfer";
+
+export interface SendOptions {
+  type: TransferType;
+}
+
 export interface BaseTokenOptions {
   name: string;
   symbol: string;
@@ -43,5 +49,10 @@ export abstract class BaseToken {
     api: EvmAPI | ApiPromise,
     address: string
   ): Promise<string>;
-  public abstract send(api: any, to: string, amount: string): Promise<any>;
+  public abstract send(
+    api: any,
+    to: string,
+    amount: string,
+    options?: SendOptions
+  ): Promise<any>;
 }

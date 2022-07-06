@@ -97,6 +97,7 @@ import { AssetsType } from "@/types/provider";
 import { toBase } from "@/libs/utils/units";
 import BigNumber from "bignumber.js";
 import { VerifyTransactionParams } from "../types";
+import { SendOptions } from "@/types/base-token";
 
 const props = defineProps({
   network: {
@@ -164,10 +165,15 @@ watch([selectedAsset, amount, address], async () => {
       hasEnough.value = true;
     }
 
+    const sendOptions: SendOptions | undefined = sendMax.value
+      ? { type: "all" }
+      : undefined;
+
     const tx = await selectedAsset.value.baseToken!.send(
       api.value.api,
       address.value,
-      rawAmount.toString()
+      rawAmount.toString(),
+      sendOptions
     );
     const { partialFee } = (
       await tx.paymentInfo(props.accountInfo.selectedAccount!.address)
@@ -276,11 +282,16 @@ const sendAction = async () => {
     )
     .toString();
 
+  const sendOptions: SendOptions | undefined = sendMax.value
+    ? { type: "all" }
+    : undefined;
+
   await api.value?.api.isReady;
   const tx = await selectedAsset.value.baseToken?.send(
     api.value!.api as ApiPromise,
     address.value,
-    sendAmount
+    sendAmount,
+    sendOptions
   );
 
   const txVerifyInfo: VerifyTransactionParams = {
