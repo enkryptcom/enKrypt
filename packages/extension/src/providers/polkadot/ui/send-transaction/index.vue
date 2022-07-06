@@ -92,12 +92,13 @@ import { ApiPromise } from "@polkadot/api";
 import { Account, AccountsHeaderData } from "@action/types/account";
 import { GasFeeInfo } from "@/providers/ethereum/ui/types";
 import { SubstrateNetwork } from "../../types/substrate-network";
-import { toBN } from "web3-utils";
+import { stringToHex, toBN } from "web3-utils";
 import { formatFloatingPointValue } from "@/libs/utils/number-formatter";
 import createIcon from "../../libs/blockies";
 import { AssetsType } from "@/types/provider";
 import { toBase } from "@/libs/utils/units";
 import BigNumber from "bignumber.js";
+import { VerifyTransactionParams } from "../types";
 
 const props = defineProps({
   network: {
@@ -253,8 +254,53 @@ const isDisabled = () => {
   return isDisabled;
 };
 
-const sendAction = () => {
-  router.push({ name: "verify-transaction", params: { id: selected } });
+const sendAction = async () => {
+  const sendAmount = new BigNumber(amount.value)
+    .times(
+      new BigNumber(10).pow(
+        new BigNumber(selectedAsset.value.baseToken!.decimals)
+      )
+    )
+    .toString();
+
+  const api = await props.network.api();
+  await api.init();
+  const tx = await selectedAsset.value.baseToken?.send(
+    api.api as ApiPromise,
+    address.value,
+    sendAmount
+  );
+
+  // console.log(typeof tx.toRawType());
+
+  const txVerifyInfo: VerifyTransactionParams = {
+    TransactionData: {
+      chainName: stringToHex(props.network.name_long) as `0x{string}`,
+      from: stringToHex(
+        props.accountInfo.selectedAccount!.address
+      ) as `0x{string}`,
+      to: stringToHex(address.value) as `0x{string}`,
+      data: tx.toJSON() as `0x{string}`,
+      value: stringToHex(amount.value) as `0x{string}`,
+    },
+    toToken: {
+      amount: amount.value,
+      icon: selectedAsset.value.icon as string,
+      symbol: selectedAsset.value.symbol || "unknown",
+      valueUSD: new BigNumber(selectedAsset.value.value || "0")
+        .times(amount.value)
+        .toString(),
+    },
+    fromAddress: props.accountInfo.selectedAccount!.address,
+    fromAddressName: props.accountInfo.selectedAccount!.name,
+    txFee: fee.value!,
+    toAddress: address.value,
+  };
+
+  router.push({
+    name: "verify-transaction",
+    params: { id: selected, txData: JSON.stringify(txVerifyInfo) },
+  });
 };
 </script>
 

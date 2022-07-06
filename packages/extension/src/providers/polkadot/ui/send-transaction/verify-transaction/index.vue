@@ -31,7 +31,7 @@
           v-if="isNft"
           :item="nft"
         ></verify-transaction-nft>
-        <verify-transaction-fee :fee="txData.gasFee"></verify-transaction-fee>
+        <verify-transaction-fee :fee="txData.txFee"></verify-transaction-fee>
       </div>
 
       <div class="verify-transaction__buttons">
@@ -73,7 +73,18 @@ import { bufferToHex, fromRpcSig } from "ethereumjs-util";
 import { sendToBackgroundFromAction } from "@/libs/messenger/extension";
 import { InternalMethods } from "@/types/messenger";
 import { FeeMarketEIP1559Transaction } from "@ethereumjs/tx";
-import { VerifyTransactionParams } from "@/providers/ethereum/ui/types";
+import { VerifyTransactionParams } from "@/providers/polkadot/ui/types";
+import { ApiPromise } from "@polkadot/api";
+import {
+  payloadSignTransform,
+  signPayload,
+} from "@/providers/polkadot/libs/signing-utils";
+import { createType, Metadata, TypeRegistry } from "@polkadot/types";
+import { SignerPayloadJSON } from "@polkadot/types/types";
+import MetadataStorage from "@/providers/polkadot/libs/metadata-storage";
+import { base64Decode } from "@polkadot/util-crypto";
+import { SubstrateNetwork } from "@/providers/polkadot/types/substrate-network";
+import { u8aToHex } from "@polkadot/util";
 
 const KeyRing = new PublicKeyRing();
 const route = useRoute();
@@ -98,43 +109,100 @@ const close = () => {
 
 const sendAction = async () => {
   isProcessing.value = true;
-  const web3 = new Web3(props.network.node);
-  const tx = new Transaction(txData.TransactionData, web3);
-  await tx
-    .getFinalizedTransaction({ gasPriceType: txData.gasPriceType })
-    .then(async (finalizedTx) => {
-      const msgHash = bufferToHex(finalizedTx.getMessageToSign(true));
-      const account = await KeyRing.getAccount(txData.fromAddress);
-      return sendToBackgroundFromAction({
-        message: JSON.stringify({
-          method: InternalMethods.sign,
-          params: [msgHash, account],
-        }),
-      }).then((res: any) => {
-        if (res.error) {
-          console.log("error", res.error);
-        } else {
-          const rpcSig = fromRpcSig(JSON.parse(res.result) || "0x");
-          const signedTx = (
-            finalizedTx as FeeMarketEIP1559Transaction
-          )._processSignature(rpcSig.v, rpcSig.r, rpcSig.s);
-          web3.eth
-            .sendSignedTransaction("0x" + signedTx.serialize().toString("hex"))
-            .on("transactionHash", (hash: string) => {
-              console.log("hash", hash);
-            })
-            .on("error", (error: any) => {
-              console.log("ERROR", error);
-            });
-        }
+  const api = await props.network.api();
+  await api.init();
+
+  // console.log(txData.TransactionData.data);
+  // const tx = (api.api as ApiPromise).tx(txData.TransactionData.data);
+  // console.log("tx", tx);
+
+  const account = await KeyRing.getAccount(txData.fromAddress);
+
+  // const metadata = (api.api as ApiPromise).runtimeMetadata;
+  // const registry = new TypeRegistry();
+  // registry.setMetadata(metadata);
+
+  const tx = (api.api as ApiPromise).tx(txData.TransactionData.data);
+  const registry = new TypeRegistry();
+
+  const ext = registry.createType("ExtrinsicPayload", tx, {
+    version: tx.version,
+  });
+  const signMsg = signPayload(ext);
+
+  sendToBackgroundFromAction({
+    message: JSON.stringify({
+      method: InternalMethods.sign,
+      params: [signMsg, account],
+    }),
+  }).then(async (res) => {
+    if (res.error) {
+      console.log("error", res);
+    } else {
+      console.log("success", {
+        result: JSON.stringify(res.result),
       });
-    });
-  setTimeout(() => {
-    isProcessing.value = false;
-  }, 4000);
-  setTimeout(() => {
-    router.go(-2);
-  }, 4500);
+
+      const signed = payloadSignTransform(
+        JSON.parse(res.result!),
+        account.type,
+        true
+      );
+      tx.addSignature(account.address, signed as `0x{string}`, signMsg);
+
+      const hash = await tx.send();
+      console.log(hash);
+      // console.log(tx);
+    }
+  });
+
+  // const reqPayload = txData.TransactionData
+  //   .data as unknown as SignerPayloadJSON;
+  // registry.setSignedExtensions(reqPayload.signedExtensions);
+  // const extType = registry.createType("ExtrinsicPayload", reqPayload, {
+  //   version: reqPayload.version,
+  // });
+  // const signMsg = signPayload(extType);
+
+  // console.log(JSON.parse(txData.TransactionData.data));
+
+  // const web3 = new Web3(props.network.node);
+  // const tx = new Transaction(txData.TransactionData, web3);
+  // await tx
+  //   .getFinalizedTransaction({ gasPriceType: txData.gasPriceType })
+  //   .then(async (finalizedTx) => {
+  //     const msgHash = bufferToHex(finalizedTx.getMessageToSign(true));
+  //     const account = await KeyRing.getAccount(txData.fromAddress);
+  //     return sendToBackgroundFromAction({
+  //       message: JSON.stringify({
+  //         method: InternalMethods.sign,
+  //         params: [msgHash, account],
+  //       }),
+  //     }).then((res: any) => {
+  //       if (res.error) {
+  //         console.log("error", res.error);
+  //       } else {
+  //         const rpcSig = fromRpcSig(JSON.parse(res.result) || "0x");
+  //         const signedTx = (
+  //           finalizedTx as FeeMarketEIP1559Transaction
+  //         )._processSignature(rpcSig.v, rpcSig.r, rpcSig.s);
+  //         web3.eth
+  //           .sendSignedTransaction("0x" + signedTx.serialize().toString("hex"))
+  //           .on("transactionHash", (hash: string) => {
+  //             console.log("hash", hash);
+  //           })
+  //           .on("error", (error: any) => {
+  //             console.log("ERROR", error);
+  //           });
+  //       }
+  //     });
+  //   });
+  // setTimeout(() => {
+  //   isProcessing.value = false;
+  // }, 4000);
+  // setTimeout(() => {
+  //   router.go(-2);
+  // }, 4500);
 };
 </script>
 
