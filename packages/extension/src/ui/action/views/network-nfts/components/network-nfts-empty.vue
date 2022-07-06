@@ -1,6 +1,5 @@
 <template>
   <div class="network-nfts__empty">
-    <nft-empty></nft-empty>
     <p>Your NFTs will be shown here.</p>
   </div>
 </template>
@@ -11,9 +10,7 @@ export default {
 };
 </script>
 
-<script setup lang="ts">
-import NftEmpty from "@action/icons/nft/nft-empty.vue";
-</script>
+<script setup lang="ts"></script>
 
 <style lang="less">
 @import "~@action/styles/theme.less";
@@ -26,6 +23,8 @@ import NftEmpty from "@action/icons/nft/nft-empty.vue";
     justify-content: center;
     align-items: center;
     flex-direction: column;
+    padding-bottom: 56px;
+    box-sizing: border-box;
 
     svg {
       margin-bottom: 8px;

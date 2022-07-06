@@ -17,7 +17,9 @@
             :autofocus="true"
           ></swap-token-amount-input>
 
-          <div class="swap__arrows"><swap-arrows></swap-arrows></div>
+          <a class="swap__arrows" @click="swapTokens"
+            ><swap-arrows></swap-arrows
+          ></a>
 
           <swap-token-amount-input
             :toggle-select="toggleToToken"
@@ -100,7 +102,7 @@ const route = useRoute();
 
 const selected: string = route.params.id as string;
 
-let fromToken = ref(ethereum);
+let fromToken = ref<AssetsType | null>(ethereum);
 let fromAmount = ref<number | null>(null);
 
 let toToken = ref<AssetsType | null>(null);
@@ -166,6 +168,19 @@ const sendAction = () => {
     });
   }, 3000);
 };
+const swapTokens = () => {
+  const tokenTo = fromToken.value;
+  const amountTo = fromAmount.value;
+
+  const tokenFrom = toToken.value;
+  const amountFrom = toAmount.value;
+
+  fromToken.value = tokenFrom;
+  fromAmount.value = amountFrom;
+
+  toToken.value = tokenTo;
+  toAmount.value = amountTo;
+};
 </script>
 
 <style lang="less" scoped>
@@ -228,6 +243,9 @@ const sendAction = () => {
     padding: 8px 0;
     text-align: center;
     font-size: 0;
+    display: block;
+    text-decoration: none;
+    cursor: pointer;
   }
 
   &__buttons {

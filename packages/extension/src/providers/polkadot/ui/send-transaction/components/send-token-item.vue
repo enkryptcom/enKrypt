@@ -6,14 +6,19 @@
       <div class="send-token-item__info-name">
         <h4>{{ token.name }}</h4>
         <p>
-          {{ token.amount }} <span>{{ token.symbol }}</span>
+          {{
+            tokenBalance
+              ? $filters.formatFloatingPointValue(tokenBalance).value
+              : "~"
+          }}
+          <span>{{ token.symbol }}</span>
         </p>
       </div>
     </div>
 
     <div class="send-token-item__price">
-      <h4>{{ $filters.formatFiatValue(amount).value }}</h4>
-      <p>@{{ $filters.formatFiatValue(token.price).value }}</p>
+      <h4>{{ $filters.formatFiatValue(tokenBalance).value }}</h4>
+      <p>@{{ $filters.formatFiatValue(tokenPrice).value }}</p>
     </div>
   </a>
 </template>
@@ -25,27 +30,31 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { PropType } from "vue";
-import { Token } from "@action/types/token";
+import { onBeforeMount, ref } from "vue";
+import EvmAPI from "@/providers/ethereum/libs/api";
+import { ApiPromise } from "@polkadot/api";
+import { AssetsType } from "@/types/provider";
+import BigNumber from "bignumber.js";
 
-const props = defineProps({
-  token: {
-    type: Object as PropType<Token>,
-    default: () => ({}),
-  },
-  selectToken: {
-    type: Function,
-    default: () => {
-      return null;
-    },
-  },
-});
-
-let amount = 0;
-
-if (props.token) {
-  amount = props.token.price * props.token.amount;
+interface IProps {
+  token: AssetsType | Partial<AssetsType>;
+  selectToken: (token: AssetsType | Partial<AssetsType>) => void;
+  activeAccount?: string;
+  api?: EvmAPI | ApiPromise;
 }
+
+const props = defineProps<IProps>();
+
+const tokenPrice = ref<number | undefined>();
+const tokenBalance = ref<string | undefined>("~");
+
+onBeforeMount(() => {
+  if (props.token) {
+    tokenBalance.value = new BigNumber(props.token.balance!)
+      .div(new BigNumber(10 ** props.token.decimals!))
+      .toString();
+  }
+});
 
 const select = () => {
   props.selectToken(props.token);

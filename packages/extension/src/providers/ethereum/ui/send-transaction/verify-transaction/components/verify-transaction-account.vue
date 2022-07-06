@@ -8,7 +8,7 @@
     />
     <img
       v-else
-      :src="getImgUrl(address)"
+      :src="network.identicon(address)"
       class="verify-transaction-account__img"
       :class="{ avatar: !from }"
       alt=""
@@ -23,13 +23,10 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "VerifyTransactionAccount",
-};
-</script>
-
 <script setup lang="ts">
+import { BaseNetwork } from "@/types/base-network";
+import { PropType } from "vue";
+
 defineProps({
   address: {
     type: String,
@@ -55,11 +52,13 @@ defineProps({
       return false;
     },
   },
+  network: {
+    type: Object as PropType<BaseNetwork>,
+    default: () => {
+      return {};
+    },
+  },
 });
-
-const getImgUrl = (address: string) => {
-  return "https://mewcard.mewapi.io/?address=" + address;
-};
 </script>
 
 <style lang="less">
@@ -78,14 +77,9 @@ const getImgUrl = (address: string) => {
 
   &__img {
     width: 32px;
-    height: 24px;
+    height: 32px;
     margin-right: 12px;
-    border-radius: 5px;
-
-    &.avatar {
-      height: 32px;
-      border-radius: 100%;
-    }
+    border-radius: 100%;
   }
 
   &__name {

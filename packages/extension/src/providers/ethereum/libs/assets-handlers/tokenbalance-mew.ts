@@ -21,8 +21,8 @@ import { EvmNetwork } from "../../types/evm-network";
 import TokenLists from "./token-lists";
 import networks from "../../networks";
 import { NetworkNames } from "@enkryptcom/types";
+import { NATIVE_TOKEN_ADDRESS } from "../common";
 const API_ENPOINT = "https://tokenbalance.mewapi.io/";
-const NATIVE_CONTRACT = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
 const TOKEN_FETCH_TTL = 1000 * 60 * 60;
 export default (
   network: BaseNetwork,
@@ -65,11 +65,11 @@ export default (
         );
         const marketInfo = await marketData.getMarketInfoByContracts(
           Object.keys(balances).filter(
-            (contract) => contract !== NATIVE_CONTRACT
+            (contract) => contract !== NATIVE_TOKEN_ADDRESS
           ),
           supportedNetworks[networkName].cgPlatform
         );
-        marketInfo[NATIVE_CONTRACT] = nativeMarket[0];
+        marketInfo[NATIVE_TOKEN_ADDRESS] = nativeMarket[0];
 
         const assets: AssetsType[] = [];
         const tokenInfo: Record<string, CGToken> = await cacheFetch(
@@ -86,11 +86,11 @@ export default (
           return tObject;
         });
 
-        tokenInfo[NATIVE_CONTRACT] = {
+        tokenInfo[NATIVE_TOKEN_ADDRESS] = {
           chainId: (network as EvmNetwork).chainID,
           name: network.name_long,
           decimals: 18,
-          address: NATIVE_CONTRACT,
+          address: NATIVE_TOKEN_ADDRESS,
           logoURI: network.icon,
           symbol: network.currencyName,
         };
@@ -123,7 +123,7 @@ export default (
               priceChangePercentage:
                 market.price_change_percentage_7d_in_currency || 0,
             };
-            if (address !== NATIVE_CONTRACT) assets.push(asset);
+            if (address !== NATIVE_TOKEN_ADDRESS) assets.push(asset);
             else nativeAsset = asset;
           } else {
             unknownTokens.push(address);

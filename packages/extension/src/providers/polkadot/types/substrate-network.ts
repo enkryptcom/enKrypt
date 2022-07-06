@@ -5,7 +5,6 @@ import { BaseToken } from "@/types/base-token";
 import { ProviderName } from "@/types/provider";
 import { NetworkNames, SignerType } from "@enkryptcom/types";
 import { polkadotEncodeAddress } from "@enkryptcom/utils";
-import { ApiPromise, WsProvider } from "@polkadot/api";
 import createIcon from "../libs/blockies";
 import MarketData from "@/libs/market-data";
 import { fromBase } from "@/libs/utils/units";
@@ -87,10 +86,11 @@ export class SubstrateNetwork extends BaseNetwork {
     }
   }
 
-  public async getAllTokenInfo(address: string): Promise<AssetsType[]> {
-    const provider = new WsProvider(this.node);
-    const api = await ApiPromise.create({ provider });
+  public getAllTokens(): BaseToken[] {
+    return this.assets;
+  }
 
+  public async getAllTokenInfo(address: string): Promise<AssetsType[]> {
     const supported = this.assets;
 
     if (supported.length === 0) {
@@ -105,8 +105,10 @@ export class SubstrateNetwork extends BaseNetwork {
       supported.push(nativeToken);
     }
 
+    const api = await this.api();
+
     const balancePromises = supported.map((token) =>
-      token.getUserBalance(api, address)
+      token.getUserBalance((api as SubstrateAPI).api, address)
     );
     const marketData = new MarketData();
     const market = await marketData.getMarketData(
@@ -142,6 +144,7 @@ export class SubstrateNetwork extends BaseNetwork {
         valuef: formatFloatingPointValue(
           market[idx]?.current_price.toString() || "0"
         ).value,
+        baseToken: st,
       };
     });
 

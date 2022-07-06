@@ -5,34 +5,22 @@
     <div class="verify-transaction-amount__info">
       <p>Amount</p>
       <h4>
-        {{ amount }} <span>{{ token.symbol }}</span>
+        {{ token.amount }} <span>{{ token.symbol }}</span>
       </h4>
-      <h6>{{ $filters.formatFiatValue(amount).value }}</h6>
+      <h6>{{ $filters.formatFiatValue(token.valueUSD).value }}</h6>
     </div>
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "VerifyTransactionAmount",
-};
-</script>
-
 <script setup lang="ts">
+import { ToTokenData } from "@/ui/action/types/token";
 import { PropType } from "vue";
-import { Token } from "@action/types/token";
 
 defineProps({
   token: {
-    type: Object as PropType<Token>,
+    type: Object as PropType<ToTokenData>,
     default: () => {
       return {};
-    },
-  },
-  amount: {
-    type: Number,
-    default: () => {
-      return 0;
     },
   },
 });

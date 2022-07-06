@@ -762,7 +762,7 @@ export const fees: TransactionFee[] = [
       tip: 0.002,
       totalFee: 0.022,
       title: "Recommended",
-      description: "Will reliably go through in most scenatios",
+      description: "Will reliably go through in most scenarios",
     },
   },
   {
@@ -785,7 +785,7 @@ export const fees: TransactionFee[] = [
       tip: 0.03,
       totalFee: 0.33,
       title: "Highest priority",
-      description: "Will go through, fast, in 99.99% of the cases",
+      description: "Will go through fast in 99.99% of the cases",
     },
   },
 ];
@@ -798,7 +798,7 @@ export const recommendedFee: TransactionFee = {
     tip: 0.002,
     totalFee: 0.022,
     title: "Recommended",
-    description: "Will reliably go through in most scenatios",
+    description: "Will reliably go through in most scenarios",
   },
 };
 

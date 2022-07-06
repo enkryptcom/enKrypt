@@ -1,5 +1,9 @@
 <template>
-  <a class="send-fee-select" :class="{ swap: inSwap }" @click="open">
+  <a
+    class="send-fee-select"
+    :class="{ swap: inSwap }"
+    @click="emit('openPopup')"
+  >
     <div class="send-fee-select__value">
       <p class="send-fee-select__value-fiat">
         Fee: {{ $filters.formatFiatValue(fee.fiatValue).value }}
@@ -21,12 +25,6 @@
   </a>
 </template>
 
-<script lang="ts">
-export default {
-  name: "SendFeeSelect",
-};
-</script>
-
 <script setup lang="ts">
 import { PropType } from "vue";
 import SwitchArrow from "@action/icons/header/switch_arrow.vue";
@@ -34,9 +32,11 @@ import TimeIcon from "@action/icons/fee/time-icon.vue";
 import { GasFeeInfo } from "@/providers/ethereum/ui/types";
 import { GasPriceTypes } from "@/providers/ethereum/libs/transaction/types";
 import { FeeDescriptions } from "@/providers/ethereum/libs/transaction/gas-utils";
+
 const emit = defineEmits<{
   (e: "openPopup"): void;
 }>();
+
 defineProps({
   toggleSelect: {
     type: Function,
@@ -61,10 +61,6 @@ defineProps({
     },
   },
 });
-
-const open = () => {
-  emit("openPopup");
-};
 </script>
 
 <style lang="less">
@@ -102,7 +98,7 @@ const open = () => {
     &-fiat {
       font-style: normal;
       font-weight: 400;
-      font-size: 10px;
+      font-size: 14px;
       line-height: 20px;
       letter-spacing: 0.25px;
       color: @secondaryLabel;
@@ -112,7 +108,7 @@ const open = () => {
     &-crypto {
       font-style: normal;
       font-weight: 400;
-      font-size: 10px;
+      font-size: 14px;
       line-height: 20px;
       letter-spacing: 0.25px;
       color: @tertiaryLabel;

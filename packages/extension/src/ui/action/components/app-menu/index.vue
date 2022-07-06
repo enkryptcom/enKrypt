@@ -7,7 +7,7 @@
             :network="element"
             :is-active="!!selected && element.name === selected"
             :selected="selected"
-            @click="setNetwork(element)"
+            @click="emit('update:network', element)"
           ></app-menu-item>
         </template>
       </draggable>
@@ -22,7 +22,6 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { NodeType } from "@/types/provider";
 import { PropType } from "vue";
 import AppMenuItem from "./components/app-menu-item.vue";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
@@ -32,7 +31,7 @@ import { BaseNetwork } from "@/types/base-network";
 
 const props = defineProps({
   networks: {
-    type: Array as PropType<Array<NodeType>>,
+    type: Array as PropType<BaseNetwork[]>,
     default: () => [],
   },
   selected: {
@@ -44,6 +43,9 @@ const props = defineProps({
     default: () => ({}),
   },
 });
+const emit = defineEmits<{
+  (e: "update:network", network: BaseNetwork): void;
+}>();
 
 const networksState = new NetworksState();
 

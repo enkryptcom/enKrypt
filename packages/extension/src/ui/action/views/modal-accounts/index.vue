@@ -12,7 +12,7 @@
 
       <custom-scrollbar
         class="modal-accounts__scroll-area"
-        :settings="settings"
+        :settings="scrollSettings({ suppressScrollX: true })"
       >
         <accounts-list-item
           v-for="(account, index) in accountInfo.activeAccounts"
@@ -45,12 +45,7 @@ import { AccountsHeaderData } from "../../types/account";
 import { NodeType } from "@/types/provider";
 import AccountsListItem from "@action/views/accounts/components/accounts-list-item.vue";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
-
-const settings = {
-  suppressScrollY: false,
-  suppressScrollX: true,
-  wheelPropagation: false,
-};
+import scrollSettings from "@/libs/utils/scroll-settings";
 
 const emit = defineEmits<{
   (e: "addressChanged", account: KeyRecord): void;

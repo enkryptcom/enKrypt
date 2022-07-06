@@ -61,6 +61,9 @@ const isDisabled = ref(true);
 const addAccountInput = ref(null);
 
 defineExpose({ addAccountInput });
+const emit = defineEmits<{
+  (e: "update:init"): void;
+}>();
 
 const props = defineProps({
   close: {
@@ -69,14 +72,6 @@ const props = defineProps({
   },
   network: {
     type: Object as PropType<NodeType>,
-    default: () => ({}),
-  },
-  init: {
-    type: Function as PropType<() => void>,
-    default: () => ({}),
-  },
-  selectAccount: {
-    type: Function as PropType<(address: string) => void>,
     default: () => ({}),
   },
 });
@@ -100,7 +95,6 @@ const setNewAccountInfo = async () => {
 };
 onMounted(() => {
   setNewAccountInfo();
-
   if (addAccountInput.value) {
     (addAccountInput.value as HTMLInputElement).focus();
   }
@@ -129,7 +123,7 @@ const addAccount = async () => {
       params: [keyReq],
     }),
   }).then(() => {
-    props.init();
+    emit("update:init");
     close();
   });
 };

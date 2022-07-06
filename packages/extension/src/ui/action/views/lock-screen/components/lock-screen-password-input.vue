@@ -4,6 +4,7 @@
       type="password"
       placeholder="Password"
       class="lock-screen-password-input__input"
+      :is-error="isError"
       v-bind="$attrs"
     />
     <p v-show="isError" class="lock-screen-password-input__error">

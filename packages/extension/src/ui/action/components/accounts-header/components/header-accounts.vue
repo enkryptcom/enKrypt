@@ -10,7 +10,11 @@
     </a>
     <div class="account__actions">
       <tooltip text="View on Blockchain Explorer">
-        <a class="account__actions--copy" href="#">
+        <a
+          class="account__actions--copy"
+          target="_blank"
+          :href="externalLink()"
+        >
           <icon-external />
         </a>
       </tooltip>
@@ -77,6 +81,28 @@ const showAccounts = () => {
 };
 const showDeposit = () => {
   props.toggleDeposit();
+};
+const externalLink = () => {
+  let link = "";
+
+  switch (props.network.name) {
+    case "ETH":
+      link = "https://etherscan.io/address/" + props.address;
+      break;
+    case "DOT":
+      link = "https://explorer.polkascan.io/polkadot/account/" + props.address;
+      break;
+    case "MATIC":
+      link = "https://polygonscan.com/address/" + props.address;
+      break;
+    case "GLMR":
+      link = "https://moonscan.io/address/" + props.address;
+      break;
+    default:
+      link = "https://etherscan.io/address/" + props.address;
+  }
+
+  return link;
 };
 </script>
 

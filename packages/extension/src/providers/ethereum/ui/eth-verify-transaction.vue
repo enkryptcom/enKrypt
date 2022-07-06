@@ -102,6 +102,7 @@
         :show-fees="isOpenSelectFee"
         :selected="selectedFee"
         :is-header="true"
+        :is-popup="true"
         @close-popup="toggleSelectFee"
         @gas-type-changed="selectFee"
       ></transaction-fee-view>
@@ -123,7 +124,7 @@ import SignLogo from "@action/icons/common/sign-logo.vue";
 import RightChevron from "@action/icons/common/right-chevron.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import CommonPopup from "@action/views/common-popup/index.vue";
-import SendFeeSelect from "@action/views/send-transaction/components/send-fee-select.vue";
+import SendFeeSelect from "./send-transaction/components/send-fee-select.vue";
 import TransactionFeeView from "@action/views/transaction-fee/index.vue";
 import { KeyRecord } from "@enkryptcom/types";
 import { getCustomError, getError } from "@/libs/error";
@@ -148,6 +149,7 @@ import { ProviderRequestOptions } from "@/types/provider";
 import BigNumber from "bignumber.js";
 import { GasFeeType } from "./types";
 import MarketData from "@/libs/market-data";
+import { defaultGasCostVals } from "./common/default-vals";
 
 const isOpenSelectFee = ref(false);
 const providerVerifyTransactionScrollRef = ref<ComponentPublicInstance>();
@@ -159,32 +161,7 @@ const network = ref<EvmNetwork>(
   getNetworkByName(DEFAULT_NETWORK_NAME) as EvmNetwork
 );
 const marketdata = new MarketData();
-const gasCostValues = ref<GasFeeType>({
-  [GasPriceTypes.ECONOMY]: {
-    nativeValue: "0",
-    fiatValue: "0.00",
-    nativeSymbol: "ETH",
-    fiatSymbol: "USD",
-  },
-  [GasPriceTypes.REGULAR]: {
-    nativeValue: "0",
-    fiatValue: "0.00",
-    nativeSymbol: "ETH",
-    fiatSymbol: "USD",
-  },
-  [GasPriceTypes.FAST]: {
-    nativeValue: "0",
-    fiatValue: "0.00",
-    nativeSymbol: "ETH",
-    fiatSymbol: "USD",
-  },
-  [GasPriceTypes.FASTEST]: {
-    nativeValue: "0",
-    fiatValue: "0.00",
-    nativeSymbol: "ETH",
-    fiatSymbol: "USD",
-  },
-});
+const gasCostValues = ref<GasFeeType>(defaultGasCostVals);
 const account = ref<KeyRecord>({
   name: "",
   address: "",

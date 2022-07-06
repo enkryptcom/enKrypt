@@ -1,4 +1,6 @@
 import { NetworkNames } from "@enkryptcom/types";
+import { toBN } from "web3-utils";
+import { SubstrateNativeToken } from "../types/substrate-native-token";
 import {
   SubstrateNetwork,
   SubstrateNetworkOptions,
@@ -23,5 +25,16 @@ const ksmOptions: SubstrateNetworkOptions = {
 };
 
 const ksm = new SubstrateNetwork(ksmOptions);
+
+const nativeAsset = new SubstrateNativeToken({
+  name: "Kusama",
+  symbol: "KSM",
+  coingeckoID: "kusama",
+  icon: require("./icons/kusama.svg"),
+  decimals: 12,
+  existentialDeposit: toBN("33333300"),
+});
+
+ksm.assets = [nativeAsset];
 
 export default ksm;

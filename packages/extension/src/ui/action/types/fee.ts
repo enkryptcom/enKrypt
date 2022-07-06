@@ -1,6 +1,7 @@
 export interface TransactionFee {
   limit: number;
   price: TransactionFeePrice;
+  symbol?: string;
 }
 
 export interface TransactionFeePrice {

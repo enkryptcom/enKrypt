@@ -1,11 +1,16 @@
 <template>
-  <a class="send-address-item" @click="select">
+  <a
+    class="send-address-item"
+    @click="emit('selected:account', account.address)"
+  >
     <div class="send-address-item__info">
-      <img :src="getImgUrl(account.address)" alt="" />
+      <img :src="identicon(account.address)" />
 
       <div class="send-address-item__name">
         <h4>{{ account.name }}</h4>
-        <p>{{ $filters.replaceWithEllipsis(account.address, 6, 4) }}</p>
+        <p>
+          {{ $filters.replaceWithEllipsis(account.address, 6, 4) }}
+        </p>
       </div>
     </div>
   </a>
@@ -19,37 +24,30 @@ export default {
 
 <script setup lang="ts">
 import { PropType } from "vue";
-import { Account } from "@action/types/account";
+import { KeyRecord } from "@enkryptcom/types";
 
-const props = defineProps({
+const emit = defineEmits<{
+  (e: "selected:account", address: string): void;
+}>();
+
+defineProps({
   account: {
-    type: Object as PropType<Account>,
+    type: Object as PropType<KeyRecord>,
     default: () => {
       return {};
     },
   },
-  selectAccount: {
+  identicon: {
     type: Function,
-    default: () => {
-      return null;
-    },
+    default: () => null,
   },
 });
-
-const getImgUrl = (address: string) => {
-  return "https://mewcard.mewapi.io/?address=" + address;
-};
-
-const select = () => {
-  props.selectAccount(props.account);
-};
 </script>
 
 <style lang="less">
 @import "~@action/styles/theme.less";
 
 .send-address-item {
-  text-decoration: none;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -58,6 +56,12 @@ const select = () => {
   height: 56px;
   cursor: pointer;
   text-decoration: none;
+  transition: background 300ms ease-in-out;
+  border-radius: 10px;
+
+  &:hover {
+    background: @black007;
+  }
 
   &__number {
     font-style: normal;

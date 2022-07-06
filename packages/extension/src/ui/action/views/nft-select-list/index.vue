@@ -9,7 +9,10 @@
 
     <nft-select-list-search></nft-select-list-search>
 
-    <custom-scrollbar class="nft-select-list__scroll-area" :settings="settings">
+    <custom-scrollbar
+      class="nft-select-list__scroll-area"
+      :settings="scrollSettings({ suppressScrollX: true })"
+    >
       <nft-select-list-item
         v-for="(item, index) in nftList"
         :key="index"
@@ -31,14 +34,8 @@ import CloseIcon from "@action/icons/common/close-icon.vue";
 import NftSelectListItem from "./components/nft-select-list-item.vue";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 import NftSelectListSearch from "./components/nft-select-list-search.vue";
-
+import scrollSettings from "@/libs/utils/scroll-settings";
 import { nftList } from "@action/types/mock";
-
-const settings = {
-  suppressScrollY: false,
-  suppressScrollX: true,
-  wheelPropagation: false,
-};
 
 const props = defineProps({
   close: {

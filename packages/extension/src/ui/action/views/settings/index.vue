@@ -62,13 +62,12 @@ const isSupport = ref(false);
 const isPhrase = ref(false);
 const isReset = ref(false);
 
-defineProps({
-  close: {
-    type: Function,
-    default: () => ({}),
-  },
-});
-
+const emit = defineEmits<{
+  (e: "close:popup"): void;
+}>();
+const close = () => {
+  emit("close:popup");
+};
 const recoveryPhraseAction = () => {
   isStart.value = false;
   isGeneral.value = false;

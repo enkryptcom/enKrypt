@@ -1,30 +1,24 @@
 <template>
-  <div class="verify-transaction-nft">
-    <img :src="item.image" alt="" />
+  <div class="verify-transaction-amount">
+    <img :src="token.icon" alt="" />
 
-    <div class="verify-transaction-nft__info">
-      <p>NFT</p>
+    <div class="verify-transaction-amount__info">
+      <p>Amount</p>
       <h4>
-        {{ item.name }}
+        {{ token.amount }} <span>{{ token.symbol }}</span>
       </h4>
-      <h6>{{ item.author }}</h6>
+      <h6>{{ $filters.formatFiatValue(token.valueUSD).value }}</h6>
     </div>
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "VerifyTransactionNft",
-};
-</script>
-
 <script setup lang="ts">
+import { ToTokenData } from "@/ui/action/types/token";
 import { PropType } from "vue";
-import { NFTItem } from "@action/types/nft";
 
 defineProps({
-  item: {
-    type: Object as PropType<NFTItem>,
+  token: {
+    type: Object as PropType<ToTokenData>,
     default: () => {
       return {};
     },
@@ -35,7 +29,7 @@ defineProps({
 <style lang="less">
 @import "~@action/styles/theme.less";
 
-.verify-transaction-nft {
+.verify-transaction-amount {
   text-decoration: none;
   display: flex;
   justify-content: flex-start;
@@ -48,7 +42,7 @@ defineProps({
 
   img {
     width: 32px;
-    border-radius: 8px;
+    border-radius: 100%;
     margin-right: 12px;
     height: 32px;
     box-shadow: inset 0px 0px 1px rgba(0, 0, 0, 0.16);

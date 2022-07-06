@@ -12,7 +12,7 @@
     </div>
 
     <div class="assets-select-list__token-price">
-      <h4>{{ token.balanceUSDf }}</h4>
+      <h4>${{ token.balanceUSDf }}</h4>
     </div>
   </a>
 </template>
@@ -26,21 +26,20 @@ export default {
 <script setup lang="ts">
 import { PropType } from "vue";
 import { AssetsType } from "@/types/provider";
+
+const emit = defineEmits<{
+  (e: "update:selectAsset", asset: AssetsType): void;
+}>();
+
 const props = defineProps({
   token: {
     type: Object as PropType<AssetsType>,
     default: () => ({}),
   },
-  selectToken: {
-    type: Function,
-    default: () => {
-      return null;
-    },
-  },
 });
 
 const select = () => {
-  props.selectToken(props.token);
+  emit("update:selectAsset", props.token);
 };
 </script>
 
@@ -50,7 +49,8 @@ const select = () => {
 .assets-select-list {
   &__token {
     height: 64px;
-    padding: 0 16px;
+    margin: 0 8px;
+    padding: 0 8px;
     position: relative;
     box-sizing: border-box;
     display: flex;
@@ -58,6 +58,12 @@ const select = () => {
     align-items: center;
     flex-direction: row;
     cursor: pointer;
+    border-radius: 10px;
+    transition: background 300ms ease-in-out;
+
+    &:hover {
+      background: @black007;
+    }
 
     &-info {
       display: flex;

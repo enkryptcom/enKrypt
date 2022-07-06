@@ -13,18 +13,16 @@
 
     <custom-scrollbar
       class="assets-select-list__scroll-area"
-      :settings="settings"
+      :settings="scrollSettings({ suppressScrollX: true })"
     >
       <div v-show="isSelectToToken" class="assets-select-list__fast-tokens">
-        <swap-token-fast-list
-          :select-token="selectToken"
-        ></swap-token-fast-list>
+        <swap-token-fast-list v-bind="$attrs"></swap-token-fast-list>
       </div>
       <assets-select-list-item
-        v-for="(item, index) in assets2"
+        v-for="(item, index) in assets"
         :key="index"
         :token="item"
-        :select-token="selectToken"
+        v-bind="$attrs"
       ></assets-select-list-item>
     </custom-scrollbar>
   </div>
@@ -42,28 +40,15 @@ import AssetsSelectListItem from "./components/assets-select-list-item.vue";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 import AssetsSelectListSearch from "./components/assets-select-list-search.vue";
 import SwapTokenFastList from "@action/views/swap/components/swap-token-fast-list/index.vue";
+import scrollSettings from "@/libs/utils/scroll-settings";
+import { AssetsType } from "@/types/provider";
+import { PropType } from "vue";
 
-import { assets2 } from "@action/types/mock";
+const emit = defineEmits<{
+  (e: "close", close: boolean): void;
+}>();
 
-const settings = {
-  suppressScrollY: false,
-  suppressScrollX: true,
-  wheelPropagation: false,
-};
-
-const props = defineProps({
-  close: {
-    type: Function,
-    default: () => {
-      return null;
-    },
-  },
-  selectToken: {
-    type: Function,
-    default: () => {
-      return null;
-    },
-  },
+defineProps({
   isSelectToToken: {
     type: Boolean,
     default: () => {
@@ -76,10 +61,14 @@ const props = defineProps({
       return false;
     },
   },
+  assets: {
+    type: Array as PropType<AssetsType[]>,
+    default: () => [],
+  },
 });
 
 const close = () => {
-  props.close();
+  emit("close", false);
 };
 </script>
 

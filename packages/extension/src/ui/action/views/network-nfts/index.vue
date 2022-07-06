@@ -3,7 +3,7 @@
     <custom-scrollbar
       v-if="!!NFTs"
       class="network-nfts__scroll-area"
-      :settings="settings"
+      :settings="scrollSettings({ suppressScrollX: true })"
     >
       <div class="network-nfts">
         <network-nfts-favorite
@@ -53,6 +53,8 @@ import { NodeType } from "@/types/provider";
 import { AccountsHeaderData } from "../../types/account";
 import { NFTCollection, NFTItem } from "@/types/nft";
 import NFTState from "@/libs/nft-state";
+import scrollSettings from "@/libs/utils/scroll-settings";
+
 const nftState = new NFTState();
 const props = defineProps({
   network: {
@@ -118,11 +120,7 @@ const updateNFTInfo = async () => {
 const route = useRoute();
 
 const selected: string = route.params.id as string;
-const settings = {
-  suppressScrollY: false,
-  suppressScrollX: true,
-  wheelPropagation: false,
-};
+
 const favClicked = async (isFav: boolean, item: NFTItem) => {
   if (isFav) {
     await nftState.setFavoriteNFT(item.contract, item.id);
@@ -150,10 +148,10 @@ const hideClicked = async (isHidden: boolean, item: NFTItem) => {
 
 .container {
   width: 100%;
-  height: 488px;
+  height: 600px;
   background-color: @white;
   box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.16);
-  margin: 56px 0;
+  margin: 0;
   padding-top: 0;
   box-sizing: border-box;
 }
@@ -168,14 +166,23 @@ const hideClicked = async (isHidden: boolean, item: NFTItem) => {
     position: relative;
     margin: auto;
     width: 100%;
-    max-height: 487px;
+    max-height: 600px;
     margin: 0;
-    padding: 0 !important;
+    padding: 56px 0 0 0 !important;
     box-sizing: border-box;
 
     &.ps--active-y {
       padding-right: 0;
     }
+  }
+}
+</style>
+
+<style lang="less">
+.network-nfts__scroll-area {
+  .ps__rail-y {
+    right: 3px !important;
+    margin: 59px 0 !important;
   }
 }
 </style>

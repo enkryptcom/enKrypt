@@ -3,7 +3,10 @@
     <div class="accounts__overlay" @click="close()"></div>
     <div class="accounts__wrap" :class="{ show: showAccounts }">
       <accounts-search />
-      <custom-scrollbar class="accounts__scroll-area" :settings="settings">
+      <custom-scrollbar
+        class="accounts__scroll-area"
+        :settings="scrollSettings({ suppressScrollX: true })"
+      >
         <accounts-list-item
           v-for="(account, index) in accountInfo.activeAccounts"
           :key="index"
@@ -47,8 +50,7 @@
     v-if="isAddAccount"
     :close="closeAddAccount"
     :network="network"
-    :init="init"
-    :select-account="selectAccount"
+    v-bind="$attrs"
   ></add-account-form>
 
   <rename-account-form
@@ -81,12 +83,8 @@ import { AccountsHeaderData } from "../../types/account";
 import { PropType, ref } from "vue";
 import { NodeType } from "@/types/provider";
 import { KeyRecord } from "@enkryptcom/types";
+import scrollSettings from "@/libs/utils/scroll-settings";
 
-const settings = {
-  suppressScrollY: false,
-  suppressScrollX: true,
-  wheelPropagation: false,
-};
 const emit = defineEmits<{
   (e: "addressChanged", account: KeyRecord): void;
 }>();
@@ -105,10 +103,6 @@ const props = defineProps({
   showAccounts: Boolean,
   toggle: {
     type: Function,
-    default: () => ({}),
-  },
-  init: {
-    type: Function as PropType<() => void>,
     default: () => ({}),
   },
 });

@@ -65,6 +65,7 @@ import { FeeDescriptions } from "@/providers/ethereum/libs/transaction/gas-utils
 const emit = defineEmits<{
   (e: "closePopup"): void;
 }>();
+
 defineProps({
   showFees: Boolean,
   fees: {
