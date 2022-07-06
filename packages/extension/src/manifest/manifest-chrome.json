@@ -31,10 +31,14 @@
   },
   "content_scripts": [
     {
-      "matches": ["http://*/*", "https://*/*"],
+      "matches": ["file://*/*", "http://*/*", "https://*/*"],
       "js": ["scripts/contentscript.js"],
       "run_at": "document_start",
       "all_frames": false
+    },
+    {
+      "matches": ["*://connect.trezor.io/*/popup.html"],
+      "js": ["vendor/trezor-content-script.js"]
     }
   ],
   "description": "Enkrypt Chrome Extension - Everything in the blockchain made easy",

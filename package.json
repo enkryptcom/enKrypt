@@ -10,7 +10,8 @@
     "packages/extension-bridge",
     "packages/extension",
     "packages/storage",
-    "packages/request"
+    "packages/request",
+    "packages/hw-wallets"
   ],
   "scripts": {
     "test": "yarn workspaces foreach -pv run test",

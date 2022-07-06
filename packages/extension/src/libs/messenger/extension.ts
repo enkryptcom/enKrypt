@@ -82,6 +82,7 @@ const backgroundOnMessage = (
     return cb(msg);
   });
 };
+
 export const backgroundOnMessageFromWindow = (cb: onMessageType): void => {
   backgroundOnMessage(MessageType.WINDOW_REQUEST, (message) => {
     assert(
