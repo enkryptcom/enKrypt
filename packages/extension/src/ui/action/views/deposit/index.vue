@@ -1,5 +1,6 @@
 <template>
   <div class="deposit" :class="{ show: showDeposit }">
+    <div class="deposit__overlay" @click="(toggle as ()=>void)"></div>
     <div class="deposit__wrap" :class="{ show: showDeposit }">
       <a class="deposit__close" @click="(toggle as ()=>void)">
         <close-icon />
@@ -88,16 +89,30 @@ const copy = (address: string) => {
 @import "~@action/styles/theme.less";
 
 .deposit {
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  left: 0;
-  top: 0;
-  z-index: 101;
+  width: 800px;
+  height: 600px;
+  left: 0px;
+  top: 0px;
+  position: fixed;
+  z-index: 105;
   display: none;
+  box-sizing: border-box;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row;
 
   &.show {
-    display: block;
+    display: flex;
+  }
+
+  &__overlay {
+    background: rgba(0, 0, 0, 0.32);
+    width: 100%;
+    height: 100%;
+    left: 0px;
+    top: 0px;
+    position: absolute;
+    z-index: 106;
   }
 
   &__wrap {
@@ -107,10 +122,8 @@ const copy = (address: string) => {
     box-shadow: 0px 0.5px 5px rgba(0, 0, 0, 0.039),
       0px 3.75px 11px rgba(0, 0, 0, 0.19);
     border-radius: 12px;
-    right: 8px;
-    top: 50px;
-    position: absolute;
-    z-index: 103;
+    position: relative;
+    z-index: 107;
     overflow: hidden;
     padding: 20px;
     box-sizing: border-box;
@@ -151,6 +164,8 @@ const copy = (address: string) => {
     right: 8px;
     border-radius: 8px;
     cursor: pointer;
+    font-size: 0;
+    transition: background 300ms ease-in-out;
 
     &:hover {
       background: @black007;
@@ -238,6 +253,7 @@ const copy = (address: string) => {
       align-items: center;
       flex-direction: row;
       cursor: pointer;
+      transition: opacity 300ms ease-in-out;
 
       &:hover {
         opacity: 0.8;

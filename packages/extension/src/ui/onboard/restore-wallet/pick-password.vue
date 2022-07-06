@@ -6,7 +6,10 @@
     </p>
 
     <div class="pick-password__form">
-      <password-input @update:strength-and-password="passwordUpdated" />
+      <password-input
+        @update:strength-and-password="passwordUpdated"
+        @keyup.enter="nextAction()"
+      />
       <base-button title="Next" :click="nextAction" :disabled="isDisabled" />
     </div>
 
@@ -29,10 +32,12 @@ const password = ref("");
 const isDisabled = ref(true);
 
 const nextAction = () => {
-  router.push({
-    name: routes.typePassword.name,
-    params: { password: password.value, mnemonic: route.params.mnemonic },
-  });
+  if (!isDisabled.value) {
+    router.push({
+      name: routes.typePassword.name,
+      params: { password: password.value, mnemonic: route.params.mnemonic },
+    });
+  }
 };
 
 const passwordUpdated = (info: { password: string; strength: number }) => {

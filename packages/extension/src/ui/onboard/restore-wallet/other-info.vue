@@ -2,7 +2,7 @@
   <div class="restore-wallet-other-info">
     <custom-scrollbar
       class="restore-wallet-other-info__scroll-area"
-      :settings="settings"
+      :settings="scrollSettings({ suppressScrollX: true })"
     >
       <h3>Your safety and security is our #1 priority</h3>
       <p>
@@ -30,12 +30,7 @@
 </template>
 <script setup lang="ts">
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
-
-const settings = {
-  suppressScrollY: false,
-  suppressScrollX: true,
-  wheelPropagation: false,
-};
+import scrollSettings from "@/libs/utils/scroll-settings";
 </script>
 
 <style lang="less">

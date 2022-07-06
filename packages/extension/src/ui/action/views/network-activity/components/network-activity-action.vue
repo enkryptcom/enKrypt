@@ -5,26 +5,32 @@
         class="network-activity__action-item"
         @click="(depositAction as ()=>void)"
       >
-        <Deposit /><br />Deposit
+        <Deposit />Deposit
       </a>
-      <div class="network-activity__action-devider"></div>
+      <div class="network-activity__action-divider"></div>
       <a class="network-activity__action-item" @click="(buyAction as ()=>void)">
-        <Buy /><br />Buy
+        <Buy />Buy
       </a>
-      <div class="network-activity__action-devider"></div>
-      <a
+      <div class="network-activity__action-divider"></div>
+      <router-link
+        :to="{
+          name: 'send-transaction',
+          params: { id: route.params.id },
+        }"
         class="network-activity__action-item"
-        @click="(sendAction as ()=>void)"
       >
-        <Send /><br />Send
-      </a>
-      <div class="network-activity__action-devider"></div>
-      <a
+        <Send />Send
+      </router-link>
+      <div class="network-activity__action-divider"></div>
+      <router-link
         class="network-activity__action-item"
-        @click="(swapAction as ()=>void)"
+        :to="{
+          name: 'swap',
+          params: { id: route.params.id },
+        }"
       >
-        <Swap /><br />Swap
-      </a>
+        <Swap />Swap
+      </router-link>
     </div>
   </div>
 </template>
@@ -40,6 +46,8 @@ import Deposit from "@action/icons/actions/deposit.vue";
 import Buy from "@action/icons/actions/buy.vue";
 import Send from "@action/icons/actions/send.vue";
 import Swap from "@action/icons/actions/swap.vue";
+import { useRoute } from "vue-router";
+const route = useRoute();
 
 defineProps({
   depositAction: {
@@ -47,14 +55,6 @@ defineProps({
     default: () => ({}),
   },
   buyAction: {
-    type: Function,
-    default: () => ({}),
-  },
-  sendAction: {
-    type: Function,
-    default: () => ({}),
-  },
-  swapAction: {
     type: Function,
     default: () => ({}),
   },
@@ -80,6 +80,8 @@ defineProps({
       justify-content: space-around;
       align-items: center;
       flex-direction: row;
+      padding: 4px;
+      box-sizing: border-box;
     }
     &-item {
       display: block;
@@ -92,17 +94,29 @@ defineProps({
       text-align: center;
       letter-spacing: 0.5px;
       color: @primaryLabel;
-      width: 100px;
       cursor: pointer;
+      height: 64px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      min-width: 100px;
+      transition: background 300ms ease-in-out;
+      border-radius: 8px;
+
+      &:hover {
+        background: rgba(0, 0, 0, 0.04);
+      }
 
       svg {
         margin-bottom: 0;
       }
     }
-    &-devider {
+    &-divider {
       height: 48px;
       width: 1px;
       background: @darkBg;
+      margin: 0 4px 0 4px;
     }
   }
 }

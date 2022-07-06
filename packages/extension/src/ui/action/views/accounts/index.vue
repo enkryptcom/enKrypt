@@ -3,7 +3,10 @@
     <div class="accounts__overlay" @click="close()"></div>
     <div class="accounts__wrap" :class="{ show: showAccounts }">
       <accounts-search />
-      <custom-scrollbar class="accounts__scroll-area" :settings="settings">
+      <custom-scrollbar
+        class="accounts__scroll-area"
+        :settings="scrollSettings({ suppressScrollX: true })"
+      >
         <accounts-list-item
           v-for="(account, index) in accountInfo.activeAccounts"
           :key="index"
@@ -15,10 +18,12 @@
           :select="selectAccount"
           :active="true"
           :identicon-element="network.identicon"
+          :rename-action="renameAccount"
+          :delete-action="deleteAccount"
         ></accounts-list-item>
 
         <div class="accounts__info">
-          Incompatible accounts <a href="#">why?</a>
+          Incompatible accounts&nbsp;&nbsp;<a href="#">why?</a>
         </div>
 
         <accounts-list-item
@@ -45,9 +50,19 @@
     v-if="isAddAccount"
     :close="closeAddAccount"
     :network="network"
-    :init="init"
-    :select-account="selectAccount"
+    v-bind="$attrs"
   ></add-account-form>
+
+  <rename-account-form
+    v-if="isRenameAccount"
+    :close="closeRenameAccount"
+    :network="network"
+  ></rename-account-form>
+
+  <delete-account-form
+    v-if="isDeleteAccount"
+    :close="closeDeleteAccount"
+  ></delete-account-form>
 </template>
 
 <script lang="ts">
@@ -62,20 +77,20 @@ import AccountsListItem from "./components/accounts-list-item.vue";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 import AddIcon from "@action/icons/common/add-icon.vue";
 import AddAccountForm from "./components/add-account-form.vue";
+import RenameAccountForm from "./components/rename-account-form.vue";
+import DeleteAccountForm from "./components/delete-account-form.vue";
 import { AccountsHeaderData } from "../../types/account";
 import { PropType, ref } from "vue";
 import { NodeType } from "@/types/provider";
 import { KeyRecord } from "@enkryptcom/types";
+import scrollSettings from "@/libs/utils/scroll-settings";
 
-const settings = {
-  suppressScrollY: false,
-  suppressScrollX: true,
-  wheelPropagation: false,
-};
 const emit = defineEmits<{
   (e: "addressChanged", account: KeyRecord): void;
 }>();
 let isAddAccount = ref(false);
+let isRenameAccount = ref(false);
+let isDeleteAccount = ref(false);
 const props = defineProps({
   network: {
     type: Object as PropType<NodeType>,
@@ -90,15 +105,9 @@ const props = defineProps({
     type: Function,
     default: () => ({}),
   },
-  init: {
-    type: Function as PropType<() => void>,
-    default: () => ({}),
-  },
 });
 const close = () => {
-  setTimeout(() => {
-    props.toggle();
-  }, 150);
+  props.toggle();
 };
 const selectAccount = (address: string) => {
   for (const acc of props.accountInfo.activeAccounts) {
@@ -109,17 +118,37 @@ const selectAccount = (address: string) => {
   }
   setTimeout(() => {
     props.toggle();
-  }, 150);
+  }, 100);
 };
 const addAccount = () => {
   props.toggle();
 
   setTimeout(() => {
     isAddAccount.value = true;
-  }, 150);
+  }, 100);
 };
 const closeAddAccount = () => {
   isAddAccount.value = false;
+};
+const renameAccount = () => {
+  props.toggle();
+
+  setTimeout(() => {
+    isRenameAccount.value = true;
+  }, 100);
+};
+const closeRenameAccount = () => {
+  isRenameAccount.value = false;
+};
+const deleteAccount = () => {
+  props.toggle();
+
+  setTimeout(() => {
+    isDeleteAccount.value = true;
+  }, 100);
+};
+const closeDeleteAccount = () => {
+  isDeleteAccount.value = false;
 };
 </script>
 
@@ -128,12 +157,12 @@ const closeAddAccount = () => {
 @import "~@action/styles/custom-scroll.less";
 
 .accounts {
-  width: 100%;
-  height: 100%;
+  width: 800px;
+  height: 600px;
   position: absolute;
-  left: 0;
+  left: -340px;
   top: 0;
-  z-index: 101;
+  z-index: 105;
   display: none;
 
   &.show {
@@ -146,7 +175,7 @@ const closeAddAccount = () => {
     position: absolute;
     left: 0;
     top: 0;
-    z-index: 102;
+    z-index: 106;
   }
 
   &__wrap {
@@ -154,13 +183,13 @@ const closeAddAccount = () => {
     width: 344px;
     height: auto;
     max-height: 530px;
-    left: 8px;
+    left: 348px;
     top: 50px;
     background: #ffffff;
     box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.039),
       0px 7px 24px rgba(0, 0, 0, 0.19);
     border-radius: 12px;
-    z-index: 103;
+    z-index: 107;
     overflow: hidden;
     padding-top: 56px;
     box-sizing: border-box;
@@ -184,7 +213,7 @@ const closeAddAccount = () => {
   }
 
   &__info {
-    padding: 12px;
+    padding: 24px 12px 0 60px;
     font-style: normal;
     font-weight: 400;
     font-size: 12px;
@@ -229,10 +258,12 @@ const closeAddAccount = () => {
       text-decoration: none;
       cursor: pointer;
       width: 144px;
+      transition: background 300ms ease-in-out;
+      border-radius: 10px;
+
       &.active,
       &:hover {
         background: @black007;
-        border-radius: 10px;
       }
       svg {
         margin-right: 8px;

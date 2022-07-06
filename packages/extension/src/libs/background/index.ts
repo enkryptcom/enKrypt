@@ -1,18 +1,13 @@
 import {
-  ActionSendMessage,
   InternalMethods,
   InternalOnMessageResponse,
   Message,
 } from "@/types/messenger";
-import { KeyRecord, KeyRecordAdd, RPCRequestType } from "@enkryptcom/types";
+import { RPCRequestType } from "@enkryptcom/types";
 import { getCustomError } from "../error";
 import KeyRingBase from "../keyring/keyring";
 import { sendToWindow } from "@/libs/messenger/extension";
-import {
-  EnkryptProviderEventMethods,
-  NodeType,
-  ProviderName,
-} from "@/types/provider";
+import { ProviderName } from "@/types/provider";
 import { OnMessageResponse } from "@enkryptcom/types";
 import Providers from "@/providers";
 import Browser from "webextension-polyfill";
@@ -20,7 +15,17 @@ import TabInfo from "@/libs/utils/tab-info";
 import PersistentEvents from "@/libs/persistent-events";
 import DomainState from "@/libs/domain-state";
 import { TabProviderType, ProviderType, ExternalMessageOptions } from "./types";
-import { getNetworkByName, getProviderNetworkByName } from "../utils/networks";
+import { getProviderNetworkByName } from "../utils/networks";
+import {
+  sign,
+  getEthereumPubKey,
+  ethereumDecrypt,
+  unlock,
+  changeNetwork,
+  sendToTab,
+  newAccount,
+} from "./internal";
+import { handlePersistentEvents } from "./external";
 
 class BackgroundHandler {
   #keyring: KeyRingBase;
@@ -39,48 +44,7 @@ class BackgroundHandler {
     this.#providers = Providers;
   }
   async init(): Promise<void> {
-    const allPersistentEvents = await this.#persistentEvents.getAllEvents();
-    const tabs = Object.keys(allPersistentEvents).map((s) => parseInt(s));
-    const persistentEventPromises: Promise<void>[] = [];
-    tabs.forEach((tab) => {
-      const tabPromise = Browser.tabs
-        .get(tab)
-        .then(() => {
-          const eventPromises: Promise<OnMessageResponse | undefined>[] = [];
-          allPersistentEvents[tab].forEach((persistentEvent) => {
-            const promise = this.externalHandler(persistentEvent.event, {
-              savePersistentEvents: false,
-            }).then((newResponse) => {
-              if (
-                !newResponse.error &&
-                newResponse.result !== persistentEvent.response.result
-              ) {
-                return sendToWindow(
-                  {
-                    provider: persistentEvent.event.provider,
-                    message: JSON.stringify({
-                      method: EnkryptProviderEventMethods.persistentEvents,
-                      params: [
-                        JSON.parse(persistentEvent.event.message),
-                        persistentEvent.response.result,
-                        newResponse.result,
-                      ],
-                    }),
-                  },
-                  tab
-                );
-              }
-            });
-            eventPromises.push(promise);
-          });
-          return Promise.all(eventPromises);
-        })
-        .catch(() => {
-          this.#persistentEvents.deleteEvents(tab);
-        });
-      persistentEventPromises.push(tabPromise as any);
-    });
-    await Promise.all(persistentEventPromises);
+    await handlePersistentEvents.bind(this)();
   }
   async externalHandler(
     msg: Message,
@@ -150,157 +114,32 @@ class BackgroundHandler {
   }
   internalHandler(msg: Message): Promise<InternalOnMessageResponse> {
     const message = JSON.parse(msg.message) as RPCRequestType;
-    if (message.method === InternalMethods.sign) {
-      if (!message.params || message.params.length < 2)
+    switch (message.method) {
+      case InternalMethods.sign:
+        return sign(this.#keyring, message);
+      case InternalMethods.getEthereumEncryptionPublicKey:
+        return getEthereumPubKey(this.#keyring, message);
+      case InternalMethods.ethereumDecrypt:
+        return ethereumDecrypt(this.#keyring, message);
+      case InternalMethods.unlock:
+        return unlock(this.#keyring, message);
+      case InternalMethods.changeNetwork:
+        return changeNetwork(msg, this.#tabProviders);
+      case InternalMethods.isLocked:
         return Promise.resolve({
-          error: getCustomError("background: invalid params for signing"),
+          result: JSON.stringify(this.#keyring.isLocked()),
         });
-      const msgHash = message.params[0] as `0x${string}`;
-      const account = message.params[1] as KeyRecord;
-      return this.#keyring
-        .sign(msgHash, account)
-        .then((sig) => {
-          return {
-            result: JSON.stringify(sig),
-          };
-        })
-        .catch((e) => {
-          return {
-            error: getCustomError(e.message),
-          };
-        });
-    } else if (
-      message.method === InternalMethods.getEthereumEncryptionPublicKey
-    ) {
-      if (!message.params || message.params.length < 1)
-        return Promise.resolve({
-          error: getCustomError("background: invalid params for public key"),
-        });
-      const account = message.params[0] as KeyRecord;
-      return this.#keyring
-        .getEthereumEncryptionPublicKey(account)
-        .then((pubkey) => {
-          return {
-            result: JSON.stringify(pubkey),
-          };
-        })
-        .catch((e) => {
-          return {
-            error: getCustomError(e.message),
-          };
-        });
-    } else if (message.method === InternalMethods.ethereumDecrypt) {
-      if (!message.params || message.params.length < 2)
-        return Promise.resolve({
-          error: getCustomError("background: invalid params for decrypt"),
-        });
-      const encryptedMessage = message.params[0] as string;
-      const account = message.params[1] as KeyRecord;
-      return this.#keyring
-        .ethereumDecrypt(encryptedMessage, account)
-        .then((msg) => {
-          return {
-            result: JSON.stringify(msg),
-          };
-        })
-        .catch((e) => {
-          return {
-            error: getCustomError(e.message),
-          };
-        });
-    } else if (message.method === InternalMethods.unlock) {
-      if (!message.params || message.params.length < 1)
-        return Promise.resolve({
-          error: getCustomError("background: invalid params for unlocking"),
-        });
-      const password = message.params[0] as string;
-      return this.#keyring
-        .unlock(password)
-        .then(() => {
-          return {
-            result: JSON.stringify(true),
-          };
-        })
-        .catch((e) => {
-          return {
-            error: getCustomError(e.message),
-          };
-        });
-    } else if (message.method === InternalMethods.changeNetwork) {
-      if (!message.params || message.params.length < 1)
+      case InternalMethods.sendToTab:
+        return sendToTab(msg, this.#tabProviders);
+      case InternalMethods.getNewAccount:
+      case InternalMethods.saveNewAccount:
+        return newAccount(this.#keyring, message);
+      default:
         return Promise.resolve({
           error: getCustomError(
-            "background: invalid params for change network"
+            `background: unknown method: ${message.method}`
           ),
         });
-      const networkName = message.params[0] as string;
-      const network = getNetworkByName(networkName) as NodeType;
-      const actionMsg = msg as any as ActionSendMessage;
-      if (
-        actionMsg.provider &&
-        actionMsg.tabId &&
-        this.#tabProviders[actionMsg.provider][actionMsg.tabId]
-      ) {
-        this.#tabProviders[actionMsg.provider][
-          actionMsg.tabId
-        ].setRequestProvider(network);
-      }
-      return Promise.resolve({
-        result: JSON.stringify(true),
-      });
-    } else if (message.method === InternalMethods.isLocked) {
-      return Promise.resolve({
-        result: JSON.stringify(this.#keyring.isLocked()),
-      });
-    } else if (message.method === InternalMethods.sendToTab) {
-      const actionMsg = msg as any as ActionSendMessage;
-      if (
-        actionMsg.provider &&
-        actionMsg.tabId &&
-        this.#tabProviders[actionMsg.provider][actionMsg.tabId]
-      ) {
-        this.#tabProviders[actionMsg.provider][
-          actionMsg.tabId
-        ].sendNotification(
-          JSON.stringify(message.params?.length ? message.params[0] : {})
-        );
-        return Promise.resolve({
-          result: JSON.stringify(true),
-        });
-      } else {
-        return Promise.resolve({
-          result: JSON.stringify(false),
-        });
-      }
-    } else if (
-      message.method === InternalMethods.getNewAccount ||
-      message.method === InternalMethods.saveNewAccount
-    ) {
-      if (!message.params || message.params.length < 1)
-        return Promise.resolve({
-          error: getCustomError("background: invalid params for new account"),
-        });
-      const method =
-        message.method === InternalMethods.getNewAccount
-          ? "getNewAccount"
-          : "saveNewAccount";
-      const keyrecord = message.params[0] as KeyRecordAdd;
-      return this.#keyring
-        [method](keyrecord)
-        .then((res) => {
-          return {
-            result: JSON.stringify(res),
-          };
-        })
-        .catch((e) => {
-          return {
-            error: getCustomError(e.message),
-          };
-        });
-    } else {
-      return Promise.resolve({
-        error: getCustomError(`background: unknown method: ${message.method}`),
-      });
     }
   }
 }

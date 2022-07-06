@@ -1,7 +1,7 @@
 <template>
   <div class="network-menu">
     <router-link
-      v-if="network.assetsHandler"
+      v-if="network"
       :to="{ name: 'assets', params: { id: !!selected ? selected : null } }"
     >
       <Assets /><br />Assets
@@ -21,7 +21,10 @@
       <NFTs /><br />NFTs
     </router-link>
     <router-link
-      :to="{ name: 'dapps', params: { id: !!selected ? selected : null } }"
+      :to="{
+        name: 'dapps',
+        params: { id: !!selected ? selected : null },
+      }"
     >
       <DApps /><br />DApps
     </router-link>
@@ -63,13 +66,14 @@ defineProps({
   height: 56px;
   left: 340px;
   bottom: 0;
-  background: @white;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(50px);
+  -webkit-backdrop-filter: blur(50px);
   box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.05), 0px 0px 1px rgba(0, 0, 0, 0.25);
   display: flex;
   justify-content: space-around;
   align-items: center;
   flex-direction: row;
-  z-index: 1;
 
   a {
     display: block;
@@ -83,14 +87,19 @@ defineProps({
     letter-spacing: 0.5px;
     color: @primaryLabel;
     opacity: 0.38;
+    transition: opacity 300ms ease-in-out;
 
     svg {
       margin-bottom: 1px;
     }
+
+    &:hover {
+      opacity: 0.6;
+    }
   }
 
   .router-link-active {
-    opacity: 1;
+    opacity: 1 !important;
   }
 }
 </style>

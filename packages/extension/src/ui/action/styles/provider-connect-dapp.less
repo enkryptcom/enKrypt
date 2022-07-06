@@ -1,0 +1,35 @@
+@import "./theme.less";
+
+.provider-connect-dapp {
+    &__link {
+        padding: 2px 0;
+
+        svg {
+            width: 100%;
+        }
+    }
+
+    &__info {
+        margin: 12px 0 0 0;
+        padding: 8px 14px 8px 52px;
+        position: relative;
+        box-sizing: border-box;
+
+        p {
+            font-style: normal;
+            font-weight: 400;
+            font-size: 14px;
+            line-height: 20px;
+            letter-spacing: 0.25px;
+            color: @secondaryLabel;
+            margin: 0;
+        }
+
+        svg {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            margin-top: -10px;
+        }
+    }
+}

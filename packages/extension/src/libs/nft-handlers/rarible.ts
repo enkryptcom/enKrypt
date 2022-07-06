@@ -1,5 +1,6 @@
 import { NFTCollection, NFTItem } from "@/types/nft";
 import { NodeType } from "@/types/provider";
+import cacheFetch from "../cache-fetch";
 import {
   ContentRepresentation,
   NFTContent,
@@ -7,14 +8,19 @@ import {
   RaribleItem,
 } from "./types/rarible";
 const RARIBLE_ENDPOINT = "https://api.rarible.org/v0.1/";
+const ASSET_CACHE_TTL = 60 * 1000;
+const COLLECTION_CACHE_TTL = 60 * 60 * 1000;
 const setCollectionInfo = (
   collection: NFTCollection[]
 ): Promise<NFTCollection[]> => {
   const promises: Promise<RaribleCollectionItem>[] = [];
   collection.forEach((col) => {
-    const promise = fetch(`${RARIBLE_ENDPOINT}collections/${col.name}`)
-      .then((res) => res.json())
-      .then((json: RaribleCollectionItem) => json);
+    const promise = cacheFetch(
+      {
+        url: `${RARIBLE_ENDPOINT}collections/${col.name}`,
+      },
+      COLLECTION_CACHE_TTL
+    ).then((json: RaribleCollectionItem) => json);
     promises.push(promise);
   });
   return Promise.all(promises).then((colInfo) => {
@@ -59,25 +65,26 @@ export default async (
       supportedNetworks[network.name]
     }&owner=ETHEREUM:${address}`;
     if (continuation) query += `&continuation=${continuation}`;
-    return fetch(query)
-      .then((res) => res.json())
-      .then((json) => {
-        const items: RaribleItem[] = json.items;
-        allItems = allItems.concat(items);
-        if (json.continuation) return fetchAll(json.continuation);
-      });
+    return cacheFetch(
+      {
+        url: query,
+      },
+      ASSET_CACHE_TTL
+    ).then((json) => {
+      const items: RaribleItem[] = json.items;
+      allItems = allItems.concat(items);
+      if (json.continuation) return fetchAll(json.continuation);
+    });
   };
   await fetchAll();
   const collection: Record<string, NFTItem[]> = {};
   allItems.forEach((item) => {
     if (!collection[item.collection]) collection[item.collection] = [];
     const newItem = {
-      collection: item.collection,
       contract: item.contract.split(":")[1],
       id: item.tokenId,
       image: getBestImageURL(item.meta?.content || []),
       name: item.meta?.name || "",
-      valueUSD: item.bestBidOrder ? item.bestBidOrder.takePriceUsd : "0",
     };
     if (newItem.image && newItem.name)
       collection[item.collection].push(newItem);
@@ -89,8 +96,13 @@ export default async (
       description: "",
       image: "",
       items,
+      contract: id.split(":")[1],
     });
   }
   await setCollectionInfo(nftcollections);
-  return nftcollections.filter((col) => col.name && col.items.length);
+  const collections = nftcollections.filter(
+    (col) => col.name && col.items.length
+  );
+  collections.sort((a, b) => (a.name > b.name ? 1 : b.name > a.name ? -1 : 0));
+  return collections;
 };

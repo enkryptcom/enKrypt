@@ -10,6 +10,7 @@
         type="password"
         :value="typePassword"
         placeholder="Password"
+        @keyup.enter="nextAction()"
         @update:value="passwordUpdated"
       />
 
@@ -46,7 +47,9 @@ const typePassword = ref("");
 const isDisabled = ref(true);
 
 const nextAction = () => {
-  router.push({ name: routes.recoveryPhrase.name, params: { password } });
+  if (!isDisabled.value) {
+    router.push({ name: routes.recoveryPhrase.name, params: { password } });
+  }
 };
 
 const passwordUpdated = (value: string) => {

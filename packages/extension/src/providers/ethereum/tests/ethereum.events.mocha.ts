@@ -29,7 +29,6 @@ describe("Test injected Ethereum", () => {
     expect(provider.name).to.equal(ProviderName.ethereum);
     expect(provider.chainId).to.equal("0x1");
     expect(provider.isEnkrypt).to.equal(true);
-    expect(provider).to.deep.equal(tempWindow.enkrypt.providers[provider.name]);
   });
 });
 
