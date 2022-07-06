@@ -66,7 +66,9 @@ defineProps({
   height: 56px;
   left: 340px;
   bottom: 0;
-  background: @white;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(50px);
+  -webkit-backdrop-filter: blur(50px);
   box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.05), 0px 0px 1px rgba(0, 0, 0, 0.25);
   display: flex;
   justify-content: space-around;
@@ -97,7 +99,7 @@ defineProps({
   }
 
   .router-link-active {
-    opacity: 1;
+    opacity: 1 !important;
   }
 }
 </style>

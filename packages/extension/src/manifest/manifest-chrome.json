@@ -15,7 +15,7 @@
   "manifest_version": 3,
   "name": "Enkrypt",
   "short_name": "Enkrypt",
-  "permissions": ["storage", "unlimitedStorage", "notifications", "tabs"],
+  "permissions": ["storage", "unlimitedStorage", "notifications", "tabs", "clipboardRead", "clipboardWrite"],
   "background": {
     "service_worker": "scripts/background.js"
   },

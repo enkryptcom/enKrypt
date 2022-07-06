@@ -8,10 +8,12 @@
         :settings="settings"
       >
         <send-token-item
-          v-for="(token, index) in assets"
-          :key="index"
+          v-for="(token, index) in searchAssets"
+          :key="`${token.symbol}-${index}`"
           :token="token"
           :select-token="selectToken"
+          :active-account="activeAccount"
+          :api="props.api"
         ></send-token-item>
       </custom-scrollbar>
     </div>
@@ -28,8 +30,20 @@ export default {
 import SendTokenItem from "./send-token-item.vue";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 import ListSearch from "@action/components/list-search/index.vue";
-import { assets } from "@action/types/mock";
-import { Token } from "@action/types/token";
+import { BaseToken } from "@/types/base-token";
+import EvmAPI from "@/providers/ethereum/libs/api";
+import { ApiPromise } from "@polkadot/api";
+import { onUpdated, ref } from "vue";
+import { AssetsType } from "@/types/provider";
+
+interface IProps {
+  showTokens: boolean;
+  close: (shouldClose: boolean) => void;
+  selectToken: (token: AssetsType | Partial<AssetsType>) => void;
+  activeAccount?: string;
+  api?: EvmAPI | ApiPromise;
+  assets: AssetsType[] | Partial<AssetsType>[];
+}
 
 const settings = {
   suppressScrollY: false,
@@ -37,31 +51,32 @@ const settings = {
   wheelPropagation: false,
 };
 
-const props = defineProps({
-  showTokens: Boolean,
-  close: {
-    type: Function,
-    default: () => {
-      return null;
-    },
-  },
-  selectToken: {
-    type: Function,
-    default: () => {
-      return null;
-    },
-  },
+const props = defineProps<IProps>();
+
+const searchAssets = ref<AssetsType[] | Partial<AssetsType>[]>(props.assets);
+
+onUpdated(() => {
+  searchAssets.value = props.assets;
 });
 
 const close = () => {
   props.close(false);
 };
 
-const search = (text: string) => {
-  console.log(text);
+const search = (searchParam: string) => {
+  if (searchParam === "") {
+    searchAssets.value = props.assets;
+  } else {
+    const lowerSearchParam = searchParam.toLowerCase();
+    searchAssets.value = props.assets.filter(
+      (asset) =>
+        asset.name?.toLowerCase().startsWith(lowerSearchParam) ||
+        asset.symbol?.toLowerCase().startsWith(lowerSearchParam)
+    );
+  }
 };
 
-const selectToken = (token: Token) => {
+const selectToken = (token: BaseToken) => {
   props.selectToken(token);
 };
 </script>

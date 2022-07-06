@@ -124,7 +124,6 @@ const selectLanguage = (value: string) => {
   &__container {
     position: relative;
     margin: 0 32px 16px 32px;
-    z-index: 109;
   }
 
   &__dropdown {
@@ -138,6 +137,7 @@ const selectLanguage = (value: string) => {
     left: 0;
     top: 58px;
     box-sizing: border-box;
+    z-index: 1;
   }
 }
 </style>

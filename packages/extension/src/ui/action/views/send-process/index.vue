@@ -17,14 +17,15 @@
           />
         </div>
         <div class="send-process__info">
-          <send-process-amount v-if="!isNft" :token="ethereum" :amount="1.5">
+          <send-process-amount v-if="!isNft" :token="token">
           </send-process-amount>
           <send-process-nft v-if="isNft" :item="nft"> </send-process-nft>
           <div class="send-process__info-arrow">
             <arrow-down />
           </div>
           <send-process-account
-            address="0x1FBa2e3B8B2303B2a22AA8A8202Fee3a183B2ED"
+            :address="toAddress"
+            :network="network"
           ></send-process-account>
         </div>
       </div>
@@ -32,21 +33,17 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "SendProcess",
-};
-</script>
-
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, PropType } from "vue";
 import LottieSendProcess from "@action/assets/animation/send-process.json";
 import LottieSendCheckmark from "@action/assets/animation/send-checkmark.json";
 import ArrowDown from "@action/icons/send/arrow-down.vue";
 import SendProcessAccount from "./components/send-process-account.vue";
 import SendProcessAmount from "./components/send-process-amount.vue";
 import SendProcessNft from "./components/send-process-nft.vue";
-import { ethereum, nft } from "@action/types/mock";
+import { nft } from "@action/types/mock";
+import { ToTokenData } from "../../types/token";
+import { BaseNetwork } from "@/types/base-network";
 
 let isDone = ref(false);
 
@@ -57,6 +54,22 @@ onMounted(() => {
 });
 
 defineProps({
+  network: {
+    type: Object as PropType<BaseNetwork>,
+    default: () => {
+      return {};
+    },
+  },
+  token: {
+    type: Object as PropType<ToTokenData>,
+    default: () => {
+      return {};
+    },
+  },
+  toAddress: {
+    type: String,
+    default: "",
+  },
   isNft: {
     type: Boolean,
     default: () => {

@@ -54,6 +54,7 @@ defineProps({
     border-radius: 8px;
     cursor: pointer;
     transition: background 300ms ease-in-out;
+    font-size: 0;
 
     &:hover {
       background: @black007;

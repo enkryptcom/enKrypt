@@ -6,22 +6,22 @@
       <app-menu
         :networks="networks"
         :selected="(route.params.id as string)"
-        :set-network="setNetwork"
+        @update:network="setNetwork"
       />
       <div class="app__menu-footer">
-        <a class="app__menu-add" @click="addNetworkToggle()">
-          <add-icon />
+        <a class="app__menu-add" @click="addNetworkShow = !addNetworkShow">
+          <manage-networks-icon />
           Manage networks
         </a>
 
         <div>
           <tooltip text="Lock Enkrypt">
-            <a class="app__menu-link">
+            <a class="app__menu-link" @click="lockAction()">
               <hold-icon />
             </a>
           </tooltip>
           <tooltip text="Settings">
-            <a class="app__menu-link" @click="settingsToggle()">
+            <a class="app__menu-link" @click="settingsShow = !settingsShow">
               <settings-icon />
             </a>
           </tooltip>
@@ -31,10 +31,10 @@
 
     <div class="app__content">
       <accounts-header
-        v-show="showNetworkMenu()"
+        v-show="showNetworkMenu"
         :account-info="accountHeaderData"
         :network="currentNetwork"
-        :init="init"
+        @update:init="init"
         @address-changed="onSelectedAddressChanged"
       />
       <router-view v-slot="{ Component }" name="view">
@@ -43,13 +43,13 @@
             :is="Component"
             :network="currentNetwork"
             :account-info="accountHeaderData"
-            :init="init"
+            @update:init="init"
           />
         </transition>
       </router-view>
 
       <network-menu
-        v-show="showNetworkMenu()"
+        v-show="showNetworkMenu"
         :selected="(route.params.id as string)"
         :network="currentNetwork"
       />
@@ -57,21 +57,25 @@
 
     <add-network
       v-show="addNetworkShow"
-      :close="addNetworkToggle"
+      @close:popup="addNetworkShow = !addNetworkShow"
+      @update:active-networks="setActiveNetworks"
     ></add-network>
 
-    <settings v-show="settingsShow" :close="settingsToggle"></settings>
+    <settings
+      v-show="settingsShow"
+      @close:popup="settingsShow = !settingsShow"
+    ></settings>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, provide, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import AppMenu from "./components/app-menu/index.vue";
 import NetworkMenu from "./components/network-menu/index.vue";
 import AccountsHeader from "./components/accounts-header/index.vue";
 import BaseSearch from "./components/base-search/index.vue";
 import LogoMin from "./icons/common/logo-min.vue";
-import AddIcon from "./icons/common/add-icon.vue";
+import ManageNetworksIcon from "./icons/common/manage-networks-icon.vue";
 import SettingsIcon from "./icons/common/settings-icon.vue";
 import HoldIcon from "./icons/common/hold-icon.vue";
 import AddNetwork from "./views/add-network/index.vue";
@@ -135,9 +139,6 @@ const setActiveNetworks = async () => {
     setNetwork(networks.value[0]);
   }
 };
-
-// Injected in add-network/index.vue
-provide("setActiveNetworks", setActiveNetworks);
 
 const isKeyRingLocked = async (): Promise<boolean> => {
   return await sendToBackgroundFromAction({
@@ -239,12 +240,7 @@ const setNetwork = async (network: BaseNetwork) => {
     }
   }
 };
-const addNetworkToggle = () => {
-  addNetworkShow.value = !addNetworkShow.value;
-};
-const settingsToggle = () => {
-  settingsShow.value = !settingsShow.value;
-};
+
 const onSelectedAddressChanged = async (newAccount: KeyRecord) => {
   accountHeaderData.value.selectedAccount = newAccount;
   await domainState.setSelectedAddress(newAccount.address);
@@ -262,7 +258,7 @@ const onSelectedAddressChanged = async (newAccount: KeyRecord) => {
     tabId: await domainState.getCurrentTabId(),
   });
 };
-const showNetworkMenu = () => {
+const showNetworkMenu = computed(() => {
   const selected = route.params.id as string;
   return (
     !!selected &&
@@ -271,9 +267,12 @@ const showNetworkMenu = () => {
       route.name == "nfts" ||
       route.name == "dapps")
   );
-};
+});
 const searchInput = (text: string) => {
   console.log(text);
+};
+const lockAction = () => {
+  router.push({ name: "lock-screen" });
 };
 </script>
 

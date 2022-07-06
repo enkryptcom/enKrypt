@@ -14,6 +14,7 @@ import { RoutesType } from "./ui";
 import { SignerType } from "@enkryptcom/types";
 import { NFTCollection } from "./nft";
 import { BaseNetwork } from "./base-network";
+import { BaseToken } from "./base-token";
 
 export enum ProviderName {
   enkrypt = "enkrypt",
@@ -151,4 +152,5 @@ export interface AssetsType {
   decimals: number;
   sparkline: string;
   priceChangePercentage: number;
+  baseToken?: BaseToken;
 }

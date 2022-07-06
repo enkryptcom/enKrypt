@@ -31,15 +31,16 @@ export default {
 </script>
 
 <script setup lang="ts">
+import { PropType, computed } from "vue";
 import EconomyIcon from "@action/icons/fee/economy-icon.vue";
 import RecomendedIcon from "@action/icons/fee/recomended-icon.vue";
 import HigherIcon from "@action/icons/fee/higher-icon.vue";
 import HighestIcon from "@action/icons/fee/highest-icon.vue";
 import { GasPriceTypes } from "@/providers/ethereum/libs/transaction/types";
-import { computed, PropType } from "vue";
 import { GasFeeType } from "@/providers/ethereum/ui/types";
 import { FeeDescriptions } from "@/providers/ethereum/libs/transaction/gas-utils";
 import BigNumber from "bignumber.js";
+
 const emit = defineEmits<{
   (e: "gasTypeChanged", type: GasPriceTypes): void;
 }>();

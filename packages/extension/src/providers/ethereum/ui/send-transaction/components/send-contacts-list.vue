@@ -4,9 +4,9 @@
     <div class="send-contacts-list__wrap" :class="{ show: showAccounts }">
       <custom-scrollbar
         class="send-contacts-list__scroll-area"
-        :settings="settings"
+        :settings="scrollSettings({ suppressScrollX: true })"
       >
-        <div v-show="address.length == 0" class="send-contacts-list__buttons">
+        <div class="send-contacts-list__buttons">
           <base-button
             title="Send to my address"
             :click="sendToMyAddress"
@@ -16,65 +16,47 @@
             :click="pasteFromClipboard"
           ></base-button>
         </div>
-        <h3>Recent</h3>
+        <h3>My Accounts</h3>
         <send-address-item
-          v-for="(account, index) in accountsActive"
+          v-for="(account, index) in accountInfo.activeAccounts"
           :key="index"
           :account="account"
-          :select-account="selectAccount"
+          :network="network"
+          v-bind="$attrs"
         ></send-address-item>
       </custom-scrollbar>
     </div>
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "SendContactsList",
-};
-</script>
-
 <script setup lang="ts">
+import { PropType } from "vue";
 import SendAddressItem from "./send-address-item.vue";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 import BaseButton from "@action/components/base-button/index.vue";
-import { Account } from "@action/types/account";
-import { accountsActive } from "@action/types/mock";
+import { AccountsHeaderData } from "@action/types/account";
+import scrollSettings from "@/libs/utils/scroll-settings";
+import { BaseNetwork } from "@/types/base-network";
 
-const settings = {
-  suppressScrollY: false,
-  suppressScrollX: true,
-  wheelPropagation: false,
-};
+const emit = defineEmits<{
+  (e: "update:pasteFromClipboard"): void;
+  (e: "close", open: false): void;
+}>();
 
-const props = defineProps({
+defineProps({
   showAccounts: Boolean,
-  close: {
-    type: Function,
-    default: () => {
-      return null;
-    },
+  accountInfo: {
+    type: Object as PropType<AccountsHeaderData>,
+    default: () => ({}),
   },
-  selectAccount: {
-    type: Function,
-    default: () => {
-      return null;
-    },
-  },
-  address: {
-    type: String,
-    default: () => {
-      return "";
-    },
+  network: {
+    type: Object as PropType<BaseNetwork>,
+    default: () => ({}),
   },
 });
 
 const close = () => {
-  props.close(false);
-};
-
-const selectAccount = (account: Account) => {
-  props.selectAccount(account);
+  emit("close", false);
 };
 
 const sendToMyAddress = () => {
@@ -82,7 +64,7 @@ const sendToMyAddress = () => {
 };
 
 const pasteFromClipboard = () => {
-  console.log("pasteFromClipboard");
+  emit("update:pasteFromClipboard");
 };
 </script>
 
@@ -124,7 +106,7 @@ const pasteFromClipboard = () => {
     border-radius: 12px;
     z-index: 103;
     overflow: hidden;
-    padding: 0 0 0 16px;
+    padding: 0 16px 0 16px;
     box-sizing: border-box;
     opacity: 0;
     visibility: hidden;

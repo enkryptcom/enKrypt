@@ -6,10 +6,16 @@ import erc20 from "./abi/erc20";
 class API implements ProviderAPIInterface {
   node: string;
   web3: Web3;
+
   constructor(node: string) {
     this.node = node;
     this.web3 = new Web3(node);
   }
+
+  public get api() {
+    return this;
+  }
+
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   async init(): Promise<void> {}
   getBalance(address: string): Promise<string> {
