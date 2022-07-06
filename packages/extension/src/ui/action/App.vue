@@ -13,7 +13,6 @@
           <manage-networks-icon />
           Manage networks
         </a>
-
         <div>
           <tooltip text="Lock Enkrypt">
             <a class="app__menu-link" @click="lockAction()">

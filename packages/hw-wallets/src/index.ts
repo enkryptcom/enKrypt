@@ -1,35 +1,49 @@
-import HWwalletManager from "./manager";
-import { getAddressRequest, HandlerMethods, MessageResponse } from "./types";
-import { MessengerName, walletConfigs } from "./configs";
-import HWwalletsBackground from "./background";
+import { NetworkNames, HWwalletNames } from "@enkryptcom/types";
+import LedgerEthereum from "./ledger/ethereum";
+import LedgerSubstrate from "./ledger/substrate";
+import TrezorEthereum from "./trezor";
+import { getAddressRequest, HWWalletProvider } from "./types";
 
-class HWwallets {
-  background: (msg: any) => Promise<any>;
+type ProviderType =
+  | typeof LedgerEthereum
+  | typeof LedgerSubstrate
+  | typeof TrezorEthereum;
+class HWwalletManager {
+  providerTypes: Record<HWwalletNames, ProviderType[]>;
 
-  manager: HWwalletManager;
+  providers: Record<NetworkNames, HWWalletProvider> | unknown;
 
-  constructor(background: (msg: any) => Promise<any>) {
-    this.background = background;
-    this.manager = new HWwalletManager();
+  constructor() {
+    this.providerTypes = {
+      [HWwalletNames.ledger]: [LedgerEthereum, LedgerSubstrate],
+      [HWwalletNames.trezor]: [TrezorEthereum],
+    };
+    this.providers = {};
   }
 
-  static methodName = MessengerName;
+  async #initialize(
+    wallet: HWwalletNames,
+    network: NetworkNames
+  ): Promise<void> {
+    if (!this.providers[network]) {
+      this.providers[network] = this.#getProvider(wallet, network);
+      await (this.providers[network] as HWWalletProvider).init();
+    }
+  }
 
   async getAddress(options: getAddressRequest): Promise<string> {
-    if (walletConfigs[options.wallet].isBackground) {
-      return this.background({
-        message: JSON.stringify({
-          method: HWwallets.methodName,
-          params: [HandlerMethods.getAddress, options],
-        }),
-      }).then((res: MessageResponse) => {
-        if (res.error) throw new Error(res.error);
-        else return JSON.parse(res.result) as string;
-      });
+    await this.#initialize(options.wallet, options.networkName);
+    return (this.providers[options.networkName] as HWWalletProvider).getAddress(
+      options
+    );
+  }
+
+  #getProvider(wallet: HWwalletNames, network: NetworkNames): HWWalletProvider {
+    for (const P of this.providerTypes[wallet]) {
+      if (P.getSupportedNetworks().includes(network)) return new P(network);
     }
-    return this.manager.getAddress(options);
+    throw new Error(`hw-wallets: no suitable wallets found:${network}`);
   }
 }
 
-export default HWwallets;
-export { HWwalletsBackground };
+export default HWwalletManager;
