@@ -1,23 +1,20 @@
 <template>
   <div class="send-address-input" :class="{ focus: isFocus }">
     <div class="send-address-input__avatar">
-      <img :src="getImgUrl(value)" alt="" />
+      <img v-if="isAddress(value)" :src="identicon(value)" alt="" />
     </div>
     <div class="send-address-input__address">
       <p>To:</p>
       <input
+        ref="addressInput"
+        v-model="address"
         type="text"
-        placeholder="0x… address or ENS name"
-        :value="isFocus ? value : $filters.replaceWithEllipsis(value, 6, 6)"
-        @input="changeValue"
+        placeholder="0x… address"
+        :style="{ color: !isAddress(value) ? 'red' : 'black' }"
         @focus="changeFocus"
         @blur="changeFocus"
       />
     </div>
-
-    <a class="send-address-input__arrow" @click="open">
-      <switch-arrow />
-    </a>
   </div>
 </template>
 
@@ -28,25 +25,16 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { ref } from "vue";
-import SwitchArrow from "@action/icons/header/switch_arrow.vue";
+import { replaceWithEllipsis } from "@/ui/action/utils/filters";
+import { polkadotEncodeAddress } from "@enkryptcom/utils";
+import { computed, ref } from "vue";
 
-let isFocus = ref(false);
-let isOpen = ref(false);
+const emit = defineEmits<{
+  (e: "update:inputAddress", address: string): void;
+  (e: "toggle:showContacts", show: boolean): void;
+}>();
 
 const props = defineProps({
-  input: {
-    type: Function,
-    default: () => {
-      return null;
-    },
-  },
-  toggleSelect: {
-    type: Function,
-    default: () => {
-      return null;
-    },
-  },
   value: {
     type: String,
     default: () => {
@@ -59,28 +47,34 @@ const props = defineProps({
   },
 });
 
-const changeValue = (event: Event) => {
-  const target = event.target as HTMLInputElement;
-  props.input(target.value);
+const addressInput = ref<HTMLInputElement>();
+const isFocus = ref(false);
+
+const pasteFromClipboard = () => {
+  addressInput.value?.focus();
+  document.execCommand("paste");
 };
 
-const changeFocus = () => {
-  isFocus.value = !isFocus.value;
-};
+defineExpose({ addressInput, pasteFromClipboard });
 
-const open = () => {
-  isOpen.value = !isOpen.value;
-  props.toggleSelect(isOpen);
-};
+const address = computed({
+  get: () =>
+    isFocus.value ? props.value : replaceWithEllipsis(props.value, 6, 6),
+  set: (value) => emit("update:inputAddress", value),
+});
 
-const getImgUrl = (address: string) => {
-  let imgUrl;
-  if (props.identicon) {
-    imgUrl = props.identicon(address);
+const isAddress = (address: string): boolean => {
+  try {
+    polkadotEncodeAddress(address);
+    return true;
+  } catch {
+    return false;
   }
+};
 
-  if (imgUrl) return imgUrl;
-  return "https://mewcard.mewapi.io/?address=" + address;
+const changeFocus = (val: FocusEvent) => {
+  isFocus.value = val.type === "focus";
+  if (isFocus.value) emit("toggle:showContacts", isFocus.value);
 };
 </script>
 

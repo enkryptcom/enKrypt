@@ -16,12 +16,12 @@
 
       <send-contacts-list
         :show-accounts="isOpenSelectContact"
-        :close="toggleSelectContact"
         :account-info="accountInfo"
         :address="address"
         :network="network"
         @selected:account="selectAccount"
         @update:paste-from-clipboard="addressInput.pasteFromClipboard()"
+        @close="toggleSelectContact"
       ></send-contacts-list>
 
       <send-token-select

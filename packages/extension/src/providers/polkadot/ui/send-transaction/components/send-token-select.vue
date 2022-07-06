@@ -30,8 +30,6 @@ export default {
 <script setup lang="ts">
 import { ref, onUpdated } from "vue";
 import SwitchArrow from "@action/icons/header/switch_arrow.vue";
-import EvmAPI from "@/providers/ethereum/libs/api";
-import { ApiPromise } from "@polkadot/api/promise/Api";
 import { AssetsType } from "@/types/provider";
 import BigNumber from "bignumber.js";
 
@@ -39,7 +37,6 @@ interface IProps {
   toggleSelect: (arg: any) => void;
   activeAccount?: string;
   token?: AssetsType | Partial<AssetsType>;
-  api?: EvmAPI | ApiPromise;
 }
 
 let isOpen = ref(false);

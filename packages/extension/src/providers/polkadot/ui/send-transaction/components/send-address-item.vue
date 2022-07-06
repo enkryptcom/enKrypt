@@ -1,11 +1,16 @@
 <template>
-  <a class="send-address-item" @click="select">
+  <a
+    class="send-address-item"
+    @click="emit('selected:account', account.address)"
+  >
     <div class="send-address-item__info">
-      <img :src="getImgUrl(account.address)" alt="" />
+      <img :src="identicon(account.address)" />
 
       <div class="send-address-item__name">
         <h4>{{ account.name }}</h4>
-        <p>{{ $filters.replaceWithEllipsis(account.address, 6, 4) }}</p>
+        <p>
+          {{ $filters.replaceWithEllipsis(account.address, 6, 4) }}
+        </p>
       </div>
     </div>
   </a>
@@ -21,17 +26,15 @@ export default {
 import { PropType } from "vue";
 import { KeyRecord } from "@enkryptcom/types";
 
-const props = defineProps({
+const emit = defineEmits<{
+  (e: "selected:account", address: string): void;
+}>();
+
+defineProps({
   account: {
     type: Object as PropType<KeyRecord>,
     default: () => {
       return {};
-    },
-  },
-  selectAccount: {
-    type: Function,
-    default: () => {
-      return null;
     },
   },
   identicon: {
@@ -39,18 +42,6 @@ const props = defineProps({
     default: () => null,
   },
 });
-
-const getImgUrl = (address: string) => {
-  if (props.identicon) {
-    return props.identicon(address);
-  }
-
-  return "https://mewcard.mewapi.io/?address=" + address;
-};
-
-const select = () => {
-  props.selectAccount(props.account);
-};
 </script>
 
 <style lang="less">

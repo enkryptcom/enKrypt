@@ -37,17 +37,14 @@ import BaseButton from "@action/components/base-button/index.vue";
 import { AccountsHeaderData } from "@action/types/account";
 import scrollSettings from "@/libs/utils/scroll-settings";
 import { BaseNetwork } from "@/types/base-network";
+
 const emit = defineEmits<{
   (e: "update:pasteFromClipboard"): void;
+  (e: "close", open: false): void;
 }>();
-const props = defineProps({
+
+defineProps({
   showAccounts: Boolean,
-  close: {
-    type: Function,
-    default: () => {
-      return null;
-    },
-  },
   accountInfo: {
     type: Object as PropType<AccountsHeaderData>,
     default: () => ({}),
@@ -59,7 +56,7 @@ const props = defineProps({
 });
 
 const close = () => {
-  props.close(false);
+  emit("close", false);
 };
 
 const sendToMyAddress = () => {

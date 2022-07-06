@@ -2,26 +2,27 @@
   <div class="send-contacts-list" :class="{ show: showAccounts }">
     <div class="send-contacts-list__overlay" @click="close"></div>
     <div class="send-contacts-list__wrap" :class="{ show: showAccounts }">
-      <list-search :input="search" placeholder="Search contact" />
       <custom-scrollbar
         class="send-contacts-list__scroll-area"
-        :settings="settings"
+        :settings="scrollSettings({ suppressScrollX: true })"
       >
-        <h3>Recent</h3>
+        <div class="send-contacts-list__buttons">
+          <base-button
+            title="Send to my address"
+            :click="sendToMyAddress"
+          ></base-button>
+          <base-button
+            title="Paste from clipboard"
+            :click="pasteFromClipboard"
+          ></base-button>
+        </div>
+        <h3>My Accounts</h3>
         <send-address-item
-          v-for="(account, index) in []"
+          v-for="(account, index) in accountInfo.activeAccounts"
           :key="index"
           :account="account"
-          :select-account="selectAccount"
           :identicon="identicon"
-        ></send-address-item>
-        <h3>All Contacts</h3>
-        <send-address-item
-          v-for="(account, index) in searchAccounts"
-          :key="index"
-          :account="account"
-          :select-account="selectAccount"
-          :identicon="identicon"
+          v-bind="$attrs"
         ></send-address-item>
       </custom-scrollbar>
     </div>
@@ -37,24 +38,21 @@ export default {
 <script setup lang="ts">
 import SendAddressItem from "./send-address-item.vue";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
-import ListSearch from "@action/components/list-search/index.vue";
-import { Account, AccountsHeaderData } from "@action/types/account";
+import BaseButton from "@action/components/base-button/index.vue";
+import { AccountsHeaderData } from "@action/types/account";
+import scrollSettings from "@/libs/utils/scroll-settings";
 import { onUpdated, ref } from "vue";
 import { KeyRecord } from "@enkryptcom/types";
+const emit = defineEmits<{
+  (e: "update:pasteFromClipboard"): void;
+  (e: "close", open: false): void;
+}>();
 
 interface IProps {
   showAccounts: boolean;
-  close: (close: boolean) => void;
-  selectAccount: (account: Account) => void;
   identicon?: (address: string) => string;
   accountInfo: AccountsHeaderData;
 }
-
-const settings = {
-  suppressScrollY: false,
-  suppressScrollX: true,
-  wheelPropagation: false,
-};
 
 const props = defineProps<IProps>();
 
@@ -65,24 +63,15 @@ onUpdated(() => {
 });
 
 const close = () => {
-  props.close(false);
+  emit("close", false);
 };
 
-const search = (searchParam: string) => {
-  if (searchParam === "") {
-    searchAccounts.value = props.accountInfo.activeAccounts;
-  } else {
-    const lowerSearchParam = searchParam.toLowerCase();
-    searchAccounts.value = props.accountInfo.activeAccounts.filter(
-      (account) =>
-        account.address.toLowerCase().startsWith(lowerSearchParam) ||
-        account.name.toLowerCase().startsWith(lowerSearchParam)
-    );
-  }
+const sendToMyAddress = () => {
+  console.log("sendToMyAddress");
 };
 
-const selectAccount = (account: Account) => {
-  props.selectAccount(account);
+const pasteFromClipboard = () => {
+  emit("update:pasteFromClipboard");
 };
 </script>
 
@@ -153,6 +142,29 @@ const selectAccount = (account: Account) => {
     text-transform: uppercase;
     color: @secondaryLabel;
     margin: 24px 0 0 0;
+  }
+
+  &__buttons {
+    padding-top: 16px;
+
+    a {
+      font-style: normal;
+      font-weight: 500;
+      font-size: 12px;
+      line-height: 32px;
+      letter-spacing: 0.8px;
+
+      &:first-child {
+        width: 144px;
+        height: 32px;
+        margin-right: 8px;
+      }
+
+      &:last-child {
+        width: 152px;
+        height: 32px;
+      }
+    }
   }
 }
 </style>

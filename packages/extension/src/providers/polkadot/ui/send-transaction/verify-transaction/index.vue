@@ -67,23 +67,12 @@ import SendProcess from "@action/views/send-process/index.vue";
 import { nft } from "@action/types/mock";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
 import { BaseNetwork } from "@/types/base-network";
-import Transaction from "@/providers/ethereum/libs/transaction";
-import Web3 from "web3";
-import { bufferToHex, fromRpcSig } from "ethereumjs-util";
 import { sendToBackgroundFromAction } from "@/libs/messenger/extension";
 import { InternalMethods } from "@/types/messenger";
-import { FeeMarketEIP1559Transaction } from "@ethereumjs/tx";
 import { VerifyTransactionParams } from "@/providers/polkadot/ui/types";
 import { ApiPromise } from "@polkadot/api";
-import {
-  payloadSignTransform,
-  signPayload,
-} from "@/providers/polkadot/libs/signing-utils";
-import { createType, Metadata, TypeRegistry } from "@polkadot/types";
-import { SignerPayloadJSON, SignerPayloadRaw } from "@polkadot/types/types";
-import MetadataStorage from "@/providers/polkadot/libs/metadata-storage";
-import { base64Decode } from "@polkadot/util-crypto";
-import { SubstrateNetwork } from "@/providers/polkadot/types/substrate-network";
+import { payloadSignTransform } from "@/providers/polkadot/libs/signing-utils";
+import { SignerPayloadRaw } from "@polkadot/types/types";
 import { hexToU8a, u8aToHex } from "@polkadot/util";
 import type { SignerResult } from "@polkadot/api/types";
 const KeyRing = new PublicKeyRing();
@@ -113,15 +102,7 @@ const sendAction = async () => {
   const api = await props.network.api();
   await api.init();
 
-  // console.log(txData.TransactionData.data);
-  // const tx = (api.api as ApiPromise).tx(txData.TransactionData.data);
-  // console.log("tx", tx);
-
   const account = await KeyRing.getAccount(txData.fromAddress);
-
-  // const metadata = (api.api as ApiPromise).runtimeMetadata;
-  // const registry = new TypeRegistry();
-  // registry.setMetadata(metadata);
 
   const tx = (api.api as ApiPromise).tx(txData.TransactionData.data);
 
@@ -150,6 +131,7 @@ const sendAction = async () => {
   });
   const hash = await signedTx.send();
   console.log(u8aToHex(hash));
+  isProcessing.value = false;
   // const ext = registry.createType("ExtrinsicPayload", tx, {
   //   version: tx.version,
   // });

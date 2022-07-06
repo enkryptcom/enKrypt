@@ -9,25 +9,26 @@
       </div>
 
       <send-address-input
-        :input="inputAddress"
-        :toggle-select="toggleSelectContact"
+        ref="addressInput"
         :value="address"
         :identicon="identicon"
+        @update:input-address="inputAddress"
+        @toggle:show-contacts="toggleSelectContact"
       ></send-address-input>
 
       <send-contacts-list
         :show-accounts="isOpenSelectContact"
-        :close="toggleSelectContact"
-        :select-account="selectAccount"
         :active-network="props.network"
         :account-info="accountInfo"
         :identicon="identicon"
+        @selected:account="selectAccount"
+        @update:paste-from-clipboard="addressInput.pasteFromClipboard()"
+        @close="toggleSelectContact"
       ></send-contacts-list>
 
       <send-token-select
         :token="selectedAsset"
         :toggle-select="toggleSelectToken"
-        :api="api"
         :active-account="props.accountInfo.selectedAccount!.address"
       ></send-token-select>
 
@@ -36,7 +37,6 @@
         :close="toggleSelectToken"
         :select-token="selectToken"
         :active-account="props.accountInfo.selectedAccount!.address"
-        :api="api"
         :assets="accountAssets"
       >
       </send-token-list>
@@ -76,7 +76,7 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { computed, onMounted, PropType, ref, watch } from "vue";
+import { computed, onMounted, PropType, ref, shallowRef, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import SendAddressInput from "./components/send-address-input.vue";
@@ -87,9 +87,9 @@ import SendInputAmount from "./components/send-input-amount.vue";
 import SendFeeSelect from "./components/send-fee-select.vue";
 import SendAlert from "./components/send-alert.vue";
 import BaseButton from "@action/components/base-button/index.vue";
-import EvmAPI from "@/providers/ethereum/libs/api";
+import SubstrateApi from "@/providers/polkadot/libs/api";
 import { ApiPromise } from "@polkadot/api";
-import { Account, AccountsHeaderData } from "@action/types/account";
+import { AccountsHeaderData } from "@action/types/account";
 import { GasFeeInfo } from "@/providers/ethereum/ui/types";
 import { SubstrateNetwork } from "../../types/substrate-network";
 import { stringToHex, toBN } from "web3-utils";
@@ -115,13 +115,14 @@ const route = useRoute();
 const router = useRouter();
 const identicon = createIcon;
 
+const addressInput = ref();
 const isOpenSelectContact = ref(false);
 const address = ref("");
 const isOpenSelectToken = ref(false);
 const amount = ref("0");
 const fee = ref<GasFeeInfo | null>(null);
 const edWarn = ref(false);
-const api = ref<EvmAPI | ApiPromise>();
+const api = shallowRef<SubstrateApi>();
 const accountAssets = ref<AssetsType[]>([]);
 const selectedAsset = ref<AssetsType | Partial<AssetsType>>({
   icon: props.network.icon,
@@ -137,6 +138,9 @@ const sendMax = ref(false);
 const selected: string = route.params.id as string;
 
 onMounted(async () => {
+  props.accountInfo.activeAccounts.forEach((account) => {
+    account.address = props.network.displayAddress(account.address);
+  });
   const networkAssets = await props.network.getAllTokenInfo(
     props.accountInfo.selectedAccount?.address ?? ""
   );
@@ -144,11 +148,12 @@ onMounted(async () => {
   accountAssets.value = networkAssets;
   const networkApi = await props.network.api();
   await networkApi.init();
-  api.value = networkApi.api;
+  api.value = networkApi as SubstrateApi;
 });
 
 watch([selectedAsset, amount, address], async () => {
   if (selectedAsset.value && amount.value && address.value && api.value) {
+    await api.value.api.isReady;
     const rawAmount = toBN(
       toBase(amount.value.toString(), selectedAsset.value.decimals!)
     );
@@ -162,7 +167,7 @@ watch([selectedAsset, amount, address], async () => {
     }
 
     const tx = await selectedAsset.value.baseToken!.send(
-      api.value,
+      api.value.api,
       address.value,
       rawAmount.toString()
     );
@@ -212,8 +217,8 @@ const toggleSelectToken = (open: boolean) => {
   isOpenSelectToken.value = open;
 };
 
-const selectAccount = (account: Account) => {
-  address.value = account.address;
+const selectAccount = (account: string) => {
+  address.value = account;
   isOpenSelectContact.value = false;
 };
 
@@ -250,7 +255,17 @@ const setSendMax = () => {
 
 const isDisabled = () => {
   let isDisabled = true;
-  if (hasEnough.value && address.value !== undefined) isDisabled = false;
+
+  let addressIsValid = false;
+
+  try {
+    props.network.displayAddress(address.value);
+    addressIsValid = true;
+  } catch {
+    addressIsValid = false;
+  }
+
+  if (hasEnough.value && addressIsValid) isDisabled = false;
   return isDisabled;
 };
 
@@ -263,15 +278,12 @@ const sendAction = async () => {
     )
     .toString();
 
-  const api = await props.network.api();
-  await api.init();
+  await api.value?.api.isReady;
   const tx = await selectedAsset.value.baseToken?.send(
-    api.api as ApiPromise,
+    api.value!.api as ApiPromise,
     address.value,
     sendAmount
   );
-  // console.log(tx.era, "era");
-  // console.log(typeof tx.toRawType());
 
   const txVerifyInfo: VerifyTransactionParams = {
     TransactionData: {
