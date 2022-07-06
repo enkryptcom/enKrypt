@@ -7,5 +7,6 @@ const supportedPaths = {
     "m/44'/61'/{index}'/0/0",
   ],
   [NetworkNames.Ropsten]: ["m/44'/1'/0'/0/{index}"],
+  [NetworkNames.Goerli]: ["m/44'/1'/0'/0/{index}"],
 };
 export { supportedPaths };

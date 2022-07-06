@@ -1,6 +1,16 @@
 import { NetworkNames, HWwalletNames } from "@enkryptcom/types";
 import type { ExtrinsicPayload } from "@polkadot/types/interfaces";
 
+export type WalletConfigs = Record<HWwalletNames, { isBackground: boolean }>;
+
+export interface MessageResponse {
+  result?: string;
+  error?: any;
+}
+
+export enum HandlerMethods {
+  getAddress = "getAddress",
+}
 export interface LedgerSignature {
   signature: `0x${string}`;
 }
