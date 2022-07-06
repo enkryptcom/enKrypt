@@ -28,18 +28,16 @@
 
       <send-token-select
         :token="selectedAsset"
-        :toggle-select="toggleSelectToken"
-        :active-account="props.accountInfo.selectedAccount!.address"
+        @update:toggle-token-select="toggleSelectToken"
       ></send-token-select>
 
-      <send-token-list
-        :show-tokens="isOpenSelectToken"
-        :close="toggleSelectToken"
-        :select-token="selectToken"
-        :active-account="props.accountInfo.selectedAccount!.address"
+      <assets-select-list
+        v-show="isOpenSelectToken"
+        :is-send="true"
         :assets="accountAssets"
-      >
-      </send-token-list>
+        @close="toggleSelectToken"
+        @update:select-asset="selectToken"
+      ></assets-select-list>
 
       <send-input-amount
         :amount="amount"
@@ -82,7 +80,7 @@ import CloseIcon from "@action/icons/common/close-icon.vue";
 import SendAddressInput from "./components/send-address-input.vue";
 import SendContactsList from "./components/send-contacts-list.vue";
 import SendTokenSelect from "./components/send-token-select.vue";
-import SendTokenList from "./components/send-token-list.vue";
+import AssetsSelectList from "@action/views/assets-select-list/index.vue";
 import SendInputAmount from "./components/send-input-amount.vue";
 import SendFeeSelect from "./components/send-fee-select.vue";
 import SendAlert from "./components/send-alert.vue";
@@ -213,8 +211,8 @@ const toggleSelectContact = (open: boolean) => {
   isOpenSelectContact.value = open;
 };
 
-const toggleSelectToken = (open: boolean) => {
-  isOpenSelectToken.value = open;
+const toggleSelectToken = () => {
+  isOpenSelectToken.value = !isOpenSelectToken.value;
 };
 
 const selectAccount = (account: string) => {

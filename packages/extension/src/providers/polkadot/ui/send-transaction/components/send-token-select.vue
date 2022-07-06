@@ -1,5 +1,20 @@
 <template>
-  <a class="send-token-select" @click="open">
+  <a class="send-token-select" @click="emit('update:toggleTokenSelect')">
+    <div class="send-token-select__image">
+      <img :src="token!.icon" alt="" />
+    </div>
+    <div class="send-token-select__info">
+      <h5>{{ token!.name }}</h5>
+      <p>
+        {{ token!.balancef }} <span>{{ token!.symbol }}</span>
+      </p>
+    </div>
+
+    <div class="send-token-select__arrow">
+      <switch-arrow />
+    </div>
+  </a>
+  <!-- <a class="send-token-select" @click="open">
     <div class="send-token-select__image">
       <img :src="token ? token.icon : ''" alt="" />
     </div>
@@ -18,7 +33,7 @@
     <div class="send-token-select__arrow">
       <switch-arrow />
     </div>
-  </a>
+  </a> -->
 </template>
 
 <script lang="ts">
@@ -28,35 +43,18 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { ref, onUpdated } from "vue";
 import SwitchArrow from "@action/icons/header/switch_arrow.vue";
 import { AssetsType } from "@/types/provider";
-import BigNumber from "bignumber.js";
+
+const emit = defineEmits<{
+  (e: "update:toggleTokenSelect"): void;
+}>();
 
 interface IProps {
-  toggleSelect: (arg: any) => void;
-  activeAccount?: string;
   token?: AssetsType | Partial<AssetsType>;
 }
 
-let isOpen = ref(false);
-
-const props = defineProps<IProps>();
-
-const tokenBalance = ref<string | undefined>("~");
-
-onUpdated(async () => {
-  if (props.token) {
-    tokenBalance.value = new BigNumber(props.token.balance!)
-      .div(new BigNumber(10 ** props.token.decimals!))
-      .toString();
-  }
-});
-
-const open = () => {
-  isOpen.value = !isOpen.value;
-  props.toggleSelect(isOpen);
-};
+defineProps<IProps>();
 </script>
 
 <style lang="less">
