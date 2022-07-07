@@ -11,87 +11,89 @@ import SwapBestOffer from "@action/views/swap-best-offer/index.vue";
 import VerifyTransaction from "@action/views/verify-transaction/index.vue";
 import SendTransaction from "@action/views/send-transaction/index.vue";
 
-const routes = [
-  {
+const routes = {
+  intro: {
     path: "/",
     components: {
       view: Intro,
     },
     name: "lock-screen",
   },
-  {
+  locked: {
     path: "/locked",
     components: {
       view: LockScreen,
     },
     name: "lock-screen",
   },
-  {
+  activity: {
     path: "/activity/:id?",
     components: {
       view: NetworkActivity,
     },
     name: "activity",
   },
-  {
+  assets: {
     path: "/assets/:id?",
     components: {
       view: NetworkAssets,
     },
     name: "assets",
   },
-  {
+  dapps: {
     path: "/dapps/:id?",
     components: {
       view: NetworkDApps,
     },
     name: "dapps",
   },
-  {
+  nfts: {
     path: "/nfts/:id?",
     components: {
       view: NetworkNFTs,
     },
     name: "nfts",
   },
-  {
+  send: {
     path: "/send/:id?",
     components: {
       view: SendTransaction,
     },
     name: "send-transaction",
   },
-  {
+  verify: {
     path: "/verify-transaction/:id?",
     components: {
       view: VerifyTransaction,
     },
     name: "verify-transaction",
   },
-  {
+  swap: {
     path: "/swap/:id?",
     components: {
       view: Swap,
     },
     name: "swap",
   },
-  {
+  swapBestOffer: {
     path: "/swap-best-offer/:id?",
     components: {
       view: SwapBestOffer,
     },
     name: "swap-best-offer",
   },
-  {
+  addNetwork: {
     path: "/add-network",
     components: {
       view: AddNetwork,
     },
     name: "add-network",
   },
-];
+};
 
 export default createRouter({
   history: createWebHashHistory(),
-  routes,
+  routes: Object.values(routes),
 });
+
+export { routes };

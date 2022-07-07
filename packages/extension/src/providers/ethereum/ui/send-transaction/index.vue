@@ -124,6 +124,7 @@ import { fromBase, toBase } from "@/libs/utils/units";
 import erc20 from "../../libs/abi/erc20";
 import { SendTransactionDataType, VerifyTransactionParams } from "../types";
 import { formatFloatingPointValue } from "@/libs/utils/number-formatter";
+import { routes as RouterNames } from "@/ui/action/router";
 
 const props = defineProps({
   network: {
@@ -380,7 +381,7 @@ const sendAction = () => {
     toAddress: address.value,
   };
   router.push({
-    name: "verify-transaction",
+    name: RouterNames.verify.name,
     params: {
       id: selected,
       txData: JSON.stringify(txVerifyInfo),
