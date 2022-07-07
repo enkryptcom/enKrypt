@@ -11,7 +11,7 @@
     "default_title": "Enkrypt",
     "default_popup": "action.html"
   },
-  "version": "0.4.1",
+  "version": "",
   "manifest_version": 3,
   "name": "Enkrypt",
   "short_name": "Enkrypt",
