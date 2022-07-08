@@ -1,21 +1,17 @@
 <template>
   <div class="hardware-importing-account">
     <div class="hardware-importing-account__wrap">
-      <div v-if="!noIndex" class="hardware-importing-account__number">0</div>
-      <img :src="require('@/ui/action/icons/raw/account.png')" />
+      <div class="hardware-importing-account__number">{{ index }}</div>
+      <img :src="network.identicon(address)" />
       <div class="hardware-importing-account__info">
         <p class="hardware-importing-account__info-name">
           {{
-            $filters.replaceWithEllipsis(
-              "0x03502CF6C0A13167Dc2D0E25Dabf5FBDB68C5968",
-              6,
-              4
-            )
+            $filters.replaceWithEllipsis(network.displayAddress(address), 6, 4)
           }}
         </p>
         <p class="hardware-importing-account__info-amount">
-          1.434
-          <span>eth</span>
+          {{ balance }}
+          <span>{{ network.currencyName }}</span>
         </p>
       </div>
     </div>
@@ -24,34 +20,40 @@
       type="text"
       label="Account nickname"
       class="hardware-importing-account__input"
-      :value="name"
-      @update:value="nameChanged"
+      :value="nameValue"
+      :is-error="isError"
+      v-bind="$attrs"
     />
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "HardwareImportingAccount",
-};
-</script>
-
 <script setup lang="ts">
-import { ref } from "vue";
 import LabelInput from "@action/components/label-input/index.vue";
-
-const name = ref("EVM Ethereum Ledger 1");
-
+import { BaseNetwork } from "@/types/base-network";
+import { PropType } from "vue";
 defineProps({
-  noIndex: {
-    type: Boolean,
-    default: false,
+  network: {
+    type: Object as PropType<BaseNetwork>,
+    default: () => ({}),
   },
+  address: {
+    type: String,
+    default: "",
+  },
+  index: {
+    type: Number,
+    default: 0,
+  },
+  balance: {
+    type: String,
+    default: "",
+  },
+  nameValue: {
+    type: String,
+    default: "",
+  },
+  isError: Boolean,
 });
-
-const nameChanged = (newVal: string) => {
-  name.value = newVal;
-};
 </script>
 
 <style lang="less" scoped>

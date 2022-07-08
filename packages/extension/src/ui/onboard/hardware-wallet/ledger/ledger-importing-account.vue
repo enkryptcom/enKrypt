@@ -12,10 +12,17 @@
         You can rename your account or continue with a default name.
       </p>
 
-      <hardware-importing-account></hardware-importing-account>
-      <hardware-importing-account></hardware-importing-account>
-      <hardware-importing-account></hardware-importing-account>
-      <hardware-importing-account></hardware-importing-account>
+      <hardware-importing-account
+        v-for="(account, index) in selectedAccounts"
+        :key="index"
+        :address="account.address"
+        :balance="account.balance"
+        :network="network"
+        :index="account.index"
+        :name-value="account.name"
+        :is-error="isInvalidName(account.name)"
+        @update:value="nameChanged(index, $event)"
+      ></hardware-importing-account>
 
       <p class="ledger-importing-account__example">
         Example: Private funds, Savings account, dApp account, Work funds,
@@ -27,7 +34,11 @@
       class="ledger-importing-account__buttons"
       :class="{ border: isHasScroll() }"
     >
-      <base-button title="Add accounts" :click="addAction" />
+      <base-button
+        title="Add accounts"
+        :disabled="!allValid"
+        :click="addAction"
+      />
     </div>
   </div>
   <hardware-wallet-process
@@ -37,20 +48,56 @@
   <hardware-account-imported v-if="isProcessDone"></hardware-account-imported>
 </template>
 <script setup lang="ts">
-import { ref, ComponentPublicInstance } from "vue";
+import { ref, ComponentPublicInstance, onMounted } from "vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import HardwareWalletProcess from "../components/hardware-wallet-process.vue";
 import HardwareImportingAccount from "../components/hardware-importing-account.vue";
 import HardwareAccountImported from "../components/hardware-account-imported.vue";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
+import { useRoute } from "vue-router";
+import { getNetworkByName } from "@/libs/utils/networks";
+import { HWWalletAccountType } from "../types";
+import PublicKeyRing from "@/libs/keyring/public-keyring";
+import { computed } from "@vue/reactivity";
 
-let isProcessing = ref(false);
-let isProcessDone = ref(false);
+const route = useRoute();
+
+const networkName = route.params.networkName as string;
+const selectedAccounts = ref(
+  JSON.parse(route.params.selectedAccounts as string) as HWWalletAccountType[]
+);
+const network = getNetworkByName(networkName)!;
+const keyring = new PublicKeyRing();
+const existingNames = ref<string[]>([]);
+const isProcessing = ref(false);
+const isProcessDone = ref(false);
 
 const importingAccountScrollRef = ref<ComponentPublicInstance<HTMLElement>>();
 
 defineExpose({ importingAccountScrollRef });
 
+onMounted(() => {
+  keyring
+    .getAccounts()
+    .then(
+      (accounts) => (existingNames.value = accounts.map((acc) => acc.name))
+    );
+});
+const allValid = computed(() => {
+  for (const acc of selectedAccounts.value) {
+    if (isInvalidName(acc.name)) return false;
+  }
+  return true;
+});
+const isInvalidName = (name: string) => {
+  return (
+    existingNames.value.includes(name) ||
+    selectedAccounts.value.reduce((total, acc) => {
+      if (acc.name === name) return total + 1;
+      return total;
+    }, 0) > 1
+  );
+};
 const isHasScroll = () => {
   if (importingAccountScrollRef.value) {
     return importingAccountScrollRef.value.$el.classList.contains(
@@ -59,6 +106,9 @@ const isHasScroll = () => {
   }
 
   return false;
+};
+const nameChanged = (idx: number, val: string) => {
+  selectedAccounts.value[idx].name = val;
 };
 const addAction = () => {
   isProcessing.value = true;

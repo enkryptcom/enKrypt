@@ -2,8 +2,9 @@ import type Transport from "@ledgerhq/hw-transport";
 import webUsbTransport from "@ledgerhq/hw-transport-webusb";
 import { NetworkNames } from "@enkryptcom/types";
 import EthApp from "@ledgerhq/hw-app-eth";
-import { getAddressRequest, HWWalletProvider } from "../../types";
+import { getAddressRequest, HWWalletProvider, PathType } from "../../types";
 import { supportedPaths } from "./configs";
+import ConnectToLedger from "../ledgerConnect";
 
 class LedgerEthereum implements HWWalletProvider {
   transport: Transport | null;
@@ -42,8 +43,12 @@ class LedgerEthereum implements HWWalletProvider {
     throw new Error("Not Supported");
   }
 
-  getSupportedPaths(): string[] {
+  getSupportedPaths(): PathType[] {
     return supportedPaths[this.network];
+  }
+
+  isConnected(networkName: NetworkNames): Promise<boolean> {
+    return ConnectToLedger.bind(this)(networkName);
   }
 
   static getSupportedNetworks(): NetworkNames[] {

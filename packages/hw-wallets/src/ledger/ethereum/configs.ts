@@ -1,12 +1,14 @@
 import { NetworkNames } from "@enkryptcom/types";
+import { bip44Paths } from "../../configs";
 
 const supportedPaths = {
-  [NetworkNames.Ethereum]: ["m/44'/60'/0'/{index}", "m/44'/60'/{index}'/0/0"],
+  [NetworkNames.Ethereum]: [bip44Paths.ethereum, bip44Paths.ledgerLiveEthereum],
+  [NetworkNames.Matic]: [bip44Paths.ethereum, bip44Paths.ledgerLiveEthereum],
   [NetworkNames.EthereumClassic]: [
-    "m/44'/60'/160720'/0'/{index}",
-    "m/44'/61'/{index}'/0/0",
+    bip44Paths.ethereumClassic,
+    bip44Paths.ethereumClassicLedgerLive,
   ],
-  [NetworkNames.Ropsten]: ["m/44'/1'/0'/0/{index}"],
-  [NetworkNames.Goerli]: ["m/44'/1'/0'/0/{index}"],
+  [NetworkNames.Ropsten]: [bip44Paths.ethereumTestnets],
+  [NetworkNames.Goerli]: [bip44Paths.ethereumTestnets],
 };
 export { supportedPaths };

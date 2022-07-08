@@ -38,10 +38,11 @@ const route = useRoute();
 
 const isShowBackButton = () => {
   return (
+    route.name &&
     route.name != "new-wallet" &&
     route.name != "create-wallet-wallet-ready" &&
     route.name != "restore-wallet-wallet-ready" &&
-    route.name != "hardware-wallet-add-hardware-wallet"
+    !(route.name as string).includes("hardware-wallet")
   );
 };
 

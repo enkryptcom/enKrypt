@@ -13,12 +13,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "LabelInput",
-};
-</script>
-
 <script setup lang="ts">
 import { computed, ref } from "vue";
 

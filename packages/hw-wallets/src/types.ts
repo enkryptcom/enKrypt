@@ -11,6 +11,7 @@ export interface MessageResponse {
 export enum HandlerMethods {
   getAddress = "getAddress",
 }
+
 export interface LedgerSignature {
   signature: `0x${string}`;
 }
@@ -26,9 +27,19 @@ export interface getAddressRequest extends BaseRequest {
   confirmAddress: boolean;
 }
 
+export interface isConnectedRequest {
+  wallet: HWwalletNames;
+  networkName: NetworkNames;
+}
+
 export interface LedgerSignTransactionRequest
   extends Omit<SignRequest, "message"> {
   message: ExtrinsicPayload;
+}
+
+export interface PathType {
+  path: string;
+  label: string;
 }
 
 export abstract class HWWalletProvider {
@@ -41,7 +52,9 @@ export abstract class HWWalletProvider {
 
   abstract getAddress(options: getAddressRequest): Promise<string>;
 
-  abstract getSupportedPaths(): string[];
+  abstract getSupportedPaths(): { path: string; label: string }[];
+
+  abstract isConnected(networkName: string): Promise<boolean>;
 
   static getSupportedNetworks(): NetworkNames[] {
     return [];

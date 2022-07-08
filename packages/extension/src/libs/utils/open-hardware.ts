@@ -1,8 +1,8 @@
 import Browser from "webextension-polyfill";
-
-export default () => {
+import { namespace } from "@/ui/onboard/hardware-wallet/routes";
+export default (networkName: string) => {
   const hardwareWalletURL = Browser.runtime.getURL(
-    "onboard.html#/hardware-wallet/"
+    `onboard.html#/${namespace}/?network=${networkName}`
   );
   Browser.tabs.create({
     url: hardwareWalletURL,

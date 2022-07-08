@@ -47,7 +47,7 @@
 
         <a
           class="accounts__action-button hardware"
-          @click="addHardwareAction()"
+          @click="openHardware(network.name)"
         >
           <add-hardware-account />
           Add hardware wallet account
@@ -175,9 +175,6 @@ const deleteAccount = () => {
 };
 const closeDeleteAccount = () => {
   isDeleteAccount.value = false;
-};
-const addHardwareAction = () => {
-  openHardware();
 };
 const importAction = () => {
   props.toggle();

@@ -1,20 +1,35 @@
 <template>
   <div class="ledger-select-account">
     <h3>Select an account</h3>
-    <hardware-select-path :select="selectPatch"></hardware-select-path>
+    <hardware-select-path
+      :paths="networkPaths"
+      :selected-path="selectedPath"
+      @update:selected-path="selectPath"
+    ></hardware-select-path>
     <div class="ledger-select-account__list">
-      <hardware-select-account></hardware-select-account>
-      <hardware-select-account></hardware-select-account>
-      <hardware-select-account></hardware-select-account>
-      <hardware-select-account></hardware-select-account>
-      <hardware-select-account></hardware-select-account>
+      <hardware-select-account
+        v-for="(account, index) in visibleAccounts"
+        :key="index"
+        :network="network"
+        :selected="account.selected"
+        :balance="account.balance"
+        :index="account.index"
+        :address="account.address"
+        @toggle:select="toggleSelectAccount(account.index)"
+      >
+      </hardware-select-account>
     </div>
     <div class="ledger-select-account__controls">
-      <a class="prev disable"><arrow-prev />Previous</a>
-      <a>Next<arrow-next /></a>
+      <a
+        class="prev"
+        :class="{ disable: currentAddressIndex < ADDRESSES_PER_PAGE }"
+        @click="loadPrevAccounts"
+        ><arrow-prev />Previous</a
+      >
+      <a @click="loadNextAccounts">Next<arrow-next /></a>
     </div>
-
     <base-button
+      :disabled="!enableContinue"
       class="ledger-select-account__button"
       title="Continue"
       :click="continueAction"
@@ -27,23 +42,114 @@ import HardwareSelectAccount from "../components/hardware-select-account.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import ArrowNext from "@action/icons/common/arrow-next.vue";
 import ArrowPrev from "@action/icons/common/arrow-prev.vue";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { routes } from "../routes";
+import { getNetworkByName } from "@/libs/utils/networks";
+import { HWWalletAccountType, PathType } from "../types";
+import { computed, onMounted, ref } from "vue";
+import { HWwalletNames } from "@enkryptcom/types";
+import HWwallet from "@enkryptcom/hw-wallets";
 
 const router = useRouter();
+const route = useRoute();
+const networkName = route.params.networkName as string;
+const network = getNetworkByName(networkName)!;
+const hwWallet = new HWwallet();
+const networkPaths = ref<PathType[]>([]);
+const selectedPath = ref<PathType>({ path: "", label: "" });
+const ADDRESSES_PER_PAGE = 5;
+const WALLET_TYPE = HWwalletNames.ledger;
+const loading = ref(false);
+let currentAddressIndex = ref(0);
 
-const selectPatch = () => {
-  console.log("selectPatch");
+const accounts = ref<HWWalletAccountType[]>([]);
+const visibleAccounts = computed(() => {
+  return accounts.value.slice(
+    currentAddressIndex.value - ADDRESSES_PER_PAGE < 0
+      ? 0
+      : currentAddressIndex.value - ADDRESSES_PER_PAGE + 1,
+    currentAddressIndex.value + 1
+  );
+});
+const enableContinue = computed(() => {
+  for (const acc of accounts.value) {
+    if (acc.selected) return true;
+  }
+  return false;
+});
+onMounted(async () => {
+  networkPaths.value = await hwWallet.getSupportedPaths({
+    wallet: HWwalletNames.ledger,
+    networkName: network.name,
+  });
+  selectedPath.value = networkPaths.value[0];
+  loadAddresses(
+    currentAddressIndex.value,
+    currentAddressIndex.value + ADDRESSES_PER_PAGE
+  );
+});
+const loadAddresses = async (start: number, end: number) => {
+  loading.value = true;
+  for (let i = start; i < end; i++) {
+    if (accounts.value[i]) {
+      currentAddressIndex.value = i;
+      continue;
+    }
+    const reqPath = selectedPath.value.path.replace("{index}", i.toString());
+    const newAddress = await hwWallet.getAddress({
+      confirmAddress: false,
+      networkName: network.name,
+      path: reqPath,
+      wallet: WALLET_TYPE,
+    });
+    accounts.value.push({
+      address: newAddress,
+      balance: "0.00",
+      path: reqPath,
+      selected: false,
+      walletType: WALLET_TYPE,
+      index: i,
+      name: `${network.name_long} ${WALLET_TYPE} ${i}`,
+    });
+    currentAddressIndex.value = i;
+  }
+  loading.value = false;
+};
+const loadNextAccounts = () => {
+  if (loading.value) return;
+  loadAddresses(
+    currentAddressIndex.value + 1,
+    currentAddressIndex.value + ADDRESSES_PER_PAGE + 1
+  );
+};
+const loadPrevAccounts = () => {
+  if (loading.value) return;
+  if (currentAddressIndex.value > ADDRESSES_PER_PAGE)
+    currentAddressIndex.value = currentAddressIndex.value - ADDRESSES_PER_PAGE;
+};
+const toggleSelectAccount = (idx: number) => {
+  accounts.value[idx].selected = !accounts.value[idx].selected;
+};
+const selectPath = (newPath: PathType) => {
+  selectedPath.value = newPath;
+  accounts.value = [];
+  currentAddressIndex.value = 0;
+  loadAddresses(
+    currentAddressIndex.value,
+    currentAddressIndex.value + ADDRESSES_PER_PAGE
+  );
 };
 
 const continueAction = () => {
-  router.push({ path: routes.ledgerImportingAccount.path });
-};
-</script>
-
-<script lang="ts">
-export default {
-  name: "LedgerSelectAccount",
+  router.push({
+    name: routes.ledgerImportingAccount.name,
+    params: {
+      selectedAccounts: JSON.stringify(
+        accounts.value.filter((acc) => acc.selected)
+      ),
+      networkName: network.name,
+    },
+  });
 };
 </script>
 

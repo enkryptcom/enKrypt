@@ -1,56 +1,57 @@
 <template>
   <div class="hardware-select-patch__wrap">
-    <a class="hardware-select-patch" @click="toggleSelectPatch">
+    <a class="hardware-select-patch" @click="toggleSelectPath">
       <div class="hardware-select-patch__title">Derivation path</div>
 
       <div class="hardware-select-patch__arrow">
         <div class="hardware-select-patch__value">
-          <span>Ledger Live</span>
+          <span>{{ selectedPath.label }}</span>
         </div>
         <switch-arrow />
       </div>
     </a>
-    <div v-show="isSelectPatch" class="hardware-select-patch__list">
-      <a class="hardware-select-patch__list-item" @click="selectPatch">
-        <h6>Ethereum</h6>
-        <p>m/44'/60'/0'</p>
-      </a>
-      <a class="hardware-select-patch__list-item" @click="selectPatch">
-        <h6>Ledger Live</h6>
-        <p>m/44'/60'</p>
+    <div v-show="isSelectPath" class="hardware-select-patch__list">
+      <a
+        v-for="(curPath, index) in paths"
+        :key="index"
+        class="hardware-select-patch__list-item"
+        @click="selectPath(curPath)"
+      >
+        <h6>{{ curPath.label }}</h6>
+        <p>{{ curPath.path }}</p>
       </a>
     </div>
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "HardwareSelectPath",
-};
-</script>
-
 <script setup lang="ts">
 import SwitchArrow from "@action/icons/header/switch_arrow.vue";
 import { PropType, ref } from "vue";
+import { PathType } from "../types";
 
-let isSelectPatch = ref(false);
+const emit = defineEmits<{
+  (e: "update:selectedPath", path: PathType): void;
+}>();
 
-const props = defineProps({
-  select: {
-    type: Function as PropType<() => void>,
-    default: () => {
-      return null;
-    },
+let isSelectPath = ref(false);
+defineProps({
+  paths: {
+    type: Array as PropType<PathType[]>,
+    default: () => [],
+  },
+  selectedPath: {
+    type: Object as PropType<PathType>,
+    default: () => ({}),
   },
 });
 
-const toggleSelectPatch = () => {
-  isSelectPatch.value = !isSelectPatch.value;
+const toggleSelectPath = () => {
+  isSelectPath.value = !isSelectPath.value;
 };
 
-const selectPatch = () => {
-  isSelectPatch.value = false;
-  props.select();
+const selectPath = (path: PathType) => {
+  toggleSelectPath();
+  emit("update:selectedPath", path);
 };
 </script>
 

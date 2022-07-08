@@ -1,54 +1,52 @@
 <template>
-  <div class="hardware-select-account" :class="{ active: isChecked }">
-    <div class="hardware-select-account__number">0</div>
-    <img :src="require('@/ui/action/icons/raw/account.png')" />
+  <div class="hardware-select-account" :class="{ active: selected }">
+    <div class="hardware-select-account__number">{{ index }}</div>
+    <img :src="network.identicon(address)" />
     <div class="hardware-select-account__info">
       <p class="hardware-select-account__info-name">
         {{
-          $filters.replaceWithEllipsis(
-            "0x03502CF6C0A13167Dc2D0E25Dabf5FBDB68C5968",
-            6,
-            4
-          )
+          $filters.replaceWithEllipsis(network.displayAddress(address), 6, 4)
         }}
       </p>
       <p class="hardware-select-account__info-amount">
-        1.434
-        <span>eth</span>
+        {{ balance }}
+        <span>{{ network.currencyName }}</span>
       </p>
     </div>
     <base-checkbox
       class="hardware-select-account__checkbox"
-      :is-checked="isChecked"
-      :check="check"
+      :is-checked="selected"
+      v-bind="$attrs"
     ></base-checkbox>
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "HardwareSelectAccount",
-};
-</script>
-
 <script setup lang="ts">
+import { BaseNetwork } from "@/types/base-network";
 import BaseCheckbox from "@action/components/base-checkbox/index.vue";
-import { PropType, ref } from "vue";
-
-let isChecked = ref(false);
-
+import { PropType } from "vue";
 defineProps({
-  select: {
-    type: Function as PropType<() => void>,
-    default: () => {
-      return null;
-    },
+  network: {
+    type: Object as PropType<BaseNetwork>,
+    default: () => ({}),
+  },
+  address: {
+    type: String,
+    default: "",
+  },
+  selected: {
+    type: Boolean,
+    default: false,
+  },
+  index: {
+    type: Number,
+    default: 0,
+  },
+  balance: {
+    type: String,
+    default: "",
   },
 });
-
-const check = (isCheck: boolean) => {
-  isChecked.value = isCheck;
-};
 </script>
 
 <style lang="less" scoped>

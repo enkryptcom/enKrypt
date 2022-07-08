@@ -4,7 +4,7 @@
     <h3>Connect to your Ledger</h3>
     <p>
       Connect your wallet to your computer. Unlock your Ledger and open the
-      <b>Ethereum app.</b><a href="#">Learn more</a>
+      <b>{{ appName }} App.</b><a href="#">Learn more</a>
     </p>
 
     <base-button title="Connect" :click="connectAction" />
@@ -17,40 +17,56 @@
   ></hardware-wallet-process>
   <hardware-wallet-error
     v-if="isError"
-    :retry="tryAgainAction"
     :is-ledger="true"
+    :app-name="appName"
+    :error-message="errorMessage"
+    @retry-connection="connectAction"
   ></hardware-wallet-error>
 </template>
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import LedgerLogo from "@action/icons/hardware/ledger-logo.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import HardwareWalletProcess from "../components/hardware-wallet-process.vue";
 import HardwareWalletError from "../components/hardware-wallet-error.vue";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { routes } from "../routes";
+import { getNetworkByName } from "@/libs/utils/networks";
+import HWwallet, { ledgerAppNames } from "@enkryptcom/hw-wallets";
+import { HWwalletNames } from "@enkryptcom/types";
 
+const route = useRoute();
+const networkName = route.params.network as keyof typeof ledgerAppNames;
+const network = getNetworkByName(networkName as string)!;
 const router = useRouter();
 
-let isProcessing = ref(false);
-let isError = ref(false);
+const errorMessage = ref<string>("");
+const isProcessing = ref(false);
+const isError = ref(false);
 
+const appName = computed(() => {
+  return ledgerAppNames[networkName] || "";
+});
 const connectAction = () => {
-  isProcessing.value = true;
-
-  setTimeout(() => {
-    isProcessing.value = false;
-    isError.value = true;
-  }, 2000);
-};
-
-const tryAgainAction = () => {
+  const hwwallet = new HWwallet();
   isProcessing.value = true;
   isError.value = false;
-
-  setTimeout(() => {
-    router.push({ path: routes.ledgerSelectAccount.path });
-  }, 2000);
+  hwwallet
+    .isConnected({ wallet: HWwalletNames.ledger, networkName: network.name })
+    .then(() => {
+      isProcessing.value = false;
+      router.push({
+        name: routes.ledgerSelectAccount.name,
+        params: {
+          networkName: network.name,
+        },
+      });
+    })
+    .catch((e: Error) => {
+      isError.value = true;
+      isProcessing.value = false;
+      errorMessage.value = e.message;
+    });
 };
 </script>
 

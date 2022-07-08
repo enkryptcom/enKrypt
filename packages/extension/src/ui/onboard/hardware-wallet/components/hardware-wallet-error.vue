@@ -5,31 +5,32 @@
     <h3 v-else>Unable to connect to Trezor</h3>
 
     <p>
-      Make sure it is unlocked, not used in another site, and Ethereum app was
-      opened after unlock.
+      {{ errorMessage }}
     </p>
-    <base-button title="Retry" :click="retryAction" />
+    <base-button title="Retry" :click="() => emit('retryConnection')" />
   </div>
 </template>
 <script setup lang="ts">
 import ImportErrorAnimation from "@action/icons/import/import-error-animation.vue";
 import BaseButton from "@action/components/base-button/index.vue";
+const emit = defineEmits<{
+  (e: "retryConnection"): void;
+}>();
 
-const props = defineProps({
-  retry: {
-    type: Function,
-    default: () => {
-      return null;
-    },
-  },
+defineProps({
   isLedger: {
     type: Boolean,
     default: false,
   },
+  errorMessage: {
+    type: String,
+    default: "",
+  },
+  appName: {
+    type: String,
+    default: "",
+  },
 });
-const retryAction = () => {
-  props.retry();
-};
 </script>
 
 <script lang="ts">

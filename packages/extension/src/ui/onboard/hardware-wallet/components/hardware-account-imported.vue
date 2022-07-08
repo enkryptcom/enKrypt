@@ -9,12 +9,6 @@
 import ImportDoneAnimation from "@action/icons/import/import-done-animation.vue";
 </script>
 
-<script lang="ts">
-export default {
-  name: "HardwareAccountImported",
-};
-</script>
-
 <style lang="less" scoped>
 @import "~@action/styles/theme.less";
 

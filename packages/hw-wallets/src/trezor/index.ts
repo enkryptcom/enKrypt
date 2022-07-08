@@ -1,6 +1,6 @@
 import TrezorConnect from "trezor-connect";
 import { NetworkNames } from "@enkryptcom/types";
-import { getAddressRequest, HWWalletProvider } from "../types";
+import { getAddressRequest, HWWalletProvider, PathType } from "../types";
 import { supportedPaths } from "./configs";
 
 class TrezorEthereum implements HWWalletProvider {
@@ -34,8 +34,12 @@ class TrezorEthereum implements HWWalletProvider {
     throw new Error("Not Supported");
   }
 
-  getSupportedPaths(): string[] {
+  getSupportedPaths(): PathType[] {
     return supportedPaths[this.network];
+  }
+
+  isConnected(): Promise<boolean> {
+    return Promise.resolve(true);
   }
 
   static getSupportedNetworks(): NetworkNames[] {

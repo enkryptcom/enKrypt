@@ -6,8 +6,10 @@
 
     <router-link
       :to="{
-        name: 'hardware-wallet-ledger-connect',
-        params: {},
+        name: routes.ledgerConnect.name,
+        params: {
+          network: route.query.network,
+        },
       }"
       class="add-hardware-wallet__button"
     >
@@ -16,8 +18,10 @@
     </router-link>
     <router-link
       :to="{
-        name: 'hardware-wallet-trezor-connect',
-        params: {},
+        name: routes.trezorConnect.name,
+        params: {
+          network: route.query.network,
+        },
       }"
       class="add-hardware-wallet__button"
     >
@@ -31,6 +35,9 @@ import HardwareIcon from "@action/icons/hardware/hardware-icon.vue";
 import LedgerLogo from "@action/icons/hardware/ledger-logo.vue";
 import TrezorLogo from "@action/icons/hardware/trezor-logo.vue";
 import RightArrow from "@action/icons/common/right-arrow.vue";
+import { routes } from "./routes";
+import { useRoute } from "vue-router";
+const route = useRoute();
 </script>
 
 <style lang="less">
