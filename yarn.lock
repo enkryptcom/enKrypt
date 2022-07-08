@@ -2529,6 +2529,8 @@ __metadata:
     eslint-import-resolver-alias: ^1.1.2
     eslint-plugin-import: ^2.25.4
     eslint-plugin-module-resolver: ^1.4.0
+    ethereumjs-util: ^7.1.5
+    hdkey: ^2.0.1
     mocha: ^9.2.0
     prettier: ^2.5.1
     trezor-connect: ^8.2.8

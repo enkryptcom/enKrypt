@@ -15,8 +15,16 @@ export enum HandlerMethods {
 export interface LedgerSignature {
   signature: `0x${string}`;
 }
-export interface BaseRequest {
+
+export interface PathType {
   path: string;
+  basePath: string;
+  label: string;
+}
+
+export interface BaseRequest {
+  pathIndex: string;
+  pathType: PathType;
   wallet: HWwalletNames;
   networkName: NetworkNames;
 }
@@ -37,11 +45,6 @@ export interface LedgerSignTransactionRequest
   message: ExtrinsicPayload;
 }
 
-export interface PathType {
-  path: string;
-  label: string;
-}
-
 export abstract class HWWalletProvider {
   abstract network: NetworkNames;
 
@@ -52,9 +55,11 @@ export abstract class HWWalletProvider {
 
   abstract getAddress(options: getAddressRequest): Promise<string>;
 
-  abstract getSupportedPaths(): { path: string; label: string }[];
+  abstract getSupportedPaths(): PathType[];
 
   abstract isConnected(networkName: string): Promise<boolean>;
+
+  abstract close(): Promise<void>;
 
   static getSupportedNetworks(): NetworkNames[] {
     return [];

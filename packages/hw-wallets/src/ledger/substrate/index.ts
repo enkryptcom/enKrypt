@@ -37,7 +37,9 @@ class LedgerSubstrate implements HWWalletProvider {
         new Error("ledger-substrate: Invalid network name")
       );
     const app = LedgerApps[this.network];
-    const pathValues = bip32ToAddressNList(options.path);
+    const pathValues = bip32ToAddressNList(
+      options.pathType.path.replace(`{index}`, options.pathIndex)
+    );
     if (pathValues.length < 3)
       return Promise.reject(new Error("ledger-substrate: Invalid path"));
     const connection = app(this.transport);
@@ -57,6 +59,11 @@ class LedgerSubstrate implements HWWalletProvider {
 
   getSupportedPaths(): PathType[] {
     return supportedPaths;
+  }
+
+  close(): Promise<void> {
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    return this.transport.close().catch(() => {});
   }
 
   isConnected(networkName: NetworkNames): Promise<boolean> {

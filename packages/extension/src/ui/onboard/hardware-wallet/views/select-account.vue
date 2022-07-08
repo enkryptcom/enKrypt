@@ -53,12 +53,12 @@ import HWwallet from "@enkryptcom/hw-wallets";
 const router = useRouter();
 const route = useRoute();
 const networkName = route.params.networkName as string;
+const walletType = route.params.walletType as HWwalletNames;
 const network = getNetworkByName(networkName)!;
 const hwWallet = new HWwallet();
 const networkPaths = ref<PathType[]>([]);
-const selectedPath = ref<PathType>({ path: "", label: "" });
+const selectedPath = ref<PathType>({ path: "", label: "", basePath: "" });
 const ADDRESSES_PER_PAGE = 5;
-const WALLET_TYPE = HWwalletNames.ledger;
 const loading = ref(false);
 let currentAddressIndex = ref(0);
 
@@ -79,7 +79,7 @@ const enableContinue = computed(() => {
 });
 onMounted(async () => {
   networkPaths.value = await hwWallet.getSupportedPaths({
-    wallet: HWwalletNames.ledger,
+    wallet: walletType,
     networkName: network.name,
   });
   selectedPath.value = networkPaths.value[0];
@@ -99,17 +99,18 @@ const loadAddresses = async (start: number, end: number) => {
     const newAddress = await hwWallet.getAddress({
       confirmAddress: false,
       networkName: network.name,
-      path: reqPath,
-      wallet: WALLET_TYPE,
+      pathType: selectedPath.value,
+      pathIndex: i.toString(),
+      wallet: walletType,
     });
     accounts.value.push({
       address: newAddress,
       balance: "0.00",
       path: reqPath,
       selected: false,
-      walletType: WALLET_TYPE,
+      walletType: walletType,
       index: i,
-      name: `${network.name_long} ${WALLET_TYPE} ${i}`,
+      name: `${network.name_long} ${walletType} ${i}`,
     });
     currentAddressIndex.value = i;
   }
@@ -142,7 +143,7 @@ const selectPath = (newPath: PathType) => {
 
 const continueAction = () => {
   router.push({
-    name: routes.ledgerImportingAccount.name,
+    name: routes.ImportingAccount.name,
     params: {
       selectedAccounts: JSON.stringify(
         accounts.value.filter((acc) => acc.selected)

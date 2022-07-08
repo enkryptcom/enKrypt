@@ -12,5 +12,6 @@ export interface HWWalletAccountType {
 
 export interface PathType {
   path: string;
+  basePath: string;
   label: string;
 }

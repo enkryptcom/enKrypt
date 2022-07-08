@@ -54,6 +54,8 @@
     "@ledgerhq/live-common": "^24.0.0",
     "@polkadot/types": "^8.5.1",
     "@zondax/ledger-substrate": "^0.29.0",
+    "ethereumjs-util": "^7.1.5",
+    "hdkey": "^2.0.1",
     "trezor-connect": "^8.2.8",
     "webextension-polyfill": "^0.9.0"
   }

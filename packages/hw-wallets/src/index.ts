@@ -58,6 +58,12 @@ class HWwalletManager {
     ).isConnected(options.networkName);
   }
 
+  async close(): Promise<void> {
+    return Promise.all(
+      Object.values(this.providers).map((p) => (p as HWWalletProvider).close())
+    ).then();
+  }
+
   #getProvider(wallet: HWwalletNames, network: NetworkNames): HWWalletProvider {
     for (const P of this.providerTypes[wallet]) {
       if (P.getSupportedNetworks().includes(network)) return new P(network);
