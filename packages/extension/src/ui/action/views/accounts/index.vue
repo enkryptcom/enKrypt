@@ -43,9 +43,16 @@
           Add account
         </a>
 
-        <div class="accounts__action-divider"></div>
+        <div
+          v-if="
+            hwWallet.isNetworkSupported(network.name) ||
+            network.signer[0] === SignerType.secp256k1
+          "
+          class="accounts__action-divider"
+        ></div>
 
         <a
+          v-if="hwWallet.isNetworkSupported(network.name)"
           class="accounts__action-button hardware"
           @click="openHardware(network.name)"
         >
@@ -53,7 +60,11 @@
           Add hardware wallet account
         </a>
 
-        <a class="accounts__action-button import" @click="importAction()">
+        <a
+          v-if="network.signer[0] === SignerType.secp256k1"
+          class="accounts__action-button import"
+          @click="importAction()"
+        >
           <import-account-icon />
           Import account from another wallet
         </a>
@@ -109,14 +120,16 @@ import { NodeType } from "@/types/provider";
 import openHardware from "@/libs/utils/open-hardware";
 import scrollSettings from "@/libs/utils/scroll-settings";
 import { EnkryptAccount } from "@enkryptcom/types";
-
+import HWwallets from "@enkryptcom/hw-wallets";
+import { SignerType } from "@enkryptcom/types";
 const emit = defineEmits<{
   (e: "addressChanged", account: EnkryptAccount): void;
 }>();
-let isAddAccount = ref(false);
-let isRenameAccount = ref(false);
-let isDeleteAccount = ref(false);
-let isImportAccount = ref(false);
+const isAddAccount = ref(false);
+const isRenameAccount = ref(false);
+const isDeleteAccount = ref(false);
+const isImportAccount = ref(false);
+const hwWallet = new HWwallets();
 const props = defineProps({
   network: {
     type: Object as PropType<NodeType>,
@@ -267,7 +280,8 @@ const closeImportAccount = () => {
   }
 
   &__action {
-    height: 153px;
+    height: fit-content;
+    max-height: 153px;
     left: 0px;
     bottom: 0px;
     width: 100%;

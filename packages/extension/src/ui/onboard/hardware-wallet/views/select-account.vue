@@ -15,6 +15,7 @@
         :balance="account.balance"
         :index="account.index"
         :address="account.address"
+        :disabled="existingAddresses.includes(account.address)"
         @toggle:select="toggleSelectAccount(account.index)"
       >
       </hardware-select-account>
@@ -47,21 +48,30 @@ import { routes } from "../routes";
 import { getNetworkByName } from "@/libs/utils/networks";
 import { HWWalletAccountType, PathType } from "../types";
 import { computed, onMounted, ref } from "vue";
-import { HWwalletType } from "@enkryptcom/types";
+import { EnkryptAccount, HWwalletType } from "@enkryptcom/types";
 import HWwallet from "@enkryptcom/hw-wallets";
+import PublicKeyRing from "@/libs/keyring/public-keyring";
+import { formatFloatingPointValue } from "@/libs/utils/number-formatter";
+import { fromBase } from "@/libs/utils/units";
 
 const router = useRouter();
 const route = useRoute();
 const networkName = route.params.networkName as string;
 const walletType = route.params.walletType as HWwalletType;
+
+if (!networkName || !walletType) {
+  router.push({ name: routes.addHardwareWallet.name });
+}
 const network = getNetworkByName(networkName)!;
 const hwWallet = new HWwallet();
 const networkPaths = ref<PathType[]>([]);
 const selectedPath = ref<PathType>({ path: "", label: "", basePath: "" });
 const ADDRESSES_PER_PAGE = 5;
 const loading = ref(false);
-let currentAddressIndex = ref(0);
-
+const currentAddressIndex = ref(0);
+const keyring = new PublicKeyRing();
+const existingAccounts = ref<EnkryptAccount[]>([]);
+const networkApi = network.api();
 const accounts = ref<HWWalletAccountType[]>([]);
 const visibleAccounts = computed(() => {
   return accounts.value.slice(
@@ -78,6 +88,7 @@ const enableContinue = computed(() => {
   return false;
 });
 onMounted(async () => {
+  keyring.getAccounts().then((accounts) => (existingAccounts.value = accounts));
   networkPaths.value = await hwWallet.getSupportedPaths({
     wallet: walletType,
     networkName: network.name,
@@ -88,6 +99,12 @@ onMounted(async () => {
     currentAddressIndex.value + ADDRESSES_PER_PAGE
   );
 });
+
+const existingAddresses = computed(() => {
+  if (!existingAccounts.value.length) return [];
+  return existingAccounts.value.map((acc) => acc.address);
+});
+
 const loadAddresses = async (start: number, end: number) => {
   loading.value = true;
   for (let i = start; i < end; i++) {
@@ -106,13 +123,20 @@ const loadAddresses = async (start: number, end: number) => {
     accounts.value.push({
       address: newAddress.address,
       publicKey: newAddress.publicKey,
-      balance: "0.00",
+      balance: "~",
       path: reqPath,
       pathType: selectedPath.value,
       selected: false,
       walletType: walletType,
       index: i,
       name: `${network.name_long} ${walletType} ${i}`,
+    });
+    networkApi.then((api) => {
+      api.getBalance(newAddress.address).then((balance) => {
+        accounts.value[i].balance = formatFloatingPointValue(
+          fromBase(balance, network.decimals)
+        ).value;
+      });
     });
     currentAddressIndex.value = i;
   }

@@ -42,10 +42,15 @@ import { HWwalletType } from "@enkryptcom/types";
 import TrezorLogo from "@action/icons/hardware/trezor-logo.vue";
 
 const route = useRoute();
+const router = useRouter();
 const networkName = route.params.network as keyof typeof ledgerAppNames;
 const walletType = route.params.walletType as HWwalletType;
+
+if (!networkName || !walletType) {
+  router.push({ name: routes.addHardwareWallet.name });
+}
+
 const network = getNetworkByName(networkName as string)!;
-const router = useRouter();
 
 const errorMessage = ref<string>("");
 const isProcessing = ref(false);

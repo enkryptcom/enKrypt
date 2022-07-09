@@ -3,6 +3,7 @@
     <input
       type="checkbox"
       :checked="isChecked"
+      :disabled="disabled"
       @change="emit('toggle:select')"
     />
     <div class="base-checkbox__wrap">
@@ -19,6 +20,7 @@ const emit = defineEmits<{
 }>();
 defineProps({
   isChecked: Boolean,
+  disabled: Boolean,
 });
 </script>
 

@@ -1,5 +1,8 @@
 <template>
-  <div class="hardware-select-account" :class="{ active: selected }">
+  <div
+    class="hardware-select-account"
+    :class="{ active: selected, imported: disabled }"
+  >
     <div class="hardware-select-account__number">{{ index }}</div>
     <img :src="network.identicon(address)" />
     <div class="hardware-select-account__info">
@@ -7,6 +10,7 @@
         {{
           $filters.replaceWithEllipsis(network.displayAddress(address), 6, 4)
         }}
+        {{ disabled ? " (imported)" : "" }}
       </p>
       <p class="hardware-select-account__info-amount">
         {{ balance }}
@@ -16,6 +20,7 @@
     <base-checkbox
       class="hardware-select-account__checkbox"
       :is-checked="selected"
+      :disabled="disabled"
       v-bind="$attrs"
     ></base-checkbox>
   </div>
@@ -46,6 +51,7 @@ defineProps({
     type: String,
     default: "",
   },
+  disabled: Boolean,
 });
 </script>
 
@@ -71,6 +77,9 @@ defineProps({
 
   &.active {
     background: @lightBg;
+  }
+  &.imported {
+    background: #e6ede7;
   }
 
   &:last-child {

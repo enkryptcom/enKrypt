@@ -5,6 +5,7 @@
     <p>Select a hardware wallet you'd like to use with Enkrypt.</p>
 
     <router-link
+      v-if="isLedgerSupported"
       :to="{
         name: routes.Connect.name,
         params: {
@@ -18,6 +19,7 @@
       <right-arrow />
     </router-link>
     <router-link
+      v-if="isTrezorSupported"
       :to="{
         name: routes.Connect.name,
         params: {
@@ -39,8 +41,32 @@ import TrezorLogo from "@action/icons/hardware/trezor-logo.vue";
 import RightArrow from "@action/icons/common/right-arrow.vue";
 import { routes } from "./routes";
 import { useRoute } from "vue-router";
-import { HWwalletType } from "@enkryptcom/types";
+import { HWwalletType, NetworkNames } from "@enkryptcom/types";
+import HWwallets from "@enkryptcom/hw-wallets";
+import { ref } from "vue";
+const hwWallet = new HWwallets();
+const isLedgerSupported = ref(false);
+const isTrezorSupported = ref(false);
 const route = useRoute();
+
+hwWallet
+  .getSupportedPaths({
+    wallet: HWwalletType.ledger,
+    networkName: route.query.network as NetworkNames,
+  })
+  .then((paths) => {
+    if (paths) isLedgerSupported.value = true;
+  })
+  .catch(() => ({}));
+hwWallet
+  .getSupportedPaths({
+    wallet: HWwalletType.trezor,
+    networkName: route.query.network as NetworkNames,
+  })
+  .then((paths) => {
+    if (paths) isTrezorSupported.value = true;
+  })
+  .catch(() => ({}));
 </script>
 
 <style lang="less">

@@ -54,25 +54,30 @@ import HardwareWalletProcess from "../components/hardware-wallet-process.vue";
 import HardwareImportingAccount from "../components/hardware-importing-account.vue";
 import HardwareAccountImported from "../components/hardware-account-imported.vue";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { getNetworkByName } from "@/libs/utils/networks";
 import { HWWalletAccountType } from "../types";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
 import KeyRingBase from "@/libs/keyring/keyring";
 import { computed } from "@vue/reactivity";
-import { HWwalletType, WalletType } from "@enkryptcom/types";
+import { EnkryptAccount, HWwalletType, WalletType } from "@enkryptcom/types";
+import { routes } from "../routes";
 
 const route = useRoute();
-
+const router = useRouter();
 const networkName = route.params.networkName as string;
 const selectedAccounts = ref(
   JSON.parse(route.params.selectedAccounts as string) as HWWalletAccountType[]
 );
 const walletType = route.params.walletType as HWwalletType;
+
+if (!networkName || !walletType || !selectedAccounts.value.length) {
+  router.push({ name: routes.addHardwareWallet.name });
+}
 const network = getNetworkByName(networkName)!;
 const keyring = new PublicKeyRing();
 const keyringBase = new KeyRingBase();
-const existingNames = ref<string[]>([]);
+const existingAccounts = ref<EnkryptAccount[]>([]);
 const isProcessing = ref(false);
 const isProcessDone = ref(false);
 
@@ -81,12 +86,13 @@ const importingAccountScrollRef = ref<ComponentPublicInstance<HTMLElement>>();
 defineExpose({ importingAccountScrollRef });
 
 onMounted(() => {
-  keyring
-    .getAccounts()
-    .then(
-      (accounts) => (existingNames.value = accounts.map((acc) => acc.name))
-    );
+  keyring.getAccounts().then((accounts) => (existingAccounts.value = accounts));
 });
+const existingNames = computed(() => {
+  if (!existingAccounts.value.length) return [];
+  return existingAccounts.value.map((acc) => acc.name);
+});
+
 const allValid = computed(() => {
   for (const acc of selectedAccounts.value) {
     if (isInvalidName(acc.name)) return false;
