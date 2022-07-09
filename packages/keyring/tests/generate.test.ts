@@ -1,6 +1,6 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { expect } from "chai";
-import { KeyRecordAdd, SignerType } from "@enkryptcom/types";
+import { KeyRecordAdd, SignerType, WalletType } from "@enkryptcom/types";
 import { MemoryStorage } from "@enkryptcom/utils";
 import Storage from "@enkryptcom/storage";
 import KeyRing from "../src";
@@ -17,12 +17,13 @@ describe("Keyring create tests", () => {
     await keyring.init(password, { mnemonic: MNEMONIC });
     const keyAdd: KeyRecordAdd = {
       basePath: "//",
-      type: SignerType.sr25519,
+      signerType: SignerType.sr25519,
       name: "0index",
+      walletType: WalletType.mnemonic,
     };
     await keyring.unlockMnemonic(password);
     const pair = await keyring.createKey(keyAdd);
-    expect(pair.type).equals(SignerType.sr25519);
+    expect(pair.signerType).equals(SignerType.sr25519);
     expect(pair.pathIndex).equals(0);
     expect(pair.address).equals(
       "5DfhGyQdFobKM8NsWvEeAKk5EQQgYe9AydgJ7rMB6E1EqRzV"
@@ -36,12 +37,13 @@ describe("Keyring create tests", () => {
     await keyring.init(password, { mnemonic: MNEMONIC });
     const keyAdd: KeyRecordAdd = {
       basePath: "//",
-      type: SignerType.ecdsa,
+      signerType: SignerType.ecdsa,
       name: "0index",
+      walletType: WalletType.mnemonic,
     };
     await keyring.unlockMnemonic(password);
     const pair = await keyring.createKey(keyAdd);
-    expect(pair.type).equals(SignerType.ecdsa);
+    expect(pair.signerType).equals(SignerType.ecdsa);
     expect(pair.pathIndex).equals(0);
     expect(pair.address).equals(
       "5GKyBtzbxKU1qjhZrKpMiwtJj7o6jJcXbKQVtYq74DCPerXN"
@@ -54,12 +56,13 @@ describe("Keyring create tests", () => {
     await keyring.init(password, { mnemonic: MNEMONIC });
     const keyAdd: KeyRecordAdd = {
       basePath: "//",
-      type: SignerType.ed25519,
+      signerType: SignerType.ed25519,
       name: "0index",
+      walletType: WalletType.mnemonic,
     };
     await keyring.unlockMnemonic(password);
     const pair = await keyring.createKey(keyAdd);
-    expect(pair.type).equals(SignerType.ed25519);
+    expect(pair.signerType).equals(SignerType.ed25519);
     expect(pair.pathIndex).equals(0);
     expect(pair.address).equals(
       "5DFJF7tY4bpbpcKPJcBTQaKuCDEPCpiz8TRjpmLeTtweqmXL"
@@ -72,12 +75,13 @@ describe("Keyring create tests", () => {
     await keyring.init(password, { mnemonic: MNEMONIC });
     const keyAdd: KeyRecordAdd = {
       basePath: "m/44'/60'/0'/0",
-      type: SignerType.secp256k1,
+      signerType: SignerType.secp256k1,
+      walletType: WalletType.mnemonic,
       name: "0index",
     };
     await keyring.unlockMnemonic(password);
     const pair = await keyring.createKey(keyAdd);
-    expect(pair.type).equals(SignerType.secp256k1);
+    expect(pair.signerType).equals(SignerType.secp256k1);
     expect(pair.pathIndex).equals(0);
     expect(pair.address).equals("0xf24ff3a9cf04c71dbc94d0b566f7a27b94566cac");
   }).timeout(20000);

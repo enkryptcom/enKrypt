@@ -1,11 +1,11 @@
-import { HWwalletNames, NetworkNames } from "@enkryptcom/types";
+import { HWwalletType, NetworkNames } from "@enkryptcom/types";
 import { PathType, WalletConfigs } from "./types";
 
 const walletConfigs: WalletConfigs = {
-  [HWwalletNames.ledger]: {
+  [HWwalletType.ledger]: {
     isBackground: false,
   },
-  [HWwalletNames.trezor]: {
+  [HWwalletType.trezor]: {
     isBackground: true,
   },
 };
@@ -25,7 +25,7 @@ const MessengerName = "enkrypt_hw_wallets";
 const bip44Paths: Record<string, PathType> = {
   ethereum: {
     path: "m/44'/60'/0'/{index}",
-    basePath: "m/44'/60'/0'/0",
+    basePath: "m/44'/60'/0'",
     label: "Ethereum",
   },
   ledgerLiveEthereum: {
@@ -35,7 +35,7 @@ const bip44Paths: Record<string, PathType> = {
   },
   ethereumClassic: {
     path: "m/44'/60'/160720'/0'/{index}",
-    basePath: "m/44'/61'/0'/0",
+    basePath: "m/44'/61'/0'",
     label: "Ethereum Classic",
   },
   ethereumClassicLedgerLive: {
@@ -45,7 +45,7 @@ const bip44Paths: Record<string, PathType> = {
   },
   ethereumTestnets: {
     path: "m/44'/1'/0'/0/{index}",
-    basePath: "m/44'/1'/0'/0",
+    basePath: "m/44'/1'/0'",
     label: "Testnet",
   },
   substrateLedger: {

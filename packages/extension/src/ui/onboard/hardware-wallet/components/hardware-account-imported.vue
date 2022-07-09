@@ -1,7 +1,7 @@
 <template>
   <div class="hardware-account-imported">
     <import-done-animation />
-    <h3>Account imported</h3>
+    <h3>Accounts imported</h3>
     <p>Now you can close this tab and open Enkrypt.</p>
   </div>
 </template>

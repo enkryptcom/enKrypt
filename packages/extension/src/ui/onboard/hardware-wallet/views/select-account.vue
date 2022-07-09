@@ -47,13 +47,13 @@ import { routes } from "../routes";
 import { getNetworkByName } from "@/libs/utils/networks";
 import { HWWalletAccountType, PathType } from "../types";
 import { computed, onMounted, ref } from "vue";
-import { HWwalletNames } from "@enkryptcom/types";
+import { HWwalletType } from "@enkryptcom/types";
 import HWwallet from "@enkryptcom/hw-wallets";
 
 const router = useRouter();
 const route = useRoute();
 const networkName = route.params.networkName as string;
-const walletType = route.params.walletType as HWwalletNames;
+const walletType = route.params.walletType as HWwalletType;
 const network = getNetworkByName(networkName)!;
 const hwWallet = new HWwallet();
 const networkPaths = ref<PathType[]>([]);
@@ -104,9 +104,11 @@ const loadAddresses = async (start: number, end: number) => {
       wallet: walletType,
     });
     accounts.value.push({
-      address: newAddress,
+      address: newAddress.address,
+      publicKey: newAddress.publicKey,
       balance: "0.00",
       path: reqPath,
+      pathType: selectedPath.value,
       selected: false,
       walletType: walletType,
       index: i,
@@ -148,6 +150,7 @@ const continueAction = () => {
       selectedAccounts: JSON.stringify(
         accounts.value.filter((acc) => acc.selected)
       ),
+      walletType,
       networkName: network.name,
     },
   });

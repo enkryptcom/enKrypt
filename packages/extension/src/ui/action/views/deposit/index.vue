@@ -55,9 +55,9 @@ export default {
 import { PropType } from "vue";
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import CopyIcon from "@action/icons/header/copy_icon.vue";
-import { KeyRecord } from "@enkryptcom/types";
 import { NodeType } from "@/types/provider";
 import QrcodeVue from "qrcode.vue";
+import { EnkryptAccount } from "@enkryptcom/types";
 
 defineProps({
   network: {
@@ -65,7 +65,7 @@ defineProps({
     default: () => ({}),
   },
   account: {
-    type: Object as PropType<KeyRecord>,
+    type: Object as PropType<EnkryptAccount>,
     default: () => {
       return {};
     },

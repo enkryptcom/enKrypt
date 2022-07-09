@@ -47,7 +47,6 @@
 import SignLogo from "@action/icons/common/sign-logo.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import CommonPopup from "@action/views/common-popup/index.vue";
-import { KeyRecord } from "@enkryptcom/types";
 import { getError } from "@/libs/error";
 import { ErrorCodes } from "@/providers/ethereum/types";
 import { WindowPromiseHandler } from "@/libs/window-promise";
@@ -57,6 +56,7 @@ import { utf8ToHex } from "web3-utils";
 import { isAscii, u8aToString, u8aUnwrapBytes } from "@polkadot/util";
 import networks from "../networks";
 import { ProviderRequestOptions } from "@/types/provider";
+import { EnkryptAccount } from "@enkryptcom/types";
 
 const windowPromise = WindowPromiseHandler(0);
 
@@ -67,7 +67,7 @@ const Options = ref<ProviderRequestOptions>({
   url: "",
 });
 const message = ref("");
-const account = ref({ address: "" } as KeyRecord);
+const account = ref({ address: "" } as EnkryptAccount);
 
 onBeforeMount(async () => {
   const { Request, options } = await windowPromise;
@@ -77,7 +77,7 @@ onBeforeMount(async () => {
     ? u8aToString(u8aUnwrapBytes(Request.value.params![0]))
     : Request.value.params![0];
 
-  account.value = Request.value.params![1] as KeyRecord;
+  account.value = Request.value.params![1] as EnkryptAccount;
 });
 
 const approve = async () => {
@@ -87,7 +87,7 @@ const approve = async () => {
   const bytes = isAscii(msg)
     ? utf8ToHex(u8aToString(u8aUnwrapBytes(msg)))
     : msg;
-  const account = Request.value.params![1] as KeyRecord;
+  const account = Request.value.params![1] as EnkryptAccount;
   sendToBackground({
     method: InternalMethods.sign,
     params: [bytes, account],

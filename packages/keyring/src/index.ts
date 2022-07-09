@@ -1,10 +1,12 @@
 import {
-  KeyRecordAdd,
-  KeyRecord,
   Errors,
   SignerInterface,
   SignerType,
   SignOptions,
+  EnkryptAccount,
+  KeyRecordAdd,
+  HWWalletAdd,
+  HWwalletType,
 } from "@enkryptcom/types";
 import Storage from "@enkryptcom/storage";
 import { entropyToMnemonic, generateMnemonic, mnemonicToEntropy } from "bip39";
@@ -96,12 +98,12 @@ class KeyRing {
     return this._getMnemonic(password);
   }
 
-  async createKey(key: KeyRecordAdd): Promise<KeyRecord> {
+  async createKey(key: KeyRecordAdd): Promise<EnkryptAccount> {
     assert(!this.#_isLocked, Errors.KeyringErrors.Locked);
     const nextIndex = await this.getPathIndex(key.basePath);
-    const keypair = await this.#signers[key.type].generate(
+    const keypair = await this.#signers[key.signerType].generate(
       this.#_mnemonic,
-      pathParser(key.basePath, nextIndex, key.type)
+      pathParser(key.basePath, nextIndex, key.signerType)
     );
     return {
       address: keypair.address,
@@ -109,11 +111,13 @@ class KeyRing {
       name: key.name,
       pathIndex: nextIndex,
       publicKey: keypair.publicKey,
-      type: key.type,
+      signerType: key.signerType,
+      walletType: key.walletType,
+      isHardware: false,
     };
   }
 
-  async createAndSaveKey(key: KeyRecordAdd): Promise<KeyRecord> {
+  async createAndSaveKey(key: KeyRecordAdd): Promise<EnkryptAccount> {
     const keyRecord = await this.createKey(key);
     const existingKeys = await this.getKeysObject();
     assert(
@@ -131,25 +135,37 @@ class KeyRing {
 
   async sign(msgHash: string, options: SignOptions): Promise<string> {
     assert(!this.#_isLocked, Errors.KeyringErrors.Locked);
-    const keypair = await this.#signers[options.type].generate(
-      this.#_mnemonic,
-      pathParser(options.basePath, options.pathIndex, options.type)
+    assert(
+      !Object.values(HWwalletType).includes(
+        options.walletType as unknown as HWwalletType
+      ),
+      Errors.KeyringErrors.CannotUseKeyring
     );
-    return this.#signers[options.type].sign(msgHash, keypair);
+    const keypair = await this.#signers[options.signerType].generate(
+      this.#_mnemonic,
+      pathParser(options.basePath, options.pathIndex, options.signerType)
+    );
+    return this.#signers[options.signerType].sign(msgHash, keypair);
   }
 
   async getEthereumEncryptionPublicKey(options: SignOptions): Promise<string> {
     assert(!this.#_isLocked, Errors.KeyringErrors.Locked);
     assert(
-      options.type === SignerType.secp256k1,
+      !Object.values(HWwalletType).includes(
+        options.walletType as unknown as HWwalletType
+      ),
+      Errors.KeyringErrors.CannotUseKeyring
+    );
+    assert(
+      options.signerType === SignerType.secp256k1,
       Errors.KeyringErrors.EnckryptDecryptNotSupported
     );
-    const keypair = await this.#signers[options.type].generate(
+    const keypair = await this.#signers[options.signerType].generate(
       this.#_mnemonic,
-      pathParser(options.basePath, options.pathIndex, options.type)
+      pathParser(options.basePath, options.pathIndex, options.signerType)
     );
     return (
-      this.#signers[options.type] as EthereumSigner
+      this.#signers[options.signerType] as EthereumSigner
     ).getEncryptionPublicKey(keypair);
   }
 
@@ -159,27 +175,42 @@ class KeyRing {
   ): Promise<string> {
     assert(!this.#_isLocked, Errors.KeyringErrors.Locked);
     assert(
-      options.type === SignerType.secp256k1,
+      !Object.values(HWwalletType).includes(
+        options.walletType as unknown as HWwalletType
+      ),
+      Errors.KeyringErrors.CannotUseKeyring
+    );
+    assert(
+      options.signerType === SignerType.secp256k1,
       Errors.KeyringErrors.EnckryptDecryptNotSupported
     );
-    const keypair = await this.#signers[options.type].generate(
+    const keypair = await this.#signers[options.signerType].generate(
       this.#_mnemonic,
-      pathParser(options.basePath, options.pathIndex, options.type)
+      pathParser(options.basePath, options.pathIndex, options.signerType)
     );
-    return (this.#signers[options.type] as EthereumSigner).decrypt(
+    return (this.#signers[options.signerType] as EthereumSigner).decrypt(
       encryptedMessage,
       keypair
     );
   }
 
-  async getKeysObject(): Promise<{ [key: string]: KeyRecord }> {
+  async getKeysObject(): Promise<{ [key: string]: EnkryptAccount }> {
     const jsonstr = await this.#storage.get(configs.STORAGE_KEYS.KEY_INFO);
     if (!jsonstr) return {};
     return jsonstr;
   }
 
-  async getKeysArray(): Promise<KeyRecord[]> {
+  async getKeysArray(): Promise<EnkryptAccount[]> {
     return Object.values(await this.getKeysObject());
+  }
+
+  async addHWAccount(account: HWWalletAdd): Promise<EnkryptAccount> {
+    const existingKeys = await this.getKeysObject();
+    assert(!existingKeys[account.address], Errors.KeyringErrors.AddressExists);
+    const hwAcc: EnkryptAccount = { isHardware: true, ...account };
+    existingKeys[account.address] = hwAcc;
+    await this.#storage.set(configs.STORAGE_KEYS.KEY_INFO, existingKeys);
+    return hwAcc;
   }
 
   isLocked(): boolean {

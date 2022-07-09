@@ -3,7 +3,12 @@ import { NetworkNames } from "@enkryptcom/types";
 import HDKey from "hdkey";
 import { bufferToHex } from "@enkryptcom/utils";
 import { publicToAddress } from "ethereumjs-util";
-import { getAddressRequest, HWWalletProvider, PathType } from "../types";
+import {
+  AddressResponse,
+  getAddressRequest,
+  HWWalletProvider,
+  PathType,
+} from "../types";
 import { supportedPaths } from "./configs";
 
 class TrezorEthereum implements HWWalletProvider {
@@ -24,7 +29,7 @@ class TrezorEthereum implements HWWalletProvider {
     return true;
   }
 
-  async getAddress(options: getAddressRequest): Promise<string> {
+  async getAddress(options: getAddressRequest): Promise<AddressResponse> {
     if (!supportedPaths[this.network])
       return Promise.reject(new Error("trezor-ethereum: Invalid network name"));
 
@@ -44,13 +49,13 @@ class TrezorEthereum implements HWWalletProvider {
       hdKey.chainCode = Buffer.from(rootPub.payload.chainCode, "hex");
       this.HDNodes[options.pathType.basePath] = hdKey;
     }
-    return bufferToHex(
-      publicToAddress(
-        this.HDNodes[options.pathType.basePath].derive(`m/${options.pathIndex}`)
-          .publicKey,
-        true
-      )
-    );
+    const pubkey = this.HDNodes[options.pathType.basePath].derive(
+      `m/${options.pathIndex}`
+    ).publicKey;
+    return {
+      address: bufferToHex(publicToAddress(pubkey, true)),
+      publicKey: bufferToHex(pubkey),
+    };
   }
 
   signMessage() {

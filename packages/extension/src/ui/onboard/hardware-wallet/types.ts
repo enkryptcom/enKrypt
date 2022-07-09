@@ -1,17 +1,19 @@
-import { HWwalletNames } from "@enkryptcom/types";
-
-export interface HWWalletAccountType {
-  address: string;
-  balance: string;
-  selected: boolean;
-  path: string;
-  walletType: HWwalletNames;
-  index: number;
-  name: string;
-}
+import { HWwalletType } from "@enkryptcom/types";
 
 export interface PathType {
   path: string;
   basePath: string;
-  label: string;
+  label?: string;
+}
+
+export interface HWWalletAccountType {
+  address: string;
+  publicKey: string;
+  balance: string;
+  selected: boolean;
+  path: string;
+  pathType: PathType;
+  walletType: HWwalletType;
+  index: number;
+  name: string;
 }

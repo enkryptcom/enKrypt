@@ -2,7 +2,7 @@
 import { expect } from "chai";
 import { MemoryStorage, keccak256 } from "@enkryptcom/utils";
 import Storage from "@enkryptcom/storage";
-import { SignerType } from "@enkryptcom/types";
+import { SignerType, WalletType } from "@enkryptcom/types";
 import { u8aWrapBytes, u8aToHex, stringToU8a } from "@polkadot/util";
 import KeyRing from "../src";
 
@@ -23,7 +23,8 @@ describe("Keyring signing test", () => {
     const keyRecord = await keyring.createKey({
       name: "abc",
       basePath: "m/44'/60'/0'/0",
-      type: SignerType.secp256k1,
+      signerType: SignerType.secp256k1,
+      walletType: WalletType.mnemonic,
     });
     expect(keyRecord.address).to.be.equal(
       "0xf24ff3a9cf04c71dbc94d0b566f7a27b94566cac"
@@ -47,7 +48,8 @@ describe("Keyring signing test", () => {
     const keyRecord = await keyring.createKey({
       name: "abc",
       basePath: "//",
-      type: SignerType.ed25519,
+      signerType: SignerType.ed25519,
+      walletType: WalletType.mnemonic,
     });
     expect(keyRecord.address).to.be.equal(
       "5GfqwuBBRBSioJY1UYSheSQfcVdX8V4CoBmFpu1JTNRqnUkk"

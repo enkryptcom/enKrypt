@@ -1,8 +1,9 @@
-import { NetworkNames, HWwalletNames } from "@enkryptcom/types";
+import { NetworkNames, HWwalletType } from "@enkryptcom/types";
 import LedgerEthereum from "./ledger/ethereum";
 import LedgerSubstrate from "./ledger/substrate";
 import TrezorEthereum from "./trezor";
 import {
+  AddressResponse,
   getAddressRequest,
   HWWalletProvider,
   isConnectedRequest,
@@ -15,20 +16,20 @@ type ProviderType =
   | typeof LedgerSubstrate
   | typeof TrezorEthereum;
 class HWwalletManager {
-  providerTypes: Record<HWwalletNames, ProviderType[]>;
+  providerTypes: Record<HWwalletType, ProviderType[]>;
 
   providers: Record<NetworkNames, HWWalletProvider> | unknown;
 
   constructor() {
     this.providerTypes = {
-      [HWwalletNames.ledger]: [LedgerEthereum, LedgerSubstrate],
-      [HWwalletNames.trezor]: [TrezorEthereum],
+      [HWwalletType.ledger]: [LedgerEthereum, LedgerSubstrate],
+      [HWwalletType.trezor]: [TrezorEthereum],
     };
     this.providers = {};
   }
 
   async #initialize(
-    wallet: HWwalletNames,
+    wallet: HWwalletType,
     network: NetworkNames
   ): Promise<void> {
     if (!this.providers[network]) {
@@ -37,7 +38,7 @@ class HWwalletManager {
     }
   }
 
-  async getAddress(options: getAddressRequest): Promise<string> {
+  async getAddress(options: getAddressRequest): Promise<AddressResponse> {
     await this.#initialize(options.wallet, options.networkName);
     return (this.providers[options.networkName] as HWWalletProvider).getAddress(
       options
@@ -64,7 +65,7 @@ class HWwalletManager {
     ).then();
   }
 
-  #getProvider(wallet: HWwalletNames, network: NetworkNames): HWWalletProvider {
+  #getProvider(wallet: HWwalletType, network: NetworkNames): HWWalletProvider {
     for (const P of this.providerTypes[wallet]) {
       if (P.getSupportedNetworks().includes(network)) return new P(network);
     }

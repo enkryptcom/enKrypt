@@ -27,13 +27,6 @@
     </div>
   </div>
 </template>
-
-<script lang="ts">
-export default {
-  name: "DappConnecting",
-};
-</script>
-
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import ConnectingIcon from "@action/icons/connect/connecting-icon.vue";
@@ -42,8 +35,6 @@ import ConnectedIcon from "@action/icons/connect/connected-icon.vue";
 
 let isConnecting = ref(false);
 let isConnected = ref(false);
-
-defineProps({});
 
 onMounted(() => {
   setTimeout(() => {

@@ -1,13 +1,14 @@
-import { NetworkNames, HWwalletNames } from "@enkryptcom/types";
+import { NetworkNames, HWwalletType } from "@enkryptcom/types";
 import type { ExtrinsicPayload } from "@polkadot/types/interfaces";
 
-export type WalletConfigs = Record<HWwalletNames, { isBackground: boolean }>;
+export type WalletConfigs = Record<HWwalletType, { isBackground: boolean }>;
 
 export interface MessageResponse {
   result?: string;
   error?: any;
 }
 
+// eslint-disable-next-line no-shadow
 export enum HandlerMethods {
   getAddress = "getAddress",
 }
@@ -19,13 +20,18 @@ export interface LedgerSignature {
 export interface PathType {
   path: string;
   basePath: string;
-  label: string;
+  label?: string;
+}
+
+export interface AddressResponse {
+  address: string;
+  publicKey: string;
 }
 
 export interface BaseRequest {
   pathIndex: string;
   pathType: PathType;
-  wallet: HWwalletNames;
+  wallet: HWwalletType;
   networkName: NetworkNames;
 }
 export interface SignRequest extends BaseRequest {
@@ -36,7 +42,7 @@ export interface getAddressRequest extends BaseRequest {
 }
 
 export interface isConnectedRequest {
-  wallet: HWwalletNames;
+  wallet: HWwalletType;
   networkName: NetworkNames;
 }
 
@@ -53,7 +59,7 @@ export abstract class HWWalletProvider {
 
   abstract init(): Promise<boolean>;
 
-  abstract getAddress(options: getAddressRequest): Promise<string>;
+  abstract getAddress(options: getAddressRequest): Promise<AddressResponse>;
 
   abstract getSupportedPaths(): PathType[];
 

@@ -126,7 +126,6 @@ import BaseButton from "@action/components/base-button/index.vue";
 import CommonPopup from "@action/views/common-popup/index.vue";
 import SendFeeSelect from "./send-transaction/components/send-fee-select.vue";
 import TransactionFeeView from "@action/views/transaction-fee/index.vue";
-import { KeyRecord } from "@enkryptcom/types";
 import { getCustomError, getError } from "@/libs/error";
 import { ErrorCodes } from "@/providers/ethereum/types";
 import { WindowPromiseHandler } from "@/libs/window-promise";
@@ -150,6 +149,7 @@ import BigNumber from "bignumber.js";
 import { GasFeeType } from "./types";
 import MarketData from "@/libs/market-data";
 import { defaultGasCostVals } from "./common/default-vals";
+import { EnkryptAccount } from "@enkryptcom/types";
 
 const isOpenSelectFee = ref(false);
 const providerVerifyTransactionScrollRef = ref<ComponentPublicInstance>();
@@ -162,10 +162,10 @@ const network = ref<EvmNetwork>(
 );
 const marketdata = new MarketData();
 const gasCostValues = ref<GasFeeType>(defaultGasCostVals);
-const account = ref<KeyRecord>({
+const account = ref<EnkryptAccount>({
   name: "",
   address: "",
-} as KeyRecord);
+} as EnkryptAccount);
 const identicon = ref<string>("");
 const windowPromise = WindowPromiseHandler(3);
 const Options = ref<ProviderRequestOptions>({
@@ -180,7 +180,7 @@ defineExpose({ providerVerifyTransactionScrollRef });
 onBeforeMount(async () => {
   const { Request, options } = await windowPromise;
   network.value = getNetworkByName(Request.value.params![2]) as EvmNetwork;
-  account.value = Request.value.params![1] as KeyRecord;
+  account.value = Request.value.params![1] as EnkryptAccount;
   identicon.value = network.value.identicon(account.value.address);
   Options.value = options;
   if (network.value.api) {

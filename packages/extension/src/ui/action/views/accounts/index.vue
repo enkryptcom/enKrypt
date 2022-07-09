@@ -106,12 +106,12 @@ import ImportAccount from "@action/views/import-account/index.vue";
 import { AccountsHeaderData } from "../../types/account";
 import { PropType, ref } from "vue";
 import { NodeType } from "@/types/provider";
-import { KeyRecord } from "@enkryptcom/types";
 import openHardware from "@/libs/utils/open-hardware";
 import scrollSettings from "@/libs/utils/scroll-settings";
+import { EnkryptAccount } from "@enkryptcom/types";
 
 const emit = defineEmits<{
-  (e: "addressChanged", account: KeyRecord): void;
+  (e: "addressChanged", account: EnkryptAccount): void;
 }>();
 let isAddAccount = ref(false);
 let isRenameAccount = ref(false);

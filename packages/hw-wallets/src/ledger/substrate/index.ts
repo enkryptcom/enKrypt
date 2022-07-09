@@ -2,7 +2,12 @@ import type Transport from "@ledgerhq/hw-transport";
 import webUsbTransport from "@ledgerhq/hw-transport-webusb";
 import { NetworkNames } from "@enkryptcom/types";
 import { LedgerApps } from "./substrateApps";
-import { getAddressRequest, HWWalletProvider, PathType } from "../../types";
+import {
+  AddressResponse,
+  getAddressRequest,
+  HWWalletProvider,
+  PathType,
+} from "../../types";
 import { bip32ToAddressNList } from "./utils";
 import { supportedPaths } from "./configs";
 import ConnectToLedger from "../ledgerConnect";
@@ -31,7 +36,7 @@ class LedgerSubstrate implements HWWalletProvider {
     return true;
   }
 
-  async getAddress(options: getAddressRequest): Promise<string> {
+  async getAddress(options: getAddressRequest): Promise<AddressResponse> {
     if (!LedgerApps[this.network])
       return Promise.reject(
         new Error("ledger-substrate: Invalid network name")
@@ -50,7 +55,10 @@ class LedgerSubstrate implements HWWalletProvider {
         pathValues[2],
         options.confirmAddress
       )
-      .then((res) => res.address);
+      .then((res) => ({
+        address: res.address,
+        publicKey: `0x${res.pubKey}`,
+      }));
   }
 
   signMessage() {

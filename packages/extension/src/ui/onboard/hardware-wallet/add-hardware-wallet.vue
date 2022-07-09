@@ -9,7 +9,7 @@
         name: routes.Connect.name,
         params: {
           network: route.query.network,
-          walletType: HWwalletNames.ledger,
+          walletType: HWwalletType.ledger,
         },
       }"
       class="add-hardware-wallet__button"
@@ -22,7 +22,7 @@
         name: routes.Connect.name,
         params: {
           network: route.query.network,
-          walletType: HWwalletNames.trezor,
+          walletType: HWwalletType.trezor,
         },
       }"
       class="add-hardware-wallet__button"
@@ -39,7 +39,7 @@ import TrezorLogo from "@action/icons/hardware/trezor-logo.vue";
 import RightArrow from "@action/icons/common/right-arrow.vue";
 import { routes } from "./routes";
 import { useRoute } from "vue-router";
-import { HWwalletNames } from "@enkryptcom/types";
+import { HWwalletType } from "@enkryptcom/types";
 const route = useRoute();
 </script>
 

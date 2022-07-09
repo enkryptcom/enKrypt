@@ -2,10 +2,12 @@ import KeyRing from "@enkryptcom/keyring";
 import { InternalStorageNamespace } from "@/types/provider";
 import BrowserStorage from "../common/browser-storage";
 import {
-  KeyRecord,
+  EnkryptAccount,
+  HWWalletAdd,
   KeyRecordAdd,
   SignerType,
   SignOptions,
+  WalletType,
 } from "@enkryptcom/types";
 export class KeyRingBase {
   #keyring: KeyRing;
@@ -18,15 +20,16 @@ export class KeyRingBase {
   }
   getNewAccount(options: {
     basePath: string;
-    type: SignerType;
-  }): Promise<KeyRecord> {
+    signerType: SignerType;
+  }): Promise<EnkryptAccount> {
     return this.#keyring.createKey({
       name: "",
       basePath: options.basePath,
-      type: options.type,
+      signerType: options.signerType,
+      walletType: WalletType.mnemonic,
     });
   }
-  saveNewAccount(options: KeyRecordAdd): Promise<KeyRecord> {
+  saveNewAccount(options: KeyRecordAdd): Promise<EnkryptAccount> {
     return this.#keyring.createAndSaveKey(options);
   }
   sign(
@@ -46,11 +49,14 @@ export class KeyRingBase {
   ): Promise<string> {
     return this.#keyring.ethereumDecrypt(encryptedMessage, options);
   }
-  getKeysArray(): Promise<KeyRecord[]> {
+  getKeysArray(): Promise<EnkryptAccount[]> {
     return this.#keyring.getKeysArray();
   }
-  getKeysObject(): Promise<{ [key: string]: KeyRecord }> {
+  getKeysObject(): Promise<{ [key: string]: EnkryptAccount }> {
     return this.#keyring.getKeysObject();
+  }
+  addHWAccount(account: HWWalletAdd): Promise<EnkryptAccount> {
+    return this.#keyring.addHWAccount(account);
   }
   isLocked(): boolean {
     return this.#keyring.isLocked();

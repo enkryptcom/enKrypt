@@ -37,7 +37,7 @@
       <base-button
         title="Add accounts"
         :disabled="!allValid"
-        :click="addAction"
+        :click="addAccounts"
       />
     </div>
   </div>
@@ -58,7 +58,9 @@ import { useRoute } from "vue-router";
 import { getNetworkByName } from "@/libs/utils/networks";
 import { HWWalletAccountType } from "../types";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
+import KeyRingBase from "@/libs/keyring/keyring";
 import { computed } from "@vue/reactivity";
+import { HWwalletType, WalletType } from "@enkryptcom/types";
 
 const route = useRoute();
 
@@ -66,8 +68,10 @@ const networkName = route.params.networkName as string;
 const selectedAccounts = ref(
   JSON.parse(route.params.selectedAccounts as string) as HWWalletAccountType[]
 );
+const walletType = route.params.walletType as HWwalletType;
 const network = getNetworkByName(networkName)!;
 const keyring = new PublicKeyRing();
+const keyringBase = new KeyRingBase();
 const existingNames = ref<string[]>([]);
 const isProcessing = ref(false);
 const isProcessDone = ref(false);
@@ -110,13 +114,25 @@ const isHasScroll = () => {
 const nameChanged = (idx: number, val: string) => {
   selectedAccounts.value[idx].name = val;
 };
-const addAction = () => {
+const addAccounts = async () => {
   isProcessing.value = true;
-
-  setTimeout(() => {
-    isProcessing.value = false;
-    isProcessDone.value = true;
-  }, 2000);
+  for (const acc of selectedAccounts.value) {
+    await keyringBase.addHWAccount({
+      HWOptions: {
+        networkName: network.name,
+        pathTemplate: acc.pathType.path,
+      },
+      address: acc.address,
+      basePath: acc.pathType.basePath,
+      name: acc.name,
+      pathIndex: acc.index,
+      publicKey: acc.publicKey,
+      signerType: network.signer[0],
+      walletType: walletType as unknown as WalletType,
+    });
+  }
+  isProcessing.value = false;
+  isProcessDone.value = true;
 };
 </script>
 

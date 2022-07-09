@@ -1,14 +1,14 @@
 <template>
   <div class="connect" :class="{ process: isProcessing || isError }">
-    <ledger-logo v-if="walletType === HWwalletNames.ledger" />
-    <trezor-logo v-if="walletType === HWwalletNames.trezor" />
-    <h3 v-if="walletType === HWwalletNames.ledger">Connect to your Ledger</h3>
-    <h3 v-if="walletType === HWwalletNames.trezor">Connect to your Trezor</h3>
-    <p v-if="walletType === HWwalletNames.ledger">
+    <ledger-logo v-if="walletType === HWwalletType.ledger" />
+    <trezor-logo v-if="walletType === HWwalletType.trezor" />
+    <h3 v-if="walletType === HWwalletType.ledger">Connect to your Ledger</h3>
+    <h3 v-if="walletType === HWwalletType.trezor">Connect to your Trezor</h3>
+    <p v-if="walletType === HWwalletType.ledger">
       Connect your wallet to your computer. Unlock your Ledger and open the
       <b>{{ appName }} App.</b><a href="#">Learn more</a>
     </p>
-    <p v-if="walletType === HWwalletNames.trezor">
+    <p v-if="walletType === HWwalletType.trezor">
       Connect your wallet to your computer. Follow the instructions in the
       Trezor connection tab. <a href="#">Learn more</a>
     </p>
@@ -17,12 +17,12 @@
 
   <hardware-wallet-process
     v-if="isProcessing"
-    :is-ledger="walletType === HWwalletNames.ledger"
+    :is-ledger="walletType === HWwalletType.ledger"
     :is-connetion="true"
   ></hardware-wallet-process>
   <hardware-wallet-error
     v-if="isError"
-    :is-ledger="walletType === HWwalletNames.ledger"
+    :is-ledger="walletType === HWwalletType.ledger"
     :app-name="appName"
     :error-message="errorMessage"
     @retry-connection="connectAction"
@@ -38,12 +38,12 @@ import { useRoute, useRouter } from "vue-router";
 import { routes } from "../routes";
 import { getNetworkByName } from "@/libs/utils/networks";
 import HWwallet, { ledgerAppNames } from "@enkryptcom/hw-wallets";
-import { HWwalletNames } from "@enkryptcom/types";
+import { HWwalletType } from "@enkryptcom/types";
 import TrezorLogo from "@action/icons/hardware/trezor-logo.vue";
 
 const route = useRoute();
 const networkName = route.params.network as keyof typeof ledgerAppNames;
-const walletType = route.params.walletType as HWwalletNames;
+const walletType = route.params.walletType as HWwalletType;
 const network = getNetworkByName(networkName as string)!;
 const router = useRouter();
 

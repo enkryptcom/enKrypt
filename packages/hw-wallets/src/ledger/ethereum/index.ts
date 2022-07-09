@@ -5,7 +5,12 @@ import EthApp from "@ledgerhq/hw-app-eth";
 import HDKey from "hdkey";
 import { publicToAddress } from "ethereumjs-util";
 import { bufferToHex } from "@enkryptcom/utils";
-import { getAddressRequest, HWWalletProvider, PathType } from "../../types";
+import {
+  AddressResponse,
+  getAddressRequest,
+  HWWalletProvider,
+  PathType,
+} from "../../types";
 import { supportedPaths } from "./configs";
 import ConnectToLedger from "../ledgerConnect";
 
@@ -39,7 +44,7 @@ class LedgerEthereum implements HWWalletProvider {
     return true;
   }
 
-  async getAddress(options: getAddressRequest): Promise<string> {
+  async getAddress(options: getAddressRequest): Promise<AddressResponse> {
     if (!supportedPaths[this.network])
       return Promise.reject(new Error("ledger-ethereum: Invalid network name"));
     const isHardened = options.pathType.basePath.split("/").length - 1 === 2;
@@ -56,21 +61,23 @@ class LedgerEthereum implements HWWalletProvider {
         hdKey.chainCode = Buffer.from(rootPub.chainCode, "hex");
         this.HDNodes[options.pathType.basePath] = hdKey;
       }
-      return bufferToHex(
-        publicToAddress(
-          this.HDNodes[options.pathType.basePath].derive(
-            `m/${options.pathIndex}`
-          ).publicKey,
-          true
-        )
-      );
+      const pubkey = this.HDNodes[options.pathType.basePath].derive(
+        `m/${options.pathIndex}`
+      ).publicKey;
+      return {
+        address: bufferToHex(publicToAddress(pubkey, true)),
+        publicKey: bufferToHex(pubkey),
+      };
     }
     return connection
       .getAddress(
         options.pathType.path.replace(`{index}`, options.pathIndex),
         options.confirmAddress
       )
-      .then((res) => res.address);
+      .then((res) => ({
+        address: res.address,
+        publicKey: `0x${res.publicKey}`,
+      }));
   }
 
   signMessage() {

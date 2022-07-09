@@ -21,12 +21,6 @@ const method: MiddlewareFunction = function (
     const reqPayload = payload.params[0] as SignerPayloadJSON;
     this.KeyRing.getAccount(polkadotEncodeAddress(reqPayload.address))
       .then((account) => {
-        // const registry = new TypeRegistry();
-        // registry.setSignedExtensions(reqPayload.signedExtensions);
-        // const extType = registry.createType("ExtrinsicPayload", reqPayload, {
-        //   version: reqPayload.version,
-        // });
-        // const signMsg = signPayload(extType);
         const windowPromise = new WindowPromise();
         windowPromise
           .getResponse(
@@ -41,49 +35,13 @@ const method: MiddlewareFunction = function (
             if (error) return res(error);
             const signed = payloadSignTransform(
               JSON.parse(result as string),
-              account.type,
+              account.signerType,
               true
             );
             res(null, signed);
           });
       })
       .catch(res);
-    // export function sign(registry, signerPair, u8a, options) {
-    //   const encoded = u8a.length > 256 ? registry.hash(u8a) : u8a;
-    //   return signerPair.sign(encoded, options);
-    // }
-    // return sign(
-    //   this.registry,
-    //   signerPair,
-    //   this.toU8a({
-    //     method: true,
-    //   }),
-    //   this.#signOptions
-    // );
-    // const windowPromise = new WindowPromise();
-    // windowPromise
-    //   .getResponse("index.html#/polkadot/dotaccounts", JSON.stringify(payload))
-    //   .then(({ error, result }) => {
-    //     if (error) res(JSON.parse(error));
-    //     res(null, JSON.parse(result || "[]"));
-    //   });
   }
 };
 export default method;
-
-// if (isJsonPayload(payload)) {
-//   // Get the metadata for the genesisHash
-//   const currentMetadata = this.#state.knownMetadata.find(
-//     (meta: MetadataDef) => meta.genesisHash === payload.genesisHash
-//   );
-
-//   // set the registry before calling the sign function
-//   registry.setSignedExtensions(
-//     payload.signedExtensions,
-//     currentMetadata?.userExtensions
-//   );
-
-//   if (currentMetadata) {
-//     registry.register(currentMetadata?.types);
-//   }
-// }
