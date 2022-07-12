@@ -67,6 +67,10 @@ const clear = () => {
     color: @primaryLabel;
     border: 0 none;
     outline: none;
+
+    &::placeholder {
+      color: @tertiaryLabel;
+    }
   }
 
   &-clear {

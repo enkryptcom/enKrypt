@@ -52,6 +52,9 @@ const onHide = () => {
       positionX.value = 0;
       positionY.value = 0;
     }, 300);
+  } else {
+    visible.value = false;
+    show.value = false;
   }
 };
 
