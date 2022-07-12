@@ -41,8 +41,8 @@ import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 import AssetsSelectListSearch from "./components/assets-select-list-search.vue";
 import SwapTokenFastList from "@action/views/swap/components/swap-token-fast-list/index.vue";
 import scrollSettings from "@/libs/utils/scroll-settings";
-import { AssetsType } from "@/types/provider";
 import { PropType } from "vue";
+import { BaseToken } from "@/types/base-token";
 
 const emit = defineEmits<{
   (e: "close", close: boolean): void;
@@ -62,7 +62,7 @@ defineProps({
     },
   },
   assets: {
-    type: Array as PropType<AssetsType[]>,
+    type: Array as PropType<BaseToken[]>,
     default: () => [],
   },
 });

@@ -6,7 +6,8 @@
     <div class="send-token-select__info">
       <h5>{{ token!.name }}</h5>
       <p>
-        {{ token!.balancef }} <span>{{ token!.symbol }}</span>
+        {{ balance ? $filters.formatFloatingPointValue(balance).value : "~" }}
+        <span>{{ token!.symbol }}</span>
       </p>
     </div>
 
@@ -14,26 +15,6 @@
       <switch-arrow />
     </div>
   </a>
-  <!-- <a class="send-token-select" @click="open">
-    <div class="send-token-select__image">
-      <img :src="token ? token.icon : ''" alt="" />
-    </div>
-    <div class="send-token-select__info">
-      <h5>{{ token ? token.name : "~" }}</h5>
-      <p>
-        {{
-          tokenBalance
-            ? $filters.formatFloatingPointValue(tokenBalance).value
-            : "~"
-        }}
-        <span>{{ token ? token.symbol : "~" }}</span>
-      </p>
-    </div>
-
-    <div class="send-token-select__arrow">
-      <switch-arrow />
-    </div>
-  </a> -->
 </template>
 
 <script lang="ts">
@@ -44,17 +25,25 @@ export default {
 
 <script setup lang="ts">
 import SwitchArrow from "@action/icons/header/switch_arrow.vue";
-import { AssetsType } from "@/types/provider";
+import { BaseToken } from "@/types/base-token";
+import { computed } from "@vue/reactivity";
+import { fromBase } from "@/libs/utils/units";
 
 const emit = defineEmits<{
   (e: "update:toggleTokenSelect"): void;
 }>();
 
 interface IProps {
-  token?: AssetsType | Partial<AssetsType>;
+  token?: BaseToken | Partial<BaseToken>;
 }
 
-defineProps<IProps>();
+const props = defineProps<IProps>();
+
+const balance = computed(() =>
+  props.token && props.token.balanceCache
+    ? fromBase(props.token.balanceCache, props.token.decimals!)
+    : undefined
+);
 </script>
 
 <style lang="less">

@@ -15,7 +15,10 @@ export class SubstrateNativeToken extends SubstrateToken {
   public async getUserBalance(api: ApiPromise, address: any): Promise<string> {
     return api.query.system
       .account<AccountInfoWithRefCount>(address)
-      .then(({ data }) => data.free.toString());
+      .then(({ data }) => {
+        this.balanceCache = data.free.toString();
+        return data.free.toString();
+      });
   }
 
   public async send(

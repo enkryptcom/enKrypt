@@ -43,6 +43,9 @@ export class AcalaOrmlAsset extends SubstrateToken {
     to: string,
     amount: string
   ): Promise<SubmittableExtrinsic<"promise", ISubmittableResult>> {
-    return (api as ApiPromise).tx.balances.transferKeepAlive(to, amount);
+    const currencyId: Record<string, string | number> = {};
+    currencyId[this.assetType] = this.lookupValue;
+
+    return (api as ApiPromise).tx.currencies.transfer(to, currencyId, amount);
   }
 }
