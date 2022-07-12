@@ -129,6 +129,12 @@ const secondSet = computed(() => {
     line-height: 28px;
     letter-spacing: 0.15px;
     color: @primaryLabel;
+    -webkit-touch-callout: text;
+    -webkit-user-select: text;
+    -khtml-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
 
     span {
       font-style: normal;
