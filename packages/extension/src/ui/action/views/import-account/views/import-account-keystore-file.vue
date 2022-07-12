@@ -1,7 +1,6 @@
 <template>
   <import-account-header
-    :close="close"
-    :back="back"
+    v-bind="$attrs"
     :is-back="true"
   ></import-account-header>
 
@@ -10,44 +9,16 @@
     <p class="import-account-keystore-file__desc">
       Please select keystore file that unlocks your wallet.
     </p>
-    <base-file-picker :selected="selectFile" />
+    <base-file-picker v-bind="$attrs" />
     <p class="import-account-keystore-file__label">
       Tip: default keystore file names often begin with “UTC”.
     </p>
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "ImportAccountKeystoreFile",
-};
-</script>
-
 <script setup lang="ts">
 import ImportAccountHeader from "../components/import-account-header.vue";
 import BaseFilePicker from "@action/components/base-file-picker/index.vue";
-
-const props = defineProps({
-  close: {
-    type: Function,
-    default: () => ({}),
-  },
-  back: {
-    type: Function,
-    default: () => ({}),
-  },
-  toEnterPassword: {
-    type: Function,
-    default: () => ({}),
-  },
-});
-
-const selectFile = (files: FileList) => {
-  console.log(files);
-  setTimeout(() => {
-    props.toEnterPassword();
-  }, 500);
-};
 </script>
 
 <style lang="less">

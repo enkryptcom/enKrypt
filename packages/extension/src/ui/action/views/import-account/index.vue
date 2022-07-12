@@ -5,49 +5,49 @@
       <!-- Ethereum ecosystem  -->
       <import-account-start
         v-if="isStart && !isDot"
-        :close="close"
-        :to-keystore="keystoreFileAction"
-        :to-private="privateKeyAction"
+        @select:keystore="keystoreFileAction"
+        @select:privkey="privateKeyAction"
+        @close="close"
       ></import-account-start>
 
       <import-account-keystore-file
         v-if="isKeystoreFile && !isDot"
-        :close="close"
-        :back="startAction"
-        :to-enter-password="enterPasswordAction"
+        @update:select-file="fileSelected"
+        @close="close"
+        @back="startAction"
       ></import-account-keystore-file>
 
       <import-account-password
         v-if="isEnterPassword && !isDot"
-        :close="close"
-        :back="keystoreFileAction"
         :to-import-account="importingAccountAction"
+        @close="close"
+        @back="keystoreFileAction"
       ></import-account-password>
 
       <import-account-importing
         v-if="isImportingAccount && !isDot"
-        :close="close"
-        :back="enterPasswordAction"
+        @close="close"
+        @back="enterPasswordAction"
       ></import-account-importing>
 
       <import-account-private-key
         v-if="isPrivateKey && !isDot"
-        :close="close"
-        :back="startAction"
+        @close="close"
+        @back="startAction"
       ></import-account-private-key>
 
       <!-- Polkadot ecosystem  -->
 
       <import-account-start-dot
         v-if="isStart && isDot"
-        :close="close"
         :to-select-account="selectAccountAction"
+        @close="close"
       ></import-account-start-dot>
 
       <import-account-select-account-dot
         v-if="iSelectAccount && isDot"
-        :close="close"
-        :back="startAction"
+        @close="close"
+        @back="startAction"
       ></import-account-select-account-dot>
     </div>
   </div>
@@ -87,58 +87,47 @@ defineProps({
   },
 });
 
+const allVars = [
+  isStart,
+  isKeystoreFile,
+  isPrivateKey,
+  isEnterPassword,
+  isImportingAccount,
+  iSelectAccount,
+];
+
 const startAction = () => {
+  allVars.forEach((val) => (val.value = false));
   isStart.value = true;
-  isKeystoreFile.value = false;
-  isPrivateKey.value = false;
-  isEnterPassword.value = false;
-  isImportingAccount.value = false;
-  iSelectAccount.value = false;
 };
 
 const keystoreFileAction = () => {
-  isStart.value = false;
+  allVars.forEach((val) => (val.value = false));
   isKeystoreFile.value = true;
-  isPrivateKey.value = false;
-  isEnterPassword.value = false;
-  isImportingAccount.value = false;
-  iSelectAccount.value = false;
 };
 
 const privateKeyAction = () => {
-  isStart.value = false;
-  isKeystoreFile.value = false;
+  allVars.forEach((val) => (val.value = false));
   isPrivateKey.value = true;
-  isEnterPassword.value = false;
-  isImportingAccount.value = false;
-  iSelectAccount.value = false;
 };
 
 const enterPasswordAction = () => {
-  isStart.value = false;
-  isKeystoreFile.value = false;
-  isPrivateKey.value = false;
+  allVars.forEach((val) => (val.value = false));
   isEnterPassword.value = true;
-  isImportingAccount.value = false;
-  iSelectAccount.value = false;
 };
 
 const importingAccountAction = () => {
-  isStart.value = false;
-  isKeystoreFile.value = false;
-  isPrivateKey.value = false;
-  isEnterPassword.value = false;
+  allVars.forEach((val) => (val.value = false));
   isImportingAccount.value = true;
-  iSelectAccount.value = false;
 };
 
 const selectAccountAction = () => {
-  isStart.value = false;
-  isKeystoreFile.value = false;
-  isPrivateKey.value = false;
-  isEnterPassword.value = false;
-  isImportingAccount.value = false;
+  allVars.forEach((val) => (val.value = false));
   iSelectAccount.value = true;
+};
+
+const fileSelected = (file: File) => {
+  console.log(file);
 };
 </script>
 

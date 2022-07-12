@@ -1,7 +1,6 @@
 <template>
   <import-account-header
-    :close="close"
-    :back="back"
+    v-bind="$attrs"
     :is-back="true"
   ></import-account-header>
 
@@ -24,36 +23,18 @@
   />
 </template>
 
-<script lang="ts">
-export default {
-  name: "ImportAccountImporting",
-};
-</script>
-
 <script setup lang="ts">
-import { PropType, ref } from "vue";
+import { ref } from "vue";
 import ImportAccountHeader from "../components/import-account-header.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import HardwareImportingAccount from "@/ui/onboard/hardware-wallet/components/hardware-importing-account.vue";
 import ImportAccountProcess from "../components/import-account-process.vue";
 
-let isProcessing = ref(false);
-let isDone = ref(false);
-
-defineProps({
-  close: {
-    type: Function as PropType<() => void>,
-    default: () => ({}),
-  },
-  back: {
-    type: Function as PropType<() => void>,
-    default: () => ({}),
-  },
-});
+const isProcessing = ref(false);
+const isDone = ref(false);
 
 const importAction = () => {
   isProcessing.value = true;
-
   setTimeout(() => {
     isDone.value = true;
   }, 3000);

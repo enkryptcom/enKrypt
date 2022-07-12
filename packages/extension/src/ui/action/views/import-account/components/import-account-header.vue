@@ -1,33 +1,24 @@
 <template>
   <div class="import-account-header">
-    <a v-if="isBack" class="import-account-header__back" @click="back()">
+    <a v-if="isBack" class="import-account-header__back" @click="$emit('back')">
       <arrow-back />
     </a>
-    <a class="import-account-header__close" @click="close()">
+    <a class="import-account-header__close" @click="$emit('close')">
       <close-icon />
     </a>
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "ImportAccountHeader",
-};
-</script>
-
 <script setup lang="ts">
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import ArrowBack from "@action/icons/common/arrow-back.vue";
 
+defineEmits<{
+  (e: "close"): void;
+  (e: "back"): void;
+}>();
+
 defineProps({
-  close: {
-    type: Function,
-    default: () => ({}),
-  },
-  back: {
-    type: Function,
-    default: () => ({}),
-  },
   isBack: {
     type: Boolean,
     default: false,
