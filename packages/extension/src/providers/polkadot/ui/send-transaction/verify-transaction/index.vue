@@ -71,7 +71,10 @@ import { sendToBackgroundFromAction } from "@/libs/messenger/extension";
 import { InternalMethods } from "@/types/messenger";
 import { VerifyTransactionParams } from "@/providers/polkadot/ui/types";
 import { ApiPromise } from "@polkadot/api";
-import { payloadSignTransform } from "@/providers/polkadot/libs/signing-utils";
+import {
+  payloadSignTransform,
+  polkadotEncodeAddress,
+} from "@/providers/polkadot/libs/signing-utils";
 import { SignerPayloadRaw } from "@polkadot/types/types";
 import { u8aToHex } from "@polkadot/util";
 import type { SignerResult } from "@polkadot/api/types";
@@ -103,7 +106,9 @@ const sendAction = async () => {
   const api = await props.network.api();
   await api.init();
 
-  const account = await KeyRing.getAccount(txData.fromAddress);
+  const account = await KeyRing.getAccount(
+    polkadotEncodeAddress(txData.fromAddress)
+  );
 
   const tx = (api.api as ApiPromise).tx(txData.TransactionData.data);
 
