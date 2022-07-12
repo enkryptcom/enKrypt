@@ -2,7 +2,6 @@ import EvmAPI from "@/providers/ethereum/libs/api";
 import SubstrateAPI from "@/providers/polkadot/libs/api";
 import { AssetsType, ProviderName } from "@/types/provider";
 import { SignerType } from "@enkryptcom/types";
-// import { BaseToken } from "./base-token";
 import { NetworkNames } from "@enkryptcom/types";
 import { BaseToken } from "./base-token";
 
@@ -68,6 +67,6 @@ export abstract class BaseNetwork {
     this.api = options.api;
   }
 
-  public abstract getAllTokens(): BaseToken[];
+  public abstract getAllTokens(address: string): Promise<BaseToken[]>;
   public abstract getAllTokenInfo(address: string): Promise<AssetsType[]>;
 }

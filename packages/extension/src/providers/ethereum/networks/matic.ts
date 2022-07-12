@@ -1,6 +1,6 @@
 import { NetworkNames } from "@enkryptcom/types";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
-import tokenbalanceMew from "@/providers/ethereum/libs/assets-handlers/tokenbalance-mew";
+import tokenbalanceMew from "@/providers/ethereum/libs/assets-handlers/assetinfo-mew";
 import RaribleNFTHandler from "@/libs/nft-handlers/rarible";
 
 const maticOptions: EvmNetworkOptions = {
@@ -17,7 +17,7 @@ const maticOptions: EvmNetworkOptions = {
   gradient: "#53CBC9",
   coingeckoID: "matic-network",
   NFTHandler: RaribleNFTHandler,
-  assetsHandler: tokenbalanceMew,
+  assetsInfoHandler: tokenbalanceMew,
 };
 
 const matic = new EvmNetwork(maticOptions);

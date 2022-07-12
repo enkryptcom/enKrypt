@@ -86,8 +86,8 @@ export class SubstrateNetwork extends BaseNetwork {
     }
   }
 
-  public getAllTokens(): BaseToken[] {
-    return this.assets;
+  public getAllTokens(): Promise<BaseToken[]> {
+    return Promise.resolve(this.assets);
   }
 
   public async getAllTokenInfo(address: string): Promise<AssetsType[]> {

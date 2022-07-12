@@ -1,6 +1,9 @@
-import { BaseToken, BaseTokenOptions } from "@/types/base-token";
 import { ApiPromise } from "@polkadot/api";
 import { OrmlTokensAccountData } from "@acala-network/types/interfaces/types-lookup";
+import { SubmittableExtrinsic } from "@polkadot/api/types";
+import { ISubmittableResult } from "@polkadot/types/types";
+import { SubstrateToken } from "@/providers/polkadot/types/substrate-token";
+import { BaseTokenOptions } from "@/types/base-token";
 
 type AssetType =
   | "token"
@@ -13,7 +16,7 @@ interface AcalaOrmlAssetOptions extends BaseTokenOptions {
   lookupValue: string | number;
 }
 
-export class AcalaOrmlAsset extends BaseToken {
+export class AcalaOrmlAsset extends SubstrateToken {
   public assetType: AssetType;
   public lookupValue: string | number;
 
@@ -29,11 +32,17 @@ export class AcalaOrmlAsset extends BaseToken {
     tokenLookup[this.assetType] = this.lookupValue;
 
     return api.query.tokens.accounts(address, tokenLookup).then((res) => {
-      return (res as unknown as OrmlTokensAccountData).free.toString();
+      const balance = (res as unknown as OrmlTokensAccountData).free.toString();
+      this.balanceCache = balance;
+      return balance;
     });
   }
 
-  public async send(api: any, to: string, amount: string): Promise<any> {
+  public async send(
+    api: ApiPromise,
+    to: string,
+    amount: string
+  ): Promise<SubmittableExtrinsic<"promise", ISubmittableResult>> {
     return (api as ApiPromise).tx.balances.transferKeepAlive(to, amount);
   }
 }

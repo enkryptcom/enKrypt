@@ -1,6 +1,6 @@
 import { NetworkNames } from "@enkryptcom/types";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
-import tokenbalanceMew from "@/providers/ethereum/libs/assets-handlers/tokenbalance-mew";
+import tokenbalanceMew from "@/providers/ethereum/libs/assets-handlers/assetinfo-mew";
 
 const bscOptions: EvmNetworkOptions = {
   name: NetworkNames.Binance,
@@ -16,7 +16,7 @@ const bscOptions: EvmNetworkOptions = {
   gradient: "#E6007A",
   coingeckoID: "binancecoin",
   basePath: "m/44'/714'",
-  assetsHandler: tokenbalanceMew,
+  assetsInfoHandler: tokenbalanceMew,
 };
 
 const bsc = new EvmNetwork(bscOptions);

@@ -1,6 +1,5 @@
 import EvmAPI from "@/providers/ethereum/libs/api";
 import MarketData from "@/libs/market-data";
-import { FiatMarket } from "@/libs/market-data/types";
 import { ApiPromise } from "@polkadot/api";
 import { BN } from "ethereumjs-util";
 
@@ -17,6 +16,8 @@ export interface BaseTokenOptions {
   icon: string;
   coingeckoID?: string;
   existentialDeposit?: BN;
+  balance?: string;
+  price?: string;
 }
 
 export abstract class BaseToken {
@@ -26,6 +27,8 @@ export abstract class BaseToken {
   public icon: string;
   public coingeckoID: string | undefined;
   public existentialDeposit: BN | undefined;
+  public balanceCache?: string;
+  public priceCache?: string;
 
   constructor(options: BaseTokenOptions) {
     this.name = options.name;
@@ -36,10 +39,19 @@ export abstract class BaseToken {
     this.existentialDeposit = options.existentialDeposit;
   }
 
-  public async getTokenPrice(): Promise<FiatMarket | null> {
+  public async getTokenPrice(): Promise<string | null> {
     if (this.coingeckoID) {
       const market = new MarketData();
-      return market.getFiatValue(this.symbol);
+      market.getMarketData([this.coingeckoID]).then((marketData) => {
+        const price = marketData[0]?.current_price;
+
+        if (price) {
+          this.priceCache = price.toString();
+          return price.toString();
+        }
+
+        return null;
+      });
     }
 
     return null;
@@ -49,8 +61,9 @@ export abstract class BaseToken {
     api: EvmAPI | ApiPromise,
     address: string
   ): Promise<string>;
+
   public abstract send(
-    api: any,
+    api: EvmAPI | ApiPromise,
     to: string,
     amount: string,
     options?: SendOptions

@@ -1,13 +1,13 @@
 import {
-  BaseToken,
   BaseTokenOptions,
   SendOptions,
   TransferType,
 } from "@/types/base-token";
 import { ApiPromise } from "@polkadot/api";
 import { AccountInfoWithRefCount } from "@polkadot/types/interfaces";
+import { SubstrateToken } from "./substrate-token";
 
-export class SubstrateNativeToken extends BaseToken {
+export class SubstrateNativeToken extends SubstrateToken {
   constructor(options: BaseTokenOptions) {
     super(options);
   }
