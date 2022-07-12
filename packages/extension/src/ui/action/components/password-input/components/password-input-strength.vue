@@ -53,32 +53,32 @@
     <a
       v-if="value.length > 0"
       class="password-input-strength__help visible"
-      @click="toggleTooltip"
+      @mouseenter="toggleTooltip"
+      @mouseleave="toggleTooltip"
     >
       <help-icon />
+      <div v-if="isTooltip" class="password-input-strength__help-tooltip">
+        <p>Your password would be cracked</p>
+        <h4 v-if="strength == PasswordStrength.veryWeak" class="weak">
+          {{ toolTipInfo }}
+        </h4>
+        <h4 v-if="strength == PasswordStrength.weak" class="weak">
+          {{ toolTipInfo }}
+        </h4>
+        <h4 v-if="strength == PasswordStrength.medium" class="medium">
+          {{ toolTipInfo }}
+        </h4>
+        <h4
+          v-if="
+            strength == PasswordStrength.strong ||
+            strength == PasswordStrength.veryStrong
+          "
+          class="strong"
+        >
+          {{ toolTipInfo }}
+        </h4>
+      </div>
     </a>
-
-    <div v-if="isTooltip" class="password-input-strength__help-tooltip">
-      <p>Your password would be cracked</p>
-      <h4 v-if="strength == PasswordStrength.veryWeak" class="weak">
-        {{ toolTipInfo }}
-      </h4>
-      <h4 v-if="strength == PasswordStrength.weak" class="weak">
-        {{ toolTipInfo }}
-      </h4>
-      <h4 v-if="strength == PasswordStrength.medium" class="medium">
-        {{ toolTipInfo }}
-      </h4>
-      <h4
-        v-if="
-          strength == PasswordStrength.strong ||
-          strength == PasswordStrength.veryStrong
-        "
-        class="strong"
-      >
-        {{ toolTipInfo }}
-      </h4>
-    </div>
   </div>
 </template>
 
@@ -253,8 +253,8 @@ const toggleTooltip = () => {
       border-radius: 12px;
       padding: 12px 16px;
       position: absolute;
-      right: 4px;
-      bottom: -110px;
+      right: -2px;
+      bottom: -112px;
       box-sizing: border-box;
       z-index: 3;
 
