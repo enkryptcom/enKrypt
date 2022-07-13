@@ -44,15 +44,13 @@ export abstract class BaseToken {
   public async getLatestPrice(): Promise<string | null> {
     if (this.coingeckoID) {
       const market = new MarketData();
-      market.getMarketData([this.coingeckoID]).then((marketData) => {
-        const price = marketData[0]?.current_price;
 
+      return market.getTokenPrice(this.coingeckoID).then((price) => {
         if (price) {
-          this.price = price.toString();
-          return price.toString();
+          this.price = price;
         }
 
-        return null;
+        return price;
       });
     }
 

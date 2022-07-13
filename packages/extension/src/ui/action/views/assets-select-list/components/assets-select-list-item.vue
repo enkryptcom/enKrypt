@@ -42,14 +42,14 @@ const props = defineProps({
 });
 
 const balance = computed(() =>
-  props.token.balanceCache
-    ? fromBase(props.token.balanceCache, props.token.decimals)
+  props.token.balance
+    ? fromBase(props.token.balance, props.token.decimals)
     : undefined
 );
 
 const price = computed(() =>
   balance.value
-    ? new BigNumber(balance.value).times(props.token.priceCache ?? 0).toFixed()
+    ? new BigNumber(balance.value).times(props.token.price ?? 0).toFixed()
     : undefined
 );
 

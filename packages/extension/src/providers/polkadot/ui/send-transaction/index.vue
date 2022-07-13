@@ -127,7 +127,7 @@ const accountAssets = ref<SubstrateToken[]>([]);
 const selectedAsset = ref<SubstrateToken | Partial<SubstrateToken>>(
   new SubstrateNativeToken({
     icon: props.network.icon,
-    balance: "0.00",
+    balance: "0",
     price: "0",
     name: "loading",
     symbol: "loading",
@@ -157,8 +157,16 @@ onMounted(async () => {
     });
 
     Promise.all([...pricePromises, ...balancePromises]).then(() => {
-      selectedAsset.value = networkAssets[0];
-      accountAssets.value = networkAssets;
+      const nonZeroAssets = networkAssets.filter(
+        (asset) => !toBN(asset.balance ?? "0").isZero()
+      );
+
+      if (nonZeroAssets.length == 0) {
+        nonZeroAssets.push(networkAssets[0]);
+      }
+
+      selectedAsset.value = nonZeroAssets[0];
+      accountAssets.value = nonZeroAssets;
     });
   });
 });
