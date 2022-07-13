@@ -168,7 +168,7 @@ const selectAccountAction = () => {
   &__container {
     width: 800px;
     height: 600px;
-    left: 0px;
+    left: -340px;
     top: 0px;
     position: fixed;
     z-index: 105;
