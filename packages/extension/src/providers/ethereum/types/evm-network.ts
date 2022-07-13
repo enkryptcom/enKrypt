@@ -84,6 +84,7 @@ export class EvmNetwork extends BaseNetwork {
 
   public getAllTokens(address: string): Promise<BaseToken[]> {
     if (this.tokensHandler) {
+      console.log("tokens");
       return this.tokensHandler(this, address);
     }
 

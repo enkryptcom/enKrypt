@@ -37,6 +37,8 @@ export abstract class BaseToken {
     this.icon = options.icon;
     this.coingeckoID = options.coingeckoID;
     this.existentialDeposit = options.existentialDeposit;
+    this.priceCache = options.price;
+    this.balanceCache = options.balance;
   }
 
   public async getTokenPrice(): Promise<string | null> {

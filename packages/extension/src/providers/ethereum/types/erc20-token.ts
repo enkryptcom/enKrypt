@@ -14,8 +14,6 @@ export class Erc20Token extends BaseToken {
   }
 
   public async getUserBalance(api: EvmAPI, address: string): Promise<string> {
-    // const contract = new contractsAbi
-
     return "";
   }
 
@@ -24,5 +22,7 @@ export class Erc20Token extends BaseToken {
     to: string,
     amount: string,
     options?: SendOptions
-  ): Promise<any> {}
+  ): Promise<any> {
+    return null;
+  }
 }
