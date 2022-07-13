@@ -111,11 +111,6 @@ export default (
             unknownTokens.push(address);
           }
         }
-        // assets.sort((a, b) => {
-        //   if (a.balanceUSD < b.balanceUSD) return 1;
-        //   else if (a.balanceUSD > b.balanceUSD) return -1;
-        //   else return 0;
-        // });
         assets.unshift(nativeAsset as Erc20Token);
         if (unknownTokens.length && network.api) {
           const api = (await network.api()) as API;
