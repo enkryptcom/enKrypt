@@ -1,4 +1,8 @@
 import { NetworkNames, HWwalletType } from "@enkryptcom/types";
+import type {
+  FeeMarketEIP1559Transaction,
+  Transaction as LegacyTransaction,
+} from "@ethereumjs/tx";
 import type { ExtrinsicPayload } from "@polkadot/types/interfaces";
 
 export type WalletConfigs = Record<HWwalletType, { isBackground: boolean }>;
@@ -34,9 +38,17 @@ export interface BaseRequest {
   wallet: HWwalletType;
   networkName: NetworkNames;
 }
-export interface SignRequest extends BaseRequest {
+export interface SignMessageRequest extends BaseRequest {
   message: Buffer;
 }
+
+export interface SignTransactionRequest extends BaseRequest {
+  transaction:
+    | FeeMarketEIP1559Transaction
+    | LegacyTransaction
+    | ExtrinsicPayload;
+}
+
 export interface getAddressRequest extends BaseRequest {
   confirmAddress: boolean;
 }
@@ -44,11 +56,6 @@ export interface getAddressRequest extends BaseRequest {
 export interface isConnectedRequest {
   wallet: HWwalletType;
   networkName: NetworkNames;
-}
-
-export interface LedgerSignTransactionRequest
-  extends Omit<SignRequest, "message"> {
-  message: ExtrinsicPayload;
 }
 
 export abstract class HWWalletProvider {
@@ -67,7 +74,9 @@ export abstract class HWWalletProvider {
 
   abstract close(): Promise<void>;
 
-  abstract signPersonalMessage(request: SignRequest): Promise<string>;
+  abstract signPersonalMessage(request: SignMessageRequest): Promise<string>;
+
+  abstract signTransaction(request: SignTransactionRequest): Promise<string>;
 
   static getSupportedNetworks(): NetworkNames[] {
     return [];

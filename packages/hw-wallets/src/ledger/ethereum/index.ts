@@ -2,15 +2,21 @@ import type Transport from "@ledgerhq/hw-transport";
 import webUsbTransport from "@ledgerhq/hw-transport-webusb";
 import { HWwalletCapabilities, NetworkNames } from "@enkryptcom/types";
 import EthApp from "@ledgerhq/hw-app-eth";
+import { toRpcSig } from "ethereumjs-util";
+import {
+  // Transaction as LegacyTransaction,
+  FeeMarketEIP1559Transaction,
+} from "@ethereumjs/tx";
 import HDKey from "hdkey";
 import { publicToAddress } from "ethereumjs-util";
-import { bufferToHex } from "@enkryptcom/utils";
+import { bufferToHex, hexToBuffer } from "@enkryptcom/utils";
 import {
   AddressResponse,
   getAddressRequest,
   HWWalletProvider,
   PathType,
-  SignRequest,
+  SignMessageRequest,
+  SignTransactionRequest,
 } from "../../types";
 import { supportedPaths } from "./configs";
 import ConnectToLedger from "../ledgerConnect";
@@ -70,6 +76,7 @@ class LedgerEthereum implements HWWalletProvider {
         publicKey: bufferToHex(pubkey),
       };
     }
+
     return connection
       .getAddress(
         options.pathType.path.replace(`{index}`, options.pathIndex),
@@ -81,7 +88,7 @@ class LedgerEthereum implements HWWalletProvider {
       }));
   }
 
-  signPersonalMessage(options: SignRequest): Promise<string> {
+  signPersonalMessage(options: SignMessageRequest): Promise<string> {
     const connection = new EthApp(this.transport);
     return connection
       .signPersonalMessage(
@@ -96,6 +103,34 @@ class LedgerEthereum implements HWWalletProvider {
         }
         return `0x${result.r}${result.s}${vs}`;
       });
+  }
+
+  async signTransaction(options: SignTransactionRequest): Promise<string> {
+    const connection = new EthApp(this.transport);
+    // cosnt tx: LegacyTransaction | FeeMarketEIP1559Transaction;
+    // cosnt msgToSign: string;
+    // if (options.transaction instanceof FeeMarketEIP1559Transaction) {
+    console.log("here 1");
+    const tx = options.transaction as FeeMarketEIP1559Transaction;
+    const msgToSign = tx.getMessageToSign(false).toString("hex");
+    console.log(msgToSign);
+    // } else {
+    //   console.log("here 2");
+    //   tx = options.transaction as LegacyTransaction;
+    //   msgToSign = rlp.encode(tx.getMessageToSign(false)).toString("hex");
+    //   console.log(msgToSign);
+    // }
+    connection
+      .getAddress(options.pathType.path.replace(`{index}`, options.pathIndex))
+      .then(console.log);
+    return connection
+      .signTransaction(
+        options.pathType.path.replace(`{index}`, options.pathIndex),
+        msgToSign
+      )
+      .then((result) =>
+        toRpcSig(`0x${result.v}`, hexToBuffer(result.r), hexToBuffer(result.s))
+      );
   }
 
   getSupportedPaths(): PathType[] {

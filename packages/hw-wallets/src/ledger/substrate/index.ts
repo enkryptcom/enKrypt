@@ -82,6 +82,10 @@ class LedgerSubstrate implements HWWalletProvider {
     throw new Error("hw-wallet:substrate: sign Personal message not supported");
   }
 
+  signTransaction(): Promise<string> {
+    throw new Error("hw-wallet:substrate: sign transaction not supported");
+  }
+
   static getSupportedNetworks(): NetworkNames[] {
     return Object.keys(LedgerApps) as NetworkNames[];
   }

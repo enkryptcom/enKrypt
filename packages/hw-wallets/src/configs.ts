@@ -49,7 +49,7 @@ const bip44Paths: Record<string, PathType> = {
     label: "Ethereum Classic -  Ledger Live",
   },
   ethereumTestnets: {
-    path: "m/44'/1'/0'/0/{index}",
+    path: "m/44'/1'/0'/{index}",
     basePath: "m/44'/1'/0'",
     label: "Testnet",
   },

@@ -8,7 +8,8 @@ import {
   HWWalletProvider,
   isConnectedRequest,
   PathType,
-  SignRequest,
+  SignMessageRequest,
+  SignTransactionRequest,
 } from "./types";
 import { ledgerAppNames } from "./configs";
 
@@ -46,11 +47,18 @@ class HWwalletManager {
     );
   }
 
-  async signPersonalMessage(options: SignRequest): Promise<string> {
+  async signPersonalMessage(options: SignMessageRequest): Promise<string> {
     await this.#initialize(options.wallet, options.networkName);
     return (
       this.providers[options.networkName] as HWWalletProvider
     ).signPersonalMessage(options);
+  }
+
+  async signTransaction(options: SignTransactionRequest): Promise<string> {
+    await this.#initialize(options.wallet, options.networkName);
+    return (
+      this.providers[options.networkName] as HWWalletProvider
+    ).signTransaction(options);
   }
 
   async getSupportedPaths(options: isConnectedRequest): Promise<PathType[]> {

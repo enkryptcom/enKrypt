@@ -149,7 +149,8 @@ import BigNumber from "bignumber.js";
 import { GasFeeType } from "./types";
 import MarketData from "@/libs/market-data";
 import { defaultGasCostVals } from "./common/default-vals";
-import { EnkryptAccount } from "@enkryptcom/types";
+import { EnkryptAccount, HWwalletType } from "@enkryptcom/types";
+import HWwallets from "@enkryptcom/hw-wallets";
 
 const isOpenSelectFee = ref(false);
 const providerVerifyTransactionScrollRef = ref<ComponentPublicInstance>();
@@ -175,6 +176,7 @@ const Options = ref<ProviderRequestOptions>({
   url: "",
 });
 const selectedFee = ref<GasPriceTypes>(GasPriceTypes.ECONOMY);
+const hwwallets = new HWwallets();
 defineExpose({ providerVerifyTransactionScrollRef });
 
 onBeforeMount(async () => {
@@ -249,6 +251,18 @@ onBeforeMount(async () => {
       },
     };
   });
+  hwwallets
+    .getAddress({
+      confirmAddress: false,
+      networkName: network.value.name,
+      pathIndex: account.value.pathIndex.toString(),
+      pathType: {
+        basePath: account.value.basePath,
+        path: account.value.HWOptions!.pathTemplate,
+      },
+      wallet: account.value.walletType as unknown as HWwalletType,
+    })
+    .then(console.log);
 });
 
 const approve = async () => {
@@ -260,32 +274,78 @@ const approve = async () => {
   );
   tx.getFinalizedTransaction({ gasPriceType: selectedFee.value }).then(
     (finalizedTx) => {
-      const msgHash = bufferToHex(finalizedTx.getMessageToSign(true));
-      sendToBackground({
-        method: InternalMethods.sign,
-        params: [msgHash, account.value],
-      }).then((res) => {
-        if (res.error) {
-          Resolve.value(res);
-        } else {
-          const rpcSig = fromRpcSig(res.result || "0x");
-          const signedTx = (
-            finalizedTx as FeeMarketEIP1559Transaction
-          )._processSignature(rpcSig.v, rpcSig.r, rpcSig.s);
-          web3.eth
-            .sendSignedTransaction("0x" + signedTx.serialize().toString("hex"))
-            .on("transactionHash", (hash) => {
-              Resolve.value({
-                result: JSON.stringify(hash),
+      if (account.value.isHardware) {
+        hwwallets
+          .signTransaction({
+            transaction: finalizedTx as any,
+            networkName: network.value.name,
+            pathIndex: account.value.pathIndex.toString(),
+            pathType: {
+              basePath: account.value.basePath,
+              path: account.value.HWOptions!.pathTemplate,
+            },
+            wallet: account.value.walletType as unknown as HWwalletType,
+          })
+          .then((rpcsig: string) => {
+            console.log(rpcsig);
+            const rpcSig = fromRpcSig(rpcsig);
+            const signedTx = (
+              finalizedTx as FeeMarketEIP1559Transaction
+            )._processSignature(rpcSig.v, rpcSig.r, rpcSig.s);
+            console.log(signedTx.getSenderAddress().toString());
+            web3.eth
+              .sendSignedTransaction(
+                "0x" + signedTx.serialize().toString("hex")
+              )
+              .on("transactionHash", (hash) => {
+                console.log(hash);
+                // Resolve.value({
+                //   result: JSON.stringify(hash),
+                // });
+              })
+              .on("error", (error) => {
+                console.log(error);
+                // Resolve.value({
+                //   error: getCustomError(error.message),
+                // });
               });
-            })
-            .on("error", (error) => {
-              Resolve.value({
-                error: getCustomError(error.message),
+          })
+          .catch((e) => {
+            console.log(e);
+            // Resolve.value({
+            //   error: getCustomError(e.message),
+            // });
+          });
+      } else {
+        const msgHash = bufferToHex(finalizedTx.getMessageToSign(true));
+        sendToBackground({
+          method: InternalMethods.sign,
+          params: [msgHash, account.value],
+        }).then((res) => {
+          if (res.error) {
+            Resolve.value(res);
+          } else {
+            const rpcSig = fromRpcSig(res.result || "0x");
+            const signedTx = (
+              finalizedTx as FeeMarketEIP1559Transaction
+            )._processSignature(rpcSig.v, rpcSig.r, rpcSig.s);
+            web3.eth
+              .sendSignedTransaction(
+                "0x" + signedTx.serialize().toString("hex")
+              )
+              .on("transactionHash", (hash) => {
+                Resolve.value({
+                  result: JSON.stringify(hash),
+                });
+              })
+              .on("error", (error) => {
+                Resolve.value({
+                  error: getCustomError(error.message),
+                });
               });
-            });
-        }
-      });
+          }
+        });
+      }
     }
   );
 };

@@ -8,7 +8,7 @@ import {
   getAddressRequest,
   HWWalletProvider,
   PathType,
-  SignRequest,
+  SignMessageRequest,
 } from "../types";
 import { supportedPaths } from "./configs";
 
@@ -75,7 +75,7 @@ class TrezorEthereum implements HWWalletProvider {
     return Promise.resolve(true);
   }
 
-  async signPersonalMessage(options: SignRequest): Promise<string> {
+  async signPersonalMessage(options: SignMessageRequest): Promise<string> {
     const result = await TrezorConnect.ethereumSignMessage({
       path: options.pathType.path.replace(`{index}`, options.pathIndex),
       message: options.message.toString("hex"),
@@ -84,6 +84,10 @@ class TrezorEthereum implements HWWalletProvider {
     if (!result.success)
       throw new Error((result.payload as any).error as string);
     return bufferToHex(hexToBuffer(result.payload.signature));
+  }
+
+  signTransaction(): Promise<string> {
+    throw new Error("hw-wallet:substrate: sign transaction not supported");
   }
 
   static getSupportedNetworks(): NetworkNames[] {
