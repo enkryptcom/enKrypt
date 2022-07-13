@@ -1,7 +1,9 @@
 <template>
   <div class="hardware-importing-account">
     <div class="hardware-importing-account__wrap">
-      <div class="hardware-importing-account__number">{{ index }}</div>
+      <div v-if="!noIndex" class="hardware-importing-account__number">
+        {{ index }}
+      </div>
       <img :src="network.identicon(address)" />
       <div class="hardware-importing-account__info">
         <p class="hardware-importing-account__info-name">
@@ -53,6 +55,7 @@ defineProps({
     default: "",
   },
   isError: Boolean,
+  noIndex: Boolean,
 });
 </script>
 

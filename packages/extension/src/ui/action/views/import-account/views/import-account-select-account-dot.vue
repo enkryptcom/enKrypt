@@ -1,7 +1,6 @@
 <template>
   <import-account-header
-    :close="close"
-    :back="back"
+    v-bind="$attrs"
     :is-back="true"
   ></import-account-header>
 

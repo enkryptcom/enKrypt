@@ -13,12 +13,19 @@
     <p class="import-account-keystore-file__label">
       Tip: default keystore file names often begin with “UTC”.
     </p>
+    <p v-show="isError" class="import-account-keystore-file__error">
+      Invalid file type
+    </p>
   </div>
 </template>
 
 <script setup lang="ts">
 import ImportAccountHeader from "../components/import-account-header.vue";
 import BaseFilePicker from "@action/components/base-file-picker/index.vue";
+
+defineProps({
+  isError: Boolean,
+});
 </script>
 
 <style lang="less">
@@ -53,6 +60,18 @@ import BaseFilePicker from "@action/components/base-file-picker/index.vue";
     line-height: 16px;
     color: @tertiaryLabel;
     margin: 12px 0 0 0;
+  }
+
+  &__error {
+    width: 100%;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 20px;
+    text-align: center;
+    letter-spacing: 0.25px;
+    color: @error;
+    margin: 0 0 24px 0;
   }
 }
 </style>

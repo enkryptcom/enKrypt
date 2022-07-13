@@ -11,27 +11,37 @@
       ></import-account-start>
 
       <import-account-keystore-file
-        v-if="isKeystoreFile && !isDot"
+        v-if="isKeystoreFile"
+        :is-error="inputFileError"
         @update:select-file="fileSelected"
         @close="close"
         @back="startAction"
       ></import-account-keystore-file>
 
       <import-account-password
-        v-if="isEnterPassword && !isDot"
-        :to-import-account="importingAccountAction"
+        v-if="isEnterPassword"
+        :keystore-password="keystorePassword"
+        :is-error="keystorePassError"
+        :file-name="keystoreFile?.name || ''"
+        :file-json="keystoreJSON"
+        @navigate:import-account="importingAccountAction"
+        @update:wallet="walletUpdate"
+        @update:value="updateKeystorePassword"
         @close="close"
         @back="keystoreFileAction"
       ></import-account-password>
 
       <import-account-importing
-        v-if="isImportingAccount && !isDot"
+        v-if="isImportingAccount"
+        :network="network"
+        :keypair="keyPair"
         @close="close"
         @back="enterPasswordAction"
       ></import-account-importing>
 
       <import-account-private-key
-        v-if="isPrivateKey && !isDot"
+        v-if="isPrivateKey"
+        @update:wallet="walletUpdate"
         @close="close"
         @back="startAction"
       ></import-account-private-key>
@@ -53,12 +63,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "ImportAccount",
-};
-</script>
-
 <script setup lang="ts">
 import { ref, PropType } from "vue";
 import ImportAccountStart from "./views/import-account-start.vue";
@@ -68,6 +72,9 @@ import ImportAccountImporting from "./views/import-account-importing.vue";
 import ImportAccountPrivateKey from "./views/import-account-private-key.vue";
 import ImportAccountStartDot from "./views/import-account-start-dot.vue";
 import ImportAccountSelectAccountDot from "./views/import-account-select-account-dot.vue";
+import Wallet from "ethereumjs-wallet";
+import { BaseNetwork } from "@/types/base-network";
+import { KeyPair } from "@enkryptcom/types";
 
 const isStart = ref(true);
 const isKeystoreFile = ref(false);
@@ -75,10 +82,23 @@ const isPrivateKey = ref(false);
 const isEnterPassword = ref(false);
 const isImportingAccount = ref(false);
 const iSelectAccount = ref(false);
+const inputFileError = ref(false);
+const keystorePassword = ref("");
+const keystorePassError = ref(false);
+const keystoreFile = ref<File>();
+const keystoreJSON = ref({});
+const keyPair = ref<KeyPair>({
+  address: "",
+  privateKey: "",
+  publicKey: "",
+});
+const emit = defineEmits<{
+  (e: "close"): void;
+}>();
 
-defineProps({
-  close: {
-    type: Function as PropType<() => void>,
+const props = defineProps({
+  network: {
+    type: Object as PropType<BaseNetwork>,
     default: () => ({}),
   },
   isDot: {
@@ -95,6 +115,10 @@ const allVars = [
   isImportingAccount,
   iSelectAccount,
 ];
+
+const close = () => {
+  emit("close");
+};
 
 const startAction = () => {
   allVars.forEach((val) => (val.value = false));
@@ -125,9 +149,30 @@ const selectAccountAction = () => {
   allVars.forEach((val) => (val.value = false));
   iSelectAccount.value = true;
 };
-
+const updateKeystorePassword = (password: string) => {
+  keystorePassword.value = password;
+};
 const fileSelected = (file: File) => {
-  console.log(file);
+  const reader = new FileReader();
+  reader.addEventListener("load", (event) => {
+    try {
+      keystoreJSON.value = JSON.parse(event.target!.result as string);
+      inputFileError.value = false;
+      keystoreFile.value = file;
+      enterPasswordAction();
+    } catch (e) {
+      inputFileError.value = true;
+    }
+  });
+  reader.readAsBinaryString(file);
+};
+const walletUpdate = (wallet: Wallet) => {
+  keyPair.value = {
+    privateKey: wallet.getPrivateKeyString(),
+    publicKey: wallet.getPublicKeyString(),
+    address: wallet.getAddressString(),
+  };
+  importingAccountAction();
 };
 </script>
 

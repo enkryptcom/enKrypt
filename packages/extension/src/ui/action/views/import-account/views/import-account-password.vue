@@ -1,7 +1,6 @@
 <template>
   <import-account-header
-    :close="close"
-    :back="back"
+    v-bind="$attrs"
     :is-back="true"
   ></import-account-header>
 
@@ -10,7 +9,7 @@
     <p class="import-account-password__desc">
       Enter password for<br />
       <span>
-        UTC--2022-05-20T09-11-40.793Z--7db66b572abb7c69a8ea75b793a4f1a1eee653fe
+        {{ fileName }}
       </span>
       to import your wallet.
     </p>
@@ -19,63 +18,89 @@
       type="password"
       placeholder="Password"
       class="import-account-password__input"
-      :class="{ error: isError }"
-      :value="password"
-      @update:value="passwordChanged"
-      @keyup.enter="unlockAction"
+      :value="keystorePassword"
+      :is-error="isDisabled"
+      v-bind="$attrs"
+      @keyup.enter="unlock"
     />
-    <p v-show="isError" class="import-account-password__error">
-      Key derivation failed – possibly wrong password.
-    </p>
+    <p v-show="error" class="import-account-password__error">{{ error }}</p>
 
     <base-button
       title="Import account"
-      :click="unlockAction"
-      :disabled="isDisabled"
+      :click="unlock"
+      :disabled="isDisabled || isProcessing"
     />
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "ImportAccountPassword",
-};
-</script>
-
 <script setup lang="ts">
-import { PropType, ref, computed } from "vue";
+import { computed, ref } from "vue";
 import ImportAccountHeader from "../components/import-account-header.vue";
 import BaseInput from "@action/components/base-input/index.vue";
 import BaseButton from "@action/components/base-button/index.vue";
+import Wallet, { thirdparty } from "ethereumjs-wallet";
 
-const password = ref("");
-const isDisabled = computed(() => {
-  return password.value.length < 5;
-});
-const isError = ref(false);
+const emit = defineEmits<{
+  (e: "navigate:importAccount"): void;
+  (e: "update:wallet", wallet: Wallet): void;
+}>();
+
+const error = ref("");
 
 const props = defineProps({
-  close: {
-    type: Function as PropType<() => void>,
-    default: () => ({}),
+  keystorePassword: {
+    type: String,
+    default: "",
   },
-  back: {
-    type: Function as PropType<() => void>,
-    default: () => ({}),
+  fileName: {
+    type: String,
+    default: "",
   },
-  toImportAccount: {
-    type: Function as PropType<() => void>,
+  fileJson: {
+    type: Object,
     default: () => ({}),
   },
 });
 
-const passwordChanged = (text: string) => {
-  password.value = text;
-  isError.value = false;
+const isProcessing = ref(false);
+const isDisabled = computed(() => {
+  return props.keystorePassword.length < 3;
+});
+
+const fromMyEtherWalletV2 = (json: any) => {
+  if (json.privKey.length !== 64) {
+    throw new Error("Invalid private key length");
+  }
+  const privKey = Buffer.from(json.privKey, "hex");
+  return new Wallet(privKey);
 };
 
-const unlockAction = () => {
-  props.toImportAccount();
+const getWalletFromPrivKeyFile = (
+  jsonfile: any,
+  password: string
+): Promise<Wallet> => {
+  if (jsonfile.encseed != null)
+    return Promise.resolve(Wallet.fromEthSale(jsonfile, password));
+  else if (jsonfile.Crypto != null || jsonfile.crypto != null)
+    return Wallet.fromV3(jsonfile, password, true);
+  else if (jsonfile.hash != null)
+    return Promise.resolve(thirdparty.fromEtherWallet(jsonfile, password));
+  else if (jsonfile.publisher == "MyEtherWallet")
+    return Promise.resolve(fromMyEtherWalletV2(jsonfile));
+  throw new Error("Invalid Wallet file");
+};
+
+const unlock = () => {
+  isProcessing.value = true;
+  getWalletFromPrivKeyFile(props.fileJson, props.keystorePassword)
+    .then((wallet: Wallet) => {
+      isProcessing.value = false;
+      emit("update:wallet", wallet);
+    })
+    .catch((e) => {
+      isProcessing.value = false;
+      error.value = e.message;
+    });
 };
 </script>
 

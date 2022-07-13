@@ -44,6 +44,7 @@
     "core-js": "^3.21.0",
     "ethereumjs-abi": "^0.6.8",
     "ethereumjs-util": "^7.1.4",
+    "ethereumjs-wallet": "^1.0.2",
     "eventemitter3": "^4.0.7",
     "lodash": "^4.17.21",
     "memoize-one": "^6.0.0",
