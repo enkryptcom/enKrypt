@@ -5,30 +5,21 @@
   </label>
 </template>
 
-<script lang="ts">
-export default {
-  name: "BaseFilePicker",
-};
-</script>
-
 <script setup lang="ts">
 import { ref } from "vue";
 
-let label = ref("Select file...");
+const label = ref("Select file...");
 
-const props = defineProps({
-  selected: {
-    type: Function,
-    default: () => ({}),
-  },
-});
+const emit = defineEmits<{
+  (e: "update:selectFile", files: File): void;
+}>();
 
 const previewFiles = (e: any) => {
   const files = e.target.files as FileList;
 
   if (files[0]) {
     label.value = files[0].name;
-    props.selected(files);
+    emit("update:selectFile", files[0]);
   } else {
     label.value = "Select file...";
   }

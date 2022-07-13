@@ -4,6 +4,7 @@ import BrowserStorage from "../common/browser-storage";
 import {
   EnkryptAccount,
   HWWalletAdd,
+  KeyPairAdd,
   KeyRecordAdd,
   SignerType,
   SignOptions,
@@ -57,6 +58,9 @@ export class KeyRingBase {
   }
   addHWAccount(account: HWWalletAdd): Promise<EnkryptAccount> {
     return this.#keyring.addHWAccount(account);
+  }
+  addKeyPair(account: KeyPairAdd, password: string): Promise<EnkryptAccount> {
+    return this.#keyring.addKeyPair(account, password);
   }
   isLocked(): boolean {
     return this.#keyring.isLocked();

@@ -1,5 +1,5 @@
 <template>
-  <import-account-header :close="close"></import-account-header>
+  <import-account-header v-bind="$attrs"></import-account-header>
 
   <div class="import-account-start">
     <import-start-icon class="import-account-start__icon" />
@@ -10,44 +10,27 @@
       Keystore File or Private Key.
     </p>
 
-    <a class="import-account-start__button" @click="toKeystore">
+    <a class="import-account-start__button" @click="$emit('select:keystore')">
       <span>Keystore file</span>
       <right-arrow />
     </a>
 
-    <a class="import-account-start__button" @click="toPrivate">
+    <a class="import-account-start__button" @click="$emit('select:privkey')">
       <span>Private key</span>
       <right-arrow />
     </a>
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "ImportAccountStart",
-};
-</script>
-
 <script setup lang="ts">
-import { PropType } from "vue";
 import ImportStartIcon from "@action/icons/import/import-start-icon.vue";
 import ImportAccountHeader from "../components/import-account-header.vue";
 import RightArrow from "@action/icons/common/right-arrow.vue";
 
-defineProps({
-  close: {
-    type: Function as PropType<() => void>,
-    default: () => ({}),
-  },
-  toKeystore: {
-    type: Function as PropType<() => void>,
-    default: () => ({}),
-  },
-  toPrivate: {
-    type: Function as PropType<() => void>,
-    default: () => ({}),
-  },
-});
+defineEmits<{
+  (e: "select:keystore"): void;
+  (e: "select:privkey"): void;
+}>();
 </script>
 
 <style lang="less">

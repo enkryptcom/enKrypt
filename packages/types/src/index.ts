@@ -73,6 +73,12 @@ interface KeyPair {
   publicKey: string;
 }
 
+interface KeyPairAdd extends KeyPair {
+  address: string;
+  name: string;
+  signerType: SignerType;
+}
+
 interface SignerInterface {
   sign: (
     msgHash: string,
@@ -176,4 +182,5 @@ export {
   EthEncryptedData,
   EnkryptAccount,
   HWWalletAdd,
+  KeyPairAdd,
 };

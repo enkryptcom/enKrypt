@@ -71,7 +71,7 @@ const resetChanged = (newVal: string) => {
 };
 
 const isDisabled = computed(() => {
-  return reset.value !== "reset";
+  return reset.value !== "reset" && reset.value !== "Reset";
 });
 
 const resetAction = () => {

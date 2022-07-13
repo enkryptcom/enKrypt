@@ -27,6 +27,24 @@
             :input-amount="inputAmountTo"
             :select-token="selectTokenTo"
           ></swap-token-amount-input>
+
+          <send-address-input
+            ref="addressInput"
+            :value="address"
+            :network="network"
+            @update:input-address="inputAddress"
+            @toggle:show-contacts="toggleSelectContact"
+          ></send-address-input>
+
+          <send-contacts-list
+            :show-accounts="isOpenSelectContact"
+            :account-info="accountHeaderData"
+            :address="address"
+            :network="network"
+            @selected:account="selectAccount"
+            @update:paste-from-clipboard="addressInput.pasteFromClipboard()"
+            @close="toggleSelectContact"
+          ></send-contacts-list>
         </div>
 
         <div class="swap__buttons">
@@ -50,15 +68,15 @@
 
     <assets-select-list
       v-show="fromSelectOpened"
-      :close="toggleFromToken"
-      :select-token="selectTokenFrom"
+      @close="toggleFromToken"
+      @update:select-asset="selectTokenFrom"
     ></assets-select-list>
 
     <assets-select-list
       v-show="toSelectOpened"
-      :close="toggleToToken"
-      :select-token="selectTokenTo"
       :is-select-to-token="true"
+      @close="toggleToToken"
+      @update:select-asset="selectTokenTo"
     ></assets-select-list>
 
     <swap-looking v-show="isLooking" :close="toggleLooking"></swap-looking>
@@ -81,6 +99,11 @@ import SwapTokenAmountInput from "./components/swap-token-amount-input/index.vue
 import AssetsSelectList from "@action/views/assets-select-list/index.vue";
 import SwapLooking from "./components/swap-looking/index.vue";
 import { AssetsType } from "@/types/provider";
+import SendAddressInput from "@/providers/ethereum/ui/send-transaction/components/send-address-input.vue";
+import SendContactsList from "@/providers/ethereum/ui/send-transaction/components/send-contacts-list.vue";
+import { AccountsHeaderData } from "../../types/account";
+import { SignerType } from "@enkryptcom/types";
+import { getNetworkByName } from "@/libs/utils/networks";
 
 const ethereum: AssetsType = {
   name: "Ethereum",
@@ -96,11 +119,45 @@ const ethereum: AssetsType = {
   sparkline: "",
   priceChangePercentage: 0,
 };
+const address = ref<string>("");
+const isOpenSelectContact = ref<boolean>(false);
+const addressInput = ref();
+const accountHeaderData = ref<AccountsHeaderData>({
+  activeAccounts: [
+    {
+      address: "0x99999990d598b918799f38163204bbc30611b6b6",
+      basePath: "m/44'/60'/1'/0",
+      name: "fake account #1",
+      pathIndex: 0,
+      publicKey: "0x0",
+      type: SignerType.secp256k1,
+    },
+    {
+      address: "0xe5dc07bdcdb8c98850050c7f67de7e164b1ea391",
+      basePath: "m/44'/60'/1'/1",
+      name: "fake account #3",
+      pathIndex: 0,
+      publicKey: "0x0",
+      type: SignerType.secp256k1,
+    },
+  ],
+  inactiveAccounts: [],
+  selectedAccount: {
+    address: "0x99999990d598b918799f38163204bbc30611b6b6",
+    basePath: "m/44'/60'/1'/0",
+    name: "fake account #1",
+    pathIndex: 0,
+    publicKey: "0x0",
+    type: SignerType.secp256k1,
+  },
+  activeBalances: [],
+});
 
 const router = useRouter();
 const route = useRoute();
 
 const selected: string = route.params.id as string;
+const network = getNetworkByName(selected);
 
 let fromToken = ref<AssetsType | null>(ethereum);
 let fromAmount = ref<number | null>(null);
@@ -180,6 +237,16 @@ const swapTokens = () => {
 
   toToken.value = tokenTo;
   toAmount.value = amountTo;
+};
+const inputAddress = (text: string) => {
+  address.value = text;
+};
+const toggleSelectContact = (open: boolean) => {
+  isOpenSelectContact.value = open;
+};
+const selectAccount = (account: string) => {
+  address.value = account;
+  isOpenSelectContact.value = false;
 };
 </script>
 
@@ -268,6 +335,38 @@ const swapTokens = () => {
     &-send {
       width: 248px;
     }
+  }
+
+  .send-address-input {
+    margin: 8px 0 8px 0;
+    width: 100%;
+  }
+}
+</style>
+
+<style lang="less">
+.swap {
+  .send-contacts-list__wrap {
+    top: 482px;
+    max-height: 114px;
+    padding: 0;
+  }
+
+  .send-contacts-list__scroll-area {
+    max-height: 114px;
+    padding: 8px 16px;
+    box-sizing: border-box;
+    h3 {
+      display: none;
+    }
+
+    .ps__rail-y {
+      right: 3px !important;
+    }
+  }
+
+  .send-contacts-list__buttons {
+    display: none;
   }
 }
 </style>

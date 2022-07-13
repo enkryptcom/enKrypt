@@ -1,7 +1,6 @@
 <template>
   <import-account-header
-    :close="close"
-    :back="back"
+    v-bind="$attrs"
     :is-back="true"
   ></import-account-header>
 
@@ -12,9 +11,10 @@
     </p>
 
     <textarea
-      v-model="key"
+      v-model="privKey"
       autocomplete="off"
       class="import-account-private-key__input"
+      :class="{ error: !isValidKey }"
       placeholder="Private key"
       autofocus
     >
@@ -23,55 +23,39 @@
     <base-button
       title="Import account"
       :click="importAction"
-      :disabled="!isValid"
+      :disabled="!isValidKey"
     />
   </div>
-
-  <import-account-process
-    v-if="isProcessing"
-    :is-private-key="true"
-    :is-done="isDone"
-  />
 </template>
 
-<script lang="ts">
-export default {
-  name: "ImportAccountPrivateKey",
-};
-</script>
-
 <script setup lang="ts">
-import { PropType, ref, computed } from "vue";
+import { ref, computed } from "vue";
 import ImportAccountHeader from "../components/import-account-header.vue";
 import BaseButton from "@action/components/base-button/index.vue";
-import ImportAccountProcess from "../components/import-account-process.vue";
+import Wallet from "ethereumjs-wallet";
+import { hexToBuffer } from "@enkryptcom/utils";
 
-let isProcessing = ref(false);
-let isDone = ref(false);
-let key = ref("");
+const isProcessing = ref(false);
+const isDone = ref(false);
+const privKey = ref("");
 
-defineProps({
-  close: {
-    type: Function as PropType<() => void>,
-    default: () => ({}),
-  },
-  back: {
-    type: Function,
-    default: () => ({}),
-  },
+const emit = defineEmits<{
+  (e: "update:wallet", wallet: Wallet): void;
+}>();
+
+const isValidKey = computed(() => {
+  try {
+    const buffer = hexToBuffer(privKey.value);
+    new Wallet(buffer);
+    return true;
+  } catch (e) {
+    return false;
+  }
 });
-
 const importAction = () => {
-  isProcessing.value = true;
-
-  setTimeout(() => {
-    isDone.value = true;
-  }, 3000);
+  const buffer = hexToBuffer(privKey.value);
+  emit("update:wallet", new Wallet(buffer));
 };
-
-const isValid = computed(() => {
-  return key.value.length > 10;
-});
 </script>
 
 <style lang="less">
@@ -108,7 +92,6 @@ const isValid = computed(() => {
     width: 100%;
     height: 62px;
     background: @white;
-    border: 1px solid rgba(95, 99, 104, 0.2);
     font-family: "Roboto";
     box-sizing: border-box;
     border-radius: 10px;
@@ -121,10 +104,13 @@ const isValid = computed(() => {
     color: @primaryLabel;
     outline: none !important;
     padding: 10px 12px;
-
+    border: 2px solid @primary;
+    &.error {
+      border: 2px solid @error;
+      line-height: 38px;
+    }
     &:active,
     &:focus {
-      border: 2px solid @primary;
       height: 64px;
     }
   }

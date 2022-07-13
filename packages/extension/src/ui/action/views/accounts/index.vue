@@ -92,8 +92,9 @@
 
   <import-account
     v-if="isImportAccount"
-    :close="closeImportAccount"
+    :network="network"
     :is-dot="network.name == 'DOT'"
+    @close="closeImportAccount"
   ></import-account>
 </template>
 
@@ -116,12 +117,12 @@ import ImportAccountIcon from "@action/icons/actions/import-account-icon.vue";
 import ImportAccount from "@action/views/import-account/index.vue";
 import { AccountsHeaderData } from "../../types/account";
 import { PropType, ref } from "vue";
-import { NodeType } from "@/types/provider";
 import openHardware from "@/libs/utils/open-hardware";
 import scrollSettings from "@/libs/utils/scroll-settings";
 import { EnkryptAccount } from "@enkryptcom/types";
 import HWwallets from "@enkryptcom/hw-wallets";
 import { SignerType } from "@enkryptcom/types";
+import { BaseNetwork } from "@/types/base-network";
 const emit = defineEmits<{
   (e: "addressChanged", account: EnkryptAccount): void;
 }>();
@@ -132,7 +133,7 @@ const isImportAccount = ref(false);
 const hwWallet = new HWwallets();
 const props = defineProps({
   network: {
-    type: Object as PropType<NodeType>,
+    type: Object as PropType<BaseNetwork>,
     default: () => ({}),
   },
   accountInfo: {
