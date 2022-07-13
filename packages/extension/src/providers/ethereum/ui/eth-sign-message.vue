@@ -107,7 +107,7 @@ const approve = async () => {
         },
         wallet: account.value.walletType as unknown as HWwalletType,
       })
-      .then((res) => {
+      .then((res: string) => {
         Resolve.value({
           result: JSON.stringify(res),
         });
