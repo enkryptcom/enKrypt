@@ -13,7 +13,10 @@ export class Erc20Token extends BaseToken {
     this.contract = options.contract;
   }
 
-  public async getUserBalance(api: EvmAPI, address: string): Promise<string> {
+  public async getLatestUserBalance(
+    api: EvmAPI,
+    address: string
+  ): Promise<string> {
     return "";
   }
 

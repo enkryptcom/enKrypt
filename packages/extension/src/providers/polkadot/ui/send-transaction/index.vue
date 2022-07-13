@@ -41,7 +41,7 @@
 
       <send-input-amount
         :amount="amount"
-        :fiat-value="selectedAsset.priceCache"
+        :fiat-value="selectedAsset.price"
         :has-enough-balance="hasEnough"
         @update:input-amount="inputAmount"
         @update:input-set-max="setSendMax()"
@@ -148,9 +148,9 @@ onMounted(async () => {
   networkApi.init().then(async () => {
     api.value = networkApi as SubstrateApi;
     const networkAssets = await props.network.getAllTokens();
-    const pricePromises = networkAssets.map((asset) => asset.getTokenPrice());
+    const pricePromises = networkAssets.map((asset) => asset.getLatestPrice());
     const balancePromises = networkAssets.map((asset) => {
-      return asset.getUserBalance(
+      return asset.getLatestUserBalance(
         networkApi.api,
         props.accountInfo.selectedAccount?.address ?? ""
       );
@@ -170,7 +170,7 @@ watch([selectedAsset, amount, address], async () => {
       toBase(amount.value.toString(), selectedAsset.value.decimals!)
     );
 
-    const rawBalance = toBN(selectedAsset.value.balanceCache!);
+    const rawBalance = toBN(selectedAsset.value.balance!);
 
     if (rawAmount.gt(rawBalance)) {
       hasEnough.value = false;
@@ -198,9 +198,7 @@ watch([selectedAsset, amount, address], async () => {
       selectedAsset.value.decimals!
     );
 
-    const txPrice = new BigNumber(selectedAsset.value.priceCache!).times(
-      txFeeHuman
-    );
+    const txPrice = new BigNumber(selectedAsset.value.price!).times(txFeeHuman);
 
     fee.value = {
       fiatSymbol: "USD",
@@ -210,7 +208,7 @@ watch([selectedAsset, amount, address], async () => {
     };
 
     const ed = selectedAsset.value.existentialDeposit ?? toBN(0);
-    const userBalance = toBN(selectedAsset.value.balanceCache ?? 0);
+    const userBalance = toBN(selectedAsset.value.balance ?? 0);
     if (
       !userBalance.eq(rawAmount) &&
       userBalance.sub(txFee).sub(rawAmount).lt(ed)
@@ -266,7 +264,7 @@ const sendButtonTitle = computed(() => {
 const setSendMax = () => {
   if (selectedAsset.value) {
     const humanBalance = fromBase(
-      selectedAsset.value.balanceCache!,
+      selectedAsset.value.balance!,
       selectedAsset.value.decimals!
     );
 
@@ -317,7 +315,7 @@ const sendAction = async () => {
       amount: amount.value,
       icon: selectedAsset.value.icon as string,
       symbol: selectedAsset.value.symbol || "unknown",
-      valueUSD: new BigNumber(selectedAsset.value.priceCache || "0")
+      valueUSD: new BigNumber(selectedAsset.value.price || "0")
         .times(amount.value)
         .toFixed(),
     },

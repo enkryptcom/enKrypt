@@ -53,7 +53,7 @@
       <send-input-amount
         v-if="isSendToken"
         :amount="amount"
-        :fiat-value="selectedAsset.priceCache"
+        :fiat-value="selectedAsset.price"
         :has-enough-balance="hasEnoughBalance"
         @update:input-amount="inputAmount"
         @update:input-set-max="setMaxValue"
@@ -154,7 +154,7 @@ const selectedAsset = ref<Erc20Token | Partial<Erc20Token>>(
 );
 const amount = ref<string>("0.00");
 const hasEnoughBalance = computed(() => {
-  return toBN(selectedAsset.value.balanceCache || "0").gte(
+  return toBN(selectedAsset.value.balance || "0").gte(
     toBN(toBase(amount.value, selectedAsset.value.decimals!))
   );
 });
@@ -202,7 +202,7 @@ const setTransactionFees = (tx: Transaction) => {
   return tx.getGasCosts().then(async (gasvals) => {
     const getConvertedVal = (type: GasPriceTypes) =>
       fromBase(gasvals[type], props.network.decimals);
-    const nativeVal = accountAssets.value[0].priceCache;
+    const nativeVal = accountAssets.value[0].price;
     gasCostValues.value = {
       [GasPriceTypes.ECONOMY]: {
         nativeValue: getConvertedVal(GasPriceTypes.ECONOMY),
@@ -305,7 +305,7 @@ const close = () => {
 const assetMaxValue = computed(() => {
   if (selectedAsset.value.contract === NATIVE_TOKEN_ADDRESS) {
     return fromBase(
-      toBN(selectedAsset.value.balanceCache || "0")
+      toBN(selectedAsset.value.balance || "0")
         .sub(
           toBN(
             toBase(
@@ -319,7 +319,7 @@ const assetMaxValue = computed(() => {
     );
   } else
     return fromBase(
-      selectedAsset.value.balanceCache!,
+      selectedAsset.value.balance!,
       selectedAsset.value.decimals!
     );
 });
@@ -372,7 +372,7 @@ const sendAction = () => {
       amount: amount.value,
       icon: selectedAsset.value.icon as string,
       symbol: selectedAsset.value.symbol || "unknown",
-      valueUSD: new BigNumber(selectedAsset.value.priceCache || "0")
+      valueUSD: new BigNumber(selectedAsset.value.price || "0")
         .times(amount.value)
         .toString(),
     },

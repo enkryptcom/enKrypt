@@ -12,11 +12,14 @@ export class SubstrateNativeToken extends SubstrateToken {
     super(options);
   }
 
-  public async getUserBalance(api: ApiPromise, address: any): Promise<string> {
+  public async getLatestUserBalance(
+    api: ApiPromise,
+    address: any
+  ): Promise<string> {
     return api.query.system
       .account<AccountInfoWithRefCount>(address)
       .then(({ data }) => {
-        this.balanceCache = data.free.toString();
+        this.balance = data.free.toString();
         return data.free.toString();
       });
   }

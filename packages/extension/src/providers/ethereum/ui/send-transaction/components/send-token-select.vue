@@ -36,8 +36,8 @@ const props = defineProps({
 });
 
 const balance = computed(() =>
-  props.token && props.token.balanceCache
-    ? fromBase(props.token.balanceCache, props.token.decimals!)
+  props.token && props.token.balance
+    ? fromBase(props.token.balance, props.token.decimals!)
     : undefined
 );
 </script>

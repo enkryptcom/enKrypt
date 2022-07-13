@@ -27,13 +27,16 @@ export class AcalaOrmlAsset extends SubstrateToken {
     this.lookupValue = options.lookupValue;
   }
 
-  public async getUserBalance(api: ApiPromise, address: any): Promise<string> {
+  public async getLatestUserBalance(
+    api: ApiPromise,
+    address: any
+  ): Promise<string> {
     const tokenLookup: Record<string, string | number> = {};
     tokenLookup[this.assetType] = this.lookupValue;
 
     return api.query.tokens.accounts(address, tokenLookup).then((res) => {
       const balance = (res as unknown as OrmlTokensAccountData).free.toString();
-      this.balanceCache = balance;
+      this.balance = balance;
       return balance;
     });
   }

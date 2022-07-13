@@ -27,8 +27,8 @@ export abstract class BaseToken {
   public icon: string;
   public coingeckoID: string | undefined;
   public existentialDeposit: BN | undefined;
-  public balanceCache?: string;
-  public priceCache?: string;
+  public balance?: string;
+  public price?: string;
 
   constructor(options: BaseTokenOptions) {
     this.name = options.name;
@@ -37,18 +37,18 @@ export abstract class BaseToken {
     this.icon = options.icon;
     this.coingeckoID = options.coingeckoID;
     this.existentialDeposit = options.existentialDeposit;
-    this.priceCache = options.price;
-    this.balanceCache = options.balance;
+    this.price = options.price;
+    this.balance = options.balance;
   }
 
-  public async getTokenPrice(): Promise<string | null> {
+  public async getLatestPrice(): Promise<string | null> {
     if (this.coingeckoID) {
       const market = new MarketData();
       market.getMarketData([this.coingeckoID]).then((marketData) => {
         const price = marketData[0]?.current_price;
 
         if (price) {
-          this.priceCache = price.toString();
+          this.price = price.toString();
           return price.toString();
         }
 
@@ -59,7 +59,7 @@ export abstract class BaseToken {
     return null;
   }
 
-  public abstract getUserBalance(
+  public abstract getLatestUserBalance(
     api: EvmAPI | ApiPromise,
     address: string
   ): Promise<string>;
