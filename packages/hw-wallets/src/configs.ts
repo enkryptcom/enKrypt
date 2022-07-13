@@ -24,6 +24,11 @@ const MessengerName = "enkrypt_hw_wallets";
 
 const bip44Paths: Record<string, PathType> = {
   ethereum: {
+    path: "m/44'/60'/0'/0/{index}",
+    basePath: "m/44'/60'/0'/0",
+    label: "Ethereum",
+  },
+  ledgerEthereum: {
     path: "m/44'/60'/0'/{index}",
     basePath: "m/44'/60'/0'",
     label: "Ethereum",

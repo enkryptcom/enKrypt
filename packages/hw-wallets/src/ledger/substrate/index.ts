@@ -1,6 +1,6 @@
 import type Transport from "@ledgerhq/hw-transport";
 import webUsbTransport from "@ledgerhq/hw-transport-webusb";
-import { NetworkNames } from "@enkryptcom/types";
+import { HWwalletCapabilities, NetworkNames } from "@enkryptcom/types";
 import { LedgerApps } from "./substrateApps";
 import {
   AddressResponse,
@@ -78,8 +78,16 @@ class LedgerSubstrate implements HWWalletProvider {
     return ConnectToLedger.bind(this)(networkName);
   }
 
+  signPersonalMessage(): Promise<string> {
+    throw new Error("hw-wallet:substrate: sign Personal message not supported");
+  }
+
   static getSupportedNetworks(): NetworkNames[] {
     return Object.keys(LedgerApps) as NetworkNames[];
+  }
+
+  static getCapabilities(): string[] {
+    return [HWwalletCapabilities.signTx];
   }
 }
 

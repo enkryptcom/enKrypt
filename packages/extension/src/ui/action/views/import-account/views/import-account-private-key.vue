@@ -36,7 +36,6 @@ import Wallet from "ethereumjs-wallet";
 import { hexToBuffer } from "@enkryptcom/utils";
 
 const isProcessing = ref(false);
-const isDone = ref(false);
 const privKey = ref("");
 
 const emit = defineEmits<{

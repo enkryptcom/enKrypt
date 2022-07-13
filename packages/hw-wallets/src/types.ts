@@ -67,7 +67,13 @@ export abstract class HWWalletProvider {
 
   abstract close(): Promise<void>;
 
+  abstract signPersonalMessage(request: SignRequest): Promise<string>;
+
   static getSupportedNetworks(): NetworkNames[] {
+    return [];
+  }
+
+  static getCapabilities(): string[] {
     return [];
   }
 }

@@ -1,13 +1,14 @@
 import TrezorConnect from "trezor-connect";
-import { NetworkNames } from "@enkryptcom/types";
+import { HWwalletCapabilities, NetworkNames } from "@enkryptcom/types";
 import HDKey from "hdkey";
-import { bufferToHex } from "@enkryptcom/utils";
+import { bufferToHex, hexToBuffer } from "@enkryptcom/utils";
 import { publicToAddress } from "ethereumjs-util";
 import {
   AddressResponse,
   getAddressRequest,
   HWWalletProvider,
   PathType,
+  SignRequest,
 } from "../types";
 import { supportedPaths } from "./configs";
 
@@ -74,8 +75,27 @@ class TrezorEthereum implements HWWalletProvider {
     return Promise.resolve(true);
   }
 
+  async signPersonalMessage(options: SignRequest): Promise<string> {
+    const result = await TrezorConnect.ethereumSignMessage({
+      path: options.pathType.path.replace(`{index}`, options.pathIndex),
+      message: options.message.toString("hex"),
+      hex: true,
+    });
+    if (!result.success)
+      throw new Error((result.payload as any).error as string);
+    return bufferToHex(hexToBuffer(result.payload.signature));
+  }
+
   static getSupportedNetworks(): NetworkNames[] {
     return Object.keys(supportedPaths) as NetworkNames[];
+  }
+
+  static getCapabilities(): string[] {
+    return [
+      HWwalletCapabilities.eip1559,
+      HWwalletCapabilities.signMessage,
+      HWwalletCapabilities.signTx,
+    ];
   }
 }
 

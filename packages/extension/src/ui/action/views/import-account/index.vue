@@ -96,7 +96,7 @@ const emit = defineEmits<{
   (e: "close"): void;
 }>();
 
-const props = defineProps({
+defineProps({
   network: {
     type: Object as PropType<BaseNetwork>,
     default: () => ({}),

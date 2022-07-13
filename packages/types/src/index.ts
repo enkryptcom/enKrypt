@@ -13,6 +13,13 @@ export enum HWwalletType {
   trezor = WalletType.trezor,
 }
 
+export enum HWwalletCapabilities {
+  signMessage = "signMessage",
+  signTx = "signTx",
+  eip1559 = "eip1559",
+  typedMessage = "typedMessage",
+}
+
 enum SigningErrors {
   UnableToVerify = "Signing verification failed",
   NotSupported = "Sign type not supported",

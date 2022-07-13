@@ -1,6 +1,6 @@
 import type Transport from "@ledgerhq/hw-transport";
 import webUsbTransport from "@ledgerhq/hw-transport-webusb";
-import { NetworkNames } from "@enkryptcom/types";
+import { HWwalletCapabilities, NetworkNames } from "@enkryptcom/types";
 import EthApp from "@ledgerhq/hw-app-eth";
 import HDKey from "hdkey";
 import { publicToAddress } from "ethereumjs-util";
@@ -10,6 +10,7 @@ import {
   getAddressRequest,
   HWWalletProvider,
   PathType,
+  SignRequest,
 } from "../../types";
 import { supportedPaths } from "./configs";
 import ConnectToLedger from "../ledgerConnect";
@@ -80,8 +81,21 @@ class LedgerEthereum implements HWWalletProvider {
       }));
   }
 
-  signMessage() {
-    throw new Error("Not Supported");
+  signPersonalMessage(options: SignRequest): Promise<string> {
+    const connection = new EthApp(this.transport);
+    return connection
+      .signPersonalMessage(
+        options.pathType.path.replace(`{index}`, options.pathIndex),
+        options.message.toString("hex")
+      )
+      .then((result) => {
+        const v = result.v - 27;
+        let vs = v.toString(16);
+        if (vs.length < 2) {
+          vs = `0${v}`;
+        }
+        return `0x${result.r}${result.s}${vs}`;
+      });
   }
 
   getSupportedPaths(): PathType[] {
@@ -99,6 +113,14 @@ class LedgerEthereum implements HWWalletProvider {
 
   static getSupportedNetworks(): NetworkNames[] {
     return Object.keys(supportedPaths) as NetworkNames[];
+  }
+
+  static getCapabilities(): string[] {
+    return [
+      HWwalletCapabilities.eip1559,
+      HWwalletCapabilities.signMessage,
+      HWwalletCapabilities.signTx,
+    ];
   }
 }
 

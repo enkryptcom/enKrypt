@@ -47,7 +47,7 @@
 import SignLogo from "@action/icons/common/sign-logo.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import CommonPopup from "@action/views/common-popup/index.vue";
-import { getError } from "@/libs/error";
+import { getCustomError, getError } from "@/libs/error";
 import { ErrorCodes } from "@/providers/ethereum/types";
 import { WindowPromiseHandler } from "@/libs/window-promise";
 import { InternalMethods } from "@/types/messenger";
@@ -59,7 +59,8 @@ import { DEFAULT_NETWORK_NAME, getNetworkByName } from "@/libs/utils/networks";
 import { ProviderRequestOptions } from "@/types/provider";
 import { isAscii } from "@polkadot/util";
 import { EvmNetwork } from "../types/evm-network";
-import { EnkryptAccount } from "@enkryptcom/types";
+import { EnkryptAccount, HWwalletType } from "@enkryptcom/types";
+import HWwallets from "@enkryptcom/hw-wallets";
 
 const windowPromise = WindowPromiseHandler(3);
 const network = ref<EvmNetwork>(
@@ -76,6 +77,8 @@ const Options = ref<ProviderRequestOptions>({
   title: "",
   url: "",
 });
+const hwwallets = new HWwallets();
+
 const message = ref<string>("");
 onBeforeMount(async () => {
   const { Request, options } = await windowPromise;
@@ -92,18 +95,40 @@ const approve = async () => {
   const { Request, sendToBackground, Resolve } = await windowPromise;
   const msg = Request.value.params![0] as `0x{string}`;
   const msgHash = bufferToHex(hashPersonalMessage(hexToBuffer(msg)));
-  sendToBackground({
-    method: InternalMethods.sign,
-    params: [msgHash, account.value],
-  }).then((res) => {
-    if (res.error) {
-      Resolve.value(res);
-    } else {
-      Resolve.value({
-        result: JSON.stringify(res.result),
+  if (account.value.isHardware) {
+    hwwallets
+      .signPersonalMessage({
+        message: hexToBuffer(msg),
+        networkName: network.value.name,
+        pathIndex: account.value.pathIndex.toString(),
+        pathType: {
+          basePath: account.value.basePath,
+          path: account.value.HWOptions!.pathTemplate,
+        },
+        wallet: account.value.walletType as unknown as HWwalletType,
+      })
+      .then((res) => {
+        Resolve.value({
+          result: JSON.stringify(res),
+        });
+      })
+      .catch((e: any) => {
+        Resolve.value({ error: getCustomError(e) });
       });
-    }
-  });
+  } else {
+    sendToBackground({
+      method: InternalMethods.sign,
+      params: [msgHash, account.value],
+    }).then((res) => {
+      if (res.error) {
+        Resolve.value(res);
+      } else {
+        Resolve.value({
+          result: JSON.stringify(res.result),
+        });
+      }
+    });
+  }
 };
 const deny = async () => {
   const { Resolve } = await windowPromise;
