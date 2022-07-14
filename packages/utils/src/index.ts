@@ -4,6 +4,7 @@ import {
   hexToBytes,
   keccak256,
   utf8ToHex,
+  numberToHex,
 } from "web3-utils";
 import { encodeAddress as polkadotEncodeAddress } from "@polkadot/util-crypto";
 import { encrypt, decrypt } from "./encrypt";
@@ -33,4 +34,5 @@ export {
   MemoryStorage,
   keccak256,
   polkadotEncodeAddress,
+  numberToHex,
 };

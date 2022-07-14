@@ -251,18 +251,6 @@ onBeforeMount(async () => {
       },
     };
   });
-  hwwallets
-    .getAddress({
-      confirmAddress: false,
-      networkName: network.value.name,
-      pathIndex: account.value.pathIndex.toString(),
-      pathType: {
-        basePath: account.value.basePath,
-        path: account.value.HWOptions!.pathTemplate,
-      },
-      wallet: account.value.walletType as unknown as HWwalletType,
-    })
-    .then(console.log);
 });
 
 const approve = async () => {
@@ -287,34 +275,27 @@ const approve = async () => {
             wallet: account.value.walletType as unknown as HWwalletType,
           })
           .then((rpcsig: string) => {
-            console.log(rpcsig);
             const rpcSig = fromRpcSig(rpcsig);
             const signedTx = (
               finalizedTx as FeeMarketEIP1559Transaction
             )._processSignature(rpcSig.v, rpcSig.r, rpcSig.s);
-            console.log(signedTx.getSenderAddress().toString());
             web3.eth
               .sendSignedTransaction(
                 "0x" + signedTx.serialize().toString("hex")
               )
               .on("transactionHash", (hash) => {
-                console.log(hash);
-                // Resolve.value({
-                //   result: JSON.stringify(hash),
-                // });
+                Resolve.value({
+                  result: JSON.stringify(hash),
+                });
               })
               .on("error", (error) => {
-                console.log(error);
-                // Resolve.value({
-                //   error: getCustomError(error.message),
-                // });
+                Resolve.value({
+                  error: getCustomError(error.message),
+                });
               });
           })
-          .catch((e) => {
-            console.log(e);
-            // Resolve.value({
-            //   error: getCustomError(e.message),
-            // });
+          .catch((e: any) => {
+            Resolve.value({ error: getCustomError(e) });
           });
       } else {
         const msgHash = bufferToHex(finalizedTx.getMessageToSign(true));

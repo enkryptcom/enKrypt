@@ -3,18 +3,18 @@ import { bip44Paths } from "../../configs";
 
 const supportedPaths = {
   [NetworkNames.Ethereum]: [
-    bip44Paths.ledgerEthereum,
-    bip44Paths.ledgerLiveEthereum,
+    bip44Paths.ethereumLedger,
+    bip44Paths.ethereumLedgerLive,
   ],
   [NetworkNames.Matic]: [
     bip44Paths.ledgerEthereum,
     bip44Paths.ledgerLiveEthereum,
   ],
   [NetworkNames.EthereumClassic]: [
-    bip44Paths.ethereumClassic,
+    bip44Paths.ethereumClassicLedger,
     bip44Paths.ethereumClassicLedgerLive,
   ],
-  [NetworkNames.Ropsten]: [bip44Paths.ethereumTestnets],
-  [NetworkNames.Goerli]: [bip44Paths.ethereumTestnets],
+  [NetworkNames.Ropsten]: [bip44Paths.ethereumTestnetLedger],
+  [NetworkNames.Goerli]: [bip44Paths.ethereumTestnetLedger],
 };
 export { supportedPaths };

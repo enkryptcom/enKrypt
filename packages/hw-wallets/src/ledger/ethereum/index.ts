@@ -2,13 +2,12 @@ import type Transport from "@ledgerhq/hw-transport";
 import webUsbTransport from "@ledgerhq/hw-transport-webusb";
 import { HWwalletCapabilities, NetworkNames } from "@enkryptcom/types";
 import EthApp from "@ledgerhq/hw-app-eth";
-import { toRpcSig } from "ethereumjs-util";
+import { toRpcSig, publicToAddress, rlp } from "ethereumjs-util";
 import {
-  // Transaction as LegacyTransaction,
+  Transaction as LegacyTransaction,
   FeeMarketEIP1559Transaction,
 } from "@ethereumjs/tx";
 import HDKey from "hdkey";
-import { publicToAddress } from "ethereumjs-util";
 import { bufferToHex, hexToBuffer } from "@enkryptcom/utils";
 import {
   AddressResponse,
@@ -107,30 +106,36 @@ class LedgerEthereum implements HWWalletProvider {
 
   async signTransaction(options: SignTransactionRequest): Promise<string> {
     const connection = new EthApp(this.transport);
-    // cosnt tx: LegacyTransaction | FeeMarketEIP1559Transaction;
-    // cosnt msgToSign: string;
-    // if (options.transaction instanceof FeeMarketEIP1559Transaction) {
-    console.log("here 1");
-    const tx = options.transaction as FeeMarketEIP1559Transaction;
-    const msgToSign = tx.getMessageToSign(false).toString("hex");
-    console.log(msgToSign);
-    // } else {
-    //   console.log("here 2");
-    //   tx = options.transaction as LegacyTransaction;
-    //   msgToSign = rlp.encode(tx.getMessageToSign(false)).toString("hex");
-    //   console.log(msgToSign);
-    // }
-    connection
-      .getAddress(options.pathType.path.replace(`{index}`, options.pathIndex))
-      .then(console.log);
+    let tx: LegacyTransaction | FeeMarketEIP1559Transaction;
+    let msgToSign: string;
+    if ((options.transaction as LegacyTransaction).gasPrice) {
+      tx = options.transaction as LegacyTransaction;
+      msgToSign = rlp.encode(tx.getMessageToSign(false)).toString("hex");
+    } else {
+      tx = options.transaction as FeeMarketEIP1559Transaction;
+      msgToSign = tx.getMessageToSign(false).toString("hex");
+    }
     return connection
       .signTransaction(
         options.pathType.path.replace(`{index}`, options.pathIndex),
         msgToSign
       )
-      .then((result) =>
-        toRpcSig(`0x${result.v}`, hexToBuffer(result.r), hexToBuffer(result.s))
-      );
+      .then((result) => {
+        if ((tx as LegacyTransaction).gasPrice) {
+          const rv = parseInt(result.v, 16);
+          const cv = tx.common.chainIdBN().toNumber() * 2 + 35;
+          return toRpcSig(
+            `0x0${rv - cv}`,
+            hexToBuffer(result.r),
+            hexToBuffer(result.s)
+          );
+        }
+        return toRpcSig(
+          `0x${result.v}`,
+          hexToBuffer(result.r),
+          hexToBuffer(result.s)
+        );
+      });
   }
 
   getSupportedPaths(): PathType[] {

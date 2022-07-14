@@ -23,23 +23,23 @@ const ledgerAppNames = {
 const MessengerName = "enkrypt_hw_wallets";
 
 const bip44Paths: Record<string, PathType> = {
-  ethereum: {
-    path: "m/44'/60'/0'/0/{index}",
-    basePath: "m/44'/60'/0'/0",
-    label: "Ethereum",
-  },
-  ledgerEthereum: {
+  ethereumLedger: {
     path: "m/44'/60'/0'/{index}",
     basePath: "m/44'/60'/0'",
     label: "Ethereum",
   },
-  ledgerLiveEthereum: {
+  ethereumLedgerLive: {
     path: "m/44'/60'/{index}'/0/0",
     basePath: "m/44'/60'",
     label: "Ethereum - Ledger Live",
   },
-  ethereumClassic: {
-    path: "m/44'/60'/160720'/0'/{index}",
+  ethereumTestnetLedger: {
+    path: "m/44'/1'/0'/{index}",
+    basePath: "m/44'/1'/0'",
+    label: "Testnet",
+  },
+  ethereumClassicLedger: {
+    path: "m/44'/61'/0'/{index}",
     basePath: "m/44'/61'/0'",
     label: "Ethereum Classic",
   },
@@ -48,9 +48,19 @@ const bip44Paths: Record<string, PathType> = {
     basePath: "m/44'/61'",
     label: "Ethereum Classic -  Ledger Live",
   },
-  ethereumTestnets: {
-    path: "m/44'/1'/0'/{index}",
-    basePath: "m/44'/1'/0'",
+  ethereum: {
+    path: "m/44'/60'/0'/0/{index}",
+    basePath: "m/44'/60'/0'/0",
+    label: "Ethereum",
+  },
+  ethereumClassic: {
+    path: "m/44'/61'/0'/0/{index}",
+    basePath: "m/44'/61'/0'/0",
+    label: "Ethereum Classic",
+  },
+  ethereumTestnet: {
+    path: "m/44'/1'/0'/0/{index}",
+    basePath: "m/44'/1'/0'/0",
     label: "Testnet",
   },
   substrateLedger: {

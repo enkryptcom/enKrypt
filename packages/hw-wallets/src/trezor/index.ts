@@ -1,14 +1,19 @@
 import TrezorConnect from "trezor-connect";
 import { HWwalletCapabilities, NetworkNames } from "@enkryptcom/types";
 import HDKey from "hdkey";
-import { bufferToHex, hexToBuffer } from "@enkryptcom/utils";
-import { publicToAddress } from "ethereumjs-util";
+import { bufferToHex, hexToBuffer, numberToHex } from "@enkryptcom/utils";
+import { publicToAddress, toRpcSig } from "ethereumjs-util";
+import {
+  FeeMarketEIP1559Transaction,
+  Transaction as LegacyTransaction,
+} from "@ethereumjs/tx";
 import {
   AddressResponse,
   getAddressRequest,
   HWWalletProvider,
   PathType,
   SignMessageRequest,
+  SignTransactionRequest,
 } from "../types";
 import { supportedPaths } from "./configs";
 
@@ -86,8 +91,54 @@ class TrezorEthereum implements HWWalletProvider {
     return bufferToHex(hexToBuffer(result.payload.signature));
   }
 
-  signTransaction(): Promise<string> {
-    throw new Error("hw-wallet:substrate: sign transaction not supported");
+  async signTransaction(options: SignTransactionRequest): Promise<string> {
+    let tx: LegacyTransaction | FeeMarketEIP1559Transaction =
+      options.transaction as LegacyTransaction;
+
+    const txObject = {
+      to: tx.to.toString(),
+      value: numberToHex(tx.value),
+      chainId: tx.common.chainIdBN().toNumber(),
+      nonce: numberToHex(tx.nonce),
+      gasLimit: numberToHex(tx.gasLimit),
+      data: bufferToHex(tx.data),
+    };
+    if ((options.transaction as LegacyTransaction).gasPrice) {
+      return TrezorConnect.ethereumSignTransaction({
+        path: options.pathType.path.replace(`{index}`, options.pathIndex),
+        transaction: {
+          ...txObject,
+          gasPrice: numberToHex(tx.gasPrice),
+        },
+      }).then((result) => {
+        if (!result.success)
+          throw new Error((result.payload as any).error as string);
+        const rv = parseInt(result.payload.v.replace("0x", ""), 16);
+        const cv = tx.common.chainIdBN().toNumber() * 2 + 35;
+        return toRpcSig(
+          `0x0${rv - cv}`,
+          hexToBuffer(result.payload.r),
+          hexToBuffer(result.payload.s)
+        );
+      });
+    }
+    tx = options.transaction as FeeMarketEIP1559Transaction;
+    return TrezorConnect.ethereumSignTransaction({
+      path: options.pathType.path.replace(`{index}`, options.pathIndex),
+      transaction: {
+        ...txObject,
+        maxFeePerGas: numberToHex(tx.maxFeePerGas),
+        maxPriorityFeePerGas: numberToHex(tx.maxPriorityFeePerGas),
+      },
+    }).then((result) => {
+      if (!result.success)
+        throw new Error((result.payload as any).error as string);
+      return toRpcSig(
+        result.payload.v,
+        hexToBuffer(result.payload.r),
+        hexToBuffer(result.payload.s)
+      );
+    });
   }
 
   static getSupportedNetworks(): NetworkNames[] {
