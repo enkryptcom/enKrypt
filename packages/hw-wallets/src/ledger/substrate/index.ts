@@ -98,10 +98,6 @@ class LedgerSubstrate implements HWWalletProvider {
     const app = LedgerApps[this.network];
     const tx = options.transaction as ExtrinsicPayload;
     const connection = app(this.transport);
-    await this.getAddress({ ...options, confirmAddress: false }).then(
-      console.log
-    );
-    console.log(u8aToHex(tx.toU8a(true)), "here");
     return connection
       .sign(
         pathValues[0],
@@ -110,7 +106,6 @@ class LedgerSubstrate implements HWWalletProvider {
         u8aToBuffer(tx.toU8a(true))
       )
       .then((result) => {
-        console.log(result);
         if (result.error_message !== "No errors")
           throw new Error(result.error_message);
         else return `0x${result.signature.toString("hex")}`;
