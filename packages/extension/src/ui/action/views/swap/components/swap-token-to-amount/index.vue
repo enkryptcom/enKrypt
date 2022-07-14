@@ -7,11 +7,7 @@
 
     <swap-token-amount-input
       v-show="!!token"
-      placeholder="Enter amount"
-      :value="tokenAmount"
-      :autofocus="autofocus"
-      :change-focus="changeFocus"
-      @update:value="amountChanged"
+      :value="amount"
     ></swap-token-amount-input>
 
     <swap-token-fast-list
@@ -19,19 +15,16 @@
       :select-token="selectToken"
     ></swap-token-fast-list>
 
-    <a v-show="!!token" class="swap-token-input__max">Max</a>
-    <div
-      v-show="!!token && Number(tokenAmount) > 0"
-      class="swap-token-input__fiat"
-    >
-      ≈ ${{ $filters.formatFiatValue(tokenPrice).value }}
+    <!-- <a v-show="!!token" class="swap-token-input__max">Max</a> -->
+    <div v-show="!!token && Number(amount) > 0" class="swap-token-input__fiat">
+      ≈ ${{ tokenPrice ? $filters.formatFiatValue(tokenPrice).value : "~" }}
     </div>
   </div>
 </template>
 
 <script lang="ts">
 export default {
-  name: "SwapTokenAmountInput",
+  name: "SwapTokenToAmount",
 };
 </script>
 
@@ -57,47 +50,29 @@ const props = defineProps({
       return null;
     },
   },
-  inputAmount: {
-    type: Function,
-    default: () => {
-      return null;
-    },
-  },
   token: {
     type: Object as PropType<BaseToken | null>,
     default: () => {
       return null;
     },
   },
-  autofocus: {
-    type: Boolean,
-    default: () => {
-      return false;
-    },
+  amount: {
+    type: String,
+    default: () => "0.0",
   },
 });
 
 const isFocus = ref(false);
-const tokenAmount = ref("");
 
 const tokenPrice = computed(() => {
-  if (props.token?.price && tokenAmount.value !== "") {
-    return new BigNumber(tokenAmount.value)
+  if (props.token?.price && props.amount !== "Searching") {
+    return new BigNumber(props.amount)
       .times(new BigNumber(props.token.price))
       .toFixed();
   }
 
   return null;
 });
-
-const amountChanged = (newVal: string) => {
-  tokenAmount.value = newVal;
-  props.inputAmount(Number(newVal));
-};
-
-const changeFocus = (newVal: boolean) => {
-  isFocus.value = newVal;
-};
 </script>
 
 <style lang="less" scoped>

@@ -50,6 +50,7 @@ export class EvmSwapProvider extends SwapProvider {
           symbol: tokenData.symbol,
           name: tokenData.name ?? tokenData.symbol,
           price: tokenData.price,
+          balance: toBase("1", tokenData.decimals),
         });
       });
     } catch {
@@ -81,7 +82,7 @@ export class EvmSwapProvider extends SwapProvider {
     const params = new URLSearchParams();
     params.append("fromContractAddress", fromToken.contract);
     params.append("toContractAddress", toToken.contract);
-    params.append("amount", toBase(fromAmount, fromToken.decimals));
+    params.append("amount", fromAmount);
 
     const { min, max } = this.getMinMaxAmount(fromToken);
 

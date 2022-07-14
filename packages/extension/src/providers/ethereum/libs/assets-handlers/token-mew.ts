@@ -92,10 +92,6 @@ export default (
         let nativeAsset: Erc20Token | null = null;
         for (const [address, market] of Object.entries(marketInfo)) {
           if (market && tokenInfo[address]) {
-            console.log(
-              "token-mew",
-              toBN(balances[address].balance).toString()
-            );
             const asset = new Erc20Token({
               balance: toBN(balances[address].balance).toString(),
               icon: market.image,

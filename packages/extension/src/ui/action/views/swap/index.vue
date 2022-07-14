@@ -21,12 +21,13 @@
             ><swap-arrows></swap-arrows
           ></a>
 
-          <swap-token-amount-input
+          <swap-token-to-amount
             :toggle-select="toggleToToken"
             :token="toToken"
             :input-amount="inputAmountTo"
             :select-token="selectTokenTo"
-          ></swap-token-amount-input>
+            :amount="toAmount?.toString()"
+          ></swap-token-to-amount>
 
           <send-address-input
             ref="addressInput"
@@ -68,6 +69,7 @@
 
     <assets-select-list
       v-show="fromSelectOpened"
+      :assets="fromTokens"
       @close="toggleFromToken"
       @update:select-asset="selectTokenFrom"
     ></assets-select-list>
@@ -75,6 +77,7 @@
     <assets-select-list
       v-show="toSelectOpened"
       :is-select-to-token="true"
+      :assets="toTokens"
       @close="toggleToToken"
       @update:select-asset="selectTokenTo"
     ></assets-select-list>
@@ -90,99 +93,114 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { onMounted, PropType, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import SwapArrows from "@action/icons/swap/swap-arrows.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import SwapTokenAmountInput from "./components/swap-token-amount-input/index.vue";
+import SwapTokenToAmount from "./components/swap-token-to-amount/index.vue";
 import AssetsSelectList from "@action/views/assets-select-list/index.vue";
 import SwapLooking from "./components/swap-looking/index.vue";
-import { AssetsType } from "@/types/provider";
 import SendAddressInput from "@/providers/ethereum/ui/send-transaction/components/send-address-input.vue";
 import SendContactsList from "@/providers/ethereum/ui/send-transaction/components/send-contacts-list.vue";
 import { AccountsHeaderData } from "../../types/account";
-import { SignerType } from "@enkryptcom/types";
 import { getNetworkByName } from "@/libs/utils/networks";
-
-const ethereum: AssetsType = {
-  name: "Ethereum",
-  symbol: "eth",
-  icon: "https://mpolev.ru/enkrypt/eth.png",
-  balance: "0.5",
-  balancef: "0.5",
-  balanceUSD: 2500,
-  balanceUSDf: "$2500",
-  value: "100",
-  valuef: "100",
-  decimals: 1000,
-  sparkline: "",
-  priceChangePercentage: 0,
-};
-const address = ref<string>("");
-const isOpenSelectContact = ref<boolean>(false);
-const addressInput = ref();
-const accountHeaderData = ref<AccountsHeaderData>({
-  activeAccounts: [
-    {
-      address: "0x99999990d598b918799f38163204bbc30611b6b6",
-      basePath: "m/44'/60'/1'/0",
-      name: "fake account #1",
-      pathIndex: 0,
-      publicKey: "0x0",
-      type: SignerType.secp256k1,
-    },
-    {
-      address: "0xe5dc07bdcdb8c98850050c7f67de7e164b1ea391",
-      basePath: "m/44'/60'/1'/1",
-      name: "fake account #3",
-      pathIndex: 0,
-      publicKey: "0x0",
-      type: SignerType.secp256k1,
-    },
-  ],
-  inactiveAccounts: [],
-  selectedAccount: {
-    address: "0x99999990d598b918799f38163204bbc30611b6b6",
-    basePath: "m/44'/60'/1'/0",
-    name: "fake account #1",
-    pathIndex: 0,
-    publicKey: "0x0",
-    type: SignerType.secp256k1,
-  },
-  activeBalances: [],
-});
+import { BaseToken } from "@/types/base-token";
+import { BaseNetwork } from "@/types/base-network";
+import { Swap } from "@/providers/swap";
+import BigNumber from "bignumber.js";
 
 const router = useRouter();
 const route = useRoute();
 
+const swap = new Swap();
+
+const props = defineProps({
+  network: {
+    type: Object as PropType<BaseNetwork>,
+    default: () => ({}),
+  },
+  accountInfo: {
+    type: Object as PropType<AccountsHeaderData>,
+    default: () => ({}),
+  },
+});
+
+const address = ref<string>("");
+const isOpenSelectContact = ref<boolean>(false);
+const addressInput = ref();
+const accountHeaderData = ref<AccountsHeaderData>(props.accountInfo);
+
 const selected: string = route.params.id as string;
 const network = getNetworkByName(selected);
 
-let fromToken = ref<AssetsType | null>(ethereum);
-let fromAmount = ref<number | null>(null);
+const fromTokens = ref<BaseToken[]>();
+const fromToken = ref<BaseToken | null>(null);
+const fromAmount = ref<string | null>(null);
 
-let toToken = ref<AssetsType | null>(null);
-let toAmount = ref<number | null>(null);
+const toTokens = ref<BaseToken[]>();
+const toToken = ref<BaseToken | null>(null);
+const toAmount = ref<string | null>("0.0");
 
-let fromSelectOpened = ref(false);
-let toSelectOpened = ref(false);
+const fromSelectOpened = ref(false);
+const toSelectOpened = ref(false);
 
-let isLooking = ref(false);
+const isLooking = ref(false);
 
-const selectTokenFrom = (token: AssetsType) => {
+onMounted(async () => {
+  props.network
+    .getAllTokens(props.accountInfo.selectedAccount?.address as string)
+    .then((tokens) => {
+      fromTokens.value = tokens;
+    });
+
+  swap.getAllTokens(props.network.name).then((tokens) => {
+    toTokens.value = tokens;
+  });
+});
+
+watch([fromToken, toToken, fromAmount], () => {
+  if (fromToken.value && toToken.value && fromAmount.value) {
+    if (fromAmount.value === "" || fromAmount.value === "0") {
+      toAmount.value = "0.0";
+    } else {
+      toAmount.value = "Searching";
+      swap
+        .getAllQuotes(fromToken.value, toToken.value, fromAmount.value)
+        .then((quotes) => {
+          if (quotes.length > 0) {
+            let bestQuote = quotes[0];
+
+            quotes.forEach((quote) => {
+              if (
+                new BigNumber(quote.amount).gt(new BigNumber(bestQuote.amount))
+              ) {
+                bestQuote = quote;
+              }
+            });
+
+            toAmount.value = bestQuote.amount;
+          }
+        });
+    }
+  }
+});
+
+const selectTokenFrom = (token: BaseToken) => {
   fromToken.value = token;
   fromSelectOpened.value = false;
 };
-const selectTokenTo = (token: AssetsType) => {
+const selectTokenTo = (token: BaseToken) => {
   toToken.value = token;
   toSelectOpened.value = false;
 };
-const inputAmountFrom = (newVal: number) => {
-  fromAmount.value = newVal;
+const inputAmountFrom = async (newVal: number) => {
+  fromAmount.value = newVal.toString();
 };
 const inputAmountTo = (newVal: number) => {
-  toAmount.value = newVal;
+  console.log("test");
+  toAmount.value = newVal.toString();
 };
 const toggleFromToken = () => {
   fromSelectOpened.value = !fromSelectOpened.value;
