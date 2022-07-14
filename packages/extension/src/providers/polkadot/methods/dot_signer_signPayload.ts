@@ -3,10 +3,7 @@ import EthereumProvider from "..";
 import { WindowPromise } from "@/libs/window-promise";
 import { ProviderRPCRequest } from "@/types/provider";
 import { SignerPayloadJSON } from "@polkadot/types/types";
-import {
-  polkadotEncodeAddress,
-  payloadSignTransform,
-} from "../libs/signing-utils";
+import { polkadotEncodeAddress } from "../libs/signing-utils";
 import { getCustomError } from "@/libs/error";
 const method: MiddlewareFunction = function (
   this: EthereumProvider,
@@ -33,12 +30,7 @@ const method: MiddlewareFunction = function (
           )
           .then(({ error, result }) => {
             if (error) return res(error);
-            const signed = payloadSignTransform(
-              JSON.parse(result as string),
-              account.signerType,
-              true
-            );
-            res(null, signed);
+            res(null, JSON.parse(result as string));
           });
       })
       .catch(res);

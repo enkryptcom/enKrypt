@@ -75,6 +75,7 @@ import { payloadSignTransform } from "@/providers/polkadot/libs/signing-utils";
 import { SignerPayloadRaw } from "@polkadot/types/types";
 import { u8aToHex } from "@polkadot/util";
 import type { SignerResult } from "@polkadot/api/types";
+import { polkadotEncodeAddress } from "@enkryptcom/utils";
 
 const KeyRing = new PublicKeyRing();
 const route = useRoute();
@@ -103,8 +104,9 @@ const sendAction = async () => {
   const api = await props.network.api();
   await api.init();
 
-  const account = await KeyRing.getAccount(txData.fromAddress);
-
+  const account = await KeyRing.getAccount(
+    polkadotEncodeAddress(txData.fromAddress)
+  );
   const tx = (api.api as ApiPromise).tx(txData.TransactionData.data);
 
   try {
@@ -119,7 +121,7 @@ const sendAction = async () => {
           }).then((res) => {
             const signed = payloadSignTransform(
               JSON.parse(res.result!),
-              account.type,
+              account.signerType,
               true
             );
             return {

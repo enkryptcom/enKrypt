@@ -119,7 +119,7 @@ import { WindowPromiseHandler } from "@/libs/window-promise";
 import { InternalMethods } from "@/types/messenger";
 import { TypeRegistry, Metadata } from "@polkadot/types";
 import { SignerPayloadJSON } from "@polkadot/types/types";
-import { signPayload } from "../libs/signing-utils";
+import { payloadSignTransform, signPayload } from "../libs/signing-utils";
 import MetadataStorage from "../libs/metadata-storage";
 import { CallData } from "./types";
 import { getAllNetworks } from "@/libs/utils/networks";
@@ -133,10 +133,13 @@ import BigNumber from "bignumber.js";
 import { FrameSystemAccountInfo } from "@acala-network/types/interfaces/types-lookup";
 import createIcon from "../libs/blockies";
 import { ProviderRequestOptions } from "@/types/provider";
-import { EnkryptAccount } from "@enkryptcom/types";
+import { EnkryptAccount, HWwalletType } from "@enkryptcom/types";
+import HWwallets from "@enkryptcom/hw-wallets";
+import { ExtrinsicPayload } from "@polkadot/types/interfaces";
 
-const windowPromise = WindowPromiseHandler(0);
+const windowPromise = WindowPromiseHandler(2);
 
+const hwWallet = new HWwallets();
 const providerVerifyTransactionScrollRef = ref(null);
 const isOpenData = ref(false);
 const callData = ref<CallData>();
@@ -283,31 +286,52 @@ const toggleData = () => {
 };
 const approve = async () => {
   const { Request, sendToBackground, Resolve } = await windowPromise;
-  if (!Request.value.params || Request.value.params.length < 2) {
-    return Resolve.value({ error: getCustomError("No params") });
-  }
-
   const registry = new TypeRegistry();
-  const reqPayload = Request.value.params[0] as SignerPayloadJSON;
+  const reqPayload = Request.value.params![0] as SignerPayloadJSON;
   registry.setSignedExtensions(reqPayload.signedExtensions);
   const extType = registry.createType("ExtrinsicPayload", reqPayload, {
     version: reqPayload.version,
   });
-  const signMsg = signPayload(extType);
-
-  const account = Request.value.params[1] as EnkryptAccount;
-  sendToBackground({
-    method: InternalMethods.sign,
-    params: [signMsg, account],
-  }).then((res) => {
-    if (res.error) {
-      Resolve.value(res);
-    } else {
-      Resolve.value({
-        result: JSON.stringify(res.result),
+  if (account.value!.isHardware) {
+    hwWallet
+      .signTransaction({
+        transaction: extType as ExtrinsicPayload,
+        networkName: network.value!.name,
+        pathIndex: account.value!.pathIndex.toString(),
+        pathType: {
+          basePath: account.value!.basePath,
+          path: account.value!.HWOptions!.pathTemplate,
+        },
+        wallet: account.value!.walletType as unknown as HWwalletType,
+      })
+      .then((signature: string) => {
+        Resolve.value({
+          result: JSON.stringify(signature),
+        });
+      })
+      .catch((e: any) => {
+        Resolve.value({ error: getCustomError(e) });
       });
-    }
-  });
+  } else {
+    const signMsg = signPayload(extType);
+    sendToBackground({
+      method: InternalMethods.sign,
+      params: [signMsg, account.value],
+    }).then((res) => {
+      if (res.error) {
+        Resolve.value(res);
+      } else {
+        const signed = payloadSignTransform(
+          res.result as string,
+          account.value!.signerType,
+          true
+        );
+        Resolve.value({
+          result: JSON.stringify(signed),
+        });
+      }
+    });
+  }
 };
 const deny = async () => {
   const { Resolve } = await windowPromise;

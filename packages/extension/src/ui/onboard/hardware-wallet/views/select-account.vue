@@ -53,6 +53,8 @@ import HWwallet from "@enkryptcom/hw-wallets";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
 import { formatFloatingPointValue } from "@/libs/utils/number-formatter";
 import { fromBase } from "@/libs/utils/units";
+import { ProviderName } from "@/types/provider";
+import { polkadotEncodeAddress } from "@enkryptcom/utils";
 
 const router = useRouter();
 const route = useRoute();
@@ -120,8 +122,12 @@ const loadAddresses = async (start: number, end: number) => {
       pathIndex: i.toString(),
       wallet: walletType,
     });
+    const address =
+      network.provider === ProviderName.polkadot
+        ? polkadotEncodeAddress(newAddress.address)
+        : newAddress.address;
     accounts.value.push({
-      address: newAddress.address,
+      address,
       publicKey: newAddress.publicKey,
       balance: "~",
       path: reqPath,

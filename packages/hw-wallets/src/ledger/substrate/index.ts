@@ -1,12 +1,15 @@
 import type Transport from "@ledgerhq/hw-transport";
 import webUsbTransport from "@ledgerhq/hw-transport-webusb";
 import { HWwalletCapabilities, NetworkNames } from "@enkryptcom/types";
+import { ExtrinsicPayload } from "@polkadot/types/interfaces";
+import { u8aToBuffer, u8aToHex } from "@polkadot/util";
 import { LedgerApps } from "./substrateApps";
 import {
   AddressResponse,
   getAddressRequest,
   HWWalletProvider,
   PathType,
+  SignTransactionRequest,
 } from "../../types";
 import { bip32ToAddressNList } from "./utils";
 import { supportedPaths } from "./configs";
@@ -20,6 +23,16 @@ class LedgerSubstrate implements HWWalletProvider {
   constructor(network: NetworkNames) {
     this.transport = null;
     this.network = network;
+  }
+
+  validatePathAndNetwork(options: getAddressRequest | SignTransactionRequest) {
+    if (!LedgerApps[this.network])
+      throw new Error("ledger-substrate: Invalid network name");
+    const pathValues = bip32ToAddressNList(
+      options.pathType.path.replace(`{index}`, options.pathIndex)
+    );
+    if (pathValues.length < 3)
+      throw new Error("ledger-substrate: Invalid path");
   }
 
   async init(): Promise<boolean> {
@@ -37,16 +50,11 @@ class LedgerSubstrate implements HWWalletProvider {
   }
 
   async getAddress(options: getAddressRequest): Promise<AddressResponse> {
-    if (!LedgerApps[this.network])
-      return Promise.reject(
-        new Error("ledger-substrate: Invalid network name")
-      );
+    this.validatePathAndNetwork(options);
     const app = LedgerApps[this.network];
     const pathValues = bip32ToAddressNList(
       options.pathType.path.replace(`{index}`, options.pathIndex)
     );
-    if (pathValues.length < 3)
-      return Promise.reject(new Error("ledger-substrate: Invalid path"));
     const connection = app(this.transport);
     return connection
       .getAddress(
@@ -82,8 +90,31 @@ class LedgerSubstrate implements HWWalletProvider {
     throw new Error("hw-wallet:substrate: sign Personal message not supported");
   }
 
-  signTransaction(): Promise<string> {
-    throw new Error("hw-wallet:substrate: sign transaction not supported");
+  async signTransaction(options: SignTransactionRequest): Promise<string> {
+    this.validatePathAndNetwork(options);
+    const pathValues = bip32ToAddressNList(
+      options.pathType.path.replace(`{index}`, options.pathIndex)
+    );
+    const app = LedgerApps[this.network];
+    const tx = options.transaction as ExtrinsicPayload;
+    const connection = app(this.transport);
+    await this.getAddress({ ...options, confirmAddress: false }).then(
+      console.log
+    );
+    console.log(u8aToHex(tx.toU8a(true)), "here");
+    return connection
+      .sign(
+        pathValues[0],
+        pathValues[1],
+        pathValues[2],
+        u8aToBuffer(tx.toU8a(true))
+      )
+      .then((result) => {
+        console.log(result);
+        if (result.error_message !== "No errors")
+          throw new Error(result.error_message);
+        else return `0x${result.signature.toString("hex")}`;
+      });
   }
 
   static getSupportedNetworks(): NetworkNames[] {
