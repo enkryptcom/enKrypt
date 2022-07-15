@@ -43,7 +43,6 @@ export class Provider
     messagerRouter.handleMessage(msg);
   }
   enable(dappName: string): Promise<SubstrateInjectedProvider> {
-    console.log(dappName, "hellooo");
     const id = messagerRouter.nextPosition();
     const newProvider = new InjectedProvider({
       dappName,
