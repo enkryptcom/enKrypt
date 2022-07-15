@@ -35,6 +35,7 @@
         v-if="isImportingAccount"
         :network="network"
         :keypair="keyPair"
+        v-bind="$attrs"
         @close="close"
         @back="enterPasswordAction"
       ></import-account-importing>

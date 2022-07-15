@@ -92,6 +92,7 @@
 
   <import-account
     v-if="isImportAccount"
+    v-bind="$attrs"
     :network="network"
     :is-dot="network.name == 'DOT'"
     @close="closeImportAccount"

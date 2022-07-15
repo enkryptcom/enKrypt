@@ -63,6 +63,8 @@ import { fromBase } from "@/libs/utils/units";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
 import KeyRingBase from "@/libs/keyring/keyring";
 import BaseInput from "@action/components/base-input/index.vue";
+import { sendToBackgroundFromAction } from "@/libs/messenger/extension";
+import { InternalMethods } from "@/types/messenger";
 
 const isProcessing = ref(false);
 const isDone = ref(false);
@@ -74,6 +76,10 @@ const allAccounts = ref<EnkryptAccount[]>([]);
 const nameValue = ref("My private account");
 const keyringError = ref(false);
 const keyringPassword = ref("");
+
+const emit = defineEmits<{
+  (e: "update:init"): void;
+}>();
 
 const props = defineProps({
   network: {
@@ -130,6 +136,13 @@ const importAction = async () => {
           keyringPassword.value
         )
         .then(() => {
+          emit("update:init");
+          sendToBackgroundFromAction({
+            message: JSON.stringify({
+              method: InternalMethods.unlock,
+              params: [keyringPassword.value],
+            }),
+          }); // needed to reinitialize background keyring with new vals
           isDone.value = true;
         });
     })
