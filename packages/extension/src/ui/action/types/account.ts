@@ -1,4 +1,4 @@
-import { KeyRecord } from "@enkryptcom/types";
+import { EnkryptAccount } from "@enkryptcom/types";
 import { Token } from "./token";
 
 export interface Account {
@@ -9,8 +9,8 @@ export interface Account {
 }
 
 export interface AccountsHeaderData {
-  selectedAccount: KeyRecord | null;
-  activeAccounts: KeyRecord[];
-  inactiveAccounts: KeyRecord[];
+  selectedAccount: EnkryptAccount | null;
+  activeAccounts: EnkryptAccount[];
+  inactiveAccounts: EnkryptAccount[];
   activeBalances: string[];
 }

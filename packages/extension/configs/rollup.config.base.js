@@ -1,9 +1,10 @@
 import typescript from "@rollup/plugin-typescript";
 import commonjs from "@rollup/plugin-commonjs";
 import nodeResolve from "@rollup/plugin-node-resolve";
-import json from "@rollup/plugin-json"
-import nodePolyfills from "rollup-plugin-node-polyfills";
 import { uglify } from "rollup-plugin-uglify";
+import inject from "@rollup/plugin-inject";
+import json from "@rollup/plugin-json";
+
 const enableMinification = process.env.minify === "on";
 const base = {
   input: [],
@@ -16,7 +17,9 @@ const base = {
     typescript(),
     commonjs(),
     json(),
-    nodePolyfills(),
+    inject({
+      Buffer: ["buffer", "Buffer"],
+    }),
     nodeResolve({ preferBuiltins: false }),
   ],
 };

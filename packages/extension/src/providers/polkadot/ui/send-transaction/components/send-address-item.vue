@@ -23,8 +23,8 @@ export default {
 </script>
 
 <script setup lang="ts">
+import { EnkryptAccount } from "@enkryptcom/types";
 import { PropType } from "vue";
-import { KeyRecord } from "@enkryptcom/types";
 
 const emit = defineEmits<{
   (e: "selected:account", address: string): void;
@@ -32,7 +32,7 @@ const emit = defineEmits<{
 
 defineProps({
   account: {
-    type: Object as PropType<KeyRecord>,
+    type: Object as PropType<EnkryptAccount>,
     default: () => {
       return {};
     },

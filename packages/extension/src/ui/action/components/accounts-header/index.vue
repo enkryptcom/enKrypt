@@ -41,7 +41,7 @@ import AccountsList from "@action/views/accounts/index.vue";
 import Deposit from "@action/views/deposit/index.vue";
 import { useRouter } from "vue-router";
 import type { AccountsHeaderData } from "@action/types/account";
-import { NodeType } from "@/types/provider";
+import { BaseNetwork } from "@/types/base-network";
 const router = useRouter();
 
 let showAccounts = ref(false);
@@ -49,7 +49,7 @@ let showDeposit = ref(false);
 
 defineProps({
   network: {
-    type: Object as PropType<NodeType>,
+    type: Object as PropType<BaseNetwork>,
     default: () => ({}),
   },
   accountInfo: {

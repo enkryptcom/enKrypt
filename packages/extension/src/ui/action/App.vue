@@ -13,7 +13,6 @@
           <manage-networks-icon />
           Manage networks
         </a>
-
         <div>
           <tooltip text="Lock Enkrypt">
             <a class="app__menu-link" @click="lockAction()">
@@ -92,7 +91,6 @@ import DomainState from "@/libs/domain-state";
 import { getOtherSigners } from "@/libs/utils/accounts";
 import { AccountsHeaderData } from "./types/account";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
-import { KeyRecord } from "@enkryptcom/types";
 import { sendToBackgroundFromAction } from "@/libs/messenger/extension";
 import { MessageMethod } from "@/providers/ethereum/types";
 import { InternalMethods } from "@/types/messenger";
@@ -100,6 +98,7 @@ import NetworksState from "@/libs/networks-state";
 import openOnboard from "@/libs/utils/open-onboard";
 import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
 import { fromBase } from "@/libs/utils/units";
+import { EnkryptAccount } from "@enkryptcom/types";
 
 const domainState = new DomainState();
 const networksState = new NetworksState();
@@ -241,7 +240,7 @@ const setNetwork = async (network: BaseNetwork) => {
   }
 };
 
-const onSelectedAddressChanged = async (newAccount: KeyRecord) => {
+const onSelectedAddressChanged = async (newAccount: EnkryptAccount) => {
   accountHeaderData.value.selectedAccount = newAccount;
   await domainState.setSelectedAddress(newAccount.address);
   await sendToBackgroundFromAction({

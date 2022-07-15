@@ -1,32 +1,27 @@
 <template>
   <label class="base-checkbox">
-    <input type="checkbox" :checked="isChecked" @change="checkLocal($event)" />
+    <input
+      type="checkbox"
+      :checked="isChecked"
+      :disabled="disabled"
+      @change="emit('toggle:select')"
+    />
     <div class="base-checkbox__wrap">
       <checkbox-active />
     </div>
   </label>
 </template>
 
-<script lang="ts">
-export default {
-  name: "PhraseCheckbox",
-};
-</script>
-
 <script setup lang="ts">
 import CheckboxActive from "@action/icons/common/checkbox-active.vue";
 
-const props = defineProps({
+const emit = defineEmits<{
+  (e: "toggle:select"): void;
+}>();
+defineProps({
   isChecked: Boolean,
-  check: {
-    type: Function,
-    default: () => ({}),
-  },
+  disabled: Boolean,
 });
-
-const checkLocal = (e: any) => {
-  props.check(e.target.checked);
-};
 </script>
 
 <style lang="less">

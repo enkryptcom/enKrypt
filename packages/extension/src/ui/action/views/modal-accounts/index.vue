@@ -40,7 +40,7 @@ export default {
 <script setup lang="ts">
 import { PropType } from "vue";
 import CloseIcon from "@action/icons/common/close-icon.vue";
-import { KeyRecord } from "@enkryptcom/types";
+import { EnkryptAccount } from "@enkryptcom/types";
 import { AccountsHeaderData } from "../../types/account";
 import { NodeType } from "@/types/provider";
 import AccountsListItem from "@action/views/accounts/components/accounts-list-item.vue";
@@ -48,7 +48,7 @@ import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 import scrollSettings from "@/libs/utils/scroll-settings";
 
 const emit = defineEmits<{
-  (e: "addressChanged", account: KeyRecord): void;
+  (e: "addressChanged", account: EnkryptAccount): void;
 }>();
 
 const props = defineProps({

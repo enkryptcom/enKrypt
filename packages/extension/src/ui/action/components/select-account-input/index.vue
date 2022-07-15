@@ -20,7 +20,7 @@ export default {
 <script setup lang="ts">
 import SwitchArrow from "@action/icons/header/switch_arrow.vue";
 import { PropType } from "vue";
-import { NodeType } from "@/types/provider";
+import { BaseNetwork } from "@/types/base-network";
 
 const props = defineProps({
   name: {
@@ -36,7 +36,7 @@ const props = defineProps({
     default: () => ({}),
   },
   network: {
-    type: Object as PropType<NodeType>,
+    type: Object as PropType<BaseNetwork>,
     default: () => ({}),
   },
 });

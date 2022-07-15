@@ -24,8 +24,8 @@
 
 <script setup lang="ts">
 import { PropType } from "vue";
-import { KeyRecord } from "@enkryptcom/types";
 import { BaseNetwork } from "@/types/base-network";
+import { EnkryptAccount } from "@enkryptcom/types";
 const emit = defineEmits<{
   (e: "selected:account", address: string): void;
 }>();
@@ -35,7 +35,7 @@ defineProps({
     default: () => ({}),
   },
   account: {
-    type: Object as PropType<KeyRecord>,
+    type: Object as PropType<EnkryptAccount>,
     default: () => {
       return {};
     },

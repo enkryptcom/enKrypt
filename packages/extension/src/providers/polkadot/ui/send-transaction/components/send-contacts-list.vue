@@ -42,7 +42,7 @@ import BaseButton from "@action/components/base-button/index.vue";
 import { AccountsHeaderData } from "@action/types/account";
 import scrollSettings from "@/libs/utils/scroll-settings";
 import { onUpdated, ref } from "vue";
-import { KeyRecord } from "@enkryptcom/types";
+import { EnkryptAccount } from "@enkryptcom/types";
 const emit = defineEmits<{
   (e: "update:pasteFromClipboard"): void;
   (e: "close", open: false): void;
@@ -56,7 +56,7 @@ interface IProps {
 
 const props = defineProps<IProps>();
 
-const searchAccounts = ref<KeyRecord[]>(props.accountInfo.activeAccounts);
+const searchAccounts = ref<EnkryptAccount[]>(props.accountInfo.activeAccounts);
 
 onUpdated(() => {
   searchAccounts.value = props.accountInfo.activeAccounts;
