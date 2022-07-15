@@ -129,9 +129,6 @@ import TransactionFeeView from "@action/views/transaction-fee/index.vue";
 import { getCustomError, getError } from "@/libs/error";
 import { ErrorCodes } from "@/providers/ethereum/types";
 import { WindowPromiseHandler } from "@/libs/window-promise";
-import { InternalMethods } from "@/types/messenger";
-import { bufferToHex } from "@enkryptcom/utils";
-import { fromRpcSig } from "ethereumjs-util";
 import { DEFAULT_NETWORK_NAME, getNetworkByName } from "@/libs/utils/networks";
 import {
   DecodedTx,
@@ -140,7 +137,6 @@ import {
 } from "../libs/transaction/types";
 import Transaction from "@/providers/ethereum/libs/transaction";
 import Web3 from "web3";
-import { FeeMarketEIP1559Transaction } from "@ethereumjs/tx";
 import { EvmNetwork } from "../types/evm-network";
 import { fromBase } from "@/libs/utils/units";
 import { decodeTx } from "../libs/transaction/decoder";
@@ -149,8 +145,9 @@ import BigNumber from "bignumber.js";
 import { GasFeeType } from "./types";
 import MarketData from "@/libs/market-data";
 import { defaultGasCostVals } from "./common/default-vals";
-import { EnkryptAccount, HWwalletType } from "@enkryptcom/types";
+import { EnkryptAccount } from "@enkryptcom/types";
 import HWwallets from "@enkryptcom/hw-wallets";
+import { TransactionSigner } from "./libs/signer";
 
 const isOpenSelectFee = ref(false);
 const providerVerifyTransactionScrollRef = ref<ComponentPublicInstance>();
@@ -262,71 +259,29 @@ const approve = async () => {
   );
   tx.getFinalizedTransaction({ gasPriceType: selectedFee.value }).then(
     (finalizedTx) => {
-      if (account.value.isHardware) {
-        hwwallets
-          .signTransaction({
-            transaction: finalizedTx as any,
-            networkName: network.value.name,
-            pathIndex: account.value.pathIndex.toString(),
-            pathType: {
-              basePath: account.value.basePath,
-              path: account.value.HWOptions!.pathTemplate,
-            },
-            wallet: account.value.walletType as unknown as HWwalletType,
-          })
-          .then((rpcsig: string) => {
-            const rpcSig = fromRpcSig(rpcsig);
-            const signedTx = (
-              finalizedTx as FeeMarketEIP1559Transaction
-            )._processSignature(rpcSig.v, rpcSig.r, rpcSig.s);
-            web3.eth
-              .sendSignedTransaction(
-                "0x" + signedTx.serialize().toString("hex")
-              )
-              .on("transactionHash", (hash) => {
-                Resolve.value({
-                  result: JSON.stringify(hash),
-                });
-              })
-              .on("error", (error) => {
-                Resolve.value({
-                  error: getCustomError(error.message),
-                });
+      TransactionSigner({
+        account: account.value,
+        network: network.value,
+        payload: finalizedTx,
+        sendToBackground,
+      })
+        .then((tx) => {
+          web3.eth
+            .sendSignedTransaction("0x" + tx.serialize().toString("hex"))
+            .on("transactionHash", (hash) => {
+              Resolve.value({
+                result: JSON.stringify(hash),
               });
-          })
-          .catch((e: any) => {
-            Resolve.value({ error: getCustomError(e) });
-          });
-      } else {
-        const msgHash = bufferToHex(finalizedTx.getMessageToSign(true));
-        sendToBackground({
-          method: InternalMethods.sign,
-          params: [msgHash, account.value],
-        }).then((res) => {
-          if (res.error) {
-            Resolve.value(res);
-          } else {
-            const rpcSig = fromRpcSig(res.result || "0x");
-            const signedTx = (
-              finalizedTx as FeeMarketEIP1559Transaction
-            )._processSignature(rpcSig.v, rpcSig.r, rpcSig.s);
-            web3.eth
-              .sendSignedTransaction(
-                "0x" + signedTx.serialize().toString("hex")
-              )
-              .on("transactionHash", (hash) => {
-                Resolve.value({
-                  result: JSON.stringify(hash),
-                });
-              })
-              .on("error", (error) => {
-                Resolve.value({
-                  error: getCustomError(error.message),
-                });
+            })
+            .on("error", (error) => {
+              Resolve.value({
+                error: getCustomError(error.message),
               });
-          }
+            });
+        })
+        .catch((e: any) => {
+          Resolve.value(JSON.parse(e.message));
         });
-      }
     }
   );
 };

@@ -1,4 +1,8 @@
+import { BaseNetwork } from "@/types/base-network";
+import { InternalOnMessageResponse } from "@/types/messenger";
 import { ToTokenData } from "@/ui/action/types/token";
+import { EnkryptAccount, RPCRequestType } from "@enkryptcom/types";
+import { ExtrinsicPayload } from "@polkadot/types/interfaces";
 
 export interface CallData {
   method?: string;
@@ -27,4 +31,11 @@ export interface VerifyTransactionParams {
   toToken: ToTokenData;
   txFee: TxFeeInfo;
   TransactionData: SendTransactionDataType;
+}
+
+export interface SignerOptions {
+  payload: ExtrinsicPayload;
+  network: BaseNetwork;
+  account: EnkryptAccount;
+  sendToBackground: (req: RPCRequestType) => Promise<InternalOnMessageResponse>;
 }

@@ -1,4 +1,11 @@
+import { BaseNetwork } from "@/types/base-network";
+import { InternalOnMessageResponse } from "@/types/messenger";
 import { ToTokenData } from "@/ui/action/types/token";
+import { EnkryptAccount, RPCRequestType } from "@enkryptcom/types";
+import {
+  FeeMarketEIP1559Transaction,
+  Transaction as LegacyTransaction,
+} from "@ethereumjs/tx";
 import { GasPriceTypes } from "../libs/transaction/types";
 
 export interface GasFeeInfo {
@@ -29,4 +36,18 @@ export interface VerifyTransactionParams {
   gasFee: GasFeeInfo;
   gasPriceType: GasPriceTypes;
   TransactionData: SendTransactionDataType;
+}
+
+export interface SignerTransactionOptions {
+  payload: FeeMarketEIP1559Transaction | LegacyTransaction;
+  network: BaseNetwork;
+  account: EnkryptAccount;
+  sendToBackground: (req: RPCRequestType) => Promise<InternalOnMessageResponse>;
+}
+
+export interface SignerMessageOptions {
+  payload: Buffer;
+  network: BaseNetwork;
+  account: EnkryptAccount;
+  sendToBackground: (req: RPCRequestType) => Promise<InternalOnMessageResponse>;
 }

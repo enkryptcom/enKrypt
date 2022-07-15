@@ -113,13 +113,11 @@ import CommonPopup from "@action/views/common-popup/index.vue";
 import RightChevron from "@action/icons/common/right-chevron.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import BestOfferError from "@action/views/swap-best-offer/components/swap-best-offer-block/components/best-offer-error.vue";
-import { getCustomError, getError } from "@/libs/error";
+import { getError } from "@/libs/error";
 import { ErrorCodes } from "@/providers/ethereum/types";
 import { WindowPromiseHandler } from "@/libs/window-promise";
-import { InternalMethods } from "@/types/messenger";
 import { TypeRegistry, Metadata } from "@polkadot/types";
 import { SignerPayloadJSON } from "@polkadot/types/types";
-import { payloadSignTransform, signPayload } from "../libs/signing-utils";
 import MetadataStorage from "../libs/metadata-storage";
 import { CallData } from "./types";
 import { getAllNetworks } from "@/libs/utils/networks";
@@ -133,13 +131,10 @@ import BigNumber from "bignumber.js";
 import { FrameSystemAccountInfo } from "@acala-network/types/interfaces/types-lookup";
 import createIcon from "../libs/blockies";
 import { ProviderRequestOptions } from "@/types/provider";
-import { EnkryptAccount, HWwalletType } from "@enkryptcom/types";
-import HWwallets from "@enkryptcom/hw-wallets";
-import { ExtrinsicPayload } from "@polkadot/types/interfaces";
-
+import { EnkryptAccount } from "@enkryptcom/types";
+import { TransactionSigner } from "./libs/signer";
 const windowPromise = WindowPromiseHandler(2);
 
-const hwWallet = new HWwallets();
 const providerVerifyTransactionScrollRef = ref(null);
 const isOpenData = ref(false);
 const callData = ref<CallData>();
@@ -292,46 +287,12 @@ const approve = async () => {
   const extType = registry.createType("ExtrinsicPayload", reqPayload, {
     version: reqPayload.version,
   });
-  if (account.value!.isHardware) {
-    hwWallet
-      .signTransaction({
-        transaction: extType as ExtrinsicPayload,
-        networkName: network.value!.name,
-        pathIndex: account.value!.pathIndex.toString(),
-        pathType: {
-          basePath: account.value!.basePath,
-          path: account.value!.HWOptions!.pathTemplate,
-        },
-        wallet: account.value!.walletType as unknown as HWwalletType,
-      })
-      .then((signature: string) => {
-        Resolve.value({
-          result: JSON.stringify(signature),
-        });
-      })
-      .catch((e: any) => {
-        Resolve.value({ error: getCustomError(e) });
-      });
-  } else {
-    const signMsg = signPayload(extType);
-    sendToBackground({
-      method: InternalMethods.sign,
-      params: [signMsg, account.value],
-    }).then((res) => {
-      if (res.error) {
-        Resolve.value(res);
-      } else {
-        const signed = payloadSignTransform(
-          res.result as string,
-          account.value!.signerType,
-          true
-        );
-        Resolve.value({
-          result: JSON.stringify(signed),
-        });
-      }
-    });
-  }
+  TransactionSigner({
+    account: account.value!,
+    network: network.value!,
+    payload: extType,
+    sendToBackground,
+  }).then(Resolve.value);
 };
 const deny = async () => {
   const { Resolve } = await windowPromise;
