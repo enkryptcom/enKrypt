@@ -114,7 +114,7 @@ import { nft } from "@action/types/mock";
 import { GasPriceTypes } from "../../../../providers/ethereum/libs/transaction/types";
 import { GasFeeType } from "../../../../providers/ethereum/ui/types";
 import { EvmNetwork } from "../../types/evm-network";
-import { AssetsType } from "@/types/provider";
+import { AssetsType, ProviderName } from "@/types/provider";
 import BigNumber from "bignumber.js";
 import { defaultGasCostVals } from "../common/default-vals";
 import Transaction from "@/providers/ethereum/libs/transaction";
@@ -125,7 +125,6 @@ import erc20 from "../../libs/abi/erc20";
 import { SendTransactionDataType, VerifyTransactionParams } from "../types";
 import { formatFloatingPointValue } from "@/libs/utils/number-formatter";
 import { routes as RouterNames } from "@/ui/action/router";
-import { WindowPromise } from "@/libs/window-promise";
 import getUiPath from "@/libs/utils/get-ui-path";
 import Browser from "webextension-polyfill";
 
@@ -172,7 +171,7 @@ const TxInfo = computed<SendTransactionDataType>(() => {
   const web3 = new Web3();
   const value =
     selectedAsset.value.contract === NATIVE_TOKEN_ADDRESS
-      ? numberToHex(toBase(amount.value, props.network.decimals))
+      ? numberToHex(toBase(amount.value || "0", props.network.decimals))
       : "0x0";
   const toAddress =
     selectedAsset.value.contract === NATIVE_TOKEN_ADDRESS
@@ -287,7 +286,7 @@ const isInputsValid = computed<boolean>(() => {
 
 watch([isInputsValid, amount, address, selectedAsset], () => {
   if (isInputsValid.value) {
-    setTransactionFees(Tx.value || "0");
+    setTransactionFees(Tx.value);
   }
 });
 
@@ -397,7 +396,7 @@ const sendAction = async () => {
       url: Browser.runtime.getURL(
         getUiPath(
           `eth-hw-verify?id=${routedRoute.query.id}&txData=${routedRoute.query.txData}`,
-          "ethereum"
+          ProviderName.ethereum
         )
       ),
       type: "popup",

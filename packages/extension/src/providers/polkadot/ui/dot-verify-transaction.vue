@@ -291,7 +291,9 @@ const approve = async () => {
     account: account.value!,
     network: network.value!,
     payload: extType,
-  }).then(Resolve.value);
+  })
+    .then(Resolve.value)
+    .catch(Resolve.value);
 };
 const deny = async () => {
   const { Resolve } = await windowPromise;

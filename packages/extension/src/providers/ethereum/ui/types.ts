@@ -1,7 +1,6 @@
 import { BaseNetwork } from "@/types/base-network";
-import { InternalOnMessageResponse } from "@/types/messenger";
 import { ToTokenData } from "@/ui/action/types/token";
-import { EnkryptAccount, RPCRequestType } from "@enkryptcom/types";
+import { EnkryptAccount } from "@enkryptcom/types";
 import {
   FeeMarketEIP1559Transaction,
   Transaction as LegacyTransaction,

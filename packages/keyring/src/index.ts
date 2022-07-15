@@ -88,16 +88,21 @@ class KeyRing {
   }
 
   async unlockMnemonic(password: string): Promise<void> {
-    this.#mnemonic = await this.#getMnemonic(password);
-    this.#privkeys = await this.#getPrivateKeys(password);
-    this.#isLocked = false;
-    if (this.autoLockTime !== 0) {
-      clearTimeout(this.#autoLock);
-      setTimeout(() => {
-        this.#mnemonic = null;
-        this.#isLocked = true;
-      }, this.autoLockTime);
-    }
+    await Promise.all([
+      this.#getMnemonic(password),
+      this.#getPrivateKeys(password),
+    ]).then((results) => {
+      [this.#mnemonic, this.#privkeys] = results;
+      this.#isLocked = false;
+      if (this.autoLockTime !== 0) {
+        clearTimeout(this.#autoLock);
+        setTimeout(() => {
+          this.#mnemonic = null;
+          this.#isLocked = true;
+          this.#privkeys = {};
+        }, this.autoLockTime);
+      }
+    });
   }
 
   async getMnemonic(password: string): Promise<string> {

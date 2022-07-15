@@ -36,10 +36,19 @@
 
       <div class="verify-transaction__buttons">
         <div class="verify-transaction__buttons-cancel">
-          <base-button title="Back" :click="close" :gray="true" />
+          <base-button
+            title="Back"
+            :click="close"
+            :gray="true"
+            :disabled="isProcessing"
+          />
         </div>
         <div class="verify-transaction__buttons-send">
-          <base-button title="Confirm and send" :click="sendAction" />
+          <base-button
+            title="Confirm and send"
+            :click="sendAction"
+            :disabled="isProcessing"
+          />
         </div>
       </div>
     </div>
@@ -50,12 +59,13 @@
       :to-address="txData.toAddress"
       :network="network"
       :token="txData.toToken"
+      :is-done="isSendDone"
     ></send-process>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import BaseButton from "@action/components/base-button/index.vue";
@@ -84,12 +94,14 @@ const txData: VerifyTransactionParams = JSON.parse(
 const isNft = false;
 const isProcessing = ref(false);
 const network = getNetworkByName(selectedNetwork)!;
+const isSendDone = ref(false);
 
-onMounted(() => {
-  console.log(getCurrentContext());
-});
 const close = () => {
-  router.go(-1);
+  if (getCurrentContext() === "popup") {
+    router.go(-1);
+  } else {
+    window.close();
+  }
 };
 
 const sendAction = async () => {
@@ -110,7 +122,18 @@ const sendAction = async () => {
           .sendSignedTransaction("0x" + signedTx.serialize().toString("hex"))
           .on("transactionHash", (hash: string) => {
             console.log("hash", hash);
-            isProcessing.value = false;
+            isSendDone.value = true;
+            if (getCurrentContext() === "popup") {
+              setTimeout(() => {
+                isProcessing.value = false;
+                router.go(-2);
+              }, 4500);
+            } else {
+              setTimeout(() => {
+                isProcessing.value = false;
+                window.close();
+              }, 1500);
+            }
           })
           .on("error", (error: any) => {
             console.log("ERROR", error);
