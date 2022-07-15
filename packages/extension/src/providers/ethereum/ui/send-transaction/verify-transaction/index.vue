@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <div v-if="!!selected" class="verify-transaction">
+    <div v-if="!!selectedNetwork" class="verify-transaction">
       <div class="verify-transaction__header">
         <h3>Verify Transaction</h3>
         <a class="verify-transaction__close" @click="close">
@@ -36,10 +36,19 @@
 
       <div class="verify-transaction__buttons">
         <div class="verify-transaction__buttons-cancel">
-          <base-button title="Back" :click="close" :gray="true" />
+          <base-button
+            title="Back"
+            :click="close"
+            :gray="true"
+            :disabled="isProcessing"
+          />
         </div>
         <div class="verify-transaction__buttons-send">
-          <base-button title="Confirm and send" :click="sendAction" />
+          <base-button
+            title="Confirm and send"
+            :click="sendAction"
+            :disabled="isProcessing"
+          />
         </div>
       </div>
     </div>
@@ -50,12 +59,13 @@
       :to-address="txData.toAddress"
       :network="network"
       :token="txData.toToken"
+      :is-done="isSendDone"
     ></send-process>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, PropType } from "vue";
+import { ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import BaseButton from "@action/components/base-button/index.vue";
@@ -68,74 +78,68 @@ import SendProcess from "@action/views/send-process/index.vue";
 import { nft } from "@action/types/mock";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
 import { VerifyTransactionParams } from "../../types";
-import { BaseNetwork } from "@/types/base-network";
 import Transaction from "@/providers/ethereum/libs/transaction";
 import Web3 from "web3";
-import { bufferToHex, fromRpcSig } from "ethereumjs-util";
-import { sendToBackgroundFromAction } from "@/libs/messenger/extension";
-import { InternalMethods } from "@/types/messenger";
-import { FeeMarketEIP1559Transaction } from "@ethereumjs/tx";
+import { getCurrentContext } from "@/libs/messenger/extension";
+import { getNetworkByName } from "@/libs/utils/networks";
+import { TransactionSigner } from "../../libs/signer";
 
 const KeyRing = new PublicKeyRing();
 const route = useRoute();
 const router = useRouter();
-const selected: string = route.params.id as string;
+const selectedNetwork: string = route.query.id as string;
 const txData: VerifyTransactionParams = JSON.parse(
-  route.params.txData as string
+  route.query.txData as string
 );
 const isNft = false;
-let isProcessing = ref(false);
-
-const props = defineProps({
-  network: {
-    type: Object as PropType<BaseNetwork>,
-    default: () => ({}),
-  },
-});
+const isProcessing = ref(false);
+const network = getNetworkByName(selectedNetwork)!;
+const isSendDone = ref(false);
 
 const close = () => {
-  router.go(-1);
+  if (getCurrentContext() === "popup") {
+    router.go(-1);
+  } else {
+    window.close();
+  }
 };
 
 const sendAction = async () => {
   isProcessing.value = true;
-  const web3 = new Web3(props.network.node);
+  const web3 = new Web3(network.node);
   const tx = new Transaction(txData.TransactionData, web3);
+  const account = await KeyRing.getAccount(txData.fromAddress);
+
   await tx
     .getFinalizedTransaction({ gasPriceType: txData.gasPriceType })
     .then(async (finalizedTx) => {
-      const msgHash = bufferToHex(finalizedTx.getMessageToSign(true));
-      const account = await KeyRing.getAccount(txData.fromAddress);
-      return sendToBackgroundFromAction({
-        message: JSON.stringify({
-          method: InternalMethods.sign,
-          params: [msgHash, account],
-        }),
-      }).then((res: any) => {
-        if (res.error) {
-          console.log("error", res.error);
-        } else {
-          const rpcSig = fromRpcSig(JSON.parse(res.result) || "0x");
-          const signedTx = (
-            finalizedTx as FeeMarketEIP1559Transaction
-          )._processSignature(rpcSig.v, rpcSig.r, rpcSig.s);
-          web3.eth
-            .sendSignedTransaction("0x" + signedTx.serialize().toString("hex"))
-            .on("transactionHash", (hash: string) => {
-              console.log("hash", hash);
-            })
-            .on("error", (error: any) => {
-              console.log("ERROR", error);
-            });
-        }
+      TransactionSigner({
+        account,
+        network,
+        payload: finalizedTx,
+      }).then((signedTx) => {
+        web3.eth
+          .sendSignedTransaction("0x" + signedTx.serialize().toString("hex"))
+          .on("transactionHash", (hash: string) => {
+            console.log("hash", hash);
+            isSendDone.value = true;
+            if (getCurrentContext() === "popup") {
+              setTimeout(() => {
+                isProcessing.value = false;
+                router.go(-2);
+              }, 4500);
+            } else {
+              setTimeout(() => {
+                isProcessing.value = false;
+                window.close();
+              }, 1500);
+            }
+          })
+          .on("error", (error: any) => {
+            console.log("ERROR", error);
+          });
       });
     });
-  setTimeout(() => {
-    isProcessing.value = false;
-  }, 4000);
-  setTimeout(() => {
-    router.go(-2);
-  }, 4500);
 };
 </script>
 

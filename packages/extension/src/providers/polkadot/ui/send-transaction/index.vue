@@ -93,11 +93,14 @@ import { SubstrateNetwork } from "../../types/substrate-network";
 import { toBN } from "web3-utils";
 import { formatFloatingPointValue } from "@/libs/utils/number-formatter";
 import createIcon from "../../libs/blockies";
-import { AssetsType } from "@/types/provider";
+import { AssetsType, ProviderName } from "@/types/provider";
 import { fromBase, toBase } from "@/libs/utils/units";
 import BigNumber from "bignumber.js";
 import { VerifyTransactionParams } from "../types";
+import { routes as RouterNames } from "@/ui/action/router";
 import { SendOptions } from "@/types/base-token";
+import Browser from "webextension-polyfill";
+import getUiPath from "@/libs/utils/get-ui-path";
 
 const props = defineProps({
   network: {
@@ -312,10 +315,30 @@ const sendAction = async () => {
     toAddress: address.value,
   };
 
-  router.push({
-    name: "verify-transaction",
-    params: { id: selected, txData: JSON.stringify(txVerifyInfo) },
+  const routedRoute = router.resolve({
+    name: RouterNames.verify.name,
+    query: {
+      id: selected,
+      txData: JSON.stringify(txVerifyInfo),
+    },
   });
+
+  if (props.accountInfo.selectedAccount!.isHardware) {
+    await Browser.windows.create({
+      url: Browser.runtime.getURL(
+        getUiPath(
+          `dot-hw-verify?id=${routedRoute.query.id}&txData=${routedRoute.query.txData}`,
+          ProviderName.polkadot
+        )
+      ),
+      type: "popup",
+      focused: true,
+      height: 600,
+      width: 460,
+    });
+  } else {
+    router.push(routedRoute);
+  }
 };
 </script>
 
@@ -359,6 +382,8 @@ const sendAction = async () => {
     right: 24px;
     border-radius: 8px;
     cursor: pointer;
+    transition: background 300ms ease-in-out;
+    font-size: 0;
 
     &:hover {
       background: @black007;

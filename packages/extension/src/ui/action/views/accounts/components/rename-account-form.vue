@@ -49,7 +49,7 @@ export default {
 import { PropType, ref, onMounted } from "vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import { NodeType } from "@/types/provider";
-import { KeyRecord } from "@enkryptcom/types";
+import { EnkryptAccount } from "@enkryptcom/types";
 
 const isFocus = ref(false);
 const accountName = ref("");
@@ -67,7 +67,7 @@ const props = defineProps({
     default: () => ({}),
   },
   account: {
-    type: Object as PropType<KeyRecord>,
+    type: Object as PropType<EnkryptAccount>,
     default: () => ({}),
   },
 });

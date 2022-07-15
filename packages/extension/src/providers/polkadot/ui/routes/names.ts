@@ -24,4 +24,9 @@ export default {
     component: {},
     name: "dotVerifyTransaction",
   },
+  dotHWVerify: {
+    path: "dot-hw-verify",
+    name: "dotHWVerify",
+    component: {},
+  },
 };

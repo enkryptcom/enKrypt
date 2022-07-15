@@ -6,7 +6,6 @@
       v-model="mnemonic"
       autocomplete="off"
       class="enter-recovery-phrase__input"
-      placeholder="witch collapse practice feed shame open despair creek road again ice least"
     >
     </textarea>
 
@@ -61,7 +60,6 @@ const validate = computed(() => {
     height: 128px;
     background: rgba(95, 99, 104, 0.01);
     border: 1px solid rgba(95, 99, 104, 0.2);
-    font-family: "Roboto";
     box-sizing: border-box;
     border-radius: 10px;
     margin-bottom: 16px;
@@ -75,10 +73,13 @@ const validate = computed(() => {
     text-align: center;
     color: @primaryLabel;
     outline: none !important;
+    padding: 16px;
+    font-family: "Roboto", sans-serif;
+    flex-direction: row;
 
     &:active,
     &:focus {
-      border: 1.5px solid @primary;
+      border: 2px solid @primary;
     }
   }
 

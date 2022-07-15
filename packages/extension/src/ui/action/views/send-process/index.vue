@@ -34,7 +34,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, PropType } from "vue";
+import { PropType } from "vue";
 import LottieSendProcess from "@action/assets/animation/send-process.json";
 import LottieSendCheckmark from "@action/assets/animation/send-checkmark.json";
 import ArrowDown from "@action/icons/send/arrow-down.vue";
@@ -45,14 +45,6 @@ import { nft } from "@action/types/mock";
 import { ToTokenData } from "../../types/token";
 import { BaseNetwork } from "@/types/base-network";
 
-let isDone = ref(false);
-
-onMounted(() => {
-  setTimeout(() => {
-    isDone.value = true;
-  }, 3000);
-});
-
 defineProps({
   network: {
     type: Object as PropType<BaseNetwork>,
@@ -60,6 +52,8 @@ defineProps({
       return {};
     },
   },
+  isDone: Boolean,
+  isError: Boolean,
   token: {
     type: Object as PropType<ToTokenData>,
     default: () => {

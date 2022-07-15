@@ -1,7 +1,7 @@
 import { getCustomError } from "@/libs/error";
 import KeyRingBase from "@/libs/keyring/keyring";
 import { InternalOnMessageResponse } from "@/types/messenger";
-import { KeyRecord, RPCRequestType } from "@enkryptcom/types";
+import { EnkryptAccount, RPCRequestType } from "@enkryptcom/types";
 
 const ethereumDecrypt = (
   keyring: KeyRingBase,
@@ -12,7 +12,7 @@ const ethereumDecrypt = (
       error: getCustomError("background: invalid params for decrypt"),
     });
   const encryptedMessage = message.params[0] as string;
-  const account = message.params[1] as KeyRecord;
+  const account = message.params[1] as EnkryptAccount;
   return keyring
     .ethereumDecrypt(encryptedMessage, account)
     .then((msg) => {

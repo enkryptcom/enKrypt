@@ -114,7 +114,7 @@ import { nft } from "@action/types/mock";
 import { GasPriceTypes } from "../../../../providers/ethereum/libs/transaction/types";
 import { GasFeeType } from "../../../../providers/ethereum/ui/types";
 import { EvmNetwork } from "../../types/evm-network";
-import { AssetsType } from "@/types/provider";
+import { AssetsType, ProviderName } from "@/types/provider";
 import BigNumber from "bignumber.js";
 import { defaultGasCostVals } from "../common/default-vals";
 import Transaction from "@/providers/ethereum/libs/transaction";
@@ -124,6 +124,9 @@ import { fromBase, toBase } from "@/libs/utils/units";
 import erc20 from "../../libs/abi/erc20";
 import { SendTransactionDataType, VerifyTransactionParams } from "../types";
 import { formatFloatingPointValue } from "@/libs/utils/number-formatter";
+import { routes as RouterNames } from "@/ui/action/router";
+import getUiPath from "@/libs/utils/get-ui-path";
+import Browser from "webextension-polyfill";
 
 const props = defineProps({
   network: {
@@ -168,7 +171,7 @@ const TxInfo = computed<SendTransactionDataType>(() => {
   const web3 = new Web3();
   const value =
     selectedAsset.value.contract === NATIVE_TOKEN_ADDRESS
-      ? numberToHex(toBase(amount.value, props.network.decimals))
+      ? numberToHex(toBase(amount.value || "0", props.network.decimals))
       : "0x0";
   const toAddress =
     selectedAsset.value.contract === NATIVE_TOKEN_ADDRESS
@@ -362,7 +365,7 @@ const selectFee = (type: GasPriceTypes) => {
   if (isMaxSelected.value) setMaxValue();
 };
 
-const sendAction = () => {
+const sendAction = async () => {
   const txVerifyInfo: VerifyTransactionParams = {
     TransactionData: TxInfo.value,
     toToken: {
@@ -379,13 +382,31 @@ const sendAction = () => {
     gasPriceType: selectedFee.value,
     toAddress: address.value,
   };
-  router.push({
-    name: "verify-transaction",
-    params: {
+
+  const routedRoute = router.resolve({
+    name: RouterNames.verify.name,
+    query: {
       id: selected,
       txData: JSON.stringify(txVerifyInfo),
     },
   });
+
+  if (props.accountInfo.selectedAccount!.isHardware) {
+    await Browser.windows.create({
+      url: Browser.runtime.getURL(
+        getUiPath(
+          `eth-hw-verify?id=${routedRoute.query.id}&txData=${routedRoute.query.txData}`,
+          ProviderName.ethereum
+        )
+      ),
+      type: "popup",
+      focused: true,
+      height: 600,
+      width: 460,
+    });
+  } else {
+    router.push(routedRoute);
+  }
 };
 
 const toggleSelector = (isTokenSend: boolean) => {

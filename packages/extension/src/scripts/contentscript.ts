@@ -1,8 +1,6 @@
 import browser from "webextension-polyfill";
 import { setContentScriptNamespace } from "@/libs/messenger/extension";
-
 setContentScriptNamespace();
-
 function injectScript() {
   try {
     const injectURL = browser.runtime.getURL("scripts/inject.js");

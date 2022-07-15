@@ -43,7 +43,7 @@ const approve = async () => {
               address: acc.address,
               genesisHash: "",
               name: acc.name,
-              type: acc.type,
+              type: acc.signerType,
             };
           })
         ),

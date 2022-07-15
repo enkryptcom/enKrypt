@@ -1,20 +1,9 @@
 <template>
   <div class="onboard__container">
     <logo class="onboard__logo"></logo>
-    <div
-      class="onboard__wrap"
-      :class="{
-        'onboard__wrap--ready':
-          $route.name == 'create-wallet-wallet-ready' ||
-          $route.name == 'restore-wallet-wallet-ready',
-      }"
-    >
+    <div class="onboard__wrap" :class="wrapClassObject()">
       <a
-        v-if="
-          $route.name != 'new-wallet' &&
-          $route.name != 'create-wallet-wallet-ready' &&
-          $route.name != 'restore-wallet-wallet-ready'
-        "
+        v-if="isShowBackButton()"
         class="onboard__back"
         @click="$router.go(-1)"
       >
@@ -43,10 +32,34 @@ import ArrowBack from "@action/icons/common/arrow-back.vue";
 import ExtensionIcon from "@action/icons/tip/extension-icon.vue";
 import OnlineIcon from "@action/icons/tip/online-icon.vue";
 import PinIcon from "@action/icons/tip/pin-icon.vue";
+import { useRoute } from "vue-router";
+
+const route = useRoute();
+
+const isShowBackButton = () => {
+  return (
+    route.name &&
+    route.name != "new-wallet" &&
+    route.name != "create-wallet-wallet-ready" &&
+    route.name != "restore-wallet-wallet-ready" &&
+    !(route.name as string).includes("hardware-wallet")
+  );
+};
+
+const wrapClassObject = () => {
+  return {
+    "onboard__wrap--ready":
+      route.name == "create-wallet-wallet-ready" ||
+      route.name == "restore-wallet-wallet-ready",
+    "onboard__wrap--auto-height": route.path.match(/hardware-wallet/),
+  };
+};
 </script>
 
 <style lang="less">
 @import "~@action/styles/theme.less";
+@import (css)
+  url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap");
 
 body {
   width: 100vw;
@@ -54,6 +67,7 @@ body {
   margin: 0;
   overflow: hidden;
   font-size: 0;
+  font-family: "Roboto", sans-serif;
 }
 
 .onboard {
@@ -106,6 +120,11 @@ body {
     &--ready {
       background: transparent;
       box-shadow: none;
+    }
+
+    &--auto-height {
+      height: auto;
+      max-height: 600px;
     }
   }
 

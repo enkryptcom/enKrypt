@@ -1,10 +1,15 @@
 import {
-  KeyRecordAdd,
-  KeyRecord,
   Errors,
   SignerInterface,
   SignerType,
   SignOptions,
+  EnkryptAccount,
+  KeyRecordAdd,
+  HWWalletAdd,
+  HWwalletType,
+  KeyPairAdd,
+  WalletType,
+  KeyPair,
 } from "@enkryptcom/types";
 import Storage from "@enkryptcom/storage";
 import { entropyToMnemonic, generateMnemonic, mnemonicToEntropy } from "bip39";
@@ -18,21 +23,23 @@ import { pathParser } from "./utils";
 class KeyRing {
   #storage: Storage;
 
-  #_isLocked: boolean;
+  #isLocked: boolean;
 
   #signers: { [key in SignerType]: SignerInterface };
 
-  #_mnemonic: string;
+  #mnemonic: string;
 
-  #_autoLock: number;
+  #privkeys: Record<string, string>;
+
+  #autoLock: number;
 
   readonly autoLockTime: number;
 
   constructor(storage: Storage, locktime = 30 * 60 * 1000) {
     this.#storage = storage;
-    this.#_isLocked = true;
+    this.#isLocked = true;
     this.autoLockTime = locktime;
-
+    this.#privkeys = {};
     this.#signers = {
       [SignerType.secp256k1]: new EthereumSigner(),
       [SignerType.ecdsa]: new PolkadotSigner(SignerType.ecdsa),
@@ -64,14 +71,14 @@ class KeyRing {
     return false;
   }
 
-  async getPathIndex(basePath: string): Promise<number> {
+  async #getPathIndex(basePath: string): Promise<number> {
     const pathIndexes =
       (await this.#storage.get(configs.STORAGE_KEYS.PATH_INDEXES)) || {};
     if (pathIndexes[basePath] === undefined) return 0;
     return pathIndexes[basePath] + 1;
   }
 
-  private async _getMnemonic(password: string): Promise<string> {
+  async #getMnemonic(password: string): Promise<string> {
     const encrypted = await this.#storage.get(
       configs.STORAGE_KEYS.ENCRYPTED_MNEMONIC
     );
@@ -81,40 +88,62 @@ class KeyRing {
   }
 
   async unlockMnemonic(password: string): Promise<void> {
-    this.#_mnemonic = await this._getMnemonic(password);
-    this.#_isLocked = false;
-    if (this.autoLockTime !== 0) {
-      clearTimeout(this.#_autoLock);
-      setTimeout(() => {
-        this.#_mnemonic = null;
-        this.#_isLocked = true;
-      }, this.autoLockTime);
-    }
+    await Promise.all([
+      this.#getMnemonic(password),
+      this.#getPrivateKeys(password),
+    ]).then((results) => {
+      [this.#mnemonic, this.#privkeys] = results;
+      this.#isLocked = false;
+      if (this.autoLockTime !== 0) {
+        clearTimeout(this.#autoLock);
+        setTimeout(() => {
+          this.#mnemonic = null;
+          this.#isLocked = true;
+          this.#privkeys = {};
+        }, this.autoLockTime);
+      }
+    });
   }
 
   async getMnemonic(password: string): Promise<string> {
-    return this._getMnemonic(password);
+    return this.#getMnemonic(password);
   }
 
-  async createKey(key: KeyRecordAdd): Promise<KeyRecord> {
-    assert(!this.#_isLocked, Errors.KeyringErrors.Locked);
-    const nextIndex = await this.getPathIndex(key.basePath);
-    const keypair = await this.#signers[key.type].generate(
-      this.#_mnemonic,
-      pathParser(key.basePath, nextIndex, key.type)
-    );
+  async createKey(key: KeyRecordAdd): Promise<EnkryptAccount> {
+    assert(!this.#isLocked, Errors.KeyringErrors.Locked);
+    const nextIndex = await this.#getPathIndex(key.basePath);
+    let keypair: KeyPair;
+    if (key.walletType === WalletType.privkey) {
+      keypair = {
+        privateKey: "", // we will manually set these
+        publicKey: "",
+        address: "",
+      };
+    } else {
+      keypair = await this.#signers[key.signerType].generate(
+        this.#mnemonic,
+        pathParser(key.basePath, nextIndex, key.signerType)
+      );
+    }
     return {
       address: keypair.address,
       basePath: key.basePath,
       name: key.name,
       pathIndex: nextIndex,
       publicKey: keypair.publicKey,
-      type: key.type,
+      signerType: key.signerType,
+      walletType: key.walletType,
+      isHardware: false,
     };
   }
 
-  async createAndSaveKey(key: KeyRecordAdd): Promise<KeyRecord> {
+  async createAndSaveKey(key: KeyRecordAdd): Promise<EnkryptAccount> {
     const keyRecord = await this.createKey(key);
+    await this.#saveKeyRecord(keyRecord);
+    return keyRecord;
+  }
+
+  async #saveKeyRecord(keyRecord: EnkryptAccount): Promise<void> {
     const existingKeys = await this.getKeysObject();
     assert(
       !existingKeys[keyRecord.address],
@@ -126,30 +155,53 @@ class KeyRing {
       (await this.#storage.get(configs.STORAGE_KEYS.PATH_INDEXES)) || {};
     pathIndexes[keyRecord.basePath] = keyRecord.pathIndex;
     await this.#storage.set(configs.STORAGE_KEYS.PATH_INDEXES, pathIndexes);
-    return keyRecord;
   }
 
   async sign(msgHash: string, options: SignOptions): Promise<string> {
-    assert(!this.#_isLocked, Errors.KeyringErrors.Locked);
-    const keypair = await this.#signers[options.type].generate(
-      this.#_mnemonic,
-      pathParser(options.basePath, options.pathIndex, options.type)
+    assert(!this.#isLocked, Errors.KeyringErrors.Locked);
+    assert(
+      !Object.values(HWwalletType).includes(
+        options.walletType as unknown as HWwalletType
+      ),
+      Errors.KeyringErrors.CannotUseKeyring
     );
-    return this.#signers[options.type].sign(msgHash, keypair);
+    let keypair: KeyPair;
+    if (options.walletType === WalletType.privkey) {
+      const pubKey = (await this.getKeysArray()).find(
+        (i) =>
+          i.basePath === options.basePath && i.pathIndex === options.pathIndex
+      ).publicKey;
+      keypair = {
+        privateKey: this.#privkeys[options.pathIndex.toString()],
+        publicKey: pubKey,
+      };
+    } else {
+      keypair = await this.#signers[options.signerType].generate(
+        this.#mnemonic,
+        pathParser(options.basePath, options.pathIndex, options.signerType)
+      );
+    }
+    return this.#signers[options.signerType].sign(msgHash, keypair);
   }
 
   async getEthereumEncryptionPublicKey(options: SignOptions): Promise<string> {
-    assert(!this.#_isLocked, Errors.KeyringErrors.Locked);
+    assert(!this.#isLocked, Errors.KeyringErrors.Locked);
     assert(
-      options.type === SignerType.secp256k1,
+      !Object.values(HWwalletType).includes(
+        options.walletType as unknown as HWwalletType
+      ),
+      Errors.KeyringErrors.CannotUseKeyring
+    );
+    assert(
+      options.signerType === SignerType.secp256k1,
       Errors.KeyringErrors.EnckryptDecryptNotSupported
     );
-    const keypair = await this.#signers[options.type].generate(
-      this.#_mnemonic,
-      pathParser(options.basePath, options.pathIndex, options.type)
+    const keypair = await this.#signers[options.signerType].generate(
+      this.#mnemonic,
+      pathParser(options.basePath, options.pathIndex, options.signerType)
     );
     return (
-      this.#signers[options.type] as EthereumSigner
+      this.#signers[options.signerType] as EthereumSigner
     ).getEncryptionPublicKey(keypair);
   }
 
@@ -157,39 +209,108 @@ class KeyRing {
     encryptedMessage: string,
     options: SignOptions
   ): Promise<string> {
-    assert(!this.#_isLocked, Errors.KeyringErrors.Locked);
+    assert(!this.#isLocked, Errors.KeyringErrors.Locked);
     assert(
-      options.type === SignerType.secp256k1,
+      !Object.values(HWwalletType).includes(
+        options.walletType as unknown as HWwalletType
+      ),
+      Errors.KeyringErrors.CannotUseKeyring
+    );
+    assert(
+      options.signerType === SignerType.secp256k1,
       Errors.KeyringErrors.EnckryptDecryptNotSupported
     );
-    const keypair = await this.#signers[options.type].generate(
-      this.#_mnemonic,
-      pathParser(options.basePath, options.pathIndex, options.type)
+    const keypair = await this.#signers[options.signerType].generate(
+      this.#mnemonic,
+      pathParser(options.basePath, options.pathIndex, options.signerType)
     );
-    return (this.#signers[options.type] as EthereumSigner).decrypt(
+    return (this.#signers[options.signerType] as EthereumSigner).decrypt(
       encryptedMessage,
       keypair
     );
   }
 
-  async getKeysObject(): Promise<{ [key: string]: KeyRecord }> {
+  async getKeysObject(): Promise<{ [key: string]: EnkryptAccount }> {
     const jsonstr = await this.#storage.get(configs.STORAGE_KEYS.KEY_INFO);
     if (!jsonstr) return {};
     return jsonstr;
   }
 
-  async getKeysArray(): Promise<KeyRecord[]> {
+  async getKeysArray(): Promise<EnkryptAccount[]> {
     return Object.values(await this.getKeysObject());
   }
 
+  async addHWAccount(account: HWWalletAdd): Promise<EnkryptAccount> {
+    const existingKeys = await this.getKeysObject();
+    assert(!existingKeys[account.address], Errors.KeyringErrors.AddressExists);
+    const hwAcc: EnkryptAccount = { isHardware: true, ...account };
+    existingKeys[account.address] = hwAcc;
+    await this.#storage.set(configs.STORAGE_KEYS.KEY_INFO, existingKeys);
+    return hwAcc;
+  }
+
+  async #getPrivateKeys(
+    keyringPassword: string
+  ): Promise<Record<string, string>> {
+    const encrypted = await this.#storage.get(
+      configs.STORAGE_KEYS.ENCRYPTED_PRIVKEYS
+    );
+    if (!encrypted) return {};
+    const decrypted = await decrypt(encrypted, keyringPassword);
+    return JSON.parse(decrypted.toString("utf-8"));
+  }
+
+  async #setPrivateKey(
+    pathIndex: string,
+    privKey: string,
+    keyringPassword: string
+  ): Promise<void> {
+    const allKeys = await this.#getPrivateKeys(keyringPassword);
+    assert(!allKeys[pathIndex], Errors.KeyringErrors.AddressExists);
+    allKeys[pathIndex] = privKey;
+    const encrypted = await encrypt(
+      Buffer.from(JSON.stringify(allKeys), "utf-8"),
+      keyringPassword
+    );
+    await this.#storage.set(configs.STORAGE_KEYS.ENCRYPTED_PRIVKEYS, encrypted);
+    this.#privkeys = allKeys;
+  }
+
+  async addKeyPair(
+    keyPair: KeyPairAdd,
+    keyringPassword: string
+  ): Promise<EnkryptAccount> {
+    const existingKeys = await this.getKeysObject();
+    assert(!existingKeys[keyPair.address], Errors.KeyringErrors.AddressExists);
+    assert(
+      keyPair.signerType === SignerType.secp256k1,
+      Errors.SigningErrors.NotSupported
+    );
+    const kpAcc = await this.createKey({
+      basePath: configs.PRIVEY_BASE_PATH,
+      name: keyPair.name,
+      signerType: keyPair.signerType,
+      walletType: WalletType.privkey,
+    });
+    kpAcc.address = keyPair.address;
+    kpAcc.publicKey = keyPair.publicKey;
+    await this.#setPrivateKey(
+      kpAcc.pathIndex.toString(),
+      keyPair.privateKey,
+      keyringPassword
+    );
+    await this.#saveKeyRecord(kpAcc);
+    return kpAcc;
+  }
+
   isLocked(): boolean {
-    return this.#_isLocked;
+    return this.#isLocked;
   }
 
   lock(): void {
-    clearTimeout(this.#_autoLock);
-    this.#_mnemonic = null;
-    this.#_isLocked = true;
+    clearTimeout(this.#autoLock);
+    this.#mnemonic = null;
+    this.#isLocked = true;
   }
 }
 

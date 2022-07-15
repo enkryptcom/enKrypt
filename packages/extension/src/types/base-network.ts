@@ -2,7 +2,6 @@ import EvmAPI from "@/providers/ethereum/libs/api";
 import SubstrateAPI from "@/providers/polkadot/libs/api";
 import { AssetsType, ProviderName } from "@/types/provider";
 import { SignerType } from "@enkryptcom/types";
-// import { BaseToken } from "./base-token";
 import { NetworkNames } from "@enkryptcom/types";
 import { BaseToken } from "./base-token";
 

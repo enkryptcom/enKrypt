@@ -1,4 +1,24 @@
+import { NetworkNames } from "./networks";
+
 export * from "./networks";
+
+export enum WalletType {
+  mnemonic = "mnemonic",
+  privkey = "privkey",
+  ledger = "ledger",
+  trezor = "trezor",
+}
+export enum HWwalletType {
+  ledger = WalletType.ledger,
+  trezor = WalletType.trezor,
+}
+
+export enum HWwalletCapabilities {
+  signMessage = "signMessage",
+  signTx = "signTx",
+  eip1559 = "eip1559",
+  typedMessage = "typedMessage",
+}
 
 enum SigningErrors {
   UnableToVerify = "Signing verification failed",
@@ -16,6 +36,7 @@ enum KeyringErrors {
   AddressExists = "Address already exists",
   AddressDoesntExists = "Address doesnt exists in the keyring",
   EnckryptDecryptNotSupported = "This Keytype doesnt support encrypt and decrypt",
+  CannotUseKeyring = "Cannot use keyring for HW wallets",
   Locked = "Keyring locked",
 }
 
@@ -29,7 +50,8 @@ enum SignerType {
 interface KeyRecordAdd {
   name: string;
   basePath: string;
-  type: SignerType;
+  signerType: SignerType;
+  walletType: WalletType;
 }
 
 interface KeyRecord extends KeyRecordAdd {
@@ -38,10 +60,30 @@ interface KeyRecord extends KeyRecordAdd {
   pathIndex: number;
 }
 
+interface HWwalletOptions {
+  networkName: NetworkNames;
+  pathTemplate: string;
+}
+
+interface EnkryptAccount extends KeyRecord {
+  isHardware: boolean;
+  HWOptions?: HWwalletOptions;
+}
+
+interface HWWalletAdd extends KeyRecord {
+  HWOptions: HWwalletOptions;
+}
+
 interface KeyPair {
   address?: string;
   privateKey: string;
   publicKey: string;
+}
+
+interface KeyPairAdd extends KeyPair {
+  address: string;
+  name: string;
+  signerType: SignerType;
 }
 
 interface SignerInterface {
@@ -117,7 +159,8 @@ interface OnMessageResponse {
 interface SignOptions {
   basePath: string;
   pathIndex: number;
-  type: SignerType;
+  signerType: SignerType;
+  walletType: WalletType;
 }
 
 interface EthEncryptedData {
@@ -144,4 +187,7 @@ export {
   SignOptions,
   ProviderError,
   EthEncryptedData,
+  EnkryptAccount,
+  HWWalletAdd,
+  KeyPairAdd,
 };

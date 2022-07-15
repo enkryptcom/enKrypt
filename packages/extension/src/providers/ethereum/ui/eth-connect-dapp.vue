@@ -27,8 +27,8 @@
 
       <div class="common-popup__block no-inset no-padding">
         <select-account-input
-          :name="accountHeaderData.selectedAccount.name"
-          :address="accountHeaderData.selectedAccount.address"
+          :name="accountHeaderData.selectedAccount!.name"
+          :address="accountHeaderData.selectedAccount!.address"
           :toggle-accounts="toggleAccounts"
           :network="defaultNetwork"
         ></select-account-input>
@@ -74,11 +74,11 @@ import SelectAccountInput from "@action/components/select-account-input/index.vu
 import ModalAccounts from "@action/views/modal-accounts/index.vue";
 import DappConnecting from "@action/views/dapp-connecting/index.vue";
 import { AccountsHeaderData } from "@action/types/account";
-import { SignerType, KeyRecord } from "@enkryptcom/types";
-import { NodeType } from "@/types/provider";
+import { EnkryptAccount, SignerType, WalletType } from "@enkryptcom/types";
 import { DEFAULT_NETWORK_NAME, getNetworkByName } from "@/libs/utils/networks";
+import { BaseNetwork } from "@/types/base-network";
 
-const defaultNetwork = getNetworkByName(DEFAULT_NETWORK_NAME) as NodeType;
+const defaultNetwork = getNetworkByName(DEFAULT_NETWORK_NAME) as BaseNetwork;
 const accountHeaderData = ref<AccountsHeaderData>({
   activeAccounts: [
     {
@@ -88,7 +88,9 @@ const accountHeaderData = ref<AccountsHeaderData>({
       pathIndex: 0,
       publicKey:
         "0x600744bbdf16e007b3d44e745be5c7f3560de039e113890cb94501cb9db36b9bb36a1856d16f33d423f41b2ab6a6532fd78215f89b405d624fe42c3aab5dad1e",
-      type: SignerType.secp256k1,
+      signerType: SignerType.secp256k1,
+      walletType: WalletType.mnemonic,
+      isHardware: false,
     },
     {
       address: "0x99999990d598b918799f38163204bbc30611b6b6",
@@ -96,7 +98,9 @@ const accountHeaderData = ref<AccountsHeaderData>({
       name: "fake account #1",
       pathIndex: 0,
       publicKey: "0x0",
-      type: SignerType.secp256k1,
+      signerType: SignerType.secp256k1,
+      walletType: WalletType.mnemonic,
+      isHardware: false,
     },
     {
       address: "0xe5dc07bdcdb8c98850050c7f67de7e164b1ea391",
@@ -104,7 +108,9 @@ const accountHeaderData = ref<AccountsHeaderData>({
       name: "fake account #3",
       pathIndex: 0,
       publicKey: "0x0",
-      type: SignerType.secp256k1,
+      signerType: SignerType.secp256k1,
+      walletType: WalletType.mnemonic,
+      isHardware: false,
     },
   ],
   inactiveAccounts: [],
@@ -114,7 +120,9 @@ const accountHeaderData = ref<AccountsHeaderData>({
     name: "fake account #1",
     pathIndex: 0,
     publicKey: "0x0",
-    type: SignerType.secp256k1,
+    signerType: SignerType.secp256k1,
+    walletType: WalletType.mnemonic,
+    isHardware: false,
   },
   activeBalances: [],
 });
@@ -133,7 +141,7 @@ const toggleAccounts = () => {
   showAccounts.value = !showAccounts.value;
 };
 
-const onSelectedAddressChanged = async (newAccount: KeyRecord) => {
+const onSelectedAddressChanged = async (newAccount: EnkryptAccount) => {
   accountHeaderData.value.selectedAccount = newAccount;
 };
 </script>
