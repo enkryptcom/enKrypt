@@ -33,9 +33,13 @@ export interface VerifyTransactionParams {
   TransactionData: SendTransactionDataType;
 }
 
-export interface SignerOptions {
+export interface SignerTransactionOptions {
   payload: ExtrinsicPayload;
   network: BaseNetwork;
   account: EnkryptAccount;
-  sendToBackground: (req: RPCRequestType) => Promise<InternalOnMessageResponse>;
+}
+
+export interface SignerMessageOptions {
+  payload: Buffer;
+  account: EnkryptAccount;
 }

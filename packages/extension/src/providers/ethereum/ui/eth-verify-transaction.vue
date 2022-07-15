@@ -146,7 +146,6 @@ import { GasFeeType } from "./types";
 import MarketData from "@/libs/market-data";
 import { defaultGasCostVals } from "./common/default-vals";
 import { EnkryptAccount } from "@enkryptcom/types";
-import HWwallets from "@enkryptcom/hw-wallets";
 import { TransactionSigner } from "./libs/signer";
 
 const isOpenSelectFee = ref(false);
@@ -173,7 +172,7 @@ const Options = ref<ProviderRequestOptions>({
   url: "",
 });
 const selectedFee = ref<GasPriceTypes>(GasPriceTypes.ECONOMY);
-const hwwallets = new HWwallets();
+
 defineExpose({ providerVerifyTransactionScrollRef });
 
 onBeforeMount(async () => {
@@ -251,7 +250,7 @@ onBeforeMount(async () => {
 });
 
 const approve = async () => {
-  const { Request, sendToBackground, Resolve } = await windowPromise;
+  const { Request, Resolve } = await windowPromise;
   const web3 = new Web3(network.value.node);
   const tx = new Transaction(
     Request.value.params![0] as EthereumTransaction,
@@ -263,7 +262,6 @@ const approve = async () => {
         account: account.value,
         network: network.value,
         payload: finalizedTx,
-        sendToBackground,
       })
         .then((tx) => {
           web3.eth
@@ -279,9 +277,7 @@ const approve = async () => {
               });
             });
         })
-        .catch((e: any) => {
-          Resolve.value(JSON.parse(e.message));
-        });
+        .catch(Resolve.value);
     }
   );
 };

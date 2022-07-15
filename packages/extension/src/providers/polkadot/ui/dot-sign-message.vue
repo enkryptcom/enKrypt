@@ -57,6 +57,8 @@ import { isAscii, u8aToString, u8aUnwrapBytes } from "@polkadot/util";
 import networks from "../networks";
 import { ProviderRequestOptions } from "@/types/provider";
 import { EnkryptAccount } from "@enkryptcom/types";
+import { MessageSigner } from "./libs/signer";
+import { hexToBuffer } from "@enkryptcom/utils";
 
 const windowPromise = WindowPromiseHandler(0);
 
@@ -81,25 +83,16 @@ onBeforeMount(async () => {
 });
 
 const approve = async () => {
-  const { Request, Resolve, sendToBackground } = await windowPromise;
+  const { Request, Resolve } = await windowPromise;
 
   const msg = Request.value.params![0] as `0x{string}`;
-  const bytes = isAscii(msg)
-    ? utf8ToHex(u8aToString(u8aUnwrapBytes(msg)))
-    : msg;
   const account = Request.value.params![1] as EnkryptAccount;
-  sendToBackground({
-    method: InternalMethods.sign,
-    params: [bytes, account],
-  }).then((res) => {
-    if (res.error) {
-      Resolve.value(res);
-    } else {
-      Resolve.value({
-        result: JSON.stringify(res.result),
-      });
-    }
-  });
+  MessageSigner({
+    account,
+    payload: hexToBuffer(msg),
+  })
+    .then(Resolve.value)
+    .catch(Resolve.value);
 };
 const deny = async () => {
   const { Resolve } = await windowPromise;

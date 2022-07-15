@@ -89,14 +89,15 @@ onBeforeMount(async () => {
 });
 
 const approve = async () => {
-  const { Request, sendToBackground, Resolve } = await windowPromise;
+  const { Request, Resolve } = await windowPromise;
   const msg = Request.value.params![0] as `0x{string}`;
   MessageSigner({
     account: account.value,
     network: network.value,
     payload: hexToBuffer(msg),
-    sendToBackground,
-  }).then(Resolve.value);
+  })
+    .then(Resolve.value)
+    .catch(Resolve.value);
 };
 const deny = async () => {
   const { Resolve } = await windowPromise;

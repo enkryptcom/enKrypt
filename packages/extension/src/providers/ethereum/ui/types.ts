@@ -42,12 +42,10 @@ export interface SignerTransactionOptions {
   payload: FeeMarketEIP1559Transaction | LegacyTransaction;
   network: BaseNetwork;
   account: EnkryptAccount;
-  sendToBackground: (req: RPCRequestType) => Promise<InternalOnMessageResponse>;
 }
 
 export interface SignerMessageOptions {
   payload: Buffer;
   network: BaseNetwork;
   account: EnkryptAccount;
-  sendToBackground: (req: RPCRequestType) => Promise<InternalOnMessageResponse>;
 }

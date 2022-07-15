@@ -280,7 +280,7 @@ const toggleData = () => {
   isOpenData.value = !isOpenData.value;
 };
 const approve = async () => {
-  const { Request, sendToBackground, Resolve } = await windowPromise;
+  const { Request, Resolve } = await windowPromise;
   const registry = new TypeRegistry();
   const reqPayload = Request.value.params![0] as SignerPayloadJSON;
   registry.setSignedExtensions(reqPayload.signedExtensions);
@@ -291,7 +291,6 @@ const approve = async () => {
     account: account.value!,
     network: network.value!,
     payload: extType,
-    sendToBackground,
   }).then(Resolve.value);
 };
 const deny = async () => {

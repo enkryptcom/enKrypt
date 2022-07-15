@@ -2,6 +2,7 @@ import {
   onMessage,
   sendMessage,
   allowWindowMessaging,
+  getCurrentContext,
 } from "@enkryptcom/extension-bridge";
 import { EXTENSION_NAMESPACE } from "@/configs/constants";
 import {
@@ -18,6 +19,7 @@ import { OnMessageResponse } from "@enkryptcom/types";
 import { assert } from "chai";
 import { EventBusEmit, EventBusOn } from "./eventbus";
 
+export { getCurrentContext };
 export const sendToWindow = (
   message: SendMessage,
   tabId: number

@@ -5,12 +5,11 @@ import HWwallet from "@enkryptcom/hw-wallets";
 import { HWwalletType } from "@enkryptcom/types";
 import { bufferToHex, fromRpcSig, hashPersonalMessage } from "ethereumjs-util";
 import { getCustomError } from "@/libs/error";
-import { hexToBuffer } from "@enkryptcom/utils";
-
+import sendUsingInternalMessengers from "@/libs/messenger/internal-messenger";
 const TransactionSigner = (
   options: SignerTransactionOptions
 ): Promise<FeeMarketEIP1559Transaction> => {
-  const { account, network, sendToBackground, payload } = options;
+  const { account, network, payload } = options;
   if (account.isHardware) {
     const hwwallets = new HWwallet();
     return hwwallets
@@ -32,35 +31,35 @@ const TransactionSigner = (
         return signedTx;
       })
       .catch((e) => {
-        throw new Error(JSON.stringify(getCustomError(e.message)));
+        return Promise.reject({
+          error: getCustomError(e.message),
+        });
       });
   } else {
     const msgHash = bufferToHex(payload.getMessageToSign(true));
-    return sendToBackground({
+    return sendUsingInternalMessengers({
       method: InternalMethods.sign,
       params: [msgHash, account],
-    })
-      .then((res) => {
-        if (res.error) {
-          throw new Error(JSON.stringify(res.error));
-        } else {
-          const rpcSig = fromRpcSig(res.result || "0x");
-          const signedTx = (
-            payload as FeeMarketEIP1559Transaction
-          )._processSignature(rpcSig.v, rpcSig.r, rpcSig.s);
-          return signedTx;
-        }
-      })
-      .catch((e) => {
-        throw new Error(JSON.stringify(getCustomError(e.message)));
-      });
+    }).then((res) => {
+      if (res.error) {
+        return Promise.reject({
+          error: res.error,
+        });
+      } else {
+        const rpcSig = fromRpcSig(JSON.parse(res.result as string) || "0x");
+        const signedTx = (
+          payload as FeeMarketEIP1559Transaction
+        )._processSignature(rpcSig.v, rpcSig.r, rpcSig.s);
+        return signedTx;
+      }
+    });
   }
 };
 
 const MessageSigner = (
   options: SignerMessageOptions
 ): Promise<InternalOnMessageResponse> => {
-  const { account, network, sendToBackground, payload } = options;
+  const { account, network, payload } = options;
   if (account.isHardware) {
     const hwwallets = new HWwallet();
     return hwwallets
@@ -77,16 +76,20 @@ const MessageSigner = (
       .then((res: string) => ({
         result: JSON.stringify(res),
       }))
-      .catch((e: any) => ({ error: getCustomError(e) }));
+      .catch((e: any) => {
+        return Promise.reject({
+          error: getCustomError(e.message),
+        });
+      });
   } else {
     const msgHash = bufferToHex(hashPersonalMessage(payload));
-    return sendToBackground({
+    return sendUsingInternalMessengers({
       method: InternalMethods.sign,
       params: [msgHash, account],
     }).then((res) => {
       if (res.error) return res;
       return {
-        result: JSON.stringify(res.result),
+        result: res.result,
       };
     });
   }

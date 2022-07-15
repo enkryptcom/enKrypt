@@ -125,6 +125,9 @@ import erc20 from "../../libs/abi/erc20";
 import { SendTransactionDataType, VerifyTransactionParams } from "../types";
 import { formatFloatingPointValue } from "@/libs/utils/number-formatter";
 import { routes as RouterNames } from "@/ui/action/router";
+import { WindowPromise } from "@/libs/window-promise";
+import getUiPath from "@/libs/utils/get-ui-path";
+import Browser from "webextension-polyfill";
 
 const props = defineProps({
   network: {
@@ -284,7 +287,7 @@ const isInputsValid = computed<boolean>(() => {
 
 watch([isInputsValid, amount, address, selectedAsset], () => {
   if (isInputsValid.value) {
-    setTransactionFees(Tx.value);
+    setTransactionFees(Tx.value || "0");
   }
 });
 
@@ -363,7 +366,7 @@ const selectFee = (type: GasPriceTypes) => {
   if (isMaxSelected.value) setMaxValue();
 };
 
-const sendAction = () => {
+const sendAction = async () => {
   const txVerifyInfo: VerifyTransactionParams = {
     TransactionData: TxInfo.value,
     toToken: {
@@ -380,13 +383,31 @@ const sendAction = () => {
     gasPriceType: selectedFee.value,
     toAddress: address.value,
   };
-  router.push({
+
+  const routedRoute = router.resolve({
     name: RouterNames.verify.name,
-    params: {
+    query: {
       id: selected,
       txData: JSON.stringify(txVerifyInfo),
     },
   });
+
+  if (props.accountInfo.selectedAccount!.isHardware) {
+    await Browser.windows.create({
+      url: Browser.runtime.getURL(
+        getUiPath(
+          `eth-hw-verify?id=${routedRoute.query.id}&txData=${routedRoute.query.txData}`,
+          "ethereum"
+        )
+      ),
+      type: "popup",
+      focused: true,
+      height: 600,
+      width: 460,
+    });
+  } else {
+    router.push(routedRoute);
+  }
 };
 
 const toggleSelector = (isTokenSend: boolean) => {
