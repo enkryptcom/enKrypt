@@ -93,7 +93,7 @@ import { SubstrateNetwork } from "../../types/substrate-network";
 import { toBN } from "web3-utils";
 import { formatFloatingPointValue } from "@/libs/utils/number-formatter";
 import createIcon from "../../libs/blockies";
-import { AssetsType, ProviderName } from "@/types/provider";
+import { ProviderName } from "@/types/provider";
 import { fromBase, toBase } from "@/libs/utils/units";
 import BigNumber from "bignumber.js";
 import { VerifyTransactionParams } from "../types";

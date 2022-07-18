@@ -115,7 +115,7 @@ import { GasPriceTypes } from "../../../../providers/ethereum/libs/transaction/t
 import { GasFeeType } from "../../../../providers/ethereum/ui/types";
 import { EvmNetwork } from "../../types/evm-network";
 import { Erc20Token } from "../../types/erc20-token";
-import { AssetsType, ProviderName } from "@/types/provider";
+import { ProviderName } from "@/types/provider";
 import BigNumber from "bignumber.js";
 import { defaultGasCostVals } from "../common/default-vals";
 import Transaction from "@/providers/ethereum/libs/transaction";

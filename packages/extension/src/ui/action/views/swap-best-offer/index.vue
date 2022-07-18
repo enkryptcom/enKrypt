@@ -29,7 +29,7 @@
           >
           </swap-best-offer-block>
           <best-offer-error
-            v-if="gasFees?.gt(balance)"
+            v-if="balance ? gasFees?.gt(balance) : false"
             :not-enought-e-t-h="true"
           ></best-offer-error>
           <send-fee-select
