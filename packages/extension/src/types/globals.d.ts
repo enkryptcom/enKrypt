@@ -9,3 +9,5 @@ interface EnkryptWindow {
   };
   [key: string]: any;
 }
+
+declare const IS_MANIFEST_V3: boolean;
