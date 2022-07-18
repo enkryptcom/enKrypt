@@ -34,4 +34,9 @@ export default {
     name: "ethConnectDApp",
     component: {},
   },
+  ethHWVerify: {
+    path: "eth-hw-verify",
+    name: "ethHWVerify",
+    component: {},
+  },
 };

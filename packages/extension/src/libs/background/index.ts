@@ -33,6 +33,7 @@ class BackgroundHandler {
   #providers: ProviderType;
   #persistentEvents: PersistentEvents;
   #domainState: DomainState;
+
   constructor() {
     this.#keyring = new KeyRingBase();
     this.#persistentEvents = new PersistentEvents();

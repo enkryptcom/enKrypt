@@ -10,11 +10,7 @@
     </a>
     <div class="account__actions">
       <tooltip text="View on Blockchain Explorer">
-        <a
-          class="account__actions--copy"
-          target="_blank"
-          :href="externalLink()"
-        >
+        <a class="account__actions--copy" target="_blank" :href="externalLink">
           <icon-external />
         </a>
       </tooltip>
@@ -25,7 +21,7 @@
         </a>
       </tooltip>
 
-      <tooltip text="Account’s QR code">
+      <tooltip text="Account's QR code">
         <a showDeposit class="account__actions--copy" @click="showDeposit">
           <icon-qr />
         </a>
@@ -46,8 +42,8 @@ import IconQr from "@action/icons/header/qr_icon.vue";
 import IconCopy from "@action/icons/header/copy_icon.vue";
 import IconExternal from "@action/icons/header/external-icon.vue";
 import Tooltip from "@action/components/tooltip/index.vue";
-import { PropType } from "vue";
-import { NodeType } from "@/types/provider";
+import { PropType, computed } from "vue";
+import { BaseNetwork } from "@/types/base-network";
 
 const props = defineProps({
   name: {
@@ -68,7 +64,7 @@ const props = defineProps({
     default: () => ({}),
   },
   network: {
-    type: Object as PropType<NodeType>,
+    type: Object as PropType<BaseNetwork>,
     default: () => ({}),
   },
 });
@@ -82,28 +78,9 @@ const showAccounts = () => {
 const showDeposit = () => {
   props.toggleDeposit();
 };
-const externalLink = () => {
-  let link = "";
-
-  switch (props.network.name) {
-    case "ETH":
-      link = "https://etherscan.io/address/" + props.address;
-      break;
-    case "DOT":
-      link = "https://explorer.polkascan.io/polkadot/account/" + props.address;
-      break;
-    case "MATIC":
-      link = "https://polygonscan.com/address/" + props.address;
-      break;
-    case "GLMR":
-      link = "https://moonscan.io/address/" + props.address;
-      break;
-    default:
-      link = "https://etherscan.io/address/" + props.address;
-  }
-
-  return link;
-};
+const externalLink = computed(() => {
+  return props.network.blockExplorerAddr.replace("[[address]]", props.address);
+});
 </script>
 
 <style lang="less">

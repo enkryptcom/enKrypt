@@ -12,13 +12,13 @@
 </template>
 
 <script setup lang="ts">
-import { KeyRecord } from "@enkryptcom/types";
 import { getError } from "@/libs/error";
 import { ErrorCodes } from "@/providers/ethereum/types";
 import { WindowPromiseHandler } from "@/libs/window-promise";
 import { InternalMethods } from "@/types/messenger";
 import { onBeforeMount, ref } from "vue";
 import { ProviderRequestOptions } from "@/types/provider";
+import { EnkryptAccount } from "@enkryptcom/types";
 
 const Options = ref<ProviderRequestOptions>({
   domain: "",
@@ -37,7 +37,7 @@ onBeforeMount(async () => {
 const approve = async () => {
   const { Request, Resolve, sendToBackground } = await windowPromise;
   const msg = Request.value.params![0] as `0x{string}`;
-  const account = Request.value.params![1] as KeyRecord;
+  const account = Request.value.params![1] as EnkryptAccount;
   sendToBackground({
     method: InternalMethods.sign,
     params: [msg, account],

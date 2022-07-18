@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <div v-if="!!selected" class="verify-transaction">
+    <div v-if="!!selectedNetwork" class="verify-transaction">
       <div class="verify-transaction__header">
         <h3>Verify Transaction</h3>
         <a class="verify-transaction__close" @click="close">
@@ -36,16 +36,26 @@
 
       <div class="verify-transaction__buttons">
         <div class="verify-transaction__buttons-cancel">
-          <base-button title="Back" :click="close" :gray="true" />
+          <base-button
+            title="Back"
+            :click="close"
+            :gray="true"
+            :disabled="isProcessing"
+          />
         </div>
         <div class="verify-transaction__buttons-send">
-          <base-button title="Confirm and send" :click="sendAction" />
+          <base-button
+            title="Confirm and send"
+            :click="sendAction"
+            :disabled="isProcessing"
+          />
         </div>
       </div>
     </div>
 
     <send-process
       v-if="isProcessing"
+      :is-done="isSendDone"
       :is-nft="isNft"
       :to-address="txData.toAddress"
       :network="network"
@@ -55,7 +65,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, PropType } from "vue";
+import { ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import BaseButton from "@action/components/base-button/index.vue";
@@ -66,71 +76,68 @@ import VerifyTransactionFee from "./components/verify-transaction-fee.vue";
 import SendProcess from "@action/views/send-process/index.vue";
 import { nft } from "@action/types/mock";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
-import { BaseNetwork } from "@/types/base-network";
-import { sendToBackgroundFromAction } from "@/libs/messenger/extension";
-import { InternalMethods } from "@/types/messenger";
+import { getCurrentContext } from "@/libs/messenger/extension";
 import { VerifyTransactionParams } from "@/providers/polkadot/ui/types";
 import { ApiPromise } from "@polkadot/api";
-import {
-  payloadSignTransform,
-  polkadotEncodeAddress,
-} from "@/providers/polkadot/libs/signing-utils";
-import { SignerPayloadRaw } from "@polkadot/types/types";
 import { u8aToHex } from "@polkadot/util";
 import type { SignerResult } from "@polkadot/api/types";
+import { polkadotEncodeAddress } from "@enkryptcom/utils";
+import { getNetworkByName } from "@/libs/utils/networks";
+import { TypeRegistry } from "@polkadot/types";
+import { TransactionSigner } from "../../libs/signer";
+const isSendDone = ref(false);
 
 const KeyRing = new PublicKeyRing();
 const route = useRoute();
 const router = useRouter();
-const selected: string = route.params.id as string;
+const selectedNetwork: string = route.query.id as string;
 const txData: VerifyTransactionParams = JSON.parse(
-  route.params.txData as string
+  route.query.txData as string
 );
 
 const isNft = false;
 let isProcessing = ref(false);
 
-const props = defineProps({
-  network: {
-    type: Object as PropType<BaseNetwork>,
-    default: () => ({}),
-  },
-});
+const network = getNetworkByName(selectedNetwork)!;
 
 const close = () => {
-  router.go(-1);
+  if (getCurrentContext() === "popup") {
+    router.go(-1);
+  } else {
+    window.close();
+  }
 };
 
 const sendAction = async () => {
   isProcessing.value = true;
-  const api = await props.network.api();
+  const api = await network.api();
   await api.init();
 
   const account = await KeyRing.getAccount(
     polkadotEncodeAddress(txData.fromAddress)
   );
-
   const tx = (api.api as ApiPromise).tx(txData.TransactionData.data);
 
   try {
     const signedTx = await tx.signAsync(account.address, {
       signer: {
-        signRaw: ({ data }: SignerPayloadRaw): Promise<SignerResult> => {
-          return sendToBackgroundFromAction({
-            message: JSON.stringify({
-              method: InternalMethods.sign,
-              params: [data, account],
-            }),
+        signPayload: (signPayload): Promise<SignerResult> => {
+          const registry = new TypeRegistry();
+          registry.setSignedExtensions(signPayload.signedExtensions);
+          const extType = registry.createType("ExtrinsicPayload", signPayload, {
+            version: signPayload.version,
+          });
+          return TransactionSigner({
+            account: account,
+            network: network,
+            payload: extType,
           }).then((res) => {
-            const signed = payloadSignTransform(
-              JSON.parse(res.result!),
-              account.type,
-              true
-            );
-            return {
-              id: 5,
-              signature: signed as `0x${string}`,
-            };
+            if (res.error) return Promise.reject(res.error);
+            else
+              return {
+                id: 0,
+                signature: JSON.parse(res.result as string),
+              };
           });
         },
       },
@@ -138,6 +145,18 @@ const sendAction = async () => {
 
     const hash = await signedTx.send();
     console.log("tx hash", u8aToHex(hash));
+    isSendDone.value = true;
+    if (getCurrentContext() === "popup") {
+      setTimeout(() => {
+        isProcessing.value = false;
+        router.go(-2);
+      }, 4500);
+    } else {
+      setTimeout(() => {
+        isProcessing.value = false;
+        window.close();
+      }, 1500);
+    }
   } catch (error) {
     console.error("error", error);
   }

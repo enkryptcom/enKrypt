@@ -40,7 +40,6 @@ export class SubstrateNetwork extends BaseNetwork {
   public genesisHash: string;
   public transferMethods: Record<string, (args: any) => any> = {
     "balances.transferKeepAlive": (args: any) => {
-      console.log(args);
       const to = args.dest["Id"];
       const token = new SubstrateNativeToken({
         name: this.name_long,
