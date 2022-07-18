@@ -8,15 +8,6 @@ function injectScript() {
     const scriptTag = document.createElement("script");
     scriptTag.setAttribute("async", "false");
     scriptTag.src = injectURL;
-    // fetch(injectURL)
-    //   .then((res) => res.text())
-    //   .then((content) => {
-    //     const inpageSuffix = `//# sourceURL=${browser.runtime.getURL(
-    //       "scripts/inject.js"
-    //     )}\n`;
-    //     scriptTag.textContent = content + inpageSuffix;
-    //     // console.log(scriptTag.textContent);
-    //   });
     scriptTag.onload = function () {
       console.info("Hello from the content-script");
       container.removeChild(scriptTag);
