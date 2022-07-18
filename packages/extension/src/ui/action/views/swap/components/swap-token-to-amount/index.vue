@@ -15,7 +15,6 @@
       :select-token="selectToken"
     ></swap-token-fast-list>
 
-    <!-- <a v-show="!!token" class="swap-token-input__max">Max</a> -->
     <div v-show="!!token && Number(amount) > 0" class="swap-token-input__fiat">
       ≈ ${{ tokenPrice ? $filters.formatFiatValue(tokenPrice).value : "~" }}
     </div>

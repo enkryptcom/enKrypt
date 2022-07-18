@@ -110,6 +110,7 @@ import { BaseToken } from "@/types/base-token";
 import { BaseNetwork } from "@/types/base-network";
 import { Swap } from "@/providers/swap";
 import BigNumber from "bignumber.js";
+import { QuoteInfo } from "@/providers/swap/types/SwapProvider";
 
 const router = useRouter();
 const route = useRoute();
@@ -148,6 +149,10 @@ const toSelectOpened = ref(false);
 
 const isLooking = ref(false);
 
+const delayedLookupId = ref<number>();
+
+const quoteInfos = ref<QuoteInfo[]>();
+
 onMounted(async () => {
   props.network
     .getAllTokens(props.accountInfo.selectedAccount?.address as string)
@@ -166,23 +171,41 @@ watch([fromToken, toToken, fromAmount], () => {
       toAmount.value = "0.0";
     } else {
       toAmount.value = "Searching";
-      swap
-        .getAllQuotes(fromToken.value, toToken.value, fromAmount.value)
-        .then((quotes) => {
-          if (quotes.length > 0) {
-            let bestQuote = quotes[0];
 
-            quotes.forEach((quote) => {
-              if (
-                new BigNumber(quote.amount).gt(new BigNumber(bestQuote.amount))
-              ) {
-                bestQuote = quote;
+      if (delayedLookupId.value !== undefined) {
+        clearTimeout(delayedLookupId.value);
+      }
+
+      const id = setTimeout(
+        () =>
+          swap
+            .getAllQuotes(
+              props.network.name,
+              fromToken.value!,
+              toToken.value!,
+              fromAmount.value!
+            )
+            .then((quotes) => {
+              if (quotes.length > 0) {
+                const quoteResults = quotes
+                  .filter((quote) => !new BigNumber(quote.amount).isZero())
+                  .sort((a, b) => {
+                    if (new BigNumber(a.amount).gt(new BigNumber(b.amount)))
+                      return -1;
+                    return 1;
+                  });
+
+                quoteInfos.value = quoteResults;
+                const bestQuote = quoteResults[0];
+
+                toAmount.value = bestQuote.amount;
+                delayedLookupId.value = undefined;
               }
-            });
+            }),
+        250
+      );
 
-            toAmount.value = bestQuote.amount;
-          }
-        });
+      delayedLookupId.value = id as unknown as number; // It's a number I checked.
     }
   }
 });
@@ -233,13 +256,21 @@ const isDisabled = () => {
   }
   return isDisabled;
 };
-const sendAction = () => {
+const sendAction = async () => {
   toggleLooking();
+
+  const swapData = {
+    quotes: quoteInfos.value,
+    toToken: toToken.value,
+    fromToken: fromToken.value,
+    fromAmount: fromAmount.value,
+    toAddress: address.value,
+  };
 
   setTimeout(() => {
     router.push({
       name: "swap-best-offer",
-      params: { id: selected },
+      params: { id: selected, swapData: JSON.stringify(swapData) },
     });
   }, 3000);
 };
@@ -257,6 +288,7 @@ const swapTokens = () => {
   toAmount.value = amountTo;
 };
 const inputAddress = (text: string) => {
+  console.log(text);
   address.value = text;
 };
 const toggleSelectContact = (open: boolean) => {

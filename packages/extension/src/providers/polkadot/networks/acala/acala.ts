@@ -17,7 +17,7 @@ const acalaOptions: SubstrateNetworkOptions = {
   decimals: 12,
   prefix: 12,
   gradient: "#53CBC9",
-  node: "wss://acala-rpc-0.aca-api.network/",
+  node: "wss://acala-polkadot.api.onfinality.io/ws?apikey=c3bdf4c6-45f5-4558-a848-44cc0c372405",
   coingeckoID: "acala",
   genesisHash:
     "0xfc41b9bd8ef8fe53d58c7ea67c794c7ec9a73daf05e6d54b14ff6342c99ba64c",

@@ -1,35 +1,54 @@
 <template>
   <div class="swap-best-offer-block">
-    <h3>Best offer from *Provider name*</h3>
+    <h3>Best offer from {{ pickedQuote?.exchange }}</h3>
     <div class="swap-best-offer-block__for">
-      for<img :src="require('@/ui/action/icons/raw/uni.png')" />
-      <p>10 <span>eth</span></p>
+      for<img :src="fromToken.icon" />
+      <p>
+        {{ $filters.formatFloatingPointValue(fromAmount).value }}
+        <span>{{ props.fromToken.symbol }}</span>
+      </p>
       you will get:
     </div>
     <div class="swap-best-offer-block__token">
-      <img :src="require('@/ui/action/icons/raw/yearn.png')" />
+      <img :src="toToken.icon" />
       <div class="swap-best-offer-block__token-info">
-        <h4>129.634 <span>comp</span></h4>
-        <p>≈ $41,011.8</p>
+        <h4>
+          {{ $filters.formatFloatingPointValue(pickedQuote?.amount).value }}
+          <span>{{ toToken.symbol }}</span>
+        </h4>
+        <p>≈ {{ $filters.formatFiatValue(toTokenPrice).value }}</p>
       </div>
     </div>
-    <best-offer-warning :fee-warning="true"></best-offer-warning>
-    <best-offer-warning :token-warning="true"></best-offer-warning>
-    <best-offer-error :bad-trade="true"></best-offer-error>
+    <!-- <best-offer-warning :fee-warning="true"></best-offer-warning> -->
+    <!-- <best-offer-warning :token-warning="true"></best-offer-warning> -->
+    <!-- <best-offer-error :bad-trade="true"></best-offer-error> -->
     <div class="swap-best-offer-block__offers">
       <a
         class="swap-best-offer-block__offers-link"
         :class="{ opened: isOffersOpen }"
         @click="toggleOffers"
-        >2 other offers <switch-arrow
+        >{{ quotes.length - 1 }} other offers <switch-arrow
       /></a>
-      <best-offer-list v-show="isOffersOpen" :select="select"></best-offer-list>
+      <best-offer-list
+        v-show="isOffersOpen"
+        :select="select"
+        :quotes="quotes"
+        :picked-quote="pickedQuote"
+      ></best-offer-list>
     </div>
     <div class="swap-best-offer-block__info">
-      <p>Rate: 1 ETH ≈ 12.07 COMP</p>
-      <p>Price impact: –0.07%</p>
-      <p>Max. slippage: 1.3%</p>
-      <p>Minimum received: 128.345 COMP</p>
+      <p>
+        Rate: 1 {{ fromToken.symbol.toUpperCase() }} ≈
+        {{ $filters.formatFloatingPointValue(ratio).value }}
+        {{ toToken.symbol.toUpperCase() }}
+      </p>
+      <!-- <p>Price impact: -0.07%</p> -->
+      <!-- <p>Max. slippage: 1.3%</p> -->
+      <p>
+        Minimum received:
+        {{ $filters.formatFloatingPointValue(pickedQuote.amount).value }}
+        {{ toToken.symbol.toUpperCase() }}
+      </p>
       <p>Offer includes 2.5% MEW fee</p>
     </div>
   </div>
@@ -42,16 +61,45 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import SwitchArrow from "@action/icons/header/switch_arrow.vue";
 import BestOfferList from "./components/best-offer-list.vue";
 import BestOfferWarning from "./components/best-offer-warning.vue";
 import BestOfferError from "./components/best-offer-error.vue";
+import { QuoteInfo } from "@/providers/swap/types/SwapProvider";
+import { BaseToken } from "@/types/base-token";
+import BigNumber from "bignumber.js";
+import { fromBase } from "@/libs/utils/units";
 
-let isOffersOpen = ref(false);
+interface SwapBestOfferProps {
+  quotes: QuoteInfo[];
+  pickedQuote: QuoteInfo;
+  fromToken: BaseToken;
+  fromAmount: string;
+  toToken: BaseToken;
+}
 
-const select = () => {
-  console.log("select");
+const props = defineProps<SwapBestOfferProps>();
+const emit = defineEmits<{
+  (e: "update:pickedQuote", quote: QuoteInfo): void;
+}>();
+
+const isOffersOpen = ref(false);
+
+const toTokenPrice = computed(() =>
+  new BigNumber(props.toToken.price ?? 0).times(
+    new BigNumber(props.pickedQuote.amount)
+  )
+);
+
+const ratio = computed(() =>
+  new BigNumber(props.pickedQuote.amount)
+    .div(new BigNumber(props.fromAmount))
+    .toFixed()
+);
+
+const select = (quote: QuoteInfo) => {
+  emit("update:pickedQuote", quote);
   toggleOffers();
 };
 

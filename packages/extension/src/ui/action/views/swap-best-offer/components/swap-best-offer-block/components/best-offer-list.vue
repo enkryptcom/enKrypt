@@ -1,22 +1,16 @@
 <template>
-  <div class="best-offer-list">
-    <best-offer-list-item
-      name="Paraswap"
-      amount="~129.634 COMP"
-      :select="select"
-      :is-checked="true"
-    ></best-offer-list-item>
-    <best-offer-list-item
-      name="Changelly"
-      amount="~129.56 COMP"
-      :select="select"
-      :is-loading="true"
-    ></best-offer-list-item>
-    <best-offer-list-item
-      name="Bity"
-      amount="~129.55 COMP"
-      :select="select"
-    ></best-offer-list-item>
+  <div>
+    <div class="best-offer-list">
+      <best-offer-list-item
+        v-for="quote in quotes"
+        :key="quote.exchange"
+        :name="quote.exchange"
+        :amount="`~${quote.amount}`"
+        :select="() => select(quote)"
+        :is-checked="quote.exchange === pickedQuote.exchange"
+        :is-loading="false"
+      ></best-offer-list-item>
+    </div>
   </div>
 </template>
 
@@ -27,19 +21,19 @@ export default {
 </script>
 
 <script setup lang="ts">
+import { QuoteInfo } from "@/providers/swap/types/SwapProvider";
 import BestOfferListItem from "./best-offer-list-item.vue";
 
-const props = defineProps({
-  select: {
-    type: Function,
-    default: () => {
-      return null;
-    },
-  },
-});
+interface IProps {
+  quotes: QuoteInfo[];
+  pickedQuote: QuoteInfo;
+  select: (quote: QuoteInfo) => void;
+}
 
-const select = () => {
-  props.select();
+const props = defineProps<IProps>();
+
+const select = (quote: QuoteInfo) => {
+  props.select(quote);
 };
 </script>
 

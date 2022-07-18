@@ -17,7 +17,7 @@ const karuraOptions: SubstrateNetworkOptions = {
   decimals: 12,
   prefix: 8,
   gradient: "#FF4C3B",
-  node: "wss://karura.api.onfinality.io/public-ws",
+  node: "wss://karura.api.onfinality.io/ws?apikey=415db624-5391-4e4a-8353-b84fadc0e73f",
   coingeckoID: "karura",
   genesisHash:
     "0xbaf5aabe40646d11f0ee8abbdc64f4a4b7674925cba08e4a05ff9ebed6e2126b",

@@ -19,22 +19,33 @@
           :style="{ maxHeight: height + 'px' }"
           @ps-scroll-y="handleScroll"
         >
-          <swap-best-offer-block></swap-best-offer-block>
-          <best-offer-error :not-enought-e-t-h="true"></best-offer-error>
+          <swap-best-offer-block
+            :quotes="swapData.quotes"
+            :picked-quote="pickedQuote"
+            :from-token="swapData.fromToken"
+            :to-token="swapData.toToken"
+            :from-amount="swapData.fromAmount"
+            @update:picked-quote="selectQuote"
+          >
+          </swap-best-offer-block>
+          <best-offer-error
+            v-if="gasFees?.gt(balance)"
+            :not-enought-e-t-h="true"
+          ></best-offer-error>
           <send-fee-select
-            :fee="fee"
+            :fee="undefined"
             :toggle-select="toggleSelectFee"
             :in-swap="true"
           ></send-fee-select>
         </custom-scrollbar>
 
-        <transaction-fee-view
+        <!-- <transaction-fee-view
           :show-fees="isOpenSelectFee"
           :close="toggleSelectFee"
           :select-fee="selectFee"
-          :selected="fee.price.speed"
+          :selected="undefined"
           :is-header="true"
-        ></transaction-fee-view>
+        ></transaction-fee-view> -->
       </div>
 
       <div class="swap-best-offer__buttons" :class="{ border: isHasScroll() }">
@@ -64,7 +75,7 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { ComponentPublicInstance, ref } from "vue";
+import { ComponentPublicInstance, onMounted, PropType, ref, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import BaseButton from "@action/components/base-button/index.vue";
@@ -77,20 +88,89 @@ import TransactionFeeView from "@action/views/transaction-fee/index.vue";
 import { TransactionFee } from "@action/types/fee";
 import { recommendedFee } from "@action/types/mock";
 import scrollSettings from "@/libs/utils/scroll-settings";
+import { QuoteInfo, Trade } from "@/providers/swap/types/SwapProvider";
+import { BaseToken } from "@/types/base-token";
+import { Swap } from "@/providers/swap";
+import { BaseNetwork } from "@/types/base-network";
+import { AccountsHeaderData } from "../../types/account";
+import { toBN } from "web3-utils";
+import BN from "bn.js";
+
+interface SwapData {
+  quotes: QuoteInfo[];
+  fromToken: BaseToken;
+  toToken: BaseToken;
+  fromAmount: string;
+  toAddress: string;
+}
+
+const props = defineProps({
+  network: {
+    type: Object as PropType<BaseNetwork>,
+    default: () => ({}),
+  },
+  accountInfo: {
+    type: Object as PropType<AccountsHeaderData>,
+    default: () => ({}),
+  },
+});
 
 const router = useRouter();
 const route = useRoute();
+const swap = new Swap();
 
-let isInitiated = ref(false);
-
-let bestOfferScrollRef = ref<ComponentPublicInstance<HTMLElement>>();
-let scrollProgress = ref(0);
-let height = ref(460);
+const isInitiated = ref(false);
+const bestOfferScrollRef = ref<ComponentPublicInstance<HTMLElement>>();
+const scrollProgress = ref(0);
+const height = ref(460);
 const selected: string = route.params.id as string;
-let isOpenSelectFee = ref(false);
-let fee = ref(recommendedFee);
+const swapData: SwapData = JSON.parse(route.params.swapData as string);
+const isOpenSelectFee = ref(false);
+const fee = ref(recommendedFee);
+const pickedQuote = ref<QuoteInfo>(swapData.quotes[0]);
+const trade = ref<Trade | null>(null);
+const balance = ref<BN>();
+const gasFees = ref<BN>();
 
 defineExpose({ bestOfferScrollRef });
+
+const getTrade = async () => {
+  const quote = swapData.quotes[0];
+  const trade = await swap.getTrade(
+    props.network.name,
+    props.accountInfo.selectedAccount!.address,
+    swapData.toAddress,
+    quote,
+    swapData.fromToken,
+    swapData.toToken,
+    swapData.fromAmount
+  );
+
+  return trade;
+};
+
+onMounted(async () => {
+  const api = await props.network.api();
+  await api.init();
+  balance.value = toBN(
+    await api.getBalance(props.accountInfo.selectedAccount!.address)
+  );
+});
+
+watch(pickedQuote, async () => {
+  const newTrade = await getTrade();
+
+  trade.value = newTrade;
+});
+
+watch([trade, balance], async () => {
+  if (trade.value && balance.value) {
+    gasFees.value = trade.value.transactions
+      .map(({ gas }) => toBN(gas))
+      .reduce((gasA, gasB) => gasA.add(gasB), toBN(0));
+  }
+});
+
 const back = () => {
   router.go(-1);
 };
@@ -109,8 +189,15 @@ const isDisabled = () => {
 
   return isDisabled;
 };
-const sendAction = () => {
+const sendAction = async () => {
   toggleInitiated();
+
+  if (trade.value) {
+    const api = await props.network.api();
+    await api.init();
+    swap.executeTrade(api, trade.value, {});
+  }
+
   setTimeout(() => {
     console.log("sendAction");
   }, 300);
@@ -137,6 +224,11 @@ const toggleSelectFee = (open: boolean) => {
 const selectFee = (option: TransactionFee) => {
   fee.value = option;
   isOpenSelectFee.value = false;
+};
+
+const selectQuote = (quote: QuoteInfo) => {
+  console.log("test");
+  pickedQuote.value = quote;
 };
 </script>
 

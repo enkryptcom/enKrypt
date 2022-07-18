@@ -119,7 +119,7 @@ export default (
                 name: tInfo.name,
                 symbol: tInfo.symbol,
                 decimals: tInfo.decimals,
-                contract: address,
+                contract: unknownTokens[idx],
               });
               assets.push(asset);
             });

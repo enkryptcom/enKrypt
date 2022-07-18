@@ -1,4 +1,6 @@
 import { BaseToken } from "@/types/base-token";
+import EvmAPI from "@/providers/ethereum/libs/api";
+import SubstrateAPI from "@/providers/polkadot/libs/api";
 import Web3 from "web3";
 
 export type Quote = {
@@ -14,6 +16,7 @@ export type QuoteInfo = {
   max: string;
   amount: string;
   dex: string;
+  rateId?: string;
 };
 
 export type TokenData = {
@@ -36,7 +39,7 @@ export type TransactionInfo = {
   gas: `0x{string}`;
 };
 
-export type Trade = { transactions: TransactionInfo[] };
+export type Trade = { transactions: TransactionInfo[]; dex: string };
 
 export enum TradeStatus {
   PENDING,
@@ -46,7 +49,7 @@ export enum TradeStatus {
 }
 
 export abstract class SwapProvider {
-  // public abstract providerName: string;
+  public abstract supportedDexes: string[];
   public abstract supportedNetworks: string[];
 
   public isSupportedNetwork(chainName: string): boolean {
@@ -57,21 +60,26 @@ export abstract class SwapProvider {
 
   public abstract getSupportedTokens(chain: string): Promise<BaseToken[]>;
 
-  public abstract getMinMaxAmount(fromToken: BaseToken): {
+  public abstract getMinMaxAmount(
+    fromToken: BaseToken,
+    toToken?: BaseToken
+  ): Promise<{
     min: string;
     max: string;
-  };
+  }>;
 
   public abstract getQuote(
+    chain: string,
     fromToken: BaseToken,
     toToken: BaseToken,
     fromAmount: string
   ): Promise<QuoteInfo[]>;
 
   public abstract getTrade(
+    chain: string,
     fromAddress: string,
     toAddress: string,
-    quote: Quote,
+    quote: QuoteInfo,
     fromToken: BaseToken,
     toToken: BaseToken,
     fromAmount: string
@@ -79,5 +87,9 @@ export abstract class SwapProvider {
 
   public abstract getStatus(statusOject: any, web3: Web3): TradeStatus;
 
-  public abstract executeTrade(trade: Trade, confirmInfo: any): Promise<void>;
+  public abstract executeTrade(
+    api: EvmAPI | SubstrateAPI,
+    trade: Trade,
+    confirmInfo: any
+  ): Promise<void>;
 }

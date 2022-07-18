@@ -1,4 +1,5 @@
-import { fromBase, toBase } from "@/libs/utils/units";
+import { toBase } from "@/libs/utils/units";
+import API from "@/providers/ethereum/libs/api";
 import { Erc20Token } from "@/providers/ethereum/types/erc20-token";
 import { BaseToken } from "@/types/base-token";
 import BigNumber from "bignumber.js";
@@ -15,10 +16,10 @@ import {
 } from "./SwapProvider";
 
 const HOST_URL = "https://mainnet.mewwallet.dev/v3";
+const REQUEST_CACHER = "https://requestcache.mewapi.io/?url=";
 const GET_LIST = "/swap/list";
 const GET_QUOTE = "/swap/quote";
 const GET_TRADE = "/swap/trade";
-const REQUEST_CACHER = "https://requestcache.mewapi.io/?url=";
 
 export class EvmSwapProvider extends SwapProvider {
   public supportedDexes = ["ZERO_X", "ONE_INCH", "PARASWAP"];
@@ -58,21 +59,22 @@ export class EvmSwapProvider extends SwapProvider {
     }
   }
 
-  public getMinMaxAmount(fromToken: BaseToken): {
+  public getMinMaxAmount(fromToken: BaseToken): Promise<{
     min: string;
     max: string;
-  } {
-    return {
+  }> {
+    return Promise.resolve({
       min: new BigNumber(1)
         .dividedBy(new BigNumber(10).pow(fromToken.decimals))
         .toFixed(),
       max: new BigNumber(1)
         .multipliedBy(new BigNumber(10).pow(fromToken.decimals))
         .toFixed(),
-    };
+    });
   }
 
   public async getQuote(
+    chain: string,
     fromToken: Erc20Token,
     toToken: Erc20Token,
     fromAmount: string
@@ -83,8 +85,9 @@ export class EvmSwapProvider extends SwapProvider {
     params.append("fromContractAddress", fromToken.contract);
     params.append("toContractAddress", toToken.contract);
     params.append("amount", fromAmount);
+    params.append("chain", chain);
 
-    const { min, max } = this.getMinMaxAmount(fromToken);
+    const { min, max } = await this.getMinMaxAmount(fromToken);
 
     try {
       const res = await fetch(`${HOST_URL}${GET_QUOTE}?${params.toString()}`);
@@ -108,9 +111,10 @@ export class EvmSwapProvider extends SwapProvider {
   }
 
   public async getTrade(
+    chain: string,
     fromAddress: string,
     toAddress: string,
-    quote: Quote,
+    quote: QuoteInfo,
     fromToken: Erc20Token,
     toToken: Erc20Token,
     fromAmount: string
@@ -119,18 +123,21 @@ export class EvmSwapProvider extends SwapProvider {
       const params = new URLSearchParams();
       params.append("address", fromAddress);
       params.append("recipient", toAddress);
-      params.append("dex", ""); // this.provider
+      params.append("dex", quote.dex); // this.provider
       params.append("exchange", quote.exchange);
       params.append("platform", "web");
       params.append("fromContractAddress", fromToken.contract);
       params.append("toContractAddress", toToken.contract);
-      params.append("amount", fromBase(fromAmount, fromToken.decimals));
+      params.append("amount", fromAmount);
+      params.append("chain", chain);
 
-      const res = await fetch(`${HOST_URL}${GET_TRADE}`);
+      console.log(`${HOST_URL}${GET_TRADE}?${params.toString()}`);
+      const res = await fetch(`${HOST_URL}${GET_TRADE}?${params.toString()}`);
 
       const data: { transactions: TransactionInfo[] } = await res.json();
 
-      return { transactions: data.transactions };
+      console.log(data.transactions);
+      return { transactions: data.transactions, dex: quote.dex };
     } catch {
       throw new Error("Could not retrieve trades");
     }
@@ -152,7 +159,12 @@ export class EvmSwapProvider extends SwapProvider {
     // return Promise.all(promises)
   }
 
-  public async executeTrade(trade: Trade, confirmInfo: any): Promise<void> {
+  public async executeTrade(
+    api: API,
+    trade: Trade,
+    confirmInfo: any
+  ): Promise<void> {
+    // trade.transactions[0].
     return;
   }
 }
