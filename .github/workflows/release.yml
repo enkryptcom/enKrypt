@@ -1,0 +1,34 @@
+name: create github release
+
+on: [push]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: setup env
+        id: node-version
+        run: |
+          docker build -t enkrypt-build-container .
+          echo ::set-output name=NODE_VERSION::$(docker run --rm -v `pwd`:/home:rw enkrypt-build-container /bin/bash -c "node --version")
+
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn config get cacheFolder)"
+
+      - name: Cache yarn modules
+        uses: actions/cache@v3
+        id: yarn-cache
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - uses: actions/checkout@v2
+
+      - name: npm install
+        run: docker run --rm -v `pwd`:/home:rw --user "$(id -u):$(id -g)" enkrypt-build-container /bin/bash -c "yarn install"
+
+      - name: build
+        run: docker run --rm -v `pwd`:/home:rw enkrypt-build-container /bin/bash -c "yarn build:all"
