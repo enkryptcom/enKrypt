@@ -5,7 +5,7 @@
         <sign-logo color="#05C0A5" class="common-popup__logo"></sign-logo>
       </template>
       <template #content>
-        <h2>Sign message</h2>
+        <h2>Signing Request</h2>
         <p class="unlock-keyring__desc">Unlock Enkrypt to start signing</p>
         <lock-screen-password-input
           :is-error="isError"
@@ -20,6 +20,7 @@
           v-if="isForgot"
           :is-forgot="isForgot"
           :toggle-forgot="toggleForgot"
+          :disabled="isProcessing"
           :reset-action="resetAction"
         ></modal-forgot>
       </template>
@@ -29,6 +30,7 @@
           title="I forgot my password"
           :click="toggleForgot"
           :no-background="true"
+          :disabled="isProcessing"
           class="lock-screen__forgot"
         />
       </template>
@@ -48,8 +50,9 @@ import LockScreenPasswordInput from "@action/views/lock-screen/components/lock-s
 import ModalForgot from "@action/views/modal-forgot/index.vue";
 const windowPromise = WindowPromiseHandler(0);
 const password = ref("test pass");
+const isProcessing = ref(false);
 const isDisabled = computed(() => {
-  return password.value.length < 5;
+  return password.value.length < 5 || isProcessing.value;
 });
 const isError = ref(false);
 let isForgot = ref(false);
@@ -65,6 +68,7 @@ onBeforeMount(async () => {
   Options.value = options;
 });
 const approve = async () => {
+  isProcessing.value = true;
   const { sendToBackground, Resolve } = await windowPromise;
   sendToBackground({
     method: InternalMethods.unlock,
@@ -73,6 +77,7 @@ const approve = async () => {
     if (res.error) {
       errorMsg.value = res.error.message;
       isError.value = true;
+      isProcessing.value = false;
     } else {
       Resolve.value({
         result: JSON.stringify(res.result),
