@@ -35,17 +35,19 @@ jobs:
           VIRUS_TOTAL_API_KEY: ${{secrets.VIRUS_TOTAL_API_KEY}}
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
         run: |
-          docker run --rm -v `pwd`:/home:rw enkrypt-build-container /bin/bash -c "yarn build:all && cd packages/extension && yarn zip"
-          FILE_SHA256=`sha256sum  ./packages/extension/dist/release.zip | awk '{print $1}'`
+          cd packages/extension
+          docker run --rm -v `pwd`:/home:rw enkrypt-build-container /bin/bash -c "yarn build:all && yarn zip"
+          FILE_SHA256=`sha256sum  ./dist/release.zip | awk '{print $1}'`
           curl --request GET --url https://www.virustotal.com/api/v3/files/upload_url --header "x-apikey: $VIRUS_TOTAL_API_KEY"
           UPLOAD_URL=`curl --request GET --url https://www.virustotal.com/api/v3/files/upload_url --header "x-apikey: $VIRUS_TOTAL_API_KEY" | jq --raw-output '.data'`
-          curl --request POST --url "$UPLOAD_URL" --header "x-apikey: $VIRUS_TOTAL_API_KEY" --header 'Accept: application/json' --header 'Content-Type: multipart/form-data' -F "file=@./packages/extension/dist/release.zip"
+          curl --request POST --url "$UPLOAD_URL" --header "x-apikey: $VIRUS_TOTAL_API_KEY" --header 'Accept: application/json' --header 'Content-Type: multipart/form-data' -F "file=@./dist/release.zip"
           VIRUS_TOTAL_URL_CHROME=https://www.virustotal.com/gui/file/$FILE_SHA256
-          docker run --rm -v `pwd`:/home:rw enkrypt-build-container /bin/bash -c "cd packages/extension && rm -rf dist && yarn build:firefox && yarn zip"
-          FILE_SHA256=`sha256sum  ./packages/extension/dist/release.zip | awk '{print $1}'`
+          rm -rf dist
+          docker run --rm -v `pwd`:/home:rw enkrypt-build-container /bin/bash -c "yarn build:firefox && yarn zip"
+          FILE_SHA256=`sha256sum  ./dist/release.zip | awk '{print $1}'`
           curl --request GET --url https://www.virustotal.com/api/v3/files/upload_url --header "x-apikey: $VIRUS_TOTAL_API_KEY"
           UPLOAD_URL=`curl --request GET --url https://www.virustotal.com/api/v3/files/upload_url --header "x-apikey: $VIRUS_TOTAL_API_KEY" | jq --raw-output '.data'`
-          curl --request POST --url "$UPLOAD_URL" --header "x-apikey: $VIRUS_TOTAL_API_KEY" --header 'Accept: application/json' --header 'Content-Type: multipart/form-data' -F "file=@./packages/extension/dist/release.zip"
+          curl --request POST --url "$UPLOAD_URL" --header "x-apikey: $VIRUS_TOTAL_API_KEY" --header 'Accept: application/json' --header 'Content-Type: multipart/form-data' -F "file=@./dist/release.zip"
           VIRUS_TOTAL_URL_FIREFOX=https://www.virustotal.com/gui/file/$FILE_SHA256
           curl -H "Authorization: token ${GITHUB_TOKEN}" -X POST \
             -d "{\"body\": \"Virus Total analysis Chrome: <br/> \

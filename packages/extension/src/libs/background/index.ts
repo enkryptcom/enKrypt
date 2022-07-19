@@ -85,15 +85,17 @@ class BackgroundHandler {
       const domainState = await this.#domainState.getStateByDomain(
         tabInfo.domain
       );
+      console.log(domainState);
       if (domainState.selectedNetwork) {
         const providerNetwork = getProviderNetworkByName(
           _provider,
           domainState.selectedNetwork
         );
-        if (providerNetwork)
+        if (providerNetwork) {
           this.#tabProviders[_provider][_tabid].setRequestProvider(
             providerNetwork
           );
+        }
       }
     }
     const isPersistent = await this.#tabProviders[_provider][
