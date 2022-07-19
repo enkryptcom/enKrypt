@@ -64,6 +64,7 @@ const setConfig = (config) => {
     return userScripts.includes(name) ? false : "initial";
   };
   config.optimization.splitChunks({
+    maxSize: 4194304,
     cacheGroups: {
       vendors: {
         name: "chunk-vendors",
