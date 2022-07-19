@@ -1,4 +1,4 @@
-FROM node:16-stretch
+FROM node:16-bullseye
 RUN apt update
 RUN apt install build-essential
 ENV HOME /home
