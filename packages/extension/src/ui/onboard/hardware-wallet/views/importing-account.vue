@@ -67,6 +67,7 @@ import {
   WalletType,
 } from "@enkryptcom/types";
 import { routes } from "../routes";
+import { ProviderName } from "@/types/provider";
 
 const route = useRoute();
 const router = useRouter();
@@ -138,7 +139,10 @@ const addAccounts = async () => {
       name: acc.name,
       pathIndex: acc.index,
       publicKey: acc.publicKey,
-      signerType: SignerType.ed25519,
+      signerType:
+        network.provider === ProviderName.polkadot
+          ? SignerType.ed25519
+          : network.signer[0],
       walletType: walletType as unknown as WalletType,
     });
   }
