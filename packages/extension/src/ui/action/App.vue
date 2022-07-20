@@ -84,7 +84,7 @@ import { useRouter, useRoute } from "vue-router";
 import { BaseNetwork } from "@/types/base-network";
 import {
   getAllNetworks,
-  DEFAULT_NETWORK_NAME,
+  DEFAULT_EVM_NETWORK_NAME,
   getNetworkByName,
 } from "@/libs/utils/networks";
 import DomainState from "@/libs/domain-state";
@@ -116,7 +116,9 @@ const route = useRoute();
 const transitionName = "fade";
 
 const networks = ref<BaseNetwork[]>([]);
-const defaultNetwork = getNetworkByName(DEFAULT_NETWORK_NAME) as BaseNetwork;
+const defaultNetwork = getNetworkByName(
+  DEFAULT_EVM_NETWORK_NAME
+) as BaseNetwork;
 const currentNetwork = ref<BaseNetwork>(defaultNetwork);
 const kr = new PublicKeyRing();
 const addNetworkShow = ref(false);

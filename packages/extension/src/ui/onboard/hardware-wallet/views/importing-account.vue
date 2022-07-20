@@ -60,7 +60,12 @@ import { HWWalletAccountType } from "../types";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
 import KeyRingBase from "@/libs/keyring/keyring";
 import { computed } from "@vue/reactivity";
-import { EnkryptAccount, HWwalletType, WalletType } from "@enkryptcom/types";
+import {
+  EnkryptAccount,
+  HWwalletType,
+  SignerType,
+  WalletType,
+} from "@enkryptcom/types";
 import { routes } from "../routes";
 
 const route = useRoute();
@@ -133,7 +138,7 @@ const addAccounts = async () => {
       name: acc.name,
       pathIndex: acc.index,
       publicKey: acc.publicKey,
-      signerType: network.signer[0],
+      signerType: SignerType.ed25519,
       walletType: walletType as unknown as WalletType,
     });
   }

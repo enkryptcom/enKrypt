@@ -53,7 +53,10 @@ import { WindowPromiseHandler } from "@/libs/window-promise";
 import { onBeforeMount, ref } from "vue";
 import { hexToBuffer } from "@enkryptcom/utils";
 import { hexToUtf8 } from "web3-utils";
-import { DEFAULT_NETWORK_NAME, getNetworkByName } from "@/libs/utils/networks";
+import {
+  DEFAULT_EVM_NETWORK_NAME,
+  getNetworkByName,
+} from "@/libs/utils/networks";
 import { ProviderRequestOptions } from "@/types/provider";
 import { isAscii } from "@polkadot/util";
 import { EvmNetwork } from "../types/evm-network";
@@ -62,7 +65,7 @@ import { MessageSigner } from "./libs/signer";
 
 const windowPromise = WindowPromiseHandler(3);
 const network = ref<EvmNetwork>(
-  getNetworkByName(DEFAULT_NETWORK_NAME) as EvmNetwork
+  getNetworkByName(DEFAULT_EVM_NETWORK_NAME) as EvmNetwork
 );
 const account = ref<EnkryptAccount>({
   name: "",

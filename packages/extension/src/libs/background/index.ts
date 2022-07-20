@@ -85,7 +85,6 @@ class BackgroundHandler {
       const domainState = await this.#domainState.getStateByDomain(
         tabInfo.domain
       );
-      console.log(domainState);
       if (domainState.selectedNetwork) {
         const providerNetwork = getProviderNetworkByName(
           _provider,
