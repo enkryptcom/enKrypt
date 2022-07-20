@@ -48,7 +48,7 @@ jobs:
           curl --request POST --url "$UPLOAD_URL" --header "x-apikey: $VIRUS_TOTAL_API_KEY" --header 'Accept: application/json' --header 'Content-Type: multipart/form-data' -F "file=@./packages/extension/dist/release.zip"
           VIRUS_TOTAL_URL_FIREFOX=https://www.virustotal.com/gui/file/$FILE_SHA256
           curl -H "Authorization: token ${GITHUB_TOKEN}" -X POST \
-            -d "{\"body\": \"Virus total analysis chrome: <br/>$VIRUS_TOTAL_URL_CHROME<br/> \
+            -d "{\"body\": \"Virus total analysis <br/>chrome: <br/>$VIRUS_TOTAL_URL_CHROME<br/> \
                             firefox: <br/> \
                             $VIRUS_TOTAL_URL_FIREFOX\"}" \
                             "https://api.github.com/repos/${GITHUB_REPOSITORY}/commits/${GITHUB_SHA}/comments"
