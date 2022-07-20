@@ -10,7 +10,7 @@ const etcOptions: EvmNetworkOptions = {
   chainID: 61,
   isTestNetwork: false,
   currencyName: "ETC",
-  node: "wss://www.ethercluster.com/ws-etc",
+  node: "wss://nodes.mewapi.io/ws/etc",
   icon: require("./icons/etc.svg"),
   gradient: "#53CBC9",
   basePath: "m/44'/61'/0'/0",
