@@ -19,6 +19,11 @@
         </p>
       </div>
     </div>
+
+    <done-icon
+      v-show="isChecked"
+      class="send-address-item__checked"
+    ></done-icon>
   </a>
 </template>
 
@@ -26,6 +31,7 @@
 import { PropType } from "vue";
 import { KeyRecord } from "@enkryptcom/types";
 import { BaseNetwork } from "@/types/base-network";
+import DoneIcon from "@action/icons/common/done_icon.vue";
 const emit = defineEmits<{
   (e: "selected:account", address: string): void;
 }>();
@@ -39,6 +45,10 @@ defineProps({
     default: () => {
       return {};
     },
+  },
+  isChecked: {
+    type: Boolean,
+    default: false,
   },
 });
 </script>
@@ -58,6 +68,8 @@ defineProps({
   text-decoration: none;
   transition: background 300ms ease-in-out;
   border-radius: 10px;
+  position: relative;
+
   &:hover {
     background: @black007;
   }
@@ -125,6 +137,10 @@ defineProps({
       font-size: 0;
       margin-right: 10px;
     }
+  }
+
+  &__checked {
+    margin-right: 12px;
   }
 }
 </style>

@@ -9,6 +9,13 @@
       <switch-arrow />
     </a>
     <div class="account__actions">
+      <notification
+        v-if="isCopied"
+        :hide="toggleNotification"
+        text="Address copied"
+        class="account__notification"
+      />
+
       <tooltip text="View on Blockchain Explorer">
         <a
           class="account__actions--copy"
@@ -46,8 +53,11 @@ import IconQr from "@action/icons/header/qr_icon.vue";
 import IconCopy from "@action/icons/header/copy_icon.vue";
 import IconExternal from "@action/icons/header/external-icon.vue";
 import Tooltip from "@action/components/tooltip/index.vue";
-import { PropType } from "vue";
+import { PropType, ref } from "vue";
 import { NodeType } from "@/types/provider";
+import Notification from "@action/components/notification/index.vue";
+
+const isCopied = ref(false);
 
 const props = defineProps({
   name: {
@@ -75,6 +85,7 @@ const props = defineProps({
 
 const copy = (address: string) => {
   navigator.clipboard.writeText(address);
+  toggleNotification();
 };
 const showAccounts = () => {
   props.toggleAccounts();
@@ -103,6 +114,9 @@ const externalLink = () => {
   }
 
   return link;
+};
+const toggleNotification = () => {
+  isCopied.value = !isCopied.value;
 };
 </script>
 
@@ -204,6 +218,13 @@ const externalLink = () => {
         background: @black007;
       }
     }
+  }
+
+  &__notification {
+    position: absolute;
+    right: 8px;
+    top: 52px;
+    z-index: 141;
   }
 }
 </style>

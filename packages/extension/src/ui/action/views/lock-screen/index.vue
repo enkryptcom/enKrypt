@@ -108,6 +108,8 @@ const closeLockedAction = () => {
   &__container {
     width: 800px;
     height: 600px;
+    //   width: 454px;
+    //   height: 397px;
     overflow-x: hidden;
     overflow-y: hidden;
     position: fixed;

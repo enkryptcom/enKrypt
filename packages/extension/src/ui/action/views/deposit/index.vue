@@ -40,6 +40,13 @@
         >
           <CopyIcon /><span>copy</span>
         </a>
+
+        <notification
+          v-if="isCopied"
+          :hide="toggleNotification"
+          text="Address copied"
+          class="deposit__notification"
+        />
       </div>
     </div>
   </div>
@@ -52,12 +59,15 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { PropType } from "vue";
+import { PropType, ref } from "vue";
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import CopyIcon from "@action/icons/header/copy_icon.vue";
 import { KeyRecord } from "@enkryptcom/types";
 import { NodeType } from "@/types/provider";
 import QrcodeVue from "qrcode.vue";
+import Notification from "@action/components/notification/index.vue";
+
+const isCopied = ref(false);
 
 defineProps({
   network: {
@@ -82,6 +92,11 @@ defineProps({
 
 const copy = (address: string) => {
   navigator.clipboard.writeText(address);
+  toggleNotification();
+};
+
+const toggleNotification = () => {
+  isCopied.value = !isCopied.value;
 };
 </script>
 
@@ -264,6 +279,12 @@ const copy = (address: string) => {
         margin-right: 4px;
       }
     }
+  }
+
+  &__notification {
+    position: absolute;
+    left: 117px;
+    bottom: 16px;
   }
 }
 </style>

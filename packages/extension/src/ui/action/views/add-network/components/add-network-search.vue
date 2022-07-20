@@ -9,7 +9,7 @@
       </a>
     </div>
     <div v-show="openList" ref="tooltip" class="add-network__search-list">
-      <a class="add-network__search-list-item">
+      <a class="add-network__search-list-item" @click="toCustom">
         <custom-network-icon /><span>Custom network</span>
       </a>
       <div class="add-network__search-list-item">
@@ -27,7 +27,7 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, PropType } from "vue";
 import BaseSearch from "@action/components/base-search/index.vue";
 import SliderIcon from "@action/icons/common/slider-icon.vue";
 import CustomNetworkIcon from "@action/icons/common/custom-network-icon.vue";
@@ -50,6 +50,10 @@ const props = defineProps({
     default: () => {
       return null;
     },
+  },
+  toCustom: {
+    type: Function as PropType<() => void>,
+    default: () => ({}),
   },
 });
 

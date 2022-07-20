@@ -14,8 +14,9 @@
       </p>
     </div>
     <done-icon v-show="isChecked" class="accounts-item__checked"></done-icon>
-    <more-icon class="accounts-item__more" @mouseenter="toggleEdit"></more-icon>
-
+    <div class="accounts-item__more">
+      <more-icon @mouseenter="toggleEdit"></more-icon>
+    </div>
     <accounts-list-item-menu
       v-show="openEdit"
       :rename-action="renameAction"
@@ -122,6 +123,10 @@ const deleteAction = () => {
 
   &:hover {
     background: @black004;
+
+    .accounts-item__more {
+      display: block !important;
+    }
   }
 
   &.disabled {
@@ -170,7 +175,7 @@ const deleteAction = () => {
   }
 
   &__more {
-    display: none !important;
+    display: none;
     cursor: pointer;
   }
 }
