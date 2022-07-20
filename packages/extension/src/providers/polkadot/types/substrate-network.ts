@@ -85,8 +85,8 @@ export class SubstrateNetwork extends BaseNetwork {
     }
   }
 
-  public getAllTokens(): BaseToken[] {
-    return this.assets;
+  public getAllTokens(): Promise<BaseToken[]> {
+    return Promise.resolve(this.assets);
   }
 
   public async getAllTokenInfo(address: string): Promise<AssetsType[]> {
@@ -107,7 +107,7 @@ export class SubstrateNetwork extends BaseNetwork {
     const api = await this.api();
 
     const balancePromises = supported.map((token) =>
-      token.getUserBalance((api as SubstrateAPI).api, address)
+      token.getLatestUserBalance((api as SubstrateAPI).api, address)
     );
     const marketData = new MarketData();
     const market = await marketData.getMarketData(

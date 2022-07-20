@@ -67,6 +67,6 @@ export abstract class BaseNetwork {
     this.api = options.api;
   }
 
-  public abstract getAllTokens(): BaseToken[];
+  public abstract getAllTokens(address: string): Promise<BaseToken[]>;
   public abstract getAllTokenInfo(address: string): Promise<AssetsType[]>;
 }
