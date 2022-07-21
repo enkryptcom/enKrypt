@@ -13,6 +13,11 @@
         </p>
       </div>
     </div>
+
+    <done-icon
+      v-show="isChecked"
+      class="send-address-item__checked"
+    ></done-icon>
   </a>
 </template>
 
@@ -25,6 +30,8 @@ export default {
 <script setup lang="ts">
 import { EnkryptAccount } from "@enkryptcom/types";
 import { PropType } from "vue";
+import { KeyRecord } from "@enkryptcom/types";
+import DoneIcon from "@action/icons/common/done_icon.vue";
 
 const emit = defineEmits<{
   (e: "selected:account", address: string): void;
@@ -40,6 +47,10 @@ defineProps({
   identicon: {
     type: Function,
     default: () => null,
+  },
+  isChecked: {
+    type: Boolean,
+    default: false,
   },
 });
 </script>
@@ -126,6 +137,10 @@ defineProps({
       font-size: 0;
       margin-right: 10px;
     }
+  }
+
+  &__checked {
+    margin-right: 12px;
   }
 }
 </style>
