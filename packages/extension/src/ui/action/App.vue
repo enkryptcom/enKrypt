@@ -33,8 +33,10 @@
         v-show="showNetworkMenu"
         :account-info="accountHeaderData"
         :network="currentNetwork"
+        :show-deposit="showDepositWindow"
         @update:init="init"
         @address-changed="onSelectedAddressChanged"
+        @toggle:deposit="toggleDepositWindow"
       />
       <router-view v-slot="{ Component }" name="view">
         <transition :name="transitionName" mode="out-in">
@@ -43,6 +45,8 @@
             :network="currentNetwork"
             :account-info="accountHeaderData"
             @update:init="init"
+            @toggle:deposit="toggleDepositWindow"
+            @open:buy-action="openBuyPage"
           />
         </transition>
       </router-view>
@@ -99,11 +103,13 @@ import openOnboard from "@/libs/utils/open-onboard";
 import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
 import { fromBase } from "@/libs/utils/units";
 import { EnkryptAccount } from "@enkryptcom/types";
+import Browser from "webextension-polyfill";
 
 const domainState = new DomainState();
 const networksState = new NetworksState();
 const appMenuRef = ref(null);
 const networkGradient = ref("");
+const showDepositWindow = ref(false);
 const accountHeaderData = ref<AccountsHeaderData>({
   activeAccounts: [],
   inactiveAccounts: [],
@@ -140,7 +146,12 @@ const setActiveNetworks = async () => {
     setNetwork(networks.value[0]);
   }
 };
-
+const toggleDepositWindow = () => {
+  showDepositWindow.value = !showDepositWindow.value;
+};
+const openBuyPage = () => {
+  Browser.tabs.create({ url: "https://ccswap.myetherwallet.com/" });
+};
 const isKeyRingLocked = async (): Promise<boolean> => {
   return await sendToBackgroundFromAction({
     message: JSON.stringify({

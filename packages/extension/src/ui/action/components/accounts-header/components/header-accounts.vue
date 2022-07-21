@@ -22,19 +22,17 @@
       </tooltip>
 
       <tooltip text="Account's QR code">
-        <a showDeposit class="account__actions--copy" @click="showDeposit">
+        <a
+          showDeposit
+          class="account__actions--copy"
+          @click="$emit('toggle:deposit')"
+        >
           <icon-qr />
         </a>
       </tooltip>
     </div>
   </div>
 </template>
-
-<script lang="ts">
-export default {
-  name: "NetworkHeaderAccount",
-};
-</script>
 
 <script setup lang="ts">
 import SwitchArrow from "@action/icons/header/switch_arrow.vue";
@@ -59,24 +57,20 @@ const props = defineProps({
     type: Function,
     default: () => ({}),
   },
-  toggleDeposit: {
-    type: Function,
-    default: () => ({}),
-  },
   network: {
     type: Object as PropType<BaseNetwork>,
     default: () => ({}),
   },
 });
+defineEmits<{
+  (e: "toggle:deposit"): void;
+}>();
 
 const copy = (address: string) => {
   navigator.clipboard.writeText(address);
 };
 const showAccounts = () => {
   props.toggleAccounts();
-};
-const showDeposit = () => {
-  props.toggleDeposit();
 };
 const externalLink = computed(() => {
   return props.network.blockExplorerAddr.replace("[[address]]", props.address);

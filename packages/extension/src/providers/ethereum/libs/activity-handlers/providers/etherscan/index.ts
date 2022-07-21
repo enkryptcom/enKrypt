@@ -45,11 +45,11 @@ export default async (
   network: BaseNetwork,
   address: string
 ): Promise<Activity[]> => {
+  address = address.toLowerCase();
   const enpoint =
     NetworkEndpoints[network.name as keyof typeof NetworkEndpoints];
   const activities = await getAddressActivity(address, enpoint);
   const Promises = activities.map((activity) => {
-    console.log(activity);
     return decodeTx(activity, network as EvmNetwork).then((txData) => {
       return {
         from: activity.from,

@@ -61,7 +61,7 @@ export class EvmNetwork extends BaseNetwork {
     address: string
   ) => Promise<NFTCollection[]>;
 
-  private activityHandler?: (
+  private activityHandler: (
     network: BaseNetwork,
     address: string
   ) => Promise<Activity[]>;
@@ -128,9 +128,6 @@ export class EvmNetwork extends BaseNetwork {
     }
   }
   public getAllActivity(address: string): Promise<Activity[]> {
-    if (this.activityHandler) {
-      return this.activityHandler(this, address);
-    }
-    return Promise.resolve([]);
+    return this.activityHandler(this, address);
   }
 }

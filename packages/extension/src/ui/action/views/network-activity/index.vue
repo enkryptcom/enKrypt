@@ -11,10 +11,7 @@
           :symbol="props.network.currencyName"
         />
 
-        <network-activity-action
-          :deposit-action="depositAction"
-          :buy-action="buyAction"
-        />
+        <network-activity-action v-bind="$attrs" />
         <div v-if="activities.length">
           <network-activity-transaction
             v-for="(item, index) in activities"
@@ -45,13 +42,14 @@ import NetworkActivityTotal from "./components/network-activity-total.vue";
 import NetworkActivityAction from "./components/network-activity-action.vue";
 import NetworkActivityTransaction from "./components/network-activity-transaction.vue";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
-import { PropType, ref, toRef, watch } from "vue";
+import { computed, onMounted, PropType, ref, toRef, watch } from "vue";
 import { AccountsHeaderData } from "../../types/account";
 import accountInfo from "@action/composables/account-info";
 import { BaseNetwork } from "@/types/base-network";
 import scrollSettings from "@/libs/utils/scroll-settings";
 import { Activity } from "@/types/activity";
 import NetworkActivityLoading from "./components/network-activity-loading.vue";
+
 const props = defineProps({
   network: {
     type: Object as PropType<BaseNetwork>,
@@ -69,28 +67,29 @@ const { cryptoAmount, fiatAmount } = accountInfo(
 );
 const isNoActivity = ref(false);
 const activities = ref<Activity[]>([]);
-
+const selectedAddress = computed(
+  () => props.accountInfo.selectedAccount?.address || ""
+);
+const selectedNetworkName = computed(() => props.network.name);
 const setActivities = () => {
-  isNoActivity.value = false;
   activities.value = [];
+  isNoActivity.value = false;
   if (props.accountInfo.selectedAccount)
     props.network
-      .getAllActivity(props.accountInfo.selectedAccount.address)
+      .getAllActivity(
+        props.network.displayAddress(props.accountInfo.selectedAccount.address)
+      )
       .then((all) => {
-        console.log(all);
         activities.value = all;
         isNoActivity.value = all.length === 0;
       });
   else activities.value = [];
 };
 
-watch(cryptoAmount, setActivities);
-const depositAction = () => {
-  console.log("depositAction");
-};
-const buyAction = () => {
-  console.log("buyAction");
-};
+watch([selectedAddress, selectedNetworkName], setActivities);
+onMounted(() => {
+  setActivities();
+});
 </script>
 
 <style lang="less" scoped>
@@ -116,11 +115,14 @@ const buyAction = () => {
     position: relative;
     margin: auto;
     width: 100%;
-    max-height: 600px;
+    max-height: 540px;
     margin: 0;
     padding: 68px 0 0 0 !important;
     box-sizing: border-box;
-
+    .ps__rail-y {
+      right: 3px !important;
+      margin: 59px 0 !important;
+    }
     &.ps--active-y {
       padding-right: 0;
     }
@@ -134,15 +136,6 @@ const buyAction = () => {
     line-height: 24px;
     color: @primaryLabel;
     margin: 0;
-  }
-}
-</style>
-
-<style lang="less">
-.network-activity__scroll-area {
-  .ps__rail-y {
-    right: 3px !important;
-    margin: 59px 0 !important;
   }
 }
 </style>

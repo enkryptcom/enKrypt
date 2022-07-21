@@ -33,7 +33,7 @@ export interface SubstrateNetworkOptions {
   coingeckoID?: string;
   genesisHash: string;
   transferMethods?: Record<string, (args: any) => any>;
-  activityHandler?: (
+  activityHandler: (
     network: BaseNetwork,
     address: string
   ) => Promise<Activity[]>;
@@ -43,7 +43,7 @@ export class SubstrateNetwork extends BaseNetwork {
   public prefix: number;
   public assets: BaseToken[] = [];
   public genesisHash: string;
-  private activityHandler?: (
+  private activityHandler: (
     network: BaseNetwork,
     address: string
   ) => Promise<Activity[]>;
@@ -168,9 +168,6 @@ export class SubstrateNetwork extends BaseNetwork {
     return sorted;
   }
   public getAllActivity(address: string): Promise<Activity[]> {
-    if (this.activityHandler) {
-      return this.activityHandler(this, address);
-    }
-    return Promise.resolve([]);
+    return this.activityHandler(this, address);
   }
 }

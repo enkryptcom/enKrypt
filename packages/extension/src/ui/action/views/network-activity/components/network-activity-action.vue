@@ -1,14 +1,11 @@
 <template>
   <div class="network-activity__action">
     <div class="network-activity__action-wrap">
-      <a
-        class="network-activity__action-item"
-        @click="(depositAction as ()=>void)"
-      >
+      <a class="network-activity__action-item" @click="$emit('toggle:deposit')">
         <Deposit />Deposit
       </a>
       <div class="network-activity__action-divider"></div>
-      <a class="network-activity__action-item" @click="(buyAction as ()=>void)">
+      <a class="network-activity__action-item" @click="$emit('open:buyAction')">
         <Buy />Buy
       </a>
       <div class="network-activity__action-divider"></div>
@@ -42,17 +39,10 @@ import Send from "@action/icons/actions/send.vue";
 import Swap from "@action/icons/actions/swap.vue";
 import { useRoute } from "vue-router";
 const route = useRoute();
-
-defineProps({
-  depositAction: {
-    type: Function,
-    default: () => ({}),
-  },
-  buyAction: {
-    type: Function,
-    default: () => ({}),
-  },
-});
+defineEmits<{
+  (e: "toggle:deposit"): void;
+  (e: "open:buyAction"): void;
+}>();
 </script>
 
 <style lang="less">

@@ -50,6 +50,7 @@ export default async (
   network: BaseNetwork,
   address: string
 ): Promise<Activity[]> => {
+  address = address.toLowerCase();
   const enpoint =
     NetworkEndpoints[network.name as keyof typeof NetworkEndpoints];
   const activities = await getAddressActivity(address, enpoint);
