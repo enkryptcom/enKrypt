@@ -7,12 +7,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "SettingsSwitch",
-};
-</script>
-
 <script setup lang="ts">
 import Switch from "@action/components/switch/index.vue";
 

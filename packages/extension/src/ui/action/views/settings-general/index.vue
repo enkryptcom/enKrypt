@@ -31,12 +31,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "SettingsGeneral",
-};
-</script>
-
 <script setup lang="ts">
 import { ref, PropType } from "vue";
 import SettingsInnerHeader from "@action/views/settings/components/settings-inner-header.vue";

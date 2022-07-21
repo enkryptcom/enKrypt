@@ -45,12 +45,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "AddNetworkList",
-};
-</script>
-
 <script setup lang="ts">
 import { ref, onBeforeMount, ComponentPublicInstance, PropType } from "vue";
 import CloseIcon from "@action/icons/common/close-icon.vue";

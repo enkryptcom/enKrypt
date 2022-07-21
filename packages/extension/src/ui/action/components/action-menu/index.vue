@@ -18,12 +18,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "ActionMenu",
-};
-</script>
-
 <script setup lang="ts">
 import { PropType } from "vue";
 import Buy from "@action/icons/actions/buy.vue";

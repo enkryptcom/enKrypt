@@ -15,12 +15,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "SettingsInnerHeader",
-};
-</script>
-
 <script setup lang="ts">
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import ArrowBack from "@action/icons/common/arrow-back.vue";

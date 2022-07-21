@@ -59,12 +59,6 @@ const continueAction = () => {
 };
 </script>
 
-<script lang="ts">
-export default {
-  name: "ImportAccountSelectAccountDot",
-};
-</script>
-
 <style lang="less" scoped>
 @import "~@action/styles/theme.less";
 

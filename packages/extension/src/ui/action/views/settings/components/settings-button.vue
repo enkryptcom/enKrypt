@@ -1,9 +1,5 @@
 <template>
-  <a
-    class="settings-button"
-    :class="{ red: isRed }"
-    @click="(action as (e: MouseEvent)=>void)"
-  >
+  <a class="settings-button" :class="{ red: isRed }" @click="action">
     <h5>{{ title }}</h5>
     <div class="settings-button__arrow">
       <right-arrow v-if="!isLink" />
@@ -12,19 +8,14 @@
   </a>
 </template>
 
-<script lang="ts">
-export default {
-  name: "SettingsButton",
-};
-</script>
-
 <script setup lang="ts">
 import RightArrow from "@action/icons/common/right-arrow.vue";
 import ExternalIcon from "@action/icons/common/external-icon.vue";
+import { PropType } from "vue";
 
 defineProps({
   action: {
-    type: Function,
+    type: Function as PropType<() => void>,
     default: () => {
       return null;
     },

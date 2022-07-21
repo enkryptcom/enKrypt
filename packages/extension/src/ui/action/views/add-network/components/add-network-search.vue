@@ -9,9 +9,9 @@
       </a>
     </div>
     <div v-show="openList" ref="tooltip" class="add-network__search-list">
-      <a class="add-network__search-list-item" @click="toCustom">
+      <!-- <a class="add-network__search-list-item" @click="toCustom">
         <custom-network-icon /><span>Custom network</span>
-      </a>
+      </a> -->
       <div class="add-network__search-list-item">
         <test-network-icon /><span>Show testnets</span>
         <Switch :check="testNetwork" :is-checked="false" />
@@ -19,12 +19,6 @@
     </div>
   </div>
 </template>
-
-<script lang="ts">
-export default {
-  name: "AddNetworkSearch",
-};
-</script>
 
 <script setup lang="ts">
 import { ref, PropType } from "vue";
@@ -69,7 +63,7 @@ const testNetwork = () => {
   props.onTestNetCheck();
 };
 
-onClickOutside(tooltip, (event) => {
+onClickOutside(tooltip, () => {
   if (openList.value) openList.value = false;
 });
 </script>
@@ -112,7 +106,7 @@ onClickOutside(tooltip, (event) => {
 
     &-list {
       width: 256px;
-      height: 104px;
+      height: fit-content;
       background: @white;
       box-shadow: 0px 0.5px 5px rgba(0, 0, 0, 0.039),
         0px 3.75px 11px rgba(0, 0, 0, 0.19);

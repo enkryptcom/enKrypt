@@ -79,12 +79,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "SendContactsList",
-};
-</script>
-
 <script setup lang="ts">
 import SendAddressItem from "./send-address-item.vue";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
@@ -95,7 +89,6 @@ import { onUpdated, ref } from "vue";
 import { KeyRecord } from "@enkryptcom/types";
 import PasteIcon from "@action/icons/actions/paste.vue";
 import ArrowBack from "@action/icons/common/arrow-back.vue";
-import { EnkryptAccount } from "@enkryptcom/types";
 const emit = defineEmits<{
   (e: "update:pasteFromClipboard"): void;
   (e: "close", open: false): void;

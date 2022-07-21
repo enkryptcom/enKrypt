@@ -5,12 +5,6 @@
   </a>
 </template>
 
-<script lang="ts">
-export default {
-  name: "BaseSelectOption",
-};
-</script>
-
 <script setup lang="ts">
 import DoneIcon from "@action/icons/common/done_icon.vue";
 const props = defineProps({

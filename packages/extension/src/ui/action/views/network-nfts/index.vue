@@ -34,12 +34,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "NetworkNFTs",
-};
-</script>
-
 <script setup lang="ts">
 import { useRoute } from "vue-router";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";

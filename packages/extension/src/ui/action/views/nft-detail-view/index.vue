@@ -16,12 +16,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "NftDetailView",
-};
-</script>
-
 <script setup lang="ts">
 import { defineEmits, PropType } from "vue";
 import CloseIcon from "@action/icons/common/close-icon.vue";

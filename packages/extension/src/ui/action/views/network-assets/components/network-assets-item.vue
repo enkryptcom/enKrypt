@@ -40,12 +40,6 @@
   ></asset-detail-view>
 </template>
 
-<script lang="ts">
-export default {
-  name: "NetworkAssetsItem",
-};
-</script>
-
 <script setup lang="ts">
 import { PropType, ref } from "vue";
 import SparklineUp from "@action/icons/asset/sparkline-up.vue";

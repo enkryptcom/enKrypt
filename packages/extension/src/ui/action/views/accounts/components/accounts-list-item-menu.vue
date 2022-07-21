@@ -9,12 +9,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "AccountsListItemMenu",
-};
-</script>
-
 <script setup lang="ts">
 import EditIcon from "@action/icons/actions/edit.vue";
 import DeleteIcon from "@action/icons/actions/delete.vue";

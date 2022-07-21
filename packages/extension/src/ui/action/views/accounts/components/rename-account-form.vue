@@ -39,12 +39,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "RenameAccountForm",
-};
-</script>
-
 <script setup lang="ts">
 import { PropType, ref, onMounted } from "vue";
 import BaseButton from "@action/components/base-button/index.vue";

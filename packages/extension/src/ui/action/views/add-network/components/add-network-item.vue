@@ -14,12 +14,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "AddNetworkItem",
-};
-</script>
-
 <script setup lang="ts">
 import { PropType } from "vue";
 import Switch from "@action/components/switch/index.vue";

@@ -46,12 +46,6 @@ defineProps({
 });
 </script>
 
-<script lang="ts">
-export default {
-  name: "SignLogo",
-};
-</script>
-
 <style scoped>
 svg {
   display: inline-block;

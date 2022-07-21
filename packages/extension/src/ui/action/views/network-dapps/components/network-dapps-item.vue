@@ -5,12 +5,6 @@
   </a>
 </template>
 
-<script lang="ts">
-export default {
-  name: "NetworkDAppsItem",
-};
-</script>
-
 <script setup lang="ts">
 import { PropType } from "vue";
 import { DAppsItem } from "@action/types/dapps";

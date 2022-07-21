@@ -48,12 +48,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "TransactionFee",
-};
-</script>
-
 <script setup lang="ts">
 import { PropType } from "vue";
 import TransactionFeeItem from "./components/transaction-fee-item.vue";

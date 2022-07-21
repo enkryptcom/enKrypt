@@ -1,6 +1,6 @@
 <template>
   <div class="modal-forgot__container">
-    <div class="modal-forgot__overlay" @click="close()"></div>
+    <div class="modal-forgot__overlay" @click="toggleForgot"></div>
     <div class="modal-forgot__wrap">
       <lock-screen-forgot
         v-show="isForgot"
@@ -11,21 +11,16 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "ModalForgot",
-};
-</script>
-
 <script setup lang="ts">
 import LockScreenForgot from "@action/views/lock-screen/components/lock-screen-forgot.vue";
+import { PropType } from "vue";
 defineProps({
   isForgot: {
     type: Boolean,
     default: false,
   },
   toggleForgot: {
-    type: Function,
+    type: Function as PropType<() => void>,
     default: () => ({}),
   },
   resetAction: {

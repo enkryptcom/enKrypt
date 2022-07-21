@@ -18,12 +18,6 @@
   </a>
 </template>
 
-<script lang="ts">
-export default {
-  name: "AssetsSelectListItem",
-};
-</script>
-
 <script setup lang="ts">
 import { fromBase } from "@/libs/utils/units";
 import { BaseToken } from "@/types/base-token";

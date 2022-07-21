@@ -42,12 +42,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "LockScreenForgot",
-};
-</script>
-
 <script setup lang="ts">
 import { PropType, ref, computed } from "vue";
 import CloseIcon from "@action/icons/common/close-icon.vue";

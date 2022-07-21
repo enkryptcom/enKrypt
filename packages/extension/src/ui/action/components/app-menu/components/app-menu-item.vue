@@ -9,12 +9,6 @@
   </a>
 </template>
 
-<script lang="ts">
-export default {
-  name: "AppMenuItem",
-};
-</script>
-
 <script setup lang="ts">
 import { NodeType } from "@/types/provider";
 import { PropType } from "vue";

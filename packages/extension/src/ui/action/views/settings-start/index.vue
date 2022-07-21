@@ -61,12 +61,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "SettingsStart",
-};
-</script>
-
 <script setup lang="ts">
 import { PropType, ref } from "vue";
 import SettingsHeader from "@action/views/settings/components/settings-header.vue";

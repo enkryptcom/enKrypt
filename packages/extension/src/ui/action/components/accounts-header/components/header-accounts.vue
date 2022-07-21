@@ -48,7 +48,6 @@ import IconCopy from "@action/icons/header/copy_icon.vue";
 import IconExternal from "@action/icons/header/external-icon.vue";
 import Tooltip from "@action/components/tooltip/index.vue";
 import { PropType, ref, computed } from "vue";
-import { NodeType } from "@/types/provider";
 import Notification from "@action/components/notification/index.vue";
 import { BaseNetwork } from "@/types/base-network";
 

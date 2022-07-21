@@ -34,14 +34,8 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "ModalSign",
-};
-</script>
-
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, PropType } from "vue";
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import LockScreenPasswordInput from "@action/views/lock-screen/components/lock-screen-password-input.vue";
@@ -62,7 +56,7 @@ const props = defineProps({
     default: () => ({}),
   },
   unlock: {
-    type: Function,
+    type: Function as PropType<() => void>,
     default: () => ({}),
   },
   isUnlock: {

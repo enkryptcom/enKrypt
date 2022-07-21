@@ -33,12 +33,6 @@ defineProps({
 });
 </script>
 
-<script lang="ts">
-export default {
-  name: "HardwareWalletError",
-};
-</script>
-
 <style lang="less" scoped>
 @import "~@action/styles/theme.less";
 

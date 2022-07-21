@@ -21,16 +21,9 @@
   </a>
 </template>
 
-<script lang="ts">
-export default {
-  name: "SendAddressItem",
-};
-</script>
-
 <script setup lang="ts">
 import { EnkryptAccount } from "@enkryptcom/types";
 import { PropType } from "vue";
-import { KeyRecord } from "@enkryptcom/types";
 import DoneIcon from "@action/icons/common/done_icon.vue";
 
 const emit = defineEmits<{
