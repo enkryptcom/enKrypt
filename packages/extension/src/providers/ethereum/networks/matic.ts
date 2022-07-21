@@ -3,6 +3,7 @@ import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
 import assetsInfoHandler from "@/providers/ethereum/libs/assets-handlers/assetinfo-mew";
 import tokensHandler from "@/providers/ethereum/libs/assets-handlers/token-mew";
 import RaribleNFTHandler from "@/libs/nft-handlers/rarible";
+import { EtherscanActivity } from "../libs/activity-handlers";
 
 const maticOptions: EvmNetworkOptions = {
   name: NetworkNames.Matic,
@@ -20,6 +21,7 @@ const maticOptions: EvmNetworkOptions = {
   NFTHandler: RaribleNFTHandler,
   assetsInfoHandler,
   tokensHandler,
+  activityHandler: EtherscanActivity,
 };
 
 const matic = new EvmNetwork(maticOptions);

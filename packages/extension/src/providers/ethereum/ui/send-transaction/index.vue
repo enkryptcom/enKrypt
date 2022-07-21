@@ -115,7 +115,6 @@ import { GasPriceTypes } from "../../../../providers/ethereum/libs/transaction/t
 import { GasFeeType } from "../../../../providers/ethereum/ui/types";
 import { EvmNetwork } from "../../types/evm-network";
 import { Erc20Token } from "../../types/erc20-token";
-import { ProviderName } from "@/types/provider";
 import BigNumber from "bignumber.js";
 import { defaultGasCostVals } from "../common/default-vals";
 import Transaction from "@/providers/ethereum/libs/transaction";
@@ -128,6 +127,7 @@ import { formatFloatingPointValue } from "@/libs/utils/number-formatter";
 import { routes as RouterNames } from "@/ui/action/router";
 import getUiPath from "@/libs/utils/get-ui-path";
 import Browser from "webextension-polyfill";
+import { ProviderName } from "@/types/provider";
 
 const props = defineProps({
   network: {
@@ -264,7 +264,7 @@ const fetchAssets = () => {
     .getAllTokens(props.accountInfo.selectedAccount!.address)
     .then((allAssets) => {
       accountAssets.value = allAssets as Erc20Token[];
-      selectedAsset.value = allAssets[0];
+      selectedAsset.value = allAssets[0] as Erc20Token;
     });
 };
 

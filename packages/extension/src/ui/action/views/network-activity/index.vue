@@ -11,46 +11,45 @@
           :symbol="props.network.currencyName"
         />
 
-        <network-activity-action
-          :deposit-action="depositAction"
-          :buy-action="buyAction"
-        />
-
-        <network-activity-transaction
-          v-for="(item, index) in transactionsOne"
-          :key="index"
-          :transaction="item"
-        />
-
-        <div class="network-activity__header">July</div>
+        <network-activity-action v-bind="$attrs" />
+        <div v-if="activities.length">
+          <network-activity-transaction
+            v-for="(item, index) in activities"
+            :key="index"
+            :activity="item"
+            :network="network"
+          />
+        </div>
+        <!-- <div class="network-activity__header">July</div>
 
         <network-activity-transaction
           v-for="(item, index) in transactionsTwo"
           :key="index"
           :transaction="item"
-        />
+        /> -->
       </div>
     </custom-scrollbar>
+
+    <network-activity-loading
+      v-if="activities.length === 0"
+      :is-empty="isNoActivity"
+    ></network-activity-loading>
   </div>
 </template>
-
-<script lang="ts">
-export default {
-  name: "NetworkActivity",
-};
-</script>
 
 <script setup lang="ts">
 import NetworkActivityTotal from "./components/network-activity-total.vue";
 import NetworkActivityAction from "./components/network-activity-action.vue";
 import NetworkActivityTransaction from "./components/network-activity-transaction.vue";
-import { transactionsOne, transactionsTwo } from "@action/types/mock";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
-import { PropType, toRef } from "vue";
+import { computed, onMounted, PropType, ref, toRef, watch } from "vue";
 import { AccountsHeaderData } from "../../types/account";
 import accountInfo from "@action/composables/account-info";
 import { BaseNetwork } from "@/types/base-network";
 import scrollSettings from "@/libs/utils/scroll-settings";
+import { Activity } from "@/types/activity";
+import NetworkActivityLoading from "./components/network-activity-loading.vue";
+
 const props = defineProps({
   network: {
     type: Object as PropType<BaseNetwork>,
@@ -61,17 +60,36 @@ const props = defineProps({
     default: () => ({}),
   },
 });
+
 const { cryptoAmount, fiatAmount } = accountInfo(
   toRef(props, "network"),
   toRef(props, "accountInfo")
 );
+const isNoActivity = ref(false);
+const activities = ref<Activity[]>([]);
+const selectedAddress = computed(
+  () => props.accountInfo.selectedAccount?.address || ""
+);
+const selectedNetworkName = computed(() => props.network.name);
+const setActivities = () => {
+  activities.value = [];
+  isNoActivity.value = false;
+  if (props.accountInfo.selectedAccount)
+    props.network
+      .getAllActivity(
+        props.network.displayAddress(props.accountInfo.selectedAccount.address)
+      )
+      .then((all) => {
+        activities.value = all;
+        isNoActivity.value = all.length === 0;
+      });
+  else activities.value = [];
+};
 
-const depositAction = () => {
-  console.log("depositAction");
-};
-const buyAction = () => {
-  console.log("buyAction");
-};
+watch([selectedAddress, selectedNetworkName], setActivities);
+onMounted(() => {
+  setActivities();
+});
 </script>
 
 <style lang="less" scoped>
@@ -97,11 +115,14 @@ const buyAction = () => {
     position: relative;
     margin: auto;
     width: 100%;
-    max-height: 600px;
+    max-height: 540px;
     margin: 0;
     padding: 68px 0 0 0 !important;
     box-sizing: border-box;
-
+    .ps__rail-y {
+      right: 3px !important;
+      margin: 59px 0 !important;
+    }
     &.ps--active-y {
       padding-right: 0;
     }
@@ -115,15 +136,6 @@ const buyAction = () => {
     line-height: 24px;
     color: @primaryLabel;
     margin: 0;
-  }
-}
-</style>
-
-<style lang="less">
-.network-activity__scroll-area {
-  .ps__rail-y {
-    right: 3px !important;
-    margin: 59px 0 !important;
   }
 }
 </style>

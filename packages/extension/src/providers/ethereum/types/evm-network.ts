@@ -1,5 +1,6 @@
 import { formatFloatingPointValue } from "@/libs/utils/number-formatter";
 import { fromBase } from "@/libs/utils/units";
+import { Activity } from "@/types/activity";
 import { BaseNetwork } from "@/types/base-network";
 import { BaseToken } from "@/types/base-token";
 import { NFTCollection } from "@/types/nft";
@@ -36,6 +37,10 @@ export interface EvmNetworkOptions {
     network: BaseNetwork,
     address: string
   ) => Promise<BaseToken[]>;
+  activityHandler: (
+    network: BaseNetwork,
+    address: string
+  ) => Promise<Activity[]>;
 }
 
 export class EvmNetwork extends BaseNetwork {
@@ -55,6 +60,11 @@ export class EvmNetwork extends BaseNetwork {
     network: BaseNetwork,
     address: string
   ) => Promise<NFTCollection[]>;
+
+  private activityHandler: (
+    network: BaseNetwork,
+    address: string
+  ) => Promise<Activity[]>;
 
   constructor(options: EvmNetworkOptions) {
     const api = async () => {
@@ -80,6 +90,7 @@ export class EvmNetwork extends BaseNetwork {
     this.assetsInfoHandler = options.assetsInfoHandler;
     this.tokensHandler = options.tokensHandler;
     this.NFTHandler = options.NFTHandler;
+    this.activityHandler = options.activityHandler;
   }
 
   public getAllTokens(address: string): Promise<BaseToken[]> {
@@ -115,5 +126,8 @@ export class EvmNetwork extends BaseNetwork {
 
       return [nativeAsset];
     }
+  }
+  public getAllActivity(address: string): Promise<Activity[]> {
+    return this.activityHandler(this, address);
   }
 }

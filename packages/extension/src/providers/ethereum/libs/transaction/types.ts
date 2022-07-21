@@ -47,8 +47,10 @@ export interface DecodedTx {
   currentPriceUSD: number;
   tokenValue: string;
   tokenDecimals: number;
+  tokenSymbol: string;
   tokenName: string;
   tokenImage: string;
+  tokenTo: string | null;
   dataHex: string;
   decodedHex?: string[];
 }
@@ -66,6 +68,8 @@ export interface DataDecodeResponse {
   decoded: boolean;
   values: string[];
   function?: string;
+  tokenValue?: string;
+  tokenTo?: string;
   isToken: boolean;
 }
 

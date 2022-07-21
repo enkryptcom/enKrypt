@@ -14,7 +14,7 @@
       </p>
     </div>
     <done-icon v-show="isChecked" class="accounts-item__checked"></done-icon>
-    <div class="accounts-item__more">
+    <div v-if="showEdit" class="accounts-item__more">
       <more-icon @mouseenter="toggleEdit"></more-icon>
     </div>
     <accounts-list-item-menu
@@ -77,6 +77,7 @@ const props = defineProps({
     type: Function as PropType<() => void>,
     default: () => ({}),
   },
+  showEdit: Boolean,
 });
 
 const toggleEdit = () => {
