@@ -1,7 +1,7 @@
 <template>
   <a v-if="!!token" class="swap-token-select" @click="open">
     <div class="swap-token-select__image">
-      <img :src="token.icon" alt="" />
+      <img v-if="token.icon !== ''" :src="token.icon" alt="" />
     </div>
     <div class="swap-token-select__info">
       <h5>{{ token.name }}</h5>

@@ -15,11 +15,6 @@
       @update:value="amountChanged"
     ></swap-token-amount-input>
 
-    <swap-token-fast-list
-      v-show="!token"
-      :select-token="selectToken"
-    ></swap-token-fast-list>
-
     <a v-show="!!token" class="swap-token-input__max">Max</a>
     <div v-if="inputError !== null" class="swap-token-input__invalid">
       {{
@@ -52,7 +47,6 @@ export default {
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import SwapTokenSelect from "../swap-token-select/index.vue";
-import SwapTokenFastList from "../swap-token-fast-list/index.vue";
 import SwapTokenAmountInput from "./components/swap-token-amount-input.vue";
 import { BaseToken } from "@/types/base-token";
 import BigNumber from "bignumber.js";

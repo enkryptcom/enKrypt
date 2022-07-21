@@ -114,6 +114,7 @@ import { Swap } from "@/providers/swap";
 import BigNumber from "bignumber.js";
 import { Rates } from "@/providers/swap/types/SwapProvider";
 import { SubstrateNetwork } from "@/providers/polkadot/types/substrate-network";
+import { UnknownToken } from "@/types/unknown-token";
 
 const router = useRouter();
 const route = useRoute();
@@ -140,7 +141,9 @@ const selected: string = route.params.id as string;
 const network = getNetworkByName(selected);
 
 const fromTokens = ref<BaseToken[]>();
-const fromToken = ref<BaseToken | null>(null);
+const fromToken = ref<BaseToken | null>(
+  new UnknownToken({ name: "Loading", symbol: "", decimals: 18, icon: "" })
+);
 const fromAmount = ref<string | null>(null);
 
 const toTokens = ref<BaseToken[]>();
@@ -219,6 +222,9 @@ onMounted(async () => {
     .getAllTokens(props.accountInfo.selectedAccount?.address as string)
     .then((tokens) => {
       fromTokens.value = tokens;
+      if (tokens.length > 0) {
+        fromToken.value = tokens[0];
+      }
     });
 
   swap
