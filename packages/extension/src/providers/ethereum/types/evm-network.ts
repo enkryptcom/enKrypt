@@ -1,5 +1,6 @@
 import { formatFloatingPointValue } from "@/libs/utils/number-formatter";
 import { fromBase } from "@/libs/utils/units";
+import { Activity } from "@/types/activity";
 import { BaseNetwork } from "@/types/base-network";
 import { BaseToken } from "@/types/base-token";
 import { NFTCollection } from "@/types/nft";
@@ -28,21 +29,43 @@ export interface EvmNetworkOptions {
     network: BaseNetwork,
     address: string
   ) => Promise<NFTCollection[]>;
-  assetsHandler?: (
+  assetsInfoHandler?: (
     network: BaseNetwork,
     address: string
   ) => Promise<AssetsType[]>;
+  tokensHandler?: (
+    network: BaseNetwork,
+    address: string
+  ) => Promise<BaseToken[]>;
+  activityHandler: (
+    network: BaseNetwork,
+    address: string
+  ) => Promise<Activity[]>;
 }
 
 export class EvmNetwork extends BaseNetwork {
   public chainID: number;
 
-  private assetsHandler:
-    | ((network: BaseNetwork, address: string) => Promise<AssetsType[]>)
-    | undefined;
-  private NFTHandler:
-    | ((network: BaseNetwork, address: string) => Promise<NFTCollection[]>)
-    | undefined;
+  private assetsInfoHandler?: (
+    network: BaseNetwork,
+    address: string
+  ) => Promise<AssetsType[]>;
+
+  tokensHandler?: (
+    network: BaseNetwork,
+    address: string
+  ) => Promise<BaseToken[]>;
+
+  private NFTHandler?: (
+    network: BaseNetwork,
+    address: string
+  ) => Promise<NFTCollection[]>;
+
+  private activityHandler: (
+    network: BaseNetwork,
+    address: string
+  ) => Promise<Activity[]>;
+
   constructor(options: EvmNetworkOptions) {
     const api = async () => {
       const api = new API(options.node);
@@ -64,17 +87,23 @@ export class EvmNetwork extends BaseNetwork {
     super(baseOptions);
 
     this.chainID = options.chainID;
-    this.assetsHandler = options.assetsHandler;
+    this.assetsInfoHandler = options.assetsInfoHandler;
+    this.tokensHandler = options.tokensHandler;
     this.NFTHandler = options.NFTHandler;
+    this.activityHandler = options.activityHandler;
   }
 
-  public getAllTokens(): BaseToken[] {
-    return [];
+  public getAllTokens(address: string): Promise<BaseToken[]> {
+    if (this.tokensHandler) {
+      return this.tokensHandler(this, address);
+    }
+
+    return Promise.resolve([]);
   }
 
   public async getAllTokenInfo(address: string): Promise<AssetsType[]> {
-    if (this.assetsHandler) {
-      return this.assetsHandler(this, address);
+    if (this.assetsInfoHandler) {
+      return this.assetsInfoHandler(this, address);
     } else {
       const api = await this.api();
       const balance = await (api as API).getBalance(address);
@@ -97,5 +126,8 @@ export class EvmNetwork extends BaseNetwork {
 
       return [nativeAsset];
     }
+  }
+  public getAllActivity(address: string): Promise<Activity[]> {
+    return this.activityHandler(this, address);
   }
 }

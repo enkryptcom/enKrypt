@@ -11,10 +11,7 @@
           :symbol="network.currencyName"
         />
 
-        <network-activity-action
-          :deposit-action="depositAction"
-          :buy-action="buyAction"
-        />
+        <network-activity-action v-bind="$attrs" />
 
         <network-assets-item
           v-for="(item, index) in assets"
@@ -68,12 +65,6 @@ const { cryptoAmount, fiatAmount } = accountInfo(
 );
 const selected: string = route.params.id as string;
 
-const depositAction = () => {
-  console.log("depositAction");
-};
-const buyAction = () => {
-  console.log("buyAction");
-};
 const updateAssets = () => {
   isLoading.value = true;
   props.network

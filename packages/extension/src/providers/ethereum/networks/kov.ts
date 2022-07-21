@@ -1,5 +1,6 @@
 import { NetworkNames } from "@enkryptcom/types";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
+import { EtherscanActivity } from "../libs/activity-handlers";
 
 const kovOptions: EvmNetworkOptions = {
   name: NetworkNames.Kovan,
@@ -13,6 +14,7 @@ const kovOptions: EvmNetworkOptions = {
   node: "wss://nodes.mewapi.io/ws/kovan",
   icon: require("./icons/eth.svg"),
   gradient: "#E6007A",
+  activityHandler: EtherscanActivity,
 };
 
 const kov = new EvmNetwork(kovOptions);

@@ -11,12 +11,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "NetworkNftsCategorySortMenu",
-};
-</script>
-
 <script setup lang="ts">
 import { PropType } from "vue";
 import DoneIcon from "@action/icons/common/done_icon.vue";

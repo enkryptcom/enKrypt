@@ -1,95 +1,116 @@
 <template>
-  <a href="#" class="network-activity__transaction">
+  <a
+    :href="transactionURL"
+    target="_blank"
+    class="network-activity__transaction"
+  >
     <div class="network-activity__transaction-info">
-      <img src="@action/icons/raw/account.png" />
+      <img
+        :src="
+          network.identicon(activity.isIncoming ? activity.from : activity.to)
+        "
+      />
 
       <div class="network-activity__transaction-info-name">
         <h4>
-          {{ $filters.replaceWithEllipsis(transaction.from.address, 6, 6) }}
+          {{
+            $filters.replaceWithEllipsis(
+              network.displayAddress(
+                activity.isIncoming ? activity.from : activity.to
+              ),
+              6,
+              6
+            )
+          }}
         </h4>
         <p>
           <span
             class="network-activity__transaction-info-status"
-            :class="{ error: transaction.status == 2 }"
+            :class="{ error: activity.status === ActivityStatus.failed }"
             >{{ status }}</span
           >
           <transaction-timer
-            v-if="transaction.status == 0"
-            :date="transaction.date"
+            v-if="activity.status === ActivityStatus.pending"
+            :date="activity.timestamp"
           />
-          <span v-else>{{ date }}</span>
+          <span v-else-if="activity.timestamp !== 0">{{ date }}</span>
         </p>
       </div>
     </div>
 
     <div class="network-activity__transaction-amount">
       <h4>
-        {{ transaction.cryptoAmount }}
-        <span>{{ transaction.token.symbol }}</span>
+        {{
+          $filters.formatFloatingPointValue(
+            fromBase(activity.value, activity.token.decimals)
+          ).value
+        }}
+        <span>{{ activity.token.symbol }}</span>
       </h4>
-      <p>{{ $filters.formatFiatValue(transaction.amount).value }}</p>
+      <p>$ {{ $filters.formatFiatValue(getFiatValue).value }}</p>
     </div>
   </a>
 </template>
 
-<script lang="ts">
-export default {
-  name: "NetworkActivityTransaction",
-};
-</script>
-
 <script setup lang="ts">
-import { PropType } from "vue";
-import {
-  Transaction,
-  TransactionStatus,
-  TransactionDirection,
-} from "@action/types/transaction";
+import { computed, onMounted, PropType, ref } from "vue";
 import moment from "moment";
 import TransactionTimer from "./transaction-timer.vue";
-
+import { Activity, ActivityStatus } from "@/types/activity";
+import { BaseNetwork } from "@/types/base-network";
+import { fromBase } from "@/libs/utils/units";
+import BigNumber from "bignumber.js";
 const props = defineProps({
-  transaction: {
-    type: Object as PropType<Transaction>,
+  activity: {
+    type: Object as PropType<Activity>,
+    default: () => ({}),
+  },
+  network: {
+    type: Object as PropType<BaseNetwork>,
     default: () => ({}),
   },
 });
 
-let status = "";
-let date = "";
+const status = ref("~");
+const date = ref("~");
 
-if (props.transaction) {
-  date = moment(props.transaction.date).fromNow();
-
-  switch (props.transaction.direction) {
-    case TransactionDirection.incoming:
-      switch (props.transaction.status) {
-        case TransactionStatus.progress:
-          status = "Receiving";
-          break;
-        case TransactionStatus.success:
-          status = "Receive";
-          break;
-        case TransactionStatus.failed:
-          status = "Failed";
-          break;
-      }
-      break;
-    case TransactionDirection.outgoing:
-      switch (props.transaction.status) {
-        case TransactionStatus.progress:
-          status = "Sending";
-          break;
-        case TransactionStatus.success:
-          status = "Sent";
-          break;
-        case TransactionStatus.failed:
-          status = "Failed";
-          break;
-      }
-      break;
+const transactionURL = computed(() => {
+  return props.network.blockExplorerTX.replace(
+    "[[txHash]]",
+    props.activity.transactionHash
+  );
+});
+const getFiatValue = computed(() => {
+  return new BigNumber(props.activity.token.price || "0").times(
+    fromBase(props.activity.value, props.activity.token.decimals)
+  );
+});
+onMounted(() => {
+  date.value = moment(props.activity.timestamp).fromNow();
+  if (
+    props.activity.status === ActivityStatus.success &&
+    props.activity.isIncoming
+  )
+    status.value = "Received";
+  else if (
+    props.activity.status === ActivityStatus.success &&
+    !props.activity.isIncoming
+  )
+    status.value = "Sent";
+  else if (
+    props.activity.status === ActivityStatus.pending &&
+    props.activity.isIncoming
+  )
+    status.value = "Receiving";
+  else if (
+    props.activity.status === ActivityStatus.pending &&
+    !props.activity.isIncoming
+  )
+    status.value = "Sending";
+  else {
+    status.value = "Failed";
   }
-}
+});
 </script>
 
 <style lang="less">
@@ -123,6 +144,7 @@ if (props.transaction) {
 
       img {
         max-width: 32px;
+        max-height: 32px;
         margin-right: 16px;
         border-radius: 100%;
       }
