@@ -15,42 +15,43 @@
           :deposit-action="depositAction"
           :buy-action="buyAction"
         />
-
-        <network-activity-transaction
-          v-for="(item, index) in transactionsOne"
-          :key="index"
-          :transaction="item"
-        />
-
-        <div class="network-activity__header">July</div>
+        <div v-if="activities.length">
+          <network-activity-transaction
+            v-for="(item, index) in activities"
+            :key="index"
+            :activity="item"
+            :network="network"
+          />
+        </div>
+        <!-- <div class="network-activity__header">July</div>
 
         <network-activity-transaction
           v-for="(item, index) in transactionsTwo"
           :key="index"
           :transaction="item"
-        />
+        /> -->
       </div>
     </custom-scrollbar>
+
+    <network-activity-loading
+      v-if="activities.length === 0"
+      :is-empty="isNoActivity"
+    ></network-activity-loading>
   </div>
 </template>
-
-<script lang="ts">
-export default {
-  name: "NetworkActivity",
-};
-</script>
 
 <script setup lang="ts">
 import NetworkActivityTotal from "./components/network-activity-total.vue";
 import NetworkActivityAction from "./components/network-activity-action.vue";
 import NetworkActivityTransaction from "./components/network-activity-transaction.vue";
-import { transactionsOne, transactionsTwo } from "@action/types/mock";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
-import { PropType, toRef } from "vue";
+import { PropType, ref, toRef, watch } from "vue";
 import { AccountsHeaderData } from "../../types/account";
 import accountInfo from "@action/composables/account-info";
 import { BaseNetwork } from "@/types/base-network";
 import scrollSettings from "@/libs/utils/scroll-settings";
+import { Activity } from "@/types/activity";
+import NetworkActivityLoading from "./components/network-activity-loading.vue";
 const props = defineProps({
   network: {
     type: Object as PropType<BaseNetwork>,
@@ -61,11 +62,28 @@ const props = defineProps({
     default: () => ({}),
   },
 });
+
 const { cryptoAmount, fiatAmount } = accountInfo(
   toRef(props, "network"),
   toRef(props, "accountInfo")
 );
+const isNoActivity = ref(false);
+const activities = ref<Activity[]>([]);
 
+const setActivities = () => {
+  isNoActivity.value = false;
+  activities.value = [];
+  if (props.accountInfo.selectedAccount)
+    props.network
+      .getAllActivity(props.accountInfo.selectedAccount.address)
+      .then((all) => {
+        activities.value = all;
+        isNoActivity.value = all.length === 0;
+      });
+  else activities.value = [];
+};
+
+watch(cryptoAmount, setActivities);
 const depositAction = () => {
   console.log("depositAction");
 };

@@ -1,5 +1,6 @@
 import { NetworkNames } from "@enkryptcom/types";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
+import { RivetActivity } from "../libs/activity-handlers";
 
 const etcOptions: EvmNetworkOptions = {
   name: NetworkNames.EthereumClassic,
@@ -15,6 +16,7 @@ const etcOptions: EvmNetworkOptions = {
   gradient: "#53CBC9",
   basePath: "m/44'/61'/0'/0",
   coingeckoID: "ethereum-classic",
+  activityHandler: RivetActivity,
 };
 
 const etc = new EvmNetwork(etcOptions);

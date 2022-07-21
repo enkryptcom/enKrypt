@@ -1,50 +1,19 @@
+import cacheFetch from "@/libs/cache-fetch";
 import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
 import { Activity, ActivityStatus, EthereumRawInfo } from "@/types/activity";
 import { BaseNetwork } from "@/types/base-network";
 import { decodeTx } from "../../../transaction/decoder";
 import { NetworkEndpoints } from "./configs";
+const TTL = 30000;
 const getAddressActivity = async (
   address: string,
   endpoint: string
 ): Promise<EthereumRawInfo[]> => {
-  const transactions = fetch(endpoint, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      id: 0,
-      method: "flume_getTransactionsByParticipant",
-      params: [address],
-    }),
+  const transactions = cacheFetch({
+    url: `${endpoint}api?module=account&action=txlist&address=${address}`,
   })
     .then((res) => res.json())
     .then((res) => res.result.items as EthereumRawInfo[]);
-
-  const transactionsReceipts = fetch(endpoint, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      id: 0,
-      method: "flume_getTransactionReceiptsByParticipant",
-      params: [address],
-    }),
-  })
-    .then((res) => res.json())
-    .then((res) => res.result.items as EthereumRawInfo[]);
-  return Promise.all([transactions, transactionsReceipts]).then((responses) => {
-    let allInfo = responses[0].reverse().map((item) => {
-      const receipt = responses[1].find(
-        (r) => r.transactionHash === (item as any).hash
-      );
-      if (receipt) return { ...item, ...receipt, data: (item as any).input };
-      return null;
-    });
-    allInfo = allInfo.filter((i) => i !== null);
-    return allInfo.slice(0, 50) as EthereumRawInfo[];
-  });
 };
 export default async (
   network: BaseNetwork,

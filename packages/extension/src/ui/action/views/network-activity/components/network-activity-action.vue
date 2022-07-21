@@ -35,12 +35,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "NetworkActivityAction",
-};
-</script>
-
 <script setup lang="ts">
 import Deposit from "@action/icons/actions/deposit.vue";
 import Buy from "@action/icons/actions/buy.vue";

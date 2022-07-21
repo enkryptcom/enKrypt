@@ -5,18 +5,17 @@ import {
   TokenBalance,
 } from "./types/tokenbalance-mew";
 import MarketData from "@/libs/market-data";
-import cacheFetch from "@/libs/cache-fetch";
 import { toBN } from "web3-utils";
 import API from "@/providers/ethereum/libs/api";
 import { BaseNetwork } from "@/types/base-network";
 import { EvmNetwork } from "../../types/evm-network";
-import TokenLists from "./token-lists";
+import { getKnownNetworkTokens, TokenList } from "./token-lists";
 import networks from "../../networks";
 import { NetworkNames } from "@enkryptcom/types";
 import { NATIVE_TOKEN_ADDRESS } from "../common";
 import { Erc20Token } from "../../types/erc20-token";
 const API_ENPOINT = "https://tokenbalance.mewapi.io/";
-const TOKEN_FETCH_TTL = 1000 * 60 * 60;
+
 export default (
   network: BaseNetwork,
   address: string
@@ -24,17 +23,17 @@ export default (
   const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
     [NetworkNames.Binance]: {
       tbName: "bsc",
-      tokenurl: TokenLists[NetworkNames.Binance],
+      tokenurl: TokenList[NetworkNames.Binance],
       cgPlatform: networks.bsc.coingeckoID as string,
     },
     [NetworkNames.Ethereum]: {
       tbName: "eth",
-      tokenurl: TokenLists[NetworkNames.Ethereum],
+      tokenurl: TokenList[NetworkNames.Ethereum],
       cgPlatform: networks.ethereum.coingeckoID as string,
     },
     [NetworkNames.Matic]: {
       tbName: "matic",
-      tokenurl: TokenLists[NetworkNames.Matic],
+      tokenurl: TokenList[NetworkNames.Matic],
       cgPlatform: networks.matic.coingeckoID as string,
     },
   };
@@ -65,20 +64,9 @@ export default (
         marketInfo[NATIVE_TOKEN_ADDRESS] = nativeMarket[0];
 
         const assets: Erc20Token[] = [];
-        const tokenInfo: Record<string, CGToken> = await cacheFetch(
-          {
-            url: supportedNetworks[networkName].tokenurl,
-          },
-          TOKEN_FETCH_TTL
-        ).then((json) => {
-          const tokens: CGToken[] = json.tokens;
-          const tObject: Record<string, CGToken> = {};
-          tokens.forEach((t) => {
-            tObject[t.address] = t;
-          });
-          return tObject;
-        });
-
+        const tokenInfo: Record<string, CGToken> = await getKnownNetworkTokens(
+          network.name
+        );
         tokenInfo[NATIVE_TOKEN_ADDRESS] = {
           chainId: (network as EvmNetwork).chainID,
           name: network.name_long,
@@ -87,15 +75,10 @@ export default (
           logoURI: network.icon,
           symbol: network.currencyName,
         };
-
         const unknownTokens: string[] = [];
         let nativeAsset: Erc20Token | null = null;
         for (const [address, market] of Object.entries(marketInfo)) {
           if (market && tokenInfo[address]) {
-            console.log(
-              "token-mew",
-              toBN(balances[address].balance).toString()
-            );
             const asset = new Erc20Token({
               balance: toBN(balances[address].balance).toString(),
               icon: market.image,
@@ -111,11 +94,6 @@ export default (
             unknownTokens.push(address);
           }
         }
-        // assets.sort((a, b) => {
-        //   if (a.balanceUSD < b.balanceUSD) return 1;
-        //   else if (a.balanceUSD > b.balanceUSD) return -1;
-        //   else return 0;
-        // });
         assets.unshift(nativeAsset as Erc20Token);
         if (unknownTokens.length && network.api) {
           const api = (await network.api()) as API;

@@ -1,14 +1,19 @@
 <template>
-  <div class="network-nfts__empty">
-    <p>Your NFTs will be shown here.</p>
+  <div class="network-activity__loading">
+    <p v-if="!isEmpty">Loading</p>
+    <p v-if="isEmpty">No activity</p>
   </div>
 </template>
-
+<script setup lang="ts">
+defineProps({
+  isEmpty: Boolean,
+});
+</script>
 <style lang="less">
 @import "~@action/styles/theme.less";
 
-.network-nfts {
-  &__empty {
+.network-activity {
+  &__loading {
     width: 100%;
     height: 100%;
     display: flex;

@@ -264,7 +264,7 @@ const fetchAssets = () => {
     .getAllTokens(props.accountInfo.selectedAccount!.address)
     .then((allAssets) => {
       accountAssets.value = allAssets as Erc20Token[];
-      selectedAsset.value = allAssets[0];
+      selectedAsset.value = allAssets[0] as Erc20Token;
     });
 };
 
