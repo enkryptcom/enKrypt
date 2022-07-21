@@ -54,7 +54,6 @@ export class EvmSwapProvider extends SwapProvider {
 
   constructor() {
     super();
-    // this.providerName = providerName;
   }
 
   public isValidAddress(address: string): boolean {
