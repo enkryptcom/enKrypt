@@ -7,6 +7,7 @@ const BROWSER = process.env.BROWSER;
 const browserNames = {
   chrome: "chrome",
   firefox: "firefox",
+  opera: "opera",
 };
 const browserConfigs = {
   [browserNames.chrome]: {
@@ -14,6 +15,9 @@ const browserConfigs = {
   },
   [browserNames.firefox]: {
     manifest: "./src/manifest/manifest-firefox.json",
+  },
+  [browserNames.opera]: {
+    manifest: "./src/manifest/manifest-opera.json",
   },
 };
 function modifyManifest(buffer) {
