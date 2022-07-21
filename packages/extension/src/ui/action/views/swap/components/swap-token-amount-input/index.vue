@@ -11,6 +11,7 @@
       :value="tokenAmount"
       :autofocus="autofocus"
       :change-focus="changeFocus"
+      :error="inputError !== null"
       @update:value="amountChanged"
     ></swap-token-amount-input>
 
@@ -20,8 +21,21 @@
     ></swap-token-fast-list>
 
     <a v-show="!!token" class="swap-token-input__max">Max</a>
+    <div v-if="inputError !== null" class="swap-token-input__invalid">
+      {{
+        inputError === "MAX"
+          ? `Maximum swap amount is ${
+              $filters.formatFloatingPointValue(max).value
+            }`
+          : inputError === "MIN"
+          ? `Minimum swap amount is ${
+              $filters.formatFloatingPointValue(min).value
+            }`
+          : "Insufficient Balance"
+      }}
+    </div>
     <div
-      v-show="!!token && Number(tokenAmount) > 0"
+      v-else-if="!!token && Number(tokenAmount) > 0"
       class="swap-token-input__fiat"
     >
       ≈ ${{ $filters.formatFiatValue(tokenPrice).value }}
@@ -40,45 +54,47 @@ import { computed, ref } from "vue";
 import SwapTokenSelect from "../swap-token-select/index.vue";
 import SwapTokenFastList from "../swap-token-fast-list/index.vue";
 import SwapTokenAmountInput from "./components/swap-token-amount-input.vue";
-import { PropType } from "vue";
 import { BaseToken } from "@/types/base-token";
 import BigNumber from "bignumber.js";
+import { fromBase } from "@/libs/utils/units";
 
-const props = defineProps({
-  toggleSelect: {
-    type: Function,
-    default: () => {
-      return null;
-    },
-  },
-  selectToken: {
-    type: Function,
-    default: () => {
-      return null;
-    },
-  },
-  inputAmount: {
-    type: Function,
-    default: () => {
-      return null;
-    },
-  },
-  token: {
-    type: Object as PropType<BaseToken | null>,
-    default: () => {
-      return null;
-    },
-  },
-  autofocus: {
-    type: Boolean,
-    default: () => {
-      return false;
-    },
-  },
-});
+interface IProps {
+  toggleSelect: () => void;
+  selectToken?: () => void;
+  inputAmount: (newVal: number, isValid: boolean) => void;
+  token: BaseToken | null;
+  autofocus: boolean;
+  min?: string;
+  max?: string;
+}
+
+const props = defineProps<IProps>();
 
 const isFocus = ref(false);
 const tokenAmount = ref("");
+
+const inputError = computed(() => {
+  if (
+    tokenAmount.value &&
+    tokenAmount.value !== "" &&
+    tokenAmount.value !== "0"
+  ) {
+    const fromBn = new BigNumber(tokenAmount.value);
+    if (
+      props.token &&
+      props.token.balance &&
+      fromBn.gt(fromBase(props.token.balance, props.token.decimals))
+    ) {
+      return "INSUFFICIENT";
+    } else if (props.max && fromBn.gt(props.max)) {
+      return "MAX";
+    } else if (props.min && fromBn.lt(props.min)) {
+      return "MIN";
+    }
+  }
+
+  return null;
+});
 
 const tokenPrice = computed(() => {
   if (props.token?.price && tokenAmount.value !== "") {
@@ -92,7 +108,7 @@ const tokenPrice = computed(() => {
 
 const amountChanged = (newVal: string) => {
   tokenAmount.value = newVal;
-  props.inputAmount(Number(newVal));
+  props.inputAmount(Number(newVal), inputError.value !== null);
 };
 
 const changeFocus = (newVal: boolean) => {
@@ -142,6 +158,19 @@ const changeFocus = (newVal: boolean) => {
     text-align: center;
     letter-spacing: 0.25px;
     color: @secondaryLabel;
+    position: absolute;
+    left: 16px;
+    bottom: 16px;
+  }
+
+  &__invalid {
+    font-style: normal;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 20px;
+    text-align: center;
+    letter-spacing: 0.25px;
+    color: @error;
     position: absolute;
     left: 16px;
     bottom: 16px;

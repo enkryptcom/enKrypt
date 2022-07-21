@@ -248,7 +248,6 @@ export class ChangellySwapProvider extends SwapProvider {
     }
 
     const data = await res.json();
-    console.log(data);
     return {
       min: data.result[0].minFrom,
       max: data.result[0].maxFrom,
@@ -292,8 +291,6 @@ export class ChangellySwapProvider extends SwapProvider {
       }
 
       const data = await res.json();
-
-      console.log("getQuote", data);
 
       return [
         {

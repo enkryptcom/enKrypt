@@ -25,7 +25,7 @@ const GET_LIST = "/swap/list";
 const GET_QUOTE = "/swap/quote";
 const GET_TRADE = "/swap/trade";
 const GET_RATE = "/swap/rate";
-const REQUEST_TIMEOUT = 10_000;
+const REQUEST_TIMEOUT = 30_000;
 
 type TradeResponseTransaction = {
   to: `0x${string}`;

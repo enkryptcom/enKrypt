@@ -15,6 +15,8 @@
             :token="fromToken"
             :input-amount="inputAmountFrom"
             :autofocus="true"
+            :min="minFrom"
+            :max="maxFrom"
           ></swap-token-amount-input>
 
           <a class="swap__arrows" @click="swapTokens"
@@ -150,6 +152,9 @@ const toSelectOpened = ref(false);
 const isLooking = ref(false);
 
 const rates = ref<Rates>();
+const minFrom = ref<string>();
+const maxFrom = ref<string>();
+const inputError = ref(false);
 
 const isFindingRate = computed(() => {
   if (rates.value) {
@@ -204,7 +209,7 @@ const toAmount = computed(() => {
     .value(Number(fromAmount.value) ?? 0)
     .times(fromAmount.value ?? 0);
 
-  if (estimate.isZero()) return "0.0";
+  if (estimate.isZero()) return "0";
 
   return estimate.toFixed();
 });
@@ -237,6 +242,8 @@ watch([fromToken, toToken], () => {
       .then((preview) => {
         if (preview) {
           rates.value = preview.rates;
+          minFrom.value = preview.min;
+          maxFrom.value = preview.max;
         }
       });
   }
@@ -250,7 +257,8 @@ const selectTokenTo = (token: BaseToken) => {
   toToken.value = token;
   toSelectOpened.value = false;
 };
-const inputAmountFrom = async (newVal: number) => {
+const inputAmountFrom = async (newVal: number, isInvalid: boolean) => {
+  inputError.value = isInvalid;
   fromAmount.value = newVal.toString();
 };
 const toggleFromToken = () => {
@@ -278,7 +286,9 @@ const isDisabled = () => {
     !!fromToken.value &&
     !!toToken.value &&
     Number(fromAmount.value) > 0 &&
-    Number(toAmount.value) > 0
+    Number(toAmount.value) > 0 &&
+    address.value !== "" &&
+    !inputError.value
   ) {
     isDisabled = false;
   }
