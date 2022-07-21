@@ -25,12 +25,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "NetworkAssets",
-};
-</script>
-
 <script setup lang="ts">
 import { useRoute } from "vue-router";
 import NetworkActivityTotal from "../network-activity/components/network-activity-total.vue";

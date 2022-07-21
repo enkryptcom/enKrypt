@@ -42,12 +42,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "ResetWallet",
-};
-</script>
-
 <script setup lang="ts">
 import { PropType, ref, computed } from "vue";
 import SettingsInnerHeader from "@action/views/settings/components/settings-inner-header.vue";

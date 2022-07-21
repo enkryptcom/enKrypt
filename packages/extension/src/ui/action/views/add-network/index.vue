@@ -17,12 +17,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "AddNetwork",
-};
-</script>
-
 <script setup lang="ts">
 import { ref } from "vue";
 import AddNetworkList from "./views/add-network-list.vue";

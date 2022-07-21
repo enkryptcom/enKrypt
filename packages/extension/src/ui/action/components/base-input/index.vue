@@ -20,12 +20,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "BaseInput",
-};
-</script>
-
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import HideIcon from "@action/icons/password/hide-icon.vue";

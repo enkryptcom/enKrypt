@@ -40,12 +40,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "Settings",
-};
-</script>
-
 <script setup lang="ts">
 import { ref } from "vue";
 import SettingsStart from "@action/views/settings-start/index.vue";

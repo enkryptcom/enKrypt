@@ -14,12 +14,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "SelectAccountInput",
-};
-</script>
-
 <script setup lang="ts">
 import SwitchArrow from "@action/icons/header/switch_arrow.vue";
 defineEmits<{

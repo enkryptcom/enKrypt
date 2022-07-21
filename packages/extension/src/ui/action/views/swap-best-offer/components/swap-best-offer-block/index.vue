@@ -35,12 +35,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "SwapBestOfferBlock",
-};
-</script>
-
 <script setup lang="ts">
 import { ref } from "vue";
 import SwitchArrow from "@action/icons/header/switch_arrow.vue";

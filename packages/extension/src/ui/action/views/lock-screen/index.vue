@@ -34,12 +34,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "LockScreen",
-};
-</script>
-
 <script setup lang="ts">
 import { ref } from "vue";
 import LogoBig from "@action/icons/common/logo-big.vue";

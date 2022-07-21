@@ -24,12 +24,6 @@
   </a>
 </template>
 
-<script lang="ts">
-export default {
-  name: "TransactionFeeItem",
-};
-</script>
-
 <script setup lang="ts">
 import { PropType, computed } from "vue";
 import EconomyIcon from "@action/icons/fee/economy-icon.vue";

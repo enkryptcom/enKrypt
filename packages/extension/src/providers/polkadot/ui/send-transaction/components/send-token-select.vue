@@ -17,12 +17,6 @@
   </a>
 </template>
 
-<script lang="ts">
-export default {
-  name: "SendTokenSelect",
-};
-</script>
-
 <script setup lang="ts">
 import SwitchArrow from "@action/icons/header/switch_arrow.vue";
 import { BaseToken } from "@/types/base-token";

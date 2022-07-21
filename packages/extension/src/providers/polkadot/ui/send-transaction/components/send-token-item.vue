@@ -23,12 +23,6 @@
   </a>
 </template>
 
-<script lang="ts">
-export default {
-  name: "NetworkAssetsItem",
-};
-</script>
-
 <script setup lang="ts">
 import { onBeforeMount, ref } from "vue";
 import EvmAPI from "@/providers/ethereum/libs/api";

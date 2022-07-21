@@ -19,12 +19,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "SendAddressInput",
-};
-</script>
-
 <script setup lang="ts">
 import { replaceWithEllipsis } from "@/ui/action/utils/filters";
 import { polkadotEncodeAddress } from "@enkryptcom/utils";

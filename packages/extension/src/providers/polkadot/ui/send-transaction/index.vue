@@ -87,12 +87,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "SendTransaction",
-};
-</script>
-
 <script setup lang="ts">
 import { computed, onMounted, PropType, ref, shallowRef, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";

@@ -26,12 +26,6 @@
   </a>
 </template>
 
-<script lang="ts">
-export default {
-  name: "AccountsListItem",
-};
-</script>
-
 <script setup lang="ts">
 import DoneIcon from "@action/icons/common/done_icon.vue";
 import MoreIcon from "@action/icons/common/more-icon.vue";

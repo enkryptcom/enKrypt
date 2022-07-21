@@ -8,12 +8,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "SettingsSupport",
-};
-</script>
-
 <script setup lang="ts">
 import { PropType } from "vue";
 import SettingsInnerHeader from "@action/views/settings/components/settings-inner-header.vue";

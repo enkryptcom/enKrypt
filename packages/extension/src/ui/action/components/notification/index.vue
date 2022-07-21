@@ -6,12 +6,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "Notification",
-};
-</script>
-
 <script setup lang="ts">
 import { PropType, ref } from "vue";
 

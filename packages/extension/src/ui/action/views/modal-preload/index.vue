@@ -11,12 +11,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "ModalPreload",
-};
-</script>
-
 <script setup lang="ts">
 import LottieSendProcess from "@action/assets/animation/send-process.json";
 </script>
