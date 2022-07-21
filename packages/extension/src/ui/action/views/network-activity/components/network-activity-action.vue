@@ -1,14 +1,11 @@
 <template>
   <div class="network-activity__action">
     <div class="network-activity__action-wrap">
-      <a
-        class="network-activity__action-item"
-        @click="(depositAction as ()=>void)"
-      >
+      <a class="network-activity__action-item" @click="depositAction">
         <Deposit />Deposit
       </a>
       <div class="network-activity__action-divider"></div>
-      <a class="network-activity__action-item" @click="(buyAction as ()=>void)">
+      <a class="network-activity__action-item" @click="buyAction">
         <Buy />Buy
       </a>
       <div class="network-activity__action-divider"></div>
@@ -42,6 +39,7 @@ export default {
 </script>
 
 <script setup lang="ts">
+import { PropType } from "vue";
 import Deposit from "@action/icons/actions/deposit.vue";
 import Buy from "@action/icons/actions/buy.vue";
 import Send from "@action/icons/actions/send.vue";
@@ -51,11 +49,11 @@ const route = useRoute();
 
 defineProps({
   depositAction: {
-    type: Function,
+    type: Function as PropType<() => void>,
     default: () => ({}),
   },
   buyAction: {
-    type: Function,
+    type: Function as PropType<() => void>,
     default: () => ({}),
   },
 });
