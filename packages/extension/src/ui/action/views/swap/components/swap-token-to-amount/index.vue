@@ -8,6 +8,7 @@
     <swap-token-amount-input
       v-show="!!token"
       :value="amount"
+      :is-finding-rate="isFindingRate"
     ></swap-token-amount-input>
 
     <swap-token-fast-list
@@ -58,6 +59,10 @@ const props = defineProps({
   amount: {
     type: String,
     default: () => "0.0",
+  },
+  isFindingRate: {
+    type: Boolean,
+    default: () => false,
   },
 });
 

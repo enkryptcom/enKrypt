@@ -2,7 +2,7 @@
   <div class="swap-initiated__container">
     <div class="swap-initiated">
       <div class="swap-initiated__wrap">
-        <a class="swap-initiated__close" @click="(close as ()=>void)">
+        <a class="swap-initiated__close" @click="close">
           <close-icon />
         </a>
         <div class="swap-initiated__animation">
@@ -14,17 +14,18 @@
 
           <h4>Swap initiated</h4>
           <p>
-            Once completed, COMP will be deposited to the address you specified.
+            Once completed, {{ toToken.symbol }} will be deposited to the
+            address you specified.
           </p>
           <a href="#">View on Etherscan</a>
         </div>
         <div class="swap-initiated__info">
-          <swap-initiated-amount :token="ethereum" :amount="10">
+          <swap-initiated-amount :token="fromToken" :amount="fromAmount">
           </swap-initiated-amount>
           <div class="swap-initiated__info-arrow">
             <arrow-down />
           </div>
-          <swap-initiated-amount :token="ethereum" :amount="129.634">
+          <swap-initiated-amount :token="toToken" :amount="toAmount">
           </swap-initiated-amount>
         </div>
       </div>
@@ -43,14 +44,24 @@ import LottieSwapInitiated from "@action/assets/animation/swap-initiated.json";
 import ArrowDown from "@action/icons/send/arrow-down.vue";
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import SwapInitiatedAmount from "./components/swap-initiated-amount.vue";
-import { ethereum } from "@action/types/mock";
+import { BaseToken } from "@/types/base-token";
 
-defineProps({
-  close: {
-    type: Function,
-    default: () => ({}),
-  },
-});
+interface IProps {
+  fromToken: BaseToken;
+  toToken: BaseToken;
+  fromAmount: string;
+  toAmount: string;
+}
+
+const emit = defineEmits<{
+  (e: "update:close"): void;
+}>();
+
+defineProps<IProps>();
+
+const close = () => {
+  emit("update:close");
+};
 </script>
 
 <style lang="less" scoped>

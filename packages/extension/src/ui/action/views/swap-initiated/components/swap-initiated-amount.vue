@@ -17,17 +17,18 @@ export default {
 </script>
 
 <script setup lang="ts">
+import { BaseToken } from "@/types/base-token";
 import { PropType } from "vue";
-import { Token } from "@action/types/token";
+
 defineProps({
   token: {
-    type: Object as PropType<Token>,
+    type: Object as PropType<BaseToken>,
     default: () => {
       return {};
     },
   },
   amount: {
-    type: Number,
+    type: String,
     default: () => {
       return 0;
     },

@@ -2,12 +2,12 @@
   <div>
     <div class="best-offer-list">
       <best-offer-list-item
-        v-for="quote in quotes"
-        :key="quote.exchange"
-        :name="quote.exchange"
-        :amount="`~${quote.amount}`"
-        :select="() => select(quote)"
-        :is-checked="quote.exchange === pickedQuote.exchange"
+        v-for="trade in trades"
+        :key="trade.provider"
+        :name="trade.provider"
+        :amount="`~${trade.minimumReceived}`"
+        :select="() => select(trade)"
+        :is-checked="trade.provider === pickedTrade.provider"
         :is-loading="false"
       ></best-offer-list-item>
     </div>
@@ -21,19 +21,19 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { QuoteInfo } from "@/providers/swap/types/SwapProvider";
+import { QuoteInfo, TradeInfo } from "@/providers/swap/types/SwapProvider";
 import BestOfferListItem from "./best-offer-list-item.vue";
 
 interface IProps {
-  quotes: QuoteInfo[];
-  pickedQuote: QuoteInfo;
-  select: (quote: QuoteInfo) => void;
+  trades: TradeInfo[];
+  pickedTrade: TradeInfo;
+  select: (trade: TradeInfo) => void;
 }
 
 const props = defineProps<IProps>();
 
-const select = (quote: QuoteInfo) => {
-  props.select(quote);
+const select = (trade: TradeInfo) => {
+  props.select(trade);
 };
 </script>
 

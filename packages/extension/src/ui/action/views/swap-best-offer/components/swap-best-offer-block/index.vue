@@ -1,6 +1,6 @@
 <template>
   <div class="swap-best-offer-block">
-    <h3>Best offer from {{ pickedQuote?.exchange }}</h3>
+    <h3>Best offer from {{ pickedTrade?.provider }}</h3>
     <div class="swap-best-offer-block__for">
       for<img :src="fromToken.icon" />
       <p>
@@ -13,7 +13,10 @@
       <img :src="toToken.icon" />
       <div class="swap-best-offer-block__token-info">
         <h4>
-          {{ $filters.formatFloatingPointValue(pickedQuote?.amount).value }}
+          {{
+            $filters.formatFloatingPointValue(pickedTrade?.minimumReceived)
+              .value
+          }}
           <span>{{ toToken.symbol }}</span>
         </h4>
         <p>≈ {{ $filters.formatFiatValue(toTokenPrice).value }}</p>
@@ -27,13 +30,13 @@
         class="swap-best-offer-block__offers-link"
         :class="{ opened: isOffersOpen }"
         @click="toggleOffers"
-        >{{ quotes.length - 1 }} other offers <switch-arrow
+        >{{ trades.length - 1 }} other offers <switch-arrow
       /></a>
       <best-offer-list
         v-show="isOffersOpen"
         :select="select"
-        :quotes="quotes"
-        :picked-quote="pickedQuote"
+        :trades="trades"
+        :picked-trade="pickedTrade"
       ></best-offer-list>
     </div>
     <div class="swap-best-offer-block__info">
@@ -42,11 +45,19 @@
         {{ $filters.formatFloatingPointValue(ratio).value }}
         {{ toToken.symbol.toUpperCase() }}
       </p>
-      <!-- <p>Price impact: -0.07%</p> -->
-      <!-- <p>Max. slippage: 1.3%</p> -->
+      <p v-if="pickedTrade.priceImpact">
+        Price impact:
+        {{ new BigNumber(pickedTrade.priceImpact).times(100).toFixed() }}%
+      </p>
+      <p v-if="pickedTrade.maxSlippage">
+        Max. slippage:
+        {{ new BigNumber(pickedTrade.maxSlippage).times(100).toFixed() }}%
+      </p>
       <p>
         Minimum received:
-        {{ $filters.formatFloatingPointValue(pickedQuote.amount).value }}
+        {{
+          $filters.formatFloatingPointValue(pickedTrade.minimumReceived).value
+        }}
         {{ toToken.symbol.toUpperCase() }}
       </p>
       <p>Offer includes 2.5% MEW fee</p>
@@ -66,14 +77,14 @@ import SwitchArrow from "@action/icons/header/switch_arrow.vue";
 import BestOfferList from "./components/best-offer-list.vue";
 import BestOfferWarning from "./components/best-offer-warning.vue";
 import BestOfferError from "./components/best-offer-error.vue";
-import { QuoteInfo } from "@/providers/swap/types/SwapProvider";
+import { QuoteInfo, TradeInfo } from "@/providers/swap/types/SwapProvider";
 import { BaseToken } from "@/types/base-token";
 import BigNumber from "bignumber.js";
 import { fromBase } from "@/libs/utils/units";
 
 interface SwapBestOfferProps {
-  quotes: QuoteInfo[];
-  pickedQuote: QuoteInfo;
+  trades: TradeInfo[];
+  pickedTrade: TradeInfo;
   fromToken: BaseToken;
   fromAmount: string;
   toToken: BaseToken;
@@ -81,25 +92,25 @@ interface SwapBestOfferProps {
 
 const props = defineProps<SwapBestOfferProps>();
 const emit = defineEmits<{
-  (e: "update:pickedQuote", quote: QuoteInfo): void;
+  (e: "update:pickedTrade", trade: TradeInfo): void;
 }>();
 
 const isOffersOpen = ref(false);
 
 const toTokenPrice = computed(() =>
   new BigNumber(props.toToken.price ?? 0).times(
-    new BigNumber(props.pickedQuote.amount)
+    new BigNumber(props.pickedTrade.minimumReceived)
   )
 );
 
 const ratio = computed(() =>
-  new BigNumber(props.pickedQuote.amount)
+  new BigNumber(props.pickedTrade.minimumReceived)
     .div(new BigNumber(props.fromAmount))
     .toFixed()
 );
 
-const select = (quote: QuoteInfo) => {
-  emit("update:pickedQuote", quote);
+const select = (trade: TradeInfo) => {
+  emit("update:pickedTrade", trade);
   toggleOffers();
 };
 

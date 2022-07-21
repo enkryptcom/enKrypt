@@ -20,12 +20,12 @@
           @ps-scroll-y="handleScroll"
         >
           <swap-best-offer-block
-            :quotes="swapData.quotes"
-            :picked-quote="pickedQuote"
+            :trades="swapData.trades"
+            :picked-trade="pickedTrade"
             :from-token="swapData.fromToken"
             :to-token="swapData.toToken"
             :from-amount="swapData.fromAmount"
-            @update:picked-quote="selectQuote"
+            @update:picked-trade="selectTrade"
           >
           </swap-best-offer-block>
           <best-offer-error
@@ -63,7 +63,11 @@
     </div>
     <swap-initiated
       v-if="isInitiated"
-      :close="toggleInitiated"
+      :from-token="swapData.fromToken"
+      :to-token="swapData.toToken"
+      :from-amount="swapData.fromAmount"
+      :to-amount="pickedTrade.minimumReceived"
+      @update:close="toggleInitiated"
     ></swap-initiated>
   </div>
 </template>
@@ -88,16 +92,24 @@ import TransactionFeeView from "@action/views/transaction-fee/index.vue";
 import { TransactionFee } from "@action/types/fee";
 import { recommendedFee } from "@action/types/mock";
 import scrollSettings from "@/libs/utils/scroll-settings";
-import { QuoteInfo, Trade } from "@/providers/swap/types/SwapProvider";
+import { Trade, TradeInfo } from "@/providers/swap/types/SwapProvider";
 import { BaseToken } from "@/types/base-token";
 import { Swap } from "@/providers/swap";
 import { BaseNetwork } from "@/types/base-network";
 import { AccountsHeaderData } from "../../types/account";
-import { toBN } from "web3-utils";
+import { numberToHex, toBN } from "web3-utils";
 import BN from "bn.js";
+import Web3 from "web3";
+import API from "@/providers/ethereum/libs/api";
+import Transaction from "@/providers/ethereum/libs/transaction";
+import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
+import { GasPriceTypes } from "@/providers/ethereum/libs/transaction/types";
+import { TransactionSigner } from "@/providers/ethereum/ui/libs/signer";
+import PublicKeyRing from "@/libs/keyring/public-keyring";
+import { getCurrentContext } from "@enkryptcom/extension-bridge";
 
 interface SwapData {
-  quotes: QuoteInfo[];
+  trades: TradeInfo[];
   fromToken: BaseToken;
   toToken: BaseToken;
   fromAmount: string;
@@ -127,27 +139,11 @@ const selected: string = route.params.id as string;
 const swapData: SwapData = JSON.parse(route.params.swapData as string);
 const isOpenSelectFee = ref(false);
 const fee = ref(recommendedFee);
-const pickedQuote = ref<QuoteInfo>(swapData.quotes[0]);
-const trade = ref<Trade | null>(null);
+const pickedTrade = ref<TradeInfo>(swapData.trades[0]);
 const balance = ref<BN>();
 const gasFees = ref<BN>();
 
 defineExpose({ bestOfferScrollRef });
-
-const getTrade = async () => {
-  const quote = swapData.quotes[0];
-  const trade = await swap.getTrade(
-    props.network.name,
-    props.accountInfo.selectedAccount!.address,
-    swapData.toAddress,
-    quote,
-    swapData.fromToken,
-    swapData.toToken,
-    swapData.fromAmount
-  );
-
-  return trade;
-};
 
 onMounted(async () => {
   const api = await props.network.api();
@@ -157,19 +153,15 @@ onMounted(async () => {
   );
 });
 
-watch(pickedQuote, async () => {
-  const newTrade = await getTrade();
-
-  trade.value = newTrade;
-});
-
-watch([trade, balance], async () => {
-  if (trade.value && balance.value) {
-    gasFees.value = trade.value.transactions
-      .map(({ gas }) => toBN(gas))
-      .reduce((gasA, gasB) => gasA.add(gasB), toBN(0));
-  }
-});
+// watch([trade, balance], async () => {
+//   if (trade.value && balance.value) {
+//     if (trade.value.transactions[0]?.gas) {
+//       gasFees.value = trade.value.transactions
+//         .map(({ gas }) => toBN(gas))
+//         .reduce((gasA, gasB) => gasA.add(gasB), toBN(0));
+//     }
+//   }
+// });
 
 const back = () => {
   router.go(-1);
@@ -190,12 +182,18 @@ const isDisabled = () => {
   return isDisabled;
 };
 const sendAction = async () => {
-  toggleInitiated();
+  if (pickedTrade.value) {
+    toggleInitiated();
+    const hashes = await swap.executeTrade(
+      props.network,
+      props.accountInfo.selectedAccount!,
+      pickedTrade.value,
+      {}
+    );
 
-  if (trade.value) {
-    const api = await props.network.api();
-    await api.init();
-    swap.executeTrade(api, trade.value, {});
+    console.log("Swap done!", hashes);
+  } else {
+    console.log("No trade yet");
   }
 
   setTimeout(() => {
@@ -226,9 +224,9 @@ const selectFee = (option: TransactionFee) => {
   isOpenSelectFee.value = false;
 };
 
-const selectQuote = (quote: QuoteInfo) => {
+const selectTrade = (trade: TradeInfo) => {
   console.log("test");
-  pickedQuote.value = quote;
+  pickedTrade.value = trade;
 };
 </script>
 

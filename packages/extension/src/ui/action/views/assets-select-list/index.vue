@@ -9,7 +9,9 @@
       </a>
     </div>
 
-    <assets-select-list-search></assets-select-list-search>
+    <assets-select-list-search
+      @update:token-search-input="updateSearchInput"
+    ></assets-select-list-search>
 
     <custom-scrollbar
       class="assets-select-list__scroll-area"
@@ -19,11 +21,28 @@
         <swap-token-fast-list v-bind="$attrs"></swap-token-fast-list>
       </div>
       <assets-select-list-item
-        v-for="(item, index) in assets"
+        v-for="(item, index) in listedAssets"
         :key="index"
         :token="item"
         v-bind="$attrs"
       ></assets-select-list-item>
+      <div v-if="!assets || assets.length === 0">
+        <Vue3Lottie
+          v-for="index in 4"
+          :key="`asset-load-${index}`"
+          :animation-data="LottieTokenLoading"
+          :loop="true"
+        />
+      </div>
+      <assets-not-found
+        v-if="assets && assets.length > 0 && listedAssets.length === 0"
+      />
+      <div
+        v-if="assets.length > 50 && (!searchQuery || searchQuery === '')"
+        class="assets-select-list__search-more-tokens"
+      >
+        Use the search bar for more tokens
+      </div>
     </custom-scrollbar>
   </div>
 </template>
@@ -39,16 +58,18 @@ import CloseIcon from "@action/icons/common/close-icon.vue";
 import AssetsSelectListItem from "./components/assets-select-list-item.vue";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 import AssetsSelectListSearch from "./components/assets-select-list-search.vue";
+import AssetsNotFound from "./components/assets-not-found.vue";
 import SwapTokenFastList from "@action/views/swap/components/swap-token-fast-list/index.vue";
+import LottieTokenLoading from "@action/assets/animation/token-loading.json";
 import scrollSettings from "@/libs/utils/scroll-settings";
-import { PropType } from "vue";
+import { computed, PropType, ref } from "vue";
 import { BaseToken } from "@/types/base-token";
 
 const emit = defineEmits<{
   (e: "close", close: boolean): void;
 }>();
 
-defineProps({
+const props = defineProps({
   isSelectToToken: {
     type: Boolean,
     default: () => {
@@ -66,6 +87,35 @@ defineProps({
     default: () => [],
   },
 });
+
+const searchQuery = ref<string>();
+
+const listedAssets = computed(() => {
+  if (searchQuery.value) {
+    return props.assets
+      .filter((token) => {
+        const tokenNameLowerCase = token.name.toLowerCase();
+        const tokenSymbolLowerCase = token.symbol.toLowerCase();
+        const searchQueryLowerCase = searchQuery.value!.toLowerCase();
+
+        if (
+          tokenNameLowerCase.startsWith(searchQueryLowerCase) ||
+          tokenSymbolLowerCase.startsWith(searchQueryLowerCase)
+        ) {
+          return true;
+        }
+
+        return false;
+      })
+      .slice(0, 50);
+  } else {
+    return props.assets.slice(0, 50);
+  }
+});
+
+const updateSearchInput = (newSearchQuery: string) => {
+  searchQuery.value = newSearchQuery;
+};
 
 const close = () => {
   emit("close", false);
@@ -140,6 +190,15 @@ const close = () => {
     .swap-token-fast-list__all {
       display: none;
     }
+  }
+
+  &__search-more-tokens {
+    margin: auto;
+    padding: 16px;
+    text-align: center;
+    font-size: 16px;
+    font-weight: 400;
+    color: lightgray;
   }
 }
 </style>

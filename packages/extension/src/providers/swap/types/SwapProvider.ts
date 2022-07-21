@@ -1,7 +1,15 @@
 import { BaseToken } from "@/types/base-token";
-import EvmAPI from "@/providers/ethereum/libs/api";
-import SubstrateAPI from "@/providers/polkadot/libs/api";
 import Web3 from "web3";
+import { BaseNetwork } from "@/types/base-network";
+import { EnkryptAccount } from "@enkryptcom/types";
+
+export type Rates = Array<{ amount: string; rate: string }>;
+
+export type TradePreview = {
+  min: string;
+  max: string;
+  rates: Rates;
+};
 
 export type Quote = {
   dex: string;
@@ -34,9 +42,21 @@ export type TokenData = {
 export type TransactionInfo = {
   to: string;
   from: string;
-  data: `0x{string}`;
-  value: `0x{string}`;
-  gas: `0x{string}`;
+  data: `0x${string}`;
+  value: `0x${string}`;
+  gas: `0x${string}`;
+};
+
+export type TradeInfo = {
+  provider: string;
+  fromAmount: string;
+  minimumReceived: string;
+  maxSlippage?: string;
+  priceImpact?: string;
+  fee: string;
+  gas: string;
+  rateId?: string;
+  txs: TransactionInfo[];
 };
 
 export type Trade = { transactions: TransactionInfo[]; dex: string };
@@ -68,6 +88,12 @@ export abstract class SwapProvider {
     max: string;
   }>;
 
+  public abstract getTradePreview(
+    chain: string,
+    fromToken: BaseToken,
+    toToken: BaseToken
+  ): Promise<TradePreview | null>;
+
   public abstract getQuote(
     chain: string,
     fromToken: BaseToken,
@@ -79,17 +105,17 @@ export abstract class SwapProvider {
     chain: string,
     fromAddress: string,
     toAddress: string,
-    quote: QuoteInfo,
     fromToken: BaseToken,
     toToken: BaseToken,
     fromAmount: string
-  ): Promise<Trade>;
+  ): Promise<TradeInfo[]>;
 
   public abstract getStatus(statusOject: any, web3: Web3): TradeStatus;
 
   public abstract executeTrade(
-    api: EvmAPI | SubstrateAPI,
-    trade: Trade,
+    network: BaseNetwork,
+    fromAccount: EnkryptAccount,
+    trade: TradeInfo,
     confirmInfo: any
-  ): Promise<void>;
+  ): Promise<`0x${string}`[]>;
 }

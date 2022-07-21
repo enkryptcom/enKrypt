@@ -1,7 +1,13 @@
 <template>
   <div class="assets-select-list-search">
     <search-icon></search-icon>
-    <input type="text" placeholder="Search tokens" autocomplete="off" />
+    <input
+      ref="searchInput"
+      type="text"
+      placeholder="Search tokens"
+      autocomplete="off"
+      @input="searchUpdate"
+    />
   </div>
 </template>
 
@@ -13,6 +19,19 @@ export default {
 
 <script setup lang="ts">
 import SearchIcon from "@action/icons/common/search.vue";
+import { ref } from "vue";
+
+const emit = defineEmits<{
+  (e: "update:tokenSearchInput", searchQuery: string): void;
+}>();
+
+const searchInput = ref<HTMLInputElement>();
+
+const searchUpdate = () => {
+  if (searchInput.value) {
+    emit("update:tokenSearchInput", searchInput.value.value);
+  }
+};
 </script>
 
 <style lang="less" scoped>

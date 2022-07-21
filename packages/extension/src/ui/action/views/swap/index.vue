@@ -24,8 +24,8 @@
           <swap-token-to-amount
             :toggle-select="toggleToToken"
             :token="toToken"
-            :input-amount="inputAmountTo"
             :select-token="selectTokenTo"
+            :is-finding-rate="isFindingRate"
             :amount="toAmount?.toString()"
           ></swap-token-to-amount>
 
@@ -93,7 +93,7 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { onMounted, PropType, ref, watch } from "vue";
+import { computed, onMounted, PropType, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import SwapArrows from "@action/icons/swap/swap-arrows.vue";
@@ -110,7 +110,8 @@ import { BaseToken } from "@/types/base-token";
 import { BaseNetwork } from "@/types/base-network";
 import { Swap } from "@/providers/swap";
 import BigNumber from "bignumber.js";
-import { QuoteInfo } from "@/providers/swap/types/SwapProvider";
+import { Rates } from "@/providers/swap/types/SwapProvider";
+import { SubstrateNetwork } from "@/providers/polkadot/types/substrate-network";
 
 const router = useRouter();
 const route = useRoute();
@@ -142,16 +143,71 @@ const fromAmount = ref<string | null>(null);
 
 const toTokens = ref<BaseToken[]>();
 const toToken = ref<BaseToken | null>(null);
-const toAmount = ref<string | null>("0.0");
 
 const fromSelectOpened = ref(false);
 const toSelectOpened = ref(false);
 
 const isLooking = ref(false);
 
-const delayedLookupId = ref<number>();
+const rates = ref<Rates>();
 
-const quoteInfos = ref<QuoteInfo[]>();
+const isFindingRate = computed(() => {
+  if (rates.value) {
+    return false;
+  } else {
+    return true;
+  }
+});
+
+const getEstimateRate = computed(() => {
+  if (rates.value) {
+    if (rates.value.length === 1) {
+      return (_x: number) => new BigNumber(rates.value![0].rate);
+    }
+
+    const x = rates.value.map(({ amount }) => new BigNumber(amount));
+    const sumX = x.reduce((x1, x2) => x1.plus(x2), new BigNumber(0));
+    const avgX = sumX.div(x.length);
+
+    const xDifferencesToAverage = x.map((value) => avgX.minus(value));
+    const xDifferencesToAverageSquared = xDifferencesToAverage.map((value) =>
+      value.pow(2)
+    );
+    const SSxx = xDifferencesToAverageSquared.reduce(
+      (prev, curr) => prev.plus(curr),
+      new BigNumber(0)
+    );
+
+    const y = rates.value.map(({ rate }) => new BigNumber(rate));
+    const sumY = y.reduce((y1, y2) => y1.plus(y2), new BigNumber(0));
+    const avgY = sumY.div(y.length);
+    const yDifferencesToAverage = y.map((value) => avgY.minus(value));
+    const xAndYDifferencesMultiplied = xDifferencesToAverage.map(
+      (curr, index) => curr.times(yDifferencesToAverage[index])
+    );
+    const SSxy = xAndYDifferencesMultiplied.reduce(
+      (prev, curr) => prev.plus(curr),
+      new BigNumber(0)
+    );
+
+    const slope = SSxy.div(SSxx);
+    const intercept = avgY.minus(slope.times(avgX));
+
+    return (x: number) => intercept.plus(slope.times(x));
+  }
+
+  return (_x: number) => new BigNumber(0);
+});
+
+const toAmount = computed(() => {
+  const estimate = getEstimateRate
+    .value(Number(fromAmount.value) ?? 0)
+    .times(fromAmount.value ?? 0);
+
+  if (estimate.isZero()) return "0.0";
+
+  return estimate.toFixed();
+});
 
 onMounted(async () => {
   props.network
@@ -160,53 +216,29 @@ onMounted(async () => {
       fromTokens.value = tokens;
     });
 
-  swap.getAllTokens(props.network.name).then((tokens) => {
-    toTokens.value = tokens;
-  });
+  swap
+    .getAllTokens(props.network.name)
+    // .then((tokens) =>
+    //   tokens.sort((a, b) => {
+    //     if (a.name > b.name) return 1;
+    //     return -1;
+    //   })
+    // )
+    .then((tokens) => {
+      toTokens.value = tokens;
+    });
 });
 
-watch([fromToken, toToken, fromAmount], () => {
-  if (fromToken.value && toToken.value && fromAmount.value) {
-    if (fromAmount.value === "" || fromAmount.value === "0") {
-      toAmount.value = "0.0";
-    } else {
-      toAmount.value = "Searching";
-
-      if (delayedLookupId.value !== undefined) {
-        clearTimeout(delayedLookupId.value);
-      }
-
-      const id = setTimeout(
-        () =>
-          swap
-            .getAllQuotes(
-              props.network.name,
-              fromToken.value!,
-              toToken.value!,
-              fromAmount.value!
-            )
-            .then((quotes) => {
-              if (quotes.length > 0) {
-                const quoteResults = quotes
-                  .filter((quote) => !new BigNumber(quote.amount).isZero())
-                  .sort((a, b) => {
-                    if (new BigNumber(a.amount).gt(new BigNumber(b.amount)))
-                      return -1;
-                    return 1;
-                  });
-
-                quoteInfos.value = quoteResults;
-                const bestQuote = quoteResults[0];
-
-                toAmount.value = bestQuote.amount;
-                delayedLookupId.value = undefined;
-              }
-            }),
-        250
-      );
-
-      delayedLookupId.value = id as unknown as number; // It's a number I checked.
-    }
+watch([fromToken, toToken], () => {
+  if (fromToken.value && toToken.value) {
+    rates.value = undefined;
+    swap
+      .getTradePreview(props.network.name, fromToken.value, toToken.value)
+      .then((preview) => {
+        if (preview) {
+          rates.value = preview.rates;
+        }
+      });
   }
 });
 
@@ -220,10 +252,6 @@ const selectTokenTo = (token: BaseToken) => {
 };
 const inputAmountFrom = async (newVal: number) => {
   fromAmount.value = newVal.toString();
-};
-const inputAmountTo = (newVal: number) => {
-  console.log("test");
-  toAmount.value = newVal.toString();
 };
 const toggleFromToken = () => {
   fromSelectOpened.value = !fromSelectOpened.value;
@@ -259,20 +287,39 @@ const isDisabled = () => {
 const sendAction = async () => {
   toggleLooking();
 
+  let fromAddress = props.accountInfo.selectedAccount!.address;
+
+  if ((props.network as unknown as SubstrateNetwork).prefix !== undefined) {
+    fromAddress = (props.network as unknown as SubstrateNetwork).displayAddress(
+      fromAddress
+    );
+  }
+
+  const trades = await swap.getTrade(
+    props.network.name,
+    fromAddress,
+    address.value,
+    fromToken.value!,
+    toToken.value!,
+    fromAmount.value!
+  );
+
+  if (trades.length === 0) {
+    // TODO handle no trades
+  }
+
   const swapData = {
-    quotes: quoteInfos.value,
+    trades,
     toToken: toToken.value,
     fromToken: fromToken.value,
     fromAmount: fromAmount.value,
     toAddress: address.value,
   };
 
-  setTimeout(() => {
-    router.push({
-      name: "swap-best-offer",
-      params: { id: selected, swapData: JSON.stringify(swapData) },
-    });
-  }, 3000);
+  router.push({
+    name: "swap-best-offer",
+    params: { id: selected, swapData: JSON.stringify(swapData) },
+  });
 };
 const swapTokens = () => {
   const tokenTo = fromToken.value;
@@ -285,7 +332,6 @@ const swapTokens = () => {
   fromAmount.value = amountFrom;
 
   toToken.value = tokenTo;
-  toAmount.value = amountTo;
 };
 const inputAddress = (text: string) => {
   console.log(text);
