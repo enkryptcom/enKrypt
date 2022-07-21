@@ -1,12 +1,12 @@
 <template>
   <div class="modal-sign__container">
-    <div class="modal-sign__overlay" @click="close()"></div>
+    <div class="modal-sign__overlay" @click="$emit('window:close')"></div>
     <div class="modal-sign__wrap">
       <div class="modal-sign__header">
         <h3 v-if="isUnlock">Unlock with password</h3>
         <h3 v-else>Confirm with password</h3>
 
-        <a class="modal-sign__close" @click="close()">
+        <a class="modal-sign__close" @click="$emit('window:close')">
           <close-icon />
         </a>
       </div>
@@ -17,15 +17,16 @@
           @update:value="passwordChanged"
           @keyup.enter="unlock"
         />
+
         <base-button
-          :title="buttonTitle()"
+          :title="buttonTitle"
           :click="unlock"
           :disabled="isDisabled"
         />
 
         <base-button
           title="I forgot my password"
-          :click="forgot"
+          :click="() => $emit('toggle:forgot')"
           :no-background="true"
           class="modal-sign__forgot"
         />
@@ -35,30 +36,27 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, PropType } from "vue";
+import { ref, computed } from "vue";
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import LockScreenPasswordInput from "@action/views/lock-screen/components/lock-screen-password-input.vue";
+import KeyRingBase from "@/libs/keyring/keyring";
 
-const password = ref("test pass");
-const isDisabled = computed(() => {
-  return password.value.length < 5;
-});
+const emit = defineEmits<{
+  (e: "toggle:forgot"): void;
+  (e: "window:close"): void;
+  (e: "action:recoveryPhrase", val: string): void;
+}>();
+
+const password = ref("");
 const isError = ref(false);
+const isProcessing = ref(false);
+
+const isDisabled = computed(() => {
+  return password.value.length < 5 || isProcessing.value;
+});
 
 const props = defineProps({
-  close: {
-    type: Function,
-    default: () => ({}),
-  },
-  forgot: {
-    type: Function,
-    default: () => ({}),
-  },
-  unlock: {
-    type: Function as PropType<() => void>,
-    default: () => ({}),
-  },
   isUnlock: {
     type: Boolean,
     default: false,
@@ -66,19 +64,31 @@ const props = defineProps({
 });
 
 const passwordChanged = (text: string) => {
-  password.value = text;
   isError.value = false;
+  password.value = text;
 };
 
-const buttonTitle = () => {
-  let title = "Confirm";
+const unlock = () => {
+  isProcessing.value = true;
+  const keyring = new KeyRingBase();
+  keyring
+    .getMnemonic(password.value)
+    .then((mnemonic) => {
+      emit("action:recoveryPhrase", mnemonic);
+    })
+    .catch(() => {
+      isError.value = true;
+    })
+    .finally(() => (isProcessing.value = false));
+};
 
+const buttonTitle = computed(() => {
+  let title = "Confirm";
   if (props.isUnlock) {
     title = "Unlock";
   }
-
   return title;
-};
+});
 </script>
 
 <style lang="less" scoped>

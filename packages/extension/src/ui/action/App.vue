@@ -22,7 +22,7 @@
             <more-icon />
 
             <div v-show="isOpenMore" class="app__menu-dropdown">
-              <a class="app__menu-dropdown-link" @click="lockAction()">
+              <a class="app__menu-dropdown-link" @click="lockAction">
                 <hold-icon /> <span>Lock Enkrypt</span>
               </a>
               <a
@@ -297,7 +297,14 @@ const isLocked = computed(() => {
 const searchInput = (text: string) => {
   console.log(text);
 };
-const lockAction = () => {
+const lockAction = async () => {
+  sendToBackgroundFromAction({
+    message: JSON.stringify({
+      method: InternalMethods.lock,
+    }),
+    provider: currentNetwork.value.provider,
+    tabId: await domainState.getCurrentTabId(),
+  });
   router.push({ name: "lock-screen" });
 };
 const toggleMoreMenu = () => {
@@ -312,7 +319,6 @@ const closeMoreMenu = () => {
   if (timeout != null) {
     clearTimeout(timeout);
   }
-
   timeout = setTimeout(() => {
     isOpenMore.value = false;
   }, 200);

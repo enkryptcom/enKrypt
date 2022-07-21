@@ -14,7 +14,6 @@ const goerliOptions: EvmNetworkOptions = {
   node: "wss://nodes.mewapi.io/ws/goerli",
   icon: require("./icons/eth.svg"),
   gradient: "#C4C4C4",
-  coingeckoID: "ethereum",
   activityHandler: RivetActivity,
 };
 

@@ -4,12 +4,13 @@
 
     <div class="settings__block">
       <settings-button
-        title="Contact support"
-        @click="$emit('action:support')"
-      ></settings-button>
-      <settings-button
         title="General"
         @click="$emit('action:general')"
+      ></settings-button>
+      <settings-button
+        title="Contact support"
+        :is-link="true"
+        @click="contactSupport"
       ></settings-button>
     </div>
 
@@ -49,16 +50,16 @@
 
     <modal-sign
       v-if="isOpenSign"
-      :close="toggleSign"
-      :forgot="toggleForgot"
-      :unlock="unlockAction"
       :is-unlock="true"
+      v-bind="$attrs"
+      @window:close="toggleSign"
+      @toggle:forgot="toggleForgot"
     ></modal-sign>
 
     <modal-forgot
       v-if="isForgot"
       :is-forgot="isForgot"
-      @action:forgot="$emit('action:reset')"
+      @toggle:forgot="toggleForgot"
     ></modal-forgot>
   </div>
 </template>
@@ -73,8 +74,7 @@ import ModalForgot from "@action/views/modal-forgot/index.vue";
 const isOpenSign = ref(false);
 const isForgot = ref(false);
 const version = process.env.PACKAGE_VERSION;
-const emit = defineEmits<{
-  (e: "action:recoveryPhrase"): void;
+defineEmits<{
   (e: "action:reset"): void;
   (e: "action:support"): void;
   (e: "action:general"): void;
@@ -82,11 +82,23 @@ const emit = defineEmits<{
 }>();
 
 const bugAction = () => {
-  window.open("https://hackerone.com/myetherwallet?type=team", "_blank");
+  window.open(
+    "https://hackerone.com/myetherwallet?type=team",
+    "_blank",
+    "noopener"
+  );
 };
 
 const privacyAction = () => {
-  window.open("https://www.myetherwallet.com/privacy-policy", "_blank");
+  window.open(
+    "https://www.myetherwallet.com/privacy-policy",
+    "_blank",
+    "noopener"
+  );
+};
+
+const contactSupport = () => {
+  window.open("https://www.enkrypt.com", "_blank", "noopener");
 };
 
 const toggleSign = () => {
@@ -95,10 +107,6 @@ const toggleSign = () => {
 const toggleForgot = () => {
   isOpenSign.value = false;
   isForgot.value = !isForgot.value;
-};
-
-const unlockAction = () => {
-  emit("action:recoveryPhrase");
 };
 </script>
 

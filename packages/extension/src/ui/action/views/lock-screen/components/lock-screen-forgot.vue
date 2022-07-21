@@ -37,7 +37,7 @@
     />
 
     <p class="lock-screen-forgot__info">
-      Still need help? <a href="#">Contact support</a>
+      Still need help? <a href="mailto:support@enkrypt.com">Contact support</a>
     </p>
   </div>
 </template>
@@ -48,8 +48,11 @@ import CloseIcon from "@action/icons/common/close-icon.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import AlertIcon from "@action/icons/send/alert-icon.vue";
 import BaseInput from "@action/components/base-input/index.vue";
+import KeyRingBase from "@/libs/keyring/keyring";
+import openOnboard from "@/libs/utils/open-onboard";
 
 const reset = ref("");
+const isProcessing = ref(false);
 defineEmits<{
   (e: "toggle:forgot"): void;
 }>();
@@ -59,11 +62,14 @@ const resetChanged = (newVal: string) => {
 };
 
 const isDisabled = computed(() => {
-  return reset.value !== "reset" && reset.value !== "Reset";
+  return reset.value !== "Reset" || isProcessing.value;
 });
 
-const resetAction = () => {
-  console.log("resetAction");
+const resetAction = async () => {
+  isProcessing.value = true;
+  const keyring = new KeyRingBase();
+  await keyring.reset();
+  openOnboard();
 };
 </script>
 

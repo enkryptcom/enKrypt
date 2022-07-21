@@ -13,21 +13,23 @@
 
       <div class="recovery-phrase__wrap">
         <div class="recovery-phrase__block">
-          <div class="recovery-phrase__item"><span>1</span> witch</div>
-          <div class="recovery-phrase__item"><span>2</span> collapse</div>
-          <div class="recovery-phrase__item"><span>3</span> practice</div>
-          <div class="recovery-phrase__item"><span>4</span> feed</div>
-          <div class="recovery-phrase__item"><span>5</span> shame</div>
-          <div class="recovery-phrase__item"><span>6</span> open</div>
+          <div
+            v-for="(phrase, index) in firstSet"
+            :key="index"
+            class="recovery-phrase__item"
+          >
+            <span>{{ index + 1 }}</span> {{ phrase }}
+          </div>
         </div>
 
         <div class="recovery-phrase__block">
-          <div class="recovery-phrase__item"><span>7</span> despair</div>
-          <div class="recovery-phrase__item"><span>8</span> creek</div>
-          <div class="recovery-phrase__item"><span>9</span> road</div>
-          <div class="recovery-phrase__item"><span>10</span> again</div>
-          <div class="recovery-phrase__item"><span>11</span> ice</div>
-          <div class="recovery-phrase__item"><span>12</span> least</div>
+          <div
+            v-for="(phrase, index) in secondSet"
+            :key="index"
+            class="recovery-phrase__item"
+          >
+            <span>{{ index + 1 }}</span> {{ phrase }}
+          </div>
         </div>
       </div>
     </div>
@@ -36,6 +38,23 @@
 
 <script setup lang="ts">
 import SettingsInnerHeader from "@action/views/settings/components/settings-inner-header.vue";
+import { computed } from "vue";
+
+const props = defineProps({
+  mnemonic: {
+    type: String,
+    default: "",
+  },
+});
+
+const firstSet = computed(() => {
+  let copy = props.mnemonic.split(" ");
+  return copy.splice(0, 6);
+});
+const secondSet = computed(() => {
+  let copy = props.mnemonic.split(" ");
+  return copy.splice(6);
+});
 </script>
 
 <style lang="less">

@@ -47,19 +47,25 @@ import SettingsInnerHeader from "@action/views/settings/components/settings-inne
 import AlertIcon from "@action/icons/send/alert-icon.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import BaseInput from "@action/components/base-input/index.vue";
+import KeyRingBase from "@/libs/keyring/keyring";
+import openOnboard from "@/libs/utils/open-onboard";
 
 const reset = ref("");
+const isProcessing = ref(false);
 
 const resetChanged = (newVal: string) => {
   reset.value = newVal;
 };
 
 const isDisabled = computed(() => {
-  return reset.value !== "reset" && reset.value !== "Reset";
+  return reset.value !== "Reset" || isProcessing.value;
 });
 
-const resetAction = () => {
-  console.log("resetAction");
+const resetAction = async () => {
+  isProcessing.value = true;
+  const keyring = new KeyRingBase();
+  await keyring.reset();
+  openOnboard();
 };
 </script>
 

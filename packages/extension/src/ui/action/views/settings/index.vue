@@ -28,6 +28,7 @@
       ></settings-about>
       <settings-recovery
         v-if="isPhrase"
+        :mnemonic="mnemonic"
         @window:close="close"
         @window:back="startAction"
       ></settings-recovery>
@@ -55,6 +56,7 @@ const isAbout = ref(false);
 const isSupport = ref(false);
 const isPhrase = ref(false);
 const isReset = ref(false);
+const mnemonic = ref("");
 
 const emit = defineEmits<{
   (e: "close:popup"): void;
@@ -69,10 +71,12 @@ const setAllToFalse = () => {
   isSupport.value = false;
   isPhrase.value = false;
   isReset.value = false;
+  mnemonic.value = "";
 };
-const recoveryPhraseAction = () => {
+const recoveryPhraseAction = (phrase: string) => {
   setAllToFalse();
   isPhrase.value = true;
+  mnemonic.value = phrase;
 };
 
 const resetAction = () => {

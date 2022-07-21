@@ -303,6 +303,13 @@ class KeyRing {
     return kpAcc;
   }
 
+  async reset(): Promise<void> {
+    const resetPromises = Object.values(configs.STORAGE_KEYS).map((name) =>
+      this.#storage.remove(name)
+    );
+    await Promise.all(resetPromises);
+  }
+
   isLocked(): boolean {
     return this.#isLocked;
   }
