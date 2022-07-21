@@ -4,7 +4,7 @@
     <input
       ref="searchInput"
       type="text"
-      placeholder="Search tokens"
+      placeholder="Search tokens by name, ticker, or address"
       autocomplete="off"
       @input="searchUpdate"
     />

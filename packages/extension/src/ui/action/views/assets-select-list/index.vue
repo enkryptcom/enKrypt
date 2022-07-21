@@ -41,7 +41,7 @@
         v-if="assets.length > 50 && (!searchQuery || searchQuery === '')"
         class="assets-select-list__search-more-tokens"
       >
-        Use the search bar for more tokens
+        Use the search to find even more tokens
       </div>
     </custom-scrollbar>
   </div>
@@ -96,11 +96,15 @@ const listedAssets = computed(() => {
       .filter((token) => {
         const tokenNameLowerCase = token.name.toLowerCase();
         const tokenSymbolLowerCase = token.symbol.toLowerCase();
+        const tokenAddressLowerCase = (token as any).contract
+          ? (token as any).contract.toLowerCase()
+          : "";
         const searchQueryLowerCase = searchQuery.value!.toLowerCase();
 
         if (
           tokenNameLowerCase.startsWith(searchQueryLowerCase) ||
-          tokenSymbolLowerCase.startsWith(searchQueryLowerCase)
+          tokenSymbolLowerCase.startsWith(searchQueryLowerCase) ||
+          tokenAddressLowerCase.startsWith(searchQueryLowerCase)
         ) {
           return true;
         }
@@ -198,7 +202,7 @@ const close = () => {
     text-align: center;
     font-size: 16px;
     font-weight: 400;
-    color: lightgray;
+    color: @secondaryLabel;
   }
 }
 </style>

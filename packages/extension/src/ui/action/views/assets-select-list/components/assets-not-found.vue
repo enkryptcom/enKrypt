@@ -35,7 +35,7 @@ import LottieSearchNotFound from "@action/assets/animation/search-not-found.json
   }
 
   &__header {
-    color: #444444;
+    color: @primaryLabel;
     font-weight: 600;
     font-size: 24px;
   }
