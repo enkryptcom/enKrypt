@@ -1,11 +1,10 @@
 <template>
   <div class="modal-forgot__container">
-    <div class="modal-forgot__overlay" @click="toggleForgot"></div>
+    <div class="modal-forgot__overlay" @click="$emit('action:forgot')"></div>
     <div class="modal-forgot__wrap">
       <lock-screen-forgot
         v-show="isForgot"
-        :close="toggleForgot"
-        :reset="resetAction"
+        @toggle:forgot="$emit('action:forgot')"
       />
     </div>
   </div>
@@ -13,19 +12,14 @@
 
 <script setup lang="ts">
 import LockScreenForgot from "@action/views/lock-screen/components/lock-screen-forgot.vue";
-import { PropType } from "vue";
+defineEmits<{
+  (e: "action:forgot"): void;
+}>();
+
 defineProps({
   isForgot: {
     type: Boolean,
     default: false,
-  },
-  toggleForgot: {
-    type: Function as PropType<() => void>,
-    default: () => ({}),
-  },
-  resetAction: {
-    type: Function,
-    default: () => ({}),
   },
 });
 </script>

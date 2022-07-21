@@ -1,46 +1,49 @@
 <template>
   <div>
-    <settings-header :close="close"></settings-header>
+    <settings-header v-bind="$attrs"></settings-header>
 
     <div class="settings__block">
       <settings-button
         title="Contact support"
-        :action="supportAction"
+        @click="$emit('action:support')"
       ></settings-button>
       <settings-button
         title="General"
-        :action="generalAction"
+        @click="$emit('action:general')"
       ></settings-button>
     </div>
 
     <div class="settings__block">
       <settings-button
         title="Bug bounty program"
-        :action="bugAction"
         :is-link="true"
+        @click="bugAction"
       ></settings-button>
       <settings-button
         title="Privacy and terms"
-        :action="privacyAction"
         :is-link="true"
+        @click="privacyAction"
       ></settings-button>
-      <settings-button title="About" :action="aboutAction"></settings-button>
+      <settings-button
+        title="About"
+        @click="$emit('action:about')"
+      ></settings-button>
     </div>
 
     <div class="settings__block">
       <settings-button
         title="View my recovery phrase"
-        :action="toggleSign"
+        @click="toggleSign"
       ></settings-button>
       <settings-button
         title="Reset wallet"
-        :action="resetAction"
         :is-red="true"
+        @click="$emit('action:reset')"
       ></settings-button>
     </div>
 
     <div class="settings__copyright">
-      <p>Version 0.1.4 build 2</p>
+      <p>Version {{ version }}</p>
       <p>© 2022 by MyEtherWallet Inc.</p>
     </div>
 
@@ -55,55 +58,35 @@
     <modal-forgot
       v-if="isForgot"
       :is-forgot="isForgot"
-      :toggle-forgot="toggleForgot"
-      :reset-action="resetAction"
+      @action:forgot="$emit('action:reset')"
     ></modal-forgot>
   </div>
 </template>
 
 <script setup lang="ts">
-import { PropType, ref } from "vue";
+import { ref } from "vue";
 import SettingsHeader from "@action/views/settings/components/settings-header.vue";
 import SettingsButton from "@action/views/settings/components/settings-button.vue";
 import ModalSign from "@action/views/modal-sign/index.vue";
 import ModalForgot from "@action/views/modal-forgot/index.vue";
 
-let isOpenSign = ref(false);
-let isForgot = ref(false);
-
-const props = defineProps({
-  close: {
-    type: Function as PropType<() => void>,
-    default: () => ({}),
-  },
-  recoveryPhraseAction: {
-    type: Function as PropType<() => void>,
-    default: () => ({}),
-  },
-  resetAction: {
-    type: Function as PropType<() => void>,
-    default: () => ({}),
-  },
-  supportAction: {
-    type: Function as PropType<() => void>,
-    default: () => ({}),
-  },
-  generalAction: {
-    type: Function as PropType<() => void>,
-    default: () => ({}),
-  },
-  aboutAction: {
-    type: Function as PropType<() => void>,
-    default: () => ({}),
-  },
-});
+const isOpenSign = ref(false);
+const isForgot = ref(false);
+const version = process.env.PACKAGE_VERSION;
+const emit = defineEmits<{
+  (e: "action:recoveryPhrase"): void;
+  (e: "action:reset"): void;
+  (e: "action:support"): void;
+  (e: "action:general"): void;
+  (e: "action:about"): void;
+}>();
 
 const bugAction = () => {
-  window.open("https://hackerone.com/myetherwallet?type=team", "blanck");
+  window.open("https://hackerone.com/myetherwallet?type=team", "_blank");
 };
 
 const privacyAction = () => {
-  window.open("https://www.myetherwallet.com/privacy-policy", "blanck");
+  window.open("https://www.myetherwallet.com/privacy-policy", "_blank");
 };
 
 const toggleSign = () => {
@@ -115,7 +98,7 @@ const toggleForgot = () => {
 };
 
 const unlockAction = () => {
-  props.recoveryPhraseAction();
+  emit("action:recoveryPhrase");
 };
 </script>
 

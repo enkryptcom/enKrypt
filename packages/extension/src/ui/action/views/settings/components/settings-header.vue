@@ -2,7 +2,7 @@
   <div class="settings__header">
     <h2>Settings</h2>
 
-    <a class="settings__close" @click="close()">
+    <a class="settings__close" @click="$emit('window:close')">
       <close-icon />
     </a>
   </div>
@@ -11,12 +11,9 @@
 <script setup lang="ts">
 import CloseIcon from "@action/icons/common/close-icon.vue";
 
-defineProps({
-  close: {
-    type: Function,
-    default: () => ({}),
-  },
-});
+defineEmits<{
+  (e: "window:close"): void;
+}>();
 </script>
 
 <style lang="less">

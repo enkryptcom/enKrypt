@@ -1,6 +1,11 @@
 import cacheFetch from "@/libs/cache-fetch";
 import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
-import { Activity, ActivityStatus, EthereumRawInfo } from "@/types/activity";
+import {
+  Activity,
+  ActivityStatus,
+  ActivityType,
+  EthereumRawInfo,
+} from "@/types/activity";
 import { BaseNetwork } from "@/types/base-network";
 import { numberToHex } from "web3-utils";
 import { decodeTx } from "../../../transaction/decoder";
@@ -66,6 +71,7 @@ export default async (
         timestamp: activity.timestamp ? activity.timestamp : 0,
         value: txData.tokenValue,
         transactionHash: activity.transactionHash,
+        type: ActivityType.transaction,
         token: {
           decimals: txData.tokenDecimals,
           icon: txData.tokenImage,

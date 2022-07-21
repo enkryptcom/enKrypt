@@ -1,5 +1,5 @@
 <template>
-  <a class="settings-button" :class="{ red: isRed }" @click="action">
+  <a class="settings-button" :class="{ red: isRed }" @click="$emit('click')">
     <h5>{{ title }}</h5>
     <div class="settings-button__arrow">
       <right-arrow v-if="!isLink" />
@@ -12,7 +12,9 @@
 import RightArrow from "@action/icons/common/right-arrow.vue";
 import ExternalIcon from "@action/icons/common/external-icon.vue";
 import { PropType } from "vue";
-
+defineEmits<{
+  (e: "click"): void;
+}>();
 defineProps({
   action: {
     type: Function as PropType<() => void>,

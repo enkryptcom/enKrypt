@@ -1,8 +1,7 @@
 <template>
   <div class="settings__recovery-phrase">
     <settings-inner-header
-      :back="back"
-      :close="close"
+      v-bind="$attrs"
       :is-phrase="true"
     ></settings-inner-header>
 
@@ -36,19 +35,7 @@
 </template>
 
 <script setup lang="ts">
-import { PropType } from "vue";
 import SettingsInnerHeader from "@action/views/settings/components/settings-inner-header.vue";
-
-defineProps({
-  close: {
-    type: Function as PropType<() => void>,
-    default: () => ({}),
-  },
-  back: {
-    type: Function as PropType<() => void>,
-    default: () => ({}),
-  },
-});
 </script>
 
 <style lang="less">

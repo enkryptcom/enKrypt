@@ -1,27 +1,26 @@
 <template>
   <div class="reset-wallet">
     <settings-inner-header
-      :back="back"
-      :close="close"
+      v-bind="$attrs"
       :is-reset="true"
     ></settings-inner-header>
     <div class="reset-wallet__wrap">
       <p class="reset-wallet__description">
-        Resetting wallet will remove all keys from Enkrypt and you won’t be able
+        Resetting wallet will remove all keys from Enkrypt and you won't be able
         to use wallet until you restore it once again.
       </p>
 
       <div class="reset-wallet__alert">
         <alert-icon />
         <p>
-          Warning: you can lose your account and funds forever. Don’t reset if
-          you didn’t saved your secret recovery phrase, as there will be NO WAY
+          Warning: you can lose your account and funds forever. Don't reset if
+          you didn't saved your secret recovery phrase, as there will be NO WAY
           to restore your account after you reset.
         </p>
       </div>
 
       <label class="reset-wallet__label"
-        >Type ‘Reset’ to reset your wallet</label
+        >Type 'Reset' to reset your wallet</label
       >
 
       <base-input
@@ -43,24 +42,13 @@
 </template>
 
 <script setup lang="ts">
-import { PropType, ref, computed } from "vue";
+import { ref, computed } from "vue";
 import SettingsInnerHeader from "@action/views/settings/components/settings-inner-header.vue";
 import AlertIcon from "@action/icons/send/alert-icon.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import BaseInput from "@action/components/base-input/index.vue";
 
 const reset = ref("");
-
-defineProps({
-  close: {
-    type: Function as PropType<() => void>,
-    default: () => ({}),
-  },
-  back: {
-    type: Function as PropType<() => void>,
-    default: () => ({}),
-  },
-});
 
 const resetChanged = (newVal: string) => {
   reset.value = newVal;

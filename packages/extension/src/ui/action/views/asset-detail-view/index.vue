@@ -58,7 +58,7 @@
 </template>
 
 <script setup lang="ts">
-import { defineEmits, PropType } from "vue";
+import { PropType } from "vue";
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import SparklineUp from "@action/icons/asset/sparkline-up.vue";
 import SparklineDown from "@action/icons/asset/sparkline-down.vue";

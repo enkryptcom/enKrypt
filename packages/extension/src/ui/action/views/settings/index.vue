@@ -4,37 +4,37 @@
     <div class="settings__wrap">
       <settings-start
         v-if="isStart"
-        :close="close"
-        :recovery-phrase-action="recoveryPhraseAction"
-        :reset-action="resetAction"
-        :support-action="supportAction"
-        :general-action="generalAction"
-        :about-action="aboutAction"
+        @action:reset="resetAction"
+        @action:about="aboutAction"
+        @action:general="generalAction"
+        @action:recovery-phrase="recoveryPhraseAction"
+        @action:support="supportAction"
+        @window:close="close"
       ></settings-start>
       <settings-general
         v-if="isGeneral"
-        :back="startAction"
-        :close="close"
+        @window:close="close"
+        @window:back="startAction"
       ></settings-general>
       <settings-support
         v-if="isSupport"
-        :back="startAction"
-        :close="close"
+        @window:close="close"
+        @window:back="startAction"
       ></settings-support>
       <settings-about
         v-if="isAbout"
-        :back="startAction"
-        :close="close"
+        @window:close="close"
+        @window:back="startAction"
       ></settings-about>
       <settings-recovery
         v-if="isPhrase"
-        :back="startAction"
-        :close="close"
+        @window:close="close"
+        @window:back="startAction"
       ></settings-recovery>
       <reset-wallet
         v-if="isReset"
-        :back="startAction"
-        :close="close"
+        @window:close="close"
+        @window:back="startAction"
       ></reset-wallet>
     </div>
   </div>
@@ -62,58 +62,42 @@ const emit = defineEmits<{
 const close = () => {
   emit("close:popup");
 };
-const recoveryPhraseAction = () => {
-  isStart.value = false;
-  isGeneral.value = false;
-  isAbout.value = false;
-  isSupport.value = false;
-  isPhrase.value = true;
-  isReset.value = false;
-};
-
-const resetAction = () => {
+const setAllToFalse = () => {
   isStart.value = false;
   isGeneral.value = false;
   isAbout.value = false;
   isSupport.value = false;
   isPhrase.value = false;
+  isReset.value = false;
+};
+const recoveryPhraseAction = () => {
+  setAllToFalse();
+  isPhrase.value = true;
+};
+
+const resetAction = () => {
+  setAllToFalse();
   isReset.value = true;
 };
 
 const supportAction = () => {
-  isStart.value = false;
-  isGeneral.value = false;
-  isAbout.value = false;
+  setAllToFalse();
   isSupport.value = true;
-  isPhrase.value = false;
-  isReset.value = false;
 };
 
 const generalAction = () => {
-  isStart.value = false;
+  setAllToFalse();
   isGeneral.value = true;
-  isAbout.value = false;
-  isSupport.value = false;
-  isPhrase.value = false;
-  isReset.value = false;
 };
 
 const aboutAction = () => {
-  isStart.value = false;
-  isGeneral.value = false;
+  setAllToFalse();
   isAbout.value = true;
-  isSupport.value = false;
-  isPhrase.value = false;
-  isReset.value = false;
 };
 
 const startAction = () => {
+  setAllToFalse();
   isStart.value = true;
-  isGeneral.value = false;
-  isAbout.value = false;
-  isSupport.value = false;
-  isPhrase.value = false;
-  isReset.value = false;
 };
 </script>
 

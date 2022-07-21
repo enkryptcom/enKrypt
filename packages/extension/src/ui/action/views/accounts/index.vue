@@ -20,6 +20,7 @@
           :identicon-element="network.identicon"
           :rename-action="renameAccount"
           :delete-action="deleteAccount"
+          :show-edit="true"
         ></accounts-list-item>
 
         <div class="accounts__info">

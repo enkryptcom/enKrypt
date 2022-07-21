@@ -21,7 +21,6 @@ interface EthereumRawInfo {
 interface SubstrateRawInfo {
   from: string;
   to: string;
-  extrinsic_index: string;
   success: boolean;
   hash: string;
   block_num: number;
@@ -39,6 +38,11 @@ enum ActivityStatus {
   success = "success",
   failed = "failed",
 }
+
+enum ActivityType {
+  transaction = "transaction",
+}
+
 interface Activity {
   network: NetworkNames;
   from: string;
@@ -49,7 +53,14 @@ interface Activity {
   transactionHash: string;
   token: BaseTokenOptions;
   status: ActivityStatus;
+  type: ActivityType;
   rawInfo: EthereumRawInfo | SubstrateRawInfo;
 }
 
-export { EthereumRawInfo, SubstrateRawInfo, Activity, ActivityStatus };
+export {
+  EthereumRawInfo,
+  SubstrateRawInfo,
+  Activity,
+  ActivityStatus,
+  ActivityType,
+};

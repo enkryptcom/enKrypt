@@ -1,6 +1,6 @@
 <template>
   <div class="settings__inner-header">
-    <a class="settings__back" @click="back()">
+    <a class="settings__back" @click="$emit('window:back')">
       <arrow-back />
     </a>
     <h2 v-show="isGeneral">General</h2>
@@ -9,7 +9,7 @@
     <h2 v-show="isPhrase">Recovery phrase</h2>
     <h2 v-show="isReset">Reset wallet?</h2>
 
-    <a class="settings__close" @click="close()">
+    <a class="settings__close" @click="$emit('window:close')">
       <close-icon />
     </a>
   </div>
@@ -18,16 +18,11 @@
 <script setup lang="ts">
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import ArrowBack from "@action/icons/common/arrow-back.vue";
-
+defineEmits<{
+  (e: "window:close"): void;
+  (e: "window:back"): void;
+}>();
 defineProps({
-  close: {
-    type: Function,
-    default: () => ({}),
-  },
-  back: {
-    type: Function,
-    default: () => ({}),
-  },
   isGeneral: {
     type: Boolean,
     default: false,
