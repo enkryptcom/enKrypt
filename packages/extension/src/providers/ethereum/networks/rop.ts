@@ -1,5 +1,6 @@
 import { NetworkNames } from "@enkryptcom/types";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
+import { RivetActivity } from "../libs/activity-handlers";
 
 const ropOptions: EvmNetworkOptions = {
   name: NetworkNames.Ropsten,
@@ -14,6 +15,7 @@ const ropOptions: EvmNetworkOptions = {
   icon: require("./icons/eth.svg"),
   basePath: "m/44'/1'/0'/0",
   gradient: "#E6007A",
+  activityHandler: RivetActivity,
 };
 
 const rop = new EvmNetwork(ropOptions);

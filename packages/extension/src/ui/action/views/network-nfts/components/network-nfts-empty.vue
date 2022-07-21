@@ -4,14 +4,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "NetworkNftsEmpty",
-};
-</script>
-
-<script setup lang="ts"></script>
-
 <style lang="less">
 @import "~@action/styles/theme.less";
 

@@ -25,6 +25,8 @@ export enum InternalStorageNamespace {
   keyring = "KeyRing",
   persistentEvents = "PersistentEvents",
   domainState = "DomainState",
+  evmAccountsState = "EVMAccountsState",
+  substrateAccountsState = "SubstrateAccountsState",
   marketData = "MarketData",
   cacheFetch = "CacheFetch",
   nftState = "NFTState",

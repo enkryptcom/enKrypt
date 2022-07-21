@@ -1,7 +1,9 @@
 import { NetworkNames } from "@enkryptcom/types";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
-import tokenbalanceMew from "@/providers/ethereum/libs/assets-handlers/tokenbalance-mew";
+import assetsInfoHandler from "@/providers/ethereum/libs/assets-handlers/assetinfo-mew";
+import tokensHandler from "@/providers/ethereum/libs/assets-handlers/token-mew";
 import mewNFTHandler from "@/libs/nft-handlers/mew";
+import { EtherscanActivity } from "../libs/activity-handlers";
 
 const ethOptions: EvmNetworkOptions = {
   name: NetworkNames.Ethereum,
@@ -17,7 +19,9 @@ const ethOptions: EvmNetworkOptions = {
   gradient: "#8247E5",
   coingeckoID: "ethereum",
   NFTHandler: mewNFTHandler,
-  assetsHandler: tokenbalanceMew,
+  assetsInfoHandler,
+  tokensHandler,
+  activityHandler: EtherscanActivity,
 };
 
 const eth = new EvmNetwork(ethOptions);

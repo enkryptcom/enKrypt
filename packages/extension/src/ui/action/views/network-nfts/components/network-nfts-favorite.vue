@@ -16,12 +16,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "NetworkNftsFavorite",
-};
-</script>
-
 <script setup lang="ts">
 import { PropType, ref } from "vue";
 import NetworkNftsItem from "./network-nfts-item.vue";

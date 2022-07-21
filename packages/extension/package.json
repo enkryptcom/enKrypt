@@ -4,9 +4,9 @@
   "private": true,
   "scripts": {
     "zip": "cd dist; zip -r release.zip *;",
-    "build:chrome": "cross-env BROWSER='chrome' vue-cli-service build && npm run build:rollup",
-    "build:firefox": "cross-env BROWSER='firefox' vue-cli-service build && npm run build:rollup",
-    "build": "npm run build:chrome",
+    "build:chrome": "cross-env BROWSER='chrome' vue-cli-service build && yarn build:rollup",
+    "build:firefox": "cross-env BROWSER='firefox' vue-cli-service build && yarn build:rollup",
+    "build": "yarn build:chrome",
     "lint": "vue-cli-service lint --fix",
     "build:rollup": "cross-env minify=on rollup --config configs/rollup.config.contentscript.js && cross-env minify=on rollup --config configs/rollup.config.inject.js",
     "inspectWebpack": "vue-cli-service inspect > webpack.log",

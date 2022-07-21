@@ -25,6 +25,7 @@
           :select="selectAccount"
           :active="true"
           :identicon-element="network.identicon"
+          :show-edit="showEdit"
         ></accounts-list-item>
       </custom-scrollbar>
     </div>
@@ -67,6 +68,7 @@ const props = defineProps({
     type: Object as PropType<AccountsHeaderData>,
     default: () => null,
   },
+  showEdit: Boolean,
 });
 
 const close = () => {

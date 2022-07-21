@@ -8,12 +8,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "TransactionTimer",
-};
-</script>
-
 <script setup lang="ts">
 import { onMounted } from "vue";
 import moment from "moment";

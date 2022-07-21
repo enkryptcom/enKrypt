@@ -7,12 +7,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "NetworkActivityTotal",
-};
-</script>
-
 <script setup lang="ts">
 defineProps({
   cryptoAmount: {

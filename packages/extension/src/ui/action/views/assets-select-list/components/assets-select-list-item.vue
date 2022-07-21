@@ -6,13 +6,14 @@
       <div class="assets-select-list__token-info-name">
         <h4>{{ token.name }}</h4>
         <p>
-          {{ token.balancef }} <span>{{ token.symbol }}</span>
+          {{ balance ? $filters.formatFloatingPointValue(balance).value : "~" }}
+          <span>{{ token.symbol }}</span>
         </p>
       </div>
     </div>
 
     <div class="assets-select-list__token-price">
-      <h4>${{ token.balanceUSDf }}</h4>
+      <h4>${{ price ? $filters.formatFiatValue(price).value : "~" }}</h4>
     </div>
   </a>
 </template>
@@ -24,19 +25,33 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { PropType } from "vue";
-import { AssetsType } from "@/types/provider";
+import { fromBase } from "@/libs/utils/units";
+import { BaseToken } from "@/types/base-token";
+import BigNumber from "bignumber.js";
+import { computed, PropType } from "vue";
 
 const emit = defineEmits<{
-  (e: "update:selectAsset", asset: AssetsType): void;
+  (e: "update:selectAsset", asset: BaseToken): void;
 }>();
 
 const props = defineProps({
   token: {
-    type: Object as PropType<AssetsType>,
+    type: Object as PropType<BaseToken>,
     default: () => ({}),
   },
 });
+
+const balance = computed(() =>
+  props.token.balance
+    ? fromBase(props.token.balance, props.token.decimals)
+    : undefined
+);
+
+const price = computed(() =>
+  balance.value
+    ? new BigNumber(balance.value).times(props.token.price ?? 0).toFixed()
+    : undefined
+);
 
 const select = () => {
   emit("update:selectAsset", props.token);
