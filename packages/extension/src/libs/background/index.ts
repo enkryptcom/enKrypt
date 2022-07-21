@@ -33,6 +33,7 @@ class BackgroundHandler {
   #providers: ProviderType;
   #persistentEvents: PersistentEvents;
   #domainState: DomainState;
+
   constructor() {
     this.#keyring = new KeyRingBase();
     this.#persistentEvents = new PersistentEvents();
@@ -89,10 +90,11 @@ class BackgroundHandler {
           _provider,
           domainState.selectedNetwork
         );
-        if (providerNetwork)
+        if (providerNetwork) {
           this.#tabProviders[_provider][_tabid].setRequestProvider(
             providerNetwork
           );
+        }
       }
     }
     const isPersistent = await this.#tabProviders[_provider][

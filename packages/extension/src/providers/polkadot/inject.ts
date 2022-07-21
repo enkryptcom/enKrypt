@@ -53,14 +53,43 @@ export class Provider
     return Promise.resolve(newProvider);
   }
 }
+
+const ProxyHandler = {
+  proxymethods: ["enable"],
+  ownKeys(target: Provider) {
+    return Object.keys(target).concat(this.proxymethods);
+  },
+  set(target: Provider, name: keyof Provider, value: any) {
+    if (!this.ownKeys(target).includes(name)) this.proxymethods.push(name);
+    return Reflect.set(target, name, value);
+  },
+  getOwnPropertyDescriptor(target: Provider, name: keyof Provider) {
+    return {
+      value: this.get(target, name),
+      configurable: true,
+      writable: false,
+      enumerable: true,
+    };
+  },
+  get(target: Provider, prop: keyof Provider) {
+    if (typeof target[prop] === "function") {
+      return (target[prop] as () => any).bind(target);
+    }
+    return target[prop];
+  },
+  has(target: Provider, name: keyof Provider) {
+    return this.ownKeys(target).includes(name);
+  },
+};
+
 const injectDocument = (
   document: EnkryptWindow | Window,
   options: ProviderOptions
 ): void => {
   const provider = new Provider(options);
   document.injectedWeb3 = document.injectedWeb3 || {};
-  document.injectedWeb3["enkrypt"] = provider;
-  document.injectedWeb3["polkadot-js"] = provider;
+  document.injectedWeb3["enkrypt"] = new Proxy(provider, ProxyHandler);
+  document.injectedWeb3["polkadot-js"] = new Proxy(provider, ProxyHandler);
   document["enkrypt"]["providers"][options.name] = provider;
 };
 

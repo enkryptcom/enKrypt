@@ -1,4 +1,5 @@
 import { NetworkNames } from "@enkryptcom/types";
+import { EtherscanActivity } from "../libs/activity-handlers";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
 
 const moonbeamOptions: EvmNetworkOptions = {
@@ -14,6 +15,7 @@ const moonbeamOptions: EvmNetworkOptions = {
   icon: require("./icons/moonbeam.svg"),
   gradient: "#8247E5",
   coingeckoID: "moonbeam",
+  activityHandler: EtherscanActivity,
 };
 
 const moonbeam = new EvmNetwork(moonbeamOptions);

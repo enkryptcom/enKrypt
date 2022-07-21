@@ -113,14 +113,11 @@ import CommonPopup from "@action/views/common-popup/index.vue";
 import RightChevron from "@action/icons/common/right-chevron.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import BestOfferError from "@action/views/swap-best-offer/components/swap-best-offer-block/components/best-offer-error.vue";
-import { KeyRecord } from "@enkryptcom/types";
-import { getCustomError, getError } from "@/libs/error";
+import { getError } from "@/libs/error";
 import { ErrorCodes } from "@/providers/ethereum/types";
 import { WindowPromiseHandler } from "@/libs/window-promise";
-import { InternalMethods } from "@/types/messenger";
 import { TypeRegistry, Metadata } from "@polkadot/types";
 import { SignerPayloadJSON } from "@polkadot/types/types";
-import { signPayload } from "../libs/signing-utils";
 import MetadataStorage from "../libs/metadata-storage";
 import { CallData } from "./types";
 import { getAllNetworks } from "@/libs/utils/networks";
@@ -134,8 +131,9 @@ import BigNumber from "bignumber.js";
 import { FrameSystemAccountInfo } from "@acala-network/types/interfaces/types-lookup";
 import createIcon from "../libs/blockies";
 import { ProviderRequestOptions } from "@/types/provider";
-
-const windowPromise = WindowPromiseHandler(0);
+import { EnkryptAccount } from "@enkryptcom/types";
+import { TransactionSigner } from "./libs/signer";
+const windowPromise = WindowPromiseHandler(2);
 
 const providerVerifyTransactionScrollRef = ref(null);
 const isOpenData = ref(false);
@@ -143,7 +141,7 @@ const callData = ref<CallData>();
 const network = ref<BaseNetwork | undefined>();
 const networkIsUnknown = ref(false);
 const txView = ref<any>(BlindVerifyView);
-const account = ref<KeyRecord>();
+const account = ref<EnkryptAccount>();
 const txFee = ref<BigNumber>();
 const userBalance = ref<{ balance: BigNumber; symbol: string }>();
 const insufficientBalance = ref(false);
@@ -163,7 +161,7 @@ onBeforeMount(async () => {
   Options.value = options;
 
   const reqPayload = Request.value.params![0] as SignerPayloadJSON;
-  const reqAccount = Request.value.params![1] as KeyRecord;
+  const reqAccount = Request.value.params![1] as EnkryptAccount;
   const targetNetwork = getAllNetworks().find(
     (network) =>
       (network as SubstrateNetwork).genesisHash === reqPayload.genesisHash
@@ -188,7 +186,7 @@ onBeforeMount(async () => {
   }
 });
 
-const setAccount = async (reqAccount: KeyRecord) => {
+const setAccount = async (reqAccount: EnkryptAccount) => {
   if (network.value) {
     reqAccount.address = polkadotEncodeAddress(
       reqAccount.address,
@@ -282,32 +280,20 @@ const toggleData = () => {
   isOpenData.value = !isOpenData.value;
 };
 const approve = async () => {
-  const { Request, sendToBackground, Resolve } = await windowPromise;
-  if (!Request.value.params || Request.value.params.length < 2) {
-    return Resolve.value({ error: getCustomError("No params") });
-  }
-
+  const { Request, Resolve } = await windowPromise;
   const registry = new TypeRegistry();
-  const reqPayload = Request.value.params[0] as SignerPayloadJSON;
+  const reqPayload = Request.value.params![0] as SignerPayloadJSON;
   registry.setSignedExtensions(reqPayload.signedExtensions);
   const extType = registry.createType("ExtrinsicPayload", reqPayload, {
     version: reqPayload.version,
   });
-  const signMsg = signPayload(extType);
-
-  const account = Request.value.params[1] as KeyRecord;
-  sendToBackground({
-    method: InternalMethods.sign,
-    params: [signMsg, account],
-  }).then((res) => {
-    if (res.error) {
-      Resolve.value(res);
-    } else {
-      Resolve.value({
-        result: JSON.stringify(res.result),
-      });
-    }
-  });
+  TransactionSigner({
+    account: account.value!,
+    network: network.value!,
+    payload: extType,
+  })
+    .then(Resolve.value)
+    .catch(Resolve.value);
 };
 const deny = async () => {
   const { Resolve } = await windowPromise;

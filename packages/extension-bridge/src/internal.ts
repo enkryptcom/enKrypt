@@ -337,7 +337,7 @@ async function handleWindowOnMessage({ data, ports }: MessageEvent) {
     data.scope === namespace &&
     data.context !== context
   ) {
-    const { payload } = data;
+    const payload = { ...data.payload };
     assertInternalMessage(payload);
     // a message event inside `content-script` means a script inside `window` dispatched it
     // so we're making sure that the origin is not tampered (i.e script is not masquerading it's true identity)

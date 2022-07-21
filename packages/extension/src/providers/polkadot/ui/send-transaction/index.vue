@@ -61,7 +61,7 @@
 
       <send-input-amount
         :amount="amount"
-        :fiat-value="selectedAsset.value"
+        :fiat-value="selectedAsset.price"
         :has-enough-balance="hasEnough"
         @update:input-amount="inputAmount"
         @update:input-set-max="setSendMax()"
@@ -114,11 +114,16 @@ import { SubstrateNetwork } from "../../types/substrate-network";
 import { toBN } from "web3-utils";
 import { formatFloatingPointValue } from "@/libs/utils/number-formatter";
 import createIcon from "../../libs/blockies";
-import { AssetsType } from "@/types/provider";
 import { fromBase, toBase } from "@/libs/utils/units";
 import BigNumber from "bignumber.js";
 import { VerifyTransactionParams } from "../types";
+import { routes as RouterNames } from "@/ui/action/router";
 import { SendOptions } from "@/types/base-token";
+import Browser from "webextension-polyfill";
+import getUiPath from "@/libs/utils/get-ui-path";
+import { SubstrateToken } from "../../types/substrate-token";
+import { SubstrateNativeToken } from "../../types/substrate-native-token";
+import { ProviderName } from "@/types/provider";
 
 const props = defineProps({
   network: {
@@ -146,15 +151,17 @@ const amount = ref("0");
 const fee = ref<GasFeeInfo | null>(null);
 const edWarn = ref(false);
 const api = shallowRef<SubstrateApi>();
-const accountAssets = ref<AssetsType[]>([]);
-const selectedAsset = ref<AssetsType | Partial<AssetsType>>({
-  icon: props.network.icon,
-  balancef: "0.00",
-  balanceUSDf: "0.00",
-  value: "0",
-  name: "loading",
-  decimals: 18,
-});
+const accountAssets = ref<SubstrateToken[]>([]);
+const selectedAsset = ref<SubstrateToken | Partial<SubstrateToken>>(
+  new SubstrateNativeToken({
+    icon: props.network.icon,
+    balance: "0",
+    price: "0",
+    name: "loading",
+    symbol: "loading",
+    decimals: 12,
+  })
+);
 const hasEnough = ref(true);
 const sendMax = ref(false);
 
@@ -164,14 +171,32 @@ onMounted(async () => {
   props.accountInfo.activeAccounts.forEach((account) => {
     account.address = props.network.displayAddress(account.address);
   });
-  const networkAssets = await props.network.getAllTokenInfo(
-    props.accountInfo.selectedAccount?.address ?? ""
-  );
-  selectedAsset.value = networkAssets[0];
-  accountAssets.value = networkAssets;
+
   const networkApi = await props.network.api();
-  await networkApi.init();
-  api.value = networkApi as SubstrateApi;
+  networkApi.init().then(async () => {
+    api.value = networkApi as SubstrateApi;
+    const networkAssets = await props.network.getAllTokens();
+    const pricePromises = networkAssets.map((asset) => asset.getLatestPrice());
+    const balancePromises = networkAssets.map((asset) => {
+      return asset.getLatestUserBalance(
+        networkApi.api,
+        props.accountInfo.selectedAccount?.address ?? ""
+      );
+    });
+
+    Promise.all([...pricePromises, ...balancePromises]).then(() => {
+      const nonZeroAssets = networkAssets.filter(
+        (asset) => !toBN(asset.balance ?? "0").isZero()
+      );
+
+      if (nonZeroAssets.length == 0) {
+        nonZeroAssets.push(networkAssets[0]);
+      }
+
+      selectedAsset.value = nonZeroAssets[0];
+      accountAssets.value = nonZeroAssets;
+    });
+  });
 });
 
 watch([selectedAsset, amount, addressTo], async () => {
@@ -193,7 +218,7 @@ watch([selectedAsset, amount, addressTo], async () => {
       ? { type: "all" }
       : undefined;
 
-    const tx = await selectedAsset.value.baseToken!.send(
+    const tx = await selectedAsset.value.send!(
       api.value.api,
       addressTo.value,
       rawAmount.toString(),
@@ -203,10 +228,13 @@ watch([selectedAsset, amount, addressTo], async () => {
       await tx.paymentInfo(props.accountInfo.selectedAccount!.address)
     ).toJSON();
 
-    const txFee = toBN(partialFee);
-    const txFeeHuman = fromBase(partialFee, selectedAsset.value.decimals!);
+    const txFee = toBN(partialFee?.toString() ?? "");
+    const txFeeHuman = fromBase(
+      partialFee?.toString() ?? "",
+      selectedAsset.value.decimals!
+    );
 
-    const txPrice = new BigNumber(selectedAsset.value.value!).times(txFeeHuman);
+    const txPrice = new BigNumber(selectedAsset.value.price!).times(txFeeHuman);
 
     fee.value = {
       fiatSymbol: "USD",
@@ -215,7 +243,7 @@ watch([selectedAsset, amount, addressTo], async () => {
       nativeValue: txFeeHuman.toString(),
     };
 
-    const ed = selectedAsset.value.baseToken!.existentialDeposit ?? toBN(0);
+    const ed = selectedAsset.value.existentialDeposit ?? toBN(0);
     const userBalance = toBN(selectedAsset.value.balance ?? 0);
     if (
       !userBalance.eq(rawAmount) &&
@@ -262,7 +290,7 @@ const selectAccountTo = (account: string) => {
   isOpenSelectContactTo.value = false;
 };
 
-const selectToken = (token: AssetsType | Partial<AssetsType>) => {
+const selectToken = (token: SubstrateToken | Partial<SubstrateToken>) => {
   selectedAsset.value = token;
   isOpenSelectToken.value = false;
 };
@@ -311,17 +339,14 @@ const isDisabled = () => {
 };
 
 const sendAction = async () => {
-  const sendAmount = toBase(
-    amount.value,
-    selectedAsset.value.baseToken!.decimals
-  );
+  const sendAmount = toBase(amount.value, selectedAsset.value.decimals!);
 
   const sendOptions: SendOptions | undefined = sendMax.value
     ? { type: "all" }
     : undefined;
 
   await api.value?.api.isReady;
-  const tx = await selectedAsset.value.baseToken?.send(
+  const tx = await selectedAsset.value?.send!(
     api.value!.api as ApiPromise,
     addressTo.value,
     sendAmount,
@@ -339,7 +364,7 @@ const sendAction = async () => {
       amount: amount.value,
       icon: selectedAsset.value.icon as string,
       symbol: selectedAsset.value.symbol || "unknown",
-      valueUSD: new BigNumber(selectedAsset.value.value || "0")
+      valueUSD: new BigNumber(selectedAsset.value.price || "0")
         .times(amount.value)
         .toFixed(),
     },
@@ -349,10 +374,30 @@ const sendAction = async () => {
     toAddress: addressTo.value,
   };
 
-  router.push({
-    name: "verify-transaction",
-    params: { id: selected, txData: JSON.stringify(txVerifyInfo) },
+  const routedRoute = router.resolve({
+    name: RouterNames.verify.name,
+    query: {
+      id: selected,
+      txData: JSON.stringify(txVerifyInfo),
+    },
   });
+
+  if (props.accountInfo.selectedAccount!.isHardware) {
+    await Browser.windows.create({
+      url: Browser.runtime.getURL(
+        getUiPath(
+          `dot-hw-verify?id=${routedRoute.query.id}&txData=${routedRoute.query.txData}`,
+          ProviderName.polkadot
+        )
+      ),
+      type: "popup",
+      focused: true,
+      height: 600,
+      width: 460,
+    });
+  } else {
+    router.push(routedRoute);
+  }
 };
 </script>
 

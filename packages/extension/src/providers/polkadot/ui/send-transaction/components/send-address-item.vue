@@ -28,6 +28,7 @@ export default {
 </script>
 
 <script setup lang="ts">
+import { EnkryptAccount } from "@enkryptcom/types";
 import { PropType } from "vue";
 import { KeyRecord } from "@enkryptcom/types";
 import DoneIcon from "@action/icons/common/done_icon.vue";
@@ -38,7 +39,7 @@ const emit = defineEmits<{
 
 defineProps({
   account: {
-    type: Object as PropType<KeyRecord>,
+    type: Object as PropType<EnkryptAccount>,
     default: () => {
       return {};
     },

@@ -1,8 +1,8 @@
 <template>
   <div class="deposit" :class="{ show: showDeposit }">
-    <div class="deposit__overlay" @click="(toggle as ()=>void)"></div>
+    <div class="deposit__overlay" @click="$emit('toggle:deposit')"></div>
     <div class="deposit__wrap" :class="{ show: showDeposit }">
-      <a class="deposit__close" @click="(toggle as ()=>void)">
+      <a class="deposit__close" @click="$emit('toggle:deposit')">
         <close-icon />
       </a>
 
@@ -52,19 +52,13 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "Deposit",
-};
-</script>
-
 <script setup lang="ts">
 import { PropType, ref } from "vue";
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import CopyIcon from "@action/icons/header/copy_icon.vue";
-import { KeyRecord } from "@enkryptcom/types";
 import { NodeType } from "@/types/provider";
 import QrcodeVue from "qrcode.vue";
+import { EnkryptAccount } from "@enkryptcom/types";
 import Notification from "@action/components/notification/index.vue";
 
 const isCopied = ref(false);
@@ -75,7 +69,7 @@ defineProps({
     default: () => ({}),
   },
   account: {
-    type: Object as PropType<KeyRecord>,
+    type: Object as PropType<EnkryptAccount>,
     default: () => {
       return {};
     },
@@ -84,12 +78,10 @@ defineProps({
     type: Boolean,
     default: () => false,
   },
-  toggle: {
-    type: Function,
-    default: () => ({}),
-  },
 });
-
+defineEmits<{
+  (e: "toggle:deposit"): void;
+}>();
 const copy = (address: string) => {
   navigator.clipboard.writeText(address);
   toggleNotification();

@@ -23,12 +23,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "NetworkNftsItemMoreMenu",
-};
-</script>
-
 <script setup lang="ts">
 import NftMoreSend from "@action/icons/nft/nft-more-send.vue";
 import NftMoreAddToFavorite from "@action/icons/nft/nft-more-add-to-favorite.vue";

@@ -27,12 +27,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "NetworkNftsItem",
-};
-</script>
-
 <script setup lang="ts">
 import { ref } from "vue";
 import { NFTItem } from "@/types/nft";

@@ -1,5 +1,6 @@
 const baseConfigs = require("./configs/base-build");
-const chromeConfigs = require("./configs/chrome-build");
+const browserConfigs = require("./configs/browser-build");
+
 module.exports = {
   pages: {
     index: {
@@ -27,6 +28,6 @@ module.exports = {
   },
   chainWebpack: (config) => {
     baseConfigs.setConfig(config);
-    chromeConfigs.setConfig(config);
+    browserConfigs.setConfig(config);
   },
 };

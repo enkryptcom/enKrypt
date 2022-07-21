@@ -16,7 +16,8 @@ import {
 import { EXTENSION_VERSION } from "@/configs/constants";
 
 export class Provider extends EventEmitter implements ProviderInterface {
-  chainId: string;
+  chainId: string | null;
+  networkVersion: string;
   isEnkrypt: boolean;
   isMetaMask: boolean;
   selectedAddress: string | null;
@@ -28,7 +29,8 @@ export class Provider extends EventEmitter implements ProviderInterface {
   sendMessageHandler: SendMessageHandler;
   constructor(options: ProviderOptions) {
     super();
-    this.chainId = "0x1"; //deprecated
+    this.chainId = null; //deprecated
+    this.networkVersion = "0x1"; //deprecated
     this.isEnkrypt = true;
     this.isMetaMask = true;
     this.selectedAddress = null; //deprecated
@@ -38,6 +40,27 @@ export class Provider extends EventEmitter implements ProviderInterface {
     this.sendMessageHandler = options.sendMessageHandler;
   }
   async request(request: EthereumRequest): Promise<EthereumResponse> {
+    if (this.chainId === null) {
+      await this.sendMessageHandler(
+        this.name,
+        JSON.stringify({
+          method: "eth_chainId",
+        })
+      ).then((res) => {
+        this.chainId = res;
+        this.networkVersion = res;
+      });
+    }
+    if (this.selectedAddress === null) {
+      await this.sendMessageHandler(
+        this.name,
+        JSON.stringify({
+          method: "eth_accounts",
+        })
+      ).then((res) => {
+        this.selectedAddress = res[0];
+      });
+    }
     const res = (await this.sendMessageHandler(
       this.name,
       JSON.stringify(request)

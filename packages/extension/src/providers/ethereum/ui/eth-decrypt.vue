@@ -47,24 +47,27 @@
 import SignLogo from "@action/icons/common/sign-logo.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import CommonPopup from "@action/views/common-popup/index.vue";
-import { KeyRecord } from "@enkryptcom/types";
+import { EnkryptAccount } from "@enkryptcom/types";
 import { getError } from "@/libs/error";
 import { ErrorCodes } from "@/providers/ethereum/types";
 import { WindowPromiseHandler } from "@/libs/window-promise";
 import { InternalMethods } from "@/types/messenger";
 import { onBeforeMount, ref } from "vue";
-import { DEFAULT_NETWORK_NAME, getNetworkByName } from "@/libs/utils/networks";
+import {
+  DEFAULT_EVM_NETWORK_NAME,
+  getNetworkByName,
+} from "@/libs/utils/networks";
 import { ProviderRequestOptions } from "@/types/provider";
 import { EvmNetwork } from "../types/evm-network";
 
 const windowPromise = WindowPromiseHandler(3);
 const network = ref<EvmNetwork>(
-  getNetworkByName(DEFAULT_NETWORK_NAME) as EvmNetwork
+  getNetworkByName(DEFAULT_EVM_NETWORK_NAME) as EvmNetwork
 );
-const account = ref<KeyRecord>({
+const account = ref<EnkryptAccount>({
   name: "",
   address: "",
-} as KeyRecord);
+} as EnkryptAccount);
 const identicon = ref<string>("");
 const Options = ref<ProviderRequestOptions>({
   domain: "",
@@ -75,7 +78,7 @@ const Options = ref<ProviderRequestOptions>({
 onBeforeMount(async () => {
   const { Request, options } = await windowPromise;
   network.value = getNetworkByName(Request.value.params![2]) as EvmNetwork;
-  account.value = Request.value.params![1] as KeyRecord;
+  account.value = Request.value.params![1] as EnkryptAccount;
   identicon.value = network.value.identicon(account.value.address);
   Options.value = options;
 });

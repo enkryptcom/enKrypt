@@ -7,7 +7,6 @@
       popular ones, like Ethereum and Polkadot with its Parachains are already
       built in.
     </p>
-    <p>As a user you can always add custom network.</p>
     <p>
       And as a developer you can submit an update to our open-source codebase so
       Enkrypt can start supporting your chain too.

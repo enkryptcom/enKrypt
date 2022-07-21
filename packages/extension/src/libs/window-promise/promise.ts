@@ -17,14 +17,23 @@ class WindowPromise {
     msg: string,
     tabId: number
   ): Promise<InternalOnMessageResponse> {
-    await Browser.tabs.update(tabId, { url });
-    return sendToNewWindowFromBackground(
-      {
-        provider: ProviderName.enkrypt,
-        message: msg,
-      },
-      tabId
-    );
+    return new Promise((resolve) => {
+      Browser.tabs.onUpdated.addListener(function listener(_tabId, info, tab) {
+        if (info.status === "complete" && _tabId === tabId && tab.url === url) {
+          resolve(
+            sendToNewWindowFromBackground(
+              {
+                provider: ProviderName.enkrypt,
+                message: msg,
+              },
+              tabId
+            )
+          );
+          Browser.tabs.onUpdated.removeListener(listener);
+        }
+      });
+      Browser.tabs.update(tabId, { url });
+    });
   }
   async getResponse(
     url: string,
@@ -46,6 +55,11 @@ class WindowPromise {
         error: getCustomError("unknown error, no tabId"),
       });
     }
+    const waitForWindow = async (): Promise<void> => {
+      // eslint-disable-next-line no-empty
+      while ((await Browser.tabs.get(tabId)).status !== "complete") {}
+    };
+    await waitForWindow();
     const monitorTabs = (): Promise<InternalOnMessageResponse> => {
       return new Promise((resolve) => {
         Browser.tabs.onRemoved.addListener(function tabListener(_tabId) {

@@ -27,7 +27,7 @@ describe("Test injected Ethereum", () => {
     EthereumInject(tempWindow, options);
     const provider = tempWindow[ProviderName.ethereum] as EthereumProvider;
     expect(provider.name).to.equal(ProviderName.ethereum);
-    expect(provider.chainId).to.equal("0x1");
+    expect(provider.chainId).to.equal(null);
     expect(provider.isEnkrypt).to.equal(true);
   });
 });

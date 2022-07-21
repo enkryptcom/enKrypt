@@ -51,12 +51,12 @@ import BaseButton from "@action/components/base-button/index.vue";
 import { NodeType } from "@/types/provider";
 import { sendToBackgroundFromAction } from "@/libs/messenger/extension";
 import { InternalMethods } from "@/types/messenger";
-import { KeyRecord, KeyRecordAdd } from "@enkryptcom/types";
+import { EnkryptAccount, KeyRecordAdd, WalletType } from "@enkryptcom/types";
 import Keyring from "@/libs/keyring/public-keyring";
 
 const isFocus = ref(false);
 const accountName = ref("");
-const newAccount = ref<KeyRecord | null>(null);
+const newAccount = ref<EnkryptAccount | null>(null);
 const isDisabled = ref(true);
 const addAccountInput = ref(null);
 
@@ -80,7 +80,8 @@ const setNewAccountInfo = async () => {
   const keyReq: KeyRecordAdd = {
     name: "",
     basePath: props.network.basePath,
-    type: props.network.signer[0],
+    signerType: props.network.signer[0],
+    walletType: WalletType.mnemonic,
   };
   await sendToBackgroundFromAction({
     message: JSON.stringify({
@@ -89,7 +90,7 @@ const setNewAccountInfo = async () => {
     }),
   }).then((res) => {
     if (res.result) {
-      newAccount.value = JSON.parse(res.result) as KeyRecord;
+      newAccount.value = JSON.parse(res.result) as EnkryptAccount;
     }
   });
 };
@@ -115,7 +116,8 @@ const addAccount = async () => {
   const keyReq: KeyRecordAdd = {
     name: accountName.value.trim(),
     basePath: props.network.basePath,
-    type: props.network.signer[0],
+    signerType: props.network.signer[0],
+    walletType: WalletType.mnemonic,
   };
   await sendToBackgroundFromAction({
     message: JSON.stringify({

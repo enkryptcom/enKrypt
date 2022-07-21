@@ -1,25 +1,74 @@
 <template>
-  <div id="app">
-    <h1>Polkadot Account Request</h1>
-    <nav class="navbar navbar-expand navbar-dark bg-dark">
-      <div class="navbar-nav mr-auto">
-        Domain: {{ Options.domain }} would like to access your accounts
+  <common-popup>
+    <template #header>
+      <sign-logo color="#05C0A5" class="common-popup__logo"></sign-logo>
+      <div class="common-popup__network">
+        <img :src="network.icon" />
+        <p>{{ network.name_long }}</p>
       </div>
-      <button @click="approve">approve</button>
-      <button @click="deny">deny</button>
-    </nav>
-  </div>
+    </template>
+
+    <template #content>
+      <h2>Connect to {{ Options.title }}</h2>
+
+      <div class="common-popup__block no-inset">
+        <div class="common-popup__account">
+          <img :src="Options.faviconURL" />
+          <div class="common-popup__account-info">
+            <h4>{{ Options.title }}</h4>
+            <p>{{ Options.domain }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="provider-connect-dapp__link">
+        <link-icon />
+      </div>
+
+      <div class="provider-connect-dapp__info">
+        <info-icon-gray />
+        <p>
+          This will reveal your all your public addresses, wallet balance and
+          activity to
+          {{ Options.domain }}
+        </p>
+      </div>
+    </template>
+
+    <template #button-left>
+      <base-button title="Decline" :click="decline" :no-background="true" />
+    </template>
+
+    <template #button-right>
+      <base-button title="Connect" :click="connect" />
+    </template>
+  </common-popup>
 </template>
 
 <script setup lang="ts">
-import { SignerType } from "@enkryptcom/types";
-import { getError } from "@/libs/error";
-import { ErrorCodes } from "@/providers/ethereum/types";
-import { WindowPromiseHandler } from "@/libs/window-promise";
 import { onBeforeMount, ref } from "vue";
+import SignLogo from "@action/icons/common/sign-logo.vue";
+import BaseButton from "@action/components/base-button/index.vue";
+import CommonPopup from "@action/views/common-popup/index.vue";
+import LinkIcon from "@action/icons/connect/link-icon.vue";
+import InfoIconGray from "@action/icons/common/info-icon-gray.vue";
+import {
+  DEFAULT_SUBSTRATE_NETWORK_NAME,
+  getNetworkByName,
+} from "@/libs/utils/networks";
+import { WindowPromiseHandler } from "@/libs/window-promise";
 import { ProviderRequestOptions } from "@/types/provider";
+import { getError } from "@/libs/error";
+import AccountState from "../libs/accounts-state";
+import { SubstrateNetwork } from "../types/substrate-network";
+import { ErrorCodes } from "@/providers/ethereum/types";
+import { truncate } from "lodash";
 
 const windowPromise = WindowPromiseHandler(0);
+const network = ref<SubstrateNetwork>(
+  getNetworkByName(DEFAULT_SUBSTRATE_NETWORK_NAME) as SubstrateNetwork
+);
+
 const Options = ref<ProviderRequestOptions>({
   domain: "",
   faviconURL: "",
@@ -32,29 +81,24 @@ onBeforeMount(async () => {
   Options.value = options;
 });
 
-const approve = async () => {
-  const { Resolve, KeyRing } = await windowPromise;
-  KeyRing.getAccounts([SignerType.ed25519, SignerType.sr25519]).then(
-    (accounts) => {
-      Resolve.value({
-        result: JSON.stringify(
-          accounts.map((acc) => {
-            return {
-              address: acc.address,
-              genesisHash: "",
-              name: acc.name,
-              type: acc.type,
-            };
-          })
-        ),
-      });
-    }
-  );
-};
-const deny = async () => {
+const decline = async () => {
   const { Resolve } = await windowPromise;
   Resolve.value({
     error: getError(ErrorCodes.userRejected),
   });
 };
+
+const connect = async () => {
+  const { Resolve } = await windowPromise;
+  const accountState = new AccountState();
+  await accountState.addApprovedDomain(Options.value.domain);
+  Resolve.value({
+    result: JSON.stringify(truncate),
+  });
+};
 </script>
+
+<style lang="less">
+@import "~@/providers/ethereum/ui/styles/common-popup.less";
+@import "~@action/styles/provider-connect-dapp.less";
+</style>

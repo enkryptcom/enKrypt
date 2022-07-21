@@ -1,4 +1,5 @@
 import { NetworkNames } from "@enkryptcom/types";
+import { EtherscanActivity } from "../libs/activity-handlers";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
 
 const karuraOptions: EvmNetworkOptions = {
@@ -14,6 +15,7 @@ const karuraOptions: EvmNetworkOptions = {
   icon: require("./icons/karura-evm.svg"),
   gradient: "#FF4C3B",
   coingeckoID: "karura",
+  activityHandler: EtherscanActivity,
 };
 
 const karura = new EvmNetwork(karuraOptions);

@@ -1,9 +1,4 @@
 export default {
-  ethAccounts: {
-    path: "eth-accounts",
-    name: "ethAccounts",
-    component: {},
-  },
   ethSign: {
     path: "eth-sign",
     name: "ethSign",
@@ -32,6 +27,11 @@ export default {
   ethConnectDApp: {
     path: "eth-conncet-dapp",
     name: "ethConnectDApp",
+    component: {},
+  },
+  ethHWVerify: {
+    path: "eth-hw-verify",
+    name: "ethHWVerify",
     component: {},
   },
 };

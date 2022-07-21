@@ -126,14 +126,13 @@ import BaseButton from "@action/components/base-button/index.vue";
 import CommonPopup from "@action/views/common-popup/index.vue";
 import SendFeeSelect from "./send-transaction/components/send-fee-select.vue";
 import TransactionFeeView from "@action/views/transaction-fee/index.vue";
-import { KeyRecord } from "@enkryptcom/types";
 import { getCustomError, getError } from "@/libs/error";
 import { ErrorCodes } from "@/providers/ethereum/types";
 import { WindowPromiseHandler } from "@/libs/window-promise";
-import { InternalMethods } from "@/types/messenger";
-import { bufferToHex } from "@enkryptcom/utils";
-import { fromRpcSig } from "ethereumjs-util";
-import { DEFAULT_NETWORK_NAME, getNetworkByName } from "@/libs/utils/networks";
+import {
+  DEFAULT_EVM_NETWORK_NAME,
+  getNetworkByName,
+} from "@/libs/utils/networks";
 import {
   DecodedTx,
   EthereumTransaction,
@@ -141,7 +140,6 @@ import {
 } from "../libs/transaction/types";
 import Transaction from "@/providers/ethereum/libs/transaction";
 import Web3 from "web3";
-import { FeeMarketEIP1559Transaction } from "@ethereumjs/tx";
 import { EvmNetwork } from "../types/evm-network";
 import { fromBase } from "@/libs/utils/units";
 import { decodeTx } from "../libs/transaction/decoder";
@@ -150,6 +148,8 @@ import BigNumber from "bignumber.js";
 import { GasFeeType } from "./types";
 import MarketData from "@/libs/market-data";
 import { defaultGasCostVals } from "./common/default-vals";
+import { EnkryptAccount } from "@enkryptcom/types";
+import { TransactionSigner } from "./libs/signer";
 
 const isOpenSelectFee = ref(false);
 const providerVerifyTransactionScrollRef = ref<ComponentPublicInstance>();
@@ -158,14 +158,14 @@ const TokenBalance = ref<string>("~");
 const fiatValue = ref<string>("~");
 const decodedTx = ref<DecodedTx>();
 const network = ref<EvmNetwork>(
-  getNetworkByName(DEFAULT_NETWORK_NAME) as EvmNetwork
+  getNetworkByName(DEFAULT_EVM_NETWORK_NAME) as EvmNetwork
 );
 const marketdata = new MarketData();
 const gasCostValues = ref<GasFeeType>(defaultGasCostVals);
-const account = ref<KeyRecord>({
+const account = ref<EnkryptAccount>({
   name: "",
   address: "",
-} as KeyRecord);
+} as EnkryptAccount);
 const identicon = ref<string>("");
 const windowPromise = WindowPromiseHandler(3);
 const Options = ref<ProviderRequestOptions>({
@@ -175,12 +175,13 @@ const Options = ref<ProviderRequestOptions>({
   url: "",
 });
 const selectedFee = ref<GasPriceTypes>(GasPriceTypes.ECONOMY);
+
 defineExpose({ providerVerifyTransactionScrollRef });
 
 onBeforeMount(async () => {
   const { Request, options } = await windowPromise;
   network.value = getNetworkByName(Request.value.params![2]) as EvmNetwork;
-  account.value = Request.value.params![1] as KeyRecord;
+  account.value = Request.value.params![1] as EnkryptAccount;
   identicon.value = network.value.identicon(account.value.address);
   Options.value = options;
   if (network.value.api) {
@@ -252,7 +253,7 @@ onBeforeMount(async () => {
 });
 
 const approve = async () => {
-  const { Request, sendToBackground, Resolve } = await windowPromise;
+  const { Request, Resolve } = await windowPromise;
   const web3 = new Web3(network.value.node);
   const tx = new Transaction(
     Request.value.params![0] as EthereumTransaction,
@@ -260,20 +261,14 @@ const approve = async () => {
   );
   tx.getFinalizedTransaction({ gasPriceType: selectedFee.value }).then(
     (finalizedTx) => {
-      const msgHash = bufferToHex(finalizedTx.getMessageToSign(true));
-      sendToBackground({
-        method: InternalMethods.sign,
-        params: [msgHash, account.value],
-      }).then((res) => {
-        if (res.error) {
-          Resolve.value(res);
-        } else {
-          const rpcSig = fromRpcSig(res.result || "0x");
-          const signedTx = (
-            finalizedTx as FeeMarketEIP1559Transaction
-          )._processSignature(rpcSig.v, rpcSig.r, rpcSig.s);
+      TransactionSigner({
+        account: account.value,
+        network: network.value,
+        payload: finalizedTx,
+      })
+        .then((tx) => {
           web3.eth
-            .sendSignedTransaction("0x" + signedTx.serialize().toString("hex"))
+            .sendSignedTransaction("0x" + tx.serialize().toString("hex"))
             .on("transactionHash", (hash) => {
               Resolve.value({
                 result: JSON.stringify(hash),
@@ -284,8 +279,8 @@ const approve = async () => {
                 error: getCustomError(error.message),
               });
             });
-        }
-      });
+        })
+        .catch(Resolve.value);
     }
   );
 };

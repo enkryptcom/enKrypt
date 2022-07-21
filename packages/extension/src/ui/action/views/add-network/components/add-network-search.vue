@@ -30,7 +30,7 @@ export default {
 import { ref, PropType } from "vue";
 import BaseSearch from "@action/components/base-search/index.vue";
 import SliderIcon from "@action/icons/common/slider-icon.vue";
-import CustomNetworkIcon from "@action/icons/common/custom-network-icon.vue";
+// import CustomNetworkIcon from "@action/icons/common/custom-network-icon.vue";
 import TestNetworkIcon from "@action/icons/common/test-network-icon.vue";
 import Switch from "@action/components/switch/index.vue";
 import { onClickOutside } from "@vueuse/core";

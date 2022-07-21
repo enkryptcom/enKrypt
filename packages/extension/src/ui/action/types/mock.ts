@@ -126,7 +126,7 @@ export const transactionsOne: Transaction[] = [
     direction: TransactionDirection.outgoing,
   },
 ];
-export const transactionsTwo: Transaction[] = [
+export const transactionsTwo2: Transaction[] = [
   {
     from: {
       name: "My Main Account 1",

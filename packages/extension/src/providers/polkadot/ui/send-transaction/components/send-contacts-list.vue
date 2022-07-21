@@ -95,7 +95,7 @@ import { onUpdated, ref } from "vue";
 import { KeyRecord } from "@enkryptcom/types";
 import PasteIcon from "@action/icons/actions/paste.vue";
 import ArrowBack from "@action/icons/common/arrow-back.vue";
-
+import { EnkryptAccount } from "@enkryptcom/types";
 const emit = defineEmits<{
   (e: "update:pasteFromClipboard"): void;
   (e: "close", open: false): void;

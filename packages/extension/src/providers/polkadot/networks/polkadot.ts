@@ -5,13 +5,14 @@ import {
   SubstrateNetwork,
   SubstrateNetworkOptions,
 } from "../types/substrate-network";
+import { subscanActivity } from "../libs/activity-handlers";
 
 const polkadotOptions: SubstrateNetworkOptions = {
   name: NetworkNames.Polkadot,
   name_long: "Polkadot",
   homePage: "https://polkadot.network",
-  blockExplorerTX: "https://polkascan.io/polkadot/transaction/[[txHash]]",
-  blockExplorerAddr: "https://polkascan.io/polkadot/account/[[address]]",
+  blockExplorerTX: "https://polkadot.subscan.io/extrinsic/[[txHash]]",
+  blockExplorerAddr: "https://polkadot.subscan.io/account/[[address]]",
   isTestNetwork: false,
   currencyName: "DOT",
   icon: require("./icons/polkadot.svg"),
@@ -22,6 +23,7 @@ const polkadotOptions: SubstrateNetworkOptions = {
   coingeckoID: "polkadot",
   genesisHash:
     "0x91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3",
+  activityHandler: subscanActivity,
 };
 
 const polkadot = new SubstrateNetwork(polkadotOptions);

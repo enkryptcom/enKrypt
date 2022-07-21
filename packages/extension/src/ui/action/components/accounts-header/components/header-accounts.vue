@@ -17,11 +17,7 @@
       />
 
       <tooltip text="View on Blockchain Explorer">
-        <a
-          class="account__actions--copy"
-          target="_blank"
-          :href="externalLink()"
-        >
+        <a class="account__actions--copy" target="_blank" :href="externalLink">
           <icon-external />
         </a>
       </tooltip>
@@ -32,8 +28,12 @@
         </a>
       </tooltip>
 
-      <tooltip text="Account’s QR code">
-        <a showDeposit class="account__actions--copy" @click="showDeposit">
+      <tooltip text="Account's QR code">
+        <a
+          showDeposit
+          class="account__actions--copy"
+          @click="$emit('toggle:deposit')"
+        >
           <icon-qr />
         </a>
       </tooltip>
@@ -41,21 +41,16 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "NetworkHeaderAccount",
-};
-</script>
-
 <script setup lang="ts">
 import SwitchArrow from "@action/icons/header/switch_arrow.vue";
 import IconQr from "@action/icons/header/qr_icon.vue";
 import IconCopy from "@action/icons/header/copy_icon.vue";
 import IconExternal from "@action/icons/header/external-icon.vue";
 import Tooltip from "@action/components/tooltip/index.vue";
-import { PropType, ref } from "vue";
+import { PropType, ref, computed } from "vue";
 import { NodeType } from "@/types/provider";
 import Notification from "@action/components/notification/index.vue";
+import { BaseNetwork } from "@/types/base-network";
 
 const isCopied = ref(false);
 
@@ -73,15 +68,14 @@ const props = defineProps({
     type: Function,
     default: () => ({}),
   },
-  toggleDeposit: {
-    type: Function,
-    default: () => ({}),
-  },
   network: {
-    type: Object as PropType<NodeType>,
+    type: Object as PropType<BaseNetwork>,
     default: () => ({}),
   },
 });
+defineEmits<{
+  (e: "toggle:deposit"): void;
+}>();
 
 const copy = (address: string) => {
   navigator.clipboard.writeText(address);
@@ -90,31 +84,9 @@ const copy = (address: string) => {
 const showAccounts = () => {
   props.toggleAccounts();
 };
-const showDeposit = () => {
-  props.toggleDeposit();
-};
-const externalLink = () => {
-  let link = "";
-
-  switch (props.network.name) {
-    case "ETH":
-      link = "https://etherscan.io/address/" + props.address;
-      break;
-    case "DOT":
-      link = "https://explorer.polkascan.io/polkadot/account/" + props.address;
-      break;
-    case "MATIC":
-      link = "https://polygonscan.com/address/" + props.address;
-      break;
-    case "GLMR":
-      link = "https://moonscan.io/address/" + props.address;
-      break;
-    default:
-      link = "https://etherscan.io/address/" + props.address;
-  }
-
-  return link;
-};
+const externalLink = computed(() => {
+  return props.network.blockExplorerAddr.replace("[[address]]", props.address);
+});
 const toggleNotification = () => {
   isCopied.value = !isCopied.value;
 };

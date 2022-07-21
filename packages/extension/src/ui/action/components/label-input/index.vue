@@ -13,15 +13,11 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "LabelInput",
-};
-</script>
-
 <script setup lang="ts">
 import { computed, ref } from "vue";
+
 let isFocus = ref(false);
+
 const props = defineProps({
   placeholder: {
     type: String,
@@ -77,6 +73,7 @@ const changeFocus = () => {
   color: @primaryLabel;
   box-sizing: border-box;
   width: 100%;
+
   &__wrap {
     position: relative;
     background: @white;
@@ -86,6 +83,7 @@ const changeFocus = () => {
     padding: 10px 12px 10px 12px;
     width: 100%;
     box-sizing: border-box;
+
     &.focus {
       border: 2px solid @primary;
       padding: 9px 11px 9px 11px;
@@ -95,6 +93,7 @@ const changeFocus = () => {
       padding: 9px 11px 9px 11px;
     }
   }
+
   &__label {
     font-style: normal;
     font-weight: 400;
