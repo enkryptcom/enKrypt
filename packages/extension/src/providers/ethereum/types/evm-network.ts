@@ -37,7 +37,7 @@ export interface EvmNetworkOptions {
     network: BaseNetwork,
     address: string
   ) => Promise<BaseToken[]>;
-  activityHandler?: (
+  activityHandler: (
     network: BaseNetwork,
     address: string
   ) => Promise<Activity[]>;

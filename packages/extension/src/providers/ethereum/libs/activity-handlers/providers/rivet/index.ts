@@ -68,7 +68,7 @@ export default async (
           activity.status === "0x1"
             ? ActivityStatus.success
             : ActivityStatus.failed,
-        timestamp: 0,
+        timestamp: activity.timestamp ? activity.timestamp : 0,
         value: txData.tokenValue,
         transactionHash: activity.transactionHash,
         token: {

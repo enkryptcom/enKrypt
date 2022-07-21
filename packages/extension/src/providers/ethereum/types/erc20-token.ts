@@ -1,4 +1,4 @@
-import { BaseToken, BaseTokenOptions, SendOptions } from "@/types/base-token";
+import { BaseToken, BaseTokenOptions } from "@/types/base-token";
 import { BN } from "ethereumjs-util";
 import { numberToHex } from "web3-utils";
 import erc20 from "../libs/abi/erc20";

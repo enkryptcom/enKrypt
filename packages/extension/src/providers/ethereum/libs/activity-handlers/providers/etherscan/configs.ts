@@ -10,6 +10,7 @@ const NetworkEndpoints = {
   [NetworkNames.Matic]: "https://api.polygonscan.com/",
   [NetworkNames.Moonbeam]: "https://api-moonbeam.moonscan.io/",
   [NetworkNames.Moonriver]: "https://api-moonriver.moonscan.io/",
+  [NetworkNames.KaruraEVM]: "https://blockscout.karura.network/",
 };
 
 export { NetworkEndpoints };

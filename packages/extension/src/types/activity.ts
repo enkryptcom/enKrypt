@@ -8,13 +8,14 @@ interface EthereumRawInfo {
   effectiveGasPrice: string;
   from: string;
   to: string | null;
+  gas: string;
   gasUsed: string;
   status: string;
   transactionHash: string;
-  type: string;
   data: string;
   nonce: string;
   value: string;
+  timestamp: number | undefined;
 }
 
 interface SubstrateRawInfo {

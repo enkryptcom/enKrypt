@@ -45,7 +45,6 @@ const decodeTx = async (
       });
     });
   };
-
   if (tokenValue === "0x0" && dataDecoder.isTokenAction) {
     if (TokenList[network.name as SupportedNetworkNames]) {
       const knownTokens = await getKnownNetworkTokens(network.name);

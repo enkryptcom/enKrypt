@@ -77,6 +77,7 @@ const setActivities = () => {
     props.network
       .getAllActivity(props.accountInfo.selectedAccount.address)
       .then((all) => {
+        console.log(all);
         activities.value = all;
         isNoActivity.value = all.length === 0;
       });
