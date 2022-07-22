@@ -3,7 +3,7 @@ import dotAccounts from "../dot-accounts.vue";
 import dotSignMessage from "../dot-sign-message.vue";
 import dotUpdateMetadata from "../dot-update-metadata.vue";
 import dotVerifyTransaction from "../dot-verify-transaction.vue";
-import dotHWVerify from "../send-transaction/verify-transaction/index.vue";
+import dotHWVerify from "../dot-verify-hw-transaction.vue";
 import { RouteRecordRaw } from "vue-router";
 import RouteNames from "./names";
 const routes = Object.assign({}, RouteNames);
