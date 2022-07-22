@@ -296,7 +296,7 @@ const closeImportAccount = () => {
     &-button {
       display: flex;
       box-sizing: border-box;
-      justify-content: space-between;
+      justify-content: flex-start;
       align-items: center;
       flex-direction: row;
       height: 40px;
@@ -314,11 +314,11 @@ const closeImportAccount = () => {
       border-radius: 10px;
 
       &.hardware {
-        width: 248px;
+        width: 100%;
       }
 
       &.import {
-        width: 289px;
+        width: 100%;
       }
 
       &.active,

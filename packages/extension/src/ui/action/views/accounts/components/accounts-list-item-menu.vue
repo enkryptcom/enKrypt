@@ -1,9 +1,9 @@
 <template>
   <div class="accounts-item__edit">
-    <a class="accounts-item__edit-item" @click="renameAction">
+    <a class="accounts-item__edit-item" @click.stop="renameAction">
       <edit-icon /><span>Rename</span>
     </a>
-    <a class="accounts-item__edit-item" @click="deleteAction">
+    <a class="accounts-item__edit-item" @click.stop="deleteAction">
       <delete-icon /><span class="delete">Delete</span>
     </a>
   </div>

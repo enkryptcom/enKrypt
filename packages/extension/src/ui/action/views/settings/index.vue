@@ -87,12 +87,13 @@ const resetAction = () => {
 };
 
 const supportAction = () => {
-  isStart.value = false;
-  isGeneral.value = false;
-  isAbout.value = false;
-  isSupport.value = true;
-  isPhrase.value = false;
-  isReset.value = false;
+  // isStart.value = false;
+  // isGeneral.value = false;
+  // isAbout.value = false;
+  // isSupport.value = true;
+  // isPhrase.value = false;
+  // isReset.value = false;
+  window.open("mailto:support@enkrypt.com", "_blank");
 };
 
 const generalAction = () => {

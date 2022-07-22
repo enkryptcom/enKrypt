@@ -31,6 +31,14 @@
         />
       </div>
     </custom-scrollbar>
+
+    <deposit
+      v-if="!!props.accountInfo.selectedAccount"
+      :account="props.accountInfo.selectedAccount"
+      :show-deposit="showDeposit"
+      :network="network"
+      :toggle="toggleDeposit"
+    />
   </div>
 </template>
 
@@ -46,11 +54,15 @@ import NetworkActivityAction from "./components/network-activity-action.vue";
 import NetworkActivityTransaction from "./components/network-activity-transaction.vue";
 import { transactionsOne, transactionsTwo } from "@action/types/mock";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
-import { PropType, toRef } from "vue";
+import { PropType, toRef, ref } from "vue";
 import { AccountsHeaderData } from "../../types/account";
 import accountInfo from "@action/composables/account-info";
 import { BaseNetwork } from "@/types/base-network";
 import scrollSettings from "@/libs/utils/scroll-settings";
+import Deposit from "@action/views/deposit/index.vue";
+
+let showDeposit = ref(false);
+
 const props = defineProps({
   network: {
     type: Object as PropType<BaseNetwork>,
@@ -67,10 +79,14 @@ const { cryptoAmount, fiatAmount } = accountInfo(
 );
 
 const depositAction = () => {
-  console.log("depositAction");
+  toggleDeposit();
 };
 const buyAction = () => {
   console.log("buyAction");
+};
+
+const toggleDeposit = () => {
+  showDeposit.value = !showDeposit.value;
 };
 </script>
 
@@ -86,6 +102,10 @@ const buyAction = () => {
   margin: 0;
   padding-top: 0;
   box-sizing: border-box;
+
+  .deposit {
+    left: 0;
+  }
 }
 
 .network-activity {

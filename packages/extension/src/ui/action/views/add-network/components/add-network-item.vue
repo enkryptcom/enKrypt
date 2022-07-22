@@ -6,9 +6,9 @@
     </div>
 
     <div class="add-network__action">
-      <a href="#">
+      <!-- <a href="#">
         <InfoIcon />
-      </a>
+      </a> -->
       <Switch :check="check" :is-checked="isActive" />
     </div>
   </div>
@@ -23,7 +23,7 @@ export default {
 <script setup lang="ts">
 import { PropType } from "vue";
 import Switch from "@action/components/switch/index.vue";
-import InfoIcon from "@action/icons/common/info-icon.vue";
+// import InfoIcon from "@action/icons/common/info-icon.vue";
 import { NodeType } from "@/types/provider";
 
 const emit = defineEmits<{

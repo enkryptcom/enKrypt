@@ -25,6 +25,14 @@
     </custom-scrollbar>
 
     <network-assets-loading v-if="isLoading"></network-assets-loading>
+
+    <deposit
+      v-if="!!props.accountInfo.selectedAccount"
+      :account="props.accountInfo.selectedAccount"
+      :show-deposit="showDeposit"
+      :network="network"
+      :toggle="toggleDeposit"
+    />
   </div>
 </template>
 
@@ -47,6 +55,9 @@ import { AccountsHeaderData } from "../../types/account";
 import accountInfo from "@action/composables/account-info";
 import { BaseNetwork } from "@/types/base-network";
 import scrollSettings from "@/libs/utils/scroll-settings";
+import Deposit from "@action/views/deposit/index.vue";
+
+let showDeposit = ref(false);
 
 const route = useRoute();
 const props = defineProps({
@@ -69,7 +80,7 @@ const { cryptoAmount, fiatAmount } = accountInfo(
 const selected: string = route.params.id as string;
 
 const depositAction = () => {
-  console.log("depositAction");
+  toggleDeposit();
 };
 const buyAction = () => {
   console.log("buyAction");
@@ -87,6 +98,10 @@ watch([props.network, props.accountInfo], updateAssets);
 onMounted(() => {
   updateAssets();
 });
+
+const toggleDeposit = () => {
+  showDeposit.value = !showDeposit.value;
+};
 </script>
 
 <style lang="less" scoped>
@@ -101,6 +116,10 @@ onMounted(() => {
   margin: 0;
   padding-top: 0;
   box-sizing: border-box;
+
+  .deposit {
+    left: 0;
+  }
 }
 
 .network-assets {

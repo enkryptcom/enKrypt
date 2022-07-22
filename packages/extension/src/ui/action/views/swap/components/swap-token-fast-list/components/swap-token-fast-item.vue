@@ -44,6 +44,11 @@ const select = () => {
     display: inline-block;
     margin-right: 12px;
     margin-bottom: 7px;
+    transition: background 300ms ease-in-out;
+
+    &:hover {
+      background: @black004;
+    }
 
     img {
       width: 16px;

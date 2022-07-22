@@ -1,9 +1,8 @@
 <template>
-  <a
+  <div
     class="accounts-item"
     :class="{ disabled: !active }"
     @click="select(address)"
-    @mouseleave="closeMenu"
   >
     <img :src="identiconElement(address)" />
     <div class="accounts-item__info">
@@ -14,16 +13,16 @@
       </p>
     </div>
     <done-icon v-show="isChecked" class="accounts-item__checked"></done-icon>
-    <div class="accounts-item__more">
-      <more-icon @mouseenter="toggleEdit"></more-icon>
+    <div class="accounts-item__more" @click.stop="toggleEdit">
+      <more-icon></more-icon>
     </div>
     <accounts-list-item-menu
-      v-show="openEdit"
+      v-if="openEdit"
       :rename-action="renameAction"
       :delete-action="deleteAction"
       @mouseleave="toggleEdit"
     ></accounts-list-item-menu>
-  </a>
+  </div>
 </template>
 
 <script lang="ts">
@@ -81,10 +80,6 @@ const props = defineProps({
 
 const toggleEdit = () => {
   openEdit.value = !openEdit.value;
-};
-
-const closeMenu = () => {
-  openEdit.value = false;
 };
 
 const renameAction = () => {
@@ -184,6 +179,7 @@ const deleteAction = () => {
     position: absolute;
     top: 16px;
     right: 12px;
+    z-index: 2;
 
     svg {
       position: static;

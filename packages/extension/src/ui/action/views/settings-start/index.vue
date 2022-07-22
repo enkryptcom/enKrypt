@@ -6,6 +6,7 @@
       <settings-button
         title="Contact support"
         :action="supportAction"
+        :is-link="true"
       ></settings-button>
       <settings-button
         title="General"
