@@ -4,7 +4,8 @@
       <img v-if="isAddress(value)" :src="identicon(value)" alt="" />
     </div>
     <div class="send-address-input__address">
-      <p>To:</p>
+      <p v-if="!from">To:</p>
+      <p v-else>From:</p>
       <input
         ref="addressInput"
         v-model="address"
@@ -17,12 +18,6 @@
     </div>
   </div>
 </template>
-
-<script lang="ts">
-export default {
-  name: "SendAddressInput",
-};
-</script>
 
 <script setup lang="ts">
 import { replaceWithEllipsis } from "@/ui/action/utils/filters";
@@ -44,6 +39,10 @@ const props = defineProps({
   identicon: {
     type: Function,
     default: () => null,
+  },
+  from: {
+    type: Boolean,
+    default: false,
   },
 });
 

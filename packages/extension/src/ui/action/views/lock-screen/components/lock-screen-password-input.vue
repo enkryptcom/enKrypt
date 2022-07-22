@@ -13,12 +13,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "LockScreenPasswordInput",
-};
-</script>
-
 <script setup lang="ts">
 import BaseInput from "@action/components/base-input/index.vue";
 defineProps({

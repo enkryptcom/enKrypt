@@ -23,12 +23,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "DeleteAccountForm",
-};
-</script>
-
 <script setup lang="ts">
 import BaseButton from "@action/components/base-button/index.vue";
 

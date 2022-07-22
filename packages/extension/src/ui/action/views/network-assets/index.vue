@@ -11,10 +11,7 @@
           :symbol="network.currencyName"
         />
 
-        <network-activity-action
-          :deposit-action="depositAction"
-          :buy-action="buyAction"
-        />
+        <network-activity-action v-bind="$attrs" />
 
         <network-assets-item
           v-for="(item, index) in assets"
@@ -35,12 +32,6 @@
     />
   </div>
 </template>
-
-<script lang="ts">
-export default {
-  name: "NetworkAssets",
-};
-</script>
 
 <script setup lang="ts">
 import { useRoute } from "vue-router";
@@ -79,12 +70,6 @@ const { cryptoAmount, fiatAmount } = accountInfo(
 );
 const selected: string = route.params.id as string;
 
-const depositAction = () => {
-  toggleDeposit();
-};
-const buyAction = () => {
-  console.log("buyAction");
-};
 const updateAssets = () => {
   isLoading.value = true;
   props.network

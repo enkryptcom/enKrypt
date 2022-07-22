@@ -53,12 +53,6 @@ defineProps({
 });
 </script>
 
-<script lang="ts">
-export default {
-  name: "LogoMin",
-};
-</script>
-
 <style scoped>
 svg {
   display: inline-block;

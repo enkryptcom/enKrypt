@@ -13,12 +13,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "CheckPhrase",
-};
-</script>
-
 <script setup lang="ts">
 import { PropType } from "vue";
 import PhraseCheckbox from "@action/components/phrase-checkbox/index.vue";

@@ -1,11 +1,11 @@
 <template>
   <div class="network-activity__action">
     <div class="network-activity__action-wrap">
-      <a class="network-activity__action-item" @click="depositAction">
+      <a class="network-activity__action-item" @click="$emit('toggle:deposit')">
         <Deposit />Deposit
       </a>
       <div class="network-activity__action-divider"></div>
-      <a class="network-activity__action-item" @click="buyAction">
+      <a class="network-activity__action-item" @click="$emit('open:buyAction')">
         <Buy />Buy
       </a>
       <div class="network-activity__action-divider"></div>
@@ -32,14 +32,7 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "NetworkActivityAction",
-};
-</script>
-
 <script setup lang="ts">
-import { PropType } from "vue";
 import Deposit from "@action/icons/actions/deposit.vue";
 import Buy from "@action/icons/actions/buy.vue";
 import Send from "@action/icons/actions/send.vue";
@@ -47,16 +40,10 @@ import Swap from "@action/icons/actions/swap.vue";
 import { useRoute } from "vue-router";
 const route = useRoute();
 
-defineProps({
-  depositAction: {
-    type: Function as PropType<() => void>,
-    default: () => ({}),
-  },
-  buyAction: {
-    type: Function as PropType<() => void>,
-    default: () => ({}),
-  },
-});
+defineEmits<{
+  (e: "toggle:deposit"): void;
+  (e: "open:buyAction"): void;
+}>();
 </script>
 
 <style lang="less">

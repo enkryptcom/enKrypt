@@ -25,17 +25,12 @@
           :select="selectAccount"
           :active="true"
           :identicon-element="network.identicon"
+          :show-edit="showEdit"
         ></accounts-list-item>
       </custom-scrollbar>
     </div>
   </div>
 </template>
-
-<script lang="ts">
-export default {
-  name: "ModalAccounts",
-};
-</script>
 
 <script setup lang="ts">
 import { PropType } from "vue";
@@ -67,6 +62,7 @@ const props = defineProps({
     type: Object as PropType<AccountsHeaderData>,
     default: () => null,
   },
+  showEdit: Boolean,
 });
 
 const close = () => {

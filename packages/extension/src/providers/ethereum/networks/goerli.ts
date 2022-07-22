@@ -1,5 +1,6 @@
 import { NetworkNames } from "@enkryptcom/types";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
+import { RivetActivity } from "../libs/activity-handlers";
 
 const goerliOptions: EvmNetworkOptions = {
   name: NetworkNames.Goerli,
@@ -13,7 +14,7 @@ const goerliOptions: EvmNetworkOptions = {
   node: "wss://nodes.mewapi.io/ws/goerli",
   icon: require("./icons/eth.svg"),
   gradient: "#C4C4C4",
-  coingeckoID: "ethereum",
+  activityHandler: RivetActivity,
 };
 
 const goerli = new EvmNetwork(goerliOptions);

@@ -4,6 +4,7 @@ import {
   SubstrateNetwork,
   SubstrateNetworkOptions,
 } from "../../types/substrate-network";
+import { subscanActivity } from "../../libs/activity-handlers";
 
 const acalaOptions: SubstrateNetworkOptions = {
   name: NetworkNames.Acala,
@@ -21,6 +22,7 @@ const acalaOptions: SubstrateNetworkOptions = {
   coingeckoID: "acala",
   genesisHash:
     "0xfc41b9bd8ef8fe53d58c7ea67c794c7ec9a73daf05e6d54b14ff6342c99ba64c",
+  activityHandler: subscanActivity,
 };
 
 const acala = new SubstrateNetwork(acalaOptions);

@@ -15,12 +15,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "NetworkDApps",
-};
-</script>
-
 <script setup lang="ts">
 import { useRoute } from "vue-router";
 import NetworkDappsItem from "./components/network-dapps-item.vue";

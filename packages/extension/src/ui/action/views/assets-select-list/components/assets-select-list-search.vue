@@ -5,12 +5,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "AssetsSelectListSearch",
-};
-</script>
-
 <script setup lang="ts">
 import SearchIcon from "@action/icons/common/search.vue";
 </script>

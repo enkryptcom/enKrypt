@@ -39,12 +39,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "AddAccountForm",
-};
-</script>
-
 <script setup lang="ts">
 import { onMounted, PropType, ref, watch } from "vue";
 import BaseButton from "@action/components/base-button/index.vue";

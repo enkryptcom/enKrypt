@@ -20,6 +20,7 @@
           :identicon-element="network.identicon"
           :rename-action="renameAccount"
           :delete-action="deleteAccount"
+          :show-edit="true"
         ></accounts-list-item>
 
         <div class="accounts__info">
@@ -98,12 +99,6 @@
     @close="closeImportAccount"
   ></import-account>
 </template>
-
-<script lang="ts">
-export default {
-  name: "AccountsList",
-};
-</script>
 
 <script setup lang="ts">
 import AccountsSearch from "./components/accounts-search.vue";

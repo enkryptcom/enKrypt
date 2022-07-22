@@ -5,6 +5,7 @@ import {
   SubstrateNetwork,
   SubstrateNetworkOptions,
 } from "../types/substrate-network";
+import { subscanActivity } from "../libs/activity-handlers";
 
 const wndOptions: SubstrateNetworkOptions = {
   name: NetworkNames.Westend,
@@ -21,6 +22,7 @@ const wndOptions: SubstrateNetworkOptions = {
   node: "wss://westend-rpc.dwellir.com",
   genesisHash:
     "0xe143f23803ac50e8f6f8e62695d1ce9e4e1d68aa36c1cd2cfd15340213f3423e",
+  activityHandler: subscanActivity,
 };
 
 const wnd = new SubstrateNetwork(wndOptions);

@@ -34,16 +34,9 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "NetworkNFTs",
-};
-</script>
-
 <script setup lang="ts">
 import { useRoute } from "vue-router";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
-// import NetworkNftsTotal from "./components/network-nfts-total.vue";
 import NetworkNftsCategory from "./components/network-nfts-category.vue";
 import NetworkNftsFavorite from "./components/network-nfts-favorite.vue";
 import NetworkNftsHidden from "./components/network-nfts-hidden.vue";
@@ -126,17 +119,14 @@ const favClicked = async (isFav: boolean, item: NFTItem) => {
     await nftState.setFavoriteNFT(item.contract, item.id);
   } else {
     await nftState.deleteFavoriteNFT(item.contract, item.id);
-    //favoriteNFTs.value = favoriteNFTs.value.filter((i) => i.id !== item.id);
   }
   localUpdate();
 };
 const hideClicked = async (isHidden: boolean, item: NFTItem) => {
   if (isHidden) {
     await nftState.setHiddenNFT(item.contract, item.id);
-    //hiddenNFTs.value.push(item);
   } else {
     await nftState.deleteHiddenNFT(item.contract, item.id);
-    // hiddenNFTs.value = hiddenNFTs.value.filter((i) => i.id !== item.id);
   }
   localUpdate();
 };
@@ -176,9 +166,6 @@ const hideClicked = async (isHidden: boolean, item: NFTItem) => {
     }
   }
 }
-</style>
-
-<style lang="less">
 .network-nfts__scroll-area {
   .ps__rail-y {
     right: 3px !important;

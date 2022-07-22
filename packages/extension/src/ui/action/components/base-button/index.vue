@@ -14,12 +14,6 @@
   </a>
 </template>
 
-<script lang="ts">
-export default {
-  name: "BaseButton",
-};
-</script>
-
 <script setup lang="ts">
 defineProps({
   title: {

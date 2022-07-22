@@ -17,12 +17,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "SwapLooking",
-};
-</script>
-
 <script setup lang="ts">
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import LottieLookingJson from "@action/assets/animation/looking.json";

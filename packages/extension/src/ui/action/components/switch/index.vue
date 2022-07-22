@@ -5,12 +5,6 @@
   </label>
 </template>
 
-<script lang="ts">
-export default {
-  name: "Switch",
-};
-</script>
-
 <script setup lang="ts">
 const props = defineProps({
   isChecked: Boolean,

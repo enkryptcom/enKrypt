@@ -18,12 +18,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "AccountsSearch",
-};
-</script>
-
 <script setup lang="ts">
 import { ref } from "vue";
 import SearchIcon from "@action/icons/common/search.vue";

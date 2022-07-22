@@ -13,7 +13,7 @@
       </p>
     </div>
     <done-icon v-show="isChecked" class="accounts-item__checked"></done-icon>
-    <div class="accounts-item__more" @click.stop="toggleEdit">
+    <div v-if="showEdit" class="accounts-item__more" @click.stop="toggleEdit">
       <more-icon></more-icon>
     </div>
     <accounts-list-item-menu
@@ -24,12 +24,6 @@
     ></accounts-list-item-menu>
   </div>
 </template>
-
-<script lang="ts">
-export default {
-  name: "AccountsListItem",
-};
-</script>
 
 <script setup lang="ts">
 import DoneIcon from "@action/icons/common/done_icon.vue";
@@ -76,6 +70,7 @@ const props = defineProps({
     type: Function as PropType<() => void>,
     default: () => ({}),
   },
+  showEdit: Boolean,
 });
 
 const toggleEdit = () => {

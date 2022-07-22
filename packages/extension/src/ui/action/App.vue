@@ -1,5 +1,5 @@
 <template>
-  <div class="app">
+  <div class="app" :class="{ locked: isLocked }">
     <div ref="appMenuRef" class="app__menu">
       <logo-min :color="networkGradient" class="app__menu-logo" />
       <base-search :input="searchInput" :is-border="false" />
@@ -14,16 +14,25 @@
           Manage networks
         </a>
         <div>
-          <tooltip text="Lock Enkrypt">
-            <a class="app__menu-link" @click="lockAction()">
-              <hold-icon />
-            </a>
-          </tooltip>
-          <tooltip text="Settings">
-            <a class="app__menu-link" @click="settingsShow = !settingsShow">
-              <settings-icon />
-            </a>
-          </tooltip>
+          <a
+            class="app__menu-link"
+            @mouseleave="closeMoreMenu"
+            @mouseenter="toggleMoreMenu"
+          >
+            <more-icon />
+
+            <div v-show="isOpenMore" class="app__menu-dropdown">
+              <a class="app__menu-dropdown-link" @click="lockAction">
+                <hold-icon /> <span>Lock Enkrypt</span>
+              </a>
+              <a
+                class="app__menu-dropdown-link"
+                @click="settingsShow = !settingsShow"
+              >
+                <settings-icon /> <span>Settings</span>
+              </a>
+            </div>
+          </a>
         </div>
       </div>
     </div>
@@ -33,8 +42,10 @@
         v-show="showNetworkMenu"
         :account-info="accountHeaderData"
         :network="currentNetwork"
+        :show-deposit="showDepositWindow"
         @update:init="init"
         @address-changed="onSelectedAddressChanged"
+        @toggle:deposit="toggleDepositWindow"
       />
       <router-view v-slot="{ Component }" name="view">
         <transition :name="transitionName" mode="out-in">
@@ -43,6 +54,8 @@
             :network="currentNetwork"
             :account-info="accountHeaderData"
             @update:init="init"
+            @toggle:deposit="toggleDepositWindow"
+            @open:buy-action="openBuyPage"
           />
         </transition>
       </router-view>
@@ -77,14 +90,14 @@ import LogoMin from "./icons/common/logo-min.vue";
 import ManageNetworksIcon from "./icons/common/manage-networks-icon.vue";
 import SettingsIcon from "./icons/common/settings-icon.vue";
 import HoldIcon from "./icons/common/hold-icon.vue";
+import MoreIcon from "./icons/actions/more.vue";
 import AddNetwork from "./views/add-network/index.vue";
 import Settings from "./views/settings/index.vue";
-import Tooltip from "./components/tooltip/index.vue";
 import { useRouter, useRoute } from "vue-router";
 import { BaseNetwork } from "@/types/base-network";
 import {
   getAllNetworks,
-  DEFAULT_NETWORK_NAME,
+  DEFAULT_EVM_NETWORK_NAME,
   getNetworkByName,
 } from "@/libs/utils/networks";
 import DomainState from "@/libs/domain-state";
@@ -99,24 +112,30 @@ import openOnboard from "@/libs/utils/open-onboard";
 import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
 import { fromBase } from "@/libs/utils/units";
 import { EnkryptAccount } from "@enkryptcom/types";
+import Browser from "webextension-polyfill";
 
 const domainState = new DomainState();
 const networksState = new NetworksState();
 const appMenuRef = ref(null);
 const networkGradient = ref("");
+const showDepositWindow = ref(false);
 const accountHeaderData = ref<AccountsHeaderData>({
   activeAccounts: [],
   inactiveAccounts: [],
   selectedAccount: null,
   activeBalances: [],
 });
+const isOpenMore = ref(false);
+let timeout: ReturnType<typeof setTimeout> | null = null;
 defineExpose({ appMenuRef });
 const router = useRouter();
 const route = useRoute();
 const transitionName = "fade";
 
 const networks = ref<BaseNetwork[]>([]);
-const defaultNetwork = getNetworkByName(DEFAULT_NETWORK_NAME) as BaseNetwork;
+const defaultNetwork = getNetworkByName(
+  DEFAULT_EVM_NETWORK_NAME
+) as BaseNetwork;
 const currentNetwork = ref<BaseNetwork>(defaultNetwork);
 const kr = new PublicKeyRing();
 const addNetworkShow = ref(false);
@@ -138,7 +157,12 @@ const setActiveNetworks = async () => {
     setNetwork(networks.value[0]);
   }
 };
-
+const toggleDepositWindow = () => {
+  showDepositWindow.value = !showDepositWindow.value;
+};
+const openBuyPage = () => {
+  Browser.tabs.create({ url: "https://ccswap.myetherwallet.com/" });
+};
 const isKeyRingLocked = async (): Promise<boolean> => {
   return await sendToBackgroundFromAction({
     message: JSON.stringify({
@@ -267,11 +291,37 @@ const showNetworkMenu = computed(() => {
       route.name == "dapps")
   );
 });
+const isLocked = computed(() => {
+  return route.name == "lock-screen";
+});
 const searchInput = (text: string) => {
   console.log(text);
 };
-const lockAction = () => {
+const lockAction = async () => {
+  sendToBackgroundFromAction({
+    message: JSON.stringify({
+      method: InternalMethods.lock,
+    }),
+    provider: currentNetwork.value.provider,
+    tabId: await domainState.getCurrentTabId(),
+  });
   router.push({ name: "lock-screen" });
+};
+const toggleMoreMenu = () => {
+  if (timeout != null) {
+    clearTimeout(timeout);
+
+    timeout = null;
+  }
+  isOpenMore.value = true;
+};
+const closeMoreMenu = () => {
+  if (timeout != null) {
+    clearTimeout(timeout);
+  }
+  timeout = setTimeout(() => {
+    isOpenMore.value = false;
+  }, 200);
 };
 </script>
 
@@ -291,6 +341,16 @@ body {
   height: 600px;
   overflow: hidden;
   position: relative;
+  -webkit-transition: width 0.3s ease-in, height 0.3s ease-in;
+  -moz-transition: width 0.3s ease-in, height 0.3s ease-in;
+  -ms-transition: width 0.3s ease-in, height 0.3s ease-in;
+  -o-transition: width 0.3s ease-in, height 0.3s ease-in;
+  transition: width 0.3s ease-in, height 0.3s ease-in;
+
+  // &.locked {
+  //   width: 454px;
+  //   height: 397px;
+  // }
 
   &__menu {
     width: 340px;
@@ -363,6 +423,50 @@ body {
       &.active,
       &:hover {
         background: @black007;
+      }
+    }
+
+    &-dropdown {
+      padding: 4px;
+      position: relative;
+      width: 172px;
+      background: @white;
+      box-shadow: 0px 0.5px 5px rgba(0, 0, 0, 0.039),
+        0px 3.75px 11px rgba(0, 0, 0, 0.19);
+      border-radius: 12px;
+      position: absolute;
+      right: 8px;
+      bottom: 48px;
+
+      &-link {
+        width: 100%;
+        height: 48px;
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        flex-direction: row;
+        cursor: pointer;
+        transition: background 300ms ease-in-out;
+        border-radius: 8px;
+
+        &:hover,
+        &.active {
+          background: rgba(0, 0, 0, 0.04);
+        }
+
+        svg {
+          margin-right: 12px;
+          margin-left: 12px;
+        }
+
+        span {
+          font-style: normal;
+          font-weight: 400;
+          font-size: 14px;
+          line-height: 20px;
+          letter-spacing: 0.25px;
+          color: @primaryLabel;
+        }
       }
     }
   }

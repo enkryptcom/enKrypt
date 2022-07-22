@@ -20,12 +20,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "SendTokenList",
-};
-</script>
-
 <script setup lang="ts">
 import SendTokenItem from "./send-token-item.vue";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";

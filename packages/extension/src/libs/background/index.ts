@@ -24,6 +24,7 @@ import {
   changeNetwork,
   sendToTab,
   newAccount,
+  lock,
 } from "./internal";
 import { handlePersistentEvents } from "./external";
 
@@ -90,10 +91,11 @@ class BackgroundHandler {
           _provider,
           domainState.selectedNetwork
         );
-        if (providerNetwork)
+        if (providerNetwork) {
           this.#tabProviders[_provider][_tabid].setRequestProvider(
             providerNetwork
           );
+        }
       }
     }
     const isPersistent = await this.#tabProviders[_provider][
@@ -124,6 +126,8 @@ class BackgroundHandler {
         return ethereumDecrypt(this.#keyring, message);
       case InternalMethods.unlock:
         return unlock(this.#keyring, message);
+      case InternalMethods.lock:
+        return lock(this.#keyring);
       case InternalMethods.changeNetwork:
         return changeNetwork(msg, this.#tabProviders);
       case InternalMethods.isLocked:

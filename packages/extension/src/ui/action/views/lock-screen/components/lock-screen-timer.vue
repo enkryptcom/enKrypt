@@ -8,12 +8,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "LockScreenTimer",
-};
-</script>
-
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
 import LogoBig from "@action/icons/common/logo-big.vue";

@@ -79,9 +79,9 @@ import PublicKeyRing from "@/libs/keyring/public-keyring";
 import { getCurrentContext } from "@/libs/messenger/extension";
 import { VerifyTransactionParams } from "@/providers/polkadot/ui/types";
 import { ApiPromise } from "@polkadot/api";
+import { polkadotEncodeAddress } from "@/providers/polkadot/libs/signing-utils";
 import { u8aToHex } from "@polkadot/util";
 import type { SignerResult } from "@polkadot/api/types";
-import { polkadotEncodeAddress } from "@enkryptcom/utils";
 import { getNetworkByName } from "@/libs/utils/networks";
 import { TypeRegistry } from "@polkadot/types";
 import { TransactionSigner } from "../../libs/signer";
@@ -116,6 +116,7 @@ const sendAction = async () => {
   const account = await KeyRing.getAccount(
     polkadotEncodeAddress(txData.fromAddress)
   );
+
   const tx = (api.api as ApiPromise).tx(txData.TransactionData.data);
 
   try {

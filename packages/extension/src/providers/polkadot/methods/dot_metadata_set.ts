@@ -1,11 +1,11 @@
 import { MiddlewareFunction } from "@enkryptcom/types";
-import EthereumProvider from "..";
+import SubstrateProvider from "..";
 import { ProviderRPCRequest } from "@/types/provider";
 import { getCustomError } from "@/libs/error";
 import { WindowPromise } from "@/libs/window-promise";
 import { MetadataDef } from "@polkadot/extension-inject/types";
 const method: MiddlewareFunction = function (
-  this: EthereumProvider,
+  this: SubstrateProvider,
   payload: ProviderRPCRequest,
   res,
   next

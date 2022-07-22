@@ -5,12 +5,6 @@
   </a>
 </template>
 
-<script lang="ts">
-export default {
-  name: "SwapTokenFastItem",
-};
-</script>
-
 <script setup lang="ts">
 import { PropType } from "vue";
 import { AssetsType } from "@/types/provider";

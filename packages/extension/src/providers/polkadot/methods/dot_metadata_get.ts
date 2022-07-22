@@ -1,8 +1,8 @@
 import { MiddlewareFunction } from "@enkryptcom/types";
-import EthereumProvider from "..";
+import SubstrateProvider from "..";
 import MetadataStorage from "../libs/metadata-storage";
 const method: MiddlewareFunction = function (
-  this: EthereumProvider,
+  this: SubstrateProvider,
   payload,
   res,
   next

@@ -129,7 +129,10 @@ import TransactionFeeView from "@action/views/transaction-fee/index.vue";
 import { getCustomError, getError } from "@/libs/error";
 import { ErrorCodes } from "@/providers/ethereum/types";
 import { WindowPromiseHandler } from "@/libs/window-promise";
-import { DEFAULT_NETWORK_NAME, getNetworkByName } from "@/libs/utils/networks";
+import {
+  DEFAULT_EVM_NETWORK_NAME,
+  getNetworkByName,
+} from "@/libs/utils/networks";
 import {
   DecodedTx,
   EthereumTransaction,
@@ -155,7 +158,7 @@ const TokenBalance = ref<string>("~");
 const fiatValue = ref<string>("~");
 const decodedTx = ref<DecodedTx>();
 const network = ref<EvmNetwork>(
-  getNetworkByName(DEFAULT_NETWORK_NAME) as EvmNetwork
+  getNetworkByName(DEFAULT_EVM_NETWORK_NAME) as EvmNetwork
 );
 const marketdata = new MarketData();
 const gasCostValues = ref<GasFeeType>(defaultGasCostVals);

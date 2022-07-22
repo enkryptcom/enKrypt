@@ -52,7 +52,10 @@ import { ErrorCodes } from "@/providers/ethereum/types";
 import { WindowPromiseHandler } from "@/libs/window-promise";
 import { InternalMethods } from "@/types/messenger";
 import { onMounted, ref } from "vue";
-import { DEFAULT_NETWORK_NAME, getNetworkByName } from "@/libs/utils/networks";
+import {
+  DEFAULT_EVM_NETWORK_NAME,
+  getNetworkByName,
+} from "@/libs/utils/networks";
 import { ProviderRequestOptions } from "@/types/provider";
 import {
   typedSignatureHash,
@@ -64,7 +67,7 @@ import { EvmNetwork } from "../types/evm-network";
 import { EnkryptAccount } from "@enkryptcom/types";
 
 const network = ref<EvmNetwork>(
-  getNetworkByName(DEFAULT_NETWORK_NAME) as EvmNetwork
+  getNetworkByName(DEFAULT_EVM_NETWORK_NAME) as EvmNetwork
 );
 const account = ref<EnkryptAccount>({
   name: "",

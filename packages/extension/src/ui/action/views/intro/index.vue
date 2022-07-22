@@ -4,15 +4,6 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "vue";
-
-export default defineComponent({
-  name: "Intro",
-  components: {},
-});
-</script>
-
 <style lang="less" scoped>
 @import "~@action/styles/theme.less";
 @import "~@action/styles/custom-scroll.less";

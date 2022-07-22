@@ -1,4 +1,5 @@
 import { NetworkNames } from "@enkryptcom/types";
+import { EtherscanActivity } from "../libs/activity-handlers";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
 
 const moonriverOptions: EvmNetworkOptions = {
@@ -14,6 +15,7 @@ const moonriverOptions: EvmNetworkOptions = {
   icon: require("./icons/moonriver.svg"),
   gradient: "#f2b606",
   coingeckoID: "moonriver",
+  activityHandler: EtherscanActivity,
 };
 
 const moonriver = new EvmNetwork(moonriverOptions);
