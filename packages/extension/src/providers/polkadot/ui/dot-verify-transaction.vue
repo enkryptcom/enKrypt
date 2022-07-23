@@ -53,9 +53,17 @@
 
       <component :is="txView" v-bind="txViewProps" />
 
-      <p v-if="!networkIsUnknown">
-        Fee: {{ txFee ? `${formatBalance(txFee)}` : "~" }}
-      </p>
+      <div v-if="!networkIsUnknown" class="provider-verify-transaction__fee">
+        <div class="provider-verify-transaction__fee-value">
+          <p class="provider-verify-transaction__fee-value-fiat">
+            Fee: {{ txFee ? `${formatBalance(txFee)}` : "~" }}
+          </p>
+          <!-- <p class="provider-verify-transaction__fee-value-crypto">
+            0.0019
+            <span>DOT</span>
+          </p> -->
+        </div>
+      </div>
 
       <best-offer-error
         v-if="insufficientBalance"
