@@ -9,6 +9,7 @@ const browserNames = {
   firefox: "firefox",
   opera: "opera",
 };
+
 const browserConfigs = {
   [browserNames.chrome]: {
     manifest: "./src/manifest/manifest-chrome.json",
@@ -76,6 +77,7 @@ const setConfig = (config) => {
         test: /[\\/]node_modules[\\/]/,
         priority: -10,
         chunks: omitUserScripts,
+        reuseExistingChunk: true,
       },
       common: {
         name: "chunk-common",

@@ -1,3 +1,4 @@
+import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
 import { NetworkNames } from "@enkryptcom/types";
 import { RivetActivity } from "../libs/activity-handlers";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
@@ -14,7 +15,7 @@ const rinOptions: EvmNetworkOptions = {
   node: "wss://nodes.mewapi.io/ws/rinkeby",
   icon: require("./icons/eth.svg"),
   gradient: "#C4C4C4",
-  activityHandler: RivetActivity,
+  activityHandler: wrapActivityHandler(RivetActivity),
 };
 
 const rin = new EvmNetwork(rinOptions);

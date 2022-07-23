@@ -12,7 +12,6 @@
           :account="account"
           :network="network"
           v-bind="$attrs"
-          :identicon="identicon"
           :is-checked="address == account.address"
         ></send-address-item>
       </custom-scrollbar>
@@ -46,10 +45,6 @@ defineProps({
   address: {
     type: String,
     default: "",
-  },
-  identicon: {
-    type: Function as PropType<(address: string) => string>,
-    default: null,
   },
 });
 

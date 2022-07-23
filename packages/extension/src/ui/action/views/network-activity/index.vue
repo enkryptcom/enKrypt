@@ -15,7 +15,7 @@
         <div v-if="activities.length">
           <network-activity-transaction
             v-for="(item, index) in activities"
-            :key="index"
+            :key="index + forceUpdateVal"
             :activity="item"
             :network="network"
           />
@@ -42,13 +42,29 @@ import NetworkActivityTotal from "./components/network-activity-total.vue";
 import NetworkActivityAction from "./components/network-activity-action.vue";
 import NetworkActivityTransaction from "./components/network-activity-transaction.vue";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
-import { computed, onMounted, PropType, ref, toRef, watch } from "vue";
+import {
+  computed,
+  onMounted,
+  onUnmounted,
+  PropType,
+  ref,
+  toRaw,
+  toRef,
+  watch,
+} from "vue";
 import { AccountsHeaderData } from "../../types/account";
 import accountInfo from "@action/composables/account-info";
 import { BaseNetwork } from "@/types/base-network";
 import scrollSettings from "@/libs/utils/scroll-settings";
-import { Activity } from "@/types/activity";
+import {
+  Activity,
+  ActivityStatus,
+  EthereumRawInfo,
+  SubscanExtrinsicInfo,
+} from "@/types/activity";
 import NetworkActivityLoading from "./components/network-activity-loading.vue";
+import { ProviderName } from "@/types/provider";
+import ActivityState from "@/libs/activity-state";
 
 const props = defineProps({
   network: {
@@ -65,30 +81,90 @@ const { cryptoAmount, fiatAmount } = accountInfo(
   toRef(props, "network"),
   toRef(props, "accountInfo")
 );
+const forceUpdateVal = ref(0);
 const isNoActivity = ref(false);
 const activities = ref<Activity[]>([]);
 const selectedAddress = computed(
   () => props.accountInfo.selectedAccount?.address || ""
 );
+const apiPromise = props.network.api();
+const activityState = new ActivityState();
+
+const activityCheckTimers: any[] = [];
+const activityAddress = computed(() =>
+  props.network.displayAddress(props.accountInfo.selectedAccount!.address)
+);
+const updateVisibleActivity = (activity: Activity): void => {
+  activities.value.forEach((act, idx) => {
+    if (act.transactionHash === activity.transactionHash) {
+      activities.value[idx] = activity;
+    }
+  });
+  forceUpdateVal.value++;
+};
+
+const checkActivity = (activity: Activity): void => {
+  activity = toRaw(activity);
+  const timer = setInterval(() => {
+    apiPromise.then((api) => {
+      api.getTransactionStatus(activity.transactionHash).then((info) => {
+        if (info) {
+          if (props.network.provider === ProviderName.ethereum) {
+            const evmInfo = info as EthereumRawInfo;
+            activity.status = evmInfo.status
+              ? ActivityStatus.success
+              : ActivityStatus.failed;
+            activity.rawInfo = evmInfo;
+            activityState
+              .updateActivity(activity, {
+                address: activityAddress.value,
+                network: props.network.name,
+              })
+              .then(() => updateVisibleActivity(activity));
+          } else if (props.network.provider === ProviderName.polkadot) {
+            const subInfo = info as SubscanExtrinsicInfo;
+            if (subInfo.finalized) {
+              activity.status = subInfo.success
+                ? ActivityStatus.success
+                : ActivityStatus.failed;
+              activity.rawInfo = subInfo;
+              activityState
+                .updateActivity(activity, {
+                  address: activityAddress.value,
+                  network: props.network.name,
+                })
+                .then(() => updateVisibleActivity(activity));
+            }
+          }
+          clearInterval(timer);
+        }
+      });
+    });
+  }, 5000);
+  activityCheckTimers.push(timer);
+};
 const selectedNetworkName = computed(() => props.network.name);
 const setActivities = () => {
   activities.value = [];
   isNoActivity.value = false;
   if (props.accountInfo.selectedAccount)
-    props.network
-      .getAllActivity(
-        props.network.displayAddress(props.accountInfo.selectedAccount.address)
-      )
-      .then((all) => {
-        activities.value = all;
-        isNoActivity.value = all.length === 0;
+    props.network.getAllActivity(activityAddress.value).then((all) => {
+      activities.value = all;
+      isNoActivity.value = all.length === 0;
+      activities.value.forEach((act) => {
+        if (act.status === ActivityStatus.pending) checkActivity(act);
       });
+    });
   else activities.value = [];
 };
 
 watch([selectedAddress, selectedNetworkName], setActivities);
 onMounted(() => {
   setActivities();
+  activityCheckTimers.forEach((timer) => clearInterval(timer));
+});
+onUnmounted(() => {
+  activityCheckTimers.forEach((timer) => clearInterval(timer));
 });
 </script>
 
