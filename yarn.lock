@@ -2494,6 +2494,7 @@ __metadata:
     path-browserify: ^1.0.1
     prettier: ^2.4.1
     qrcode.vue: ^3.3.3
+    rimraf: ^3.0.2
     rollup: ^2.68.0
     rollup-plugin-uglify: ^6.0.4
     stream-browserify: ^3.0.0
