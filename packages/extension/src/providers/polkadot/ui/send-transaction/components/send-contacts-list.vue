@@ -29,7 +29,7 @@
               v-for="(account, index) in accountInfo.activeAccounts"
               :key="index"
               :account="account"
-              :identicon="identicon"
+              :network="network"
               v-bind="$attrs"
               :is-checked="address == account.address"
             ></send-address-item>
@@ -48,7 +48,7 @@
               v-for="(account, index) in accountInfo.activeAccounts"
               :key="index"
               :account="account"
-              :identicon="identicon"
+              :network="network"
               v-bind="$attrs"
               :is-checked="address == account.address"
             ></send-address-item>
@@ -89,6 +89,7 @@ import { onUpdated, ref } from "vue";
 import { KeyRecord } from "@enkryptcom/types";
 import PasteIcon from "@action/icons/actions/paste.vue";
 import ArrowBack from "@action/icons/common/arrow-back.vue";
+import { BaseNetwork } from "@/types/base-network";
 const emit = defineEmits<{
   (e: "update:pasteFromClipboard"): void;
   (e: "close", open: false): void;
@@ -96,9 +97,9 @@ const emit = defineEmits<{
 
 interface IProps {
   showAccounts: boolean;
-  identicon?: (address: string) => string;
   accountInfo: AccountsHeaderData;
   address: string;
+  network: BaseNetwork;
 }
 
 const props = defineProps<IProps>();

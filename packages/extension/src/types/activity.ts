@@ -10,12 +10,22 @@ interface EthereumRawInfo {
   to: string | null;
   gas: string;
   gasUsed: string;
-  status: string;
+  status: boolean;
   transactionHash: string;
   data: string;
   nonce: string;
   value: string;
   timestamp: number | undefined;
+}
+
+interface SubscanExtrinsicInfo {
+  success: boolean;
+  finalized: boolean;
+  pending: boolean;
+  extrinsic_hash: string;
+  call_module: string;
+  block_timestamp: number;
+  block_num: number;
 }
 
 interface SubstrateRawInfo {
@@ -54,7 +64,7 @@ interface Activity {
   token: BaseTokenOptions;
   status: ActivityStatus;
   type: ActivityType;
-  rawInfo: EthereumRawInfo | SubstrateRawInfo;
+  rawInfo?: EthereumRawInfo | SubstrateRawInfo | SubscanExtrinsicInfo;
 }
 
 export {
@@ -63,4 +73,5 @@ export {
   Activity,
   ActivityStatus,
   ActivityType,
+  SubscanExtrinsicInfo,
 };

@@ -9,9 +9,9 @@
 </template>
 
 <script setup lang="ts">
+import { PropType } from "vue";
 import RightArrow from "@action/icons/common/right-arrow.vue";
 import ExternalIcon from "@action/icons/common/external-icon.vue";
-import { PropType } from "vue";
 defineEmits<{
   (e: "click"): void;
 }>();
@@ -64,6 +64,11 @@ defineProps({
   justify-content: flex-start;
   align-items: center;
   flex-direction: row;
+  transition: background 300ms ease-in-out;
+
+  &:hover {
+    background: @black004;
+  }
 
   &:last-child {
     margin-bottom: 0;

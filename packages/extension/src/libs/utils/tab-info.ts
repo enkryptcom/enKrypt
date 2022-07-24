@@ -8,5 +8,6 @@ export default (tab: Tabs.Tab): ProviderRequestOptions => {
     url: tab.url || "",
     faviconURL: tab.favIconUrl || "",
     title: tab.title || "",
+    tabId: tab.id || 0,
   };
 };

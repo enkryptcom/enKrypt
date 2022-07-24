@@ -1,9 +1,8 @@
 <template>
-  <a
+  <div
     class="accounts-item"
     :class="{ disabled: !active }"
     @click="select(address)"
-    @mouseleave="closeMenu"
   >
     <img :src="identiconElement(address)" />
     <div class="accounts-item__info">
@@ -14,16 +13,16 @@
       </p>
     </div>
     <done-icon v-show="isChecked" class="accounts-item__checked"></done-icon>
-    <div v-if="showEdit" class="accounts-item__more">
-      <more-icon @mouseenter="toggleEdit"></more-icon>
+    <div v-if="showEdit" class="accounts-item__more" @click.stop="toggleEdit">
+      <more-icon></more-icon>
     </div>
     <accounts-list-item-menu
-      v-show="openEdit"
-      :rename-action="renameAction"
-      :delete-action="deleteAction"
+      v-if="openEdit"
+      :deletable="deletable"
+      v-bind="$attrs"
       @mouseleave="toggleEdit"
     ></accounts-list-item-menu>
-  </a>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -34,7 +33,7 @@ import { PropType, ref } from "vue";
 
 let openEdit = ref(false);
 
-const props = defineProps({
+defineProps({
   name: {
     type: String,
     default: "",
@@ -63,33 +62,12 @@ const props = defineProps({
     default: () => ({}),
   },
   active: Boolean,
-  renameAction: {
-    type: Function as PropType<() => void>,
-    default: () => ({}),
-  },
-  deleteAction: {
-    type: Function as PropType<() => void>,
-    default: () => ({}),
-  },
   showEdit: Boolean,
+  deletable: Boolean,
 });
 
 const toggleEdit = () => {
   openEdit.value = !openEdit.value;
-};
-
-const closeMenu = () => {
-  openEdit.value = false;
-};
-
-const renameAction = () => {
-  openEdit.value = false;
-  props.renameAction();
-};
-
-const deleteAction = () => {
-  openEdit.value = false;
-  props.deleteAction();
 };
 </script>
 
@@ -179,6 +157,7 @@ const deleteAction = () => {
     position: absolute;
     top: 16px;
     right: 12px;
+    z-index: 2;
 
     svg {
       position: static;

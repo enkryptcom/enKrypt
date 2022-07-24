@@ -1,7 +1,7 @@
 <template>
   <div class="send-address-input" :class="{ focus: isFocus }">
     <div class="send-address-input__avatar">
-      <img v-if="isAddress(value)" :src="identicon(value)" alt="" />
+      <img v-if="isAddress" :src="network.identicon(value)" alt="" />
     </div>
     <div class="send-address-input__address">
       <p v-if="!from">To:</p>
@@ -11,7 +11,7 @@
         v-model="address"
         type="text"
         placeholder="0x… address"
-        :style="{ color: !isAddress(value) ? 'red' : 'black' }"
+        :style="{ color: !isAddress ? 'red' : 'black' }"
         @focus="changeFocus"
         @blur="changeFocus"
       />
@@ -20,9 +20,10 @@
 </template>
 
 <script setup lang="ts">
+import { BaseNetwork } from "@/types/base-network";
 import { replaceWithEllipsis } from "@/ui/action/utils/filters";
 import { polkadotEncodeAddress } from "@enkryptcom/utils";
-import { computed, ref } from "vue";
+import { computed, PropType, ref } from "vue";
 
 const emit = defineEmits<{
   (e: "update:inputAddress", address: string): void;
@@ -36,13 +37,13 @@ const props = defineProps({
       return "";
     },
   },
-  identicon: {
-    type: Function,
-    default: () => null,
-  },
   from: {
     type: Boolean,
     default: false,
+  },
+  network: {
+    type: Object as PropType<BaseNetwork>,
+    default: () => ({}),
   },
 });
 
@@ -58,18 +59,22 @@ defineExpose({ addressInput, pasteFromClipboard });
 
 const address = computed({
   get: () =>
-    isFocus.value ? props.value : replaceWithEllipsis(props.value, 6, 6),
+    isFocus.value
+      ? props.value
+      : isAddress.value
+      ? replaceWithEllipsis(props.network.displayAddress(props.value), 6, 6)
+      : replaceWithEllipsis(props.value, 6, 6),
   set: (value) => emit("update:inputAddress", value),
 });
 
-const isAddress = (address: string): boolean => {
+const isAddress = computed(() => {
   try {
-    polkadotEncodeAddress(address);
+    polkadotEncodeAddress(props.value);
     return true;
   } catch {
     return false;
   }
-};
+});
 
 const changeFocus = (val: FocusEvent) => {
   isFocus.value = val.type === "focus";

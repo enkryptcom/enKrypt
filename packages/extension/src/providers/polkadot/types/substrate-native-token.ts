@@ -30,7 +30,7 @@ export class SubstrateNativeToken extends SubstrateToken {
     amount: string,
     options: SendOptions
   ): Promise<any> {
-    const transferType: TransferType = options ? options.type : "transfer";
+    const transferType: TransferType = options ? options.type : "keepAlive";
 
     switch (transferType) {
       case "transfer":

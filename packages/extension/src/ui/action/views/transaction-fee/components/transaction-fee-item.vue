@@ -93,6 +93,7 @@ const select = () => {
     height: 80px;
     border-radius: 8px;
     width: 100%;
+    transition: background 300ms ease-in-out;
 
     svg {
       width: 24px;
@@ -145,6 +146,10 @@ const select = () => {
       .transaction-fee-item__block-amount {
         display: none;
       }
+    }
+
+    &:hover {
+      background-color: @black007;
     }
   }
 }

@@ -83,5 +83,11 @@ export class KeyRingBase {
   isInitialized(): Promise<boolean> {
     return this.#keyring.isInitialized();
   }
+  renameAccount(address: string, newName: string): Promise<EnkryptAccount> {
+    return this.#keyring.renameAccount(address, newName);
+  }
+  deleteAccount(address: string): Promise<void> {
+    return this.#keyring.deleteAccount(address);
+  }
 }
 export default KeyRingBase;

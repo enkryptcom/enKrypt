@@ -37,7 +37,7 @@ export abstract class BaseToken {
     this.icon = options.icon;
     this.coingeckoID = options.coingeckoID;
     this.existentialDeposit = options.existentialDeposit;
-    this.price = options.price;
+    this.price = options.price || "0";
     this.balance = options.balance;
   }
 
