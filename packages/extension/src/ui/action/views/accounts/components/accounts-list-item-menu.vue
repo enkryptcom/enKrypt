@@ -1,9 +1,13 @@
 <template>
   <div class="accounts-item__edit">
-    <a class="accounts-item__edit-item" @click.stop="renameAction">
+    <a class="accounts-item__edit-item" @click.stop="$emit('action:rename')">
       <edit-icon /><span>Rename</span>
     </a>
-    <a class="accounts-item__edit-item" @click.stop="deleteAction">
+    <a
+      v-if="deletable"
+      class="accounts-item__edit-item"
+      @click.stop="$emit('action:delete')"
+    >
       <delete-icon /><span class="delete">Delete</span>
     </a>
   </div>
@@ -12,17 +16,12 @@
 <script setup lang="ts">
 import EditIcon from "@action/icons/actions/edit.vue";
 import DeleteIcon from "@action/icons/actions/delete.vue";
-import { PropType } from "vue";
-
+defineEmits<{
+  (e: "action:rename"): void;
+  (e: "action:delete"): void;
+}>();
 defineProps({
-  renameAction: {
-    type: Function as PropType<() => void>,
-    default: () => ({}),
-  },
-  deleteAction: {
-    type: Function as PropType<() => void>,
-    default: () => ({}),
-  },
+  deletable: Boolean,
 });
 </script>
 
@@ -32,7 +31,7 @@ defineProps({
 .accounts-item {
   &__edit {
     width: 220px;
-    height: 104px;
+    height: fit-content;
     background: @white;
     box-shadow: 0px 0.5px 5px rgba(0, 0, 0, 0.039),
       0px 3.75px 11px rgba(0, 0, 0, 0.19);

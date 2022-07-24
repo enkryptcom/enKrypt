@@ -18,8 +18,8 @@
     </div>
     <accounts-list-item-menu
       v-if="openEdit"
-      :rename-action="renameAction"
-      :delete-action="deleteAction"
+      :deletable="deletable"
+      v-bind="$attrs"
       @mouseleave="toggleEdit"
     ></accounts-list-item-menu>
   </div>
@@ -33,7 +33,7 @@ import { PropType, ref } from "vue";
 
 let openEdit = ref(false);
 
-const props = defineProps({
+defineProps({
   name: {
     type: String,
     default: "",
@@ -62,29 +62,12 @@ const props = defineProps({
     default: () => ({}),
   },
   active: Boolean,
-  renameAction: {
-    type: Function as PropType<() => void>,
-    default: () => ({}),
-  },
-  deleteAction: {
-    type: Function as PropType<() => void>,
-    default: () => ({}),
-  },
   showEdit: Boolean,
+  deletable: Boolean,
 });
 
 const toggleEdit = () => {
   openEdit.value = !openEdit.value;
-};
-
-const renameAction = () => {
-  openEdit.value = false;
-  props.renameAction();
-};
-
-const deleteAction = () => {
-  openEdit.value = false;
-  props.deleteAction();
 };
 </script>
 

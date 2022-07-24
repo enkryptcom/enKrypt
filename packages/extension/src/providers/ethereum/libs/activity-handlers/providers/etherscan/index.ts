@@ -36,7 +36,7 @@ const getAddressActivity = async (
         gas: numberToHex(tx.gas),
         gasUsed: numberToHex(tx.gasUsed),
         nonce: numberToHex(tx.nonce),
-        status: tx.isError === "0" ? "0x1" : "0x0",
+        status: tx.isError === "0" ? true : false,
         transactionHash: tx.hash,
         value: numberToHex(tx.value),
         timestamp: parseInt(tx.timeStamp) * 1000,
@@ -64,10 +64,9 @@ export default async (
         isIncoming: activity.from !== address,
         network: network.name,
         rawInfo: activity,
-        status:
-          activity.status === "0x1"
-            ? ActivityStatus.success
-            : ActivityStatus.failed,
+        status: activity.status
+          ? ActivityStatus.success
+          : ActivityStatus.failed,
         timestamp: activity.timestamp ? activity.timestamp : 0,
         value: txData.tokenValue,
         transactionHash: activity.transactionHash,

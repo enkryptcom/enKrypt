@@ -10,6 +10,7 @@ import { toChecksumAddress } from "ethereumjs-util";
 import API from "../libs/api";
 import createIcon from "../libs/blockies";
 import { NATIVE_TOKEN_ADDRESS } from "../libs/common";
+import { Erc20Token, Erc20TokenOptions } from "./erc20-token";
 
 export interface EvmNetworkOptions {
   name: NetworkNames;
@@ -33,10 +34,6 @@ export interface EvmNetworkOptions {
     network: BaseNetwork,
     address: string
   ) => Promise<AssetsType[]>;
-  tokensHandler?: (
-    network: BaseNetwork,
-    address: string
-  ) => Promise<BaseToken[]>;
   activityHandler: (
     network: BaseNetwork,
     address: string
@@ -51,12 +48,7 @@ export class EvmNetwork extends BaseNetwork {
     address: string
   ) => Promise<AssetsType[]>;
 
-  tokensHandler?: (
-    network: BaseNetwork,
-    address: string
-  ) => Promise<BaseToken[]>;
-
-  private NFTHandler?: (
+  NFTHandler?: (
     network: BaseNetwork,
     address: string
   ) => Promise<NFTCollection[]>;
@@ -88,17 +80,24 @@ export class EvmNetwork extends BaseNetwork {
 
     this.chainID = options.chainID;
     this.assetsInfoHandler = options.assetsInfoHandler;
-    this.tokensHandler = options.tokensHandler;
     this.NFTHandler = options.NFTHandler;
     this.activityHandler = options.activityHandler;
   }
 
-  public getAllTokens(address: string): Promise<BaseToken[]> {
-    if (this.tokensHandler) {
-      return this.tokensHandler(this, address);
-    }
-
-    return Promise.resolve([]);
+  public async getAllTokens(address: string): Promise<BaseToken[]> {
+    const assets = await this.getAllTokenInfo(address);
+    return assets.map((token) => {
+      const bTokenOptions: Erc20TokenOptions = {
+        decimals: token.decimals,
+        icon: token.icon,
+        name: token.name,
+        symbol: token.symbol,
+        balance: token.balance,
+        price: token.value,
+        contract: token.contract!,
+      };
+      return new Erc20Token(bTokenOptions);
+    });
   }
 
   public async getAllTokenInfo(address: string): Promise<AssetsType[]> {

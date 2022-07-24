@@ -159,29 +159,31 @@ const props = defineProps({
     default: () => ({}),
   },
 });
+const loadingAsset = new Erc20Token({
+  icon: props.network.icon,
+  symbol: "Loading",
+  balance: "0",
+  price: "0",
+  name: "loading",
+  contract: "0x0",
+  decimals: 18,
+});
 
-const addressInputFrom = ref();
 const addressInputTo = ref();
 const route = useRoute();
 const router = useRouter();
 const selected: string = route.params.id as string;
 const accountAssets = ref<Erc20Token[]>([]);
-const selectedAsset = ref<Erc20Token | Partial<Erc20Token>>(
-  new Erc20Token({
-    icon: props.network.icon,
-    symbol: "Loading",
-    balance: "0",
-    price: "0",
-    name: "loading",
-    contract: "0x0",
-    decimals: 18,
-  })
-);
+const selectedAsset = ref<Erc20Token | Partial<Erc20Token>>(loadingAsset);
 const amount = ref<string>("0.00");
 const hasEnoughBalance = computed(() => {
   return toBN(selectedAsset.value.balance || "0").gte(
-    toBN(toBase(amount.value, selectedAsset.value.decimals!))
+    toBN(toBase(sendAmount.value, selectedAsset.value.decimals!))
   );
+});
+const sendAmount = computed(() => {
+  if (amount.value && amount.value !== "") return amount.value;
+  return "0";
 });
 const isMaxSelected = ref<boolean>(false);
 const selectedFee = ref<GasPriceTypes>(GasPriceTypes.REGULAR);
@@ -190,6 +192,7 @@ const addressFrom = ref<string>("");
 const addressTo = ref<string>("");
 
 onMounted(async () => {
+  addressFrom.value = props.accountInfo.selectedAccount!.address;
   fetchAssets().then(setBaseCosts);
 });
 
@@ -197,7 +200,7 @@ const TxInfo = computed<SendTransactionDataType>(() => {
   const web3 = new Web3();
   const value =
     selectedAsset.value.contract === NATIVE_TOKEN_ADDRESS
-      ? numberToHex(toBase(amount.value || "0", props.network.decimals))
+      ? numberToHex(toBase(sendAmount.value, props.network.decimals))
       : "0x0";
   const toAddress =
     selectedAsset.value.contract === NATIVE_TOKEN_ADDRESS
@@ -210,7 +213,7 @@ const TxInfo = computed<SendTransactionDataType>(() => {
       : tokenContract.methods
           .transfer(
             addressTo.value,
-            toBase(amount.value, props.network.decimals)
+            toBase(sendAmount.value, props.network.decimals)
           )
           .encodeABI();
   return {
@@ -285,20 +288,20 @@ const setBaseCosts = () => {
   });
 };
 const fetchAssets = () => {
-  return props.network
-    .getAllTokens(props.accountInfo.selectedAccount!.address)
-    .then((allAssets) => {
-      accountAssets.value = allAssets as Erc20Token[];
-      selectedAsset.value = allAssets[0] as Erc20Token;
-    });
+  accountAssets.value = [];
+  selectedAsset.value = loadingAsset;
+  return props.network.getAllTokens(addressFrom.value).then((allAssets) => {
+    accountAssets.value = allAssets as Erc20Token[];
+    selectedAsset.value = allAssets[0] as Erc20Token;
+  });
 };
 
 const sendButtonTitle = computed(() => {
   let title = "Send";
-  if (parseInt(amount.value) > 0)
+  if (parseInt(sendAmount.value) > 0)
     title =
       "Send " +
-      formatFloatingPointValue(amount.value).value +
+      formatFloatingPointValue(sendAmount.value).value +
       " " +
       selectedAsset.value?.symbol!.toUpperCase();
   if (!isSendToken.value) {
@@ -309,7 +312,7 @@ const sendButtonTitle = computed(() => {
 
 const isInputsValid = computed<boolean>(() => {
   if (!isAddress(addressTo.value)) return false;
-  if (new BigNumber(amount.value).gt(assetMaxValue.value)) return false;
+  if (new BigNumber(sendAmount.value).gt(assetMaxValue.value)) return false;
   return true;
 });
 
@@ -380,6 +383,7 @@ const toggleSelectToken = () => {
 const selectAccountFrom = (account: string) => {
   addressFrom.value = account;
   isOpenSelectContactFrom.value = false;
+  fetchAssets();
 };
 
 const selectAccountTo = (account: string) => {
@@ -412,12 +416,15 @@ const sendAction = async () => {
   const txVerifyInfo: VerifyTransactionParams = {
     TransactionData: TxInfo.value,
     toToken: {
-      amount: amount.value,
+      amount: toBase(sendAmount.value, selectedAsset.value.decimals!),
+      decimals: selectedAsset.value.decimals!,
       icon: selectedAsset.value.icon as string,
       symbol: selectedAsset.value.symbol || "unknown",
       valueUSD: new BigNumber(selectedAsset.value.price || "0")
-        .times(amount.value)
+        .times(sendAmount.value)
         .toString(),
+      name: selectedAsset.value.name || "",
+      price: selectedAsset.value.price || "0",
     },
     fromAddress: props.accountInfo.selectedAccount!.address,
     fromAddressName: props.accountInfo.selectedAccount!.name,

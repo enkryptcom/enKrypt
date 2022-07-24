@@ -1,6 +1,6 @@
 <template>
   <div class="add-account-form__container">
-    <div class="add-account-form__overlay" @click="close"></div>
+    <div class="add-account-form__overlay" @click="$emit('window:close')"></div>
     <div class="add-account-form">
       <h3>Add new {{ network.name_long }} account</h3>
 
@@ -25,7 +25,11 @@
 
       <div class="add-account-form__buttons">
         <div class="add-account-form__buttons-cancel">
-          <base-button title="Cancel" :click="close" :no-background="true" />
+          <base-button
+            title="Cancel"
+            :click="() => $emit('window:close')"
+            :no-background="true"
+          />
         </div>
         <div class="add-account-form__buttons-send">
           <base-button
@@ -56,14 +60,11 @@ const addAccountInput = ref(null);
 
 defineExpose({ addAccountInput });
 const emit = defineEmits<{
+  (e: "window:close"): void;
   (e: "update:init"): void;
 }>();
 
 const props = defineProps({
-  close: {
-    type: Function,
-    default: () => ({}),
-  },
   network: {
     type: Object as PropType<NodeType>,
     default: () => ({}),
@@ -102,9 +103,6 @@ watch(accountName, async () => {
 });
 const changeFocus = () => {
   isFocus.value = !isFocus.value;
-};
-const close = () => {
-  props.close();
 };
 const addAccount = async () => {
   const keyReq: KeyRecordAdd = {

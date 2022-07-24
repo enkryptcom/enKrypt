@@ -1,10 +1,16 @@
 <template>
   <div class="rename-account-form__container">
-    <div class="rename-account-form__overlay" @click="close"></div>
+    <div
+      class="rename-account-form__overlay"
+      @click="$emit('window:close')"
+    ></div>
     <div class="rename-account-form">
       <h3>Rename account</h3>
 
-      <div class="rename-account-form__input" :class="{ focus: isFocus }">
+      <div
+        class="rename-account-form__input"
+        :class="{ focus: isFocus && isValidName, error: !isValidName }"
+      >
         <img :src="network.identicon(account.address || '')" />
         <input
           ref="renameAccountInput"
@@ -25,13 +31,17 @@
 
       <div class="rename-account-form__buttons">
         <div class="rename-account-form__buttons-cancel">
-          <base-button title="Cancel" :click="close" :no-background="true" />
+          <base-button
+            title="Cancel"
+            :click="() => $emit('window:close')"
+            :no-background="true"
+          />
         </div>
         <div class="rename-account-form__buttons-send">
           <base-button
             title="Rename account"
             :click="renameAccount"
-            :disabled="false"
+            :disabled="!isValidName || isProcessing"
           />
         </div>
       </div>
@@ -40,22 +50,22 @@
 </template>
 
 <script setup lang="ts">
-import { PropType, ref, onMounted } from "vue";
+import { PropType, ref, onMounted, computed } from "vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import { NodeType } from "@/types/provider";
 import { EnkryptAccount } from "@enkryptcom/types";
+import KeyRing from "@/libs/keyring/keyring";
 
 const isFocus = ref(false);
 const accountName = ref("");
 const renameAccountInput = ref(null);
-
+const isProcessing = ref(false);
 defineExpose({ renameAccountInput });
-
+const emit = defineEmits<{
+  (e: "window:close"): void;
+  (e: "update:init"): void;
+}>();
 const props = defineProps({
-  close: {
-    type: Function,
-    default: () => ({}),
-  },
   network: {
     type: Object as PropType<NodeType>,
     default: () => ({}),
@@ -65,19 +75,34 @@ const props = defineProps({
     default: () => ({}),
   },
 });
+const currentNames: string[] = [];
+const keyring = new KeyRing();
+
+const isValidName = computed(() => {
+  if (accountName.value === props.account.name) return true;
+  if (accountName.value.length < 3) return false;
+  if (currentNames.includes(accountName.value)) return false;
+  return true;
+});
+
 onMounted(() => {
   if (renameAccountInput.value) {
     (renameAccountInput.value as HTMLInputElement).focus();
   }
+  accountName.value = props.account.name;
+  keyring.getKeysArray().then((accounts) => {
+    accounts.forEach((acc) => currentNames.push(acc.name));
+  });
 });
 const changeFocus = () => {
   isFocus.value = !isFocus.value;
 };
-const close = () => {
-  props.close();
-};
 const renameAccount = () => {
-  console.log("renameAccount");
+  isProcessing.value = true;
+  keyring.renameAccount(props.account.address, accountName.value).then(() => {
+    emit("window:close");
+    emit("update:init");
+  });
 };
 </script>
 
@@ -147,6 +172,10 @@ const renameAccount = () => {
     align-items: center;
     flex-direction: row;
     margin-bottom: 16px;
+    &.error {
+      border: 2px solid @error;
+      line-height: 38px;
+    }
     &.focus {
       border: 2px solid @primary;
     }

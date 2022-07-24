@@ -44,7 +44,11 @@ const getAddressActivity = async (
       const receipt = responses[1].find(
         (r) => r.transactionHash === (item as any).hash
       );
-      if (receipt) return { ...item, ...receipt, data: (item as any).input };
+      if (receipt) {
+        receipt.status =
+          (receipt.status as unknown as string) === "0x1" ? true : false;
+        return { ...item, ...receipt, data: (item as any).input };
+      }
       return null;
     });
     allInfo = allInfo.filter((i) => i !== null);
@@ -70,10 +74,9 @@ export default async (
         isIncoming: activity.from !== address,
         network: network.name,
         rawInfo: activity,
-        status:
-          activity.status === "0x1"
-            ? ActivityStatus.success
-            : ActivityStatus.failed,
+        status: activity.status
+          ? ActivityStatus.success
+          : ActivityStatus.failed,
         timestamp: activity.timestamp ? activity.timestamp : 0,
         value: txData.tokenValue,
         transactionHash: activity.transactionHash,
