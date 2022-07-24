@@ -42,11 +42,11 @@ jobs:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
         run: |
           mkdir release
-          docker run --rm -v `pwd`:/home:rw enkrypt-build-container /bin/bash -c "cd packages/extension && yarn build:all && yarn zip"
+          docker run --rm -u $(id -u ${USER}):$(id -g ${USER}) -v `pwd`:/home:rw enkrypt-build-container /bin/bash -c "cd packages/extension && yarn build:all && yarn zip"
           mv packages/extension/dist/release.zip release/enkrypt-chrome-${{ steps.get_release_tag.outputs.VERSION }}.zip
-          docker run --rm -v `pwd`:/home:rw enkrypt-build-container /bin/bash -c "cd packages/extension && yarn build:firefox && yarn zip"
+          docker run --rm -u $(id -u ${USER}):$(id -g ${USER}) -v `pwd`:/home:rw enkrypt-build-container /bin/bash -c "cd packages/extension && yarn build:firefox && yarn zip"
           mv packages/extension/dist/release.zip release/enkrypt-firefox-${{ steps.get_release_tag.outputs.VERSION }}.zip
-          docker run --rm -v `pwd`:/home:rw enkrypt-build-container /bin/bash -c "cd packages/extension && yarn build:opera && yarn zip"
+          docker run --rm -u $(id -u ${USER}):$(id -g ${USER}) -v `pwd`:/home:rw enkrypt-build-container /bin/bash -c "cd packages/extension && yarn build:opera && yarn zip"
           mv packages/extension/dist/release.zip release/enkrypt-opera-${{ steps.get_release_tag.outputs.VERSION }}.zip
 
       - uses: "marvinpinto/action-automatic-releases@latest"
