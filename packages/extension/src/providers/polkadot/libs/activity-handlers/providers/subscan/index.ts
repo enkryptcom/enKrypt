@@ -39,7 +39,6 @@ export default async (
       .getTokenPrice(network.coingeckoID)
       .then((mdata) => (price = mdata || "0"));
   }
-  console.log(price, activities);
   return activities.map((activity) => {
     return {
       from: activity.from,

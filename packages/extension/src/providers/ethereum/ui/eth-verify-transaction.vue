@@ -150,6 +150,9 @@ import MarketData from "@/libs/market-data";
 import { defaultGasCostVals } from "./common/default-vals";
 import { EnkryptAccount } from "@enkryptcom/types";
 import { TransactionSigner } from "./libs/signer";
+import { Activity, ActivityStatus, ActivityType } from "@/types/activity";
+import { generateAddress } from "ethereumjs-util";
+import ActivityState from "@/libs/activity-state";
 
 const isOpenSelectFee = ref(false);
 const providerVerifyTransactionScrollRef = ref<ComponentPublicInstance>();
@@ -261,23 +264,62 @@ const approve = async () => {
   );
   tx.getFinalizedTransaction({ gasPriceType: selectedFee.value }).then(
     (finalizedTx) => {
+      const activityState = new ActivityState();
       TransactionSigner({
         account: account.value,
         network: network.value,
         payload: finalizedTx,
       })
         .then((tx) => {
+          const txActivity: Activity = {
+            from: account.value.address,
+            to: tx.to
+              ? tx.to.toString()
+              : `0x${generateAddress(
+                  tx.getSenderAddress().toBuffer(),
+                  tx.nonce.toBuffer()
+                ).toString("hex")}`,
+            isIncoming: tx.getSenderAddress().toString() === tx.to?.toString(),
+            network: network.value.name,
+            status: ActivityStatus.pending,
+            timestamp: new Date().getTime(),
+            token: {
+              decimals: decodedTx.value?.tokenDecimals || 18,
+              icon: decodedTx.value?.tokenImage || "",
+              name: decodedTx.value?.tokenName || "Unknown",
+              symbol: decodedTx.value?.tokenSymbol || "UKNWN",
+              price: decodedTx.value?.currentPriceUSD.toString() || "0",
+            },
+            type: ActivityType.transaction,
+            value: decodedTx.value?.tokenValue || "0x0",
+            transactionHash: "",
+          };
           web3.eth
             .sendSignedTransaction("0x" + tx.serialize().toString("hex"))
             .on("transactionHash", (hash) => {
-              Resolve.value({
-                result: JSON.stringify(hash),
-              });
+              activityState
+                .addActivities(
+                  [{ ...txActivity, ...{ transactionHash: hash } }],
+                  { address: txActivity.from, network: network.value.name }
+                )
+                .then(() => {
+                  Resolve.value({
+                    result: JSON.stringify(hash),
+                  });
+                });
             })
             .on("error", (error) => {
-              Resolve.value({
-                error: getCustomError(error.message),
-              });
+              txActivity.status = ActivityStatus.failed;
+              activityState
+                .addActivities([txActivity], {
+                  address: txActivity.from,
+                  network: network.value.name,
+                })
+                .then(() => {
+                  Resolve.value({
+                    error: getCustomError(error.message),
+                  });
+                });
             });
         })
         .catch(Resolve.value);

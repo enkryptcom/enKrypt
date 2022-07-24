@@ -15,7 +15,7 @@
         <div v-if="activities.length">
           <network-activity-transaction
             v-for="(item, index) in activities"
-            :key="index + forceUpdateVal"
+            :key="index + `${forceUpdateVal}`"
             :activity="item"
             :network="network"
           />
@@ -123,7 +123,7 @@ const checkActivity = (activity: Activity): void => {
               .then(() => updateVisibleActivity(activity));
           } else if (props.network.provider === ProviderName.polkadot) {
             const subInfo = info as SubscanExtrinsicInfo;
-            if (subInfo.finalized) {
+            if (subInfo.success) {
               activity.status = subInfo.success
                 ? ActivityStatus.success
                 : ActivityStatus.failed;

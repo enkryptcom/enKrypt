@@ -4,6 +4,7 @@ import { MethodMap } from "../types";
 
 const methodsToArgs: MethodMap = {
   "balances.transferKeepAlive": [TransferView, nativeTransfer],
+  "balances.transfer": [TransferView, nativeTransfer],
 };
 
 export default methodsToArgs;

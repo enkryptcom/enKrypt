@@ -45,7 +45,6 @@ class API implements ProviderAPIInterface {
     )
       .then((res) => res.json())
       .catch(() => null);
-    console.log(status);
     if (!status.data || status.message !== "Success") return null;
     return status.data as SubscanExtrinsicInfo;
   }

@@ -44,7 +44,6 @@ class API implements ProviderAPIInterface {
         transactionHash: tx.hash,
         value: numberToHex(tx.value),
       };
-      console.log(info);
       return info;
     } catch (e) {
       console.error(e);

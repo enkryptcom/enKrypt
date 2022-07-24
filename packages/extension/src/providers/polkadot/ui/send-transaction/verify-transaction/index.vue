@@ -180,7 +180,7 @@ const sendAction = async () => {
       setTimeout(() => {
         isProcessing.value = false;
         router.go(-2);
-      }, 4500);
+      }, 2500);
     } else {
       setTimeout(() => {
         isProcessing.value = false;

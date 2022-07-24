@@ -141,7 +141,6 @@ const sendAction = async () => {
         web3.eth
           .sendSignedTransaction("0x" + signedTx.serialize().toString("hex"))
           .on("transactionHash", (hash: string) => {
-            console.log("hash", hash);
             activityState.addActivities(
               [{ ...txActivity, ...{ transactionHash: hash } }],
               { address: txData.fromAddress, network: network.name }
@@ -160,11 +159,11 @@ const sendAction = async () => {
             }
           })
           .on("error", (error: any) => {
-            (txActivity.status = ActivityStatus.failed),
-              activityState.addActivities([txActivity], {
-                address: txData.fromAddress,
-                network: network.name,
-              });
+            txActivity.status = ActivityStatus.failed;
+            activityState.addActivities([txActivity], {
+              address: txData.fromAddress,
+              network: network.name,
+            });
             console.log("ERROR", error);
           });
       });
