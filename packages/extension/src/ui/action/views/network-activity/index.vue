@@ -56,6 +56,7 @@ import { AccountsHeaderData } from "../../types/account";
 import accountInfo from "@action/composables/account-info";
 import { BaseNetwork } from "@/types/base-network";
 import scrollSettings from "@/libs/utils/scroll-settings";
+
 import {
   Activity,
   ActivityStatus,
@@ -81,6 +82,7 @@ const { cryptoAmount, fiatAmount } = accountInfo(
   toRef(props, "network"),
   toRef(props, "accountInfo")
 );
+
 const forceUpdateVal = ref(0);
 const isNoActivity = ref(false);
 const activities = ref<Activity[]>([]);
@@ -180,6 +182,10 @@ onUnmounted(() => {
   margin: 0;
   padding-top: 0;
   box-sizing: border-box;
+
+  .deposit {
+    left: 0;
+  }
 }
 
 .network-activity {

@@ -18,9 +18,10 @@
           :select="selectAccount"
           :active="true"
           :identicon-element="network.identicon"
-          :rename-action="renameAccount"
-          :delete-action="deleteAccount"
           :show-edit="true"
+          :deletable="account.walletType !== WalletType.mnemonic"
+          @action:rename="renameAccount(index)"
+          @action:delete="deleteAccount(index)"
         ></accounts-list-item>
 
         <div class="accounts__info">
@@ -64,7 +65,7 @@
         <a
           v-if="network.signer[0] === SignerType.secp256k1"
           class="accounts__action-button import"
-          @click="importAction()"
+          @click="importAction"
         >
           <import-account-icon />
           Import account from another wallet
@@ -75,20 +76,24 @@
 
   <add-account-form
     v-if="isAddAccount"
-    :close="closeAddAccount"
-    :network="network"
     v-bind="$attrs"
+    :network="network"
+    @window:close="closeAddAccount"
   ></add-account-form>
 
   <rename-account-form
     v-if="isRenameAccount"
-    :close="closeRenameAccount"
+    v-bind="$attrs"
+    :account="accountToRename"
     :network="network"
+    @window:close="closeRenameAccount"
   ></rename-account-form>
 
   <delete-account-form
     v-if="isDeleteAccount"
-    :close="closeDeleteAccount"
+    v-bind="$attrs"
+    :account="accountToDelete"
+    @window:close="closeDeleteAccount"
   ></delete-account-form>
 
   <import-account
@@ -119,6 +124,8 @@ import { EnkryptAccount } from "@enkryptcom/types";
 import HWwallets from "@enkryptcom/hw-wallets";
 import { SignerType } from "@enkryptcom/types";
 import { BaseNetwork } from "@/types/base-network";
+import { WalletType } from "@enkryptcom/types";
+
 const emit = defineEmits<{
   (e: "addressChanged", account: EnkryptAccount): void;
 }>();
@@ -142,6 +149,9 @@ const props = defineProps({
     default: () => ({}),
   },
 });
+const accountToRename = ref<EnkryptAccount>();
+const accountToDelete = ref<EnkryptAccount>();
+
 const close = () => {
   props.toggle();
 };
@@ -166,9 +176,9 @@ const addAccountAction = () => {
 const closeAddAccount = () => {
   isAddAccount.value = false;
 };
-const renameAccount = () => {
+const renameAccount = (accountIdx: number) => {
+  accountToRename.value = props.accountInfo.activeAccounts[accountIdx];
   props.toggle();
-
   setTimeout(() => {
     isRenameAccount.value = true;
   }, 100);
@@ -176,7 +186,8 @@ const renameAccount = () => {
 const closeRenameAccount = () => {
   isRenameAccount.value = false;
 };
-const deleteAccount = () => {
+const deleteAccount = (accountIdx: number) => {
+  accountToDelete.value = props.accountInfo.activeAccounts[accountIdx];
   props.toggle();
 
   setTimeout(() => {
@@ -291,7 +302,7 @@ const closeImportAccount = () => {
     &-button {
       display: flex;
       box-sizing: border-box;
-      justify-content: space-between;
+      justify-content: flex-start;
       align-items: center;
       flex-direction: row;
       height: 40px;
@@ -309,11 +320,11 @@ const closeImportAccount = () => {
       border-radius: 10px;
 
       &.hardware {
-        width: 248px;
+        width: 100%;
       }
 
       &.import {
-        width: 289px;
+        width: 100%;
       }
 
       &.active,

@@ -80,9 +80,39 @@ describe("Keyring create tests", () => {
       name: "0index",
     };
     await keyring.unlockMnemonic(password);
-    const pair = await keyring.createKey(keyAdd);
+    const pair = await keyring.createAndSaveKey(keyAdd);
     expect(pair.signerType).equals(SignerType.secp256k1);
     expect(pair.pathIndex).equals(0);
     expect(pair.address).equals("0xf24ff3a9cf04c71dbc94d0b566f7a27b94566cac");
+    await keyring.renameAccount(pair.address, "this is a new name");
+    const newNameAccount = (await keyring.getKeysObject())[pair.address];
+    expect(newNameAccount.name).equals("this is a new name");
+    const tryToDelete = await keyring
+      .deleteAccount(pair.address)
+      .then(() => true)
+      .catch(() => false);
+    expect(tryToDelete).equals(false);
+  }).timeout(20000);
+
+  it("keyring should delete non mnemonic wallets", async () => {
+    const memStorage = new MemoryStorage();
+    const storage = new Storage("keyring", { storage: memStorage });
+    const keyring = new KeyRing(storage);
+    await keyring.init(password, { mnemonic: MNEMONIC });
+    const keyAdd: KeyRecordAdd = {
+      basePath: "m/44'/60'/0'/0",
+      signerType: SignerType.secp256k1,
+      walletType: WalletType.ledger,
+      name: "hw-wallet",
+    };
+    await keyring.unlockMnemonic(password);
+    const pair = await keyring.createAndSaveKey(keyAdd);
+    const tryToDelete = await keyring
+      .deleteAccount(pair.address)
+      .then(() => true)
+      .catch(() => false);
+    expect(tryToDelete).equals(true);
+    const deletedAccount = (await keyring.getKeysObject())[pair.address];
+    expect(deletedAccount).equals(undefined);
   }).timeout(20000);
 });

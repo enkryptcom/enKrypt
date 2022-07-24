@@ -1,6 +1,9 @@
 <template>
   <div class="delete-account-form__container">
-    <div class="delete-account-form__overlay" @click="close"></div>
+    <div
+      class="delete-account-form__overlay"
+      @click="$emit('window:close')"
+    ></div>
     <div class="delete-account-form">
       <h3>Delete account?</h3>
 
@@ -8,7 +11,11 @@
 
       <div class="delete-account-form__buttons">
         <div class="delete-account-form__buttons-cancel">
-          <base-button title="Cancel" :click="close" :no-background="true" />
+          <base-button
+            title="Cancel"
+            :click="() => $emit('window:close')"
+            :no-background="true"
+          />
         </div>
         <div class="delete-account-form__buttons-send">
           <base-button
@@ -24,20 +31,28 @@
 </template>
 
 <script setup lang="ts">
+import KeyRingBase from "@/libs/keyring/keyring";
 import BaseButton from "@action/components/base-button/index.vue";
+import { EnkryptAccount } from "@enkryptcom/types";
+import { PropType } from "vue";
+
+const emit = defineEmits<{
+  (e: "window:close"): void;
+  (e: "update:init"): void;
+}>();
 
 const props = defineProps({
-  close: {
-    type: Function,
+  account: {
+    type: Object as PropType<EnkryptAccount>,
     default: () => ({}),
   },
 });
-
-const close = () => {
-  props.close();
-};
 const deleteAccount = () => {
-  console.log("deleteAccount");
+  const keyring = new KeyRingBase();
+  keyring.deleteAccount(props.account.address).then(() => {
+    emit("window:close");
+    emit("update:init");
+  });
 };
 </script>
 
@@ -57,7 +72,7 @@ const deleteAccount = () => {
   &__container {
     width: 800px;
     height: 600px;
-    left: 0px;
+    left: -340px;
     top: 0px;
     position: fixed;
     z-index: 105;
