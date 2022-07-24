@@ -113,6 +113,7 @@ export interface ProviderRequestOptions {
   domain: string;
   faviconURL: string;
   title: string;
+  tabId: number;
 }
 export interface ProviderRPCRequest extends RPCRequestType {
   options?: ProviderRequestOptions;
