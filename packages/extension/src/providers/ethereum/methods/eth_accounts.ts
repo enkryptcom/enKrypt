@@ -17,7 +17,8 @@ const method: MiddlewareFunction = function (
 ): void {
   if (
     payload.method !== "eth_accounts" &&
-    payload.method !== "eth_requestAccounts"
+    payload.method !== "eth_requestAccounts" &&
+    payload.method !== "eth_coinbase"
   )
     return next();
   else {
@@ -47,7 +48,10 @@ const method: MiddlewareFunction = function (
           .getApprovedAddresses(_payload.options.domain)
           .then((accounts) => {
             if (accounts.length) {
-              _res(null, accounts);
+              _res(
+                null,
+                payload.method === "eth_coinbase" ? accounts[0] : accounts
+              );
               handleRemainingPromises();
             } else {
               const windowPromise = new WindowPromise();
@@ -61,7 +65,11 @@ const method: MiddlewareFunction = function (
                 )
                 .then(({ error, result }) => {
                   if (error) _res(error as any);
-                  _res(null, JSON.parse(result || "[]"));
+                  const accounts = JSON.parse(result || "[]");
+                  _res(
+                    null,
+                    payload.method === "eth_coinbase" ? accounts[0] : accounts
+                  );
                 })
                 .finally(handleRemainingPromises);
             }
