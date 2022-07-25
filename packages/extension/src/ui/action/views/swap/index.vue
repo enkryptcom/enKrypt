@@ -35,13 +35,15 @@
             ref="addressInput"
             :value="address"
             :network="network"
+            :is-valid-address="addressIsValid"
+            :is-loading="addressIsLoading"
             @update:input-address="inputAddress"
             @toggle:show-contacts="toggleSelectContact"
           ></send-address-input>
 
           <send-contacts-list
             :show-accounts="isOpenSelectContact"
-            :account-info="accountHeaderData"
+            :accounts="toAccounts"
             :address="address"
             :network="network"
             @selected:account="selectAccount"
@@ -79,7 +81,7 @@
     <assets-select-list
       v-show="toSelectOpened"
       :is-select-to-token="true"
-      :assets="toTokens"
+      :assets="toTokensFiltered"
       @close="toggleToToken"
       @update:select-asset="selectTokenTo"
     ></assets-select-list>
@@ -104,8 +106,8 @@ import SwapTokenAmountInput from "./components/swap-token-amount-input/index.vue
 import SwapTokenToAmount from "./components/swap-token-to-amount/index.vue";
 import AssetsSelectList from "@action/views/assets-select-list/index.vue";
 import SwapLooking from "./components/swap-looking/index.vue";
-import SendAddressInput from "@/providers/ethereum/ui/send-transaction/components/send-address-input.vue";
-import SendContactsList from "@/providers/ethereum/ui/send-transaction/components/send-contacts-list.vue";
+import SendAddressInput from "./components/send-address-input.vue";
+import SendContactsList from "./components/send-contacts-list.vue";
 import { AccountsHeaderData } from "../../types/account";
 import { getNetworkByName } from "@/libs/utils/networks";
 import { BaseToken } from "@/types/base-token";
@@ -115,11 +117,13 @@ import BigNumber from "bignumber.js";
 import { Rates } from "@/providers/swap/types/SwapProvider";
 import { SubstrateNetwork } from "@/providers/polkadot/types/substrate-network";
 import { UnknownToken } from "@/types/unknown-token";
+import PublicKeyRing from "@/libs/keyring/public-keyring";
+import { EnkryptAccount, SignerType } from "@enkryptcom/types";
 
 const router = useRouter();
 const route = useRoute();
-
 const swap = new Swap();
+const keyRing = new PublicKeyRing();
 
 const props = defineProps({
   network: {
@@ -133,12 +137,14 @@ const props = defineProps({
 });
 
 const address = ref<string>("");
+const addressIsValid = ref(false);
+const addressIsLoading = ref(false);
 const isOpenSelectContact = ref<boolean>(false);
 const addressInput = ref();
-const accountHeaderData = ref<AccountsHeaderData>(props.accountInfo);
+const toAccounts = ref<EnkryptAccount[]>(props.accountInfo.activeAccounts);
 
 const selected: string = route.params.id as string;
-const network = getNetworkByName(selected);
+const network = ref(getNetworkByName(selected));
 
 const fromTokens = ref<BaseToken[]>();
 const fromToken = ref<BaseToken | null>(
@@ -158,6 +164,34 @@ const rates = ref<Rates>();
 const minFrom = ref<string>();
 const maxFrom = ref<string>();
 const inputError = ref(false);
+const addressInputTimeout = ref<number>();
+
+const toTokensFiltered = computed(() => {
+  if (toTokens.value) {
+    return toTokens.value.filter((token) => {
+      const toTokenAddress = (token as any).contract
+        ? (token as any).contract.toUpperCase()
+        : undefined;
+
+      const fromTokenAddress = (fromToken.value as any).contract
+        ? (fromToken.value as any).contract.toUpperCase()
+        : undefined;
+
+      if (
+        fromTokenAddress &&
+        toTokenAddress &&
+        toTokenAddress === fromTokenAddress
+      )
+        return false;
+
+      if (props.network.name === token.symbol) return false;
+
+      return true;
+    });
+  }
+
+  return [];
+});
 
 const isFindingRate = computed(() => {
   if (rates.value) {
@@ -220,24 +254,37 @@ const toAmount = computed(() => {
 onMounted(async () => {
   props.network
     .getAllTokens(props.accountInfo.selectedAccount?.address as string)
-    .then((tokens) => {
+    .then(async (tokens) => {
+      const api = await props.network.api();
+      await api.init();
+
+      const balancePromises = tokens.map((token) => {
+        if (token.balance) {
+          return Promise.resolve(token.balance);
+        }
+
+        return token.getLatestUserBalance(
+          api.api,
+          props.accountInfo.selectedAccount?.address ?? ""
+        );
+      });
+      const pricePromises = tokens.map((token) => {
+        if (token.price) {
+          return Promise.resolve(token.price);
+        }
+        return token.getLatestPrice();
+      });
+      await Promise.all([...balancePromises, ...pricePromises].flat());
+
       fromTokens.value = tokens;
       if (tokens.length > 0) {
         fromToken.value = tokens[0];
       }
     });
 
-  swap
-    .getAllTokens(props.network.name)
-    // .then((tokens) =>
-    //   tokens.sort((a, b) => {
-    //     if (a.name > b.name) return 1;
-    //     return -1;
-    //   })
-    // )
-    .then((tokens) => {
-      toTokens.value = tokens;
-    });
+  swap.getAllTokens(props.network.name).then((tokens) => {
+    toTokens.value = tokens;
+  });
 });
 
 watch([fromToken, toToken], () => {
@@ -252,6 +299,87 @@ watch([fromToken, toToken], () => {
           maxFrom.value = preview.max;
         }
       });
+  }
+});
+
+watch([toToken, address], async () => {
+  if (toToken.value) {
+    let signerType: SignerType[] = [];
+    let toNetwork: BaseNetwork | undefined = undefined;
+
+    if ((toToken.value as any).contract) {
+      signerType = [SignerType.secp256k1];
+      toNetwork = getNetworkByName("ETH");
+    } else {
+      console.log(toToken.value.symbol);
+      switch (toToken.value.symbol.toUpperCase()) {
+        case "DOT":
+          signerType = [SignerType.sr25519, SignerType.ed25519];
+          toNetwork = getNetworkByName("DOT");
+          break;
+        case "KSM":
+          signerType = [SignerType.sr25519, SignerType.ed25519];
+          toNetwork = getNetworkByName("KSM");
+          signerType = [SignerType.sr25519, SignerType.ed25519];
+          break;
+        case "ETH":
+          signerType = [SignerType.secp256k1];
+          toNetwork = getNetworkByName("ETH");
+          break;
+        case "MATIC":
+          signerType = [SignerType.secp256k1];
+          toNetwork = getNetworkByName("MATIC");
+          console.log("toNetwork", toNetwork);
+          break;
+        case "BNB":
+          signerType = [SignerType.secp256k1];
+          toNetwork = getNetworkByName("BSC");
+          break;
+      }
+    }
+
+    if (toNetwork && signerType.length !== 0) {
+      const accounts = await keyRing.getAccounts(signerType);
+
+      const currentAccount = accounts.find(
+        (account) => account.publicKey === address.value
+      );
+
+      if (currentAccount) {
+        address.value = "";
+      }
+
+      network.value = toNetwork;
+      toAccounts.value = accounts;
+    }
+
+    addressIsLoading.value = true;
+
+    clearTimeout(addressInputTimeout.value);
+
+    // Prevents multiple API calls every time a user types something
+    addressInputTimeout.value = setTimeout(async () => {
+      if (toToken.value) {
+        let displayAddress = address.value;
+
+        try {
+          displayAddress = network.value!.displayAddress(address.value);
+        } catch {
+          displayAddress = address.value;
+        }
+        swap
+          .isValidAddress(displayAddress, toToken.value)
+          .then((isValid) => {
+            addressIsValid.value = isValid;
+          })
+          .catch(() => {
+            addressIsValid.value = false;
+          })
+          .finally(() => {
+            addressIsLoading.value = false;
+          });
+      }
+    }, 500) as any;
   }
 });
 
@@ -293,7 +421,7 @@ const isDisabled = () => {
     !!toToken.value &&
     Number(fromAmount.value) > 0 &&
     Number(toAmount.value) > 0 &&
-    address.value !== "" &&
+    addressIsValid.value &&
     !inputError.value
   ) {
     isDisabled = false;
@@ -350,8 +478,15 @@ const swapTokens = () => {
   toToken.value = tokenTo;
 };
 const inputAddress = (text: string) => {
-  console.log(text);
-  address.value = text;
+  try {
+    if (network.value) {
+      address.value = network.value?.displayAddress(text);
+    } else {
+      address.value = text;
+    }
+  } catch {
+    address.value = text;
+  }
 };
 const toggleSelectContact = (open: boolean) => {
   isOpenSelectContact.value = open;

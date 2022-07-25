@@ -17,6 +17,25 @@ export class Swap {
     new ChangellySwapProvider(),
   ];
 
+  public async isValidAddress(
+    address: string,
+    toToken: BaseToken
+  ): Promise<boolean> {
+    const promises = this.providers.map((provider) =>
+      provider.isValidAddress(address, toToken)
+    );
+
+    return Promise.all(promises).then((validations) =>
+      validations.reduce((a, b) => {
+        if (a !== undefined) {
+          return a || b;
+        } else {
+          return b;
+        }
+      })
+    );
+  }
+
   public async getAllTokens(chain: string): Promise<BaseToken[]> {
     return Promise.all(
       this.providers

@@ -31,6 +31,7 @@ import { u8aToHex } from "@polkadot/util";
 interface ChangellyTokenInfo {
   contractAddress?: string;
   fullName: string;
+  name: string;
   ticker: string;
   fixRateEnabled: boolean;
   coingeckoID?: string;
@@ -80,13 +81,57 @@ const REQUEST_TIMEOUT = 5000;
 export class ChangellySwapProvider extends SwapProvider {
   public supportedNetworks: string[] = ["KSM", "DOT", "ETH", "BSC", "MATIC"];
   public supportedDexes = ["CHANGELLY"];
+  supportedTokens: string[] = [
+    "KSM",
+    "DOT",
+    "ETH",
+    "BNB",
+    "MATIC",
+    "MATICPOLYGON",
+  ];
   constructor() {
     super();
   }
 
-  public isValidAddress(): boolean {
-    // TODO make changelly api call for address validation
-    return true;
+  public async isValidAddress(
+    address: string,
+    toToken: BaseToken
+  ): Promise<boolean> {
+    try {
+      const controller = new AbortController();
+
+      const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
+
+      const res = await fetch(`${REQUEST_CACHER}${HOST_URL}`, {
+        signal: controller.signal,
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id: uuidv4(),
+          jsonrpc: "2.0",
+          method: "validateAddress",
+          params: {
+            currency: toToken.symbol,
+            address,
+          },
+        }),
+      });
+
+      clearTimeout(timeoutId);
+
+      const data = await res.json();
+
+      if (data.result.result) {
+        return data.result.result;
+      } else {
+        return false;
+      }
+    } catch (error) {
+      console.error(error);
+      return false;
+    }
   }
 
   public async getSupportedTokens(): Promise<BaseToken[]> {
@@ -115,13 +160,31 @@ export class ChangellySwapProvider extends SwapProvider {
       const data = await res.json();
 
       const tokenData = (data.result as ChangellyTokenInfo[])
+        .filter((tokenData) =>
+          this.supportedTokens.includes(tokenData.ticker.toUpperCase())
+        )
         .filter((tokenData) => tokenData.fixRateEnabled)
         .map((tokenData) => {
-          // TODO switch with hard coded IDs
-          const coingeckoID = tokenData.fullName
-            .toLowerCase()
-            .split(" ")
-            .join("-");
+          let coingeckoID: string | undefined = undefined;
+          switch (tokenData.ticker) {
+            case "eth":
+              coingeckoID = "ethereum";
+              break;
+            case "dot":
+              coingeckoID = "polkadot";
+              break;
+            case "ksm":
+              coingeckoID = "kusama";
+              break;
+            case "bnb":
+              coingeckoID = "bnb";
+              break;
+            case "maticpolygon":
+            case "matic":
+              coingeckoID = "matic-network";
+              break;
+          }
+
           return { coingeckoID, ...tokenData };
         });
 
@@ -148,9 +211,19 @@ export class ChangellySwapProvider extends SwapProvider {
       });
 
       return tokenData.map((tokenData) => {
+        let name = tokenData.fullName;
+        let symbol = tokenData.ticker;
+
+        if (tokenData.name === "matic") {
+          name = "Ethereum Polygon";
+        } else if (tokenData.name === "maticpolygon") {
+          name = "Polygon";
+          symbol = "MATIC";
+        }
+
         const tokenOptions = {
-          name: tokenData.fullName,
-          symbol: tokenData.ticker,
+          name,
+          symbol: symbol.toUpperCase(),
           decimals: 0,
           icon: tokenData.image,
           balance: "1",

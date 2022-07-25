@@ -76,7 +76,10 @@ export abstract class SwapProvider {
     return this.supportedNetworks.includes(chainName);
   }
 
-  public abstract isValidAddress(address: string): boolean;
+  public abstract isValidAddress(
+    address: string,
+    toToken: BaseToken
+  ): Promise<boolean>;
 
   public abstract getSupportedTokens(chain: string): Promise<BaseToken[]>;
 

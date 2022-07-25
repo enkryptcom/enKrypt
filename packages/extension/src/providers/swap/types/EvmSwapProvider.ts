@@ -56,8 +56,15 @@ export class EvmSwapProvider extends SwapProvider {
     super();
   }
 
-  public isValidAddress(address: string): boolean {
-    return isAddress(address);
+  public isValidAddress(
+    address: string,
+    toToken: Erc20Token
+  ): Promise<boolean> {
+    if (toToken.contract) {
+      return Promise.resolve(isAddress(address));
+    } else {
+      return Promise.resolve(false);
+    }
   }
 
   public async getSupportedTokens(chain: string): Promise<Erc20Token[]> {
