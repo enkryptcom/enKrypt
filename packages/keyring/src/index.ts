@@ -249,6 +249,30 @@ class KeyRing {
     return hwAcc;
   }
 
+  async renameAccount(
+    address: string,
+    newName: string
+  ): Promise<EnkryptAccount> {
+    const existingKeys = await this.getKeysObject();
+    assert(existingKeys[address], Errors.KeyringErrors.AddressDoesntExists);
+    const account = existingKeys[address];
+    account.name = newName;
+    existingKeys[address] = account;
+    await this.#storage.set(configs.STORAGE_KEYS.KEY_INFO, existingKeys);
+    return account;
+  }
+
+  async deleteAccount(address: string): Promise<void> {
+    const existingKeys = await this.getKeysObject();
+    assert(existingKeys[address], Errors.KeyringErrors.AddressDoesntExists);
+    assert(
+      existingKeys[address].walletType !== WalletType.mnemonic,
+      Errors.KeyringErrors.CantRemoveMnemonicAddress
+    );
+    delete existingKeys[address];
+    await this.#storage.set(configs.STORAGE_KEYS.KEY_INFO, existingKeys);
+  }
+
   async #getPrivateKeys(
     keyringPassword: string
   ): Promise<Record<string, string>> {
@@ -301,6 +325,13 @@ class KeyRing {
     );
     await this.#saveKeyRecord(kpAcc);
     return kpAcc;
+  }
+
+  async reset(): Promise<void> {
+    const resetPromises = Object.values(configs.STORAGE_KEYS).map((name) =>
+      this.#storage.remove(name)
+    );
+    await Promise.all(resetPromises);
   }
 
   isLocked(): boolean {

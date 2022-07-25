@@ -14,12 +14,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "BestOfferList",
-};
-</script>
-
 <script setup lang="ts">
 import { QuoteInfo, TradeInfo } from "@/providers/swap/types/SwapProvider";
 import BestOfferListItem from "./best-offer-list-item.vue";

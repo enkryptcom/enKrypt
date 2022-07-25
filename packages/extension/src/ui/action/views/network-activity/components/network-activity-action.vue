@@ -39,6 +39,7 @@ import Send from "@action/icons/actions/send.vue";
 import Swap from "@action/icons/actions/swap.vue";
 import { useRoute } from "vue-router";
 const route = useRoute();
+
 defineEmits<{
   (e: "toggle:deposit"): void;
   (e: "open:buyAction"): void;

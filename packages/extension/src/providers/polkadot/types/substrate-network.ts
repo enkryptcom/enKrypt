@@ -67,6 +67,7 @@ export class SubstrateNetwork extends BaseNetwork {
     const api = async () => {
       const api = new SubstrateAPI(options.node, {
         decimals: options.decimals,
+        name: options.name,
       });
       await api.init();
       return api;

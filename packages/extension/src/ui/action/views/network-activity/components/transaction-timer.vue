@@ -9,7 +9,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from "vue";
+import { onMounted, ref } from "vue";
 import moment from "moment";
 import LottieStatusJson from "@action/assets/animation/status.json";
 
@@ -20,7 +20,7 @@ const props = defineProps({
   },
 });
 
-let timer = moment.duration(moment(props.date).diff(Date.now()));
+const timer = ref(moment.duration(moment(props.date).diff(Date.now())));
 
 onMounted(() => {
   updateTimer();
@@ -28,7 +28,7 @@ onMounted(() => {
 
 const updateTimer = () => {
   setInterval(() => {
-    timer = moment.duration(moment(props.date).diff(Date.now()));
+    timer.value = moment.duration(moment(props.date).diff(Date.now()));
   }, 1000);
 };
 </script>

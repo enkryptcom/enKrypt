@@ -1,7 +1,12 @@
 import cacheFetch from "@/libs/cache-fetch";
 import MarketData from "@/libs/market-data";
 import { toBase } from "@/libs/utils/units";
-import { Activity, ActivityStatus, SubstrateRawInfo } from "@/types/activity";
+import {
+  Activity,
+  ActivityStatus,
+  ActivityType,
+  SubstrateRawInfo,
+} from "@/types/activity";
 import { BaseNetwork } from "@/types/base-network";
 import { numberToHex } from "web3-utils";
 import { NetworkEndpoints } from "./configs";
@@ -34,7 +39,6 @@ export default async (
       .getTokenPrice(network.coingeckoID)
       .then((mdata) => (price = mdata || "0"));
   }
-  console.log(price, activities);
   return activities.map((activity) => {
     return {
       from: activity.from,
@@ -46,6 +50,7 @@ export default async (
       timestamp: activity.block_timestamp * 1000,
       value: numberToHex(toBase(activity.amount, network.decimals)),
       transactionHash: activity.hash,
+      type: ActivityType.transaction,
       token: {
         decimals: network.decimals,
         icon: network.icon,

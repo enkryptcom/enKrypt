@@ -82,12 +82,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "PasswordInputstrength",
-};
-</script>
-
 <script setup lang="ts">
 import { ref, watch } from "vue";
 import HelpIcon from "@action/icons/password/help-icon.vue";

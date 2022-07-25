@@ -10,7 +10,7 @@ interface EthereumRawInfo {
   to: string | null;
   gas: string;
   gasUsed: string;
-  status: string;
+  status: boolean;
   transactionHash: string;
   data: string;
   nonce: string;
@@ -18,10 +18,19 @@ interface EthereumRawInfo {
   timestamp: number | undefined;
 }
 
+interface SubscanExtrinsicInfo {
+  success: boolean;
+  finalized: boolean;
+  pending: boolean;
+  extrinsic_hash: string;
+  call_module: string;
+  block_timestamp: number;
+  block_num: number;
+}
+
 interface SubstrateRawInfo {
   from: string;
   to: string;
-  extrinsic_index: string;
   success: boolean;
   hash: string;
   block_num: number;
@@ -39,6 +48,11 @@ enum ActivityStatus {
   success = "success",
   failed = "failed",
 }
+
+enum ActivityType {
+  transaction = "transaction",
+}
+
 interface Activity {
   network: NetworkNames;
   from: string;
@@ -49,7 +63,15 @@ interface Activity {
   transactionHash: string;
   token: BaseTokenOptions;
   status: ActivityStatus;
-  rawInfo: EthereumRawInfo | SubstrateRawInfo;
+  type: ActivityType;
+  rawInfo?: EthereumRawInfo | SubstrateRawInfo | SubscanExtrinsicInfo;
 }
 
-export { EthereumRawInfo, SubstrateRawInfo, Activity, ActivityStatus };
+export {
+  EthereumRawInfo,
+  SubstrateRawInfo,
+  Activity,
+  ActivityStatus,
+  ActivityType,
+  SubscanExtrinsicInfo,
+};

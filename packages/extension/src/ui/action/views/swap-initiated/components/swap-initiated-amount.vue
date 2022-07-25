@@ -10,12 +10,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "SwapInitiatedAmount",
-};
-</script>
-
 <script setup lang="ts">
 import { BaseToken } from "@/types/base-token";
 import { PropType } from "vue";

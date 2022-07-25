@@ -72,12 +72,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "SwapBestOffer",
-};
-</script>
-
 <script setup lang="ts">
 import { ComponentPublicInstance, onMounted, PropType, ref, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";

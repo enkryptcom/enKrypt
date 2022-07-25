@@ -32,12 +32,6 @@ defineProps({
 });
 </script>
 
-<script lang="ts">
-export default {
-  name: "ImportAccountProcess",
-};
-</script>
-
 <style lang="less" scoped>
 @import "~@action/styles/theme.less";
 

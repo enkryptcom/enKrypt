@@ -32,12 +32,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "ModalAccounts",
-};
-</script>
-
 <script setup lang="ts">
 import { PropType } from "vue";
 import CloseIcon from "@action/icons/common/close-icon.vue";

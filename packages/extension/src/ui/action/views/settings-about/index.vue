@@ -1,8 +1,7 @@
 <template>
   <div>
     <settings-inner-header
-      :back="back"
-      :close="close"
+      v-bind="$attrs"
       :is-about="true"
     ></settings-inner-header>
 
@@ -24,38 +23,20 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "SettingsAbout",
-};
-</script>
-
 <script setup lang="ts">
-import { PropType } from "vue";
 import SettingsInnerHeader from "@action/views/settings/components/settings-inner-header.vue";
 import SettingsButton from "@action/views/settings/components/settings-button.vue";
 
-defineProps({
-  close: {
-    type: Function as PropType<() => void>,
-    default: () => ({}),
-  },
-  back: {
-    type: Function as PropType<() => void>,
-    default: () => ({}),
-  },
-});
-
 const siteAction = () => {
-  window.open("https://www.myetherwallet.com/", "blanck");
+  window.open("https://www.enkrypt.com/", "_blank");
 };
 
 const telegramAction = () => {
-  window.open("https://t.me/myetherwallet", "blanck");
+  window.open("https://t.me/myetherwallet", "_blank");
 };
 
 const twitterAction = () => {
-  window.open("https://twitter.com/myetherwallet", "blanck");
+  window.open("https://twitter.com/enkryptcom", "_blank");
 };
 </script>
 

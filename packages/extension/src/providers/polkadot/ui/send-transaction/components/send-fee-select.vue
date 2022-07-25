@@ -13,12 +13,6 @@
   </a>
 </template>
 
-<script lang="ts">
-export default {
-  name: "SendFeeSelect",
-};
-</script>
-
 <script setup lang="ts">
 import { PropType } from "vue";
 import { GasFeeInfo } from "@/providers/ethereum/ui/types";

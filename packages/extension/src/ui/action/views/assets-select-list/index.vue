@@ -47,12 +47,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "AssetsSelectList",
-};
-</script>
-
 <script setup lang="ts">
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import AssetsSelectListItem from "./components/assets-select-list-item.vue";

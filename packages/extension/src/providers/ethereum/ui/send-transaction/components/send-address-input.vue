@@ -4,7 +4,8 @@
       <img v-if="isAddress(value)" :src="network.identicon(value)" alt="" />
     </div>
     <div class="send-address-input__address">
-      <p>To:</p>
+      <p v-if="!from">To:</p>
+      <p v-else>From:</p>
       <input
         ref="addressInput"
         v-model="address"
@@ -44,6 +45,10 @@ const props = defineProps({
   network: {
     type: Object as PropType<BaseNetwork>,
     default: () => ({}),
+  },
+  from: {
+    type: Boolean,
+    default: false,
   },
 });
 const emit = defineEmits<{

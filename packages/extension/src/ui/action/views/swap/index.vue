@@ -90,12 +90,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "Swap",
-};
-</script>
-
 <script setup lang="ts">
 import { computed, onMounted, PropType, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";

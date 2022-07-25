@@ -9,6 +9,7 @@ const browserNames = {
   firefox: "firefox",
   opera: "opera",
 };
+
 const browserConfigs = {
   [browserNames.chrome]: {
     manifest: "./src/manifest/manifest-chrome.json",
@@ -60,6 +61,7 @@ const setConfig = (config) => {
     args[0]["process.env"] = {
       ..._base,
       IS_MANIFEST_V3: BROWSER === browserNames.chrome,
+      PACKAGE_VERSION: JSON.stringify(package.version),
     };
     return args;
   });
@@ -75,6 +77,7 @@ const setConfig = (config) => {
         test: /[\\/]node_modules[\\/]/,
         priority: -10,
         chunks: omitUserScripts,
+        reuseExistingChunk: true,
       },
       common: {
         name: "chunk-common",

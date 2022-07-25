@@ -30,12 +30,6 @@
   </a>
 </template>
 
-<script lang="ts">
-export default {
-  name: "SwapTokenSelect",
-};
-</script>
-
 <script setup lang="ts">
 import { ref, PropType } from "vue";
 import SwitchArrow from "@action/icons/header/switch_arrow.vue";

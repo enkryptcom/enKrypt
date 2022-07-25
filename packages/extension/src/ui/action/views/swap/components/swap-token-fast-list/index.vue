@@ -10,12 +10,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "SwapTokenFastList",
-};
-</script>
-
 <script setup lang="ts">
 import SwapTokenFastItem from "./components/swap-token-fast-item.vue";
 import { assets3 } from "@action/types/mock";

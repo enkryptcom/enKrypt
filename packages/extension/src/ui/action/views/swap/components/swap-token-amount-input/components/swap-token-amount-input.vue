@@ -12,12 +12,6 @@
   />
 </template>
 
-<script lang="ts">
-export default {
-  name: "SwapTokenAmountInput",
-};
-</script>
-
 <script setup lang="ts">
 import { computed, ref, onMounted } from "vue";
 const isFocus = ref(false);

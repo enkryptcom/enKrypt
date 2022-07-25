@@ -23,12 +23,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "NftSelectList",
-};
-</script>
-
 <script setup lang="ts">
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import NftSelectListItem from "./components/nft-select-list-item.vue";

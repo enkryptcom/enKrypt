@@ -5,6 +5,7 @@ import {
   SubstrateNetworkOptions,
 } from "../../types/substrate-network";
 import { subscanActivity } from "../../libs/activity-handlers";
+import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
 
 const karuraOptions: SubstrateNetworkOptions = {
   name: NetworkNames.Karura,
@@ -22,7 +23,7 @@ const karuraOptions: SubstrateNetworkOptions = {
   coingeckoID: "karura",
   genesisHash:
     "0xbaf5aabe40646d11f0ee8abbdc64f4a4b7674925cba08e4a05ff9ebed6e2126b",
-  activityHandler: subscanActivity,
+  activityHandler: wrapActivityHandler(subscanActivity),
 };
 
 const karura = new SubstrateNetwork(karuraOptions);

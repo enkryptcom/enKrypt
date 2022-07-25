@@ -3,9 +3,7 @@
     <template #header>
       <sign-logo color="#E6007A" class="common-popup__logo"></sign-logo>
       <div class="common-popup__network">
-        <img
-          :src="network ? network.icon : '@/ui/action/icons/raw/polkadot.png'"
-        />
+        <img :src="network ? network.icon : defaultNetwork.icon" />
         <p>{{ network ? network.name_long : "" }}</p>
       </div>
     </template>
@@ -17,13 +15,13 @@
         <div class="provider-verify-transaction__account">
           <img
             :src="
-              account
-                ? createIcon(account.address)
-                : '@/ui/action/icons/raw/account.png'
+              network
+                ? network.identicon(account!.address)
+                : defaultNetwork.icon
             "
           />
           <div class="provider-verify-transaction__account-info">
-            <h4>{{ account?.name }}</h4>
+            <h4>{{ account?.name || "" }}</h4>
             <div>
               <p v-if="userBalance">
                 {{ formatBalance(userBalance.balance) }}
@@ -31,7 +29,15 @@
               </p>
               <p v-else>~</p>
               <p>
-                {{ $filters.replaceWithEllipsis(account?.address, 4, 4) }}
+                {{
+                  network
+                    ? $filters.replaceWithEllipsis(
+                        network.displayAddress(account!.address),
+                        4,
+                        4
+                      )
+                    : $filters.replaceWithEllipsis(account?.address)
+                }}
               </p>
             </div>
           </div>
@@ -39,9 +45,7 @@
       </div>
       <div v-if="!networkIsUnknown" class="provider-verify-transaction__block">
         <div class="provider-verify-transaction__info">
-          <img
-            :src="network ? network.icon : '@/ui/action/icons/raw/polkadot.png'"
-          />
+          <img :src="network ? network.icon : defaultNetwork.icon" />
           <div class="provider-verify-transaction__info-info">
             <h4>{{ network ? network.name_long : "Loading.." }}</h4>
             <p>
@@ -51,7 +55,7 @@
         </div>
       </div>
 
-      <component :is="txView" v-bind="txViewProps" />
+      <component :is="txView" v-if="!isProcessing" v-bind="txViewProps" />
 
       <p v-if="!networkIsUnknown">
         Fee: {{ txFee ? `${formatBalance(txFee)}` : "~" }}
@@ -96,17 +100,22 @@
     </template>
 
     <template #button-left>
-      <base-button title="Decline" :click="deny" :no-background="true" />
+      <base-button
+        title="Decline"
+        :click="deny"
+        :no-background="true"
+        :disabled="isSigning"
+      />
     </template>
 
     <template #button-right>
-      <base-button title="Sign" :click="approve" />
+      <base-button title="Sign" :click="approve" :disabled="isSigning" />
     </template>
   </common-popup>
 </template>
 
 <script setup lang="ts">
-import { onBeforeMount, ref, watch } from "vue";
+import { onBeforeMount, ref, shallowRef, watch } from "vue";
 import { base64Decode } from "@polkadot/util-crypto";
 import SignLogo from "@action/icons/common/sign-logo.vue";
 import CommonPopup from "@action/views/common-popup/index.vue";
@@ -117,10 +126,14 @@ import { getError } from "@/libs/error";
 import { ErrorCodes } from "@/providers/ethereum/types";
 import { WindowPromiseHandler } from "@/libs/window-promise";
 import { TypeRegistry, Metadata } from "@polkadot/types";
-import { SignerPayloadJSON } from "@polkadot/types/types";
+import { Registry, SignerPayloadJSON } from "@polkadot/types/types";
 import MetadataStorage from "../libs/metadata-storage";
 import { CallData } from "./types";
-import { getAllNetworks } from "@/libs/utils/networks";
+import {
+  DEFAULT_SUBSTRATE_NETWORK_NAME,
+  getAllNetworks,
+  getNetworkByName,
+} from "@/libs/utils/networks";
 import { SubstrateNetwork } from "../types/substrate-network";
 import { BaseNetwork } from "@/types/base-network";
 import BlindVerifyView from "./custom-views/blind-approvetx.vue";
@@ -129,10 +142,13 @@ import { getViewAndProps } from "./custom-views";
 import SubstrateAPI from "../libs/api";
 import BigNumber from "bignumber.js";
 import { FrameSystemAccountInfo } from "@acala-network/types/interfaces/types-lookup";
-import createIcon from "../libs/blockies";
 import { ProviderRequestOptions } from "@/types/provider";
 import { EnkryptAccount } from "@enkryptcom/types";
 import { TransactionSigner } from "./libs/signer";
+import { Activity, ActivityStatus, ActivityType } from "@/types/activity";
+import { ApiPromise } from "@polkadot/api";
+import { u8aToHex } from "@polkadot/util";
+import ActivityState from "@/libs/activity-state";
 const windowPromise = WindowPromiseHandler(2);
 
 const providerVerifyTransactionScrollRef = ref(null);
@@ -140,7 +156,7 @@ const isOpenData = ref(false);
 const callData = ref<CallData>();
 const network = ref<BaseNetwork | undefined>();
 const networkIsUnknown = ref(false);
-const txView = ref<any>(BlindVerifyView);
+const txView = shallowRef<any>(BlindVerifyView);
 const account = ref<EnkryptAccount>();
 const txFee = ref<BigNumber>();
 const userBalance = ref<{ balance: BigNumber; symbol: string }>();
@@ -151,12 +167,15 @@ const Options = ref<ProviderRequestOptions>({
   title: "",
   url: "",
 });
-
+const isProcessing = ref(false);
+const isSigning = ref(false);
+const defaultNetwork = getNetworkByName(DEFAULT_SUBSTRATE_NETWORK_NAME)!;
 const metadataStorage = new MetadataStorage();
 
 const txViewProps = ref({});
 
 onBeforeMount(async () => {
+  isProcessing.value = true;
   const { Request, options } = await windowPromise;
   Options.value = options;
 
@@ -177,13 +196,18 @@ onBeforeMount(async () => {
   const metadata = await metadataStorage.getMetadata(reqPayload.genesisHash);
 
   if (metadata && metadata.metaCalls) {
-    setCallData(reqPayload, metadata.metaCalls);
-
+    const registry = new TypeRegistry();
+    registry.setMetadata(
+      new Metadata(registry, base64Decode(metadata.metaCalls))
+    );
+    registry.setSignedExtensions(reqPayload.signedExtensions);
+    setCallData(reqPayload, registry);
     if (targetNetwork && callData.value) {
       setViewAndProps(targetNetwork);
-      setBalanceAndFees(targetNetwork, reqPayload, metadata.metaCalls);
+      setBalanceAndFees(targetNetwork, reqPayload, registry);
     }
   }
+  isProcessing.value = false;
 });
 
 const setAccount = async (reqAccount: EnkryptAccount) => {
@@ -197,13 +221,8 @@ const setAccount = async (reqAccount: EnkryptAccount) => {
   account.value = reqAccount;
 };
 
-const setCallData = (reqPayload: SignerPayloadJSON, metaCalls: string) => {
-  const registry = new TypeRegistry();
-  registry.setMetadata(new Metadata(registry, base64Decode(metaCalls)));
-  registry.setSignedExtensions(reqPayload.signedExtensions);
-
+const setCallData = (reqPayload: SignerPayloadJSON, registry: Registry) => {
   const data = registry.createType("Call", reqPayload.method).toHuman();
-
   callData.value = {
     method: data.method as string,
     section: data.section as string,
@@ -219,8 +238,7 @@ const setViewAndProps = (network: BaseNetwork) => {
       fullMethod,
       callData.value.args
     );
-
-    txViewProps.value = viewProps;
+    txViewProps.value = { ...viewProps, ...{ network } };
     txView.value = view;
   }
 };
@@ -228,17 +246,12 @@ const setViewAndProps = (network: BaseNetwork) => {
 const setBalanceAndFees = (
   network: BaseNetwork,
   payload: SignerPayloadJSON,
-  metaCalls: string
+  registry: Registry
 ) => {
-  const registry = new TypeRegistry();
-  registry.setMetadata(new Metadata(registry, base64Decode(metaCalls)));
-  registry.setSignedExtensions(payload.signedExtensions);
-
-  const extrinsic = registry.createType("Extrinsic", payload, {
-    version: payload.version,
-  });
-
   (network.api() as Promise<SubstrateAPI>).then((api) => {
+    const extrinsic = registry.createType("Extrinsic", payload, {
+      version: payload.version,
+    });
     api.api
       .tx(extrinsic)
       .paymentInfo(payload.address, { era: 0 })
@@ -262,7 +275,6 @@ const formatBalance = (balance: BigNumber): string => {
   if (network.value) {
     return balance.div(new BigNumber(10 ** network.value.decimals)).toString();
   }
-
   return "~";
 };
 
@@ -280,20 +292,74 @@ const toggleData = () => {
   isOpenData.value = !isOpenData.value;
 };
 const approve = async () => {
+  isSigning.value = true;
   const { Request, Resolve } = await windowPromise;
   const registry = new TypeRegistry();
   const reqPayload = Request.value.params![0] as SignerPayloadJSON;
   registry.setSignedExtensions(reqPayload.signedExtensions);
+
   const extType = registry.createType("ExtrinsicPayload", reqPayload, {
     version: reqPayload.version,
   });
+  let txActivity: Activity;
+  if (network.value) {
+    txActivity = {
+      from: network.value.displayAddress(account.value!.address),
+      to: network.value.displayAddress(account.value!.address),
+      isIncoming: false,
+      network: network.value.name,
+      status: ActivityStatus.pending,
+      timestamp: new Date().getTime(),
+      token: {
+        decimals: network.value.decimals,
+        icon: network.value.icon,
+        name: network.value.name,
+        symbol: network.value.currencyName,
+        price: "0",
+      },
+      type: ActivityType.transaction,
+      value: "0x0",
+      transactionHash: "",
+    };
+  }
+  const activityState = new ActivityState();
   TransactionSigner({
     account: account.value!,
     network: network.value!,
     payload: extType,
   })
-    .then(Resolve.value)
-    .catch(Resolve.value);
+    .then(async (res) => {
+      if (network.value) {
+        const api = (await network.value.api()).api as ApiPromise;
+        const extrinsic = api.createType("Extrinsic", reqPayload, {
+          version: reqPayload.version,
+        });
+        const signed = extrinsic.addSignature(
+          account.value!.address,
+          JSON.parse(res.result as string),
+          reqPayload
+        );
+        await activityState.addActivities(
+          [{ ...txActivity, ...{ transactionHash: u8aToHex(signed.hash) } }],
+          {
+            address: txActivity.from,
+            network: network.value.name,
+          }
+        );
+      }
+      Resolve.value(res);
+    })
+    .catch(async (res) => {
+      if (network.value) {
+        txActivity.status = ActivityStatus.failed;
+        await activityState.addActivities([txActivity], {
+          address: txActivity.from,
+          network: network.value.name,
+        });
+      }
+      Resolve.value(res);
+    })
+    .finally(() => (isSigning.value = false));
 };
 const deny = async () => {
   const { Resolve } = await windowPromise;

@@ -83,6 +83,8 @@ import Web3 from "web3";
 import { getCurrentContext } from "@/libs/messenger/extension";
 import { getNetworkByName } from "@/libs/utils/networks";
 import { TransactionSigner } from "../../libs/signer";
+import { ActivityStatus, Activity, ActivityType } from "@/types/activity";
+import ActivityState from "@/libs/activity-state";
 
 const KeyRing = new PublicKeyRing();
 const route = useRoute();
@@ -109,7 +111,25 @@ const sendAction = async () => {
   const web3 = new Web3(network.node);
   const tx = new Transaction(txData.TransactionData, web3);
   const account = await KeyRing.getAccount(txData.fromAddress);
-
+  const txActivity: Activity = {
+    from: txData.fromAddress,
+    to: txData.toAddress,
+    isIncoming: txData.fromAddress === txData.toAddress,
+    network: network.name,
+    status: ActivityStatus.pending,
+    timestamp: new Date().getTime(),
+    token: {
+      decimals: txData.toToken.decimals,
+      icon: txData.toToken.icon,
+      name: txData.toToken.name,
+      symbol: txData.toToken.symbol,
+      price: txData.toToken.price,
+    },
+    type: ActivityType.transaction,
+    value: txData.toToken.amount,
+    transactionHash: "",
+  };
+  const activityState = new ActivityState();
   await tx
     .getFinalizedTransaction({ gasPriceType: txData.gasPriceType })
     .then(async (finalizedTx) => {
@@ -121,7 +141,10 @@ const sendAction = async () => {
         web3.eth
           .sendSignedTransaction("0x" + signedTx.serialize().toString("hex"))
           .on("transactionHash", (hash: string) => {
-            console.log("hash", hash);
+            activityState.addActivities(
+              [{ ...txActivity, ...{ transactionHash: hash } }],
+              { address: txData.fromAddress, network: network.name }
+            );
             isSendDone.value = true;
             if (getCurrentContext() === "popup") {
               setTimeout(() => {
@@ -136,6 +159,11 @@ const sendAction = async () => {
             }
           })
           .on("error", (error: any) => {
+            txActivity.status = ActivityStatus.failed;
+            activityState.addActivities([txActivity], {
+              address: txData.fromAddress,
+              network: network.name,
+            });
             console.log("ERROR", error);
           });
       });

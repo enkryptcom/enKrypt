@@ -6,22 +6,41 @@
         :toggle-type="toggleSelector"
         :is-send-token="isSendToken"
       ></send-header>
+
       <send-address-input
-        ref="addressInput"
-        :value="address"
+        ref="addressInputFrom"
+        :from="true"
+        :value="addressFrom"
         :network="network"
-        @update:input-address="inputAddress"
-        @toggle:show-contacts="toggleSelectContact"
+        @update:input-address="inputAddressFrom"
+        @toggle:show-contacts="toggleSelectContactFrom"
+      ></send-address-input>
+
+      <send-from-contacts-list
+        :show-accounts="isOpenSelectContactFrom"
+        :account-info="accountInfo"
+        :address="addressFrom"
+        :network="network"
+        @selected:account="selectAccountFrom"
+        @close="toggleSelectContactFrom"
+      ></send-from-contacts-list>
+
+      <send-address-input
+        ref="addressInputTo"
+        :value="addressTo"
+        :network="network"
+        @update:input-address="inputAddressTo"
+        @toggle:show-contacts="toggleSelectContactTo"
       ></send-address-input>
 
       <send-contacts-list
-        :show-accounts="isOpenSelectContact"
+        :show-accounts="isOpenSelectContactTo"
         :account-info="accountInfo"
-        :address="address"
+        :address="addressTo"
         :network="network"
-        @selected:account="selectAccount"
-        @update:paste-from-clipboard="addressInput.pasteFromClipboard()"
-        @close="toggleSelectContact"
+        @selected:account="selectAccountTo"
+        @update:paste-from-clipboard="addressInputTo.pasteFromClipboard()"
+        @close="toggleSelectContactTo"
       ></send-contacts-list>
 
       <send-token-select
@@ -98,6 +117,7 @@ import { ref, onMounted, PropType, computed, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import SendHeader from "./components/send-header.vue";
 import SendAddressInput from "./components/send-address-input.vue";
+import SendFromContactsList from "./components/send-from-contacts-list.vue";
 import SendContactsList from "./components/send-contacts-list.vue";
 import AssetsSelectList from "@action/views/assets-select-list/index.vue";
 import NftSelectList from "@action/views/nft-select-list/index.vue";
@@ -139,35 +159,40 @@ const props = defineProps({
     default: () => ({}),
   },
 });
+const loadingAsset = new Erc20Token({
+  icon: props.network.icon,
+  symbol: "Loading",
+  balance: "0",
+  price: "0",
+  name: "loading",
+  contract: "0x0",
+  decimals: 18,
+});
 
-const addressInput = ref();
+const addressInputTo = ref();
 const route = useRoute();
 const router = useRouter();
 const selected: string = route.params.id as string;
 const accountAssets = ref<Erc20Token[]>([]);
-const selectedAsset = ref<Erc20Token | Partial<Erc20Token>>(
-  new Erc20Token({
-    icon: props.network.icon,
-    symbol: "Loading",
-    balance: "0",
-    price: "0",
-    name: "loading",
-    contract: "0x0",
-    decimals: 18,
-  })
-);
+const selectedAsset = ref<Erc20Token | Partial<Erc20Token>>(loadingAsset);
 const amount = ref<string>("0.00");
 const hasEnoughBalance = computed(() => {
   return toBN(selectedAsset.value.balance || "0").gte(
-    toBN(toBase(amount.value, selectedAsset.value.decimals!))
+    toBN(toBase(sendAmount.value, selectedAsset.value.decimals!))
   );
+});
+const sendAmount = computed(() => {
+  if (amount.value && amount.value !== "") return amount.value;
+  return "0";
 });
 const isMaxSelected = ref<boolean>(false);
 const selectedFee = ref<GasPriceTypes>(GasPriceTypes.REGULAR);
 const gasCostValues = ref<GasFeeType>(defaultGasCostVals);
-const address = ref<string>("");
+const addressFrom = ref<string>("");
+const addressTo = ref<string>("");
 
 onMounted(async () => {
+  addressFrom.value = props.accountInfo.selectedAccount!.address;
   fetchAssets().then(setBaseCosts);
 });
 
@@ -175,18 +200,21 @@ const TxInfo = computed<SendTransactionDataType>(() => {
   const web3 = new Web3();
   const value =
     selectedAsset.value.contract === NATIVE_TOKEN_ADDRESS
-      ? numberToHex(toBase(amount.value || "0", props.network.decimals))
+      ? numberToHex(toBase(sendAmount.value, props.network.decimals))
       : "0x0";
   const toAddress =
     selectedAsset.value.contract === NATIVE_TOKEN_ADDRESS
-      ? address.value
+      ? addressTo.value
       : selectedAsset.value.contract;
   const tokenContract = new web3.eth.Contract(erc20 as any);
   const data =
     selectedAsset.value.contract === NATIVE_TOKEN_ADDRESS
       ? "0x"
       : tokenContract.methods
-          .transfer(address.value, toBase(amount.value, props.network.decimals))
+          .transfer(
+            addressTo.value,
+            toBase(sendAmount.value, props.network.decimals)
+          )
           .encodeABI();
   return {
     chainId: numberToHex(props.network.chainID) as `0x{string}`,
@@ -260,20 +288,20 @@ const setBaseCosts = () => {
   });
 };
 const fetchAssets = () => {
-  return props.network
-    .getAllTokens(props.accountInfo.selectedAccount!.address)
-    .then((allAssets) => {
-      accountAssets.value = allAssets as Erc20Token[];
-      selectedAsset.value = allAssets[0] as Erc20Token;
-    });
+  accountAssets.value = [];
+  selectedAsset.value = loadingAsset;
+  return props.network.getAllTokens(addressFrom.value).then((allAssets) => {
+    accountAssets.value = allAssets as Erc20Token[];
+    selectedAsset.value = allAssets[0] as Erc20Token;
+  });
 };
 
 const sendButtonTitle = computed(() => {
   let title = "Send";
-  if (parseInt(amount.value) > 0)
+  if (parseInt(sendAmount.value) > 0)
     title =
       "Send " +
-      formatFloatingPointValue(amount.value).value +
+      formatFloatingPointValue(sendAmount.value).value +
       " " +
       selectedAsset.value?.symbol!.toUpperCase();
   if (!isSendToken.value) {
@@ -283,18 +311,19 @@ const sendButtonTitle = computed(() => {
 });
 
 const isInputsValid = computed<boolean>(() => {
-  if (!isAddress(address.value)) return false;
-  if (new BigNumber(amount.value).gt(assetMaxValue.value)) return false;
+  if (!isAddress(addressTo.value)) return false;
+  if (new BigNumber(sendAmount.value).gt(assetMaxValue.value)) return false;
   return true;
 });
 
-watch([isInputsValid, amount, address, selectedAsset], () => {
+watch([isInputsValid, amount, addressTo, selectedAsset], () => {
   if (isInputsValid.value) {
     setTransactionFees(Tx.value);
   }
 });
 
-const isOpenSelectContact = ref<boolean>(false);
+const isOpenSelectContactFrom = ref<boolean>(false);
+const isOpenSelectContactTo = ref<boolean>(false);
 const isOpenSelectToken = ref<boolean>(false);
 
 const isOpenSelectFee = ref<boolean>(false);
@@ -331,21 +360,35 @@ const setMaxValue = () => {
   isMaxSelected.value = true;
   amount.value = assetMaxValue.value;
 };
-const inputAddress = (text: string) => {
-  address.value = text;
+const inputAddressFrom = (text: string) => {
+  addressFrom.value = text;
 };
 
-const toggleSelectContact = (open: boolean) => {
-  isOpenSelectContact.value = open;
+const inputAddressTo = (text: string) => {
+  addressTo.value = text;
+};
+
+const toggleSelectContactFrom = (open: boolean) => {
+  isOpenSelectContactFrom.value = open;
+};
+
+const toggleSelectContactTo = (open: boolean) => {
+  isOpenSelectContactTo.value = open;
 };
 
 const toggleSelectToken = () => {
   isOpenSelectToken.value = !isOpenSelectToken.value;
 };
 
-const selectAccount = (account: string) => {
-  address.value = account;
-  isOpenSelectContact.value = false;
+const selectAccountFrom = (account: string) => {
+  addressFrom.value = account;
+  isOpenSelectContactFrom.value = false;
+  fetchAssets();
+};
+
+const selectAccountTo = (account: string) => {
+  addressTo.value = account;
+  isOpenSelectContactTo.value = false;
 };
 
 const selectToken = (token: Erc20Token) => {
@@ -373,18 +416,21 @@ const sendAction = async () => {
   const txVerifyInfo: VerifyTransactionParams = {
     TransactionData: TxInfo.value,
     toToken: {
-      amount: amount.value,
+      amount: toBase(sendAmount.value, selectedAsset.value.decimals!),
+      decimals: selectedAsset.value.decimals!,
       icon: selectedAsset.value.icon as string,
       symbol: selectedAsset.value.symbol || "unknown",
       valueUSD: new BigNumber(selectedAsset.value.price || "0")
-        .times(amount.value)
+        .times(sendAmount.value)
         .toString(),
+      name: selectedAsset.value.name || "",
+      price: selectedAsset.value.price || "0",
     },
     fromAddress: props.accountInfo.selectedAccount!.address,
     fromAddressName: props.accountInfo.selectedAccount!.name,
     gasFee: gasCostValues.value[selectedFee.value],
     gasPriceType: selectedFee.value,
-    toAddress: address.value,
+    toAddress: addressTo.value,
   };
 
   const routedRoute = router.resolve({

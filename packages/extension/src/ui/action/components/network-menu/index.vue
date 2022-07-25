@@ -31,12 +31,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "NetworkMenu",
-};
-</script>
-
 <script setup lang="ts">
 import Activity from "@action/icons/tabs/activity.vue";
 import Assets from "@action/icons/tabs/assets.vue";

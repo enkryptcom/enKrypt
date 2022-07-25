@@ -9,21 +9,40 @@
       </div>
 
       <send-address-input
-        ref="addressInput"
-        :value="address"
-        :identicon="identicon"
-        @update:input-address="inputAddress"
-        @toggle:show-contacts="toggleSelectContact"
+        ref="addressInputFrom"
+        :from="true"
+        :value="addressFrom"
+        :network="network"
+        @update:input-address="inputAddressFrom"
+        @toggle:show-contacts="toggleSelectContactFrom"
+      ></send-address-input>
+
+      <send-from-contacts-list
+        :show-accounts="isOpenSelectContactFrom"
+        :account-info="accountInfo"
+        :address="addressFrom"
+        :network="network"
+        :identicon="network.identicon"
+        @selected:account="selectAccountFrom"
+        @close="toggleSelectContactFrom"
+      ></send-from-contacts-list>
+
+      <send-address-input
+        ref="addressInputTo"
+        :value="addressTo"
+        :network="network"
+        @update:input-address="inputAddressTo"
+        @toggle:show-contacts="toggleSelectContactTo"
       ></send-address-input>
 
       <send-contacts-list
-        :show-accounts="isOpenSelectContact"
-        :active-network="props.network"
+        :show-accounts="isOpenSelectContactTo"
         :account-info="accountInfo"
-        :identicon="identicon"
-        @selected:account="selectAccount"
-        @update:paste-from-clipboard="addressInput.pasteFromClipboard()"
-        @close="toggleSelectContact"
+        :network="network"
+        :address="accountInfo.selectedAccount!.address"
+        @selected:account="selectAccountTo"
+        @update:paste-from-clipboard="addressInputTo.pasteFromClipboard()"
+        @close="toggleSelectContactTo"
       ></send-contacts-list>
 
       <send-token-select
@@ -67,18 +86,13 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "SendTransaction",
-};
-</script>
-
 <script setup lang="ts">
 import { computed, onMounted, PropType, ref, shallowRef, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import SendAddressInput from "./components/send-address-input.vue";
 import SendContactsList from "./components/send-contacts-list.vue";
+import SendFromContactsList from "./components/send-from-contacts-list.vue";
 import SendTokenSelect from "./components/send-token-select.vue";
 import AssetsSelectList from "@action/views/assets-select-list/index.vue";
 import SendInputAmount from "./components/send-input-amount.vue";
@@ -92,7 +106,6 @@ import { GasFeeInfo } from "@/providers/ethereum/ui/types";
 import { SubstrateNetwork } from "../../types/substrate-network";
 import { toBN } from "web3-utils";
 import { formatFloatingPointValue } from "@/libs/utils/number-formatter";
-import createIcon from "../../libs/blockies";
 import { ProviderName } from "@/types/provider";
 import { fromBase, toBase } from "@/libs/utils/units";
 import BigNumber from "bignumber.js";
@@ -117,11 +130,13 @@ const props = defineProps({
 
 const route = useRoute();
 const router = useRouter();
-const identicon = createIcon;
 
-const addressInput = ref();
-const isOpenSelectContact = ref(false);
-const address = ref("");
+const addressInputTo = ref();
+const addressInputFrom = ref();
+const isOpenSelectContactFrom = ref(false);
+const isOpenSelectContactTo = ref(false);
+const addressFrom = ref("");
+const addressTo = ref("");
 const isOpenSelectToken = ref(false);
 const amount = ref("0");
 const fee = ref<GasFeeInfo | null>(null);
@@ -144,10 +159,9 @@ const sendMax = ref(false);
 const selected: string = route.params.id as string;
 
 onMounted(async () => {
-  props.accountInfo.activeAccounts.forEach((account) => {
-    account.address = props.network.displayAddress(account.address);
-  });
-
+  addressFrom.value = props.network.displayAddress(
+    props.accountInfo.selectedAccount!.address
+  );
   const networkApi = await props.network.api();
   networkApi.init().then(async () => {
     api.value = networkApi as SubstrateApi;
@@ -175,8 +189,8 @@ onMounted(async () => {
   });
 });
 
-watch([selectedAsset, amount, address], async () => {
-  if (selectedAsset.value && amount.value && address.value && api.value) {
+watch([selectedAsset, amount, addressTo], async () => {
+  if (selectedAsset.value && amount.value && addressTo.value && api.value) {
     await api.value.api.isReady;
     const rawAmount = toBN(
       toBase(amount.value.toString(), selectedAsset.value.decimals!)
@@ -196,7 +210,7 @@ watch([selectedAsset, amount, address], async () => {
 
     const tx = await selectedAsset.value.send!(
       api.value.api,
-      address.value,
+      addressTo.value,
       rawAmount.toString(),
       sendOptions
     );
@@ -236,21 +250,34 @@ const close = () => {
   router.go(-1);
 };
 
-const inputAddress = (text: string) => {
-  address.value = text;
+const inputAddressFrom = (text: string) => {
+  addressFrom.value = text;
 };
 
-const toggleSelectContact = (open: boolean) => {
-  isOpenSelectContact.value = open;
+const inputAddressTo = (text: string) => {
+  addressTo.value = text;
+};
+
+const toggleSelectContactFrom = (open: boolean) => {
+  isOpenSelectContactFrom.value = open;
+};
+
+const toggleSelectContactTo = (open: boolean) => {
+  isOpenSelectContactTo.value = open;
 };
 
 const toggleSelectToken = () => {
   isOpenSelectToken.value = !isOpenSelectToken.value;
 };
 
-const selectAccount = (account: string) => {
-  address.value = account;
-  isOpenSelectContact.value = false;
+const selectAccountFrom = (account: string) => {
+  addressFrom.value = account;
+  isOpenSelectContactFrom.value = false;
+};
+
+const selectAccountTo = (account: string) => {
+  addressTo.value = account;
+  isOpenSelectContactTo.value = false;
 };
 
 const selectToken = (token: SubstrateToken | Partial<SubstrateToken>) => {
@@ -291,7 +318,7 @@ const isDisabled = () => {
   let addressIsValid = false;
 
   try {
-    props.network.displayAddress(address.value);
+    props.network.displayAddress(addressTo.value);
     addressIsValid = true;
   } catch {
     addressIsValid = false;
@@ -311,7 +338,7 @@ const sendAction = async () => {
   await api.value?.api.isReady;
   const tx = await selectedAsset.value?.send!(
     api.value!.api as ApiPromise,
-    address.value,
+    addressTo.value,
     sendAmount,
     sendOptions
   );
@@ -319,22 +346,25 @@ const sendAction = async () => {
   const txVerifyInfo: VerifyTransactionParams = {
     TransactionData: {
       from: props.accountInfo.selectedAccount!.address,
-      to: address.value,
+      to: addressTo.value,
       data: tx.toHex() as `0x{string}`,
       value: amount.value,
     },
     toToken: {
-      amount: amount.value,
+      amount: toBase(amount.value, selectedAsset.value.decimals!),
+      decimals: selectedAsset.value.decimals!,
       icon: selectedAsset.value.icon as string,
       symbol: selectedAsset.value.symbol || "unknown",
       valueUSD: new BigNumber(selectedAsset.value.price || "0")
         .times(amount.value)
         .toFixed(),
+      name: selectedAsset.value.name || "",
+      price: selectedAsset.value.price || "0",
     },
     fromAddress: props.accountInfo.selectedAccount!.address,
     fromAddressName: props.accountInfo.selectedAccount!.name,
     txFee: fee.value!,
-    toAddress: address.value,
+    toAddress: addressTo.value,
   };
 
   const routedRoute = router.resolve({

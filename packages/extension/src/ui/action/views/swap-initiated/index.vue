@@ -33,12 +33,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "SwapInitiated",
-};
-</script>
-
 <script setup lang="ts">
 import LottieSwapInitiated from "@action/assets/animation/swap-initiated.json";
 import ArrowDown from "@action/icons/send/arrow-down.vue";

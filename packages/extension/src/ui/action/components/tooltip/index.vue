@@ -8,12 +8,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "Tooltip",
-};
-</script>
-
 <script setup lang="ts">
 import { ref } from "vue";
 
@@ -21,6 +15,8 @@ const show = ref(false);
 const positionX = ref(0);
 const positionY = ref(0);
 const visible = ref(false);
+
+let timeout: ReturnType<typeof setTimeout> | null = null;
 
 defineProps({
   text: {
@@ -30,20 +26,31 @@ defineProps({
 });
 
 const onHover = (e: any) => {
-  const { pageX, pageY } = e;
-
-  if (!show.value) {
-    show.value = true;
-    positionX.value = pageX;
-    positionY.value = pageY;
-
-    setTimeout(() => {
-      visible.value = true;
-    }, 50);
+  if (timeout != null) {
+    clearTimeout(timeout);
   }
+
+  timeout = setTimeout(() => {
+    const { pageX, pageY } = e;
+
+    if (!show.value) {
+      show.value = true;
+      positionX.value = pageX;
+      positionY.value = pageY;
+
+      setTimeout(() => {
+        visible.value = true;
+      }, 50);
+    }
+  }, 700);
 };
 
 const onHide = () => {
+  if (timeout != null) {
+    clearTimeout(timeout);
+
+    timeout = null;
+  }
   if (visible.value) {
     visible.value = false;
 
@@ -82,16 +89,19 @@ const classObject = () => {
   font-size: 0;
 
   &__wrap {
-    padding: 8px 12px;
+    padding: 4px 8px;
     position: absolute;
-    background: @secondaryLabel;
-    border-radius: 8px;
+    background: @buttonBg;
+    border: 0.5px solid rgba(0, 0, 0, 0.16);
+    box-shadow: 0px 1px 3px -2px rgba(0, 0, 0, 0.1),
+      0px 2px 5px rgba(0, 0, 0, 0.12);
+    border-radius: 6px;
     font-style: normal;
     font-weight: 400;
-    font-size: 14px;
-    line-height: 20px;
+    font-size: 12px;
+    line-height: 16px;
     letter-spacing: 0.25px;
-    color: @white;
+    color: @secondaryLabel;
     white-space: nowrap;
     box-sizing: border-box;
     z-index: 131;
@@ -103,19 +113,19 @@ const classObject = () => {
     }
 
     &.normal {
-      top: -100%;
+      top: calc(~"-100% + 8px");
       left: 50%;
       transform: translateX(-50%) translateY(0px);
     }
 
     &.right-bottom {
-      top: calc(~"100% + 4px");
+      top: calc(~"100% + 3px");
       right: 0;
       transform: translateX(0) translateY(0px);
     }
 
     &.bottom {
-      top: calc(~"100% + 4px");
+      top: calc(~"100% + 3px");
       left: 50%;
       transform: translateX(-50%) translateY(0px);
     }

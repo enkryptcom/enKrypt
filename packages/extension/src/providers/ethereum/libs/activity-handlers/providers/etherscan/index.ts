@@ -1,6 +1,11 @@
 import cacheFetch from "@/libs/cache-fetch";
 import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
-import { Activity, ActivityStatus, EthereumRawInfo } from "@/types/activity";
+import {
+  Activity,
+  ActivityStatus,
+  ActivityType,
+  EthereumRawInfo,
+} from "@/types/activity";
 import { BaseNetwork } from "@/types/base-network";
 import { numberToHex } from "web3-utils";
 import { decodeTx } from "../../../transaction/decoder";
@@ -31,7 +36,7 @@ const getAddressActivity = async (
         gas: numberToHex(tx.gas),
         gasUsed: numberToHex(tx.gasUsed),
         nonce: numberToHex(tx.nonce),
-        status: tx.isError === "0" ? "0x1" : "0x0",
+        status: tx.isError === "0" ? true : false,
         transactionHash: tx.hash,
         value: numberToHex(tx.value),
         timestamp: parseInt(tx.timeStamp) * 1000,
@@ -59,13 +64,13 @@ export default async (
         isIncoming: activity.from !== address,
         network: network.name,
         rawInfo: activity,
-        status:
-          activity.status === "0x1"
-            ? ActivityStatus.success
-            : ActivityStatus.failed,
+        status: activity.status
+          ? ActivityStatus.success
+          : ActivityStatus.failed,
         timestamp: activity.timestamp ? activity.timestamp : 0,
         value: txData.tokenValue,
         transactionHash: activity.transactionHash,
+        type: ActivityType.transaction,
         token: {
           decimals: txData.tokenDecimals,
           icon: txData.tokenImage,

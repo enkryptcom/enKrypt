@@ -25,12 +25,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "BestOfferWarning",
-};
-</script>
-
 <script setup lang="ts">
 import AlertIcon from "@action/icons/send/alert-icon.vue";
 defineProps({

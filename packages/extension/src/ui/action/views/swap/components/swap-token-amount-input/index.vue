@@ -38,12 +38,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "SwapTokenAmountInput",
-};
-</script>
-
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import SwapTokenSelect from "../swap-token-select/index.vue";

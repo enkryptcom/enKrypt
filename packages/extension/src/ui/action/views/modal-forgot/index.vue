@@ -1,36 +1,19 @@
 <template>
   <div class="modal-forgot__container">
-    <div class="modal-forgot__overlay" @click="close()"></div>
+    <div class="modal-forgot__overlay"></div>
     <div class="modal-forgot__wrap">
-      <lock-screen-forgot
-        v-show="isForgot"
-        :close="toggleForgot"
-        :reset="resetAction"
-      />
+      <lock-screen-forgot v-show="isForgot" v-bind="$attrs" />
     </div>
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "ModalForgot",
-};
-</script>
-
 <script setup lang="ts">
 import LockScreenForgot from "@action/views/lock-screen/components/lock-screen-forgot.vue";
+
 defineProps({
   isForgot: {
     type: Boolean,
     default: false,
-  },
-  toggleForgot: {
-    type: Function,
-    default: () => ({}),
-  },
-  resetAction: {
-    type: Function,
-    default: () => ({}),
   },
 });
 </script>
