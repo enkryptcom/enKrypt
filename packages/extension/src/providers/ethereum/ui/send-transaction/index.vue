@@ -213,7 +213,7 @@ const TxInfo = computed<SendTransactionDataType>(() => {
       : tokenContract.methods
           .transfer(
             addressTo.value,
-            toBase(sendAmount.value, props.network.decimals)
+            toBase(sendAmount.value, selectedAsset.value.decimals!)
           )
           .encodeABI();
   return {
