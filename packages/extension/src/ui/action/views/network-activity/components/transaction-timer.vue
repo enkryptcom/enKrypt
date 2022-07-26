@@ -1,17 +1,15 @@
 <template>
   <div class="status-timer">
     <span>{{ $filters.formatDuration(timer, date) }}</span>
-    <Vue3Lottie
-      class="status-timer__spiner"
-      :animation-data="LottieStatusJson"
-    />
+    <send-spinner-animation class="status-timer__spiner" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
 import moment from "moment";
-import LottieStatusJson from "@action/assets/animation/status.json";
+
+import SendSpinnerAnimation from "@action/icons/send/send-spinner-animation.vue";
 
 const props = defineProps({
   date: {
