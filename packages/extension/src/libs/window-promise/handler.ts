@@ -24,6 +24,7 @@ export default (paramCount: number): Promise<WindowPromiseType> => {
     domain: "",
     faviconURL: "",
     title: "",
+    tabId: 0,
   });
   const PromiseResolve: Ref<(res: InternalOnMessageResponse) => void> = ref(
     () => {

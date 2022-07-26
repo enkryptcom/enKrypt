@@ -6,6 +6,7 @@ import {
   SubstrateNetwork,
   SubstrateNetworkOptions,
 } from "../types/substrate-network";
+import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
 
 const ksmOptions: SubstrateNetworkOptions = {
   name: NetworkNames.Kusama,
@@ -18,12 +19,12 @@ const ksmOptions: SubstrateNetworkOptions = {
   icon: require("./icons/kusama.svg"),
   decimals: 12,
   prefix: 2,
-  gradient: "#82D359",
+  gradient: "#000000",
   node: "wss://kusama-rpc.polkadot.io/",
   coingeckoID: "kusama",
   genesisHash:
     "0xb0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe",
-  activityHandler: subscanActivity,
+  activityHandler: wrapActivityHandler(subscanActivity),
 };
 
 const ksm = new SubstrateNetwork(ksmOptions);

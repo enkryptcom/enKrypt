@@ -1,6 +1,6 @@
 <template>
   <div class="network-activity__loading">
-    <p v-if="!isEmpty">Loading</p>
+    <p v-if="!isEmpty">Loading...</p>
     <p v-if="isEmpty">No activity</p>
   </div>
 </template>
@@ -15,7 +15,7 @@ defineProps({
 .network-activity {
   &__loading {
     width: 100%;
-    height: 100%;
+    height: calc(~"100% - 216px");
     display: flex;
     justify-content: center;
     align-items: center;

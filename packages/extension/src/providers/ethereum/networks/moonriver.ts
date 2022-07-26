@@ -1,3 +1,4 @@
+import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
 import { NetworkNames } from "@enkryptcom/types";
 import { EtherscanActivity } from "../libs/activity-handlers";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
@@ -13,9 +14,9 @@ const moonriverOptions: EvmNetworkOptions = {
   currencyName: "MOVR",
   node: "wss://wss.api.moonriver.moonbeam.network",
   icon: require("./icons/moonriver.svg"),
-  gradient: "#f2b606",
+  gradient: "linear-gradient(180deg, #F2B705 0%, #53CBC8 100%)",
   coingeckoID: "moonriver",
-  activityHandler: EtherscanActivity,
+  activityHandler: wrapActivityHandler(EtherscanActivity),
 };
 
 const moonriver = new EvmNetwork(moonriverOptions);

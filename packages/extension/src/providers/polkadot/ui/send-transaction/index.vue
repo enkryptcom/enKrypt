@@ -12,7 +12,6 @@
         ref="addressInputFrom"
         :from="true"
         :value="addressFrom"
-        :identicon="identicon"
         :network="network"
         @update:input-address="inputAddressFrom"
         @toggle:show-contacts="toggleSelectContactFrom"
@@ -23,7 +22,7 @@
         :account-info="accountInfo"
         :address="addressFrom"
         :network="network"
-        :identicon="identicon"
+        :identicon="network.identicon"
         @selected:account="selectAccountFrom"
         @close="toggleSelectContactFrom"
       ></send-from-contacts-list>
@@ -31,16 +30,16 @@
       <send-address-input
         ref="addressInputTo"
         :value="addressTo"
-        :identicon="identicon"
+        :network="network"
         @update:input-address="inputAddressTo"
         @toggle:show-contacts="toggleSelectContactTo"
       ></send-address-input>
 
       <send-contacts-list
         :show-accounts="isOpenSelectContactTo"
-        :active-network="props.network"
         :account-info="accountInfo"
-        :identicon="identicon"
+        :network="network"
+        :address="accountInfo.selectedAccount!.address"
         @selected:account="selectAccountTo"
         @update:paste-from-clipboard="addressInputTo.pasteFromClipboard()"
         @close="toggleSelectContactTo"
@@ -107,7 +106,6 @@ import { GasFeeInfo } from "@/providers/ethereum/ui/types";
 import { SubstrateNetwork } from "../../types/substrate-network";
 import { toBN } from "web3-utils";
 import { formatFloatingPointValue } from "@/libs/utils/number-formatter";
-import createIcon from "../../libs/blockies";
 import { fromBase, toBase } from "@/libs/utils/units";
 import BigNumber from "bignumber.js";
 import { VerifyTransactionParams } from "../types";
@@ -132,7 +130,6 @@ const props = defineProps({
 
 const route = useRoute();
 const router = useRouter();
-const identicon = createIcon;
 
 const addressInputTo = ref();
 const addressInputFrom = ref();
@@ -162,10 +159,9 @@ const sendMax = ref(false);
 const selected: string = route.params.id as string;
 
 onMounted(async () => {
-  props.accountInfo.activeAccounts.forEach((account) => {
-    account.address = props.network.displayAddress(account.address);
-  });
-
+  addressFrom.value = props.network.displayAddress(
+    props.accountInfo.selectedAccount!.address
+  );
   const networkApi = await props.network.api();
   networkApi.init().then(async () => {
     api.value = networkApi as SubstrateApi;
@@ -355,12 +351,15 @@ const sendAction = async () => {
       value: amount.value,
     },
     toToken: {
-      amount: amount.value,
+      amount: toBase(amount.value, selectedAsset.value.decimals!),
+      decimals: selectedAsset.value.decimals!,
       icon: selectedAsset.value.icon as string,
       symbol: selectedAsset.value.symbol || "unknown",
       valueUSD: new BigNumber(selectedAsset.value.price || "0")
         .times(amount.value)
         .toFixed(),
+      name: selectedAsset.value.name || "",
+      price: selectedAsset.value.price || "0",
     },
     fromAddress: props.accountInfo.selectedAccount!.address,
     fromAddressName: props.accountInfo.selectedAccount!.name,
@@ -372,7 +371,9 @@ const sendAction = async () => {
     name: RouterNames.verify.name,
     query: {
       id: selected,
-      txData: JSON.stringify(txVerifyInfo),
+      txData: Buffer.from(JSON.stringify(txVerifyInfo), "utf8").toString(
+        "base64"
+      ),
     },
   });
 

@@ -45,7 +45,7 @@ defineProps({
       0px 3.75px 11px rgba(0, 0, 0, 0.19);
     border-radius: 12px;
     z-index: 1;
-    padding: 4px;
+    padding: 8px;
     box-sizing: border-box;
 
     a {

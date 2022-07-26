@@ -1,6 +1,7 @@
 import { NetworkNames } from "@enkryptcom/types";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
 import { RivetActivity } from "../libs/activity-handlers";
+import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
 
 const etcOptions: EvmNetworkOptions = {
   name: NetworkNames.EthereumClassic,
@@ -13,10 +14,10 @@ const etcOptions: EvmNetworkOptions = {
   currencyName: "ETC",
   node: "wss://nodes.mewapi.io/ws/etc",
   icon: require("./icons/etc.svg"),
-  gradient: "#53CBC9",
+  gradient: "linear-gradient(180deg, #C549FF 0%, #684CFF 100%)",
   basePath: "m/44'/61'/0'/0",
   coingeckoID: "ethereum-classic",
-  activityHandler: RivetActivity,
+  activityHandler: wrapActivityHandler(RivetActivity),
 };
 
 const etc = new EvmNetwork(etcOptions);

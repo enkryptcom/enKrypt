@@ -7,7 +7,9 @@
           <close-icon />
         </a>
       </div>
-
+      <hardware-wallet-msg
+        :wallet-type="account!.walletType"
+      ></hardware-wallet-msg>
       <p class="verify-transaction__description">
         Double check the information and confirm transaction
       </p>
@@ -65,7 +67,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { onBeforeMount, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import BaseButton from "@action/components/base-button/index.vue";
@@ -74,6 +76,7 @@ import VerifyTransactionAccount from "./components/verify-transaction-account.vu
 import VerifyTransactionAmount from "./components/verify-transaction-amount.vue";
 import VerifyTransactionFee from "./components/verify-transaction-fee.vue";
 import VerifyTransactionNft from "./components/verify-transaction-nft.vue";
+import HardwareWalletMsg from "../../components/hardware-wallet-msg.vue";
 import SendProcess from "@action/views/send-process/index.vue";
 import { nft } from "@action/types/mock";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
@@ -83,19 +86,26 @@ import Web3 from "web3";
 import { getCurrentContext } from "@/libs/messenger/extension";
 import { getNetworkByName } from "@/libs/utils/networks";
 import { TransactionSigner } from "../../libs/signer";
+import { ActivityStatus, Activity, ActivityType } from "@/types/activity";
+import ActivityState from "@/libs/activity-state";
+import { EnkryptAccount } from "@enkryptcom/types";
 
 const KeyRing = new PublicKeyRing();
 const route = useRoute();
 const router = useRouter();
 const selectedNetwork: string = route.query.id as string;
+console.log(route.query.txData);
 const txData: VerifyTransactionParams = JSON.parse(
-  route.query.txData as string
+  Buffer.from(route.query.txData as string, "base64").toString("utf8")
 );
 const isNft = false;
 const isProcessing = ref(false);
 const network = getNetworkByName(selectedNetwork)!;
 const isSendDone = ref(false);
-
+const account = ref<EnkryptAccount>();
+onBeforeMount(async () => {
+  account.value = await KeyRing.getAccount(txData.fromAddress);
+});
 const close = () => {
   if (getCurrentContext() === "popup") {
     router.go(-1);
@@ -108,20 +118,41 @@ const sendAction = async () => {
   isProcessing.value = true;
   const web3 = new Web3(network.node);
   const tx = new Transaction(txData.TransactionData, web3);
-  const account = await KeyRing.getAccount(txData.fromAddress);
 
+  const txActivity: Activity = {
+    from: txData.fromAddress,
+    to: txData.toAddress,
+    isIncoming: txData.fromAddress === txData.toAddress,
+    network: network.name,
+    status: ActivityStatus.pending,
+    timestamp: new Date().getTime(),
+    token: {
+      decimals: txData.toToken.decimals,
+      icon: txData.toToken.icon,
+      name: txData.toToken.name,
+      symbol: txData.toToken.symbol,
+      price: txData.toToken.price,
+    },
+    type: ActivityType.transaction,
+    value: txData.toToken.amount,
+    transactionHash: "",
+  };
+  const activityState = new ActivityState();
   await tx
     .getFinalizedTransaction({ gasPriceType: txData.gasPriceType })
     .then(async (finalizedTx) => {
       TransactionSigner({
-        account,
+        account: account.value!,
         network,
         payload: finalizedTx,
       }).then((signedTx) => {
         web3.eth
           .sendSignedTransaction("0x" + signedTx.serialize().toString("hex"))
           .on("transactionHash", (hash: string) => {
-            console.log("hash", hash);
+            activityState.addActivities(
+              [{ ...txActivity, ...{ transactionHash: hash } }],
+              { address: txData.fromAddress, network: network.name }
+            );
             isSendDone.value = true;
             if (getCurrentContext() === "popup") {
               setTimeout(() => {
@@ -136,6 +167,11 @@ const sendAction = async () => {
             }
           })
           .on("error", (error: any) => {
+            txActivity.status = ActivityStatus.failed;
+            activityState.addActivities([txActivity], {
+              address: txData.fromAddress,
+              network: network.name,
+            });
             console.log("ERROR", error);
           });
       });

@@ -115,7 +115,7 @@ onClickOutside(tooltip, () => {
       top: 52px;
       right: 0;
       z-index: 4;
-      padding: 4px;
+      padding: 8px;
       box-sizing: border-box;
 
       &-item {

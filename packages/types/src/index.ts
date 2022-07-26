@@ -38,6 +38,7 @@ enum KeyringErrors {
   EnckryptDecryptNotSupported = "This Keytype doesnt support encrypt and decrypt",
   CannotUseKeyring = "Cannot use keyring for HW wallets",
   Locked = "Keyring locked",
+  CantRemoveMnemonicAddress = "Cannot remove mnemonic addresses",
 }
 
 enum SignerType {

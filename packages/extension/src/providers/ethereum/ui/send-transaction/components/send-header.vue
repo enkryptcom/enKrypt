@@ -106,8 +106,8 @@ const toggleType = (isTokenSend: boolean) => {
   &__dropdown {
     position: absolute;
     width: 220px;
-    height: 104px;
-    padding: 4px;
+    height: 112px;
+    padding: 8px;
     background: @white;
     box-shadow: 0px 0.5px 5px rgba(0, 0, 0, 0.039),
       0px 3.75px 11px rgba(0, 0, 0, 0.19);

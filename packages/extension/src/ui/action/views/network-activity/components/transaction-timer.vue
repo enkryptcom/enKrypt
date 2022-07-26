@@ -1,17 +1,15 @@
 <template>
   <div class="status-timer">
     <span>{{ $filters.formatDuration(timer, date) }}</span>
-    <Vue3Lottie
-      class="status-timer__spiner"
-      :animation-data="LottieStatusJson"
-    />
+    <send-spinner-animation class="status-timer__spiner" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted } from "vue";
+import { onMounted, ref } from "vue";
 import moment from "moment";
-import LottieStatusJson from "@action/assets/animation/status.json";
+
+import SendSpinnerAnimation from "@action/icons/send/send-spinner-animation.vue";
 
 const props = defineProps({
   date: {
@@ -20,7 +18,7 @@ const props = defineProps({
   },
 });
 
-let timer = moment.duration(moment(props.date).diff(Date.now()));
+const timer = ref(moment.duration(moment(props.date).diff(Date.now())));
 
 onMounted(() => {
   updateTimer();
@@ -28,7 +26,7 @@ onMounted(() => {
 
 const updateTimer = () => {
   setInterval(() => {
-    timer = moment.duration(moment(props.date).diff(Date.now()));
+    timer.value = moment.duration(moment(props.date).diff(Date.now()));
   }, 1000);
 };
 </script>
@@ -56,7 +54,7 @@ const updateTimer = () => {
     font-size: 12px;
     line-height: 16px;
     letter-spacing: 0.5px;
-    color: @primary;
+    color: @success;
   }
 }
 </style>

@@ -5,7 +5,7 @@ import erc20 from "../libs/abi/erc20";
 import EvmAPI from "../libs/api";
 import { NATIVE_TOKEN_ADDRESS } from "../libs/common";
 
-interface Erc20TokenOptions extends BaseTokenOptions {
+export interface Erc20TokenOptions extends BaseTokenOptions {
   contract: string;
 }
 

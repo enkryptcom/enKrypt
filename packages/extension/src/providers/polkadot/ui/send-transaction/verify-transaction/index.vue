@@ -7,7 +7,9 @@
           <close-icon />
         </a>
       </div>
-
+      <hardware-wallet-msg
+        :wallet-type="account?.walletType"
+      ></hardware-wallet-msg>
       <p class="verify-transaction__description">
         Double check the information and confirm transaction
       </p>
@@ -25,12 +27,8 @@
           :address="network.displayAddress(txData.toAddress)"
           :network="network"
         ></verify-transaction-account>
-        <verify-transaction-amount v-if="!isNft" :token="txData.toToken">
+        <verify-transaction-amount :token="txData.toToken">
         </verify-transaction-amount>
-        <verify-transaction-nft
-          v-if="isNft"
-          :item="nft"
-        ></verify-transaction-nft>
         <verify-transaction-fee :fee="txData.txFee"></verify-transaction-fee>
       </div>
 
@@ -56,7 +54,7 @@
     <send-process
       v-if="isProcessing"
       :is-done="isSendDone"
-      :is-nft="isNft"
+      :is-nft="false"
       :to-address="txData.toAddress"
       :network="network"
       :token="txData.toToken"
@@ -65,7 +63,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { onBeforeMount, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import BaseButton from "@action/components/base-button/index.vue";
@@ -73,8 +71,8 @@ import VerifyTransactionNetwork from "./components/verify-transaction-network.vu
 import VerifyTransactionAccount from "./components/verify-transaction-account.vue";
 import VerifyTransactionAmount from "./components/verify-transaction-amount.vue";
 import VerifyTransactionFee from "./components/verify-transaction-fee.vue";
+import HardwareWalletMsg from "../../components/hardware-wallet-msg.vue";
 import SendProcess from "@action/views/send-process/index.vue";
-import { nft } from "@action/types/mock";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
 import { getCurrentContext } from "@/libs/messenger/extension";
 import { VerifyTransactionParams } from "@/providers/polkadot/ui/types";
@@ -85,21 +83,29 @@ import type { SignerResult } from "@polkadot/api/types";
 import { getNetworkByName } from "@/libs/utils/networks";
 import { TypeRegistry } from "@polkadot/types";
 import { TransactionSigner } from "../../libs/signer";
-const isSendDone = ref(false);
+import { Activity, ActivityStatus, ActivityType } from "@/types/activity";
+import ActivityState from "@/libs/activity-state";
+import { EnkryptAccount } from "@enkryptcom/types";
 
+const isSendDone = ref(false);
+const account = ref<EnkryptAccount>();
 const KeyRing = new PublicKeyRing();
 const route = useRoute();
 const router = useRouter();
 const selectedNetwork: string = route.query.id as string;
 const txData: VerifyTransactionParams = JSON.parse(
-  route.query.txData as string
+  Buffer.from(route.query.txData as string, "base64").toString("utf8")
 );
 
-const isNft = false;
-let isProcessing = ref(false);
+const isProcessing = ref(false);
 
 const network = getNetworkByName(selectedNetwork)!;
-
+onBeforeMount(async () => {
+  account.value = await KeyRing.getAccount(
+    polkadotEncodeAddress(txData.fromAddress)
+  );
+  console.log(account.value);
+});
 const close = () => {
   if (getCurrentContext() === "popup") {
     router.go(-1);
@@ -112,24 +118,20 @@ const sendAction = async () => {
   isProcessing.value = true;
   const api = await network.api();
   await api.init();
-
-  const account = await KeyRing.getAccount(
-    polkadotEncodeAddress(txData.fromAddress)
-  );
-
   const tx = (api.api as ApiPromise).tx(txData.TransactionData.data);
 
   try {
-    const signedTx = await tx.signAsync(account.address, {
+    const signedTx = await tx.signAsync(account.value!.address, {
       signer: {
         signPayload: (signPayload): Promise<SignerResult> => {
+          console.log(signPayload);
           const registry = new TypeRegistry();
           registry.setSignedExtensions(signPayload.signedExtensions);
           const extType = registry.createType("ExtrinsicPayload", signPayload, {
             version: signPayload.version,
           });
           return TransactionSigner({
-            account: account,
+            account: account.value!,
             network: network,
             payload: extType,
           }).then((res) => {
@@ -143,15 +145,48 @@ const sendAction = async () => {
         },
       },
     });
+    const txActivity: Activity = {
+      from: txData.fromAddress,
+      to: txData.toAddress,
+      isIncoming: txData.fromAddress === txData.toAddress,
+      network: network.name,
+      status: ActivityStatus.pending,
+      timestamp: new Date().getTime(),
+      token: {
+        decimals: txData.toToken.decimals,
+        icon: txData.toToken.icon,
+        name: txData.toToken.name,
+        symbol: txData.toToken.symbol,
+        price: txData.toToken.price,
+      },
+      type: ActivityType.transaction,
+      value: txData.toToken.amount,
+      transactionHash: "",
+    };
+    const activityState = new ActivityState();
+    signedTx
+      .send()
+      .then(async (hash) => {
+        txActivity.transactionHash = u8aToHex(hash);
+        await activityState.addActivities([txActivity], {
+          address: network.displayAddress(txData.fromAddress),
+          network: network.name,
+        });
+      })
+      .catch(() => {
+        txActivity.status = ActivityStatus.failed;
+        activityState.addActivities([txActivity], {
+          address: network.displayAddress(txData.fromAddress),
+          network: network.name,
+        });
+      });
 
-    const hash = await signedTx.send();
-    console.log("tx hash", u8aToHex(hash));
     isSendDone.value = true;
     if (getCurrentContext() === "popup") {
       setTimeout(() => {
         isProcessing.value = false;
         router.go(-2);
-      }, 4500);
+      }, 2500);
     } else {
       setTimeout(() => {
         isProcessing.value = false;
@@ -161,13 +196,6 @@ const sendAction = async () => {
   } catch (error) {
     console.error("error", error);
   }
-
-  setTimeout(() => {
-    isProcessing.value = false;
-  }, 4000);
-  setTimeout(() => {
-    router.go(-2);
-  }, 4500);
 };
 </script>
 
