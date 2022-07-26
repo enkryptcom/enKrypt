@@ -16,7 +16,7 @@ const maticOptions: EvmNetworkOptions = {
   currencyName: "MATIC",
   node: "wss://nodes.mewapi.io/ws/matic",
   icon: require("./icons/matic.svg"),
-  gradient: "#53CBC9",
+  gradient: "#7B3FE4",
   coingeckoID: "matic-network",
   NFTHandler: RaribleNFTHandler,
   assetsInfoHandler,

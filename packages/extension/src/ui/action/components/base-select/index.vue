@@ -125,7 +125,7 @@ const selectLanguage = (value: string) => {
     box-shadow: 0px 0.5px 5px rgba(0, 0, 0, 0.039),
       0px 3.75px 11px rgba(0, 0, 0, 0.19);
     border-radius: 12px;
-    padding: 4px;
+    padding: 8px;
     position: absolute;
     width: 100%;
     left: 0;

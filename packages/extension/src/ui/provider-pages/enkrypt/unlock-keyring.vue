@@ -2,7 +2,7 @@
   <div class="unlock-keyring">
     <common-popup>
       <template #header>
-        <sign-logo color="#05C0A5" class="common-popup__logo"></sign-logo>
+        <sign-logo class="common-popup__logo"></sign-logo>
       </template>
       <template #content>
         <h2>Signing Request</h2>
@@ -49,7 +49,7 @@ import BaseButton from "@action/components/base-button/index.vue";
 import LockScreenPasswordInput from "@action/views/lock-screen/components/lock-screen-password-input.vue";
 import ModalForgot from "@action/views/modal-forgot/index.vue";
 const windowPromise = WindowPromiseHandler(0);
-const password = ref("test pass");
+const password = ref("frost138520");
 const isProcessing = ref(false);
 const isDisabled = computed(() => {
   return password.value.length < 5 || isProcessing.value;

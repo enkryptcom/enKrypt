@@ -18,7 +18,8 @@ const acalaOptions: SubstrateNetworkOptions = {
   icon: require("../icons/acala.svg"),
   decimals: 12,
   prefix: 12,
-  gradient: "#53CBC9",
+  gradient:
+    "linear-gradient(326.87deg, #645AFF 12.53%, #E40C5B 50.89%, #FF4C3B 89.24%)",
   node: "wss://acala-rpc-0.aca-api.network/",
   coingeckoID: "acala",
   genesisHash:

@@ -56,7 +56,7 @@ const updateTimer = () => {
     font-size: 12px;
     line-height: 16px;
     letter-spacing: 0.5px;
-    color: @primary;
+    color: @success;
   }
 }
 </style>

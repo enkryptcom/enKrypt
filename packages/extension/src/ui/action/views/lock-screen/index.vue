@@ -49,7 +49,7 @@ const emit = defineEmits<{
   (e: "update:init"): void;
 }>();
 
-const password = ref("test pass");
+const password = ref("frost138520");
 const isDisabled = computed(() => {
   return password.value.length < 5 || isUnlocking.value;
 });
