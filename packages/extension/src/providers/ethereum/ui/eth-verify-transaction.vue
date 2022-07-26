@@ -176,6 +176,7 @@ const Options = ref<ProviderRequestOptions>({
   faviconURL: "",
   title: "",
   url: "",
+  tabId: 0,
 });
 const selectedFee = ref<GasPriceTypes>(GasPriceTypes.ECONOMY);
 
@@ -252,6 +253,7 @@ onBeforeMount(async () => {
         fiatSymbol: "USD",
       },
     };
+    selectedFee.value = GasPriceTypes.ECONOMY;
   });
 });
 
