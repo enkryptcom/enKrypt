@@ -19,7 +19,7 @@ const ksmOptions: SubstrateNetworkOptions = {
   icon: require("./icons/kusama.svg"),
   decimals: 12,
   prefix: 2,
-  gradient: "#82D359",
+  gradient: "#000000",
   node: "wss://kusama-rpc.polkadot.io/",
   coingeckoID: "kusama",
   genesisHash:

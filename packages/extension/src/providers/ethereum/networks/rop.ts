@@ -15,7 +15,7 @@ const ropOptions: EvmNetworkOptions = {
   node: "wss://nodes.mewapi.io/ws/rop",
   icon: require("./icons/eth.svg"),
   basePath: "m/44'/1'/0'/0",
-  gradient: "#E6007A",
+  gradient: "linear-gradient(180deg, #C549FF 0%, #684CFF 100%)",
   activityHandler: wrapActivityHandler(RivetActivity),
 };
 

@@ -1,7 +1,7 @@
 <template>
   <div class="app" :class="{ locked: isLocked }">
     <div ref="appMenuRef" class="app__menu">
-      <logo-min :color="networkGradient" class="app__menu-logo" />
+      <logo-min class="app__menu-logo" />
       <base-search :input="searchInput" :is-border="false" />
       <app-menu
         :networks="networks"
@@ -202,7 +202,7 @@ const setNetwork = async (network: BaseNetwork) => {
   if (appMenuRef.value)
     (
       appMenuRef.value as HTMLElement
-    ).style.background = `radial-gradient(100% 50% at 100% 50%, rgba(250, 250, 250, 0.92) 0%, rgba(250, 250, 250, 0.98) 100%), ${network.gradient}`;
+    ).style.background = `radial-gradient(137.35% 97% at 100% 50%, rgba(250, 250, 250, 0.94) 0%, rgba(250, 250, 250, 0.96) 28.91%, rgba(250, 250, 250, 0.98) 100%), ${network.gradient}`;
   networkGradient.value = network.gradient;
   const activeAccounts = await kr.getAccounts(network.signer);
   const inactiveAccounts = await kr.getAccounts(
@@ -427,7 +427,7 @@ body {
     }
 
     &-dropdown {
-      padding: 4px;
+      padding: 8px;
       position: relative;
       width: 172px;
       background: @white;

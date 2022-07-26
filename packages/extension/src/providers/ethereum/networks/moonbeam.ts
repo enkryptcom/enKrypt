@@ -14,7 +14,7 @@ const moonbeamOptions: EvmNetworkOptions = {
   currencyName: "GLMR",
   node: "wss://wss.api.moonbeam.network/",
   icon: require("./icons/moonbeam.svg"),
-  gradient: "#8247E5",
+  gradient: "#53CBC9",
   coingeckoID: "moonbeam",
   activityHandler: wrapActivityHandler(EtherscanActivity),
 };
