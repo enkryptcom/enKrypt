@@ -2,7 +2,7 @@
   <div class="app-search" :class="{ border: isBorder, focus: isFocus }">
     <search-icon class="app-search__icon" />
     <input
-      v-model="searchText"
+      v-model="textValue"
       type="text"
       placeholder="Search networks"
       class="app-search__input"
@@ -11,19 +11,18 @@
       @focus="changeFocus"
       @blur="changeFocus"
     />
-    <a v-if="searchText.length > 0" class="app-search__clear" @click="clear">
+    <a v-if="textValue.length > 0" class="app-search__clear" @click="clear">
       <clear-icon />
     </a>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import SearchIcon from "@action/icons/common/search.vue";
 import ClearIcon from "@action/icons/common/clear-icon.vue";
 
-let isFocus = ref(false);
-let searchText = ref("");
+const isFocus = ref(false);
 
 const props = defineProps({
   isBorder: {
@@ -32,10 +31,10 @@ const props = defineProps({
       return {};
     },
   },
-  input: {
-    type: Function,
+  value: {
+    type: String,
     default: () => {
-      return null;
+      return "";
     },
   },
 });
@@ -45,9 +44,15 @@ const changeFocus = () => {
 };
 
 const clear = () => {
-  searchText.value = "";
-  props.input("");
+  emit("update:value", "");
 };
+
+const emit = defineEmits(["update:value"]);
+
+const textValue = computed({
+  get: () => props.value,
+  set: (value) => emit("update:value", value),
+});
 </script>
 
 <style lang="less">
