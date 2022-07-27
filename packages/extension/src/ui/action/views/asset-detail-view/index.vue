@@ -50,9 +50,9 @@
         <p>${{ token.balanceUSDf }}</p>
       </div>
 
-      <div class="asset-detail-view__action">
+      <!-- <div class="asset-detail-view__action">
         <action-menu></action-menu>
-      </div>
+      </div> -->
     </div>
   </div>
 </template>
@@ -62,7 +62,7 @@ import { PropType } from "vue";
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import SparklineUp from "@action/icons/asset/sparkline-up.vue";
 import SparklineDown from "@action/icons/asset/sparkline-down.vue";
-import ActionMenu from "@action/components/action-menu/index.vue";
+// import ActionMenu from "@action/components/action-menu/index.vue";
 import { AssetsType } from "@/types/provider";
 
 defineProps({

@@ -63,6 +63,7 @@ const setConfig = (config) => {
       IS_MANIFEST_V3: BROWSER === browserNames.chrome,
       PACKAGE_VERSION: JSON.stringify(package.version),
       IS_DEV: process.env.NODE_ENV === "development",
+      IS_FIREFOX: BROWSER === browserNames.firefox,
       PREFILL_PASSWORD:
         process.env.NODE_ENV === "development"
           ? JSON.stringify("test pass")

@@ -18,7 +18,7 @@ const karuraOptions: SubstrateNetworkOptions = {
   icon: require("../icons/karura.svg"),
   decimals: 12,
   prefix: 8,
-  node: "wss://karura.api.onfinality.io/ws?apikey=415db624-5391-4e4a-8353-b84fadc0e73f",
+  node: "wss://karura.polkawallet.io",
   gradient: "linear-gradient(330.21deg, #E40C5B -26.31%, #FF4C3B 88.17%)",
   coingeckoID: "karura",
   genesisHash:

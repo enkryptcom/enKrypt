@@ -56,6 +56,7 @@
         v-show="isOpenSelectToken"
         :is-send="true"
         :assets="accountAssets"
+        :is-loading="isLoadingAssets"
         @close="toggleSelectToken"
         @update:select-asset="selectToken"
       ></assets-select-list>
@@ -161,8 +162,10 @@ const hasEnough = ref(true);
 const sendMax = ref(false);
 
 const selected: string = route.params.id as string;
+const isLoadingAssets = ref(true);
 
 onMounted(async () => {
+  isLoadingAssets.value = true;
   addressFrom.value = props.network.displayAddress(
     props.accountInfo.selectedAccount!.address
   );
@@ -189,6 +192,8 @@ onMounted(async () => {
 
       selectedAsset.value = nonZeroAssets[0];
       accountAssets.value = nonZeroAssets;
+
+      isLoadingAssets.value = false;
     });
   });
 });
@@ -378,11 +383,13 @@ const sendAction = async () => {
     name: RouterNames.verify.name,
     query: {
       id: selected,
-      txData: JSON.stringify(txVerifyInfo),
+      txData: Buffer.from(JSON.stringify(txVerifyInfo), "utf8").toString(
+        "base64"
+      ),
     },
   });
 
-  if (props.accountInfo.selectedAccount!.isHardware) {
+  if (fromAccount.isHardware) {
     await Browser.windows.create({
       url: Browser.runtime.getURL(
         getUiPath(

@@ -26,23 +26,12 @@
         :token="item"
         v-bind="$attrs"
       ></assets-select-list-item>
-      <div v-if="!assets || assets.length === 0">
-        <Vue3Lottie
-          v-for="index in 4"
-          :key="`asset-load-${index}`"
-          :animation-data="LottieTokenLoading"
-          :loop="true"
-        />
-      </div>
-      <assets-not-found
-        v-if="assets && assets.length > 0 && listedAssets.length === 0"
-      />
-      <div
-        v-if="assets.length > 50 && (!searchQuery || searchQuery === '')"
-        class="assets-select-list__search-more-tokens"
-      >
-        Use the search to find even more tokens
-      </div>
+
+      <assets-select-loading
+        v-if="assets.length === 0"
+        :is-empty="assets.length === 0"
+        :is-loading="isLoading"
+      ></assets-select-loading>
     </custom-scrollbar>
   </div>
 </template>
@@ -52,11 +41,10 @@ import CloseIcon from "@action/icons/common/close-icon.vue";
 import AssetsSelectListItem from "./components/assets-select-list-item.vue";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 import AssetsSelectListSearch from "./components/assets-select-list-search.vue";
-import AssetsNotFound from "./components/assets-not-found.vue";
 import SwapTokenFastList from "@action/views/swap/components/swap-token-fast-list/index.vue";
-import LottieTokenLoading from "@action/assets/animation/token-loading.json";
 import scrollSettings from "@/libs/utils/scroll-settings";
 import { computed, PropType, ref } from "vue";
+import AssetsSelectLoading from "./components/assets-select-loading.vue";
 import { BaseToken } from "@/types/base-token";
 
 const emit = defineEmits<{
@@ -79,6 +67,12 @@ const props = defineProps({
   assets: {
     type: Array as PropType<BaseToken[]>,
     default: () => [],
+  },
+  isLoading: {
+    type: Boolean,
+    default: () => {
+      return false;
+    },
   },
 });
 

@@ -21,7 +21,6 @@
           :is-forgot="isForgot"
           :toggle-forgot="toggleForgot"
           :disabled="isProcessing"
-          :reset-action="resetAction"
         ></modal-forgot>
       </template>
 
@@ -92,9 +91,6 @@ const passwordChanged = (text: string) => {
 };
 const toggleForgot = () => {
   isForgot.value = !isForgot.value;
-};
-const resetAction = () => {
-  console.log("resetAction");
 };
 </script>
 
