@@ -1,5 +1,8 @@
 <template>
-  <div class="send-process__container">
+  <div
+    class="send-process__container"
+    :class="{ popup: isWindowPopup, nopopup: !isWindowPopup }"
+  >
     <div class="send-process">
       <div class="send-process__wrap">
         <div class="send-process__animation">
@@ -66,6 +69,7 @@ defineProps({
       return false;
     },
   },
+  isWindowPopup: Boolean,
 });
 </script>
 
@@ -89,9 +93,15 @@ defineProps({
     margin: 0;
     box-sizing: border-box;
     position: absolute;
-    left: -340px;
     z-index: 101;
     top: 0;
+    &.popup {
+      left: -231px;
+    }
+
+    &.nopopup {
+      left: -340px;
+    }
   }
 
   &__wrap {

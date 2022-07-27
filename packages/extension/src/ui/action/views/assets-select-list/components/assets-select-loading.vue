@@ -1,13 +1,24 @@
 <template>
   <div class="network-activity__loading">
-    <p v-if="!isEmpty"><loader /></p>
-    <p v-if="isEmpty">Account transactions will be<br />displayed here</p>
+    <p v-if="isLoading"><loader /></p>
+    <p v-if="isEmpty && !isLoading">No results found</p>
   </div>
 </template>
 <script setup lang="ts">
 import Loader from "@action/icons/common/loader.vue";
 defineProps({
-  isEmpty: Boolean,
+  isEmpty: {
+    type: Boolean,
+    default: () => {
+      return false;
+    },
+  },
+  isLoading: {
+    type: Boolean,
+    default: () => {
+      return false;
+    },
+  },
 });
 </script>
 <style lang="less">
@@ -16,7 +27,7 @@ defineProps({
 .network-activity {
   &__loading {
     width: 100%;
-    height: calc(~"100% - 216px");
+    height: 455px;
     display: flex;
     justify-content: center;
     align-items: center;

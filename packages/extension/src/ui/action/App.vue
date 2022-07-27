@@ -2,9 +2,13 @@
   <div class="app" :class="{ locked: isLocked }">
     <div ref="appMenuRef" class="app__menu">
       <logo-min class="app__menu-logo" />
-      <base-search :input="searchInput" :is-border="false" />
+      <base-search
+        :value="searchInput"
+        :is-border="false"
+        @update:value="updateSearchValue"
+      />
       <app-menu
-        :networks="networks"
+        :networks="searchNetworks"
         :selected="(route.params.id as string)"
         @update:network="setNetwork"
       />
@@ -131,7 +135,7 @@ defineExpose({ appMenuRef });
 const router = useRouter();
 const route = useRoute();
 const transitionName = "fade";
-
+const searchInput = ref("");
 const networks = ref<BaseNetwork[]>([]);
 const defaultNetwork = getNetworkByName(
   DEFAULT_EVM_NETWORK_NAME
@@ -156,6 +160,14 @@ const setActiveNetworks = async () => {
   if (!networks.value.includes(currentNetwork.value)) {
     setNetwork(networks.value[0]);
   }
+};
+const searchNetworks = computed(() => {
+  return networks.value.filter((net) =>
+    net.name_long.toLowerCase().startsWith(searchInput.value.toLowerCase())
+  );
+});
+const updateSearchValue = (newval: string) => {
+  searchInput.value = newval;
 };
 const toggleDepositWindow = () => {
   showDepositWindow.value = !showDepositWindow.value;
@@ -221,6 +233,7 @@ const setNetwork = async (network: BaseNetwork) => {
     activeBalances: activeAccounts.map(() => "~"),
   };
   currentNetwork.value = network;
+  router.push({ name: "assets", params: { id: network.name } });
   const tabId = await domainState.getCurrentTabId();
   if ((currentNetwork.value as EvmNetwork).chainID) {
     await sendToBackgroundFromAction({
@@ -245,7 +258,6 @@ const setNetwork = async (network: BaseNetwork) => {
       tabId,
     });
   }
-  router.push({ name: "assets", params: { id: network.name } });
   domainState.setSelectedNetwork(network.name);
   if (network.api) {
     try {
@@ -294,9 +306,7 @@ const showNetworkMenu = computed(() => {
 const isLocked = computed(() => {
   return route.name == "lock-screen";
 });
-const searchInput = (text: string) => {
-  console.log(text);
-};
+
 const lockAction = async () => {
   sendToBackgroundFromAction({
     message: JSON.stringify({

@@ -125,7 +125,7 @@ const checkActivity = (activity: Activity): void => {
               .then(() => updateVisibleActivity(activity));
           } else if (props.network.provider === ProviderName.polkadot) {
             const subInfo = info as SubscanExtrinsicInfo;
-            if (subInfo.success) {
+            if (!subInfo.pending) {
               activity.status = subInfo.success
                 ? ActivityStatus.success
                 : ActivityStatus.failed;
@@ -151,6 +151,7 @@ const setActivities = () => {
   isNoActivity.value = false;
   if (props.accountInfo.selectedAccount)
     props.network.getAllActivity(activityAddress.value).then((all) => {
+      console.log(all);
       activities.value = all;
       isNoActivity.value = all.length === 0;
       activities.value.forEach((act) => {

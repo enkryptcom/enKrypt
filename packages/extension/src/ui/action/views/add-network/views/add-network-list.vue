@@ -18,24 +18,25 @@
       @ps-scroll-y="handleScroll"
     >
       <add-network-search
-        :input="search"
-        :on-test-net-check="onTestNetCheck"
-        :to-custom="toCustom"
+        :value="searchInput"
+        @update:value="updateSearch"
+        @toggle:test-networks="onTestNetCheck"
+        @action:custom-network="toCustom"
       />
 
-      <h3 class="add-network__list-header">Popular</h3>
-
-      <add-network-item
-        v-for="(item, index) in popular"
-        :key="index"
-        :network="item"
-        :is-active="item.isActive"
-        @network-toggled="onToggle"
-      ></add-network-item>
-
+      <div v-if="searchInput === ''">
+        <h3 class="add-network__list-header">Popular</h3>
+        <add-network-item
+          v-for="(item, index) in popular"
+          :key="index"
+          :network="item"
+          :is-active="item.isActive"
+          @network-toggled="onToggle"
+        ></add-network-item>
+      </div>
       <h3 class="add-network__list-header">All networks</h3>
       <add-network-item
-        v-for="item in all"
+        v-for="item in searchAllNetworks"
         :key="item.name"
         :network="item"
         :is-active="item.isActive"
@@ -55,6 +56,7 @@ import { NodeType } from "@/types/provider";
 import { getAllNetworks, POPULAR_NAMES } from "@/libs/utils/networks";
 import NetworksState from "@/libs/networks-state";
 import scrollSettings from "@/libs/utils/scroll-settings";
+import { computed } from "@vue/reactivity";
 
 interface NodeTypesWithActive extends NodeType {
   isActive: boolean;
@@ -64,7 +66,7 @@ const emit = defineEmits<{
 }>();
 
 const networksState = new NetworksState();
-
+const searchInput = ref("");
 const all = ref<Array<NodeTypesWithActive>>([]);
 const popular = ref<Array<NodeTypesWithActive>>([]);
 let scrollProgress = ref(0);
@@ -97,6 +99,11 @@ const getAllNetworksAndStatus = async () => {
   return allNetworks;
 };
 
+const searchAllNetworks = computed(() => {
+  return all.value.filter((a) =>
+    a.name_long.toLowerCase().startsWith(searchInput.value.toLowerCase())
+  );
+});
 onBeforeMount(async () => {
   const allNetworksNotTestNets = (await getAllNetworksAndStatus()).filter(
     ({ isTestNetwork }) => !isTestNetwork
@@ -140,8 +147,8 @@ const onToggle = async (networkName: string, isActive: boolean) => {
   }
 };
 
-const search = (value: string) => {
-  console.log(value);
+const updateSearch = (value: string) => {
+  searchInput.value = value;
 };
 const handleScroll = (e: any) => {
   let progress = Number(e.target.lastChild.style.top.replace("px", ""));
