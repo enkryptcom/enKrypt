@@ -1,13 +1,13 @@
 <br />
 <div align="center">
   <a href="https://github.com/enkryptcom/enKrypt">
-    <img src="logo.png" alt="Logo" width="240">
+    <img src="enkrypt.png" alt="Logo" width="240">
   </a>
 
-  <h3 align="center">enKrypt</h3>
+  <h3 align="center">Enkrypt</h3>
 
   <p align="center">
-    Universal web3 extension
+    Everything in the blockchain made easy
     <br />
     <a href="#"><strong>Explore the docs »</strong></a>
     <br />

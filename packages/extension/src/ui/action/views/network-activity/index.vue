@@ -151,6 +151,7 @@ const setActivities = () => {
   isNoActivity.value = false;
   if (props.accountInfo.selectedAccount)
     props.network.getAllActivity(activityAddress.value).then((all) => {
+      console.log(all);
       activities.value = all;
       isNoActivity.value = all.length === 0;
       activities.value.forEach((act) => {
