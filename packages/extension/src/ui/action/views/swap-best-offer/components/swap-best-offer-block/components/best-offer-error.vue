@@ -6,6 +6,7 @@
       get a rate that is significantly lower than the market. We highly
       recommend you reconsider.
     </p>
+
     <p v-if="notEnoughtETH" class="with-link">
       Not enough ETH to pay the network<br />fee. You are<br />~{{
         $filters.formatFloatingPointValue(nativeValue).value
@@ -18,6 +19,11 @@
         $filters.formatFloatingPointValue(nativeValue).value
       }}
       {{ nativeSymbol }} (${{ $filters.formatFiatValue(price).value }}) short.
+    </p>
+
+    <p v-if="belowDeposit">
+      Warning: This swap will cause you to go below the existential deposit and
+      will lead to lost funds.
     </p>
 
     <!-- <a
@@ -42,6 +48,10 @@ defineProps({
     default: false,
   },
   notEnoughtVerify: {
+    type: Boolean,
+    default: false,
+  },
+  belowDeposit: {
     type: Boolean,
     default: false,
   },

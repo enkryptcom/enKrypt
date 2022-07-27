@@ -35,6 +35,13 @@
             :price="priceDifference"
             :native-value="gasDifference"
           ></best-offer-error>
+          <best-offer-error
+            v-if="warning === SwapBestOfferWarnings.EXISTENTIAL_DEPOSIT"
+            :below-deposit="true"
+            :native-symbol="props.network.name"
+            :price="priceDifference"
+            :native-value="gasDifference"
+          ></best-offer-error>
           <send-fee-select
             v-if="(props.network as EvmNetwork).chainID"
             :fee="gasCostValues[selectedFee]"
@@ -62,7 +69,7 @@
           <base-button
             :title="sendButtonTitle()"
             :click="sendAction"
-            :disabled="isDisabled()"
+            :disabled="isDisabled"
           />
         </div>
       </div>
@@ -125,6 +132,7 @@ interface SwapData {
   fromAmount: string;
   toAddress: string;
   priceDifference: string;
+  swapMax: boolean;
 }
 
 const props = defineProps({
@@ -163,31 +171,55 @@ const gasDifference = ref<string>();
 const priceDifference = ref<string>();
 
 const setWarning = () => {
-  let totalFees = new BigNumber(
-    gasCostValues.value[selectedFee.value].nativeValue
-  );
-
   if (
-    (swapData.fromToken as Erc20Token).contract &&
-    (swapData.fromToken as Erc20Token).contract === NATIVE_TOKEN_ADDRESS
+    !swapData.swapMax &&
+    swapData.fromToken.existentialDeposit &&
+    fee.nativeValue
   ) {
-    totalFees = new BigNumber(swapData.fromAmount).plus(totalFees);
-  }
+    const balanceAfterTransaction = new BigNumber(
+      fromBase(swapData.fromToken.balance!, swapData.fromToken.decimals)
+    )
+      .minus(swapData.fromAmount)
+      .minus(fee.nativeValue);
 
-  const userBalance = new BigNumber(
-    fromBase(swapData.fromToken.balance || "0", swapData.fromToken.decimals)
-  );
+    if (
+      balanceAfterTransaction.lt(
+        fromBase(
+          swapData.fromToken.existentialDeposit.toString(),
+          swapData.fromToken.decimals
+        )
+      )
+    ) {
+      warning.value = SwapBestOfferWarnings.EXISTENTIAL_DEPOSIT;
+      return;
+    }
+  } else {
+    let totalFees = new BigNumber(
+      gasCostValues.value[selectedFee.value].nativeValue
+    );
 
-  if (userBalance.minus(totalFees).lt(0)) {
-    gasDifference.value = userBalance.minus(totalFees).abs().toString();
-    priceDifference.value = userBalance
-      .minus(totalFees)
-      .abs()
-      .times(swapData.fromToken.price || 0)
-      .toString();
+    if (
+      (swapData.fromToken as Erc20Token).contract &&
+      (swapData.fromToken as Erc20Token).contract === NATIVE_TOKEN_ADDRESS
+    ) {
+      totalFees = new BigNumber(swapData.fromAmount).plus(totalFees);
+    }
 
-    warning.value = SwapBestOfferWarnings.NOT_ENOUGH_GAS;
-    return;
+    const userBalance = new BigNumber(
+      fromBase(swapData.fromToken.balance || "0", swapData.fromToken.decimals)
+    );
+
+    if (userBalance.minus(totalFees).lt(0)) {
+      gasDifference.value = userBalance.minus(totalFees).abs().toString();
+      priceDifference.value = userBalance
+        .minus(totalFees)
+        .abs()
+        .times(swapData.fromToken.price || 0)
+        .toString();
+
+      warning.value = SwapBestOfferWarnings.NOT_ENOUGH_GAS;
+      return;
+    }
   }
 
   if (1 - Number(swapData.priceDifference) < -0.2) {
@@ -195,10 +227,10 @@ const setWarning = () => {
     return;
   }
 
-  warning.value = undefined;
+  warning.value = SwapBestOfferWarnings.NONE;
 };
 
-watch([gasCostValues, selectedFee], () => {
+watch([gasCostValues, selectedFee, fee], () => {
   setWarning();
 });
 
@@ -220,7 +252,6 @@ const Tx = computed(() => {
         web3
       );
 
-      console.log(tx.tx.gas);
       return tx;
     });
   }
@@ -296,22 +327,27 @@ const sendButtonTitle = () => {
 
   return title;
 };
-const isDisabled = () => {
-  let isDisabled = false;
+const isDisabled = computed(() => {
+  if (
+    warning.value === undefined ||
+    warning.value === SwapBestOfferWarnings.EXISTENTIAL_DEPOSIT ||
+    warning.value === SwapBestOfferWarnings.NOT_ENOUGH_GAS
+  ) {
+    return true;
+  }
 
-  return isDisabled;
-};
+  return false;
+});
+
 const sendAction = async () => {
   if (pickedTrade.value) {
     toggleInitiated();
-    const hashes = await swap.executeTrade(
+    await swap.executeTrade(
       props.network,
       props.accountInfo.selectedAccount!,
       pickedTrade.value,
       selectedFee.value
     );
-
-    console.log("Swap done!", hashes);
   } else {
     console.log("No trade yet");
   }
@@ -429,8 +465,6 @@ const setTransactionFees = async (txs: Transaction[]) => {
     };
   });
 
-  console.log(finalVal);
-
   gasCostValues.value = {
     [GasPriceTypes.ECONOMY]: {
       nativeValue: finalVal[GasPriceTypes.ECONOMY].nativeValue,
@@ -460,7 +494,6 @@ const setTransactionFees = async (txs: Transaction[]) => {
 };
 
 const selectTrade = (trade: TradeInfo) => {
-  console.log("test");
   pickedTrade.value = trade;
 };
 </script>

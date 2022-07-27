@@ -509,6 +509,7 @@ const sendAction = async () => {
     fromAmount: fromAmount.value,
     toAddress: address.value,
     priceDifference: priceDifference,
+    swapMax: swapMax.value,
   };
 
   router.push({

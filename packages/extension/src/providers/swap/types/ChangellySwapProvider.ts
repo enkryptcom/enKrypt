@@ -33,6 +33,29 @@ import { Activity, ActivityStatus, ActivityType } from "@/types/activity";
 import { ChangellyToken, ChangellyTokenOptions } from "./changelly-token";
 import BigNumber from "bignumber.js";
 
+const CHANGELLY_TOKEN_INFO = [
+  {
+    id: "eth",
+    icon: require("../assets/eth.svg"),
+    coingeckoID: "ethereum",
+  },
+  {
+    id: "dot",
+    icon: require("../assets/polkadot.svg"),
+    coingeckoID: "polkadot",
+  },
+  {
+    id: "ksm",
+    icon: require("../assets/kusama.svg"),
+    coingeckoID: "kusama",
+  },
+  {
+    id: "maticpolygon",
+    icon: require("../assets/matic.svg"),
+    coingeckoID: "polygon",
+  },
+];
+
 interface ChangellyTokenInfo {
   contractAddress?: string;
   fullName: string;
@@ -176,28 +199,22 @@ export class ChangellySwapProvider extends SwapProvider {
           this.supportedTokens.includes(tokenData.ticker.toUpperCase())
         )
         .filter((tokenData) => tokenData.fixRateEnabled)
-        .map((tokenData) => {
-          let coingeckoID: string | undefined = undefined;
-          switch (tokenData.ticker) {
-            case "eth":
-              coingeckoID = "ethereum";
-              break;
-            case "dot":
-              coingeckoID = "polkadot";
-              break;
-            case "ksm":
-              coingeckoID = "kusama";
-              break;
-            case "bnb":
-              coingeckoID = "bnb";
-              break;
-            case "maticpolygon":
-            case "matic":
-              coingeckoID = "matic-network";
-              break;
-          }
+        .filter((tokenData) => {
+          const token = CHANGELLY_TOKEN_INFO.find(
+            (info) => info.id === tokenData.name
+          );
 
-          return { coingeckoID, ...tokenData };
+          if (token) return true;
+          return false;
+        })
+        .map((tokenData) => {
+          const token = CHANGELLY_TOKEN_INFO.find(
+            (info) => info.id === tokenData.name
+          );
+
+          const coingeckoID = token!.coingeckoID;
+          const icon = token!.icon;
+          return { coingeckoID, ...tokenData, image: icon };
         });
 
       const coingeckoIDs = tokenData
@@ -230,7 +247,7 @@ export class ChangellySwapProvider extends SwapProvider {
           if (tokenData.name === "matic") {
             name = "Ethereum Polygon";
           } else if (tokenData.name === "maticpolygon") {
-            name = "Polygon";
+            name = "Polygon Mainnet";
             symbol = "MATIC";
           }
 
@@ -238,7 +255,7 @@ export class ChangellySwapProvider extends SwapProvider {
             name,
             symbol: symbol.toUpperCase(),
             decimals: 0,
-            icon: `https://img.mewapi.io/?image=${tokenData.image}`,
+            icon: tokenData.image,
             balance: "1",
             price: tokenData.price,
             contract: tokenData.contractAddress,
