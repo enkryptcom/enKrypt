@@ -2456,6 +2456,7 @@ __metadata:
     "@types/mocha": ^9.1.0
     "@types/url-parse": ^1.4.8
     "@types/utf-8-validate": ^5.0.0
+    "@types/uuid": ^8.3.4
     "@types/zxcvbn": ^4.4.1
     "@typescript-eslint/eslint-plugin": ^5.4.0
     "@typescript-eslint/parser": ^5.4.0
@@ -2505,6 +2506,7 @@ __metadata:
     typescript: ^4.5.5
     url: ^0.11.0
     url-parse: ^1.5.10
+    uuid: ^8.3.2
     vue: ^3.2.31
     vue-router: 4
     vue3-lottie: ^2.1.0
@@ -6945,6 +6947,13 @@ __metadata:
   version: 2.1.6
   resolution: "@types/utf8@npm:2.1.6"
   checksum: 49c1804296e94fb25f07150c5a2fb9ece40de846bbf5ec1e35afc95e245fd7b6a069e55ffe43fc4eee2b5d0cb07f0562caf19d9c385fd1e2c239dfcbef5b2541
+  languageName: node
+  linkType: hard
+
+"@types/uuid@npm:^8.3.4":
+  version: 8.3.4
+  resolution: "@types/uuid@npm:8.3.4"
+  checksum: 6f11f3ff70f30210edaa8071422d405e9c1d4e53abbe50fdce365150d3c698fe7bbff65c1e71ae080cbfb8fded860dbb5e174da96fdbbdfcaa3fb3daa474d20f
   languageName: node
   linkType: hard
 

@@ -64,6 +64,7 @@ interface Activity {
   token: BaseTokenOptions;
   status: ActivityStatus;
   type: ActivityType;
+  swapId?: string;
   rawInfo?: EthereumRawInfo | SubstrateRawInfo | SubscanExtrinsicInfo;
 }
 
