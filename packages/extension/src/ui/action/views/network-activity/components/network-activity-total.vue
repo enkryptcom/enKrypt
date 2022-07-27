@@ -1,5 +1,12 @@
 <template>
-  <div class="network-activity__total">
+  <div
+    v-if="cryptoAmount == '~' || fiatAmount == '~'"
+    class="network-activity__total"
+  >
+    <balance-loader class="network-activity__loader-one" />
+    <balance-loader class="network-activity__loader-two" />
+  </div>
+  <div v-else class="network-activity__total">
     <h3>
       {{ cryptoAmount }} <span>{{ symbol }}</span>
     </h3>
@@ -8,6 +15,8 @@
 </template>
 
 <script setup lang="ts">
+import BalanceLoader from "@action/icons/common/balance-loader.vue";
+
 defineProps({
   cryptoAmount: {
     type: String,
@@ -52,6 +61,21 @@ defineProps({
       color: @secondaryLabel;
       margin: 0;
     }
+  }
+
+  &__loader-one {
+    width: 100px;
+    height: 18px;
+    margin-bottom: 13px;
+    margin-top: 6px;
+    display: block !important;
+  }
+
+  &__loader-two {
+    width: 70px;
+    height: 13px;
+    display: block !important;
+    margin-bottom: 6px;
   }
 }
 </style>

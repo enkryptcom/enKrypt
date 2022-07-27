@@ -24,6 +24,12 @@
         :token="item"
         v-bind="$attrs"
       ></assets-select-list-item>
+
+      <assets-select-loading
+        v-if="assets.length === 0"
+        :is-empty="assets.length === 0"
+        :is-loading="isLoading"
+      ></assets-select-loading>
     </custom-scrollbar>
   </div>
 </template>
@@ -35,6 +41,7 @@ import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 import AssetsSelectListSearch from "./components/assets-select-list-search.vue";
 import SwapTokenFastList from "@action/views/swap/components/swap-token-fast-list/index.vue";
 import scrollSettings from "@/libs/utils/scroll-settings";
+import AssetsSelectLoading from "./components/assets-select-loading.vue";
 import { PropType } from "vue";
 import { BaseToken } from "@/types/base-token";
 
@@ -58,6 +65,12 @@ defineProps({
   assets: {
     type: Array as PropType<BaseToken[]>,
     default: () => [],
+  },
+  isLoading: {
+    type: Boolean,
+    default: () => {
+      return false;
+    },
   },
 });
 

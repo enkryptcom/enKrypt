@@ -6,11 +6,13 @@
     <h3 v-if="walletType === HWwalletType.trezor">Connect to your Trezor</h3>
     <p v-if="walletType === HWwalletType.ledger">
       Connect your wallet to your computer. Unlock your Ledger and open the
-      <b>{{ appName }} App.</b><a href="#">Learn more</a>
+      <b>{{ appName }} App.</b>
+      <!-- <a href="#">Learn more</a> -->
     </p>
     <p v-if="walletType === HWwalletType.trezor">
       Connect your wallet to your computer. Follow the instructions in the
-      Trezor connection tab. <a href="#">Learn more</a>
+      Trezor connection tab.
+      <!-- <a href="#">Learn more</a> -->
     </p>
     <base-button title="Connect" :click="connectAction" />
   </div>

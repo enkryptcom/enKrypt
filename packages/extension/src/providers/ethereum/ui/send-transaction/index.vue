@@ -55,6 +55,7 @@
         v-show="isOpenSelectToken"
         :is-send="true"
         :assets="accountAssets"
+        :is-loading="isLoadingAssets"
         @close="toggleSelectToken"
         @update:select-asset="selectToken"
       ></assets-select-list>
@@ -193,6 +194,7 @@ const selectedFee = ref<GasPriceTypes>(GasPriceTypes.REGULAR);
 const gasCostValues = ref<GasFeeType>(defaultGasCostVals);
 const addressFrom = ref<string>("");
 const addressTo = ref<string>("");
+const isLoadingAssets = ref(true);
 
 onMounted(async () => {
   addressFrom.value = props.accountInfo.selectedAccount!.address;
@@ -293,9 +295,12 @@ const setBaseCosts = () => {
 const fetchAssets = () => {
   accountAssets.value = [];
   selectedAsset.value = loadingAsset;
+  isLoadingAssets.value = true;
   return props.network.getAllTokens(addressFrom.value).then((allAssets) => {
     accountAssets.value = allAssets as Erc20Token[];
     selectedAsset.value = allAssets[0] as Erc20Token;
+
+    isLoadingAssets.value = false;
   });
 };
 

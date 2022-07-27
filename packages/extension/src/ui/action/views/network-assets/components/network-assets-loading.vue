@@ -1,10 +1,12 @@
 <template>
   <div class="network-assets__loading">
-    <p>Loading...</p>
+    <p><loader /></p>
   </div>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import Loader from "@action/icons/common/loader.vue";
+</script>
 
 <style lang="less">
 @import "~@action/styles/theme.less";

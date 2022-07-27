@@ -64,11 +64,11 @@ const checkLocal = (e: any) => {
 }
 
 input:checked + .slider {
-  background-color: @primary;
+  background-color: @success;
 }
 
 input:focus + .slider {
-  box-shadow: 0 0 1px @primary;
+  box-shadow: 0 0 1px @success;
 }
 
 input:checked + .slider:before {

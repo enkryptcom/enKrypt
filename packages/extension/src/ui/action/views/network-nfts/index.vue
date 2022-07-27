@@ -30,6 +30,7 @@
 
     <network-nfts-empty
       v-if="!NFTs.length && !favoriteNFTs.length && !hiddenNFTs.length"
+      :is-empty="isNoNFTs"
     ></network-nfts-empty>
   </div>
 </template>
@@ -63,6 +64,8 @@ const NFTs = ref<NFTCollection[]>([]);
 const favoriteNFTs = ref<NFTItem[]>([]);
 const hiddenNFTs = ref<NFTItem[]>([]);
 const liveNFTCollection = ref<NFTCollection[]>([]);
+const isNoNFTs = ref(false);
+
 watch([props.accountInfo, props.network], () => {
   updateNFTInfo();
 });
@@ -96,9 +99,11 @@ const localUpdate = async () => {
     }
   });
   NFTs.value = collections.filter((col) => col.items.length);
+  isNoNFTs.value = collections.length === 0;
 };
 const updateNFTInfo = async () => {
   if (props.network.NFTHandler) {
+    isNoNFTs.value = false;
     props.network
       .NFTHandler(
         props.network,
