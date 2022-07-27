@@ -28,7 +28,7 @@
             :key="index"
             class="recovery-phrase__item"
           >
-            <span>{{ index + 1 }}</span> {{ phrase }}
+            <span>{{ index + 7 }}</span> {{ phrase }}
           </div>
         </div>
       </div>

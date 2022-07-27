@@ -62,6 +62,7 @@ const Options = ref<ProviderRequestOptions>({
   faviconURL: "",
   title: "",
   url: "",
+  tabId: 0,
 });
 onBeforeMount(async () => {
   const { options } = await windowPromise;
