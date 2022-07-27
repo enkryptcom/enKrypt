@@ -49,7 +49,7 @@ import BaseButton from "@action/components/base-button/index.vue";
 import LockScreenPasswordInput from "@action/views/lock-screen/components/lock-screen-password-input.vue";
 import ModalForgot from "@action/views/modal-forgot/index.vue";
 const windowPromise = WindowPromiseHandler(0);
-const password = ref("test pass");
+const password = ref(process.env.PREFILL_PASSWORD!);
 const isProcessing = ref(false);
 const isDisabled = computed(() => {
   return password.value.length < 5 || isProcessing.value;
