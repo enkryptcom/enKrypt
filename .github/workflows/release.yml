@@ -53,6 +53,6 @@ jobs:
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           prerelease: false
-          title: Release-${{ steps.get_release_tag.outputs.VERSION }}
+          title: ${{ steps.get_release_tag.outputs.VERSION }}
           files: |
             release/*
