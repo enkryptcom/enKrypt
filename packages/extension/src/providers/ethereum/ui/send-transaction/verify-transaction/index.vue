@@ -41,6 +41,7 @@
             :item="nft"
           ></verify-transaction-nft>
           <verify-transaction-fee :fee="txData.gasFee"></verify-transaction-fee>
+          {{ errorMsg }}
         </div>
       </custom-scrollbar>
 
@@ -118,6 +119,7 @@ const account = ref<EnkryptAccount>();
 const isPopup: boolean = getCurrentContext() === "new-window";
 const verifyScrollRef = ref<ComponentPublicInstance<HTMLElement>>();
 const isWindowPopup = ref(false);
+const errorMsg = ref("");
 defineExpose({ verifyScrollRef });
 onBeforeMount(async () => {
   account.value = await KeyRing.getAccount(txData.fromAddress);
@@ -162,36 +164,42 @@ const sendAction = async () => {
         account: account.value!,
         network,
         payload: finalizedTx,
-      }).then((signedTx) => {
-        web3.eth
-          .sendSignedTransaction("0x" + signedTx.serialize().toString("hex"))
-          .on("transactionHash", (hash: string) => {
-            activityState.addActivities(
-              [{ ...txActivity, ...{ transactionHash: hash } }],
-              { address: txData.fromAddress, network: network.name }
-            );
-            isSendDone.value = true;
-            if (getCurrentContext() === "popup") {
-              setTimeout(() => {
-                isProcessing.value = false;
-                router.go(-2);
-              }, 4500);
-            } else {
-              setTimeout(() => {
-                isProcessing.value = false;
-                window.close();
-              }, 1500);
-            }
-          })
-          .on("error", (error: any) => {
-            txActivity.status = ActivityStatus.failed;
-            activityState.addActivities([txActivity], {
-              address: txData.fromAddress,
-              network: network.name,
+      })
+        .then((signedTx) => {
+          web3.eth
+            .sendSignedTransaction("0x" + signedTx.serialize().toString("hex"))
+            .on("transactionHash", (hash: string) => {
+              activityState.addActivities(
+                [{ ...txActivity, ...{ transactionHash: hash } }],
+                { address: txData.fromAddress, network: network.name }
+              );
+              isSendDone.value = true;
+              if (getCurrentContext() === "popup") {
+                setTimeout(() => {
+                  isProcessing.value = false;
+                  router.go(-2);
+                }, 4500);
+              } else {
+                setTimeout(() => {
+                  isProcessing.value = false;
+                  window.close();
+                }, 1500);
+              }
+            })
+            .on("error", (error: any) => {
+              txActivity.status = ActivityStatus.failed;
+              activityState.addActivities([txActivity], {
+                address: txData.fromAddress,
+                network: network.name,
+              });
+              console.error("ERROR", error);
             });
-            console.error("ERROR", error);
-          });
-      });
+        })
+        .catch((error) => {
+          isProcessing.value = false;
+          console.error("error", error);
+          errorMsg.value = JSON.stringify(error);
+        });
     });
 };
 const isHasScroll = () => {

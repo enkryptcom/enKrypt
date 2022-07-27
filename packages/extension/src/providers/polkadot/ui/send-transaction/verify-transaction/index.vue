@@ -37,6 +37,7 @@
           <verify-transaction-amount :token="txData.toToken">
           </verify-transaction-amount>
           <verify-transaction-fee :fee="txData.txFee"></verify-transaction-fee>
+          {{ errorMsg }}
         </div>
       </custom-scrollbar>
 
@@ -108,7 +109,7 @@ const selectedNetwork: string = route.query.id as string;
 const txData: VerifyTransactionParams = JSON.parse(
   Buffer.from(route.query.txData as string, "base64").toString("utf8")
 );
-
+const errorMsg = ref("");
 const isProcessing = ref(false);
 const isPopup: boolean = getCurrentContext() === "new-window";
 const isWindowPopup = ref(false);
@@ -207,8 +208,10 @@ const sendAction = async () => {
         window.close();
       }, 1500);
     }
-  } catch (error) {
+  } catch (error: any) {
+    isProcessing.value = false;
     console.error("error", error);
+    errorMsg.value = JSON.stringify(error);
   }
 };
 
