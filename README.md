@@ -1,7 +1,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/enkryptcom/enKrypt">
-    <img src="enkrypt.png" alt="Logo" width="240">
+    <img src="enkrypt.png" alt="Logo">
   </a>
 
   <h3 align="center">Enkrypt</h3>
