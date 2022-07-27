@@ -10,6 +10,7 @@
         ref="addressInput"
         v-model="address"
         type="text"
+        :disabled="disableDirectInput"
         placeholder="0x… address"
         :style="{ color: !isAddress ? 'red' : 'black' }"
         @focus="changeFocus"
@@ -45,6 +46,7 @@ const props = defineProps({
     type: Object as PropType<BaseNetwork>,
     default: () => ({}),
   },
+  disableDirectInput: Boolean,
 });
 
 const addressInput = ref<HTMLInputElement>();

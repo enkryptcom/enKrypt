@@ -262,6 +262,7 @@ onBeforeMount(async () => {
         fiatSymbol: "USD",
       },
     };
+    selectedFee.value = GasPriceTypes.ECONOMY;
   });
 });
 

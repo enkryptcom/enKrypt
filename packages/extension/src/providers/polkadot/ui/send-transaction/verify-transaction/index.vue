@@ -77,7 +77,6 @@ import PublicKeyRing from "@/libs/keyring/public-keyring";
 import { getCurrentContext } from "@/libs/messenger/extension";
 import { VerifyTransactionParams } from "@/providers/polkadot/ui/types";
 import { ApiPromise } from "@polkadot/api";
-import { polkadotEncodeAddress } from "@/providers/polkadot/libs/signing-utils";
 import { u8aToHex } from "@polkadot/util";
 import type { SignerResult } from "@polkadot/api/types";
 import { getNetworkByName } from "@/libs/utils/networks";
@@ -101,9 +100,7 @@ const isProcessing = ref(false);
 
 const network = getNetworkByName(selectedNetwork)!;
 onBeforeMount(async () => {
-  account.value = await KeyRing.getAccount(
-    polkadotEncodeAddress(txData.fromAddress)
-  );
+  account.value = await KeyRing.getAccount(txData.fromAddress);
   console.log(account.value);
 });
 const close = () => {
@@ -118,6 +115,7 @@ const sendAction = async () => {
   isProcessing.value = true;
   const api = await network.api();
   await api.init();
+
   const tx = (api.api as ApiPromise).tx(txData.TransactionData.data);
 
   try {

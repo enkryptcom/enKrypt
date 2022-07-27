@@ -10,6 +10,7 @@
         ref="addressInput"
         v-model="address"
         type="text"
+        :disabled="disableDirectInput"
         placeholder="0x… address"
         :style="{ color: !isAddress(value) ? 'red' : 'black' }"
         @focus="changeFocus"
@@ -50,6 +51,7 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  disableDirectInput: Boolean,
 });
 const emit = defineEmits<{
   (e: "update:inputAddress", address: string): void;
