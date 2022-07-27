@@ -111,6 +111,10 @@ const sendAction = () => {
 };
 const toggleInitiated = () => {
   isInitiated.value = !isInitiated.value;
+
+  if (!isInitiated.value) {
+    router.go(-2);
+  }
 };
 const handleScroll = (e: any) => {
   let progress = Number(e.target.lastChild.style.top.replace("px", ""));

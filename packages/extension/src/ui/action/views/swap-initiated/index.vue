@@ -2,21 +2,16 @@
   <div class="swap-initiated__container">
     <div class="swap-initiated">
       <div class="swap-initiated__wrap">
-        <a class="swap-initiated__close" @click="(close as ()=>void)">
-          <close-icon />
-        </a>
         <div class="swap-initiated__animation">
           <Vue3Lottie
             class="swap-initiated__loading"
             :animation-data="LottieSwapInitiated"
             :loop="false"
           />
-
           <h4>Swap initiated</h4>
           <p>
             Once completed, COMP will be deposited to the address you specified.
           </p>
-          <a href="#">View on Etherscan</a>
         </div>
         <div class="swap-initiated__info">
           <swap-initiated-amount :token="ethereum" :amount="10">
@@ -27,21 +22,26 @@
           <swap-initiated-amount :token="ethereum" :amount="129.634">
           </swap-initiated-amount>
         </div>
+
+        <div class="swap-initiated__buttons">
+          <a href="#">View progress</a>
+          <a @click="close">Close</a>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { PropType } from "vue";
 import LottieSwapInitiated from "@action/assets/animation/swap-initiated.json";
 import ArrowDown from "@action/icons/send/arrow-down.vue";
-import CloseIcon from "@action/icons/common/close-icon.vue";
 import SwapInitiatedAmount from "./components/swap-initiated-amount.vue";
 import { ethereum } from "@action/types/mock";
 
 defineProps({
   close: {
-    type: Function,
+    type: Function as PropType<() => void>,
     default: () => ({}),
   },
 });
@@ -73,7 +73,6 @@ defineProps({
     position: relative;
     background: @white;
     width: 320px;
-    height: 432px;
     box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.16);
     border-radius: 12px;
     z-index: 102;
@@ -81,7 +80,6 @@ defineProps({
   }
   &__animation {
     width: 100%;
-    height: 264px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -107,11 +105,33 @@ defineProps({
       text-align: center;
       letter-spacing: 0.25px;
       color: @secondaryLabel;
-      margin: 0 0 16px 0;
+      margin: 0 0 32px 0;
     }
+  }
+  &__info {
+    width: 100%;
+    height: 136px;
+    padding: 0 16px 16px 16px;
+    box-sizing: border-box;
+    &-arrow {
+      padding: 8px 0 8px 20px;
+    }
+  }
+  &__loading {
+    width: 72px;
+    height: 48px;
+    margin-bottom: 8px;
+    margin-top: 32px;
+  }
+  &__buttons {
+    padding: 0 32px 32px 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: row;
 
     a {
-      width: 156px;
+      width: 128px;
       height: 40px;
       background: rgba(0, 0, 0, 0.02);
       border-radius: 10px;
@@ -124,34 +144,16 @@ defineProps({
       text-align: center;
       color: @primaryLabel;
       text-decoration: none;
-    }
-  }
-  &__info {
-    width: 100%;
-    height: 168px;
-    background-color: @lightBg;
-    padding: 16px;
-    box-sizing: border-box;
-    &-arrow {
-      padding-left: 20px;
-    }
-  }
-  &__loading {
-    width: 72px;
-    height: 48px;
-    margin-bottom: 8px;
-  }
-  &__close {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 0;
-    transition: background 300ms ease-in-out;
+      transition: background 300ms ease-in-out;
+      cursor: pointer;
 
-    &:hover {
-      background: @black007;
+      &:last-child {
+        width: 112px;
+      }
+
+      &:hover {
+        background: @black007;
+      }
     }
   }
 }

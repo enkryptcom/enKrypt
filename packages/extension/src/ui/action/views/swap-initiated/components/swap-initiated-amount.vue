@@ -38,7 +38,7 @@ defineProps({
   align-items: center;
   flex-direction: row;
   width: 100%;
-  padding: 12px 16px;
+  padding: 0 16px;
   box-sizing: border-box;
 
   img {

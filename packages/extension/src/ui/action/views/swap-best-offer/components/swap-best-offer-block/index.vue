@@ -13,6 +13,7 @@
         <p>≈ $41,011.8</p>
       </div>
     </div>
+    <best-offer-to-item></best-offer-to-item>
     <best-offer-warning :fee-warning="true"></best-offer-warning>
     <best-offer-warning :token-warning="true"></best-offer-warning>
     <best-offer-error :bad-trade="true"></best-offer-error>
@@ -41,6 +42,7 @@ import SwitchArrow from "@action/icons/header/switch_arrow.vue";
 import BestOfferList from "./components/best-offer-list.vue";
 import BestOfferWarning from "./components/best-offer-warning.vue";
 import BestOfferError from "./components/best-offer-error.vue";
+import BestOfferToItem from "./components/best-offer-to-item.vue";
 
 let isOffersOpen = ref(false);
 
