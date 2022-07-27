@@ -1,8 +1,5 @@
 <template>
-  <div
-    v-if="cryptoAmount == '~' || fiatAmount == '~'"
-    class="network-activity__total"
-  >
+  <div v-if="cryptoAmount == '~'" class="network-activity__total">
     <balance-loader class="network-activity__loader-one" />
     <balance-loader class="network-activity__loader-two" />
   </div>

@@ -143,7 +143,7 @@ const hideClicked = async (isHidden: boolean, item: NFTItem) => {
 
 .container {
   width: 100%;
-  height: 600px;
+  height: 550px;
   background-color: @white;
   box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.16);
   margin: 0;
@@ -161,7 +161,7 @@ const hideClicked = async (isHidden: boolean, item: NFTItem) => {
     position: relative;
     margin: auto;
     width: 100%;
-    max-height: 600px;
+    max-height: 540px;
     margin: 0;
     padding: 56px 0 0 0 !important;
     box-sizing: border-box;

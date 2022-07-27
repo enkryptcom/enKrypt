@@ -125,7 +125,7 @@ const checkActivity = (activity: Activity): void => {
               .then(() => updateVisibleActivity(activity));
           } else if (props.network.provider === ProviderName.polkadot) {
             const subInfo = info as SubscanExtrinsicInfo;
-            if (subInfo.success) {
+            if (!subInfo.pending) {
               activity.status = subInfo.success
                 ? ActivityStatus.success
                 : ActivityStatus.failed;

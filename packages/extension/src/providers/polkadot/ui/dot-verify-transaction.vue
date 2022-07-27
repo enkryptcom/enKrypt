@@ -193,7 +193,6 @@ onBeforeMount(async () => {
 
   const reqPayload = Request.value.params![0] as SignerPayloadJSON;
   const reqAccount = Request.value.params![1] as EnkryptAccount;
-  console.log(reqAccount);
   const targetNetwork = getAllNetworks().find(
     (network) =>
       (network as SubstrateNetwork).genesisHash === reqPayload.genesisHash
@@ -230,7 +229,6 @@ const setAccount = async (reqAccount: EnkryptAccount) => {
       (network.value as SubstrateNetwork).prefix
     );
   }
-  console.log(reqAccount);
   account.value = reqAccount;
 };
 

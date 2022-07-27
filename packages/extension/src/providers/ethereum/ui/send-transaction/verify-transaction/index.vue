@@ -12,7 +12,7 @@
           </a>
         </div>
         <hardware-wallet-msg
-          :wallet-type="account!.walletType"
+          :wallet-type="account?.walletType"
         ></hardware-wallet-msg>
         <p class="verify-transaction__description" :class="{ popup: isPopup }">
           Double check the information and confirm transaction
@@ -73,6 +73,7 @@
       :network="network"
       :token="txData.toToken"
       :is-done="isSendDone"
+      :is-window-popup="isWindowPopup"
     ></send-process>
   </div>
 </template>
@@ -106,7 +107,6 @@ const KeyRing = new PublicKeyRing();
 const route = useRoute();
 const router = useRouter();
 const selectedNetwork: string = route.query.id as string;
-console.log(route.query.txData);
 const txData: VerifyTransactionParams = JSON.parse(
   Buffer.from(route.query.txData as string, "base64").toString("utf8")
 );
@@ -117,9 +117,11 @@ const isSendDone = ref(false);
 const account = ref<EnkryptAccount>();
 const isPopup: boolean = getCurrentContext() === "new-window";
 const verifyScrollRef = ref<ComponentPublicInstance<HTMLElement>>();
+const isWindowPopup = ref(false);
 defineExpose({ verifyScrollRef });
 onBeforeMount(async () => {
   account.value = await KeyRing.getAccount(txData.fromAddress);
+  isWindowPopup.value = account.value.isHardware;
 });
 const close = () => {
   if (getCurrentContext() === "popup") {
@@ -187,7 +189,7 @@ const sendAction = async () => {
               address: txData.fromAddress,
               network: network.name,
             });
-            console.log("ERROR", error);
+            console.error("ERROR", error);
           });
       });
     });

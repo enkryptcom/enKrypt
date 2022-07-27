@@ -69,6 +69,7 @@
       :to-address="txData.toAddress"
       :network="network"
       :token="txData.toToken"
+      :is-window-popup="isWindowPopup"
     ></send-process>
   </div>
 </template>
@@ -110,14 +111,14 @@ const txData: VerifyTransactionParams = JSON.parse(
 
 const isProcessing = ref(false);
 const isPopup: boolean = getCurrentContext() === "new-window";
-
+const isWindowPopup = ref(false);
 const verifyScrollRef = ref<ComponentPublicInstance<HTMLElement>>();
 defineExpose({ verifyScrollRef });
 
 const network = getNetworkByName(selectedNetwork)!;
 onBeforeMount(async () => {
   account.value = await KeyRing.getAccount(txData.fromAddress);
-  console.log(account.value);
+  isWindowPopup.value = account.value.isHardware;
 });
 const close = () => {
   if (getCurrentContext() === "popup") {
@@ -138,7 +139,6 @@ const sendAction = async () => {
     const signedTx = await tx.signAsync(account.value!.address, {
       signer: {
         signPayload: (signPayload): Promise<SignerResult> => {
-          console.log(signPayload);
           const registry = new TypeRegistry();
           registry.setSignedExtensions(signPayload.signedExtensions);
           const extType = registry.createType("ExtrinsicPayload", signPayload, {

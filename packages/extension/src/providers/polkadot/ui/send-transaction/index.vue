@@ -389,7 +389,7 @@ const sendAction = async () => {
     },
   });
 
-  if (props.accountInfo.selectedAccount!.isHardware) {
+  if (fromAccount.isHardware) {
     await Browser.windows.create({
       url: Browser.runtime.getURL(
         getUiPath(

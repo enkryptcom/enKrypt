@@ -20,7 +20,7 @@ const acalaOptions: SubstrateNetworkOptions = {
   prefix: 12,
   gradient:
     "linear-gradient(326.87deg, #645AFF 12.53%, #E40C5B 50.89%, #FF4C3B 89.24%)",
-  node: "wss://acala-rpc-0.aca-api.network/",
+  node: "wss://acala-rpc-1.aca-api.network/",
   coingeckoID: "acala",
   genesisHash:
     "0xfc41b9bd8ef8fe53d58c7ea67c794c7ec9a73daf05e6d54b14ff6342c99ba64c",
