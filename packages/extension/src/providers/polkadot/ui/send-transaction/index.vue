@@ -13,6 +13,8 @@
         :from="true"
         :value="addressFrom"
         :network="network"
+        :disable-direct-input="true"
+        @click="toggleSelectContactFrom(true)"
         @update:input-address="inputAddressFrom"
         @toggle:show-contacts="toggleSelectContactFrom"
       ></send-address-input>
@@ -106,7 +108,6 @@ import { GasFeeInfo } from "@/providers/ethereum/ui/types";
 import { SubstrateNetwork } from "../../types/substrate-network";
 import { toBN } from "web3-utils";
 import { formatFloatingPointValue } from "@/libs/utils/number-formatter";
-import { ProviderName } from "@/types/provider";
 import { fromBase, toBase } from "@/libs/utils/units";
 import BigNumber from "bignumber.js";
 import { VerifyTransactionParams } from "../types";
@@ -116,6 +117,9 @@ import { SubstrateToken } from "../../types/substrate-token";
 import { SubstrateNativeToken } from "../../types/substrate-native-token";
 import Browser from "webextension-polyfill";
 import getUiPath from "@/libs/utils/get-ui-path";
+import { ProviderName } from "@/types/provider";
+import PublicKeyRing from "@/libs/keyring/public-keyring";
+import { polkadotEncodeAddress } from "@enkryptcom/utils";
 
 const props = defineProps({
   network: {
@@ -342,10 +346,13 @@ const sendAction = async () => {
     sendAmount,
     sendOptions
   );
-
+  const keyring = new PublicKeyRing();
+  const fromAccount = await keyring.getAccount(
+    polkadotEncodeAddress(addressFrom.value)
+  );
   const txVerifyInfo: VerifyTransactionParams = {
     TransactionData: {
-      from: props.accountInfo.selectedAccount!.address,
+      from: fromAccount.address,
       to: addressTo.value,
       data: tx.toHex() as `0x{string}`,
       value: amount.value,
@@ -361,8 +368,8 @@ const sendAction = async () => {
       name: selectedAsset.value.name || "",
       price: selectedAsset.value.price || "0",
     },
-    fromAddress: props.accountInfo.selectedAccount!.address,
-    fromAddressName: props.accountInfo.selectedAccount!.name,
+    fromAddress: fromAccount.address,
+    fromAddressName: fromAccount.name,
     txFee: fee.value!,
     toAddress: addressTo.value,
   };

@@ -1,7 +1,7 @@
 <template>
   <common-popup>
     <template #header>
-      <sign-logo color="#E6007A" class="common-popup__logo"></sign-logo>
+      <sign-logo class="common-popup__logo"></sign-logo>
       <div class="common-popup__network">
         <img :src="network ? network.icon : defaultNetwork.icon" />
         <p>{{ network ? network.name_long : "" }}</p>

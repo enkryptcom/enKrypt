@@ -56,7 +56,7 @@ const select = (trade: TradeInfo) => {
   border-radius: 12px;
   box-sizing: border-box;
   width: 256px;
-  padding: 4px;
+  padding: 8px;
   position: absolute;
   left: -6px;
   top: 37px;

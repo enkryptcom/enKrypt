@@ -1,12 +1,13 @@
 import { getCustomError } from "@/libs/error";
 import { sendToBackgroundFromBackground } from "@/libs/messenger/extension";
 import { InternalMethods } from "@/types/messenger";
-import { ProviderName, ProviderRPCRequest } from "@/types/provider";
+import { ProviderRPCRequest } from "@/types/provider";
 import { MiddlewareFunction } from "@enkryptcom/types";
 import EthNetworks from "../networks";
 import EthereumProvider from "..";
 import { numberToHex } from "web3-utils";
 import { MessageMethod } from "../types";
+import DomainState from "@/libs/domain-state";
 const method: MiddlewareFunction = function (
   this: EthereumProvider,
   payload: ProviderRPCRequest,
@@ -48,7 +49,10 @@ const method: MiddlewareFunction = function (
           provider: validNetwork.provider,
           tabId: payload.options?.tabId,
         });
-        res(null, null);
+        const domainState = new DomainState();
+        domainState
+          .setSelectedNetwork(validNetwork.name)
+          .then(() => res(null, null));
       });
     } else {
       return res(

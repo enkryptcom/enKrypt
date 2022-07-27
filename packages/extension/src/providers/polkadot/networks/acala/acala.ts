@@ -18,8 +18,9 @@ const acalaOptions: SubstrateNetworkOptions = {
   icon: require("../icons/acala.svg"),
   decimals: 12,
   prefix: 12,
-  gradient: "#53CBC9",
   node: "wss://acala-polkadot.api.onfinality.io/ws?apikey=c3bdf4c6-45f5-4558-a848-44cc0c372405",
+  gradient:
+    "linear-gradient(326.87deg, #645AFF 12.53%, #E40C5B 50.89%, #FF4C3B 89.24%)",
   coingeckoID: "acala",
   genesisHash:
     "0xfc41b9bd8ef8fe53d58c7ea67c794c7ec9a73daf05e6d54b14ff6342c99ba64c",

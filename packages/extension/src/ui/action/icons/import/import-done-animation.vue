@@ -23,7 +23,7 @@
     <path
       id="done"
       d="M0.63184,-0.721589L7.63184,8.27841L20.6318,-8.72159"
-      stroke="#05c0a5"
+      stroke="#34c759"
       fill="none"
       stroke-width="3"
       stroke-linecap="round"
@@ -62,7 +62,7 @@ svg {
     animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
   }
   100% {
-    stroke: #05c0a5;
+    stroke: #34c759;
   }
 }
 @keyframes a0_da {

@@ -74,7 +74,7 @@ body {
   &__logo {
     position: absolute;
     left: 32px;
-    top: 28px;
+    top: 24px;
   }
 
   &__back {
