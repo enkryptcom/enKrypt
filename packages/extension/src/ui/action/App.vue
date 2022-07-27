@@ -233,6 +233,7 @@ const setNetwork = async (network: BaseNetwork) => {
     activeBalances: activeAccounts.map(() => "~"),
   };
   currentNetwork.value = network;
+  router.push({ name: "assets", params: { id: network.name } });
   const tabId = await domainState.getCurrentTabId();
   if ((currentNetwork.value as EvmNetwork).chainID) {
     await sendToBackgroundFromAction({
@@ -257,7 +258,6 @@ const setNetwork = async (network: BaseNetwork) => {
       tabId,
     });
   }
-  router.push({ name: "assets", params: { id: network.name } });
   domainState.setSelectedNetwork(network.name);
   if (network.api) {
     try {

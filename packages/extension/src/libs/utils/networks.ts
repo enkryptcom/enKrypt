@@ -31,6 +31,7 @@ const POPULAR_NAMES = [
   NetworkNames.Matic,
   NetworkNames.Polkadot,
   NetworkNames.Moonbeam,
+  NetworkNames.Acala,
 ];
 export {
   getAllNetworks,

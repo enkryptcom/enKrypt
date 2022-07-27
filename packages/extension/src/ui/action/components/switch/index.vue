@@ -6,16 +6,15 @@
 </template>
 
 <script setup lang="ts">
-const props = defineProps({
+const emit = defineEmits<{
+  (e: "update:check", isChecked: boolean): void;
+}>();
+defineProps({
   isChecked: Boolean,
-  check: {
-    type: Function,
-    default: () => ({}),
-  },
 });
 
 const checkLocal = (e: any) => {
-  props.check(e.target.checked);
+  emit("update:check", e.target.checked);
 };
 </script>
 
