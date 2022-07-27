@@ -28,7 +28,14 @@
             :token="toToken"
             :select-token="selectTokenTo"
             :is-finding-rate="isFindingRate"
+            :fast-list="featuredTokens"
+            :total-tokens="
+              toTokens
+                ? toTokens.length - (featuredTokens?.length ?? 0)
+                : undefined
+            "
             :amount="toAmount?.toString()"
+            @update:select-asset="selectTokenTo"
           ></swap-token-to-amount>
 
           <send-address-input
@@ -87,6 +94,11 @@
     ></assets-select-list>
 
     <swap-looking v-show="isLooking" :close="toggleLooking"></swap-looking>
+    <swap-error-popup
+      v-if="showSwapError"
+      :error="swapError"
+      :close="toggleShowError"
+    />
   </div>
 </template>
 
@@ -100,6 +112,7 @@ import SwapTokenAmountInput from "./components/swap-token-amount-input/index.vue
 import SwapTokenToAmount from "./components/swap-token-to-amount/index.vue";
 import AssetsSelectList from "@action/views/assets-select-list/index.vue";
 import SwapLooking from "./components/swap-looking/index.vue";
+import SwapErrorPopup from "./components/swap-error/index.vue";
 import SendAddressInput from "./components/send-address-input.vue";
 import SendContactsList from "./components/send-contacts-list.vue";
 import { AccountsHeaderData } from "../../types/account";
@@ -113,6 +126,7 @@ import { SubstrateNetwork } from "@/providers/polkadot/types/substrate-network";
 import { UnknownToken } from "@/types/unknown-token";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
 import { EnkryptAccount, SignerType } from "@enkryptcom/types";
+import { SwapError } from "./components/swap-error/types";
 
 const router = useRouter();
 const route = useRoute();
@@ -149,6 +163,8 @@ const fromAmount = ref<string | null>(null);
 const toTokens = ref<BaseToken[]>();
 const toToken = ref<BaseToken | null>(null);
 
+const featuredTokens = ref<BaseToken[]>();
+
 const fromSelectOpened = ref(false);
 const toSelectOpened = ref(false);
 
@@ -159,6 +175,9 @@ const minFrom = ref<string>();
 const maxFrom = ref<string>();
 const inputError = ref(false);
 const addressInputTimeout = ref<number>();
+
+const swapError = ref<SwapError>();
+const showSwapError = ref(false);
 
 const toTokensFiltered = computed(() => {
   if (toTokens.value) {
@@ -198,7 +217,7 @@ const isFindingRate = computed(() => {
 const getEstimateRate = computed(() => {
   if (rates.value) {
     if (rates.value.length === 1) {
-      return (_x: number) => new BigNumber(rates.value![0].rate);
+      return () => new BigNumber(rates.value![0].rate);
     }
 
     const x = rates.value.map(({ amount }) => new BigNumber(amount));
@@ -232,7 +251,7 @@ const getEstimateRate = computed(() => {
     return (x: number) => intercept.plus(slope.times(x));
   }
 
-  return (_x: number) => new BigNumber(0);
+  return () => new BigNumber(0);
 });
 
 const toAmount = computed(() => {
@@ -263,7 +282,8 @@ onMounted(async () => {
         );
       });
       const pricePromises = tokens.map((token) => {
-        if (token.price) {
+        if (token.price && token.price !== "0") {
+          console.log(token.price);
           return Promise.resolve(token.price);
         }
         return token.getLatestPrice();
@@ -276,7 +296,16 @@ onMounted(async () => {
       }
     });
 
-  swap.getAllTokens(props.network.name).then((tokens) => {
+  swap.getAllTokens(props.network.name).then(({ tokens, featured, error }) => {
+    if (tokens.length === 0 && featured.length === 0 && error) {
+      swapError.value = SwapError.NO_TOKENS;
+      toggleShowError();
+    } else if (error) {
+      swapError.value = SwapError.SOME_TOKENS;
+      toggleShowError();
+    }
+
+    featuredTokens.value = featured.length > 0 ? featured : tokens.slice(0, 5);
     toTokens.value = tokens;
   });
 });
@@ -398,6 +427,9 @@ const toggleToToken = () => {
 const toggleLooking = () => {
   isLooking.value = !isLooking.value;
 };
+const toggleShowError = () => {
+  showSwapError.value = !showSwapError.value;
+};
 const sendButtonTitle = () => {
   let title = "Select  token";
 
@@ -436,7 +468,7 @@ const sendAction = async () => {
   const trades = await swap.getTrade(
     props.network.name,
     fromAddress,
-    address.value,
+    network.value!.displayAddress(address.value),
     fromToken.value!,
     toToken.value!,
     fromAmount.value!
@@ -444,6 +476,9 @@ const sendAction = async () => {
 
   if (trades.length === 0) {
     // TODO handle no trades
+    console.error("No trades found");
+    toggleLooking();
+    return;
   }
 
   const swapData = {
@@ -461,7 +496,7 @@ const sendAction = async () => {
 };
 const swapTokens = () => {
   const tokenTo = fromToken.value;
-  const amountTo = fromAmount.value;
+  // const amountTo = fromAmount.value;
 
   const tokenFrom = toToken.value;
   const amountFrom = toAmount.value;

@@ -1,58 +1,29 @@
 <template>
-  <a
-    class="send-fee-select"
-    :class="{ swap: inSwap }"
-    @click="emit('openPopup')"
-  >
+  <div class="send-fee-select" :class="{ swap: inSwap }">
     <div class="send-fee-select__value">
-      <p class="send-fee-select__value-fiat">
+      <p v-if="fee.fiatValue" class="send-fee-select__value-fiat">
         Fee: {{ $filters.formatFiatValue(fee.fiatValue).value }}
         {{ fee.fiatSymbol }}
       </p>
-      <p class="send-fee-select__value-crypto">
+      <p v-if="fee.nativeValue" class="send-fee-select__value-crypto">
         {{ $filters.formatFloatingPointValue(fee.nativeValue).value }}
         <span>{{ fee.nativeSymbol }}</span>
       </p>
+      <p v-else class="send-fee-select__value-crypto">~</p>
     </div>
-
-    <div class="send-fee-select__arrow">
-      <div class="send-fee-select__time">
-        <time-icon />
-        <span>{{ FeeDescriptions[selected].eta }}</span>
-      </div>
-      <switch-arrow />
-    </div>
-  </a>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { PropType } from "vue";
-import SwitchArrow from "@action/icons/header/switch_arrow.vue";
-import TimeIcon from "@action/icons/fee/time-icon.vue";
 import { GasFeeInfo } from "@/providers/ethereum/ui/types";
-import { GasPriceTypes } from "@/providers/ethereum/libs/transaction/types";
-import { FeeDescriptions } from "@/providers/ethereum/libs/transaction/gas-utils";
-
-const emit = defineEmits<{
-  (e: "openPopup"): void;
-}>();
 
 defineProps({
-  toggleSelect: {
-    type: Function,
-    default: () => {
-      return null;
-    },
-  },
   fee: {
-    type: Object as PropType<GasFeeInfo>,
+    type: Object as PropType<Partial<GasFeeInfo>>,
     default: () => {
       return {};
     },
-  },
-  selected: {
-    type: String as PropType<GasPriceTypes>,
-    default: GasPriceTypes.REGULAR,
   },
   inSwap: {
     type: Boolean,
@@ -74,7 +45,6 @@ defineProps({
   border: 1px solid @gray02;
   box-sizing: border-box;
   border-radius: 10px;
-  width: calc(~"100% - 64px");
   padding: 16px 10px;
   display: flex;
   justify-content: flex-start;

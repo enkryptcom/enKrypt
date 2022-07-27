@@ -4,7 +4,7 @@
       <best-offer-list-item
         v-for="trade in trades"
         :key="trade.provider"
-        :name="trade.provider"
+        :name="formatProviderName(trade.provider)"
         :amount="`~${trade.minimumReceived}`"
         :select="() => select(trade)"
         :is-checked="trade.provider === pickedTrade.provider"
@@ -15,7 +15,7 @@
 </template>
 
 <script setup lang="ts">
-import { QuoteInfo, TradeInfo } from "@/providers/swap/types/SwapProvider";
+import { TradeInfo } from "@/providers/swap/types/SwapProvider";
 import BestOfferListItem from "./best-offer-list-item.vue";
 
 interface IProps {
@@ -25,6 +25,21 @@ interface IProps {
 }
 
 const props = defineProps<IProps>();
+
+const formatProviderName = (provider: string): string => {
+  switch (provider) {
+    case "CHANGELLY":
+      return "Changelly";
+    case "ZERO_X":
+      return "0x";
+    case "PARASWAP":
+      return "Paraswap";
+    case "ONE_INCH":
+      return "1inch";
+  }
+
+  return provider;
+};
 
 const select = (trade: TradeInfo) => {
   props.select(trade);

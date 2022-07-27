@@ -1,6 +1,5 @@
 import { Erc20Token } from "@/providers/ethereum/types/erc20-token";
 import { BaseToken } from "@/types/base-token";
-import { UnknownToken } from "@/types/unknown-token";
 import { v4 as uuidv4 } from "uuid";
 import EvmAPI from "@/providers/ethereum/libs/api";
 import {
@@ -27,6 +26,11 @@ import { SubstrateToken } from "@/providers/polkadot/types/substrate-token";
 import { TypeRegistry } from "@polkadot/types";
 import type { SignerResult } from "@polkadot/api/types";
 import { u8aToHex } from "@polkadot/util";
+import Web3 from "web3";
+import erc20 from "@/providers/ethereum/libs/abi/erc20";
+import ActivityState from "@/libs/activity-state";
+import { Activity, ActivityStatus, ActivityType } from "@/types/activity";
+import { ChangellyToken, ChangellyTokenOptions } from "./changelly-token";
 
 interface ChangellyTokenInfo {
   contractAddress?: string;
@@ -37,6 +41,7 @@ interface ChangellyTokenInfo {
   coingeckoID?: string;
   image: string;
   price?: string;
+  blockchain: string;
 }
 
 interface ChangellyTrade extends Trade {
@@ -77,6 +82,8 @@ type ChangellyFixedRateResponse = {
 const HOST_URL = "https://swap.mewapi.io/changelly";
 const REQUEST_CACHER = "https://requestcache.mewapi.io/?url=";
 const REQUEST_TIMEOUT = 5000;
+
+const activityState = new ActivityState();
 
 export class ChangellySwapProvider extends SwapProvider {
   public supportedNetworks: string[] = ["KSM", "DOT", "ETH", "BSC", "MATIC"];
@@ -134,7 +141,10 @@ export class ChangellySwapProvider extends SwapProvider {
     }
   }
 
-  public async getSupportedTokens(): Promise<BaseToken[]> {
+  public async getSupportedTokens(): Promise<{
+    tokens: BaseToken[];
+    featured: BaseToken[];
+  }> {
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => {
@@ -203,42 +213,48 @@ export class ChangellySwapProvider extends SwapProvider {
       const prices = await pricesRes.json();
 
       Object.keys(prices).forEach((cgid) => {
-        const token = tokenData.find((token) => token.coingeckoID === cgid);
-
-        if (token) {
-          token.price = prices[cgid]["usd"];
-        }
+        tokenData.forEach((token) => {
+          if (token.coingeckoID === cgid) {
+            token.price = prices[cgid]["usd"];
+          }
+        });
       });
 
-      return tokenData.map((tokenData) => {
-        let name = tokenData.fullName;
-        let symbol = tokenData.ticker;
+      return {
+        tokens: tokenData.map((tokenData) => {
+          let name = tokenData.fullName;
+          let symbol = tokenData.ticker;
 
-        if (tokenData.name === "matic") {
-          name = "Ethereum Polygon";
-        } else if (tokenData.name === "maticpolygon") {
-          name = "Polygon";
-          symbol = "MATIC";
-        }
+          if (tokenData.name === "matic") {
+            name = "Ethereum Polygon";
+          } else if (tokenData.name === "maticpolygon") {
+            name = "Polygon";
+            symbol = "MATIC";
+          }
 
-        const tokenOptions = {
-          name,
-          symbol: symbol.toUpperCase(),
-          decimals: 0,
-          icon: tokenData.image,
-          balance: "1",
-          price: tokenData.price,
-        };
-
-        if (tokenData.contractAddress) {
-          return new Erc20Token({
+          const tokenOptions: ChangellyTokenOptions = {
+            name,
+            symbol: symbol.toUpperCase(),
+            decimals: 0,
+            icon: `https://img.mewapi.io/?image=${tokenData.image}`,
+            balance: "1",
+            price: tokenData.price,
             contract: tokenData.contractAddress,
-            ...tokenOptions,
-          });
-        } else {
-          return new UnknownToken(tokenOptions);
-        }
-      });
+            blockchain: tokenData.blockchain,
+            changellyID: symbol,
+          };
+
+          if (tokenData.contractAddress) {
+            return new Erc20Token({
+              contract: tokenData.contractAddress,
+              ...tokenOptions,
+            });
+          } else {
+            return new ChangellyToken(tokenOptions);
+          }
+        }),
+        featured: [],
+      };
     } catch (error) {
       throw new Error(`Could not fetch tokens, ${error}`);
     }
@@ -246,9 +262,13 @@ export class ChangellySwapProvider extends SwapProvider {
 
   public async getTradePreview(
     _chain: string,
-    fromToken: BaseToken,
-    toToken: BaseToken
+    fromToken: ChangellyToken,
+    toToken: ChangellyToken
   ): Promise<TradePreview | null> {
+    if (!toToken.changellyID) {
+      return null;
+    }
+
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => {
@@ -268,7 +288,7 @@ export class ChangellySwapProvider extends SwapProvider {
           params: [
             {
               from: fromToken.symbol.toLowerCase(),
-              to: toToken.symbol.toLowerCase(),
+              to: toToken.changellyID,
             },
           ],
         }),
@@ -386,9 +406,13 @@ export class ChangellySwapProvider extends SwapProvider {
     fromAddress: string,
     toAddress: string,
     fromToken: BaseToken,
-    toToken: BaseToken,
+    toToken: ChangellyToken,
     fromAmount: string
   ): Promise<TradeInfo[]> {
+    if (!toToken.changellyID) {
+      return [];
+    }
+
     try {
       const quote = (
         await this.getQuote(chain, fromToken, toToken, fromAmount)
@@ -411,7 +435,7 @@ export class ChangellySwapProvider extends SwapProvider {
             method: "createFixTransaction",
             params: {
               from: fromToken.symbol.toLowerCase(),
-              to: toToken.symbol.toLowerCase(),
+              to: toToken.changellyID,
               refundAddress: fromAddress,
               address: toAddress,
               amountFrom: fromAmount,
@@ -451,16 +475,34 @@ export class ChangellySwapProvider extends SwapProvider {
             }
           );
 
+          const gas = (await tx.paymentInfo(fromAddress)).partialFee.toHex();
+
           txData = {
+            tokenValue: fromAmount,
+            token: {
+              name: fromToken.name,
+              symbol: fromToken.symbol,
+              decimals: fromToken.decimals,
+              coingeckoID: fromToken.coingeckoID,
+              icon: `https://img.mewapi.io/?image=${fromToken.icon}`,
+            },
             to: result.payinAddress,
             from: fromAddress,
             data: tx.toHex(),
             value: "0x",
-            gas: "0x",
+            gas,
           };
         } else {
           if (fromToken.symbol.toLowerCase() === chain.toLowerCase()) {
             txData = {
+              tokenValue: fromAmount,
+              token: {
+                name: fromToken.name,
+                symbol: fromToken.symbol,
+                decimals: fromToken.decimals,
+                coingeckoID: fromToken.coingeckoID,
+                icon: `https://img.mewapi.io/?image=${fromToken.icon}`,
+              },
               to: result.payinAddress,
               from: fromAddress,
               data: "0x",
@@ -469,13 +511,38 @@ export class ChangellySwapProvider extends SwapProvider {
                   "hex"
                 ) as `0x${string}`
               }`,
-              gas: "0x",
             };
           } else {
-            // TODO ERC20 Transaction
+            const network = getNetworkByName(chain);
+            const web3 = new Web3(network!.node);
+            const tokenContract = new web3.eth.Contract(erc20 as any);
+            const data = tokenContract.methods
+              .transfer(
+                result.payinAddress,
+                toBase(fromAmount, fromToken.decimals)
+              )
+              .encodeABI();
+
+            console.log(fromAddress);
+
+            txData = {
+              to: (fromToken as Erc20Token).contract,
+              from: fromAddress,
+              data,
+              value: "0x0",
+              tokenValue: fromAmount,
+              token: {
+                name: fromToken.name,
+                symbol: fromToken.symbol,
+                decimals: fromToken.decimals,
+                coingeckoID: fromToken.coingeckoID,
+                icon: `https://img.mewapi.io/?image=${fromToken.icon}`,
+              },
+            };
           }
         }
 
+        console.log("txData", txData);
         return [
           {
             provider: "CHANGELLY",
@@ -503,14 +570,30 @@ export class ChangellySwapProvider extends SwapProvider {
   public async executeTrade(
     network: BaseNetwork,
     fromAccount: EnkryptAccount,
-    trade: TradeInfo
+    trade: TradeInfo,
+    gasPriceType?: GasPriceTypes
   ): Promise<`0x${string}`[]> {
     const api = await (network as EvmNetwork).api();
 
     if (network.name === "DOT" || network.name === "KSM") {
       const apiPromise = api.api as ApiPromise;
 
-      const tx = apiPromise.tx(trade.txs[0].data);
+      const { to, from, token, data, tokenValue } = trade.txs[0];
+
+      const tx = apiPromise.tx(data);
+
+      const txActivity: Activity = {
+        from,
+        to,
+        token,
+        isIncoming: fromAccount.address === trade.txs[0].to,
+        network: network.name,
+        status: ActivityStatus.pending,
+        timestamp: new Date().getTime(),
+        type: ActivityType.transaction,
+        value: tokenValue,
+        transactionHash: "",
+      };
 
       try {
         const signedTx = await tx.signAsync(fromAccount.address, {
@@ -542,6 +625,15 @@ export class ChangellySwapProvider extends SwapProvider {
         });
 
         const hash = await signedTx.send();
+        await activityState.addActivities(
+          [
+            {
+              ...JSON.parse(JSON.stringify(txActivity)),
+              ...{ transactionHash: hash },
+            },
+          ],
+          { address: fromAccount.address, network: network.name }
+        );
         console.log("tx hash", u8aToHex(hash));
         return [u8aToHex(hash)];
       } catch (error) {
@@ -551,8 +643,9 @@ export class ChangellySwapProvider extends SwapProvider {
     } else {
       await api.init();
       const web3 = (api as EvmAPI).web3;
+      web3.eth.handleRevert = true;
 
-      const { data, value, to } = trade.txs[0];
+      const { data, value, to, from, tokenValue, token } = trade.txs[0];
 
       const tx = new Transaction(
         {
@@ -565,8 +658,23 @@ export class ChangellySwapProvider extends SwapProvider {
         web3
       );
 
+      const txActivity: Activity = {
+        from,
+        to,
+        token,
+        isIncoming: fromAccount.address === to,
+        network: network.name,
+        status: ActivityStatus.pending,
+        timestamp: new Date().getTime(),
+        type: ActivityType.transaction,
+        value: tokenValue,
+        transactionHash: "",
+      };
+
       return tx
-        .getFinalizedTransaction({ gasPriceType: GasPriceTypes.ECONOMY })
+        .getFinalizedTransaction({
+          gasPriceType: gasPriceType ?? GasPriceTypes.REGULAR,
+        })
         .then((finalizedTx) =>
           EvmTransactionSigner({
             account: fromAccount,
@@ -578,7 +686,16 @@ export class ChangellySwapProvider extends SwapProvider {
                 `0x${signedTx.serialize().toString("hex")}`
               )
               .on("transactionHash", (hash: string) => {
-                console.log("hash", hash);
+                console.log(hash);
+                activityState.addActivities(
+                  [
+                    {
+                      ...JSON.parse(JSON.stringify(txActivity)),
+                      ...{ transactionHash: hash },
+                    },
+                  ],
+                  { address: fromAccount.address, network: network.name }
+                );
               })
               .then((receipt) => [receipt.transactionHash] as `0x${string}`[])
           )

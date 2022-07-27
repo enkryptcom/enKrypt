@@ -65,7 +65,7 @@ const inputError = computed(() => {
   if (
     tokenAmount.value &&
     tokenAmount.value !== "" &&
-    tokenAmount.value !== "0"
+    Number(tokenAmount.value) !== 0
   ) {
     const fromBn = new BigNumber(tokenAmount.value);
     if (

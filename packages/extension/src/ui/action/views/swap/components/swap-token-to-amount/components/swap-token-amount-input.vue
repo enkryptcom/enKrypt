@@ -1,11 +1,13 @@
 <template>
   <div
     :class="`swap-token-amount-input ${
-      value === '0.0' || isFindingRate ? 'placeholder' : ''
+      value === '0' || isFindingRate ? 'placeholder' : ''
     }`"
   >
     {{
-      value !== "0.0" && !isFindingRate
+      value == "0" && !isFindingRate
+        ? "0.0"
+        : !isFindingRate
         ? `≈ ${$filters.formatFloatingPointValue(value).value}`
         : isFindingRate
         ? "Getting rate"

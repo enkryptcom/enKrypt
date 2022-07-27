@@ -10,6 +10,7 @@ import {
 import { BaseNetwork } from "@/types/base-network";
 import { EnkryptAccount } from "@enkryptcom/types";
 import BigNumber from "bignumber.js";
+import { GasPriceTypes } from "../ethereum/libs/transaction/types";
 
 export class Swap {
   public providers: SwapProvider[] = [
@@ -36,17 +37,44 @@ export class Swap {
     );
   }
 
-  public async getAllTokens(chain: string): Promise<BaseToken[]> {
-    return Promise.all(
-      this.providers
-        .filter((provider) => provider.isSupportedNetwork(chain))
-        .map((provider) =>
-          provider.getSupportedTokens(chain).catch((error) => {
-            console.error(error);
-            return [];
-          })
-        )
-    ).then((tokens) => tokens.flat());
+  public async getAllTokens(
+    chain: string
+  ): Promise<{ tokens: BaseToken[]; featured: BaseToken[]; error: boolean }> {
+    try {
+      let error = false;
+      const tokens = await Promise.all(
+        this.providers
+          .filter((provider) => provider.isSupportedNetwork(chain))
+          .map((provider) =>
+            provider
+              .getSupportedTokens(chain)
+              .then((allTokens) => allTokens)
+              .catch(() => {
+                error = true;
+                return { tokens: [], featured: [] } as {
+                  tokens: BaseToken[];
+                  featured: BaseToken[];
+                };
+              })
+          )
+      );
+
+      const allTokens = tokens.reduce((prev, curr) => {
+        if (prev) {
+          return {
+            tokens: prev.tokens.concat(curr.tokens),
+            featured: prev.featured.concat(curr.featured),
+          };
+        } else {
+          return curr;
+        }
+      });
+
+      return { ...allTokens, error };
+    } catch (error) {
+      console.error(error);
+      return { tokens: [], featured: [], error: true };
+    }
   }
 
   public async getAllQuotes(
@@ -54,20 +82,25 @@ export class Swap {
     fromToken: BaseToken,
     toToken: BaseToken,
     fromAmount: string
-  ): Promise<QuoteInfo[]> {
-    return Promise.all(
+  ): Promise<{ quotes: QuoteInfo[]; error: boolean }> {
+    let error = false;
+
+    const quotes = await Promise.all(
       this.providers
         .filter((provider) => provider.isSupportedNetwork(chain))
         .map((provider) =>
           provider
             .getQuote(chain, fromToken, toToken, fromAmount)
             .then((quoteInfo) => quoteInfo)
-            .catch((error) => {
+            .catch(() => {
+              error = true;
               console.error(error);
               return [];
             })
         )
     ).then((quotes) => quotes.flat());
+
+    return { quotes, error: false };
   }
 
   public async getTradePreview(
@@ -138,7 +171,7 @@ export class Swap {
     network: BaseNetwork,
     fromAccount: EnkryptAccount,
     trade: TradeInfo,
-    confirmInfo: any
+    gasPriceType?: GasPriceTypes
   ): Promise<`0x${string}`[]> {
     const provider = this.providers.find((provider) =>
       provider.supportedDexes.includes(trade.provider)
@@ -148,6 +181,6 @@ export class Swap {
       return ["0x"];
     }
 
-    return provider.executeTrade(network, fromAccount, trade, confirmInfo);
+    return provider.executeTrade(network, fromAccount, trade, gasPriceType);
   }
 }

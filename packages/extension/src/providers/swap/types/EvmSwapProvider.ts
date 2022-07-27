@@ -1,3 +1,5 @@
+import ActivityState from "@/libs/activity-state";
+import { getNetworkByName } from "@/libs/utils/networks";
 import { toBase } from "@/libs/utils/units";
 import API from "@/providers/ethereum/libs/api";
 import Transaction from "@/providers/ethereum/libs/transaction";
@@ -5,6 +7,7 @@ import { GasPriceTypes } from "@/providers/ethereum/libs/transaction/types";
 import { Erc20Token } from "@/providers/ethereum/types/erc20-token";
 import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
 import { TransactionSigner } from "@/providers/ethereum/ui/libs/signer";
+import { Activity, ActivityStatus, ActivityType } from "@/types/activity";
 import { BaseToken } from "@/types/base-token";
 import { EnkryptAccount } from "@enkryptcom/types";
 import BigNumber from "bignumber.js";
@@ -17,6 +20,7 @@ import {
   TradeInfo,
   TradePreview,
   TradeStatus,
+  TransactionInfo,
 } from "./SwapProvider";
 
 const HOST_URL = "https://mainnet.mewwallet.dev/v4";
@@ -28,11 +32,11 @@ const GET_RATE = "/swap/rate";
 const REQUEST_TIMEOUT = 30_000;
 
 type TradeResponseTransaction = {
-  to: `0x${string}`;
-  from: `0x${string}`;
+  to: `0x${string}` | string;
+  from: `0x${string}` | string;
   data: `0x${string}`;
   value: `0x${string}`;
-  gas: `0x${string}`;
+  gas?: `0x${string}`;
 };
 
 type TradeResponse = {
@@ -67,7 +71,9 @@ export class EvmSwapProvider extends SwapProvider {
     }
   }
 
-  public async getSupportedTokens(chain: string): Promise<Erc20Token[]> {
+  public async getSupportedTokens(
+    chain: string
+  ): Promise<{ tokens: Erc20Token[]; featured: Erc20Token[] }> {
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => {
@@ -82,19 +88,46 @@ export class EvmSwapProvider extends SwapProvider {
 
       clearTimeout(timeoutId);
 
-      const { tokens }: { tokens: TokenData[] } = await res.json();
+      if (!res.ok) {
+        console.error(res.statusText);
+      }
 
-      return tokens.map((tokenData: TokenData) => {
+      const {
+        tokens,
+        featured,
+      }: { tokens: TokenData[]; featured: TokenData[] } = await res.json();
+
+      const allTokens = tokens.map((tokenData: TokenData) => {
         return new Erc20Token({
           decimals: tokenData.decimals,
           contract: tokenData.contract_address,
-          icon: tokenData.icon && tokenData.icon !== "" ? tokenData.icon : "",
-          symbol: tokenData.symbol,
+          icon:
+            tokenData.icon && tokenData.icon !== ""
+              ? `https://img.mewapi.io/?image=${tokenData.icon}`
+              : `https://img.mewapi.io/?image=https://mpolev.ru/enkrypt/eth.png`,
+          symbol: tokenData.symbol.toUpperCase(),
           name: tokenData.name ?? tokenData.symbol,
           price: tokenData.price,
           balance: toBase("1", tokenData.decimals),
         });
       });
+
+      const featuredTokens = featured.map((tokenData: TokenData) => {
+        return new Erc20Token({
+          decimals: tokenData.decimals,
+          contract: tokenData.contract_address,
+          icon:
+            tokenData.icon && tokenData.icon !== ""
+              ? `https://img.mewapi.io/?image=${tokenData.icon}`
+              : "https://img.mewapi.io/?image=https://mpolev.ru/enkrypt/eth.png",
+          symbol: tokenData.symbol.toUpperCase(),
+          name: tokenData.name ?? tokenData.symbol,
+          price: tokenData.price,
+          balance: toBase("1", tokenData.decimals),
+        });
+      });
+
+      return { tokens: allTokens, featured: featuredTokens };
     } catch {
       throw new Error("Could not fetch tokens");
     }
@@ -204,7 +237,7 @@ export class EvmSwapProvider extends SwapProvider {
   public async getTrade(
     chain: string,
     fromAddress: string,
-    _toAddress: string,
+    toAddress: string,
     fromToken: Erc20Token,
     toToken: Erc20Token,
     fromAmount: string
@@ -236,7 +269,66 @@ export class EvmSwapProvider extends SwapProvider {
 
       const data: TradeResponse[] = await res.json();
 
+      const network = getNetworkByName(chain);
       return data.map((tradeResponse) => {
+        if (tradeResponse.transactions.length === 2) {
+          const allowanceTx = tradeResponse.transactions[0];
+          const nativeToken = {
+            decimals: network!.decimals,
+            icon: network!.icon,
+            name: network!.name_long,
+            symbol: network!.name,
+            coingeckoID: network!.coingeckoID,
+          };
+          const nativeTokenValue = "0x0";
+
+          const allowanceTxInfo: TransactionInfo = {
+            token: nativeToken,
+            tokenValue: nativeTokenValue,
+            ...allowanceTx,
+          };
+
+          tradeResponse.transactions[0] = allowanceTxInfo;
+
+          const swapTx = tradeResponse.transactions[1];
+          const token = {
+            decimals: fromToken.decimals,
+            icon: fromToken.icon,
+            name: fromToken.name,
+            symbol: fromToken.symbol,
+            coingeckoID: fromToken.coingeckoID,
+            price: fromToken.price,
+          };
+          const tokenValue = toBase(fromAmount, fromToken.decimals);
+
+          const swapTxInfo: TransactionInfo = {
+            token,
+            tokenValue,
+            ...swapTx,
+          };
+
+          tradeResponse.transactions[1] = swapTxInfo;
+        } else {
+          const swapTx = tradeResponse.transactions[0];
+          const token = {
+            decimals: fromToken.decimals,
+            icon: fromToken.icon,
+            name: fromToken.name,
+            symbol: fromToken.symbol,
+            coingeckoID: fromToken.coingeckoID,
+            price: fromToken.price,
+          };
+          const tokenValue = toBase(fromAmount, fromToken.decimals);
+
+          const swapTxInfo: TransactionInfo = {
+            token,
+            tokenValue,
+            ...swapTx,
+          };
+
+          tradeResponse.transactions[0] = swapTxInfo;
+        }
+
         return {
           provider: tradeResponse.provider,
           fromAmount,
@@ -245,7 +337,7 @@ export class EvmSwapProvider extends SwapProvider {
           priceImpact: tradeResponse.price_impact,
           fee: tradeResponse.fee,
           gas: tradeResponse.gas,
-          txs: tradeResponse.transactions,
+          txs: tradeResponse.transactions as TransactionInfo[],
         };
       });
     } catch (error) {
@@ -263,35 +355,52 @@ export class EvmSwapProvider extends SwapProvider {
   public async executeTrade(
     network: EvmNetwork,
     fromAccount: EnkryptAccount,
-    trade: TradeInfo
+    trade: TradeInfo,
+    gasPriceType?: GasPriceTypes
   ): Promise<`0x${string}`[]> {
     const api = (await network.api()) as API;
     await api.init();
     const web3 = api.web3;
 
     const nonce = await web3.eth.getTransactionCount(fromAccount.address);
-
+    const activityState = new ActivityState();
     const txPromises = trade.txs
-      .map(({ data, value, gas, to }, index) => {
-        return new Transaction(
-          {
-            from: fromAccount.address as `0x${string}`,
-            to: to as `0x${string}`,
-            data,
-            value,
-            gas,
-            chainId: numberToHex(network.chainID) as `0x{string}`,
-            nonce: `0x${toBN(nonce)
-              .addn(index)
-              .toString("hex")}` as `0x${string}`,
-          },
-          web3
-        );
+      .map(({ data, value, gas, to, from, token, tokenValue }, index) => {
+        const txActivity: Activity = {
+          from,
+          to,
+          token,
+          isIncoming: fromAccount.address === to,
+          network: network.name,
+          status: ActivityStatus.pending,
+          timestamp: new Date().getTime(),
+          type: ActivityType.transaction,
+          value: tokenValue,
+          transactionHash: "",
+        };
+
+        return [
+          new Transaction(
+            {
+              from: fromAccount.address as `0x${string}`,
+              to: to as `0x${string}`,
+              data,
+              value,
+              gas,
+              chainId: numberToHex(network.chainID) as `0x{string}`,
+              nonce: `0x${toBN(nonce)
+                .addn(index)
+                .toString("hex")}` as `0x${string}`,
+            },
+            web3
+          ),
+          txActivity,
+        ] as const;
       })
-      .map((tx) =>
+      .map(([tx, activity]) =>
         tx
           .getFinalizedTransaction({
-            gasPriceType: GasPriceTypes.ECONOMY,
+            gasPriceType: gasPriceType ?? GasPriceTypes.REGULAR,
           })
           .then((finalizedTx) =>
             TransactionSigner({
@@ -304,7 +413,15 @@ export class EvmSwapProvider extends SwapProvider {
                   `0x${signedTx.serialize().toString("hex")}`
                 )
                 .on("transactionHash", (hash: string) => {
-                  // TODO log to activity
+                  activityState.addActivities(
+                    [
+                      {
+                        ...JSON.parse(JSON.stringify(activity)),
+                        ...{ transactionHash: hash },
+                      },
+                    ],
+                    { address: fromAccount.address, network: network.name }
+                  );
                   console.log("hash", hash);
                 })
                 .then((receipt) => receipt.transactionHash as `0x${string}`)

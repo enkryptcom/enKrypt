@@ -4,7 +4,8 @@
 
     <div class="swap-initiated-amount__info">
       <h4>
-        {{ amount }} <span>{{ token.symbol }}</span>
+        {{ $filters.formatFloatingPointValue(amount).value }}
+        <span>{{ token.symbol }}</span>
       </h4>
     </div>
   </div>

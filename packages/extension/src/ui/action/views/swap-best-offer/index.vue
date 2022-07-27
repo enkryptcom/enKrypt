@@ -33,19 +33,22 @@
             :not-enought-e-t-h="true"
           ></best-offer-error>
           <send-fee-select
-            :fee="undefined"
-            :toggle-select="toggleSelectFee"
+            v-if="(props.network as EvmNetwork).chainID"
+            :fee="gasCostValues[selectedFee]"
             :in-swap="true"
+            @open-popup="toggleSelectFee"
           ></send-fee-select>
+          <send-fee-display v-else :fee="fee" :in-swap="true" />
         </custom-scrollbar>
 
-        <!-- <transaction-fee-view
+        <transaction-fee-view
+          :fees="gasCostValues"
           :show-fees="isOpenSelectFee"
-          :close="toggleSelectFee"
-          :select-fee="selectFee"
-          :selected="undefined"
+          :selected="selectedFee"
           :is-header="true"
-        ></transaction-fee-view> -->
+          @close-popup="toggleSelectFee"
+          @gas-type-changed="selectFee"
+        ></transaction-fee-view>
       </div>
 
       <div class="swap-best-offer__buttons" :class="{ border: isHasScroll() }">
@@ -73,7 +76,15 @@
 </template>
 
 <script setup lang="ts">
-import { ComponentPublicInstance, onMounted, PropType, ref, watch } from "vue";
+import {
+  ComponentPublicInstance,
+  computed,
+  onMounted,
+  PropType,
+  reactive,
+  ref,
+  watch,
+} from "vue";
 import { useRouter, useRoute } from "vue-router";
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import BaseButton from "@action/components/base-button/index.vue";
@@ -82,11 +93,10 @@ import SwapInitiated from "@action/views/swap-initiated/index.vue";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 import BestOfferError from "./components/swap-best-offer-block/components/best-offer-error.vue";
 import SendFeeSelect from "@/providers/ethereum/ui/send-transaction/components/send-fee-select.vue";
+import SendFeeDisplay from "@/providers/polkadot/ui/send-transaction/components/send-fee-display.vue";
 import TransactionFeeView from "@action/views/transaction-fee/index.vue";
-import { TransactionFee } from "@action/types/fee";
-import { recommendedFee } from "@action/types/mock";
 import scrollSettings from "@/libs/utils/scroll-settings";
-import { Trade, TradeInfo } from "@/providers/swap/types/SwapProvider";
+import { TradeInfo } from "@/providers/swap/types/SwapProvider";
 import { BaseToken } from "@/types/base-token";
 import { Swap } from "@/providers/swap";
 import { BaseNetwork } from "@/types/base-network";
@@ -94,13 +104,13 @@ import { AccountsHeaderData } from "../../types/account";
 import { numberToHex, toBN } from "web3-utils";
 import BN from "bn.js";
 import Web3 from "web3";
-import API from "@/providers/ethereum/libs/api";
 import Transaction from "@/providers/ethereum/libs/transaction";
 import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
 import { GasPriceTypes } from "@/providers/ethereum/libs/transaction/types";
-import { TransactionSigner } from "@/providers/ethereum/ui/libs/signer";
-import PublicKeyRing from "@/libs/keyring/public-keyring";
-import { getCurrentContext } from "@enkryptcom/extension-bridge";
+import { GasFeeInfo, GasFeeType } from "@/providers/ethereum/ui/types";
+import { fromBase } from "@/libs/utils/units";
+import BigNumber from "bignumber.js";
+import { defaultGasCostVals } from "@/providers/ethereum/ui/common/default-vals";
 
 interface SwapData {
   trades: TradeInfo[];
@@ -132,14 +142,83 @@ const height = ref(460);
 const selected: string = route.params.id as string;
 const swapData: SwapData = JSON.parse(route.params.swapData as string);
 const isOpenSelectFee = ref(false);
-const fee = ref(recommendedFee);
+const fee = reactive<Partial<GasFeeInfo>>({
+  fiatSymbol: "$",
+  nativeSymbol: props.network.name,
+});
+const selectedFee = ref<GasPriceTypes>(GasPriceTypes.REGULAR);
 const pickedTrade = ref<TradeInfo>(swapData.trades[0]);
 const balance = ref<BN>();
 const gasFees = ref<BN>();
+const gasCostValues = ref<GasFeeType>(defaultGasCostVals);
+
+const Tx = computed(() => {
+  if ((props.network as EvmNetwork).chainID) {
+    const web3 = new Web3(props.network.node);
+    return pickedTrade.value.txs.map((txData) => {
+      const tx = new Transaction(
+        {
+          to: txData.to as `0x${string}`,
+          from: txData.from as `0x${string}`,
+          data: txData.data,
+          chainId: numberToHex(
+            (props.network as EvmNetwork).chainID
+          ) as `0x${string}`,
+          value: txData.value,
+          gas: txData.gas,
+        },
+        web3
+      );
+
+      console.log(tx.tx.gas);
+      return tx;
+    });
+  }
+
+  return null;
+});
 
 defineExpose({ bestOfferScrollRef });
 
 onMounted(async () => {
+  if (Tx.value) {
+    setTransactionFees(Tx.value);
+  }
+
+  if (props.network.name === "DOT" || props.network.name === "KSM") {
+    fee.nativeSymbol = props.network.name;
+    fee.nativeValue = fromBase(
+      swapData.trades[0].txs[0].gas as `0x${string}`,
+      props.network.decimals
+    );
+
+    if (props.network.coingeckoID) {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+      const params = new URLSearchParams();
+      params.append("ids", props.network.coingeckoID!);
+      params.append("vs_currencies", "usd");
+      fetch(
+        `https://api.coingecko.com/api/v3/simple/price?${params.toString()}`
+      )
+        .then((res) => {
+          clearTimeout(timeoutId);
+          return res.json();
+        })
+        .then((data) => {
+          const price = data[props.network.coingeckoID!]["usd"];
+          const txPrice = new BigNumber(price)
+            .times(fee.nativeValue!)
+            .toString();
+          fee.fiatValue = txPrice;
+        })
+        .catch(() => {
+          console.error("Could not fetch token price");
+        });
+    }
+  }
+
   const api = await props.network.api();
   await api.init();
   balance.value = toBN(
@@ -147,15 +226,11 @@ onMounted(async () => {
   );
 });
 
-// watch([trade, balance], async () => {
-//   if (trade.value && balance.value) {
-//     if (trade.value.transactions[0]?.gas) {
-//       gasFees.value = trade.value.transactions
-//         .map(({ gas }) => toBN(gas))
-//         .reduce((gasA, gasB) => gasA.add(gasB), toBN(0));
-//     }
-//   }
-// });
+watch(pickedTrade, () => {
+  if (Tx.value) {
+    setTransactionFees(Tx.value);
+  }
+});
 
 const back = () => {
   router.go(-1);
@@ -182,7 +257,7 @@ const sendAction = async () => {
       props.network,
       props.accountInfo.selectedAccount!,
       pickedTrade.value,
-      {}
+      selectedFee.value
     );
 
     console.log("Swap done!", hashes);
@@ -209,13 +284,125 @@ const isHasScroll = () => {
 
   return false;
 };
-const toggleSelectFee = (open: boolean) => {
-  isOpenSelectFee.value = open;
+const toggleSelectFee = () => {
+  isOpenSelectFee.value = !isOpenSelectFee.value;
 };
 
-const selectFee = (option: TransactionFee) => {
-  fee.value = option;
+const selectFee = (option: GasPriceTypes) => {
+  selectedFee.value = option;
   isOpenSelectFee.value = false;
+};
+
+const setTransactionFees = async (txs: Transaction[]) => {
+  const gasPromises = txs.map((tx) => {
+    return tx.getGasCosts().then(async (gasvals) => {
+      const getConvertedVal = (type: GasPriceTypes) =>
+        fromBase(gasvals[type], props.network.decimals);
+
+      const nativeVal = (
+        await props.network.getAllTokens(
+          props.accountInfo.selectedAccount!.address
+        )
+      )[0].price;
+
+      return {
+        [GasPriceTypes.ECONOMY]: {
+          nativeValue: getConvertedVal(GasPriceTypes.ECONOMY),
+          fiatValue: new BigNumber(
+            getConvertedVal(GasPriceTypes.ECONOMY)
+          ).times(nativeVal!),
+        },
+        [GasPriceTypes.REGULAR]: {
+          nativeValue: getConvertedVal(GasPriceTypes.REGULAR),
+          fiatValue: new BigNumber(
+            getConvertedVal(GasPriceTypes.REGULAR)
+          ).times(nativeVal!),
+        },
+        [GasPriceTypes.FAST]: {
+          nativeValue: getConvertedVal(GasPriceTypes.FAST),
+          fiatValue: new BigNumber(getConvertedVal(GasPriceTypes.FAST)).times(
+            nativeVal!
+          ),
+        },
+        [GasPriceTypes.FASTEST]: {
+          nativeValue: getConvertedVal(GasPriceTypes.FASTEST),
+          fiatValue: new BigNumber(
+            getConvertedVal(GasPriceTypes.FASTEST)
+          ).times(nativeVal!),
+        },
+      };
+    });
+  });
+
+  const gasVals = await Promise.all(gasPromises);
+
+  const finalVal = gasVals.reduce((prev, curr) => {
+    if (!prev) return curr;
+
+    return {
+      [GasPriceTypes.ECONOMY]: {
+        nativeValue: new BigNumber(prev[GasPriceTypes.ECONOMY].nativeValue)
+          .plus(curr[GasPriceTypes.ECONOMY].nativeValue)
+          .toString(),
+        fiatValue: prev[GasPriceTypes.ECONOMY].fiatValue.plus(
+          curr[GasPriceTypes.ECONOMY].fiatValue
+        ),
+      },
+      [GasPriceTypes.REGULAR]: {
+        nativeValue: new BigNumber(prev[GasPriceTypes.REGULAR].nativeValue)
+          .plus(curr[GasPriceTypes.REGULAR].nativeValue)
+          .toString(),
+        fiatValue: prev[GasPriceTypes.REGULAR].fiatValue.plus(
+          curr[GasPriceTypes.REGULAR].fiatValue
+        ),
+      },
+      [GasPriceTypes.FAST]: {
+        nativeValue: new BigNumber(prev[GasPriceTypes.FAST].nativeValue)
+          .plus(curr[GasPriceTypes.FAST].nativeValue)
+          .toString(),
+        fiatValue: prev[GasPriceTypes.FAST].fiatValue.plus(
+          curr[GasPriceTypes.FAST].fiatValue
+        ),
+      },
+      [GasPriceTypes.FASTEST]: {
+        nativeValue: new BigNumber(prev[GasPriceTypes.FASTEST].nativeValue)
+          .plus(curr[GasPriceTypes.FASTEST].nativeValue)
+          .toString(),
+        fiatValue: prev[GasPriceTypes.FASTEST].fiatValue.plus(
+          curr[GasPriceTypes.FASTEST].fiatValue
+        ),
+      },
+    };
+  });
+
+  console.log(finalVal);
+
+  gasCostValues.value = {
+    [GasPriceTypes.ECONOMY]: {
+      nativeValue: finalVal[GasPriceTypes.ECONOMY].nativeValue,
+      fiatValue: finalVal[GasPriceTypes.ECONOMY].fiatValue.toString(),
+      nativeSymbol: props.network.currencyName,
+      fiatSymbol: "USD",
+    },
+    [GasPriceTypes.REGULAR]: {
+      nativeValue: finalVal[GasPriceTypes.REGULAR].nativeValue,
+      fiatValue: finalVal[GasPriceTypes.REGULAR].fiatValue.toString(),
+      nativeSymbol: props.network.currencyName,
+      fiatSymbol: "USD",
+    },
+    [GasPriceTypes.FAST]: {
+      nativeValue: finalVal[GasPriceTypes.FAST].nativeValue,
+      fiatValue: finalVal[GasPriceTypes.FAST].fiatValue.toString(),
+      nativeSymbol: props.network.currencyName,
+      fiatSymbol: "USD",
+    },
+    [GasPriceTypes.FASTEST]: {
+      nativeValue: finalVal[GasPriceTypes.FASTEST].nativeValue,
+      fiatValue: finalVal[GasPriceTypes.FASTEST].fiatValue.toString(),
+      nativeSymbol: props.network.currencyName,
+      fiatSymbol: "USD",
+    },
+  };
 };
 
 const selectTrade = (trade: TradeInfo) => {

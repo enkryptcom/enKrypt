@@ -13,7 +13,10 @@
 
     <swap-token-fast-list
       v-show="!token"
+      :fast-list="fastList"
       :select-token="selectToken"
+      :total-tokens="totalTokens"
+      @update:select-asset="selectAsset"
     ></swap-token-fast-list>
 
     <div v-show="!!token && Number(amount) > 0" class="swap-token-input__fiat">
@@ -36,6 +39,10 @@ import SwapTokenAmountInput from "./components/swap-token-amount-input.vue";
 import { PropType } from "vue";
 import { BaseToken } from "@/types/base-token";
 import BigNumber from "bignumber.js";
+
+const emit = defineEmits<{
+  (e: "update:selectAsset", asset: BaseToken): void;
+}>();
 
 const props = defineProps({
   toggleSelect: {
@@ -64,9 +71,19 @@ const props = defineProps({
     type: Boolean,
     default: () => false,
   },
+  fastList: {
+    type: Object as PropType<BaseToken[]>,
+    default: () => null,
+  },
+  totalTokens: {
+    type: Number,
+    default: () => null,
+  },
 });
 
 const isFocus = ref(false);
+
+const selectAsset = (token: BaseToken) => emit("update:selectAsset", token);
 
 const tokenPrice = computed(() => {
   if (props.token?.price && props.amount !== "Searching") {

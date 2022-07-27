@@ -1,7 +1,8 @@
-import { BaseToken } from "@/types/base-token";
+import { BaseToken, BaseTokenOptions } from "@/types/base-token";
 import Web3 from "web3";
 import { BaseNetwork } from "@/types/base-network";
 import { EnkryptAccount } from "@enkryptcom/types";
+import { GasPriceTypes } from "@/providers/ethereum/libs/transaction/types";
 
 export type Rates = Array<{ amount: string; rate: string }>;
 
@@ -35,16 +36,18 @@ export type TokenData = {
   symbol: string;
   icon: string;
   icon_png: string;
-  decimals: 6;
+  decimals: number;
   timestamp: string;
 };
 
 export type TransactionInfo = {
-  to: string;
   from: string;
+  to: string;
+  tokenValue: string;
+  token: BaseTokenOptions;
   data: `0x${string}`;
   value: `0x${string}`;
-  gas: `0x${string}`;
+  gas?: `0x${string}`;
 };
 
 export type TradeInfo = {
@@ -81,7 +84,9 @@ export abstract class SwapProvider {
     toToken: BaseToken
   ): Promise<boolean>;
 
-  public abstract getSupportedTokens(chain: string): Promise<BaseToken[]>;
+  public abstract getSupportedTokens(
+    chain: string
+  ): Promise<{ tokens: BaseToken[]; featured: BaseToken[] }>;
 
   public abstract getMinMaxAmount(
     fromToken: BaseToken,
@@ -119,6 +124,6 @@ export abstract class SwapProvider {
     network: BaseNetwork,
     fromAccount: EnkryptAccount,
     trade: TradeInfo,
-    confirmInfo: any
+    gasPriceType?: GasPriceTypes
   ): Promise<`0x${string}`[]>;
 }

@@ -6,14 +6,14 @@
 </template>
 
 <script setup lang="ts">
+import { BaseToken } from "@/types/base-token";
 import { PropType } from "vue";
-import { AssetsType } from "@/types/provider";
 const emit = defineEmits<{
-  (e: "update:selectAsset", asset: AssetsType): void;
+  (e: "update:selectAsset", asset: BaseToken): void;
 }>();
 const props = defineProps({
   token: {
-    type: Object as PropType<AssetsType>,
+    type: Object as PropType<BaseToken>,
     default: () => ({}),
   },
 });
