@@ -245,7 +245,7 @@ const setNetwork = async (network: BaseNetwork) => {
       tabId,
     });
   }
-  router.push({ name: "activity", params: { id: network.name } });
+  router.push({ name: "assets", params: { id: network.name } });
   domainState.setSelectedNetwork(network.name);
   if (network.api) {
     try {

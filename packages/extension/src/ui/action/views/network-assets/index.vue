@@ -40,7 +40,7 @@ import NetworkActivityAction from "../network-activity/components/network-activi
 import NetworkAssetsItem from "./components/network-assets-item.vue";
 import NetworkAssetsLoading from "./components/network-assets-loading.vue";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
-import { onMounted, PropType, ref, toRef, watch } from "vue";
+import { computed, onMounted, PropType, ref, toRef, watch } from "vue";
 import { AssetsType } from "@/types/provider";
 import { AccountsHeaderData } from "../../types/account";
 import accountInfo from "@action/composables/account-info";
@@ -72,6 +72,7 @@ const selected: string = route.params.id as string;
 
 const updateAssets = () => {
   isLoading.value = true;
+  assets.value = [];
   props.network
     .getAllTokenInfo(props.accountInfo.selectedAccount?.address || "")
     .then((_assets) => {
@@ -79,7 +80,12 @@ const updateAssets = () => {
       isLoading.value = false;
     });
 };
-watch([props.network, props.accountInfo], updateAssets);
+const selectedAddress = computed(
+  () => props.accountInfo.selectedAccount?.address || ""
+);
+const selectedNetworkName = computed(() => props.network.name);
+
+watch([selectedAddress, selectedNetworkName], updateAssets);
 onMounted(() => {
   updateAssets();
 });

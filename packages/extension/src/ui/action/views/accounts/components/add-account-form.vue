@@ -118,7 +118,7 @@ const addAccount = async () => {
     }),
   }).then(() => {
     emit("update:init");
-    close();
+    emit("window:close");
   });
 };
 </script>

@@ -4,11 +4,11 @@ import {
   TransactionDirection,
 } from "./transaction";
 import { Token } from "./token";
-import { DAppsItem } from "./dapps";
 import { NFTAuthor, NFTItem } from "./nft";
 import { AssetsType } from "@/types/provider";
 import { TransactionFee, TransactionFeeSpeed } from "./fee";
 import { Account } from "./account";
+import { DAppsItem } from "@/types/ui";
 
 export const transactionsOne: Transaction[] = [
   {
