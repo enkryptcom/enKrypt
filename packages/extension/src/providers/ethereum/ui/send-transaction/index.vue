@@ -444,7 +444,9 @@ const sendAction = async () => {
     name: RouterNames.verify.name,
     query: {
       id: selected,
-      txData: JSON.stringify(txVerifyInfo),
+      txData: Buffer.from(JSON.stringify(txVerifyInfo), "utf8").toString(
+        "base64"
+      ),
     },
   });
 
