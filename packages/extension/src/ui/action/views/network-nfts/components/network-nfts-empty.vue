@@ -1,9 +1,15 @@
 <template>
   <div class="network-nfts__empty">
-    <p>Your NFTs will be shown here.</p>
+    <p v-if="!isEmpty"><loader /></p>
+    <p v-if="isEmpty">Your NFTs will be shown here.</p>
   </div>
 </template>
-
+<script setup lang="ts">
+import Loader from "@action/icons/common/loader.vue";
+defineProps({
+  isEmpty: Boolean,
+});
+</script>
 <style lang="less">
 @import "~@action/styles/theme.less";
 

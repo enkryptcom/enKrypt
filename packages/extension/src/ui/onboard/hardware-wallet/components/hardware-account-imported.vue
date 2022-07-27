@@ -34,7 +34,7 @@ import ImportDoneAnimation from "@action/icons/import/import-done-animation.vue"
     line-height: 28px;
     text-align: center;
     letter-spacing: 0.15px;
-    color: @primary;
+    color: @success;
     margin: 24px 0 0 0;
   }
 
