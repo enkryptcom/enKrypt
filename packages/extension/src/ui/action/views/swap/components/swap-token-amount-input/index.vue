@@ -1,5 +1,5 @@
 <template>
-  <div class="swap-token-input" :class="{ focus: isFocus }">
+  <div class="swap-token-input" :class="{ focus: isFocus, empty: !token }">
     <swap-token-select
       :toggle-select="toggleSelect"
       :token="token"
@@ -94,6 +94,10 @@ const changeFocus = (newVal: boolean) => {
   box-sizing: border-box;
   border-radius: 10px;
   position: relative;
+
+  &.empty {
+    border: 0 none;
+  }
 
   &.focus {
     border: 1px solid @primary;

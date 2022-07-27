@@ -14,7 +14,7 @@
       <switch-arrow />
     </div>
   </a>
-  <a v-else class="swap-token-select" @click="open">
+  <a v-else class="swap-token-select empty" @click="open">
     <div v-show="!token" class="swap-token-select__info">
       <h4>Select token</h4>
     </div>
@@ -53,11 +53,11 @@ const open = () => {
 <style lang="less">
 @import "~@action/styles/theme.less";
 .swap-token-select {
-  height: 64px;
+  height: 56px;
   background: #ffffff;
   box-sizing: border-box;
   border-radius: 10px;
-  width: 100%;
+  width: calc(~"100% - 8px");
   padding: 16px;
   display: flex;
   justify-content: flex-start;
@@ -67,6 +67,15 @@ const open = () => {
   cursor: pointer;
   text-decoration: none;
   transition: background 300ms ease-in-out;
+  margin: 4px;
+
+  &.empty {
+    height: 64px;
+    margin: 0;
+    width: 100%;
+    border: 1px solid rgba(95, 99, 104, 0.2);
+    margin-bottom: 16px;
+  }
 
   &:hover {
     background: @black007;
@@ -122,8 +131,9 @@ const open = () => {
     position: absolute;
     font-size: 0;
     padding: 4px;
-    right: 8px;
-    top: 16px;
+    right: 4px;
+    top: 50%;
+    margin-top: -16px;
   }
 }
 </style>
