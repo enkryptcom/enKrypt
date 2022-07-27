@@ -26,12 +26,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "NetworkNftsCategory",
-};
-</script>
-
 <script setup lang="ts">
 import { computed, PropType, ref } from "vue";
 import NetworkNftsItem from "./network-nfts-item.vue";

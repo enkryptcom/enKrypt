@@ -15,6 +15,7 @@ import {
 } from "@/libs/utils/number-formatter";
 import Sparkline from "@/libs/sparkline";
 import { SubstrateNativeToken } from "./substrate-native-token";
+import { Activity } from "@/types/activity";
 
 export interface SubstrateNetworkOptions {
   name: NetworkNames;
@@ -32,12 +33,20 @@ export interface SubstrateNetworkOptions {
   coingeckoID?: string;
   genesisHash: string;
   transferMethods?: Record<string, (args: any) => any>;
+  activityHandler: (
+    network: BaseNetwork,
+    address: string
+  ) => Promise<Activity[]>;
 }
 
 export class SubstrateNetwork extends BaseNetwork {
   public prefix: number;
   public assets: BaseToken[] = [];
   public genesisHash: string;
+  private activityHandler: (
+    network: BaseNetwork,
+    address: string
+  ) => Promise<Activity[]>;
   public transferMethods: Record<string, (args: any) => any> = {
     "balances.transferKeepAlive": (args: any) => {
       const to = args.dest["Id"];
@@ -58,6 +67,7 @@ export class SubstrateNetwork extends BaseNetwork {
     const api = async () => {
       const api = new SubstrateAPI(options.node, {
         decimals: options.decimals,
+        name: options.name,
       });
       await api.init();
       return api;
@@ -83,10 +93,11 @@ export class SubstrateNetwork extends BaseNetwork {
         ...this.transferMethods,
       };
     }
+    this.activityHandler = options.activityHandler;
   }
 
-  public getAllTokens(): BaseToken[] {
-    return this.assets;
+  public getAllTokens(): Promise<BaseToken[]> {
+    return Promise.resolve(this.assets);
   }
 
   public async getAllTokenInfo(address: string): Promise<AssetsType[]> {
@@ -107,7 +118,7 @@ export class SubstrateNetwork extends BaseNetwork {
     const api = await this.api();
 
     const balancePromises = supported.map((token) =>
-      token.getUserBalance((api as SubstrateAPI).api, address)
+      token.getLatestUserBalance((api as SubstrateAPI).api, address)
     );
     const marketData = new MarketData();
     const market = await marketData.getMarketData(
@@ -156,5 +167,8 @@ export class SubstrateNetwork extends BaseNetwork {
     sorted.unshift(tokens[0]);
 
     return sorted;
+  }
+  public getAllActivity(address: string): Promise<Activity[]> {
+    return this.activityHandler(this, address);
   }
 }

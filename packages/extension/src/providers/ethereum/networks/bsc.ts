@@ -1,6 +1,8 @@
 import { NetworkNames } from "@enkryptcom/types";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
-import tokenbalanceMew from "@/providers/ethereum/libs/assets-handlers/tokenbalance-mew";
+import assetsInfoHandler from "@/providers/ethereum/libs/assets-handlers/assetinfo-mew";
+import { EtherscanActivity } from "../libs/activity-handlers";
+import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
 
 const bscOptions: EvmNetworkOptions = {
   name: NetworkNames.Binance,
@@ -13,10 +15,11 @@ const bscOptions: EvmNetworkOptions = {
   currencyName: "BNB",
   node: "wss://nodes.mewapi.io/ws/bsc",
   icon: require("./icons/bsc.svg"),
-  gradient: "#E6007A",
+  gradient: "#F0B90B",
   coingeckoID: "binancecoin",
   basePath: "m/44'/714'",
-  assetsHandler: tokenbalanceMew,
+  assetsInfoHandler,
+  activityHandler: wrapActivityHandler(EtherscanActivity),
 };
 
 const bsc = new EvmNetwork(bscOptions);

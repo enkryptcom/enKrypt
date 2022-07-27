@@ -9,9 +9,9 @@
       </a>
     </div>
     <div v-show="openList" ref="tooltip" class="add-network__search-list">
-      <a class="add-network__search-list-item">
+      <!-- <a class="add-network__search-list-item" @click="toCustom">
         <custom-network-icon /><span>Custom network</span>
-      </a>
+      </a> -->
       <div class="add-network__search-list-item">
         <test-network-icon /><span>Show testnets</span>
         <Switch :check="testNetwork" :is-checked="false" />
@@ -20,17 +20,11 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "AddNetworkSearch",
-};
-</script>
-
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, PropType } from "vue";
 import BaseSearch from "@action/components/base-search/index.vue";
 import SliderIcon from "@action/icons/common/slider-icon.vue";
-import CustomNetworkIcon from "@action/icons/common/custom-network-icon.vue";
+// import CustomNetworkIcon from "@action/icons/common/custom-network-icon.vue";
 import TestNetworkIcon from "@action/icons/common/test-network-icon.vue";
 import Switch from "@action/components/switch/index.vue";
 import { onClickOutside } from "@vueuse/core";
@@ -51,6 +45,10 @@ const props = defineProps({
       return null;
     },
   },
+  toCustom: {
+    type: Function as PropType<() => void>,
+    default: () => ({}),
+  },
 });
 
 const searchInput = (text: string) => {
@@ -65,7 +63,7 @@ const testNetwork = () => {
   props.onTestNetCheck();
 };
 
-onClickOutside(tooltip, (event) => {
+onClickOutside(tooltip, () => {
   if (openList.value) openList.value = false;
 });
 </script>
@@ -108,7 +106,7 @@ onClickOutside(tooltip, (event) => {
 
     &-list {
       width: 256px;
-      height: 104px;
+      height: fit-content;
       background: @white;
       box-shadow: 0px 0.5px 5px rgba(0, 0, 0, 0.039),
         0px 3.75px 11px rgba(0, 0, 0, 0.19);
@@ -117,7 +115,7 @@ onClickOutside(tooltip, (event) => {
       top: 52px;
       right: 0;
       z-index: 4;
-      padding: 4px;
+      padding: 8px;
       box-sizing: border-box;
 
       &-item {

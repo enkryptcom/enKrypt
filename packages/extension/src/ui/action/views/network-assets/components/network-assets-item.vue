@@ -1,5 +1,5 @@
 <template>
-  <div class="network-assets__token">
+  <a class="network-assets__token" @click="toggleDetail()">
     <div class="network-assets__token-info">
       <img :src="token.icon" />
 
@@ -31,26 +31,34 @@
       <h4>{{ token.balanceUSDf }}</h4>
       <p>@{{ token.valuef }}</p>
     </div>
-  </div>
+  </a>
+
+  <asset-detail-view
+    v-if="isDetail"
+    :token="token"
+    @close:popup="toggleDetail"
+  ></asset-detail-view>
 </template>
 
-<script lang="ts">
-export default {
-  name: "NetworkAssetsItem",
-};
-</script>
-
 <script setup lang="ts">
-import { PropType } from "vue";
+import { PropType, ref } from "vue";
 import SparklineUp from "@action/icons/asset/sparkline-up.vue";
 import SparklineDown from "@action/icons/asset/sparkline-down.vue";
+import AssetDetailView from "@action/views/asset-detail-view/index.vue";
 import { AssetsType } from "@/types/provider";
+
+const isDetail = ref(false);
+
 defineProps({
   token: {
     type: Object as PropType<AssetsType>,
     default: () => ({}),
   },
 });
+
+const toggleDetail = () => {
+  isDetail.value = !isDetail.value;
+};
 </script>
 
 <style lang="less">
@@ -60,7 +68,7 @@ defineProps({
   color: @error;
 }
 .up {
-  color: @primary;
+  color: @success;
 }
 .network-assets {
   &__token {
@@ -72,6 +80,15 @@ defineProps({
     justify-content: space-between;
     align-items: center;
     flex-direction: row;
+    border-radius: 10px;
+    transition: background 300ms ease-in-out;
+    text-decoration: none;
+    margin: 0 12px;
+    cursor: pointer;
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.04);
+    }
 
     &-info {
       display: flex;

@@ -24,6 +24,7 @@ import {
   changeNetwork,
   sendToTab,
   newAccount,
+  lock,
 } from "./internal";
 import { handlePersistentEvents } from "./external";
 
@@ -125,6 +126,8 @@ class BackgroundHandler {
         return ethereumDecrypt(this.#keyring, message);
       case InternalMethods.unlock:
         return unlock(this.#keyring, message);
+      case InternalMethods.lock:
+        return lock(this.#keyring);
       case InternalMethods.changeNetwork:
         return changeNetwork(msg, this.#tabProviders);
       case InternalMethods.isLocked:

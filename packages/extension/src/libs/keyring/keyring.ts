@@ -19,6 +19,12 @@ export class KeyRingBase {
   init(mnemonic: string, password: string): Promise<void> {
     return this.#keyring.init(password, { mnemonic });
   }
+  async reset(): Promise<void> {
+    const resetPromises = Object.values(InternalStorageNamespace).map((name) =>
+      new BrowserStorage(name).clear()
+    );
+    await Promise.all(resetPromises);
+  }
   getNewAccount(options: {
     basePath: string;
     signerType: SignerType;
@@ -68,8 +74,20 @@ export class KeyRingBase {
   unlock(password: string): Promise<void> {
     return this.#keyring.unlockMnemonic(password);
   }
+  lock(): void {
+    return this.#keyring.lock();
+  }
+  getMnemonic(password: string): Promise<string> {
+    return this.#keyring.getMnemonic(password);
+  }
   isInitialized(): Promise<boolean> {
     return this.#keyring.isInitialized();
+  }
+  renameAccount(address: string, newName: string): Promise<EnkryptAccount> {
+    return this.#keyring.renameAccount(address, newName);
+  }
+  deleteAccount(address: string): Promise<void> {
+    return this.#keyring.deleteAccount(address);
   }
 }
 export default KeyRingBase;

@@ -6,8 +6,8 @@
         <close-icon />
       </a>
 
-      <h3>{{ item.name.length > 0 ? item.name : "NFT #" + item.token_id }}</h3>
-      <img :src="item.urls[0].url" alt="" @error="imageLoadError" />
+      <h3>{{ item.name.length > 0 ? item.name : "NFT #" + item.id }}</h3>
+      <img :src="item.image" alt="" @error="imageLoadError" />
 
       <div class="nft-detail-view__action">
         <action-menu :is-nft="true" :link-action="linkAction"></action-menu>
@@ -20,7 +20,7 @@
 import { PropType } from "vue";
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import ActionMenu from "@action/components/action-menu/index.vue";
-import { NFTAsset } from "@/libs/nft-handlers/types/mew";
+import { NFTItem } from "@/types/nft";
 const notfoundimg = require("@action/assets/common/not-found.jpg");
 const imageLoadError = (img: any) => {
   img.target.src = notfoundimg;
@@ -28,7 +28,7 @@ const imageLoadError = (img: any) => {
 
 defineProps({
   item: {
-    type: Object as PropType<NFTAsset>,
+    type: Object as PropType<NFTItem>,
     default: () => {
       return {};
     },

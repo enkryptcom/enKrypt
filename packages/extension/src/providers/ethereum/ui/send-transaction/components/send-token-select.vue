@@ -6,7 +6,8 @@
     <div class="send-token-select__info">
       <h5>{{ token.name }}</h5>
       <p>
-        {{ token.balancef }} <span>{{ token.symbol }}</span>
+        {{ balance ? $filters.formatFloatingPointValue(balance).value : "~" }}
+        <span>{{ token.symbol }}</span>
       </p>
     </div>
 
@@ -17,20 +18,28 @@
 </template>
 
 <script setup lang="ts">
-import { PropType } from "vue";
+import { computed, PropType } from "vue";
 import SwitchArrow from "@action/icons/header/switch_arrow.vue";
-import { AssetsType } from "@/types/provider";
+import { Erc20Token } from "@/providers/ethereum/types/erc20-token";
+import { fromBase } from "@/libs/utils/units";
 const emit = defineEmits<{
   (e: "update:toggleTokenSelect"): void;
 }>();
-defineProps({
+
+const props = defineProps({
   token: {
-    type: Object as PropType<Partial<AssetsType>>,
+    type: Object as PropType<Partial<Erc20Token>>,
     default: () => {
       return {};
     },
   },
 });
+
+const balance = computed(() =>
+  props.token && props.token.balance
+    ? fromBase(props.token.balance, props.token.decimals!)
+    : undefined
+);
 </script>
 
 <style lang="less">

@@ -108,6 +108,11 @@ hwWallet
     text-decoration: none;
     cursor: pointer;
     margin: 0 0 12px 0;
+    transition: background 300ms ease-in-out;
+
+    &:hover {
+      background: @black004;
+    }
 
     &:last-child {
       margin-bottom: 0;

@@ -1,16 +1,18 @@
 <template>
   <div class="action-menu">
     <div class="action-menu__wrap">
-      <a v-if="!isNft" class="action-menu__item" @click="buyAction">
+      <!-- <a v-if="!isNft" class="action-menu__item" @click="buyAction">
         <Buy />Buy</a
       >
       <div v-if="!isNft" class="action-menu__divider"></div>
-      <a class="action-menu__item" @click="sendAction()"> <Send />Send</a>
+      <a v-if="!isNft" class="action-menu__item" @click="sendAction()">
+        <Send />Send</a
+      >
       <div v-if="!isNft" class="action-menu__divider"></div>
       <a v-if="!isNft" class="action-menu__item" @click="swapAction()">
         <Swap />Swap</a
       >
-      <div v-if="isNft" class="action-menu__divider"></div>
+      <div v-if="false" class="action-menu__divider"></div> -->
       <a v-if="isNft" class="action-menu__item" @click="linkAction()">
         <Rarible />Rarible
       </a>
@@ -20,9 +22,9 @@
 
 <script setup lang="ts">
 import { PropType } from "vue";
-import Buy from "@action/icons/actions/buy.vue";
-import Send from "@action/icons/actions/send.vue";
-import Swap from "@action/icons/actions/swap.vue";
+// import Buy from "@action/icons/actions/buy.vue";
+// import Send from "@action/icons/actions/send.vue";
+// import Swap from "@action/icons/actions/swap.vue";
 import Rarible from "@/ui/action/icons/actions/rarible.vue";
 
 defineProps({

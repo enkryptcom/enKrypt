@@ -20,12 +20,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "BestOfferList",
-};
-</script>
-
 <script setup lang="ts">
 import BestOfferListItem from "./best-offer-list-item.vue";
 
@@ -53,7 +47,7 @@ const select = () => {
   border-radius: 12px;
   box-sizing: border-box;
   width: 256px;
-  padding: 4px;
+  padding: 8px;
   position: absolute;
   left: -6px;
   top: 37px;

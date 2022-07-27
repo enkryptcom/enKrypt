@@ -9,21 +9,40 @@
       </div>
 
       <send-address-input
-        ref="addressInput"
-        :value="address"
-        :identicon="identicon"
-        @update:input-address="inputAddress"
-        @toggle:show-contacts="toggleSelectContact"
+        ref="addressInputFrom"
+        :from="true"
+        :value="addressFrom"
+        :network="network"
+        @update:input-address="inputAddressFrom"
+        @toggle:show-contacts="toggleSelectContactFrom"
+      ></send-address-input>
+
+      <send-from-contacts-list
+        :show-accounts="isOpenSelectContactFrom"
+        :account-info="accountInfo"
+        :address="addressFrom"
+        :network="network"
+        :identicon="network.identicon"
+        @selected:account="selectAccountFrom"
+        @close="toggleSelectContactFrom"
+      ></send-from-contacts-list>
+
+      <send-address-input
+        ref="addressInputTo"
+        :value="addressTo"
+        :network="network"
+        @update:input-address="inputAddressTo"
+        @toggle:show-contacts="toggleSelectContactTo"
       ></send-address-input>
 
       <send-contacts-list
-        :show-accounts="isOpenSelectContact"
-        :active-network="props.network"
+        :show-accounts="isOpenSelectContactTo"
         :account-info="accountInfo"
-        :identicon="identicon"
-        @selected:account="selectAccount"
-        @update:paste-from-clipboard="addressInput.pasteFromClipboard()"
-        @close="toggleSelectContact"
+        :network="network"
+        :address="accountInfo.selectedAccount!.address"
+        @selected:account="selectAccountTo"
+        @update:paste-from-clipboard="addressInputTo.pasteFromClipboard()"
+        @close="toggleSelectContactTo"
       ></send-contacts-list>
 
       <send-token-select
@@ -41,7 +60,7 @@
 
       <send-input-amount
         :amount="amount"
-        :fiat-value="selectedAsset.value"
+        :fiat-value="selectedAsset.price"
         :has-enough-balance="hasEnough"
         @update:input-amount="inputAmount"
         @update:input-set-max="setSendMax()"
@@ -67,18 +86,13 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "SendTransaction",
-};
-</script>
-
 <script setup lang="ts">
 import { computed, onMounted, PropType, ref, shallowRef, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import SendAddressInput from "./components/send-address-input.vue";
 import SendContactsList from "./components/send-contacts-list.vue";
+import SendFromContactsList from "./components/send-from-contacts-list.vue";
 import SendTokenSelect from "./components/send-token-select.vue";
 import AssetsSelectList from "@action/views/assets-select-list/index.vue";
 import SendInputAmount from "./components/send-input-amount.vue";
@@ -92,8 +106,6 @@ import { GasFeeInfo } from "@/providers/ethereum/ui/types";
 import { SubstrateNetwork } from "../../types/substrate-network";
 import { toBN } from "web3-utils";
 import { formatFloatingPointValue } from "@/libs/utils/number-formatter";
-import createIcon from "../../libs/blockies";
-import { AssetsType, ProviderName } from "@/types/provider";
 import { fromBase, toBase } from "@/libs/utils/units";
 import BigNumber from "bignumber.js";
 import { VerifyTransactionParams } from "../types";
@@ -101,6 +113,9 @@ import { routes as RouterNames } from "@/ui/action/router";
 import { SendOptions } from "@/types/base-token";
 import Browser from "webextension-polyfill";
 import getUiPath from "@/libs/utils/get-ui-path";
+import { SubstrateToken } from "../../types/substrate-token";
+import { SubstrateNativeToken } from "../../types/substrate-native-token";
+import { ProviderName } from "@/types/provider";
 
 const props = defineProps({
   network: {
@@ -115,46 +130,67 @@ const props = defineProps({
 
 const route = useRoute();
 const router = useRouter();
-const identicon = createIcon;
 
-const addressInput = ref();
-const isOpenSelectContact = ref(false);
-const address = ref("");
+const addressInputTo = ref();
+const addressInputFrom = ref();
+const isOpenSelectContactFrom = ref(false);
+const isOpenSelectContactTo = ref(false);
+const addressFrom = ref("");
+const addressTo = ref("");
 const isOpenSelectToken = ref(false);
 const amount = ref("0");
 const fee = ref<GasFeeInfo | null>(null);
 const edWarn = ref(false);
 const api = shallowRef<SubstrateApi>();
-const accountAssets = ref<AssetsType[]>([]);
-const selectedAsset = ref<AssetsType | Partial<AssetsType>>({
-  icon: props.network.icon,
-  balancef: "0.00",
-  balanceUSDf: "0.00",
-  value: "0",
-  name: "loading",
-  decimals: 18,
-});
+const accountAssets = ref<SubstrateToken[]>([]);
+const selectedAsset = ref<SubstrateToken | Partial<SubstrateToken>>(
+  new SubstrateNativeToken({
+    icon: props.network.icon,
+    balance: "0",
+    price: "0",
+    name: "loading",
+    symbol: "loading",
+    decimals: 12,
+  })
+);
 const hasEnough = ref(true);
 const sendMax = ref(false);
 
 const selected: string = route.params.id as string;
 
 onMounted(async () => {
-  props.accountInfo.activeAccounts.forEach((account) => {
-    account.address = props.network.displayAddress(account.address);
-  });
-  const networkAssets = await props.network.getAllTokenInfo(
-    props.accountInfo.selectedAccount?.address ?? ""
+  addressFrom.value = props.network.displayAddress(
+    props.accountInfo.selectedAccount!.address
   );
-  selectedAsset.value = networkAssets[0];
-  accountAssets.value = networkAssets;
   const networkApi = await props.network.api();
-  await networkApi.init();
-  api.value = networkApi as SubstrateApi;
+  networkApi.init().then(async () => {
+    api.value = networkApi as SubstrateApi;
+    const networkAssets = await props.network.getAllTokens();
+    const pricePromises = networkAssets.map((asset) => asset.getLatestPrice());
+    const balancePromises = networkAssets.map((asset) => {
+      return asset.getLatestUserBalance(
+        networkApi.api,
+        props.accountInfo.selectedAccount?.address ?? ""
+      );
+    });
+
+    Promise.all([...pricePromises, ...balancePromises]).then(() => {
+      const nonZeroAssets = networkAssets.filter(
+        (asset) => !toBN(asset.balance ?? "0").isZero()
+      );
+
+      if (nonZeroAssets.length == 0) {
+        nonZeroAssets.push(networkAssets[0]);
+      }
+
+      selectedAsset.value = nonZeroAssets[0];
+      accountAssets.value = nonZeroAssets;
+    });
+  });
 });
 
-watch([selectedAsset, amount, address], async () => {
-  if (selectedAsset.value && amount.value && address.value && api.value) {
+watch([selectedAsset, amount, addressTo], async () => {
+  if (selectedAsset.value && amount.value && addressTo.value && api.value) {
     await api.value.api.isReady;
     const rawAmount = toBN(
       toBase(amount.value.toString(), selectedAsset.value.decimals!)
@@ -172,9 +208,9 @@ watch([selectedAsset, amount, address], async () => {
       ? { type: "all" }
       : undefined;
 
-    const tx = await selectedAsset.value.baseToken!.send(
+    const tx = await selectedAsset.value.send!(
       api.value.api,
-      address.value,
+      addressTo.value,
       rawAmount.toString(),
       sendOptions
     );
@@ -182,10 +218,13 @@ watch([selectedAsset, amount, address], async () => {
       await tx.paymentInfo(props.accountInfo.selectedAccount!.address)
     ).toJSON();
 
-    const txFee = toBN(partialFee);
-    const txFeeHuman = fromBase(partialFee, selectedAsset.value.decimals!);
+    const txFee = toBN(partialFee?.toString() ?? "");
+    const txFeeHuman = fromBase(
+      partialFee?.toString() ?? "",
+      selectedAsset.value.decimals!
+    );
 
-    const txPrice = new BigNumber(selectedAsset.value.value!).times(txFeeHuman);
+    const txPrice = new BigNumber(selectedAsset.value.price!).times(txFeeHuman);
 
     fee.value = {
       fiatSymbol: "USD",
@@ -194,7 +233,7 @@ watch([selectedAsset, amount, address], async () => {
       nativeValue: txFeeHuman.toString(),
     };
 
-    const ed = selectedAsset.value.baseToken!.existentialDeposit ?? toBN(0);
+    const ed = selectedAsset.value.existentialDeposit ?? toBN(0);
     const userBalance = toBN(selectedAsset.value.balance ?? 0);
     if (
       !userBalance.eq(rawAmount) &&
@@ -211,24 +250,37 @@ const close = () => {
   router.go(-1);
 };
 
-const inputAddress = (text: string) => {
-  address.value = text;
+const inputAddressFrom = (text: string) => {
+  addressFrom.value = text;
 };
 
-const toggleSelectContact = (open: boolean) => {
-  isOpenSelectContact.value = open;
+const inputAddressTo = (text: string) => {
+  addressTo.value = text;
+};
+
+const toggleSelectContactFrom = (open: boolean) => {
+  isOpenSelectContactFrom.value = open;
+};
+
+const toggleSelectContactTo = (open: boolean) => {
+  isOpenSelectContactTo.value = open;
 };
 
 const toggleSelectToken = () => {
   isOpenSelectToken.value = !isOpenSelectToken.value;
 };
 
-const selectAccount = (account: string) => {
-  address.value = account;
-  isOpenSelectContact.value = false;
+const selectAccountFrom = (account: string) => {
+  addressFrom.value = account;
+  isOpenSelectContactFrom.value = false;
 };
 
-const selectToken = (token: AssetsType | Partial<AssetsType>) => {
+const selectAccountTo = (account: string) => {
+  addressTo.value = account;
+  isOpenSelectContactTo.value = false;
+};
+
+const selectToken = (token: SubstrateToken | Partial<SubstrateToken>) => {
   selectedAsset.value = token;
   isOpenSelectToken.value = false;
 };
@@ -266,7 +318,7 @@ const isDisabled = () => {
   let addressIsValid = false;
 
   try {
-    props.network.displayAddress(address.value);
+    props.network.displayAddress(addressTo.value);
     addressIsValid = true;
   } catch {
     addressIsValid = false;
@@ -277,19 +329,16 @@ const isDisabled = () => {
 };
 
 const sendAction = async () => {
-  const sendAmount = toBase(
-    amount.value,
-    selectedAsset.value.baseToken!.decimals
-  );
+  const sendAmount = toBase(amount.value, selectedAsset.value.decimals!);
 
   const sendOptions: SendOptions | undefined = sendMax.value
     ? { type: "all" }
     : undefined;
 
   await api.value?.api.isReady;
-  const tx = await selectedAsset.value.baseToken?.send(
+  const tx = await selectedAsset.value?.send!(
     api.value!.api as ApiPromise,
-    address.value,
+    addressTo.value,
     sendAmount,
     sendOptions
   );
@@ -297,22 +346,25 @@ const sendAction = async () => {
   const txVerifyInfo: VerifyTransactionParams = {
     TransactionData: {
       from: props.accountInfo.selectedAccount!.address,
-      to: address.value,
+      to: addressTo.value,
       data: tx.toHex() as `0x{string}`,
       value: amount.value,
     },
     toToken: {
-      amount: amount.value,
+      amount: toBase(amount.value, selectedAsset.value.decimals!),
+      decimals: selectedAsset.value.decimals!,
       icon: selectedAsset.value.icon as string,
       symbol: selectedAsset.value.symbol || "unknown",
-      valueUSD: new BigNumber(selectedAsset.value.value || "0")
+      valueUSD: new BigNumber(selectedAsset.value.price || "0")
         .times(amount.value)
         .toFixed(),
+      name: selectedAsset.value.name || "",
+      price: selectedAsset.value.price || "0",
     },
     fromAddress: props.accountInfo.selectedAccount!.address,
     fromAddressName: props.accountInfo.selectedAccount!.name,
     txFee: fee.value!,
-    toAddress: address.value,
+    toAddress: addressTo.value,
   };
 
   const routedRoute = router.resolve({

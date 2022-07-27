@@ -24,12 +24,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "CommonPopup",
-};
-</script>
-
 <script setup lang="ts">
 import { ComponentPublicInstance, ref } from "vue";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";

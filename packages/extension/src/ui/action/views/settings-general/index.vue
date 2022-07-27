@@ -1,8 +1,7 @@
 <template>
   <div>
     <settings-inner-header
-      :back="back"
-      :close="close"
+      v-bind="$attrs"
       :is-general="true"
     ></settings-inner-header>
     <base-select
@@ -31,14 +30,8 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "SettingsGeneral",
-};
-</script>
-
 <script setup lang="ts">
-import { ref, PropType } from "vue";
+import { ref } from "vue";
 import SettingsInnerHeader from "@action/views/settings/components/settings-inner-header.vue";
 import BaseSelect from "@action/components/base-select/index.vue";
 import SettingsSwitch from "@action/views/settings/components/settings-switch.vue";
@@ -49,21 +42,10 @@ const currencyList = [
   "Euro",
   "Russian Ruble",
 ];
-let currency = ref("US Dollar");
-let isHideZeroBalance = ref(false);
+const currency = ref("US Dollar");
+const isHideZeroBalance = ref(false);
 const timerList = ["1 min", "5 min", "15 min"];
-let timer = ref("5 min");
-
-defineProps({
-  close: {
-    type: Function as PropType<() => void>,
-    default: () => ({}),
-  },
-  back: {
-    type: Function as PropType<() => void>,
-    default: () => ({}),
-  },
-});
+const timer = ref("5 min");
 
 const selecCurrency = (value: string) => {
   currency.value = value;

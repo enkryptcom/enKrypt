@@ -6,10 +6,7 @@
         <close-icon />
       </a>
 
-      <Vue3Lottie
-        class="swap-looking__animation"
-        :animation-data="LottieLookingJson"
-      />
+      <swap-looking-animation class="swap-looking__animation" />
 
       <h3>Looking for the<br />best offer</h3>
       <p>Analyzing decentralized exchanges…</p>
@@ -17,15 +14,9 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "SwapLooking",
-};
-</script>
-
 <script setup lang="ts">
 import CloseIcon from "@action/icons/common/close-icon.vue";
-import LottieLookingJson from "@action/assets/animation/looking.json";
+import SwapLookingAnimation from "@action/icons/swap/swap-looking-animation.vue";
 
 defineProps({
   close: {
@@ -115,8 +106,8 @@ defineProps({
   }
 
   &__animation {
-    width: 180px;
-    height: 180px;
+    width: 152px;
+    height: 152px;
     display: inline-block;
     margin-bottom: 24px;
   }

@@ -18,7 +18,7 @@
       stroke-dasharray="10"
       stroke-miterlimit="4"
       transform="translate(36,36)"
-      style=" animation: 0.6s linear both a0_t_2, 0.6s linear both a0_s_2, 0.6s linear both a0_da"
+      style="animation: 0.6s linear both a0_t_2, 0.6s linear both a0_s_2, 0.6s linear both a0_da"
     />
     <g
       id="x"
@@ -28,7 +28,7 @@
     >
       <path
         d="M0,0L-15,15"
-        stroke="#d50000"
+        stroke="#f4432c"
         fill="none"
         stroke-linecap="round"
         stroke-width="0"
@@ -37,7 +37,7 @@
       />
       <path
         d="M0,15L-15,0"
-        stroke="#d50000"
+        stroke="#f4432c"
         fill="none"
         stroke-linecap="round"
         stroke-width="0"
@@ -73,7 +73,7 @@ svg {
     animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
   }
   100% {
-    stroke: #d50000;
+    stroke: #5f6368;
   }
 }
 @keyframes a0_da {

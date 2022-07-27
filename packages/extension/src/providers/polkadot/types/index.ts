@@ -52,6 +52,7 @@ export interface PolkadotNodeType extends NodeType {
 }
 
 export interface PolkadotAPIOptions {
+  name: string;
   decimals: number;
 }
 export enum PolkadotStorageNamespace {

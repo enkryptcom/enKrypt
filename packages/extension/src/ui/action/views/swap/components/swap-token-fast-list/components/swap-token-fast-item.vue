@@ -5,12 +5,6 @@
   </a>
 </template>
 
-<script lang="ts">
-export default {
-  name: "SwapTokenFastItem",
-};
-</script>
-
 <script setup lang="ts">
 import { PropType } from "vue";
 import { AssetsType } from "@/types/provider";
@@ -44,6 +38,11 @@ const select = () => {
     display: inline-block;
     margin-right: 12px;
     margin-bottom: 7px;
+    transition: background 300ms ease-in-out;
+
+    &:hover {
+      background: @black004;
+    }
 
     img {
       width: 16px;

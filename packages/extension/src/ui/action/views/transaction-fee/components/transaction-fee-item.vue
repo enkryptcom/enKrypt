@@ -24,12 +24,6 @@
   </a>
 </template>
 
-<script lang="ts">
-export default {
-  name: "TransactionFeeItem",
-};
-</script>
-
 <script setup lang="ts">
 import { PropType, computed } from "vue";
 import EconomyIcon from "@action/icons/fee/economy-icon.vue";
@@ -99,6 +93,7 @@ const select = () => {
     height: 80px;
     border-radius: 8px;
     width: 100%;
+    transition: background 300ms ease-in-out;
 
     svg {
       width: 24px;
@@ -151,6 +146,10 @@ const select = () => {
       .transaction-fee-item__block-amount {
         display: none;
       }
+    }
+
+    &:hover {
+      background-color: @black007;
     }
   }
 }

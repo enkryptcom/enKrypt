@@ -4,12 +4,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "NetworAssetsLoading",
-};
-</script>
-
 <script setup lang="ts"></script>
 
 <style lang="less">
@@ -18,7 +12,7 @@ export default {
 .network-assets {
   &__loading {
     width: 100%;
-    height: 384px;
+    height: calc(~"100% - 216px");
     display: flex;
     justify-content: center;
     align-items: center;

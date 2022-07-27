@@ -34,12 +34,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "LockScreen",
-};
-</script>
-
 <script setup lang="ts">
 import { ref } from "vue";
 import LogoBig from "@action/icons/common/logo-big.vue";
@@ -108,6 +102,8 @@ const closeLockedAction = () => {
   &__container {
     width: 800px;
     height: 600px;
+    //   width: 454px;
+    //   height: 397px;
     overflow-x: hidden;
     overflow-y: hidden;
     position: fixed;
