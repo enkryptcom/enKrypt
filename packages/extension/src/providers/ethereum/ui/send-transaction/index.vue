@@ -12,6 +12,8 @@
         :from="true"
         :value="addressFrom"
         :network="network"
+        :disable-direct-input="true"
+        @click="toggleSelectContactFrom(true)"
         @update:input-address="inputAddressFrom"
         @toggle:show-contacts="toggleSelectContactFrom"
       ></send-address-input>
@@ -148,6 +150,7 @@ import { routes as RouterNames } from "@/ui/action/router";
 import getUiPath from "@/libs/utils/get-ui-path";
 import Browser from "webextension-polyfill";
 import { ProviderName } from "@/types/provider";
+import PublicKeyRing from "@/libs/keyring/public-keyring";
 
 const props = defineProps({
   network: {
@@ -218,7 +221,7 @@ const TxInfo = computed<SendTransactionDataType>(() => {
           .encodeABI();
   return {
     chainId: numberToHex(props.network.chainID) as `0x{string}`,
-    from: props.accountInfo.selectedAccount!.address as `0x{string}`,
+    from: addressFrom.value as `0x{string}`,
     value: value as `0x${string}`,
     to: toAddress as `0x${string}`,
     data: data as `0x${string}`,
@@ -234,7 +237,7 @@ const setTransactionFees = (tx: Transaction) => {
   return tx.getGasCosts().then(async (gasvals) => {
     const getConvertedVal = (type: GasPriceTypes) =>
       fromBase(gasvals[type], props.network.decimals);
-    const nativeVal = accountAssets.value[0].price;
+    const nativeVal = accountAssets.value[0].price || "0";
     gasCostValues.value = {
       [GasPriceTypes.ECONOMY]: {
         nativeValue: getConvertedVal(GasPriceTypes.ECONOMY),
@@ -413,6 +416,10 @@ const selectFee = (type: GasPriceTypes) => {
 };
 
 const sendAction = async () => {
+  const keyring = new PublicKeyRing();
+  const fromAccountInfo = await keyring.getAccount(
+    addressFrom.value.toLowerCase()
+  );
   const txVerifyInfo: VerifyTransactionParams = {
     TransactionData: TxInfo.value,
     toToken: {
@@ -426,8 +433,8 @@ const sendAction = async () => {
       name: selectedAsset.value.name || "",
       price: selectedAsset.value.price || "0",
     },
-    fromAddress: props.accountInfo.selectedAccount!.address,
-    fromAddressName: props.accountInfo.selectedAccount!.name,
+    fromAddress: fromAccountInfo.address,
+    fromAddressName: fromAccountInfo.name,
     gasFee: gasCostValues.value[selectedFee.value],
     gasPriceType: selectedFee.value,
     toAddress: addressTo.value,
