@@ -22,9 +22,12 @@
         <p>≈ {{ $filters.formatFiatValue(toTokenPrice).value }}</p>
       </div>
     </div>
-    <best-offer-warning :fee-warning="true"></best-offer-warning>
-    <best-offer-warning :token-warning="true"></best-offer-warning>
-    <best-offer-error :bad-trade="true"></best-offer-error>
+    <!-- <best-offer-warning :fee-warning="true"></best-offer-warning>
+    <best-offer-warning :token-warning="true"></best-offer-warning> -->
+    <best-offer-error
+      v-if="warning === SwapBestOfferWarnings.BAD_PRICE"
+      :bad-trade="true"
+    ></best-offer-error>
     <div v-if="trades.length > 1" class="swap-best-offer-block__offers">
       <a
         class="swap-best-offer-block__offers-link"
@@ -69,11 +72,11 @@
 import { computed, ref } from "vue";
 import SwitchArrow from "@action/icons/header/switch_arrow.vue";
 import BestOfferList from "./components/best-offer-list.vue";
-import BestOfferWarning from "./components/best-offer-warning.vue";
 import BestOfferError from "./components/best-offer-error.vue";
 import { TradeInfo } from "@/providers/swap/types/SwapProvider";
 import { BaseToken } from "@/types/base-token";
 import BigNumber from "bignumber.js";
+import { SwapBestOfferWarnings } from "../types";
 
 interface SwapBestOfferProps {
   trades: TradeInfo[];
@@ -81,9 +84,11 @@ interface SwapBestOfferProps {
   fromToken: BaseToken;
   fromAmount: string;
   toToken: BaseToken;
+  warning?: SwapBestOfferWarnings;
 }
 
 const props = defineProps<SwapBestOfferProps>();
+
 const emit = defineEmits<{
   (e: "update:pickedTrade", trade: TradeInfo): void;
 }>();

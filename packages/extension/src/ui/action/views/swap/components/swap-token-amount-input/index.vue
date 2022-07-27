@@ -15,7 +15,12 @@
       @update:value="amountChanged"
     ></swap-token-amount-input>
 
-    <a v-show="!!token" class="swap-token-input__max">Max</a>
+    <a
+      v-show="!!token && ((token as any).contract !== NATIVE_TOKEN_ADDRESS)"
+      class="swap-token-input__max"
+      @click="inputMax"
+      >Max</a
+    >
     <div v-if="inputError !== null" class="swap-token-input__invalid">
       {{
         inputError === "MAX"
@@ -45,6 +50,11 @@ import SwapTokenAmountInput from "./components/swap-token-amount-input.vue";
 import { BaseToken } from "@/types/base-token";
 import BigNumber from "bignumber.js";
 import { fromBase } from "@/libs/utils/units";
+import { NATIVE_TOKEN_ADDRESS } from "@/providers/ethereum/libs/common";
+
+const emit = defineEmits<{
+  (e: "update:inputMax"): void;
+}>();
 
 interface IProps {
   toggleSelect: () => void;
@@ -101,6 +111,14 @@ const amountChanged = (newVal: string) => {
 
 const changeFocus = (newVal: boolean) => {
   isFocus.value = newVal;
+};
+
+const inputMax = () => {
+  if (props.token && props.token.balance) {
+    const tokenBalance = fromBase(props.token.balance, props.token.decimals);
+    amountChanged(tokenBalance);
+  }
+  emit("update:inputMax");
 };
 </script>
 

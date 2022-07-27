@@ -1,7 +1,9 @@
 import ActivityState from "@/libs/activity-state";
 import { getNetworkByName } from "@/libs/utils/networks";
-import { toBase } from "@/libs/utils/units";
+import { fromBase, toBase } from "@/libs/utils/units";
+import erc20 from "@/providers/ethereum/libs/abi/erc20";
 import API from "@/providers/ethereum/libs/api";
+import { NATIVE_TOKEN_ADDRESS } from "@/providers/ethereum/libs/common";
 import Transaction from "@/providers/ethereum/libs/transaction";
 import { GasPriceTypes } from "@/providers/ethereum/libs/transaction/types";
 import { Erc20Token } from "@/providers/ethereum/types/erc20-token";
@@ -11,6 +13,7 @@ import { Activity, ActivityStatus, ActivityType } from "@/types/activity";
 import { BaseToken } from "@/types/base-token";
 import { EnkryptAccount } from "@enkryptcom/types";
 import BigNumber from "bignumber.js";
+import Web3 from "web3";
 import { isAddress, numberToHex, toBN } from "web3-utils";
 import {
   Quote,
@@ -240,18 +243,39 @@ export class EvmSwapProvider extends SwapProvider {
     toAddress: string,
     fromToken: Erc20Token,
     toToken: Erc20Token,
-    fromAmount: string
+    fromAmount: string,
+    swapMax: boolean
   ): Promise<TradeInfo[]> {
     try {
       if (!fromToken.contract || !toToken.contract) {
         return [];
       }
 
+      let amountToSwap = fromAmount;
+
+      if (swapMax) {
+        if (fromToken.contract === NATIVE_TOKEN_ADDRESS) {
+          // TODO send native max
+        } else {
+          const network = getNetworkByName(chain);
+          const web3 = new Web3(network!.node);
+          const tokenContract = new web3.eth.Contract(
+            erc20 as any,
+            fromToken.contract
+          );
+
+          amountToSwap = fromBase(
+            await tokenContract.methods.balanceOf(fromAddress).call(),
+            fromToken.decimals
+          );
+        }
+      }
+
       const params = new URLSearchParams();
       params.append("chain", chain);
       params.append("fromContractAddress", fromToken.contract);
       params.append("toContractAddress", toToken.contract);
-      params.append("amount", fromAmount);
+      params.append("amount", amountToSwap);
       params.append("address", fromAddress);
       params.append("platform", "web");
 

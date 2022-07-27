@@ -13,7 +13,9 @@
         class="swap-looking__animation"
       />
       <Vue3Lottie
-        v-else-if="error === SwapError.NO_TOKENS"
+        v-else-if="
+          error === SwapError.NO_TOKENS || error === SwapError.NO_TRADES
+        "
         :loop="true"
         :animation-data="LottieError"
         class="swap-looking__animation"

@@ -17,6 +17,7 @@
             :autofocus="true"
             :min="minFrom"
             :max="maxFrom"
+            @update:input-max="setMax"
           ></swap-token-amount-input>
 
           <a class="swap__arrows" @click="swapTokens"
@@ -97,7 +98,7 @@
     <swap-error-popup
       v-if="showSwapError"
       :error="swapError"
-      :close="toggleShowError"
+      :close="toggleSwapError"
     />
   </div>
 </template>
@@ -178,6 +179,8 @@ const addressInputTimeout = ref<number>();
 
 const swapError = ref<SwapError>();
 const showSwapError = ref(false);
+
+const swapMax = ref(false);
 
 const toTokensFiltered = computed(() => {
   if (toTokens.value) {
@@ -283,7 +286,6 @@ onMounted(async () => {
       });
       const pricePromises = tokens.map((token) => {
         if (token.price && token.price !== "0") {
-          console.log(token.price);
           return Promise.resolve(token.price);
         }
         return token.getLatestPrice();
@@ -299,10 +301,10 @@ onMounted(async () => {
   swap.getAllTokens(props.network.name).then(({ tokens, featured, error }) => {
     if (tokens.length === 0 && featured.length === 0 && error) {
       swapError.value = SwapError.NO_TOKENS;
-      toggleShowError();
+      toggleSwapError();
     } else if (error) {
       swapError.value = SwapError.SOME_TOKENS;
-      toggleShowError();
+      toggleSwapError();
     }
 
     featuredTokens.value = featured.length > 0 ? featured : tokens.slice(0, 5);
@@ -334,7 +336,6 @@ watch([toToken, address], async () => {
       signerType = [SignerType.secp256k1];
       toNetwork = getNetworkByName("ETH");
     } else {
-      console.log(toToken.value.symbol);
       switch (toToken.value.symbol.toUpperCase()) {
         case "DOT":
           signerType = [SignerType.sr25519, SignerType.ed25519];
@@ -352,7 +353,6 @@ watch([toToken, address], async () => {
         case "MATIC":
           signerType = [SignerType.secp256k1];
           toNetwork = getNetworkByName("MATIC");
-          console.log("toNetwork", toNetwork);
           break;
         case "BNB":
           signerType = [SignerType.secp256k1];
@@ -410,26 +410,39 @@ const selectTokenFrom = (token: BaseToken) => {
   fromToken.value = token;
   fromSelectOpened.value = false;
 };
+
 const selectTokenTo = (token: BaseToken) => {
   toToken.value = token;
   toSelectOpened.value = false;
 };
+
 const inputAmountFrom = async (newVal: number, isInvalid: boolean) => {
   inputError.value = isInvalid;
   fromAmount.value = newVal.toString();
+  swapMax.value = false;
 };
+
 const toggleFromToken = () => {
   fromSelectOpened.value = !fromSelectOpened.value;
 };
+
 const toggleToToken = () => {
   toSelectOpened.value = !toSelectOpened.value;
 };
+
 const toggleLooking = () => {
   isLooking.value = !isLooking.value;
 };
-const toggleShowError = () => {
+
+const toggleSwapError = () => {
   showSwapError.value = !showSwapError.value;
 };
+
+const setMax = () => {
+  swapMax.value = true;
+  console.log("max");
+};
+
 const sendButtonTitle = () => {
   let title = "Select  token";
 
@@ -454,6 +467,7 @@ const isDisabled = () => {
   }
   return isDisabled;
 };
+
 const sendAction = async () => {
   toggleLooking();
 
@@ -465,19 +479,26 @@ const sendAction = async () => {
     );
   }
 
+  const priceDifference = new BigNumber(fromAmount.value!)
+    .times(fromToken.value?.price ?? 0)
+    .div(new BigNumber(toAmount.value).times(toToken.value?.price ?? 0))
+    .toString();
+
   const trades = await swap.getTrade(
     props.network.name,
     fromAddress,
     network.value!.displayAddress(address.value),
     fromToken.value!,
     toToken.value!,
-    fromAmount.value!
+    fromAmount.value!,
+    swapMax.value
   );
 
   if (trades.length === 0) {
-    // TODO handle no trades
+    swapError.value = SwapError.NO_TRADES;
     console.error("No trades found");
     toggleLooking();
+    toggleSwapError();
     return;
   }
 
@@ -487,6 +508,7 @@ const sendAction = async () => {
     fromToken: fromToken.value,
     fromAmount: fromAmount.value,
     toAddress: address.value,
+    priceDifference: priceDifference,
   };
 
   router.push({

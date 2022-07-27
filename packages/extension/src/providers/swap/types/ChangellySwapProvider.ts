@@ -31,6 +31,7 @@ import erc20 from "@/providers/ethereum/libs/abi/erc20";
 import ActivityState from "@/libs/activity-state";
 import { Activity, ActivityStatus, ActivityType } from "@/types/activity";
 import { ChangellyToken, ChangellyTokenOptions } from "./changelly-token";
+import BigNumber from "bignumber.js";
 
 interface ChangellyTokenInfo {
   contractAddress?: string;
@@ -104,6 +105,7 @@ export class ChangellySwapProvider extends SwapProvider {
     address: string,
     toToken: BaseToken
   ): Promise<boolean> {
+    console.log("Validating");
     try {
       const controller = new AbortController();
 
@@ -241,7 +243,7 @@ export class ChangellySwapProvider extends SwapProvider {
             price: tokenData.price,
             contract: tokenData.contractAddress,
             blockchain: tokenData.blockchain,
-            changellyID: symbol,
+            changellyID: tokenData.ticker,
           };
 
           if (tokenData.contractAddress) {
@@ -407,11 +409,14 @@ export class ChangellySwapProvider extends SwapProvider {
     toAddress: string,
     fromToken: BaseToken,
     toToken: ChangellyToken,
-    fromAmount: string
+    fromAmount: string,
+    swapMax: boolean
   ): Promise<TradeInfo[]> {
     if (!toToken.changellyID) {
       return [];
     }
+
+    console.log("changelly id", toToken.changellyID);
 
     try {
       const quote = (
@@ -450,6 +455,8 @@ export class ChangellySwapProvider extends SwapProvider {
 
         const result: ChangellyTrade = data.result;
 
+        console.log("rate id", result.id, result.trackUrl);
+
         // Request had an error
         if (!result.amountExpectedTo) {
           throw new Error("Unexpected Changelly response");
@@ -465,14 +472,30 @@ export class ChangellySwapProvider extends SwapProvider {
           const api = await network.api();
           await api.init();
 
-          const toAmountRaw = toBase(fromAmount, fromToken.decimals);
+          let fromAmountRaw = new BigNumber(
+            toBase(fromAmount, fromToken.decimals)
+          );
+
+          if (swapMax) {
+            const txEstimate = await (
+              await (fromToken as SubstrateToken).send(
+                api.api as ApiPromise,
+                result.payinAddress,
+                fromAmountRaw.toString(),
+                { type: swapMax ? "transfer" : "keepAlive" }
+              )
+            ).paymentInfo(fromAddress);
+
+            const fee = new BigNumber(txEstimate.partialFee.toString());
+
+            fromAmountRaw = fromAmountRaw.minus(fee);
+          }
+
           const tx = await (fromToken as SubstrateToken).send(
             api.api as ApiPromise,
             result.payinAddress,
-            toAmountRaw,
-            {
-              type: "keepAlive",
-            }
+            fromAmountRaw.toString(),
+            { type: swapMax ? "transfer" : "keepAlive" }
           );
 
           const gas = (await tx.paymentInfo(fromAddress)).partialFee.toHex();
@@ -515,15 +538,22 @@ export class ChangellySwapProvider extends SwapProvider {
           } else {
             const network = getNetworkByName(chain);
             const web3 = new Web3(network!.node);
-            const tokenContract = new web3.eth.Contract(erc20 as any);
-            const data = tokenContract.methods
-              .transfer(
-                result.payinAddress,
-                toBase(fromAmount, fromToken.decimals)
-              )
-              .encodeABI();
+            const tokenContract = new web3.eth.Contract(
+              erc20 as any,
+              (fromToken as Erc20Token).contract
+            );
 
-            console.log(fromAddress);
+            let amountToSwap = toBase(fromAmount, fromToken.decimals);
+
+            if (swapMax) {
+              amountToSwap = (
+                await tokenContract.methods.balanceOf(fromAddress)
+              ).toString();
+            }
+
+            const data = tokenContract.methods
+              .transfer(result.payinAddress, amountToSwap)
+              .encodeABI();
 
             txData = {
               to: (fromToken as Erc20Token).contract,
@@ -542,7 +572,6 @@ export class ChangellySwapProvider extends SwapProvider {
           }
         }
 
-        console.log("txData", txData);
         return [
           {
             provider: "CHANGELLY",
@@ -550,6 +579,7 @@ export class ChangellySwapProvider extends SwapProvider {
             fromAmount: fromAmount,
             fee: "0.025",
             gas: "0x",
+            rateId: result.id,
             txs: [txData!],
           },
         ];
@@ -582,6 +612,8 @@ export class ChangellySwapProvider extends SwapProvider {
 
       const tx = apiPromise.tx(data);
 
+      console.log("rateId", trade.rateId);
+
       const txActivity: Activity = {
         from,
         to,
@@ -591,7 +623,8 @@ export class ChangellySwapProvider extends SwapProvider {
         status: ActivityStatus.pending,
         timestamp: new Date().getTime(),
         type: ActivityType.transaction,
-        value: tokenValue,
+        value: toBase(tokenValue, token.decimals),
+        swapId: trade.rateId,
         transactionHash: "",
       };
 
@@ -667,7 +700,8 @@ export class ChangellySwapProvider extends SwapProvider {
         status: ActivityStatus.pending,
         timestamp: new Date().getTime(),
         type: ActivityType.transaction,
-        value: tokenValue,
+        value: toBase(tokenValue, token.decimals),
+        swapId: trade.rateId,
         transactionHash: "",
       };
 

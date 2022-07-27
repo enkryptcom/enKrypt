@@ -29,8 +29,11 @@
           >
           </swap-best-offer-block>
           <best-offer-error
-            v-if="balance ? gasFees?.gt(balance) : false"
+            v-if="warning === SwapBestOfferWarnings.NOT_ENOUGH_GAS"
             :not-enought-e-t-h="true"
+            :native-symbol="props.network.name"
+            :price="priceDifference"
+            :native-value="gasDifference"
           ></best-offer-error>
           <send-fee-select
             v-if="(props.network as EvmNetwork).chainID"
@@ -111,6 +114,9 @@ import { GasFeeInfo, GasFeeType } from "@/providers/ethereum/ui/types";
 import { fromBase } from "@/libs/utils/units";
 import BigNumber from "bignumber.js";
 import { defaultGasCostVals } from "@/providers/ethereum/ui/common/default-vals";
+import { SwapBestOfferWarnings } from "./components/types";
+import { Erc20Token } from "@/providers/ethereum/types/erc20-token";
+import { NATIVE_TOKEN_ADDRESS } from "@/providers/ethereum/libs/common";
 
 interface SwapData {
   trades: TradeInfo[];
@@ -118,6 +124,7 @@ interface SwapData {
   toToken: BaseToken;
   fromAmount: string;
   toAddress: string;
+  priceDifference: string;
 }
 
 const props = defineProps({
@@ -149,8 +156,51 @@ const fee = reactive<Partial<GasFeeInfo>>({
 const selectedFee = ref<GasPriceTypes>(GasPriceTypes.REGULAR);
 const pickedTrade = ref<TradeInfo>(swapData.trades[0]);
 const balance = ref<BN>();
-const gasFees = ref<BN>();
 const gasCostValues = ref<GasFeeType>(defaultGasCostVals);
+
+const warning = ref<SwapBestOfferWarnings>();
+const gasDifference = ref<string>();
+const priceDifference = ref<string>();
+
+const setWarning = () => {
+  let totalFees = new BigNumber(
+    gasCostValues.value[selectedFee.value].nativeValue
+  );
+
+  if (
+    (swapData.fromToken as Erc20Token).contract &&
+    (swapData.fromToken as Erc20Token).contract === NATIVE_TOKEN_ADDRESS
+  ) {
+    totalFees = new BigNumber(swapData.fromAmount).plus(totalFees);
+  }
+
+  const userBalance = new BigNumber(
+    fromBase(swapData.fromToken.balance || "0", swapData.fromToken.decimals)
+  );
+
+  if (userBalance.minus(totalFees).lt(0)) {
+    gasDifference.value = userBalance.minus(totalFees).abs().toString();
+    priceDifference.value = userBalance
+      .minus(totalFees)
+      .abs()
+      .times(swapData.fromToken.price || 0)
+      .toString();
+
+    warning.value = SwapBestOfferWarnings.NOT_ENOUGH_GAS;
+    return;
+  }
+
+  if (1 - Number(swapData.priceDifference) < -0.2) {
+    warning.value = SwapBestOfferWarnings.BAD_PRICE;
+    return;
+  }
+
+  warning.value = undefined;
+};
+
+watch([gasCostValues, selectedFee], () => {
+  setWarning();
+});
 
 const Tx = computed(() => {
   if ((props.network as EvmNetwork).chainID) {
@@ -183,6 +233,7 @@ defineExpose({ bestOfferScrollRef });
 onMounted(async () => {
   if (Tx.value) {
     setTransactionFees(Tx.value);
+    setWarning();
   }
 
   if (props.network.name === "DOT" || props.network.name === "KSM") {
@@ -271,6 +322,9 @@ const sendAction = async () => {
 };
 const toggleInitiated = () => {
   isInitiated.value = !isInitiated.value;
+  if (!isInitiated.value) {
+    router.go(-2);
+  }
 };
 const handleScroll = (e: any) => {
   let progress = Number(e.target.lastChild.style.top.replace("px", ""));

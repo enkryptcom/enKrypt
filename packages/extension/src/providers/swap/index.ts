@@ -11,6 +11,7 @@ import { BaseNetwork } from "@/types/base-network";
 import { EnkryptAccount } from "@enkryptcom/types";
 import BigNumber from "bignumber.js";
 import { GasPriceTypes } from "../ethereum/libs/transaction/types";
+import { ChangellyToken } from "./types/changelly-token";
 
 export class Swap {
   public providers: SwapProvider[] = [
@@ -22,9 +23,21 @@ export class Swap {
     address: string,
     toToken: BaseToken
   ): Promise<boolean> {
-    const promises = this.providers.map((provider) =>
-      provider.isValidAddress(address, toToken)
-    );
+    if ((toToken as ChangellyToken).changellyID) {
+      const changelly = this.providers.find((provider) =>
+        provider.supportedDexes.includes("CHANGELLY")
+      );
+
+      if (changelly) {
+        return changelly.isValidAddress(address, toToken);
+      } else {
+        return false;
+      }
+    }
+
+    const promises = this.providers
+      .filter((provider) => !provider.supportedDexes.includes("CHANGELLY"))
+      .map((provider) => provider.isValidAddress(address, toToken));
 
     return Promise.all(promises).then((validations) =>
       validations.reduce((a, b) => {
@@ -108,11 +121,27 @@ export class Swap {
     fromToken: BaseToken,
     toToken: BaseToken
   ): Promise<TradePreview | null> {
-    const previews = await Promise.all(
-      this.providers
-        .filter((provider) => provider.isSupportedNetwork(chain))
-        .map((provider) => provider.getTradePreview(chain, fromToken, toToken))
-    );
+    let previews: (TradePreview | null)[];
+
+    if ((toToken as ChangellyToken).changellyID) {
+      const changelly = this.providers.find((provider) =>
+        provider.supportedDexes.includes("CHANGELLY")
+      );
+
+      if (changelly) {
+        previews = [await changelly.getTradePreview(chain, fromToken, toToken)];
+      } else {
+        return null;
+      }
+    } else {
+      previews = await Promise.all(
+        this.providers
+          .filter((provider) => provider.isSupportedNetwork(chain))
+          .map((provider) =>
+            provider.getTradePreview(chain, fromToken, toToken)
+          )
+      );
+    }
 
     let min: string | null = null;
     let max: string | null = null;
@@ -149,8 +178,29 @@ export class Swap {
     toAddress: string,
     fromToken: BaseToken,
     toToken: BaseToken,
-    fromAmount: string
+    fromAmount: string,
+    swapMax: boolean
   ): Promise<TradeInfo[]> {
+    if ((toToken as ChangellyToken).changellyID) {
+      const changelly = this.providers.find((provider) =>
+        provider.supportedDexes.includes("CHANGELLY")
+      );
+
+      if (changelly) {
+        return changelly.getTrade(
+          chain,
+          fromAddress,
+          toAddress,
+          fromToken,
+          toToken,
+          fromAmount,
+          swapMax
+        );
+      } else {
+        return [];
+      }
+    }
+
     return Promise.all(
       this.providers
         .filter((provider) => provider.isSupportedNetwork(chain))
@@ -161,7 +211,8 @@ export class Swap {
             toAddress,
             fromToken,
             toToken,
-            fromAmount
+            fromAmount,
+            swapMax
           )
         )
     ).then((trades) => trades.flat());

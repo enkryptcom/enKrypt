@@ -6,6 +6,7 @@ type ErrorInfo = {
 export enum SwapError {
   NO_TOKENS = 0,
   SOME_TOKENS,
+  NO_TRADES,
 }
 
 export const Errors: Record<number, ErrorInfo> = {
@@ -18,5 +19,10 @@ export const Errors: Record<number, ErrorInfo> = {
     title: "Could not fetch tokens",
     description:
       "There was an error getting the available tokens. Please try again later.",
+  },
+  [SwapError.NO_TRADES]: {
+    title: "Could not find any swaps",
+    description:
+      "There was an error getting a swap for this pair. Please try again later.",
   },
 };

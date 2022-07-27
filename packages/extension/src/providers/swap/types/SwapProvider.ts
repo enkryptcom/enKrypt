@@ -115,7 +115,8 @@ export abstract class SwapProvider {
     toAddress: string,
     fromToken: BaseToken,
     toToken: BaseToken,
-    fromAmount: string
+    fromAmount: string,
+    isMax: boolean
   ): Promise<TradeInfo[]>;
 
   public abstract getStatus(statusOject: any, web3: Web3): TradeStatus;
