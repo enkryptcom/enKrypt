@@ -289,7 +289,7 @@ const approve = async () => {
               ? tx.to.toString()
               : `0x${generateAddress(
                   tx.getSenderAddress().toBuffer(),
-                  tx.nonce.toBuffer()
+                  Buffer.from(tx.nonce.toString("hex"), "hex")
                 ).toString("hex")}`,
             isIncoming: tx.getSenderAddress().toString() === tx.to?.toString(),
             network: network.value.name,
@@ -334,7 +334,11 @@ const approve = async () => {
                 });
             });
         })
-        .catch(Resolve.value);
+        .catch((err) => {
+          Resolve.value({
+            error: getCustomError(err.message),
+          });
+        });
     }
   );
 };
