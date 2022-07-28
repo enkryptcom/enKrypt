@@ -28,7 +28,7 @@
             :key="index"
             class="recovery-phrase__item"
           >
-            <span>{{ index + 7 }}</span> {{ phrase }}
+            <span>{{ index + firstSet.length + 1 }}</span> {{ phrase }}
           </div>
         </div>
       </div>
@@ -49,11 +49,11 @@ const props = defineProps({
 
 const firstSet = computed(() => {
   let copy = props.mnemonic.split(" ");
-  return copy.splice(0, 6);
+  return copy.splice(0, copy.length / 2);
 });
 const secondSet = computed(() => {
   let copy = props.mnemonic.split(" ");
-  return copy.splice(6);
+  return copy.splice(copy.length / 2);
 });
 </script>
 
