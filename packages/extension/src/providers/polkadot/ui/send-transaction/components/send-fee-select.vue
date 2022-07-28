@@ -2,11 +2,16 @@
   <a class="send-fee-select" :class="{ swap: inSwap }">
     <div class="send-fee-select__value">
       <p class="send-fee-select__value-fiat">
-        Fee: {{ $filters.formatFiatValue(fee.fiatValue).value }}
-        {{ fee.fiatSymbol }}
+        Fee:
+        {{ fee.fiatValue ? $filters.formatFiatValue(fee.fiatValue).value : "" }}
+        {{ fee.fiatSymbol ?? "" }}
       </p>
       <p class="send-fee-select__value-crypto">
-        {{ $filters.formatFloatingPointValue(fee.nativeValue).value }}
+        {{
+          fee.nativeValue
+            ? $filters.formatFloatingPointValue(fee.nativeValue).value
+            : "~"
+        }}
         <span>{{ fee.nativeSymbol }}</span>
       </p>
     </div>
@@ -18,14 +23,8 @@ import { PropType } from "vue";
 import { GasFeeInfo } from "@/providers/ethereum/ui/types";
 
 defineProps({
-  toggleSelect: {
-    type: Function,
-    default: () => {
-      return null;
-    },
-  },
   fee: {
-    type: Object as PropType<GasFeeInfo>,
+    type: Object as PropType<Partial<GasFeeInfo>>,
     default: () => {
       return {};
     },
