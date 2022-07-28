@@ -45,6 +45,7 @@
             :network="network"
             :is-valid-address="addressIsValid"
             :is-loading="addressIsLoading"
+            :to-network="toToken && (toToken as any).blockchain ? (toToken as any).blockchain : null"
             @update:input-address="inputAddress"
             @toggle:show-contacts="toggleSelectContact"
           ></send-address-input>
@@ -90,6 +91,7 @@
       v-show="toSelectOpened"
       :is-select-to-token="true"
       :assets="toTokensFiltered"
+      :is-loading="fetchingTokens"
       @close="toggleToToken"
       @update:select-asset="selectTokenTo"
     ></assets-select-list>
@@ -163,6 +165,7 @@ const fromAmount = ref<string | null>(null);
 
 const toTokens = ref<BaseToken[]>();
 const toToken = ref<BaseToken | null>(null);
+const fetchingTokens = ref(true);
 
 const featuredTokens = ref<BaseToken[]>();
 
@@ -309,6 +312,7 @@ onMounted(async () => {
 
     featuredTokens.value = featured.length > 0 ? featured : tokens.slice(0, 5);
     toTokens.value = tokens;
+    fetchingTokens.value = false;
   });
 });
 
