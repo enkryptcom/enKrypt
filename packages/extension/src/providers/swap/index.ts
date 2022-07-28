@@ -19,6 +19,10 @@ export class Swap {
     new ChangellySwapProvider(),
   ];
 
+  public getSupportedNetworks(): NetworkNames[] {
+    return this.providers.map((provider) => provider.supportedNetworks).flat();
+  }
+
   public async isValidAddress(
     address: string,
     toToken: BaseToken

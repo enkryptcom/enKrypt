@@ -20,9 +20,27 @@
         :animation-data="LottieError"
         class="swap-looking__animation"
       />
+      <Vue3Lottie
+        v-else-if="error === SwapError.NETWORK_NOT_SUPPORTED"
+        :loop="true"
+        :animation-data="LottieWarning"
+        class="swap-looking__animation"
+      />
 
-      <h3>{{ Errors[error!].title }}</h3>
-      <p>{{ Errors[error!].description }}</p>
+      <h3 v-if="error !== SwapError.NETWORK_NOT_SUPPORTED">
+        {{ Errors[error!].title }}
+      </h3>
+      <p v-if="error !== SwapError.NETWORK_NOT_SUPPORTED">
+        {{ Errors[error!].description }}
+      </p>
+
+      <h3 v-if="error === SwapError.NETWORK_NOT_SUPPORTED">
+        Coming soon to<br />{{ networkName }}
+      </h3>
+      <p v-if="error === SwapError.NETWORK_NOT_SUPPORTED">
+        Can't wait to swap? Try swapping on Ethereum, Polygon, BNB Smart Chain,
+        Polkadot, or Kusama.
+      </p>
     </div>
   </div>
 </template>
@@ -36,6 +54,7 @@ import { SwapError, Errors } from "./types";
 
 interface IProps {
   error?: SwapError;
+  networkName: string;
   close: () => void;
 }
 

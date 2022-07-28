@@ -7,6 +7,7 @@ export enum SwapError {
   NO_TOKENS = 0,
   SOME_TOKENS,
   NO_TRADES,
+  NETWORK_NOT_SUPPORTED,
 }
 
 export const Errors: Record<number, ErrorInfo> = {
@@ -23,6 +24,6 @@ export const Errors: Record<number, ErrorInfo> = {
   [SwapError.NO_TRADES]: {
     title: "Could not find any swaps",
     description:
-      "There was an error getting a swap for this pair. Please try again later.",
+      "Can't wait to swap? Try swapping on Ethereum, Polygon, BNB Smarst ",
   },
 };
