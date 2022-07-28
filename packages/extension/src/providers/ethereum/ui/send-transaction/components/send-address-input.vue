@@ -4,11 +4,13 @@
       <img v-if="isAddress(value)" :src="network.identicon(value)" alt="" />
     </div>
     <div class="send-address-input__address">
-      <p>To:</p>
+      <p v-if="!from">To:</p>
+      <p v-else>From:</p>
       <input
         ref="addressInput"
         v-model="address"
         type="text"
+        :disabled="disableDirectInput"
         placeholder="0x… address"
         :style="{ color: !isAddress(value) ? 'red' : 'black' }"
         @focus="changeFocus"
@@ -45,6 +47,11 @@ const props = defineProps({
     type: Object as PropType<BaseNetwork>,
     default: () => ({}),
   },
+  from: {
+    type: Boolean,
+    default: false,
+  },
+  disableDirectInput: Boolean,
 });
 const emit = defineEmits<{
   (e: "update:inputAddress", address: string): void;

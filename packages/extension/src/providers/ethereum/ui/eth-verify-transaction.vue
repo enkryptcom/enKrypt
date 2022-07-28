@@ -1,7 +1,7 @@
 <template>
   <common-popup>
     <template #header>
-      <sign-logo color="#05C0A5" class="common-popup__logo"></sign-logo>
+      <sign-logo class="common-popup__logo"></sign-logo>
       <div class="common-popup__network">
         <img :src="network.icon" />
         <p>{{ network.name_long }}</p>
@@ -10,7 +10,9 @@
 
     <template #content>
       <h2>Verify transaction</h2>
-
+      <hardware-wallet-msg
+        :wallet-type="account.walletType"
+      ></hardware-wallet-msg>
       <div class="provider-verify-transaction__block">
         <div class="provider-verify-transaction__account">
           <img :src="identicon" />
@@ -109,11 +111,16 @@
     </template>
 
     <template #button-left>
-      <base-button title="Decline" :click="deny" :no-background="true" />
+      <base-button
+        title="Decline"
+        :click="deny"
+        :no-background="true"
+        :disabled="isProcessing"
+      />
     </template>
 
     <template #button-right>
-      <base-button title="Sign" :click="approve" />
+      <base-button title="Sign" :click="approve" :disabled="isProcessing" />
     </template>
   </common-popup>
 </template>
@@ -125,11 +132,15 @@ import RightChevron from "@action/icons/common/right-chevron.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import CommonPopup from "@action/views/common-popup/index.vue";
 import SendFeeSelect from "./send-transaction/components/send-fee-select.vue";
+import HardwareWalletMsg from "./components/hardware-wallet-msg.vue";
 import TransactionFeeView from "@action/views/transaction-fee/index.vue";
 import { getCustomError, getError } from "@/libs/error";
 import { ErrorCodes } from "@/providers/ethereum/types";
 import { WindowPromiseHandler } from "@/libs/window-promise";
-import { DEFAULT_NETWORK_NAME, getNetworkByName } from "@/libs/utils/networks";
+import {
+  DEFAULT_EVM_NETWORK_NAME,
+  getNetworkByName,
+} from "@/libs/utils/networks";
 import {
   DecodedTx,
   EthereumTransaction,
@@ -147,7 +158,11 @@ import MarketData from "@/libs/market-data";
 import { defaultGasCostVals } from "./common/default-vals";
 import { EnkryptAccount } from "@enkryptcom/types";
 import { TransactionSigner } from "./libs/signer";
+import { Activity, ActivityStatus, ActivityType } from "@/types/activity";
+import { generateAddress } from "ethereumjs-util";
+import ActivityState from "@/libs/activity-state";
 
+const isProcessing = ref(false);
 const isOpenSelectFee = ref(false);
 const providerVerifyTransactionScrollRef = ref<ComponentPublicInstance>();
 const isOpenData = ref(false);
@@ -155,7 +170,7 @@ const TokenBalance = ref<string>("~");
 const fiatValue = ref<string>("~");
 const decodedTx = ref<DecodedTx>();
 const network = ref<EvmNetwork>(
-  getNetworkByName(DEFAULT_NETWORK_NAME) as EvmNetwork
+  getNetworkByName(DEFAULT_EVM_NETWORK_NAME) as EvmNetwork
 );
 const marketdata = new MarketData();
 const gasCostValues = ref<GasFeeType>(defaultGasCostVals);
@@ -170,6 +185,7 @@ const Options = ref<ProviderRequestOptions>({
   faviconURL: "",
   title: "",
   url: "",
+  tabId: 0,
 });
 const selectedFee = ref<GasPriceTypes>(GasPriceTypes.ECONOMY);
 
@@ -246,10 +262,12 @@ onBeforeMount(async () => {
         fiatSymbol: "USD",
       },
     };
+    selectedFee.value = GasPriceTypes.ECONOMY;
   });
 });
 
 const approve = async () => {
+  isProcessing.value = true;
   const { Request, Resolve } = await windowPromise;
   const web3 = new Web3(network.value.node);
   const tx = new Transaction(
@@ -258,26 +276,69 @@ const approve = async () => {
   );
   tx.getFinalizedTransaction({ gasPriceType: selectedFee.value }).then(
     (finalizedTx) => {
+      const activityState = new ActivityState();
       TransactionSigner({
         account: account.value,
         network: network.value,
         payload: finalizedTx,
       })
         .then((tx) => {
+          const txActivity: Activity = {
+            from: account.value.address,
+            to: tx.to
+              ? tx.to.toString()
+              : `0x${generateAddress(
+                  tx.getSenderAddress().toBuffer(),
+                  Buffer.from(tx.nonce.toString("hex"), "hex")
+                ).toString("hex")}`,
+            isIncoming: tx.getSenderAddress().toString() === tx.to?.toString(),
+            network: network.value.name,
+            status: ActivityStatus.pending,
+            timestamp: new Date().getTime(),
+            token: {
+              decimals: decodedTx.value?.tokenDecimals || 18,
+              icon: decodedTx.value?.tokenImage || "",
+              name: decodedTx.value?.tokenName || "Unknown",
+              symbol: decodedTx.value?.tokenSymbol || "UKNWN",
+              price: decodedTx.value?.currentPriceUSD.toString() || "0",
+            },
+            type: ActivityType.transaction,
+            value: decodedTx.value?.tokenValue || "0x0",
+            transactionHash: "",
+          };
           web3.eth
             .sendSignedTransaction("0x" + tx.serialize().toString("hex"))
             .on("transactionHash", (hash) => {
-              Resolve.value({
-                result: JSON.stringify(hash),
-              });
+              activityState
+                .addActivities(
+                  [{ ...txActivity, ...{ transactionHash: hash } }],
+                  { address: txActivity.from, network: network.value.name }
+                )
+                .then(() => {
+                  Resolve.value({
+                    result: JSON.stringify(hash),
+                  });
+                });
             })
             .on("error", (error) => {
-              Resolve.value({
-                error: getCustomError(error.message),
-              });
+              txActivity.status = ActivityStatus.failed;
+              activityState
+                .addActivities([txActivity], {
+                  address: txActivity.from,
+                  network: network.value.name,
+                })
+                .then(() => {
+                  Resolve.value({
+                    error: getCustomError(error.message),
+                  });
+                });
             });
         })
-        .catch(Resolve.value);
+        .catch((err) => {
+          Resolve.value({
+            error: getCustomError(err.message),
+          });
+        });
     }
   );
 };

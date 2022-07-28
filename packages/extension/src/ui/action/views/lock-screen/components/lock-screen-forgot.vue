@@ -1,21 +1,21 @@
 <template>
   <div class="lock-screen-forgot">
-    <a class="lock-screen-forgot__close" @click="close">
+    <a class="lock-screen-forgot__close" @click="$emit('toggle:forgot')">
       <close-icon />
     </a>
     <h2>Forgot password?</h2>
     <p>Enkrypt cannot recover your password for you.</p>
     <p>
-      If you’re having trouble unlocking your account, you will need to reset
+      If you're having trouble unlocking your account, you will need to reset
       your wallet.
     </p>
 
     <div class="lock-screen-forgot__alert">
       <alert-icon />
       <p>
-        Warning: you can lose your account and funds forever. Don’t reset if you
-        didn’t saved your secret recovery phrase, as there will be NO WAY to
-        restore your account after you reset.
+        Warning: Do not reset your wallet if you do not have your recovery
+        phrase. There will be no way to restore your account and you could lose
+        all of your assets.
       </p>
     </div>
 
@@ -37,45 +37,39 @@
     />
 
     <p class="lock-screen-forgot__info">
-      Still need help? <a href="#">Contact support</a>
+      Still need help? <a href="mailto:support@enkrypt.com">Contact support</a>
     </p>
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "LockScreenForgot",
-};
-</script>
-
 <script setup lang="ts">
-import { PropType, ref, computed } from "vue";
+import { ref, computed } from "vue";
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import AlertIcon from "@action/icons/send/alert-icon.vue";
 import BaseInput from "@action/components/base-input/index.vue";
+import KeyRingBase from "@/libs/keyring/keyring";
+import openOnboard from "@/libs/utils/open-onboard";
 
 const reset = ref("");
-
-defineProps({
-  close: {
-    type: Function as PropType<() => void>,
-    default: () => {
-      return null;
-    },
-  },
-});
+const isProcessing = ref(false);
+defineEmits<{
+  (e: "toggle:forgot"): void;
+}>();
 
 const resetChanged = (newVal: string) => {
   reset.value = newVal;
 };
 
 const isDisabled = computed(() => {
-  return reset.value !== "reset" && reset.value !== "Reset";
+  return reset.value !== "Reset" || isProcessing.value;
 });
 
-const resetAction = () => {
-  console.log("resetAction");
+const resetAction = async () => {
+  isProcessing.value = true;
+  const keyring = new KeyRingBase();
+  await keyring.reset();
+  openOnboard();
 };
 </script>
 

@@ -20,6 +20,7 @@ export enum InternalMethods {
   ethereumDecrypt = "enkrypt_eth_decrypt",
   sign = "enkrypt_sign_hash",
   unlock = "enkrypt_unlock_keyring",
+  lock = "enkrypt_lock_keyring",
   isLocked = "enkrypt_is_locked_keyring",
   newWindowInit = "enkrypt_newWindowInit",
   newWindowUnload = "enkrypt_newWindowUnload",

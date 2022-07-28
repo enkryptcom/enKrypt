@@ -1,7 +1,9 @@
 import { NetworkNames } from "@enkryptcom/types";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
-import tokenbalanceMew from "@/providers/ethereum/libs/assets-handlers/tokenbalance-mew";
+import assetsInfoHandler from "@/providers/ethereum/libs/assets-handlers/assetinfo-mew";
 import RaribleNFTHandler from "@/libs/nft-handlers/rarible";
+import { EtherscanActivity } from "../libs/activity-handlers";
+import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
 
 const maticOptions: EvmNetworkOptions = {
   name: NetworkNames.Matic,
@@ -14,10 +16,11 @@ const maticOptions: EvmNetworkOptions = {
   currencyName: "MATIC",
   node: "wss://nodes.mewapi.io/ws/matic",
   icon: require("./icons/matic.svg"),
-  gradient: "#53CBC9",
+  gradient: "#7B3FE4",
   coingeckoID: "matic-network",
   NFTHandler: RaribleNFTHandler,
-  assetsHandler: tokenbalanceMew,
+  assetsInfoHandler,
+  activityHandler: wrapActivityHandler(EtherscanActivity),
 };
 
 const matic = new EvmNetwork(maticOptions);

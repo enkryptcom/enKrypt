@@ -11,12 +11,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "NetworkNftsCategorySortMenu",
-};
-</script>
-
 <script setup lang="ts">
 import { PropType } from "vue";
 import DoneIcon from "@action/icons/common/done_icon.vue";
@@ -51,7 +45,7 @@ defineProps({
       0px 3.75px 11px rgba(0, 0, 0, 0.19);
     border-radius: 12px;
     z-index: 1;
-    padding: 4px;
+    padding: 8px;
     box-sizing: border-box;
 
     a {

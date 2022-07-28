@@ -9,7 +9,9 @@
       </a>
     </div>
 
-    <assets-select-list-search></assets-select-list-search>
+    <assets-select-list-search
+      @update:token-search-input="updateSearchInput"
+    ></assets-select-list-search>
 
     <custom-scrollbar
       class="assets-select-list__scroll-area"
@@ -19,20 +21,20 @@
         <swap-token-fast-list v-bind="$attrs"></swap-token-fast-list>
       </div>
       <assets-select-list-item
-        v-for="(item, index) in assets"
+        v-for="(item, index) in listedAssets"
         :key="index"
         :token="item"
         v-bind="$attrs"
       ></assets-select-list-item>
+
+      <assets-select-loading
+        v-if="assets.length === 0"
+        :is-empty="assets.length === 0"
+        :is-loading="isLoading"
+      ></assets-select-loading>
     </custom-scrollbar>
   </div>
 </template>
-
-<script lang="ts">
-export default {
-  name: "AssetsSelectList",
-};
-</script>
 
 <script setup lang="ts">
 import CloseIcon from "@action/icons/common/close-icon.vue";
@@ -41,14 +43,15 @@ import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 import AssetsSelectListSearch from "./components/assets-select-list-search.vue";
 import SwapTokenFastList from "@action/views/swap/components/swap-token-fast-list/index.vue";
 import scrollSettings from "@/libs/utils/scroll-settings";
-import { AssetsType } from "@/types/provider";
-import { PropType } from "vue";
+import { computed, PropType, ref } from "vue";
+import AssetsSelectLoading from "./components/assets-select-loading.vue";
+import { BaseToken } from "@/types/base-token";
 
 const emit = defineEmits<{
   (e: "close", close: boolean): void;
 }>();
 
-defineProps({
+const props = defineProps({
   isSelectToToken: {
     type: Boolean,
     default: () => {
@@ -62,10 +65,49 @@ defineProps({
     },
   },
   assets: {
-    type: Array as PropType<AssetsType[]>,
+    type: Array as PropType<BaseToken[]>,
     default: () => [],
   },
+  isLoading: {
+    type: Boolean,
+    default: () => {
+      return false;
+    },
+  },
 });
+
+const searchQuery = ref<string>();
+
+const listedAssets = computed(() => {
+  if (searchQuery.value) {
+    return props.assets
+      .filter((token) => {
+        const tokenNameLowerCase = token.name.toLowerCase();
+        const tokenSymbolLowerCase = token.symbol.toLowerCase();
+        const tokenAddressLowerCase = (token as any).contract
+          ? (token as any).contract.toLowerCase()
+          : "";
+        const searchQueryLowerCase = searchQuery.value!.toLowerCase();
+
+        if (
+          tokenNameLowerCase.startsWith(searchQueryLowerCase) ||
+          tokenSymbolLowerCase.startsWith(searchQueryLowerCase) ||
+          tokenAddressLowerCase.startsWith(searchQueryLowerCase)
+        ) {
+          return true;
+        }
+
+        return false;
+      })
+      .slice(0, 50);
+  } else {
+    return props.assets.slice(0, 50);
+  }
+});
+
+const updateSearchInput = (newSearchQuery: string) => {
+  searchQuery.value = newSearchQuery;
+};
 
 const close = () => {
   emit("close", false);
@@ -140,6 +182,15 @@ const close = () => {
     .swap-token-fast-list__all {
       display: none;
     }
+  }
+
+  &__search-more-tokens {
+    margin: auto;
+    padding: 16px;
+    text-align: center;
+    font-size: 16px;
+    font-weight: 400;
+    color: @secondaryLabel;
   }
 }
 </style>

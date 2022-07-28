@@ -32,12 +32,17 @@ const router = useRouter();
 const nextAction = () => {
   router.push({
     name: routes.pickPassword.name,
-    params: { mnemonic: mnemonic.value },
+    params: { mnemonic: formattedMnemonic.value },
   });
 };
 
+const formattedMnemonic = computed(() => {
+  const words = mnemonic.value.match(/\b(\w+)\b/g);
+  if (!words) return "";
+  return words.join(" ");
+});
 const validate = computed(() => {
-  return validateMnemonic(mnemonic.value);
+  return validateMnemonic(formattedMnemonic.value);
 });
 </script>
 

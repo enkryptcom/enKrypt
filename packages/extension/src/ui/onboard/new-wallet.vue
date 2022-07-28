@@ -1,16 +1,15 @@
 <template>
   <div class="new-wallet">
     <logo-big class="new-wallet__logo"></logo-big>
-    <h3>The last web3 extension you will ever need</h3>
+    <h3>Multiple Chains.<br />One Wallet.</h3>
     <p>
-      Enkrypt is a wallet extension that allows you to use all networks. Most
-      popular ones, like Ethereum and Polkadot with its Parachains are already
-      built in.
+      Enkrypt is a wallet that gives you easy access to all things crypto and
+      web3.
     </p>
-    <p>As a user you can always add custom network.</p>
     <p>
-      And as a developer you can submit an update to our open-source codebase so
-      Enkrypt can start supporting your chain too.
+      Switch accounts and chains with 1 click.<br />
+      Enkrypt currently supports the Ethereum and Polkadot ecosystems with more
+      chains on the way!
     </p>
 
     <div class="new-wallet__buttons">

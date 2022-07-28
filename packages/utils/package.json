@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "@enkryptcom/types": "^0.0.1",
-    "@polkadot/util-crypto": "^10.0.2",
+    "@polkadot/util-crypto": "^10.1.1",
     "bip39": "^3.0.4",
     "chai": "^4.3.6",
     "ethereum-cryptography": "^1.0.0",

@@ -1,5 +1,7 @@
 import { NetworkNames } from "@enkryptcom/types";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
+import { EtherscanActivity } from "../libs/activity-handlers";
+import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
 
 const kovOptions: EvmNetworkOptions = {
   name: NetworkNames.Kovan,
@@ -12,7 +14,8 @@ const kovOptions: EvmNetworkOptions = {
   currencyName: "KOV",
   node: "wss://nodes.mewapi.io/ws/kovan",
   icon: require("./icons/eth.svg"),
-  gradient: "#E6007A",
+  gradient: "linear-gradient(180deg, #C549FF 0%, #684CFF 100%)",
+  activityHandler: wrapActivityHandler(EtherscanActivity),
 };
 
 const kov = new EvmNetwork(kovOptions);

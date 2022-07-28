@@ -1,10 +1,6 @@
 <template>
   <div class="network-nfts__item" @mouseleave="closeMoreMenu">
-    <a
-      :href="'https://rarible.com/token/' + item.contract + ':' + item.id"
-      class="network-nfts__item-image"
-      target="_blank"
-    >
+    <a class="network-nfts__item-image" @click="toggleDetail">
       <img :src="item.image" alt="" @error="imageLoadError" />
       <div class="network-nfts__item-name">{{ item.name }}</div>
     </a>
@@ -21,26 +17,29 @@
       @update:hide-me="toggleMoreMenu"
       @mouseleave="toggleMoreMenu"
     ></network-nfts-item-more-menu>
+
+    <nft-detail-view
+      v-if="isDetail"
+      :item="item"
+      :link-action="openLink"
+      @close:popup="toggleDetail"
+    ></nft-detail-view>
   </div>
 </template>
-
-<script lang="ts">
-export default {
-  name: "NetworkNftsItem",
-};
-</script>
 
 <script setup lang="ts">
 import { ref } from "vue";
 import { NFTItem } from "@/types/nft";
 import { PropType } from "vue";
 import NetworkNftsItemMoreMenu from "./network-nfts-item-more-menu.vue";
+import NftDetailView from "@action/views/nft-detail-view/index.vue";
 const notfoundimg = require("@action/assets/common/not-found.jpg");
 const imageLoadError = (img: any) => {
   img.target.src = notfoundimg;
 };
-let isOpenMore = ref(false);
-defineProps({
+const isOpenMore = ref(false);
+const isDetail = ref(false);
+const props = defineProps({
   item: {
     type: Object as PropType<NFTItem>,
     default: () => {
@@ -65,6 +64,12 @@ const toggleMoreMenu = () => {
 };
 const closeMoreMenu = () => {
   isOpenMore.value = false;
+};
+const toggleDetail = () => {
+  isDetail.value = !isDetail.value;
+};
+const openLink = () => {
+  window.open(props.item.url, "_blank");
 };
 </script>
 
@@ -94,6 +99,7 @@ const closeMoreMenu = () => {
       position: relative;
       display: block;
       text-decoration: none;
+      cursor: pointer;
 
       img {
         max-width: 140%;

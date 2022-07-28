@@ -39,12 +39,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "ImportAccountStartDot",
-};
-</script>
-
 <script setup lang="ts">
 import { PropType, ref, computed } from "vue";
 import ImportStartIcon from "@action/icons/import/import-start-icon.vue";

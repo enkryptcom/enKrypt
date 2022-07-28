@@ -10,4 +10,7 @@ export interface ToTokenData {
   symbol: string;
   amount: string;
   valueUSD: string;
+  decimals: number;
+  price: string;
+  name: string;
 }

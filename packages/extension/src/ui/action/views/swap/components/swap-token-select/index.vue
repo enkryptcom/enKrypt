@@ -1,12 +1,17 @@
 <template>
   <a v-if="!!token" class="swap-token-select" @click="open">
     <div class="swap-token-select__image">
-      <img :src="token.icon" alt="" />
+      <img v-if="token.icon !== ''" :src="token.icon" alt="" />
     </div>
     <div class="swap-token-select__info">
       <h5>{{ token.name }}</h5>
       <p>
-        {{ token.balancef }} <span>{{ token.symbol }}</span>
+        {{
+          tokenBalance
+            ? $filters.formatFloatingPointValue(tokenBalance).value
+            : "~"
+        }}
+        <span>{{ token.symbol }}</span>
       </p>
     </div>
 
@@ -25,16 +30,12 @@
   </a>
 </template>
 
-<script lang="ts">
-export default {
-  name: "SwapTokenSelect",
-};
-</script>
-
 <script setup lang="ts">
 import { ref, PropType } from "vue";
 import SwitchArrow from "@action/icons/header/switch_arrow.vue";
-import { AssetsType } from "@/types/provider";
+import { BaseToken } from "@/types/base-token";
+import { computed } from "@vue/reactivity";
+import { fromBase } from "@/libs/utils/units";
 let isOpen = ref(false);
 const props = defineProps({
   toggleSelect: {
@@ -44,12 +45,21 @@ const props = defineProps({
     },
   },
   token: {
-    type: Object as PropType<AssetsType | null>,
+    type: Object as PropType<BaseToken | null>,
     default: () => {
       return {};
     },
   },
 });
+
+const tokenBalance = computed(() => {
+  if (props.token?.balance) {
+    return fromBase(props.token.balance, props.token.decimals);
+  }
+
+  return null;
+});
+
 const open = () => {
   isOpen.value = !isOpen.value;
   props.toggleSelect(isOpen);

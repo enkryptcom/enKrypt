@@ -5,17 +5,12 @@
     type="text"
     :placeholder="placeholder"
     autocomplete="off"
-    class="swap-token-amount-input"
+    :class="`swap-token-amount-input
+  ${!error || 'swap-token-amount-error'}`"
     @focus="changeFocus"
     @blur="changeFocus"
   />
 </template>
-
-<script lang="ts">
-export default {
-  name: "SwapTokenAmountInput",
-};
-</script>
 
 <script setup lang="ts">
 import { computed, ref, onMounted } from "vue";
@@ -44,6 +39,12 @@ const props = defineProps({
     },
   },
   autofocus: {
+    type: Boolean,
+    default: () => {
+      return false;
+    },
+  },
+  error: {
     type: Boolean,
     default: () => {
       return false;
@@ -86,5 +87,9 @@ const changeFocus = () => {
   &::placeholder {
     color: @tertiaryLabel;
   }
+}
+
+.swap-token-amount-error {
+  color: @error !important;
 }
 </style>

@@ -1,6 +1,5 @@
 {
-  "author": "https://www.enkrypt.com",
-  "homepage_url": "https://www.enkrypt.com",
+  "manifest_version": 3,
   "action": {
     "default_icon": {
       "16": "assets/img/icons/icon16.png",
@@ -11,42 +10,8 @@
     "default_title": "Enkrypt",
     "default_popup": "action.html"
   },
-  "version": "",
-  "manifest_version": 3,
-  "name": "Enkrypt",
-  "short_name": "Enkrypt",
-  "permissions": ["storage", "unlimitedStorage", "notifications", "tabs", "clipboardRead", "clipboardWrite"],
   "background": {
     "service_worker": "scripts/background.js"
-  },
-  "commands": {
-    "_execute_browser_action": {
-      "suggested_key": {
-        "windows": "Alt+Shift+E",
-        "mac": "Alt+Shift+E",
-        "chromeos": "Alt+Shift+E",
-        "linux": "Alt+Shift+E"
-      }
-    }
-  },
-  "content_scripts": [
-    {
-      "matches": ["file://*/*", "http://*/*", "https://*/*"],
-      "js": ["scripts/contentscript.js"],
-      "run_at": "document_start",
-      "all_frames": false
-    },
-    {
-      "matches": ["*://connect.trezor.io/*/popup.html"],
-      "js": ["vendor/trezor-content-script.js"]
-    }
-  ],
-  "description": "Enkrypt Chrome Extension - Everything in the blockchain made easy",
-  "icons": {
-    "16": "assets/img/icons/icon16.png",
-    "32": "assets/img/icons/icon32.png",
-    "48": "assets/img/icons/icon48.png",
-    "192": "assets/img/icons/icon192.png"
   },
   "web_accessible_resources": [
     {

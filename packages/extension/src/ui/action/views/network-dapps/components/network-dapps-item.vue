@@ -1,21 +1,15 @@
 <template>
-  <a :href="app.link" class="network-dapps__item">
+  <a class="network-dapps__item" @click="openLink">
     <img :src="app.image" />
     <p>{{ app.title }}</p>
   </a>
 </template>
 
-<script lang="ts">
-export default {
-  name: "NetworkDAppsItem",
-};
-</script>
-
 <script setup lang="ts">
+import { DAppsItem } from "@/types/ui";
 import { PropType } from "vue";
-import { DAppsItem } from "@action/types/dapps";
 
-defineProps({
+const props = defineProps({
   app: {
     type: Object as PropType<DAppsItem>,
     default: () => {
@@ -23,6 +17,9 @@ defineProps({
     },
   },
 });
+const openLink = () => {
+  window.open(props.app.link, "_blank", "noopener");
+};
 </script>
 
 <style lang="less">
@@ -34,6 +31,7 @@ defineProps({
   flex-wrap: wrap;
 
   &__item {
+    cursor: pointer;
     height: 72px;
     padding: 12px;
     position: relative;

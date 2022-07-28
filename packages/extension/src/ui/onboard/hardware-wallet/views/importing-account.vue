@@ -25,8 +25,8 @@
       ></hardware-importing-account>
 
       <p class="ledger-importing-account__example">
-        Example: Private funds, Savings account, dApp account, Work funds,
-        Airdrops
+        Name your account something that makes sense to you! Main account, dapp
+        account, yolo account, etc.
       </p>
     </custom-scrollbar>
 
@@ -60,8 +60,14 @@ import { HWWalletAccountType } from "../types";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
 import KeyRingBase from "@/libs/keyring/keyring";
 import { computed } from "@vue/reactivity";
-import { EnkryptAccount, HWwalletType, WalletType } from "@enkryptcom/types";
+import {
+  EnkryptAccount,
+  HWwalletType,
+  SignerType,
+  WalletType,
+} from "@enkryptcom/types";
 import { routes } from "../routes";
+import { ProviderName } from "@/types/provider";
 
 const route = useRoute();
 const router = useRouter();
@@ -133,7 +139,10 @@ const addAccounts = async () => {
       name: acc.name,
       pathIndex: acc.index,
       publicKey: acc.publicKey,
-      signerType: network.signer[0],
+      signerType:
+        network.provider === ProviderName.polkadot
+          ? SignerType.ed25519
+          : network.signer[0],
       walletType: walletType as unknown as WalletType,
     });
   }

@@ -1,7 +1,7 @@
 <template>
   <div class="add-network__search">
     <div class="add-network__search-input">
-      <base-search :input="searchInput" :is-border="true" />
+      <base-search v-bind="$attrs" :is-border="true" :value="value" />
     </div>
     <div class="add-network__search-add">
       <a @click="action">
@@ -9,63 +9,52 @@
       </a>
     </div>
     <div v-show="openList" ref="tooltip" class="add-network__search-list">
-      <a class="add-network__search-list-item">
+      <!-- <a
+        class="add-network__search-list-item"
+        @click="$emit('action:customNetwork')"
+      >
         <custom-network-icon /><span>Custom network</span>
-      </a>
+      </a> -->
       <div class="add-network__search-list-item">
         <test-network-icon /><span>Show testnets</span>
-        <Switch :check="testNetwork" :is-checked="false" />
+        <Switch
+          :is-checked="false"
+          @update:check="$emit('toggle:testNetworks')"
+        />
       </div>
     </div>
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "AddNetworkSearch",
-};
-</script>
-
 <script setup lang="ts">
 import { ref } from "vue";
 import BaseSearch from "@action/components/base-search/index.vue";
 import SliderIcon from "@action/icons/common/slider-icon.vue";
-import CustomNetworkIcon from "@action/icons/common/custom-network-icon.vue";
+// import CustomNetworkIcon from "@action/icons/common/custom-network-icon.vue";
 import TestNetworkIcon from "@action/icons/common/test-network-icon.vue";
 import Switch from "@action/components/switch/index.vue";
 import { onClickOutside } from "@vueuse/core";
 
-let openList = ref(false);
+const openList = ref(false);
 const tooltip = ref(null);
-
-const props = defineProps({
-  input: {
-    type: Function,
+defineProps({
+  value: {
+    type: String,
     default: () => {
-      return null;
-    },
-  },
-  onTestNetCheck: {
-    type: Function,
-    default: () => {
-      return null;
+      return "";
     },
   },
 });
-
-const searchInput = (text: string) => {
-  props.input(text);
-};
+defineEmits<{
+  (e: "toggle:testNetworks"): void;
+  (e: "action:customNetwork"): void;
+}>();
 
 const action = () => {
   openList.value = !openList.value;
 };
 
-const testNetwork = () => {
-  props.onTestNetCheck();
-};
-
-onClickOutside(tooltip, (event) => {
+onClickOutside(tooltip, () => {
   if (openList.value) openList.value = false;
 });
 </script>
@@ -108,7 +97,7 @@ onClickOutside(tooltip, (event) => {
 
     &-list {
       width: 256px;
-      height: 104px;
+      height: fit-content;
       background: @white;
       box-shadow: 0px 0.5px 5px rgba(0, 0, 0, 0.039),
         0px 3.75px 11px rgba(0, 0, 0, 0.19);
@@ -117,7 +106,7 @@ onClickOutside(tooltip, (event) => {
       top: 52px;
       right: 0;
       z-index: 4;
-      padding: 4px;
+      padding: 8px;
       box-sizing: border-box;
 
       &-item {

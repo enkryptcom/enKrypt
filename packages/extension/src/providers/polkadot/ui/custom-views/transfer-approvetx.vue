@@ -1,34 +1,39 @@
 <template>
-  <h3>Transfer</h3>
   <div class="provider-verify-transaction__block">
-    <div class="provider-verify-transaction__info">
+    <div class="provider-verify-transaction__amount">
       <img :src="props.token.icon" />
-      <div class="provider-verify-transaction__info-info">
-        <h4>{{ props.token.symbol }}</h4>
-        <p>
-          {{ props.amount }}
-        </p>
+
+      <div class="provider-verify-transaction__amount-info">
+        <h4>
+          {{ fromBase(props.amount, props.token.decimals || 0) }}
+          <span>{{ props.token.symbol }}</span>
+        </h4>
       </div>
     </div>
   </div>
-  <h3>To</h3>
+
   <div class="provider-verify-transaction__block">
-    <div class="provider-verify-transaction__info">
-      <img :src="createIcon(props.to)" />
-      <div v-if="destName" class="provider-verify-transaction__account-info">
-        <h3>{{ destName }}</h3>
-        <p>
-          {{
-            `${props.to.slice(0, 5)}...${props.to.slice(props.to.length - 5)}`
-          }}
-        </p>
-      </div>
-      <div v-else class="provider-verify-transaction__account-info">
-        <h4>
-          {{
-            `${props.to.slice(0, 5)}...${props.to.slice(props.to.length - 5)}`
-          }}
-        </h4>
+    <div class="provider-verify-transaction__account">
+      <img
+        :src="
+          network
+            ? network?.identicon(props.to)
+            : defaultNetwork.identicon(props.to)
+        "
+      />
+      <div class="provider-verify-transaction__account-info">
+        <h6>To</h6>
+        <h4>{{ destName }}</h4>
+
+        <div
+          v-if="destName"
+          class="provider-verify-transaction__account-info-to"
+        >
+          {{ $filters.replaceWithEllipsis(props.to, 4, 4) }}
+        </div>
+        <div v-else class="provider-verify-transaction__account-info-to">
+          {{ $filters.replaceWithEllipsis(props.to, 5, 5) }}
+        </div>
       </div>
     </div>
   </div>
@@ -36,27 +41,28 @@
 
 <script setup lang="ts">
 import PublicKeyRing from "@/libs/keyring/public-keyring";
+import {
+  DEFAULT_SUBSTRATE_NETWORK_NAME,
+  getNetworkByName,
+} from "@/libs/utils/networks";
+import { BaseNetwork } from "@/types/base-network";
 import { BaseToken } from "@/types/base-token";
 import { polkadotEncodeAddress } from "@enkryptcom/utils";
 import { onBeforeMount, ref } from "vue";
-import createIcon from "../../libs/blockies";
-// import { TransferProps } from "./types"
-
+import { fromBase } from "@/libs/utils/units";
 // For some reason passing TransferProps as the type to defineProps throws an error
 interface IProps {
   to: string;
   token: BaseToken;
   amount: string;
+  network: BaseNetwork | undefined;
 }
-
 const props = defineProps<IProps>();
-
 const destName = ref<string>();
-
+const defaultNetwork = getNetworkByName(DEFAULT_SUBSTRATE_NETWORK_NAME)!;
 onBeforeMount(async () => {
   const publicKeyring = new PublicKeyRing();
-  const to = polkadotEncodeAddress(props.to, 42);
-
+  const to = polkadotEncodeAddress(props.to);
   try {
     const foundAddress = await publicKeyring.getAccount(to);
     destName.value = foundAddress.name;

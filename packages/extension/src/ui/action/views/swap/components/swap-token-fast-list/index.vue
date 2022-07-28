@@ -1,24 +1,32 @@
 <template>
-  <div class="swap-token-fast-list">
+  <div v-if="fastList" class="swap-token-fast-list">
     <swap-token-fast-item
-      v-for="(item, index) in assets3"
+      v-for="(item, index) in fastList"
       :key="index"
       :token="item"
       v-bind="$attrs"
+      @update:select-asset="selectAsset"
     ></swap-token-fast-item>
-    <div class="swap-token-fast-list__all">+1245 tokens</div>
+    <div class="swap-token-fast-list__all">+{{ totalTokens }} tokens</div>
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "SwapTokenFastList",
-};
-</script>
-
 <script setup lang="ts">
 import SwapTokenFastItem from "./components/swap-token-fast-item.vue";
-import { assets3 } from "@action/types/mock";
+import { BaseToken } from "@/types/base-token";
+
+interface IProps {
+  fastList?: BaseToken[];
+  totalTokens?: number;
+}
+
+const emit = defineEmits<{
+  (e: "update:selectAsset", asset: BaseToken): void;
+}>();
+
+const selectAsset = (token: BaseToken) => emit("update:selectAsset", token);
+
+defineProps<IProps>();
 </script>
 
 <style lang="less">

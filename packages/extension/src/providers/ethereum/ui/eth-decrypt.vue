@@ -1,7 +1,7 @@
 <template>
   <common-popup>
     <template #header>
-      <sign-logo color="#05C0A5" class="common-popup__logo"></sign-logo>
+      <sign-logo class="common-popup__logo"></sign-logo>
     </template>
 
     <template #content>
@@ -53,13 +53,16 @@ import { ErrorCodes } from "@/providers/ethereum/types";
 import { WindowPromiseHandler } from "@/libs/window-promise";
 import { InternalMethods } from "@/types/messenger";
 import { onBeforeMount, ref } from "vue";
-import { DEFAULT_NETWORK_NAME, getNetworkByName } from "@/libs/utils/networks";
+import {
+  DEFAULT_EVM_NETWORK_NAME,
+  getNetworkByName,
+} from "@/libs/utils/networks";
 import { ProviderRequestOptions } from "@/types/provider";
 import { EvmNetwork } from "../types/evm-network";
 
 const windowPromise = WindowPromiseHandler(3);
 const network = ref<EvmNetwork>(
-  getNetworkByName(DEFAULT_NETWORK_NAME) as EvmNetwork
+  getNetworkByName(DEFAULT_EVM_NETWORK_NAME) as EvmNetwork
 );
 const account = ref<EnkryptAccount>({
   name: "",

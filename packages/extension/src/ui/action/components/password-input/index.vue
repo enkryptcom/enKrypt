@@ -11,12 +11,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "PasswordInput",
-};
-</script>
-
 <script setup lang="ts">
 import { ref } from "vue";
 import BaseInput from "@action/components/base-input/index.vue";

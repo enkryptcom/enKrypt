@@ -21,7 +21,10 @@
     >
       <h4>Pin the Enkrypt extension</h4>
       <p>Click on <extension-icon /> in your browser</p>
-      <p>Find <online-icon /> Enkrypt and click <pin-icon /> to pin it</p>
+      <p>
+        Find <online-icon class="onboard__online" /> Enkrypt and click
+        <pin-icon /> to pin it
+      </p>
     </div>
   </div>
 </template>
@@ -74,7 +77,7 @@ body {
   &__logo {
     position: absolute;
     left: 32px;
-    top: 28px;
+    top: 24px;
   }
 
   &__back {
@@ -157,6 +160,11 @@ body {
       color: @black07;
       margin: 0;
     }
+  }
+
+  &__online {
+    width: 16px;
+    height: 16px;
   }
 }
 </style>

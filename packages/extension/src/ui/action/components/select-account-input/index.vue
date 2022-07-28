@@ -1,7 +1,10 @@
 <template>
   <div class="select-account-input">
-    <a class="select-account-input__info" @click="showAccounts">
-      <img :src="network.identicon(address)" />
+    <a
+      class="select-account-input__info"
+      @click="$emit('toggle:selectAccounts')"
+    >
+      <img :src="identicon" />
       <div class="select-account-input__info-name">
         <p>{{ name }}</p>
         <span>{{ $filters.replaceWithEllipsis(address, 6, 4) }}</span>
@@ -11,18 +14,12 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "SelectAccountInput",
-};
-</script>
-
 <script setup lang="ts">
 import SwitchArrow from "@action/icons/header/switch_arrow.vue";
-import { PropType } from "vue";
-import { BaseNetwork } from "@/types/base-network";
-
-const props = defineProps({
+defineEmits<{
+  (e: "toggle:selectAccounts"): void;
+}>();
+defineProps({
   name: {
     type: String,
     default: "",
@@ -31,19 +28,11 @@ const props = defineProps({
     type: String,
     default: "",
   },
-  toggleAccounts: {
-    type: Function,
-    default: () => ({}),
-  },
-  network: {
-    type: Object as PropType<BaseNetwork>,
-    default: () => ({}),
+  identicon: {
+    type: String,
+    default: "",
   },
 });
-
-const showAccounts = () => {
-  props.toggleAccounts();
-};
 </script>
 
 <style lang="less">

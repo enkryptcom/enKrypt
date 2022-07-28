@@ -5,20 +5,16 @@
     <div class="send-process-amount__info">
       <p>Amount</p>
       <h4>
-        {{ token.amount }} <span>{{ token.symbol }}</span>
+        {{ fromBase(token.amount, token.decimals) }}
+        <span>{{ token.symbol }}</span>
       </h4>
       <h6>{{ $filters.formatFiatValue(token.valueUSD).value }}</h6>
     </div>
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "SendProcessAmount",
-};
-</script>
-
 <script setup lang="ts">
+import { fromBase } from "@/libs/utils/units";
 import { ToTokenData } from "@/ui/action/types/token";
 import { PropType } from "vue";
 

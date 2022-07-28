@@ -1,6 +1,9 @@
 <template>
   <div class="lock-screen__container">
-    <div v-show="!isForgot && !isLocked" class="lock-screen__wrap">
+    <div
+      v-show="!isForgot && !isLocked && !isUnlocking"
+      class="lock-screen__wrap"
+    >
       <logo-big class="lock-screen__logo" />
       <h4>Unlock with password</h4>
       <lock-screen-password-input
@@ -16,6 +19,10 @@
       />
     </div>
 
+    <div v-show="isUnlocking" class="lock-screen__unlocking">
+      <swap-looking-animation></swap-looking-animation>
+    </div>
+
     <lock-screen-forgot
       v-show="isForgot"
       :close="toggleForgot"
@@ -25,7 +32,7 @@
     <lock-screen-timer v-show="isLocked" :close="closeLockedAction" />
 
     <base-button
-      v-show="!isForgot"
+      v-show="!isForgot && !isUnlocking"
       title="I forgot my password"
       :click="forgotAction"
       :no-background="true"
@@ -33,12 +40,6 @@
     />
   </div>
 </template>
-
-<script lang="ts">
-export default {
-  name: "LockScreen",
-};
-</script>
 
 <script setup lang="ts">
 import { ref } from "vue";
@@ -50,12 +51,13 @@ import LockScreenTimer from "./components/lock-screen-timer.vue";
 import { sendToBackgroundFromAction } from "@/libs/messenger/extension";
 import { InternalMethods } from "@/types/messenger";
 import { computed } from "@vue/reactivity";
+import SwapLookingAnimation from "@action/icons/swap/swap-looking-animation.vue";
 
 const emit = defineEmits<{
   (e: "update:init"): void;
 }>();
 
-const password = ref("test pass");
+const password = ref(process.env.PREFILL_PASSWORD!);
 const isDisabled = computed(() => {
   return password.value.length < 5 || isUnlocking.value;
 });
@@ -108,6 +110,8 @@ const closeLockedAction = () => {
   &__container {
     width: 800px;
     height: 600px;
+    //   width: 454px;
+    //   height: 397px;
     overflow-x: hidden;
     overflow-y: hidden;
     position: fixed;
@@ -137,6 +141,33 @@ const closeLockedAction = () => {
       line-height: 32px;
       color: @primaryLabel;
       margin: 0 0 8px 0;
+    }
+  }
+  &__unlocking {
+    width: 300px;
+    height: 300px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+
+    &:before {
+      content: "";
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      left: 0;
+      background: #ffffff;
+      filter: blur(15px);
+      top: 0;
+      z-index: 1;
+    }
+
+    svg {
+      width: 132px;
+      position: relative;
+      z-index: 2;
     }
   }
   &__logo {

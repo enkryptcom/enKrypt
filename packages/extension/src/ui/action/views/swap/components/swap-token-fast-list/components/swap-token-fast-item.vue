@@ -5,21 +5,15 @@
   </a>
 </template>
 
-<script lang="ts">
-export default {
-  name: "SwapTokenFastItem",
-};
-</script>
-
 <script setup lang="ts">
+import { BaseToken } from "@/types/base-token";
 import { PropType } from "vue";
-import { AssetsType } from "@/types/provider";
 const emit = defineEmits<{
-  (e: "update:selectAsset", asset: AssetsType): void;
+  (e: "update:selectAsset", asset: BaseToken): void;
 }>();
 const props = defineProps({
   token: {
-    type: Object as PropType<AssetsType>,
+    type: Object as PropType<BaseToken>,
     default: () => ({}),
   },
 });
@@ -44,6 +38,11 @@ const select = () => {
     display: inline-block;
     margin-right: 12px;
     margin-bottom: 7px;
+    transition: background 300ms ease-in-out;
+
+    &:hover {
+      background: @black004;
+    }
 
     img {
       width: 16px;

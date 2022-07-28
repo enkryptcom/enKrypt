@@ -11,7 +11,6 @@ export const nativeTransfer = (network: SubstrateNetwork, data: any) => {
     decimals: network.decimals,
     icon: network.icon,
   });
-  const amount =
-    Number(data.value.replaceAll(",", "")) / 10 ** network.decimals;
+  const amount = data.value.replaceAll(",", "");
   return { to, token, amount };
 };

@@ -35,6 +35,26 @@ class MarketData {
     }
     return "0";
   }
+  async getTokenPrice(
+    coingeckoID: string,
+    currency = "usd"
+  ): Promise<string | null> {
+    const urlParams = new URLSearchParams();
+    urlParams.append("ids", coingeckoID);
+    urlParams.append("vs_currencies", currency);
+
+    return cacheFetch(
+      {
+        url: `${COINGECKO_ENDPOINT}simple/price?include_market_cap=false&include_24hr_vol=false&include_24hr_change=false&include_last_updated_at=false&${urlParams.toString()}`,
+      },
+      REFRESH_DELAY
+    ).then((json) => {
+      if (json[coingeckoID] && json[coingeckoID][currency] !== undefined) {
+        return json[coingeckoID][currency].toString();
+      }
+      return null;
+    });
+  }
   async getMarketInfoByContracts(
     contracts: string[],
     platformId: string

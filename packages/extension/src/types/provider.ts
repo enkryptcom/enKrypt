@@ -15,6 +15,7 @@ import { SignerType } from "@enkryptcom/types";
 import { NFTCollection } from "./nft";
 import { BaseNetwork } from "./base-network";
 import { BaseToken } from "./base-token";
+import { EthereumRawInfo, SubscanExtrinsicInfo } from "./activity";
 
 export enum ProviderName {
   enkrypt = "enkrypt",
@@ -25,6 +26,9 @@ export enum InternalStorageNamespace {
   keyring = "KeyRing",
   persistentEvents = "PersistentEvents",
   domainState = "DomainState",
+  evmAccountsState = "EVMAccountsState",
+  substrateAccountsState = "SubstrateAccountsState",
+  activityState = "ActivityState",
   marketData = "MarketData",
   cacheFetch = "CacheFetch",
   nftState = "NFTState",
@@ -87,6 +91,9 @@ export abstract class ProviderAPIInterface {
   constructor(node: string, options?: unknown) {}
   abstract init(): Promise<void>;
   abstract getBalance(address: string): Promise<string>;
+  abstract getTransactionStatus(
+    hash: string
+  ): Promise<EthereumRawInfo | SubscanExtrinsicInfo | null>;
 }
 
 export type handleIncomingMessage = (
@@ -106,6 +113,7 @@ export interface ProviderRequestOptions {
   domain: string;
   faviconURL: string;
   title: string;
+  tabId: number;
 }
 export interface ProviderRPCRequest extends RPCRequestType {
   options?: ProviderRequestOptions;

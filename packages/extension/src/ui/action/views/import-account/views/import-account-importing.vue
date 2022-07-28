@@ -18,8 +18,8 @@
     ></hardware-importing-account>
 
     <p class="import-account-importing__example">
-      Example: Private funds, Savings account, dApp account, Work funds,
-      Airdrops
+      Name your account something that makes sense to you! Main account, dapp
+      account, yolo account, etc.
     </p>
 
     <p class="import-account-importing__example">Enter Extension password</p>
@@ -44,7 +44,8 @@
 
   <import-account-process
     v-if="isProcessing"
-    :is-keystore="true"
+    :is-keystore="isKeystore"
+    :is-private-key="isPrivKey"
     :is-done="isDone"
   />
 </template>
@@ -63,6 +64,8 @@ import { fromBase } from "@/libs/utils/units";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
 import KeyRingBase from "@/libs/keyring/keyring";
 import BaseInput from "@action/components/base-input/index.vue";
+import { sendToBackgroundFromAction } from "@/libs/messenger/extension";
+import { InternalMethods } from "@/types/messenger";
 
 const isProcessing = ref(false);
 const isDone = ref(false);
@@ -75,6 +78,10 @@ const nameValue = ref("My private account");
 const keyringError = ref(false);
 const keyringPassword = ref("");
 
+const emit = defineEmits<{
+  (e: "update:init"): void;
+}>();
+
 const props = defineProps({
   network: {
     type: Object as PropType<BaseNetwork>,
@@ -84,6 +91,8 @@ const props = defineProps({
     type: Object as PropType<KeyPair>,
     default: () => ({}),
   },
+  isPrivKey: Boolean,
+  isKeystore: Boolean,
 });
 const isDisabled = computed(() => {
   return keyringPassword.value.length < 3;
@@ -130,6 +139,13 @@ const importAction = async () => {
           keyringPassword.value
         )
         .then(() => {
+          emit("update:init");
+          sendToBackgroundFromAction({
+            message: JSON.stringify({
+              method: InternalMethods.unlock,
+              params: [keyringPassword.value],
+            }),
+          }); // needed to reinitialize background keyring with new vals
           isDone.value = true;
         });
     })

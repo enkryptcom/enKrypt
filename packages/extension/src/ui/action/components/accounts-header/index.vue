@@ -5,9 +5,9 @@
       :name="accountInfo.selectedAccount.name"
       :address="network.displayAddress(accountInfo.selectedAccount.address)"
       :toggle-accounts="toggleAccounts"
-      :toggle-deposit="toggleDeposit"
       :active="showAccounts"
       :network="network"
+      @toggle:deposit="$emit('toggle:deposit')"
     ></accounts-header-account>
 
     <accounts-list
@@ -23,16 +23,10 @@
       :account="accountInfo.selectedAccount"
       :show-deposit="showDeposit"
       :network="network"
-      :toggle="toggleDeposit"
+      @toggle:deposit="$emit('toggle:deposit')"
     />
   </div>
 </template>
-
-<script lang="ts">
-export default {
-  name: "NetworkHeader",
-};
-</script>
 
 <script setup lang="ts">
 import { onMounted, ref, PropType } from "vue";
@@ -43,9 +37,10 @@ import { useRouter } from "vue-router";
 import type { AccountsHeaderData } from "@action/types/account";
 import { BaseNetwork } from "@/types/base-network";
 const router = useRouter();
-
-let showAccounts = ref(false);
-let showDeposit = ref(false);
+defineEmits<{
+  (e: "toggle:deposit"): void;
+}>();
+const showAccounts = ref(false);
 
 defineProps({
   network: {
@@ -56,6 +51,7 @@ defineProps({
     type: Object as PropType<AccountsHeaderData>,
     default: () => ({}),
   },
+  showDeposit: Boolean,
 });
 
 onMounted(async () => {
@@ -67,10 +63,6 @@ onMounted(async () => {
 
 const toggleAccounts = () => {
   showAccounts.value = !showAccounts.value;
-};
-
-const toggleDeposit = () => {
-  showDeposit.value = !showDeposit.value;
 };
 </script>
 

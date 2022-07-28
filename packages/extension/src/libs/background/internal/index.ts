@@ -5,6 +5,7 @@ import unlock from "./unlock";
 import changeNetwork from "./change-network";
 import sendToTab from "./send-to-tab";
 import newAccount from "./new-account";
+import lock from "./lock";
 export {
   sign,
   getEthereumPubKey,
@@ -13,4 +14,5 @@ export {
   changeNetwork,
   sendToTab,
   newAccount,
+  lock,
 };

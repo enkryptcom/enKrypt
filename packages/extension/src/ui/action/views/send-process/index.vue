@@ -1,19 +1,18 @@
 <template>
-  <div class="send-process__container">
+  <div
+    class="send-process__container"
+    :class="{ popup: isWindowPopup, nopopup: !isWindowPopup }"
+  >
     <div class="send-process">
       <div class="send-process__wrap">
         <div class="send-process__animation">
-          <Vue3Lottie
+          <send-process-animation
             v-show="!isDone"
             class="send-process__loading"
-            :animation-data="LottieSendProcess"
-            :loop="true"
           />
-          <Vue3Lottie
+          <send-checkmark-animation
             v-show="isDone"
             class="send-process__done"
-            :animation-data="LottieSendCheckmark"
-            :loop="false"
           />
         </div>
         <div class="send-process__info">
@@ -35,8 +34,8 @@
 
 <script setup lang="ts">
 import { PropType } from "vue";
-import LottieSendProcess from "@action/assets/animation/send-process.json";
-import LottieSendCheckmark from "@action/assets/animation/send-checkmark.json";
+import SendProcessAnimation from "@action/icons/send/send-process-animation.vue";
+import SendCheckmarkAnimation from "@action/icons/send/send-checkmark-animation.vue";
 import ArrowDown from "@action/icons/send/arrow-down.vue";
 import SendProcessAccount from "./components/send-process-account.vue";
 import SendProcessAmount from "./components/send-process-amount.vue";
@@ -70,6 +69,7 @@ defineProps({
       return false;
     },
   },
+  isWindowPopup: Boolean,
 });
 </script>
 
@@ -93,9 +93,15 @@ defineProps({
     margin: 0;
     box-sizing: border-box;
     position: absolute;
-    left: -340px;
     z-index: 101;
     top: 0;
+    &.popup {
+      left: -231px;
+    }
+
+    &.nopopup {
+      left: -340px;
+    }
   }
 
   &__wrap {

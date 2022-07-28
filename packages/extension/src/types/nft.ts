@@ -3,6 +3,7 @@ export interface NFTItem {
   id: string;
   contract: string;
   image: string;
+  url: string;
 }
 export interface NFTCollection {
   name: string;

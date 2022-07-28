@@ -30,20 +30,14 @@
 
     <network-nfts-empty
       v-if="!NFTs.length && !favoriteNFTs.length && !hiddenNFTs.length"
+      :is-empty="isNoNFTs"
     ></network-nfts-empty>
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "NetworkNFTs",
-};
-</script>
-
 <script setup lang="ts">
 import { useRoute } from "vue-router";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
-// import NetworkNftsTotal from "./components/network-nfts-total.vue";
 import NetworkNftsCategory from "./components/network-nfts-category.vue";
 import NetworkNftsFavorite from "./components/network-nfts-favorite.vue";
 import NetworkNftsHidden from "./components/network-nfts-hidden.vue";
@@ -70,6 +64,8 @@ const NFTs = ref<NFTCollection[]>([]);
 const favoriteNFTs = ref<NFTItem[]>([]);
 const hiddenNFTs = ref<NFTItem[]>([]);
 const liveNFTCollection = ref<NFTCollection[]>([]);
+const isNoNFTs = ref(false);
+
 watch([props.accountInfo, props.network], () => {
   updateNFTInfo();
 });
@@ -103,9 +99,13 @@ const localUpdate = async () => {
     }
   });
   NFTs.value = collections.filter((col) => col.items.length);
+  isNoNFTs.value = collections.length === 0;
 };
 const updateNFTInfo = async () => {
+  liveNFTCollection.value = [];
+  NFTs.value = [];
   if (props.network.NFTHandler) {
+    isNoNFTs.value = false;
     props.network
       .NFTHandler(
         props.network,
@@ -126,17 +126,14 @@ const favClicked = async (isFav: boolean, item: NFTItem) => {
     await nftState.setFavoriteNFT(item.contract, item.id);
   } else {
     await nftState.deleteFavoriteNFT(item.contract, item.id);
-    //favoriteNFTs.value = favoriteNFTs.value.filter((i) => i.id !== item.id);
   }
   localUpdate();
 };
 const hideClicked = async (isHidden: boolean, item: NFTItem) => {
   if (isHidden) {
     await nftState.setHiddenNFT(item.contract, item.id);
-    //hiddenNFTs.value.push(item);
   } else {
     await nftState.deleteHiddenNFT(item.contract, item.id);
-    // hiddenNFTs.value = hiddenNFTs.value.filter((i) => i.id !== item.id);
   }
   localUpdate();
 };
@@ -148,7 +145,7 @@ const hideClicked = async (isHidden: boolean, item: NFTItem) => {
 
 .container {
   width: 100%;
-  height: 600px;
+  height: 550px;
   background-color: @white;
   box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.16);
   margin: 0;
@@ -166,7 +163,7 @@ const hideClicked = async (isHidden: boolean, item: NFTItem) => {
     position: relative;
     margin: auto;
     width: 100%;
-    max-height: 600px;
+    max-height: 540px;
     margin: 0;
     padding: 56px 0 0 0 !important;
     box-sizing: border-box;
@@ -176,9 +173,6 @@ const hideClicked = async (isHidden: boolean, item: NFTItem) => {
     }
   }
 }
-</style>
-
-<style lang="less">
 .network-nfts__scroll-area {
   .ps__rail-y {
     right: 3px !important;

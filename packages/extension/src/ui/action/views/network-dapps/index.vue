@@ -6,7 +6,7 @@
     >
       <div v-if="!!selected" class="network-dapps">
         <network-dapps-item
-          v-for="(item, index) in dapps"
+          v-for="(item, index) in list"
           :key="index"
           :app="item"
         ></network-dapps-item>
@@ -15,24 +15,31 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "NetworkDApps",
-};
-</script>
-
 <script setup lang="ts">
 import { useRoute } from "vue-router";
 import NetworkDappsItem from "./components/network-dapps-item.vue";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 import scrollSettings from "@/libs/utils/scroll-settings";
-import { dapps } from "@action/types/mock";
+import { computed, PropType } from "vue";
+import { BaseNetwork } from "@/types/base-network";
+import DappList from "@/libs/dapp-list";
+import { NetworkNames } from "@enkryptcom/types";
 
 const route = useRoute();
 
-defineProps({});
+const props = defineProps({
+  network: {
+    type: Object as PropType<BaseNetwork>,
+    default: () => ({}),
+  },
+});
 
 const selected: string = route.params.id as string;
+
+const list = computed(() => {
+  if (DappList[props.network.name]) return DappList[props.network.name];
+  return DappList[NetworkNames.Ethereum];
+});
 </script>
 
 <style lang="less" scoped>

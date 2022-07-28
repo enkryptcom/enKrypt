@@ -11,10 +11,7 @@
           :symbol="network.currencyName"
         />
 
-        <network-activity-action
-          :deposit-action="depositAction"
-          :buy-action="buyAction"
-        />
+        <network-activity-action v-bind="$attrs" />
 
         <network-assets-item
           v-for="(item, index) in assets"
@@ -25,14 +22,16 @@
     </custom-scrollbar>
 
     <network-assets-loading v-if="isLoading"></network-assets-loading>
+
+    <deposit
+      v-if="!!props.accountInfo.selectedAccount"
+      :account="props.accountInfo.selectedAccount"
+      :show-deposit="showDeposit"
+      :network="network"
+      :toggle="toggleDeposit"
+    />
   </div>
 </template>
-
-<script lang="ts">
-export default {
-  name: "NetworkAssets",
-};
-</script>
 
 <script setup lang="ts">
 import { useRoute } from "vue-router";
@@ -41,12 +40,15 @@ import NetworkActivityAction from "../network-activity/components/network-activi
 import NetworkAssetsItem from "./components/network-assets-item.vue";
 import NetworkAssetsLoading from "./components/network-assets-loading.vue";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
-import { onMounted, PropType, ref, toRef, watch } from "vue";
+import { computed, onMounted, PropType, ref, toRef, watch } from "vue";
 import { AssetsType } from "@/types/provider";
 import { AccountsHeaderData } from "../../types/account";
 import accountInfo from "@action/composables/account-info";
 import { BaseNetwork } from "@/types/base-network";
 import scrollSettings from "@/libs/utils/scroll-settings";
+import Deposit from "@action/views/deposit/index.vue";
+
+let showDeposit = ref(false);
 
 const route = useRoute();
 const props = defineProps({
@@ -68,14 +70,9 @@ const { cryptoAmount, fiatAmount } = accountInfo(
 );
 const selected: string = route.params.id as string;
 
-const depositAction = () => {
-  console.log("depositAction");
-};
-const buyAction = () => {
-  console.log("buyAction");
-};
 const updateAssets = () => {
   isLoading.value = true;
+  assets.value = [];
   props.network
     .getAllTokenInfo(props.accountInfo.selectedAccount?.address || "")
     .then((_assets) => {
@@ -83,10 +80,19 @@ const updateAssets = () => {
       isLoading.value = false;
     });
 };
-watch([props.network, props.accountInfo], updateAssets);
+const selectedAddress = computed(
+  () => props.accountInfo.selectedAccount?.address || ""
+);
+const selectedNetworkName = computed(() => props.network.name);
+
+watch([selectedAddress, selectedNetworkName], updateAssets);
 onMounted(() => {
   updateAssets();
 });
+
+const toggleDeposit = () => {
+  showDeposit.value = !showDeposit.value;
+};
 </script>
 
 <style lang="less" scoped>
@@ -101,6 +107,10 @@ onMounted(() => {
   margin: 0;
   padding-top: 0;
   box-sizing: border-box;
+
+  .deposit {
+    left: 0;
+  }
 }
 
 .network-assets {

@@ -1,4 +1,6 @@
+import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
 import { NetworkNames } from "@enkryptcom/types";
+import { EtherscanActivity } from "../libs/activity-handlers";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
 
 const karuraOptions: EvmNetworkOptions = {
@@ -10,10 +12,11 @@ const karuraOptions: EvmNetworkOptions = {
   chainID: 686,
   isTestNetwork: false,
   currencyName: "KAR",
-  node: "https://eth-rpc-karura.aca-api.network/eth/http",
+  node: "wss://eth-rpc-karura.aca-api.network/ws",
   icon: require("./icons/karura-evm.svg"),
-  gradient: "#FF4C3B",
+  gradient: "linear-gradient(330.21deg, #E40C5B -26.31%, #FF4C3B 88.17%)",
   coingeckoID: "karura",
+  activityHandler: wrapActivityHandler(EtherscanActivity),
 };
 
 const karura = new EvmNetwork(karuraOptions);

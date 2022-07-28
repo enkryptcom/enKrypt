@@ -24,17 +24,20 @@ const getProviderNetworkByName = (
     (net) => net.name === networkName
   );
 };
-const DEFAULT_NETWORK_NAME = NetworkNames.Ethereum;
+const DEFAULT_EVM_NETWORK_NAME = NetworkNames.Ethereum;
+const DEFAULT_SUBSTRATE_NETWORK_NAME = NetworkNames.Polkadot;
 const POPULAR_NAMES = [
   NetworkNames.Ethereum,
   NetworkNames.Matic,
   NetworkNames.Polkadot,
   NetworkNames.Moonbeam,
+  NetworkNames.Acala,
 ];
 export {
   getAllNetworks,
   getNetworkByName,
   getProviderNetworkByName,
-  DEFAULT_NETWORK_NAME,
+  DEFAULT_EVM_NETWORK_NAME,
+  DEFAULT_SUBSTRATE_NETWORK_NAME,
   POPULAR_NAMES,
 };

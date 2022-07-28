@@ -28,7 +28,7 @@
         </div>
 
         <div class="transaction-fee__info-text">
-          This fee is charged by Ethereum network.
+          This fee is charged by the network.
         </div>
 
         <div class="transaction-fee__info-time">
@@ -47,12 +47,6 @@
     </div>
   </div>
 </template>
-
-<script lang="ts">
-export default {
-  name: "TransactionFee",
-};
-</script>
 
 <script setup lang="ts">
 import { PropType } from "vue";

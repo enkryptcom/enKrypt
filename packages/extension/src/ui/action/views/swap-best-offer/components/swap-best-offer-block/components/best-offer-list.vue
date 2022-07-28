@@ -1,45 +1,33 @@
 <template>
-  <div class="best-offer-list">
-    <best-offer-list-item
-      name="Paraswap"
-      amount="~129.634 COMP"
-      :select="select"
-      :is-checked="true"
-    ></best-offer-list-item>
-    <best-offer-list-item
-      name="Changelly"
-      amount="~129.56 COMP"
-      :select="select"
-      :is-loading="true"
-    ></best-offer-list-item>
-    <best-offer-list-item
-      name="Bity"
-      amount="~129.55 COMP"
-      :select="select"
-    ></best-offer-list-item>
+  <div>
+    <div class="best-offer-list">
+      <best-offer-list-item
+        v-for="(trade, index) in trades"
+        :key="trade.provider"
+        :swap-number="index + 1"
+        :amount="`~${trade.minimumReceived}`"
+        :select="() => select(trade)"
+        :is-checked="trade.provider === pickedTrade.provider"
+        :is-loading="false"
+      ></best-offer-list-item>
+    </div>
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "BestOfferList",
-};
-</script>
-
 <script setup lang="ts">
+import { TradeInfo } from "@/providers/swap/types/SwapProvider";
 import BestOfferListItem from "./best-offer-list-item.vue";
 
-const props = defineProps({
-  select: {
-    type: Function,
-    default: () => {
-      return null;
-    },
-  },
-});
+interface IProps {
+  trades: TradeInfo[];
+  pickedTrade: TradeInfo;
+  select: (trade: TradeInfo) => void;
+}
 
-const select = () => {
-  props.select();
+const props = defineProps<IProps>();
+
+const select = (trade: TradeInfo) => {
+  props.select(trade);
 };
 </script>
 
@@ -53,7 +41,7 @@ const select = () => {
   border-radius: 12px;
   box-sizing: border-box;
   width: 256px;
-  padding: 4px;
+  padding: 8px;
   position: absolute;
   left: -6px;
   top: 37px;

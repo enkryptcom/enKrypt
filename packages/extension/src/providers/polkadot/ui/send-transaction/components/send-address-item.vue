@@ -4,27 +4,34 @@
     @click="emit('selected:account', account.address)"
   >
     <div class="send-address-item__info">
-      <img :src="identicon(account.address)" />
+      <img :src="network.identicon(account.address)" />
 
       <div class="send-address-item__name">
         <h4>{{ account.name }}</h4>
         <p>
-          {{ $filters.replaceWithEllipsis(account.address, 6, 4) }}
+          {{
+            $filters.replaceWithEllipsis(
+              network.displayAddress(account.address),
+              6,
+              4
+            )
+          }}
         </p>
       </div>
     </div>
+
+    <done-icon
+      v-show="isChecked"
+      class="send-address-item__checked"
+    ></done-icon>
   </a>
 </template>
-
-<script lang="ts">
-export default {
-  name: "SendAddressItem",
-};
-</script>
 
 <script setup lang="ts">
 import { EnkryptAccount } from "@enkryptcom/types";
 import { PropType } from "vue";
+import DoneIcon from "@action/icons/common/done_icon.vue";
+import { BaseNetwork } from "@/types/base-network";
 
 const emit = defineEmits<{
   (e: "selected:account", address: string): void;
@@ -37,9 +44,13 @@ defineProps({
       return {};
     },
   },
-  identicon: {
-    type: Function,
-    default: () => null,
+  network: {
+    type: Object as PropType<BaseNetwork>,
+    default: () => ({}),
+  },
+  isChecked: {
+    type: Boolean,
+    default: false,
   },
 });
 </script>
@@ -126,6 +137,10 @@ defineProps({
       font-size: 0;
       margin-right: 10px;
     }
+  }
+
+  &__checked {
+    margin-right: 12px;
   }
 }
 </style>

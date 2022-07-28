@@ -9,6 +9,13 @@
       <switch-arrow />
     </a>
     <div class="account__actions">
+      <notification
+        v-if="isCopied"
+        :hide="toggleNotification"
+        text="Address copied"
+        class="account__notification"
+      />
+
       <tooltip text="View on Blockchain Explorer">
         <a class="account__actions--copy" target="_blank" :href="externalLink">
           <icon-external />
@@ -22,7 +29,11 @@
       </tooltip>
 
       <tooltip text="Account's QR code">
-        <a showDeposit class="account__actions--copy" @click="showDeposit">
+        <a
+          showDeposit
+          class="account__actions--copy"
+          @click="$emit('toggle:deposit')"
+        >
           <icon-qr />
         </a>
       </tooltip>
@@ -30,20 +41,17 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "NetworkHeaderAccount",
-};
-</script>
-
 <script setup lang="ts">
 import SwitchArrow from "@action/icons/header/switch_arrow.vue";
 import IconQr from "@action/icons/header/qr_icon.vue";
 import IconCopy from "@action/icons/header/copy_icon.vue";
 import IconExternal from "@action/icons/header/external-icon.vue";
 import Tooltip from "@action/components/tooltip/index.vue";
-import { PropType, computed } from "vue";
+import { PropType, ref, computed } from "vue";
+import Notification from "@action/components/notification/index.vue";
 import { BaseNetwork } from "@/types/base-network";
+
+const isCopied = ref(false);
 
 const props = defineProps({
   name: {
@@ -59,28 +67,28 @@ const props = defineProps({
     type: Function,
     default: () => ({}),
   },
-  toggleDeposit: {
-    type: Function,
-    default: () => ({}),
-  },
   network: {
     type: Object as PropType<BaseNetwork>,
     default: () => ({}),
   },
 });
+defineEmits<{
+  (e: "toggle:deposit"): void;
+}>();
 
 const copy = (address: string) => {
   navigator.clipboard.writeText(address);
+  toggleNotification();
 };
 const showAccounts = () => {
   props.toggleAccounts();
 };
-const showDeposit = () => {
-  props.toggleDeposit();
-};
 const externalLink = computed(() => {
   return props.network.blockExplorerAddr.replace("[[address]]", props.address);
 });
+const toggleNotification = () => {
+  isCopied.value = !isCopied.value;
+};
 </script>
 
 <style lang="less">
@@ -181,6 +189,13 @@ const externalLink = computed(() => {
         background: @black007;
       }
     }
+  }
+
+  &__notification {
+    position: absolute;
+    right: 8px;
+    top: 52px;
+    z-index: 141;
   }
 }
 </style>
