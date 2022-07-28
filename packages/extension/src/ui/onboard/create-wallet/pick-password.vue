@@ -2,7 +2,7 @@
   <div class="pick-password">
     <h3 class="pick-password__title">Pick a password</h3>
     <p class="pick-password__description">
-      So no one else but you can unlock your wallet.
+      This will be used to unlock your wallet.
     </p>
 
     <div class="pick-password__form">

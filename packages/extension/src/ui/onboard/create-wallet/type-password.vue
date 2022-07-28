@@ -1,8 +1,9 @@
 <template>
   <div class="type-password">
-    <h3 class="type-password__title">Type your password again</h3>
+    <h3 class="type-password__title">Confirm your password</h3>
     <p class="type-password__description">
-      There will be NO 'Restore password' button. Make sure you remember it.
+      Enkrypt is non-custodial. We cannot restore or reset your password for
+      you. Make sure you remember it.
     </p>
 
     <div class="type-password__form">
