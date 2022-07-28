@@ -377,7 +377,11 @@ const sendButtonTitle = computed(() => {
 
 const isInputsValid = computed<boolean>(() => {
   if (!isAddress(addressTo.value)) return false;
-  if (new BigNumber(sendAmount.value).gt(assetMaxValue.value)) return false;
+  if (
+    new BigNumber(sendAmount.value).gt(assetMaxValue.value) ||
+    nativeBalanceAfterTransaction.value?.isNeg()
+  )
+    return false;
   return true;
 });
 
