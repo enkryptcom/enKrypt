@@ -1,7 +1,7 @@
 <template>
   <div class="app-menu">
     <custom-scrollbar v-if="!!networks" class="app-menu__scroll-area">
-      <draggable :list="networks" item-key="name" @change="onChange">
+      <draggable v-model="searchNetworks" item-key="name" @change="onChange">
         <template #item="{ element }">
           <app-menu-item
             :network="element"
@@ -22,6 +22,7 @@ import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 import draggable from "vuedraggable";
 import NetworksState from "@/libs/networks-state";
 import { BaseNetwork } from "@/types/base-network";
+import { computed } from "@vue/reactivity";
 
 const props = defineProps({
   networks: {
@@ -36,10 +37,26 @@ const props = defineProps({
     type: Function,
     default: () => ({}),
   },
+  searchInput: {
+    type: String,
+    default: "",
+  },
 });
 const emit = defineEmits<{
   (e: "update:network", network: BaseNetwork): void;
+  (e: "update:order", networks: BaseNetwork[]): void;
 }>();
+
+const searchNetworks = computed({
+  get: () => {
+    return props.networks.filter((net) =>
+      net.name_long.toLowerCase().startsWith(props.searchInput.toLowerCase())
+    );
+  },
+  set: (value) => {
+    emit("update:order", value);
+  },
+});
 
 const networksState = new NetworksState();
 
