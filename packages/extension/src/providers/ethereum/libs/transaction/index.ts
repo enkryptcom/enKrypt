@@ -58,7 +58,7 @@ class Transaction {
       this.tx.from,
       "pending"
     );
-    if (isFeeMarketNetwork) {
+    if (!isFeeMarketNetwork) {
       const legacyTx: FinalizedLegacyEthereumTransaction = {
         to: this.tx.to || undefined,
         chainId: this.tx.chainId,
