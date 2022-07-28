@@ -20,6 +20,7 @@
       "matches": ["http://*/*", "https://*/*"]
     }
   ],
+  "host_permissions": ["http://*/*", "https://*/*"],
   "minimum_chrome_version": "95",
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'self'"

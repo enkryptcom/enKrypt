@@ -1,5 +1,11 @@
 import browser from "webextension-polyfill";
-import { setContentScriptNamespace } from "@/libs/messenger/extension";
+import {
+  sendToBackgroundFromCS,
+  setContentScriptNamespace,
+} from "@/libs/messenger/extension";
+import { providerSendMessage } from "@/libs/messenger/window";
+import { ProviderName } from "@/types/provider";
+import { InternalMethods } from "@/types/messenger";
 setContentScriptNamespace();
 function injectScript() {
   try {
@@ -18,4 +24,8 @@ function injectScript() {
     console.error("Enkrypt: Provider injection failed.", error);
   }
 }
-injectScript();
+sendToBackgroundFromCS({
+  message: "heelo hellloo",
+  provider: ProviderName.enkrypt,
+});
+// injectScript();

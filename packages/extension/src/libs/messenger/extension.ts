@@ -53,6 +53,16 @@ export const sendToBackgroundFromNewWindow = (
   ).then((res) => res as unknown as InternalOnMessageResponse);
 };
 
+export const sendToBackgroundFromCS = (
+  message: ActionSendMessage
+): Promise<any> => {
+  return sendMessage(
+    MessageType.CS_REQUEST,
+    message,
+    Destination.background
+  ).then((res) => res as unknown as InternalOnMessageResponse);
+};
+
 export const sendToBackgroundFromAction = (
   message: ActionSendMessage
 ): Promise<InternalOnMessageResponse> => {
@@ -114,6 +124,16 @@ export const backgroundOnMessageFromAction = (
     assert(
       message.sender.context === Destination.popup,
       "Message didnt come from popup"
+    );
+    return cb(message);
+  });
+};
+
+export const backgroundOnMessageFromCS = (cb: InternalMessageType): void => {
+  backgroundOnMessage(MessageType.CS_REQUEST, async (message) => {
+    assert(
+      message.sender.context === Destination.contentScript,
+      "Message didnt come from Content script"
     );
     return cb(message);
   });

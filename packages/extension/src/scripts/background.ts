@@ -7,6 +7,7 @@ import {
   backgroundOnMessageFromNewWindow,
   backgroundOnMessageFromAction,
   backgroundOnMessageFromBackground,
+  backgroundOnMessageFromCS,
 } from "@/libs/messenger/extension";
 import { InternalOnMessageResponse } from "@/types/messenger";
 import { OnMessageResponse } from "@enkryptcom/types";
@@ -28,7 +29,24 @@ backgroundOnMessageFromAction((msg): Promise<InternalOnMessageResponse> => {
 backgroundOnMessageFromBackground((msg): Promise<InternalOnMessageResponse> => {
   return backgroundHandler.internalHandler(msg);
 });
+// const injectCode = fetch(Browser.runtime.getURL("scripts/inject.js")).then(
+//   (res) => res.text()
+// );
+backgroundOnMessageFromCS((msg) => {
+  function print(msg: string) {
+    console.log(msg);
+  }
 
+  console.log("here");
+  chrome.scripting.executeScript({
+    files: ["scripts/inject.js"],
+    target: { tabId: msg.sender.tabId },
+    world: "MAIN",
+    injectImmediately: true, // only supported chrome 102+
+  });
+  console.log(msg);
+  return Promise.resolve({ result: "true" });
+});
 Browser.runtime.onInstalled.addListener((object) => {
   if (object.reason === "install") {
     openOnboard();

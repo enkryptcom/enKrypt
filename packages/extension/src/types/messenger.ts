@@ -6,6 +6,7 @@ export enum MessageType {
   WINDOW_REQUEST = "enkrypt_window_request",
   NEWWINDOW_REQUEST = "enkrypt_new_window_request",
   ACTION_REQUEST = "enkrypt_action_request",
+  CS_REQUEST = "enkrypt_CS_request",
   BACKGROUND_REQUEST = "enkrypt_background_request",
 }
 export enum Destination {

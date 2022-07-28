@@ -10,7 +10,8 @@
     "notifications",
     "tabs",
     "clipboardRead",
-    "clipboardWrite"
+    "clipboardWrite",
+    "scripting"
   ],
   "commands": {
     "_execute_browser_action": {
