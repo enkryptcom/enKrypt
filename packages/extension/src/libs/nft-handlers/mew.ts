@@ -32,6 +32,7 @@ export default async (
     });
   };
   const allItems = await fetchAll();
+  if (!allItems || !allItems.length) return [];
   return allItems.map((item) => {
     const ret: NFTCollection = {
       name: item.name,

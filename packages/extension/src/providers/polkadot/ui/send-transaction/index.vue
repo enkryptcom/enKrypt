@@ -295,7 +295,7 @@ const selectToken = (token: SubstrateToken | Partial<SubstrateToken>) => {
 };
 
 const inputAmount = (number: string) => {
-  amount.value = number;
+  amount.value = parseFloat(number) < 0 ? "0" : number;
 };
 
 const sendButtonTitle = computed(() => {
