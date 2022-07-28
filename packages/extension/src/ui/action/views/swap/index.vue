@@ -29,7 +29,7 @@
             :token="toToken"
             :select-token="selectTokenTo"
             :is-finding-rate="isFindingRate"
-            :fast-list="featuredTokens"
+            :fast-list="featuredTokensFiltered"
             :total-tokens="
               toTokens
                 ? toTokens.length - (featuredTokens?.length ?? 0)
@@ -45,6 +45,7 @@
             :network="network"
             :is-valid-address="addressIsValid"
             :is-loading="addressIsLoading"
+            :to-network="toToken && (toToken as any).blockchain ? (toToken as any).blockchain : null"
             @update:input-address="inputAddress"
             @toggle:show-contacts="toggleSelectContact"
           ></send-address-input>
@@ -90,6 +91,7 @@
       v-show="toSelectOpened"
       :is-select-to-token="true"
       :assets="toTokensFiltered"
+      :is-loading="fetchingTokens"
       @close="toggleToToken"
       @update:select-asset="selectTokenTo"
     ></assets-select-list>
@@ -164,6 +166,7 @@ const fromAmount = ref<string | null>(null);
 
 const toTokens = ref<BaseToken[]>();
 const toToken = ref<BaseToken | null>(null);
+const fetchingTokens = ref(true);
 
 const featuredTokens = ref<BaseToken[]>();
 
@@ -201,7 +204,30 @@ const toTokensFiltered = computed(() => {
       )
         return false;
 
-      if (props.network.name === token.symbol) return false;
+      return true;
+    });
+  }
+
+  return [];
+});
+
+const featuredTokensFiltered = computed(() => {
+  if (featuredTokens.value) {
+    return featuredTokens.value.filter((token) => {
+      const featuredTokenAddress = (token as any).contract
+        ? (token as any).contract.toUpperCase()
+        : undefined;
+
+      const fromTokenAddress = (fromToken.value as any).contract
+        ? (fromToken.value as any).contract.toUpperCase()
+        : undefined;
+
+      if (
+        fromTokenAddress &&
+        featuredTokenAddress &&
+        featuredTokenAddress === fromTokenAddress
+      )
+        return false;
 
       return true;
     });
@@ -279,6 +305,7 @@ onMounted(async () => {
   props.network
     .getAllTokens(props.accountInfo.selectedAccount?.address as string)
     .then(async (tokens) => {
+      console.log(tokens[0]);
       const api = await props.network.api();
       await api.init();
 
@@ -317,6 +344,7 @@ onMounted(async () => {
 
     featuredTokens.value = featured.length > 0 ? featured : tokens.slice(0, 5);
     toTokens.value = tokens;
+    fetchingTokens.value = false;
   });
 });
 

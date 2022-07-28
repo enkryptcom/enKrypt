@@ -268,14 +268,7 @@ export class ChangellySwapProvider extends SwapProvider {
             changellyID: tokenData.ticker,
           };
 
-          if (tokenData.contractAddress) {
-            return new Erc20Token({
-              contract: tokenData.contractAddress,
-              ...tokenOptions,
-            });
-          } else {
-            return new ChangellyToken(tokenOptions);
-          }
+          return new ChangellyToken(tokenOptions);
         }),
         featured: [],
       };

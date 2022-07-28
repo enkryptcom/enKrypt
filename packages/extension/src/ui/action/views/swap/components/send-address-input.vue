@@ -15,12 +15,21 @@
       />
     </div>
     <div class="send-address-input__address">
-      <p>To:</p>
+      <p>
+        To
+        {{
+          toNetwork
+            ? `${toNetwork.charAt(0).toUpperCase()}${toNetwork.slice(
+                1
+              )} Network`
+            : ""
+        }}:
+      </p>
       <input
         ref="addressInput"
         v-model="address"
         type="text"
-        placeholder="0x… address1"
+        :placeholder="`${network.name_long} address`"
         :style="{ color: !isValidAddress && !isLoading ? 'red' : 'black' }"
         @focus="changeFocus"
         @blur="changeFocus"
@@ -65,6 +74,10 @@ const props = defineProps({
   network: {
     type: Object as PropType<BaseNetwork>,
     default: () => ({}),
+  },
+  toNetwork: {
+    type: String,
+    default: () => null,
   },
 });
 const emit = defineEmits<{

@@ -63,7 +63,10 @@
         }}
         {{ toToken.symbol.toUpperCase() }}
       </p>
-      <p>Offer includes 2.5% MEW fee</p>
+      <p>
+        Offer includes
+        {{ new BigNumber(pickedTrade.fee).times(100).toFixed() }}% Enkrypt fee
+      </p>
     </div>
   </div>
 </template>

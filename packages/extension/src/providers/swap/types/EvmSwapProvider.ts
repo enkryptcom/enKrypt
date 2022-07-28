@@ -88,8 +88,10 @@ export class EvmSwapProvider extends SwapProvider {
         console.error("Request timedout");
       }, REQUEST_TIMEOUT);
 
+      const chainQuery = chain === NetworkNames.Binance ? "BSC" : chain;
+
       const res = await fetch(
-        `${REQUEST_CACHER}${HOST_URL}${GET_LIST}?chain=${chain}`,
+        `${REQUEST_CACHER}${HOST_URL}${GET_LIST}?chain=${chainQuery}`,
         { signal: controller.signal }
       );
 
@@ -149,10 +151,12 @@ export class EvmSwapProvider extends SwapProvider {
       return null;
     }
 
+    const chainQuery = chain === NetworkNames.Binance ? "BSC" : chain;
+
     const params = new URLSearchParams();
     params.append("fromContractAddress", fromToken.contract);
     params.append("toContractAddress", toToken.contract);
-    params.append("chain", chain);
+    params.append("chain", chainQuery);
 
     try {
       const controller = new AbortController();
@@ -202,11 +206,14 @@ export class EvmSwapProvider extends SwapProvider {
   ): Promise<QuoteInfo[]> {
     if (!isAddress(fromToken.contract) || !isAddress(toToken.contract))
       return [];
+
+    const chainQuery = chain === NetworkNames.Binance ? "BSC" : chain;
+
     const params = new URLSearchParams();
     params.append("fromContractAddress", fromToken.contract);
     params.append("toContractAddress", toToken.contract);
     params.append("amount", fromAmount);
-    params.append("chain", chain);
+    params.append("chain", chainQuery);
 
     const { min, max } = await this.getMinMaxAmount(fromToken);
 
@@ -273,8 +280,10 @@ export class EvmSwapProvider extends SwapProvider {
         }
       }
 
+      const chainQuery = chain === NetworkNames.Binance ? "BSC" : chain;
+
       const params = new URLSearchParams();
-      params.append("chain", chain);
+      params.append("chain", chainQuery);
       params.append("fromContractAddress", fromToken.contract);
       params.append("toContractAddress", toToken.contract);
       params.append("amount", amountToSwap);
