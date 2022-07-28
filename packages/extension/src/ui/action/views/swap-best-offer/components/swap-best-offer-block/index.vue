@@ -1,6 +1,6 @@
 <template>
   <div class="swap-best-offer-block">
-    <h3>Best offer from {{ pickedTrade?.provider }}</h3>
+    <h3>Best Offer</h3>
     <div class="swap-best-offer-block__for">
       for<img :src="fromToken.icon" />
       <p>

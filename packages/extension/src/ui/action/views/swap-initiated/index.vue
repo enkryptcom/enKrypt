@@ -2,9 +2,6 @@
   <div class="swap-initiated__container">
     <div class="swap-initiated">
       <div class="swap-initiated__wrap">
-        <a class="swap-initiated__close" @click="close">
-          <close-icon />
-        </a>
         <div class="swap-initiated__animation">
           <Vue3Lottie
             class="swap-initiated__loading"
@@ -17,7 +14,7 @@
             Once completed, {{ toToken.symbol }} will be deposited to the
             address you specified.
           </p>
-          <a href="#">View on Etherscan</a>
+          <a @click="close">Finish</a>
         </div>
         <div class="swap-initiated__info">
           <swap-initiated-amount :token="fromToken" :amount="fromAmount">
@@ -36,7 +33,6 @@
 <script setup lang="ts">
 import LottieSwapInitiated from "@action/assets/animation/swap-initiated.json";
 import ArrowDown from "@action/icons/send/arrow-down.vue";
-import CloseIcon from "@action/icons/common/close-icon.vue";
 import SwapInitiatedAmount from "./components/swap-initiated-amount.vue";
 import { BaseToken } from "@/types/base-token";
 
@@ -135,6 +131,7 @@ const close = () => {
       text-align: center;
       color: @primaryLabel;
       text-decoration: none;
+      cursor: pointer;
     }
   }
   &__info {

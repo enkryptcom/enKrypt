@@ -11,7 +11,7 @@ import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
 import { TransactionSigner } from "@/providers/ethereum/ui/libs/signer";
 import { Activity, ActivityStatus, ActivityType } from "@/types/activity";
 import { BaseToken } from "@/types/base-token";
-import { EnkryptAccount } from "@enkryptcom/types";
+import { EnkryptAccount, NetworkNames } from "@enkryptcom/types";
 import BigNumber from "bignumber.js";
 import Web3 from "web3";
 import { isAddress, numberToHex, toBN } from "web3-utils";
@@ -57,7 +57,11 @@ type TradeResponse = {
 
 export class EvmSwapProvider extends SwapProvider {
   public supportedDexes = ["ZERO_X", "ONE_INCH", "PARASWAP"];
-  public supportedNetworks: string[] = ["ETH", "MATIC", "BSC"];
+  public supportedNetworks: NetworkNames[] = [
+    NetworkNames.Ethereum,
+    NetworkNames.Matic,
+    NetworkNames.Binance,
+  ];
 
   constructor() {
     super();
@@ -75,7 +79,7 @@ export class EvmSwapProvider extends SwapProvider {
   }
 
   public async getSupportedTokens(
-    chain: string
+    chain: NetworkNames
   ): Promise<{ tokens: Erc20Token[]; featured: Erc20Token[] }> {
     try {
       const controller = new AbortController();
@@ -137,7 +141,7 @@ export class EvmSwapProvider extends SwapProvider {
   }
 
   public async getTradePreview(
-    chain: string,
+    chain: NetworkNames,
     fromToken: Erc20Token,
     toToken: Erc20Token
   ): Promise<TradePreview | null> {
@@ -191,7 +195,7 @@ export class EvmSwapProvider extends SwapProvider {
   }
 
   public async getQuote(
-    chain: string,
+    chain: NetworkNames,
     fromToken: Erc20Token,
     toToken: Erc20Token,
     fromAmount: string
@@ -233,12 +237,10 @@ export class EvmSwapProvider extends SwapProvider {
     } catch {
       throw new Error("Could not retrieve pairs");
     }
-
-    return [];
   }
 
   public async getTrade(
-    chain: string,
+    chain: NetworkNames,
     fromAddress: string,
     toAddress: string,
     fromToken: Erc20Token,
@@ -276,8 +278,8 @@ export class EvmSwapProvider extends SwapProvider {
       params.append("fromContractAddress", fromToken.contract);
       params.append("toContractAddress", toToken.contract);
       params.append("amount", amountToSwap);
-      params.append("address", fromAddress);
-      params.append("platform", "web");
+      params.append("address", toAddress);
+      params.append("platform", "extension");
 
       const controller = new AbortController();
       const timeoutId = setTimeout(() => {
@@ -293,65 +295,29 @@ export class EvmSwapProvider extends SwapProvider {
 
       const data: TradeResponse[] = await res.json();
 
-      const network = getNetworkByName(chain);
       return data.map((tradeResponse) => {
-        if (tradeResponse.transactions.length === 2) {
-          const allowanceTx = tradeResponse.transactions[0];
-          const nativeToken = {
-            decimals: network!.decimals,
-            icon: network!.icon,
-            name: network!.name_long,
-            symbol: network!.name,
-            coingeckoID: network!.coingeckoID,
-          };
-          const nativeTokenValue = "0x0";
+        const swapTx =
+          tradeResponse.transactions[tradeResponse.transactions.length - 1];
 
-          const allowanceTxInfo: TransactionInfo = {
-            token: nativeToken,
-            tokenValue: nativeTokenValue,
-            ...allowanceTx,
-          };
+        const token = {
+          decimals: fromToken.decimals,
+          icon: fromToken.icon,
+          name: fromToken.name,
+          symbol: fromToken.symbol,
+          coingeckoID: fromToken.coingeckoID,
+          price: fromToken.price,
+        };
 
-          tradeResponse.transactions[0] = allowanceTxInfo;
+        const tokenValue = toBase(fromAmount, fromToken.decimals);
 
-          const swapTx = tradeResponse.transactions[1];
-          const token = {
-            decimals: fromToken.decimals,
-            icon: fromToken.icon,
-            name: fromToken.name,
-            symbol: fromToken.symbol,
-            coingeckoID: fromToken.coingeckoID,
-            price: fromToken.price,
-          };
-          const tokenValue = toBase(fromAmount, fromToken.decimals);
+        const swapTxInfo: TransactionInfo = {
+          token,
+          tokenValue,
+          ...swapTx,
+        };
 
-          const swapTxInfo: TransactionInfo = {
-            token,
-            tokenValue,
-            ...swapTx,
-          };
-
-          tradeResponse.transactions[1] = swapTxInfo;
-        } else {
-          const swapTx = tradeResponse.transactions[0];
-          const token = {
-            decimals: fromToken.decimals,
-            icon: fromToken.icon,
-            name: fromToken.name,
-            symbol: fromToken.symbol,
-            coingeckoID: fromToken.coingeckoID,
-            price: fromToken.price,
-          };
-          const tokenValue = toBase(fromAmount, fromToken.decimals);
-
-          const swapTxInfo: TransactionInfo = {
-            token,
-            tokenValue,
-            ...swapTx,
-          };
-
-          tradeResponse.transactions[0] = swapTxInfo;
-        }
+        tradeResponse.transactions[tradeResponse.transactions.length - 1] =
+          swapTxInfo;
 
         return {
           provider: tradeResponse.provider,
@@ -390,18 +356,20 @@ export class EvmSwapProvider extends SwapProvider {
     const activityState = new ActivityState();
     const txPromises = trade.txs
       .map(({ data, value, gas, to, from, token, tokenValue }, index) => {
-        const txActivity: Activity = {
-          from,
-          to,
-          token,
-          isIncoming: fromAccount.address === to,
-          network: network.name,
-          status: ActivityStatus.pending,
-          timestamp: new Date().getTime(),
-          type: ActivityType.transaction,
-          value: tokenValue,
-          transactionHash: "",
-        };
+        const txActivity: Activity | null = token
+          ? {
+              from,
+              to,
+              token,
+              isIncoming: fromAccount.address === to,
+              network: network.name,
+              status: ActivityStatus.pending,
+              timestamp: new Date().getTime(),
+              type: ActivityType.transaction,
+              value: tokenValue,
+              transactionHash: "",
+            }
+          : null;
 
         return [
           new Transaction(
@@ -437,15 +405,17 @@ export class EvmSwapProvider extends SwapProvider {
                   `0x${signedTx.serialize().toString("hex")}`
                 )
                 .on("transactionHash", (hash: string) => {
-                  activityState.addActivities(
-                    [
-                      {
-                        ...JSON.parse(JSON.stringify(activity)),
-                        ...{ transactionHash: hash },
-                      },
-                    ],
-                    { address: fromAccount.address, network: network.name }
-                  );
+                  if (activity) {
+                    activityState.addActivities(
+                      [
+                        {
+                          ...JSON.parse(JSON.stringify(activity)),
+                          ...{ transactionHash: hash },
+                        },
+                      ],
+                      { address: fromAccount.address, network: network.name }
+                    );
+                  }
                   console.log("hash", hash);
                 })
                 .then((receipt) => receipt.transactionHash as `0x${string}`)
