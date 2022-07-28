@@ -57,7 +57,7 @@ type TradeResponse = {
 
 export class EvmSwapProvider extends SwapProvider {
   public supportedDexes = ["ZERO_X", "ONE_INCH", "PARASWAP"];
-  public supportedNetworks: string[] = ["ETH", "MATIC", "BSC"];
+  public supportedNetworks: string[] = ["ETH", "MATIC", "BNB"];
 
   constructor() {
     super();
@@ -78,6 +78,7 @@ export class EvmSwapProvider extends SwapProvider {
     chain: string
   ): Promise<{ tokens: Erc20Token[]; featured: Erc20Token[] }> {
     try {
+      const chainQuery = chain === "BNB" ? "BSC" : chain;
       const controller = new AbortController();
       const timeoutId = setTimeout(() => {
         controller.abort();
@@ -85,7 +86,7 @@ export class EvmSwapProvider extends SwapProvider {
       }, REQUEST_TIMEOUT);
 
       const res = await fetch(
-        `${REQUEST_CACHER}${HOST_URL}${GET_LIST}?chain=${chain}`,
+        `${REQUEST_CACHER}${HOST_URL}${GET_LIST}?chain=${chainQuery}`,
         { signal: controller.signal }
       );
 
@@ -145,10 +146,12 @@ export class EvmSwapProvider extends SwapProvider {
       return null;
     }
 
+    const chainQuery = chain === "BNB" ? "BSC" : chain;
+
     const params = new URLSearchParams();
     params.append("fromContractAddress", fromToken.contract);
     params.append("toContractAddress", toToken.contract);
-    params.append("chain", chain);
+    params.append("chain", chainQuery);
 
     try {
       const controller = new AbortController();
@@ -198,11 +201,12 @@ export class EvmSwapProvider extends SwapProvider {
   ): Promise<QuoteInfo[]> {
     if (!isAddress(fromToken.contract) || !isAddress(toToken.contract))
       return [];
+    const chainQuery = chain === "BNB" ? "BSC" : chain;
     const params = new URLSearchParams();
     params.append("fromContractAddress", fromToken.contract);
     params.append("toContractAddress", toToken.contract);
     params.append("amount", fromAmount);
-    params.append("chain", chain);
+    params.append("chain", chainQuery);
 
     const { min, max } = await this.getMinMaxAmount(fromToken);
 
@@ -271,8 +275,9 @@ export class EvmSwapProvider extends SwapProvider {
         }
       }
 
+      const chainQuery = chain === "BNB" ? "BSC" : chain;
       const params = new URLSearchParams();
-      params.append("chain", chain);
+      params.append("chain", chainQuery);
       params.append("fromContractAddress", fromToken.contract);
       params.append("toContractAddress", toToken.contract);
       params.append("amount", amountToSwap);

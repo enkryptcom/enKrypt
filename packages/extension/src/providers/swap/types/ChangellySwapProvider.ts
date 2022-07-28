@@ -110,7 +110,7 @@ const REQUEST_TIMEOUT = 5000;
 const activityState = new ActivityState();
 
 export class ChangellySwapProvider extends SwapProvider {
-  public supportedNetworks: string[] = ["KSM", "DOT", "ETH", "BSC", "MATIC"];
+  public supportedNetworks: string[] = ["KSM", "DOT", "ETH", "BNB", "MATIC"];
   public supportedDexes = ["CHANGELLY"];
   supportedTokens: string[] = [
     "KSM",
