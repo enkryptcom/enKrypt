@@ -139,7 +139,7 @@ export class EvmNetwork extends BaseNetwork {
             name: token.name,
             symbol: token.symbol,
             icon: token.icon,
-            balance,
+            balance: token.balance!,
             balancef: formatFloatingPointValue(
               fromBase(token.balance!, token.decimals)
             ).value,
@@ -152,7 +152,6 @@ export class EvmNetwork extends BaseNetwork {
             priceChangePercentage: 0,
             contract: token.contract,
           };
-
           return assetsType;
         })
         .filter((asset) => asset.balancef !== "0");

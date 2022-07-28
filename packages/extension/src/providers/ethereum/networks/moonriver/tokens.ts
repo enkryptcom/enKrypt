@@ -35,6 +35,6 @@ export const tokens: Erc20Token[] = [
     symbol: "xcRMRK",
     icon: "https://moonriver.moonscan.io/token/images/usdt_32.png",
     contract: "0xFFFFFFfFea09FB06d082fd1275CD48b191cbCD1d",
-    decimals: 10,
+    decimals: 6,
   }),
 ];
