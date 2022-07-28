@@ -2,15 +2,32 @@
   <div class="send-alert">
     <alert-icon />
     <p>
-      After sending this transaction your balance will go below Existential
-      Limit, which will drop your remaining balance to 0.<br />
-      <a href="#">What is Existential Limit?</a>
+      Not enough funds. You are<br />~{{
+        $filters.formatFloatingPointValue(nativeValue).value
+      }}
+      {{ nativeSymbol }} (${{
+        $filters.formatFiatValue(priceDifference).value
+      }}) short.
     </p>
   </div>
 </template>
 
 <script setup lang="ts">
 import AlertIcon from "@action/icons/send/alert-icon.vue";
+import BigNumber from "bignumber.js";
+import { computed } from "vue";
+
+interface IProps {
+  nativeSymbol: string;
+  nativeValue: string;
+  price?: string;
+}
+
+const props = defineProps<IProps>();
+
+const priceDifference = computed(() => {
+  return new BigNumber(props.nativeValue).times(props.price ?? "0").toFixed();
+});
 </script>
 
 <style lang="less">
