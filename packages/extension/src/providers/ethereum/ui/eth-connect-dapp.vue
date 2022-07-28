@@ -129,7 +129,6 @@ onBeforeMount(async () => {
       (acc) => api.getBalance(acc.address)
     );
     Promise.all(activeBalancePromises).then((balances) => {
-      console.log(balances);
       accountHeaderData.value.activeBalances = balances.map((bal) =>
         fromBase(bal, network.value.decimals)
       );

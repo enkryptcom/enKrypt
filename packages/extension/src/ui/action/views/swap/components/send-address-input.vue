@@ -20,7 +20,7 @@
         ref="addressInput"
         v-model="address"
         type="text"
-        placeholder="0x… address"
+        placeholder="0x… address1"
         :style="{ color: !isValidAddress && !isLoading ? 'red' : 'black' }"
         @focus="changeFocus"
         @blur="changeFocus"
