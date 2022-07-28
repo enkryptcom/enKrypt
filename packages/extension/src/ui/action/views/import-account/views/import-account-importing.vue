@@ -18,8 +18,8 @@
     ></hardware-importing-account>
 
     <p class="import-account-importing__example">
-      Example: Private funds, Savings account, dApp account, Work funds,
-      Airdrops
+      Name your account something that makes sense to you! Main account, dapp
+      account, yolo account, etc.
     </p>
 
     <p class="import-account-importing__example">Enter Extension password</p>

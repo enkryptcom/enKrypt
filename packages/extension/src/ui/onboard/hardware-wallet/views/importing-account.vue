@@ -25,8 +25,8 @@
       ></hardware-importing-account>
 
       <p class="ledger-importing-account__example">
-        Example: Private funds, Savings account, dApp account, Work funds,
-        Airdrops
+        Name your account something that makes sense to you! Main account, dapp
+        account, yolo account, etc.
       </p>
     </custom-scrollbar>
 
