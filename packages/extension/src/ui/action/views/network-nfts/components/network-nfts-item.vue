@@ -69,10 +69,7 @@ const toggleDetail = () => {
   isDetail.value = !isDetail.value;
 };
 const openLink = () => {
-  window.open(
-    `https://rarible.com/token/${props.item.contract}:${props.item.id}?ref=0x5bA9576c214FC7C6649f6F3C73dcbC2769b1761F`,
-    "_blank"
-  );
+  window.open(props.item.url, "_blank");
 };
 </script>
 

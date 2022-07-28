@@ -45,6 +45,7 @@ export default async (
           id: asset.token_id,
           image: getBestImageURL(asset.urls),
           name: asset.name,
+          url: `https://rarible.com/token/${item.contract_address}:${asset.token_id}?ref=0x5bA9576c214FC7C6649f6F3C73dcbC2769b1761F`,
         };
         return retAsset;
       }),
