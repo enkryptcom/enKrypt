@@ -2,9 +2,9 @@
   <div>
     <div class="best-offer-list">
       <best-offer-list-item
-        v-for="trade in trades"
+        v-for="(trade, index) in trades"
         :key="trade.provider"
-        :name="formatProviderName(trade.provider)"
+        :swap-number="index + 1"
         :amount="`~${trade.minimumReceived}`"
         :select="() => select(trade)"
         :is-checked="trade.provider === pickedTrade.provider"
@@ -25,21 +25,6 @@ interface IProps {
 }
 
 const props = defineProps<IProps>();
-
-const formatProviderName = (provider: string): string => {
-  switch (provider) {
-    case "CHANGELLY":
-      return "Changelly";
-    case "ZERO_X":
-      return "0x";
-    case "PARASWAP":
-      return "Paraswap";
-    case "ONE_INCH":
-      return "1inch";
-  }
-
-  return provider;
-};
 
 const select = (trade: TradeInfo) => {
   props.select(trade);

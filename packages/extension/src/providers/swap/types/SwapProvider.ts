@@ -1,7 +1,7 @@
 import { BaseToken, BaseTokenOptions } from "@/types/base-token";
 import Web3 from "web3";
 import { BaseNetwork } from "@/types/base-network";
-import { EnkryptAccount } from "@enkryptcom/types";
+import { EnkryptAccount, NetworkNames } from "@enkryptcom/types";
 import { GasPriceTypes } from "@/providers/ethereum/libs/transaction/types";
 
 export type Rates = Array<{ amount: string; rate: string }>;
@@ -75,7 +75,7 @@ export abstract class SwapProvider {
   public abstract supportedDexes: string[];
   public abstract supportedNetworks: string[];
 
-  public isSupportedNetwork(chainName: string): boolean {
+  public isSupportedNetwork(chainName: NetworkNames): boolean {
     return this.supportedNetworks.includes(chainName);
   }
 
@@ -85,7 +85,7 @@ export abstract class SwapProvider {
   ): Promise<boolean>;
 
   public abstract getSupportedTokens(
-    chain: string
+    chainName: NetworkNames
   ): Promise<{ tokens: BaseToken[]; featured: BaseToken[] }>;
 
   public abstract getMinMaxAmount(
@@ -97,20 +97,20 @@ export abstract class SwapProvider {
   }>;
 
   public abstract getTradePreview(
-    chain: string,
+    chainName: NetworkNames,
     fromToken: BaseToken,
     toToken: BaseToken
   ): Promise<TradePreview | null>;
 
   public abstract getQuote(
-    chain: string,
+    chainName: NetworkNames,
     fromToken: BaseToken,
     toToken: BaseToken,
     fromAmount: string
   ): Promise<QuoteInfo[]>;
 
   public abstract getTrade(
-    chain: string,
+    chainName: NetworkNames,
     fromAddress: string,
     toAddress: string,
     fromToken: BaseToken,

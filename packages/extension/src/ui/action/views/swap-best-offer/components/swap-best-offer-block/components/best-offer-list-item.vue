@@ -1,8 +1,8 @@
 <template>
   <a class="best-offer-list-item" @click="(select as ()=>void)">
-    <img :src="require('@/ui/action/icons/raw/paraswap.png')" />
+    <!-- <img :src="require('@/ui/action/icons/raw/paraswap.png')" /> -->
     <div class="best-offer-list-item__info">
-      <p>{{ name }}</p>
+      <p>Offer {{ swapNumber }}</p>
       <h5>{{ amount }}</h5>
     </div>
 
@@ -30,10 +30,10 @@ defineProps({
       return null;
     },
   },
-  name: {
-    type: String,
+  swapNumber: {
+    type: Number,
     default: () => {
-      return "";
+      return 0;
     },
   },
   amount: {

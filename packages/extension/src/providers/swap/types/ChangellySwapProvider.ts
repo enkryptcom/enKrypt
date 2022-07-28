@@ -14,7 +14,7 @@ import {
 import { toBase } from "@/libs/utils/units";
 import { numberToHex, toBN } from "web3-utils";
 import { BaseNetwork } from "@/types/base-network";
-import { EnkryptAccount } from "@enkryptcom/types";
+import { EnkryptAccount, NetworkNames } from "@enkryptcom/types";
 import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
 import Transaction from "@/providers/ethereum/libs/transaction";
 import { GasPriceTypes } from "@/providers/ethereum/libs/transaction/types";
@@ -110,7 +110,13 @@ const REQUEST_TIMEOUT = 5000;
 const activityState = new ActivityState();
 
 export class ChangellySwapProvider extends SwapProvider {
-  public supportedNetworks: string[] = ["KSM", "DOT", "ETH", "BSC", "MATIC"];
+  public supportedNetworks: NetworkNames[] = [
+    NetworkNames.Kusama,
+    NetworkNames.Polkadot,
+    NetworkNames.Ethereum,
+    NetworkNames.Binance,
+    NetworkNames.Matic,
+  ];
   public supportedDexes = ["CHANGELLY"];
   supportedTokens: string[] = [
     "KSM",
@@ -128,7 +134,6 @@ export class ChangellySwapProvider extends SwapProvider {
     address: string,
     toToken: BaseToken
   ): Promise<boolean> {
-    console.log("Validating");
     try {
       const controller = new AbortController();
 
@@ -367,7 +372,7 @@ export class ChangellySwapProvider extends SwapProvider {
   }
 
   public async getQuote(
-    chain: string,
+    chain: NetworkNames,
     fromToken: BaseToken,
     toToken: BaseToken,
     fromAmount: string
@@ -421,7 +426,7 @@ export class ChangellySwapProvider extends SwapProvider {
   }
 
   public async getTrade(
-    chain: string,
+    chain: NetworkNames,
     fromAddress: string,
     toAddress: string,
     fromToken: BaseToken,
@@ -432,8 +437,6 @@ export class ChangellySwapProvider extends SwapProvider {
     if (!toToken.changellyID) {
       return [];
     }
-
-    console.log("changelly id", toToken.changellyID);
 
     try {
       const quote = (
@@ -471,8 +474,6 @@ export class ChangellySwapProvider extends SwapProvider {
         const data = await res.json();
 
         const result: ChangellyTrade = data.result;
-
-        console.log("rate id", result.id, result.trackUrl);
 
         // Request had an error
         if (!result.amountExpectedTo) {
@@ -622,17 +623,18 @@ export class ChangellySwapProvider extends SwapProvider {
   ): Promise<`0x${string}`[]> {
     const api = await (network as EvmNetwork).api();
 
-    if (network.name === "DOT" || network.name === "KSM") {
+    if (
+      network.name === NetworkNames.Polkadot ||
+      network.name === NetworkNames.Kusama
+    ) {
       const apiPromise = api.api as ApiPromise;
 
       const { to, from, token, data, tokenValue } = trade.txs[0];
 
       const tx = apiPromise.tx(data);
 
-      console.log("rateId", trade.rateId);
-
       const txActivity: Activity = {
-        from,
+        from: network.displayAddress(from),
         to,
         token,
         isIncoming: fromAccount.address === trade.txs[0].to,
