@@ -1,5 +1,6 @@
 import { NFTCollection, NFTItem } from "@/types/nft";
 import { NodeType } from "@/types/provider";
+import { NetworkNames } from "@enkryptcom/types";
 import cacheFetch from "../cache-fetch";
 import {
   ContentRepresentation,
@@ -54,9 +55,14 @@ export default async (
   address: string
 ): Promise<NFTCollection[]> => {
   const supportedNetworks: Record<string, string> = {
-    ETH: "ETHEREUM",
-    MATIC: "POLYGON",
+    [NetworkNames.Ethereum]: "ETHEREUM",
+    [NetworkNames.Matic]: "POLYGON",
   };
+  const URL_SUFFIX: Record<string, string> = {
+    [NetworkNames.Ethereum]: "",
+    [NetworkNames.Matic]: "polygon/",
+  };
+
   if (!Object.keys(supportedNetworks).includes(network.name))
     throw new Error("RARIBLE: network not supported");
   let allItems: RaribleItem[] = [];
@@ -85,6 +91,9 @@ export default async (
       id: item.tokenId,
       image: getBestImageURL(item.meta?.content || []),
       name: item.meta?.name || "",
+      url: `https://rarible.com/token/${URL_SUFFIX[network.name]}${
+        item.contract.split(":")[1]
+      }:${item.tokenId}?ref=0x5bA9576c214FC7C6649f6F3C73dcbC2769b1761F`,
     };
     if (newItem.image && newItem.name)
       collection[item.collection].push(newItem);

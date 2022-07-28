@@ -366,7 +366,8 @@ const assetMaxValue = computed(() => {
 });
 const setMaxValue = () => {
   isMaxSelected.value = true;
-  amount.value = assetMaxValue.value;
+  amount.value =
+    parseFloat(assetMaxValue.value) < 0 ? "0" : assetMaxValue.value;
 };
 const inputAddressFrom = (text: string) => {
   addressFrom.value = text;
@@ -407,11 +408,11 @@ const selectToken = (token: Erc20Token) => {
 
 const inputAmount = (inputAmount: string) => {
   isMaxSelected.value = false;
-  amount.value = inputAmount;
+  amount.value = parseFloat(inputAmount) < 0 ? "0" : inputAmount;
 };
 
 const toggleSelectFee = () => {
-  isOpenSelectFee.value = !isOpenSelectToken.value;
+  isOpenSelectFee.value = !isOpenSelectFee.value;
 };
 
 const selectFee = (type: GasPriceTypes) => {

@@ -102,6 +102,8 @@ const localUpdate = async () => {
   isNoNFTs.value = collections.length === 0;
 };
 const updateNFTInfo = async () => {
+  liveNFTCollection.value = [];
+  NFTs.value = [];
   if (props.network.NFTHandler) {
     isNoNFTs.value = false;
     props.network

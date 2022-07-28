@@ -13,9 +13,9 @@
     <div class="lock-screen-forgot__alert">
       <alert-icon />
       <p>
-        Warning: you can lose your account and funds forever. Don't reset if you
-        didn't saved your secret recovery phrase, as there will be NO WAY to
-        restore your account after you reset.
+        Warning: Do not reset your wallet if you do not have your recovery
+        phrase. There will be no way to restore your account and you could lose
+        all of your assets.
       </p>
     </div>
 

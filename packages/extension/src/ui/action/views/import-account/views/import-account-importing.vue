@@ -18,8 +18,8 @@
     ></hardware-importing-account>
 
     <p class="import-account-importing__example">
-      Example: Private funds, Savings account, dApp account, Work funds,
-      Airdrops
+      Name your account something that makes sense to you! Main account, dapp
+      account, yolo account, etc.
     </p>
 
     <p class="import-account-importing__example">Enter Extension password</p>
@@ -44,7 +44,8 @@
 
   <import-account-process
     v-if="isProcessing"
-    :is-keystore="true"
+    :is-keystore="isKeystore"
+    :is-private-key="isPrivKey"
     :is-done="isDone"
   />
 </template>
@@ -90,6 +91,8 @@ const props = defineProps({
     type: Object as PropType<KeyPair>,
     default: () => ({}),
   },
+  isPrivKey: Boolean,
+  isKeystore: Boolean,
 });
 const isDisabled = computed(() => {
   return keyringPassword.value.length < 3;

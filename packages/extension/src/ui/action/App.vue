@@ -8,8 +8,10 @@
         @update:value="updateSearchValue"
       />
       <app-menu
-        :networks="searchNetworks"
+        :networks="networks"
         :selected="(route.params.id as string)"
+        :search-input="searchInput"
+        @update:order="updateNetworkOrder"
         @update:network="setNetwork"
       />
       <div class="app__menu-footer">
@@ -161,11 +163,9 @@ const setActiveNetworks = async () => {
     setNetwork(networks.value[0]);
   }
 };
-const searchNetworks = computed(() => {
-  return networks.value.filter((net) =>
-    net.name_long.toLowerCase().startsWith(searchInput.value.toLowerCase())
-  );
-});
+const updateNetworkOrder = (newOrder: BaseNetwork[]) => {
+  if (searchInput.value === "") networks.value = newOrder;
+};
 const updateSearchValue = (newval: string) => {
   searchInput.value = newval;
 };

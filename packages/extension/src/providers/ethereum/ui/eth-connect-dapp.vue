@@ -62,10 +62,10 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeMount, onMounted, ref } from "vue";
+import { onBeforeMount, ref } from "vue";
 import SignLogo from "@action/icons/common/sign-logo.vue";
 import BaseButton from "@action/components/base-button/index.vue";
-import CommonPopup from "@action/views/common-popup/index.vue";
+import commonPopup from "@action/views/common-popup/index.vue";
 import LinkIcon from "@action/icons/connect/link-icon.vue";
 import InfoIconGray from "@action/icons/common/info-icon-gray.vue";
 import SelectAccountInput from "@action/components/select-account-input/index.vue";
@@ -106,6 +106,7 @@ const Options = ref<ProviderRequestOptions>({
   faviconURL: "",
   title: "",
   url: "",
+  tabId: 0,
 });
 
 onBeforeMount(async () => {
@@ -122,9 +123,6 @@ onBeforeMount(async () => {
     activeBalances: accounts.map(() => "~"),
     inactiveAccounts: [],
   };
-});
-
-onMounted(async () => {
   try {
     const api = await network.value.api();
     const activeBalancePromises = accountHeaderData.value.activeAccounts.map(

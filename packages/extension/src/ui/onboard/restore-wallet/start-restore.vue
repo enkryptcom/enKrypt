@@ -1,9 +1,9 @@
 <template>
   <div class="restore-wallet">
-    <h3>Restore<br />existing wallet</h3>
+    <h3>Restore an<br />existing wallet</h3>
     <p>
-      Do you have your recovery phrase handy? Recovery phrase is a 24 or 12 word
-      phrase that you wrote down when you backed up your wallet.
+      Use a 12 to 24 word recovery phrase to restore your the accounts in your
+      wallet.
     </p>
 
     <div class="restore-wallet__buttons">
