@@ -49,8 +49,14 @@ const emit = defineEmits<{
 
 const searchNetworks = computed({
   get: () => {
-    return props.networks.filter((net) =>
-      net.name_long.toLowerCase().startsWith(props.searchInput.toLowerCase())
+    return props.networks.filter(
+      (net) =>
+        net.name_long
+          .toLowerCase()
+          .startsWith(props.searchInput.toLowerCase()) ||
+        net.currencyName
+          .toLowerCase()
+          .startsWith(props.searchInput.toLowerCase())
     );
   },
   set: (value) => {
