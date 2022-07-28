@@ -131,32 +131,34 @@ export class SubstrateNetwork extends BaseNetwork {
       balancePromises
     )) as unknown as number[];
 
-    const tokens: AssetsType[] = supported.map((st, idx) => {
-      const userBalance = fromBase(balances[idx].toString(), st.decimals);
-      const usdBalance = new BigNumber(userBalance).times(
-        market[idx]?.current_price || 0
-      );
-      return {
-        balance: balances[idx].toString(),
-        balancef: formatFloatingPointValue(userBalance).value,
-        balanceUSD: usdBalance.toNumber(),
-        balanceUSDf: formatFiatValue(usdBalance.toString()).value,
-        decimals: st.decimals,
-        icon: st.icon,
-        name: st.name,
-        symbol: st.symbol,
-        priceChangePercentage:
-          market[idx]?.price_change_percentage_7d_in_currency || 0,
-        sparkline: market[idx]
-          ? new Sparkline(market[idx]?.sparkline_in_7d.price, 25).dataUri
-          : "",
-        value: market[idx]?.current_price.toString() || "0",
-        valuef: formatFloatingPointValue(
-          market[idx]?.current_price.toString() || "0"
-        ).value,
-        baseToken: st,
-      };
-    });
+    const tokens: AssetsType[] = supported
+      .map((st, idx) => {
+        const userBalance = fromBase(balances[idx].toString(), st.decimals);
+        const usdBalance = new BigNumber(userBalance).times(
+          market[idx]?.current_price || 0
+        );
+        return {
+          balance: balances[idx].toString(),
+          balancef: formatFloatingPointValue(userBalance).value,
+          balanceUSD: usdBalance.toNumber(),
+          balanceUSDf: formatFiatValue(usdBalance.toString()).value,
+          decimals: st.decimals,
+          icon: st.icon,
+          name: st.name,
+          symbol: st.symbol,
+          priceChangePercentage:
+            market[idx]?.price_change_percentage_7d_in_currency || 0,
+          sparkline: market[idx]
+            ? new Sparkline(market[idx]?.sparkline_in_7d.price, 25).dataUri
+            : "",
+          value: market[idx]?.current_price.toString() || "0",
+          valuef: formatFloatingPointValue(
+            market[idx]?.current_price.toString() || "0"
+          ).value,
+          baseToken: st,
+        };
+      })
+      .filter((asset) => asset.balance !== "0");
 
     const sorted = [...tokens].filter((val, idx) => idx !== 0);
     sorted.sort((a, b) => {
