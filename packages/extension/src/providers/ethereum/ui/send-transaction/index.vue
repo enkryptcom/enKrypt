@@ -98,20 +98,14 @@
       ></transaction-fee-view>
 
       <send-alert
-        v-show="
-          hasEnoughBalance &&
-          nativeBalanceAfterTransaction &&
-          nativeBalanceAfterTransaction.isNeg()
-        "
+        v-show="hasEnoughBalance && nativeBalanceAfterTransaction.isNeg()"
         :native-symbol="network.name"
         :price="accountAssets[0]?.price || '0'"
         :native-value="
-          nativeBalanceAfterTransaction
-            ? fromBase(
-                nativeBalanceAfterTransaction.abs().toString(),
-                network.decimals
-              )
-            : '0'
+          fromBase(
+            nativeBalanceAfterTransaction.abs().toString(),
+            network.decimals
+          )
         "
         :decimals="network.decimals"
       />
@@ -289,7 +283,7 @@ const nativeBalanceAfterTransaction = computed(() => {
     return endingAmount;
   }
 
-  return null;
+  return toBN(0);
 });
 
 const setTransactionFees = (tx: Transaction) => {
@@ -379,7 +373,7 @@ const isInputsValid = computed<boolean>(() => {
   if (!isAddress(addressTo.value)) return false;
   if (
     new BigNumber(sendAmount.value).gt(assetMaxValue.value) ||
-    nativeBalanceAfterTransaction.value?.isNeg()
+    nativeBalanceAfterTransaction.value.isNeg()
   )
     return false;
   return true;
