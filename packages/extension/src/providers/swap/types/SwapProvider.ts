@@ -73,7 +73,7 @@ export enum TradeStatus {
 
 export abstract class SwapProvider {
   public abstract supportedDexes: string[];
-  public abstract supportedNetworks: string[];
+  public abstract supportedNetworks: NetworkNames[];
 
   public isSupportedNetwork(chainName: NetworkNames): boolean {
     return this.supportedNetworks.includes(chainName);

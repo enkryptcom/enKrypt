@@ -98,6 +98,7 @@
     <swap-error-popup
       v-if="showSwapError"
       :error="swapError"
+      :network-name="network.name_long"
       :close="toggleSwapError"
     />
   </div>
@@ -268,6 +269,13 @@ const toAmount = computed(() => {
 });
 
 onMounted(async () => {
+  const supportedNetworks = swap.getSupportedNetworks();
+  if (!supportedNetworks.includes(props.network.name)) {
+    swapError.value = SwapError.NETWORK_NOT_SUPPORTED;
+    toggleSwapError();
+    return;
+  }
+
   props.network
     .getAllTokens(props.accountInfo.selectedAccount?.address as string)
     .then(async (tokens) => {
@@ -436,6 +444,13 @@ const toggleLooking = () => {
 
 const toggleSwapError = () => {
   showSwapError.value = !showSwapError.value;
+
+  if (
+    swapError.value === SwapError.NETWORK_NOT_SUPPORTED &&
+    !showSwapError.value
+  ) {
+    router.go(-1);
+  }
 };
 
 const setMax = () => {
