@@ -6,8 +6,9 @@
     ></settings-inner-header>
     <div class="reset-wallet__wrap">
       <p class="reset-wallet__description">
-        Resetting wallet will remove all keys from Enkrypt and you won't be able
-        to use wallet until you restore it once again.
+        Resetting your wallet will clear all information from Enkrypt and take
+        you back to create/recover wallet screen. You will be able to fully
+        restore your wallet with your recovery phrase.
       </p>
 
       <div class="reset-wallet__alert">
@@ -131,7 +132,7 @@ const resetAction = async () => {
   }
 
   &__input {
-    margin: 0 0 152px 0;
+    margin: 0 0 92px 0;
   }
 }
 </style>

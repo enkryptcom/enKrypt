@@ -8,7 +8,7 @@ import {
   TradePreview,
 } from "./types/SwapProvider";
 import { BaseNetwork } from "@/types/base-network";
-import { EnkryptAccount } from "@enkryptcom/types";
+import { EnkryptAccount, NetworkNames } from "@enkryptcom/types";
 import BigNumber from "bignumber.js";
 import { GasPriceTypes } from "../ethereum/libs/transaction/types";
 import { ChangellyToken } from "./types/changelly-token";
@@ -18,6 +18,10 @@ export class Swap {
     new EvmSwapProvider(),
     new ChangellySwapProvider(),
   ];
+
+  public getSupportedNetworks(): NetworkNames[] {
+    return this.providers.map((provider) => provider.supportedNetworks).flat();
+  }
 
   public async isValidAddress(
     address: string,
@@ -51,7 +55,7 @@ export class Swap {
   }
 
   public async getAllTokens(
-    chain: string
+    chain: NetworkNames
   ): Promise<{ tokens: BaseToken[]; featured: BaseToken[]; error: boolean }> {
     try {
       let error = false;
@@ -91,7 +95,7 @@ export class Swap {
   }
 
   public async getAllQuotes(
-    chain: string,
+    chain: NetworkNames,
     fromToken: BaseToken,
     toToken: BaseToken,
     fromAmount: string
@@ -117,7 +121,7 @@ export class Swap {
   }
 
   public async getTradePreview(
-    chain: string,
+    chain: NetworkNames,
     fromToken: BaseToken,
     toToken: BaseToken
   ): Promise<TradePreview | null> {
@@ -173,7 +177,7 @@ export class Swap {
   }
 
   public async getTrade(
-    chain: string,
+    chain: NetworkNames,
     fromAddress: string,
     toAddress: string,
     fromToken: BaseToken,

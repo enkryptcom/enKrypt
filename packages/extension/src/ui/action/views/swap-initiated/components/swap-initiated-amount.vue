@@ -5,7 +5,7 @@
     <div class="swap-initiated-amount__info">
       <h4>
         {{ $filters.formatFloatingPointValue(amount).value }}
-        <span>{{ token.symbol }}</span>
+        <span>{{ token.symbol.toLowerCase() }}</span>
       </h4>
     </div>
   </div>

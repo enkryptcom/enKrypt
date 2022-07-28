@@ -6,17 +6,17 @@
     ></settings-inner-header>
 
     <settings-button
-      title="Visit our site"
+      title="Visit our website"
       :action="siteAction"
       :is-link="true"
     ></settings-button>
     <settings-button
-      title="We are on Telegram"
+      title="Join us on Telegram"
       :action="telegramAction"
       :is-link="true"
     ></settings-button>
     <settings-button
-      title="We are on Twitter"
+      title="Follow us on Twitter"
       :action="twitterAction"
       :is-link="true"
     ></settings-button>

@@ -1,6 +1,6 @@
 <template>
   <div class="swap-best-offer-block">
-    <h3>Best offer from {{ pickedTrade?.provider }}</h3>
+    <h3>Best Offer</h3>
     <div class="swap-best-offer-block__for">
       for<img :src="fromToken.icon" />
       <p>
@@ -63,7 +63,10 @@
         }}
         {{ toToken.symbol.toUpperCase() }}
       </p>
-      <p>Offer includes 2.5% MEW fee</p>
+      <p>
+        Offer includes
+        {{ new BigNumber(pickedTrade.fee).times(100).toFixed() }}% Enkrypt fee
+      </p>
     </div>
   </div>
 </template>

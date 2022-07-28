@@ -25,8 +25,8 @@
       </div>
 
       <p>
-        Example: Private funds, Savings account, dApp account, Work funds,
-        Airdrops
+        Name your account something that makes sense to you! Main account, dapp
+        account, yolo account, etc.
       </p>
 
       <div class="rename-account-form__buttons">

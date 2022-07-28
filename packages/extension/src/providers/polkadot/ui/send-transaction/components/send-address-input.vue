@@ -11,7 +11,7 @@
         v-model="address"
         type="text"
         :disabled="disableDirectInput"
-        placeholder="0x… address"
+        placeholder="address"
         :style="{ color: !isAddress ? 'red' : 'black' }"
         @focus="changeFocus"
         @blur="changeFocus"
@@ -64,7 +64,7 @@ const address = computed({
     isFocus.value
       ? props.value
       : isAddress.value
-      ? replaceWithEllipsis(props.network.displayAddress(props.value), 6, 6)
+      ? replaceWithEllipsis(props.value, 6, 6)
       : replaceWithEllipsis(props.value, 6, 6),
   set: (value) => emit("update:inputAddress", value),
 });

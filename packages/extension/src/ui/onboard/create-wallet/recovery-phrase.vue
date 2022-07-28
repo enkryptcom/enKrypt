@@ -2,12 +2,11 @@
   <div class="recovery-phrase">
     <h3>Secret recovery phrase</h3>
     <p>
-      Write it down on paper. Resist temptation to email it to yourself or
+      This is the recovery phase for your wallet. You and you alone have access
+      to it. It can be used to restore your wallet.<br />
+      Best practices for your recovery phrase are to write it down on paper and
+      store it somewhere secure. Resist temptation to email it to yourself or
       screenshot it.
-    </p>
-    <p>
-      Please keep your recovery phrase safe. If you give it to somebody, they
-      will have full control of your funds.
     </p>
 
     <div class="recovery-phrase__wrap">

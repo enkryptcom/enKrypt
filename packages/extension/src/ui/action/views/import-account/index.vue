@@ -35,6 +35,8 @@
         v-if="isImportingAccount"
         :network="network"
         :keypair="keyPair"
+        :is-keystore="isKeyStoreImport"
+        :is-priv-key="isPrivKeyImport"
         v-bind="$attrs"
         @close="close"
         @back="enterPasswordAction"
@@ -107,6 +109,8 @@ defineProps({
     default: false,
   },
 });
+const isPrivKeyImport = ref(false);
+const isKeyStoreImport = ref(false);
 
 const allVars = [
   isStart,
@@ -129,11 +133,15 @@ const startAction = () => {
 const keystoreFileAction = () => {
   allVars.forEach((val) => (val.value = false));
   isKeystoreFile.value = true;
+  isKeyStoreImport.value = true;
+  isPrivKeyImport.value = false;
 };
 
 const privateKeyAction = () => {
   allVars.forEach((val) => (val.value = false));
   isPrivateKey.value = true;
+  isKeyStoreImport.value = false;
+  isPrivKeyImport.value = true;
 };
 
 const enterPasswordAction = () => {

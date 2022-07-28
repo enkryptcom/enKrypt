@@ -17,7 +17,7 @@ const routes = {
     components: {
       view: Intro,
     },
-    name: "lock-screen",
+    name: "intro-screen",
   },
   locked: {
     path: "/locked",

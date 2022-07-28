@@ -69,7 +69,10 @@
         @update:input-set-max="setSendMax()"
       ></send-input-amount>
 
-      <send-fee-select v-if="fee" :fee="fee"></send-fee-select>
+      <send-fee-select
+        v-if="!edWarn"
+        :fee="fee ?? { nativeSymbol: props.network.name }"
+      ></send-fee-select>
 
       <send-alert v-if="edWarn"></send-alert>
 
@@ -145,7 +148,7 @@ const addressTo = ref("");
 const isOpenSelectToken = ref(false);
 const amount = ref("0");
 const fee = ref<GasFeeInfo | null>(null);
-const edWarn = ref(false);
+const edWarn = ref<boolean>();
 const api = shallowRef<SubstrateApi>();
 const accountAssets = ref<SubstrateToken[]>([]);
 const selectedAsset = ref<SubstrateToken | Partial<SubstrateToken>>(
@@ -200,6 +203,7 @@ onMounted(async () => {
 
 watch([selectedAsset, amount, addressTo], async () => {
   if (selectedAsset.value && amount.value && addressTo.value && api.value) {
+    edWarn.value = undefined;
     await api.value.api.isReady;
     const rawAmount = toBN(
       toBase(amount.value.toString(), selectedAsset.value.decimals!)
@@ -295,7 +299,7 @@ const selectToken = (token: SubstrateToken | Partial<SubstrateToken>) => {
 };
 
 const inputAmount = (number: string) => {
-  amount.value = number;
+  amount.value = parseFloat(number) < 0 ? "0" : number;
 };
 
 const sendButtonTitle = computed(() => {
@@ -333,7 +337,13 @@ const isDisabled = () => {
     addressIsValid = false;
   }
 
-  if (hasEnough.value && addressIsValid) isDisabled = false;
+  if (
+    hasEnough.value &&
+    addressIsValid &&
+    !edWarn.value &&
+    edWarn.value !== undefined
+  )
+    isDisabled = false;
   return isDisabled;
 };
 
