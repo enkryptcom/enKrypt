@@ -148,7 +148,6 @@ const addressTo = ref("");
 const isOpenSelectToken = ref(false);
 const amount = ref();
 const fee = ref<GasFeeInfo | null>(null);
-const api = shallowRef<SubstrateApi>();
 const accountAssets = ref<SubstrateToken[]>([]);
 const selectedAsset = ref<SubstrateToken | Partial<SubstrateToken>>(
   new SubstrateNativeToken({
@@ -201,7 +200,6 @@ onMounted(async () => {
     props.accountInfo.selectedAccount!.address
   );
   const networkApi = (await props.network.api()) as SubstrateApi;
-  api.value = networkApi as SubstrateApi;
   const networkAssets = await props.network.getAllTokens();
   const pricePromises = networkAssets.map((asset) => asset.getLatestPrice());
   const balancePromises = networkAssets.map((asset) => {
@@ -228,8 +226,9 @@ onMounted(async () => {
 });
 
 watch([selectedAsset, amount, addressTo], async () => {
-  if (selectedAsset.value && addressTo.value && api.value) {
-    await api.value.api.isReady;
+  if (selectedAsset.value && addressTo.value) {
+    const api = (await props.network.api()).api as ApiPromise;
+    await api.isReady;
     const rawAmount = toBN(
       toBase(
         amount.value ? amount.value.toString() : "0",
@@ -250,7 +249,7 @@ watch([selectedAsset, amount, addressTo], async () => {
       : undefined;
 
     const tx = await selectedAsset.value.send!(
-      api.value.api,
+      api,
       addressTo.value,
       rawAmount.toString(),
       sendOptions
@@ -375,9 +374,11 @@ const sendAction = async () => {
     ? { type: "all" }
     : undefined;
 
-  await api.value?.api.isReady;
+  const api = (await props.network.api()).api as ApiPromise;
+  await api.isReady;
+
   const tx = await selectedAsset.value?.send!(
-    api.value!.api as ApiPromise,
+    api,
     addressTo.value,
     sendAmount,
     sendOptions
