@@ -21,7 +21,7 @@
 
       <send-from-contacts-list
         :show-accounts="isOpenSelectContactFrom"
-        :accounts="accounts"
+        :accounts="accountInfo.activeAccounts"
         :address="addressFrom"
         :network="network"
         :identicon="network.identicon"
@@ -39,7 +39,7 @@
 
       <send-contacts-list
         :show-accounts="isOpenSelectContactTo"
-        :accounts="accounts"
+        :accounts="accountInfo.activeAccounts"
         :network="network"
         :address="addressTo"
         @selected:account="selectAccountTo"
@@ -124,7 +124,6 @@ import getUiPath from "@/libs/utils/get-ui-path";
 import { ProviderName } from "@/types/provider";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
 import { polkadotEncodeAddress } from "@enkryptcom/utils";
-import { getAccountsByNetworkName } from "@/libs/utils/accounts";
 
 const props = defineProps({
   network: {
@@ -145,7 +144,6 @@ const addressInputFrom = ref();
 const isOpenSelectContactFrom = ref(false);
 const isOpenSelectContactTo = ref(false);
 const addressFrom = ref(props.accountInfo.selectedAccount!.address);
-const accounts = ref([props.accountInfo.selectedAccount!]);
 const addressTo = ref("");
 const isOpenSelectToken = ref(false);
 const amount = ref();
@@ -208,9 +206,6 @@ const isAddress = computed(() => {
 onMounted(() => {
   isLoadingAssets.value = true;
   fetchTokens();
-  getAccountsByNetworkName(props.network.name).then((networkAccounts) => {
-    accounts.value = networkAccounts;
-  });
 });
 
 watch([selectedAsset, amount, addressTo], async () => {

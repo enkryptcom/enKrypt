@@ -22,7 +22,6 @@ export const getAccountsByNetworkName = async (
   const accounts = await keyring.getAccounts(network.signer);
 
   return accounts.filter((account) => {
-    console.log(account);
     if (account.isHardware && account.HWOptions !== undefined) {
       // Polkadot and Kusama ledger apps only work for those networks
       if (
