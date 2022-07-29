@@ -21,7 +21,7 @@
 
       <send-from-contacts-list
         :show-accounts="isOpenSelectContactFrom"
-        :account-info="accountInfo"
+        :accounts="accounts"
         :address="addressFrom"
         :network="network"
         :identicon="network.identicon"
@@ -39,9 +39,9 @@
 
       <send-contacts-list
         :show-accounts="isOpenSelectContactTo"
-        :account-info="accountInfo"
+        :accounts="accounts"
         :network="network"
-        :address="accountInfo.selectedAccount!.address"
+        :address="addressTo"
         @selected:account="selectAccountTo"
         @update:paste-from-clipboard="addressInputTo.pasteFromClipboard()"
         @close="toggleSelectContactTo"
@@ -93,7 +93,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, PropType, ref, shallowRef, watch } from "vue";
+import { computed, onMounted, PropType, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import SendAddressInput from "./components/send-address-input.vue";
@@ -124,6 +124,7 @@ import getUiPath from "@/libs/utils/get-ui-path";
 import { ProviderName } from "@/types/provider";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
 import { polkadotEncodeAddress } from "@enkryptcom/utils";
+import { getAccountsByNetworkName } from "@/libs/utils/accounts";
 
 const props = defineProps({
   network: {
@@ -143,7 +144,8 @@ const addressInputTo = ref();
 const addressInputFrom = ref();
 const isOpenSelectContactFrom = ref(false);
 const isOpenSelectContactTo = ref(false);
-const addressFrom = ref("");
+const addressFrom = ref(props.accountInfo.selectedAccount!.address);
+const accounts = ref([props.accountInfo.selectedAccount!]);
 const addressTo = ref("");
 const isOpenSelectToken = ref(false);
 const amount = ref();
@@ -194,39 +196,25 @@ const edWarn = computed(() => {
   }
 });
 
-onMounted(async () => {
+const isAddress = computed(() => {
+  try {
+    polkadotEncodeAddress(addressTo.value);
+    return true;
+  } catch {
+    return false;
+  }
+});
+
+onMounted(() => {
   isLoadingAssets.value = true;
-  addressFrom.value = props.network.displayAddress(
-    props.accountInfo.selectedAccount!.address
-  );
-  const networkApi = (await props.network.api()) as SubstrateApi;
-  const networkAssets = await props.network.getAllTokens();
-  const pricePromises = networkAssets.map((asset) => asset.getLatestPrice());
-  const balancePromises = networkAssets.map((asset) => {
-    return asset.getLatestUserBalance(
-      networkApi.api,
-      props.accountInfo.selectedAccount?.address ?? ""
-    );
-  });
-
-  Promise.all([...pricePromises, ...balancePromises]).then(() => {
-    const nonZeroAssets = networkAssets.filter(
-      (asset) => !toBN(asset.balance ?? "0").isZero()
-    );
-
-    if (nonZeroAssets.length == 0) {
-      nonZeroAssets.push(networkAssets[0]);
-    }
-
-    selectedAsset.value = nonZeroAssets[0];
-    accountAssets.value = nonZeroAssets;
-
-    isLoadingAssets.value = false;
+  fetchTokens();
+  getAccountsByNetworkName(props.network.name).then((networkAccounts) => {
+    accounts.value = networkAccounts;
   });
 });
 
 watch([selectedAsset, amount, addressTo], async () => {
-  if (selectedAsset.value && addressTo.value) {
+  if (selectedAsset.value && isAddress.value) {
     const api = (await props.network.api()).api as ApiPromise;
     await api.isReady;
     const rawAmount = toBN(
@@ -273,6 +261,34 @@ watch([selectedAsset, amount, addressTo], async () => {
     };
   }
 });
+
+watch(addressFrom, () => {
+  fetchTokens();
+});
+
+const fetchTokens = async () => {
+  const networkApi = (await props.network.api()) as SubstrateApi;
+  const networkAssets = await props.network.getAllTokens();
+  const pricePromises = networkAssets.map((asset) => asset.getLatestPrice());
+  const balancePromises = networkAssets.map((asset) => {
+    return asset.getLatestUserBalance(networkApi.api, addressFrom.value);
+  });
+
+  Promise.all([...pricePromises, ...balancePromises]).then(() => {
+    const nonZeroAssets = networkAssets.filter(
+      (asset) => !toBN(asset.balance ?? "0").isZero()
+    );
+
+    if (nonZeroAssets.length == 0) {
+      nonZeroAssets.push(networkAssets[0]);
+    }
+
+    selectedAsset.value = nonZeroAssets[0];
+    accountAssets.value = nonZeroAssets;
+
+    isLoadingAssets.value = false;
+  });
+};
 
 const close = () => {
   router.go(-1);
