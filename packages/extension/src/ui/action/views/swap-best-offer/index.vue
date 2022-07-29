@@ -302,7 +302,7 @@ onMounted(async () => {
   }
 
   const api = await props.network.api();
-  await api.init();
+
   balance.value = toBN(
     await api.getBalance(props.accountInfo.selectedAccount!.address)
   );

@@ -16,6 +16,7 @@ import {
 import Sparkline from "@/libs/sparkline";
 import { SubstrateNativeToken } from "./substrate-native-token";
 import { Activity } from "@/types/activity";
+import { getApi, addNewApi } from "../libs/api-promises";
 
 export interface SubstrateNetworkOptions {
   name: NetworkNames;
@@ -43,7 +44,6 @@ export class SubstrateNetwork extends BaseNetwork {
   public prefix: number;
   public assets: BaseToken[] = [];
   public genesisHash: string;
-  private localApi: SubstrateAPI | undefined;
 
   private activityHandler: (
     network: BaseNetwork,
@@ -67,13 +67,13 @@ export class SubstrateNetwork extends BaseNetwork {
 
   constructor(options: SubstrateNetworkOptions) {
     const api = async () => {
-      if (this.localApi) return this.localApi;
+      if (getApi(options.node)) return getApi(options.node);
       const api = new SubstrateAPI(options.node, {
         decimals: options.decimals,
         name: options.name,
       });
       await api.init();
-      this.localApi = api;
+      addNewApi(options.node, api);
       return api;
     };
 

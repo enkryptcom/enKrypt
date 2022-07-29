@@ -307,7 +307,6 @@ onMounted(async () => {
     .then(async (tokens) => {
       console.log(tokens[0]);
       const api = await props.network.api();
-      await api.init();
 
       const balancePromises = tokens.map((token) => {
         if (token.balance) {

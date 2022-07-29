@@ -132,7 +132,6 @@ const close = () => {
 const sendAction = async () => {
   isProcessing.value = true;
   const api = await network.api();
-  await api.init();
 
   const tx = (api.api as ApiPromise).tx(txData.TransactionData.data);
 

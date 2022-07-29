@@ -172,32 +172,30 @@ onMounted(async () => {
   addressFrom.value = props.network.displayAddress(
     props.accountInfo.selectedAccount!.address
   );
-  const networkApi = await props.network.api();
-  networkApi.init().then(async () => {
-    api.value = networkApi as SubstrateApi;
-    const networkAssets = await props.network.getAllTokens();
-    const pricePromises = networkAssets.map((asset) => asset.getLatestPrice());
-    const balancePromises = networkAssets.map((asset) => {
-      return asset.getLatestUserBalance(
-        networkApi.api,
-        props.accountInfo.selectedAccount?.address ?? ""
-      );
-    });
+  const networkApi = (await props.network.api()) as SubstrateApi;
+  api.value = networkApi as SubstrateApi;
+  const networkAssets = await props.network.getAllTokens();
+  const pricePromises = networkAssets.map((asset) => asset.getLatestPrice());
+  const balancePromises = networkAssets.map((asset) => {
+    return asset.getLatestUserBalance(
+      networkApi.api,
+      props.accountInfo.selectedAccount?.address ?? ""
+    );
+  });
 
-    Promise.all([...pricePromises, ...balancePromises]).then(() => {
-      const nonZeroAssets = networkAssets.filter(
-        (asset) => !toBN(asset.balance ?? "0").isZero()
-      );
+  Promise.all([...pricePromises, ...balancePromises]).then(() => {
+    const nonZeroAssets = networkAssets.filter(
+      (asset) => !toBN(asset.balance ?? "0").isZero()
+    );
 
-      if (nonZeroAssets.length == 0) {
-        nonZeroAssets.push(networkAssets[0]);
-      }
+    if (nonZeroAssets.length == 0) {
+      nonZeroAssets.push(networkAssets[0]);
+    }
 
-      selectedAsset.value = nonZeroAssets[0];
-      accountAssets.value = nonZeroAssets;
+    selectedAsset.value = nonZeroAssets[0];
+    accountAssets.value = nonZeroAssets;
 
-      isLoadingAssets.value = false;
-    });
+    isLoadingAssets.value = false;
   });
 });
 

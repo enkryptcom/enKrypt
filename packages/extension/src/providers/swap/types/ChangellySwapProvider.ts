@@ -481,7 +481,6 @@ export class ChangellySwapProvider extends SwapProvider {
           if (!network) throw new Error(`Could not retrieve network ${chain}`);
 
           const api = await network.api();
-          await api.init();
 
           let fromAmountRaw = new BigNumber(
             toBase(fromAmount, fromToken.decimals)
@@ -686,7 +685,6 @@ export class ChangellySwapProvider extends SwapProvider {
         return ["0x"];
       }
     } else {
-      await api.init();
       const web3 = (api as EvmAPI).web3;
       web3.eth.handleRevert = true;
 
