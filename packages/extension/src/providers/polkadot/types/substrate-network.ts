@@ -57,8 +57,7 @@ export class SubstrateNetwork extends BaseNetwork {
         decimals: this.decimals,
         icon: this.icon,
       });
-      const amount =
-        Number(args.value.replaceAll(",", "")) / 10 ** this.decimals;
+      const amount = fromBase(args.value, this.decimals);
       return { to, token, amount };
     },
   };
@@ -122,9 +121,7 @@ export class SubstrateNetwork extends BaseNetwork {
     );
     const marketData = new MarketData();
     const market = await marketData.getMarketData(
-      supported
-        .filter(({ coingeckoID }) => coingeckoID !== undefined)
-        .map(({ coingeckoID }) => coingeckoID as string)
+      supported.map(({ coingeckoID }) => coingeckoID ?? "")
     );
 
     const balances = (await Promise.all(
