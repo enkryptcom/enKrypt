@@ -66,7 +66,7 @@
         :fiat-value="selectedAsset.price"
         :has-enough-balance="hasEnough"
         @update:input-amount="inputAmount"
-        @update:input-set-max="setSendMax()"
+        @update:input-set-max="setSendMax"
       ></send-input-amount>
 
       <send-fee-select
@@ -146,9 +146,8 @@ const isOpenSelectContactTo = ref(false);
 const addressFrom = ref("");
 const addressTo = ref("");
 const isOpenSelectToken = ref(false);
-const amount = ref("0");
+const amount = ref();
 const fee = ref<GasFeeInfo | null>(null);
-const edWarn = ref<boolean>();
 const api = shallowRef<SubstrateApi>();
 const accountAssets = ref<SubstrateToken[]>([]);
 const selectedAsset = ref<SubstrateToken | Partial<SubstrateToken>>(
@@ -166,6 +165,35 @@ const sendMax = ref(false);
 
 const selected: string = route.params.id as string;
 const isLoadingAssets = ref(true);
+
+const edWarn = computed(() => {
+  if (!fee.value) {
+    return undefined;
+  }
+
+  if (!amount.value) {
+    return false;
+  }
+
+  const rawAmount = toBN(
+    toBase(amount.value.toString(), selectedAsset.value.decimals!)
+  );
+  const ed = selectedAsset.value.existentialDeposit ?? toBN(0);
+  const userBalance = toBN(selectedAsset.value.balance ?? 0);
+
+  if (!sendMax.value && userBalance.sub(rawAmount).lte(ed)) {
+    return true;
+  }
+
+  const txFee = toBN(
+    toBase(fee.value.nativeValue, selectedAsset.value.decimals!)
+  );
+  if (!sendMax.value && userBalance.sub(txFee).sub(rawAmount).lt(ed)) {
+    return true;
+  } else {
+    return false;
+  }
+});
 
 onMounted(async () => {
   isLoadingAssets.value = true;
@@ -200,11 +228,13 @@ onMounted(async () => {
 });
 
 watch([selectedAsset, amount, addressTo], async () => {
-  if (selectedAsset.value && amount.value && addressTo.value && api.value) {
-    edWarn.value = undefined;
+  if (selectedAsset.value && addressTo.value && api.value) {
     await api.value.api.isReady;
     const rawAmount = toBN(
-      toBase(amount.value.toString(), selectedAsset.value.decimals!)
+      toBase(
+        amount.value ? amount.value.toString() : "0",
+        selectedAsset.value.decimals!
+      )
     );
 
     const rawBalance = toBN(selectedAsset.value.balance!);
@@ -229,7 +259,6 @@ watch([selectedAsset, amount, addressTo], async () => {
       await tx.paymentInfo(props.accountInfo.selectedAccount!.address)
     ).toJSON();
 
-    const txFee = toBN(partialFee?.toString() ?? "");
     const txFeeHuman = fromBase(
       partialFee?.toString() ?? "",
       selectedAsset.value.decimals!
@@ -243,17 +272,6 @@ watch([selectedAsset, amount, addressTo], async () => {
       nativeSymbol: selectedAsset.value.symbol ?? "",
       nativeValue: txFeeHuman.toString(),
     };
-
-    const ed = selectedAsset.value.existentialDeposit ?? toBN(0);
-    const userBalance = toBN(selectedAsset.value.balance ?? 0);
-    if (
-      !userBalance.eq(rawAmount) &&
-      userBalance.sub(txFee).sub(rawAmount).lt(ed)
-    ) {
-      edWarn.value = true;
-    } else {
-      edWarn.value = false;
-    }
   }
 });
 
@@ -311,7 +329,12 @@ const sendButtonTitle = computed(() => {
   return title;
 });
 
-const setSendMax = () => {
+const setSendMax = (max: boolean) => {
+  if (!max) {
+    sendMax.value = false;
+    return;
+  }
+
   if (selectedAsset.value) {
     const humanBalance = fromBase(
       selectedAsset.value.balance!,
