@@ -80,7 +80,7 @@
     ></add-network>
 
     <settings
-      v-show="settingsShow"
+      v-if="settingsShow"
       @close:popup="settingsShow = !settingsShow"
     ></settings>
   </div>

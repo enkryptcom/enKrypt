@@ -25,8 +25,8 @@
 
     <lock-screen-forgot
       v-show="isForgot"
-      :close="toggleForgot"
       :reset="resetAction"
+      @toggle:forgot="toggleForgot"
     />
 
     <lock-screen-timer v-show="isLocked" :close="closeLockedAction" />
