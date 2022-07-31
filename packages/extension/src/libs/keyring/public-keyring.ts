@@ -44,6 +44,16 @@ class PublicKeyRing {
         walletType: WalletType.ledger,
         isHardware: true,
       };
+      allKeys["5E56EZk6jmpq1q3Har3Ms99D9TLN9ra2inFh7Q1Hj6GpUx6D"] = {
+        address: "5CFnoCsP3pDK2thhSqYPwKELJFLQ1hBodqzSUypexyh7eHkB",
+        basePath: "//",
+        name: "fake account #4",
+        pathIndex: 0,
+        publicKey: "0x0",
+        signerType: SignerType.sr25519,
+        walletType: WalletType.mnemonic,
+        isHardware: false,
+      };
     }
     return allKeys;
   }

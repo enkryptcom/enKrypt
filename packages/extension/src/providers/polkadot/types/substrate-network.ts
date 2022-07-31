@@ -33,7 +33,6 @@ export interface SubstrateNetworkOptions {
   node: string;
   coingeckoID?: string;
   genesisHash: string;
-  transferMethods?: Record<string, (args: any) => any>;
   activityHandler: (
     network: BaseNetwork,
     address: string
@@ -49,22 +48,6 @@ export class SubstrateNetwork extends BaseNetwork {
     network: BaseNetwork,
     address: string
   ) => Promise<Activity[]>;
-  public transferMethods: Record<string, (args: any) => any> = {
-    "balances.transferKeepAlive": (args: any) => {
-      const to = args.dest["Id"];
-      const token = new SubstrateNativeToken({
-        name: this.name_long,
-        symbol: this.name,
-        coingeckoID: this.coingeckoID,
-        decimals: this.decimals,
-        icon: this.icon,
-      });
-      const amount =
-        Number(args.value.replaceAll(",", "")) / 10 ** this.decimals;
-      return { to, token, amount };
-    },
-  };
-
   constructor(options: SubstrateNetworkOptions) {
     const api = async () => {
       if (getApi(options.node)) return getApi(options.node);
@@ -91,12 +74,6 @@ export class SubstrateNetwork extends BaseNetwork {
     this.prefix = options.prefix;
     this.genesisHash = options.genesisHash;
 
-    if (options.transferMethods) {
-      this.transferMethods = {
-        ...options.transferMethods,
-        ...this.transferMethods,
-      };
-    }
     this.activityHandler = options.activityHandler;
   }
 
@@ -126,9 +103,7 @@ export class SubstrateNetwork extends BaseNetwork {
     );
     const marketData = new MarketData();
     const market = await marketData.getMarketData(
-      supported
-        .filter(({ coingeckoID }) => coingeckoID !== undefined)
-        .map(({ coingeckoID }) => coingeckoID as string)
+      supported.map(({ coingeckoID }) => coingeckoID ?? "")
     );
 
     const balances = (await Promise.all(

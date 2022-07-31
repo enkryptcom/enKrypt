@@ -8,7 +8,7 @@ const assets: BaseToken[] = [
     name: "Karura",
     symbol: "KAR",
     decimals: 12,
-    icon: require("./icons/KAR.svg"),
+    icon: require("../../icons/karura.svg"),
     coingeckoID: "acala",
     existentialDeposit: toBN("100000000000"),
   }),
