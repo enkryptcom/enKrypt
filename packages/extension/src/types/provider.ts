@@ -38,6 +38,7 @@ export enum EnkryptProviderEventMethods {
   persistentEvents = "PersistentEvents",
 }
 export type StorageNamespace = ProviderName | InternalStorageNamespace;
+export type Unsubscribe = () => Promise<any>;
 export enum ProviderType {
   evm,
   substrate,
@@ -97,7 +98,7 @@ export abstract class ProviderAPIInterface {
   abstract subscribeBalanceUpdate(
     address: string,
     update: (address: string, newBalance: string) => void
-  ): Promise<() => void>;
+  ): Promise<Unsubscribe>;
 }
 
 export type handleIncomingMessage = (

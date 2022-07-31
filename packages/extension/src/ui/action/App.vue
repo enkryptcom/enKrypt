@@ -87,7 +87,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import AppMenu from "./components/app-menu/index.vue";
 import NetworkMenu from "./components/network-menu/index.vue";
 import AccountsHeader from "./components/accounts-header/index.vue";
@@ -122,13 +122,14 @@ import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
 import { fromBase } from "@/libs/utils/units";
 import { EnkryptAccount } from "@enkryptcom/types";
 import Browser from "webextension-polyfill";
+import { Unsubscribe } from "@/types/provider";
 
 const domainState = new DomainState();
 const networksState = new NetworksState();
 const appMenuRef = ref(null);
 const networkGradient = ref("");
 const showDepositWindow = ref(false);
-const accountHeaderData = reactive<AccountsHeaderData>({
+const accountHeaderData = ref<AccountsHeaderData>({
   activeAccounts: [],
   inactiveAccounts: [],
   selectedAccount: null,
@@ -178,7 +179,7 @@ const toggleDepositWindow = () => {
 const openBuyPage = () => {
   Browser.tabs.create({ url: "https://ccswap.myetherwallet.com/" });
 };
-const balanceSubscriptions = ref<Array<() => void>>([]);
+const balanceSubscriptions = ref<Unsubscribe[]>([]);
 
 const isKeyRingLocked = async (): Promise<boolean> => {
   return await sendToBackgroundFromAction({
@@ -216,7 +217,8 @@ onMounted(async () => {
 });
 const setNetwork = async (network: BaseNetwork) => {
   if (balanceSubscriptions.value.length > 0) {
-    balanceSubscriptions.value.forEach((unsub) => unsub());
+    const unsubPromises = balanceSubscriptions.value.map((unsub) => unsub());
+    await Promise.all(unsubPromises);
     balanceSubscriptions.value = [];
   }
   //hack may be there is a better way. less.modifyVars doesnt work
@@ -235,12 +237,12 @@ const setNetwork = async (network: BaseNetwork) => {
     const found = activeAccounts.find((acc) => acc.address === selectedAddress);
     if (found) selectedAccount = found;
   }
-  // accountHeaderData = {
-  accountHeaderData.activeAccounts = activeAccounts;
-  accountHeaderData.inactiveAccounts = inactiveAccounts;
-  accountHeaderData.selectedAccount = selectedAccount;
-  accountHeaderData.activeBalances = activeAccounts.map(() => "~");
-  // };
+  accountHeaderData.value = {
+    activeAccounts,
+    inactiveAccounts,
+    selectedAccount,
+    activeBalances: activeAccounts.map(() => "~"),
+  };
   currentNetwork.value = network;
   router.push({ name: "assets", params: { id: network.name } });
   const tabId = await domainState.getCurrentTabId();
@@ -276,18 +278,26 @@ const setNetwork = async (network: BaseNetwork) => {
           return api.subscribeBalanceUpdate(
             acc.address,
             (address: string, amount: string) => {
-              const accountIndex = accountHeaderData.activeAccounts.findIndex(
-                (acc) => acc.address === address
-              );
+              const accountIndex =
+                accountHeaderData.value.activeAccounts.findIndex(
+                  (acc) => acc.address === address
+                );
 
               if (accountIndex !== -1) {
                 const balance = fromBase(amount, network.decimals);
 
                 // For some reason the all of the ApiPromise subscriptions get called when only one updates
                 if (
-                  accountHeaderData.activeBalances[accountIndex] !== balance
+                  accountHeaderData.value.activeBalances[accountIndex] !==
+                  balance
                 ) {
-                  accountHeaderData.activeBalances[accountIndex] = balance;
+                  const activeBalances =
+                    accountHeaderData.value.activeBalances.slice();
+                  activeBalances[accountIndex] = balance;
+                  accountHeaderData.value = {
+                    ...accountHeaderData.value,
+                    activeBalances,
+                  };
                 }
               }
             }
@@ -303,7 +313,7 @@ const setNetwork = async (network: BaseNetwork) => {
 };
 
 const onSelectedAddressChanged = async (newAccount: EnkryptAccount) => {
-  accountHeaderData.selectedAccount = newAccount;
+  accountHeaderData.value.selectedAccount = newAccount;
   await domainState.setSelectedAddress(newAccount.address);
   await sendToBackgroundFromAction({
     message: JSON.stringify({

@@ -1,5 +1,5 @@
 import { EthereumRawInfo } from "@/types/activity";
-import { ProviderAPIInterface } from "@/types/provider";
+import { ProviderAPIInterface, Unsubscribe } from "@/types/provider";
 import { isArray } from "lodash";
 import Web3 from "web3";
 import { numberToHex, toBN } from "web3-utils";
@@ -81,17 +81,21 @@ class API implements ProviderAPIInterface {
   async subscribeBalanceUpdate(
     address: string,
     update: (address: string, newBalance: string) => void
-  ): Promise<() => void> {
+  ): Promise<Unsubscribe> {
     const currentBalance = await this.getBalance(address);
     update(address, currentBalance);
 
-    const intervalId = setInterval(() => {
-      this.getBalance(address).then((balance) => update(address, balance));
-    }, 20_000);
+    const subscription = this.web3.eth.subscribe("newBlockHeaders", (error) => {
+      if (error) {
+        console.error(error);
+      } else {
+        this.getBalance(address).then((balance) => update(address, balance));
+      }
+    });
 
-    return () => {
-      clearInterval(intervalId);
-    };
+    const unsub = () => subscription.unsubscribe();
+
+    return unsub as Unsubscribe;
   }
 }
 export default API;

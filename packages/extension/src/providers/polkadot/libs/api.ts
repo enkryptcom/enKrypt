@@ -1,4 +1,4 @@
-import { ProviderAPIInterface } from "@/types/provider";
+import { ProviderAPIInterface, Unsubscribe } from "@/types/provider";
 import { ApiPromise, WsProvider } from "@polkadot/api";
 import { PolkadotAPIOptions } from "../types";
 import { AccountInfoWithRefCount } from "@polkadot/types/interfaces";
@@ -56,7 +56,7 @@ class API implements ProviderAPIInterface {
   async subscribeBalanceUpdate(
     address: string,
     update: (address: string, newBalance: string) => void
-  ): Promise<() => void> {
+  ): Promise<Unsubscribe> {
     const unsub = await this.api.query.system.account(
       address,
       ({ data }: AccountInfoWithRefCount) => {
@@ -64,9 +64,7 @@ class API implements ProviderAPIInterface {
       }
     );
 
-    return () => {
-      (unsub as unknown as () => void)();
-    };
+    return () => (unsub as unknown as Unsubscribe)();
   }
 }
 export default API;
