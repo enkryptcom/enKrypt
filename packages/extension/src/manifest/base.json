@@ -2,7 +2,7 @@
   "author": "https://www.enkrypt.com",
   "homepage_url": "https://www.enkrypt.com",
   "version": "",
-  "name": "Enkrypt",
+  "name": "Enkrypt: Ethereum and Polkadot Web3 Wallet",
   "short_name": "Enkrypt",
   "permissions": [
     "storage",
