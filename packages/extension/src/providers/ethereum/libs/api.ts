@@ -78,5 +78,20 @@ class API implements ProviderAPIInterface {
       };
     }
   };
+  async subscribeBalanceUpdate(
+    address: string,
+    update: (address: string, newBalance: string) => void
+  ): Promise<() => void> {
+    const currentBalance = await this.getBalance(address);
+    update(address, currentBalance);
+
+    const intervalId = setInterval(() => {
+      this.getBalance(address).then((balance) => update(address, balance));
+    }, 20_000);
+
+    return () => {
+      clearInterval(intervalId);
+    };
+  }
 }
 export default API;

@@ -53,5 +53,20 @@ class API implements ProviderAPIInterface {
       await this.api.query.system.account<AccountInfoWithRefCount>(address);
     return balance.free.toString();
   }
+  async subscribeBalanceUpdate(
+    address: string,
+    update: (address: string, newBalance: string) => void
+  ): Promise<() => void> {
+    const unsub = await this.api.query.system.account(
+      address,
+      ({ data }: AccountInfoWithRefCount) => {
+        update(address, data.free.toString());
+      }
+    );
+
+    return () => {
+      (unsub as unknown as () => void)();
+    };
+  }
 }
 export default API;

@@ -94,6 +94,10 @@ export abstract class ProviderAPIInterface {
   abstract getTransactionStatus(
     hash: string
   ): Promise<EthereumRawInfo | SubscanExtrinsicInfo | null>;
+  abstract subscribeBalanceUpdate(
+    address: string,
+    update: (address: string, newBalance: string) => void
+  ): Promise<() => void>;
 }
 
 export type handleIncomingMessage = (
