@@ -21,7 +21,7 @@
 
       <send-from-contacts-list
         :show-accounts="isOpenSelectContactFrom"
-        :account-info="accountInfo"
+        :accounts="accountInfo.activeAccounts"
         :address="addressFrom"
         :network="network"
         :identicon="network.identicon"
@@ -39,9 +39,9 @@
 
       <send-contacts-list
         :show-accounts="isOpenSelectContactTo"
-        :account-info="accountInfo"
+        :accounts="accountInfo.activeAccounts"
         :network="network"
-        :address="accountInfo.selectedAccount!.address"
+        :address="addressTo"
         @selected:account="selectAccountTo"
         @update:paste-from-clipboard="addressInputTo.pasteFromClipboard()"
         @close="toggleSelectContactTo"
@@ -66,7 +66,7 @@
         :fiat-value="selectedAsset.price"
         :has-enough-balance="hasEnough"
         @update:input-amount="inputAmount"
-        @update:input-set-max="setSendMax()"
+        @update:input-set-max="setSendMax"
       ></send-input-amount>
 
       <send-fee-select
@@ -93,7 +93,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, PropType, ref, shallowRef, watch } from "vue";
+import { computed, onMounted, PropType, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import SendAddressInput from "./components/send-address-input.vue";
@@ -143,13 +143,11 @@ const addressInputTo = ref();
 const addressInputFrom = ref();
 const isOpenSelectContactFrom = ref(false);
 const isOpenSelectContactTo = ref(false);
-const addressFrom = ref("");
+const addressFrom = ref(props.accountInfo.selectedAccount!.address);
 const addressTo = ref("");
 const isOpenSelectToken = ref(false);
-const amount = ref("0");
+const amount = ref();
 const fee = ref<GasFeeInfo | null>(null);
-const edWarn = ref<boolean>();
-const api = shallowRef<SubstrateApi>();
 const accountAssets = ref<SubstrateToken[]>([]);
 const selectedAsset = ref<SubstrateToken | Partial<SubstrateToken>>(
   new SubstrateNativeToken({
@@ -167,46 +165,58 @@ const sendMax = ref(false);
 const selected: string = route.params.id as string;
 const isLoadingAssets = ref(true);
 
-onMounted(async () => {
-  isLoadingAssets.value = true;
-  addressFrom.value = props.network.displayAddress(
-    props.accountInfo.selectedAccount!.address
+const edWarn = computed(() => {
+  if (!fee.value) {
+    return undefined;
+  }
+
+  if (!amount.value) {
+    return false;
+  }
+
+  const rawAmount = toBN(
+    toBase(amount.value.toString(), selectedAsset.value.decimals!)
   );
-  const networkApi = await props.network.api();
-  networkApi.init().then(async () => {
-    api.value = networkApi as SubstrateApi;
-    const networkAssets = await props.network.getAllTokens();
-    const pricePromises = networkAssets.map((asset) => asset.getLatestPrice());
-    const balancePromises = networkAssets.map((asset) => {
-      return asset.getLatestUserBalance(
-        networkApi.api,
-        props.accountInfo.selectedAccount?.address ?? ""
-      );
-    });
+  const ed = selectedAsset.value.existentialDeposit ?? toBN(0);
+  const userBalance = toBN(selectedAsset.value.balance ?? 0);
 
-    Promise.all([...pricePromises, ...balancePromises]).then(() => {
-      const nonZeroAssets = networkAssets.filter(
-        (asset) => !toBN(asset.balance ?? "0").isZero()
-      );
+  if (!sendMax.value && userBalance.sub(rawAmount).lte(ed)) {
+    return true;
+  }
 
-      if (nonZeroAssets.length == 0) {
-        nonZeroAssets.push(networkAssets[0]);
-      }
+  const txFee = toBN(
+    toBase(fee.value.nativeValue, selectedAsset.value.decimals!)
+  );
+  if (!sendMax.value && userBalance.sub(txFee).sub(rawAmount).lt(ed)) {
+    return true;
+  } else {
+    return false;
+  }
+});
 
-      selectedAsset.value = nonZeroAssets[0];
-      accountAssets.value = nonZeroAssets;
+const isAddress = computed(() => {
+  try {
+    polkadotEncodeAddress(addressTo.value);
+    return true;
+  } catch {
+    return false;
+  }
+});
 
-      isLoadingAssets.value = false;
-    });
-  });
+onMounted(() => {
+  isLoadingAssets.value = true;
+  fetchTokens();
 });
 
 watch([selectedAsset, amount, addressTo], async () => {
-  if (selectedAsset.value && amount.value && addressTo.value && api.value) {
-    edWarn.value = undefined;
-    await api.value.api.isReady;
+  if (selectedAsset.value && isAddress.value) {
+    const api = (await props.network.api()).api as ApiPromise;
+    await api.isReady;
     const rawAmount = toBN(
-      toBase(amount.value.toString(), selectedAsset.value.decimals!)
+      toBase(
+        amount.value ? amount.value.toString() : "0",
+        selectedAsset.value.decimals!
+      )
     );
 
     const rawBalance = toBN(selectedAsset.value.balance!);
@@ -222,7 +232,7 @@ watch([selectedAsset, amount, addressTo], async () => {
       : undefined;
 
     const tx = await selectedAsset.value.send!(
-      api.value.api,
+      api,
       addressTo.value,
       rawAmount.toString(),
       sendOptions
@@ -231,7 +241,6 @@ watch([selectedAsset, amount, addressTo], async () => {
       await tx.paymentInfo(props.accountInfo.selectedAccount!.address)
     ).toJSON();
 
-    const txFee = toBN(partialFee?.toString() ?? "");
     const txFeeHuman = fromBase(
       partialFee?.toString() ?? "",
       selectedAsset.value.decimals!
@@ -245,19 +254,36 @@ watch([selectedAsset, amount, addressTo], async () => {
       nativeSymbol: selectedAsset.value.symbol ?? "",
       nativeValue: txFeeHuman.toString(),
     };
-
-    const ed = selectedAsset.value.existentialDeposit ?? toBN(0);
-    const userBalance = toBN(selectedAsset.value.balance ?? 0);
-    if (
-      !userBalance.eq(rawAmount) &&
-      userBalance.sub(txFee).sub(rawAmount).lt(ed)
-    ) {
-      edWarn.value = true;
-    } else {
-      edWarn.value = false;
-    }
   }
 });
+
+watch(addressFrom, () => {
+  fetchTokens();
+});
+
+const fetchTokens = async () => {
+  const networkApi = (await props.network.api()) as SubstrateApi;
+  const networkAssets = await props.network.getAllTokens();
+  const pricePromises = networkAssets.map((asset) => asset.getLatestPrice());
+  const balancePromises = networkAssets.map((asset) => {
+    return asset.getLatestUserBalance(networkApi.api, addressFrom.value);
+  });
+
+  Promise.all([...pricePromises, ...balancePromises]).then(() => {
+    const nonZeroAssets = networkAssets.filter(
+      (asset) => !toBN(asset.balance ?? "0").isZero()
+    );
+
+    if (nonZeroAssets.length == 0) {
+      nonZeroAssets.push(networkAssets[0]);
+    }
+
+    selectedAsset.value = nonZeroAssets[0];
+    accountAssets.value = nonZeroAssets;
+
+    isLoadingAssets.value = false;
+  });
+};
 
 const close = () => {
   router.go(-1);
@@ -313,7 +339,12 @@ const sendButtonTitle = computed(() => {
   return title;
 });
 
-const setSendMax = () => {
+const setSendMax = (max: boolean) => {
+  if (!max) {
+    sendMax.value = false;
+    return;
+  }
+
   if (selectedAsset.value) {
     const humanBalance = fromBase(
       selectedAsset.value.balance!,
@@ -354,9 +385,11 @@ const sendAction = async () => {
     ? { type: "all" }
     : undefined;
 
-  await api.value?.api.isReady;
+  const api = (await props.network.api()).api as ApiPromise;
+  await api.isReady;
+
   const tx = await selectedAsset.value?.send!(
-    api.value!.api as ApiPromise,
+    api,
     addressTo.value,
     sendAmount,
     sendOptions

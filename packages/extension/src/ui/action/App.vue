@@ -80,7 +80,7 @@
     ></add-network>
 
     <settings
-      v-show="settingsShow"
+      v-if="settingsShow"
       @close:popup="settingsShow = !settingsShow"
     ></settings>
   </div>
@@ -107,7 +107,10 @@ import {
   getNetworkByName,
 } from "@/libs/utils/networks";
 import DomainState from "@/libs/domain-state";
-import { getOtherSigners } from "@/libs/utils/accounts";
+import {
+  getAccountsByNetworkName,
+  getOtherSigners,
+} from "@/libs/utils/accounts";
 import { AccountsHeaderData } from "./types/account";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
 import { sendToBackgroundFromAction } from "@/libs/messenger/extension";
@@ -216,7 +219,7 @@ const setNetwork = async (network: BaseNetwork) => {
       appMenuRef.value as HTMLElement
     ).style.background = `radial-gradient(137.35% 97% at 100% 50%, rgba(250, 250, 250, 0.94) 0%, rgba(250, 250, 250, 0.96) 28.91%, rgba(250, 250, 250, 0.98) 100%), ${network.gradient}`;
   networkGradient.value = network.gradient;
-  const activeAccounts = await kr.getAccounts(network.signer);
+  const activeAccounts = await getAccountsByNetworkName(network.name);
   const inactiveAccounts = await kr.getAccounts(
     getOtherSigners(network.signer)
   );

@@ -24,11 +24,6 @@
 
       <base-button title="Next" :click="nextAction" :disabled="isDisabled" />
     </div>
-
-    <p class="type-password__label">
-      Since you're going to be your own bank, we won't be able to help if you
-      loose your password.
-    </p>
   </div>
 </template>
 <script setup lang="ts">

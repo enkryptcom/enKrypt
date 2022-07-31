@@ -131,6 +131,7 @@ import { UnknownToken } from "@/types/unknown-token";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
 import { EnkryptAccount, SignerType } from "@enkryptcom/types";
 import { SwapError } from "./components/swap-error/types";
+import { getAccountsByNetworkName } from "@/libs/utils/accounts";
 
 const router = useRouter();
 const route = useRoute();
@@ -307,7 +308,6 @@ onMounted(async () => {
     .then(async (tokens) => {
       console.log(tokens[0]);
       const api = await props.network.api();
-      await api.init();
 
       const balancePromises = tokens.map((token) => {
         if (token.balance) {
@@ -363,42 +363,34 @@ watch([fromToken, toToken], () => {
   }
 });
 
-watch([toToken, address], async () => {
+watch(toToken, async () => {
   if (toToken.value) {
-    let signerType: SignerType[] = [];
     let toNetwork: BaseNetwork | undefined = undefined;
 
     if ((toToken.value as any).contract) {
-      signerType = [SignerType.secp256k1];
       toNetwork = getNetworkByName("ETH");
     } else {
       switch (toToken.value.symbol.toUpperCase()) {
         case "DOT":
-          signerType = [SignerType.sr25519, SignerType.ed25519];
           toNetwork = getNetworkByName("DOT");
           break;
         case "KSM":
-          signerType = [SignerType.sr25519, SignerType.ed25519];
           toNetwork = getNetworkByName("KSM");
-          signerType = [SignerType.sr25519, SignerType.ed25519];
           break;
         case "ETH":
-          signerType = [SignerType.secp256k1];
           toNetwork = getNetworkByName("ETH");
           break;
         case "MATIC":
-          signerType = [SignerType.secp256k1];
           toNetwork = getNetworkByName("MATIC");
           break;
         case "BNB":
-          signerType = [SignerType.secp256k1];
           toNetwork = getNetworkByName("BSC");
           break;
       }
     }
 
-    if (toNetwork && signerType.length !== 0) {
-      const accounts = await keyRing.getAccounts(signerType);
+    if (toNetwork) {
+      const accounts = await getAccountsByNetworkName(toNetwork.name);
 
       const currentAccount = accounts.find(
         (account) => account.publicKey === address.value
@@ -408,38 +400,44 @@ watch([toToken, address], async () => {
         address.value = "";
       }
 
+      if (toNetwork.name !== network.value?.name) {
+        address.value = "";
+      }
+
       network.value = toNetwork;
       toAccounts.value = accounts;
     }
-
-    addressIsLoading.value = true;
-
-    clearTimeout(addressInputTimeout.value);
-
-    // Prevents multiple API calls every time a user types something
-    addressInputTimeout.value = setTimeout(async () => {
-      if (toToken.value) {
-        let displayAddress = address.value;
-
-        try {
-          displayAddress = network.value!.displayAddress(address.value);
-        } catch {
-          displayAddress = address.value;
-        }
-        swap
-          .isValidAddress(displayAddress, toToken.value)
-          .then((isValid) => {
-            addressIsValid.value = isValid;
-          })
-          .catch(() => {
-            addressIsValid.value = false;
-          })
-          .finally(() => {
-            addressIsLoading.value = false;
-          });
-      }
-    }, 500) as any;
   }
+});
+
+watch(address, async () => {
+  addressIsLoading.value = true;
+
+  clearTimeout(addressInputTimeout.value);
+
+  // Prevents multiple API calls every time a user types something
+  addressInputTimeout.value = setTimeout(async () => {
+    if (toToken.value) {
+      let displayAddress = address.value;
+
+      try {
+        displayAddress = network.value!.displayAddress(address.value);
+      } catch {
+        displayAddress = address.value;
+      }
+      swap
+        .isValidAddress(displayAddress, toToken.value)
+        .then((isValid) => {
+          addressIsValid.value = isValid;
+        })
+        .catch(() => {
+          addressIsValid.value = false;
+        })
+        .finally(() => {
+          addressIsLoading.value = false;
+        });
+    }
+  }, 500) as any;
 });
 
 const selectTokenFrom = (token: BaseToken) => {

@@ -24,9 +24,7 @@
           @action:delete="deleteAccount(index)"
         ></accounts-list-item>
 
-        <div class="accounts__info">
-          Incompatible accounts&nbsp;&nbsp;<a href="#">why?</a>
-        </div>
+        <div class="accounts__info">Incompatible accounts</div>
 
         <accounts-list-item
           v-for="(account, index) in accountInfo.inactiveAccounts"

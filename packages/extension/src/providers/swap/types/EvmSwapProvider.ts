@@ -358,7 +358,6 @@ export class EvmSwapProvider extends SwapProvider {
     gasPriceType?: GasPriceTypes
   ): Promise<`0x${string}`[]> {
     const api = (await network.api()) as API;
-    await api.init();
     const web3 = api.web3;
 
     const nonce = await web3.eth.getTransactionCount(fromAccount.address);
