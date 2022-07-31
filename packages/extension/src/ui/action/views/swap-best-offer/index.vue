@@ -205,20 +205,29 @@ const setWarning = () => {
       totalFees = new BigNumber(swapData.fromAmount).plus(totalFees);
     }
 
-    const userBalance = new BigNumber(
-      fromBase(swapData.fromToken.balance || "0", swapData.fromToken.decimals)
+    const accountIndex = props.accountInfo.activeAccounts.findIndex(
+      (account) =>
+        account.address === props.accountInfo.selectedAccount!.address
     );
 
-    if (userBalance.minus(totalFees).lt(0)) {
-      gasDifference.value = userBalance.minus(totalFees).abs().toString();
-      priceDifference.value = userBalance
-        .minus(totalFees)
-        .abs()
-        .times(swapData.fromToken.price || 0)
-        .toString();
+    if (accountIndex !== -1) {
+      const userBalance = new BigNumber(
+        props.accountInfo.activeBalances[accountIndex]
+      );
 
-      warning.value = SwapBestOfferWarnings.NOT_ENOUGH_GAS;
-      return;
+      if (userBalance.minus(totalFees).lt(0)) {
+        gasDifference.value = userBalance.minus(totalFees).abs().toString();
+        priceDifference.value = userBalance
+          .minus(totalFees)
+          .abs()
+          .times(swapData.fromToken.price || 0)
+          .toString();
+
+        warning.value = SwapBestOfferWarnings.NOT_ENOUGH_GAS;
+        return;
+      }
+    } else {
+      console.error("Could not retrieve user balance from active balances");
     }
   }
 
@@ -331,7 +340,8 @@ const isDisabled = computed(() => {
   if (
     warning.value === undefined ||
     warning.value === SwapBestOfferWarnings.EXISTENTIAL_DEPOSIT ||
-    warning.value === SwapBestOfferWarnings.NOT_ENOUGH_GAS
+    warning.value === SwapBestOfferWarnings.NOT_ENOUGH_GAS ||
+    gasCostValues.value[selectedFee.value].nativeValue === "0"
   ) {
     return true;
   }
