@@ -128,15 +128,13 @@ import BigNumber from "bignumber.js";
 import { Rates } from "@/providers/swap/types/SwapProvider";
 import { SubstrateNetwork } from "@/providers/polkadot/types/substrate-network";
 import { UnknownToken } from "@/types/unknown-token";
-import PublicKeyRing from "@/libs/keyring/public-keyring";
-import { EnkryptAccount, SignerType } from "@enkryptcom/types";
+import { EnkryptAccount } from "@enkryptcom/types";
 import { SwapError } from "./components/swap-error/types";
 import { getAccountsByNetworkName } from "@/libs/utils/accounts";
 
 const router = useRouter();
 const route = useRoute();
 const swap = new Swap();
-const keyRing = new PublicKeyRing();
 
 const props = defineProps({
   network: {
@@ -535,7 +533,12 @@ const sendAction = async () => {
     swapMax.value
   );
 
-  if (trades.length === 0) {
+  if (
+    trades.length === 0 ||
+    trades.flatMap((trade) => {
+      return trade.txs;
+    }).length === 0
+  ) {
     swapError.value = SwapError.NO_TRADES;
     console.error("No trades found");
     toggleLooking();

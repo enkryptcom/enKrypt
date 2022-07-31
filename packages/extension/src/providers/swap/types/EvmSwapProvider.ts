@@ -296,6 +296,7 @@ export class EvmSwapProvider extends SwapProvider {
         console.error("Request timedout");
       }, REQUEST_TIMEOUT);
 
+      console.log(`${HOST_URL}${GET_TRADE}?${params.toString()}`);
       const res = await fetch(`${HOST_URL}${GET_TRADE}?${params.toString()}`, {
         signal: controller.signal,
       });

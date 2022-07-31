@@ -165,6 +165,7 @@ const selectedFee = ref<GasPriceTypes>(GasPriceTypes.REGULAR);
 const pickedTrade = ref<TradeInfo>(swapData.trades[0]);
 const balance = ref<BN>();
 const gasCostValues = ref<GasFeeType>(defaultGasCostVals);
+const nativeTokenPrice = ref<string>();
 
 const warning = ref<SwapBestOfferWarnings>();
 const gasDifference = ref<string>();
@@ -220,7 +221,7 @@ const setWarning = () => {
         priceDifference.value = userBalance
           .minus(totalFees)
           .abs()
-          .times(swapData.fromToken.price || 0)
+          .times(nativeTokenPrice.value || 0)
           .toString();
 
         warning.value = SwapBestOfferWarnings.NOT_ENOUGH_GAS;
@@ -394,12 +395,13 @@ const selectFee = (option: GasPriceTypes) => {
 };
 
 const setTransactionFees = async (txs: Transaction[]) => {
+  console.log(txs);
   const gasPromises = txs.map((tx) => {
     return tx.getGasCosts().then(async (gasvals) => {
       const getConvertedVal = (type: GasPriceTypes) =>
         fromBase(gasvals[type], props.network.decimals);
 
-      const nativeVal = (
+      nativeTokenPrice.value = (
         await props.network.getAllTokens(
           props.accountInfo.selectedAccount!.address
         )
@@ -410,31 +412,32 @@ const setTransactionFees = async (txs: Transaction[]) => {
           nativeValue: getConvertedVal(GasPriceTypes.ECONOMY),
           fiatValue: new BigNumber(
             getConvertedVal(GasPriceTypes.ECONOMY)
-          ).times(nativeVal!),
+          ).times(nativeTokenPrice.value!),
         },
         [GasPriceTypes.REGULAR]: {
           nativeValue: getConvertedVal(GasPriceTypes.REGULAR),
           fiatValue: new BigNumber(
             getConvertedVal(GasPriceTypes.REGULAR)
-          ).times(nativeVal!),
+          ).times(nativeTokenPrice.value!),
         },
         [GasPriceTypes.FAST]: {
           nativeValue: getConvertedVal(GasPriceTypes.FAST),
           fiatValue: new BigNumber(getConvertedVal(GasPriceTypes.FAST)).times(
-            nativeVal!
+            nativeTokenPrice.value!
           ),
         },
         [GasPriceTypes.FASTEST]: {
           nativeValue: getConvertedVal(GasPriceTypes.FASTEST),
           fiatValue: new BigNumber(
             getConvertedVal(GasPriceTypes.FASTEST)
-          ).times(nativeVal!),
+          ).times(nativeTokenPrice.value!),
         },
       };
     });
   });
 
   const gasVals = await Promise.all(gasPromises);
+  console.log(gasVals);
 
   const finalVal = gasVals.reduce((prev, curr) => {
     if (!prev) return curr;
