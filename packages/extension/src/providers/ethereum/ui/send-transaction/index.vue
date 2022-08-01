@@ -204,20 +204,29 @@ const sendAmount = computed(() => {
 const isMaxSelected = ref<boolean>(false);
 const selectedFee = ref<GasPriceTypes>(GasPriceTypes.REGULAR);
 const gasCostValues = ref<GasFeeType>(defaultGasCostVals);
-const addressFrom = ref<string>("");
+const addressFrom = ref<string>(
+  props.accountInfo.selectedAccount?.address ?? ""
+);
 const addressTo = ref<string>("");
 const isLoadingAssets = ref(true);
-const nativeBalance = ref<string>();
+
+const nativeBalance = computed(() => {
+  const accountIndex = props.accountInfo.activeAccounts.findIndex(
+    (acc) => acc.address === addressFrom.value
+  );
+
+  if (accountIndex !== -1) {
+    const balance = props.accountInfo.activeBalances[accountIndex];
+
+    if (balance !== undefined) {
+      return toBase(balance, props.network.decimals);
+    }
+  }
+
+  return "0";
+});
 
 onMounted(async () => {
-  props.network.api().then((api) => {
-    api
-      .getBalance(props.accountInfo.selectedAccount!.address)
-      .then((balance) => {
-        nativeBalance.value = balance;
-      });
-  });
-  addressFrom.value = props.accountInfo.selectedAccount!.address;
   fetchAssets().then(setBaseCosts);
 });
 
