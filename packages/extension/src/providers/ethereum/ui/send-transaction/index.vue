@@ -181,9 +181,13 @@ const accountAssets = ref<Erc20Token[]>([]);
 const selectedAsset = ref<Erc20Token | Partial<Erc20Token>>(loadingAsset);
 const amount = ref<string>("0.00");
 const hasEnoughBalance = computed(() => {
-  return toBN(selectedAsset.value.balance || "0").gte(
-    toBN(toBase(sendAmount.value, selectedAsset.value.decimals!))
-  );
+  try {
+    return toBN(selectedAsset.value.balance || "0").gte(
+      toBN(toBase(sendAmount.value, selectedAsset.value.decimals!))
+    );
+  } catch {
+    return false;
+  }
 });
 const sendAmount = computed(() => {
   if (amount.value && amount.value !== "") return amount.value;
@@ -320,6 +324,12 @@ const sendButtonTitle = computed(() => {
 
 const isInputsValid = computed<boolean>(() => {
   if (!isAddress(addressTo.value)) return false;
+  try {
+    // Check that the amount is above the minimum
+    toBase(sendAmount.value, selectedAsset.value.decimals!);
+  } catch {
+    return false;
+  }
   if (new BigNumber(sendAmount.value).gt(assetMaxValue.value)) return false;
   return true;
 });
@@ -407,8 +417,13 @@ const selectToken = (token: Erc20Token) => {
 };
 
 const inputAmount = (inputAmount: string) => {
+  if (inputAmount === "") {
+    inputAmount = "0";
+  }
+
+  const inputAmountBn = new BigNumber(inputAmount);
   isMaxSelected.value = false;
-  amount.value = parseFloat(inputAmount) < 0 ? "0" : inputAmount;
+  amount.value = inputAmountBn.lt(0) ? "0" : inputAmountBn.toFixed();
 };
 
 const toggleSelectFee = () => {
