@@ -111,6 +111,13 @@
           />
         </div>
       </div>
+
+      <verify-transaction-send
+        v-if="showVerifyScreen"
+        :network-id="(route.params.id as string)"
+        :tx-data="txData"
+        @update:close="toggleShowVerify"
+      />
     </div>
   </div>
 </template>
@@ -151,7 +158,7 @@ import { routes as RouterNames } from "@/ui/action/router";
 import getUiPath from "@/libs/utils/get-ui-path";
 import Browser from "webextension-polyfill";
 import { ProviderName } from "@/types/provider";
-import PublicKeyRing from "@/libs/keyring/public-keyring";
+import VerifyTransactionSend from "./verify-transaction/index.vue";
 
 const props = defineProps({
   network: {
@@ -195,6 +202,9 @@ const gasCostValues = ref<GasFeeType>(defaultGasCostVals);
 const addressFrom = ref<string>("");
 const addressTo = ref<string>("");
 const isLoadingAssets = ref(true);
+
+const txData = ref("");
+const showVerifyScreen = ref(false);
 
 onMounted(async () => {
   addressFrom.value = props.accountInfo.selectedAccount!.address;
@@ -421,10 +431,13 @@ const selectFee = (type: GasPriceTypes) => {
   if (isMaxSelected.value) setMaxValue();
 };
 
+const toggleShowVerify = () => {
+  showVerifyScreen.value = !showVerifyScreen.value;
+};
+
 const sendAction = async () => {
-  const keyring = new PublicKeyRing();
-  const fromAccountInfo = await keyring.getAccount(
-    addressFrom.value.toLowerCase()
+  const fromAccountInfo = props.accountInfo.activeAccounts.find(
+    (acc) => acc.address === addressFrom.value
   );
   const txVerifyInfo: VerifyTransactionParams = {
     TransactionData: TxInfo.value,
@@ -439,24 +452,27 @@ const sendAction = async () => {
       name: selectedAsset.value.name || "",
       price: selectedAsset.value.price || "0",
     },
-    fromAddress: fromAccountInfo.address,
-    fromAddressName: fromAccountInfo.name,
+    fromAddress: fromAccountInfo!.address,
+    fromAddressName: fromAccountInfo!.name,
     gasFee: gasCostValues.value[selectedFee.value],
     gasPriceType: selectedFee.value,
     toAddress: addressTo.value,
   };
 
-  const routedRoute = router.resolve({
-    name: RouterNames.verify.name,
-    query: {
-      id: selected,
-      txData: Buffer.from(JSON.stringify(txVerifyInfo), "utf8").toString(
-        "base64"
-      ),
-    },
-  });
+  txData.value = Buffer.from(JSON.stringify(txVerifyInfo), "utf8").toString(
+    "base64"
+  );
 
-  if (fromAccountInfo.isHardware) {
+  if (fromAccountInfo!.isHardware) {
+    const routedRoute = router.resolve({
+      name: RouterNames.verify.name,
+      query: {
+        id: selected,
+        txData: Buffer.from(JSON.stringify(txVerifyInfo), "utf8").toString(
+          "base64"
+        ),
+      },
+    });
     await Browser.windows.create({
       url: Browser.runtime.getURL(
         getUiPath(
@@ -470,8 +486,25 @@ const sendAction = async () => {
       width: 460,
     });
   } else {
-    router.push(routedRoute);
+    showVerifyScreen.value = true;
   }
+
+  // if (fromAccountInfo.isHardware) {
+  //   await Browser.windows.create({
+  //     url: Browser.runtime.getURL(
+  //       getUiPath(
+  //         `eth-hw-verify?id=${routedRoute.query.id}&txData=${routedRoute.query.txData}`,
+  //         ProviderName.ethereum
+  //       )
+  //     ),
+  //     type: "popup",
+  //     focused: true,
+  //     height: 600,
+  //     width: 460,
+  //   });
+  // } else {
+  //   router.push(routedRoute);
+  // }
 };
 
 const toggleSelector = (isTokenSend: boolean) => {
