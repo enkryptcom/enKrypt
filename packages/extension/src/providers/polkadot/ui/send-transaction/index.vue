@@ -88,6 +88,13 @@
           />
         </div>
       </div>
+
+      <verify-transaction-send
+        v-if="showVerifyScreen"
+        :network-id="(route.params.id as string)"
+        :tx-data="txData"
+        @update:close="toggleShowVerify"
+      />
     </div>
   </div>
 </template>
@@ -124,6 +131,7 @@ import getUiPath from "@/libs/utils/get-ui-path";
 import { ProviderName } from "@/types/provider";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
 import { polkadotEncodeAddress } from "@enkryptcom/utils";
+import VerifyTransactionSend from "./verify-transaction/index.vue";
 
 const props = defineProps({
   network: {
@@ -164,6 +172,9 @@ const sendMax = ref(false);
 
 const selected: string = route.params.id as string;
 const isLoadingAssets = ref(true);
+const txData = ref("");
+
+const showVerifyScreen = ref(false);
 
 const edWarn = computed(() => {
   if (!fee.value) {
@@ -283,6 +294,10 @@ const fetchTokens = async () => {
 
     isLoadingAssets.value = false;
   });
+};
+
+const toggleShowVerify = () => {
+  showVerifyScreen.value = !showVerifyScreen.value;
 };
 
 const close = () => {
@@ -422,17 +437,16 @@ const sendAction = async () => {
     toAddress: addressTo.value,
   };
 
-  const routedRoute = router.resolve({
-    name: RouterNames.verify.name,
-    query: {
-      id: selected,
-      txData: Buffer.from(JSON.stringify(txVerifyInfo), "utf8").toString(
-        "base64"
-      ),
-    },
-  });
-
   if (fromAccount.isHardware) {
+    const routedRoute = router.resolve({
+      name: RouterNames.verify.name,
+      query: {
+        id: selected,
+        txData: Buffer.from(JSON.stringify(txVerifyInfo), "utf8").toString(
+          "base64"
+        ),
+      },
+    });
     await Browser.windows.create({
       url: Browser.runtime.getURL(
         getUiPath(
@@ -446,7 +460,10 @@ const sendAction = async () => {
       width: 460,
     });
   } else {
-    router.push(routedRoute);
+    txData.value = Buffer.from(JSON.stringify(txVerifyInfo), "utf8").toString(
+      "base64"
+    );
+    showVerifyScreen.value = true;
   }
 };
 </script>

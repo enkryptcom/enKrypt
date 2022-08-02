@@ -97,8 +97,6 @@
         @gas-type-changed="selectFee"
       ></transaction-fee-view>
 
-      <!-- <send-alert></send-alert> -->
-
       <div class="send-transaction__buttons">
         <div class="send-transaction__buttons-cancel">
           <base-button title="Cancel" :click="close" :no-background="true" />
@@ -459,10 +457,6 @@ const sendAction = async () => {
     toAddress: addressTo.value,
   };
 
-  txData.value = Buffer.from(JSON.stringify(txVerifyInfo), "utf8").toString(
-    "base64"
-  );
-
   if (fromAccountInfo!.isHardware) {
     const routedRoute = router.resolve({
       name: RouterNames.verify.name,
@@ -486,25 +480,11 @@ const sendAction = async () => {
       width: 460,
     });
   } else {
+    txData.value = Buffer.from(JSON.stringify(txVerifyInfo), "utf8").toString(
+      "base64"
+    );
     showVerifyScreen.value = true;
   }
-
-  // if (fromAccountInfo.isHardware) {
-  //   await Browser.windows.create({
-  //     url: Browser.runtime.getURL(
-  //       getUiPath(
-  //         `eth-hw-verify?id=${routedRoute.query.id}&txData=${routedRoute.query.txData}`,
-  //         ProviderName.ethereum
-  //       )
-  //     ),
-  //     type: "popup",
-  //     focused: true,
-  //     height: 600,
-  //     width: 460,
-  //   });
-  // } else {
-  //   router.push(routedRoute);
-  // }
 };
 
 const toggleSelector = (isTokenSend: boolean) => {

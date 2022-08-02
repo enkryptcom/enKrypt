@@ -7,9 +7,6 @@
       >
         <div class="verify-transaction__header" :class="{ popup: isPopup }">
           <h3>Verify Transaction</h3>
-          <a v-if="!isPopup" class="verify-transaction__close" @click="close">
-            <close-icon />
-          </a>
         </div>
         <hardware-wallet-msg
           :wallet-type="account?.walletType"
@@ -78,7 +75,6 @@
 <script setup lang="ts">
 import { onBeforeMount, ref, ComponentPublicInstance } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import CloseIcon from "@action/icons/common/close-icon.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import VerifyTransactionNetwork from "./components/verify-transaction-network.vue";
 import VerifyTransactionAccount from "./components/verify-transaction-account.vue";
@@ -100,15 +96,28 @@ import ActivityState from "@/libs/activity-state";
 import { EnkryptAccount } from "@enkryptcom/types";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 
+interface IProps {
+  txData?: string;
+  networkId?: string;
+}
+
+const props = defineProps<IProps>();
+
+const emits = defineEmits<{
+  (e: "update:close"): void;
+}>();
+
 const isSendDone = ref(false);
 const account = ref<EnkryptAccount>();
 const KeyRing = new PublicKeyRing();
 const route = useRoute();
 const router = useRouter();
-const selectedNetwork: string = route.query.id as string;
-const txData: VerifyTransactionParams = JSON.parse(
-  Buffer.from(route.query.txData as string, "base64").toString("utf8")
-);
+const selectedNetwork: string = props.networkId ?? (route.query.id as string);
+const txData: VerifyTransactionParams = props.txData
+  ? JSON.parse(Buffer.from(props.txData, "base64").toString("utf8"))
+  : JSON.parse(
+      Buffer.from(route.query.txData as string, "base64").toString("utf8")
+    );
 const errorMsg = ref("");
 const isProcessing = ref(false);
 const isPopup: boolean = getCurrentContext() === "new-window";
@@ -123,7 +132,7 @@ onBeforeMount(async () => {
 });
 const close = () => {
   if (getCurrentContext() === "popup") {
-    router.go(-1);
+    emits("update:close");
   } else {
     window.close();
   }
@@ -234,9 +243,13 @@ const isHasScroll = () => {
   box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.16);
   margin: 0;
   box-sizing: border-box;
+  position: absolute !important;
+  top: 0px;
+  z-index: 10;
 
   &.popup {
     box-shadow: none;
+    position: relative !important;
   }
 }
 
