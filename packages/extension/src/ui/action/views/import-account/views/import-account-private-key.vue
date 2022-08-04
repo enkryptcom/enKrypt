@@ -34,12 +34,13 @@ import ImportAccountHeader from "../components/import-account-header.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import Wallet from "ethereumjs-wallet";
 import { hexToBuffer } from "@enkryptcom/utils";
+import { KeyPairAdd, SignerType } from "@enkryptcom/types";
 
 const isProcessing = ref(false);
 const privKey = ref("");
 
 const emit = defineEmits<{
-  (e: "update:wallet:ethereum", wallet: Wallet): void;
+  (e: "update:wallet", keypair: KeyPairAdd): void;
 }>();
 
 const isValidKey = computed(() => {
@@ -53,7 +54,14 @@ const isValidKey = computed(() => {
 });
 const importAction = () => {
   const buffer = hexToBuffer(privKey.value);
-  emit("update:wallet:ethereum", new Wallet(buffer));
+  const wallet = new Wallet(buffer);
+  emit("update:wallet", {
+    privateKey: wallet.getPrivateKeyString(),
+    publicKey: wallet.getPublicKeyString(),
+    address: wallet.getAddressString(),
+    name: "",
+    signerType: SignerType.secp256k1,
+  });
 };
 </script>
 

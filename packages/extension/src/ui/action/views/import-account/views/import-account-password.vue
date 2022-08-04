@@ -39,16 +39,15 @@ import ImportAccountHeader from "../components/import-account-header.vue";
 import BaseInput from "@action/components/base-input/index.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import Wallet, { thirdparty } from "ethereumjs-wallet";
-import type { KeyringPair, KeyringPair$Json } from "@polkadot/keyring/types";
+import type { KeyringPair$Json } from "@polkadot/keyring/types";
 import { BaseNetwork } from "@/types/base-network";
 import { ProviderName } from "@/types/provider";
 import { getAccountFromJSON } from "@/providers/polkadot/libs/keystore";
-import { KeystoreDecodeType } from "@/providers/polkadot/types";
+import { KeyPairAdd } from "@enkryptcom/types";
 
 const emit = defineEmits<{
   (e: "navigate:importAccount"): void;
-  (e: "update:wallet:ethereum", wallet: Wallet): void;
-  (e: "update:wallet:substrate", wallet: KeystoreDecodeType): void;
+  (e: "update:wallet", wallet: KeyPairAdd): void;
 }>();
 
 const error = ref("");
@@ -107,7 +106,13 @@ const unlock = () => {
     getWalletFromPrivKeyFile(props.fileJson, props.keystorePassword)
       .then((wallet: Wallet) => {
         isProcessing.value = false;
-        emit("update:wallet:ethereum", wallet);
+        emit("update:wallet", {
+          privateKey: wallet.getPrivateKeyString(),
+          publicKey: wallet.getPublicKeyString(),
+          address: wallet.getAddressString(),
+          name: "",
+          signerType: props.network.signer[0],
+        });
       })
       .catch((e) => {
         isProcessing.value = false;
@@ -119,7 +124,7 @@ const unlock = () => {
         props.fileJson as KeyringPair$Json,
         props.keystorePassword
       );
-      emit("update:wallet:substrate", account);
+      emit("update:wallet", account);
     } catch (e: any) {
       isProcessing.value = false;
       error.value = e.message;

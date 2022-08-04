@@ -1,14 +1,14 @@
 import { decodePair } from "@polkadot/keyring/pair/decode";
 import type { KeyringPair$Json } from "@polkadot/keyring/types";
 import { hexToU8a, isHex, u8aToHex } from "@polkadot/util";
-import { KeystoreDecodeType, PolkadotSignerTypes } from "../types";
+import { PolkadotSignerTypes } from "../types";
 import { polkadotEncodeAddress } from "@enkryptcom/utils";
-import { SignerType } from "@enkryptcom/types";
+import { KeyPairAdd, SignerType } from "@enkryptcom/types";
 
 const getAccountFromJSON = (
   json: KeyringPair$Json,
   password: string
-): KeystoreDecodeType => {
+): KeyPairAdd => {
   if (!json.encoding) throw new Error("Invalid substrate keystore file");
   const cryptoType = Array.isArray(json.encoding.content)
     ? json.encoding.content[1]
@@ -32,8 +32,8 @@ const getAccountFromJSON = (
   return {
     address: polkadotEncodeAddress(json.address),
     publicKey: u8aToHex(pair.publicKey),
-    secretKey: u8aToHex(pair.secretKey),
-    signer: cryptoType as PolkadotSignerTypes,
+    privateKey: u8aToHex(pair.secretKey),
+    signerType: cryptoType as PolkadotSignerTypes,
     name: (json.meta?.name as string) || "",
   };
 };

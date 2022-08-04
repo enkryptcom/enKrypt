@@ -27,8 +27,7 @@
         :file-json="keystoreJSON"
         :network="network"
         @navigate:import-account="importingAccountAction"
-        @update:wallet:ethereum="walletUpdateEthereum"
-        @update:wallet:substrate="walletUpdateSubstrate"
+        @update:wallet="walletUpdate"
         @update:value="updateKeystorePassword"
         @close="close"
         @back="keystoreFileAction"
@@ -47,7 +46,7 @@
 
       <import-account-private-key
         v-if="isPrivateKey"
-        @update:wallet:ethereum="walletUpdateEthereum"
+        @update:wallet="walletUpdate"
         @close="close"
         @back="startAction"
       ></import-account-private-key>
@@ -78,10 +77,8 @@ import ImportAccountImporting from "./views/import-account-importing.vue";
 import ImportAccountPrivateKey from "./views/import-account-private-key.vue";
 // import ImportAccountStartDot from "./views/import-account-start-dot.vue";
 // import ImportAccountSelectAccountDot from "./views/import-account-select-account-dot.vue";
-import Wallet from "ethereumjs-wallet";
 import { BaseNetwork } from "@/types/base-network";
 import { KeyPairAdd, SignerType } from "@enkryptcom/types";
-import { KeystoreDecodeType } from "@/providers/polkadot/types";
 
 const isStart = ref(true);
 const isKeystoreFile = ref(false);
@@ -177,24 +174,9 @@ const fileSelected = (file: File) => {
   });
   reader.readAsBinaryString(file);
 };
-const walletUpdateEthereum = (wallet: Wallet) => {
-  keyPair.value = {
-    privateKey: wallet.getPrivateKeyString(),
-    publicKey: wallet.getPublicKeyString(),
-    address: wallet.getAddressString(),
-    name: "",
-    signerType: SignerType.secp256k1,
-  };
-  importingAccountAction();
-};
-const walletUpdateSubstrate = (wallet: KeystoreDecodeType) => {
-  keyPair.value = {
-    privateKey: wallet.secretKey,
-    publicKey: wallet.publicKey,
-    address: wallet.address,
-    name: wallet.name,
-    signerType: wallet.signer,
-  };
+
+const walletUpdate = (wallet: KeyPairAdd) => {
+  keyPair.value = wallet;
   importingAccountAction();
 };
 </script>
