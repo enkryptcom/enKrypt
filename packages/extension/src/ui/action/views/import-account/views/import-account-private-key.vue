@@ -42,9 +42,11 @@ const emit = defineEmits<{
   (e: "update:wallet", wallet: Wallet): void;
 }>();
 
+const formattedPrivateKey = computed(() => privKey.value.trim());
+
 const isValidKey = computed(() => {
   try {
-    const buffer = hexToBuffer(privKey.value);
+    const buffer = hexToBuffer(formattedPrivateKey.value);
     new Wallet(buffer);
     return true;
   } catch (e) {
@@ -52,7 +54,7 @@ const isValidKey = computed(() => {
   }
 });
 const importAction = () => {
-  const buffer = hexToBuffer(privKey.value);
+  const buffer = hexToBuffer(formattedPrivateKey.value);
   emit("update:wallet", new Wallet(buffer));
 };
 </script>
