@@ -97,6 +97,19 @@
         @gas-type-changed="selectFee"
       ></transaction-fee-view>
 
+      <send-alert
+        v-show="hasEnoughBalance && nativeBalanceAfterTransaction.isNeg()"
+        :native-symbol="network.name"
+        :price="accountAssets[0]?.price || '0'"
+        :native-value="
+          fromBase(
+            nativeBalanceAfterTransaction.abs().toString(),
+            network.decimals
+          )
+        "
+        :decimals="network.decimals"
+      />
+
       <div class="send-transaction__buttons">
         <div class="send-transaction__buttons-cancel">
           <base-button title="Cancel" :click="close" :no-background="true" />
@@ -130,6 +143,7 @@ import SendContactsList from "./components/send-contacts-list.vue";
 import AssetsSelectList from "@action/views/assets-select-list/index.vue";
 import NftSelectList from "@action/views/nft-select-list/index.vue";
 import SendTokenSelect from "./components/send-token-select.vue";
+import SendAlert from "./components/send-alert.vue";
 import SendNftSelect from "./components/send-nft-select.vue";
 import SendInputAmount from "./components/send-input-amount.vue";
 import SendFeeSelect from "./components/send-fee-select.vue";
@@ -184,7 +198,7 @@ const router = useRouter();
 const selected: string = route.params.id as string;
 const accountAssets = ref<Erc20Token[]>([]);
 const selectedAsset = ref<Erc20Token | Partial<Erc20Token>>(loadingAsset);
-const amount = ref<string>("0.00");
+const amount = ref<string>("");
 const hasEnoughBalance = computed(() => {
   return toBN(selectedAsset.value.balance || "0").gte(
     toBN(toBase(sendAmount.value, selectedAsset.value.decimals!))
@@ -197,15 +211,31 @@ const sendAmount = computed(() => {
 const isMaxSelected = ref<boolean>(false);
 const selectedFee = ref<GasPriceTypes>(GasPriceTypes.REGULAR);
 const gasCostValues = ref<GasFeeType>(defaultGasCostVals);
-const addressFrom = ref<string>("");
+const addressFrom = ref<string>(
+  props.accountInfo.selectedAccount?.address ?? ""
+);
 const addressTo = ref<string>("");
 const isLoadingAssets = ref(true);
 
 const txData = ref();
 const showVerifyScreen = ref(false);
+const nativeBalance = computed(() => {
+  const accountIndex = props.accountInfo.activeAccounts.findIndex(
+    (acc) => acc.address === addressFrom.value
+  );
+
+  if (accountIndex !== -1) {
+    const balance = props.accountInfo.activeBalances[accountIndex];
+
+    if (balance !== undefined) {
+      return toBase(balance, props.network.decimals);
+    }
+  }
+
+  return "0";
+});
 
 onMounted(async () => {
-  addressFrom.value = props.accountInfo.selectedAccount!.address;
   fetchAssets().then(setBaseCosts);
 });
 
@@ -241,6 +271,37 @@ const Tx = computed(() => {
   const web3 = new Web3(props.network.node);
   const tx = new Transaction(TxInfo.value, web3);
   return tx;
+});
+
+const nativeBalanceAfterTransaction = computed(() => {
+  if (
+    nativeBalance.value &&
+    selectedAsset.value &&
+    selectedAsset.value.contract &&
+    amount.value !== ""
+  ) {
+    let endingAmount = toBN(nativeBalance.value);
+
+    if (selectedAsset.value.contract === NATIVE_TOKEN_ADDRESS) {
+      const rawAmount = toBN(
+        toBase(amount.value, selectedAsset.value.decimals!)
+      );
+      endingAmount = endingAmount.sub(rawAmount);
+    }
+
+    endingAmount = endingAmount.sub(
+      toBN(
+        toBase(
+          gasCostValues.value[selectedFee.value].nativeValue,
+          props.network.decimals
+        )
+      )
+    );
+
+    return endingAmount;
+  }
+
+  return toBN(0);
 });
 
 const setTransactionFees = (tx: Transaction) => {
@@ -328,7 +389,11 @@ const sendButtonTitle = computed(() => {
 
 const isInputsValid = computed<boolean>(() => {
   if (!isAddress(addressTo.value)) return false;
-  if (new BigNumber(sendAmount.value).gt(assetMaxValue.value)) return false;
+  if (
+    new BigNumber(sendAmount.value).gt(assetMaxValue.value) ||
+    nativeBalanceAfterTransaction.value.isNeg()
+  )
+    return false;
   return true;
 });
 

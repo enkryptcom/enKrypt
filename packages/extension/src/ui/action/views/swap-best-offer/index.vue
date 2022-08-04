@@ -190,6 +190,7 @@ const selectedFee = ref<GasPriceTypes>(GasPriceTypes.REGULAR);
 const pickedTrade = ref<TradeInfo>(swapData.trades[0]);
 const balance = ref<BN>();
 const gasCostValues = ref<GasFeeType>(defaultGasCostVals);
+const nativeTokenPrice = ref<string>();
 
 const warning = ref<SwapBestOfferWarnings>();
 const gasDifference = ref<string>();
@@ -232,20 +233,29 @@ const setWarning = () => {
       totalFees = new BigNumber(swapData.fromAmount).plus(totalFees);
     }
 
-    const userBalance = new BigNumber(
-      fromBase(swapData.fromToken.balance || "0", swapData.fromToken.decimals)
+    const accountIndex = props.accountInfo.activeAccounts.findIndex(
+      (account) =>
+        account.address === props.accountInfo.selectedAccount!.address
     );
 
-    if (userBalance.minus(totalFees).lt(0)) {
-      gasDifference.value = userBalance.minus(totalFees).abs().toString();
-      priceDifference.value = userBalance
-        .minus(totalFees)
-        .abs()
-        .times(swapData.fromToken.price || 0)
-        .toString();
+    if (accountIndex !== -1) {
+      const userBalance = new BigNumber(
+        props.accountInfo.activeBalances[accountIndex]
+      );
 
-      warning.value = SwapBestOfferWarnings.NOT_ENOUGH_GAS;
-      return;
+      if (userBalance.minus(totalFees).lt(0)) {
+        gasDifference.value = userBalance.minus(totalFees).abs().toString();
+        priceDifference.value = userBalance
+          .minus(totalFees)
+          .abs()
+          .times(nativeTokenPrice.value || 0)
+          .toString();
+
+        warning.value = SwapBestOfferWarnings.NOT_ENOUGH_GAS;
+        return;
+      }
+    } else {
+      console.error("Could not retrieve user balance from active balances");
     }
   }
 
@@ -369,7 +379,8 @@ const isDisabled = computed(() => {
   if (
     warning.value === undefined ||
     warning.value === SwapBestOfferWarnings.EXISTENTIAL_DEPOSIT ||
-    warning.value === SwapBestOfferWarnings.NOT_ENOUGH_GAS
+    warning.value === SwapBestOfferWarnings.NOT_ENOUGH_GAS ||
+    gasCostValues.value[selectedFee.value].nativeValue === "0"
   ) {
     return true;
   }
@@ -425,12 +436,13 @@ const selectFee = (option: GasPriceTypes) => {
 };
 
 const setTransactionFees = async (txs: Transaction[]) => {
+  console.log(txs);
   const gasPromises = txs.map((tx) => {
     return tx.getGasCosts().then(async (gasvals) => {
       const getConvertedVal = (type: GasPriceTypes) =>
         fromBase(gasvals[type], network.value!.decimals);
 
-      const nativeVal = (
+      nativeTokenPrice.value = (
         await network.value!.getAllTokens(account.value!.address)
       )[0].price;
 
@@ -439,31 +451,32 @@ const setTransactionFees = async (txs: Transaction[]) => {
           nativeValue: getConvertedVal(GasPriceTypes.ECONOMY),
           fiatValue: new BigNumber(
             getConvertedVal(GasPriceTypes.ECONOMY)
-          ).times(nativeVal!),
+          ).times(nativeTokenPrice.value!),
         },
         [GasPriceTypes.REGULAR]: {
           nativeValue: getConvertedVal(GasPriceTypes.REGULAR),
           fiatValue: new BigNumber(
             getConvertedVal(GasPriceTypes.REGULAR)
-          ).times(nativeVal!),
+          ).times(nativeTokenPrice.value!),
         },
         [GasPriceTypes.FAST]: {
           nativeValue: getConvertedVal(GasPriceTypes.FAST),
           fiatValue: new BigNumber(getConvertedVal(GasPriceTypes.FAST)).times(
-            nativeVal!
+            nativeTokenPrice.value!
           ),
         },
         [GasPriceTypes.FASTEST]: {
           nativeValue: getConvertedVal(GasPriceTypes.FASTEST),
           fiatValue: new BigNumber(
             getConvertedVal(GasPriceTypes.FASTEST)
-          ).times(nativeVal!),
+          ).times(nativeTokenPrice.value!),
         },
       };
     });
   });
 
   const gasVals = await Promise.all(gasPromises);
+  console.log(gasVals);
 
   const finalVal = gasVals.reduce((prev, curr) => {
     if (!prev) return curr;

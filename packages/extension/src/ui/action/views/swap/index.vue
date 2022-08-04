@@ -551,7 +551,12 @@ const sendAction = async () => {
     swapMax.value
   );
 
-  if (trades.length === 0) {
+  if (
+    trades.length === 0 ||
+    trades.flatMap((trade) => {
+      return trade.txs;
+    }).length === 0
+  ) {
     swapError.value = SwapError.NO_TRADES;
     console.error("No trades found");
     toggleLooking();

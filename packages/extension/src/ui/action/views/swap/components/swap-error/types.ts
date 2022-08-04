@@ -24,6 +24,6 @@ export const Errors: Record<number, ErrorInfo> = {
   [SwapError.NO_TRADES]: {
     title: "Could not find any swaps",
     description:
-      "Can't wait to swap? Try swapping on Ethereum, Polygon, BNB Smarst ",
+      "There was an error finding a swap for these tokens. Please try again later.",
   },
 };

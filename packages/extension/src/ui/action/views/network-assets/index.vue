@@ -124,7 +124,7 @@ const toggleDeposit = () => {
     width: 100%;
     max-height: 600px;
     margin: 0;
-    padding: 68px 0 0 0 !important;
+    padding: 68px 0 68px 0 !important;
     box-sizing: border-box;
 
     &.ps--active-y {
