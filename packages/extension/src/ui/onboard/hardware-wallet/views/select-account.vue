@@ -173,7 +173,8 @@ const selectPath = (newPath: PathType) => {
   );
 };
 
-const continueAction = () => {
+const continueAction = async () => {
+  await hwWallet.close();
   router.push({
     name: routes.ImportingAccount.name,
     params: {
