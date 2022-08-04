@@ -12,14 +12,14 @@
     ></base-select> -->
 
     <settings-switch
-      title="Turn off Ethereum compatibility mode"
+      title="Turn off Ethereum for one hour"
       :is-checked="isEthereumDisabled"
       @update:check="toggleEthereumDisable"
     ></settings-switch>
     <div class="settings__label">
       <p>
-        This will turn off Enkrypt interactions with Ethereum dapps for one hour
-        to prevent conflict with other web3 extensions
+        Turn off Enkrypt on Ethereum for one hour. Pause Enkrypt interactions
+        with Ethereum DApps if you are using other extensions.
       </p>
     </div>
 
