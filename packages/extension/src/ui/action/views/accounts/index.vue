@@ -60,11 +60,7 @@
           Add hardware wallet account
         </a>
 
-        <a
-          v-if="network.signer[0] === SignerType.secp256k1"
-          class="accounts__action-button import"
-          @click="importAction"
-        >
+        <a class="accounts__action-button import" @click="importAction">
           <import-account-icon />
           Import account from another wallet
         </a>
@@ -98,7 +94,6 @@
     v-if="isImportAccount"
     v-bind="$attrs"
     :network="network"
-    :is-dot="network.name == 'DOT'"
     @close="closeImportAccount"
   ></import-account>
 </template>

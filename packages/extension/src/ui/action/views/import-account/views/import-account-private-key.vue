@@ -39,7 +39,7 @@ const isProcessing = ref(false);
 const privKey = ref("");
 
 const emit = defineEmits<{
-  (e: "update:wallet", wallet: Wallet): void;
+  (e: "update:wallet:ethereum", wallet: Wallet): void;
 }>();
 
 const isValidKey = computed(() => {
@@ -53,7 +53,7 @@ const isValidKey = computed(() => {
 });
 const importAction = () => {
   const buffer = hexToBuffer(privKey.value);
-  emit("update:wallet", new Wallet(buffer));
+  emit("update:wallet:ethereum", new Wallet(buffer));
 };
 </script>
 

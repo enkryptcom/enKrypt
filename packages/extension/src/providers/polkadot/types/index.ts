@@ -59,4 +59,11 @@ export enum PolkadotStorageNamespace {
   metadata = "polkadot_metadata",
 }
 
+export interface KeystoreDecodeType {
+  publicKey: string;
+  secretKey: string;
+  address: string;
+  signer: PolkadotSignerTypes;
+  name: string;
+}
 export { InjectedProvider };

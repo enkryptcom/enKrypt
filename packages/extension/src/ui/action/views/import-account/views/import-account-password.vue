@@ -34,15 +34,21 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, PropType, ref } from "vue";
 import ImportAccountHeader from "../components/import-account-header.vue";
 import BaseInput from "@action/components/base-input/index.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import Wallet, { thirdparty } from "ethereumjs-wallet";
+import type { KeyringPair, KeyringPair$Json } from "@polkadot/keyring/types";
+import { BaseNetwork } from "@/types/base-network";
+import { ProviderName } from "@/types/provider";
+import { getAccountFromJSON } from "@/providers/polkadot/libs/keystore";
+import { KeystoreDecodeType } from "@/providers/polkadot/types";
 
 const emit = defineEmits<{
   (e: "navigate:importAccount"): void;
-  (e: "update:wallet", wallet: Wallet): void;
+  (e: "update:wallet:ethereum", wallet: Wallet): void;
+  (e: "update:wallet:substrate", wallet: KeystoreDecodeType): void;
 }>();
 
 const error = ref("");
@@ -58,6 +64,10 @@ const props = defineProps({
   },
   fileJson: {
     type: Object,
+    default: () => ({}),
+  },
+  network: {
+    type: Object as PropType<BaseNetwork>,
     default: () => ({}),
   },
 });
@@ -92,15 +102,29 @@ const getWalletFromPrivKeyFile = (
 
 const unlock = () => {
   isProcessing.value = true;
-  getWalletFromPrivKeyFile(props.fileJson, props.keystorePassword)
-    .then((wallet: Wallet) => {
-      isProcessing.value = false;
-      emit("update:wallet", wallet);
-    })
-    .catch((e) => {
+  error.value = "";
+  if (props.network.provider === ProviderName.ethereum) {
+    getWalletFromPrivKeyFile(props.fileJson, props.keystorePassword)
+      .then((wallet: Wallet) => {
+        isProcessing.value = false;
+        emit("update:wallet:ethereum", wallet);
+      })
+      .catch((e) => {
+        isProcessing.value = false;
+        error.value = e.message;
+      });
+  } else if (props.network.provider === ProviderName.polkadot) {
+    try {
+      const account = getAccountFromJSON(
+        props.fileJson as KeyringPair$Json,
+        props.keystorePassword
+      );
+      emit("update:wallet:substrate", account);
+    } catch (e: any) {
       isProcessing.value = false;
       error.value = e.message;
-    });
+    }
+  }
 };
 </script>
 
