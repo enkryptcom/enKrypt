@@ -12,7 +12,7 @@
     ></base-select> -->
 
     <settings-switch
-      title="Turn off Ethereum for one hour"
+      title="Turn off Ethereum compatibility mode"
       :is-checked="isEthereumDisabled"
       @update:check="toggleEthereumDisable"
     ></settings-switch>
@@ -24,12 +24,15 @@
     </div>
 
     <settings-switch
-      title="Turn off Polkadot-js"
+      title="Turn off Polkadot-js compatibility mode"
       :is-checked="isPolkadotjsDisabled"
       @update:check="togglePjsDisable"
     ></settings-switch>
     <div class="settings__label">
-      <p>This will turn off injecting Enkrypt as Polkadot-js extension</p>
+      <p>
+        This will turn off injecting Enkrypt as Polkadot-js extension to prevent
+        conflict with Polkadot-js extension
+      </p>
     </div>
 
     <!-- <base-select

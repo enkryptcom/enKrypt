@@ -8,7 +8,7 @@ import EthereumProvider from "@/providers/ethereum/inject";
 import PolkadotProvider from "@/providers/polkadot/inject";
 import { InternalMethods, InjectedIDs } from "@/types/messenger";
 setWindowNamespace();
-window.enkrypt = {
+(window as Window).enkrypt = {
   providers: {},
   settings: {},
 };
