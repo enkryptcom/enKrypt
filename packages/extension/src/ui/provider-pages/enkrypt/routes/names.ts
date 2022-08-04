@@ -1,4 +1,9 @@
 export default {
+  swapBestOffer: {
+    path: "swap-best-offer/",
+    component: {},
+    name: "swapBestOffer",
+  },
   unlock: {
     path: "unlock-keyring",
     name: "unlockKeyring",

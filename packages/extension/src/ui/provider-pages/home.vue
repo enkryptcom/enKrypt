@@ -11,4 +11,6 @@
 </template>
 <script setup lang="ts">
 import routes from "./routes";
+
+console.log(routes);
 </script>

@@ -172,7 +172,7 @@ const sendMax = ref(false);
 
 const selected: string = route.params.id as string;
 const isLoadingAssets = ref(true);
-const txData = ref("");
+const txData = ref();
 
 const showVerifyScreen = ref(false);
 
@@ -479,7 +479,8 @@ const sendAction = async () => {
   box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.16);
   margin: 0;
   box-sizing: border-box;
-  position: relative;
+  position: absolute;
+  top: 0;
 }
 
 .send-transaction {

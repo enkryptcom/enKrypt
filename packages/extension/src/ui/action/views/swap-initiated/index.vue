@@ -3,18 +3,15 @@
     <div class="swap-initiated">
       <div class="swap-initiated__wrap">
         <div class="swap-initiated__animation">
-          <Vue3Lottie
-            class="swap-initiated__loading"
-            :animation-data="LottieSwapInitiated"
-            :loop="false"
-          />
+          <send-process-animation v-show="!isDone" />
+          <send-checkmark-animation v-show="isDone" />
 
           <h4>Swap initiated</h4>
           <p>
             Once completed, {{ toToken.symbol }} will be deposited to the
             address you specified.
           </p>
-          <a @click="close">Finish</a>
+          <a v-show="isDone" @click="close">Finish</a>
         </div>
         <div class="swap-initiated__info">
           <swap-initiated-amount :token="fromToken" :amount="fromAmount">
@@ -31,7 +28,8 @@
 </template>
 
 <script setup lang="ts">
-import LottieSwapInitiated from "@action/assets/animation/swap-initiated.json";
+import SendProcessAnimation from "@action/icons/send/send-process-animation.vue";
+import SendCheckmarkAnimation from "@action/icons/send/send-checkmark-animation.vue";
 import ArrowDown from "@action/icons/send/arrow-down.vue";
 import SwapInitiatedAmount from "./components/swap-initiated-amount.vue";
 import { BaseToken } from "@/types/base-token";
@@ -41,6 +39,7 @@ interface IProps {
   toToken: BaseToken;
   fromAmount: string;
   toAmount: string;
+  isDone: boolean;
 }
 
 const emit = defineEmits<{

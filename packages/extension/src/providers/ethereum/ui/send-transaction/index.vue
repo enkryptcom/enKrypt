@@ -201,7 +201,7 @@ const addressFrom = ref<string>("");
 const addressTo = ref<string>("");
 const isLoadingAssets = ref(true);
 
-const txData = ref("");
+const txData = ref();
 const showVerifyScreen = ref(false);
 
 onMounted(async () => {

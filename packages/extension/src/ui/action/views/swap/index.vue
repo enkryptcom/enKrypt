@@ -1,6 +1,13 @@
 <template>
   <div>
     <div class="container">
+      <swap-verify-screen
+        v-if="showVerifyScreen"
+        :swap-data="swapData"
+        :network="network"
+        :account-info="accountInfo"
+        @update:close="toggleShowVerifyScreen"
+      />
       <div v-if="!!selected" class="swap">
         <div class="swap__header">
           <h3>Swap</h3>
@@ -128,15 +135,17 @@ import BigNumber from "bignumber.js";
 import { Rates } from "@/providers/swap/types/SwapProvider";
 import { SubstrateNetwork } from "@/providers/polkadot/types/substrate-network";
 import { UnknownToken } from "@/types/unknown-token";
-import PublicKeyRing from "@/libs/keyring/public-keyring";
-import { EnkryptAccount, SignerType } from "@enkryptcom/types";
+import { EnkryptAccount } from "@enkryptcom/types";
 import { SwapError } from "./components/swap-error/types";
 import { getAccountsByNetworkName } from "@/libs/utils/accounts";
+import SwapVerifyScreen from "../swap-best-offer/index.vue";
+import Browser from "webextension-polyfill";
+import getUiPath from "@/libs/utils/get-ui-path";
+import { ProviderName } from "@/types/provider";
 
 const router = useRouter();
 const route = useRoute();
 const swap = new Swap();
-const keyRing = new PublicKeyRing();
 
 const props = defineProps({
   network: {
@@ -187,6 +196,9 @@ const showSwapError = ref(false);
 
 const swapMax = ref(false);
 
+const swapData = ref();
+const showVerifyScreen = ref(false);
+
 const toTokensFiltered = computed(() => {
   if (toTokens.value) {
     return toTokens.value.filter((token) => {
@@ -236,6 +248,10 @@ const featuredTokensFiltered = computed(() => {
 
   return [];
 });
+
+const toggleShowVerifyScreen = () => {
+  showVerifyScreen.value = !showVerifyScreen.value;
+};
 
 const isFindingRate = computed(() => {
   if (rates.value) {
@@ -543,20 +559,42 @@ const sendAction = async () => {
     return;
   }
 
-  const swapData = {
+  const sData = {
     trades,
     toToken: toToken.value,
     fromToken: fromToken.value,
     fromAmount: fromAmount.value,
     toAddress: address.value,
+    fromAddress: props.accountInfo.selectedAccount?.address,
     priceDifference: priceDifference,
     swapMax: swapMax.value,
   };
 
-  router.push({
-    name: "swap-best-offer",
-    params: { id: selected, swapData: JSON.stringify(swapData) },
-  });
+  if (props.accountInfo.selectedAccount!.isHardware) {
+    const searchParams = new URLSearchParams();
+    searchParams.append(
+      "swapData",
+      Buffer.from(JSON.stringify(sData), "utf8").toString("base64")
+    );
+    searchParams.append("id", selected);
+
+    const url = `swap-best-offer/?id=${selected}&swapData=${Buffer.from(
+      JSON.stringify(sData),
+      "utf8"
+    ).toString("base64")}`;
+    console.log(getUiPath(url, ProviderName.enkrypt));
+    await Browser.windows.create({
+      url: getUiPath(url, ProviderName.enkrypt),
+      type: "popup",
+      focused: true,
+      height: 600,
+      width: 460,
+    });
+  } else {
+    swapData.value = JSON.stringify(sData);
+    toggleLooking();
+    showVerifyScreen.value = true;
+  }
 };
 const swapTokens = () => {
   const tokenTo = fromToken.value;

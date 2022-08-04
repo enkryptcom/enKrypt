@@ -137,14 +137,12 @@ onBeforeMount(async () => {
   isWindowPopup.value = account.value.isHardware;
 });
 const close = () => {
-  if (getCurrentContext() === "popup") {
+  if (!isPopup) {
     emits("update:close");
   } else {
     window.close();
   }
 };
-
-console.log("current context", getCurrentContext());
 
 const sendAction = async () => {
   isProcessing.value = true;

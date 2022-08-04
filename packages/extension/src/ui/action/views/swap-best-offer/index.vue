@@ -6,10 +6,14 @@
         :class="{ border: isHasScroll() && scrollProgress > 0 }"
       >
         <h3>Swap</h3>
-        <a class="swap-best-offer__close" @click="close">
+        <a v-if="isPopup" class="swap-best-offer__close" @click="close">
           <close-icon />
         </a>
       </div>
+
+      <hardware-wallet-msg
+        :wallet-type="account?.walletType"
+      ></hardware-wallet-msg>
 
       <div class="swap-best-offer__wrap">
         <custom-scrollbar
@@ -31,19 +35,19 @@
           <best-offer-error
             v-if="warning === SwapBestOfferWarnings.NOT_ENOUGH_GAS"
             :not-enought-e-t-h="true"
-            :native-symbol="props.network.name"
+            :native-symbol="network ? network.name : '~'"
             :price="priceDifference"
             :native-value="gasDifference"
           ></best-offer-error>
           <best-offer-error
             v-if="warning === SwapBestOfferWarnings.EXISTENTIAL_DEPOSIT"
             :below-deposit="true"
-            :native-symbol="props.network.name"
+            :native-symbol="network ? network.name : '~'"
             :price="priceDifference"
             :native-value="gasDifference"
           ></best-offer-error>
           <send-fee-select
-            v-if="(props.network as EvmNetwork).chainID"
+            v-if="network && (network as EvmNetwork).chainID"
             :fee="gasCostValues[selectedFee]"
             :in-swap="true"
             @open-popup="toggleSelectFee"
@@ -80,7 +84,8 @@
       :to-token="swapData.toToken"
       :from-amount="swapData.fromAmount"
       :to-amount="pickedTrade.minimumReceived"
-      @update:close="toggleInitiated"
+      :is-done="transactionSent"
+      @update:close="close"
     ></swap-initiated>
   </div>
 </template>
@@ -105,6 +110,7 @@ import BestOfferError from "./components/swap-best-offer-block/components/best-o
 import SendFeeSelect from "@/providers/ethereum/ui/send-transaction/components/send-fee-select.vue";
 import SendFeeDisplay from "@/providers/polkadot/ui/send-transaction/components/send-fee-display.vue";
 import TransactionFeeView from "@action/views/transaction-fee/index.vue";
+import HardwareWalletMsg from "@/providers/ethereum/ui/components/hardware-wallet-msg.vue";
 import scrollSettings from "@/libs/utils/scroll-settings";
 import { TradeInfo } from "@/providers/swap/types/SwapProvider";
 import { BaseToken } from "@/types/base-token";
@@ -124,12 +130,17 @@ import { defaultGasCostVals } from "@/providers/ethereum/ui/common/default-vals"
 import { SwapBestOfferWarnings } from "./components/types";
 import { Erc20Token } from "@/providers/ethereum/types/erc20-token";
 import { NATIVE_TOKEN_ADDRESS } from "@/providers/ethereum/libs/common";
+import { getCurrentContext } from "@/libs/messenger/extension";
+import { EnkryptAccount } from "@enkryptcom/types";
+import { getNetworkByName } from "@/libs/utils/networks";
+import PublicKeyRing from "@/libs/keyring/public-keyring";
 
 interface SwapData {
   trades: TradeInfo[];
   fromToken: BaseToken;
   toToken: BaseToken;
   fromAmount: string;
+  fromAddress: string;
   toAddress: string;
   priceDifference: string;
   swapMax: boolean;
@@ -138,13 +149,21 @@ interface SwapData {
 const props = defineProps({
   network: {
     type: Object as PropType<BaseNetwork>,
-    default: () => ({}),
+    default: () => null,
   },
   accountInfo: {
     type: Object as PropType<AccountsHeaderData>,
-    default: () => ({}),
+    default: () => null,
+  },
+  swapData: {
+    type: String,
+    default: () => "",
   },
 });
+
+const emits = defineEmits<{
+  (e: "update:close"): void;
+}>();
 
 const router = useRouter();
 const route = useRoute();
@@ -154,12 +173,18 @@ const isInitiated = ref(false);
 const bestOfferScrollRef = ref<ComponentPublicInstance<HTMLElement>>();
 const scrollProgress = ref(0);
 const height = ref(460);
-const selected: string = route.params.id as string;
-const swapData: SwapData = JSON.parse(route.params.swapData as string);
+const network = ref<BaseNetwork>();
+const account = ref<EnkryptAccount>();
+const selected: string = route.query.id as string;
+const swapData: SwapData = props.swapData
+  ? JSON.parse(props.swapData)
+  : JSON.parse(
+      Buffer.from(route.query.swapData as string, "base64").toString("utf8")
+    );
 const isOpenSelectFee = ref(false);
 const fee = reactive<Partial<GasFeeInfo>>({
   fiatSymbol: "$",
-  nativeSymbol: props.network.name,
+  nativeSymbol: network.value ? network.value.name : "~",
 });
 const selectedFee = ref<GasPriceTypes>(GasPriceTypes.REGULAR);
 const pickedTrade = ref<TradeInfo>(swapData.trades[0]);
@@ -169,6 +194,8 @@ const gasCostValues = ref<GasFeeType>(defaultGasCostVals);
 const warning = ref<SwapBestOfferWarnings>();
 const gasDifference = ref<string>();
 const priceDifference = ref<string>();
+const isPopup: boolean = getCurrentContext() === "new-window";
+const transactionSent = ref(false);
 
 const setWarning = () => {
   if (
@@ -235,8 +262,8 @@ watch([gasCostValues, selectedFee, fee], () => {
 });
 
 const Tx = computed(() => {
-  if ((props.network as EvmNetwork).chainID) {
-    const web3 = new Web3(props.network.node);
+  if (network.value && (network.value as EvmNetwork).chainID) {
+    const web3 = new Web3(network.value.node);
     return pickedTrade.value.txs.map((txData) => {
       const tx = new Transaction(
         {
@@ -244,7 +271,7 @@ const Tx = computed(() => {
           from: txData.from as `0x${string}`,
           data: txData.data,
           chainId: numberToHex(
-            (props.network as EvmNetwork).chainID
+            (network.value as EvmNetwork).chainID
           ) as `0x${string}`,
           value: txData.value,
           gas: txData.gas,
@@ -262,24 +289,33 @@ const Tx = computed(() => {
 defineExpose({ bestOfferScrollRef });
 
 onMounted(async () => {
+  if (!props.network) {
+    network.value = getNetworkByName(route.query.id as string);
+  }
+
+  if (!props.accountInfo) {
+    const keyring = new PublicKeyRing();
+    account.value = await keyring.getAccount(swapData.fromAddress);
+  }
+
   if (Tx.value) {
     setTransactionFees(Tx.value);
     setWarning();
   }
 
-  if (props.network.name === "DOT" || props.network.name === "KSM") {
-    fee.nativeSymbol = props.network.name;
+  if (network.value!.name === "DOT" || network.value!.name === "KSM") {
+    fee.nativeSymbol = network.value!.name;
     fee.nativeValue = fromBase(
       swapData.trades[0].txs[0].gas as `0x${string}`,
-      props.network.decimals
+      network.value!.decimals
     );
 
-    if (props.network.coingeckoID) {
+    if (network.value!.coingeckoID) {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 5000);
 
       const params = new URLSearchParams();
-      params.append("ids", props.network.coingeckoID!);
+      params.append("ids", network.value!.coingeckoID!);
       params.append("vs_currencies", "usd");
       fetch(
         `https://api.coingecko.com/api/v3/simple/price?${params.toString()}`
@@ -289,7 +325,7 @@ onMounted(async () => {
           return res.json();
         })
         .then((data) => {
-          const price = data[props.network.coingeckoID!]["usd"];
+          const price = data[network.value!.coingeckoID!]["usd"];
           const txPrice = new BigNumber(price)
             .times(fee.nativeValue!)
             .toString();
@@ -301,11 +337,9 @@ onMounted(async () => {
     }
   }
 
-  const api = await props.network.api();
+  const api = await network.value!.api();
 
-  balance.value = toBN(
-    await api.getBalance(props.accountInfo.selectedAccount!.address)
-  );
+  balance.value = toBN(await api.getBalance(account.value!.address));
 });
 
 watch(pickedTrade, () => {
@@ -319,7 +353,11 @@ const back = () => {
 };
 
 const close = () => {
-  router.go(-2);
+  if (!isPopup) {
+    emits("update:close");
+  } else {
+    window.close();
+  }
 };
 
 const sendButtonTitle = () => {
@@ -342,25 +380,28 @@ const isDisabled = computed(() => {
 const sendAction = async () => {
   if (pickedTrade.value) {
     toggleInitiated();
-    await swap.executeTrade(
-      props.network,
-      props.accountInfo.selectedAccount!,
-      pickedTrade.value,
-      selectedFee.value
-    );
+    try {
+      await swap
+        .executeTrade(
+          network.value!,
+          account.value!,
+          pickedTrade.value,
+          selectedFee.value
+        )
+        .then((hash) => {
+          console.log(hash);
+          transactionSent.value = true;
+        });
+    } catch (error) {
+      console.error(error);
+      toggleInitiated();
+    }
   } else {
     console.log("No trade yet");
   }
-
-  setTimeout(() => {
-    console.log("sendAction");
-  }, 300);
 };
 const toggleInitiated = () => {
   isInitiated.value = !isInitiated.value;
-  if (!isInitiated.value) {
-    router.go(-2);
-  }
 };
 const handleScroll = (e: any) => {
   let progress = Number(e.target.lastChild.style.top.replace("px", ""));
@@ -387,12 +428,10 @@ const setTransactionFees = async (txs: Transaction[]) => {
   const gasPromises = txs.map((tx) => {
     return tx.getGasCosts().then(async (gasvals) => {
       const getConvertedVal = (type: GasPriceTypes) =>
-        fromBase(gasvals[type], props.network.decimals);
+        fromBase(gasvals[type], network.value!.decimals);
 
       const nativeVal = (
-        await props.network.getAllTokens(
-          props.accountInfo.selectedAccount!.address
-        )
+        await network.value!.getAllTokens(account.value!.address)
       )[0].price;
 
       return {
@@ -469,25 +508,25 @@ const setTransactionFees = async (txs: Transaction[]) => {
     [GasPriceTypes.ECONOMY]: {
       nativeValue: finalVal[GasPriceTypes.ECONOMY].nativeValue,
       fiatValue: finalVal[GasPriceTypes.ECONOMY].fiatValue.toString(),
-      nativeSymbol: props.network.currencyName,
+      nativeSymbol: network.value!.currencyName,
       fiatSymbol: "USD",
     },
     [GasPriceTypes.REGULAR]: {
       nativeValue: finalVal[GasPriceTypes.REGULAR].nativeValue,
       fiatValue: finalVal[GasPriceTypes.REGULAR].fiatValue.toString(),
-      nativeSymbol: props.network.currencyName,
+      nativeSymbol: network.value!.currencyName,
       fiatSymbol: "USD",
     },
     [GasPriceTypes.FAST]: {
       nativeValue: finalVal[GasPriceTypes.FAST].nativeValue,
       fiatValue: finalVal[GasPriceTypes.FAST].fiatValue.toString(),
-      nativeSymbol: props.network.currencyName,
+      nativeSymbol: network.value!.currencyName,
       fiatSymbol: "USD",
     },
     [GasPriceTypes.FASTEST]: {
       nativeValue: finalVal[GasPriceTypes.FASTEST].nativeValue,
       fiatValue: finalVal[GasPriceTypes.FASTEST].fiatValue.toString(),
-      nativeSymbol: props.network.currencyName,
+      nativeSymbol: network.value!.currencyName,
       fiatSymbol: "USD",
     },
   };
