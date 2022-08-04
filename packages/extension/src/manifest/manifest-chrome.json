@@ -15,7 +15,7 @@
   },
   "web_accessible_resources": [
     {
-      "resources": ["scripts/inject.js"],
+      "resources": ["scripts/inject.js", "scripts/*.js.map"],
       "use_dynamic_url": false,
       "matches": ["http://*/*", "https://*/*"]
     }

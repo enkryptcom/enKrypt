@@ -3,10 +3,10 @@
     <settings-header v-bind="$attrs"></settings-header>
 
     <div class="settings__block">
-      <!-- <settings-button
+      <settings-button
         title="General"
         @click="$emit('action:general')"
-      ></settings-button> -->
+      ></settings-button>
       <settings-button
         title="Contact support"
         :is-link="true"

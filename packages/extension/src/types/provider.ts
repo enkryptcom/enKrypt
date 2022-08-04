@@ -33,6 +33,7 @@ export enum InternalStorageNamespace {
   cacheFetch = "CacheFetch",
   nftState = "NFTState",
   networksState = "NetworksState",
+  settingsState = "SettingsState",
 }
 export enum EnkryptProviderEventMethods {
   persistentEvents = "PersistentEvents",

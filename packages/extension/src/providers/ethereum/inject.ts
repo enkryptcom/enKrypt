@@ -14,6 +14,7 @@ import {
   SendMessageHandler,
 } from "@/types/provider";
 import { EXTENSION_VERSION } from "@/configs/constants";
+import { SettingsType } from "@/libs/settings-state/types";
 
 export class Provider extends EventEmitter implements ProviderInterface {
   chainId: string | null;
@@ -131,7 +132,9 @@ const injectDocument = (
   options: ProviderOptions
 ): void => {
   const provider = new Provider(options);
-  document[options.name] = new Proxy(provider, ProxyHandler); //proxy is needed due to web3js 1.3.0 callbackify issue. Used in superrare
+  const globalSettings: SettingsType = window.enkrypt.settings;
+  if (!globalSettings.evm.inject.disabled)
+    document[options.name] = new Proxy(provider, ProxyHandler); //proxy is needed due to web3js 1.3.0 callbackify issue. Used in superrare
   document["enkrypt"]["providers"][options.name] = provider;
 };
 export default injectDocument;
