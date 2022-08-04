@@ -324,10 +324,9 @@ const sendButtonTitle = computed(() => {
 
 const isInputsValid = computed<boolean>(() => {
   if (!isAddress(addressTo.value)) return false;
-  try {
-    // Check that the amount is above the minimum
-    toBase(sendAmount.value, selectedAsset.value.decimals!);
-  } catch {
+  const numDecimals = sendAmount.value.split(".")[1];
+
+  if (numDecimals && numDecimals.length > selectedAsset.value.decimals!) {
     return false;
   }
   if (new BigNumber(sendAmount.value).gt(assetMaxValue.value)) return false;
