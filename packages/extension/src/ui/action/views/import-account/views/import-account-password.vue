@@ -44,6 +44,7 @@ import { BaseNetwork } from "@/types/base-network";
 import { ProviderName } from "@/types/provider";
 import { getAccountFromJSON } from "@/providers/polkadot/libs/keystore";
 import { KeyPairAdd } from "@enkryptcom/types";
+import PublicKeyRing from "@/libs/keyring/public-keyring";
 
 const emit = defineEmits<{
   (e: "navigate:importAccount"): void;
@@ -99,31 +100,70 @@ const getWalletFromPrivKeyFile = (
   throw new Error("Invalid Wallet file");
 };
 
-const unlock = () => {
+const accountAlreadyExists = async (newAddress: string): Promise<boolean> => {
+  const keyring = new PublicKeyRing();
+  const allAccounts = await keyring.getAccounts();
+
+  let alreadyExists = false;
+
+  for (const account of allAccounts) {
+    if (account.address.toLowerCase() === newAddress) {
+      alreadyExists = true;
+      break;
+    }
+  }
+
+  if (alreadyExists) {
+    error.value = "This account has already been added";
+  }
+
+  return alreadyExists;
+};
+
+const unlock = async () => {
   isProcessing.value = true;
   error.value = "";
+
   if (props.network.provider === ProviderName.ethereum) {
-    getWalletFromPrivKeyFile(props.fileJson, props.keystorePassword)
-      .then((wallet: Wallet) => {
-        isProcessing.value = false;
-        emit("update:wallet", {
-          privateKey: wallet.getPrivateKeyString(),
-          publicKey: wallet.getPublicKeyString(),
-          address: wallet.getAddressString(),
-          name: "",
-          signerType: props.network.signer[0],
-        });
-      })
-      .catch((e) => {
-        isProcessing.value = false;
-        error.value = e.message;
+    try {
+      const wallet = await getWalletFromPrivKeyFile(
+        props.fileJson,
+        props.keystorePassword
+      );
+
+      const newAddress = `0x${wallet
+        .getAddress()
+        .toString("hex")
+        .toLowerCase()}`;
+
+      if (await accountAlreadyExists(newAddress)) {
+        return;
+      }
+
+      emit("update:wallet", {
+        privateKey: wallet.getPrivateKeyString(),
+        publicKey: wallet.getPublicKeyString(),
+        address: wallet.getAddressString(),
+        name: "",
+        signerType: props.network.signer[0],
       });
+    } catch (e) {
+      isProcessing.value = false;
+      error.value = (e as Error).message;
+    }
   } else if (props.network.provider === ProviderName.polkadot) {
     try {
       const account = getAccountFromJSON(
         props.fileJson as KeyringPair$Json,
         props.keystorePassword
       );
+
+      const newAddress = account.address.toLowerCase();
+
+      if (await accountAlreadyExists(newAddress)) {
+        return;
+      }
+
       emit("update:wallet", account);
     } catch (e: any) {
       isProcessing.value = false;
