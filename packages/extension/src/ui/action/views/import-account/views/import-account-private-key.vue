@@ -21,9 +21,7 @@
     >
     </textarea>
     <p class="import-account-private-key__already_exists">
-      {{
-        accountAlreadyExists ? "The account is already in the extension" : ""
-      }}
+      {{ accountAlreadyExists ? "This account has already been added" : "" }}
     </p>
 
     <base-button
@@ -72,21 +70,10 @@ const onInput = () => {
 const importAction = async () => {
   const buffer = hexToBuffer(formattedPrivateKey.value);
   const wallet = new Wallet(buffer);
-  const newAddress = `0x${wallet.getAddress().toString("hex")}`.toLowerCase();
+  const newAddress = `0x${wallet.getAddress().toString("hex")}`;
 
-  const allAccounts = await keyring.getAccounts();
-
-  let alreadyExists = false;
-
-  for (const account of allAccounts) {
-    if (account.address.toLowerCase() === newAddress) {
-      alreadyExists = true;
-      break;
-    }
-  }
-
-  if (alreadyExists) {
-    accountAlreadyExists.value = alreadyExists;
+  if (await keyring.accountAlreadyAdded(newAddress)) {
+    accountAlreadyExists.value = true;
     return;
   }
 

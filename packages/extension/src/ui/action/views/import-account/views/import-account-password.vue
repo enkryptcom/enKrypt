@@ -51,6 +51,8 @@ const emit = defineEmits<{
   (e: "update:wallet", wallet: KeyPairAdd): void;
 }>();
 
+const keyring = new PublicKeyRing();
+
 const error = ref("");
 
 const props = defineProps({
@@ -100,26 +102,6 @@ const getWalletFromPrivKeyFile = (
   throw new Error("Invalid Wallet file");
 };
 
-const accountAlreadyExists = async (newAddress: string): Promise<boolean> => {
-  const keyring = new PublicKeyRing();
-  const allAccounts = await keyring.getAccounts();
-
-  let alreadyExists = false;
-
-  for (const account of allAccounts) {
-    if (account.address.toLowerCase() === newAddress) {
-      alreadyExists = true;
-      break;
-    }
-  }
-
-  if (alreadyExists) {
-    error.value = "This account has already been added";
-  }
-
-  return alreadyExists;
-};
-
 const unlock = async () => {
   isProcessing.value = true;
   error.value = "";
@@ -131,12 +113,10 @@ const unlock = async () => {
         props.keystorePassword
       );
 
-      const newAddress = `0x${wallet
-        .getAddress()
-        .toString("hex")
-        .toLowerCase()}`;
+      const newAddress = `0x${wallet.getAddress().toString("hex")}`;
 
-      if (await accountAlreadyExists(newAddress)) {
+      if (await keyring.accountAlreadyAdded(newAddress)) {
+        error.value = "This account has already been added";
         return;
       }
 
@@ -158,9 +138,8 @@ const unlock = async () => {
         props.keystorePassword
       );
 
-      const newAddress = account.address.toLowerCase();
-
-      if (await accountAlreadyExists(newAddress)) {
+      if (await keyring.accountAlreadyAdded(account.address)) {
+        error.value = "This account has already been added";
         return;
       }
 

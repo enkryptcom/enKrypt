@@ -76,5 +76,21 @@ class PublicKeyRing {
   isInitialized(): Promise<boolean> {
     return this.#keyring.isInitialized();
   }
+  async accountAlreadyAdded(newAddress: string): Promise<boolean> {
+    newAddress = newAddress.toLowerCase();
+
+    const allAccounts = await this.getAccounts();
+
+    let alreadyExists = false;
+
+    for (const account of allAccounts) {
+      if (account.address.toLowerCase() === newAddress) {
+        alreadyExists = true;
+        break;
+      }
+    }
+
+    return alreadyExists;
+  }
 }
 export default PublicKeyRing;
