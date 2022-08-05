@@ -20,6 +20,7 @@ import { EthereumRawInfo, SubscanExtrinsicInfo } from "./activity";
 export enum ProviderName {
   enkrypt = "enkrypt",
   ethereum = "ethereum",
+  bitcoin = "bitcoin",
   polkadot = "polkadot",
 }
 export enum InternalStorageNamespace {
@@ -28,6 +29,7 @@ export enum InternalStorageNamespace {
   domainState = "DomainState",
   evmAccountsState = "EVMAccountsState",
   substrateAccountsState = "SubstrateAccountsState",
+  bitcoinAccountsState = "BitcoinAccountsState",
   activityState = "ActivityState",
   marketData = "MarketData",
   cacheFetch = "CacheFetch",
@@ -42,6 +44,7 @@ export type StorageNamespace = ProviderName | InternalStorageNamespace;
 export enum ProviderType {
   evm,
   substrate,
+  bitcoin,
 }
 
 export type SendMessageHandler = (

@@ -17,6 +17,7 @@
     "node": ">=14.15.0"
   },
   "dependencies": {
+    "@enkryptcom/signer-bitcoin": "^0.0.1",
     "@enkryptcom/signer-ethereum": "^0.0.1",
     "@enkryptcom/signer-polkadot": "^0.0.1",
     "@enkryptcom/storage": "^0.0.1",

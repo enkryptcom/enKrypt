@@ -15,4 +15,5 @@ export enum NetworkNames {
   Kusama = "KSM",
   Polkadot = "DOT",
   Westend = "WND",
+  Bitcoin = "BTC",
 }

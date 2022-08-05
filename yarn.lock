@@ -2564,6 +2564,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@enkryptcom/keyring@workspace:packages/keyring"
   dependencies:
+    "@enkryptcom/signer-bitcoin": ^0.0.1
     "@enkryptcom/signer-ethereum": ^0.0.1
     "@enkryptcom/signer-polkadot": ^0.0.1
     "@enkryptcom/storage": ^0.0.1
@@ -2630,7 +2631,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@enkryptcom/signer-bitcoin@workspace:packages/signers/bitcoin":
+"@enkryptcom/signer-bitcoin@^0.0.1, @enkryptcom/signer-bitcoin@workspace:packages/signers/bitcoin":
   version: 0.0.0-use.local
   resolution: "@enkryptcom/signer-bitcoin@workspace:packages/signers/bitcoin"
   dependencies:
