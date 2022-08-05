@@ -4,7 +4,7 @@
       v-model="amount"
       type="number"
       placeholder="0.0"
-      :style="{ color: !hasEnoughBalance ? 'red' : 'black' }"
+      :class="{ error: !hasEnoughBalance }"
       @focus="changeFocus"
       @blur="changeFocus"
       @input="emit('update:inputSetMax', false)"
@@ -52,7 +52,9 @@ const fiatEquivalent = computed(() => {
 });
 const amount = computed({
   get: () => props.amount,
-  set: (value) => emit("update:inputAmount", value.toString()),
+  set: (value) => {
+    emit("update:inputAmount", new BigNumber(value).toFixed());
+  },
 });
 
 const changeFocus = () => {
@@ -155,6 +157,10 @@ const changeFocus = () => {
     &:active {
       opacity: 0.7;
     }
+  }
+
+  .error {
+    color: @error !important;
   }
 }
 </style>

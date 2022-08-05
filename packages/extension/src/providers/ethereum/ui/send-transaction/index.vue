@@ -143,7 +143,7 @@ import { defaultGasCostVals } from "../common/default-vals";
 import Transaction from "@/providers/ethereum/libs/transaction";
 import Web3 from "web3";
 import { NATIVE_TOKEN_ADDRESS } from "../../libs/common";
-import { fromBase, toBase } from "@/libs/utils/units";
+import { fromBase, toBase, isValidDecimals } from "@/libs/utils/units";
 import erc20 from "../../libs/abi/erc20";
 import { SendTransactionDataType, VerifyTransactionParams } from "../types";
 import { formatFloatingPointValue } from "@/libs/utils/number-formatter";
@@ -181,9 +181,7 @@ const accountAssets = ref<Erc20Token[]>([]);
 const selectedAsset = ref<Erc20Token | Partial<Erc20Token>>(loadingAsset);
 const amount = ref<string>("0.00");
 const hasEnoughBalance = computed(() => {
-  const numDecimals = sendAmount.value.split(".")[1];
-
-  if (numDecimals && numDecimals.length > selectedAsset.value.decimals!) {
+  if (!isValidDecimals(sendAmount.value, selectedAsset.value.decimals!)) {
     return false;
   }
 
@@ -326,8 +324,7 @@ const sendButtonTitle = computed(() => {
 
 const isInputsValid = computed<boolean>(() => {
   if (!isAddress(addressTo.value)) return false;
-  const numDecimals = sendAmount.value.split(".")[1];
-  if (numDecimals && numDecimals.length > selectedAsset.value.decimals!) {
+  if (!isValidDecimals(sendAmount.value, selectedAsset.value.decimals!)) {
     return false;
   }
   if (new BigNumber(sendAmount.value).gt(assetMaxValue.value)) return false;
