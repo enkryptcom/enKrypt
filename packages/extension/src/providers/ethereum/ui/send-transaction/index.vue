@@ -181,13 +181,15 @@ const accountAssets = ref<Erc20Token[]>([]);
 const selectedAsset = ref<Erc20Token | Partial<Erc20Token>>(loadingAsset);
 const amount = ref<string>("0.00");
 const hasEnoughBalance = computed(() => {
-  try {
-    return toBN(selectedAsset.value.balance || "0").gte(
-      toBN(toBase(sendAmount.value, selectedAsset.value.decimals!))
-    );
-  } catch {
+  const numDecimals = sendAmount.value.split(".")[1];
+
+  if (numDecimals && numDecimals.length > selectedAsset.value.decimals!) {
     return false;
   }
+
+  return toBN(selectedAsset.value.balance ?? "0").gte(
+    toBN(toBase(sendAmount.value ?? "0", selectedAsset.value.decimals!))
+  );
 });
 const sendAmount = computed(() => {
   if (amount.value && amount.value !== "") return amount.value;
@@ -325,7 +327,6 @@ const sendButtonTitle = computed(() => {
 const isInputsValid = computed<boolean>(() => {
   if (!isAddress(addressTo.value)) return false;
   const numDecimals = sendAmount.value.split(".")[1];
-
   if (numDecimals && numDecimals.length > selectedAsset.value.decimals!) {
     return false;
   }
