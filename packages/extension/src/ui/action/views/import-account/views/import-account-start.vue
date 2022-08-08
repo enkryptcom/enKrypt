@@ -15,7 +15,11 @@
       <right-arrow />
     </a>
 
-    <a class="import-account-start__button" @click="$emit('select:privkey')">
+    <a
+      v-if="network.provider === ProviderName.ethereum"
+      class="import-account-start__button"
+      @click="$emit('select:privkey')"
+    >
       <span>Private key</span>
       <right-arrow />
     </a>
@@ -26,11 +30,21 @@
 import ImportStartIcon from "@action/icons/import/import-start-icon.vue";
 import ImportAccountHeader from "../components/import-account-header.vue";
 import RightArrow from "@action/icons/common/right-arrow.vue";
+import { PropType } from "vue";
+import { BaseNetwork } from "@/types/base-network";
+import { ProviderName } from "@/types/provider";
 
 defineEmits<{
   (e: "select:keystore"): void;
   (e: "select:privkey"): void;
 }>();
+
+defineProps({
+  network: {
+    type: Object as PropType<BaseNetwork>,
+    default: () => ({}),
+  },
+});
 </script>
 
 <style lang="less">

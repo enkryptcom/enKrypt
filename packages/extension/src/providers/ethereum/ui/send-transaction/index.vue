@@ -155,7 +155,7 @@ import { defaultGasCostVals } from "../common/default-vals";
 import Transaction from "@/providers/ethereum/libs/transaction";
 import Web3 from "web3";
 import { NATIVE_TOKEN_ADDRESS } from "../../libs/common";
-import { fromBase, toBase } from "@/libs/utils/units";
+import { fromBase, toBase, isValidDecimals } from "@/libs/utils/units";
 import erc20 from "../../libs/abi/erc20";
 import { SendTransactionDataType, VerifyTransactionParams } from "../types";
 import { formatFloatingPointValue } from "@/libs/utils/number-formatter";
@@ -193,8 +193,12 @@ const accountAssets = ref<Erc20Token[]>([]);
 const selectedAsset = ref<Erc20Token | Partial<Erc20Token>>(loadingAsset);
 const amount = ref<string>("");
 const hasEnoughBalance = computed(() => {
-  return toBN(selectedAsset.value.balance || "0").gte(
-    toBN(toBase(sendAmount.value, selectedAsset.value.decimals!))
+  if (!isValidDecimals(sendAmount.value, selectedAsset.value.decimals!)) {
+    return false;
+  }
+
+  return toBN(selectedAsset.value.balance ?? "0").gte(
+    toBN(toBase(sendAmount.value ?? "0", selectedAsset.value.decimals!))
   );
 });
 const sendAmount = computed(() => {
@@ -380,11 +384,10 @@ const sendButtonTitle = computed(() => {
 
 const isInputsValid = computed<boolean>(() => {
   if (!isAddress(addressTo.value)) return false;
-  if (
-    new BigNumber(sendAmount.value).gt(assetMaxValue.value) ||
-    nativeBalanceAfterTransaction.value.isNeg()
-  )
+  if (!isValidDecimals(sendAmount.value, selectedAsset.value.decimals!)) {
     return false;
+  }
+  if (new BigNumber(sendAmount.value).gt(assetMaxValue.value)) return false;
   return true;
 });
 
@@ -471,8 +474,13 @@ const selectToken = (token: Erc20Token) => {
 };
 
 const inputAmount = (inputAmount: string) => {
+  if (inputAmount === "") {
+    inputAmount = "0";
+  }
+
+  const inputAmountBn = new BigNumber(inputAmount);
   isMaxSelected.value = false;
-  amount.value = parseFloat(inputAmount) < 0 ? "0" : inputAmount;
+  amount.value = inputAmountBn.lt(0) ? "0" : inputAmountBn.toFixed();
 };
 
 const toggleSelectFee = () => {

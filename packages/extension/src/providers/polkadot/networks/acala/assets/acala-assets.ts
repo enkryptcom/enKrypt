@@ -16,7 +16,7 @@ const assets: BaseToken[] = [
     name: "Polkadot",
     symbol: "DOT",
     coingeckoID: "polkadot",
-    icon: require("./icons/DOT.png"),
+    icon: require("../../icons/polkadot.svg"),
     decimals: 10,
     assetType: "token",
     lookupValue: "DOT",

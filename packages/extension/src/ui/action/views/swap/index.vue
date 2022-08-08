@@ -562,16 +562,7 @@ const sendAction = async () => {
   });
 };
 const swapTokens = () => {
-  const tokenTo = fromToken.value;
-  // const amountTo = fromAmount.value;
-
-  const tokenFrom = toToken.value;
-  const amountFrom = toAmount.value;
-
-  fromToken.value = tokenFrom;
-  fromAmount.value = amountFrom;
-
-  toToken.value = tokenTo;
+  // TODO swap to and from if available
 };
 const inputAddress = (text: string) => {
   try {
@@ -655,7 +646,6 @@ const selectAccount = (account: string) => {
     font-size: 0;
     display: block;
     text-decoration: none;
-    cursor: pointer;
   }
 
   &__buttons {

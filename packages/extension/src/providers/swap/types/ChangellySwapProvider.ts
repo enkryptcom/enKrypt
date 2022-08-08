@@ -171,7 +171,7 @@ export class ChangellySwapProvider extends SwapProvider {
     }
   }
 
-  public async getSupportedTokens(): Promise<{
+  public async getSupportedTokens(chain: NetworkNames): Promise<{
     tokens: BaseToken[];
     featured: BaseToken[];
   }> {
@@ -205,6 +205,10 @@ export class ChangellySwapProvider extends SwapProvider {
         )
         .filter((tokenData) => tokenData.fixRateEnabled)
         .filter((tokenData) => {
+          if (tokenData.ticker.toUpperCase() === chain) {
+            return false;
+          }
+
           const token = CHANGELLY_TOKEN_INFO.find(
             (info) => info.id === tokenData.name
           );

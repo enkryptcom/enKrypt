@@ -144,4 +144,14 @@ const toBase = (etherInput: string, decimals: number): string => {
   return wei.toString();
 };
 
-export { fromBase, toBase };
+const isValidDecimals = (amount: string, decimals: number): boolean => {
+  const numDecimals = amount.split(".")[1]?.length;
+
+  if (numDecimals && numDecimals > decimals) {
+    return false;
+  }
+
+  return true;
+};
+
+export { fromBase, toBase, isValidDecimals };
