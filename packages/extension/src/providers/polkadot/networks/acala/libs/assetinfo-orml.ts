@@ -9,6 +9,7 @@ import {
 import { OrmlTokensAccountData } from "@acala-network/types/interfaces/types-lookup";
 import { toBN } from "web3-utils";
 import { KnownTokenDisplay } from "@/providers/polkadot/types";
+import { SubstrateNativeToken } from "@/providers/polkadot/types/substrate-native-token";
 
 type AssetMetadata = {
   name: `0x${string}`;
@@ -39,7 +40,7 @@ type AssetKey = Record<
 
 export default async (
   network: SubstrateNetwork,
-  address: string,
+  address: string | null,
   knownTokens?: KnownTokenDisplay[]
 ) => {
   const api = (await network.api()) as API;
@@ -92,44 +93,22 @@ export default async (
 
         return assetInfo;
       } else {
-        // Unhandled token types
+        // Unhandled token types, right now just Erc20
         return null;
       }
     })
     .filter((asset) => asset !== null);
 
-  const queries = assets.map((asset) => {
-    const token = { [asset!.assetLookupId]: asset!.assetLookupValue };
-    const query = [address, token];
-
-    return query;
-  });
-
-  const tokenBalances = await apiPromise.query.tokens.accounts.multi(queries);
-
-  const options: AcalaOrmlAssetOptions[] = tokenBalances
-    .map((tokenData, index) => {
-      const data = tokenData as unknown as OrmlTokensAccountData;
-      const {
-        name,
-        symbol,
-        minimalBalance,
-        assetLookupId,
-        assetLookupValue,
-        decimals,
-      } = assets[index]!;
-
-      const existentialDeposit = minimalBalance;
-
+  const tokenOptions: AcalaOrmlAssetOptions[] = assets
+    .map((asset) => {
       const ormlOptions: AcalaOrmlAssetOptions = {
-        name: hexToString(name),
-        symbol: hexToString(symbol),
-        existentialDeposit,
-        balance: data.free.toString(),
-        assetType: assetLookupId,
-        lookupValue: assetLookupValue,
+        name: hexToString(asset!.name),
+        symbol: hexToString(asset!.symbol),
+        existentialDeposit: asset!.minimalBalance,
+        assetType: asset!.assetLookupId,
+        lookupValue: asset!.assetLookupValue,
         icon: network.icon,
-        decimals,
+        decimals: asset!.decimals,
       };
 
       return ormlOptions;
@@ -150,5 +129,32 @@ export default async (
       return tokenOptions;
     });
 
-  return options.map((o) => new AcalaOrmlAsset(o));
+  const nativeAsset = new SubstrateNativeToken({
+    name: network.name_long,
+    symbol: network.name,
+    decimals: network.decimals,
+    existentialDeposit: network.existentialDeposit,
+    icon: network.icon,
+    coingeckoID: network.coingeckoID,
+  });
+
+  if (address) {
+    await nativeAsset.getLatestUserBalance(apiPromise, address);
+    const queries = tokenOptions.map((asset) => {
+      const token = { [asset.assetType]: asset.lookupValue };
+      const query = [address, token];
+
+      return query;
+    });
+
+    const tokenBalances = await apiPromise.query.tokens.accounts.multi(queries);
+
+    tokenBalances.forEach((tokenData, index) => {
+      const data = tokenData as unknown as OrmlTokensAccountData;
+
+      tokenOptions[index].balance = data.free.toString();
+    });
+  }
+
+  return [nativeAsset, ...tokenOptions.map((o) => new AcalaOrmlAsset(o))];
 };

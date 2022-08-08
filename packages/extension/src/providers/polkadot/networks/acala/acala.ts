@@ -7,6 +7,7 @@ import {
 } from "../../types/substrate-network";
 import { subscanActivity } from "../../libs/activity-handlers";
 import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
+import { toBN } from "web3-utils";
 
 const acalaOptions: SubstrateNetworkOptions = {
   name: NetworkNames.Acala,
@@ -28,6 +29,7 @@ const acalaOptions: SubstrateNetworkOptions = {
   activityHandler: wrapActivityHandler(subscanActivity),
   assetHandler: ormlAssetHandler,
   knownTokens: assets,
+  existentialDeposit: toBN("100000000000"),
 };
 
 const acala = new SubstrateNetwork(acalaOptions);

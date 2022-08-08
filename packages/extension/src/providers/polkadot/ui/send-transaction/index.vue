@@ -263,10 +263,14 @@ watch(addressFrom, () => {
 
 const fetchTokens = async () => {
   const networkApi = (await props.network.api()) as SubstrateApi;
-  const networkAssets = await props.network.getAllTokens();
+  const networkAssets = await props.network.getAllTokens(addressFrom.value);
   const pricePromises = networkAssets.map((asset) => asset.getLatestPrice());
   const balancePromises = networkAssets.map((asset) => {
-    return asset.getLatestUserBalance(networkApi.api, addressFrom.value);
+    if (!asset.balance) {
+      return asset.getLatestUserBalance(networkApi.api, addressFrom.value);
+    }
+
+    return Promise.resolve(asset.balance);
   });
 
   Promise.all([...pricePromises, ...balancePromises]).then(() => {

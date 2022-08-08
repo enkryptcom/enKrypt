@@ -18,6 +18,7 @@ import { SubstrateNativeToken } from "./substrate-native-token";
 import { Activity } from "@/types/activity";
 import { getApi, addNewApi } from "../libs/api-promises";
 import { KnownTokenDisplay } from ".";
+import { BN } from "ethereumjs-util";
 
 export interface SubstrateNetworkOptions {
   name: NetworkNames;
@@ -35,13 +36,14 @@ export interface SubstrateNetworkOptions {
   coingeckoID?: string;
   genesisHash: string;
   knownTokens?: KnownTokenDisplay[];
+  existentialDeposit?: BN;
   activityHandler: (
     network: BaseNetwork,
     address: string
   ) => Promise<Activity[]>;
   assetHandler?: (
     network: SubstrateNetwork,
-    address: string,
+    address: string | null,
     knownTokens?: KnownTokenDisplay[]
   ) => Promise<BaseToken[]>;
 }
@@ -50,6 +52,7 @@ export class SubstrateNetwork extends BaseNetwork {
   public prefix: number;
   public assets: BaseToken[] = [];
   public genesisHash: string;
+  public existentialDeposit?: BN;
 
   private knownTokens?: KnownTokenDisplay[];
   private activityHandler: (
@@ -58,7 +61,7 @@ export class SubstrateNetwork extends BaseNetwork {
   ) => Promise<Activity[]>;
   private assetHandler?: (
     network: SubstrateNetwork,
-    address: string,
+    address: string | null,
     knownTokens?: KnownTokenDisplay[]
   ) => Promise<BaseToken[]>;
 
@@ -91,22 +94,12 @@ export class SubstrateNetwork extends BaseNetwork {
     this.activityHandler = options.activityHandler;
     this.assetHandler = options.assetHandler;
     this.knownTokens = options.knownTokens;
+    this.existentialDeposit = options.existentialDeposit;
   }
 
-  public getAllTokens(): Promise<BaseToken[]> {
+  public getAllTokens(address?: string): Promise<BaseToken[]> {
     if (this.assetHandler) {
-      const nativeToken = new SubstrateNativeToken({
-        name: this.name_long,
-        symbol: this.name,
-        coingeckoID: this.coingeckoID,
-        decimals: this.decimals,
-        icon: this.icon,
-      });
-
-      return this.assetHandler(this, "", this.knownTokens).then((assets) => [
-        nativeToken,
-        ...assets,
-      ]);
+      return this.assetHandler(this, address ?? null, this.knownTokens);
     }
 
     return Promise.resolve(this.assets);
@@ -117,7 +110,7 @@ export class SubstrateNetwork extends BaseNetwork {
       ? await this.assetHandler(this, address, this.knownTokens)
       : this.assets;
 
-    if (this.assetHandler || supported.length === 0) {
+    if (supported.length === 0) {
       const nativeToken = new SubstrateNativeToken({
         name: this.name_long,
         symbol: this.name,
@@ -126,7 +119,7 @@ export class SubstrateNetwork extends BaseNetwork {
         icon: this.icon,
       });
 
-      supported = [nativeToken, ...supported];
+      supported = [nativeToken];
     }
 
     const api = await this.api();
