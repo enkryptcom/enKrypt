@@ -1,4 +1,5 @@
 import { NetworkNames } from "@enkryptcom/types";
+import ormlAssetHandler from "./libs/assetinfo-orml";
 import assets from "./assets/acala-assets";
 import {
   SubstrateNetwork,
@@ -25,10 +26,10 @@ const acalaOptions: SubstrateNetworkOptions = {
   genesisHash:
     "0xfc41b9bd8ef8fe53d58c7ea67c794c7ec9a73daf05e6d54b14ff6342c99ba64c",
   activityHandler: wrapActivityHandler(subscanActivity),
+  assetHandler: ormlAssetHandler,
+  knownTokens: assets,
 };
 
 const acala = new SubstrateNetwork(acalaOptions);
-
-acala.assets = assets;
 
 export default acala;

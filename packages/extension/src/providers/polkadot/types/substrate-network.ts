@@ -17,6 +17,7 @@ import Sparkline from "@/libs/sparkline";
 import { SubstrateNativeToken } from "./substrate-native-token";
 import { Activity } from "@/types/activity";
 import { getApi, addNewApi } from "../libs/api-promises";
+import { KnownTokenDisplay } from ".";
 
 export interface SubstrateNetworkOptions {
   name: NetworkNames;
@@ -33,10 +34,16 @@ export interface SubstrateNetworkOptions {
   node: string;
   coingeckoID?: string;
   genesisHash: string;
+  knownTokens?: KnownTokenDisplay[];
   activityHandler: (
     network: BaseNetwork,
     address: string
   ) => Promise<Activity[]>;
+  assetHandler?: (
+    network: SubstrateNetwork,
+    address: string,
+    knownTokens?: KnownTokenDisplay[]
+  ) => Promise<BaseToken[]>;
 }
 
 export class SubstrateNetwork extends BaseNetwork {
@@ -44,10 +51,17 @@ export class SubstrateNetwork extends BaseNetwork {
   public assets: BaseToken[] = [];
   public genesisHash: string;
 
+  private knownTokens?: KnownTokenDisplay[];
   private activityHandler: (
     network: BaseNetwork,
     address: string
   ) => Promise<Activity[]>;
+  private assetHandler?: (
+    network: SubstrateNetwork,
+    address: string,
+    knownTokens?: KnownTokenDisplay[]
+  ) => Promise<BaseToken[]>;
+
   constructor(options: SubstrateNetworkOptions) {
     const api = async () => {
       if (getApi(options.node)) return getApi(options.node);
@@ -75,16 +89,12 @@ export class SubstrateNetwork extends BaseNetwork {
     this.genesisHash = options.genesisHash;
 
     this.activityHandler = options.activityHandler;
+    this.assetHandler = options.assetHandler;
+    this.knownTokens = options.knownTokens;
   }
 
   public getAllTokens(): Promise<BaseToken[]> {
-    return Promise.resolve(this.assets);
-  }
-
-  public async getAllTokenInfo(address: string): Promise<AssetsType[]> {
-    const supported = this.assets;
-
-    if (supported.length === 0) {
+    if (this.assetHandler) {
       const nativeToken = new SubstrateNativeToken({
         name: this.name_long,
         symbol: this.name,
@@ -93,14 +103,41 @@ export class SubstrateNetwork extends BaseNetwork {
         icon: this.icon,
       });
 
-      supported.push(nativeToken);
+      return this.assetHandler(this, "", this.knownTokens).then((assets) => [
+        nativeToken,
+        ...assets,
+      ]);
+    }
+
+    return Promise.resolve(this.assets);
+  }
+
+  public async getAllTokenInfo(address: string): Promise<AssetsType[]> {
+    let supported = this.assetHandler
+      ? await this.assetHandler(this, address, this.knownTokens)
+      : this.assets;
+
+    if (this.assetHandler || supported.length === 0) {
+      const nativeToken = new SubstrateNativeToken({
+        name: this.name_long,
+        symbol: this.name,
+        coingeckoID: this.coingeckoID,
+        decimals: this.decimals,
+        icon: this.icon,
+      });
+
+      supported = [nativeToken, ...supported];
     }
 
     const api = await this.api();
 
-    const balancePromises = supported.map((token) =>
-      token.getLatestUserBalance((api as SubstrateAPI).api, address)
-    );
+    const balancePromises = supported.map((token) => {
+      if (!token.balance) {
+        return token.getLatestUserBalance((api as SubstrateAPI).api, address);
+      }
+
+      return Promise.resolve(token.balance);
+    });
     const marketData = new MarketData();
     const market = await marketData.getMarketData(
       supported.map(({ coingeckoID }) => coingeckoID ?? "")

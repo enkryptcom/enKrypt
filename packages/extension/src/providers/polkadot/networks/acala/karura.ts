@@ -6,6 +6,7 @@ import {
 } from "../../types/substrate-network";
 import { subscanActivity } from "../../libs/activity-handlers";
 import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
+import ormlAssetHandler from "./libs/assetinfo-orml";
 
 const karuraOptions: SubstrateNetworkOptions = {
   name: NetworkNames.Karura,
@@ -24,10 +25,10 @@ const karuraOptions: SubstrateNetworkOptions = {
   genesisHash:
     "0xbaf5aabe40646d11f0ee8abbdc64f4a4b7674925cba08e4a05ff9ebed6e2126b",
   activityHandler: wrapActivityHandler(subscanActivity),
+  assetHandler: ormlAssetHandler,
+  knownTokens: assets,
 };
 
 const karura = new SubstrateNetwork(karuraOptions);
-
-karura.assets = assets;
 
 export default karura;
