@@ -67,6 +67,7 @@
   "devDependencies": {
     "@polkadot/api": "^8.14.1",
     "@polkadot/extension-inject": "^0.44.1",
+    "@polkadot/keyring": "^10.1.2",
     "@polkadot/rpc-provider": "^8.14.1",
     "@polkadot/types": "^8.14.1",
     "@polkadot/types-known": "^8.14.1",
