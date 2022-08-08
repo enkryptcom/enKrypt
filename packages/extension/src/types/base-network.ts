@@ -45,6 +45,7 @@ export abstract class BaseNetwork {
   public identicon: (address: string) => string;
   public basePath: string;
   public decimals: number;
+  public canAddCustomTokens = false;
   public api: () => Promise<SubstrateAPI> | Promise<EvmAPI>;
 
   constructor(options: BaseNetworkOptions) {
