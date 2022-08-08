@@ -2,6 +2,7 @@ import { expect } from "chai";
 import { ProviderName, ProviderType, PolkadotProvider } from "@/types/provider";
 import PolkadotInject from "../inject";
 import { OnMessageResponse, RPCRequestType } from "@enkryptcom/types";
+import { EnkryptWindow } from "@/types/globals";
 
 const sampleAccount = [
   {
@@ -47,6 +48,17 @@ const options = {
 const tempWindow: EnkryptWindow = {
   enkrypt: {
     providers: {},
+    settings: {
+      evm: {
+        inject: {
+          disabled: false,
+          timestamp: 0,
+        },
+      },
+      substrate: {
+        injectPolkadotjs: true,
+      },
+    },
   },
 };
 describe("Test Polkadot reponses", () => {

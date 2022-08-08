@@ -43,11 +43,11 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import SettingsStart from "@action/views/settings-start/index.vue";
-import SettingsGeneral from "@action/views/settings-general/index.vue";
-import SettingsSupport from "@action/views/settings-support/index.vue";
-import SettingsAbout from "@action/views/settings-about/index.vue";
-import SettingsRecovery from "@action/views/settings-recovery/index.vue";
+import SettingsStart from "./views/settings-start/index.vue";
+import SettingsGeneral from "./views/settings-general/index.vue";
+import SettingsSupport from "./views/settings-support/index.vue";
+import SettingsAbout from "./views/settings-about/index.vue";
+import SettingsRecovery from "./views/settings-recovery/index.vue";
 import ResetWallet from "@action/views/reset-wallet/index.vue";
 
 const isStart = ref(true);

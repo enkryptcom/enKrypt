@@ -6,6 +6,7 @@ export enum MessageType {
   WINDOW_REQUEST = "enkrypt_window_request",
   NEWWINDOW_REQUEST = "enkrypt_new_window_request",
   ACTION_REQUEST = "enkrypt_action_request",
+  CS_REQUEST = "enkrypt_cs_request",
   BACKGROUND_REQUEST = "enkrypt_background_request",
 }
 export enum Destination {
@@ -15,6 +16,11 @@ export enum Destination {
   newWindow = "new-window",
   popup = "popup",
 }
+
+export enum InjectedIDs {
+  main = "enkrypt-inject",
+}
+
 export enum InternalMethods {
   getEthereumEncryptionPublicKey = "enkrypt_eth_encryption_pubkey",
   ethereumDecrypt = "enkrypt_eth_decrypt",
@@ -23,6 +29,7 @@ export enum InternalMethods {
   lock = "enkrypt_lock_keyring",
   isLocked = "enkrypt_is_locked_keyring",
   newWindowInit = "enkrypt_newWindowInit",
+  getSettings = "enkrypt_getAllSettings",
   newWindowUnload = "enkrypt_newWindowUnload",
   sendToTab = "enkrypt_sendToTab",
   getNewAccount = "enkrypt_getNewAccount",
