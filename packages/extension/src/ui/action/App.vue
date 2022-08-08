@@ -122,6 +122,8 @@ import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
 import { fromBase } from "@/libs/utils/units";
 import { EnkryptAccount } from "@enkryptcom/types";
 import Browser from "webextension-polyfill";
+import EVMAccountState from "@/providers/ethereum/libs/accounts-state";
+import { ProviderName } from "@/types/provider";
 
 const domainState = new DomainState();
 const networksState = new NetworksState();
@@ -281,6 +283,11 @@ const setNetwork = async (network: BaseNetwork) => {
 
 const onSelectedAddressChanged = async (newAccount: EnkryptAccount) => {
   accountHeaderData.value.selectedAccount = newAccount;
+  if (currentNetwork.value.provider === ProviderName.ethereum) {
+    const evmAccountState = new EVMAccountState();
+    const domain = await domainState.getCurrentDomain();
+    evmAccountState.addApprovedAddress(newAccount.address, domain);
+  }
   await domainState.setSelectedAddress(newAccount.address);
   await sendToBackgroundFromAction({
     message: JSON.stringify({

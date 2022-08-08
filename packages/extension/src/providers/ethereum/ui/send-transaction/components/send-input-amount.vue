@@ -3,7 +3,7 @@
     <input
       v-model="amount"
       type="number"
-      placeholder="0"
+      placeholder="0.0"
       :style="{ color: !hasEnoughBalance ? 'red' : 'black' }"
       @focus="changeFocus"
       @blur="changeFocus"
@@ -43,7 +43,7 @@ const props = defineProps({
   },
   amount: {
     type: String,
-    default: "0",
+    default: "",
   },
 });
 const fiatEquivalent = computed(() => {

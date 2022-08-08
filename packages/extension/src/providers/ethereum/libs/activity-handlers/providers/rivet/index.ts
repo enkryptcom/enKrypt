@@ -6,6 +6,7 @@ import {
   EthereumRawInfo,
 } from "@/types/activity";
 import { BaseNetwork } from "@/types/base-network";
+import { toBN } from "web3-utils";
 import { decodeTx } from "../../../transaction/decoder";
 import { NetworkEndpoints } from "./configs";
 const getAddressActivity = async (
@@ -77,7 +78,9 @@ export default async (
         status: activity.status
           ? ActivityStatus.success
           : ActivityStatus.failed,
-        timestamp: activity.timestamp ? activity.timestamp : 0,
+        timestamp: activity.timestamp
+          ? toBN(activity.timestamp).toNumber() * 1000
+          : 0,
         value: txData.tokenValue,
         transactionHash: activity.transactionHash,
         type: ActivityType.transaction,

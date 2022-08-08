@@ -265,6 +265,7 @@ const closeImportAccount = () => {
     margin: auto;
     width: 100%;
     max-height: 420px;
+    padding-bottom: 100px !important;
   }
 
   &__info {
