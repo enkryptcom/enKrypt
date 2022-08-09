@@ -1,6 +1,8 @@
 <template>
   <div class="network-nfts__empty">
-    <p v-if="!isEmpty"><loader /></p>
+    <p v-if="!isEmpty">
+      <loader />
+    </p>
     <p v-if="isEmpty">Your NFTs will be shown here.</p>
   </div>
 </template>

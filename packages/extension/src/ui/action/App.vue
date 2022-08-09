@@ -77,12 +77,9 @@
       v-show="addNetworkShow"
       @close:popup="addNetworkShow = !addNetworkShow"
       @update:active-networks="setActiveNetworks"
-    ></add-network>
+    />
 
-    <settings
-      v-if="settingsShow"
-      @close:popup="settingsShow = !settingsShow"
-    ></settings>
+    <settings v-if="settingsShow" @close:popup="settingsShow = !settingsShow" />
   </div>
 </template>
 

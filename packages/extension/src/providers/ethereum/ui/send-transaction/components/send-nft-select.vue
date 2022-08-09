@@ -25,7 +25,7 @@ import { ref, PropType } from "vue";
 import SwitchArrow from "@action/icons/header/switch_arrow.vue";
 import { NFTItem } from "@action/types/nft";
 
-let isOpen = ref(false);
+const isOpen = ref(false);
 
 const props = defineProps({
   toggleSelect: {

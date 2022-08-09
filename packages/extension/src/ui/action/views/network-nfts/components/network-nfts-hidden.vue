@@ -2,7 +2,7 @@
   <div class="network-nfts__hidden">
     <a class="network-nfts__hidden-head" @click="toggle">
       <p>Hidden</p>
-      <switch-arrow class="network-nfts__hidden-arrow"></switch-arrow>
+      <switch-arrow class="network-nfts__hidden-arrow" />
     </a>
     <div v-show="isOpen" class="network-nfts__hidden-items">
       <network-nfts-item
@@ -11,7 +11,7 @@
         :item="item"
         :is-hidden="true"
         v-bind="$attrs"
-      ></network-nfts-item>
+      />
     </div>
   </div>
 </template>
@@ -21,7 +21,7 @@ import { PropType, ref } from "vue";
 import NetworkNftsItem from "./network-nfts-item.vue";
 import SwitchArrow from "@action/icons/header/switch_arrow.vue";
 import { NFTItem } from "@/types/nft";
-let isOpen = ref(false);
+const isOpen = ref(false);
 
 defineProps({
   hiddens: {

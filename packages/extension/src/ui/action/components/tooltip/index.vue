@@ -1,6 +1,6 @@
 <template>
   <div class="tooltip" @mouseenter="onHover" @mouseleave="onHide">
-    <slot></slot>
+    <slot />
 
     <div v-show="show" class="tooltip__wrap" :class="classObject()">
       {{ text }}

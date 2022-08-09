@@ -1,5 +1,5 @@
 <template>
-  <import-account-header v-bind="$attrs"></import-account-header>
+  <import-account-header v-bind="$attrs" />
 
   <div class="import-account-start">
     <import-start-icon class="import-account-start__icon" />

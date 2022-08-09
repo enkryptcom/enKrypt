@@ -1,6 +1,6 @@
 <template>
   <div class="transaction-fee" :class="{ show: showFees, popup: isPopup }">
-    <div class="transaction-fee__overlay" @click="closepopup"></div>
+    <div class="transaction-fee__overlay" @click="closepopup" />
     <div
       class="transaction-fee__wrap"
       :class="{ show: showFees, header: isHeader }"
@@ -43,7 +43,7 @@
         :selected="selected"
         :type="type"
         v-bind="$attrs"
-      ></transaction-fee-item>
+      />
     </div>
   </div>
 </template>

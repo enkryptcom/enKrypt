@@ -1,6 +1,6 @@
 <template>
   <div class="swap-looking__container">
-    <div class="swap-looking__overlay" @click="close()"></div>
+    <div class="swap-looking__overlay" @click="close()" />
     <div class="swap-looking__wrap">
       <a class="swap-looking__close" @click="close()">
         <close-icon />

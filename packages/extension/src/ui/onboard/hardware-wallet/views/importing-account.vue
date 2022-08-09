@@ -22,7 +22,7 @@
         :name-value="account.name"
         :is-error="isInvalidName(account.name)"
         @update:value="nameChanged(index, $event)"
-      ></hardware-importing-account>
+      />
 
       <p class="ledger-importing-account__example">
         Name your account something that makes sense to you! Main account, dapp
@@ -41,11 +41,8 @@
       />
     </div>
   </div>
-  <hardware-wallet-process
-    v-if="isProcessing"
-    :is-ledger="true"
-  ></hardware-wallet-process>
-  <hardware-account-imported v-if="isProcessDone"></hardware-account-imported>
+  <hardware-wallet-process v-if="isProcessing" :is-ledger="true" />
+  <hardware-account-imported v-if="isProcessDone" />
 </template>
 <script setup lang="ts">
 import { ref, ComponentPublicInstance, onMounted } from "vue";

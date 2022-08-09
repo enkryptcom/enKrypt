@@ -5,7 +5,7 @@
       <div class="network-nfts__item-name">{{ item.name }}</div>
     </a>
     <a class="network-nfts__item-more" @mouseenter="toggleMoreMenu">
-      <span></span><span></span><span></span>
+      <span /><span /><span />
     </a>
 
     <network-nfts-item-more-menu
@@ -16,14 +16,14 @@
       v-bind="$attrs"
       @update:hide-me="toggleMoreMenu"
       @mouseleave="toggleMoreMenu"
-    ></network-nfts-item-more-menu>
+    />
 
     <nft-detail-view
       v-if="isDetail"
       :item="item"
       :link-action="openLink"
       @close:popup="toggleDetail"
-    ></nft-detail-view>
+    />
   </div>
 </template>
 

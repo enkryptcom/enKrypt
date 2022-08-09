@@ -1,25 +1,22 @@
 <template>
   <div>
-    <settings-inner-header
-      v-bind="$attrs"
-      :is-about="true"
-    ></settings-inner-header>
+    <settings-inner-header v-bind="$attrs" :is-about="true" />
 
     <settings-button
       title="Visit our website"
       :action="siteAction"
       :is-link="true"
-    ></settings-button>
+    />
     <settings-button
       title="Join us on Telegram"
       :action="telegramAction"
       :is-link="true"
-    ></settings-button>
+    />
     <settings-button
       title="Follow us on Twitter"
       :action="twitterAction"
       :is-link="true"
-    ></settings-button>
+    />
   </div>
 </template>
 

@@ -1,7 +1,7 @@
 <template>
   <a class="base-select__option" @click="select()">
     <h5>{{ title }}</h5>
-    <done-icon v-show="isSelect"></done-icon>
+    <done-icon v-show="isSelect" />
   </a>
 </template>
 

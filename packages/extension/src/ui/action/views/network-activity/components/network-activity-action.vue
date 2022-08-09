@@ -4,11 +4,11 @@
       <a class="network-activity__action-item" @click="$emit('toggle:deposit')">
         <Deposit />Deposit
       </a>
-      <div class="network-activity__action-divider"></div>
+      <div class="network-activity__action-divider" />
       <a class="network-activity__action-item" @click="$emit('open:buyAction')">
         <Buy />Buy
       </a>
-      <div class="network-activity__action-divider"></div>
+      <div class="network-activity__action-divider" />
       <router-link
         :to="{
           name: 'send-transaction',
@@ -18,7 +18,7 @@
       >
         <Send />Send
       </router-link>
-      <div class="network-activity__action-divider"></div>
+      <div class="network-activity__action-divider" />
       <router-link
         class="network-activity__action-item"
         :to="{

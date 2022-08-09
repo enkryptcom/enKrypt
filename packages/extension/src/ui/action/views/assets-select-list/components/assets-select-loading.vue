@@ -1,6 +1,8 @@
 <template>
   <div class="network-activity__loading">
-    <p v-if="isLoading"><loader /></p>
+    <p v-if="isLoading">
+      <loader />
+    </p>
     <p v-if="isEmpty && !isLoading">No results found</p>
   </div>
 </template>

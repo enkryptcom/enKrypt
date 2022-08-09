@@ -1,9 +1,6 @@
 <template>
   <div class="delete-account-form__container">
-    <div
-      class="delete-account-form__overlay"
-      @click="$emit('window:close')"
-    ></div>
+    <div class="delete-account-form__overlay" @click="$emit('window:close')" />
     <div class="delete-account-form">
       <h3>Delete account?</h3>
 
