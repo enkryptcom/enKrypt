@@ -6,11 +6,15 @@ import {
 import { ProviderName, ProviderType } from "@/types/provider";
 import EthereumProvider from "@/providers/ethereum/inject";
 import PolkadotProvider from "@/providers/polkadot/inject";
-import { InternalMethods } from "@/types/messenger";
+import { InternalMethods, InjectedIDs } from "@/types/messenger";
 setWindowNamespace();
-window.enkrypt = {
+(window as Window).enkrypt = {
   providers: {},
+  settings: {},
 };
+const script = document.getElementById(InjectedIDs.main) as HTMLScriptElement;
+const scriptURL = new URL(script.src);
+window.enkrypt.settings = JSON.parse(scriptURL.searchParams.get("settings")!);
 
 windowOnMessage(async (msg): Promise<void> => {
   window["enkrypt"]["providers"][msg.provider].handleMessage(msg.message);

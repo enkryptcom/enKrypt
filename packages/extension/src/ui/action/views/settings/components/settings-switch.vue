@@ -2,7 +2,7 @@
   <div class="settings-switch">
     <h5>{{ title }}</h5>
     <div class="settings-switch__switch">
-      <Switch :check="check" :is-checked="isActive" />
+      <Switch v-bind="$attrs" :is-checked="isChecked" />
     </div>
   </div>
 </template>
@@ -10,30 +10,20 @@
 <script setup lang="ts">
 import Switch from "@action/components/switch/index.vue";
 
-const props = defineProps({
-  action: {
-    type: Function,
-    default: () => {
-      return null;
-    },
-  },
+defineProps({
   title: {
     type: String,
     default: () => {
       return "";
     },
   },
-  isActive: {
+  isChecked: {
     type: Boolean,
     default: () => {
       return false;
     },
   },
 });
-
-const check = async (isChecked: boolean) => {
-  props.action(isChecked);
-};
 </script>
 
 <style lang="less">

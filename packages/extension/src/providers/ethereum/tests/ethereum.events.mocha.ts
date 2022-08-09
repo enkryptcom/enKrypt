@@ -3,6 +3,7 @@ import { ProviderName, ProviderType, EthereumProvider } from "@/types/provider";
 import EthereumInject from "../inject";
 import { MessageMethod, EmitEvent } from "../types";
 import { OnMessageResponse } from "@enkryptcom/types";
+import { EnkryptWindow } from "@/types/globals";
 
 const providerSendMessage = async (
   provider: ProviderName,
@@ -20,6 +21,17 @@ const options = {
 const tempWindow: EnkryptWindow = {
   enkrypt: {
     providers: {},
+    settings: {
+      evm: {
+        inject: {
+          disabled: false,
+          timestamp: 0,
+        },
+      },
+      substrate: {
+        injectPolkadotjs: false,
+      },
+    },
   },
 };
 describe("Test injected Ethereum", () => {

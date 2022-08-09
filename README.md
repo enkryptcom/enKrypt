@@ -9,7 +9,9 @@
   <p align="center">
     Everything in the blockchain made easy
     <br />
-    <a href="#"><strong>Explore the docs »</strong></a>
+    <a href="https://chrome.google.com/webstore/detail/enkrypt-ethereum-and-polk/kkpllkodjeloidieedojogacfhpaihoh">
+      <strong>Download for Chrome/Brave »</strong>
+    </a>
     <br />
     <br />
     ·
@@ -20,15 +22,30 @@
 </div>
 
 <!-- ABOUT THE PROJECT -->
-## About The Project
+## About Enkrypt
 
-> [add screenshot]
-
-> [write description]
+Enkrypt is a web3 wallet built from the ground up to support the multi-chain future. Send, receive, swap, manage your tokens and NFTs, and interact with dapps on all of your favorite chains with just a few clicks. With only one seed phrase for all of your accounts Enkrypt makes it easy to manage your assets and stay secure. If you're looking for that extra layer of security Enkrypt also supports popular hardware wallets such as Ledger and Trezor.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
+## Currently Supported Chains
 
+* Ethereum
+* Polygon
+* BNB Smart Chain
+* Moonbeam
+* Moonriver
+* Karura EVM+
+* Ethereum Classic
+* Polkadot
+* Kusama
+* Acala
+* Karura
+* More coming soon!
+
+Looking to add your project? [Contact us!](https://mewwallet.typeform.com/enkrypt-inquiry?typeform-source=www.enkrypt.com)
+
+<p align="right">(<a href="#top">back to top</a>)</p>
 
 ### Built With
 
@@ -63,22 +80,20 @@ To get started make sure you have `nodejs` and `nvm` installed on your system
    ```sh
    yarn install
    ```
-
-<p align="right">(<a href="#top">back to top</a>)</p>
-
-
-
-<!-- USAGE EXAMPLES -->
-## Usage
-
-Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
-
-_For more examples, please refer to the [Documentation](https://example.com)_
-
-<p align="right">(<a href="#top">back to top</a>)</p>
-
-
-See the [open issues](https://github.com/enkryptcom/enKrypt/issues) for a full list of proposed features (and known issues).
+3. Build the project and watch for changes
+    ```sh
+    yarn watch-extension # chromium based browsers
+    yarn watch:firefox # firefox
+    ```
+4. Build the project for release
+    ```sh
+    yarn build:all
+    yarn build:chrome # chromium based browsers
+    yarn build:firefox # firefox
+    ```
+5. Add to your browser
+    * [Chrome/Brave/Opera](https://developer.chrome.com/docs/extensions/mv2/getstarted/#manifest)
+    * [Firefox](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Your_first_WebExtension#installing)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -114,8 +129,10 @@ Distributed under the MIT License. See `LICENSE.md` for more information.
 <!-- CONTACT -->
 ## Contact
 
-Your Name - [@enkryptcom](https://twitter.com/enkryptcom) - info@enkrypt.com
+Twitter - [@enkryptcom](https://twitter.com/enkryptcom)
 
-Project Link: [https://github.com/enkryptcom/enKrypt](https://github.com/enkryptcom/enKrypt)
+Email - info@enkrypt.com
+
+Homepage - [https://www.enkrypt.com/](https://www.enkrypt.com/)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
