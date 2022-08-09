@@ -17,7 +17,7 @@ const bitcoinOptions: BitcoinNetworkOptions = {
   icon: require("./icons/btc.svg"),
   decimals: 10,
   gradient: "#F7931A",
-  node: "",
+  node: "https://api.blockchain.info/haskoin-store/btc/",
   coingeckoID: "bitcoin",
   activityHandler: wrapActivityHandler(nodeActivity),
   basePath: "m/49'/0'/0'/0",
