@@ -11,7 +11,7 @@ import GetUIPath from "@/libs/utils/get-ui-path";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
 import UIRoutes from "./ui/routes/names";
 import { BaseNetwork } from "@/types/base-network";
-class PolkadotProvider
+class BitcoinProvider
   extends EventEmitter
   implements BackgroundProviderInterface
 {
@@ -29,7 +29,7 @@ class PolkadotProvider
     this.requestProvider.on("notification", (notif: any) => {
       this.sendNotification(JSON.stringify(notif));
     });
-    this.namespace = ProviderName.polkadot;
+    this.namespace = ProviderName.bitcoin;
     this.KeyRing = new PublicKeyRing();
   }
   private setMiddleWares(): void {
@@ -62,4 +62,4 @@ class PolkadotProvider
     return GetUIPath(page, this.namespace);
   }
 }
-export default PolkadotProvider;
+export default BitcoinProvider;

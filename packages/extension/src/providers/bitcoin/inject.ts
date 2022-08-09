@@ -8,7 +8,7 @@ import {
   SendMessageHandler,
 } from "@/types/provider";
 import InjectedProvider from "./libs/injected-provider";
-import { SubstrateInjectedProvider } from "./types";
+import { BitcoinInjectedProvider } from "./types";
 import MessageRouter from "./libs/message-router";
 import { EXTENSION_VERSION } from "@/configs/constants";
 import { InjectedSendMessageHandler } from "./types";
@@ -44,7 +44,7 @@ export class Provider
   handleMessage(msg: string): void {
     messagerRouter.handleMessage(msg);
   }
-  enable(dappName: string): Promise<SubstrateInjectedProvider> {
+  enable(dappName: string): Promise<BitcoinInjectedProvider> {
     const id = messagerRouter.nextPosition();
     const newProvider = new InjectedProvider({
       dappName,

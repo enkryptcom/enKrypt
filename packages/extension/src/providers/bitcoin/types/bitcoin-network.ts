@@ -6,6 +6,9 @@ import { ProviderName } from "@/types/provider";
 import { NetworkNames, SignerType } from "@enkryptcom/types";
 import createIcon from "../libs/blockies";
 import { Activity } from "@/types/activity";
+import { BitcoinNetworkInfo } from ".";
+import { payments } from "bitcoinjs-lib";
+import { hexToBuffer } from "@enkryptcom/utils";
 
 export interface BitcoinNetworkOptions {
   name: NetworkNames;
@@ -21,6 +24,7 @@ export interface BitcoinNetworkOptions {
   node: string;
   coingeckoID?: string;
   basePath: string;
+  networkInfo: BitcoinNetworkInfo;
   activityHandler: (
     network: BaseNetwork,
     address: string
@@ -43,9 +47,15 @@ export class BitcoinNetwork extends BaseNetwork {
 
     const baseOptions: BaseNetworkOptions = {
       identicon: createIcon,
-      signer: [SignerType.sr25519, SignerType.ed25519],
-      displayAddress: (address: string) => address,
-      provider: ProviderName.polkadot,
+      signer: [SignerType.secp256k1btc],
+      provider: ProviderName.bitcoin,
+      displayAddress: (pubkey: string) => {
+        const { address } = payments.p2wpkh({
+          pubkey: hexToBuffer(pubkey),
+          network: options.networkInfo,
+        });
+        return address as string;
+      },
       api,
       ...options,
     };

@@ -2471,6 +2471,7 @@ __metadata:
     add: ^2.0.6
     bignumber.js: ^9.0.2
     bip39: ^3.0.4
+    bitcoinjs-lib: ^6.0.2
     buffer: ^6.0.3
     chai: ^4.3.6
     concurrently: ^7.0.0
@@ -9280,6 +9281,22 @@ __metadata:
     varuint-bitcoin: ^1.0.4
     wif: ^2.0.1
   checksum: 947a9a65694b8d469cb643c0ef2793d807a2b948c6e54c96bbd586b48b2de81afeda40e6ae389e031be03c390804d54ed4805b2d90af713842ebe7f85a08a502
+  languageName: node
+  linkType: hard
+
+"bitcoinjs-lib@npm:^6.0.2":
+  version: 6.0.2
+  resolution: "bitcoinjs-lib@npm:6.0.2"
+  dependencies:
+    bech32: ^2.0.0
+    bip174: ^2.0.1
+    bs58check: ^2.1.2
+    create-hash: ^1.1.0
+    ripemd160: ^2.0.2
+    typeforce: ^1.11.3
+    varuint-bitcoin: ^1.1.2
+    wif: ^2.0.1
+  checksum: 4dd39e3c58205e243b3fd4f9928d333604b996c09a490d2d70c49715706d53a8bd51c66ed20f330888816047237e1f5f1187d0e6e06e2d7bd4419e0b01a1eb2e
   languageName: node
   linkType: hard
 
@@ -22019,7 +22036,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"varuint-bitcoin@npm:1.1.2, varuint-bitcoin@npm:^1.0.4":
+"varuint-bitcoin@npm:1.1.2, varuint-bitcoin@npm:^1.0.4, varuint-bitcoin@npm:^1.1.2":
   version: 1.1.2
   resolution: "varuint-bitcoin@npm:1.1.2"
   dependencies:

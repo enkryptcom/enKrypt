@@ -16,4 +16,5 @@ export enum NetworkNames {
   Polkadot = "DOT",
   Westend = "WND",
   Bitcoin = "BTC",
+  BitcoinTest = "BTCTest",
 }

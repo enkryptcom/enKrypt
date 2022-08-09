@@ -161,7 +161,7 @@ const setActiveNetworks = async () => {
     const network = allNetworks.find((network) => network.name === name);
     if (network !== undefined) networksToShow.push(network);
   });
-
+  console.log(networksToShow, allNetworks);
   networks.value = networksToShow;
 
   if (!networks.value.includes(currentNetwork.value)) {

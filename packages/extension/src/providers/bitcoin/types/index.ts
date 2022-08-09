@@ -47,4 +47,16 @@ export interface PolkadotAPIOptions {
   decimals: number;
 }
 
+export interface BitcoinNetworkInfo {
+  messagePrefix: string;
+  bech32: string;
+  bip32: {
+    public: number;
+    private: number;
+  };
+  pubKeyHash: number;
+  scriptHash: number;
+  wif: number;
+  dustThreshold: null;
+}
 export { InjectedProvider };
