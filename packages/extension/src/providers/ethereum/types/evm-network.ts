@@ -79,6 +79,7 @@ export class EvmNetwork extends BaseNetwork {
       ...options,
     };
 
+    baseOptions.customTokens = baseOptions.customTokens ?? true;
     super(baseOptions);
 
     this.chainID = options.chainID;

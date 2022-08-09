@@ -18,7 +18,6 @@ const moonbeamOptions: EvmNetworkOptions = {
   gradient: "#53CBC9",
   coingeckoID: "moonbeam",
   activityHandler: wrapActivityHandler(EtherscanActivity),
-  customTokens: true,
 };
 
 const moonbeam = new EvmNetwork(moonbeamOptions);
