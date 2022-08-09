@@ -69,7 +69,7 @@ defineProps({
 .send-fee-select {
   height: 40px;
   background: #ffffff;
-  margin: 0 32px 8px 32px;
+  margin: 0px 32px 8px 32px;
   box-sizing: border-box;
   border: 1px solid @gray02;
   box-sizing: border-box;

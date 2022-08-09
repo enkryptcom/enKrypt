@@ -14,7 +14,7 @@ const goerliOptions: EvmNetworkOptions = {
   currencyName: "GöETH",
   node: "wss://nodes.mewapi.io/ws/goerli",
   icon: require("./icons/eth.svg"),
-  gradient: "#C4C4C4",
+  gradient: "linear-gradient(180deg, #C549FF 0%, #684CFF 100%)",
   activityHandler: wrapActivityHandler(RivetActivity),
 };
 

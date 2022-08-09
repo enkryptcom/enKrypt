@@ -68,7 +68,7 @@ const toggleDetail = () => {
   color: @error;
 }
 .up {
-  color: @primary;
+  color: @success;
 }
 .network-assets {
   &__token {

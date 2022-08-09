@@ -1,9 +1,9 @@
 <template>
   <div class="network-nfts__item-more-menu">
-    <a>
+    <!-- <a>
       <nft-more-send />
       <span>Send</span>
-    </a>
+    </a> -->
     <a v-if="!isFavorite && !isHidden" @click="favClicked(true)">
       <nft-more-add-to-favorite />
       <span>Add to favorites</span>
@@ -24,7 +24,7 @@
 </template>
 
 <script setup lang="ts">
-import NftMoreSend from "@action/icons/nft/nft-more-send.vue";
+// import NftMoreSend from "@action/icons/nft/nft-more-send.vue";
 import NftMoreAddToFavorite from "@action/icons/nft/nft-more-add-to-favorite.vue";
 import NftMoreDeleteFromFavorite from "@action/icons/nft/nft-more-delete-from-favorite.vue";
 import NftMoreHide from "@action/icons/nft/nft-more-hide.vue";
@@ -84,7 +84,7 @@ const hideClicked = (isHide: boolean) => {
       0px 3.75px 11px rgba(0, 0, 0, 0.19);
     border-radius: 12px;
     z-index: 1;
-    padding: 4px;
+    padding: 8px;
     box-sizing: border-box;
 
     a {

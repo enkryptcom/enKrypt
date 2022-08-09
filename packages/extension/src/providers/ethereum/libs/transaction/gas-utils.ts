@@ -112,12 +112,12 @@ const getBaseFeeBasedOnType = (
 const FeeDescriptions = {
   [GasPriceTypes.ECONOMY]: {
     title: "Economy",
-    description: "Will likely go trough unless activity increases",
+    description: "Will likely go through unless activity increases",
     eta: "15 mins",
   },
   [GasPriceTypes.REGULAR]: {
     title: "Recommended",
-    description: "Will reliably go through in most scenatios",
+    description: "Will reliably go through in most scenarios",
     eta: "5 mins",
   },
   [GasPriceTypes.FAST]: {

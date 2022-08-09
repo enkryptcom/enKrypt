@@ -2,9 +2,14 @@
   <div class="send-alert">
     <alert-icon />
     <p>
-      After sending this transaction your balance will go below Existential
-      Limit, which will drop your remaining balance to 0.<br />
-      <a href="#">What is Existential Limit?</a>
+      Your balance will go the minimum balance, which will drop your remaining
+      balance to 0.<br />
+      <a
+        target="_blank"
+        rel="noreferrer"
+        href="https://support.polkadot.network/support/solutions/articles/65000168651-what-is-the-existential-deposit-#:~:text=Print&text=On%20the%20Polkadot%20network%2C%20an,the%20Existential%20Deposit%20(ED)."
+        >What is Existential Deposit?</a
+      >
     </p>
   </div>
 </template>

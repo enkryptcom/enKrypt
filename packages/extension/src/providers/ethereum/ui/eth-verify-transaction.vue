@@ -1,7 +1,7 @@
 <template>
   <common-popup>
     <template #header>
-      <sign-logo color="#05C0A5" class="common-popup__logo"></sign-logo>
+      <sign-logo class="common-popup__logo"></sign-logo>
       <div class="common-popup__network">
         <img :src="network.icon" />
         <p>{{ network.name_long }}</p>
@@ -10,7 +10,9 @@
 
     <template #content>
       <h2>Verify transaction</h2>
-
+      <hardware-wallet-msg
+        :wallet-type="account.walletType"
+      ></hardware-wallet-msg>
       <div class="provider-verify-transaction__block">
         <div class="provider-verify-transaction__account">
           <img :src="identicon" />
@@ -109,11 +111,16 @@
     </template>
 
     <template #button-left>
-      <base-button title="Decline" :click="deny" :no-background="true" />
+      <base-button
+        title="Decline"
+        :click="deny"
+        :no-background="true"
+        :disabled="isProcessing"
+      />
     </template>
 
     <template #button-right>
-      <base-button title="Sign" :click="approve" />
+      <base-button title="Sign" :click="approve" :disabled="isProcessing" />
     </template>
   </common-popup>
 </template>
@@ -125,6 +132,7 @@ import RightChevron from "@action/icons/common/right-chevron.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import CommonPopup from "@action/views/common-popup/index.vue";
 import SendFeeSelect from "./send-transaction/components/send-fee-select.vue";
+import HardwareWalletMsg from "./components/hardware-wallet-msg.vue";
 import TransactionFeeView from "@action/views/transaction-fee/index.vue";
 import { getCustomError, getError } from "@/libs/error";
 import { ErrorCodes } from "@/providers/ethereum/types";
@@ -154,6 +162,7 @@ import { Activity, ActivityStatus, ActivityType } from "@/types/activity";
 import { generateAddress } from "ethereumjs-util";
 import ActivityState from "@/libs/activity-state";
 
+const isProcessing = ref(false);
 const isOpenSelectFee = ref(false);
 const providerVerifyTransactionScrollRef = ref<ComponentPublicInstance>();
 const isOpenData = ref(false);
@@ -176,6 +185,7 @@ const Options = ref<ProviderRequestOptions>({
   faviconURL: "",
   title: "",
   url: "",
+  tabId: 0,
 });
 const selectedFee = ref<GasPriceTypes>(GasPriceTypes.ECONOMY);
 
@@ -252,10 +262,12 @@ onBeforeMount(async () => {
         fiatSymbol: "USD",
       },
     };
+    selectedFee.value = GasPriceTypes.ECONOMY;
   });
 });
 
 const approve = async () => {
+  isProcessing.value = true;
   const { Request, Resolve } = await windowPromise;
   const web3 = new Web3(network.value.node);
   const tx = new Transaction(
@@ -277,7 +289,7 @@ const approve = async () => {
               ? tx.to.toString()
               : `0x${generateAddress(
                   tx.getSenderAddress().toBuffer(),
-                  tx.nonce.toBuffer()
+                  Buffer.from(tx.nonce.toString("hex"), "hex")
                 ).toString("hex")}`,
             isIncoming: tx.getSenderAddress().toString() === tx.to?.toString(),
             network: network.value.name,
@@ -322,7 +334,11 @@ const approve = async () => {
                 });
             });
         })
-        .catch(Resolve.value);
+        .catch((err) => {
+          Resolve.value({
+            error: getCustomError(err.message),
+          });
+        });
     }
   );
 };

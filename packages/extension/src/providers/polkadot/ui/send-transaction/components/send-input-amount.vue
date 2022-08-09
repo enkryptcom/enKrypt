@@ -3,10 +3,11 @@
     <input
       v-model="amount"
       type="number"
-      placeholder="0"
-      :style="{ color: !hasEnoughBalance ? 'red' : 'black' }"
+      placeholder="0.0"
+      :class="{ error: !hasEnoughBalance }"
       @focus="changeFocus"
       @blur="changeFocus"
+      @input="emit('update:inputSetMax', false)"
     />
 
     <div class="send-input-amount__fiat">
@@ -14,7 +15,7 @@
       <span>${{ $filters.formatFiatValue(fiatEquivalent).value }}</span>
     </div>
 
-    <a class="send-input-amount__max" @click="emit('update:inputSetMax')"
+    <a class="send-input-amount__max" @click="emit('update:inputSetMax', true)"
       >Max</a
     >
   </div>
@@ -27,7 +28,7 @@ import BigNumber from "bignumber.js";
 
 const emit = defineEmits<{
   (e: "update:inputAmount", address: string): void;
-  (e: "update:inputSetMax"): void;
+  (e: "update:inputSetMax", max: boolean): void;
 }>();
 
 const isFocus = ref(false);
@@ -43,7 +44,7 @@ const props = defineProps({
   },
   amount: {
     type: String,
-    default: "0",
+    default: "",
   },
 });
 const fiatEquivalent = computed(() => {
@@ -51,7 +52,9 @@ const fiatEquivalent = computed(() => {
 });
 const amount = computed({
   get: () => props.amount,
-  set: (value) => emit("update:inputAmount", value.toString()),
+  set: (value) => {
+    emit("update:inputAmount", new BigNumber(value).toFixed());
+  },
 });
 
 const changeFocus = () => {
@@ -154,6 +157,10 @@ const changeFocus = () => {
     &:active {
       opacity: 0.7;
     }
+  }
+
+  .error {
+    color: @error !important;
   }
 }
 </style>

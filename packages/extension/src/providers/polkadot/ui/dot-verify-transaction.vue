@@ -1,7 +1,7 @@
 <template>
   <common-popup>
     <template #header>
-      <sign-logo color="#E6007A" class="common-popup__logo"></sign-logo>
+      <sign-logo class="common-popup__logo"></sign-logo>
       <div class="common-popup__network">
         <img :src="network ? network.icon : defaultNetwork.icon" />
         <p>{{ network ? network.name_long : "" }}</p>
@@ -10,7 +10,9 @@
 
     <template #content>
       <h2>Verify transaction</h2>
-
+      <hardware-wallet-msg
+        :wallet-type="account?.walletType"
+      ></hardware-wallet-msg>
       <div class="provider-verify-transaction__block">
         <div class="provider-verify-transaction__account">
           <img
@@ -57,9 +59,17 @@
 
       <component :is="txView" v-if="!isProcessing" v-bind="txViewProps" />
 
-      <p v-if="!networkIsUnknown">
-        Fee: {{ txFee ? `${formatBalance(txFee)}` : "~" }}
-      </p>
+      <div v-if="!networkIsUnknown" class="provider-verify-transaction__fee">
+        <div class="provider-verify-transaction__fee-value">
+          <p class="provider-verify-transaction__fee-value-fiat">
+            Fee: {{ txFee ? `${formatBalance(txFee)}` : "~" }}
+          </p>
+          <!-- <p class="provider-verify-transaction__fee-value-crypto">
+            0.0019
+            <span>DOT</span>
+          </p> -->
+        </div>
+      </div>
 
       <best-offer-error
         v-if="insufficientBalance"
@@ -122,6 +132,7 @@ import CommonPopup from "@action/views/common-popup/index.vue";
 import RightChevron from "@action/icons/common/right-chevron.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import BestOfferError from "@action/views/swap-best-offer/components/swap-best-offer-block/components/best-offer-error.vue";
+import HardwareWalletMsg from "./components/hardware-wallet-msg.vue";
 import { getError } from "@/libs/error";
 import { ErrorCodes } from "@/providers/ethereum/types";
 import { WindowPromiseHandler } from "@/libs/window-promise";
@@ -166,6 +177,7 @@ const Options = ref<ProviderRequestOptions>({
   faviconURL: "",
   title: "",
   url: "",
+  tabId: 0,
 });
 const isProcessing = ref(false);
 const isSigning = ref(false);
@@ -217,7 +229,6 @@ const setAccount = async (reqAccount: EnkryptAccount) => {
       (network.value as SubstrateNetwork).prefix
     );
   }
-
   account.value = reqAccount;
 };
 

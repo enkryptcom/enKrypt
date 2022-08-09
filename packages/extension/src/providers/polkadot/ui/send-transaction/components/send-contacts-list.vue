@@ -26,7 +26,7 @@
           <h3>Recent</h3>
           <div class="send-contacts-list__list">
             <send-address-item
-              v-for="(account, index) in accountInfo.activeAccounts"
+              v-for="(account, index) in accounts"
               :key="index"
               :account="account"
               :network="network"
@@ -45,7 +45,7 @@
 
           <div class="send-contacts-list__list">
             <send-address-item
-              v-for="(account, index) in accountInfo.activeAccounts"
+              v-for="(account, index) in accounts"
               :key="index"
               :account="account"
               :network="network"
@@ -83,10 +83,9 @@
 import SendAddressItem from "./send-address-item.vue";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 import BaseButton from "@action/components/base-button/index.vue";
-import { AccountsHeaderData } from "@action/types/account";
 import scrollSettings from "@/libs/utils/scroll-settings";
 import { onUpdated, ref } from "vue";
-import { KeyRecord } from "@enkryptcom/types";
+import { EnkryptAccount, KeyRecord } from "@enkryptcom/types";
 import PasteIcon from "@action/icons/actions/paste.vue";
 import ArrowBack from "@action/icons/common/arrow-back.vue";
 import { BaseNetwork } from "@/types/base-network";
@@ -97,18 +96,18 @@ const emit = defineEmits<{
 
 interface IProps {
   showAccounts: boolean;
-  accountInfo: AccountsHeaderData;
+  accounts: EnkryptAccount[];
   address: string;
   network: BaseNetwork;
 }
 
 const props = defineProps<IProps>();
 
-const searchAccounts = ref<KeyRecord[]>(props.accountInfo.activeAccounts);
+const searchAccounts = ref<KeyRecord[]>(props.accounts);
 const isMyAddress = ref(false);
 
 onUpdated(() => {
-  searchAccounts.value = props.accountInfo.activeAccounts;
+  searchAccounts.value = props.accounts;
 });
 
 const close = () => {

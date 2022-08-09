@@ -134,7 +134,7 @@ const selectPath = (path: PathType) => {
     box-shadow: 0px 0.5px 5px rgba(0, 0, 0, 0.039),
       0px 3.75px 11px rgba(0, 0, 0, 0.19);
     border-radius: 12px;
-    padding: 4px;
+    padding: 8px;
     box-sizing: border-box;
     z-index: 1;
     &-item {

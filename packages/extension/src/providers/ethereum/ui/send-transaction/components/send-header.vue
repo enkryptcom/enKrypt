@@ -1,9 +1,9 @@
 <template>
   <div class="send-transaction__header">
-    <a class="send-transaction__selector" @click="toggleSelector">
+    <a class="send-transaction__selector">
       <span v-if="isSendToken">Send token</span>
-      <span v-else>Send NFT</span>
-      <switch-arrow></switch-arrow>
+      <!-- <span v-else>Send NFT</span>
+      <switch-arrow></switch-arrow> -->
     </a>
     <div v-show="isOpenSelector" class="send-transaction__dropdown">
       <a class="send-transaction__dropdown-item" @click="toggleType(true)">
@@ -24,7 +24,7 @@
 <script setup lang="ts">
 import { ref, PropType } from "vue";
 import CloseIcon from "@action/icons/common/close-icon.vue";
-import SwitchArrow from "@action/icons/header/switch_arrow.vue";
+// import SwitchArrow from "@action/icons/header/switch_arrow.vue";
 import DoneIcon from "@action/icons/common/done_icon.vue";
 
 let isOpenSelector = ref(false);
@@ -50,9 +50,9 @@ const props = defineProps({
   },
 });
 
-const toggleSelector = () => {
-  isOpenSelector.value = !isOpenSelector.value;
-};
+// const toggleSelector = () => {
+//   isOpenSelector.value = !isOpenSelector.value;
+// };
 
 const toggleType = (isTokenSend: boolean) => {
   isOpenSelector.value = false;
@@ -106,8 +106,8 @@ const toggleType = (isTokenSend: boolean) => {
   &__dropdown {
     position: absolute;
     width: 220px;
-    height: 104px;
-    padding: 4px;
+    height: 112px;
+    padding: 8px;
     background: @white;
     box-shadow: 0px 0.5px 5px rgba(0, 0, 0, 0.039),
       0px 3.75px 11px rgba(0, 0, 0, 0.19);

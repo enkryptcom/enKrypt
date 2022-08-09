@@ -50,7 +50,8 @@ export default (
   return fetch(query)
     .then((res) => res.json())
     .then(async (json) => {
-      if (json.error) throw new Error(`TOKENBALANCE-MEW: ${json.error}`);
+      if (json.error)
+        throw new Error(`TOKENBALANCE-MEW: ${JSON.stringify(json.error)}`);
       else {
         const balances: Record<string, TokenBalance> = (
           json.result as TokenBalance[]

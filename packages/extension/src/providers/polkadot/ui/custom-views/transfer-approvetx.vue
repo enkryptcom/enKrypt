@@ -1,19 +1,19 @@
 <template>
-  <h3>Transfer</h3>
   <div class="provider-verify-transaction__block">
-    <div class="provider-verify-transaction__info">
+    <div class="provider-verify-transaction__amount">
       <img :src="props.token.icon" />
-      <div class="provider-verify-transaction__info-info">
-        <h4>{{ props.token.symbol }}</h4>
-        <p>
+
+      <div class="provider-verify-transaction__amount-info">
+        <h4>
           {{ fromBase(props.amount, props.token.decimals || 0) }}
-        </p>
+          <span>{{ props.token.symbol }}</span>
+        </h4>
       </div>
     </div>
   </div>
-  <h3>To</h3>
+
   <div class="provider-verify-transaction__block">
-    <div class="provider-verify-transaction__info">
+    <div class="provider-verify-transaction__account">
       <img
         :src="
           network
@@ -21,20 +21,19 @@
             : defaultNetwork.identicon(props.to)
         "
       />
-      <div v-if="destName" class="provider-verify-transaction__account-info">
-        <h3>{{ destName }}</h3>
-        <p>
-          {{
-            `${props.to.slice(0, 5)}...${props.to.slice(props.to.length - 5)}`
-          }}
-        </p>
-      </div>
-      <div v-else class="provider-verify-transaction__account-info">
-        <h4>
-          {{
-            `${props.to.slice(0, 5)}...${props.to.slice(props.to.length - 5)}`
-          }}
-        </h4>
+      <div class="provider-verify-transaction__account-info">
+        <h6>To</h6>
+        <h4>{{ destName }}</h4>
+
+        <div
+          v-if="destName"
+          class="provider-verify-transaction__account-info-to"
+        >
+          {{ $filters.replaceWithEllipsis(props.to, 4, 4) }}
+        </div>
+        <div v-else class="provider-verify-transaction__account-info-to">
+          {{ $filters.replaceWithEllipsis(props.to, 5, 5) }}
+        </div>
       </div>
     </div>
   </div>

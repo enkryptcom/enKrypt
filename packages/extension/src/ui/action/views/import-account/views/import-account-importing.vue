@@ -18,8 +18,8 @@
     ></hardware-importing-account>
 
     <p class="import-account-importing__example">
-      Example: Private funds, Savings account, dApp account, Work funds,
-      Airdrops
+      Name your account something that makes sense to you! Main account, dapp
+      account, yolo account, etc.
     </p>
 
     <p class="import-account-importing__example">Enter Extension password</p>
@@ -44,7 +44,8 @@
 
   <import-account-process
     v-if="isProcessing"
-    :is-keystore="true"
+    :is-keystore="isKeystore"
+    :is-private-key="isPrivKey"
     :is-done="isDone"
   />
 </template>
@@ -57,7 +58,7 @@ import HardwareImportingAccount from "@/ui/onboard/hardware-wallet/components/ha
 import ImportAccountProcess from "../components/import-account-process.vue";
 import { BaseNetwork } from "@/types/base-network";
 import API from "@/providers/ethereum/libs/api";
-import { EnkryptAccount, KeyPair } from "@enkryptcom/types";
+import { EnkryptAccount, KeyPairAdd } from "@enkryptcom/types";
 import { formatFloatingPointValue } from "@/libs/utils/number-formatter";
 import { fromBase } from "@/libs/utils/units";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
@@ -73,7 +74,7 @@ const nodeAPI = ref<API>();
 const pubKeyRing = new PublicKeyRing();
 const keyringBase = new KeyRingBase();
 const allAccounts = ref<EnkryptAccount[]>([]);
-const nameValue = ref("My private account");
+const nameValue = ref("");
 const keyringError = ref(false);
 const keyringPassword = ref("");
 
@@ -87,9 +88,11 @@ const props = defineProps({
     default: () => ({}),
   },
   keypair: {
-    type: Object as PropType<KeyPair>,
+    type: Object as PropType<KeyPairAdd>,
     default: () => ({}),
   },
+  isPrivKey: Boolean,
+  isKeystore: Boolean,
 });
 const isDisabled = computed(() => {
   return keyringPassword.value.length < 3;
@@ -99,6 +102,7 @@ const isNameTaken = computed(() => {
   return allAccounts.value.map((acc) => acc.name).includes(nameValue.value);
 });
 onMounted(() => {
+  nameValue.value = props.keypair.name || "My private account";
   props.network.api().then((api) => {
     nodeAPI.value = api as API;
     updateBalance();
@@ -131,7 +135,7 @@ const importAction = async () => {
             name: nameValue.value,
             privateKey: props.keypair.privateKey,
             publicKey: props.keypair.publicKey,
-            signerType: props.network.signer[0],
+            signerType: props.keypair.signerType,
           },
           keyringPassword.value
         )

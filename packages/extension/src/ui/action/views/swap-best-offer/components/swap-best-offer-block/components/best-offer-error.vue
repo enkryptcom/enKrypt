@@ -3,25 +3,36 @@
     <alert-icon />
     <p v-if="badTrade">
       Warning: this is an extremely bad trade. Due to low liquidity, you will
-      get a rate that is YY% lower than the market. We highly recommend you
-      reconsider.
+      get a rate that is significantly lower than the market. We highly
+      recommend you reconsider.
     </p>
+
     <p v-if="notEnoughtETH" class="with-link">
-      Not enough ETH to pay the network<br />fee. You are ~0.041 ETH ($70)
-      short.
+      Not enough ETH to pay the network<br />fee. You are<br />~{{
+        $filters.formatFloatingPointValue(nativeValue).value
+      }}
+      {{ nativeSymbol }} (${{ $filters.formatFiatValue(price).value }}) short.
     </p>
 
     <p v-if="notEnoughtVerify" class="with-link">
-      Not enough funds. You are<br />~0.041 ETH ($70) short.
+      Not enough funds. You are<br />~{{
+        $filters.formatFloatingPointValue(nativeValue).value
+      }}
+      {{ nativeSymbol }} (${{ $filters.formatFiatValue(price).value }}) short.
     </p>
 
-    <a
+    <p v-if="belowDeposit">
+      Warning: This swap will cause you to go below the existential deposit and
+      will lead to lost funds.
+    </p>
+
+    <!-- <a
       v-if="notEnoughtETH || notEnoughtVerify"
       href="#"
       class="best-offer-error__buy-eth"
     >
       Buy ETH
-    </a>
+    </a> -->
   </div>
 </template>
 
@@ -39,6 +50,22 @@ defineProps({
   notEnoughtVerify: {
     type: Boolean,
     default: false,
+  },
+  belowDeposit: {
+    type: Boolean,
+    default: false,
+  },
+  nativeSymbol: {
+    type: String,
+    default: () => "",
+  },
+  nativeValue: {
+    type: String,
+    default: () => "",
+  },
+  price: {
+    type: String,
+    default: () => "",
   },
 });
 </script>

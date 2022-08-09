@@ -2,7 +2,7 @@
   <div class="unlock-keyring">
     <common-popup>
       <template #header>
-        <sign-logo color="#05C0A5" class="common-popup__logo"></sign-logo>
+        <sign-logo class="common-popup__logo"></sign-logo>
       </template>
       <template #content>
         <h2>Signing Request</h2>
@@ -21,7 +21,6 @@
           :is-forgot="isForgot"
           :toggle-forgot="toggleForgot"
           :disabled="isProcessing"
-          :reset-action="resetAction"
         ></modal-forgot>
       </template>
 
@@ -49,7 +48,7 @@ import BaseButton from "@action/components/base-button/index.vue";
 import LockScreenPasswordInput from "@action/views/lock-screen/components/lock-screen-password-input.vue";
 import ModalForgot from "@action/views/modal-forgot/index.vue";
 const windowPromise = WindowPromiseHandler(0);
-const password = ref("test pass");
+const password = ref(process.env.PREFILL_PASSWORD!);
 const isProcessing = ref(false);
 const isDisabled = computed(() => {
   return password.value.length < 5 || isProcessing.value;
@@ -62,6 +61,7 @@ const Options = ref<ProviderRequestOptions>({
   faviconURL: "",
   title: "",
   url: "",
+  tabId: 0,
 });
 onBeforeMount(async () => {
   const { options } = await windowPromise;
@@ -91,9 +91,6 @@ const passwordChanged = (text: string) => {
 };
 const toggleForgot = () => {
   isForgot.value = !isForgot.value;
-};
-const resetAction = () => {
-  console.log("resetAction");
 };
 </script>
 

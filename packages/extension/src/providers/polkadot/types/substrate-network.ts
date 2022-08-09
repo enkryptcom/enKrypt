@@ -16,6 +16,7 @@ import {
 import Sparkline from "@/libs/sparkline";
 import { SubstrateNativeToken } from "./substrate-native-token";
 import { Activity } from "@/types/activity";
+import { getApi, addNewApi } from "../libs/api-promises";
 
 export interface SubstrateNetworkOptions {
   name: NetworkNames;
@@ -32,7 +33,6 @@ export interface SubstrateNetworkOptions {
   node: string;
   coingeckoID?: string;
   genesisHash: string;
-  transferMethods?: Record<string, (args: any) => any>;
   activityHandler: (
     network: BaseNetwork,
     address: string
@@ -43,33 +43,20 @@ export class SubstrateNetwork extends BaseNetwork {
   public prefix: number;
   public assets: BaseToken[] = [];
   public genesisHash: string;
+
   private activityHandler: (
     network: BaseNetwork,
     address: string
   ) => Promise<Activity[]>;
-  public transferMethods: Record<string, (args: any) => any> = {
-    "balances.transferKeepAlive": (args: any) => {
-      const to = args.dest["Id"];
-      const token = new SubstrateNativeToken({
-        name: this.name_long,
-        symbol: this.name,
-        coingeckoID: this.coingeckoID,
-        decimals: this.decimals,
-        icon: this.icon,
-      });
-      const amount =
-        Number(args.value.replaceAll(",", "")) / 10 ** this.decimals;
-      return { to, token, amount };
-    },
-  };
-
   constructor(options: SubstrateNetworkOptions) {
     const api = async () => {
+      if (getApi(options.node)) return getApi(options.node);
       const api = new SubstrateAPI(options.node, {
         decimals: options.decimals,
         name: options.name,
       });
       await api.init();
+      addNewApi(options.node, api);
       return api;
     };
 
@@ -87,12 +74,6 @@ export class SubstrateNetwork extends BaseNetwork {
     this.prefix = options.prefix;
     this.genesisHash = options.genesisHash;
 
-    if (options.transferMethods) {
-      this.transferMethods = {
-        ...options.transferMethods,
-        ...this.transferMethods,
-      };
-    }
     this.activityHandler = options.activityHandler;
   }
 
@@ -122,9 +103,7 @@ export class SubstrateNetwork extends BaseNetwork {
     );
     const marketData = new MarketData();
     const market = await marketData.getMarketData(
-      supported
-        .filter(({ coingeckoID }) => coingeckoID !== undefined)
-        .map(({ coingeckoID }) => coingeckoID as string)
+      supported.map(({ coingeckoID }) => coingeckoID ?? "")
     );
 
     const balances = (await Promise.all(
@@ -157,16 +136,16 @@ export class SubstrateNetwork extends BaseNetwork {
         baseToken: st,
       };
     });
-
-    const sorted = [...tokens].filter((val, idx) => idx !== 0);
-    sorted.sort((a, b) => {
+    const nonNativNonZeroList = tokens.filter(
+      (asset, idx) => idx !== 0 && asset.balance !== "0"
+    );
+    nonNativNonZeroList.sort((a, b) => {
       if (a.balanceUSD < b.balanceUSD) return 1;
       else if (a.balanceUSD > b.balanceUSD) return -1;
       else return 0;
     });
-    sorted.unshift(tokens[0]);
-
-    return sorted;
+    nonNativNonZeroList.unshift(tokens[0]);
+    return nonNativNonZeroList;
   }
   public getAllActivity(address: string): Promise<Activity[]> {
     return this.activityHandler(this, address);

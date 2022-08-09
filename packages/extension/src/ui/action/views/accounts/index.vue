@@ -24,9 +24,7 @@
           @action:delete="deleteAccount(index)"
         ></accounts-list-item>
 
-        <div class="accounts__info">
-          Incompatible accounts&nbsp;&nbsp;<a href="#">why?</a>
-        </div>
+        <div class="accounts__info">Incompatible accounts</div>
 
         <accounts-list-item
           v-for="(account, index) in accountInfo.inactiveAccounts"
@@ -62,11 +60,7 @@
           Add hardware wallet account
         </a>
 
-        <a
-          v-if="network.signer[0] === SignerType.secp256k1"
-          class="accounts__action-button import"
-          @click="importAction"
-        >
+        <a class="accounts__action-button import" @click="importAction">
           <import-account-icon />
           Import account from another wallet
         </a>
@@ -100,7 +94,6 @@
     v-if="isImportAccount"
     v-bind="$attrs"
     :network="network"
-    :is-dot="network.name == 'DOT'"
     @close="closeImportAccount"
   ></import-account>
 </template>
@@ -267,6 +260,7 @@ const closeImportAccount = () => {
     margin: auto;
     width: 100%;
     max-height: 420px;
+    padding-bottom: 100px !important;
   }
 
   &__info {

@@ -7,7 +7,7 @@
         :settings="scrollSettings({ suppressScrollX: true })"
       >
         <send-address-item
-          v-for="(account, index) in accountInfo.activeAccounts"
+          v-for="(account, index) in accounts"
           :key="index"
           :account="account"
           :network="network"
@@ -23,9 +23,9 @@
 import { PropType } from "vue";
 import SendAddressItem from "./send-address-item.vue";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
-import { AccountsHeaderData } from "@action/types/account";
 import scrollSettings from "@/libs/utils/scroll-settings";
 import { BaseNetwork } from "@/types/base-network";
+import { EnkryptAccount } from "@enkryptcom/types";
 
 const emit = defineEmits<{
   (e: "update:pasteFromClipboard"): void;
@@ -34,9 +34,9 @@ const emit = defineEmits<{
 
 defineProps({
   showAccounts: Boolean,
-  accountInfo: {
-    type: Object as PropType<AccountsHeaderData>,
-    default: () => ({}),
+  accounts: {
+    type: Array as PropType<EnkryptAccount[]>,
+    default: () => [],
   },
   network: {
     type: Object as PropType<BaseNetwork>,

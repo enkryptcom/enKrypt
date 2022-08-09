@@ -30,6 +30,7 @@
 
     <network-nfts-empty
       v-if="!NFTs.length && !favoriteNFTs.length && !hiddenNFTs.length"
+      :is-empty="isNoNFTs"
     ></network-nfts-empty>
   </div>
 </template>
@@ -63,6 +64,8 @@ const NFTs = ref<NFTCollection[]>([]);
 const favoriteNFTs = ref<NFTItem[]>([]);
 const hiddenNFTs = ref<NFTItem[]>([]);
 const liveNFTCollection = ref<NFTCollection[]>([]);
+const isNoNFTs = ref(false);
+
 watch([props.accountInfo, props.network], () => {
   updateNFTInfo();
 });
@@ -96,9 +99,13 @@ const localUpdate = async () => {
     }
   });
   NFTs.value = collections.filter((col) => col.items.length);
+  isNoNFTs.value = collections.length === 0;
 };
 const updateNFTInfo = async () => {
+  liveNFTCollection.value = [];
+  NFTs.value = [];
   if (props.network.NFTHandler) {
+    isNoNFTs.value = false;
     props.network
       .NFTHandler(
         props.network,
@@ -138,7 +145,7 @@ const hideClicked = async (isHidden: boolean, item: NFTItem) => {
 
 .container {
   width: 100%;
-  height: 600px;
+  height: 550px;
   background-color: @white;
   box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.16);
   margin: 0;
@@ -156,7 +163,7 @@ const hideClicked = async (isHidden: boolean, item: NFTItem) => {
     position: relative;
     margin: auto;
     width: 100%;
-    max-height: 600px;
+    max-height: 540px;
     margin: 0;
     padding: 56px 0 0 0 !important;
     box-sizing: border-box;

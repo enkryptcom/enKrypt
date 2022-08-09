@@ -6,16 +6,15 @@
 </template>
 
 <script setup lang="ts">
-const props = defineProps({
+const emit = defineEmits<{
+  (e: "update:check", isChecked: boolean): void;
+}>();
+defineProps({
   isChecked: Boolean,
-  check: {
-    type: Function,
-    default: () => ({}),
-  },
 });
 
 const checkLocal = (e: any) => {
-  props.check(e.target.checked);
+  emit("update:check", e.target.checked);
 };
 </script>
 
@@ -64,11 +63,11 @@ const checkLocal = (e: any) => {
 }
 
 input:checked + .slider {
-  background-color: @primary;
+  background-color: @success;
 }
 
 input:focus + .slider {
-  box-shadow: 0 0 1px @primary;
+  box-shadow: 0 0 1px @success;
 }
 
 input:checked + .slider:before {

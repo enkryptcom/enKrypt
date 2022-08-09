@@ -43,7 +43,7 @@ jobs:
         run: |
           mkdir release
           docker run --rm --user "$(id -u):$(id -g)" -v `pwd`:/home:rw enkrypt-build-container /bin/bash -c "cd packages/extension && yarn build:all && yarn zip"
-          mv packages/extension/dist/release.zip release/enkrypt-chrome-${{ steps.get_release_tag.outputs.VERSION }}.zip
+          mv packages/extension/dist/release.zip release/enkrypt-chrome-edge-${{ steps.get_release_tag.outputs.VERSION }}.zip
           docker run --rm --user "$(id -u):$(id -g)" -v `pwd`:/home:rw enkrypt-build-container /bin/bash -c "cd packages/extension && yarn build:firefox && yarn zip"
           mv packages/extension/dist/release.zip release/enkrypt-firefox-${{ steps.get_release_tag.outputs.VERSION }}.zip
           docker run --rm --user "$(id -u):$(id -g)" -v `pwd`:/home:rw enkrypt-build-container /bin/bash -c "cd packages/extension && yarn build:opera && yarn zip"
@@ -53,6 +53,6 @@ jobs:
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           prerelease: false
-          title: Release-${{ steps.get_release_tag.outputs.VERSION }}
+          title: ${{ steps.get_release_tag.outputs.VERSION }}
           files: |
             release/*

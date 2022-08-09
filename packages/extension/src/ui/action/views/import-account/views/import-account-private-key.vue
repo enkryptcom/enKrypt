@@ -17,8 +17,12 @@
       :class="{ error: !isValidKey }"
       placeholder="Private key"
       autofocus
+      @change="onInput"
     >
     </textarea>
+    <p class="import-account-private-key__already_exists">
+      {{ accountAlreadyExists ? "This account has already been added" : "" }}
+    </p>
 
     <base-button
       title="Import account"
@@ -34,26 +38,52 @@ import ImportAccountHeader from "../components/import-account-header.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import Wallet from "ethereumjs-wallet";
 import { hexToBuffer } from "@enkryptcom/utils";
+import { KeyPairAdd, SignerType } from "@enkryptcom/types";
+import PublicKeyRing from "@/libs/keyring/public-keyring";
 
 const isProcessing = ref(false);
 const privKey = ref("");
+const keyring = new PublicKeyRing();
 
 const emit = defineEmits<{
-  (e: "update:wallet", wallet: Wallet): void;
+  (e: "update:wallet", keypair: KeyPairAdd): void;
 }>();
+
+const accountAlreadyExists = ref(false);
+
+const formattedPrivateKey = computed(() => privKey.value.trim());
 
 const isValidKey = computed(() => {
   try {
-    const buffer = hexToBuffer(privKey.value);
+    const buffer = hexToBuffer(formattedPrivateKey.value);
     new Wallet(buffer);
     return true;
   } catch (e) {
     return false;
   }
 });
-const importAction = () => {
-  const buffer = hexToBuffer(privKey.value);
-  emit("update:wallet", new Wallet(buffer));
+
+const onInput = () => {
+  accountAlreadyExists.value = false;
+};
+
+const importAction = async () => {
+  const buffer = hexToBuffer(formattedPrivateKey.value);
+  const wallet = new Wallet(buffer);
+  const newAddress = `0x${wallet.getAddress().toString("hex")}`;
+
+  if (await keyring.accountAlreadyAdded(newAddress)) {
+    accountAlreadyExists.value = true;
+    return;
+  }
+
+  emit("update:wallet", {
+    privateKey: wallet.getPrivateKeyString(),
+    publicKey: wallet.getPublicKeyString(),
+    address: wallet.getAddressString(),
+    name: "",
+    signerType: SignerType.secp256k1,
+  });
 };
 </script>
 
@@ -94,7 +124,7 @@ const importAction = () => {
     font-family: "Roboto";
     box-sizing: border-box;
     border-radius: 10px;
-    margin-bottom: 24px;
+    margin-bottom: 8px;
     resize: none;
     font-style: normal;
     font-weight: 400;
@@ -112,6 +142,14 @@ const importAction = () => {
     &:focus {
       height: 64px;
     }
+  }
+
+  &__already_exists {
+    color: @error;
+    height: 14px;
+    text-align: left;
+    margin: 0px;
+    margin-bottom: 16px;
   }
 }
 </style>

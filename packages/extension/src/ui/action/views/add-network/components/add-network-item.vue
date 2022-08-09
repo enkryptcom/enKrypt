@@ -9,7 +9,7 @@
       <!-- <a href="#">
         <InfoIcon />
       </a> -->
-      <Switch :check="check" :is-checked="isActive" />
+      <Switch :is-checked="isActive" @update:check="check" />
     </div>
   </div>
 </template>

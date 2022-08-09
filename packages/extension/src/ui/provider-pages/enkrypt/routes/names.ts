@@ -4,4 +4,9 @@ export default {
     name: "unlockKeyring",
     component: {},
   },
+  loading: {
+    path: "loading",
+    name: "loading",
+    component: {},
+  },
 };

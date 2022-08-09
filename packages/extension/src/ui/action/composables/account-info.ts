@@ -3,7 +3,7 @@ import { BaseNetwork } from "@/types/base-network";
 import { computed, ref, watch, onMounted, Ref } from "vue";
 import { AccountsHeaderData } from "../types/account";
 import { formatFloatingPointValue, formatFiatValue } from "../utils/filters";
-const defaultFiatVal = "~";
+const defaultFiatVal = "0.00";
 export default (
   network: Ref<BaseNetwork>,
   accountInfo: Ref<AccountsHeaderData>

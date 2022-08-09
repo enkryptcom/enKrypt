@@ -1,53 +1,119 @@
 <template>
   <div class="swap-best-offer-block">
-    <h3>Best offer from *Provider name*</h3>
+    <h3>Best Offer</h3>
     <div class="swap-best-offer-block__for">
-      for<img :src="require('@/ui/action/icons/raw/uni.png')" />
-      <p>10 <span>eth</span></p>
+      for<img :src="fromToken.icon" />
+      <p>
+        {{ $filters.formatFloatingPointValue(fromAmount).value }}
+        <span>{{ props.fromToken.symbol }}</span>
+      </p>
       you will get:
     </div>
     <div class="swap-best-offer-block__token">
-      <img :src="require('@/ui/action/icons/raw/yearn.png')" />
+      <img :src="toToken.icon" />
       <div class="swap-best-offer-block__token-info">
-        <h4>129.634 <span>comp</span></h4>
-        <p>≈ $41,011.8</p>
+        <h4>
+          {{
+            $filters.formatFloatingPointValue(pickedTrade?.minimumReceived)
+              .value
+          }}
+          <span>{{ toToken.symbol }}</span>
+        </h4>
+        <p>≈ {{ $filters.formatFiatValue(toTokenPrice).value }}</p>
       </div>
     </div>
     <best-offer-to-item></best-offer-to-item>
-    <best-offer-warning :fee-warning="true"></best-offer-warning>
-    <best-offer-warning :token-warning="true"></best-offer-warning>
-    <best-offer-error :bad-trade="true"></best-offer-error>
-    <div class="swap-best-offer-block__offers">
+    <!-- <best-offer-warning :fee-warning="true"></best-offer-warning>
+    <best-offer-warning :token-warning="true"></best-offer-warning> -->
+    <best-offer-error
+      v-if="warning === SwapBestOfferWarnings.BAD_PRICE"
+      :bad-trade="true"
+    ></best-offer-error>
+    <div v-if="trades.length > 1" class="swap-best-offer-block__offers">
       <a
         class="swap-best-offer-block__offers-link"
         :class="{ opened: isOffersOpen }"
         @click="toggleOffers"
-        >2 other offers <switch-arrow
+        >{{ trades.length - 1 }} other offers <switch-arrow
       /></a>
-      <best-offer-list v-show="isOffersOpen" :select="select"></best-offer-list>
+      <best-offer-list
+        v-show="isOffersOpen"
+        :select="select"
+        :trades="trades"
+        :picked-trade="pickedTrade"
+      ></best-offer-list>
     </div>
     <div class="swap-best-offer-block__info">
-      <p>Rate: 1 ETH ≈ 12.07 COMP</p>
-      <p>Price impact: –0.07%</p>
-      <p>Max. slippage: 1.3%</p>
-      <p>Minimum received: 128.345 COMP</p>
-      <p>Offer includes 2.5% MEW fee</p>
+      <p>
+        Rate: 1 {{ fromToken.symbol.toUpperCase() }} ≈
+        {{ $filters.formatFloatingPointValue(ratio).value }}
+        {{ toToken.symbol.toUpperCase() }}
+      </p>
+      <p v-if="pickedTrade.priceImpact">
+        Price impact:
+        {{ new BigNumber(pickedTrade.priceImpact).times(100).toFixed() }}%
+      </p>
+      <p v-if="pickedTrade.maxSlippage">
+        Max. slippage:
+        {{ new BigNumber(pickedTrade.maxSlippage).times(100).toFixed() }}%
+      </p>
+      <p>
+        Minimum received:
+        {{
+          $filters.formatFloatingPointValue(pickedTrade.minimumReceived).value
+        }}
+        {{ toToken.symbol.toUpperCase() }}
+      </p>
+      <p>
+        Offer includes
+        {{ new BigNumber(pickedTrade.fee).times(100).toFixed() }}% Enkrypt fee
+      </p>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import SwitchArrow from "@action/icons/header/switch_arrow.vue";
 import BestOfferList from "./components/best-offer-list.vue";
-import BestOfferWarning from "./components/best-offer-warning.vue";
 import BestOfferError from "./components/best-offer-error.vue";
 import BestOfferToItem from "./components/best-offer-to-item.vue";
+import { TradeInfo } from "@/providers/swap/types/SwapProvider";
+import { BaseToken } from "@/types/base-token";
+import BigNumber from "bignumber.js";
+import { SwapBestOfferWarnings } from "../types";
 
-let isOffersOpen = ref(false);
+interface SwapBestOfferProps {
+  trades: TradeInfo[];
+  pickedTrade: TradeInfo;
+  fromToken: BaseToken;
+  fromAmount: string;
+  toToken: BaseToken;
+  warning?: SwapBestOfferWarnings;
+}
 
-const select = () => {
-  console.log("select");
+const props = defineProps<SwapBestOfferProps>();
+
+const emit = defineEmits<{
+  (e: "update:pickedTrade", trade: TradeInfo): void;
+}>();
+
+const isOffersOpen = ref(false);
+
+const toTokenPrice = computed(() =>
+  new BigNumber(props.toToken.price ?? 0).times(
+    new BigNumber(props.pickedTrade.minimumReceived)
+  )
+);
+
+const ratio = computed(() =>
+  new BigNumber(props.pickedTrade.minimumReceived)
+    .div(new BigNumber(props.fromAmount))
+    .toFixed()
+);
+
+const select = (trade: TradeInfo) => {
+  emit("update:pickedTrade", trade);
   toggleOffers();
 };
 
@@ -65,6 +131,7 @@ const toggleOffers = () => {
   box-sizing: border-box;
   border-radius: 10px;
   padding: 16px;
+  margin-bottom: 8px;
 
   h3 {
     font-style: normal;

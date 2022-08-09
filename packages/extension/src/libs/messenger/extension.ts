@@ -63,6 +63,16 @@ export const sendToBackgroundFromAction = (
   ).then((res) => res as unknown as InternalOnMessageResponse);
 };
 
+export const sendToBackgroundFromCS = (
+  message: SendMessage
+): Promise<InternalOnMessageResponse> => {
+  return sendMessage(
+    MessageType.CS_REQUEST,
+    message,
+    Destination.background
+  ).then((res) => res as unknown as InternalOnMessageResponse);
+};
+
 export const sendToNewWindowFromBackground = (
   message: SendMessage,
   tabId: number
@@ -114,6 +124,16 @@ export const backgroundOnMessageFromAction = (
     assert(
       message.sender.context === Destination.popup,
       "Message didnt come from popup"
+    );
+    return cb(message);
+  });
+};
+
+export const backgroundOnMessageFromCS = (cb: onMessageType): void => {
+  backgroundOnMessage(MessageType.CS_REQUEST, async (message) => {
+    assert(
+      message.sender.context === Destination.contentScript,
+      "Message didnt come from content script"
     );
     return cb(message);
   });

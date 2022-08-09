@@ -1,11 +1,17 @@
 <template>
   <div class="app" :class="{ locked: isLocked }">
     <div ref="appMenuRef" class="app__menu">
-      <logo-min :color="networkGradient" class="app__menu-logo" />
-      <base-search :input="searchInput" :is-border="false" />
+      <logo-min class="app__menu-logo" />
+      <base-search
+        :value="searchInput"
+        :is-border="false"
+        @update:value="updateSearchValue"
+      />
       <app-menu
         :networks="networks"
         :selected="(route.params.id as string)"
+        :search-input="searchInput"
+        @update:order="updateNetworkOrder"
         @update:network="setNetwork"
       />
       <div class="app__menu-footer">
@@ -74,7 +80,7 @@
     ></add-network>
 
     <settings
-      v-show="settingsShow"
+      v-if="settingsShow"
       @close:popup="settingsShow = !settingsShow"
     ></settings>
   </div>
@@ -101,7 +107,10 @@ import {
   getNetworkByName,
 } from "@/libs/utils/networks";
 import DomainState from "@/libs/domain-state";
-import { getOtherSigners } from "@/libs/utils/accounts";
+import {
+  getAccountsByNetworkName,
+  getOtherSigners,
+} from "@/libs/utils/accounts";
 import { AccountsHeaderData } from "./types/account";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
 import { sendToBackgroundFromAction } from "@/libs/messenger/extension";
@@ -113,6 +122,8 @@ import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
 import { fromBase } from "@/libs/utils/units";
 import { EnkryptAccount } from "@enkryptcom/types";
 import Browser from "webextension-polyfill";
+import EVMAccountState from "@/providers/ethereum/libs/accounts-state";
+import { ProviderName } from "@/types/provider";
 
 const domainState = new DomainState();
 const networksState = new NetworksState();
@@ -131,7 +142,7 @@ defineExpose({ appMenuRef });
 const router = useRouter();
 const route = useRoute();
 const transitionName = "fade";
-
+const searchInput = ref("");
 const networks = ref<BaseNetwork[]>([]);
 const defaultNetwork = getNetworkByName(
   DEFAULT_EVM_NETWORK_NAME
@@ -156,6 +167,12 @@ const setActiveNetworks = async () => {
   if (!networks.value.includes(currentNetwork.value)) {
     setNetwork(networks.value[0]);
   }
+};
+const updateNetworkOrder = (newOrder: BaseNetwork[]) => {
+  if (searchInput.value === "") networks.value = newOrder;
+};
+const updateSearchValue = (newval: string) => {
+  searchInput.value = newval;
 };
 const toggleDepositWindow = () => {
   showDepositWindow.value = !showDepositWindow.value;
@@ -202,9 +219,9 @@ const setNetwork = async (network: BaseNetwork) => {
   if (appMenuRef.value)
     (
       appMenuRef.value as HTMLElement
-    ).style.background = `radial-gradient(100% 50% at 100% 50%, rgba(250, 250, 250, 0.92) 0%, rgba(250, 250, 250, 0.98) 100%), ${network.gradient}`;
+    ).style.background = `radial-gradient(137.35% 97% at 100% 50%, rgba(250, 250, 250, 0.94) 0%, rgba(250, 250, 250, 0.96) 28.91%, rgba(250, 250, 250, 0.98) 100%), ${network.gradient}`;
   networkGradient.value = network.gradient;
-  const activeAccounts = await kr.getAccounts(network.signer);
+  const activeAccounts = await getAccountsByNetworkName(network.name);
   const inactiveAccounts = await kr.getAccounts(
     getOtherSigners(network.signer)
   );
@@ -221,6 +238,7 @@ const setNetwork = async (network: BaseNetwork) => {
     activeBalances: activeAccounts.map(() => "~"),
   };
   currentNetwork.value = network;
+  router.push({ name: "assets", params: { id: network.name } });
   const tabId = await domainState.getCurrentTabId();
   if ((currentNetwork.value as EvmNetwork).chainID) {
     await sendToBackgroundFromAction({
@@ -245,7 +263,6 @@ const setNetwork = async (network: BaseNetwork) => {
       tabId,
     });
   }
-  router.push({ name: "activity", params: { id: network.name } });
   domainState.setSelectedNetwork(network.name);
   if (network.api) {
     try {
@@ -266,6 +283,11 @@ const setNetwork = async (network: BaseNetwork) => {
 
 const onSelectedAddressChanged = async (newAccount: EnkryptAccount) => {
   accountHeaderData.value.selectedAccount = newAccount;
+  if (currentNetwork.value.provider === ProviderName.ethereum) {
+    const evmAccountState = new EVMAccountState();
+    const domain = await domainState.getCurrentDomain();
+    evmAccountState.addApprovedAddress(newAccount.address, domain);
+  }
   await domainState.setSelectedAddress(newAccount.address);
   await sendToBackgroundFromAction({
     message: JSON.stringify({
@@ -294,9 +316,7 @@ const showNetworkMenu = computed(() => {
 const isLocked = computed(() => {
   return route.name == "lock-screen";
 });
-const searchInput = (text: string) => {
-  console.log(text);
-};
+
 const lockAction = async () => {
   sendToBackgroundFromAction({
     message: JSON.stringify({
@@ -427,7 +447,7 @@ body {
     }
 
     &-dropdown {
-      padding: 4px;
+      padding: 8px;
       position: relative;
       width: 172px;
       background: @white;

@@ -58,6 +58,8 @@ export class EvmNetwork extends BaseNetwork {
     address: string
   ) => Promise<Activity[]>;
 
+  public assets: Erc20Token[] = [];
+
   constructor(options: EvmNetworkOptions) {
     const api = async () => {
       const api = new API(options.node);
@@ -123,7 +125,38 @@ export class EvmNetwork extends BaseNetwork {
         contract: NATIVE_TOKEN_ADDRESS,
       };
 
-      return [nativeAsset];
+      await Promise.all(
+        this.assets.map((token) =>
+          token.getLatestUserBalance(api as API, address).then((balance) => {
+            token.balance = balance;
+          })
+        )
+      );
+
+      const assetInfos = this.assets
+        .map((token) => {
+          const assetsType: AssetsType = {
+            name: token.name,
+            symbol: token.symbol,
+            icon: token.icon,
+            balance: token.balance!,
+            balancef: formatFloatingPointValue(
+              fromBase(token.balance!, token.decimals)
+            ).value,
+            balanceUSD: 0,
+            balanceUSDf: "0",
+            value: "0",
+            valuef: "0",
+            decimals: token.decimals,
+            sparkline: "",
+            priceChangePercentage: 0,
+            contract: token.contract,
+          };
+          return assetsType;
+        })
+        .filter((asset) => asset.balancef !== "0");
+
+      return [nativeAsset, ...assetInfos];
     }
   }
   public getAllActivity(address: string): Promise<Activity[]> {

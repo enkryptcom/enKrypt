@@ -15,7 +15,7 @@ const bscOptions: EvmNetworkOptions = {
   currencyName: "BNB",
   node: "wss://nodes.mewapi.io/ws/bsc",
   icon: require("./icons/bsc.svg"),
-  gradient: "#E6007A",
+  gradient: "#F0B90B",
   coingeckoID: "binancecoin",
   basePath: "m/44'/714'",
   assetsInfoHandler,

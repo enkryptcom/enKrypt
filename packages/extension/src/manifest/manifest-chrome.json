@@ -4,7 +4,7 @@
     "default_icon": {
       "16": "assets/img/icons/icon16.png",
       "32": "assets/img/icons/icon32.png",
-      "48": "assets/img/icons/icon48.png",
+      "64": "assets/img/icons/icon64.png",
       "192": "assets/img/icons/icon192.png"
     },
     "default_title": "Enkrypt",
@@ -15,7 +15,7 @@
   },
   "web_accessible_resources": [
     {
-      "resources": ["scripts/inject.js"],
+      "resources": ["scripts/inject.js", "scripts/*.js.map"],
       "use_dynamic_url": false,
       "matches": ["http://*/*", "https://*/*"]
     }

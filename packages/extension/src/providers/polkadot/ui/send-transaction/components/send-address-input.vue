@@ -10,7 +10,8 @@
         ref="addressInput"
         v-model="address"
         type="text"
-        placeholder="0x… address"
+        :disabled="disableDirectInput"
+        placeholder="address"
         :style="{ color: !isAddress ? 'red' : 'black' }"
         @focus="changeFocus"
         @blur="changeFocus"
@@ -45,6 +46,7 @@ const props = defineProps({
     type: Object as PropType<BaseNetwork>,
     default: () => ({}),
   },
+  disableDirectInput: Boolean,
 });
 
 const addressInput = ref<HTMLInputElement>();
@@ -58,13 +60,28 @@ const pasteFromClipboard = () => {
 defineExpose({ addressInput, pasteFromClipboard });
 
 const address = computed({
-  get: () =>
-    isFocus.value
-      ? props.value
-      : isAddress.value
-      ? replaceWithEllipsis(props.network.displayAddress(props.value), 6, 6)
-      : replaceWithEllipsis(props.value, 6, 6),
-  set: (value) => emit("update:inputAddress", value),
+  get: () => {
+    try {
+      if (isFocus.value && isAddress.value) {
+        return props.network.displayAddress(props.value);
+      } else if (isAddress.value) {
+        return replaceWithEllipsis(
+          props.network.displayAddress(props.value),
+          6,
+          6
+        );
+      }
+
+      return props.value;
+    } catch {
+      return props.value;
+    }
+  },
+  set: (value) => {
+    if (value) {
+      emit("update:inputAddress", value);
+    }
+  },
 });
 
 const isAddress = computed(() => {
@@ -145,6 +162,10 @@ const changeFocus = (val: FocusEvent) => {
       border: 0 none;
       outline: none;
       padding: 0;
+    }
+
+    input:disabled {
+      background-color: #ffffff;
     }
   }
 
