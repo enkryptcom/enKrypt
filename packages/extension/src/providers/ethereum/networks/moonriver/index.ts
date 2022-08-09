@@ -18,6 +18,7 @@ const moonriverOptions: EvmNetworkOptions = {
   gradient: "linear-gradient(180deg, #F2B705 0%, #53CBC8 100%)",
   coingeckoID: "moonriver",
   activityHandler: wrapActivityHandler(EtherscanActivity),
+  customTokens: true,
 };
 
 const moonriver = new EvmNetwork(moonriverOptions);

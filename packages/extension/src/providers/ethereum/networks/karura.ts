@@ -17,6 +17,7 @@ const karuraOptions: EvmNetworkOptions = {
   gradient: "linear-gradient(330.21deg, #E40C5B -26.31%, #FF4C3B 88.17%)",
   coingeckoID: "karura",
   activityHandler: wrapActivityHandler(EtherscanActivity),
+  customTokens: true,
 };
 
 const karura = new EvmNetwork(karuraOptions);

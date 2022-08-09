@@ -25,6 +25,7 @@ export interface BaseNetworkOptions {
   identicon: (address: string) => string;
   basePath: string;
   api: () => Promise<SubstrateAPI> | Promise<EvmAPI>;
+  customTokens?: boolean;
 }
 
 export abstract class BaseNetwork {
@@ -46,6 +47,7 @@ export abstract class BaseNetwork {
   public basePath: string;
   public decimals: number;
   public api: () => Promise<SubstrateAPI> | Promise<EvmAPI>;
+  public customTokens: boolean;
 
   constructor(options: BaseNetworkOptions) {
     this.name = options.name;
@@ -66,6 +68,7 @@ export abstract class BaseNetwork {
     this.basePath = options.basePath;
     this.decimals = options.decimals;
     this.api = options.api;
+    this.customTokens = options.customTokens ?? false;
   }
 
   public abstract getAllTokens(address: string): Promise<BaseToken[]>;

@@ -111,6 +111,10 @@ watch([contractAddress, props], async () => {
   tokenInfo.value = undefined;
   accountBalance.value = "";
 
+  if (!props.network.customTokens) {
+    close();
+  }
+
   if (isValidAddress.value) {
     const api = (await props.network.api()) as API;
 

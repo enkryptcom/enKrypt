@@ -19,7 +19,10 @@
           :token="item"
         ></network-assets-item>
       </div>
-      <div v-show="!isLoading" class="network-assets__add-token">
+      <div
+        v-show="!isLoading && network.customTokens"
+        class="network-assets__add-token"
+      >
         <div class="network-assets__add-token-button">
           <base-button
             title="Add Token"

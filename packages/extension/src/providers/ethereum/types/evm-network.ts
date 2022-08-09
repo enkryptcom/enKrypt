@@ -38,6 +38,7 @@ export interface EvmNetworkOptions {
     network: BaseNetwork,
     address: string
   ) => Promise<Activity[]>;
+  customTokens?: boolean;
 }
 
 export class EvmNetwork extends BaseNetwork {
