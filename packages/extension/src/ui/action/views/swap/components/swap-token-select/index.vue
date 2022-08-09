@@ -4,7 +4,7 @@
       <img v-if="token.icon !== ''" :src="token.icon" alt="" />
     </div>
     <div class="swap-token-select__info">
-      <h5>{{ token.name }}</h5>
+      <h5>{{ token.name }}<span>OMNI</span></h5>
       <p>
         {{
           tokenBalance
@@ -128,6 +128,22 @@ const open = () => {
       color: @primaryLabel;
       width: 290px;
       margin: 0 0 1px 0;
+
+      span {
+        display: inline-block;
+        padding: 4px 6px;
+        background: @gray01;
+        border-radius: 6px;
+        font-style: normal;
+        font-weight: 500;
+        font-size: 10px;
+        line-height: 11px;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        color: @secondaryLabel;
+        box-sizing: border-box;
+        margin: 2.5px 0 0 8px;
+      }
     }
     p {
       font-style: normal;

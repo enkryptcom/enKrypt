@@ -4,7 +4,7 @@
       <img :src="token.icon" />
 
       <div class="assets-select-list__token-info-name">
-        <h4>{{ token.name }}</h4>
+        <h4>{{ token.name }}<span>ERC-20</span></h4>
         <p>
           {{ balance ? $filters.formatFloatingPointValue(balance).value : "~" }}
           <span>{{ token.symbol }}</span>
@@ -96,6 +96,22 @@ const select = () => {
           line-height: 24px;
           color: @primaryLabel;
           margin: 0 0 1px 0;
+
+          span {
+            display: inline-block;
+            padding: 4px 6px;
+            background: @gray01;
+            border-radius: 6px;
+            font-style: normal;
+            font-weight: 500;
+            font-size: 10px;
+            line-height: 11px;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: @secondaryLabel;
+            box-sizing: border-box;
+            margin: 2.5px 0 0 8px;
+          }
         }
 
         p {

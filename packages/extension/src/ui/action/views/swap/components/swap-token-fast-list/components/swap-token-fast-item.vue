@@ -1,7 +1,7 @@
 <template>
   <a class="swap-token-fast__token" @click="select">
     <img :src="token.icon" />
-    <h4>{{ token.symbol }}</h4>
+    <h4>{{ token.symbol }}<span>ERC-20</span></h4>
   </a>
 </template>
 
@@ -17,7 +17,7 @@ const props = defineProps({
     default: () => ({}),
   },
 });
-
+console.log(props.token);
 const select = () => {
   emit("update:selectAsset", props.token);
 };
@@ -64,6 +64,17 @@ const select = () => {
       text-transform: uppercase;
       display: inline-block;
       vertical-align: middle;
+
+      span {
+        font-style: normal;
+        font-weight: 400;
+        font-size: 12px;
+        line-height: 16px;
+        letter-spacing: 0.5px;
+        color: @tertiaryLabel;
+        display: inline-block;
+        margin-left: 6px;
+      }
     }
   }
 }

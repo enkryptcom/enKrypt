@@ -67,7 +67,6 @@ interface IProps {
 }
 
 const props = defineProps<IProps>();
-
 const isFocus = ref(false);
 const tokenAmount = ref("");
 
