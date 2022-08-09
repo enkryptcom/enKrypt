@@ -13,8 +13,8 @@
         <Swap />Swap</a
       >
       <div v-if="false" class="action-menu__divider"></div> -->
-      <a v-if="isNft" class="action-menu__item" @click="linkAction()">
-        <Rarible />Rarible
+      <a v-if="isNft" class="action-menu__item full" @click="linkAction()">
+        <Rarible />Show on Rarible
       </a>
     </div>
   </div>
@@ -89,6 +89,15 @@ defineProps({
     min-width: 100px;
     transition: background 300ms ease-in-out;
     border-radius: 8px;
+
+    &.full {
+      width: 100%;
+
+      svg {
+        width: 24px;
+        height: 24px;
+      }
+    }
 
     &:hover {
       background: rgba(0, 0, 0, 0.04);

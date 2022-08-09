@@ -163,9 +163,9 @@ const hideClicked = async (isHidden: boolean, item: NFTItem) => {
     position: relative;
     margin: auto;
     width: 100%;
-    max-height: 540px;
+    max-height: 600px;
     margin: 0;
-    padding: 56px 0 0 0 !important;
+    padding: 56px 0 56px 0 !important;
     box-sizing: border-box;
 
     &.ps--active-y {

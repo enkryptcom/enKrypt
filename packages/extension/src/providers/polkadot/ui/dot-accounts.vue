@@ -25,6 +25,15 @@
         <link-icon />
       </div>
 
+      <div class="common-popup__block no-inset">
+        <div class="common-popup__account">
+          <img :src="require('@/ui/action/icons/raw/account.png')" />
+          <div class="common-popup__account-info">
+            <h4>All accounts</h4>
+          </div>
+        </div>
+      </div>
+
       <div class="provider-connect-dapp__info">
         <info-icon-gray />
         <p>

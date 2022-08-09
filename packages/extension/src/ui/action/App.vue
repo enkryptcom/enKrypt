@@ -14,7 +14,7 @@
         @update:order="updateNetworkOrder"
         @update:network="setNetwork"
       />
-      <div class="app__menu-footer">
+      <div class="app__menu-footer" :class="{ border: networks.length > 9 }">
         <a class="app__menu-add" @click="addNetworkShow = !addNetworkShow">
           <manage-networks-icon />
           Manage networks
@@ -390,8 +390,8 @@ body {
     &-footer {
       position: absolute;
       width: 100%;
-      height: 40px;
-      bottom: 8px;
+      height: 56px;
+      bottom: 0;
       left: 0;
       padding: 0 12px;
       box-sizing: border-box;
@@ -399,6 +399,12 @@ body {
       justify-content: space-between;
       align-items: center;
       flex-direction: row;
+      background: rgba(255, 255, 255, 0.01);
+
+      &.border {
+        box-shadow: 0px 0px 6px -1px rgba(0, 0, 0, 0.05),
+          0px 0px 1px rgba(0, 0, 0, 0.2);
+      }
     }
 
     &-add {

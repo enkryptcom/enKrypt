@@ -56,7 +56,7 @@ defineProps({
     &:checked {
       & + .base-checkbox__wrap {
         border: 0 none;
-        background-color: @primary;
+        background-color: @white;
         svg {
           display: block;
         }

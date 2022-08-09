@@ -6,6 +6,10 @@
 
   <div class="import-account-importing" :class="{ process: isProcessing }">
     <h2>Importing account</h2>
+    <p class="import-account-importing__info">
+      You can rename your account or continue with a default name.
+    </p>
+
     <hardware-importing-account
       :no-index="true"
       :network="network"
@@ -22,7 +26,7 @@
       account, yolo account, etc.
     </p>
 
-    <p class="import-account-importing__example">Enter Extension password</p>
+    <h4>Enter Extension password</h4>
 
     <base-input
       type="password"
@@ -31,6 +35,7 @@
       :value="keyringPassword"
       @update:value="updateKeyringPassword"
     />
+
     <p v-show="keyringError" class="import-account-importing__error">
       Invalid Keyring password
     </p>
@@ -178,7 +183,16 @@ const updateKeyringPassword = (password: string) => {
     line-height: 40px;
     letter-spacing: 0.25px;
     color: @primaryLabel;
-    margin: 0 0 24px 0;
+    margin: 0 0 8px 0;
+  }
+
+  &__info {
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 24px;
+    margin: 0 0 16px 0;
+    color: @secondaryLabel;
   }
 
   &__example {
@@ -188,8 +202,18 @@ const updateKeyringPassword = (password: string) => {
     line-height: 16px;
     letter-spacing: 0.5px;
     color: @tertiaryLabel;
-    margin: 8px 0 24px 0;
+    margin: 0 0 16px 0;
   }
+
+  h4 {
+    font-style: normal;
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 24px;
+    color: @primaryLabel;
+    margin: 0 0 8px 0;
+  }
+
   &__input {
     margin: 0 0 24px 0;
 

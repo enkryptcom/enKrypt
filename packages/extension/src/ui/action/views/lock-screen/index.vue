@@ -152,18 +152,6 @@ const closeLockedAction = () => {
     justify-content: center;
     position: relative;
 
-    &:before {
-      content: "";
-      width: 100%;
-      height: 100%;
-      position: absolute;
-      left: 0;
-      background: #ffffff;
-      filter: blur(15px);
-      top: 0;
-      z-index: 1;
-    }
-
     svg {
       width: 132px;
       position: relative;

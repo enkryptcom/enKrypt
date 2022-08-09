@@ -4,7 +4,7 @@
       <img :src="item.image" alt="" @error="imageLoadError" />
       <div class="network-nfts__item-name">{{ item.name }}</div>
     </a>
-    <a class="network-nfts__item-more" @mouseenter="toggleMoreMenu">
+    <a class="network-nfts__item-more" @click="toggleMoreMenu">
       <span></span><span></span><span></span>
     </a>
 
@@ -28,7 +28,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, onUpdated } from "vue";
 import { NFTItem } from "@/types/nft";
 import { PropType } from "vue";
 import NetworkNftsItemMoreMenu from "./network-nfts-item-more-menu.vue";
@@ -39,6 +39,11 @@ const imageLoadError = (img: any) => {
 };
 const isOpenMore = ref(false);
 const isDetail = ref(false);
+
+onUpdated(() => {
+  closeMoreMenu();
+});
+
 const props = defineProps({
   item: {
     type: Object as PropType<NFTItem>,
