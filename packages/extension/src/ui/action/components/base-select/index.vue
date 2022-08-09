@@ -15,7 +15,7 @@
         :title="(item as string)"
         :select="selectLanguage"
         :is-select="value == item"
-      ></base-select-option>
+      />
     </div>
   </div>
 </template>
@@ -25,7 +25,7 @@ import { ref } from "vue";
 import SwitchArrow from "@action/icons/header/switch_arrow.vue";
 import BaseSelectOption from "./components/base-select-option.vue";
 
-let isOpen = ref(false);
+const isOpen = ref(false);
 
 const props = defineProps({
   select: {

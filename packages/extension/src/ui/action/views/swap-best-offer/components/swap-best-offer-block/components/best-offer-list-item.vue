@@ -12,10 +12,7 @@
       :animation-data="LottieStatusJson"
     />
 
-    <done-icon
-      v-show="isChecked"
-      class="best-offer-list-item__checked"
-    ></done-icon>
+    <done-icon v-show="isChecked" class="best-offer-list-item__checked" />
   </a>
 </template>
 

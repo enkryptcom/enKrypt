@@ -9,7 +9,7 @@
       :phrases="item.items"
       :valid-index="item.validIndex"
       @update:phrasevalidity="updateSelection(index, $event)"
-    ></check-phrase>
+    />
 
     <base-button title="Next" :click="nextAction" :disabled="isDisabled" />
   </div>

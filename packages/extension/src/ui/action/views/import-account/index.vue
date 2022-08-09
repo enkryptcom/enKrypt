@@ -1,6 +1,6 @@
 <template>
   <div class="import-account__container">
-    <div class="import-account__overlay" @click="close()"></div>
+    <div class="import-account__overlay" @click="close()" />
     <div class="import-account__wrap">
       <!-- Ethereum ecosystem  -->
       <import-account-start
@@ -9,7 +9,7 @@
         @select:keystore="keystoreFileAction"
         @select:privkey="privateKeyAction"
         @close="close"
-      ></import-account-start>
+      />
 
       <import-account-keystore-file
         v-if="isKeystoreFile"
@@ -17,7 +17,7 @@
         @update:select-file="fileSelected"
         @close="close"
         @back="startAction"
-      ></import-account-keystore-file>
+      />
 
       <import-account-password
         v-if="isEnterPassword"
@@ -31,7 +31,7 @@
         @update:value="updateKeystorePassword"
         @close="close"
         @back="keystoreFileAction"
-      ></import-account-password>
+      />
 
       <import-account-importing
         v-if="isImportingAccount"
@@ -42,14 +42,14 @@
         v-bind="$attrs"
         @close="close"
         @back="enterPasswordAction"
-      ></import-account-importing>
+      />
 
       <import-account-private-key
         v-if="isPrivateKey"
         @update:wallet="walletUpdate"
         @close="close"
         @back="startAction"
-      ></import-account-private-key>
+      />
 
       <!-- Polkadot ecosystem  -->
 

@@ -9,7 +9,7 @@
           v-for="(item, index) in list"
           :key="index"
           :app="item"
-        ></network-dapps-item>
+        />
       </div>
     </custom-scrollbar>
   </div>

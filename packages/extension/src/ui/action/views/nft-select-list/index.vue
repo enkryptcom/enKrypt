@@ -7,7 +7,7 @@
       </a>
     </div>
 
-    <nft-select-list-search></nft-select-list-search>
+    <nft-select-list-search />
 
     <custom-scrollbar
       class="nft-select-list__scroll-area"
@@ -18,7 +18,7 @@
         :key="index"
         :item="item"
         :select-item="selectItem"
-      ></nft-select-list-item>
+      />
     </custom-scrollbar>
   </div>
 </template>

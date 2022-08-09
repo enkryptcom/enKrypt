@@ -1,6 +1,6 @@
 <template>
   <div class="assets-select-list-search">
-    <search-icon></search-icon>
+    <search-icon />
     <input
       ref="searchInput"
       type="text"

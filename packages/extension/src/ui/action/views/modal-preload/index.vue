@@ -1,6 +1,6 @@
 <template>
   <div class="modal-preload__container">
-    <div class="modal-preload__overlay"></div>
+    <div class="modal-preload__overlay" />
     <div class="modal-preload__wrap">
       <Vue3Lottie
         class="modal-preload__loading"

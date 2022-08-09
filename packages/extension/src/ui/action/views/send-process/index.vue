@@ -16,16 +16,12 @@
           />
         </div>
         <div class="send-process__info">
-          <send-process-amount v-if="!isNft" :token="token">
-          </send-process-amount>
-          <send-process-nft v-if="isNft" :item="nft"> </send-process-nft>
+          <send-process-amount v-if="!isNft" :token="token" />
+          <send-process-nft v-if="isNft" :item="nft" />
           <div class="send-process__info-arrow">
             <arrow-down />
           </div>
-          <send-process-account
-            :address="toAddress"
-            :network="network"
-          ></send-process-account>
+          <send-process-account :address="toAddress" :network="network" />
         </div>
       </div>
     </div>

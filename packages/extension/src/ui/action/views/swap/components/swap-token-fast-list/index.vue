@@ -6,7 +6,7 @@
       :token="item"
       v-bind="$attrs"
       @update:select-asset="selectAsset"
-    ></swap-token-fast-item>
+    />
     <div class="swap-token-fast-list__all">+{{ totalTokens }} tokens</div>
   </div>
 </template>

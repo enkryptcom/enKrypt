@@ -7,7 +7,7 @@
       :is-active="!!selected && item.id === selected.id"
       :selected="selected"
       @click="setNetwork(item)"
-    ></Item>
+    />
   </div>
 </template>
 
