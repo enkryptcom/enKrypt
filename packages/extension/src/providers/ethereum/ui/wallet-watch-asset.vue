@@ -298,7 +298,6 @@ const addToken = async () => {
         font-size: 16px;
         line-height: 24px;
         color: @primaryLabel;
-        width: 128px;
         margin: 0 0 1px 0;
       }
 
