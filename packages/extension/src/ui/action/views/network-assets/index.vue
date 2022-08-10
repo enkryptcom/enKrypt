@@ -120,7 +120,21 @@ const toggleShowAddCustomTokens = () => {
 };
 
 const addCustomAsset = (asset: AssetsType) => {
-  assets.value = [...assets.value, asset];
+  const existingAsset = assets.value.find((a) => {
+    if (
+      a.contract &&
+      asset.contract &&
+      a.contract.toLowerCase() === asset.contract.toLowerCase()
+    ) {
+      return true;
+    }
+
+    return false;
+  });
+
+  if (!existingAsset) {
+    assets.value = [...assets.value, asset];
+  }
 };
 </script>
 
@@ -163,7 +177,7 @@ const addCustomAsset = (asset: AssetsType) => {
 
   &__add-token {
     position: relative;
-    margin: 0px 20px 0px 20px;
+    margin: 0px 12px 0px 12px;
     z-index: 0;
 
     &-button {

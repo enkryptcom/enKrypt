@@ -9,7 +9,7 @@ const moonriverOptions: EvmNetworkOptions = {
   name_long: "Moonriver",
   homePage: "https://moonbeam.network/networks/moonriver/",
   blockExplorerTX: "https://moonriver.moonscan.io//tx/[[txHash]]",
-  blockExplorerAddr: "https://moonriver.moonscan.io/[[address]]",
+  blockExplorerAddr: "https://moonriver.moonscan.io/address/[[address]]",
   chainID: 1285,
   isTestNetwork: false,
   currencyName: "MOVR",

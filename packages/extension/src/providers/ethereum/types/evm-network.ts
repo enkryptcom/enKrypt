@@ -152,9 +152,29 @@ export class EvmNetwork extends BaseNetwork {
     });
 
     if (this.assetsInfoHandler) {
-      return this.assetsInfoHandler(this, address).then((assets) =>
-        assets.concat(customAssets)
-      );
+      const assets = await this.assetsInfoHandler(this, address);
+
+      const customAssetsFiltered = customAssets.filter((asset) => {
+        const assetFromHandler = assets.find((a) => {
+          if (
+            a.contract &&
+            asset.contract &&
+            a.contract.toLowerCase() === asset.contract.toLowerCase()
+          ) {
+            return false;
+          }
+
+          return true;
+        });
+
+        if (assetFromHandler) {
+          return false;
+        }
+
+        return true;
+      });
+
+      return [...assets, ...customAssetsFiltered];
     } else {
       const balance = await (api as API).getBalance(address);
       const nativeAsset: AssetsType = {
