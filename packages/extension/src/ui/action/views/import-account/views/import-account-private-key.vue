@@ -18,6 +18,7 @@
       placeholder="Private key"
       autofocus
       @change="onInput"
+      @keyup.enter="importAction"
     >
     </textarea>
     <p class="import-account-private-key__already_exists">
@@ -68,22 +69,24 @@ const onInput = () => {
 };
 
 const importAction = async () => {
-  const buffer = hexToBuffer(formattedPrivateKey.value);
-  const wallet = new Wallet(buffer);
-  const newAddress = `0x${wallet.getAddress().toString("hex")}`;
+  if (isValidKey.value) {
+    const buffer = hexToBuffer(formattedPrivateKey.value);
+    const wallet = new Wallet(buffer);
+    const newAddress = `0x${wallet.getAddress().toString("hex")}`;
 
-  if (await keyring.accountAlreadyAdded(newAddress)) {
-    accountAlreadyExists.value = true;
-    return;
+    if (await keyring.accountAlreadyAdded(newAddress)) {
+      accountAlreadyExists.value = true;
+      return;
+    }
+
+    emit("update:wallet", {
+      privateKey: wallet.getPrivateKeyString(),
+      publicKey: wallet.getPublicKeyString(),
+      address: wallet.getAddressString(),
+      name: "",
+      signerType: SignerType.secp256k1,
+    });
   }
-
-  emit("update:wallet", {
-    privateKey: wallet.getPrivateKeyString(),
-    publicKey: wallet.getPublicKeyString(),
-    address: wallet.getAddressString(),
-    name: "",
-    signerType: SignerType.secp256k1,
-  });
 };
 </script>
 
@@ -119,7 +122,7 @@ const importAction = async () => {
 
   &__input {
     width: 100%;
-    height: 62px;
+    height: auto;
     background: @white;
     font-family: "Roboto";
     box-sizing: border-box;
@@ -136,11 +139,6 @@ const importAction = async () => {
     border: 2px solid @primary;
     &.error {
       border: 2px solid @error;
-      line-height: 38px;
-    }
-    &:active,
-    &:focus {
-      height: 64px;
     }
   }
 

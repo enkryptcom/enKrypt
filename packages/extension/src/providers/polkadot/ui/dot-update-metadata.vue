@@ -5,10 +5,35 @@
         :color="metadata ? metadata.color : '#E6007A'"
         class="common-popup__logo"
       ></sign-logo>
+      <div class="common-popup__network">
+        <img src="@action/icons/raw/polkadot.png" />
+        <p>Polkadot</p>
+      </div>
     </template>
 
     <template #content>
       <h2>Update metadata</h2>
+
+      <div class="provider-verify-transaction__block">
+        <div class="provider-verify-transaction__account">
+          <img src="@action/icons/raw/account.png" />
+          <div class="provider-verify-transaction__account-info">
+            <h4>My account nickname</h4>
+            <div>
+              <p>
+                {{
+                  $filters.replaceWithEllipsis(
+                    "123NUNCjWVtxQjkukJ9dCn4awhACmmjXGtA9zZt1EJm37VGf",
+                    4,
+                    4
+                  )
+                }}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="update-metadata__block">
         <div class="update-metadata__block-row">
           <div class="update-metadata__block-row-left">From</div>

@@ -125,6 +125,7 @@ const selectAccount = (address: string) => {
     visibility: hidden;
     transition: opacity 0.3s, visibility 0s ease-in-out 0.3s;
     overflow: hidden;
+    padding-bottom: 8px;
 
     &.show {
       opacity: 1;
