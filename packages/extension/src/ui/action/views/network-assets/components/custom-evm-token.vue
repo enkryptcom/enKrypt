@@ -7,7 +7,7 @@
           <close-icon />
         </a>
       </div>
-      <div class="add-custom-token__contract-input">
+      <div class="add-custom-token__contract-input" :class="{ focus: isFocus }">
         <div class="add-custom-token__contract-input__address">
           <p>Contract address:</p>
           <input
@@ -15,6 +15,8 @@
             :class="{ invalid: !isValidAddress }"
             type="text"
             placeholder="0x... address"
+            @focus="changeFocus"
+            @blur="changeFocus"
           />
         </div>
       </div>
@@ -22,14 +24,22 @@
       <div v-if="isValidAddress && tokenInfo">
         <div class="add-custom-token__token-info">
           <div class="add-custom-token__token-info__image">
-            <img :src="network.icon" alt="" />
+            <img
+              :src="tokenInfo.icon"
+              alt=""
+              @error="(e) => {
+              (e.target as HTMLImageElement).src = props.network.icon
+            }"
+            />
           </div>
           <div class="add-custom-token__token-info__info">
             <h5>{{ tokenInfo.name }}</h5>
             <p>
               {{
                 accountBalance
-                  ? $filters.formatFloatingPointValue(accountBalance).value
+                  ? $filters.formatFloatingPointValue(
+                      fromBase(accountBalance ?? "0", tokenInfo.decimals)
+                    ).value
                   : "~"
               }}
               <span>{{ tokenInfo.symbol }}</span>
@@ -56,14 +66,11 @@
       </div>
 
       <div class="add-custom-token__buttons">
-        <div class="add-custom-token__buttons-cancel">
-          <base-button title="Cancel" :click="close" :no-background="true" />
-        </div>
         <div class="add-custom-token__buttons-send">
           <base-button
-            title="Add Token"
+            title="Add token"
             :disabled="!isValidAddress || !tokenInfo"
-            :click="close"
+            :click="addToken"
           />
         </div>
       </div>
@@ -72,31 +79,39 @@
 </template>
 <script setup lang="ts">
 import API from "@/providers/ethereum/libs/api";
-import { ERC20TokenInfo } from "@/providers/ethereum/types";
 import { BaseNetwork } from "@/types/base-network";
-import { computed, ref, watch } from "vue";
-import { isAddress, toBN } from "web3-utils";
+import { computed, ref, toRaw, watch } from "vue";
+import { isAddress } from "web3-utils";
 import { Erc20Token } from "@/providers/ethereum/types/erc20-token";
 import { fromBase } from "@/libs/utils/units";
 import CloseIcon from "@/ui/action/icons/common/close-icon.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import AlertIcon from "@action/icons/send/alert-icon.vue";
 import WarnIcon from "@action/icons/send/warning-icon.vue";
+import { TokensState } from "@/libs/tokens-state";
+import { CustomErc20Token, TokenType } from "@/libs/tokens-state/types";
+import { AssetsType } from "@/types/provider";
+import { formatFloatingPointValue } from "@/libs/utils/number-formatter";
 
 interface IProps {
   network: BaseNetwork;
   address: string;
 }
 
-const emits = defineEmits<{ (e: "update:close"): void }>();
+const emits = defineEmits<{
+  (e: "update:close"): void;
+  (e: "update:token-added", asset: AssetsType): void;
+}>();
 
 const props = defineProps<IProps>();
 
-const contractAddress = ref<string>();
+const tokensState = new TokensState();
 
-const tokenInfo = ref<ERC20TokenInfo>();
-const accountBalance = ref<string>("");
+const contractAddress = ref<string>();
+const tokenInfo = ref<CustomErc20Token>();
+const accountBalance = ref<string>();
 const notTokenAddress = ref(false);
+const isFocus = ref(false);
 
 const isValidAddress = computed(() => {
   if (contractAddress.value) {
@@ -109,7 +124,7 @@ const isValidAddress = computed(() => {
 watch([contractAddress, props], async () => {
   notTokenAddress.value = false;
   tokenInfo.value = undefined;
-  accountBalance.value = "";
+  accountBalance.value = undefined;
 
   if (!props.network.customTokens) {
     close();
@@ -121,56 +136,132 @@ watch([contractAddress, props], async () => {
     const info = await api.getTokenInfo(contractAddress.value!);
 
     if (info.name !== "Unknown") {
-      const erc20Token = new Erc20Token({
-        name: info.name,
-        symbol: info.symbol,
-        decimals: info.decimals,
-        icon: props.network.icon,
-        contract: contractAddress.value!,
-      });
+      let icon = props.network.icon;
 
-      tokenInfo.value = info;
+      try {
+        const controller = new AbortController();
+
+        const timeoutId = setTimeout(() => controller.abort(), 15_000);
+
+        const res = await fetch(
+          `https://api.coingecko.com/api/v3/coins/${props.network.coingeckoID}/contract/${contractAddress.value}`,
+          { signal: controller.signal }
+        );
+
+        clearTimeout(timeoutId);
+
+        if (res.ok) {
+          const data = await res.json();
+
+          const image = data?.image?.small;
+
+          if (image) {
+            icon = `https://img.mewapi.io/?image=${image}`;
+          }
+        }
+      } catch (error) {
+        // Icon already defaults to network icon
+      }
 
       if (props.address !== "") {
-        const balance = await erc20Token.getLatestUserBalance(
-          api,
-          props.address
-        );
-        accountBalance.value = fromBase(
-          toBN(balance).toString(),
-          info.decimals
-        );
+        const erc20Token = new Erc20Token({
+          name: info.name,
+          symbol: info.symbol,
+          decimals: info.decimals,
+          icon,
+          contract: contractAddress.value!,
+        });
+
+        try {
+          const balance = await erc20Token.getLatestUserBalance(
+            api,
+            props.address
+          );
+          accountBalance.value = balance;
+        } catch {
+          // Don't set balance
+        }
       }
+
+      tokenInfo.value = {
+        address: contractAddress.value as `0x${string}`,
+        icon,
+        type: TokenType.ERC20,
+        ...info,
+      };
     } else {
       notTokenAddress.value = true;
     }
   }
 });
 
+const changeFocus = (val: FocusEvent) => {
+  isFocus.value = val.type === "focus";
+};
+
 const close = () => {
   emits("update:close");
+};
+
+const addToken = async () => {
+  if (isValidAddress.value && tokenInfo.value) {
+    const inserted = await tokensState.addErc20Token(
+      props.network.name,
+      toRaw(tokenInfo.value)
+    );
+
+    if (inserted) {
+      const newAsset: AssetsType = {
+        name: tokenInfo.value.name,
+        symbol: tokenInfo.value.symbol,
+        balance: accountBalance.value ?? "0",
+        balancef: formatFloatingPointValue(
+          fromBase(accountBalance.value ?? "0", tokenInfo.value.decimals)
+        ).value,
+        contract: tokenInfo.value.address,
+        balanceUSD: 0,
+        balanceUSDf: "0",
+        value: "0",
+        valuef: "0",
+        decimals: tokenInfo.value.decimals,
+        sparkline: "",
+        priceChangePercentage: 0,
+        icon: tokenInfo.value.icon,
+      };
+
+      emits("update:token-added", newAsset);
+    }
+
+    emits("update:close");
+  }
 };
 </script>
 <style lang="less" scoped>
 @import "~@action/styles/theme.less";
 
 .container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   width: 100%;
   height: 600px;
-  background-color: @white;
+  background-color: @overlayBg !important;
   box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.16);
   margin: 0;
   box-sizing: border-box;
   position: absolute;
   top: 0;
+  left: 0;
   z-index: 10;
 }
 
 .add-custom-token {
-  width: 100%;
-  height: 100%;
+  width: 460px;
+  height: 568px;
   box-sizing: border-box;
   position: relative;
+  border-radius: 12px;
+  background-color: white;
 
   &__header {
     position: relative;
@@ -219,7 +310,15 @@ const close = () => {
     flex-direction: row;
     position: relative;
 
+    &.focus {
+      border: 2px solid @primary;
+      width: calc(~"100% - 62px");
+      margin: 12px 31px 8px 31px;
+    }
+
     &__address {
+      width: 100%;
+
       p {
         font-style: normal;
         font-weight: 400;
@@ -231,7 +330,7 @@ const close = () => {
       }
 
       input {
-        width: 290px;
+        width: 100%;
         height: 24px;
         font-style: normal;
         font-weight: 400;
@@ -289,7 +388,7 @@ const close = () => {
         font-size: 16px;
         line-height: 24px;
         color: @primaryLabel;
-        width: 290px;
+        width: 128px;
         margin: 0 0 1px 0;
       }
 
@@ -301,7 +400,7 @@ const close = () => {
         letter-spacing: 0.5px;
         color: @secondaryLabel;
         margin: 0;
-        width: 290px;
+        width: 128px;
 
         span {
           font-variant: small-caps;
@@ -362,7 +461,7 @@ const close = () => {
     position: absolute;
     left: 0;
     bottom: 0;
-    padding: 0 32px 32px 32px;
+    padding: 0 32px 16px 32px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -375,7 +474,7 @@ const close = () => {
     }
 
     &-send {
-      width: 218px;
+      width: 100%;
     }
   }
 }

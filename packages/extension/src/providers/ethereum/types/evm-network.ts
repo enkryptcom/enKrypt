@@ -1,3 +1,5 @@
+import { TokensState } from "@/libs/tokens-state";
+import { CustomErc20Token, TokenType } from "@/libs/tokens-state/types";
 import { formatFloatingPointValue } from "@/libs/utils/number-formatter";
 import { fromBase } from "@/libs/utils/units";
 import { Activity } from "@/types/activity";
@@ -105,10 +107,55 @@ export class EvmNetwork extends BaseNetwork {
   }
 
   public async getAllTokenInfo(address: string): Promise<AssetsType[]> {
+    const api = await this.api();
+    const tokensState = new TokensState();
+
+    const customTokens = await tokensState
+      .getTokensByNetwork(this.name)
+      .then((tokens) => {
+        const erc20Tokens = tokens.filter(
+          (token) => token.type === TokenType.ERC20
+        ) as CustomErc20Token[];
+
+        return erc20Tokens.map(
+          ({ name, symbol, address, icon, decimals }) =>
+            new Erc20Token({ name, symbol, contract: address, icon, decimals })
+        );
+      });
+
+    const balancePromises = customTokens.map((token) =>
+      token.getLatestUserBalance(api as API, address)
+    );
+
+    await Promise.all(balancePromises);
+
+    const customAssets: AssetsType[] = customTokens.map((token) => {
+      const asset: AssetsType = {
+        name: token.name,
+        symbol: token.symbol,
+        balance: token.balance ?? "0",
+        balancef: formatFloatingPointValue(
+          fromBase(token.balance ?? "0", token.decimals)
+        ).value,
+        contract: token.contract,
+        balanceUSD: 0,
+        balanceUSDf: "0",
+        value: "0",
+        valuef: "0",
+        decimals: this.decimals,
+        sparkline: "",
+        priceChangePercentage: 0,
+        icon: token.icon,
+      };
+
+      return asset;
+    });
+
     if (this.assetsInfoHandler) {
-      return this.assetsInfoHandler(this, address);
+      return this.assetsInfoHandler(this, address).then((assets) =>
+        assets.concat(customAssets)
+      );
     } else {
-      const api = await this.api();
       const balance = await (api as API).getBalance(address);
       const nativeAsset: AssetsType = {
         name: this.name_long,
@@ -158,7 +205,7 @@ export class EvmNetwork extends BaseNetwork {
         })
         .filter((asset) => asset.balancef !== "0");
 
-      return [nativeAsset, ...assetInfos];
+      return [nativeAsset, ...assetInfos, ...customAssets];
     }
   }
   public getAllActivity(address: string): Promise<Activity[]> {

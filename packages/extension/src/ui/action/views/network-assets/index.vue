@@ -1,53 +1,56 @@
 <template>
-  <div class="container">
-    <custom-scrollbar
-      class="network-assets__scroll-area"
-      :settings="scrollSettings({ suppressScrollX: true })"
-    >
-      <div v-if="!!selected" class="network-assets">
-        <network-activity-total
-          :crypto-amount="cryptoAmount"
-          :fiat-amount="fiatAmount"
-          :symbol="network.currencyName"
-        />
-
-        <network-activity-action v-bind="$attrs" />
-
-        <network-assets-item
-          v-for="(item, index) in assets"
-          :key="index"
-          :token="item"
-        ></network-assets-item>
-      </div>
-      <div
-        v-show="!isLoading && network.customTokens"
-        class="network-assets__add-token"
+  <div>
+    <div class="container">
+      <custom-scrollbar
+        class="network-assets__scroll-area"
+        :settings="scrollSettings({ suppressScrollX: true })"
       >
-        <div class="network-assets__add-token-button">
-          <base-button
-            title="Add Token"
-            :click="toggleShowAddCustomTokens"
-            :no-background="true"
+        <div v-if="!!selected" class="network-assets">
+          <network-activity-total
+            :crypto-amount="cryptoAmount"
+            :fiat-amount="fiatAmount"
+            :symbol="network.currencyName"
           />
+
+          <network-activity-action v-bind="$attrs" />
+
+          <network-assets-item
+            v-for="(item, index) in assets"
+            :key="index"
+            :token="item"
+          ></network-assets-item>
         </div>
-      </div>
-    </custom-scrollbar>
+        <div
+          v-show="!isLoading && network.customTokens"
+          class="network-assets__add-token"
+        >
+          <div class="network-assets__add-token-button">
+            <base-button
+              title="Add Token"
+              :click="toggleShowAddCustomTokens"
+              :no-background="true"
+            />
+          </div>
+        </div>
+      </custom-scrollbar>
 
-    <network-assets-loading v-if="isLoading"></network-assets-loading>
+      <network-assets-loading v-if="isLoading"></network-assets-loading>
 
-    <deposit
-      v-if="!!props.accountInfo.selectedAccount"
-      :account="props.accountInfo.selectedAccount"
-      :show-deposit="showDeposit"
-      :network="network"
-      :toggle="toggleDeposit"
-    />
+      <deposit
+        v-if="!!props.accountInfo.selectedAccount"
+        :account="props.accountInfo.selectedAccount"
+        :show-deposit="showDeposit"
+        :network="network"
+        :toggle="toggleDeposit"
+      />
+    </div>
 
     <custom-evm-token
       v-if="showAddCustomTokens"
       :network="network"
       :address="selectedAddress"
       @update:close="toggleShowAddCustomTokens"
+      @update:token-added="addCustomAsset"
     />
   </div>
 </template>
@@ -59,7 +62,6 @@ import NetworkActivityAction from "../network-activity/components/network-activi
 import NetworkAssetsItem from "./components/network-assets-item.vue";
 import NetworkAssetsLoading from "./components/network-assets-loading.vue";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
-import CustomEvmToken from "./components/custom-evm-token.vue";
 import { computed, onMounted, PropType, ref, toRef, watch } from "vue";
 import { AssetsType } from "@/types/provider";
 import { AccountsHeaderData } from "../../types/account";
@@ -68,6 +70,7 @@ import { BaseNetwork } from "@/types/base-network";
 import scrollSettings from "@/libs/utils/scroll-settings";
 import Deposit from "@action/views/deposit/index.vue";
 import BaseButton from "@action/components/base-button/index.vue";
+import CustomEvmToken from "./components/custom-evm-token.vue";
 
 let showDeposit = ref(false);
 
@@ -118,6 +121,10 @@ const toggleDeposit = () => {
 
 const toggleShowAddCustomTokens = () => {
   showAddCustomTokens.value = !showAddCustomTokens.value;
+};
+
+const addCustomAsset = (asset: AssetsType) => {
+  assets.value = [...assets.value, asset];
 };
 </script>
 
