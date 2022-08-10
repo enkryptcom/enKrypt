@@ -13,24 +13,20 @@
           />
 
           <network-activity-action v-bind="$attrs" />
-
+          <div v-show="network.customTokens" class="network-assets__add-token">
+            <div class="network-assets__add-token-button">
+              <base-button
+                title="Add token"
+                :click="toggleShowAddCustomTokens"
+                :no-background="true"
+              />
+            </div>
+          </div>
           <network-assets-item
             v-for="(item, index) in assets"
             :key="index"
             :token="item"
           ></network-assets-item>
-        </div>
-        <div
-          v-show="!isLoading && network.customTokens"
-          class="network-assets__add-token"
-        >
-          <div class="network-assets__add-token-button">
-            <base-button
-              title="Add Token"
-              :click="toggleShowAddCustomTokens"
-              :no-background="true"
-            />
-          </div>
         </div>
       </custom-scrollbar>
 
@@ -167,11 +163,12 @@ const addCustomAsset = (asset: AssetsType) => {
 
   &__add-token {
     position: relative;
+    margin: 0px 20px 0px 20px;
     z-index: 0;
 
     &-button {
-      width: 196px;
-      margin: 0 auto;
+      width: 96px;
+      // margin: 0 auto;
     }
   }
 }
