@@ -77,6 +77,7 @@ const Options = ref<ProviderRequestOptions>({
   faviconURL: "",
   title: "",
   url: "",
+  tabId: 0,
 });
 
 const message = ref<string>("");

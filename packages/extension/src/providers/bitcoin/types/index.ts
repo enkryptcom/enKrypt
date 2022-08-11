@@ -59,4 +59,24 @@ export interface BitcoinNetworkInfo {
   wif: number;
   dustThreshold: null;
 }
+
+export interface HaskoinBalanceType {
+  address: string;
+  confirmed: number;
+  unconfirmed: number;
+  utxo: number;
+  txs: number;
+  received: number;
+}
+export interface HaskoinUnspentType {
+  address: string;
+  block: {
+    height: number;
+    position: number;
+  };
+  txid: string;
+  index: number;
+  pkscript: string;
+  value: number;
+}
 export { InjectedProvider };

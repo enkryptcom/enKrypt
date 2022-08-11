@@ -4,7 +4,7 @@
     @click="emit('selected:account', account.address)"
   >
     <div class="send-address-item__info">
-      <img :src="network.identicon(account.address)" />
+      <img :src="network.identicon(network.displayAddress(account.address))" />
 
       <div class="send-address-item__name">
         <h4>{{ account.name }}</h4>
@@ -20,33 +20,28 @@
       </div>
     </div>
 
-    <done-icon
-      v-show="isChecked"
-      class="send-address-item__checked"
-    ></done-icon>
+    <done-icon v-show="isChecked" class="send-address-item__checked" />
   </a>
 </template>
 
 <script setup lang="ts">
-import { EnkryptAccount } from "@enkryptcom/types";
 import { PropType } from "vue";
-import DoneIcon from "@action/icons/common/done_icon.vue";
 import { BaseNetwork } from "@/types/base-network";
-
+import DoneIcon from "@action/icons/common/done_icon.vue";
+import { EnkryptAccount } from "@enkryptcom/types";
 const emit = defineEmits<{
   (e: "selected:account", address: string): void;
 }>();
-
 defineProps({
+  network: {
+    type: Object as PropType<BaseNetwork>,
+    default: () => ({}),
+  },
   account: {
     type: Object as PropType<EnkryptAccount>,
     default: () => {
       return {};
     },
-  },
-  network: {
-    type: Object as PropType<BaseNetwork>,
-    default: () => ({}),
   },
   isChecked: {
     type: Boolean,
@@ -59,6 +54,7 @@ defineProps({
 @import "~@action/styles/theme.less";
 
 .send-address-item {
+  text-decoration: none;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -69,6 +65,7 @@ defineProps({
   text-decoration: none;
   transition: background 300ms ease-in-out;
   border-radius: 10px;
+  position: relative;
 
   &:hover {
     background: @black007;

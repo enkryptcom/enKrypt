@@ -1,7 +1,11 @@
 <template>
   <div class="send-address-input" :class="{ focus: isFocus }">
     <div class="send-address-input__avatar">
-      <img v-if="isAddress" :src="network.identicon(value)" alt="" />
+      <img
+        v-if="isAddress(btcAddress, network.networkInfo)"
+        :src="network.identicon(btcAddress)"
+        alt=""
+      />
     </div>
     <div class="send-address-input__address">
       <p v-if="!from">To:</p>
@@ -12,7 +16,9 @@
         type="text"
         :disabled="disableDirectInput"
         placeholder="address"
-        :style="{ color: !isAddress ? 'red' : 'black' }"
+        :style="{
+          color: !isAddress(btcAddress, network.networkInfo) ? 'red' : 'black',
+        }"
         @focus="changeFocus"
         @blur="changeFocus"
       />
@@ -21,15 +27,20 @@
 </template>
 
 <script setup lang="ts">
-import { BaseNetwork } from "@/types/base-network";
 import { replaceWithEllipsis } from "@/ui/action/utils/filters";
-import { polkadotEncodeAddress } from "@enkryptcom/utils";
-import { computed, PropType, ref } from "vue";
+import { computed } from "@vue/reactivity";
+import { PropType, ref } from "vue";
+import { isAddress } from "@/providers/bitcoin/libs/utils";
+import { BitcoinNetwork } from "@/providers/bitcoin/types/bitcoin-network";
 
-const emit = defineEmits<{
-  (e: "update:inputAddress", address: string): void;
-  (e: "toggle:showContacts", show: boolean): void;
-}>();
+const isFocus = ref<boolean>(false);
+const addressInput = ref<HTMLInputElement>();
+
+const pasteFromClipboard = () => {
+  addressInput.value?.focus();
+  document.execCommand("paste");
+};
+defineExpose({ addressInput, pasteFromClipboard });
 
 const props = defineProps({
   value: {
@@ -38,59 +49,31 @@ const props = defineProps({
       return "";
     },
   },
+  network: {
+    type: Object as PropType<BitcoinNetwork>,
+    default: () => ({}),
+  },
   from: {
     type: Boolean,
     default: false,
   },
-  network: {
-    type: Object as PropType<BaseNetwork>,
-    default: () => ({}),
-  },
   disableDirectInput: Boolean,
 });
-
-const addressInput = ref<HTMLInputElement>();
-const isFocus = ref(false);
-
-const pasteFromClipboard = () => {
-  addressInput.value?.focus();
-  document.execCommand("paste");
-};
-
-defineExpose({ addressInput, pasteFromClipboard });
-
-const address = computed({
-  get: () => {
-    try {
-      if (isFocus.value && isAddress.value) {
-        return props.network.displayAddress(props.value);
-      } else if (isAddress.value) {
-        return replaceWithEllipsis(
-          props.network.displayAddress(props.value),
-          6,
-          6
-        );
-      }
-
-      return props.value;
-    } catch {
-      return props.value;
-    }
-  },
-  set: (value) => {
-    if (value) {
-      emit("update:inputAddress", value);
-    }
-  },
+const emit = defineEmits<{
+  (e: "update:inputAddress", address: string): void;
+  (e: "toggle:showContacts", show: boolean): void;
+}>();
+const btcAddress = computed(() => {
+  if (props.value && props.value.length > 66)
+    return props.network.displayAddress(props.value);
+  else return props.value;
 });
-
-const isAddress = computed(() => {
-  try {
-    polkadotEncodeAddress(props.value);
-    return true;
-  } catch {
-    return false;
-  }
+const address = computed({
+  get: () =>
+    isFocus.value
+      ? btcAddress.value
+      : replaceWithEllipsis(btcAddress.value, 6, 6),
+  set: (value) => emit("update:inputAddress", value),
 });
 
 const changeFocus = (val: FocusEvent) => {
@@ -162,10 +145,6 @@ const changeFocus = (val: FocusEvent) => {
       border: 0 none;
       outline: none;
       padding: 0;
-    }
-
-    input:disabled {
-      background-color: #ffffff;
     }
   }
 

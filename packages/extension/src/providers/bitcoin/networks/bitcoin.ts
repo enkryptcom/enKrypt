@@ -15,7 +15,7 @@ const bitcoinOptions: BitcoinNetworkOptions = {
   isTestNetwork: false,
   currencyName: "BTC",
   icon: require("./icons/btc.svg"),
-  decimals: 10,
+  decimals: 8,
   gradient: "#F7931A",
   node: "https://api.blockchain.info/haskoin-store/btc/",
   coingeckoID: "bitcoin",

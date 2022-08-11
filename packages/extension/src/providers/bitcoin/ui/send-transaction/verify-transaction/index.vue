@@ -11,9 +11,7 @@
             <close-icon />
           </a>
         </div>
-        <hardware-wallet-msg
-          :wallet-type="account?.walletType"
-        ></hardware-wallet-msg>
+        <hardware-wallet-msg :wallet-type="account?.walletType" />
         <p class="verify-transaction__description" :class="{ popup: isPopup }">
           Double check the information and confirm transaction
         </p>
@@ -21,22 +19,19 @@
           class="verify-transaction__info"
           :class="{ popup: isPopup, border: isHasScroll() }"
         >
-          <verify-transaction-network
-            :network="network"
-          ></verify-transaction-network>
+          <verify-transaction-network :network="network" />
           <verify-transaction-account
             :name="txData.fromAddressName"
             :address="network.displayAddress(txData.fromAddress)"
             :from="true"
             :network="network"
-          ></verify-transaction-account>
+          />
           <verify-transaction-account
             :address="network.displayAddress(txData.toAddress)"
             :network="network"
-          ></verify-transaction-account>
-          <verify-transaction-amount :token="txData.toToken">
-          </verify-transaction-amount>
-          <verify-transaction-fee :fee="txData.txFee"></verify-transaction-fee>
+          />
+          <verify-transaction-amount :token="txData.toToken" />
+          <verify-transaction-fee :fee="txData.gasFee" />
           {{ errorMsg }}
         </div>
       </custom-scrollbar>
@@ -65,13 +60,12 @@
 
     <send-process
       v-if="isProcessing"
-      :is-done="isSendDone"
-      :is-nft="false"
       :to-address="txData.toAddress"
       :network="network"
       :token="txData.toToken"
+      :is-done="isSendDone"
       :is-window-popup="isWindowPopup"
-    ></send-process>
+    />
   </div>
 </template>
 
@@ -87,21 +81,17 @@ import VerifyTransactionFee from "./components/verify-transaction-fee.vue";
 import HardwareWalletMsg from "../../components/hardware-wallet-msg.vue";
 import SendProcess from "@action/views/send-process/index.vue";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
+import { VerifyTransactionParams } from "../../types";
+import Transaction from "@/providers/ethereum/libs/transaction";
+import Web3 from "web3";
 import { getCurrentContext } from "@/libs/messenger/extension";
-import { VerifyTransactionParams } from "@/providers/polkadot/ui/types";
-import { ApiPromise } from "@polkadot/api";
-import { u8aToHex } from "@polkadot/util";
-import type { SignerResult } from "@polkadot/api/types";
 import { getNetworkByName } from "@/libs/utils/networks";
-import { TypeRegistry } from "@polkadot/types";
 import { TransactionSigner } from "../../libs/signer";
-import { Activity, ActivityStatus, ActivityType } from "@/types/activity";
+import { ActivityStatus, Activity, ActivityType } from "@/types/activity";
 import ActivityState from "@/libs/activity-state";
 import { EnkryptAccount } from "@enkryptcom/types";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 
-const isSendDone = ref(false);
-const account = ref<EnkryptAccount>();
 const KeyRing = new PublicKeyRing();
 const route = useRoute();
 const router = useRouter();
@@ -109,14 +99,15 @@ const selectedNetwork: string = route.query.id as string;
 const txData: VerifyTransactionParams = JSON.parse(
   Buffer.from(route.query.txData as string, "base64").toString("utf8")
 );
-const errorMsg = ref("");
 const isProcessing = ref(false);
-const isPopup: boolean = getCurrentContext() === "new-window";
-const isWindowPopup = ref(false);
-const verifyScrollRef = ref<ComponentPublicInstance<HTMLElement>>();
-defineExpose({ verifyScrollRef });
-
 const network = getNetworkByName(selectedNetwork)!;
+const isSendDone = ref(false);
+const account = ref<EnkryptAccount>();
+const isPopup: boolean = getCurrentContext() === "new-window";
+const verifyScrollRef = ref<ComponentPublicInstance<HTMLElement>>();
+const isWindowPopup = ref(false);
+const errorMsg = ref("");
+defineExpose({ verifyScrollRef });
 onBeforeMount(async () => {
   account.value = await KeyRing.getAccount(txData.fromAddress);
   isWindowPopup.value = account.value.isHardware;
@@ -131,89 +122,73 @@ const close = () => {
 
 const sendAction = async () => {
   isProcessing.value = true;
-  const api = await network.api();
+  const web3 = new Web3(network.node);
+  const tx = new Transaction(txData.TransactionData, web3);
 
-  const tx = (api.api as ApiPromise).tx(txData.TransactionData.data);
-
-  try {
-    const signedTx = await tx.signAsync(account.value!.address, {
-      signer: {
-        signPayload: (signPayload): Promise<SignerResult> => {
-          const registry = new TypeRegistry();
-          registry.setSignedExtensions(signPayload.signedExtensions);
-          const extType = registry.createType("ExtrinsicPayload", signPayload, {
-            version: signPayload.version,
-          });
-          return TransactionSigner({
-            account: account.value!,
-            network: network,
-            payload: extType,
-          }).then((res) => {
-            if (res.error) return Promise.reject(res.error);
-            else
-              return {
-                id: 0,
-                signature: JSON.parse(res.result as string),
-              };
-          });
-        },
-      },
-    });
-    const txActivity: Activity = {
-      from: txData.fromAddress,
-      to: txData.toAddress,
-      isIncoming: txData.fromAddress === txData.toAddress,
-      network: network.name,
-      status: ActivityStatus.pending,
-      timestamp: new Date().getTime(),
-      token: {
-        decimals: txData.toToken.decimals,
-        icon: txData.toToken.icon,
-        name: txData.toToken.name,
-        symbol: txData.toToken.symbol,
-        price: txData.toToken.price,
-      },
-      type: ActivityType.transaction,
-      value: txData.toToken.amount,
-      transactionHash: "",
-    };
-    const activityState = new ActivityState();
-    signedTx
-      .send()
-      .then(async (hash) => {
-        txActivity.transactionHash = u8aToHex(hash);
-        await activityState.addActivities([txActivity], {
-          address: network.displayAddress(txData.fromAddress),
-          network: network.name,
-        });
+  const txActivity: Activity = {
+    from: txData.fromAddress,
+    to: txData.toAddress,
+    isIncoming: txData.fromAddress === txData.toAddress,
+    network: network.name,
+    status: ActivityStatus.pending,
+    timestamp: new Date().getTime(),
+    token: {
+      decimals: txData.toToken.decimals,
+      icon: txData.toToken.icon,
+      name: txData.toToken.name,
+      symbol: txData.toToken.symbol,
+      price: txData.toToken.price,
+    },
+    type: ActivityType.transaction,
+    value: txData.toToken.amount,
+    transactionHash: "",
+  };
+  const activityState = new ActivityState();
+  await tx
+    .getFinalizedTransaction({ gasPriceType: txData.gasPriceType })
+    .then(async (finalizedTx) => {
+      TransactionSigner({
+        account: account.value!,
+        network,
+        payload: finalizedTx,
       })
-      .catch(() => {
-        txActivity.status = ActivityStatus.failed;
-        activityState.addActivities([txActivity], {
-          address: network.displayAddress(txData.fromAddress),
-          network: network.name,
+        .then((signedTx) => {
+          web3.eth
+            .sendSignedTransaction("0x" + signedTx.serialize().toString("hex"))
+            .on("transactionHash", (hash: string) => {
+              activityState.addActivities(
+                [{ ...txActivity, ...{ transactionHash: hash } }],
+                { address: txData.fromAddress, network: network.name }
+              );
+              isSendDone.value = true;
+              if (getCurrentContext() === "popup") {
+                setTimeout(() => {
+                  isProcessing.value = false;
+                  router.go(-2);
+                }, 4500);
+              } else {
+                setTimeout(() => {
+                  isProcessing.value = false;
+                  window.close();
+                }, 1500);
+              }
+            })
+            .on("error", (error: any) => {
+              txActivity.status = ActivityStatus.failed;
+              activityState.addActivities([txActivity], {
+                address: txData.fromAddress,
+                network: network.name,
+              });
+              console.error("ERROR", error);
+            });
+        })
+        .catch((error) => {
+          isProcessing.value = false;
+          console.error("error", error);
+          errorMsg.value = JSON.stringify(error);
         });
-      });
-
-    isSendDone.value = true;
-    if (getCurrentContext() === "popup") {
-      setTimeout(() => {
-        isProcessing.value = false;
-        router.go(-2);
-      }, 2500);
-    } else {
-      setTimeout(() => {
-        isProcessing.value = false;
-        window.close();
-      }, 1500);
-    }
-  } catch (error: any) {
-    isProcessing.value = false;
-    console.error("error", error);
-    errorMsg.value = JSON.stringify(error);
-  }
+    });
 };
-
 const isHasScroll = () => {
   if (verifyScrollRef.value) {
     return verifyScrollRef.value.$el.classList.contains("ps--active-y");
@@ -234,6 +209,7 @@ const isHasScroll = () => {
   box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.16);
   margin: 0;
   box-sizing: border-box;
+  position: relative;
 
   &.popup {
     box-shadow: none;
@@ -244,6 +220,7 @@ const isHasScroll = () => {
   width: 100%;
   height: 100%;
   box-sizing: border-box;
+  position: relative;
 
   &__header {
     position: relative;
@@ -313,7 +290,6 @@ const isHasScroll = () => {
     flex-direction: row;
     width: 100%;
     box-sizing: border-box;
-    font-size: 0;
 
     &.popup {
       padding: 24px;

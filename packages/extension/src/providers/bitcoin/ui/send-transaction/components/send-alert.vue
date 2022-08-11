@@ -2,20 +2,32 @@
   <div class="send-alert">
     <alert-icon />
     <p>
-      Your balance will go the minimum balance, which will drop your remaining
-      balance to 0.<br />
-      <a
-        target="_blank"
-        rel="noreferrer"
-        href="https://support.polkadot.network/support/solutions/articles/65000168651-what-is-the-existential-deposit-#:~:text=Print&text=On%20the%20Polkadot%20network%2C%20an,the%20Existential%20Deposit%20(ED)."
-        >What is Existential Deposit?</a
-      >
+      Not enough funds. You are<br />~{{
+        $filters.formatFloatingPointValue(nativeValue).value
+      }}
+      {{ nativeSymbol }} (${{
+        $filters.formatFiatValue(priceDifference).value
+      }}) short.
     </p>
   </div>
 </template>
 
 <script setup lang="ts">
 import AlertIcon from "@action/icons/send/alert-icon.vue";
+import BigNumber from "bignumber.js";
+import { computed } from "vue";
+
+interface IProps {
+  nativeSymbol: string;
+  nativeValue: string;
+  price?: string;
+}
+
+const props = defineProps<IProps>();
+
+const priceDifference = computed(() => {
+  return new BigNumber(props.nativeValue).times(props.price ?? "0").toFixed();
+});
 </script>
 
 <style lang="less">

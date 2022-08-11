@@ -8,19 +8,30 @@ class AccountState {
       InternalStorageNamespace.bitcoinAccountsState
     );
   }
-  async addApprovedDomain(domain: string): Promise<void> {
+  async addApprovedAddress(address: string, domain: string): Promise<void> {
+    address = address.toLowerCase();
     const state = await this.getStateByDomain(domain);
-    state.isApproved = true;
+    if (state.approvedAccounts.includes(address))
+      state.approvedAccounts = state.approvedAccounts.filter(
+        (add) => add !== address
+      ); //this will make sure latest address is always infront
+    state.approvedAccounts.unshift(address);
     await this.setState(state, domain);
   }
-  async removeApprovedDomain(domain: string): Promise<void> {
+  async removeApprovedAddress(address: string, domain: string): Promise<void> {
+    address = address.toLowerCase();
     const state = await this.getStateByDomain(domain);
-    state.isApproved = false;
-    await this.setState(state, domain);
+    if (state.approvedAccounts.includes(address)) {
+      state.approvedAccounts = state.approvedAccounts.filter(
+        (a) => a !== address
+      );
+      await this.setState(state, domain);
+    }
   }
-  async isApproved(domain: string): Promise<boolean> {
+  async getApprovedAddresses(domain: string): Promise<string[]> {
     const state = await this.getStateByDomain(domain);
-    return state.isApproved;
+    if (state.approvedAccounts) return state.approvedAccounts;
+    return [];
   }
   async deleteState(domain: string): Promise<void> {
     const allStates = await this.getAllStates();
@@ -41,7 +52,7 @@ class AccountState {
     const allStates: Record<string, IState> = await this.getAllStates();
     if (!allStates[domain])
       return {
-        isApproved: false,
+        approvedAccounts: [],
       };
     else return allStates[domain];
   }

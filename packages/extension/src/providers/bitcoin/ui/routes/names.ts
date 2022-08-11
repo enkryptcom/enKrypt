@@ -1,32 +1,22 @@
 export default {
-  dotAccounts: {
-    path: "dot-accounts",
+  btcSign: {
+    path: "btc-sign",
+    name: "btcSign",
     component: {},
-    name: "dotAccounts",
   },
-  dotTxApprove: {
-    path: "dot-tx-approve",
+  btcSendTransaction: {
+    path: "btc-send-transaction",
+    name: "btcSendTransaction",
     component: {},
-    name: "dotTxApprove",
   },
-  dotSignMessage: {
-    path: "dot-sign-message",
+  btcConnectDApp: {
+    path: "btc-conncet-dapp",
+    name: "btcConnectDApp",
     component: {},
-    name: "dotSignMessage",
   },
-  dotUpdateMetadata: {
-    path: "dot-update-metadata",
-    component: {},
-    name: "dotUpdateMetadata",
-  },
-  dotVerifyTransaction: {
-    path: "dot-verify-transaction",
-    component: {},
-    name: "dotVerifyTransaction",
-  },
-  dotHWVerify: {
-    path: "dot-hw-verify",
-    name: "dotHWVerify",
+  btcHWVerify: {
+    path: "btc-hw-verify",
+    name: "btcHWVerify",
     component: {},
   },
 };

@@ -1,7 +1,7 @@
 <template>
   <common-popup>
     <template #header>
-      <sign-logo class="common-popup__logo"></sign-logo>
+      <sign-logo class="common-popup__logo" />
     </template>
 
     <template #content>
@@ -9,7 +9,7 @@
 
       <div class="common-popup__block">
         <div class="common-popup__account">
-          <img :src="networks.polkadot.identicon(account.address)" />
+          <img :src="identicon" />
           <div class="common-popup__account-info">
             <h4>{{ account.name }}</h4>
             <p>
@@ -51,42 +51,53 @@ import { getError } from "@/libs/error";
 import { ErrorCodes } from "@/providers/ethereum/types";
 import { WindowPromiseHandler } from "@/libs/window-promise";
 import { onBeforeMount, ref } from "vue";
-import { isAscii, u8aToString, u8aUnwrapBytes } from "@polkadot/util";
-import networks from "../networks";
+import { hexToBuffer } from "@enkryptcom/utils";
+import { hexToUtf8 } from "web3-utils";
+import {
+  DEFAULT_EVM_NETWORK_NAME,
+  getNetworkByName,
+} from "@/libs/utils/networks";
 import { ProviderRequestOptions } from "@/types/provider";
+import { isAscii } from "@polkadot/util";
+import { BitcoinNetwork } from "../types/bitcoin-network";
 import { EnkryptAccount } from "@enkryptcom/types";
 import { MessageSigner } from "./libs/signer";
-import { hexToBuffer } from "@enkryptcom/utils";
 
-const windowPromise = WindowPromiseHandler(0);
-
+const windowPromise = WindowPromiseHandler(3);
+const network = ref<BitcoinNetwork>(
+  getNetworkByName(DEFAULT_EVM_NETWORK_NAME) as BitcoinNetwork
+);
+const account = ref<EnkryptAccount>({
+  name: "",
+  address: "",
+} as EnkryptAccount);
+const identicon = ref<string>("");
 const Options = ref<ProviderRequestOptions>({
   domain: "",
   faviconURL: "",
   title: "",
   url: "",
+  tabId: 0,
 });
-const message = ref("");
-const account = ref({ address: "" } as EnkryptAccount);
 
+const message = ref<string>("");
 onBeforeMount(async () => {
   const { Request, options } = await windowPromise;
-  Options.value = options;
-
-  message.value = isAscii(Request.value.params![0])
-    ? u8aToString(u8aUnwrapBytes(Request.value.params![0]))
-    : Request.value.params![0];
-
+  network.value = getNetworkByName(Request.value.params![2]) as BitcoinNetwork;
   account.value = Request.value.params![1] as EnkryptAccount;
+  identicon.value = network.value.identicon(account.value.address);
+  Options.value = options;
+  message.value = isAscii(Request.value.params![0])
+    ? hexToUtf8(Request.value.params![0])
+    : Request.value.params![0];
 });
 
 const approve = async () => {
   const { Request, Resolve } = await windowPromise;
-
   const msg = Request.value.params![0] as `0x{string}`;
-  const account = Request.value.params![1] as EnkryptAccount;
   MessageSigner({
-    account,
+    account: account.value,
+    network: network.value,
     payload: hexToBuffer(msg),
   })
     .then(Resolve.value)
@@ -94,7 +105,6 @@ const approve = async () => {
 };
 const deny = async () => {
   const { Resolve } = await windowPromise;
-
   Resolve.value({
     error: getError(ErrorCodes.userRejected),
   });

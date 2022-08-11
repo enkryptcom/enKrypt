@@ -28,6 +28,7 @@ const getProviderNetworkByName = (
 };
 const DEFAULT_EVM_NETWORK_NAME = NetworkNames.Ethereum;
 const DEFAULT_SUBSTRATE_NETWORK_NAME = NetworkNames.Polkadot;
+const DEFAULT_BTC_NETWORK_NAME = NetworkNames.Bitcoin;
 const POPULAR_NAMES = [
   NetworkNames.Bitcoin,
   NetworkNames.Ethereum,
@@ -42,5 +43,6 @@ export {
   getProviderNetworkByName,
   DEFAULT_EVM_NETWORK_NAME,
   DEFAULT_SUBSTRATE_NETWORK_NAME,
+  DEFAULT_BTC_NETWORK_NAME,
   POPULAR_NAMES,
 };

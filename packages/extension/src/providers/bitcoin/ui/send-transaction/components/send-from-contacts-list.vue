@@ -1,19 +1,19 @@
 <template>
   <div class="send-from-contacts-list" :class="{ show: showAccounts }">
-    <div class="send-from-contacts-list__overlay" @click="close"></div>
+    <div class="send-from-contacts-list__overlay" @click="close" />
     <div class="send-from-contacts-list__wrap" :class="{ show: showAccounts }">
       <custom-scrollbar
         class="send-from-contacts-list__scroll-area"
         :settings="scrollSettings({ suppressScrollX: true })"
       >
         <send-address-item
-          v-for="(account, index) in accounts"
+          v-for="(account, index) in accountInfo.activeAccounts"
           :key="index"
           :account="account"
           :network="network"
           v-bind="$attrs"
           :is-checked="address == account.address"
-        ></send-address-item>
+        />
       </custom-scrollbar>
     </div>
   </div>
@@ -23,9 +23,9 @@
 import { PropType } from "vue";
 import SendAddressItem from "./send-address-item.vue";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
+import { AccountsHeaderData } from "@action/types/account";
 import scrollSettings from "@/libs/utils/scroll-settings";
 import { BaseNetwork } from "@/types/base-network";
-import { EnkryptAccount } from "@enkryptcom/types";
 
 const emit = defineEmits<{
   (e: "update:pasteFromClipboard"): void;
@@ -34,9 +34,9 @@ const emit = defineEmits<{
 
 defineProps({
   showAccounts: Boolean,
-  accounts: {
-    type: Array as PropType<EnkryptAccount[]>,
-    default: () => [],
+  accountInfo: {
+    type: Object as PropType<AccountsHeaderData>,
+    default: () => ({}),
   },
   network: {
     type: Object as PropType<BaseNetwork>,

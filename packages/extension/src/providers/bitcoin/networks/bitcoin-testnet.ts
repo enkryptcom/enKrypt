@@ -16,11 +16,12 @@ const bitcoinOptions: BitcoinNetworkOptions = {
   isTestNetwork: true,
   currencyName: "tBTC",
   icon: require("./icons/tbtc.svg"),
-  decimals: 10,
+  decimals: 8,
   gradient: "#F7931A",
   node: "https://api.blockchain.info/haskoin-store/btc-testnet/",
   activityHandler: wrapActivityHandler(nodeActivity),
   basePath: "m/49'/1'/0'/0",
+  coingeckoID: "bitcoin",
   networkInfo: {
     messagePrefix: "\x18Bitcoin Signed Message:\n",
     bech32: "tb",

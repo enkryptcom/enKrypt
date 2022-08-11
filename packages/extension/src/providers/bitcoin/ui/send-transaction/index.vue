@@ -1,56 +1,55 @@
 <template>
   <div class="container">
     <div v-if="!!selected" class="send-transaction">
-      <div class="send-transaction__header">
-        <h3>Send</h3>
-        <a class="send-transaction__close" @click="close">
-          <close-icon />
-        </a>
-      </div>
+      <send-header
+        :close="close"
+        :toggle-type="toggleSelector"
+        :is-send-token="isSendToken"
+      />
 
       <send-address-input
         ref="addressInputFrom"
         :from="true"
         :value="addressFrom"
-        :network="network"
+        :network="(network as BitcoinNetwork)"
         :disable-direct-input="true"
         @click="toggleSelectContactFrom(true)"
         @update:input-address="inputAddressFrom"
         @toggle:show-contacts="toggleSelectContactFrom"
-      ></send-address-input>
+      />
 
       <send-from-contacts-list
         :show-accounts="isOpenSelectContactFrom"
-        :accounts="accountInfo.activeAccounts"
+        :account-info="accountInfo"
         :address="addressFrom"
         :network="network"
-        :identicon="network.identicon"
         @selected:account="selectAccountFrom"
         @close="toggleSelectContactFrom"
-      ></send-from-contacts-list>
+      />
 
       <send-address-input
         ref="addressInputTo"
         :value="addressTo"
-        :network="network"
+        :network="(network as BitcoinNetwork)"
         @update:input-address="inputAddressTo"
         @toggle:show-contacts="toggleSelectContactTo"
-      ></send-address-input>
+      />
 
       <send-contacts-list
         :show-accounts="isOpenSelectContactTo"
-        :accounts="accountInfo.activeAccounts"
-        :network="network"
+        :account-info="accountInfo"
         :address="addressTo"
+        :network="network"
         @selected:account="selectAccountTo"
         @update:paste-from-clipboard="addressInputTo.pasteFromClipboard()"
         @close="toggleSelectContactTo"
-      ></send-contacts-list>
+      />
 
       <send-token-select
+        v-if="isSendToken"
         :token="selectedAsset"
         @update:toggle-token-select="toggleSelectToken"
-      ></send-token-select>
+      />
 
       <assets-select-list
         v-show="isOpenSelectToken"
@@ -59,22 +58,45 @@
         :is-loading="isLoadingAssets"
         @close="toggleSelectToken"
         @update:select-asset="selectToken"
-      ></assets-select-list>
+      />
 
       <send-input-amount
+        v-if="isSendToken"
         :amount="amount"
         :fiat-value="selectedAsset.price"
-        :has-enough-balance="hasEnough"
+        :has-enough-balance="hasEnoughBalance"
         @update:input-amount="inputAmount"
-        @update:input-set-max="setSendMax"
-      ></send-input-amount>
+        @update:input-set-max="setMaxValue"
+      />
 
       <send-fee-select
-        v-if="!edWarn"
-        :fee="fee ?? { nativeSymbol: props.network.name }"
-      ></send-fee-select>
+        :in-swap="false"
+        :selected="selectedFee"
+        :fee="gasCostValues[selectedFee]"
+        @open-popup="toggleSelectFee"
+      />
 
-      <send-alert v-if="edWarn"></send-alert>
+      <transaction-fee-view
+        :fees="gasCostValues"
+        :show-fees="isOpenSelectFee"
+        :selected="selectedFee"
+        :is-header="true"
+        @close-popup="toggleSelectFee"
+        @gas-type-changed="selectFee"
+      />
+
+      <send-alert
+        v-show="hasEnoughBalance && nativeBalanceAfterTransaction.isNeg()"
+        :native-symbol="network.name"
+        :price="accountAssets[0]?.price || '0'"
+        :native-value="
+          fromBase(
+            nativeBalanceAfterTransaction.abs().toString(),
+            network.decimals
+          )
+        "
+        :decimals="network.decimals"
+      />
 
       <div class="send-transaction__buttons">
         <div class="send-transaction__buttons-cancel">
@@ -84,7 +106,7 @@
           <base-button
             :title="sendButtonTitle"
             :click="sendAction"
-            :disabled="isDisabled()"
+            :disabled="!isInputsValid"
           />
         </div>
       </div>
@@ -93,41 +115,46 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, PropType, ref, watch } from "vue";
+import { ref, onMounted, PropType, computed, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import CloseIcon from "@action/icons/common/close-icon.vue";
+import SendHeader from "./components/send-header.vue";
 import SendAddressInput from "./components/send-address-input.vue";
-import SendContactsList from "./components/send-contacts-list.vue";
 import SendFromContactsList from "./components/send-from-contacts-list.vue";
-import SendTokenSelect from "./components/send-token-select.vue";
+import SendContactsList from "./components/send-contacts-list.vue";
 import AssetsSelectList from "@action/views/assets-select-list/index.vue";
+import SendTokenSelect from "./components/send-token-select.vue";
+import SendAlert from "./components/send-alert.vue";
 import SendInputAmount from "./components/send-input-amount.vue";
 import SendFeeSelect from "./components/send-fee-select.vue";
-import SendAlert from "./components/send-alert.vue";
+import TransactionFeeView from "@action/views/transaction-fee/index.vue";
 import BaseButton from "@action/components/base-button/index.vue";
-import SubstrateApi from "@/providers/polkadot/libs/api";
-import { ApiPromise } from "@polkadot/api";
 import { AccountsHeaderData } from "@action/types/account";
-import { GasFeeInfo } from "@/providers/ethereum/ui/types";
-import { SubstrateNetwork } from "../../types/substrate-network";
 import { toBN } from "web3-utils";
-import { formatFloatingPointValue } from "@/libs/utils/number-formatter";
-import { fromBase, toBase } from "@/libs/utils/units";
+import { GasPriceTypes } from "../../../../providers/ethereum/libs/transaction/types";
+import { GasFeeType } from "../../../../providers/ethereum/ui/types";
+import { BitcoinNetwork } from "../../types/bitcoin-network";
+import { BTCToken } from "../../types/btc-token";
 import BigNumber from "bignumber.js";
-import { VerifyTransactionParams } from "../types";
+import { defaultGasCostVals } from "../common/default-vals";
+import { fromBase, toBase, isValidDecimals } from "@/libs/utils/units";
+import { formatFloatingPointValue } from "@/libs/utils/number-formatter";
 import { routes as RouterNames } from "@/ui/action/router";
-import { SendOptions } from "@/types/base-token";
-import { SubstrateToken } from "../../types/substrate-token";
-import { SubstrateNativeToken } from "../../types/substrate-native-token";
-import Browser from "webextension-polyfill";
 import getUiPath from "@/libs/utils/get-ui-path";
+import Browser from "webextension-polyfill";
 import { ProviderName } from "@/types/provider";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
-import { polkadotEncodeAddress } from "@enkryptcom/utils";
+import { BaseNetwork } from "@/types/base-network";
+import { isAddress } from "../../libs/utils";
+import BitcoinAPI from "@/providers/bitcoin/libs/api";
+import { Psbt as BTCTransaction } from "bitcoinjs-lib";
+import { bufferToHex, hexToBuffer } from "@enkryptcom/utils";
+import sendUsingInternalMessengers from "@/libs/messenger/internal-messenger";
+import { InternalMethods } from "@/types/messenger";
+import { ecrecover, fromRpcSig } from "ethereumjs-util";
 
 const props = defineProps({
   network: {
-    type: Object as PropType<SubstrateNetwork>,
+    type: Object as PropType<BaseNetwork>,
     default: () => ({}),
   },
   accountInfo: {
@@ -135,165 +162,183 @@ const props = defineProps({
     default: () => ({}),
   },
 });
-
-const route = useRoute();
-const router = useRouter();
+const loadingAsset = new BTCToken({
+  icon: props.network.icon,
+  symbol: "Loading",
+  balance: "0",
+  price: "0",
+  name: "loading",
+  decimals: props.network.decimals,
+});
 
 const addressInputTo = ref();
-const addressInputFrom = ref();
-const isOpenSelectContactFrom = ref(false);
-const isOpenSelectContactTo = ref(false);
-const addressFrom = ref(props.accountInfo.selectedAccount!.address);
-const addressTo = ref("");
-const isOpenSelectToken = ref(false);
-const amount = ref();
-const fee = ref<GasFeeInfo | null>(null);
-const accountAssets = ref<SubstrateToken[]>([]);
-const selectedAsset = ref<SubstrateToken | Partial<SubstrateToken>>(
-  new SubstrateNativeToken({
-    icon: props.network.icon,
-    balance: "0",
-    price: "0",
-    name: "loading",
-    symbol: "loading",
-    decimals: 12,
-  })
-);
-const hasEnough = ref(true);
-const sendMax = ref(false);
-
+const route = useRoute();
+const router = useRouter();
 const selected: string = route.params.id as string;
+const accountAssets = ref<BTCToken[]>([]);
+const selectedAsset = ref<BTCToken>(loadingAsset);
+const amount = ref<string>("");
+const hasEnoughBalance = computed(() => {
+  if (!isValidDecimals(sendAmount.value, selectedAsset.value.decimals!)) {
+    return false;
+  }
+  return toBN(selectedAsset.value.balance ?? "0").gte(
+    toBN(toBase(sendAmount.value ?? "0", selectedAsset.value.decimals!))
+  );
+});
+const sendAmount = computed(() => {
+  if (amount.value && amount.value !== "") return amount.value;
+  return "0";
+});
+const isMaxSelected = ref<boolean>(false);
+const selectedFee = ref<GasPriceTypes>(GasPriceTypes.REGULAR);
+const gasCostValues = ref<GasFeeType>(defaultGasCostVals);
+const addressFrom = ref<string>(
+  props.accountInfo.selectedAccount?.address ?? ""
+);
+const addressTo = ref<string>("");
 const isLoadingAssets = ref(true);
 
-const edWarn = computed(() => {
-  if (!fee.value) {
-    return undefined;
-  }
-
-  if (!amount.value) {
-    return false;
-  }
-
-  const rawAmount = toBN(
-    toBase(amount.value.toString(), selectedAsset.value.decimals!)
+const nativeBalance = computed(() => {
+  const accountIndex = props.accountInfo.activeAccounts.findIndex(
+    (acc) => acc.address === addressFrom.value
   );
-  const ed = selectedAsset.value.existentialDeposit ?? toBN(0);
-  const userBalance = toBN(selectedAsset.value.balance ?? 0);
-
-  if (!sendMax.value && userBalance.sub(rawAmount).lte(ed)) {
-    return true;
-  }
-
-  const txFee = toBN(
-    toBase(fee.value.nativeValue, selectedAsset.value.decimals!)
-  );
-  if (!sendMax.value && userBalance.sub(txFee).sub(rawAmount).lt(ed)) {
-    return true;
-  } else {
-    return false;
-  }
-});
-
-const isAddress = computed(() => {
-  try {
-    polkadotEncodeAddress(addressTo.value);
-    return true;
-  } catch {
-    return false;
-  }
-});
-
-onMounted(() => {
-  isLoadingAssets.value = true;
-  fetchTokens();
-});
-
-watch([selectedAsset, amount, addressTo], async () => {
-  if (selectedAsset.value && isAddress.value) {
-    const api = (await props.network.api()).api as ApiPromise;
-    await api.isReady;
-    const rawAmount = toBN(
-      toBase(
-        amount.value ? amount.value.toString() : "0",
-        selectedAsset.value.decimals!
-      )
-    );
-
-    const rawBalance = toBN(selectedAsset.value.balance!);
-
-    if (rawAmount.gt(rawBalance)) {
-      hasEnough.value = false;
-    } else {
-      hasEnough.value = true;
+  if (accountIndex !== -1) {
+    const balance = props.accountInfo.activeBalances[accountIndex];
+    if (balance !== undefined) {
+      return toBase(balance, props.network.decimals);
     }
+  }
+  return "0";
+});
 
-    const sendOptions: SendOptions | undefined = sendMax.value
-      ? { type: "all" }
-      : undefined;
+onMounted(async () => {
+  fetchAssets().then(setBaseCosts);
+});
 
-    const tx = await selectedAsset.value.send!(
-      api,
-      addressTo.value,
-      rawAmount.toString(),
-      sendOptions
-    );
-    const { partialFee } = (
-      await tx.paymentInfo(props.accountInfo.selectedAccount!.address)
-    ).toJSON();
+const nativeBalanceAfterTransaction = computed(() => {
+  if (nativeBalance.value && amount.value !== "") {
+    const rawAmount = toBN(toBase(amount.value, selectedAsset.value.decimals!));
+    return toBN(nativeBalance.value).sub(rawAmount);
+  }
+  return toBN(0);
+});
 
-    const txFeeHuman = fromBase(
-      partialFee?.toString() ?? "",
-      selectedAsset.value.decimals!
-    );
-
-    const txPrice = new BigNumber(selectedAsset.value.price!).times(txFeeHuman);
-
-    fee.value = {
+const setTransactionFees = (byteSize: number) => {
+  const gasVals = {
+    [GasPriceTypes.FASTEST]: (byteSize * 25).toString(),
+    [GasPriceTypes.FAST]: (byteSize * 20).toString(),
+    [GasPriceTypes.REGULAR]: (byteSize * 10).toString(),
+    [GasPriceTypes.ECONOMY]: (byteSize * 5).toString(),
+  };
+  const getConvertedVal = (type: GasPriceTypes) =>
+    fromBase(gasVals[type], props.network.decimals);
+  const nativeVal = accountAssets.value[0].price || "0";
+  gasCostValues.value = {
+    [GasPriceTypes.ECONOMY]: {
+      nativeValue: getConvertedVal(GasPriceTypes.ECONOMY),
+      fiatValue: new BigNumber(getConvertedVal(GasPriceTypes.ECONOMY))
+        .times(nativeVal!)
+        .toString(),
+      nativeSymbol: props.network.currencyName,
       fiatSymbol: "USD",
-      fiatValue: txPrice.toString(),
-      nativeSymbol: selectedAsset.value.symbol ?? "",
-      nativeValue: txFeeHuman.toString(),
-    };
-  }
-});
+    },
+    [GasPriceTypes.REGULAR]: {
+      nativeValue: getConvertedVal(GasPriceTypes.REGULAR),
+      fiatValue: new BigNumber(getConvertedVal(GasPriceTypes.REGULAR))
+        .times(nativeVal!)
+        .toString(),
+      nativeSymbol: props.network.currencyName,
+      fiatSymbol: "USD",
+    },
+    [GasPriceTypes.FAST]: {
+      nativeValue: getConvertedVal(GasPriceTypes.FAST),
+      fiatValue: new BigNumber(getConvertedVal(GasPriceTypes.FAST))
+        .times(nativeVal!)
+        .toString(),
+      nativeSymbol: props.network.currencyName,
+      fiatSymbol: "USD",
+    },
+    [GasPriceTypes.FASTEST]: {
+      nativeValue: getConvertedVal(GasPriceTypes.FASTEST),
+      fiatValue: new BigNumber(getConvertedVal(GasPriceTypes.FASTEST))
+        .times(nativeVal!)
+        .toString(),
+      nativeSymbol: props.network.currencyName,
+      fiatSymbol: "USD",
+    },
+  };
+};
 
-watch(addressFrom, () => {
-  fetchTokens();
-});
-
-const fetchTokens = async () => {
-  const networkApi = (await props.network.api()) as SubstrateApi;
-  const networkAssets = await props.network.getAllTokens();
-  const pricePromises = networkAssets.map((asset) => asset.getLatestPrice());
-  const balancePromises = networkAssets.map((asset) => {
-    return asset.getLatestUserBalance(networkApi.api, addressFrom.value);
-  });
-
-  Promise.all([...pricePromises, ...balancePromises]).then(() => {
-    const nonZeroAssets = networkAssets.filter(
-      (asset) => !toBN(asset.balance ?? "0").isZero()
-    );
-
-    if (nonZeroAssets.length == 0) {
-      nonZeroAssets.push(networkAssets[0]);
-    }
-
-    selectedAsset.value = nonZeroAssets[0];
-    accountAssets.value = nonZeroAssets;
-
+const setBaseCosts = () => {
+  setTransactionFees(500);
+  if (isMaxSelected.value) setMaxValue();
+};
+const fetchAssets = () => {
+  accountAssets.value = [];
+  selectedAsset.value = loadingAsset;
+  isLoadingAssets.value = true;
+  return props.network.getAllTokens(addressFrom.value).then((allAssets) => {
+    accountAssets.value = allAssets as BTCToken[];
+    selectedAsset.value = allAssets[0] as BTCToken;
     isLoadingAssets.value = false;
   });
 };
+
+const sendButtonTitle = computed(() => {
+  let title = "Send";
+  if (parseInt(sendAmount.value) > 0)
+    title =
+      "Send " +
+      formatFloatingPointValue(sendAmount.value).value +
+      " " +
+      selectedAsset.value?.symbol!.toUpperCase();
+  return title;
+});
+
+const isInputsValid = computed<boolean>(() => {
+  // if (
+  //   !isAddress(addressTo.value, (props.network as BitcoinNetwork).networkInfo)
+  // )
+  //   return false;
+  // if (!isValidDecimals(sendAmount.value, selectedAsset.value.decimals!)) {
+  //   return false;
+  // }
+  // if (new BigNumber(sendAmount.value).gt(assetMaxValue.value)) return false;
+  return true;
+});
+
+watch([isInputsValid, amount, addressTo, selectedAsset], () => {
+  // if (isInputsValid.value) {
+  //   setTransactionFees(Tx.value);
+  // }
+});
+
+const isOpenSelectContactFrom = ref<boolean>(false);
+const isOpenSelectContactTo = ref<boolean>(false);
+const isOpenSelectToken = ref<boolean>(false);
+
+const isOpenSelectFee = ref<boolean>(false);
+const isSendToken = ref(true);
 
 const close = () => {
   router.go(-1);
 };
 
+const assetMaxValue = computed(() => {
+  return fromBase(selectedAsset.value.balance!, selectedAsset.value.decimals!);
+});
+const setMaxValue = () => {
+  isMaxSelected.value = true;
+  amount.value =
+    parseFloat(assetMaxValue.value) < 0 ? "0" : assetMaxValue.value;
+};
 const inputAddressFrom = (text: string) => {
   addressFrom.value = text;
 };
 
 const inputAddressTo = (text: string) => {
+  console.log(text);
   addressTo.value = text;
 };
 
@@ -312,142 +357,118 @@ const toggleSelectToken = () => {
 const selectAccountFrom = (account: string) => {
   addressFrom.value = account;
   isOpenSelectContactFrom.value = false;
+  fetchAssets();
 };
 
 const selectAccountTo = (account: string) => {
-  addressTo.value = account;
+  addressTo.value = props.network.displayAddress(account);
   isOpenSelectContactTo.value = false;
 };
 
-const selectToken = (token: SubstrateToken | Partial<SubstrateToken>) => {
+const selectToken = (token: BTCToken) => {
+  inputAmount("0");
   selectedAsset.value = token;
   isOpenSelectToken.value = false;
 };
 
-const inputAmount = (number: string) => {
-  amount.value = parseFloat(number) < 0 ? "0" : number;
+const inputAmount = (inputAmount: string) => {
+  if (inputAmount === "") {
+    inputAmount = "0";
+  }
+
+  const inputAmountBn = new BigNumber(inputAmount);
+  isMaxSelected.value = false;
+  amount.value = inputAmountBn.lt(0) ? "0" : inputAmountBn.toFixed();
 };
 
-const sendButtonTitle = computed(() => {
-  let title = "Send";
-  if (parseInt(amount.value) > 0)
-    title =
-      "Send " +
-      formatFloatingPointValue(amount.value).value +
-      " " +
-      selectedAsset.value?.symbol!.toUpperCase();
-  return title;
-});
-
-const setSendMax = (max: boolean) => {
-  if (!max) {
-    sendMax.value = false;
-    return;
-  }
-
-  if (selectedAsset.value) {
-    const humanBalance = fromBase(
-      selectedAsset.value.balance!,
-      selectedAsset.value.decimals!
-    );
-
-    amount.value = humanBalance;
-    sendMax.value = true;
-  }
+const toggleSelectFee = () => {
+  isOpenSelectFee.value = !isOpenSelectFee.value;
 };
 
-const isDisabled = () => {
-  let isDisabled = true;
-
-  let addressIsValid = false;
-
-  try {
-    props.network.displayAddress(addressTo.value);
-    addressIsValid = true;
-  } catch {
-    addressIsValid = false;
-  }
-
-  if (
-    hasEnough.value &&
-    addressIsValid &&
-    !edWarn.value &&
-    edWarn.value !== undefined
-  )
-    isDisabled = false;
-  return isDisabled;
+const selectFee = (type: GasPriceTypes) => {
+  selectedFee.value = type;
+  isOpenSelectFee.value = false;
+  if (isMaxSelected.value) setMaxValue();
 };
 
 const sendAction = async () => {
-  const sendAmount = toBase(amount.value, selectedAsset.value.decimals!);
-
-  const sendOptions: SendOptions | undefined = sendMax.value
-    ? { type: "all" }
-    : undefined;
-
-  const api = (await props.network.api()).api as ApiPromise;
-  await api.isReady;
-
-  const tx = await selectedAsset.value?.send!(
-    api,
-    addressTo.value,
-    sendAmount,
-    sendOptions
-  );
   const keyring = new PublicKeyRing();
-  const fromAccount = await keyring.getAccount(
-    polkadotEncodeAddress(addressFrom.value)
-  );
-  const txVerifyInfo: VerifyTransactionParams = {
-    TransactionData: {
-      from: fromAccount.address,
-      to: addressTo.value,
-      data: tx.toHex() as `0x{string}`,
-      value: amount.value,
-    },
-    toToken: {
-      amount: toBase(amount.value, selectedAsset.value.decimals!),
-      decimals: selectedAsset.value.decimals!,
-      icon: selectedAsset.value.icon as string,
-      symbol: selectedAsset.value.symbol || "unknown",
-      valueUSD: new BigNumber(selectedAsset.value.price || "0")
-        .times(amount.value)
-        .toFixed(),
-      name: selectedAsset.value.name || "",
-      price: selectedAsset.value.price || "0",
-    },
-    fromAddress: fromAccount.address,
-    fromAddressName: fromAccount.name,
-    txFee: fee.value!,
-    toAddress: addressTo.value,
-  };
-
-  const routedRoute = router.resolve({
-    name: RouterNames.verify.name,
-    query: {
-      id: selected,
-      txData: Buffer.from(JSON.stringify(txVerifyInfo), "utf8").toString(
-        "base64"
-      ),
-    },
+  const fromAccountInfo = await keyring.getAccount(addressFrom.value);
+  const networkInfo = (props.network as BitcoinNetwork).networkInfo;
+  const api = (await props.network.api()) as BitcoinAPI;
+  const utxos = await api.getUTXOs(fromAccountInfo.address);
+  const tx = new BTCTransaction({
+    network: networkInfo,
   });
-
-  if (fromAccount.isHardware) {
-    await Browser.windows.create({
-      url: Browser.runtime.getURL(
-        getUiPath(
-          `dot-hw-verify?id=${routedRoute.query.id}&txData=${routedRoute.query.txData}`,
-          ProviderName.polkadot
-        )
-      ),
-      type: "popup",
-      focused: true,
-      height: 600,
-      width: 460,
+  utxos.forEach((u) => {
+    console.log(u);
+    tx.addInput({
+      hash: u.txid,
+      index: u.index,
+      witnessUtxo: {
+        script: Buffer.from(u.pkscript, "hex"),
+        value: u.value,
+      },
     });
-  } else {
-    router.push(routedRoute);
-  }
+  });
+  const signer = {
+    publicKey: hexToBuffer(fromAccountInfo.address),
+    network: networkInfo,
+    sign: (hash: Buffer, lowR?: boolean): Promise<Buffer> => {
+      console.log(bufferToHex(hash), lowR, "sign hash");
+      return sendUsingInternalMessengers({
+        method: InternalMethods.sign,
+        params: [bufferToHex(hash), fromAccountInfo],
+      }).then((res) => {
+        console.log(JSON.parse(res.result!), "response");
+        return hexToBuffer(JSON.parse(res.result!)).subarray(0, 64);
+      });
+    },
+  };
+  tx.addOutput({
+    address: addressTo.value,
+    value: parseInt(toBase(amount.value, selectedAsset.value.decimals)),
+  });
+  await tx.signAllInputsAsync(signer);
+  tx.finalizeAllInputs();
+  console.log(
+    tx.getFee(),
+    tx.getFeeRate(),
+    tx,
+    addressTo.value,
+    tx.extractTransaction().toHex()
+  );
+
+  // const routedRoute = router.resolve({
+  //   name: RouterNames.verify.name,
+  //   query: {
+  //     id: selected,
+  //     txData: Buffer.from(JSON.stringify(txVerifyInfo), "utf8").toString(
+  //       "base64"
+  //     ),
+  //   },
+  // });
+
+  // if (fromAccountInfo.isHardware) {
+  //   await Browser.windows.create({
+  //     url: Browser.runtime.getURL(
+  //       getUiPath(
+  //         `eth-hw-verify?id=${routedRoute.query.id}&txData=${routedRoute.query.txData}`,
+  //         ProviderName.ethereum
+  //       )
+  //     ),
+  //     type: "popup",
+  //     focused: true,
+  //     height: 600,
+  //     width: 460,
+  //   });
+  // } else {
+  //   router.push(routedRoute);
+  // }
+};
+
+const toggleSelector = (isTokenSend: boolean) => {
+  isSendToken.value = isTokenSend;
 };
 </script>
 
@@ -470,34 +491,6 @@ const sendAction = async () => {
   height: 100%;
   box-sizing: border-box;
   position: relative;
-
-  &__header {
-    position: relative;
-    padding: 24px 72px 12px 32px;
-
-    h3 {
-      font-style: normal;
-      font-weight: 700;
-      font-size: 24px;
-      line-height: 32px;
-      color: @primaryLabel;
-      margin: 0;
-    }
-  }
-
-  &__close {
-    position: absolute;
-    top: 20px;
-    right: 24px;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background 300ms ease-in-out;
-    font-size: 0;
-
-    &:hover {
-      background: @black007;
-    }
-  }
 
   &__buttons {
     position: absolute;

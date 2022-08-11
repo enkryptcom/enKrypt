@@ -1,13 +1,13 @@
 <template>
   <a class="send-token-select" @click="emit('update:toggleTokenSelect')">
     <div class="send-token-select__image">
-      <img :src="token!.icon" alt="" />
+      <img :src="token.icon" alt="" />
     </div>
     <div class="send-token-select__info">
-      <h5>{{ token!.name }}</h5>
+      <h5>{{ token.name }}</h5>
       <p>
         {{ balance ? $filters.formatFloatingPointValue(balance).value : "~" }}
-        <span>{{ token!.symbol }}</span>
+        <span>{{ token.symbol }}</span>
       </p>
     </div>
 
@@ -18,20 +18,22 @@
 </template>
 
 <script setup lang="ts">
+import { computed, PropType } from "vue";
 import SwitchArrow from "@action/icons/header/switch_arrow.vue";
-import { BaseToken } from "@/types/base-token";
-import { computed } from "@vue/reactivity";
 import { fromBase } from "@/libs/utils/units";
-
+import { BaseToken } from "@/types/base-token";
 const emit = defineEmits<{
   (e: "update:toggleTokenSelect"): void;
 }>();
 
-interface IProps {
-  token?: BaseToken | Partial<BaseToken>;
-}
-
-const props = defineProps<IProps>();
+const props = defineProps({
+  token: {
+    type: Object as PropType<BaseToken>,
+    default: () => {
+      return {};
+    },
+  },
+});
 
 const balance = computed(() =>
   props.token && props.token.balance

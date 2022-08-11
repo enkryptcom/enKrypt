@@ -1,27 +1,20 @@
 import { InternalMethods, InternalOnMessageResponse } from "@/types/messenger";
-import { HWwalletType } from "@enkryptcom/types";
+import { FeeMarketEIP1559Transaction } from "@ethereumjs/tx";
+import { SignerTransactionOptions, SignerMessageOptions } from "../types";
 import HWwallet from "@enkryptcom/hw-wallets";
-import { SignerMessageOptions, SignerTransactionOptions } from "../types";
+import { HWwalletType } from "@enkryptcom/types";
+import { bufferToHex, fromRpcSig, hashPersonalMessage } from "ethereumjs-util";
 import { getCustomError } from "@/libs/error";
-import { payloadSignTransform, signPayload } from "../../libs/signing-utils";
 import sendUsingInternalMessengers from "@/libs/messenger/internal-messenger";
-import {
-  isAscii,
-  u8aToBuffer,
-  u8aUnwrapBytes,
-  u8aWrapBytes,
-} from "@polkadot/util";
-import { bufferToHex } from "ethereumjs-util";
-
 const TransactionSigner = (
   options: SignerTransactionOptions
-): Promise<InternalOnMessageResponse> => {
+): Promise<FeeMarketEIP1559Transaction> => {
   const { account, network, payload } = options;
   if (account.isHardware) {
-    const hwWallet = new HWwallet();
-    return hwWallet
+    const hwwallets = new HWwallet();
+    return hwwallets
       .signTransaction({
-        transaction: payload,
+        transaction: payload as any,
         networkName: network.name,
         pathIndex: account.pathIndex.toString(),
         pathType: {
@@ -30,30 +23,35 @@ const TransactionSigner = (
         },
         wallet: account.walletType as unknown as HWwalletType,
       })
-      .then((signature: string) => ({
-        result: JSON.stringify(signature),
-      }))
+      .then((rpcsig: string) => {
+        const rpcSig = fromRpcSig(rpcsig);
+        const signedTx = (
+          payload as FeeMarketEIP1559Transaction
+        )._processSignature(rpcSig.v, rpcSig.r, rpcSig.s);
+        return signedTx;
+      })
       .catch((e) => {
         return Promise.reject({
           error: getCustomError(e.message),
         });
       });
   } else {
-    const signMsg = signPayload(payload);
+    const msgHash = bufferToHex(payload.getMessageToSign(true));
     return sendUsingInternalMessengers({
       method: InternalMethods.sign,
-      params: [signMsg, account],
+      params: [msgHash, account],
     }).then((res) => {
-      if (res.error) return res;
-
-      const signed = payloadSignTransform(
-        JSON.parse(res.result as string),
-        account.signerType,
-        true
-      );
-      return {
-        result: JSON.stringify(signed),
-      };
+      if (res.error) {
+        return Promise.reject({
+          error: res.error,
+        });
+      } else {
+        const rpcSig = fromRpcSig(JSON.parse(res.result as string) || "0x");
+        const signedTx = (
+          payload as FeeMarketEIP1559Transaction
+        )._processSignature(rpcSig.v, rpcSig.r, rpcSig.s);
+        return signedTx;
+      }
     });
   }
 };
@@ -61,18 +59,33 @@ const TransactionSigner = (
 const MessageSigner = (
   options: SignerMessageOptions
 ): Promise<InternalOnMessageResponse> => {
-  const { account, payload } = options;
+  const { account, network, payload } = options;
   if (account.isHardware) {
-    return Promise.reject({
-      error: getCustomError("polkadot-hardware-wallets cant sign raw messages"),
-    });
+    const hwwallets = new HWwallet();
+    return hwwallets
+      .signPersonalMessage({
+        message: payload,
+        networkName: network.name,
+        pathIndex: account.pathIndex.toString(),
+        pathType: {
+          basePath: account.basePath,
+          path: account.HWOptions!.pathTemplate,
+        },
+        wallet: account.walletType as unknown as HWwalletType,
+      })
+      .then((res: string) => ({
+        result: JSON.stringify(res),
+      }))
+      .catch((e: any) => {
+        return Promise.reject({
+          error: getCustomError(e.message),
+        });
+      });
   } else {
-    const bytes = isAscii(payload)
-      ? u8aToBuffer(u8aUnwrapBytes(payload))
-      : payload;
+    const msgHash = bufferToHex(hashPersonalMessage(payload));
     return sendUsingInternalMessengers({
       method: InternalMethods.sign,
-      params: [bufferToHex(u8aToBuffer(u8aWrapBytes(bytes))), account],
+      params: [msgHash, account],
     }).then((res) => {
       if (res.error) return res;
       return {

@@ -1,6 +1,6 @@
 <template>
   <div class="send-contacts-list" :class="{ show: showAccounts }">
-    <div class="send-contacts-list__overlay" @click="close"></div>
+    <div class="send-contacts-list__overlay" @click="close" />
     <div
       class="send-contacts-list__wrap"
       :class="{ show: showAccounts, header: isMyAddress }"
@@ -11,10 +11,7 @@
       >
         <div v-if="!isMyAddress" class="send-contacts-list__block">
           <div class="send-contacts-list__buttons">
-            <base-button
-              title="Send to my address"
-              :click="sendToMyAddress"
-            ></base-button>
+            <base-button title="Send to my address" :click="sendToMyAddress" />
 
             <a
               class="send-contacts-list__buttons-paste"
@@ -26,13 +23,13 @@
           <h3>Recent</h3>
           <div class="send-contacts-list__list">
             <send-address-item
-              v-for="(account, index) in accounts"
+              v-for="(account, index) in accountInfo.activeAccounts"
               :key="index"
               :account="account"
               :network="network"
               v-bind="$attrs"
               :is-checked="address == account.address"
-            ></send-address-item>
+            />
           </div>
         </div>
         <div v-if="isMyAddress" class="send-contacts-list__block">
@@ -45,69 +42,52 @@
 
           <div class="send-contacts-list__list">
             <send-address-item
-              v-for="(account, index) in accounts"
+              v-for="(account, index) in accountInfo.activeAccounts"
               :key="index"
               :account="account"
               :network="network"
               v-bind="$attrs"
               :is-checked="address == account.address"
-            ></send-address-item>
+            />
           </div>
         </div>
-
-        <!-- <div class="send-contacts-list__buttons">
-          <base-button
-            title="Send to my address"
-            :click="sendToMyAddress"
-          ></base-button>
-          <base-button
-            title="Paste from clipboard"
-            :click="pasteFromClipboard"
-          ></base-button>
-        </div>
-        <h3>My Accounts</h3>
-        <send-address-item
-          v-for="(account, index) in accountInfo.activeAccounts"
-          :key="index"
-          :account="account"
-          :identicon="identicon"
-          :is-checked="account.address == address"
-          v-bind="$attrs"
-        ></send-address-item> -->
       </custom-scrollbar>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { PropType, ref } from "vue";
 import SendAddressItem from "./send-address-item.vue";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 import BaseButton from "@action/components/base-button/index.vue";
+import { AccountsHeaderData } from "@action/types/account";
 import scrollSettings from "@/libs/utils/scroll-settings";
-import { onUpdated, ref } from "vue";
-import { EnkryptAccount, KeyRecord } from "@enkryptcom/types";
+import { BaseNetwork } from "@/types/base-network";
 import PasteIcon from "@action/icons/actions/paste.vue";
 import ArrowBack from "@action/icons/common/arrow-back.vue";
-import { BaseNetwork } from "@/types/base-network";
+
 const emit = defineEmits<{
   (e: "update:pasteFromClipboard"): void;
   (e: "close", open: false): void;
 }>();
 
-interface IProps {
-  showAccounts: boolean;
-  accounts: EnkryptAccount[];
-  address: string;
-  network: BaseNetwork;
-}
-
-const props = defineProps<IProps>();
-
-const searchAccounts = ref<KeyRecord[]>(props.accounts);
 const isMyAddress = ref(false);
 
-onUpdated(() => {
-  searchAccounts.value = props.accounts;
+defineProps({
+  showAccounts: Boolean,
+  accountInfo: {
+    type: Object as PropType<AccountsHeaderData>,
+    default: () => ({}),
+  },
+  network: {
+    type: Object as PropType<BaseNetwork>,
+    default: () => ({}),
+  },
+  address: {
+    type: String,
+    default: "",
+  },
 });
 
 const close = () => {
@@ -272,7 +252,7 @@ const pasteFromClipboard = () => {
     &-back {
       position: absolute;
       top: 8px;
-      left: 8px;
+      left: 0;
       border-radius: 8px;
       cursor: pointer;
       padding: 8px;
