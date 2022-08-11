@@ -22,7 +22,10 @@
         <p>≈ {{ $filters.formatFiatValue(toTokenPrice).value }}</p>
       </div>
     </div>
-    <best-offer-to-item></best-offer-to-item>
+    <best-offer-to-item
+      :to-address="toAddress"
+      :to-network-name="toNetworkName"
+    />
     <!-- <best-offer-warning :fee-warning="true"></best-offer-warning>
     <best-offer-warning :token-warning="true"></best-offer-warning> -->
     <best-offer-error
@@ -82,12 +85,15 @@ import { TradeInfo } from "@/providers/swap/types/SwapProvider";
 import { BaseToken } from "@/types/base-token";
 import BigNumber from "bignumber.js";
 import { SwapBestOfferWarnings } from "../types";
+import { NetworkNames } from "@enkryptcom/types";
 
 interface SwapBestOfferProps {
   trades: TradeInfo[];
   pickedTrade: TradeInfo;
   fromToken: BaseToken;
   fromAmount: string;
+  toAddress: string;
+  toNetworkName?: NetworkNames;
   toToken: BaseToken;
   warning?: SwapBestOfferWarnings;
 }

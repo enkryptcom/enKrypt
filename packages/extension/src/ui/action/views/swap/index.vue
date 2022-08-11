@@ -46,6 +46,7 @@
             :is-valid-address="addressIsValid"
             :is-loading="addressIsLoading"
             :to-network="toToken && (toToken as any).blockchain ? (toToken as any).blockchain : null"
+            :is-focus="isOpenSelectContact"
             @update:input-address="inputAddress"
             @toggle:show-contacts="toggleSelectContact"
           ></send-address-input>
@@ -305,7 +306,6 @@ onMounted(async () => {
   props.network
     .getAllTokens(props.accountInfo.selectedAccount?.address as string)
     .then(async (tokens) => {
-      console.log(tokens[0]);
       const api = await props.network.api();
 
       const balancePromises = tokens.map((token) => {
@@ -413,7 +413,7 @@ watch(toToken, async () => {
   }
 });
 
-watch(address, async () => {
+watch([address, toToken], async () => {
   addressIsLoading.value = true;
 
   clearTimeout(addressInputTimeout.value);
@@ -557,6 +557,7 @@ const sendAction = async () => {
     fromToken: fromToken.value,
     fromAmount: fromAmount.value,
     toAddress: address.value,
+    toNetworkName: network.value?.name,
     priceDifference: priceDifference,
     swapMax: swapMax.value,
   };
@@ -580,8 +581,8 @@ const inputAddress = (text: string) => {
     address.value = text;
   }
 };
-const toggleSelectContact = (open: boolean) => {
-  isOpenSelectContact.value = open;
+const toggleSelectContact = () => {
+  isOpenSelectContact.value = !isOpenSelectContact.value;
 };
 const selectAccount = (account: string) => {
   address.value = account;

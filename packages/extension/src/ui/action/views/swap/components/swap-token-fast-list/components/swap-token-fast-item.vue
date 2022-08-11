@@ -19,7 +19,6 @@ const props = defineProps({
     default: () => ({}),
   },
 });
-console.log(props.token);
 const select = () => {
   emit("update:selectAsset", props.token);
 };

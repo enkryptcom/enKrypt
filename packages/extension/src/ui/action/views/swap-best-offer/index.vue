@@ -24,6 +24,8 @@
             :picked-trade="pickedTrade"
             :from-token="swapData.fromToken"
             :to-token="swapData.toToken"
+            :to-address="swapData.toAddress"
+            :to-network-name="swapData.toNetworkName"
             :from-amount="swapData.fromAmount"
             @update:picked-trade="selectTrade"
           >
@@ -124,6 +126,7 @@ import { defaultGasCostVals } from "@/providers/ethereum/ui/common/default-vals"
 import { SwapBestOfferWarnings } from "./components/types";
 import { Erc20Token } from "@/providers/ethereum/types/erc20-token";
 import { NATIVE_TOKEN_ADDRESS } from "@/providers/ethereum/libs/common";
+import { NetworkNames } from "@enkryptcom/types";
 
 interface SwapData {
   trades: TradeInfo[];
@@ -131,6 +134,7 @@ interface SwapData {
   toToken: BaseToken;
   fromAmount: string;
   toAddress: string;
+  toNetworkName?: NetworkNames;
   priceDifference: string;
   swapMax: boolean;
 }

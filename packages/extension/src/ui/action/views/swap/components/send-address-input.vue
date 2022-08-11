@@ -14,7 +14,7 @@
         :loop="false"
       />
     </div>
-    <div class="send-address-input__address">
+    <div class="send-address-input__address" @click="changeFocus">
       <p>
         To
         {{
@@ -28,6 +28,7 @@
       <input
         ref="addressInput"
         v-model="address"
+        disabled
         type="text"
         :placeholder="`${network.name_long} address`"
         :style="{ color: !isValidAddress && !isLoading ? 'red' : 'black' }"
@@ -47,7 +48,6 @@ import LottieStatus from "@action/assets/animation/status.json";
 import LottieError from "@action/assets/animation/error.json";
 import { PropType, ref } from "vue";
 
-const isFocus = ref<boolean>(false);
 const addressInput = ref<HTMLInputElement>();
 
 const pasteFromClipboard = () => {
@@ -79,10 +79,14 @@ const props = defineProps({
     type: String,
     default: () => null,
   },
+  isFocus: {
+    type: Boolean,
+    default: false,
+  },
 });
 const emit = defineEmits<{
   (e: "update:inputAddress", address: string): void;
-  (e: "toggle:showContacts", show: boolean): void;
+  (e: "toggle:showContacts"): void;
 }>();
 const address = computed({
   get: () => {
@@ -94,16 +98,15 @@ const address = computed({
       displayAddress = props.value;
     }
 
-    return isFocus.value
+    return props.isFocus
       ? displayAddress
       : replaceWithEllipsis(displayAddress, 6, 6);
   },
   set: (value) => emit("update:inputAddress", value),
 });
 
-const changeFocus = (val: FocusEvent) => {
-  isFocus.value = val.type === "focus";
-  if (isFocus.value) emit("toggle:showContacts", isFocus.value);
+const changeFocus = () => {
+  emit("toggle:showContacts");
 };
 </script>
 
@@ -125,6 +128,7 @@ const changeFocus = (val: FocusEvent) => {
   align-items: center;
   flex-direction: row;
   position: relative;
+  cursor: pointer;
 
   &.focus {
     border: 2px solid @primary;
@@ -170,6 +174,7 @@ const changeFocus = (val: FocusEvent) => {
       border: 0 none;
       outline: none;
       padding: 0;
+      cursor: pointer;
     }
   }
 
