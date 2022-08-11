@@ -5,11 +5,10 @@
     "vue/setup-compiler-macros": true
   },
   "extends": [
-    "@vue/prettier/@typescript-eslint",
     "plugin:vue/vue3-recommended",
     "eslint:recommended",
     "@vue/typescript/recommended",
-    "@vue/prettier"
+    "plugin:prettier/recommended"
   ],
   "parserOptions": {
     "ecmaVersion": 2020,

@@ -1,6 +1,6 @@
 <template>
   <div class="nft-select-list-search">
-    <search-icon></search-icon>
+    <search-icon />
     <input type="text" placeholder="Search NFT" autocomplete="off" />
   </div>
 </template>

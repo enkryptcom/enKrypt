@@ -13,7 +13,7 @@
       :change-focus="changeFocus"
       :error="inputError !== null"
       @update:value="amountChanged"
-    ></swap-token-amount-input>
+    />
 
     <a
       v-show="!!token && ((token as any).contract !== NATIVE_TOKEN_ADDRESS)"

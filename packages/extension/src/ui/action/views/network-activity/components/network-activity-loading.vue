@@ -1,6 +1,8 @@
 <template>
   <div class="network-activity__loading">
-    <p v-if="!isEmpty"><loader /></p>
+    <p v-if="!isEmpty">
+      <loader />
+    </p>
     <p v-if="isEmpty">Account transactions will be<br />displayed here</p>
   </div>
 </template>

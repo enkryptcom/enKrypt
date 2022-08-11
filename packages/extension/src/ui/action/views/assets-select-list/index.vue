@@ -22,20 +22,20 @@
       :settings="scrollSettings({ suppressScrollX: true })"
     >
       <div v-show="isSelectToToken" class="assets-select-list__fast-tokens">
-        <swap-token-fast-list v-bind="$attrs"></swap-token-fast-list>
+        <swap-token-fast-list v-bind="$attrs" />
       </div>
       <assets-select-list-item
         v-for="(item, index) in listedAssets"
         :key="index"
         :token="item"
         v-bind="$attrs"
-      ></assets-select-list-item>
+      />
 
       <assets-select-loading
         v-if="assets.length === 0"
         :is-empty="assets.length === 0"
         :is-loading="isLoading"
-      ></assets-select-loading>
+      />
     </custom-scrollbar>
   </div>
 </template>

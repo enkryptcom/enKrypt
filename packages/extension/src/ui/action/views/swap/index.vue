@@ -18,11 +18,9 @@
             :min="minFrom"
             :max="maxFrom"
             @update:input-max="setMax"
-          ></swap-token-amount-input>
+          />
 
-          <a class="swap__arrows" @click="swapTokens"
-            ><swap-arrows></swap-arrows
-          ></a>
+          <a class="swap__arrows" @click="swapTokens"><swap-arrows /></a>
 
           <swap-token-to-amount
             :toggle-select="toggleToToken"
@@ -37,7 +35,7 @@
             "
             :amount="toAmount?.toString()"
             @update:select-asset="selectTokenTo"
-          ></swap-token-to-amount>
+          />
 
           <send-address-input
             ref="addressInput"
@@ -49,7 +47,7 @@
             :is-focus="isOpenSelectContact"
             @update:input-address="inputAddress"
             @toggle:show-contacts="toggleSelectContact"
-          ></send-address-input>
+          />
 
           <send-contacts-list
             :show-accounts="isOpenSelectContact"
@@ -59,7 +57,7 @@
             @selected:account="selectAccount"
             @update:paste-from-clipboard="addressInput.pasteFromClipboard()"
             @close="toggleSelectContact"
-          ></send-contacts-list>
+          />
         </div>
 
         <div class="swap__buttons">
@@ -87,7 +85,7 @@
       :is-send="true"
       @close="toggleFromToken"
       @update:select-asset="selectTokenFrom"
-    ></assets-select-list>
+    />
 
     <assets-select-list
       v-show="toSelectOpened"
@@ -96,9 +94,9 @@
       :is-loading="fetchingTokens"
       @close="toggleToToken"
       @update:select-asset="selectTokenTo"
-    ></assets-select-list>
+    />
 
-    <swap-looking v-show="isLooking" :close="toggleLooking"></swap-looking>
+    <swap-looking v-show="isLooking" :close="toggleLooking" />
     <swap-error-popup
       v-if="showSwapError"
       :error="swapError"

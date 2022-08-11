@@ -1,6 +1,6 @@
 <template>
   <div class="send-token-list" :class="{ show: showTokens }">
-    <div class="send-token-list__overlay" @click="close"></div>
+    <div class="send-token-list__overlay" @click="close" />
     <div class="send-token-list__wrap" :class="{ show: showTokens }">
       <list-search :input="search" placeholder="Search asset" />
       <custom-scrollbar
@@ -14,7 +14,7 @@
           :select-token="selectToken"
           :active-account="activeAccount"
           :api="props.api"
-        ></send-token-item>
+        />
       </custom-scrollbar>
     </div>
   </div>

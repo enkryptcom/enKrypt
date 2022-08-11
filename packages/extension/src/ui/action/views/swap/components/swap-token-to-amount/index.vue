@@ -9,7 +9,7 @@
       v-show="!!token"
       :value="amount"
       :is-finding-rate="isFindingRate"
-    ></swap-token-amount-input>
+    />
 
     <swap-token-fast-list
       v-show="!token"
@@ -17,7 +17,7 @@
       :select-token="selectToken"
       :total-tokens="totalTokens"
       @update:select-asset="selectAsset"
-    ></swap-token-fast-list>
+    />
 
     <div v-show="!!token && Number(amount) > 0" class="swap-token-input__fiat">
       ≈ ${{ tokenPrice ? $filters.formatFiatValue(tokenPrice).value : "~" }}

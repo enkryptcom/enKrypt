@@ -8,11 +8,11 @@
     <div v-show="isOpenSelector" class="send-transaction__dropdown">
       <a class="send-transaction__dropdown-item" @click="toggleType(true)">
         <p>Send token</p>
-        <done-icon v-show="isSendToken"></done-icon>
+        <done-icon v-show="isSendToken" />
       </a>
       <a class="send-transaction__dropdown-item" @click="toggleType(false)">
         <p>Send NFT</p>
-        <done-icon v-show="!isSendToken"></done-icon>
+        <done-icon v-show="!isSendToken" />
       </a>
     </div>
     <a class="send-transaction__close" @click="close">
@@ -27,7 +27,7 @@ import CloseIcon from "@action/icons/common/close-icon.vue";
 // import SwitchArrow from "@action/icons/header/switch_arrow.vue";
 import DoneIcon from "@action/icons/common/done_icon.vue";
 
-let isOpenSelector = ref(false);
+const isOpenSelector = ref(false);
 
 const props = defineProps({
   close: {

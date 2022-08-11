@@ -15,13 +15,11 @@
           </p>
         </div>
         <div class="swap-initiated__info">
-          <swap-initiated-amount :token="fromToken" :amount="fromAmount">
-          </swap-initiated-amount>
+          <swap-initiated-amount :token="fromToken" :amount="fromAmount" />
           <div class="swap-initiated__info-arrow">
             <arrow-down />
           </div>
-          <swap-initiated-amount :token="toToken" :amount="toAmount">
-          </swap-initiated-amount>
+          <swap-initiated-amount :token="toToken" :amount="toAmount" />
         </div>
 
         <div class="swap-initiated__buttons">

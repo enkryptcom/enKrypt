@@ -17,7 +17,7 @@
         @click="toggleSelectContactFrom(true)"
         @update:input-address="inputAddressFrom"
         @toggle:show-contacts="toggleSelectContactFrom"
-      ></send-address-input>
+      />
 
       <send-from-contacts-list
         :show-accounts="isOpenSelectContactFrom"
@@ -27,7 +27,7 @@
         :identicon="network.identicon"
         @selected:account="selectAccountFrom"
         @close="toggleSelectContactFrom"
-      ></send-from-contacts-list>
+      />
 
       <send-address-input
         ref="addressInputTo"
@@ -35,7 +35,7 @@
         :network="network"
         @update:input-address="inputAddressTo"
         @toggle:show-contacts="toggleSelectContactTo"
-      ></send-address-input>
+      />
 
       <send-contacts-list
         :show-accounts="isOpenSelectContactTo"
@@ -45,12 +45,12 @@
         @selected:account="selectAccountTo"
         @update:paste-from-clipboard="addressInputTo.pasteFromClipboard()"
         @close="toggleSelectContactTo"
-      ></send-contacts-list>
+      />
 
       <send-token-select
         :token="selectedAsset"
         @update:toggle-token-select="toggleSelectToken"
-      ></send-token-select>
+      />
 
       <assets-select-list
         v-show="isOpenSelectToken"
@@ -59,7 +59,7 @@
         :is-loading="isLoadingAssets"
         @close="toggleSelectToken"
         @update:select-asset="selectToken"
-      ></assets-select-list>
+      />
 
       <send-input-amount
         :amount="amount"
@@ -67,14 +67,14 @@
         :has-enough-balance="hasEnough"
         @update:input-amount="inputAmount"
         @update:input-set-max="setSendMax"
-      ></send-input-amount>
+      />
 
       <send-fee-select
         v-if="!edWarn"
         :fee="fee ?? { nativeSymbol: props.network.name }"
-      ></send-fee-select>
+      />
 
-      <send-alert v-if="edWarn"></send-alert>
+      <send-alert v-if="edWarn" />
 
       <div class="send-transaction__buttons">
         <div class="send-transaction__buttons-cancel">

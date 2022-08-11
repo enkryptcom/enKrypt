@@ -5,20 +5,20 @@
       class="common-popup__scroll-area"
     >
       <div class="common-popup__header">
-        <slot name="header"></slot>
+        <slot name="header" />
       </div>
       <div class="common-popup__content">
         <div class="common-popup__wrap">
-          <slot name="content"></slot>
+          <slot name="content" />
         </div>
       </div>
     </custom-scrollbar>
     <div class="common-popup__buttons" :class="{ border: isHasScroll() }">
       <div class="common-popup__buttons-cancel">
-        <slot name="button-left"></slot>
+        <slot name="button-left" />
       </div>
       <div class="common-popup__buttons-send">
-        <slot name="button-right"></slot>
+        <slot name="button-right" />
       </div>
     </div>
   </div>

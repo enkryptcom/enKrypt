@@ -17,11 +17,11 @@
           v-for="(item, index) in assets"
           :key="index"
           :token="item"
-        ></network-assets-item>
+        />
       </div>
     </custom-scrollbar>
 
-    <network-assets-loading v-if="isLoading"></network-assets-loading>
+    <network-assets-loading v-if="isLoading" />
 
     <deposit
       v-if="!!props.accountInfo.selectedAccount"
@@ -48,7 +48,7 @@ import { BaseNetwork } from "@/types/base-network";
 import scrollSettings from "@/libs/utils/scroll-settings";
 import Deposit from "@action/views/deposit/index.vue";
 
-let showDeposit = ref(false);
+const showDeposit = ref(false);
 
 const route = useRoute();
 const props = defineProps({

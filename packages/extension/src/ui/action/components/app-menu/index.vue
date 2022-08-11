@@ -8,7 +8,7 @@
             :is-active="!!selected && element.name === selected"
             :selected="selected"
             @click="emit('update:network', element)"
-          ></app-menu-item>
+          />
         </template>
       </draggable>
     </custom-scrollbar>

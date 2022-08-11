@@ -4,7 +4,7 @@
       <sign-logo
         :color="metadata ? metadata.color : '#E6007A'"
         class="common-popup__logo"
-      ></sign-logo>
+      />
     </template>
 
     <template #content>

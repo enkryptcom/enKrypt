@@ -11,7 +11,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
 import LogoBig from "@action/icons/common/logo-big.vue";
-let timer = ref(60);
+const timer = ref(60);
 onMounted(() => {
   updateTimer();
 });

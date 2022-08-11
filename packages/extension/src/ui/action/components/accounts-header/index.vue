@@ -8,7 +8,7 @@
       :active="showAccounts"
       :network="network"
       @toggle:deposit="$emit('toggle:deposit')"
-    ></accounts-header-account>
+    />
 
     <accounts-list
       :network="network"

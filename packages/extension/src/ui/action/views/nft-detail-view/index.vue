@@ -1,6 +1,6 @@
 <template>
   <div class="nft-detail-view__container">
-    <div class="nft-detail-view__overlay" @click="close()"></div>
+    <div class="nft-detail-view__overlay" @click="close()" />
     <div class="nft-detail-view__wrap">
       <a class="nft-detail-view__close" @click="close()">
         <close-icon />
@@ -10,7 +10,7 @@
       <img :src="item.image" alt="" @error="imageLoadError" />
 
       <div class="nft-detail-view__action">
-        <action-menu :is-nft="true" :link-action="linkAction"></action-menu>
+        <action-menu :is-nft="true" :link-action="linkAction" />
       </div>
     </div>
   </div>

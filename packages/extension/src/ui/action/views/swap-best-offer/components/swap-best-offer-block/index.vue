@@ -31,7 +31,7 @@
     <best-offer-error
       v-if="warning === SwapBestOfferWarnings.BAD_PRICE"
       :bad-trade="true"
-    ></best-offer-error>
+    />
     <div v-if="trades.length > 1" class="swap-best-offer-block__offers">
       <a
         class="swap-best-offer-block__offers-link"
@@ -44,7 +44,7 @@
         :select="select"
         :trades="trades"
         :picked-trade="pickedTrade"
-      ></best-offer-list>
+      />
     </div>
     <div class="swap-best-offer-block__info">
       <p>
