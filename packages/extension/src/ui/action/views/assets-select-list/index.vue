@@ -10,7 +10,11 @@
     </div>
 
     <assets-select-list-search
+      :is-send="isSend"
+      :networks="networks"
+      :selected-network="selectedNetwork"
       @update:token-search-input="updateSearchInput"
+      @update:selected-network="updateSelectedNetwork"
     ></assets-select-list-search>
 
     <custom-scrollbar
@@ -77,36 +81,72 @@ const props = defineProps({
 });
 
 const searchQuery = ref<string>();
+const selectedNetwork = ref("all");
+
+const networks = computed(() => {
+  const networks: string[] = [];
+
+  props.assets.forEach((asset) => {
+    const chain = asset.chain;
+
+    if (chain && !networks.includes(chain)) {
+      networks.push(chain);
+    }
+  });
+
+  return networks;
+});
 
 const listedAssets = computed(() => {
   if (searchQuery.value) {
     return props.assets
       .filter((token) => {
-        const tokenNameLowerCase = token.name.toLowerCase();
-        const tokenSymbolLowerCase = token.symbol.toLowerCase();
-        const tokenAddressLowerCase = (token as any).contract
-          ? (token as any).contract.toLowerCase()
-          : "";
-        const searchQueryLowerCase = searchQuery.value!.toLowerCase();
-
         if (
-          tokenNameLowerCase.startsWith(searchQueryLowerCase) ||
-          tokenSymbolLowerCase.startsWith(searchQueryLowerCase) ||
-          tokenAddressLowerCase.startsWith(searchQueryLowerCase)
+          selectedNetwork.value !== "all" &&
+          token.chain !== selectedNetwork.value
         ) {
-          return true;
+          return false;
         }
 
-        return false;
+        if (searchQuery.value) {
+          const tokenNameLowerCase = token.name.toLowerCase();
+          const tokenSymbolLowerCase = token.symbol.toLowerCase();
+          const tokenAddressLowerCase = (token as any).contract
+            ? (token as any).contract.toLowerCase()
+            : "";
+          const searchQueryLowerCase = searchQuery.value!.toLowerCase();
+
+          if (
+            tokenNameLowerCase.startsWith(searchQueryLowerCase) ||
+            tokenSymbolLowerCase.startsWith(searchQueryLowerCase) ||
+            tokenAddressLowerCase.startsWith(searchQueryLowerCase)
+          ) {
+            return true;
+          } else {
+            return false;
+          }
+        }
+
+        return true;
       })
       .slice(0, 50);
   } else {
-    return props.assets.slice(0, 50);
+    if (selectedNetwork.value === "all") {
+      return props.assets.slice(0, 50);
+    }
+
+    return props.assets.filter(
+      (token) => token.chain === selectedNetwork.value
+    );
   }
 });
 
 const updateSearchInput = (newSearchQuery: string) => {
   searchQuery.value = newSearchQuery;
+};
+
+const updateSelectedNetwork = (network: string) => {
+  selectedNetwork.value = network;
 };
 
 const close = () => {

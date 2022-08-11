@@ -4,7 +4,9 @@
       <img v-if="token.icon !== ''" :src="token.icon" alt="" />
     </div>
     <div class="swap-token-select__info">
-      <h5>{{ token.name }}<span>OMNI</span></h5>
+      <h5>
+        {{ token.name }}<span v-show="token.chain">{{ token.chain }}</span>
+      </h5>
       <p>
         {{
           tokenBalance

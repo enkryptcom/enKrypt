@@ -18,6 +18,7 @@ export interface BaseTokenOptions {
   existentialDeposit?: BN;
   balance?: string;
   price?: string;
+  chain?: string;
 }
 
 export abstract class BaseToken {
@@ -29,6 +30,7 @@ export abstract class BaseToken {
   public existentialDeposit: BN | undefined;
   public balance?: string;
   public price?: string;
+  public chain?: string;
 
   constructor(options: BaseTokenOptions) {
     this.name = options.name;
@@ -39,6 +41,7 @@ export abstract class BaseToken {
     this.existentialDeposit = options.existentialDeposit;
     this.price = options.price || "0";
     this.balance = options.balance;
+    this.chain = options.chain;
   }
 
   public async getLatestPrice(): Promise<string | null> {

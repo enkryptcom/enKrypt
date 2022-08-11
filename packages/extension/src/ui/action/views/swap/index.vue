@@ -83,6 +83,7 @@
     <assets-select-list
       v-show="fromSelectOpened"
       :assets="fromTokens"
+      :is-send="true"
       @close="toggleFromToken"
       @update:select-asset="selectTokenFrom"
     ></assets-select-list>
@@ -325,7 +326,11 @@ onMounted(async () => {
       });
       await Promise.all([...balancePromises, ...pricePromises].flat());
 
-      fromTokens.value = tokens;
+      fromTokens.value = tokens.map((token) => {
+        token.chain = props.network.name_long;
+        return token;
+      });
+
       if (tokens.length > 0) {
         fromToken.value = tokens[0];
       }

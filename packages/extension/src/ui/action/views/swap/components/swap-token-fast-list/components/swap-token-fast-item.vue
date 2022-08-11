@@ -1,7 +1,9 @@
 <template>
   <a class="swap-token-fast__token" @click="select">
     <img :src="token.icon" />
-    <h4>{{ token.symbol }}<span>ERC-20</span></h4>
+    <h4>
+      {{ token.symbol }}<span v-show="token.chain">{{ token.chain }}</span>
+    </h4>
   </a>
 </template>
 

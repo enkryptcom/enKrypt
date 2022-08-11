@@ -270,6 +270,7 @@ export class ChangellySwapProvider extends SwapProvider {
             contract: tokenData.contractAddress,
             blockchain: tokenData.blockchain,
             changellyID: tokenData.ticker,
+            chain: tokenData.blockchain,
           };
 
           return new ChangellyToken(tokenOptions);

@@ -8,7 +8,12 @@
       autocomplete="off"
       @input="searchUpdate"
     />
-    <a class="assets-select-list-search__filter" @click="toggleFilter">
+    <a
+      v-show="!isSend"
+      ref="filterButton"
+      class="assets-select-list-search__filter"
+      @click="toggleFilter"
+    >
       <filter-icon />
     </a>
 
@@ -17,15 +22,27 @@
       ref="dropdown"
       class="assets-select-list-search__list"
     >
-      <a class="assets-select-list-search__list-item">All networks</a>
-      <a class="assets-select-list-search__list-item">ERC-20</a>
-      <a class="assets-select-list-search__list-item">
-        TRC-20
+      <a
+        class="assets-select-list-search__list-item"
+        @click="() => networkUpdate('all')"
+        >All networks
         <done-icon
+          v-show="selectedNetwork === 'all'"
+          class="assets-select-list-search__list-item-checked"
+        ></done-icon
+      ></a>
+      <a
+        v-for="network in networks"
+        :key="network"
+        class="assets-select-list-search__list-item"
+        @click="() => networkUpdate(network)"
+      >
+        {{ `${network[0].toUpperCase()}${network.slice(1)}` }}
+        <done-icon
+          v-show="network === selectedNetwork"
           class="assets-select-list-search__list-item-checked"
         ></done-icon>
       </a>
-      <a class="assets-select-list-search__list-item">BEP-20</a>
     </div>
   </div>
 </template>
@@ -33,18 +50,32 @@
 <script setup lang="ts">
 import SearchIcon from "@action/icons/common/search.vue";
 import FilterIcon from "@action/icons/common/filter-icon.vue";
-import { ref } from "vue";
+import { PropType, ref } from "vue";
 import { onClickOutside } from "@vueuse/core";
 import DoneIcon from "@action/icons/common/done_icon.vue";
 
 const emit = defineEmits<{
   (e: "update:tokenSearchInput", searchQuery: string): void;
+  (e: "update:selectedNetwork", network: string): void;
 }>();
+
+defineProps({
+  isSend: { type: Boolean, default: () => false },
+  networks: {
+    type: Array as PropType<string[]>,
+    default: () => [],
+  },
+  selectedNetwork: {
+    type: String,
+    default: () => "",
+  },
+});
 
 const searchInput = ref<HTMLInputElement>();
 
 const openList = ref(false);
 const dropdown = ref(null);
+const filterButton = ref(null);
 
 const searchUpdate = () => {
   if (searchInput.value) {
@@ -52,13 +83,23 @@ const searchUpdate = () => {
   }
 };
 
+const networkUpdate = (network: string) => {
+  toggleFilter();
+  emit("update:selectedNetwork", network);
+};
+
 const toggleFilter = () => {
+  console.log("clicked", openList.value);
   openList.value = !openList.value;
 };
 
-onClickOutside(dropdown, () => {
-  if (openList.value) openList.value = false;
-});
+onClickOutside(
+  dropdown,
+  () => {
+    if (openList.value) openList.value = false;
+  },
+  { ignore: [filterButton] }
+);
 </script>
 
 <style lang="less" scoped>

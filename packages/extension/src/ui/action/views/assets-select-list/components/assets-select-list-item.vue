@@ -4,7 +4,9 @@
       <img :src="token.icon" />
 
       <div class="assets-select-list__token-info-name">
-        <h4>{{ token.name }}<span>ERC-20</span></h4>
+        <h4>
+          {{ token.name }}<span v-show="token.chain">{{ token.chain }}</span>
+        </h4>
         <p>
           {{ balance ? $filters.formatFloatingPointValue(balance).value : "~" }}
           <span>{{ token.symbol }}</span>

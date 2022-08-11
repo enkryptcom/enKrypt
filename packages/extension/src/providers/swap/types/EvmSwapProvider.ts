@@ -106,6 +106,8 @@ export class EvmSwapProvider extends SwapProvider {
         featured,
       }: { tokens: TokenData[]; featured: TokenData[] } = await res.json();
 
+      const network = getNetworkByName(chain);
+
       const allTokens = tokens.map((tokenData: TokenData) => {
         return new Erc20Token({
           decimals: tokenData.decimals,
@@ -118,6 +120,7 @@ export class EvmSwapProvider extends SwapProvider {
           name: tokenData.name ?? tokenData.symbol,
           price: tokenData.price,
           balance: toBase("1", tokenData.decimals),
+          chain: network ? network.name_long : undefined,
         });
       });
 
@@ -133,6 +136,7 @@ export class EvmSwapProvider extends SwapProvider {
           name: tokenData.name ?? tokenData.symbol,
           price: tokenData.price,
           balance: toBase("1", tokenData.decimals),
+          chain: network ? network.name_long : undefined,
         });
       });
 
