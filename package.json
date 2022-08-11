@@ -1,6 +1,6 @@
 {
   "name": "enkrypt",
-  "packageManager": "yarn@3.2.0",
+  "packageManager": "yarn@3.2.2",
   "private": true,
   "workspaces": [
     "packages/signers/*",
@@ -22,13 +22,13 @@
     "watch-ts": "nodemon --exec 'yarn run build:all && node scripts/compile-done.js'"
   },
   "devDependencies": {
-    "@commitlint/cli": "^16.1.0",
-    "@commitlint/config-conventional": "^16.0.0",
-    "concurrently": "^7.0.0",
+    "@commitlint/cli": "^17.0.3",
+    "@commitlint/config-conventional": "^17.0.3",
+    "concurrently": "^7.3.0",
     "devmoji": "^2.3.0",
-    "husky": "^7.0.4",
+    "husky": "^8.0.1",
     "node-notifier": "^10.0.1",
-    "nodemon": "^2.0.15",
+    "nodemon": "^2.0.19",
     "ultra-runner": "^3.10.5"
   }
 }

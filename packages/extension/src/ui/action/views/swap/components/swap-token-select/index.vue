@@ -36,7 +36,7 @@ import SwitchArrow from "@action/icons/header/switch_arrow.vue";
 import { BaseToken } from "@/types/base-token";
 import { computed } from "@vue/reactivity";
 import { fromBase } from "@/libs/utils/units";
-let isOpen = ref(false);
+const isOpen = ref(false);
 const props = defineProps({
   toggleSelect: {
     type: Function,

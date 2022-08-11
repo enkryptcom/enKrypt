@@ -11,9 +11,7 @@
             <close-icon />
           </a>
         </div>
-        <hardware-wallet-msg
-          :wallet-type="account?.walletType"
-        ></hardware-wallet-msg>
+        <hardware-wallet-msg :wallet-type="account?.walletType" />
         <p class="verify-transaction__description" :class="{ popup: isPopup }">
           Double check the information and confirm transaction
         </p>
@@ -21,26 +19,20 @@
           class="verify-transaction__info"
           :class="{ popup: isPopup, border: isHasScroll() }"
         >
-          <verify-transaction-network
-            :network="network"
-          ></verify-transaction-network>
+          <verify-transaction-network :network="network" />
           <verify-transaction-account
             :name="txData.fromAddressName"
             :address="network.displayAddress(txData.fromAddress)"
             :from="true"
             :network="network"
-          ></verify-transaction-account>
+          />
           <verify-transaction-account
             :address="network.displayAddress(txData.toAddress)"
             :network="network"
-          ></verify-transaction-account>
-          <verify-transaction-amount v-if="!isNft" :token="txData.toToken">
-          </verify-transaction-amount>
-          <verify-transaction-nft
-            v-if="isNft"
-            :item="nft"
-          ></verify-transaction-nft>
-          <verify-transaction-fee :fee="txData.gasFee"></verify-transaction-fee>
+          />
+          <verify-transaction-amount v-if="!isNft" :token="txData.toToken" />
+          <verify-transaction-nft v-if="isNft" :item="nft" />
+          <verify-transaction-fee :fee="txData.gasFee" />
           {{ errorMsg }}
         </div>
       </custom-scrollbar>
@@ -75,7 +67,7 @@
       :token="txData.toToken"
       :is-done="isSendDone"
       :is-window-popup="isWindowPopup"
-    ></send-process>
+    />
   </div>
 </template>
 

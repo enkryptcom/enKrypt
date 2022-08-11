@@ -1,7 +1,7 @@
 <template>
   <common-popup>
     <template #header>
-      <sign-logo class="common-popup__logo"></sign-logo>
+      <sign-logo class="common-popup__logo" />
       <div class="common-popup__network">
         <img :src="network.icon" />
         <p>{{ network.name_long }}</p>
@@ -10,9 +10,7 @@
 
     <template #content>
       <h2>Verify transaction</h2>
-      <hardware-wallet-msg
-        :wallet-type="account.walletType"
-      ></hardware-wallet-msg>
+      <hardware-wallet-msg :wallet-type="account.walletType" />
       <div class="provider-verify-transaction__block">
         <div class="provider-verify-transaction__account">
           <img :src="identicon" />
@@ -82,7 +80,7 @@
         :selected="selectedFee"
         :fee="gasCostValues[selectedFee]"
         @open-popup="toggleSelectFee"
-      ></send-fee-select>
+      />
 
       <!-- <best-offer-error :not-enough-verify="true"></best-offer-error> -->
 
@@ -107,7 +105,7 @@
         :is-popup="true"
         @close-popup="toggleSelectFee"
         @gas-type-changed="selectFee"
-      ></transaction-fee-view>
+      />
     </template>
 
     <template #button-left>

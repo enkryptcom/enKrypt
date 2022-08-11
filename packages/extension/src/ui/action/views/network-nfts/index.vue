@@ -11,27 +11,27 @@
           :favorites="favoriteNFTs"
           @update:fav-clicked="favClicked"
           @update:hide-clicked="hideClicked"
-        ></network-nfts-favorite>
+        />
         <network-nfts-category
           v-for="(item, index) in NFTs"
           :key="index"
           :collection="item"
           @update:fav-clicked="favClicked"
           @update:hide-clicked="hideClicked"
-        ></network-nfts-category>
+        />
         <network-nfts-hidden
           v-if="hiddenNFTs.length"
           :hiddens="hiddenNFTs"
           @update:fav-clicked="favClicked"
           @update:hide-clicked="hideClicked"
-        ></network-nfts-hidden>
+        />
       </div>
     </custom-scrollbar>
 
     <network-nfts-empty
       v-if="!NFTs.length && !favoriteNFTs.length && !hiddenNFTs.length"
       :is-empty="isNoNFTs"
-    ></network-nfts-empty>
+    />
   </div>
 </template>
 

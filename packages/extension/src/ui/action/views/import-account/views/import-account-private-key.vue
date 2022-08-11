@@ -1,8 +1,5 @@
 <template>
-  <import-account-header
-    v-bind="$attrs"
-    :is-back="true"
-  ></import-account-header>
+  <import-account-header v-bind="$attrs" :is-back="true" />
 
   <div class="import-account-private-key" :class="{ process: isProcessing }">
     <h2>Import account with Private Key</h2>
@@ -18,8 +15,7 @@
       placeholder="Private key"
       autofocus
       @change="onInput"
-    >
-    </textarea>
+    />
     <p class="import-account-private-key__already_exists">
       {{ accountAlreadyExists ? "This account has already been added" : "" }}
     </p>

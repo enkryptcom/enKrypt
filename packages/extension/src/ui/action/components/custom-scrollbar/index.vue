@@ -12,7 +12,7 @@
     @ps-x-reach-start="scrollHandle"
     @ps-x-reach-end="scrollHandle"
   >
-    <slot></slot>
+    <slot />
   </section>
 </template>
 

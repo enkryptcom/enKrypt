@@ -37,7 +37,7 @@
     v-if="isDetail"
     :token="token"
     @close:popup="toggleDetail"
-  ></asset-detail-view>
+  />
 </template>
 
 <script setup lang="ts">

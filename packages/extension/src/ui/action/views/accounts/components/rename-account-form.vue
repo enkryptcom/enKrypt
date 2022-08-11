@@ -1,9 +1,6 @@
 <template>
   <div class="rename-account-form__container">
-    <div
-      class="rename-account-form__overlay"
-      @click="$emit('window:close')"
-    ></div>
+    <div class="rename-account-form__overlay" @click="$emit('window:close')" />
     <div class="rename-account-form">
       <h3>Rename account</h3>
 

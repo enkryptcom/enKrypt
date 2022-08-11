@@ -1,6 +1,6 @@
 <template>
   <div class="new-wallet">
-    <logo-big class="new-wallet__logo"></logo-big>
+    <logo-big class="new-wallet__logo" />
     <h3>Multiple Chains.<br />One Wallet.</h3>
     <p>
       Enkrypt is a wallet that gives you easy access to all things crypto and

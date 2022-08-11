@@ -1,9 +1,6 @@
 <template>
   <div class="settings__recovery-phrase">
-    <settings-inner-header
-      v-bind="$attrs"
-      :is-phrase="true"
-    ></settings-inner-header>
+    <settings-inner-header v-bind="$attrs" :is-phrase="true" />
 
     <div class="settings__recovery-phrase-wrap">
       <p>
@@ -48,11 +45,11 @@ const props = defineProps({
 });
 
 const firstSet = computed(() => {
-  let copy = props.mnemonic.split(" ");
+  const copy = props.mnemonic.split(" ");
   return copy.splice(0, copy.length / 2);
 });
 const secondSet = computed(() => {
-  let copy = props.mnemonic.split(" ");
+  const copy = props.mnemonic.split(" ");
   return copy.splice(copy.length / 2);
 });
 </script>

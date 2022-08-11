@@ -1,6 +1,6 @@
 <template>
   <div class="deposit" :class="{ show: showDeposit }">
-    <div class="deposit__overlay" @click="$emit('toggle:deposit')"></div>
+    <div class="deposit__overlay" @click="$emit('toggle:deposit')" />
     <div class="deposit__wrap" :class="{ show: showDeposit }">
       <a class="deposit__close" @click="$emit('toggle:deposit')">
         <close-icon />

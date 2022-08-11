@@ -1,6 +1,6 @@
 <template>
   <div class="onboard__container">
-    <logo class="onboard__logo"></logo>
+    <logo class="onboard__logo" />
     <div class="onboard__wrap" :class="wrapClassObject()">
       <a
         v-if="isShowBackButton()"

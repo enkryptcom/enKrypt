@@ -1,6 +1,6 @@
 <template>
   <div class="modal-forgot__container">
-    <div class="modal-forgot__overlay"></div>
+    <div class="modal-forgot__overlay" />
     <div class="modal-forgot__wrap">
       <lock-screen-forgot v-show="isForgot" v-bind="$attrs" />
     </div>
