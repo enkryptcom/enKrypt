@@ -1,7 +1,7 @@
 <template>
   <common-popup>
     <template #header>
-      <sign-logo class="common-popup__logo"></sign-logo>
+      <sign-logo class="common-popup__logo" />
       <div class="common-popup__network">
         <img :src="network.icon" />
         <p>{{ network.name_long }}</p>
@@ -31,7 +31,7 @@
           :address="displayAddress"
           :identicon="identicon"
           @toggle:select-accounts="toggleAccounts"
-        ></select-account-input>
+        />
       </div>
 
       <div class="provider-connect-dapp__info">
@@ -48,7 +48,7 @@
         :network="network"
         :account-info="accountHeaderData"
         @address-changed="onSelectedAddressChanged"
-      ></modal-accounts>
+      />
     </template>
 
     <template #button-left>

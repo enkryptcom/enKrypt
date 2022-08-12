@@ -1,6 +1,8 @@
 <template>
   <div class="label-input__wrap" :class="{ error: isError, focus: isFocus }">
-    <p v-if="label.length > 0" class="label-input__label">{{ label }}</p>
+    <p v-if="label.length > 0" class="label-input__label">
+      {{ label }}
+    </p>
     <input
       v-model="textValue"
       :placeholder="placeholder"
@@ -16,7 +18,7 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 
-let isFocus = ref(false);
+const isFocus = ref(false);
 
 const props = defineProps({
   placeholder: {

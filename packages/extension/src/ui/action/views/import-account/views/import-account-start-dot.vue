@@ -1,5 +1,5 @@
 <template>
-  <import-account-header v-bind="$attrs"></import-account-header>
+  <import-account-header v-bind="$attrs" />
 
   <div class="import-account-start">
     <import-start-icon class="import-account-start__icon" />
@@ -19,8 +19,7 @@
       class="import-account-start__input"
       placeholder="witch collapse practice feed shame open despair creek road again ice least"
       autofocus
-    >
-    </textarea>
+    />
 
     <label-input
       type="text"

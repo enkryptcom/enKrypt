@@ -3,7 +3,9 @@
     class="hardware-select-account"
     :class="{ active: selected, imported: disabled }"
   >
-    <div class="hardware-select-account__number">{{ index }}</div>
+    <div class="hardware-select-account__number">
+      {{ index }}
+    </div>
     <img :src="network.identicon(address)" />
     <div class="hardware-select-account__info">
       <p class="hardware-select-account__info-name">
@@ -22,7 +24,7 @@
       :is-checked="selected"
       :disabled="disabled"
       v-bind="$attrs"
-    ></base-checkbox>
+    />
   </div>
 </template>
 

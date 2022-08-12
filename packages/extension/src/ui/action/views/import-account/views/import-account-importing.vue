@@ -1,8 +1,5 @@
 <template>
-  <import-account-header
-    v-bind="$attrs"
-    :is-back="true"
-  ></import-account-header>
+  <import-account-header v-bind="$attrs" :is-back="true" />
 
   <div class="import-account-importing" :class="{ process: isProcessing }">
     <h2>Importing account</h2>
@@ -19,7 +16,7 @@
       :name-value="nameValue"
       :is-error="isNameTaken"
       @update:value="nameUpdated"
-    ></hardware-importing-account>
+    />
 
     <p class="import-account-importing__example">
       Name your account something that makes sense to you! Main account, dapp

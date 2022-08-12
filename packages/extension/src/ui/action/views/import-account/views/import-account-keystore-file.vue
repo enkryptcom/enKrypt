@@ -1,8 +1,5 @@
 <template>
-  <import-account-header
-    v-bind="$attrs"
-    :is-back="true"
-  ></import-account-header>
+  <import-account-header v-bind="$attrs" :is-back="true" />
 
   <div class="import-account-keystore-file">
     <h2>Import account with Keystore File</h2>

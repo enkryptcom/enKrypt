@@ -10,7 +10,7 @@
     />
 
     <div class="send-input-amount__fiat">
-      <switch-arrow-icon></switch-arrow-icon>
+      <switch-arrow-icon />
       <span>${{ $filters.formatFiatValue(fiatEquivalent).value }}</span>
     </div>
 

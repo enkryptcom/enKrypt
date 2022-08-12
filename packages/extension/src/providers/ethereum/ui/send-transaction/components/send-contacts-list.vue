@@ -1,6 +1,6 @@
 <template>
   <div class="send-contacts-list" :class="{ show: showAccounts }">
-    <div class="send-contacts-list__overlay" @click="close"></div>
+    <div class="send-contacts-list__overlay" @click="close" />
     <div
       class="send-contacts-list__wrap"
       :class="{ show: showAccounts, header: isMyAddress }"
@@ -11,10 +11,7 @@
       >
         <div v-if="!isMyAddress" class="send-contacts-list__block">
           <div class="send-contacts-list__buttons">
-            <base-button
-              title="Send to my address"
-              :click="sendToMyAddress"
-            ></base-button>
+            <base-button title="Send to my address" :click="sendToMyAddress" />
 
             <a
               class="send-contacts-list__buttons-paste"
@@ -32,7 +29,7 @@
               :network="network"
               v-bind="$attrs"
               :is-checked="address == account.address"
-            ></send-address-item>
+            />
           </div>
         </div>
         <div v-if="isMyAddress" class="send-contacts-list__block">
@@ -51,7 +48,7 @@
               :network="network"
               v-bind="$attrs"
               :is-checked="address == account.address"
-            ></send-address-item>
+            />
           </div>
         </div>
       </custom-scrollbar>

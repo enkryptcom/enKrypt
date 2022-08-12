@@ -1,6 +1,6 @@
 <template>
   <div class="asset-detail-view__container">
-    <div class="asset-detail-view__overlay" @click="close()"></div>
+    <div class="asset-detail-view__overlay" @click="close()" />
     <div class="asset-detail-view__wrap">
       <a class="asset-detail-view__close" @click="close()">
         <close-icon />
@@ -40,7 +40,7 @@
         </div>
       </div>
 
-      <div class="asset-detail-view__token-divider"></div>
+      <div class="asset-detail-view__token-divider" />
 
       <div class="asset-detail-view__token-balance">
         <h6>Balance</h6>

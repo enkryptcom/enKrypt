@@ -20,7 +20,7 @@
     </div>
 
     <div v-show="isUnlocking" class="lock-screen__unlocking">
-      <swap-looking-animation></swap-looking-animation>
+      <swap-looking-animation />
     </div>
 
     <lock-screen-forgot
@@ -62,8 +62,8 @@ const isDisabled = computed(() => {
   return password.value.length < 5 || isUnlocking.value;
 });
 const isError = ref(false);
-let isForgot = ref(false);
-let isLocked = ref(false);
+const isForgot = ref(false);
+const isLocked = ref(false);
 const isUnlocking = ref(false);
 
 const unlockAction = async () => {

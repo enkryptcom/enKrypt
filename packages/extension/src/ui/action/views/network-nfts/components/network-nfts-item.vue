@@ -4,6 +4,7 @@
       <img :src="item.image" alt="" @error="imageLoadError" />
       <div class="network-nfts__item-name">{{ item.name }}</div>
     </a>
+
     <a class="network-nfts__item-more" @click="toggleMoreMenu">
       <span></span><span></span><span></span>
     </a>
@@ -16,14 +17,14 @@
       v-bind="$attrs"
       @update:hide-me="toggleMoreMenu"
       @mouseleave="toggleMoreMenu"
-    ></network-nfts-item-more-menu>
+    />
 
     <nft-detail-view
       v-if="isDetail"
       :item="item"
       :link-action="openLink"
       @close:popup="toggleDetail"
-    ></nft-detail-view>
+    />
   </div>
 </template>
 

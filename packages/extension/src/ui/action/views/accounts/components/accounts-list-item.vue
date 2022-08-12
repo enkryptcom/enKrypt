@@ -6,7 +6,9 @@
   >
     <img :src="identiconElement(address)" />
     <div class="accounts-item__info">
-      <p class="accounts-item__info-name">{{ name }}</p>
+      <p class="accounts-item__info-name">
+        {{ name }}
+      </p>
       <p class="accounts-item__info-amount">
         {{ $filters.formatFloatingPointValue(amount).value }} {{ symbol }}
         <span>{{ $filters.replaceWithEllipsis(address, 6, 4) }}</span>
@@ -18,7 +20,7 @@
       :class="{ visible: !showEdit }"
     ></done-icon>
     <div v-if="showEdit" class="accounts-item__more" @click.stop="toggleEdit">
-      <more-icon></more-icon>
+      <more-icon />
     </div>
     <accounts-list-item-menu
       v-if="openEdit"
@@ -26,7 +28,7 @@
       :deletable="deletable"
       v-bind="$attrs"
       @mouseleave="toggleEdit"
-    ></accounts-list-item-menu>
+    />
   </div>
 </template>
 

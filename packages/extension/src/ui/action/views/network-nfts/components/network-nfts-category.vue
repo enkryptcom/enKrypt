@@ -14,7 +14,7 @@
         :key="index"
         :item="item"
         v-bind="$attrs"
-      ></network-nfts-item>
+      />
     </div>
 
     <network-nfts-category-sort-menu
@@ -22,7 +22,7 @@
       :is-abc-sort="isAbcSort"
       :abc-sort="abcSortAction"
       @mouseleave="toggleSortMenu"
-    ></network-nfts-category-sort-menu>
+    />
   </div>
 </template>
 
