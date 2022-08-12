@@ -43,6 +43,28 @@ class API implements ProviderAPIInterface {
         return toBN(balance.confirmed).addn(balance.unconfirmed).toString();
       });
   }
+  async broadcastTx(rawtx: string): Promise<string> {
+    console.log(`${this.node}transactions`, rawtx);
+    axios({
+      method: "post",
+      url: `${this.node}transactions`,
+      data: rawtx,
+    }).then(console.log);
+    return fetch(`${this.node}transactions`, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "text/plain",
+      },
+      body: rawtx,
+    })
+      .then((res) => res.json())
+      .then((response) => {
+        console.log(response);
+        if (response.error) return Promise.reject(response.message);
+        return response.txid as string;
+      });
+  }
   async getUTXOs(pubkey: string): Promise<HaskoinUnspentType[]> {
     const address = this.getAddress(pubkey);
     return fetch(`${this.node}address/${address}/unspent`)

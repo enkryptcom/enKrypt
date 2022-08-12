@@ -45,20 +45,7 @@
         @close="toggleSelectContactTo"
       />
 
-      <send-token-select
-        v-if="isSendToken"
-        :token="selectedAsset"
-        @update:toggle-token-select="toggleSelectToken"
-      />
-
-      <assets-select-list
-        v-show="isOpenSelectToken"
-        :is-send="true"
-        :assets="accountAssets"
-        :is-loading="isLoadingAssets"
-        @close="toggleSelectToken"
-        @update:select-asset="selectToken"
-      />
+      <send-token-select :token="selectedAsset" />
 
       <send-input-amount
         v-if="isSendToken"
@@ -88,7 +75,7 @@
       <send-alert
         v-show="hasEnoughBalance && nativeBalanceAfterTransaction.isNeg()"
         :native-symbol="network.name"
-        :price="accountAssets[0]?.price || '0'"
+        :price="selectedAsset.price || '0'"
         :native-value="
           fromBase(
             nativeBalanceAfterTransaction.abs().toString(),
@@ -121,7 +108,6 @@ import SendHeader from "./components/send-header.vue";
 import SendAddressInput from "./components/send-address-input.vue";
 import SendFromContactsList from "./components/send-from-contacts-list.vue";
 import SendContactsList from "./components/send-contacts-list.vue";
-import AssetsSelectList from "@action/views/assets-select-list/index.vue";
 import SendTokenSelect from "./components/send-token-select.vue";
 import SendAlert from "./components/send-alert.vue";
 import SendInputAmount from "./components/send-input-amount.vue";
@@ -135,7 +121,7 @@ import { GasFeeType } from "../../../../providers/ethereum/ui/types";
 import { BitcoinNetwork } from "../../types/bitcoin-network";
 import { BTCToken } from "../../types/btc-token";
 import BigNumber from "bignumber.js";
-import { defaultGasCostVals } from "../common/default-vals";
+import { defaultGasCostVals } from "@/providers/ethereum/ui/common/default-vals";
 import { fromBase, toBase, isValidDecimals } from "@/libs/utils/units";
 import { formatFloatingPointValue } from "@/libs/utils/number-formatter";
 import { routes as RouterNames } from "@/ui/action/router";
@@ -144,13 +130,15 @@ import Browser from "webextension-polyfill";
 import { ProviderName } from "@/types/provider";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
 import { BaseNetwork } from "@/types/base-network";
+
 import { isAddress } from "../../libs/utils";
 import BitcoinAPI from "@/providers/bitcoin/libs/api";
 import { Psbt as BTCTransaction } from "bitcoinjs-lib";
 import { bufferToHex, hexToBuffer } from "@enkryptcom/utils";
 import sendUsingInternalMessengers from "@/libs/messenger/internal-messenger";
 import { InternalMethods } from "@/types/messenger";
-import { ecrecover, fromRpcSig } from "ethereumjs-util";
+import { calculateSize } from "../libs/tx-size";
+import { HaskoinUnspentType } from "../../types";
 
 const props = defineProps({
   network: {
@@ -175,21 +163,31 @@ const addressInputTo = ref();
 const route = useRoute();
 const router = useRouter();
 const selected: string = route.params.id as string;
-const accountAssets = ref<BTCToken[]>([]);
 const selectedAsset = ref<BTCToken>(loadingAsset);
 const amount = ref<string>("");
+const accountUTXOs = ref<HaskoinUnspentType[]>([]);
+
 const hasEnoughBalance = computed(() => {
   if (!isValidDecimals(sendAmount.value, selectedAsset.value.decimals!)) {
     return false;
   }
   return toBN(selectedAsset.value.balance ?? "0").gte(
-    toBN(toBase(sendAmount.value ?? "0", selectedAsset.value.decimals!))
+    toBN(toBase(sendAmount.value ?? "0", selectedAsset.value.decimals!)).add(
+      toBN(
+        toBase(
+          gasCostValues.value[selectedFee.value].nativeValue,
+          selectedAsset.value.decimals!
+        )
+      )
+    )
   );
 });
+
 const sendAmount = computed(() => {
   if (amount.value && amount.value !== "") return amount.value;
   return "0";
 });
+
 const isMaxSelected = ref<boolean>(false);
 const selectedFee = ref<GasPriceTypes>(GasPriceTypes.REGULAR);
 const gasCostValues = ref<GasFeeType>(defaultGasCostVals);
@@ -233,7 +231,7 @@ const setTransactionFees = (byteSize: number) => {
   };
   const getConvertedVal = (type: GasPriceTypes) =>
     fromBase(gasVals[type], props.network.decimals);
-  const nativeVal = accountAssets.value[0].price || "0";
+  const nativeVal = selectedAsset.value.price || "0";
   gasCostValues.value = {
     [GasPriceTypes.ECONOMY]: {
       nativeValue: getConvertedVal(GasPriceTypes.ECONOMY),
@@ -271,15 +269,32 @@ const setTransactionFees = (byteSize: number) => {
 };
 
 const setBaseCosts = () => {
-  setTransactionFees(500);
-  if (isMaxSelected.value) setMaxValue();
+  updateUTXOs().then(() => {
+    if (isMaxSelected.value) setMaxValue();
+  });
 };
+
+const updateUTXOs = async () => {
+  const api = (await props.network.api()) as BitcoinAPI;
+  return api.getUTXOs(addressFrom.value).then((utxos) => {
+    accountUTXOs.value = utxos;
+    const txSize = calculateSize(
+      {
+        input_count: accountUTXOs.value.length,
+      },
+      {
+        p2wpkh_output_count: 2,
+      }
+    );
+    console.log(utxos, txSize);
+    setTransactionFees(Math.ceil(txSize.txVBytes));
+  });
+};
+
 const fetchAssets = () => {
-  accountAssets.value = [];
   selectedAsset.value = loadingAsset;
   isLoadingAssets.value = true;
   return props.network.getAllTokens(addressFrom.value).then((allAssets) => {
-    accountAssets.value = allAssets as BTCToken[];
     selectedAsset.value = allAssets[0] as BTCToken;
     isLoadingAssets.value = false;
   });
@@ -297,26 +312,25 @@ const sendButtonTitle = computed(() => {
 });
 
 const isInputsValid = computed<boolean>(() => {
-  // if (
-  //   !isAddress(addressTo.value, (props.network as BitcoinNetwork).networkInfo)
-  // )
-  //   return false;
-  // if (!isValidDecimals(sendAmount.value, selectedAsset.value.decimals!)) {
-  //   return false;
-  // }
-  // if (new BigNumber(sendAmount.value).gt(assetMaxValue.value)) return false;
+  if (
+    !isAddress(addressTo.value, (props.network as BitcoinNetwork).networkInfo)
+  )
+    return false;
+  if (!isValidDecimals(sendAmount.value, selectedAsset.value.decimals!)) {
+    return false;
+  }
+  if (new BigNumber(sendAmount.value).gt(assetMaxValue.value)) return false;
   return true;
 });
 
-watch([isInputsValid, amount, addressTo, selectedAsset], () => {
-  // if (isInputsValid.value) {
-  //   setTransactionFees(Tx.value);
-  // }
+watch([addressFrom], () => {
+  if (addressFrom.value) {
+    fetchAssets().then(setBaseCosts);
+  }
 });
 
 const isOpenSelectContactFrom = ref<boolean>(false);
 const isOpenSelectContactTo = ref<boolean>(false);
-const isOpenSelectToken = ref<boolean>(false);
 
 const isOpenSelectFee = ref<boolean>(false);
 const isSendToken = ref(true);
@@ -326,8 +340,21 @@ const close = () => {
 };
 
 const assetMaxValue = computed(() => {
-  return fromBase(selectedAsset.value.balance!, selectedAsset.value.decimals!);
+  return fromBase(
+    toBN(selectedAsset.value.balance!)
+      .sub(
+        toBN(
+          toBase(
+            gasCostValues.value[selectedFee.value].nativeValue,
+            selectedAsset.value.decimals!
+          )
+        )
+      )
+      .toString(),
+    selectedAsset.value.decimals!
+  );
 });
+
 const setMaxValue = () => {
   isMaxSelected.value = true;
   amount.value =
@@ -350,10 +377,6 @@ const toggleSelectContactTo = (open: boolean) => {
   isOpenSelectContactTo.value = open;
 };
 
-const toggleSelectToken = () => {
-  isOpenSelectToken.value = !isOpenSelectToken.value;
-};
-
 const selectAccountFrom = (account: string) => {
   addressFrom.value = account;
   isOpenSelectContactFrom.value = false;
@@ -365,17 +388,10 @@ const selectAccountTo = (account: string) => {
   isOpenSelectContactTo.value = false;
 };
 
-const selectToken = (token: BTCToken) => {
-  inputAmount("0");
-  selectedAsset.value = token;
-  isOpenSelectToken.value = false;
-};
-
 const inputAmount = (inputAmount: string) => {
   if (inputAmount === "") {
     inputAmount = "0";
   }
-
   const inputAmountBn = new BigNumber(inputAmount);
   isMaxSelected.value = false;
   amount.value = inputAmountBn.lt(0) ? "0" : inputAmountBn.toFixed();
@@ -401,7 +417,6 @@ const sendAction = async () => {
     network: networkInfo,
   });
   utxos.forEach((u) => {
-    console.log(u);
     tx.addInput({
       hash: u.txid,
       index: u.index,
@@ -425,20 +440,47 @@ const sendAction = async () => {
       });
     },
   };
+  const balance = toBN(selectedAsset.value.balance!);
+  const sendAmount = toBN(toBase(amount.value, selectedAsset.value.decimals));
+  const currentFee = toBN(
+    toBase(
+      gasCostValues.value[selectedFee.value].nativeValue,
+      selectedAsset.value.decimals
+    )
+  );
+  const remainder = balance.sub(sendAmount).sub(currentFee);
+
   tx.addOutput({
     address: addressTo.value,
-    value: parseInt(toBase(amount.value, selectedAsset.value.decimals)),
+    value: sendAmount.toNumber(),
   });
+
+  if (remainder.gtn(0)) {
+    tx.addOutput({
+      address: props.network.displayAddress(addressFrom.value),
+      value: remainder.toNumber(),
+    });
+  }
+
   await tx.signAllInputsAsync(signer);
   tx.finalizeAllInputs();
   console.log(
     tx.getFee(),
     tx.getFeeRate(),
+    tx.getFee() / tx.getFeeRate(),
+    calculateSize(
+      {
+        input_count: tx.txInputs.length,
+      },
+      {
+        p2wpkh_output_count: tx.txOutputs.length,
+      }
+    ),
     tx,
     addressTo.value,
     tx.extractTransaction().toHex()
   );
-
+  api.broadcastTx(tx.extractTransaction().toHex()).then(console.log);
   // const routedRoute = router.resolve({
   //   name: RouterNames.verify.name,
   //   query: {

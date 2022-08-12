@@ -1,7 +1,7 @@
 <template>
-  <a class="send-token-select" @click="emit('update:toggleTokenSelect')">
+  <div class="send-token-select">
     <div class="send-token-select__image">
-      <img :src="token.icon" alt="" />
+      <img :src="token.icon" />
     </div>
     <div class="send-token-select__info">
       <h5>{{ token.name }}</h5>
@@ -10,21 +10,13 @@
         <span>{{ token.symbol }}</span>
       </p>
     </div>
-
-    <div class="send-token-select__arrow">
-      <switch-arrow />
-    </div>
-  </a>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { computed, PropType } from "vue";
-import SwitchArrow from "@action/icons/header/switch_arrow.vue";
 import { fromBase } from "@/libs/utils/units";
 import { BaseToken } from "@/types/base-token";
-const emit = defineEmits<{
-  (e: "update:toggleTokenSelect"): void;
-}>();
 
 const props = defineProps({
   token: {
@@ -60,7 +52,6 @@ const balance = computed(() =>
   align-items: center;
   flex-direction: row;
   position: relative;
-  cursor: pointer;
   text-decoration: none;
 
   &__image {
