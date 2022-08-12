@@ -3,7 +3,7 @@ import {
   BitcoinNetwork,
   BitcoinNetworkOptions,
 } from "../types/bitcoin-network";
-import { nodeActivity } from "../libs/activity-handlers";
+import { haskoinHandler } from "../libs/activity-handlers";
 import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
 
 const bitcoinOptions: BitcoinNetworkOptions = {
@@ -19,7 +19,7 @@ const bitcoinOptions: BitcoinNetworkOptions = {
   decimals: 8,
   gradient: "#F7931A",
   node: "https://api.blockchain.info/haskoin-store/btc-testnet/",
-  activityHandler: wrapActivityHandler(nodeActivity),
+  activityHandler: wrapActivityHandler(haskoinHandler),
   basePath: "m/49'/1'/0'/0",
   coingeckoID: "bitcoin",
   networkInfo: {

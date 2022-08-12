@@ -3,7 +3,7 @@ import {
   BitcoinNetwork,
   BitcoinNetworkOptions,
 } from "../types/bitcoin-network";
-import { nodeActivity } from "../libs/activity-handlers";
+import { haskoinHandler } from "../libs/activity-handlers";
 import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
 
 const bitcoinOptions: BitcoinNetworkOptions = {
@@ -19,7 +19,7 @@ const bitcoinOptions: BitcoinNetworkOptions = {
   gradient: "#F7931A",
   node: "https://api.blockchain.info/haskoin-store/btc/",
   coingeckoID: "bitcoin",
-  activityHandler: wrapActivityHandler(nodeActivity),
+  activityHandler: wrapActivityHandler(haskoinHandler),
   basePath: "m/49'/0'/0'/0",
   networkInfo: {
     messagePrefix: "\x18Bitcoin Signed Message:\n",

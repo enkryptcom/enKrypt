@@ -158,7 +158,10 @@ const sendAction = async () => {
                 ...{ transactionHash: signedTx.extractTransaction().getId() },
               },
             ],
-            { address: txData.fromAddress, network: network.name }
+            {
+              address: network.displayAddress(txData.fromAddress),
+              network: network.name,
+            }
           );
           isSendDone.value = true;
           if (getCurrentContext() === "popup") {

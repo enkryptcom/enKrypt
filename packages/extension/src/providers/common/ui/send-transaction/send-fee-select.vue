@@ -29,8 +29,7 @@
 import { PropType } from "vue";
 import SwitchArrow from "@action/icons/header/switch_arrow.vue";
 import TimeIcon from "@action/icons/fee/time-icon.vue";
-import { GasFeeInfo } from "@/providers/ethereum/ui/types";
-import { GasPriceTypes } from "@/providers/ethereum/libs/transaction/types";
+import { GasFeeInfo, GasPriceTypes } from "@/providers/common/types";
 import { FeeDescriptions } from "@/providers/ethereum/libs/transaction/gas-utils";
 
 const emit = defineEmits<{

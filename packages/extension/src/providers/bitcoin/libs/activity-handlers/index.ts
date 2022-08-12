@@ -1,3 +1,3 @@
-import nodeActivity from "./providers/node";
+import haskoinHandler from "./providers/haskoin";
 
-export { nodeActivity };
+export { haskoinHandler };

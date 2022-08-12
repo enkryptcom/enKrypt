@@ -30,8 +30,7 @@ import EconomyIcon from "@action/icons/fee/economy-icon.vue";
 import RecomendedIcon from "@action/icons/fee/recomended-icon.vue";
 import HigherIcon from "@action/icons/fee/higher-icon.vue";
 import HighestIcon from "@action/icons/fee/highest-icon.vue";
-import { GasPriceTypes } from "@/providers/ethereum/libs/transaction/types";
-import { GasFeeType } from "@/providers/ethereum/ui/types";
+import { GasFeeType, GasPriceTypes } from "@/providers/common/types";
 import { FeeDescriptions } from "@/providers/ethereum/libs/transaction/gas-utils";
 import BigNumber from "bignumber.js";
 
