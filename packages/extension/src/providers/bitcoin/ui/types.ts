@@ -1,17 +1,17 @@
-import { BaseNetwork } from "@/types/base-network";
 import { ToTokenData } from "@/ui/action/types/token";
 import { EnkryptAccount } from "@enkryptcom/types";
-import {
-  FeeMarketEIP1559Transaction,
-  Transaction as LegacyTransaction,
-} from "@ethereumjs/tx";
-import { GasPriceTypes } from "@/providers/ethereum/libs/transaction/types";
+import { GasPriceTypes } from "@/providers/common/types";
+import { BitcoinNetwork } from "../types/bitcoin-network";
 
 export interface GasFeeInfo {
   nativeValue: string;
   fiatValue: string;
   nativeSymbol: string;
   fiatSymbol: string;
+}
+export interface BTCTxInfo {
+  inputs: any[];
+  outputs: { address: string; value: number }[];
 }
 export interface GasFeeType {
   [GasPriceTypes.ECONOMY]: GasFeeInfo;
@@ -20,13 +20,6 @@ export interface GasFeeType {
   [GasPriceTypes.FASTEST]: GasFeeInfo;
 }
 
-export interface SendTransactionDataType {
-  chainId: `0x${string}`;
-  from: `0x${string}`;
-  value: `0x${string}`;
-  to: `0x${string}`;
-  data: `0x${string}`;
-}
 export interface VerifyTransactionParams {
   fromAddress: string;
   fromAddressName: string;
@@ -34,17 +27,17 @@ export interface VerifyTransactionParams {
   toToken: ToTokenData;
   gasFee: GasFeeInfo;
   gasPriceType: GasPriceTypes;
-  TransactionData: SendTransactionDataType;
+  TxInfo: string;
 }
 
 export interface SignerTransactionOptions {
-  payload: FeeMarketEIP1559Transaction | LegacyTransaction;
-  network: BaseNetwork;
+  payload: BTCTxInfo;
+  network: BitcoinNetwork;
   account: EnkryptAccount;
 }
 
 export interface SignerMessageOptions {
   payload: Buffer;
-  network: BaseNetwork;
+  network: BitcoinNetwork;
   account: EnkryptAccount;
 }

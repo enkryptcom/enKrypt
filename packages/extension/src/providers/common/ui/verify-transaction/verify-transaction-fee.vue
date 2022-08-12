@@ -12,7 +12,7 @@
 
 <script setup lang="ts">
 import { PropType } from "vue";
-import { GasFeeInfo } from "../../../types";
+import { GasFeeInfo } from "@/providers/common/types";
 
 defineProps({
   fee: {

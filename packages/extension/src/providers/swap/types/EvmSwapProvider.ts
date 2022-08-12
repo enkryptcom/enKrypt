@@ -5,7 +5,7 @@ import erc20 from "@/providers/ethereum/libs/abi/erc20";
 import API from "@/providers/ethereum/libs/api";
 import { NATIVE_TOKEN_ADDRESS } from "@/providers/ethereum/libs/common";
 import Transaction from "@/providers/ethereum/libs/transaction";
-import { GasPriceTypes } from "@/providers/ethereum/libs/transaction/types";
+import { GasPriceTypes } from "@/providers/common/types";
 import { Erc20Token } from "@/providers/ethereum/types/erc20-token";
 import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
 import { TransactionSigner } from "@/providers/ethereum/ui/libs/signer";

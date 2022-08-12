@@ -106,22 +106,21 @@ import { ref, onMounted, PropType, computed, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import SendHeader from "./components/send-header.vue";
 import SendAddressInput from "./components/send-address-input.vue";
-import SendFromContactsList from "./components/send-from-contacts-list.vue";
-import SendContactsList from "./components/send-contacts-list.vue";
+import SendFromContactsList from "@/providers/common/ui/send-transaction/send-from-contacts-list.vue";
+import SendContactsList from "@/providers/common/ui/send-transaction/send-contacts-list.vue";
 import SendTokenSelect from "./components/send-token-select.vue";
-import SendAlert from "./components/send-alert.vue";
-import SendInputAmount from "./components/send-input-amount.vue";
-import SendFeeSelect from "./components/send-fee-select.vue";
+import SendAlert from "@/providers/common/ui/send-transaction/send-alert.vue";
+import SendInputAmount from "@/providers/common/ui/send-transaction/send-input-amount.vue";
+import SendFeeSelect from "@/providers/common/ui/send-transaction/send-fee-select.vue";
 import TransactionFeeView from "@action/views/transaction-fee/index.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import { AccountsHeaderData } from "@action/types/account";
 import { toBN } from "web3-utils";
-import { GasPriceTypes } from "../../../../providers/ethereum/libs/transaction/types";
-import { GasFeeType } from "../../../../providers/ethereum/ui/types";
+import { GasPriceTypes, GasFeeType } from "@/providers/common/types";
 import { BitcoinNetwork } from "../../types/bitcoin-network";
 import { BTCToken } from "../../types/btc-token";
 import BigNumber from "bignumber.js";
-import { defaultGasCostVals } from "@/providers/ethereum/ui/common/default-vals";
+import { defaultGasCostVals } from "@/providers/common/libs/default-vals";
 import { fromBase, toBase, isValidDecimals } from "@/libs/utils/units";
 import { formatFloatingPointValue } from "@/libs/utils/number-formatter";
 import { routes as RouterNames } from "@/ui/action/router";
@@ -133,12 +132,9 @@ import { BaseNetwork } from "@/types/base-network";
 
 import { isAddress } from "../../libs/utils";
 import BitcoinAPI from "@/providers/bitcoin/libs/api";
-import { Psbt as BTCTransaction } from "bitcoinjs-lib";
-import { bufferToHex, hexToBuffer } from "@enkryptcom/utils";
-import sendUsingInternalMessengers from "@/libs/messenger/internal-messenger";
-import { InternalMethods } from "@/types/messenger";
 import { calculateSize } from "../libs/tx-size";
 import { HaskoinUnspentType } from "../../types";
+import { VerifyTransactionParams, BTCTxInfo } from "../types";
 
 const props = defineProps({
   network: {
@@ -286,7 +282,6 @@ const updateUTXOs = async () => {
         p2wpkh_output_count: 2,
       }
     );
-    console.log(utxos, txSize);
     setTransactionFees(Math.ceil(txSize.txVBytes));
   });
 };
@@ -365,7 +360,6 @@ const inputAddressFrom = (text: string) => {
 };
 
 const inputAddressTo = (text: string) => {
-  console.log(text);
   addressTo.value = text;
 };
 
@@ -410,103 +404,88 @@ const selectFee = (type: GasPriceTypes) => {
 const sendAction = async () => {
   const keyring = new PublicKeyRing();
   const fromAccountInfo = await keyring.getAccount(addressFrom.value);
-  const networkInfo = (props.network as BitcoinNetwork).networkInfo;
-  const api = (await props.network.api()) as BitcoinAPI;
-  const utxos = await api.getUTXOs(fromAccountInfo.address);
-  const tx = new BTCTransaction({
-    network: networkInfo,
-  });
-  utxos.forEach((u) => {
-    tx.addInput({
+  const txInfo: BTCTxInfo = {
+    inputs: [],
+    outputs: [],
+  };
+  accountUTXOs.value.forEach((u) => {
+    txInfo.inputs.push({
       hash: u.txid,
       index: u.index,
       witnessUtxo: {
-        script: Buffer.from(u.pkscript, "hex"),
+        script: u.pkscript,
         value: u.value,
       },
     });
   });
-  const signer = {
-    publicKey: hexToBuffer(fromAccountInfo.address),
-    network: networkInfo,
-    sign: (hash: Buffer, lowR?: boolean): Promise<Buffer> => {
-      console.log(bufferToHex(hash), lowR, "sign hash");
-      return sendUsingInternalMessengers({
-        method: InternalMethods.sign,
-        params: [bufferToHex(hash), fromAccountInfo],
-      }).then((res) => {
-        console.log(JSON.parse(res.result!), "response");
-        return hexToBuffer(JSON.parse(res.result!)).subarray(0, 64);
-      });
-    },
-  };
   const balance = toBN(selectedAsset.value.balance!);
-  const sendAmount = toBN(toBase(amount.value, selectedAsset.value.decimals));
+  const toAmount = toBN(toBase(amount.value, selectedAsset.value.decimals));
   const currentFee = toBN(
     toBase(
       gasCostValues.value[selectedFee.value].nativeValue,
       selectedAsset.value.decimals
     )
   );
-  const remainder = balance.sub(sendAmount).sub(currentFee);
+  const remainder = balance.sub(toAmount).sub(currentFee);
 
-  tx.addOutput({
+  txInfo.outputs.push({
     address: addressTo.value,
-    value: sendAmount.toNumber(),
+    value: toAmount.toNumber(),
   });
 
   if (remainder.gtn(0)) {
-    tx.addOutput({
+    txInfo.outputs.push({
       address: props.network.displayAddress(addressFrom.value),
       value: remainder.toNumber(),
     });
   }
 
-  await tx.signAllInputsAsync(signer);
-  tx.finalizeAllInputs();
-  console.log(
-    tx.getFee(),
-    tx.getFeeRate(),
-    tx.getFee() / tx.getFeeRate(),
-    calculateSize(
-      {
-        input_count: tx.txInputs.length,
-      },
-      {
-        p2wpkh_output_count: tx.txOutputs.length,
-      }
-    ),
-    tx,
-    addressTo.value,
-    tx.extractTransaction().toHex()
-  );
-  api.broadcastTx(tx.extractTransaction().toHex()).then(console.log);
-  // const routedRoute = router.resolve({
-  //   name: RouterNames.verify.name,
-  //   query: {
-  //     id: selected,
-  //     txData: Buffer.from(JSON.stringify(txVerifyInfo), "utf8").toString(
-  //       "base64"
-  //     ),
-  //   },
-  // });
+  const txVerifyInfo: VerifyTransactionParams = {
+    TxInfo: JSON.stringify(txInfo),
+    toToken: {
+      amount: toAmount.toString(),
+      decimals: selectedAsset.value.decimals!,
+      icon: selectedAsset.value.icon as string,
+      symbol: selectedAsset.value.symbol,
+      valueUSD: new BigNumber(selectedAsset.value.price || "0")
+        .times(sendAmount.value)
+        .toString(),
+      name: selectedAsset.value.name,
+      price: selectedAsset.value.price || "0",
+    },
+    fromAddress: fromAccountInfo.address,
+    fromAddressName: fromAccountInfo.name,
+    gasFee: gasCostValues.value[selectedFee.value],
+    gasPriceType: selectedFee.value,
+    toAddress: addressTo.value,
+  };
 
-  // if (fromAccountInfo.isHardware) {
-  //   await Browser.windows.create({
-  //     url: Browser.runtime.getURL(
-  //       getUiPath(
-  //         `eth-hw-verify?id=${routedRoute.query.id}&txData=${routedRoute.query.txData}`,
-  //         ProviderName.ethereum
-  //       )
-  //     ),
-  //     type: "popup",
-  //     focused: true,
-  //     height: 600,
-  //     width: 460,
-  //   });
-  // } else {
-  //   router.push(routedRoute);
-  // }
+  const routedRoute = router.resolve({
+    name: RouterNames.verify.name,
+    query: {
+      id: selected,
+      txData: Buffer.from(JSON.stringify(txVerifyInfo), "utf8").toString(
+        "base64"
+      ),
+    },
+  });
+
+  if (fromAccountInfo.isHardware) {
+    await Browser.windows.create({
+      url: Browser.runtime.getURL(
+        getUiPath(
+          `eth-hw-verify?id=${routedRoute.query.id}&txData=${routedRoute.query.txData}`,
+          ProviderName.ethereum
+        )
+      ),
+      type: "popup",
+      focused: true,
+      height: 600,
+      width: 460,
+    });
+  } else {
+    router.push(routedRoute);
+  }
 };
 
 const toggleSelector = (isTokenSend: boolean) => {

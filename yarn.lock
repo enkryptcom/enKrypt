@@ -2436,6 +2436,7 @@ __metadata:
     bignumber.js: ^9.1.0
     bip39: ^3.0.4
     bitcoinjs-lib: ^6.0.2
+    bitcoinjs-message: ^2.2.0
     buffer: ^6.0.3
     chai: ^4.3.6
     concurrently: ^7.3.0
@@ -8663,7 +8664,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"bindings@npm:^1.2.1, bindings@npm:^1.3.0":
+"bindings@npm:^1.2.1, bindings@npm:^1.3.0, bindings@npm:^1.5.0":
   version: 1.5.0
   resolution: "bindings@npm:1.5.0"
   dependencies:
@@ -8763,7 +8764,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"bip66@npm:^1.1.0":
+"bip66@npm:^1.1.0, bip66@npm:^1.1.5":
   version: 1.1.5
   resolution: "bip66@npm:1.1.5"
   dependencies:
@@ -8815,6 +8816,20 @@ __metadata:
     varuint-bitcoin: ^1.1.2
     wif: ^2.0.1
   checksum: 4dd39e3c58205e243b3fd4f9928d333604b996c09a490d2d70c49715706d53a8bd51c66ed20f330888816047237e1f5f1187d0e6e06e2d7bd4419e0b01a1eb2e
+  languageName: node
+  linkType: hard
+
+"bitcoinjs-message@npm:^2.2.0":
+  version: 2.2.0
+  resolution: "bitcoinjs-message@npm:2.2.0"
+  dependencies:
+    bech32: ^1.1.3
+    bs58check: ^2.1.2
+    buffer-equals: ^1.0.3
+    create-hash: ^1.1.2
+    secp256k1: ^3.0.1
+    varuint-bitcoin: ^1.0.1
+  checksum: 2b851d7b976487118f34507739aabf5bca4b3c14ba997f46b932c71a83104a66a9476a808688a319e3a772c026d65381939852f091affc9dbae0f174eb6b03a1
   languageName: node
   linkType: hard
 
@@ -9059,7 +9074,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"browserify-aes@npm:^1.0.0, browserify-aes@npm:^1.0.4, browserify-aes@npm:^1.2.0":
+"browserify-aes@npm:^1.0.0, browserify-aes@npm:^1.0.4, browserify-aes@npm:^1.0.6, browserify-aes@npm:^1.2.0":
   version: 1.2.0
   resolution: "browserify-aes@npm:1.2.0"
   dependencies:
@@ -9178,6 +9193,13 @@ __metadata:
   version: 1.0.0
   resolution: "buffer-compare@npm:1.0.0"
   checksum: fe10a79e428300b34f74ac445fabe4a6f126d8e71bd6753a01b6ef29524f68ce8c6c2d4a8abc673def1246856a1c20f809ef066741d8565254ea9675bf99445d
+  languageName: node
+  linkType: hard
+
+"buffer-equals@npm:^1.0.3":
+  version: 1.0.4
+  resolution: "buffer-equals@npm:1.0.4"
+  checksum: 392a2f82acdaad46392aec7ce54a8ff0b2a650b5802ccb0c77072050bbc7fd4e101f38460c7e88cdc7e130421882977f595d5c1a3d3343611562ecf7c684a70f
   languageName: node
   linkType: hard
 
@@ -11156,6 +11178,17 @@ __metadata:
   version: 10.0.0
   resolution: "dotenv@npm:10.0.0"
   checksum: f412c5fe8c24fbe313d302d2500e247ba8a1946492db405a4de4d30dd0eb186a88a43f13c958c5a7de303938949c4231c56994f97d05c4bc1f22478d631b4005
+  languageName: node
+  linkType: hard
+
+"drbg.js@npm:^1.0.1":
+  version: 1.0.1
+  resolution: "drbg.js@npm:1.0.1"
+  dependencies:
+    browserify-aes: ^1.0.6
+    create-hash: ^1.1.2
+    create-hmac: ^1.1.4
+  checksum: f8df5cdd4fb792e548d6187cbc446fbd0afd8f1ef7fa486e1c286c2adee55a687183ce48ab178e9f24965c2deabb6e2ba7a7ee2d675264b951356480eb042476
   languageName: node
   linkType: hard
 
@@ -16561,7 +16594,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nan@npm:^2.15.0, nan@npm:^2.2.1":
+"nan@npm:^2.14.0, nan@npm:^2.15.0, nan@npm:^2.2.1":
   version: 2.16.0
   resolution: "nan@npm:2.16.0"
   dependencies:
@@ -19285,6 +19318,23 @@ __metadata:
   languageName: node
   linkType: hard
 
+"secp256k1@npm:^3.0.1":
+  version: 3.8.0
+  resolution: "secp256k1@npm:3.8.0"
+  dependencies:
+    bindings: ^1.5.0
+    bip66: ^1.1.5
+    bn.js: ^4.11.8
+    create-hash: ^1.2.0
+    drbg.js: ^1.0.1
+    elliptic: ^6.5.2
+    nan: ^2.14.0
+    node-gyp: latest
+    safe-buffer: ^5.1.2
+  checksum: 37aaae687a8de9b7bc733ab26bc89c4302b9c681d69d71d531842d99d3af9301a4e30dbe40122793ec64b7a08b8fee8d2330397b7b2dd3a7e404ed259a458089
+  languageName: node
+  linkType: hard
+
 "secp256k1@npm:^4.0.0, secp256k1@npm:^4.0.1, secp256k1@npm:^4.0.2, secp256k1@npm:^4.0.3":
   version: 4.0.3
   resolution: "secp256k1@npm:4.0.3"
@@ -21585,7 +21635,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"varuint-bitcoin@npm:1.1.2, varuint-bitcoin@npm:^1.0.4, varuint-bitcoin@npm:^1.1.2":
+"varuint-bitcoin@npm:1.1.2, varuint-bitcoin@npm:^1.0.1, varuint-bitcoin@npm:^1.0.4, varuint-bitcoin@npm:^1.1.2":
   version: 1.1.2
   resolution: "varuint-bitcoin@npm:1.1.2"
   dependencies:

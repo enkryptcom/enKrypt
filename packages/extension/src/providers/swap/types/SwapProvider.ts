@@ -2,7 +2,7 @@ import { BaseToken, BaseTokenOptions } from "@/types/base-token";
 import Web3 from "web3";
 import { BaseNetwork } from "@/types/base-network";
 import { EnkryptAccount, NetworkNames } from "@enkryptcom/types";
-import { GasPriceTypes } from "@/providers/ethereum/libs/transaction/types";
+import { GasPriceTypes } from "@/providers/common/types";
 
 export type Rates = Array<{ amount: string; rate: string }>;
 

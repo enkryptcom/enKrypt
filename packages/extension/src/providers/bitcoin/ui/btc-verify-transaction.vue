@@ -42,7 +42,7 @@
         </div>
 
         <div class="provider-verify-transaction__amount">
-          <img :src="decodedTx?.tokenImage || network.icon" />
+          <img :src="network.icon" />
 
           <div class="provider-verify-transaction__amount-info">
             <h4>
@@ -130,35 +130,31 @@ import RightChevron from "@action/icons/common/right-chevron.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import CommonPopup from "@action/views/common-popup/index.vue";
 import SendFeeSelect from "./send-transaction/components/send-fee-select.vue";
-import HardwareWalletMsg from "./components/hardware-wallet-msg.vue";
+import HardwareWalletMsg from "@/providers/common/ui/verify-transaction/hardware-wallet-msg.vue";
 import TransactionFeeView from "@action/views/transaction-fee/index.vue";
 import { getCustomError, getError } from "@/libs/error";
 import { ErrorCodes } from "@/providers/ethereum/types";
 import { WindowPromiseHandler } from "@/libs/window-promise";
 import {
+  DEFAULT_BTC_NETWORK_NAME,
   DEFAULT_EVM_NETWORK_NAME,
   getNetworkByName,
 } from "@/libs/utils/networks";
-import {
-  DecodedTx,
-  EthereumTransaction,
-  GasPriceTypes,
-} from "../libs/transaction/types";
 import Transaction from "@/providers/ethereum/libs/transaction";
 import Web3 from "web3";
-import { EvmNetwork } from "../types/evm-network";
 import { fromBase } from "@/libs/utils/units";
-import { decodeTx } from "../libs/transaction/decoder";
 import { ProviderRequestOptions } from "@/types/provider";
 import BigNumber from "bignumber.js";
 import { GasFeeType } from "./types";
 import MarketData from "@/libs/market-data";
-import { defaultGasCostVals } from "./common/default-vals";
+import { defaultGasCostVals } from "@/providers/common/libs/default-vals";
 import { EnkryptAccount } from "@enkryptcom/types";
 import { TransactionSigner } from "./libs/signer";
 import { Activity, ActivityStatus, ActivityType } from "@/types/activity";
 import { generateAddress } from "ethereumjs-util";
 import ActivityState from "@/libs/activity-state";
+import { BitcoinNetwork } from "../types/bitcoin-network";
+import { GasPriceTypes } from "@/providers/common/types";
 
 const isProcessing = ref(false);
 const isOpenSelectFee = ref(false);
@@ -166,9 +162,8 @@ const providerVerifyTransactionScrollRef = ref<ComponentPublicInstance>();
 const isOpenData = ref(false);
 const TokenBalance = ref<string>("~");
 const fiatValue = ref<string>("~");
-const decodedTx = ref<DecodedTx>();
-const network = ref<EvmNetwork>(
-  getNetworkByName(DEFAULT_EVM_NETWORK_NAME) as EvmNetwork
+const network = ref<BitcoinNetwork>(
+  getNetworkByName(DEFAULT_BTC_NETWORK_NAME) as BitcoinNetwork
 );
 const marketdata = new MarketData();
 const gasCostValues = ref<GasFeeType>(defaultGasCostVals);
@@ -191,7 +186,7 @@ defineExpose({ providerVerifyTransactionScrollRef });
 
 onBeforeMount(async () => {
   const { Request, options } = await windowPromise;
-  network.value = getNetworkByName(Request.value.params![2]) as EvmNetwork;
+  network.value = getNetworkByName(Request.value.params![2]) as BitcoinNetwork;
   account.value = Request.value.params![1] as EnkryptAccount;
   identicon.value = network.value.identicon(account.value.address);
   Options.value = options;
@@ -200,145 +195,124 @@ onBeforeMount(async () => {
     const balance = await api.getBalance(account.value.address);
     TokenBalance.value = fromBase(balance, network.value.decimals);
   }
-  await decodeTx(
-    Request.value.params![0] as EthereumTransaction,
-    network.value as EvmNetwork
-  ).then((decoded) => {
-    decodedTx.value = decoded;
-    fiatValue.value = new BigNumber(
-      fromBase(decoded.tokenValue, decoded.tokenDecimals)
-    )
-      .times(decoded.currentPriceUSD)
-      .toFixed(2);
-  });
-  const web3 = new Web3(network.value.node);
-  const tx = new Transaction(
-    Request.value.params![0] as EthereumTransaction,
-    web3
-  );
-  await tx.getGasCosts().then(async (gasvals) => {
-    let nativeVal = "0";
-    if (network.value.coingeckoID) {
-      await marketdata
-        .getTokenValue("1", network.value.coingeckoID, "USD")
-        .then((val) => (nativeVal = val));
-    }
-    const getConvertedVal = (type: GasPriceTypes) =>
-      fromBase(gasvals[type], network.value.decimals);
+  // await tx.getGasCosts().then(async (gasvals) => {
+  //   let nativeVal = "0";
+  //   if (network.value.coingeckoID) {
+  //     await marketdata
+  //       .getTokenValue("1", network.value.coingeckoID, "USD")
+  //       .then((val) => (nativeVal = val));
+  //   }
+  //   const getConvertedVal = (type: GasPriceTypes) =>
+  //     fromBase(gasvals[type], network.value.decimals);
 
-    gasCostValues.value = {
-      [GasPriceTypes.ECONOMY]: {
-        nativeValue: getConvertedVal(GasPriceTypes.ECONOMY),
-        fiatValue: new BigNumber(getConvertedVal(GasPriceTypes.ECONOMY))
-          .times(nativeVal)
-          .toString(),
-        nativeSymbol: network.value.currencyName,
-        fiatSymbol: "USD",
-      },
-      [GasPriceTypes.REGULAR]: {
-        nativeValue: getConvertedVal(GasPriceTypes.REGULAR),
-        fiatValue: new BigNumber(getConvertedVal(GasPriceTypes.REGULAR))
-          .times(nativeVal)
-          .toString(),
-        nativeSymbol: network.value.currencyName,
-        fiatSymbol: "USD",
-      },
-      [GasPriceTypes.FAST]: {
-        nativeValue: getConvertedVal(GasPriceTypes.FAST),
-        fiatValue: new BigNumber(getConvertedVal(GasPriceTypes.FAST))
-          .times(nativeVal)
-          .toString(),
-        nativeSymbol: network.value.currencyName,
-        fiatSymbol: "USD",
-      },
-      [GasPriceTypes.FASTEST]: {
-        nativeValue: getConvertedVal(GasPriceTypes.FASTEST),
-        fiatValue: new BigNumber(getConvertedVal(GasPriceTypes.FASTEST))
-          .times(nativeVal)
-          .toString(),
-        nativeSymbol: network.value.currencyName,
-        fiatSymbol: "USD",
-      },
-    };
-    selectedFee.value = GasPriceTypes.ECONOMY;
-  });
+  //   gasCostValues.value = {
+  //     [GasPriceTypes.ECONOMY]: {
+  //       nativeValue: getConvertedVal(GasPriceTypes.ECONOMY),
+  //       fiatValue: new BigNumber(getConvertedVal(GasPriceTypes.ECONOMY))
+  //         .times(nativeVal)
+  //         .toString(),
+  //       nativeSymbol: network.value.currencyName,
+  //       fiatSymbol: "USD",
+  //     },
+  //     [GasPriceTypes.REGULAR]: {
+  //       nativeValue: getConvertedVal(GasPriceTypes.REGULAR),
+  //       fiatValue: new BigNumber(getConvertedVal(GasPriceTypes.REGULAR))
+  //         .times(nativeVal)
+  //         .toString(),
+  //       nativeSymbol: network.value.currencyName,
+  //       fiatSymbol: "USD",
+  //     },
+  //     [GasPriceTypes.FAST]: {
+  //       nativeValue: getConvertedVal(GasPriceTypes.FAST),
+  //       fiatValue: new BigNumber(getConvertedVal(GasPriceTypes.FAST))
+  //         .times(nativeVal)
+  //         .toString(),
+  //       nativeSymbol: network.value.currencyName,
+  //       fiatSymbol: "USD",
+  //     },
+  //     [GasPriceTypes.FASTEST]: {
+  //       nativeValue: getConvertedVal(GasPriceTypes.FASTEST),
+  //       fiatValue: new BigNumber(getConvertedVal(GasPriceTypes.FASTEST))
+  //         .times(nativeVal)
+  //         .toString(),
+  //       nativeSymbol: network.value.currencyName,
+  //       fiatSymbol: "USD",
+  //     },
+  //   };
+  //   selectedFee.value = GasPriceTypes.ECONOMY;
+  // });
 });
 
 const approve = async () => {
   isProcessing.value = true;
   const { Request, Resolve } = await windowPromise;
-  const web3 = new Web3(network.value.node);
-  const tx = new Transaction(
-    Request.value.params![0] as EthereumTransaction,
-    web3
-  );
-  tx.getFinalizedTransaction({ gasPriceType: selectedFee.value }).then(
-    (finalizedTx) => {
-      const activityState = new ActivityState();
-      TransactionSigner({
-        account: account.value,
-        network: network.value,
-        payload: finalizedTx,
-      })
-        .then((tx) => {
-          const txActivity: Activity = {
-            from: account.value.address,
-            to: tx.to
-              ? tx.to.toString()
-              : `0x${generateAddress(
-                  tx.getSenderAddress().toBuffer(),
-                  Buffer.from(tx.nonce.toString("hex"), "hex")
-                ).toString("hex")}`,
-            isIncoming: tx.getSenderAddress().toString() === tx.to?.toString(),
-            network: network.value.name,
-            status: ActivityStatus.pending,
-            timestamp: new Date().getTime(),
-            token: {
-              decimals: decodedTx.value?.tokenDecimals || 18,
-              icon: decodedTx.value?.tokenImage || "",
-              name: decodedTx.value?.tokenName || "Unknown",
-              symbol: decodedTx.value?.tokenSymbol || "UKNWN",
-              price: decodedTx.value?.currentPriceUSD.toString() || "0",
-            },
-            type: ActivityType.transaction,
-            value: decodedTx.value?.tokenValue || "0x0",
-            transactionHash: "",
-          };
-          web3.eth
-            .sendSignedTransaction("0x" + tx.serialize().toString("hex"))
-            .on("transactionHash", (hash) => {
-              activityState
-                .addActivities(
-                  [{ ...txActivity, ...{ transactionHash: hash } }],
-                  { address: txActivity.from, network: network.value.name }
-                )
-                .then(() => {
-                  Resolve.value({
-                    result: JSON.stringify(hash),
-                  });
-                });
-            })
-            .on("error", (error) => {
-              txActivity.status = ActivityStatus.failed;
-              activityState
-                .addActivities([txActivity], {
-                  address: txActivity.from,
-                  network: network.value.name,
-                })
-                .then(() => {
-                  Resolve.value({
-                    error: getCustomError(error.message),
-                  });
-                });
-            });
-        })
-        .catch((err) => {
-          Resolve.value({
-            error: getCustomError(err.message),
-          });
-        });
-    }
-  );
+  // tx.getFinalizedTransaction({ gasPriceType: selectedFee.value }).then(
+  //   (finalizedTx) => {
+  //     const activityState = new ActivityState();
+  //     TransactionSigner({
+  //       account: account.value,
+  //       network: network.value,
+  //       payload: finalizedTx,
+  //     })
+  //       .then((tx) => {
+  //         const txActivity: Activity = {
+  //           from: account.value.address,
+  //           to: tx.to
+  //             ? tx.to.toString()
+  //             : `0x${generateAddress(
+  //                 tx.getSenderAddress().toBuffer(),
+  //                 Buffer.from(tx.nonce.toString("hex"), "hex")
+  //               ).toString("hex")}`,
+  //           isIncoming: tx.getSenderAddress().toString() === tx.to?.toString(),
+  //           network: network.value.name,
+  //           status: ActivityStatus.pending,
+  //           timestamp: new Date().getTime(),
+  //           token: {
+  //             decimals: decodedTx.value?.tokenDecimals || 18,
+  //             icon: decodedTx.value?.tokenImage || "",
+  //             name: decodedTx.value?.tokenName || "Unknown",
+  //             symbol: decodedTx.value?.tokenSymbol || "UKNWN",
+  //             price: decodedTx.value?.currentPriceUSD.toString() || "0",
+  //           },
+  //           type: ActivityType.transaction,
+  //           value: decodedTx.value?.tokenValue || "0x0",
+  //           transactionHash: "",
+  //         };
+  //         web3.eth
+  //           .sendSignedTransaction("0x" + tx.serialize().toString("hex"))
+  //           .on("transactionHash", (hash) => {
+  //             activityState
+  //               .addActivities(
+  //                 [{ ...txActivity, ...{ transactionHash: hash } }],
+  //                 { address: txActivity.from, network: network.value.name }
+  //               )
+  //               .then(() => {
+  //                 Resolve.value({
+  //                   result: JSON.stringify(hash),
+  //                 });
+  //               });
+  //           })
+  //           .on("error", (error) => {
+  //             txActivity.status = ActivityStatus.failed;
+  //             activityState
+  //               .addActivities([txActivity], {
+  //                 address: txActivity.from,
+  //                 network: network.value.name,
+  //               })
+  //               .then(() => {
+  //                 Resolve.value({
+  //                   error: getCustomError(error.message),
+  //                 });
+  //               });
+  //           });
+  //       })
+  //       .catch((err) => {
+  //         Resolve.value({
+  //           error: getCustomError(err.message),
+  //         });
+  //       });
+  //   }
+  // );
 };
 const deny = async () => {
   const { Resolve } = await windowPromise;

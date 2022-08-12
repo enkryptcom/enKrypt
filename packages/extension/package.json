@@ -42,6 +42,7 @@
     "bignumber.js": "^9.1.0",
     "bip39": "^3.0.4",
     "bitcoinjs-lib": "^6.0.2",
+    "bitcoinjs-message": "^2.2.0",
     "chai": "^4.3.6",
     "concurrently": "^7.3.0",
     "core-js": "^3.24.1",

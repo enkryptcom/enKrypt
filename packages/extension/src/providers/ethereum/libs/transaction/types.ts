@@ -1,3 +1,5 @@
+import { GasPriceTypes } from "@/providers/common/types";
+
 export interface AccessList {
   address: `0x${string}`;
   storageKeys: `0x${string}`[];
@@ -53,12 +55,6 @@ export interface DecodedTx {
   tokenTo: string | null;
   dataHex: string;
   decodedHex?: string[];
-}
-export enum GasPriceTypes {
-  ECONOMY = "ECONOMY",
-  REGULAR = "REGULAR",
-  FAST = "FAST",
-  FASTEST = "FASTEST",
 }
 
 export interface TransactionOptions {

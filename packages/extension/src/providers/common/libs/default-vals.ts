@@ -1,4 +1,4 @@
-import { GasPriceTypes } from "../../libs/transaction/types";
+import { GasPriceTypes } from "../types";
 
 const defaultGasCostVals = {
   [GasPriceTypes.ECONOMY]: {

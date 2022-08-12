@@ -17,7 +17,7 @@ import { BaseNetwork } from "@/types/base-network";
 import { EnkryptAccount, NetworkNames } from "@enkryptcom/types";
 import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
 import Transaction from "@/providers/ethereum/libs/transaction";
-import { GasPriceTypes } from "@/providers/ethereum/libs/transaction/types";
+import { GasPriceTypes } from "@/providers/common/types";
 import { TransactionSigner as SubstrateTransactionSigner } from "@/providers/polkadot/ui/libs/signer";
 import { TransactionSigner as EvmTransactionSigner } from "@/providers/ethereum/ui/libs/signer";
 import { getNetworkByName } from "@/libs/utils/networks";

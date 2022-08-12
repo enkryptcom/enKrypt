@@ -97,7 +97,7 @@ const approve = async () => {
   const msg = Request.value.params![0] as `0x{string}`;
   MessageSigner({
     account: account.value,
-    network: network.value,
+    network: network.value as BitcoinNetwork,
     payload: hexToBuffer(msg),
   })
     .then(Resolve.value)

@@ -60,6 +60,7 @@ export class BitcoinNetwork extends BaseNetwork {
       signer: [SignerType.secp256k1btc],
       provider: ProviderName.bitcoin,
       displayAddress: (pubkey: string) => {
+        if (pubkey.length < 64) return pubkey;
         const { address } = payments.p2wpkh({
           pubkey: hexToBuffer(pubkey),
           network: options.networkInfo,

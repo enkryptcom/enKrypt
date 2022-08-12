@@ -43,13 +43,7 @@ class API implements ProviderAPIInterface {
         return toBN(balance.confirmed).addn(balance.unconfirmed).toString();
       });
   }
-  async broadcastTx(rawtx: string): Promise<string> {
-    console.log(`${this.node}transactions`, rawtx);
-    axios({
-      method: "post",
-      url: `${this.node}transactions`,
-      data: rawtx,
-    }).then(console.log);
+  async broadcastTx(rawtx: string): Promise<boolean> {
     return fetch(`${this.node}transactions`, {
       method: "POST",
       headers: {
@@ -61,8 +55,11 @@ class API implements ProviderAPIInterface {
       .then((res) => res.json())
       .then((response) => {
         console.log(response);
-        if (response.error) return Promise.reject(response.message);
-        return response.txid as string;
+        if (response.error) {
+          if (response.error === "server-error") return true; // haskoin api return error when it timesout or something
+          return Promise.reject(response.message);
+        }
+        return true;
       });
   }
   async getUTXOs(pubkey: string): Promise<HaskoinUnspentType[]> {
