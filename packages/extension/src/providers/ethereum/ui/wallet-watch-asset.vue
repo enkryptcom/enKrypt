@@ -15,10 +15,11 @@
         <div class="provider-verify-transaction__info">
           <img :src="Options.faviconURL" />
           <div class="provider-verify-transaction__info-info">
-            <h4>{{ Options.title }}</h4>
-            <p>{{ Options.domain }}</p>
+            <h4>{{ Options.domain }}</h4>
           </div>
         </div>
+      </div>
+      <div class="provider-verify-transaction__block">
         <div class="provider-verify-transaction__block__contract-input">
           <div
             class="provider-verify-transaction__block__contract-input__address"
@@ -40,6 +41,8 @@
             ></tooltip>
           </div>
         </div>
+      </div>
+      <div class="provider-verify-transaction__block">
         <div v-if="!tokenNotFound">
           <div class="provider-verify-transaction__block__token-info">
             <div class="provider-verify-transaction__block__token-info__image">
@@ -187,49 +190,115 @@ const addToken = async () => {
 @import "~@/providers/ethereum/ui/styles/common-popup.less";
 @import "~@action/styles/provider-connect-dapp.less";
 
-.provider-verify-transaction__block {
-  &__contract-input {
-    height: 64px;
-    background: #ffffff;
-    margin-bottom: 8px;
-    box-sizing: border-box;
-    border: 1px solid @gray02;
-    box-sizing: border-box;
-    border-radius: 10px;
-    padding: 16px;
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    flex-direction: row;
-    position: relative;
+.provider-verify-transaction {
+  &__info {
+    padding: 0px !important;
+  }
 
-    &.focus {
-      border: 2px solid @primary;
-      width: calc(~"100% - 62px");
-      margin: 12px 31px 8px 31px;
+  &__block {
+    display: flex;
+    align-items: center;
+    height: 56px;
+
+    &__contract-input {
+      width: 100%;
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      flex-direction: row;
+      position: relative;
+
+      &.focus {
+        border: 2px solid @primary;
+        width: calc(~"100% - 62px");
+        margin: 12px 31px 8px 31px;
+      }
+
+      &__address {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+
+        a {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          width: 40px;
+          height: 40px;
+          border-radius: 8px;
+        }
+
+        a:hover {
+          background-color: @black007;
+        }
+
+        &-info {
+          p {
+            font-style: normal;
+            font-weight: 400;
+            font-size: 12px;
+            line-height: 16px;
+            letter-spacing: 0.5px;
+            color: @secondaryLabel;
+            margin: 0;
+          }
+
+          div {
+            width: 100%;
+            height: 24px;
+            font-style: normal;
+            font-weight: 400;
+            font-size: 16px;
+            line-height: 24px;
+            letter-spacing: 0.25px;
+            color: @primaryLabel;
+            border: 0 none;
+            outline: none;
+            padding: 0;
+          }
+
+          .invalid {
+            color: @error;
+          }
+        }
+      }
     }
 
-    &__address {
+    &__token-info {
       display: flex;
-      flex-direction: row;
-      justify-content: space-between;
+      justify-content: flex-start;
       align-items: center;
-      width: 100%;
+      flex-direction: row;
+      position: relative;
+      text-decoration: none;
 
-      a {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: 40px;
-        height: 40px;
-        border-radius: 8px;
+      &__image {
+        background: @buttonBg;
+        box-shadow: inset 0px 0px 1px rgba(0, 0, 0, 0.16);
+        width: 32px;
+        height: 32px;
+        border-radius: 100%;
+        overflow: hidden;
+        margin-right: 12px;
+
+        img {
+          width: 100%;
+          height: 100%;
+        }
       }
 
-      a:hover {
-        background-color: @black007;
-      }
+      &__info {
+        h5 {
+          font-style: normal;
+          font-weight: 400;
+          font-size: 16px;
+          line-height: 24px;
+          color: @primaryLabel;
+          margin: 0 0 1px 0;
+        }
 
-      &-info {
         p {
           font-style: normal;
           font-weight: 400;
@@ -238,81 +307,11 @@ const addToken = async () => {
           letter-spacing: 0.5px;
           color: @secondaryLabel;
           margin: 0;
-        }
+          width: 128px;
 
-        div {
-          width: 100%;
-          height: 24px;
-          font-style: normal;
-          font-weight: 400;
-          font-size: 16px;
-          line-height: 24px;
-          letter-spacing: 0.25px;
-          color: @primaryLabel;
-          border: 0 none;
-          outline: none;
-          padding: 0;
-        }
-
-        .invalid {
-          color: @error;
-        }
-      }
-    }
-  }
-
-  &__token-info {
-    height: 64px;
-    background: #ffffff;
-    box-sizing: border-box;
-    border: 1px solid @gray02;
-    box-sizing: border-box;
-    border-radius: 10px;
-    padding: 16px;
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    flex-direction: row;
-    position: relative;
-    text-decoration: none;
-
-    &__image {
-      background: @buttonBg;
-      box-shadow: inset 0px 0px 1px rgba(0, 0, 0, 0.16);
-      width: 32px;
-      height: 32px;
-      border-radius: 100%;
-      overflow: hidden;
-      margin-right: 12px;
-
-      img {
-        width: 100%;
-        height: 100%;
-      }
-    }
-
-    &__info {
-      h5 {
-        font-style: normal;
-        font-weight: 400;
-        font-size: 16px;
-        line-height: 24px;
-        color: @primaryLabel;
-        margin: 0 0 1px 0;
-      }
-
-      p {
-        font-style: normal;
-        font-weight: 400;
-        font-size: 12px;
-        line-height: 16px;
-        letter-spacing: 0.5px;
-        color: @secondaryLabel;
-        margin: 0;
-        width: 128px;
-
-        span {
-          font-variant: small-caps;
+          span {
+            font-variant: small-caps;
+          }
         }
       }
     }
