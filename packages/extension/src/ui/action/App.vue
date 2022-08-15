@@ -20,25 +20,17 @@
           Manage networks
         </a>
         <div>
-          <a
-            class="app__menu-link"
-            @mouseleave="closeMoreMenu"
-            @mouseenter="toggleMoreMenu"
-          >
+          <a class="app__menu-link" @click="toggleMoreMenu">
             <more-icon />
-
-            <div v-show="isOpenMore" class="app__menu-dropdown">
-              <a class="app__menu-dropdown-link" @click="lockAction">
-                <hold-icon /> <span>Lock Enkrypt</span>
-              </a>
-              <a
-                class="app__menu-dropdown-link"
-                @click="settingsShow = !settingsShow"
-              >
-                <settings-icon /> <span>Settings</span>
-              </a>
-            </div>
           </a>
+          <div v-show="isOpenMore" ref="dropdown" class="app__menu-dropdown">
+            <a class="app__menu-dropdown-link" @click="lockAction">
+              <hold-icon /> <span>Lock Enkrypt</span>
+            </a>
+            <a class="app__menu-dropdown-link" @click="settingsAction">
+              <settings-icon /> <span>Settings</span>
+            </a>
+          </div>
         </div>
       </div>
     </div>
@@ -121,6 +113,7 @@ import { EnkryptAccount } from "@enkryptcom/types";
 import Browser from "webextension-polyfill";
 import EVMAccountState from "@/providers/ethereum/libs/accounts-state";
 import { ProviderName } from "@/types/provider";
+import { onClickOutside } from "@vueuse/core";
 
 const domainState = new DomainState();
 const networksState = new NetworksState();
@@ -148,6 +141,7 @@ const currentNetwork = ref<BaseNetwork>(defaultNetwork);
 const kr = new PublicKeyRing();
 const addNetworkShow = ref(false);
 const settingsShow = ref(false);
+const dropdown = ref(null);
 
 const setActiveNetworks = async () => {
   const activeNetworkNames = await networksState.getActiveNetworkNames();
@@ -324,6 +318,10 @@ const lockAction = async () => {
   });
   router.push({ name: "lock-screen" });
 };
+const settingsAction = () => {
+  closeMoreMenu();
+  settingsShow.value = !settingsShow.value;
+};
 const toggleMoreMenu = () => {
   if (timeout != null) {
     clearTimeout(timeout);
@@ -338,8 +336,11 @@ const closeMoreMenu = () => {
   }
   timeout = setTimeout(() => {
     isOpenMore.value = false;
-  }, 200);
+  }, 50);
 };
+onClickOutside(dropdown, () => {
+  closeMoreMenu();
+});
 </script>
 
 <style lang="less">
@@ -459,7 +460,7 @@ body {
       border-radius: 12px;
       position: absolute;
       right: 8px;
-      bottom: 48px;
+      bottom: 52px;
 
       &-link {
         width: 100%;

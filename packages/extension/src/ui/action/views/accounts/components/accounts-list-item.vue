@@ -27,7 +27,6 @@
       ref="dropdown"
       :deletable="deletable"
       v-bind="$attrs"
-      @mouseleave="toggleEdit"
     />
   </div>
 </template>
@@ -39,7 +38,7 @@ import AccountsListItemMenu from "./accounts-list-item-menu.vue";
 import { PropType, ref } from "vue";
 import { onClickOutside } from "@vueuse/core";
 
-let openEdit = ref(false);
+const openEdit = ref(false);
 const dropdown = ref(null);
 
 defineProps({

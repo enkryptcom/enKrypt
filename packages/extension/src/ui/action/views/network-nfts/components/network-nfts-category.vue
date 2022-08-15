@@ -4,8 +4,8 @@
       <!-- <img :src="collection.image" alt="" /> -->
       <p>{{ collection.name }}</p>
 
-      <a class="network-nfts__category-sort" @mouseenter="toggleSortMenu">
-        <nft-sort-menu ref="dropdown"></nft-sort-menu>
+      <a class="network-nfts__category-sort" @click="toggleSortMenu">
+        <nft-sort-menu></nft-sort-menu>
       </a>
     </div>
     <div class="network-nfts__category-items">
@@ -18,10 +18,10 @@
     </div>
 
     <network-nfts-category-sort-menu
-      v-show="isOpenSort"
+      v-if="isOpenSort"
+      ref="dropdown"
       :is-abc-sort="isAbcSort"
       :abc-sort="abcSortAction"
-      @mouseleave="toggleSortMenu"
     />
   </div>
 </template>
@@ -34,8 +34,8 @@ import NetworkNftsCategorySortMenu from "./network-nfts-category-sort-menu.vue";
 import { NFTCollection } from "@/types/nft";
 import { onClickOutside } from "@vueuse/core";
 
-let isOpenSort = ref(false);
-let isAbcSort = ref(true);
+const isOpenSort = ref(false);
+const isAbcSort = ref(true);
 const dropdown = ref(null);
 
 const props = defineProps({
@@ -61,6 +61,7 @@ const toggleSortMenu = () => {
 };
 const abcSortAction = (isAbc: boolean) => {
   isAbcSort.value = isAbc;
+  isOpenSort.value = false;
 };
 onClickOutside(dropdown, () => {
   if (isOpenSort.value) isOpenSort.value = false;

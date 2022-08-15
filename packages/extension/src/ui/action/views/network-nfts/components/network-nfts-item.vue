@@ -1,5 +1,5 @@
 <template>
-  <div class="network-nfts__item" @mouseleave="closeMoreMenu">
+  <div class="network-nfts__item">
     <a class="network-nfts__item-image" @click="toggleDetail">
       <img :src="item.image" alt="" @error="imageLoadError" />
       <div class="network-nfts__item-name">{{ item.name }}</div>
@@ -10,13 +10,13 @@
     </a>
 
     <network-nfts-item-more-menu
-      v-show="isOpenMore"
+      v-if="isOpenMore"
+      ref="dropdown"
       :is-favorite="isFavorite"
       :is-hidden="isHidden"
       :item="item"
       v-bind="$attrs"
       @update:hide-me="toggleMoreMenu"
-      @mouseleave="toggleMoreMenu"
     />
 
     <nft-detail-view
@@ -29,21 +29,20 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onUpdated } from "vue";
+import { ref } from "vue";
 import { NFTItem } from "@/types/nft";
 import { PropType } from "vue";
 import NetworkNftsItemMoreMenu from "./network-nfts-item-more-menu.vue";
 import NftDetailView from "@action/views/nft-detail-view/index.vue";
+import { onClickOutside } from "@vueuse/core";
+
 const notfoundimg = require("@action/assets/common/not-found.jpg");
 const imageLoadError = (img: any) => {
   img.target.src = notfoundimg;
 };
 const isOpenMore = ref(false);
 const isDetail = ref(false);
-
-onUpdated(() => {
-  closeMoreMenu();
-});
+const dropdown = ref(null);
 
 const props = defineProps({
   item: {
@@ -68,15 +67,15 @@ const props = defineProps({
 const toggleMoreMenu = () => {
   isOpenMore.value = !isOpenMore.value;
 };
-const closeMoreMenu = () => {
-  isOpenMore.value = false;
-};
 const toggleDetail = () => {
   isDetail.value = !isDetail.value;
 };
 const openLink = () => {
   window.open(props.item.url, "_blank");
 };
+onClickOutside(dropdown, () => {
+  if (isOpenMore.value) isOpenMore.value = false;
+});
 </script>
 
 <style lang="less">
@@ -120,7 +119,8 @@ const openLink = () => {
 
     &-name {
       width: 128px;
-      height: 28px;
+      min-height: 28px;
+      max-height: 48px;
       left: 0px;
       bottom: 0px;
       background: linear-gradient(
@@ -143,6 +143,9 @@ const openLink = () => {
       -o-transition: all 0.3s ease-in-out;
       transition: all 0.3s ease-in-out;
       opacity: 0;
+      -ms-line-clamp: 2;
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
     }
 
     &-more {

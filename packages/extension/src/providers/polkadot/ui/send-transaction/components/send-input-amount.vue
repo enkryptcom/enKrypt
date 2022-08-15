@@ -3,7 +3,7 @@
     <input
       v-model="amount"
       type="number"
-      placeholder="0.0"
+      placeholder="0"
       :class="{ error: !hasEnoughBalance }"
       @focus="changeFocus"
       @blur="changeFocus"
@@ -15,9 +15,9 @@
       <span>${{ $filters.formatFiatValue(fiatEquivalent).value }}</span>
     </div>
 
-    <a class="send-input-amount__max" @click="emit('update:inputSetMax', true)"
-      >Max</a
-    >
+    <a class="send-input-amount__max" @click="emit('update:inputSetMax', true)">
+      Max
+    </a>
   </div>
 </template>
 
