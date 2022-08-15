@@ -83,6 +83,7 @@ const Options = ref<ProviderRequestOptions>({
   faviconURL: "",
   title: "",
   url: "",
+  tabId: 0,
 });
 const metadata = ref<MetadataDef | null>(null);
 
