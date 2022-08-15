@@ -155,7 +155,7 @@ export class EvmNetwork extends BaseNetwork {
       const assets = await this.assetsInfoHandler(this, address);
 
       const customAssetsFiltered = customAssets.filter((asset) => {
-        const assetFromHandler = assets.find((a) => {
+        for (const a of assets) {
           if (
             a.contract &&
             asset.contract &&
@@ -163,12 +163,6 @@ export class EvmNetwork extends BaseNetwork {
           ) {
             return false;
           }
-
-          return true;
-        });
-
-        if (assetFromHandler) {
-          return false;
         }
 
         return true;
