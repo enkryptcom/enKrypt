@@ -1,6 +1,11 @@
+import MarketData from "@/libs/market-data";
+import Sparkline from "@/libs/sparkline";
 import { TokensState } from "@/libs/tokens-state";
 import { CustomErc20Token, TokenType } from "@/libs/tokens-state/types";
-import { formatFloatingPointValue } from "@/libs/utils/number-formatter";
+import {
+  formatFiatValue,
+  formatFloatingPointValue,
+} from "@/libs/utils/number-formatter";
 import { fromBase } from "@/libs/utils/units";
 import { Activity } from "@/types/activity";
 import { BaseNetwork } from "@/types/base-network";
@@ -8,6 +13,7 @@ import { BaseToken } from "@/types/base-token";
 import { NFTCollection } from "@/types/nft";
 import { AssetsType, ProviderName } from "@/types/provider";
 import { NetworkNames, SignerType } from "@enkryptcom/types";
+import BigNumber from "bignumber.js";
 import { toChecksumAddress } from "ethereumjs-util";
 import API from "../libs/api";
 import createIcon from "../libs/blockies";
@@ -109,68 +115,20 @@ export class EvmNetwork extends BaseNetwork {
   public async getAllTokenInfo(address: string): Promise<AssetsType[]> {
     const api = await this.api();
     const tokensState = new TokensState();
+    const marketData = new MarketData();
 
-    const customTokens = await tokensState
-      .getTokensByNetwork(this.name)
-      .then((tokens) => {
-        const erc20Tokens = tokens.filter(
-          (token) => token.type === TokenType.ERC20
-        ) as CustomErc20Token[];
-
-        return erc20Tokens.map(
-          ({ name, symbol, address, icon, decimals }) =>
-            new Erc20Token({ name, symbol, contract: address, icon, decimals })
-        );
-      });
-
-    const balancePromises = customTokens.map((token) =>
-      token.getLatestUserBalance(api as API, address)
-    );
-
-    await Promise.all(balancePromises);
-
-    const customAssets: AssetsType[] = customTokens.map((token) => {
-      const asset: AssetsType = {
-        name: token.name,
-        symbol: token.symbol,
-        balance: token.balance ?? "0",
-        balancef: formatFloatingPointValue(
-          fromBase(token.balance ?? "0", token.decimals)
-        ).value,
-        contract: token.contract,
-        balanceUSD: 0,
-        balanceUSDf: "0",
-        value: "0",
-        valuef: "0",
-        decimals: this.decimals,
-        sparkline: "",
-        priceChangePercentage: 0,
-        icon: token.icon,
-      };
-
-      return asset;
-    });
+    let assets: AssetsType[] = [];
 
     if (this.assetsInfoHandler) {
-      const assets = await this.assetsInfoHandler(this, address);
-
-      const customAssetsFiltered = customAssets.filter((asset) => {
-        for (const a of assets) {
-          if (
-            a.contract &&
-            asset.contract &&
-            a.contract.toLowerCase() === asset.contract.toLowerCase()
-          ) {
-            return false;
-          }
-        }
-
-        return true;
-      });
-
-      return [...assets, ...customAssetsFiltered];
+      assets = await this.assetsInfoHandler(this, address);
     } else {
       const balance = await (api as API).getBalance(address);
+      const nativeMarketData = (
+        await marketData.getMarketData([this.coingeckoID!])
+      )[0];
+      const nativeUsdBalance = new BigNumber(balance).times(
+        nativeMarketData?.current_price ?? 0
+      );
       const nativeAsset: AssetsType = {
         name: this.name_long,
         symbol: this.name,
@@ -178,13 +136,18 @@ export class EvmNetwork extends BaseNetwork {
         balance,
         balancef: formatFloatingPointValue(fromBase(balance, this.decimals))
           .value,
-        balanceUSD: 0,
-        balanceUSDf: "0",
-        value: "0",
-        valuef: "0",
+        balanceUSD: nativeUsdBalance.toNumber(),
+        balanceUSDf: formatFiatValue(nativeUsdBalance.toString()).value,
+        value: nativeMarketData?.current_price.toString() ?? "0",
+        valuef: formatFiatValue(
+          nativeMarketData?.current_price.toString() ?? "0"
+        ).value,
         decimals: this.decimals,
-        sparkline: "",
-        priceChangePercentage: 0,
+        sparkline: nativeMarketData
+          ? new Sparkline(nativeMarketData.sparkline_in_7d.price, 25).dataUri
+          : "",
+        priceChangePercentage:
+          nativeMarketData?.price_change_percentage_7d_in_currency ?? 0,
         contract: NATIVE_TOKEN_ADDRESS,
       };
 
@@ -219,8 +182,91 @@ export class EvmNetwork extends BaseNetwork {
         })
         .filter((asset) => asset.balancef !== "0");
 
-      return [nativeAsset, ...assetInfos, ...customAssets];
+      assets = [nativeAsset, ...assetInfos];
     }
+
+    const customTokens = await tokensState
+      .getTokensByNetwork(this.name)
+      .then((tokens) => {
+        const erc20Tokens = tokens.filter((token) => {
+          if (token.type !== TokenType.ERC20) {
+            return false;
+          }
+
+          for (const a of assets) {
+            if (
+              a.contract &&
+              (token as CustomErc20Token).address &&
+              a.contract.toLowerCase() ===
+                (token as CustomErc20Token).address.toLowerCase()
+            ) {
+              return false;
+            }
+          }
+
+          return true;
+        }) as CustomErc20Token[];
+
+        return erc20Tokens.map(
+          ({ name, symbol, address, icon, decimals }) =>
+            new Erc20Token({ name, symbol, contract: address, icon, decimals })
+        );
+      });
+
+    const balancePromises = customTokens.map((token) =>
+      token.getLatestUserBalance(api as API, address)
+    );
+
+    await Promise.all(balancePromises);
+
+    const marketInfos = await marketData.getMarketInfoByContracts(
+      customTokens.map((token) => token.contract.toLowerCase()),
+      this.coingeckoID!
+    );
+
+    const customAssets: AssetsType[] = customTokens.map((token) => {
+      const asset: AssetsType = {
+        name: token.name,
+        symbol: token.symbol,
+        balance: token.balance ?? "0",
+        balancef: formatFloatingPointValue(
+          fromBase(token.balance ?? "0", token.decimals)
+        ).value,
+        contract: token.contract,
+        balanceUSD: 0,
+        balanceUSDf: "0",
+        value: "0",
+        valuef: "0",
+        decimals: this.decimals,
+        sparkline: "",
+        priceChangePercentage: 0,
+        icon: token.icon,
+      };
+
+      const marketInfo = marketInfos[token.contract.toLowerCase()];
+
+      if (marketInfo) {
+        const usdBalance = new BigNumber(token.balance ?? "0").times(
+          marketInfo.current_price
+        );
+        asset.balanceUSD = usdBalance.toNumber();
+        asset.balanceUSDf = formatFiatValue(usdBalance.toString()).value;
+        asset.value = marketInfo.current_price.toString();
+        asset.valuef = formatFiatValue(
+          marketInfo.current_price.toString()
+        ).value;
+        asset.sparkline = new Sparkline(
+          marketInfo.sparkline_in_7d.price,
+          25
+        ).dataUri;
+        asset.priceChangePercentage =
+          marketInfo.price_change_percentage_7d_in_currency || 0;
+      }
+
+      return asset;
+    });
+
+    return [...assets, ...customAssets];
   }
   public getAllActivity(address: string): Promise<Activity[]> {
     return this.activityHandler(this, address);
