@@ -42,7 +42,7 @@ export default async (
         };
         const act: Activity = {
           from: tx.inputs[0].address,
-          isIncoming: address === tx.inputs[0].address,
+          isIncoming: !tx.inputs.find((i) => i.address === address),
           network: network.name,
           status: !tx.block.mempool
             ? ActivityStatus.success
