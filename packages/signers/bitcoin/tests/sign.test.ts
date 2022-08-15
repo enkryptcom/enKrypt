@@ -24,5 +24,5 @@ describe("Ethreum signing", () => {
       });
     });
     await Promise.all(promises);
-  });
+  }).timeout(20000);
 });
