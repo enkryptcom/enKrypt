@@ -51,7 +51,7 @@ import { getError } from "@/libs/error";
 import { ErrorCodes } from "@/providers/ethereum/types";
 import { WindowPromiseHandler } from "@/libs/window-promise";
 import { onBeforeMount, ref } from "vue";
-import { isAscii, u8aToString, u8aUnwrapBytes } from "@polkadot/util";
+import { isUtf8, u8aToString, u8aUnwrapBytes } from "@polkadot/util";
 import networks from "../networks";
 import { ProviderRequestOptions } from "@/types/provider";
 import { EnkryptAccount } from "@enkryptcom/types";
@@ -74,7 +74,7 @@ onBeforeMount(async () => {
   const { Request, options } = await windowPromise;
   Options.value = options;
 
-  message.value = isAscii(Request.value.params![0])
+  message.value = isUtf8(Request.value.params![0])
     ? u8aToString(u8aUnwrapBytes(Request.value.params![0]))
     : Request.value.params![0];
 
