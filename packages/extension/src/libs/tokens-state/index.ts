@@ -30,21 +30,17 @@ export class TokensState {
 
     if (state && state[chainName]) {
       const tokens = state[chainName];
-      const existingToken = tokens!.find((t) => {
+
+      for (const t of tokens!) {
         if (
           t.type === TokenType.ERC20 &&
           (t as CustomErc20Token).address.toLowerCase() ===
             token.address.toLowerCase()
         ) {
-          return true;
+          return false;
         }
-
-        return false;
-      });
-
-      if (existingToken) {
-        return false;
       }
+
       tokens!.push(token);
     } else {
       if (state) {
