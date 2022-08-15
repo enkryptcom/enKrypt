@@ -14,6 +14,7 @@ export interface CustomToken {
   decimals: number;
   icon: string;
   type: TokenType;
+  coingeckoID?: string;
 }
 
 export interface CustomErc20Token extends CustomToken {

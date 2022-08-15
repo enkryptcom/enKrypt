@@ -92,6 +92,7 @@ import { TokensState } from "@/libs/tokens-state";
 import { CustomErc20Token, TokenType } from "@/libs/tokens-state/types";
 import { AssetsType } from "@/types/provider";
 import { formatFloatingPointValue } from "@/libs/utils/number-formatter";
+import MarketData from "@/libs/market-data";
 
 interface IProps {
   network: BaseNetwork;
@@ -137,30 +138,20 @@ watch([contractAddress, props], async () => {
 
     if (info.name !== "Unknown") {
       let icon = props.network.icon;
+      let coingeckoID: string | undefined;
 
-      try {
-        const controller = new AbortController();
+      const marketData = new MarketData();
 
-        const timeoutId = setTimeout(() => controller.abort(), 15_000);
+      const coingeckoInfo = await marketData.getMarketInfoByContracts(
+        [contractAddress.value!.toLowerCase()],
+        props.network.coingeckoID!
+      );
 
-        const res = await fetch(
-          `https://api.coingecko.com/api/v3/coins/${props.network.coingeckoID}/contract/${contractAddress.value}`,
-          { signal: controller.signal }
-        );
+      const contractInfo = coingeckoInfo[contractAddress.value!.toLowerCase()];
 
-        clearTimeout(timeoutId);
-
-        if (res.ok) {
-          const data = await res.json();
-
-          const image = data?.image?.small;
-
-          if (image) {
-            icon = `https://img.mewapi.io/?image=${image}`;
-          }
-        }
-      } catch (error) {
-        // Icon already defaults to network icon
+      if (contractInfo) {
+        icon = contractInfo.image;
+        coingeckoID = contractInfo.id;
       }
 
       if (props.address !== "") {
@@ -170,6 +161,7 @@ watch([contractAddress, props], async () => {
           decimals: info.decimals,
           icon,
           contract: contractAddress.value!,
+          coingeckoID,
         });
 
         try {
@@ -187,6 +179,7 @@ watch([contractAddress, props], async () => {
         address: contractAddress.value as `0x${string}`,
         icon,
         type: TokenType.ERC20,
+        coingeckoID,
         ...info,
       };
     } else {
