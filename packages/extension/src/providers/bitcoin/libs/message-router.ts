@@ -1,21 +1,37 @@
-import { RouterOnMessage } from "../types";
-import InjectedProvider from "./injected-provider";
-class MessageRouter {
-  providers: [InjectedProvider?] = [];
-
-  addProvider(provider: InjectedProvider): void {
-    this.providers.push(provider);
-  }
-  nextPosition(): number {
-    return this.providers.length;
-  }
-  handleMessage(message: string): void {
-    const { id, method, params } = JSON.parse(message) as RouterOnMessage;
-    if (this.providers[id]) {
-      this.providers[id]?.handleMessage({ method, params });
+import {
+  ProviderMessage,
+  MessageMethod,
+  EmitEvent,
+} from "@/providers/ethereum/types";
+import {
+  BitcoinProvider,
+  handleIncomingMessage as handleIncomingMessageType,
+} from "@/types/provider";
+const handleIncomingMessage: handleIncomingMessageType = (
+  provider,
+  message
+): void => {
+  console.log(provider, message);
+  try {
+    const _provider = provider as BitcoinProvider;
+    const jsonMsg = JSON.parse(message) as ProviderMessage;
+    if (jsonMsg.method === MessageMethod.changeConnected) {
+      const isConnected = jsonMsg.params[0] as boolean;
+      _provider.connected = isConnected;
+      if (isConnected) {
+        _provider.emit(EmitEvent.connect);
+      } else {
+        _provider.emit(EmitEvent.disconnect);
+      }
+    } else if (jsonMsg.method === MessageMethod.changeAddress) {
+      const address = jsonMsg.params[0] as string;
+      _provider.emit(EmitEvent.accountsChanged, [address]);
     } else {
-      console.error(`Provider id is missing: ${message} id: ${id}`);
+      console.error(`Unable to process message:${message}`);
     }
+  } catch (e) {
+    console.error(e);
   }
-}
-export default MessageRouter;
+};
+
+export { handleIncomingMessage };

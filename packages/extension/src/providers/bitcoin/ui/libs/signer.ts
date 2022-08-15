@@ -84,7 +84,7 @@ const MessageSigner = (
     };
     return signAsync(payload, signer, false).then((res) => {
       return {
-        result: bufferToHex(res),
+        result: JSON.stringify(bufferToHex(res)),
       };
     });
   }

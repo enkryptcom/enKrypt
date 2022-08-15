@@ -682,7 +682,6 @@ export class ChangellySwapProvider extends SwapProvider {
           ],
           { address: fromAccount.address, network: network.name }
         );
-        console.log("tx hash", u8aToHex(hash));
         return [u8aToHex(hash)];
       } catch (error) {
         console.error("error", error);
@@ -734,7 +733,6 @@ export class ChangellySwapProvider extends SwapProvider {
                 `0x${signedTx.serialize().toString("hex")}`
               )
               .on("transactionHash", (hash: string) => {
-                console.log(hash);
                 activityState.addActivities(
                   [
                     {

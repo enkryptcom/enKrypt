@@ -128,7 +128,6 @@ const onTestNetCheck = async () => {
 };
 
 const onToggle = async (networkName: string, isActive: boolean) => {
-  console.log(networkName, isActive);
   try {
     await networksState.setNetworkStatus(networkName, isActive);
     emit("update:activeNetworks");

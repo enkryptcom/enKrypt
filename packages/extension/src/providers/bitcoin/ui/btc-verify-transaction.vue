@@ -19,14 +19,22 @@
             <div>
               <p>
                 {{
-                  TokenBalance == "~"
-                    ? "~"
-                    : $filters.formatFloatingPointValue(TokenBalance).value
+                  $filters.formatFloatingPointValue(
+                    fromBase(TokenBalance, network.decimals)
+                  ).value
                 }}
                 <span>{{ network.currencyName }}</span>
               </p>
               <p>
-                {{ $filters.replaceWithEllipsis(account.address, 6, 4) }}
+                {{
+                  $filters.replaceWithEllipsis(
+                    account.address
+                      ? network.displayAddress(account.address)
+                      : "",
+                    6,
+                    4
+                  )
+                }}
               </p>
             </div>
           </div>
@@ -48,13 +56,10 @@
             <h4>
               {{
                 $filters.formatFloatingPointValue(
-                  fromBase(
-                    decodedTx?.tokenValue || "0x0",
-                    decodedTx?.tokenDecimals || 18
-                  )
+                  fromBase(tx.value.toString(), network.decimals)
                 ).value
               }}
-              <span>{{ decodedTx?.tokenName || network.currencyName }}</span>
+              <span>{{ network.currencyName }}</span>
             </h4>
             <p>
               ${{
@@ -66,13 +71,13 @@
           </div>
         </div>
 
-        <!-- <div class="provider-verify-transaction__error">
+        <div
+          v-if="!hasEnoughBalance"
+          class="provider-verify-transaction__error"
+        >
           <alert-icon />
-          <p>
-            Warning: you will allow this DApp to spend any amount of ETH at any
-            time in the future. Please proceed only if you are trust this DApp.
-          </p>
-        </div> -->
+          <p>You don't have enough balance for this transaction</p>
+        </div>
       </div>
 
       <send-fee-select
@@ -81,21 +86,6 @@
         :fee="gasCostValues[selectedFee]"
         @open-popup="toggleSelectFee"
       />
-
-      <!-- <best-offer-error :not-enough-verify="true"></best-offer-error> -->
-
-      <div class="provider-verify-transaction__data">
-        <a
-          class="provider-verify-transaction__data-link"
-          :class="{ open: isOpenData }"
-          @click="toggleData"
-          ><span>Show data</span> <right-chevron
-        /></a>
-
-        <div v-show="isOpenData" class="provider-verify-transaction__data-text">
-          <p>Data Hex: {{ decodedTx?.dataHex || "0x" }}</p>
-        </div>
-      </div>
 
       <transaction-fee-view
         :fees="gasCostValues"
@@ -118,7 +108,11 @@
     </template>
 
     <template #button-right>
-      <base-button title="Sign" :click="approve" :disabled="isProcessing" />
+      <base-button
+        title="Sign"
+        :click="approve"
+        :disabled="isProcessing || !hasEnoughBalance"
+      />
     </template>
   </common-popup>
 </template>
@@ -126,42 +120,45 @@
 <script setup lang="ts">
 import { ref, ComponentPublicInstance, onBeforeMount } from "vue";
 import SignLogo from "@action/icons/common/sign-logo.vue";
-import RightChevron from "@action/icons/common/right-chevron.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import CommonPopup from "@action/views/common-popup/index.vue";
-import SendFeeSelect from "./send-transaction/components/send-fee-select.vue";
+import SendFeeSelect from "@/providers/common/ui/send-transaction/send-fee-select.vue";
 import HardwareWalletMsg from "@/providers/common/ui/verify-transaction/hardware-wallet-msg.vue";
+import AlertIcon from "@action/icons/send/alert-icon.vue";
 import TransactionFeeView from "@action/views/transaction-fee/index.vue";
 import { getCustomError, getError } from "@/libs/error";
 import { ErrorCodes } from "@/providers/ethereum/types";
 import { WindowPromiseHandler } from "@/libs/window-promise";
 import {
   DEFAULT_BTC_NETWORK_NAME,
-  DEFAULT_EVM_NETWORK_NAME,
   getNetworkByName,
 } from "@/libs/utils/networks";
-import Transaction from "@/providers/ethereum/libs/transaction";
-import Web3 from "web3";
-import { fromBase } from "@/libs/utils/units";
+import { fromBase, toBase } from "@/libs/utils/units";
 import { ProviderRequestOptions } from "@/types/provider";
-import BigNumber from "bignumber.js";
 import { GasFeeType } from "./types";
 import MarketData from "@/libs/market-data";
 import { defaultGasCostVals } from "@/providers/common/libs/default-vals";
 import { EnkryptAccount } from "@enkryptcom/types";
 import { TransactionSigner } from "./libs/signer";
 import { Activity, ActivityStatus, ActivityType } from "@/types/activity";
-import { generateAddress } from "ethereumjs-util";
 import ActivityState from "@/libs/activity-state";
 import { BitcoinNetwork } from "../types/bitcoin-network";
 import { GasPriceTypes } from "@/providers/common/types";
+import { RPCTxType } from "../types";
+import BitcoinAPI from "@/providers/bitcoin/libs/api";
+import { HaskoinUnspentType } from "../types";
+import { calculateSize } from "./libs/tx-size";
+import { getGasCostValues } from "../libs/utils";
+import { computed } from "@vue/reactivity";
+import { toBN } from "web3-utils";
+import { BTCTxInfo } from "./types";
 
 const isProcessing = ref(false);
 const isOpenSelectFee = ref(false);
 const providerVerifyTransactionScrollRef = ref<ComponentPublicInstance>();
-const isOpenData = ref(false);
-const TokenBalance = ref<string>("~");
+const TokenBalance = ref<string>("0");
 const fiatValue = ref<string>("~");
+const nativePrice = ref<string>("0");
 const network = ref<BitcoinNetwork>(
   getNetworkByName(DEFAULT_BTC_NETWORK_NAME) as BitcoinNetwork
 );
@@ -173,6 +170,10 @@ const account = ref<EnkryptAccount>({
 } as EnkryptAccount);
 const identicon = ref<string>("");
 const windowPromise = WindowPromiseHandler(3);
+const tx = ref<RPCTxType>({
+  to: "",
+  value: 0,
+});
 const Options = ref<ProviderRequestOptions>({
   domain: "",
   faviconURL: "",
@@ -180,6 +181,7 @@ const Options = ref<ProviderRequestOptions>({
   url: "",
   tabId: 0,
 });
+const accountUTXOs = ref<HaskoinUnspentType[]>([]);
 const selectedFee = ref<GasPriceTypes>(GasPriceTypes.ECONOMY);
 
 defineExpose({ providerVerifyTransactionScrollRef });
@@ -188,131 +190,169 @@ onBeforeMount(async () => {
   const { Request, options } = await windowPromise;
   network.value = getNetworkByName(Request.value.params![2]) as BitcoinNetwork;
   account.value = Request.value.params![1] as EnkryptAccount;
+  tx.value = Request.value.params![0];
   identicon.value = network.value.identicon(account.value.address);
   Options.value = options;
   if (network.value.api) {
     const api = await network.value.api();
-    const balance = await api.getBalance(account.value.address);
-    TokenBalance.value = fromBase(balance, network.value.decimals);
+    TokenBalance.value = await api.getBalance(account.value.address);
   }
-  // await tx.getGasCosts().then(async (gasvals) => {
-  //   let nativeVal = "0";
-  //   if (network.value.coingeckoID) {
-  //     await marketdata
-  //       .getTokenValue("1", network.value.coingeckoID, "USD")
-  //       .then((val) => (nativeVal = val));
-  //   }
-  //   const getConvertedVal = (type: GasPriceTypes) =>
-  //     fromBase(gasvals[type], network.value.decimals);
-
-  //   gasCostValues.value = {
-  //     [GasPriceTypes.ECONOMY]: {
-  //       nativeValue: getConvertedVal(GasPriceTypes.ECONOMY),
-  //       fiatValue: new BigNumber(getConvertedVal(GasPriceTypes.ECONOMY))
-  //         .times(nativeVal)
-  //         .toString(),
-  //       nativeSymbol: network.value.currencyName,
-  //       fiatSymbol: "USD",
-  //     },
-  //     [GasPriceTypes.REGULAR]: {
-  //       nativeValue: getConvertedVal(GasPriceTypes.REGULAR),
-  //       fiatValue: new BigNumber(getConvertedVal(GasPriceTypes.REGULAR))
-  //         .times(nativeVal)
-  //         .toString(),
-  //       nativeSymbol: network.value.currencyName,
-  //       fiatSymbol: "USD",
-  //     },
-  //     [GasPriceTypes.FAST]: {
-  //       nativeValue: getConvertedVal(GasPriceTypes.FAST),
-  //       fiatValue: new BigNumber(getConvertedVal(GasPriceTypes.FAST))
-  //         .times(nativeVal)
-  //         .toString(),
-  //       nativeSymbol: network.value.currencyName,
-  //       fiatSymbol: "USD",
-  //     },
-  //     [GasPriceTypes.FASTEST]: {
-  //       nativeValue: getConvertedVal(GasPriceTypes.FASTEST),
-  //       fiatValue: new BigNumber(getConvertedVal(GasPriceTypes.FASTEST))
-  //         .times(nativeVal)
-  //         .toString(),
-  //       nativeSymbol: network.value.currencyName,
-  //       fiatSymbol: "USD",
-  //     },
-  //   };
-  //   selectedFee.value = GasPriceTypes.ECONOMY;
-  // });
+  if (network.value.coingeckoID) {
+    await marketdata
+      .getTokenValue("1", network.value.coingeckoID, "USD")
+      .then((val) => (nativePrice.value = val));
+  }
+  selectedFee.value = GasPriceTypes.ECONOMY;
+  setBaseCosts();
 });
+const hasEnoughBalance = computed(() => {
+  return toBN(TokenBalance.value).gte(
+    toBN(tx.value.value).add(
+      toBN(
+        toBase(
+          gasCostValues.value[selectedFee.value].nativeValue,
+          network.value.decimals!
+        )
+      )
+    )
+  );
+});
+
+const setTransactionFees = (byteSize: number) => {
+  gasCostValues.value = getGasCostValues(
+    byteSize,
+    nativePrice.value,
+    network.value.decimals,
+    network.value.currencyName
+  );
+};
+
+const setBaseCosts = () => {
+  updateUTXOs();
+};
+
+const updateUTXOs = async () => {
+  const api = (await network.value.api()) as BitcoinAPI;
+  return api.getUTXOs(account.value.address).then((utxos) => {
+    accountUTXOs.value = utxos;
+    const txSize = calculateSize(
+      {
+        input_count: accountUTXOs.value.length,
+      },
+      {
+        p2wpkh_output_count: 2,
+      }
+    );
+    setTransactionFees(Math.ceil(txSize.txVBytes));
+  });
+};
+
+const getTxInfo = () => {
+  const txInfo: BTCTxInfo = {
+    inputs: [],
+    outputs: [],
+  };
+  accountUTXOs.value.forEach((u) => {
+    txInfo.inputs.push({
+      hash: u.txid,
+      index: u.index,
+      witnessUtxo: {
+        script: u.pkscript,
+        value: u.value,
+      },
+    });
+  });
+  const balance = toBN(TokenBalance.value);
+  const toAmount = toBN(tx.value.value.toString());
+  const currentFee = toBN(
+    toBase(
+      gasCostValues.value[selectedFee.value].nativeValue,
+      network.value.decimals
+    )
+  );
+  const remainder = balance.sub(toAmount).sub(currentFee);
+
+  txInfo.outputs.push({
+    address: tx.value.to,
+    value: tx.value.value,
+  });
+
+  if (remainder.gtn(0)) {
+    txInfo.outputs.push({
+      address: network.value.displayAddress(account.value.address),
+      value: remainder.toNumber(),
+    });
+  }
+  return txInfo;
+};
 
 const approve = async () => {
   isProcessing.value = true;
-  const { Request, Resolve } = await windowPromise;
-  // tx.getFinalizedTransaction({ gasPriceType: selectedFee.value }).then(
-  //   (finalizedTx) => {
-  //     const activityState = new ActivityState();
-  //     TransactionSigner({
-  //       account: account.value,
-  //       network: network.value,
-  //       payload: finalizedTx,
-  //     })
-  //       .then((tx) => {
-  //         const txActivity: Activity = {
-  //           from: account.value.address,
-  //           to: tx.to
-  //             ? tx.to.toString()
-  //             : `0x${generateAddress(
-  //                 tx.getSenderAddress().toBuffer(),
-  //                 Buffer.from(tx.nonce.toString("hex"), "hex")
-  //               ).toString("hex")}`,
-  //           isIncoming: tx.getSenderAddress().toString() === tx.to?.toString(),
-  //           network: network.value.name,
-  //           status: ActivityStatus.pending,
-  //           timestamp: new Date().getTime(),
-  //           token: {
-  //             decimals: decodedTx.value?.tokenDecimals || 18,
-  //             icon: decodedTx.value?.tokenImage || "",
-  //             name: decodedTx.value?.tokenName || "Unknown",
-  //             symbol: decodedTx.value?.tokenSymbol || "UKNWN",
-  //             price: decodedTx.value?.currentPriceUSD.toString() || "0",
-  //           },
-  //           type: ActivityType.transaction,
-  //           value: decodedTx.value?.tokenValue || "0x0",
-  //           transactionHash: "",
-  //         };
-  //         web3.eth
-  //           .sendSignedTransaction("0x" + tx.serialize().toString("hex"))
-  //           .on("transactionHash", (hash) => {
-  //             activityState
-  //               .addActivities(
-  //                 [{ ...txActivity, ...{ transactionHash: hash } }],
-  //                 { address: txActivity.from, network: network.value.name }
-  //               )
-  //               .then(() => {
-  //                 Resolve.value({
-  //                   result: JSON.stringify(hash),
-  //                 });
-  //               });
-  //           })
-  //           .on("error", (error) => {
-  //             txActivity.status = ActivityStatus.failed;
-  //             activityState
-  //               .addActivities([txActivity], {
-  //                 address: txActivity.from,
-  //                 network: network.value.name,
-  //               })
-  //               .then(() => {
-  //                 Resolve.value({
-  //                   error: getCustomError(error.message),
-  //                 });
-  //               });
-  //           });
-  //       })
-  //       .catch((err) => {
-  //         Resolve.value({
-  //           error: getCustomError(err.message),
-  //         });
-  //       });
-  //   }
-  // );
+  const { Resolve } = await windowPromise;
+
+  isProcessing.value = true;
+  const txActivity: Activity = {
+    from: network.value.displayAddress(account.value.address),
+    to: tx.value.to,
+    isIncoming:
+      tx.value.to === network.value.displayAddress(account.value.address),
+    network: network.value.name,
+    status: ActivityStatus.pending,
+    timestamp: new Date().getTime(),
+    token: {
+      decimals: network.value.decimals,
+      icon: network.value.icon,
+      name: network.value.name_long,
+      symbol: network.value.currencyName,
+      price: nativePrice.value,
+    },
+    type: ActivityType.transaction,
+    value: tx.value.value.toString(),
+    transactionHash: "",
+  };
+  const activityState = new ActivityState();
+  const api = (await network.value.api()) as BitcoinAPI;
+  TransactionSigner({
+    account: account.value!,
+    network: network.value as BitcoinNetwork,
+    payload: getTxInfo(),
+  })
+    .then((signedTx) => {
+      api
+        .broadcastTx(signedTx.extractTransaction().toHex())
+        .then(() => {
+          activityState.addActivities(
+            [
+              {
+                ...txActivity,
+                ...{ transactionHash: signedTx.extractTransaction().getId() },
+              },
+            ],
+            {
+              address: network.value.displayAddress(account.value.address),
+              network: network.value.name,
+            }
+          );
+          Resolve.value({
+            result: JSON.stringify(signedTx.extractTransaction().getId()),
+          });
+        })
+        .catch((error) => {
+          txActivity.status = ActivityStatus.failed;
+          activityState.addActivities([txActivity], {
+            address: network.value.displayAddress(account.value.address),
+            network: network.value.name,
+          });
+          Resolve.value({
+            error: getCustomError(error.message),
+          });
+        });
+    })
+    .catch((error) => {
+      Resolve.value({
+        error: getCustomError(error.message),
+      });
+    });
 };
 const deny = async () => {
   const { Resolve } = await windowPromise;
@@ -327,9 +367,6 @@ const toggleSelectFee = () => {
 const selectFee = (type: GasPriceTypes) => {
   selectedFee.value = type;
   toggleSelectFee();
-};
-const toggleData = () => {
-  isOpenData.value = !isOpenData.value;
 };
 </script>
 

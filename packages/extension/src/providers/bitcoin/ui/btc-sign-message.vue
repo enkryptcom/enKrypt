@@ -13,7 +13,15 @@
           <div class="common-popup__account-info">
             <h4>{{ account.name }}</h4>
             <p>
-              {{ $filters.replaceWithEllipsis(account.address, 6, 4) }}
+              {{
+                $filters.replaceWithEllipsis(
+                  account.address
+                    ? network.displayAddress(account.address)
+                    : "",
+                  6,
+                  4
+                )
+              }}
             </p>
           </div>
         </div>
@@ -58,7 +66,7 @@ import {
   getNetworkByName,
 } from "@/libs/utils/networks";
 import { ProviderRequestOptions } from "@/types/provider";
-import { isAscii } from "@polkadot/util";
+import { isUtf8 } from "@polkadot/util";
 import { BitcoinNetwork } from "../types/bitcoin-network";
 import { EnkryptAccount } from "@enkryptcom/types";
 import { MessageSigner } from "./libs/signer";
@@ -87,7 +95,7 @@ onBeforeMount(async () => {
   account.value = Request.value.params![1] as EnkryptAccount;
   identicon.value = network.value.identicon(account.value.address);
   Options.value = options;
-  message.value = isAscii(Request.value.params![0])
+  message.value = isUtf8(Request.value.params![0])
     ? hexToUtf8(Request.value.params![0])
     : Request.value.params![0];
 });

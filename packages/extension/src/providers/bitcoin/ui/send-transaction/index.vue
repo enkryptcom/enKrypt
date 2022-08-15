@@ -130,7 +130,7 @@ import { ProviderName } from "@/types/provider";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
 import { BaseNetwork } from "@/types/base-network";
 
-import { isAddress } from "../../libs/utils";
+import { getGasCostValues, isAddress } from "../../libs/utils";
 import BitcoinAPI from "@/providers/bitcoin/libs/api";
 import { calculateSize } from "../libs/tx-size";
 import { HaskoinUnspentType } from "../../types";
@@ -219,49 +219,13 @@ const nativeBalanceAfterTransaction = computed(() => {
 });
 
 const setTransactionFees = (byteSize: number) => {
-  const gasVals = {
-    [GasPriceTypes.FASTEST]: (byteSize * 25).toString(),
-    [GasPriceTypes.FAST]: (byteSize * 20).toString(),
-    [GasPriceTypes.REGULAR]: (byteSize * 10).toString(),
-    [GasPriceTypes.ECONOMY]: (byteSize * 5).toString(),
-  };
-  const getConvertedVal = (type: GasPriceTypes) =>
-    fromBase(gasVals[type], props.network.decimals);
   const nativeVal = selectedAsset.value.price || "0";
-  gasCostValues.value = {
-    [GasPriceTypes.ECONOMY]: {
-      nativeValue: getConvertedVal(GasPriceTypes.ECONOMY),
-      fiatValue: new BigNumber(getConvertedVal(GasPriceTypes.ECONOMY))
-        .times(nativeVal!)
-        .toString(),
-      nativeSymbol: props.network.currencyName,
-      fiatSymbol: "USD",
-    },
-    [GasPriceTypes.REGULAR]: {
-      nativeValue: getConvertedVal(GasPriceTypes.REGULAR),
-      fiatValue: new BigNumber(getConvertedVal(GasPriceTypes.REGULAR))
-        .times(nativeVal!)
-        .toString(),
-      nativeSymbol: props.network.currencyName,
-      fiatSymbol: "USD",
-    },
-    [GasPriceTypes.FAST]: {
-      nativeValue: getConvertedVal(GasPriceTypes.FAST),
-      fiatValue: new BigNumber(getConvertedVal(GasPriceTypes.FAST))
-        .times(nativeVal!)
-        .toString(),
-      nativeSymbol: props.network.currencyName,
-      fiatSymbol: "USD",
-    },
-    [GasPriceTypes.FASTEST]: {
-      nativeValue: getConvertedVal(GasPriceTypes.FASTEST),
-      fiatValue: new BigNumber(getConvertedVal(GasPriceTypes.FASTEST))
-        .times(nativeVal!)
-        .toString(),
-      nativeSymbol: props.network.currencyName,
-      fiatSymbol: "USD",
-    },
-  };
+  gasCostValues.value = getGasCostValues(
+    byteSize,
+    nativeVal,
+    props.network.decimals,
+    props.network.currencyName
+  );
 };
 
 const setBaseCosts = () => {

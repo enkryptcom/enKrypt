@@ -1,9 +1,10 @@
-import { EthereumRawInfo } from "@/types/activity";
+import { BTCRawInfo } from "@/types/activity";
 import { ProviderAPIInterface } from "@/types/provider";
 import { hexToBuffer } from "@enkryptcom/utils";
 import {
   BitcoinNetworkInfo,
   HaskoinBalanceType,
+  HaskoinTxType,
   HaskoinUnspentType,
 } from "../types";
 import { payments } from "bitcoinjs-lib";
@@ -30,12 +31,31 @@ class API implements ProviderAPIInterface {
   }
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   async init(): Promise<void> {}
-  async getTransactionStatus(hash: string): Promise<EthereumRawInfo | null> {
-    console.log("bitcoin api", hash);
-    return null;
+  async getTransactionStatus(hash: string): Promise<BTCRawInfo | null> {
+    return fetch(`${this.node}transaction/${hash}`)
+      .then((res) => res.json())
+      .then((tx: HaskoinTxType) => {
+        if ((tx as any).error) return null;
+        if (tx.block.mempool) return null;
+        const rawInfo: BTCRawInfo = {
+          blockNumber: tx.block.height!,
+          fee: tx.fee,
+          inputs: tx.inputs.map((input) => ({
+            address: input.address,
+            value: input.value,
+          })),
+          outputs: tx.outputs.map((output) => ({
+            address: output.address,
+            value: output.value,
+          })),
+          transactionHash: tx.txid,
+          timestamp: tx.time * 1000,
+        };
+        return rawInfo;
+      });
   }
   async getBalance(pubkey: string): Promise<string> {
-    const address = this.getAddress(pubkey);
+    const address = pubkey.length < 64 ? pubkey : this.getAddress(pubkey);
     return fetch(`${this.node}address/${address}/balance`)
       .then((res) => res.json())
       .then((balance: HaskoinBalanceType) => {
@@ -54,7 +74,6 @@ class API implements ProviderAPIInterface {
     })
       .then((res) => res.json())
       .then((response) => {
-        console.log(response);
         if (response.error) {
           if (response.error === "server-error") return true; // haskoin api return error when it timesout or something
           return Promise.reject(response.message);

@@ -10,7 +10,7 @@ export default {
     component: {},
   },
   btcConnectDApp: {
-    path: "btc-conncet-dapp",
+    path: "btc-connect-dapp",
     name: "btcConnectDApp",
     component: {},
   },

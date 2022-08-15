@@ -97,7 +97,6 @@ type options = {
   spotcolor?: string;
 };
 const createIcon = (address: string, opts?: options): string => {
-  console.log("convert to bitcoin identicon");
   opts = opts || {};
   const size = opts.size || 8;
   const scale = opts.scale || 4;
