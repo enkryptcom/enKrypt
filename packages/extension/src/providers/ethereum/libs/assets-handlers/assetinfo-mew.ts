@@ -19,7 +19,7 @@ import { BaseNetwork } from "@/types/base-network";
 import { EvmNetwork } from "../../types/evm-network";
 import { getKnownNetworkTokens, TokenList } from "./token-lists";
 import networks from "../../networks";
-import { NetworkNames } from "@enkryptcom/types";
+import { CoingeckoPlatform, NetworkNames } from "@enkryptcom/types";
 import { NATIVE_TOKEN_ADDRESS } from "../common";
 const API_ENPOINT = "https://tokenbalance.mewapi.io/";
 export default (
@@ -66,7 +66,7 @@ export default (
           Object.keys(balances).filter(
             (contract) => contract !== NATIVE_TOKEN_ADDRESS
           ),
-          supportedNetworks[networkName].cgPlatform
+          supportedNetworks[networkName].cgPlatform as CoingeckoPlatform
         );
         marketInfo[NATIVE_TOKEN_ADDRESS] = nativeMarket[0];
 

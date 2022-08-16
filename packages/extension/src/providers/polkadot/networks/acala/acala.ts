@@ -1,4 +1,4 @@
-import { NetworkNames } from "@enkryptcom/types";
+import { CoingeckoPlatform, NetworkNames } from "@enkryptcom/types";
 import assets from "./assets/acala-assets";
 import {
   SubstrateNetwork,
@@ -22,6 +22,7 @@ const acalaOptions: SubstrateNetworkOptions = {
     "linear-gradient(326.87deg, #645AFF 12.53%, #E40C5B 50.89%, #FF4C3B 89.24%)",
   node: "wss://acala-rpc-1.aca-api.network/",
   coingeckoID: "acala",
+  coingeckoPlatform: CoingeckoPlatform.Acala,
   genesisHash:
     "0xfc41b9bd8ef8fe53d58c7ea67c794c7ec9a73daf05e6d54b14ff6342c99ba64c",
   activityHandler: wrapActivityHandler(subscanActivity),

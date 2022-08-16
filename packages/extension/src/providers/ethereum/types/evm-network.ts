@@ -12,7 +12,7 @@ import { BaseNetwork } from "@/types/base-network";
 import { BaseToken } from "@/types/base-token";
 import { NFTCollection } from "@/types/nft";
 import { AssetsType, ProviderName } from "@/types/provider";
-import { NetworkNames, SignerType } from "@enkryptcom/types";
+import { CoingeckoPlatform, NetworkNames, SignerType } from "@enkryptcom/types";
 import BigNumber from "bignumber.js";
 import { toChecksumAddress } from "ethereumjs-util";
 import API from "../libs/api";
@@ -33,6 +33,7 @@ export interface EvmNetworkOptions {
   icon: string;
   gradient: string;
   coingeckoID?: string;
+  coingeckoPlatform?: CoingeckoPlatform;
   basePath?: string;
   NFTHandler?: (
     network: BaseNetwork,
@@ -221,7 +222,7 @@ export class EvmNetwork extends BaseNetwork {
 
     const marketInfos = await marketData.getMarketInfoByContracts(
       customTokens.map((token) => token.contract.toLowerCase()),
-      this.coingeckoID!
+      this.coingeckoPlatform!
     );
 
     const customAssets: AssetsType[] = customTokens.map((token) => {

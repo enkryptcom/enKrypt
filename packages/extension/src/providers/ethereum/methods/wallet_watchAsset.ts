@@ -62,7 +62,7 @@ const method: MiddlewareFunction = async function (
 
   const marketInfo = await marketData.getMarketInfoByContracts(
     [contractAddress.toLowerCase()],
-    this.network.coingeckoID ?? ""
+    this.network.coingeckoPlatform! ?? ""
   );
 
   const market = marketInfo[contractAddress.toLowerCase()];

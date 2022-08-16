@@ -148,7 +148,7 @@ watch([contractAddress, props], async () => {
 
       const coingeckoInfo = await marketData.getMarketInfoByContracts(
         [contractAddress.value!.toLowerCase()],
-        props.network.coingeckoID!
+        props.network.coingeckoPlatform!
       );
 
       const contractInfo = coingeckoInfo[contractAddress.value!.toLowerCase()];

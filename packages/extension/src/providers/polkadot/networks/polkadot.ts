@@ -1,4 +1,4 @@
-import { NetworkNames } from "@enkryptcom/types";
+import { CoingeckoPlatform, NetworkNames } from "@enkryptcom/types";
 import { toBN } from "web3-utils";
 import { SubstrateNativeToken } from "../types/substrate-native-token";
 import {
@@ -22,6 +22,7 @@ const polkadotOptions: SubstrateNetworkOptions = {
   gradient: "#E6007A",
   node: "wss://rpc.polkadot.io/",
   coingeckoID: "polkadot",
+  coingeckoPlatform: CoingeckoPlatform.Polkadot,
   genesisHash:
     "0x91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3",
   activityHandler: wrapActivityHandler(subscanActivity),
