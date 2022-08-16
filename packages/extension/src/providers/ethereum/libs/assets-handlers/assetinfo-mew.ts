@@ -40,7 +40,7 @@ export default (
     [NetworkNames.Matic]: {
       tbName: "matic",
       tokenurl: TokenList[NetworkNames.Matic],
-      cgPlatform: networks.matic.coingeckoID as string,
+      cgPlatform: "polygon-pos" as string,
     },
   };
   if (!Object.keys(supportedNetworks).includes(network.name))
