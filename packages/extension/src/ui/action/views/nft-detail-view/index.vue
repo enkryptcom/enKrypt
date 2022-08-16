@@ -6,6 +6,18 @@
         <close-icon />
       </a>
 
+      <a class="nft-detail-view__favorite" @click="favClicked(!isFavorite)">
+        <nft-more-add-to-favorite v-if="!isFavorite" />
+        <nft-more-delete-from-favorite v-else />
+      </a>
+
+      <notification
+        v-if="isFavoriteAction"
+        :hide="toggleNotification"
+        :text="isFavorite ? 'Added to favorites' : 'Removed from favorites'"
+        class="nft-detail-view__notification"
+      />
+
       <h3>{{ item.name.length > 0 ? item.name : "NFT #" + item.id }}</h3>
       <img :src="item.image" alt="" @error="imageLoadError" />
 
@@ -17,16 +29,23 @@
 </template>
 
 <script setup lang="ts">
-import { PropType } from "vue";
+import { PropType, ref, onUpdated, onMounted } from "vue";
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import ActionMenu from "@action/components/action-menu/index.vue";
+import NftMoreAddToFavorite from "@action/icons/nft/nft-more-add-to-favorite.vue";
+import NftMoreDeleteFromFavorite from "@action/icons/nft/nft-more-delete-from-favorite.vue";
 import { NFTItem } from "@/types/nft";
+import Notification from "@action/components/notification/index.vue";
+
 const notfoundimg = require("@action/assets/common/not-found.jpg");
 const imageLoadError = (img: any) => {
   img.target.src = notfoundimg;
 };
 
-defineProps({
+const isFavoriteAction = ref(false);
+const isFavorite = ref(false);
+
+const props = defineProps({
   item: {
     type: Object as PropType<NFTItem>,
     default: () => {
@@ -37,13 +56,35 @@ defineProps({
     type: Function as PropType<() => void>,
     default: () => ({}),
   },
+  isFavorite: {
+    type: Boolean,
+    default: () => {
+      return false;
+    },
+  },
+});
+
+onMounted(() => {
+  isFavorite.value = props.isFavorite;
 });
 
 const emit = defineEmits<{
   (e: "close:popup"): void;
+  (e: "update:favClicked", isFav: boolean, item: NFTItem): void;
 }>();
 const close = () => {
   emit("close:popup");
+};
+const favClicked = (isFav: boolean) => {
+  emit("update:favClicked", isFav, props.item);
+  isFavorite.value = isFav;
+
+  setTimeout(() => {
+    toggleNotification();
+  }, 100);
+};
+const toggleNotification = () => {
+  isFavoriteAction.value = !isFavoriteAction.value;
 };
 </script>
 
@@ -126,9 +167,32 @@ const close = () => {
     }
   }
 
+  &__favorite {
+    position: absolute;
+    top: 8px;
+    right: 48px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 300ms ease-in-out;
+    font-size: 0;
+    padding: 8px;
+
+    &:hover {
+      background: @black007;
+    }
+  }
+
   &__action {
     margin: 0;
     width: 100%;
+  }
+
+  &__notification {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%) translateY(0px);
+    top: 76px;
+    z-index: 141;
   }
 }
 </style>
