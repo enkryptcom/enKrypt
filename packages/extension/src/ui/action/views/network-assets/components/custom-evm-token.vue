@@ -151,7 +151,11 @@ watch([contractAddress, props], async () => {
         props.network.coingeckoPlatform!
       );
 
+      console.log(props.network.coingeckoPlatform!);
+
       const contractInfo = coingeckoInfo[contractAddress.value!.toLowerCase()];
+
+      console.log(coingeckoInfo);
 
       if (contractInfo) {
         icon = contractInfo.image;

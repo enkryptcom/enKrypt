@@ -71,6 +71,7 @@ export abstract class BaseNetwork {
     this.decimals = options.decimals;
     this.api = options.api;
     this.customTokens = options.customTokens ?? false;
+    this.coingeckoPlatform = options.coingeckoPlatform;
   }
 
   public abstract getAllTokens(address: string): Promise<BaseToken[]>;
