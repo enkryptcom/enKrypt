@@ -4,12 +4,13 @@
       class="network-dapps__scroll-area"
       :settings="scrollSettings({ suppressScrollX: true })"
     >
+      <h2>Featured DApps</h2>
       <div v-if="!!selected" class="network-dapps">
         <network-dapps-item
           v-for="(item, index) in list"
           :key="index"
           :app="item"
-        ></network-dapps-item>
+        />
       </div>
     </custom-scrollbar>
   </div>
@@ -58,9 +59,13 @@ const list = computed(() => {
 
 .network-dapps {
   width: 100%;
-  height: 100%;
+  height: 532px;
   box-sizing: border-box;
   padding: 0 20px;
+  display: flex;
+  flex-flow: column wrap;
+  align-content: space-between;
+  font-size: 0;
 
   &__scroll-area {
     position: relative;
@@ -68,8 +73,19 @@ const list = computed(() => {
     width: 100%;
     max-height: 600px;
     margin: 0;
-    padding: 68px 0 0 0 !important;
+    padding: 66px 0 56px 0 !important;
     box-sizing: border-box;
+
+    h2 {
+      font-style: normal;
+      font-weight: 700;
+      font-size: 20px;
+      line-height: 28px;
+      letter-spacing: 0.15px;
+      color: @primaryLabel;
+      margin: 0 0 10px;
+      padding: 0 20px;
+    }
 
     &.ps--active-y {
       padding-right: 0;

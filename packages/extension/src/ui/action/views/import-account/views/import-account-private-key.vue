@@ -1,8 +1,5 @@
 <template>
-  <import-account-header
-    v-bind="$attrs"
-    :is-back="true"
-  ></import-account-header>
+  <import-account-header v-bind="$attrs" :is-back="true" />
 
   <div class="import-account-private-key" :class="{ process: isProcessing }">
     <h2>Import account with Private Key</h2>
@@ -18,8 +15,10 @@
       placeholder="Private key"
       autofocus
       @change="onInput"
+      @keyup.enter="importAction"
     >
     </textarea>
+
     <p class="import-account-private-key__already_exists">
       {{ accountAlreadyExists ? "This account has already been added" : "" }}
     </p>
@@ -119,7 +118,7 @@ const importAction = async () => {
 
   &__input {
     width: 100%;
-    height: 62px;
+    height: auto;
     background: @white;
     font-family: "Roboto";
     box-sizing: border-box;
@@ -136,11 +135,6 @@ const importAction = async () => {
     border: 2px solid @primary;
     &.error {
       border: 2px solid @error;
-      line-height: 38px;
-    }
-    &:active,
-    &:focus {
-      height: 64px;
     }
   }
 

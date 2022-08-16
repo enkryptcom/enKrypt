@@ -1,18 +1,18 @@
 <template>
   <div class="add-network__container">
-    <div class="add-network__overlay" @click="emit('close:popup')"></div>
+    <div class="add-network__overlay" @click="emit('close:popup')" />
     <div class="add-network__wrap">
       <add-network-list
         v-if="isNetworkList"
         :close="closePopup"
         :to-custom="toCustomNetwork"
         @update:active-networks="setActiveNetworks"
-      ></add-network-list>
+      />
       <add-custom-network
         v-if="!isNetworkList"
         :close="closePopup"
         :back="toNetworkList"
-      ></add-custom-network>
+      />
     </div>
   </div>
 </template>
@@ -22,7 +22,7 @@ import { ref } from "vue";
 import AddNetworkList from "./views/add-network-list.vue";
 import AddCustomNetwork from "./views/add-custom-network.vue";
 
-let isNetworkList = ref(true);
+const isNetworkList = ref(true);
 
 const emit = defineEmits<{
   (e: "close:popup"): void;

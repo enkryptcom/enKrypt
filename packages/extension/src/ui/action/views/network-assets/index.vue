@@ -46,11 +46,11 @@
 
     <custom-evm-token
       v-if="showAddCustomTokens"
-      :network="network"
-      :address="selectedAddress"
-      @update:close="toggleShowAddCustomTokens"
+      :address="props.accountInfo.selectedAccount?.address!"
+      :network="props.network"
       @update:token-added="addCustomAsset"
-    />
+      @update:close="toggleShowAddCustomTokens"
+    ></custom-evm-token>
   </div>
 </template>
 
@@ -71,7 +71,7 @@ import Deposit from "@action/views/deposit/index.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import CustomEvmToken from "./components/custom-evm-token.vue";
 
-let showDeposit = ref(false);
+const showDeposit = ref(false);
 
 const route = useRoute();
 const props = defineProps({

@@ -1,27 +1,28 @@
 <template>
   <div class="send-input-amount" :class="{ focus: isFocus }">
     <input
+      ref="inputRef"
       v-model="amount"
       type="number"
-      placeholder="0.0"
+      placeholder="0"
       :style="{ color: !hasEnoughBalance ? 'red' : 'black' }"
       @focus="changeFocus"
       @blur="changeFocus"
     />
 
     <div class="send-input-amount__fiat">
-      <switch-arrow-icon></switch-arrow-icon>
+      <switch-arrow-icon />
       <span>${{ $filters.formatFiatValue(fiatEquivalent).value }}</span>
     </div>
 
-    <a class="send-input-amount__max" @click="emit('update:inputSetMax')"
-      >Max</a
-    >
+    <a class="send-input-amount__max" @click="emit('update:inputSetMax')">
+      Max
+    </a>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, ComponentPublicInstance } from "vue";
 import SwitchArrowIcon from "@action/icons/send/switch-arrow-icon.vue";
 import BigNumber from "bignumber.js";
 
@@ -31,6 +32,9 @@ const emit = defineEmits<{
 }>();
 
 const isFocus = ref(false);
+const inputRef = ref<ComponentPublicInstance<HTMLInputElement>>();
+
+defineExpose({ inputRef });
 
 const props = defineProps({
   hasEnoughBalance: {
@@ -51,7 +55,9 @@ const fiatEquivalent = computed(() => {
 });
 const amount = computed({
   get: () => props.amount,
-  set: (value) => emit("update:inputAmount", value.toString()),
+  set: (value) => {
+    emit("update:inputAmount", value.toString());
+  },
 });
 
 const changeFocus = () => {

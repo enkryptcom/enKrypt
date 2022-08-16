@@ -1,6 +1,6 @@
 <template>
   <div class="transaction-fee" :class="{ show: showFees, popup: isPopup }">
-    <div class="transaction-fee__overlay" @click="closepopup"></div>
+    <div class="transaction-fee__overlay" @click="closepopup" />
     <div
       class="transaction-fee__wrap"
       :class="{ show: showFees, header: isHeader }"
@@ -16,7 +16,6 @@
         <div class="transaction-fee__info-amount">
           <p class="transaction-fee__info-amount-fiat">
             ${{ $filters.formatFiatValue(fees[selected].fiatValue).value }}
-            {{ fees[selected].fiatSymbol }}
           </p>
           <p class="transaction-fee__info-amount-crypto">
             {{
@@ -43,7 +42,7 @@
         :selected="selected"
         :type="type"
         v-bind="$attrs"
-      ></transaction-fee-item>
+      />
     </div>
   </div>
 </template>

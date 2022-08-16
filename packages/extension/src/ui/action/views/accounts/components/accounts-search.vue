@@ -1,6 +1,6 @@
 <template>
   <div class="explore__search">
-    <span class="explore__search-icon"><search-icon></search-icon></span>
+    <span class="explore__search-icon"><search-icon /></span>
     <input
       v-model="searchText"
       type="text"
@@ -23,7 +23,7 @@ import { ref } from "vue";
 import SearchIcon from "@action/icons/common/search.vue";
 import ClearIcon from "@action/icons/common/clear-icon.vue";
 
-let searchText = ref("");
+const searchText = ref("");
 
 const clear = () => {
   searchText.value = "";

@@ -2,7 +2,7 @@
   <div class="unlock-keyring">
     <common-popup>
       <template #header>
-        <sign-logo class="common-popup__logo"></sign-logo>
+        <sign-logo class="common-popup__logo" />
       </template>
       <template #content>
         <h2>Signing Request</h2>
@@ -21,7 +21,7 @@
           :is-forgot="isForgot"
           :toggle-forgot="toggleForgot"
           :disabled="isProcessing"
-        ></modal-forgot>
+        />
       </template>
 
       <template #button-left>
@@ -54,7 +54,7 @@ const isDisabled = computed(() => {
   return password.value.length < 5 || isProcessing.value;
 });
 const isError = ref(false);
-let isForgot = ref(false);
+const isForgot = ref(false);
 const errorMsg = ref("");
 const Options = ref<ProviderRequestOptions>({
   domain: "",

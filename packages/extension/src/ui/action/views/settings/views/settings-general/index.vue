@@ -1,9 +1,6 @@
 <template>
   <div>
-    <settings-inner-header
-      v-bind="$attrs"
-      :is-general="true"
-    ></settings-inner-header>
+    <settings-inner-header v-bind="$attrs" :is-general="true" />
     <!-- <base-select
       :select="selecCurrency"
       title="Currency"
@@ -15,7 +12,7 @@
       title="Turn off Ethereum for 1 hour"
       :is-checked="isEthereumDisabled"
       @update:check="toggleEthereumDisable"
-    ></settings-switch>
+    />
     <div class="settings__label">
       <p>
         Pause Enkrypt interactions with Ethereum DApps if you are using other
@@ -27,7 +24,7 @@
       title="Turn off Polkadot-js injection"
       :is-checked="isPolkadotjsDisabled"
       @update:check="togglePjsDisable"
-    ></settings-switch>
+    />
     <div class="settings__label">
       <p>Prevent conflict with Polkadot-js extension</p>
     </div>

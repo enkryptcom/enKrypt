@@ -1,17 +1,14 @@
 <template>
   <div>
-    <settings-header v-bind="$attrs"></settings-header>
+    <settings-header v-bind="$attrs" />
 
     <div class="settings__block">
-      <settings-button
-        title="General"
-        @click="$emit('action:general')"
-      ></settings-button>
+      <settings-button title="General" @click="$emit('action:general')" />
       <settings-button
         title="Contact support"
         :is-link="true"
         @click="contactSupport"
-      ></settings-button>
+      />
     </div>
 
     <div class="settings__block">
@@ -19,28 +16,22 @@
         title="Bug bounty program"
         :is-link="true"
         @click="bugAction"
-      ></settings-button>
+      />
       <settings-button
         title="Privacy and terms"
         :is-link="true"
         @click="privacyAction"
-      ></settings-button>
-      <settings-button
-        title="About"
-        @click="$emit('action:about')"
-      ></settings-button>
+      />
+      <settings-button title="About" @click="$emit('action:about')" />
     </div>
 
     <div class="settings__block">
-      <settings-button
-        title="View my recovery phrase"
-        @click="toggleSign"
-      ></settings-button>
+      <settings-button title="View my recovery phrase" @click="toggleSign" />
       <settings-button
         title="Reset wallet"
         :is-red="true"
         @click="$emit('action:reset')"
-      ></settings-button>
+      />
     </div>
 
     <div class="settings__copyright">
@@ -54,13 +45,13 @@
       v-bind="$attrs"
       @window:close="toggleSign"
       @toggle:forgot="toggleForgot"
-    ></modal-sign>
+    />
 
     <modal-forgot
       v-if="isForgot"
       :is-forgot="isForgot"
       @toggle:forgot="toggleForgot"
-    ></modal-forgot>
+    />
   </div>
 </template>
 

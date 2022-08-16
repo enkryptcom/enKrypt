@@ -50,7 +50,7 @@
     v-if="isDetail"
     :token="token"
     @close:popup="toggleDetail"
-  ></asset-detail-view>
+  />
 </template>
 
 <script setup lang="ts">
@@ -110,6 +110,7 @@ const toggleDetail = () => {
       align-items: center;
       flex-direction: row;
       width: 190px;
+      overflow: hidden;
 
       img {
         max-width: 32px;
@@ -126,6 +127,9 @@ const toggleDetail = () => {
           line-height: 24px;
           color: @primaryLabel;
           margin: 0 0 1px 0;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+          width: 132px;
         }
 
         p {

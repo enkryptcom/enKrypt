@@ -1,32 +1,55 @@
 <template>
   <div class="nft-detail-view__container">
-    <div class="nft-detail-view__overlay" @click="close()"></div>
+    <div class="nft-detail-view__overlay" @click="close()" />
     <div class="nft-detail-view__wrap">
       <a class="nft-detail-view__close" @click="close()">
         <close-icon />
       </a>
 
+      <a
+        class="nft-detail-view__favorite"
+        @click="favClicked(!localIsFavorite)"
+      >
+        <nft-more-add-to-favorite v-if="!localIsFavorite" />
+        <nft-more-delete-from-favorite v-else />
+      </a>
+
+      <notification
+        v-if="isFavoriteAction"
+        :hide="toggleNotification"
+        :text="
+          localIsFavorite ? 'Added to favorites' : 'Removed from favorites'
+        "
+        class="nft-detail-view__notification"
+      />
+
       <h3>{{ item.name.length > 0 ? item.name : "NFT #" + item.id }}</h3>
       <img :src="item.image" alt="" @error="imageLoadError" />
 
       <div class="nft-detail-view__action">
-        <action-menu :is-nft="true" :link-action="linkAction"></action-menu>
+        <action-menu :is-nft="true" :link-action="linkAction" />
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { PropType } from "vue";
+import { onMounted, PropType, ref } from "vue";
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import ActionMenu from "@action/components/action-menu/index.vue";
+import NftMoreAddToFavorite from "@action/icons/nft/nft-more-add-to-favorite.vue";
+import NftMoreDeleteFromFavorite from "@action/icons/nft/nft-more-delete-from-favorite.vue";
 import { NFTItem } from "@/types/nft";
+import Notification from "@action/components/notification/index.vue";
+
 const notfoundimg = require("@action/assets/common/not-found.jpg");
 const imageLoadError = (img: any) => {
   img.target.src = notfoundimg;
 };
 
-defineProps({
+const isFavoriteAction = ref(false);
+const localIsFavorite = ref(false);
+const props = defineProps({
   item: {
     type: Object as PropType<NFTItem>,
     default: () => {
@@ -37,13 +60,33 @@ defineProps({
     type: Function as PropType<() => void>,
     default: () => ({}),
   },
+  isFavorite: {
+    type: Boolean,
+    default: () => {
+      return false;
+    },
+  },
 });
-
+onMounted(() => {
+  localIsFavorite.value = props.isFavorite;
+});
 const emit = defineEmits<{
   (e: "close:popup"): void;
+  (e: "update:favClicked", isFav: boolean, item: NFTItem): void;
 }>();
 const close = () => {
+  if (localIsFavorite.value !== props.isFavorite)
+    emit("update:favClicked", localIsFavorite.value, props.item);
   emit("close:popup");
+};
+const favClicked = (isFav: boolean) => {
+  localIsFavorite.value = isFav;
+  setTimeout(() => {
+    toggleNotification();
+  }, 100);
+};
+const toggleNotification = () => {
+  isFavoriteAction.value = !isFavoriteAction.value;
 };
 </script>
 
@@ -126,9 +169,32 @@ const close = () => {
     }
   }
 
+  &__favorite {
+    position: absolute;
+    top: 8px;
+    right: 48px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 300ms ease-in-out;
+    font-size: 0;
+    padding: 8px;
+
+    &:hover {
+      background: @black007;
+    }
+  }
+
   &__action {
     margin: 0;
     width: 100%;
+  }
+
+  &__notification {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%) translateY(0px);
+    top: 76px;
+    z-index: 141;
   }
 }
 </style>

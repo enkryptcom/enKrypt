@@ -1,7 +1,7 @@
 <template>
   <label class="switch">
     <input type="checkbox" :checked="isChecked" @change="checkLocal($event)" />
-    <span class="slider round"></span>
+    <span class="slider round" />
   </label>
 </template>
 
