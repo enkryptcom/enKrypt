@@ -33,7 +33,10 @@
             />
           </div>
           <div class="add-custom-token__token-info__info">
-            <h5>{{ tokenInfo.name }}</h5>
+            <h5 v-if="tokenInfo.name.length <= 16">{{ tokenInfo.name }}</h5>
+            <tooltip v-else :text="tokenInfo.name"
+              ><h5>{{ `${tokenInfo.name.slice(0, 12)}...` }}</h5></tooltip
+            >
             <p>
               {{
                 accountBalance
@@ -93,6 +96,7 @@ import { CustomErc20Token, TokenType } from "@/libs/tokens-state/types";
 import { AssetsType } from "@/types/provider";
 import { formatFloatingPointValue } from "@/libs/utils/number-formatter";
 import MarketData from "@/libs/market-data";
+import Tooltip from "@/ui/action/components/tooltip/index.vue";
 
 interface IProps {
   network: BaseNetwork;

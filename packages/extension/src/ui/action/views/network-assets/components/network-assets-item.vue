@@ -4,9 +4,22 @@
       <img :src="token.icon" />
 
       <div class="network-assets__token-info-name">
-        <h4>{{ token.name }}</h4>
+        <h4 v-if="token.name.length <= 16">{{ token.name }}</h4>
+        <tooltip v-else :text="token.name"
+          ><h4>{{ `${token.name.slice(0, 12)}...` }}</h4></tooltip
+        >
         <p>
-          {{ token.balancef }} <span>{{ token.symbol }}</span>
+          {{ token.balancef }}
+          <span v-if="token.symbol.length <= 6">
+            {{ token.symbol.toLowerCase() }}
+          </span>
+          <tooltip
+            v-else
+            :style="{ fontSize: '12px !important' }"
+            :text="token.symbol"
+          >
+            <span>{{ `${token.symbol.toLowerCase().slice(0, 7)}` }}</span>
+          </tooltip>
         </p>
       </div>
     </div>
@@ -46,6 +59,7 @@ import SparklineUp from "@action/icons/asset/sparkline-up.vue";
 import SparklineDown from "@action/icons/asset/sparkline-down.vue";
 import AssetDetailView from "@action/views/asset-detail-view/index.vue";
 import { AssetsType } from "@/types/provider";
+import Tooltip from "@/ui/action/components/tooltip/index.vue";
 
 const isDetail = ref(false);
 

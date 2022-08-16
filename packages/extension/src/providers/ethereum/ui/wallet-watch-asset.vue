@@ -23,7 +23,9 @@
       </div>
       <div class="provider-verify-transaction__block block-override">
         <div class="provider-verify-transaction__block__add-asset-wrap">
-          <div class="provider-verify-transaction__block__add-asset-wrap__contract-input">
+          <div
+            class="provider-verify-transaction__block__add-asset-wrap__contract-input"
+          >
             <div
               class="provider-verify-transaction__block__add-asset-wrap__contract-input__address"
             >
@@ -49,7 +51,9 @@
       <div class="provider-verify-transaction__block block-override">
         <div v-if="!tokenNotFound">
           <div class="provider-verify-transaction__block__add-asset-wrap">
-            <div class="provider-verify-transaction__block__add-asset-wrap__token-info">
+            <div
+              class="provider-verify-transaction__block__add-asset-wrap__token-info"
+            >
               <div
                 class="provider-verify-transaction__block__add-asset-wrap__token-info__image"
               >
@@ -64,7 +68,10 @@
               <div
                 class="provider-verify-transaction__block__add-asset-wrap__token-info__info"
               >
-                <h5>{{ tokenInfo.name }}</h5>
+                <h5 v-if="tokenInfo.name.length <= 16">{{ tokenInfo.name }}</h5>
+                <tooltip v-else :text="tokenInfo.name">
+                  <h5>{{ `${tokenInfo.name.slice(0, 12)}...` }}</h5>
+                </tooltip>
                 <p>
                   {{ userBalance }}
                   <span>{{ tokenInfo.symbol }}</span>
