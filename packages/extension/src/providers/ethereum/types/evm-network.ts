@@ -126,9 +126,9 @@ export class EvmNetwork extends BaseNetwork {
       const nativeMarketData = (
         await marketData.getMarketData([this.coingeckoID!])
       )[0];
-      const nativeUsdBalance = new BigNumber(balance).times(
-        nativeMarketData?.current_price ?? 0
-      );
+      const nativeUsdBalance = new BigNumber(
+        fromBase(balance, this.decimals)
+      ).times(nativeMarketData?.current_price ?? 0);
       const nativeAsset: AssetsType = {
         name: this.name_long,
         symbol: this.name,
