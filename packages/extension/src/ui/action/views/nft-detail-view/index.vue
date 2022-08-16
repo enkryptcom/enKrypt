@@ -6,15 +6,20 @@
         <close-icon />
       </a>
 
-      <a class="nft-detail-view__favorite" @click="favClicked(!isFavorite)">
-        <nft-more-add-to-favorite v-if="!isFavorite" />
+      <a
+        class="nft-detail-view__favorite"
+        @click="favClicked(!localIsFavorite)"
+      >
+        <nft-more-add-to-favorite v-if="!localIsFavorite" />
         <nft-more-delete-from-favorite v-else />
       </a>
 
       <notification
         v-if="isFavoriteAction"
         :hide="toggleNotification"
-        :text="isFavorite ? 'Added to favorites' : 'Removed from favorites'"
+        :text="
+          localIsFavorite ? 'Added to favorites' : 'Removed from favorites'
+        "
         class="nft-detail-view__notification"
       />
 
@@ -29,7 +34,7 @@
 </template>
 
 <script setup lang="ts">
-import { PropType, ref, onUpdated, onMounted } from "vue";
+import { onMounted, PropType, ref } from "vue";
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import ActionMenu from "@action/components/action-menu/index.vue";
 import NftMoreAddToFavorite from "@action/icons/nft/nft-more-add-to-favorite.vue";
@@ -43,8 +48,7 @@ const imageLoadError = (img: any) => {
 };
 
 const isFavoriteAction = ref(false);
-const isFavorite = ref(false);
-
+const localIsFavorite = ref(false);
 const props = defineProps({
   item: {
     type: Object as PropType<NFTItem>,
@@ -63,22 +67,20 @@ const props = defineProps({
     },
   },
 });
-
 onMounted(() => {
-  isFavorite.value = props.isFavorite;
+  localIsFavorite.value = props.isFavorite;
 });
-
 const emit = defineEmits<{
   (e: "close:popup"): void;
   (e: "update:favClicked", isFav: boolean, item: NFTItem): void;
 }>();
 const close = () => {
+  if (localIsFavorite.value !== props.isFavorite)
+    emit("update:favClicked", localIsFavorite.value, props.item);
   emit("close:popup");
 };
 const favClicked = (isFav: boolean) => {
-  emit("update:favClicked", isFav, props.item);
-  isFavorite.value = isFav;
-
+  localIsFavorite.value = isFav;
   setTimeout(() => {
     toggleNotification();
   }, 100);

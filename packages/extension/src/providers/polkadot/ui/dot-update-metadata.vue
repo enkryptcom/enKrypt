@@ -6,33 +6,13 @@
         class="common-popup__logo"
       ></sign-logo>
       <div class="common-popup__network">
-        <img src="@action/icons/raw/polkadot.png" />
-        <p>Polkadot</p>
+        <img :src="networks.polkadot.icon" />
+        <p>{{ metadata ? metadata.chain : networks.polkadot.name_long }}</p>
       </div>
     </template>
 
     <template #content>
       <h2>Update metadata</h2>
-
-      <div class="provider-verify-transaction__block">
-        <div class="provider-verify-transaction__account">
-          <img src="@action/icons/raw/account.png" />
-          <div class="provider-verify-transaction__account-info">
-            <h4>My account nickname</h4>
-            <div>
-              <p>
-                {{
-                  $filters.replaceWithEllipsis(
-                    "123NUNCjWVtxQjkukJ9dCn4awhACmmjXGtA9zZt1EJm37VGf",
-                    4,
-                    4
-                  )
-                }}
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
 
       <div class="update-metadata__block">
         <div class="update-metadata__block-row">
@@ -98,6 +78,7 @@ import { onBeforeMount, ref, watch } from "vue";
 import { MetadataDef } from "@polkadot/extension-inject/types";
 import MetadataStorage from "@/providers/polkadot/libs/metadata-storage";
 import { ProviderRequestOptions } from "@/types/provider";
+import networks from "../networks";
 
 const windowPromise = WindowPromiseHandler(0);
 

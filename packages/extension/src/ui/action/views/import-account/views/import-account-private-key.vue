@@ -67,24 +67,22 @@ const onInput = () => {
 };
 
 const importAction = async () => {
-  if (isValidKey.value) {
-    const buffer = hexToBuffer(formattedPrivateKey.value);
-    const wallet = new Wallet(buffer);
-    const newAddress = `0x${wallet.getAddress().toString("hex")}`;
+  const buffer = hexToBuffer(formattedPrivateKey.value);
+  const wallet = new Wallet(buffer);
+  const newAddress = `0x${wallet.getAddress().toString("hex")}`;
 
-    if (await keyring.accountAlreadyAdded(newAddress)) {
-      accountAlreadyExists.value = true;
-      return;
-    }
-
-    emit("update:wallet", {
-      privateKey: wallet.getPrivateKeyString(),
-      publicKey: wallet.getPublicKeyString(),
-      address: wallet.getAddressString(),
-      name: "",
-      signerType: SignerType.secp256k1,
-    });
+  if (await keyring.accountAlreadyAdded(newAddress)) {
+    accountAlreadyExists.value = true;
+    return;
   }
+
+  emit("update:wallet", {
+    privateKey: wallet.getPrivateKeyString(),
+    publicKey: wallet.getPublicKeyString(),
+    address: wallet.getAddressString(),
+    name: "",
+    signerType: SignerType.secp256k1,
+  });
 };
 </script>
 
