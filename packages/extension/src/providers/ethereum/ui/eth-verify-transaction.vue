@@ -36,8 +36,7 @@
         <div class="provider-verify-transaction__info">
           <img :src="Options.faviconURL" />
           <div class="provider-verify-transaction__info-info">
-            <h4>{{ Options.title }}</h4>
-            <p>{{ Options.domain }}</p>
+            <h4>{{ Options.domain }}</h4>
           </div>
         </div>
 
@@ -81,8 +80,6 @@
         :fee="gasCostValues[selectedFee]"
         @open-popup="toggleSelectFee"
       />
-
-      <!-- <best-offer-error :not-enough-verify="true"></best-offer-error> -->
 
       <div class="provider-verify-transaction__data">
         <a

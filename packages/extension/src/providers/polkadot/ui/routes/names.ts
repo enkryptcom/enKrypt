@@ -19,11 +19,6 @@ export default {
     component: {},
     name: "dotUpdateMetadata",
   },
-  dotVerifyTransaction: {
-    path: "dot-verify-transaction",
-    component: {},
-    name: "dotVerifyTransaction",
-  },
   dotHWVerify: {
     path: "dot-hw-verify",
     name: "dotHWVerify",

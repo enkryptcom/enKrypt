@@ -59,7 +59,7 @@ defineEmits<{
       height: 72px;
       left: 12px;
       top: 0px;
-      background: @buttonBg;
+      background: @actionBg;
       border-radius: 12px;
       display: flex;
       justify-content: space-around;

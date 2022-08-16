@@ -22,8 +22,7 @@
         <div class="common-popup__info">
           <img :src="Options.faviconURL" />
           <div class="common-popup__info-info">
-            <h4>{{ Options.title }}</h4>
-            <p>{{ Options.domain }}</p>
+            <h4>{{ Options.domain }}</h4>
           </div>
         </div>
 

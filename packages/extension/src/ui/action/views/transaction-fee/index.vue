@@ -16,7 +16,6 @@
         <div class="transaction-fee__info-amount">
           <p class="transaction-fee__info-amount-fiat">
             ${{ $filters.formatFiatValue(fees[selected].fiatValue).value }}
-            {{ fees[selected].fiatSymbol }}
           </p>
           <p class="transaction-fee__info-amount-crypto">
             {{

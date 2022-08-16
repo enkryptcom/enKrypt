@@ -685,7 +685,7 @@ const selectAccount = (account: string) => {
 
   .send-contacts-list__scroll-area {
     max-height: 114px;
-    padding: 8px 16px;
+    padding: 8px;
     box-sizing: border-box;
     h3 {
       display: none;

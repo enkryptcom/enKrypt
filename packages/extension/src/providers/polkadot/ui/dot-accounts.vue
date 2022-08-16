@@ -9,20 +9,28 @@
     </template>
 
     <template #content>
-      <h2>Connect to {{ Options.title }}</h2>
+      <h2>Connect with Enkrypt</h2>
 
       <div class="common-popup__block no-inset">
         <div class="common-popup__account">
           <img :src="Options.faviconURL" />
           <div class="common-popup__account-info">
-            <h4>{{ Options.title }}</h4>
-            <p>{{ Options.domain }}</p>
+            <h4>{{ Options.domain }}</h4>
           </div>
         </div>
       </div>
 
       <div class="provider-connect-dapp__link">
         <link-icon />
+      </div>
+
+      <div class="common-popup__block no-inset">
+        <div class="common-popup__account">
+          <img :src="require('@/ui/action/icons/raw/account.png')" />
+          <div class="common-popup__account-info">
+            <h4>All accounts</h4>
+          </div>
+        </div>
       </div>
 
       <div class="provider-connect-dapp__info">

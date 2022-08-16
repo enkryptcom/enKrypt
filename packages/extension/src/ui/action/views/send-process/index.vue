@@ -113,7 +113,7 @@ defineProps({
 
   &__animation {
     width: 100%;
-    height: 176px;
+    height: 128px;
     display: flex;
     justify-content: center;
     align-items: center;

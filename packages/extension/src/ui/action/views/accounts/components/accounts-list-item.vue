@@ -14,15 +14,24 @@
         <span>{{ $filters.replaceWithEllipsis(address, 6, 4) }}</span>
       </p>
     </div>
-    <done-icon v-show="isChecked" class="accounts-item__checked" />
-    <div v-if="showEdit" class="accounts-item__more" @click.stop="toggleEdit">
+    <done-icon
+      v-show="isChecked"
+      class="accounts-item__checked"
+      :class="{ visible: !showEdit }"
+    ></done-icon>
+    <div
+      v-if="showEdit"
+      ref="toggle"
+      class="accounts-item__more"
+      @click.stop="toggleEdit"
+    >
       <more-icon />
     </div>
     <accounts-list-item-menu
       v-if="openEdit"
+      ref="dropdown"
       :deletable="deletable"
       v-bind="$attrs"
-      @mouseleave="toggleEdit"
     />
   </div>
 </template>
@@ -32,8 +41,11 @@ import DoneIcon from "@action/icons/common/done_icon.vue";
 import MoreIcon from "@action/icons/common/more-icon.vue";
 import AccountsListItemMenu from "./accounts-list-item-menu.vue";
 import { PropType, ref } from "vue";
+import { onClickOutside } from "@vueuse/core";
 
 const openEdit = ref(false);
+const dropdown = ref(null);
+const toggle = ref(null);
 
 defineProps({
   name: {
@@ -71,6 +83,14 @@ defineProps({
 const toggleEdit = () => {
   openEdit.value = !openEdit.value;
 };
+
+onClickOutside(
+  dropdown,
+  () => {
+    if (openEdit.value) openEdit.value = false;
+  },
+  { ignore: [toggle] }
+);
 </script>
 
 <style lang="less">
@@ -105,6 +125,10 @@ const toggleEdit = () => {
 
     .accounts-item__checked {
       display: none !important;
+
+      &.visible {
+        display: block !important;
+      }
     }
   }
 
@@ -160,6 +184,7 @@ const toggleEdit = () => {
     top: 16px;
     right: 12px;
     z-index: 2;
+    font-size: 0;
 
     svg {
       position: static;

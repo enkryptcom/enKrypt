@@ -14,31 +14,23 @@
         @update:order="updateNetworkOrder"
         @update:network="setNetwork"
       />
-      <div class="app__menu-footer">
+      <div class="app__menu-footer" :class="{ border: networks.length > 9 }">
         <a class="app__menu-add" @click="addNetworkShow = !addNetworkShow">
           <manage-networks-icon />
           Manage networks
         </a>
         <div>
-          <a
-            class="app__menu-link"
-            @mouseleave="closeMoreMenu"
-            @mouseenter="toggleMoreMenu"
-          >
+          <a ref="toggle" class="app__menu-link" @click="toggleMoreMenu">
             <more-icon />
-
-            <div v-show="isOpenMore" class="app__menu-dropdown">
-              <a class="app__menu-dropdown-link" @click="lockAction">
-                <hold-icon /> <span>Lock Enkrypt</span>
-              </a>
-              <a
-                class="app__menu-dropdown-link"
-                @click="settingsShow = !settingsShow"
-              >
-                <settings-icon /> <span>Settings</span>
-              </a>
-            </div>
           </a>
+          <div v-show="isOpenMore" ref="dropdown" class="app__menu-dropdown">
+            <a class="app__menu-dropdown-link" @click="lockAction">
+              <hold-icon /> <span>Lock Enkrypt</span>
+            </a>
+            <a class="app__menu-dropdown-link" @click="settingsAction">
+              <settings-icon /> <span>Settings</span>
+            </a>
+          </div>
         </div>
       </div>
     </div>
@@ -121,6 +113,7 @@ import { EnkryptAccount } from "@enkryptcom/types";
 import Browser from "webextension-polyfill";
 import EVMAccountState from "@/providers/ethereum/libs/accounts-state";
 import { ProviderName } from "@/types/provider";
+import { onClickOutside } from "@vueuse/core";
 
 const domainState = new DomainState();
 const networksState = new NetworksState();
@@ -148,6 +141,8 @@ const currentNetwork = ref<BaseNetwork>(defaultNetwork);
 const kr = new PublicKeyRing();
 const addNetworkShow = ref(false);
 const settingsShow = ref(false);
+const dropdown = ref(null);
+const toggle = ref(null);
 
 const setActiveNetworks = async () => {
   const activeNetworkNames = await networksState.getActiveNetworkNames();
@@ -324,13 +319,21 @@ const lockAction = async () => {
   });
   router.push({ name: "lock-screen" });
 };
+const settingsAction = () => {
+  closeMoreMenu();
+  settingsShow.value = !settingsShow.value;
+};
 const toggleMoreMenu = () => {
   if (timeout != null) {
     clearTimeout(timeout);
 
     timeout = null;
   }
-  isOpenMore.value = true;
+  if (isOpenMore.value) {
+    closeMoreMenu();
+  } else {
+    isOpenMore.value = true;
+  }
 };
 const closeMoreMenu = () => {
   if (timeout != null) {
@@ -338,8 +341,15 @@ const closeMoreMenu = () => {
   }
   timeout = setTimeout(() => {
     isOpenMore.value = false;
-  }, 200);
+  }, 50);
 };
+onClickOutside(
+  dropdown,
+  () => {
+    closeMoreMenu();
+  },
+  { ignore: [toggle] }
+);
 </script>
 
 <style lang="less">
@@ -387,8 +397,8 @@ body {
     &-footer {
       position: absolute;
       width: 100%;
-      height: 40px;
-      bottom: 8px;
+      height: 56px;
+      bottom: 0;
       left: 0;
       padding: 0 12px;
       box-sizing: border-box;
@@ -396,6 +406,12 @@ body {
       justify-content: space-between;
       align-items: center;
       flex-direction: row;
+      background: rgba(255, 255, 255, 0.01);
+
+      &.border {
+        box-shadow: 0px 0px 6px -1px rgba(0, 0, 0, 0.05),
+          0px 0px 1px rgba(0, 0, 0, 0.2);
+      }
     }
 
     &-add {
@@ -453,7 +469,7 @@ body {
       border-radius: 12px;
       position: absolute;
       right: 8px;
-      bottom: 48px;
+      bottom: 52px;
 
       &-link {
         width: 100%;
