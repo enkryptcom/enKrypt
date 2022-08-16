@@ -1,5 +1,6 @@
 import DomainState from "@/libs/domain-state";
 import { getCustomError } from "@/libs/error";
+import MarketData from "@/libs/market-data";
 import { CustomErc20Token, TokenType } from "@/libs/tokens-state/types";
 import { WindowPromise } from "@/libs/window-promise";
 import { MiddlewareFunction } from "@enkryptcom/types";
@@ -57,12 +58,30 @@ const method: MiddlewareFunction = async function (
 
   let balance = "";
 
+  const marketData = new MarketData();
+
+  const marketInfo = await marketData.getMarketInfoByContracts(
+    [contractAddress.toLowerCase()],
+    this.network.coingeckoID ?? ""
+  );
+
+  const market = marketInfo[contractAddress.toLowerCase()];
+
+  let icon = this.network.icon;
+  let coingeckoID: string | undefined;
+
+  if (market) {
+    icon = market.image;
+    coingeckoID = market.id;
+  }
+
   const customToken: CustomErc20Token = {
     type: TokenType.ERC20,
     name: tokenInfo.name,
     symbol: tokenInfo.symbol,
     decimals: tokenInfo.decimals,
-    icon: this.network.icon,
+    icon,
+    coingeckoID,
     address: contractAddress,
   };
 
@@ -71,7 +90,8 @@ const method: MiddlewareFunction = async function (
       name: tokenInfo.name,
       symbol: tokenInfo.symbol,
       decimals: tokenInfo.decimals,
-      icon: this.network.icon,
+      icon,
+      coingeckoID,
       contract: contractAddress,
     });
 
