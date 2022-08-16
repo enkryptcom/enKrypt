@@ -19,7 +19,12 @@
       class="accounts-item__checked"
       :class="{ visible: !showEdit }"
     ></done-icon>
-    <div v-if="showEdit" class="accounts-item__more" @click.stop="toggleEdit">
+    <div
+      v-if="showEdit"
+      ref="toggle"
+      class="accounts-item__more"
+      @click.stop="toggleEdit"
+    >
       <more-icon />
     </div>
     <accounts-list-item-menu
@@ -40,6 +45,7 @@ import { onClickOutside } from "@vueuse/core";
 
 const openEdit = ref(false);
 const dropdown = ref(null);
+const toggle = ref(null);
 
 defineProps({
   name: {
@@ -78,9 +84,13 @@ const toggleEdit = () => {
   openEdit.value = !openEdit.value;
 };
 
-onClickOutside(dropdown, () => {
-  if (openEdit.value) openEdit.value = false;
-});
+onClickOutside(
+  dropdown,
+  () => {
+    if (openEdit.value) openEdit.value = false;
+  },
+  { ignore: [toggle] }
+);
 </script>
 
 <style lang="less">
@@ -174,6 +184,7 @@ onClickOutside(dropdown, () => {
     top: 16px;
     right: 12px;
     z-index: 2;
+    font-size: 0;
 
     svg {
       position: static;

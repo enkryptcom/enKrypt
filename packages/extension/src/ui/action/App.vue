@@ -20,7 +20,7 @@
           Manage networks
         </a>
         <div>
-          <a class="app__menu-link" @click="toggleMoreMenu">
+          <a ref="toggle" class="app__menu-link" @click="toggleMoreMenu">
             <more-icon />
           </a>
           <div v-show="isOpenMore" ref="dropdown" class="app__menu-dropdown">
@@ -142,6 +142,7 @@ const kr = new PublicKeyRing();
 const addNetworkShow = ref(false);
 const settingsShow = ref(false);
 const dropdown = ref(null);
+const toggle = ref(null);
 
 const setActiveNetworks = async () => {
   const activeNetworkNames = await networksState.getActiveNetworkNames();
@@ -328,7 +329,11 @@ const toggleMoreMenu = () => {
 
     timeout = null;
   }
-  isOpenMore.value = true;
+  if (isOpenMore.value) {
+    closeMoreMenu();
+  } else {
+    isOpenMore.value = true;
+  }
 };
 const closeMoreMenu = () => {
   if (timeout != null) {
@@ -338,9 +343,13 @@ const closeMoreMenu = () => {
     isOpenMore.value = false;
   }, 50);
 };
-onClickOutside(dropdown, () => {
-  closeMoreMenu();
-});
+onClickOutside(
+  dropdown,
+  () => {
+    closeMoreMenu();
+  },
+  { ignore: [toggle] }
+);
 </script>
 
 <style lang="less">

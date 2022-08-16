@@ -4,7 +4,11 @@
       <!-- <img :src="collection.image" alt="" /> -->
       <p>{{ collection.name }}</p>
 
-      <a class="network-nfts__category-sort" @click="toggleSortMenu">
+      <a
+        ref="toggle"
+        class="network-nfts__category-sort"
+        @click="toggleSortMenu"
+      >
         <nft-sort-menu></nft-sort-menu>
       </a>
     </div>
@@ -37,6 +41,7 @@ import { onClickOutside } from "@vueuse/core";
 const isOpenSort = ref(false);
 const isAbcSort = ref(true);
 const dropdown = ref(null);
+const toggle = ref(null);
 
 const props = defineProps({
   collection: {
@@ -63,9 +68,13 @@ const abcSortAction = (isAbc: boolean) => {
   isAbcSort.value = isAbc;
   isOpenSort.value = false;
 };
-onClickOutside(dropdown, () => {
-  if (isOpenSort.value) isOpenSort.value = false;
-});
+onClickOutside(
+  dropdown,
+  () => {
+    if (isOpenSort.value) isOpenSort.value = false;
+  },
+  { ignore: [toggle] }
+);
 </script>
 
 <style lang="less">

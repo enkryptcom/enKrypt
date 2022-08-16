@@ -5,7 +5,7 @@
       <div class="network-nfts__item-name">{{ item.name }}</div>
     </a>
 
-    <a class="network-nfts__item-more" @click="toggleMoreMenu">
+    <a ref="toggle" class="network-nfts__item-more" @click="toggleMoreMenu">
       <span></span><span></span><span></span>
     </a>
 
@@ -43,6 +43,7 @@ const imageLoadError = (img: any) => {
 const isOpenMore = ref(false);
 const isDetail = ref(false);
 const dropdown = ref(null);
+const toggle = ref(null);
 
 const props = defineProps({
   item: {
@@ -73,9 +74,13 @@ const toggleDetail = () => {
 const openLink = () => {
   window.open(props.item.url, "_blank");
 };
-onClickOutside(dropdown, () => {
-  if (isOpenMore.value) isOpenMore.value = false;
-});
+onClickOutside(
+  dropdown,
+  () => {
+    if (isOpenMore.value) isOpenMore.value = false;
+  },
+  { ignore: [toggle] }
+);
 </script>
 
 <style lang="less">
