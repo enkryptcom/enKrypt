@@ -20,10 +20,10 @@ class InjectedProvider implements SubstrateInjectedProvider {
   constructor(options: InjectLibOptions) {
     this.dappName = options.dappName;
     this.id = options.id;
-    this.accounts = new Accounts(options);
-    this.metadata = new Metadata(options);
-    this.provider = new Provider(options);
-    this.signer = new Signer(options);
+    this.accounts = new Proxy(new Accounts(options), ProxyHandler);
+    this.metadata = new Proxy(new Metadata(options), ProxyHandler);
+    this.provider = new Proxy(new Provider(options), ProxyHandler);
+    this.signer = new Proxy(new Signer(options), ProxyHandler);
     this.sendMessageHandler = options.sendMessageHandler;
   }
   handleMessage(request: RPCRequestType): void {
@@ -31,5 +31,15 @@ class InjectedProvider implements SubstrateInjectedProvider {
     console.info(method, params);
   }
 }
-
+const ProxyHandler = {
+  set(target: any, name: keyof any, value: any) {
+    return Reflect.set(target, name, value);
+  },
+  get(target: any, prop: keyof any) {
+    if (typeof target[prop] === "function") {
+      return (target[prop] as () => any).bind(target);
+    }
+    return target[prop];
+  },
+};
 export default InjectedProvider;
