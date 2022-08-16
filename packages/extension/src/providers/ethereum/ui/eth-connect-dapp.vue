@@ -16,7 +16,6 @@
           <img :src="Options.faviconURL" />
           <div class="common-popup__account-info">
             <h4>{{ Options.domain }}</h4>
-            <!-- <p>{{ Options.domain }}</p> -->
           </div>
         </div>
       </div>
