@@ -53,21 +53,18 @@ export class Provider extends EventEmitter implements ProviderInterface {
         this.networkVersion = res;
       });
     }
-    if (this.selectedAddress === null) {
-      await this.sendMessageHandler(
-        this.name,
-        JSON.stringify({
-          method: "eth_accounts",
-        })
-      ).then((res) => {
-        this.selectedAddress = res[0];
-      });
+    if (
+      this.selectedAddress === null &&
+      request.method === "eth_requestAccounts"
+    ) {
+      return this.sendMessageHandler(this.name, JSON.stringify(request)).then(
+        (res) => {
+          this.selectedAddress = res[0];
+          return res;
+        }
+      );
     }
-    const res = (await this.sendMessageHandler(
-      this.name,
-      JSON.stringify(request)
-    )) as EthereumResponse;
-    return res;
+    return this.sendMessageHandler(this.name, JSON.stringify(request));
   }
   enable(): Promise<any> {
     return this.request({ method: "eth_requestAccounts" });
