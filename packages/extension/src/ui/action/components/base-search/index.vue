@@ -59,7 +59,7 @@ const textValue = computed({
 @import "~@action/styles/theme.less";
 
 .app-search {
-  background: @gray01;
+  background: transparent;
   border-radius: 10px;
   margin: 17px 0 8px 0;
   height: 40px;
@@ -68,9 +68,10 @@ const textValue = computed({
   padding-left: 40px;
   padding-right: 40px;
   box-sizing: border-box;
+  border: 1px solid @gray02;
 
   &.border {
-    border: 1px solid rgba(0, 0, 0, 0.1);
+    border: 1px solid @gray02 !important;
     box-shadow: none !important;
     margin: 0;
     background: @white;
@@ -80,6 +81,7 @@ const textValue = computed({
     background: @white;
     box-shadow: 0px 0.25px 1px rgba(0, 0, 0, 0.039),
       0px 0.85px 3px rgba(0, 0, 0, 0.19);
+    border-color: @white;
   }
 
   &__icon {
@@ -94,7 +96,7 @@ const textValue = computed({
     font-style: normal;
     font-weight: normal;
     font-size: 14px;
-    line-height: 40px;
+    line-height: 38px;
     letter-spacing: 0.25px;
     background: none;
     color: @primaryLabel;
@@ -102,6 +104,10 @@ const textValue = computed({
 
     &.border {
       line-height: 38px;
+    }
+
+    &::placeholder {
+      color: @tertiaryLabel;
     }
   }
 

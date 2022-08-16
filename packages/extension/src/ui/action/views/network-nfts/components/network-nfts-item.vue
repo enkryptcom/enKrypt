@@ -1,6 +1,6 @@
 <template>
   <div class="network-nfts__item" @mouseleave="closeMoreMenu">
-    <a class="network-nfts__item-image" @click="toggleDetail">
+    <a class="network-nfts__item-image" @click="detailClicked">
       <img :src="item.image" alt="" @error="imageLoadError" />
       <div class="network-nfts__item-name">{{ item.name }}</div>
     </a>
@@ -17,13 +17,6 @@
       @update:hide-me="toggleMoreMenu"
       @mouseleave="toggleMoreMenu"
     />
-
-    <nft-detail-view
-      v-if="isDetail"
-      :item="item"
-      :link-action="openLink"
-      @close:popup="toggleDetail"
-    />
   </div>
 </template>
 
@@ -32,13 +25,11 @@ import { ref } from "vue";
 import { NFTItem } from "@/types/nft";
 import { PropType } from "vue";
 import NetworkNftsItemMoreMenu from "./network-nfts-item-more-menu.vue";
-import NftDetailView from "@action/views/nft-detail-view/index.vue";
 const notfoundimg = require("@action/assets/common/not-found.jpg");
 const imageLoadError = (img: any) => {
   img.target.src = notfoundimg;
 };
 const isOpenMore = ref(false);
-const isDetail = ref(false);
 const props = defineProps({
   item: {
     type: Object as PropType<NFTItem>,
@@ -59,17 +50,17 @@ const props = defineProps({
     },
   },
 });
+const emit = defineEmits<{
+  (e: "update:toggleDetail", item: NFTItem | null): void;
+}>();
+const detailClicked = () => {
+  emit("update:toggleDetail", props.item);
+};
 const toggleMoreMenu = () => {
   isOpenMore.value = !isOpenMore.value;
 };
 const closeMoreMenu = () => {
   isOpenMore.value = false;
-};
-const toggleDetail = () => {
-  isDetail.value = !isDetail.value;
-};
-const openLink = () => {
-  window.open(props.item.url, "_blank");
 };
 </script>
 
