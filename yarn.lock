@@ -2400,6 +2400,7 @@ __metadata:
     "@ethereumjs/tx": ^3.5.2
     "@ledgerhq/hw-transport-webusb": ^6.27.2
     "@metamask/eth-sig-util": ^4.0.1
+    "@noble/secp256k1": ^1.6.3
     "@polkadot/api": ^9.1.1
     "@polkadot/extension-inject": ^0.44.4
     "@polkadot/keyring": ^10.1.3
@@ -2423,6 +2424,7 @@ __metadata:
     "@types/url-parse": ^1.4.8
     "@types/utf-8-validate": ^5.0.0
     "@types/uuid": ^8.3.4
+    "@types/wif": ^2.0.2
     "@types/zxcvbn": ^4.4.1
     "@typescript-eslint/eslint-plugin": ^5.33.0
     "@typescript-eslint/parser": ^5.33.0
@@ -2481,6 +2483,7 @@ __metadata:
     web3: ^1.7.5
     web3-utils: ^1.7.5
     webextension-polyfill: ^0.9.0
+    wif: ^2.0.6
     zxcvbn: ^4.4.2
   languageName: unknown
   linkType: soft
@@ -6673,6 +6676,15 @@ __metadata:
   dependencies:
     "@types/node": "*"
   checksum: 41c7a620f877a0165ff36e713455d888b7f5df9c51e71b5d0f47994f98cf22ccd339b8c6cfdc6bb417e950d40f405693974d393bd916971490553cc5e9e67a9d
+  languageName: node
+  linkType: hard
+
+"@types/wif@npm:^2.0.2":
+  version: 2.0.2
+  resolution: "@types/wif@npm:2.0.2"
+  dependencies:
+    "@types/node": "*"
+  checksum: 3ec55838027e0a04ba207c90f73c869fb90182c68f97d0eb36a8290dbbeba7b0a68fb8782713ffb3ff6446e1c4b0625449ad9d1f85134c4719b670784327915c
   languageName: node
   linkType: hard
 
