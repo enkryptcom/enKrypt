@@ -32,6 +32,7 @@
     "@ethereumjs/tx": "^3.5.2",
     "@ledgerhq/hw-transport-webusb": "^6.27.2",
     "@metamask/eth-sig-util": "^4.0.1",
+    "@noble/secp256k1": "^1.6.3",
     "@types/chrome": "^0.0.193",
     "@types/events": "^3.0.0",
     "@types/less": "^3.0.3",
@@ -64,6 +65,7 @@
     "vuedraggable": "next",
     "web3": "^1.7.5",
     "web3-utils": "^1.7.5",
+    "wif": "^2.0.6",
     "zxcvbn": "^4.4.2"
   },
   "devDependencies": {
@@ -85,6 +87,7 @@
     "@types/mocha": "^9.1.1",
     "@types/url-parse": "^1.4.8",
     "@types/uuid": "^8.3.4",
+    "@types/wif": "^2.0.2",
     "@types/zxcvbn": "^4.4.1",
     "@typescript-eslint/eslint-plugin": "^5.33.0",
     "@typescript-eslint/parser": "^5.33.0",

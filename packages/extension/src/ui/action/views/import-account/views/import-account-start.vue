@@ -10,13 +10,17 @@
       Keystore File or Private Key.
     </p>
 
-    <a class="import-account-start__button" @click="$emit('select:keystore')">
+    <a
+      v-if="network.provider !== ProviderName.bitcoin"
+      class="import-account-start__button"
+      @click="$emit('select:keystore')"
+    >
       <span>Keystore file</span>
       <right-arrow />
     </a>
 
     <a
-      v-if="network.provider === ProviderName.ethereum"
+      v-if="network.provider !== ProviderName.polkadot"
       class="import-account-start__button"
       @click="$emit('select:privkey')"
     >
