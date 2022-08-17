@@ -1,0 +1,31 @@
+name: MacOS Safari Deploy
+
+on: [push]
+
+jobs:
+  deploy:
+    name: Deploying to Testflight
+    runs-on: macOS-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Deploy iOS Beta to TestFlight via Fastlane
+        uses: maierj/fastlane-action@v2.2.0
+        with:
+          lane: "buildandrelease"
+          subdirectory: "macos/Enkrypt"
+        env:
+          APPLE_ID: "${{ secrets.OSX_APPLE_ID }}"
+          APP_ID: "${{ secrets.OSX_APP_ID }}"
+          FASTLANE_USER: "${{ secrets.OSX_APPLE_ID }}"
+          FASTLANE_ITC_TEAM_ID: "${{ secrets.OSX_FASTLANE_ITC_TEAM_ID }}"
+          FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD: "${{ secrets.OSX_FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD }}"
+          ITC_TEAM_ID: "${{ secrets.OSX_FASTLANE_ITC_TEAM_ID }}"
+          INSTALLER_CERT: "${{ secrets.OSX_INSTALLER_CERT }}"
+          SAFARI_PROVISION: "${{ secrets.OSX_SAFARI_PROVISION }}"
+          EXTENSION_PROVISION: "${{ secrets.OSX_EXTENSION_PROVISION }}"
+          MATCH_GIT_URL: "${{ secrets.OSX_MATCH_GIT_URL }}"
+          MATCH_PASSWORD: "${{ secrets.OSX_MATCH_PASSWORD }}"
+          GIT_AUTHORIZATION: "${{ secrets.OSX_GIT_AUTHORIZATION }}"

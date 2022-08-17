@@ -8,6 +8,7 @@ const browserNames = {
   chrome: "chrome",
   firefox: "firefox",
   opera: "opera",
+  safari: "safari",
 };
 
 const browserConfigs = {
@@ -19,6 +20,9 @@ const browserConfigs = {
   },
   [browserNames.opera]: {
     manifest: "./src/manifest/manifest-opera.json",
+  },
+  [browserNames.safari]: {
+    manifest: "./src/manifest/manifest-safari.json",
   },
 };
 function modifyManifest(buffer) {
@@ -33,7 +37,7 @@ const scripts = {
 };
 
 const setConfig = (config) => {
-  for (let [name, path] of Object.entries(scripts)) {
+  for (const [name, path] of Object.entries(scripts)) {
     config.entry(name).add(path).end();
   }
   const userScripts = Object.keys(scripts);
