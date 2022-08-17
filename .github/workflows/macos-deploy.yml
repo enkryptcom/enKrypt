@@ -19,10 +19,8 @@ jobs:
         env:
           APPLE_ID: "${{ secrets.OSX_APPLE_ID }}"
           APP_ID: "${{ secrets.OSX_APP_ID }}"
-          FASTLANE_USER: "${{ secrets.OSX_APPLE_ID }}"
           FASTLANE_ITC_TEAM_ID: "${{ secrets.OSX_FASTLANE_ITC_TEAM_ID }}"
           FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD: "${{ secrets.OSX_FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD }}"
-          FASTLANE_PASSWORD: "${{ secrets.OSX_FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD }}"
           ITC_TEAM_ID: "${{ secrets.OSX_FASTLANE_ITC_TEAM_ID }}"
           INSTALLER_CERT: "${{ secrets.OSX_INSTALLER_CERT }}"
           SAFARI_PROVISION: "${{ secrets.OSX_SAFARI_PROVISION }}"
