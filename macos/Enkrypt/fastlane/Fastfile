@@ -26,6 +26,8 @@ lane :prepare do
       type: "appstore",
       platform: "macos",
       git_branch: "safari",
+      git_basic_authorization: Base64.strict_encode64(ENV["GIT_AUTHORIZATION"]),
+      readonly: true,
       generate_apple_certs: false,
       additional_cert_types:"mac_installer_distribution"
   )
@@ -49,4 +51,10 @@ lane :release do
        }
    })
     upload_to_app_store(skip_metadata: true, skip_screenshots: true, run_precheck_before_submit: false)
+end
+
+desc "Prepare build and release build to the App Store"
+lane :buildandrelease do
+    prepare()
+    release()
 end
