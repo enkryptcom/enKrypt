@@ -97,6 +97,9 @@ import { AssetsType } from "@/types/provider";
 import { formatFloatingPointValue } from "@/libs/utils/number-formatter";
 import MarketData from "@/libs/market-data";
 import Tooltip from "@/ui/action/components/tooltip/index.vue";
+import { CoinGeckoTokenMarket } from "@/libs/market-data/types";
+import BigNumber from "bignumber.js";
+import Sparkline from "@/libs/sparkline";
 
 interface IProps {
   network: BaseNetwork;
@@ -117,6 +120,7 @@ const tokenInfo = ref<CustomErc20Token>();
 const accountBalance = ref<string>();
 const notTokenAddress = ref(false);
 const isFocus = ref(false);
+const market = ref<CoinGeckoTokenMarket>();
 
 const isValidAddress = computed(() => {
   if (contractAddress.value) {
@@ -151,13 +155,10 @@ watch([contractAddress, props], async () => {
         props.network.coingeckoPlatform!
       );
 
-      console.log(props.network.coingeckoPlatform!);
-
       const contractInfo = coingeckoInfo[contractAddress.value!.toLowerCase()];
 
-      console.log(coingeckoInfo);
-
       if (contractInfo) {
+        market.value = contractInfo;
         icon = contractInfo.image;
         coingeckoID = contractInfo.id;
       }
@@ -212,22 +213,41 @@ const addToken = async () => {
     );
 
     if (inserted) {
+      const balance = fromBase(
+        accountBalance.value ?? "0",
+        tokenInfo.value.decimals
+      );
+      const balancef = formatFloatingPointValue(
+        fromBase(accountBalance.value ?? "0", tokenInfo.value.decimals)
+      ).value;
+      const balanceUSD = market.value
+        ? new BigNumber(balancef).times(market.value.current_price).toNumber()
+        : 0;
+      const balanceUSDf = market.value
+        ? new BigNumber(balancef).times(market.value.current_price).toString()
+        : "0";
+      const value = market.value?.current_price.toString() ?? "0";
+      const sparkline = market.value
+        ? new Sparkline(market.value?.sparkline_in_7d.price, 25).dataUri
+        : "";
+      const priceChangePercentage =
+        market.value?.price_change_percentage_24h ?? 0;
+      const icon = tokenInfo.value.icon;
+
       const newAsset: AssetsType = {
         name: tokenInfo.value.name,
         symbol: tokenInfo.value.symbol,
-        balance: accountBalance.value ?? "0",
-        balancef: formatFloatingPointValue(
-          fromBase(accountBalance.value ?? "0", tokenInfo.value.decimals)
-        ).value,
+        balance,
+        balancef,
         contract: tokenInfo.value.address,
-        balanceUSD: 0,
-        balanceUSDf: "0",
-        value: "0",
-        valuef: "0",
+        balanceUSD,
+        balanceUSDf,
+        value,
+        valuef: formatFloatingPointValue(value).value,
         decimals: tokenInfo.value.decimals,
-        sparkline: "",
-        priceChangePercentage: 0,
-        icon: tokenInfo.value.icon,
+        sparkline,
+        priceChangePercentage,
+        icon,
       };
 
       emits("update:token-added", newAsset);
