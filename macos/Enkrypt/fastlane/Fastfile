@@ -1,0 +1,52 @@
+# This file contains the fastlane.tools configuration
+# You can find the documentation at https://docs.fastlane.tools
+#
+# For a list of all available actions, check out
+#
+#     https://docs.fastlane.tools/actions
+#
+# For a list of all available plugins, check out
+#
+#     https://docs.fastlane.tools/plugins/available-plugins
+#
+
+# Uncomment the line if you want fastlane to automatically update itself
+update_fastlane
+
+desc "Prepare the macos app for build"
+lane :prepare do
+  produce(
+        app_identifier: "com.myetherwallet.enkrypt.safari.Extension",
+        platform: "osx",
+        app_name: "Enkrypt: Extension",
+        skip_itc: true
+    )
+  match(
+      app_identifier: ["com.myetherwallet.enkrypt.safari","com.myetherwallet.enkrypt.safari.Extension"],
+      type: "appstore",
+      platform: "macos",
+      git_branch: "safari",
+      generate_apple_certs: false,
+      additional_cert_types:"mac_installer_distribution"
+  )
+end
+
+desc "Push a new release build to the App Store"
+lane :release do
+    increment_build_number(xcodeproj: "Enkrypt.xcodeproj")
+    build_mac_app(scheme: "Enkrypt", 
+      export_team_id: CredentialsManager::AppfileConfig.try_fetch_value(:team_id), 
+      destination: "generic/platform=macOS",
+      clean: true,
+      export_method: "app-store",
+      output_directory: "build",
+      installer_cert_name: ENV["INSTALLER_CERT"],
+      sdk: ENV["SDK_VERSION"],
+      export_options: {
+      provisioningProfiles: { 
+         "com.myetherwallet.enkrypt.safari" => ENV["SAFARI_PROVISION"],
+         "com.myetherwallet.enkrypt.safari.Extension" => ENV["EXTENSION_PROVISION"]
+       }
+   })
+    upload_to_app_store(skip_metadata: true, skip_screenshots: true, run_precheck_before_submit: false)
+end
