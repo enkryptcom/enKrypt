@@ -1,9 +1,15 @@
 <template>
   <a class="network-assets__token" @click="toggleDetail()">
-    <div class="network-assets__token-info">
+    <div
+      class="network-assets__token-info"
+      :class="{ max: token.priceChangePercentage == 0 }"
+    >
       <img :src="token.icon" />
 
-      <div class="network-assets__token-info-name">
+      <div
+        class="network-assets__token-info-name"
+        :class="{ max: token.priceChangePercentage == 0 }"
+      >
         <h4>{{ token.name }}</h4>
         <p>
           {{ token.balancef }} <span>{{ token.symbol }}</span>
@@ -98,6 +104,11 @@ const toggleDetail = () => {
       width: 190px;
       overflow: hidden;
 
+      &.max {
+        min-width: 190px;
+        width: auto;
+      }
+
       img {
         max-width: 32px;
         margin-right: 16px;
@@ -114,8 +125,9 @@ const toggleDetail = () => {
           color: @primaryLabel;
           margin: 0 0 1px 0;
           white-space: nowrap;
-          text-overflow: ellipsis;
           width: 132px;
+          text-overflow: ellipsis;
+          overflow: hidden;
         }
 
         p {
@@ -130,10 +142,23 @@ const toggleDetail = () => {
           justify-content: flex-start;
           align-items: center;
           flex-direction: row;
+          white-space: nowrap;
+          width: 132px;
+          overflow: hidden;
+          text-overflow: ellipsis;
 
           span {
             font-variant: small-caps;
             margin-left: 4px;
+          }
+        }
+
+        &.max {
+          h4,
+          p {
+            min-width: 132px;
+            max-width: 100%;
+            width: auto;
           }
         }
       }

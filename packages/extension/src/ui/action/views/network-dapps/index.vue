@@ -6,11 +6,11 @@
     >
       <h2>Featured DApps</h2>
       <div v-if="!!selected" class="network-dapps">
-        <network-dapps-item
-          v-for="(item, index) in list"
-          :key="index"
-          :app="item"
-        />
+        <masonry :items="list" :ssr-columns="1" :column-width="202" :gap="16">
+          <template #default="{ item }">
+            <network-dapps-item :app="(item as DAppsItem)" />
+          </template>
+        </masonry>
       </div>
     </custom-scrollbar>
   </div>
@@ -25,6 +25,8 @@ import { computed, PropType } from "vue";
 import { BaseNetwork } from "@/types/base-network";
 import DappList from "@/libs/dapp-list";
 import { NetworkNames } from "@enkryptcom/types";
+import Masonry from "@action/components/masonry/index.vue";
+import { DAppsItem } from "@/types/ui";
 
 const route = useRoute();
 
@@ -59,13 +61,13 @@ const list = computed(() => {
 
 .network-dapps {
   width: 100%;
-  height: 532px;
   box-sizing: border-box;
   padding: 0 20px;
   display: flex;
   flex-flow: column wrap;
   align-content: space-between;
   font-size: 0;
+  margin-bottom: 16px;
 
   &__scroll-area {
     position: relative;
