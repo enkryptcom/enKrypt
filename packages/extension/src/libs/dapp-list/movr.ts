@@ -2,6 +2,13 @@ import { DAppsItem } from "@/types/ui";
 
 const dappList: DAppsItem[] = [
   {
+    title: "MEW",
+    link: "https://www.myetherwallet.com/",
+    description: "The original interface for all crypto has to offer.",
+    isFavorites: false,
+    image: require("./assets/mew.svg"),
+  },
+  {
     title: "Solarbeam",
     link: "https://app.solarbeam.io/exchange/swap",
     description: "The native AMM of Moonriver & Moonbeam",
@@ -44,6 +51,15 @@ const dappList: DAppsItem[] = [
     isFavorites: false,
     image:
       "https://dashboard-assets.dappradar.com/document/13544/moonbeans-dapp-marketplaces-moonriver-logo-166x166_9d02ffa0e2df7be32435d03463828649.png",
+  },
+  {
+    title: "Leonicorn Swap",
+    link: "https://dex.leonicornswap.com/home",
+    description:
+      "Leonicorn Swap is an advanced AMM with features Like NFT Marketplace, Lottery, IDO and many other advanced features.",
+    isFavorites: false,
+    image:
+      "https://dashboard-assets.dappradar.com/document/8905/leonicornswap-dapp-defi-bsc-logo-166x166_ccdf493ffb41233d85061fcc21dcae23.png",
   },
 ];
 export default dappList;
