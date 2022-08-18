@@ -2,6 +2,13 @@ import { DAppsItem } from "@/types/ui";
 
 const dappList: DAppsItem[] = [
   {
+    title: "Unstoppable Domains",
+    link: "https://unstoppabledomains.com/?ref=daf66e72f515449",
+    isFavorites: false,
+    image:
+      "https://dashboard-assets.dappradar.com/document/11097/unstoppabledomains-dapp-collectibles-ethereum-logo-166x166_013c8d4a01678362ad762e64b107f1f7.png",
+  },
+  {
     title: "Rarible",
     link: "https://www.rarible.com",
     description: "Today is the non-fungible reality of tomorrow.",
@@ -43,6 +50,15 @@ const dappList: DAppsItem[] = [
     isFavorites: false,
     image:
       "https://dashboard-assets.dappradar.com/document/962/compound-defi-eth-logo-166x166_fb07f5c16b0a4a53ae787e5555eca168.png",
+  },
+  {
+    title: "Leonicorn Swap",
+    link: "https://dex.leonicornswap.com/home",
+    description:
+      "Leonicorn Swap is an advanced AMM with features Like NFT Marketplace, Lottery, IDO and many other advanced features.",
+    isFavorites: false,
+    image:
+      "https://dashboard-assets.dappradar.com/document/8905/leonicornswap-dapp-defi-bsc-logo-166x166_ccdf493ffb41233d85061fcc21dcae23.png",
   },
 ];
 export default dappList;

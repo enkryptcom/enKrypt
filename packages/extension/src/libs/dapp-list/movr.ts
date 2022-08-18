@@ -45,5 +45,14 @@ const dappList: DAppsItem[] = [
     image:
       "https://dashboard-assets.dappradar.com/document/13544/moonbeans-dapp-marketplaces-moonriver-logo-166x166_9d02ffa0e2df7be32435d03463828649.png",
   },
+  {
+    title: "Leonicorn Swap",
+    link: "https://dex.leonicornswap.com/home",
+    description:
+      "Leonicorn Swap is an advanced AMM with features Like NFT Marketplace, Lottery, IDO and many other advanced features.",
+    isFavorites: false,
+    image:
+      "https://dashboard-assets.dappradar.com/document/8905/leonicornswap-dapp-defi-bsc-logo-166x166_ccdf493ffb41233d85061fcc21dcae23.png",
+  },
 ];
 export default dappList;
