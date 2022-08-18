@@ -153,6 +153,8 @@ onClickOutside(
       -ms-line-clamp: 2;
       -webkit-line-clamp: 2;
       line-clamp: 2;
+      word-break: break-all;
+      text-overflow: ellipsis;
     }
 
     &-more {
