@@ -35,7 +35,7 @@ jobs:
 
       - uses: actions/upload-artifact@v3
         with:
-          name: safari-build-artifact-$GITHUB_RUN_ID
+          name: safari-build-artifact-${{ GITHUB_RUN_ID }}
           path: packages/extension/dist
           retention-days: 1
 
