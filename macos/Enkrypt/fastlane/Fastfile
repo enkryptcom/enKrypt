@@ -29,6 +29,10 @@ end
 
 desc "Push a new release build to the App Store"
 lane :release do
+    manifest = read_json(
+      json_path: "../../packages/extension/dist/manifest.json"
+    )
+    increment_version_number(version_number: manifest[:version])
     increment_build_number(xcodeproj: "Enkrypt.xcodeproj")
     build_mac_app(scheme: "Enkrypt", 
       export_team_id: CredentialsManager::AppfileConfig.try_fetch_value(:team_id), 
