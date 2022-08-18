@@ -67,7 +67,6 @@
 		8493950D28AC474E009F7287 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		8493950F28AC474E009F7287 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8493951028AC474E009F7287 /* Enkrypt.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Enkrypt.entitlements; sourceTree = "<group>"; };
-		8493951128AC474E009F7287 /* Enkrypt.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Enkrypt.entitlements; sourceTree = "<group>"; };
 		8493951628AC474E009F7287 /* Enkrypt Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Enkrypt Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		8493951B28AC474E009F7287 /* SafariWebExtensionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafariWebExtensionHandler.swift; sourceTree = "<group>"; };
 		8493951D28AC474E009F7287 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -131,7 +130,6 @@
 				8493950D28AC474E009F7287 /* Assets.xcassets */,
 				8493950F28AC474E009F7287 /* Info.plist */,
 				8493951028AC474E009F7287 /* Enkrypt.entitlements */,
-				8493951128AC474E009F7287 /* Enkrypt.entitlements */,
 				849394FE28AC474C009F7287 /* Resources */,
 			);
 			path = Enkrypt;
