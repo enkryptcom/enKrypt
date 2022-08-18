@@ -3,6 +3,46 @@ name: MacOS Safari Deploy
 on: [push]
 
 jobs:
+  buildApp:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: setup env
+        id: node-version
+        run: |
+          docker build -t enkrypt-build-container .
+          echo ::set-output name=NODE_VERSION::$(docker run --rm -v `pwd`:/home:rw enkrypt-build-container /bin/bash -c "node --version")
+
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn config get cacheFolder)"
+
+      - name: Cache yarn modules
+        uses: actions/cache@v3
+        id: yarn-cache
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+
+      - name: yarn install
+        run: docker run --rm -v `pwd`:/home:rw --user "$(id -u):$(id -g)" enkrypt-build-container /bin/bash -c "yarn install --silent"
+
+      - name: build
+        env:
+          VIRUS_TOTAL_API_KEY: ${{secrets.VIRUS_TOTAL_API_KEY}}
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        run: |
+          mkdir release
+          docker run --rm --user "$(id -u):$(id -g)" -v `pwd`:/home:rw enkrypt-build-container /bin/bash -c "cd packages/extension && yarn build:all && yarn build:safari"
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: safari-build-artifact-${{ env.GITHUB_RUN_ID }}
+          path: packages/extension/dist
+          retention-days: 1
+        run: echo ${{ env.GITHUB_RUN_ID }}
+
   deploy:
     name: Deploying to Testflight
     runs-on: macOS-latest
@@ -15,15 +55,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - uses: docker-practice/actions-setup-docker@master
-      - run: |
-        set -x
-        docker version
-        docker run --rm hello-world
-
-      - name: Install docker and build enkrypt container # Taken from https://github.com/actions/virtual-environments/issues/1143#issuecomment-652264388
-        run: |
-          docker build -t enkrypt-build-container .
+      - name: Retrieve saved safari build
+        uses: actions/download-artifact@v3
+        with:
+          name: safari-build-artifact-${{ env.GITHUB_RUN_ID }}
+          path: packages/extension/dist
+        run: echo ${{ env.GITHUB_RUN_ID }}
 
       - name: Deploy iOS Beta to TestFlight via Fastlane
         uses: maierj/fastlane-action@v2.2.0

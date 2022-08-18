@@ -8,7 +8,6 @@
     "build:firefox": "cross-env BROWSER='firefox' vue-cli-service build && yarn build:rollup",
     "build:opera": "cross-env BROWSER='opera' vue-cli-service build && yarn build:rollup",
     "build:safari": "cross-env BROWSER='safari' vue-cli-service build && yarn build:rollup",
-    "build": "yarn build:chrome",
     "lint": "vue-cli-service lint --fix",
     "build:rollup": "cross-env minify=on rollup --config configs/rollup.config.contentscript.js && cross-env minify=on rollup --config configs/rollup.config.inject.js",
     "inspectWebpack": "vue-cli-service inspect > webpack.log",
