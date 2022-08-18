@@ -34,10 +34,9 @@ const openLink = () => {
     padding: 12px;
     position: relative;
     box-sizing: border-box;
-    width: calc(~"50% - 8px");
+    width: 100%;
     background: @buttonBg;
     border-radius: 12px;
-    margin-bottom: 16px;
     text-decoration: none;
     box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.039),
       0px 0.5px 1.5px rgba(0, 0, 0, 0.19);
@@ -52,14 +51,6 @@ const openLink = () => {
       .network-dapps__item-arrow {
         opacity: 1 !important;
       }
-    }
-
-    &:nth-child(odd) {
-      order: 1;
-    }
-
-    &:nth-child(even) {
-      order: 2;
     }
 
     img {

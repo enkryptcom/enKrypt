@@ -153,6 +153,10 @@ onClickOutside(
       letter-spacing: 0.25px;
       color: @primaryLabel;
       margin: 0;
+      white-space: nowrap;
+      width: 220px;
+      text-overflow: ellipsis;
+      overflow: hidden;
     }
 
     &-amount {
