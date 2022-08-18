@@ -41,6 +41,8 @@ jobs:
           name: safari-build-artifact-${{ env.GITHUB_RUN_ID }}
           path: packages/extension/dist
           retention-days: 1
+
+      - name: Print the run id
         run: echo ${{ env.GITHUB_RUN_ID }}
 
   deploy:
@@ -60,6 +62,8 @@ jobs:
         with:
           name: safari-build-artifact-${{ env.GITHUB_RUN_ID }}
           path: packages/extension/dist
+
+      - name: Print the run id
         run: echo ${{ env.GITHUB_RUN_ID }}
 
       - name: Deploy iOS Beta to TestFlight via Fastlane
