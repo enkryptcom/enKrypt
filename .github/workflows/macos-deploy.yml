@@ -29,24 +29,22 @@ jobs:
         run: docker run --rm -v `pwd`:/home:rw --user "$(id -u):$(id -g)" enkrypt-build-container /bin/bash -c "yarn install --silent"
 
       - name: build
-        env:
-          VIRUS_TOTAL_API_KEY: ${{secrets.VIRUS_TOTAL_API_KEY}}
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
         run: |
           mkdir release
           docker run --rm --user "$(id -u):$(id -g)" -v `pwd`:/home:rw enkrypt-build-container /bin/bash -c "cd packages/extension && yarn build:all && yarn build:safari"
 
       - uses: actions/upload-artifact@v3
         with:
-          name: safari-build-artifact-${{ env.GITHUB_RUN_ID }}
+          name: safari-build-artifact-$GITHUB_RUN_ID
           path: packages/extension/dist
           retention-days: 1
 
       - name: Print the run id
-        run: echo ${{ env.GITHUB_RUN_ID }}
+        run: echo $GITHUB_RUN_ID
 
   deploy:
-    name: Deploying to Testflight
+    name: Deploying to appstore
+    needs: buildApp
     runs-on: macOS-latest
 
     steps:
@@ -60,11 +58,11 @@ jobs:
       - name: Retrieve saved safari build
         uses: actions/download-artifact@v3
         with:
-          name: safari-build-artifact-${{ env.GITHUB_RUN_ID }}
+          name: safari-build-artifact-$GITHUB_RUN_ID
           path: packages/extension/dist
 
       - name: Print the run id
-        run: echo ${{ env.GITHUB_RUN_ID }}
+        run: echo $GITHUB_RUN_ID
 
       - name: Deploy iOS Beta to TestFlight via Fastlane
         uses: maierj/fastlane-action@v2.2.0
