@@ -49,6 +49,7 @@ end
 
 desc "Prepare build and release build to the App Store"
 lane :buildandrelease do
+    setup_ci
     app_store_connect_api_key(
       key_id: ENV["API_KEY_ID"] ,
       issuer_id: ENV["API_ISSUER_ID"],

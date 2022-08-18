@@ -5,37 +5,42 @@
     
     
       
-      <testcase classname="fastlane.lanes" name="0: update_fastlane" time="3.097139">
+      <testcase classname="fastlane.lanes" name="0: update_fastlane" time="2.588292">
         
       </testcase>
     
       
-      <testcase classname="fastlane.lanes" name="1: app_store_connect_api_key" time="0.003664">
+      <testcase classname="fastlane.lanes" name="1: setup_ci" time="0.000283">
         
       </testcase>
     
       
-      <testcase classname="fastlane.lanes" name="2: Switch to prepare lane" time="0.000633">
+      <testcase classname="fastlane.lanes" name="2: app_store_connect_api_key" time="0.004166">
         
       </testcase>
     
       
-      <testcase classname="fastlane.lanes" name="3: produce" time="1.488559">
+      <testcase classname="fastlane.lanes" name="3: Switch to prepare lane" time="0.000192">
         
       </testcase>
     
       
-      <testcase classname="fastlane.lanes" name="4: match" time="3.806136">
+      <testcase classname="fastlane.lanes" name="4: match" time="3.359249">
         
       </testcase>
     
       
-      <testcase classname="fastlane.lanes" name="5: Switch to release lane" time="0.000334">
+      <testcase classname="fastlane.lanes" name="5: Switch to release lane" time="0.000243">
         
       </testcase>
     
       
-      <testcase classname="fastlane.lanes" name="6: increment_build_number" time="1.041916">
+      <testcase classname="fastlane.lanes" name="6: increment_build_number" time="1.296257">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="7: build_mac_app" time="1.905416">
         
       </testcase>
     
