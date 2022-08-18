@@ -116,6 +116,7 @@ export class ChangellySwapProvider extends SwapProvider {
     NetworkNames.Ethereum,
     NetworkNames.Binance,
     NetworkNames.Matic,
+    NetworkNames.Okc,
   ];
   public supportedDexes = ["CHANGELLY"];
   supportedTokens: string[] = [
@@ -125,6 +126,7 @@ export class ChangellySwapProvider extends SwapProvider {
     "BNB",
     "MATIC",
     "MATICPOLYGON",
+    "OKC",
   ];
   constructor() {
     super();
