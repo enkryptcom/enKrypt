@@ -151,7 +151,7 @@ import BigNumber from "bignumber.js";
 import { GasFeeType } from "./types";
 import MarketData from "@/libs/market-data";
 import { defaultGasCostVals } from "./common/default-vals";
-import { EnkryptAccount } from "@enkryptcom/types";
+import { EnkryptAccount, NetworkNames } from "@enkryptcom/types";
 import { TransactionSigner } from "./libs/signer";
 import { Activity, ActivityStatus, ActivityType } from "@/types/activity";
 import { generateAddress } from "ethereumjs-util";
@@ -182,7 +182,7 @@ const Options = ref<ProviderRequestOptions>({
   url: "",
   tabId: 0,
 });
-const selectedFee = ref<GasPriceTypes>(GasPriceTypes.ECONOMY);
+const selectedFee = ref<GasPriceTypes>(GasPriceTypes.REGULAR);
 
 defineExpose({ providerVerifyTransactionScrollRef });
 
@@ -257,7 +257,10 @@ onBeforeMount(async () => {
         fiatSymbol: "USD",
       },
     };
-    selectedFee.value = GasPriceTypes.ECONOMY;
+    selectedFee.value =
+      network.value.name === NetworkNames.Matic
+        ? GasPriceTypes.FASTEST
+        : GasPriceTypes.REGULAR;
   });
 });
 
