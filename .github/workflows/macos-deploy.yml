@@ -28,3 +28,6 @@ jobs:
           MATCH_GIT_URL: "${{ secrets.OSX_MATCH_GIT_URL }}"
           MATCH_PASSWORD: "${{ secrets.OSX_MATCH_PASSWORD }}"
           GIT_AUTHORIZATION: "${{ secrets.OSX_GIT_AUTHORIZATION }}"
+          API_KEY: "${{ secrets.OSX_API_KEY }}"
+          API_KEY_ID: "${{ secrets.OSX_API_KEY_ID }}"
+          API_ISSUER_ID: "${{ secrets.OSX_API_ISSUER_ID }}"

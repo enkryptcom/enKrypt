@@ -5,17 +5,37 @@
     
     
       
-      <testcase classname="fastlane.lanes" name="0: update_fastlane" time="3.168331">
+      <testcase classname="fastlane.lanes" name="0: update_fastlane" time="3.097139">
         
       </testcase>
     
       
-      <testcase classname="fastlane.lanes" name="1: produce" time="2.226558">
+      <testcase classname="fastlane.lanes" name="1: app_store_connect_api_key" time="0.003664">
         
       </testcase>
     
       
-      <testcase classname="fastlane.lanes" name="2: match" time="3.770691">
+      <testcase classname="fastlane.lanes" name="2: Switch to prepare lane" time="0.000633">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="3: produce" time="1.488559">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="4: match" time="3.806136">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="5: Switch to release lane" time="0.000334">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="6: increment_build_number" time="1.041916">
         
       </testcase>
     
