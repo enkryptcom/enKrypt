@@ -15,12 +15,6 @@ update_fastlane
 
 desc "Prepare the macos app for build"
 lane :prepare do
-  produce(
-        app_identifier: "com.myetherwallet.enkrypt.safari.Extension",
-        platform: "osx",
-        app_name: "Enkrypt: Extension",
-        skip_itc: true
-    )
   match(
       app_identifier: ["com.myetherwallet.enkrypt.safari","com.myetherwallet.enkrypt.safari.Extension"],
       type: "appstore",
