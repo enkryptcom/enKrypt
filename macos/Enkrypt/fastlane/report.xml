@@ -5,27 +5,32 @@
     
     
       
-      <testcase classname="fastlane.lanes" name="0: update_fastlane" time="2.540054">
+      <testcase classname="fastlane.lanes" name="0: update_fastlane" time="2.791735">
         
       </testcase>
     
       
-      <testcase classname="fastlane.lanes" name="1: read_json" time="0.000633">
+      <testcase classname="fastlane.lanes" name="1: read_json" time="0.000424">
         
       </testcase>
     
       
-      <testcase classname="fastlane.lanes" name="2: increment_version_number" time="2.130396">
+      <testcase classname="fastlane.lanes" name="2: increment_version_number_in_xcodeproj" time="0.080118">
         
       </testcase>
     
       
-      <testcase classname="fastlane.lanes" name="3: increment_build_number" time="1.05144">
+      <testcase classname="fastlane.lanes" name="3: increment_build_number" time="1.329381">
         
       </testcase>
     
       
-      <testcase classname="fastlane.lanes" name="4: build_mac_app" time="1.751946">
+      <testcase classname="fastlane.lanes" name="4: build_mac_app" time="17.679983">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="5: upload_to_app_store" time="5.586926">
         
       </testcase>
     

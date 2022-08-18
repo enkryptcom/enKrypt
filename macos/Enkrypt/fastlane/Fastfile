@@ -32,8 +32,8 @@ lane :release do
     manifest = read_json(
       json_path: "../../packages/extension/dist/manifest.json"
     )
-    increment_version_number(version_number: manifest[:version])
-    increment_build_number(xcodeproj: "Enkrypt.xcodeproj")
+    increment_version_number_in_xcodeproj(version_number: manifest[:version], xcodeproj: "Enkrypt.xcodeproj")
+    increment_build_number( build_number: ENV["GITHUB_RUN_ID"], xcodeproj: "Enkrypt.xcodeproj")
     build_mac_app(scheme: "Enkrypt", 
       export_team_id: CredentialsManager::AppfileConfig.try_fetch_value(:team_id), 
       destination: "generic/platform=macOS",

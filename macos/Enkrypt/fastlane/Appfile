@@ -5,4 +5,3 @@ apple_id ENV["APPLE_ID"]
 app_identifier ENV["APP_ID"]
 itc_team_id ENV["ITC_TEAM_ID"]
 team_id ENV["TEAM_ID"]
-ENV["SDK_VERSION"] = "macOS 12.3"
