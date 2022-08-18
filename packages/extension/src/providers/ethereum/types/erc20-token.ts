@@ -27,7 +27,11 @@ export class Erc20Token extends BaseToken {
       return contract.methods
         .balanceOf(address)
         .call()
-        .then((val: BN) => numberToHex(val));
+        .then((val: BN) => {
+          const balance = numberToHex(val);
+          this.balance = balance;
+          return balance;
+        });
     }
   }
 

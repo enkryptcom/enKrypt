@@ -10,8 +10,11 @@
         <img :src="token.icon" />
 
         <div class="asset-detail-view__token-info-name">
-          <h4>{{ token.name }}</h4>
-          <p>{{ token.symbol }}</p>
+          <h4 v-if="token.name.length <= 16">{{ token.name }}</h4>
+          <tooltip v-else :text="token.name"
+            ><h4>{{ `${token.name.slice(0, 12)}...` }}</h4></tooltip
+          >
+          <p>{{ token.symbol.toLowerCase() }}</p>
         </div>
       </div>
 
@@ -45,7 +48,7 @@
       <div class="asset-detail-view__token-balance">
         <h6>Balance</h6>
         <h4>
-          {{ token.balancef }} <span>{{ token.symbol }}</span>
+          {{ token.balancef }} <span>{{ token.symbol.toLowerCase() }}</span>
         </h4>
         <p>${{ token.balanceUSDf }}</p>
       </div>
@@ -64,6 +67,7 @@ import SparklineUp from "@action/icons/asset/sparkline-up.vue";
 import SparklineDown from "@action/icons/asset/sparkline-down.vue";
 // import ActionMenu from "@action/components/action-menu/index.vue";
 import { AssetsType } from "@/types/provider";
+import Tooltip from "@/ui/action/components/tooltip/index.vue";
 
 defineProps({
   token: {
