@@ -1,7 +1,9 @@
 const path = require("path");
-
+const IS_DEV = process.env.NODE_ENV === "development";
 const setConfig = (config) => {
-  config.devtool("source-map");
+  if (IS_DEV) config.devtool("source-map");
+  else config.devtool(false);
+
   config.resolve.symlinks(false);
   config.resolve.set("fallback", {
     Buffer: require.resolve("buffer"),

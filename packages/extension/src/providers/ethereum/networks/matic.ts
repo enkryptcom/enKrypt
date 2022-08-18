@@ -1,4 +1,4 @@
-import { NetworkNames } from "@enkryptcom/types";
+import { CoingeckoPlatform, NetworkNames } from "@enkryptcom/types";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
 import assetsInfoHandler from "@/providers/ethereum/libs/assets-handlers/assetinfo-mew";
 import RaribleNFTHandler from "@/libs/nft-handlers/rarible";
@@ -18,6 +18,7 @@ const maticOptions: EvmNetworkOptions = {
   icon: require("./icons/matic.svg"),
   gradient: "#7B3FE4",
   coingeckoID: "matic-network",
+  coingeckoPlatform: CoingeckoPlatform.Matic,
   NFTHandler: RaribleNFTHandler,
   assetsInfoHandler,
   activityHandler: wrapActivityHandler(EtherscanActivity),

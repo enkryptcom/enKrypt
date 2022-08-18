@@ -8,6 +8,7 @@ import {
 } from "./types";
 import BigNumber from "bignumber.js";
 import cacheFetch from "../cache-fetch";
+import { CoingeckoPlatform } from "@enkryptcom/types";
 const COINGECKO_ENDPOINT = "https://api.coingecko.com/api/v3/";
 const FIAT_EXCHANGE_RATE_ENDPOINT =
   "https://mainnet.mewwallet.dev/v2/prices/exchange-rates";
@@ -57,7 +58,7 @@ class MarketData {
   }
   async getMarketInfoByContracts(
     contracts: string[],
-    platformId: string
+    platformId: CoingeckoPlatform
   ): Promise<Record<string, CoinGeckoTokenMarket | null>> {
     await this.setMarketInfo();
     const allTokens = Object.values(await this.#getAllTokens());

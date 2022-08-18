@@ -34,4 +34,9 @@ export default {
     name: "ethHWVerify",
     component: {},
   },
+  walletWatchAsset: {
+    path: "wallet-watch-asset",
+    name: "walletWatchAsset",
+    component: {},
+  },
 };
