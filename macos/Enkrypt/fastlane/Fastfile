@@ -37,7 +37,6 @@ lane :release do
       export_method: "app-store",
       output_directory: "build",
       installer_cert_name: ENV["INSTALLER_CERT"],
-      sdk: ENV["SDK_VERSION"],
       export_options: {
       provisioningProfiles: { 
          "com.myetherwallet.enkrypt.safari" => ENV["SAFARI_PROVISION"],
