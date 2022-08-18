@@ -2,6 +2,13 @@ import { DAppsItem } from "@/types/ui";
 
 const dappList: DAppsItem[] = [
   {
+    title: "MEW",
+    link: "https://www.myetherwallet.com/",
+    description: "The original interface for all crypto has to offer.",
+    isFavorites: false,
+    image: require("./assets/mew.svg"),
+  },
+  {
     title: "Solarbeam",
     link: "https://app.solarbeam.io/exchange/swap",
     description: "The native AMM of Moonriver & Moonbeam",

@@ -2,8 +2,17 @@ import { DAppsItem } from "@/types/ui";
 
 const dappList: DAppsItem[] = [
   {
+    title: "MEW",
+    link: "https://www.myetherwallet.com/",
+    description: "The original interface for all crypto has to offer.",
+    isFavorites: false,
+    image: require("./assets/mew.svg"),
+  },
+  {
     title: "Unstoppable Domains",
     link: "https://unstoppabledomains.com/?ref=daf66e72f515449",
+    description:
+      "Simplifying crypto payments and making web3 easy with NFT domains.",
     isFavorites: false,
     image:
       "https://dashboard-assets.dappradar.com/document/11097/unstoppabledomains-dapp-collectibles-ethereum-logo-166x166_013c8d4a01678362ad762e64b107f1f7.png",
