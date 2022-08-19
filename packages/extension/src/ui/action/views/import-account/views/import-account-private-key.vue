@@ -1,8 +1,5 @@
 <template>
-  <import-account-header
-    v-bind="$attrs"
-    :is-back="true"
-  ></import-account-header>
+  <import-account-header v-bind="$attrs" :is-back="true" />
 
   <div class="import-account-private-key" :class="{ process: isProcessing }">
     <h2>Import account with Private Key</h2>
@@ -18,12 +15,12 @@
       placeholder="Private key"
       autofocus
       @change="onInput"
+      @keyup.enter="importAction"
     >
     </textarea>
+
     <p class="import-account-private-key__already_exists">
-      {{
-        accountAlreadyExists ? "The account is already in the extension" : ""
-      }}
+      {{ accountAlreadyExists ? "This account has already been added" : "" }}
     </p>
 
     <base-button
@@ -40,6 +37,7 @@ import ImportAccountHeader from "../components/import-account-header.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import Wallet from "ethereumjs-wallet";
 import { hexToBuffer } from "@enkryptcom/utils";
+import { KeyPairAdd, SignerType } from "@enkryptcom/types";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
 
 const isProcessing = ref(false);
@@ -47,7 +45,7 @@ const privKey = ref("");
 const keyring = new PublicKeyRing();
 
 const emit = defineEmits<{
-  (e: "update:wallet", wallet: Wallet): void;
+  (e: "update:wallet", keypair: KeyPairAdd): void;
 }>();
 
 const accountAlreadyExists = ref(false);
@@ -71,24 +69,20 @@ const onInput = () => {
 const importAction = async () => {
   const buffer = hexToBuffer(formattedPrivateKey.value);
   const wallet = new Wallet(buffer);
-  const newAddress = `0x${wallet.getAddress().toString("hex")}`.toLowerCase();
+  const newAddress = `0x${wallet.getAddress().toString("hex")}`;
 
-  const allAccounts = await keyring.getAccounts();
-
-  let alreadyExists = false;
-
-  for (const account of allAccounts) {
-    if (account.address.toLowerCase() === newAddress) {
-      alreadyExists = true;
-      break;
-    }
-  }
-
-  if (alreadyExists) {
-    accountAlreadyExists.value = alreadyExists;
+  if (await keyring.accountAlreadyAdded(newAddress)) {
+    accountAlreadyExists.value = true;
     return;
   }
-  emit("update:wallet", wallet);
+
+  emit("update:wallet", {
+    privateKey: wallet.getPrivateKeyString(),
+    publicKey: wallet.getPublicKeyString(),
+    address: wallet.getAddressString(),
+    name: "",
+    signerType: SignerType.secp256k1,
+  });
 };
 </script>
 
@@ -124,7 +118,7 @@ const importAction = async () => {
 
   &__input {
     width: 100%;
-    height: 62px;
+    height: auto;
     background: @white;
     font-family: "Roboto";
     box-sizing: border-box;
@@ -141,11 +135,6 @@ const importAction = async () => {
     border: 2px solid @primary;
     &.error {
       border: 2px solid @error;
-      line-height: 38px;
-    }
-    &:active,
-    &:focus {
-      height: 64px;
     }
   }
 

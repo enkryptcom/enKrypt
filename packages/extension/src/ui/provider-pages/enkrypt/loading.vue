@@ -1,6 +1,6 @@
 <template>
   <div class="unlock-keyring">
-    <common-popup> </common-popup>
+    <common-popup />
   </div>
 </template>
 

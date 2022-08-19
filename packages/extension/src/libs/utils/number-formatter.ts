@@ -502,7 +502,7 @@ const getRoundNumber = (
     value: hasTrailingZeros
       ? value.decimalPlaces(round).toFormat(round)
       : value.decimalPlaces(round).toFormat(),
-    tooltipText: dps > round ? value.toFormat() : undefined,
+    tooltipText: dps! > round ? value.toFormat() : undefined,
   };
 };
 

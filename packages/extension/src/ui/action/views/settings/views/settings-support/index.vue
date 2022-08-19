@@ -1,9 +1,6 @@
 <template>
   <div>
-    <settings-inner-header
-      :is-support="true"
-      v-bind="$attrs"
-    ></settings-inner-header>
+    <settings-inner-header :is-support="true" v-bind="$attrs" />
   </div>
 </template>
 

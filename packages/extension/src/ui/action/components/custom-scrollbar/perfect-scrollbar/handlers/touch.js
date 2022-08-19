@@ -49,7 +49,7 @@ export default function (i) {
 
   let startOffset = {};
   let startTime = 0;
-  let speed = {};
+  const speed = {};
   let easingLoop = null;
 
   function getTouch(e) {

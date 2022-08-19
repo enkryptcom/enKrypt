@@ -1,6 +1,6 @@
 <template>
   <div class="add-account-form__container">
-    <div class="add-account-form__overlay" @click="$emit('window:close')"></div>
+    <div class="add-account-form__overlay" @click="$emit('window:close')" />
     <div class="add-account-form">
       <h3>Add new {{ network.name_long }} account</h3>
 

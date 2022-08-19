@@ -1,9 +1,6 @@
 <template>
   <div class="swap-token-input" :class="{ focus: isFocus }">
-    <swap-token-select
-      :toggle-select="toggleSelect"
-      :token="token"
-    ></swap-token-select>
+    <swap-token-select :toggle-select="toggleSelect" :token="token" />
 
     <swap-token-amount-input
       v-show="!!token"
@@ -13,7 +10,7 @@
       :change-focus="changeFocus"
       :error="inputError !== null"
       @update:value="amountChanged"
-    ></swap-token-amount-input>
+    />
 
     <a
       v-show="!!token && ((token as any).contract !== NATIVE_TOKEN_ADDRESS)"

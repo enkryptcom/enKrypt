@@ -1,29 +1,32 @@
 <template>
-  <div class="network-nfts__item" @mouseleave="closeMoreMenu">
+  <div class="network-nfts__item">
     <a class="network-nfts__item-image" @click="toggleDetail">
       <img :src="item.image" alt="" @error="imageLoadError" />
       <div class="network-nfts__item-name">{{ item.name }}</div>
     </a>
-    <a class="network-nfts__item-more" @mouseenter="toggleMoreMenu">
+
+    <a ref="toggle" class="network-nfts__item-more" @click="toggleMoreMenu">
       <span></span><span></span><span></span>
     </a>
 
     <network-nfts-item-more-menu
-      v-show="isOpenMore"
+      v-if="isOpenMore"
+      ref="dropdown"
       :is-favorite="isFavorite"
       :is-hidden="isHidden"
       :item="item"
       v-bind="$attrs"
       @update:hide-me="toggleMoreMenu"
-      @mouseleave="toggleMoreMenu"
-    ></network-nfts-item-more-menu>
+    />
 
     <nft-detail-view
       v-if="isDetail"
       :item="item"
+      :is-favorite="isFavorite"
       :link-action="openLink"
+      v-bind="$attrs"
       @close:popup="toggleDetail"
-    ></nft-detail-view>
+    />
   </div>
 </template>
 
@@ -33,12 +36,17 @@ import { NFTItem } from "@/types/nft";
 import { PropType } from "vue";
 import NetworkNftsItemMoreMenu from "./network-nfts-item-more-menu.vue";
 import NftDetailView from "@action/views/nft-detail-view/index.vue";
+import { onClickOutside } from "@vueuse/core";
+
 const notfoundimg = require("@action/assets/common/not-found.jpg");
 const imageLoadError = (img: any) => {
   img.target.src = notfoundimg;
 };
 const isOpenMore = ref(false);
 const isDetail = ref(false);
+const dropdown = ref(null);
+const toggle = ref(null);
+
 const props = defineProps({
   item: {
     type: Object as PropType<NFTItem>,
@@ -62,15 +70,19 @@ const props = defineProps({
 const toggleMoreMenu = () => {
   isOpenMore.value = !isOpenMore.value;
 };
-const closeMoreMenu = () => {
-  isOpenMore.value = false;
-};
 const toggleDetail = () => {
   isDetail.value = !isDetail.value;
 };
 const openLink = () => {
   window.open(props.item.url, "_blank");
 };
+onClickOutside(
+  dropdown,
+  () => {
+    if (isOpenMore.value) isOpenMore.value = false;
+  },
+  { ignore: [toggle] }
+);
 </script>
 
 <style lang="less">
@@ -114,7 +126,8 @@ const openLink = () => {
 
     &-name {
       width: 128px;
-      height: 28px;
+      min-height: 28px;
+      max-height: 48px;
       left: 0px;
       bottom: 0px;
       background: linear-gradient(
@@ -137,6 +150,11 @@ const openLink = () => {
       -o-transition: all 0.3s ease-in-out;
       transition: all 0.3s ease-in-out;
       opacity: 0;
+      -ms-line-clamp: 2;
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+      word-break: break-all;
+      text-overflow: ellipsis;
     }
 
     &-more {

@@ -1,6 +1,6 @@
 <template>
   <div class="wallet-ready">
-    <logo-big class="wallet-ready__logo"></logo-big>
+    <logo-big class="wallet-ready__logo" />
     <h3>Your wallet is ready</h3>
 
     <div class="wallet-ready__social">

@@ -8,7 +8,7 @@
             :is-active="!!selected && element.name === selected"
             :selected="selected"
             @click="emit('update:network', element)"
-          ></app-menu-item>
+          />
         </template>
       </draggable>
     </custom-scrollbar>
@@ -84,14 +84,15 @@ const onChange = (evt: any) => {
 @import "~@action/styles/theme.less";
 
 .app-menu {
-  margin: 16px 0;
+  margin-top: 16px;
   overflow-y: auto;
+  margin-bottom: 56px;
 
   &__scroll-area {
     position: relative;
     margin: auto;
     width: 100%;
-    max-height: 400px;
+    max-height: 432px;
 
     &.ps--active-y {
       padding-right: 0 !important;

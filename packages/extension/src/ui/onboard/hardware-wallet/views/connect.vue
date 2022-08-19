@@ -21,14 +21,14 @@
     v-if="isProcessing"
     :is-ledger="walletType === HWwalletType.ledger"
     :is-connetion="true"
-  ></hardware-wallet-process>
+  />
   <hardware-wallet-error
     v-if="isError"
     :is-ledger="walletType === HWwalletType.ledger"
     :app-name="appName"
     :error-message="errorMessage"
     @retry-connection="connectAction"
-  ></hardware-wallet-error>
+  />
 </template>
 <script setup lang="ts">
 import { computed, ref } from "vue";

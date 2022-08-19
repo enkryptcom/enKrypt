@@ -16,3 +16,17 @@ export enum NetworkNames {
   Polkadot = "DOT",
   Westend = "WND",
 }
+
+export enum CoingeckoPlatform {
+  Ethereum = "ethereum",
+  Binance = "binance-smart-chain",
+  EthereumClassic = "ethereum-classic",
+  Matic = "polygon-pos",
+  Moonbeam = "moonbeam",
+  Moonriver = "moonriver",
+  Acala = "acala",
+  Karura = "karura",
+  KaruraEVM = "karura",
+  Kusama = "kusama",
+  Polkadot = "polkadot",
+}

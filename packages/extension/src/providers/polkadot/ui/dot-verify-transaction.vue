@@ -1,7 +1,7 @@
 <template>
   <common-popup>
     <template #header>
-      <sign-logo class="common-popup__logo"></sign-logo>
+      <sign-logo class="common-popup__logo" />
       <div class="common-popup__network">
         <img :src="network ? network.icon : defaultNetwork.icon" />
         <p>{{ network ? network.name_long : "" }}</p>
@@ -10,9 +10,7 @@
 
     <template #content>
       <h2>Verify transaction</h2>
-      <hardware-wallet-msg
-        :wallet-type="account?.walletType"
-      ></hardware-wallet-msg>
+      <hardware-wallet-msg :wallet-type="account?.walletType" />
       <div class="provider-verify-transaction__block">
         <div class="provider-verify-transaction__account">
           <img
@@ -71,10 +69,7 @@
         </div>
       </div>
 
-      <best-offer-error
-        v-if="insufficientBalance"
-        :not-enought-verify="true"
-      ></best-offer-error>
+      <best-offer-error v-if="insufficientBalance" :not-enought-verify="true" />
 
       <div class="provider-verify-transaction__data">
         <a

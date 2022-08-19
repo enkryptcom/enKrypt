@@ -14,6 +14,8 @@ import {
   SendMessageHandler,
 } from "@/types/provider";
 import { EXTENSION_VERSION } from "@/configs/constants";
+import { SettingsType } from "@/libs/settings-state/types";
+import { EnkryptWindow } from "@/types/globals";
 
 export class Provider extends EventEmitter implements ProviderInterface {
   chainId: string | null;
@@ -51,21 +53,18 @@ export class Provider extends EventEmitter implements ProviderInterface {
         this.networkVersion = res;
       });
     }
-    if (this.selectedAddress === null) {
-      await this.sendMessageHandler(
-        this.name,
-        JSON.stringify({
-          method: "eth_accounts",
-        })
-      ).then((res) => {
-        this.selectedAddress = res[0];
-      });
+    if (
+      this.selectedAddress === null &&
+      request.method === "eth_requestAccounts"
+    ) {
+      return this.sendMessageHandler(this.name, JSON.stringify(request)).then(
+        (res) => {
+          this.selectedAddress = res[0];
+          return res;
+        }
+      );
     }
-    const res = (await this.sendMessageHandler(
-      this.name,
-      JSON.stringify(request)
-    )) as EthereumResponse;
-    return res;
+    return this.sendMessageHandler(this.name, JSON.stringify(request));
   }
   enable(): Promise<any> {
     return this.request({ method: "eth_requestAccounts" });
@@ -131,7 +130,9 @@ const injectDocument = (
   options: ProviderOptions
 ): void => {
   const provider = new Provider(options);
-  document[options.name] = new Proxy(provider, ProxyHandler); //proxy is needed due to web3js 1.3.0 callbackify issue. Used in superrare
+  const globalSettings: SettingsType = document.enkrypt.settings;
+  if (!globalSettings.evm.inject.disabled)
+    document[options.name] = new Proxy(provider, ProxyHandler); //proxy is needed due to web3js 1.3.0 callbackify issue. Used in superrare
   document["enkrypt"]["providers"][options.name] = provider;
 };
 export default injectDocument;

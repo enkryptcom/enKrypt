@@ -1,6 +1,6 @@
 <template>
   <div class="settings__container">
-    <div class="settings__overlay" @click="close()"></div>
+    <div class="settings__overlay" @click="close()" />
     <div class="settings__wrap">
       <settings-start
         v-if="isStart"
@@ -10,44 +10,44 @@
         @action:recovery-phrase="recoveryPhraseAction"
         @action:support="supportAction"
         @window:close="close"
-      ></settings-start>
+      />
       <settings-general
         v-if="isGeneral"
         @window:close="close"
         @window:back="startAction"
-      ></settings-general>
+      />
       <settings-support
         v-if="isSupport"
         @window:close="close"
         @window:back="startAction"
-      ></settings-support>
+      />
       <settings-about
         v-if="isAbout"
         @window:close="close"
         @window:back="startAction"
-      ></settings-about>
+      />
       <settings-recovery
         v-if="isPhrase"
         :mnemonic="mnemonic"
         @window:close="close"
         @window:back="startAction"
-      ></settings-recovery>
+      />
       <reset-wallet
         v-if="isReset"
         @window:close="close"
         @window:back="startAction"
-      ></reset-wallet>
+      />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from "vue";
-import SettingsStart from "@action/views/settings-start/index.vue";
-import SettingsGeneral from "@action/views/settings-general/index.vue";
-import SettingsSupport from "@action/views/settings-support/index.vue";
-import SettingsAbout from "@action/views/settings-about/index.vue";
-import SettingsRecovery from "@action/views/settings-recovery/index.vue";
+import SettingsStart from "./views/settings-start/index.vue";
+import SettingsGeneral from "./views/settings-general/index.vue";
+import SettingsSupport from "./views/settings-support/index.vue";
+import SettingsAbout from "./views/settings-about/index.vue";
+import SettingsRecovery from "./views/settings-recovery/index.vue";
 import ResetWallet from "@action/views/reset-wallet/index.vue";
 
 const isStart = ref(true);

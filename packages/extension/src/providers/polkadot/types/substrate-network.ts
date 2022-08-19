@@ -3,7 +3,7 @@ import SubstrateAPI from "@/providers/polkadot/libs/api";
 import { AssetsType } from "@/types/provider";
 import { BaseToken } from "@/types/base-token";
 import { ProviderName } from "@/types/provider";
-import { NetworkNames, SignerType } from "@enkryptcom/types";
+import { CoingeckoPlatform, NetworkNames, SignerType } from "@enkryptcom/types";
 import { polkadotEncodeAddress } from "@enkryptcom/utils";
 import createIcon from "../libs/blockies";
 import MarketData from "@/libs/market-data";
@@ -34,6 +34,7 @@ export interface SubstrateNetworkOptions {
   gradient: string;
   node: string;
   coingeckoID?: string;
+  coingeckoPlatform?: CoingeckoPlatform;
   genesisHash: string;
   knownTokens?: KnownTokenDisplay[];
   existentialDeposit?: BN;

@@ -4,6 +4,7 @@ import EthereumInject from "../inject";
 import { EthereumRequest } from "../types";
 import { OnMessageResponse } from "@enkryptcom/types";
 import { getError } from "@/libs/error";
+import { EnkryptWindow } from "@/types/globals";
 
 const requestHandler = (request: string): OnMessageResponse => {
   const req = JSON.parse(request) as EthereumRequest;
@@ -41,6 +42,17 @@ const options = {
 const tempWindow: EnkryptWindow = {
   enkrypt: {
     providers: {},
+    settings: {
+      evm: {
+        inject: {
+          disabled: false,
+          timestamp: 0,
+        },
+      },
+      substrate: {
+        injectPolkadotjs: false,
+      },
+    },
   },
 };
 describe("Test Ethereum reponses", () => {

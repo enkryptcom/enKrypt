@@ -1,4 +1,4 @@
-import { NetworkNames } from "@enkryptcom/types";
+import { CoingeckoPlatform, NetworkNames } from "@enkryptcom/types";
 import assets from "./assets/karura-assets";
 import {
   SubstrateNetwork,
@@ -19,9 +19,10 @@ const karuraOptions: SubstrateNetworkOptions = {
   icon: require("../icons/karura.svg"),
   decimals: 12,
   prefix: 8,
-  node: "wss://karura.polkawallet.io",
+  node: "wss://karura-rpc-3.aca-api.network/ws",
   gradient: "linear-gradient(330.21deg, #E40C5B -26.31%, #FF4C3B 88.17%)",
   coingeckoID: "karura",
+  coingeckoPlatform: CoingeckoPlatform.Karura,
   genesisHash:
     "0xbaf5aabe40646d11f0ee8abbdc64f4a4b7674925cba08e4a05ff9ebed6e2126b",
   activityHandler: wrapActivityHandler(subscanActivity),

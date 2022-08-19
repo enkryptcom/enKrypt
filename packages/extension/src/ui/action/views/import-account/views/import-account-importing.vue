@@ -1,11 +1,12 @@
 <template>
-  <import-account-header
-    v-bind="$attrs"
-    :is-back="true"
-  ></import-account-header>
+  <import-account-header v-bind="$attrs" :is-back="true" />
 
   <div class="import-account-importing" :class="{ process: isProcessing }">
     <h2>Importing account</h2>
+    <p class="import-account-importing__info">
+      You can rename your account or continue with a default name.
+    </p>
+
     <hardware-importing-account
       :no-index="true"
       :network="network"
@@ -15,14 +16,14 @@
       :name-value="nameValue"
       :is-error="isNameTaken"
       @update:value="nameUpdated"
-    ></hardware-importing-account>
+    />
 
     <p class="import-account-importing__example">
       Name your account something that makes sense to you! Main account, dapp
       account, yolo account, etc.
     </p>
 
-    <p class="import-account-importing__example">Enter Extension password</p>
+    <h4>Enter Extension password</h4>
 
     <base-input
       type="password"
@@ -31,6 +32,7 @@
       :value="keyringPassword"
       @update:value="updateKeyringPassword"
     />
+
     <p v-show="keyringError" class="import-account-importing__error">
       Invalid Keyring password
     </p>
@@ -58,7 +60,7 @@ import HardwareImportingAccount from "@/ui/onboard/hardware-wallet/components/ha
 import ImportAccountProcess from "../components/import-account-process.vue";
 import { BaseNetwork } from "@/types/base-network";
 import API from "@/providers/ethereum/libs/api";
-import { EnkryptAccount, KeyPair } from "@enkryptcom/types";
+import { EnkryptAccount, KeyPairAdd } from "@enkryptcom/types";
 import { formatFloatingPointValue } from "@/libs/utils/number-formatter";
 import { fromBase } from "@/libs/utils/units";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
@@ -74,7 +76,7 @@ const nodeAPI = ref<API>();
 const pubKeyRing = new PublicKeyRing();
 const keyringBase = new KeyRingBase();
 const allAccounts = ref<EnkryptAccount[]>([]);
-const nameValue = ref("My private account");
+const nameValue = ref("");
 const keyringError = ref(false);
 const keyringPassword = ref("");
 
@@ -88,7 +90,7 @@ const props = defineProps({
     default: () => ({}),
   },
   keypair: {
-    type: Object as PropType<KeyPair>,
+    type: Object as PropType<KeyPairAdd>,
     default: () => ({}),
   },
   isPrivKey: Boolean,
@@ -102,6 +104,7 @@ const isNameTaken = computed(() => {
   return allAccounts.value.map((acc) => acc.name).includes(nameValue.value);
 });
 onMounted(() => {
+  nameValue.value = props.keypair.name || "My private account";
   props.network.api().then((api) => {
     nodeAPI.value = api as API;
     updateBalance();
@@ -134,7 +137,7 @@ const importAction = async () => {
             name: nameValue.value,
             privateKey: props.keypair.privateKey,
             publicKey: props.keypair.publicKey,
-            signerType: props.network.signer[0],
+            signerType: props.keypair.signerType,
           },
           keyringPassword.value
         )
@@ -178,7 +181,16 @@ const updateKeyringPassword = (password: string) => {
     line-height: 40px;
     letter-spacing: 0.25px;
     color: @primaryLabel;
-    margin: 0 0 24px 0;
+    margin: 0 0 8px 0;
+  }
+
+  &__info {
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 24px;
+    margin: 0 0 16px 0;
+    color: @secondaryLabel;
   }
 
   &__example {
@@ -188,8 +200,18 @@ const updateKeyringPassword = (password: string) => {
     line-height: 16px;
     letter-spacing: 0.5px;
     color: @tertiaryLabel;
-    margin: 8px 0 24px 0;
+    margin: 0 0 16px 0;
   }
+
+  h4 {
+    font-style: normal;
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 24px;
+    color: @primaryLabel;
+    margin: 0 0 8px 0;
+  }
+
   &__input {
     margin: 0 0 24px 0;
 

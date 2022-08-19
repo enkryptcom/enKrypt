@@ -1,20 +1,17 @@
 <template>
   <div class="send-contacts-list" :class="{ show: showAccounts }">
-    <div class="send-contacts-list__overlay" @click="close"></div>
+    <div class="send-contacts-list__overlay" @click="close" />
     <div class="send-contacts-list__wrap" :class="{ show: showAccounts }">
       <custom-scrollbar
         class="send-contacts-list__scroll-area"
         :settings="scrollSettings({ suppressScrollX: true })"
       >
         <div class="send-contacts-list__buttons">
-          <base-button
-            title="Send to my address"
-            :click="sendToMyAddress"
-          ></base-button>
+          <base-button title="Send to my address" :click="sendToMyAddress" />
           <base-button
             title="Paste from clipboard"
             :click="pasteFromClipboard"
-          ></base-button>
+          />
         </div>
         <h3>My Accounts</h3>
         <send-address-item
@@ -23,7 +20,7 @@
           :account="account"
           :network="network"
           v-bind="$attrs"
-        ></send-address-item>
+        />
       </custom-scrollbar>
     </div>
   </div>

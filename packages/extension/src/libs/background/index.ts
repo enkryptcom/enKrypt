@@ -27,6 +27,7 @@ import {
   lock,
 } from "./internal";
 import { handlePersistentEvents } from "./external";
+import SettingsState from "../settings-state";
 
 class BackgroundHandler {
   #keyring: KeyRingBase;
@@ -64,6 +65,13 @@ class BackgroundHandler {
         return {
           result: JSON.stringify(true),
         };
+      } else if (method === InternalMethods.getSettings) {
+        const settingsState = new SettingsState();
+        return settingsState.getAllSettings().then((settings) => {
+          return {
+            result: JSON.stringify(settings),
+          };
+        });
       }
       return {
         error: JSON.stringify(getCustomError("Enkrypt: not implemented")),

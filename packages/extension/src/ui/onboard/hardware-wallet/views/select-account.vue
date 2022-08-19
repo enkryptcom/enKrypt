@@ -5,7 +5,7 @@
       :paths="networkPaths"
       :selected-path="selectedPath"
       @update:selected-path="selectPath"
-    ></hardware-select-path>
+    />
     <div class="ledger-select-account__list">
       <hardware-select-account
         v-for="(account, index) in visibleAccounts"
@@ -17,8 +17,7 @@
         :address="account.address"
         :disabled="existingAddresses.includes(account.address)"
         @toggle:select="toggleSelectAccount(account.index)"
-      >
-      </hardware-select-account>
+      />
     </div>
     <div class="ledger-select-account__controls">
       <a

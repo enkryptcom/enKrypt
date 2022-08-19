@@ -1,7 +1,7 @@
 <template>
   <common-popup>
     <template #header>
-      <sign-logo class="common-popup__logo"></sign-logo>
+      <sign-logo class="common-popup__logo" />
       <div class="common-popup__network">
         <img :src="network.icon" />
         <p>{{ network.name_long }}</p>
@@ -10,9 +10,7 @@
 
     <template #content>
       <h2>Verify transaction</h2>
-      <hardware-wallet-msg
-        :wallet-type="account.walletType"
-      ></hardware-wallet-msg>
+      <hardware-wallet-msg :wallet-type="account.walletType" />
       <div class="provider-verify-transaction__block">
         <div class="provider-verify-transaction__account">
           <img :src="identicon" />
@@ -38,8 +36,7 @@
         <div class="provider-verify-transaction__info">
           <img :src="Options.faviconURL" />
           <div class="provider-verify-transaction__info-info">
-            <h4>{{ Options.title }}</h4>
-            <p>{{ Options.domain }}</p>
+            <h4>{{ Options.domain }}</h4>
           </div>
         </div>
 
@@ -82,9 +79,7 @@
         :selected="selectedFee"
         :fee="gasCostValues[selectedFee]"
         @open-popup="toggleSelectFee"
-      ></send-fee-select>
-
-      <!-- <best-offer-error :not-enough-verify="true"></best-offer-error> -->
+      />
 
       <div class="provider-verify-transaction__data">
         <a
@@ -107,7 +102,7 @@
         :is-popup="true"
         @close-popup="toggleSelectFee"
         @gas-type-changed="selectFee"
-      ></transaction-fee-view>
+      />
     </template>
 
     <template #button-left>
@@ -156,7 +151,7 @@ import BigNumber from "bignumber.js";
 import { GasFeeType } from "./types";
 import MarketData from "@/libs/market-data";
 import { defaultGasCostVals } from "./common/default-vals";
-import { EnkryptAccount } from "@enkryptcom/types";
+import { EnkryptAccount, NetworkNames } from "@enkryptcom/types";
 import { TransactionSigner } from "./libs/signer";
 import { Activity, ActivityStatus, ActivityType } from "@/types/activity";
 import { generateAddress } from "ethereumjs-util";
@@ -187,7 +182,7 @@ const Options = ref<ProviderRequestOptions>({
   url: "",
   tabId: 0,
 });
-const selectedFee = ref<GasPriceTypes>(GasPriceTypes.ECONOMY);
+const selectedFee = ref<GasPriceTypes>(GasPriceTypes.REGULAR);
 
 defineExpose({ providerVerifyTransactionScrollRef });
 
@@ -262,7 +257,10 @@ onBeforeMount(async () => {
         fiatSymbol: "USD",
       },
     };
-    selectedFee.value = GasPriceTypes.ECONOMY;
+    selectedFee.value =
+      network.value.name === NetworkNames.Matic
+        ? GasPriceTypes.FASTEST
+        : GasPriceTypes.REGULAR;
   });
 });
 

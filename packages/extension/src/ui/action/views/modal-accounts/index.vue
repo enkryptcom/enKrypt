@@ -1,6 +1,6 @@
 <template>
   <div class="modal-accounts" :class="{ show: showAccounts }">
-    <div class="modal-accounts__overlay" @click="close"></div>
+    <div class="modal-accounts__overlay" @click="close" />
     <div class="modal-accounts__wrap" :class="{ show: showAccounts }">
       <div class="modal-accounts__header">
         <h3>Select account</h3>
@@ -26,7 +26,7 @@
           :active="true"
           :identicon-element="network.identicon"
           :show-edit="showEdit"
-        ></accounts-list-item>
+        />
       </custom-scrollbar>
     </div>
   </div>
@@ -125,6 +125,7 @@ const selectAccount = (address: string) => {
     visibility: hidden;
     transition: opacity 0.3s, visibility 0s ease-in-out 0.3s;
     overflow: hidden;
+    padding-bottom: 8px;
 
     &.show {
       opacity: 1;

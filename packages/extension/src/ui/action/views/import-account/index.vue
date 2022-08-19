@@ -1,14 +1,15 @@
 <template>
   <div class="import-account__container">
-    <div class="import-account__overlay" @click="close()"></div>
+    <div class="import-account__overlay" @click="close()" />
     <div class="import-account__wrap">
       <!-- Ethereum ecosystem  -->
       <import-account-start
-        v-if="isStart && !isDot"
+        v-if="isStart"
+        :network="network"
         @select:keystore="keystoreFileAction"
         @select:privkey="privateKeyAction"
         @close="close"
-      ></import-account-start>
+      />
 
       <import-account-keystore-file
         v-if="isKeystoreFile"
@@ -16,7 +17,7 @@
         @update:select-file="fileSelected"
         @close="close"
         @back="startAction"
-      ></import-account-keystore-file>
+      />
 
       <import-account-password
         v-if="isEnterPassword"
@@ -24,12 +25,13 @@
         :is-error="keystorePassError"
         :file-name="keystoreFile?.name || ''"
         :file-json="keystoreJSON"
+        :network="network"
         @navigate:import-account="importingAccountAction"
         @update:wallet="walletUpdate"
         @update:value="updateKeystorePassword"
         @close="close"
         @back="keystoreFileAction"
-      ></import-account-password>
+      />
 
       <import-account-importing
         v-if="isImportingAccount"
@@ -40,18 +42,18 @@
         v-bind="$attrs"
         @close="close"
         @back="enterPasswordAction"
-      ></import-account-importing>
+      />
 
       <import-account-private-key
         v-if="isPrivateKey"
         @update:wallet="walletUpdate"
         @close="close"
         @back="startAction"
-      ></import-account-private-key>
+      />
 
       <!-- Polkadot ecosystem  -->
 
-      <import-account-start-dot
+      <!-- <import-account-start-dot
         v-if="isStart && isDot"
         :to-select-account="selectAccountAction"
         @close="close"
@@ -61,7 +63,7 @@
         v-if="iSelectAccount && isDot"
         @close="close"
         @back="startAction"
-      ></import-account-select-account-dot>
+      ></import-account-select-account-dot> -->
     </div>
   </div>
 </template>
@@ -73,11 +75,10 @@ import ImportAccountKeystoreFile from "./views/import-account-keystore-file.vue"
 import ImportAccountPassword from "./views/import-account-password.vue";
 import ImportAccountImporting from "./views/import-account-importing.vue";
 import ImportAccountPrivateKey from "./views/import-account-private-key.vue";
-import ImportAccountStartDot from "./views/import-account-start-dot.vue";
-import ImportAccountSelectAccountDot from "./views/import-account-select-account-dot.vue";
-import Wallet from "ethereumjs-wallet";
+// import ImportAccountStartDot from "./views/import-account-start-dot.vue";
+// import ImportAccountSelectAccountDot from "./views/import-account-select-account-dot.vue";
 import { BaseNetwork } from "@/types/base-network";
-import { KeyPair } from "@enkryptcom/types";
+import { KeyPairAdd, SignerType } from "@enkryptcom/types";
 
 const isStart = ref(true);
 const isKeystoreFile = ref(false);
@@ -90,10 +91,12 @@ const keystorePassword = ref("");
 const keystorePassError = ref(false);
 const keystoreFile = ref<File>();
 const keystoreJSON = ref({});
-const keyPair = ref<KeyPair>({
+const keyPair = ref<KeyPairAdd>({
   address: "",
   privateKey: "",
   publicKey: "",
+  name: "",
+  signerType: SignerType.secp256k1,
 });
 const emit = defineEmits<{
   (e: "close"): void;
@@ -103,10 +106,6 @@ defineProps({
   network: {
     type: Object as PropType<BaseNetwork>,
     default: () => ({}),
-  },
-  isDot: {
-    type: Boolean,
-    default: false,
   },
 });
 const isPrivKeyImport = ref(false);
@@ -154,10 +153,10 @@ const importingAccountAction = () => {
   isImportingAccount.value = true;
 };
 
-const selectAccountAction = () => {
-  allVars.forEach((val) => (val.value = false));
-  iSelectAccount.value = true;
-};
+// const selectAccountAction = () => {
+//   allVars.forEach((val) => (val.value = false));
+//   iSelectAccount.value = true;
+// };
 const updateKeystorePassword = (password: string) => {
   keystorePassword.value = password;
 };
@@ -175,12 +174,9 @@ const fileSelected = (file: File) => {
   });
   reader.readAsBinaryString(file);
 };
-const walletUpdate = (wallet: Wallet) => {
-  keyPair.value = {
-    privateKey: wallet.getPrivateKeyString(),
-    publicKey: wallet.getPublicKeyString(),
-    address: wallet.getAddressString(),
-  };
+
+const walletUpdate = (wallet: KeyPairAdd) => {
+  keyPair.value = wallet;
   importingAccountAction();
 };
 </script>

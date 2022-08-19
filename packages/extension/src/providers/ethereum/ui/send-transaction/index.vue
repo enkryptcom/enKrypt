@@ -5,7 +5,7 @@
         :close="close"
         :toggle-type="toggleSelector"
         :is-send-token="isSendToken"
-      ></send-header>
+      />
 
       <send-address-input
         ref="addressInputFrom"
@@ -16,7 +16,7 @@
         @click="toggleSelectContactFrom(true)"
         @update:input-address="inputAddressFrom"
         @toggle:show-contacts="toggleSelectContactFrom"
-      ></send-address-input>
+      />
 
       <send-from-contacts-list
         :show-accounts="isOpenSelectContactFrom"
@@ -25,7 +25,7 @@
         :network="network"
         @selected:account="selectAccountFrom"
         @close="toggleSelectContactFrom"
-      ></send-from-contacts-list>
+      />
 
       <send-address-input
         ref="addressInputTo"
@@ -33,7 +33,7 @@
         :network="network"
         @update:input-address="inputAddressTo"
         @toggle:show-contacts="toggleSelectContactTo"
-      ></send-address-input>
+      />
 
       <send-contacts-list
         :show-accounts="isOpenSelectContactTo"
@@ -43,13 +43,13 @@
         @selected:account="selectAccountTo"
         @update:paste-from-clipboard="addressInputTo.pasteFromClipboard()"
         @close="toggleSelectContactTo"
-      ></send-contacts-list>
+      />
 
       <send-token-select
         v-if="isSendToken"
         :token="selectedAsset"
         @update:toggle-token-select="toggleSelectToken"
-      ></send-token-select>
+      />
 
       <assets-select-list
         v-show="isOpenSelectToken"
@@ -58,19 +58,19 @@
         :is-loading="isLoadingAssets"
         @close="toggleSelectToken"
         @update:select-asset="selectToken"
-      ></assets-select-list>
+      />
 
       <send-nft-select
         v-if="!isSendToken"
         :item="selectedNft"
         :toggle-select="toggleSelectNft"
-      ></send-nft-select>
+      />
 
       <nft-select-list
         v-show="isOpenSelectNft"
         :close="toggleSelectNft"
         :select-item="selectItem"
-      ></nft-select-list>
+      />
 
       <send-input-amount
         v-if="isSendToken"
@@ -79,14 +79,14 @@
         :has-enough-balance="hasEnoughBalance"
         @update:input-amount="inputAmount"
         @update:input-set-max="setMaxValue"
-      ></send-input-amount>
+      />
 
       <send-fee-select
         :in-swap="false"
         :selected="selectedFee"
         :fee="gasCostValues[selectedFee]"
         @open-popup="toggleSelectFee"
-      ></send-fee-select>
+      />
 
       <transaction-fee-view
         :fees="gasCostValues"
@@ -95,7 +95,7 @@
         :is-header="true"
         @close-popup="toggleSelectFee"
         @gas-type-changed="selectFee"
-      ></transaction-fee-view>
+      />
 
       <send-alert
         v-show="hasEnoughBalance && nativeBalanceAfterTransaction.isNeg()"
@@ -155,7 +155,7 @@ import { defaultGasCostVals } from "../common/default-vals";
 import Transaction from "@/providers/ethereum/libs/transaction";
 import Web3 from "web3";
 import { NATIVE_TOKEN_ADDRESS } from "../../libs/common";
-import { fromBase, toBase } from "@/libs/utils/units";
+import { fromBase, toBase, isValidDecimals } from "@/libs/utils/units";
 import erc20 from "../../libs/abi/erc20";
 import { SendTransactionDataType, VerifyTransactionParams } from "../types";
 import { formatFloatingPointValue } from "@/libs/utils/number-formatter";
@@ -193,8 +193,12 @@ const accountAssets = ref<Erc20Token[]>([]);
 const selectedAsset = ref<Erc20Token | Partial<Erc20Token>>(loadingAsset);
 const amount = ref<string>("");
 const hasEnoughBalance = computed(() => {
-  return toBN(selectedAsset.value.balance || "0").gte(
-    toBN(toBase(sendAmount.value, selectedAsset.value.decimals!))
+  if (!isValidDecimals(sendAmount.value, selectedAsset.value.decimals!)) {
+    return false;
+  }
+
+  return toBN(selectedAsset.value.balance ?? "0").gte(
+    toBN(toBase(sendAmount.value ?? "0", selectedAsset.value.decimals!))
   );
 });
 const sendAmount = computed(() => {
@@ -380,11 +384,10 @@ const sendButtonTitle = computed(() => {
 
 const isInputsValid = computed<boolean>(() => {
   if (!isAddress(addressTo.value)) return false;
-  if (
-    new BigNumber(sendAmount.value).gt(assetMaxValue.value) ||
-    nativeBalanceAfterTransaction.value.isNeg()
-  )
+  if (!isValidDecimals(sendAmount.value, selectedAsset.value.decimals!)) {
     return false;
+  }
+  if (new BigNumber(sendAmount.value).gt(assetMaxValue.value)) return false;
   return true;
 });
 
@@ -471,8 +474,13 @@ const selectToken = (token: Erc20Token) => {
 };
 
 const inputAmount = (inputAmount: string) => {
+  if (inputAmount === "") {
+    inputAmount = "0";
+  }
+
+  const inputAmountBn = new BigNumber(inputAmount);
   isMaxSelected.value = false;
-  amount.value = parseFloat(inputAmount) < 0 ? "0" : inputAmount;
+  amount.value = inputAmountBn.lt(0) ? "0" : inputAmountBn.toFixed();
 };
 
 const toggleSelectFee = () => {

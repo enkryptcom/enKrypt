@@ -306,10 +306,6 @@ class KeyRing {
   ): Promise<EnkryptAccount> {
     const existingKeys = await this.getKeysObject();
     assert(!existingKeys[keyPair.address], Errors.KeyringErrors.AddressExists);
-    assert(
-      keyPair.signerType === SignerType.secp256k1,
-      Errors.SigningErrors.NotSupported
-    );
     const kpAcc = await this.createKey({
       basePath: configs.PRIVEY_BASE_PATH,
       name: keyPair.name,

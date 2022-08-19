@@ -17,7 +17,7 @@
         @click="toggleSelectContactFrom(true)"
         @update:input-address="inputAddressFrom"
         @toggle:show-contacts="toggleSelectContactFrom"
-      ></send-address-input>
+      />
 
       <send-from-contacts-list
         :show-accounts="isOpenSelectContactFrom"
@@ -27,7 +27,7 @@
         :identicon="network.identicon"
         @selected:account="selectAccountFrom"
         @close="toggleSelectContactFrom"
-      ></send-from-contacts-list>
+      />
 
       <send-address-input
         ref="addressInputTo"
@@ -35,7 +35,7 @@
         :network="network"
         @update:input-address="inputAddressTo"
         @toggle:show-contacts="toggleSelectContactTo"
-      ></send-address-input>
+      />
 
       <send-contacts-list
         :show-accounts="isOpenSelectContactTo"
@@ -45,12 +45,12 @@
         @selected:account="selectAccountTo"
         @update:paste-from-clipboard="addressInputTo.pasteFromClipboard()"
         @close="toggleSelectContactTo"
-      ></send-contacts-list>
+      />
 
       <send-token-select
         :token="selectedAsset"
         @update:toggle-token-select="toggleSelectToken"
-      ></send-token-select>
+      />
 
       <assets-select-list
         v-show="isOpenSelectToken"
@@ -59,7 +59,7 @@
         :is-loading="isLoadingAssets"
         @close="toggleSelectToken"
         @update:select-asset="selectToken"
-      ></assets-select-list>
+      />
 
       <send-input-amount
         :amount="amount"
@@ -67,14 +67,14 @@
         :has-enough-balance="hasEnough"
         @update:input-amount="inputAmount"
         @update:input-set-max="setSendMax"
-      ></send-input-amount>
+      />
 
       <send-fee-select
         v-if="!edWarn"
         :fee="fee ?? { nativeSymbol: props.network.name }"
-      ></send-fee-select>
+      />
 
-      <send-alert v-if="edWarn"></send-alert>
+      <send-alert v-if="edWarn" />
 
       <div class="send-transaction__buttons">
         <div class="send-transaction__buttons-cancel">
@@ -112,7 +112,7 @@ import { GasFeeInfo } from "@/providers/ethereum/ui/types";
 import { SubstrateNetwork } from "../../types/substrate-network";
 import { toBN } from "web3-utils";
 import { formatFloatingPointValue } from "@/libs/utils/number-formatter";
-import { fromBase, toBase } from "@/libs/utils/units";
+import { fromBase, toBase, isValidDecimals } from "@/libs/utils/units";
 import BigNumber from "bignumber.js";
 import { VerifyTransactionParams } from "../types";
 import { routes as RouterNames } from "@/ui/action/router";
@@ -146,7 +146,7 @@ const isOpenSelectContactTo = ref(false);
 const addressFrom = ref(props.accountInfo.selectedAccount!.address);
 const addressTo = ref("");
 const isOpenSelectToken = ref(false);
-const amount = ref();
+const amount = ref<string>();
 const fee = ref<GasFeeInfo | null>(null);
 const accountAssets = ref<SubstrateToken[]>([]);
 const selectedAsset = ref<SubstrateToken | Partial<SubstrateToken>>(
@@ -171,6 +171,10 @@ const edWarn = computed(() => {
   }
 
   if (!amount.value) {
+    return false;
+  }
+
+  if (!isValidDecimals(amount.value ?? "0", selectedAsset.value.decimals!)) {
     return false;
   }
 
@@ -210,8 +214,14 @@ onMounted(() => {
 
 watch([selectedAsset, amount, addressTo], async () => {
   if (selectedAsset.value && isAddress.value) {
+    if (!isValidDecimals(amount.value ?? "0", selectedAsset.value.decimals!)) {
+      hasEnough.value = false;
+      return;
+    }
+
     const api = (await props.network.api()).api as ApiPromise;
     await api.isReady;
+
     const rawAmount = toBN(
       toBase(
         amount.value ? amount.value.toString() : "0",
@@ -334,10 +344,10 @@ const inputAmount = (number: string) => {
 
 const sendButtonTitle = computed(() => {
   let title = "Send";
-  if (parseInt(amount.value) > 0)
+  if (parseInt(amount.value ?? "0") > 0)
     title =
       "Send " +
-      formatFloatingPointValue(amount.value).value +
+      formatFloatingPointValue(amount.value!).value +
       " " +
       selectedAsset.value?.symbol!.toUpperCase();
   return title;
@@ -383,7 +393,7 @@ const isDisabled = () => {
 };
 
 const sendAction = async () => {
-  const sendAmount = toBase(amount.value, selectedAsset.value.decimals!);
+  const sendAmount = toBase(amount.value!, selectedAsset.value.decimals!);
 
   const sendOptions: SendOptions | undefined = sendMax.value
     ? { type: "all" }
@@ -407,15 +417,15 @@ const sendAction = async () => {
       from: fromAccount.address,
       to: addressTo.value,
       data: tx.toHex() as `0x{string}`,
-      value: amount.value,
+      value: amount.value!,
     },
     toToken: {
-      amount: toBase(amount.value, selectedAsset.value.decimals!),
+      amount: toBase(amount.value!, selectedAsset.value.decimals!),
       decimals: selectedAsset.value.decimals!,
       icon: selectedAsset.value.icon as string,
       symbol: selectedAsset.value.symbol || "unknown",
       valueUSD: new BigNumber(selectedAsset.value.price || "0")
-        .times(amount.value)
+        .times(amount.value!)
         .toFixed(),
       name: selectedAsset.value.name || "",
       price: selectedAsset.value.price || "0",

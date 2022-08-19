@@ -1,4 +1,4 @@
-import { NetworkNames } from "@enkryptcom/types";
+import { CoingeckoPlatform, NetworkNames } from "@enkryptcom/types";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
 import assetsInfoHandler from "@/providers/ethereum/libs/assets-handlers/assetinfo-mew";
 import mewNFTHandler from "@/libs/nft-handlers/mew";
@@ -18,6 +18,7 @@ const ethOptions: EvmNetworkOptions = {
   icon: require("./icons/eth.svg"),
   gradient: "linear-gradient(180deg, #C549FF 0%, #684CFF 100%)",
   coingeckoID: "ethereum",
+  coingeckoPlatform: CoingeckoPlatform.Ethereum,
   NFTHandler: mewNFTHandler,
   assetsInfoHandler,
   activityHandler: wrapActivityHandler(EtherscanActivity),

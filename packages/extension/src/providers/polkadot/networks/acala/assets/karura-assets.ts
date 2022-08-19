@@ -11,7 +11,7 @@ const assets: KnownTokenDisplay[] = [
     name: "Acala Dollar",
     symbol: "aUSD",
     icon: require("./icons/AUSD.png"),
-    coingeckoID: "usd-coin",
+    coingeckoID: "acala-dollar",
   },
   {
     name: "Kusama",
