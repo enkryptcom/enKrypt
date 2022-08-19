@@ -58,7 +58,7 @@ jobs:
           name: safari-build-artifact
           path: packages/extension/dist
 
-      - name: Deploy iOS Beta to TestFlight via Fastlane
+      - name: Deploy via Fastlane
         uses: maierj/fastlane-action@v2.2.0
         with:
           lane: "buildandrelease"
