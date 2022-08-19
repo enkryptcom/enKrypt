@@ -5,19 +5,19 @@ import { ISubmittableResult } from "@polkadot/types/types";
 import { SubstrateToken } from "@/providers/polkadot/types/substrate-token";
 import { BaseTokenOptions } from "@/types/base-token";
 
-type AssetType =
+export type OrmlAssetType =
   | "token"
   | "foreignAsset"
   | "stableAssetPoolToken"
   | "liquidCrowdloan";
 
-interface AcalaOrmlAssetOptions extends BaseTokenOptions {
-  assetType: AssetType;
+export interface AcalaOrmlAssetOptions extends BaseTokenOptions {
+  assetType: OrmlAssetType;
   lookupValue: string | number;
 }
 
 export class AcalaOrmlAsset extends SubstrateToken {
-  public assetType: AssetType;
+  public assetType: OrmlAssetType;
   public lookupValue: string | number;
 
   constructor(options: AcalaOrmlAssetOptions) {
