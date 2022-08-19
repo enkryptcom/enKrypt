@@ -2,6 +2,22 @@ import { DAppsItem } from "@/types/ui";
 
 const dappList: DAppsItem[] = [
   {
+    title: "MEW",
+    link: "https://www.myetherwallet.com/",
+    description: "The original interface for all crypto has to offer.",
+    isFavorites: false,
+    image: require("./assets/mew.svg"),
+  },
+  {
+    title: "Unstoppable Domains",
+    link: "https://unstoppabledomains.com/?ref=daf66e72f515449",
+    description:
+      "Simplifying crypto payments and making web3 easy with NFT domains.",
+    isFavorites: false,
+    image:
+      "https://dashboard-assets.dappradar.com/document/11097/unstoppabledomains-dapp-collectibles-ethereum-logo-166x166_013c8d4a01678362ad762e64b107f1f7.png",
+  },
+  {
     title: "Rarible",
     link: "https://www.rarible.com",
     description: "Today is the non-fungible reality of tomorrow.",
@@ -12,7 +28,7 @@ const dappList: DAppsItem[] = [
   {
     title: "OpenSea",
     link: "https://opensea.io/",
-    description: "Discover, collect, and sell extraordinary NFTs",
+    description: "Discover, collect, and sell extraordinary NFTs.",
     isFavorites: false,
     image:
       "https://dashboard-assets.dappradar.com/document/13/opensea-dapp-marketplaces-ethereum-logo-166x166_f8aad6af2930b1edbeaee6457a505d1b.png",
@@ -43,6 +59,15 @@ const dappList: DAppsItem[] = [
     isFavorites: false,
     image:
       "https://dashboard-assets.dappradar.com/document/962/compound-defi-eth-logo-166x166_fb07f5c16b0a4a53ae787e5555eca168.png",
+  },
+  {
+    title: "Leonicorn Swap",
+    link: "https://dex.leonicornswap.com/home",
+    description:
+      "Leonicorn Swap is an advanced AMM with features Like NFT Marketplace, Lottery, IDO and many other advanced features.",
+    isFavorites: false,
+    image:
+      "https://dashboard-assets.dappradar.com/document/8905/leonicornswap-dapp-defi-bsc-logo-166x166_ccdf493ffb41233d85061fcc21dcae23.png",
   },
 ];
 export default dappList;
