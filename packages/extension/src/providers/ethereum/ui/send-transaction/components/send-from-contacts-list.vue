@@ -1,6 +1,6 @@
 <template>
   <div class="send-from-contacts-list" :class="{ show: showAccounts }">
-    <div class="send-from-contacts-list__overlay" @click="close"></div>
+    <div class="send-from-contacts-list__overlay" @click="close" />
     <div class="send-from-contacts-list__wrap" :class="{ show: showAccounts }">
       <custom-scrollbar
         class="send-from-contacts-list__scroll-area"
@@ -13,7 +13,7 @@
           :network="network"
           v-bind="$attrs"
           :is-checked="address == account.address"
-        ></send-address-item>
+        />
       </custom-scrollbar>
     </div>
   </div>

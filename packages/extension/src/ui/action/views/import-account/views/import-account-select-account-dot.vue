@@ -1,17 +1,14 @@
 <template>
-  <import-account-header
-    v-bind="$attrs"
-    :is-back="true"
-  ></import-account-header>
+  <import-account-header v-bind="$attrs" :is-back="true" />
 
   <div class="import-account-select-account" :class="{ process: isProcessing }">
     <h2>Select an account</h2>
     <div class="import-account-select-account__list">
-      <hardware-select-account></hardware-select-account>
-      <hardware-select-account></hardware-select-account>
-      <hardware-select-account></hardware-select-account>
-      <hardware-select-account></hardware-select-account>
-      <hardware-select-account></hardware-select-account>
+      <hardware-select-account />
+      <hardware-select-account />
+      <hardware-select-account />
+      <hardware-select-account />
+      <hardware-select-account />
     </div>
     <div class="import-account-select-account__controls">
       <a class="prev disable"><arrow-prev />Previous</a>
@@ -36,8 +33,8 @@ import ArrowPrev from "@action/icons/common/arrow-prev.vue";
 import ImportAccountHeader from "../components/import-account-header.vue";
 import ImportAccountProcess from "../components/import-account-process.vue";
 
-let isProcessing = ref(false);
-let isDone = ref(false);
+const isProcessing = ref(false);
+const isDone = ref(false);
 
 defineProps({
   close: {

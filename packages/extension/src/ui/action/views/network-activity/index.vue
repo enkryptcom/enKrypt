@@ -33,7 +33,7 @@
     <network-activity-loading
       v-if="activities.length === 0"
       :is-empty="isNoActivity"
-    ></network-activity-loading>
+    />
   </div>
 </template>
 

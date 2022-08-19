@@ -2,11 +2,11 @@
   <div class="network-nfts-category__sort-menu">
     <a @click="abcSort(true)">
       <span>Collections: A — Z</span>
-      <done-icon v-if="isAbcSort"></done-icon>
+      <done-icon v-if="isAbcSort" />
     </a>
     <a @click="abcSort(false)">
       <span>Recently added</span>
-      <done-icon v-if="!isAbcSort"></done-icon>
+      <done-icon v-if="!isAbcSort" />
     </a>
   </div>
 </template>

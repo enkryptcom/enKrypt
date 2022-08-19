@@ -81,11 +81,11 @@ import ArrowBack from "@action/icons/common/arrow-back.vue";
 import LabelInput from "@action/components/label-input/index.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 
-let nameValue = ref<string>("");
-let prcURLValue = ref<string>("");
-let chainIDValue = ref<string>("");
-let symbolValue = ref<string>("");
-let blockURLValue = ref<string>("");
+const nameValue = ref<string>("");
+const prcURLValue = ref<string>("");
+const chainIDValue = ref<string>("");
+const symbolValue = ref<string>("");
+const blockURLValue = ref<string>("");
 
 const isValid = computed<boolean>(() => {
   return nameValue.value.length > 0;

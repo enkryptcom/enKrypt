@@ -145,6 +145,15 @@ const toggleNotification = () => {
         letter-spacing: 0.25px;
         color: @primaryLabel;
         margin: 0;
+        white-space: nowrap;
+        -ms-text-overflow: ellipsis;
+        -o-text-overflow: ellipsis;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        -ms-line-clamp: 1;
+        -webkit-line-clamp: 1;
+        line-clamp: 1;
+        max-width: 230px;
       }
       span {
         display: block;

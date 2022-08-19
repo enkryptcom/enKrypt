@@ -29,7 +29,7 @@ describe("Request calls test", () => {
       expect(balance).to.be.a("string");
       request.disconnect();
     }
-  }).timeout(3000);
+  }).timeout(30000);
 });
 
 describe("Middleware calls", () => {

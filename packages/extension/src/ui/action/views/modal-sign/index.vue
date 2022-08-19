@@ -1,6 +1,6 @@
 <template>
   <div class="modal-sign__container">
-    <div class="modal-sign__overlay" @click="$emit('window:close')"></div>
+    <div class="modal-sign__overlay" @click="$emit('window:close')" />
     <div class="modal-sign__wrap">
       <div class="modal-sign__header">
         <h3 v-if="isUnlock">Unlock with password</h3>

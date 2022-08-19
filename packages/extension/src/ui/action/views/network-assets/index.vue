@@ -1,35 +1,56 @@
 <template>
-  <div class="container">
-    <custom-scrollbar
-      class="network-assets__scroll-area"
-      :settings="scrollSettings({ suppressScrollX: true })"
-    >
-      <div v-if="!!selected" class="network-assets">
-        <network-activity-total
-          :crypto-amount="cryptoAmount"
-          :fiat-amount="fiatAmount"
-          :symbol="network.currencyName"
-        />
+  <div>
+    <div class="container">
+      <custom-scrollbar
+        class="network-assets__scroll-area"
+        :settings="scrollSettings({ suppressScrollX: true })"
+      >
+        <div v-if="!!selected" class="network-assets">
+          <network-activity-total
+            :crypto-amount="cryptoAmount"
+            :fiat-amount="fiatAmount"
+            :symbol="network.currencyName"
+          />
 
-        <network-activity-action v-bind="$attrs" />
+          <network-activity-action v-bind="$attrs" />
+          <network-assets-item
+            v-for="(item, index) in assets"
+            :key="index"
+            :token="item"
+          ></network-assets-item>
+          <div
+            v-show="network.customTokens && assets.length !== 0"
+            class="network-assets__add-token"
+          >
+            <div class="network-assets__add-token-button">
+              <base-button
+                title="Add custom token"
+                :click="toggleShowAddCustomTokens"
+                :no-background="true"
+              />
+            </div>
+          </div>
+        </div>
+      </custom-scrollbar>
 
-        <network-assets-item
-          v-for="(item, index) in assets"
-          :key="index"
-          :token="item"
-        ></network-assets-item>
-      </div>
-    </custom-scrollbar>
+      <network-assets-loading v-if="isLoading"></network-assets-loading>
 
-    <network-assets-loading v-if="isLoading"></network-assets-loading>
+      <deposit
+        v-if="!!props.accountInfo.selectedAccount"
+        :account="props.accountInfo.selectedAccount"
+        :show-deposit="showDeposit"
+        :network="network"
+        :toggle="toggleDeposit"
+      />
+    </div>
 
-    <deposit
-      v-if="!!props.accountInfo.selectedAccount"
-      :account="props.accountInfo.selectedAccount"
-      :show-deposit="showDeposit"
-      :network="network"
-      :toggle="toggleDeposit"
-    />
+    <custom-evm-token
+      v-if="showAddCustomTokens"
+      :address="props.accountInfo.selectedAccount?.address!"
+      :network="props.network"
+      @update:token-added="addCustomAsset"
+      @update:close="toggleShowAddCustomTokens"
+    ></custom-evm-token>
   </div>
 </template>
 
@@ -47,8 +68,10 @@ import accountInfo from "@action/composables/account-info";
 import { BaseNetwork } from "@/types/base-network";
 import scrollSettings from "@/libs/utils/scroll-settings";
 import Deposit from "@action/views/deposit/index.vue";
+import BaseButton from "@action/components/base-button/index.vue";
+import CustomEvmToken from "./components/custom-evm-token.vue";
 
-let showDeposit = ref(false);
+const showDeposit = ref(false);
 
 const route = useRoute();
 const props = defineProps({
@@ -84,6 +107,7 @@ const selectedAddress = computed(
   () => props.accountInfo.selectedAccount?.address || ""
 );
 const selectedNetworkName = computed(() => props.network.name);
+const showAddCustomTokens = ref(false);
 
 watch([selectedAddress, selectedNetworkName], updateAssets);
 onMounted(() => {
@@ -92,6 +116,28 @@ onMounted(() => {
 
 const toggleDeposit = () => {
   showDeposit.value = !showDeposit.value;
+};
+
+const toggleShowAddCustomTokens = () => {
+  showAddCustomTokens.value = !showAddCustomTokens.value;
+};
+
+const addCustomAsset = (asset: AssetsType) => {
+  const existingAsset = assets.value.find((a) => {
+    if (
+      a.contract &&
+      asset.contract &&
+      a.contract.toLowerCase() === asset.contract.toLowerCase()
+    ) {
+      return true;
+    }
+
+    return false;
+  });
+
+  if (!existingAsset) {
+    assets.value = [...assets.value, asset];
+  }
 };
 </script>
 
@@ -129,6 +175,16 @@ const toggleDeposit = () => {
 
     &.ps--active-y {
       padding-right: 0;
+    }
+  }
+
+  &__add-token {
+    position: relative;
+    margin: 0px 12px 0px 12px;
+    z-index: 0;
+
+    &-button {
+      width: 156px;
     }
   }
 }

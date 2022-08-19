@@ -3,7 +3,9 @@
     <div class="col-12">
       <div id="nav">
         <li v-for="route in routes" :key="route.path">
-          <router-link :to="route.path">{{ route.name }}</router-link>
+          <router-link :to="route.path">
+            {{ route.name }}
+          </router-link>
         </li>
       </div>
     </div>

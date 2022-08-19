@@ -1,8 +1,5 @@
 <template>
-  <import-account-header
-    v-bind="$attrs"
-    :is-back="true"
-  ></import-account-header>
+  <import-account-header v-bind="$attrs" :is-back="true" />
 
   <div class="import-account-password">
     <h2>Enter password</h2>
@@ -23,7 +20,9 @@
       v-bind="$attrs"
       @keyup.enter="unlock"
     />
-    <p v-show="error" class="import-account-password__error">{{ error }}</p>
+    <p v-show="error" class="import-account-password__error">
+      {{ error }}
+    </p>
 
     <base-button
       title="Import account"

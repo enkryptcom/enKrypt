@@ -5,10 +5,15 @@
         :color="metadata ? metadata.color : '#E6007A'"
         class="common-popup__logo"
       ></sign-logo>
+      <div class="common-popup__network">
+        <img :src="networks.polkadot.icon" />
+        <p>{{ metadata ? metadata.chain : networks.polkadot.name_long }}</p>
+      </div>
     </template>
 
     <template #content>
       <h2>Update metadata</h2>
+
       <div class="update-metadata__block">
         <div class="update-metadata__block-row">
           <div class="update-metadata__block-row-left">From</div>
@@ -73,6 +78,7 @@ import { onBeforeMount, ref, watch } from "vue";
 import { MetadataDef } from "@polkadot/extension-inject/types";
 import MetadataStorage from "@/providers/polkadot/libs/metadata-storage";
 import { ProviderRequestOptions } from "@/types/provider";
+import networks from "../networks";
 
 const windowPromise = WindowPromiseHandler(0);
 
@@ -83,6 +89,7 @@ const Options = ref<ProviderRequestOptions>({
   faviconURL: "",
   title: "",
   url: "",
+  tabId: 0,
 });
 const metadata = ref<MetadataDef | null>(null);
 

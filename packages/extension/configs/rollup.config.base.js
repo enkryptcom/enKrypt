@@ -5,13 +5,14 @@ import { uglify } from "rollup-plugin-uglify";
 import inject from "@rollup/plugin-inject";
 import json from "@rollup/plugin-json";
 
-const enableMinification = process.env.minify === "on";
+const enableMinification =
+  process.env.minify === "on" && process.env.BROWSER !== "firefox";
 const base = {
   input: [],
   output: {
     dir: "dist/scripts",
     format: "iife",
-    sourcemap: true,
+    sourcemap: process.env.minify !== "on",
   },
   plugins: [
     typescript(),

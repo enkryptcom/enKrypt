@@ -26,28 +26,27 @@
             :to-token="swapData.toToken"
             :from-amount="swapData.fromAmount"
             @update:picked-trade="selectTrade"
-          >
-          </swap-best-offer-block>
+          />
           <best-offer-error
             v-if="warning === SwapBestOfferWarnings.NOT_ENOUGH_GAS"
             :not-enought-e-t-h="true"
             :native-symbol="props.network.name"
             :price="priceDifference"
             :native-value="gasDifference"
-          ></best-offer-error>
+          />
           <best-offer-error
             v-if="warning === SwapBestOfferWarnings.EXISTENTIAL_DEPOSIT"
             :below-deposit="true"
             :native-symbol="props.network.name"
             :price="priceDifference"
             :native-value="gasDifference"
-          ></best-offer-error>
+          />
           <send-fee-select
             v-if="(props.network as EvmNetwork).chainID"
             :fee="gasCostValues[selectedFee]"
             :in-swap="true"
             @open-popup="toggleSelectFee"
-          ></send-fee-select>
+          />
           <send-fee-display v-else :fee="fee" :in-swap="true" />
         </custom-scrollbar>
 
@@ -58,7 +57,7 @@
           :is-header="true"
           @close-popup="toggleSelectFee"
           @gas-type-changed="selectFee"
-        ></transaction-fee-view>
+        />
       </div>
 
       <div class="swap-best-offer__buttons" :class="{ border: isHasScroll() }">
@@ -81,7 +80,7 @@
       :from-amount="swapData.fromAmount"
       :to-amount="pickedTrade.minimumReceived"
       @update:close="toggleInitiated"
-    ></swap-initiated>
+    />
   </div>
 </template>
 
@@ -333,7 +332,7 @@ const close = () => {
 };
 
 const sendButtonTitle = () => {
-  let title = "Proceed with swap";
+  const title = "Proceed with swap";
 
   return title;
 };
@@ -374,7 +373,7 @@ const toggleInitiated = () => {
   }
 };
 const handleScroll = (e: any) => {
-  let progress = Number(e.target.lastChild.style.top.replace("px", ""));
+  const progress = Number(e.target.lastChild.style.top.replace("px", ""));
   scrollProgress.value = progress;
   height.value = 460 + Math.min(12, progress);
 };

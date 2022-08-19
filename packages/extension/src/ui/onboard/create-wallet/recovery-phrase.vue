@@ -68,11 +68,11 @@ const createMnemonic = () => {
 };
 
 const firstSet = computed(() => {
-  let copy = mnemonic.value.split(" ");
+  const copy = mnemonic.value.split(" ");
   return copy.splice(0, 6);
 });
 const secondSet = computed(() => {
-  let copy = mnemonic.value.split(" ");
+  const copy = mnemonic.value.split(" ");
   return copy.splice(6);
 });
 </script>

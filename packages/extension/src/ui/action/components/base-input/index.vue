@@ -24,7 +24,7 @@
 import { ref, computed } from "vue";
 import HideIcon from "@action/icons/password/hide-icon.vue";
 import VisibleIcon from "@action/icons/password/visible-icon.vue";
-let showPassword = ref(false);
+const showPassword = ref(false);
 const props = defineProps({
   placeholder: {
     type: String,

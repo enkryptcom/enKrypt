@@ -18,7 +18,9 @@
       <p v-if="from">From</p>
       <p v-else>To</p>
       <h4>{{ name ? name : address }}</h4>
-      <h6 v-show="!!name">{{ $filters.replaceWithEllipsis(address, 6, 4) }}</h6>
+      <h6 v-show="!!name">
+        {{ $filters.replaceWithEllipsis(address, 6, 4) }}
+      </h6>
     </div>
   </div>
 </template>

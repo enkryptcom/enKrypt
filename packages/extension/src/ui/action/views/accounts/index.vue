@@ -1,6 +1,6 @@
 <template>
   <div class="accounts" :class="{ show: showAccounts }">
-    <div class="accounts__overlay" @click="close()"></div>
+    <div class="accounts__overlay" @click="close()" />
     <div class="accounts__wrap" :class="{ show: showAccounts }">
       <accounts-search />
       <custom-scrollbar
@@ -22,7 +22,7 @@
           :deletable="account.walletType !== WalletType.mnemonic"
           @action:rename="renameAccount(index)"
           @action:delete="deleteAccount(index)"
-        ></accounts-list-item>
+        />
 
         <div class="accounts__info">Incompatible accounts</div>
 
@@ -34,7 +34,7 @@
           :is-checked="false"
           :active="false"
           :identicon-element="network.identicon"
-        ></accounts-list-item>
+        />
       </custom-scrollbar>
 
       <div class="accounts__action">
@@ -49,7 +49,7 @@
             network.signer[0] === SignerType.secp256k1
           "
           class="accounts__action-divider"
-        ></div>
+        />
 
         <a
           v-if="hwWallet.isNetworkSupported(network.name)"
@@ -73,7 +73,7 @@
     v-bind="$attrs"
     :network="network"
     @window:close="closeAddAccount"
-  ></add-account-form>
+  />
 
   <rename-account-form
     v-if="isRenameAccount"
@@ -81,21 +81,21 @@
     :account="accountToRename"
     :network="network"
     @window:close="closeRenameAccount"
-  ></rename-account-form>
+  />
 
   <delete-account-form
     v-if="isDeleteAccount"
     v-bind="$attrs"
     :account="accountToDelete"
     @window:close="closeDeleteAccount"
-  ></delete-account-form>
+  />
 
   <import-account
     v-if="isImportAccount"
     v-bind="$attrs"
     :network="network"
     @close="closeImportAccount"
-  ></import-account>
+  />
 </template>
 
 <script setup lang="ts">
