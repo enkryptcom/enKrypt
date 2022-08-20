@@ -33,7 +33,7 @@ const scripts = {
 };
 
 const setConfig = (config) => {
-  for (let [name, path] of Object.entries(scripts)) {
+  for (const [name, path] of Object.entries(scripts)) {
     config.entry(name).add(path).end();
   }
   const userScripts = Object.keys(scripts);
@@ -56,6 +56,7 @@ const setConfig = (config) => {
     ],
   });
   config.plugin("copy-manifest").use(copyManifest);
+  //config.plugin("bundle-analyzer").use(BundleAnalyzerPlugin);
   config.plugin("define").tap((args) => {
     const _base = args[0]["process.env"];
     args[0]["process.env"] = {
@@ -79,7 +80,8 @@ const setConfig = (config) => {
     config.optimization.minimize(false);
   }
   config.optimization.splitChunks({
-    maxSize: 4194304,
+    maxSize:
+      BROWSER === browserNames.firefox ? 3 * 1024 * 1024 : 10 * 1024 * 1024,
     cacheGroups: {
       vendors: {
         name: "chunk-vendors",
