@@ -1,7 +1,7 @@
 if (process.env.IS_DEV) {
   require("./chrome/hot-reload");
 }
-//import "@/libs/utils/selective-wasm";
+import "@/libs/utils/selective-wasm";
 import {
   backgroundOnMessageFromWindow,
   backgroundOnMessageFromNewWindow,

@@ -56,7 +56,6 @@ const setConfig = (config) => {
     ],
   });
   config.plugin("copy-manifest").use(copyManifest);
-  //config.plugin("bundle-analyzer").use(BundleAnalyzerPlugin);
   config.plugin("define").tap((args) => {
     const _base = args[0]["process.env"];
     args[0]["process.env"] = {
