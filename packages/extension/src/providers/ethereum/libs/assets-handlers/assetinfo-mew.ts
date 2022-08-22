@@ -42,6 +42,11 @@ export default (
       tokenurl: TokenList[NetworkNames.Okc],
       cgPlatform: networks.okc.coingeckoID as string,
     },
+    [NetworkNames.OkcTestnet]: {
+      tbName: "okct",
+      tokenurl: TokenList[NetworkNames.OkcTestnet],
+      cgPlatform: networks.okctest.coingeckoID as string,
+    },
     [NetworkNames.Matic]: {
       tbName: "matic",
       tokenurl: TokenList[NetworkNames.Matic],

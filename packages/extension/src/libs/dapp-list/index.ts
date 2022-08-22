@@ -11,6 +11,7 @@ import kar from "./kar";
 import glmr from "./glmr";
 import movr from "./movr";
 import okc from "./okc";
+import okctest from "./okc-testnet";
 
 const lists: Partial<Record<NetworkNames, DAppsItem[]>> = {
   [NetworkNames.Ethereum]: eth,
@@ -24,6 +25,7 @@ const lists: Partial<Record<NetworkNames, DAppsItem[]>> = {
   [NetworkNames.Moonbeam]: glmr,
   [NetworkNames.Moonriver]: movr,
   [NetworkNames.Okc]: okc,
+  [NetworkNames.OkcTestnet]: okctest,
 };
 
 export default lists;

@@ -7,6 +7,7 @@ const TokenList: Record<SupportedNetworkNames, string> = {
     "https://tokens.coingecko.com/binance-smart-chain/all.json",
   [NetworkNames.Ethereum]: "https://tokens.coingecko.com/ethereum/all.json",
   [NetworkNames.Okc]: "https://tokens.coingecko.com/ethereum/all.json",
+  [NetworkNames.OkcTestnet]: "https://tokens.coingecko.com/ethereum/all.json",
   [NetworkNames.Matic]: "https://tokens.coingecko.com/polygon-pos/all.json",
 };
 
