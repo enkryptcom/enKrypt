@@ -1,4 +1,4 @@
-import TrezorConnect from "trezor-connect";
+import TrezorConnect from "@trezor/connect";
 import { HWwalletCapabilities, NetworkNames } from "@enkryptcom/types";
 import HDKey from "hdkey";
 import { bufferToHex, hexToBuffer, numberToHex } from "@enkryptcom/utils";
