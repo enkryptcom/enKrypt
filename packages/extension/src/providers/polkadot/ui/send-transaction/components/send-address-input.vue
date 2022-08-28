@@ -24,7 +24,7 @@
 import { BaseNetwork } from "@/types/base-network";
 import { replaceWithEllipsis } from "@/ui/action/utils/filters";
 import { polkadotEncodeAddress } from "@enkryptcom/utils";
-import { computed, PropType, ref } from "vue";
+import { computed, onMounted, PropType, ref } from "vue";
 
 const emit = defineEmits<{
   (e: "update:inputAddress", address: string): void;

@@ -37,6 +37,7 @@
     "@types/less": "^3.0.3",
     "@types/lodash": "^4.14.182",
     "@types/utf-8-validate": "^5.0.0",
+    "@unstoppabledomains/resolution": "^8.3.1",
     "@vueuse/core": "^9.1.0",
     "add": "^2.0.6",
     "bignumber.js": "^9.1.0",

@@ -27,7 +27,11 @@
             :network="network"
           />
           <verify-transaction-account
-            :address="network.displayAddress(txData.toAddress)"
+            :address="
+              txData.domainAddress
+                ? txData.domainAddress
+                : network.displayAddress(txData.toAddress)
+            "
             :network="network"
           />
           <verify-transaction-amount v-if="!isNft" :token="txData.toToken" />
@@ -124,7 +128,6 @@ const close = () => {
     window.close();
   }
 };
-
 const sendAction = async () => {
   isProcessing.value = true;
   const web3 = new Web3(network.node);

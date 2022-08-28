@@ -1,7 +1,7 @@
 <template>
   <div class="send-address-input" :class="{ focus: isFocus }">
     <div class="send-address-input__avatar">
-      <img v-if="isAddress(value)" :src="network.identicon(value)" alt="" />
+      <img v-if="isValidAddress" :src="network.identicon(value)" alt="" />
     </div>
     <div class="send-address-input__address">
       <p v-if="!from">To:</p>
@@ -12,9 +12,12 @@
         type="text"
         :disabled="disableDirectInput"
         placeholder="0x… address"
-        :style="{ color: !isAddress(value) ? 'red' : 'black' }"
+        :style="{
+          color: !isValidAddress ? 'red' : 'black',
+        }"
         @focus="changeFocus"
         @blur="changeFocus"
+        @input="(e) => domainResolver.lookupDomain(value)"
       />
     </div>
   </div>
@@ -24,8 +27,10 @@
 import { BaseNetwork } from "@/types/base-network";
 import { replaceWithEllipsis } from "@/ui/action/utils/filters";
 import { computed } from "@vue/reactivity";
-import { PropType, ref } from "vue";
+import { onMounted, PropType, ref } from "vue";
 import { isAddress } from "web3-utils";
+import { UNSResolver } from "@/libs/utils/uns";
+import { Erc20Token } from "../../../types/erc20-token";
 
 const isFocus = ref<boolean>(false);
 const addressInput = ref<HTMLInputElement>();
@@ -35,6 +40,43 @@ const pasteFromClipboard = () => {
   document.execCommand("paste");
 };
 defineExpose({ addressInput, pasteFromClipboard });
+onMounted(() => {
+  console.log(props.token.symbol);
+
+  // console.log(props.network.customTokens);
+  // console.log(props.network.currencyName);
+});
+const domainAddress = computed(() => {
+  const domain = props.domainResolver.getDomain(
+    props.value,
+    props.token.symbol,
+    props.network.currencyName,
+    props.network.name
+  );
+  return `${props.value} (${replaceWithEllipsis(domain, 6, 6)})`;
+});
+
+const isValidAddress = computed(() => {
+  console.log(props.token);
+  const valid = props.domainResolver.isValidAddress(
+    props.value,
+    props.token.symbol,
+    props.network.currencyName,
+    props.network.name
+  );
+  console.log(valid);
+  return props.domainResolver.isValidAddress(
+    props.value,
+    props.token.symbol,
+    props.network.currencyName,
+    props.network.name
+  );
+});
+
+// const domainTicker = computed(() => {
+//   console.log(props.token.symbol);
+//   return props.token.symbol;
+// });
 
 const props = defineProps({
   value: {
@@ -52,6 +94,13 @@ const props = defineProps({
     default: false,
   },
   disableDirectInput: Boolean,
+  domainResolver: UNSResolver,
+  token: {
+    type: Object as PropType<Partial<Erc20Token>>,
+    default: () => {
+      return {};
+    },
+  },
 });
 const emit = defineEmits<{
   (e: "update:inputAddress", address: string): void;
@@ -59,7 +108,16 @@ const emit = defineEmits<{
 }>();
 const address = computed({
   get: () =>
-    isFocus.value ? props.value : replaceWithEllipsis(props.value, 6, 6),
+    isFocus.value
+      ? props.value
+      : props.domainResolver.isValidDomain(
+          props.value,
+          props.token.symbol,
+          props.network.currencyName,
+          props.network.name
+        )
+      ? domainAddress.value
+      : replaceWithEllipsis(props.value, 6, 6),
   set: (value) => emit("update:inputAddress", value),
 });
 
