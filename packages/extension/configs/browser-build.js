@@ -36,6 +36,7 @@ const setConfig = (config) => {
   for (const [name, path] of Object.entries(scripts)) {
     config.entry(name).add(path).end();
   }
+
   const userScripts = Object.keys(scripts);
 
   //generate background and contentscript without default hashing
@@ -74,7 +75,7 @@ const setConfig = (config) => {
   });
   // prevent codesplitting on scripts
   const omitUserScripts = ({ name }) => {
-    return userScripts.includes(name) ? false : "initial";
+    return userScripts.includes(name) ? false : "all";
   };
   const detId = (str) => {
     let id = 0;
@@ -83,6 +84,7 @@ const setConfig = (config) => {
     }
     return id % 10;
   };
+  config.optimization.set("moduleIds", "deterministic");
   config.optimization.splitChunks({
     maxSize:
       BROWSER === browserNames.firefox ? 3 * 1024 * 1024 : 10 * 1024 * 1024,
@@ -100,7 +102,15 @@ const setConfig = (config) => {
         reuseExistingChunk: true,
       },
       common: {
-        name: "chunk-common",
+        name(module) {
+          if (!module.context) return "chunk-common";
+          const packageName = module.context.match(
+            /[\\/]node_modules[\\/](.*?)([\\/]|$)/
+          );
+          if (packageName && packageName.length > 1) {
+            return `common-common.${packageName[1].replace("@", "")}`;
+          } else return "chunk-common";
+        },
         minChunks: 2,
         priority: -20,
         chunks: omitUserScripts,
