@@ -41,9 +41,10 @@ const setConfig = (config) => {
   //generate background and contentscript without default hashing
   config.output.filename((file) => {
     return !userScripts.includes(file.chunk.name)
-      ? `js/[name].[contenthash:8].js`
+      ? `js/[name].js`
       : `scripts/[name].js`;
   });
+  config.output.chunkFilename("[name].js");
 
   //copy manifest
   const copyManifest = new CopyWebpackPlugin({
@@ -75,15 +76,24 @@ const setConfig = (config) => {
   const omitUserScripts = ({ name }) => {
     return userScripts.includes(name) ? false : "initial";
   };
-  if (BROWSER === browserNames.firefox) {
-    config.optimization.minimize(false);
-  }
+  const detId = (str) => {
+    let id = 0;
+    for (let i = 0; i < str.length; i++) {
+      id += str.charCodeAt(i);
+    }
+    return id % 10;
+  };
   config.optimization.splitChunks({
     maxSize:
       BROWSER === browserNames.firefox ? 3 * 1024 * 1024 : 10 * 1024 * 1024,
     cacheGroups: {
       vendors: {
-        name: "chunk-vendors",
+        name(module) {
+          const packageName = module.context.match(
+            /[\\/]node_modules[\\/](.*?)([\\/]|$)/
+          )[1];
+          return `vendor.${detId(packageName.replace("@", ""))}`;
+        },
         test: /[\\/]node_modules[\\/]/,
         priority: -10,
         chunks: omitUserScripts,

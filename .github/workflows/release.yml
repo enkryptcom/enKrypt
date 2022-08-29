@@ -42,7 +42,8 @@ jobs:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
         run: |
           mkdir release
-          docker run --rm --user "$(id -u):$(id -g)" -v `pwd`:/home:rw enkrypt-build-container /bin/bash -c "cd packages/extension && yarn build:all && yarn zip"
+          docker run --rm --user "$(id -u):$(id -g)" -v `pwd`:/home:rw enkrypt-build-container /bin/bash -c "yarn build:all"
+          docker run --rm --user "$(id -u):$(id -g)" -v `pwd`:/home:rw enkrypt-build-container /bin/bash -c "cd packages/extension && yarn build:chrome && yarn zip"
           mv packages/extension/dist/release.zip release/enkrypt-chrome-edge-${{ steps.get_release_tag.outputs.VERSION }}.zip
           docker run --rm --user "$(id -u):$(id -g)" -v `pwd`:/home:rw enkrypt-build-container /bin/bash -c "cd packages/extension && yarn build:firefox && yarn zip"
           mv packages/extension/dist/release.zip release/enkrypt-firefox-${{ steps.get_release_tag.outputs.VERSION }}.zip
