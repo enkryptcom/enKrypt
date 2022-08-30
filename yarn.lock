@@ -2490,8 +2490,7 @@ __metadata:
     "@enkryptcom/types": ^0.0.1
     "@enkryptcom/utils": ^0.0.1
     "@ethereumjs/tx": ^3.5.2
-    "@ledgerhq/errors": ^6.10.1
-    "@ledgerhq/hw-app-eth": ^6.29.2
+    "@ledgerhq/hw-app-eth": ^6.29.4
     "@ledgerhq/hw-transport": ^6.27.2
     "@ledgerhq/hw-transport-webusb": ^6.27.2
     "@ledgerhq/live-common": ^24.1.0
@@ -3446,12 +3445,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ledgerhq/cryptoassets@npm:^6.30.0":
-  version: 6.30.0
-  resolution: "@ledgerhq/cryptoassets@npm:6.30.0"
+"@ledgerhq/cryptoassets@npm:^6.32.0":
+  version: 6.32.0
+  resolution: "@ledgerhq/cryptoassets@npm:6.32.0"
   dependencies:
     invariant: 2
-  checksum: 740c6d2c745bb00b005cd31e93345fee3f98a8fbec69b087eab51b9c40e903aff1185e8720a3353f8724fcaddb634a32391fb1a7a2facbbdadbf9a8bc8e87801
+  checksum: 1fecab087d9d24d94f50b4a523156e03370eca8a7e23508bb90182cfaa44e9370f80a3e0bfe3fb8b94be1af22eb5f983b84fbe4e451f7554d2e140e8c9b3bfe4
   languageName: node
   linkType: hard
 
@@ -3574,20 +3573,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ledgerhq/hw-app-eth@npm:^6.29.2":
-  version: 6.29.2
-  resolution: "@ledgerhq/hw-app-eth@npm:6.29.2"
+"@ledgerhq/hw-app-eth@npm:^6.29.4":
+  version: 6.29.4
+  resolution: "@ledgerhq/hw-app-eth@npm:6.29.4"
   dependencies:
     "@ethersproject/abi": ^5.5.0
     "@ethersproject/rlp": ^5.5.0
-    "@ledgerhq/cryptoassets": ^6.30.0
+    "@ledgerhq/cryptoassets": ^6.32.0
     "@ledgerhq/errors": ^6.10.1
     "@ledgerhq/hw-transport": ^6.27.2
     "@ledgerhq/hw-transport-mocker": ^6.27.2
     "@ledgerhq/logs": ^6.10.0
     axios: ^0.26.1
     bignumber.js: ^9.0.2
-  checksum: 60e06334b15be60f38ef29ca00e99ea5948026fe713409a30af65f206e2165101923e87cf2721264cf3d2e6ce1624e7b906bc387ee1b2e560241d527200c33d9
+  checksum: d927455886392aa6ede401eb338930d3c3191e22841b8469970744fff5e71c03384154753ca79635c1d5f84efdfbbd0065a42fa3d4d3d36e7866452b1ab014ff
   languageName: node
   linkType: hard
 
