@@ -60,7 +60,6 @@ const props = defineProps({
 
 const addressInput = ref<HTMLInputElement>();
 const isFocus = ref(false);
-const polkadot = "DOT";
 const reversedDomain = ref("");
 const domainReverseLookup = async () => {
   if (props.disableDirectInput) {
@@ -73,12 +72,7 @@ const domainReverseLookup = async () => {
   }
 };
 const domainAddress = computed(() => {
-  const domain = props.domainResolver.getDomain(
-    props.value,
-    polkadot,
-    polkadot,
-    NetworkNames.Polkadot
-  );
+  const domain = props.domainResolver.getDomainPolkadot(props.value);
   return `${props.value} (${replaceWithEllipsis(domain, 6, 6)})`;
 });
 
