@@ -14,6 +14,7 @@
         :value="addressFrom"
         :network="network"
         :disable-direct-input="true"
+        :domain-resolver="domainResolver"
         @click="toggleSelectContactFrom(true)"
         @update:input-address="inputAddressFrom"
         @toggle:show-contacts="toggleSelectContactFrom"
@@ -33,6 +34,7 @@
         ref="addressInputTo"
         :value="addressTo"
         :network="network"
+        :domain-resolver="domainResolver"
         @update:input-address="inputAddressTo"
         @toggle:show-contacts="toggleSelectContactTo"
       />
@@ -124,6 +126,8 @@ import getUiPath from "@/libs/utils/get-ui-path";
 import { ProviderName } from "@/types/provider";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
 import { polkadotEncodeAddress } from "@enkryptcom/utils";
+import { UNSResolver } from "@/libs/utils/uns";
+import { replaceWithEllipsis } from "@/ui/action/utils/filters";
 
 const props = defineProps({
   network: {
@@ -138,6 +142,7 @@ const props = defineProps({
 
 const route = useRoute();
 const router = useRouter();
+const domainResolver = ref(new UNSResolver());
 
 const addressInputTo = ref();
 const addressInputFrom = ref();
@@ -203,6 +208,8 @@ const isAddress = computed(() => {
     polkadotEncodeAddress(addressTo.value);
     return true;
   } catch {
+    if (domainResolver.value.isValidDomainPolkadot(addressTo.value))
+      return true;
     return false;
   }
 });
@@ -243,7 +250,7 @@ watch([selectedAsset, amount, addressTo], async () => {
 
     const tx = await selectedAsset.value.send!(
       api,
-      addressTo.value,
+      getToAddress.value,
       rawAmount.toString(),
       sendOptions
     );
@@ -342,6 +349,23 @@ const inputAmount = (number: string) => {
   amount.value = parseFloat(number) < 0 ? "0" : number;
 };
 
+const getToAddress = computed(() => {
+  const domain = getDomain.value;
+
+  return domain ? domain : addressTo.value;
+});
+
+const getDomain = computed(() => {
+  return domainResolver.value.getDomainPolkadot(addressTo.value);
+});
+const domainAddress = computed((): string | null => {
+  const domain = getDomain.value;
+
+  return domain
+    ? `${addressTo.value} (${replaceWithEllipsis(domain, 6, 6)})`
+    : null;
+});
+
 const sendButtonTitle = computed(() => {
   let title = "Send";
   if (parseInt(amount.value ?? "0") > 0)
@@ -373,14 +397,7 @@ const setSendMax = (max: boolean) => {
 const isDisabled = () => {
   let isDisabled = true;
 
-  let addressIsValid = false;
-
-  try {
-    props.network.displayAddress(addressTo.value);
-    addressIsValid = true;
-  } catch {
-    addressIsValid = false;
-  }
+  const addressIsValid = isAddress.value;
 
   if (
     hasEnough.value &&
@@ -404,7 +421,7 @@ const sendAction = async () => {
 
   const tx = await selectedAsset.value?.send!(
     api,
-    addressTo.value,
+    getToAddress.value,
     sendAmount,
     sendOptions
   );
@@ -415,7 +432,7 @@ const sendAction = async () => {
   const txVerifyInfo: VerifyTransactionParams = {
     TransactionData: {
       from: fromAccount.address,
-      to: addressTo.value,
+      to: getToAddress.value,
       data: tx.toHex() as `0x{string}`,
       value: amount.value!,
     },
@@ -433,7 +450,8 @@ const sendAction = async () => {
     fromAddress: fromAccount.address,
     fromAddressName: fromAccount.name,
     txFee: fee.value!,
-    toAddress: addressTo.value,
+    toAddress: getToAddress.value,
+    domainAddress: domainAddress.value,
   };
 
   const routedRoute = router.resolve({

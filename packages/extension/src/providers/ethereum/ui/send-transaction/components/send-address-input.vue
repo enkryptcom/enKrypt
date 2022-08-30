@@ -17,7 +17,7 @@
         }"
         @focus="changeFocus"
         @blur="changeFocus"
-        @input="(e) => domainResolver.lookupDomain(value)"
+        @input="(_) => domainResolver.lookupDomain(value)"
       />
     </div>
   </div>
@@ -27,8 +27,7 @@
 import { BaseNetwork } from "@/types/base-network";
 import { replaceWithEllipsis } from "@/ui/action/utils/filters";
 import { computed } from "@vue/reactivity";
-import { onMounted, PropType, ref } from "vue";
-import { isAddress } from "web3-utils";
+import { onMounted, PropType, ref, watch } from "vue";
 import { UNSResolver } from "@/libs/utils/uns";
 import { Erc20Token } from "../../../types/erc20-token";
 
@@ -40,12 +39,18 @@ const pasteFromClipboard = () => {
   document.execCommand("paste");
 };
 defineExpose({ addressInput, pasteFromClipboard });
-onMounted(() => {
-  console.log(props.token.symbol);
+const reversedDomain = ref("");
+const domainReverseLookup = async () => {
+  if (props.disableDirectInput) {
+    const reverseDomain = await props.domainResolver.reverseUNS(props.value);
+    if (reverseDomain) {
+      reversedDomain.value = reverseDomain;
+    } else {
+      reversedDomain.value = "";
+    }
+  }
+};
 
-  // console.log(props.network.customTokens);
-  // console.log(props.network.currencyName);
-});
 const domainAddress = computed(() => {
   const domain = props.domainResolver.getDomain(
     props.value,
@@ -57,14 +62,6 @@ const domainAddress = computed(() => {
 });
 
 const isValidAddress = computed(() => {
-  console.log(props.token);
-  const valid = props.domainResolver.isValidAddress(
-    props.value,
-    props.token.symbol,
-    props.network.currencyName,
-    props.network.name
-  );
-  console.log(valid);
   return props.domainResolver.isValidAddress(
     props.value,
     props.token.symbol,
@@ -72,11 +69,6 @@ const isValidAddress = computed(() => {
     props.network.name
   );
 });
-
-// const domainTicker = computed(() => {
-//   console.log(props.token.symbol);
-//   return props.token.symbol;
-// });
 
 const props = defineProps({
   value: {
@@ -94,7 +86,12 @@ const props = defineProps({
     default: false,
   },
   disableDirectInput: Boolean,
-  domainResolver: UNSResolver,
+  domainResolver: {
+    type: UNSResolver,
+    default: () => {
+      return new UNSResolver();
+    },
+  },
   token: {
     type: Object as PropType<Partial<Erc20Token>>,
     default: () => {
@@ -108,7 +105,11 @@ const emit = defineEmits<{
 }>();
 const address = computed({
   get: () =>
-    isFocus.value
+    props.disableDirectInput
+      ? reversedDomain.value != ""
+        ? reversedDomain.value
+        : replaceWithEllipsis(props.value, 6, 6)
+      : isFocus.value
       ? props.value
       : props.domainResolver.isValidDomain(
           props.value,
@@ -125,6 +126,10 @@ const changeFocus = (val: FocusEvent) => {
   isFocus.value = val.type === "focus";
   if (isFocus.value) emit("toggle:showContacts", isFocus.value);
 };
+onMounted(() => {
+  domainReverseLookup();
+});
+watch(address, domainReverseLookup);
 </script>
 
 <style lang="less">

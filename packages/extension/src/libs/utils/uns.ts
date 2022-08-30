@@ -13,6 +13,7 @@ import { isAddress } from "web3-utils";
 export class UNSResolver {
   supportedTlds: string[] = [];
   domainData = new Map();
+  reverseDomains = new Map<string, string>();
 
   networkToChainId(network: NetworkNames): string | null {
     switch (network) {
@@ -28,10 +29,8 @@ export class UNSResolver {
   async lookupDomain(address: string): Promise<string | null> {
     try {
       const domain = this.preparedDomain(address);
-      console.log(domain);
 
       if (domain !== "" && (await this.isValidTLD(domain))) {
-        console.log(domain);
         const response = await fetch(resolutionService + domain, {
           method: "get",
           headers: new Headers({
@@ -39,12 +38,9 @@ export class UNSResolver {
           }),
         });
         const data = await response.json();
-        console.log(data);
         if (data.records) {
           this.domainData.set(domain, data.records);
-          // return data.records[this.getUNSKey(ticker)]
-          //   ? data.records[this.getUNSKey(ticker)]
-          //   : data.records[this.getUNSKey("ETH")];
+
           return data.records;
         }
         return null;
@@ -57,7 +53,15 @@ export class UNSResolver {
 
   async reverseUNS(address: string): Promise<string | null> {
     try {
+      const storedDmoain = this.reverseDomains.get(address);
+
+      if (storedDmoain) {
+        return storedDmoain;
+      }
       const domain = await resolution.reverse(address);
+      if (domain) {
+        this.reverseDomains.set(address, domain);
+      }
       return domain;
     } catch (e) {
       return null;
@@ -71,7 +75,12 @@ export class UNSResolver {
     network: NetworkNames
   ): string | null {
     const key = this.getUNSKey(ticker, nativeCurrency, network);
-    console.log(key);
+    const domainWithTicker = this.domainData.get(address)?.[key];
+    return domainWithTicker;
+  }
+
+  getDomainPolkadot(address: string): string | null {
+    const key = this.getUNSKey("DOT", "DOT", NetworkNames.Polkadot);
     const domainWithTicker = this.domainData.get(address)?.[key];
     return domainWithTicker;
   }
@@ -95,6 +104,10 @@ export class UNSResolver {
     network: NetworkNames
   ): boolean {
     return !!this.getDomain(address, ticker, nativeCurrency, network);
+  }
+
+  isValidDomainPolkadot(address: string): boolean {
+    return !!this.getDomainPolkadot(address);
   }
 
   async isValidTLD(domain: string): Promise<boolean> {
@@ -123,9 +136,6 @@ export class UNSResolver {
   ): string {
     const chainId = this.networkToChainId(network);
     if (!ticker) {
-      // console.log(ticker);
-      // console.log(nativeCurrency);
-      // console.log(network);
       return "";
     }
     const tickerMain = ticker.toUpperCase();

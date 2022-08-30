@@ -27,7 +27,11 @@
             :network="network"
           />
           <verify-transaction-account
-            :address="network.displayAddress(txData.toAddress)"
+            :address="
+              txData.domainAddress
+                ? txData.domainAddress
+                : network.displayAddress(txData.toAddress)
+            "
             :network="network"
           />
           <verify-transaction-amount :token="txData.toToken" />

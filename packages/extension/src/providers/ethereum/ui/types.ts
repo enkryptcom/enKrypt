@@ -35,7 +35,7 @@ export interface VerifyTransactionParams {
   gasFee: GasFeeInfo;
   gasPriceType: GasPriceTypes;
   TransactionData: SendTransactionDataType;
-  domainAddress?: string;
+  domainAddress?: string | null;
 }
 
 export interface SignerTransactionOptions {

@@ -13,15 +13,7 @@
 
       <div class="network-activity__transaction-info-name">
         <h4>
-          {{
-            $filters.replaceWithEllipsis(
-              network.displayAddress(
-                activity.isIncoming ? activity.from : activity.to
-              ),
-              6,
-              6
-            )
-          }}
+          {{ address }}
         </h4>
         <p>
           <span
@@ -60,6 +52,9 @@ import { Activity, ActivityStatus } from "@/types/activity";
 import { BaseNetwork } from "@/types/base-network";
 import { fromBase } from "@/libs/utils/units";
 import BigNumber from "bignumber.js";
+import { UNSResolver } from "@/libs/utils/uns";
+import { replaceWithEllipsis } from "@/ui/action/utils/filters";
+
 const props = defineProps({
   activity: {
     type: Object as PropType<Activity>,
@@ -69,11 +64,23 @@ const props = defineProps({
     type: Object as PropType<BaseNetwork>,
     default: () => ({}),
   },
+  domainResolver: UNSResolver,
 });
 
+const reversedDomain = ref("");
 const status = ref("~");
 const date = ref("~");
-
+const address = computed(() => {
+  return reversedDomain.value != ""
+    ? reversedDomain.value
+    : replaceWithEllipsis(
+        props.network.displayAddress(
+          props.activity.isIncoming ? props.activity.from : props.activity.to
+        ),
+        6,
+        6
+      );
+});
 const transactionURL = computed(() => {
   return props.network.blockExplorerTX.replace(
     "[[txHash]]",
@@ -85,7 +92,13 @@ const getFiatValue = computed(() => {
     fromBase(props.activity.value, props.activity.token.decimals)
   );
 });
-onMounted(() => {
+onMounted(async () => {
+  const address = props.activity.isIncoming
+    ? props.activity.from
+    : props.activity.to;
+
+  const domain = await props.domainResolver?.reverseUNS(address);
+  reversedDomain.value = domain ?? "";
   date.value = moment(props.activity.timestamp).fromNow();
   if (
     props.activity.status === ActivityStatus.success &&

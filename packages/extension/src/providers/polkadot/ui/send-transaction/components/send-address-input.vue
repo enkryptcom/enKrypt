@@ -1,7 +1,7 @@
 <template>
   <div class="send-address-input" :class="{ focus: isFocus }">
     <div class="send-address-input__avatar">
-      <img v-if="isAddress" :src="network.identicon(value)" alt="" />
+      <img v-if="isValidAddress" :src="network.identicon(value)" alt="" />
     </div>
     <div class="send-address-input__address">
       <p v-if="!from">To:</p>
@@ -12,19 +12,22 @@
         type="text"
         :disabled="disableDirectInput"
         placeholder="address"
-        :style="{ color: !isAddress ? 'red' : 'black' }"
+        :style="{ color: !isValidAddress ? 'red' : 'black' }"
         @focus="changeFocus"
         @blur="changeFocus"
+        @input="(_) => domainResolver.lookupDomain(value)"
       />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { UNSResolver } from "@/libs/utils/uns";
 import { BaseNetwork } from "@/types/base-network";
 import { replaceWithEllipsis } from "@/ui/action/utils/filters";
+import { NetworkNames } from "@enkryptcom/types";
 import { polkadotEncodeAddress } from "@enkryptcom/utils";
-import { computed, onMounted, PropType, ref } from "vue";
+import { computed, onMounted, PropType, ref, watch } from "vue";
 
 const emit = defineEmits<{
   (e: "update:inputAddress", address: string): void;
@@ -47,10 +50,43 @@ const props = defineProps({
     default: () => ({}),
   },
   disableDirectInput: Boolean,
+  domainResolver: {
+    type: UNSResolver,
+    default: () => {
+      return new UNSResolver();
+    },
+  },
 });
 
 const addressInput = ref<HTMLInputElement>();
 const isFocus = ref(false);
+const polkadot = "DOT";
+const reversedDomain = ref("");
+const domainReverseLookup = async () => {
+  if (props.disableDirectInput) {
+    const reverseDomain = await props.domainResolver.reverseUNS(props.value);
+    if (reverseDomain) {
+      reversedDomain.value = reverseDomain;
+    } else {
+      reversedDomain.value = "";
+    }
+  }
+};
+const domainAddress = computed(() => {
+  const domain = props.domainResolver.getDomain(
+    props.value,
+    polkadot,
+    polkadot,
+    NetworkNames.Polkadot
+  );
+  return `${props.value} (${replaceWithEllipsis(domain, 6, 6)})`;
+});
+
+const isValidAddress = computed(() => {
+  return (
+    isAddress.value || props.domainResolver.isValidDomainPolkadot(props.value)
+  );
+});
 
 const pasteFromClipboard = () => {
   addressInput.value?.focus();
@@ -62,14 +98,32 @@ defineExpose({ addressInput, pasteFromClipboard });
 const address = computed({
   get: () => {
     try {
-      if (isFocus.value && isAddress.value) {
-        return props.network.displayAddress(props.value);
+      if (props.disableDirectInput) {
+        if (reversedDomain.value != "") {
+          return reversedDomain.value;
+        } else {
+          return replaceWithEllipsis(
+            props.network.displayAddress(props.value),
+            6,
+            6
+          );
+        }
+      }
+
+      if (isFocus.value) {
+        if (isAddress.value) {
+          return props.network.displayAddress(props.value);
+        } else {
+          return props.value;
+        }
       } else if (isAddress.value) {
         return replaceWithEllipsis(
           props.network.displayAddress(props.value),
           6,
           6
         );
+      } else if (props.domainResolver.isValidDomainPolkadot(props.value)) {
+        return domainAddress.value;
       }
 
       return props.value;
@@ -92,6 +146,10 @@ const isAddress = computed(() => {
     return false;
   }
 });
+onMounted(() => {
+  domainReverseLookup();
+});
+watch(address, domainReverseLookup);
 
 const changeFocus = (val: FocusEvent) => {
   isFocus.value = val.type === "focus";

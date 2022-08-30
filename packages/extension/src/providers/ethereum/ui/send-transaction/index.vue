@@ -148,7 +148,7 @@ import TransactionFeeView from "@action/views/transaction-fee/index.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import { NFTItem } from "@action/types/nft";
 import { AccountsHeaderData } from "@action/types/account";
-import { isAddress, numberToHex, toBN } from "web3-utils";
+import { numberToHex, toBN } from "web3-utils";
 import { nft } from "@action/types/mock";
 import { GasPriceTypes } from "../../../../providers/ethereum/libs/transaction/types";
 import { GasFeeType } from "../../../../providers/ethereum/ui/types";
@@ -248,7 +248,7 @@ const TxInfo = computed<SendTransactionDataType>(() => {
       : "0x0";
   const toAddress =
     selectedAsset.value.contract === NATIVE_TOKEN_ADDRESS
-      ? getToAddress()
+      ? getToAddress.value
       : selectedAsset.value.contract;
   const tokenContract = new web3.eth.Contract(erc20 as any);
   const data =
@@ -256,7 +256,7 @@ const TxInfo = computed<SendTransactionDataType>(() => {
       ? "0x"
       : tokenContract.methods
           .transfer(
-            getToAddress(),
+            getToAddress.value,
             toBase(sendAmount.value, selectedAsset.value.decimals!)
           )
           .encodeABI();
@@ -388,9 +388,6 @@ const sendButtonTitle = computed(() => {
   return title;
 });
 
-const domainTicker = (): string => {
-  return selectedAsset.value.symbol;
-};
 const isInputsValid = computed<boolean>(() => {
   if (
     !domainResolver.value.isValidAddress(
@@ -509,19 +506,11 @@ const selectFee = (type: GasPriceTypes) => {
   isOpenSelectFee.value = false;
   if (isMaxSelected.value) setMaxValue();
 };
-const getToAddress = () => {
+const getToAddress = computed(() => {
   const domain = getDomain.value;
 
   return domain ? domain : addressTo.value;
-};
-const isValidAddress = () => {
-  return domainResolver.value.isValidAddress(
-    addressTo.value,
-    selectedAsset.value.symbol,
-    props.network.currencyName,
-    props.network.name
-  );
-};
+});
 
 const getDomain = computed(() => {
   return domainResolver.value.getDomain(
@@ -531,13 +520,13 @@ const getDomain = computed(() => {
     props.network.name
   );
 });
-const domainAddress = (): string => {
-  const domain = getDomain.value;
+const domainAddress = computed((): string | null => {
+  const address = getDomain.value;
 
-  return domain
-    ? `${addressTo.value} (${replaceWithEllipsis(domain, 6, 6)})`
+  return address
+    ? `${addressTo.value} (${replaceWithEllipsis(address, 6, 6)})`
     : null;
-};
+});
 const sendAction = async () => {
   const keyring = new PublicKeyRing();
   const fromAccountInfo = await keyring.getAccount(
@@ -560,8 +549,8 @@ const sendAction = async () => {
     fromAddressName: fromAccountInfo.name,
     gasFee: gasCostValues.value[selectedFee.value],
     gasPriceType: selectedFee.value,
-    toAddress: getToAddress(),
-    domainAddress: domainAddress(),
+    toAddress: getToAddress.value,
+    domainAddress: domainAddress.value,
   };
 
   const routedRoute = router.resolve({

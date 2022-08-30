@@ -18,6 +18,7 @@
             :key="index + `${forceUpdateVal}`"
             :activity="item"
             :network="network"
+            :domain-resolver="domainResolver"
           />
         </div>
         <!-- <div class="network-activity__header">July</div>
@@ -66,6 +67,7 @@ import {
 import NetworkActivityLoading from "./components/network-activity-loading.vue";
 import { ProviderName } from "@/types/provider";
 import ActivityState from "@/libs/activity-state";
+import { UNSResolver } from "@/libs/utils/uns";
 
 const props = defineProps({
   network: {
@@ -82,7 +84,7 @@ const { cryptoAmount, fiatAmount } = accountInfo(
   toRef(props, "network"),
   toRef(props, "accountInfo")
 );
-
+const domainResolver = new UNSResolver();
 const forceUpdateVal = ref(0);
 const isNoActivity = ref(false);
 const activities = ref<Activity[]>([]);

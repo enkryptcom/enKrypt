@@ -30,7 +30,7 @@ export interface VerifyTransactionParams {
   toToken: ToTokenData;
   txFee: TxFeeInfo;
   TransactionData: SendTransactionDataType;
-  domainAddress?: string;
+  domainAddress?: string | null;
 }
 
 export interface SignerTransactionOptions {
