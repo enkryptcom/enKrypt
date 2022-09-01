@@ -37,14 +37,9 @@ export default (
       cgPlatform: CoingeckoPlatform.Ethereum,
     },
     [NetworkNames.Okc]: {
-      tbName: "okc",
+      tbName: "eth",
       tokenurl: TokenList[NetworkNames.Okc],
-      cgPlatform: networks.okc.coingeckoID as string,
-    },
-    [NetworkNames.OkcTestnet]: {
-      tbName: "okct",
-      tokenurl: TokenList[NetworkNames.OkcTestnet],
-      cgPlatform: networks.okctest.coingeckoID as string,
+      cgPlatform: CoingeckoPlatform.Okc,
     },
     [NetworkNames.Matic]: {
       tbName: "matic",

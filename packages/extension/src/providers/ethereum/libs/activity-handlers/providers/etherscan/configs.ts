@@ -12,7 +12,6 @@ const NetworkEndpoints = {
   [NetworkNames.Moonriver]: "https://api-moonriver.moonscan.io/",
   [NetworkNames.KaruraEVM]: "https://blockscout.karura.network/",
   [NetworkNames.Okc]: "https://www.oklink.com/zh-cn/okc",
-  [NetworkNames.OkcTestnet]: "https://www.oklink.com/zh-cn/okc-test",
 };
 
 export { NetworkEndpoints };

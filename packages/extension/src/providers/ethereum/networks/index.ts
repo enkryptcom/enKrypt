@@ -10,7 +10,6 @@ import moonbeamNode from "./moonbeam";
 import moonriverNode from "./moonriver";
 import karuraEvmNode from "./karura";
 import okcNode from "./okc";
-import okctestNode from "./okc-testnet";
 
 export default {
   goerli: goerliNode,
@@ -25,5 +24,4 @@ export default {
   moonriver: moonriverNode,
   karuraEvm: karuraEvmNode,
   okc: okcNode,
-  okctest: okctestNode,
 };

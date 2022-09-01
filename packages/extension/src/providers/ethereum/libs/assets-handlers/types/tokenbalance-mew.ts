@@ -22,5 +22,4 @@ export type SupportedNetworkNames =
   | NetworkNames.Binance
   | NetworkNames.Ethereum
   | NetworkNames.Okc
-  | NetworkNames.OkcTestnet
   | NetworkNames.Matic;
