@@ -84,7 +84,7 @@ const setConfig = (config) => {
     }
     return id % 10;
   };
-  config.optimization.set("moduleIds", "deterministic");
+  config.optimization.set("moduleIds", "named");
   config.optimization.splitChunks({
     maxSize:
       BROWSER === browserNames.firefox ? 3 * 1024 * 1024 : 10 * 1024 * 1024,
