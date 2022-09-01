@@ -35,10 +35,17 @@ class NetworksState {
     const state: IState = await this.storage.get(StorageKeys.networkInfo);
 
     if (state.networks) {
-      const targetNetwork = state.networks.find(
+      let targetNetwork = state.networks.find(
         (network) => network.name === targetNetworkName
       );
-
+      if (!targetNetwork) {
+        targetNetwork = getAllNetworks()
+          .map(({ name }) => {
+            return { name, isActive: false };
+          })
+          .find((t) => t.name === targetNetworkName);
+        state.networks.push(targetNetwork as NetworkStorageElement);
+      }
       if (targetNetwork !== undefined) {
         targetNetwork.isActive = isActive;
 

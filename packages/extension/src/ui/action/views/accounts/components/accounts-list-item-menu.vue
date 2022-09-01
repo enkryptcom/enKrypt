@@ -37,7 +37,7 @@ defineProps({
       0px 3.75px 11px rgba(0, 0, 0, 0.19);
     border-radius: 12px;
     position: absolute;
-    top: 42px;
+    top: 44px;
     right: 0;
     z-index: 4;
     padding: 8px;

@@ -10,7 +10,7 @@
     </a>
     <a v-else-if="isFavorite && !isHidden" @click="favClicked(false)">
       <nft-more-delete-from-favorite />
-      <span>Delete from favorites</span>
+      <span>Remove from favorites</span>
     </a>
     <a v-if="!isHidden && !isFavorite" @click="hideClicked(true)">
       <nft-more-hide />

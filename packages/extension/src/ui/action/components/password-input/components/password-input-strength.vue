@@ -12,7 +12,7 @@
           strong: strength == PasswordStrength.strong,
           'very-strong': strength == PasswordStrength.veryStrong,
         }"
-      ></div>
+      />
     </div>
 
     <p

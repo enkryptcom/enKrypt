@@ -59,4 +59,11 @@ export enum PolkadotStorageNamespace {
   metadata = "polkadot_metadata",
 }
 
+export interface KnownTokenDisplay {
+  name: string;
+  symbol: string;
+  coingeckoID?: string;
+  icon: string;
+}
+
 export { InjectedProvider };

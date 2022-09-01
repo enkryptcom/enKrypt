@@ -33,7 +33,7 @@ const emit = defineEmits<{
   (e: "update:selectedPath", path: PathType): void;
 }>();
 
-let isSelectPath = ref(false);
+const isSelectPath = ref(false);
 defineProps({
   paths: {
     type: Array as PropType<PathType[]>,
@@ -136,7 +136,8 @@ const selectPath = (path: PathType) => {
     border-radius: 12px;
     padding: 8px;
     box-sizing: border-box;
-    z-index: 1;
+    z-index: 11;
+
     &-item {
       transition: background 300ms ease-in-out;
       cursor: pointer;

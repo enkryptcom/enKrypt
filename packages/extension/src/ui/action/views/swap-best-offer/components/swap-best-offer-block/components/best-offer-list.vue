@@ -9,7 +9,7 @@
         :select="() => select(trade)"
         :is-checked="trade.provider === pickedTrade.provider"
         :is-loading="false"
-      ></best-offer-list-item>
+      />
     </div>
   </div>
 </template>

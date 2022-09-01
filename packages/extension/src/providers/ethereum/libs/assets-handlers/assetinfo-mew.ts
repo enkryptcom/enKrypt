@@ -18,8 +18,7 @@ import Sparkline from "@/libs/sparkline";
 import { BaseNetwork } from "@/types/base-network";
 import { EvmNetwork } from "../../types/evm-network";
 import { getKnownNetworkTokens, TokenList } from "./token-lists";
-import networks from "../../networks";
-import { NetworkNames } from "@enkryptcom/types";
+import { CoingeckoPlatform, NetworkNames } from "@enkryptcom/types";
 import { NATIVE_TOKEN_ADDRESS } from "../common";
 const API_ENPOINT = "https://tokenbalance.mewapi.io/";
 export default (
@@ -30,12 +29,12 @@ export default (
     [NetworkNames.Binance]: {
       tbName: "bsc",
       tokenurl: TokenList[NetworkNames.Binance],
-      cgPlatform: networks.bsc.coingeckoID as string,
+      cgPlatform: CoingeckoPlatform.Binance,
     },
     [NetworkNames.Ethereum]: {
       tbName: "eth",
       tokenurl: TokenList[NetworkNames.Ethereum],
-      cgPlatform: networks.ethereum.coingeckoID as string,
+      cgPlatform: CoingeckoPlatform.Ethereum,
     },
     [NetworkNames.Okc]: {
       tbName: "okc",
@@ -50,7 +49,7 @@ export default (
     [NetworkNames.Matic]: {
       tbName: "matic",
       tokenurl: TokenList[NetworkNames.Matic],
-      cgPlatform: networks.matic.coingeckoID as string,
+      cgPlatform: CoingeckoPlatform.Matic,
     },
   };
   if (!Object.keys(supportedNetworks).includes(network.name))
@@ -76,7 +75,7 @@ export default (
           Object.keys(balances).filter(
             (contract) => contract !== NATIVE_TOKEN_ADDRESS
           ),
-          supportedNetworks[networkName].cgPlatform
+          supportedNetworks[networkName].cgPlatform as CoingeckoPlatform
         );
         marketInfo[NATIVE_TOKEN_ADDRESS] = nativeMarket[0];
 

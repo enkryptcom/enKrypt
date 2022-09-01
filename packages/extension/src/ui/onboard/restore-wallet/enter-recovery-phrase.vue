@@ -6,8 +6,7 @@
       v-model="mnemonic"
       autocomplete="off"
       class="enter-recovery-phrase__input"
-    >
-    </textarea>
+    />
 
     <div class="enter-recovery-phrase__buttons">
       <base-button title="Next" :click="nextAction" :disabled="!validate" />

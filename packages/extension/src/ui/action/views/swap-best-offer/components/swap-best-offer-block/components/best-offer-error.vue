@@ -8,7 +8,7 @@
     </p>
 
     <p v-if="notEnoughtETH" class="with-link">
-      Not enough ETH to pay the network<br />fee. You are<br />~{{
+      Not enough ETH to pay the network<br />fee. You are ~{{
         $filters.formatFloatingPointValue(nativeValue).value
       }}
       {{ nativeSymbol }} (${{ $filters.formatFiatValue(price).value }}) short.

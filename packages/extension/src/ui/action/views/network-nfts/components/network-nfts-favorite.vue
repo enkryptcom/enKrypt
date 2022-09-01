@@ -2,7 +2,7 @@
   <div class="network-nfts__favorite">
     <a class="network-nfts__favorite-head" @click="toggle">
       <p>Favorites</p>
-      <switch-arrow class="network-nfts__favorite-arrow"></switch-arrow>
+      <switch-arrow class="network-nfts__favorite-arrow" />
     </a>
     <div v-show="isOpen" class="network-nfts__favorite-items">
       <network-nfts-item
@@ -11,7 +11,7 @@
         :item="item"
         :is-favorite="true"
         v-bind="$attrs"
-      ></network-nfts-item>
+      />
     </div>
   </div>
 </template>
@@ -21,7 +21,7 @@ import { PropType, ref } from "vue";
 import NetworkNftsItem from "./network-nfts-item.vue";
 import SwitchArrow from "@action/icons/header/switch_arrow.vue";
 import { NFTItem } from "@/types/nft";
-let isOpen = ref(true);
+const isOpen = ref(true);
 
 defineProps({
   favorites: {

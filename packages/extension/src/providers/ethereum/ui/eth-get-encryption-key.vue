@@ -1,7 +1,7 @@
 <template>
   <common-popup>
     <template #header>
-      <sign-logo class="common-popup__logo"></sign-logo>
+      <sign-logo class="common-popup__logo" />
     </template>
 
     <template #content>
@@ -22,8 +22,7 @@
         <div class="common-popup__info">
           <img :src="Options.faviconURL" />
           <div class="common-popup__info-info">
-            <h4>{{ Options.title }}</h4>
-            <p>{{ Options.domain }}</p>
+            <h4>{{ Options.domain }}</h4>
           </div>
         </div>
 
@@ -73,6 +72,7 @@ const Options = ref<ProviderRequestOptions>({
   faviconURL: "",
   title: "",
   url: "",
+  tabId: 0,
 });
 onBeforeMount(async () => {
   const { Request, options } = await windowPromise;

@@ -1,6 +1,6 @@
 <template>
   <div class="settings__container">
-    <div class="settings__overlay" @click="close()"></div>
+    <div class="settings__overlay" @click="close()" />
     <div class="settings__wrap">
       <settings-start
         v-if="isStart"
@@ -10,33 +10,33 @@
         @action:recovery-phrase="recoveryPhraseAction"
         @action:support="supportAction"
         @window:close="close"
-      ></settings-start>
+      />
       <settings-general
         v-if="isGeneral"
         @window:close="close"
         @window:back="startAction"
-      ></settings-general>
+      />
       <settings-support
         v-if="isSupport"
         @window:close="close"
         @window:back="startAction"
-      ></settings-support>
+      />
       <settings-about
         v-if="isAbout"
         @window:close="close"
         @window:back="startAction"
-      ></settings-about>
+      />
       <settings-recovery
         v-if="isPhrase"
         :mnemonic="mnemonic"
         @window:close="close"
         @window:back="startAction"
-      ></settings-recovery>
+      />
       <reset-wallet
         v-if="isReset"
         @window:close="close"
         @window:back="startAction"
-      ></reset-wallet>
+      />
     </div>
   </div>
 </template>

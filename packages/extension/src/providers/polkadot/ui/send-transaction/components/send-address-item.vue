@@ -20,10 +20,7 @@
       </div>
     </div>
 
-    <done-icon
-      v-show="isChecked"
-      class="send-address-item__checked"
-    ></done-icon>
+    <done-icon v-show="isChecked" class="send-address-item__checked" />
   </a>
 </template>
 

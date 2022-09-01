@@ -1,5 +1,5 @@
 import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
-import { NetworkNames } from "@enkryptcom/types";
+import { CoingeckoPlatform, NetworkNames } from "@enkryptcom/types";
 import { EtherscanActivity } from "../../libs/activity-handlers";
 import { EvmNetwork, EvmNetworkOptions } from "../../types/evm-network";
 import { tokens } from "./tokens";
@@ -17,6 +17,7 @@ const moonbeamOptions: EvmNetworkOptions = {
   icon: require("../icons/moonbeam.svg"),
   gradient: "#53CBC9",
   coingeckoID: "moonbeam",
+  coingeckoPlatform: CoingeckoPlatform.Moonbeam,
   activityHandler: wrapActivityHandler(EtherscanActivity),
 };
 
