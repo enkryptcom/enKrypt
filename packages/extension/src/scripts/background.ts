@@ -14,7 +14,7 @@ import { OnMessageResponse } from "@enkryptcom/types";
 import Browser from "webextension-polyfill";
 import openOnboard from "@/libs/utils/open-onboard";
 
-import(/* webpackChunkName: "background-chunk" */ "@/libs/background").then(
+import(/* webpackChunkName: "js/background-chunk" */ "@/libs/background").then(
   ({ default: BackgroundHandler }) => {
     const backgroundHandler = new BackgroundHandler();
     backgroundHandler.init();
