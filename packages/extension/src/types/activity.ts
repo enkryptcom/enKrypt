@@ -17,6 +17,24 @@ interface EthereumRawInfo {
   value: string;
   timestamp: number | undefined;
 }
+interface OkcRawInfo {
+  blockHash: string;
+  height: string;
+  contractAddress: string | null;
+  from: string;
+  to: string | null;
+  txId: string;
+  amount: string;
+  transactionTime: string;
+  txFee: string;
+
+  effectiveGasPrice: string;
+  transactionHash: string;
+  gasUsed: string;
+  status: boolean;
+  blockNumber: string | undefined;
+  gas: string;
+}
 
 interface SubscanExtrinsicInfo {
   success: boolean;
@@ -65,11 +83,16 @@ interface Activity {
   status: ActivityStatus;
   type: ActivityType;
   swapId?: string;
-  rawInfo?: EthereumRawInfo | SubstrateRawInfo | SubscanExtrinsicInfo;
+  rawInfo?:
+    | EthereumRawInfo
+    | SubstrateRawInfo
+    | SubscanExtrinsicInfo
+    | OkcRawInfo;
 }
 
 export {
   EthereumRawInfo,
+  OkcRawInfo,
   SubstrateRawInfo,
   Activity,
   ActivityStatus,

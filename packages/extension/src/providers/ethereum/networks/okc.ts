@@ -1,13 +1,11 @@
 import { CoingeckoPlatform, NetworkNames } from "@enkryptcom/types";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
-import assetsInfoHandler from "@/providers/ethereum/libs/assets-handlers/assetinfo-mew";
-import mewNFTHandler from "@/libs/nft-handlers/mew";
-import { EtherscanActivity } from "../libs/activity-handlers";
+import { OkcActivity } from "../libs/activity-handlers";
 import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
 
 const okcOptions: EvmNetworkOptions = {
   name: NetworkNames.Okc,
-  name_long: "OKExchain",
+  name_long: "OKX Chain",
   homePage: "https://www.oklink.com/zh-cn/okc",
   blockExplorerTX: "https://www.oklink.com/zh-cn/okc/tx/[[txHash]]",
   blockExplorerAddr: "https://www.oklink.com/zh-cn/okc/address/[[address]]",
@@ -19,9 +17,7 @@ const okcOptions: EvmNetworkOptions = {
   gradient: "linear-gradient(180deg, #C549FF 0%, #684CFF 100%)",
   coingeckoID: "oec-token",
   coingeckoPlatform: CoingeckoPlatform.Okc,
-  NFTHandler: mewNFTHandler,
-  assetsInfoHandler,
-  activityHandler: wrapActivityHandler(EtherscanActivity),
+  activityHandler: wrapActivityHandler(OkcActivity),
 };
 
 const okc = new EvmNetwork(okcOptions);
