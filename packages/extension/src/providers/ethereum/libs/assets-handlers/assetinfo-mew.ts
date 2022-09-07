@@ -36,11 +36,6 @@ export default (
       tokenurl: TokenList[NetworkNames.Ethereum],
       cgPlatform: CoingeckoPlatform.Ethereum,
     },
-    [NetworkNames.Okc]: {
-      tbName: "eth",
-      tokenurl: TokenList[NetworkNames.Okc],
-      cgPlatform: CoingeckoPlatform.Okc,
-    },
     [NetworkNames.Matic]: {
       tbName: "matic",
       tokenurl: TokenList[NetworkNames.Matic],

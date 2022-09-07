@@ -21,5 +21,4 @@ export interface CGToken {
 export type SupportedNetworkNames =
   | NetworkNames.Binance
   | NetworkNames.Ethereum
-  | NetworkNames.Okc
   | NetworkNames.Matic;
