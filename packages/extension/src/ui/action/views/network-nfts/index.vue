@@ -11,6 +11,7 @@
           :favorites="favoriteNFTs"
           @update:fav-clicked="favClicked"
           @update:hide-clicked="hideClicked"
+          @update:toggle-detail="toggleDetail"
         />
         <network-nfts-category
           v-for="(item, index) in NFTs"
@@ -18,12 +19,14 @@
           :collection="item"
           @update:fav-clicked="favClicked"
           @update:hide-clicked="hideClicked"
+          @update:toggle-detail="toggleDetail"
         />
         <network-nfts-hidden
           v-if="hiddenNFTs.length"
           :hiddens="hiddenNFTs"
           @update:fav-clicked="favClicked"
           @update:hide-clicked="hideClicked"
+          @update:toggle-detail="toggleDetail"
         />
       </div>
     </custom-scrollbar>
@@ -31,6 +34,17 @@
     <network-nfts-empty
       v-if="!NFTs.length && !favoriteNFTs.length && !hiddenNFTs.length"
       :is-empty="isNoNFTs"
+    />
+
+    <nft-detail-view
+      v-if="!!detailNFT"
+      :item="detailNFT"
+      :is-favorite="isFavorite"
+      :link-action="openLink"
+      v-bind="$attrs"
+      @close:popup="toggleDetail(null)"
+      @update:fav-clicked="favClicked"
+      @update:hide-clicked="hideClicked"
     />
   </div>
 </template>
@@ -42,12 +56,13 @@ import NetworkNftsCategory from "./components/network-nfts-category.vue";
 import NetworkNftsFavorite from "./components/network-nfts-favorite.vue";
 import NetworkNftsHidden from "./components/network-nfts-hidden.vue";
 import NetworkNftsEmpty from "./components/network-nfts-empty.vue";
-import { onMounted, PropType, ref, watch } from "vue";
+import { onMounted, PropType, ref, watch, computed } from "vue";
 import { NodeType } from "@/types/provider";
 import { AccountsHeaderData } from "../../types/account";
 import { NFTCollection, NFTItem } from "@/types/nft";
 import NFTState from "@/libs/nft-state";
 import scrollSettings from "@/libs/utils/scroll-settings";
+import NftDetailView from "@action/views/nft-detail-view/index.vue";
 
 const nftState = new NFTState();
 const props = defineProps({
@@ -64,6 +79,7 @@ const NFTs = ref<NFTCollection[]>([]);
 const favoriteNFTs = ref<NFTItem[]>([]);
 const hiddenNFTs = ref<NFTItem[]>([]);
 const liveNFTCollection = ref<NFTCollection[]>([]);
+const detailNFT = ref<NFTItem | null>(null);
 const isNoNFTs = ref(false);
 
 watch([props.accountInfo, props.network], () => {
@@ -137,6 +153,19 @@ const hideClicked = async (isHidden: boolean, item: NFTItem) => {
   }
   localUpdate();
 };
+const toggleDetail = (item: NFTItem | null) => {
+  detailNFT.value = item;
+};
+const openLink = () => {
+  if (detailNFT.value) window.open(detailNFT.value.url, "_blank");
+};
+const isFavorite = computed(() => {
+  if (detailNFT.value && favoriteNFTs.value.length) {
+    return favoriteNFTs.value.includes(detailNFT.value);
+  }
+
+  return false;
+});
 </script>
 
 <style lang="less" scoped>
@@ -163,9 +192,9 @@ const hideClicked = async (isHidden: boolean, item: NFTItem) => {
     position: relative;
     margin: auto;
     width: 100%;
-    max-height: 540px;
+    max-height: 600px;
     margin: 0;
-    padding: 56px 0 0 0 !important;
+    padding: 56px 0 56px 0 !important;
     box-sizing: border-box;
 
     &.ps--active-y {

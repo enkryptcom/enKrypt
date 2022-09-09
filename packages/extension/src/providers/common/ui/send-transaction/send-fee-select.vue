@@ -62,11 +62,12 @@ defineProps({
 });
 </script>
 
-<style lang="less">
+<style lang="less" scoped>
 @import "~@action/styles/theme.less";
 
 .send-fee-select {
-  height: 40px;
+  min-height: 40px;
+  height: auto;
   background: #ffffff;
   margin: 0px 32px 8px 32px;
   box-sizing: border-box;
@@ -74,7 +75,7 @@ defineProps({
   box-sizing: border-box;
   border-radius: 10px;
   width: calc(~"100% - 64px");
-  padding: 16px 10px;
+  padding: 10px 16px;
   display: flex;
   justify-content: flex-start;
   align-items: center;
@@ -93,6 +94,7 @@ defineProps({
     justify-content: flex-start;
     align-items: center;
     flex-direction: row;
+    padding-right: 100px;
 
     &-fiat {
       font-style: normal;
@@ -123,7 +125,8 @@ defineProps({
     position: absolute;
     font-size: 0;
     right: 12px;
-    top: 8px;
+    top: 50%;
+    margin-top: -12px;
     display: flex;
     justify-content: flex-start;
     align-items: center;

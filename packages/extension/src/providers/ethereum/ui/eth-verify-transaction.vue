@@ -36,8 +36,7 @@
         <div class="provider-verify-transaction__info">
           <img :src="Options.faviconURL" />
           <div class="provider-verify-transaction__info-info">
-            <h4>{{ Options.title }}</h4>
-            <p>{{ Options.domain }}</p>
+            <h4>{{ Options.domain }}</h4>
           </div>
         </div>
 
@@ -81,8 +80,6 @@
         :fee="gasCostValues[selectedFee]"
         @open-popup="toggleSelectFee"
       />
-
-      <!-- <best-offer-error :not-enough-verify="true"></best-offer-error> -->
 
       <div class="provider-verify-transaction__data">
         <a
@@ -150,7 +147,7 @@ import BigNumber from "bignumber.js";
 import { GasFeeType, GasPriceTypes } from "@/providers/common/types";
 import MarketData from "@/libs/market-data";
 import { defaultGasCostVals } from "@/providers/common/libs/default-vals";
-import { EnkryptAccount } from "@enkryptcom/types";
+import { EnkryptAccount, NetworkNames } from "@enkryptcom/types";
 import { TransactionSigner } from "./libs/signer";
 import { Activity, ActivityStatus, ActivityType } from "@/types/activity";
 import { generateAddress } from "ethereumjs-util";
@@ -181,7 +178,7 @@ const Options = ref<ProviderRequestOptions>({
   url: "",
   tabId: 0,
 });
-const selectedFee = ref<GasPriceTypes>(GasPriceTypes.ECONOMY);
+const selectedFee = ref<GasPriceTypes>(GasPriceTypes.REGULAR);
 
 defineExpose({ providerVerifyTransactionScrollRef });
 
@@ -256,7 +253,10 @@ onBeforeMount(async () => {
         fiatSymbol: "USD",
       },
     };
-    selectedFee.value = GasPriceTypes.ECONOMY;
+    selectedFee.value =
+      network.value.name === NetworkNames.Matic
+        ? GasPriceTypes.FASTEST
+        : GasPriceTypes.REGULAR;
   });
 });
 
@@ -329,9 +329,7 @@ const approve = async () => {
             });
         })
         .catch((err) => {
-          Resolve.value({
-            error: getCustomError(err.message),
-          });
+          Resolve.value(err);
         });
     }
   );

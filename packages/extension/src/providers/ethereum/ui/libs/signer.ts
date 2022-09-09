@@ -42,9 +42,7 @@ const TransactionSigner = (
       params: [msgHash, account],
     }).then((res) => {
       if (res.error) {
-        return Promise.reject({
-          error: res.error,
-        });
+        return Promise.reject(res);
       } else {
         const rpcSig = fromRpcSig(JSON.parse(res.result as string) || "0x");
         const signedTx = (

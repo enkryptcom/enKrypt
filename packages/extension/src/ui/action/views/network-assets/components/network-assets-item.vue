@@ -1,12 +1,27 @@
 <template>
   <a class="network-assets__token" @click="toggleDetail()">
-    <div class="network-assets__token-info">
+    <div
+      class="network-assets__token-info"
+      :class="{ max: token.priceChangePercentage == 0 }"
+    >
       <img :src="token.icon" />
-
       <div class="network-assets__token-info-name">
-        <h4>{{ token.name }}</h4>
+        <h4 v-if="token.name.length <= 16">{{ token.name }}</h4>
+        <tooltip v-else :text="token.name"
+          ><h4>{{ `${token.name.slice(0, 12)}...` }}</h4></tooltip
+        >
         <p>
-          {{ token.balancef }} <span>{{ token.symbol }}</span>
+          {{ token.balancef }}
+          <span v-if="token.symbol.length <= 6">
+            {{ token.symbol.toLowerCase() }}
+          </span>
+          <tooltip
+            v-else
+            :style="{ fontSize: '12px !important' }"
+            :text="token.symbol"
+          >
+            <span>{{ `${token.symbol.toLowerCase().slice(0, 7)}` }}</span>
+          </tooltip>
         </p>
       </div>
     </div>
@@ -46,6 +61,7 @@ import SparklineUp from "@action/icons/asset/sparkline-up.vue";
 import SparklineDown from "@action/icons/asset/sparkline-down.vue";
 import AssetDetailView from "@action/views/asset-detail-view/index.vue";
 import { AssetsType } from "@/types/provider";
+import Tooltip from "@/ui/action/components/tooltip/index.vue";
 
 const isDetail = ref(false);
 
@@ -96,6 +112,12 @@ const toggleDetail = () => {
       align-items: center;
       flex-direction: row;
       width: 190px;
+      overflow: hidden;
+
+      &.max {
+        min-width: 190px;
+        width: auto;
+      }
 
       img {
         max-width: 32px;
@@ -112,6 +134,10 @@ const toggleDetail = () => {
           line-height: 24px;
           color: @primaryLabel;
           margin: 0 0 1px 0;
+          white-space: nowrap;
+          width: 132px;
+          text-overflow: ellipsis;
+          overflow: hidden;
         }
 
         p {
@@ -126,10 +152,23 @@ const toggleDetail = () => {
           justify-content: flex-start;
           align-items: center;
           flex-direction: row;
+          white-space: nowrap;
+          width: 132px;
+          overflow: hidden;
+          text-overflow: ellipsis;
 
           span {
             font-variant: small-caps;
             margin-left: 4px;
+          }
+        }
+
+        &.max {
+          h4,
+          p {
+            min-width: 132px;
+            max-width: 100%;
+            width: auto;
           }
         }
       }

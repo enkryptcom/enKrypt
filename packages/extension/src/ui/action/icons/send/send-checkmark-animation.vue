@@ -17,7 +17,7 @@
       stroke-linejoin="round"
       opacity="0.2"
       transform="translate(64,64)"
-      style="animation: 0.566s linear both back_o"
+      style="animation: 0.566s linear both back_o_ca"
     />
     <ellipse
       id="spin"
@@ -33,7 +33,7 @@
       stroke-miterlimit="4"
       opacity="1"
       transform="translate(64,64) rotate(1368.12)"
-      style="animation: 0.566s linear both spin_t, 0.566s linear both spin_o, 0.566s linear both spin_da, 0.566s linear both spin_do"
+      style="animation: 0.566s linear both spin_t_ca, 0.566s linear both spin_o_ca, 0.566s linear both spin_da_ca, 0.566s linear both spin_do_ca"
     />
     <path
       id="check"
@@ -48,7 +48,7 @@
       stroke-miterlimit="4"
       opacity="0"
       transform="translate(22,22)"
-      style="animation: 0.566s linear both check_o, 0.566s linear both check_da"
+      style="animation: 0.566s linear both check_o_ca, 0.566s linear both check_da_ca"
     />
   </svg>
 </template>
@@ -61,7 +61,7 @@ svg {
 </style>
 
 <style>
-@keyframes back_o {
+@keyframes back_o_ca {
   0% {
     opacity: 0.2;
   }
@@ -75,7 +75,7 @@ svg {
     opacity: 0;
   }
 }
-@keyframes spin_t {
+@keyframes spin_t_ca {
   0% {
     transform: translate(64px, 64px) rotate(1368.115235deg);
   }
@@ -90,7 +90,7 @@ svg {
     transform: translate(64px, 64px) rotate(1620deg);
   }
 }
-@keyframes spin_o {
+@keyframes spin_o_ca {
   0% {
     opacity: 1;
   }
@@ -107,7 +107,7 @@ svg {
     opacity: 0;
   }
 }
-@keyframes spin_da {
+@keyframes spin_da_ca {
   0% {
     stroke-dasharray: 118.02px 107.987px;
   }
@@ -122,7 +122,7 @@ svg {
     stroke-dasharray: 0px 182px;
   }
 }
-@keyframes spin_do {
+@keyframes spin_do_ca {
   0% {
     stroke-dashoffset: 0px;
   }
@@ -137,7 +137,7 @@ svg {
     stroke-dashoffset: 0px;
   }
 }
-@keyframes check_o {
+@keyframes check_o_ca {
   0% {
     opacity: 0;
   }
@@ -148,7 +148,7 @@ svg {
     opacity: 1;
   }
 }
-@keyframes check_da {
+@keyframes check_da_ca {
   0% {
     stroke-dasharray: 0px 82px;
   }

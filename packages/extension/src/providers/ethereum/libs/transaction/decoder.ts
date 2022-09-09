@@ -60,7 +60,7 @@ const decodeTx = async (
           tokenTo = decodedInfo.tokenTo!;
         }
         await marketData
-          .getMarketInfoByContracts([tx.to!], network.coingeckoID!)
+          .getMarketInfoByContracts([tx.to!], network.coingeckoPlatform!)
           .then((marketInfo) => {
             if (marketInfo[tx.to!]) {
               currentPriceUSD = marketInfo[tx.to!]!.current_price;

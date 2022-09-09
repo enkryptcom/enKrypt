@@ -75,6 +75,9 @@ const setConfig = (config) => {
   const omitUserScripts = ({ name }) => {
     return userScripts.includes(name) ? false : "initial";
   };
+  if (BROWSER === browserNames.firefox) {
+    config.optimization.minimize(false);
+  }
   config.optimization.splitChunks({
     maxSize: 4194304,
     cacheGroups: {

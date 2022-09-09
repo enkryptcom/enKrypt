@@ -118,7 +118,7 @@ const FeeDescriptions = {
   [GasPriceTypes.REGULAR]: {
     title: "Recommended",
     description: "Will reliably go through in most scenarios",
-    eta: "5 mins",
+    eta: "5 min",
   },
   [GasPriceTypes.FAST]: {
     title: "Higher priority",

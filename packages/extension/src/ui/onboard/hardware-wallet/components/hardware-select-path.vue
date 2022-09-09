@@ -136,7 +136,8 @@ const selectPath = (path: PathType) => {
     border-radius: 12px;
     padding: 8px;
     box-sizing: border-box;
-    z-index: 1;
+    z-index: 11;
+
     &-item {
       transition: background 300ms ease-in-out;
       cursor: pointer;

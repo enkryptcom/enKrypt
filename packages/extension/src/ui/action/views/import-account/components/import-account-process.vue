@@ -59,7 +59,7 @@ defineProps({
     &.green {
       font-size: 20px;
       line-height: 28px;
-      color: @primary;
+      color: @success;
     }
   }
 

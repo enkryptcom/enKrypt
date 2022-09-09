@@ -18,7 +18,7 @@
         class="transaction-fee-item__block-amount"
         :class="{ down: parseFloat(diff) < 0 }"
       >
-        {{ parseFloat(diff) < 0 ? "" : "+" }}{{ diff }}
+        {{ parseFloat(diff) < 0 ? "-" : "+" }}${{ Math.abs(parseFloat(diff)) }}
       </div>
     </div>
   </a>
@@ -129,7 +129,7 @@ const select = () => {
       font-size: 16px;
       line-height: 24px;
       text-align: right;
-      color: @primary;
+      color: @success;
       position: absolute;
       right: 20px;
       top: 16px;

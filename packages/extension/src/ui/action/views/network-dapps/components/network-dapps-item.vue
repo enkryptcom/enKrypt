@@ -1,13 +1,16 @@
 <template>
   <a class="network-dapps__item" @click="openLink">
     <img :src="app.image" />
-    <p>{{ app.title }}</p>
+    <h4>{{ app.title }}</h4>
+    <p v-if="!!app.description">{{ app.description }}</p>
+    <dapps-arrow class="network-dapps__item-arrow" />
   </a>
 </template>
 
 <script setup lang="ts">
 import { DAppsItem } from "@/types/ui";
 import { PropType } from "vue";
+import DappsArrow from "@action/icons/common/dapps-arrow.vue";
 
 const props = defineProps({
   app: {
@@ -26,49 +29,64 @@ const openLink = () => {
 @import "~@action/styles/theme.less";
 
 .network-dapps {
-  font-size: 0;
-  display: flex;
-  flex-wrap: wrap;
-
   &__item {
     cursor: pointer;
-    height: 72px;
     padding: 12px;
     position: relative;
     box-sizing: border-box;
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    flex-direction: row;
-    width: calc(~"50% - 8px");
-    height: 56px;
+    width: 100%;
     background: @buttonBg;
     border-radius: 12px;
-    margin-bottom: 16px;
     text-decoration: none;
-    margin-right: 8px;
+    box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.039),
+      0px 0.5px 1.5px rgba(0, 0, 0, 0.19);
+    border-radius: 12px;
+    background: @white;
+    transition: background 300ms ease-in-out;
+    display: block;
 
-    &:nth-child(even) {
-      margin-right: 0;
-      margin-left: 8px;
+    &:hover {
+      background: @hoverItemBg;
+
+      .network-dapps__item-arrow {
+        opacity: 1 !important;
+      }
     }
 
     img {
-      width: 32px;
-      margin-right: 11px;
+      width: 48px;
+      height: 48px;
+      border-radius: 15px;
+      display: block;
+      margin-bottom: 12px;
+    }
+
+    h4 {
+      font-style: normal;
+      font-weight: 500;
+      font-size: 16px;
+      line-height: 20px;
+      letter-spacing: 0.15px;
+      color: @primaryLabel;
+      margin: 0;
     }
 
     p {
       font-style: normal;
-      font-weight: 600;
-      font-size: 15px;
-      line-height: 20px;
-      display: flex;
-      align-items: center;
-      letter-spacing: -0.24px;
-      font-feature-settings: "ss15" on;
-      color: @primaryLabel;
-      margin: 0;
+      font-weight: 400;
+      font-size: 12px;
+      line-height: 16px;
+      letter-spacing: 0.5px;
+      color: @secondaryLabel;
+      margin: 4px 0 0 0;
+    }
+
+    &-arrow {
+      opacity: 0;
+      transition: opacity 300ms ease-in-out;
+      position: absolute;
+      right: 4px;
+      top: 4px;
     }
   }
 }

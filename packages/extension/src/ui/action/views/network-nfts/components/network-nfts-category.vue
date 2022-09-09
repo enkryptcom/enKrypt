@@ -4,8 +4,12 @@
       <!-- <img :src="collection.image" alt="" /> -->
       <p>{{ collection.name }}</p>
 
-      <a class="network-nfts__category-sort" @mouseenter="toggleSortMenu">
-        <nft-sort-menu />
+      <a
+        ref="toggle"
+        class="network-nfts__category-sort"
+        @click="toggleSortMenu"
+      >
+        <nft-sort-menu></nft-sort-menu>
       </a>
     </div>
     <div class="network-nfts__category-items">
@@ -18,10 +22,10 @@
     </div>
 
     <network-nfts-category-sort-menu
-      v-show="isOpenSort"
+      v-if="isOpenSort"
+      ref="dropdown"
       :is-abc-sort="isAbcSort"
       :abc-sort="abcSortAction"
-      @mouseleave="toggleSortMenu"
     />
   </div>
 </template>
@@ -32,8 +36,12 @@ import NetworkNftsItem from "./network-nfts-item.vue";
 import NftSortMenu from "@action/icons/nft/nft-sort-menu.vue";
 import NetworkNftsCategorySortMenu from "./network-nfts-category-sort-menu.vue";
 import { NFTCollection } from "@/types/nft";
+import { onClickOutside } from "@vueuse/core";
+
 const isOpenSort = ref(false);
 const isAbcSort = ref(true);
+const dropdown = ref(null);
+const toggle = ref(null);
 
 const props = defineProps({
   collection: {
@@ -58,7 +66,15 @@ const toggleSortMenu = () => {
 };
 const abcSortAction = (isAbc: boolean) => {
   isAbcSort.value = isAbc;
+  isOpenSort.value = false;
 };
+onClickOutside(
+  dropdown,
+  () => {
+    if (isOpenSort.value) isOpenSort.value = false;
+  },
+  { ignore: [toggle] }
+);
 </script>
 
 <style lang="less">
