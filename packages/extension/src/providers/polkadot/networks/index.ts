@@ -4,6 +4,7 @@ import ksmNode from "./kusama";
 import karNode from "./acala/karura";
 import wndNode from "./westend";
 import astrNode from "./astar/astar";
+import sdnNode from "./astar/shiden";
 
 export default {
   acala: acaNode,
@@ -12,4 +13,5 @@ export default {
   kusama: ksmNode,
   westend: wndNode,
   astar: astrNode,
+  shiden: sdnNode,
 };

@@ -15,19 +15,28 @@ export class AstarToken extends SubstrateToken {
     this.id = options.id;
   }
 
-  public getLatestUserBalance(
+  public async getLatestUserBalance(
     api: ApiPromise,
     address: string
   ): Promise<string> {
-    return Promise.resolve("0");
+    return api.query.assets.account(this.id, address).then((res) => {
+      if (res) {
+        const data = res.toJSON();
+        const balance = data ? (data as any).balance.toString() : "0";
+        this.balance = balance;
+        return balance;
+      }
+
+      return "0";
+    });
   }
 
-  public send(
+  public async send(
     api: ApiPromise,
     to: string,
     amount: string,
-    options?: SendOptions | undefined
+    _options?: SendOptions | undefined
   ): Promise<SubmittableExtrinsic<"promise", ISubmittableResult>> {
-    return Promise.resolve(null as any);
+    return api.tx.assets.transferKeepAlive(this.id, { id: to }, amount);
   }
 }

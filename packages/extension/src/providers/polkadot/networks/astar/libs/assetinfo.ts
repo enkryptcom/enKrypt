@@ -54,7 +54,7 @@ export default async (
       if (infoHuman) {
         const metadata = assetMetadatas[index];
         return {
-          minBalance: infoHuman.minBalance,
+          minBalance: infoHuman.minBalance.replaceAll(",", ""),
           ...metadata,
         };
       } else {
@@ -69,9 +69,26 @@ export default async (
         decimals: asset!.decimals,
         icon: network.icon,
         id: asset!.key,
+        existentialDeposit: toBN(asset!.minBalance),
       };
 
       return tokenOptions;
+    })
+    .map((tokenOption) => {
+      if (knownTokens) {
+        const knownToken = knownTokens.find(
+          (knownToken) =>
+            knownToken.name === tokenOption.name &&
+            knownToken.symbol === tokenOption.symbol
+        );
+
+        if (knownToken) {
+          tokenOption.coingeckoID = knownToken.coingeckoID;
+          tokenOption.icon = knownToken.icon;
+        }
+      }
+
+      return tokenOption;
     });
 
   if (address) {
@@ -98,6 +115,8 @@ export default async (
     icon: network.icon,
     coingeckoID: network.coingeckoID,
   });
+
+  console.log(tokenOptions);
 
   return [nativeAsset, ...tokenOptions.map((o) => new AstarToken(o))];
 };
