@@ -333,9 +333,7 @@ const approve = async () => {
             });
         })
         .catch((err) => {
-          Resolve.value({
-            error: getCustomError(err.message),
-          });
+          Resolve.value(err);
         });
     }
   );

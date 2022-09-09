@@ -49,6 +49,11 @@ export default (paramCount: number): Promise<WindowPromiseType> => {
     });
   };
   onMounted(() => {
+    history.pushState(null, "", window.location.href);
+    history.back();
+    window.onpopstate = () => history.forward();
+    // prevents browser back button
+
     newWindowOnMessageFromBackground(
       (message): Promise<InternalOnMessageResponse> => {
         if (

@@ -82,7 +82,7 @@ class LedgerEthereum implements HWWalletProvider {
         options.confirmAddress
       )
       .then((res) => ({
-        address: res.address,
+        address: res.address.toLowerCase(),
         publicKey: `0x${res.publicKey}`,
       }));
   }

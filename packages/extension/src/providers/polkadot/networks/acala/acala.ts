@@ -1,3 +1,4 @@
+import ormlAssetHandler from "./libs/assetinfo-orml";
 import { CoingeckoPlatform, NetworkNames } from "@enkryptcom/types";
 import assets from "./assets/acala-assets";
 import {
@@ -6,6 +7,7 @@ import {
 } from "../../types/substrate-network";
 import { subscanActivity } from "../../libs/activity-handlers";
 import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
+import { toBN } from "web3-utils";
 
 const acalaOptions: SubstrateNetworkOptions = {
   name: NetworkNames.Acala,
@@ -26,10 +28,11 @@ const acalaOptions: SubstrateNetworkOptions = {
   genesisHash:
     "0xfc41b9bd8ef8fe53d58c7ea67c794c7ec9a73daf05e6d54b14ff6342c99ba64c",
   activityHandler: wrapActivityHandler(subscanActivity),
+  assetHandler: ormlAssetHandler,
+  knownTokens: assets,
+  existentialDeposit: toBN("100000000000"),
 };
 
 const acala = new SubstrateNetwork(acalaOptions);
-
-acala.assets = assets;
 
 export default acala;
