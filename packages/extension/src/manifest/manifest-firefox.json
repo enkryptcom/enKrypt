@@ -13,5 +13,10 @@
     },
     "default_title": "Enkrypt",
     "default_popup": "action.html"
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "strict_min_version": "100.0"
+    }
   }
 }
