@@ -21,6 +21,7 @@ const browserConfigs = {
     manifest: "./src/manifest/manifest-opera.json",
   },
 };
+
 function modifyManifest(buffer) {
   const manifest = { ...baseManifest, ...JSON.parse(buffer.toString()) };
   manifest.version = package.version;
@@ -33,7 +34,7 @@ const scripts = {
 };
 
 const setConfig = (config) => {
-  for (let [name, path] of Object.entries(scripts)) {
+  for (const [name, path] of Object.entries(scripts)) {
     config.entry(name).add(path).end();
   }
   const userScripts = Object.keys(scripts);
