@@ -35,6 +35,7 @@ export class AstarToken extends SubstrateToken {
     api: ApiPromise,
     to: string,
     amount: string,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _options?: SendOptions | undefined
   ): Promise<SubmittableExtrinsic<"promise", ISubmittableResult>> {
     return api.tx.assets.transferKeepAlive(this.id, { id: to }, amount);
