@@ -8,7 +8,7 @@ import {
   FeeMarketEIP1559Transaction,
 } from "@ethereumjs/tx";
 import HDKey from "hdkey";
-import { bufferToHex, hexToBuffer } from "@enkryptcom/utils";
+import { bigIntToHex, bufferToHex, hexToBuffer } from "@enkryptcom/utils";
 import {
   AddressResponse,
   getAddressRequest,
@@ -122,10 +122,10 @@ class LedgerEthereum implements HWWalletProvider {
       )
       .then((result) => {
         if ((tx as LegacyTransaction).gasPrice) {
-          const rv = parseInt(result.v, 16);
-          const cv = tx.common.chainIdBN().toNumber() * 2 + 35;
+          const rv = BigInt(parseInt(result.v, 16));
+          const cv = tx.common.chainId() * 2n + 35n;
           return toRpcSig(
-            `0x0${rv - cv}`,
+            bigIntToHex(rv - cv),
             hexToBuffer(result.r),
             hexToBuffer(result.s)
           );

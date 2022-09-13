@@ -2724,6 +2724,7 @@ __metadata:
   resolution: "@enkryptcom/utils@workspace:packages/utils"
   dependencies:
     "@enkryptcom/types": ^0.0.1
+    "@ethereumjs/util": ^8.0.0
     "@polkadot/util-crypto": ^10.1.7
     "@types/chai": ^4.3.3
     "@types/mocha": ^9.1.1
