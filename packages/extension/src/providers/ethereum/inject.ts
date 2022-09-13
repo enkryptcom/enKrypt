@@ -64,12 +64,7 @@ export class Provider extends EventEmitter implements ProviderInterface {
         }
       );
     }
-    return this.sendMessageHandler(this.name, JSON.stringify(request)).then(
-      (res) => {
-        console.log(res);
-        return res;
-      }
-    );
+    return this.sendMessageHandler(this.name, JSON.stringify(request));
   }
   enable(): Promise<any> {
     return this.request({ method: "eth_requestAccounts" });
