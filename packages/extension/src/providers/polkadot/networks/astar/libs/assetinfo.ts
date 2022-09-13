@@ -1,9 +1,7 @@
 import API from "@/providers/polkadot/libs/api";
 import { SubstrateNativeToken } from "@/providers/polkadot/types/substrate-native-token";
 import { SubstrateNetwork } from "@/providers/polkadot/types/substrate-network";
-import { BaseTokenOptions } from "@/types/base-token";
-import { u128 } from "@polkadot/types";
-import { hexToString, numberToHex, stringToHex } from "@polkadot/util";
+import { hexToString } from "@polkadot/util";
 
 import { toBN } from "web3-utils";
 import { AstarToken, AstarTokenOptions } from "../types/astar-token";
@@ -115,8 +113,6 @@ export default async (
     icon: network.icon,
     coingeckoID: network.coingeckoID,
   });
-
-  console.log(tokenOptions);
 
   return [nativeAsset, ...tokenOptions.map((o) => new AstarToken(o))];
 };
