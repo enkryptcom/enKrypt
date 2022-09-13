@@ -11,8 +11,8 @@ const NetworkEndpoints = {
   [NetworkNames.Moonbeam]: "https://api-moonbeam.moonscan.io/",
   [NetworkNames.Moonriver]: "https://api-moonriver.moonscan.io/",
   [NetworkNames.KaruraEVM]: "https://blockscout.karura.network/",
-  [NetworkNames.AstarEVM]: "https://blockscout.com/astar",
-  [NetworkNames.ShidenEVM]: "https://blockscout.com/shiden",
+  [NetworkNames.AstarEVM]: "https://blockscout.com/astar/",
+  [NetworkNames.ShidenEVM]: "https://blockscout.com/shiden/",
 };
 
 export { NetworkEndpoints };
