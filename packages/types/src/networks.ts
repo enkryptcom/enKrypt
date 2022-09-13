@@ -30,4 +30,5 @@ export enum CoingeckoPlatform {
   KaruraEVM = "karura",
   Kusama = "kusama",
   Polkadot = "polkadot",
+  Okc = "okc",
 }
