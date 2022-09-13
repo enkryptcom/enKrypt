@@ -2,6 +2,7 @@ import { getCustomError } from "@/libs/error";
 import { MiddlewareFunction } from "@enkryptcom/types";
 import EthereumProvider from "..";
 import { WindowPromise } from "@/libs/window-promise";
+import { isAddress, isHexStrict, utf8ToHex } from "web3-utils";
 const method: MiddlewareFunction = function (
   this: EthereumProvider,
   payload,
@@ -13,8 +14,14 @@ const method: MiddlewareFunction = function (
     if (!payload.params || payload.params.length < 2) {
       return res(getCustomError("personal_sign: invalid params"));
     }
-    const msg = payload.params[0];
-    this.KeyRing.getAccount(payload.params[1].toLowerCase()).then((account) => {
+    let msg = payload.params[0];
+    let address = payload.params[1].toLowerCase();
+    if (isAddress(msg.toLowerCase()) && !isAddress(address.toLowerCase())) {
+      msg = payload.params[1];
+      address = payload.params[0].toLowerCase();
+    }
+    if (!isHexStrict(msg)) msg = utf8ToHex(msg);
+    this.KeyRing.getAccount(address).then((account) => {
       const windowPromise = new WindowPromise();
       windowPromise
         .getResponse(
