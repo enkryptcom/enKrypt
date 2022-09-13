@@ -13,12 +13,15 @@ const browserNames = {
 const browserConfigs = {
   [browserNames.chrome]: {
     manifest: "./src/manifest/manifest-chrome.json",
+    background: "./src/scripts/chrome/background.ts",
   },
   [browserNames.firefox]: {
     manifest: "./src/manifest/manifest-firefox.json",
+    background: "./src/scripts/firefox/background.ts",
   },
   [browserNames.opera]: {
     manifest: "./src/manifest/manifest-opera.json",
+    background: "./src/scripts/chrome/background.ts",
   },
 };
 
@@ -30,7 +33,7 @@ function modifyManifest(buffer) {
 }
 
 const scripts = {
-  background: "./src/scripts/background.ts",
+  background: browserConfigs[BROWSER].background,
 };
 
 const setConfig = (config) => {
