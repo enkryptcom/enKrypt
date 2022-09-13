@@ -2465,6 +2465,7 @@ __metadata:
     rollup-plugin-uglify: ^6.0.4
     stream-browserify: ^3.0.0
     stream-http: ^3.2.0
+    systeminformation: ^5.12.6
     trezor-connect: ^8.2.10
     ts-mocha: ^10.0.0
     tsconfig-paths: ^4.1.0
@@ -20268,6 +20269,16 @@ __metadata:
   version: 2.0.3
   resolution: "symbol-observable@npm:2.0.3"
   checksum: 533dcf7a7925bada60dbaa06d678e7c4966dbf0959ccba7f60c22b0494ba5d9160d6a66f2951d45a80bf20e655a89f8b91c5f0458dd12faef28716b54f91f49c
+  languageName: node
+  linkType: hard
+
+"systeminformation@npm:^5.12.6":
+  version: 5.12.6
+  resolution: "systeminformation@npm:5.12.6"
+  bin:
+    systeminformation: lib/cli.js
+  checksum: ae112148530bc31c4c43c4966b8f56822c874caa93daa1f146ea2372ec32738b315f10c58fb968611d082d9614bac054a9a3740b7e7df1201a2a581c73f3306c
+  conditions: (os=darwin | os=linux | os=win32 | os=freebsd | os=openbsd | os=netbsd | os=sunos | os=android)
   languageName: node
   linkType: hard
 
