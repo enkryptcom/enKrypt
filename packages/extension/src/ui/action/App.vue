@@ -232,7 +232,11 @@ const setNetwork = async (network: BaseNetwork) => {
   currentNetwork.value = network;
   router.push({ name: "assets", params: { id: network.name } });
   const tabId = await domainState.getCurrentTabId();
-  if ((currentNetwork.value as EvmNetwork).chainID) {
+  const curSavedNetwork = await domainState.getSelectedNetWork();
+  if (
+    curSavedNetwork !== network.name &&
+    (currentNetwork.value as EvmNetwork).chainID
+  ) {
     await sendToBackgroundFromAction({
       message: JSON.stringify({
         method: InternalMethods.changeNetwork,
