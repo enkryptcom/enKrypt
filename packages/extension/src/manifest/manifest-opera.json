@@ -14,5 +14,6 @@
     },
     "default_title": "Enkrypt",
     "default_popup": "action.html"
-  }
+  },
+  "web_accessible_resources": ["scripts/inject.js", "scripts/*.js.map"]
 }
