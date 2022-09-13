@@ -4,6 +4,16 @@
     "scripts": ["scripts/background.js"],
     "persistent": true
   },
+  "commands": {
+    "_execute_browser_action": {
+      "suggested_key": {
+        "windows": "Alt+Shift+E",
+        "mac": "Alt+Shift+E",
+        "chromeos": "Alt+Shift+E",
+        "linux": "Alt+Shift+E"
+      }
+    }
+  },
   "browser_action": {
     "default_icon": {
       "16": "assets/img/icons/icon16.png",

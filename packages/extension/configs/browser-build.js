@@ -21,6 +21,7 @@ const browserConfigs = {
     manifest: "./src/manifest/manifest-opera.json",
   },
 };
+
 function modifyManifest(buffer) {
   const manifest = { ...baseManifest, ...JSON.parse(buffer.toString()) };
   manifest.version = package.version;
