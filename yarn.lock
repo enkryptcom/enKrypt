@@ -2398,8 +2398,8 @@ __metadata:
     "@enkryptcom/storage": ^0.0.1
     "@enkryptcom/types": ^0.0.1
     "@enkryptcom/utils": ^0.0.1
-    "@ethereumjs/common": ^2.6.5
-    "@ethereumjs/tx": ^3.5.2
+    "@ethereumjs/common": ^3.0.0
+    "@ethereumjs/tx": ^4.0.0
     "@ledgerhq/hw-transport-webusb": ^6.27.3
     "@metamask/eth-sig-util": ^4.0.1
     "@polkadot/api": ^9.3.3
@@ -2414,7 +2414,7 @@ __metadata:
     "@rollup/plugin-commonjs": ^22.0.2
     "@rollup/plugin-inject": ^4.0.4
     "@rollup/plugin-json": ^4.1.0
-    "@rollup/plugin-node-resolve": ^13.3.0
+    "@rollup/plugin-node-resolve": ^14.1.0
     "@rollup/plugin-typescript": ^8.5.0
     "@types/chrome": ^0.0.196
     "@types/ethereumjs-abi": ^0.6.3
@@ -2474,7 +2474,7 @@ __metadata:
     typescript: ^4.8.3
     url: ^0.11.0
     url-parse: ^1.5.10
-    uuid: ^8.3.2
+    uuid: ^9.0.0
     vue: ^3.2.39
     vue-router: 4.1.5
     vue3-lottie: ^2.3.0
@@ -2492,7 +2492,7 @@ __metadata:
   dependencies:
     "@enkryptcom/types": ^0.0.1
     "@enkryptcom/utils": ^0.0.1
-    "@ethereumjs/tx": ^3.5.2
+    "@ethereumjs/tx": ^4.0.0
     "@ledgerhq/hw-app-eth": ^6.29.6
     "@ledgerhq/hw-transport": ^6.27.3
     "@ledgerhq/hw-transport-webusb": ^6.27.3
@@ -2592,7 +2592,7 @@ __metadata:
     tsup: ^6.2.3
     typescript: ^4.8.3
     typescript-eslint: 0.0.1-alpha.0
-    uuid: ^8.3.2
+    uuid: ^9.0.0
     ws: ^8.8.1
   languageName: unknown
   linkType: soft
@@ -2785,13 +2785,32 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ethereumjs/common@npm:^2.6.2, @ethereumjs/common@npm:^2.6.5":
+"@ethereumjs/common@npm:^2.6.2":
   version: 2.6.5
   resolution: "@ethereumjs/common@npm:2.6.5"
   dependencies:
     crc-32: ^1.2.0
     ethereumjs-util: ^7.1.5
   checksum: 0143386f267ef01b7a8bb1847596f964ad58643c084e5fd8e3a0271a7bf8428605dbf38cbb92c84f6622080ad095abeb765f178c02d86ec52abf9e8a4c0e4ecf
+  languageName: node
+  linkType: hard
+
+"@ethereumjs/common@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "@ethereumjs/common@npm:3.0.0"
+  dependencies:
+    "@ethereumjs/util": ^8.0.0
+    crc-32: ^1.2.0
+  checksum: 940466b22ac237ba8ddeea0484fe5ace4580e11144b210f85e282079a1644f97cecc830363452c42c4649c3fb569aabb7d6f03cd32b77dd6d03b0d654acd0d26
+  languageName: node
+  linkType: hard
+
+"@ethereumjs/rlp@npm:^4.0.0, @ethereumjs/rlp@npm:^4.0.0-beta.2":
+  version: 4.0.0
+  resolution: "@ethereumjs/rlp@npm:4.0.0"
+  bin:
+    rlp: bin/rlp
+  checksum: 407dfb8b1e09b4282e6be561e8d74f8939da78f460c08456c7ba2fb273fc42ee16027955a07085abfd7600ffb466c4c4add159885e67abb91bc85db9dd81ffb5
   languageName: node
   linkType: hard
 
@@ -2805,13 +2824,35 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ethereumjs/tx@npm:^3.5.0, @ethereumjs/tx@npm:^3.5.2":
+"@ethereumjs/tx@npm:^3.5.0":
   version: 3.5.2
   resolution: "@ethereumjs/tx@npm:3.5.2"
   dependencies:
     "@ethereumjs/common": ^2.6.4
     ethereumjs-util: ^7.1.5
   checksum: a34a7228a623b40300484d15875b9f31f0a612cfeab64a845f6866cf0bfe439519e9455ac6396149f29bc527cf0ee277ace082ae013a1075dcbf7193220a0146
+  languageName: node
+  linkType: hard
+
+"@ethereumjs/tx@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "@ethereumjs/tx@npm:4.0.0"
+  dependencies:
+    "@ethereumjs/common": ^3.0.0
+    "@ethereumjs/rlp": ^4.0.0
+    "@ethereumjs/util": ^8.0.0
+    ethereum-cryptography: ^1.1.2
+  checksum: 64136786791f637716a68f412a1440ce33d567560cc26bd5c39c1e2cd166e6bdcf8c1a6215a3fcc4e10a9133746a59531acdfb0828ab7bbd7507fdfb13a4e512
+  languageName: node
+  linkType: hard
+
+"@ethereumjs/util@npm:^8.0.0":
+  version: 8.0.0
+  resolution: "@ethereumjs/util@npm:8.0.0"
+  dependencies:
+    "@ethereumjs/rlp": ^4.0.0-beta.2
+    ethereum-cryptography: ^1.1.2
+  checksum: 360e9795e120f15eba4d683260eca64071f9020eaa9d7276c0cdd80d837933757c0c089ba578a10ad0cfef51118d87649e1c6722a10385991590c4cf51eba62b
   languageName: node
   linkType: hard
 
@@ -5333,9 +5374,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@rollup/plugin-node-resolve@npm:^13.3.0":
-  version: 13.3.0
-  resolution: "@rollup/plugin-node-resolve@npm:13.3.0"
+"@rollup/plugin-node-resolve@npm:^14.1.0":
+  version: 14.1.0
+  resolution: "@rollup/plugin-node-resolve@npm:14.1.0"
   dependencies:
     "@rollup/pluginutils": ^3.1.0
     "@types/resolve": 1.17.1
@@ -5344,8 +5385,8 @@ __metadata:
     is-module: ^1.0.0
     resolve: ^1.19.0
   peerDependencies:
-    rollup: ^2.42.0
-  checksum: ec5418e6b3c23a9e30683056b3010e9d325316dcfae93fbc673ae64dad8e56a2ce761c15c48f5e2dcfe0c822fdc4a4905ee6346e3dcf90603ba2260afef5a5e6
+    rollup: ^2.78.0
+  checksum: 7c5bed3e5a511ee47172acd91da1a828383f7ef72d54d27d8050598ef9038df0f86a8559db455611e138e07b99d787fd7445b11f81129970d07104644576d80a
   languageName: node
   linkType: hard
 
@@ -21654,6 +21695,15 @@ __metadata:
   bin:
     uuid: dist/bin/uuid
   checksum: 5575a8a75c13120e2f10e6ddc801b2c7ed7d8f3c8ac22c7ed0c7b2ba6383ec0abda88c905085d630e251719e0777045ae3236f04c812184b7c765f63a70e58df
+  languageName: node
+  linkType: hard
+
+"uuid@npm:^9.0.0":
+  version: 9.0.0
+  resolution: "uuid@npm:9.0.0"
+  bin:
+    uuid: dist/bin/uuid
+  checksum: 8dd2c83c43ddc7e1c71e36b60aea40030a6505139af6bee0f382ebcd1a56f6cd3028f7f06ffb07f8cf6ced320b76aea275284b224b002b289f89fe89c389b028
   languageName: node
   linkType: hard
 
