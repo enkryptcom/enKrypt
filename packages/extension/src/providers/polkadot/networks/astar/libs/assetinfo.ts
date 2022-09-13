@@ -114,7 +114,5 @@ export default async (
     coingeckoID: network.coingeckoID,
   });
 
-  console.log(tokenOptions);
-
   return [nativeAsset, ...tokenOptions.map((o) => new AstarToken(o))];
 };
