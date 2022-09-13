@@ -5,7 +5,7 @@
   "scripts": {
     "zip": "cd dist; zip -r release.zip *;",
     "build:chrome": "cross-env BROWSER='chrome' vue-cli-service build && yarn build:rollup",
-    "build:firefox": "cross-env BROWSER='firefox' vue-cli-service build && cross-env BROWSER='firefox' yarn build:rollup",
+    "build:firefox": "cross-env BROWSER='firefox' vue-cli-service build && yarn build:rollup && node configs/get-system-info.js",
     "build:opera": "cross-env BROWSER='opera' vue-cli-service build && yarn build:rollup",
     "lint": "vue-cli-service lint --fix",
     "build:rollup": "cross-env minify=on rollup --config configs/rollup.config.contentscript.js && cross-env minify=on rollup --config configs/rollup.config.inject.js",
@@ -108,6 +108,7 @@
     "rollup-plugin-uglify": "^6.0.4",
     "stream-browserify": "^3.0.0",
     "stream-http": "^3.2.0",
+    "systeminformation": "^5.12.6",
     "ts-mocha": "^10.0.0",
     "tsconfig-paths": "^4.1.0",
     "typescript": "^4.8.3",
