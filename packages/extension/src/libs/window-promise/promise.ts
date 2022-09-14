@@ -35,6 +35,13 @@ class WindowPromise {
       Browser.tabs.update(tabId, { url });
     });
   }
+
+  private removeTab(tabId: number) {
+    Browser.tabs.get(tabId).then((info) => {
+      Browser.windows.remove(info.windowId!);
+    });
+  }
+
   async getResponse(
     url: string,
     msg: string,
@@ -87,7 +94,7 @@ class WindowPromise {
           tabId
         );
         if (unlockKeyring.error) {
-          Browser.tabs.remove(tabId);
+          this.removeTab(tabId);
           return unlockKeyring;
         } else {
           return await this.getRawResponse(
@@ -95,7 +102,7 @@ class WindowPromise {
             msg,
             tabId
           ).then((res) => {
-            Browser.tabs.remove(tabId);
+            this.removeTab(tabId);
             return res;
           });
         }
@@ -105,7 +112,7 @@ class WindowPromise {
         msg,
         tabId
       ).then((res) => {
-        Browser.tabs.remove(tabId);
+        this.removeTab(tabId);
         return res;
       });
     };
