@@ -37,23 +37,27 @@ const method: MiddlewareFunction = function (
         provider: validNetwork.provider,
         tabId: payload.options?.tabId,
       }).then(() => {
-        sendToBackgroundFromBackground({
-          message: JSON.stringify({
-            method: InternalMethods.sendToTab,
-            params: [
-              {
-                method: MessageMethod.changeChainId,
-                params: [validNetwork.chainID],
-              },
-            ],
-          }),
-          provider: validNetwork.provider,
-          tabId: payload.options?.tabId,
-        });
         const domainState = new DomainState();
-        domainState
-          .setSelectedNetwork(validNetwork.name)
-          .then(() => res(null, null));
+        domainState.getSelectedNetWork().then((curNetwork) => {
+          if (curNetwork !== validNetwork.name) {
+            sendToBackgroundFromBackground({
+              message: JSON.stringify({
+                method: InternalMethods.sendToTab,
+                params: [
+                  {
+                    method: MessageMethod.changeChainId,
+                    params: [validNetwork.chainID],
+                  },
+                ],
+              }),
+              provider: validNetwork.provider,
+              tabId: payload.options?.tabId,
+            });
+            domainState
+              .setSelectedNetwork(validNetwork.name)
+              .then(() => res(null, null));
+          }
+        });
       });
     } else {
       return res(getCustomError("Not implemented"));
