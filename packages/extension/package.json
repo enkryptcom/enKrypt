@@ -15,7 +15,7 @@
     "watch:firefox": "concurrently 'npm:watch-*(!chrome)'",
     "watch-contentscript": "rollup --watch --config configs/rollup.config.contentscript.js",
     "watch-inject": "rollup --watch --config configs/rollup.config.inject.js",
-    "watch-vue-chrome": "cross-env BROWSER='opera' vue-cli-service build --watch --no-clean",
+    "watch-vue-chrome": "cross-env BROWSER='chrome' vue-cli-service build --watch --no-clean",
     "watch-vue-firefox": "cross-env BROWSER='firefox' vue-cli-service build --watch --no-clean"
   },
   "dependencies": {
