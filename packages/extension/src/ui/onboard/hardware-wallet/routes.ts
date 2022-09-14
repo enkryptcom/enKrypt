@@ -11,17 +11,17 @@ export const routes = {
     component: AddHardwareWallet,
   },
   Connect: {
-    path: "connect",
+    path: "connect/:network/:walletType",
     name: "connect",
     component: Connect,
   },
   SelectAccount: {
-    path: "select-account",
+    path: "select-account/:network/:walletType",
     name: "select-account",
     component: SelectAccount,
   },
   ImportingAccount: {
-    path: "importing-account",
+    path: "importing-account/:network/:walletType",
     name: "importing-account",
     component: ImportingAccount,
   },
