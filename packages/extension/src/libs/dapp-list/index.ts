@@ -10,6 +10,8 @@ import aca from "./aca";
 import kar from "./kar";
 import glmr from "./glmr";
 import movr from "./movr";
+import astr from "./astr";
+import sdn from "./sdn";
 
 const lists: Partial<Record<NetworkNames, DAppsItem[]>> = {
   [NetworkNames.Ethereum]: eth,
@@ -22,6 +24,10 @@ const lists: Partial<Record<NetworkNames, DAppsItem[]>> = {
   [NetworkNames.Karura]: kar,
   [NetworkNames.Moonbeam]: glmr,
   [NetworkNames.Moonriver]: movr,
+  [NetworkNames.Astar]: astr,
+  [NetworkNames.AstarEVM]: astr,
+  [NetworkNames.Shiden]: sdn,
+  [NetworkNames.ShidenEVM]: sdn,
 };
 
 export default lists;
