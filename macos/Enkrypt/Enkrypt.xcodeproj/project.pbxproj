@@ -84,9 +84,9 @@
 		8493953228AC474F009F7287 /* action.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = action.html; path = ../../../packages/extension/dist/action.html; sourceTree = "<group>"; };
 		8493953328AC474F009F7287 /* assets */ = {isa = PBXFileReference; lastKnownFileType = folder; name = assets; path = ../../../packages/extension/dist/assets; sourceTree = "<group>"; };
 		8493953428AC474F009F7287 /* vendor */ = {isa = PBXFileReference; lastKnownFileType = folder; name = vendor; path = ../../../packages/extension/dist/vendor; sourceTree = "<group>"; };
-		EBAAC15A28D2F5600061925C /* Dark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Dark.png; path = ../../../macos/Enkrypt/Enkrypt/Resources/Dark.png; sourceTree = "<group>"; };
-		EBAAC15B28D2F5600061925C /* Logo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Logo.png; path = ../../../macos/Enkrypt/Enkrypt/Resources/Logo.png; sourceTree = "<group>"; };
-		EBAAC15C28D2F5600061925C /* Light.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Light.png; path = ../../../macos/Enkrypt/Enkrypt/Resources/Light.png; sourceTree = "<group>"; };
+		EBAAC15A28D2F5600061925C /* Dark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Dark.png; path = Enkrypt/Resources/Dark.png; sourceTree = SOURCE_ROOT; };
+		EBAAC15B28D2F5600061925C /* Logo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Logo.png; path = Enkrypt/Resources/Logo.png; sourceTree = SOURCE_ROOT; };
+		EBAAC15C28D2F5600061925C /* Light.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Light.png; path = Enkrypt/Resources/Light.png; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -463,7 +463,7 @@
 				CODE_SIGN_ENTITLEMENTS = "Enkrypt Extension/Enkrypt_Extension.entitlements";
 				CODE_SIGN_IDENTITY = "3rd Party Mac Developer Application: MyEtherWallet, Inc. (MDN888GSU8)";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 68;
+				CURRENT_PROJECT_VERSION = 80;
 				DEVELOPMENT_TEAM = MDN888GSU8;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -476,7 +476,7 @@
 					"@executable_path/../../../../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.14;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.4;
 				OTHER_LDFLAGS = (
 					"-framework",
 					SafariServices,
@@ -496,7 +496,7 @@
 				CODE_SIGN_ENTITLEMENTS = "Enkrypt Extension/Enkrypt_Extension.entitlements";
 				CODE_SIGN_IDENTITY = "3rd Party Mac Developer Application: MyEtherWallet, Inc. (MDN888GSU8)";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 68;
+				CURRENT_PROJECT_VERSION = 80;
 				DEVELOPMENT_TEAM = MDN888GSU8;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -509,7 +509,7 @@
 					"@executable_path/../../../../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.14;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.4;
 				OTHER_LDFLAGS = (
 					"-framework",
 					SafariServices,
@@ -533,7 +533,7 @@
 				CODE_SIGN_IDENTITY = "3rd Party Mac Developer Application: MyEtherWallet, Inc. (MDN888GSU8)";
 				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 68;
+				CURRENT_PROJECT_VERSION = 80;
 				DEVELOPMENT_TEAM = MDN888GSU8;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -548,7 +548,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 12.3;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.4;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -574,7 +574,7 @@
 				CODE_SIGN_IDENTITY = "3rd Party Mac Developer Application: MyEtherWallet, Inc. (MDN888GSU8)";
 				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 68;
+				CURRENT_PROJECT_VERSION = 80;
 				DEVELOPMENT_TEAM = MDN888GSU8;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -589,7 +589,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 12.3;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.4;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
 					"-framework",
