@@ -84,9 +84,9 @@
 		8493953228AC474F009F7287 /* action.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = action.html; path = ../../../packages/extension/dist/action.html; sourceTree = "<group>"; };
 		8493953328AC474F009F7287 /* assets */ = {isa = PBXFileReference; lastKnownFileType = folder; name = assets; path = ../../../packages/extension/dist/assets; sourceTree = "<group>"; };
 		8493953428AC474F009F7287 /* vendor */ = {isa = PBXFileReference; lastKnownFileType = folder; name = vendor; path = ../../../packages/extension/dist/vendor; sourceTree = "<group>"; };
-		EBAAC15A28D2F5600061925C /* Dark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Dark.png; path = ../../../../../../Downloads/Dark.png; sourceTree = "<group>"; };
-		EBAAC15B28D2F5600061925C /* Logo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Logo.png; path = ../../../../../../Downloads/Logo.png; sourceTree = "<group>"; };
-		EBAAC15C28D2F5600061925C /* Light.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Light.png; path = ../../../../../../Downloads/Light.png; sourceTree = "<group>"; };
+		EBAAC15A28D2F5600061925C /* Dark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Dark.png; path = ../../../macos/Enkrypt/Enkrypt/Resources/Dark.png; sourceTree = "<group>"; };
+		EBAAC15B28D2F5600061925C /* Logo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Logo.png; path = ../../../macos/Enkrypt/Enkrypt/Resources/Logo.png; sourceTree = "<group>"; };
+		EBAAC15C28D2F5600061925C /* Light.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Light.png; path = ../../../macos/Enkrypt/Enkrypt/Resources/Light.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
