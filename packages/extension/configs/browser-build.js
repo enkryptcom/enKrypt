@@ -14,17 +14,21 @@ const browserNames = {
 const browserConfigs = {
   [browserNames.chrome]: {
     manifest: "./src/manifest/manifest-chrome.json",
+    background: "./src/scripts/chrome/background.ts",
   },
   [browserNames.firefox]: {
     manifest: "./src/manifest/manifest-firefox.json",
+    background: "./src/scripts/firefox/background.ts",
   },
   [browserNames.opera]: {
     manifest: "./src/manifest/manifest-opera.json",
+    background: "./src/scripts/chrome/background.ts",
   },
   [browserNames.safari]: {
     manifest: "./src/manifest/manifest-safari.json",
   },
 };
+
 function modifyManifest(buffer) {
   const manifest = { ...baseManifest, ...JSON.parse(buffer.toString()) };
   manifest.version = package.version;
@@ -33,19 +37,20 @@ function modifyManifest(buffer) {
 }
 
 const scripts = {
-  background: "./src/scripts/background.ts",
+  background: browserConfigs[BROWSER].background,
 };
 
 const setConfig = (config) => {
   for (const [name, path] of Object.entries(scripts)) {
     config.entry(name).add(path).end();
   }
+
   const userScripts = Object.keys(scripts);
 
   //generate background and contentscript without default hashing
   config.output.filename((file) => {
     return !userScripts.includes(file.chunk.name)
-      ? `js/[name].[contenthash:8].js`
+      ? `js/[name].js`
       : `scripts/[name].js`;
   });
 
@@ -78,13 +83,12 @@ const setConfig = (config) => {
   });
   // prevent codesplitting on scripts
   const omitUserScripts = ({ name }) => {
-    return userScripts.includes(name) ? false : "initial";
+    return userScripts.includes(name) ? false : "all";
   };
-  if (BROWSER === browserNames.firefox) {
-    config.optimization.minimize(false);
-  }
+  config.optimization.set("moduleIds", "deterministic");
   config.optimization.splitChunks({
-    maxSize: 4194304,
+    maxSize:
+      BROWSER === browserNames.firefox ? 3 * 1024 * 1024 : 10 * 1024 * 1024,
     cacheGroups: {
       vendors: {
         name: "chunk-vendors",

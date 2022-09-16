@@ -35,7 +35,7 @@ jobs:
           VIRUS_TOTAL_API_KEY: ${{secrets.VIRUS_TOTAL_API_KEY}}
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
         run: |
-          docker run --rm -v `pwd`:/home:rw enkrypt-build-container /bin/bash -c "cd packages/extension && yarn build:all"
+          docker run --rm -v `pwd`:/home:rw enkrypt-build-container /bin/bash -c "yarn build:all"
           docker run --rm -v `pwd`:/home:rw enkrypt-build-container /bin/bash -c "cd packages/extension && yarn build:chrome && yarn zip"
           FILE_SHA256=`sha256sum  ./packages/extension/dist/release.zip | awk '{print $1}'`
           curl --request GET --url https://www.virustotal.com/api/v3/files/upload_url --header "x-apikey: $VIRUS_TOTAL_API_KEY"

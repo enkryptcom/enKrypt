@@ -251,17 +251,18 @@ watch([selectedAsset, amount, addressTo], async () => {
       await tx.paymentInfo(props.accountInfo.selectedAccount!.address)
     ).toJSON();
 
+    const nativeAsset = accountAssets.value[0];
     const txFeeHuman = fromBase(
       partialFee?.toString() ?? "",
-      selectedAsset.value.decimals!
+      nativeAsset.decimals!
     );
 
-    const txPrice = new BigNumber(selectedAsset.value.price!).times(txFeeHuman);
+    const txPrice = new BigNumber(nativeAsset.price!).times(txFeeHuman);
 
     fee.value = {
       fiatSymbol: "USD",
       fiatValue: txPrice.toString(),
-      nativeSymbol: selectedAsset.value.symbol ?? "",
+      nativeSymbol: nativeAsset.symbol ?? "",
       nativeValue: txFeeHuman.toString(),
     };
   }
