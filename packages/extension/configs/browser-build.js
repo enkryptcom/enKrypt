@@ -26,6 +26,7 @@ const browserConfigs = {
   },
   [browserNames.safari]: {
     manifest: "./src/manifest/manifest-safari.json",
+    background: "./src/scripts/chrome/background.ts",
   },
 };
 
