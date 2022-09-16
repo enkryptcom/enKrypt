@@ -2,7 +2,7 @@
   "author": "https://www.enkrypt.com",
   "homepage_url": "https://www.enkrypt.com",
   "version": "",
-  "name": "Enkrypt: Ethereum and Polkadot Web3 Wallet",
+  "name": "Enkrypt: Ethereum, Polkadot and Astar Wallet",
   "short_name": "Enkrypt",
   "permissions": [
     "storage",
@@ -13,7 +13,7 @@
     "clipboardWrite"
   ],
   "commands": {
-    "_execute_browser_action": {
+    "_execute_action": {
       "suggested_key": {
         "windows": "Alt+Shift+E",
         "mac": "Alt+Shift+E",
