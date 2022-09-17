@@ -75,6 +75,7 @@ const setConfig = (config) => {
       PACKAGE_VERSION: JSON.stringify(package.version),
       IS_DEV: process.env.NODE_ENV === "development",
       IS_FIREFOX: BROWSER === browserNames.firefox,
+      IS_SAFARI: BROWSER === browserNames.safari,
       PREFILL_PASSWORD:
         process.env.NODE_ENV === "development"
           ? JSON.stringify("test pass")

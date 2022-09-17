@@ -209,7 +209,7 @@ const walletUpdate = (wallet: KeyPairAdd) => {
     height: 600px;
     left: -340px;
     top: 0px;
-    position: fixed;
+    position: absolute;
     z-index: 105;
     display: flex;
     box-sizing: border-box;
