@@ -1,6 +1,6 @@
 {
-  "name": "name resolution",
-  "version": "0.1.3",
+  "name": "@enkryptcom/name-resolution",
+  "version": "0.0.1",
   "description": "name resolution module for enkrypt",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -43,5 +43,10 @@
   },
   "keywords": [],
   "author": "kvhnuke",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "@ensdomains/address-encoder": "^0.2.18",
+    "@unstoppabledomains/resolution": "^8.3.3",
+    "ethers": "^5.7.1"
+  }
 }
