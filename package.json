@@ -28,7 +28,7 @@
     "devmoji": "^2.3.0",
     "husky": "^8.0.1",
     "node-notifier": "^10.0.1",
-    "nodemon": "^2.0.19",
+    "nodemon": "^2.0.20",
     "ultra-runner": "^3.10.5"
   }
 }

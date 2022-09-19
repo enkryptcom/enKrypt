@@ -39,13 +39,13 @@
     "webextension-polyfill": "^0.10.0"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^0.26.3",
+    "@antfu/eslint-config": "^0.27.0",
     "@types/chai": "^4.3.3",
     "@types/mocha": "^9.1.1",
-    "@types/node": "^18.7.17",
+    "@types/node": "^18.7.18",
     "@types/webextension-polyfill": "^0.9.1",
-    "@typescript-eslint/eslint-plugin": "^5.37.0",
-    "@typescript-eslint/parser": "^5.37.0",
+    "@typescript-eslint/eslint-plugin": "^5.38.0",
+    "@typescript-eslint/parser": "^5.38.0",
     "bumpp": "^8.2.1",
     "eslint": "^8.23.1",
     "eslint-config-airbnb-base": "^15.0.0",
