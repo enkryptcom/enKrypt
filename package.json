@@ -23,13 +23,13 @@
     "watch-ts": "nodemon --exec 'yarn run build:all && node scripts/compile-done.js'"
   },
   "devDependencies": {
-    "@commitlint/cli": "^17.0.3",
-    "@commitlint/config-conventional": "^17.0.3",
-    "concurrently": "^7.3.0",
+    "@commitlint/cli": "^17.1.2",
+    "@commitlint/config-conventional": "^17.1.0",
+    "concurrently": "^7.4.0",
     "devmoji": "^2.3.0",
     "husky": "^8.0.1",
     "node-notifier": "^10.0.1",
-    "nodemon": "^2.0.19",
+    "nodemon": "^2.0.20",
     "ultra-runner": "^3.10.5"
   }
 }
