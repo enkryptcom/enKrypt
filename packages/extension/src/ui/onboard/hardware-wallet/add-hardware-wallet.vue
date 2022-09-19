@@ -9,7 +9,7 @@
       :to="{
         name: routes.Connect.name,
         params: {
-          network: route.query.network,
+          network: route.query.network as string,
           walletType: HWwalletType.ledger,
         },
       }"
@@ -23,7 +23,7 @@
       :to="{
         name: routes.Connect.name,
         params: {
-          network: route.query.network,
+          network: route.query.network as string,
           walletType: HWwalletType.trezor,
         },
       }"

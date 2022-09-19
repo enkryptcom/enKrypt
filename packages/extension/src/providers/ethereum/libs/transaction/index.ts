@@ -13,7 +13,7 @@ import {
   getGasBasedOnType,
   getPriorityFeeBasedOnType,
 } from "./gas-utils";
-import Common, { Hardfork } from "@ethereumjs/common";
+import { Hardfork, Common } from "@ethereumjs/common";
 import {
   FeeMarketEIP1559Transaction,
   Transaction as LegacyTransaction,
@@ -124,7 +124,7 @@ class Transaction {
 
     if (!transaction.maxFeePerGas) {
       const common = Common.custom({
-        chainId: toBN(transaction.chainId),
+        chainId: BigInt(transaction.chainId),
       });
       return LegacyTransaction.fromTxData(
         transaction as FinalizedLegacyEthereumTransaction,
@@ -134,7 +134,7 @@ class Transaction {
       );
     } else {
       const common = Common.custom({
-        chainId: toBN(transaction.chainId),
+        chainId: BigInt(transaction.chainId),
         defaultHardfork: Hardfork.London,
       });
       return FeeMarketEIP1559Transaction.fromTxData(
