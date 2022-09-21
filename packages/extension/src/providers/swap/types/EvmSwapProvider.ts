@@ -13,7 +13,7 @@ import { Activity, ActivityStatus, ActivityType } from "@/types/activity";
 import { BaseToken } from "@/types/base-token";
 import { EnkryptAccount, NetworkNames } from "@enkryptcom/types";
 import BigNumber from "bignumber.js";
-import Web3 from "web3";
+import { Eth as Web3Eth } from "web3-eth";
 import { isAddress, numberToHex, toBN } from "web3-utils";
 import {
   Quote,
@@ -267,8 +267,8 @@ export class EvmSwapProvider extends SwapProvider {
           // TODO send native max
         } else {
           const network = getNetworkByName(chain);
-          const web3 = new Web3(network!.node);
-          const tokenContract = new web3.eth.Contract(
+          const web3 = new Web3Eth(network!.node);
+          const tokenContract = new web3.Contract(
             erc20 as any,
             fromToken.contract
           );
@@ -361,7 +361,7 @@ export class EvmSwapProvider extends SwapProvider {
     const api = (await network.api()) as API;
     const web3 = api.web3;
 
-    const nonce = await web3.eth.getTransactionCount(fromAccount.address);
+    const nonce = await web3.getTransactionCount(fromAccount.address);
     const activityState = new ActivityState();
     const txPromises = trade.txs
       .map(({ data, value, gas, to, from, token, tokenValue }, index) => {
@@ -409,7 +409,7 @@ export class EvmSwapProvider extends SwapProvider {
               network: network,
               payload: finalizedTx,
             }).then((signedTx) =>
-              web3.eth
+              web3
                 .sendSignedTransaction(
                   `0x${signedTx.serialize().toString("hex")}`
                 )

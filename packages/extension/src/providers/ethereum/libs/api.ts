@@ -1,17 +1,17 @@
 import { EthereumRawInfo } from "@/types/activity";
 import { ProviderAPIInterface } from "@/types/provider";
 import { isArray } from "lodash";
-import Web3 from "web3";
+import { Eth as Web3Eth } from "web3-eth";
 import { numberToHex, toBN } from "web3-utils";
 import { ERC20TokenInfo } from "../types";
 import erc20 from "./abi/erc20";
 class API implements ProviderAPIInterface {
   node: string;
-  web3: Web3;
+  web3: Web3Eth;
 
   constructor(node: string) {
     this.node = node;
-    this.web3 = new Web3(node);
+    this.web3 = new Web3Eth(this.node);
   }
 
   public get api() {
@@ -22,11 +22,11 @@ class API implements ProviderAPIInterface {
   async init(): Promise<void> {}
   async getTransactionStatus(hash: string): Promise<EthereumRawInfo | null> {
     try {
-      const receipt = await this.web3.eth.getTransactionReceipt(hash);
+      const receipt = await this.web3.getTransactionReceipt(hash);
       if (!receipt) return null;
       const [tx, block] = await Promise.all([
-        this.web3.eth.getTransaction(hash),
-        this.web3.eth.getBlock(receipt.blockNumber, false),
+        this.web3.getTransaction(hash),
+        this.web3.getBlock(receipt.blockNumber, false),
       ]);
       const info: EthereumRawInfo = {
         blockHash: receipt.blockHash,
@@ -51,10 +51,10 @@ class API implements ProviderAPIInterface {
     }
   }
   getBalance(address: string): Promise<string> {
-    return this.web3.eth.getBalance(address);
+    return this.web3.getBalance(address);
   }
   getTokenInfo = async (contractAddress: string): Promise<ERC20TokenInfo> => {
-    const contract = new this.web3.eth.Contract(erc20 as any, contractAddress);
+    const contract = new this.web3.Contract(erc20 as any, contractAddress);
     try {
       const results = await Promise.all([
         contract.methods.name().call(),
