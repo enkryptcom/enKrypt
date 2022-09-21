@@ -1,4 +1,4 @@
-import Web3 from "web3";
+import { Eth as Web3Eth } from "web3-eth";
 import {
   EthereumTransaction,
   FinalizedFeeMarketEthereumTransaction,
@@ -20,14 +20,14 @@ import {
 } from "@ethereumjs/tx";
 class Transaction {
   tx: EthereumTransaction;
-  web3: Web3;
-  constructor(tx: EthereumTransaction, web3: Web3) {
+  web3: Web3Eth;
+  constructor(tx: EthereumTransaction, web3: Web3Eth) {
     this.tx = tx;
     if (this.tx.gas) this.tx.gasLimit = this.tx.gas;
     this.web3 = web3;
   }
   async estimateGas(): Promise<number> {
-    return this.web3.eth.estimateGas({
+    return this.web3.estimateGas({
       to: this.tx.to || undefined,
       from: this.tx.from,
       data: this.tx.data || "0x",
@@ -43,21 +43,18 @@ class Transaction {
     maxFeePerGas?: string;
     gasLimit: string;
   }> {
-    const { isFeeMarketNetwork, baseFeePerGas } = await this.web3.eth
+    const { isFeeMarketNetwork, baseFeePerGas } = await this.web3
       .getBlockNumber()
       .then((blockNum) => {
-        return this.web3.eth.getBlock(blockNum, false).then((block) => {
+        return this.web3.getBlock(blockNum, false).then((block) => {
           return {
             isFeeMarketNetwork: !!block.baseFeePerGas,
             baseFeePerGas: block.baseFeePerGas,
           };
         });
       });
-    const gasPrice = await this.web3.eth.getGasPrice();
-    const nonce = await this.web3.eth.getTransactionCount(
-      this.tx.from,
-      "pending"
-    );
+    const gasPrice = await this.web3.getGasPrice();
+    const nonce = await this.web3.getTransactionCount(this.tx.from, "pending");
     if (!isFeeMarketNetwork) {
       const legacyTx: FinalizedLegacyEthereumTransaction = {
         to: this.tx.to || undefined,

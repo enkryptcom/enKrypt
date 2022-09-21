@@ -26,7 +26,7 @@ import { SubstrateToken } from "@/providers/polkadot/types/substrate-token";
 import { TypeRegistry } from "@polkadot/types";
 import type { SignerResult } from "@polkadot/api/types";
 import { u8aToHex } from "@polkadot/util";
-import Web3 from "web3";
+import { Eth as Web3Eth } from "web3-eth";
 import erc20 from "@/providers/ethereum/libs/abi/erc20";
 import ActivityState from "@/libs/activity-state";
 import { Activity, ActivityStatus, ActivityType } from "@/types/activity";
@@ -551,8 +551,8 @@ export class ChangellySwapProvider extends SwapProvider {
             };
           } else {
             const network = getNetworkByName(chain);
-            const web3 = new Web3(network!.node);
-            const tokenContract = new web3.eth.Contract(
+            const web3 = new Web3Eth(network!.node);
+            const tokenContract = new web3.Contract(
               erc20 as any,
               (fromToken as Erc20Token).contract
             );
@@ -690,7 +690,7 @@ export class ChangellySwapProvider extends SwapProvider {
       }
     } else {
       const web3 = (api as EvmAPI).web3;
-      web3.eth.handleRevert = true;
+      web3.handleRevert = true;
 
       const { data, value, to, from, tokenValue, token } = trade.txs[0];
 
@@ -729,7 +729,7 @@ export class ChangellySwapProvider extends SwapProvider {
             network: network,
             payload: finalizedTx,
           }).then((signedTx) =>
-            web3.eth
+            web3
               .sendSignedTransaction(
                 `0x${signedTx.serialize().toString("hex")}`
               )
