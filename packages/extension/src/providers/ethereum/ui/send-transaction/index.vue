@@ -153,7 +153,7 @@ import { Erc20Token } from "../../types/erc20-token";
 import BigNumber from "bignumber.js";
 import { defaultGasCostVals } from "../common/default-vals";
 import Transaction from "@/providers/ethereum/libs/transaction";
-import { Eth as Web3Eth } from "web3-eth";
+import Web3Eth from "web3-eth";
 import { NATIVE_TOKEN_ADDRESS } from "../../libs/common";
 import { fromBase, toBase, isValidDecimals } from "@/libs/utils/units";
 import erc20 from "../../libs/abi/erc20";

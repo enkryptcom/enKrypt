@@ -1,4 +1,4 @@
-import { Eth as Web3Eth } from "web3-eth";
+import Web3Eth from "web3-eth";
 import {
   EthereumTransaction,
   FinalizedFeeMarketEthereumTransaction,

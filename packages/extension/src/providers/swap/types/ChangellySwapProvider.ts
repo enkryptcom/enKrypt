@@ -26,7 +26,7 @@ import { SubstrateToken } from "@/providers/polkadot/types/substrate-token";
 import { TypeRegistry } from "@polkadot/types";
 import type { SignerResult } from "@polkadot/api/types";
 import { u8aToHex } from "@polkadot/util";
-import { Eth as Web3Eth } from "web3-eth";
+import Web3Eth from "web3-eth";
 import erc20 from "@/providers/ethereum/libs/abi/erc20";
 import ActivityState from "@/libs/activity-state";
 import { Activity, ActivityStatus, ActivityType } from "@/types/activity";

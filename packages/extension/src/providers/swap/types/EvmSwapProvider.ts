@@ -13,7 +13,7 @@ import { Activity, ActivityStatus, ActivityType } from "@/types/activity";
 import { BaseToken } from "@/types/base-token";
 import { EnkryptAccount, NetworkNames } from "@enkryptcom/types";
 import BigNumber from "bignumber.js";
-import { Eth as Web3Eth } from "web3-eth";
+import Web3Eth from "web3-eth";
 import { isAddress, numberToHex, toBN } from "web3-utils";
 import {
   Quote,

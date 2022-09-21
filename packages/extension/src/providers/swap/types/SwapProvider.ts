@@ -1,5 +1,5 @@
 import { BaseToken, BaseTokenOptions } from "@/types/base-token";
-import { Eth as Web3Eth } from "web3-eth";
+import Web3Eth from "web3-eth";
 import { BaseNetwork } from "@/types/base-network";
 import { EnkryptAccount, NetworkNames } from "@enkryptcom/types";
 import { GasPriceTypes } from "@/providers/ethereum/libs/transaction/types";

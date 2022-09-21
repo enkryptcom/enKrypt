@@ -87,7 +87,7 @@ import { nft } from "@action/types/mock";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
 import { VerifyTransactionParams } from "../../types";
 import Transaction from "@/providers/ethereum/libs/transaction";
-import { Eth as Web3Eth } from "web3-eth";
+import Web3Eth from "web3-eth";
 import { getCurrentContext } from "@/libs/messenger/extension";
 import { getNetworkByName } from "@/libs/utils/networks";
 import { TransactionSigner } from "../../libs/signer";
