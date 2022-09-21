@@ -5,6 +5,8 @@ import karNode from "./acala/karura";
 import wndNode from "./westend";
 import astrNode from "./astar/astar";
 import sdnNode from "./astar/shiden";
+import bncNode from "./bifrost/polkadot";
+import bncKusamaNode from "./bifrost/kusama";
 
 export default {
   acala: acaNode,
@@ -14,4 +16,6 @@ export default {
   westend: wndNode,
   astar: astrNode,
   shiden: sdnNode,
+  bifrost: bncNode,
+  bifrostKusama: bncKusamaNode,
 };

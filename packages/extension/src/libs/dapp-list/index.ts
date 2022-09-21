@@ -12,6 +12,7 @@ import glmr from "./glmr";
 import movr from "./movr";
 import astr from "./astr";
 import sdn from "./sdn";
+import bnc from "./bnc";
 
 const lists: Partial<Record<NetworkNames, DAppsItem[]>> = {
   [NetworkNames.Ethereum]: eth,
@@ -28,6 +29,8 @@ const lists: Partial<Record<NetworkNames, DAppsItem[]>> = {
   [NetworkNames.AstarEVM]: astr,
   [NetworkNames.Shiden]: sdn,
   [NetworkNames.ShidenEVM]: sdn,
+  [NetworkNames.Bifrost]: bnc,
+  [NetworkNames.BifrostKusama]: bnc,
 };
 
 export default lists;
