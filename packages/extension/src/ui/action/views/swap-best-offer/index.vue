@@ -112,7 +112,7 @@ import { BaseNetwork } from "@/types/base-network";
 import { AccountsHeaderData } from "../../types/account";
 import { numberToHex, toBN } from "web3-utils";
 import BN from "bn.js";
-import { Eth as Web3Eth } from "web3-eth";
+import Web3Eth from "web3-eth";
 import Transaction from "@/providers/ethereum/libs/transaction";
 import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
 import { GasPriceTypes } from "@/providers/ethereum/libs/transaction/types";

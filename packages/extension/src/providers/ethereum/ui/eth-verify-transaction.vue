@@ -142,7 +142,7 @@ import {
   GasPriceTypes,
 } from "../libs/transaction/types";
 import Transaction from "@/providers/ethereum/libs/transaction";
-import { Eth as Web3Eth } from "web3-eth";
+import Web3Eth from "web3-eth";
 import { EvmNetwork } from "../types/evm-network";
 import { fromBase } from "@/libs/utils/units";
 import { decodeTx } from "../libs/transaction/decoder";

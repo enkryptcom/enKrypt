@@ -1,10 +1,11 @@
 import { EthereumRawInfo } from "@/types/activity";
 import { ProviderAPIInterface } from "@/types/provider";
 import { isArray } from "lodash";
-import { Eth as Web3Eth } from "web3-eth";
+import Web3Eth from "web3-eth";
 import { numberToHex, toBN } from "web3-utils";
 import { ERC20TokenInfo } from "../types";
 import erc20 from "./abi/erc20";
+
 class API implements ProviderAPIInterface {
   node: string;
   web3: Web3Eth;
