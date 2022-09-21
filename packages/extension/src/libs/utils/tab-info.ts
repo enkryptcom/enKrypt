@@ -3,7 +3,6 @@ import { Tabs } from "webextension-polyfill";
 import URL from "url-parse";
 export default (tab: Tabs.Tab): ProviderRequestOptions => {
   const domain = tab.url ? new URL(tab.url).hostname : "";
-  console.log(tab);
   return {
     domain: domain || "",
     url: tab.url || "",
