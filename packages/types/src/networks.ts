@@ -16,6 +16,10 @@ export enum NetworkNames {
   Kusama = "KSM",
   Polkadot = "DOT",
   Westend = "WND",
+  Astar = "ASTR",
+  Shiden = "SDN",
+  ShidenEVM = "SDN EVM",
+  AstarEVM = "ASTR EVM",
 }
 
 export enum CoingeckoPlatform {
@@ -31,4 +35,6 @@ export enum CoingeckoPlatform {
   Kusama = "kusama",
   Polkadot = "polkadot",
   Okc = "okc",
+  Astar = "astar",
+  Shiden = "shiden network",
 }

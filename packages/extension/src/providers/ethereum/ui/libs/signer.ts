@@ -27,7 +27,7 @@ const TransactionSigner = (
         const rpcSig = fromRpcSig(rpcsig);
         const signedTx = (
           payload as FeeMarketEIP1559Transaction
-        )._processSignature(rpcSig.v, rpcSig.r, rpcSig.s);
+        )._processSignature(BigInt(rpcSig.v), rpcSig.r, rpcSig.s);
         return signedTx;
       })
       .catch((e) => {
@@ -47,7 +47,7 @@ const TransactionSigner = (
         const rpcSig = fromRpcSig(JSON.parse(res.result as string) || "0x");
         const signedTx = (
           payload as FeeMarketEIP1559Transaction
-        )._processSignature(rpcSig.v, rpcSig.r, rpcSig.s);
+        )._processSignature(BigInt(rpcSig.v), rpcSig.r, rpcSig.s);
         return signedTx;
       }
     });

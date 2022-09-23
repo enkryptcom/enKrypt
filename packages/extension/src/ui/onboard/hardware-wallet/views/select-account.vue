@@ -54,10 +54,12 @@ import { formatFloatingPointValue } from "@/libs/utils/number-formatter";
 import { fromBase } from "@/libs/utils/units";
 import { ProviderName } from "@/types/provider";
 import { polkadotEncodeAddress } from "@enkryptcom/utils";
+import { useHWStore } from "../store";
+const store = useHWStore();
 
 const router = useRouter();
 const route = useRoute();
-const networkName = route.params.networkName as string;
+const networkName = route.params.network as string;
 const walletType = route.params.walletType as HWwalletType;
 
 if (!networkName || !walletType) {
@@ -174,14 +176,12 @@ const selectPath = (newPath: PathType) => {
 
 const continueAction = async () => {
   await hwWallet.close();
+  store.setSelectedAccounts(accounts.value.filter((acc) => acc.selected));
   router.push({
     name: routes.ImportingAccount.name,
     params: {
-      selectedAccounts: JSON.stringify(
-        accounts.value.filter((acc) => acc.selected)
-      ),
       walletType,
-      networkName: network.name,
+      network: network.name,
     },
   });
 };

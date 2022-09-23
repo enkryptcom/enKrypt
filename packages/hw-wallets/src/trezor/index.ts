@@ -1,7 +1,7 @@
-import TrezorConnect from "trezor-connect";
+import TrezorConnect from "@trezor/connect-web";
 import { HWwalletCapabilities, NetworkNames } from "@enkryptcom/types";
 import HDKey from "hdkey";
-import { bufferToHex, hexToBuffer, numberToHex } from "@enkryptcom/utils";
+import { bigIntToHex, bufferToHex, hexToBuffer } from "@enkryptcom/utils";
 import { publicToAddress, toRpcSig } from "ethereumjs-util";
 import {
   FeeMarketEIP1559Transaction,
@@ -97,10 +97,10 @@ class TrezorEthereum implements HWWalletProvider {
 
     const txObject = {
       to: tx.to.toString(),
-      value: numberToHex(tx.value),
-      chainId: tx.common.chainIdBN().toNumber(),
-      nonce: numberToHex(tx.nonce),
-      gasLimit: numberToHex(tx.gasLimit),
+      value: bigIntToHex(tx.value),
+      chainId: Number(tx.common.chainId()),
+      nonce: bigIntToHex(tx.nonce),
+      gasLimit: bigIntToHex(tx.gasLimit),
       data: bufferToHex(tx.data),
     };
     if ((options.transaction as LegacyTransaction).gasPrice) {
@@ -108,27 +108,28 @@ class TrezorEthereum implements HWWalletProvider {
         path: options.pathType.path.replace(`{index}`, options.pathIndex),
         transaction: {
           ...txObject,
-          gasPrice: numberToHex(tx.gasPrice),
+          gasPrice: bigIntToHex(tx.gasPrice),
         },
       }).then((result) => {
         if (!result.success)
           throw new Error((result.payload as any).error as string);
-        const rv = parseInt(result.payload.v.replace("0x", ""), 16);
-        const cv = tx.common.chainIdBN().toNumber() * 2 + 35;
+        const rv = BigInt(result.payload.v.replace("0x", ""));
+        const cv = tx.common.chainId() * 2n + 35n;
         return toRpcSig(
-          `0x0${rv - cv}`,
+          bigIntToHex(rv - cv),
           hexToBuffer(result.payload.r),
           hexToBuffer(result.payload.s)
         );
       });
     }
+
     tx = options.transaction as FeeMarketEIP1559Transaction;
     return TrezorConnect.ethereumSignTransaction({
       path: options.pathType.path.replace(`{index}`, options.pathIndex),
       transaction: {
         ...txObject,
-        maxFeePerGas: numberToHex(tx.maxFeePerGas),
-        maxPriorityFeePerGas: numberToHex(tx.maxPriorityFeePerGas),
+        maxFeePerGas: bigIntToHex(tx.maxFeePerGas),
+        maxPriorityFeePerGas: bigIntToHex(tx.maxPriorityFeePerGas),
       },
     }).then((result) => {
       if (!result.success)

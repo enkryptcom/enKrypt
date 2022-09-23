@@ -53,7 +53,6 @@ import HardwareAccountImported from "../components/hardware-account-imported.vue
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 import { useRoute, useRouter } from "vue-router";
 import { getNetworkByName } from "@/libs/utils/networks";
-import { HWWalletAccountType } from "../types";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
 import KeyRingBase from "@/libs/keyring/keyring";
 import { computed } from "@vue/reactivity";
@@ -65,13 +64,13 @@ import {
 } from "@enkryptcom/types";
 import { routes } from "../routes";
 import { ProviderName } from "@/types/provider";
+import { useHWStore } from "../store";
+const store = useHWStore();
 
 const route = useRoute();
 const router = useRouter();
-const networkName = route.params.networkName as string;
-const selectedAccounts = ref(
-  JSON.parse(route.params.selectedAccounts as string) as HWWalletAccountType[]
-);
+const networkName = route.params.network as string;
+const selectedAccounts = ref(store.selectedAccounts);
 const walletType = route.params.walletType as HWwalletType;
 
 if (!networkName || !walletType || !selectedAccounts.value.length) {

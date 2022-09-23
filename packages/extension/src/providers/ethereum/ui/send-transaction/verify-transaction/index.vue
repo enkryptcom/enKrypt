@@ -87,7 +87,7 @@ import { nft } from "@action/types/mock";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
 import { VerifyTransactionParams } from "../../types";
 import Transaction from "@/providers/ethereum/libs/transaction";
-import Web3 from "web3";
+import Web3Eth from "web3-eth";
 import { getCurrentContext } from "@/libs/messenger/extension";
 import { getNetworkByName } from "@/libs/utils/networks";
 import { TransactionSigner } from "../../libs/signer";
@@ -127,7 +127,7 @@ const close = () => {
 
 const sendAction = async () => {
   isProcessing.value = true;
-  const web3 = new Web3(network.node);
+  const web3 = new Web3Eth(network.node);
   const tx = new Transaction(txData.TransactionData, web3);
 
   const txActivity: Activity = {
@@ -158,7 +158,7 @@ const sendAction = async () => {
         payload: finalizedTx,
       })
         .then((signedTx) => {
-          web3.eth
+          web3
             .sendSignedTransaction("0x" + signedTx.serialize().toString("hex"))
             .on("transactionHash", (hash: string) => {
               activityState.addActivities(

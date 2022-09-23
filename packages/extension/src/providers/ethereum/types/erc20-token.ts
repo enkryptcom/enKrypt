@@ -23,7 +23,7 @@ export class Erc20Token extends BaseToken {
   ): Promise<string> {
     if (this.contract === NATIVE_TOKEN_ADDRESS) return api.getBalance(address);
     else {
-      const contract = new api.web3.eth.Contract(erc20 as any, this.contract);
+      const contract = new api.web3.Contract(erc20 as any, this.contract);
       return contract.methods
         .balanceOf(address)
         .call()
