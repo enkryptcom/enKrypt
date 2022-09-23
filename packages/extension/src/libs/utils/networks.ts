@@ -27,6 +27,7 @@ const getProviderNetworkByName = (
 const DEFAULT_EVM_NETWORK_NAME = NetworkNames.Ethereum;
 const DEFAULT_SUBSTRATE_NETWORK_NAME = NetworkNames.Polkadot;
 const POPULAR_NAMES = [
+  NetworkNames.Okc,
   NetworkNames.Ethereum,
   NetworkNames.Matic,
   NetworkNames.Polkadot,
