@@ -3,9 +3,9 @@ import { NetworkNames } from "@enkryptcom/types";
 import { default as Resolution } from "@unstoppabledomains/resolution";
 const resolution = new Resolution();
 
-const resolutionService = "https://unstoppabledomains.g.alchemy.com/domains/";
+const resolutionService = "http://resolve.unstoppabledomains.com/domains/";
 const tldAPI = "https://resolve.unstoppabledomains.com/supported_tlds";
-const alchemyKey = "bKmEKAC4HJUEDNlnoYITvXYuhrIshFsa";
+const apiKey = "d5a0efeb-3375-48f6-a804-3036e51b7a95";
 
 const maticNativeKey = "crypto.MATIC.version.MATIC.address";
 import { isAddress } from "web3-utils";
@@ -34,7 +34,7 @@ export class UNSResolver {
         const response = await fetch(resolutionService + domain, {
           method: "get",
           headers: new Headers({
-            Authorization: "Bearer " + alchemyKey,
+            Authorization: "Bearer " + apiKey,
           }),
         });
         const data = await response.json();
