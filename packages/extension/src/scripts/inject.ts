@@ -13,8 +13,7 @@ setWindowNamespace();
   settings: {},
 };
 const script = document.getElementById(InjectedIDs.main) as HTMLScriptElement;
-const scriptURL = new URL(script.src);
-window.enkrypt.settings = JSON.parse(scriptURL.searchParams.get("settings")!);
+window.enkrypt.settings = JSON.parse(script.getAttribute("settings")!);
 
 windowOnMessage(async (msg): Promise<void> => {
   window["enkrypt"]["providers"][msg.provider].handleMessage(msg.message);

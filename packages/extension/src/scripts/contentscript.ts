@@ -7,13 +7,13 @@ import { InjectedIDs, InternalMethods } from "@/types/messenger";
 import { ProviderName } from "@/types/provider";
 setContentScriptNamespace();
 function injectScript(settings: string) {
-  settings = encodeURIComponent(settings);
   try {
     const injectURL = browser.runtime.getURL("scripts/inject.js");
     const container = document.head || document.documentElement;
     const scriptTag = document.createElement("script");
     scriptTag.setAttribute("async", "false");
-    scriptTag.src = `${injectURL}?settings=${settings}`;
+    scriptTag.src = injectURL;
+    scriptTag.setAttribute("settings", settings);
     scriptTag.id = InjectedIDs.main;
     scriptTag.onload = function () {
       console.info("Hello from the content-script");
