@@ -13,6 +13,7 @@ import { InternalOnMessageResponse } from "@/types/messenger";
 import { OnMessageResponse } from "@enkryptcom/types";
 import Browser from "webextension-polyfill";
 import openOnboard from "@/libs/utils/open-onboard";
+import PublicKeyRing from "@/libs/keyring/public-keyring";
 
 import(/* webpackChunkName: "background-chunk" */ "@/libs/background").then(
   ({ default: BackgroundHandler }) => {
@@ -42,6 +43,9 @@ import(/* webpackChunkName: "background-chunk" */ "@/libs/background").then(
 
 Browser.runtime.onInstalled.addListener((object) => {
   if (object.reason === "install") {
-    openOnboard();
+    const kr = new PublicKeyRing();
+    kr.isInitialized().then((isInit) => {
+      if (!isInit) openOnboard();
+    });
   }
 });
