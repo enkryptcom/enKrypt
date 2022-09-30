@@ -129,7 +129,7 @@ Distributed under the MIT License. See `LICENSE.md` for more information.
 <!-- CONTACT -->
 ## Contact
 
-Twitter - [@enkryptcom](https://twitter.com/enkrypt)
+Twitter - [@enkrypt](https://twitter.com/enkrypt)
 
 Email - info@enkrypt.com
 
