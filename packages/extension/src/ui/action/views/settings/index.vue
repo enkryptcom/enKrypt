@@ -85,10 +85,7 @@ const resetAction = () => {
 };
 
 const supportAction = () => {
-  window.open("mailto:support@enkrypt.com", "_blank");
-
-  // setAllToFalse();
-  // isSupport.value = true;
+  window.open("mailto:support@enkrypt.com", "_blank", "noopener");
 };
 
 const generalAction = () => {
