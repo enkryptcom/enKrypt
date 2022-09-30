@@ -29,6 +29,11 @@ export interface EthereumResponse {
   error?: ProviderError;
 }
 
+export type CallbackFunction = (
+  err: Error | null,
+  res?: JsonRpcResponse
+) => void;
+
 export enum ErrorCodes {
   userRejected = 4001,
   unauthorized = 4100,

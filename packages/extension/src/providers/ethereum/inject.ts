@@ -5,6 +5,7 @@ import {
   EthereumResponse,
   JsonRpcRequest,
   JsonRpcResponse,
+  CallbackFunction,
 } from "./types";
 import {
   ProviderName,
@@ -74,20 +75,23 @@ export class Provider extends EventEmitter implements ProviderInterface {
   }
   //deprecated
   send(
-    method: string,
-    params?: Array<unknown>
+    method: string | JsonRpcRequest,
+    params?: Array<unknown> | CallbackFunction
   ): Promise<EthereumResponse> | void {
-    if ((method as any).method) {
-      return this.sendAsync(method as unknown as JsonRpcRequest, params as any);
+    if ((method as JsonRpcRequest).method) {
+      return this.sendAsync(
+        method as JsonRpcRequest,
+        params as CallbackFunction
+      );
     } else {
-      return this.request({ method, params });
+      return this.request({
+        method: method as string,
+        params: params as Array<unknown>,
+      });
     }
   }
   // //deprecated
-  sendAsync(
-    data: JsonRpcRequest,
-    callback: (err: Error | null, res?: JsonRpcResponse) => void
-  ): void {
+  sendAsync(data: JsonRpcRequest, callback: CallbackFunction): void {
     const { method, params } = data as EthereumRequest;
     this.request({ method, params })
       .then((res) => {
