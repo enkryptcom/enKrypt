@@ -4,7 +4,6 @@ import {
   EthereumRequest,
   EthereumResponse,
   JsonRpcRequest,
-  JsonRpcResponse,
   CallbackFunction,
 } from "./types";
 import {
