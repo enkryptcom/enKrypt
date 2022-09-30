@@ -73,8 +73,15 @@ export class Provider extends EventEmitter implements ProviderInterface {
     return this.connected;
   }
   //deprecated
-  send(method: string, params?: Array<unknown>): Promise<EthereumResponse> {
-    return this.request({ method, params });
+  send(
+    method: string,
+    params?: Array<unknown>
+  ): Promise<EthereumResponse> | void {
+    if ((method as any).method) {
+      return this.sendAsync(method as unknown as JsonRpcRequest, params as any);
+    } else {
+      return this.request({ method, params });
+    }
   }
   // //deprecated
   sendAsync(
