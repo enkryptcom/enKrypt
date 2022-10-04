@@ -6,9 +6,9 @@ import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
 const okcOptions: EvmNetworkOptions = {
   name: NetworkNames.Okc,
   name_long: "OKX Chain",
-  homePage: "https://www.oklink.com/zh-cn/okc",
-  blockExplorerTX: "https://www.oklink.com/zh-cn/okc/tx/[[txHash]]",
-  blockExplorerAddr: "https://www.oklink.com/zh-cn/okc/address/[[address]]",
+  homePage: "https://www.oklink.com/en/okc",
+  blockExplorerTX: "https://www.oklink.com/en/okc/tx/[[txHash]]",
+  blockExplorerAddr: "https://www.oklink.com/en/okc/address/[[address]]",
   chainID: 66,
   isTestNetwork: false,
   currencyName: "OKT",
