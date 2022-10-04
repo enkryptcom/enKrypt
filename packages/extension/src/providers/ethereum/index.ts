@@ -44,7 +44,8 @@ class EthereumProvider
   }
   setRequestProvider(network: BaseNetwork): void {
     this.network = network as EvmNetwork;
-    this.requestProvider.changeNetwork(network.node);
+    this.requestProvider.disconnect();
+    this.requestProvider = getRequestProvider(network.node, this.middlewares);
   }
   async isPersistentEvent(request: ProviderRPCRequest): Promise<boolean> {
     if (request.method === "eth_subscribe") return true;
