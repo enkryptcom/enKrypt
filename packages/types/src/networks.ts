@@ -19,6 +19,7 @@ export enum NetworkNames {
   Shiden = "SDN",
   ShidenEVM = "SDN EVM",
   AstarEVM = "ASTR EVM",
+  Canto = "CANTO",
 }
 
 export enum CoingeckoPlatform {
@@ -35,4 +36,5 @@ export enum CoingeckoPlatform {
   Polkadot = "polkadot",
   Astar = "astar",
   Shiden = "shiden network",
+  Canto = "canto",
 }

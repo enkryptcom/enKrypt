@@ -11,6 +11,7 @@ import moonriverNode from "./moonriver";
 import karuraEvmNode from "./karura";
 import shidenEvmNode from "./sdn";
 import astarEvmNode from "./astr";
+import cantoNode from "./canto";
 
 export default {
   goerli: goerliNode,
@@ -26,4 +27,5 @@ export default {
   karuraEvm: karuraEvmNode,
   shidenEvm: shidenEvmNode,
   astarEvm: astarEvmNode,
+  canto: cantoNode,
 };
