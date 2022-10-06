@@ -153,8 +153,8 @@ const isInitiated = ref(false);
 const bestOfferScrollRef = ref<ComponentPublicInstance<HTMLElement>>();
 const scrollProgress = ref(0);
 const height = ref(460);
-const selected: string = route.params.id as string;
-const swapData: SwapData = JSON.parse(route.params.swapData as string);
+const selected: string = route.query.id as string;
+const swapData: SwapData = JSON.parse(route.query.swapData as string);
 const isOpenSelectFee = ref(false);
 const fee = reactive<Partial<GasFeeInfo>>({
   fiatSymbol: "$",
