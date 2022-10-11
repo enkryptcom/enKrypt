@@ -37,14 +37,21 @@ import { routes } from "./routes";
 const router = useRouter();
 const route = useRoute();
 
-const password = route.params.password;
+const password = route.query.password as string;
 
 const typePassword = ref("");
 const isDisabled = ref(true);
 
 const nextAction = () => {
   if (!isDisabled.value) {
-    router.push({ name: routes.recoveryPhrase.name, params: { password } });
+    const routedRoute = router.resolve({
+      name: routes.recoveryPhrase.name,
+      query: {
+        password: password,
+      },
+    });
+
+    router.push(routedRoute);
   }
 };
 

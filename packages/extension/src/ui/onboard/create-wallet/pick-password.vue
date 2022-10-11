@@ -10,7 +10,7 @@
         @keyup.enter="nextAction()"
         @update:strength-and-password="passwordUpdated"
       />
-      <base-button title="Next" :click="nextAction" :disabled="isDisabled" />
+      <base-button title="Next" :disabled="isDisabled" @click="nextAction" />
     </div>
 
     <p class="pick-password__label">
@@ -33,10 +33,14 @@ const isDisabled = ref(true);
 
 const nextAction = () => {
   if (!isDisabled.value) {
-    router.push({
+    const routedRoute = router.resolve({
       name: routes.typePassword.name,
-      params: { password: password.value },
+      query: {
+        password: password.value,
+      },
     });
+
+    router.push(routedRoute);
   }
 };
 

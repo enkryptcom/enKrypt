@@ -25,8 +25,8 @@ import initializeWallet from "@/libs/utils/initialize-wallet";
 
 const route = useRoute();
 const router = useRouter();
-const phrase = route.params.mnemonic as string;
-const password = route.params.password as string;
+const phrase = route.query.mnemonic as string;
+const password = route.query.password as string;
 let phraseArr: string[] = [];
 if (!phrase) {
   router.push({ path: routes.pickPassword.path });

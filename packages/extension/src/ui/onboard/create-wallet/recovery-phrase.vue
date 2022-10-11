@@ -42,14 +42,16 @@ import { routes } from "./routes";
 
 const router = useRouter();
 const route = useRoute();
-const password = route.params.password;
+const password = route.query.password as string;
 const mnemonic = ref("");
 
 const nextAction = () => {
-  router.push({
+  const routedRoute = router.resolve({
     name: routes.checkPhrase.name,
-    params: { mnemonic: mnemonic.value, password },
+    query: { mnemonic: mnemonic.value, password },
   });
+
+  router.push(routedRoute);
 };
 
 onMounted(() => {
