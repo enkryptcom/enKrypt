@@ -18,15 +18,16 @@
 import BaseButton from "@action/components/base-button/index.vue";
 import CheckPhrase from "@action/components/check-phrase/index.vue";
 import { routes } from "./routes";
-import { useRoute, useRouter } from "vue-router";
+import { useOnboardStore } from "./store";
+import { useRouter } from "vue-router";
 import { ref, computed } from "vue";
 import { chunk, shuffle, sample } from "lodash";
 import initializeWallet from "@/libs/utils/initialize-wallet";
 
-const route = useRoute();
 const router = useRouter();
-const phrase = route.query.mnemonic as string;
-const password = route.query.password as string;
+const store = useOnboardStore();
+const phrase = store.mnemonic;
+const password = store.password;
 let phraseArr: string[] = [];
 if (!phrase) {
   router.push({ path: routes.pickPassword.path });

@@ -25,9 +25,11 @@ import BaseButton from "@action/components/base-button/index.vue";
 import PasswordInput from "@action/components/password-input/index.vue";
 import { useRouter } from "vue-router";
 import { routes } from "./routes";
+import { useOnboardStore } from "./store";
 
 const router = useRouter();
 
+const store = useOnboardStore();
 const password = ref("");
 const isDisabled = ref(true);
 
@@ -35,11 +37,9 @@ const nextAction = () => {
   if (!isDisabled.value) {
     const routedRoute = router.resolve({
       name: routes.typePassword.name,
-      query: {
-        password: password.value,
-      },
     });
 
+    store.setPassword(password.value);
     router.push(routedRoute);
   }
 };
