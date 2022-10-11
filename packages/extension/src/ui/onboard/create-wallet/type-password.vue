@@ -45,11 +45,9 @@ const isDisabled = ref(true);
 
 const nextAction = () => {
   if (!isDisabled.value) {
-    const routedRoute = router.resolve({
+    router.push({
       name: routes.recoveryPhrase.name,
     });
-
-    router.push(routedRoute);
   }
 };
 

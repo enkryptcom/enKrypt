@@ -35,12 +35,10 @@ const isDisabled = ref(true);
 
 const nextAction = () => {
   if (!isDisabled.value) {
-    const routedRoute = router.resolve({
+    store.setPassword(password.value);
+    router.push({
       name: routes.typePassword.name,
     });
-
-    store.setPassword(password.value);
-    router.push(routedRoute);
   }
 };
 

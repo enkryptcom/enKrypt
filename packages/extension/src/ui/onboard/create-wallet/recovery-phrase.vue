@@ -48,12 +48,10 @@ const password = store.password;
 const mnemonic = ref("");
 
 const nextAction = () => {
-  const routedRoute = router.resolve({
+  store.setMnemonic(mnemonic.value);
+  router.push({
     name: routes.checkPhrase.name,
   });
-
-  store.setMnemonic(mnemonic.value);
-  router.push(routedRoute);
 };
 
 onMounted(() => {
