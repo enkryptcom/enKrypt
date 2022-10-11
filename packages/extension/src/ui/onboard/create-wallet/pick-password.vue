@@ -10,7 +10,7 @@
         @keyup.enter="nextAction()"
         @update:strength-and-password="passwordUpdated"
       />
-      <base-button title="Next" :click="nextAction" :disabled="isDisabled" />
+      <base-button title="Next" :disabled="isDisabled" @click="nextAction" />
     </div>
 
     <p class="pick-password__label">
@@ -25,17 +25,19 @@ import BaseButton from "@action/components/base-button/index.vue";
 import PasswordInput from "@action/components/password-input/index.vue";
 import { useRouter } from "vue-router";
 import { routes } from "./routes";
+import { useOnboardStore } from "./store";
 
 const router = useRouter();
 
+const store = useOnboardStore();
 const password = ref("");
 const isDisabled = ref(true);
 
 const nextAction = () => {
   if (!isDisabled.value) {
+    store.setPassword(password.value);
     router.push({
       name: routes.typePassword.name,
-      params: { password: password.value },
     });
   }
 };
