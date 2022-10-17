@@ -218,6 +218,8 @@ const isHasScroll = () => {
 
   &.popup {
     box-shadow: none;
+    width: calc(~"100% + 56px");
+    margin-left: -28px;
   }
 }
 
@@ -297,8 +299,10 @@ const isHasScroll = () => {
     box-sizing: border-box;
 
     &.popup {
-      padding: 24px;
+      padding: 24px 0;
       background: @white;
+      box-shadow: none !important;
+      border-top: 1px solid rgba(0, 0, 0, 0.05);
     }
 
     &.border {
