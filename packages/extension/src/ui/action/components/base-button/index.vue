@@ -65,6 +65,7 @@ defineProps({
   cursor: pointer;
   position: relative;
   overflow: hidden;
+  overflow: hidden;
 
   span {
     position: absolute;
@@ -91,6 +92,7 @@ defineProps({
       ),
       @primary;
     transition: opacity 300ms ease-in-out;
+    border-radius: 10px;
   }
 
   &:hover {
