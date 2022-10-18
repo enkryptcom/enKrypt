@@ -92,7 +92,7 @@ defineProps({
     z-index: 101;
     top: 0;
     &.popup {
-      left: -231px;
+      left: -195px;
     }
 
     &.nopopup {
