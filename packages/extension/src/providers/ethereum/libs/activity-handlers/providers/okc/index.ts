@@ -1,16 +1,33 @@
 import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
-import { numberToHex } from "web3-utils";
+import { numberToHex, toBN } from "web3-utils";
 import {
   Activity,
   ActivityStatus,
   ActivityType,
-  OkcRawInfo,
   EthereumRawInfo,
 } from "@/types/activity";
 import { BaseNetwork } from "@/types/base-network";
 import { decodeTx } from "../../../transaction/decoder";
 import { NetworkEndpoints } from "./configs";
-import { toNumber } from "lodash";
+
+interface OkcRawInfo {
+  blockHash: string;
+  height: string;
+  contractAddress: string | null;
+  from: string;
+  to: string | null;
+  txId: string;
+  amount: string;
+  transactionTime: string;
+  txFee: string;
+
+  effectiveGasPrice: string;
+  transactionHash: string;
+  gasUsed: string;
+  status: boolean;
+  blockNumber: string | undefined;
+  gas: string;
+}
 
 const getAddressActivity = async (
   address: string,
@@ -40,9 +57,7 @@ const getAddressActivity = async (
           nonce: numberToHex(0),
           status: true,
           transactionHash: tx.txId,
-          value: Math.floor(
-            toNumber(tx.amount) * 1000000000000000000
-          ).toString(),
+          value: toBN(tx.amount).mul(toBN("1000000000000000000")).toString(),
           timestamp: parseInt(tx.transactionTime),
         };
         return rawTx;
