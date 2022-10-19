@@ -24,14 +24,15 @@ import { useRouter } from "vue-router";
 import { validateMnemonic } from "bip39";
 import { ref, computed } from "vue";
 import { routes } from "./routes";
-
+import { useRestoreStore } from "./store";
+const store = useRestoreStore();
 const mnemonic = ref("");
 const router = useRouter();
 
 const nextAction = () => {
+  store.setMnemonic(formattedMnemonic.value);
   router.push({
     name: routes.pickPassword.name,
-    params: { mnemonic: formattedMnemonic.value },
   });
 };
 

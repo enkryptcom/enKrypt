@@ -153,7 +153,7 @@ import { Erc20Token } from "../../types/erc20-token";
 import BigNumber from "bignumber.js";
 import { defaultGasCostVals } from "../common/default-vals";
 import Transaction from "@/providers/ethereum/libs/transaction";
-import Web3 from "web3";
+import Web3Eth from "web3-eth";
 import { NATIVE_TOKEN_ADDRESS } from "../../libs/common";
 import { fromBase, toBase, isValidDecimals } from "@/libs/utils/units";
 import erc20 from "../../libs/abi/erc20";
@@ -235,7 +235,7 @@ onMounted(async () => {
 });
 
 const TxInfo = computed<SendTransactionDataType>(() => {
-  const web3 = new Web3();
+  const web3 = new Web3Eth();
   const value =
     selectedAsset.value.contract === NATIVE_TOKEN_ADDRESS
       ? numberToHex(toBase(sendAmount.value, props.network.decimals))
@@ -244,7 +244,7 @@ const TxInfo = computed<SendTransactionDataType>(() => {
     selectedAsset.value.contract === NATIVE_TOKEN_ADDRESS
       ? addressTo.value
       : selectedAsset.value.contract;
-  const tokenContract = new web3.eth.Contract(erc20 as any);
+  const tokenContract = new web3.Contract(erc20 as any);
   const data =
     selectedAsset.value.contract === NATIVE_TOKEN_ADDRESS
       ? "0x"
@@ -263,7 +263,7 @@ const TxInfo = computed<SendTransactionDataType>(() => {
   };
 });
 const Tx = computed(() => {
-  const web3 = new Web3(props.network.node);
+  const web3 = new Web3Eth(props.network.node);
   const tx = new Transaction(TxInfo.value, web3);
   return tx;
 });
@@ -342,7 +342,7 @@ const setTransactionFees = (tx: Transaction) => {
 };
 
 const setBaseCosts = () => {
-  const web3 = new Web3(props.network.node);
+  const web3 = new Web3Eth(props.network.node);
   const tx = new Transaction(
     {
       chainId: numberToHex(props.network.chainID) as `0x{string}`,

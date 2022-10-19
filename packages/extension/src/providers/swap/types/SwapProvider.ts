@@ -1,5 +1,5 @@
 import { BaseToken, BaseTokenOptions } from "@/types/base-token";
-import Web3 from "web3";
+import Web3Eth from "web3-eth";
 import { BaseNetwork } from "@/types/base-network";
 import { EnkryptAccount, NetworkNames } from "@enkryptcom/types";
 import { GasPriceTypes } from "@/providers/ethereum/libs/transaction/types";
@@ -119,7 +119,7 @@ export abstract class SwapProvider {
     isMax: boolean
   ): Promise<TradeInfo[]>;
 
-  public abstract getStatus(statusOject: any, web3: Web3): TradeStatus;
+  public abstract getStatus(statusOject: any, web3: Web3Eth): TradeStatus;
 
   public abstract executeTrade(
     network: BaseNetwork,

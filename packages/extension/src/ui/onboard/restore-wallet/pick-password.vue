@@ -23,19 +23,20 @@
 import { ref, onMounted } from "vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import PasswordInput from "@action/components/password-input/index.vue";
-import { useRoute, useRouter } from "vue-router";
+import { useRouter } from "vue-router";
 import { routes } from "./routes";
+import { useRestoreStore } from "./store";
+const store = useRestoreStore();
 const router = useRouter();
-const route = useRoute();
 
 const password = ref("");
 const isDisabled = ref(true);
 
 const nextAction = () => {
   if (!isDisabled.value) {
+    store.setPassword(password.value);
     router.push({
       name: routes.typePassword.name,
-      params: { password: password.value, mnemonic: route.params.mnemonic },
     });
   }
 };
@@ -47,7 +48,7 @@ const passwordUpdated = (info: { password: string; strength: number }) => {
 };
 
 onMounted(() => {
-  if (!route.params.mnemonic) {
+  if (!store.mnemonic) {
     router.push({ name: routes.start.name });
   }
 });
