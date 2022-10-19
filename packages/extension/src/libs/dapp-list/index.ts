@@ -29,6 +29,8 @@ const lists: Partial<Record<NetworkNames, string>> = {
     "https://github.com/enkryptcom/dynamic-data/raw/main/dapps/sdn.json",
   [NetworkNames.ShidenEVM]:
     "https://github.com/enkryptcom/dynamic-data/raw/main/dapps/sdn.json",
+  [NetworkNames.Okc]:
+    "https://github.com/enkryptcom/dynamic-data/raw/main/dapps/okc.json",
 };
 
 export default lists;
