@@ -142,7 +142,7 @@ import {
   GasPriceTypes,
 } from "../libs/transaction/types";
 import Transaction from "@/providers/ethereum/libs/transaction";
-import Web3 from "web3";
+import Web3Eth from "web3-eth";
 import { EvmNetwork } from "../types/evm-network";
 import { fromBase } from "@/libs/utils/units";
 import { decodeTx } from "../libs/transaction/decoder";
@@ -156,6 +156,7 @@ import { TransactionSigner } from "./libs/signer";
 import { Activity, ActivityStatus, ActivityType } from "@/types/activity";
 import { generateAddress } from "ethereumjs-util";
 import ActivityState from "@/libs/activity-state";
+import { bigIntToBuffer } from "@enkryptcom/utils";
 
 const isProcessing = ref(false);
 const isOpenSelectFee = ref(false);
@@ -208,7 +209,7 @@ onBeforeMount(async () => {
       .times(decoded.currentPriceUSD)
       .toFixed(2);
   });
-  const web3 = new Web3(network.value.node);
+  const web3 = new Web3Eth(network.value.node);
   const tx = new Transaction(
     Request.value.params![0] as EthereumTransaction,
     web3
@@ -267,7 +268,7 @@ onBeforeMount(async () => {
 const approve = async () => {
   isProcessing.value = true;
   const { Request, Resolve } = await windowPromise;
-  const web3 = new Web3(network.value.node);
+  const web3 = new Web3Eth(network.value.node);
   const tx = new Transaction(
     Request.value.params![0] as EthereumTransaction,
     web3
@@ -287,7 +288,7 @@ const approve = async () => {
               ? tx.to.toString()
               : `0x${generateAddress(
                   tx.getSenderAddress().toBuffer(),
-                  Buffer.from(tx.nonce.toString("hex"), "hex")
+                  bigIntToBuffer(tx.nonce)
                 ).toString("hex")}`,
             isIncoming: tx.getSenderAddress().toString() === tx.to?.toString(),
             network: network.value.name,
@@ -304,7 +305,7 @@ const approve = async () => {
             value: decodedTx.value?.tokenValue || "0x0",
             transactionHash: "",
           };
-          web3.eth
+          web3
             .sendSignedTransaction("0x" + tx.serialize().toString("hex"))
             .on("transactionHash", (hash) => {
               activityState
