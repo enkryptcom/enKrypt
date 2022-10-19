@@ -1,3 +1,4 @@
 import RivetActivity from "./providers/rivet";
 import EtherscanActivity from "./providers/etherscan";
-export { RivetActivity, EtherscanActivity };
+import OkcActivity from "./providers/okc";
+export { RivetActivity, EtherscanActivity, OkcActivity };
