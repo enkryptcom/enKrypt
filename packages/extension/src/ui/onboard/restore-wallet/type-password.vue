@@ -30,22 +30,19 @@
 import { onMounted, ref, computed } from "vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import BaseInput from "@action/components/base-input/index.vue";
-import { useRouter, useRoute } from "vue-router";
+import { useRouter } from "vue-router";
 import { routes } from "../restore-wallet/routes";
 import initializeWallet from "@/libs/utils/initialize-wallet";
-
+import { useRestoreStore } from "./store";
+const store = useRestoreStore();
 const router = useRouter();
-const route = useRoute();
-
-const password = route.params.password as string;
-const mnemonic = route.params.mnemonic as string;
 
 const typePassword = ref("");
 const isInitializing = ref(false);
 const nextAction = () => {
   if (!isDisabled.value) {
     isInitializing.value = true;
-    initializeWallet(mnemonic, password).then(() => {
+    initializeWallet(store.mnemonic, store.password).then(() => {
       isInitializing.value = false;
       router.push({
         name: routes.walletReady.name,
@@ -54,14 +51,14 @@ const nextAction = () => {
   }
 };
 const isDisabled = computed(() => {
-  return typePassword.value !== password || isInitializing.value;
+  return typePassword.value !== store.password || isInitializing.value;
 });
 const passwordUpdated = (value: string) => {
   typePassword.value = value.trim();
 };
 
 const checkMnemonicAndPassword = () => {
-  if (!password || !mnemonic) {
+  if (!store.password || !store.mnemonic) {
     router.push({ path: routes.start.path });
   }
 };

@@ -1,5 +1,5 @@
 import { HWwalletType, NetworkNames } from "@enkryptcom/types";
-import { PathType, WalletConfigs } from "./types";
+import { WalletConfigs } from "./types";
 
 const walletConfigs: WalletConfigs = {
   [HWwalletType.ledger]: {
@@ -22,7 +22,7 @@ const ledgerAppNames = {
 };
 const MessengerName = "enkrypt_hw_wallets";
 
-const bip44Paths: Record<string, PathType> = {
+const bip44Paths = {
   ethereumLedger: {
     path: "m/44'/60'/0'/{index}",
     basePath: "m/44'/60'/0'",
