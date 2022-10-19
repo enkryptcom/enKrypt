@@ -11,7 +11,6 @@
 #
 
 # Uncomment the line if you want fastlane to automatically update itself
-update_fastlane
 
 desc "Prepare the macos app for build"
 lane :prepare do
@@ -52,6 +51,7 @@ end
 
 desc "Prepare build and release build to the App Store"
 lane :buildandrelease do
+    update_fastlane
     setup_ci
     app_store_connect_api_key(
       key_id: ENV["API_KEY_ID"] ,
