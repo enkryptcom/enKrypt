@@ -43,5 +43,5 @@ class NameResolver {
     });
   }
 }
-export { ENSResolver, UDResolver };
+export { ENSResolver, UDResolver, CoinType };
 export default NameResolver;
