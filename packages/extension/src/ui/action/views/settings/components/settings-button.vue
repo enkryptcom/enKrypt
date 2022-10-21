@@ -9,19 +9,12 @@
 </template>
 
 <script setup lang="ts">
-import { PropType } from "vue";
 import RightArrow from "@action/icons/common/right-arrow.vue";
 import ExternalIcon from "@action/icons/common/external-icon.vue";
 defineEmits<{
   (e: "click"): void;
 }>();
 defineProps({
-  action: {
-    type: Function as PropType<() => void>,
-    default: () => {
-      return null;
-    },
-  },
   title: {
     type: String,
     default: () => {

@@ -89,7 +89,11 @@ const privacyAction = () => {
 };
 
 const contactSupport = () => {
-  window.open("https://www.enkrypt.com", "_blank", "noopener");
+  window.open(
+    "https://www.enkrypt.com/?ref=enkrypt_help",
+    "_blank",
+    "noopener"
+  );
 };
 
 const toggleSign = () => {

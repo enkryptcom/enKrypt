@@ -1,33 +1,36 @@
-import { DAppsItem } from "@/types/ui";
 import { NetworkNames } from "@enkryptcom/types";
-import eth from "./eth";
-import binance from "./bsc";
-import matic from "./matic";
-import etc from "./etc";
-import ksm from "./ksm";
-import dot from "./dot";
-import aca from "./aca";
-import kar from "./kar";
-import glmr from "./glmr";
-import movr from "./movr";
-import astr from "./astr";
-import sdn from "./sdn";
 
-const lists: Partial<Record<NetworkNames, DAppsItem[]>> = {
-  [NetworkNames.Ethereum]: eth,
-  [NetworkNames.Binance]: binance,
-  [NetworkNames.Matic]: matic,
-  [NetworkNames.EthereumClassic]: etc,
-  [NetworkNames.Kusama]: ksm,
-  [NetworkNames.Polkadot]: dot,
-  [NetworkNames.Acala]: aca,
-  [NetworkNames.Karura]: kar,
-  [NetworkNames.Moonbeam]: glmr,
-  [NetworkNames.Moonriver]: movr,
-  [NetworkNames.Astar]: astr,
-  [NetworkNames.AstarEVM]: astr,
-  [NetworkNames.Shiden]: sdn,
-  [NetworkNames.ShidenEVM]: sdn,
+const lists: Partial<Record<NetworkNames, string>> = {
+  [NetworkNames.Ethereum]:
+    "https://github.com/enkryptcom/dynamic-data/raw/main/dapps/eth.json",
+  [NetworkNames.Binance]:
+    "https://github.com/enkryptcom/dynamic-data/raw/main/dapps/bsc.json",
+  [NetworkNames.Matic]:
+    "https://github.com/enkryptcom/dynamic-data/raw/main/dapps/matic.json",
+  [NetworkNames.EthereumClassic]:
+    "https://github.com/enkryptcom/dynamic-data/raw/main/dapps/etc.json",
+  [NetworkNames.Kusama]:
+    "https://github.com/enkryptcom/dynamic-data/raw/main/dapps/ksm.json",
+  [NetworkNames.Polkadot]:
+    "https://github.com/enkryptcom/dynamic-data/raw/main/dapps/dot.json",
+  [NetworkNames.Acala]:
+    "https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/aca.json",
+  [NetworkNames.Karura]:
+    "https://github.com/enkryptcom/dynamic-data/raw/main/dapps/kar.json",
+  [NetworkNames.Moonbeam]:
+    "https://github.com/enkryptcom/dynamic-data/raw/main/dapps/glmr.json",
+  [NetworkNames.Moonriver]:
+    "https://github.com/enkryptcom/dynamic-data/raw/main/dapps/movr.json",
+  [NetworkNames.Astar]:
+    "https://github.com/enkryptcom/dynamic-data/raw/main/dapps/astr.json",
+  [NetworkNames.AstarEVM]:
+    "https://github.com/enkryptcom/dynamic-data/raw/main/dapps/astr.json",
+  [NetworkNames.Shiden]:
+    "https://github.com/enkryptcom/dynamic-data/raw/main/dapps/sdn.json",
+  [NetworkNames.ShidenEVM]:
+    "https://github.com/enkryptcom/dynamic-data/raw/main/dapps/sdn.json",
+  [NetworkNames.Okc]:
+    "https://github.com/enkryptcom/dynamic-data/raw/main/dapps/okc.json",
 };
 
 export default lists;

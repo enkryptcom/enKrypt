@@ -1,7 +1,6 @@
 import { CoingeckoPlatform, NetworkNames } from "@enkryptcom/types";
 import { toBN } from "web3-utils";
 import { subscanActivity } from "../libs/activity-handlers";
-import { SubstrateNativeToken } from "../types/substrate-native-token";
 import {
   SubstrateNetwork,
   SubstrateNetworkOptions,
@@ -26,19 +25,9 @@ const ksmOptions: SubstrateNetworkOptions = {
   genesisHash:
     "0xb0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe",
   activityHandler: wrapActivityHandler(subscanActivity),
+  existentialDeposit: toBN("33333300"),
 };
 
 const ksm = new SubstrateNetwork(ksmOptions);
-
-const nativeAsset = new SubstrateNativeToken({
-  name: "Kusama",
-  symbol: "KSM",
-  coingeckoID: "kusama",
-  icon: require("./icons/kusama.svg"),
-  decimals: 12,
-  existentialDeposit: toBN("33333300"),
-});
-
-ksm.assets = [nativeAsset];
 
 export default ksm;

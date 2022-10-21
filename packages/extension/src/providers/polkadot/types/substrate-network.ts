@@ -101,9 +101,20 @@ export class SubstrateNetwork extends BaseNetwork {
   public getAllTokens(address?: string): Promise<BaseToken[]> {
     if (this.assetHandler) {
       return this.assetHandler(this, address ?? null, this.knownTokens);
-    }
+    } else if (this.assets.length > 0) {
+      return Promise.resolve(this.assets);
+    } else {
+      const nativeToken = new SubstrateNativeToken({
+        name: this.name_long,
+        symbol: this.name,
+        coingeckoID: this.coingeckoID,
+        decimals: this.decimals,
+        icon: this.icon,
+        existentialDeposit: this.existentialDeposit,
+      });
 
-    return Promise.resolve(this.assets);
+      return Promise.resolve([nativeToken]);
+    }
   }
 
   public async getAllTokenInfo(address: string): Promise<AssetsType[]> {

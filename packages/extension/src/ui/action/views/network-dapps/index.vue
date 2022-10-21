@@ -21,12 +21,12 @@ import { useRoute } from "vue-router";
 import NetworkDappsItem from "./components/network-dapps-item.vue";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 import scrollSettings from "@/libs/utils/scroll-settings";
-import { computed, PropType } from "vue";
+import { onMounted, PropType, ref } from "vue";
 import { BaseNetwork } from "@/types/base-network";
 import DappList from "@/libs/dapp-list";
-import { NetworkNames } from "@enkryptcom/types";
 import Masonry from "@action/components/masonry/index.vue";
 import { DAppsItem } from "@/types/ui";
+import cacheFetch from "@/libs/cache-fetch";
 
 const route = useRoute();
 
@@ -38,10 +38,19 @@ const props = defineProps({
 });
 
 const selected: string = route.params.id as string;
+const list = ref<DAppsItem[]>([]);
 
-const list = computed(() => {
-  if (DappList[props.network.name]) return DappList[props.network.name];
-  return DappList[NetworkNames.Ethereum];
+onMounted(async () => {
+  if (DappList[props.network.name]) {
+    try {
+      const dappsList = await cacheFetch({
+        url: DappList[props.network.name]!,
+      });
+      list.value = dappsList;
+    } catch {
+      console.error("Could not retrieve dapps list");
+    }
+  }
 });
 </script>
 
