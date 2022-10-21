@@ -1,0 +1,52 @@
+{
+  "name": "@enkryptcom/name-resolution",
+  "version": "0.0.1",
+  "description": "name resolution module for enkrypt",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm,cjs --dts",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
+    "test": "ts-mocha -p tsconfig.json tests/**/*.test.ts"
+  },
+  "engines": {
+    "node": ">=14.15.0"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.3.3",
+    "@types/mocha": "^9.1.1",
+    "@types/node": "^18.7.18",
+    "@typescript-eslint/eslint-plugin": "^5.38.0",
+    "@typescript-eslint/parser": "^5.38.0",
+    "chai": "^4.3.6",
+    "eslint": "^8.23.1",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-import-resolver-alias": "^1.1.2",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-module-resolver": "^1.5.0",
+    "mocha": "^10.0.0",
+    "prettier": "^2.7.1",
+    "ts-mocha": "^10.0.0",
+    "ts-node": "^10.9.1",
+    "tsconfig-paths": "^4.1.0",
+    "tsup": "^6.2.3",
+    "typescript": "^4.8.3",
+    "typescript-eslint": "0.0.1-alpha.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/<FILL_IT>"
+  },
+  "keywords": [],
+  "author": "kvhnuke",
+  "license": "MIT",
+  "dependencies": {
+    "@ensdomains/address-encoder": "^0.2.18",
+    "@unstoppabledomains/resolution": "^8.3.3",
+    "ethers": "^5.7.1"
+  }
+}

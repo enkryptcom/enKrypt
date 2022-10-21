@@ -11,7 +11,8 @@
     "packages/extension",
     "packages/storage",
     "packages/request",
-    "packages/hw-wallets"
+    "packages/hw-wallets",
+    "packages/name-resolution"
   ],
   "scripts": {
     "test": "yarn workspaces foreach -pv run test",
