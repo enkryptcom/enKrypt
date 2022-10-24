@@ -32,6 +32,7 @@ import ActivityState from "@/libs/activity-state";
 import { Activity, ActivityStatus, ActivityType } from "@/types/activity";
 import { ChangellyToken, ChangellyTokenOptions } from "./changelly-token";
 import BigNumber from "bignumber.js";
+import broadcastTx from "@/providers/ethereum/libs/tx-broadcaster";
 
 const CHANGELLY_TOKEN_INFO = [
   {
@@ -728,12 +729,9 @@ export class ChangellySwapProvider extends SwapProvider {
             account: fromAccount,
             network: network,
             payload: finalizedTx,
-          }).then((signedTx) =>
-            web3
-              .sendSignedTransaction(
-                `0x${signedTx.serialize().toString("hex")}`
-              )
-              .on("transactionHash", (hash: string) => {
+          }).then((signedTx) => {
+            return new Promise((resolve) => {
+              const onHash = (hash: string) => {
                 console.log(hash);
                 activityState.addActivities(
                   [
@@ -744,9 +742,22 @@ export class ChangellySwapProvider extends SwapProvider {
                   ],
                   { address: fromAccount.address, network: network.name }
                 );
-              })
-              .then((receipt) => [receipt.transactionHash] as `0x${string}`[])
-          )
+                resolve([hash] as `0x${string}`[]);
+              };
+              broadcastTx(
+                `0x${signedTx.serialize().toString("hex")}`,
+                network.name
+              )
+                .then(onHash)
+                .catch(() => {
+                  web3
+                    .sendSignedTransaction(
+                      `0x${signedTx.serialize().toString("hex")}`
+                    )
+                    .on("transactionHash", onHash);
+                });
+            });
+          })
         );
     }
   }
