@@ -20,6 +20,7 @@ export enum NetworkNames {
   Shiden = "SDN",
   ShidenEVM = "SDN EVM",
   AstarEVM = "ASTR EVM",
+  Optimism = "OP",
 }
 
 export enum CoingeckoPlatform {
@@ -37,4 +38,5 @@ export enum CoingeckoPlatform {
   Okc = "okc",
   Astar = "astar",
   Shiden = "shiden network",
+  Optimism = "optimistic-ethereum",
 }

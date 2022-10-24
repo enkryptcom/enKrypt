@@ -29,6 +29,7 @@ export interface EvmNetworkOptions {
   chainID: number;
   isTestNetwork: boolean;
   currencyName: string;
+  currencyNameLong?: string;
   node: string;
   icon: string;
   gradient: string;
@@ -131,8 +132,8 @@ export class EvmNetwork extends BaseNetwork {
         fromBase(balance, this.decimals)
       ).times(nativeMarketData?.current_price ?? 0);
       const nativeAsset: AssetsType = {
-        name: this.name_long,
-        symbol: this.name,
+        name: this.currencyNameLong ?? this.name_long,
+        symbol: this.currencyName,
         icon: this.icon,
         balance,
         balancef: formatFloatingPointValue(fromBase(balance, this.decimals))
