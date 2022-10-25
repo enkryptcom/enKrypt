@@ -129,6 +129,7 @@
 <script setup lang="ts">
 import { ref, onMounted, PropType, computed, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import { debounce } from "lodash";
 import SendHeader from "./components/send-header.vue";
 import SendAddressInput from "./components/send-address-input.vue";
 import SendFromContactsList from "./components/send-from-contacts-list.vue";
@@ -164,7 +165,7 @@ import getUiPath from "@/libs/utils/get-ui-path";
 import Browser from "webextension-polyfill";
 import { ProviderName } from "@/types/provider";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
-import NameResolver, { CoinType } from "@enkryptcom/name-resolution";
+import { GenericNameResolver, CoinType } from "@/libs/name-resolver";
 
 const props = defineProps({
   network: {
@@ -188,10 +189,8 @@ const loadingAsset = new Erc20Token({
 
 const route = useRoute();
 const router = useRouter();
-const nameResolver = new NameResolver({
-  ens: { node: "https://nodes.mewapi.io/rpc/eth" },
-});
 
+const nameResolver = new GenericNameResolver();
 const addressInputTo = ref();
 const selected: string = route.params.id as string;
 const accountAssets = ref<Erc20Token[]>([]);
@@ -218,8 +217,6 @@ const addressFrom = ref<string>(
 );
 const addressTo = ref<string>("");
 const isLoadingAssets = ref(true);
-
-const resolveTimeoutId = ref<ReturnType<typeof setTimeout> | null>(null);
 
 const nativeBalance = computed(() => {
   const accountIndex = props.accountInfo.activeAccounts.findIndex(
@@ -448,24 +445,16 @@ const inputAddressFrom = (text: string) => {
 };
 
 const inputAddressTo = async (text: string) => {
-  if (resolveTimeoutId.value) {
-    clearTimeout(resolveTimeoutId.value);
-    resolveTimeoutId.value = null;
-  }
-
-  resolveTimeoutId.value = setTimeout(async () => {
-    // Get the resolved address for the current network, or default to ETH
-    const resolved =
-      (await nameResolver
-        .resolveAddress(text, props.network.name as CoinType)
-        .catch(() => null)) ||
-      (await nameResolver.resolveAddress(text, "ETH").catch(() => null));
-
-    if (resolved) {
-      addressTo.value = resolved;
-    }
+  const debounceResolve = debounce(() => {
+    nameResolver
+      .resolveName(text, [props.network.name as CoinType, "ETH"])
+      .then((resolved) => {
+        if (resolved) {
+          addressTo.value = resolved;
+        }
+      });
   }, 500);
-
+  debounceResolve();
   addressTo.value = text;
 };
 
