@@ -54,7 +54,6 @@ defineProps({
 @import "~@action/styles/theme.less";
 
 .send-address-item {
-  text-decoration: none;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -65,7 +64,6 @@ defineProps({
   text-decoration: none;
   transition: background 300ms ease-in-out;
   border-radius: 10px;
-  position: relative;
 
   &:hover {
     background: @black007;
@@ -106,6 +104,10 @@ defineProps({
       letter-spacing: 0.25px;
       color: @primaryLabel;
       margin: 0;
+      white-space: nowrap;
+      width: 270px;
+      text-overflow: ellipsis;
+      overflow: hidden;
     }
 
     p {

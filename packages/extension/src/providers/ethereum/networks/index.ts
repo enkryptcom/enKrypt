@@ -9,6 +9,9 @@ import bscNode from "./bsc";
 import moonbeamNode from "./moonbeam";
 import moonriverNode from "./moonriver";
 import karuraEvmNode from "./karura";
+import okcNode from "./okc";
+import shidenEvmNode from "./sdn";
+import astarEvmNode from "./astr";
 
 export default {
   goerli: goerliNode,
@@ -22,4 +25,7 @@ export default {
   moonbeam: moonbeamNode,
   moonriver: moonriverNode,
   karuraEvm: karuraEvmNode,
+  okc: okcNode,
+  shidenEvm: shidenEvmNode,
+  astarEvm: astarEvmNode,
 };

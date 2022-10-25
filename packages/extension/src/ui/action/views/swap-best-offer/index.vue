@@ -112,7 +112,7 @@ import { BaseNetwork } from "@/types/base-network";
 import { AccountsHeaderData } from "../../types/account";
 import { numberToHex, toBN } from "web3-utils";
 import BN from "bn.js";
-import Web3 from "web3";
+import Web3Eth from "web3-eth";
 import Transaction from "@/providers/ethereum/libs/transaction";
 import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
 import {
@@ -156,8 +156,8 @@ const isInitiated = ref(false);
 const bestOfferScrollRef = ref<ComponentPublicInstance<HTMLElement>>();
 const scrollProgress = ref(0);
 const height = ref(460);
-const selected: string = route.params.id as string;
-const swapData: SwapData = JSON.parse(route.params.swapData as string);
+const selected: string = route.query.id as string;
+const swapData: SwapData = JSON.parse(route.query.swapData as string);
 const isOpenSelectFee = ref(false);
 const fee = reactive<Partial<GasFeeInfo>>({
   fiatSymbol: "$",
@@ -248,7 +248,7 @@ watch([gasCostValues, selectedFee, fee], () => {
 
 const Tx = computed(() => {
   if ((props.network as EvmNetwork).chainID) {
-    const web3 = new Web3(props.network.node);
+    const web3 = new Web3Eth(props.network.node);
     return pickedTrade.value.txs.map((txData) => {
       const tx = new Transaction(
         {

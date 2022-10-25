@@ -1,6 +1,5 @@
 let port = chrome.runtime.connect({ name: "trezor-connect" });
 port.onMessage.addListener((message) => {
-  console.log(message);
   window.postMessage(message, window.location.origin);
 });
 port.onDisconnect.addListener((d) => {

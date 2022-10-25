@@ -152,7 +152,7 @@ import { Erc20Token } from "../../types/erc20-token";
 import BigNumber from "bignumber.js";
 import { defaultGasCostVals } from "@/providers/common/libs/default-vals";
 import Transaction from "@/providers/ethereum/libs/transaction";
-import Web3 from "web3";
+import Web3Eth from "web3-eth";
 import { NATIVE_TOKEN_ADDRESS } from "../../libs/common";
 import { fromBase, toBase, isValidDecimals } from "@/libs/utils/units";
 import erc20 from "../../libs/abi/erc20";
@@ -163,6 +163,7 @@ import getUiPath from "@/libs/utils/get-ui-path";
 import Browser from "webextension-polyfill";
 import { ProviderName } from "@/types/provider";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
+import NameResolver, { CoinType } from "@enkryptcom/name-resolution";
 
 const props = defineProps({
   network: {
@@ -184,9 +185,13 @@ const loadingAsset = new Erc20Token({
   decimals: 18,
 });
 
-const addressInputTo = ref();
 const route = useRoute();
 const router = useRouter();
+const nameResolver = new NameResolver({
+  ens: { node: "https://nodes.mewapi.io/rpc/eth" },
+});
+
+const addressInputTo = ref();
 const selected: string = route.params.id as string;
 const accountAssets = ref<Erc20Token[]>([]);
 const selectedAsset = ref<Erc20Token | Partial<Erc20Token>>(loadingAsset);
@@ -213,6 +218,8 @@ const addressFrom = ref<string>(
 const addressTo = ref<string>("");
 const isLoadingAssets = ref(true);
 
+const resolveTimeoutId = ref<ReturnType<typeof setTimeout> | null>(null);
+
 const nativeBalance = computed(() => {
   const accountIndex = props.accountInfo.activeAccounts.findIndex(
     (acc) => acc.address === addressFrom.value
@@ -234,7 +241,7 @@ onMounted(async () => {
 });
 
 const TxInfo = computed<SendTransactionDataType>(() => {
-  const web3 = new Web3();
+  const web3 = new Web3Eth();
   const value =
     selectedAsset.value.contract === NATIVE_TOKEN_ADDRESS
       ? numberToHex(toBase(sendAmount.value, props.network.decimals))
@@ -243,7 +250,7 @@ const TxInfo = computed<SendTransactionDataType>(() => {
     selectedAsset.value.contract === NATIVE_TOKEN_ADDRESS
       ? addressTo.value
       : selectedAsset.value.contract;
-  const tokenContract = new web3.eth.Contract(erc20 as any);
+  const tokenContract = new web3.Contract(erc20 as any);
   const data =
     selectedAsset.value.contract === NATIVE_TOKEN_ADDRESS
       ? "0x"
@@ -262,7 +269,7 @@ const TxInfo = computed<SendTransactionDataType>(() => {
   };
 });
 const Tx = computed(() => {
-  const web3 = new Web3(props.network.node);
+  const web3 = new Web3Eth(props.network.node);
   const tx = new Transaction(TxInfo.value, web3);
   return tx;
 });
@@ -341,7 +348,7 @@ const setTransactionFees = (tx: Transaction) => {
 };
 
 const setBaseCosts = () => {
-  const web3 = new Web3(props.network.node);
+  const web3 = new Web3Eth(props.network.node);
   const tx = new Transaction(
     {
       chainId: numberToHex(props.network.chainID) as `0x{string}`,
@@ -439,7 +446,25 @@ const inputAddressFrom = (text: string) => {
   addressFrom.value = text;
 };
 
-const inputAddressTo = (text: string) => {
+const inputAddressTo = async (text: string) => {
+  if (resolveTimeoutId.value) {
+    clearTimeout(resolveTimeoutId.value);
+    resolveTimeoutId.value = null;
+  }
+
+  resolveTimeoutId.value = setTimeout(async () => {
+    // Get the resolved address for the current network, or default to ETH
+    const resolved =
+      (await nameResolver
+        .resolveAddress(text, props.network.name as CoinType)
+        .catch(() => null)) ||
+      (await nameResolver.resolveAddress(text, "ETH").catch(() => null));
+
+    if (resolved) {
+      addressTo.value = resolved;
+    }
+  }, 500);
+
   addressTo.value = text;
 };
 

@@ -74,7 +74,7 @@ const connectAction = () => {
           router.push({
             name: routes.SelectAccount.name,
             params: {
-              networkName: network.name,
+              network: network.name,
               walletType,
             },
           });

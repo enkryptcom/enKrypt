@@ -7,8 +7,8 @@ const supportedPaths = {
     bip44Paths.ethereumLedgerLive,
   ],
   [NetworkNames.Matic]: [
-    bip44Paths.ledgerEthereum,
-    bip44Paths.ledgerLiveEthereum,
+    bip44Paths.ethereumLedger,
+    bip44Paths.ethereumLedgerLive,
   ],
   [NetworkNames.EthereumClassic]: [
     bip44Paths.ethereumClassicLedger,

@@ -1,40 +1,72 @@
-(() => {
-  const e = `https://connect.trezor.io/${
-      "8.2.8".split(".").map((e) => parseInt(e, 10))[0]
-    }/`,
-    t = (s) => {
-      window.removeEventListener("beforeunload", t),
-        s ||
-          chrome.tabs.query({ currentWindow: !0, active: !0 }, (e) => {
-            e.length < 0 || chrome.tabs.remove(e[0].id);
-          }),
-        chrome.tabs.query({ url: `${e}popup.html` }, (e) => {
-          e.length < 0 || chrome.tabs.update(e[0].id, { active: !0 });
-        });
-    };
-  window.addEventListener("message", (e) => {
-    if ("usb-permissions-init" === e.data) {
-      const e = document.getElementById("trezor-usb-permissions");
-      if (!(e && e instanceof HTMLIFrameElement))
-        throw new Error("trezor-usb-permissions missing or incorrect dom type");
-      e.contentWindow.postMessage(
-        { type: "usb-permissions-init", extension: chrome.runtime.id },
-        "*"
-      );
-    } else "usb-permissions-close" === e.data && t();
-  }),
-    window.addEventListener("beforeunload", t),
-    window.addEventListener("load", () => {
-      const t = document.createElement("iframe");
-      (t.id = "trezor-usb-permissions"),
-        (t.frameBorder = "0"),
-        (t.width = "100%"),
-        (t.height = "100%"),
-        (t.style.border = "0px"),
-        (t.style.width = "100%"),
-        (t.style.height = "100%"),
-        t.setAttribute("src", `${e}extension-permissions.html`),
-        t.setAttribute("allow", "usb"),
-        document.body && document.body.appendChild(t);
-    });
-})();
+const VERSION = "9.0.1";
+const versionN = VERSION.split(".").map((s) => parseInt(s, 10));
+// const DIRECTORY = `${ versionN[0] }${ (versionN[1] > 0 ? `.${versionN[1]}` : '') }/`;
+const DIRECTORY = `${versionN[0]}/`;
+const url = `https://connect.trezor.io/${DIRECTORY}`;
+
+/* Handling messages from usb permissions iframe */
+const switchToPopupTab = (event) => {
+  window.removeEventListener("beforeunload", switchToPopupTab);
+
+  if (!event) {
+    // triggered from 'usb-permissions-close' message
+    // close current tab
+    chrome.tabs.query(
+      {
+        currentWindow: true,
+        active: true,
+      },
+      (current) => {
+        if (current.length < 0) return;
+        chrome.tabs.remove(current[0].id);
+      }
+    );
+  }
+
+  // find tab by popup pattern and switch to it
+  chrome.tabs.query(
+    {
+      url: `${url}popup.html`,
+    },
+    (tabs) => {
+      if (tabs.length < 0) return;
+      chrome.tabs.update(tabs[0].id, { active: true });
+    }
+  );
+};
+
+window.addEventListener("message", (event) => {
+  if (event.data === "usb-permissions-init") {
+    const iframe = document.getElementById("trezor-usb-permissions");
+    if (!iframe || !(iframe instanceof HTMLIFrameElement)) {
+      throw new Error("trezor-usb-permissions missing or incorrect dom type");
+    }
+    iframe.contentWindow.postMessage(
+      {
+        type: "usb-permissions-init",
+        extension: chrome.runtime.id,
+      },
+      "*"
+    );
+  } else if (event.data === "usb-permissions-close") {
+    switchToPopupTab();
+  }
+});
+
+window.addEventListener("beforeunload", switchToPopupTab);
+window.addEventListener("load", () => {
+  const instance = document.createElement("iframe");
+  instance.id = "trezor-usb-permissions";
+  instance.frameBorder = "0";
+  instance.width = "100%";
+  instance.height = "100%";
+  instance.style.border = "0px";
+  instance.style.width = "100%";
+  instance.style.height = "100%";
+  instance.setAttribute("src", `${url}extension-permissions.html`);
+  instance.setAttribute("allow", "usb");
+
+  if (document.body) {
+    document.body.appendChild(instance);
+  }
+});

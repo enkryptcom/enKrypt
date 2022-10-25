@@ -10,6 +10,7 @@ import personalEcRecover from "./personal_ecRecover";
 import addEthereumChain from "./wallet_addEthereumChain";
 import switchEthereumChain from "./wallet_switchEthereumChain";
 import watchAsset from "./wallet_watchAsset";
+import walletRequestPermissions from "./wallet_requestPermissions";
 export default [
   ethSendTransaction,
   ethSign,
@@ -23,4 +24,5 @@ export default [
   watchAsset,
   switchEthereumChain,
   addEthereumChain,
+  walletRequestPermissions,
 ];

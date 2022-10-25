@@ -129,6 +129,7 @@ import { UnknownToken } from "@/types/unknown-token";
 import { EnkryptAccount } from "@enkryptcom/types";
 import { SwapError } from "./components/swap-error/types";
 import { getAccountsByNetworkName } from "@/libs/utils/accounts";
+import { routes as RouterNames } from "@/ui/action/router";
 
 const router = useRouter();
 const route = useRoute();
@@ -554,10 +555,15 @@ const sendAction = async () => {
     swapMax: swapMax.value,
   };
 
-  router.push({
-    name: "swap-best-offer",
-    params: { id: selected, swapData: JSON.stringify(swapData) },
+  const routedRoute = router.resolve({
+    name: RouterNames.swapBestOffer.name,
+    query: {
+      id: selected,
+      swapData: JSON.stringify(swapData),
+    },
   });
+
+  router.push(routedRoute);
 };
 const swapTokens = () => {
   // TODO swap to and from if available

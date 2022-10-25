@@ -98,6 +98,10 @@ defineProps({
       letter-spacing: 0.25px;
       color: @primaryLabel;
       margin: 0;
+      white-space: nowrap;
+      width: 280px;
+      text-overflow: ellipsis;
+      overflow: hidden;
     }
 
     p {

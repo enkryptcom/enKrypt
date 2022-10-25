@@ -1,5 +1,6 @@
 export enum NetworkNames {
   Ethereum = "ETH",
+  Okc = "OKT",
   Binance = "BNB",
   EthereumClassic = "ETC",
   Goerli = "GOERLI",
@@ -17,6 +18,10 @@ export enum NetworkNames {
   Westend = "WND",
   Bitcoin = "BTC",
   BitcoinTest = "BTCTest",
+  Astar = "ASTR",
+  Shiden = "SDN",
+  ShidenEVM = "SDN EVM",
+  AstarEVM = "ASTR EVM",
 }
 
 export enum CoingeckoPlatform {
@@ -31,4 +36,7 @@ export enum CoingeckoPlatform {
   KaruraEVM = "karura",
   Kusama = "kusama",
   Polkadot = "polkadot",
+  Okc = "okc",
+  Astar = "astar",
+  Shiden = "shiden network",
 }

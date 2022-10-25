@@ -30,21 +30,24 @@
 import { ref } from "vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import BaseInput from "@action/components/base-input/index.vue";
-import { useRouter, useRoute } from "vue-router";
+import { useRouter } from "vue-router";
 import { onMounted } from "vue";
 import { routes } from "./routes";
+import { useOnboardStore } from "./store";
 
 const router = useRouter();
-const route = useRoute();
+const store = useOnboardStore();
 
-const password = route.params.password;
+const password = store.password;
 
 const typePassword = ref("");
 const isDisabled = ref(true);
 
 const nextAction = () => {
   if (!isDisabled.value) {
-    router.push({ name: routes.recoveryPhrase.name, params: { password } });
+    router.push({
+      name: routes.recoveryPhrase.name,
+    });
   }
 };
 

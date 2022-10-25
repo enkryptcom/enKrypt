@@ -35,20 +35,22 @@
 </template>
 <script setup lang="ts">
 import BaseButton from "@action/components/base-button/index.vue";
-import { useRouter, useRoute } from "vue-router";
+import { useRouter } from "vue-router";
 import { onMounted, computed, ref } from "vue";
 import { generateMnemonic } from "bip39";
 import { routes } from "./routes";
+import { useOnboardStore } from "./store";
 
 const router = useRouter();
-const route = useRoute();
-const password = route.params.password;
+const store = useOnboardStore();
+
+const password = store.password;
 const mnemonic = ref("");
 
 const nextAction = () => {
+  store.setMnemonic(mnemonic.value);
   router.push({
     name: routes.checkPhrase.name,
-    params: { mnemonic: mnemonic.value, password },
   });
 };
 
