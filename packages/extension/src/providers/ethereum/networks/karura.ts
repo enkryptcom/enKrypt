@@ -9,7 +9,7 @@ const karuraOptions: EvmNetworkOptions = {
   homePage: "https://karura.network",
   blockExplorerTX: "https://blockscout.karura.network/tx/[[txHash]]",
   blockExplorerAddr: "https://blockscout.karura.network/address/[[address]]",
-  chainID: 686,
+  chainID: "0x2ae",
   isTestNetwork: false,
   currencyName: "KAR",
   node: "wss://eth-rpc-karura.aca-api.network/ws",

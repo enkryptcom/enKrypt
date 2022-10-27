@@ -9,7 +9,7 @@ const astrOptions: EvmNetworkOptions = {
   homePage: "https://astar.network/",
   blockExplorerTX: "https://blockscout.com/astar/tx/[[txHash]]",
   blockExplorerAddr: "https://blockscout.com/astar/address/[[address]]",
-  chainID: 592,
+  chainID: "0x250",
   isTestNetwork: false,
   currencyName: "ASTR",
   node: "wss://astar.public.blastapi.io/",

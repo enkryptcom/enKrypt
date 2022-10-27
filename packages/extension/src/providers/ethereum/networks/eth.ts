@@ -11,7 +11,7 @@ const ethOptions: EvmNetworkOptions = {
   homePage: "https://ethereum.org",
   blockExplorerTX: "https://www.ethvm.com/tx/[[txHash]]",
   blockExplorerAddr: "https://www.ethvm.com/address/[[address]]",
-  chainID: 1,
+  chainID: "0x1",
   isTestNetwork: false,
   currencyName: "ETH",
   node: "wss://nodes.mewapi.io/ws/eth",

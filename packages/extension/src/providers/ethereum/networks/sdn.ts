@@ -9,7 +9,7 @@ const sdnOptions: EvmNetworkOptions = {
   homePage: "https://shiden.astar.network/",
   blockExplorerTX: "https://blockscout.com/shiden/tx/[[txHash]]",
   blockExplorerAddr: "https://blockscout.com/shiden/address/[[address]]",
-  chainID: 336,
+  chainID: "0x150",
   isTestNetwork: false,
   currencyName: "SDN",
   node: "wss://shiden.public.blastapi.io",

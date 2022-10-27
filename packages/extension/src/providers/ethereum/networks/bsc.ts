@@ -10,7 +10,7 @@ const bscOptions: EvmNetworkOptions = {
   homePage: "https://www.binance.org/en/smartChain",
   blockExplorerTX: "https://bscscan.com/tx/[[txHash]]",
   blockExplorerAddr: "https://bscscan.com/address/[[address]]",
-  chainID: 56,
+  chainID: "0x38",
   isTestNetwork: false,
   currencyName: "BNB",
   node: "wss://nodes.mewapi.io/ws/bsc",

@@ -12,7 +12,7 @@ import {
   TransactionInfo,
 } from "./SwapProvider";
 import { toBase } from "@/libs/utils/units";
-import { numberToHex, toBN } from "web3-utils";
+import { toBN } from "web3-utils";
 import { BaseNetwork } from "@/types/base-network";
 import { EnkryptAccount, NetworkNames } from "@enkryptcom/types";
 import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
@@ -700,7 +700,7 @@ export class ChangellySwapProvider extends SwapProvider {
           to: to as `0x${string}`,
           data,
           value,
-          chainId: numberToHex((network as EvmNetwork).chainID) as `0x{string}`,
+          chainId: (network as EvmNetwork).chainID,
         },
         web3
       );

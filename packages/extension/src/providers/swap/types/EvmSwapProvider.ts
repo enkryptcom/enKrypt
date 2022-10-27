@@ -14,7 +14,7 @@ import { BaseToken } from "@/types/base-token";
 import { EnkryptAccount, NetworkNames } from "@enkryptcom/types";
 import BigNumber from "bignumber.js";
 import Web3Eth from "web3-eth";
-import { isAddress, numberToHex, toBN } from "web3-utils";
+import { isAddress, toBN } from "web3-utils";
 import {
   Quote,
   QuoteInfo,
@@ -388,7 +388,7 @@ export class EvmSwapProvider extends SwapProvider {
               data,
               value,
               gas,
-              chainId: numberToHex(network.chainID) as `0x{string}`,
+              chainId: network.chainID,
               nonce: `0x${toBN(nonce)
                 .addn(index)
                 .toString("hex")}` as `0x${string}`,

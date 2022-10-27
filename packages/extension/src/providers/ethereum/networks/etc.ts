@@ -9,7 +9,7 @@ const etcOptions: EvmNetworkOptions = {
   homePage: "https://ethereumclassic.org/",
   blockExplorerTX: "https://blockscout.com/etc/mainnet/tx/[[txHash]]",
   blockExplorerAddr: "https://blockscout.com/etc/mainnet/address/[[address]]",
-  chainID: 61,
+  chainID: "0x3d",
   isTestNetwork: false,
   currencyName: "ETC",
   node: "wss://nodes.mewapi.io/ws/etc",

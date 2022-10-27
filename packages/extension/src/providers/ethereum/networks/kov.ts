@@ -9,7 +9,7 @@ const kovOptions: EvmNetworkOptions = {
   homePage: "https://github.com/kovan-testnet",
   blockExplorerTX: "https://kovan.etherscan.io/tx/[[txHash]]",
   blockExplorerAddr: "https://kovan.etherscan.io/address/[[address]]",
-  chainID: 42,
+  chainID: "0x2a",
   isTestNetwork: true,
   currencyName: "KOV",
   node: "wss://nodes.mewapi.io/ws/kovan",
