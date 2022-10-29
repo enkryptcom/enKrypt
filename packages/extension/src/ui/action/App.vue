@@ -30,6 +30,9 @@
             <a class="app__menu-dropdown-link" @click="settingsAction">
               <settings-icon /> <span>Settings</span>
             </a>
+            <a class="app__menu-dropdown-link" @click="rateAction">
+              <settings-icon /> <span>rate</span>
+            </a>
           </div>
         </div>
       </div>
@@ -72,6 +75,7 @@
     />
 
     <settings v-if="settingsShow" @close:popup="settingsShow = !settingsShow" />
+    <!-- <modal-rate v-if="rateShow" @close:popup="rateShow = !rateShow" /> -->
   </div>
 </template>
 
@@ -88,6 +92,7 @@ import HoldIcon from "./icons/common/hold-icon.vue";
 import MoreIcon from "./icons/actions/more.vue";
 import AddNetwork from "./views/add-network/index.vue";
 import Settings from "./views/settings/index.vue";
+import ModalRate from "./views/modal-rate/index.vue";
 import { useRouter, useRoute } from "vue-router";
 import { BaseNetwork } from "@/types/base-network";
 import {
@@ -141,6 +146,7 @@ const currentNetwork = ref<BaseNetwork>(defaultNetwork);
 const kr = new PublicKeyRing();
 const addNetworkShow = ref(false);
 const settingsShow = ref(false);
+const rateShow = ref(false);
 const dropdown = ref(null);
 const toggle = ref(null);
 
@@ -326,6 +332,10 @@ const lockAction = async () => {
 const settingsAction = () => {
   closeMoreMenu();
   settingsShow.value = !settingsShow.value;
+};
+const rateAction = () => {
+  closeMoreMenu();
+  rateShow.value = !rateShow.value;
 };
 const toggleMoreMenu = () => {
   if (timeout != null) {
