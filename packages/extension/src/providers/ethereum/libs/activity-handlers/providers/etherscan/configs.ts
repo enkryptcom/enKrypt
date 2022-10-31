@@ -13,6 +13,7 @@ const NetworkEndpoints = {
   [NetworkNames.KaruraEVM]: "https://blockscout.karura.network/",
   [NetworkNames.AstarEVM]: "https://blockscout.com/astar/",
   [NetworkNames.ShidenEVM]: "https://blockscout.com/shiden/",
+  [NetworkNames.Canto]: "https://evm.explorer.canto.io/",
 };
 
 export { NetworkEndpoints };
