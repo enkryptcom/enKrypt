@@ -8,6 +8,8 @@ const NetworkEndpoints = {
   [NetworkNames.Karura]: "https://karura.api.subscan.io/",
   [NetworkNames.Astar]: "https://astar.api.subscan.io/",
   [NetworkNames.Shiden]: "https://shiden.api.subscan.io/",
+  [NetworkNames.Bifrost]: "https://bifrost.api.subscan.io/",
+  [NetworkNames.BifrostKusama]: "https://bifrost-kusama.api.subscan.io/",
 };
 
 export { NetworkEndpoints };

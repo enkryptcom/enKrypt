@@ -21,6 +21,9 @@ export enum NetworkNames {
   ShidenEVM = "SDN EVM",
   AstarEVM = "ASTR EVM",
   Optimism = "OP",
+  Canto = "CANTO",
+  Bifrost = "BNC",
+  BifrostKusama = "BNC (Kusama)",
 }
 
 export enum CoingeckoPlatform {
@@ -39,4 +42,6 @@ export enum CoingeckoPlatform {
   Astar = "astar",
   Shiden = "shiden network",
   Optimism = "optimistic-ethereum",
+  Canto = "canto",
+  Bifrost = "Bifrost Native Coin",
 }

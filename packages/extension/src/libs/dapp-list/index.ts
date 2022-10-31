@@ -33,6 +33,12 @@ const lists: Partial<Record<NetworkNames, string>> = {
     "https://github.com/enkryptcom/dynamic-data/raw/main/dapps/okc.json",
   [NetworkNames.Optimism]:
     "https://github.com/enkryptcom/dynamic-data/raw/main/dapps/op.json",
+  [NetworkNames.Canto]:
+    "https://github.com/enkryptcom/dynamic-data/raw/main/dapps/canto.json",
+  [NetworkNames.Bifrost]:
+    "https://github.com/enkryptcom/dynamic-data/raw/main/dapps/bifrost.json",
+  [NetworkNames.BifrostKusama]:
+    "https://github.com/enkryptcom/dynamic-data/raw/main/dapps/bifrost.json",
 };
 
 export default lists;

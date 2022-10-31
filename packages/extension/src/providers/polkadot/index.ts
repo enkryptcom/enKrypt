@@ -36,6 +36,7 @@ class PolkadotProvider
     this.middlewares = Middlewares.map((mw) => mw.bind(this));
   }
   setRequestProvider(network: BaseNetwork): void {
+    this.requestProvider.disconnect();
     this.requestProvider.changeNetwork(network.node);
   }
   request(request: ProviderRPCRequest): Promise<OnMessageResponse> {
