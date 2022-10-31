@@ -43,8 +43,13 @@ class EthereumProvider
     this.middlewares = Middlewares.map((mw) => mw.bind(this));
   }
   setRequestProvider(network: BaseNetwork): void {
+    const prevURL = new URL(this.network.node);
+    const newURL = new URL(network.node);
     this.network = network as EvmNetwork;
-    this.requestProvider.changeNetwork(network.node);
+    if (prevURL.protocol === newURL.protocol)
+      this.requestProvider.changeNetwork(network.node);
+    else
+      this.requestProvider = getRequestProvider(network.node, this.middlewares);
   }
   async isPersistentEvent(request: ProviderRPCRequest): Promise<boolean> {
     if (request.method === "eth_subscribe") return true;
