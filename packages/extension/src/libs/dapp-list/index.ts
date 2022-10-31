@@ -32,7 +32,7 @@ const lists: Partial<Record<NetworkNames, string>> = {
   [NetworkNames.Okc]:
     "https://github.com/enkryptcom/dynamic-data/raw/main/dapps/okc.json",
   [NetworkNames.Optimism]:
-    "https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/op.json",
+    "https://github.com/enkryptcom/dynamic-data/raw/main/dapps/op.json",
 };
 
 export default lists;
