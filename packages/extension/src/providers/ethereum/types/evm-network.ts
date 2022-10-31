@@ -209,10 +209,15 @@ export class EvmNetwork extends BaseNetwork {
           return true;
         }) as CustomErc20Token[];
 
-        return erc20Tokens.map(
-          ({ name, symbol, address, icon, decimals }) =>
-            new Erc20Token({ name, symbol, contract: address, icon, decimals })
-        );
+        return erc20Tokens.map(({ name, symbol, address, icon, decimals }) => {
+          return new Erc20Token({
+            name,
+            symbol,
+            contract: address,
+            icon,
+            decimals,
+          });
+        });
       });
 
     const balancePromises = customTokens.map((token) =>
@@ -239,7 +244,7 @@ export class EvmNetwork extends BaseNetwork {
         balanceUSDf: "0",
         value: "0",
         valuef: "0",
-        decimals: this.decimals,
+        decimals: token.decimals,
         sparkline: "",
         priceChangePercentage: 0,
         icon: token.icon,
@@ -248,9 +253,9 @@ export class EvmNetwork extends BaseNetwork {
       const marketInfo = marketInfos[token.contract.toLowerCase()];
 
       if (marketInfo) {
-        const usdBalance = new BigNumber(token.balance ?? "0").times(
-          marketInfo.current_price
-        );
+        const usdBalance = new BigNumber(
+          fromBase(token.balance ?? "0", token.decimals)
+        ).times(marketInfo.current_price);
         asset.balanceUSD = usdBalance.toNumber();
         asset.balanceUSDf = formatFiatValue(usdBalance.toString()).value;
         asset.value = marketInfo.current_price.toString();
