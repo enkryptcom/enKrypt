@@ -57,7 +57,7 @@ const transferNativeCurrency = (
   const token = new SubstrateNativeToken({
     decimals: network.decimals,
     icon: network.icon,
-    name: network.name_long,
+    name: network.currencyNameLong,
     symbol: network.name,
   });
   const rawAmount: string | null = args.amount ?? null;

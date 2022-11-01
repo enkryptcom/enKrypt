@@ -95,6 +95,7 @@
 <script setup lang="ts">
 import { computed, onMounted, PropType, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import { debounce } from "lodash";
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import SendAddressInput from "./components/send-address-input.vue";
 import SendContactsList from "./components/send-contacts-list.vue";
@@ -124,6 +125,7 @@ import getUiPath from "@/libs/utils/get-ui-path";
 import { ProviderName } from "@/types/provider";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
 import { polkadotEncodeAddress } from "@enkryptcom/utils";
+import { GenericNameResolver, CoinType } from "@/libs/name-resolver";
 
 const props = defineProps({
   network: {
@@ -138,6 +140,7 @@ const props = defineProps({
 
 const route = useRoute();
 const router = useRouter();
+const nameResolver = new GenericNameResolver();
 
 const addressInputTo = ref();
 const addressInputFrom = ref();
@@ -309,6 +312,16 @@ const inputAddressFrom = (text: string) => {
 };
 
 const inputAddressTo = (text: string) => {
+  const debounceResolve = debounce(() => {
+    nameResolver
+      .resolveName(text, [props.network.name as CoinType, "DOT", "KSM"])
+      .then((resolved) => {
+        if (resolved) {
+          addressTo.value = resolved;
+        }
+      });
+  }, 500);
+  debounceResolve();
   addressTo.value = text;
 };
 

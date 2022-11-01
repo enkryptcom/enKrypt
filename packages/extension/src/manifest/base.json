@@ -2,7 +2,7 @@
   "author": "https://www.enkrypt.com",
   "homepage_url": "https://www.enkrypt.com",
   "version": "",
-  "name": "Enkrypt: Ethereum, Polkadot and OKX Wallet",
+  "name": "Enkrypt: Ethereum, Polkadot and Canto Wallet",
   "short_name": "Enkrypt",
   "permissions": [
     "storage",

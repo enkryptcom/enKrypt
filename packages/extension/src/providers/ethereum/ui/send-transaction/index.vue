@@ -129,6 +129,7 @@
 <script setup lang="ts">
 import { ref, onMounted, PropType, computed, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import { debounce } from "lodash";
 import SendHeader from "./components/send-header.vue";
 import SendAddressInput from "./components/send-address-input.vue";
 import SendFromContactsList from "./components/send-from-contacts-list.vue";
@@ -164,6 +165,7 @@ import getUiPath from "@/libs/utils/get-ui-path";
 import Browser from "webextension-polyfill";
 import { ProviderName } from "@/types/provider";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
+import { GenericNameResolver, CoinType } from "@/libs/name-resolver";
 
 const props = defineProps({
   network: {
@@ -185,9 +187,11 @@ const loadingAsset = new Erc20Token({
   decimals: 18,
 });
 
-const addressInputTo = ref();
 const route = useRoute();
 const router = useRouter();
+
+const nameResolver = new GenericNameResolver();
+const addressInputTo = ref();
 const selected: string = route.params.id as string;
 const accountAssets = ref<Erc20Token[]>([]);
 const selectedAsset = ref<Erc20Token | Partial<Erc20Token>>(loadingAsset);
@@ -255,7 +259,7 @@ const TxInfo = computed<SendTransactionDataType>(() => {
           )
           .encodeABI();
   return {
-    chainId: numberToHex(props.network.chainID) as `0x{string}`,
+    chainId: props.network.chainID,
     from: addressFrom.value as `0x{string}`,
     value: value as `0x${string}`,
     to: toAddress as `0x${string}`,
@@ -345,7 +349,7 @@ const setBaseCosts = () => {
   const web3 = new Web3Eth(props.network.node);
   const tx = new Transaction(
     {
-      chainId: numberToHex(props.network.chainID) as `0x{string}`,
+      chainId: props.network.chainID,
       from: props.accountInfo.selectedAccount!.address as `0x{string}`,
       value: "0x0",
       to: NATIVE_TOKEN_ADDRESS,
@@ -440,7 +444,17 @@ const inputAddressFrom = (text: string) => {
   addressFrom.value = text;
 };
 
-const inputAddressTo = (text: string) => {
+const inputAddressTo = async (text: string) => {
+  const debounceResolve = debounce(() => {
+    nameResolver
+      .resolveName(text, [props.network.name as CoinType, "ETH"])
+      .then((resolved) => {
+        if (resolved) {
+          addressTo.value = resolved;
+        }
+      });
+  }, 500);
+  debounceResolve();
   addressTo.value = text;
 };
 
