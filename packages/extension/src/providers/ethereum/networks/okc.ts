@@ -12,6 +12,7 @@ const okcOptions: EvmNetworkOptions = {
   chainID: "0x42",
   isTestNetwork: false,
   currencyName: "OKT",
+  currencyNameLong: "OKX Chain",
   node: "https://exchainrpc.okex.org",
   icon: require("./icons/okc.svg"),
   gradient: "linear-gradient(180deg, #C549FF 0%, #684CFF 100%)",

@@ -17,6 +17,7 @@ const bifrostKusamaOptions: SubstrateNetworkOptions = {
   blockExplorerAddr: "https://bifrost-kusama.subscan.io/account/[[address]]",
   isTestNetwork: false,
   currencyName: "BNC",
+  currencyNameLong: "Kusama Bifrost",
   icon: require("../icons/bifrost.svg"),
   decimals: 12,
   prefix: 6,

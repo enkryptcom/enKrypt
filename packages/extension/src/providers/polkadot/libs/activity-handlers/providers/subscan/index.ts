@@ -54,7 +54,7 @@ export default async (
       token: {
         decimals: network.decimals,
         icon: network.icon,
-        name: network.name_long,
+        name: network.currencyNameLong,
         symbol:
           activity.asset_symbol !== ""
             ? activity.asset_symbol

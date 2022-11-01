@@ -13,6 +13,7 @@ const moonbeamOptions: EvmNetworkOptions = {
   chainID: "0x504",
   isTestNetwork: false,
   currencyName: "GLMR",
+  currencyNameLong: "Moonbeam",
   node: "wss://wss.api.moonbeam.network/",
   icon: require("../icons/moonbeam.svg"),
   gradient: "#53CBC9",

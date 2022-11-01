@@ -14,7 +14,7 @@ export interface BaseNetworkOptions {
   blockExplorerAddr: string;
   isTestNetwork: boolean;
   currencyName: string;
-  currencyNameLong?: string;
+  currencyNameLong: string;
   icon: string;
   decimals: number;
   signer: SignerType[];
@@ -74,7 +74,7 @@ export abstract class BaseNetwork {
     this.api = options.api;
     this.customTokens = options.customTokens ?? false;
     this.coingeckoPlatform = options.coingeckoPlatform;
-    this.currencyNameLong = options.currencyNameLong ?? options.name_long;
+    this.currencyNameLong = options.currencyNameLong;
   }
 
   public abstract getAllTokens(address: string): Promise<BaseToken[]>;

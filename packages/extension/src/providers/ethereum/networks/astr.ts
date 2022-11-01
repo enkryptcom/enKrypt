@@ -12,6 +12,7 @@ const astrOptions: EvmNetworkOptions = {
   chainID: "0x250",
   isTestNetwork: false,
   currencyName: "ASTR",
+  currencyNameLong: "Astar",
   node: "wss://astar.public.blastapi.io/",
   icon: require("./icons/astr.png"),
   gradient: "linear-gradient(180deg, #C549FF 0%, #684CFF 100%)",

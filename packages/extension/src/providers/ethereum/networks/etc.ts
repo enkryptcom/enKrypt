@@ -12,6 +12,7 @@ const etcOptions: EvmNetworkOptions = {
   chainID: "0x3d",
   isTestNetwork: false,
   currencyName: "ETC",
+  currencyNameLong: "Ethereum Classic",
   node: "wss://nodes.mewapi.io/ws/etc",
   icon: require("./icons/etc.svg"),
   gradient: "linear-gradient(180deg, #C549FF 0%, #684CFF 100%)",

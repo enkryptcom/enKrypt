@@ -12,6 +12,7 @@ const ropOptions: EvmNetworkOptions = {
   chainID: "0x3",
   isTestNetwork: true,
   currencyName: "ROP",
+  currencyNameLong: "Ropsten",
   node: "wss://nodes.mewapi.io/ws/rop",
   icon: require("./icons/eth.svg"),
   basePath: "m/44'/1'/0'/0",

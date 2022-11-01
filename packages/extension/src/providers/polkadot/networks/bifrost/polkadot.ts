@@ -17,6 +17,7 @@ const bifrostPolkadotOptions: SubstrateNetworkOptions = {
   blockExplorerAddr: "https://bifrost.subscan.io/account/[[address]]",
   isTestNetwork: false,
   currencyName: "BNC",
+  currencyNameLong: "Bifrost",
   icon: require("../icons/bifrost.svg"),
   decimals: 12,
   prefix: 6,

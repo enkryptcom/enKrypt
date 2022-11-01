@@ -13,6 +13,7 @@ const bscOptions: EvmNetworkOptions = {
   chainID: "0x38",
   isTestNetwork: false,
   currencyName: "BNB",
+  currencyNameLong: "Binance",
   node: "wss://nodes.mewapi.io/ws/bsc",
   icon: require("./icons/bsc.svg"),
   gradient: "#F0B90B",

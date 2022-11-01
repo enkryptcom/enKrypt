@@ -12,6 +12,7 @@ const kovOptions: EvmNetworkOptions = {
   chainID: "0x2a",
   isTestNetwork: true,
   currencyName: "KOV",
+  currencyNameLong: "Kovan",
   node: "wss://nodes.mewapi.io/ws/kovan",
   icon: require("./icons/eth.svg"),
   gradient: "linear-gradient(180deg, #C549FF 0%, #684CFF 100%)",

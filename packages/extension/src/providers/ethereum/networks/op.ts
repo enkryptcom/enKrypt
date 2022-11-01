@@ -9,7 +9,7 @@ const opOptions: EvmNetworkOptions = {
   homePage: "https://www.optimism.io/",
   blockExplorerTX: "https://optimistic.etherscan.io/tx/[[txHash]]",
   blockExplorerAddr: "https://optimistic.etherscan.io/address/[[address]]",
-  chainID: 10,
+  chainID: "0xa",
   isTestNetwork: false,
   currencyName: "ETH",
   currencyNameLong: "Ethereum",

@@ -29,7 +29,7 @@ export interface EvmNetworkOptions {
   chainID: `0x${string}`;
   isTestNetwork: boolean;
   currencyName: string;
-  currencyNameLong?: string;
+  currencyNameLong: string;
   node: string;
   icon: string;
   gradient: string;
@@ -132,7 +132,7 @@ export class EvmNetwork extends BaseNetwork {
         fromBase(balance, this.decimals)
       ).times(nativeMarketData?.current_price ?? 0);
       const nativeAsset: AssetsType = {
-        name: this.currencyNameLong ?? this.name_long,
+        name: this.currencyNameLong,
         symbol: this.currencyName,
         icon: this.icon,
         balance,

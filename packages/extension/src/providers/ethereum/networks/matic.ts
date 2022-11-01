@@ -14,6 +14,7 @@ const maticOptions: EvmNetworkOptions = {
   chainID: "0x89",
   isTestNetwork: false,
   currencyName: "MATIC",
+  currencyNameLong: "Polygon Matic",
   node: "wss://nodes.mewapi.io/ws/matic",
   icon: require("./icons/matic.svg"),
   gradient: "#7B3FE4",

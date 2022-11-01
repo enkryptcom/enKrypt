@@ -12,6 +12,7 @@ const rinOptions: EvmNetworkOptions = {
   chainID: "0x4",
   isTestNetwork: true,
   currencyName: "RIN",
+  currencyNameLong: "Rinkeby",
   node: "wss://nodes.mewapi.io/ws/rinkeby",
   icon: require("./icons/eth.svg"),
   gradient: "linear-gradient(180deg, #C549FF 0%, #684CFF 100%)",

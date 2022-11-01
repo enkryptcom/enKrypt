@@ -13,6 +13,7 @@ const moonriverOptions: EvmNetworkOptions = {
   chainID: "0x505",
   isTestNetwork: false,
   currencyName: "MOVR",
+  currencyNameLong: "Moonriver",
   node: "wss://wss.api.moonriver.moonbeam.network",
   icon: require("../icons/moonriver.svg"),
   gradient: "linear-gradient(180deg, #F2B705 0%, #53CBC8 100%)",

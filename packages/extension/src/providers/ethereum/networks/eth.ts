@@ -14,6 +14,7 @@ const ethOptions: EvmNetworkOptions = {
   chainID: "0x1",
   isTestNetwork: false,
   currencyName: "ETH",
+  currencyNameLong: "Ethereum",
   node: "wss://nodes.mewapi.io/ws/eth",
   icon: require("./icons/eth.svg"),
   gradient: "linear-gradient(180deg, #C549FF 0%, #684CFF 100%)",

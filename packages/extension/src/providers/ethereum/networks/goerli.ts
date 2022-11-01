@@ -12,6 +12,7 @@ const goerliOptions: EvmNetworkOptions = {
   chainID: "0x5",
   isTestNetwork: true,
   currencyName: "GöETH",
+  currencyNameLong: "Goerli",
   node: "wss://nodes.mewapi.io/ws/goerli",
   icon: require("./icons/eth.svg"),
   gradient: "linear-gradient(180deg, #C549FF 0%, #684CFF 100%)",
