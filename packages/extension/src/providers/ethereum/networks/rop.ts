@@ -9,7 +9,7 @@ const ropOptions: EvmNetworkOptions = {
   homePage: "https://github.com/ethereum/ropsten",
   blockExplorerTX: "https://ropsten.etherscan.io/tx/[[txHash]]",
   blockExplorerAddr: "https://ropsten.etherscan.io/address/[[address]]",
-  chainID: 3,
+  chainID: "0x3",
   isTestNetwork: true,
   currencyName: "ROP",
   node: "wss://nodes.mewapi.io/ws/rop",

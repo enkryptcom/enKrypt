@@ -11,7 +11,7 @@ const maticOptions: EvmNetworkOptions = {
   homePage: "https://polygonscan.com/",
   blockExplorerTX: "https://polygonscan.com/tx/[[txHash]]",
   blockExplorerAddr: "https://polygonscan.com/address/[[address]]",
-  chainID: 137,
+  chainID: "0x89",
   isTestNetwork: false,
   currencyName: "MATIC",
   node: "wss://nodes.mewapi.io/ws/matic",

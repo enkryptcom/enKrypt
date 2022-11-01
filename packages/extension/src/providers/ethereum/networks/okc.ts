@@ -9,7 +9,7 @@ const okcOptions: EvmNetworkOptions = {
   homePage: "https://www.oklink.com/en/okc",
   blockExplorerTX: "https://www.oklink.com/en/okc/tx/[[txHash]]",
   blockExplorerAddr: "https://www.oklink.com/en/okc/address/[[address]]",
-  chainID: 66,
+  chainID: "0x42",
   isTestNetwork: false,
   currencyName: "OKT",
   node: "https://exchainrpc.okex.org",

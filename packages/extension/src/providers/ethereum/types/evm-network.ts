@@ -26,7 +26,7 @@ export interface EvmNetworkOptions {
   homePage: string;
   blockExplorerTX: string;
   blockExplorerAddr: string;
-  chainID: number;
+  chainID: `0x${string}`;
   isTestNetwork: boolean;
   currencyName: string;
   currencyNameLong?: string;
@@ -52,7 +52,7 @@ export interface EvmNetworkOptions {
 }
 
 export class EvmNetwork extends BaseNetwork {
-  public chainID: number;
+  public chainID: `0x${string}`;
 
   private assetsInfoHandler?: (
     network: BaseNetwork,

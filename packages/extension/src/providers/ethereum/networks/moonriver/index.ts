@@ -10,7 +10,7 @@ const moonriverOptions: EvmNetworkOptions = {
   homePage: "https://moonbeam.network/networks/moonriver/",
   blockExplorerTX: "https://moonriver.moonscan.io//tx/[[txHash]]",
   blockExplorerAddr: "https://moonriver.moonscan.io/address/[[address]]",
-  chainID: 1285,
+  chainID: "0x505",
   isTestNetwork: false,
   currencyName: "MOVR",
   node: "wss://wss.api.moonriver.moonbeam.network",

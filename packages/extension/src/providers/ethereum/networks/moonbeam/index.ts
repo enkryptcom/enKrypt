@@ -10,7 +10,7 @@ const moonbeamOptions: EvmNetworkOptions = {
   homePage: "https://moonbeam.network",
   blockExplorerTX: "https://moonscan.io/tx/[[txHash]]",
   blockExplorerAddr: "https://moonscan.io/address/[[address]]",
-  chainID: 1284,
+  chainID: "0x504",
   isTestNetwork: false,
   currencyName: "GLMR",
   node: "wss://wss.api.moonbeam.network/",
