@@ -95,6 +95,7 @@ import { ActivityStatus, Activity, ActivityType } from "@/types/activity";
 import ActivityState from "@/libs/activity-state";
 import { EnkryptAccount } from "@enkryptcom/types";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
+import broadcastTx from "@/providers/ethereum/libs/tx-broadcaster";
 
 const KeyRing = new PublicKeyRing();
 const route = useRoute();
@@ -149,6 +150,24 @@ const sendAction = async () => {
     transactionHash: "",
   };
   const activityState = new ActivityState();
+  const onHash = (hash: string) => {
+    activityState.addActivities(
+      [{ ...txActivity, ...{ transactionHash: hash } }],
+      { address: txData.fromAddress, network: network.name }
+    );
+    isSendDone.value = true;
+    if (getCurrentContext() === "popup") {
+      setTimeout(() => {
+        isProcessing.value = false;
+        router.go(-2);
+      }, 4500);
+    } else {
+      setTimeout(() => {
+        isProcessing.value = false;
+        window.close();
+      }, 1500);
+    }
+  };
   await tx
     .getFinalizedTransaction({ gasPriceType: txData.gasPriceType })
     .then(async (finalizedTx) => {
@@ -156,42 +175,30 @@ const sendAction = async () => {
         account: account.value!,
         network,
         payload: finalizedTx,
-      })
-        .then((signedTx) => {
-          web3
-            .sendSignedTransaction("0x" + signedTx.serialize().toString("hex"))
-            .on("transactionHash", (hash: string) => {
-              activityState.addActivities(
-                [{ ...txActivity, ...{ transactionHash: hash } }],
-                { address: txData.fromAddress, network: network.name }
-              );
-              isSendDone.value = true;
-              if (getCurrentContext() === "popup") {
-                setTimeout(() => {
-                  isProcessing.value = false;
-                  router.go(-2);
-                }, 4500);
-              } else {
-                setTimeout(() => {
-                  isProcessing.value = false;
-                  window.close();
-                }, 1500);
-              }
-            })
-            .on("error", (error: any) => {
-              txActivity.status = ActivityStatus.failed;
-              activityState.addActivities([txActivity], {
-                address: txData.fromAddress,
-                network: network.name,
+      }).then((signedTx) => {
+        broadcastTx("0x" + signedTx.serialize().toString("hex"), network.name)
+          .then(onHash)
+          .catch(() => {
+            web3
+              .sendSignedTransaction(
+                "0x" + signedTx.serialize().toString("hex")
+              )
+              .on("transactionHash", onHash)
+              .on("error", (error: any) => {
+                txActivity.status = ActivityStatus.failed;
+                activityState.addActivities([txActivity], {
+                  address: txData.fromAddress,
+                  network: network.name,
+                });
+                console.error("ERROR", error);
               });
-              console.error("ERROR", error);
-            });
-        })
-        .catch((error) => {
-          isProcessing.value = false;
-          console.error("error", error);
-          errorMsg.value = JSON.stringify(error);
-        });
+          })
+          .catch((error) => {
+            isProcessing.value = false;
+            console.error("error", error);
+            errorMsg.value = JSON.stringify(error);
+          });
+      });
     });
 };
 const isHasScroll = () => {

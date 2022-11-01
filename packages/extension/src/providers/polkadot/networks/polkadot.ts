@@ -15,6 +15,7 @@ const polkadotOptions: SubstrateNetworkOptions = {
   blockExplorerAddr: "https://polkadot.subscan.io/account/[[address]]",
   isTestNetwork: false,
   currencyName: "DOT",
+  currencyNameLong: "Polkadot",
   icon: require("./icons/polkadot.svg"),
   decimals: 10,
   prefix: 0,

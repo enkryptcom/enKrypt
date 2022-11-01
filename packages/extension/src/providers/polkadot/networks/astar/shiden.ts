@@ -17,6 +17,7 @@ const shidenOptions: SubstrateNetworkOptions = {
   blockExplorerAddr: "https://shiden.subscan.io/account/[[address]]",
   isTestNetwork: false,
   currencyName: "SDN",
+  currencyNameLong: "Shiden",
   icon: require("../icons/shiden.png"),
   decimals: 18,
   prefix: 5,

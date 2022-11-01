@@ -12,6 +12,8 @@ import karuraEvmNode from "./karura";
 import okcNode from "./okc";
 import shidenEvmNode from "./sdn";
 import astarEvmNode from "./astr";
+import optimismNode from "./op";
+import cantoNode from "./canto";
 
 export default {
   goerli: goerliNode,
@@ -28,4 +30,6 @@ export default {
   okc: okcNode,
   shidenEvm: shidenEvmNode,
   astarEvm: astarEvmNode,
+  op: optimismNode,
+  canto: cantoNode,
 };

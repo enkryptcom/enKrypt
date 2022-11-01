@@ -15,6 +15,7 @@ const wndOptions: SubstrateNetworkOptions = {
   blockExplorerAddr: "https://westend.subscan.io/extrinsic/[[address]]",
   isTestNetwork: true,
   currencyName: "WND",
+  currencyNameLong: "Westend",
   icon: require("./icons/westend.svg"),
   decimals: 12,
   prefix: 42,
