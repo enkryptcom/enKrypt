@@ -17,6 +17,7 @@ const acalaOptions: SubstrateNetworkOptions = {
   blockExplorerAddr: "https://acala.subscan.io/account/[[address]]",
   isTestNetwork: false,
   currencyName: "ACA",
+  currencyNameLong: "Acala",
   icon: require("../icons/acala.svg"),
   decimals: 12,
   prefix: 12,

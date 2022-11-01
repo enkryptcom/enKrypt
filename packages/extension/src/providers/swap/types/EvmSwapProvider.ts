@@ -6,6 +6,7 @@ import API from "@/providers/ethereum/libs/api";
 import { NATIVE_TOKEN_ADDRESS } from "@/providers/ethereum/libs/common";
 import Transaction from "@/providers/ethereum/libs/transaction";
 import { GasPriceTypes } from "@/providers/ethereum/libs/transaction/types";
+import broadcastTx from "@/providers/ethereum/libs/tx-broadcaster";
 import { Erc20Token } from "@/providers/ethereum/types/erc20-token";
 import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
 import { TransactionSigner } from "@/providers/ethereum/ui/libs/signer";
@@ -14,7 +15,7 @@ import { BaseToken } from "@/types/base-token";
 import { EnkryptAccount, NetworkNames } from "@enkryptcom/types";
 import BigNumber from "bignumber.js";
 import Web3Eth from "web3-eth";
-import { isAddress, numberToHex, toBN } from "web3-utils";
+import { isAddress, toBN } from "web3-utils";
 import {
   Quote,
   QuoteInfo,
@@ -388,7 +389,7 @@ export class EvmSwapProvider extends SwapProvider {
               data,
               value,
               gas,
-              chainId: numberToHex(network.chainID) as `0x{string}`,
+              chainId: network.chainID,
               nonce: `0x${toBN(nonce)
                 .addn(index)
                 .toString("hex")}` as `0x${string}`,
@@ -408,12 +409,9 @@ export class EvmSwapProvider extends SwapProvider {
               account: fromAccount,
               network: network,
               payload: finalizedTx,
-            }).then((signedTx) =>
-              web3
-                .sendSignedTransaction(
-                  `0x${signedTx.serialize().toString("hex")}`
-                )
-                .on("transactionHash", (hash: string) => {
+            }).then((signedTx) => {
+              return new Promise((resolve: (h: `0x${string}`) => void) => {
+                const onHash = (hash: string) => {
                   if (activity) {
                     activityState.addActivities(
                       [
@@ -425,10 +423,22 @@ export class EvmSwapProvider extends SwapProvider {
                       { address: fromAccount.address, network: network.name }
                     );
                   }
-                  console.log("hash", hash);
-                })
-                .then((receipt) => receipt.transactionHash as `0x${string}`)
-            )
+                  resolve(hash as `0x${string}`);
+                };
+                broadcastTx(
+                  `0x${signedTx.serialize().toString("hex")}`,
+                  network.name
+                )
+                  .then(onHash)
+                  .catch(() => {
+                    web3
+                      .sendSignedTransaction(
+                        `0x${signedTx.serialize().toString("hex")}`
+                      )
+                      .on("transactionHash", onHash);
+                  });
+              });
+            })
           )
       );
 

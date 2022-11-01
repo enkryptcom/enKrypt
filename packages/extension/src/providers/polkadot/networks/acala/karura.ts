@@ -16,6 +16,7 @@ const karuraOptions: SubstrateNetworkOptions = {
   blockExplorerAddr: "https://karura.subscan.io/account/[[address]]",
   isTestNetwork: false,
   currencyName: "KAR",
+  currencyNameLong: "Karura",
   icon: require("../icons/karura.svg"),
   decimals: 12,
   prefix: 8,
