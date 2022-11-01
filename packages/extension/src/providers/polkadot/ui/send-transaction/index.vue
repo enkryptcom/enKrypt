@@ -168,8 +168,6 @@ const sendMax = ref(false);
 const selected: string = route.params.id as string;
 const isLoadingAssets = ref(true);
 
-const resolveTimeoutId = ref<ReturnType<typeof setTimeout> | null>(null);
-
 const edWarn = computed(() => {
   if (!fee.value) {
     return undefined;
