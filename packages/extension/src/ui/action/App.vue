@@ -30,9 +30,6 @@
             <a class="app__menu-dropdown-link" @click="settingsAction">
               <settings-icon /> <span>Settings</span>
             </a>
-            <a class="app__menu-dropdown-link" @click="rateAction">
-              <settings-icon /> <span>rate</span>
-            </a>
           </div>
         </div>
       </div>
