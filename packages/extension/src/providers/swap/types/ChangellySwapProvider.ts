@@ -54,6 +54,11 @@ const CHANGELLY_TOKEN_INFO = [
     icon: require("../assets/matic.svg"),
     coingeckoID: "polygon",
   },
+  {
+    id: "btc",
+    icon: require("../assets/bitcoin.svg"),
+    coingeckoID: "bitcoin",
+  },
 ];
 
 interface ChangellyTokenInfo {
@@ -116,6 +121,7 @@ export class ChangellySwapProvider extends SwapProvider {
     NetworkNames.Ethereum,
     NetworkNames.Binance,
     NetworkNames.Matic,
+    NetworkNames.Bitcoin,
   ];
   public supportedDexes = ["CHANGELLY"];
   supportedTokens: string[] = [
@@ -125,6 +131,7 @@ export class ChangellySwapProvider extends SwapProvider {
     "BNB",
     "MATIC",
     "MATICPOLYGON",
+    "BTC",
   ];
   constructor() {
     super();
