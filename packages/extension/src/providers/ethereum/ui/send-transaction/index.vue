@@ -258,7 +258,7 @@ const TxInfo = computed<SendTransactionDataType>(() => {
           )
           .encodeABI();
   return {
-    chainId: numberToHex(props.network.chainID) as `0x{string}`,
+    chainId: props.network.chainID,
     from: addressFrom.value as `0x{string}`,
     value: value as `0x${string}`,
     to: toAddress as `0x${string}`,
@@ -348,7 +348,7 @@ const setBaseCosts = () => {
   const web3 = new Web3Eth(props.network.node);
   const tx = new Transaction(
     {
-      chainId: numberToHex(props.network.chainID) as `0x{string}`,
+      chainId: props.network.chainID,
       from: props.accountInfo.selectedAccount!.address as `0x{string}`,
       value: "0x0",
       to: NATIVE_TOKEN_ADDRESS,

@@ -14,6 +14,7 @@ const bitcoinOptions: BitcoinNetworkOptions = {
   blockExplorerAddr: "https://www.blockchain.com/btc/address/[[address]]",
   isTestNetwork: false,
   currencyName: "BTC",
+  currencyNameLong: "Bitcoin",
   icon: require("./icons/btc.svg"),
   decimals: 8,
   gradient: "#F7931A",

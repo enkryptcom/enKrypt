@@ -28,6 +28,7 @@ export interface BitcoinNetworkOptions {
   blockExplorerAddr: string;
   isTestNetwork: boolean;
   currencyName: string;
+  currencyNameLong: string;
   icon: string;
   decimals: number;
   gradient: string;

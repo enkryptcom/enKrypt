@@ -21,46 +21,79 @@ import { getKnownNetworkTokens } from "./token-lists";
 import { CoingeckoPlatform, NetworkNames } from "@enkryptcom/types";
 import { NATIVE_TOKEN_ADDRESS } from "../common";
 const API_ENPOINT = "https://tokenbalance.mewapi.io/";
+const API_ENPOINT2 = "https://partners.mewapi.io/balances/";
+
+const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
+  [NetworkNames.Binance]: {
+    tbName: "bsc",
+    cgPlatform: CoingeckoPlatform.Binance,
+  },
+  [NetworkNames.Ethereum]: {
+    tbName: "eth",
+    cgPlatform: CoingeckoPlatform.Ethereum,
+  },
+  [NetworkNames.Matic]: {
+    tbName: "matic",
+    cgPlatform: CoingeckoPlatform.Matic,
+  },
+  [NetworkNames.AstarEVM]: {
+    tbName: "astar",
+    cgPlatform: CoingeckoPlatform.Astar,
+  },
+  [NetworkNames.Okc]: {
+    tbName: "okt",
+    cgPlatform: CoingeckoPlatform.Okc,
+  },
+  [NetworkNames.Optimism]: {
+    tbName: "op",
+    cgPlatform: CoingeckoPlatform.Optimism,
+  },
+  [NetworkNames.Moonriver]: {
+    tbName: "movr",
+    cgPlatform: CoingeckoPlatform.Moonriver,
+  },
+  [NetworkNames.Moonbeam]: {
+    tbName: "mobm",
+    cgPlatform: CoingeckoPlatform.Moonbeam,
+  },
+  [NetworkNames.ShidenEVM]: {
+    tbName: "sdn",
+    cgPlatform: CoingeckoPlatform.Shiden,
+  },
+  [NetworkNames.Canto]: {
+    tbName: "canto",
+    cgPlatform: CoingeckoPlatform.Canto,
+  },
+};
+
+const getAPIUrl = (chain: SupportedNetworkNames, address: string) => {
+  if (chain === NetworkNames.Ethereum || chain === NetworkNames.Binance)
+    return `${API_ENPOINT}${supportedNetworks[chain].tbName}?address=${address}`;
+  else return `${API_ENPOINT2}${supportedNetworks[chain].tbName}/${address}`;
+};
+
 export default (
   network: BaseNetwork,
   address: string
 ): Promise<AssetsType[]> => {
-  const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
-    [NetworkNames.Binance]: {
-      tbName: "bsc",
-      cgPlatform: CoingeckoPlatform.Binance,
-    },
-    [NetworkNames.Ethereum]: {
-      tbName: "eth",
-      cgPlatform: CoingeckoPlatform.Ethereum,
-    },
-    [NetworkNames.Matic]: {
-      tbName: "matic",
-      cgPlatform: CoingeckoPlatform.Matic,
-    },
-    [NetworkNames.AstarEVM]: {
-      tbName: "astar",
-      cgPlatform: CoingeckoPlatform.Astar,
-    },
-    [NetworkNames.Okc]: {
-      tbName: "okt",
-      cgPlatform: CoingeckoPlatform.Okc,
-    },
-  };
   if (!Object.keys(supportedNetworks).includes(network.name))
     throw new Error("TOKENBALANCE-MEW: network not supported");
   const networkName = network.name as SupportedNetworkNames;
-  const query = `${API_ENPOINT}${supportedNetworks[networkName].tbName}?address=${address}`;
-  return fetch(query)
+  return fetch(getAPIUrl(networkName, address))
     .then((res) => res.json())
     .then(async (json) => {
       if (json.error)
         throw new Error(`TOKENBALANCE-MEW: ${JSON.stringify(json.error)}`);
       else {
+        if (!json.result.length) {
+          json.result.push({
+            contract: NATIVE_TOKEN_ADDRESS,
+            balance: "0x0",
+          });
+        }
         const balances: Record<string, TokenBalance> = (
           json.result as TokenBalance[]
         ).reduce((obj, cur) => ({ ...obj, [cur.contract]: cur }), {});
-
         const marketData = new MarketData();
         const nativeMarket = await marketData.getMarketData(
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion

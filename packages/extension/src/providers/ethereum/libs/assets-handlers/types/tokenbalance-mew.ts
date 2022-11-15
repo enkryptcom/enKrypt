@@ -9,7 +9,7 @@ export interface SupportedNetwork {
   cgPlatform: string;
 }
 export interface CGToken {
-  chainId: number;
+  chainId: `0x${string}`;
   address: string;
   name: string;
   symbol: string;
@@ -22,4 +22,9 @@ export type SupportedNetworkNames =
   | NetworkNames.Ethereum
   | NetworkNames.Matic
   | NetworkNames.AstarEVM
-  | NetworkNames.Okc;
+  | NetworkNames.Okc
+  | NetworkNames.Optimism
+  | NetworkNames.Moonriver
+  | NetworkNames.Moonbeam
+  | NetworkNames.ShidenEVM
+  | NetworkNames.Canto;

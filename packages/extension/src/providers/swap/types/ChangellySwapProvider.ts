@@ -12,7 +12,7 @@ import {
   TransactionInfo,
 } from "./SwapProvider";
 import { toBase } from "@/libs/utils/units";
-import { numberToHex, toBN } from "web3-utils";
+import { toBN } from "web3-utils";
 import { BaseNetwork } from "@/types/base-network";
 import { EnkryptAccount, NetworkNames } from "@enkryptcom/types";
 import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
@@ -32,6 +32,7 @@ import ActivityState from "@/libs/activity-state";
 import { Activity, ActivityStatus, ActivityType } from "@/types/activity";
 import { ChangellyToken, ChangellyTokenOptions } from "./changelly-token";
 import BigNumber from "bignumber.js";
+import broadcastTx from "@/providers/ethereum/libs/tx-broadcaster";
 
 const CHANGELLY_TOKEN_INFO = [
   {
@@ -699,7 +700,7 @@ export class ChangellySwapProvider extends SwapProvider {
           to: to as `0x${string}`,
           data,
           value,
-          chainId: numberToHex((network as EvmNetwork).chainID) as `0x{string}`,
+          chainId: (network as EvmNetwork).chainID,
         },
         web3
       );
@@ -727,12 +728,10 @@ export class ChangellySwapProvider extends SwapProvider {
             account: fromAccount,
             network: network,
             payload: finalizedTx,
-          }).then((signedTx) =>
-            web3
-              .sendSignedTransaction(
-                `0x${signedTx.serialize().toString("hex")}`
-              )
-              .on("transactionHash", (hash: string) => {
+          }).then((signedTx) => {
+            return new Promise((resolve) => {
+              const onHash = (hash: string) => {
+                console.log(hash);
                 activityState.addActivities(
                   [
                     {
@@ -742,9 +741,22 @@ export class ChangellySwapProvider extends SwapProvider {
                   ],
                   { address: fromAccount.address, network: network.name }
                 );
-              })
-              .then((receipt) => [receipt.transactionHash] as `0x${string}`[])
-          )
+                resolve([hash] as `0x${string}`[]);
+              };
+              broadcastTx(
+                `0x${signedTx.serialize().toString("hex")}`,
+                network.name
+              )
+                .then(onHash)
+                .catch(() => {
+                  web3
+                    .sendSignedTransaction(
+                      `0x${signedTx.serialize().toString("hex")}`
+                    )
+                    .on("transactionHash", onHash);
+                });
+            });
+          })
         );
     }
   }
