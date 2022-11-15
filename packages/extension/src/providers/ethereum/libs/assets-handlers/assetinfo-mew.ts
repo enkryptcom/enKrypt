@@ -17,7 +17,7 @@ import API from "@/providers/ethereum/libs/api";
 import Sparkline from "@/libs/sparkline";
 import { BaseNetwork } from "@/types/base-network";
 import { EvmNetwork } from "../../types/evm-network";
-import { getKnownNetworkTokens, TokenList } from "./token-lists";
+import { getKnownNetworkTokens } from "./token-lists";
 import { CoingeckoPlatform, NetworkNames } from "@enkryptcom/types";
 import { NATIVE_TOKEN_ADDRESS } from "../common";
 const API_ENPOINT = "https://tokenbalance.mewapi.io/";
@@ -28,18 +28,23 @@ export default (
   const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
     [NetworkNames.Binance]: {
       tbName: "bsc",
-      tokenurl: TokenList[NetworkNames.Binance],
       cgPlatform: CoingeckoPlatform.Binance,
     },
     [NetworkNames.Ethereum]: {
       tbName: "eth",
-      tokenurl: TokenList[NetworkNames.Ethereum],
       cgPlatform: CoingeckoPlatform.Ethereum,
     },
     [NetworkNames.Matic]: {
       tbName: "matic",
-      tokenurl: TokenList[NetworkNames.Matic],
       cgPlatform: CoingeckoPlatform.Matic,
+    },
+    [NetworkNames.AstarEVM]: {
+      tbName: "astar",
+      cgPlatform: CoingeckoPlatform.Astar,
+    },
+    [NetworkNames.Okc]: {
+      tbName: "okt",
+      cgPlatform: CoingeckoPlatform.Okc,
     },
   };
   if (!Object.keys(supportedNetworks).includes(network.name))

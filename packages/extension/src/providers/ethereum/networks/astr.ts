@@ -16,7 +16,7 @@ const astrOptions: EvmNetworkOptions = {
   icon: require("./icons/astr.png"),
   gradient: "linear-gradient(180deg, #C549FF 0%, #684CFF 100%)",
   coingeckoID: "astar",
-  coingeckoPlatform: CoingeckoPlatform.Shiden,
+  coingeckoPlatform: CoingeckoPlatform.Astar,
   activityHandler: wrapActivityHandler(EtherscanActivity),
 };
 
