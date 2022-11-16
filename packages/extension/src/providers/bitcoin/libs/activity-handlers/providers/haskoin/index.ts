@@ -24,8 +24,28 @@ export default async (
           .getTokenPrice(network.coingeckoID)
           .then((mdata) => (tokenPrice = mdata || "0"));
       }
+
       const address = network.displayAddress(pubkey);
       return txs.map((tx) => {
+        const isIncoming = !tx.inputs.find((i) => i.address === address);
+
+        let toAddress = "";
+        let value = 0;
+
+        if (isIncoming) {
+          const relevantOut = tx.outputs.find((tx) => tx.address === address);
+          if (relevantOut) {
+            toAddress = relevantOut.address;
+            value = relevantOut.value;
+          }
+        } else {
+          const relevantOut = tx.outputs.find((tx) => tx.address !== address);
+          if (relevantOut) {
+            toAddress = relevantOut.address;
+            value = relevantOut.value;
+          }
+        }
+
         const rawInfo: BTCRawInfo = {
           blockNumber: tx.block.height!,
           fee: tx.fee,
@@ -42,13 +62,13 @@ export default async (
         };
         const act: Activity = {
           from: tx.inputs[0].address,
-          isIncoming: !tx.inputs.find((i) => i.address === address),
+          isIncoming,
           network: network.name,
           status: !tx.block.mempool
             ? ActivityStatus.success
             : ActivityStatus.pending,
           timestamp: tx.time * 1000,
-          to: tx.outputs[0].address,
+          to: toAddress,
           token: {
             decimals: network.decimals,
             icon: network.icon,
@@ -59,7 +79,7 @@ export default async (
           },
           transactionHash: tx.txid,
           type: ActivityType.transaction,
-          value: tx.outputs[0].value.toString(),
+          value: value.toString(),
           rawInfo: rawInfo,
         };
         return act;
