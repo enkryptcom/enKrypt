@@ -3,6 +3,7 @@ import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
 import { EtherscanActivity } from "../libs/activity-handlers";
 import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
 import assetsInfoHandler from "@/providers/ethereum/libs/assets-handlers/assetinfo-mew";
+import shNFTHandler from "@/libs/nft-handlers/simplehash";
 
 const opOptions: EvmNetworkOptions = {
   name: NetworkNames.Optimism,
@@ -20,6 +21,7 @@ const opOptions: EvmNetworkOptions = {
   coingeckoID: "ethereum",
   coingeckoPlatform: CoingeckoPlatform.Optimism,
   assetsInfoHandler,
+  NFTHandler: shNFTHandler,
   activityHandler: wrapActivityHandler(EtherscanActivity),
 };
 
