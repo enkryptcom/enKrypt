@@ -2,7 +2,6 @@ import { getCustomError } from "@/libs/error";
 import { MiddlewareFunction } from "@enkryptcom/types";
 import EthNetworks from "../networks";
 import EthereumProvider from "..";
-import { numberToHex } from "web3-utils";
 import { sendToBackgroundFromBackground } from "@/libs/messenger/extension";
 import { InternalMethods } from "@/types/messenger";
 import { ProviderRPCRequest } from "@/types/provider";
@@ -26,7 +25,7 @@ const method: MiddlewareFunction = function (
     }
     const allNetworks = Object.values(EthNetworks);
     const validNetwork = allNetworks.find(
-      (net) => numberToHex(net.chainID) === payload.params![0].chainId
+      (net) => net.chainID === payload.params![0].chainId
     );
     if (validNetwork) {
       sendToBackgroundFromBackground({

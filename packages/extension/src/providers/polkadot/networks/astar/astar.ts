@@ -17,6 +17,7 @@ const astarOptions: SubstrateNetworkOptions = {
   blockExplorerAddr: "https://astar.subscan.io/account/[[address]]",
   isTestNetwork: false,
   currencyName: "ASTR",
+  currencyNameLong: "Astar",
   icon: require("../icons/astar.png"),
   decimals: 18,
   prefix: 5,

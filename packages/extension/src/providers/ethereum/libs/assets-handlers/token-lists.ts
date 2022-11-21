@@ -7,6 +7,15 @@ const TokenList: Record<SupportedNetworkNames, string> = {
     "https://tokens.coingecko.com/binance-smart-chain/all.json",
   [NetworkNames.Ethereum]: "https://tokens.coingecko.com/ethereum/all.json",
   [NetworkNames.Matic]: "https://tokens.coingecko.com/polygon-pos/all.json",
+  [NetworkNames.AstarEVM]: "https://tokens.coingecko.com/astar/all.json",
+  [NetworkNames.Okc]: "https://tokens.coingecko.com/okex-chain/all.json",
+  [NetworkNames.Optimism]:
+    "https://tokens.coingecko.com/optimistic-ethereum/all.json",
+  [NetworkNames.Moonriver]: "https://tokens.coingecko.com/moonriver/all.json",
+  [NetworkNames.Moonbeam]: "https://tokens.coingecko.com/moonbeam/all.json",
+  [NetworkNames.ShidenEVM]:
+    "https://tokens.coingecko.com/shiden%20network/all.json",
+  [NetworkNames.Canto]: "https://tokens.coingecko.com/canto/all.json",
 };
 
 const getKnownNetworkTokens = async (

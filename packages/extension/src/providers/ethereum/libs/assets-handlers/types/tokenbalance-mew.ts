@@ -6,11 +6,10 @@ export interface TokenBalance {
 }
 export interface SupportedNetwork {
   tbName: string;
-  tokenurl: string;
   cgPlatform: string;
 }
 export interface CGToken {
-  chainId: number;
+  chainId: `0x${string}`;
   address: string;
   name: string;
   symbol: string;
@@ -21,4 +20,11 @@ export interface CGToken {
 export type SupportedNetworkNames =
   | NetworkNames.Binance
   | NetworkNames.Ethereum
-  | NetworkNames.Matic;
+  | NetworkNames.Matic
+  | NetworkNames.AstarEVM
+  | NetworkNames.Okc
+  | NetworkNames.Optimism
+  | NetworkNames.Moonriver
+  | NetworkNames.Moonbeam
+  | NetworkNames.ShidenEVM
+  | NetworkNames.Canto;

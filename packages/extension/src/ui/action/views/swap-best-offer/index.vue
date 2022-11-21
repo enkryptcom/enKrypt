@@ -110,7 +110,7 @@ import { BaseToken } from "@/types/base-token";
 import { Swap } from "@/providers/swap";
 import { BaseNetwork } from "@/types/base-network";
 import { AccountsHeaderData } from "../../types/account";
-import { numberToHex, toBN } from "web3-utils";
+import { toBN } from "web3-utils";
 import BN from "bn.js";
 import Web3Eth from "web3-eth";
 import Transaction from "@/providers/ethereum/libs/transaction";
@@ -255,9 +255,7 @@ const Tx = computed(() => {
           to: txData.to as `0x${string}`,
           from: txData.from as `0x${string}`,
           data: txData.data,
-          chainId: numberToHex(
-            (props.network as EvmNetwork).chainID
-          ) as `0x${string}`,
+          chainId: (props.network as EvmNetwork).chainID,
           value: txData.value,
           gas: txData.gas,
         },

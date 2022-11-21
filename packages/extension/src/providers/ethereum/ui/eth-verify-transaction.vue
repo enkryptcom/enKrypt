@@ -153,6 +153,7 @@ import { Activity, ActivityStatus, ActivityType } from "@/types/activity";
 import { generateAddress } from "ethereumjs-util";
 import ActivityState from "@/libs/activity-state";
 import { bigIntToBuffer } from "@enkryptcom/utils";
+import broadcastTx from "../libs/tx-broadcaster";
 
 const isProcessing = ref(false);
 const isOpenSelectFee = ref(false);
@@ -276,62 +277,66 @@ const approve = async () => {
         account: account.value,
         network: network.value,
         payload: finalizedTx,
-      })
-        .then((tx) => {
-          const txActivity: Activity = {
-            from: account.value.address,
-            to: tx.to
-              ? tx.to.toString()
-              : `0x${generateAddress(
-                  tx.getSenderAddress().toBuffer(),
-                  bigIntToBuffer(tx.nonce)
-                ).toString("hex")}`,
-            isIncoming: tx.getSenderAddress().toString() === tx.to?.toString(),
-            network: network.value.name,
-            status: ActivityStatus.pending,
-            timestamp: new Date().getTime(),
-            token: {
-              decimals: decodedTx.value?.tokenDecimals || 18,
-              icon: decodedTx.value?.tokenImage || "",
-              name: decodedTx.value?.tokenName || "Unknown",
-              symbol: decodedTx.value?.tokenSymbol || "UKNWN",
-              price: decodedTx.value?.currentPriceUSD.toString() || "0",
-            },
-            type: ActivityType.transaction,
-            value: decodedTx.value?.tokenValue || "0x0",
-            transactionHash: "",
-          };
-          web3
-            .sendSignedTransaction("0x" + tx.serialize().toString("hex"))
-            .on("transactionHash", (hash) => {
-              activityState
-                .addActivities(
-                  [{ ...txActivity, ...{ transactionHash: hash } }],
-                  { address: txActivity.from, network: network.value.name }
-                )
-                .then(() => {
-                  Resolve.value({
-                    result: JSON.stringify(hash),
-                  });
-                });
+      }).then((tx) => {
+        const txActivity: Activity = {
+          from: account.value.address,
+          to: tx.to
+            ? tx.to.toString()
+            : `0x${generateAddress(
+                tx.getSenderAddress().toBuffer(),
+                bigIntToBuffer(tx.nonce)
+              ).toString("hex")}`,
+          isIncoming: tx.getSenderAddress().toString() === tx.to?.toString(),
+          network: network.value.name,
+          status: ActivityStatus.pending,
+          timestamp: new Date().getTime(),
+          token: {
+            decimals: decodedTx.value?.tokenDecimals || 18,
+            icon: decodedTx.value?.tokenImage || "",
+            name: decodedTx.value?.tokenName || "Unknown",
+            symbol: decodedTx.value?.tokenSymbol || "UKNWN",
+            price: decodedTx.value?.currentPriceUSD.toString() || "0",
+          },
+          type: ActivityType.transaction,
+          value: decodedTx.value?.tokenValue || "0x0",
+          transactionHash: "",
+        };
+        const onHash = (hash: string) => {
+          activityState
+            .addActivities([{ ...txActivity, ...{ transactionHash: hash } }], {
+              address: txActivity.from,
+              network: network.value.name,
             })
-            .on("error", (error) => {
-              txActivity.status = ActivityStatus.failed;
-              activityState
-                .addActivities([txActivity], {
-                  address: txActivity.from,
-                  network: network.value.name,
-                })
-                .then(() => {
-                  Resolve.value({
-                    error: getCustomError(error.message),
-                  });
-                });
+            .then(() => {
+              Resolve.value({
+                result: JSON.stringify(hash),
+              });
             });
-        })
-        .catch((err) => {
-          Resolve.value(err);
-        });
+        };
+        broadcastTx("0x" + tx.serialize().toString("hex"), network.value.name)
+          .then(onHash)
+          .catch(() => {
+            web3
+              .sendSignedTransaction("0x" + tx.serialize().toString("hex"))
+              .on("transactionHash", onHash)
+              .on("error", (error) => {
+                txActivity.status = ActivityStatus.failed;
+                activityState
+                  .addActivities([txActivity], {
+                    address: txActivity.from,
+                    network: network.value.name,
+                  })
+                  .then(() => {
+                    Resolve.value({
+                      error: getCustomError(error.message),
+                    });
+                  });
+              });
+          })
+          .catch((err) => {
+            Resolve.value(err);
+          });
+      });
     }
   );
 };

@@ -15,6 +15,7 @@ const bitcoinOptions: BitcoinNetworkOptions = {
     "https://www.blockchain.com/btc-testnet/address/[[address]]",
   isTestNetwork: true,
   currencyName: "tBTC",
+  currencyNameLong: "Test Bitcoin",
   icon: require("./icons/tbtc.svg"),
   decimals: 8,
   gradient: "#F7931A",
