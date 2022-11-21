@@ -21,7 +21,7 @@
 
 <script setup lang="ts">
 import { PropType } from "vue";
-import SendAddressItem from "./send-address-item.vue";
+import SendAddressItem from "@/providers/common/ui/send-transaction/send-address-item.vue";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 import scrollSettings from "@/libs/utils/scroll-settings";
 import { BaseNetwork } from "@/types/base-network";

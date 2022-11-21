@@ -1,5 +1,6 @@
 import EvmAPI from "@/providers/ethereum/libs/api";
 import SubstrateAPI from "@/providers/polkadot/libs/api";
+import BitcoinAPI from "@/providers/bitcoin/libs/api";
 import { AssetsType, ProviderName } from "@/types/provider";
 import { CoingeckoPlatform, SignerType } from "@enkryptcom/types";
 import { NetworkNames } from "@enkryptcom/types";
@@ -26,7 +27,7 @@ export interface BaseNetworkOptions {
   coingeckoPlatform?: CoingeckoPlatform;
   identicon: (address: string) => string;
   basePath: string;
-  api: () => Promise<SubstrateAPI> | Promise<EvmAPI>;
+  api: () => Promise<SubstrateAPI> | Promise<EvmAPI> | Promise<BitcoinAPI>;
   customTokens?: boolean;
 }
 
@@ -50,7 +51,10 @@ export abstract class BaseNetwork {
   public identicon: (address: string) => string;
   public basePath: string;
   public decimals: number;
-  public api: () => Promise<SubstrateAPI> | Promise<EvmAPI>;
+  public api: () =>
+    | Promise<SubstrateAPI>
+    | Promise<EvmAPI>
+    | Promise<BitcoinAPI>;
   public customTokens: boolean;
 
   constructor(options: BaseNetworkOptions) {

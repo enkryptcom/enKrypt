@@ -46,6 +46,7 @@ enum SignerType {
   ed25519 = "ed25519", // polkadot
   sr25519 = "sr25519", // polkadot
   secp256k1 = "secp256k1", // ethereum
+  secp256k1btc = "secp256k1-btc", // bitcoin
 }
 
 interface KeyRecordAdd {
