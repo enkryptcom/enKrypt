@@ -2,6 +2,7 @@ import { CoingeckoPlatform, NetworkNames } from "@enkryptcom/types";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
 import { EtherscanActivity } from "../libs/activity-handlers";
 import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
+import assetsInfoHandler from "@/providers/ethereum/libs/assets-handlers/assetinfo-mew";
 
 const astrOptions: EvmNetworkOptions = {
   name: NetworkNames.AstarEVM,
@@ -17,7 +18,8 @@ const astrOptions: EvmNetworkOptions = {
   icon: require("./icons/astr.png"),
   gradient: "linear-gradient(180deg, #C549FF 0%, #684CFF 100%)",
   coingeckoID: "astar",
-  coingeckoPlatform: CoingeckoPlatform.Shiden,
+  coingeckoPlatform: CoingeckoPlatform.Astar,
+  assetsInfoHandler,
   activityHandler: wrapActivityHandler(EtherscanActivity),
 };
 

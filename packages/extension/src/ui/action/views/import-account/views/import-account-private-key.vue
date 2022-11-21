@@ -32,17 +32,28 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, PropType } from "vue";
 import ImportAccountHeader from "../components/import-account-header.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import Wallet from "ethereumjs-wallet";
-import { hexToBuffer } from "@enkryptcom/utils";
+import { bufferToHex, hexToBuffer } from "@enkryptcom/utils";
 import { KeyPairAdd, SignerType } from "@enkryptcom/types";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
+import { BaseNetwork } from "@/types/base-network";
+import { decode as wifDecode } from "wif";
+import { ProviderName } from "@/types/provider";
+import { getPublicKey } from "@noble/secp256k1";
 
 const isProcessing = ref(false);
 const privKey = ref("");
 const keyring = new PublicKeyRing();
+
+const props = defineProps({
+  network: {
+    type: Object as PropType<BaseNetwork>,
+    default: () => ({}),
+  },
+});
 
 const emit = defineEmits<{
   (e: "update:wallet", keypair: KeyPairAdd): void;
@@ -54,9 +65,15 @@ const formattedPrivateKey = computed(() => privKey.value.trim());
 
 const isValidKey = computed(() => {
   try {
-    const buffer = hexToBuffer(formattedPrivateKey.value);
-    new Wallet(buffer);
-    return true;
+    if (props.network.provider === ProviderName.ethereum) {
+      const buffer = hexToBuffer(formattedPrivateKey.value);
+      new Wallet(buffer);
+      return true;
+    } else if (props.network.provider === ProviderName.bitcoin) {
+      wifDecode(formattedPrivateKey.value);
+      return true;
+    }
+    return false;
   } catch (e) {
     return false;
   }
@@ -67,22 +84,33 @@ const onInput = () => {
 };
 
 const importAction = async () => {
-  const buffer = hexToBuffer(formattedPrivateKey.value);
-  const wallet = new Wallet(buffer);
-  const newAddress = `0x${wallet.getAddress().toString("hex")}`;
+  if (props.network.provider === ProviderName.ethereum) {
+    const buffer = hexToBuffer(formattedPrivateKey.value);
+    const wallet = new Wallet(buffer);
+    const newAddress = `0x${wallet.getAddress().toString("hex")}`;
 
-  if (await keyring.accountAlreadyAdded(newAddress)) {
-    accountAlreadyExists.value = true;
-    return;
+    if (await keyring.accountAlreadyAdded(newAddress)) {
+      accountAlreadyExists.value = true;
+      return;
+    }
+
+    emit("update:wallet", {
+      privateKey: wallet.getPrivateKeyString(),
+      publicKey: wallet.getPublicKeyString(),
+      address: wallet.getAddressString(),
+      name: "",
+      signerType: SignerType.secp256k1,
+    });
+  } else if (props.network.provider === ProviderName.bitcoin) {
+    const decoded = wifDecode(formattedPrivateKey.value);
+    emit("update:wallet", {
+      privateKey: bufferToHex(decoded.privateKey),
+      publicKey: bufferToHex(getPublicKey(decoded.privateKey)),
+      address: bufferToHex(getPublicKey(decoded.privateKey, true)),
+      name: "",
+      signerType: SignerType.secp256k1btc,
+    });
   }
-
-  emit("update:wallet", {
-    privateKey: wallet.getPrivateKeyString(),
-    publicKey: wallet.getPublicKeyString(),
-    address: wallet.getAddressString(),
-    name: "",
-    signerType: SignerType.secp256k1,
-  });
 };
 </script>
 

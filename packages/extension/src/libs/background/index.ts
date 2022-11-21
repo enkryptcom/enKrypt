@@ -43,6 +43,7 @@ class BackgroundHandler {
     this.#tabProviders = {
       [ProviderName.ethereum]: {},
       [ProviderName.polkadot]: {},
+      [ProviderName.bitcoin]: {},
     };
     this.#providers = Providers;
   }

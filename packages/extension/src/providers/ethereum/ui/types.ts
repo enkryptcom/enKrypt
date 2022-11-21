@@ -5,20 +5,8 @@ import {
   FeeMarketEIP1559Transaction,
   Transaction as LegacyTransaction,
 } from "@ethereumjs/tx";
-import { GasPriceTypes } from "../libs/transaction/types";
-
-export interface GasFeeInfo {
-  nativeValue: string;
-  fiatValue: string;
-  nativeSymbol: string;
-  fiatSymbol: string;
-}
-export interface GasFeeType {
-  [GasPriceTypes.ECONOMY]: GasFeeInfo;
-  [GasPriceTypes.REGULAR]: GasFeeInfo;
-  [GasPriceTypes.FAST]: GasFeeInfo;
-  [GasPriceTypes.FASTEST]: GasFeeInfo;
-}
+import { GasPriceTypes } from "@/providers/common/types";
+import { GasFeeInfo } from "@/providers/common/types";
 
 export interface SendTransactionDataType {
   chainId: `0x${string}`;

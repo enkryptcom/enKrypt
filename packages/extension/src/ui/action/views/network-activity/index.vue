@@ -60,6 +60,7 @@ import scrollSettings from "@/libs/utils/scroll-settings";
 import {
   Activity,
   ActivityStatus,
+  BTCRawInfo,
   EthereumRawInfo,
   SubscanExtrinsicInfo,
 } from "@/types/activity";
@@ -137,6 +138,16 @@ const checkActivity = (activity: Activity): void => {
                 })
                 .then(() => updateVisibleActivity(activity));
             }
+          } else if (props.network.provider === ProviderName.bitcoin) {
+            const btcInfo = info as BTCRawInfo;
+            activity.status = ActivityStatus.success;
+            activity.rawInfo = btcInfo;
+            activityState
+              .updateActivity(activity, {
+                address: activityAddress.value,
+                network: props.network.name,
+              })
+              .then(() => updateVisibleActivity(activity));
           }
           clearInterval(timer);
         }

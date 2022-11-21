@@ -23,7 +23,9 @@
         class="nft-detail-view__notification"
       />
 
-      <h3>{{ item.name.length > 0 ? item.name : "NFT #" + item.id }}</h3>
+      <h3>
+        {{ item.name && item.name.length > 0 ? item.name : "NFT #" + item.id }}
+      </h3>
       <img :src="item.image" alt="" @error="imageLoadError" />
 
       <div class="nft-detail-view__action">

@@ -2,6 +2,7 @@ import { CoingeckoPlatform, NetworkNames } from "@enkryptcom/types";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
 import { OkcActivity } from "../libs/activity-handlers";
 import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
+import assetsInfoHandler from "@/providers/ethereum/libs/assets-handlers/assetinfo-mew";
 
 const okcOptions: EvmNetworkOptions = {
   name: NetworkNames.Okc,
@@ -18,6 +19,7 @@ const okcOptions: EvmNetworkOptions = {
   gradient: "linear-gradient(180deg, #C549FF 0%, #684CFF 100%)",
   coingeckoID: "oec-token",
   coingeckoPlatform: CoingeckoPlatform.Okc,
+  assetsInfoHandler,
   activityHandler: wrapActivityHandler(OkcActivity),
 };
 
