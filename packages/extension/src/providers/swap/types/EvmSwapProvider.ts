@@ -114,7 +114,7 @@ export class EvmSwapProvider extends SwapProvider {
           icon:
             tokenData.icon && tokenData.icon !== ""
               ? `https://img.mewapi.io/?image=${tokenData.icon}`
-              : `https://img.mewapi.io/?image=https://mpolev.ru/enkrypt/eth.png`,
+              : `https://assets.coingecko.com/coins/images/279/small/ethereum.png`,
           symbol: tokenData.symbol.toUpperCase(),
           name: tokenData.name ?? tokenData.symbol,
           price: tokenData.price,

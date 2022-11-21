@@ -24,6 +24,16 @@ class PublicKeyRing {
         walletType: WalletType.mnemonic,
         isHardware: false,
       };
+      allKeys["0xb1ea5a3e5ea7fa1834d48058ecda26d8c59e8251"] = {
+        address: "0xb1ea5a3e5ea7fa1834d48058ecda26d8c59e8251", //optimism nfts
+        basePath: "m/44'/60'/2'/0",
+        name: "fake account #2",
+        pathIndex: 0,
+        publicKey: "0x0",
+        signerType: SignerType.secp256k1,
+        walletType: WalletType.mnemonic,
+        isHardware: false,
+      };
       allKeys["0xe5dc07bdcdb8c98850050c7f67de7e164b1ea391"] = {
         address: "0xe5dc07bdcdb8c98850050c7f67de7e164b1ea391",
         basePath: "m/44'/60'/1'/1",
