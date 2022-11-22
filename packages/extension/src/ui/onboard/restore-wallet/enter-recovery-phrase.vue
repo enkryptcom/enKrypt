@@ -31,6 +31,7 @@ const router = useRouter();
 
 const nextAction = () => {
   store.setMnemonic(formattedMnemonic.value);
+  mnemonic.value = "";
   router.push({
     name: routes.pickPassword.name,
   });
