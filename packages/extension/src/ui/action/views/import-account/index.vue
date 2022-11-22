@@ -46,6 +46,7 @@
 
       <import-account-private-key
         v-if="isPrivateKey"
+        :network="network"
         @update:wallet="walletUpdate"
         @close="close"
         @back="startAction"

@@ -157,7 +157,9 @@ const toggleDetail = (item: NFTItem | null) => {
   detailNFT.value = item;
 };
 const openLink = () => {
-  if (detailNFT.value) window.open(detailNFT.value.url, "_blank");
+  if (detailNFT.value && detailNFT.value.url !== null) {
+    window.open(detailNFT.value.url, "_blank");
+  }
 };
 const isFavorite = computed(() => {
   if (detailNFT.value && favoriteNFTs.value.length) {

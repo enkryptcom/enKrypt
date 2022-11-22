@@ -14,7 +14,8 @@
       >
       <div v-if="false" class="action-menu__divider"></div> -->
       <a v-if="isNft" class="action-menu__item full" @click="linkAction()">
-        <Rarible />Show on Rarible
+        <!-- <Rarible /> -->
+        View NFT
       </a>
     </div>
   </div>
@@ -25,7 +26,7 @@ import { PropType } from "vue";
 // import Buy from "@action/icons/actions/buy.vue";
 // import Send from "@action/icons/actions/send.vue";
 // import Swap from "@action/icons/actions/swap.vue";
-import Rarible from "@/ui/action/icons/actions/rarible.vue";
+// import Rarible from "@/ui/action/icons/actions/rarible.vue";
 
 defineProps({
   buyAction: {

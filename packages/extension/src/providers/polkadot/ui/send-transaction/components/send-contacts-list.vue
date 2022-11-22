@@ -77,7 +77,7 @@
 </template>
 
 <script setup lang="ts">
-import SendAddressItem from "./send-address-item.vue";
+import SendAddressItem from "@/providers/common/ui/send-transaction/send-address-item.vue";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import scrollSettings from "@/libs/utils/scroll-settings";

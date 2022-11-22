@@ -2,6 +2,7 @@ import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
 import { CoingeckoPlatform, NetworkNames } from "@enkryptcom/types";
 import { EtherscanActivity } from "../libs/activity-handlers";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
+import assetsInfoHandler from "@/providers/ethereum/libs/assets-handlers/assetinfo-mew";
 
 const cantoOptions: EvmNetworkOptions = {
   name: NetworkNames.Canto,
@@ -18,6 +19,7 @@ const cantoOptions: EvmNetworkOptions = {
   gradient: "linear-gradient(180deg, #C549FF 0%, #684CFF 100%)",
   coingeckoID: "canto",
   coingeckoPlatform: CoingeckoPlatform.Canto,
+  assetsInfoHandler,
   activityHandler: wrapActivityHandler(EtherscanActivity),
 };
 

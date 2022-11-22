@@ -10,7 +10,7 @@ import {
 import { BaseNetwork } from "@/types/base-network";
 import { EnkryptAccount, NetworkNames } from "@enkryptcom/types";
 import BigNumber from "bignumber.js";
-import { GasPriceTypes } from "../ethereum/libs/transaction/types";
+import { GasPriceTypes } from "@/providers/common/types";
 import { ChangellyToken } from "./types/changelly-token";
 
 export class Swap {

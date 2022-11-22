@@ -153,7 +153,6 @@ const setActiveNetworks = async () => {
     const network = allNetworks.find((network) => network.name === name);
     if (network !== undefined) networksToShow.push(network);
   });
-
   networks.value = networksToShow;
 
   if (!networks.value.includes(currentNetwork.value)) {
@@ -279,7 +278,10 @@ const setNetwork = async (network: BaseNetwork) => {
 
 const onSelectedAddressChanged = async (newAccount: EnkryptAccount) => {
   accountHeaderData.value.selectedAccount = newAccount;
-  if (currentNetwork.value.provider === ProviderName.ethereum) {
+  if (
+    currentNetwork.value.provider === ProviderName.ethereum ||
+    currentNetwork.value.provider === ProviderName.bitcoin
+  ) {
     const evmAccountState = new EVMAccountState();
     const domain = await domainState.getCurrentDomain();
     evmAccountState.addApprovedAddress(newAccount.address, domain);
@@ -291,7 +293,7 @@ const onSelectedAddressChanged = async (newAccount: EnkryptAccount) => {
       params: [
         {
           method: MessageMethod.changeAddress,
-          params: [newAccount.address],
+          params: [currentNetwork.value.displayAddress(newAccount.address)],
         },
       ],
     }),

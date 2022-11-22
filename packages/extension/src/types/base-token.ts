@@ -1,6 +1,7 @@
 import EvmAPI from "@/providers/ethereum/libs/api";
 import MarketData from "@/libs/market-data";
 import { ApiPromise } from "@polkadot/api";
+import BitcoinAPI from "@/providers/bitcoin/libs/api";
 import { BN } from "ethereumjs-util";
 
 export type TransferType = "keepAlive" | "all" | "allKeepAlive" | "transfer";
@@ -58,7 +59,7 @@ export abstract class BaseToken {
   }
 
   public abstract getLatestUserBalance(
-    api: EvmAPI | ApiPromise,
+    api: EvmAPI | ApiPromise | BitcoinAPI,
     address: string
   ): Promise<string>;
 
