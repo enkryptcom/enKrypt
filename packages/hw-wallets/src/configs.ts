@@ -19,6 +19,7 @@ const ledgerAppNames = {
   [NetworkNames.Kusama]: "Kusama",
   [NetworkNames.Polkadot]: "Polkadot",
   [NetworkNames.Karura]: "Karura",
+  [NetworkNames.Edgeware]: "Edgeware",
 };
 const MessengerName = "enkrypt_hw_wallets";
 
