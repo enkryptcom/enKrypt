@@ -18,6 +18,7 @@
         class="add-network__custom-input"
         placeholder="Type name"
         :value="nameValue"
+        :is-error="nameInvalid"
         @update:value="nameChanged"
       />
     </div>
@@ -29,6 +30,7 @@
         class="add-network__custom-input"
         placeholder="domain.url"
         :value="rpcURLValue"
+        :is-error="rpcInvalid"
         @update:value="rpcURLChanged"
       />
     </div>
@@ -40,6 +42,7 @@
         class="add-network__custom-input"
         placeholder="Text"
         :value="chainIDValue"
+        :is-error="chainIDInvalid"
         @update:value="chainIDChanged"
       />
 
@@ -49,6 +52,7 @@
         class="add-network__custom-input"
         placeholder="Symbol"
         :value="symbolValue"
+        :is-error="symbolInvalid"
         @update:value="symbolChanged"
       />
     </div>
@@ -60,6 +64,7 @@
         class="add-network__custom-input"
         placeholder="domain.url"
         :value="blockURLValue"
+        :is-error="blockURLInvalid"
         @update:value="blockURLChanged"
       />
     </div>
@@ -102,14 +107,31 @@ interface NetworkConfigItem {
 const customNetworksState = new CustomNetworksState();
 
 const nameValue = ref<string>("");
+const nameInvalid = ref(false);
+
 const rpcURLValue = ref<string>("");
+const rpcInvalid = ref(false);
+const rpcVerified = ref(false);
+
 const chainIDValue = ref<string>("");
+const chainIDInvalid = ref(false);
+
 const symbolValue = ref<string>("");
+const symbolInvalid = ref(false);
+
 const blockURLValue = ref<string>("");
+const blockURLInvalid = ref(false);
+
 const networkConfigs = ref<NetworkConfigItem[]>([]);
 
 const isValid = computed<boolean>(() => {
-  return nameValue.value.length > 0;
+  if (nameValue.value?.length < 1 || nameInvalid.value) return false;
+  if (rpcURLValue.value?.length < 1 || rpcInvalid.value) return false;
+  if (chainIDValue.value?.length < 1 || chainIDInvalid.value) return false;
+  if (symbolValue.value?.length < 1 || symbolInvalid.value) return false;
+  if (blockURLInvalid.value) return false;
+
+  return true;
 });
 
 const props = defineProps({
@@ -135,6 +157,12 @@ const fetchNetworkConfigs = async () => {
 };
 
 const nameChanged = (newVal: string) => {
+  if (newVal.trim().length > 0) {
+    nameInvalid.value = false;
+  } else {
+    nameInvalid.value = true;
+  }
+
   nameValue.value = newVal;
 };
 
@@ -147,7 +175,8 @@ const rpcURLChanged = async (newVal: string) => {
     const web3 = new Web3(newVal);
     const chainId = await web3.getChainId();
 
-    console.log(toHex(chainId));
+    rpcInvalid.value = false;
+    rpcVerified.value = true;
 
     const networkConfig = networkConfigs.value.find(
       (net) => net.chainId === chainId
@@ -155,25 +184,54 @@ const rpcURLChanged = async (newVal: string) => {
 
     if (networkConfig) {
       symbolValue.value = networkConfig.nativeCurrency.symbol;
-      chainIDValue.value = networkConfig.chainId.toString();
       nameValue.value = networkConfig.name;
     }
+
+    chainIDValue.value = chainId.toString();
   } catch {
-    // do nothing
+    rpcInvalid.value = true;
+    rpcVerified.value = false;
   }
 };
 const symbolChanged = (newVal: string) => {
+  if (newVal.trim().length > 0) {
+    symbolInvalid.value = false;
+  } else {
+    symbolInvalid.value = true;
+  }
+
   symbolValue.value = newVal;
 };
 const chainIDChanged = (newVal: string) => {
+  if (
+    newVal.trim().length < 1 ||
+    isNaN(Number(newVal.trim())) ||
+    newVal.includes(".")
+  ) {
+    chainIDInvalid.value = true;
+  } else {
+    chainIDInvalid.value = false;
+  }
+
   chainIDValue.value = newVal;
 };
 const blockURLChanged = (newVal: string) => {
+  try {
+    new URL(newVal);
+    blockURLInvalid.value = false;
+  } catch {
+    if (newVal.trim().length > 0) {
+      blockURLInvalid.value = true;
+    } else {
+      blockURLInvalid.value = false;
+    }
+  }
+
   blockURLValue.value = newVal;
 };
 const sendAction = async () => {
   const customNetworkOptions: CustomEvmNetworkOptions = {
-    name: nameValue.value.split(" ").join(""),
+    name: nameValue.value.trim().split(" ").join(""),
     name_long: nameValue.value,
     currencyName: symbolValue.value,
     currencyNameLong: nameValue.value,
