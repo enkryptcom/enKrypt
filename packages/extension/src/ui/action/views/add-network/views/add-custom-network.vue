@@ -28,8 +28,8 @@
         label="New RPC URL"
         class="add-network__custom-input"
         placeholder="domain.url"
-        :value="prcURLValue"
-        @update:value="prcURLChanged"
+        :value="rpcURLValue"
+        @update:value="rpcURLChanged"
       />
     </div>
 
@@ -75,23 +75,44 @@
 </template>
 
 <script setup lang="ts">
-import { PropType, ref, computed } from "vue";
+import { PropType, ref, computed, onMounted } from "vue";
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import ArrowBack from "@action/icons/common/arrow-back.vue";
 import LabelInput from "@action/components/label-input/index.vue";
 import BaseButton from "@action/components/base-button/index.vue";
+import Web3 from "web3-eth";
+import { CustomEvmNetworkOptions } from "@/providers/ethereum/types/custom-evem-network";
+import { toHex } from "web3-utils";
+import CustomNetworksState from "@/libs/custom-networks-state";
+
+interface NetworkConfigItem {
+  name: string;
+  chain: string;
+  rpc: string[];
+  shortName: string;
+  nativeCurrency: {
+    name: string;
+    symbol: string;
+    decimals: number;
+  };
+  chainId: number;
+  networkId: number;
+}
+
+const customNetworksState = new CustomNetworksState();
 
 const nameValue = ref<string>("");
-const prcURLValue = ref<string>("");
+const rpcURLValue = ref<string>("");
 const chainIDValue = ref<string>("");
 const symbolValue = ref<string>("");
 const blockURLValue = ref<string>("");
+const networkConfigs = ref<NetworkConfigItem[]>([]);
 
 const isValid = computed<boolean>(() => {
   return nameValue.value.length > 0;
 });
 
-defineProps({
+const props = defineProps({
   close: {
     type: Function as PropType<() => void>,
     default: () => ({}),
@@ -102,11 +123,44 @@ defineProps({
   },
 });
 
+onMounted(() => {
+  fetchNetworkConfigs();
+});
+
+const fetchNetworkConfigs = async () => {
+  const res = await fetch("https://chainid.network/chains.json");
+  const data = await res.json();
+
+  networkConfigs.value = data as NetworkConfigItem[];
+};
+
 const nameChanged = (newVal: string) => {
   nameValue.value = newVal;
 };
-const prcURLChanged = (newVal: string) => {
-  prcURLValue.value = newVal;
+
+const rpcURLChanged = async (newVal: string) => {
+  rpcURLValue.value = newVal;
+
+  try {
+    new URL(newVal); // Check if value is URL
+
+    const web3 = new Web3(newVal);
+    const chainId = await web3.getChainId();
+
+    console.log(toHex(chainId));
+
+    const networkConfig = networkConfigs.value.find(
+      (net) => net.chainId === chainId
+    );
+
+    if (networkConfig) {
+      symbolValue.value = networkConfig.nativeCurrency.symbol;
+      chainIDValue.value = networkConfig.chainId.toString();
+      nameValue.value = networkConfig.name;
+    }
+  } catch {
+    // do nothing
+  }
 };
 const symbolChanged = (newVal: string) => {
   symbolValue.value = newVal;
@@ -117,8 +171,24 @@ const chainIDChanged = (newVal: string) => {
 const blockURLChanged = (newVal: string) => {
   blockURLValue.value = newVal;
 };
-const sendAction = () => {
-  console.log("add network");
+const sendAction = async () => {
+  const customNetworkOptions: CustomEvmNetworkOptions = {
+    name: nameValue.value.split(" ").join(""),
+    name_long: nameValue.value,
+    currencyName: symbolValue.value,
+    currencyNameLong: nameValue.value,
+    chainID: toHex(chainIDValue.value) as `0x${string}`,
+    node: rpcURLValue.value,
+  };
+
+  await customNetworksState.addCustomNetwork(customNetworkOptions);
+
+  nameValue.value = "";
+  symbolValue.value = "";
+  chainIDValue.value = "";
+  rpcURLValue.value = "";
+
+  props.back();
 };
 </script>
 

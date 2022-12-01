@@ -20,8 +20,9 @@ const sendLayouts: Record<ProviderName, any> = {
 const layout = shallowRef();
 const route = useRoute();
 const networkName: string = route.query.id as string;
-const network = getNetworkByName(networkName);
-if (network) {
-  layout.value = sendLayouts[network.provider];
-}
+getNetworkByName(networkName).then((network) => {
+  if (network) {
+    layout.value = sendLayouts[network.provider];
+  }
+});
 </script>

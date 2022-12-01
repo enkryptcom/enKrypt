@@ -89,7 +89,7 @@ defineProps({
 const getAllNetworksAndStatus = async () => {
   const activeNetworks = await networksState.getActiveNetworkNames();
 
-  const allNetworks = getAllNetworks().map((net) => {
+  const allNetworks = (await getAllNetworks()).map((net) => {
     return {
       ...net,
       isActive: activeNetworks.includes(net.name),

@@ -91,8 +91,8 @@ import Settings from "./views/settings/index.vue";
 import { useRouter, useRoute } from "vue-router";
 import { BaseNetwork } from "@/types/base-network";
 import {
+  DEFAULT_EVM_NETWORK,
   getAllNetworks,
-  DEFAULT_EVM_NETWORK_NAME,
   getNetworkByName,
 } from "@/libs/utils/networks";
 import DomainState from "@/libs/domain-state";
@@ -134,9 +134,7 @@ const route = useRoute();
 const transitionName = "fade";
 const searchInput = ref("");
 const networks = ref<BaseNetwork[]>([]);
-const defaultNetwork = getNetworkByName(
-  DEFAULT_EVM_NETWORK_NAME
-) as BaseNetwork;
+const defaultNetwork = DEFAULT_EVM_NETWORK;
 const currentNetwork = ref<BaseNetwork>(defaultNetwork);
 const kr = new PublicKeyRing();
 const addNetworkShow = ref(false);
@@ -146,7 +144,8 @@ const toggle = ref(null);
 
 const setActiveNetworks = async () => {
   const activeNetworkNames = await networksState.getActiveNetworkNames();
-  const allNetworks = getAllNetworks();
+
+  const allNetworks = await getAllNetworks();
   const networksToShow: BaseNetwork[] = [];
 
   activeNetworkNames.forEach((name) => {
@@ -184,7 +183,7 @@ const isKeyRingLocked = async (): Promise<boolean> => {
 const init = async () => {
   const curNetwork = await domainState.getSelectedNetWork();
   if (curNetwork) {
-    const savedNetwork = getNetworkByName(curNetwork);
+    const savedNetwork = await getNetworkByName(curNetwork);
     if (savedNetwork) setNetwork(savedNetwork);
     else setNetwork(defaultNetwork);
   } else {
@@ -213,6 +212,7 @@ const setNetwork = async (network: BaseNetwork) => {
     ).style.background = `radial-gradient(137.35% 97% at 100% 50%, rgba(250, 250, 250, 0.94) 0%, rgba(250, 250, 250, 0.96) 28.91%, rgba(250, 250, 250, 0.98) 100%), ${network.gradient}`;
   networkGradient.value = network.gradient;
   const activeAccounts = await getAccountsByNetworkName(network.name);
+
   const inactiveAccounts = await kr.getAccounts(
     getOtherSigners(network.signer)
   );

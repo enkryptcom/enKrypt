@@ -51,17 +51,12 @@ import { ErrorCodes } from "@/providers/ethereum/types";
 import { WindowPromiseHandler } from "@/libs/window-promise";
 import { InternalMethods } from "@/types/messenger";
 import { onBeforeMount, ref } from "vue";
-import {
-  DEFAULT_EVM_NETWORK_NAME,
-  getNetworkByName,
-} from "@/libs/utils/networks";
+import { DEFAULT_EVM_NETWORK, getNetworkByName } from "@/libs/utils/networks";
 import { EvmNetwork } from "../types/evm-network";
 import { ProviderRequestOptions } from "@/types/provider";
 import { EnkryptAccount } from "@enkryptcom/types";
 const windowPromise = WindowPromiseHandler(2);
-const network = ref<EvmNetwork>(
-  getNetworkByName(DEFAULT_EVM_NETWORK_NAME) as EvmNetwork
-);
+const network = ref<EvmNetwork>(DEFAULT_EVM_NETWORK);
 const account = ref<EnkryptAccount>({
   name: "",
   address: "",
@@ -76,7 +71,9 @@ const Options = ref<ProviderRequestOptions>({
 });
 onBeforeMount(async () => {
   const { Request, options } = await windowPromise;
-  network.value = getNetworkByName(Request.value.params![1]) as EvmNetwork;
+  network.value = (await getNetworkByName(
+    Request.value.params![1]
+  )) as EvmNetwork;
   account.value = Request.value.params![0] as EnkryptAccount;
   identicon.value = network.value.identicon(account.value.address);
   Options.value = options;

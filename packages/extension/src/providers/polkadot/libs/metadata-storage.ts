@@ -24,7 +24,7 @@ class MetadataStorage {
       ? allMetadata[genesisHash]
       : null;
     if (!meta) {
-      const targetNetwork = getAllNetworks().find(
+      const targetNetwork = (await getAllNetworks()).find(
         (network) => (network as SubstrateNetwork).genesisHash === genesisHash
       );
       if (targetNetwork) {
