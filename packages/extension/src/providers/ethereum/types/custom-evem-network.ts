@@ -12,6 +12,8 @@ export interface CustomEvmNetworkOptions {
 }
 
 export class CustomEvmNetwork extends EvmNetwork {
+  public isCustomNetwork = true;
+
   constructor(options: CustomEvmNetworkOptions) {
     const networkName = options.name as NetworkNames;
 

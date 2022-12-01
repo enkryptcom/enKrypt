@@ -40,7 +40,9 @@
         :key="item.name"
         :network="item"
         :is-active="item.isActive"
+        :is-custom-network="(item as unknown as CustomEvmNetwork).isCustomNetwork"
         @network-toggled="onToggle"
+        @network-deleted="onNetworkDeleted"
       />
     </custom-scrollbar>
   </div>
@@ -57,6 +59,8 @@ import { getAllNetworks, POPULAR_NAMES } from "@/libs/utils/networks";
 import NetworksState from "@/libs/networks-state";
 import scrollSettings from "@/libs/utils/scroll-settings";
 import { computed } from "@vue/reactivity";
+import { CustomEvmNetwork } from "@/providers/ethereum/types/custom-evem-network";
+import CustomNetworksState from "@/libs/custom-networks-state";
 
 interface NodeTypesWithActive extends NodeType {
   isActive: boolean;
@@ -145,6 +149,14 @@ const onToggle = async (networkName: string, isActive: boolean) => {
   } catch (e) {
     console.error(e);
   }
+};
+
+const onNetworkDeleted = async (chainId: string) => {
+  const customNetworksState = new CustomNetworksState();
+  await customNetworksState.deleteNetwork(chainId);
+
+  all.value = await getAllNetworksAndStatus();
+  emit("update:activeNetworks");
 };
 
 const updateSearch = (value: string) => {

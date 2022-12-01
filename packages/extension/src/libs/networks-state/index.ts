@@ -146,6 +146,8 @@ class NetworksState {
   async getState(): Promise<IState> {
     return this.storage.get(StorageKeys.networkInfo);
   }
+
+  // async deleteNetwork(networkName)
 }
 
 export default NetworksState;

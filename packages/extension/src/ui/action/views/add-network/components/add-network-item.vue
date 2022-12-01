@@ -9,6 +9,13 @@
       <!-- <a href="#">
         <InfoIcon />
       </a> -->
+      <a
+        v-show="isCustomNetwork"
+        class="add-network__close"
+        @click="() => deleteNetwork()"
+      >
+        <close-icon />
+      </a>
       <Switch :is-checked="isActive" @update:check="check" />
     </div>
   </div>
@@ -18,10 +25,13 @@
 import { PropType } from "vue";
 import Switch from "@action/components/switch/index.vue";
 // import InfoIcon from "@action/icons/common/info-icon.vue";
+import CloseIcon from "@action/icons/common/close-icon.vue";
 import { NodeType } from "@/types/provider";
+import { CustomEvmNetwork } from "@/providers/ethereum/types/custom-evem-network";
 
 const emit = defineEmits<{
   (e: "networkToggled", name: string, isActive: boolean): void;
+  (e: "networkDeleted", chainId: string): void;
 }>();
 
 const props = defineProps({
@@ -32,14 +42,23 @@ const props = defineProps({
     },
   },
   isActive: Boolean,
+  isCustomNetwork: Boolean,
 });
 
 const check = async (isChecked: boolean) => {
   emit("networkToggled", props.network.name, isChecked);
 };
+
+const deleteNetwork = async () => {
+  const chainId = (props.network as unknown as CustomEvmNetwork).chainID;
+
+  if (chainId !== undefined) {
+    emit("networkDeleted", chainId);
+  }
+};
 </script>
 
-<style lang="less">
+<style lang="less" scoped>
 @import "~@action/styles/theme.less";
 
 .add-network {
@@ -85,6 +104,17 @@ const check = async (isChecked: boolean) => {
       display: inline-block;
       font-size: 0;
       margin-right: 10px;
+    }
+  }
+
+  &__close {
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0;
+    transition: background 300ms ease-in-out;
+
+    &:hover {
+      background: @black007;
     }
   }
 }

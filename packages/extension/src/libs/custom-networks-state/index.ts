@@ -18,6 +18,14 @@ export default class CustomNetworksState {
     );
 
     if (state && state.customEvmNetworks) {
+      const networkExists = state.customEvmNetworks.find(
+        (net) => net.chainID === options.chainID
+      );
+
+      if (networkExists) {
+        return;
+      }
+
       state.customEvmNetworks.push(options);
       await this.storage.set(StorageKeys.customNetworksInfo, state);
     } else {
@@ -58,5 +66,19 @@ export default class CustomNetworksState {
     }
 
     return [];
+  }
+
+  async deleteNetwork(chainID: string): Promise<void> {
+    const state: IState = await this.storage.get(
+      StorageKeys.customNetworksInfo
+    );
+
+    if (state && state.customEvmNetworks) {
+      state.customEvmNetworks = state.customEvmNetworks.filter(
+        (net) => net.chainID !== chainID
+      );
+
+      await this.storage.set(StorageKeys.customNetworksInfo, state);
+    }
   }
 }
