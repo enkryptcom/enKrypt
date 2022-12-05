@@ -230,6 +230,20 @@ const blockURLChanged = (newVal: string) => {
   blockURLValue.value = newVal;
 };
 const sendAction = async () => {
+  let blockExplorerAddr: string | undefined;
+  let blockExplorerTX: string | undefined;
+
+  if (!blockURLInvalid.value && blockURLValue.value !== "") {
+    let blockExplorer = blockURLValue.value;
+
+    if (!blockExplorer.endsWith("/")) {
+      blockExplorer = `${blockExplorer}/`;
+    }
+
+    blockExplorerAddr = `${blockExplorer}address/[[address]]`;
+    blockExplorerTX = `${blockExplorer}tx/[[txHash]]`;
+  }
+
   const customNetworkOptions: CustomEvmNetworkOptions = {
     name: nameValue.value.trim().split(" ").join(""),
     name_long: nameValue.value,
@@ -237,6 +251,8 @@ const sendAction = async () => {
     currencyNameLong: nameValue.value,
     chainID: toHex(chainIDValue.value) as `0x${string}`,
     node: rpcURLValue.value,
+    blockExplorerAddr,
+    blockExplorerTX,
   };
 
   await customNetworksState.addCustomNetwork(customNetworkOptions);
@@ -245,6 +261,7 @@ const sendAction = async () => {
   symbolValue.value = "";
   chainIDValue.value = "";
   rpcURLValue.value = "";
+  blockURLValue.value = "";
 
   props.back();
 };

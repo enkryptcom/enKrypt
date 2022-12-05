@@ -9,6 +9,8 @@ export interface CustomEvmNetworkOptions {
   currencyName: string;
   currencyNameLong: string;
   node: string;
+  blockExplorerAddr?: string;
+  blockExplorerTX?: string;
 }
 
 export class CustomEvmNetwork extends EvmNetwork {
@@ -22,8 +24,9 @@ export class CustomEvmNetwork extends EvmNetwork {
       icon: require("../networks/icons/eth.svg"),
       gradient: "linear-gradient(180deg, #C549FF 0%, #684CFF 100%)",
       activityHandler: wrapActivityHandler(() => Promise.resolve([])),
-      blockExplorerAddr: "https://www.enkrypt.com/",
-      blockExplorerTX: "https://www.enkrypt.com/",
+      blockExplorerAddr:
+        options.blockExplorerAddr ?? "https://www.enkrypt.com/",
+      blockExplorerTX: options.blockExplorerTX ?? "https://www.enkrypt.com/",
       homePage: "https://www.enkrypt.com/",
       isTestNetwork: false,
       name: networkName,
