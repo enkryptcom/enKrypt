@@ -27,7 +27,7 @@ import Switch from "@action/components/switch/index.vue";
 // import InfoIcon from "@action/icons/common/info-icon.vue";
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import { NodeType } from "@/types/provider";
-import { CustomEvmNetwork } from "@/providers/ethereum/types/custom-evem-network";
+import { CustomEvmNetwork } from "@/providers/ethereum/types/custom-evm-network";
 
 const emit = defineEmits<{
   (e: "networkToggled", name: string, isActive: boolean): void;

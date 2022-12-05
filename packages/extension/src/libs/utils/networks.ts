@@ -5,7 +5,7 @@ import PolkadotNetworks from "@/providers/polkadot/networks";
 import BitcoinNetworks from "@/providers/bitcoin/networks";
 import { BaseNetwork } from "@/types/base-network";
 import CustomNetworksState from "../custom-networks-state";
-import { CustomEvmNetwork } from "@/providers/ethereum/types/custom-evem-network";
+import { CustomEvmNetwork } from "@/providers/ethereum/types/custom-evm-network";
 import Ethereum from "@/providers/ethereum/networks/eth";
 import Polkadot from "@/providers/polkadot/networks/polkadot";
 import Bitcoin from "@/providers/bitcoin/networks/bitcoin";
@@ -19,9 +19,9 @@ const providerNetworks: Record<ProviderName, Record<string, BaseNetwork>> = {
 const getAllNetworks = async (): Promise<BaseNetwork[]> => {
   const customNetworksState = new CustomNetworksState();
 
-  const customNetworks = (await customNetworksState.getAllCustomNetworks()).map(
-    (options) => new CustomEvmNetwork(options)
-  );
+  const customNetworks = (
+    await customNetworksState.getAllCustomEVMNetworks()
+  ).map((options) => new CustomEvmNetwork(options));
 
   return (Object.values(EthereumNetworks) as BaseNetwork[])
     .concat(Object.values(PolkadotNetworks) as BaseNetwork[])
@@ -39,10 +39,10 @@ const getProviderNetworkByName = async (
 ): Promise<BaseNetwork | undefined> => {
   let networks = Object.values(providerNetworks[provider]);
 
-  if (provider === "ethereum") {
+  if (provider === ProviderName.ethereum) {
     const customNetworkState = new CustomNetworksState();
     const customNetworks = (
-      await customNetworkState.getAllCustomNetworks()
+      await customNetworkState.getAllCustomEVMNetworks()
     ).map((options) => new CustomEvmNetwork(options));
 
     networks = [...customNetworks, ...networks];

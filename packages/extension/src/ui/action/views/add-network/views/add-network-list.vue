@@ -59,7 +59,7 @@ import { getAllNetworks, POPULAR_NAMES } from "@/libs/utils/networks";
 import NetworksState from "@/libs/networks-state";
 import scrollSettings from "@/libs/utils/scroll-settings";
 import { computed } from "@vue/reactivity";
-import { CustomEvmNetwork } from "@/providers/ethereum/types/custom-evem-network";
+import { CustomEvmNetwork } from "@/providers/ethereum/types/custom-evm-network";
 import CustomNetworksState from "@/libs/custom-networks-state";
 
 interface NodeTypesWithActive extends NodeType {
@@ -153,7 +153,7 @@ const onToggle = async (networkName: string, isActive: boolean) => {
 
 const onNetworkDeleted = async (chainId: string) => {
   const customNetworksState = new CustomNetworksState();
-  await customNetworksState.deleteNetwork(chainId);
+  await customNetworksState.deleteEVMNetwork(chainId);
 
   all.value = await getAllNetworksAndStatus();
   emit("update:activeNetworks");

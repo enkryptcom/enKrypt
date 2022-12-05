@@ -1,4 +1,4 @@
-import { CustomEvmNetworkOptions } from "@/providers/ethereum/types/custom-evem-network";
+import { CustomEvmNetworkOptions } from "@/providers/ethereum/types/custom-evm-network";
 import { InternalStorageNamespace } from "@/types/provider";
 import BrowserStorage from "../common/browser-storage";
 import { IState, StorageKeys } from "./types";
@@ -36,8 +36,8 @@ export default class CustomNetworksState {
     }
   }
 
-  async getCustomNetwork(
-    chainId: string
+  async getCustomEVMNetwork(
+    chainId: `0x${string}`
   ): Promise<CustomEvmNetworkOptions | null> {
     const state: IState = await this.storage.get(
       StorageKeys.customNetworksInfo
@@ -56,7 +56,7 @@ export default class CustomNetworksState {
     return null;
   }
 
-  async getAllCustomNetworks(): Promise<CustomEvmNetworkOptions[]> {
+  async getAllCustomEVMNetworks(): Promise<CustomEvmNetworkOptions[]> {
     const state: IState = await this.storage.get(
       StorageKeys.customNetworksInfo
     );
@@ -68,7 +68,7 @@ export default class CustomNetworksState {
     return [];
   }
 
-  async deleteNetwork(chainID: string): Promise<void> {
+  async deleteEVMNetwork(chainID: string): Promise<void> {
     const state: IState = await this.storage.get(
       StorageKeys.customNetworksInfo
     );
