@@ -52,8 +52,8 @@ import { PropType } from "vue";
 import TransactionFeeItem from "./components/transaction-fee-item.vue";
 import TimeIcon from "@action/icons/fee/time-icon.vue";
 import CloseIcon from "@action/icons/common/close-icon.vue";
-import { GasPriceTypes } from "@/providers/ethereum/libs/transaction/types";
-import { GasFeeType } from "@/providers/ethereum/ui/types";
+
+import { GasFeeType, GasPriceTypes } from "@/providers/common/types";
 import { FeeDescriptions } from "@/providers/ethereum/libs/transaction/gas-utils";
 const emit = defineEmits<{
   (e: "closePopup"): void;

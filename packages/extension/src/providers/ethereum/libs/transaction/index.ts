@@ -4,9 +4,9 @@ import {
   FinalizedFeeMarketEthereumTransaction,
   FinalizedLegacyEthereumTransaction,
   GasCosts,
-  GasPriceTypes,
   TransactionOptions,
 } from "./types";
+import { GasPriceTypes } from "@/providers/common/types";
 import { numberToHex, toBN } from "web3-utils";
 import {
   getBaseFeeBasedOnType,

@@ -15,6 +15,7 @@ const ksmOptions: SubstrateNetworkOptions = {
   blockExplorerAddr: "https://kusama.subscan.io/account/[[address]]",
   isTestNetwork: false,
   currencyName: "KSM",
+  currencyNameLong: "Kusama",
   icon: require("./icons/kusama.svg"),
   decimals: 12,
   prefix: 2,

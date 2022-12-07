@@ -126,8 +126,8 @@ import SignLogo from "@action/icons/common/sign-logo.vue";
 import RightChevron from "@action/icons/common/right-chevron.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import CommonPopup from "@action/views/common-popup/index.vue";
-import SendFeeSelect from "./send-transaction/components/send-fee-select.vue";
-import HardwareWalletMsg from "./components/hardware-wallet-msg.vue";
+import SendFeeSelect from "@/providers/common/ui/send-transaction/send-fee-select.vue";
+import HardwareWalletMsg from "@/providers/common/ui/verify-transaction/hardware-wallet-msg.vue";
 import TransactionFeeView from "@action/views/transaction-fee/index.vue";
 import { getCustomError, getError } from "@/libs/error";
 import { ErrorCodes } from "@/providers/ethereum/types";
@@ -136,11 +136,7 @@ import {
   DEFAULT_EVM_NETWORK_NAME,
   getNetworkByName,
 } from "@/libs/utils/networks";
-import {
-  DecodedTx,
-  EthereumTransaction,
-  GasPriceTypes,
-} from "../libs/transaction/types";
+import { DecodedTx, EthereumTransaction } from "../libs/transaction/types";
 import Transaction from "@/providers/ethereum/libs/transaction";
 import Web3Eth from "web3-eth";
 import { EvmNetwork } from "../types/evm-network";
@@ -148,15 +144,16 @@ import { fromBase } from "@/libs/utils/units";
 import { decodeTx } from "../libs/transaction/decoder";
 import { ProviderRequestOptions } from "@/types/provider";
 import BigNumber from "bignumber.js";
-import { GasFeeType } from "./types";
+import { GasFeeType, GasPriceTypes } from "@/providers/common/types";
 import MarketData from "@/libs/market-data";
-import { defaultGasCostVals } from "./common/default-vals";
+import { defaultGasCostVals } from "@/providers/common/libs/default-vals";
 import { EnkryptAccount, NetworkNames } from "@enkryptcom/types";
 import { TransactionSigner } from "./libs/signer";
 import { Activity, ActivityStatus, ActivityType } from "@/types/activity";
 import { generateAddress } from "ethereumjs-util";
 import ActivityState from "@/libs/activity-state";
 import { bigIntToBuffer } from "@enkryptcom/utils";
+import broadcastTx from "../libs/tx-broadcaster";
 
 const isProcessing = ref(false);
 const isOpenSelectFee = ref(false);
@@ -280,62 +277,66 @@ const approve = async () => {
         account: account.value,
         network: network.value,
         payload: finalizedTx,
-      })
-        .then((tx) => {
-          const txActivity: Activity = {
-            from: account.value.address,
-            to: tx.to
-              ? tx.to.toString()
-              : `0x${generateAddress(
-                  tx.getSenderAddress().toBuffer(),
-                  bigIntToBuffer(tx.nonce)
-                ).toString("hex")}`,
-            isIncoming: tx.getSenderAddress().toString() === tx.to?.toString(),
-            network: network.value.name,
-            status: ActivityStatus.pending,
-            timestamp: new Date().getTime(),
-            token: {
-              decimals: decodedTx.value?.tokenDecimals || 18,
-              icon: decodedTx.value?.tokenImage || "",
-              name: decodedTx.value?.tokenName || "Unknown",
-              symbol: decodedTx.value?.tokenSymbol || "UKNWN",
-              price: decodedTx.value?.currentPriceUSD.toString() || "0",
-            },
-            type: ActivityType.transaction,
-            value: decodedTx.value?.tokenValue || "0x0",
-            transactionHash: "",
-          };
-          web3
-            .sendSignedTransaction("0x" + tx.serialize().toString("hex"))
-            .on("transactionHash", (hash) => {
-              activityState
-                .addActivities(
-                  [{ ...txActivity, ...{ transactionHash: hash } }],
-                  { address: txActivity.from, network: network.value.name }
-                )
-                .then(() => {
-                  Resolve.value({
-                    result: JSON.stringify(hash),
-                  });
-                });
+      }).then((tx) => {
+        const txActivity: Activity = {
+          from: account.value.address,
+          to: tx.to
+            ? tx.to.toString()
+            : `0x${generateAddress(
+                tx.getSenderAddress().toBuffer(),
+                bigIntToBuffer(tx.nonce)
+              ).toString("hex")}`,
+          isIncoming: tx.getSenderAddress().toString() === tx.to?.toString(),
+          network: network.value.name,
+          status: ActivityStatus.pending,
+          timestamp: new Date().getTime(),
+          token: {
+            decimals: decodedTx.value?.tokenDecimals || 18,
+            icon: decodedTx.value?.tokenImage || "",
+            name: decodedTx.value?.tokenName || "Unknown",
+            symbol: decodedTx.value?.tokenSymbol || "UKNWN",
+            price: decodedTx.value?.currentPriceUSD.toString() || "0",
+          },
+          type: ActivityType.transaction,
+          value: decodedTx.value?.tokenValue || "0x0",
+          transactionHash: "",
+        };
+        const onHash = (hash: string) => {
+          activityState
+            .addActivities([{ ...txActivity, ...{ transactionHash: hash } }], {
+              address: txActivity.from,
+              network: network.value.name,
             })
-            .on("error", (error) => {
-              txActivity.status = ActivityStatus.failed;
-              activityState
-                .addActivities([txActivity], {
-                  address: txActivity.from,
-                  network: network.value.name,
-                })
-                .then(() => {
-                  Resolve.value({
-                    error: getCustomError(error.message),
-                  });
-                });
+            .then(() => {
+              Resolve.value({
+                result: JSON.stringify(hash),
+              });
             });
-        })
-        .catch((err) => {
-          Resolve.value(err);
-        });
+        };
+        broadcastTx("0x" + tx.serialize().toString("hex"), network.value.name)
+          .then(onHash)
+          .catch(() => {
+            web3
+              .sendSignedTransaction("0x" + tx.serialize().toString("hex"))
+              .on("transactionHash", onHash)
+              .on("error", (error) => {
+                txActivity.status = ActivityStatus.failed;
+                activityState
+                  .addActivities([txActivity], {
+                    address: txActivity.from,
+                    network: network.value.name,
+                  })
+                  .then(() => {
+                    Resolve.value({
+                      error: getCustomError(error.message),
+                    });
+                  });
+              });
+          })
+          .catch((err) => {
+            Resolve.value(err);
+          });
+      });
     }
   );
 };
@@ -360,5 +361,5 @@ const toggleData = () => {
 
 <style lang="less">
 @import "~@action/styles/theme.less";
-@import "./styles/verify-transaction.less";
+@import "@/providers/common/ui/styles/verify-transaction.less";
 </style>

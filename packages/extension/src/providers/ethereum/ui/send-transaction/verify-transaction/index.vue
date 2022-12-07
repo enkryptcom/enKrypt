@@ -76,12 +76,12 @@ import { onBeforeMount, ref, ComponentPublicInstance } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import BaseButton from "@action/components/base-button/index.vue";
-import VerifyTransactionNetwork from "./components/verify-transaction-network.vue";
-import VerifyTransactionAccount from "./components/verify-transaction-account.vue";
-import VerifyTransactionAmount from "./components/verify-transaction-amount.vue";
-import VerifyTransactionFee from "./components/verify-transaction-fee.vue";
+import VerifyTransactionNetwork from "@/providers/common/ui/verify-transaction/verify-transaction-network.vue";
+import VerifyTransactionAccount from "@/providers/common/ui/verify-transaction/verify-transaction-account.vue";
+import VerifyTransactionAmount from "@/providers/common/ui/verify-transaction/verify-transaction-amount.vue";
+import VerifyTransactionFee from "@/providers/common/ui/verify-transaction/verify-transaction-fee.vue";
 import VerifyTransactionNft from "./components/verify-transaction-nft.vue";
-import HardwareWalletMsg from "../../components/hardware-wallet-msg.vue";
+import HardwareWalletMsg from "@/providers/common/ui/verify-transaction/hardware-wallet-msg.vue";
 import SendProcess from "@action/views/send-process/index.vue";
 import { nft } from "@action/types/mock";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
@@ -95,6 +95,7 @@ import { ActivityStatus, Activity, ActivityType } from "@/types/activity";
 import ActivityState from "@/libs/activity-state";
 import { EnkryptAccount } from "@enkryptcom/types";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
+import broadcastTx from "@/providers/ethereum/libs/tx-broadcaster";
 
 const KeyRing = new PublicKeyRing();
 const route = useRoute();
@@ -149,6 +150,24 @@ const sendAction = async () => {
     transactionHash: "",
   };
   const activityState = new ActivityState();
+  const onHash = (hash: string) => {
+    activityState.addActivities(
+      [{ ...txActivity, ...{ transactionHash: hash } }],
+      { address: txData.fromAddress, network: network.name }
+    );
+    isSendDone.value = true;
+    if (getCurrentContext() === "popup") {
+      setTimeout(() => {
+        isProcessing.value = false;
+        router.go(-2);
+      }, 4500);
+    } else {
+      setTimeout(() => {
+        isProcessing.value = false;
+        window.close();
+      }, 1500);
+    }
+  };
   await tx
     .getFinalizedTransaction({ gasPriceType: txData.gasPriceType })
     .then(async (finalizedTx) => {
@@ -156,42 +175,30 @@ const sendAction = async () => {
         account: account.value!,
         network,
         payload: finalizedTx,
-      })
-        .then((signedTx) => {
-          web3
-            .sendSignedTransaction("0x" + signedTx.serialize().toString("hex"))
-            .on("transactionHash", (hash: string) => {
-              activityState.addActivities(
-                [{ ...txActivity, ...{ transactionHash: hash } }],
-                { address: txData.fromAddress, network: network.name }
-              );
-              isSendDone.value = true;
-              if (getCurrentContext() === "popup") {
-                setTimeout(() => {
-                  isProcessing.value = false;
-                  router.go(-2);
-                }, 4500);
-              } else {
-                setTimeout(() => {
-                  isProcessing.value = false;
-                  window.close();
-                }, 1500);
-              }
-            })
-            .on("error", (error: any) => {
-              txActivity.status = ActivityStatus.failed;
-              activityState.addActivities([txActivity], {
-                address: txData.fromAddress,
-                network: network.name,
+      }).then((signedTx) => {
+        broadcastTx("0x" + signedTx.serialize().toString("hex"), network.name)
+          .then(onHash)
+          .catch(() => {
+            web3
+              .sendSignedTransaction(
+                "0x" + signedTx.serialize().toString("hex")
+              )
+              .on("transactionHash", onHash)
+              .on("error", (error: any) => {
+                txActivity.status = ActivityStatus.failed;
+                activityState.addActivities([txActivity], {
+                  address: txData.fromAddress,
+                  network: network.name,
+                });
+                console.error("ERROR", error);
               });
-              console.error("ERROR", error);
-            });
-        })
-        .catch((error) => {
-          isProcessing.value = false;
-          console.error("error", error);
-          errorMsg.value = JSON.stringify(error);
-        });
+          })
+          .catch((error) => {
+            isProcessing.value = false;
+            console.error("error", error);
+            errorMsg.value = JSON.stringify(error);
+          });
+      });
     });
 };
 const isHasScroll = () => {

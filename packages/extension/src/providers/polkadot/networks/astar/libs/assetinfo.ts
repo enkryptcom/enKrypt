@@ -106,7 +106,7 @@ export default async (
   }
 
   const nativeAsset = new SubstrateNativeToken({
-    name: network.name_long,
+    name: network.currencyNameLong,
     symbol: network.name,
     decimals: network.decimals,
     existentialDeposit: network.existentialDeposit,

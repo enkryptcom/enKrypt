@@ -16,10 +16,16 @@ export enum NetworkNames {
   Kusama = "KSM",
   Polkadot = "DOT",
   Westend = "WND",
+  Bitcoin = "BTC",
+  BitcoinTest = "BTCTest",
   Astar = "ASTR",
   Shiden = "SDN",
   ShidenEVM = "SDN EVM",
   AstarEVM = "ASTR EVM",
+  Optimism = "OP",
+  Canto = "CANTO",
+  Bifrost = "BNC",
+  BifrostKusama = "BNC (Kusama)",
 }
 
 export enum CoingeckoPlatform {
@@ -37,4 +43,7 @@ export enum CoingeckoPlatform {
   Okc = "okc",
   Astar = "astar",
   Shiden = "shiden network",
+  Optimism = "optimistic-ethereum",
+  Canto = "canto",
+  Bifrost = "Bifrost Native Coin",
 }

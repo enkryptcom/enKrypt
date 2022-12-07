@@ -28,6 +28,7 @@ export interface SubstrateNetworkOptions {
   blockExplorerAddr: string;
   isTestNetwork: boolean;
   currencyName: string;
+  currencyNameLong: string;
   icon: string;
   decimals: number;
   prefix: number;
@@ -105,7 +106,7 @@ export class SubstrateNetwork extends BaseNetwork {
       return Promise.resolve(this.assets);
     } else {
       const nativeToken = new SubstrateNativeToken({
-        name: this.name_long,
+        name: this.currencyNameLong,
         symbol: this.name,
         coingeckoID: this.coingeckoID,
         decimals: this.decimals,
@@ -124,7 +125,7 @@ export class SubstrateNetwork extends BaseNetwork {
 
     if (supported.length === 0) {
       const nativeToken = new SubstrateNativeToken({
-        name: this.name_long,
+        name: this.currencyNameLong,
         symbol: this.name,
         coingeckoID: this.coingeckoID,
         decimals: this.decimals,

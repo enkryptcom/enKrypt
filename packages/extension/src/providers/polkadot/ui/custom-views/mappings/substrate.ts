@@ -5,7 +5,7 @@ import { polkadotEncodeAddress } from "@enkryptcom/utils";
 export const nativeTransfer = (network: SubstrateNetwork, data: any) => {
   const to = polkadotEncodeAddress(data.dest["Id"], network.prefix);
   const token = new SubstrateNativeToken({
-    name: network.name_long,
+    name: network.currencyNameLong,
     symbol: network.name,
     coingeckoID: network.coingeckoID,
     decimals: network.decimals,

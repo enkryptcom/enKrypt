@@ -1,7 +1,7 @@
 import BigNumber from "bignumber.js";
 import { BN } from "ethereumjs-util";
 import { toBN, toWei } from "web3-utils";
-import { GasPriceTypes } from "./types";
+import { GasPriceTypes } from "@/providers/common/types";
 
 const MED_CONST = 21428571428.571;
 const MED_MULTIPLIER = 1.0714285714286;

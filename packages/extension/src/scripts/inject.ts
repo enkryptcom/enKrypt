@@ -6,6 +6,8 @@ import {
 import { ProviderName, ProviderType } from "@/types/provider";
 import EthereumProvider from "@/providers/ethereum/inject";
 import PolkadotProvider from "@/providers/polkadot/inject";
+import BitcoinProvider from "@/providers/bitcoin/inject";
+
 import { InternalMethods, InjectedIDs } from "@/types/messenger";
 setWindowNamespace();
 (window as Window).enkrypt = {
@@ -40,5 +42,10 @@ EthereumProvider(window, {
 PolkadotProvider(window, {
   name: ProviderName.polkadot,
   type: ProviderType.substrate,
+  sendMessageHandler: providerSendMessage,
+});
+BitcoinProvider(window, {
+  name: ProviderName.bitcoin,
+  type: ProviderType.bitcoin,
   sendMessageHandler: providerSendMessage,
 });

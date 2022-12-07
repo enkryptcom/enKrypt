@@ -383,6 +383,9 @@ watch(toToken, async () => {
         case "BNB":
           toNetwork = getNetworkByName("BSC");
           break;
+        case "BTC":
+          toNetwork = getNetworkByName("BTC");
+          break;
       }
     }
 

@@ -1,6 +1,6 @@
 {
   "name": "@enkryptcom/extension",
-  "version": "1.6.0",
+  "version": "1.8.0",
   "private": true,
   "scripts": {
     "zip": "cd dist; zip -r release.zip *;",
@@ -10,7 +10,7 @@
     "lint": "vue-cli-service lint --fix",
     "build:rollup": "cross-env minify=on rollup --config configs/rollup.config.contentscript.js && cross-env minify=on rollup --config configs/rollup.config.inject.js",
     "inspectWebpack": "vue-cli-service inspect > webpack.log",
-    "test": "ts-mocha --paths -p configs/tsconfig.test.json ./**/*.mocha.ts",
+    "test": "ts-mocha --require ./configs/testNullCompiler.js --paths -p configs/tsconfig.test.json ./**/*.mocha.ts",
     "watch": "rimraf dist && concurrently 'npm:watch-*(!firefox)'",
     "watch:firefox": "concurrently 'npm:watch-*(!chrome)'",
     "watch-contentscript": "rollup --watch --config configs/rollup.config.contentscript.js",
@@ -40,6 +40,8 @@
     "add": "^2.0.6",
     "bignumber.js": "^9.1.0",
     "bip39": "^3.0.4",
+    "bitcoinjs-lib": "^6.0.2",
+    "bitcoinjs-message": "^2.2.0",
     "chai": "^4.3.6",
     "concurrently": "^7.4.0",
     "core-js": "^3.25.2",
@@ -83,6 +85,7 @@
     "@types/mocha": "^9.1.1",
     "@types/url-parse": "^1.4.8",
     "@types/uuid": "^8.3.4",
+    "@types/wif": "^2.0.2",
     "@types/zxcvbn": "^4.4.1",
     "@typescript-eslint/eslint-plugin": "^5.38.0",
     "@typescript-eslint/parser": "^5.38.0",

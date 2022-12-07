@@ -6,12 +6,14 @@ import rinkebyNode from "./rin";
 import etcNode from "./etc";
 import maticNode from "./matic";
 import bscNode from "./bsc";
-import moonbeamNode from "./moonbeam";
-import moonriverNode from "./moonriver";
+import moonbeamNode from "./glmr";
+import moonriverNode from "./movr";
 import karuraEvmNode from "./karura";
 import okcNode from "./okc";
 import shidenEvmNode from "./sdn";
 import astarEvmNode from "./astr";
+import optimismNode from "./op";
+import cantoNode from "./canto";
 
 export default {
   goerli: goerliNode,
@@ -28,4 +30,6 @@ export default {
   okc: okcNode,
   shidenEvm: shidenEvmNode,
   astarEvm: astarEvmNode,
+  op: optimismNode,
+  canto: cantoNode,
 };

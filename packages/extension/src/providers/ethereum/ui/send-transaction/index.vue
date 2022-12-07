@@ -129,29 +129,29 @@
 <script setup lang="ts">
 import { ref, onMounted, PropType, computed, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import { debounce } from "lodash";
 import SendHeader from "./components/send-header.vue";
 import SendAddressInput from "./components/send-address-input.vue";
-import SendFromContactsList from "./components/send-from-contacts-list.vue";
-import SendContactsList from "./components/send-contacts-list.vue";
+import SendFromContactsList from "@/providers/common/ui/send-transaction/send-from-contacts-list.vue";
+import SendContactsList from "@/providers/common/ui/send-transaction/send-contacts-list.vue";
 import AssetsSelectList from "@action/views/assets-select-list/index.vue";
 import NftSelectList from "@action/views/nft-select-list/index.vue";
 import SendTokenSelect from "./components/send-token-select.vue";
-import SendAlert from "./components/send-alert.vue";
+import SendAlert from "@/providers/common/ui/send-transaction/send-alert.vue";
 import SendNftSelect from "./components/send-nft-select.vue";
-import SendInputAmount from "./components/send-input-amount.vue";
-import SendFeeSelect from "./components/send-fee-select.vue";
+import SendInputAmount from "@/providers/common/ui/send-transaction/send-input-amount.vue";
+import SendFeeSelect from "@/providers/common/ui/send-transaction/send-fee-select.vue";
 import TransactionFeeView from "@action/views/transaction-fee/index.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import { NFTItem } from "@action/types/nft";
 import { AccountsHeaderData } from "@action/types/account";
 import { isAddress, numberToHex, toBN } from "web3-utils";
 import { nft } from "@action/types/mock";
-import { GasPriceTypes } from "../../../../providers/ethereum/libs/transaction/types";
-import { GasFeeType } from "../../../../providers/ethereum/ui/types";
+import { GasPriceTypes, GasFeeType } from "@/providers/common/types";
 import { EvmNetwork } from "../../types/evm-network";
 import { Erc20Token } from "../../types/erc20-token";
 import BigNumber from "bignumber.js";
-import { defaultGasCostVals } from "../common/default-vals";
+import { defaultGasCostVals } from "@/providers/common/libs/default-vals";
 import Transaction from "@/providers/ethereum/libs/transaction";
 import Web3Eth from "web3-eth";
 import { NATIVE_TOKEN_ADDRESS } from "../../libs/common";
@@ -164,6 +164,7 @@ import getUiPath from "@/libs/utils/get-ui-path";
 import Browser from "webextension-polyfill";
 import { ProviderName } from "@/types/provider";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
+import { GenericNameResolver, CoinType } from "@/libs/name-resolver";
 
 const props = defineProps({
   network: {
@@ -185,9 +186,11 @@ const loadingAsset = new Erc20Token({
   decimals: 18,
 });
 
-const addressInputTo = ref();
 const route = useRoute();
 const router = useRouter();
+
+const nameResolver = new GenericNameResolver();
+const addressInputTo = ref();
 const selected: string = route.params.id as string;
 const accountAssets = ref<Erc20Token[]>([]);
 const selectedAsset = ref<Erc20Token | Partial<Erc20Token>>(loadingAsset);
@@ -255,7 +258,7 @@ const TxInfo = computed<SendTransactionDataType>(() => {
           )
           .encodeABI();
   return {
-    chainId: numberToHex(props.network.chainID) as `0x{string}`,
+    chainId: props.network.chainID,
     from: addressFrom.value as `0x{string}`,
     value: value as `0x${string}`,
     to: toAddress as `0x${string}`,
@@ -345,7 +348,7 @@ const setBaseCosts = () => {
   const web3 = new Web3Eth(props.network.node);
   const tx = new Transaction(
     {
-      chainId: numberToHex(props.network.chainID) as `0x{string}`,
+      chainId: props.network.chainID,
       from: props.accountInfo.selectedAccount!.address as `0x{string}`,
       value: "0x0",
       to: NATIVE_TOKEN_ADDRESS,
@@ -440,7 +443,17 @@ const inputAddressFrom = (text: string) => {
   addressFrom.value = text;
 };
 
-const inputAddressTo = (text: string) => {
+const inputAddressTo = async (text: string) => {
+  const debounceResolve = debounce(() => {
+    nameResolver
+      .resolveName(text, [props.network.name as CoinType, "ETH"])
+      .then((resolved) => {
+        if (resolved) {
+          addressTo.value = resolved;
+        }
+      });
+  }, 500);
+  debounceResolve();
   addressTo.value = text;
 };
 

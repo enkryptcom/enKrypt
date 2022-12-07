@@ -52,7 +52,7 @@ export interface EthereumRequest {
 
 export interface EthereumNodeType extends NodeType {
   signer: [SignerType.secp256k1];
-  chainID: number;
+  chainID: `0x${string}`;
 }
 
 export interface ERC20TokenInfo {

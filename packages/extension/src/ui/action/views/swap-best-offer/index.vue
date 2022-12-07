@@ -101,7 +101,7 @@ import SwapBestOfferBlock from "./components/swap-best-offer-block/index.vue";
 import SwapInitiated from "@action/views/swap-initiated/index.vue";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 import BestOfferError from "./components/swap-best-offer-block/components/best-offer-error.vue";
-import SendFeeSelect from "@/providers/ethereum/ui/send-transaction/components/send-fee-select.vue";
+import SendFeeSelect from "@/providers/common/ui/send-transaction/send-fee-select.vue";
 import SendFeeDisplay from "@/providers/polkadot/ui/send-transaction/components/send-fee-display.vue";
 import TransactionFeeView from "@action/views/transaction-fee/index.vue";
 import scrollSettings from "@/libs/utils/scroll-settings";
@@ -110,16 +110,19 @@ import { BaseToken } from "@/types/base-token";
 import { Swap } from "@/providers/swap";
 import { BaseNetwork } from "@/types/base-network";
 import { AccountsHeaderData } from "../../types/account";
-import { numberToHex, toBN } from "web3-utils";
+import { toBN } from "web3-utils";
 import BN from "bn.js";
 import Web3Eth from "web3-eth";
 import Transaction from "@/providers/ethereum/libs/transaction";
 import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
-import { GasPriceTypes } from "@/providers/ethereum/libs/transaction/types";
-import { GasFeeInfo, GasFeeType } from "@/providers/ethereum/ui/types";
+import {
+  GasFeeInfo,
+  GasFeeType,
+  GasPriceTypes,
+} from "@/providers/common/types";
 import { fromBase } from "@/libs/utils/units";
 import BigNumber from "bignumber.js";
-import { defaultGasCostVals } from "@/providers/ethereum/ui/common/default-vals";
+import { defaultGasCostVals } from "@/providers/common/libs/default-vals";
 import { SwapBestOfferWarnings } from "./components/types";
 import { Erc20Token } from "@/providers/ethereum/types/erc20-token";
 import { NATIVE_TOKEN_ADDRESS } from "@/providers/ethereum/libs/common";
@@ -252,9 +255,7 @@ const Tx = computed(() => {
           to: txData.to as `0x${string}`,
           from: txData.from as `0x${string}`,
           data: txData.data,
-          chainId: numberToHex(
-            (props.network as EvmNetwork).chainID
-          ) as `0x${string}`,
+          chainId: (props.network as EvmNetwork).chainID,
           value: txData.value,
           gas: txData.gas,
         },
