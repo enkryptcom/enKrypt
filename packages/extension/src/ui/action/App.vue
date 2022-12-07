@@ -72,7 +72,7 @@
     />
 
     <settings v-if="settingsShow" @close:popup="settingsShow = !settingsShow" />
-    <!-- <modal-rate v-if="rateShow" @close:popup="rateShow = !rateShow" /> -->
+    <modal-rate v-if="rateShow" @close:popup="rateShow = !rateShow" />
   </div>
 </template>
 
@@ -116,9 +116,11 @@ import Browser from "webextension-polyfill";
 import EVMAccountState from "@/providers/ethereum/libs/accounts-state";
 import { ProviderName } from "@/types/provider";
 import { onClickOutside } from "@vueuse/core";
+import RateState from "@/libs/rate-state";
 
 const domainState = new DomainState();
 const networksState = new NetworksState();
+const rateState = new RateState();
 const appMenuRef = ref(null);
 const networkGradient = ref("");
 const showDepositWindow = ref(false);
@@ -196,6 +198,10 @@ const init = async () => {
   await setActiveNetworks();
 };
 onMounted(async () => {
+  if (await rateState.showPopup()) {
+    rateShow.value = true;
+  }
+
   const isInitialized = await kr.isInitialized();
   if (isInitialized) {
     const _isLocked = await isKeyRingLocked();
@@ -331,10 +337,6 @@ const lockAction = async () => {
 const settingsAction = () => {
   closeMoreMenu();
   settingsShow.value = !settingsShow.value;
-};
-const rateAction = () => {
-  closeMoreMenu();
-  rateShow.value = !rateShow.value;
 };
 const toggleMoreMenu = () => {
   if (timeout != null) {

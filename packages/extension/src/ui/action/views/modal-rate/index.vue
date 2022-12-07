@@ -24,15 +24,21 @@
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import DeviceDetector from "device-detector-js";
+import RateState from "@/libs/rate-state";
+
+const rateState = new RateState();
 
 const emit = defineEmits<{
   (e: "close:popup"): void;
 }>();
-const close = () => {
+const close = async () => {
+  await rateState.resetPopupTimer();
   emit("close:popup");
 };
 
-const goToFeedback = () => {
+const goToFeedback = async () => {
+  await rateState.resetPopupTimer();
+
   window.open(
     "https://www.enkrypt.com/?ref=enkrypt_help",
     "_blank",
@@ -62,7 +68,9 @@ const rateLinks: {
     "https://apps.apple.com/ae/app/enkrypt-web3-wallet/id1640164309?mt=12",
 };
 
-const goToRate = () => {
+const goToRate = async () => {
+  await rateState.setRated();
+
   if (browser) window.open((rateLinks as any)[browser], "_blank", "noopener");
 };
 </script>
