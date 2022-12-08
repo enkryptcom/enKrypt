@@ -72,6 +72,7 @@
     />
 
     <settings v-if="settingsShow" @close:popup="settingsShow = !settingsShow" />
+    <modal-rate v-if="rateShow" @close:popup="rateShow = !rateShow" />
   </div>
 </template>
 
@@ -88,6 +89,7 @@ import HoldIcon from "./icons/common/hold-icon.vue";
 import MoreIcon from "./icons/actions/more.vue";
 import AddNetwork from "./views/add-network/index.vue";
 import Settings from "./views/settings/index.vue";
+import ModalRate from "./views/modal-rate/index.vue";
 import { useRouter, useRoute } from "vue-router";
 import { BaseNetwork } from "@/types/base-network";
 import {
@@ -114,9 +116,11 @@ import Browser from "webextension-polyfill";
 import EVMAccountState from "@/providers/ethereum/libs/accounts-state";
 import { ProviderName } from "@/types/provider";
 import { onClickOutside } from "@vueuse/core";
+import RateState from "@/libs/rate-state";
 
 const domainState = new DomainState();
 const networksState = new NetworksState();
+const rateState = new RateState();
 const appMenuRef = ref(null);
 const networkGradient = ref("");
 const showDepositWindow = ref(false);
@@ -139,6 +143,7 @@ const currentNetwork = ref<BaseNetwork>(defaultNetwork);
 const kr = new PublicKeyRing();
 const addNetworkShow = ref(false);
 const settingsShow = ref(false);
+const rateShow = ref(false);
 const dropdown = ref(null);
 const toggle = ref(null);
 
@@ -192,6 +197,10 @@ const init = async () => {
   await setActiveNetworks();
 };
 onMounted(async () => {
+  if (await rateState.showPopup()) {
+    rateShow.value = true;
+  }
+
   const isInitialized = await kr.isInitialized();
   if (isInitialized) {
     const _isLocked = await isKeyRingLocked();

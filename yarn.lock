@@ -2442,6 +2442,7 @@ __metadata:
     core-js: ^3.25.2
     cross-env: ^7.0.3
     crypto-browserify: ^3.12.0
+    device-detector-js: ^3.0.3
     eslint: ^8.23.1
     eslint-config-prettier: ^8.5.0
     eslint-plugin-prettier: ^4.2.1
@@ -12056,6 +12057,13 @@ __metadata:
   version: 2.1.0
   resolution: "detect-node@npm:2.1.0"
   checksum: 832184ec458353e41533ac9c622f16c19f7c02d8b10c303dfd3a756f56be93e903616c0bb2d4226183c9351c15fc0b3dba41a17a2308262afabcfa3776e6ae6e
+  languageName: node
+  linkType: hard
+
+"device-detector-js@npm:^3.0.3":
+  version: 3.0.3
+  resolution: "device-detector-js@npm:3.0.3"
+  checksum: 331f8a6f2e21c510027091b1155cedf1b109ecbb764f39e038244c4049fa502bc217754ad376b7585ff7112c78c1a4d21c026056578058adcfade959cb084795
   languageName: node
   linkType: hard
 
