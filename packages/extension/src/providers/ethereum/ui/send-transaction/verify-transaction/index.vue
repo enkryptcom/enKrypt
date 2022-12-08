@@ -89,13 +89,14 @@ import { VerifyTransactionParams } from "../../types";
 import Transaction from "@/providers/ethereum/libs/transaction";
 import Web3Eth from "web3-eth";
 import { getCurrentContext } from "@/libs/messenger/extension";
-import { getNetworkByName } from "@/libs/utils/networks";
+import { DEFAULT_EVM_NETWORK, getNetworkByName } from "@/libs/utils/networks";
 import { TransactionSigner } from "../../libs/signer";
 import { ActivityStatus, Activity, ActivityType } from "@/types/activity";
 import ActivityState from "@/libs/activity-state";
 import { EnkryptAccount } from "@enkryptcom/types";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 import broadcastTx from "@/providers/ethereum/libs/tx-broadcaster";
+import { BaseNetwork } from "@/types/base-network";
 
 const KeyRing = new PublicKeyRing();
 const route = useRoute();
@@ -106,7 +107,7 @@ const txData: VerifyTransactionParams = JSON.parse(
 );
 const isNft = false;
 const isProcessing = ref(false);
-const network = getNetworkByName(selectedNetwork)!;
+const network = ref<BaseNetwork>(DEFAULT_EVM_NETWORK);
 const isSendDone = ref(false);
 const account = ref<EnkryptAccount>();
 const isPopup: boolean = getCurrentContext() === "new-window";
@@ -115,6 +116,7 @@ const isWindowPopup = ref(false);
 const errorMsg = ref("");
 defineExpose({ verifyScrollRef });
 onBeforeMount(async () => {
+  network.value = (await getNetworkByName(selectedNetwork))!;
   account.value = await KeyRing.getAccount(txData.fromAddress);
   isWindowPopup.value = account.value.isHardware;
 });
@@ -128,14 +130,14 @@ const close = () => {
 
 const sendAction = async () => {
   isProcessing.value = true;
-  const web3 = new Web3Eth(network.node);
+  const web3 = new Web3Eth(network.value.node);
   const tx = new Transaction(txData.TransactionData, web3);
 
   const txActivity: Activity = {
     from: txData.fromAddress,
     to: txData.toAddress,
     isIncoming: txData.fromAddress === txData.toAddress,
-    network: network.name,
+    network: network.value.name,
     status: ActivityStatus.pending,
     timestamp: new Date().getTime(),
     token: {
@@ -153,7 +155,7 @@ const sendAction = async () => {
   const onHash = (hash: string) => {
     activityState.addActivities(
       [{ ...txActivity, ...{ transactionHash: hash } }],
-      { address: txData.fromAddress, network: network.name }
+      { address: txData.fromAddress, network: network.value.name }
     );
     isSendDone.value = true;
     if (getCurrentContext() === "popup") {
@@ -173,10 +175,13 @@ const sendAction = async () => {
     .then(async (finalizedTx) => {
       TransactionSigner({
         account: account.value!,
-        network,
+        network: network.value,
         payload: finalizedTx,
       }).then((signedTx) => {
-        broadcastTx("0x" + signedTx.serialize().toString("hex"), network.name)
+        broadcastTx(
+          "0x" + signedTx.serialize().toString("hex"),
+          network.value.name
+        )
           .then(onHash)
           .catch(() => {
             web3
@@ -188,7 +193,7 @@ const sendAction = async () => {
                 txActivity.status = ActivityStatus.failed;
                 activityState.addActivities([txActivity], {
                   address: txData.fromAddress,
-                  network: network.name,
+                  network: network.value.name,
                 });
                 console.error("ERROR", error);
               });

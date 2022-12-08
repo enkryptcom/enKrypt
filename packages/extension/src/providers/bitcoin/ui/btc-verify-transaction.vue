@@ -129,10 +129,7 @@ import TransactionFeeView from "@action/views/transaction-fee/index.vue";
 import { getCustomError, getError } from "@/libs/error";
 import { ErrorCodes } from "@/providers/ethereum/types";
 import { WindowPromiseHandler } from "@/libs/window-promise";
-import {
-  DEFAULT_BTC_NETWORK_NAME,
-  getNetworkByName,
-} from "@/libs/utils/networks";
+import { DEFAULT_BTC_NETWORK, getNetworkByName } from "@/libs/utils/networks";
 import { fromBase, toBase } from "@/libs/utils/units";
 import { ProviderRequestOptions } from "@/types/provider";
 import { GasFeeType } from "./types";
@@ -159,9 +156,7 @@ const providerVerifyTransactionScrollRef = ref<ComponentPublicInstance>();
 const TokenBalance = ref<string>("0");
 const fiatValue = ref<string>("~");
 const nativePrice = ref<string>("0");
-const network = ref<BitcoinNetwork>(
-  getNetworkByName(DEFAULT_BTC_NETWORK_NAME) as BitcoinNetwork
-);
+const network = ref<BitcoinNetwork>(DEFAULT_BTC_NETWORK);
 const marketdata = new MarketData();
 const gasCostValues = ref<GasFeeType>(defaultGasCostVals);
 const account = ref<EnkryptAccount>({
@@ -188,7 +183,9 @@ defineExpose({ providerVerifyTransactionScrollRef });
 
 onBeforeMount(async () => {
   const { Request, options } = await windowPromise;
-  network.value = getNetworkByName(Request.value.params![2]) as BitcoinNetwork;
+  network.value = (await getNetworkByName(
+    Request.value.params![2]
+  )) as BitcoinNetwork;
   account.value = Request.value.params![1] as EnkryptAccount;
   tx.value = Request.value.params![0];
   identicon.value = network.value.identicon(account.value.address);

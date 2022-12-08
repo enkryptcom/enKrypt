@@ -16,8 +16,9 @@
         type="text"
         label="Network name"
         class="add-network__custom-input"
-        placeholder="Type name"
+        placeholder="Network Name"
         :value="nameValue"
+        :is-error="nameInvalid"
         @update:value="nameChanged"
       />
     </div>
@@ -28,8 +29,9 @@
         label="New RPC URL"
         class="add-network__custom-input"
         placeholder="domain.url"
-        :value="prcURLValue"
-        @update:value="prcURLChanged"
+        :value="rpcURLValue"
+        :is-error="rpcInvalid"
+        @update:value="rpcURLChanged"
       />
     </div>
 
@@ -38,8 +40,9 @@
         type="text"
         label="Chain ID"
         class="add-network__custom-input"
-        placeholder="Text"
+        placeholder="0"
         :value="chainIDValue"
+        :is-error="chainIDInvalid"
         @update:value="chainIDChanged"
       />
 
@@ -49,6 +52,7 @@
         class="add-network__custom-input"
         placeholder="Symbol"
         :value="symbolValue"
+        :is-error="symbolInvalid"
         @update:value="symbolChanged"
       />
     </div>
@@ -60,6 +64,7 @@
         class="add-network__custom-input"
         placeholder="domain.url"
         :value="blockURLValue"
+        :is-error="blockURLInvalid"
         @update:value="blockURLChanged"
       />
     </div>
@@ -75,23 +80,61 @@
 </template>
 
 <script setup lang="ts">
-import { PropType, ref, computed } from "vue";
+import { PropType, ref, computed, onMounted } from "vue";
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import ArrowBack from "@action/icons/common/arrow-back.vue";
 import LabelInput from "@action/components/label-input/index.vue";
 import BaseButton from "@action/components/base-button/index.vue";
+import Web3 from "web3-eth";
+import { CustomEvmNetworkOptions } from "@/providers/ethereum/types/custom-evm-network";
+import { toHex } from "web3-utils";
+import CustomNetworksState from "@/libs/custom-networks-state";
+
+interface NetworkConfigItem {
+  name: string;
+  chain: string;
+  rpc: string[];
+  shortName: string;
+  nativeCurrency: {
+    name: string;
+    symbol: string;
+    decimals: number;
+  };
+  chainId: number;
+  networkId: number;
+}
+
+const customNetworksState = new CustomNetworksState();
 
 const nameValue = ref<string>("");
-const prcURLValue = ref<string>("");
+const nameInvalid = ref(false);
+
+const rpcURLValue = ref<string>("");
+const rpcInvalid = ref(false);
+const rpcVerified = ref(false);
+
 const chainIDValue = ref<string>("");
+const chainIDInvalid = ref(false);
+
 const symbolValue = ref<string>("");
+const symbolInvalid = ref(false);
+
 const blockURLValue = ref<string>("");
+const blockURLInvalid = ref(false);
+
+const networkConfigs = ref<NetworkConfigItem[]>([]);
 
 const isValid = computed<boolean>(() => {
-  return nameValue.value.length > 0;
+  if (nameValue.value?.length < 1 || nameInvalid.value) return false;
+  if (rpcURLValue.value?.length < 1 || rpcInvalid.value) return false;
+  if (chainIDValue.value?.length < 1 || chainIDInvalid.value) return false;
+  if (symbolValue.value?.length < 1 || symbolInvalid.value) return false;
+  if (blockURLInvalid.value) return false;
+
+  return true;
 });
 
-defineProps({
+const props = defineProps({
   close: {
     type: Function as PropType<() => void>,
     default: () => ({}),
@@ -102,23 +145,125 @@ defineProps({
   },
 });
 
+onMounted(() => {
+  fetchNetworkConfigs();
+});
+
+const fetchNetworkConfigs = async () => {
+  const res = await fetch("https://chainid.network/chains.json");
+  const data = await res.json();
+
+  networkConfigs.value = data as NetworkConfigItem[];
+};
+
 const nameChanged = (newVal: string) => {
+  if (newVal.trim().length > 0) {
+    nameInvalid.value = false;
+  } else {
+    nameInvalid.value = true;
+  }
+
   nameValue.value = newVal;
 };
-const prcURLChanged = (newVal: string) => {
-  prcURLValue.value = newVal;
+
+const rpcURLChanged = async (newVal: string) => {
+  rpcURLValue.value = newVal;
+
+  try {
+    new URL(newVal); // Check if value is URL
+
+    const web3 = new Web3(newVal);
+    const chainId = await web3.getChainId();
+
+    rpcInvalid.value = false;
+    rpcVerified.value = true;
+
+    const networkConfig = networkConfigs.value.find(
+      (net) => net.chainId === chainId
+    );
+
+    if (networkConfig) {
+      symbolValue.value = networkConfig.nativeCurrency.symbol;
+      nameValue.value = networkConfig.name;
+    }
+
+    chainIDValue.value = chainId.toString();
+  } catch {
+    rpcInvalid.value = true;
+    rpcVerified.value = false;
+  }
 };
 const symbolChanged = (newVal: string) => {
+  if (newVal.trim().length > 0) {
+    symbolInvalid.value = false;
+  } else {
+    symbolInvalid.value = true;
+  }
+
   symbolValue.value = newVal;
 };
 const chainIDChanged = (newVal: string) => {
+  if (
+    newVal.trim().length < 1 ||
+    isNaN(Number(newVal.trim())) ||
+    newVal.includes(".")
+  ) {
+    chainIDInvalid.value = true;
+  } else {
+    chainIDInvalid.value = false;
+  }
+
   chainIDValue.value = newVal;
 };
 const blockURLChanged = (newVal: string) => {
+  try {
+    new URL(newVal);
+    blockURLInvalid.value = false;
+  } catch {
+    if (newVal.trim().length > 0) {
+      blockURLInvalid.value = true;
+    } else {
+      blockURLInvalid.value = false;
+    }
+  }
+
   blockURLValue.value = newVal;
 };
-const sendAction = () => {
-  console.log("add network");
+const sendAction = async () => {
+  let blockExplorerAddr: string | undefined;
+  let blockExplorerTX: string | undefined;
+
+  if (!blockURLInvalid.value && blockURLValue.value !== "") {
+    let blockExplorer = blockURLValue.value;
+
+    if (!blockExplorer.endsWith("/")) {
+      blockExplorer = `${blockExplorer}/`;
+    }
+
+    blockExplorerAddr = `${blockExplorer}address/[[address]]`;
+    blockExplorerTX = `${blockExplorer}tx/[[txHash]]`;
+  }
+
+  const customNetworkOptions: CustomEvmNetworkOptions = {
+    name: nameValue.value.trim().split(" ").join(""),
+    name_long: nameValue.value,
+    currencyName: symbolValue.value,
+    currencyNameLong: nameValue.value,
+    chainID: toHex(chainIDValue.value) as `0x${string}`,
+    node: rpcURLValue.value,
+    blockExplorerAddr,
+    blockExplorerTX,
+  };
+
+  await customNetworksState.addCustomNetwork(customNetworkOptions);
+
+  nameValue.value = "";
+  symbolValue.value = "";
+  chainIDValue.value = "";
+  rpcURLValue.value = "";
+  blockURLValue.value = "";
+
+  props.back();
 };
 </script>
 

@@ -9,12 +9,12 @@
       </a>
     </div>
     <div v-show="openList" ref="tooltip" class="add-network__search-list">
-      <!-- <a
+      <a
         class="add-network__search-list-item"
         @click="$emit('action:customNetwork')"
       >
         <custom-network-icon /><span>Custom network</span>
-      </a> -->
+      </a>
       <div class="add-network__search-list-item">
         <test-network-icon /><span>Show testnets</span>
         <Switch
@@ -30,7 +30,7 @@
 import { ref } from "vue";
 import BaseSearch from "@action/components/base-search/index.vue";
 import SliderIcon from "@action/icons/common/slider-icon.vue";
-// import CustomNetworkIcon from "@action/icons/common/custom-network-icon.vue";
+import CustomNetworkIcon from "@action/icons/common/custom-network-icon.vue";
 import TestNetworkIcon from "@action/icons/common/test-network-icon.vue";
 import Switch from "@action/components/switch/index.vue";
 import { onClickOutside } from "@vueuse/core";

@@ -96,10 +96,11 @@ class BackgroundHandler {
         tabInfo.domain
       );
       if (domainState.selectedNetwork) {
-        const providerNetwork = getProviderNetworkByName(
+        const providerNetwork = await getProviderNetworkByName(
           _provider,
           domainState.selectedNetwork
         );
+
         if (providerNetwork) {
           this.#tabProviders[_provider][_tabid].setRequestProvider(
             providerNetwork

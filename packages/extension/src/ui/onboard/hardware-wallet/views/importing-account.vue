@@ -45,7 +45,7 @@
   <hardware-account-imported v-if="isProcessDone" />
 </template>
 <script setup lang="ts">
-import { ref, ComponentPublicInstance, onMounted } from "vue";
+import { ref, ComponentPublicInstance, onMounted, onBeforeMount } from "vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import HardwareWalletProcess from "../components/hardware-wallet-process.vue";
 import HardwareImportingAccount from "../components/hardware-importing-account.vue";
@@ -65,6 +65,7 @@ import {
 import { routes } from "../routes";
 import { ProviderName } from "@/types/provider";
 import { useHWStore } from "../store";
+import { BaseNetwork } from "@/types/base-network";
 const store = useHWStore();
 
 const route = useRoute();
@@ -76,7 +77,7 @@ const walletType = route.params.walletType as HWwalletType;
 if (!networkName || !walletType || !selectedAccounts.value.length) {
   router.push({ name: routes.addHardwareWallet.name });
 }
-const network = getNetworkByName(networkName)!;
+const network = ref<BaseNetwork | undefined>();
 const keyring = new PublicKeyRing();
 const keyringBase = new KeyRingBase();
 const existingAccounts = ref<EnkryptAccount[]>([]);
@@ -86,6 +87,10 @@ const isProcessDone = ref(false);
 const importingAccountScrollRef = ref<ComponentPublicInstance<HTMLElement>>();
 
 defineExpose({ importingAccountScrollRef });
+
+onBeforeMount(async () => {
+  network.value = (await getNetworkByName(networkName))!;
+});
 
 onMounted(() => {
   keyring.getAccounts().then((accounts) => (existingAccounts.value = accounts));
@@ -127,7 +132,7 @@ const addAccounts = async () => {
   for (const acc of selectedAccounts.value) {
     await keyringBase.addHWAccount({
       HWOptions: {
-        networkName: network.name,
+        networkName: network.value!.name,
         pathTemplate: acc.pathType.path,
       },
       address: acc.address,
@@ -136,9 +141,9 @@ const addAccounts = async () => {
       pathIndex: acc.index,
       publicKey: acc.publicKey,
       signerType:
-        network.provider === ProviderName.polkadot
+        network.value!.provider === ProviderName.polkadot
           ? SignerType.ed25519
-          : network.signer[0],
+          : network.value!.signer[0],
       walletType: walletType as unknown as WalletType,
     });
   }

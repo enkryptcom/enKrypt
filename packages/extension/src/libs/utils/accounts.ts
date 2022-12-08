@@ -13,7 +13,7 @@ const getOtherSigners = (signers: SignerType[]): SignerType[] => {
 export const getAccountsByNetworkName = async (
   networkName: NetworkNames
 ): Promise<EnkryptAccount[]> => {
-  const network = getNetworkByName(networkName);
+  const network = await getNetworkByName(networkName);
 
   if (!network) return [];
 
