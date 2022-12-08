@@ -23,8 +23,8 @@
 <script setup lang="ts">
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import BaseButton from "@action/components/base-button/index.vue";
-import DeviceDetector from "device-detector-js";
 import RateState from "@/libs/rate-state";
+import { detectBrowser, BROWSER_NAMES, openLink } from "@action/utils/browser";
 
 const rateState = new RateState();
 
@@ -39,39 +39,36 @@ const close = async () => {
 const goToFeedback = async () => {
   await rateState.resetPopupTimer();
 
-  window.open(
-    "https://www.enkrypt.com/?ref=enkrypt_help",
-    "_blank",
-    "noopener"
-  );
+  openLink("https://www.enkrypt.com/?ref=enkrypt_help");
 };
 
-const device = new DeviceDetector().parse(navigator.userAgent);
-const browser = device.client?.name;
-
-const rateLinks: {
-  Chrome: string;
-  Firefox: string;
-  Opera: string;
-  Edge: string;
-  Brave: string;
-  Safari: string;
-} = {
-  Chrome:
+const rateLinks: Record<string, string> = {
+  [BROWSER_NAMES.chrome]:
     "https://chrome.google.com/webstore/detail/enkrypt-ethereum-polkadot/kkpllkodjeloidieedojogacfhpaihoh",
-  Firefox: "https://addons.mozilla.org/en-US/firefox/addon/enkrypt/reviews/",
-  Opera: "https://addons.opera.com/en/extensions/details/enkrypt/",
-  Edge: "https://microsoftedge.microsoft.com/addons/detail/enkrypt-ethereum-polkad/gfenajajnjjmmdojhdjmnngomkhlnfjl",
-  Brave:
+  [BROWSER_NAMES.firefox]:
+    "https://addons.mozilla.org/en-US/firefox/addon/enkrypt/reviews/",
+  [BROWSER_NAMES.opera]:
+    "https://addons.opera.com/en/extensions/details/enkrypt/",
+  [BROWSER_NAMES.edge]:
+    "https://microsoftedge.microsoft.com/addons/detail/enkrypt-ethereum-polkad/gfenajajnjjmmdojhdjmnngomkhlnfjl",
+  [BROWSER_NAMES.brave]:
     "https://chrome.google.com/webstore/detail/enkrypt-ethereum-polkadot/kkpllkodjeloidieedojogacfhpaihoh",
-  Safari:
+  [BROWSER_NAMES.safari]:
     "https://apps.apple.com/ae/app/enkrypt-web3-wallet/id1640164309?mt=12",
 };
 
 const goToRate = async () => {
   await rateState.setRated();
 
-  if (browser) window.open((rateLinks as any)[browser], "_blank", "noopener");
+  const browser = detectBrowser();
+
+  const rateLink = rateLinks[browser];
+
+  if (rateLink) {
+    openLink(rateLink);
+  } else {
+    openLink(rateLinks[BROWSER_NAMES.chrome]);
+  }
 };
 </script>
 

@@ -17,15 +17,19 @@ export default class RateState {
       StorageKeys.rateInfo
     );
 
-    if (state && !state.alreadyRated) {
-      const now = Date.now();
+    if (state) {
+      if (!state.alreadyRated) {
+        const now = Date.now();
 
-      if (state.popupTime < now) {
-        const popupTime = Date.now() + POPUP_TIME;
-        state.popupTime = popupTime;
+        if (state.popupTime < now) {
+          const popupTime = Date.now() + POPUP_TIME;
+          state.popupTime = popupTime;
 
-        await this.storage.set(StorageKeys.rateInfo, state);
-        return true;
+          await this.storage.set(StorageKeys.rateInfo, state);
+          return true;
+        }
+      } else {
+        return false;
       }
     }
 

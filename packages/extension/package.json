@@ -45,7 +45,6 @@
     "chai": "^4.3.6",
     "concurrently": "^7.4.0",
     "core-js": "^3.25.2",
-    "device-detector-js": "^3.0.3",
     "ethereumjs-abi": "^0.6.8",
     "ethereumjs-util": "^7.1.5",
     "ethereumjs-wallet": "^1.0.2",
