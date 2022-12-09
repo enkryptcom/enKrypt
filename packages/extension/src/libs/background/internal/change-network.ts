@@ -9,7 +9,7 @@ import {
 import { RPCRequestType } from "@enkryptcom/types";
 import { TabProviderType } from "../types";
 
-const changeNetwork = (
+const changeNetwork = async (
   msg: Message,
   tabProviders: TabProviderType
 ): Promise<InternalOnMessageResponse> => {
@@ -19,7 +19,7 @@ const changeNetwork = (
       error: getCustomError("background: invalid params for change network"),
     });
   const networkName = message.params[0] as string;
-  const network = getNetworkByName(networkName) as BaseNetwork;
+  const network = (await getNetworkByName(networkName)) as BaseNetwork;
   const actionMsg = msg as any as ActionSendMessage;
   if (
     actionMsg.provider &&

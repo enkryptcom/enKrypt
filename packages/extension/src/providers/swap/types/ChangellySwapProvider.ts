@@ -488,7 +488,7 @@ export class ChangellySwapProvider extends SwapProvider {
         let txData: TransactionInfo;
 
         if (chain === "DOT" || chain === "KSM") {
-          const network = getNetworkByName(chain);
+          const network = await getNetworkByName(chain);
 
           if (!network) throw new Error(`Could not retrieve network ${chain}`);
 
@@ -558,7 +558,7 @@ export class ChangellySwapProvider extends SwapProvider {
               }`,
             };
           } else {
-            const network = getNetworkByName(chain);
+            const network = await getNetworkByName(chain);
             const web3 = new Web3Eth(network!.node);
             const tokenContract = new web3.Contract(
               erc20 as any,

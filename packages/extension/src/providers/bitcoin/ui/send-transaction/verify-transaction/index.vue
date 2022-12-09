@@ -83,7 +83,7 @@ import SendProcess from "@action/views/send-process/index.vue";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
 import { VerifyTransactionParams } from "../../types";
 import { getCurrentContext } from "@/libs/messenger/extension";
-import { getNetworkByName } from "@/libs/utils/networks";
+import { DEFAULT_BTC_NETWORK, getNetworkByName } from "@/libs/utils/networks";
 import { TransactionSigner } from "../../libs/signer";
 import { ActivityStatus, Activity, ActivityType } from "@/types/activity";
 import ActivityState from "@/libs/activity-state";
@@ -100,7 +100,7 @@ const txData: VerifyTransactionParams = JSON.parse(
   Buffer.from(route.query.txData as string, "base64").toString("utf8")
 );
 const isProcessing = ref(false);
-const network = getNetworkByName(selectedNetwork)! as BitcoinNetwork;
+const network = ref<BitcoinNetwork>(DEFAULT_BTC_NETWORK);
 const isSendDone = ref(false);
 const account = ref<EnkryptAccount>();
 const isPopup: boolean = getCurrentContext() === "new-window";
@@ -109,6 +109,7 @@ const isWindowPopup = ref(false);
 const errorMsg = ref("");
 defineExpose({ verifyScrollRef });
 onBeforeMount(async () => {
+  network.value = (await getNetworkByName(selectedNetwork)!) as BitcoinNetwork;
   account.value = await KeyRing.getAccount(txData.fromAddress);
   isWindowPopup.value = account.value.isHardware;
 });
@@ -123,10 +124,10 @@ const close = () => {
 const sendAction = async () => {
   isProcessing.value = true;
   const txActivity: Activity = {
-    from: network.displayAddress(txData.fromAddress),
+    from: network.value.displayAddress(txData.fromAddress),
     to: txData.toAddress,
     isIncoming: txData.fromAddress === txData.toAddress,
-    network: network.name,
+    network: network.value.name,
     status: ActivityStatus.pending,
     timestamp: new Date().getTime(),
     token: {
@@ -141,10 +142,10 @@ const sendAction = async () => {
     transactionHash: "",
   };
   const activityState = new ActivityState();
-  const api = (await network.api()) as BitcoinAPI;
+  const api = (await network.value.api()) as BitcoinAPI;
   TransactionSigner({
     account: account.value!,
-    network,
+    network: network.value as BitcoinNetwork,
     payload: JSON.parse(txData.TxInfo),
   })
     .then((signedTx) => {
@@ -159,8 +160,8 @@ const sendAction = async () => {
               },
             ],
             {
-              address: network.displayAddress(txData.fromAddress),
-              network: network.name,
+              address: network.value.displayAddress(txData.fromAddress),
+              network: network.value.name,
             }
           );
           isSendDone.value = true;
@@ -180,7 +181,7 @@ const sendAction = async () => {
           txActivity.status = ActivityStatus.failed;
           activityState.addActivities([txActivity], {
             address: txData.fromAddress,
-            network: network.name,
+            network: network.value.name,
           });
           console.error("ERROR", error);
         });
