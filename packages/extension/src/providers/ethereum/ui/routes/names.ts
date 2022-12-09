@@ -39,4 +39,9 @@ export default {
     name: "walletWatchAsset",
     component: {},
   },
+  walletAddEthereumChain: {
+    path: "wallet-add-ethereum-network",
+    name: "walletAddEthereumChain",
+    component: {},
+  },
 };
