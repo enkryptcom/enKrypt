@@ -80,7 +80,9 @@ const method: MiddlewareFunction = async function (
 
       const chainID = await networkChainId(params);
       if (chainID == null) {
-        return res(getCustomError("Not implemented"));
+        return res(
+          getCustomError("Cannot add custom network, RPC not responding")
+        );
       }
 
       const customNetworkOptions: CustomEvmNetworkOptions = {
@@ -114,20 +116,14 @@ const networkChainId = async (
   payload: AddEthereumChainPayload
 ): Promise<`0x${string}` | null> => {
   const rpc = payload.rpcUrls[0];
-
   if (!rpc) return null;
-
   const web3 = new Web3(rpc);
-
   let chainId: number | undefined;
-
   try {
     chainId = await web3.getChainId();
   } catch {
     return null;
   }
-
   if (!chainId) return null;
-
   return numberToHex(chainId) as `0x${string}`;
 };

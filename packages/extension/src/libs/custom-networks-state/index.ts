@@ -25,7 +25,7 @@ export default class CustomNetworksState {
       if (networkExists) {
         return;
       }
-
+      options.name = `custom-${options.name}`;
       state.customEvmNetworks.push(options);
       await this.storage.set(StorageKeys.customNetworksInfo, state);
     } else {

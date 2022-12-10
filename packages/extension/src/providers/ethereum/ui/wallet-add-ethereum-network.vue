@@ -60,16 +60,6 @@
           </div>
         </div>
       </div>
-      <!-- <div v-if="true">
-        <div class="error">
-          <alert-icon />
-          <p>
-            There is no ERC20 token deployed at this address. Make sure you have
-            the right contract address and you are connected to the correct
-            network.
-          </p>
-        </div>
-      </div> -->
       <div class="warning">
         <warn-icon />
         <p>
@@ -106,6 +96,7 @@ import CustomNetworksState from "@/libs/custom-networks-state";
 import NetworksState from "@/libs/networks-state";
 import DomainState from "@/libs/domain-state";
 import { getNetworkByName } from "@/libs/utils/networks";
+import { getCustomError } from "@/libs/error";
 
 const ethIcon = require("../networks/icons/eth.svg");
 
@@ -157,10 +148,9 @@ const addNetwork = async () => {
     await domainState.setSelectedNetwork(network!.name);
   } catch (error) {
     console.error(error);
-    Resolve.value({ result: JSON.stringify(false) });
+    Resolve.value({ error: getCustomError((error as Error).message) });
   }
-
-  Resolve.value({ result: JSON.stringify(true) });
+  Resolve.value({ result: JSON.stringify(null) });
 };
 </script>
 
