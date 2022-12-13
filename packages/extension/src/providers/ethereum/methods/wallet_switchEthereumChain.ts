@@ -3,12 +3,12 @@ import { sendToBackgroundFromBackground } from "@/libs/messenger/extension";
 import { InternalMethods } from "@/types/messenger";
 import { ProviderRPCRequest } from "@/types/provider";
 import { MiddlewareFunction } from "@enkryptcom/types";
-import EthNetworks from "../networks";
 import EthereumProvider from "..";
 import { MessageMethod } from "../types";
 import DomainState from "@/libs/domain-state";
 import { getAllNetworks } from "@/libs/utils/networks";
 import { EvmNetwork } from "../types/evm-network";
+import NetworksState from "@/libs/networks-state";
 
 const method: MiddlewareFunction = function (
   this: EthereumProvider,
@@ -53,6 +53,8 @@ const method: MiddlewareFunction = function (
             tabId: payload.options?.tabId,
           });
           const domainState = new DomainState();
+          const networksState = new NetworksState();
+          networksState.setNetworkStatus(validNetwork.name, true);
           domainState
             .setSelectedNetwork(validNetwork.name)
             .then(() => res(null, null));
@@ -60,7 +62,7 @@ const method: MiddlewareFunction = function (
       } else {
         return res(
           getCustomError(
-            `wallet_switchEthereumChain: porvided network ${
+            `wallet_switchEthereumChain: provided network ${
               payload.params![0].chainId
             } not supported`
           )

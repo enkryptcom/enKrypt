@@ -8,24 +8,23 @@ export default class CustomNetworksState {
 
   constructor() {
     this.storage = new BrowserStorage(
-      InternalStorageNamespace.custoNetworksState
+      InternalStorageNamespace.customNetworksState
     );
   }
 
-  async addCustomNetwork(options: CustomEvmNetworkOptions) {
+  async addCustomNetwork(options: CustomEvmNetworkOptions): Promise<string> {
     const state: IState = await this.storage.get(
       StorageKeys.customNetworksInfo
     );
-
+    options.name = `custom-${options.name}`;
     if (state && state.customEvmNetworks) {
       const networkExists = state.customEvmNetworks.find(
         (net) => net.chainID === options.chainID
       );
 
       if (networkExists) {
-        return;
+        return networkExists.name;
       }
-      options.name = `custom-${options.name}`;
       state.customEvmNetworks.push(options);
       await this.storage.set(StorageKeys.customNetworksInfo, state);
     } else {
@@ -34,6 +33,7 @@ export default class CustomNetworksState {
       };
       await this.storage.set(StorageKeys.customNetworksInfo, newState);
     }
+    return options.name;
   }
 
   async getCustomEVMNetwork(

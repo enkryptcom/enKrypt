@@ -38,7 +38,7 @@ export enum InternalStorageNamespace {
   networksState = "NetworksState",
   settingsState = "SettingsState",
   tokensState = "TokensState",
-  custoNetworksState = "CustoNetworksState",
+  customNetworksState = "CustomNetworksState",
   rateState = "RateState",
 }
 export enum EnkryptProviderEventMethods {

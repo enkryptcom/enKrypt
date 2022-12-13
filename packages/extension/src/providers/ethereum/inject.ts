@@ -42,7 +42,6 @@ export class Provider extends EventEmitter implements ProviderInterface {
     this.sendMessageHandler = options.sendMessageHandler;
   }
   async request(request: EthereumRequest): Promise<EthereumResponse> {
-    console.log(request);
     if (this.chainId === null) {
       await this.sendMessageHandler(
         this.name,

@@ -53,7 +53,9 @@
               >
                 <p>Chain ID:</p>
                 <div>
-                  {{ networkOptions.chainID }}
+                  {{ Number(BigInt(networkOptions.chainID)) }} ({{
+                    networkOptions.chainID
+                  }})
                 </div>
               </div>
             </div>
@@ -93,9 +95,6 @@ import { ProviderRequestOptions } from "@/types/provider";
 import WarnIcon from "@/ui/action/icons/send/warning-icon.vue";
 import { CustomEvmNetworkOptions } from "../types/custom-evm-network";
 import CustomNetworksState from "@/libs/custom-networks-state";
-import NetworksState from "@/libs/networks-state";
-import DomainState from "@/libs/domain-state";
-import { getNetworkByName } from "@/libs/utils/networks";
 import { getCustomError } from "@/libs/error";
 
 const ethIcon = require("../networks/icons/eth.svg");
@@ -136,16 +135,10 @@ const decline = async () => {
 const addNetwork = async () => {
   const { Resolve } = await windowPromise;
   const customNetworksState = new CustomNetworksState();
-  const networksState = new NetworksState();
-  const domainState = new DomainState();
-
   try {
     await customNetworksState.addCustomNetwork(
       JSON.parse(JSON.stringify(networkOptions.value))
     );
-    const network = await getNetworkByName(networkOptions.value.name);
-    networksState.setNetworkStatus(network!.name, true);
-    await domainState.setSelectedNetwork(network!.name);
   } catch (error) {
     console.error(error);
     Resolve.value({ error: getCustomError((error as Error).message) });
