@@ -72,10 +72,7 @@ import SelectAccountInput from "@action/components/select-account-input/index.vu
 import ModalAccounts from "@action/views/modal-accounts/index.vue";
 import { AccountsHeaderData } from "@action/types/account";
 import { EnkryptAccount } from "@enkryptcom/types";
-import {
-  DEFAULT_BTC_NETWORK_NAME,
-  getNetworkByName,
-} from "@/libs/utils/networks";
+import { DEFAULT_BTC_NETWORK, getNetworkByName } from "@/libs/utils/networks";
 import { WindowPromiseHandler } from "@/libs/window-promise";
 import { BitcoinNetwork } from "../types/bitcoin-network";
 import { ProviderRequestOptions } from "@/types/provider";
@@ -86,9 +83,7 @@ import { ErrorCodes } from "@/providers/ethereum/types";
 import AccountState from "../libs/accounts-state";
 
 const windowPromise = WindowPromiseHandler(1);
-const network = ref<BitcoinNetwork>(
-  getNetworkByName(DEFAULT_BTC_NETWORK_NAME) as BitcoinNetwork
-);
+const network = ref<BitcoinNetwork>(DEFAULT_BTC_NETWORK);
 const identicon = ref<string>("");
 const displayAddress = ref<string>("");
 const accountHeaderData = ref<AccountsHeaderData>({
@@ -111,7 +106,9 @@ const Options = ref<ProviderRequestOptions>({
 
 onBeforeMount(async () => {
   const { Request, options } = await windowPromise;
-  network.value = getNetworkByName(Request.value.params![0]) as BitcoinNetwork;
+  network.value = (await getNetworkByName(
+    Request.value.params![0]
+  )) as BitcoinNetwork;
   const keyring = new PublicKeyRing();
   Options.value = options;
   const accounts = await keyring.getAccounts(network.value.signer);

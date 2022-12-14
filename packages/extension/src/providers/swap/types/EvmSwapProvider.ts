@@ -267,7 +267,7 @@ export class EvmSwapProvider extends SwapProvider {
         if (fromToken.contract === NATIVE_TOKEN_ADDRESS) {
           // TODO send native max
         } else {
-          const network = getNetworkByName(chain);
+          const network = await getNetworkByName(chain);
           const web3 = new Web3Eth(network!.node);
           const tokenContract = new web3.Contract(
             erc20 as any,

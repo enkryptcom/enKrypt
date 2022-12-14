@@ -8,11 +8,7 @@
         :to-custom="toCustomNetwork"
         @update:active-networks="setActiveNetworks"
       />
-      <add-custom-network
-        v-if="!isNetworkList"
-        :close="closePopup"
-        :back="toNetworkList"
-      />
+      <add-custom-network v-else :close="closePopup" :back="toNetworkList" />
     </div>
   </div>
 </template>
