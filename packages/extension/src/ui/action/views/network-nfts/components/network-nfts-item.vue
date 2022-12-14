@@ -2,7 +2,11 @@
   <div class="network-nfts__item">
     <a class="network-nfts__item-image" @click="toggleDetail">
       <img :src="item.image" alt="" @error="imageLoadError" />
-      <div class="network-nfts__item-name">{{ item.name }}</div>
+      <div class="network-nfts__item-name">
+        <div class="network-nfts__item-name-inner">
+          {{ item.name }}
+        </div>
+      </div>
     </a>
 
     <a ref="toggle" class="network-nfts__item-more" @click="toggleMoreMenu">
@@ -135,7 +139,6 @@ onClickOutside(
         rgba(0, 0, 0, 0) 0%,
         rgba(0, 0, 0, 0.3) 100%
       );
-      padding: 4px 8px;
       font-style: normal;
       font-weight: 500;
       font-size: 14px;
@@ -153,7 +156,10 @@ onClickOutside(
       -ms-line-clamp: 2;
       -webkit-line-clamp: 2;
       line-clamp: 2;
-      word-break: break-all;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
       text-overflow: ellipsis;
     }
 
@@ -190,7 +196,7 @@ onClickOutside(
     &:nth-child(3n - 2) {
       .network-nfts__item-more-menu {
         left: 85px;
-        right: auto;
+        right: none;
       }
     }
 
@@ -201,5 +207,23 @@ onClickOutside(
       }
     }
   }
+}
+.network-nfts__item-name-inner {
+  margin: 4px 8px;
+  overflow: hidden;
+  max-height: 48px;
+  height: 100%;
+  -ms-line-clamp: 2;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  -webkit-hyphens: none;
+  -moz-hyphens: none;
+  -ms-hyphens: none;
+  hyphens: none;
 }
 </style>

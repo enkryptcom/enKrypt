@@ -14,19 +14,20 @@ import Loader from "@action/icons/common/loader.vue";
 .network-assets {
   &__loading {
     width: 100%;
-    height: calc(~"100% - 216px");
+    height: calc(100% - 150px);
     display: flex;
     justify-content: center;
     align-items: center;
     flex-direction: column;
-    padding-bottom: 56px;
     box-sizing: border-box;
+    position: absolute;
+    top: 150px;
 
     p {
       font-style: normal;
       font-weight: 400;
       font-size: 14px;
-      line-height: 20px;
+      line-height: 0.6;
       letter-spacing: 0.25px;
       color: @tertiaryLabel;
       margin: 0;

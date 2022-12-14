@@ -158,8 +158,8 @@ const toggleDetail = () => {
           text-overflow: ellipsis;
 
           span {
-            font-variant: small-caps;
             margin-left: 4px;
+            text-transform: uppercase;
           }
         }
 
