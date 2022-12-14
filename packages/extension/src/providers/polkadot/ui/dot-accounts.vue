@@ -60,10 +60,6 @@ import BaseButton from "@action/components/base-button/index.vue";
 import CommonPopup from "@action/views/common-popup/index.vue";
 import LinkIcon from "@action/icons/connect/link-icon.vue";
 import InfoIconGray from "@action/icons/common/info-icon-gray.vue";
-import {
-  DEFAULT_SUBSTRATE_NETWORK_NAME,
-  getNetworkByName,
-} from "@/libs/utils/networks";
 import { WindowPromiseHandler } from "@/libs/window-promise";
 import { ProviderRequestOptions } from "@/types/provider";
 import { getError } from "@/libs/error";
@@ -71,11 +67,10 @@ import AccountState from "../libs/accounts-state";
 import { SubstrateNetwork } from "../types/substrate-network";
 import { ErrorCodes } from "@/providers/ethereum/types";
 import { truncate } from "lodash";
+import Polkadot from "@/providers/polkadot/networks/polkadot";
 
 const windowPromise = WindowPromiseHandler(0);
-const network = ref<SubstrateNetwork>(
-  getNetworkByName(DEFAULT_SUBSTRATE_NETWORK_NAME) as SubstrateNetwork
-);
+const network = ref<SubstrateNetwork>(Polkadot);
 
 const Options = ref<ProviderRequestOptions>({
   domain: "",

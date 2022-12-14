@@ -46,7 +46,7 @@ import { useRoute, useRouter } from "vue-router";
 import { routes } from "../routes";
 import { getNetworkByName } from "@/libs/utils/networks";
 import { HWWalletAccountType, PathType } from "../types";
-import { computed, onMounted, ref } from "vue";
+import { computed, onBeforeMount, onMounted, ref } from "vue";
 import { EnkryptAccount, HWwalletType } from "@enkryptcom/types";
 import HWwallet from "@enkryptcom/hw-wallets";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
@@ -55,6 +55,10 @@ import { fromBase } from "@/libs/utils/units";
 import { ProviderName } from "@/types/provider";
 import { polkadotEncodeAddress } from "@enkryptcom/utils";
 import { useHWStore } from "../store";
+import { BaseNetwork } from "@/types/base-network";
+import SubstrateAPI from "@/providers/polkadot/libs/api";
+import EvmAPI from "@/providers/ethereum/libs/api";
+import BtcApi from "@/providers/bitcoin/libs/api";
 const store = useHWStore();
 
 const router = useRouter();
@@ -65,7 +69,7 @@ const walletType = route.params.walletType as HWwalletType;
 if (!networkName || !walletType) {
   router.push({ name: routes.addHardwareWallet.name });
 }
-const network = getNetworkByName(networkName)!;
+const network = ref<BaseNetwork | undefined>();
 const hwWallet = new HWwallet();
 const networkPaths = ref<PathType[]>([]);
 const selectedPath = ref<PathType>({ path: "", label: "", basePath: "" });
@@ -74,7 +78,7 @@ const loading = ref(false);
 const currentAddressIndex = ref(0);
 const keyring = new PublicKeyRing();
 const existingAccounts = ref<EnkryptAccount[]>([]);
-const networkApi = network.api();
+const networkApi = ref<Promise<SubstrateAPI | EvmAPI | BtcApi>>();
 const accounts = ref<HWWalletAccountType[]>([]);
 const visibleAccounts = computed(() => {
   return accounts.value.slice(
@@ -90,11 +94,17 @@ const enableContinue = computed(() => {
   }
   return false;
 });
+
+onBeforeMount(async () => {
+  network.value = (await getNetworkByName(networkName))!;
+  networkApi.value = network.value.api();
+});
+
 onMounted(async () => {
   keyring.getAccounts().then((accounts) => (existingAccounts.value = accounts));
   networkPaths.value = await hwWallet.getSupportedPaths({
     wallet: walletType,
-    networkName: network.name,
+    networkName: network.value!.name,
   });
   selectedPath.value = networkPaths.value[0];
   loadAddresses(
@@ -118,13 +128,13 @@ const loadAddresses = async (start: number, end: number) => {
     const reqPath = selectedPath.value.path.replace("{index}", i.toString());
     const newAddress = await hwWallet.getAddress({
       confirmAddress: false,
-      networkName: network.name,
+      networkName: network.value!.name,
       pathType: selectedPath.value,
       pathIndex: i.toString(),
       wallet: walletType,
     });
     const address =
-      network.provider === ProviderName.polkadot
+      network.value!.provider === ProviderName.polkadot
         ? polkadotEncodeAddress(newAddress.address)
         : newAddress.address;
     accounts.value.push({
@@ -136,12 +146,12 @@ const loadAddresses = async (start: number, end: number) => {
       selected: false,
       walletType: walletType,
       index: i,
-      name: `${network.name_long} ${walletType} ${i}`,
+      name: `${network.value!.name_long} ${walletType} ${i}`,
     });
-    networkApi.then((api) => {
+    networkApi.value!.then((api) => {
       api.getBalance(newAddress.address).then((balance) => {
         accounts.value[i].balance = formatFloatingPointValue(
-          fromBase(balance, network.decimals)
+          fromBase(balance, network.value!.decimals)
         ).value;
       });
     });
@@ -181,7 +191,7 @@ const continueAction = async () => {
     name: routes.ImportingAccount.name,
     params: {
       walletType,
-      network: network.name,
+      network: network.value!.name,
     },
   });
 };

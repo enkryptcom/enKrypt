@@ -132,10 +132,7 @@ import TransactionFeeView from "@action/views/transaction-fee/index.vue";
 import { getCustomError, getError } from "@/libs/error";
 import { ErrorCodes } from "@/providers/ethereum/types";
 import { WindowPromiseHandler } from "@/libs/window-promise";
-import {
-  DEFAULT_EVM_NETWORK_NAME,
-  getNetworkByName,
-} from "@/libs/utils/networks";
+import { DEFAULT_EVM_NETWORK, getNetworkByName } from "@/libs/utils/networks";
 import { DecodedTx, EthereumTransaction } from "../libs/transaction/types";
 import Transaction from "@/providers/ethereum/libs/transaction";
 import Web3Eth from "web3-eth";
@@ -162,9 +159,7 @@ const isOpenData = ref(false);
 const TokenBalance = ref<string>("~");
 const fiatValue = ref<string>("~");
 const decodedTx = ref<DecodedTx>();
-const network = ref<EvmNetwork>(
-  getNetworkByName(DEFAULT_EVM_NETWORK_NAME) as EvmNetwork
-);
+const network = ref<EvmNetwork>(DEFAULT_EVM_NETWORK);
 const marketdata = new MarketData();
 const gasCostValues = ref<GasFeeType>(defaultGasCostVals);
 const account = ref<EnkryptAccount>({
@@ -186,7 +181,9 @@ defineExpose({ providerVerifyTransactionScrollRef });
 
 onBeforeMount(async () => {
   const { Request, options } = await windowPromise;
-  network.value = getNetworkByName(Request.value.params![2]) as EvmNetwork;
+  network.value = (await getNetworkByName(
+    Request.value.params![2]
+  )) as EvmNetwork;
   account.value = Request.value.params![1] as EnkryptAccount;
   identicon.value = network.value.identicon(account.value.address);
   Options.value = options;

@@ -2,14 +2,10 @@
   <common-popup>
     <template #header>
       <sign-logo class="common-popup__logo"></sign-logo>
-      <div class="common-popup__network">
-        <img :src="network.icon" />
-        <p>{{ network.name_long }}</p>
-      </div>
     </template>
 
     <template #content>
-      <h2>Add token to {{ network.name_long }}</h2>
+      <h2>Add EVM Network</h2>
 
       <div class="provider-verify-transaction__block block-override">
         <div class="provider-verify-transaction__block__add-asset-wrap">
@@ -17,6 +13,29 @@
             <img :src="Options.faviconURL" />
             <div class="provider-verify-transaction__info-info">
               <h4>{{ Options.domain }}</h4>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="provider-verify-transaction__block block-override">
+        <div>
+          <div class="provider-verify-transaction__block__add-asset-wrap">
+            <div
+              class="provider-verify-transaction__block__add-asset-wrap__token-info"
+            >
+              <div
+                class="provider-verify-transaction__block__add-asset-wrap__token-info__image"
+              >
+                <img :src="ethIcon" alt="" />
+              </div>
+              <div
+                class="provider-verify-transaction__block__add-asset-wrap__token-info__info"
+              >
+                <h5>{{ networkOptions.name_long }}</h5>
+                <p>
+                  <span>{{ networkOptions.currencyName }}</span>
+                </p>
+              </div>
             </div>
           </div>
         </div>
@@ -32,70 +51,22 @@
               <div
                 class="provider-verify-transaction__block__add-asset-wrap__contract-input__address-info"
               >
-                <p>Contract address:</p>
+                <p>Chain ID:</p>
                 <div>
-                  {{ $filters.replaceWithEllipsis(tokenInfo.address, 6, 6) }}
+                  {{ Number(BigInt(networkOptions.chainID)) }} ({{
+                    networkOptions.chainID
+                  }})
                 </div>
               </div>
-              <tooltip text="View on blockchain explorer"
-                ><a
-                  class="account__actions--copy"
-                  target="_blank"
-                  :href="externalLink"
-                  ><external-icon /></a
-              ></tooltip>
             </div>
           </div>
         </div>
       </div>
-      <div class="provider-verify-transaction__block block-override">
-        <div v-if="!tokenNotFound">
-          <div class="provider-verify-transaction__block__add-asset-wrap">
-            <div
-              class="provider-verify-transaction__block__add-asset-wrap__token-info"
-            >
-              <div
-                class="provider-verify-transaction__block__add-asset-wrap__token-info__image"
-              >
-                <img
-                  :src="tokenInfo.icon"
-                  alt=""
-                  @error="(e) => {
-              (e.target as HTMLImageElement).src = network.icon
-            }"
-                />
-              </div>
-              <div
-                class="provider-verify-transaction__block__add-asset-wrap__token-info__info"
-              >
-                <h5 v-if="tokenInfo.name.length <= 16">{{ tokenInfo.name }}</h5>
-                <tooltip v-else :text="tokenInfo.name">
-                  <h5>{{ `${tokenInfo.name.slice(0, 12)}...` }}</h5>
-                </tooltip>
-                <p>
-                  {{ userBalance }}
-                  <span>{{ tokenInfo.symbol }}</span>
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div v-if="tokenNotFound">
-        <div class="error">
-          <alert-icon />
-          <p>
-            There is no ERC20 token deployed at this address. Make sure you have
-            the right contract address and you are connected to the correct
-            network.
-          </p>
-        </div>
-      </div>
-      <div v-else class="warning">
+      <div class="warning">
         <warn-icon />
         <p>
-          Be sure to validate this is the ERC20 token you think it is! Anyone
-          can create a token, even one pretending to be a popular token.
+          Be sure to validate this is the Network you think it is! Double check
+          that the chain ID is correct.
         </p>
       </div>
     </template>
@@ -106,44 +77,29 @@
 
     <template #button-right>
       <base-button
-        title="Add token"
-        :disabled="tokenNotFound"
-        :click="addToken"
+        title="Add Network"
+        :disabled="isLoading"
+        :click="addNetwork"
       />
     </template>
   </common-popup>
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeMount, ref, toRaw } from "vue";
+import { onBeforeMount, ref } from "vue";
 import SignLogo from "@action/icons/common/sign-logo.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import commonPopup from "@action/views/common-popup/index.vue";
-import { DEFAULT_EVM_NETWORK, getNetworkByName } from "@/libs/utils/networks";
 import { WindowPromiseHandler } from "@/libs/window-promise";
-import { EvmNetwork } from "../types/evm-network";
 import { ProviderRequestOptions } from "@/types/provider";
-import AlertIcon from "@/ui/action/icons/send/alert-icon.vue";
 import WarnIcon from "@/ui/action/icons/send/warning-icon.vue";
-import { CustomErc20Token, TokenType } from "@/libs/tokens-state/types";
-import ExternalIcon from "@action/icons/header/external-icon.vue";
-import Tooltip from "@action/components/tooltip/index.vue";
-import { fromBase } from "@/libs/utils/units";
-import { formatFloatingPointValue } from "@/libs/utils/number-formatter";
-import { TokensState } from "@/libs/tokens-state";
+import { CustomEvmNetworkOptions } from "../types/custom-evm-network";
+import CustomNetworksState from "@/libs/custom-networks-state";
+import { getCustomError } from "@/libs/error";
 
-const windowPromise = WindowPromiseHandler(4);
-const network = ref<EvmNetwork>(DEFAULT_EVM_NETWORK);
-const tokenNotFound = ref(false);
-const tokenInfo = ref<CustomErc20Token>({
-  type: TokenType.ERC20,
-  name: "Unknown",
-  symbol: "UNKNWN",
-  decimals: 18,
-  icon: network.value.icon,
-  address: "0x000000000000000000000000",
-});
-const userBalance = ref<string>("");
+const ethIcon = require("../networks/icons/eth.svg");
+
+const windowPromise = WindowPromiseHandler(1);
 
 const Options = ref<ProviderRequestOptions>({
   domain: "",
@@ -152,28 +108,21 @@ const Options = ref<ProviderRequestOptions>({
   url: "",
   tabId: 0,
 });
-
-const externalLink = computed(() => {
-  return network.value.blockExplorerAddr.replace(
-    "[[address]]",
-    tokenInfo.value.address
-  );
+const networkOptions = ref<CustomEvmNetworkOptions>({
+  name: "~",
+  name_long: "~",
+  node: "",
+  chainID: "0x0",
+  currencyName: "~",
+  currencyNameLong: "~",
 });
+const isLoading = ref(true);
 
 onBeforeMount(async () => {
   const { Request, options } = await windowPromise;
   Options.value = options;
-  tokenInfo.value = Request.value.params![0];
-  network.value = (await getNetworkByName(
-    Request.value.params![3]
-  )) as EvmNetwork;
-  const balance = Request.value.params![1];
-
-  if (balance !== "") {
-    userBalance.value = formatFloatingPointValue(
-      fromBase(balance, tokenInfo.value.decimals)
-    ).value;
-  }
+  networkOptions.value = JSON.parse(Request.value.params![0]);
+  isLoading.value = false;
 });
 
 const decline = async () => {
@@ -183,20 +132,18 @@ const decline = async () => {
   });
 };
 
-const addToken = async () => {
+const addNetwork = async () => {
   const { Resolve } = await windowPromise;
-  const tokensState = new TokensState();
-
-  const added = await tokensState.addErc20Token(
-    network.value.name,
-    toRaw(tokenInfo.value)
-  );
-
-  if (added) {
-    Resolve.value({ result: JSON.stringify(true) });
+  const customNetworksState = new CustomNetworksState();
+  try {
+    await customNetworksState.addCustomNetwork(
+      JSON.parse(JSON.stringify(networkOptions.value))
+    );
+  } catch (error) {
+    console.error(error);
+    Resolve.value({ error: getCustomError((error as Error).message) });
   }
-
-  Resolve.value({ result: JSON.stringify(false) });
+  Resolve.value({ result: JSON.stringify(null) });
 };
 </script>
 
