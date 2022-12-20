@@ -41,7 +41,10 @@ import { PropType } from "vue";
 import NetworkNftsItemMoreMenu from "./network-nfts-item-more-menu.vue";
 import NftDetailView from "@action/views/nft-detail-view/index.vue";
 import { onClickOutside } from "@vueuse/core";
+import DomainState from "@/libs/domain-state";
+import { NetworkNames } from "@enkryptcom/types";
 
+const domainState = new DomainState();
 const notfoundimg = require("@action/assets/common/not-found.jpg");
 const imageLoadError = (img: any) => {
   img.target.src = notfoundimg;
@@ -77,8 +80,21 @@ const toggleMoreMenu = () => {
 const toggleDetail = () => {
   isDetail.value = !isDetail.value;
 };
-const openLink = () => {
-  window.open(props.item.url, "_blank");
+const openLink = async () => {
+  const selectedNetwork =
+    (await domainState.getSelectedNetWork()) as NetworkNames;
+
+  let url: string | null = null;
+
+  if (selectedNetwork === NetworkNames.Optimism) {
+    url = `https://qx.app/asset/${props.item.contract}/${props.item.id}`;
+  } else {
+    url = props.item.url;
+  }
+
+  if (url) {
+    window.open(url, "_blank");
+  }
 };
 onClickOutside(
   dropdown,

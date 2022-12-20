@@ -5,7 +5,7 @@ import erc20 from "@/providers/ethereum/libs/abi/erc20";
 import API from "@/providers/ethereum/libs/api";
 import { NATIVE_TOKEN_ADDRESS } from "@/providers/ethereum/libs/common";
 import Transaction from "@/providers/ethereum/libs/transaction";
-import { GasPriceTypes } from "@/providers/ethereum/libs/transaction/types";
+import { GasPriceTypes } from "@/providers/common/types";
 import broadcastTx from "@/providers/ethereum/libs/tx-broadcaster";
 import { Erc20Token } from "@/providers/ethereum/types/erc20-token";
 import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
@@ -114,7 +114,7 @@ export class EvmSwapProvider extends SwapProvider {
           icon:
             tokenData.icon && tokenData.icon !== ""
               ? `https://img.mewapi.io/?image=${tokenData.icon}`
-              : `https://img.mewapi.io/?image=https://mpolev.ru/enkrypt/eth.png`,
+              : `https://assets.coingecko.com/coins/images/279/small/ethereum.png`,
           symbol: tokenData.symbol.toUpperCase(),
           name: tokenData.name ?? tokenData.symbol,
           price: tokenData.price,
@@ -267,7 +267,7 @@ export class EvmSwapProvider extends SwapProvider {
         if (fromToken.contract === NATIVE_TOKEN_ADDRESS) {
           // TODO send native max
         } else {
-          const network = getNetworkByName(chain);
+          const network = await getNetworkByName(chain);
           const web3 = new Web3Eth(network!.node);
           const tokenContract = new web3.Contract(
             erc20 as any,

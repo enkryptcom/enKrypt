@@ -126,21 +126,14 @@ import SignLogo from "@action/icons/common/sign-logo.vue";
 import RightChevron from "@action/icons/common/right-chevron.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import CommonPopup from "@action/views/common-popup/index.vue";
-import SendFeeSelect from "./send-transaction/components/send-fee-select.vue";
-import HardwareWalletMsg from "./components/hardware-wallet-msg.vue";
+import SendFeeSelect from "@/providers/common/ui/send-transaction/send-fee-select.vue";
+import HardwareWalletMsg from "@/providers/common/ui/verify-transaction/hardware-wallet-msg.vue";
 import TransactionFeeView from "@action/views/transaction-fee/index.vue";
 import { getCustomError, getError } from "@/libs/error";
 import { ErrorCodes } from "@/providers/ethereum/types";
 import { WindowPromiseHandler } from "@/libs/window-promise";
-import {
-  DEFAULT_EVM_NETWORK_NAME,
-  getNetworkByName,
-} from "@/libs/utils/networks";
-import {
-  DecodedTx,
-  EthereumTransaction,
-  GasPriceTypes,
-} from "../libs/transaction/types";
+import { DEFAULT_EVM_NETWORK, getNetworkByName } from "@/libs/utils/networks";
+import { DecodedTx, EthereumTransaction } from "../libs/transaction/types";
 import Transaction from "@/providers/ethereum/libs/transaction";
 import Web3Eth from "web3-eth";
 import { EvmNetwork } from "../types/evm-network";
@@ -148,9 +141,9 @@ import { fromBase } from "@/libs/utils/units";
 import { decodeTx } from "../libs/transaction/decoder";
 import { ProviderRequestOptions } from "@/types/provider";
 import BigNumber from "bignumber.js";
-import { GasFeeType } from "./types";
+import { GasFeeType, GasPriceTypes } from "@/providers/common/types";
 import MarketData from "@/libs/market-data";
-import { defaultGasCostVals } from "./common/default-vals";
+import { defaultGasCostVals } from "@/providers/common/libs/default-vals";
 import { EnkryptAccount, NetworkNames } from "@enkryptcom/types";
 import { TransactionSigner } from "./libs/signer";
 import { Activity, ActivityStatus, ActivityType } from "@/types/activity";
@@ -166,9 +159,7 @@ const isOpenData = ref(false);
 const TokenBalance = ref<string>("~");
 const fiatValue = ref<string>("~");
 const decodedTx = ref<DecodedTx>();
-const network = ref<EvmNetwork>(
-  getNetworkByName(DEFAULT_EVM_NETWORK_NAME) as EvmNetwork
-);
+const network = ref<EvmNetwork>(DEFAULT_EVM_NETWORK);
 const marketdata = new MarketData();
 const gasCostValues = ref<GasFeeType>(defaultGasCostVals);
 const account = ref<EnkryptAccount>({
@@ -190,7 +181,9 @@ defineExpose({ providerVerifyTransactionScrollRef });
 
 onBeforeMount(async () => {
   const { Request, options } = await windowPromise;
-  network.value = getNetworkByName(Request.value.params![2]) as EvmNetwork;
+  network.value = (await getNetworkByName(
+    Request.value.params![2]
+  )) as EvmNetwork;
   account.value = Request.value.params![1] as EnkryptAccount;
   identicon.value = network.value.identicon(account.value.address);
   Options.value = options;
@@ -365,5 +358,5 @@ const toggleData = () => {
 
 <style lang="less">
 @import "~@action/styles/theme.less";
-@import "./styles/verify-transaction.less";
+@import "@/providers/common/ui/styles/verify-transaction.less";
 </style>

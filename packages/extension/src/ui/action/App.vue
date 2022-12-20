@@ -72,6 +72,7 @@
     />
 
     <settings v-if="settingsShow" @close:popup="settingsShow = !settingsShow" />
+    <modal-rate v-if="rateShow" @close:popup="rateShow = !rateShow" />
   </div>
 </template>
 
@@ -88,11 +89,12 @@ import HoldIcon from "./icons/common/hold-icon.vue";
 import MoreIcon from "./icons/actions/more.vue";
 import AddNetwork from "./views/add-network/index.vue";
 import Settings from "./views/settings/index.vue";
+import ModalRate from "./views/modal-rate/index.vue";
 import { useRouter, useRoute } from "vue-router";
 import { BaseNetwork } from "@/types/base-network";
 import {
+  DEFAULT_EVM_NETWORK,
   getAllNetworks,
-  DEFAULT_EVM_NETWORK_NAME,
   getNetworkByName,
 } from "@/libs/utils/networks";
 import DomainState from "@/libs/domain-state";
@@ -114,9 +116,11 @@ import Browser from "webextension-polyfill";
 import EVMAccountState from "@/providers/ethereum/libs/accounts-state";
 import { ProviderName } from "@/types/provider";
 import { onClickOutside } from "@vueuse/core";
+import RateState from "@/libs/rate-state";
 
 const domainState = new DomainState();
 const networksState = new NetworksState();
+const rateState = new RateState();
 const appMenuRef = ref(null);
 const networkGradient = ref("");
 const showDepositWindow = ref(false);
@@ -134,26 +138,25 @@ const route = useRoute();
 const transitionName = "fade";
 const searchInput = ref("");
 const networks = ref<BaseNetwork[]>([]);
-const defaultNetwork = getNetworkByName(
-  DEFAULT_EVM_NETWORK_NAME
-) as BaseNetwork;
+const defaultNetwork = DEFAULT_EVM_NETWORK;
 const currentNetwork = ref<BaseNetwork>(defaultNetwork);
 const kr = new PublicKeyRing();
 const addNetworkShow = ref(false);
 const settingsShow = ref(false);
+const rateShow = ref(false);
 const dropdown = ref(null);
 const toggle = ref(null);
 
 const setActiveNetworks = async () => {
   const activeNetworkNames = await networksState.getActiveNetworkNames();
-  const allNetworks = getAllNetworks();
+
+  const allNetworks = await getAllNetworks();
   const networksToShow: BaseNetwork[] = [];
 
   activeNetworkNames.forEach((name) => {
     const network = allNetworks.find((network) => network.name === name);
     if (network !== undefined) networksToShow.push(network);
   });
-
   networks.value = networksToShow;
 
   if (!networks.value.includes(currentNetwork.value)) {
@@ -185,7 +188,7 @@ const isKeyRingLocked = async (): Promise<boolean> => {
 const init = async () => {
   const curNetwork = await domainState.getSelectedNetWork();
   if (curNetwork) {
-    const savedNetwork = getNetworkByName(curNetwork);
+    const savedNetwork = await getNetworkByName(curNetwork);
     if (savedNetwork) setNetwork(savedNetwork);
     else setNetwork(defaultNetwork);
   } else {
@@ -194,6 +197,10 @@ const init = async () => {
   await setActiveNetworks();
 };
 onMounted(async () => {
+  if (await rateState.showPopup()) {
+    rateShow.value = true;
+  }
+
   const isInitialized = await kr.isInitialized();
   if (isInitialized) {
     const _isLocked = await isKeyRingLocked();
@@ -214,6 +221,7 @@ const setNetwork = async (network: BaseNetwork) => {
     ).style.background = `radial-gradient(137.35% 97% at 100% 50%, rgba(250, 250, 250, 0.94) 0%, rgba(250, 250, 250, 0.96) 28.91%, rgba(250, 250, 250, 0.98) 100%), ${network.gradient}`;
   networkGradient.value = network.gradient;
   const activeAccounts = await getAccountsByNetworkName(network.name);
+
   const inactiveAccounts = await kr.getAccounts(
     getOtherSigners(network.signer)
   );
@@ -279,7 +287,10 @@ const setNetwork = async (network: BaseNetwork) => {
 
 const onSelectedAddressChanged = async (newAccount: EnkryptAccount) => {
   accountHeaderData.value.selectedAccount = newAccount;
-  if (currentNetwork.value.provider === ProviderName.ethereum) {
+  if (
+    currentNetwork.value.provider === ProviderName.ethereum ||
+    currentNetwork.value.provider === ProviderName.bitcoin
+  ) {
     const evmAccountState = new EVMAccountState();
     const domain = await domainState.getCurrentDomain();
     evmAccountState.addApprovedAddress(newAccount.address, domain);
@@ -291,7 +302,7 @@ const onSelectedAddressChanged = async (newAccount: EnkryptAccount) => {
       params: [
         {
           method: MessageMethod.changeAddress,
-          params: [newAccount.address],
+          params: [currentNetwork.value.displayAddress(newAccount.address)],
         },
       ],
     }),

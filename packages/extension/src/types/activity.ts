@@ -1,6 +1,20 @@
 import { NetworkNames } from "@enkryptcom/types";
 import { BaseTokenOptions } from "./base-token";
 
+interface BTCInOuts {
+  address: string;
+  value: number;
+}
+
+interface BTCRawInfo {
+  blockNumber: number;
+  transactionHash: string;
+  timestamp: number | undefined;
+  inputs: BTCInOuts[];
+  outputs: BTCInOuts[];
+  fee: number;
+}
+
 interface EthereumRawInfo {
   blockHash: string;
   blockNumber: string;
@@ -65,7 +79,11 @@ interface Activity {
   status: ActivityStatus;
   type: ActivityType;
   swapId?: string;
-  rawInfo?: EthereumRawInfo | SubstrateRawInfo | SubscanExtrinsicInfo;
+  rawInfo?:
+    | EthereumRawInfo
+    | SubstrateRawInfo
+    | SubscanExtrinsicInfo
+    | BTCRawInfo;
 }
 
 export {
@@ -75,4 +93,5 @@ export {
   ActivityStatus,
   ActivityType,
   SubscanExtrinsicInfo,
+  BTCRawInfo,
 };

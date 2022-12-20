@@ -17,7 +17,7 @@ import { BaseNetwork } from "@/types/base-network";
 import { EnkryptAccount, NetworkNames } from "@enkryptcom/types";
 import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
 import Transaction from "@/providers/ethereum/libs/transaction";
-import { GasPriceTypes } from "@/providers/ethereum/libs/transaction/types";
+import { GasPriceTypes } from "@/providers/common/types";
 import { TransactionSigner as SubstrateTransactionSigner } from "@/providers/polkadot/ui/libs/signer";
 import { TransactionSigner as EvmTransactionSigner } from "@/providers/ethereum/ui/libs/signer";
 import { getNetworkByName } from "@/libs/utils/networks";
@@ -54,6 +54,11 @@ const CHANGELLY_TOKEN_INFO = [
     id: "maticpolygon",
     icon: require("../assets/matic.svg"),
     coingeckoID: "polygon",
+  },
+  {
+    id: "btc",
+    icon: require("../assets/bitcoin.svg"),
+    coingeckoID: "bitcoin",
   },
 ];
 
@@ -117,6 +122,7 @@ export class ChangellySwapProvider extends SwapProvider {
     NetworkNames.Ethereum,
     NetworkNames.Binance,
     NetworkNames.Matic,
+    NetworkNames.Bitcoin,
   ];
   public supportedDexes = ["CHANGELLY"];
   supportedTokens: string[] = [
@@ -126,6 +132,7 @@ export class ChangellySwapProvider extends SwapProvider {
     "BNB",
     "MATIC",
     "MATICPOLYGON",
+    "BTC",
   ];
   constructor() {
     super();
@@ -481,7 +488,7 @@ export class ChangellySwapProvider extends SwapProvider {
         let txData: TransactionInfo;
 
         if (chain === "DOT" || chain === "KSM") {
-          const network = getNetworkByName(chain);
+          const network = await getNetworkByName(chain);
 
           if (!network) throw new Error(`Could not retrieve network ${chain}`);
 
@@ -551,7 +558,7 @@ export class ChangellySwapProvider extends SwapProvider {
               }`,
             };
           } else {
-            const network = getNetworkByName(chain);
+            const network = await getNetworkByName(chain);
             const web3 = new Web3Eth(network!.node);
             const tokenContract = new web3.Contract(
               erc20 as any,
@@ -683,7 +690,6 @@ export class ChangellySwapProvider extends SwapProvider {
           ],
           { address: fromAccount.address, network: network.name }
         );
-        console.log("tx hash", u8aToHex(hash));
         return [u8aToHex(hash)];
       } catch (error) {
         console.error("error", error);

@@ -119,10 +119,7 @@ import { computed, onBeforeMount, ref, toRaw } from "vue";
 import SignLogo from "@action/icons/common/sign-logo.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import commonPopup from "@action/views/common-popup/index.vue";
-import {
-  DEFAULT_EVM_NETWORK_NAME,
-  getNetworkByName,
-} from "@/libs/utils/networks";
+import { DEFAULT_EVM_NETWORK, getNetworkByName } from "@/libs/utils/networks";
 import { WindowPromiseHandler } from "@/libs/window-promise";
 import { EvmNetwork } from "../types/evm-network";
 import { ProviderRequestOptions } from "@/types/provider";
@@ -136,9 +133,7 @@ import { formatFloatingPointValue } from "@/libs/utils/number-formatter";
 import { TokensState } from "@/libs/tokens-state";
 
 const windowPromise = WindowPromiseHandler(4);
-const network = ref<EvmNetwork>(
-  getNetworkByName(DEFAULT_EVM_NETWORK_NAME) as EvmNetwork
-);
+const network = ref<EvmNetwork>(DEFAULT_EVM_NETWORK);
 const tokenNotFound = ref(false);
 const tokenInfo = ref<CustomErc20Token>({
   type: TokenType.ERC20,
@@ -169,7 +164,9 @@ onBeforeMount(async () => {
   const { Request, options } = await windowPromise;
   Options.value = options;
   tokenInfo.value = Request.value.params![0];
-  network.value = getNetworkByName(Request.value.params![3]) as EvmNetwork;
+  network.value = (await getNetworkByName(
+    Request.value.params![3]
+  )) as EvmNetwork;
   const balance = Request.value.params![1];
 
   if (balance !== "") {

@@ -11,7 +11,7 @@ class NetworksState {
   }
 
   private async setInitialActiveNetworks(): Promise<void> {
-    const networks: NetworkStorageElement[] = getAllNetworks().map(
+    const networks: NetworkStorageElement[] = (await getAllNetworks()).map(
       ({ name }) => {
         if (POPULAR_NAMES.includes(name)) {
           return { name, isActive: true };
@@ -35,15 +35,14 @@ class NetworksState {
     const state: IState = await this.storage.get(StorageKeys.networkInfo);
 
     if (state.networks) {
-      let targetNetwork = state.networks.find(
-        (network) => network.name === targetNetworkName
-      );
+      let targetNetwork: NetworkStorageElement | undefined =
+        state.networks.find((network) => network.name === targetNetworkName);
       if (!targetNetwork) {
-        targetNetwork = getAllNetworks()
-          .map(({ name }) => {
-            return { name, isActive: false };
-          })
-          .find((t) => t.name === targetNetworkName);
+        targetNetwork = {
+          name: targetNetworkName,
+          isActive: true,
+        };
+
         state.networks.push(targetNetwork as NetworkStorageElement);
       }
       if (targetNetwork !== undefined) {

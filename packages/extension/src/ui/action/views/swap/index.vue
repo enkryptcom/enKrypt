@@ -154,7 +154,7 @@ const addressInput = ref();
 const toAccounts = ref<EnkryptAccount[]>(props.accountInfo.activeAccounts);
 
 const selected: string = route.params.id as string;
-const network = ref(getNetworkByName(selected));
+const network = ref<BaseNetwork | undefined>();
 
 const fromTokens = ref<BaseToken[]>();
 const fromToken = ref<BaseToken | null>(
@@ -293,6 +293,7 @@ const toAmount = computed(() => {
 });
 
 onMounted(async () => {
+  network.value = (await getNetworkByName(selected))!;
   const supportedNetworks = swap.getSupportedNetworks();
   if (!supportedNetworks.includes(props.network.name)) {
     swapError.value = SwapError.NETWORK_NOT_SUPPORTED;
@@ -365,23 +366,26 @@ watch(toToken, async () => {
     let toNetwork: BaseNetwork | undefined = undefined;
 
     if ((toToken.value as any).contract) {
-      toNetwork = getNetworkByName("ETH");
+      toNetwork = await getNetworkByName("ETH");
     } else {
       switch (toToken.value.symbol.toUpperCase()) {
         case "DOT":
-          toNetwork = getNetworkByName("DOT");
+          toNetwork = await getNetworkByName("DOT");
           break;
         case "KSM":
-          toNetwork = getNetworkByName("KSM");
+          toNetwork = await getNetworkByName("KSM");
           break;
         case "ETH":
-          toNetwork = getNetworkByName("ETH");
+          toNetwork = await getNetworkByName("ETH");
           break;
         case "MATIC":
-          toNetwork = getNetworkByName("MATIC");
+          toNetwork = await getNetworkByName("MATIC");
           break;
         case "BNB":
-          toNetwork = getNetworkByName("BSC");
+          toNetwork = await getNetworkByName("BSC");
+          break;
+        case "BTC":
+          toNetwork = await getNetworkByName("BTC");
           break;
       }
     }

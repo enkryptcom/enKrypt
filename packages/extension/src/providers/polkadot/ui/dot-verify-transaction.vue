@@ -127,7 +127,7 @@ import CommonPopup from "@action/views/common-popup/index.vue";
 import RightChevron from "@action/icons/common/right-chevron.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import BestOfferError from "@action/views/swap-best-offer/components/swap-best-offer-block/components/best-offer-error.vue";
-import HardwareWalletMsg from "./components/hardware-wallet-msg.vue";
+import HardwareWalletMsg from "@/providers/common/ui/verify-transaction/hardware-wallet-msg.vue";
 import { getError } from "@/libs/error";
 import { ErrorCodes } from "@/providers/ethereum/types";
 import { WindowPromiseHandler } from "@/libs/window-promise";
@@ -135,11 +135,6 @@ import { TypeRegistry, Metadata } from "@polkadot/types";
 import { Registry, SignerPayloadJSON } from "@polkadot/types/types";
 import MetadataStorage from "../libs/metadata-storage";
 import { CallData } from "./types";
-import {
-  DEFAULT_SUBSTRATE_NETWORK_NAME,
-  getAllNetworks,
-  getNetworkByName,
-} from "@/libs/utils/networks";
 import { SubstrateNetwork } from "../types/substrate-network";
 import { BaseNetwork } from "@/types/base-network";
 import BlindVerifyView from "./custom-views/blind-approvetx.vue";
@@ -155,6 +150,9 @@ import { Activity, ActivityStatus, ActivityType } from "@/types/activity";
 import { ApiPromise } from "@polkadot/api";
 import { u8aToHex } from "@polkadot/util";
 import ActivityState from "@/libs/activity-state";
+import Polkadot from "@/providers/polkadot/networks/polkadot";
+import { getAllNetworks } from "@/libs/utils/networks";
+
 const windowPromise = WindowPromiseHandler(2);
 
 const providerVerifyTransactionScrollRef = ref(null);
@@ -176,7 +174,7 @@ const Options = ref<ProviderRequestOptions>({
 });
 const isProcessing = ref(false);
 const isSigning = ref(false);
-const defaultNetwork = getNetworkByName(DEFAULT_SUBSTRATE_NETWORK_NAME)!;
+const defaultNetwork = Polkadot;
 const metadataStorage = new MetadataStorage();
 
 const txViewProps = ref({});
@@ -188,7 +186,7 @@ onBeforeMount(async () => {
 
   const reqPayload = Request.value.params![0] as SignerPayloadJSON;
   const reqAccount = Request.value.params![1] as EnkryptAccount;
-  const targetNetwork = getAllNetworks().find(
+  const targetNetwork = (await getAllNetworks()).find(
     (network) =>
       (network as SubstrateNetwork).genesisHash === reqPayload.genesisHash
   );
