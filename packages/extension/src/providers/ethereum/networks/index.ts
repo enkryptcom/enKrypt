@@ -14,6 +14,15 @@ import shidenEvmNode from "./sdn";
 import astarEvmNode from "./astr";
 import optimismNode from "./op";
 import cantoNode from "./canto";
+import skaleEuropaNode from "./skale/europa";
+import skaleBlockBrawlersNode from "./skale/blockBrawlers";
+import skaleCalypsoNode from "./skale/calypso";
+import skaleCryptoBladesNode from "./skale/cryptoBlades";
+import skaleCryptoColosseumNode from "./skale/cryptoColosseum";
+import skaleExordeNode from "./skale/exorde";
+import skaleNebulaNode from "./skale/nebula";
+import skaleRazorNode from "./skale/razor";
+import skaleTitanNode from "./skale/titan";
 
 export default {
   goerli: goerliNode,
@@ -32,4 +41,13 @@ export default {
   astarEvm: astarEvmNode,
   op: optimismNode,
   canto: cantoNode,
+  skaleEuropa: skaleEuropaNode,
+  skaleBlockBrawlers: skaleBlockBrawlersNode,
+  skaleCalypso: skaleCalypsoNode,
+  skaleCryptoBlades: skaleCryptoBladesNode,
+  skaleCryptoColosseum: skaleCryptoColosseumNode,
+  skaleExorde: skaleExordeNode,
+  skaleNebula: skaleNebulaNode,
+  skaleRazor: skaleRazorNode,
+  skaleTitan: skaleTitanNode,
 };

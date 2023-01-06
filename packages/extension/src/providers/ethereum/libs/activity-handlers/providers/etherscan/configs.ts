@@ -15,6 +15,24 @@ const NetworkEndpoints = {
   [NetworkNames.ShidenEVM]: "https://blockscout.com/shiden/",
   [NetworkNames.Optimism]: "https://api-optimistic.etherscan.io/",
   [NetworkNames.Canto]: "https://evm.explorer.canto.io/",
+  [NetworkNames.SkaleBlockBrawlers]:
+    "https://frayed-decent-antares.explorer.mainnet.skalenodes.com/api/",
+  [NetworkNames.SkaleCalypso]:
+    "https://honorable-steel-rasalhague.explorer.mainnet.skalenodes.com/api/",
+  [NetworkNames.SkaleCryptoBlades]:
+    "https://affectionate-immediate-pollux.explorer.mainnet.skalenodes.com/api/",
+  [NetworkNames.SkaleCryptoColosseum]:
+    "https://haunting-devoted-deneb.explorer.mainnet.skalenodes.com/api/",
+  [NetworkNames.SkaleEuropa]:
+      "https://elated-tan-skat.explorer.mainnet.skalenodes.com/api/",
+  [NetworkNames.SkaleExorde]:
+    "https://light-vast-diphda.explorer.mainnet.skalenodes.com/api/",
+  [NetworkNames.SkaleNebula]:
+    "https://green-giddy-denebola.explorer.mainnet.skalenodes.com/api/",
+  [NetworkNames.SkaleRazor]:
+    "https://turbulent-unique-scheat.explorer.mainnet.skalenodes.com/api/",
+  [NetworkNames.SkaleTitan]:
+    "https://parallel-stormy-spica.explorer.mainnet.skalenodes.com/api/",
 };
 
 export { NetworkEndpoints };

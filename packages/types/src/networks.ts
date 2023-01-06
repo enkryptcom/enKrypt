@@ -26,6 +26,15 @@ export enum NetworkNames {
   Canto = "CANTO",
   Bifrost = "BNC",
   BifrostKusama = "BNC (Kusama)",
+  SkaleEuropa = "SKL (Europa)",
+  SkaleBlockBrawlers = "SKL (BlockBrawlers)",
+  SkaleCalypso = "SKL (Calypso)",
+  SkaleCryptoBlades = "SKL (CryptoBlades)",
+  SkaleCryptoColosseum = "SKL (CryptoColosseum)",
+  SkaleExorde = "SKL (Exorde)",
+  SkaleNebula = "SKL (Nebula)",
+  SkaleRazor = "SKL (Razor)",
+  SkaleTitan = "SKL (Titan)",
 }
 
 export enum CoingeckoPlatform {
@@ -46,4 +55,5 @@ export enum CoingeckoPlatform {
   Optimism = "optimistic-ethereum",
   Canto = "canto",
   Bifrost = "Bifrost Native Coin",
+  Skale = "skale",
 }
