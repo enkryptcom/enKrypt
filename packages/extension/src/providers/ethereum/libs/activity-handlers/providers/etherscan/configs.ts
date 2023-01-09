@@ -24,7 +24,7 @@ const NetworkEndpoints = {
   [NetworkNames.SkaleCryptoColosseum]:
     "https://haunting-devoted-deneb.explorer.mainnet.skalenodes.com/api/",
   [NetworkNames.SkaleEuropa]:
-      "https://elated-tan-skat.explorer.mainnet.skalenodes.com/api/",
+    "https://elated-tan-skat.explorer.mainnet.skalenodes.com/api/",
   [NetworkNames.SkaleExorde]:
     "https://light-vast-diphda.explorer.mainnet.skalenodes.com/api/",
   [NetworkNames.SkaleNebula]:

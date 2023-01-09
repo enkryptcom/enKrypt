@@ -4,13 +4,9 @@ import { SkaleParams, createSkaleEvmNetwork } from "./skale-base";
 
 const skaleBlockBrawlersOptions: SkaleParams = {
   name: NetworkNames.SkaleBlockBrawlers,
-  name_long: "Skale (BlockBrawlers)",
-  blockExplorerTX:
-    "https://frayed-decent-antares.explorer.mainnet.skalenodes.com/tx/[[txHash]]",
-  blockExplorerAddr:
-    "https://frayed-decent-antares.explorer.mainnet.skalenodes.com/address/[[address]]",
+  name_long: "SKALE | BRAWL Chain",
+  chainName: "frayed-decent-antares",
   chainID: "0x175b1806",
-  node: "wss://mainnet.skalenodes.com/v1/ws/frayed-decent-antares",
 };
 
 const skaleBlockBrawlers = new EvmNetwork(

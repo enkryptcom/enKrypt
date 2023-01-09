@@ -4,13 +4,9 @@ import { SkaleParams, createSkaleEvmNetwork } from "./skale-base";
 
 const skaleNebulaOptions: SkaleParams = {
   name: NetworkNames.SkaleNebula,
-  name_long: "Skale (Nebula Gaming Hub)",
-  blockExplorerTX:
-    "https://green-giddy-denebola.explorer.mainnet.skalenodes.com/tx/[[txHash]]",
-  blockExplorerAddr:
-    "https://green-giddy-denebola.explorer.mainnet.skalenodes.com/address/[[address]]",
+  name_long: "SKALE | Nebula Gaming Hub",
+  chainName: "green-giddy-denebola",
   chainID: "0x585eb4b1",
-  node: "wss://mainnet.skalenodes.com/v1/ws/green-giddy-denebola",
 };
 
 const skaleNebula = new EvmNetwork(createSkaleEvmNetwork(skaleNebulaOptions));

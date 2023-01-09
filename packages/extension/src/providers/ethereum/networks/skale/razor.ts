@@ -4,13 +4,9 @@ import { SkaleParams, createSkaleEvmNetwork } from "./skale-base";
 
 const skaleRazorOptions: SkaleParams = {
   name: NetworkNames.SkaleRazor,
-  name_long: "Skale (Razor)",
-  blockExplorerTX:
-    "https://turbulent-unique-scheat.explorer.mainnet.skalenodes.com/tx/[[txHash]]",
-  blockExplorerAddr:
-    "https://turbulent-unique-scheat.explorer.mainnet.skalenodes.com/address/[[address]]",
+  name_long: "SKALE | Razor Network",
+  chainName: "turbulent-unique-scheat",
   chainID: "0x109b4597",
-  node: "wss://mainnet.skalenodes.com/v1/ws/turbulent-unique-scheat",
 };
 
 const skaleRazor = new EvmNetwork(createSkaleEvmNetwork(skaleRazorOptions));

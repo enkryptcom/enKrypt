@@ -19,13 +19,43 @@ import { Erc20Token, Erc20TokenOptions } from "../../types/erc20-token";
 const NATIVE_ETHC_ADDRESS_SKALE = "0xD2Aaa00700000000000000000000000000000000";
 const ETH_DECIMALS = 18;
 
+const seedValues: Record<"tx" | "address", string> = {
+  tx: "txHash",
+  address: "address",
+};
+
+function getBlockExplorerValue(chainName: string, type: "tx" | "address") {
+  return `https://${chainName}.explorer.mainnet.skalenodes.com/${type}/[[${seedValues[type]}]]`;
+}
+
+export interface ICustomSKALEAsset {
+  name: string;
+  symbol: string;
+  icon: string;
+  address: string;
+  decimals: number;
+}
+
 export interface SkaleParams {
   name: NetworkNames;
   name_long: string;
-  blockExplorerTX: string;
-  blockExplorerAddr: string;
+  chainName: string;
   chainID: `0x${string}`;
-  node: string;
+  icon?: string;
+}
+
+function getTokensBySKALEChain(chainId: string): ICustomSKALEAsset[] {
+  const _assets: ICustomSKALEAsset[] = [];
+  if (chainId === "0x5d456c62") {
+    _assets.push({
+      name: "Europa ETH",
+      symbol: "ETH",
+      icon: "",
+      address: "0x59ab97Ee239e02112652587F9Ef86CB6F762983b",
+      decimals: 18,
+    });
+  }
+  return _assets;
 }
 
 export function createSkaleEvmNetwork(params: SkaleParams) {
@@ -33,14 +63,14 @@ export function createSkaleEvmNetwork(params: SkaleParams) {
     name: params.name,
     name_long: params.name_long,
     homePage: "https://skale.space",
-    blockExplorerTX: params.blockExplorerTX,
-    blockExplorerAddr: params.blockExplorerAddr,
+    blockExplorerTX: getBlockExplorerValue(params.chainName, "tx"),
+    blockExplorerAddr: getBlockExplorerValue(params.chainName, "address"),
     chainID: params.chainID,
     isTestNetwork: false,
     currencyName: "SFUEL",
     currencyNameLong: "Skale FUEL",
-    node: params.node,
-    icon: require("../icons/skl.png"),
+    node: `wss://mainnet.skalenodes.com/v1/ws/${params.chainName}`,
+    icon: require(`../icons/${params.icon ? params.icon : "skl.png"}`),
     gradient: "#7B3FE4",
     coingeckoID: "skale",
     coingeckoPlatform: CoingeckoPlatform.Skale,
@@ -73,7 +103,6 @@ export async function assetInfoHandlerSkale(
     priceChangePercentage: 0,
     contract: NATIVE_TOKEN_ADDRESS,
   };
-
   const ethcERC20Token = new Erc20Token({
     contract: NATIVE_ETHC_ADDRESS_SKALE,
   } as Erc20TokenOptions);
@@ -138,6 +167,25 @@ export async function assetInfoHandlerSkale(
       return assetsType;
     })
     .filter((asset) => asset.balancef !== "0");
-
-  return [nativeAsset, nativeETHCAsset, ...assetInfos];
+  const customTokens = getTokensBySKALEChain(network.chainID)
+    .map((token: ICustomSKALEAsset) => {
+      const assetsType: AssetsType = {
+        name: token.name,
+        symbol: token.symbol,
+        icon: token.icon,
+        balance: "0",
+        balancef: formatFloatingPointValue(fromBase("0", token.decimals)).value,
+        balanceUSD: 0,
+        balanceUSDf: "0",
+        value: "0",
+        valuef: "0",
+        decimals: token.decimals,
+        sparkline: "",
+        priceChangePercentage: 0,
+        contract: token.address,
+      };
+      return assetsType;
+    })
+    .filter((asset) => asset.balancef !== "0");
+  return [nativeAsset, nativeETHCAsset, ...assetInfos, ...customTokens];
 }
