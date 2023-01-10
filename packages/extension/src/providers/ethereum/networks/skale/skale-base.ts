@@ -29,11 +29,11 @@ function getBlockExplorerValue(chainName: string, type: "tx" | "address") {
 }
 
 export interface ICustomSKALEAsset {
-  name: string;
-  symbol: string;
-  icon: string;
   address: string;
   coingeckoID: string;
+  name?: string;
+  symbol?: string;
+  icon?: string;
   showZero?: boolean;
   decimals?: number;
 }
@@ -53,7 +53,11 @@ async function getPreconfigedTokens(
 ): Promise<AssetsType[]> {
   const marketData = new MarketData();
   const preconfiguredAssets: AssetsType[] = [];
-  for (const asset of assets) {
+  const nativeAssetMarketData = await marketData.getMarketData(
+    assets.map((asset) => asset.coingeckoID)
+  );
+  for (let index = 0; index < nativeAssetMarketData.length; index++) {
+    const asset = assets[index];
     const assetToken = new Erc20Token({
       contract: asset.address,
     } as Erc20TokenOptions);
@@ -62,32 +66,34 @@ async function getPreconfigedTokens(
       address
     );
     const assetDecimals = asset.decimals ? asset.decimals : DEFAULT_DECIMALS;
-    const nativeAssetMarketData = (
-      await marketData.getMarketData([asset.coingeckoID])
-    )[0];
     const nativeAssetUsdBalance = new BigNumber(
       fromBase(balanceAsset, assetDecimals)
-    ).times(nativeAssetMarketData?.current_price ?? 0);
+    ).times(nativeAssetMarketData[index]?.current_price ?? 0);
 
     const assetData: AssetsType = {
-      name: asset.name,
-      symbol: asset.symbol,
-      icon: require(`../icons/${asset.icon}`),
+      name: asset?.name ?? nativeAssetMarketData[index]?.name ?? "Name",
+      symbol: asset?.symbol ?? nativeAssetMarketData[index]?.symbol ?? "Symbol",
+      icon:
+        nativeAssetMarketData[index]?.image ??
+        require(`../icons/${asset.icon}`) ??
+        require("../icons/skl.png"),
       balance: balanceAsset,
       balancef: formatFloatingPointValue(fromBase(balanceAsset, assetDecimals))
         .value,
       balanceUSD: nativeAssetUsdBalance.toNumber(),
       balanceUSDf: formatFiatValue(nativeAssetUsdBalance.toString()).value,
-      value: nativeAssetMarketData?.current_price.toString() ?? "0",
+      value: nativeAssetMarketData[index]?.current_price.toString() ?? "0",
       valuef: formatFiatValue(
-        nativeAssetMarketData?.current_price.toString() ?? "0"
+        nativeAssetMarketData[index]?.current_price.toString() ?? "0"
       ).value,
       decimals: assetDecimals,
-      sparkline: nativeAssetMarketData
-        ? new Sparkline(nativeAssetMarketData.sparkline_in_7d.price, 25).dataUri
+      sparkline: nativeAssetMarketData[index]
+        ? new Sparkline(nativeAssetMarketData[index]?.sparkline_in_7d.price, 25)
+            .dataUri
         : "",
       priceChangePercentage:
-        nativeAssetMarketData?.price_change_percentage_7d_in_currency ?? 0,
+        nativeAssetMarketData[index]?.price_change_percentage_7d_in_currency ??
+        0,
       contract: asset.address,
     };
     if (asset.showZero || assetData.balancef !== "0")
