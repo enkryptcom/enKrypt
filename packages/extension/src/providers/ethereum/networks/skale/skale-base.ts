@@ -15,9 +15,9 @@ import API from "@/providers/ethereum/libs/api";
 import Sparkline from "@/libs/sparkline";
 import { NATIVE_TOKEN_ADDRESS } from "../../libs/common";
 import { Erc20Token, Erc20TokenOptions } from "../../types/erc20-token";
-
-const NATIVE_ETHC_ADDRESS_SKALE = "0xD2Aaa00700000000000000000000000000000000";
-const ETH_DECIMALS = 18;
+import { skaleEuropaAssets, europaChainID } from "./europa";
+// add other
+const DEFAULT_DECIMALS = 18;
 
 const seedValues: Record<"tx" | "address", string> = {
   tx: "txHash",
@@ -33,7 +33,9 @@ export interface ICustomSKALEAsset {
   symbol: string;
   icon: string;
   address: string;
-  decimals: number;
+  coingeckoID: string;
+  showZero?: boolean;
+  decimals?: number;
 }
 
 export interface SkaleParams {
@@ -44,18 +46,66 @@ export interface SkaleParams {
   icon?: string;
 }
 
-function getTokensBySKALEChain(chainId: string): ICustomSKALEAsset[] {
-  const _assets: ICustomSKALEAsset[] = [];
-  if (chainId === "0x5d456c62") {
-    _assets.push({
-      name: "Europa ETH",
-      symbol: "ETH",
-      icon: "",
-      address: "0x59ab97Ee239e02112652587F9Ef86CB6F762983b",
-      decimals: 18,
-    });
+async function getPreconfigedTokens(
+  api: API,
+  address: string,
+  assets: ICustomSKALEAsset[]
+): Promise<AssetsType[]> {
+  const marketData = new MarketData();
+  const preconfiguredAssets: AssetsType[] = [];
+  for (const asset of assets) {
+    const assetToken = new Erc20Token({
+      contract: asset.address,
+    } as Erc20TokenOptions);
+    const balanceAsset = await assetToken.getLatestUserBalance(
+      api as API,
+      address
+    );
+    const assetDecimals = asset.decimals ? asset.decimals : DEFAULT_DECIMALS;
+    const nativeAssetMarketData = (
+      await marketData.getMarketData([asset.coingeckoID])
+    )[0];
+    const nativeAssetUsdBalance = new BigNumber(
+      fromBase(balanceAsset, assetDecimals)
+    ).times(nativeAssetMarketData?.current_price ?? 0);
+
+    const assetData: AssetsType = {
+      name: asset.name,
+      symbol: asset.symbol,
+      icon: require(`../icons/${asset.icon}`),
+      balance: balanceAsset,
+      balancef: formatFloatingPointValue(fromBase(balanceAsset, assetDecimals))
+        .value,
+      balanceUSD: nativeAssetUsdBalance.toNumber(),
+      balanceUSDf: formatFiatValue(nativeAssetUsdBalance.toString()).value,
+      value: nativeAssetMarketData?.current_price.toString() ?? "0",
+      valuef: formatFiatValue(
+        nativeAssetMarketData?.current_price.toString() ?? "0"
+      ).value,
+      decimals: assetDecimals,
+      sparkline: nativeAssetMarketData
+        ? new Sparkline(nativeAssetMarketData.sparkline_in_7d.price, 25).dataUri
+        : "",
+      priceChangePercentage:
+        nativeAssetMarketData?.price_change_percentage_7d_in_currency ?? 0,
+      contract: asset.address,
+    };
+    if (asset.showZero || assetData.balancef !== "0")
+      preconfiguredAssets.push(assetData);
   }
-  return _assets;
+  return preconfiguredAssets;
+}
+
+async function getTokensBySKALEChain(
+  chainId: string,
+  api: API,
+  address: string
+): Promise<AssetsType[]> {
+  if (chainId === europaChainID) {
+    return await getPreconfigedTokens(api, address, skaleEuropaAssets);
+  }
+  // add other
+  return [];
 }
 
 export function createSkaleEvmNetwork(params: SkaleParams) {
@@ -85,7 +135,6 @@ export async function assetInfoHandlerSkale(
   address: string
 ): Promise<AssetsType[]> {
   const api = await network.api();
-  const marketData = new MarketData();
   const balance = await (api as API).getBalance(address);
   const nativeAsset: AssetsType = {
     name: network.currencyNameLong,
@@ -102,39 +151,6 @@ export async function assetInfoHandlerSkale(
     sparkline: "",
     priceChangePercentage: 0,
     contract: NATIVE_TOKEN_ADDRESS,
-  };
-  const ethcERC20Token = new Erc20Token({
-    contract: NATIVE_ETHC_ADDRESS_SKALE,
-  } as Erc20TokenOptions);
-  const balanceEthc = await ethcERC20Token.getLatestUserBalance(
-    api as API,
-    address
-  );
-  const nativeEthMarketData = (await marketData.getMarketData(["ethereum"]))[0];
-  const nativeEthUsdBalance = new BigNumber(
-    fromBase(balanceEthc, ETH_DECIMALS)
-  ).times(nativeEthMarketData?.current_price ?? 0);
-
-  const nativeETHCAsset: AssetsType = {
-    name: "Ethereum Clone",
-    symbol: "ETHC",
-    icon: require("../icons/eth.svg"),
-    balance: balanceEthc,
-    balancef: formatFloatingPointValue(fromBase(balanceEthc, network.decimals))
-      .value,
-    balanceUSD: nativeEthUsdBalance.toNumber(),
-    balanceUSDf: formatFiatValue(nativeEthUsdBalance.toString()).value,
-    value: nativeEthMarketData?.current_price.toString() ?? "0",
-    valuef: formatFiatValue(
-      nativeEthMarketData?.current_price.toString() ?? "0"
-    ).value,
-    decimals: ETH_DECIMALS,
-    sparkline: nativeEthMarketData
-      ? new Sparkline(nativeEthMarketData.sparkline_in_7d.price, 25).dataUri
-      : "",
-    priceChangePercentage:
-      nativeEthMarketData?.price_change_percentage_7d_in_currency ?? 0,
-    contract: NATIVE_ETHC_ADDRESS_SKALE,
   };
 
   await Promise.all(
@@ -167,25 +183,10 @@ export async function assetInfoHandlerSkale(
       return assetsType;
     })
     .filter((asset) => asset.balancef !== "0");
-  const customTokens = getTokensBySKALEChain(network.chainID)
-    .map((token: ICustomSKALEAsset) => {
-      const assetsType: AssetsType = {
-        name: token.name,
-        symbol: token.symbol,
-        icon: token.icon,
-        balance: "0",
-        balancef: formatFloatingPointValue(fromBase("0", token.decimals)).value,
-        balanceUSD: 0,
-        balanceUSDf: "0",
-        value: "0",
-        valuef: "0",
-        decimals: token.decimals,
-        sparkline: "",
-        priceChangePercentage: 0,
-        contract: token.address,
-      };
-      return assetsType;
-    })
-    .filter((asset) => asset.balancef !== "0");
-  return [nativeAsset, nativeETHCAsset, ...assetInfos, ...customTokens];
+
+  return [
+    nativeAsset,
+    ...(await getTokensBySKALEChain(network.chainID, api as API, address)),
+    ...assetInfos,
+  ];
 }
