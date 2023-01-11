@@ -1,17 +1,28 @@
 import { NetworkNames } from "@enkryptcom/types";
 import { EvmNetwork } from "../../types/evm-network";
-import { SkaleParams, createSkaleEvmNetwork } from "./skale-base";
+import {
+  SkaleParams,
+  createSkaleEvmNetwork,
+  ICustomSKALEAsset,
+} from "./skale-base";
+
+export const nebulaChainID = "0x585eb4b1";
 
 const skaleNebulaOptions: SkaleParams = {
   name: NetworkNames.SkaleNebula,
-  name_long: "Skale (Nebula Gaming Hub)",
-  blockExplorerTX:
-    "https://green-giddy-denebola.explorer.mainnet.skalenodes.com/tx/[[txHash]]",
-  blockExplorerAddr:
-    "https://green-giddy-denebola.explorer.mainnet.skalenodes.com/address/[[address]]",
-  chainID: "0x585eb4b1",
-  node: "wss://mainnet.skalenodes.com/v1/ws/green-giddy-denebola",
+  name_long: "SKALE | Nebula Gaming Hub",
+  chainName: "green-giddy-denebola",
+  chainID: nebulaChainID,
 };
+
+export const nebulaAssets: ICustomSKALEAsset[] = [
+  {
+    name: "Ethereum Clone",
+    symbol: "ETHC",
+    address: "0xD2Aaa00700000000000000000000000000000000",
+    coingeckoID: "ethereum",
+  },
+];
 
 const skaleNebula = new EvmNetwork(createSkaleEvmNetwork(skaleNebulaOptions));
 

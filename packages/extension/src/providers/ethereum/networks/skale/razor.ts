@@ -1,17 +1,34 @@
 import { NetworkNames } from "@enkryptcom/types";
 import { EvmNetwork } from "../../types/evm-network";
-import { SkaleParams, createSkaleEvmNetwork } from "./skale-base";
+import {
+  SkaleParams,
+  createSkaleEvmNetwork,
+  ICustomSKALEAsset,
+} from "./skale-base";
+
+export const razorChainID = "0x109b4597";
 
 const skaleRazorOptions: SkaleParams = {
   name: NetworkNames.SkaleRazor,
-  name_long: "Skale (Razor)",
-  blockExplorerTX:
-    "https://turbulent-unique-scheat.explorer.mainnet.skalenodes.com/tx/[[txHash]]",
-  blockExplorerAddr:
-    "https://turbulent-unique-scheat.explorer.mainnet.skalenodes.com/address/[[address]]",
-  chainID: "0x109b4597",
-  node: "wss://mainnet.skalenodes.com/v1/ws/turbulent-unique-scheat",
+  name_long: "SKALE | Razor Network",
+  chainName: "turbulent-unique-scheat",
+  chainID: razorChainID,
 };
+
+export const razorAssets: ICustomSKALEAsset[] = [
+  {
+    name: "Ethereum Clone",
+    symbol: "ETHC",
+    address: "0xD2Aaa00700000000000000000000000000000000",
+    coingeckoID: "ethereum",
+    showZero: true,
+  },
+  {
+    address: "0xcbf70914Fae03B3acB91E953De60CfDAaCA8145f",
+    coingeckoID: "razor-network",
+    showZero: true,
+  },
+];
 
 const skaleRazor = new EvmNetwork(createSkaleEvmNetwork(skaleRazorOptions));
 
