@@ -15,7 +15,7 @@ const skaleEuropaOptions: SkaleParams = {
   chainID: europaChainID,
 };
 
-export const skaleEuropaAssets: ICustomSKALEAsset[] = [
+export const europaAssets: ICustomSKALEAsset[] = [
   {
     name: "Ethereum Clone",
     symbol: "ETHC",

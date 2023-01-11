@@ -15,8 +15,7 @@ import API from "@/providers/ethereum/libs/api";
 import Sparkline from "@/libs/sparkline";
 import { NATIVE_TOKEN_ADDRESS } from "../../libs/common";
 import { Erc20Token, Erc20TokenOptions } from "../../types/erc20-token";
-import { skaleEuropaAssets, europaChainID } from "./europa";
-// add other
+import tokenMap from "./tokensMap";
 const DEFAULT_DECIMALS = 18;
 
 const seedValues: Record<"tx" | "address", string> = {
@@ -46,17 +45,19 @@ export interface SkaleParams {
   icon?: string;
 }
 
-async function getPreconfigedTokens(
+async function getPreconfiguredTokens(
   api: API,
-  address: string,
-  assets: ICustomSKALEAsset[]
+  chainId: `0x${string}`,
+  address: string
 ): Promise<AssetsType[]> {
   const marketData = new MarketData();
   const preconfiguredAssets: AssetsType[] = [];
+  const assets: ICustomSKALEAsset[] = tokenMap[chainId];
+  if (assets.length === 0) return preconfiguredAssets;
   const nativeAssetMarketData = await marketData.getMarketData(
     assets.map((asset) => asset.coingeckoID)
   );
-  for (let index = 0; index < nativeAssetMarketData.length; index++) {
+  for (let index = 0; index < assets.length; index++) {
     const asset = assets[index];
     const assetToken = new Erc20Token({
       contract: asset.address,
@@ -100,18 +101,6 @@ async function getPreconfigedTokens(
       preconfiguredAssets.push(assetData);
   }
   return preconfiguredAssets;
-}
-
-async function getTokensBySKALEChain(
-  chainId: string,
-  api: API,
-  address: string
-): Promise<AssetsType[]> {
-  if (chainId === europaChainID) {
-    return await getPreconfigedTokens(api, address, skaleEuropaAssets);
-  }
-  // add other
-  return [];
 }
 
 export function createSkaleEvmNetwork(params: SkaleParams) {
@@ -159,6 +148,12 @@ export async function assetInfoHandlerSkale(
     contract: NATIVE_TOKEN_ADDRESS,
   };
 
+  const preconfiguredTokens: AssetsType[] = await getPreconfiguredTokens(
+    api as API,
+    network.chainID,
+    address
+  );
+
   await Promise.all(
     network.assets.map((token) =>
       token.getLatestUserBalance(api as API, address).then((balance) => {
@@ -190,9 +185,5 @@ export async function assetInfoHandlerSkale(
     })
     .filter((asset) => asset.balancef !== "0");
 
-  return [
-    nativeAsset,
-    ...(await getTokensBySKALEChain(network.chainID, api as API, address)),
-    ...assetInfos,
-  ];
+  return [nativeAsset, ...preconfiguredTokens, ...assetInfos];
 }
