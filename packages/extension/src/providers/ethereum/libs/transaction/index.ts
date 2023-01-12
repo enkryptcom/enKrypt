@@ -31,6 +31,7 @@ class Transaction {
       to: this.tx.to || undefined,
       from: this.tx.from,
       data: this.tx.data || "0x",
+      value: this.tx.value || "0x0",
     });
   }
   async finalizeTransaction(options: TransactionOptions): Promise<{
