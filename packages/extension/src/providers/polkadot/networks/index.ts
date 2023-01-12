@@ -7,6 +7,7 @@ import astrNode from "./astar/astar";
 import sdnNode from "./astar/shiden";
 import bncNode from "./bifrost/polkadot";
 import bncKusamaNode from "./bifrost/kusama";
+import edgNode from "./edgeware";
 
 export default {
   acala: acaNode,
@@ -18,4 +19,5 @@ export default {
   shiden: sdnNode,
   bifrost: bncNode,
   bifrostKusama: bncKusamaNode,
+  edgeware: edgNode,
 };
