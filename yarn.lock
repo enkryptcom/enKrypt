@@ -5,55 +5,55 @@ __metadata:
   version: 6
   cacheKey: 8
 
-"@acala-network/api-derive@npm:4.1.8-9":
-  version: 4.1.8-9
-  resolution: "@acala-network/api-derive@npm:4.1.8-9"
+"@acala-network/api-derive@npm:4.1.5":
+  version: 4.1.5
+  resolution: "@acala-network/api-derive@npm:4.1.5"
   dependencies:
-    "@acala-network/types": 4.1.8-9
+    "@acala-network/types": 4.1.5
     "@babel/runtime": ^7.10.2
     "@open-web3/orml-types": ^1.1.4
     "@polkadot/api-derive": ^8.5.1
-  checksum: d3db4a310b64b488b9b7dd06cb07d0521e84369a81c0b76a6fc39cb7b77906801b86d603bde7d578e229f09b13355f7a5ed71c838530e7185ed7333d3772353b
+  checksum: 01db8da6fed8c4bc802b1eb5f9138ee835d1bf17680a19bdf0f5cb1c6871a3aa6876b0a4b213677d598644ba0abf366ff823224989d6c5a2ab3405198131a514
   languageName: node
   linkType: hard
 
-"@acala-network/api@npm:^4.1.8-2.3":
-  version: 4.1.8-9
-  resolution: "@acala-network/api@npm:4.1.8-9"
+"@acala-network/api@npm:^4.1.5":
+  version: 4.1.5
+  resolution: "@acala-network/api@npm:4.1.5"
   dependencies:
-    "@acala-network/api-derive": 4.1.8-9
-    "@acala-network/types": 4.1.8-9
+    "@acala-network/api-derive": 4.1.5
+    "@acala-network/types": 4.1.5
     "@babel/runtime": ^7.10.2
     "@open-web3/orml-api-derive": ^1.1.4
-    "@polkadot/api": ^9.9.1
-    "@polkadot/rpc-core": ^9.9.1
+    "@polkadot/api": ^8.5.1
+    "@polkadot/rpc-core": ^8.5.1
   peerDependencies:
-    "@polkadot/api": ">=9"
-    "@polkadot/types": ">=9"
-  checksum: 1f0784f279a01d3e82baf043bcf2f4f7be9ad27afcdcff663205c534db96eb3912c6e2e82983ec81f2729c591c86306c00fb4fcc90f70beb302f1f5def99e54c
+    "@polkadot/api": ">=8"
+    "@polkadot/types": ">=8"
+  checksum: 133bd41bf5c418c5e8c21bfbf54c393ce84600022e627c71f83f1ff9c4f2ada988c6a0814e4aff3ccf3eb188d14e30ce7e9430bd1ad20d500c7c17f1f33434d2
   languageName: node
   linkType: hard
 
-"@acala-network/type-definitions@npm:4.1.8-9":
-  version: 4.1.8-9
-  resolution: "@acala-network/type-definitions@npm:4.1.8-9"
+"@acala-network/type-definitions@npm:4.1.5":
+  version: 4.1.5
+  resolution: "@acala-network/type-definitions@npm:4.1.5"
   dependencies:
     "@open-web3/orml-type-definitions": ^1.1.4
-  checksum: 2ea4c8951a650ed6598a145c00b3a442198ef5f9ca4bf33e8f558ba00bce42e8f62264979148f4ecc1f3cdb11fa935945101ffd7ab305e184c2b609918b18cdd
+  checksum: 1d3247a48bc24fd4692965fef3cb2cb08a6143222986b8d1d80be4679c4f11c5e71b074608b72d3d7eacce85dea6a58570bc192f9afcf8302d7bca1b1d0c5c2a
   languageName: node
   linkType: hard
 
-"@acala-network/types@npm:4.1.8-9":
-  version: 4.1.8-9
-  resolution: "@acala-network/types@npm:4.1.8-9"
+"@acala-network/types@npm:4.1.5":
+  version: 4.1.5
+  resolution: "@acala-network/types@npm:4.1.5"
   dependencies:
-    "@acala-network/type-definitions": 4.1.8-9
+    "@acala-network/type-definitions": 4.1.5
     "@babel/runtime": ^7.10.2
     "@open-web3/api-mobx": ^1.1.4
     "@open-web3/orml-types": ^1.1.4
   peerDependencies:
     "@polkadot/api": ">=8"
-  checksum: 2be9d1a6dff9e243f7cab747f9b26b085e0f80eb6a3516362c9a510b0c58d1094356d3e210d97db89510c382be48c5397740b8d07a5ef0df837d639b0d099883
+  checksum: 09f250147daf7e9702e6004ee8949c5a977d9652bf8b3dca53a90f0ad9da4138384ab888cfde93a08de3d1cc59286d62b71cf43a3de37ec39aaf18a5a1cd839e
   languageName: node
   linkType: hard
 
@@ -2392,7 +2392,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@enkryptcom/extension@workspace:packages/extension"
   dependencies:
-    "@acala-network/api": ^4.1.8-2.3
+    "@acala-network/api": ^4.1.5
     "@enkryptcom/extension-bridge": ^0.0.1
     "@enkryptcom/hw-wallets": ^0.0.1
     "@enkryptcom/keyring": ^0.0.1
@@ -4805,7 +4805,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@polkadot/api@npm:8.14.1":
+"@polkadot/api@npm:8.14.1, @polkadot/api@npm:^8.5.1":
   version: 8.14.1
   resolution: "@polkadot/api@npm:8.14.1"
   dependencies:
@@ -4830,7 +4830,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@polkadot/api@npm:9.11.1, @polkadot/api@npm:^9.11.1, @polkadot/api@npm:^9.9.1":
+"@polkadot/api@npm:9.11.1, @polkadot/api@npm:^9.11.1":
   version: 9.11.1
   resolution: "@polkadot/api@npm:9.11.1"
   dependencies:
@@ -4983,7 +4983,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@polkadot/rpc-core@npm:8.14.1":
+"@polkadot/rpc-core@npm:8.14.1, @polkadot/rpc-core@npm:^8.5.1":
   version: 8.14.1
   resolution: "@polkadot/rpc-core@npm:8.14.1"
   dependencies:
@@ -4997,7 +4997,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@polkadot/rpc-core@npm:9.11.1, @polkadot/rpc-core@npm:^9.9.1":
+"@polkadot/rpc-core@npm:9.11.1":
   version: 9.11.1
   resolution: "@polkadot/rpc-core@npm:9.11.1"
   dependencies:
@@ -6472,6 +6472,115 @@ __metadata:
   version: 1.37.0
   resolution: "@substrate/ss58-registry@npm:1.37.0"
   checksum: c70f9109318a53813b75db664bcc10738b407fd5dd9df1e9cb24a49157f6037b67061d9dc81a0174ec9281032277fdf2fef00a16ed8092bd35afa60061e6bfdd
+  languageName: node
+  linkType: hard
+
+"@swc/core-darwin-arm64@npm:1.3.26":
+  version: 1.3.26
+  resolution: "@swc/core-darwin-arm64@npm:1.3.26"
+  conditions: os=darwin & cpu=arm64
+  languageName: node
+  linkType: hard
+
+"@swc/core-darwin-x64@npm:1.3.26":
+  version: 1.3.26
+  resolution: "@swc/core-darwin-x64@npm:1.3.26"
+  conditions: os=darwin & cpu=x64
+  languageName: node
+  linkType: hard
+
+"@swc/core-linux-arm-gnueabihf@npm:1.3.26":
+  version: 1.3.26
+  resolution: "@swc/core-linux-arm-gnueabihf@npm:1.3.26"
+  conditions: os=linux & cpu=arm
+  languageName: node
+  linkType: hard
+
+"@swc/core-linux-arm64-gnu@npm:1.3.26":
+  version: 1.3.26
+  resolution: "@swc/core-linux-arm64-gnu@npm:1.3.26"
+  conditions: os=linux & cpu=arm64 & libc=glibc
+  languageName: node
+  linkType: hard
+
+"@swc/core-linux-arm64-musl@npm:1.3.26":
+  version: 1.3.26
+  resolution: "@swc/core-linux-arm64-musl@npm:1.3.26"
+  conditions: os=linux & cpu=arm64 & libc=musl
+  languageName: node
+  linkType: hard
+
+"@swc/core-linux-x64-gnu@npm:1.3.26":
+  version: 1.3.26
+  resolution: "@swc/core-linux-x64-gnu@npm:1.3.26"
+  conditions: os=linux & cpu=x64 & libc=glibc
+  languageName: node
+  linkType: hard
+
+"@swc/core-linux-x64-musl@npm:1.3.26":
+  version: 1.3.26
+  resolution: "@swc/core-linux-x64-musl@npm:1.3.26"
+  conditions: os=linux & cpu=x64 & libc=musl
+  languageName: node
+  linkType: hard
+
+"@swc/core-win32-arm64-msvc@npm:1.3.26":
+  version: 1.3.26
+  resolution: "@swc/core-win32-arm64-msvc@npm:1.3.26"
+  conditions: os=win32 & cpu=arm64
+  languageName: node
+  linkType: hard
+
+"@swc/core-win32-ia32-msvc@npm:1.3.26":
+  version: 1.3.26
+  resolution: "@swc/core-win32-ia32-msvc@npm:1.3.26"
+  conditions: os=win32 & cpu=ia32
+  languageName: node
+  linkType: hard
+
+"@swc/core-win32-x64-msvc@npm:1.3.26":
+  version: 1.3.26
+  resolution: "@swc/core-win32-x64-msvc@npm:1.3.26"
+  conditions: os=win32 & cpu=x64
+  languageName: node
+  linkType: hard
+
+"@swc/core@npm:^1.3.26":
+  version: 1.3.26
+  resolution: "@swc/core@npm:1.3.26"
+  dependencies:
+    "@swc/core-darwin-arm64": 1.3.26
+    "@swc/core-darwin-x64": 1.3.26
+    "@swc/core-linux-arm-gnueabihf": 1.3.26
+    "@swc/core-linux-arm64-gnu": 1.3.26
+    "@swc/core-linux-arm64-musl": 1.3.26
+    "@swc/core-linux-x64-gnu": 1.3.26
+    "@swc/core-linux-x64-musl": 1.3.26
+    "@swc/core-win32-arm64-msvc": 1.3.26
+    "@swc/core-win32-ia32-msvc": 1.3.26
+    "@swc/core-win32-x64-msvc": 1.3.26
+  dependenciesMeta:
+    "@swc/core-darwin-arm64":
+      optional: true
+    "@swc/core-darwin-x64":
+      optional: true
+    "@swc/core-linux-arm-gnueabihf":
+      optional: true
+    "@swc/core-linux-arm64-gnu":
+      optional: true
+    "@swc/core-linux-arm64-musl":
+      optional: true
+    "@swc/core-linux-x64-gnu":
+      optional: true
+    "@swc/core-linux-x64-musl":
+      optional: true
+    "@swc/core-win32-arm64-msvc":
+      optional: true
+    "@swc/core-win32-ia32-msvc":
+      optional: true
+    "@swc/core-win32-x64-msvc":
+      optional: true
+  checksum: 656a2197bd8bd50b112077e8c7f9156527ec66cb06fed2cefb9e2610e3cde13e8416783f84edda67b9af4e27d6b169bc1a447d7c6c73cf64a1b3ec428b0737ab
   languageName: node
   linkType: hard
 
@@ -12452,6 +12561,7 @@ __metadata:
   dependencies:
     "@commitlint/cli": ^17.4.2
     "@commitlint/config-conventional": ^17.4.2
+    "@swc/core": ^1.3.26
     concurrently: ^7.6.0
     devmoji: ^2.3.0
     husky: ^8.0.3
