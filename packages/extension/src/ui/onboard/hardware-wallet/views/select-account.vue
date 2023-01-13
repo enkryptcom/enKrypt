@@ -78,7 +78,7 @@ const loading = ref(false);
 const currentAddressIndex = ref(0);
 const keyring = new PublicKeyRing();
 const existingAccounts = ref<EnkryptAccount[]>([]);
-const networkApi = ref<Promise<SubstrateAPI | EvmAPI | BtcApi>>();
+const networkApi = ref<SubstrateAPI | EvmAPI | BtcApi>();
 const accounts = ref<HWWalletAccountType[]>([]);
 const visibleAccounts = computed(() => {
   return accounts.value.slice(
@@ -95,12 +95,9 @@ const enableContinue = computed(() => {
   return false;
 });
 
-onBeforeMount(async () => {
-  network.value = (await getNetworkByName(networkName))!;
-  networkApi.value = network.value.api();
-});
-
 onMounted(async () => {
+  network.value = (await getNetworkByName(networkName))!;
+  networkApi.value = await network.value.api();
   keyring.getAccounts().then((accounts) => (existingAccounts.value = accounts));
   networkPaths.value = await hwWallet.getSupportedPaths({
     wallet: walletType,
@@ -148,13 +145,13 @@ const loadAddresses = async (start: number, end: number) => {
       index: i,
       name: `${network.value!.name_long} ${walletType} ${i}`,
     });
-    networkApi.value!.then((api) => {
-      api.getBalance(newAddress.address).then((balance) => {
-        accounts.value[i].balance = formatFloatingPointValue(
-          fromBase(balance, network.value!.decimals)
-        ).value;
-      });
+
+    networkApi.value!.getBalance(newAddress.address).then((balance) => {
+      accounts.value[i].balance = formatFloatingPointValue(
+        fromBase(balance, network.value!.decimals)
+      ).value;
     });
+
     currentAddressIndex.value = i;
   }
   loading.value = false;

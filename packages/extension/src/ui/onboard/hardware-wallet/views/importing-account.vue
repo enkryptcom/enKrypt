@@ -88,11 +88,8 @@ const importingAccountScrollRef = ref<ComponentPublicInstance<HTMLElement>>();
 
 defineExpose({ importingAccountScrollRef });
 
-onBeforeMount(async () => {
+onMounted(async () => {
   network.value = (await getNetworkByName(networkName))!;
-});
-
-onMounted(() => {
   keyring.getAccounts().then((accounts) => (existingAccounts.value = accounts));
 });
 const existingNames = computed(() => {
