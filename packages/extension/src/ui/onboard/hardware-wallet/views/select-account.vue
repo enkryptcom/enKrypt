@@ -46,7 +46,7 @@ import { useRoute, useRouter } from "vue-router";
 import { routes } from "../routes";
 import { getNetworkByName } from "@/libs/utils/networks";
 import { HWWalletAccountType, PathType } from "../types";
-import { computed, onBeforeMount, onMounted, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { EnkryptAccount, HWwalletType } from "@enkryptcom/types";
 import HWwallet from "@enkryptcom/hw-wallets";
 import PublicKeyRing from "@/libs/keyring/public-keyring";

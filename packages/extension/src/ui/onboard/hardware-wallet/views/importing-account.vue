@@ -45,7 +45,7 @@
   <hardware-account-imported v-if="isProcessDone" />
 </template>
 <script setup lang="ts">
-import { ref, ComponentPublicInstance, onMounted, onBeforeMount } from "vue";
+import { ref, ComponentPublicInstance, onMounted } from "vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import HardwareWalletProcess from "../components/hardware-wallet-process.vue";
 import HardwareImportingAccount from "../components/hardware-importing-account.vue";
