@@ -4,14 +4,16 @@
     @click="emit('selected:account', account.address)"
   >
     <div class="send-address-item__info">
-      <img :src="network.identicon(account.address)" />
+      <img :src="network.identicon ? network.identicon(account.address) : ''" />
 
       <div class="send-address-item__name">
         <h4>{{ account.name }}</h4>
         <p>
           {{
             $filters.replaceWithEllipsis(
-              network.displayAddress(account.address),
+              network.displayAddress
+                ? network.displayAddress(account.address)
+                : "",
               4,
               4
             )

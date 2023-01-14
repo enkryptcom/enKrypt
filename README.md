@@ -39,6 +39,7 @@ Enkrypt is a web3 wallet built from the ground up to support the multi-chain fut
 * Ethereum Classic
 * Polkadot
 * Kusama
+* Edgeware
 * Acala
 * Karura
 * More coming soon!

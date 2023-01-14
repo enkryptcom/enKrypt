@@ -4,6 +4,7 @@ import type {
   ProviderMeta,
 } from "@polkadot/extension-inject/types";
 import type {
+  ProviderInterface,
   ProviderInterfaceEmitCb,
   ProviderInterfaceEmitted,
 } from "@polkadot/rpc-provider/types";
@@ -23,17 +24,17 @@ export default class PostMessageProvider implements InjectedProvider {
   eventEmitter: EventEmitter;
   sendMessageHandler: InjectedSendMessageHandler;
   options: InjectLibOptions;
+  isClonable: boolean;
+
   constructor(options: InjectLibOptions) {
     this.eventEmitter = new EventEmitter();
     this.sendMessageHandler = options.sendMessageHandler;
     this.options = options;
+    this.isClonable = true;
   }
-
-  public clone(): PostMessageProvider {
-    console.error("PostMessageProvider.clone() is not implemented.");
+  public clone(): ProviderInterface {
     return new PostMessageProvider(this.options);
   }
-
   public async connect(): Promise<void> {
     console.error("PostMessageProvider.connect() is not implemented.");
   }

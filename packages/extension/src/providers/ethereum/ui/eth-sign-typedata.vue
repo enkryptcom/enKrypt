@@ -99,10 +99,7 @@ onMounted(async () => {
 const approve = async () => {
   const { Request, Resolve, sendToBackground } = await windowPromise;
   const version = Request.value.params![2] as SignTypedDataVersion;
-  const typedData =
-    version !== "V1"
-      ? JSON.parse(Request.value.params![0])
-      : Request.value.params![0];
+  const typedData = Request.value.params![0];
   let msgHash;
   try {
     if (version === SignTypedDataVersion.V1) {
