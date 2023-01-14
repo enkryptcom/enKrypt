@@ -3,24 +3,26 @@
     <div class="add-network__search-input">
       <base-search v-bind="$attrs" :is-border="true" :value="value" />
     </div>
-    <div class="add-network__search-add">
-      <a @click="action">
-        <slider-icon />
-      </a>
-    </div>
-    <div v-show="openList" ref="tooltip" class="add-network__search-list">
-      <a
+    <div ref="tooltip" class="add-network__search-wrap">
+      <div class="add-network__search-add">
+        <a @click="action">
+          <slider-icon />
+        </a>
+      </div>
+      <div v-show="openList" class="add-network__search-list">
+        <!-- <a
         class="add-network__search-list-item"
         @click="$emit('action:customNetwork')"
       >
         <custom-network-icon /><span>Custom network</span>
-      </a>
-      <div class="add-network__search-list-item">
-        <test-network-icon /><span>Show testnets</span>
-        <Switch
-          :is-checked="false"
-          @update:check="$emit('toggle:testNetworks')"
-        />
+      </a> -->
+        <div class="add-network__search-list-item">
+          <test-network-icon /><span>Show testnets</span>
+          <Switch
+            :is-checked="false"
+            @update:check="$emit('toggle:testNetworks')"
+          />
+        </div>
       </div>
     </div>
   </div>
@@ -30,7 +32,6 @@
 import { ref } from "vue";
 import BaseSearch from "@action/components/base-search/index.vue";
 import SliderIcon from "@action/icons/common/slider-icon.vue";
-import CustomNetworkIcon from "@action/icons/common/custom-network-icon.vue";
 import TestNetworkIcon from "@action/icons/common/test-network-icon.vue";
 import Switch from "@action/components/switch/index.vue";
 import { onClickOutside } from "@vueuse/core";
@@ -51,7 +52,16 @@ defineEmits<{
 }>();
 
 const action = () => {
-  openList.value = !openList.value;
+  switch (openList.value) {
+    case false:
+      openList.value = true;
+      break;
+    case true:
+      openList.value = false;
+      break;
+    default:
+      console.error("No status for openList");
+  }
 };
 
 onClickOutside(tooltip, () => {

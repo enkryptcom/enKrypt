@@ -4,16 +4,20 @@
       <div v-if="!noIndex" class="hardware-importing-account__number">
         {{ index }}
       </div>
-      <img :src="network.identicon(address)" />
+      <img :src="network.identicon ? network.identicon(address) : ''" />
       <div class="hardware-importing-account__info">
         <p class="hardware-importing-account__info-name">
           {{
-            $filters.replaceWithEllipsis(network.displayAddress(address), 6, 4)
+            $filters.replaceWithEllipsis(
+              network.displayAddress ? network.displayAddress(address) : "",
+              6,
+              4
+            )
           }}
         </p>
         <p class="hardware-importing-account__info-amount">
           {{ balance }}
-          <span>{{ network.currencyName }}</span>
+          <span>{{ network.currencyName ? network.currencyName : "" }}</span>
         </p>
       </div>
     </div>
