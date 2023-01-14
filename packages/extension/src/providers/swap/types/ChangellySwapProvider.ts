@@ -60,6 +60,11 @@ const CHANGELLY_TOKEN_INFO = [
     icon: require("../assets/bitcoin.svg"),
     coingeckoID: "bitcoin",
   },
+  {
+    id: "bnbbsc",
+    icon: require("../assets/bnb.webp"),
+    coingeckoID: "binancecoin",
+  },
 ];
 
 interface ChangellyTokenInfo {
@@ -133,6 +138,7 @@ export class ChangellySwapProvider extends SwapProvider {
     "MATIC",
     "MATICPOLYGON",
     "BTC",
+    "BNBBSC",
   ];
   constructor() {
     super();
@@ -266,6 +272,8 @@ export class ChangellySwapProvider extends SwapProvider {
           } else if (tokenData.name === "maticpolygon") {
             name = "Polygon Mainnet";
             symbol = "MATIC";
+          } else if (tokenData.name === "bnbbsc") {
+            symbol = "BNB";
           }
 
           const tokenOptions: ChangellyTokenOptions = {
@@ -738,7 +746,6 @@ export class ChangellySwapProvider extends SwapProvider {
           }).then((signedTx) => {
             return new Promise((resolve) => {
               const onHash = (hash: string) => {
-                console.log(hash);
                 activityState.addActivities(
                   [
                     {

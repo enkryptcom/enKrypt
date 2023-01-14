@@ -1,6 +1,7 @@
 import { getCustomError } from "@/libs/error";
 import { WindowPromise } from "@/libs/window-promise";
 import { MiddlewareFunction } from "@enkryptcom/types";
+import { toBN } from "web3-utils";
 import EthereumProvider from "..";
 const method: MiddlewareFunction = function (
   this: EthereumProvider,
@@ -22,6 +23,23 @@ const method: MiddlewareFunction = function (
     const version = supportedMethods[payload.method as string];
     const typedData = version === "V1" ? payload.params[0] : payload.params[1];
     const address = version === "V1" ? payload.params[1] : payload.params[0];
+    const typedDataJSON = version !== "V1" ? JSON.parse(typedData) : typedData;
+
+    if (
+      typedDataJSON.domain &&
+      typedDataJSON.domain.chainId &&
+      !toBN(typedDataJSON.domain.chainId).eq(toBN(this.network.chainID))
+    )
+      return res(
+        getCustomError(
+          `eth_signTypedData: Provided chainId ${
+            typedDataJSON.domain.chainId
+          } must match the active chainId ${toBN(
+            this.network.chainID
+          ).toString()}`,
+          -32603
+        )
+      );
     this.KeyRing.getAccount(address.toLowerCase()).then((account) => {
       const windowPromise = new WindowPromise();
       windowPromise
@@ -29,7 +47,7 @@ const method: MiddlewareFunction = function (
           this.getUIPath(this.UIRoutes.ethSignTypedData.path),
           JSON.stringify({
             ...payload,
-            params: [typedData, account, version, this.network.name],
+            params: [typedDataJSON, account, version, this.network.name],
           }),
           true
         )

@@ -55,7 +55,7 @@ defineProps({
 @import "~@action/styles/theme.less";
 
 .network-menu {
-  position: fixed;
+  position: absolute;
   width: 460px;
   height: 56px;
   left: 340px;
