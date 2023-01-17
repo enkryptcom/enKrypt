@@ -23,7 +23,7 @@ const shidenOptions: SubstrateNetworkOptions = {
   prefix: 5,
   gradient:
     "linear-gradient(326.87deg, #645AFF 12.53%, #E40C5B 50.89%, #FF4C3B 89.24%)",
-  node: "wss://shiden.public.blastapi.io",
+  node: "wss://shiden.api.onfinality.io/public-ws",
   coingeckoID: "shiden",
   coingeckoPlatform: CoingeckoPlatform.Shiden,
   existentialDeposit: toBN("1000000"),
