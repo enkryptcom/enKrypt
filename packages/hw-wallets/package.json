@@ -52,7 +52,7 @@
     "@ledgerhq/hw-transport": "^6.27.9",
     "@ledgerhq/hw-transport-webusb": "^6.27.9",
     "@ledgerhq/live-common": "^24.1.0",
-    "@polkadot/types": "^9.11.1",
+    "@polkadot/types": "^9.11.3",
     "@polkadot/util": "^10.2.3",
     "@trezor/connect-web": "^9.0.5",
     "@zondax/ledger-substrate": "^0.40.3",

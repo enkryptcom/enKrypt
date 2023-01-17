@@ -66,12 +66,12 @@
     "zxcvbn": "^4.4.2"
   },
   "devDependencies": {
-    "@polkadot/api": "^9.11.1",
+    "@polkadot/api": "^9.11.3",
     "@polkadot/extension-inject": "^0.44.8",
     "@polkadot/keyring": "^10.2.3",
-    "@polkadot/rpc-provider": "^9.11.1",
-    "@polkadot/types": "^9.11.1",
-    "@polkadot/types-known": "^9.11.1",
+    "@polkadot/rpc-provider": "^9.11.3",
+    "@polkadot/types": "^9.11.3",
+    "@polkadot/types-known": "^9.11.3",
     "@polkadot/ui-shared": "^2.9.15",
     "@polkadot/util": "^10.2.3",
     "@polkadot/wasm-crypto": "^6.4.1",
