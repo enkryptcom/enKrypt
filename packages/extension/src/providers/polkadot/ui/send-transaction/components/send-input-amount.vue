@@ -27,7 +27,7 @@ import SwitchArrowIcon from "@action/icons/send/switch-arrow-icon.vue";
 import BigNumber from "bignumber.js";
 
 const emit = defineEmits<{
-  (e: "update:inputAmount", address: string): void;
+  (e: "update:inputAmount", address: string | undefined): void;
   (e: "update:inputSetMax", max: boolean): void;
 }>();
 
@@ -53,7 +53,10 @@ const fiatEquivalent = computed(() => {
 const amount = computed({
   get: () => props.amount,
   set: (value) => {
-    emit("update:inputAmount", new BigNumber(value).toFixed());
+    emit(
+      "update:inputAmount",
+      value ? new BigNumber(value).toFixed() : value.toString()
+    );
   },
 });
 

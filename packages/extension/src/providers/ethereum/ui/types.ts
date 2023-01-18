@@ -36,3 +36,5 @@ export interface SignerMessageOptions {
   network: BaseNetwork;
   account: EnkryptAccount;
 }
+
+export { GasFeeInfo };
