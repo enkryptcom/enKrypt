@@ -182,7 +182,7 @@ const edWarn = computed(() => {
   }
 
   const rawAmount = toBN(
-    toBase(amount.value.toString(), selectedAsset.value.decimals!)
+    toBase(amount.value.toString(), selectedAsset.value.decimals ?? 0)
   );
   const ed = selectedAsset.value.existentialDeposit ?? toBN(0);
   const userBalance = toBN(selectedAsset.value.balance ?? 0);
@@ -217,7 +217,7 @@ onMounted(() => {
 
 watch([selectedAsset, amount, addressTo], async () => {
   if (selectedAsset.value && isAddress.value) {
-    if (!isValidDecimals(amount.value ?? "0", selectedAsset.value.decimals!)) {
+    if (!isValidDecimals(amount.value || "0", selectedAsset.value.decimals!)) {
       hasEnough.value = false;
       return;
     }
@@ -352,8 +352,8 @@ const selectToken = (token: SubstrateToken | Partial<SubstrateToken>) => {
   isOpenSelectToken.value = false;
 };
 
-const inputAmount = (number: string) => {
-  amount.value = parseFloat(number) < 0 ? "0" : number;
+const inputAmount = (number: string | undefined) => {
+  amount.value = number ? (parseFloat(number) < 0 ? "0" : number) : number;
 };
 
 const sendButtonTitle = computed(() => {
@@ -397,6 +397,8 @@ const isDisabled = () => {
   }
 
   if (
+    amount.value !== undefined &&
+    amount.value !== "" &&
     hasEnough.value &&
     addressIsValid &&
     !edWarn.value &&
