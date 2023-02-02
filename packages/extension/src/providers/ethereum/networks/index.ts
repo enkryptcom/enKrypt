@@ -33,5 +33,5 @@ export default {
   astarEvm: astarEvmNode,
   op: optimismNode,
   canto: cantoNode,
-  edgeEvm:edgeEvmNode,
+  edgeEvm: edgeEvmNode,
 };
