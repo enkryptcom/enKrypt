@@ -7,7 +7,7 @@ import {
 } from "../types/substrate-network";
 import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
 
-const ksmOptions: SubstrateNetworkOptions = {
+const edgewareOptions: SubstrateNetworkOptions = {
   name: NetworkNames.Edgeware,
   name_long: "Edgeware",
   homePage: "https://edgeware.io/",
