@@ -47,6 +47,6 @@
   "dependencies": {
     "@ensdomains/address-encoder": "^0.2.20",
     "@unstoppabledomains/resolution": "^8.5.0",
-    "ethers": "^6.0.2"
+    "ethers": "^5.7.2"
   }
 }
