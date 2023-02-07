@@ -1,9 +1,9 @@
 import { ApiPromise } from "@polkadot/api";
-import { OrmlTokensAccountData } from "@acala-network/types/interfaces/types-lookup";
 import { SubmittableExtrinsic } from "@polkadot/api/types";
 import { ISubmittableResult } from "@polkadot/types/types";
 import { SubstrateToken } from "@/providers/polkadot/types/substrate-token";
 import { BaseTokenOptions } from "@/types/base-token";
+import type { u128 } from "@polkadot/types-codec";
 
 export type OrmlAssetType =
   | "token"
@@ -11,6 +11,11 @@ export type OrmlAssetType =
   | "stableAssetPoolToken"
   | "liquidCrowdloan";
 
+export type OrmlTokensAccountData = {
+  free: u128;
+  reserved: u128;
+  frozen: u128;
+};
 export interface AcalaOrmlAssetOptions extends BaseTokenOptions {
   assetType: OrmlAssetType;
   lookupValue: string | number;

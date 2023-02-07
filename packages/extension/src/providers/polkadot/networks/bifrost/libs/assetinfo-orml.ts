@@ -6,7 +6,7 @@ import {
   BifrostOrmlAssetOptions,
   OrmlAssetType,
 } from "../types/bifrost-orml-asset";
-import { OrmlTokensAccountData } from "@acala-network/types/interfaces/types-lookup";
+import { OrmlTokensAccountData } from "../../acala/types/acala-orml-asset";
 import { toBN } from "web3-utils";
 import { KnownTokenDisplay } from "@/providers/polkadot/types";
 import { SubstrateNativeToken } from "@/providers/polkadot/types/substrate-native-token";

@@ -16,6 +16,9 @@ const setConfig = (config) => {
     http: require.resolve("stream-http"),
     path: require.resolve("path-browserify"),
     fs: false,
+    zlib: require.resolve("browserify-zlib"),
+    net: false,
+    tls: false,
   });
   config
     .plugin("buffer") // <-arbitrary name to give this plugin entry I guess?
