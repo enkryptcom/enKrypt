@@ -4,6 +4,7 @@ import { EtherscanActivity } from "../libs/activity-handlers";
 import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
 import { toChecksumAddress } from "ethereumjs-util";
 import { isAddress } from "web3-utils";
+import assetsInfoHandler from "@/providers/ethereum/libs/assets-handlers/assetinfo-mew";
 
 const rootstockOptions: EvmNetworkOptions = {
   name: NetworkNames.Rootstock,
@@ -22,6 +23,7 @@ const rootstockOptions: EvmNetworkOptions = {
   coingeckoID: CoingeckoPlatform.Rootstock,
   coingeckoPlatform: CoingeckoPlatform.Rootstock,
   activityHandler: wrapActivityHandler(EtherscanActivity),
+  assetsInfoHandler,
 };
 
 rootstockOptions.displayAddress = (address: string) => {

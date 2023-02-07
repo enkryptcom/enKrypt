@@ -64,6 +64,10 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
     tbName: "canto",
     cgPlatform: CoingeckoPlatform.Canto,
   },
+  [NetworkNames.Rootstock]: {
+    tbName: "rsk",
+    cgPlatform: CoingeckoPlatform.Rootstock,
+  },
 };
 
 const getAPIUrl = (chain: SupportedNetworkNames, address: string) => {

@@ -27,4 +27,5 @@ export type SupportedNetworkNames =
   | NetworkNames.Moonriver
   | NetworkNames.Moonbeam
   | NetworkNames.ShidenEVM
-  | NetworkNames.Canto;
+  | NetworkNames.Canto
+  | NetworkNames.Rootstock;
