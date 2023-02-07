@@ -1,7 +1,9 @@
 import { CoingeckoPlatform, NetworkNames } from "@enkryptcom/types";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
-import { Activity } from "@/types/activity";
+import { EtherscanActivity } from "../libs/activity-handlers";
 import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
+import { toChecksumAddress } from "ethereumjs-util";
+import { isAddress } from "web3-utils";
 
 const rootstockOptions: EvmNetworkOptions = {
   name: NetworkNames.Rootstock,
@@ -19,7 +21,14 @@ const rootstockOptions: EvmNetworkOptions = {
   gradient: "#7B3FE4",
   coingeckoID: CoingeckoPlatform.Rootstock,
   coingeckoPlatform: CoingeckoPlatform.Rootstock,
-  activityHandler: wrapActivityHandler(async (): Promise<Activity[]> => []),
+  activityHandler: wrapActivityHandler(EtherscanActivity),
+};
+
+rootstockOptions.displayAddress = (address: string) => {
+  return toChecksumAddress(address, rootstockOptions.chainID);
+};
+rootstockOptions.isAddress = (address: string) => {
+  return isAddress(address, parseInt(rootstockOptions.chainID));
 };
 
 const rootstock = new EvmNetwork(rootstockOptions);

@@ -16,6 +16,7 @@ const NetworkEndpoints = {
   [NetworkNames.Optimism]: "https://api-optimistic.etherscan.io/",
   [NetworkNames.Canto]: "https://evm.explorer.canto.io/",
   [NetworkNames.EdgeEVM]: "https://edgscan.live/",
+  [NetworkNames.Rootstock]: "https://blockscout.com/rsk/mainnet/",
 };
 
 export { NetworkEndpoints };

@@ -2,7 +2,7 @@
   <div class="send-address-input" :class="{ focus: isFocus }">
     <div class="send-address-input__avatar">
       <img
-        v-if="isValidChecksumAddress(value, network.chainID)"
+        v-if="network.isAddress(value)"
         :src="network.identicon(value)"
         alt=""
       />
@@ -17,9 +17,7 @@
         :disabled="disableDirectInput"
         placeholder="0x… address"
         :style="{
-          color: !isValidChecksumAddress(value, network.chainID)
-            ? 'red'
-            : 'black',
+          color: !network.isAddress(value) ? 'red' : 'black',
         }"
         @focus="changeFocus"
         @blur="changeFocus"
@@ -29,8 +27,7 @@
 </template>
 
 <script setup lang="ts">
-import { EvmNetwork } from "@/types/evm-network";
-import { isValidChecksumAddress } from "@enkryptcom/utils";
+import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
 import { replaceWithEllipsis } from "@/ui/action/utils/filters";
 import { computed } from "@vue/reactivity";
 import { PropType, ref } from "vue";
