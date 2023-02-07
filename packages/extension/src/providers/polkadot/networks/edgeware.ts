@@ -7,15 +7,15 @@ import {
 } from "../types/substrate-network";
 import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
 
-const ksmOptions: SubstrateNetworkOptions = {
+const edgewareOptions: SubstrateNetworkOptions = {
   name: NetworkNames.Edgeware,
   name_long: "Edgeware",
-  homePage: "https://www.edgeware.io/",
+  homePage: "https://edgeware.io/",
   blockExplorerTX: "https://edgeware.subscan.io/extrinsic/[[txHash]]",
   blockExplorerAddr: "https://edgeware.subscan.io/account/[[address]]",
   isTestNetwork: false,
   currencyName: "EDG",
-  currencyNameLong: "Edge",
+  currencyNameLong: "Edgeware",
   icon: require("./icons/edgeware.svg"),
   decimals: 18,
   prefix: 7,
@@ -29,6 +29,6 @@ const ksmOptions: SubstrateNetworkOptions = {
   existentialDeposit: toBN("10000000000000"),
 };
 
-const ksm = new SubstrateNetwork(ksmOptions);
+const edgeware = new SubstrateNetwork(edgewareOptions);
 
-export default ksm;
+export default edgeware;

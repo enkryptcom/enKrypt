@@ -14,6 +14,7 @@ import shidenEvmNode from "./sdn";
 import astarEvmNode from "./astr";
 import optimismNode from "./op";
 import cantoNode from "./canto";
+import edgeEvmNode from "./edg";
 
 export default {
   goerli: goerliNode,
@@ -32,4 +33,5 @@ export default {
   astarEvm: astarEvmNode,
   op: optimismNode,
   canto: cantoNode,
+  edgeEvm: edgeEvmNode,
 };
