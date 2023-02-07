@@ -14,7 +14,7 @@ import { NFTCollection } from "@/types/nft";
 import { AssetsType, ProviderName } from "@/types/provider";
 import { CoingeckoPlatform, NetworkNames, SignerType } from "@enkryptcom/types";
 import BigNumber from "bignumber.js";
-import { toChecksumAddress } from "ethereumjs-util";
+import { toChecksumAddress } from "@enkryptcom/utils";
 import API from "../libs/api";
 import createIcon from "../libs/blockies";
 import { NATIVE_TOKEN_ADDRESS } from "../libs/common";
@@ -81,7 +81,8 @@ export class EvmNetwork extends BaseNetwork {
     const baseOptions = {
       signer: [SignerType.secp256k1],
       provider: ProviderName.ethereum,
-      displayAddress: (address: string) => toChecksumAddress(address),
+      displayAddress: (address: string) =>
+        toChecksumAddress(address, this.chainID),
       identicon: createIcon,
       basePath: options.basePath ? options.basePath : "m/44'/60'/0'/0",
       decimals: 18,
