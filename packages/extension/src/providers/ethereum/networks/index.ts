@@ -15,6 +15,7 @@ import astarEvmNode from "./astr";
 import optimismNode from "./op";
 import cantoNode from "./canto";
 import rootstockNode from "./rootstock";
+import edgeEvmNode from "./edg";
 
 export default {
   goerli: goerliNode,
@@ -34,4 +35,5 @@ export default {
   op: optimismNode,
   canto: cantoNode,
   rootstock: rootstockNode,
+  edgeEvm: edgeEvmNode,
 };

@@ -225,7 +225,7 @@ const nativeBalance = computed(() => {
   if (accountIndex !== -1) {
     const balance = props.accountInfo.activeBalances[accountIndex];
 
-    if (balance !== undefined) {
+    if (balance !== "~") {
       return toBase(balance, props.network.decimals);
     }
   }

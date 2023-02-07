@@ -28,6 +28,7 @@ export enum NetworkNames {
   Bifrost = "BNC",
   BifrostKusama = "BNC (Kusama)",
   Edgeware = "EDG",
+  EdgeEVM = "evmEDG",
 }
 
 export enum CoingeckoPlatform {
@@ -49,5 +50,6 @@ export enum CoingeckoPlatform {
   Optimism = "optimistic-ethereum",
   Canto = "canto",
   Bifrost = "Bifrost Native Coin",
-  Edgeware = "Edgeware"
+  Edgeware = "edgeware",
+  EdgeEVM = "edgeware",
 }

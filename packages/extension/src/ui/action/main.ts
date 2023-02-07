@@ -7,7 +7,7 @@ import "@/libs/utils/selective-wasm";
 
 const app = createApp(App);
 
-app.use(router).use(Vue3Lottie);
+app.use(router).use(Vue3Lottie, { name: "vue3lottie" });
 
 app.config.globalProperties.$filters = filters;
 
