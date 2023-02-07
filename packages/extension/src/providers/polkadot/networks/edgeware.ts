@@ -10,7 +10,7 @@ import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
 const edgewareOptions: SubstrateNetworkOptions = {
   name: NetworkNames.Edgeware,
   name_long: "Edgeware",
-  homePage: "https://edgeware.io/",
+  homePage: "https://www.edgeware.io/",
   blockExplorerTX: "https://edgeware.subscan.io/extrinsic/[[txHash]]",
   blockExplorerAddr: "https://edgeware.subscan.io/account/[[address]]",
   isTestNetwork: false,
