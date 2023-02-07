@@ -14,7 +14,7 @@ import shidenEvmNode from "./sdn";
 import astarEvmNode from "./astr";
 import optimismNode from "./op";
 import cantoNode from "./canto";
-import rootstockNode from "./rootstock";
+import rootstockNode from "./rsk";
 import edgeEvmNode from "./edg";
 
 export default {
