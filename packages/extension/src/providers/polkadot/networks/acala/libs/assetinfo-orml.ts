@@ -5,8 +5,8 @@ import {
   AcalaOrmlAsset,
   AcalaOrmlAssetOptions,
   OrmlAssetType,
+  OrmlTokensAccountData,
 } from "../types/acala-orml-asset";
-import { OrmlTokensAccountData } from "@acala-network/types/interfaces/types-lookup";
 import { toBN } from "web3-utils";
 import { KnownTokenDisplay } from "@/providers/polkadot/types";
 import { SubstrateNativeToken } from "@/providers/polkadot/types/substrate-native-token";

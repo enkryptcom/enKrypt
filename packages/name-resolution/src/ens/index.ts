@@ -1,4 +1,4 @@
-import { ethers } from "ethers";
+import { JsonRpcProvider } from "ethers";
 import { formatsByName } from "@ensdomains/address-encoder";
 import { BaseResolver, CoinType } from "../types";
 import { ENSOptions } from "./types";
@@ -9,7 +9,7 @@ class ENSResolver implements BaseResolver {
 
   name: string;
 
-  ENSProvider: ethers.providers.JsonRpcProvider;
+  ENSProvider: JsonRpcProvider;
 
   constructor(options: ENSOptions) {
     this.options = options;
@@ -17,7 +17,7 @@ class ENSResolver implements BaseResolver {
   }
 
   public async init(): Promise<void> {
-    this.ENSProvider = new ethers.providers.JsonRpcProvider(this.options.node);
+    this.ENSProvider = new JsonRpcProvider(this.options.node);
   }
 
   public async resolveReverseName(address: string): Promise<string | null> {
