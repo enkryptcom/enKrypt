@@ -11,16 +11,17 @@
 
         <div class="swap__wrap">
           <swap-token-amount-input
-            :toggle-select="toggleFromToken"
+            :token-amount="fromAmount || ''"
             :token="fromToken"
-            :input-amount="inputAmountFrom"
             :autofocus="true"
             :min="minFrom"
             :max="maxFrom"
             @update:input-max="setMax"
+            @toggle:select="toggleFromToken"
+            @input:changed="inputAmountFrom"
           />
 
-          <a class="swap__arrows" @click="swapTokens"><swap-arrows /></a>
+          <a class="swap__arrows"><swap-arrows /></a>
 
           <swap-token-to-amount
             :toggle-select="toggleToToken"
@@ -156,7 +157,6 @@ const addressIsLoading = ref(false);
 const isOpenSelectContact = ref<boolean>(false);
 const addressInput = ref();
 const toAccounts = ref<EnkryptAccount[]>(props.accountInfo.activeAccounts);
-console.log(props.accountInfo.activeAccounts);
 
 const selected: string = route.params.id as string;
 const network = ref<BaseNetwork | undefined>();
@@ -309,7 +309,6 @@ onMounted(async () => {
   props.network
     .getAllTokens(props.accountInfo.selectedAccount?.address as string)
     .then(async (tokens) => {
-      console.log(tokens[0]);
       const api = await props.network.api();
 
       const balancePromises = tokens.map((token) => {
@@ -455,9 +454,9 @@ const selectTokenTo = (token: BaseToken) => {
   toSelectOpened.value = false;
 };
 
-const inputAmountFrom = async (newVal: number, isInvalid: boolean) => {
+const inputAmountFrom = async (newVal: string, isInvalid: boolean) => {
   inputError.value = isInvalid;
-  fromAmount.value = newVal.toString();
+  fromAmount.value = newVal;
   swapMax.value = false;
 };
 
@@ -486,7 +485,6 @@ const toggleSwapError = () => {
 
 const setMax = () => {
   swapMax.value = true;
-  console.log("max");
 };
 
 const sendButtonTitle = () => {
@@ -547,7 +545,6 @@ const sendAction = async () => {
     }).length === 0
   ) {
     swapError.value = SwapError.NO_TRADES;
-    console.error("No trades found");
     toggleLooking();
     toggleSwapError();
     return;
@@ -575,9 +572,6 @@ const sendAction = async () => {
   });
 
   if (props.accountInfo.selectedAccount!.isHardware) {
-    console.log(
-      `action.html#/swap-best-offer-hw?id=${routedRoute.query.id}&swapData=${routedRoute.query.swapData}`
-    );
     await Browser.windows.create({
       url: Browser.runtime.getURL(
         getUiPath(
@@ -590,13 +584,13 @@ const sendAction = async () => {
       height: 600,
       width: 460,
     });
+    window.close();
   } else {
     router.push(routedRoute);
   }
 };
 
 const inputAddress = (text: string) => {
-  console.log(text);
   try {
     if (network.value) {
       address.value = network.value!.displayAddress(text);

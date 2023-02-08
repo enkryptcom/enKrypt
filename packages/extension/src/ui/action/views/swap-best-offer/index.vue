@@ -159,7 +159,7 @@ const isOpenSelectFee = ref(false);
 
 const selectedFee = ref<GasPriceTypes>(GasPriceTypes.REGULAR);
 const pickedTrade = ref<TradeInfo>(swapData.trades[0]);
-const balance = ref<BN>(new BN(0));
+const balance = ref<BN>(new BN(-1));
 const gasCostValues = ref<GasFeeType>(defaultGasCostVals);
 const nativeTokenPrice = ref<string>();
 
@@ -169,6 +169,7 @@ const priceDifference = ref<string>();
 const isTXSendLoading = ref<boolean>(false);
 
 const setWarning = async () => {
+  if (balance.value.ltn(0)) return;
   if (
     !swapData.swapMax &&
     swapData.fromToken.existentialDeposit &&
@@ -203,8 +204,8 @@ const setWarning = async () => {
       totalFees = new BigNumber(swapData.fromAmount).plus(totalFees);
     }
 
-    const userBalance = new BigNumber(balance.value.toString()).div(
-      new BigNumber(10).pow(network.value?.decimals || 18)
+    const userBalance = new BigNumber(
+      fromBase(balance.value.toString(), network.value?.decimals || 18)
     );
 
     if (userBalance.minus(totalFees).lt(0)) {
@@ -317,7 +318,11 @@ watch(pickedTrade, () => {
 });
 
 const back = () => {
-  router.go(-1);
+  if (!isWindowPopup.value) {
+    router.go(-1);
+  } else {
+    window.close();
+  }
 };
 
 const close = () => {
@@ -328,11 +333,8 @@ const close = () => {
   }
 };
 
-const sendButtonTitle = () => {
-  const title = "Proceed with swap";
+const sendButtonTitle = () => "Proceed with swap";
 
-  return title;
-};
 const isDisabled = computed(() => {
   if (
     warning.value === undefined ||
