@@ -16,7 +16,7 @@ const setConfig = (config) => {
     http: require.resolve("stream-http"),
     path: require.resolve("path-browserify"),
     fs: false,
-    zlib: require.resolve("browserify-zlib"),
+    zlib: false,
     net: false,
     tls: false,
   });
