@@ -152,6 +152,7 @@ const addressIsLoading = ref(false);
 const isOpenSelectContact = ref<boolean>(false);
 const addressInput = ref();
 const toAccounts = ref<EnkryptAccount[]>(props.accountInfo.activeAccounts);
+console.log(props.accountInfo.activeAccounts);
 
 const selected: string = route.params.id as string;
 const network = ref<BaseNetwork | undefined>();
@@ -394,15 +395,14 @@ watch(toToken, async () => {
       const accounts = await getAccountsByNetworkName(toNetwork.name);
 
       const currentAccount = accounts.find(
-        (account) => account.publicKey === address.value
+        (account) =>
+          account.publicKey === props.accountInfo.selectedAccount?.publicKey
       );
 
       if (currentAccount) {
-        address.value = "";
-      }
-
-      if (toNetwork.name !== network.value?.name) {
-        address.value = "";
+        address.value = currentAccount.address;
+      } else {
+        address.value = accounts.length ? accounts[0].address : "";
       }
 
       network.value = toNetwork;
@@ -573,9 +573,10 @@ const swapTokens = () => {
   // TODO swap to and from if available
 };
 const inputAddress = (text: string) => {
+  console.log(text);
   try {
     if (network.value) {
-      address.value = network.value?.displayAddress(text);
+      address.value = network.value!.displayAddress(text);
     } else {
       address.value = text;
     }

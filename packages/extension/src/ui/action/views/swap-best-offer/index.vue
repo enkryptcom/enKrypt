@@ -75,11 +75,13 @@
     </div>
     <swap-initiated
       v-if="isInitiated"
+      :is-loading="isTXSendLoading"
       :from-token="swapData.fromToken"
       :to-token="swapData.toToken"
       :from-amount="swapData.fromAmount"
       :to-amount="pickedTrade.minimumReceived"
-      @update:close="toggleInitiated"
+      :is-hardware="props.accountInfo.selectedAccount?.isHardware || false"
+      @update:close="close"
     />
   </div>
 </template>
@@ -172,6 +174,7 @@ const nativeTokenPrice = ref<string>();
 const warning = ref<SwapBestOfferWarnings>();
 const gasDifference = ref<string>();
 const priceDifference = ref<string>();
+const isTXSendLoading = ref<boolean>(false);
 
 const setWarning = () => {
   if (
@@ -352,6 +355,7 @@ const isDisabled = computed(() => {
 
 const sendAction = async () => {
   if (pickedTrade.value) {
+    isTXSendLoading.value = true;
     toggleInitiated();
     await swap.executeTrade(
       props.network,
@@ -359,19 +363,13 @@ const sendAction = async () => {
       pickedTrade.value,
       selectedFee.value
     );
+    isTXSendLoading.value = false;
   } else {
     console.log("No trade yet");
   }
-
-  setTimeout(() => {
-    console.log("sendAction");
-  }, 300);
 };
 const toggleInitiated = () => {
   isInitiated.value = !isInitiated.value;
-  if (!isInitiated.value) {
-    router.go(-2);
-  }
 };
 const handleScroll = (e: any) => {
   const progress = Number(e.target.lastChild.style.top.replace("px", ""));
@@ -395,7 +393,6 @@ const selectFee = (option: GasPriceTypes) => {
 };
 
 const setTransactionFees = async (txs: Transaction[]) => {
-  console.log(txs);
   const gasPromises = txs.map((tx) => {
     return tx.getGasCosts().then(async (gasvals) => {
       const getConvertedVal = (type: GasPriceTypes) =>
@@ -437,7 +434,6 @@ const setTransactionFees = async (txs: Transaction[]) => {
   });
 
   const gasVals = await Promise.all(gasPromises);
-  console.log(gasVals);
 
   const finalVal = gasVals.reduce((prev, curr) => {
     if (!prev) return curr;
