@@ -13,7 +13,7 @@ const router = createRouter({
 
 const app = createApp(App);
 
-app.use(router).use(Vue3Lottie);
+app.use(router).use(Vue3Lottie, { name: "Vue3Lottice" });
 app.config.globalProperties.$filters = filters;
 
 app.mount("#app");
