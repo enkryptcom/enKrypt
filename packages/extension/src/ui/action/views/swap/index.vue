@@ -107,6 +107,7 @@
 <script setup lang="ts">
 import { computed, onMounted, PropType, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import Browser from "webextension-polyfill";
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import SwapArrows from "@action/icons/swap/swap-arrows.vue";
 import BaseButton from "@action/components/base-button/index.vue";
@@ -130,6 +131,9 @@ import { EnkryptAccount } from "@enkryptcom/types";
 import { SwapError } from "./components/swap-error/types";
 import { getAccountsByNetworkName } from "@/libs/utils/accounts";
 import { routes as RouterNames } from "@/ui/action/router";
+import getUiPath from "@/libs/utils/get-ui-path";
+import UIRoutes from "@/ui/provider-pages/enkrypt/routes/names";
+import { ProviderName } from "@/types/provider";
 
 const router = useRouter();
 const route = useRoute();
@@ -557,21 +561,40 @@ const sendAction = async () => {
     toAddress: address.value,
     priceDifference: priceDifference,
     swapMax: swapMax.value,
+    fromAddress: props.accountInfo.selectedAccount!.address,
   };
 
   const routedRoute = router.resolve({
     name: RouterNames.swapBestOffer.name,
     query: {
       id: selected,
-      swapData: JSON.stringify(swapData),
+      swapData: Buffer.from(JSON.stringify(swapData), "utf8").toString(
+        "base64"
+      ),
     },
   });
 
-  router.push(routedRoute);
+  if (props.accountInfo.selectedAccount!.isHardware) {
+    console.log(
+      `action.html#/swap-best-offer-hw?id=${routedRoute.query.id}&swapData=${routedRoute.query.swapData}`
+    );
+    await Browser.windows.create({
+      url: Browser.runtime.getURL(
+        getUiPath(
+          `${UIRoutes.swapVerifyHW.path}?id=${routedRoute.query.id}&swapData=${routedRoute.query.swapData}`,
+          ProviderName.enkrypt
+        )
+      ),
+      type: "popup",
+      focused: true,
+      height: 600,
+      width: 460,
+    });
+  } else {
+    router.push(routedRoute);
+  }
 };
-const swapTokens = () => {
-  // TODO swap to and from if available
-};
+
 const inputAddress = (text: string) => {
   console.log(text);
   try {

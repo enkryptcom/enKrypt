@@ -1,7 +1,7 @@
 <template>
   <div class="swap-initiated__container">
     <div class="swap-initiated">
-      <div class="swap-initiated__wrap">
+      <div class="swap-initiated__wrap" :class="{ popup: isHardware }">
         <div class="swap-initiated__animation">
           <div v-if="isLoading">
             <Vue3Lottie
@@ -100,6 +100,9 @@ const close = () => {
     border-radius: 12px;
     z-index: 102;
     overflow: hidden;
+    &.popup {
+      left: 174px;
+    }
   }
   &__animation {
     width: 100%;
