@@ -9,57 +9,54 @@ import {
 import { BaseNetwork } from "@/types/base-network";
 import { decodeTx } from "../../../transaction/decoder";
 import { NetworkEndpoints } from "./configs";
-import { fromBase } from "@/libs/utils/units";
 
-interface OkcRawInfo {
-  blockHash: string;
-  height: string;
-  contractAddress: string | null;
-  from: string;
-  to: string | null;
-  txId: string;
-  amount: string;
-  transactionTime: string;
-  txFee: string;
-
-  effectiveGasPrice: string;
+interface zkSyncTxInfo {
   transactionHash: string;
-  gasUsed: string;
-  status: boolean;
-  blockNumber: string | undefined;
-  gas: string;
+  data: {
+    contractAddress: string;
+    calldata: string;
+    value: string;
+  };
+  status: string;
+  fee: string;
+  nonce: number;
+  blockNumber: number;
+  blockHash: string;
+  initiatorAddress: string;
+  receivedAt: string;
 }
 
 const getAddressActivity = async (
   address: string,
   endpoint: string
 ): Promise<EthereumRawInfo[]> => {
-  return fetch(endpoint + address, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      "Ok-Access-Key": "cdc4e1f0-a147-46af-9aa9-179b08c27fd3",
-    },
-  })
+  return fetch(
+    `${endpoint}transactions?limit=50&direction=older&accountAddress=${address}`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  )
     .then((res) => res.json())
     .then((res) => {
-      const results = res.data[0].transactionLists as OkcRawInfo[];
-      const newResults = results.reverse().map((tx) => {
+      const results = res.list as zkSyncTxInfo[];
+      const newResults = results.map((tx) => {
         const rawTx: EthereumRawInfo = {
           blockHash: tx.blockHash,
-          blockNumber: numberToHex(tx.height),
-          contractAddress: "",
-          data: "0x0",
-          effectiveGasPrice: "0",
-          from: tx.from,
-          to: tx.to === "" ? null : tx.to,
+          blockNumber: numberToHex(tx.blockNumber),
+          contractAddress: tx.data.contractAddress,
+          data: tx.data.calldata,
+          effectiveGasPrice: numberToHex(0),
+          from: tx.initiatorAddress,
+          to: tx.data.contractAddress,
           gas: "0x0",
-          gasUsed: tx.txFee,
-          nonce: numberToHex(0),
+          gasUsed: "0x0",
+          nonce: numberToHex(tx.nonce),
           status: true,
-          transactionHash: tx.txId,
-          value: fromBase(tx.amount, 18),
-          timestamp: parseInt(tx.transactionTime),
+          transactionHash: tx.transactionHash,
+          value: numberToHex(tx.data.value),
+          timestamp: new Date(tx.receivedAt).getTime(),
         };
         return rawTx;
       });
