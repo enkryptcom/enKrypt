@@ -9,7 +9,7 @@ import {
 import { BaseNetwork } from "@/types/base-network";
 import { decodeTx } from "../../../transaction/decoder";
 import { NetworkEndpoints } from "./configs";
-import { fromBase } from "@/libs/utils/units";
+import { toBase } from "@/libs/utils/units";
 
 interface OkcRawInfo {
   blockHash: string;
@@ -58,7 +58,7 @@ const getAddressActivity = async (
           nonce: numberToHex(0),
           status: true,
           transactionHash: tx.txId,
-          value: fromBase(tx.amount, 18),
+          value: toBase(tx.amount, 18),
           timestamp: parseInt(tx.transactionTime),
         };
         return rawTx;
