@@ -375,9 +375,7 @@ const sendAction = async () => {
     console.log("No trade yet");
   }
 };
-const toggleInitiated = () => {
-  isInitiated.value = !isInitiated.value;
-};
+
 const handleScroll = (e: any) => {
   const progress = Number(e.target.lastChild.style.top.replace("px", ""));
   scrollProgress.value = progress;
