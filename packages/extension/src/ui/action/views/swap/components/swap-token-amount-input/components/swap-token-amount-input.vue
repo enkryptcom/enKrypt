@@ -83,6 +83,11 @@ const changeFocus = () => {
   width: 100%;
   box-sizing: border-box;
   border: 0 none;
+  -moz-appearance: textfield;
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+  }
 
   &::placeholder {
     color: @tertiaryLabel;

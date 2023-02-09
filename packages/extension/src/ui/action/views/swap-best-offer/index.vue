@@ -81,7 +81,10 @@
       :from-amount="swapData.fromAmount"
       :to-amount="pickedTrade.minimumReceived"
       :is-hardware="account ? account.isHardware : false"
+      :is-error="isTXSendError"
+      :error-message="TXSendErrorMessage"
       @update:close="close"
+      @update:try-again="sendAction"
     />
   </div>
 </template>
@@ -167,6 +170,8 @@ const warning = ref<SwapBestOfferWarnings>();
 const gasDifference = ref<string>();
 const priceDifference = ref<string>();
 const isTXSendLoading = ref<boolean>(false);
+const isTXSendError = ref(false);
+const TXSendErrorMessage = ref("");
 
 const setWarning = async () => {
   if (balance.value.ltn(0)) return;
@@ -350,14 +355,21 @@ const isDisabled = computed(() => {
 
 const sendAction = async () => {
   if (pickedTrade.value) {
+    isTXSendError.value = false;
+    TXSendErrorMessage.value = "";
     isTXSendLoading.value = true;
-    toggleInitiated();
-    await swap.executeTrade(
-      network.value!,
-      account.value!,
-      pickedTrade.value,
-      selectedFee.value
-    );
+    isInitiated.value = true;
+    await swap
+      .executeTrade(
+        network.value!,
+        account.value!,
+        pickedTrade.value,
+        selectedFee.value
+      )
+      .catch((err) => {
+        isTXSendError.value = true;
+        TXSendErrorMessage.value = err.error.message;
+      });
     isTXSendLoading.value = false;
   } else {
     console.log("No trade yet");

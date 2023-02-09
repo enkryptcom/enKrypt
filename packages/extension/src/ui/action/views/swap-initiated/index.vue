@@ -3,7 +3,7 @@
     <div class="swap-initiated">
       <div class="swap-initiated__wrap" :class="{ popup: isHardware }">
         <div class="swap-initiated__animation">
-          <div v-if="isLoading">
+          <div v-if="isLoading && !isError">
             <Vue3Lottie
               :animation-data="LottieStatus"
               :loop="true"
@@ -14,7 +14,7 @@
             </p>
           </div>
 
-          <div v-if="!isLoading">
+          <div v-if="!isLoading && !isError">
             <Vue3Lottie
               class="swap-initiated__loading"
               :animation-data="LottieSwapInitiated"
@@ -26,7 +26,19 @@
               Once completed, {{ toToken.symbol }} will be deposited to the
               address you specified.
             </p>
-            <a @click="close">Finish</a>
+            <a @click="$emit('update:close')">Finish</a>
+          </div>
+          <div v-if="isError">
+            <Vue3Lottie
+              class="swap-initiated__loading"
+              :animation-data="LottieError"
+              :loop="false"
+            />
+            <p>
+              {{ errorMessage }}
+            </p>
+            <p><a @click="$emit('update:tryAgain')">Try again</a></p>
+            <a @click="$emit('update:close')">Cancel</a>
           </div>
         </div>
         <div class="swap-initiated__info">
@@ -45,6 +57,7 @@
 import LottieSwapInitiated from "@action/assets/animation/swap-initiated.json";
 import ArrowDown from "@action/icons/send/arrow-down.vue";
 import SwapInitiatedAmount from "./components/swap-initiated-amount.vue";
+import LottieError from "@action/assets/animation/error-big.json";
 import LottieStatus from "@action/assets/animation/status.json";
 import { BaseToken } from "@/types/base-token";
 import { Vue3Lottie } from "vue3-lottie";
@@ -56,17 +69,16 @@ interface IProps {
   toAmount: string;
   isLoading: boolean;
   isHardware: boolean;
+  isError: boolean;
+  errorMessage: string;
 }
 
-const emit = defineEmits<{
+defineEmits<{
   (e: "update:close"): void;
+  (e: "update:tryAgain"): void;
 }>();
 
 defineProps<IProps>();
-
-const close = () => {
-  emit("update:close");
-};
 </script>
 
 <style lang="less" scoped>

@@ -24,9 +24,7 @@
           <a class="swap__arrows"><swap-arrows /></a>
 
           <swap-token-to-amount
-            :toggle-select="toggleToToken"
             :token="toToken"
-            :select-token="selectTokenTo"
             :is-finding-rate="isFindingRate"
             :fast-list="featuredTokensFiltered"
             :total-tokens="
@@ -36,6 +34,7 @@
             "
             :amount="toAmount?.toString()"
             @update:select-asset="selectTokenTo"
+            @toggle:select="toggleToToken"
           />
 
           <send-address-input
