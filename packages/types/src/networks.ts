@@ -29,6 +29,7 @@ export enum NetworkNames {
   BifrostKusama = "BNC (Kusama)",
   Edgeware = "EDG",
   EdgeEVM = "evmEDG",
+  ZkSyncGoerli = "zkSyncGoerli",
 }
 
 export enum CoingeckoPlatform {

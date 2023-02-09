@@ -53,7 +53,7 @@ const getAddressActivity = async (
           gas: "0x0",
           gasUsed: "0x0",
           nonce: numberToHex(tx.nonce),
-          status: true,
+          status: tx.status !== "failed",
           transactionHash: tx.transactionHash,
           value: numberToHex(tx.data.value),
           timestamp: new Date(tx.receivedAt).getTime(),
