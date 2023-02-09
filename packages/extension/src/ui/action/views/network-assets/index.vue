@@ -47,7 +47,7 @@
     <custom-evm-token
       v-if="showAddCustomTokens"
       :address="props.accountInfo.selectedAccount?.address!"
-      :network="props.network"
+      :network="(props.network as EvmNetwork)"
       @update:token-added="addCustomAsset"
       @update:close="toggleShowAddCustomTokens"
     ></custom-evm-token>
@@ -70,6 +70,7 @@ import scrollSettings from "@/libs/utils/scroll-settings";
 import Deposit from "@action/views/deposit/index.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import CustomEvmToken from "./components/custom-evm-token.vue";
+import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
 
 const showDeposit = ref(false);
 
@@ -169,7 +170,7 @@ const addCustomAsset = (asset: AssetsType) => {
     margin: auto;
     width: 100%;
     height: 100%;
-    max-height: 600px;
+    max-height: 530px;
     margin: 0;
     padding: 68px 0 68px 0 !important;
     box-sizing: border-box;
@@ -181,7 +182,7 @@ const addCustomAsset = (asset: AssetsType) => {
 
   &__add-token {
     position: relative;
-    margin: 0px 12px 0px 12px;
+    margin: 0px 12px 0px 166px;
     z-index: 0;
 
     &-button {
