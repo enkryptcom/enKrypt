@@ -1,11 +1,11 @@
 <template>
   <div class="swap-token-input" :class="{ focus: isFocus }">
-    <swap-token-select :toggle-select="toggleSelect" :token="token" />
+    <swap-token-select v-bind="$attrs" :token="token" />
 
     <swap-token-amount-input
       v-show="!!token"
       placeholder="Enter amount"
-      :value="tokenAmount"
+      :value="tokenAmount.toString()"
       :autofocus="autofocus"
       :change-focus="changeFocus"
       :error="inputError !== null"
@@ -51,12 +51,11 @@ import { NATIVE_TOKEN_ADDRESS } from "@/providers/ethereum/libs/common";
 
 const emit = defineEmits<{
   (e: "update:inputMax"): void;
+  (e: "input:changed", amount: string, isInvalid: boolean): void;
 }>();
 
 interface IProps {
-  toggleSelect: () => void;
-  selectToken?: () => void;
-  inputAmount: (newVal: number, isValid: boolean) => void;
+  tokenAmount: string;
   token: BaseToken | null;
   autofocus: boolean;
   min?: string;
@@ -66,15 +65,14 @@ interface IProps {
 const props = defineProps<IProps>();
 
 const isFocus = ref(false);
-const tokenAmount = ref("");
 
 const inputError = computed(() => {
   if (
-    tokenAmount.value &&
-    tokenAmount.value !== "" &&
-    Number(tokenAmount.value) !== 0
+    props.tokenAmount &&
+    props.tokenAmount !== "" &&
+    Number(props.tokenAmount) !== 0
   ) {
-    const fromBn = new BigNumber(tokenAmount.value);
+    const fromBn = new BigNumber(props.tokenAmount);
     if (
       props.token &&
       props.token.balance &&
@@ -92,18 +90,16 @@ const inputError = computed(() => {
 });
 
 const tokenPrice = computed(() => {
-  if (props.token?.price && tokenAmount.value !== "") {
-    return new BigNumber(tokenAmount.value)
+  if (props.token?.price && props.tokenAmount !== "") {
+    return new BigNumber(props.tokenAmount)
       .times(new BigNumber(props.token.price))
       .toFixed();
   }
-
   return null;
 });
 
 const amountChanged = (newVal: string) => {
-  tokenAmount.value = newVal;
-  props.inputAmount(Number(newVal), inputError.value !== null);
+  emit("input:changed", newVal, inputError.value !== null);
 };
 
 const changeFocus = (newVal: boolean) => {

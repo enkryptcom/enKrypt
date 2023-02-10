@@ -1,6 +1,6 @@
 <template>
   <div class="swap-token-input" :class="{ focus: isFocus }">
-    <swap-token-select :toggle-select="toggleSelect" :token="token" />
+    <swap-token-select v-bind="$attrs" :token="token" />
 
     <swap-token-amount-input
       v-show="!!token"
@@ -11,9 +11,8 @@
     <swap-token-fast-list
       v-show="!token"
       :fast-list="fastList"
-      :select-token="selectToken"
       :total-tokens="totalTokens"
-      @update:select-asset="selectAsset"
+      v-bind="$attrs"
     />
 
     <div v-show="!!token && Number(amount) > 0" class="swap-token-input__fiat">
@@ -37,23 +36,7 @@ import { PropType } from "vue";
 import { BaseToken } from "@/types/base-token";
 import BigNumber from "bignumber.js";
 
-const emit = defineEmits<{
-  (e: "update:selectAsset", asset: BaseToken): void;
-}>();
-
 const props = defineProps({
-  toggleSelect: {
-    type: Function,
-    default: () => {
-      return null;
-    },
-  },
-  selectToken: {
-    type: Function,
-    default: () => {
-      return null;
-    },
-  },
   token: {
     type: Object as PropType<BaseToken | null>,
     default: () => {
@@ -79,8 +62,6 @@ const props = defineProps({
 });
 
 const isFocus = ref(false);
-
-const selectAsset = (token: BaseToken) => emit("update:selectAsset", token);
 
 const tokenPrice = computed(() => {
   if (props.token?.price && props.amount !== "Searching") {

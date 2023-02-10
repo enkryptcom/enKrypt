@@ -1,20 +1,45 @@
 <template>
   <div class="swap-initiated__container">
     <div class="swap-initiated">
-      <div class="swap-initiated__wrap">
+      <div class="swap-initiated__wrap" :class="{ popup: isHardware }">
         <div class="swap-initiated__animation">
-          <Vue3Lottie
-            class="swap-initiated__loading"
-            :animation-data="LottieSwapInitiated"
-            :loop="false"
-          />
+          <div v-if="isLoading && !isError">
+            <Vue3Lottie
+              :animation-data="LottieStatus"
+              :loop="true"
+              class="swap-initiated__loading"
+            />
+            <p v-if="isHardware">
+              Follow further instructions on your hardware wallet device
+            </p>
+          </div>
 
-          <h4>Swap initiated</h4>
-          <p>
-            Once completed, {{ toToken.symbol }} will be deposited to the
-            address you specified.
-          </p>
-          <a @click="close">Finish</a>
+          <div v-if="!isLoading && !isError">
+            <Vue3Lottie
+              class="swap-initiated__loading"
+              :animation-data="LottieSwapInitiated"
+              :loop="false"
+            />
+
+            <h4>Swap initiated</h4>
+            <p>
+              Once completed, {{ toToken.symbol }} will be deposited to the
+              address you specified.
+            </p>
+            <a @click="$emit('update:close')">Finish</a>
+          </div>
+          <div v-if="isError">
+            <Vue3Lottie
+              class="swap-initiated__loading"
+              :animation-data="LottieError"
+              :loop="false"
+            />
+            <p>
+              {{ errorMessage }}
+            </p>
+            <p><a @click="$emit('update:tryAgain')">Try again</a></p>
+            <a @click="$emit('update:close')">Cancel</a>
+          </div>
         </div>
         <div class="swap-initiated__info">
           <swap-initiated-amount :token="fromToken" :amount="fromAmount" />
@@ -32,24 +57,28 @@
 import LottieSwapInitiated from "@action/assets/animation/swap-initiated.json";
 import ArrowDown from "@action/icons/send/arrow-down.vue";
 import SwapInitiatedAmount from "./components/swap-initiated-amount.vue";
+import LottieError from "@action/assets/animation/error-big.json";
+import LottieStatus from "@action/assets/animation/status.json";
 import { BaseToken } from "@/types/base-token";
+import { Vue3Lottie } from "vue3-lottie";
 
 interface IProps {
   fromToken: BaseToken;
   toToken: BaseToken;
   fromAmount: string;
   toAmount: string;
+  isLoading: boolean;
+  isHardware: boolean;
+  isError: boolean;
+  errorMessage: string;
 }
 
-const emit = defineEmits<{
+defineEmits<{
   (e: "update:close"): void;
+  (e: "update:tryAgain"): void;
 }>();
 
 defineProps<IProps>();
-
-const close = () => {
-  emit("update:close");
-};
 </script>
 
 <style lang="less" scoped>
@@ -83,6 +112,9 @@ const close = () => {
     border-radius: 12px;
     z-index: 102;
     overflow: hidden;
+    &.popup {
+      left: 174px;
+    }
   }
   &__animation {
     width: 100%;
@@ -116,7 +148,7 @@ const close = () => {
     }
 
     a {
-      width: 156px;
+      width: 261px;
       height: 40px;
       background: rgba(0, 0, 0, 0.02);
       border-radius: 10px;
@@ -143,7 +175,7 @@ const close = () => {
     }
   }
   &__loading {
-    width: 72px;
+    width: 256px;
     height: 48px;
     margin-bottom: 8px;
   }

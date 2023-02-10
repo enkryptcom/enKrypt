@@ -2,7 +2,7 @@
   <input
     ref="swapAmountInput"
     v-model="textValue"
-    type="text"
+    type="number"
     :placeholder="placeholder"
     autocomplete="off"
     :class="`swap-token-amount-input
@@ -59,7 +59,7 @@ onMounted(() => {
 const emit = defineEmits(["update:value"]);
 const textValue = computed({
   get: () => props.value,
-  set: (value) => emit("update:value", value),
+  set: (value) => emit("update:value", value.toString()),
 });
 const changeFocus = () => {
   isFocus.value = !isFocus.value;
@@ -83,6 +83,11 @@ const changeFocus = () => {
   width: 100%;
   box-sizing: border-box;
   border: 0 none;
+  -moz-appearance: textfield;
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+  }
 
   &::placeholder {
     color: @tertiaryLabel;

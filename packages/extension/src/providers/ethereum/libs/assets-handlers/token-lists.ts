@@ -16,6 +16,10 @@ const TokenList: Record<SupportedNetworkNames, string> = {
   [NetworkNames.ShidenEVM]:
     "https://tokens.coingecko.com/shiden%20network/all.json",
   [NetworkNames.Canto]: "https://tokens.coingecko.com/canto/all.json",
+  [NetworkNames.Rootstock]:
+    "https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/tokenlists/rsk.json",
+  [NetworkNames.ZkSyncGoerli]:
+    "https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/tokenlists/zksyncgoerli.json",
 };
 
 const getKnownNetworkTokens = async (

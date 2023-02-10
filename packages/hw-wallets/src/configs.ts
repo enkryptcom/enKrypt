@@ -11,7 +11,8 @@ const walletConfigs: WalletConfigs = {
 };
 const ledgerAppNames = {
   [NetworkNames.Ethereum]: "Ethereum",
-  [NetworkNames.Matic]: "Polygon",
+  [NetworkNames.Matic]: "Ethereum",
+  [NetworkNames.Rootstock]: "RSK",
   [NetworkNames.EthereumClassic]: "Ethereum Classic",
   [NetworkNames.Ropsten]: "Ethereum",
   [NetworkNames.Goerli]: "Ethereum",
@@ -53,6 +54,11 @@ const bip44Paths = {
     path: "m/44'/60'/0'/0/{index}",
     basePath: "m/44'/60'/0'/0",
     label: "Ethereum",
+  },
+  rootstockLedger: {
+    path: "m/44'/137'/0'/{index}",
+    basePath: "m/44'/137'/0'/0",
+    label: "Rootstock",
   },
   ethereumClassic: {
     path: "m/44'/61'/0'/0/{index}",

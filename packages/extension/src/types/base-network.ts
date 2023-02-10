@@ -2,10 +2,10 @@ import EvmAPI from "@/providers/ethereum/libs/api";
 import SubstrateAPI from "@/providers/polkadot/libs/api";
 import BitcoinAPI from "@/providers/bitcoin/libs/api";
 import { AssetsType, ProviderName } from "@/types/provider";
-import { CoingeckoPlatform, SignerType } from "@enkryptcom/types";
-import { NetworkNames } from "@enkryptcom/types";
+import { CoingeckoPlatform, SignerType, NetworkNames } from "@enkryptcom/types";
 import { Activity } from "./activity";
 import { BaseToken } from "./base-token";
+import { BNLike } from "ethereumjs-util";
 
 export interface BaseNetworkOptions {
   name: NetworkNames;
@@ -21,7 +21,7 @@ export interface BaseNetworkOptions {
   signer: SignerType[];
   gradient: string;
   node: string;
-  displayAddress: (address: string) => string;
+  displayAddress: (address: string, chainId?: BNLike) => string;
   provider: ProviderName;
   coingeckoID?: string;
   coingeckoPlatform?: CoingeckoPlatform;
@@ -44,7 +44,7 @@ export abstract class BaseNetwork {
   public signer: SignerType[];
   public gradient: string;
   public node: string;
-  public displayAddress: (address: string) => string;
+  public displayAddress: (address: string, chainId?: BNLike) => string;
   public provider: ProviderName;
   public coingeckoID: string | undefined;
   public coingeckoPlatform: CoingeckoPlatform | undefined;
