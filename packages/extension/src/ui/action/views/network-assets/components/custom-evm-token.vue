@@ -82,9 +82,7 @@
 </template>
 <script setup lang="ts">
 import API from "@/providers/ethereum/libs/api";
-import { BaseNetwork } from "@/types/base-network";
 import { computed, ref, toRaw, watch } from "vue";
-import { isAddress } from "web3-utils";
 import { Erc20Token } from "@/providers/ethereum/types/erc20-token";
 import { fromBase } from "@/libs/utils/units";
 import CloseIcon from "@/ui/action/icons/common/close-icon.vue";
@@ -100,9 +98,10 @@ import Tooltip from "@/ui/action/components/tooltip/index.vue";
 import { CoinGeckoTokenMarket } from "@/libs/market-data/types";
 import BigNumber from "bignumber.js";
 import Sparkline from "@/libs/sparkline";
+import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
 
 interface IProps {
-  network: BaseNetwork;
+  network: EvmNetwork;
   address: string;
 }
 
@@ -124,7 +123,7 @@ const market = ref<CoinGeckoTokenMarket>();
 
 const isValidAddress = computed(() => {
   if (contractAddress.value) {
-    return isAddress(contractAddress.value);
+    return props.network.isAddress(contractAddress.value);
   }
 
   return false;

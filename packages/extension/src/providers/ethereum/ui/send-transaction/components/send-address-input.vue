@@ -1,7 +1,11 @@
 <template>
   <div class="send-address-input" :class="{ focus: isFocus }">
     <div class="send-address-input__avatar">
-      <img v-if="isAddress(value)" :src="network.identicon(value)" alt="" />
+      <img
+        v-if="network.isAddress(value)"
+        :src="network.identicon(value)"
+        alt=""
+      />
     </div>
     <div class="send-address-input__address">
       <p v-if="!from">To:</p>
@@ -12,7 +16,9 @@
         type="text"
         :disabled="disableDirectInput"
         placeholder="0x… address"
-        :style="{ color: !isAddress(value) ? 'red' : 'black' }"
+        :style="{
+          color: !network.isAddress(value) ? 'red' : 'black',
+        }"
         @focus="changeFocus"
         @blur="changeFocus"
       />
@@ -21,11 +27,10 @@
 </template>
 
 <script setup lang="ts">
-import { BaseNetwork } from "@/types/base-network";
+import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
 import { replaceWithEllipsis } from "@/ui/action/utils/filters";
 import { computed } from "@vue/reactivity";
 import { PropType, ref } from "vue";
-import { isAddress } from "web3-utils";
 
 const isFocus = ref<boolean>(false);
 const addressInput = ref<HTMLInputElement>();
@@ -44,7 +49,7 @@ const props = defineProps({
     },
   },
   network: {
-    type: Object as PropType<BaseNetwork>,
+    type: Object as PropType<EvmNetwork>,
     default: () => ({}),
   },
   from: {

@@ -12,6 +12,7 @@ export interface CoingeckPlatforms {
   gochain?: string;
   "polygon-pos"?: string;
   moonbeam?: string;
+  rootstock?: string;
 }
 export interface CoinGeckoToken {
   id: string;

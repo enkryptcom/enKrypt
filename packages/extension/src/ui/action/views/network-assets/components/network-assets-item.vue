@@ -178,6 +178,7 @@ const toggleDetail = () => {
       text-align: center;
       img {
         max-height: 32px;
+        max-width: 32px;
       }
       p {
         display: flex;
