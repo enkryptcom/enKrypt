@@ -14,7 +14,8 @@ import { NFTCollection } from "@/types/nft";
 import { AssetsType, ProviderName } from "@/types/provider";
 import { CoingeckoPlatform, NetworkNames, SignerType } from "@enkryptcom/types";
 import BigNumber from "bignumber.js";
-import { toChecksumAddress } from "ethereumjs-util";
+import { BNLike, toChecksumAddress } from "ethereumjs-util";
+import { isAddress } from "web3-utils";
 import API from "../libs/api";
 import createIcon from "../libs/blockies";
 import { NATIVE_TOKEN_ADDRESS } from "../libs/common";
@@ -49,6 +50,8 @@ export interface EvmNetworkOptions {
     address: string
   ) => Promise<Activity[]>;
   customTokens?: boolean;
+  displayAddress?: (address: string, chainId?: BNLike) => string;
+  isAddress?: (address: string, chainId?: BNLike) => boolean;
 }
 
 export class EvmNetwork extends BaseNetwork {
@@ -71,6 +74,8 @@ export class EvmNetwork extends BaseNetwork {
 
   public assets: Erc20Token[] = [];
 
+  public isAddress: (address: string, chainId?: BNLike) => boolean;
+
   constructor(options: EvmNetworkOptions) {
     const api = async () => {
       const api = new API(options.node);
@@ -81,7 +86,9 @@ export class EvmNetwork extends BaseNetwork {
     const baseOptions = {
       signer: [SignerType.secp256k1],
       provider: ProviderName.ethereum,
-      displayAddress: (address: string) => toChecksumAddress(address),
+      displayAddress: options.displayAddress
+        ? options.displayAddress
+        : (address: string) => toChecksumAddress(address),
       identicon: createIcon,
       basePath: options.basePath ? options.basePath : "m/44'/60'/0'/0",
       decimals: 18,
@@ -96,6 +103,9 @@ export class EvmNetwork extends BaseNetwork {
     this.assetsInfoHandler = options.assetsInfoHandler;
     this.NFTHandler = options.NFTHandler;
     this.activityHandler = options.activityHandler;
+    this.isAddress = options.isAddress
+      ? options.isAddress
+      : (address: string) => isAddress(address);
   }
 
   public async getAllTokens(address: string): Promise<BaseToken[]> {

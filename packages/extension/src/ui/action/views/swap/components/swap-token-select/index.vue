@@ -37,13 +37,10 @@ import { BaseToken } from "@/types/base-token";
 import { computed } from "@vue/reactivity";
 import { fromBase } from "@/libs/utils/units";
 const isOpen = ref(false);
+const emit = defineEmits<{
+  (e: "toggle:select", isOpen: boolean): void;
+}>();
 const props = defineProps({
-  toggleSelect: {
-    type: Function,
-    default: () => {
-      return null;
-    },
-  },
   token: {
     type: Object as PropType<BaseToken | null>,
     default: () => {
@@ -62,7 +59,7 @@ const tokenBalance = computed(() => {
 
 const open = () => {
   isOpen.value = !isOpen.value;
-  props.toggleSelect(isOpen);
+  emit("toggle:select", isOpen.value);
 };
 </script>
 

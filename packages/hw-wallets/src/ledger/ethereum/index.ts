@@ -1,5 +1,6 @@
 import type Transport from "@ledgerhq/hw-transport";
 import webUsbTransport from "@ledgerhq/hw-transport-webusb";
+import ledgerService from "@ledgerhq/hw-app-eth/lib/services/ledger";
 import { HWwalletCapabilities, NetworkNames } from "@enkryptcom/types";
 import EthApp from "@ledgerhq/hw-app-eth";
 import { toRpcSig, publicToAddress, rlp } from "ethereumjs-util";
@@ -115,10 +116,16 @@ class LedgerEthereum implements HWWalletProvider {
       tx = options.transaction as FeeMarketEIP1559Transaction;
       msgToSign = tx.getMessageToSign(false).toString("hex");
     }
+    const resolution = await ledgerService.resolveTransaction(
+      msgToSign,
+      {},
+      {}
+    );
     return connection
       .signTransaction(
         options.pathType.path.replace(`{index}`, options.pathIndex),
-        msgToSign
+        msgToSign,
+        resolution
       )
       .then((result) => {
         if ((tx as LegacyTransaction).gasPrice) {

@@ -36,14 +36,14 @@ jobs:
           VIRUS_TOTAL_API_KEY: ${{secrets.VIRUS_TOTAL_API_KEY}}
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
         run: |
-          docker run --rm -v `pwd`:/home:rw enkrypt-build-container /bin/bash -c "yarn build:all"
-          docker run --rm -v `pwd`:/home:rw enkrypt-build-container /bin/bash -c "cd packages/extension && yarn build:chrome && yarn zip"
+          docker run --rm -v `pwd`:/home:rw --user "$(id -u):$(id -g)" enkrypt-build-container /bin/bash -c "yarn build:all"
+          docker run --rm -v `pwd`:/home:rw --user "$(id -u):$(id -g)" enkrypt-build-container /bin/bash -c "cd packages/extension && yarn build:chrome && yarn zip"
           FILE_SHA256=`sha256sum  ./packages/extension/dist/release.zip | awk '{print $1}'`
           curl --request GET --url https://www.virustotal.com/api/v3/files/upload_url --header "x-apikey: $VIRUS_TOTAL_API_KEY"
           UPLOAD_URL=`curl --request GET --url https://www.virustotal.com/api/v3/files/upload_url --header "x-apikey: $VIRUS_TOTAL_API_KEY" | jq --raw-output '.data'`
           curl --request POST --url "$UPLOAD_URL" --header "x-apikey: $VIRUS_TOTAL_API_KEY" --header 'Accept: application/json' --header 'Content-Type: multipart/form-data' -F "file=@./packages/extension/dist/release.zip"
           VIRUS_TOTAL_URL_CHROME=https://www.virustotal.com/gui/file/$FILE_SHA256
-          docker run --rm -v `pwd`:/home:rw enkrypt-build-container /bin/bash -c "cd packages/extension && yarn build:firefox && yarn zip"
+          docker run --rm -v `pwd`:/home:rw --user "$(id -u):$(id -g)" enkrypt-build-container /bin/bash -c "cd packages/extension && yarn build:firefox && yarn zip"
           FILE_SHA256=`sha256sum  ./packages/extension/dist/release.zip | awk '{print $1}'`
           curl --request GET --url https://www.virustotal.com/api/v3/files/upload_url --header "x-apikey: $VIRUS_TOTAL_API_KEY"
           UPLOAD_URL=`curl --request GET --url https://www.virustotal.com/api/v3/files/upload_url --header "x-apikey: $VIRUS_TOTAL_API_KEY" | jq --raw-output '.data'`

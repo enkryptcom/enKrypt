@@ -10,6 +10,7 @@ export enum NetworkNames {
   Moonriver = "MOVR",
   Rinkeby = "RIN",
   Ropsten = "ROP",
+  Rootstock = "Rootstock",
   Acala = "ACA",
   Karura = "KAR",
   KaruraEVM = "evmKAR",
@@ -27,6 +28,8 @@ export enum NetworkNames {
   Bifrost = "BNC",
   BifrostKusama = "BNC (Kusama)",
   Edgeware = "EDG",
+  EdgeEVM = "evmEDG",
+  ZkSyncGoerli = "zkSyncGoerli",
 }
 
 export enum CoingeckoPlatform {
@@ -41,11 +44,13 @@ export enum CoingeckoPlatform {
   KaruraEVM = "karura",
   Kusama = "kusama",
   Polkadot = "polkadot",
+  Rootstock = "rootstock",
   Okc = "okc",
   Astar = "astar",
   Shiden = "shiden network",
   Optimism = "optimistic-ethereum",
   Canto = "canto",
   Bifrost = "Bifrost Native Coin",
-  Edgeware = "Edgeware"
+  Edgeware = "edgeware",
+  EdgeEVM = "edgeware",
 }

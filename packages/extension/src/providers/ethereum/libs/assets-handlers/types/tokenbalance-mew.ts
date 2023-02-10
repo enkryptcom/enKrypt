@@ -6,7 +6,7 @@ export interface TokenBalance {
 }
 export interface SupportedNetwork {
   tbName: string;
-  cgPlatform: string;
+  cgPlatform?: string;
 }
 export interface CGToken {
   chainId: `0x${string}`;
@@ -27,4 +27,6 @@ export type SupportedNetworkNames =
   | NetworkNames.Moonriver
   | NetworkNames.Moonbeam
   | NetworkNames.ShidenEVM
-  | NetworkNames.Canto;
+  | NetworkNames.Canto
+  | NetworkNames.Rootstock
+  | NetworkNames.ZkSyncGoerli;

@@ -11,21 +11,20 @@
 
         <div class="swap__wrap">
           <swap-token-amount-input
-            :toggle-select="toggleFromToken"
+            :token-amount="fromAmount || ''"
             :token="fromToken"
-            :input-amount="inputAmountFrom"
             :autofocus="true"
             :min="minFrom"
             :max="maxFrom"
             @update:input-max="setMax"
+            @toggle:select="toggleFromToken"
+            @input:changed="inputAmountFrom"
           />
 
-          <a class="swap__arrows" @click="swapTokens"><swap-arrows /></a>
+          <a class="swap__arrows"><swap-arrows /></a>
 
           <swap-token-to-amount
-            :toggle-select="toggleToToken"
             :token="toToken"
-            :select-token="selectTokenTo"
             :is-finding-rate="isFindingRate"
             :fast-list="featuredTokensFiltered"
             :total-tokens="
@@ -35,6 +34,7 @@
             "
             :amount="toAmount?.toString()"
             @update:select-asset="selectTokenTo"
+            @toggle:select="toggleToToken"
           />
 
           <send-address-input
@@ -107,6 +107,7 @@
 <script setup lang="ts">
 import { computed, onMounted, PropType, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import Browser from "webextension-polyfill";
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import SwapArrows from "@action/icons/swap/swap-arrows.vue";
 import BaseButton from "@action/components/base-button/index.vue";
@@ -130,6 +131,9 @@ import { EnkryptAccount } from "@enkryptcom/types";
 import { SwapError } from "./components/swap-error/types";
 import { getAccountsByNetworkName } from "@/libs/utils/accounts";
 import { routes as RouterNames } from "@/ui/action/router";
+import getUiPath from "@/libs/utils/get-ui-path";
+import UIRoutes from "@/ui/provider-pages/enkrypt/routes/names";
+import { ProviderName } from "@/types/provider";
 
 const router = useRouter();
 const route = useRoute();
@@ -304,7 +308,6 @@ onMounted(async () => {
   props.network
     .getAllTokens(props.accountInfo.selectedAccount?.address as string)
     .then(async (tokens) => {
-      console.log(tokens[0]);
       const api = await props.network.api();
 
       const balancePromises = tokens.map((token) => {
@@ -394,15 +397,14 @@ watch(toToken, async () => {
       const accounts = await getAccountsByNetworkName(toNetwork.name);
 
       const currentAccount = accounts.find(
-        (account) => account.publicKey === address.value
+        (account) =>
+          account.publicKey === props.accountInfo.selectedAccount?.publicKey
       );
 
       if (currentAccount) {
-        address.value = "";
-      }
-
-      if (toNetwork.name !== network.value?.name) {
-        address.value = "";
+        address.value = currentAccount.address;
+      } else {
+        address.value = accounts.length ? accounts[0].address : "";
       }
 
       network.value = toNetwork;
@@ -451,9 +453,9 @@ const selectTokenTo = (token: BaseToken) => {
   toSelectOpened.value = false;
 };
 
-const inputAmountFrom = async (newVal: number, isInvalid: boolean) => {
+const inputAmountFrom = async (newVal: string, isInvalid: boolean) => {
   inputError.value = isInvalid;
-  fromAmount.value = newVal.toString();
+  fromAmount.value = newVal;
   swapMax.value = false;
 };
 
@@ -482,7 +484,6 @@ const toggleSwapError = () => {
 
 const setMax = () => {
   swapMax.value = true;
-  console.log("max");
 };
 
 const sendButtonTitle = () => {
@@ -543,7 +544,6 @@ const sendAction = async () => {
     }).length === 0
   ) {
     swapError.value = SwapError.NO_TRADES;
-    console.error("No trades found");
     toggleLooking();
     toggleSwapError();
     return;
@@ -557,25 +557,42 @@ const sendAction = async () => {
     toAddress: address.value,
     priceDifference: priceDifference,
     swapMax: swapMax.value,
+    fromAddress: props.accountInfo.selectedAccount!.address,
   };
 
   const routedRoute = router.resolve({
     name: RouterNames.swapBestOffer.name,
     query: {
       id: selected,
-      swapData: JSON.stringify(swapData),
+      swapData: Buffer.from(JSON.stringify(swapData), "utf8").toString(
+        "base64"
+      ),
     },
   });
 
-  router.push(routedRoute);
+  if (props.accountInfo.selectedAccount!.isHardware) {
+    await Browser.windows.create({
+      url: Browser.runtime.getURL(
+        getUiPath(
+          `${UIRoutes.swapVerifyHW.path}?id=${routedRoute.query.id}&swapData=${routedRoute.query.swapData}`,
+          ProviderName.enkrypt
+        )
+      ),
+      type: "popup",
+      focused: true,
+      height: 600,
+      width: 460,
+    });
+    window.close();
+  } else {
+    router.push(routedRoute);
+  }
 };
-const swapTokens = () => {
-  // TODO swap to and from if available
-};
+
 const inputAddress = (text: string) => {
   try {
     if (network.value) {
-      address.value = network.value?.displayAddress(text);
+      address.value = network.value!.displayAddress(text);
     } else {
       address.value = text;
     }
