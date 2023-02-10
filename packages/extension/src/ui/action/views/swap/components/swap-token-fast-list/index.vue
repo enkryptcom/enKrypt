@@ -5,7 +5,6 @@
       :key="index"
       :token="item"
       v-bind="$attrs"
-      @update:select-asset="selectAsset"
     />
     <div class="swap-token-fast-list__all">+{{ totalTokens }} tokens</div>
   </div>
@@ -19,12 +18,6 @@ interface IProps {
   fastList?: BaseToken[];
   totalTokens?: number;
 }
-
-const emit = defineEmits<{
-  (e: "update:selectAsset", asset: BaseToken): void;
-}>();
-
-const selectAsset = (token: BaseToken) => emit("update:selectAsset", token);
 
 defineProps<IProps>();
 </script>

@@ -237,6 +237,7 @@ const isHasScroll = () => {
 
   &.popup {
     box-shadow: none;
+    padding: 0 23px;
   }
 }
 
