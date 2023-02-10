@@ -15,12 +15,13 @@
       <Activity /><br />Activity
     </router-link>
     <router-link
-      v-if="network.NFTHandler"
+      v-if="(network as EvmNetwork).NFTHandler"
       :to="{ name: 'nfts', params: { id: !!selected ? selected : null } }"
     >
       <NFTs /><br />NFTs
     </router-link>
     <router-link
+      v-if="DappList[network.name]"
       :to="{
         name: 'dapps',
         params: { id: !!selected ? selected : null },
@@ -37,7 +38,9 @@ import Assets from "@action/icons/tabs/assets.vue";
 import NFTs from "@action/icons/tabs/nfts.vue";
 import DApps from "@action/icons/tabs/dapps.vue";
 import { PropType } from "vue";
-import { NodeType } from "@/types/provider";
+import DappList from "@/libs/dapp-list";
+import { BaseNetwork } from "@/types/base-network";
+import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
 
 defineProps({
   selected: {
@@ -45,7 +48,7 @@ defineProps({
     default: "",
   },
   network: {
-    type: Object as PropType<NodeType>,
+    type: Object as PropType<BaseNetwork>,
     default: () => ({}),
   },
 });
