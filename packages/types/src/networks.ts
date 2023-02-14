@@ -30,6 +30,7 @@ export enum NetworkNames {
   Edgeware = "EDG",
   EdgeEVM = "evmEDG",
   ZkSyncGoerli = "zkSyncGoerli",
+  TomoChain = "TOMO",
 }
 
 export enum CoingeckoPlatform {
@@ -53,4 +54,5 @@ export enum CoingeckoPlatform {
   Bifrost = "Bifrost Native Coin",
   Edgeware = "edgeware",
   EdgeEVM = "edgeware",
+  TomoChain = "tomochain"
 }
