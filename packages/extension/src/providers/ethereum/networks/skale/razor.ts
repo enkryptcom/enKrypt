@@ -1,5 +1,4 @@
 import { NetworkNames } from "@enkryptcom/types";
-import { EvmNetwork } from "../../types/evm-network";
 import {
   SkaleParams,
   createSkaleEvmNetwork,
@@ -30,6 +29,6 @@ export const razorAssets: ICustomSKALEAsset[] = [
   },
 ];
 
-const skaleRazor = createSkaleEvmNetwork(skaleRazorOptions);
+const skaleRazor = createSkaleEvmNetwork(skaleRazorOptions, razorAssets);
 
 export default skaleRazor;

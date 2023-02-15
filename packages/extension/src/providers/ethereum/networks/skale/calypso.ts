@@ -1,5 +1,4 @@
 import { NetworkNames } from "@enkryptcom/types";
-import { EvmNetwork } from "../../types/evm-network";
 import {
   SkaleParams,
   createSkaleEvmNetwork,
@@ -31,6 +30,6 @@ export const calypsoAssets: ICustomSKALEAsset[] = [
   },
 ];
 
-const skaleCalypso = createSkaleEvmNetwork(skaleCalypsoOptions);
+const skaleCalypso = createSkaleEvmNetwork(skaleCalypsoOptions, calypsoAssets);
 
 export default skaleCalypso;

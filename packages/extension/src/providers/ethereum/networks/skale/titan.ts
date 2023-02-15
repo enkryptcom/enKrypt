@@ -1,5 +1,4 @@
 import { NetworkNames } from "@enkryptcom/types";
-import { EvmNetwork } from "../../types/evm-network";
 import {
   SkaleParams,
   createSkaleEvmNetwork,
@@ -24,6 +23,6 @@ export const titanAssets: ICustomSKALEAsset[] = [
   },
 ];
 
-const skaleTitan = createSkaleEvmNetwork(skaleTitanOptions);
+const skaleTitan = createSkaleEvmNetwork(skaleTitanOptions, titanAssets);
 
 export default skaleTitan;

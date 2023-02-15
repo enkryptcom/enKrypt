@@ -1,5 +1,4 @@
 import { NetworkNames } from "@enkryptcom/types";
-import { EvmNetwork } from "../../types/evm-network";
 import {
   SkaleParams,
   createSkaleEvmNetwork,
@@ -24,6 +23,9 @@ export const cryptoColosseumAssets: ICustomSKALEAsset[] = [
   },
 ];
 
-const skaleCryptoColosseum = createSkaleEvmNetwork(skaleCryptoColosseumOptions);
+const skaleCryptoColosseum = createSkaleEvmNetwork(
+  skaleCryptoColosseumOptions,
+  cryptoColosseumAssets
+);
 
 export default skaleCryptoColosseum;

@@ -1,5 +1,4 @@
 import { NetworkNames } from "@enkryptcom/types";
-import { EvmNetwork } from "../../types/evm-network";
 import {
   SkaleParams,
   createSkaleEvmNetwork,
@@ -24,6 +23,9 @@ export const cryptoBladesAssets: ICustomSKALEAsset[] = [
   },
 ];
 
-const skaleCryptoBlades = createSkaleEvmNetwork(skaleCryptoBladesOptions);
+const skaleCryptoBlades = createSkaleEvmNetwork(
+  skaleCryptoBladesOptions,
+  cryptoBladesAssets
+);
 
 export default skaleCryptoBlades;
