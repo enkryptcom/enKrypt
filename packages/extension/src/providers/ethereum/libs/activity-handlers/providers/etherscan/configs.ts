@@ -35,6 +35,8 @@ const NetworkEndpoints = {
     "https://turbulent-unique-scheat.explorer.mainnet.skalenodes.com/",
   [NetworkNames.SkaleTitan]:
     "https://parallel-stormy-spica.explorer.mainnet.skalenodes.com/",
+  [NetworkNames.SkaleChaos]:
+    "https://staging-fast-active-bellatrix.explorer.staging-v3.skalenodes.com/",
 };
 
 export { NetworkEndpoints };
