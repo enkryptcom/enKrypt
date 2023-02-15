@@ -48,12 +48,36 @@ const assets: ICustomSKALEAsset[] = [
   {
     address: "0xD05C4be5f3be302d376518c9492EC0147Fa5A718",
     coingeckoID: "dai",
-    showZero: true,
   },
   {
     address: "0xcb011E86DF014a46F4e3AC3F3cbB114A4EB80870",
     coingeckoID: "wrapped-bitcoin",
-    showZero: true,
+  },
+  {
+    address: "0xBDDad45160E10C3738785d9dD7F30b4B2a5Eeba8",
+    coingeckoID: "cryptoblades",
+  },
+  {
+    name: "Europa Wrapped ETHC",
+    symbol: "wETHC",
+    address: "0xa5274efA35EbeFF47C1510529D9a8812F95F5735",
+    coingeckoID: "ethereum",
+  },
+  {
+    name: "Europa Wrapped SKL",
+    symbol: "wSKL",
+    address: "0xD162bB5c75FE99144295b03510bAb2DF99617440",
+    coingeckoID: "skale",
+  },
+  {
+    address: "0xBE3530a3eDf9472693065041B8c9155C7FeCB8e5",
+    coingeckoID: "human-protocol",
+  },
+  {
+    name: "Europa Wrapped HMT",
+    symbol: "wHMT",
+    address: "0x06104018340BB547803F5410174d9B68475e6769",
+    coingeckoID: "human-protocol",
   },
 ];
 
