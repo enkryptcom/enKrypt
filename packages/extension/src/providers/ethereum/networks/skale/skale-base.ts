@@ -52,6 +52,8 @@ export interface SkaleParams {
   chainID: `0x${string}`;
   isTestNetwork?: boolean;
   icon?: string;
+  currencyName?: string;
+  currencyNameLong?: string;
 }
 
 async function nativeAsset(
@@ -217,8 +219,8 @@ export function createSkaleEvmNetwork(
     ),
     chainID: params.chainID,
     isTestNetwork: params.isTestNetwork ?? false,
-    currencyName: "SFUEL",
-    currencyNameLong: "Skale FUEL",
+    currencyName: params.currencyName ?? "sFUEL",
+    currencyNameLong: params.currencyNameLong ?? "SKALE FUEL",
     node: `wss://${
       params.isTestNetwork ? "staging-v3" : "mainnet"
     }.skalenodes.com/v1/ws/${params.chainName}`,

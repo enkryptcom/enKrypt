@@ -1,3 +1,5 @@
+// SFUEL is different - need a custom solution
+
 import { NetworkNames } from "@enkryptcom/types";
 import {
   SkaleParams,
@@ -10,6 +12,8 @@ const skaleOptions: SkaleParams = {
   name_long: "SKALE | BRAWL Chain",
   chainName: "frayed-decent-antares",
   chainID: "0x175b1806",
+  currencyName: "BRAWL",
+  currencyNameLong: "BRAWL",
 };
 
 const assets: ICustomSKALEAsset[] = [
