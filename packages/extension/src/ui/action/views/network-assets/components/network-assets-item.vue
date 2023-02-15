@@ -158,8 +158,8 @@ const toggleDetail = () => {
           text-overflow: ellipsis;
 
           span {
-            font-variant: small-caps;
             margin-left: 4px;
+            text-transform: uppercase;
           }
         }
 
@@ -178,6 +178,7 @@ const toggleDetail = () => {
       text-align: center;
       img {
         max-height: 32px;
+        max-width: 32px;
       }
       p {
         display: flex;

@@ -10,6 +10,7 @@ const NetworkEndpoints = {
   [NetworkNames.Shiden]: "https://shiden.api.subscan.io/",
   [NetworkNames.Bifrost]: "https://bifrost.api.subscan.io/",
   [NetworkNames.BifrostKusama]: "https://bifrost-kusama.api.subscan.io/",
+  [NetworkNames.Edgeware]: "https://edgeware.api.subscan.io/",
 };
 
 export { NetworkEndpoints };

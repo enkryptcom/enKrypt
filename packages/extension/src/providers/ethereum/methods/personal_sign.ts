@@ -2,7 +2,7 @@ import { getCustomError } from "@/libs/error";
 import { MiddlewareFunction } from "@enkryptcom/types";
 import EthereumProvider from "..";
 import { WindowPromise } from "@/libs/window-promise";
-import { isAddress, isHexStrict, utf8ToHex } from "web3-utils";
+import { isHexStrict, utf8ToHex } from "web3-utils";
 const method: MiddlewareFunction = function (
   this: EthereumProvider,
   payload,
@@ -16,7 +16,10 @@ const method: MiddlewareFunction = function (
     }
     let msg = payload.params[0];
     let address = payload.params[1].toLowerCase();
-    if (isAddress(msg.toLowerCase()) && !isAddress(address.toLowerCase())) {
+    if (
+      this.network.isAddress(msg.toLowerCase()) &&
+      !this.network.isAddress(address.toLowerCase())
+    ) {
       msg = payload.params[1];
       address = payload.params[0].toLowerCase();
     }

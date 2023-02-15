@@ -14,7 +14,7 @@ const cantoOptions: EvmNetworkOptions = {
   isTestNetwork: false,
   currencyName: "CANTO",
   currencyNameLong: "Canto",
-  node: "https://canto.evm.chandrastation.com/",
+  node: "https://canto.gravitychain.io/",
   icon: require("./icons/canto.svg"),
   gradient: "linear-gradient(180deg, #C549FF 0%, #684CFF 100%)",
   coingeckoID: "canto",

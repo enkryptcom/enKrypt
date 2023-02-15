@@ -1,5 +1,5 @@
 <template>
-  <a class="swap-token-fast__token" @click="select">
+  <a class="swap-token-fast__token" @click="$emit('update:selectAsset', token)">
     <img :src="token.icon" />
     <h4>{{ token.symbol }}</h4>
   </a>
@@ -8,19 +8,15 @@
 <script setup lang="ts">
 import { BaseToken } from "@/types/base-token";
 import { PropType } from "vue";
-const emit = defineEmits<{
+defineEmits<{
   (e: "update:selectAsset", asset: BaseToken): void;
 }>();
-const props = defineProps({
+defineProps({
   token: {
     type: Object as PropType<BaseToken>,
     default: () => ({}),
   },
 });
-
-const select = () => {
-  emit("update:selectAsset", props.token);
-};
 </script>
 
 <style lang="less">

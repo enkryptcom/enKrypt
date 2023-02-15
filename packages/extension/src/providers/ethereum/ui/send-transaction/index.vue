@@ -145,7 +145,7 @@ import TransactionFeeView from "@action/views/transaction-fee/index.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import { NFTItem } from "@action/types/nft";
 import { AccountsHeaderData } from "@action/types/account";
-import { isAddress, numberToHex, toBN } from "web3-utils";
+import { numberToHex, toBN } from "web3-utils";
 import { nft } from "@action/types/mock";
 import { GasPriceTypes, GasFeeType } from "@/providers/common/types";
 import { EvmNetwork } from "../../types/evm-network";
@@ -225,7 +225,7 @@ const nativeBalance = computed(() => {
   if (accountIndex !== -1) {
     const balance = props.accountInfo.activeBalances[accountIndex];
 
-    if (balance !== undefined) {
+    if (balance !== "~") {
       return toBase(balance, props.network.decimals);
     }
   }
@@ -386,7 +386,7 @@ const sendButtonTitle = computed(() => {
 });
 
 const isInputsValid = computed<boolean>(() => {
-  if (!isAddress(addressTo.value)) return false;
+  if (!props.network.isAddress(addressTo.value)) return false;
   if (!isValidDecimals(sendAmount.value, selectedAsset.value.decimals!)) {
     return false;
   }

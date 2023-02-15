@@ -15,6 +15,8 @@ const NetworkEndpoints = {
   [NetworkNames.ShidenEVM]: "https://blockscout.com/shiden/",
   [NetworkNames.Optimism]: "https://api-optimistic.etherscan.io/",
   [NetworkNames.Canto]: "https://evm.explorer.canto.io/",
+  [NetworkNames.EdgeEVM]: "https://edgscan.live/",
+  [NetworkNames.Rootstock]: "https://blockscout.com/rsk/mainnet/",
   [NetworkNames.SkaleBlockBrawlers]:
     "https://frayed-decent-antares.explorer.mainnet.skalenodes.com/api/",
   [NetworkNames.SkaleCalypso]:

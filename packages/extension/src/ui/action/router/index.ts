@@ -82,6 +82,11 @@ const routes = {
     },
     name: "swap-best-offer",
   },
+  swapBestOfferHW: {
+    path: "/swap-best-offer-hw/:id?",
+    component: SwapBestOffer,
+    name: "swap-best-offer-hw",
+  },
   addNetwork: {
     path: "/add-network",
     components: {

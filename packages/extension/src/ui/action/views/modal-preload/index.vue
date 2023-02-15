@@ -13,6 +13,7 @@
 
 <script setup lang="ts">
 import LottieSendProcess from "@action/assets/animation/send-process.json";
+import { Vue3Lottie } from "vue3-lottie";
 </script>
 
 <style lang="less" scoped>

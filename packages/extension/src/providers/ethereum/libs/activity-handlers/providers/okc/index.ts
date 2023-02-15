@@ -1,5 +1,5 @@
 import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
-import { numberToHex, toBN } from "web3-utils";
+import { numberToHex } from "web3-utils";
 import {
   Activity,
   ActivityStatus,
@@ -9,6 +9,7 @@ import {
 import { BaseNetwork } from "@/types/base-network";
 import { decodeTx } from "../../../transaction/decoder";
 import { NetworkEndpoints } from "./configs";
+import { toBase } from "@/libs/utils/units";
 
 interface OkcRawInfo {
   blockHash: string;
@@ -57,7 +58,7 @@ const getAddressActivity = async (
           nonce: numberToHex(0),
           status: true,
           transactionHash: tx.txId,
-          value: toBN(tx.amount).mul(toBN("1000000000000000000")).toString(),
+          value: toBase(tx.amount, 18),
           timestamp: parseInt(tx.transactionTime),
         };
         return rawTx;

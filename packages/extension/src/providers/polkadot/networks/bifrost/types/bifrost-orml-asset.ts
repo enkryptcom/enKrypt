@@ -1,5 +1,5 @@
 import { ApiPromise } from "@polkadot/api";
-import { OrmlTokensAccountData } from "@acala-network/types/interfaces/types-lookup";
+import { OrmlTokensAccountData } from "../../acala/types/acala-orml-asset";
 import { SubmittableExtrinsic } from "@polkadot/api/types";
 import { ISubmittableResult } from "@polkadot/types/types";
 import { SubstrateToken } from "@/providers/polkadot/types/substrate-token";

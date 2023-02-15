@@ -19,6 +19,7 @@
 <script setup lang="ts">
 import DoneIcon from "@action/icons/common/done_icon.vue";
 import LottieStatusJson from "@action/assets/animation/status.json";
+import { Vue3Lottie } from "vue3-lottie";
 
 defineProps({
   select: {
