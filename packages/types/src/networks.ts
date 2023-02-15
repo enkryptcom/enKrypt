@@ -63,5 +63,5 @@ export enum CoingeckoPlatform {
   Bifrost = "Bifrost Native Coin",
   Edgeware = "edgeware",
   EdgeEVM = "edgeware",
-  Skale = "skale",
+  SKALE = "skale",
 }

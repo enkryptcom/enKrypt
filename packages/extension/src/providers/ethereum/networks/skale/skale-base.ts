@@ -227,7 +227,7 @@ export function createSkaleEvmNetwork(
     icon: require(`../icons/${params.icon ?? "skl.png"}`),
     gradient: "#7B3FE4",
     coingeckoID: "skale",
-    coingeckoPlatform: CoingeckoPlatform.Skale,
+    coingeckoPlatform: CoingeckoPlatform.SKALE,
     assetsInfoHandler: getAssetHandler(assets),
     activityHandler: wrapActivityHandler(EtherscanActivity),
     customTokens: true,

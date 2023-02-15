@@ -19,7 +19,6 @@ const assets: ICustomSKALEAsset[] = [
     symbol: "ETHC",
     address: "0xD2Aaa00700000000000000000000000000000000",
     coingeckoID: "ethereum",
-    showZero: true,
   },
   {
     address: "0xcbf70914Fae03B3acB91E953De60CfDAaCA8145f",
