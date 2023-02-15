@@ -30,6 +30,6 @@ export const razorAssets: ICustomSKALEAsset[] = [
   },
 ];
 
-const skaleRazor = new EvmNetwork(createSkaleEvmNetwork(skaleRazorOptions));
+const skaleRazor = createSkaleEvmNetwork(skaleRazorOptions);
 
 export default skaleRazor;

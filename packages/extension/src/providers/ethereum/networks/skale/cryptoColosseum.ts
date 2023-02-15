@@ -24,8 +24,6 @@ export const cryptoColosseumAssets: ICustomSKALEAsset[] = [
   },
 ];
 
-const skaleCryptoColosseum = new EvmNetwork(
-  createSkaleEvmNetwork(skaleCryptoColosseumOptions)
-);
+const skaleCryptoColosseum = createSkaleEvmNetwork(skaleCryptoColosseumOptions);
 
 export default skaleCryptoColosseum;

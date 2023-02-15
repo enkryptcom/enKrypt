@@ -18,23 +18,23 @@ const NetworkEndpoints = {
   [NetworkNames.EdgeEVM]: "https://edgscan.live/",
   [NetworkNames.Rootstock]: "https://blockscout.com/rsk/mainnet/",
   [NetworkNames.SkaleBlockBrawlers]:
-    "https://frayed-decent-antares.explorer.mainnet.skalenodes.com/api/",
+    "https://frayed-decent-antares.explorer.mainnet.skalenodes.com/",
   [NetworkNames.SkaleCalypso]:
-    "https://honorable-steel-rasalhague.explorer.mainnet.skalenodes.com/api/",
+    "https://honorable-steel-rasalhague.explorer.mainnet.skalenodes.com/",
   [NetworkNames.SkaleCryptoBlades]:
-    "https://affectionate-immediate-pollux.explorer.mainnet.skalenodes.com/api/",
+    "https://affectionate-immediate-pollux.explorer.mainnet.skalenodes.com/",
   [NetworkNames.SkaleCryptoColosseum]:
-    "https://haunting-devoted-deneb.explorer.mainnet.skalenodes.com/api/",
+    "https://haunting-devoted-deneb.explorer.mainnet.skalenodes.com/",
   [NetworkNames.SkaleEuropa]:
-    "https://elated-tan-skat.explorer.mainnet.skalenodes.com/api/",
+    "https://elated-tan-skat.explorer.mainnet.skalenodes.com/",
   [NetworkNames.SkaleExorde]:
-    "https://light-vast-diphda.explorer.mainnet.skalenodes.com/api/",
+    "https://light-vast-diphda.explorer.mainnet.skalenodes.com/",
   [NetworkNames.SkaleNebula]:
-    "https://green-giddy-denebola.explorer.mainnet.skalenodes.com/api/",
+    "https://green-giddy-denebola.explorer.mainnet.skalenodes.com/",
   [NetworkNames.SkaleRazor]:
-    "https://turbulent-unique-scheat.explorer.mainnet.skalenodes.com/api/",
+    "https://turbulent-unique-scheat.explorer.mainnet.skalenodes.com/",
   [NetworkNames.SkaleTitan]:
-    "https://parallel-stormy-spica.explorer.mainnet.skalenodes.com/api/",
+    "https://parallel-stormy-spica.explorer.mainnet.skalenodes.com/",
 };
 
 export { NetworkEndpoints };

@@ -12,7 +12,7 @@ const skaleTitanOptions: SkaleParams = {
   name: NetworkNames.SkaleTitan,
   name_long: "SKALE | Titan Community Hub",
   chainName: "parallel-stormy-spica",
-  chainID: "0x507aaa2a",
+  chainID: titanChainID,
 };
 
 export const titanAssets: ICustomSKALEAsset[] = [
@@ -24,6 +24,6 @@ export const titanAssets: ICustomSKALEAsset[] = [
   },
 ];
 
-const skaleTitan = new EvmNetwork(createSkaleEvmNetwork(skaleTitanOptions));
+const skaleTitan = createSkaleEvmNetwork(skaleTitanOptions);
 
 export default skaleTitan;

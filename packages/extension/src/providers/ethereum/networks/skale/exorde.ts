@@ -24,6 +24,6 @@ export const exordeAssets: ICustomSKALEAsset[] = [
   },
 ];
 
-const skaleExorde = new EvmNetwork(createSkaleEvmNetwork(skaleExordeOptions));
+const skaleExorde = createSkaleEvmNetwork(skaleExordeOptions);
 
 export default skaleExorde;

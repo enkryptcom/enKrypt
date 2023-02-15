@@ -24,6 +24,6 @@ export const nebulaAssets: ICustomSKALEAsset[] = [
   },
 ];
 
-const skaleNebula = new EvmNetwork(createSkaleEvmNetwork(skaleNebulaOptions));
+const skaleNebula = createSkaleEvmNetwork(skaleNebulaOptions);
 
 export default skaleNebula;

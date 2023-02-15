@@ -17,15 +17,7 @@ import cantoNode from "./canto";
 import rootstockNode from "./rsk";
 import edgeEvmNode from "./edg";
 import zkGoerliNode from "./zkgoerli";
-import skaleEuropaNode from "./skale/europa";
-import skaleBlockBrawlersNode from "./skale/blockBrawlers";
-import skaleCalypsoNode from "./skale/calypso";
-import skaleCryptoBladesNode from "./skale/cryptoBlades";
-import skaleCryptoColosseumNode from "./skale/cryptoColosseum";
-import skaleExordeNode from "./skale/exorde";
-import skaleNebulaNode from "./skale/nebula";
-import skaleRazorNode from "./skale/razor";
-import skaleTitanNode from "./skale/titan";
+import * as skale from "./skale";
 
 export default {
   goerli: goerliNode,
@@ -47,13 +39,13 @@ export default {
   rootstock: rootstockNode,
   edgeEvm: edgeEvmNode,
   zkGoerli: zkGoerliNode,
-  skaleEuropa: skaleEuropaNode,
-  skaleBlockBrawlers: skaleBlockBrawlersNode,
-  skaleCalypso: skaleCalypsoNode,
-  skaleCryptoBlades: skaleCryptoBladesNode,
-  skaleCryptoColosseum: skaleCryptoColosseumNode,
-  skaleExorde: skaleExordeNode,
-  skaleNebula: skaleNebulaNode,
-  skaleRazor: skaleRazorNode,
-  skaleTitan: skaleTitanNode,
+  skaleEuropa: skale.europaNode,
+  skaleBlockBrawlers: skale.blockBrawlersNode,
+  skaleCalypso: skale.calypsoNode,
+  skaleCryptoBlades: skale.cryptoBladesNode,
+  skaleCryptoColosseum: skale.cryptoColosseumNode,
+  skaleExorde: skale.exordeNode,
+  skaleNebula: skale.nebulaNode,
+  skaleRazor: skale.razorNode,
+  skaleTitan: skale.titanNode,
 };

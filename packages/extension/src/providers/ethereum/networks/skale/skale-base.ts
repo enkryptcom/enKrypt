@@ -15,16 +15,16 @@ import API from "@/providers/ethereum/libs/api";
 import Sparkline from "@/libs/sparkline";
 import { NATIVE_TOKEN_ADDRESS } from "../../libs/common";
 import { Erc20Token, Erc20TokenOptions } from "../../types/erc20-token";
-import tokenMap from "./tokensMap";
 const DEFAULT_DECIMALS = 18;
 
-const seedValues: Record<"tx" | "address", string> = {
-  tx: "txHash",
-  address: "address",
-};
 
-function getBlockExplorerValue(chainName: string, type: "tx" | "address") {
-  return `https://${chainName}.explorer.mainnet.skalenodes.com/${type}/[[${seedValues[type]}]]`;
+function getBlockExplorerValue(
+  chainName: string,
+  type: "tx" | "address" | string
+) {
+  return `https://${chainName}.explorer.mainnet.skalenodes.com/${type}/[[${
+    type === "tx" ? "txHash" : type
+  }]]`;
 }
 
 export interface ICustomSKALEAsset {
@@ -45,66 +45,68 @@ export interface SkaleParams {
   icon?: string;
 }
 
-async function getPreconfiguredTokens(
-  api: API,
-  chainId: `0x${string}`,
-  address: string
-): Promise<AssetsType[]> {
-  const marketData = new MarketData();
-  const preconfiguredAssets: AssetsType[] = [];
-  const assets: ICustomSKALEAsset[] = tokenMap[chainId];
-  if (assets.length === 0) return preconfiguredAssets;
-  const nativeAssetMarketData = await marketData.getMarketData(
-    assets.map((asset) => asset.coingeckoID)
-  );
-  for (let index = 0; index < assets.length; index++) {
-    const asset = assets[index];
-    const assetToken = new Erc20Token({
-      contract: asset.address,
-    } as Erc20TokenOptions);
-    const balanceAsset = await assetToken.getLatestUserBalance(
-      api as API,
-      address
-    );
-    const assetDecimals = asset.decimals ? asset.decimals : DEFAULT_DECIMALS;
-    const nativeAssetUsdBalance = new BigNumber(
-      fromBase(balanceAsset, assetDecimals)
-    ).times(nativeAssetMarketData[index]?.current_price ?? 0);
+// async function getPreconfiguredTokens(
+//   api: API,
+//   chainId: `0x${string}`,
+//   address: string
+// ): Promise<AssetsType[]> {
+//   const marketData = new MarketData();
+//   const preconfiguredAssets: AssetsType[] = [];
+//   const assets: ICustomSKALEAsset[] | undefined = tokenMap[chainId];
+//   // throw Error(`Wrong ${JSON.stringify(tokenMap)}`);
+//   if (!assets || assets.length === 0)
+//     throw Error(`Wrong ${JSON.stringify(tokenMap)}`);
+//   const nativeAssetMarketData = await marketData.getMarketData(
+//     assets.map((asset) => asset.coingeckoID)
+//   );
+//   for (let index = 0; index < assets.length; index++) {
+//     const asset = assets[index];
+//     const assetToken = new Erc20Token({
+//       contract: asset.address,
+//     } as Erc20TokenOptions);
+//     const balanceAsset = await assetToken.getLatestUserBalance(
+//       api as API,
+//       address
+//     );
+//     const assetDecimals = asset.decimals ? asset.decimals : DEFAULT_DECIMALS;
+//     const nativeAssetUsdBalance = new BigNumber(
+//       fromBase(balanceAsset, assetDecimals)
+//     ).times(nativeAssetMarketData[index]?.current_price ?? 0);
 
-    const assetData: AssetsType = {
-      name: asset?.name ?? nativeAssetMarketData[index]?.name ?? "Name",
-      symbol: asset?.symbol ?? nativeAssetMarketData[index]?.symbol ?? "Symbol",
-      icon:
-        nativeAssetMarketData[index]?.image ??
-        require(`../icons/${asset.icon}`) ??
-        require("../icons/skl.png"),
-      balance: balanceAsset,
-      balancef: formatFloatingPointValue(fromBase(balanceAsset, assetDecimals))
-        .value,
-      balanceUSD: nativeAssetUsdBalance.toNumber(),
-      balanceUSDf: formatFiatValue(nativeAssetUsdBalance.toString()).value,
-      value: nativeAssetMarketData[index]?.current_price.toString() ?? "0",
-      valuef: formatFiatValue(
-        nativeAssetMarketData[index]?.current_price.toString() ?? "0"
-      ).value,
-      decimals: assetDecimals,
-      sparkline: nativeAssetMarketData[index]
-        ? new Sparkline(nativeAssetMarketData[index]?.sparkline_in_7d.price, 25)
-            .dataUri
-        : "",
-      priceChangePercentage:
-        nativeAssetMarketData[index]?.price_change_percentage_7d_in_currency ??
-        0,
-      contract: asset.address,
-    };
-    if (asset.showZero || assetData.balancef !== "0")
-      preconfiguredAssets.push(assetData);
-  }
-  return preconfiguredAssets;
-}
+//     const assetData: AssetsType = {
+//       name: asset?.name ?? nativeAssetMarketData[index]?.name ?? "Name",
+//       symbol: asset?.symbol ?? nativeAssetMarketData[index]?.symbol ?? "Symbol",
+//       icon:
+//         nativeAssetMarketData[index]?.image ??
+//         require(`../icons/${asset.icon}`) ??
+//         require("../icons/skl.png"),
+//       balance: balanceAsset,
+//       balancef: formatFloatingPointValue(fromBase(balanceAsset, assetDecimals))
+//         .value,
+//       balanceUSD: nativeAssetUsdBalance.toNumber(),
+//       balanceUSDf: formatFiatValue(nativeAssetUsdBalance.toString()).value,
+//       value: nativeAssetMarketData[index]?.current_price.toString() ?? "0",
+//       valuef: formatFiatValue(
+//         nativeAssetMarketData[index]?.current_price.toString() ?? "0"
+//       ).value,
+//       decimals: assetDecimals,
+//       sparkline: nativeAssetMarketData[index]
+//         ? new Sparkline(nativeAssetMarketData[index]?.sparkline_in_7d.price, 25)
+//             .dataUri
+//         : "",
+//       priceChangePercentage:
+//         nativeAssetMarketData[index]?.price_change_percentage_7d_in_currency ??
+//         0,
+//       contract: asset.address,
+//     };
+//     if (asset.showZero || assetData.balancef !== "0")
+//       preconfiguredAssets.push(assetData);
+//   }
+//   return preconfiguredAssets;
+// }
 
-export function createSkaleEvmNetwork(params: SkaleParams) {
-  return {
+export function createSkaleEvmNetwork(params: SkaleParams): EvmNetwork {
+  return new EvmNetwork({
     name: params.name,
     name_long: params.name_long,
     homePage: "https://skale.space",
@@ -115,14 +117,14 @@ export function createSkaleEvmNetwork(params: SkaleParams) {
     currencyName: "SFUEL",
     currencyNameLong: "Skale FUEL",
     node: `wss://mainnet.skalenodes.com/v1/ws/${params.chainName}`,
-    icon: require(`../icons/${params.icon ? params.icon : "skl.png"}`),
+    icon: require(`../icons/${params.icon ?? "skl.png"}`),
     gradient: "#7B3FE4",
     coingeckoID: "skale",
     coingeckoPlatform: CoingeckoPlatform.Skale,
     assetsInfoHandler: assetInfoHandlerSkale,
     activityHandler: wrapActivityHandler(EtherscanActivity),
     customTokens: true,
-  } as EvmNetworkOptions;
+  } as EvmNetworkOptions);
 }
 
 export async function assetInfoHandlerSkale(
@@ -148,11 +150,11 @@ export async function assetInfoHandlerSkale(
     contract: NATIVE_TOKEN_ADDRESS,
   };
 
-  const preconfiguredTokens: AssetsType[] = await getPreconfiguredTokens(
-    api as API,
-    network.chainID,
-    address
-  );
+  // const preconfiguredTokens: AssetsType[] = await getPreconfiguredTokens(
+  //   api as API,
+  //   network.chainID,
+  //   address
+  // );
 
   await Promise.all(
     network.assets.map((token) =>
@@ -185,5 +187,6 @@ export async function assetInfoHandlerSkale(
     })
     .filter((asset) => asset.balancef !== "0");
 
-  return [nativeAsset, ...preconfiguredTokens, ...assetInfos];
+  // return [nativeAsset, ...preconfiguredTokens, ...assetInfos];
+  return [nativeAsset, ...assetInfos];
 }

@@ -53,6 +53,6 @@ export const europaAssets: ICustomSKALEAsset[] = [
   },
 ];
 
-const skaleEuropa = new EvmNetwork(createSkaleEvmNetwork(skaleEuropaOptions));
+const skaleEuropa = createSkaleEvmNetwork(skaleEuropaOptions);
 
 export default skaleEuropa;

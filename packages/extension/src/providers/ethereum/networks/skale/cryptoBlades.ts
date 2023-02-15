@@ -24,8 +24,6 @@ export const cryptoBladesAssets: ICustomSKALEAsset[] = [
   },
 ];
 
-const skaleCryptoBlades = new EvmNetwork(
-  createSkaleEvmNetwork(skaleCryptoBladesOptions)
-);
+const skaleCryptoBlades = createSkaleEvmNetwork(skaleCryptoBladesOptions);
 
 export default skaleCryptoBlades;

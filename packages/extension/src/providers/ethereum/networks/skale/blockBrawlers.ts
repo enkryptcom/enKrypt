@@ -24,8 +24,6 @@ export const blockBrawlersAssets: ICustomSKALEAsset[] = [
   },
 ];
 
-const skaleBlockBrawlers = new EvmNetwork(
-  createSkaleEvmNetwork(skaleBlockBrawlersOptions)
-);
+const skaleBlockBrawlers = createSkaleEvmNetwork(skaleBlockBrawlersOptions);
 
 export default skaleBlockBrawlers;
