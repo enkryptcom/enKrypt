@@ -17,7 +17,6 @@ import { NATIVE_TOKEN_ADDRESS } from "../../libs/common";
 import { Erc20Token, Erc20TokenOptions } from "../../types/erc20-token";
 const DEFAULT_DECIMALS = 18;
 
-
 function getBlockExplorerValue(
   chainName: string,
   type: "tx" | "address" | string
