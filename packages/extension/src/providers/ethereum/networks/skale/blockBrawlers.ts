@@ -5,16 +5,14 @@ import {
   ICustomSKALEAsset,
 } from "./skale-base";
 
-export const blockBrawlersChainID = "0x175b1806";
-
-const skaleBlockBrawlersOptions: SkaleParams = {
+const skaleOptions: SkaleParams = {
   name: NetworkNames.SkaleBlockBrawlers,
   name_long: "SKALE | BRAWL Chain",
   chainName: "frayed-decent-antares",
-  chainID: blockBrawlersChainID,
+  chainID: "0x175b1806",
 };
 
-export const blockBrawlersAssets: ICustomSKALEAsset[] = [
+const assets: ICustomSKALEAsset[] = [
   {
     name: "Ethereum Clone",
     symbol: "ETHC",
@@ -23,9 +21,4 @@ export const blockBrawlersAssets: ICustomSKALEAsset[] = [
   },
 ];
 
-const skaleBlockBrawlers = createSkaleEvmNetwork(
-  skaleBlockBrawlersOptions,
-  blockBrawlersAssets
-);
-
-export default skaleBlockBrawlers;
+export default createSkaleEvmNetwork(skaleOptions, assets);

@@ -5,16 +5,14 @@ import {
   ICustomSKALEAsset,
 } from "./skale-base";
 
-export const europaChainID = "0x79f99296";
-
-const skaleEuropaOptions: SkaleParams = {
+const skaleOptions: SkaleParams = {
   name: NetworkNames.SkaleEuropa,
   name_long: "SKALE | Europa Liquidity Hub",
   chainName: "elated-tan-skat",
-  chainID: europaChainID,
+  chainID: "0x79f99296",
 };
 
-export const europaAssets: ICustomSKALEAsset[] = [
+const assets: ICustomSKALEAsset[] = [
   {
     name: "Ethereum Clone",
     symbol: "ETHC",
@@ -59,6 +57,4 @@ export const europaAssets: ICustomSKALEAsset[] = [
   },
 ];
 
-const skaleEuropa = createSkaleEvmNetwork(skaleEuropaOptions, europaAssets);
-
-export default skaleEuropa;
+export default createSkaleEvmNetwork(skaleOptions, assets);

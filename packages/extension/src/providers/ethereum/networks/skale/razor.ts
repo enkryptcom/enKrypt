@@ -5,16 +5,14 @@ import {
   ICustomSKALEAsset,
 } from "./skale-base";
 
-export const razorChainID = "0x109b4597";
-
-const skaleRazorOptions: SkaleParams = {
+const skaleOptions: SkaleParams = {
   name: NetworkNames.SkaleRazor,
   name_long: "SKALE | Razor Network",
   chainName: "turbulent-unique-scheat",
-  chainID: razorChainID,
+  chainID: "0x109b4597",
 };
 
-export const razorAssets: ICustomSKALEAsset[] = [
+const assets: ICustomSKALEAsset[] = [
   {
     name: "Ethereum Clone",
     symbol: "ETHC",
@@ -29,6 +27,4 @@ export const razorAssets: ICustomSKALEAsset[] = [
   },
 ];
 
-const skaleRazor = createSkaleEvmNetwork(skaleRazorOptions, razorAssets);
-
-export default skaleRazor;
+export default createSkaleEvmNetwork(skaleOptions, assets);

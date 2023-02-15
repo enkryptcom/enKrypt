@@ -5,16 +5,14 @@ import {
   ICustomSKALEAsset,
 } from "./skale-base";
 
-export const cryptoBladesChainID = "0x3d28774d";
-
-const skaleCryptoBladesOptions: SkaleParams = {
+const skaleOptions: SkaleParams = {
   name: NetworkNames.SkaleCryptoBlades,
   name_long: "SKALE | CryptoBlades",
   chainName: "affectionate-immediate-pollux",
-  chainID: cryptoBladesChainID,
+  chainID: "0x3d28774d",
 };
 
-export const cryptoBladesAssets: ICustomSKALEAsset[] = [
+export const assets: ICustomSKALEAsset[] = [
   {
     name: "Ethereum Clone",
     symbol: "ETHC",
@@ -23,9 +21,4 @@ export const cryptoBladesAssets: ICustomSKALEAsset[] = [
   },
 ];
 
-const skaleCryptoBlades = createSkaleEvmNetwork(
-  skaleCryptoBladesOptions,
-  cryptoBladesAssets
-);
-
-export default skaleCryptoBlades;
+export default createSkaleEvmNetwork(skaleOptions, assets);

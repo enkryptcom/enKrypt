@@ -39,6 +39,7 @@ export enum NetworkNames {
   SkaleNebula = "skaleNEBULA",
   SkaleRazor = "skaleRAZOR",
   SkaleTitan = "skaleTITAN",
+  SkaleChaos = "skaleCHAOS",
 }
 
 export enum CoingeckoPlatform {

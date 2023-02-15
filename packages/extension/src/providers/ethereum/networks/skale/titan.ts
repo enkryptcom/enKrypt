@@ -5,16 +5,14 @@ import {
   ICustomSKALEAsset,
 } from "./skale-base";
 
-export const titanChainID = "0x507aaa2a";
-
-const skaleTitanOptions: SkaleParams = {
+const skaleOptions: SkaleParams = {
   name: NetworkNames.SkaleTitan,
   name_long: "SKALE | Titan Community Hub",
   chainName: "parallel-stormy-spica",
-  chainID: titanChainID,
+  chainID: "0x507aaa2a",
 };
 
-export const titanAssets: ICustomSKALEAsset[] = [
+const assets: ICustomSKALEAsset[] = [
   {
     name: "Ethereum Clone",
     symbol: "ETHC",
@@ -23,6 +21,4 @@ export const titanAssets: ICustomSKALEAsset[] = [
   },
 ];
 
-const skaleTitan = createSkaleEvmNetwork(skaleTitanOptions, titanAssets);
-
-export default skaleTitan;
+export default createSkaleEvmNetwork(skaleOptions, assets);

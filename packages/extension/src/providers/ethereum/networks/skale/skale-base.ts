@@ -219,7 +219,9 @@ export function createSkaleEvmNetwork(
     isTestNetwork: params.isTestNetwork ?? false,
     currencyName: "SFUEL",
     currencyNameLong: "Skale FUEL",
-    node: `wss://mainnet.skalenodes.com/v1/ws/${params.chainName}`,
+    node: `wss://${
+      params.isTestNetwork ? "staging-v3" : "mainnet"
+    }.skalenodes.com/v1/ws/${params.chainName}`,
     icon: require(`../icons/${params.icon ?? "skl.png"}`),
     gradient: "#7B3FE4",
     coingeckoID: "skale",

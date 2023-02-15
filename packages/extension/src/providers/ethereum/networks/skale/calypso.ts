@@ -5,17 +5,15 @@ import {
   ICustomSKALEAsset,
 } from "./skale-base";
 
-export const calypsoChainID = "0x5d456c62";
-
-const skaleCalypsoOptions: SkaleParams = {
+const skaleOptions: SkaleParams = {
   name: NetworkNames.SkaleCalypso,
   name_long: "SKALE | Calypso NFT Hub",
   chainName: "honorable-steel-rasalhague",
-  chainID: calypsoChainID,
+  chainID: "0x5d456c62",
   icon: "skaleCalypsoNFTHub.png",
 };
 
-export const calypsoAssets: ICustomSKALEAsset[] = [
+const assets: ICustomSKALEAsset[] = [
   {
     name: "Ethereum Clone",
     symbol: "ETHC",
@@ -30,6 +28,4 @@ export const calypsoAssets: ICustomSKALEAsset[] = [
   },
 ];
 
-const skaleCalypso = createSkaleEvmNetwork(skaleCalypsoOptions, calypsoAssets);
-
-export default skaleCalypso;
+export default createSkaleEvmNetwork(skaleOptions, assets);

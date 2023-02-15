@@ -5,16 +5,14 @@ import {
   ICustomSKALEAsset,
 } from "./skale-base";
 
-export const cryptoColosseumChainID = "0x3d91725c";
-
-const skaleCryptoColosseumOptions: SkaleParams = {
+const skaleOptions: SkaleParams = {
   name: NetworkNames.SkaleCryptoColosseum,
   name_long: "SKALE | Crytpo Rome",
   chainName: "haunting-devoted-deneb",
-  chainID: cryptoColosseumChainID,
+  chainID: "0x3d91725c",
 };
 
-export const cryptoColosseumAssets: ICustomSKALEAsset[] = [
+const assets: ICustomSKALEAsset[] = [
   {
     name: "Ethereum Clone",
     symbol: "ETHC",
@@ -23,9 +21,4 @@ export const cryptoColosseumAssets: ICustomSKALEAsset[] = [
   },
 ];
 
-const skaleCryptoColosseum = createSkaleEvmNetwork(
-  skaleCryptoColosseumOptions,
-  cryptoColosseumAssets
-);
-
-export default skaleCryptoColosseum;
+export default createSkaleEvmNetwork(skaleOptions, assets);

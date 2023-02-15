@@ -6,10 +6,11 @@ import {
 } from "./skale-base";
 
 const skaleOptions: SkaleParams = {
-  name: NetworkNames.SkaleExorde,
-  name_long: "SKALE | Exorde",
-  chainName: "light-vast-diphda",
-  chainID: "0x7f8cb400",
+  name: NetworkNames.SkaleChaos,
+  name_long: "SKALE Testnet | CHAOS chain",
+  chainName: "staging-fast-active-bellatrix",
+  chainID: "0x50877ed6",
+  isTestNetwork: true,
 };
 
 const assets: ICustomSKALEAsset[] = [

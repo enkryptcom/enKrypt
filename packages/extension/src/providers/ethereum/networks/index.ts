@@ -48,4 +48,5 @@ export default {
   skaleNebula: skale.nebulaNode,
   skaleRazor: skale.razorNode,
   skaleTitan: skale.titanNode,
+  skaleChaos: skale.chaosNode,
 };

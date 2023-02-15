@@ -5,16 +5,14 @@ import {
   ICustomSKALEAsset,
 } from "./skale-base";
 
-export const nebulaChainID = "0x585eb4b1";
-
-const skaleNebulaOptions: SkaleParams = {
+const skaleOptions: SkaleParams = {
   name: NetworkNames.SkaleNebula,
   name_long: "SKALE | Nebula Gaming Hub",
   chainName: "green-giddy-denebola",
-  chainID: nebulaChainID,
+  chainID: "0x585eb4b1",
 };
 
-export const nebulaAssets: ICustomSKALEAsset[] = [
+const assets: ICustomSKALEAsset[] = [
   {
     name: "Ethereum Clone",
     symbol: "ETHC",
@@ -23,6 +21,4 @@ export const nebulaAssets: ICustomSKALEAsset[] = [
   },
 ];
 
-const skaleNebula = createSkaleEvmNetwork(skaleNebulaOptions, nebulaAssets);
-
-export default skaleNebula;
+export default createSkaleEvmNetwork(skaleOptions, assets);
