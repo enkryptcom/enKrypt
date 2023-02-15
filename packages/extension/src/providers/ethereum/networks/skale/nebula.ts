@@ -10,6 +10,7 @@ const skaleOptions: SkaleParams = {
   name_long: "SKALE | Nebula Gaming Hub",
   chainName: "green-giddy-denebola",
   chainID: "0x585eb4b1",
+  icon: "skaleNebula.png",
 };
 
 const assets: ICustomSKALEAsset[] = [

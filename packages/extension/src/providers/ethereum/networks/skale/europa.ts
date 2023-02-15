@@ -10,6 +10,7 @@ const skaleOptions: SkaleParams = {
   name_long: "SKALE | Europa Liquidity Hub",
   chainName: "elated-tan-skat",
   chainID: "0x79f99296",
+  icon: "skaleEuropa.svg",
 };
 
 const assets: ICustomSKALEAsset[] = [

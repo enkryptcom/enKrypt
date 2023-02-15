@@ -10,6 +10,7 @@ const skaleOptions: SkaleParams = {
   name_long: "SKALE | Titan Community Hub",
   chainName: "parallel-stormy-spica",
   chainID: "0x507aaa2a",
+  icon: "skaleTitan.png",
 };
 
 const assets: ICustomSKALEAsset[] = [

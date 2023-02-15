@@ -10,6 +10,7 @@ const skaleOptions: SkaleParams = {
   name_long: "SKALE | Razor Network",
   chainName: "turbulent-unique-scheat",
   chainID: "0x109b4597",
+  icon: "skaleRazor.png",
 };
 
 const assets: ICustomSKALEAsset[] = [

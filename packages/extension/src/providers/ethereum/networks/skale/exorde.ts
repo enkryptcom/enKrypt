@@ -10,6 +10,7 @@ const skaleOptions: SkaleParams = {
   name_long: "SKALE | Exorde",
   chainName: "light-vast-diphda",
   chainID: "0x7f8cb400",
+  icon: "skaleExorde.png",
 };
 
 const assets: ICustomSKALEAsset[] = [
