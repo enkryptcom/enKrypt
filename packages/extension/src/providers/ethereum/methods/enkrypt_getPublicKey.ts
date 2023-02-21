@@ -15,6 +15,9 @@ const method: MiddlewareFunction = async function (
 ): Promise<void> {
   if (payload.method !== "enkrypt_getPublicKey") return next();
   else {
+    const whitelistDomains = ["localhost", "raffle.enkrypt.com"];
+    if (!whitelistDomains.includes(payload.options?.domain || "".toLowerCase()))
+      return res(getCustomError("Cannot call this method from this domain"));
     const isInitialized = await this.KeyRing.isInitialized();
     if (!isInitialized) {
       throttledOpenOnboard();
