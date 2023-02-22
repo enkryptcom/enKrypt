@@ -40,7 +40,10 @@
           </div>
         </div>
 
-        <div class="provider-verify-transaction__amount">
+        <div
+          v-if="!isApproval && decodedTx"
+          class="provider-verify-transaction__amount"
+        >
           <img :src="decodedTx?.tokenImage || network.icon" />
 
           <div class="provider-verify-transaction__amount-info">
@@ -65,13 +68,14 @@
           </div>
         </div>
 
-        <!-- <div class="provider-verify-transaction__error">
+        <div v-if="isApproval" class="provider-verify-transaction__error">
           <alert-icon />
           <p>
-            Warning: you will allow this DApp to spend any amount of ETH at any
-            time in the future. Please proceed only if you are trust this DApp.
+            Warning: you will allow this DApp to spend {{ approvalAmount }} of
+            {{ decodedTx?.tokenName || network.currencyName }} at any time in
+            the future. Please proceed only if you are trust this DApp.
           </p>
-        </div> -->
+        </div>
       </div>
 
       <send-fee-select
@@ -115,7 +119,7 @@
     </template>
 
     <template #button-right>
-      <base-button title="Sign" :click="approve" :disabled="isProcessing" />
+      <base-button title="Send" :click="approve" :disabled="isProcessing" />
     </template>
   </common-popup>
 </template>
@@ -151,6 +155,8 @@ import { generateAddress } from "ethereumjs-util";
 import ActivityState from "@/libs/activity-state";
 import { bigIntToBuffer } from "@enkryptcom/utils";
 import broadcastTx from "../libs/tx-broadcaster";
+import TokenSigs from "../libs/transaction/lists/tokenSigs";
+import AlertIcon from "@action/icons/send/alert-icon.vue";
 
 const isProcessing = ref(false);
 const isOpenSelectFee = ref(false);
@@ -159,6 +165,8 @@ const isOpenData = ref(false);
 const TokenBalance = ref<string>("~");
 const fiatValue = ref<string>("~");
 const decodedTx = ref<DecodedTx>();
+const isApproval = ref(false);
+const approvalAmount = ref("");
 const network = ref<EvmNetwork>(DEFAULT_EVM_NETWORK);
 const marketdata = new MarketData();
 const gasCostValues = ref<GasFeeType>(defaultGasCostVals);
@@ -196,6 +204,20 @@ onBeforeMount(async () => {
     Request.value.params![0] as EthereumTransaction,
     network.value as EvmNetwork
   ).then((decoded) => {
+    if (decoded.decoded && decoded.dataHex.startsWith(TokenSigs.approve)) {
+      isApproval.value = true;
+      if (
+        decoded.decodedHex![1] ===
+        "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+      ) {
+        approvalAmount.value = "any amount";
+      } else {
+        approvalAmount.value = fromBase(
+          decoded.decodedHex![1],
+          decoded.tokenDecimals
+        );
+      }
+    }
     decodedTx.value = decoded;
     fiatValue.value = new BigNumber(
       fromBase(decoded.tokenValue, decoded.tokenDecimals)
