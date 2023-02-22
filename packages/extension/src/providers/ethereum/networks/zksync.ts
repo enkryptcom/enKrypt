@@ -17,6 +17,7 @@ const zkSyncOptions: EvmNetworkOptions = {
   node: "https://zksync2-mainnet.zksync.io",
   icon: require("./icons/zksync.svg"),
   gradient: "linear-gradient(180deg, #C549FF 0%, #684CFF 100%)",
+  coingeckoID: "ethereum",
   assetsInfoHandler,
   activityHandler: wrapActivityHandler(ZksynceActivity),
 };

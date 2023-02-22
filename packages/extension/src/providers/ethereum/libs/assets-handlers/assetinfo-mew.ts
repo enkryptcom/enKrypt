@@ -4,10 +4,11 @@ import {
   SupportedNetwork,
   SupportedNetworkNames,
   TokenBalance,
+  ZkSyncBalanceType,
 } from "./types/tokenbalance-mew";
 import MarketData from "@/libs/market-data";
 import { fromBase } from "@/libs/utils/units";
-import { toBN } from "web3-utils";
+import { numberToHex, toBN } from "web3-utils";
 import BigNumber from "bignumber.js";
 import {
   formatFiatValue,
@@ -20,11 +21,10 @@ import { EvmNetwork } from "../../types/evm-network";
 import { getKnownNetworkTokens } from "./token-lists";
 import { CoingeckoPlatform, NetworkNames } from "@enkryptcom/types";
 import { NATIVE_TOKEN_ADDRESS } from "../common";
-import { zeroAddress } from "ethereumjs-util";
 const API_ENPOINT = "https://tokenbalance.mewapi.io/";
 const API_ENPOINT2 = "https://partners.mewapi.io/balances/";
-const ZKGoerli_ENDPOINT = "https://zksync2-testnet.zksync.dev";
-const ZKSync_ENDPOINT = "https://zksync2-mainnet.zksync.io";
+const ZKGoerli_ENDPOINT = "https://zksync2-testnet.zkscan.io/";
+const ZKSync_ENDPOINT = "https://zksync2-mainnet.zkscan.io/";
 
 const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
   [NetworkNames.Binance]: {
@@ -84,44 +84,41 @@ const getTokens = (
   address: string
 ): Promise<TokenBalance[]> => {
   if (chain === NetworkNames.ZkSyncGoerli || chain === NetworkNames.ZkSync) {
+    const endpoint =
+      chain === NetworkNames.ZkSyncGoerli ? ZKGoerli_ENDPOINT : ZKSync_ENDPOINT;
     return fetch(
-      chain === NetworkNames.ZkSyncGoerli ? ZKGoerli_ENDPOINT : ZKSync_ENDPOINT,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          jsonrpc: "2.0",
-          id: 1,
-          method: "zks_getAllAccountBalances",
-          params: [address],
-        }),
-      }
+      `${endpoint}api?module=account&action=tokenlist&address=${address}`
     )
       .then((res) => res.json())
       .then((json) => {
-        if (json.error)
+        if (json.status === "0" && json.result === null)
           return Promise.reject(
-            `TOKENBALANCE-MEW: ${JSON.stringify(json.error.message)}`
+            `TOKENBALANCE-MEW: ${JSON.stringify(json.message)}`
           );
         else {
-          const results: Record<string, string> = json.result;
-          const contracts = Object.keys(results);
+          console.log(json.result);
+          const results: ZkSyncBalanceType[] = json.result;
           const retVal: TokenBalance[] = [];
-          for (const contract of contracts) {
+          let nativeAdded = false;
+          const zksyncNativeAddress =
+            "0x000000000000000000000000000000000000800a";
+          results.forEach((bal) => {
+            if (bal.contractAddress === zksyncNativeAddress) nativeAdded = true;
             retVal.push({
               contract:
-                contract === zeroAddress() ? NATIVE_TOKEN_ADDRESS : contract,
-              balance: results[contract],
+                bal.contractAddress === zksyncNativeAddress
+                  ? NATIVE_TOKEN_ADDRESS
+                  : bal.contractAddress,
+              balance: numberToHex(toBN(bal.balance)),
             });
-          }
-          if (!retVal.length) {
+          });
+          if (!nativeAdded) {
             retVal.push({
               contract: NATIVE_TOKEN_ADDRESS,
               balance: "0x0",
             });
           }
+          console.log(retVal);
           return retVal;
         }
       });
