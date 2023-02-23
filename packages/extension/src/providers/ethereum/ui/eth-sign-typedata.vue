@@ -25,9 +25,8 @@
             <h4>{{ Options.domain }}</h4>
           </div>
         </div>
-
         <div class="common-popup__message">
-          {{ message }}
+          <JsonTreeView v-if="message !== ''" :data="message" :max-depth="1" />
         </div>
       </div>
     </template>
@@ -43,6 +42,7 @@
 </template>
 
 <script setup lang="ts">
+import { JsonTreeView } from "@/libs/json-tree-view";
 import SignLogo from "@action/icons/common/sign-logo.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import CommonPopup from "@action/views/common-popup/index.vue";

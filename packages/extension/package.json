@@ -55,6 +55,7 @@
     "nanoevents": "^7.0.1",
     "pinia": "^2.0.30",
     "qrcode.vue": "^3.3.3",
+    "switch-ts": "^1.1.1",
     "url-parse": "^1.5.10",
     "uuid": "^9.0.0",
     "vue": "^3.2.47",
