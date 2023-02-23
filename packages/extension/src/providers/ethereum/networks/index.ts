@@ -17,6 +17,7 @@ import cantoNode from "./canto";
 import rootstockNode from "./rsk";
 import edgeEvmNode from "./edg";
 import zkGoerliNode from "./zkgoerli";
+import zkSyncNode from "./zksync";
 import * as skale from "./skale";
 
 export default {
@@ -39,6 +40,7 @@ export default {
   rootstock: rootstockNode,
   edgeEvm: edgeEvmNode,
   zkGoerli: zkGoerliNode,
+  zkSync: zkSyncNode,
   skaleEuropa: skale.europaNode,
   skaleBlockBrawlers: skale.blockBrawlersNode,
   skaleCalypso: skale.calypsoNode,

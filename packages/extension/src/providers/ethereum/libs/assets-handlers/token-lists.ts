@@ -20,6 +20,8 @@ const TokenList: Record<SupportedNetworkNames, string> = {
     "https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/tokenlists/rsk.json",
   [NetworkNames.ZkSyncGoerli]:
     "https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/tokenlists/zksyncgoerli.json",
+  [NetworkNames.ZkSync]:
+    "https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/tokenlists/zksync.json",
 };
 
 const getKnownNetworkTokens = async (

@@ -29,4 +29,5 @@ export type SupportedNetworkNames =
   | NetworkNames.ShidenEVM
   | NetworkNames.Canto
   | NetworkNames.Rootstock
-  | NetworkNames.ZkSyncGoerli;
+  | NetworkNames.ZkSyncGoerli
+  | NetworkNames.ZkSync;

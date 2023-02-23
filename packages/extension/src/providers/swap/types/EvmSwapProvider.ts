@@ -364,8 +364,8 @@ export class EvmSwapProvider extends SwapProvider {
 
     const nonce = await web3.getTransactionCount(fromAccount.address);
     const activityState = new ActivityState();
-    const txPromises = trade.txs
-      .map(({ data, value, gas, to, from, token, tokenValue }, index) => {
+    const txs = trade.txs.map(
+      ({ data, value, gas, to, from, token, tokenValue }, index) => {
         const txActivity: Activity | null = token
           ? {
               from,
@@ -398,50 +398,53 @@ export class EvmSwapProvider extends SwapProvider {
           ),
           txActivity,
         ] as const;
-      })
-      .map(([tx, activity]) =>
-        tx
-          .getFinalizedTransaction({
-            gasPriceType: gasPriceType ?? GasPriceTypes.REGULAR,
+      }
+    );
+    const txPromises: `0x${string}`[] = [];
+    for (const txInfo of txs) {
+      const [tx, activity] = txInfo;
+      const hash = await tx
+        .getFinalizedTransaction({
+          gasPriceType: gasPriceType ?? GasPriceTypes.REGULAR,
+        })
+        .then((finalizedTx) =>
+          TransactionSigner({
+            account: fromAccount,
+            network: network,
+            payload: finalizedTx,
+          }).then((signedTx) => {
+            return new Promise((resolve: (h: `0x${string}`) => void) => {
+              const onHash = (hash: string) => {
+                if (activity) {
+                  activityState.addActivities(
+                    [
+                      {
+                        ...JSON.parse(JSON.stringify(activity)),
+                        ...{ transactionHash: hash },
+                      },
+                    ],
+                    { address: fromAccount.address, network: network.name }
+                  );
+                }
+                resolve(hash as `0x${string}`);
+              };
+              broadcastTx(
+                `0x${signedTx.serialize().toString("hex")}`,
+                network.name
+              )
+                .then(onHash)
+                .catch(() => {
+                  web3
+                    .sendSignedTransaction(
+                      `0x${signedTx.serialize().toString("hex")}`
+                    )
+                    .on("transactionHash", onHash);
+                });
+            });
           })
-          .then((finalizedTx) =>
-            TransactionSigner({
-              account: fromAccount,
-              network: network,
-              payload: finalizedTx,
-            }).then((signedTx) => {
-              return new Promise((resolve: (h: `0x${string}`) => void) => {
-                const onHash = (hash: string) => {
-                  if (activity) {
-                    activityState.addActivities(
-                      [
-                        {
-                          ...JSON.parse(JSON.stringify(activity)),
-                          ...{ transactionHash: hash },
-                        },
-                      ],
-                      { address: fromAccount.address, network: network.name }
-                    );
-                  }
-                  resolve(hash as `0x${string}`);
-                };
-                broadcastTx(
-                  `0x${signedTx.serialize().toString("hex")}`,
-                  network.name
-                )
-                  .then(onHash)
-                  .catch(() => {
-                    web3
-                      .sendSignedTransaction(
-                        `0x${signedTx.serialize().toString("hex")}`
-                      )
-                      .on("transactionHash", onHash);
-                  });
-              });
-            })
-          )
-      );
-
-    return Promise.all(txPromises);
+        );
+      txPromises.push(hash);
+    }
+    return txPromises;
   }
 }

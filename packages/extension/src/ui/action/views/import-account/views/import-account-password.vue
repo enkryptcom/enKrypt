@@ -92,9 +92,10 @@ const getWalletFromPrivKeyFile = (
 ): Promise<Wallet> => {
   if (jsonfile.encseed != null)
     return Promise.resolve(Wallet.fromEthSale(jsonfile, password));
-  else if (jsonfile.Crypto != null || jsonfile.crypto != null)
+  else if (jsonfile.Crypto != null || jsonfile.crypto != null) {
+    if (jsonfile.Crypto) jsonfile.crypto = jsonfile.Crypto;
     return Wallet.fromV3(jsonfile, password, true);
-  else if (jsonfile.hash != null)
+  } else if (jsonfile.hash != null)
     return Promise.resolve(thirdparty.fromEtherWallet(jsonfile, password));
   else if (jsonfile.publisher == "MyEtherWallet")
     return Promise.resolve(fromMyEtherWalletV2(jsonfile));

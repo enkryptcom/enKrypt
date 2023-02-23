@@ -24,6 +24,7 @@ import { zeroAddress } from "ethereumjs-util";
 const API_ENPOINT = "https://tokenbalance.mewapi.io/";
 const API_ENPOINT2 = "https://partners.mewapi.io/balances/";
 const ZKGoerli_ENDPOINT = "https://zksync2-testnet.zksync.dev";
+const ZKSync_ENDPOINT = "https://zksync2-mainnet.zksync.io";
 
 const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
   [NetworkNames.Binance]: {
@@ -73,25 +74,31 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
   [NetworkNames.ZkSyncGoerli]: {
     tbName: "",
   },
+  [NetworkNames.ZkSync]: {
+    tbName: "",
+  },
 };
 
 const getTokens = (
   chain: SupportedNetworkNames,
   address: string
 ): Promise<TokenBalance[]> => {
-  if (chain === NetworkNames.ZkSyncGoerli) {
-    return fetch(ZKGoerli_ENDPOINT, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        jsonrpc: "2.0",
-        id: 1,
-        method: "zks_getAllAccountBalances",
-        params: [address],
-      }),
-    })
+  if (chain === NetworkNames.ZkSyncGoerli || chain === NetworkNames.ZkSync) {
+    return fetch(
+      chain === NetworkNames.ZkSyncGoerli ? ZKGoerli_ENDPOINT : ZKSync_ENDPOINT,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: 1,
+          method: "zks_getAllAccountBalances",
+          params: [address],
+        }),
+      }
+    )
       .then((res) => res.json())
       .then((json) => {
         if (json.error)

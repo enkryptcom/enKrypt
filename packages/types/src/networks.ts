@@ -30,6 +30,7 @@ export enum NetworkNames {
   Edgeware = "EDG",
   EdgeEVM = "evmEDG",
   ZkSyncGoerli = "zkSyncGoerli",
+  ZkSync = "zkSync",
   SkaleEuropa = "skaleEUROPA",
   SkaleBlockBrawlers = "skaleBRAWL",
   SkaleCalypso = "skaleCALYPSO",
