@@ -96,7 +96,6 @@ const getTokens = (
             `TOKENBALANCE-MEW: ${JSON.stringify(json.message)}`
           );
         else {
-          console.log(json.result);
           const results: ZkSyncBalanceType[] = json.result;
           const retVal: TokenBalance[] = [];
           let nativeAdded = false;
