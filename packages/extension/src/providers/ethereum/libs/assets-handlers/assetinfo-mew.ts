@@ -21,10 +21,11 @@ import { EvmNetwork } from "../../types/evm-network";
 import { getKnownNetworkTokens } from "./token-lists";
 import { CoingeckoPlatform, NetworkNames } from "@enkryptcom/types";
 import { NATIVE_TOKEN_ADDRESS } from "../common";
+import { NetworkEndpoints } from "../activity-handlers/providers/etherscan/configs";
 const API_ENPOINT = "https://tokenbalance.mewapi.io/";
 const API_ENPOINT2 = "https://partners.mewapi.io/balances/";
-const ZKGoerli_ENDPOINT = "https://zksync2-testnet.zkscan.io/";
-const ZKSync_ENDPOINT = "https://zksync2-mainnet.zkscan.io/";
+const ZKGoerli_ENDPOINT = NetworkEndpoints[NetworkNames.ZkSyncGoerli];
+const ZKSync_ENDPOINT = NetworkEndpoints[NetworkNames.ZkSync];
 
 const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
   [NetworkNames.Binance]: {

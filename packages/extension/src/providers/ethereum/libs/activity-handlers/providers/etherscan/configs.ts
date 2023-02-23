@@ -17,6 +17,8 @@ const NetworkEndpoints = {
   [NetworkNames.Canto]: "https://evm.explorer.canto.io/",
   [NetworkNames.EdgeEVM]: "https://edgscan.live/",
   [NetworkNames.Rootstock]: "https://blockscout.com/rsk/mainnet/",
+  [NetworkNames.ZkSyncGoerli]: "https://zksync2-testnet.zkscan.io/",
+  [NetworkNames.ZkSync]: "https://zksync2-mainnet.zkscan.io/",
 };
 
 export { NetworkEndpoints };
