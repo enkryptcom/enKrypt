@@ -1,7 +1,7 @@
 import { NetworkNames } from "@enkryptcom/types";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
 import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
-import { ZksynceActivity } from "../libs/activity-handlers";
+import { EtherscanActivity } from "../libs/activity-handlers";
 import assetsInfoHandler from "@/providers/ethereum/libs/assets-handlers/assetinfo-mew";
 
 const zkSyncOptions: EvmNetworkOptions = {
@@ -19,7 +19,7 @@ const zkSyncOptions: EvmNetworkOptions = {
   gradient: "linear-gradient(180deg, #C549FF 0%, #684CFF 100%)",
   coingeckoID: "ethereum",
   assetsInfoHandler,
-  activityHandler: wrapActivityHandler(ZksynceActivity),
+  activityHandler: wrapActivityHandler(EtherscanActivity),
 };
 
 const zksync = new EvmNetwork(zkSyncOptions);
