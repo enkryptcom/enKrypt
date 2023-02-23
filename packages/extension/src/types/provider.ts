@@ -8,11 +8,11 @@ import {
   NetworkNames,
   OnMessageResponse,
   RPCRequestType,
+  SignerType,
 } from "@enkryptcom/types";
 import { RouteRecordRaw } from "vue-router";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
 import { RoutesType } from "./ui";
-import { SignerType } from "@enkryptcom/types";
 import { NFTCollection } from "./nft";
 import { BaseNetwork } from "./base-network";
 import { BaseToken } from "./base-token";
@@ -61,7 +61,12 @@ export interface ProviderOptions {
   type: ProviderType;
   sendMessageHandler: SendMessageHandler;
 }
-
+export interface ProviderInfo {
+  uuid: string;
+  name: string;
+  icon: `data:image/svg+xml;base64,${string}`;
+  description: string;
+}
 export abstract class ProviderInterface extends EventEmitter {
   name: ProviderName;
   type: ProviderType;

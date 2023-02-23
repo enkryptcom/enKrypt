@@ -253,11 +253,9 @@ const Tx = computed(() => {
         },
         web3
       );
-
       return tx;
     });
   }
-
   return null;
 });
 
@@ -266,6 +264,9 @@ defineExpose({ bestOfferScrollRef });
 onMounted(async () => {
   network.value = (await getNetworkByName(selectedNetwork))!;
   account.value = await KeyRing.getAccount(swapData.fromAddress);
+  const api = await network.value.api();
+  balance.value = toBN(await api.getBalance(account.value.address));
+
   isWindowPopup.value = account.value.isHardware;
   fee.value = {
     fiatSymbol: "$",
@@ -310,10 +311,6 @@ onMounted(async () => {
         });
     }
   }
-
-  const api = await network.value.api();
-
-  balance.value = toBN(await api.getBalance(account.value.address));
 });
 
 watch(pickedTrade, () => {
@@ -345,11 +342,11 @@ const isDisabled = computed(() => {
     warning.value === undefined ||
     warning.value === SwapBestOfferWarnings.EXISTENTIAL_DEPOSIT ||
     warning.value === SwapBestOfferWarnings.NOT_ENOUGH_GAS ||
-    gasCostValues.value[selectedFee.value].nativeValue === "0"
+    (gasCostValues.value[selectedFee.value].nativeValue === "0" &&
+      fee.value.nativeValue === "0")
   ) {
     return true;
   }
-
   return false;
 });
 
@@ -406,7 +403,6 @@ const setTransactionFees = async (txs: Transaction[]) => {
       nativeTokenPrice.value = (
         await network.value!.getAllTokens(account.value!.address)
       )[0].price;
-
       return {
         [GasPriceTypes.ECONOMY]: {
           nativeValue: getConvertedVal(GasPriceTypes.ECONOMY),

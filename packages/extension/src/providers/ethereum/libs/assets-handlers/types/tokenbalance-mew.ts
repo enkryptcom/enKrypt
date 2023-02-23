@@ -17,6 +17,14 @@ export interface CGToken {
   logoURI: string;
 }
 
+export interface ZkSyncBalanceType {
+  balance: string;
+  contractAddress: string;
+  decimals: string;
+  name: string;
+  symbol: string;
+}
+
 export type SupportedNetworkNames =
   | NetworkNames.Binance
   | NetworkNames.Ethereum
@@ -29,4 +37,5 @@ export type SupportedNetworkNames =
   | NetworkNames.ShidenEVM
   | NetworkNames.Canto
   | NetworkNames.Rootstock
-  | NetworkNames.ZkSyncGoerli;
+  | NetworkNames.ZkSyncGoerli
+  | NetworkNames.ZkSync;
