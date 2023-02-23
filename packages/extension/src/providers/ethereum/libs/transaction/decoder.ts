@@ -84,6 +84,7 @@ const decodeTx = async (
     dataHex: bufferToHex(dataDecoder.data),
     toAddress: tx.to!,
     decodedHex: dataDecoder.decode().values,
+    decoded: dataDecoder.decode().decoded,
     tokenDecimals,
     tokenImage,
     tokenName,

@@ -12,6 +12,7 @@ import switchEthereumChain from "./wallet_switchEthereumChain";
 import watchAsset from "./wallet_watchAsset";
 import walletRequestPermissions from "./wallet_requestPermissions";
 import ethSendRawTransaction from "./eth_sendRawTransaction";
+import enkryptGetPublickKey from "./enkrypt_getPublicKey";
 export default [
   ethSendTransaction,
   ethSign,
@@ -27,4 +28,5 @@ export default [
   addEthereumChain,
   walletRequestPermissions,
   ethSendRawTransaction,
+  enkryptGetPublickKey,
 ];

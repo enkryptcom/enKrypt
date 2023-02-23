@@ -71,7 +71,7 @@
             <base-button
               :title="sendButtonTitle()"
               :click="sendAction"
-              :disabled="isDisabled()"
+              :disabled="isDisabled"
             />
           </div>
         </div>
@@ -495,9 +495,8 @@ const sendButtonTitle = () => {
 
   return title;
 };
-const isDisabled = () => {
-  let isDisabled = true;
-
+const isDisabled = computed(() => {
+  let _isDisabled = true;
   if (
     !!fromToken.value &&
     !!toToken.value &&
@@ -506,10 +505,10 @@ const isDisabled = () => {
     addressIsValid.value &&
     !inputError.value
   ) {
-    isDisabled = false;
+    _isDisabled = false;
   }
-  return isDisabled;
-};
+  return _isDisabled;
+});
 
 const sendAction = async () => {
   toggleLooking();
