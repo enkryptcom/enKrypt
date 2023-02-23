@@ -6,7 +6,7 @@ import assetsInfoHandler from "@/providers/ethereum/libs/assets-handlers/assetin
 
 const zkSyncOptions: EvmNetworkOptions = {
   name: NetworkNames.ZkSync,
-  name_long: "zkSync",
+  name_long: "zkSync Era",
   homePage: "https://zksync.io/",
   blockExplorerTX: "https://explorer.zksync.io/tx/[[txHash]]",
   blockExplorerAddr: "https://explorer.zksync.io/address/[[address]]",
