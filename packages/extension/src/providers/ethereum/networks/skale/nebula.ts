@@ -1,0 +1,16 @@
+import { NetworkNames } from "@enkryptcom/types";
+import {
+  SkaleParams,
+  createSkaleEvmNetwork,
+  ICustomSKALEAsset,
+} from "./skale-base";
+
+const skaleOptions: SkaleParams = {
+  name: NetworkNames.SkaleNebula,
+  name_long: "SKALE | Nebula Gaming Hub",
+  chainName: "green-giddy-denebola",
+  chainID: "0x585eb4b1",
+  icon: "skaleNebula.png",
+};
+
+export default createSkaleEvmNetwork(skaleOptions);

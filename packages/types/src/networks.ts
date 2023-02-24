@@ -31,6 +31,16 @@ export enum NetworkNames {
   EdgeEVM = "evmEDG",
   ZkSyncGoerli = "zkSyncGoerli",
   ZkSync = "zkSync",
+  SkaleEuropa = "skaleEUROPA",
+  SkaleBlockBrawlers = "skaleBRAWL",
+  SkaleCalypso = "skaleCALYPSO",
+  SkaleCryptoBlades = "skaleCRYPTOBLADES",
+  SkaleCryptoColosseum = "skaleROME",
+  SkaleExorde = "skaleEXORDE",
+  SkaleNebula = "skaleNEBULA",
+  SkaleRazor = "skaleRAZOR",
+  SkaleTitan = "skaleTITAN",
+  SkaleChaos = "skaleCHAOS",
 }
 
 export enum CoingeckoPlatform {
@@ -54,4 +64,5 @@ export enum CoingeckoPlatform {
   Bifrost = "Bifrost Native Coin",
   Edgeware = "edgeware",
   EdgeEVM = "edgeware",
+  SKALE = "skale",
 }

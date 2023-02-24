@@ -18,6 +18,7 @@ import rootstockNode from "./rsk";
 import edgeEvmNode from "./edg";
 import zkGoerliNode from "./zkgoerli";
 import zkSyncNode from "./zksync";
+import * as skale from "./skale";
 
 export default {
   goerli: goerliNode,
@@ -40,4 +41,14 @@ export default {
   edgeEvm: edgeEvmNode,
   zkGoerli: zkGoerliNode,
   zkSync: zkSyncNode,
+  skaleEuropa: skale.europaNode,
+  skaleBlockBrawlers: skale.blockBrawlersNode,
+  skaleCalypso: skale.calypsoNode,
+  skaleCryptoBlades: skale.cryptoBladesNode,
+  skaleCryptoColosseum: skale.cryptoColosseumNode,
+  skaleExorde: skale.exordeNode,
+  skaleNebula: skale.nebulaNode,
+  skaleRazor: skale.razorNode,
+  skaleTitan: skale.titanNode,
+  skaleChaos: skale.chaosNode,
 };
