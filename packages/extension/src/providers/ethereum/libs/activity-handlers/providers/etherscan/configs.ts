@@ -37,6 +37,8 @@ const NetworkEndpoints = {
     "https://parallel-stormy-spica.explorer.mainnet.skalenodes.com/",
   [NetworkNames.SkaleChaos]:
     "https://staging-fast-active-bellatrix.explorer.staging-v3.skalenodes.com/",
+  [NetworkNames.ZkSyncGoerli]: "https://zksync2-testnet.zkscan.io/",
+  [NetworkNames.ZkSync]: "https://zksync2-mainnet.zkscan.io/",
 };
 
 export { NetworkEndpoints };
