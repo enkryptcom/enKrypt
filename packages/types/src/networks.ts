@@ -30,6 +30,9 @@ export enum NetworkNames {
   Edgeware = "EDG",
   EdgeEVM = "evmEDG",
   ZkSyncGoerli = "zkSyncGoerli",
+  Unique = "UNQ",
+  Quartz = "QTZ",
+  Opal = "OPL",
 }
 
 export enum CoingeckoPlatform {

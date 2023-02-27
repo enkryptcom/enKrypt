@@ -17,6 +17,9 @@ import cantoNode from "./canto";
 import rootstockNode from "./rsk";
 import edgeEvmNode from "./edg";
 import zkGoerliNode from "./zkgoerli";
+import unqEvmNode from "./unq";
+import qtzEvmNode from "./qtz";
+import oplEvmNode from "./opl";
 
 export default {
   goerli: goerliNode,
@@ -38,4 +41,7 @@ export default {
   rootstock: rootstockNode,
   edgeEvm: edgeEvmNode,
   zkGoerli: zkGoerliNode,
+  unqEvm: unqEvmNode,
+  qtzEvm: qtzEvmNode,
+  oplEvm: oplEvmNode,
 };
