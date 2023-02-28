@@ -1,9 +1,5 @@
 import { NetworkNames } from "@enkryptcom/types";
-import {
-  SkaleParams,
-  createSkaleEvmNetwork,
-  ICustomSKALEAsset,
-} from "./skale-base";
+import { SkaleParams, createSkaleEvmNetwork } from "./skale-base";
 
 const skaleOptions: SkaleParams = {
   name: NetworkNames.SkaleTitan,
