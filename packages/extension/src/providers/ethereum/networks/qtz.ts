@@ -7,7 +7,7 @@ const qtzOptions: EvmNetworkOptions = {
   name: NetworkNames.Quartz,
   name_long: "Quartz EVM",
   homePage: "https://unique.network/",
-  blockExplorerTX: "https://uniquescan.io/quartz/extrinsic/[[txHash]]",
+  blockExplorerTX: "https://uniquescan.io/quartz/tx/[[txHash]]",
   blockExplorerAddr: "https://uniquescan.io/quartz/account/[[address]]",
   chainID: "0x22b1",
   isTestNetwork: false,

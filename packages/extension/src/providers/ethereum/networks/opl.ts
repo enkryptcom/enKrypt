@@ -7,7 +7,7 @@ const oplOptions: EvmNetworkOptions = {
   name: NetworkNames.Opal,
   name_long: "Opal EVM",
   homePage: "https://unique.network/",
-  blockExplorerTX: "https://uniquescan.io/opal/extrinsic/[[txHash]]",
+  blockExplorerTX: "https://uniquescan.io/opal/tx/[[txHash]]",
   blockExplorerAddr: "https://uniquescan.io/opal/account/[[address]]",
   chainID: "0x22b2",
   isTestNetwork: true,

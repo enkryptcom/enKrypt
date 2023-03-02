@@ -7,7 +7,7 @@ const unqOptions: EvmNetworkOptions = {
   name: NetworkNames.Unique,
   name_long: "Unique EVM",
   homePage: "https://unique.network/",
-  blockExplorerTX: "https://uniquescan.io/unique/extrinsic/[[txHash]]",
+  blockExplorerTX: "https://uniquescan.io/unique/tx/[[txHash]]",
   blockExplorerAddr: "https://uniquescan.io/unique/account/[[address]]",
   chainID: "0x22b0",
   isTestNetwork: false,
