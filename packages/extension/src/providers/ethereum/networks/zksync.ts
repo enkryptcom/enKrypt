@@ -4,23 +4,24 @@ import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
 import { EtherscanActivity } from "../libs/activity-handlers";
 import assetsInfoHandler from "@/providers/ethereum/libs/assets-handlers/assetinfo-mew";
 
-const zkgoerliOptions: EvmNetworkOptions = {
-  name: NetworkNames.ZkSyncGoerli,
-  name_long: "zkSync Goerli",
+const zkSyncOptions: EvmNetworkOptions = {
+  name: NetworkNames.ZkSync,
+  name_long: "zkSync Era",
   homePage: "https://zksync.io/",
-  blockExplorerTX: "https://goerli.explorer.zksync.io/tx/[[txHash]]",
-  blockExplorerAddr: "https://goerli.explorer.zksync.io/address/[[address]]",
-  chainID: "0x118",
-  isTestNetwork: true,
-  currencyName: "GöETH",
-  currencyNameLong: "zkSync Goerli",
-  node: "wss://zksync2-testnet.zksync.dev/ws",
+  blockExplorerTX: "https://explorer.zksync.io/tx/[[txHash]]",
+  blockExplorerAddr: "https://explorer.zksync.io/address/[[address]]",
+  chainID: "0x144",
+  isTestNetwork: false,
+  currencyName: "ETH",
+  currencyNameLong: "zkSync ETH",
+  node: "https://zksync2-mainnet.zksync.io",
   icon: require("./icons/zksync.svg"),
   gradient: "linear-gradient(180deg, #C549FF 0%, #684CFF 100%)",
+  coingeckoID: "ethereum",
   assetsInfoHandler,
   activityHandler: wrapActivityHandler(EtherscanActivity),
 };
 
-const zkgoerli = new EvmNetwork(zkgoerliOptions);
+const zksync = new EvmNetwork(zkSyncOptions);
 
-export default zkgoerli;
+export default zksync;

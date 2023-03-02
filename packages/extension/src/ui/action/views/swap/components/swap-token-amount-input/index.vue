@@ -8,7 +8,7 @@
       :value="tokenAmount.toString()"
       :autofocus="autofocus"
       :change-focus="changeFocus"
-      :error="inputError !== null"
+      :error="currentInputError !== null"
       @update:value="amountChanged"
     />
 
@@ -18,13 +18,13 @@
       @click="inputMax"
       >Max</a
     >
-    <div v-if="inputError !== null" class="swap-token-input__invalid">
+    <div v-if="currentInputError !== null" class="swap-token-input__invalid">
       {{
-        inputError === "MAX"
+        currentInputError === "MAX"
           ? `Maximum swap amount is ${
               $filters.formatFloatingPointValue(max).value
             }`
-          : inputError === "MIN"
+          : currentInputError === "MIN"
           ? `Minimum swap amount is ${
               $filters.formatFloatingPointValue(min).value
             }`
@@ -66,13 +66,12 @@ const props = defineProps<IProps>();
 
 const isFocus = ref(false);
 
-const inputError = computed(() => {
-  if (
-    props.tokenAmount &&
-    props.tokenAmount !== "" &&
-    Number(props.tokenAmount) !== 0
-  ) {
-    const fromBn = new BigNumber(props.tokenAmount);
+const currentInputError = computed(() => {
+  return inputError(props.tokenAmount.toString());
+});
+const inputError = (value: string) => {
+  if (value && value !== "" && Number(value) !== 0) {
+    const fromBn = new BigNumber(value);
     if (
       props.token &&
       props.token.balance &&
@@ -85,9 +84,8 @@ const inputError = computed(() => {
       return "MIN";
     }
   }
-
   return null;
-});
+};
 
 const tokenPrice = computed(() => {
   if (props.token?.price && props.tokenAmount !== "") {
@@ -99,7 +97,7 @@ const tokenPrice = computed(() => {
 });
 
 const amountChanged = (newVal: string) => {
-  emit("input:changed", newVal, inputError.value !== null);
+  emit("input:changed", newVal, inputError(newVal) !== null);
 };
 
 const changeFocus = (newVal: boolean) => {

@@ -55,6 +55,7 @@ export interface DecodedTx {
   tokenTo: string | null;
   dataHex: string;
   decodedHex?: string[];
+  decoded: boolean;
 }
 
 export interface TransactionOptions {
