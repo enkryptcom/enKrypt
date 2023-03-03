@@ -20,6 +20,8 @@ import zkGoerliNode from "./zkgoerli";
 import unqEvmNode from "./unq";
 import qtzEvmNode from "./qtz";
 import oplEvmNode from "./opl";
+import zkSyncNode from "./zksync";
+import * as skale from "./skale";
 
 export default {
   goerli: goerliNode,
@@ -44,4 +46,15 @@ export default {
   unqEvm: unqEvmNode,
   qtzEvm: qtzEvmNode,
   oplEvm: oplEvmNode,
+  zkSync: zkSyncNode,
+  skaleEuropa: skale.europaNode,
+  skaleBlockBrawlers: skale.blockBrawlersNode,
+  skaleCalypso: skale.calypsoNode,
+  skaleCryptoBlades: skale.cryptoBladesNode,
+  skaleCryptoColosseum: skale.cryptoColosseumNode,
+  skaleExorde: skale.exordeNode,
+  skaleNebula: skale.nebulaNode,
+  skaleRazor: skale.razorNode,
+  skaleTitan: skale.titanNode,
+  skaleChaos: skale.chaosNode,
 };

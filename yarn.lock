@@ -2482,6 +2482,7 @@ __metadata:
     rollup-plugin-uglify: ^6.0.4
     stream-browserify: ^3.0.0
     stream-http: ^3.2.0
+    switch-ts: ^1.1.1
     systeminformation: ^5.17.8
     ts-mocha: ^10.0.0
     tsconfig-paths: ^4.1.2
@@ -22373,6 +22374,13 @@ __metadata:
     tar: ^4.0.2
     xhr-request: ^1.0.1
   checksum: 1de56e0cb02c1c80e041efb2bd2cc7250c5451c3016967266c16d5c1e8c74fe5c3aae45dc46065b1f4d77667a8453b967961ec58b3975469522f566aa840a914
+  languageName: node
+  linkType: hard
+
+"switch-ts@npm:^1.1.1":
+  version: 1.1.1
+  resolution: "switch-ts@npm:1.1.1"
+  checksum: 4110600e3cec8ebea1aebfc1215ba6f48095a0fc57623e96aab9cd1573e86d99e13ce5240d34c1e483a0d9ec8b4169b53f15010007d39704023fce63aa3243f7
   languageName: node
   linkType: hard
 
