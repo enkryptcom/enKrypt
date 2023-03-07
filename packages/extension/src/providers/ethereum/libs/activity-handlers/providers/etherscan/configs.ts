@@ -17,6 +17,26 @@ const NetworkEndpoints = {
   [NetworkNames.Canto]: "https://evm.explorer.canto.io/",
   [NetworkNames.EdgeEVM]: "https://edgscan.live/",
   [NetworkNames.Rootstock]: "https://blockscout.com/rsk/mainnet/",
+  [NetworkNames.SkaleBlockBrawlers]:
+    "https://frayed-decent-antares.explorer.mainnet.skalenodes.com/",
+  [NetworkNames.SkaleCalypso]:
+    "https://honorable-steel-rasalhague.explorer.mainnet.skalenodes.com/",
+  [NetworkNames.SkaleCryptoBlades]:
+    "https://affectionate-immediate-pollux.explorer.mainnet.skalenodes.com/",
+  [NetworkNames.SkaleCryptoColosseum]:
+    "https://haunting-devoted-deneb.explorer.mainnet.skalenodes.com/",
+  [NetworkNames.SkaleEuropa]:
+    "https://elated-tan-skat.explorer.mainnet.skalenodes.com/",
+  [NetworkNames.SkaleExorde]:
+    "https://light-vast-diphda.explorer.mainnet.skalenodes.com/",
+  [NetworkNames.SkaleNebula]:
+    "https://green-giddy-denebola.explorer.mainnet.skalenodes.com/",
+  [NetworkNames.SkaleRazor]:
+    "https://turbulent-unique-scheat.explorer.mainnet.skalenodes.com/",
+  [NetworkNames.SkaleTitan]:
+    "https://parallel-stormy-spica.explorer.mainnet.skalenodes.com/",
+  [NetworkNames.SkaleChaos]:
+    "https://staging-fast-active-bellatrix.explorer.staging-v3.skalenodes.com/",
   [NetworkNames.ZkSyncGoerli]: "https://zksync2-testnet.zkscan.io/",
   [NetworkNames.ZkSync]: "https://zksync2-mainnet.zkscan.io/",
 };
