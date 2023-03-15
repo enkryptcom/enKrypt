@@ -97,6 +97,7 @@ import { EnkryptAccount } from "@enkryptcom/types";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 import broadcastTx from "@/providers/ethereum/libs/tx-broadcaster";
 import { BaseNetwork } from "@/types/base-network";
+import { bigIntToHex } from "@ethereumjs/util";
 
 const KeyRing = new PublicKeyRing();
 const route = useRoute();
@@ -152,27 +153,35 @@ const sendAction = async () => {
     transactionHash: "",
   };
   const activityState = new ActivityState();
-  const onHash = (hash: string) => {
-    activityState.addActivities(
-      [{ ...txActivity, ...{ transactionHash: hash } }],
-      { address: txData.fromAddress, network: network.value.name }
-    );
-    isSendDone.value = true;
-    if (getCurrentContext() === "popup") {
-      setTimeout(() => {
-        isProcessing.value = false;
-        router.go(-2);
-      }, 4500);
-    } else {
-      setTimeout(() => {
-        isProcessing.value = false;
-        window.close();
-      }, 1500);
-    }
-  };
   await tx
     .getFinalizedTransaction({ gasPriceType: txData.gasPriceType })
     .then(async (finalizedTx) => {
+      const onHash = (hash: string) => {
+        activityState.addActivities(
+          [
+            {
+              ...txActivity,
+              ...{
+                transactionHash: hash,
+                nonce: bigIntToHex(finalizedTx.nonce),
+              },
+            },
+          ],
+          { address: txData.fromAddress, network: network.value.name }
+        );
+        isSendDone.value = true;
+        if (getCurrentContext() === "popup") {
+          setTimeout(() => {
+            isProcessing.value = false;
+            router.go(-2);
+          }, 4500);
+        } else {
+          setTimeout(() => {
+            isProcessing.value = false;
+            window.close();
+          }, 1500);
+        }
+      };
       TransactionSigner({
         account: account.value!,
         network: network.value,

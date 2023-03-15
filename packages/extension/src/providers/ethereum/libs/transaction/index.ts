@@ -78,7 +78,6 @@ class Transaction {
       });
     const gasPrice = await this.web3.getGasPrice();
     const nonce = await this.web3.getTransactionCount(this.tx.from, "pending");
-    console.log(nonce);
     if (!isFeeMarketNetwork) {
       const legacyTx: FinalizedLegacyEthereumTransaction = {
         to: this.tx.to || undefined,

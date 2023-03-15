@@ -73,6 +73,7 @@ interface Activity {
   to: string;
   value: string;
   timestamp: number;
+  nonce?: string;
   isIncoming: boolean;
   transactionHash: string;
   token: BaseTokenOptions;

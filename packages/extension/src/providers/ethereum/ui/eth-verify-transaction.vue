@@ -153,7 +153,7 @@ import { TransactionSigner } from "./libs/signer";
 import { Activity, ActivityStatus, ActivityType } from "@/types/activity";
 import { generateAddress } from "ethereumjs-util";
 import ActivityState from "@/libs/activity-state";
-import { bigIntToBuffer } from "@enkryptcom/utils";
+import { bigIntToBuffer, bigIntToHex } from "@enkryptcom/utils";
 import broadcastTx from "../libs/tx-broadcaster";
 import TokenSigs from "../libs/transaction/lists/tokenSigs";
 import AlertIcon from "@action/icons/send/alert-icon.vue";
@@ -319,10 +319,21 @@ const approve = async () => {
         };
         const onHash = (hash: string) => {
           activityState
-            .addActivities([{ ...txActivity, ...{ transactionHash: hash } }], {
-              address: txActivity.from,
-              network: network.value.name,
-            })
+            .addActivities(
+              [
+                {
+                  ...txActivity,
+                  ...{
+                    transactionHash: hash,
+                    nonce: bigIntToHex(finalizedTx.nonce),
+                  },
+                },
+              ],
+              {
+                address: txActivity.from,
+                network: network.value.name,
+              }
+            )
             .then(() => {
               Resolve.value({
                 result: JSON.stringify(hash),
