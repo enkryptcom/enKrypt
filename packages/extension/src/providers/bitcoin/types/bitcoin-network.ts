@@ -118,7 +118,7 @@ export class BitcoinNetwork extends BaseNetwork {
       contract: "",
       decimals: this.decimals,
       sparkline: marketData.length
-        ? new Sparkline(marketData[0]!.sparkline_in_7d.price, 25).dataUri
+        ? new Sparkline(marketData[0]!.sparkline_in_7d.price, 25).dataValues
         : "",
       priceChangePercentage: marketData.length
         ? marketData[0]!.price_change_percentage_7d_in_currency

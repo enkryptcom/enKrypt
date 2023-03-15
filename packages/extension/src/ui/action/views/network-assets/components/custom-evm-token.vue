@@ -227,7 +227,7 @@ const addToken = async () => {
         : "0";
       const value = market.value?.current_price.toString() ?? "0";
       const sparkline = market.value
-        ? new Sparkline(market.value?.sparkline_in_7d.price, 25).dataUri
+        ? new Sparkline(market.value?.sparkline_in_7d.price, 25).dataValues
         : "";
       const priceChangePercentage =
         market.value?.price_change_percentage_24h ?? 0;

@@ -156,7 +156,7 @@ export class EvmNetwork extends BaseNetwork {
         ).value,
         decimals: this.decimals,
         sparkline: nativeMarketData
-          ? new Sparkline(nativeMarketData.sparkline_in_7d.price, 25).dataUri
+          ? new Sparkline(nativeMarketData.sparkline_in_7d.price, 25).dataValues
           : "",
         priceChangePercentage:
           nativeMarketData?.price_change_percentage_7d_in_currency ?? 0,
@@ -275,7 +275,7 @@ export class EvmNetwork extends BaseNetwork {
         asset.sparkline = new Sparkline(
           marketInfo.sparkline_in_7d.price,
           25
-        ).dataUri;
+        ).dataValues;
         asset.priceChangePercentage =
           marketInfo.price_change_percentage_7d_in_currency || 0;
       }
