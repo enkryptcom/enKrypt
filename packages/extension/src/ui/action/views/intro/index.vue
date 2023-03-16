@@ -1,7 +1,5 @@
 <template>
-  <div class="container">
-    <div class="intro">intro</div>
-  </div>
+  <div class="container"></div>
 </template>
 
 <style lang="less" scoped>
