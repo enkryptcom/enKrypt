@@ -80,6 +80,7 @@ const unlockAction = async () => {
   });
   if (unlockStatus.error) {
     isError.value = true;
+    isUnlocking.value = false;
   } else {
     isError.value = false;
 
@@ -104,8 +105,8 @@ const unlockAction = async () => {
 
     password.value = "";
     emit("update:init");
+    setTimeout(() => (isUnlocking.value = false), 750);
   }
-  isUnlocking.value = false;
 };
 const forgotAction = () => {
   toggleForgot();
