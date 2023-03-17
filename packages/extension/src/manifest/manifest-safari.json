@@ -25,9 +25,9 @@
       "matches": ["http://*/*", "https://*/*"]
     }
   ],
-  "minimum_chrome_version": "95",
+  "minimum_chrome_version": "103",
   "content_security_policy": {
-    "extension_pages": "script-src 'self'; object-src 'self'"
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
   },
   "permissions": ["storage", "unlimitedStorage", "tabs", "clipboardWrite"]
 }

@@ -7,6 +7,7 @@ const BROWSER = process.env.BROWSER;
 const browserNames = {
   chrome: "chrome",
   firefox: "firefox",
+  safari: "safari",
 };
 
 const browserConfigs = {
