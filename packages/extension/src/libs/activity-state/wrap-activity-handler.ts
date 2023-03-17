@@ -32,7 +32,7 @@ export default (activityHandler: ActivityHandlerType): ActivityHandlerType => {
         const newSet = stillPendingActivities.concat(liveActivities);
         await activityState.addActivities(newSet, options);
         await activityState.setCacheTime(options);
-        return newSet;
+        return activityState.getAllActivities(options);
       }
     } else {
       return activities;

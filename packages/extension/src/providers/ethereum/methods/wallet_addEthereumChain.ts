@@ -10,8 +10,10 @@ import Web3 from "web3-eth";
 import { CustomEvmNetworkOptions } from "../types/custom-evm-network";
 import { numberToHex } from "web3-utils";
 import { WindowPromise } from "@/libs/window-promise";
+import { getAllNetworks } from "@/libs/utils/networks";
 import CustomNetworksState from "@/libs/custom-networks-state";
 import NetworksState from "@/libs/networks-state";
+import { EvmNetwork } from "../types/evm-network";
 
 interface AddEthereumChainPayload {
   chainId: string;
@@ -110,8 +112,15 @@ const setExistingCustomNetwork = async (
 ): Promise<boolean> => {
   const customNetworksState = new CustomNetworksState();
   const customNetworks = await customNetworksState.getAllCustomEVMNetworks();
-  const existingNetwork: CustomEvmNetworkOptions | undefined =
+
+  let existingNetwork: CustomEvmNetworkOptions | undefined =
     customNetworks.find((net) => net.chainID === chainId);
+  if (!existingNetwork) {
+    const allNetworks = await getAllNetworks();
+    existingNetwork = allNetworks.find(
+      (net) => (net as EvmNetwork).chainID === chainId
+    ) as EvmNetwork | undefined;
+  }
   if (existingNetwork) {
     return sendToBackgroundFromBackground({
       message: JSON.stringify({
@@ -123,16 +132,16 @@ const setExistingCustomNetwork = async (
     }).then(() => {
       const domainState = new DomainState();
       const networksState = new NetworksState();
-      networksState.setNetworkStatus(existingNetwork.name, true);
+      networksState.setNetworkStatus(existingNetwork!.name, true);
       return domainState.getSelectedNetWork().then(async (curNetwork) => {
-        if (curNetwork !== existingNetwork.name) {
+        if (curNetwork !== existingNetwork!.name) {
           await sendToBackgroundFromBackground({
             message: JSON.stringify({
               method: InternalMethods.sendToTab,
               params: [
                 {
                   method: MessageMethod.changeChainId,
-                  params: [existingNetwork.chainID],
+                  params: [existingNetwork!.chainID],
                 },
               ],
             }),
@@ -140,7 +149,7 @@ const setExistingCustomNetwork = async (
             tabId,
           });
           await domainState
-            .setSelectedNetwork(existingNetwork.name)
+            .setSelectedNetwork(existingNetwork!.name)
             .then(() => res(null, null));
         }
         return true;

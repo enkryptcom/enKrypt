@@ -57,7 +57,7 @@ const diff = computed(() => {
     const curVal = props.allFees[props.type];
     return new BigNumber(curVal.fiatValue)
       .minus(selectedVal.fiatValue)
-      .toFixed(2);
+      .toFixed(4);
   } else {
     return "0";
   }

@@ -22,7 +22,7 @@
         v-if="token.priceChangePercentage !== 0"
         class="asset-detail-view__token-sparkline"
       >
-        <img :src="token.sparkline" />
+        <v-chart class="chart-large" :option="option" />
 
         <div
           v-if="token.priceChangePercentage !== 0"
@@ -52,28 +52,70 @@
         </h4>
         <p>${{ token.balanceUSDf }}</p>
       </div>
-
-      <!-- <div class="asset-detail-view__action">
-        <action-menu></action-menu>
-      </div> -->
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { PropType } from "vue";
+import { PropType, ref } from "vue";
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import SparklineUp from "@action/icons/asset/sparkline-up.vue";
 import SparklineDown from "@action/icons/asset/sparkline-down.vue";
-// import ActionMenu from "@action/components/action-menu/index.vue";
 import { AssetsType } from "@/types/provider";
 import Tooltip from "@/ui/action/components/tooltip/index.vue";
+import { use } from "echarts/core";
+import { SVGRenderer } from "echarts/renderers";
+import { LineChart } from "echarts/charts";
+import { TooltipComponent, GridComponent } from "echarts/components";
+import VChart from "vue-echarts";
 
-defineProps({
+const props = defineProps({
   token: {
     type: Object as PropType<AssetsType>,
     default: () => ({}),
   },
+});
+use([SVGRenderer, LineChart, TooltipComponent, GridComponent]);
+const option = ref({
+  width: 128,
+  height: 128,
+  color: [props.token.priceChangePercentage >= 0 ? "#80FFA5" : "#e01f43"],
+  grid: { show: false, left: 0, top: 0 },
+  xAxis: [
+    {
+      show: false,
+      type: "category",
+      showGrid: false,
+      boundaryGap: false,
+      splitLine: {
+        show: false,
+      },
+    },
+  ],
+  yAxis: [
+    {
+      show: false,
+      type: "value",
+      splitLine: {
+        show: false,
+      },
+    },
+  ],
+  series: [
+    {
+      type: "line",
+      smooth: true,
+      lineStyle: {
+        width: 3,
+      },
+      showSymbol: false,
+      emphasis: {
+        focus: "none",
+      },
+      data:
+        props.token.sparkline !== "" ? JSON.parse(props.token.sparkline) : [],
+    },
+  ],
 });
 
 const emit = defineEmits<{
@@ -86,7 +128,10 @@ const close = () => {
 
 <style lang="less">
 @import "~@action/styles/theme.less";
-
+.chart-large {
+  height: 128px;
+  width: 128px;
+}
 .asset-detail-view {
   width: 100%;
   height: auto;
@@ -198,6 +243,7 @@ const close = () => {
       }
 
       &-price {
+        padding-left: 50px;
         h4 {
           font-style: normal;
           font-weight: 700;
