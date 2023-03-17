@@ -6,7 +6,6 @@
     "zip": "cd dist; zip -r release.zip *;",
     "build:chrome": "cross-env BROWSER='chrome' vue-cli-service build && yarn build:rollup",
     "build:firefox": "cross-env BROWSER='firefox' vue-cli-service build && yarn build:rollup && node configs/get-system-info.js",
-    "build:opera": "cross-env BROWSER='opera' vue-cli-service build && yarn build:rollup",
     "lint": "vue-cli-service lint --fix",
     "build:rollup": "cross-env minify=on rollup --config configs/rollup.config.contentscript.js && cross-env minify=on rollup --config configs/rollup.config.inject.js",
     "inspectWebpack": "vue-cli-service inspect > webpack.log",
