@@ -33,6 +33,7 @@ import { Activity, ActivityStatus, ActivityType } from "@/types/activity";
 import { ChangellyToken, ChangellyTokenOptions } from "./changelly-token";
 import BigNumber from "bignumber.js";
 import broadcastTx from "@/providers/ethereum/libs/tx-broadcaster";
+import { bigIntToHex } from "@enkryptcom/utils";
 
 const CHANGELLY_TOKEN_INFO = [
   {
@@ -750,7 +751,10 @@ export class ChangellySwapProvider extends SwapProvider {
                   [
                     {
                       ...JSON.parse(JSON.stringify(txActivity)),
-                      ...{ transactionHash: hash },
+                      ...{
+                        transactionHash: hash,
+                        nonce: bigIntToHex(finalizedTx.nonce),
+                      },
                     },
                   ],
                   { address: fromAccount.address, network: network.name }

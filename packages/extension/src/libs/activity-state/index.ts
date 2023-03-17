@@ -1,8 +1,9 @@
 import { InternalStorageNamespace } from "@/types/provider";
 import BrowserStorage from "@/libs/common/browser-storage";
 import { ActivityOptions } from "./types";
-import { Activity } from "@/types/activity";
+import { Activity, ActivityStatus } from "@/types/activity";
 const STORAGE_KEY = "activity";
+const MAX_PENDING_TIME = 12 * 60 * 60 * 1000; // 12 hours
 class ActivityState {
   #storage: BrowserStorage;
   constructor() {
@@ -21,8 +22,32 @@ class ActivityState {
     const activities = await this.getActivitiesById(
       this.getActivityId(options)
     );
+    const combined = activity.concat(activities);
+    combined.sort((a, b) => {
+      return b.timestamp - a.timestamp;
+    });
+    const existingHashes: string[] = [];
+    const cleanArr: Activity[] = [];
+    const currentTime = new Date().getTime();
+    const minedNonces = cleanArr
+      .filter((item) => item.status === ActivityStatus.success && item.nonce)
+      .map((item) => item.nonce);
+    for (let i = 0; i < combined.length; i++) {
+      if (
+        !existingHashes.includes(combined[i].transactionHash) &&
+        combined[i].timestamp > currentTime - MAX_PENDING_TIME
+      ) {
+        if (
+          combined[i].status !== ActivityStatus.pending ||
+          !combined[i].nonce ||
+          !minedNonces.includes(combined[i].nonce)
+        )
+          cleanArr.push(combined[i]);
+      }
+      existingHashes.push(combined[i].transactionHash);
+    }
     await this.setActivitiesById(
-      activity.concat(activities),
+      cleanArr.slice(0, 50),
       this.getActivityId(options)
     );
   }

@@ -3,12 +3,14 @@ import {
   EthereumTransaction,
   FinalizedFeeMarketEthereumTransaction,
   FinalizedLegacyEthereumTransaction,
+  FormattedFeeHistory,
   GasCosts,
   TransactionOptions,
 } from "./types";
 import { GasPriceTypes } from "@/providers/common/types";
 import { numberToHex, toBN } from "web3-utils";
 import {
+  formatFeeHistory,
   getBaseFeeBasedOnType,
   getGasBasedOnType,
   getPriorityFeeBasedOnType,
@@ -18,6 +20,7 @@ import {
   FeeMarketEIP1559Transaction,
   Transaction as LegacyTransaction,
 } from "@ethereumjs/tx";
+
 class Transaction {
   tx: EthereumTransaction;
   web3: Web3Eth;
@@ -34,6 +37,26 @@ class Transaction {
       value: this.tx.value || "0x0",
     });
   }
+  private getFeeMarketGasInfo = (
+    baseFeePerGas: string,
+    formattedFeeHistory: FormattedFeeHistory,
+    priceType: GasPriceTypes
+  ) => {
+    const adjustedBaseFeePerGas = getBaseFeeBasedOnType(
+      baseFeePerGas,
+      priceType
+    );
+    const maxPriorityFeePerGas = getPriorityFeeBasedOnType(
+      formattedFeeHistory,
+      priceType
+    );
+    const maxFeePerGas = adjustedBaseFeePerGas.add(maxPriorityFeePerGas);
+    return {
+      adjustedBaseFeePerGas,
+      maxPriorityFeePerGas,
+      maxFeePerGas,
+    };
+  };
   async finalizeTransaction(options: TransactionOptions): Promise<{
     transaction:
       | FinalizedFeeMarketEthereumTransaction
@@ -43,16 +66,15 @@ class Transaction {
     maxPriorityFeePerGas?: string;
     maxFeePerGas?: string;
     gasLimit: string;
+    formattedFeeHistory?: FormattedFeeHistory;
   }> {
     const { isFeeMarketNetwork, baseFeePerGas } = await this.web3
-      .getBlockNumber()
-      .then((blockNum) => {
-        return this.web3.getBlock(blockNum, false).then((block) => {
-          return {
-            isFeeMarketNetwork: !!block.baseFeePerGas,
-            baseFeePerGas: block.baseFeePerGas,
-          };
-        });
+      .getBlock("pending", false)
+      .then((block) => {
+        return {
+          isFeeMarketNetwork: !!block.baseFeePerGas,
+          baseFeePerGas: block.baseFeePerGas?.toString(),
+        };
       });
     const gasPrice = await this.web3.getGasPrice();
     const nonce = await this.web3.getTransactionCount(this.tx.from, "pending");
@@ -77,18 +99,17 @@ class Transaction {
         gasLimit: legacyTx.gasLimit,
       };
     } else {
-      let maxFeePerGas = getBaseFeeBasedOnType(
-        baseFeePerGas?.toString() as string,
+      const feeHistory = await this.web3.getFeeHistory(
+        12,
+        "pending",
+        [10, 25, 50, 80]
+      );
+      const formattedFeeHistory = formatFeeHistory(feeHistory);
+      const feeMarket = this.getFeeMarketGasInfo(
+        baseFeePerGas!,
+        formattedFeeHistory,
         options.gasPriceType
       );
-      const maxPriorityFeePerGas = getPriorityFeeBasedOnType(
-        baseFeePerGas?.toString() as string,
-        gasPrice.toString(),
-        options.gasPriceType
-      );
-      if (maxPriorityFeePerGas.gt(maxFeePerGas)) {
-        maxFeePerGas = maxPriorityFeePerGas;
-      }
       const feeMarketTx: FinalizedFeeMarketEthereumTransaction = {
         to: this.tx.to || undefined,
         chainId: this.tx.chainId,
@@ -99,9 +120,9 @@ class Transaction {
           (numberToHex(await this.estimateGas()) as `0x${string}`),
         nonce: this.tx.nonce || (numberToHex(nonce) as `0x${string}`),
         value: this.tx.value || "0x0",
-        maxFeePerGas: numberToHex(maxFeePerGas) as `0x${string}`,
+        maxFeePerGas: numberToHex(feeMarket.maxFeePerGas) as `0x${string}`,
         maxPriorityFeePerGas: numberToHex(
-          maxPriorityFeePerGas
+          feeMarket.maxPriorityFeePerGas
         ) as `0x${string}`,
         type: "0x02",
         accessList: this.tx.accessList || [],
@@ -110,8 +131,9 @@ class Transaction {
         transaction: feeMarketTx,
         gasLimit: feeMarketTx.gasLimit,
         baseFeePerGas: numberToHex(baseFeePerGas!),
-        maxFeePerGas: numberToHex(maxFeePerGas),
-        maxPriorityFeePerGas: numberToHex(maxPriorityFeePerGas),
+        maxFeePerGas: numberToHex(feeMarket.maxFeePerGas),
+        maxPriorityFeePerGas: numberToHex(feeMarket.maxPriorityFeePerGas),
+        formattedFeeHistory,
       };
     }
   }
@@ -148,7 +170,7 @@ class Transaction {
     return tx.getMessageToSign(true);
   }
   async getGasCosts(): Promise<GasCosts> {
-    const { gasLimit, gasPrice, baseFeePerGas } =
+    const { gasLimit, gasPrice, baseFeePerGas, formattedFeeHistory } =
       await this.finalizeTransaction({
         gasPriceType: GasPriceTypes.ECONOMY,
       });
@@ -170,24 +192,32 @@ class Transaction {
     } else {
       return {
         [GasPriceTypes.ECONOMY]: numberToHex(
-          getBaseFeeBasedOnType(baseFeePerGas!, GasPriceTypes.ECONOMY).mul(
-            toBN(gasLimit)
-          )
+          this.getFeeMarketGasInfo(
+            baseFeePerGas!,
+            formattedFeeHistory!,
+            GasPriceTypes.ECONOMY
+          ).maxFeePerGas.mul(toBN(gasLimit))
         ),
         [GasPriceTypes.REGULAR]: numberToHex(
-          getBaseFeeBasedOnType(baseFeePerGas!, GasPriceTypes.REGULAR).mul(
-            toBN(gasLimit)
-          )
+          this.getFeeMarketGasInfo(
+            baseFeePerGas!,
+            formattedFeeHistory!,
+            GasPriceTypes.REGULAR
+          ).maxFeePerGas.mul(toBN(gasLimit))
         ),
         [GasPriceTypes.FAST]: numberToHex(
-          getBaseFeeBasedOnType(baseFeePerGas!, GasPriceTypes.FAST).mul(
-            toBN(gasLimit)
-          )
+          this.getFeeMarketGasInfo(
+            baseFeePerGas!,
+            formattedFeeHistory!,
+            GasPriceTypes.FAST
+          ).maxFeePerGas.mul(toBN(gasLimit))
         ),
         [GasPriceTypes.FASTEST]: numberToHex(
-          getBaseFeeBasedOnType(baseFeePerGas!, GasPriceTypes.FASTEST).mul(
-            toBN(gasLimit)
-          )
+          this.getFeeMarketGasInfo(
+            baseFeePerGas!,
+            formattedFeeHistory!,
+            GasPriceTypes.FASTEST
+          ).maxFeePerGas.mul(toBN(gasLimit))
         ),
       };
     }

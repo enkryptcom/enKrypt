@@ -118,7 +118,6 @@ const getTokens = (
               balance: "0x0",
             });
           }
-          console.log(retVal);
           return retVal;
         }
       });
