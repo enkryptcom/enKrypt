@@ -11,7 +11,6 @@ const handleIncomingMessage: handleIncomingMessageType = (
   provider,
   message
 ): void => {
-  console.log(provider, message);
   try {
     const _provider = provider as BitcoinProvider;
     const jsonMsg = JSON.parse(message) as ProviderMessage;

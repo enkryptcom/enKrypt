@@ -71,6 +71,7 @@ export default async (
         value: txData.tokenValue,
         transactionHash: activity.transactionHash,
         type: ActivityType.transaction,
+        nonce: activity.nonce,
         token: {
           decimals: txData.tokenDecimals,
           icon: txData.tokenImage,

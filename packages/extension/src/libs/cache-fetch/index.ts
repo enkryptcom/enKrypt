@@ -27,11 +27,15 @@ const cacheFetch = async (
     return fetch(options.url)
       .then((res) => res.json())
       .then((json) => {
-        const store: StoredData = {
-          timestamp: new Date().getTime(),
-          data: JSON.stringify(json),
-        };
-        return storage.set(hash, store).then(() => json);
+        const jsonstring = JSON.stringify(json);
+        if (!jsonstring.includes("error")) {
+          const store: StoredData = {
+            timestamp: new Date().getTime(),
+            data: jsonstring,
+          };
+          return storage.set(hash, store).then(() => json);
+        }
+        return json;
       });
   }
 };

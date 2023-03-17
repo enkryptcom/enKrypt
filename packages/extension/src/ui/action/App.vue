@@ -1,6 +1,9 @@
 <template>
   <div class="app" :class="{ locked: isLocked }">
-    <div ref="appMenuRef" class="app__menu">
+    <div v-if="isLoading" class="app__loading">
+      <swap-looking-animation />
+    </div>
+    <div v-show="!isLoading" ref="appMenuRef" class="app__menu">
       <logo-min class="app__menu-logo" />
       <base-search
         :value="searchInput"
@@ -35,7 +38,7 @@
       </div>
     </div>
 
-    <div class="app__content">
+    <div v-show="!isLoading" class="app__content">
       <accounts-header
         v-show="showNetworkMenu"
         :account-info="accountHeaderData"
@@ -117,6 +120,7 @@ import EVMAccountState from "@/providers/ethereum/libs/accounts-state";
 import { ProviderName } from "@/types/provider";
 import { onClickOutside } from "@vueuse/core";
 import RateState from "@/libs/rate-state";
+import SwapLookingAnimation from "@action/icons/swap/swap-looking-animation.vue";
 
 const domainState = new DomainState();
 const networksState = new NetworksState();
@@ -146,6 +150,7 @@ const settingsShow = ref(false);
 const rateShow = ref(false);
 const dropdown = ref(null);
 const toggle = ref(null);
+const isLoading = ref(true);
 
 const setActiveNetworks = async () => {
   const activeNetworkNames = await networksState.getActiveNetworkNames();
@@ -195,17 +200,19 @@ const init = async () => {
     setNetwork(defaultNetwork);
   }
   await setActiveNetworks();
+  isLoading.value = false;
 };
 onMounted(async () => {
   if (await rateState.showPopup()) {
     rateShow.value = true;
   }
-
   const isInitialized = await kr.isInitialized();
   if (isInitialized) {
     const _isLocked = await isKeyRingLocked();
     if (_isLocked) {
-      router.push({ name: "lock-screen" });
+      router
+        .push({ name: "lock-screen" })
+        .then(() => (isLoading.value = false));
     } else {
       init();
     }
@@ -389,11 +396,27 @@ body {
   -o-transition: width 0.3s ease-in, height 0.3s ease-in;
   transition: width 0.3s ease-in, height 0.3s ease-in;
 
-  // &.locked {
-  //   width: 454px;
-  //   height: 397px;
-  // }
+  &__loading {
+    width: 800px;
+    height: 600px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    background: radial-gradient(
+        100% 50% at 100% 50%,
+        rgba(250, 250, 250, 0.92) 0%,
+        rgba(250, 250, 250, 0.98) 100%
+      )
+      @primary;
 
+    svg {
+      width: 132px;
+      position: relative;
+      z-index: 2;
+    }
+  }
   &__menu {
     width: 340px;
     height: 600px;
