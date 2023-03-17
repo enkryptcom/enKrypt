@@ -7,7 +7,6 @@ const BROWSER = process.env.BROWSER;
 const browserNames = {
   chrome: "chrome",
   firefox: "firefox",
-  opera: "opera",
 };
 
 const browserConfigs = {
@@ -18,10 +17,6 @@ const browserConfigs = {
   [browserNames.firefox]: {
     manifest: "./src/manifest/manifest-firefox.json",
     background: "./src/scripts/firefox/background.ts",
-  },
-  [browserNames.opera]: {
-    manifest: "./src/manifest/manifest-opera.json",
-    background: "./src/scripts/chrome/background.ts",
   },
 };
 
