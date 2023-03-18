@@ -1,6 +1,6 @@
 {
   "name": "@enkryptcom/signer-polkadot",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Polkadot blockchain signers",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "@commitlint/cli": "^17.4.4",
-    "@enkryptcom/utils": "^0.0.1",
+    "@enkryptcom/utils": "^0.0.3",
     "@polkadot/util": "^10.4.2",
     "@polkadot/util-crypto": "^10.4.2",
     "@polkadot/wasm-crypto": "^6.4.1",

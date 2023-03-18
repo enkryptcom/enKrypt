@@ -1,6 +1,6 @@
 {
   "name": "@enkryptcom/signer-ethereum",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "Ethereum blockchain signer",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -17,7 +17,7 @@
     "node": ">=14.15.0"
   },
   "dependencies": {
-    "@enkryptcom/utils": "^0.0.1",
+    "@enkryptcom/utils": "^0.0.3",
     "bip39": "^3.1.0",
     "chai": "^4.3.7",
     "ethereum-cryptography": "^1.2.0",
