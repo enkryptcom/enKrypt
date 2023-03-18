@@ -1,3 +1,4 @@
+import { NetworkNames } from "@enkryptcom/types";
 import { numberToHex } from "web3-utils";
 import { ProviderName, WalletIdentifier } from "./types";
 
@@ -34,10 +35,32 @@ const FEE_CONFIGS = {
   },
 };
 
+const TOKEN_LISTS: {
+  [key in NetworkNames]?: string;
+} = {
+  [NetworkNames.Ethereum]:
+    "https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/swaplists/ETH.json",
+  [NetworkNames.Binance]:
+    "https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/swaplists/BNB.json",
+  [NetworkNames.Matic]:
+    "https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/swaplists/MATIC.json",
+  [NetworkNames.Optimism]:
+    "https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/swaplists/OP.json",
+};
+
+const CHANGELLY_LIST =
+  "https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/swaplists/changelly.json";
+
 const GAS_LIMITS = {
   approval: numberToHex(300000),
   swap: numberToHex(1000000),
 };
 const NATIVE_TOKEN_ADDRESS = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
 
-export { FEE_CONFIGS, GAS_LIMITS, NATIVE_TOKEN_ADDRESS };
+export {
+  FEE_CONFIGS,
+  GAS_LIMITS,
+  NATIVE_TOKEN_ADDRESS,
+  TOKEN_LISTS,
+  CHANGELLY_LIST,
+};

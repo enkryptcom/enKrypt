@@ -1,3 +1,11 @@
+// eslint-disable-next-line import/no-cycle
+import {
+  BN,
+  EVMTransaction,
+  getQuoteOptions,
+  QuoteMetaOptions,
+} from "../types";
+
 export interface OneInchResponseType {
   error?: string;
   description?: string;
@@ -10,4 +18,18 @@ export interface OneInchResponseType {
     value: string;
     gasPrice: string;
   };
+}
+export interface OneInchSwapResponse {
+  transactions: EVMTransaction[];
+  toTokenAmount: BN;
+  fromTokenAmount: BN;
+}
+
+export interface OneInchQuote {
+  options: getQuoteOptions;
+  meta: QuoteMetaOptions;
+}
+
+export interface OneInchStatusOptions {
+  transactionHashes: string[];
 }

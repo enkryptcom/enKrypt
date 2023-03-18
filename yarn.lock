@@ -2658,7 +2658,7 @@ __metadata:
     isomorphic-ws: ^5.0.0
     json-rpc-2.0: ^1.5.1
     mocha: ^10.2.0
-    node-fetch: 2.6.9
+    node-fetch: ^2.6.9
     prettier: ^2.8.4
     reconnecting-websocket: ^4.4.0
     ts-mocha: ^10.0.0
@@ -2830,7 +2830,7 @@ __metadata:
     isomorphic-ws: ^5.0.0
     json-rpc-2.0: ^1.5.1
     mocha: ^10.2.0
-    node-fetch: 2.6.9
+    node-fetch: ^2.6.9
     prettier: ^2.8.4
     reconnecting-websocket: ^4.4.0
     ts-mocha: ^10.0.0
@@ -18812,7 +18812,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"node-fetch@npm:2.6.9":
+"node-fetch@npm:^2.6.9":
   version: 2.6.9
   resolution: "node-fetch@npm:2.6.9"
   dependencies:

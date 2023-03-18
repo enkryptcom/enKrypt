@@ -1,16 +1,27 @@
 import type Web3Eth from "web3-eth";
-import { numberToHex, toBN } from "web3-utils";
+import { fromBase, toBase } from "@enkryptcom/utils";
+import { numberToHex, toBN, isAddress } from "web3-utils";
 import { NetworkNames } from "@enkryptcom/types";
 import {
   EVMTransaction,
   getQuoteOptions,
+  MinMaxResponse,
+  ProviderFromTokenResponse,
   ProviderName,
-  ProviderQuoteResponce,
+  ProviderQuoteResponse,
+  ProviderSwapResponse,
+  ProviderToTokenResponse,
   QuoteMetaOptions,
   TokenType,
+  TransactionStatus,
 } from "../types";
 import { FEE_CONFIGS, GAS_LIMITS, NATIVE_TOKEN_ADDRESS } from "../configs";
-import { OneInchResponseType } from "./types";
+import {
+  OneInchQuote,
+  OneInchResponseType,
+  OneInchStatusOptions,
+  OneInchSwapResponse,
+} from "./types";
 import { getAllowanceTransactions } from "../utils/approvals";
 
 const supportedNetworks: {
@@ -45,21 +56,57 @@ class OneInch {
 
   name: ProviderName;
 
+  fromTokens: ProviderFromTokenResponse;
+
+  toTokens: ProviderToTokenResponse;
+
   constructor(web3eth: Web3Eth, network: NetworkNames, tokenList: TokenType[]) {
     this.network = network;
     this.tokenList = tokenList;
     this.web3eth = web3eth;
     this.name = ProviderName.oneInch;
+    this.fromTokens = {};
+    tokenList.forEach((t) => {
+      this.fromTokens[t.address] = t;
+      this.toTokens[t.address] = {
+        ...t,
+        networks: [
+          {
+            network: this.network,
+            isAddress,
+          },
+        ],
+      };
+    });
   }
 
   static isSupported(network: NetworkNames) {
     return Object.keys(supportedNetworks).includes(network);
   }
 
-  getQuote(
+  getFromTokens() {
+    return this.fromTokens;
+  }
+
+  getToTokens() {
+    return this.toTokens;
+  }
+
+  getMinMaxAmount({
+    fromToken,
+  }: {
+    fromToken: TokenType;
+  }): Promise<MinMaxResponse> {
+    return Promise.resolve({
+      minimumFrom: toBN(toBase("1", fromToken.decimals)),
+      maximumFrom: toBN(fromBase("1", fromToken.decimals)),
+    });
+  }
+
+  private getOneInchSwap(
     options: getQuoteOptions,
     meta: QuoteMetaOptions
-  ): Promise<ProviderQuoteResponce | null> {
+  ): Promise<OneInchSwapResponse | null> {
     if (
       !OneInch.isSupported(options.toNetwork as NetworkNames) ||
       !OneInch.isSupported(options.fromNetwork)
@@ -71,6 +118,7 @@ class OneInch {
       toTokenAddress: options.toToken.address,
       amount: options.amount.toString(),
       fromAddress: options.fromAddress,
+      destReceiver: options.toAddress,
       slippage: meta.slippage ? meta.slippage : "0.5",
       fee: feeConfig ? (feeConfig.fee * 100).toFixed(3) : "0",
       referrerAddress: feeConfig ? feeConfig.referrer : "",
@@ -112,6 +160,61 @@ class OneInch {
           fromTokenAmount: toBN(response.fromTokenAmount),
         };
       });
+  }
+
+  getQuote(
+    options: getQuoteOptions,
+    meta: QuoteMetaOptions
+  ): Promise<ProviderQuoteResponse | null> {
+    return this.getOneInchSwap(options, meta).then(async (res) => {
+      if (!res) return null;
+      const response: ProviderQuoteResponse = {
+        fromTokenAmount: res.fromTokenAmount,
+        toTokenAmount: res.toTokenAmount,
+        provider: this.name,
+        quote: {
+          meta,
+          options,
+        },
+        totalGaslimit: res.transactions.reduce(
+          (total: number, curVal: EVMTransaction) =>
+            total + toBN(curVal.gasLimit).toNumber(),
+          0
+        ),
+        minMax: await this.getMinMaxAmount({ fromToken: options.fromToken }),
+      };
+      return response;
+    });
+  }
+
+  getSwap(quote: OneInchQuote): Promise<ProviderSwapResponse | null> {
+    return this.getOneInchSwap(quote.options, quote.meta).then((res) => {
+      if (!res) return null;
+      const response: ProviderSwapResponse = {
+        fromTokenAmount: res.fromTokenAmount,
+        provider: this.name,
+        toTokenAmount: res.toTokenAmount,
+        transactions: res.transactions,
+        getStatusObject: async (options: OneInchStatusOptions) => options,
+      };
+      return response;
+    });
+  }
+
+  getStatus(options: OneInchStatusOptions): Promise<TransactionStatus> {
+    const promises = options.transactionHashes.map((hash) =>
+      this.web3eth.getTransactionReceipt(hash)
+    );
+    return Promise.all(promises).then((receipts) => {
+      // eslint-disable-next-line no-restricted-syntax
+      for (const receipt of receipts) {
+        if (!receipt || (receipt && !receipt.blockNumber)) {
+          return TransactionStatus.pending;
+        }
+        if (receipt && !receipt.status) return TransactionStatus.failed;
+      }
+      return TransactionStatus.success;
+    });
   }
 }
 

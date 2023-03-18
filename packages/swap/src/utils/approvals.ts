@@ -1,5 +1,5 @@
 import type Web3Eth from "web3-eth";
-import { numberToHex, toBN } from "web3-utils";
+import { toBN } from "web3-utils";
 import Erc20abi from "./abi/erc20";
 import { BN, EVMTransaction, TokenType } from "../types";
 import { GAS_LIMITS } from "../configs";

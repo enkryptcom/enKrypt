@@ -1,6 +1,8 @@
 import { NetworkNames } from "@enkryptcom/types";
 import type { toBN } from "web3-utils";
 import type Web3Eth from "web3-eth";
+// eslint-disable-next-line import/no-cycle
+import { OneInchQuote } from "../providers/types";
 
 export interface TokenType {
   address: string;
@@ -16,7 +18,8 @@ export interface TokenNetworkType {
   network: NetworkNames | string;
   isAddress: (addr: string) => boolean;
 }
-export interface TokenTypeTo extends TokenType {
+export interface TokenTypeTo extends Omit<TokenType, "address"> {
+  address?: string;
   networks: TokenNetworkType[];
 }
 
@@ -67,8 +70,16 @@ export enum ProviderName {
   changelly = "changelly",
 }
 
+// eslint-disable-next-line no-shadow
+export enum TransactionStatus {
+  pending = "pending",
+  failed = "failed",
+  success = "success",
+}
+
 export interface getQuoteOptions {
   fromAddress: string;
+  toAddress: string;
   amount: BN;
   fromToken: TokenType;
   toToken: TokenType;
@@ -83,8 +94,28 @@ export interface EVMTransaction {
   data: string;
 }
 
-export interface ProviderQuoteResponce {
+export interface MinMaxResponse {
+  minimumFrom: BN;
+  maximumFrom: BN;
+}
+
+export interface ProviderQuoteResponse {
+  toTokenAmount: BN;
+  fromTokenAmount: BN;
+  totalGaslimit: number;
+  provider: ProviderName;
+  quote: OneInchQuote;
+  minMax: MinMaxResponse;
+}
+
+export interface ProviderSwapResponse {
   transactions: EVMTransaction[];
   toTokenAmount: BN;
   fromTokenAmount: BN;
+  provider: ProviderName;
+  getStatusObject: (options: unknown) => Promise<unknown>;
 }
+
+export type ProviderFromTokenResponse = Record<string, TokenType>;
+
+export type ProviderToTokenResponse = Record<string, TokenTypeTo>;
