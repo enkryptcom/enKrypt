@@ -130,7 +130,7 @@ import { getCustomError, getError } from "@/libs/error";
 import { ErrorCodes } from "@/providers/ethereum/types";
 import { WindowPromiseHandler } from "@/libs/window-promise";
 import { DEFAULT_BTC_NETWORK, getNetworkByName } from "@/libs/utils/networks";
-import { fromBase, toBase } from "@/libs/utils/units";
+import { fromBase, toBase } from "@enkryptcom/utils";
 import { ProviderRequestOptions } from "@/types/provider";
 import { GasFeeType } from "./types";
 import MarketData from "@/libs/market-data";

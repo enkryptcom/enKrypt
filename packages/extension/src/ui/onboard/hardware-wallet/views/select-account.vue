@@ -51,7 +51,7 @@ import { EnkryptAccount, HWwalletType } from "@enkryptcom/types";
 import HWwallet from "@enkryptcom/hw-wallets";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
 import { formatFloatingPointValue } from "@/libs/utils/number-formatter";
-import { fromBase } from "@/libs/utils/units";
+import { fromBase } from "@enkryptcom/utils";
 import { ProviderName } from "@/types/provider";
 import { polkadotEncodeAddress } from "@enkryptcom/utils";
 import { useHWStore } from "../store";

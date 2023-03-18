@@ -4,10 +4,9 @@ import { AssetsType } from "@/types/provider";
 import { BaseToken } from "@/types/base-token";
 import { ProviderName } from "@/types/provider";
 import { CoingeckoPlatform, NetworkNames, SignerType } from "@enkryptcom/types";
-import { polkadotEncodeAddress } from "@enkryptcom/utils";
+import { polkadotEncodeAddress, fromBase } from "@enkryptcom/utils";
 import createIcon from "../libs/blockies";
 import MarketData from "@/libs/market-data";
-import { fromBase } from "@/libs/utils/units";
 import BigNumber from "bignumber.js";
 import {
   formatFiatValue,

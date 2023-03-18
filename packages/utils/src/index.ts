@@ -10,6 +10,7 @@ import { bigIntToBuffer, bigIntToHex } from "@ethereumjs/util";
 import { encodeAddress as polkadotEncodeAddress } from "@polkadot/util-crypto";
 import { encrypt, decrypt } from "./encrypt";
 import MemoryStorage from "./memory-storage";
+import { fromBase, toBase, isValidDecimals } from "./units";
 
 const bufferToHex = (buf: Buffer | Uint8Array, nozerox = false): string =>
   nozerox
@@ -38,4 +39,7 @@ export {
   numberToHex,
   bigIntToBuffer,
   bigIntToHex,
+  fromBase,
+  toBase,
+  isValidDecimals,
 };

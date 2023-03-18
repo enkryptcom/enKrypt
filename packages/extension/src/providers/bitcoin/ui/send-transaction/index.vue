@@ -121,7 +121,7 @@ import { BitcoinNetwork } from "../../types/bitcoin-network";
 import { BTCToken } from "../../types/btc-token";
 import BigNumber from "bignumber.js";
 import { defaultGasCostVals } from "@/providers/common/libs/default-vals";
-import { fromBase, toBase, isValidDecimals } from "@/libs/utils/units";
+import { fromBase, toBase, isValidDecimals } from "@enkryptcom/utils";
 import { formatFloatingPointValue } from "@/libs/utils/number-formatter";
 import { routes as RouterNames } from "@/ui/action/router";
 import getUiPath from "@/libs/utils/get-ui-path";

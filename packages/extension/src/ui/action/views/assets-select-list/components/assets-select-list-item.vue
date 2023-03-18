@@ -19,7 +19,7 @@
 </template>
 
 <script setup lang="ts">
-import { fromBase } from "@/libs/utils/units";
+import { fromBase } from "@enkryptcom/utils";
 import { BaseToken } from "@/types/base-token";
 import BigNumber from "bignumber.js";
 import { computed, PropType } from "vue";

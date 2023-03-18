@@ -113,7 +113,7 @@ import { InternalMethods } from "@/types/messenger";
 import NetworksState from "@/libs/networks-state";
 import openOnboard from "@/libs/utils/open-onboard";
 import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
-import { fromBase } from "@/libs/utils/units";
+import { fromBase } from "@enkryptcom/utils";
 import { EnkryptAccount } from "@enkryptcom/types";
 import Browser from "webextension-polyfill";
 import EVMAccountState from "@/providers/ethereum/libs/accounts-state";

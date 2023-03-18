@@ -19,9 +19,7 @@ const negative1 = toBN(-1);
  * @returns {BN} value of the unit (in Wei)
  * @throws error if the unit is not correct:w
  */
-const getValueOfUnit = (decimals: number) => {
-  return toBN(10).pow(toBN(decimals));
-};
+const getValueOfUnit = (decimals: number) => toBN(10).pow(toBN(decimals));
 
 const numberToString = (arg: any) => {
   if (typeof arg === "string") {
@@ -31,19 +29,19 @@ const numberToString = (arg: any) => {
       );
     }
     return arg;
-  } else if (typeof arg === "number") {
+  }
+  if (typeof arg === "number") {
     return String(arg);
-  } else if (
+  }
+  if (
     typeof arg === "object" &&
     arg.toString &&
     (arg.toTwos || arg.dividedToIntegerBy)
   ) {
     if (arg.toPrecision) {
       return String(arg.toPrecision());
-    } else {
-      // eslint-disable-line
-      return arg.toString(10);
     }
+    return arg.toString(10);
   }
   throw new Error(
     `while converting number to string, invalid number value '${arg}' type ${typeof arg}.`
@@ -55,8 +53,8 @@ const fromBase = (
   decimals: number,
   optionsInput?: any
 ): string => {
-  let wei = toBN(weiInput); // eslint-disable-line
-  let negative = wei.lt(zero); // eslint-disable-line
+  let wei = toBN(weiInput);
+  const negative = wei.lt(zero);
   const base = getValueOfUnit(decimals);
   const baseLength = base.toString().length - 1 || 1;
   const options = optionsInput || {};
@@ -65,22 +63,23 @@ const fromBase = (
     wei = wei.mul(negative1);
   }
 
-  let fraction = wei.mod(base).toString(10); // eslint-disable-line
+  let fraction = wei.mod(base).toString(10);
 
   while (fraction.length < baseLength) {
     fraction = `0${fraction}`;
   }
   if (!options.pad) {
+    // eslint-disable-next-line prefer-destructuring
     fraction = (fraction.match(/^([0-9]*[1-9]|0)(0*)/) as string[])[1];
   }
 
-  let whole = wei.div(base).toString(10); // eslint-disable-line
+  let whole = wei.div(base).toString(10);
 
   if (options.commify) {
     whole = whole.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   }
 
-  let value = `${whole}${fraction == "0" ? "" : `.${fraction}`}`; // eslint-disable-line
+  let value = `${whole}${fraction === "0" ? "" : `.${fraction}`}`;
 
   if (negative) {
     value = `-${value}`;
@@ -90,12 +89,12 @@ const fromBase = (
 };
 
 const toBase = (etherInput: string, decimals: number): string => {
-  let ether = numberToString(etherInput); // eslint-disable-line
+  let ether = numberToString(etherInput);
   const base = getValueOfUnit(decimals);
   const baseLength = base.toString().length - 1 || 1;
 
   // Is it negative?
-  let negative = ether.substring(0, 1) === "-"; // eslint-disable-line
+  const negative = ether.substring(0, 1) === "-";
   if (negative) {
     ether = ether.substring(1);
   }
@@ -107,15 +106,15 @@ const toBase = (etherInput: string, decimals: number): string => {
   }
 
   // Split it into a whole and fractional part
-  let comps = ether.split("."); // eslint-disable-line
+  const comps = ether.split(".");
   if (comps.length > 2) {
     throw new Error(
       `[ethjs-unit] while converting number ${etherInput} to wei,  too many decimal points`
     );
   }
 
-  let whole = comps[0],
-    fraction = comps[1]; // eslint-disable-line
+  let whole = comps[0];
+  let fraction = comps[1];
 
   if (!whole) {
     whole = "0";
@@ -135,7 +134,7 @@ const toBase = (etherInput: string, decimals: number): string => {
 
   whole = toBN(whole);
   fraction = toBN(fraction);
-  let wei = whole.mul(base).add(fraction); // eslint-disable-line
+  let wei = whole.mul(base).add(fraction);
 
   if (negative) {
     wei = wei.mul(negative1);

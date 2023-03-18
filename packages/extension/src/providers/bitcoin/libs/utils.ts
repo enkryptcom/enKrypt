@@ -1,7 +1,7 @@
 import { BitcoinNetworkInfo } from "../types";
 import { address as BTCAddress } from "bitcoinjs-lib";
 import { GasPriceTypes } from "@/providers/common/types";
-import { fromBase } from "@/libs/utils/units";
+import { fromBase } from "@enkryptcom/utils";
 import BigNumber from "bignumber.js";
 
 const isAddress = (address: string, network: BitcoinNetworkInfo): boolean => {

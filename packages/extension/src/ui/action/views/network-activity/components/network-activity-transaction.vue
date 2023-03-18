@@ -58,7 +58,7 @@ import moment from "moment";
 import TransactionTimer from "./transaction-timer.vue";
 import { Activity, ActivityStatus } from "@/types/activity";
 import { BaseNetwork } from "@/types/base-network";
-import { fromBase } from "@/libs/utils/units";
+import { fromBase } from "@enkryptcom/utils";
 import BigNumber from "bignumber.js";
 const props = defineProps({
   activity: {

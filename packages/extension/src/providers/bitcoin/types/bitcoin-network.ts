@@ -8,12 +8,11 @@ import createIcon from "../libs/blockies";
 import { Activity } from "@/types/activity";
 import { BitcoinNetworkInfo } from ".";
 import { payments } from "bitcoinjs-lib";
-import { hexToBuffer } from "@enkryptcom/utils";
+import { hexToBuffer, fromBase } from "@enkryptcom/utils";
 import {
   formatFiatValue,
   formatFloatingPointValue,
 } from "@/libs/utils/number-formatter";
-import { fromBase } from "@/libs/utils/units";
 import MarketData from "@/libs/market-data";
 import BigNumber from "bignumber.js";
 import { CoinGeckoTokenMarket } from "@/libs/market-data/types";

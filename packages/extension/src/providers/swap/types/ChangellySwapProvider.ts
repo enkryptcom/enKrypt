@@ -11,7 +11,6 @@ import {
   TradeStatus,
   TransactionInfo,
 } from "./SwapProvider";
-import { toBase } from "@/libs/utils/units";
 import { toBN } from "web3-utils";
 import { BaseNetwork } from "@/types/base-network";
 import { EnkryptAccount, NetworkNames } from "@enkryptcom/types";
@@ -33,7 +32,7 @@ import { Activity, ActivityStatus, ActivityType } from "@/types/activity";
 import { ChangellyToken, ChangellyTokenOptions } from "./changelly-token";
 import BigNumber from "bignumber.js";
 import broadcastTx from "@/providers/ethereum/libs/tx-broadcaster";
-import { bigIntToHex } from "@enkryptcom/utils";
+import { bigIntToHex, toBase } from "@enkryptcom/utils";
 
 const CHANGELLY_TOKEN_INFO = [
   {

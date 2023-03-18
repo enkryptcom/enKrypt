@@ -1,6 +1,5 @@
 import ActivityState from "@/libs/activity-state";
 import { getNetworkByName } from "@/libs/utils/networks";
-import { fromBase, toBase } from "@/libs/utils/units";
 import erc20 from "@/providers/ethereum/libs/abi/erc20";
 import API from "@/providers/ethereum/libs/api";
 import { NATIVE_TOKEN_ADDRESS } from "@/providers/ethereum/libs/common";
@@ -26,7 +25,7 @@ import {
   TradeStatus,
   TransactionInfo,
 } from "./SwapProvider";
-import { bigIntToHex } from "@enkryptcom/utils";
+import { bigIntToHex, fromBase, toBase } from "@enkryptcom/utils";
 
 const HOST_URL = "https://mainnet.mewwallet.dev/v4";
 const REQUEST_CACHER = "https://requestcache.mewapi.io/?url=";

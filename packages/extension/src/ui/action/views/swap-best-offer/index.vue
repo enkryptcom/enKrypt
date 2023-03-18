@@ -116,7 +116,7 @@ import {
   GasFeeType,
   GasPriceTypes,
 } from "@/providers/common/types";
-import { fromBase } from "@/libs/utils/units";
+import { fromBase } from "@enkryptcom/utils";
 import BigNumber from "bignumber.js";
 import { defaultGasCostVals } from "@/providers/common/libs/default-vals";
 import { SwapBestOfferWarnings } from "./components/types";

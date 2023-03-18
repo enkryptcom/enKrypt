@@ -77,7 +77,7 @@ import { WindowPromiseHandler } from "@/libs/window-promise";
 import { BitcoinNetwork } from "../types/bitcoin-network";
 import { ProviderRequestOptions } from "@/types/provider";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
-import { fromBase } from "@/libs/utils/units";
+import { fromBase } from "@enkryptcom/utils";
 import { getError } from "@/libs/error";
 import { ErrorCodes } from "@/providers/ethereum/types";
 import AccountState from "../libs/accounts-state";

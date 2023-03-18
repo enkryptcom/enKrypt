@@ -46,7 +46,7 @@ import SwapTokenSelect from "../swap-token-select/index.vue";
 import SwapTokenAmountInput from "./components/swap-token-amount-input.vue";
 import { BaseToken } from "@/types/base-token";
 import BigNumber from "bignumber.js";
-import { fromBase } from "@/libs/utils/units";
+import { fromBase } from "@enkryptcom/utils";
 import { NATIVE_TOKEN_ADDRESS } from "@/providers/ethereum/libs/common";
 
 const emit = defineEmits<{

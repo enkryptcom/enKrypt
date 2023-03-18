@@ -1,0 +1,9 @@
+{
+  "generator-enkrypt-ts-project": {
+    "promptValues": {
+      "author": "kvhnuke",
+      "npm": false,
+      "yarn": true
+    }
+  }
+}
