@@ -34,7 +34,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/enkryptcom/enKrypt/tree/main/packages/types"
+    "url": "https://github.com/enkryptcom/enKrypt/tree/main/packages/types"
   },
   "keywords": [],
   "author": "kvhnuke",
