@@ -11,6 +11,7 @@
     "build": "tsup src/index.ts --format esm,cjs --dts --clean",
     "lint": "prettier --write .",
     "version:bumb:patch": "yarn version --immediate patch",
+    "publish": "yarn npm publish --access public",
     "test": "echo 'no-tests'"
   },
   "engines": {
