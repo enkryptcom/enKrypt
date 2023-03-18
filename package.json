@@ -20,7 +20,8 @@
     "build:all": "ultra -r build",
     "watch": "concurrently 'npm:watch-*'",
     "watch-extension": "cd packages/extension && npm run watch",
-    "watch-ts": "nodemon --exec 'yarn run build:all && node scripts/compile-done.js'"
+    "watch-ts": "nodemon --exec 'yarn run build:all && node scripts/compile-done.js'",
+    "upgrade": "yarn upgrade-interactive"
   },
   "devDependencies": {
     "@commitlint/cli": "^17.4.4",

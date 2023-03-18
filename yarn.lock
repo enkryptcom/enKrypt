@@ -2807,7 +2807,14 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@enkryptcom/types@^0.0.1, @enkryptcom/types@workspace:packages/types":
+"@enkryptcom/types@npm:^0.0.1":
+  version: 0.0.1
+  resolution: "@enkryptcom/types@npm:0.0.1"
+  checksum: f9f88d5ffa2ac382e4f4634cd96f3df63213b45c67155b70a48e2cdbb101d08ef9da8220f4dfb5c074a80874e251591d3af46a295b68e5949a39043d3ecf6ba0
+  languageName: node
+  linkType: hard
+
+"@enkryptcom/types@workspace:packages/types":
   version: 0.0.0-use.local
   resolution: "@enkryptcom/types@workspace:packages/types"
   dependencies:
