@@ -2,7 +2,7 @@ import { NetworkNames } from "@enkryptcom/types";
 import type { toBN } from "web3-utils";
 import type Web3Eth from "web3-eth";
 // eslint-disable-next-line import/no-cycle
-import { OneInchQuote } from "../providers/types";
+import { OneInchQuote } from "../providers/oneInch/types";
 
 export interface TokenType {
   address: string;
@@ -15,12 +15,12 @@ export interface TokenType {
 }
 
 export interface TokenNetworkType {
-  network: NetworkNames | string;
-  isAddress: (addr: string) => boolean;
+  name: NetworkNames | string;
+  isAddress: (addr: string) => Promise<boolean>;
 }
 export interface TokenTypeTo extends Omit<TokenType, "address"> {
   address?: string;
-  networks: TokenNetworkType[];
+  networkInfo: TokenNetworkType;
 }
 
 export interface FromTokenType {
@@ -97,6 +97,8 @@ export interface EVMTransaction {
 export interface MinMaxResponse {
   minimumFrom: BN;
   maximumFrom: BN;
+  minimumTo: BN;
+  maximumTo: BN;
 }
 
 export interface ProviderQuoteResponse {
@@ -119,3 +121,7 @@ export interface ProviderSwapResponse {
 export type ProviderFromTokenResponse = Record<string, TokenType>;
 
 export type ProviderToTokenResponse = Record<string, TokenTypeTo>;
+
+export interface StatusOptions {
+  transactionHashes: string[];
+}

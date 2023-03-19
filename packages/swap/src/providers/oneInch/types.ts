@@ -29,7 +29,3 @@ export interface OneInchQuote {
   options: getQuoteOptions;
   meta: QuoteMetaOptions;
 }
-
-export interface OneInchStatusOptions {
-  transactionHashes: string[];
-}

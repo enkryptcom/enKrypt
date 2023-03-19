@@ -42,7 +42,10 @@ class Swap {
         res.json()
       );
     this.providers = this.providerClasses.map(
-      (Provider) => new Provider(this.api, this.network, this.tokenList.all)
+      (Provider) => new Provider(this.api, this.network)
+    );
+    await Promise.all(
+      this.providers.map((Provider) => Provider.init(this.tokenList.all))
     );
   }
   // getFromTokens(): Promise<FromTokenType[]> {}
