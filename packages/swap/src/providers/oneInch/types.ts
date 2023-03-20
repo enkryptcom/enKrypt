@@ -4,7 +4,7 @@ import {
   EVMTransaction,
   getQuoteOptions,
   QuoteMetaOptions,
-} from "../types";
+} from "../../types";
 
 export interface OneInchResponseType {
   error?: string;

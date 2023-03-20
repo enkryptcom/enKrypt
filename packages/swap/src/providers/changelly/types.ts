@@ -1,3 +1,5 @@
+import { TokenType } from "../../types";
+
 export interface ChangellyCurrency {
   name: string;
   ticker: string;
@@ -13,4 +15,5 @@ export interface ChangellyCurrency {
   protocol: string;
   blockchain: string;
   contractAddress?: string;
+  token?: TokenType;
 }
