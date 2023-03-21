@@ -109,13 +109,13 @@ const searchAllNetworks = computed(() => {
   );
 });
 onBeforeMount(async () => {
-  const allNetworksNotTestNets = (await getAllNetworksAndStatus()).filter(
-    ({ isTestNetwork }) => !isTestNetwork
-  );
+  const allNetworksNotTestNets = (await getAllNetworksAndStatus())
+    .filter(({ isTestNetwork }) => !isTestNetwork)
+    .sort((a, b) => a.name_long.localeCompare(b.name_long));
 
-  const popularNetworks = allNetworksNotTestNets.filter((net) =>
-    POPULAR_NAMES.includes(net.name)
-  );
+  const popularNetworks = allNetworksNotTestNets
+    .filter((net) => POPULAR_NAMES.includes(net.name))
+    .sort((a, b) => a.name_long.localeCompare(b.name_long));
 
   all.value = allNetworksNotTestNets;
   popular.value = popularNetworks;
