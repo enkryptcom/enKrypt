@@ -1,7 +1,7 @@
 import fetch from "node-fetch";
 import { merge } from "lodash";
 import EventEmitter from "eventemitter3";
-import { NATIVE_TOKEN_ADDRESS, TOKEN_LISTS } from "./configs";
+import { TOKEN_LISTS } from "./configs";
 import OneInch from "./providers/oneInch";
 import Changelly from "./providers/changelly";
 import NetworkDetails from "./common/supportedNetworks";
@@ -12,19 +12,19 @@ import {
   FromTokenType,
   getQuoteOptions,
   NetworkInfo,
-  ProviderClass,
   ProviderFromTokenResponse,
   ProviderQuoteResponse,
   ProviderSwapResponse,
   ProviderToTokenResponse,
-  QuoteMetaOptions,
   SupportedNetworkName,
   SwapOptions,
   SwapQuote,
   TokenType,
   TokenTypeTo,
+  WalletIdentifier,
 } from "./types";
 import { sortByRank, sortNativeToFront } from "./utils/common";
+import SwapToken from "./swapToken";
 
 class Swap extends EventEmitter {
   network: SupportedNetworkName;
@@ -45,6 +45,8 @@ class Swap extends EventEmitter {
 
   private toTokens: Record<SupportedNetworkName, TokenTypeTo[]>;
 
+  private walletId: WalletIdentifier;
+
   constructor(options: SwapOptions) {
     super();
     this.network = options.network;
@@ -54,6 +56,7 @@ class Swap extends EventEmitter {
           infiniteApproval: true,
         };
     this.api = options.api;
+    this.walletId = options.walletIdentifier;
     this.providerClasses = [OneInch, Changelly];
     this.tokenList = {
       all: [],
@@ -106,13 +109,13 @@ class Swap extends EventEmitter {
     return this.toTokens;
   }
 
-  async getQuote(
-    options: getQuoteOptions,
-    meta: QuoteMetaOptions
-  ): Promise<ProviderQuoteResponse[] | null> {
+  async getQuote(options: getQuoteOptions): Promise<ProviderQuoteResponse[]> {
     const response = await Promise.all(
       this.providers.map((Provider) =>
-        Provider.getQuote(options, meta).then((res) => {
+        Provider.getQuote(options, {
+          infiniteApproval: this.evmOptions.infiniteApproval,
+          walletIdentifier: this.walletId,
+        }).then((res) => {
           if (!res) return res;
           this.emit(Events.QuoteUpdate, res.toTokenAmount);
           return res;
@@ -132,4 +135,5 @@ class Swap extends EventEmitter {
   }
 }
 
+export { SwapToken };
 export default Swap;
