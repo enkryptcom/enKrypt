@@ -288,7 +288,8 @@ export class EvmSwapProvider extends SwapProvider {
       params.append("fromContractAddress", fromToken.contract);
       params.append("toContractAddress", toToken.contract);
       params.append("amount", amountToSwap);
-      params.append("address", toAddress);
+      params.append("address", fromAddress);
+      params.append("recipient", toAddress);
       params.append("platform", "extension");
 
       const controller = new AbortController();
