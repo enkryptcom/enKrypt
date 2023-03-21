@@ -3,7 +3,6 @@ import { v4 as uuidv4 } from "uuid";
 import fetch from "node-fetch";
 import { fromBase, toBase } from "@enkryptcom/utils";
 import { numberToHex, toBN } from "web3-utils";
-import { NetworkNames } from "@enkryptcom/types";
 import {
   getQuoteOptions,
   MinMaxResponse,
@@ -14,6 +13,7 @@ import {
   ProviderSwapResponse,
   ProviderToTokenResponse,
   QuoteMetaOptions,
+  SupportedNetworkName,
   SwapQuote,
   SwapTransaction,
   TokenType,
@@ -36,7 +36,7 @@ const BASE_URL = "https://swap.mewapi.io/changelly";
 class Changelly {
   tokenList: TokenType[];
 
-  network: NetworkNames;
+  network: SupportedNetworkName;
 
   name: ProviderName;
 
@@ -48,7 +48,7 @@ class Changelly {
 
   contractToTicker: Record<string, string>;
 
-  constructor(_web3eth: Web3Eth, network: NetworkNames) {
+  constructor(_web3eth: Web3Eth, network: SupportedNetworkName) {
     this.network = network;
     this.tokenList = [];
     this.name = ProviderName.changelly;
@@ -60,44 +60,61 @@ class Changelly {
   async init(): Promise<void> {
     if (!Changelly.isSupported(this.network)) return;
     this.changellyList = await fetch(CHANGELLY_LIST).then((res) => res.json());
-    const changellyToNetwork: Record<string, NetworkNames> = {};
+    const changellyToNetwork: Record<string, SupportedNetworkName> = {};
     Object.keys(supportedNetworks).forEach((net) => {
       changellyToNetwork[supportedNetworks[net].changellyName] =
-        net as NetworkNames;
+        net as unknown as SupportedNetworkName;
     });
     const supportedChangellyNames = Object.values(supportedNetworks).map(
       (s) => s.changellyName
     );
     this.changellyList.forEach((cur) => {
       if (!supportedChangellyNames.includes(cur.blockchain)) return;
-      if (cur.enabledFrom && cur.token) {
+      if (
+        cur.enabledFrom &&
+        cur.token &&
+        changellyToNetwork[cur.blockchain] === this.network
+      ) {
         this.fromTokens[cur.token.address] = cur.token;
       }
       if (cur.enabledTo && cur.token) {
-        this.toTokens[cur.token.address] = {
+        if (!this.toTokens[changellyToNetwork[cur.blockchain]])
+          this.toTokens[changellyToNetwork[cur.blockchain]] = {};
+        this.toTokens[changellyToNetwork[cur.blockchain]][cur.token.address] = {
           ...cur.token,
           networkInfo: {
-            name: changellyToNetwork[cur.blockchain] as NetworkNames,
+            name: changellyToNetwork[cur.blockchain] as SupportedNetworkName,
             isAddress: supportedNetworks[this.network].isAddress
               ? supportedNetworks[this.network].isAddress
               : (address: string) => this.isValidAddress(address, cur.ticker),
           },
         };
       }
-      this.setTicker(cur.token, changellyToNetwork[cur.blockchain], cur.ticker);
+      if (cur.token)
+        this.setTicker(
+          cur.token,
+          changellyToNetwork[cur.blockchain],
+          cur.ticker
+        );
     });
   }
 
-  private setTicker(token: TokenType, network: NetworkNames, ticker: string) {
+  private setTicker(
+    token: TokenType,
+    network: SupportedNetworkName,
+    ticker: string
+  ) {
     this.contractToTicker[`${network}-${token.address}`] = ticker;
   }
 
-  private getTicker(token: TokenType, network: NetworkNames) {
+  private getTicker(token: TokenType, network: SupportedNetworkName) {
     return this.contractToTicker[`${network}-${token.address}`];
   }
 
-  static isSupported(network: NetworkNames) {
-    return Object.keys(supportedNetworks).includes(network);
+  static isSupported(network: SupportedNetworkName) {
+    return Object.keys(supportedNetworks).includes(
+      network as unknown as string
+    );
   }
 
   private changellyRequest(method: string, params: any): Promise<any> {
@@ -148,7 +165,7 @@ class Changelly {
       from: this.getTicker(fromToken, this.network),
       to: this.getTicker(
         toToken as TokenType,
-        toToken.networkInfo.name as NetworkNames
+        toToken.networkInfo.name as SupportedNetworkName
       ),
     })
       .then((response) => {
@@ -164,23 +181,34 @@ class Changelly {
       .catch(() => emptyResponse);
   }
 
-  getQuote(
+  async getQuote(
     options: getQuoteOptions,
     meta: QuoteMetaOptions
   ): Promise<ProviderQuoteResponse | null> {
     if (
-      !Changelly.isSupported(options.toNetwork as NetworkNames) ||
-      !Changelly.isSupported(options.fromNetwork)
+      !Changelly.isSupported(
+        options.toToken.networkInfo.name as SupportedNetworkName
+      ) ||
+      !Changelly.isSupported(this.network)
     )
       Promise.resolve(null);
+    const minMax = await this.getMinMaxAmount({
+      fromToken: options.fromToken,
+      toToken: options.toToken,
+    });
+    let quoteRequestAmount = options.amount;
+    if (quoteRequestAmount.lt(minMax.minimumFrom))
+      quoteRequestAmount = minMax.minimumFrom;
+    else if (quoteRequestAmount.gt(minMax.maximumFrom))
+      quoteRequestAmount = minMax.maximumFrom;
     return this.changellyRequest("getFixRateForAmount", {
       from: this.getTicker(options.fromToken, this.network),
       to: this.getTicker(
         options.toToken as TokenType,
-        options.toToken.networkInfo.name as NetworkNames
+        options.toToken.networkInfo.name as SupportedNetworkName
       ),
       amountFrom: fromBase(
-        options.amount.toString(),
+        quoteRequestAmount.toString(),
         options.fromToken.decimals
       ),
     })
@@ -193,7 +221,7 @@ class Changelly {
             ? 21000
             : toBN(GAS_LIMITS.transferToken).toNumber();
         const retResponse: ProviderQuoteResponse = {
-          fromTokenAmount: options.amount,
+          fromTokenAmount: quoteRequestAmount,
           toTokenAmount: toBN(
             toBase(result.amountTo, options.toToken.decimals)
           ),
@@ -203,14 +231,14 @@ class Changelly {
               ...meta,
               changellyQuoteId: result.id,
             },
-            options,
+            options: {
+              ...options,
+              amount: quoteRequestAmount,
+            },
           },
           totalGaslimit:
             options.fromToken.type === NetworkType.EVM ? evmGasLimit : 0,
-          minMax: await this.getMinMaxAmount({
-            fromToken: options.fromToken,
-            toToken: options.toToken,
-          }),
+          minMax,
         };
         return retResponse;
       })
@@ -219,15 +247,17 @@ class Changelly {
 
   getSwap(quote: SwapQuote): Promise<ProviderSwapResponse | null> {
     if (
-      !Changelly.isSupported(quote.options.toNetwork as NetworkNames) ||
-      !Changelly.isSupported(quote.options.fromNetwork)
+      !Changelly.isSupported(
+        quote.options.toToken.networkInfo.name as SupportedNetworkName
+      ) ||
+      !Changelly.isSupported(this.network)
     )
       Promise.resolve(null);
     return this.changellyRequest("createFixTransaction", {
       from: this.getTicker(quote.options.fromToken, this.network),
       to: this.getTicker(
         quote.options.toToken as TokenType,
-        quote.options.toToken.networkInfo.name as NetworkNames
+        quote.options.toToken.networkInfo.name as SupportedNetworkName
       ),
       refundAddress: quote.options.fromAddress,
       address: quote.options.toAddress,

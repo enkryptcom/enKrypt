@@ -3,6 +3,35 @@ import type { toBN } from "web3-utils";
 import type Web3Eth from "web3-eth";
 
 // eslint-disable-next-line no-shadow
+export enum NewNetworks {
+  Arbitrum = "ARB",
+  Gnosis = "GNO",
+  Avalanche = "AVAX",
+  Fantom = "FTM",
+  Klaytn = "KLAY",
+  Aurora = "AURORA",
+}
+
+// eslint-disable-next-line no-shadow
+export enum SupportedNetworkName {
+  Ethereum = NetworkNames.Ethereum,
+  Binance = NetworkNames.Binance,
+  Matic = NetworkNames.Matic,
+  Optimism = NetworkNames.Optimism,
+  Polkadot = NetworkNames.Polkadot,
+  Kusama = NetworkNames.Kusama,
+  Bitcoin = NetworkNames.Bitcoin,
+  EthereumClassic = NetworkNames.EthereumClassic,
+  Moonbeam = NetworkNames.Moonbeam,
+  Arbitrum = NewNetworks.Arbitrum,
+  Gnosis = NewNetworks.Gnosis,
+  Avalanche = NewNetworks.Avalanche,
+  Fantom = NewNetworks.Fantom,
+  Klaytn = NewNetworks.Klaytn,
+  Aurora = NewNetworks.Aurora,
+}
+
+// eslint-disable-next-line no-shadow
 export enum NetworkType {
   EVM = "evm",
   Substrate = "substrate",
@@ -20,8 +49,17 @@ export interface TokenType {
   cgId?: string;
 }
 
+export interface NetworkInfo {
+  symbol: string;
+  decimals: number;
+  name: string;
+  logoURI: string;
+  rank: number;
+  cgId: string;
+}
+
 export interface TokenNetworkType {
-  name: NetworkNames | string;
+  name: SupportedNetworkName | string;
   isAddress: (addr: string) => Promise<boolean>;
 }
 export interface TokenTypeTo extends Omit<TokenType, "address"> {
@@ -90,8 +128,6 @@ export interface getQuoteOptions {
   amount: BN;
   fromToken: TokenType;
   toToken: TokenTypeTo;
-  fromNetwork: NetworkNames;
-  toNetwork: NetworkNames | string;
 }
 
 // eslint-disable-next-line no-shadow
@@ -147,7 +183,10 @@ export interface ProviderSwapResponse {
 
 export type ProviderFromTokenResponse = Record<string, TokenType>;
 
-export type ProviderToTokenResponse = Record<string, TokenTypeTo>;
+export type ProviderToTokenResponse = Record<
+  NetworkNames | string,
+  Record<string, TokenTypeTo>
+>;
 
 export interface StatusOptions {
   transactionHashes: string[];

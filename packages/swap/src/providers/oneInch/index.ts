@@ -1,6 +1,5 @@
 import type Web3Eth from "web3-eth";
 import { numberToHex, toBN, isAddress } from "web3-utils";
-import { NetworkNames } from "@enkryptcom/types";
 import {
   EVMTransaction,
   getQuoteOptions,
@@ -12,6 +11,7 @@ import {
   ProviderToTokenResponse,
   QuoteMetaOptions,
   StatusOptions,
+  SupportedNetworkName,
   SwapQuote,
   TokenType,
   TransactionStatus,
@@ -24,23 +24,25 @@ import {
   TOKEN_AMOUNT_INFINITY_AND_BEYOND,
 } from "../../utils/approvals";
 
+export const ONEINCH_APPROVAL_ADDRESS =
+  "0x1111111254eeb25477b68fb85ed929f73a960582";
 const supportedNetworks: {
-  [key in NetworkNames]?: { approvalAddress: string; chainId: string };
+  [key in SupportedNetworkName]?: { approvalAddress: string; chainId: string };
 } = {
-  [NetworkNames.Ethereum]: {
-    approvalAddress: "0x1111111254eeb25477b68fb85ed929f73a960582",
+  [SupportedNetworkName.Ethereum]: {
+    approvalAddress: ONEINCH_APPROVAL_ADDRESS,
     chainId: "1",
   },
-  [NetworkNames.Binance]: {
-    approvalAddress: "0x1111111254eeb25477b68fb85ed929f73a960582",
+  [SupportedNetworkName.Binance]: {
+    approvalAddress: ONEINCH_APPROVAL_ADDRESS,
     chainId: "56",
   },
-  [NetworkNames.Matic]: {
-    approvalAddress: "0x1111111254eeb25477b68fb85ed929f73a960582",
+  [SupportedNetworkName.Matic]: {
+    approvalAddress: ONEINCH_APPROVAL_ADDRESS,
     chainId: "137",
   },
-  [NetworkNames.Optimism]: {
-    approvalAddress: "0x1111111254eeb25477b68fb85ed929f73a960582",
+  [SupportedNetworkName.Optimism]: {
+    approvalAddress: ONEINCH_APPROVAL_ADDRESS,
     chainId: "10",
   },
 };
@@ -50,7 +52,7 @@ const BASE_URL = "https://api.1inch.io/v5.0/";
 class OneInch {
   tokenList: TokenType[];
 
-  network: NetworkNames;
+  network: SupportedNetworkName;
 
   web3eth: Web3Eth;
 
@@ -60,7 +62,7 @@ class OneInch {
 
   toTokens: ProviderToTokenResponse;
 
-  constructor(web3eth: Web3Eth, network: NetworkNames) {
+  constructor(web3eth: Web3Eth, network: SupportedNetworkName) {
     this.network = network;
     this.tokenList = [];
     this.web3eth = web3eth;
@@ -72,7 +74,8 @@ class OneInch {
     if (!OneInch.isSupported(this.network)) return;
     tokenList.forEach((t) => {
       this.fromTokens[t.address] = t;
-      this.toTokens[t.address] = {
+      if (!this.toTokens[this.network]) this.toTokens[this.network] = {};
+      this.toTokens[this.network][t.address] = {
         ...t,
         networkInfo: {
           name: this.network,
@@ -82,8 +85,10 @@ class OneInch {
     });
   }
 
-  static isSupported(network: NetworkNames) {
-    return Object.keys(supportedNetworks).includes(network);
+  static isSupported(network: SupportedNetworkName) {
+    return Object.keys(supportedNetworks).includes(
+      network as unknown as string
+    );
   }
 
   getFromTokens() {
@@ -108,8 +113,10 @@ class OneInch {
     meta: QuoteMetaOptions
   ): Promise<OneInchSwapResponse | null> {
     if (
-      !OneInch.isSupported(options.toNetwork as NetworkNames) ||
-      !OneInch.isSupported(options.fromNetwork)
+      !OneInch.isSupported(
+        options.toToken.networkInfo.name as SupportedNetworkName
+      ) ||
+      !OneInch.isSupported(this.network)
     )
       Promise.resolve(null);
     const feeConfig = FEE_CONFIGS[this.name][meta.walletIdentifier];
@@ -126,7 +133,7 @@ class OneInch {
     });
     return fetch(
       `${BASE_URL}${
-        supportedNetworks[options.fromNetwork].chainId
+        supportedNetworks[this.network].chainId
       }/swap?${params.toString()}`
     )
       .then((res) => res.json())
@@ -140,7 +147,7 @@ class OneInch {
         if (options.fromToken.address !== NATIVE_TOKEN_ADDRESS) {
           const approvalTxs = await getAllowanceTransactions({
             infinityApproval: meta.infiniteApproval,
-            spender: supportedNetworks[options.fromNetwork].approvalAddress,
+            spender: supportedNetworks[this.network].approvalAddress,
             web3eth: this.web3eth,
             amount: options.amount,
             fromAddress: options.fromAddress,

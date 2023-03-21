@@ -1,10 +1,4 @@
-// eslint-disable-next-line import/no-cycle
-import {
-  BN,
-  EVMTransaction,
-  getQuoteOptions,
-  QuoteMetaOptions,
-} from "../../types";
+import { BN, EVMTransaction } from "../../types";
 
 export interface OneInchResponseType {
   error?: string;

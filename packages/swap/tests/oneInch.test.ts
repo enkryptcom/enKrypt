@@ -1,51 +1,80 @@
-import { NetworkNames } from "@enkryptcom/types";
 import { expect } from "chai";
 import Web3Eth from "web3-eth";
-import { toBN } from "web3-utils";
-import OneInch from "../src/providers/oneInch";
-import { WalletIdentifier } from "../src/types";
+import { numberToHex } from "web3-utils";
+import OneInch, { ONEINCH_APPROVAL_ADDRESS } from "../src/providers/oneInch";
+import {
+  EVMTransaction,
+  ProviderName,
+  SupportedNetworkName,
+  WalletIdentifier,
+} from "../src/types";
+import { TOKEN_AMOUNT_INFINITY_AND_BEYOND } from "../src/utils/approvals";
+import {
+  fromToken,
+  toToken,
+  amount,
+  fromAddress,
+  toAddress,
+  nodeURL,
+} from "./fixtures/mainnet/configs";
 
 describe("OneInch Provider", () => {
-  it("it should return a quote", async () => {
-    // @ts-ignore
-    const web3eth = new Web3Eth("https://nodes.mewapi.io/rpc/eth");
-    const fromAddress = "0x4ac15590723614AB9834193ef4615eD66aC44E52";
-    const fromToken = {
-      address: "0x6b175474e89094c44da98b954eedeac495271d0f",
-      decimals: 18,
-      logoURI:
-        "https://assets.coingecko.com/coins/images/9956/thumb/4943.png?1636636734",
-      name: "Dai",
-      symbol: "DAI",
-      rank: 18,
-      cgId: "dai",
-    };
-    const toToken = {
-      address: "0x111111111117dc0aa78b770fa6a738034120c302",
-      decimals: 18,
-      logoURI:
-        "https://assets.coingecko.com/coins/images/13469/thumb/1inch-token.png?1608803028",
-      name: "1inch",
-      symbol: "1INCH",
-      rank: 100,
-      cgId: "1inch",
-    };
-    const oneInch = new OneInch(web3eth, NetworkNames.Ethereum, []);
-    const amount = toBN("10000000000000000000");
+  // @ts-ignore
+  const web3eth = new Web3Eth(nodeURL);
+  const oneInch = new OneInch(web3eth, SupportedNetworkName.Ethereum);
+  it("it should return a quote infinity approval", async () => {
     const quote = await oneInch.getQuote(
       {
         amount,
         fromAddress,
-        fromNetwork: NetworkNames.Ethereum,
         fromToken,
-        toNetwork: NetworkNames.Ethereum,
         toToken,
+        toAddress,
       },
       { infiniteApproval: true, walletIdentifier: WalletIdentifier.enkrypt }
     );
-    expect(quote?.transactions[0].to).to.be.eq(fromToken.address);
-    expect(quote?.transactions[1].value).to.be.eq("0x0");
+    expect(quote?.provider).to.be.eq(ProviderName.oneInch);
+    expect(quote?.quote.meta.infiniteApproval).to.be.eq(true);
+    expect(quote?.quote.meta.walletIdentifier).to.be.eq(
+      WalletIdentifier.enkrypt
+    );
     expect(quote?.fromTokenAmount.toString()).to.be.eq(amount.toString());
     expect(quote?.toTokenAmount.gtn(0)).to.be.eq(true);
+
+    const swap = await oneInch.getSwap(quote!.quote);
+    expect(swap?.transactions.length).to.be.eq(2);
+    expect(swap?.transactions[0].to).to.be.eq(fromToken.address);
+    expect((swap?.transactions[0] as EVMTransaction).data).to.be.eq(
+      `0x095ea7b3000000000000000000000000${ONEINCH_APPROVAL_ADDRESS.replace(
+        "0x",
+        ""
+      )}${TOKEN_AMOUNT_INFINITY_AND_BEYOND.replace("0x", "")}`
+    );
+    expect(swap?.transactions[1].to).to.be.eq(ONEINCH_APPROVAL_ADDRESS);
+  }).timeout(10000);
+
+  it("it should return a quote non infinity approval", async () => {
+    const quote = await oneInch.getQuote(
+      {
+        amount,
+        fromAddress,
+        fromToken,
+        toToken,
+        toAddress,
+      },
+      { infiniteApproval: false, walletIdentifier: WalletIdentifier.enkrypt }
+    );
+    expect(quote?.quote.meta.infiniteApproval).to.be.eq(false);
+    const swap = await oneInch.getSwap(quote!.quote);
+    expect(swap?.transactions.length).to.be.eq(2);
+    expect((swap?.transactions[0] as EVMTransaction).data).to.be.eq(
+      `0x095ea7b3000000000000000000000000${ONEINCH_APPROVAL_ADDRESS.replace(
+        "0x",
+        ""
+      )}000000000000000000000000000000000000000000000000${numberToHex(
+        amount
+      ).replace("0x", "")}`
+    );
+    expect(swap?.transactions[1].to).to.be.eq(ONEINCH_APPROVAL_ADDRESS);
   }).timeout(10000);
 });

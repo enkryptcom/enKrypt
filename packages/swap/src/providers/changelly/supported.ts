@@ -1,48 +1,48 @@
 import { isAddress } from "web3-utils";
-import { NetworkNames } from "@enkryptcom/types";
 import { isPolkadotAddress } from "../../utils/common";
+import { SupportedNetworkName } from "../../types";
 
 const supportedNetworks: {
-  [key in NetworkNames]?: {
+  [key in SupportedNetworkName]?: {
     changellyName: string;
     isAddress?: (addr: string) => Promise<boolean>;
   };
 } = {
-  [NetworkNames.Ethereum]: {
+  [SupportedNetworkName.Ethereum]: {
     changellyName: "ethereum",
     isAddress: (address: string) => Promise.resolve(isAddress(address)),
   },
-  [NetworkNames.Binance]: {
+  [SupportedNetworkName.Binance]: {
     changellyName: "binance_smart_chain",
     isAddress: (address: string) => Promise.resolve(isAddress(address)),
   },
-  [NetworkNames.Matic]: {
+  [SupportedNetworkName.Matic]: {
     changellyName: "polygon",
     isAddress: (address: string) => Promise.resolve(isAddress(address)),
   },
-  [NetworkNames.EthereumClassic]: {
+  [SupportedNetworkName.EthereumClassic]: {
     changellyName: "ethereum_classic",
     isAddress: (address: string) => Promise.resolve(isAddress(address)),
   },
-  [NetworkNames.Optimism]: {
+  [SupportedNetworkName.Optimism]: {
     changellyName: "optimism",
     isAddress: (address: string) => Promise.resolve(isAddress(address)),
   },
-  [NetworkNames.Moonbeam]: {
+  [SupportedNetworkName.Moonbeam]: {
     changellyName: "glmr",
     isAddress: (address: string) => Promise.resolve(isAddress(address)),
   },
-  [NetworkNames.Polkadot]: {
+  [SupportedNetworkName.Polkadot]: {
     changellyName: "polkadot",
     isAddress: (address: string) =>
       Promise.resolve(isPolkadotAddress(address, 0)),
   },
-  [NetworkNames.Kusama]: {
+  [SupportedNetworkName.Kusama]: {
     changellyName: "kusama",
     isAddress: (address: string) =>
       Promise.resolve(isPolkadotAddress(address, 2)),
   },
-  [NetworkNames.Bitcoin]: {
+  [SupportedNetworkName.Bitcoin]: {
     changellyName: "bitcoin",
   },
 };
