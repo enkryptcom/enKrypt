@@ -1,33 +1,52 @@
 import fetch from "node-fetch";
-import { TOKEN_LISTS } from "./configs";
+import { merge } from "lodash";
+import EventEmitter from "eventemitter3";
+import { NATIVE_TOKEN_ADDRESS, TOKEN_LISTS } from "./configs";
 import OneInch from "./providers/oneInch";
 import Changelly from "./providers/changelly";
 import NetworkDetails from "./common/supportedNetworks";
 import {
   APIType,
+  Events,
   EvmOptions,
   FromTokenType,
+  getQuoteOptions,
   NetworkInfo,
+  ProviderClass,
+  ProviderFromTokenResponse,
+  ProviderQuoteResponse,
+  ProviderSwapResponse,
+  ProviderToTokenResponse,
+  QuoteMetaOptions,
   SupportedNetworkName,
   SwapOptions,
+  SwapQuote,
+  TokenType,
+  TokenTypeTo,
 } from "./types";
+import { sortByRank, sortNativeToFront } from "./utils/common";
 
-class Swap {
+class Swap extends EventEmitter {
   network: SupportedNetworkName;
 
   evmOptions: EvmOptions;
 
-  api: APIType;
+  private api: APIType;
 
   initPromise: Promise<void>;
 
-  providerClasses: (typeof OneInch)[];
+  private providerClasses: (typeof OneInch | typeof Changelly)[];
 
-  providers: OneInch[];
+  private providers: (OneInch | Changelly)[];
 
-  tokenList: FromTokenType;
+  private tokenList: FromTokenType;
+
+  private fromTokens: TokenType[];
+
+  private toTokens: Record<SupportedNetworkName, TokenTypeTo[]>;
 
   constructor(options: SwapOptions) {
+    super();
     this.network = options.network;
     this.evmOptions = options.evmOptions
       ? options.evmOptions
@@ -35,12 +54,14 @@ class Swap {
           infiniteApproval: true,
         };
     this.api = options.api;
-    this.providerClasses = [OneInch];
+    this.providerClasses = [OneInch, Changelly];
     this.tokenList = {
       all: [],
       top: [],
       trending: [],
     };
+    this.toTokens = {};
+    this.fromTokens = [];
     this.initPromise = this.init();
   }
 
@@ -55,6 +76,55 @@ class Swap {
     await Promise.all(
       this.providers.map((Provider) => Provider.init(this.tokenList.all))
     );
+    const allFromTokens: ProviderFromTokenResponse = {};
+    [...this.providers].reverse().forEach((p) => {
+      Object.assign(allFromTokens, p.getFromTokens());
+    });
+    this.fromTokens = Object.values(allFromTokens).sort(sortNativeToFront);
+    const native = this.fromTokens.shift();
+    this.fromTokens.sort(sortByRank);
+    this.fromTokens.unshift(native);
+    const allToTokens: ProviderToTokenResponse = {};
+    [...this.providers].reverse().forEach((p) => {
+      merge(allToTokens, p.getToTokens());
+    });
+    Object.keys(allToTokens).forEach((nName) => {
+      const values = Object.values(allToTokens[nName]);
+      values.sort(sortNativeToFront);
+      const nativeTo = values.shift();
+      values.sort(sortByRank);
+      values.unshift(nativeTo);
+      this.toTokens[nName] = values;
+    });
+  }
+
+  getFromTokens() {
+    return this.fromTokens;
+  }
+
+  getToTokens() {
+    return this.toTokens;
+  }
+
+  async getQuote(
+    options: getQuoteOptions,
+    meta: QuoteMetaOptions
+  ): Promise<ProviderQuoteResponse[] | null> {
+    const response = await Promise.all(
+      this.providers.map((Provider) =>
+        Provider.getQuote(options, meta).then((res) => {
+          if (!res) return res;
+          this.emit(Events.QuoteUpdate, res.toTokenAmount);
+          return res;
+        })
+      )
+    );
+    return response.filter((res) => res !== null);
+  }
+
+  getSwap(quote: SwapQuote): Promise<ProviderSwapResponse | null> {
+    const provider = this.providers.find((p) => p.name === quote.provider);
+    return provider.getSwap(quote);
   }
 
   static networkNameToInfo(networkName: SupportedNetworkName): NetworkInfo {

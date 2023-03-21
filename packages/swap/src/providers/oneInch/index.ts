@@ -4,6 +4,7 @@ import {
   EVMTransaction,
   getQuoteOptions,
   MinMaxResponse,
+  ProviderClass,
   ProviderFromTokenResponse,
   ProviderName,
   ProviderQuoteResponse,
@@ -49,7 +50,7 @@ const supportedNetworks: {
 
 const BASE_URL = "https://api.1inch.io/v5.0/";
 
-class OneInch {
+class OneInch extends ProviderClass {
   tokenList: TokenType[];
 
   network: SupportedNetworkName;
@@ -63,11 +64,13 @@ class OneInch {
   toTokens: ProviderToTokenResponse;
 
   constructor(web3eth: Web3Eth, network: SupportedNetworkName) {
+    super(web3eth, network);
     this.network = network;
     this.tokenList = [];
     this.web3eth = web3eth;
     this.name = ProviderName.oneInch;
     this.fromTokens = {};
+    this.toTokens = {};
   }
 
   init(tokenList: TokenType[]): Promise<void> {
@@ -183,6 +186,7 @@ class OneInch {
         quote: {
           meta,
           options,
+          provider: this.name,
         },
         totalGaslimit: res.transactions.reduce(
           (total: number, curVal: EVMTransaction) =>

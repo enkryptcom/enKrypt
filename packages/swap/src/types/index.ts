@@ -13,6 +13,11 @@ export enum NewNetworks {
 }
 
 // eslint-disable-next-line no-shadow
+export enum Events {
+  QuoteUpdate = "quote-update",
+}
+
+// eslint-disable-next-line no-shadow
 export enum SupportedNetworkName {
   Ethereum = NetworkNames.Ethereum,
   Binance = NetworkNames.Binance,
@@ -162,6 +167,7 @@ export interface MinMaxResponse {
 export interface SwapQuote {
   options: getQuoteOptions;
   meta: QuoteMetaOptions;
+  provider: ProviderName;
 }
 
 export interface ProviderQuoteResponse {
@@ -184,10 +190,35 @@ export interface ProviderSwapResponse {
 export type ProviderFromTokenResponse = Record<string, TokenType>;
 
 export type ProviderToTokenResponse = Record<
-  NetworkNames | string,
+  SupportedNetworkName,
   Record<string, TokenTypeTo>
 >;
 
 export interface StatusOptions {
   transactionHashes: string[];
+}
+
+export abstract class ProviderClass {
+  abstract name: string;
+
+  network: SupportedNetworkName;
+
+  constructor(_web3eth: Web3Eth, network: SupportedNetworkName) {
+    this.network = network;
+  }
+
+  abstract init(tokenList: TokenType[]): Promise<void>;
+
+  abstract getFromTokens(): ProviderFromTokenResponse;
+
+  abstract getToTokens(): ProviderToTokenResponse;
+
+  abstract getQuote(
+    options: getQuoteOptions,
+    meta: QuoteMetaOptions
+  ): Promise<ProviderQuoteResponse | null>;
+
+  abstract getSwap(quote: SwapQuote): Promise<ProviderSwapResponse | null>;
+
+  abstract getStatus(options: unknown): Promise<TransactionStatus>;
 }

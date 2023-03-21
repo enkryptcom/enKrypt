@@ -7,6 +7,7 @@ import {
   getQuoteOptions,
   MinMaxResponse,
   NetworkType,
+  ProviderClass,
   ProviderFromTokenResponse,
   ProviderName,
   ProviderQuoteResponse,
@@ -33,7 +34,7 @@ import { ChangellyCurrency, ChangellyStatusOptions } from "./types";
 
 const BASE_URL = "https://swap.mewapi.io/changelly";
 
-class Changelly {
+class Changelly extends ProviderClass {
   tokenList: TokenType[];
 
   network: SupportedNetworkName;
@@ -49,6 +50,7 @@ class Changelly {
   contractToTicker: Record<string, string>;
 
   constructor(_web3eth: Web3Eth, network: SupportedNetworkName) {
+    super(_web3eth, network);
     this.network = network;
     this.tokenList = [];
     this.name = ProviderName.changelly;
@@ -235,6 +237,7 @@ class Changelly {
               ...options,
               amount: quoteRequestAmount,
             },
+            provider: this.name,
           },
           totalGaslimit:
             options.fromToken.type === NetworkType.EVM ? evmGasLimit : 0,
