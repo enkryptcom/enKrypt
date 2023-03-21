@@ -1,7 +1,7 @@
-import type Web3Eth from "web3-eth";
+import Web3Eth from "web3-eth";
 import { toBN } from "web3-utils";
 import Erc20abi from "./abi/erc20";
-import { BN, EVMTransaction, TokenType } from "../types";
+import { BN, EVMTransaction, TokenType, TransactionType } from "../types";
 import { GAS_LIMITS } from "../configs";
 
 export const TOKEN_AMOUNT_INFINITY_AND_BEYOND =
@@ -20,18 +20,35 @@ const getAllowance = (options: {
   return contract.methods.allowance(options.owner, options.spender).call();
 };
 
+const getTransfer = (options: {
+  contract: string;
+  to: string;
+  value: string;
+}): EVMTransaction => {
+  const web3Eth = new Web3Eth();
+  const contract = new web3Eth.Contract(Erc20abi as any);
+  return {
+    data: contract.methods.transfer(options.to, options.value).encodeABI(),
+    gasLimit: GAS_LIMITS.transferToken,
+    to: options.contract,
+    value: "0x0",
+    type: TransactionType.evm,
+  };
+};
+
 const getApproval = (options: {
   contract: string;
   spender: string;
   value: string;
-  web3eth: Web3Eth;
 }): EVMTransaction => {
-  const contract = new options.web3eth.Contract(Erc20abi as any);
+  const web3Eth = new Web3Eth();
+  const contract = new web3Eth.Contract(Erc20abi as any);
   return {
     data: contract.methods.approve(options.spender, options.value).encodeABI(),
     gasLimit: GAS_LIMITS.approval,
     to: options.contract,
     value: "0x0",
+    type: TransactionType.evm,
   };
 };
 
@@ -61,7 +78,6 @@ const getAllowanceTransactions = async (options: {
           value: options.infinityApproval
             ? TOKEN_AMOUNT_INFINITY_AND_BEYOND
             : options.amount.toString(),
-          web3eth: options.web3eth,
           contract: options.fromToken.address,
         })
       );
@@ -70,7 +86,6 @@ const getAllowanceTransactions = async (options: {
         getApproval({
           spender: options.spender,
           value: "0",
-          web3eth: options.web3eth,
           contract: options.fromToken.address,
         })
       );
@@ -80,7 +95,6 @@ const getAllowanceTransactions = async (options: {
           value: options.infinityApproval
             ? TOKEN_AMOUNT_INFINITY_AND_BEYOND
             : options.amount.toString(),
-          web3eth: options.web3eth,
           contract: options.fromToken.address,
         })
       );
@@ -88,4 +102,4 @@ const getAllowanceTransactions = async (options: {
   }
   return transactions;
 };
-export { getAllowance, getApproval, getAllowanceTransactions };
+export { getAllowance, getApproval, getAllowanceTransactions, getTransfer };

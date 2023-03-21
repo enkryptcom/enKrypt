@@ -53,6 +53,7 @@ const CHANGELLY_LIST =
 
 const GAS_LIMITS = {
   approval: numberToHex(300000),
+  transferToken: numberToHex(300000),
   swap: numberToHex(1000000),
 };
 const NATIVE_TOKEN_ADDRESS = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";

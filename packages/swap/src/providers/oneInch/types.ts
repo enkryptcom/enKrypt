@@ -24,8 +24,3 @@ export interface OneInchSwapResponse {
   toTokenAmount: BN;
   fromTokenAmount: BN;
 }
-
-export interface OneInchQuote {
-  options: getQuoteOptions;
-  meta: QuoteMetaOptions;
-}

@@ -1,5 +1,6 @@
-import { NetworkNames } from "@enkryptcom/types";
 import { isAddress } from "web3-utils";
+import { NetworkNames } from "@enkryptcom/types";
+import { isPolkadotAddress } from "../../utils/common";
 
 const supportedNetworks: {
   [key in NetworkNames]?: {
@@ -33,9 +34,13 @@ const supportedNetworks: {
   },
   [NetworkNames.Polkadot]: {
     changellyName: "polkadot",
+    isAddress: (address: string) =>
+      Promise.resolve(isPolkadotAddress(address, 0)),
   },
   [NetworkNames.Kusama]: {
     changellyName: "kusama",
+    isAddress: (address: string) =>
+      Promise.resolve(isPolkadotAddress(address, 2)),
   },
   [NetworkNames.Bitcoin]: {
     changellyName: "bitcoin",

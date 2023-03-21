@@ -1,37 +1,35 @@
 import type Web3Eth from "web3-eth";
+import { v4 as uuidv4 } from "uuid";
 import fetch from "node-fetch";
 import { fromBase, toBase } from "@enkryptcom/utils";
 import { numberToHex, toBN } from "web3-utils";
 import { NetworkNames } from "@enkryptcom/types";
 import {
-  EVMTransaction,
   getQuoteOptions,
   MinMaxResponse,
+  NetworkType,
   ProviderFromTokenResponse,
   ProviderName,
   ProviderQuoteResponse,
   ProviderSwapResponse,
   ProviderToTokenResponse,
   QuoteMetaOptions,
-  StatusOptions,
+  SwapQuote,
+  SwapTransaction,
   TokenType,
   TokenTypeTo,
   TransactionStatus,
+  TransactionType,
 } from "../../types";
 import {
   CHANGELLY_LIST,
-  FEE_CONFIGS,
   GAS_LIMITS,
   NATIVE_TOKEN_ADDRESS,
 } from "../../configs";
-import {
-  OneInchQuote,
-  OneInchResponseType,
-  OneInchSwapResponse,
-} from "../oneInch/types";
-import { getAllowanceTransactions } from "../../utils/approvals";
+
+import { getTransfer } from "../../utils/approvals";
 import supportedNetworks from "./supported";
-import { ChangellyCurrency } from "./types";
+import { ChangellyCurrency, ChangellyStatusOptions } from "./types";
 
 const BASE_URL = "https://swap.mewapi.io/changelly";
 
@@ -106,7 +104,7 @@ class Changelly {
     return fetch(`${BASE_URL}`, {
       method: "POST",
       body: JSON.stringify({
-        id: "1",
+        id: uuidv4(),
         jsonrpc: "2.0",
         method,
         params,
@@ -146,18 +144,16 @@ class Changelly {
       minimumTo: toBN("0"),
       maximumTo: toBN("0"),
     };
-    return this.changellyRequest("getFixRate", [
-      {
-        from: this.getTicker(fromToken, this.network),
-        to: this.getTicker(
-          toToken as TokenType,
-          toToken.networkInfo.name as NetworkNames
-        ),
-      },
-    ])
+    return this.changellyRequest("getFixRate", {
+      from: this.getTicker(fromToken, this.network),
+      to: this.getTicker(
+        toToken as TokenType,
+        toToken.networkInfo.name as NetworkNames
+      ),
+    })
       .then((response) => {
         if (response.error) return emptyResponse;
-        const result = response.result[0];
+        const { result } = response;
         return {
           minimumFrom: toBN(toBase(result.minFrom, fromToken.decimals)),
           maximumFrom: toBN(toBase(result.maxFrom, fromToken.decimals)),
@@ -168,117 +164,141 @@ class Changelly {
       .catch(() => emptyResponse);
   }
 
-  private getOneInchSwap(
-    options: getQuoteOptions,
-    meta: QuoteMetaOptions
-  ): Promise<OneInchSwapResponse | null> {
-    if (
-      !OneInch.isSupported(options.toNetwork as NetworkNames) ||
-      !OneInch.isSupported(options.fromNetwork)
-    )
-      Promise.resolve(null);
-    const feeConfig = FEE_CONFIGS[this.name][meta.walletIdentifier];
-    const params = new URLSearchParams({
-      fromTokenAddress: options.fromToken.address,
-      toTokenAddress: options.toToken.address,
-      amount: options.amount.toString(),
-      fromAddress: options.fromAddress,
-      destReceiver: options.toAddress,
-      slippage: meta.slippage ? meta.slippage : "0.5",
-      fee: feeConfig ? (feeConfig.fee * 100).toFixed(3) : "0",
-      referrerAddress: feeConfig ? feeConfig.referrer : "",
-      disableEstimate: "true",
-    });
-    return fetch(
-      `${BASE_URL}${
-        supportedNetworks[options.fromNetwork].chainId
-      }/swap?${params.toString()}`
-    )
-      .then((res) => res.json())
-      .then(async (response: OneInchResponseType) => {
-        if (response.error) {
-          console.error(response.error, response.description);
-          return Promise.resolve(null);
-        }
-        const transactions: EVMTransaction[] = [];
-
-        if (options.fromToken.address !== NATIVE_TOKEN_ADDRESS) {
-          const approvalTxs = await getAllowanceTransactions({
-            infinityApproval: meta.infiniteApproval,
-            spender: supportedNetworks[options.fromNetwork].approvalAddress,
-            web3eth: this.web3eth,
-            amount: options.amount,
-            fromAddress: options.fromAddress,
-            fromToken: options.fromToken,
-          });
-          transactions.push(...approvalTxs);
-        }
-        transactions.push({
-          gasLimit: GAS_LIMITS.swap,
-          to: response.tx.to,
-          value: numberToHex(response.tx.value),
-          data: response.tx.data,
-        });
-        return {
-          transactions,
-          toTokenAmount: toBN(response.toTokenAmount),
-          fromTokenAmount: toBN(response.fromTokenAmount),
-        };
-      });
-  }
-
   getQuote(
     options: getQuoteOptions,
     meta: QuoteMetaOptions
   ): Promise<ProviderQuoteResponse | null> {
-    return this.getOneInchSwap(options, meta).then(async (res) => {
-      if (!res) return null;
-      const response: ProviderQuoteResponse = {
-        fromTokenAmount: res.fromTokenAmount,
-        toTokenAmount: res.toTokenAmount,
-        provider: this.name,
-        quote: {
-          meta,
-          options,
-        },
-        totalGaslimit: res.transactions.reduce(
-          (total: number, curVal: EVMTransaction) =>
-            total + toBN(curVal.gasLimit).toNumber(),
-          0
-        ),
-        minMax: await this.getMinMaxAmount({ fromToken: options.fromToken }),
-      };
-      return response;
-    });
+    if (
+      !Changelly.isSupported(options.toNetwork as NetworkNames) ||
+      !Changelly.isSupported(options.fromNetwork)
+    )
+      Promise.resolve(null);
+    return this.changellyRequest("getFixRateForAmount", {
+      from: this.getTicker(options.fromToken, this.network),
+      to: this.getTicker(
+        options.toToken as TokenType,
+        options.toToken.networkInfo.name as NetworkNames
+      ),
+      amountFrom: fromBase(
+        options.amount.toString(),
+        options.fromToken.decimals
+      ),
+    })
+      .then(async (response) => {
+        if (response.error || !response.result.id) return null;
+        const { result } = response;
+        const evmGasLimit =
+          options.fromToken.address === NATIVE_TOKEN_ADDRESS &&
+          options.fromToken.type === NetworkType.EVM
+            ? 21000
+            : toBN(GAS_LIMITS.transferToken).toNumber();
+        const retResponse: ProviderQuoteResponse = {
+          fromTokenAmount: options.amount,
+          toTokenAmount: toBN(
+            toBase(result.amountTo, options.toToken.decimals)
+          ),
+          provider: this.name,
+          quote: {
+            meta: {
+              ...meta,
+              changellyQuoteId: result.id,
+            },
+            options,
+          },
+          totalGaslimit:
+            options.fromToken.type === NetworkType.EVM ? evmGasLimit : 0,
+          minMax: await this.getMinMaxAmount({
+            fromToken: options.fromToken,
+            toToken: options.toToken,
+          }),
+        };
+        return retResponse;
+      })
+      .catch(() => null);
   }
 
-  getSwap(quote: OneInchQuote): Promise<ProviderSwapResponse | null> {
-    return this.getOneInchSwap(quote.options, quote.meta).then((res) => {
-      if (!res) return null;
-      const response: ProviderSwapResponse = {
-        fromTokenAmount: res.fromTokenAmount,
-        provider: this.name,
-        toTokenAmount: res.toTokenAmount,
-        transactions: res.transactions,
-        getStatusObject: async (options: StatusOptions) => options,
-      };
-      return response;
-    });
-  }
-
-  getStatus(options: StatusOptions): Promise<TransactionStatus> {
-    const promises = options.transactionHashes.map((hash) =>
-      this.web3eth.getTransactionReceipt(hash)
-    );
-    return Promise.all(promises).then((receipts) => {
-      // eslint-disable-next-line no-restricted-syntax
-      for (const receipt of receipts) {
-        if (!receipt || (receipt && !receipt.blockNumber)) {
-          return TransactionStatus.pending;
+  getSwap(quote: SwapQuote): Promise<ProviderSwapResponse | null> {
+    if (
+      !Changelly.isSupported(quote.options.toNetwork as NetworkNames) ||
+      !Changelly.isSupported(quote.options.fromNetwork)
+    )
+      Promise.resolve(null);
+    return this.changellyRequest("createFixTransaction", {
+      from: this.getTicker(quote.options.fromToken, this.network),
+      to: this.getTicker(
+        quote.options.toToken as TokenType,
+        quote.options.toToken.networkInfo.name as NetworkNames
+      ),
+      refundAddress: quote.options.fromAddress,
+      address: quote.options.toAddress,
+      amountFrom: fromBase(
+        quote.options.amount.toString(),
+        quote.options.fromToken.decimals
+      ),
+      rateId: quote.meta.changellyQuoteId,
+    })
+      .then(async (response) => {
+        if (response.error || !response.result.id) return null;
+        const { result } = response;
+        let transaction: SwapTransaction;
+        if (quote.options.fromToken.type === NetworkType.EVM) {
+          if (quote.options.fromToken.address === NATIVE_TOKEN_ADDRESS)
+            transaction = {
+              data: "0x",
+              gasLimit: numberToHex(21000),
+              to: result.payinAddress,
+              value: numberToHex(quote.options.amount),
+              type: TransactionType.evm,
+            };
+          else
+            transaction = getTransfer({
+              contract: quote.options.fromToken.address,
+              to: result.payinAddress,
+              value: quote.options.amount.toString(),
+            });
+        } else {
+          transaction = {
+            to: result.payinAddress,
+            value: numberToHex(quote.options.amount),
+            type: TransactionType.generic,
+          };
         }
-        if (receipt && !receipt.status) return TransactionStatus.failed;
-      }
-      return TransactionStatus.success;
+        const retResponse: ProviderSwapResponse = {
+          fromTokenAmount: quote.options.amount,
+          provider: this.name,
+          toTokenAmount: toBN(
+            toBase(result.amountTo, quote.options.toToken.decimals)
+          ),
+          transactions: [transaction],
+          getStatusObject: async (): Promise<ChangellyStatusOptions> => ({
+            swapId: result.id,
+          }),
+        };
+        return retResponse;
+      })
+      .catch(() => null);
+  }
+
+  getStatus(options: ChangellyStatusOptions): Promise<TransactionStatus> {
+    return this.changellyRequest("getStatus", {
+      id: options.swapId,
+    }).then(async (response) => {
+      if (response.error || !response.result.id)
+        return TransactionStatus.pending;
+      const completedStatuses = ["finished"];
+      const pendingStatuses = [
+        "confirming",
+        "exchanging",
+        "sending",
+        "waiting",
+        "new",
+      ];
+      const failedStatuses = ["failed", "refunded", "hold", "expired"];
+      const status = response.result;
+      if (pendingStatuses.includes(status)) return TransactionStatus.pending;
+      if (completedStatuses.includes(status)) return TransactionStatus.success;
+      if (failedStatuses.includes(status)) return TransactionStatus.failed;
+      return TransactionStatus.pending;
     });
   }
 }

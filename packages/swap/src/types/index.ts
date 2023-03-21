@@ -1,8 +1,13 @@
 import { NetworkNames } from "@enkryptcom/types";
 import type { toBN } from "web3-utils";
 import type Web3Eth from "web3-eth";
-// eslint-disable-next-line import/no-cycle
-import { OneInchQuote } from "../providers/oneInch/types";
+
+// eslint-disable-next-line no-shadow
+export enum NetworkType {
+  EVM = "evm",
+  Substrate = "substrate",
+  Bitcoin = "bitcoin",
+}
 
 export interface TokenType {
   address: string;
@@ -10,6 +15,7 @@ export interface TokenType {
   decimals: number;
   name: string;
   logoURI: string;
+  type: NetworkType;
   rank?: number;
   cgId?: string;
 }
@@ -53,6 +59,7 @@ export interface QuoteMetaOptions {
   infiniteApproval: boolean;
   walletIdentifier: WalletIdentifier;
   slippage?: string;
+  changellyQuoteId?: string;
 }
 
 export interface SwapOptions {
@@ -82,9 +89,15 @@ export interface getQuoteOptions {
   toAddress: string;
   amount: BN;
   fromToken: TokenType;
-  toToken: TokenType;
+  toToken: TokenTypeTo;
   fromNetwork: NetworkNames;
   toNetwork: NetworkNames | string;
+}
+
+// eslint-disable-next-line no-shadow
+export enum TransactionType {
+  evm = "evm",
+  generic = "generic",
 }
 
 export interface EVMTransaction {
@@ -92,7 +105,16 @@ export interface EVMTransaction {
   to: string;
   value: string;
   data: string;
+  type: TransactionType.evm;
 }
+
+export interface GenericTransaction {
+  to: string;
+  value: string;
+  type: TransactionType.generic;
+}
+
+export type SwapTransaction = EVMTransaction | GenericTransaction;
 
 export interface MinMaxResponse {
   minimumFrom: BN;
@@ -101,17 +123,22 @@ export interface MinMaxResponse {
   maximumTo: BN;
 }
 
+export interface SwapQuote {
+  options: getQuoteOptions;
+  meta: QuoteMetaOptions;
+}
+
 export interface ProviderQuoteResponse {
   toTokenAmount: BN;
   fromTokenAmount: BN;
   totalGaslimit: number;
   provider: ProviderName;
-  quote: OneInchQuote;
+  quote: SwapQuote;
   minMax: MinMaxResponse;
 }
 
 export interface ProviderSwapResponse {
-  transactions: EVMTransaction[];
+  transactions: SwapTransaction[];
   toTokenAmount: BN;
   fromTokenAmount: BN;
   provider: ProviderName;

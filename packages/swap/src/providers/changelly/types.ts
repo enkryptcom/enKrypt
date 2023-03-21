@@ -17,3 +17,7 @@ export interface ChangellyCurrency {
   contractAddress?: string;
   token?: TokenType;
 }
+
+export interface ChangellyStatusOptions {
+  swapId: string;
+}

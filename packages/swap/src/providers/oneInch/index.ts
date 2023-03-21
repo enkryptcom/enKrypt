@@ -12,15 +12,13 @@ import {
   ProviderToTokenResponse,
   QuoteMetaOptions,
   StatusOptions,
+  SwapQuote,
   TokenType,
   TransactionStatus,
+  TransactionType,
 } from "../../types";
 import { FEE_CONFIGS, GAS_LIMITS, NATIVE_TOKEN_ADDRESS } from "../../configs";
-import {
-  OneInchQuote,
-  OneInchResponseType,
-  OneInchSwapResponse,
-} from "./types";
+import { OneInchResponseType, OneInchSwapResponse } from "./types";
 import {
   getAllowanceTransactions,
   TOKEN_AMOUNT_INFINITY_AND_BEYOND,
@@ -155,6 +153,7 @@ class OneInch {
           to: response.tx.to,
           value: numberToHex(response.tx.value),
           data: response.tx.data,
+          type: TransactionType.evm,
         });
         return {
           transactions,
@@ -189,7 +188,7 @@ class OneInch {
     });
   }
 
-  getSwap(quote: OneInchQuote): Promise<ProviderSwapResponse | null> {
+  getSwap(quote: SwapQuote): Promise<ProviderSwapResponse | null> {
     return this.getOneInchSwap(quote.options, quote.meta).then((res) => {
       if (!res) return null;
       const response: ProviderSwapResponse = {
