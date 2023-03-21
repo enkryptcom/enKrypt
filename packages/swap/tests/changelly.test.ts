@@ -49,7 +49,7 @@ describe("Changelly Provider", () => {
     expect(
       (swap?.transactions[0] as EVMTransaction).data.startsWith("0xa9059cbb")
     ).to.be.eq(true);
-  }).timeout(10000);
+  }).timeout(5000);
 
   it("it should return correct tokens", async () => {
     await init;
@@ -63,7 +63,7 @@ describe("Changelly Provider", () => {
     expect(
       Object.values(toTokens[SupportedNetworkName.Kusama]).length
     ).to.be.eq(1);
-  }).timeout(10000);
+  });
 
   it("it should initialize other networks: Bitcoin", async () => {
     const changelly2 = new Changelly(web3eth, SupportedNetworkName.Bitcoin);
@@ -71,13 +71,13 @@ describe("Changelly Provider", () => {
     const fromTokens = changelly2.getFromTokens();
     expect(Object.values(fromTokens).length).to.be.eq(1);
     expect(fromTokens[NATIVE_TOKEN_ADDRESS].name).to.be.eq("Bitcoin");
-  }).timeout(10000);
+  });
 
-  it("it should initialize other networks: Bitcoin", async () => {
+  it("it should initialize other networks: Kusama", async () => {
     const changelly2 = new Changelly(web3eth, SupportedNetworkName.Kusama);
     await changelly2.init();
     const fromTokens = changelly2.getFromTokens();
     expect(Object.values(fromTokens).length).to.be.eq(1);
     expect(fromTokens[NATIVE_TOKEN_ADDRESS].name).to.be.eq("Kusama");
-  }).timeout(10000);
+  });
 });

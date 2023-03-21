@@ -1,11 +1,19 @@
-import { NetworkNames } from "@enkryptcom/types";
 import fetch from "node-fetch";
 import { TOKEN_LISTS } from "./configs";
 import OneInch from "./providers/oneInch";
-import { APIType, EvmOptions, FromTokenType, SwapOptions } from "./types";
+import Changelly from "./providers/changelly";
+import NetworkDetails from "./common/supportedNetworks";
+import {
+  APIType,
+  EvmOptions,
+  FromTokenType,
+  NetworkInfo,
+  SupportedNetworkName,
+  SwapOptions,
+} from "./types";
 
 class Swap {
-  network: NetworkNames;
+  network: SupportedNetworkName;
 
   evmOptions: EvmOptions;
 
@@ -48,7 +56,10 @@ class Swap {
       this.providers.map((Provider) => Provider.init(this.tokenList.all))
     );
   }
-  // getFromTokens(): Promise<FromTokenType[]> {}
+
+  static networkNameToInfo(networkName: SupportedNetworkName): NetworkInfo {
+    return NetworkDetails[networkName];
+  }
 }
 
 export default Swap;

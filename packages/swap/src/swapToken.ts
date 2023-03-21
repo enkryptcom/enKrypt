@@ -1,6 +1,5 @@
 import { fromBase, toBase } from "@enkryptcom/utils";
 import { toBN } from "web3-utils";
-import BigNumber from "bignumber.js";
 import { BN, TokenType } from "./types";
 
 class SwapToken {
@@ -16,13 +15,6 @@ class SwapToken {
 
   toRaw(amount: string): BN {
     return toBN(toBase(amount, this.token.decimals));
-  }
-
-  toFiat(rawAmount: BN): Promise<string> {
-    return Promise.resolve(
-      // get the price from cgid
-      BigNumber(this.toReadable(rawAmount)).times(1).toFixed()
-    );
   }
 }
 export default SwapToken;

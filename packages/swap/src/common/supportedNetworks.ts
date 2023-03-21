@@ -1,6 +1,6 @@
 import { NetworkInfo, SupportedNetworkName } from "../types";
 
-const NetworkInfo: {
+const NetworkDetails: {
   [key in SupportedNetworkName]: NetworkInfo;
 } = {
   [SupportedNetworkName.Bitcoin]: {
@@ -127,3 +127,5 @@ const NetworkInfo: {
     rank: 1,
   },
 };
+
+export default NetworkDetails;

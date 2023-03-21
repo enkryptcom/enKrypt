@@ -101,7 +101,7 @@ export interface QuoteMetaOptions {
 }
 
 export interface SwapOptions {
-  network: NetworkNames;
+  network: SupportedNetworkName;
   api: APIType;
   evmOptions?: EvmOptions;
   walletIdentifier: WalletIdentifier;
