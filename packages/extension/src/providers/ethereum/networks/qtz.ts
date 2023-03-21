@@ -4,7 +4,7 @@ import { EtherscanActivity } from "../libs/activity-handlers";
 import { NetworkNames } from "@enkryptcom/types";
 
 const qtzOptions: EvmNetworkOptions = {
-  name: NetworkNames.Quartz,
+  name: NetworkNames.QuartzEVM,
   name_long: "Quartz EVM",
   homePage: "https://unique.network/",
   blockExplorerTX: "https://uniquescan.io/quartz/tx/[[txHash]]",

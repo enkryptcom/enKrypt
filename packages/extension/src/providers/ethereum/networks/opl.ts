@@ -4,7 +4,7 @@ import { EtherscanActivity } from "../libs/activity-handlers";
 import { NetworkNames } from "@enkryptcom/types";
 
 const oplOptions: EvmNetworkOptions = {
-  name: NetworkNames.Opal,
+  name: NetworkNames.OpalEVM,
   name_long: "Opal EVM",
   homePage: "https://unique.network/",
   blockExplorerTX: "https://uniquescan.io/opal/tx/[[txHash]]",

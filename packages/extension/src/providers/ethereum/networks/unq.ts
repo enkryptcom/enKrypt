@@ -4,7 +4,7 @@ import { EtherscanActivity } from "../libs/activity-handlers";
 import { NetworkNames } from "@enkryptcom/types";
 
 const unqOptions: EvmNetworkOptions = {
-  name: NetworkNames.Unique,
+  name: NetworkNames.UniqueEVM,
   name_long: "Unique EVM",
   homePage: "https://unique.network/",
   blockExplorerTX: "https://uniquescan.io/unique/tx/[[txHash]]",
