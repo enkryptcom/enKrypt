@@ -1,6 +1,6 @@
 {
   "name": "@enkryptcom/utils",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "utility functions for enkrypt extension",
   "main": "dist/index.js",
   "module": "dist/index.mjs",

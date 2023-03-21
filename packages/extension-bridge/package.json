@@ -1,6 +1,6 @@
 {
   "name": "@enkryptcom/extension-bridge",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Messaging in Web Extensions made easy. Out of the box.",
   "keywords": [
     "chrome",

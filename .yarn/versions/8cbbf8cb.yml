@@ -1,0 +1,12 @@
+undecided:
+  - enkrypt
+  - "@enkryptcom/extension"
+  - "@enkryptcom/extension-bridge"
+  - "@enkryptcom/hw-wallets"
+  - "@enkryptcom/keyring"
+  - "@enkryptcom/name-resolution"
+  - "@enkryptcom/request"
+  - "@enkryptcom/signer-bitcoin"
+  - "@enkryptcom/signer-ethereum"
+  - "@enkryptcom/signer-polkadot"
+  - "@enkryptcom/storage"

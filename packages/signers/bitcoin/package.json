@@ -1,6 +1,6 @@
 {
   "name": "@enkryptcom/signer-bitcoin",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Bitcoin blockchain signer",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -17,7 +17,7 @@
     "node": ">=14.15.0"
   },
   "dependencies": {
-    "@enkryptcom/utils": "^0.0.1",
+    "@enkryptcom/utils": "^0.0.3",
     "@noble/secp256k1": "^1.7.1",
     "bip39": "^3.1.0",
     "chai": "^4.3.7",

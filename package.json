@@ -1,6 +1,7 @@
 {
   "name": "enkrypt",
   "packageManager": "yarn@3.2.2",
+  "version": "0.0.1",
   "private": true,
   "workspaces": [
     "packages/signers/*",
@@ -15,12 +16,16 @@
     "packages/name-resolution"
   ],
   "scripts": {
-    "test": "yarn workspaces foreach -pv run test",
+    "test": "yarn workspaces foreach -v run test",
     "lint": "yarn workspaces foreach run lint",
     "build:all": "ultra -r build",
     "watch": "concurrently 'npm:watch-*'",
     "watch-extension": "cd packages/extension && npm run watch",
-    "watch-ts": "nodemon --exec 'yarn run build:all && node scripts/compile-done.js'"
+    "watch-ts": "nodemon --exec 'yarn run build:all && node scripts/compile-done.js'",
+    "upgrade": "yarn upgrade-interactive",
+    "version:bump:patch": "yarn workspaces foreach -pv --exclude @enkryptcom/extension exec 'yarn version --immediate patch'",
+    "publish": "yarn workspaces foreach -pv --exclude @enkryptcom/extension exec 'yarn npm publish --access public --otp'",
+    "version:apply": "yarn version apply --all"
   },
   "devDependencies": {
     "@commitlint/cli": "^17.4.4",

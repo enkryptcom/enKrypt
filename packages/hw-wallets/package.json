@@ -1,6 +1,6 @@
 {
   "name": "@enkryptcom/hw-wallets",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Hardware wallet manager for enkrypt",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -46,7 +46,7 @@
   "license": "MIT",
   "dependencies": {
     "@enkryptcom/types": "^0.0.1",
-    "@enkryptcom/utils": "^0.0.1",
+    "@enkryptcom/utils": "^0.0.3",
     "@ethereumjs/tx": "^4.1.1",
     "@ledgerhq/hw-app-eth": "^6.32.1",
     "@ledgerhq/hw-transport": "^6.28.1",

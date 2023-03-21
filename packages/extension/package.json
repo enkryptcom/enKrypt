@@ -1,6 +1,6 @@
 {
   "name": "@enkryptcom/extension",
-  "version": "1.13.1",
+  "version": "1.14.0",
   "private": true,
   "scripts": {
     "zip": "cd dist; zip -r release.zip *;",
@@ -20,13 +20,13 @@
   },
   "dependencies": {
     "@acala-network/api": "^4.1.8-2.3",
-    "@enkryptcom/extension-bridge": "^0.0.1",
-    "@enkryptcom/hw-wallets": "^0.0.1",
-    "@enkryptcom/keyring": "^0.0.1",
+    "@enkryptcom/extension-bridge": "^0.0.2",
+    "@enkryptcom/hw-wallets": "^0.0.2",
+    "@enkryptcom/keyring": "^0.0.2",
     "@enkryptcom/request": "^0.0.1",
-    "@enkryptcom/storage": "^0.0.1",
+    "@enkryptcom/storage": "^0.0.2",
     "@enkryptcom/types": "^0.0.1",
-    "@enkryptcom/utils": "^0.0.1",
+    "@enkryptcom/utils": "^0.0.3",
     "@ethereumjs/common": "^3.1.1",
     "@ethereumjs/tx": "^4.1.1",
     "@ledgerhq/hw-transport-webusb": "^6.27.12",
