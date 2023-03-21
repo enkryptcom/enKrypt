@@ -2829,6 +2829,7 @@ __metadata:
     eventemitter3: ^5.0.0
     isomorphic-ws: ^5.0.0
     json-rpc-2.0: ^1.5.1
+    lodash: ^4.17.21
     mocha: ^10.2.0
     node-fetch: ^2.6.9
     prettier: ^2.8.4
