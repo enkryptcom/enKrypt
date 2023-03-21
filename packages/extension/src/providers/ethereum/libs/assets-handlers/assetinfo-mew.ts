@@ -118,7 +118,6 @@ const getTokens = (
               balance: "0x0",
             });
           }
-          console.log(retVal);
           return retVal;
         }
       });
@@ -229,7 +228,7 @@ export default (
           valuef: formatFiatValue(market.current_price.toString()).value,
           contract: address,
           decimals: tokenInfo[address].decimals,
-          sparkline: new Sparkline(market.sparkline_in_7d.price, 25).dataUri,
+          sparkline: new Sparkline(market.sparkline_in_7d.price, 25).dataValues,
           priceChangePercentage:
             market.price_change_percentage_7d_in_currency || 0,
         };

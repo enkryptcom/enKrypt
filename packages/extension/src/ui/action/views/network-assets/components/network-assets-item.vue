@@ -39,7 +39,7 @@
           v-if="token.priceChangePercentage < 0"
         />{{ token.priceChangePercentage.toFixed(2) }}%
       </p>
-      <img :src="token.sparkline" />
+      <v-chart class="chart" :option="option" />
     </div>
 
     <div class="network-assets__token-price">
@@ -62,14 +62,62 @@ import SparklineDown from "@action/icons/asset/sparkline-down.vue";
 import AssetDetailView from "@action/views/asset-detail-view/index.vue";
 import { AssetsType } from "@/types/provider";
 import Tooltip from "@/ui/action/components/tooltip/index.vue";
+import { use } from "echarts/core";
+import { SVGRenderer } from "echarts/renderers";
+import { LineChart } from "echarts/charts";
+import { TooltipComponent, GridComponent } from "echarts/components";
+import VChart from "vue-echarts";
 
 const isDetail = ref(false);
 
-defineProps({
+const props = defineProps({
   token: {
     type: Object as PropType<AssetsType>,
     default: () => ({}),
   },
+});
+use([SVGRenderer, LineChart, TooltipComponent, GridComponent]);
+
+const option = ref({
+  width: 32,
+  height: 32,
+  color: [props.token.priceChangePercentage >= 0 ? "#80FFA5" : "#e01f43"],
+  grid: { show: false, left: 0, top: 0 },
+  xAxis: [
+    {
+      show: false,
+      type: "category",
+      showGrid: false,
+      boundaryGap: false,
+      splitLine: {
+        show: false,
+      },
+    },
+  ],
+  yAxis: [
+    {
+      show: false,
+      type: "value",
+      splitLine: {
+        show: false,
+      },
+    },
+  ],
+  series: [
+    {
+      type: "line",
+      smooth: true,
+      lineStyle: {
+        width: 1.5,
+      },
+      showSymbol: false,
+      emphasis: {
+        focus: "none",
+      },
+      data:
+        props.token.sparkline !== "" ? JSON.parse(props.token.sparkline) : [],
+    },
+  ],
 });
 
 const toggleDetail = () => {
@@ -79,7 +127,10 @@ const toggleDetail = () => {
 
 <style lang="less">
 @import "~@action/styles/theme.less";
-
+.chart {
+  height: 32px;
+  width: 32px;
+}
 .down {
   color: @error;
 }

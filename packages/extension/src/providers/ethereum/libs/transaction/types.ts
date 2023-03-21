@@ -1,9 +1,24 @@
 import { GasPriceTypes } from "@/providers/common/types";
+import { BN } from "ethereumjs-util";
 
 export interface AccessList {
   address: `0x${string}`;
   storageKeys: `0x${string}`[];
 }
+
+interface FormattedBlockFees {
+  number: number | string;
+  baseFeePerGas: BN;
+  gasUsedRatio: number;
+  priorityFeePerGas: BN[];
+}
+
+export interface FormattedFeeHistory {
+  blocks: FormattedBlockFees[];
+  highestBaseFee: BN;
+  pendingBlock: FormattedBlockFees;
+}
+
 export interface EthereumTransaction {
   from: `0x${string}`;
   data?: `0x${string}`;
