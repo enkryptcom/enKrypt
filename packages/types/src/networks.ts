@@ -41,6 +41,7 @@ export enum NetworkNames {
   SkaleRazor = "skaleRAZOR",
   SkaleTitan = "skaleTITAN",
   SkaleChaos = "skaleCHAOS",
+  Ontology = "ontology",
 }
 
 export enum CoingeckoPlatform {
@@ -65,4 +66,5 @@ export enum CoingeckoPlatform {
   Edgeware = "edgeware",
   EdgeEVM = "edgeware",
   SKALE = "skale",
+  Ontology = "ontology",
 }
