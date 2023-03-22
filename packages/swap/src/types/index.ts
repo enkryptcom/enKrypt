@@ -1,6 +1,7 @@
 import { NetworkNames } from "@enkryptcom/types";
 import type { toBN } from "web3-utils";
 import type Web3Eth from "web3-eth";
+import { SignerType } from "@enkryptcom/types";
 
 // eslint-disable-next-line no-shadow
 export enum NewNetworks {
@@ -43,6 +44,8 @@ export enum NetworkType {
   Bitcoin = "bitcoin",
 }
 
+export type BN = ReturnType<typeof toBN>;
+
 export interface TokenType {
   address: string;
   symbol: string;
@@ -52,23 +55,27 @@ export interface TokenType {
   type: NetworkType;
   rank?: number;
   cgId?: string;
+  balance?: BN;
+  price?: number;
 }
 
 export interface NetworkInfo {
+  id: SupportedNetworkName;
   symbol: string;
   decimals: number;
   name: string;
   logoURI: string;
   rank: number;
   cgId: string;
+  type: NetworkType;
+  signerType: SignerType[];
 }
 
 export interface TokenNetworkType {
   name: SupportedNetworkName | string;
   isAddress: (addr: string) => Promise<boolean>;
 }
-export interface TokenTypeTo extends Omit<TokenType, "address"> {
-  address?: string;
+export interface TokenTypeTo extends TokenType {
   networkInfo: TokenNetworkType;
 }
 
@@ -79,12 +86,10 @@ export interface FromTokenType {
 }
 
 export interface ToTokenType {
-  top: TokenTypeTo[];
-  trending: TokenTypeTo[];
-  all: TokenTypeTo[];
+  top: Record<SupportedNetworkName, TokenTypeTo[]>;
+  trending: Record<SupportedNetworkName, TokenTypeTo[]>;
+  all: Record<SupportedNetworkName, TokenTypeTo[]>;
 }
-
-export type BN = ReturnType<typeof toBN>;
 
 export interface EvmOptions {
   infiniteApproval: boolean;
@@ -196,6 +201,12 @@ export type ProviderToTokenResponse = Record<
 
 export interface StatusOptions {
   transactionHashes: string[];
+}
+
+export interface TopTokenInfo {
+  trendingTokens: Record<string, number>;
+  topTokens: Record<string, number>;
+  contractsToId: Record<string, string>;
 }
 
 export abstract class ProviderClass {

@@ -28,23 +28,26 @@ describe("Swap", () => {
     },
   });
 
-  it("it should all From tokens", async () => {
+  it("it should get all From tokens", async () => {
     await enkryptSwap.initPromise;
     const fromTokens = enkryptSwap.getFromTokens();
-    expect(fromTokens[0].address).to.be.eq(NATIVE_TOKEN_ADDRESS);
-    expect(fromTokens.length).to.be.gt(4000);
+    expect(fromTokens.all[0].address).to.be.eq(NATIVE_TOKEN_ADDRESS);
+    expect(fromTokens.all.length).to.be.gt(4000);
   });
 
   it("it should all To tokens", async () => {
     await enkryptSwap.initPromise;
     const toTokens = enkryptSwap.getToTokens();
-    expect(toTokens[SupportedNetworkName.Bitcoin].length).to.be.eq(1);
-    expect(toTokens[SupportedNetworkName.Bitcoin][0].address).to.be.eq(
+    expect(toTokens.all[SupportedNetworkName.Bitcoin].length).to.be.eq(1);
+    expect(toTokens.all[SupportedNetworkName.Bitcoin][0].address).to.be.eq(
       NATIVE_TOKEN_ADDRESS
     );
-    expect(toTokens[SupportedNetworkName.Polkadot].length).to.be.eq(1);
-    expect(toTokens[SupportedNetworkName.Ethereum].length).to.be.gt(4000);
-    expect(toTokens[SupportedNetworkName.Ethereum][0].address).to.be.eq(
+    expect(toTokens.all[SupportedNetworkName.Polkadot].length).to.be.eq(1);
+    expect(toTokens.all[SupportedNetworkName.Ethereum].length).to.be.gt(4000);
+    expect(toTokens.all[SupportedNetworkName.Ethereum][0].address).to.be.eq(
+      NATIVE_TOKEN_ADDRESS
+    );
+    expect(toTokens.top[SupportedNetworkName.Bitcoin][0].address).to.be.eq(
       NATIVE_TOKEN_ADDRESS
     );
   });

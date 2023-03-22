@@ -1,10 +1,14 @@
 import fetch from "node-fetch";
 import { merge } from "lodash";
 import EventEmitter from "eventemitter3";
-import { TOKEN_LISTS } from "./configs";
+import { TOKEN_LISTS, TOP_TOKEN_INFO_LIST } from "./configs";
 import OneInch from "./providers/oneInch";
 import Changelly from "./providers/changelly";
-import NetworkDetails from "./common/supportedNetworks";
+import NetworkDetails, {
+  isSupportedNetwork,
+  getSupportedNetworks,
+  getNetworkInfoByName,
+} from "./common/supportedNetworks";
 import {
   APIType,
   Events,
@@ -21,6 +25,8 @@ import {
   SwapQuote,
   TokenType,
   TokenTypeTo,
+  TopTokenInfo,
+  ToTokenType,
   WalletIdentifier,
 } from "./types";
 import { sortByRank, sortNativeToFront } from "./utils/common";
@@ -41,9 +47,11 @@ class Swap extends EventEmitter {
 
   private tokenList: FromTokenType;
 
-  private fromTokens: TokenType[];
+  private topTokenInfo: TopTokenInfo;
 
-  private toTokens: Record<SupportedNetworkName, TokenTypeTo[]>;
+  private fromTokens: FromTokenType;
+
+  private toTokens: ToTokenType;
 
   private walletId: WalletIdentifier;
 
@@ -58,13 +66,26 @@ class Swap extends EventEmitter {
     this.api = options.api;
     this.walletId = options.walletIdentifier;
     this.providerClasses = [OneInch, Changelly];
+    this.topTokenInfo = {
+      contractsToId: {},
+      topTokens: {},
+      trendingTokens: {},
+    };
     this.tokenList = {
       all: [],
       top: [],
       trending: [],
     };
-    this.toTokens = {};
-    this.fromTokens = [];
+    this.toTokens = {
+      all: {},
+      top: {},
+      trending: {},
+    };
+    this.fromTokens = {
+      all: [],
+      top: [],
+      trending: [],
+    };
     this.initPromise = this.init();
   }
 
@@ -73,6 +94,9 @@ class Swap extends EventEmitter {
       this.tokenList = await fetch(TOKEN_LISTS[this.network]).then((res) =>
         res.json()
       );
+    this.topTokenInfo = await fetch(TOP_TOKEN_INFO_LIST).then((res) =>
+      res.json()
+    );
     this.providers = this.providerClasses.map(
       (Provider) => new Provider(this.api, this.network)
     );
@@ -83,10 +107,16 @@ class Swap extends EventEmitter {
     [...this.providers].reverse().forEach((p) => {
       Object.assign(allFromTokens, p.getFromTokens());
     });
-    this.fromTokens = Object.values(allFromTokens).sort(sortNativeToFront);
-    const native = this.fromTokens.shift();
-    this.fromTokens.sort(sortByRank);
-    this.fromTokens.unshift(native);
+    this.fromTokens = {
+      all: Object.values(allFromTokens).sort(sortNativeToFront),
+      top: this.tokenList.top.filter((topt) => !!allFromTokens[topt.address]),
+      trending: this.tokenList.trending.filter(
+        (trendt) => !!allFromTokens[trendt.address]
+      ),
+    };
+    const native = this.fromTokens.all.shift();
+    this.fromTokens.all.sort(sortByRank);
+    this.fromTokens.all.unshift(native);
     const allToTokens: ProviderToTokenResponse = {};
     [...this.providers].reverse().forEach((p) => {
       merge(allToTokens, p.getToTokens());
@@ -97,7 +127,27 @@ class Swap extends EventEmitter {
       const nativeTo = values.shift();
       values.sort(sortByRank);
       values.unshift(nativeTo);
-      this.toTokens[nName] = values;
+      values.forEach((val: TokenTypeTo) => {
+        if (val.cgId && this.topTokenInfo.topTokens[val.cgId]) {
+          if (!this.toTokens.top[nName]) this.toTokens.top[nName] = [];
+          this.toTokens.top[nName].push({
+            ...val,
+            rank: this.topTokenInfo.topTokens[val.cgId],
+          });
+        }
+        if (val.cgId && this.topTokenInfo.trendingTokens[val.cgId]) {
+          if (!this.toTokens.trending[nName])
+            this.toTokens.trending[nName] = [];
+          this.toTokens.trending[nName].push({
+            ...val,
+            rank: this.topTokenInfo.trendingTokens[val.cgId],
+          });
+        }
+      });
+      if (this.toTokens.top[nName]) this.toTokens.top[nName].sort(sortByRank);
+      if (this.toTokens.trending[nName])
+        this.toTokens.trending[nName].sort(sortByRank);
+      this.toTokens.all[nName] = values;
     });
   }
 
@@ -135,5 +185,17 @@ class Swap extends EventEmitter {
   }
 }
 
-export { SwapToken };
+export {
+  SwapToken,
+  isSupportedNetwork,
+  getSupportedNetworks,
+  TokenType,
+  TokenTypeTo,
+  WalletIdentifier,
+  SupportedNetworkName,
+  getNetworkInfoByName,
+  sortByRank,
+  sortNativeToFront,
+  NetworkInfo,
+};
 export default Swap;

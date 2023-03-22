@@ -44,10 +44,9 @@
 import { computed, ref } from "vue";
 import SwapTokenSelect from "../swap-token-select/index.vue";
 import SwapTokenAmountInput from "./components/swap-token-amount-input.vue";
-import { BaseToken } from "@/types/base-token";
 import BigNumber from "bignumber.js";
-import { fromBase } from "@enkryptcom/utils";
 import { NATIVE_TOKEN_ADDRESS } from "@/providers/ethereum/libs/common";
+import { TokenType, SwapToken } from "@enkryptcom/swap";
 
 const emit = defineEmits<{
   (e: "update:inputMax"): void;
@@ -56,7 +55,7 @@ const emit = defineEmits<{
 
 interface IProps {
   tokenAmount: string;
-  token: BaseToken | null;
+  token: TokenType;
   autofocus: boolean;
   min?: string;
   max?: string;
@@ -66,17 +65,15 @@ const props = defineProps<IProps>();
 
 const isFocus = ref(false);
 
+const Token = new SwapToken(props.token);
+
 const currentInputError = computed(() => {
   return inputError(props.tokenAmount.toString());
 });
 const inputError = (value: string) => {
   if (value && value !== "" && Number(value) !== 0) {
     const fromBn = new BigNumber(value);
-    if (
-      props.token &&
-      props.token.balance &&
-      fromBn.gt(fromBase(props.token.balance, props.token.decimals))
-    ) {
+    if (fromBn.gt(Token.getBalanceReadable())) {
       return "INSUFFICIENT";
     } else if (props.max && fromBn.gt(props.max)) {
       return "MAX";
@@ -88,12 +85,10 @@ const inputError = (value: string) => {
 };
 
 const tokenPrice = computed(() => {
-  if (props.token?.price && props.tokenAmount !== "") {
-    return new BigNumber(props.tokenAmount)
-      .times(new BigNumber(props.token.price))
-      .toFixed();
+  if (props.tokenAmount !== "") {
+    return Token.getReadableToFiat(props.tokenAmount);
   }
-  return null;
+  return 0;
 });
 
 const amountChanged = (newVal: string) => {
@@ -105,10 +100,8 @@ const changeFocus = (newVal: boolean) => {
 };
 
 const inputMax = () => {
-  if (props.token && props.token.balance) {
-    const tokenBalance = fromBase(props.token.balance, props.token.decimals);
-    amountChanged(tokenBalance);
-  }
+  const tokenBalance = Token.getBalanceReadable();
+  amountChanged(tokenBalance);
   emit("update:inputMax");
 };
 </script>
@@ -117,7 +110,7 @@ const inputMax = () => {
 @import "~@action/styles/theme.less";
 .swap-token-input {
   width: 100%;
-  min-height: 148px;
+  min-height: 125px;
   border: 1px solid rgba(95, 99, 104, 0.2);
   box-sizing: border-box;
   border-radius: 10px;

@@ -33,12 +33,12 @@ import SwapTokenSelect from "../swap-token-select/index.vue";
 import SwapTokenFastList from "../swap-token-fast-list/index.vue";
 import SwapTokenAmountInput from "./components/swap-token-amount-input.vue";
 import { PropType } from "vue";
-import { BaseToken } from "@/types/base-token";
+import { TokenTypeTo } from "@enkryptcom/swap";
 import BigNumber from "bignumber.js";
 
 const props = defineProps({
   token: {
-    type: Object as PropType<BaseToken | null>,
+    type: Object as PropType<TokenTypeTo | null>,
     default: () => {
       return null;
     },
@@ -52,7 +52,7 @@ const props = defineProps({
     default: () => false,
   },
   fastList: {
-    type: Object as PropType<BaseToken[]>,
+    type: Object as PropType<TokenTypeTo[]>,
     default: () => null,
   },
   totalTokens: {
@@ -78,7 +78,7 @@ const tokenPrice = computed(() => {
 @import "~@action/styles/theme.less";
 .swap-token-input {
   width: 100%;
-  min-height: 148px;
+  min-height: 136px;
   border: 1px solid rgba(95, 99, 104, 0.2);
   box-sizing: border-box;
   border-radius: 10px;

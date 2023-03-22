@@ -1,27 +1,13 @@
 <template>
-  <a v-if="!!token" class="swap-token-select" @click="open">
+  <a v-if="network" class="swap-token-select" @click="$emit('toggle:select')">
     <div class="swap-token-select__image">
-      <img :src="token.logoURI" alt="" />
+      <img :src="network.logoURI" alt="" />
     </div>
     <div class="swap-token-select__info">
-      <h5>{{ token.name }}</h5>
+      <h5>To Network</h5>
       <p>
-        {{
-          tokenBalance
-            ? $filters.formatFloatingPointValue(tokenBalance).value
-            : "~"
-        }}
-        <span>{{ token.symbol }}</span>
+        {{ network.name }}
       </p>
-    </div>
-
-    <div class="swap-token-select__arrow">
-      <switch-arrow />
-    </div>
-  </a>
-  <a v-else class="swap-token-select" @click="open">
-    <div v-show="!token" class="swap-token-select__info">
-      <h4>Select token</h4>
     </div>
 
     <div class="swap-token-select__arrow">
@@ -31,34 +17,21 @@
 </template>
 
 <script setup lang="ts">
-import { ref, PropType } from "vue";
+import { PropType } from "vue";
 import SwitchArrow from "@action/icons/header/switch_arrow.vue";
-import { computed } from "@vue/reactivity";
-import { TokenType, SwapToken } from "@enkryptcom/swap";
-const isOpen = ref(false);
-const emit = defineEmits<{
-  (e: "toggle:select", isOpen: boolean): void;
+import { NetworkInfo } from "@enkryptcom/swap";
+defineEmits<{
+  (e: "toggle:select"): void;
 }>();
-const props = defineProps({
-  token: {
-    type: Object as PropType<TokenType | null>,
+
+defineProps({
+  network: {
+    type: Object as PropType<NetworkInfo | null>,
     default: () => {
       return {};
     },
   },
 });
-
-const tokenBalance = computed(() => {
-  if (props.token?.balance) {
-    return new SwapToken(props.token).getBalanceReadable();
-  }
-  return null;
-});
-
-const open = () => {
-  isOpen.value = !isOpen.value;
-  emit("toggle:select", isOpen.value);
-};
 </script>
 
 <style lang="less">
@@ -70,6 +43,7 @@ const open = () => {
   border-radius: 10px;
   width: 100%;
   padding: 16px;
+  margin-bottom: 3px;
   display: flex;
   justify-content: flex-start;
   align-items: center;

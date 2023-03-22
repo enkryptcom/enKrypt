@@ -2434,6 +2434,7 @@ __metadata:
     "@enkryptcom/keyring": ^0.0.2
     "@enkryptcom/request": ^0.0.1
     "@enkryptcom/storage": ^0.0.2
+    "@enkryptcom/swap": "workspace:^"
     "@enkryptcom/types": ^0.0.1
     "@enkryptcom/utils": ^0.0.3
     "@ethereumjs/common": ^3.1.1
@@ -2807,7 +2808,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@enkryptcom/swap@workspace:packages/swap":
+"@enkryptcom/swap@workspace:^, @enkryptcom/swap@workspace:packages/swap":
   version: 0.0.0-use.local
   resolution: "@enkryptcom/swap@workspace:packages/swap"
   dependencies:

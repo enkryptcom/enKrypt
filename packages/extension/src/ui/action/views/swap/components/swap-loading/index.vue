@@ -2,32 +2,46 @@
   <div class="swap-looking__container">
     <div class="swap-looking__overlay" @click="close()" />
     <div class="swap-looking__wrap">
-      <a class="swap-looking__close" @click="close()">
+      <a v-if="showClose" class="swap-looking__close" @click="close()">
         <close-icon />
       </a>
 
       <swap-looking-animation class="swap-looking__animation" />
-
-      <h3>Looking for the<br />best offer</h3>
-      <p>Analyzing decentralized exchanges…</p>
+      <section
+        v-if="loadingType === SWAP_LOADING.LOOKING_FOR_OFFERS"
+        class="container"
+      >
+        <h3>Looking for the<br />best offer</h3>
+        <p>Analyzing decentralized exchanges…</p>
+      </section>
+      <section v-if="loadingType === SWAP_LOADING.LOADING" class="container">
+        <h3>Getting ready to<br />swap</h3>
+      </section>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { withDefaults } from "vue";
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import SwapLookingAnimation from "@action/icons/swap/swap-looking-animation.vue";
-
-defineProps({
-  close: {
-    type: Function,
-    default: () => ({}),
-  },
+import { SWAP_LOADING } from "../../types";
+interface Props {
+  close: () => void;
+  showClose: boolean;
+  loadingType: SWAP_LOADING;
+}
+withDefaults(defineProps<Props>(), {
+  loadingType: SWAP_LOADING.LOADING,
+  showClose: false,
 });
 </script>
 
 <style lang="less" scoped>
 @import "~@action/styles/theme.less";
+.container {
+  display: contents;
+}
 .swap-looking {
   width: 100%;
   height: auto;

@@ -51,6 +51,9 @@ const TOKEN_LISTS: {
 const CHANGELLY_LIST =
   "https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/swaplists/changelly.json";
 
+const TOP_TOKEN_INFO_LIST =
+  "https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/swaplists/top-tokens.json";
+
 const GAS_LIMITS = {
   approval: numberToHex(300000),
   transferToken: numberToHex(300000),
@@ -64,4 +67,5 @@ export {
   NATIVE_TOKEN_ADDRESS,
   TOKEN_LISTS,
   CHANGELLY_LIST,
+  TOP_TOKEN_INFO_LIST,
 };
