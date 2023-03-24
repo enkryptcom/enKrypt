@@ -6,6 +6,7 @@
       v-show="!!token"
       :value="amount"
       :is-finding-rate="isFindingRate"
+      :no-providers="noProviders"
     />
 
     <swap-token-fast-list
@@ -58,6 +59,7 @@ const props = defineProps({
     type: Number,
     default: () => null,
   },
+  noProviders: Boolean,
 });
 
 const isFocus = ref(false);

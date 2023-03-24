@@ -24,6 +24,8 @@ import {
 } from "../../types";
 import {
   CHANGELLY_LIST,
+  DEFAULT_SLIPPAGE,
+  FEE_CONFIGS,
   GAS_LIMITS,
   NATIVE_TOKEN_ADDRESS,
 } from "../../configs";
@@ -31,6 +33,7 @@ import {
 import { getTransfer } from "../../utils/approvals";
 import supportedNetworks from "./supported";
 import { ChangellyCurrency, ChangellyStatusOptions } from "./types";
+import estimateGasList from "../../common/estimateGasList";
 
 const BASE_URL = "https://swap.mewapi.io/changelly";
 
@@ -74,12 +77,13 @@ class Changelly extends ProviderClass {
       if (!supportedChangellyNames.includes(cur.blockchain)) return;
       if (
         cur.enabledFrom &&
+        cur.fixRateEnabled &&
         cur.token &&
         changellyToNetwork[cur.blockchain] === this.network
       ) {
         this.fromTokens[cur.token.address] = cur.token;
       }
-      if (cur.enabledTo && cur.token) {
+      if (cur.enabledTo && cur.fixRateEnabled && cur.token) {
         if (!this.toTokens[changellyToNetwork[cur.blockchain]])
           this.toTokens[changellyToNetwork[cur.blockchain]] = {};
         this.toTokens[changellyToNetwork[cur.blockchain]][cur.token.address] = {
@@ -192,7 +196,12 @@ class Changelly extends ProviderClass {
       !Changelly.isSupported(
         options.toToken.networkInfo.name as SupportedNetworkName
       ) ||
-      !Changelly.isSupported(this.network)
+      !Changelly.isSupported(this.network) ||
+      !this.getTicker(options.fromToken, this.network) ||
+      !this.getTicker(
+        options.toToken as TokenType,
+        options.toToken.networkInfo.name as SupportedNetworkName
+      )
     )
       return Promise.resolve(null);
     const minMax = await this.getMinMaxAmount({
@@ -204,6 +213,7 @@ class Changelly extends ProviderClass {
       quoteRequestAmount = minMax.minimumFrom;
     else if (quoteRequestAmount.gt(minMax.maximumFrom))
       quoteRequestAmount = minMax.maximumFrom;
+    if (quoteRequestAmount.toString() === "0") return null;
     return this.changellyRequest("getFixRateForAmount", {
       from: this.getTicker(options.fromToken, this.network),
       to: this.getTicker(
@@ -278,6 +288,7 @@ class Changelly extends ProviderClass {
         if (quote.options.fromToken.type === NetworkType.EVM) {
           if (quote.options.fromToken.address === NATIVE_TOKEN_ADDRESS)
             transaction = {
+              from: quote.options.fromAddress,
               data: "0x",
               gasLimit: numberToHex(21000),
               to: result.payinAddress,
@@ -286,10 +297,20 @@ class Changelly extends ProviderClass {
             };
           else
             transaction = getTransfer({
+              from: quote.options.fromAddress,
               contract: quote.options.fromToken.address,
               to: result.payinAddress,
               value: quote.options.amount.toString(),
             });
+          const accurateGasEstimate = await estimateGasList(
+            [transaction],
+            this.network
+          );
+          if (accurateGasEstimate) {
+            if (accurateGasEstimate.isError) return null;
+            const [txGaslimit] = accurateGasEstimate.result;
+            transaction.gasLimit = txGaslimit;
+          }
         } else {
           transaction = {
             to: result.payinAddress,
@@ -297,6 +318,7 @@ class Changelly extends ProviderClass {
             type: TransactionType.generic,
           };
         }
+        const fee = 0.875;
         const retResponse: ProviderSwapResponse = {
           fromTokenAmount: quote.options.amount,
           provider: this.name,
@@ -304,6 +326,8 @@ class Changelly extends ProviderClass {
             toBase(result.amountTo, quote.options.toToken.decimals)
           ),
           transactions: [transaction],
+          slippage: quote.meta.slippage || DEFAULT_SLIPPAGE,
+          fee,
           getStatusObject: async (): Promise<ChangellyStatusOptions> => ({
             swapId: result.id,
           }),

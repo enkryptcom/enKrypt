@@ -21,6 +21,7 @@ const getAllowance = (options: {
 };
 
 const getTransfer = (options: {
+  from: string;
   contract: string;
   to: string;
   value: string;
@@ -28,6 +29,7 @@ const getTransfer = (options: {
   const web3Eth = new Web3Eth();
   const contract = new web3Eth.Contract(Erc20abi as any);
   return {
+    from: options.from,
     data: contract.methods.transfer(options.to, options.value).encodeABI(),
     gasLimit: GAS_LIMITS.transferToken,
     to: options.contract,
@@ -37,6 +39,7 @@ const getTransfer = (options: {
 };
 
 const getApproval = (options: {
+  from: string;
   contract: string;
   spender: string;
   value: string;
@@ -44,6 +47,7 @@ const getApproval = (options: {
   const web3Eth = new Web3Eth();
   const contract = new web3Eth.Contract(Erc20abi as any);
   return {
+    from: options.from,
     data: contract.methods.approve(options.spender, options.value).encodeABI(),
     gasLimit: GAS_LIMITS.approval,
     to: options.contract,
@@ -74,6 +78,7 @@ const getAllowanceTransactions = async (options: {
     if (approvedAmount.eqn(0)) {
       transactions.push(
         getApproval({
+          from: options.fromAddress,
           spender: options.spender,
           value: options.infinityApproval
             ? TOKEN_AMOUNT_INFINITY_AND_BEYOND
@@ -84,6 +89,7 @@ const getAllowanceTransactions = async (options: {
     } else {
       transactions.push(
         getApproval({
+          from: options.fromAddress,
           spender: options.spender,
           value: "0",
           contract: options.fromToken.address,
@@ -91,6 +97,7 @@ const getAllowanceTransactions = async (options: {
       );
       transactions.push(
         getApproval({
+          from: options.fromAddress,
           spender: options.spender,
           value: options.infinityApproval
             ? TOKEN_AMOUNT_INFINITY_AND_BEYOND

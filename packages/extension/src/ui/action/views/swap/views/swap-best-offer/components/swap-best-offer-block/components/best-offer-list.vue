@@ -5,7 +5,7 @@
         v-for="(trade, index) in trades"
         :key="trade.provider"
         :swap-number="index + 1"
-        :amount="`~${trade.minimumReceived}`"
+        :amount="`~${getReadable(index)}`"
         :select="() => select(trade)"
         :is-checked="trade.provider === pickedTrade.provider"
         :is-loading="false"
@@ -15,18 +15,24 @@
 </template>
 
 <script setup lang="ts">
-import { TradeInfo } from "@/providers/swap/types/SwapProvider";
+import { ProviderSwapResponse, SwapToken, TokenTypeTo } from "@enkryptcom/swap";
 import BestOfferListItem from "./best-offer-list-item.vue";
 
 interface IProps {
-  trades: TradeInfo[];
-  pickedTrade: TradeInfo;
-  select: (trade: TradeInfo) => void;
+  trades: ProviderSwapResponse[];
+  toToken: TokenTypeTo;
+  pickedTrade: ProviderSwapResponse;
+  select: (trade: ProviderSwapResponse) => void;
 }
 
+const getReadable = (idx: number) => {
+  return new SwapToken(props.toToken).toReadable(
+    props.trades[idx].toTokenAmount
+  );
+};
 const props = defineProps<IProps>();
 
-const select = (trade: TradeInfo) => {
+const select = (trade: ProviderSwapResponse) => {
   props.select(trade);
 };
 </script>

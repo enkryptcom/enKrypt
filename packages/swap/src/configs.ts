@@ -60,7 +60,7 @@ const GAS_LIMITS = {
   swap: numberToHex(1000000),
 };
 const NATIVE_TOKEN_ADDRESS = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
-
+const DEFAULT_SLIPPAGE = "0.5";
 export {
   FEE_CONFIGS,
   GAS_LIMITS,
@@ -68,4 +68,5 @@ export {
   TOKEN_LISTS,
   CHANGELLY_LIST,
   TOP_TOKEN_INFO_LIST,
+  DEFAULT_SLIPPAGE,
 };

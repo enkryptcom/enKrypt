@@ -9,6 +9,8 @@
         ? `${
             value
               ? "≈ " + $filters.formatFloatingPointValue(value).value
+              : noProviders
+              ? "No Providers"
               : "Waiting"
           }`
         : "Getting rate"
@@ -23,7 +25,7 @@ export default {
 </script>
 
 <script setup lang="ts">
-const props = defineProps({
+defineProps({
   placeholder: {
     type: String,
     default: () => {
@@ -52,6 +54,7 @@ const props = defineProps({
     type: Boolean,
     default: () => false,
   },
+  noProviders: Boolean,
 });
 </script>
 

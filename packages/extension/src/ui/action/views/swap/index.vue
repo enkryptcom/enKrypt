@@ -35,6 +35,7 @@
             :fast-list="trendingToTokens"
             :total-tokens="toTokens.length - trendingToTokens.length"
             :amount="toAmount"
+            :no-providers="errors.noProviders"
             @update:select-asset="selectTokenTo"
             @toggle:select="toggleToToken"
           />
@@ -135,15 +136,11 @@ import SendAddressInput from "./components/send-address-input.vue";
 import SendContactsList from "./components/send-contacts-list.vue";
 import { AccountsHeaderData } from "../../types/account";
 import { getNetworkByName } from "@/libs/utils/networks";
-import { BaseToken } from "@/types/base-token";
 import { BaseNetwork } from "@/types/base-network";
-// import { Swap } from "@/providers/swap";
 import BigNumber from "bignumber.js";
-import { Rates } from "@/providers/swap/types/SwapProvider";
 import { SubstrateNetwork } from "@/providers/polkadot/types/substrate-network";
 import { EnkryptAccount } from "@enkryptcom/types";
 import { SwapError } from "./components/swap-error/types";
-import { getAccountsByNetworkName } from "@/libs/utils/accounts";
 import { routes as RouterNames } from "@/ui/action/router";
 import getUiPath from "@/libs/utils/get-ui-path";
 import UIRoutes from "@/ui/provider-pages/enkrypt/routes/names";
@@ -159,15 +156,17 @@ import EnkryptSwap, {
   sortByRank,
   SwapToken,
   ProviderQuoteResponse,
+  ProviderSwapResponse,
 } from "@enkryptcom/swap";
 import Web3Eth from "web3-eth";
 import { toBN } from "web3-utils";
 import { NATIVE_TOKEN_ADDRESS } from "@/providers/ethereum/libs/common";
-import { SWAP_LOADING } from "./types";
+import { SWAP_LOADING, SwapData } from "./types";
 import SwapNetworkSelect from "./components/swap-network-select/index.vue";
 import { toBase } from "@enkryptcom/utils";
 import { debounce } from "lodash";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
+import MarketData from "@/libs/market-data";
 
 type BN = ReturnType<typeof toBN>;
 
@@ -216,7 +215,9 @@ const toAddressInputMeta = ref({
 });
 const errors = ref({
   inputAmount: "",
+  noProviders: false,
 });
+const bestProviderQuotes = ref<ProviderQuoteResponse[]>([]);
 
 const address = ref<string>("");
 const addressIsValid = ref(true);
@@ -289,14 +290,16 @@ onMounted(async () => {
 
       const swapToTokens = swap.getToTokens();
       const supportedNetworks = Object.keys(swapToTokens.all);
+      let thisNetwork: NetworkInfo;
       supportedNetworks.forEach((net) => {
         const netInfo = getNetworkInfoByName(net as SupportedNetworkName);
         if (props.network.name === net) {
-          initToNetworkInfo(netInfo);
+          thisNetwork = netInfo;
         }
         toNetworks.value.push(netInfo);
       });
       toNetworks.value.sort(sortByRank);
+      await initToNetworkInfo(thisNetwork!);
       setToTokens();
       isLooking.value = false;
     });
@@ -388,6 +391,7 @@ const isValidToAddress = debounce(() => {
 }, 200);
 
 const pickBestQuote = (fromAmountBN: BN, quotes: ProviderQuoteResponse[]) => {
+  console.log(quotes);
   if (!quotes.length) return;
   const token = new SwapToken(fromToken.value!);
   const filteredQuotes = quotes.filter((q) => {
@@ -416,30 +420,37 @@ const pickBestQuote = (fromAmountBN: BN, quotes: ProviderQuoteResponse[]) => {
       )}`;
     return;
   }
-  let bestQuote = filteredQuotes[0];
-  filteredQuotes.forEach((q) => {
-    if (bestQuote.toTokenAmount.lt(q.toTokenAmount)) bestQuote = q;
-  });
+  filteredQuotes.sort((a, b) => (b.toTokenAmount.gt(a.toTokenAmount) ? 1 : -1));
   toAmount.value = new SwapToken(toToken.value!).toReadable(
-    bestQuote.toTokenAmount
+    filteredQuotes[0].toTokenAmount
   );
+  bestProviderQuotes.value = filteredQuotes;
   isFindingRate.value = false;
 };
 
 const updateQuote = () => {
   isFindingRate.value = true;
+  toAmount.value = "";
+  bestProviderQuotes.value = [];
+  errors.value.noProviders = false;
   const token = new SwapToken(fromToken.value!);
   const fromRawAmount = token.toRaw(fromAmount.value!);
   swap
     .getQuotes({
       amount: fromRawAmount,
-      fromAddress: props.accountInfo.selectedAccount!.address,
+      fromAddress: toAddressInputMeta.value.displayAddress(
+        props.accountInfo.selectedAccount!.address
+      ),
       fromToken: fromToken.value!,
       toToken: toToken.value!,
       toAddress: address.value,
     })
     .then((quotes) => {
-      pickBestQuote(fromRawAmount, quotes);
+      if (quotes.length) pickBestQuote(fromRawAmount, quotes);
+      else {
+        isFindingRate.value = false;
+        errors.value.noProviders = true;
+      }
     });
 };
 
@@ -457,7 +468,7 @@ watch(
       isFindingRate.value = false;
       toAmount.value = "";
     }
-  }, 800)
+  }, 300)
 );
 
 const selectTokenFrom = (token: TokenType | TokenTypeTo) => {
@@ -468,8 +479,8 @@ const selectTokenFrom = (token: TokenType | TokenTypeTo) => {
   setToTokens();
 };
 
-const initToNetworkInfo = (network: NetworkInfo) => {
-  getNetworkByName(network.id).then((net) => {
+const initToNetworkInfo = async (network: NetworkInfo) => {
+  await getNetworkByName(network.id).then((net) => {
     if (net) {
       toAddressInputMeta.value = {
         displayAddress: net.displayAddress,
@@ -489,9 +500,12 @@ const initToNetworkInfo = (network: NetworkInfo) => {
 };
 
 const selectToNetwork = (network: NetworkInfo) => {
-  initToNetworkInfo(network);
+  toAccounts.value = [];
+  address.value = "";
   toggleToNetwork();
-  setToTokens();
+  initToNetworkInfo(network).then(() => {
+    setToTokens();
+  });
 };
 
 const selectTokenTo = (token: TokenTypeTo | TokenType) => {
@@ -527,13 +541,12 @@ const toggleToToken = () => {
   toSelectOpened.value = !toSelectOpened.value;
 };
 
-// const toggleLooking = () => {
-//   isLooking.value = !isLooking.value;
-// };
+const toggleLooking = () => {
+  isLooking.value = !isLooking.value;
+};
 
 const toggleSwapError = () => {
   showSwapError.value = !showSwapError.value;
-
   if (
     swapError.value === SwapError.NETWORK_NOT_SUPPORTED &&
     !showSwapError.value
@@ -543,102 +556,101 @@ const toggleSwapError = () => {
 };
 
 const sendButtonTitle = computed(() => {
-  let title = "Select  token";
-  if (!!fromToken.value && !!toToken.value) title = "Preview swap";
-  return title;
+  if (!fromAmount.value || fromAmount.value === "0" || errors.value.inputAmount)
+    return "Enter valid amount";
+  if (!toToken.value) return "Select To Token";
+  if (!address.value || !addressIsValid.value) return "Enter address";
+  return "Preview swap";
 });
-// const isDisabled = computed(() => {
-//   let _isDisabled = true;
-//   if (
-//     !!fromToken.value &&
-//     !!toToken.value &&
-//     Number(fromAmount.value) > 0 &&
-//     Number(toAmount.value) > 0 &&
-//     addressIsValid.value &&
-//     !inputError.value
-//   ) {
-//     _isDisabled = false;
-//   }
-//   return _isDisabled;
-// });
 
-// const sendAction = async () => {
-//   toggleLooking();
+const isDisabled = computed(() => {
+  if (!fromAmount.value || fromAmount.value === "0" || errors.value.inputAmount)
+    return true;
+  if (!toToken.value) return true;
+  if (!address.value || !addressIsValid.value) return true;
+  if (!bestProviderQuotes.value.length) return true;
+  return false;
+});
 
-//   let fromAddress = props.accountInfo.selectedAccount!.address;
+const sendAction = async () => {
+  toggleLooking();
+  const marketData = new MarketData();
+  const fromPrice = fromToken.value!.cgId
+    ? await marketData
+        .getMarketData([fromToken.value!.cgId])
+        .then((res) => res[0]!.current_price)
+    : 0;
+  const toPrice = toToken.value!.cgId
+    ? await marketData
+        .getMarketData([toToken.value!.cgId])
+        .then((res) => res[0]!.current_price)
+    : 0;
+  const localFromToken = { ...fromToken.value! };
+  const localToToken = { ...toToken.value! };
+  localFromToken.price = fromPrice;
+  localToToken.price = toPrice;
+  localFromToken.balance = bestProviderQuotes.value[0]!.fromTokenAmount;
+  localToToken.balance = bestProviderQuotes.value[0]!.toTokenAmount;
+  const swapToToken = new SwapToken(localToToken);
+  const swapFromToken = new SwapToken(localFromToken);
+  const priceDifference = BigNumber(swapFromToken.getFiatTotal())
+    .div(swapToToken.getFiatTotal())
+    .toString();
 
-//   if ((props.network as unknown as SubstrateNetwork).prefix !== undefined) {
-//     fromAddress = (props.network as unknown as SubstrateNetwork).displayAddress(
-//       fromAddress
-//     );
-//   }
+  const tradePromises = bestProviderQuotes.value.map((q) =>
+    swap.getSwap(q.quote)
+  );
 
-//   const priceDifference = new BigNumber(fromAmount.value!)
-//     .times(fromToken.value?.price ?? 0)
-//     .div(new BigNumber(toAmount.value).times(toToken.value?.price ?? 0))
-//     .toString();
+  const trades = await Promise.all(tradePromises).then((responses) =>
+    responses.filter((r) => !!r)
+  );
+  if (!trades) {
+    swapError.value = SwapError.NO_TRADES;
+    toggleSwapError();
+    return;
+  }
+  const swapData: SwapData = {
+    trades: trades as ProviderSwapResponse[],
+    fromToken: localFromToken,
+    toToken: localToToken,
+    priceDifference: priceDifference,
+    swapMax: swapMax.value,
+    nativeBalance:
+      fromTokens.value?.find((ft) => ft.address === NATIVE_TOKEN_ADDRESS)
+        ?.balance || toBN("0"),
+    existentialDeposit:
+      (props.network as SubstrateNetwork).existentialDeposit || toBN("0"),
+    fromAddress: props.accountInfo.selectedAccount!.address,
+  };
+  console.log(JSON.stringify(swapData));
+  const routedRoute = router.resolve({
+    name: RouterNames.swapBestOffer.name,
+    query: {
+      id: selected,
+      swapData: Buffer.from(JSON.stringify(swapData), "utf8").toString(
+        "base64"
+      ),
+    },
+  });
 
-//   const trades = await swap.getTrade(
-//     props.network.name,
-//     fromAddress,
-//     network.value!.displayAddress(address.value),
-//     fromToken.value!,
-//     toToken.value!,
-//     fromAmount.value!,
-//     swapMax.value
-//   );
-
-//   if (
-//     trades.length === 0 ||
-//     trades.flatMap((trade) => {
-//       return trade.txs;
-//     }).length === 0
-//   ) {
-//     swapError.value = SwapError.NO_TRADES;
-//     toggleLooking();
-//     toggleSwapError();
-//     return;
-//   }
-
-//   const swapData = {
-//     trades,
-//     toToken: toToken.value,
-//     fromToken: fromToken.value,
-//     fromAmount: fromAmount.value,
-//     toAddress: address.value,
-//     priceDifference: priceDifference,
-//     swapMax: swapMax.value,
-//     fromAddress: props.accountInfo.selectedAccount!.address,
-//   };
-
-//   const routedRoute = router.resolve({
-//     name: RouterNames.swapBestOffer.name,
-//     query: {
-//       id: selected,
-//       swapData: Buffer.from(JSON.stringify(swapData), "utf8").toString(
-//         "base64"
-//       ),
-//     },
-//   });
-
-//   if (props.accountInfo.selectedAccount!.isHardware) {
-//     await Browser.windows.create({
-//       url: Browser.runtime.getURL(
-//         getUiPath(
-//           `${UIRoutes.swapVerifyHW.path}?id=${routedRoute.query.id}&swapData=${routedRoute.query.swapData}`,
-//           ProviderName.enkrypt
-//         )
-//       ),
-//       type: "popup",
-//       focused: true,
-//       height: 600,
-//       width: 460,
-//     });
-//     window.close();
-//   } else {
-//     router.push(routedRoute);
-//   }
-// };
+  if (props.accountInfo.selectedAccount!.isHardware) {
+    await Browser.windows.create({
+      url: Browser.runtime.getURL(
+        getUiPath(
+          `${UIRoutes.swapVerifyHW.path}?id=${routedRoute.query.id}&swapData=${routedRoute.query.swapData}`,
+          ProviderName.enkrypt
+        )
+      ),
+      type: "popup",
+      focused: true,
+      height: 600,
+      width: 460,
+    });
+    window.close();
+  } else {
+    router.push(routedRoute);
+  }
+};
 </script>
 
 <style lang="less" scoped>

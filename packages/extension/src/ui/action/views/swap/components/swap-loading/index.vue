@@ -28,7 +28,7 @@ import SwapLookingAnimation from "@action/icons/swap/swap-looking-animation.vue"
 import { SWAP_LOADING } from "../../types";
 interface Props {
   close: () => void;
-  showClose: boolean;
+  showClose?: boolean;
   loadingType: SWAP_LOADING;
 }
 withDefaults(defineProps<Props>(), {

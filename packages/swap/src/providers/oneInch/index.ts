@@ -18,12 +18,18 @@ import {
   TransactionStatus,
   TransactionType,
 } from "../../types";
-import { FEE_CONFIGS, GAS_LIMITS, NATIVE_TOKEN_ADDRESS } from "../../configs";
+import {
+  DEFAULT_SLIPPAGE,
+  FEE_CONFIGS,
+  GAS_LIMITS,
+  NATIVE_TOKEN_ADDRESS,
+} from "../../configs";
 import { OneInchResponseType, OneInchSwapResponse } from "./types";
 import {
   getAllowanceTransactions,
   TOKEN_AMOUNT_INFINITY_AND_BEYOND,
 } from "../../utils/approvals";
+import estimateGasList from "../../common/estimateGasList";
 import { isEVMAddress } from "../../utils/common";
 
 export const ONEINCH_APPROVAL_ADDRESS =
@@ -115,13 +121,14 @@ class OneInch extends ProviderClass {
 
   private getOneInchSwap(
     options: getQuoteOptions,
-    meta: QuoteMetaOptions
+    meta: QuoteMetaOptions,
+    accurateEstimate: boolean
   ): Promise<OneInchSwapResponse | null> {
     if (
       !OneInch.isSupported(
         options.toToken.networkInfo.name as SupportedNetworkName
       ) ||
-      !OneInch.isSupported(this.network)
+      this.network !== options.toToken.networkInfo.name
     )
       return Promise.resolve(null);
     const feeConfig = FEE_CONFIGS[this.name][meta.walletIdentifier];
@@ -131,7 +138,7 @@ class OneInch extends ProviderClass {
       amount: options.amount.toString(),
       fromAddress: options.fromAddress,
       destReceiver: options.toAddress,
-      slippage: meta.slippage ? meta.slippage : "0.5",
+      slippage: meta.slippage ? meta.slippage : DEFAULT_SLIPPAGE,
       fee: feeConfig ? (feeConfig.fee * 100).toFixed(3) : "0",
       referrerAddress: feeConfig ? feeConfig.referrer : "",
       disableEstimate: "true",
@@ -161,12 +168,25 @@ class OneInch extends ProviderClass {
           transactions.push(...approvalTxs);
         }
         transactions.push({
+          from: options.fromAddress,
           gasLimit: GAS_LIMITS.swap,
           to: response.tx.to,
           value: numberToHex(response.tx.value),
           data: response.tx.data,
           type: TransactionType.evm,
         });
+        if (accurateEstimate) {
+          const accurateGasEstimate = await estimateGasList(
+            transactions,
+            this.network
+          );
+          if (accurateGasEstimate) {
+            if (accurateGasEstimate.isError) return null;
+            transactions.forEach((tx, idx) => {
+              tx.gasLimit = accurateGasEstimate.result[idx];
+            });
+          }
+        }
         return {
           transactions,
           toTokenAmount: toBN(response.toTokenAmount),
@@ -179,7 +199,7 @@ class OneInch extends ProviderClass {
     options: getQuoteOptions,
     meta: QuoteMetaOptions
   ): Promise<ProviderQuoteResponse | null> {
-    return this.getOneInchSwap(options, meta).then(async (res) => {
+    return this.getOneInchSwap(options, meta, false).then(async (res) => {
       if (!res) return null;
       const response: ProviderQuoteResponse = {
         fromTokenAmount: res.fromTokenAmount,
@@ -202,13 +222,17 @@ class OneInch extends ProviderClass {
   }
 
   getSwap(quote: SwapQuote): Promise<ProviderSwapResponse | null> {
-    return this.getOneInchSwap(quote.options, quote.meta).then((res) => {
+    return this.getOneInchSwap(quote.options, quote.meta, true).then((res) => {
       if (!res) return null;
+      const feeConfig =
+        FEE_CONFIGS[this.name][quote.meta.walletIdentifier].fee || 0;
       const response: ProviderSwapResponse = {
         fromTokenAmount: res.fromTokenAmount,
         provider: this.name,
         toTokenAmount: res.toTokenAmount,
         transactions: res.transactions,
+        slippage: quote.meta.slippage || DEFAULT_SLIPPAGE,
+        fee: feeConfig * 100,
         getStatusObject: async (options: StatusOptions) => options,
       };
       return response;

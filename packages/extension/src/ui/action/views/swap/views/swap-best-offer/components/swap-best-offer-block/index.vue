@@ -2,21 +2,18 @@
   <div class="swap-best-offer-block">
     <h3>Best Offer</h3>
     <div class="swap-best-offer-block__for">
-      for<img :src="fromToken.icon" />
+      for<img :src="fromToken.logoURI" />
       <p>
-        {{ $filters.formatFloatingPointValue(fromAmount).value }}
+        {{ $filters.formatFloatingPointValue(fromReadable).value }}
         <span>{{ props.fromToken.symbol }}</span>
       </p>
       you will get:
     </div>
     <div class="swap-best-offer-block__token">
-      <img :src="toToken.icon" />
+      <img :src="toToken.logoURI" />
       <div class="swap-best-offer-block__token-info">
         <h4>
-          {{
-            $filters.formatFloatingPointValue(pickedTrade?.minimumReceived)
-              .value
-          }}
+          {{ $filters.formatFloatingPointValue(toReadable).value }}
           <span>{{ toToken.symbol }}</span>
         </h4>
         <p>≈ {{ $filters.formatFiatValue(toTokenPrice).value }}</p>
@@ -38,6 +35,7 @@
       <best-offer-list
         v-show="isOffersOpen"
         :select="select"
+        :to-token="toToken"
         :trades="trades"
         :picked-trade="pickedTrade"
       />
@@ -48,24 +46,22 @@
         {{ $filters.formatFloatingPointValue(ratio).value }}
         {{ toToken.symbol.toUpperCase() }}
       </p>
-      <p v-if="pickedTrade.priceImpact">
+      <p v-if="priceImpact">
         Price impact:
-        {{ new BigNumber(pickedTrade.priceImpact).times(100).toFixed() }}%
+        {{ priceImpact }}%
       </p>
-      <p v-if="pickedTrade.maxSlippage">
+      <p v-if="pickedTrade.slippage">
         Max. slippage:
-        {{ new BigNumber(pickedTrade.maxSlippage).times(100).toFixed() }}%
+        {{ pickedTrade.slippage }}%
       </p>
       <p>
         Minimum received:
-        {{
-          $filters.formatFloatingPointValue(pickedTrade.minimumReceived).value
-        }}
+        {{ $filters.formatFloatingPointValue(toReadable).value }}
         {{ toToken.symbol.toUpperCase() }}
       </p>
       <p>
         Offer includes
-        {{ new BigNumber(pickedTrade.fee).times(100).toFixed() }}% Enkrypt fee
+        {{ pickedTrade.fee.toFixed(3) }}% Enkrypt fee
       </p>
     </div>
   </div>
@@ -76,41 +72,64 @@ import { computed, ref } from "vue";
 import SwitchArrow from "@action/icons/header/switch_arrow.vue";
 import BestOfferList from "./components/best-offer-list.vue";
 import BestOfferError from "./components/best-offer-error.vue";
-import { TradeInfo } from "@/providers/swap/types/SwapProvider";
-import { BaseToken } from "@/types/base-token";
 import BigNumber from "bignumber.js";
-import { SwapBestOfferWarnings } from "../types";
+import { SwapBestOfferWarnings } from "@action/views/swap/types";
+import {
+  ProviderSwapResponse,
+  TokenType,
+  TokenTypeTo,
+  SwapToken,
+} from "@enkryptcom/swap";
 
 interface SwapBestOfferProps {
-  trades: TradeInfo[];
-  pickedTrade: TradeInfo;
-  fromToken: BaseToken;
-  fromAmount: string;
-  toToken: BaseToken;
+  trades: ProviderSwapResponse[];
+  pickedTrade: ProviderSwapResponse;
+  fromToken: TokenType;
+  toToken: TokenTypeTo;
   warning?: SwapBestOfferWarnings;
 }
 
 const props = defineProps<SwapBestOfferProps>();
 
 const emit = defineEmits<{
-  (e: "update:pickedTrade", trade: TradeInfo): void;
+  (e: "update:pickedTrade", trade: ProviderSwapResponse): void;
 }>();
 
 const isOffersOpen = ref(false);
 
 const toTokenPrice = computed(() =>
-  new BigNumber(props.toToken.price ?? 0).times(
-    new BigNumber(props.pickedTrade.minimumReceived)
-  )
+  new SwapToken(props.toToken).getRawToFiat(props.pickedTrade.toTokenAmount)
 );
 
+const fromReadable = computed(() => {
+  return new SwapToken(props.fromToken).getBalanceReadable();
+});
+
+const toReadable = computed(() => {
+  return new SwapToken(props.toToken).toReadable(
+    props.pickedTrade.toTokenAmount
+  );
+});
+
+const priceImpact = computed(() => {
+  if (!props.fromToken.price || !props.toToken.price) return null;
+  else {
+    const fromValue = new SwapToken(props.fromToken).getFiatTotal();
+    const toValue = new SwapToken(props.toToken).getFiatTotal();
+    const pI = BigNumber("1")
+      .minus(BigNumber(fromValue).div(toValue))
+      .toFixed(3);
+    return pI;
+  }
+});
+
 const ratio = computed(() =>
-  new BigNumber(props.pickedTrade.minimumReceived)
-    .div(new BigNumber(props.fromAmount))
+  new BigNumber(props.pickedTrade.toTokenAmount.toString())
+    .div(new BigNumber(props.pickedTrade.fromTokenAmount.toString()))
     .toFixed()
 );
 
-const select = (trade: TradeInfo) => {
+const select = (trade: ProviderSwapResponse) => {
   emit("update:pickedTrade", trade);
   toggleOffers();
 };

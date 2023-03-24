@@ -147,6 +147,7 @@ export enum TransactionType {
 }
 
 export interface EVMTransaction {
+  from: string;
   gasLimit: string;
   to: string;
   value: string;
@@ -189,6 +190,8 @@ export interface ProviderSwapResponse {
   toTokenAmount: BN;
   fromTokenAmount: BN;
   provider: ProviderName;
+  slippage: string;
+  fee: number;
   getStatusObject: (options: unknown) => Promise<unknown>;
 }
 
