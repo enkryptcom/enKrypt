@@ -1,24 +1,23 @@
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
 import { NetworkNames } from "@enkryptcom/types";
 import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
-import { EtherscanActivity } from "../libs/activity-handlers";
+import { OntEVMActivity } from "../libs/activity-handlers";
 
-
-const ontOptions: EvmNetworkOptions = {
-  name: NetworkNames.Ontology,
-  name_long: "Ontology",
+const ontEVMOptions: EvmNetworkOptions = {
+  name: NetworkNames.OntologyEVM,
+  name_long: "OntologyEVM",
   homePage: "https://ont.io/",
   blockExplorerTX: "https://explorer.ont.io/tx/[[txHash]]",
   blockExplorerAddr: "https://explorer.ont.io/address/[[address]]",
   chainID: "0x3a",
   isTestNetwork: false,
-  currencyName: "ONT",
+  currencyName: "WONT",
   node: "http://dappnode1.ont.io/",
-  icon: require("./icons/ont.png"),
+  icon: require("./icons/wont.png"),
   coingeckoID: "ontology",
-  activityHandler: wrapActivityHandler(EtherscanActivity),
+  activityHandler: wrapActivityHandler(OntEVMActivity),
 };
 
-const ont = new EvmNetwork(ontOptions);
+const ontevm = new EvmNetwork(ontEVMOptions);
 
-export default ont;
+export default ontevm;

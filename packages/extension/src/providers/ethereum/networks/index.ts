@@ -19,7 +19,7 @@ import edgeEvmNode from "./edg";
 import zkGoerliNode from "./zkgoerli";
 import zkSyncNode from "./zksync";
 import * as skale from "./skale";
-import ontNode from "./ont";
+import ontEVMNode from "././ontevm";
 
 export default {
   goerli: goerliNode,
@@ -52,5 +52,5 @@ export default {
   skaleRazor: skale.razorNode,
   skaleTitan: skale.titanNode,
   skaleChaos: skale.chaosNode,
-  ont:ontNode,
+  ontEVM:ontEVMNode,
 };
