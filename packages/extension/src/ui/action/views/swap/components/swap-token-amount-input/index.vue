@@ -5,34 +5,24 @@
     <swap-token-amount-input
       v-show="!!token"
       placeholder="Enter amount"
-      :value="tokenAmount.toString()"
+      v-bind="$attrs"
+      :value="value"
       :autofocus="autofocus"
       :change-focus="changeFocus"
-      :error="currentInputError !== null"
-      @update:value="amountChanged"
+      :error="!!errorMessage"
     />
 
     <a
       v-show="!!token && ((token as any).contract !== NATIVE_TOKEN_ADDRESS)"
       class="swap-token-input__max"
-      @click="inputMax"
+      @click="$emit('update:inputMax')"
       >Max</a
     >
-    <div v-if="currentInputError !== null" class="swap-token-input__invalid">
-      {{
-        currentInputError === "MAX"
-          ? `Maximum swap amount is ${
-              $filters.formatFloatingPointValue(max).value
-            }`
-          : currentInputError === "MIN"
-          ? `Minimum swap amount is ${
-              $filters.formatFloatingPointValue(min).value
-            }`
-          : "Insufficient Balance"
-      }}
+    <div v-if="errorMessage" class="swap-token-input__invalid">
+      {{ errorMessage }}
     </div>
     <div
-      v-else-if="!!token && Number(tokenAmount) > 0"
+      v-else-if="!!token && Number(value) > 0"
       class="swap-token-input__fiat"
     >
       ≈ ${{ $filters.formatFiatValue(tokenPrice).value }}
@@ -44,65 +34,34 @@
 import { computed, ref } from "vue";
 import SwapTokenSelect from "../swap-token-select/index.vue";
 import SwapTokenAmountInput from "./components/swap-token-amount-input.vue";
-import BigNumber from "bignumber.js";
 import { NATIVE_TOKEN_ADDRESS } from "@/providers/ethereum/libs/common";
 import { TokenType, SwapToken } from "@enkryptcom/swap";
 
-const emit = defineEmits<{
+defineEmits<{
   (e: "update:inputMax"): void;
-  (e: "input:changed", amount: string, isInvalid: boolean): void;
 }>();
 
 interface IProps {
-  tokenAmount: string;
+  value: string;
   token: TokenType;
   autofocus: boolean;
-  min?: string;
-  max?: string;
+  errorMessage?: string;
 }
 
 const props = defineProps<IProps>();
 
 const isFocus = ref(false);
 
-const Token = new SwapToken(props.token);
-
-const currentInputError = computed(() => {
-  return inputError(props.tokenAmount.toString());
-});
-const inputError = (value: string) => {
-  if (value && value !== "" && Number(value) !== 0) {
-    const fromBn = new BigNumber(value);
-    if (fromBn.gt(Token.getBalanceReadable())) {
-      return "INSUFFICIENT";
-    } else if (props.max && fromBn.gt(props.max)) {
-      return "MAX";
-    } else if (props.min && fromBn.lt(props.min)) {
-      return "MIN";
-    }
-  }
-  return null;
-};
-
 const tokenPrice = computed(() => {
-  if (props.tokenAmount !== "") {
-    return Token.getReadableToFiat(props.tokenAmount);
+  if (props.value !== "") {
+    const Token = new SwapToken(props.token);
+    return Token.getReadableToFiat(props.value);
   }
   return 0;
 });
 
-const amountChanged = (newVal: string) => {
-  emit("input:changed", newVal, inputError(newVal) !== null);
-};
-
 const changeFocus = (newVal: boolean) => {
   isFocus.value = newVal;
-};
-
-const inputMax = () => {
-  const tokenBalance = Token.getBalanceReadable();
-  amountChanged(tokenBalance);
-  emit("update:inputMax");
 };
 </script>
 
@@ -150,7 +109,7 @@ const inputMax = () => {
     color: @secondaryLabel;
     position: absolute;
     left: 16px;
-    bottom: 16px;
+    bottom: 6px;
   }
 
   &__invalid {
@@ -163,7 +122,7 @@ const inputMax = () => {
     color: @error;
     position: absolute;
     left: 16px;
-    bottom: 16px;
+    bottom: 6px;
   }
 }
 </style>

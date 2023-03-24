@@ -86,8 +86,9 @@ class Changelly extends ProviderClass {
           ...cur.token,
           networkInfo: {
             name: changellyToNetwork[cur.blockchain] as SupportedNetworkName,
-            isAddress: supportedNetworks[this.network].isAddress
-              ? supportedNetworks[this.network].isAddress
+            isAddress: supportedNetworks[changellyToNetwork[cur.blockchain]]
+              .isAddress
+              ? supportedNetworks[changellyToNetwork[cur.blockchain]].isAddress
               : (address: string) => this.isValidAddress(address, cur.ticker),
           },
         };
@@ -193,7 +194,7 @@ class Changelly extends ProviderClass {
       ) ||
       !Changelly.isSupported(this.network)
     )
-      Promise.resolve(null);
+      return Promise.resolve(null);
     const minMax = await this.getMinMaxAmount({
       fromToken: options.fromToken,
       toToken: options.toToken,
@@ -255,7 +256,7 @@ class Changelly extends ProviderClass {
       ) ||
       !Changelly.isSupported(this.network)
     )
-      Promise.resolve(null);
+      return Promise.resolve(null);
     return this.changellyRequest("createFixTransaction", {
       from: this.getTicker(quote.options.fromToken, this.network),
       to: this.getTicker(

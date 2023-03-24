@@ -12,14 +12,13 @@
         <div class="swap__wrap">
           <swap-token-amount-input
             v-if="fromToken"
-            :token-amount="fromAmount || ''"
+            :value="fromAmount || ''"
             :token="fromToken"
             :autofocus="true"
-            :min="minFrom"
-            :max="maxFrom"
+            :error-message="errors.inputAmount"
             @update:input-max="setMax"
             @toggle:select="toggleFromToken"
-            @input:changed="inputAmountFrom"
+            @update:value="inputAmountFrom"
           />
 
           <a class="swap__arrows"><swap-arrows /></a>
@@ -35,7 +34,7 @@
             :is-finding-rate="isFindingRate"
             :fast-list="trendingToTokens"
             :total-tokens="toTokens.length - trendingToTokens.length"
-            :amount="undefined"
+            :amount="toAmount"
             @update:select-asset="selectTokenTo"
             @toggle:select="toggleToToken"
           />
@@ -55,7 +54,8 @@
             :show-accounts="isOpenSelectContact"
             :accounts="toAccounts"
             :address="address"
-            :network="network"
+            :display-address="toAddressInputMeta.displayAddress"
+            :identicon="toAddressInputMeta.identicon"
             @selected:account="selectAccount"
             @update:paste-from-clipboard="addressInput.pasteFromClipboard()"
             @close="toggleSelectContact"
@@ -157,6 +157,8 @@ import EnkryptSwap, {
   getNetworkInfoByName,
   NetworkInfo,
   sortByRank,
+  SwapToken,
+  ProviderQuoteResponse,
 } from "@enkryptcom/swap";
 import Web3Eth from "web3-eth";
 import { toBN } from "web3-utils";
@@ -164,6 +166,10 @@ import { NATIVE_TOKEN_ADDRESS } from "@/providers/ethereum/libs/common";
 import { SWAP_LOADING } from "./types";
 import SwapNetworkSelect from "./components/swap-network-select/index.vue";
 import { toBase } from "@enkryptcom/utils";
+import { debounce } from "lodash";
+import PublicKeyRing from "@/libs/keyring/public-keyring";
+
+type BN = ReturnType<typeof toBN>;
 
 const router = useRouter();
 const route = useRoute();
@@ -190,33 +196,33 @@ const fromToken = ref<TokenType | null>({
   logoURI: props.network.icon,
   type: "" as any,
 });
-
+const fromAmount = ref<string | null>(null);
 const toNetworks = ref<NetworkInfo[]>([]);
 const toNetwork = ref<NetworkInfo | null>(null);
 const toNetworkOpen = ref(false);
 const toToken = ref<TokenTypeTo | null>(null);
 const toTokens = ref<TokenTypeTo[]>([]);
+const toAmount = ref<string>("");
 const trendingToTokens = ref<TokenTypeTo[]>([]);
 const swapError = ref<SwapError>();
 const showSwapError = ref(false);
 const LoadingType = ref<SWAP_LOADING>(SWAP_LOADING.LOADING);
 const isFindingRate = ref(false);
-const localToNetwork = ref<BaseNetwork | null>(null);
 const toAddressInputMeta = ref({
   displayAddress: (address: string) => address,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   identicon: (address: string) => "" as string,
   networkName: "",
 });
+const errors = ref({
+  inputAmount: "",
+});
 
 const address = ref<string>("");
-const addressIsValid = ref(false);
-const addressIsLoading = ref(false);
+const addressIsValid = ref(true);
 const isOpenSelectContact = ref<boolean>(false);
 const addressInput = ref();
-const toAccounts = ref<EnkryptAccount[]>(props.accountInfo.activeAccounts);
-
-const fromAmount = ref<string | null>(null);
+const toAccounts = ref<EnkryptAccount[]>([]);
 
 const fetchingTokens = ref(true);
 
@@ -225,121 +231,8 @@ const toSelectOpened = ref(false);
 
 const isLooking = ref(false);
 
-const rates = ref<Rates>();
-const minFrom = ref<string>();
-const maxFrom = ref<string>();
-const inputError = ref(false);
-const addressInputTimeout = ref<number>();
-
 const swapMax = ref(false);
 
-// const toTokensFiltered = computed(() => {
-//   if (toTokens.value) {
-//     return toTokens.value.filter((token) => {
-//       const toTokenAddress = (token as any).contract
-//         ? (token as any).contract.toUpperCase()
-//         : undefined;
-
-//       const fromTokenAddress = (fromToken.value as any).contract
-//         ? (fromToken.value as any).contract.toUpperCase()
-//         : undefined;
-
-//       if (
-//         fromTokenAddress &&
-//         toTokenAddress &&
-//         toTokenAddress === fromTokenAddress
-//       )
-//         return false;
-
-//       return true;
-//     });
-//   }
-
-//   return [];
-// });
-
-// const featuredTokensFiltered = computed(() => {
-//   if (featuredTokens.value) {
-//     return featuredTokens.value.filter((token) => {
-//       const featuredTokenAddress = (token as any).contract
-//         ? (token as any).contract.toUpperCase()
-//         : undefined;
-
-//       const fromTokenAddress = (fromToken.value as any).contract
-//         ? (fromToken.value as any).contract.toUpperCase()
-//         : undefined;
-
-//       if (
-//         fromTokenAddress &&
-//         featuredTokenAddress &&
-//         featuredTokenAddress === fromTokenAddress
-//       )
-//         return false;
-
-//       return true;
-//     });
-//   }
-
-//   return [];
-// });
-
-// const isFindingRate = computed(() => {
-//   if (rates.value) {
-//     return false;
-//   } else {
-//     return true;
-//   }
-// });
-
-// const getEstimateRate = computed(() => {
-//   if (rates.value) {
-//     if (rates.value.length === 1) {
-//       return () => new BigNumber(rates.value![0].rate);
-//     }
-
-//     const x = rates.value.map(({ amount }) => new BigNumber(amount));
-//     const sumX = x.reduce((x1, x2) => x1.plus(x2), new BigNumber(0));
-//     const avgX = sumX.div(x.length);
-
-//     const xDifferencesToAverage = x.map((value) => avgX.minus(value));
-//     const xDifferencesToAverageSquared = xDifferencesToAverage.map((value) =>
-//       value.pow(2)
-//     );
-//     const SSxx = xDifferencesToAverageSquared.reduce(
-//       (prev, curr) => prev.plus(curr),
-//       new BigNumber(0)
-//     );
-
-//     const y = rates.value.map(({ rate }) => new BigNumber(rate));
-//     const sumY = y.reduce((y1, y2) => y1.plus(y2), new BigNumber(0));
-//     const avgY = sumY.div(y.length);
-//     const yDifferencesToAverage = y.map((value) => avgY.minus(value));
-//     const xAndYDifferencesMultiplied = xDifferencesToAverage.map(
-//       (curr, index) => curr.times(yDifferencesToAverage[index])
-//     );
-//     const SSxy = xAndYDifferencesMultiplied.reduce(
-//       (prev, curr) => prev.plus(curr),
-//       new BigNumber(0)
-//     );
-
-//     const slope = SSxy.div(SSxx);
-//     const intercept = avgY.minus(slope.times(avgX));
-
-//     return (x: number) => intercept.plus(slope.times(x));
-//   }
-
-//   return () => new BigNumber(0);
-// });
-
-// const toAmount = computed(() => {
-//   const estimate = getEstimateRate
-//     .value(Number(fromAmount.value) ?? 0)
-//     .times(fromAmount.value ?? 0);
-
-//   if (estimate.isZero()) return "0";
-
-//   return estimate.toFixed();
-// });
 const swap = new EnkryptSwap({
   api: new Web3Eth(props.network.node),
   network: props.network.name as unknown as SupportedNetworkName,
@@ -348,7 +241,7 @@ const swap = new EnkryptSwap({
     infiniteApproval: true,
   },
 });
-
+const keyring = new PublicKeyRing();
 onMounted(async () => {
   if (
     !isSupportedNetwork(props.network.name as unknown as SupportedNetworkName)
@@ -407,34 +300,23 @@ onMounted(async () => {
       setToTokens();
       isLooking.value = false;
     });
-
-  // swap.getAllTokens(props.network.name).then(({ tokens, featured, error }) => {
-  //   if (tokens.length === 0 && featured.length === 0 && error) {
-  //     swapError.value = SwapError.NO_TOKENS;
-  //     toggleSwapError();
-  //   } else if (error) {
-  //     swapError.value = SwapError.SOME_TOKENS;
-  //     toggleSwapError();
-  //   }
-
-  //   featuredTokens.value = featured.length > 0 ? featured : tokens.slice(0, 5);
-  //   toTokens.value = tokens;
-  //   fetchingTokens.value = false;
-  // });
 });
+const defaultBNVals: Record<number, BN> = {};
 const setToTokens = () => {
   const swapToTokens = swap.getToTokens();
   trendingToTokens.value = [];
   toToken.value = null;
   const MAX_TRENDING = 5;
-  console.log(toNetwork.value, swapToTokens.all[toNetwork.value!.id]);
   toTokens.value = swapToTokens.all[toNetwork.value!.id].filter((val) => {
-    val.balance = toBN(toBase("1", val.decimals));
+    if (!defaultBNVals[val.decimals])
+      defaultBNVals[val.decimals] = toBN(toBase("1", val.decimals));
+    val.balance = defaultBNVals[val.decimals];
     return (
       (toNetwork.value!.id as string) !== (props.network.name as string) ||
       val.address !== fromToken.value?.address
     );
   });
+
   if (swapToTokens.trending[toNetwork.value!.id])
     trendingToTokens.value.push(
       ...swapToTokens.trending[toNetwork.value!.id].slice(0, MAX_TRENDING)
@@ -452,7 +334,9 @@ const setToTokens = () => {
   }
   const existingtrending: string[] = [];
   trendingToTokens.value = trendingToTokens.value.filter((val) => {
-    val.balance = toBN(toBase("1", val.decimals));
+    if (!defaultBNVals[val.decimals])
+      defaultBNVals[val.decimals] = toBN(toBase("1", val.decimals));
+    val.balance = defaultBNVals[val.decimals];
     const isInTrending = existingtrending.includes(val.address);
     existingtrending.push(val.address);
     return (
@@ -462,144 +346,148 @@ const setToTokens = () => {
     );
   });
   if (toTokens.value.length === 1) toToken.value = toTokens.value[0];
+  keyring.getAccounts(toNetwork.value?.signerType).then((accounts) => {
+    toAccounts.value = accounts;
+    if (accounts.length) {
+      address.value = accounts[0].address;
+      isValidToAddress();
+    }
+  });
+};
+
+const setMax = () => {
+  fromAmount.value = new SwapToken(fromToken.value!).getBalanceReadable();
 };
 
 const inputAddress = (text: string) => {
   try {
-    if (localToNetwork.value) {
-      address.value = localToNetwork.value!.displayAddress(text);
-    } else {
-      address.value = text;
-    }
+    address.value = toAddressInputMeta.value.displayAddress(text);
   } catch {
     address.value = text;
   }
+  isValidToAddress();
 };
 
 const toggleSelectContact = () => {
   isOpenSelectContact.value = !isOpenSelectContact.value;
 };
 
-// watch([fromToken, toToken], () => {
-//   if (fromToken.value && toToken.value) {
-//     rates.value = undefined;
-//     swap
-//       .getTradePreview(props.network.name, fromToken.value, toToken.value)
-//       .then((preview) => {
-//         if (preview) {
-//           rates.value = preview.rates;
-//           minFrom.value = preview.min;
-//           maxFrom.value = preview.max;
-//         }
-//       });
-//   }
-// });
+const isValidToAddress = debounce(() => {
+  addressIsValid.value = true;
+  if (!address.value) addressIsValid.value = false;
+  else {
+    try {
+      const converted = toAddressInputMeta.value.displayAddress(address.value);
+      toToken.value?.networkInfo
+        .isAddress(converted)
+        .then((res) => (addressIsValid.value = res));
+    } catch (e) {
+      addressIsValid.value = false;
+    }
+  }
+}, 200);
 
-// watch(toToken, async () => {
-//   if (toToken.value) {
-//     let toNetwork: BaseNetwork | undefined = undefined;
+const pickBestQuote = (fromAmountBN: BN, quotes: ProviderQuoteResponse[]) => {
+  if (!quotes.length) return;
+  const token = new SwapToken(fromToken.value!);
+  const filteredQuotes = quotes.filter((q) => {
+    return (
+      q.minMax.minimumFrom.lte(fromAmountBN) &&
+      q.minMax.maximumFrom.gte(fromAmountBN)
+    );
+  });
 
-//     if ((toToken.value as any).contract) {
-//       toNetwork = await getNetworkByName("ETH");
-//     } else {
-//       switch (toToken.value.symbol.toUpperCase()) {
-//         case "DOT":
-//           toNetwork = await getNetworkByName("DOT");
-//           break;
-//         case "KSM":
-//           toNetwork = await getNetworkByName("KSM");
-//           break;
-//         case "ETH":
-//           toNetwork = await getNetworkByName("ETH");
-//           break;
-//         case "MATIC":
-//           toNetwork = await getNetworkByName("MATIC");
-//           break;
-//         case "BNB":
-//           toNetwork = await getNetworkByName("BSC");
-//           break;
-//         case "BTC":
-//           toNetwork = await getNetworkByName("BTC");
-//           break;
-//       }
-//     }
+  if (!filteredQuotes.length) {
+    let lowestMinimum: BN = quotes[0].minMax.minimumFrom;
+    let highestMaximum: BN = quotes[0].minMax.maximumFrom;
+    quotes.forEach((q) => {
+      if (q.minMax.minimumFrom.lt(lowestMinimum))
+        lowestMinimum = q.minMax.minimumFrom;
+      if (q.minMax.maximumFrom.gt(highestMaximum))
+        highestMaximum = q.minMax.maximumFrom;
+    });
+    if (fromAmountBN.lt(lowestMinimum))
+      errors.value.inputAmount = `Minimum amount: ${token.toReadable(
+        lowestMinimum
+      )}`;
+    if (fromAmountBN.gt(highestMaximum))
+      errors.value.inputAmount = `Maximum amount: ${token.toReadable(
+        highestMaximum
+      )}`;
+    return;
+  }
+  let bestQuote = filteredQuotes[0];
+  filteredQuotes.forEach((q) => {
+    if (bestQuote.toTokenAmount.lt(q.toTokenAmount)) bestQuote = q;
+  });
+  toAmount.value = new SwapToken(toToken.value!).toReadable(
+    bestQuote.toTokenAmount
+  );
+  isFindingRate.value = false;
+};
 
-//     if (toNetwork) {
-//       const accounts = await getAccountsByNetworkName(toNetwork.name);
+const updateQuote = () => {
+  isFindingRate.value = true;
+  const token = new SwapToken(fromToken.value!);
+  const fromRawAmount = token.toRaw(fromAmount.value!);
+  swap
+    .getQuotes({
+      amount: fromRawAmount,
+      fromAddress: props.accountInfo.selectedAccount!.address,
+      fromToken: fromToken.value!,
+      toToken: toToken.value!,
+      toAddress: address.value,
+    })
+    .then((quotes) => {
+      pickBestQuote(fromRawAmount, quotes);
+    });
+};
 
-//       const currentAccount = accounts.find(
-//         (account) =>
-//           account.publicKey === props.accountInfo.selectedAccount?.publicKey
-//       );
-
-//       if (currentAccount) {
-//         address.value = currentAccount.address;
-//       } else {
-//         address.value = accounts.length ? accounts[0].address : "";
-//       }
-
-//       network.value = toNetwork;
-//       toAccounts.value = accounts;
-//     }
-//   }
-// });
-
-// watch(address, async () => {
-//   addressIsLoading.value = true;
-
-//   clearTimeout(addressInputTimeout.value);
-
-//   // Prevents multiple API calls every time a user types something
-//   addressInputTimeout.value = setTimeout(async () => {
-//     if (toToken.value) {
-//       let displayAddress = address.value;
-
-//       try {
-//         displayAddress = network.value!.displayAddress(address.value);
-//       } catch {
-//         displayAddress = address.value;
-//       }
-//       swap
-//         .isValidAddress(displayAddress, toToken.value)
-//         .then((isValid) => {
-//           addressIsValid.value = isValid;
-//         })
-//         .catch(() => {
-//           addressIsValid.value = false;
-//         })
-//         .finally(() => {
-//           addressIsLoading.value = false;
-//         });
-//     }
-//   }, 500) as any;
-// });
+watch(
+  [fromToken, toToken, fromAmount],
+  debounce(async () => {
+    if (
+      fromToken.value &&
+      toToken.value &&
+      fromAmount.value &&
+      !isNaN(((fromAmount.value || "") as any) && Number(fromAmount.value) > 0)
+    ) {
+      updateQuote();
+    } else {
+      isFindingRate.value = false;
+      toAmount.value = "";
+    }
+  }, 800)
+);
 
 const selectTokenFrom = (token: TokenType | TokenTypeTo) => {
   fromToken.value = token as TokenType;
+  fromAmount.value = "";
+  errors.value.inputAmount = "";
   toggleFromToken();
   setToTokens();
 };
+
 const initToNetworkInfo = (network: NetworkInfo) => {
   getNetworkByName(network.id).then((net) => {
     if (net) {
-      localToNetwork.value = net;
       toAddressInputMeta.value = {
-        displayAddress: localToNetwork.value.displayAddress,
-        identicon: localToNetwork.value.identicon,
+        displayAddress: net.displayAddress,
+        identicon: net.identicon,
         networkName: network.name,
       };
     } else {
       toAddressInputMeta.value = {
         displayAddress: (address: string) => address,
         identicon: () => "",
-        networkName: "",
+        networkName: network.name,
       };
     }
-    localToNetwork.value = null;
   });
   toNetwork.value = network;
   inputAddress("");
 };
+
 const selectToNetwork = (network: NetworkInfo) => {
   initToNetworkInfo(network);
   toggleToNetwork();
@@ -608,14 +496,24 @@ const selectToNetwork = (network: NetworkInfo) => {
 
 const selectTokenTo = (token: TokenTypeTo | TokenType) => {
   toToken.value = token as TokenTypeTo;
+  isValidToAddress();
   toSelectOpened.value = false;
 };
 
-// const inputAmountFrom = async (newVal: string, isInvalid: boolean) => {
-//   inputError.value = isInvalid;
-//   fromAmount.value = newVal;
-//   swapMax.value = false;
-// };
+const inputAmountFrom = async (newVal: string) => {
+  errors.value.inputAmount = "";
+  const fromT = new SwapToken(fromToken.value!);
+  if (BigNumber(fromT.getBalanceReadable()).lt(newVal)) {
+    errors.value.inputAmount = "Insufficient funds";
+  }
+  fromAmount.value = newVal;
+  swapMax.value = false;
+};
+const selectAccount = (account: string) => {
+  address.value = account;
+  isValidToAddress();
+  isOpenSelectContact.value = false;
+};
 
 const toggleToNetwork = () => {
   toNetworkOpen.value = !toNetworkOpen.value;
@@ -643,10 +541,6 @@ const toggleSwapError = () => {
     router.go(-1);
   }
 };
-
-// const setMax = () => {
-//   swapMax.value = true;
-// };
 
 const sendButtonTitle = computed(() => {
   let title = "Select  token";
@@ -744,11 +638,6 @@ const sendButtonTitle = computed(() => {
 //   } else {
 //     router.push(routedRoute);
 //   }
-// };
-
-// const selectAccount = (account: string) => {
-//   address.value = account;
-//   isOpenSelectContact.value = false;
 // };
 </script>
 

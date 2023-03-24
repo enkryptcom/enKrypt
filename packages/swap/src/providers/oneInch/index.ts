@@ -1,5 +1,5 @@
 import type Web3Eth from "web3-eth";
-import { numberToHex, toBN, isAddress } from "web3-utils";
+import { numberToHex, toBN } from "web3-utils";
 import {
   EVMTransaction,
   getQuoteOptions,
@@ -24,6 +24,7 @@ import {
   getAllowanceTransactions,
   TOKEN_AMOUNT_INFINITY_AND_BEYOND,
 } from "../../utils/approvals";
+import { isEVMAddress } from "../../utils/common";
 
 export const ONEINCH_APPROVAL_ADDRESS =
   "0x1111111254eeb25477b68fb85ed929f73a960582";
@@ -82,7 +83,8 @@ class OneInch extends ProviderClass {
         ...t,
         networkInfo: {
           name: this.network,
-          isAddress: (address: string) => Promise.resolve(isAddress(address)),
+          isAddress: (address: string) =>
+            Promise.resolve(isEVMAddress(address)),
         },
       };
     });
@@ -121,7 +123,7 @@ class OneInch extends ProviderClass {
       ) ||
       !OneInch.isSupported(this.network)
     )
-      Promise.resolve(null);
+      return Promise.resolve(null);
     const feeConfig = FEE_CONFIGS[this.name][meta.walletIdentifier];
     const params = new URLSearchParams({
       fromTokenAddress: options.fromToken.address,

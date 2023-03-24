@@ -132,7 +132,7 @@ class Swap extends EventEmitter {
           if (!this.toTokens.top[nName]) this.toTokens.top[nName] = [];
           this.toTokens.top[nName].push({
             ...val,
-            rank: this.topTokenInfo.topTokens[val.cgId],
+            rank: this.topTokenInfo.topTokens[val.cgId].rank,
           });
         }
         if (val.cgId && this.topTokenInfo.trendingTokens[val.cgId]) {
@@ -159,7 +159,7 @@ class Swap extends EventEmitter {
     return this.toTokens;
   }
 
-  async getQuote(options: getQuoteOptions): Promise<ProviderQuoteResponse[]> {
+  async getQuotes(options: getQuoteOptions): Promise<ProviderQuoteResponse[]> {
     const response = await Promise.all(
       this.providers.map((Provider) =>
         Provider.getQuote(options, {
@@ -172,7 +172,9 @@ class Swap extends EventEmitter {
         })
       )
     );
-    return response.filter((res) => res !== null);
+    return response
+      .filter((res) => res !== null)
+      .sort((a, b) => (b.toTokenAmount.gt(a.toTokenAmount) ? 1 : -1));
   }
 
   getSwap(quote: SwapQuote): Promise<ProviderSwapResponse | null> {
@@ -197,5 +199,7 @@ export {
   sortByRank,
   sortNativeToFront,
   NetworkInfo,
+  ProviderQuoteResponse,
+  ProviderSwapResponse,
 };
 export default Swap;

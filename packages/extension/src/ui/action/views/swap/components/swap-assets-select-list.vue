@@ -42,7 +42,7 @@ const BaseTokenAssets = computed(() => {
       baseToken: new Erc20Token({
         decimals: asset.decimals,
         contract: asset.address || NATIVE_TOKEN_ADDRESS,
-        icon: `https://img.mewapi.io/?image=${asset.logoURI}`,
+        icon: asset.logoURI,
         symbol: asset.symbol,
         name: asset.name,
         price: asset.price?.toString(),

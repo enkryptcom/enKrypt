@@ -1,4 +1,5 @@
 import { polkadotEncodeAddress } from "@enkryptcom/utils";
+import { isAddress } from "web3-utils";
 import { NATIVE_TOKEN_ADDRESS } from "../configs";
 
 export const isPolkadotAddress = (address: string, prefix: number) => {
@@ -9,8 +10,17 @@ export const isPolkadotAddress = (address: string, prefix: number) => {
   }
 };
 
+export const isEVMAddress = (address: string) => {
+  try {
+    return isAddress(address);
+  } catch {
+    return false;
+  }
+};
+
 export const sortByRank = (x: { rank?: number }, y: { rank?: number }) => {
-  if (!x.rank || !y.rank) return -1;
+  if (!x.rank) x.rank = 10000000;
+  if (!y.rank) y.rank = 10000000;
   return x.rank - y.rank;
 };
 

@@ -1,17 +1,17 @@
 <template>
   <div
     :class="`swap-token-amount-input ${
-      value === '0' || isFindingRate ? 'placeholder' : ''
+      value === '' || isFindingRate ? 'placeholder' : ''
     }`"
   >
     {{
-      value == "0" && !isFindingRate
-        ? "0.0"
-        : !isFindingRate
-        ? `≈ ${$filters.formatFloatingPointValue(value).value}`
-        : isFindingRate
-        ? "Getting rate"
-        : value
+      !isFindingRate
+        ? `${
+            value
+              ? "≈ " + $filters.formatFloatingPointValue(value).value
+              : "Waiting"
+          }`
+        : "Getting rate"
     }}
   </div>
 </template>
@@ -23,7 +23,7 @@ export default {
 </script>
 
 <script setup lang="ts">
-defineProps({
+const props = defineProps({
   placeholder: {
     type: String,
     default: () => {

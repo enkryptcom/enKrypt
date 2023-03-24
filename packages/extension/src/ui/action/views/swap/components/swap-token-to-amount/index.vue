@@ -33,8 +33,7 @@ import SwapTokenSelect from "../swap-token-select/index.vue";
 import SwapTokenFastList from "../swap-token-fast-list/index.vue";
 import SwapTokenAmountInput from "./components/swap-token-amount-input.vue";
 import { PropType } from "vue";
-import { TokenTypeTo } from "@enkryptcom/swap";
-import BigNumber from "bignumber.js";
+import { SwapToken, TokenTypeTo } from "@enkryptcom/swap";
 
 const props = defineProps({
   token: {
@@ -45,7 +44,7 @@ const props = defineProps({
   },
   amount: {
     type: String,
-    default: () => "0.0",
+    default: () => "",
   },
   isFindingRate: {
     type: Boolean,
@@ -64,13 +63,10 @@ const props = defineProps({
 const isFocus = ref(false);
 
 const tokenPrice = computed(() => {
-  if (props.token?.price && props.amount !== "Searching") {
-    return new BigNumber(props.amount)
-      .times(new BigNumber(props.token.price))
-      .toFixed();
+  if (props.token?.price && props.amount) {
+    return new SwapToken(props.token).getReadableToFiat(props.amount);
   }
-
-  return null;
+  return 0;
 });
 </script>
 

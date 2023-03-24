@@ -205,7 +205,13 @@ export interface StatusOptions {
 
 export interface TopTokenInfo {
   trendingTokens: Record<string, number>;
-  topTokens: Record<string, number>;
+  topTokens: Record<
+    string,
+    {
+      rank: number;
+      price: number;
+    }
+  >;
   contractsToId: Record<string, string>;
 }
 
