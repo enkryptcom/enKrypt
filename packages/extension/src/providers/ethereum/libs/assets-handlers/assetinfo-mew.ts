@@ -72,6 +72,10 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
     tbName: "rsk",
     cgPlatform: CoingeckoPlatform.Rootstock,
   },
+  [NetworkNames.TomoChain]: {
+    tbName: "tomochain",
+    cgPlatform: CoingeckoPlatform.TomoChain,
+  },
   [NetworkNames.ZkSyncGoerli]: {
     tbName: "",
   },
@@ -120,6 +124,33 @@ const getTokens = (
           }
           console.log(retVal);
           return retVal;
+        }
+      });
+  }
+  if (chain === NetworkNames.TomoChain) {
+    return fetch(`https://tomoscan.io/api/account/${address}/tokenBalance`)
+      .then((res) => res.json())
+      .then((json) => {
+        if (json.error)
+          return Promise.reject(
+            `TOKENBALANCE-MEW: ${JSON.stringify(json.error)}`
+          );
+        else {
+          if (!json.data.length) {
+            json.result.push({
+              contract: NATIVE_TOKEN_ADDRESS,
+              balance: "0x0",
+            });
+          }
+
+          const newResults = json.data.reverse().map((tb: any) => {
+            const rawTx: TokenBalance = {
+              contract: tb.token,
+              balance: tb.quantity,
+            };
+            return rawTx;
+          });
+          return newResults.slice(0, 50) as TokenBalance[];
         }
       });
   }

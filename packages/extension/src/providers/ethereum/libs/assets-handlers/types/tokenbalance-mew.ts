@@ -38,4 +38,5 @@ export type SupportedNetworkNames =
   | NetworkNames.Canto
   | NetworkNames.Rootstock
   | NetworkNames.ZkSyncGoerli
-  | NetworkNames.ZkSync;
+  | NetworkNames.ZkSync
+  | NetworkNames.TomoChain;

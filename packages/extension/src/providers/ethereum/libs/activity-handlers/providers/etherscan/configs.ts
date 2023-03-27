@@ -39,7 +39,6 @@ const NetworkEndpoints = {
     "https://staging-fast-active-bellatrix.explorer.staging-v3.skalenodes.com/",
   [NetworkNames.ZkSyncGoerli]: "https://zksync2-testnet.zkscan.io/",
   [NetworkNames.ZkSync]: "https://zksync2-mainnet.zkscan.io/",
-  [NetworkNames.TomoChain]: "https://tomoscan.io/api/docs/",
 };
 
 export { NetworkEndpoints };
