@@ -66,4 +66,5 @@ export enum CoingeckoPlatform {
   Edgeware = "edgeware",
   EdgeEVM = "edgeware",
   SKALE = "skale",
+  OntologyEVM = "ontology",
 }

@@ -19,7 +19,7 @@ import edgeEvmNode from "./edg";
 import zkGoerliNode from "./zkgoerli";
 import zkSyncNode from "./zksync";
 import * as skale from "./skale";
-import ontEVMNode from "././ontevm";
+import ontEVMNode from "./ontevm";
 
 export default {
   goerli: goerliNode,
