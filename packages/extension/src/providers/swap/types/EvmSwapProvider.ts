@@ -26,6 +26,7 @@ import {
   TradeStatus,
   TransactionInfo,
 } from "./SwapProvider";
+import { bigIntToHex } from "@enkryptcom/utils";
 
 const HOST_URL = "https://mainnet.mewwallet.dev/v4";
 const REQUEST_CACHER = "https://requestcache.mewapi.io/?url=";
@@ -288,7 +289,8 @@ export class EvmSwapProvider extends SwapProvider {
       params.append("fromContractAddress", fromToken.contract);
       params.append("toContractAddress", toToken.contract);
       params.append("amount", amountToSwap);
-      params.append("address", toAddress);
+      params.append("address", fromAddress);
+      params.append("recipient", toAddress);
       params.append("platform", "extension");
 
       const controller = new AbortController();
@@ -296,8 +298,6 @@ export class EvmSwapProvider extends SwapProvider {
         controller.abort();
         console.error("Request timedout");
       }, REQUEST_TIMEOUT);
-
-      console.log(`${HOST_URL}${GET_TRADE}?${params.toString()}`);
       const res = await fetch(`${HOST_URL}${GET_TRADE}?${params.toString()}`, {
         signal: controller.signal,
       });
@@ -420,7 +420,10 @@ export class EvmSwapProvider extends SwapProvider {
                     [
                       {
                         ...JSON.parse(JSON.stringify(activity)),
-                        ...{ transactionHash: hash },
+                        ...{
+                          transactionHash: hash,
+                          nonce: bigIntToHex(finalizedTx.nonce),
+                        },
                       },
                     ],
                     { address: fromAccount.address, network: network.name }

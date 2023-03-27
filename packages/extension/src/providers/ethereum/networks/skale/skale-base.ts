@@ -161,7 +161,7 @@ async function getPreconfiguredTokens(
       decimals: assetDecimals,
       sparkline: nativeAssetMarketData[index]
         ? new Sparkline(nativeAssetMarketData[index]?.sparkline_in_7d.price, 25)
-            .dataUri
+            .dataValues
         : "",
       priceChangePercentage:
         nativeAssetMarketData[index]?.price_change_percentage_7d_in_currency ??

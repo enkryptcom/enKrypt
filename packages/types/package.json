@@ -1,6 +1,6 @@
 {
   "name": "@enkryptcom/types",
-  "version": "0.0.1",
+  "version": "0.0.4",
   "description": "typescript types for enkrypt packages",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -10,31 +10,33 @@
   "scripts": {
     "build": "tsup src/index.ts --format esm,cjs --dts --clean",
     "lint": "prettier --write .",
+    "version:bump:patch": "yarn version --immediate patch",
+    "publish": "yarn npm publish --access public",
     "test": "echo 'no-tests'"
   },
   "engines": {
     "node": ">=14.15.0"
   },
   "devDependencies": {
-    "@types/node": "^18.13.0",
-    "@typescript-eslint/eslint-plugin": "^5.51.0",
-    "@typescript-eslint/parser": "^5.51.0",
-    "eslint": "^8.33.0",
+    "@types/node": "^18.15.3",
+    "@typescript-eslint/eslint-plugin": "^5.55.0",
+    "@typescript-eslint/parser": "^5.55.0",
+    "eslint": "^8.36.0",
     "eslint-config-airbnb-base": "^15.0.0",
-    "eslint-config-prettier": "^8.6.0",
+    "eslint-config-prettier": "^8.7.0",
     "eslint-import-resolver-alias": "^1.1.2",
     "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-module-resolver": "^1.5.0",
-    "prettier": "^2.8.3",
+    "prettier": "^2.8.4",
     "ts-node": "^10.9.1",
     "tsconfig-paths": "^4.1.2",
-    "tsup": "^6.6.0",
+    "tsup": "^6.6.3",
     "typescript": "^4.9.5",
     "typescript-eslint": "0.0.1-alpha.0"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/enkryptcom/enKrypt/tree/main/packages/types"
+    "url": "https://github.com/enkryptcom/enKrypt/tree/main/packages/types"
   },
   "keywords": [],
   "author": "kvhnuke",

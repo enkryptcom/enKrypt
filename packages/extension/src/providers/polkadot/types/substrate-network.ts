@@ -170,7 +170,7 @@ export class SubstrateNetwork extends BaseNetwork {
         priceChangePercentage:
           market[idx]?.price_change_percentage_7d_in_currency || 0,
         sparkline: market[idx]
-          ? new Sparkline(market[idx]?.sparkline_in_7d.price, 25).dataUri
+          ? new Sparkline(market[idx]?.sparkline_in_7d.price, 25).dataValues
           : "",
         value: market[idx]?.current_price.toString() || "0",
         valuef: formatFloatingPointValue(

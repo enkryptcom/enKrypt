@@ -7,7 +7,7 @@ import {
 
 const skaleOptions: SkaleParams = {
   name: NetworkNames.SkaleCryptoColosseum,
-  name_long: "SKALE | Crytpo Rome",
+  name_long: "SKALE | Crypto Rome",
   chainName: "haunting-devoted-deneb",
   chainID: "0x3d91725c",
   icon: "skaleCryptoColloseum.png",
