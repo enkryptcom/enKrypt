@@ -13,7 +13,7 @@ const ontEVMOptions: EvmNetworkOptions = {
   isTestNetwork: false,
   currencyName: "ONG",
   node: "https://dappnode1.ont.io:10339",
-  icon: require("./icons/wont.png"),
+  icon: require("./icons/ont-evm.png"),
   coingeckoID: "ontology",
   activityHandler: wrapActivityHandler(OntEVMActivity),
 };
