@@ -99,14 +99,16 @@ class MarketData {
         )}`,
       },
       REFRESH_DELAY
-    ).then((json) => {
-      const markets = json as CoinGeckoTokenMarket[];
-      const retMarkets: Array<CoinGeckoTokenMarket | null> = [];
-      coingeckoIDs.forEach((id) => {
-        retMarkets.push(markets.find((m) => m.id === id) || null);
-      });
-      return retMarkets;
-    });
+    )
+      .then((json) => {
+        const markets = json as CoinGeckoTokenMarket[];
+        const retMarkets: Array<CoinGeckoTokenMarket | null> = [];
+        coingeckoIDs.forEach((id) => {
+          retMarkets.push(markets.find((m) => m.id === id) || null);
+        });
+        return retMarkets;
+      })
+      .catch(() => coingeckoIDs.map(() => null));
   }
   async getFiatValue(symbol: string): Promise<FiatMarket | null> {
     await this.setMarketInfo();

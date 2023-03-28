@@ -41,12 +41,16 @@
             :native-value="gasDifference"
           />
           <send-fee-select
-            v-if="network?.name && (network as EvmNetwork).chainID"
+            v-if="Object.keys(gasCostValues).length > 1"
             :fee="gasCostValues[selectedFee]"
             :in-swap="true"
             @open-popup="toggleSelectFee"
           />
-          <send-fee-display v-else :fee="fee" :in-swap="true" />
+          <send-fee-display
+            v-else
+            :fee="gasCostValues[selectedFee]"
+            :in-swap="true"
+          />
         </custom-scrollbar>
 
         <transaction-fee-view
@@ -101,13 +105,9 @@ import SendFeeSelect from "@/providers/common/ui/send-transaction/send-fee-selec
 import SendFeeDisplay from "@/providers/polkadot/ui/send-transaction/components/send-fee-display.vue";
 import TransactionFeeView from "@action/views/transaction-fee/index.vue";
 import scrollSettings from "@/libs/utils/scroll-settings";
-import { TradeInfo } from "@/providers/swap/types/SwapProvider";
-import { BaseToken } from "@/types/base-token";
-import { Swap } from "@/providers/swap";
 import { BaseNetwork } from "@/types/base-network";
 import { toBN } from "web3-utils";
 import BN from "bn.js";
-import Web3Eth from "web3-eth";
 import Transaction from "@/providers/ethereum/libs/transaction";
 import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
 import {
@@ -115,7 +115,6 @@ import {
   GasFeeType,
   GasPriceTypes,
 } from "@/providers/common/types";
-import { fromBase } from "@enkryptcom/utils";
 import BigNumber from "bignumber.js";
 import { defaultGasCostVals } from "@/providers/common/libs/default-vals";
 import { SwapBestOfferWarnings } from "../../types";
@@ -123,13 +122,20 @@ import { Erc20Token } from "@/providers/ethereum/types/erc20-token";
 import { NATIVE_TOKEN_ADDRESS } from "@/providers/ethereum/libs/common";
 import { EnkryptAccount } from "@enkryptcom/types";
 import { getNetworkByName } from "@/libs/utils/networks";
-import { ProviderSwapResponse } from "@enkryptcom/swap";
+import {
+  getNetworkInfoByName,
+  NetworkType,
+  ProviderSwapResponse,
+  SupportedNetworkName,
+} from "@enkryptcom/swap";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
 import { SwapData } from "../../types";
+import { getSwapTransactions } from "../../libs/swap-txs";
+import { getEVMTransactionFees } from "../../libs/evm-gasvals";
+import { getSubstrateGasVals } from "../../libs/substrate-gasvals";
 
 const router = useRouter();
 const route = useRoute();
-const swap = new Swap();
 
 const isInitiated = ref(false);
 const bestOfferScrollRef = ref<ComponentPublicInstance<HTMLElement>>();
@@ -149,6 +155,11 @@ swapData.existentialDeposit = toBN(`0x${swapData.existentialDeposit}`);
 swapData.nativeBalance = toBN(`0x${swapData.nativeBalance}`);
 swapData.fromToken.balance = toBN(`0x${swapData.fromToken.balance}`);
 swapData.toToken.balance = toBN(`0x${swapData.toToken.balance}`);
+const networkInfo = getNetworkInfoByName(
+  selectedNetwork as SupportedNetworkName
+);
+const selectedFee = ref<GasPriceTypes>(GasPriceTypes.REGULAR);
+const pickedTrade = ref<ProviderSwapResponse>(swapData.trades[0]);
 
 const KeyRing = new PublicKeyRing();
 const isWindowPopup = ref(false);
@@ -159,8 +170,6 @@ const fee = ref<Partial<GasFeeInfo>>({
 
 const isOpenSelectFee = ref(false);
 
-const selectedFee = ref<GasPriceTypes>(GasPriceTypes.REGULAR);
-const pickedTrade = ref<ProviderSwapResponse>(swapData.trades[0]);
 const balance = ref<BN>(new BN(-1));
 const gasCostValues = ref<GasFeeType>(defaultGasCostVals);
 const nativeTokenPrice = ref<string>();
@@ -237,32 +246,29 @@ const TXSendErrorMessage = ref("");
 //   setWarning();
 // });
 
-// const Tx = computed(() => {
-//   if (network.value?.name && (network.value as EvmNetwork).chainID) {
-//     const web3 = new Web3Eth(network.value.node);
-//     return pickedTrade.value.txs.map((txData) => {
-//       const tx = new Transaction(
-//         {
-//           to: txData.to as `0x${string}`,
-//           from: txData.from as `0x${string}`,
-//           data: txData.data,
-//           chainId: (network.value as EvmNetwork).chainID,
-//           value: txData.value,
-//           gas: txData.gas,
-//         },
-//         web3
-//       );
-//       return tx;
-//     });
-//   }
-//   return null;
-// });
-
 defineExpose({ bestOfferScrollRef });
 
 onMounted(async () => {
   network.value = (await getNetworkByName(selectedNetwork))!;
   account.value = await KeyRing.getAccount(swapData.fromAddress);
+  const transactionObjects = await getSwapTransactions(
+    selectedNetwork as SupportedNetworkName,
+    pickedTrade.value.transactions
+  );
+  if (networkInfo.type === NetworkType.EVM) {
+    gasCostValues.value = await getEVMTransactionFees(
+      transactionObjects!,
+      network.value as EvmNetwork,
+      swapData.nativePrice
+    );
+  } else if (networkInfo.type === NetworkType.Substrate) {
+    gasCostValues.value = (await getSubstrateGasVals(
+      transactionObjects!,
+      network.value,
+      swapData.nativePrice
+    )) as GasFeeType;
+  }
+
   // const api = await network.value.api();
   // balance.value = toBN(await api.getBalance(account.value.address));
   // isWindowPopup.value = account.value.isHardware;
@@ -379,123 +385,14 @@ const isHasScroll = () => {
   }
 };
 
-//   return false;
-// };
-// const toggleSelectFee = () => {
-//   isOpenSelectFee.value = !isOpenSelectFee.value;
-// };
+const toggleSelectFee = () => {
+  isOpenSelectFee.value = !isOpenSelectFee.value;
+};
 
-// const selectFee = (option: GasPriceTypes) => {
-//   selectedFee.value = option;
-//   isOpenSelectFee.value = false;
-// };
-
-// const setTransactionFees = async (txs: Transaction[]) => {
-//   const gasPromises = txs.map((tx) => {
-//     return tx.getGasCosts().then(async (gasvals) => {
-//       const getConvertedVal = (type: GasPriceTypes) =>
-//         fromBase(gasvals[type], network.value!.decimals);
-
-//       nativeTokenPrice.value = (
-//         await network.value!.getAllTokens(account.value!.address)
-//       )[0].price;
-//       return {
-//         [GasPriceTypes.ECONOMY]: {
-//           nativeValue: getConvertedVal(GasPriceTypes.ECONOMY),
-//           fiatValue: new BigNumber(
-//             getConvertedVal(GasPriceTypes.ECONOMY)
-//           ).times(nativeTokenPrice.value!),
-//         },
-//         [GasPriceTypes.REGULAR]: {
-//           nativeValue: getConvertedVal(GasPriceTypes.REGULAR),
-//           fiatValue: new BigNumber(
-//             getConvertedVal(GasPriceTypes.REGULAR)
-//           ).times(nativeTokenPrice.value!),
-//         },
-//         [GasPriceTypes.FAST]: {
-//           nativeValue: getConvertedVal(GasPriceTypes.FAST),
-//           fiatValue: new BigNumber(getConvertedVal(GasPriceTypes.FAST)).times(
-//             nativeTokenPrice.value!
-//           ),
-//         },
-//         [GasPriceTypes.FASTEST]: {
-//           nativeValue: getConvertedVal(GasPriceTypes.FASTEST),
-//           fiatValue: new BigNumber(
-//             getConvertedVal(GasPriceTypes.FASTEST)
-//           ).times(nativeTokenPrice.value!),
-//         },
-//       };
-//     });
-//   });
-
-//   const gasVals = await Promise.all(gasPromises);
-
-//   const finalVal = gasVals.reduce((prev, curr) => {
-//     if (!prev) return curr;
-
-//     return {
-//       [GasPriceTypes.ECONOMY]: {
-//         nativeValue: new BigNumber(prev[GasPriceTypes.ECONOMY].nativeValue)
-//           .plus(curr[GasPriceTypes.ECONOMY].nativeValue)
-//           .toString(),
-//         fiatValue: prev[GasPriceTypes.ECONOMY].fiatValue.plus(
-//           curr[GasPriceTypes.ECONOMY].fiatValue
-//         ),
-//       },
-//       [GasPriceTypes.REGULAR]: {
-//         nativeValue: new BigNumber(prev[GasPriceTypes.REGULAR].nativeValue)
-//           .plus(curr[GasPriceTypes.REGULAR].nativeValue)
-//           .toString(),
-//         fiatValue: prev[GasPriceTypes.REGULAR].fiatValue.plus(
-//           curr[GasPriceTypes.REGULAR].fiatValue
-//         ),
-//       },
-//       [GasPriceTypes.FAST]: {
-//         nativeValue: new BigNumber(prev[GasPriceTypes.FAST].nativeValue)
-//           .plus(curr[GasPriceTypes.FAST].nativeValue)
-//           .toString(),
-//         fiatValue: prev[GasPriceTypes.FAST].fiatValue.plus(
-//           curr[GasPriceTypes.FAST].fiatValue
-//         ),
-//       },
-//       [GasPriceTypes.FASTEST]: {
-//         nativeValue: new BigNumber(prev[GasPriceTypes.FASTEST].nativeValue)
-//           .plus(curr[GasPriceTypes.FASTEST].nativeValue)
-//           .toString(),
-//         fiatValue: prev[GasPriceTypes.FASTEST].fiatValue.plus(
-//           curr[GasPriceTypes.FASTEST].fiatValue
-//         ),
-//       },
-//     };
-//   });
-
-//   gasCostValues.value = {
-//     [GasPriceTypes.ECONOMY]: {
-//       nativeValue: finalVal[GasPriceTypes.ECONOMY].nativeValue,
-//       fiatValue: finalVal[GasPriceTypes.ECONOMY].fiatValue.toString(),
-//       nativeSymbol: network.value!.currencyName,
-//       fiatSymbol: "USD",
-//     },
-//     [GasPriceTypes.REGULAR]: {
-//       nativeValue: finalVal[GasPriceTypes.REGULAR].nativeValue,
-//       fiatValue: finalVal[GasPriceTypes.REGULAR].fiatValue.toString(),
-//       nativeSymbol: network.value!.currencyName,
-//       fiatSymbol: "USD",
-//     },
-//     [GasPriceTypes.FAST]: {
-//       nativeValue: finalVal[GasPriceTypes.FAST].nativeValue,
-//       fiatValue: finalVal[GasPriceTypes.FAST].fiatValue.toString(),
-//       nativeSymbol: network.value!.currencyName,
-//       fiatSymbol: "USD",
-//     },
-//     [GasPriceTypes.FASTEST]: {
-//       nativeValue: finalVal[GasPriceTypes.FASTEST].nativeValue,
-//       fiatValue: finalVal[GasPriceTypes.FASTEST].fiatValue.toString(),
-//       nativeSymbol: network.value!.currencyName,
-//       fiatSymbol: "USD",
-//     },
-//   };
-// };
+const selectFee = (option: GasPriceTypes) => {
+  selectedFee.value = option;
+  toggleSelectFee();
+};
 
 const selectTrade = (trade: ProviderSwapResponse) => {
   pickedTrade.value = trade;

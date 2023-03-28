@@ -609,15 +609,17 @@ const sendAction = async () => {
     toggleSwapError();
     return;
   }
+  const nativeToken = fromTokens.value?.find(
+    (ft) => ft.address === NATIVE_TOKEN_ADDRESS
+  );
   const swapData: SwapData = {
     trades: trades as ProviderSwapResponse[],
     fromToken: localFromToken,
     toToken: localToToken,
     priceDifference: priceDifference,
     swapMax: swapMax.value,
-    nativeBalance:
-      fromTokens.value?.find((ft) => ft.address === NATIVE_TOKEN_ADDRESS)
-        ?.balance || toBN("0"),
+    nativeBalance: nativeToken!.balance || toBN("0"),
+    nativePrice: nativeToken!.price || 0,
     existentialDeposit:
       (props.network as SubstrateNetwork).existentialDeposit || toBN("0"),
     fromAddress: props.accountInfo.selectedAccount!.address,

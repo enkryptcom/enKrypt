@@ -28,6 +28,10 @@ import {
   TopTokenInfo,
   ToTokenType,
   WalletIdentifier,
+  NetworkType,
+  GenericTransaction,
+  EVMTransaction,
+  TransactionType,
 } from "./types";
 import { sortByRank, sortNativeToFront } from "./utils/common";
 import SwapToken from "./swapToken";
@@ -201,5 +205,9 @@ export {
   NetworkInfo,
   ProviderQuoteResponse,
   ProviderSwapResponse,
+  NetworkType,
+  GenericTransaction,
+  EVMTransaction,
+  TransactionType,
 };
 export default Swap;

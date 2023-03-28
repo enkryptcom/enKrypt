@@ -156,6 +156,7 @@ export interface EVMTransaction {
 }
 
 export interface GenericTransaction {
+  from: string;
   to: string;
   value: string;
   type: TransactionType.generic;

@@ -313,6 +313,7 @@ class Changelly extends ProviderClass {
           }
         } else {
           transaction = {
+            from: quote.options.fromAddress,
             to: result.payinAddress,
             value: numberToHex(quote.options.amount),
             type: TransactionType.generic,

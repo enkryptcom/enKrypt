@@ -12,6 +12,7 @@ export interface SwapData {
   priceDifference: string;
   swapMax: boolean;
   nativeBalance: BN;
+  nativePrice: number;
   existentialDeposit: BN;
   fromAddress: string;
 }
