@@ -235,6 +235,7 @@ const setTransactionFees = async () => {
   } else if (networkInfo.type === NetworkType.Substrate) {
     gasCostValues.value = (await getSubstrateGasVals(
       transactionObjects!,
+      swapData.fromAddress,
       network.value!,
       swapData.nativePrice
     )) as GasFeeType;
@@ -323,14 +324,13 @@ const sendAction = async () => {
           rawInfo: JSON.parse(JSON.stringify(swapRaw)),
         };
         const activityState = new ActivityState();
-        console.log(swapActivity, account.value!.address, network.value!.name);
         activityState.addActivities([swapActivity], {
-          address: account.value!.address,
+          address: swapActivity.from,
           network: network.value!.name,
         });
       })
       .catch((err) => {
-        console.error(err.message);
+        console.error(err);
         isTXSendError.value = true;
         TXSendErrorMessage.value = err.message;
       });

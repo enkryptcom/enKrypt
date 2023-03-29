@@ -50,57 +50,64 @@ export const executeSwap = async (
       transactionHash: "",
     };
     const tx = (api.api as ApiPromise).tx(substrateTx.toHex());
-    try {
-      const signedTx = await tx.signAsync(options.from.address, {
-        signer: {
-          signPayload: (signPayload): Promise<SignerResult> => {
-            const registry = new TypeRegistry();
-            registry.setSignedExtensions(signPayload.signedExtensions);
-            const extType = registry.createType(
-              "ExtrinsicPayload",
-              signPayload,
-              {
-                version: signPayload.version,
-              }
-            );
-            return SubstrateTransactionSigner({
-              account: options.from,
-              network: options.network,
-              payload: extType,
-            }).then((res) => {
-              if (res.error) return Promise.reject(res.error);
-              else
-                return {
-                  id: 0,
-                  signature: JSON.parse(res.result as string),
-                };
-            });
-          },
-        },
-      });
 
-      const hash = await signedTx.send();
-      await activityState.addActivities(
-        [
-          {
-            ...JSON.parse(JSON.stringify(txActivity)),
-            ...{ transactionHash: hash },
-          },
-        ],
-        { address: options.from.address, network: options.network.name }
-      );
-      return [u8aToHex(hash)];
-    } catch (error) {
-      console.error("error", error);
-      return ["0x"];
-    }
+    const signedTx = await tx.signAsync(options.from.address, {
+      signer: {
+        signPayload: (signPayload): Promise<SignerResult> => {
+          const registry = new TypeRegistry();
+          registry.setSignedExtensions(signPayload.signedExtensions);
+          const extType = registry.createType("ExtrinsicPayload", signPayload, {
+            version: signPayload.version,
+          });
+          return SubstrateTransactionSigner({
+            account: options.from,
+            network: options.network,
+            payload: extType,
+          }).then((res) => {
+            if (res.error) return Promise.reject(res.error);
+            else
+              return {
+                id: 0,
+                signature: JSON.parse(res.result as string),
+              };
+          });
+        },
+      },
+    });
+    const hash = u8aToHex(signedTx.hash);
+    await signedTx
+      .send()
+      .then(async () => {
+        await activityState.addActivities(
+          [
+            {
+              ...JSON.parse(JSON.stringify(txActivity)),
+              transactionHash: hash,
+            },
+          ],
+          { address: txActivity.from, network: options.network.name }
+        );
+      })
+      .catch(async () => {
+        await activityState.addActivities(
+          [
+            {
+              ...JSON.parse(JSON.stringify(txActivity)),
+              transactionHash: hash,
+              status: ActivityStatus.failed,
+            },
+          ],
+          { address: txActivity.from, network: options.network.name }
+        );
+      });
+    return [hash];
   } else if (options.networkType === NetworkType.EVM) {
     const web3 = (api as EvmAPI).web3;
     const nonce = await web3.getTransactionCount(options.from.address);
     const txsPromises = (options.swap.transactions as EVMTransaction[]).map(
       async (tx, index) => {
         const txActivity: Activity = {
-          from: tx.from,
+          from: options.network.displayAddress(tx.from),
           to: tx.to,
           token: {
             decimals: options.fromToken.decimals,
@@ -164,7 +171,7 @@ export const executeSwap = async (
                           },
                         ],
                         {
-                          address: options.from.address,
+                          address: activity.from,
                           network: options.network.name,
                         }
                       )

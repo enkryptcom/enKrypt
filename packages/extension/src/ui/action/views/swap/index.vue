@@ -403,7 +403,6 @@ const isValidToAddress = debounce(() => {
 }, 200);
 
 const pickBestQuote = (fromAmountBN: BN, quotes: ProviderQuoteResponse[]) => {
-  console.log(quotes);
   if (!quotes.length) return;
   const token = new SwapToken(fromToken.value!);
   const filteredQuotes = quotes.filter((q) => {
@@ -412,7 +411,6 @@ const pickBestQuote = (fromAmountBN: BN, quotes: ProviderQuoteResponse[]) => {
       q.minMax.maximumFrom.gte(fromAmountBN)
     );
   });
-
   if (!filteredQuotes.length) {
     let lowestMinimum: BN = quotes[0].minMax.minimumFrom;
     let highestMaximum: BN = quotes[0].minMax.maximumFrom;
@@ -422,7 +420,6 @@ const pickBestQuote = (fromAmountBN: BN, quotes: ProviderQuoteResponse[]) => {
       if (q.minMax.maximumFrom.gt(highestMaximum))
         highestMaximum = q.minMax.maximumFrom;
     });
-
     if (fromAmountBN.lt(lowestMinimum))
       errors.value.inputAmount = `Minimum amount: ${token.toReadable(
         lowestMinimum
@@ -432,6 +429,10 @@ const pickBestQuote = (fromAmountBN: BN, quotes: ProviderQuoteResponse[]) => {
         highestMaximum
       )}`;
     return;
+  }
+  const fromT = new SwapToken(fromToken.value!);
+  if (fromT.getBalanceRaw().lt(fromAmountBN)) {
+    errors.value.inputAmount = "Insufficient funds";
   }
   filteredQuotes.sort((a, b) => (b.toTokenAmount.gt(a.toTokenAmount) ? 1 : -1));
   toAmount.value = new SwapToken(toToken.value!).toReadable(
@@ -529,10 +530,6 @@ const selectTokenTo = (token: TokenTypeTo | TokenType) => {
 
 const inputAmountFrom = async (newVal: string) => {
   errors.value.inputAmount = "";
-  const fromT = new SwapToken(fromToken.value!);
-  if (BigNumber(fromT.getBalanceReadable()).lt(newVal)) {
-    errors.value.inputAmount = "Insufficient funds";
-  }
   fromAmount.value = newVal;
   swapMax.value = false;
 };

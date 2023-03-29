@@ -15,6 +15,10 @@ import { SubstrateNativeToken } from "@/providers/polkadot/types/substrate-nativ
 import { SubstrateNetwork } from "@/providers/polkadot/types/substrate-network";
 import { ApiPromise } from "@polkadot/api";
 import { TransactionType } from "../types";
+import { BitcoinNetwork } from "@/providers/bitcoin/types/bitcoin-network";
+import BitcoinAPI from "@/providers/bitcoin/libs/api";
+import { BTCTxInfo } from "@/providers/bitcoin/ui/types";
+import { toBN } from "web3-utils";
 
 export const getSubstrateNativeTransation = async (
   network: SubstrateNetwork,
@@ -33,6 +37,44 @@ export const getSubstrateNativeTransation = async (
     type: "keepAlive",
   });
   return txRes;
+};
+
+export const getBitcoinNativeTransaction = async (
+  network: BitcoinNetwork,
+  tx: GenericTransaction
+) => {
+  const api = (await network.api()) as BitcoinAPI;
+  const utxos = await api.getUTXOs(tx.from);
+  const txInfo: BTCTxInfo = {
+    inputs: [],
+    outputs: [],
+  };
+  utxos.forEach((u) => {
+    txInfo.inputs.push({
+      hash: u.txid,
+      index: u.index,
+      witnessUtxo: {
+        script: u.pkscript,
+        value: u.value,
+      },
+    });
+  });
+  const balance = toBN(await api.getBalance(tx.from));
+  const toAmount = toBN(tx.value);
+  const remainder = balance.sub(toAmount);
+
+  txInfo.outputs.push({
+    address: tx.to,
+    value: toAmount.toNumber(),
+  });
+
+  if (remainder.gtn(0)) {
+    txInfo.outputs.push({
+      address: network.displayAddress(tx.from),
+      value: remainder.toNumber(),
+    });
+  }
+  return txInfo;
 };
 
 export const getEVMTransaction = async (
@@ -64,7 +106,7 @@ export const getSwapTransactions = async (
   const network = await getNetworkByName(
     networkName as unknown as NetworkNames
   );
-  if ((netInfo.type = NetworkType.EVM)) {
+  if (netInfo.type === NetworkType.EVM) {
     const txPromises = (transactions as EVMTransaction[]).map(
       async (txData) => {
         const eTx = await getEVMTransaction(network as EvmNetwork, txData);
