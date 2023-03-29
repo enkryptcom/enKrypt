@@ -293,7 +293,7 @@ onMounted(async () => {
       params.append("ids", network.value.coingeckoID!);
       params.append("vs_currencies", "usd");
       fetch(
-        `https://api.coingecko.com/api/v3/simple/price?${params.toString()}`
+        `https://partners.mewapi.io/coingecko/api/v3/simple/price?${params.toString()}`
       )
         .then((res) => {
           clearTimeout(timeoutId);
