@@ -250,7 +250,7 @@ export class ChangellySwapProvider extends SwapProvider {
       urlSearchParams.append("vs_currencies", "usd");
 
       const pricesRes = await fetch(
-        `https://api.coingecko.com/api/v3/simple/price?${urlSearchParams.toString()}`
+        `https://partners.mewapi.io/coingecko/api/v3/simple/price?${urlSearchParams.toString()}`
       );
 
       const prices = await pricesRes.json();
