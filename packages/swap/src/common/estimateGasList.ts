@@ -8,7 +8,7 @@ const supportedNetworks: {
     url: "https://estimategas.mewapi.io/eth",
   },
   [SupportedNetworkName.Binance]: {
-    url: "https://estimategas.mewapi.io/goerli",
+    url: "https://estimategas.mewapi.io/bsc",
   },
   [SupportedNetworkName.Matic]: {
     url: "https://estimategas.mewapi.io/matic",
@@ -46,7 +46,10 @@ const estimateGasList = (
       "Content-Type": "application/json",
     },
   })
-    .then((res) => res.json())
+    .then((res) => {
+      if (res.ok) return res.json();
+      throw new Error("Something went wrong");
+    })
     .then((json) => {
       if (json.error)
         return {

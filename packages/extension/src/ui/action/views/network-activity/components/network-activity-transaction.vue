@@ -1,62 +1,111 @@
 <template>
-  <a
-    :href="transactionURL"
-    target="_blank"
-    class="network-activity__transaction"
+  <section
+    v-if="activity.type === ActivityType.transaction"
+    class="container-empty"
   >
-    <div class="network-activity__transaction-info">
-      <img
-        :src="
-          network.identicon(activity.isIncoming ? activity.from : activity.to)
-        "
-      />
+    <a
+      :href="transactionURL"
+      target="_blank"
+      class="network-activity__transaction"
+    >
+      <div class="network-activity__transaction-info">
+        <img
+          :src="
+            network.identicon(activity.isIncoming ? activity.from : activity.to)
+          "
+        />
 
-      <div class="network-activity__transaction-info-name">
+        <div class="network-activity__transaction-info-name">
+          <h4>
+            {{
+              $filters.replaceWithEllipsis(
+                network.displayAddress(
+                  activity.isIncoming ? activity.from : activity.to
+                ),
+                6,
+                6
+              )
+            }}
+          </h4>
+          <p>
+            <span
+              class="network-activity__transaction-info-status"
+              :class="{ error: activity.status === ActivityStatus.failed }"
+              >{{ status }}</span
+            >
+            <transaction-timer
+              v-if="activity.status === ActivityStatus.pending"
+              :date="activity.timestamp"
+            />
+            <span v-else-if="activity.timestamp !== 0">{{ date }}</span>
+          </p>
+        </div>
+      </div>
+
+      <div class="network-activity__transaction-amount">
         <h4>
           {{
-            $filters.replaceWithEllipsis(
-              network.displayAddress(
-                activity.isIncoming ? activity.from : activity.to
-              ),
-              6,
-              6
-            )
+            $filters.formatFloatingPointValue(
+              fromBase(activity.value, activity.token.decimals)
+            ).value
           }}
+          <span>{{ activity.token.symbol }}</span>
         </h4>
-        <p>
-          <span
-            class="network-activity__transaction-info-status"
-            :class="{ error: activity.status === ActivityStatus.failed }"
-            >{{ status }}</span
-          >
-          <transaction-timer
-            v-if="activity.status === ActivityStatus.pending"
-            :date="activity.timestamp"
-          />
-          <span v-else-if="activity.timestamp !== 0">{{ date }}</span>
-        </p>
+        <p>$ {{ $filters.formatFiatValue(getFiatValue).value }}</p>
       </div>
-    </div>
+    </a>
+  </section>
+  <section v-if="activity.type === ActivityType.swap" class="container-empty">
+    <section class="network-activity__transaction">
+      <div class="network-activity__transaction-info">
+        <img :src="(activity.rawInfo as SwapRawInfo).toToken.logoURI" />
 
-    <div class="network-activity__transaction-amount">
-      <h4>
-        {{
-          $filters.formatFloatingPointValue(
-            fromBase(activity.value, activity.token.decimals)
-          ).value
-        }}
-        <span>{{ activity.token.symbol }}</span>
-      </h4>
-      <p>$ {{ $filters.formatFiatValue(getFiatValue).value }}</p>
-    </div>
-  </a>
+        <div class="network-activity__transaction-info-name">
+          <h4>
+            Swap from
+            {{ (activity.rawInfo as SwapRawInfo).fromToken.symbol }} to
+            {{ (activity.rawInfo as SwapRawInfo).toToken.symbol }}
+          </h4>
+          <p>
+            <span
+              class="network-activity__transaction-info-status"
+              :class="{ error: activity.status === ActivityStatus.failed }"
+              >{{ status }}</span
+            >
+            <transaction-timer
+              v-if="activity.status === ActivityStatus.pending"
+              :date="activity.timestamp"
+            />
+            <span v-else-if="activity.timestamp !== 0">{{ date }}</span>
+          </p>
+        </div>
+      </div>
+
+      <div class="network-activity__transaction-amount">
+        <h4>
+          {{
+            $filters.formatFloatingPointValue(
+              fromBase(activity.value, activity.token.decimals)
+            ).value
+          }}
+          <span>{{ activity.token.symbol }}</span>
+        </h4>
+        <p>$ {{ $filters.formatFiatValue(getFiatValue).value }}</p>
+      </div>
+    </section>
+  </section>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, PropType, ref } from "vue";
 import moment from "moment";
 import TransactionTimer from "./transaction-timer.vue";
-import { Activity, ActivityStatus } from "@/types/activity";
+import {
+  Activity,
+  ActivityStatus,
+  ActivityType,
+  SwapRawInfo,
+} from "@/types/activity";
 import { BaseNetwork } from "@/types/base-network";
 import { fromBase } from "@enkryptcom/utils";
 import BigNumber from "bignumber.js";
@@ -91,22 +140,28 @@ onMounted(() => {
     props.activity.status === ActivityStatus.success &&
     props.activity.isIncoming
   )
-    status.value = "Received";
+    status.value =
+      props.activity.type === ActivityType.transaction ? "Received" : "Swapped";
   else if (
     props.activity.status === ActivityStatus.success &&
     !props.activity.isIncoming
   )
-    status.value = "Sent";
+    status.value =
+      props.activity.type === ActivityType.transaction ? "Sent" : "Swapped";
   else if (
     props.activity.status === ActivityStatus.pending &&
     props.activity.isIncoming
   )
-    status.value = "Receiving";
+    status.value =
+      props.activity.type === ActivityType.transaction
+        ? "Receiving"
+        : "Swapping";
   else if (
     props.activity.status === ActivityStatus.pending &&
     !props.activity.isIncoming
   )
-    status.value = "Sending";
+    status.value =
+      props.activity.type === ActivityType.transaction ? "Sending" : "Swapping";
   else {
     status.value = "Failed";
   }
@@ -115,7 +170,9 @@ onMounted(() => {
 
 <style lang="less">
 @import "~@action/styles/theme.less";
-
+.container-empty {
+  display: contents;
+}
 .network-activity {
   &__transaction {
     height: 64px;

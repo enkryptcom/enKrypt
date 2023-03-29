@@ -12,6 +12,7 @@ import {
   ProviderToTokenResponse,
   QuoteMetaOptions,
   StatusOptions,
+  StatusOptionsResponse,
   SupportedNetworkName,
   SwapQuote,
   TokenType,
@@ -233,7 +234,12 @@ class OneInch extends ProviderClass {
         transactions: res.transactions,
         slippage: quote.meta.slippage || DEFAULT_SLIPPAGE,
         fee: feeConfig * 100,
-        getStatusObject: async (options: StatusOptions) => options,
+        getStatusObject: async (
+          options: StatusOptions
+        ): Promise<StatusOptionsResponse> => ({
+          options,
+          provider: this.name,
+        }),
       };
       return response;
     });

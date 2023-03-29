@@ -32,6 +32,9 @@ import {
   GenericTransaction,
   EVMTransaction,
   TransactionType,
+  StatusOptionsResponse,
+  TransactionStatus,
+  StatusOptions,
 } from "./types";
 import { sortByRank, sortNativeToFront } from "./utils/common";
 import SwapToken from "./swapToken";
@@ -186,6 +189,11 @@ class Swap extends EventEmitter {
     return provider.getSwap(quote);
   }
 
+  getStatus(options: StatusOptionsResponse): Promise<TransactionStatus | null> {
+    const provider = this.providers.find((p) => p.name === options.provider);
+    return provider.getStatus(options.options);
+  }
+
   static networkNameToInfo(networkName: SupportedNetworkName): NetworkInfo {
     return NetworkDetails[networkName];
   }
@@ -209,5 +217,8 @@ export {
   GenericTransaction,
   EVMTransaction,
   TransactionType,
+  TransactionStatus,
+  StatusOptionsResponse,
+  StatusOptions,
 };
 export default Swap;

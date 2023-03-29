@@ -1,10 +1,10 @@
 <template>
   <div class="swap-initiated-amount">
-    <img :src="token.icon" alt="" />
+    <img :src="token.logoURI" alt="" />
 
     <div class="swap-initiated-amount__info">
       <h4>
-        {{ $filters.formatFloatingPointValue(amount).value }}
+        {{ $filters.formatFloatingPointValue(tokenReadable).value }}
         <span>{{ token.symbol.toLowerCase() }}</span>
       </h4>
     </div>
@@ -12,23 +12,23 @@
 </template>
 
 <script setup lang="ts">
-import { BaseToken } from "@/types/base-token";
+import { TokenType, SwapToken } from "@enkryptcom/swap";
 import { PropType } from "vue";
+import { toBN } from "web3-utils";
 
-defineProps({
+const props = defineProps({
   token: {
-    type: Object as PropType<BaseToken>,
+    type: Object as PropType<TokenType>,
     default: () => {
       return {};
     },
   },
   amount: {
     type: String,
-    default: () => {
-      return 0;
-    },
+    default: "0",
   },
 });
+const tokenReadable = new SwapToken(props.token).toReadable(toBN(props.amount));
 </script>
 
 <style lang="less">

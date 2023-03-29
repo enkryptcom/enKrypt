@@ -14,6 +14,8 @@ import {
   ProviderSwapResponse,
   ProviderToTokenResponse,
   QuoteMetaOptions,
+  StatusOptions,
+  StatusOptionsResponse,
   SupportedNetworkName,
   SwapQuote,
   SwapTransaction,
@@ -25,14 +27,13 @@ import {
 import {
   CHANGELLY_LIST,
   DEFAULT_SLIPPAGE,
-  FEE_CONFIGS,
   GAS_LIMITS,
   NATIVE_TOKEN_ADDRESS,
 } from "../../configs";
 
 import { getTransfer } from "../../utils/approvals";
 import supportedNetworks from "./supported";
-import { ChangellyCurrency, ChangellyStatusOptions } from "./types";
+import { ChangellyCurrency } from "./types";
 import estimateGasList from "../../common/estimateGasList";
 
 const BASE_URL = "https://swap.mewapi.io/changelly";
@@ -329,8 +330,14 @@ class Changelly extends ProviderClass {
           transactions: [transaction],
           slippage: quote.meta.slippage || DEFAULT_SLIPPAGE,
           fee,
-          getStatusObject: async (): Promise<ChangellyStatusOptions> => ({
-            swapId: result.id,
+          getStatusObject: async (
+            options: StatusOptions
+          ): Promise<StatusOptionsResponse> => ({
+            options: {
+              ...options,
+              swapId: result.id,
+            },
+            provider: this.name,
           }),
         };
         return retResponse;
@@ -338,12 +345,11 @@ class Changelly extends ProviderClass {
       .catch(() => null);
   }
 
-  getStatus(options: ChangellyStatusOptions): Promise<TransactionStatus> {
+  getStatus(options: StatusOptions): Promise<TransactionStatus> {
     return this.changellyRequest("getStatus", {
       id: options.swapId,
     }).then(async (response) => {
-      if (response.error || !response.result.id)
-        return TransactionStatus.pending;
+      if (response.error) return TransactionStatus.pending;
       const completedStatuses = ["finished"];
       const pendingStatuses = [
         "confirming",

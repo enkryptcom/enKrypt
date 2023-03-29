@@ -655,7 +655,6 @@ export class ChangellySwapProvider extends SwapProvider {
         timestamp: new Date().getTime(),
         type: ActivityType.transaction,
         value: toBase(tokenValue, token.decimals),
-        swapId: trade.rateId,
         transactionHash: "",
       };
 
@@ -730,7 +729,6 @@ export class ChangellySwapProvider extends SwapProvider {
         timestamp: new Date().getTime(),
         type: ActivityType.transaction,
         value: toBase(tokenValue, token.decimals),
-        swapId: trade.rateId,
         transactionHash: "",
       };
 

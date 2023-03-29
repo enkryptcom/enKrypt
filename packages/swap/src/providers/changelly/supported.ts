@@ -1,6 +1,5 @@
-import { isPolkadotAddress } from "../../utils/common";
+import { isPolkadotAddress, isEVMAddress } from "../../utils/common";
 import { SupportedNetworkName } from "../../types";
-import { isEVMAddress } from "../../utils/common";
 
 const supportedNetworks: {
   [key in SupportedNetworkName]?: {

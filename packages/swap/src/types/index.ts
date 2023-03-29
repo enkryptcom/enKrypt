@@ -1,7 +1,6 @@
-import { NetworkNames } from "@enkryptcom/types";
+import { NetworkNames, SignerType } from "@enkryptcom/types";
 import type { toBN } from "web3-utils";
 import type Web3Eth from "web3-eth";
-import { SignerType } from "@enkryptcom/types";
 
 // eslint-disable-next-line no-shadow
 export enum NewNetworks {
@@ -185,6 +184,15 @@ export interface ProviderQuoteResponse {
   quote: SwapQuote;
   minMax: MinMaxResponse;
 }
+export interface StatusOptions {
+  [key: string]: any;
+  transactionHashes: string[];
+}
+
+export interface StatusOptionsResponse {
+  options: StatusOptions;
+  provider: ProviderName;
+}
 
 export interface ProviderSwapResponse {
   transactions: SwapTransaction[];
@@ -193,7 +201,7 @@ export interface ProviderSwapResponse {
   provider: ProviderName;
   slippage: string;
   fee: number;
-  getStatusObject: (options: unknown) => Promise<unknown>;
+  getStatusObject: (options: StatusOptions) => Promise<StatusOptionsResponse>;
 }
 
 export type ProviderFromTokenResponse = Record<string, TokenType>;
@@ -202,10 +210,6 @@ export type ProviderToTokenResponse = Record<
   SupportedNetworkName,
   Record<string, TokenTypeTo>
 >;
-
-export interface StatusOptions {
-  transactionHashes: string[];
-}
 
 export interface TopTokenInfo {
   trendingTokens: Record<string, number>;
@@ -241,5 +245,5 @@ export abstract class ProviderClass {
 
   abstract getSwap(quote: SwapQuote): Promise<ProviderSwapResponse | null>;
 
-  abstract getStatus(options: unknown): Promise<TransactionStatus>;
+  abstract getStatus(options: StatusOptions): Promise<TransactionStatus>;
 }

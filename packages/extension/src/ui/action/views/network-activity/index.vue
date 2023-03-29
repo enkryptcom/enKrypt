@@ -60,13 +60,22 @@ import scrollSettings from "@/libs/utils/scroll-settings";
 import {
   Activity,
   ActivityStatus,
+  ActivityType,
   BTCRawInfo,
   EthereumRawInfo,
   SubscanExtrinsicInfo,
+  SwapRawInfo,
 } from "@/types/activity";
 import NetworkActivityLoading from "./components/network-activity-loading.vue";
 import { ProviderName } from "@/types/provider";
 import ActivityState from "@/libs/activity-state";
+import Swap, {
+  SupportedNetworkName,
+  TransactionStatus,
+  WalletIdentifier,
+} from "@enkryptcom/swap";
+import EvmAPI from "@/providers/ethereum/libs/api";
+import type Web3Eth from "web3-eth";
 
 const props = defineProps({
   network: {
@@ -92,6 +101,17 @@ const selectedAddress = computed(
 );
 const apiPromise = props.network.api();
 const activityState = new ActivityState();
+let swap: Swap;
+apiPromise.then((api) => {
+  swap = new Swap({
+    api: (api as EvmAPI).web3 as Web3Eth,
+    network: props.network.name as unknown as SupportedNetworkName,
+    walletIdentifier: WalletIdentifier.enkrypt,
+    evmOptions: {
+      infiniteApproval: true,
+    },
+  });
+});
 
 const activityCheckTimers: any[] = [];
 const activityAddress = computed(() =>
@@ -156,6 +176,32 @@ const checkActivity = (activity: Activity): void => {
   }, 5000);
   activityCheckTimers.push(timer);
 };
+const checkSwap = (activity: Activity): void => {
+  activity = toRaw(activity);
+  const timer = setInterval(() => {
+    if (swap) {
+      swap.initPromise.then(() => {
+        swap
+          .getStatus((activity.rawInfo as SwapRawInfo).status)
+          .then((info) => {
+            console.log(activity, info);
+            if (info === TransactionStatus.pending) return;
+            activity.status =
+              info === TransactionStatus.success
+                ? ActivityStatus.success
+                : ActivityStatus.failed;
+            activityState
+              .updateActivity(activity, {
+                address: activityAddress.value,
+                network: props.network.name,
+              })
+              .then(() => updateVisibleActivity(activity));
+          });
+      });
+    }
+  }, 5000);
+  activityCheckTimers.push(timer);
+};
 const selectedNetworkName = computed(() => props.network.name);
 const setActivities = () => {
   activities.value = [];
@@ -165,7 +211,16 @@ const setActivities = () => {
       activities.value = all;
       isNoActivity.value = all.length === 0;
       activities.value.forEach((act) => {
-        if (act.status === ActivityStatus.pending) checkActivity(act);
+        if (
+          act.status === ActivityStatus.pending &&
+          act.type === ActivityType.transaction
+        )
+          checkActivity(act);
+        if (
+          act.status === ActivityStatus.pending &&
+          act.type === ActivityType.swap
+        )
+          checkSwap(act);
       });
     });
   else activities.value = [];

@@ -139,7 +139,7 @@ import { getNetworkByName } from "@/libs/utils/networks";
 import { BaseNetwork } from "@/types/base-network";
 import BigNumber from "bignumber.js";
 import { SubstrateNetwork } from "@/providers/polkadot/types/substrate-network";
-import { EnkryptAccount } from "@enkryptcom/types";
+import { EnkryptAccount, NetworkNames } from "@enkryptcom/types";
 import { SwapError } from "./components/swap-error/types";
 import { routes as RouterNames } from "@/ui/action/router";
 import getUiPath from "@/libs/utils/get-ui-path";
@@ -156,7 +156,6 @@ import EnkryptSwap, {
   sortByRank,
   SwapToken,
   ProviderQuoteResponse,
-  ProviderSwapResponse,
 } from "@enkryptcom/swap";
 import Web3Eth from "web3-eth";
 import { toBN } from "web3-utils";
@@ -167,6 +166,7 @@ import { toBase } from "@enkryptcom/utils";
 import { debounce } from "lodash";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
 import MarketData from "@/libs/market-data";
+import { ProviderResponseWithStatus } from "./types";
 
 type BN = ReturnType<typeof toBN>;
 
@@ -294,7 +294,13 @@ onMounted(async () => {
       supportedNetworks.forEach((net) => {
         const netInfo = getNetworkInfoByName(net as SupportedNetworkName);
         if (props.network.name === net) {
-          thisNetwork = netInfo;
+          thisNetwork =
+            swapToTokens.all[net as unknown as SupportedNetworkName].length ===
+            1
+              ? getNetworkInfoByName(
+                  NetworkNames.Ethereum as unknown as SupportedNetworkName
+                )
+              : netInfo;
         }
         toNetworks.value.push(netInfo);
       });
@@ -351,7 +357,13 @@ const setToTokens = () => {
   if (toTokens.value.length === 1) toToken.value = toTokens.value[0];
   keyring.getAccounts(toNetwork.value?.signerType).then((accounts) => {
     toAccounts.value = accounts;
-    if (accounts.length) {
+    const currentAccount = accounts.find(
+      (a) => a.address === props.accountInfo.selectedAccount!.address
+    );
+    if (currentAccount) {
+      address.value = currentAccount.address;
+      isValidToAddress();
+    } else if (accounts.length) {
       address.value = accounts[0].address;
       isValidToAddress();
     }
@@ -410,6 +422,7 @@ const pickBestQuote = (fromAmountBN: BN, quotes: ProviderQuoteResponse[]) => {
       if (q.minMax.maximumFrom.gt(highestMaximum))
         highestMaximum = q.minMax.maximumFrom;
     });
+
     if (fromAmountBN.lt(lowestMinimum))
       errors.value.inputAmount = `Minimum amount: ${token.toReadable(
         lowestMinimum
@@ -438,7 +451,7 @@ const updateQuote = () => {
   swap
     .getQuotes({
       amount: fromRawAmount,
-      fromAddress: toAddressInputMeta.value.displayAddress(
+      fromAddress: props.network.displayAddress(
         props.accountInfo.selectedAccount!.address
       ),
       fromToken: fromToken.value!,
@@ -601,11 +614,20 @@ const sendAction = async () => {
     swap.getSwap(q.quote)
   );
 
-  const trades = await Promise.all(tradePromises).then((responses) =>
-    responses.filter((r) => !!r)
+  const trades: (ProviderResponseWithStatus | null)[] = await Promise.all(
+    tradePromises
+  ).then((responses) => responses.filter((r) => !!r));
+
+  const tradeStatusOptions = trades.map((t) =>
+    t!.getStatusObject({
+      transactionHashes: [],
+    })
   );
-  if (!trades) {
+  const statusObjects = await Promise.all(tradeStatusOptions);
+  trades.forEach((t, idx) => (t!.status = statusObjects[idx]));
+  if (!trades.length) {
     swapError.value = SwapError.NO_TRADES;
+    toggleLooking();
     toggleSwapError();
     return;
   }
@@ -613,7 +635,7 @@ const sendAction = async () => {
     (ft) => ft.address === NATIVE_TOKEN_ADDRESS
   );
   const swapData: SwapData = {
-    trades: trades as ProviderSwapResponse[],
+    trades: trades as ProviderResponseWithStatus[],
     fromToken: localFromToken,
     toToken: localToToken,
     priceDifference: priceDifference,
@@ -623,6 +645,7 @@ const sendAction = async () => {
     existentialDeposit:
       (props.network as SubstrateNetwork).existentialDeposit || toBN("0"),
     fromAddress: props.accountInfo.selectedAccount!.address,
+    toAddress: address.value,
   };
   console.log(JSON.stringify(swapData));
   const routedRoute = router.resolve({

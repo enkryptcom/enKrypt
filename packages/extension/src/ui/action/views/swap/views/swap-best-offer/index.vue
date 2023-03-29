@@ -29,7 +29,7 @@
           <best-offer-error
             v-if="warning === SwapBestOfferWarnings.NOT_ENOUGH_GAS"
             :not-enought-e-t-h="true"
-            :native-symbol="network?.name ? network.name : ''"
+            :native-symbol="network?.currencyName ? network.currencyName : ''"
             :price="priceDifference"
             :native-value="gasDifference"
           />
@@ -40,9 +40,14 @@
             :price="priceDifference"
             :native-value="gasDifference"
           />
+          <best-offer-error
+            v-if="warning === SwapBestOfferWarnings.BAD_PRICE"
+            :bad-trade="true"
+          />
           <send-fee-select
             v-if="Object.keys(gasCostValues).length > 1"
             :fee="gasCostValues[selectedFee]"
+            :selected="selectedFee"
             :in-swap="true"
             @open-popup="toggleSelectFee"
           />
@@ -81,8 +86,8 @@
       :is-loading="isTXSendLoading"
       :from-token="swapData.fromToken"
       :to-token="swapData.toToken"
-      :from-amount="swapData.fromAmount"
-      :to-amount="pickedTrade.minimumReceived"
+      :from-amount="pickedTrade.fromTokenAmount.toString()"
+      :to-amount="pickedTrade.toTokenAmount.toString()"
       :is-hardware="account ? account.isHardware : false"
       :is-error="isTXSendError"
       :error-message="TXSendErrorMessage"
@@ -93,7 +98,7 @@
 </template>
 
 <script setup lang="ts">
-import { ComponentPublicInstance, computed, onMounted, ref, watch } from "vue";
+import { ComponentPublicInstance, computed, onMounted, ref } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import BaseButton from "@action/components/base-button/index.vue";
@@ -108,17 +113,17 @@ import scrollSettings from "@/libs/utils/scroll-settings";
 import { BaseNetwork } from "@/types/base-network";
 import { toBN } from "web3-utils";
 import BN from "bn.js";
-import Transaction from "@/providers/ethereum/libs/transaction";
-import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
 import {
-  GasFeeInfo,
-  GasFeeType,
-  GasPriceTypes,
-} from "@/providers/common/types";
+  Activity,
+  ActivityStatus,
+  ActivityType,
+  SwapRawInfo,
+} from "@/types/activity";
+import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
+import { GasFeeType, GasPriceTypes } from "@/providers/common/types";
 import BigNumber from "bignumber.js";
 import { defaultGasCostVals } from "@/providers/common/libs/default-vals";
 import { SwapBestOfferWarnings } from "../../types";
-import { Erc20Token } from "@/providers/ethereum/types/erc20-token";
 import { NATIVE_TOKEN_ADDRESS } from "@/providers/ethereum/libs/common";
 import { EnkryptAccount } from "@enkryptcom/types";
 import { getNetworkByName } from "@/libs/utils/networks";
@@ -129,10 +134,13 @@ import {
   SupportedNetworkName,
 } from "@enkryptcom/swap";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
-import { SwapData } from "../../types";
+import { SwapData, ProviderResponseWithStatus } from "../../types";
 import { getSwapTransactions } from "../../libs/swap-txs";
 import { getEVMTransactionFees } from "../../libs/evm-gasvals";
 import { getSubstrateGasVals } from "../../libs/substrate-gasvals";
+import { executeSwap } from "../../libs/send-transactions";
+import { fromBase, toBase } from "@enkryptcom/utils";
+import ActivityState from "@/libs/activity-state";
 
 const router = useRouter();
 const route = useRoute();
@@ -159,20 +167,12 @@ const networkInfo = getNetworkInfoByName(
   selectedNetwork as SupportedNetworkName
 );
 const selectedFee = ref<GasPriceTypes>(GasPriceTypes.REGULAR);
-const pickedTrade = ref<ProviderSwapResponse>(swapData.trades[0]);
-
+const pickedTrade = ref<ProviderResponseWithStatus>(swapData.trades[0]);
+const gasCostValues = ref<GasFeeType>(defaultGasCostVals);
+const balance = ref<BN>(swapData.nativeBalance);
 const KeyRing = new PublicKeyRing();
 const isWindowPopup = ref(false);
-const fee = ref<Partial<GasFeeInfo>>({
-  fiatSymbol: "$",
-  nativeSymbol: "",
-});
-
 const isOpenSelectFee = ref(false);
-
-const balance = ref<BN>(new BN(-1));
-const gasCostValues = ref<GasFeeType>(defaultGasCostVals);
-const nativeTokenPrice = ref<string>();
 
 const warning = ref<SwapBestOfferWarnings>();
 const gasDifference = ref<string>();
@@ -181,76 +181,47 @@ const isTXSendLoading = ref<boolean>(false);
 const isTXSendError = ref(false);
 const TXSendErrorMessage = ref("");
 
-// const setWarning = async () => {
-//   if (balance.value.ltn(0)) return;
-//   if (
-//     !swapData.swapMax &&
-//     swapData.fromToken.existentialDeposit &&
-//     fee.value.nativeValue
-//   ) {
-//     const balanceAfterTransaction = new BigNumber(
-//       fromBase(swapData.fromToken.balance!, swapData.fromToken.decimals)
-//     )
-//       .minus(swapData.fromAmount)
-//       .minus(fee.value.nativeValue);
+const setWarning = async () => {
+  if (balance.value.ltn(0)) return;
+  const currentGasCost = toBase(
+    gasCostValues.value[selectedFee.value].nativeValue,
+    network.value!.decimals
+  );
 
-//     if (
-//       balanceAfterTransaction.lt(
-//         fromBase(
-//           swapData.fromToken.existentialDeposit.toString(),
-//           swapData.fromToken.decimals
-//         )
-//       )
-//     ) {
-//       warning.value = SwapBestOfferWarnings.EXISTENTIAL_DEPOSIT;
-//       return;
-//     }
-//   } else {
-//     let totalFees = new BigNumber(
-//       gasCostValues.value[selectedFee.value].nativeValue
-//     );
+  const totalNativeCost =
+    swapData.fromToken.address === NATIVE_TOKEN_ADDRESS
+      ? toBN(currentGasCost).add(pickedTrade.value.fromTokenAmount)
+      : toBN(currentGasCost);
 
-//     if (
-//       (swapData.fromToken as Erc20Token).contract &&
-//       (swapData.fromToken as Erc20Token).contract === NATIVE_TOKEN_ADDRESS
-//     ) {
-//       totalFees = new BigNumber(swapData.fromAmount).plus(totalFees);
-//     }
-
-//     const userBalance = new BigNumber(
-//       fromBase(balance.value.toString(), network.value?.decimals || 18)
-//     );
-
-//     if (userBalance.minus(totalFees).lt(0)) {
-//       gasDifference.value = userBalance.minus(totalFees).abs().toString();
-//       priceDifference.value = userBalance
-//         .minus(totalFees)
-//         .abs()
-//         .times(nativeTokenPrice.value || 0)
-//         .toString();
-
-//       warning.value = SwapBestOfferWarnings.NOT_ENOUGH_GAS;
-//       return;
-//     }
-//   }
-
-//   if (1 - Number(swapData.priceDifference) < -0.2) {
-//     warning.value = SwapBestOfferWarnings.BAD_PRICE;
-//     return;
-//   }
-
-//   warning.value = SwapBestOfferWarnings.NONE;
-// };
-
-// watch([gasCostValues, selectedFee, fee], () => {
-//   setWarning();
-// });
+  if (networkInfo.type === NetworkType.Substrate) {
+    const balanceAfterTransaction = swapData.nativeBalance.sub(totalNativeCost);
+    if (balanceAfterTransaction.lt(swapData.existentialDeposit)) {
+      warning.value = SwapBestOfferWarnings.EXISTENTIAL_DEPOSIT;
+      return;
+    }
+  } else {
+    if (swapData.nativeBalance.sub(totalNativeCost).ltn(0)) {
+      gasDifference.value = fromBase(
+        swapData.nativeBalance.sub(totalNativeCost).abs().toString(),
+        network.value!.decimals
+      );
+      priceDifference.value = BigNumber(gasDifference.value)
+        .times(swapData.nativePrice)
+        .toString();
+      warning.value = SwapBestOfferWarnings.NOT_ENOUGH_GAS;
+      return;
+    }
+  }
+  if (1 - Number(swapData.priceDifference) < -0.2) {
+    warning.value = SwapBestOfferWarnings.BAD_PRICE;
+    return;
+  }
+  warning.value = SwapBestOfferWarnings.NONE;
+};
 
 defineExpose({ bestOfferScrollRef });
 
-onMounted(async () => {
-  network.value = (await getNetworkByName(selectedNetwork))!;
-  account.value = await KeyRing.getAccount(swapData.fromAddress);
+const setTransactionFees = async () => {
   const transactionObjects = await getSwapTransactions(
     selectedNetwork as SupportedNetworkName,
     pickedTrade.value.transactions
@@ -264,60 +235,18 @@ onMounted(async () => {
   } else if (networkInfo.type === NetworkType.Substrate) {
     gasCostValues.value = (await getSubstrateGasVals(
       transactionObjects!,
-      network.value,
+      network.value!,
       swapData.nativePrice
     )) as GasFeeType;
   }
+  setWarning();
+};
 
-  // const api = await network.value.api();
-  // balance.value = toBN(await api.getBalance(account.value.address));
-  // isWindowPopup.value = account.value.isHardware;
-  // fee.value = {
-  //   fiatSymbol: "$",
-  //   nativeSymbol: network.value.name,
-  // };
-  // if (Tx.value) {
-  //   setTransactionFees(Tx.value);
-  //   setWarning();
-  // }
-  // if (network.value.name === "DOT" || network.value.name === "KSM") {
-  //   fee.value.nativeSymbol = network.value.name;
-  //   fee.value.nativeValue = fromBase(
-  //     swapData.trades[0].txs[0].gas as `0x${string}`,
-  //     network.value.decimals
-  //   );
-  //   if (network.value.coingeckoID) {
-  //     const controller = new AbortController();
-  //     const timeoutId = setTimeout(() => controller.abort(), 5000);
-  //     const params = new URLSearchParams();
-  //     params.append("ids", network.value.coingeckoID!);
-  //     params.append("vs_currencies", "usd");
-  //     fetch(
-  //       `https://api.coingecko.com/api/v3/simple/price?${params.toString()}`
-  //     )
-  //       .then((res) => {
-  //         clearTimeout(timeoutId);
-  //         return res.json();
-  //       })
-  //       .then((data) => {
-  //         const price = data[network.value!.coingeckoID!]["usd"];
-  //         const txPrice = new BigNumber(price)
-  //           .times(fee.value.nativeValue!)
-  //           .toString();
-  //         fee.value.fiatValue = txPrice;
-  //       })
-  //       .catch(() => {
-  //         console.error("Could not fetch token price");
-  //       });
-  //   }
-  // }
+onMounted(async () => {
+  network.value = (await getNetworkByName(selectedNetwork))!;
+  account.value = await KeyRing.getAccount(swapData.fromAddress);
+  await setTransactionFees();
 });
-
-// watch(pickedTrade, () => {
-//   if (Tx.value) {
-//     setTransactionFees(Tx.value);
-//   }
-// });
 
 const back = () => {
   if (!isWindowPopup.value) {
@@ -337,41 +266,79 @@ const close = () => {
 
 const sendButtonTitle = () => "Proceed with swap";
 
-// const isDisabled = computed(() => {
-//   if (
-//     warning.value === undefined ||
-//     warning.value === SwapBestOfferWarnings.EXISTENTIAL_DEPOSIT ||
-//     warning.value === SwapBestOfferWarnings.NOT_ENOUGH_GAS ||
-//     (gasCostValues.value[selectedFee.value].nativeValue === "0" &&
-//       fee.value.nativeValue === "0")
-//   ) {
-//     return true;
-//   }
-//   return false;
-// });
+const isDisabled = computed(() => {
+  if (
+    (warning.value !== SwapBestOfferWarnings.NONE &&
+      warning.value !== SwapBestOfferWarnings.BAD_PRICE) ||
+    gasCostValues.value[selectedFee.value].nativeValue === "0"
+  ) {
+    return true;
+  }
+  return false;
+});
 
-// const sendAction = async () => {
-//   if (pickedTrade.value) {
-//     isTXSendError.value = false;
-//     TXSendErrorMessage.value = "";
-//     isTXSendLoading.value = true;
-//     isInitiated.value = true;
-//     await swap
-//       .executeTrade(
-//         network.value!,
-//         account.value!,
-//         pickedTrade.value,
-//         selectedFee.value
-//       )
-//       .catch((err) => {
-//         isTXSendError.value = true;
-//         TXSendErrorMessage.value = err.error.message;
-//       });
-//     isTXSendLoading.value = false;
-//   } else {
-//     console.log("No trade yet");
-//   }
-// };
+const sendAction = async () => {
+  if (pickedTrade.value) {
+    await setTransactionFees();
+    isTXSendError.value = false;
+    TXSendErrorMessage.value = "";
+    isTXSendLoading.value = true;
+    isInitiated.value = true;
+    await executeSwap({
+      from: account.value!,
+      fromToken: swapData.fromToken,
+      gasPriceType: selectedFee.value,
+      network: network.value!,
+      networkType: networkInfo.type,
+      swap: pickedTrade.value,
+      toToken: swapData.toToken,
+    })
+      .then((hashes) => {
+        pickedTrade.value.status!.options.transactionHashes = hashes;
+        const swapRaw: SwapRawInfo = {
+          fromToken: swapData.fromToken,
+          toToken: swapData.toToken,
+          status: pickedTrade.value.status!,
+        };
+        const swapActivity: Activity = {
+          from: network.value!.displayAddress(account.value!.address),
+          to: swapData.toAddress,
+          token: {
+            decimals: swapData.toToken.decimals,
+            icon: swapData.toToken.logoURI,
+            name: swapData.toToken.name,
+            symbol: swapData.toToken.symbol,
+            coingeckoID: swapData.toToken.cgId,
+            price: swapData.toToken.price
+              ? swapData.toToken.price.toString()
+              : "0",
+          },
+          isIncoming: account.value!.address === swapData.toAddress,
+          network: network.value!.name,
+          status: ActivityStatus.pending,
+          timestamp: new Date().getTime(),
+          type: ActivityType.swap,
+          value: pickedTrade.value.toTokenAmount.toString(),
+          transactionHash: `${hashes[0]}-swap`,
+          rawInfo: JSON.parse(JSON.stringify(swapRaw)),
+        };
+        const activityState = new ActivityState();
+        console.log(swapActivity, account.value!.address, network.value!.name);
+        activityState.addActivities([swapActivity], {
+          address: account.value!.address,
+          network: network.value!.name,
+        });
+      })
+      .catch((err) => {
+        console.error(err.message);
+        isTXSendError.value = true;
+        TXSendErrorMessage.value = err.message;
+      });
+    isTXSendLoading.value = false;
+  } else {
+    console.log("No trade yet");
+  }
+};
 
 const handleScroll = (e: any) => {
   const progress = Number(e.target.lastChild.style.top.replace("px", ""));
@@ -392,10 +359,12 @@ const toggleSelectFee = () => {
 const selectFee = (option: GasPriceTypes) => {
   selectedFee.value = option;
   toggleSelectFee();
+  setTransactionFees();
 };
 
 const selectTrade = (trade: ProviderSwapResponse) => {
   pickedTrade.value = trade;
+  setTransactionFees();
 };
 </script>
 
