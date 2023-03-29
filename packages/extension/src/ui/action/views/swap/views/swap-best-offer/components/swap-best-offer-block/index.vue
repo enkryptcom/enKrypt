@@ -123,11 +123,11 @@ const priceImpact = computed(() => {
   }
 });
 
-const ratio = computed(() =>
-  new BigNumber(props.pickedTrade.toTokenAmount.toString())
-    .div(new BigNumber(props.pickedTrade.fromTokenAmount.toString()))
-    .toFixed()
-);
+const ratio = computed(() => {
+  const fromValue = new SwapToken(props.fromToken).getBalanceReadable();
+  const toValue = new SwapToken(props.toToken).getBalanceReadable();
+  return new BigNumber(toValue).div(new BigNumber(fromValue));
+});
 
 const select = (trade: ProviderSwapResponse) => {
   emit("update:pickedTrade", trade);

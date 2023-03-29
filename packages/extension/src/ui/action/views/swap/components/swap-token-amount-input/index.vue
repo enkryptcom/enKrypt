@@ -13,7 +13,7 @@
     />
 
     <a
-      v-show="!!token && ((token as any).contract !== NATIVE_TOKEN_ADDRESS)"
+      v-show="!!token && token.address !== NATIVE_TOKEN_ADDRESS"
       class="swap-token-input__max"
       @click="$emit('update:inputMax')"
       >Max</a

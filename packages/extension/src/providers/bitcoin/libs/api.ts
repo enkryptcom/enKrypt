@@ -82,7 +82,7 @@ class API implements ProviderAPIInterface {
       });
   }
   async getUTXOs(pubkey: string): Promise<HaskoinUnspentType[]> {
-    const address = this.getAddress(pubkey);
+    const address = pubkey.length < 64 ? pubkey : this.getAddress(pubkey);
     return fetch(`${this.node}address/${address}/unspent`)
       .then((res) => res.json())
       .then((utxos: HaskoinUnspentType[]) => {

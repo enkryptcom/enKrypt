@@ -403,6 +403,7 @@ const isValidToAddress = debounce(() => {
 }, 200);
 
 const pickBestQuote = (fromAmountBN: BN, quotes: ProviderQuoteResponse[]) => {
+  errors.value.inputAmount = "";
   if (!quotes.length) return;
   const token = new SwapToken(fromToken.value!);
   const filteredQuotes = quotes.filter((q) => {
@@ -529,7 +530,6 @@ const selectTokenTo = (token: TokenTypeTo | TokenType) => {
 };
 
 const inputAmountFrom = async (newVal: string) => {
-  errors.value.inputAmount = "";
   fromAmount.value = newVal;
   swapMax.value = false;
 };
@@ -636,7 +636,6 @@ const sendAction = async () => {
     fromToken: localFromToken,
     toToken: localToToken,
     priceDifference: priceDifference,
-    swapMax: swapMax.value,
     nativeBalance: nativeToken!.balance || toBN("0"),
     nativePrice: nativeToken!.price || 0,
     existentialDeposit:
@@ -644,7 +643,6 @@ const sendAction = async () => {
     fromAddress: props.accountInfo.selectedAccount!.address,
     toAddress: address.value,
   };
-  console.log(JSON.stringify(swapData));
   const routedRoute = router.resolve({
     name: RouterNames.swapBestOffer.name,
     query: {

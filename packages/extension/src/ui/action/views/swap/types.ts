@@ -21,7 +21,6 @@ export interface SwapData {
   fromToken: TokenType;
   toToken: TokenTypeTo;
   priceDifference: string;
-  swapMax: boolean;
   nativeBalance: BN;
   nativePrice: number;
   existentialDeposit: BN;

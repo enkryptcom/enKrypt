@@ -134,7 +134,10 @@ const getTokens = (
           `TOKENBALANCE-MEW: ${JSON.stringify(json.error)}`
         );
       else {
-        if (!json.result.length) {
+        const isNativeAvailable = json.result.length
+          ? json.result.find((i: any) => i.contract === NATIVE_TOKEN_ADDRESS)
+          : false;
+        if (!json.result.length || !isNativeAvailable) {
           json.result.push({
             contract: NATIVE_TOKEN_ADDRESS,
             balance: "0x0",

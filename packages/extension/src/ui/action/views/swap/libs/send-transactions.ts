@@ -11,46 +11,98 @@ import { SignerResult } from "@polkadot/types/types";
 import { ExecuteSwapOptions } from "../types";
 import { TransactionSigner as SubstrateTransactionSigner } from "@/providers/polkadot/ui/libs/signer";
 import { TransactionSigner as EvmTransactionSigner } from "@/providers/ethereum/ui/libs/signer";
+import { TransactionSigner as BitcoinTransactionSigner } from "@/providers/bitcoin/ui/libs/signer";
 import ActivityState from "@/libs/activity-state";
 import { u8aToHex } from "@polkadot/util";
 import EvmAPI from "@/providers/ethereum/libs/api";
-import { getEVMTransaction, getSubstrateNativeTransation } from "./swap-txs";
+import {
+  getBitcoinNativeTransaction,
+  getEVMTransaction,
+  getSubstrateNativeTransation,
+} from "./swap-txs";
 import { SubstrateNetwork } from "@/providers/polkadot/types/substrate-network";
 import { toBN } from "web3-utils";
 import type Transaction from "@/providers/ethereum/libs/transaction";
-import { bigIntToHex } from "@enkryptcom/utils";
+import { bigIntToHex, toBase } from "@enkryptcom/utils";
 import broadcastTx from "@/providers/ethereum/libs/tx-broadcaster";
+import { BitcoinNetwork } from "@/providers/bitcoin/types/bitcoin-network";
+import { getBitcoinGasVals } from "./bitcoin-gasvals";
+import BitcoinAPI from "@/providers/bitcoin/libs/api";
+
+const getBaseActivity = (options: ExecuteSwapOptions): Activity => {
+  const txActivity: Activity = {
+    from: options.network.displayAddress(options.from.address),
+    to: options.swap.transactions[0].to,
+    token: {
+      decimals: options.fromToken.decimals,
+      icon: options.fromToken.logoURI,
+      name: options.fromToken.name,
+      symbol: options.fromToken.symbol,
+      coingeckoID: options.fromToken.cgId,
+      price: options.fromToken.price ? options.fromToken.price.toString() : "0",
+    },
+    isIncoming: false,
+    network: options.network.name,
+    status: ActivityStatus.pending,
+    timestamp: new Date().getTime(),
+    type: ActivityType.transaction,
+    value: options.swap.fromTokenAmount.toString(),
+    transactionHash: "",
+  };
+  return txActivity;
+};
 
 export const executeSwap = async (
   options: ExecuteSwapOptions
 ): Promise<`0x${string}`[]> => {
   const activityState = new ActivityState();
   const api = await (options.network as EvmNetwork).api();
-  if (options.networkType === NetworkType.Substrate) {
+  if (options.networkType === NetworkType.Bitcoin) {
+    const bitcoinTx = await getBitcoinNativeTransaction(
+      options.network as BitcoinNetwork,
+      options.swap.transactions[0] as GenericTransaction
+    );
+    const gasVals = await getBitcoinGasVals([bitcoinTx], options.network, 0);
+    const selectedVal = gasVals[options.gasPriceType].nativeValue;
+    const nativeFeeAmount = toBN(
+      toBase(selectedVal, options.network.decimals)
+    ).toNumber();
+    bitcoinTx.outputs[0].value = bitcoinTx.outputs[0].value - nativeFeeAmount;
+    const txActivity = getBaseActivity(options);
+    const signedTx = await BitcoinTransactionSigner({
+      account: options.from,
+      network: options.network as BitcoinNetwork,
+      payload: bitcoinTx,
+    });
+    const bitcoinApi = api as BitcoinAPI;
+    bitcoinApi
+      .broadcastTx(signedTx.extractTransaction().toHex())
+      .then(() => {
+        activityState.addActivities(
+          [
+            {
+              ...JSON.parse(JSON.stringify(txActivity)),
+              ...{ transactionHash: signedTx.extractTransaction().getId() },
+            },
+          ],
+          { address: txActivity.from, network: options.network.name }
+        );
+      })
+      .catch(() => {
+        txActivity.status = ActivityStatus.failed;
+        activityState.addActivities([txActivity], {
+          address: txActivity.from,
+          network: options.network.name,
+        });
+      });
+    return [signedTx.extractTransaction().getId() as `0x${string}`];
+  } else if (options.networkType === NetworkType.Substrate) {
     const substrateTx = await getSubstrateNativeTransation(
       options.network as SubstrateNetwork,
       options.swap.transactions[0] as GenericTransaction
     );
-    const txActivity: Activity = {
-      from: options.network.displayAddress(options.from.address),
-      to: options.swap.transactions[0].to,
-      token: {
-        decimals: options.fromToken.decimals,
-        icon: options.fromToken.logoURI,
-        name: options.fromToken.name,
-        symbol: options.fromToken.symbol,
-        coingeckoID: options.fromToken.cgId,
-      },
-      isIncoming: false,
-      network: options.network.name,
-      status: ActivityStatus.pending,
-      timestamp: new Date().getTime(),
-      type: ActivityType.transaction,
-      value: options.swap.fromTokenAmount.toString(),
-      transactionHash: "",
-    };
+    const txActivity = getBaseActivity(options);
     const tx = (api.api as ApiPromise).tx(substrateTx.toHex());
-
     const signedTx = await tx.signAsync(options.from.address, {
       signer: {
         signPayload: (signPayload): Promise<SignerResult> => {
@@ -106,30 +158,12 @@ export const executeSwap = async (
     const nonce = await web3.getTransactionCount(options.from.address);
     const txsPromises = (options.swap.transactions as EVMTransaction[]).map(
       async (tx, index) => {
-        const txActivity: Activity = {
-          from: options.network.displayAddress(tx.from),
-          to: tx.to,
-          token: {
-            decimals: options.fromToken.decimals,
-            icon: options.fromToken.logoURI,
-            name: options.fromToken.name,
-            symbol: options.fromToken.symbol,
-            coingeckoID: options.fromToken.cgId,
-            price: options.fromToken.price
-              ? options.fromToken.price.toString()
-              : "0",
-          },
-          isIncoming: false,
-          network: options.network.name,
-          status: ActivityStatus.pending,
-          timestamp: new Date().getTime(),
-          type: ActivityType.transaction,
-          value:
-            index === options.swap.transactions.length - 1
-              ? options.swap.fromTokenAmount.toString()
-              : "0",
-          transactionHash: "",
-        };
+        const txActivity = getBaseActivity(options);
+        txActivity.value =
+          index === options.swap.transactions.length - 1
+            ? options.swap.fromTokenAmount.toString()
+            : "0";
+        txActivity.to = tx.to;
         const evmTx: Transaction = await getEVMTransaction(
           options.network as EvmNetwork,
           tx,

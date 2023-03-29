@@ -1,4 +1,4 @@
-import { GasPriceTypes } from "@/providers/common/types";
+import { GasFeeType, GasPriceTypes } from "@/providers/common/types";
 import Transaction from "@/providers/ethereum/libs/transaction";
 import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
 import { fromBase } from "@enkryptcom/utils";
@@ -8,7 +8,7 @@ export const getEVMTransactionFees = async (
   txs: Transaction[],
   network: EvmNetwork,
   price: number
-) => {
+): Promise<GasFeeType> => {
   const gasPromises = txs.map((tx) => {
     return tx.getGasCosts().then(async (gasvals) => {
       const getConvertedVal = (type: GasPriceTypes) =>

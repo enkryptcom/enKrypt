@@ -320,7 +320,7 @@ class Changelly extends ProviderClass {
             type: TransactionType.generic,
           };
         }
-        const fee = 0.875;
+        const fee = 1;
         const retResponse: ProviderSwapResponse = {
           fromTokenAmount: quote.options.amount,
           provider: this.name,

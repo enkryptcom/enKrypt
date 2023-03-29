@@ -141,6 +141,7 @@ import { getSubstrateGasVals } from "../../libs/substrate-gasvals";
 import { executeSwap } from "../../libs/send-transactions";
 import { fromBase, toBase } from "@enkryptcom/utils";
 import ActivityState from "@/libs/activity-state";
+import { getBitcoinGasVals } from "../../libs/bitcoin-gasvals";
 
 const router = useRouter();
 const route = useRoute();
@@ -239,6 +240,14 @@ const setTransactionFees = async () => {
       network.value!,
       swapData.nativePrice
     )) as GasFeeType;
+  } else if (networkInfo.type === NetworkType.Bitcoin) {
+    gasCostValues.value = (await getBitcoinGasVals(
+      transactionObjects!,
+      network.value!,
+      swapData.nativePrice
+    )) as GasFeeType;
+  } else {
+    throw new Error("unsupported network type");
   }
   setWarning();
 };

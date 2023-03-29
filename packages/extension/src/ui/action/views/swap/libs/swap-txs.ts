@@ -49,7 +49,9 @@ export const getBitcoinNativeTransaction = async (
     inputs: [],
     outputs: [],
   };
+  let balance = 0;
   utxos.forEach((u) => {
+    balance += u.value;
     txInfo.inputs.push({
       hash: u.txid,
       index: u.index,
@@ -59,19 +61,16 @@ export const getBitcoinNativeTransaction = async (
       },
     });
   });
-  const balance = toBN(await api.getBalance(tx.from));
   const toAmount = toBN(tx.value);
-  const remainder = balance.sub(toAmount);
-
+  const remainder = balance - toAmount.toNumber();
   txInfo.outputs.push({
     address: tx.to,
     value: toAmount.toNumber(),
   });
-
-  if (remainder.gtn(0)) {
+  if (remainder > 0) {
     txInfo.outputs.push({
       address: network.displayAddress(tx.from),
-      value: remainder.toNumber(),
+      value: remainder,
     });
   }
   return txInfo;
@@ -124,5 +123,16 @@ export const getSwapTransactions = async (
       sTx
     );
     return [tx];
+  } else if (netInfo.type === NetworkType.Bitcoin) {
+    if (transactions.length > 1)
+      throw new Error(`Bitcoin chains can only have maximum one transaction`);
+    const sTx = transactions[0] as GenericTransaction;
+    const tx = await getBitcoinNativeTransaction(
+      network as BitcoinNetwork,
+      sTx
+    );
+    return [tx];
+  } else {
+    throw new Error("unsupported network type");
   }
 };
