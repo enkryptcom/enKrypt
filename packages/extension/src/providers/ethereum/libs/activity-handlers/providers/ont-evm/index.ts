@@ -1,4 +1,3 @@
-import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
 import { numberToHex } from "web3-utils";
 import {
   Activity,
@@ -7,19 +6,22 @@ import {
   EthereumRawInfo,
 } from "@/types/activity";
 import { BaseNetwork } from "@/types/base-network";
-import { decodeTx } from "../../../transaction/decoder";
 import { NetworkEndpoints } from "./configs";
+import { toBase } from "@/libs/utils/units";
+import MarketData from "@/libs/market-data";
 
 interface OntEvmRawInfo {
   tx_hash: string;
-  tx_time: string;
-  block_height: string;
+  tx_time: number;
+  block_height: number;
   fee: string;
   confirm_flag: number;
-
-  contractAddress: string | null;
-  from: string | null;
-  to: string | null;
+  transfers: {
+    amount: string;
+    from_address: string;
+    to_address: string;
+    asset_name: string;
+  }[];
 }
 
 const getAddressActivity = async (
@@ -37,23 +39,23 @@ const getAddressActivity = async (
   )
     .then((res) => res.json())
     .then((res) => {
-      const results = res.data[0].transactionLists as OntEvmRawInfo[];
-      const newResults = results.reverse().map((tx) => {
+      const results = res.result.records as OntEvmRawInfo[];
+      const newResults = results.map((tx) => {
         const rawTx: EthereumRawInfo = {
           blockHash: "",
           blockNumber: numberToHex(tx.block_height),
-          contractAddress: "",
-          data: "0x0",
-          effectiveGasPrice: "0",
-          from: address,
-          to: tx.to === "" ? null : tx.to,
+          contractAddress: null,
+          data: "0x",
+          effectiveGasPrice: "0x0",
+          from: tx.transfers[0].from_address,
+          to: tx.transfers[0].to_address,
           gas: "0x0",
-          gasUsed: tx.fee,
-          nonce: numberToHex(0),
-          status: true,
+          gasUsed: "0x0",
+          nonce: "0x0",
+          status: tx.confirm_flag === 1,
           transactionHash: tx.tx_hash,
-          value: "",
-          timestamp: parseInt(tx.tx_time),
+          value: numberToHex(toBase(tx.transfers[0].amount, 18)),
+          timestamp: tx.tx_time * 1000,
         };
         return rawTx;
       });
@@ -69,31 +71,29 @@ export default async (
   const enpoint =
     NetworkEndpoints[network.name as keyof typeof NetworkEndpoints];
   const activities = await getAddressActivity(address, enpoint);
-
-  const Promises = activities.map((activity) => {
-    return decodeTx(activity, network as EvmNetwork).then((txData) => {
-      return {
-        from: activity.from,
-        to: activity.contractAddress
-          ? activity.contractAddress
-          : txData.tokenTo!,
-        isIncoming: activity.from !== address,
-        network: network.name,
-        rawInfo: activity,
-        status: ActivityStatus.success,
-        timestamp: activity.timestamp ? activity.timestamp : 0,
-        value: txData.tokenValue,
-        transactionHash: activity.transactionHash,
-        type: ActivityType.transaction,
-        token: {
-          decimals: txData.tokenDecimals,
-          icon: txData.tokenImage,
-          name: txData.tokenName,
-          symbol: txData.tokenSymbol,
-          price: txData.currentPriceUSD.toString(),
-        },
-      };
-    });
+  const marketData = new MarketData();
+  const price = await marketData.getTokenPrice(network.coingeckoID!);
+  const resActivities = activities.map((activity) => {
+    const tActivity: Activity = {
+      from: activity.from,
+      to: activity.contractAddress ? activity.contractAddress : activity.to!,
+      isIncoming: activity.from !== address,
+      network: network.name,
+      rawInfo: activity,
+      status: ActivityStatus.success,
+      timestamp: activity.timestamp ? activity.timestamp : 0,
+      value: activity.value,
+      transactionHash: activity.transactionHash,
+      type: ActivityType.transaction,
+      token: {
+        decimals: network.decimals,
+        icon: network.icon,
+        name: network.name,
+        symbol: network.currencyName,
+        price: price!,
+      },
+    };
+    return tActivity;
   });
-  return Promise.all(Promises);
+  return resActivities;
 };

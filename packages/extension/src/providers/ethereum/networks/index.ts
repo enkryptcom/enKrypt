@@ -58,7 +58,7 @@ export default {
   skaleRazor: skale.razorNode,
   skaleTitan: skale.titanNode,
   skaleChaos: skale.chaosNode,
-  ontEVM:ontEVMNode,
+  ontEVM: ontEVMNode,
   arbitrum: arbNode,
   gnosis: gnoNode,
   avax: avaxNode,

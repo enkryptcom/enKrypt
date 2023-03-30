@@ -1,7 +1,8 @@
-import {EvmNetwork, EvmNetworkOptions} from "../types/evm-network";
-import {NetworkNames} from "@enkryptcom/types";
+import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
+import { NetworkNames } from "@enkryptcom/types";
 import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
-import {OntEVMActivity} from "../libs/activity-handlers";
+import { OntEVMActivity } from "../libs/activity-handlers";
+import { hexToBase58 } from "@/libs/utils/ontology";
 
 const ontEVMOptions: EvmNetworkOptions = {
   name: NetworkNames.OntologyEVM,
@@ -12,10 +13,13 @@ const ontEVMOptions: EvmNetworkOptions = {
   chainID: "0x3a",
   isTestNetwork: false,
   currencyName: "ONG",
+  currencyNameLong: "Ontology",
+  gradient: "linear-gradient(180deg, #C549FF 0%, #684CFF 100%)",
   node: "https://dappnode1.ont.io:10339",
   icon: require("./icons/ont-evm.png"),
   coingeckoID: "ontology",
   activityHandler: wrapActivityHandler(OntEVMActivity),
+  displayAddress: (address) => hexToBase58(address),
 };
 
 const ontevm = new EvmNetwork(ontEVMOptions);

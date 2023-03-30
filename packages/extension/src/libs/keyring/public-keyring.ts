@@ -34,8 +34,8 @@ class PublicKeyRing {
         walletType: WalletType.mnemonic,
         isHardware: false,
       };
-      allKeys["0xe5dc07bdcdb8c98850050c7f67de7e164b1ea391"] = {
-        address: "0xe5dc07bdcdb8c98850050c7f67de7e164b1ea391",
+      allKeys["0x47cd3a002d7f51ed8d5ff6ce1af5b28d871cdc2f"] = {
+        address: "0x47cd3a002d7f51ed8d5ff6ce1af5b28d871cdc2f",
         basePath: "m/44'/60'/1'/1",
         name: "fake ledger account #3",
         pathIndex: 0,
