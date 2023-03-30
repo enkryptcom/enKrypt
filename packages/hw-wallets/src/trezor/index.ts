@@ -113,7 +113,7 @@ class TrezorEthereum implements HWWalletProvider {
       }).then((result) => {
         if (!result.success)
           throw new Error((result.payload as any).error as string);
-        const rv = BigInt(result.payload.v.replace("0x", ""));
+        const rv = BigInt(parseInt(result.payload.v, 16));
         const cv = tx.common.chainId() * 2n + 35n;
         return toRpcSig(
           bigIntToHex(rv - cv),

@@ -7,5 +7,6 @@ const supportedPaths = {
   [NetworkNames.EthereumClassic]: [bip44Paths.ethereumClassic],
   [NetworkNames.Ropsten]: [bip44Paths.ethereumTestnet],
   [NetworkNames.Goerli]: [bip44Paths.ethereumTestnet],
+  [NetworkNames.Rootstock]: [bip44Paths.rootstock],
 };
 export { supportedPaths };

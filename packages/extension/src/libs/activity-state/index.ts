@@ -33,14 +33,13 @@ class ActivityState {
       .filter((item) => item.status === ActivityStatus.success && item.nonce)
       .map((item) => item.nonce);
     for (let i = 0; i < combined.length; i++) {
-      if (
-        !existingHashes.includes(combined[i].transactionHash) &&
-        combined[i].timestamp > currentTime - MAX_PENDING_TIME
-      ) {
+      if (!existingHashes.includes(combined[i].transactionHash)) {
         if (
           combined[i].status !== ActivityStatus.pending ||
           !combined[i].nonce ||
-          !minedNonces.includes(combined[i].nonce)
+          !minedNonces.includes(combined[i].nonce) ||
+          (combined[i].status === ActivityStatus.pending &&
+            combined[i].timestamp > currentTime - MAX_PENDING_TIME)
         )
           cleanArr.push(combined[i]);
       }

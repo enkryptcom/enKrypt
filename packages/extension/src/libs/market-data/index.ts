@@ -9,7 +9,7 @@ import {
 import BigNumber from "bignumber.js";
 import cacheFetch from "../cache-fetch";
 import { CoingeckoPlatform } from "@enkryptcom/types";
-const COINGECKO_ENDPOINT = "https://api.coingecko.com/api/v3/";
+const COINGECKO_ENDPOINT = "https://partners.mewapi.io/coingecko/api/v3/";
 const FIAT_EXCHANGE_RATE_ENDPOINT =
   "https://mainnet.mewwallet.dev/v2/prices/exchange-rates";
 const REFRESH_DELAY = 1000 * 60 * 5;

@@ -1,6 +1,6 @@
 import { NetworkNames } from "@enkryptcom/types";
 
-const NetworkEndpoints = {
+const NetworkEndpoints: Record<string, string> = {
   [NetworkNames.Ethereum]: "https://api.etherscan.io/",
   [NetworkNames.Ropsten]: "https://api-ropsten.etherscan.io/",
   [NetworkNames.Rinkeby]: "https://api-rinkeby.etherscan.io/",
@@ -39,6 +39,11 @@ const NetworkEndpoints = {
     "https://staging-fast-active-bellatrix.explorer.staging-v3.skalenodes.com/",
   [NetworkNames.ZkSyncGoerli]: "https://zksync2-testnet.zkscan.io/",
   [NetworkNames.ZkSync]: "https://zksync2-mainnet.zkscan.io/",
+  [NetworkNames.Arbitrum]: "https://api.arbiscan.io/",
+  [NetworkNames.Gnosis]: "https://api.gnosisscan.io/",
+  [NetworkNames.Avalanche]: "https://api.snowtrace.io/",
+  [NetworkNames.Fantom]: "https://api.ftmscan.com/",
+  [NetworkNames.Aurora]: "https://explorer.mainnet.aurora.dev/",
 };
 
 export { NetworkEndpoints };
