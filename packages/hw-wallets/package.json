@@ -45,8 +45,8 @@
   "author": "kvhnuke",
   "license": "MIT",
   "dependencies": {
-    "@enkryptcom/types": "^0.0.1",
-    "@enkryptcom/utils": "^0.0.3",
+    "@enkryptcom/types": "workspace:^",
+    "@enkryptcom/utils": "workspace:^",
     "@ethereumjs/tx": "^4.1.1",
     "@ledgerhq/hw-app-eth": "^6.32.1",
     "@ledgerhq/hw-transport": "^6.28.1",

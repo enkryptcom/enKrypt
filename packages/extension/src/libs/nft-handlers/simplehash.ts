@@ -12,6 +12,9 @@ export default async (
   const supportedNetworks = {
     [NetworkNames.Optimism]: "optimism",
     [NetworkNames.Binance]: "bsc",
+    [NetworkNames.Arbitrum]: "arbitrum",
+    [NetworkNames.Gnosis]: "gnosis",
+    [NetworkNames.Avalanche]: "avalanche",
   };
   if (!Object.keys(supportedNetworks).includes(network.name))
     throw new Error("Simplehash: network not supported");

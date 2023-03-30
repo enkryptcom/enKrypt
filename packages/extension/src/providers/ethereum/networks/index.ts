@@ -18,7 +18,13 @@ import rootstockNode from "./rsk";
 import edgeEvmNode from "./edg";
 import zkGoerliNode from "./zkgoerli";
 import zkSyncNode from "./zksync";
+import arbNode from "./arb";
 import * as skale from "./skale";
+import gnoNode from "./gno";
+import avaxNode from "./avax";
+import ftmNode from "./ftm";
+import klayNode from "./klay";
+import auroraNode from "./aurora";
 
 export default {
   goerli: goerliNode,
@@ -51,4 +57,10 @@ export default {
   skaleRazor: skale.razorNode,
   skaleTitan: skale.titanNode,
   skaleChaos: skale.chaosNode,
+  arbitrum: arbNode,
+  gnosis: gnoNode,
+  avax: avaxNode,
+  fantom: ftmNode,
+  klaytn: klayNode,
+  aurora: auroraNode,
 };

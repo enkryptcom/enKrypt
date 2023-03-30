@@ -17,7 +17,7 @@
     "node": ">=14.15.0"
   },
   "dependencies": {
-    "@enkryptcom/types": "^0.0.1",
+    "@enkryptcom/types": "workspace:^",
     "@ethereumjs/util": "^8.0.5",
     "@polkadot/util-crypto": "^10.4.2",
     "bip39": "^3.1.0",
