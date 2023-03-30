@@ -142,7 +142,6 @@ class MarketData {
     )
       .then((res) => res.json())
       .then((json) => {
-        console.log(json);
         const allTokens = json as CoinGeckoToken[];
         const tokens: Record<string, CoinGeckoToken> = {};
         allTokens.forEach((token) => {

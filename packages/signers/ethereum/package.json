@@ -17,7 +17,7 @@
     "node": ">=14.15.0"
   },
   "dependencies": {
-    "@enkryptcom/utils": "^0.0.3",
+    "@enkryptcom/utils": "workspace:^",
     "bip39": "^3.1.0",
     "chai": "^4.3.7",
     "ethereum-cryptography": "^1.2.0",
@@ -27,7 +27,7 @@
     "tweetnacl-util": "^0.15.1"
   },
   "devDependencies": {
-    "@enkryptcom/types": "^0.0.1",
+    "@enkryptcom/types": "workspace:^",
     "@types/chai": "^4.3.4",
     "@types/hdkey": "^2.0.1",
     "@types/mocha": "^9.1.1",

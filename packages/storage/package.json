@@ -16,8 +16,8 @@
     "node": ">=14.15.0"
   },
   "dependencies": {
-    "@enkryptcom/types": "^0.0.1",
-    "@enkryptcom/utils": "^0.0.3",
+    "@enkryptcom/types": "workspace:^",
+    "@enkryptcom/utils": "workspace:^",
     "chai": "^4.3.7",
     "localforage": "^1.10.0"
   },
