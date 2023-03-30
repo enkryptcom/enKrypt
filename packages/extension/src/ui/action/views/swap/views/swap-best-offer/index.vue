@@ -255,6 +255,7 @@ const setTransactionFees = async () => {
 onMounted(async () => {
   network.value = (await getNetworkByName(selectedNetwork))!;
   account.value = await KeyRing.getAccount(swapData.fromAddress);
+  isWindowPopup.value = account.value.isHardware;
   await setTransactionFees();
 });
 
@@ -267,6 +268,7 @@ const back = () => {
 };
 
 const close = () => {
+  console.log(isWindowPopup.value);
   if (!isWindowPopup.value) {
     router.go(-2);
   } else {
