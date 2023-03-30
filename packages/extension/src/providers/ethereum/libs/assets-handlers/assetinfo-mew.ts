@@ -72,6 +72,30 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
     tbName: "rsk",
     cgPlatform: CoingeckoPlatform.Rootstock,
   },
+  [NetworkNames.Arbitrum]: {
+    tbName: "arb",
+    cgPlatform: CoingeckoPlatform.Arbitrum,
+  },
+  [NetworkNames.Gnosis]: {
+    tbName: "xdai",
+    cgPlatform: CoingeckoPlatform.Gnosis,
+  },
+  [NetworkNames.Avalanche]: {
+    tbName: "avax",
+    cgPlatform: CoingeckoPlatform.Avalanche,
+  },
+  [NetworkNames.Fantom]: {
+    tbName: "ftm",
+    cgPlatform: CoingeckoPlatform.Fantom,
+  },
+  [NetworkNames.Klaytn]: {
+    tbName: "klay",
+    cgPlatform: CoingeckoPlatform.Klaytn,
+  },
+  [NetworkNames.Aurora]: {
+    tbName: "aurora",
+    cgPlatform: CoingeckoPlatform.Aurora,
+  },
   [NetworkNames.ZkSyncGoerli]: {
     tbName: "",
   },

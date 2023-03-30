@@ -3,16 +3,6 @@ import type { toBN } from "web3-utils";
 import type Web3Eth from "web3-eth";
 
 // eslint-disable-next-line no-shadow
-export enum NewNetworks {
-  Arbitrum = "ARB",
-  Gnosis = "GNO",
-  Avalanche = "AVAX",
-  Fantom = "FTM",
-  Klaytn = "KLAY",
-  Aurora = "AURORA",
-}
-
-// eslint-disable-next-line no-shadow
 export enum Events {
   QuoteUpdate = "quote-update",
 }
@@ -28,12 +18,12 @@ export enum SupportedNetworkName {
   Bitcoin = NetworkNames.Bitcoin,
   EthereumClassic = NetworkNames.EthereumClassic,
   Moonbeam = NetworkNames.Moonbeam,
-  Arbitrum = NewNetworks.Arbitrum,
-  Gnosis = NewNetworks.Gnosis,
-  Avalanche = NewNetworks.Avalanche,
-  Fantom = NewNetworks.Fantom,
-  Klaytn = NewNetworks.Klaytn,
-  Aurora = NewNetworks.Aurora,
+  Arbitrum = NetworkNames.Arbitrum,
+  Gnosis = NetworkNames.Gnosis,
+  Avalanche = NetworkNames.Avalanche,
+  Fantom = NetworkNames.Fantom,
+  Klaytn = NetworkNames.Klaytn,
+  Aurora = NetworkNames.Aurora,
 }
 
 // eslint-disable-next-line no-shadow

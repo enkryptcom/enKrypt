@@ -54,6 +54,30 @@ const supportedNetworks: {
     approvalAddress: ONEINCH_APPROVAL_ADDRESS,
     chainId: "10",
   },
+  [SupportedNetworkName.Avalanche]: {
+    approvalAddress: ONEINCH_APPROVAL_ADDRESS,
+    chainId: "43114",
+  },
+  [SupportedNetworkName.Fantom]: {
+    approvalAddress: ONEINCH_APPROVAL_ADDRESS,
+    chainId: "250",
+  },
+  [SupportedNetworkName.Klaytn]: {
+    approvalAddress: ONEINCH_APPROVAL_ADDRESS,
+    chainId: "8217",
+  },
+  [SupportedNetworkName.Aurora]: {
+    approvalAddress: ONEINCH_APPROVAL_ADDRESS,
+    chainId: "1313161554",
+  },
+  [SupportedNetworkName.Gnosis]: {
+    approvalAddress: ONEINCH_APPROVAL_ADDRESS,
+    chainId: "100",
+  },
+  [SupportedNetworkName.Arbitrum]: {
+    approvalAddress: ONEINCH_APPROVAL_ADDRESS,
+    chainId: "42161",
+  },
 };
 
 const BASE_URL = "https://api.1inch.io/v5.0/";

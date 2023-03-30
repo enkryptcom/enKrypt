@@ -169,6 +169,18 @@ const NetworkDetails: Record<SupportedNetworkName, NetworkInfo> = {
     rank: 14,
     symbol: "ETC",
   },
+  [SupportedNetworkName.Aurora]: {
+    id: SupportedNetworkName.Aurora,
+    cgId: "ethereum",
+    decimals: 18,
+    logoURI:
+      "https://tokens.1inch.io/0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee.png",
+    name: "Ethereum",
+    signerType: [SignerType.secp256k1],
+    type: NetworkType.EVM,
+    rank: 15,
+    symbol: "ETH",
+  },
 };
 export const isSupportedNetwork = (networkName: SupportedNetworkName) =>
   !!NetworkDetails[networkName];

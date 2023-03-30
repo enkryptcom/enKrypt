@@ -1,6 +1,6 @@
 import { NetworkNames } from "@enkryptcom/types";
 import { numberToHex } from "web3-utils";
-import { ProviderName, WalletIdentifier } from "./types";
+import { ProviderName, SupportedNetworkName, WalletIdentifier } from "./types";
 
 const FEE_CONFIGS = {
   [ProviderName.oneInch]: {
@@ -38,14 +38,18 @@ const FEE_CONFIGS = {
 const TOKEN_LISTS: {
   [key in NetworkNames]?: string;
 } = {
-  [NetworkNames.Ethereum]:
-    "https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/swaplists/ETH.json",
-  [NetworkNames.Binance]:
-    "https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/swaplists/BNB.json",
-  [NetworkNames.Matic]:
-    "https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/swaplists/MATIC.json",
-  [NetworkNames.Optimism]:
-    "https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/swaplists/OP.json",
+  [NetworkNames.Ethereum]: `https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/swaplists/${SupportedNetworkName.Ethereum}.json`,
+  [NetworkNames.Binance]: `https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/swaplists/${SupportedNetworkName.Binance}.json`,
+  [NetworkNames.Matic]: `https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/swaplists/${SupportedNetworkName.Matic}.json`,
+  [NetworkNames.Optimism]: `https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/swaplists/${SupportedNetworkName.Optimism}.json`,
+  [NetworkNames.Arbitrum]: `https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/swaplists/${SupportedNetworkName.Arbitrum}.json`,
+  [NetworkNames.Aurora]: `https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/swaplists/${SupportedNetworkName.Aurora}.json`,
+  [NetworkNames.Avalanche]: `https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/swaplists/${SupportedNetworkName.Avalanche}.json`,
+  [NetworkNames.EthereumClassic]: `https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/swaplists/${SupportedNetworkName.EthereumClassic}.json`,
+  [NetworkNames.Fantom]: `https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/swaplists/${SupportedNetworkName.Fantom}.json`,
+  [NetworkNames.Moonbeam]: `https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/swaplists/${SupportedNetworkName.Moonbeam}.json`,
+  [NetworkNames.Gnosis]: `https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/swaplists/${SupportedNetworkName.Gnosis}.json`,
+  [NetworkNames.Klaytn]: `https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/swaplists/${SupportedNetworkName.Klaytn}.json`,
 };
 
 const CHANGELLY_LIST =
