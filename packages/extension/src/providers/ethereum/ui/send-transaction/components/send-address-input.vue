@@ -62,9 +62,15 @@ const emit = defineEmits<{
   (e: "update:inputAddress", address: string): void;
   (e: "toggle:showContacts", show: boolean): void;
 }>();
+const visibleAddress = computed(() => {
+  let address = props.value;
+  if (props.network.isAddress(address))
+    address = props.network.displayAddress(props.value);
+  if (isFocus.value) return address;
+  return replaceWithEllipsis(address, 6, 6);
+});
 const address = computed({
-  get: () =>
-    isFocus.value ? props.value : replaceWithEllipsis(props.value, 6, 6),
+  get: () => visibleAddress.value,
   set: (value) => emit("update:inputAddress", value),
 });
 

@@ -204,13 +204,10 @@ const sendAction = async () => {
                   address: txData.fromAddress,
                   network: network.value.name,
                 });
+                isProcessing.value = false;
+                errorMsg.value = error.message;
                 console.error("ERROR", error);
               });
-          })
-          .catch((error) => {
-            isProcessing.value = false;
-            console.error("error", error);
-            errorMsg.value = JSON.stringify(error);
           });
       });
     });
