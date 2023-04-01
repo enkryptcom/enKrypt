@@ -2478,7 +2478,6 @@ __metadata:
     bip39: ^3.1.0
     bitcoinjs-lib: ^6.1.0
     bitcoinjs-message: ^2.2.0
-    bs58: ^5.0.0
     buffer: ^6.0.3
     chai: ^4.3.7
     concurrently: ^7.6.0
