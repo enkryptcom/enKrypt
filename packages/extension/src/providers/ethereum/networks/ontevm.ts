@@ -2,7 +2,6 @@ import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
 import { NetworkNames } from "@enkryptcom/types";
 import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
 import { OntEVMActivity } from "../libs/activity-handlers";
-import { hexToBase58 } from "@/libs/utils/ontology";
 
 const ontEVMOptions: EvmNetworkOptions = {
   name: NetworkNames.OntologyEVM,
@@ -19,7 +18,6 @@ const ontEVMOptions: EvmNetworkOptions = {
   icon: require("./icons/ont-evm.png"),
   coingeckoID: "ontology",
   activityHandler: wrapActivityHandler(OntEVMActivity),
-  displayAddress: (address) => hexToBase58(address),
 };
 
 const ontevm = new EvmNetwork(ontEVMOptions);
