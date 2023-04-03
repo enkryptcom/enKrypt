@@ -4,7 +4,6 @@ import {
   SupportedNetwork,
   SupportedNetworkNames,
   TokenBalance,
-  ZkSyncBalanceType,
 } from "./types/tokenbalance-mew";
 import MarketData from "@/libs/market-data";
 import { fromBase } from "@enkryptcom/utils";
@@ -21,11 +20,11 @@ import { EvmNetwork } from "../../types/evm-network";
 import { getKnownNetworkTokens } from "./token-lists";
 import { CoingeckoPlatform, NetworkNames } from "@enkryptcom/types";
 import { NATIVE_TOKEN_ADDRESS } from "../common";
-import { NetworkEndpoints } from "../activity-handlers/providers/etherscan/configs";
+import getZKSyncBalances from "./zksync";
+import getTomoBalances from "./tomochain";
+
 const API_ENPOINT = "https://tokenbalance.mewapi.io/";
 const API_ENPOINT2 = "https://partners.mewapi.io/balances/";
-const ZKGoerli_ENDPOINT = NetworkEndpoints[NetworkNames.ZkSyncGoerli];
-const ZKSync_ENDPOINT = NetworkEndpoints[NetworkNames.ZkSync];
 
 const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
   [NetworkNames.Binance]: {
@@ -96,6 +95,10 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
     tbName: "aurora",
     cgPlatform: CoingeckoPlatform.Aurora,
   },
+  [NetworkNames.TomoChain]: {
+    tbName: "",
+    cgPlatform: CoingeckoPlatform.TomoChain,
+  },
   [NetworkNames.ZkSyncGoerli]: {
     tbName: "",
   },
@@ -109,42 +112,10 @@ const getTokens = (
   address: string
 ): Promise<TokenBalance[]> => {
   if (chain === NetworkNames.ZkSyncGoerli || chain === NetworkNames.ZkSync) {
-    const endpoint =
-      chain === NetworkNames.ZkSyncGoerli ? ZKGoerli_ENDPOINT : ZKSync_ENDPOINT;
-    return fetch(
-      `${endpoint}api?module=account&action=tokenlist&address=${address}`
-    )
-      .then((res) => res.json())
-      .then((json) => {
-        if (json.status === "0" && json.result === null)
-          return Promise.reject(
-            `TOKENBALANCE-MEW: ${JSON.stringify(json.message)}`
-          );
-        else {
-          const results: ZkSyncBalanceType[] = json.result;
-          const retVal: TokenBalance[] = [];
-          let nativeAdded = false;
-          const zksyncNativeAddress =
-            "0x000000000000000000000000000000000000800a";
-          results.forEach((bal) => {
-            if (bal.contractAddress === zksyncNativeAddress) nativeAdded = true;
-            retVal.push({
-              contract:
-                bal.contractAddress === zksyncNativeAddress
-                  ? NATIVE_TOKEN_ADDRESS
-                  : bal.contractAddress,
-              balance: numberToHex(toBN(bal.balance)),
-            });
-          });
-          if (!nativeAdded) {
-            retVal.push({
-              contract: NATIVE_TOKEN_ADDRESS,
-              balance: "0x0",
-            });
-          }
-          return retVal;
-        }
-      });
+    return getZKSyncBalances(chain, address);
+  }
+  if (chain === NetworkNames.TomoChain) {
+    return getTomoBalances(chain, address);
   }
   let url = "";
   if (chain === NetworkNames.Ethereum || chain === NetworkNames.Binance)

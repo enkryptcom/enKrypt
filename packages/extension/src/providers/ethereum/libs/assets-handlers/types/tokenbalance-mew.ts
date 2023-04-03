@@ -44,4 +44,5 @@ export type SupportedNetworkNames =
   | NetworkNames.Klaytn
   | NetworkNames.Aurora
   | NetworkNames.ZkSyncGoerli
-  | NetworkNames.ZkSync;
+  | NetworkNames.ZkSync
+  | NetworkNames.TomoChain;
