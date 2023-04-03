@@ -7,7 +7,7 @@ import {
 } from "@/types/activity";
 import { BaseNetwork } from "@/types/base-network";
 import { NetworkEndpoints } from "./configs";
-import { toBase } from "@/libs/utils/units";
+import { toBase } from "@enkryptcom/utils";
 import MarketData from "@/libs/market-data";
 
 interface OntEvmRawInfo {

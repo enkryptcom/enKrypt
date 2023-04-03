@@ -7,7 +7,7 @@ import {
 } from "./types/tokenbalance-mew";
 import MarketData from "@/libs/market-data";
 import { fromBase } from "@enkryptcom/utils";
-import { numberToHex, toBN } from "web3-utils";
+import { toBN } from "web3-utils";
 import BigNumber from "bignumber.js";
 import {
   formatFiatValue,
