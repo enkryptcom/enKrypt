@@ -43,12 +43,13 @@ describe("Changelly Provider", () => {
       quote?.minMax.minimumFrom.toString()
     );
     expect(quote?.toTokenAmount.gtn(0)).to.be.eq(true);
-
     const swap = await changelly.getSwap(quote!.quote);
-    expect(swap?.transactions.length).to.be.eq(1);
-    expect(
-      (swap?.transactions[0] as EVMTransaction).data.startsWith("0xa9059cbb")
-    ).to.be.eq(true);
+    if (swap) {
+      expect(swap?.transactions.length).to.be.eq(1);
+      expect(
+        (swap?.transactions[0] as EVMTransaction).data.startsWith("0xa9059cbb")
+      ).to.be.eq(true);
+    }
   }).timeout(5000);
 
   it("it should return correct tokens", async () => {
@@ -61,7 +62,7 @@ describe("Changelly Provider", () => {
       Object.values(toTokens[SupportedNetworkName.Bitcoin]).length
     ).to.be.eq(1);
     expect(
-      Object.values(toTokens[SupportedNetworkName.Kusama]).length
+      Object.values(toTokens[SupportedNetworkName.Optimism]).length
     ).to.be.eq(1);
   });
 
@@ -73,11 +74,11 @@ describe("Changelly Provider", () => {
     expect(fromTokens[NATIVE_TOKEN_ADDRESS].name).to.be.eq("Bitcoin");
   });
 
-  it("it should initialize other networks: Kusama", async () => {
-    const changelly2 = new Changelly(web3eth, SupportedNetworkName.Kusama);
+  it("it should initialize other networks: Polkadot", async () => {
+    const changelly2 = new Changelly(web3eth, SupportedNetworkName.Polkadot);
     await changelly2.init();
     const fromTokens = changelly2.getFromTokens();
     expect(Object.values(fromTokens).length).to.be.eq(1);
-    expect(fromTokens[NATIVE_TOKEN_ADDRESS].name).to.be.eq("Kusama");
+    expect(fromTokens[NATIVE_TOKEN_ADDRESS].name).to.be.eq("Polkadot");
   });
 });

@@ -153,7 +153,8 @@ class Changelly extends ProviderClass {
   }
 
   getToTokens() {
-    return this.toTokens;
+    if (Object.keys(this.fromTokens).length) return this.toTokens;
+    return {};
   }
 
   getMinMaxAmount({

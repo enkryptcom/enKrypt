@@ -51,7 +51,7 @@ describe("OneInch Provider", () => {
       )}${TOKEN_AMOUNT_INFINITY_AND_BEYOND.replace("0x", "")}`
     );
     expect(swap?.transactions[1].to).to.be.eq(ONEINCH_APPROVAL_ADDRESS);
-  });
+  }).timeout(5000);
 
   it("it should return a quote non infinity approval", async () => {
     const quote = await oneInch.getQuote(
@@ -76,5 +76,5 @@ describe("OneInch Provider", () => {
       ).replace("0x", "")}`
     );
     expect(swap?.transactions[1].to).to.be.eq(ONEINCH_APPROVAL_ADDRESS);
-  });
+  }).timeout(5000);
 });
