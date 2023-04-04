@@ -268,7 +268,6 @@ const back = () => {
 };
 
 const close = () => {
-  console.log(isWindowPopup.value);
   if (!isWindowPopup.value) {
     router.go(-2);
   } else {

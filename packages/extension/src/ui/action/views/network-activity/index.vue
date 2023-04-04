@@ -184,7 +184,6 @@ const checkSwap = (activity: Activity): void => {
         swap
           .getStatus((activity.rawInfo as SwapRawInfo).status)
           .then((info) => {
-            console.log(activity, info);
             if (info === TransactionStatus.pending) return;
             activity.status =
               info === TransactionStatus.success

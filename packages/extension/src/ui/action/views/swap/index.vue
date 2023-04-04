@@ -255,11 +255,16 @@ onMounted(async () => {
   props.network
     .getAllTokenInfo(props.accountInfo.selectedAccount?.address as string)
     .then(async (tokens) => {
+      console.log(tokens);
       await swap.initPromise;
       let swapFromTokens = await swap.getFromTokens();
       const tokensWithBalance: Record<string, string> = {};
       tokens.forEach((t) => {
-        if (toBN(t.balance).gtn(0) || t.contract === NATIVE_TOKEN_ADDRESS)
+        if (
+          toBN(t.balance).gtn(0) ||
+          t.contract === NATIVE_TOKEN_ADDRESS ||
+          !t.contract
+        )
           tokensWithBalance[t.contract || NATIVE_TOKEN_ADDRESS] = t.balance;
       });
       swapFromTokens = {
