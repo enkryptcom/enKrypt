@@ -393,9 +393,10 @@ const isValidToAddress = debounce(() => {
   else {
     try {
       const converted = toAddressInputMeta.value.displayAddress(address.value);
-      toToken.value?.networkInfo
-        .isAddress(converted)
-        .then((res) => (addressIsValid.value = res));
+      toToken.value?.networkInfo.isAddress(converted).then((res) => {
+        addressIsValid.value = res;
+        if (res) updateQuote();
+      });
     } catch (e) {
       addressIsValid.value = false;
     }
@@ -458,7 +459,7 @@ const updateQuote = () => {
       ),
       fromToken: fromToken.value!,
       toToken: toToken.value!,
-      toAddress: address.value,
+      toAddress: toAddressInputMeta.value.displayAddress(address.value),
     })
     .then((quotes) => {
       if (quotes.length) pickBestQuote(fromRawAmount, quotes);
