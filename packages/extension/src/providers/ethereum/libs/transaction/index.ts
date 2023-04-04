@@ -102,7 +102,7 @@ class Transaction {
       const feeHistory = await this.web3.getFeeHistory(
         6,
         "pending",
-        [25, 50, 75, 90]
+        [90, 75, 50, 25]
       );
       const formattedFeeHistory = formatFeeHistory(feeHistory);
       const feeMarket = this.getFeeMarketGasInfo(
