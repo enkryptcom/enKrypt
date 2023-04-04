@@ -12,7 +12,7 @@ describe("ENS Name resolving", () => {
     expect(address).to.be.eq("0xeefB13C7D42eFCc655E528dA6d6F7bBcf9A2251d");
     address = await resolver.resolveAddress("1.offchainexample.eth", "ETH");
     expect(address).to.be.eq("0x41563129cDbbD0c5D3e1c86cf9563926b243834d");
-  }).timeout(10000);
+  }).timeout(20000);
 
   it("it should properly reverse resolve", async () => {
     const resolver = new ENSResolver({

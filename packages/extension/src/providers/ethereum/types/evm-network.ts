@@ -6,7 +6,7 @@ import {
   formatFiatValue,
   formatFloatingPointValue,
 } from "@/libs/utils/number-formatter";
-import { fromBase } from "@/libs/utils/units";
+import { fromBase } from "@enkryptcom/utils";
 import { Activity } from "@/types/activity";
 import { BaseNetwork } from "@/types/base-network";
 import { BaseToken } from "@/types/base-token";

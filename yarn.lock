@@ -2392,7 +2392,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@enkryptcom/extension-bridge@^0.0.2, @enkryptcom/extension-bridge@workspace:packages/extension-bridge":
+"@enkryptcom/extension-bridge@workspace:^, @enkryptcom/extension-bridge@workspace:packages/extension-bridge":
   version: 0.0.0-use.local
   resolution: "@enkryptcom/extension-bridge@workspace:packages/extension-bridge"
   dependencies:
@@ -2429,13 +2429,14 @@ __metadata:
   resolution: "@enkryptcom/extension@workspace:packages/extension"
   dependencies:
     "@acala-network/api": ^4.1.8-2.3
-    "@enkryptcom/extension-bridge": ^0.0.2
-    "@enkryptcom/hw-wallets": ^0.0.2
-    "@enkryptcom/keyring": ^0.0.2
-    "@enkryptcom/request": ^0.0.1
-    "@enkryptcom/storage": ^0.0.2
-    "@enkryptcom/types": ^0.0.1
-    "@enkryptcom/utils": ^0.0.3
+    "@enkryptcom/extension-bridge": "workspace:^"
+    "@enkryptcom/hw-wallets": "workspace:^"
+    "@enkryptcom/keyring": "workspace:^"
+    "@enkryptcom/request": "workspace:^"
+    "@enkryptcom/storage": "workspace:^"
+    "@enkryptcom/swap": "workspace:^"
+    "@enkryptcom/types": "workspace:^"
+    "@enkryptcom/utils": "workspace:^"
     "@ethereumjs/common": ^3.1.1
     "@ethereumjs/tx": ^4.1.1
     "@ledgerhq/hw-transport-webusb": ^6.27.12
@@ -2530,12 +2531,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@enkryptcom/hw-wallets@^0.0.2, @enkryptcom/hw-wallets@workspace:packages/hw-wallets":
+"@enkryptcom/hw-wallets@workspace:^, @enkryptcom/hw-wallets@workspace:packages/hw-wallets":
   version: 0.0.0-use.local
   resolution: "@enkryptcom/hw-wallets@workspace:packages/hw-wallets"
   dependencies:
-    "@enkryptcom/types": ^0.0.1
-    "@enkryptcom/utils": ^0.0.3
+    "@enkryptcom/types": "workspace:^"
+    "@enkryptcom/utils": "workspace:^"
     "@ethereumjs/tx": ^4.1.1
     "@ledgerhq/hw-app-eth": ^6.32.1
     "@ledgerhq/hw-transport": ^6.28.1
@@ -2571,16 +2572,16 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@enkryptcom/keyring@^0.0.2, @enkryptcom/keyring@workspace:packages/keyring":
+"@enkryptcom/keyring@workspace:^, @enkryptcom/keyring@workspace:packages/keyring":
   version: 0.0.0-use.local
   resolution: "@enkryptcom/keyring@workspace:packages/keyring"
   dependencies:
-    "@enkryptcom/signer-bitcoin": ^0.0.2
-    "@enkryptcom/signer-ethereum": ^0.0.3
-    "@enkryptcom/signer-polkadot": ^0.0.2
-    "@enkryptcom/storage": ^0.0.2
-    "@enkryptcom/types": ^0.0.1
-    "@enkryptcom/utils": ^0.0.3
+    "@enkryptcom/signer-bitcoin": "workspace:^"
+    "@enkryptcom/signer-ethereum": "workspace:^"
+    "@enkryptcom/signer-polkadot": "workspace:^"
+    "@enkryptcom/storage": "workspace:^"
+    "@enkryptcom/types": "workspace:^"
+    "@enkryptcom/utils": "workspace:^"
     "@polkadot/util": ^10.4.2
     "@types/chai": ^4.3.4
     "@types/mocha": ^9.1.1
@@ -2637,11 +2638,11 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@enkryptcom/request@^0.0.1, @enkryptcom/request@workspace:packages/request":
+"@enkryptcom/request@workspace:^, @enkryptcom/request@workspace:packages/request":
   version: 0.0.0-use.local
   resolution: "@enkryptcom/request@workspace:packages/request"
   dependencies:
-    "@enkryptcom/types": ^0.0.1
+    "@enkryptcom/types": "workspace:^"
     "@types/chai": ^4.3.4
     "@types/mocha": ^9.1.1
     "@types/node": ^18.15.3
@@ -2658,7 +2659,7 @@ __metadata:
     isomorphic-ws: ^5.0.0
     json-rpc-2.0: ^1.5.1
     mocha: ^10.2.0
-    node-fetch: 2.6.9
+    node-fetch: ^2.6.9
     prettier: ^2.8.4
     reconnecting-websocket: ^4.4.0
     ts-mocha: ^10.0.0
@@ -2672,12 +2673,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@enkryptcom/signer-bitcoin@^0.0.2, @enkryptcom/signer-bitcoin@workspace:packages/signers/bitcoin":
+"@enkryptcom/signer-bitcoin@workspace:^, @enkryptcom/signer-bitcoin@workspace:packages/signers/bitcoin":
   version: 0.0.0-use.local
   resolution: "@enkryptcom/signer-bitcoin@workspace:packages/signers/bitcoin"
   dependencies:
-    "@enkryptcom/types": ^0.0.1
-    "@enkryptcom/utils": ^0.0.3
+    "@enkryptcom/types": "workspace:^"
+    "@enkryptcom/utils": "workspace:^"
     "@noble/secp256k1": ^1.7.1
     "@types/chai": ^4.3.4
     "@types/hdkey": ^2.0.1
@@ -2707,12 +2708,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@enkryptcom/signer-ethereum@^0.0.3, @enkryptcom/signer-ethereum@workspace:packages/signers/ethereum":
+"@enkryptcom/signer-ethereum@workspace:^, @enkryptcom/signer-ethereum@workspace:packages/signers/ethereum":
   version: 0.0.0-use.local
   resolution: "@enkryptcom/signer-ethereum@workspace:packages/signers/ethereum"
   dependencies:
-    "@enkryptcom/types": ^0.0.1
-    "@enkryptcom/utils": ^0.0.3
+    "@enkryptcom/types": "workspace:^"
+    "@enkryptcom/utils": "workspace:^"
     "@types/chai": ^4.3.4
     "@types/hdkey": ^2.0.1
     "@types/mocha": ^9.1.1
@@ -2743,13 +2744,13 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@enkryptcom/signer-polkadot@^0.0.2, @enkryptcom/signer-polkadot@workspace:packages/signers/polkadot":
+"@enkryptcom/signer-polkadot@workspace:^, @enkryptcom/signer-polkadot@workspace:packages/signers/polkadot":
   version: 0.0.0-use.local
   resolution: "@enkryptcom/signer-polkadot@workspace:packages/signers/polkadot"
   dependencies:
     "@commitlint/cli": ^17.4.4
-    "@enkryptcom/types": ^0.0.1
-    "@enkryptcom/utils": ^0.0.3
+    "@enkryptcom/types": "workspace:^"
+    "@enkryptcom/utils": "workspace:^"
     "@polkadot/util": ^10.4.2
     "@polkadot/util-crypto": ^10.4.2
     "@polkadot/wasm-crypto": ^6.4.1
@@ -2777,12 +2778,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@enkryptcom/storage@^0.0.2, @enkryptcom/storage@workspace:packages/storage":
+"@enkryptcom/storage@workspace:^, @enkryptcom/storage@workspace:packages/storage":
   version: 0.0.0-use.local
   resolution: "@enkryptcom/storage@workspace:packages/storage"
   dependencies:
-    "@enkryptcom/types": ^0.0.1
-    "@enkryptcom/utils": ^0.0.3
+    "@enkryptcom/types": "workspace:^"
+    "@enkryptcom/utils": "workspace:^"
     "@types/chai": ^4.3.4
     "@types/mocha": ^9.1.1
     "@types/node": ^18.15.3
@@ -2807,14 +2808,47 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@enkryptcom/types@npm:^0.0.1":
-  version: 0.0.1
-  resolution: "@enkryptcom/types@npm:0.0.1"
-  checksum: f9f88d5ffa2ac382e4f4634cd96f3df63213b45c67155b70a48e2cdbb101d08ef9da8220f4dfb5c074a80874e251591d3af46a295b68e5949a39043d3ecf6ba0
-  languageName: node
-  linkType: hard
+"@enkryptcom/swap@workspace:^, @enkryptcom/swap@workspace:packages/swap":
+  version: 0.0.0-use.local
+  resolution: "@enkryptcom/swap@workspace:packages/swap"
+  dependencies:
+    "@enkryptcom/types": "workspace:^"
+    "@enkryptcom/utils": "workspace:^"
+    "@types/chai": ^4.3.4
+    "@types/mocha": ^9.1.1
+    "@types/node": ^18.15.3
+    "@typescript-eslint/eslint-plugin": ^5.55.0
+    "@typescript-eslint/parser": ^5.55.0
+    bignumber.js: ^9.1.1
+    chai: ^4.3.7
+    eslint: ^8.36.0
+    eslint-config-airbnb-base: ^15.0.0
+    eslint-config-prettier: ^8.7.0
+    eslint-import-resolver-alias: ^1.1.2
+    eslint-plugin-import: ^2.27.5
+    eslint-plugin-module-resolver: ^1.5.0
+    eventemitter3: ^5.0.0
+    isomorphic-ws: ^5.0.0
+    json-rpc-2.0: ^1.5.1
+    lodash: ^4.17.21
+    mocha: ^10.2.0
+    node-fetch: ^2.6.9
+    prettier: ^2.8.4
+    reconnecting-websocket: ^4.4.0
+    ts-mocha: ^10.0.0
+    ts-node: ^10.9.1
+    tsconfig-paths: ^4.1.2
+    tsup: ^6.6.3
+    typescript: ^4.9.5
+    typescript-eslint: 0.0.1-alpha.0
+    uuid: ^9.0.0
+    web3-eth: ^1.8.2
+    web3-utils: ^1.8.2
+    ws: ^8.13.0
+  languageName: unknown
+  linkType: soft
 
-"@enkryptcom/types@workspace:packages/types":
+"@enkryptcom/types@workspace:^, @enkryptcom/types@workspace:packages/types":
   version: 0.0.0-use.local
   resolution: "@enkryptcom/types@workspace:packages/types"
   dependencies:
@@ -2836,11 +2870,11 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@enkryptcom/utils@^0.0.3, @enkryptcom/utils@workspace:packages/utils":
+"@enkryptcom/utils@workspace:^, @enkryptcom/utils@workspace:packages/utils":
   version: 0.0.0-use.local
   resolution: "@enkryptcom/utils@workspace:packages/utils"
   dependencies:
-    "@enkryptcom/types": ^0.0.1
+    "@enkryptcom/types": "workspace:^"
     "@ethereumjs/util": ^8.0.5
     "@polkadot/util-crypto": ^10.4.2
     "@types/chai": ^4.3.4
@@ -18773,7 +18807,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"node-fetch@npm:2.6.9":
+"node-fetch@npm:^2.6.9":
   version: 2.6.9
   resolution: "node-fetch@npm:2.6.9"
   dependencies:

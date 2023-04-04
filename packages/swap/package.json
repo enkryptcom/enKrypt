@@ -1,0 +1,62 @@
+{
+  "name": "@enkryptcom/swap",
+  "version": "0.0.1",
+  "description": "Swap library for enkrypt",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm,cjs --dts --clean",
+    "lint": "prettier --write .",
+    "test": "ts-mocha -p tsconfig.json tests/**/*.test.ts"
+  },
+  "engines": {
+    "node": ">=14.15.0"
+  },
+  "dependencies": {
+    "@enkryptcom/types": "workspace:^",
+    "@enkryptcom/utils": "workspace:^",
+    "bignumber.js": "^9.1.1",
+    "eventemitter3": "^5.0.0",
+    "isomorphic-ws": "^5.0.0",
+    "json-rpc-2.0": "^1.5.1",
+    "lodash": "^4.17.21",
+    "node-fetch": "^2.6.9",
+    "reconnecting-websocket": "^4.4.0",
+    "uuid": "^9.0.0",
+    "web3-eth": "^1.8.2",
+    "web3-utils": "^1.8.2",
+    "ws": "^8.13.0"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.3.4",
+    "@types/mocha": "^9.1.1",
+    "@types/node": "^18.15.3",
+    "@typescript-eslint/eslint-plugin": "^5.55.0",
+    "@typescript-eslint/parser": "^5.55.0",
+    "chai": "^4.3.7",
+    "eslint": "^8.36.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-prettier": "^8.7.0",
+    "eslint-import-resolver-alias": "^1.1.2",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-module-resolver": "^1.5.0",
+    "mocha": "^10.2.0",
+    "prettier": "^2.8.4",
+    "ts-mocha": "^10.0.0",
+    "ts-node": "^10.9.1",
+    "tsconfig-paths": "^4.1.2",
+    "tsup": "^6.6.3",
+    "typescript": "^4.9.5",
+    "typescript-eslint": "0.0.1-alpha.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/enkryptcom/enKrypt/tree/main/packages/swap"
+  },
+  "keywords": [],
+  "author": "kvhnuke",
+  "license": "MIT"
+}

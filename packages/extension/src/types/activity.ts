@@ -1,5 +1,10 @@
 import { NetworkNames } from "@enkryptcom/types";
 import { BaseTokenOptions } from "./base-token";
+import {
+  TokenType,
+  TokenTypeTo,
+  StatusOptionsResponse,
+} from "@enkryptcom/swap";
 
 interface BTCInOuts {
   address: string;
@@ -65,8 +70,13 @@ enum ActivityStatus {
 
 enum ActivityType {
   transaction = "transaction",
+  swap = "swap",
 }
-
+interface SwapRawInfo {
+  fromToken: TokenType;
+  toToken: TokenTypeTo;
+  status: StatusOptionsResponse;
+}
 interface Activity {
   network: NetworkNames;
   from: string;
@@ -79,12 +89,12 @@ interface Activity {
   token: BaseTokenOptions;
   status: ActivityStatus;
   type: ActivityType;
-  swapId?: string;
   rawInfo?:
     | EthereumRawInfo
     | SubstrateRawInfo
     | SubscanExtrinsicInfo
-    | BTCRawInfo;
+    | BTCRawInfo
+    | SwapRawInfo;
 }
 
 export {
@@ -95,4 +105,5 @@ export {
   ActivityType,
   SubscanExtrinsicInfo,
   BTCRawInfo,
+  SwapRawInfo,
 };

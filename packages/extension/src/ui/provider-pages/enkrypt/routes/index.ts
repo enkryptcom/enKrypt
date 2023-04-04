@@ -1,6 +1,6 @@
 import unlockKeyring from "../unlock-keyring.vue";
 import loading from "../loading.vue";
-import SwapBestOffer from "@action/views/swap-best-offer/index.vue";
+import SwapBestOffer from "@action/views/swap/views/swap-best-offer/index.vue";
 import { RouteRecordRaw } from "vue-router";
 import RouteNames from "./names";
 const routes = Object.assign({}, RouteNames);

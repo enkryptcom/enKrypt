@@ -5,34 +5,24 @@
     <swap-token-amount-input
       v-show="!!token"
       placeholder="Enter amount"
-      :value="tokenAmount.toString()"
+      v-bind="$attrs"
+      :value="value"
       :autofocus="autofocus"
       :change-focus="changeFocus"
-      :error="currentInputError !== null"
-      @update:value="amountChanged"
+      :error="!!errorMessage"
     />
 
     <a
-      v-show="!!token && ((token as any).contract !== NATIVE_TOKEN_ADDRESS)"
+      v-show="!!token && token.address !== NATIVE_TOKEN_ADDRESS"
       class="swap-token-input__max"
-      @click="inputMax"
+      @click="$emit('update:inputMax')"
       >Max</a
     >
-    <div v-if="currentInputError !== null" class="swap-token-input__invalid">
-      {{
-        currentInputError === "MAX"
-          ? `Maximum swap amount is ${
-              $filters.formatFloatingPointValue(max).value
-            }`
-          : currentInputError === "MIN"
-          ? `Minimum swap amount is ${
-              $filters.formatFloatingPointValue(min).value
-            }`
-          : "Insufficient Balance"
-      }}
+    <div v-if="errorMessage" class="swap-token-input__invalid">
+      {{ errorMessage }}
     </div>
     <div
-      v-else-if="!!token && Number(tokenAmount) > 0"
+      v-else-if="!!token && Number(value) > 0"
       class="swap-token-input__fiat"
     >
       ≈ ${{ $filters.formatFiatValue(tokenPrice).value }}
@@ -44,72 +34,34 @@
 import { computed, ref } from "vue";
 import SwapTokenSelect from "../swap-token-select/index.vue";
 import SwapTokenAmountInput from "./components/swap-token-amount-input.vue";
-import { BaseToken } from "@/types/base-token";
-import BigNumber from "bignumber.js";
-import { fromBase } from "@/libs/utils/units";
 import { NATIVE_TOKEN_ADDRESS } from "@/providers/ethereum/libs/common";
+import { TokenType, SwapToken } from "@enkryptcom/swap";
 
-const emit = defineEmits<{
+defineEmits<{
   (e: "update:inputMax"): void;
-  (e: "input:changed", amount: string, isInvalid: boolean): void;
 }>();
 
 interface IProps {
-  tokenAmount: string;
-  token: BaseToken | null;
+  value: string;
+  token: TokenType;
   autofocus: boolean;
-  min?: string;
-  max?: string;
+  errorMessage?: string;
 }
 
 const props = defineProps<IProps>();
 
 const isFocus = ref(false);
 
-const currentInputError = computed(() => {
-  return inputError(props.tokenAmount.toString());
-});
-const inputError = (value: string) => {
-  if (value && value !== "" && Number(value) !== 0) {
-    const fromBn = new BigNumber(value);
-    if (
-      props.token &&
-      props.token.balance &&
-      fromBn.gt(fromBase(props.token.balance, props.token.decimals))
-    ) {
-      return "INSUFFICIENT";
-    } else if (props.max && fromBn.gt(props.max)) {
-      return "MAX";
-    } else if (props.min && fromBn.lt(props.min)) {
-      return "MIN";
-    }
-  }
-  return null;
-};
-
 const tokenPrice = computed(() => {
-  if (props.token?.price && props.tokenAmount !== "") {
-    return new BigNumber(props.tokenAmount)
-      .times(new BigNumber(props.token.price))
-      .toFixed();
+  if (props.value !== "") {
+    const Token = new SwapToken(props.token);
+    return Token.getReadableToFiat(props.value);
   }
-  return null;
+  return 0;
 });
-
-const amountChanged = (newVal: string) => {
-  emit("input:changed", newVal, inputError(newVal) !== null);
-};
 
 const changeFocus = (newVal: boolean) => {
   isFocus.value = newVal;
-};
-
-const inputMax = () => {
-  if (props.token && props.token.balance) {
-    const tokenBalance = fromBase(props.token.balance, props.token.decimals);
-    amountChanged(tokenBalance);
-  }
-  emit("update:inputMax");
 };
 </script>
 
@@ -117,7 +69,7 @@ const inputMax = () => {
 @import "~@action/styles/theme.less";
 .swap-token-input {
   width: 100%;
-  min-height: 148px;
+  min-height: 125px;
   border: 1px solid rgba(95, 99, 104, 0.2);
   box-sizing: border-box;
   border-radius: 10px;
@@ -157,7 +109,7 @@ const inputMax = () => {
     color: @secondaryLabel;
     position: absolute;
     left: 16px;
-    bottom: 16px;
+    bottom: 6px;
   }
 
   &__invalid {
@@ -170,7 +122,7 @@ const inputMax = () => {
     color: @error;
     position: absolute;
     left: 16px;
-    bottom: 16px;
+    bottom: 6px;
   }
 }
 </style>

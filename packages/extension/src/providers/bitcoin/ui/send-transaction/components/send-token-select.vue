@@ -15,7 +15,7 @@
 
 <script setup lang="ts">
 import { computed, PropType } from "vue";
-import { fromBase } from "@/libs/utils/units";
+import { fromBase } from "@enkryptcom/utils";
 import { BaseToken } from "@/types/base-token";
 
 const props = defineProps({

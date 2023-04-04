@@ -21,7 +21,7 @@
 import SwitchArrow from "@action/icons/header/switch_arrow.vue";
 import { BaseToken } from "@/types/base-token";
 import { computed } from "@vue/reactivity";
-import { fromBase } from "@/libs/utils/units";
+import { fromBase } from "@enkryptcom/utils";
 
 const emit = defineEmits<{
   (e: "update:toggleTokenSelect"): void;

@@ -62,7 +62,7 @@ import { BaseNetwork } from "@/types/base-network";
 import API from "@/providers/ethereum/libs/api";
 import { EnkryptAccount, KeyPairAdd } from "@enkryptcom/types";
 import { formatFloatingPointValue } from "@/libs/utils/number-formatter";
-import { fromBase } from "@/libs/utils/units";
+import { fromBase } from "@enkryptcom/utils";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
 import KeyRingBase from "@/libs/keyring/keyring";
 import BaseInput from "@action/components/base-input/index.vue";

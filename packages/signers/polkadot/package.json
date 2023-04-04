@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "@commitlint/cli": "^17.4.4",
-    "@enkryptcom/utils": "^0.0.3",
+    "@enkryptcom/utils": "workspace:^",
     "@polkadot/util": "^10.4.2",
     "@polkadot/util-crypto": "^10.4.2",
     "@polkadot/wasm-crypto": "^6.4.1",
@@ -26,7 +26,7 @@
     "chai": "^4.3.7"
   },
   "devDependencies": {
-    "@enkryptcom/types": "^0.0.1",
+    "@enkryptcom/types": "workspace:^",
     "@types/chai": "^4.3.4",
     "@types/mocha": "^9.1.1",
     "@types/node": "^18.15.3",

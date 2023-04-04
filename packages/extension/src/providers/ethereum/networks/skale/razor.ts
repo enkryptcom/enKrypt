@@ -7,7 +7,7 @@ import {
 
 const skaleOptions: SkaleParams = {
   name: NetworkNames.SkaleRazor,
-  name_long: "SKALE | Razor Network",
+  name_long: "Razor Network | SKALE",
   chainName: "turbulent-unique-scheat",
   chainID: "0x109b4597",
   icon: "skaleRazor.png",

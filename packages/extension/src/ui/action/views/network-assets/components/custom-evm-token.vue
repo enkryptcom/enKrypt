@@ -84,7 +84,7 @@
 import API from "@/providers/ethereum/libs/api";
 import { computed, ref, toRaw, watch } from "vue";
 import { Erc20Token } from "@/providers/ethereum/types/erc20-token";
-import { fromBase } from "@/libs/utils/units";
+import { fromBase } from "@enkryptcom/utils";
 import CloseIcon from "@/ui/action/icons/common/close-icon.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import AlertIcon from "@action/icons/send/alert-icon.vue";

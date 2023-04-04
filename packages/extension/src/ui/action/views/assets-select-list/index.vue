@@ -14,6 +14,7 @@
     <custom-scrollbar
       class="assets-select-list__scroll-area"
       :settings="scrollSettings({ suppressScrollX: true })"
+      @ps-y-reach-end="yEnd"
     >
       <div v-show="isSelectToToken" class="assets-select-list__fast-tokens">
         <swap-token-fast-list v-bind="$attrs" />
@@ -44,6 +45,7 @@ import scrollSettings from "@/libs/utils/scroll-settings";
 import { computed, PropType, ref } from "vue";
 import AssetsSelectLoading from "./components/assets-select-loading.vue";
 import { BaseToken } from "@/types/base-token";
+import { throttle } from "lodash";
 
 const emit = defineEmits<{
   (e: "close", close: boolean): void;
@@ -74,6 +76,17 @@ const props = defineProps({
   },
 });
 
+const refInitialAmount = ref(50);
+
+const yEnd = throttle((event) => {
+  if (
+    props.assets.length > refInitialAmount.value &&
+    event.srcElement.classList.contains("ps--active-y")
+  ) {
+    refInitialAmount.value = refInitialAmount.value + 25;
+  }
+}, 500);
+
 const searchQuery = ref<string>();
 
 const listedAssets = computed(() => {
@@ -97,9 +110,9 @@ const listedAssets = computed(() => {
 
         return false;
       })
-      .slice(0, 50);
+      .slice(0, refInitialAmount.value);
   } else {
-    return props.assets.slice(0, 50);
+    return props.assets.slice(0, refInitialAmount.value);
   }
 });
 

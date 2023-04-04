@@ -6,6 +6,7 @@
       v-show="!!token"
       :value="amount"
       :is-finding-rate="isFindingRate"
+      :no-providers="noProviders"
     />
 
     <swap-token-fast-list
@@ -33,44 +34,41 @@ import SwapTokenSelect from "../swap-token-select/index.vue";
 import SwapTokenFastList from "../swap-token-fast-list/index.vue";
 import SwapTokenAmountInput from "./components/swap-token-amount-input.vue";
 import { PropType } from "vue";
-import { BaseToken } from "@/types/base-token";
-import BigNumber from "bignumber.js";
+import { SwapToken, TokenTypeTo } from "@enkryptcom/swap";
 
 const props = defineProps({
   token: {
-    type: Object as PropType<BaseToken | null>,
+    type: Object as PropType<TokenTypeTo | null>,
     default: () => {
       return null;
     },
   },
   amount: {
     type: String,
-    default: () => "0.0",
+    default: () => "",
   },
   isFindingRate: {
     type: Boolean,
     default: () => false,
   },
   fastList: {
-    type: Object as PropType<BaseToken[]>,
+    type: Object as PropType<TokenTypeTo[]>,
     default: () => null,
   },
   totalTokens: {
     type: Number,
     default: () => null,
   },
+  noProviders: Boolean,
 });
 
 const isFocus = ref(false);
 
 const tokenPrice = computed(() => {
-  if (props.token?.price && props.amount !== "Searching") {
-    return new BigNumber(props.amount)
-      .times(new BigNumber(props.token.price))
-      .toFixed();
+  if (props.token?.price && props.amount) {
+    return new SwapToken(props.token).getReadableToFiat(props.amount);
   }
-
-  return null;
+  return 0;
 });
 </script>
 
@@ -78,7 +76,7 @@ const tokenPrice = computed(() => {
 @import "~@action/styles/theme.less";
 .swap-token-input {
   width: 100%;
-  min-height: 148px;
+  min-height: 136px;
   border: 1px solid rgba(95, 99, 104, 0.2);
   box-sizing: border-box;
   border-radius: 10px;
