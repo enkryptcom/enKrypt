@@ -216,12 +216,13 @@ const hasEnoughBalance = computed(() => {
 });
 
 const setTransactionFees = (byteSize: number) => {
-  gasCostValues.value = getGasCostValues(
+  getGasCostValues(
+    network.value as BitcoinNetwork,
     byteSize,
     nativePrice.value,
     network.value.decimals,
     network.value.currencyName
-  );
+  ).then((val) => (gasCostValues.value = val));
 };
 
 const setBaseCosts = () => {

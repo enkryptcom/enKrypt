@@ -3,6 +3,7 @@ import { BaseNetwork } from "@/types/base-network";
 import { calculateSize } from "@/providers/bitcoin/ui/libs/tx-size";
 import { BTCTxInfo } from "@/providers/bitcoin/ui/types";
 import { getGasCostValues } from "@/providers/bitcoin/libs/utils";
+import { BitcoinNetwork } from "@/providers/bitcoin/types/bitcoin-network";
 
 export const getBitcoinGasVals = async (
   txs: any[],
@@ -18,11 +19,11 @@ export const getBitcoinGasVals = async (
       p2wpkh_output_count: 2,
     }
   );
-  const gasCostValues = getGasCostValues(
+  return getGasCostValues(
+    network as BitcoinNetwork,
     Math.ceil(txSize.txVBytes),
     price.toString(),
     network.decimals,
     network.currencyName
   );
-  return gasCostValues;
 };

@@ -220,12 +220,13 @@ const nativeBalanceAfterTransaction = computed(() => {
 
 const setTransactionFees = (byteSize: number) => {
   const nativeVal = selectedAsset.value.price || "0";
-  gasCostValues.value = getGasCostValues(
+  getGasCostValues(
+    props.network as BitcoinNetwork,
     byteSize,
     nativeVal,
     props.network.decimals,
     props.network.currencyName
-  );
+  ).then((val) => (gasCostValues.value = val));
 };
 
 const setBaseCosts = () => {

@@ -3,6 +3,7 @@ import { address as BTCAddress } from "bitcoinjs-lib";
 import { GasPriceTypes } from "@/providers/common/types";
 import { fromBase } from "@enkryptcom/utils";
 import BigNumber from "bignumber.js";
+import { BitcoinNetwork } from "../types/bitcoin-network";
 
 const isAddress = (address: string, network: BitcoinNetworkInfo): boolean => {
   try {
@@ -12,17 +13,19 @@ const isAddress = (address: string, network: BitcoinNetworkInfo): boolean => {
     return false;
   }
 };
-const getGasCostValues = (
+const getGasCostValues = async (
+  network: BitcoinNetwork,
   byteSize: number,
   nativeVal = "0",
   decimals: number,
   currencyName: string
 ) => {
+  const fees = await network.feeHandler();
   const gasVals = {
-    [GasPriceTypes.FASTEST]: (byteSize * 25).toString(),
-    [GasPriceTypes.FAST]: (byteSize * 20).toString(),
-    [GasPriceTypes.REGULAR]: (byteSize * 10).toString(),
-    [GasPriceTypes.ECONOMY]: (byteSize * 5).toString(),
+    [GasPriceTypes.FASTEST]: (byteSize * fees.FASTEST).toString(),
+    [GasPriceTypes.FAST]: (byteSize * fees.FAST).toString(),
+    [GasPriceTypes.REGULAR]: (byteSize * fees.REGULAR).toString(),
+    [GasPriceTypes.ECONOMY]: (byteSize * fees.ECONOMY).toString(),
   };
   const getConvertedVal = (type: GasPriceTypes) =>
     fromBase(gasVals[type], decimals);

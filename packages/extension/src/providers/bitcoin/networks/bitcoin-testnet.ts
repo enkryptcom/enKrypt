@@ -5,6 +5,7 @@ import {
 } from "../types/bitcoin-network";
 import { haskoinHandler } from "../libs/activity-handlers";
 import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
+import { GasPriceTypes } from "@/providers/common/types";
 
 const bitcoinOptions: BitcoinNetworkOptions = {
   name: NetworkNames.BitcoinTest,
@@ -23,6 +24,13 @@ const bitcoinOptions: BitcoinNetworkOptions = {
   activityHandler: wrapActivityHandler(haskoinHandler),
   basePath: "m/49'/1'/0'/0",
   coingeckoID: "bitcoin",
+  feeHandler: () =>
+    Promise.resolve({
+      [GasPriceTypes.FASTEST]: 25,
+      [GasPriceTypes.FAST]: 20,
+      [GasPriceTypes.REGULAR]: 10,
+      [GasPriceTypes.ECONOMY]: 5,
+    }),
   networkInfo: {
     messagePrefix: "\x18Bitcoin Signed Message:\n",
     bech32: "tb",
