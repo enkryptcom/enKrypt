@@ -36,7 +36,7 @@ Enkrypt is a web3 wallet built from the ground up to support the multi-chain fut
 - BNB Smart Chain
 - Moonbeam
 - Moonriver
-- Karura EVM+````````
+- Karura EVM
 - Ethereum Classic
 - Polkadot
 - Kusama
