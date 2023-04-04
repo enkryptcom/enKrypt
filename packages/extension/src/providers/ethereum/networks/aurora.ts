@@ -7,7 +7,7 @@ import { EtherscanActivity } from "../libs/activity-handlers";
 const auroraOptions: EvmNetworkOptions = {
   name: NetworkNames.Aurora,
   name_long: "Aurora",
-  homePage: "https://www.klaytn.foundation/",
+  homePage: "https://aurora.dev/",
   blockExplorerTX: "https://explorer.aurora.dev/tx/[[txHash]]",
   blockExplorerAddr: "https://explorer.aurora.dev/address/[[address]]",
   chainID: "0x4e454152",
