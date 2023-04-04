@@ -44,6 +44,7 @@ const NetworkEndpoints: Record<string, string> = {
   [NetworkNames.Avalanche]: "https://api.snowtrace.io/",
   [NetworkNames.Fantom]: "https://api.ftmscan.com/",
   [NetworkNames.Aurora]: "https://explorer.mainnet.aurora.dev/",
+  [NetworkNames.PuppyNet]: "https://puppyscan.shib.io/",
 };
 
 export { NetworkEndpoints };

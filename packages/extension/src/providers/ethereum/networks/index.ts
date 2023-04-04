@@ -27,6 +27,7 @@ import avaxNode from "./avax";
 import ftmNode from "./ftm";
 import klayNode from "./klay";
 import auroraNode from "./aurora";
+import puppyNode from "./puppy";
 
 export default {
   goerli: goerliNode,
@@ -67,4 +68,5 @@ export default {
   fantom: ftmNode,
   klaytn: klayNode,
   aurora: auroraNode,
+  puppy: puppyNode,
 };
