@@ -3,7 +3,7 @@ import { SkaleParams, createSkaleEvmNetwork } from "./skale-base";
 
 const skaleOptions: SkaleParams = {
   name: NetworkNames.SkaleNebula,
-  name_long: "SKALE | Nebula Gaming Hub",
+  name_long: "Nebula Gaming Hub | SKALE",
   chainName: "green-giddy-denebola",
   chainID: "0x585eb4b1",
   icon: "skaleNebula.png",

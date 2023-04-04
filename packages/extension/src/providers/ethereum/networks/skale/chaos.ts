@@ -7,7 +7,7 @@ import {
 
 const skaleOptions: SkaleParams = {
   name: NetworkNames.SkaleChaos,
-  name_long: "SKALE Testnet | CHAOS chain",
+  name_long: "CHAOS chain | SKALE",
   chainName: "staging-fast-active-bellatrix",
   chainID: "0x50877ed6",
   isTestNetwork: true,

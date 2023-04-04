@@ -7,7 +7,7 @@ import {
 
 const skaleOptions: SkaleParams = {
   name: NetworkNames.SkaleCryptoBlades,
-  name_long: "SKALE | CryptoBlades",
+  name_long: "CryptoBlades | SKALE",
   chainName: "affectionate-immediate-pollux",
   chainID: "0x3d28774d",
   icon: "skaleCryptoBlades.png",

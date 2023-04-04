@@ -7,7 +7,7 @@ import {
 
 const skaleOptions: SkaleParams = {
   name: NetworkNames.SkaleEuropa,
-  name_long: "SKALE | Europa Liquidity Hub",
+  name_long: "Europa Liquidity Hub | SKALE",
   chainName: "elated-tan-skat",
   chainID: "0x79f99296",
   icon: "skaleEuropa.svg",
