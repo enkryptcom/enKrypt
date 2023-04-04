@@ -8,17 +8,17 @@ import createIcon from "../libs/blockies";
 import { Activity } from "@/types/activity";
 import { BitcoinNetworkInfo } from ".";
 import { payments } from "bitcoinjs-lib";
-import { hexToBuffer } from "@enkryptcom/utils";
+import { hexToBuffer, fromBase } from "@enkryptcom/utils";
 import {
   formatFiatValue,
   formatFloatingPointValue,
 } from "@/libs/utils/number-formatter";
-import { fromBase } from "@/libs/utils/units";
 import MarketData from "@/libs/market-data";
 import BigNumber from "bignumber.js";
 import { CoinGeckoTokenMarket } from "@/libs/market-data/types";
 import Sparkline from "@/libs/sparkline";
 import { BTCToken } from "./btc-token";
+import { GasPriceTypes } from "@/providers/common/types";
 
 export interface BitcoinNetworkOptions {
   name: NetworkNames;
@@ -36,6 +36,7 @@ export interface BitcoinNetworkOptions {
   coingeckoID?: string;
   basePath: string;
   networkInfo: BitcoinNetworkInfo;
+  feeHandler: () => Promise<Record<GasPriceTypes, number>>;
   activityHandler: (
     network: BaseNetwork,
     address: string
@@ -49,6 +50,7 @@ export class BitcoinNetwork extends BaseNetwork {
     network: BaseNetwork,
     address: string
   ) => Promise<Activity[]>;
+  feeHandler: () => Promise<Record<GasPriceTypes, number>>;
   constructor(options: BitcoinNetworkOptions) {
     const api = async () => {
       const api = new BitcoinAPI(options.node, options.networkInfo);
@@ -74,6 +76,7 @@ export class BitcoinNetwork extends BaseNetwork {
     super(baseOptions);
     this.activityHandler = options.activityHandler;
     this.networkInfo = options.networkInfo;
+    this.feeHandler = options.feeHandler;
   }
 
   public async getAllTokens(pubkey: string): Promise<BaseToken[]> {

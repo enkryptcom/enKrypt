@@ -1,19 +1,19 @@
 <template>
   <a class="swap-token-fast__token" @click="$emit('update:selectAsset', token)">
-    <img :src="token.icon" />
+    <img :src="token.logoURI" />
     <h4>{{ token.symbol }}</h4>
   </a>
 </template>
 
 <script setup lang="ts">
-import { BaseToken } from "@/types/base-token";
+import { TokenTypeTo } from "@enkryptcom/swap";
 import { PropType } from "vue";
 defineEmits<{
-  (e: "update:selectAsset", asset: BaseToken): void;
+  (e: "update:selectAsset", asset: TokenTypeTo): void;
 }>();
 defineProps({
   token: {
-    type: Object as PropType<BaseToken>,
+    type: Object as PropType<TokenTypeTo>,
     default: () => ({}),
   },
 });

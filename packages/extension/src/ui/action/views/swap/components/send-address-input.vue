@@ -1,36 +1,19 @@
 <template>
   <div class="send-address-input" :class="{ focus: isFocus }">
     <div class="send-address-input__avatar">
-      <img v-if="isValidAddress" :src="network.identicon(value)" alt="" />
-      <Vue3Lottie
-        v-else-if="isLoading"
-        :animation-data="LottieStatus"
-        :loop="true"
-        class="send-address-input__avatar__animation"
-      />
-      <Vue3Lottie
-        v-else-if="address !== '' && !isValidAddress && !isLoading"
-        :animation-data="LottieError"
-        :loop="false"
-      />
+      <img v-if="isValidAddress" :src="identicon(value)" alt="" />
     </div>
     <div class="send-address-input__address">
       <p>
         To
-        {{
-          toNetwork
-            ? `${toNetwork.charAt(0).toUpperCase()}${toNetwork.slice(
-                1
-              )} Network`
-            : ""
-        }}:
+        {{ networkName ? `${networkName} Network` : "" }}:
       </p>
       <input
         ref="addressInput"
         v-model="address"
         type="text"
-        :placeholder="`${network.name_long} address`"
-        :style="{ color: !isValidAddress && !isLoading ? 'red' : 'black' }"
+        :placeholder="`${networkName} address`"
+        :style="{ color: !isValidAddress ? 'red' : 'black' }"
         @focus="changeFocus"
         @blur="changeFocus"
       />
@@ -39,13 +22,9 @@
 </template>
 
 <script setup lang="ts">
-import { BaseNetwork } from "@/types/base-network";
 import { replaceWithEllipsis } from "@/ui/action/utils/filters";
 import { computed } from "@vue/reactivity";
-import { Vue3Lottie } from "vue3-lottie";
-import LottieStatus from "@action/assets/animation/status.json";
-import LottieError from "@action/assets/animation/error.json";
-import { PropType, ref } from "vue";
+import { ref } from "vue";
 
 const isFocus = ref<boolean>(false);
 const addressInput = ref<HTMLInputElement>();
@@ -67,17 +46,17 @@ const props = defineProps({
     type: Boolean,
     default: () => false,
   },
-  isLoading: {
-    type: Boolean,
-    default: () => false,
-  },
-  network: {
-    type: Object as PropType<BaseNetwork>,
-    default: () => ({}),
-  },
-  toNetwork: {
+  networkName: {
     type: String,
-    default: () => null,
+    default: "",
+  },
+  identicon: {
+    type: Function,
+    default: () => "",
+  },
+  displayAddress: {
+    type: Function,
+    default: (address: string) => address,
   },
 });
 const emit = defineEmits<{
@@ -86,14 +65,12 @@ const emit = defineEmits<{
 }>();
 const address = computed({
   get: () => {
-    let displayAddress: string | undefined;
-
+    let displayAddress: string;
     try {
-      displayAddress = props.network.displayAddress(props.value);
+      displayAddress = props.displayAddress(props.value);
     } catch {
       displayAddress = props.value;
     }
-
     return isFocus.value
       ? displayAddress
       : replaceWithEllipsis(displayAddress, 6, 6);

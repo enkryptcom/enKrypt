@@ -45,7 +45,7 @@ import { BaseNetwork } from "@/types/base-network";
 import { BaseToken } from "@/types/base-token";
 import { polkadotEncodeAddress } from "@enkryptcom/utils";
 import { onBeforeMount, ref } from "vue";
-import { fromBase } from "@/libs/utils/units";
+import { fromBase } from "@enkryptcom/utils";
 import Polkadot from "@/providers/polkadot/networks/polkadot";
 
 // For some reason passing TransferProps as the type to defineProps throws an error

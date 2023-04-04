@@ -7,7 +7,7 @@ import {
 
 const skaleOptions: SkaleParams = {
   name: NetworkNames.SkaleCalypso,
-  name_long: "SKALE | Calypso NFT Hub",
+  name_long: "Calypso NFT Hub | SKALE",
   chainName: "honorable-steel-rasalhague",
   chainID: "0x5d456c62",
   icon: "skaleCalypsoNFTHub.png",

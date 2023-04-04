@@ -17,8 +17,17 @@ import cantoNode from "./canto";
 import rootstockNode from "./rsk";
 import edgeEvmNode from "./edg";
 import zkGoerliNode from "./zkgoerli";
+import tomoNode from "./tomo";
 import zkSyncNode from "./zksync";
+import arbNode from "./arb";
 import * as skale from "./skale";
+import ontEVMNode from "./ontevm";
+import gnoNode from "./gno";
+import avaxNode from "./avax";
+import ftmNode from "./ftm";
+import klayNode from "./klay";
+import auroraNode from "./aurora";
+import puppyNode from "./puppy";
 
 export default {
   goerli: goerliNode,
@@ -40,6 +49,7 @@ export default {
   rootstock: rootstockNode,
   edgeEvm: edgeEvmNode,
   zkGoerli: zkGoerliNode,
+  tomo: tomoNode,
   zkSync: zkSyncNode,
   skaleEuropa: skale.europaNode,
   skaleBlockBrawlers: skale.blockBrawlersNode,
@@ -51,4 +61,12 @@ export default {
   skaleRazor: skale.razorNode,
   skaleTitan: skale.titanNode,
   skaleChaos: skale.chaosNode,
+  ontEVM: ontEVMNode,
+  arbitrum: arbNode,
+  gnosis: gnoNode,
+  avax: avaxNode,
+  fantom: ftmNode,
+  klaytn: klayNode,
+  aurora: auroraNode,
+  puppy: puppyNode,
 };

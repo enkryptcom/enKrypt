@@ -113,7 +113,7 @@ import { GasFeeInfo } from "@/providers/ethereum/ui/types";
 import { SubstrateNetwork } from "../../types/substrate-network";
 import { toBN } from "web3-utils";
 import { formatFloatingPointValue } from "@/libs/utils/number-formatter";
-import { fromBase, toBase, isValidDecimals } from "@/libs/utils/units";
+import { fromBase, toBase, isValidDecimals } from "@enkryptcom/utils";
 import BigNumber from "bignumber.js";
 import { VerifyTransactionParams } from "../types";
 import { routes as RouterNames } from "@/ui/action/router";
