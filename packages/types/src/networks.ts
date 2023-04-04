@@ -49,6 +49,7 @@ export enum NetworkNames {
   Fantom = "FTM",
   Klaytn = "KLAY",
   Aurora = "AURORA",
+  PuppyNet = "puppyNet",
 }
 
 export enum CoingeckoPlatform {
