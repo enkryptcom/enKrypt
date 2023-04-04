@@ -7,9 +7,12 @@ import {
   FiatMarket,
 } from "./types";
 import BigNumber from "bignumber.js";
-import cacheFetch from "../cache-fetch";
 import { CoingeckoPlatform } from "@enkryptcom/types";
-const COINGECKO_ENDPOINT = "https://partners.mewapi.io/coingecko/api/v3/";
+import {
+  getAllPlatformData,
+  getMarketInfoByIDs,
+  getUSDPriceById,
+} from "./ethvm";
 const FIAT_EXCHANGE_RATE_ENDPOINT =
   "https://mainnet.mewwallet.dev/v2/prices/exchange-rates";
 const REFRESH_DELAY = 1000 * 60 * 5;
@@ -36,25 +39,8 @@ class MarketData {
     }
     return "0";
   }
-  async getTokenPrice(
-    coingeckoID: string,
-    currency = "usd"
-  ): Promise<string | null> {
-    const urlParams = new URLSearchParams();
-    urlParams.append("ids", coingeckoID);
-    urlParams.append("vs_currencies", currency);
-
-    return cacheFetch(
-      {
-        url: `${COINGECKO_ENDPOINT}simple/price?include_market_cap=false&include_24hr_vol=false&include_24hr_change=false&include_last_updated_at=false&${urlParams.toString()}`,
-      },
-      REFRESH_DELAY
-    ).then((json) => {
-      if (json[coingeckoID] && json[coingeckoID][currency] !== undefined) {
-        return json[coingeckoID][currency].toString();
-      }
-      return null;
-    });
+  async getTokenPrice(coingeckoID: string): Promise<string | null> {
+    return getUSDPriceById(coingeckoID);
   }
   async getMarketInfoByContracts(
     contracts: string[],
@@ -77,6 +63,7 @@ class MarketData {
         return false;
       })
       .map((token) => token.id);
+    if (!tokenIds.length) return requested;
     const marketData = await this.getMarketData(tokenIds);
     Object.keys(contractTokenMap).forEach((contract) => {
       if (contractTokenMap[contract]) {
@@ -92,21 +79,9 @@ class MarketData {
   async getMarketData(
     coingeckoIDs: string[]
   ): Promise<Array<CoinGeckoTokenMarket | null>> {
-    return await cacheFetch(
-      {
-        url: `${COINGECKO_ENDPOINT}coins/markets?vs_currency=usd&order=market_cap_desc&price_change_percentage=7d&per_page=250&page=1&sparkline=true&ids=${coingeckoIDs.join(
-          ","
-        )}`,
-      },
-      REFRESH_DELAY
-    ).then((json) => {
-      const markets = json as CoinGeckoTokenMarket[];
-      const retMarkets: Array<CoinGeckoTokenMarket | null> = [];
-      coingeckoIDs.forEach((id) => {
-        retMarkets.push(markets.find((m) => m.id === id) || null);
-      });
-      return retMarkets;
-    });
+    return getMarketInfoByIDs(coingeckoIDs).catch(() =>
+      coingeckoIDs.map(() => null)
+    );
   }
   async getFiatValue(symbol: string): Promise<FiatMarket | null> {
     await this.setMarketInfo();
@@ -137,18 +112,15 @@ class MarketData {
     const lastTimestamp = await this.#getLastTimestamp();
     if (lastTimestamp && lastTimestamp >= new Date().getTime() - REFRESH_DELAY)
       return;
-    const allCoins = await fetch(
-      `${COINGECKO_ENDPOINT}coins/list?include_platform=true`
-    )
-      .then((res) => res.json())
-      .then((json) => {
-        const allTokens = json as CoinGeckoToken[];
-        const tokens: Record<string, CoinGeckoToken> = {};
-        allTokens.forEach((token) => {
-          tokens[token.id] = token;
-        });
-        return tokens;
+
+    const allCoins = await getAllPlatformData().then((json) => {
+      const allTokens = json as CoinGeckoToken[];
+      const tokens: Record<string, CoinGeckoToken> = {};
+      allTokens.forEach((token) => {
+        tokens[token.id] = token;
       });
+      return tokens;
+    });
     await this.#setAllTokens(allCoins);
     const fiatMarketData = await fetch(`${FIAT_EXCHANGE_RATE_ENDPOINT}`)
       .then((res) => res.json())

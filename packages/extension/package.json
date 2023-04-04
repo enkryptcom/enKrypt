@@ -24,6 +24,7 @@
     "@enkryptcom/keyring": "workspace:^",
     "@enkryptcom/request": "workspace:^",
     "@enkryptcom/storage": "workspace:^",
+    "@enkryptcom/swap": "workspace:^",
     "@enkryptcom/types": "workspace:^",
     "@enkryptcom/utils": "workspace:^",
     "@ethereumjs/common": "^3.1.1",

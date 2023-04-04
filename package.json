@@ -13,6 +13,7 @@
     "packages/storage",
     "packages/request",
     "packages/hw-wallets",
+    "packages/swap",
     "packages/name-resolution"
   ],
   "scripts": {

@@ -14,7 +14,7 @@
 </template>
 
 <script setup lang="ts">
-import { fromBase } from "@/libs/utils/units";
+import { fromBase } from "@enkryptcom/utils";
 import { ToTokenData } from "@/ui/action/types/token";
 import { PropType } from "vue";
 

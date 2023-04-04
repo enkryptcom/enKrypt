@@ -30,7 +30,12 @@ class ActivityState {
     const cleanArr: Activity[] = [];
     const currentTime = new Date().getTime();
     const minedNonces = cleanArr
-      .filter((item) => item.status === ActivityStatus.success && item.nonce)
+      .filter(
+        (item) =>
+          (item.status === ActivityStatus.success ||
+            item.status === ActivityStatus.failed) &&
+          item.nonce
+      )
       .map((item) => item.nonce);
     for (let i = 0; i < combined.length; i++) {
       if (!existingHashes.includes(combined[i].transactionHash)) {

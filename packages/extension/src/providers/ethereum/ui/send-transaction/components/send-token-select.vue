@@ -21,7 +21,7 @@
 import { computed, PropType } from "vue";
 import SwitchArrow from "@action/icons/header/switch_arrow.vue";
 import { Erc20Token } from "@/providers/ethereum/types/erc20-token";
-import { fromBase } from "@/libs/utils/units";
+import { fromBase } from "@enkryptcom/utils";
 const emit = defineEmits<{
   (e: "update:toggleTokenSelect"): void;
 }>();

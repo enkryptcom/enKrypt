@@ -1,17 +1,19 @@
 <template>
   <div
     :class="`swap-token-amount-input ${
-      value === '0' || isFindingRate ? 'placeholder' : ''
+      value === '' || isFindingRate ? 'placeholder' : ''
     }`"
   >
     {{
-      value == "0" && !isFindingRate
-        ? "0.0"
-        : !isFindingRate
-        ? `≈ ${$filters.formatFloatingPointValue(value).value}`
-        : isFindingRate
-        ? "Getting rate"
-        : value
+      !isFindingRate
+        ? `${
+            value
+              ? "≈ " + $filters.formatFloatingPointValue(value).value
+              : noProviders
+              ? "No Providers"
+              : "Waiting"
+          }`
+        : "Getting rate"
     }}
   </div>
 </template>
@@ -52,6 +54,7 @@ defineProps({
     type: Boolean,
     default: () => false,
   },
+  noProviders: Boolean,
 });
 </script>
 

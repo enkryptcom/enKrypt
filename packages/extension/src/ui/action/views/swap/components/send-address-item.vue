@@ -4,19 +4,13 @@
     @click="emit('selected:account', account.address)"
   >
     <div class="send-address-item__info">
-      <img :src="network.identicon ? network.identicon(account.address) : ''" />
+      <img :src="identicon(account.address)" />
 
       <div class="send-address-item__name">
         <h4>{{ account.name }}</h4>
         <p>
           {{
-            $filters.replaceWithEllipsis(
-              network.displayAddress
-                ? network.displayAddress(account.address)
-                : "",
-              4,
-              4
-            )
+            $filters.replaceWithEllipsis(displayAddress(account.address), 4, 4)
           }}
         </p>
       </div>
@@ -26,16 +20,19 @@
 
 <script setup lang="ts">
 import { PropType } from "vue";
-import { BaseNetwork } from "@/types/base-network";
 import { EnkryptAccount } from "@enkryptcom/types";
 
 const emit = defineEmits<{
   (e: "selected:account", address: string): void;
 }>();
 defineProps({
-  network: {
-    type: Object as PropType<BaseNetwork>,
-    default: () => ({}),
+  identicon: {
+    type: Function,
+    default: () => "",
+  },
+  displayAddress: {
+    type: Function,
+    default: (address: string) => address,
   },
   account: {
     type: Object as PropType<EnkryptAccount>,

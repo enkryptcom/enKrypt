@@ -12,10 +12,10 @@
 
 <script setup lang="ts">
 import SwapTokenFastItem from "./components/swap-token-fast-item.vue";
-import { BaseToken } from "@/types/base-token";
+import { TokenTypeTo } from "@enkryptcom/swap";
 
 interface IProps {
-  fastList?: BaseToken[];
+  fastList?: TokenTypeTo[];
   totalTokens?: number;
 }
 
@@ -27,7 +27,7 @@ defineProps<IProps>();
 
 .swap-token-fast-list {
   width: 100%;
-  padding: 0px 16px 4px 16px;
+  padding: 3px 16px 4px 16px;
   box-sizing: border-box;
 
   &__all {

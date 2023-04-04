@@ -6,7 +6,7 @@ import {
   TokenBalance,
 } from "./types/tokenbalance-mew";
 import MarketData from "@/libs/market-data";
-import { fromBase } from "@/libs/utils/units";
+import { fromBase } from "@enkryptcom/utils";
 import { toBN } from "web3-utils";
 import BigNumber from "bignumber.js";
 import {

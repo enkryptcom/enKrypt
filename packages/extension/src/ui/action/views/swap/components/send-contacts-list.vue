@@ -18,7 +18,6 @@
           v-for="(account, index) in accounts"
           :key="index"
           :account="account"
-          :network="network"
           v-bind="$attrs"
         />
       </custom-scrollbar>
@@ -32,7 +31,6 @@ import SendAddressItem from "./send-address-item.vue";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import scrollSettings from "@/libs/utils/scroll-settings";
-import { BaseNetwork } from "@/types/base-network";
 import { EnkryptAccount } from "@enkryptcom/types";
 
 const emit = defineEmits<{
@@ -44,10 +42,6 @@ defineProps({
   showAccounts: Boolean,
   accounts: {
     type: Object as PropType<EnkryptAccount[]>,
-    default: () => ({}),
-  },
-  network: {
-    type: Object as PropType<BaseNetwork>,
     default: () => ({}),
   },
 });

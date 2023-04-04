@@ -2434,6 +2434,7 @@ __metadata:
     "@enkryptcom/keyring": "workspace:^"
     "@enkryptcom/request": "workspace:^"
     "@enkryptcom/storage": "workspace:^"
+    "@enkryptcom/swap": "workspace:^"
     "@enkryptcom/types": "workspace:^"
     "@enkryptcom/utils": "workspace:^"
     "@ethereumjs/common": ^3.1.1
@@ -2658,7 +2659,7 @@ __metadata:
     isomorphic-ws: ^5.0.0
     json-rpc-2.0: ^1.5.1
     mocha: ^10.2.0
-    node-fetch: 2.6.9
+    node-fetch: ^2.6.9
     prettier: ^2.8.4
     reconnecting-websocket: ^4.4.0
     ts-mocha: ^10.0.0
@@ -2804,6 +2805,46 @@ __metadata:
     tsup: ^6.6.3
     typescript: ^4.9.5
     typescript-eslint: 0.0.1-alpha.0
+  languageName: unknown
+  linkType: soft
+
+"@enkryptcom/swap@workspace:^, @enkryptcom/swap@workspace:packages/swap":
+  version: 0.0.0-use.local
+  resolution: "@enkryptcom/swap@workspace:packages/swap"
+  dependencies:
+    "@enkryptcom/types": "workspace:^"
+    "@enkryptcom/utils": "workspace:^"
+    "@types/chai": ^4.3.4
+    "@types/mocha": ^9.1.1
+    "@types/node": ^18.15.3
+    "@typescript-eslint/eslint-plugin": ^5.55.0
+    "@typescript-eslint/parser": ^5.55.0
+    bignumber.js: ^9.1.1
+    chai: ^4.3.7
+    eslint: ^8.36.0
+    eslint-config-airbnb-base: ^15.0.0
+    eslint-config-prettier: ^8.7.0
+    eslint-import-resolver-alias: ^1.1.2
+    eslint-plugin-import: ^2.27.5
+    eslint-plugin-module-resolver: ^1.5.0
+    eventemitter3: ^5.0.0
+    isomorphic-ws: ^5.0.0
+    json-rpc-2.0: ^1.5.1
+    lodash: ^4.17.21
+    mocha: ^10.2.0
+    node-fetch: ^2.6.9
+    prettier: ^2.8.4
+    reconnecting-websocket: ^4.4.0
+    ts-mocha: ^10.0.0
+    ts-node: ^10.9.1
+    tsconfig-paths: ^4.1.2
+    tsup: ^6.6.3
+    typescript: ^4.9.5
+    typescript-eslint: 0.0.1-alpha.0
+    uuid: ^9.0.0
+    web3-eth: ^1.8.2
+    web3-utils: ^1.8.2
+    ws: ^8.13.0
   languageName: unknown
   linkType: soft
 
@@ -18766,7 +18807,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"node-fetch@npm:2.6.9":
+"node-fetch@npm:^2.6.9":
   version: 2.6.9
   resolution: "node-fetch@npm:2.6.9"
   dependencies:
