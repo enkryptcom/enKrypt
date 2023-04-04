@@ -64,9 +64,11 @@ const getGasBasedOnType = (
 const getMinPriorityFee = (): BN => {
   return toBN(toWei("1.25", "gwei"));
 };
-const getFeeAvg = (arr: BN[]): BN => {
+const getPriorityFeeAvg = (arr: BN[]): BN => {
   const sum = arr.reduce((a, v) => a.add(v));
-  return sum.divn(arr.length);
+  const fee = sum.divn(arr.length);
+  if (fee.eqn(0)) return getMinPriorityFee();
+  return fee;
 };
 
 const getPriorityFeeBasedOnType = (
@@ -76,13 +78,21 @@ const getPriorityFeeBasedOnType = (
   if (gasFeeHistory.blocks.length === 0) return getMinPriorityFee();
   switch (gasPriceType) {
     case GasPriceTypes.ECONOMY:
-      return getFeeAvg(gasFeeHistory.blocks.map((b) => b.priorityFeePerGas[0]));
+      return getPriorityFeeAvg(
+        gasFeeHistory.blocks.map((b) => b.priorityFeePerGas[0])
+      );
     case GasPriceTypes.REGULAR:
-      return getFeeAvg(gasFeeHistory.blocks.map((b) => b.priorityFeePerGas[1]));
+      return getPriorityFeeAvg(
+        gasFeeHistory.blocks.map((b) => b.priorityFeePerGas[1])
+      );
     case GasPriceTypes.FAST:
-      return getFeeAvg(gasFeeHistory.blocks.map((b) => b.priorityFeePerGas[2]));
+      return getPriorityFeeAvg(
+        gasFeeHistory.blocks.map((b) => b.priorityFeePerGas[2])
+      );
     case GasPriceTypes.FASTEST:
-      return getFeeAvg(gasFeeHistory.blocks.map((b) => b.priorityFeePerGas[3]));
+      return getPriorityFeeAvg(
+        gasFeeHistory.blocks.map((b) => b.priorityFeePerGas[3])
+      );
     default:
       return getMinPriorityFee();
   }

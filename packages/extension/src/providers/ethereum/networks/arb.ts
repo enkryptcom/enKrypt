@@ -15,7 +15,7 @@ const arbOptions: EvmNetworkOptions = {
   isTestNetwork: false,
   currencyName: "ETH",
   currencyNameLong: "Ethereum",
-  node: "https://arb1.arbitrum.io/rpc",
+  node: "wss://nodes.mewapi.io/ws/arb",
   icon: require("./icons/arbitrum.svg"),
   gradient: "linear-gradient(180deg, #C549FF 0%, #684CFF 100%)",
   coingeckoID: "ethereum",
