@@ -7,7 +7,6 @@
   "permissions": [
     "storage",
     "unlimitedStorage",
-    "notifications",
     "tabs",
     "clipboardRead",
     "clipboardWrite"
