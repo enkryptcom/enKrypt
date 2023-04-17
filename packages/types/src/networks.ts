@@ -51,6 +51,8 @@ export enum NetworkNames {
   Aurora = "AURORA",
   PuppyNet = "puppyNet",
   Opal = "OPL",
+  Quartz = "QTZ",
+  Unique = "UNQ",
 }
 
 export enum CoingeckoPlatform {
@@ -83,4 +85,6 @@ export enum CoingeckoPlatform {
   Fantom = "avalanche",
   Klaytn = "klay-token",
   Aurora = "aurora",
+  Quartz = "quartz",
+  Unique = "unique-network",
 }
