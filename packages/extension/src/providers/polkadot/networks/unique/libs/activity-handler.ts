@@ -3,8 +3,7 @@ import cacheFetch from "@/libs/cache-fetch";
 import { BaseNetwork } from "@/types/base-network";
 import { Activity, ActivityStatus, ActivityType } from "@/types/activity";
 
-// const TTL = 30000;
-const TTL = 5000;
+const TTL = 30000;
 
 type ExtrinsicData = {
   amount: number;
@@ -124,11 +123,8 @@ export const getActivityHandler = (
   graphqlEndpoint: string
 ): ActivityHandlerType => {
   return async (network: BaseNetwork, address: string) => {
-    const activities = await getLastTransfersByAddress(
-      graphqlEndpoint,
-      address
-    );
+    const transfers = await getLastTransfersByAddress(graphqlEndpoint, address);
 
-    return activities.map((activity) => transform(address, network, activity));
+    return transfers.map((transfer) => transform(address, network, transfer));
   };
 };

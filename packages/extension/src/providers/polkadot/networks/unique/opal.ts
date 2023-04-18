@@ -3,10 +3,9 @@ import {
   SubstrateNetwork,
   SubstrateNetworkOptions,
 } from "../../types/substrate-network";
-import { getActivityHandler } from "./activity-handler";
+import { getActivityHandler } from "./libs/activity-handler";
 
 const GRAPHQL_ENDPOINT = "https://api-opal.uniquescan.io/v1/graphql";
-// const GRAPHQL_ENDPOINT = "https://scan-api.opal.uniquenetwork.dev/v1/graphql";
 
 const opalOptions: SubstrateNetworkOptions = {
   name: NetworkNames.Opal,
