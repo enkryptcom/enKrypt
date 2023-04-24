@@ -178,7 +178,11 @@ const toggleDepositWindow = () => {
   showDepositWindow.value = !showDepositWindow.value;
 };
 const openBuyPage = () => {
-  Browser.tabs.create({ url: "https://ccswap.myetherwallet.com/" });
+  Browser.tabs.create({
+    url: `https://ccswap.myetherwallet.com/?to=${currentNetwork.value.displayAddress(
+      accountHeaderData.value.selectedAccount!.address
+    )}`,
+  });
 };
 const isKeyRingLocked = async (): Promise<boolean> => {
   return await sendToBackgroundFromAction({
