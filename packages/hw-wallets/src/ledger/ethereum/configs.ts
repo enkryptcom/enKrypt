@@ -10,6 +10,10 @@ const supportedPaths = {
     bip44Paths.ethereumLedger,
     bip44Paths.ethereumLedgerLive,
   ],
+  [NetworkNames.Binance]: [
+    bip44Paths.ethereumLedger,
+    bip44Paths.ethereumLedgerLive,
+  ],
   [NetworkNames.Rootstock]: [bip44Paths.rootstockLedger],
   [NetworkNames.EthereumClassic]: [
     bip44Paths.ethereumClassicLedger,
