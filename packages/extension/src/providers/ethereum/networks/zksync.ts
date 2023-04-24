@@ -1,4 +1,4 @@
-import { NetworkNames } from "@enkryptcom/types";
+import { NetworkNames, CoingeckoPlatform } from "@enkryptcom/types";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
 import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
 import { EtherscanActivity } from "../libs/activity-handlers";
@@ -18,6 +18,7 @@ const zkSyncOptions: EvmNetworkOptions = {
   icon: require("./icons/zksync.svg"),
   gradient: "linear-gradient(180deg, #C549FF 0%, #684CFF 100%)",
   coingeckoID: "ethereum",
+  coingeckoPlatform: CoingeckoPlatform.Zksync,
   assetsInfoHandler,
   activityHandler: wrapActivityHandler(EtherscanActivity),
 };
