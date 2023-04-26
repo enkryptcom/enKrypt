@@ -5,7 +5,7 @@ import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
 
 import { AssetsType } from "@/types/provider";
 import MarketData from "@/libs/market-data";
-import { fromBase } from "@/libs/utils/units";
+import { fromBase } from "@enkryptcom/utils";
 import BigNumber from "bignumber.js";
 import {
   formatFiatValue,

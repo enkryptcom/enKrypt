@@ -1,7 +1,7 @@
 <template>
   <a v-if="!!token" class="swap-token-select" @click="open">
     <div class="swap-token-select__image">
-      <img v-if="token.icon !== ''" :src="token.icon" alt="" />
+      <img :src="token.logoURI" alt="" />
     </div>
     <div class="swap-token-select__info">
       <h5>{{ token.name }}</h5>
@@ -33,16 +33,15 @@
 <script setup lang="ts">
 import { ref, PropType } from "vue";
 import SwitchArrow from "@action/icons/header/switch_arrow.vue";
-import { BaseToken } from "@/types/base-token";
 import { computed } from "@vue/reactivity";
-import { fromBase } from "@/libs/utils/units";
+import { TokenType, SwapToken } from "@enkryptcom/swap";
 const isOpen = ref(false);
 const emit = defineEmits<{
   (e: "toggle:select", isOpen: boolean): void;
 }>();
 const props = defineProps({
   token: {
-    type: Object as PropType<BaseToken | null>,
+    type: Object as PropType<TokenType | null>,
     default: () => {
       return {};
     },
@@ -51,9 +50,8 @@ const props = defineProps({
 
 const tokenBalance = computed(() => {
   if (props.token?.balance) {
-    return fromBase(props.token.balance, props.token.decimals);
+    return new SwapToken(props.token).getBalanceReadable();
   }
-
   return null;
 });
 
@@ -66,7 +64,7 @@ const open = () => {
 <style lang="less">
 @import "~@action/styles/theme.less";
 .swap-token-select {
-  height: 64px;
+  height: 54px;
   background: #ffffff;
   box-sizing: border-box;
   border-radius: 10px;

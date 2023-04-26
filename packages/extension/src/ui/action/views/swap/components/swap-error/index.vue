@@ -38,8 +38,7 @@
         Coming soon to<br />{{ networkName }}
       </h3>
       <p v-if="error === SwapError.NETWORK_NOT_SUPPORTED">
-        Can't wait to swap? Try swapping on Ethereum, Polygon, BNB Smart Chain,
-        Polkadot, or Kusama.
+        Can't wait to swap? Try swapping on {{ supportedNets }}.
       </p>
     </div>
   </div>
@@ -50,6 +49,7 @@ import CloseIcon from "@action/icons/common/close-icon.vue";
 import LottieWarning from "@action/assets/animation/warning.json";
 import LottieError from "@action/assets/animation/error-big.json";
 import { Vue3Lottie } from "vue3-lottie";
+import { getSupportedNetworks } from "@enkryptcom/swap";
 import { SwapError, Errors } from "./types";
 
 interface IProps {
@@ -57,7 +57,9 @@ interface IProps {
   networkName: string;
   close: () => void;
 }
-
+const supportedNets = getSupportedNetworks()
+  .map((net) => net.name)
+  .join(", ");
 defineProps<IProps>();
 </script>
 

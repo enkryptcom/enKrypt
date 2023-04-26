@@ -47,6 +47,18 @@ const lists: Partial<Record<NetworkNames, string>> = {
     "https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/zksync.json",
   [NetworkNames.Rootstock]:
     "https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/rootstock.json",
+  [NetworkNames.TomoChain]:
+    "https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/tomo.json",
+  [NetworkNames.Arbitrum]:
+    "https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/arb.json",
+  [NetworkNames.Avalanche]:
+    "https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/avax.json",
+  [NetworkNames.Fantom]:
+    "https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/ftm.json",
+  [NetworkNames.Klaytn]:
+    "https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/klay.json",
+  [NetworkNames.Aurora]:
+    "https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/aurora.json",
 };
 
 export default lists;

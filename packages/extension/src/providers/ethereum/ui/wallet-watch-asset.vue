@@ -128,7 +128,7 @@ import WarnIcon from "@/ui/action/icons/send/warning-icon.vue";
 import { CustomErc20Token, TokenType } from "@/libs/tokens-state/types";
 import ExternalIcon from "@action/icons/header/external-icon.vue";
 import Tooltip from "@action/components/tooltip/index.vue";
-import { fromBase } from "@/libs/utils/units";
+import { fromBase } from "@enkryptcom/utils";
 import { formatFloatingPointValue } from "@/libs/utils/number-formatter";
 import { TokensState } from "@/libs/tokens-state";
 

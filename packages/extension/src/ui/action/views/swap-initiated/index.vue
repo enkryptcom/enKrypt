@@ -59,12 +59,12 @@ import ArrowDown from "@action/icons/send/arrow-down.vue";
 import SwapInitiatedAmount from "./components/swap-initiated-amount.vue";
 import LottieError from "@action/assets/animation/error-big.json";
 import LottieStatus from "@action/assets/animation/status.json";
-import { BaseToken } from "@/types/base-token";
 import { Vue3Lottie } from "vue3-lottie";
+import { TokenType } from "@enkryptcom/swap";
 
 interface IProps {
-  fromToken: BaseToken;
-  toToken: BaseToken;
+  fromToken: TokenType;
+  toToken: TokenType;
   fromAmount: string;
   toAmount: string;
   isLoading: boolean;

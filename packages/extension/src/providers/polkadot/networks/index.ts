@@ -9,6 +9,7 @@ import bncNode from "./bifrost/polkadot";
 import bncKusamaNode from "./bifrost/kusama";
 import edgNode from "./edgeware";
 import penNode from "./pendulum/polkadot";
+import ampeNode from "./pendulum/kusama";
 
 export default {
   acala: acaNode,
@@ -22,4 +23,5 @@ export default {
   bifrostKusama: bncKusamaNode,
   edgeware: edgNode,
   pendulum: penNode,
+  amplitude: ampeNode,
 };

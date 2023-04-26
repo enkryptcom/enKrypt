@@ -9,7 +9,7 @@ import {
 
 const skaleOptions: SkaleParams = {
   name: NetworkNames.SkaleBlockBrawlers,
-  name_long: "SKALE | BRAWL Chain",
+  name_long: "BRAWL Chain | SKALE",
   chainName: "frayed-decent-antares",
   chainID: "0x175b1806",
   icon: "skaleBlockBrawlers.png",

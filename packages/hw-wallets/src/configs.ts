@@ -55,8 +55,8 @@ const bip44Paths = {
     basePath: "m/44'/60'/0'/0",
     label: "Ethereum",
   },
-  rootstockLedger: {
-    path: "m/44'/137'/0'/{index}",
+  rootstock: {
+    path: "m/44'/137'/0'/0/{index}",
     basePath: "m/44'/137'/0'/0",
     label: "Rootstock",
   },
