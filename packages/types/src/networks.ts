@@ -82,4 +82,5 @@ export enum CoingeckoPlatform {
   Fantom = "avalanche",
   Klaytn = "klay-token",
   Aurora = "aurora",
+  Zksync = "zksync",
 }
