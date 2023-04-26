@@ -1,4 +1,4 @@
-import { NetworkNames } from "@enkryptcom/types";
+import { CoingeckoPlatform, NetworkNames } from "@enkryptcom/types";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
 import assetsInfoHandler from "@/providers/ethereum/libs/assets-handlers/assetinfo-mew";
 import { EtherscanActivity } from "../libs/activity-handlers";
@@ -19,6 +19,7 @@ const bscOptions: EvmNetworkOptions = {
   icon: require("./icons/bsc.svg"),
   gradient: "#F0B90B",
   coingeckoID: "binancecoin",
+  coingeckoPlatform: CoingeckoPlatform.Binance,
   basePath: "m/44'/714'",
   NFTHandler: shNFTHandler,
   assetsInfoHandler,

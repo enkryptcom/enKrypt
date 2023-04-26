@@ -9,7 +9,7 @@ let isAccountAccessPending = false;
 import { throttle } from "lodash";
 
 const throttledOpenOnboard = throttle(() => openOnboard(), 10000);
-
+const existingErrors: Record<string, { time: number; error: any }> = {};
 const pendingPromises: {
   payload: ProviderRPCRequest;
   res: CallbackFunction;
@@ -56,6 +56,14 @@ const method: MiddlewareFunction = async function (
           return handleRemainingPromises();
         }
         const accountsState = new AccountState();
+        if (
+          existingErrors[_payload.options.domain] &&
+          existingErrors[_payload.options.domain].time >
+            new Date().getTime() - 2000
+        ) {
+          _res(existingErrors[_payload.options.domain].error as any);
+          return handleRemainingPromises();
+        }
         accountsState
           .getApprovedAddresses(_payload.options.domain)
           .then((accounts) => {
@@ -76,7 +84,13 @@ const method: MiddlewareFunction = async function (
                   })
                 )
                 .then(({ error, result }) => {
-                  if (error) _res(error as any);
+                  if (error) {
+                    existingErrors[_payload.options!.domain] = {
+                      time: new Date().getTime(),
+                      error,
+                    };
+                    return _res(error as any);
+                  }
                   const accounts = JSON.parse(result || "[]");
                   _res(
                     null,
