@@ -29,7 +29,7 @@ sendToBackgroundFromCS({
   message: JSON.stringify({ method: InternalMethods.getSettings, params: [] }),
   provider: ProviderName.enkrypt,
 }).then((res) => {
-  if (res.result) {
+  if (res.result && JSON.parse(res.result as string).manifestVersion === 2) {
     injectScript(res.result);
   }
 });

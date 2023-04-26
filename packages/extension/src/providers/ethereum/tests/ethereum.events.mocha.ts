@@ -31,6 +31,7 @@ const tempWindow: EnkryptWindow = {
       substrate: {
         injectPolkadotjs: false,
       },
+      manifestVersion: 3,
     },
   },
 };

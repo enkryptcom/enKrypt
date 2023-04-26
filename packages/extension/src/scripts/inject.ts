@@ -14,9 +14,37 @@ setWindowNamespace();
   providers: {},
   settings: {},
 };
+const loadInjectedProviders = () => {
+  EthereumProvider(window, {
+    name: ProviderName.ethereum,
+    type: ProviderType.evm,
+    sendMessageHandler: providerSendMessage,
+  });
+  PolkadotProvider(window, {
+    name: ProviderName.polkadot,
+    type: ProviderType.substrate,
+    sendMessageHandler: providerSendMessage,
+  });
+  BitcoinProvider(window, {
+    name: ProviderName.bitcoin,
+    type: ProviderType.bitcoin,
+    sendMessageHandler: providerSendMessage,
+  });
+};
 const script = document.getElementById(InjectedIDs.main) as HTMLScriptElement;
-const scriptURL = new URL(script.src);
-window.enkrypt.settings = JSON.parse(scriptURL.searchParams.get("settings")!);
+if (script) {
+  const scriptURL = new URL(script.src);
+  window.enkrypt.settings = JSON.parse(scriptURL.searchParams.get("settings")!);
+  loadInjectedProviders();
+} else {
+  providerSendMessage(
+    ProviderName.enkrypt,
+    JSON.stringify({ method: InternalMethods.getSettings, params: [] })
+  ).then((settings) => {
+    window.enkrypt.settings = settings;
+    loadInjectedProviders();
+  });
+}
 
 windowOnMessage(async (msg): Promise<void> => {
   window["enkrypt"]["providers"][msg.provider].handleMessage(msg.message);
@@ -34,18 +62,3 @@ window.addEventListener("beforeunload", () => {
   );
 });
 console.info("hello from injected code");
-EthereumProvider(window, {
-  name: ProviderName.ethereum,
-  type: ProviderType.evm,
-  sendMessageHandler: providerSendMessage,
-});
-PolkadotProvider(window, {
-  name: ProviderName.polkadot,
-  type: ProviderType.substrate,
-  sendMessageHandler: providerSendMessage,
-});
-BitcoinProvider(window, {
-  name: ProviderName.bitcoin,
-  type: ProviderType.bitcoin,
-  sendMessageHandler: providerSendMessage,
-});
