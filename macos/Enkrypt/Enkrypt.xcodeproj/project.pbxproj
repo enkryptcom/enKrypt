@@ -461,9 +461,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = "Enkrypt Extension/Enkrypt_Extension.entitlements";
-				CODE_SIGN_IDENTITY = "3rd Party Mac Developer Application: MyEtherWallet, Inc. (MDN888GSU8)";
+				CODE_SIGN_IDENTITY = "3rd Party Mac Developer Application";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 80;
+				CURRENT_PROJECT_VERSION = 82;
 				DEVELOPMENT_TEAM = MDN888GSU8;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -476,7 +476,7 @@
 					"@executable_path/../../../../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.14;
-				MARKETING_VERSION = 1.0.4;
+				MARKETING_VERSION = 1.17.0;
 				OTHER_LDFLAGS = (
 					"-framework",
 					SafariServices,
@@ -494,9 +494,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = "Enkrypt Extension/Enkrypt_Extension.entitlements";
-				CODE_SIGN_IDENTITY = "3rd Party Mac Developer Application: MyEtherWallet, Inc. (MDN888GSU8)";
+				CODE_SIGN_IDENTITY = "3rd Party Mac Developer Application";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 80;
+				CURRENT_PROJECT_VERSION = 82;
 				DEVELOPMENT_TEAM = MDN888GSU8;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -509,7 +509,7 @@
 					"@executable_path/../../../../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.14;
-				MARKETING_VERSION = 1.0.4;
+				MARKETING_VERSION = 1.17.0;
 				OTHER_LDFLAGS = (
 					"-framework",
 					SafariServices,
@@ -530,10 +530,10 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Enkrypt/Enkrypt.entitlements;
-				CODE_SIGN_IDENTITY = "3rd Party Mac Developer Application: MyEtherWallet, Inc. (MDN888GSU8)";
+				CODE_SIGN_IDENTITY = "3rd Party Mac Developer Application";
 				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 80;
+				CURRENT_PROJECT_VERSION = 82;
 				DEVELOPMENT_TEAM = MDN888GSU8;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -548,7 +548,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 12.3;
-				MARKETING_VERSION = 1.0.4;
+				MARKETING_VERSION = 1.17.0;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -571,10 +571,10 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Enkrypt/Enkrypt.entitlements;
-				CODE_SIGN_IDENTITY = "3rd Party Mac Developer Application: MyEtherWallet, Inc. (MDN888GSU8)";
+				CODE_SIGN_IDENTITY = "3rd Party Mac Developer Application";
 				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 80;
+				CURRENT_PROJECT_VERSION = 82;
 				DEVELOPMENT_TEAM = MDN888GSU8;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -589,7 +589,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 12.3;
-				MARKETING_VERSION = 1.0.4;
+				MARKETING_VERSION = 1.17.0;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
 					"-framework",
