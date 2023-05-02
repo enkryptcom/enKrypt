@@ -29,5 +29,14 @@ module.exports = {
   chainWebpack: (config) => {
     baseConfigs.setConfig(config);
     browserConfigs.setConfig(config);
+    config.merge({
+      experiments: {
+        asyncWebAssembly: true,
+        syncWebAssembly: true,
+      },
+      resolve: {
+        extensions: [".wasm"],
+      },
+    });
   },
 };

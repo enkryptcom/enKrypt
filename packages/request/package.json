@@ -1,4 +1,5 @@
 {
+  "type": "module",
   "name": "@enkryptcom/request",
   "version": "0.0.1",
   "description": "Network requests class for enkrypt extension",
@@ -17,6 +18,9 @@
   },
   "dependencies": {
     "@enkryptcom/types": "workspace:^",
+    "@rpch/crypto": "^0.3.4",
+    "@rpch/ethereum-provider": "^0.2.1",
+    "@rpch/sdk": "^0.2.1",
     "eventemitter3": "^5.0.0",
     "isomorphic-ws": "^5.0.0",
     "json-rpc-2.0": "^1.5.1",
