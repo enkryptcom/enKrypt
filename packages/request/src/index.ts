@@ -1,7 +1,7 @@
 import { MiddlewareFunction } from "@enkryptcom/types";
 import { RequestClass } from "./types";
 import WSClient from "./libs/wsClient";
-// import RPCClient from "./libs/rpcClient";
+import RPCClient from "./libs/rpcClient";
 import NoClient from "./libs/noClient";
 import RPChClient from "./libs/rpchClient";
 
@@ -17,8 +17,15 @@ export default (
     return new NoClient(url, middlewares);
   }
   if (/^http(s)?:\/\//i.test(url)) {
-    // return new RPCClient(url, middlewares);
-    return new RPChClient(url, middlewares);
+    console.log(url);
+    console.log(middlewares);
+    console.log(options);
+    if (url === "https://primary.gnosis-chain.rpc.hoprtech.net") {
+      console.log("RPCh Client:", url);
+      return new RPChClient(url, middlewares);
+    }
+    console.log("Normal RPC client");
+    return new RPCClient(url, middlewares);
   }
   if (/^ws(s)?:\/\//i.test(url)) {
     return new WSClient(url, middlewares, options);
