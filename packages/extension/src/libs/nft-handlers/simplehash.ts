@@ -13,6 +13,7 @@ export default async (
     [NetworkNames.Optimism]: "optimism",
     [NetworkNames.Binance]: "bsc",
     [NetworkNames.Arbitrum]: "arbitrum",
+    [NetworkNames.GnosisRPCh]: "gnosisRPCh",
     [NetworkNames.Gnosis]: "gnosis",
     [NetworkNames.Avalanche]: "avalanche",
   };

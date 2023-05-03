@@ -38,6 +38,7 @@ export type SupportedNetworkNames =
   | NetworkNames.Canto
   | NetworkNames.Rootstock
   | NetworkNames.Arbitrum
+  | NetworkNames.GnosisRPCh
   | NetworkNames.Gnosis
   | NetworkNames.Avalanche
   | NetworkNames.Fantom

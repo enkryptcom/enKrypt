@@ -75,6 +75,10 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
     tbName: "arb",
     cgPlatform: CoingeckoPlatform.Arbitrum,
   },
+  [NetworkNames.GnosisRPCh]: {
+    tbName: "xdai",
+    cgPlatform: CoingeckoPlatform.Gnosis,
+  },
   [NetworkNames.Gnosis]: {
     tbName: "xdai",
     cgPlatform: CoingeckoPlatform.Gnosis,

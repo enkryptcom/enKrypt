@@ -48,6 +48,7 @@ const TOKEN_LISTS: {
   [NetworkNames.EthereumClassic]: `https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/swaplists/${SupportedNetworkName.EthereumClassic}.json`,
   [NetworkNames.Fantom]: `https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/swaplists/${SupportedNetworkName.Fantom}.json`,
   [NetworkNames.Moonbeam]: `https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/swaplists/${SupportedNetworkName.Moonbeam}.json`,
+  [NetworkNames.GnosisRPCh]: `https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/swaplists/${SupportedNetworkName.Gnosis}.json`,
   [NetworkNames.Gnosis]: `https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/swaplists/${SupportedNetworkName.Gnosis}.json`,
   [NetworkNames.Klaytn]: `https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/swaplists/${SupportedNetworkName.Klaytn}.json`,
 };

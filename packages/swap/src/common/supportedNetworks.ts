@@ -82,6 +82,18 @@ const NetworkDetails: Record<SupportedNetworkName, NetworkInfo> = {
       "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0x6B175474E89094C44Da98b954EedeAC495271d0F/logo.png",
     name: "Gnosis",
     symbol: "xDAI",
+    rank: 16,
+    signerType: [SignerType.secp256k1],
+    type: NetworkType.EVM,
+  },
+  [SupportedNetworkName.GnosisRPCh]: {
+    id: SupportedNetworkName.GnosisRPCh,
+    cgId: "dai",
+    decimals: 18,
+    logoURI:
+      "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0x6B175474E89094C44Da98b954EedeAC495271d0F/logo.png",
+    name: "Gnosis over RPCh",
+    symbol: "xDAI",
     rank: 7,
     signerType: [SignerType.secp256k1],
     type: NetworkType.EVM,

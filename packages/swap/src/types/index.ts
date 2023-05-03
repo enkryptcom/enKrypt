@@ -19,6 +19,7 @@ export enum SupportedNetworkName {
   EthereumClassic = NetworkNames.EthereumClassic,
   Moonbeam = NetworkNames.Moonbeam,
   Arbitrum = NetworkNames.Arbitrum,
+  GnosisRPCh = NetworkNames.GnosisRPCh,
   Gnosis = NetworkNames.Gnosis,
   Avalanche = NetworkNames.Avalanche,
   Fantom = NetworkNames.Fantom,

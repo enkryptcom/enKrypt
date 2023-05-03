@@ -6,8 +6,8 @@ import assetsInfoHandler from "@/providers/ethereum/libs/assets-handlers/assetin
 import shNFTHandler from "@/libs/nft-handlers/simplehash";
 
 const gnoOptions: EvmNetworkOptions = {
-  name: NetworkNames.Gnosis,
-  name_long: "Gnosis",
+  name: NetworkNames.GnosisRPCh,
+  name_long: "Gnosis over RPCh",
   homePage: "https://www.gnosis.io/",
   blockExplorerTX: "https://gnosisscan.io/tx/[[txHash]]",
   blockExplorerAddr: "https://gnosisscan.io/address/[[address]]",
@@ -15,7 +15,7 @@ const gnoOptions: EvmNetworkOptions = {
   isTestNetwork: false,
   currencyName: "DAI",
   currencyNameLong: "DAI",
-  node: "https://rpc.gnosischain.com",
+  node: "https://primary.gnosis-chain.rpc.hoprtech.net",
   icon: require("./icons/gno.svg"),
   gradient: "linear-gradient(180deg, #C549FF 0%, #684CFF 100%)",
   coingeckoID: "dai",
@@ -25,6 +25,6 @@ const gnoOptions: EvmNetworkOptions = {
   activityHandler: wrapActivityHandler(EtherscanActivity),
 };
 
-const gno = new EvmNetwork(gnoOptions);
+const gnoRPCh = new EvmNetwork(gnoOptions);
 
-export default gno;
+export default gnoRPCh;

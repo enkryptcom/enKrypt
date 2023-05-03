@@ -17,6 +17,7 @@ const TokenList: Record<SupportedNetworkNames, string> = {
   [NetworkNames.ZkSyncGoerli]: `https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/tokenlists/zksyncgoerli.json`,
   [NetworkNames.ZkSync]: `https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/tokenlists/zksync.json`,
   [NetworkNames.Arbitrum]: `https://tokens.coingecko.com/${CoingeckoPlatform.Arbitrum}/all.json`,
+  [NetworkNames.GnosisRPCh]: `https://tokens.coingecko.com/${CoingeckoPlatform.Gnosis}/all.json`,
   [NetworkNames.Gnosis]: `https://tokens.coingecko.com/${CoingeckoPlatform.Gnosis}/all.json`,
   [NetworkNames.Avalanche]: `https://tokens.coingecko.com/${CoingeckoPlatform.Avalanche}/all.json`,
   [NetworkNames.Fantom]: `https://tokens.coingecko.com/${CoingeckoPlatform.Fantom}/all.json`,

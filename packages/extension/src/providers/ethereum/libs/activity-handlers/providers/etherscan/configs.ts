@@ -40,6 +40,7 @@ const NetworkEndpoints: Record<string, string> = {
   [NetworkNames.ZkSyncGoerli]: "https://zksync2-testnet.zkscan.io/",
   [NetworkNames.ZkSync]: "https://zksync2-mainnet.zkscan.io/",
   [NetworkNames.Arbitrum]: "https://api.arbiscan.io/",
+  [NetworkNames.GnosisRPCh]: "https://api.gnosisscan.io/",
   [NetworkNames.Gnosis]: "https://api.gnosisscan.io/",
   [NetworkNames.Avalanche]: "https://api.snowtrace.io/",
   [NetworkNames.Fantom]: "https://api.ftmscan.com/",

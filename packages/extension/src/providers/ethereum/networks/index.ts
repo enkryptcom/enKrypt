@@ -23,6 +23,7 @@ import arbNode from "./arb";
 import * as skale from "./skale";
 import ontEVMNode from "./ontevm";
 import gnoNode from "./gno";
+import gnoNodeRPCh from "./gnorpch";
 import avaxNode from "./avax";
 import ftmNode from "./ftm";
 import klayNode from "./klay";
@@ -63,6 +64,7 @@ export default {
   skaleChaos: skale.chaosNode,
   ontEVM: ontEVMNode,
   arbitrum: arbNode,
+  gnosisRPCh: gnoNodeRPCh,
   gnosis: gnoNode,
   avax: avaxNode,
   fantom: ftmNode,
