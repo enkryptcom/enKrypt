@@ -61,18 +61,27 @@ describe("Swap", () => {
       toToken,
       toAddress,
     });
-    expect(quotes?.length).to.be.eq(2);
+    expect(quotes?.length).to.be.eq(3);
     const oneInceQuote = quotes.find(
       (q) => q.provider === ProviderName.oneInch
+    );
+    const paraswapQuote = quotes.find(
+      (q) => q.provider === ProviderName.paraswap
     );
     const changellyQuote = quotes.find(
       (q) => q.provider === ProviderName.changelly
     );
     expect(changellyQuote!.provider).to.be.eq(ProviderName.changelly);
     expect(oneInceQuote!.provider).to.be.eq(ProviderName.oneInch);
+    expect(paraswapQuote!.provider).to.be.eq(ProviderName.paraswap);
     const swapOneInch = await enkryptSwap.getSwap(oneInceQuote!.quote);
     expect(swapOneInch?.fromTokenAmount.toString()).to.be.eq(amount.toString());
     expect(swapOneInch?.transactions.length).to.be.eq(2);
+    const swapParaswap = await enkryptSwap.getSwap(paraswapQuote!.quote);
+    expect(swapParaswap?.fromTokenAmount.toString()).to.be.eq(
+      amount.toString()
+    );
+    expect(swapParaswap?.transactions.length).to.be.eq(2);
     const swapChangelly = await enkryptSwap.getSwap(changellyQuote!.quote);
     if (swapChangelly) expect(swapChangelly?.transactions.length).to.be.eq(1);
   }).timeout(10000);
