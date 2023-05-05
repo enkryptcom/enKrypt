@@ -262,7 +262,7 @@ export default (
             symbol: tInfo.symbol,
             value: "0",
             valuef: formatFiatValue("0").value,
-            contract: address,
+            contract: unknownTokens[idx],
             decimals: tInfo.decimals,
             sparkline: "",
             priceChangePercentage: 0,

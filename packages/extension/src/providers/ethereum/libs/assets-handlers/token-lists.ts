@@ -38,6 +38,7 @@ const getKnownNetworkTokens = async (
     const tokens: CGToken[] = json.tokens;
     const tObject: Record<string, CGToken> = {};
     tokens.forEach((t) => {
+      t.address = t.address.toLowerCase();
       tObject[t.address] = t;
     });
     return tObject;
