@@ -14,7 +14,6 @@ import {
   toToken,
   amount,
   fromAddress,
-  toAddress,
   nodeURL,
 } from "./fixtures/mainnet/configs";
 
