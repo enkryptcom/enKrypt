@@ -50,6 +50,11 @@ export enum NetworkNames {
   Klaytn = "KLAY",
   Aurora = "AURORA",
   PuppyNet = "puppyNet",
+  Opal = "OPL",
+  Quartz = "QTZ",
+  Unique = "UNQ",
+  Interlay = "INTR",
+  Kintsugi = "KINT",
 }
 
 export enum CoingeckoPlatform {
@@ -83,4 +88,8 @@ export enum CoingeckoPlatform {
   Klaytn = "klay-token",
   Aurora = "aurora",
   Zksync = "zksync",
+  Quartz = "quartz",
+  Unique = "unique-network",
+  Interlay = "interlay",
+  Kintsugi = "kintsugi",
 }
