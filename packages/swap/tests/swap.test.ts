@@ -52,7 +52,7 @@ describe("Swap", () => {
     );
   });
 
-  it("it should get quote and swap", async () => {
+  it("it should get quote and swap for different destination", async () => {
     await enkryptSwap.initPromise;
     const quotes = await enkryptSwap.getQuotes({
       amount,
@@ -61,19 +61,51 @@ describe("Swap", () => {
       toToken,
       toAddress,
     });
-    expect(quotes?.length).to.be.eq(2);
+    expect(quotes?.length).to.be.eq(3);
     const oneInceQuote = quotes.find(
       (q) => q.provider === ProviderName.oneInch
+    );
+    const paraswapQuote = quotes.find(
+      (q) => q.provider === ProviderName.paraswap
     );
     const changellyQuote = quotes.find(
       (q) => q.provider === ProviderName.changelly
     );
+    const zeroxQuote = quotes.find((q) => q.provider === ProviderName.zerox);
+    expect(zeroxQuote).to.be.eq(undefined);
     expect(changellyQuote!.provider).to.be.eq(ProviderName.changelly);
     expect(oneInceQuote!.provider).to.be.eq(ProviderName.oneInch);
+    expect(paraswapQuote!.provider).to.be.eq(ProviderName.paraswap);
     const swapOneInch = await enkryptSwap.getSwap(oneInceQuote!.quote);
     expect(swapOneInch?.fromTokenAmount.toString()).to.be.eq(amount.toString());
     expect(swapOneInch?.transactions.length).to.be.eq(2);
     const swapChangelly = await enkryptSwap.getSwap(changellyQuote!.quote);
     if (swapChangelly) expect(swapChangelly?.transactions.length).to.be.eq(1);
+  }).timeout(10000);
+
+  it("it should get quote and swap for same destination", async () => {
+    await enkryptSwap.initPromise;
+    const quotes = await enkryptSwap.getQuotes({
+      amount,
+      fromAddress,
+      fromToken,
+      toToken,
+      toAddress: fromAddress,
+    });
+    expect(quotes?.length).to.be.eq(4);
+    const oneInceQuote = quotes.find(
+      (q) => q.provider === ProviderName.oneInch
+    );
+    const paraswapQuote = quotes.find(
+      (q) => q.provider === ProviderName.paraswap
+    );
+    const changellyQuote = quotes.find(
+      (q) => q.provider === ProviderName.changelly
+    );
+    const zeroxQuote = quotes.find((q) => q.provider === ProviderName.zerox);
+    expect(zeroxQuote!.provider).to.be.eq(ProviderName.zerox);
+    expect(changellyQuote!.provider).to.be.eq(ProviderName.changelly);
+    expect(oneInceQuote!.provider).to.be.eq(ProviderName.oneInch);
+    expect(paraswapQuote!.provider).to.be.eq(ProviderName.paraswap);
   }).timeout(10000);
 });

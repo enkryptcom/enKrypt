@@ -8,6 +8,11 @@ import sdnNode from "./astar/shiden";
 import bncNode from "./bifrost/polkadot";
 import bncKusamaNode from "./bifrost/kusama";
 import edgNode from "./edgeware";
+import opalNode from "./unique/opal";
+import quartzNode from "./unique/quartz";
+import uniqueNode from "./unique/unique";
+// import interlayNode from "./interlay/interlay";
+// import kintsugiNode from "./interlay/kintsugi";
 
 export default {
   acala: acaNode,
@@ -20,4 +25,9 @@ export default {
   bifrost: bncNode,
   bifrostKusama: bncKusamaNode,
   edgeware: edgNode,
+  opal: opalNode,
+  quartz: quartzNode,
+  unique: uniqueNode,
+  // interlay: interlayNode,
+  // kintsugi: kintsugiNode,
 };
