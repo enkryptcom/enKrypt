@@ -19,6 +19,22 @@ const fromToken: TokenType = {
   type: NetworkType.EVM,
 };
 
+const toTokenWETH: TokenTypeTo = {
+  address: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+  decimals: 18,
+  logoURI:
+    "https://assets.coingecko.com/coins/images/2518/thumb/weth.png?1628852295",
+  name: "WETH",
+  symbol: "WETH",
+  rank: 100,
+  cgId: "ethereum",
+  type: NetworkType.EVM,
+  networkInfo: {
+    isAddress: async (address: string) => isAddress(address),
+    name: NetworkNames.Ethereum,
+  },
+};
+
 const toToken: TokenTypeTo = {
   address: "0x111111111117dc0aa78b770fa6a738034120c302",
   decimals: 18,
@@ -35,4 +51,12 @@ const toToken: TokenTypeTo = {
   },
 };
 
-export { fromToken, toToken, amount, fromAddress, toAddress, nodeURL };
+export {
+  fromToken,
+  toToken,
+  toTokenWETH,
+  amount,
+  fromAddress,
+  toAddress,
+  nodeURL,
+};

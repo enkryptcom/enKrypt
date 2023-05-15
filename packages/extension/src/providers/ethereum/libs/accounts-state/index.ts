@@ -30,7 +30,12 @@ class AccountState {
   }
   async getApprovedAddresses(domain: string): Promise<string[]> {
     const state = await this.getStateByDomain(domain);
-    if (state.approvedAccounts) return state.approvedAccounts;
+    if (state.approvedAccounts) {
+      for (const acc of state.approvedAccounts) {
+        if (acc.length !== 42) await this.removeApprovedAddress(acc, domain); // remove after a while, bug due to getting btc accounts added to evm
+      }
+      return state.approvedAccounts.filter((acc) => acc.length === 42);
+    }
     return [];
   }
   async deleteState(domain: string): Promise<void> {

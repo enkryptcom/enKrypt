@@ -3,7 +3,9 @@ import { merge } from "lodash";
 import EventEmitter from "eventemitter3";
 import { TOKEN_LISTS, TOP_TOKEN_INFO_LIST } from "./configs";
 import OneInch from "./providers/oneInch";
+import Paraswap from "./providers/paraswap";
 import Changelly from "./providers/changelly";
+import ZeroX from "./providers/zerox";
 import NetworkDetails, {
   isSupportedNetwork,
   getSupportedNetworks,
@@ -48,9 +50,14 @@ class Swap extends EventEmitter {
 
   initPromise: Promise<void>;
 
-  private providerClasses: (typeof OneInch | typeof Changelly)[];
+  private providerClasses: (
+    | typeof OneInch
+    | typeof Changelly
+    | typeof Paraswap
+    | typeof ZeroX
+  )[];
 
-  private providers: (OneInch | Changelly)[];
+  private providers: (OneInch | Changelly | Paraswap | ZeroX)[];
 
   private tokenList: FromTokenType;
 
@@ -72,7 +79,7 @@ class Swap extends EventEmitter {
         };
     this.api = options.api;
     this.walletId = options.walletIdentifier;
-    this.providerClasses = [OneInch, Changelly];
+    this.providerClasses = [OneInch, Paraswap, Changelly, ZeroX];
     this.topTokenInfo = {
       contractsToId: {},
       topTokens: {},
