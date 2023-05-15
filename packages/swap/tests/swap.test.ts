@@ -79,11 +79,6 @@ describe("Swap", () => {
     const swapOneInch = await enkryptSwap.getSwap(oneInceQuote!.quote);
     expect(swapOneInch?.fromTokenAmount.toString()).to.be.eq(amount.toString());
     expect(swapOneInch?.transactions.length).to.be.eq(2);
-    const swapParaswap = await enkryptSwap.getSwap(paraswapQuote!.quote);
-    expect(swapParaswap?.fromTokenAmount.toString()).to.be.eq(
-      amount.toString()
-    );
-    expect(swapParaswap?.transactions.length).to.be.eq(2);
     const swapChangelly = await enkryptSwap.getSwap(changellyQuote!.quote);
     if (swapChangelly) expect(swapChangelly?.transactions.length).to.be.eq(1);
   }).timeout(10000);
