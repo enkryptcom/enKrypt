@@ -134,7 +134,7 @@ import { WindowPromiseHandler } from "@/libs/window-promise";
 import { TypeRegistry, Metadata } from "@polkadot/types";
 import { Registry, SignerPayloadJSON } from "@polkadot/types/types";
 import MetadataStorage from "../libs/metadata-storage";
-import { CallData } from "./types";
+import { CallData, FrameSystemAccountInfo } from "./types";
 import { SubstrateNetwork } from "../types/substrate-network";
 import { BaseNetwork } from "@/types/base-network";
 import BlindVerifyView from "./custom-views/blind-approvetx.vue";
@@ -142,7 +142,6 @@ import { polkadotEncodeAddress } from "@enkryptcom/utils";
 import { getViewAndProps } from "./custom-views";
 import SubstrateAPI from "../libs/api";
 import BigNumber from "bignumber.js";
-import { FrameSystemAccountInfo } from "@acala-network/types/interfaces/types-lookup";
 import { ProviderRequestOptions } from "@/types/provider";
 import { EnkryptAccount } from "@enkryptcom/types";
 import { TransactionSigner } from "./libs/signer";
@@ -152,6 +151,7 @@ import { u8aToHex } from "@polkadot/util";
 import ActivityState from "@/libs/activity-state";
 import Polkadot from "@/providers/polkadot/networks/polkadot";
 import { getAllNetworks } from "@/libs/utils/networks";
+import { addNetworkSelectMetrics } from "@/libs/metrics";
 
 const windowPromise = WindowPromiseHandler(2);
 
@@ -193,6 +193,7 @@ onBeforeMount(async () => {
 
   if (targetNetwork) {
     network.value = targetNetwork;
+    addNetworkSelectMetrics(targetNetwork.provider, targetNetwork.name, 1);
   } else {
     networkIsUnknown.value = true;
   }
