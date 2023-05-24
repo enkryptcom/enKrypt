@@ -9,6 +9,7 @@ import DomainState from "@/libs/domain-state";
 import { getAllNetworks } from "@/libs/utils/networks";
 import { EvmNetwork } from "../types/evm-network";
 import NetworksState from "@/libs/networks-state";
+import { addNetworkSelectMetrics } from "@/libs/metrics";
 
 const method: MiddlewareFunction = function (
   this: EthereumProvider,
@@ -31,6 +32,7 @@ const method: MiddlewareFunction = function (
         (net) => (net as EvmNetwork).chainID === payload.params![0].chainId
       ) as EvmNetwork | undefined;
       if (validNetwork) {
+        addNetworkSelectMetrics(validNetwork.provider, validNetwork.name, 1);
         sendToBackgroundFromBackground({
           message: JSON.stringify({
             method: InternalMethods.changeNetwork,

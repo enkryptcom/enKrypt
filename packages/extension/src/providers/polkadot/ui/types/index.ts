@@ -42,3 +42,18 @@ export interface SignerMessageOptions {
   payload: Buffer;
   account: EnkryptAccount;
 }
+
+export interface PalletBalancesAccountData {
+  free: string;
+  reserved: string;
+  miscFrozen: string;
+  feeFrozen: string;
+}
+
+export interface FrameSystemAccountInfo {
+  nonce: string;
+  consumers: string;
+  providers: string;
+  sufficients: string;
+  data: PalletBalancesAccountData;
+}
