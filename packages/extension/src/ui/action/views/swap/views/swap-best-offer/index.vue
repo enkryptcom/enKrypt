@@ -342,7 +342,7 @@ const sendAction = async () => {
       .catch((err) => {
         console.error(err);
         isTXSendError.value = true;
-        TXSendErrorMessage.value = err.message;
+        TXSendErrorMessage.value = err.error ? err.error.message : err.message;
       });
     isTXSendLoading.value = false;
   } else {

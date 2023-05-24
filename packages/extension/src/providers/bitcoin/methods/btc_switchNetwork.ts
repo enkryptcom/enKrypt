@@ -7,6 +7,7 @@ import BTCNetworks from "../networks";
 import DomainState from "@/libs/domain-state";
 import BitcoinProvider from "..";
 import { BitcoinNetworks } from "../types";
+import { addNetworkSelectMetrics } from "@/libs/metrics";
 const method: MiddlewareFunction = function (
   this: BitcoinProvider,
   payload: ProviderRPCRequest,
@@ -27,6 +28,7 @@ const method: MiddlewareFunction = function (
       (net) => net.name === payload.params![0]
     );
     if (validNetwork) {
+      addNetworkSelectMetrics(validNetwork.provider, validNetwork.name, 1);
       sendToBackgroundFromBackground({
         message: JSON.stringify({
           method: InternalMethods.changeNetwork,

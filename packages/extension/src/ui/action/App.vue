@@ -122,6 +122,7 @@ import { ProviderName } from "@/types/provider";
 import { onClickOutside } from "@vueuse/core";
 import RateState from "@/libs/rate-state";
 import SwapLookingAnimation from "@action/icons/swap/swap-looking-animation.vue";
+import { addNetworkSelectMetrics } from "@/libs/metrics";
 
 const domainState = new DomainState();
 const networksState = new NetworksState();
@@ -226,6 +227,7 @@ onMounted(async () => {
   }
 });
 const setNetwork = async (network: BaseNetwork) => {
+  addNetworkSelectMetrics(network.provider, network.name, 1);
   //hack may be there is a better way. less.modifyVars doesnt work
   if (appMenuRef.value)
     (
