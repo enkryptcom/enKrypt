@@ -159,7 +159,7 @@ const injectDocument = (
       walletId: "com.enkrypt",
     };
     document.dispatchEvent(
-      new CustomEvent(EIP6963Events.announce, {
+      new document.CustomEvent(EIP6963Events.announce, {
         detail: { info, provider },
       })
     );
