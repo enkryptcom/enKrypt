@@ -66,7 +66,6 @@ export interface EIP6963ProviderInfo {
   uuid: string;
   name: string;
   icon: `data:image/svg+xml;base64,${string}`;
-  description: string;
   walletId: string;
 }
 
