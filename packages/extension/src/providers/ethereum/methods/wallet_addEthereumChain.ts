@@ -1,5 +1,9 @@
 import { getCustomError } from "@/libs/error";
-import { CallbackFunction, MiddlewareFunction } from "@enkryptcom/types";
+import {
+  CallbackFunction,
+  MiddlewareFunction,
+  NetworkNames,
+} from "@enkryptcom/types";
 import EthereumProvider from "..";
 import { sendToBackgroundFromBackground } from "@/libs/messenger/extension";
 import { InternalMethods } from "@/types/messenger";
@@ -14,6 +18,7 @@ import { getAllNetworks } from "@/libs/utils/networks";
 import CustomNetworksState from "@/libs/custom-networks-state";
 import NetworksState from "@/libs/networks-state";
 import { EvmNetwork } from "../types/evm-network";
+import { addNetworkSelectMetrics } from "@/libs/metrics";
 
 interface AddEthereumChainPayload {
   chainId: string;
@@ -122,6 +127,11 @@ const setExistingCustomNetwork = async (
     ) as EvmNetwork | undefined;
   }
   if (existingNetwork) {
+    addNetworkSelectMetrics(
+      ProviderName.ethereum,
+      existingNetwork.name as NetworkNames,
+      1
+    );
     return sendToBackgroundFromBackground({
       message: JSON.stringify({
         method: InternalMethods.changeNetwork,
