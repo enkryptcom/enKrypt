@@ -146,8 +146,9 @@ const injectDocument = (
 ): void => {
   const provider = new Provider(options);
   const globalSettings: SettingsType = document.enkrypt.settings;
+  const proxiedProvider = new Proxy(provider, ProxyHandler);
   if (!globalSettings.evm.inject.disabled)
-    document[options.name] = new Proxy(provider, ProxyHandler); //proxy is needed due to web3js 1.3.0 callbackify issue. Used in superrare
+    document[options.name] = proxiedProvider; //proxy is needed due to web3js 1.3.0 callbackify issue. Used in superrare
   document["enkrypt"]["providers"][options.name] = provider;
 
   // EIP-6963
@@ -160,7 +161,7 @@ const injectDocument = (
     };
     document.dispatchEvent(
       new document.CustomEvent(EIP6963Events.announce, {
-        detail: { info, provider },
+        detail: { info, provider: proxiedProvider },
       })
     );
   };
