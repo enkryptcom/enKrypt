@@ -18,7 +18,6 @@ import {
 import { EXTENSION_VERSION } from "@/configs/constants";
 import { SettingsType } from "@/libs/settings-state/types";
 import { EnkryptWindow } from "@/types/globals";
-import { v4 as uuidv4 } from "uuid";
 
 export class Provider extends EventEmitter implements ProviderInterface {
   chainId: string | null;
@@ -150,7 +149,7 @@ const injectDocument = (
   if (!globalSettings.evm.inject.disabled)
     document[options.name] = proxiedProvider; //proxy is needed due to web3js 1.3.0 callbackify issue. Used in superrare
   document["enkrypt"]["providers"][options.name] = provider;
-  const ENKRYPT_UUID_V4 = uuidv4();
+  const ENKRYPT_UUID_V4 = crypto.randomUUID();
   // EIP-6963
   const eip6963AnnounceProvider = () => {
     const info: EIP6963ProviderInfo = {
