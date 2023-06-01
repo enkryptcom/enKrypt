@@ -140,7 +140,7 @@ const getBaseFeeBasedOnType = (
   const baseFeeBN = toBN(baseFee);
   switch (gasPriceType) {
     case GasPriceTypes.ECONOMY:
-      return baseFeeBN.muln(1.15);
+      return baseFeeBN;
     case GasPriceTypes.REGULAR:
       return baseFeeBN.muln(1.25);
     case GasPriceTypes.FAST:
