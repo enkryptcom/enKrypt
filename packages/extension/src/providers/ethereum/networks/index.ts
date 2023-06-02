@@ -25,9 +25,11 @@ import ftmNode from "./ftm";
 import klayNode from "./klay";
 import auroraNode from "./aurora";
 import puppyNode from "./puppy";
+import sepoliaNode from "./sepolia";
 
 export default {
   goerli: goerliNode,
+  sepolia: sepoliaNode,
   ethereum: ethNode,
   etc: etcNode,
   matic: maticNode,
