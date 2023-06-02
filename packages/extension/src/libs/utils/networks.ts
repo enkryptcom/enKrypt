@@ -63,8 +63,9 @@ const POPULAR_NAMES = [
   NetworkNames.Ethereum,
   NetworkNames.Matic,
   NetworkNames.Polkadot,
-  NetworkNames.Moonbeam,
-  NetworkNames.Acala,
+  NetworkNames.Binance,
+  NetworkNames.Rootstock,
+  NetworkNames.Optimism,
 ];
 export {
   getAllNetworks,
