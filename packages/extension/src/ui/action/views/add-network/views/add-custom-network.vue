@@ -14,24 +14,24 @@
     <div class="add-network__custom-block">
       <label-input
         type="text"
-        label="Network name"
-        class="add-network__custom-input"
-        placeholder="Network Name"
-        :value="nameValue"
-        :is-error="nameInvalid"
-        @update:value="nameChanged"
-      />
-    </div>
-
-    <div class="add-network__custom-block">
-      <label-input
-        type="text"
         label="New RPC URL"
         class="add-network__custom-input"
         placeholder="RPC Url"
         :value="rpcURLValue"
         :is-error="rpcInvalid"
         @update:value="rpcURLChanged"
+      />
+    </div>
+
+    <div class="add-network__custom-block">
+      <label-input
+        type="text"
+        label="Network name"
+        class="add-network__custom-input"
+        placeholder="Network Name"
+        :value="nameValue"
+        :is-error="nameInvalid"
+        @update:value="nameChanged"
       />
     </div>
 
