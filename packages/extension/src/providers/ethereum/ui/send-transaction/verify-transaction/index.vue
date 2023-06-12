@@ -319,7 +319,7 @@ const isHasScroll = () => {
     position: absolute;
     left: 0;
     bottom: 0;
-    padding: 0 32px 32px 32px;
+    padding: 10px 32px 14px 32px;
     display: flex;
     justify-content: space-between;
     align-items: center;

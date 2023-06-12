@@ -86,13 +86,17 @@ onMounted(async () => {
   identicon.value = network.value.identicon(account.value.address);
   Options.value = options;
   try {
-    message.value = JSON.stringify(
-      JSON.parse(Request.value.params![0]),
-      null,
-      2
-    );
+    const version = Request.value.params![2] as SignTypedDataVersion;
+    if (version === SignTypedDataVersion.V1) {
+      message.value = JSON.stringify(Request.value.params![0]);
+    } else {
+      let parsedJSON = Request.value.params![0];
+      if (typeof parsedJSON === "string") parsedJSON = JSON.parse(parsedJSON);
+      const santized = TypedDataUtils.sanitizeData(parsedJSON);
+      message.value = JSON.stringify(santized);
+    }
   } catch (e) {
-    message.value = JSON.stringify(Request.value.params![0], null, 2);
+    console.error(e);
   }
 });
 
