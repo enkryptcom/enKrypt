@@ -4,7 +4,7 @@ import { NetworkType, TokenType, TokenTypeTo } from "../../../src/types";
 
 const amount = toBN("10000000000000000000");
 
-const fromAddress = "0x557237D0d364B09FeFab6961954649573dee0E43";
+const fromAddress = "0x6B175474E89094C44Da98b954EedeAC495271d0F";
 const toAddress = "0x255d4D554325568A2e628A1E93120EbA1157C07e";
 const nodeURL = "https://nodes.mewapi.io/rpc/eth";
 const fromToken: TokenType = {

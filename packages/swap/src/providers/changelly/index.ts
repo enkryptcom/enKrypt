@@ -285,9 +285,8 @@ class Changelly extends ProviderClass {
       rateId: quote.meta.changellyQuoteId,
     })
       .then(async (response) => {
-        if (response.error || !response.result || !response.result.id)
-          return null;
-        const result = response.result[0];
+        if (response.error || !response.result.id) return null;
+        const { result } = response;
         let transaction: SwapTransaction;
         if (quote.options.fromToken.type === NetworkType.EVM) {
           if (quote.options.fromToken.address === NATIVE_TOKEN_ADDRESS)
@@ -328,7 +327,7 @@ class Changelly extends ProviderClass {
           fromTokenAmount: quote.options.amount,
           provider: this.name,
           toTokenAmount: toBN(
-            toBase(result.amountTo, quote.options.toToken.decimals)
+            toBase(result.amountExpectedTo, quote.options.toToken.decimals)
           ),
           transactions: [transaction],
           slippage: quote.meta.slippage || DEFAULT_SLIPPAGE,
