@@ -153,7 +153,7 @@ const initIntercoms = () => {
     const { tabId } = browser.devtools.inspectedWindow;
     const name = `devtools@${tabId}`;
     const connectToBackgroundWithDisconnect = () => {
-      port = browser.runtime.connect(undefined, { name });
+      port = browser.runtime.connect({ name });
       port.onMessage.addListener((message: IInternalMessage) => {
         routeMessage(message);
       });
@@ -172,7 +172,7 @@ const initIntercoms = () => {
   ) {
     const name = `${context}`;
     const connectToBackgroundWithDisconnect = () => {
-      port = browser.runtime.connect(undefined, { name });
+      port = browser.runtime.connect({ name });
       port.onMessage.addListener((message: IInternalMessage) => {
         routeMessage(message);
       });
@@ -237,6 +237,9 @@ const initIntercoms = () => {
         }
       });
     });
+    if (chrome) {
+      setInterval(chrome.runtime.getPlatformInfo, 20e3); // on chrome force reconnect as this is a way of keeping the background running forever //https://stackoverflow.com/questions/66618136/persistent-service-worker-in-chrome-extension
+    }
   }
 };
 

@@ -5,7 +5,6 @@ import { EthereumRequest } from "../types";
 import { OnMessageResponse } from "@enkryptcom/types";
 import { getError } from "@/libs/error";
 import { EnkryptWindow } from "@/types/globals";
-import { randomUUID } from "crypto";
 
 const requestHandler = (request: string): OnMessageResponse => {
   const req = JSON.parse(request) as EthereumRequest;
@@ -61,9 +60,6 @@ const tempWindow: EnkryptWindow = {
   CustomEvent: () => {},
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   dispatchEvent: () => {},
-  crypto: {
-    randomUUID: () => randomUUID(),
-  },
 };
 describe("Test Ethereum reponses", () => {
   it("should send proper responses", async () => {

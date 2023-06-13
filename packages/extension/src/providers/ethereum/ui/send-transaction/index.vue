@@ -391,6 +391,7 @@ const isInputsValid = computed<boolean>(() => {
     return false;
   }
   if (new BigNumber(sendAmount.value).gt(assetMaxValue.value)) return false;
+  if (gasCostValues.value.REGULAR.nativeValue === "0") return false;
   return true;
 });
 
