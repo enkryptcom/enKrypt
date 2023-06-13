@@ -4,7 +4,6 @@ import EthereumInject from "../inject";
 import { MessageMethod, EmitEvent } from "../types";
 import { OnMessageResponse } from "@enkryptcom/types";
 import { EnkryptWindow } from "@/types/globals";
-import { randomUUID } from "crypto";
 
 const providerSendMessage = async (
   provider: ProviderName,
@@ -40,9 +39,6 @@ const tempWindow: EnkryptWindow = {
   CustomEvent: () => {},
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   dispatchEvent: () => {},
-  crypto: {
-    randomUUID: () => randomUUID(),
-  },
 };
 describe("Test injected Ethereum", () => {
   it("should have default values", async () => {

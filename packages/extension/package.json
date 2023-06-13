@@ -1,6 +1,6 @@
 {
   "name": "@enkryptcom/extension",
-  "version": "1.20.0",
+  "version": "1.21.0",
   "private": true,
   "scripts": {
     "zip": "cd dist; zip -r release.zip *;",
@@ -31,7 +31,7 @@
     "@ethereumjs/common": "^3.1.2",
     "@ethereumjs/tx": "^4.1.2",
     "@ledgerhq/hw-transport-webusb": "^6.27.13",
-    "@metamask/eth-sig-util": "^5.0.2",
+    "@metamask/eth-sig-util": "^5.1.0",
     "@types/chrome": "^0.0.233",
     "@types/events": "^3.0.0",
     "@types/less": "^3.0.3",
