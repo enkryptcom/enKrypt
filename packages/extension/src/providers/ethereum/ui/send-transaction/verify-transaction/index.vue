@@ -295,7 +295,7 @@ const isHasScroll = () => {
     font-size: 16px;
     line-height: 24px;
     color: @secondaryLabel;
-    padding: 4px 141px 16px 32px;
+    padding: 4px 141px 13px 32px;
     margin: 0;
 
     &.popup {
@@ -319,7 +319,7 @@ const isHasScroll = () => {
     position: absolute;
     left: 0;
     bottom: 0;
-    padding: 0 32px 32px 32px;
+    padding: 10px 32px 14px 32px;
     display: flex;
     justify-content: space-between;
     align-items: center;
