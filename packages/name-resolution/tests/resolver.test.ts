@@ -8,6 +8,12 @@ describe("Name Resolver resolving", () => {
       ens: {
         node: "https://nodes.mewapi.io/rpc/eth",
       },
+      sid: {
+        node: {
+          bnb: "https://nodes.mewapi.io/rpc/bsc",
+          arb: "https://nodes.mewapi.io/rpc/arb",
+        },
+      },
     });
     let address = await resolver.resolveAddress("test.eth", "ETH");
     expect(address).to.be.eq("0xeefB13C7D42eFCc655E528dA6d6F7bBcf9A2251d");
@@ -19,6 +25,12 @@ describe("Name Resolver resolving", () => {
     const resolver = new NameResolver({
       ens: {
         node: "https://nodes.mewapi.io/rpc/eth",
+      },
+      sid: {
+        node: {
+          bnb: "https://nodes.mewapi.io/rpc/bsc",
+          arb: "https://nodes.mewapi.io/rpc/arb",
+        },
       },
     });
     const name = await resolver.resolveReverseName(
