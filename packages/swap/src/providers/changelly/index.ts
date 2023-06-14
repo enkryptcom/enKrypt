@@ -361,7 +361,7 @@ class Changelly extends ProviderClass {
         "new",
       ];
       const failedStatuses = ["failed", "refunded", "hold", "expired"];
-      const status = response.result[0];
+      const status = response.result;
       if (pendingStatuses.includes(status)) return TransactionStatus.pending;
       if (completedStatuses.includes(status)) return TransactionStatus.success;
       if (failedStatuses.includes(status)) return TransactionStatus.failed;
