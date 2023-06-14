@@ -53,6 +53,8 @@ export enum NetworkNames {
   Unique = "UNQ",
   Interlay = "INTR",
   Kintsugi = "KINT",
+  Pendulum = "pendulum",
+  Amplitude = "amplitude",
 }
 
 export enum CoingeckoPlatform {
