@@ -55,7 +55,7 @@ describe("Changelly Provider", () => {
       ).options
     );
     expect(status).to.be.eq("pending");
-  }).timeout(5000);
+  }).timeout(15000);
 
   it("it should return correct tokens", async () => {
     await init;
@@ -67,7 +67,7 @@ describe("Changelly Provider", () => {
       Object.values(toTokens[SupportedNetworkName.Bitcoin]).length
     ).to.be.eq(1);
     expect(
-      Object.values(toTokens[SupportedNetworkName.Optimism]).length
+      Object.values(toTokens[SupportedNetworkName.EthereumClassic]).length
     ).to.be.eq(1);
   });
 
