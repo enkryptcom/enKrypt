@@ -19,12 +19,12 @@ export enum NetworkNames {
   BitcoinTest = "BTCTest",
   Astar = "ASTR",
   Shiden = "SDN",
-  ShidenEVM = "SDN EVM",
-  AstarEVM = "ASTR EVM",
+  ShidenEVM = "SDNEVM",
+  AstarEVM = "ASTREVM",
   Optimism = "OP",
   Canto = "CANTO",
   Bifrost = "BNC",
-  BifrostKusama = "BNC (Kusama)",
+  BifrostKusama = "BNCKusama",
   Edgeware = "EDG",
   EdgeEVM = "evmEDG",
   ZkSyncGoerli = "zkSyncGoerli",
@@ -53,6 +53,8 @@ export enum NetworkNames {
   Unique = "UNQ",
   Interlay = "INTR",
   Kintsugi = "KINT",
+  Pendulum = "pendulum",
+  Amplitude = "amplitude",
 }
 
 export enum CoingeckoPlatform {
