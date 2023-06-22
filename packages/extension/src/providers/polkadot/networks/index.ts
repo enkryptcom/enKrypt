@@ -11,11 +11,8 @@ import edgNode from "./edgeware";
 import opalNode from "./unique/opal";
 import quartzNode from "./unique/quartz";
 import uniqueNode from "./unique/unique";
-// import interlayNode from "./interlay/interlay";
-// import kintsugiNode from "./interlay/kintsugi";
 import penNode from "./pendulum/pendulum";
 import ampeNode from "./pendulum/amplitude";
-
 
 export default {
   acala: acaNode,

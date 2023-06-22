@@ -1,4 +1,4 @@
-import { CoingeckoPlatform, NetworkNames } from "@enkryptcom/types";
+import { NetworkNames } from "@enkryptcom/types";
 import { toBN } from "web3-utils";
 import {
   SubstrateNetwork,
@@ -16,6 +16,7 @@ const pendulumOptions: SubstrateNetworkOptions = {
   isTestNetwork: false,
   currencyName: "PEN",
   currencyNameLong: "Pendulum",
+  coingeckoID: "pendulum-chain",
   icon: require("../icons/pendulum.svg"),
   decimals: 12,
   prefix: 56,

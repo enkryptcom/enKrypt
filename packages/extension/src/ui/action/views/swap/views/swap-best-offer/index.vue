@@ -139,7 +139,6 @@ import {
   NetworkType,
   ProviderSwapResponse,
   SupportedNetworkName,
-  SwapToken,
 } from "@enkryptcom/swap";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
 import { SwapData, ProviderResponseWithStatus } from "../../types";
