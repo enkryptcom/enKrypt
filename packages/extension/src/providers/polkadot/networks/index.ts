@@ -13,6 +13,9 @@ import quartzNode from "./unique/quartz";
 import uniqueNode from "./unique/unique";
 // import interlayNode from "./interlay/interlay";
 // import kintsugiNode from "./interlay/kintsugi";
+import penNode from "./pendulum/pendulum";
+import ampeNode from "./pendulum/amplitude";
+
 
 export default {
   acala: acaNode,
@@ -28,6 +31,8 @@ export default {
   opal: opalNode,
   quartz: quartzNode,
   unique: uniqueNode,
+  pendulum: penNode,
+  amplitude: ampeNode,
   // interlay: interlayNode,
   // kintsugi: kintsugiNode,
 };
