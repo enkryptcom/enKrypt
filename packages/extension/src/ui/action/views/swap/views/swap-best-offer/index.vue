@@ -94,6 +94,11 @@
       @update:close="close"
       @update:try-again="sendAction"
     />
+    <swap-looking
+      v-show="isLooking"
+      :loading-type="SWAP_LOADING.LOOKING_FOR_OFFERS"
+      :close="() => {}"
+    />
   </div>
 </template>
 
@@ -109,6 +114,8 @@ import BestOfferError from "./components/swap-best-offer-block/components/best-o
 import SendFeeSelect from "@/providers/common/ui/send-transaction/send-fee-select.vue";
 import SendFeeDisplay from "@/providers/polkadot/ui/send-transaction/components/send-fee-display.vue";
 import TransactionFeeView from "@action/views/transaction-fee/index.vue";
+import SwapLooking from "../../components/swap-loading/index.vue";
+import { SWAP_LOADING } from "../../types";
 import scrollSettings from "@/libs/utils/scroll-settings";
 import { BaseNetwork } from "@/types/base-network";
 import { toBN } from "web3-utils";
@@ -168,7 +175,9 @@ const networkInfo = getNetworkInfoByName(
   selectedNetwork as SupportedNetworkName
 );
 const selectedFee = ref<GasPriceTypes>(GasPriceTypes.REGULAR);
-const pickedTrade = ref<ProviderResponseWithStatus>(swapData.trades[0]);
+const pickedTrade = ref<ProviderResponseWithStatus>(
+  swapData.trades[swapData.trades.length - 1]
+);
 const gasCostValues = ref<GasFeeType>(defaultGasCostVals);
 const balance = ref<BN>(swapData.nativeBalance);
 const KeyRing = new PublicKeyRing();
@@ -181,6 +190,7 @@ const priceDifference = ref<string>();
 const isTXSendLoading = ref<boolean>(false);
 const isTXSendError = ref(false);
 const TXSendErrorMessage = ref("");
+const isLooking = ref(true);
 
 const setWarning = async () => {
   if (balance.value.ltn(0)) return;
@@ -222,41 +232,73 @@ const setWarning = async () => {
 
 defineExpose({ bestOfferScrollRef });
 
-const setTransactionFees = async () => {
+const getTransactionFees = async (
+  networkName: SupportedNetworkName,
+  trade: ProviderResponseWithStatus
+): Promise<GasFeeType> => {
   const transactionObjects = await getSwapTransactions(
-    selectedNetwork as SupportedNetworkName,
-    pickedTrade.value.transactions
+    networkName,
+    trade.transactions
   );
   if (networkInfo.type === NetworkType.EVM) {
-    gasCostValues.value = await getEVMTransactionFees(
+    return getEVMTransactionFees(
       transactionObjects!,
       network.value as EvmNetwork,
       swapData.nativePrice
     );
   } else if (networkInfo.type === NetworkType.Substrate) {
-    gasCostValues.value = (await getSubstrateGasVals(
+    return getSubstrateGasVals(
       transactionObjects!,
       swapData.fromAddress,
       network.value!,
       swapData.nativePrice
-    )) as GasFeeType;
+    ) as Promise<GasFeeType>;
   } else if (networkInfo.type === NetworkType.Bitcoin) {
-    gasCostValues.value = (await getBitcoinGasVals(
+    return getBitcoinGasVals(
       transactionObjects!,
       network.value!,
       swapData.nativePrice
-    )) as GasFeeType;
+    );
   } else {
     throw new Error("unsupported network type");
   }
+};
+
+const setTransactionFees = async () => {
+  gasCostValues.value = await getTransactionFees(
+    selectedNetwork as SupportedNetworkName,
+    pickedTrade.value
+  );
   setWarning();
 };
 
 onMounted(async () => {
+  isLooking.value = true;
   network.value = (await getNetworkByName(selectedNetwork))!;
   account.value = await KeyRing.getAccount(swapData.fromAddress);
   isWindowPopup.value = account.value.isHardware;
+  /* Waiting for changelly to fix the api rate issue
+  let tempBestTrade = pickedTrade.value;
+  let tempFinalToFiat = 0;
+  for (const trade of swapData.trades) {
+    const toTokenFiat = new SwapToken(swapData.toToken).getRawToFiat(
+      trade.toTokenAmount
+    );
+    const gasCosts = await getTransactionFees(
+      selectedNetwork as SupportedNetworkName,
+      trade
+    );
+    const gasCostFiat = parseFloat(gasCosts[selectedFee.value].fiatValue);
+    const finalToFiat = toTokenFiat - gasCostFiat;
+    if (finalToFiat > tempFinalToFiat) {
+      tempBestTrade = trade;
+      tempFinalToFiat = finalToFiat;
+    }
+  }
+  pickedTrade.value = tempBestTrade;
+  */
   await setTransactionFees();
+  isLooking.value = false;
 });
 
 const back = () => {
@@ -346,7 +388,7 @@ const sendAction = async () => {
       });
     isTXSendLoading.value = false;
   } else {
-    console.log("No trade yet");
+    console.error("No trade yet");
   }
 };
 

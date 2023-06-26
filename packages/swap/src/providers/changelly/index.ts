@@ -36,7 +36,7 @@ import supportedNetworks from "./supported";
 import { ChangellyCurrency } from "./types";
 import estimateGasList from "../../common/estimateGasList";
 
-const BASE_URL = "https://swap.mewapi.io/changelly";
+const BASE_URL = "https://partners.mewapi.io/changelly-v2";
 
 class Changelly extends ProviderClass {
   tokenList: TokenType[];
@@ -143,8 +143,8 @@ class Changelly extends ProviderClass {
       currency: ticker,
       address,
     }).then((response) => {
-      if (response.error) return false;
-      return response.result.result;
+      if (response.error || !response.result) return false;
+      return response.result[0].result;
     });
   }
 
@@ -179,7 +179,7 @@ class Changelly extends ProviderClass {
     })
       .then((response) => {
         if (response.error) return emptyResponse;
-        const { result } = response;
+        const result = response.result[0];
         return {
           minimumFrom: toBN(toBase(result.minFrom, fromToken.decimals)),
           maximumFrom: toBN(toBase(result.maxFrom, fromToken.decimals)),
@@ -228,8 +228,9 @@ class Changelly extends ProviderClass {
       ),
     })
       .then(async (response) => {
-        if (response.error || !response.result.id) return null;
-        const { result } = response;
+        if (response.error || !response.result || !response.result[0].id)
+          return null;
+        const result = response.result[0];
         const evmGasLimit =
           options.fromToken.address === NATIVE_TOKEN_ADDRESS &&
           options.fromToken.type === NetworkType.EVM
@@ -326,7 +327,7 @@ class Changelly extends ProviderClass {
           fromTokenAmount: quote.options.amount,
           provider: this.name,
           toTokenAmount: toBN(
-            toBase(result.amountTo, quote.options.toToken.decimals)
+            toBase(result.amountExpectedTo, quote.options.toToken.decimals)
           ),
           transactions: [transaction],
           slippage: quote.meta.slippage || DEFAULT_SLIPPAGE,
@@ -350,7 +351,7 @@ class Changelly extends ProviderClass {
     return this.changellyRequest("getStatus", {
       id: options.swapId,
     }).then(async (response) => {
-      if (response.error) return TransactionStatus.pending;
+      if (response.error || !response.result) return TransactionStatus.pending;
       const completedStatuses = ["finished"];
       const pendingStatuses = [
         "confirming",
