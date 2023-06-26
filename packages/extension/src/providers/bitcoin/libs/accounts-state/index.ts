@@ -40,6 +40,11 @@ class AccountState {
       await this.#storage.set(StorageKeys.accountsState, allStates);
     }
   }
+  async isConnected(domain: string): Promise<boolean> {
+    return this.getStateByDomain(domain).then(
+      (res) => res.approvedAccounts.length > 0
+    );
+  }
   async deleteAllStates(): Promise<void> {
     return await this.#storage.remove(StorageKeys.accountsState);
   }

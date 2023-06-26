@@ -12,7 +12,7 @@
         class="container"
       >
         <h3>Looking for the<br />best offer</h3>
-        <p>Analyzing decentralized exchanges…</p>
+        <p>Analyzing exchanges and network fees...</p>
       </section>
       <section v-if="loadingType === SWAP_LOADING.LOADING" class="container">
         <h3>Getting ready to<br />swap</h3>
@@ -22,7 +22,6 @@
 </template>
 
 <script setup lang="ts">
-import { withDefaults } from "vue";
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import SwapLookingAnimation from "@action/icons/swap/swap-looking-animation.vue";
 import { SWAP_LOADING } from "../../types";

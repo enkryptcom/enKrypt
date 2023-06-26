@@ -1,4 +1,4 @@
-import {  NetworkNames } from "@enkryptcom/types";
+import { NetworkNames } from "@enkryptcom/types";
 import { toBN } from "web3-utils";
 import {
   SubstrateNetwork,
@@ -16,6 +16,7 @@ const amplitudeOptions: SubstrateNetworkOptions = {
   isTestNetwork: false,
   currencyName: "AMPE",
   currencyNameLong: "Amplitude",
+  coingeckoID: "amplitude",
   icon: require("../icons/amplitude.svg"),
   decimals: 12,
   prefix: 57,
