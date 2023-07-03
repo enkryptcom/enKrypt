@@ -48,15 +48,12 @@ export enum NetworkNames {
   Klaytn = "KLAY",
   Aurora = "AURORA",
   PuppyNet = "puppyNet",
-<<<<<<< HEAD
-  Vara = "VARA",
-=======
   Opal = "OPL",
   Quartz = "QTZ",
   Unique = "UNQ",
   Pendulum = "pendulum",
   Amplitude = "amplitude",
->>>>>>> 9d09517ea44bee5971ca15337f70239eaf54af81
+  Vara = "VARA",
 }
 
 export enum CoingeckoPlatform {
