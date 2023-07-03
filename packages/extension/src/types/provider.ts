@@ -61,12 +61,19 @@ export interface ProviderOptions {
   type: ProviderType;
   sendMessageHandler: SendMessageHandler;
 }
-export interface ProviderInfo {
+
+export interface EIP6963ProviderInfo {
   uuid: string;
   name: string;
   icon: `data:image/svg+xml;base64,${string}`;
-  description: string;
+  walletId: string;
 }
+
+export enum EIP6963Events {
+  request = "eip6963:requestProvider",
+  announce = "eip6963:announceProvider",
+}
+
 export abstract class ProviderInterface extends EventEmitter {
   name: ProviderName;
   type: ProviderType;

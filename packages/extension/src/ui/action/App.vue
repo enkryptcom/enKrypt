@@ -117,10 +117,12 @@ import { fromBase } from "@enkryptcom/utils";
 import { EnkryptAccount } from "@enkryptcom/types";
 import Browser from "webextension-polyfill";
 import EVMAccountState from "@/providers/ethereum/libs/accounts-state";
+import BTCAccountState from "@/providers/bitcoin/libs/accounts-state";
 import { ProviderName } from "@/types/provider";
 import { onClickOutside } from "@vueuse/core";
 import RateState from "@/libs/rate-state";
 import SwapLookingAnimation from "@action/icons/swap/swap-looking-animation.vue";
+import { addNetworkSelectMetrics } from "@/libs/metrics";
 
 const domainState = new DomainState();
 const networksState = new NetworksState();
@@ -225,6 +227,7 @@ onMounted(async () => {
   }
 });
 const setNetwork = async (network: BaseNetwork) => {
+  addNetworkSelectMetrics(network.provider, network.name, 1);
   //hack may be there is a better way. less.modifyVars doesnt work
   if (appMenuRef.value)
     (
@@ -304,9 +307,12 @@ const onSelectedAddressChanged = async (newAccount: EnkryptAccount) => {
     currentNetwork.value.provider === ProviderName.ethereum ||
     currentNetwork.value.provider === ProviderName.bitcoin
   ) {
-    const evmAccountState = new EVMAccountState();
+    const AccountState =
+      currentNetwork.value.provider === ProviderName.ethereum
+        ? new EVMAccountState()
+        : new BTCAccountState();
     const domain = await domainState.getCurrentDomain();
-    evmAccountState.addApprovedAddress(newAccount.address, domain);
+    AccountState.addApprovedAddress(newAccount.address, domain);
   }
   await domainState.setSelectedAddress(newAccount.address);
   await sendToBackgroundFromAction({

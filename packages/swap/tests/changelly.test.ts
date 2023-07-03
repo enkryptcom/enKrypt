@@ -44,13 +44,18 @@ describe("Changelly Provider", () => {
     );
     expect(quote?.toTokenAmount.gtn(0)).to.be.eq(true);
     const swap = await changelly.getSwap(quote!.quote);
-    if (swap) {
-      expect(swap?.transactions.length).to.be.eq(1);
-      expect(
-        (swap?.transactions[0] as EVMTransaction).data.startsWith("0xa9059cbb")
-      ).to.be.eq(true);
-    }
-  }).timeout(5000);
+
+    expect(swap?.transactions.length).to.be.eq(1);
+    expect(
+      (swap?.transactions[0] as EVMTransaction).data.startsWith("0xa9059cbb")
+    ).to.be.eq(true);
+    const status = await changelly.getStatus(
+      (
+        await swap!.getStatusObject({ transactionHashes: [] })
+      ).options
+    );
+    expect(status).to.be.eq("pending");
+  }).timeout(15000);
 
   it("it should return correct tokens", async () => {
     await init;
@@ -62,7 +67,7 @@ describe("Changelly Provider", () => {
       Object.values(toTokens[SupportedNetworkName.Bitcoin]).length
     ).to.be.eq(1);
     expect(
-      Object.values(toTokens[SupportedNetworkName.Optimism]).length
+      Object.values(toTokens[SupportedNetworkName.EthereumClassic]).length
     ).to.be.eq(1);
   });
 

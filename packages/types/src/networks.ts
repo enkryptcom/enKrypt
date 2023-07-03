@@ -4,12 +4,10 @@ export enum NetworkNames {
   Binance = "BNB",
   EthereumClassic = "ETC",
   Goerli = "GOERLI",
-  Kovan = "KOV",
+  Sepolia = "SEPOLIA",
   Matic = "MATIC",
   Moonbeam = "GLMR",
   Moonriver = "MOVR",
-  Rinkeby = "RIN",
-  Ropsten = "ROP",
   Rootstock = "Rootstock",
   Acala = "ACA",
   Karura = "KAR",
@@ -21,12 +19,12 @@ export enum NetworkNames {
   BitcoinTest = "BTCTest",
   Astar = "ASTR",
   Shiden = "SDN",
-  ShidenEVM = "SDN EVM",
-  AstarEVM = "ASTR EVM",
+  ShidenEVM = "SDNEVM",
+  AstarEVM = "ASTREVM",
   Optimism = "OP",
   Canto = "CANTO",
   Bifrost = "BNC",
-  BifrostKusama = "BNC (Kusama)",
+  BifrostKusama = "BNCKusama",
   Edgeware = "EDG",
   EdgeEVM = "evmEDG",
   ZkSyncGoerli = "zkSyncGoerli",
@@ -50,7 +48,15 @@ export enum NetworkNames {
   Klaytn = "KLAY",
   Aurora = "AURORA",
   PuppyNet = "puppyNet",
+<<<<<<< HEAD
   Vara = "VARA",
+=======
+  Opal = "OPL",
+  Quartz = "QTZ",
+  Unique = "UNQ",
+  Pendulum = "pendulum",
+  Amplitude = "amplitude",
+>>>>>>> 9d09517ea44bee5971ca15337f70239eaf54af81
 }
 
 export enum CoingeckoPlatform {
@@ -84,4 +90,6 @@ export enum CoingeckoPlatform {
   Klaytn = "klay-token",
   Aurora = "aurora",
   Zksync = "zksync",
+  Quartz = "quartz",
+  Unique = "unique-network",
 }

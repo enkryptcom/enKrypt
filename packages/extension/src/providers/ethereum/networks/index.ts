@@ -1,8 +1,5 @@
 import ethNode from "./eth";
 import goerliNode from "./goerli";
-import kovanNode from "./kov";
-import ropstenNode from "./rop";
-import rinkebyNode from "./rin";
 import etcNode from "./etc";
 import maticNode from "./matic";
 import bscNode from "./bsc";
@@ -28,13 +25,12 @@ import ftmNode from "./ftm";
 import klayNode from "./klay";
 import auroraNode from "./aurora";
 import puppyNode from "./puppy";
+import sepoliaNode from "./sepolia";
 
 export default {
   goerli: goerliNode,
+  sepolia: sepoliaNode,
   ethereum: ethNode,
-  kovan: kovanNode,
-  ropsten: ropstenNode,
-  rinkeby: rinkebyNode,
   etc: etcNode,
   matic: maticNode,
   bsc: bscNode,
