@@ -13,6 +13,7 @@ import quartzNode from "./unique/quartz";
 import uniqueNode from "./unique/unique";
 import penNode from "./pendulum/pendulum";
 import ampeNode from "./pendulum/amplitude";
+import varaNode from "./vara";
 
 export default {
   acala: acaNode,
@@ -30,6 +31,7 @@ export default {
   unique: uniqueNode,
   pendulum: penNode,
   amplitude: ampeNode,
+  vara: varaNode,
   // interlay: interlayNode,
   // kintsugi: kintsugiNode,
 };
