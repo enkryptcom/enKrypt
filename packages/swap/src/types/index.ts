@@ -113,6 +113,7 @@ export enum ProviderName {
   paraswap = "paraswap",
   zerox = "zerox",
   changelly = "changelly",
+  rango = "rango",
 }
 
 // eslint-disable-next-line no-shadow
