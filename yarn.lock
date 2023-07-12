@@ -2784,7 +2784,7 @@ __metadata:
     mocha: ^10.2.0
     node-fetch: ^2.6.11
     prettier: ^2.8.8
-    rango-sdk-basic: ^0.1.29
+    rango-sdk-basic: 0.1.35
     reconnecting-websocket: ^4.4.0
     ts-mocha: ^10.0.0
     ts-node: ^10.9.1
@@ -20156,24 +20156,24 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rango-sdk-basic@npm:^0.1.29":
-  version: 0.1.30
-  resolution: "rango-sdk-basic@npm:0.1.30"
+"rango-sdk-basic@npm:0.1.35":
+  version: 0.1.35
+  resolution: "rango-sdk-basic@npm:0.1.35"
   dependencies:
     axios: ^1.2.6
     bignumber.js: ^9.1.1
     eth-rpc-errors: ^4.0.3
     ethers: ^5.7.2
-    rango-types: ^0.1.38
+    rango-types: ^0.1.45
     uuid-random: ^1.3.2
-  checksum: 3fb08721b06bd4f15839e189473ac2d43b9dcabec1527b3aab226790556621717674f79e4db9d9543a48ab72048b062787e4e8b68ab26e229f261b160c37f399
+  checksum: ce052cde407495754b3b7685baaca25378e7442103877f7b28963b216746e155e5eebc152f12e84c74ba97b209e149f0f538993a5086596e5ed8bf30efcc9ece
   languageName: node
   linkType: hard
 
-"rango-types@npm:^0.1.38":
-  version: 0.1.39
-  resolution: "rango-types@npm:0.1.39"
-  checksum: e42d6510fb9ad7a8302fab67b62b2b73689b89f8676e2e0fa4f4c36f616043d9b464406b6049ea1e0b86901b57b145cccc419662301a0d48f0397d6ee2f1760b
+"rango-types@npm:^0.1.45":
+  version: 0.1.45
+  resolution: "rango-types@npm:0.1.45"
+  checksum: f57a4e7736adfc2038b853866fc7030b747a6987fe05c7d55cbba62324b9bd029a506406b229653df69f9ef38af5f86790d3a37a2d2af2b32d1c9d6aef603de1
   languageName: node
   linkType: hard
 

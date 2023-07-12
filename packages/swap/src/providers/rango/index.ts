@@ -39,8 +39,8 @@ import { TOKEN_AMOUNT_INFINITY_AND_BEYOND } from "../../utils/approvals";
 import estimateGasList from "../../common/estimateGasList";
 import { isEVMAddress } from "../../utils/common";
 
-const RANGO_API_KEY = "ee7da377-0ed8-4d42-aaf9-fa978a32b18d";
-const rangoClient = new RangoClient(RANGO_API_KEY);
+const RANGO_PUBLIC_API_KEY = "ee7da377-0ed8-4d42-aaf9-fa978a32b18d";
+const rangoClient = new RangoClient(RANGO_PUBLIC_API_KEY);
 const supportedNetworks: {
   [key in SupportedNetworkName]?: { chainId: string; name: string };
 } = {
@@ -178,14 +178,6 @@ class Rango extends ProviderClass {
     return this.toTokens;
   }
 
-  private getSymbol(token: TokenType) {
-    return Object.values(this.fromTokens).find((t) =>
-      !this.isNativeToken(token.address)
-        ? t.address?.toLowerCase() === token.address?.toLowerCase()
-        : t.symbol?.toLowerCase() === token.symbol?.toLowerCase()
-    )?.symbol;
-  }
-
   private isNativeToken(address: string) {
     return NATIVE_TOKEN_ADDRESS === address;
   }
@@ -213,36 +205,31 @@ class Rango extends ProviderClass {
       !Rango.isSupported(this.network, blockchains)
     )
       return Promise.resolve(null);
-
     const feeConfig = FEE_CONFIGS[this.name][meta.walletIdentifier];
-    const fromBlockchain = this.rangoMeta.blockchains.find(
+    const fromBlockchain = blockchains.find(
       (chain) =>
         Number(chain.chainId) ===
         Number(supportedNetworks[this.network].chainId)
     )?.name;
-    const toBlockchain = this.rangoMeta.blockchains.find(
+    const toBlockchain = blockchains.find(
       (chain) =>
         Number(chain.chainId) ===
         Number(supportedNetworks[options.toToken.networkInfo.name].chainId)
     )?.name;
     const fromTokenAddress = options.fromToken.address;
     const toTokenAddress = options.toToken.address;
-    const fromSymbol = this.getSymbol(options.fromToken);
-    const toSymbol = this.getSymbol(options.toToken);
-    if (!fromSymbol || !toSymbol) return Promise.resolve(null);
-
     const params: SwapRequest = {
       from: {
         address: !this.isNativeToken(fromTokenAddress)
           ? fromTokenAddress
           : null,
         blockchain: fromBlockchain,
-        symbol: fromSymbol,
+        symbol: options.fromToken.symbol,
       },
       to: {
         address: !this.isNativeToken(toTokenAddress) ? toTokenAddress : null,
         blockchain: toBlockchain,
-        symbol: toSymbol,
+        symbol: options.toToken.symbol,
       },
       amount: options.amount.toString(),
       fromAddress: options.fromAddress,
@@ -390,21 +377,20 @@ class Rango extends ProviderClass {
           });
           return TransactionStatus.success;
         });
-    } else {
-      const promises = transactionHashes.map((hash) =>
-        this.web3eth.getTransactionReceipt(hash)
-      );
-      return Promise.all(promises).then((receipts) => {
-        // eslint-disable-next-line no-restricted-syntax
-        for (const receipt of receipts) {
-          if (!receipt || (receipt && !receipt.blockNumber)) {
-            return TransactionStatus.pending;
-          }
-          if (receipt && !receipt.status) return TransactionStatus.failed;
-        }
-        return TransactionStatus.success;
-      });
     }
+    const promises = transactionHashes.map((hash) =>
+      this.web3eth.getTransactionReceipt(hash)
+    );
+    return Promise.all(promises).then((receipts) => {
+      // eslint-disable-next-line no-restricted-syntax
+      for (const receipt of receipts) {
+        if (!receipt || (receipt && !receipt.blockNumber)) {
+          return TransactionStatus.pending;
+        }
+        if (receipt && !receipt.status) return TransactionStatus.failed;
+      }
+      return TransactionStatus.success;
+    });
   }
 }
 

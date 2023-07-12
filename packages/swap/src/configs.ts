@@ -35,11 +35,11 @@ const FEE_CONFIGS = {
   },
   [ProviderName.rango]: {
     [WalletIdentifier.enkrypt]: {
-      referrer: "0x485a5ec817711874e49bc01d6c63a7ca9db33653",
+      referrer: "0xabe295bac4b5bce0edcf42d180a3a952ef718b9e",
       fee: 0.00875,
     },
     [WalletIdentifier.mew]: {
-      referrer: "0xD6135f846dbC86d34E69F138b86E87d3eF2A56D0",
+      referrer: "0x48ae878bf9f752ee65679c017e32e4cafac51696",
       fee: 0.025,
     },
   },

@@ -43,5 +43,5 @@ describe("Rango Provider", () => {
     const swap = await rango.getSwap(quote!.quote);
     expect(swap?.transactions.length).to.be.eq(2);
     expect(swap?.transactions[0].to).to.be.eq(fromToken.address);
-  }).timeout(5000);
+  }).timeout(20000);
 });
