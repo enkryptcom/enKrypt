@@ -84,7 +84,7 @@
           <base-button
             :title="sendButtonTitle"
             :click="sendAction"
-            :disabled="isDisabled()"
+            :disabled="isDisabled"
           />
         </div>
       </div>
@@ -162,7 +162,7 @@ const selectedAsset = ref<SubstrateToken | Partial<SubstrateToken>>(
     decimals: 12,
   })
 );
-const hasEnough = ref(true);
+const hasEnough = ref(false);
 const sendMax = ref(false);
 
 const selected: string = route.params.id as string;
@@ -215,7 +215,7 @@ onMounted(() => {
   fetchTokens();
 });
 
-watch([selectedAsset, amount, addressTo], async () => {
+const validateFields = async () => {
   if (selectedAsset.value && isAddress.value) {
     if (!isValidDecimals(amount.value || "0", selectedAsset.value.decimals!)) {
       hasEnough.value = false;
@@ -225,20 +225,12 @@ watch([selectedAsset, amount, addressTo], async () => {
     const api = (await props.network.api()).api as ApiPromise;
     await api.isReady;
 
-    const rawAmount = toBN(
+    let rawAmount = toBN(
       toBase(
         amount.value ? amount.value.toString() : "0",
         selectedAsset.value.decimals!
       )
     );
-
-    const rawBalance = toBN(selectedAsset.value.balance!);
-
-    if (rawAmount.gt(rawBalance)) {
-      hasEnough.value = false;
-    } else {
-      hasEnough.value = true;
-    }
 
     const sendOptions: SendOptions | undefined = sendMax.value
       ? { type: "all" }
@@ -253,6 +245,25 @@ watch([selectedAsset, amount, addressTo], async () => {
     const { partialFee } = (
       await tx.paymentInfo(props.accountInfo.selectedAccount!.address)
     ).toJSON();
+    const rawFee = toBN(partialFee?.toString() ?? "0");
+    const rawBalance = toBN(selectedAsset.value.balance!);
+    if (
+      sendMax.value &&
+      selectedAsset.value.name === accountAssets.value[0].name
+    ) {
+      rawAmount = rawAmount.sub(rawFee);
+      if (rawAmount.gtn(0)) {
+        amount.value = fromBase(
+          rawAmount.toString(),
+          selectedAsset.value.decimals!
+        );
+      }
+    }
+    if (rawAmount.ltn(0) || rawAmount.add(rawFee).gt(rawBalance)) {
+      hasEnough.value = false;
+    } else {
+      hasEnough.value = true;
+    }
 
     const nativeAsset = accountAssets.value[0];
     const txFeeHuman = fromBase(
@@ -269,7 +280,8 @@ watch([selectedAsset, amount, addressTo], async () => {
       nativeValue: txFeeHuman.toString(),
     };
   }
-});
+};
+watch([selectedAsset, addressTo], validateFields);
 
 watch(addressFrom, () => {
   fetchTokens();
@@ -353,7 +365,9 @@ const selectToken = (token: SubstrateToken | Partial<SubstrateToken>) => {
 };
 
 const inputAmount = (number: string | undefined) => {
+  sendMax.value = false;
   amount.value = number ? (parseFloat(number) < 0 ? "0" : number) : number;
+  validateFields();
 };
 
 const sendButtonTitle = computed(() => {
@@ -378,13 +392,13 @@ const setSendMax = (max: boolean) => {
       selectedAsset.value.balance!,
       selectedAsset.value.decimals!
     );
-
     amount.value = humanBalance;
+    validateFields();
     sendMax.value = true;
   }
 };
 
-const isDisabled = () => {
+const isDisabled = computed(() => {
   let isDisabled = true;
 
   let addressIsValid = false;
@@ -406,7 +420,7 @@ const isDisabled = () => {
   )
     isDisabled = false;
   return isDisabled;
-};
+});
 
 const sendAction = async () => {
   const sendAmount = toBase(amount.value!, selectedAsset.value.decimals!);

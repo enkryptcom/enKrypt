@@ -18,20 +18,20 @@
   },
   "dependencies": {
     "@enkryptcom/types": "workspace:^",
-    "@ethereumjs/util": "^8.0.6",
-    "@polkadot/util-crypto": "^10.4.2",
+    "@ethereumjs/util": "^8.1.0",
+    "@polkadot/util-crypto": "^12.3.2",
     "bip39": "^3.1.0",
     "chai": "^4.3.7",
     "ethereum-cryptography": "^1.2.0",
-    "web3-utils": "^1.9.0"
+    "web3-utils": "^1.10.0"
   },
   "devDependencies": {
-    "@types/chai": "^4.3.4",
+    "@types/chai": "^4.3.5",
     "@types/mocha": "^9.1.1",
-    "@types/node": "^18.16.0",
-    "@typescript-eslint/eslint-plugin": "^5.59.1",
-    "@typescript-eslint/parser": "^5.59.1",
-    "eslint": "^8.39.0",
+    "@types/node": "^18.16.18",
+    "@typescript-eslint/eslint-plugin": "^5.60.0",
+    "@typescript-eslint/parser": "^5.60.0",
+    "eslint": "^8.43.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-prettier": "^8.8.0",
     "eslint-import-resolver-alias": "^1.1.2",

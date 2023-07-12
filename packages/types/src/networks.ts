@@ -51,8 +51,9 @@ export enum NetworkNames {
   Opal = "OPL",
   Quartz = "QTZ",
   Unique = "UNQ",
-  Interlay = "INTR",
-  Kintsugi = "KINT",
+  Pendulum = "pendulum",
+  Amplitude = "amplitude",
+  Vara = "VARA",
 }
 
 export enum CoingeckoPlatform {
@@ -88,6 +89,4 @@ export enum CoingeckoPlatform {
   Zksync = "zksync",
   Quartz = "quartz",
   Unique = "unique-network",
-  Interlay = "interlay",
-  Kintsugi = "kintsugi",
 }
