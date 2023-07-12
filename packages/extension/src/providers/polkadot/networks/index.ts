@@ -32,6 +32,4 @@ export default {
   pendulum: penNode,
   amplitude: ampeNode,
   vara: varaNode,
-  // interlay: interlayNode,
-  // kintsugi: kintsugiNode,
 };
