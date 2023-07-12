@@ -619,7 +619,6 @@ const sendAction = async () => {
   const trades: (ProviderResponseWithStatus | null)[] = await Promise.all(
     tradePromises
   ).then((responses) => responses.filter((r) => !!r));
-
   const tradeStatusOptions = trades.map((t) =>
     t!.getStatusObject({
       transactionHashes: [],

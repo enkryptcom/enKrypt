@@ -16,6 +16,12 @@
         class="account__notification"
       />
 
+      <tooltip v-if="isConnectedDomain" text="Disconnect from current dapp">
+        <a class="account__actions--copy" @click="disconnectFromDapp()">
+          <icon-disconnect />
+        </a>
+      </tooltip>
+
       <tooltip text="View on Blockchain Explorer">
         <a class="account__actions--copy" target="_blank" :href="externalLink">
           <icon-external />
@@ -44,15 +50,27 @@
 <script setup lang="ts">
 import SwitchArrow from "@action/icons/header/switch_arrow.vue";
 import IconQr from "@action/icons/header/qr_icon.vue";
+import IconDisconnect from "@action/icons/header/disconnect_icon.vue";
 import IconCopy from "@action/icons/header/copy_icon.vue";
 import IconExternal from "@action/icons/header/external-icon.vue";
 import Tooltip from "@action/components/tooltip/index.vue";
-import { PropType, ref, computed } from "vue";
+import { PropType, ref, computed, onMounted } from "vue";
 import Notification from "@action/components/notification/index.vue";
 import { BaseNetwork } from "@/types/base-network";
+import DomainState from "@/libs/domain-state";
+import EvmAccountState from "@/providers/ethereum/libs/accounts-state";
+import BtcAccountState from "@/providers/bitcoin/libs/accounts-state";
+import SubstrateAccountState from "@/providers/polkadot/libs/accounts-state";
 
 const isCopied = ref(false);
-
+const domainState = new DomainState();
+const isConnectedDomain = ref(false);
+const currentDomain = ref("");
+const allAccountStates = [
+  new EvmAccountState(),
+  new BtcAccountState(),
+  new SubstrateAccountState(),
+];
 const props = defineProps({
   name: {
     type: String,
@@ -88,6 +106,25 @@ const externalLink = computed(() => {
 });
 const toggleNotification = () => {
   isCopied.value = !isCopied.value;
+};
+const checkAndSetConnectedDapp = () => {
+  Promise.all(
+    allAccountStates.map((as) => as.isConnected(currentDomain.value))
+  ).then((responses) => {
+    responses.forEach((res) => {
+      if (res) isConnectedDomain.value = true;
+    });
+  });
+};
+onMounted(async () => {
+  currentDomain.value = await domainState.getCurrentDomain();
+  checkAndSetConnectedDapp();
+});
+const disconnectFromDapp = async () => {
+  await Promise.all(
+    allAccountStates.map((as) => as.deleteState(currentDomain.value))
+  );
+  isConnectedDomain.value = false;
 };
 </script>
 

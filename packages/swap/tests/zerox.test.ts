@@ -51,7 +51,7 @@ describe("Zerox Provider", () => {
       )}${TOKEN_AMOUNT_INFINITY_AND_BEYOND.replace("0x", "")}`
     );
     expect(swap?.transactions[1].to).to.be.eq(ZEROX_APPROVAL);
-  }).timeout(5000);
+  }).timeout(10000);
 
   it("it should return a quote non infinity approval", async () => {
     const quote = await zerox.getQuote(
@@ -76,5 +76,5 @@ describe("Zerox Provider", () => {
       ).replace("0x", "")}`
     );
     expect(swap?.transactions[1].to).to.be.eq(ZEROX_APPROVAL);
-  }).timeout(5000);
+  }).timeout(10000);
 });
