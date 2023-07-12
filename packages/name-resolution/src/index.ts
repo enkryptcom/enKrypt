@@ -50,14 +50,14 @@ class NameResolver {
     coin: CoinType = "ETH"
   ): Promise<string | null> {
     return this.initDone.then(() => {
-      if (this.sid.isSupportedName(name))
-        return this.sid.resolveAddress(name, coin);
+      if (this.sid.isSupportedName(name)) return this.sid.resolveAddress(name);
       if (this.rns.isSupportedName(name))
         return this.rns.resolveAddress(name, coin);
       if (this.ud.isSupportedName(name))
         return this.ud.resolveAddress(name, coin);
       if (this.ens.isSupportedName(name))
         return this.ens.resolveAddress(name, coin);
+
       return null;
     });
   }

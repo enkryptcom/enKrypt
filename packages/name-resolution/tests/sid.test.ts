@@ -11,10 +11,8 @@ describe("SID Name resolving", () => {
       },
     });
     await resolver.init();
-    // let address = await resolver.resolveAddress("allen.bnb", "BNB");
-    // expect(address).to.be.eq("0x2e552E3aD9f7446e9caB378c008315E0C26c0398");
-    let address2 = await resolver.resolveAddress("spaceid.arb", "ARB1");
-    expect(address2).to.be.eq("0xb5932a6B7d50A966AEC6C74C97385412Fb497540");
+    const address = await resolver.resolveAddress("spaceid.arb", "ARB1");
+    expect(address).to.be.eq("0xb5932a6B7d50A966AEC6C74C97385412Fb497540");
   }).timeout(10000);
 
   it("it should properly reverse resolve", async () => {
