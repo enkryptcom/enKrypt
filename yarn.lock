@@ -2344,8 +2344,8 @@ __metadata:
   dependencies:
     "@antfu/eslint-config": ^0.27.0
     "@types/chai": ^4.3.5
-    "@types/mocha": ^9.1.1
-    "@types/node": ^18.16.19
+    "@types/mocha": ^10.0.1
+    "@types/node": ^20.4.2
     "@types/webextension-polyfill": ^0.10.1
     "@typescript-eslint/eslint-plugin": ^5.62.0
     "@typescript-eslint/parser": ^5.62.0
@@ -2406,7 +2406,7 @@ __metadata:
     "@types/events": ^3.0.0
     "@types/less": ^3.0.3
     "@types/lodash": ^4.14.195
-    "@types/mocha": ^9.1.1
+    "@types/mocha": ^10.0.1
     "@types/url-parse": ^1.4.8
     "@types/utf-8-validate": ^5.0.0
     "@types/uuid": ^9.0.2
@@ -2493,8 +2493,8 @@ __metadata:
     "@polkadot/util": ^12.3.2
     "@trezor/connect-web": ^9.0.11
     "@types/chai": ^4.3.5
-    "@types/mocha": ^9.1.1
-    "@types/node": ^18.16.19
+    "@types/mocha": ^10.0.1
+    "@types/node": ^20.4.2
     "@typescript-eslint/eslint-plugin": ^5.62.0
     "@typescript-eslint/parser": ^5.62.0
     "@zondax/ledger-substrate": ^0.40.7
@@ -2531,8 +2531,8 @@ __metadata:
     "@enkryptcom/utils": "workspace:^"
     "@polkadot/util": ^12.3.2
     "@types/chai": ^4.3.5
-    "@types/mocha": ^9.1.1
-    "@types/node": ^18.16.19
+    "@types/mocha": ^10.0.1
+    "@types/node": ^20.4.2
     "@typescript-eslint/eslint-plugin": ^5.62.0
     "@typescript-eslint/parser": ^5.62.0
     assert: ^2.0.0
@@ -2562,8 +2562,8 @@ __metadata:
     "@ensdomains/address-encoder": ^0.2.21
     "@siddomains/sidjs": 0.1.27
     "@types/chai": ^4.3.5
-    "@types/mocha": ^9.1.1
-    "@types/node": ^18.16.19
+    "@types/mocha": ^10.0.1
+    "@types/node": ^20.4.2
     "@typescript-eslint/eslint-plugin": ^5.62.0
     "@typescript-eslint/parser": ^5.62.0
     "@unstoppabledomains/resolution": ^8.5.0
@@ -2592,8 +2592,8 @@ __metadata:
   dependencies:
     "@enkryptcom/types": "workspace:^"
     "@types/chai": ^4.3.5
-    "@types/mocha": ^9.1.1
-    "@types/node": ^18.16.19
+    "@types/mocha": ^10.0.1
+    "@types/node": ^20.4.2
     "@typescript-eslint/eslint-plugin": ^5.62.0
     "@typescript-eslint/parser": ^5.62.0
     chai: ^4.3.7
@@ -2630,8 +2630,8 @@ __metadata:
     "@noble/secp256k1": 1.7.1
     "@types/chai": ^4.3.5
     "@types/hdkey": ^2.0.1
-    "@types/mocha": ^9.1.1
-    "@types/node": ^18.16.19
+    "@types/mocha": ^10.0.1
+    "@types/node": ^20.4.2
     "@typescript-eslint/eslint-plugin": ^5.62.0
     "@typescript-eslint/parser": ^5.62.0
     bip39: ^3.1.0
@@ -2664,8 +2664,8 @@ __metadata:
     "@enkryptcom/utils": "workspace:^"
     "@types/chai": ^4.3.5
     "@types/hdkey": ^2.0.1
-    "@types/mocha": ^9.1.1
-    "@types/node": ^18.16.19
+    "@types/mocha": ^10.0.1
+    "@types/node": ^20.4.2
     "@typescript-eslint/eslint-plugin": ^5.62.0
     "@typescript-eslint/parser": ^5.62.0
     bip39: ^3.1.0
@@ -2703,8 +2703,8 @@ __metadata:
     "@polkadot/util-crypto": ^12.3.2
     "@polkadot/wasm-crypto": ^7.2.1
     "@types/chai": ^4.3.5
-    "@types/mocha": ^9.1.1
-    "@types/node": ^18.16.19
+    "@types/mocha": ^10.0.1
+    "@types/node": ^20.4.2
     "@typescript-eslint/eslint-plugin": ^5.62.0
     "@typescript-eslint/parser": ^5.62.0
     assert: ^2.0.0
@@ -2733,8 +2733,8 @@ __metadata:
     "@enkryptcom/types": "workspace:^"
     "@enkryptcom/utils": "workspace:^"
     "@types/chai": ^4.3.5
-    "@types/mocha": ^9.1.1
-    "@types/node": ^18.16.19
+    "@types/mocha": ^10.0.1
+    "@types/node": ^20.4.2
     "@typescript-eslint/eslint-plugin": ^5.62.0
     "@typescript-eslint/parser": ^5.62.0
     chai: ^4.3.7
@@ -2763,8 +2763,8 @@ __metadata:
     "@enkryptcom/types": "workspace:^"
     "@enkryptcom/utils": "workspace:^"
     "@types/chai": ^4.3.5
-    "@types/mocha": ^9.1.1
-    "@types/node": ^18.16.19
+    "@types/mocha": ^10.0.1
+    "@types/node": ^20.4.2
     "@typescript-eslint/eslint-plugin": ^5.62.0
     "@typescript-eslint/parser": ^5.62.0
     bignumber.js: ^9.1.1
@@ -2800,7 +2800,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@enkryptcom/types@workspace:packages/types"
   dependencies:
-    "@types/node": ^18.16.19
+    "@types/node": ^20.4.2
     "@typescript-eslint/eslint-plugin": ^5.62.0
     "@typescript-eslint/parser": ^5.62.0
     eslint: ^8.44.0
@@ -2826,8 +2826,8 @@ __metadata:
     "@ethereumjs/util": ^8.1.0
     "@polkadot/util-crypto": ^12.3.2
     "@types/chai": ^4.3.5
-    "@types/mocha": ^9.1.1
-    "@types/node": ^18.16.19
+    "@types/mocha": ^10.0.1
+    "@types/node": ^20.4.2
     "@typescript-eslint/eslint-plugin": ^5.62.0
     "@typescript-eslint/parser": ^5.62.0
     bip39: ^3.1.0
@@ -7411,10 +7411,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/mocha@npm:^9.1.1":
-  version: 9.1.1
-  resolution: "@types/mocha@npm:9.1.1"
-  checksum: 516077c0acd9806dc78317f88aaac0df5aaf0bdc2f63dfdadeabdf0b0137953b6ca65472e6ff7c30bc93ce4e0ae76eae70e8d46764b9a8eae4877a928b6ef49a
+"@types/mocha@npm:^10.0.1":
+  version: 10.0.1
+  resolution: "@types/mocha@npm:10.0.1"
+  checksum: 224ea9fce7b1734ccdb9aa99a622d902a538ce1847bca7fd22c5fb38adcf3ed536f50f48f587085db988a4bb3c2eb68f4b98e1cd6a38bc5547bd3bbbedc54495
   languageName: node
   linkType: hard
 
@@ -7481,10 +7481,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:^18.16.19":
-  version: 18.16.19
-  resolution: "@types/node@npm:18.16.19"
-  checksum: 63c31f09616508aa7135380a4c79470a897b75f9ff3a70eb069e534dfabdec3f32fb0f9df5939127f1086614d980ddea0fa5e8cc29a49103c4f74cd687618aaf
+"@types/node@npm:^20.4.2":
+  version: 20.4.2
+  resolution: "@types/node@npm:20.4.2"
+  checksum: 99e544ea7560d51f01f95627fc40394c24a13da8f041121a0da13e4ef0a2aa332932eaf9a5e8d0e30d1c07106e96a183be392cbba62e8cf0bf6a085d5c0f4149
   languageName: node
   linkType: hard
 
