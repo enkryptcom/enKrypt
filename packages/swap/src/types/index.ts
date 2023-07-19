@@ -97,6 +97,7 @@ export interface QuoteMetaOptions {
   walletIdentifier: WalletIdentifier;
   slippage?: string;
   changellyQuoteId?: string;
+  changellynetworkFee?: BN;
   priceRoute?: unknown;
 }
 

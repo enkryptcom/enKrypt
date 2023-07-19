@@ -66,7 +66,7 @@ export interface EIP6963ProviderInfo {
   uuid: string;
   name: string;
   icon: `data:image/svg+xml;base64,${string}`;
-  walletId: string;
+  rdns: string;
 }
 
 export enum EIP6963Events {
