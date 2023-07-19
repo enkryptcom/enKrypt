@@ -53,6 +53,7 @@ export enum NetworkNames {
   Unique = "UNQ",
   Pendulum = "pendulum",
   Amplitude = "amplitude",
+  Vara = "VARA",
 }
 
 export enum CoingeckoPlatform {

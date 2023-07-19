@@ -13,6 +13,7 @@ const NetworkEndpoints = {
   [NetworkNames.Edgeware]: "https://edgeware.api.subscan.io/",
   [NetworkNames.Quartz]: "https://quartz.api.subscan.io/",
   [NetworkNames.Unique]: "https://unique.api.subscan.io/",
+  [NetworkNames.Vara]: "https://vara.api.subscan.io/",
 };
 
 export { NetworkEndpoints };
