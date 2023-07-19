@@ -2,7 +2,7 @@
   "author": "https://www.enkrypt.com",
   "homepage_url": "https://www.enkrypt.com",
   "version": "",
-  "name": "Enkrypt: Ethereum, Polkadot & AVAX Wallet",
+  "name": "Enkrypt: Multichain Crypto Wallet",
   "short_name": "Enkrypt",
   "permissions": [
     "storage",

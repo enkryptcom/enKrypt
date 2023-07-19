@@ -17,12 +17,12 @@
   },
   "devDependencies": {
     "@types/chai": "^4.3.5",
-    "@types/mocha": "^9.1.1",
-    "@types/node": "^18.16.18",
-    "@typescript-eslint/eslint-plugin": "^5.60.0",
-    "@typescript-eslint/parser": "^5.60.0",
+    "@types/mocha": "^10.0.1",
+    "@types/node": "^20.4.2",
+    "@typescript-eslint/eslint-plugin": "^5.62.0",
+    "@typescript-eslint/parser": "^5.62.0",
     "chai": "^4.3.7",
-    "eslint": "^8.43.0",
+    "eslint": "^8.44.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-prettier": "^8.8.0",
     "eslint-import-resolver-alias": "^1.1.2",
@@ -46,7 +46,7 @@
   "license": "MIT",
   "dependencies": {
     "@ensdomains/address-encoder": "^0.2.21",
-    "@siddomains/sidjs": "0.1.22",
+    "@siddomains/sidjs": "0.1.27",
     "@unstoppabledomains/resolution": "^8.5.0",
     "ethers": "^5.7.2"
   }
