@@ -32,7 +32,7 @@ class KeyRing {
 
   #privkeys: Record<string, string>;
 
-  #autoLock: number;
+  #autoLock: ReturnType<typeof setTimeout>;
 
   readonly autoLockTime: number;
 
@@ -73,6 +73,15 @@ class KeyRing {
     return false;
   }
 
+  #resetTimeout(): void {
+    clearTimeout(this.#autoLock);
+    this.#autoLock = setTimeout(() => {
+      this.#mnemonic = null;
+      this.#isLocked = true;
+      this.#privkeys = {};
+    }, this.autoLockTime);
+  }
+
   async #getPathIndex(basePath: string): Promise<number> {
     const pathIndexes =
       (await this.#storage.get(configs.STORAGE_KEYS.PATH_INDEXES)) || {};
@@ -97,12 +106,7 @@ class KeyRing {
       [this.#mnemonic, this.#privkeys] = results;
       this.#isLocked = false;
       if (this.autoLockTime !== 0) {
-        clearTimeout(this.#autoLock);
-        setTimeout(() => {
-          this.#mnemonic = null;
-          this.#isLocked = true;
-          this.#privkeys = {};
-        }, this.autoLockTime);
+        this.#resetTimeout();
       }
     });
   }
@@ -113,6 +117,7 @@ class KeyRing {
 
   async createKey(key: KeyRecordAdd): Promise<EnkryptAccount> {
     assert(!this.#isLocked, Errors.KeyringErrors.Locked);
+    this.#resetTimeout();
     const nextIndex = await this.#getPathIndex(key.basePath);
     let keypair: KeyPair;
     if (key.walletType === WalletType.privkey) {
@@ -161,6 +166,7 @@ class KeyRing {
 
   async sign(msgHash: string, options: SignOptions): Promise<string> {
     assert(!this.#isLocked, Errors.KeyringErrors.Locked);
+    this.#resetTimeout();
     assert(
       !Object.values(HWwalletType).includes(
         options.walletType as unknown as HWwalletType
@@ -188,6 +194,7 @@ class KeyRing {
 
   async getEthereumEncryptionPublicKey(options: SignOptions): Promise<string> {
     assert(!this.#isLocked, Errors.KeyringErrors.Locked);
+    this.#resetTimeout();
     assert(
       !Object.values(HWwalletType).includes(
         options.walletType as unknown as HWwalletType
@@ -212,6 +219,7 @@ class KeyRing {
     options: SignOptions
   ): Promise<string> {
     assert(!this.#isLocked, Errors.KeyringErrors.Locked);
+    this.#resetTimeout();
     assert(
       !Object.values(HWwalletType).includes(
         options.walletType as unknown as HWwalletType
@@ -339,6 +347,7 @@ class KeyRing {
   lock(): void {
     clearTimeout(this.#autoLock);
     this.#mnemonic = null;
+    this.#privkeys = {};
     this.#isLocked = true;
   }
 }

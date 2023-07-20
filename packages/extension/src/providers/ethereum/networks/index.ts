@@ -2,6 +2,7 @@ import ethNode from "./eth";
 import goerliNode from "./goerli";
 import etcNode from "./etc";
 import maticNode from "./matic";
+import maticZkNode from "./maticzk";
 import bscNode from "./bsc";
 import moonbeamNode from "./glmr";
 import moonriverNode from "./movr";
@@ -33,6 +34,7 @@ export default {
   ethereum: ethNode,
   etc: etcNode,
   matic: maticNode,
+  maticzk: maticZkNode,
   bsc: bscNode,
   moonbeam: moonbeamNode,
   moonriver: moonriverNode,
