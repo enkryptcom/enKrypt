@@ -27,6 +27,7 @@ import klayNode from "./klay";
 import auroraNode from "./aurora";
 import puppyNode from "./puppy";
 import sepoliaNode from "./sepolia";
+import baseNode from "./base";
 
 export default {
   goerli: goerliNode,
@@ -67,4 +68,5 @@ export default {
   klaytn: klayNode,
   aurora: auroraNode,
   puppy: puppyNode,
+  base: baseNode,
 };
