@@ -71,14 +71,26 @@ class Transaction {
     const { isFeeMarketNetwork, baseFeePerGas } = await this.web3
       .getBlock("pending", false)
       .then((block) => {
-        return {
-          isFeeMarketNetwork: !!block.baseFeePerGas,
-          baseFeePerGas: block.baseFeePerGas?.toString(),
-        };
+        if (block) {
+          return {
+            isFeeMarketNetwork: !!block.baseFeePerGas,
+            baseFeePerGas: block.baseFeePerGas?.toString(),
+          };
+        }
+        // some networks such as zksync era pending block is null
+        return this.web3.getBlock("latest", false).then((block) => {
+          return {
+            isFeeMarketNetwork: !!block.baseFeePerGas,
+            baseFeePerGas: block.baseFeePerGas?.toString(),
+          };
+        });
       });
     const gasPrice = await this.web3.getGasPrice();
     const nonce = await this.web3.getTransactionCount(this.tx.from, "pending");
-    if (!isFeeMarketNetwork) {
+    const feeHistory = await this.web3
+      .getFeeHistory(6, "pending", [25, 50, 75, 90])
+      .catch(() => null);
+    if (!isFeeMarketNetwork || !feeHistory) {
       const legacyTx: FinalizedLegacyEthereumTransaction = {
         to: this.tx.to || undefined,
         chainId: this.tx.chainId,
@@ -99,11 +111,6 @@ class Transaction {
         gasLimit: legacyTx.gasLimit,
       };
     } else {
-      const feeHistory = await this.web3.getFeeHistory(
-        6,
-        "pending",
-        [25, 50, 75, 90]
-      );
       const formattedFeeHistory = formatFeeHistory(feeHistory);
       const feeMarket = this.getFeeMarketGasInfo(
         baseFeePerGas!,
