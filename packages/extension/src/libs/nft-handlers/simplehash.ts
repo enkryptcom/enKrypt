@@ -15,6 +15,9 @@ export default async (
     [NetworkNames.Arbitrum]: "arbitrum",
     [NetworkNames.Gnosis]: "gnosis",
     [NetworkNames.Avalanche]: "avalanche",
+    [NetworkNames.ZkSync]: "zksync-era",
+    [NetworkNames.ZkSyncGoerli]: "zksync-era-testnet",
+    [NetworkNames.Goerli]: "ethereum-goerli",
   };
   if (!Object.keys(supportedNetworks).includes(network.name))
     throw new Error("Simplehash: network not supported");

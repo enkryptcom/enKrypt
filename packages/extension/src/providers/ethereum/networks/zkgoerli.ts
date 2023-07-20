@@ -3,6 +3,7 @@ import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
 import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
 import { EtherscanActivity } from "../libs/activity-handlers";
 import assetsInfoHandler from "@/providers/ethereum/libs/assets-handlers/assetinfo-mew";
+import shNFTHandler from "@/libs/nft-handlers/simplehash";
 
 const zkgoerliOptions: EvmNetworkOptions = {
   name: NetworkNames.ZkSyncGoerli,
@@ -17,7 +18,7 @@ const zkgoerliOptions: EvmNetworkOptions = {
   node: "wss://zksync2-testnet.zksync.dev/ws",
   icon: require("./icons/zksync.svg"),
   gradient: "linear-gradient(180deg, #C549FF 0%, #684CFF 100%)",
-  assetsInfoHandler,
+  NFTHandler: shNFTHandler,
   activityHandler: wrapActivityHandler(EtherscanActivity),
 };
 

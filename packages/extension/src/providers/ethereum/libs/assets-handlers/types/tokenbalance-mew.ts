@@ -43,6 +43,5 @@ export type SupportedNetworkNames =
   | NetworkNames.Fantom
   | NetworkNames.Klaytn
   | NetworkNames.Aurora
-  | NetworkNames.ZkSyncGoerli
-  | NetworkNames.ZkSync
-  | NetworkNames.TomoChain;
+  | NetworkNames.TomoChain
+  | NetworkNames.ZkSync;
