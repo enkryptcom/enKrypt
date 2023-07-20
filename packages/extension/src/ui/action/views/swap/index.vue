@@ -255,7 +255,6 @@ onMounted(async () => {
   props.network
     .getAllTokenInfo(props.accountInfo.selectedAccount?.address as string)
     .then(async (tokens) => {
-      console.log(tokens);
       await swap.initPromise;
       let swapFromTokens = await swap.getFromTokens();
       const tokensWithBalance: Record<string, string> = {};
@@ -620,7 +619,6 @@ const sendAction = async () => {
   const trades: (ProviderResponseWithStatus | null)[] = await Promise.all(
     tradePromises
   ).then((responses) => responses.filter((r) => !!r));
-
   const tradeStatusOptions = trades.map((t) =>
     t!.getStatusObject({
       transactionHashes: [],

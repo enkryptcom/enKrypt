@@ -75,9 +75,9 @@ export interface FromTokenType {
 }
 
 export interface ToTokenType {
-  top: Record<SupportedNetworkName, TokenTypeTo[]>;
-  trending: Record<SupportedNetworkName, TokenTypeTo[]>;
-  all: Record<SupportedNetworkName, TokenTypeTo[]>;
+  top: Record<SupportedNetworkName, TokenTypeTo[]> | Record<string, never>;
+  trending: Record<SupportedNetworkName, TokenTypeTo[]> | Record<string, never>;
+  all: Record<SupportedNetworkName, TokenTypeTo[]> | Record<string, never>;
 }
 
 export interface EvmOptions {
@@ -97,6 +97,8 @@ export interface QuoteMetaOptions {
   walletIdentifier: WalletIdentifier;
   slippage?: string;
   changellyQuoteId?: string;
+  changellynetworkFee?: BN;
+  priceRoute?: unknown;
 }
 
 export interface SwapOptions {
@@ -196,10 +198,9 @@ export interface ProviderSwapResponse {
 
 export type ProviderFromTokenResponse = Record<string, TokenType>;
 
-export type ProviderToTokenResponse = Record<
-  SupportedNetworkName,
-  Record<string, TokenTypeTo>
->;
+export type ProviderToTokenResponse =
+  | Record<SupportedNetworkName, Record<string, TokenTypeTo>>
+  | Record<string, never>;
 
 export interface TopTokenInfo {
   trendingTokens: Record<string, number>;

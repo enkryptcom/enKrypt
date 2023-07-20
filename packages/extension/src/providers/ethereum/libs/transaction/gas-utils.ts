@@ -113,7 +113,9 @@ const formatFeeHistory = (
       number: blockNum,
       baseFeePerGas: blockBaseFee,
       gasUsedRatio: feeHistory.gasUsedRatio[index],
-      priorityFeePerGas: feeHistory.reward[index].map((x) => toBN(x)),
+      priorityFeePerGas: feeHistory.reward[index]
+        .map((x) => toBN(x))
+        .sort((a, b) => a.sub(b).toNumber()),
     });
     blockNum += 1;
     index += 1;
@@ -140,7 +142,7 @@ const getBaseFeeBasedOnType = (
   const baseFeeBN = toBN(baseFee);
   switch (gasPriceType) {
     case GasPriceTypes.ECONOMY:
-      return baseFeeBN.muln(1.15);
+      return baseFeeBN;
     case GasPriceTypes.REGULAR:
       return baseFeeBN.muln(1.25);
     case GasPriceTypes.FAST:

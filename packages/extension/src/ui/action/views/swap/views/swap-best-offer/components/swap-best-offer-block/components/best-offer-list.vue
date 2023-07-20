@@ -26,9 +26,9 @@ interface IProps {
 }
 
 const getReadable = (idx: number) => {
-  return new SwapToken(props.toToken).toReadable(
-    props.trades[idx].toTokenAmount
-  );
+  return new SwapToken(props.toToken)
+    .toReadable(props.trades[idx].toTokenAmount)
+    .substring(0, 20);
 };
 const props = defineProps<IProps>();
 

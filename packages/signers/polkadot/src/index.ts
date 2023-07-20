@@ -42,7 +42,12 @@ class Signer implements SignerInterface {
     const { path, phrase, password } = keyExtractSuri(
       `${mnemonic}${derivationPath}`
     );
-    const seed = mnemonicToMiniSecret(phrase, password, options.onlyJS);
+    const seed = mnemonicToMiniSecret(
+      phrase,
+      password,
+      undefined,
+      options.onlyJS
+    );
     let pair: KeyPair;
     switch (this.type) {
       case SignerType.ecdsa:

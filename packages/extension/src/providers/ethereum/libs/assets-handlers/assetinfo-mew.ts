@@ -20,8 +20,8 @@ import { EvmNetwork } from "../../types/evm-network";
 import { getKnownNetworkTokens } from "./token-lists";
 import { CoingeckoPlatform, NetworkNames } from "@enkryptcom/types";
 import { NATIVE_TOKEN_ADDRESS } from "../common";
-import getZKSyncBalances from "./zksync";
 import getTomoBalances from "./tomochain";
+import { CoinGeckoTokenMarket } from "@/libs/market-data/types";
 
 const API_ENPOINT = "https://tokenbalance.mewapi.io/";
 const API_ENPOINT2 = "https://partners.mewapi.io/balances/";
@@ -95,15 +95,17 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
     tbName: "aurora",
     cgPlatform: CoingeckoPlatform.Aurora,
   },
+  [NetworkNames.ZkSync]: {
+    tbName: "era",
+    cgPlatform: CoingeckoPlatform.Zksync,
+  },
+  [NetworkNames.MaticZK]: {
+    tbName: "pze",
+    cgPlatform: CoingeckoPlatform.MaticZK,
+  },
   [NetworkNames.TomoChain]: {
     tbName: "",
     cgPlatform: CoingeckoPlatform.TomoChain,
-  },
-  [NetworkNames.ZkSyncGoerli]: {
-    tbName: "",
-  },
-  [NetworkNames.ZkSync]: {
-    tbName: "",
   },
 };
 
@@ -111,9 +113,6 @@ const getTokens = (
   chain: SupportedNetworkNames,
   address: string
 ): Promise<TokenBalance[]> => {
-  if (chain === NetworkNames.ZkSyncGoerli || chain === NetworkNames.ZkSync) {
-    return getZKSyncBalances(chain, address);
-  }
   if (chain === NetworkNames.TomoChain) {
     return getTomoBalances(chain, address);
   }
@@ -165,7 +164,10 @@ export default (
           ),
           supportedNetworks[networkName].cgPlatform as CoingeckoPlatform
         )
-      : tokens.reduce((obj, cur) => ({ ...obj, [cur.contract]: null }), {});
+      : tokens.reduce(
+          (obj, cur) => ({ ...obj, [cur.contract]: null }),
+          {} as Record<string, CoinGeckoTokenMarket | null>
+        );
     if (network.coingeckoID) {
       const nativeMarket = await marketData.getMarketData([
         network.coingeckoID,
@@ -262,7 +264,7 @@ export default (
             symbol: tInfo.symbol,
             value: "0",
             valuef: formatFiatValue("0").value,
-            contract: address,
+            contract: unknownTokens[idx],
             decimals: tInfo.decimals,
             sparkline: "",
             priceChangePercentage: 0,

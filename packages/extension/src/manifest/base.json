@@ -2,12 +2,11 @@
   "author": "https://www.enkrypt.com",
   "homepage_url": "https://www.enkrypt.com",
   "version": "",
-  "name": "Enkrypt: Ethereum, Polkadot & Canto Wallet",
+  "name": "Enkrypt: Multichain Crypto Wallet",
   "short_name": "Enkrypt",
   "permissions": [
     "storage",
     "unlimitedStorage",
-    "notifications",
     "tabs",
     "clipboardRead",
     "clipboardWrite"

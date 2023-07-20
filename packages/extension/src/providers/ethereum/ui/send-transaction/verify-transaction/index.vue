@@ -12,6 +12,13 @@
           </a>
         </div>
         <hardware-wallet-msg :wallet-type="account?.walletType" />
+        <p
+          class="verify-transaction__description"
+          style="color: red"
+          :class="{ popup: isPopup }"
+        >
+          {{ errorMsg }}
+        </p>
         <p class="verify-transaction__description" :class="{ popup: isPopup }">
           Double check the information and confirm transaction
         </p>
@@ -33,7 +40,6 @@
           <verify-transaction-amount v-if="!isNft" :token="txData.toToken" />
           <verify-transaction-nft v-if="isNft" :item="nft" />
           <verify-transaction-fee :fee="txData.gasFee" />
-          {{ errorMsg }}
         </div>
       </custom-scrollbar>
 
@@ -186,30 +192,36 @@ const sendAction = async () => {
         account: account.value!,
         network: network.value,
         payload: finalizedTx,
-      }).then((signedTx) => {
-        broadcastTx(
-          "0x" + signedTx.serialize().toString("hex"),
-          network.value.name
-        )
-          .then(onHash)
-          .catch(() => {
-            web3
-              .sendSignedTransaction(
-                "0x" + signedTx.serialize().toString("hex")
-              )
-              .on("transactionHash", onHash)
-              .on("error", (error: any) => {
-                txActivity.status = ActivityStatus.failed;
-                activityState.addActivities([txActivity], {
-                  address: txData.fromAddress,
-                  network: network.value.name,
+      })
+        .then((signedTx) => {
+          broadcastTx(
+            "0x" + signedTx.serialize().toString("hex"),
+            network.value.name
+          )
+            .then(onHash)
+            .catch(() => {
+              web3
+                .sendSignedTransaction(
+                  "0x" + signedTx.serialize().toString("hex")
+                )
+                .on("transactionHash", onHash)
+                .on("error", (error: any) => {
+                  txActivity.status = ActivityStatus.failed;
+                  activityState.addActivities([txActivity], {
+                    address: txData.fromAddress,
+                    network: network.value.name,
+                  });
+                  isProcessing.value = false;
+                  errorMsg.value = error.message;
+                  console.error("ERROR", error);
                 });
-                isProcessing.value = false;
-                errorMsg.value = error.message;
-                console.error("ERROR", error);
-              });
-          });
-      });
+            });
+        })
+        .catch((e) => {
+          isProcessing.value = false;
+          errorMsg.value = e.error ? e.error.message : e.message;
+          console.error(e);
+        });
     });
 };
 const isHasScroll = () => {
@@ -283,7 +295,7 @@ const isHasScroll = () => {
     font-size: 16px;
     line-height: 24px;
     color: @secondaryLabel;
-    padding: 4px 141px 16px 32px;
+    padding: 4px 141px 13px 32px;
     margin: 0;
 
     &.popup {
@@ -307,7 +319,7 @@ const isHasScroll = () => {
     position: absolute;
     left: 0;
     bottom: 0;
-    padding: 0 32px 32px 32px;
+    padding: 10px 32px 14px 32px;
     display: flex;
     justify-content: space-between;
     align-items: center;

@@ -6,6 +6,7 @@ const TokenList: Record<SupportedNetworkNames, string> = {
   [NetworkNames.Binance]: `https://tokens.coingecko.com/${CoingeckoPlatform.Binance}/all.json`,
   [NetworkNames.Ethereum]: `https://tokens.coingecko.com/${CoingeckoPlatform.Ethereum}/all.json`,
   [NetworkNames.Matic]: `https://tokens.coingecko.com/${CoingeckoPlatform.Matic}/all.json`,
+  [NetworkNames.MaticZK]: `https://tokens.coingecko.com/${CoingeckoPlatform.MaticZK}/all.json`,
   [NetworkNames.AstarEVM]: `https://tokens.coingecko.com/${CoingeckoPlatform.Astar}/all.json`,
   [NetworkNames.Okc]: `https://tokens.coingecko.com/${CoingeckoPlatform.Okc}/all.json`,
   [NetworkNames.Optimism]: `https://tokens.coingecko.com/${CoingeckoPlatform.Optimism}/all.json`,
@@ -14,8 +15,7 @@ const TokenList: Record<SupportedNetworkNames, string> = {
   [NetworkNames.ShidenEVM]: `https://tokens.coingecko.com/${CoingeckoPlatform.Shiden}/all.json`,
   [NetworkNames.Canto]: `https://tokens.coingecko.com/${CoingeckoPlatform.Canto}/all.json`,
   [NetworkNames.Rootstock]: `https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/tokenlists/rsk.json`,
-  [NetworkNames.ZkSyncGoerli]: `https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/tokenlists/zksyncgoerli.json`,
-  [NetworkNames.ZkSync]: `https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/tokenlists/zksync.json`,
+  [NetworkNames.ZkSync]: `https://tokens.coingecko.com/${CoingeckoPlatform.Zksync}/all.json`,
   [NetworkNames.Arbitrum]: `https://tokens.coingecko.com/${CoingeckoPlatform.Arbitrum}/all.json`,
   [NetworkNames.Gnosis]: `https://tokens.coingecko.com/${CoingeckoPlatform.Gnosis}/all.json`,
   [NetworkNames.Avalanche]: `https://tokens.coingecko.com/${CoingeckoPlatform.Avalanche}/all.json`,
@@ -38,6 +38,7 @@ const getKnownNetworkTokens = async (
     const tokens: CGToken[] = json.tokens;
     const tObject: Record<string, CGToken> = {};
     tokens.forEach((t) => {
+      t.address = t.address.toLowerCase();
       tObject[t.address] = t;
     });
     return tObject;

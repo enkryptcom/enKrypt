@@ -36,7 +36,7 @@
 
     <div class="settings__copyright">
       <p>Version {{ version }}</p>
-      <p>© 2022 by MyEtherWallet Inc.</p>
+      <p>© {{ new Date().getFullYear() }} by MyEtherWallet Inc.</p>
     </div>
 
     <modal-sign

@@ -19,6 +19,7 @@
     "@typescript-eslint/ban-ts-comment": "off",
     "no-console": "off",
     "no-plusplus": "off",
+    "import/no-extraneous-dependencies": "off",
     "import/extensions": [
       "error",
       "ignorePackages",
