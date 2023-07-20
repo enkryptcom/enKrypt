@@ -20,6 +20,7 @@ function injectScript() {
     console.error("Enkrypt: Provider injection failed.", error);
   }
 }
+
 if (browser.runtime.getManifest().manifest_version === 2) {
   injectScript();
 }
