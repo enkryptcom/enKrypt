@@ -4,9 +4,9 @@ import shNFTHandler from "@/libs/nft-handlers/simplehash";
 import { EtherscanActivity } from "../libs/activity-handlers";
 import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
 
-const ethOptions: EvmNetworkOptions = {
+const baseOptions: EvmNetworkOptions = {
   name: NetworkNames.Base,
-  name_long: "Base Mainnet",
+  name_long: "Base",
   homePage: "https://base.org",
   blockExplorerTX: "https://basescan.org/tx/[[txHash]]",
   blockExplorerAddr: "https://basescan.org/address/[[address]]",
@@ -15,7 +15,7 @@ const ethOptions: EvmNetworkOptions = {
   currencyName: "ETH",
   currencyNameLong: "Ethereum",
   node: "wss://nodes.mewapi.io/ws/base",
-  icon: require("./icons/eth.svg"),
+  icon: require("./icons/base.svg"),
   gradient: "linear-gradient(180deg, #C549FF 0%, #684CFF 100%)",
   coingeckoID: "ethereum",
   coingeckoPlatform: CoingeckoPlatform.Base,
@@ -23,6 +23,6 @@ const ethOptions: EvmNetworkOptions = {
   activityHandler: wrapActivityHandler(EtherscanActivity),
 };
 
-const eth = new EvmNetwork(ethOptions);
+const base = new EvmNetwork(baseOptions);
 
-export default eth;
+export default base;

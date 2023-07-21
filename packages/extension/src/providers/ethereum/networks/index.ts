@@ -28,6 +28,7 @@ import auroraNode from "./aurora";
 import puppyNode from "./puppy";
 import sepoliaNode from "./sepolia";
 import baseNode from "./base";
+import celoNode from "./celo";
 
 export default {
   goerli: goerliNode,
@@ -69,4 +70,5 @@ export default {
   aurora: auroraNode,
   puppy: puppyNode,
   base: baseNode,
+  celo: celoNode,
 };
