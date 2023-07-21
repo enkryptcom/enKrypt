@@ -24,6 +24,13 @@
   "content_scripts": [
     {
       "matches": ["file://*/*", "http://*/*", "https://*/*"],
+      "js": ["scripts/inject.js"],
+      "run_at": "document_start",
+      "all_frames": false,
+      "world": "MAIN"
+    },
+    {
+      "matches": ["file://*/*", "http://*/*", "https://*/*"],
       "js": ["scripts/contentscript.js"],
       "run_at": "document_start",
       "all_frames": false
