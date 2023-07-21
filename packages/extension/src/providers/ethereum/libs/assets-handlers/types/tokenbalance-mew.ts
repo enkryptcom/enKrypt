@@ -45,4 +45,5 @@ export type SupportedNetworkNames =
   | NetworkNames.Aurora
   | NetworkNames.TomoChain
   | NetworkNames.MaticZK
+  | NetworkNames.Celo
   | NetworkNames.ZkSync;

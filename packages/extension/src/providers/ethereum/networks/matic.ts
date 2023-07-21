@@ -7,7 +7,7 @@ import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
 
 const maticOptions: EvmNetworkOptions = {
   name: NetworkNames.Matic,
-  name_long: "Polygon (Matic)",
+  name_long: "Polygon",
   homePage: "https://polygonscan.com/",
   blockExplorerTX: "https://polygonscan.com/tx/[[txHash]]",
   blockExplorerAddr: "https://polygonscan.com/address/[[address]]",

@@ -22,6 +22,7 @@ const TokenList: Record<SupportedNetworkNames, string> = {
   [NetworkNames.Fantom]: `https://tokens.coingecko.com/${CoingeckoPlatform.Fantom}/all.json`,
   [NetworkNames.Klaytn]: `https://tokens.coingecko.com/${CoingeckoPlatform.Klaytn}/all.json`,
   [NetworkNames.Aurora]: `https://tokens.coingecko.com/${CoingeckoPlatform.Aurora}/all.json`,
+  [NetworkNames.Celo]: `https://tokens.coingecko.com/${CoingeckoPlatform.Celo}/all.json`,
   [NetworkNames.TomoChain]: `https://tokens.coingecko.com/${CoingeckoPlatform.TomoChain}/all.json`,
 };
 

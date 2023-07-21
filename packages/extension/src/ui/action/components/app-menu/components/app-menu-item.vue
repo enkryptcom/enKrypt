@@ -1,7 +1,8 @@
 <template>
   <a class="app-menu__link" :class="{ active: isActive }">
     <img :src="network.icon" alt="" />
-    <span>{{ network.name_long }}</span>
+    <span>{{ network.name_long }} </span
+    ><test-network-icon v-if="network.isTestNetwork" />
 
     <div class="app-menu__link-drag">
       <drag-icon />
@@ -13,6 +14,7 @@
 import { NodeType } from "@/types/provider";
 import { PropType } from "vue";
 import DragIcon from "@action/icons/common/drag-icon.vue";
+import TestNetworkIcon from "@action/icons/common/test-network-icon.vue";
 
 defineProps({
   network: {

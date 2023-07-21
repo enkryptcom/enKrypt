@@ -26,10 +26,11 @@
       <h3>
         {{ item.name && item.name.length > 0 ? item.name : "NFT #" + item.id }}
       </h3>
+
       <img :src="item.image" alt="" @error="imageLoadError" />
 
       <div class="nft-detail-view__action">
-        <action-menu :is-nft="true" :link-action="linkAction" />
+        <action-menu :is-nft="true" :link="item.url" />
       </div>
     </div>
   </div>
@@ -58,10 +59,6 @@ const props = defineProps({
       return {};
     },
   },
-  linkAction: {
-    type: Function as PropType<() => void>,
-    default: () => ({}),
-  },
   isFavorite: {
     type: Boolean,
     default: () => {
@@ -69,9 +66,11 @@ const props = defineProps({
     },
   },
 });
+
 onMounted(() => {
   localIsFavorite.value = props.isFavorite;
 });
+
 const emit = defineEmits<{
   (e: "close:popup"): void;
   (e: "update:favClicked", isFav: boolean, item: NFTItem): void;

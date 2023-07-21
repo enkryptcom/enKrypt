@@ -43,6 +43,8 @@ const NetworkEndpoints: Record<string, string> = {
   [NetworkNames.Aurora]: "https://explorer.mainnet.aurora.dev/",
   [NetworkNames.PuppyNet]: "https://puppyscan.shib.io/",
   [NetworkNames.MaticZK]: "https://api-zkevm.polygonscan.com/",
+  [NetworkNames.Base]: "https://api.basescan.org/",
+  [NetworkNames.Celo]: "https://explorer.celo.org/mainnet/",
 };
 
 export { NetworkEndpoints };
