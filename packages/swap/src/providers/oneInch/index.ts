@@ -221,6 +221,10 @@ class OneInch extends ProviderClass {
           toTokenAmount: toBN(response.toAmount),
           fromTokenAmount: options.amount,
         };
+      })
+      .catch((e) => {
+        console.error(e);
+        return Promise.resolve(null);
       });
   }
 

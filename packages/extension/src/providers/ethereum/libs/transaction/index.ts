@@ -10,6 +10,7 @@ import {
 import { GasPriceTypes } from "@/providers/common/types";
 import { numberToHex, toBN } from "web3-utils";
 import {
+  GAS_PERCENTILES,
   formatFeeHistory,
   getBaseFeeBasedOnType,
   getGasBasedOnType,
@@ -88,7 +89,7 @@ class Transaction {
     const gasPrice = await this.web3.getGasPrice();
     const nonce = await this.web3.getTransactionCount(this.tx.from, "pending");
     const feeHistory = await this.web3
-      .getFeeHistory(6, "pending", [25, 50, 75, 90])
+      .getFeeHistory(6, "pending", GAS_PERCENTILES)
       .catch(() => null);
     if (!isFeeMarketNetwork || !feeHistory) {
       const legacyTx: FinalizedLegacyEthereumTransaction = {
