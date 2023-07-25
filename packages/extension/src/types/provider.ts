@@ -154,7 +154,6 @@ export interface NodeType {
   currencyName: string;
   icon: any;
   signer: SignerType[];
-  gradient: string;
   node: string;
   displayAddress: (address: string) => string;
   api?: () => Promise<ProviderAPIInterface>;

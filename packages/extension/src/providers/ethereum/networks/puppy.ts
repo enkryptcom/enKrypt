@@ -15,7 +15,6 @@ const pupOptions: EvmNetworkOptions = {
   currencyNameLong: "BONE",
   node: "https://puppynet.shibrpc.com",
   icon: require("./icons/shiba-inu.svg"),
-  gradient: "linear-gradient(180deg, #C549FF 0%, #684CFF 100%)",
   activityHandler: wrapActivityHandler(EtherscanActivity),
 };
 

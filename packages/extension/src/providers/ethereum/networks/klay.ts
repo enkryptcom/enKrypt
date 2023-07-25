@@ -15,7 +15,6 @@ const klayOptions: EvmNetworkOptions = {
   currencyNameLong: "Klaytn",
   node: "https://public-en-cypress.klaytn.net",
   icon: require("./icons/klaytn.png"),
-  gradient: "linear-gradient(180deg, #C549FF 0%, #684CFF 100%)",
   coingeckoID: "klay-token",
   coingeckoPlatform: CoingeckoPlatform.Klaytn,
   assetsInfoHandler,

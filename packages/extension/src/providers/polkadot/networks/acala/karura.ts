@@ -21,7 +21,6 @@ const karuraOptions: SubstrateNetworkOptions = {
   decimals: 12,
   prefix: 8,
   node: "wss://karura-rpc-3.aca-api.network/ws",
-  gradient: "linear-gradient(330.21deg, #E40C5B -26.31%, #FF4C3B 88.17%)",
   coingeckoID: "karura",
   coingeckoPlatform: CoingeckoPlatform.Karura,
   genesisHash:

@@ -31,7 +31,6 @@ export interface SubstrateNetworkOptions {
   icon: string;
   decimals: number;
   prefix: number;
-  gradient: string;
   node: string;
   coingeckoID?: string;
   coingeckoPlatform?: CoingeckoPlatform;
