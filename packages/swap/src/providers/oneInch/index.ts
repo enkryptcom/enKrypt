@@ -78,10 +78,10 @@ const supportedNetworks: {
     approvalAddress: ONEINCH_APPROVAL_ADDRESS,
     chainId: "42161",
   },
-  [SupportedNetworkName.Zksync]: {
-    approvalAddress: "0x6e2b76966cbd9cf4cc2fa0d76d24d5241e0abc2f",
-    chainId: "324",
-  },
+  // [SupportedNetworkName.Zksync]: {
+  //   approvalAddress: "0x6e2b76966cbd9cf4cc2fa0d76d24d5241e0abc2f",
+  //   chainId: "324",
+  // },
 };
 
 const BASE_URL = "https://partners.mewapi.io/oneinch/v5.2/";
