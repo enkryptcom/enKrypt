@@ -181,18 +181,18 @@ const NetworkDetails: Record<SupportedNetworkName, NetworkInfo> = {
     rank: 15,
     symbol: "ETH",
   },
-  // [SupportedNetworkName.Zksync]: {
-  //   id: SupportedNetworkName.Zksync,
-  //   cgId: "ethereum",
-  //   decimals: 18,
-  //   logoURI:
-  //     "https://tokens.1inch.io/0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee.png",
-  //   name: "ZkSync Era",
-  //   signerType: [SignerType.secp256k1],
-  //   type: NetworkType.EVM,
-  //   rank: 16,
-  //   symbol: "ETH",
-  // },
+  [SupportedNetworkName.Zksync]: {
+    id: SupportedNetworkName.Zksync,
+    cgId: "ethereum",
+    decimals: 18,
+    logoURI:
+      "https://tokens.1inch.io/0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee.png",
+    name: "ZkSync Era",
+    signerType: [SignerType.secp256k1],
+    type: NetworkType.EVM,
+    rank: 16,
+    symbol: "ETH",
+  },
 };
 export const isSupportedNetwork = (networkName: SupportedNetworkName) =>
   !!NetworkDetails[networkName];

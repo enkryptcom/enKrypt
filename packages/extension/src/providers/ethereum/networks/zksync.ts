@@ -15,7 +15,7 @@ const zkSyncOptions: EvmNetworkOptions = {
   isTestNetwork: false,
   currencyName: "ETH",
   currencyNameLong: "zkSync ETH",
-  node: "https://zksync2-mainnet.zksync.io",
+  node: "wss://mainnet.era.zksync.io/ws",
   icon: require("./icons/zksync.svg"),
   gradient: "linear-gradient(180deg, #C549FF 0%, #684CFF 100%)",
   coingeckoID: "ethereum",
