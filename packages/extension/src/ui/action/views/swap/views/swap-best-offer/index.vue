@@ -266,7 +266,6 @@ const getTransactionFees = async (
 };
 
 const setTransactionFees = async () => {
-  console.log(pickedTrade.value);
   gasCostValues.value = await getTransactionFees(
     selectedNetwork as SupportedNetworkName,
     pickedTrade.value
