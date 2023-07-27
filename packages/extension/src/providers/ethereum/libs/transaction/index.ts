@@ -88,10 +88,7 @@ class Transaction {
       });
     const gasPrice = await this.web3.getGasPrice();
     const nonce = await this.web3.getTransactionCount(this.tx.from, "pending");
-    const feeHistory = await this.web3
-      .getFeeHistory(6, "pending", GAS_PERCENTILES)
-      .catch(() => null);
-    if (!isFeeMarketNetwork || !feeHistory) {
+    if (!isFeeMarketNetwork) {
       const legacyTx: FinalizedLegacyEthereumTransaction = {
         to: this.tx.to || undefined,
         chainId: this.tx.chainId,
@@ -112,6 +109,11 @@ class Transaction {
         gasLimit: legacyTx.gasLimit,
       };
     } else {
+      const feeHistory = await this.web3.getFeeHistory(
+        6,
+        "pending",
+        GAS_PERCENTILES
+      );
       const formattedFeeHistory = formatFeeHistory(feeHistory);
       const feeMarket = this.getFeeMarketGasInfo(
         baseFeePerGas!,

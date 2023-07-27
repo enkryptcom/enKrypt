@@ -63,7 +63,7 @@ const getGasBasedOnType = (
   }
 };
 const getMinPriorityFee = (): BN => {
-  return toBN(toWei("1.25", "gwei"));
+  return toBN(toWei("0.1", "gwei"));
 };
 const getPriorityFeeAvg = (arr: BN[]): BN => {
   const sum = arr.reduce((a, v) => a.add(v));
