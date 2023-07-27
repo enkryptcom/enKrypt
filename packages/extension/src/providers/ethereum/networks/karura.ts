@@ -15,7 +15,6 @@ const karuraOptions: EvmNetworkOptions = {
   currencyNameLong: "Karura",
   node: "wss://eth-rpc-karura.aca-api.network/ws",
   icon: require("./icons/karura-evm.svg"),
-  gradient: "linear-gradient(330.21deg, #E40C5B -26.31%, #FF4C3B 88.17%)",
   coingeckoID: "karura",
   coingeckoPlatform: CoingeckoPlatform.Karura,
   activityHandler: wrapActivityHandler(EtherscanActivity),

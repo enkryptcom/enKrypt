@@ -225,7 +225,6 @@ export function createSkaleEvmNetwork(
       params.isTestNetwork ? "staging-v3" : "mainnet"
     }.skalenodes.com/v1/ws/${params.chainName}`,
     icon: require(`../icons/${params.icon ?? "skl.png"}`),
-    gradient: "#7B3FE4",
     coingeckoID: "skale",
     coingeckoPlatform: CoingeckoPlatform.SKALE,
     assetsInfoHandler: getAssetHandler(assets),

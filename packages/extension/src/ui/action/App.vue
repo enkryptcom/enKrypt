@@ -16,6 +16,7 @@
         :search-input="searchInput"
         @update:order="updateNetworkOrder"
         @update:network="setNetwork"
+        @update:gradient="updateGradient"
       />
       <div class="app__menu-footer" :class="{ border: networks.length > 9 }">
         <a class="app__menu-add" @click="addNetworkShow = !addNetworkShow">
@@ -128,7 +129,6 @@ const domainState = new DomainState();
 const networksState = new NetworksState();
 const rateState = new RateState();
 const appMenuRef = ref(null);
-const networkGradient = ref("");
 const showDepositWindow = ref(false);
 const accountHeaderData = ref<AccountsHeaderData>({
   activeAccounts: [],
@@ -226,14 +226,15 @@ onMounted(async () => {
     openOnboard();
   }
 });
-const setNetwork = async (network: BaseNetwork) => {
-  addNetworkSelectMetrics(network.provider, network.name, 1);
+const updateGradient = (newGradient: string) => {
   //hack may be there is a better way. less.modifyVars doesnt work
   if (appMenuRef.value)
     (
       appMenuRef.value as HTMLElement
-    ).style.background = `radial-gradient(137.35% 97% at 100% 50%, rgba(250, 250, 250, 0.94) 0%, rgba(250, 250, 250, 0.96) 28.91%, rgba(250, 250, 250, 0.98) 100%), ${network.gradient}`;
-  networkGradient.value = network.gradient;
+    ).style.background = `radial-gradient(137.35% 97% at 100% 50%, rgba(250, 250, 250, 0.94) 0%, rgba(250, 250, 250, 0.96) 28.91%, rgba(250, 250, 250, 0.98) 100%), linear-gradient(180deg, ${newGradient} 80%, #684CFF 100%)`;
+};
+const setNetwork = async (network: BaseNetwork) => {
+  addNetworkSelectMetrics(network.provider, network.name, 1);
   const activeAccounts = await getAccountsByNetworkName(network.name);
 
   const inactiveAccounts = await kr.getAccounts(

@@ -17,7 +17,6 @@ const arbOptions: EvmNetworkOptions = {
   currencyNameLong: "Ethereum",
   node: "wss://nodes.mewapi.io/ws/arb",
   icon: require("./icons/arbitrum.svg"),
-  gradient: "linear-gradient(180deg, #C549FF 0%, #684CFF 100%)",
   coingeckoID: "ethereum",
   coingeckoPlatform: CoingeckoPlatform.Arbitrum,
   assetsInfoHandler,

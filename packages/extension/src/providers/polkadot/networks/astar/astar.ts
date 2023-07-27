@@ -21,8 +21,6 @@ const astarOptions: SubstrateNetworkOptions = {
   icon: require("../icons/astar.png"),
   decimals: 18,
   prefix: 5,
-  gradient:
-    "linear-gradient(326.87deg, #645AFF 12.53%, #E40C5B 50.89%, #FF4C3B 89.24%)",
   node: "wss://astar.api.onfinality.io/public-ws",
   coingeckoID: "astar",
   coingeckoPlatform: CoingeckoPlatform.Astar,

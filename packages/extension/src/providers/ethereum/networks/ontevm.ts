@@ -13,7 +13,6 @@ const ontEVMOptions: EvmNetworkOptions = {
   isTestNetwork: false,
   currencyName: "ONG",
   currencyNameLong: "Ontology",
-  gradient: "linear-gradient(180deg, #C549FF 0%, #684CFF 100%)",
   node: "https://dappnode1.ont.io:10339",
   icon: require("./icons/ont-evm.png"),
   coingeckoID: "ontology",

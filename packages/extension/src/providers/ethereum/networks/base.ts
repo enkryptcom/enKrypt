@@ -16,7 +16,6 @@ const baseOptions: EvmNetworkOptions = {
   currencyNameLong: "Ethereum",
   node: "wss://nodes.mewapi.io/ws/base",
   icon: require("./icons/base.svg"),
-  gradient: "linear-gradient(180deg, #C549FF 0%, #684CFF 100%)",
   coingeckoID: "ethereum",
   coingeckoPlatform: CoingeckoPlatform.Base,
   NFTHandler: shNFTHandler,
