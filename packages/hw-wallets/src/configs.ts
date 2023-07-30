@@ -15,7 +15,6 @@ const ledgerAppNames = {
   [NetworkNames.Binance]: "Ethereum",
   [NetworkNames.Rootstock]: "RSK",
   [NetworkNames.EthereumClassic]: "Ethereum Classic",
-  [NetworkNames.Ropsten]: "Ethereum",
   [NetworkNames.Goerli]: "Ethereum",
   [NetworkNames.Acala]: "Acala",
   [NetworkNames.Kusama]: "Kusama",

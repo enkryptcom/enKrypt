@@ -5,6 +5,12 @@ class GenericNameResolver {
   constructor() {
     this.nameResolver = new NameResolver({
       ens: { node: "https://nodes.mewapi.io/rpc/eth" },
+      sid: {
+        node: {
+          bnb: "https://nodes.mewapi.io/rpc/bsc",
+          arb: "https://nodes.mewapi.io/rpc/arb",
+        },
+      },
     });
   }
 

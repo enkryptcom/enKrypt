@@ -4,12 +4,10 @@ export enum NetworkNames {
   Binance = "BNB",
   EthereumClassic = "ETC",
   Goerli = "GOERLI",
-  Kovan = "KOV",
+  Sepolia = "SEPOLIA",
   Matic = "MATIC",
   Moonbeam = "GLMR",
   Moonriver = "MOVR",
-  Rinkeby = "RIN",
-  Ropsten = "ROP",
   Rootstock = "Rootstock",
   Acala = "ACA",
   Karura = "KAR",
@@ -53,8 +51,9 @@ export enum NetworkNames {
   Opal = "OPL",
   Quartz = "QTZ",
   Unique = "UNQ",
-  Interlay = "INTR",
-  Kintsugi = "KINT",
+  Pendulum = "pendulum",
+  Amplitude = "amplitude",
+  Vara = "VARA",
 }
 
 export enum CoingeckoPlatform {
@@ -90,6 +89,4 @@ export enum CoingeckoPlatform {
   Zksync = "zksync",
   Quartz = "quartz",
   Unique = "unique-network",
-  Interlay = "interlay",
-  Kintsugi = "kintsugi",
 }

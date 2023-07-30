@@ -33,6 +33,12 @@ const tempWindow: EnkryptWindow = {
       },
     },
   },
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  addEventListener: () => {},
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  CustomEvent: () => {},
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  dispatchEvent: () => {},
 };
 describe("Test injected Ethereum", () => {
   it("should have default values", async () => {
