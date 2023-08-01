@@ -89,17 +89,22 @@ class Transaction {
     const gasPrice = await this.web3.getGasPrice();
     const nonce = await this.web3.getTransactionCount(this.tx.from, "pending");
     if (!isFeeMarketNetwork) {
+      const gasLimit =
+        this.tx.gasLimit ||
+        (numberToHex(await this.estimateGas()) as `0x${string}`);
       const legacyTx: FinalizedLegacyEthereumTransaction = {
         to: this.tx.to || undefined,
         chainId: this.tx.chainId,
         data: this.tx.data || "0x",
         from: this.tx.from,
-        gasLimit:
-          this.tx.gasLimit ||
-          (numberToHex(await this.estimateGas()) as `0x${string}`),
-        gasPrice: numberToHex(
-          getGasBasedOnType(gasPrice, options.gasPriceType)
-        ) as `0x${string}`,
+        gasLimit,
+        gasPrice: !options.totalGasPrice
+          ? (numberToHex(
+              getGasBasedOnType(gasPrice, options.gasPriceType)
+            ) as `0x${string}`)
+          : (numberToHex(
+              options.totalGasPrice.div(toBN(gasLimit))
+            ) as `0x${string}`),
         nonce: this.tx.nonce || (numberToHex(nonce) as `0x${string}`),
         value: this.tx.value || "0x0",
       };
@@ -120,19 +125,26 @@ class Transaction {
         formattedFeeHistory,
         options.gasPriceType
       );
+      const gasLimit =
+        this.tx.gasLimit ||
+        (numberToHex(await this.estimateGas()) as `0x${string}`);
+      const maxFeePerGas = !options.totalGasPrice
+        ? feeMarket.maxFeePerGas
+        : options.totalGasPrice.div(toBN(gasLimit));
+      const maxPriorityFeePerGas = feeMarket.maxPriorityFeePerGas;
       const feeMarketTx: FinalizedFeeMarketEthereumTransaction = {
         to: this.tx.to || undefined,
         chainId: this.tx.chainId,
         data: this.tx.data || "0x",
         from: this.tx.from,
-        gasLimit:
-          this.tx.gasLimit ||
-          (numberToHex(await this.estimateGas()) as `0x${string}`),
+        gasLimit,
         nonce: this.tx.nonce || (numberToHex(nonce) as `0x${string}`),
         value: this.tx.value || "0x0",
-        maxFeePerGas: numberToHex(feeMarket.maxFeePerGas) as `0x${string}`,
+        maxFeePerGas: numberToHex(maxFeePerGas) as `0x${string}`,
         maxPriorityFeePerGas: numberToHex(
-          feeMarket.maxPriorityFeePerGas
+          maxPriorityFeePerGas.gt(maxFeePerGas)
+            ? maxFeePerGas
+            : maxPriorityFeePerGas
         ) as `0x${string}`,
         type: "0x02",
         accessList: this.tx.accessList || [],

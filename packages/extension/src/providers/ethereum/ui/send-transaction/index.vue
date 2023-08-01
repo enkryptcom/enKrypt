@@ -75,6 +75,7 @@
       <send-input-amount
         v-if="isSendToken"
         :amount="amount"
+        :show-max="showMax"
         :fiat-value="selectedAsset.price"
         :has-enough-balance="hasEnoughBalance"
         @update:input-amount="inputAmount"
@@ -154,7 +155,10 @@ import BigNumber from "bignumber.js";
 import { defaultGasCostVals } from "@/providers/common/libs/default-vals";
 import Transaction from "@/providers/ethereum/libs/transaction";
 import Web3Eth from "web3-eth";
-import { NATIVE_TOKEN_ADDRESS } from "../../libs/common";
+import {
+  NATIVE_TOKEN_ADDRESS,
+  MAX_UNAVAILABLE_NETWORKS,
+} from "../../libs/common";
 import { fromBase, toBase, isValidDecimals } from "@enkryptcom/utils";
 import erc20 from "../../libs/abi/erc20";
 import { SendTransactionDataType, VerifyTransactionParams } from "../types";
@@ -176,6 +180,7 @@ const props = defineProps({
     default: () => ({}),
   },
 });
+
 const loadingAsset = new Erc20Token({
   icon: props.network.icon,
   symbol: "Loading",
@@ -216,6 +221,12 @@ const addressFrom = ref<string>(
 );
 const addressTo = ref<string>("");
 const isLoadingAssets = ref(true);
+
+const showMax = computed(() => {
+  if (selectedAsset.value.contract !== NATIVE_TOKEN_ADDRESS) return true;
+  if (MAX_UNAVAILABLE_NETWORKS.includes(props.network.name)) return false;
+  return true;
+});
 
 const nativeBalance = computed(() => {
   const accountIndex = props.accountInfo.activeAccounts.findIndex(

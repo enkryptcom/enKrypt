@@ -15,7 +15,11 @@
       <span>${{ $filters.formatFiatValue(fiatEquivalent).value }}</span>
     </div>
 
-    <a class="send-input-amount__max" @click="emit('update:inputSetMax')">
+    <a
+      v-show="showMax"
+      class="send-input-amount__max"
+      @click="emit('update:inputSetMax')"
+    >
       Max
     </a>
   </div>
@@ -48,6 +52,10 @@ const props = defineProps({
   amount: {
     type: String,
     default: "",
+  },
+  showMax: {
+    type: Boolean,
+    default: true,
   },
 });
 const fiatEquivalent = computed(() => {
