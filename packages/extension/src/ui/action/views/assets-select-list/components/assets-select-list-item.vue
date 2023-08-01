@@ -1,7 +1,7 @@
 <template>
   <a class="assets-select-list__token" @click="select">
     <div class="assets-select-list__token-info">
-      <img :src="token.icon" />
+      <img :src="token.icon" @error="imageLoadError" />
 
       <div class="assets-select-list__token-info-name">
         <h4>{{ token.name }}</h4>
@@ -23,6 +23,12 @@ import { fromBase } from "@enkryptcom/utils";
 import { BaseToken } from "@/types/base-token";
 import BigNumber from "bignumber.js";
 import { computed, PropType } from "vue";
+
+const notfoundimg = require("@action/assets/common/not-found.jpg");
+
+const imageLoadError = (img: any) => {
+  img.target.src = notfoundimg;
+};
 
 const emit = defineEmits<{
   (e: "update:selectAsset", asset: BaseToken): void;
