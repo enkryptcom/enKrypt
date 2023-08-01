@@ -44,11 +44,7 @@ import NftMoreAddToFavorite from "@action/icons/nft/nft-more-add-to-favorite.vue
 import NftMoreDeleteFromFavorite from "@action/icons/nft/nft-more-delete-from-favorite.vue";
 import { NFTItem } from "@/types/nft";
 import Notification from "@action/components/notification/index.vue";
-
-const notfoundimg = require("@action/assets/common/not-found.jpg");
-const imageLoadError = (img: any) => {
-  img.target.src = notfoundimg;
-};
+import { imageLoadError } from "@action/utils/misc";
 
 const isFavoriteAction = ref(false);
 const localIsFavorite = ref(false);
