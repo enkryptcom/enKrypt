@@ -116,7 +116,7 @@ class Transaction {
     } else {
       const feeHistory = await this.web3.getFeeHistory(
         6,
-        "pending",
+        "latest",
         GAS_PERCENTILES
       );
       const formattedFeeHistory = formatFeeHistory(feeHistory);
