@@ -15,7 +15,6 @@ const etcOptions: EvmNetworkOptions = {
   currencyNameLong: "Ethereum Classic",
   node: "wss://nodes.mewapi.io/ws/etc",
   icon: require("./icons/etc.svg"),
-  gradient: "linear-gradient(180deg, #C549FF 0%, #684CFF 100%)",
   basePath: "m/44'/61'/0'/0",
   coingeckoID: "ethereum-classic",
   coingeckoPlatform: CoingeckoPlatform.EthereumClassic,

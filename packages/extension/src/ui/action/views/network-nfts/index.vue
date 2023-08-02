@@ -40,7 +40,6 @@
       v-if="!!detailNFT"
       :item="detailNFT"
       :is-favorite="isFavorite"
-      :link-action="openLink"
       v-bind="$attrs"
       @close:popup="toggleDetail(null)"
       @update:fav-clicked="favClicked"
@@ -155,11 +154,6 @@ const hideClicked = async (isHidden: boolean, item: NFTItem) => {
 };
 const toggleDetail = (item: NFTItem | null) => {
   detailNFT.value = item;
-};
-const openLink = () => {
-  if (detailNFT.value && detailNFT.value.url !== null) {
-    window.open(detailNFT.value.url, "_blank");
-  }
 };
 const isFavorite = computed(() => {
   if (detailNFT.value && favoriteNFTs.value.length) {

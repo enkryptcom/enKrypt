@@ -19,7 +19,6 @@ const edgewareOptions: SubstrateNetworkOptions = {
   icon: require("./icons/edgeware.svg"),
   decimals: 18,
   prefix: 7,
-  gradient: "#000000",
   node: "wss://edgeware.jelliedowl.net",
   coingeckoID: "edgeware",
   coingeckoPlatform: CoingeckoPlatform.Edgeware,

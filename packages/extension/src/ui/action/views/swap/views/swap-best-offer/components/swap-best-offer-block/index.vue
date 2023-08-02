@@ -10,7 +10,7 @@
       you will get:
     </div>
     <div class="swap-best-offer-block__token">
-      <img :src="toToken.logoURI" />
+      <img :src="toToken.logoURI" @error="imageLoadError" />
       <div class="swap-best-offer-block__token-info">
         <h4>
           {{ $filters.formatFloatingPointValue(toReadable).value }}
@@ -80,6 +80,7 @@ import {
   TokenTypeTo,
   SwapToken,
 } from "@enkryptcom/swap";
+import { imageLoadError } from "@/ui/action/utils/misc";
 
 interface SwapBestOfferProps {
   trades: ProviderSwapResponse[];

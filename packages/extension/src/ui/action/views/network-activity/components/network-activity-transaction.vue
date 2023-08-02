@@ -58,7 +58,10 @@
   <section v-if="activity.type === ActivityType.swap" class="container-empty">
     <section class="network-activity__transaction">
       <div class="network-activity__transaction-info">
-        <img :src="(activity.rawInfo as SwapRawInfo).toToken.logoURI" />
+        <img
+          :src="(activity.rawInfo as SwapRawInfo).toToken.logoURI"
+          @error="imageLoadError"
+        />
 
         <div class="network-activity__transaction-info-name">
           <h4>
@@ -109,6 +112,7 @@ import {
 import { BaseNetwork } from "@/types/base-network";
 import { fromBase } from "@enkryptcom/utils";
 import BigNumber from "bignumber.js";
+import { imageLoadError } from "@/ui/action/utils/misc";
 const props = defineProps({
   activity: {
     type: Object as PropType<Activity>,

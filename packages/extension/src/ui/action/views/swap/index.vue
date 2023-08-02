@@ -167,12 +167,13 @@ import { debounce } from "lodash";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
 import MarketData from "@/libs/market-data";
 import { ProviderResponseWithStatus } from "./types";
+import { GenericNameResolver, CoinType } from "@/libs/name-resolver";
 
 type BN = ReturnType<typeof toBN>;
 
 const router = useRouter();
 const route = useRoute();
-
+const nameResolver = new GenericNameResolver();
 const props = defineProps({
   network: {
     type: Object as PropType<BaseNetwork>,
@@ -379,6 +380,16 @@ const setMax = () => {
 };
 
 const inputAddress = (text: string) => {
+  const debounceResolve = debounce(() => {
+    nameResolver
+      .resolveName(text, [props.network.name as CoinType, "ETH"])
+      .then((resolved) => {
+        if (resolved) {
+          inputAddress(resolved);
+        }
+      });
+  }, 500);
+  if (text.includes(".")) debounceResolve();
   try {
     address.value = toAddressInputMeta.value.displayAddress(text);
   } catch {

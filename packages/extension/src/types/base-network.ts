@@ -19,7 +19,6 @@ export interface BaseNetworkOptions {
   icon: string;
   decimals: number;
   signer: SignerType[];
-  gradient: string;
   node: string;
   displayAddress: (address: string, chainId?: BNLike) => string;
   provider: ProviderName;
@@ -42,7 +41,6 @@ export abstract class BaseNetwork {
   public currencyNameLong: string;
   public icon: string;
   public signer: SignerType[];
-  public gradient: string;
   public node: string;
   public displayAddress: (address: string, chainId?: BNLike) => string;
   public provider: ProviderName;
@@ -67,7 +65,6 @@ export abstract class BaseNetwork {
     this.currencyName = options.currencyName;
     this.icon = options.icon;
     this.signer = options.signer;
-    this.gradient = options.gradient;
     this.node = options.node;
     this.displayAddress = options.displayAddress;
     this.provider = options.provider;

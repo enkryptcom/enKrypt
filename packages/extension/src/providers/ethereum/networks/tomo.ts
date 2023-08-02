@@ -16,7 +16,6 @@ const tomoOptions: EvmNetworkOptions = {
   currencyNameLong: "TomoChain",
   node: "wss://ws.tomochain.com",
   icon: require("./icons/tomo.png"),
-  gradient: "#00e8b4",
   coingeckoID: "tomochain",
   basePath: "m/44'/889'/0'/0",
   assetsInfoHandler,

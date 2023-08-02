@@ -15,6 +15,7 @@ import { InjectedSendMessageHandler } from "./types";
 import { OnMessageResponse, RPCRequestType } from "@enkryptcom/types";
 import { SettingsType } from "@/libs/settings-state/types";
 import { EnkryptWindow } from "@/types/globals";
+import { InternalMethods } from "@/types/messenger";
 let sendMessageHandler: InjectedSendMessageHandler;
 const messagerRouter = new MessageRouter();
 export class Provider
@@ -91,9 +92,18 @@ const injectDocument = (
   const provider = new Provider(options);
   document.injectedWeb3 = document.injectedWeb3 || {};
   document.injectedWeb3["enkrypt"] = new Proxy(provider, ProxyHandler);
-  const globalSettings: SettingsType = document.enkrypt.settings;
-  if (globalSettings.substrate.injectPolkadotjs)
-    document.injectedWeb3["polkadot-js"] = new Proxy(provider, ProxyHandler);
+  options
+    .sendMessageHandler(
+      ProviderName.enkrypt,
+      JSON.stringify({ method: InternalMethods.getSettings, params: [] })
+    )
+    .then((settings: SettingsType) => {
+      if (!settings.substrate.injectPolkadotjs)
+        document.injectedWeb3["polkadot-js"] = new Proxy(
+          provider,
+          ProxyHandler
+        );
+    });
   document["enkrypt"]["providers"][options.name] = provider;
 };
 

@@ -75,6 +75,7 @@ export interface DecodedTx {
 
 export interface TransactionOptions {
   gasPriceType: GasPriceTypes;
+  totalGasPrice?: BN;
 }
 export interface DataDecodeResponse {
   decoded: boolean;

@@ -43,12 +43,10 @@ import NftDetailView from "@action/views/nft-detail-view/index.vue";
 import { onClickOutside } from "@vueuse/core";
 import DomainState from "@/libs/domain-state";
 import { NetworkNames } from "@enkryptcom/types";
+import { imageLoadError } from "@/ui/action/utils/misc";
 
 const domainState = new DomainState();
-const notfoundimg = require("@action/assets/common/not-found.jpg");
-const imageLoadError = (img: any) => {
-  img.target.src = notfoundimg;
-};
+
 const isOpenMore = ref(false);
 const isDetail = ref(false);
 const dropdown = ref(null);
