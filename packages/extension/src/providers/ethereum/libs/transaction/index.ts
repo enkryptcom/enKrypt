@@ -10,6 +10,7 @@ import {
 import { GasPriceTypes } from "@/providers/common/types";
 import { numberToHex, toBN } from "web3-utils";
 import {
+  GAS_PERCENTILES,
   formatFeeHistory,
   getBaseFeeBasedOnType,
   getGasBasedOnType,
@@ -71,25 +72,39 @@ class Transaction {
     const { isFeeMarketNetwork, baseFeePerGas } = await this.web3
       .getBlock("pending", false)
       .then((block) => {
-        return {
-          isFeeMarketNetwork: !!block.baseFeePerGas,
-          baseFeePerGas: block.baseFeePerGas?.toString(),
-        };
+        if (block) {
+          return {
+            isFeeMarketNetwork: !!block.baseFeePerGas,
+            baseFeePerGas: block.baseFeePerGas?.toString(),
+          };
+        }
+        // some networks such as zksync era pending block is null
+        return this.web3.getBlock("latest", false).then((block) => {
+          return {
+            isFeeMarketNetwork: !!block.baseFeePerGas,
+            baseFeePerGas: block.baseFeePerGas?.toString(),
+          };
+        });
       });
     const gasPrice = await this.web3.getGasPrice();
     const nonce = await this.web3.getTransactionCount(this.tx.from, "pending");
     if (!isFeeMarketNetwork) {
+      const gasLimit =
+        this.tx.gasLimit ||
+        (numberToHex(await this.estimateGas()) as `0x${string}`);
       const legacyTx: FinalizedLegacyEthereumTransaction = {
         to: this.tx.to || undefined,
         chainId: this.tx.chainId,
         data: this.tx.data || "0x",
         from: this.tx.from,
-        gasLimit:
-          this.tx.gasLimit ||
-          (numberToHex(await this.estimateGas()) as `0x${string}`),
-        gasPrice: numberToHex(
-          getGasBasedOnType(gasPrice, options.gasPriceType)
-        ) as `0x${string}`,
+        gasLimit,
+        gasPrice: !options.totalGasPrice
+          ? (numberToHex(
+              getGasBasedOnType(gasPrice, options.gasPriceType)
+            ) as `0x${string}`)
+          : (numberToHex(
+              options.totalGasPrice.div(toBN(gasLimit))
+            ) as `0x${string}`),
         nonce: this.tx.nonce || (numberToHex(nonce) as `0x${string}`),
         value: this.tx.value || "0x0",
       };
@@ -101,8 +116,8 @@ class Transaction {
     } else {
       const feeHistory = await this.web3.getFeeHistory(
         6,
-        "pending",
-        [25, 50, 75, 90]
+        "latest",
+        GAS_PERCENTILES
       );
       const formattedFeeHistory = formatFeeHistory(feeHistory);
       const feeMarket = this.getFeeMarketGasInfo(
@@ -110,19 +125,26 @@ class Transaction {
         formattedFeeHistory,
         options.gasPriceType
       );
+      const gasLimit =
+        this.tx.gasLimit ||
+        (numberToHex(await this.estimateGas()) as `0x${string}`);
+      const maxFeePerGas = !options.totalGasPrice
+        ? feeMarket.maxFeePerGas
+        : options.totalGasPrice.div(toBN(gasLimit));
+      const maxPriorityFeePerGas = feeMarket.maxPriorityFeePerGas;
       const feeMarketTx: FinalizedFeeMarketEthereumTransaction = {
         to: this.tx.to || undefined,
         chainId: this.tx.chainId,
         data: this.tx.data || "0x",
         from: this.tx.from,
-        gasLimit:
-          this.tx.gasLimit ||
-          (numberToHex(await this.estimateGas()) as `0x${string}`),
+        gasLimit,
         nonce: this.tx.nonce || (numberToHex(nonce) as `0x${string}`),
         value: this.tx.value || "0x0",
-        maxFeePerGas: numberToHex(feeMarket.maxFeePerGas) as `0x${string}`,
+        maxFeePerGas: numberToHex(maxFeePerGas) as `0x${string}`,
         maxPriorityFeePerGas: numberToHex(
-          feeMarket.maxPriorityFeePerGas
+          maxPriorityFeePerGas.gt(maxFeePerGas)
+            ? maxFeePerGas
+            : maxPriorityFeePerGas
         ) as `0x${string}`,
         type: "0x02",
         accessList: this.tx.accessList || [],

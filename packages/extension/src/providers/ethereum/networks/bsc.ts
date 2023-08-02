@@ -17,7 +17,6 @@ const bscOptions: EvmNetworkOptions = {
   currencyNameLong: "Binance",
   node: "wss://nodes.mewapi.io/ws/bsc",
   icon: require("./icons/bsc.svg"),
-  gradient: "#F0B90B",
   coingeckoID: "binancecoin",
   coingeckoPlatform: CoingeckoPlatform.Binance,
   basePath: "m/44'/714'",

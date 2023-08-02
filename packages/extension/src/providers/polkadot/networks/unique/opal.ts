@@ -19,7 +19,6 @@ const opalOptions: SubstrateNetworkOptions = {
   icon: require("../icons/opal.svg"),
   decimals: 18,
   prefix: 42,
-  gradient: "#0CB6B8",
   node: "wss://ws-opal.unique.network",
   genesisHash:
     "0xc87870ef90a438d574b8e320f17db372c50f62beb52e479c8ff6ee5b460670b9",

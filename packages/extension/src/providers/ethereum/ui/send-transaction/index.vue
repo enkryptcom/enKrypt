@@ -75,6 +75,7 @@
       <send-input-amount
         v-if="isSendToken"
         :amount="amount"
+        :show-max="showMax"
         :fiat-value="selectedAsset.price"
         :has-enough-balance="hasEnoughBalance"
         @update:input-amount="inputAmount"
@@ -154,7 +155,10 @@ import BigNumber from "bignumber.js";
 import { defaultGasCostVals } from "@/providers/common/libs/default-vals";
 import Transaction from "@/providers/ethereum/libs/transaction";
 import Web3Eth from "web3-eth";
-import { NATIVE_TOKEN_ADDRESS } from "../../libs/common";
+import {
+  NATIVE_TOKEN_ADDRESS,
+  MAX_UNAVAILABLE_NETWORKS,
+} from "../../libs/common";
 import { fromBase, toBase, isValidDecimals } from "@enkryptcom/utils";
 import erc20 from "../../libs/abi/erc20";
 import { SendTransactionDataType, VerifyTransactionParams } from "../types";
@@ -176,6 +180,7 @@ const props = defineProps({
     default: () => ({}),
   },
 });
+
 const loadingAsset = new Erc20Token({
   icon: props.network.icon,
   symbol: "Loading",
@@ -216,6 +221,12 @@ const addressFrom = ref<string>(
 );
 const addressTo = ref<string>("");
 const isLoadingAssets = ref(true);
+
+const showMax = computed(() => {
+  if (selectedAsset.value.contract !== NATIVE_TOKEN_ADDRESS) return true;
+  if (MAX_UNAVAILABLE_NETWORKS.includes(props.network.name)) return false;
+  return true;
+});
 
 const nativeBalance = computed(() => {
   const accountIndex = props.accountInfo.activeAccounts.findIndex(
@@ -355,9 +366,7 @@ const setBaseCosts = () => {
     },
     web3
   );
-  setTransactionFees(tx).then(() => {
-    if (isMaxSelected.value) setMaxValue();
-  });
+  updateTransactionFees(tx);
 };
 const fetchAssets = () => {
   accountAssets.value = [];
@@ -395,9 +404,20 @@ const isInputsValid = computed<boolean>(() => {
   return true;
 });
 
-watch([isInputsValid, amount, addressTo, selectedAsset], () => {
+const updateTransactionFees = (tx: Transaction) => {
+  if (isMaxSelected.value) {
+    amount.value = "";
+  }
+  setTransactionFees(tx).then(() => {
+    if (isMaxSelected.value) {
+      amount.value =
+        parseFloat(assetMaxValue.value) < 0 ? "0" : assetMaxValue.value;
+    }
+  });
+};
+watch([isInputsValid, addressTo, selectedAsset], () => {
   if (isInputsValid.value) {
-    setTransactionFees(Tx.value);
+    updateTransactionFees(Tx.value);
   }
 });
 
@@ -437,8 +457,7 @@ const assetMaxValue = computed(() => {
 });
 const setMaxValue = () => {
   isMaxSelected.value = true;
-  amount.value =
-    parseFloat(assetMaxValue.value) < 0 ? "0" : assetMaxValue.value;
+  updateTransactionFees(Tx.value);
 };
 const inputAddressFrom = (text: string) => {
   addressFrom.value = text;
@@ -491,10 +510,10 @@ const inputAmount = (inputAmount: string) => {
   if (inputAmount === "") {
     inputAmount = "0";
   }
-
   const inputAmountBn = new BigNumber(inputAmount);
   isMaxSelected.value = false;
   amount.value = inputAmountBn.lt(0) ? "0" : inputAmountBn.toFixed();
+  updateTransactionFees(Tx.value);
 };
 
 const toggleSelectFee = () => {
@@ -504,7 +523,7 @@ const toggleSelectFee = () => {
 const selectFee = (type: GasPriceTypes) => {
   selectedFee.value = type;
   isOpenSelectFee.value = false;
-  if (isMaxSelected.value) setMaxValue();
+  if (isMaxSelected.value) updateTransactionFees(Tx.value);
 };
 
 const sendAction = async () => {

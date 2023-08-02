@@ -16,7 +16,6 @@ const ftmOptions: EvmNetworkOptions = {
   currencyNameLong: "Fantom",
   node: "https://rpc.ankr.com/fantom/",
   icon: require("./icons/ftm.svg"),
-  gradient: "linear-gradient(180deg, #C549FF 0%, #684CFF 100%)",
   coingeckoID: "fantom",
   coingeckoPlatform: CoingeckoPlatform.Fantom,
   assetsInfoHandler,

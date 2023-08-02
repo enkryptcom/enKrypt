@@ -5,6 +5,20 @@ import { EthereumRequest } from "../types";
 import { OnMessageResponse } from "@enkryptcom/types";
 import { getError } from "@/libs/error";
 import { EnkryptWindow } from "@/types/globals";
+import { InternalMethods } from "@/types/messenger";
+
+const defaultSettings = {
+  evm: {
+    inject: {
+      disabled: false,
+      timestamp: 0,
+    },
+  },
+  substrate: {
+    injectPolkadotjs: false,
+  },
+  manifestVersion: 3,
+};
 
 const requestHandler = (request: string): OnMessageResponse => {
   const req = JSON.parse(request) as EthereumRequest;
@@ -28,6 +42,9 @@ const providerSendMessage = async (
   provider: ProviderName,
   message: string
 ): Promise<any> => {
+  if (JSON.parse(message).method === InternalMethods.getSettings) {
+    return defaultSettings as unknown as OnMessageResponse;
+  }
   if (provider === ProviderName.ethereum) {
     const res = requestHandler(message);
     if (res.error) return Promise.reject(JSON.parse(res.error));
@@ -42,17 +59,7 @@ const options = {
 const tempWindow: EnkryptWindow = {
   enkrypt: {
     providers: {},
-    settings: {
-      evm: {
-        inject: {
-          disabled: false,
-          timestamp: 0,
-        },
-      },
-      substrate: {
-        injectPolkadotjs: false,
-      },
-    },
+    settings: defaultSettings,
   },
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   addEventListener: () => {},
@@ -64,6 +71,7 @@ const tempWindow: EnkryptWindow = {
 describe("Test Ethereum reponses", () => {
   it("should send proper responses", async () => {
     EthereumInject(tempWindow, options);
+    await new Promise((r) => setTimeout(r, 500));
     const provider = tempWindow[ProviderName.ethereum] as EthereumProvider;
     expect(await provider.request({ method: "eth_chainId" })).to.equal("0x1");
     await provider.request({ method: "eth_requestAccounts" }).catch((e) => {

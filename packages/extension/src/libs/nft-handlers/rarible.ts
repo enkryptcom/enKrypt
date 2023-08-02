@@ -45,7 +45,7 @@ const getBestImageURL = (content: NFTContent[]) => {
         cont.representation === pri &&
         !cont.url.includes("rarible.mypinata.cloud")
       )
-        return cont.url;
+        return `https://img.mewapi.io/?image=${cont.url}`;
     }
   }
   return "";

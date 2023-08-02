@@ -19,7 +19,6 @@ const wndOptions: SubstrateNetworkOptions = {
   icon: require("./icons/westend.svg"),
   decimals: 12,
   prefix: 42,
-  gradient: "linear-gradient(180deg, #C549FF 0%, #684CFF 100%)",
   node: "wss://westend-rpc.dwellir.com",
   genesisHash:
     "0xe143f23803ac50e8f6f8e62695d1ce9e4e1d68aa36c1cd2cfd15340213f3423e",

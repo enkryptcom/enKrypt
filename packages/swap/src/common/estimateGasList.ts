@@ -18,6 +18,9 @@ const supportedNetworks: {
   [SupportedNetworkName.Arbitrum]: {
     url: "https://nodes.mewapi.io/rpc/arb",
   },
+  [SupportedNetworkName.Zksync]: {
+    url: "https://mainnet.era.zksync.io",
+  },
 };
 
 const useStandardEstimate = (
@@ -34,7 +37,14 @@ const useStandardEstimate = (
       jsonrpc: "2.0",
       id: 0,
       method: "eth_estimateGas",
-      params: [transactions[0]],
+      params: [
+        {
+          from: transactions[0].from,
+          to: transactions[0].to,
+          data: transactions[0].data,
+          value: transactions[0].value,
+        },
+      ],
     }),
     headers: {
       "Content-Type": "application/json",
@@ -100,7 +110,10 @@ const estimateGasList = (
 } | null> => {
   if (!Object.keys(supportedNetworks).includes(network as unknown as string))
     return null;
-  if (network === SupportedNetworkName.Arbitrum)
+  if (
+    network === SupportedNetworkName.Arbitrum ||
+    network === SupportedNetworkName.Zksync
+  )
     return useStandardEstimate(transactions, network);
   const strippedTxs = transactions.map((tx) => {
     const { from, to, data, value } = tx;

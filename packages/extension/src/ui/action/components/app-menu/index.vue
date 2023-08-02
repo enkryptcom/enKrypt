@@ -4,6 +4,7 @@
       <draggable v-model="searchNetworks" item-key="name" @change="onChange">
         <template #item="{ element }">
           <app-menu-item
+            v-bind="$attrs"
             :network="element"
             :is-active="!!selected && element.name === selected"
             :selected="selected"

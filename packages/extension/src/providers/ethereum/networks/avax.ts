@@ -17,7 +17,6 @@ const avaxOptions: EvmNetworkOptions = {
   currencyNameLong: "Avalanche",
   node: "https://api.avax.network/ext/bc/C/rpc",
   icon: require("./icons/avax.svg"),
-  gradient: "linear-gradient(180deg, #C549FF 0%, #684CFF 100%)",
   coingeckoID: "avalanche-2",
   coingeckoPlatform: CoingeckoPlatform.Avalanche,
   assetsInfoHandler,
