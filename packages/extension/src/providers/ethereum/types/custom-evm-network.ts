@@ -22,7 +22,6 @@ export class CustomEvmNetwork extends EvmNetwork {
     const evmNetworkOptions: EvmNetworkOptions = {
       ...options,
       icon: require("../networks/icons/eth.svg"),
-      gradient: "linear-gradient(180deg, #C549FF 0%, #684CFF 100%)",
       activityHandler: wrapActivityHandler(() => Promise.resolve([])),
       blockExplorerAddr:
         options.blockExplorerAddr ?? "https://www.enkrypt.com/",

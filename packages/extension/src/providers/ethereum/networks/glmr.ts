@@ -16,7 +16,6 @@ const moonbeamOptions: EvmNetworkOptions = {
   currencyNameLong: "Moonbeam",
   node: "wss://wss.api.moonbeam.network/",
   icon: require("./icons/moonbeam.svg"),
-  gradient: "#53CBC9",
   coingeckoID: "moonbeam",
   coingeckoPlatform: CoingeckoPlatform.Moonbeam,
   assetsInfoHandler,

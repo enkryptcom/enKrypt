@@ -1,7 +1,7 @@
 <template>
   <a v-if="!!token" class="swap-token-select" @click="open">
     <div class="swap-token-select__image">
-      <img :src="token.logoURI" alt="" />
+      <img :src="token.logoURI" alt="" @error="imageLoadError" />
     </div>
     <div class="swap-token-select__info">
       <h5>{{ token.name }}</h5>
@@ -35,10 +35,13 @@ import { ref, PropType } from "vue";
 import SwitchArrow from "@action/icons/header/switch_arrow.vue";
 import { computed } from "@vue/reactivity";
 import { TokenType, SwapToken } from "@enkryptcom/swap";
+import { imageLoadError } from "@/ui/action/utils/misc";
+
 const isOpen = ref(false);
 const emit = defineEmits<{
   (e: "toggle:select", isOpen: boolean): void;
 }>();
+
 const props = defineProps({
   token: {
     type: Object as PropType<TokenType | null>,

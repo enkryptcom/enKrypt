@@ -5,6 +5,11 @@ import { NetworkNames } from "@enkryptcom/types";
 import { SHNFTType, SHResponse } from "./types/simplehash";
 const SH_ENDPOINT = "https://partners.mewapi.io/nfts/";
 const CACHE_TTL = 60 * 1000;
+const getExternalURL = (network: NodeType, contract: string, id: string) => {
+  if (network.name === NetworkNames.Gnosis)
+    return `https://niftyfair.io/gc/asset/${contract}/${id}/`;
+  return "";
+};
 export default async (
   network: NodeType,
   address: string
@@ -15,6 +20,11 @@ export default async (
     [NetworkNames.Arbitrum]: "arbitrum",
     [NetworkNames.Gnosis]: "gnosis",
     [NetworkNames.Avalanche]: "avalanche",
+    [NetworkNames.MaticZK]: "polygon-zkevm",
+    [NetworkNames.ZkSync]: "zksync-era",
+    [NetworkNames.ZkSyncGoerli]: "zksync-era-testnet",
+    [NetworkNames.Goerli]: "ethereum-goerli",
+    [NetworkNames.Base]: "base",
   };
   if (!Object.keys(supportedNetworks).includes(network.name))
     throw new Error("Simplehash: network not supported");
@@ -40,14 +50,20 @@ export default async (
   if (!allItems || !allItems.length) return [];
   const collections: Record<string, NFTCollection> = {};
   allItems.forEach((item) => {
-    if (!item.image_url || !item.collection.image_url) return;
+    if (
+      (!item.image_url && !item.previews.image_medium_url) ||
+      !item.collection.image_url
+    )
+      return;
     if (collections[item.contract_address]) {
       const tItem: NFTItem = {
         contract: item.contract_address,
         id: item.token_id,
-        image: item.image_url,
+        image: item.image_url || item.previews.image_medium_url,
         name: item.name,
-        url: item.external_url,
+        url:
+          item.external_url ||
+          getExternalURL(network, item.contract_address, item.token_id),
       };
       collections[item.contract_address].items.push(tItem);
     } else {
@@ -60,9 +76,11 @@ export default async (
           {
             contract: item.contract_address,
             id: item.token_id,
-            image: item.image_url,
+            image: item.image_url || item.previews.image_medium_url,
             name: item.name,
-            url: item.external_url,
+            url:
+              item.external_url ||
+              getExternalURL(network, item.contract_address, item.token_id),
           },
         ],
       };

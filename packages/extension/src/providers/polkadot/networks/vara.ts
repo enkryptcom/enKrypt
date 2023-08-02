@@ -19,7 +19,6 @@ const varaOptions: SubstrateNetworkOptions = {
   icon: require("./icons/vara.svg"),
   decimals: 12,
   prefix: 137,
-  gradient: "#0ed3a3",
   node: "wss://rpc.vara-network.io",
   genesisHash:
     "0xfe1b4c55fd4d668101126434206571a7838a8b6b93a6d1b95d607e78e6c53763",

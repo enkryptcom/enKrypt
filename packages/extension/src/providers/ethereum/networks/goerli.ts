@@ -2,6 +2,7 @@ import { NetworkNames } from "@enkryptcom/types";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
 import { RivetActivity } from "../libs/activity-handlers";
 import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
+import shNFTHandler from "@/libs/nft-handlers/simplehash";
 
 const goerliOptions: EvmNetworkOptions = {
   name: NetworkNames.Goerli,
@@ -15,7 +16,7 @@ const goerliOptions: EvmNetworkOptions = {
   currencyNameLong: "Goerli",
   node: "wss://nodes.mewapi.io/ws/goerli",
   icon: require("./icons/eth.svg"),
-  gradient: "linear-gradient(180deg, #C549FF 0%, #684CFF 100%)",
+  NFTHandler: shNFTHandler,
   activityHandler: wrapActivityHandler(RivetActivity),
 };
 

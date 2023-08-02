@@ -31,7 +31,7 @@ const NetworkDetails: Record<SupportedNetworkName, NetworkInfo> = {
     cgId: "binancecoin",
     decimals: 18,
     logoURI:
-      "https://tokens.1inch.io/0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c_1.png",
+      "https://tokens.1inch.io/0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c.png",
     name: "BNB",
     symbol: "BNB",
     rank: 3,
@@ -179,6 +179,18 @@ const NetworkDetails: Record<SupportedNetworkName, NetworkInfo> = {
     signerType: [SignerType.secp256k1],
     type: NetworkType.EVM,
     rank: 15,
+    symbol: "ETH",
+  },
+  [SupportedNetworkName.Zksync]: {
+    id: SupportedNetworkName.Zksync,
+    cgId: "ethereum",
+    decimals: 18,
+    logoURI:
+      "https://tokens.1inch.io/0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee.png",
+    name: "ZkSync Era",
+    signerType: [SignerType.secp256k1],
+    type: NetworkType.EVM,
+    rank: 16,
     symbol: "ETH",
   },
 };

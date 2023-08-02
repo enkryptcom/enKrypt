@@ -18,7 +18,6 @@ const bitcoinOptions: BitcoinNetworkOptions = {
   currencyNameLong: "Bitcoin",
   icon: require("./icons/btc.svg"),
   decimals: 8,
-  gradient: "#F7931A",
   node: "https://api.blockchain.info/haskoin-store/btc/",
   coingeckoID: "bitcoin",
   activityHandler: wrapActivityHandler(haskoinHandler),

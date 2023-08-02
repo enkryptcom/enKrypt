@@ -18,7 +18,6 @@ const quartzOptions: SubstrateNetworkOptions = {
   icon: require("../icons/quartz.svg"),
   decimals: 18,
   prefix: 255,
-  gradient: "#FF4D6A",
   node: "wss://ws-quartz.unique.network",
   coingeckoID: "quartz",
   coingeckoPlatform: CoingeckoPlatform.Quartz,

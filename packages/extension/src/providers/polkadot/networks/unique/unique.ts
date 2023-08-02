@@ -18,7 +18,6 @@ const uniqueOptions: SubstrateNetworkOptions = {
   icon: require("../icons/unique.svg"),
   decimals: 18,
   prefix: 7391,
-  gradient: "#00BFFF",
   node: "wss://ws.unique.network",
   coingeckoID: "unique-network",
   coingeckoPlatform: CoingeckoPlatform.Unique,

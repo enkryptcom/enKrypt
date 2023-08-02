@@ -3,6 +3,7 @@ import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
 import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
 import { EtherscanActivity } from "../libs/activity-handlers";
 import assetsInfoHandler from "@/providers/ethereum/libs/assets-handlers/assetinfo-mew";
+import shNFTHandler from "@/libs/nft-handlers/simplehash";
 
 const zkSyncOptions: EvmNetworkOptions = {
   name: NetworkNames.ZkSync,
@@ -14,12 +15,13 @@ const zkSyncOptions: EvmNetworkOptions = {
   isTestNetwork: false,
   currencyName: "ETH",
   currencyNameLong: "zkSync ETH",
-  node: "https://zksync2-mainnet.zksync.io",
+  node: "wss://mainnet.era.zksync.io/ws",
   icon: require("./icons/zksync.svg"),
-  gradient: "linear-gradient(180deg, #C549FF 0%, #684CFF 100%)",
   coingeckoID: "ethereum",
   coingeckoPlatform: CoingeckoPlatform.Zksync,
+  NFTHandler: shNFTHandler,
   assetsInfoHandler,
+
   activityHandler: wrapActivityHandler(EtherscanActivity),
 };
 
