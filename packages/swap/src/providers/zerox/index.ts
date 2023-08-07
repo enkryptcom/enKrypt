@@ -209,6 +209,10 @@ class ZeroX extends ProviderClass {
           toTokenAmount: toBN(response.buyAmount),
           fromTokenAmount: toBN(response.sellAmount),
         };
+      })
+      .catch((e) => {
+        console.error(e);
+        return Promise.resolve(null);
       });
   }
 

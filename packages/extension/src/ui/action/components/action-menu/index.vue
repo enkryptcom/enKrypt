@@ -1,5 +1,5 @@
 <template>
-  <div class="action-menu">
+  <div v-if="isNft && link" class="action-menu">
     <div class="action-menu__wrap">
       <!-- <a v-if="!isNft" class="action-menu__item" @click="buyAction">
         <Buy />Buy</a
@@ -13,7 +13,7 @@
         <Swap />Swap</a
       >
       <div v-if="false" class="action-menu__divider"></div> -->
-      <a v-if="isNft" class="action-menu__item full" @click="linkAction()">
+      <a class="action-menu__item full" @click="openLink()">
         <!-- <Rarible /> -->
         View NFT
       </a>
@@ -28,7 +28,7 @@ import { PropType } from "vue";
 // import Swap from "@action/icons/actions/swap.vue";
 // import Rarible from "@/ui/action/icons/actions/rarible.vue";
 
-defineProps({
+const props = defineProps({
   buyAction: {
     type: Function as PropType<() => void>,
     default: () => ({}),
@@ -41,15 +41,20 @@ defineProps({
     type: Function as PropType<() => void>,
     default: () => ({}),
   },
-  linkAction: {
-    type: Function as PropType<() => void>,
-    default: () => ({}),
+  link: {
+    type: String,
+    default: "",
   },
   isNft: {
     type: Boolean,
     default: false,
   },
 });
+const openLink = () => {
+  if (props.link && props.link !== null) {
+    window.open(props.link, "_blank");
+  }
+};
 </script>
 
 <style lang="less">

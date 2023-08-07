@@ -33,7 +33,6 @@ export interface EvmNetworkOptions {
   currencyNameLong: string;
   node: string;
   icon: string;
-  gradient: string;
   coingeckoID?: string;
   coingeckoPlatform?: CoingeckoPlatform;
   basePath?: string;

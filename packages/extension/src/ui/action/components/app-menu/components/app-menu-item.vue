@@ -1,7 +1,8 @@
 <template>
   <a class="app-menu__link" :class="{ active: isActive }">
-    <img :src="network.icon" alt="" />
-    <span>{{ network.name_long }}</span>
+    <img ref="imageTag" :src="network.icon" alt="" />
+    <span>{{ network.name_long }} </span
+    ><test-network-icon v-if="network.isTestNetwork" />
 
     <div class="app-menu__link-drag">
       <drag-icon />
@@ -11,10 +12,11 @@
 
 <script setup lang="ts">
 import { NodeType } from "@/types/provider";
-import { PropType } from "vue";
+import { PropType, ref, watch } from "vue";
 import DragIcon from "@action/icons/common/drag-icon.vue";
+import TestNetworkIcon from "@action/icons/common/test-network-icon.vue";
 
-defineProps({
+const props = defineProps({
   network: {
     type: Object as PropType<NodeType>,
     default: () => {
@@ -28,6 +30,59 @@ defineProps({
     },
   },
 });
+const imageTag = ref<HTMLImageElement | null>(null);
+const emit = defineEmits<{
+  (e: "update:gradient", data: string): void;
+}>();
+const componentToHex = (c: number) => {
+  const hex = c.toString(16);
+  return hex.length == 1 ? "0" + hex : hex;
+};
+const getAverageRGB = (imgEl: HTMLImageElement) => {
+  const blockSize = 5, // only visit every 5 pixels
+    defaultRGB = { r: 0, g: 0, b: 0 }, // for non-supporting envs
+    canvas = document.createElement("canvas"),
+    context = canvas.getContext && canvas.getContext("2d"),
+    rgb = { r: 0, g: 0, b: 0 };
+  let data: ImageData;
+  let count = 0;
+  let i = -4;
+
+  if (!context) {
+    return defaultRGB;
+  }
+  const height = (canvas.height =
+    imgEl.naturalHeight || imgEl.offsetHeight || imgEl.height);
+  const width = (canvas.width =
+    imgEl.naturalWidth || imgEl.offsetWidth || imgEl.width);
+  context.drawImage(imgEl, 0, 0);
+  try {
+    data = context.getImageData(0, 0, width, height);
+  } catch (e) {
+    return defaultRGB;
+  }
+  const length = data.data.length;
+  while ((i += blockSize * 4) < length) {
+    ++count;
+    rgb.r += data.data[i];
+    rgb.g += data.data[i + 1];
+    rgb.b += data.data[i + 2];
+  }
+  // ~~ used to floor values
+  rgb.r = ~~(rgb.r / count);
+  rgb.g = ~~(rgb.g / count);
+  rgb.b = ~~(rgb.b / count);
+  emit(
+    "update:gradient",
+    `#${componentToHex(rgb.r)}${componentToHex(rgb.g)}${componentToHex(rgb.b)}`
+  );
+};
+watch(
+  () => props.isActive,
+  () => {
+    if (props.isActive) getAverageRGB(imageTag.value!);
+  }
+);
 </script>
 
 <style lang="less">

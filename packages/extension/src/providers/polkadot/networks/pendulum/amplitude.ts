@@ -20,7 +20,6 @@ const amplitudeOptions: SubstrateNetworkOptions = {
   icon: require("../icons/amplitude.svg"),
   decimals: 12,
   prefix: 57,
-  gradient: "#E6007A",
   node: "wss://rpc-amplitude.pendulumchain.tech",
   genesisHash:
     "0xcceae7f3b9947cdb67369c026ef78efa5f34a08fe5808d373c04421ecf4f1aaf",

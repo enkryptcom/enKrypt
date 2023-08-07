@@ -12,6 +12,7 @@ const FAST_MULTIPLIER = 1.1428571428571;
 const FASTEST_CONST = 64285714285.7;
 const FASTEST_MULTIPLIER = 1.21828571429;
 const LIMITER = 25000000000;
+const GAS_PERCENTILES = [25, 50, 75, 90];
 
 const getEconomy = (gasPrice: string): BN => {
   return toBN(gasPrice);
@@ -62,7 +63,7 @@ const getGasBasedOnType = (
   }
 };
 const getMinPriorityFee = (): BN => {
-  return toBN(toWei("1.25", "gwei"));
+  return toBN(toWei("0.1", "gwei"));
 };
 const getPriorityFeeAvg = (arr: BN[]): BN => {
   const sum = arr.reduce((a, v) => a.add(v));
@@ -113,9 +114,11 @@ const formatFeeHistory = (
       number: blockNum,
       baseFeePerGas: blockBaseFee,
       gasUsedRatio: feeHistory.gasUsedRatio[index],
-      priorityFeePerGas: feeHistory.reward[index]
-        .map((x) => toBN(x))
-        .sort((a, b) => a.sub(b).toNumber()),
+      priorityFeePerGas: feeHistory.reward
+        ? feeHistory.reward[index]
+            .map((x) => toBN(x))
+            .sort((a, b) => a.sub(b).toNumber())
+        : GAS_PERCENTILES.map(() => toBN(0)),
     });
     blockNum += 1;
     index += 1;
@@ -181,4 +184,5 @@ export {
   getGasBasedOnType,
   FeeDescriptions,
   formatFeeHistory,
+  GAS_PERCENTILES,
 };

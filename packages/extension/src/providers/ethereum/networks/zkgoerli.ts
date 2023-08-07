@@ -14,9 +14,8 @@ const zkgoerliOptions: EvmNetworkOptions = {
   isTestNetwork: true,
   currencyName: "GöETH",
   currencyNameLong: "zkSync Goerli",
-  node: "wss://zksync2-testnet.zksync.dev/ws",
+  node: "wss://testnet.era.zksync.dev/ws",
   icon: require("./icons/zksync.svg"),
-  gradient: "linear-gradient(180deg, #C549FF 0%, #684CFF 100%)",
   NFTHandler: shNFTHandler,
   activityHandler: wrapActivityHandler(EtherscanActivity),
 };

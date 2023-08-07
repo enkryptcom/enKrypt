@@ -104,6 +104,8 @@ import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 import broadcastTx from "@/providers/ethereum/libs/tx-broadcaster";
 import { BaseNetwork } from "@/types/base-network";
 import { bigIntToHex } from "@ethereumjs/util";
+import { toBN } from "web3-utils";
+import { toBase } from "@enkryptcom/utils";
 
 const KeyRing = new PublicKeyRing();
 const route = useRoute();
@@ -160,7 +162,12 @@ const sendAction = async () => {
   };
   const activityState = new ActivityState();
   await tx
-    .getFinalizedTransaction({ gasPriceType: txData.gasPriceType })
+    .getFinalizedTransaction({
+      gasPriceType: txData.gasPriceType,
+      totalGasPrice: toBN(
+        toBase(txData.gasFee.nativeValue, network.value.decimals)
+      ),
+    })
     .then(async (finalizedTx) => {
       const onHash = (hash: string) => {
         activityState.addActivities(

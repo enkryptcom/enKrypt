@@ -16,7 +16,6 @@ const auroraOptions: EvmNetworkOptions = {
   currencyNameLong: "Ethereum",
   node: "https://mainnet.aurora.dev",
   icon: require("./icons/aurora.png"),
-  gradient: "linear-gradient(180deg, #C549FF 0%, #684CFF 100%)",
   coingeckoID: "ethereum",
   coingeckoPlatform: CoingeckoPlatform.Aurora,
   assetsInfoHandler,

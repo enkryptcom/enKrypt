@@ -7,7 +7,7 @@ import shNFTHandler from "@/libs/nft-handlers/simplehash";
 
 const maticOptions: EvmNetworkOptions = {
   name: NetworkNames.MaticZK,
-  name_long: "Polygon (Matic) | Zk EVM",
+  name_long: "Polygon | zkEVM",
   homePage: "https://zkevm.polygonscan.com/",
   blockExplorerTX: "https://zkevm.polygonscan.com/tx/[[txHash]]",
   blockExplorerAddr: "https://zkevm.polygonscan.com/address/[[address]]",
@@ -17,7 +17,6 @@ const maticOptions: EvmNetworkOptions = {
   currencyNameLong: "Polygon Matic",
   node: "wss://nodes.mewapi.io/ws/maticzk",
   icon: require("./icons/matic.svg"),
-  gradient: "#7B3FE4",
   coingeckoID: "matic-network",
   coingeckoPlatform: CoingeckoPlatform.MaticZK,
   NFTHandler: shNFTHandler,

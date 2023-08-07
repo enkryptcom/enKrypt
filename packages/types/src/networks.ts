@@ -55,6 +55,8 @@ export enum NetworkNames {
   Pendulum = "pendulum",
   Amplitude = "amplitude",
   Vara = "VARA",
+  Base = "BASE",
+  Celo = "CELO",
 }
 
 export enum CoingeckoPlatform {
@@ -91,4 +93,6 @@ export enum CoingeckoPlatform {
   Zksync = "zksync",
   Quartz = "quartz",
   Unique = "unique-network",
+  Base = "base",
+  Celo = "celo",
 }

@@ -7,7 +7,7 @@ import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
 
 const maticOptions: EvmNetworkOptions = {
   name: NetworkNames.Matic,
-  name_long: "Polygon (Matic)",
+  name_long: "Polygon",
   homePage: "https://polygonscan.com/",
   blockExplorerTX: "https://polygonscan.com/tx/[[txHash]]",
   blockExplorerAddr: "https://polygonscan.com/address/[[address]]",
@@ -17,7 +17,6 @@ const maticOptions: EvmNetworkOptions = {
   currencyNameLong: "Polygon Matic",
   node: "wss://nodes.mewapi.io/ws/matic",
   icon: require("./icons/matic.svg"),
-  gradient: "#7B3FE4",
   coingeckoID: "matic-network",
   coingeckoPlatform: CoingeckoPlatform.Matic,
   NFTHandler: RaribleNFTHandler,

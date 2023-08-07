@@ -16,7 +16,6 @@ const sdnOptions: EvmNetworkOptions = {
   currencyNameLong: "Shiden",
   node: "wss://shiden.public.blastapi.io",
   icon: require("./icons/sdn.png"),
-  gradient: "linear-gradient(180deg, #C549FF 0%, #684CFF 100%)",
   coingeckoID: "shiden",
   coingeckoPlatform: CoingeckoPlatform.Shiden,
   assetsInfoHandler,

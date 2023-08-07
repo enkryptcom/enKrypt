@@ -103,6 +103,10 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
     tbName: "pze",
     cgPlatform: CoingeckoPlatform.MaticZK,
   },
+  [NetworkNames.Celo]: {
+    tbName: "celo",
+    cgPlatform: CoingeckoPlatform.Celo,
+  },
   [NetworkNames.TomoChain]: {
     tbName: "",
     cgPlatform: CoingeckoPlatform.TomoChain,
