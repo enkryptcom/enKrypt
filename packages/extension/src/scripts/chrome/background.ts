@@ -42,8 +42,7 @@ Browser.runtime.onInstalled.addListener((object) => {
   }
 });
 
-if (Browser.runtime.getManifest().permissions!.includes("scripting")) {
-  // use for safari
+if (process.env.IS_SAFARI) {
   Browser.scripting.registerContentScripts([
     {
       id: "inject-script",

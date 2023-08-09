@@ -21,6 +21,6 @@ function injectScript() {
   }
 }
 
-if (!browser.runtime.getManifest().permissions!.includes("scripting")) {
+if (!process.env.IS_SAFARI) {
   injectScript();
 }
