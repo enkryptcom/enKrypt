@@ -21,6 +21,6 @@ function injectScript() {
   }
 }
 
-if (browser.runtime.getManifest().manifest_version === 2) {
+if (process.env.IS_FIREFOX) {
   injectScript();
 }
