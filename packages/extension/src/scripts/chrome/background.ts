@@ -41,3 +41,17 @@ Browser.runtime.onInstalled.addListener((object) => {
     });
   }
 });
+
+if (Browser.runtime.getManifest().permissions!.includes("scripting")) {
+  // use for safari
+  Browser.scripting.registerContentScripts([
+    {
+      id: "inject-script",
+      js: ["scripts/inject.js"],
+      persistAcrossSessions: false,
+      matches: ["http://*/*", "https://*/*"],
+      runAt: "document_start",
+      world: "MAIN",
+    } as any,
+  ]);
+}

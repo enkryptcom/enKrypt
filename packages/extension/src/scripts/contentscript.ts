@@ -21,4 +21,6 @@ function injectScript() {
   }
 }
 
-injectScript();
+if (!browser.runtime.getManifest().permissions!.includes("scripting")) {
+  injectScript();
+}
