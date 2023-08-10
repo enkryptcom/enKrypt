@@ -1,10 +1,10 @@
-import browser from "webextension-polyfill";
+import Browser from "webextension-polyfill";
 import { setContentScriptNamespace } from "@/libs/messenger/extension";
 import { InjectedIDs } from "@/types/messenger";
 setContentScriptNamespace();
 function injectScript() {
   try {
-    const injectURL = browser.runtime.getURL("scripts/inject.js");
+    const injectURL = Browser.runtime.getURL("scripts/inject.js");
     const container = document.head || document.documentElement;
     const scriptTag = document.createElement("script");
     scriptTag.setAttribute("async", "false");
@@ -21,6 +21,6 @@ function injectScript() {
   }
 }
 
-if (process.env.IS_FIREFOX) {
+if (Browser.runtime.getManifest().manifest_version === 2) {
   injectScript();
 }

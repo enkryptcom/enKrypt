@@ -50,11 +50,7 @@ export default async (
   if (!allItems || !allItems.length) return [];
   const collections: Record<string, NFTCollection> = {};
   allItems.forEach((item) => {
-    if (
-      (!item.image_url && !item.previews.image_medium_url) ||
-      !item.collection.image_url
-    )
-      return;
+    if (!item.image_url && !item.previews.image_medium_url) return;
     if (collections[item.contract_address]) {
       const tItem: NFTItem = {
         contract: item.contract_address,
@@ -70,7 +66,9 @@ export default async (
       const ret: NFTCollection = {
         name: item.collection.name,
         description: item.collection.description,
-        image: item.collection.image_url,
+        image:
+          item.collection.image_url ||
+          require("@action/assets/common/not-found.jpg"),
         contract: item.contract_address,
         items: [
           {
