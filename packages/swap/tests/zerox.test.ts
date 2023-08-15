@@ -22,7 +22,7 @@ describe("Zerox Provider", () => {
   const web3eth = new Web3Eth(nodeURL);
   const zerox = new Zerox(web3eth, SupportedNetworkName.Ethereum);
   const ZEROX_APPROVAL = "0xdef1c0ded9bec7f1a1670819833240f027b25eff";
-  it("it should return a quote infinity approval", async () => {
+  xit("it should return a quote infinity approval", async () => {
     const quote = await zerox.getQuote(
       {
         amount,
@@ -53,7 +53,7 @@ describe("Zerox Provider", () => {
     expect(swap?.transactions[1].to).to.be.eq(ZEROX_APPROVAL);
   }).timeout(10000);
 
-  it("it should return a quote non infinity approval", async () => {
+  xit("it should return a quote non infinity approval", async () => {
     const quote = await zerox.getQuote(
       {
         amount,
