@@ -24,6 +24,19 @@
     "default_title": "Enkrypt",
     "default_popup": "action.html"
   },
+  "content_scripts": [
+    {
+      "matches": ["file://*/*", "http://*/*", "https://*/*"],
+      "js": ["scripts/contentscript.js"],
+      "run_at": "document_start",
+      "all_frames": false
+    },
+    {
+      "matches": ["*://connect.trezor.io/*/popup.html"],
+      "js": ["vendor/trezor-content-script.js"],
+      "run_at": "document_start"
+    }
+  ],
   "browser_specific_settings": {
     "gecko": {
       "strict_min_version": "100.0"
