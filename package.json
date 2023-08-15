@@ -29,9 +29,9 @@
     "version:apply": "yarn version apply --all"
   },
   "devDependencies": {
-    "@commitlint/cli": "^17.6.6",
-    "@commitlint/config-conventional": "^17.6.6",
-    "@swc/core": "^1.3.70",
+    "@commitlint/cli": "^17.7.0",
+    "@commitlint/config-conventional": "^17.7.0",
+    "@swc/core": "^1.3.75",
     "concurrently": "^7.6.0",
     "devmoji": "^2.3.0",
     "husky": "^8.0.3",

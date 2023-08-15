@@ -17,10 +17,10 @@
     {
       "resources": ["scripts/inject.js", "scripts/*.js.map"],
       "use_dynamic_url": false,
-      "matches": ["http://*/*", "https://*/*"]
+      "matches": ["file://*/*", "http://*/*", "https://*/*"]
     }
   ],
-  "minimum_chrome_version": "103",
+  "minimum_chrome_version": "111",
   "content_security_policy": {
     "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
   }
