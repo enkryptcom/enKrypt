@@ -15,4 +15,5 @@ export interface SubstrateSettingsType {
 export interface SettingsType {
   evm: EVMSettingsType;
   substrate: SubstrateSettingsType;
+  manifestVersion: number;
 }
