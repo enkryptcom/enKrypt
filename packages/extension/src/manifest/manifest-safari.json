@@ -38,6 +38,7 @@
       "run_at": "document_start"
     }
   ],
+  "host_permissions": ["file://*/*", "http://*/*", "https://*/*"],
   "content_security_policy": {
     "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
   },
@@ -46,8 +47,7 @@
     "unlimitedStorage",
     "tabs",
     "clipboardWrite",
-    "scripting",
-    "activeTab"
+    "scripting"
   ],
   "browser_specific_settings": {
     "safari": {
