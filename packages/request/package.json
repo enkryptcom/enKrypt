@@ -16,7 +16,10 @@
     "node": ">=14.15.0"
   },
   "dependencies": {
+
+
  snye9c99a4b26ed6ad4e1c2
+
     "@enkryptcom/types": "0.0.1",
     "eventemitter3": "^5.0.0",
 
