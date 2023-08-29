@@ -225,6 +225,7 @@ class ZeroX extends ProviderClass {
       const response: ProviderQuoteResponse = {
         fromTokenAmount: res.fromTokenAmount,
         toTokenAmount: res.toTokenAmount,
+        additionalNativeFees: toBN(0),
         provider: this.name,
         quote: {
           meta,
@@ -251,6 +252,7 @@ class ZeroX extends ProviderClass {
         fromTokenAmount: res.fromTokenAmount,
         provider: this.name,
         toTokenAmount: res.toTokenAmount,
+        additionalNativeFees: toBN(0),
         transactions: res.transactions,
         slippage: quote.meta.slippage || DEFAULT_SLIPPAGE,
         fee: feeConfig * 100,

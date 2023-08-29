@@ -237,6 +237,7 @@ class OneInch extends ProviderClass {
       const response: ProviderQuoteResponse = {
         fromTokenAmount: res.fromTokenAmount,
         toTokenAmount: res.toTokenAmount,
+        additionalNativeFees: toBN(0),
         provider: this.name,
         quote: {
           meta,
@@ -264,6 +265,7 @@ class OneInch extends ProviderClass {
         provider: this.name,
         toTokenAmount: res.toTokenAmount,
         transactions: res.transactions,
+        additionalNativeFees: toBN(0),
         slippage: quote.meta.slippage || DEFAULT_SLIPPAGE,
         fee: feeConfig * 100,
         getStatusObject: async (

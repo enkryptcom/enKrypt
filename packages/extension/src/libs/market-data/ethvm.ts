@@ -1,3 +1,4 @@
+import cacheFetch from "../cache-fetch";
 import {
   CoinGeckoToken,
   CoinGeckoTokenMarket,
@@ -20,13 +21,16 @@ interface getCoinGeckoTokenInfoAllType {
 const ETHVM_BASE = `https://api-v2.ethvm.dev/`;
 
 const ethvmPost = (requestData: string): Promise<any> => {
-  return fetch(ETHVM_BASE, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
+  return cacheFetch(
+    {
+      url: ETHVM_BASE,
+      post: JSON.parse(requestData),
+      headers: {
+        "Content-Type": "application/json",
+      },
     },
-    body: requestData,
-  }).then((res) => res.json());
+    10 * 60 * 1000
+  );
 };
 
 export const getAllPlatformData = (): Promise<CoinGeckoToken[]> => {

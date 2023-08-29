@@ -174,6 +174,7 @@ export interface ProviderQuoteResponse {
   toTokenAmount: BN;
   fromTokenAmount: BN;
   totalGaslimit: number;
+  additionalNativeFees: BN;
   provider: ProviderName;
   quote: SwapQuote;
   minMax: MinMaxResponse;
@@ -192,6 +193,7 @@ export interface ProviderSwapResponse {
   transactions: SwapTransaction[];
   toTokenAmount: BN;
   fromTokenAmount: BN;
+  additionalNativeFees: BN;
   provider: ProviderName;
   slippage: string;
   fee: number;

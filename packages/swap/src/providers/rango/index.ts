@@ -311,10 +311,20 @@ class Rango extends ProviderClass {
           });
         }
       }
+      let additionalNativeFees = toBN(0);
+      response.route.fee.forEach((f) => {
+        if (
+          !f.token.address &&
+          f.expenseType === "FROM_SOURCE_WALLET" &&
+          f.name !== "Network Fee"
+        )
+          additionalNativeFees = additionalNativeFees.add(toBN(f.amount));
+      });
       return {
         transactions,
         toTokenAmount: toBN(response.route.outputAmount),
         fromTokenAmount: toBN(options.amount.toString()),
+        additionalNativeFees,
         requestId: response.requestId,
       };
     });
@@ -329,6 +339,7 @@ class Rango extends ProviderClass {
       const response: ProviderQuoteResponse = {
         fromTokenAmount: res.fromTokenAmount,
         toTokenAmount: res.toTokenAmount,
+        additionalNativeFees: res.additionalNativeFees,
         provider: this.name,
         quote: {
           meta,
@@ -355,6 +366,7 @@ class Rango extends ProviderClass {
         fromTokenAmount: res.fromTokenAmount,
         provider: this.name,
         toTokenAmount: res.toTokenAmount,
+        additionalNativeFees: res.additionalNativeFees,
         transactions: res.transactions,
         slippage: quote.meta.slippage || DEFAULT_SLIPPAGE,
         fee: feeConfig * 100,
