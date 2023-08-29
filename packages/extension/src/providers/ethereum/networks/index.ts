@@ -29,6 +29,7 @@ import puppyNode from "./puppy";
 import sepoliaNode from "./sepolia";
 import baseNode from "./base";
 import celoNode from "./celo";
+import shibNode from "./shib";
 
 export default {
   goerli: goerliNode,
@@ -71,4 +72,5 @@ export default {
   puppy: puppyNode,
   base: baseNode,
   celo: celoNode,
+  shib: shibNode,
 };

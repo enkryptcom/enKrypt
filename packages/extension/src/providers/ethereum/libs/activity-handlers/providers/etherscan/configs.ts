@@ -42,6 +42,7 @@ const NetworkEndpoints: Record<string, string> = {
   [NetworkNames.Fantom]: "https://api.ftmscan.com/",
   [NetworkNames.Aurora]: "https://explorer.mainnet.aurora.dev/",
   [NetworkNames.PuppyNet]: "https://puppyscan.shib.io/",
+  [NetworkNames.Shibarium]: "https://www.shibariumscan.io/",
   [NetworkNames.MaticZK]: "https://api-zkevm.polygonscan.com/",
   [NetworkNames.Base]: "https://api.basescan.org/",
   [NetworkNames.Celo]: "https://explorer.celo.org/mainnet/",
