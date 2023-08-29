@@ -21,8 +21,6 @@ const bifrostPolkadotOptions: SubstrateNetworkOptions = {
   icon: require("../icons/bifrost.svg"),
   decimals: 12,
   prefix: 6,
-  gradient:
-    "linear-gradient(326.87deg, #5a25f0 12.53%, #5a25f0 50.89%, #5a25f0 89.24%)",
   node: "wss://hk.p.bifrost-rpc.liebi.com/ws",
   coingeckoID: "bifrost-native-coin",
   coingeckoPlatform: CoingeckoPlatform.Bifrost,

@@ -36,14 +36,14 @@ const toTokenWETH: TokenTypeTo = {
 };
 
 const toToken: TokenTypeTo = {
-  address: "0x111111111117dc0aa78b770fa6a738034120c302",
+  address: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
   decimals: 18,
   logoURI:
-    "https://assets.coingecko.com/coins/images/13469/thumb/1inch-token.png?1608803028",
-  name: "1inch",
-  symbol: "1INCH",
+    "https://assets.coingecko.com/coins/images/6319/thumb/USD_Coin_icon.png?1547042389",
+  name: "USDC",
+  symbol: "usdc",
   rank: 100,
-  cgId: "1inch",
+  cgId: "usdc",
   type: NetworkType.EVM,
   networkInfo: {
     isAddress: async (address: string) => isAddress(address),

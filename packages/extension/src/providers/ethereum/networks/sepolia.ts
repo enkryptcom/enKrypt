@@ -15,7 +15,6 @@ const goerliOptions: EvmNetworkOptions = {
   currencyNameLong: "Sepolia",
   node: "wss://nodes.mewapi.io/ws/sepolia",
   icon: require("./icons/eth.svg"),
-  gradient: "linear-gradient(180deg, #C549FF 0%, #684CFF 100%)",
   activityHandler: wrapActivityHandler(RivetActivity),
 };
 

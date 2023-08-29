@@ -15,7 +15,6 @@ const edgOptions: EvmNetworkOptions = {
   currencyNameLong: "Edgeware",
   node: "wss://edgeware.jelliedowl.net",
   icon: require("./icons/edgeware.svg"),
-  gradient: "#000000",
   coingeckoID: "edgeware",
   coingeckoPlatform: CoingeckoPlatform.Edgeware,
   activityHandler: wrapActivityHandler(EtherscanActivity),

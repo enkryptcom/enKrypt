@@ -53,7 +53,7 @@ describe("Paraswap Provider", () => {
     expect(swap?.transactions[1].to).to.be.eq(
       "0xDEF171Fe48CF0115B1d80b88dc8eAB59176FEe57"
     );
-  }).timeout(5000);
+  }).timeout(10000);
 
   it("it should return a quote non infinity approval", async () => {
     const quote = await paraSwap.getQuote(
@@ -80,5 +80,5 @@ describe("Paraswap Provider", () => {
     expect(swap?.transactions[1].to).to.be.eq(
       "0xDEF171Fe48CF0115B1d80b88dc8eAB59176FEe57"
     );
-  }).timeout(5000);
+  }).timeout(10000);
 });

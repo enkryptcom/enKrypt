@@ -139,6 +139,7 @@ import {
   NetworkType,
   ProviderSwapResponse,
   SupportedNetworkName,
+  SwapToken,
 } from "@enkryptcom/swap";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
 import { SwapData, ProviderResponseWithStatus } from "../../types";
@@ -277,7 +278,6 @@ onMounted(async () => {
   network.value = (await getNetworkByName(selectedNetwork))!;
   account.value = await KeyRing.getAccount(swapData.fromAddress);
   isWindowPopup.value = account.value.isHardware;
-  /* Waiting for changelly to fix the api rate issue
   let tempBestTrade = pickedTrade.value;
   let tempFinalToFiat = 0;
   for (const trade of swapData.trades) {
@@ -296,7 +296,6 @@ onMounted(async () => {
     }
   }
   pickedTrade.value = tempBestTrade;
-  */
   await setTransactionFees();
   isLooking.value = false;
 });

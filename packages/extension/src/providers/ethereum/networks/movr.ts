@@ -16,7 +16,6 @@ const moonriverOptions: EvmNetworkOptions = {
   currencyNameLong: "Moonriver",
   node: "wss://wss.api.moonriver.moonbeam.network",
   icon: require("./icons/moonriver.svg"),
-  gradient: "linear-gradient(180deg, #F2B705 0%, #53CBC8 100%)",
   coingeckoID: "moonriver",
   coingeckoPlatform: CoingeckoPlatform.Moonriver,
   assetsInfoHandler,

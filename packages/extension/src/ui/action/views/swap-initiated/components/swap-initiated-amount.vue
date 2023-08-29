@@ -1,6 +1,6 @@
 <template>
   <div class="swap-initiated-amount">
-    <img :src="token.logoURI" alt="" />
+    <img :src="token.logoURI" alt="" @error="imageLoadError" />
 
     <div class="swap-initiated-amount__info">
       <h4>
@@ -15,6 +15,7 @@
 import { TokenType, SwapToken } from "@enkryptcom/swap";
 import { PropType } from "vue";
 import { toBN } from "web3-utils";
+import { imageLoadError } from "@/ui/action/utils/misc";
 
 const props = defineProps({
   token: {

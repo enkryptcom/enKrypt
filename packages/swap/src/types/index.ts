@@ -24,6 +24,7 @@ export enum SupportedNetworkName {
   Fantom = NetworkNames.Fantom,
   Klaytn = NetworkNames.Klaytn,
   Aurora = NetworkNames.Aurora,
+  Zksync = NetworkNames.ZkSync,
 }
 
 // eslint-disable-next-line no-shadow
@@ -97,6 +98,7 @@ export interface QuoteMetaOptions {
   walletIdentifier: WalletIdentifier;
   slippage?: string;
   changellyQuoteId?: string;
+  changellynetworkFee?: BN;
   priceRoute?: unknown;
 }
 

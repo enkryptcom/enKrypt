@@ -19,7 +19,6 @@ const bitcoinOptions: BitcoinNetworkOptions = {
   currencyNameLong: "Test Bitcoin",
   icon: require("./icons/tbtc.svg"),
   decimals: 8,
-  gradient: "#F7931A",
   node: "https://api.blockchain.info/haskoin-store/btc-testnet/",
   activityHandler: wrapActivityHandler(haskoinHandler),
   basePath: "m/49'/1'/0'/0",

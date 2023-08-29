@@ -240,12 +240,15 @@ class Changelly extends ProviderClass {
           fromTokenAmount: quoteRequestAmount,
           toTokenAmount: toBN(
             toBase(result.amountTo, options.toToken.decimals)
-          ),
+          ).sub(toBN(toBase(result.networkFee, options.toToken.decimals))),
           provider: this.name,
           quote: {
             meta: {
               ...meta,
               changellyQuoteId: result.id,
+              changellynetworkFee: toBN(
+                toBase(result.networkFee, options.toToken.decimals)
+              ),
             },
             options: {
               ...options,
@@ -328,7 +331,7 @@ class Changelly extends ProviderClass {
           provider: this.name,
           toTokenAmount: toBN(
             toBase(result.amountExpectedTo, quote.options.toToken.decimals)
-          ),
+          ).sub(quote.meta.changellynetworkFee),
           transactions: [transaction],
           slippage: quote.meta.slippage || DEFAULT_SLIPPAGE,
           fee,

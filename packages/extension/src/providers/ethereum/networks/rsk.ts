@@ -19,7 +19,6 @@ const rootstockOptions: EvmNetworkOptions = {
   node: "wss://public-node.rsk.co/websocket",
   icon: require("./icons/rootstock.svg"),
   basePath: "m/44'/137'/0'/0",
-  gradient: "#7B3FE4",
   coingeckoID: CoingeckoPlatform.Rootstock,
   coingeckoPlatform: CoingeckoPlatform.Rootstock,
   activityHandler: wrapActivityHandler(EtherscanActivity),

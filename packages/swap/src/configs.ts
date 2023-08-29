@@ -60,6 +60,7 @@ const TOKEN_LISTS: {
   [NetworkNames.Moonbeam]: `https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/swaplists/${SupportedNetworkName.Moonbeam}.json`,
   [NetworkNames.Gnosis]: `https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/swaplists/${SupportedNetworkName.Gnosis}.json`,
   [NetworkNames.Klaytn]: `https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/swaplists/${SupportedNetworkName.Klaytn}.json`,
+  [NetworkNames.ZkSync]: `https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/swaplists/${SupportedNetworkName.Zksync}.json`,
 };
 
 const CHANGELLY_LIST =

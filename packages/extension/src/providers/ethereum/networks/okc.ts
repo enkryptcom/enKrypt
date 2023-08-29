@@ -16,7 +16,6 @@ const okcOptions: EvmNetworkOptions = {
   currencyNameLong: "OKX Chain",
   node: "https://exchainrpc.okex.org",
   icon: require("./icons/okc.svg"),
-  gradient: "linear-gradient(180deg, #C549FF 0%, #684CFF 100%)",
   coingeckoID: "oec-token",
   coingeckoPlatform: CoingeckoPlatform.Okc,
   assetsInfoHandler,

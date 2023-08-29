@@ -82,7 +82,7 @@ withDefaults(defineProps<Props>(), {
   }
 
   &__container {
-    width: 800px;
+    width: 100%;
     height: 600px;
     left: 0px;
     top: 0px;

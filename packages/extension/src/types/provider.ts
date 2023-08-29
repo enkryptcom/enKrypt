@@ -66,7 +66,7 @@ export interface EIP6963ProviderInfo {
   uuid: string;
   name: string;
   icon: `data:image/svg+xml;base64,${string}`;
-  walletId: string;
+  rdns: string;
 }
 
 export enum EIP6963Events {
@@ -154,7 +154,6 @@ export interface NodeType {
   currencyName: string;
   icon: any;
   signer: SignerType[];
-  gradient: string;
   node: string;
   displayAddress: (address: string) => string;
   api?: () => Promise<ProviderAPIInterface>;

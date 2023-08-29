@@ -16,7 +16,6 @@ const cantoOptions: EvmNetworkOptions = {
   currencyNameLong: "Canto",
   node: "https://canto.gravitychain.io/",
   icon: require("./icons/canto.svg"),
-  gradient: "linear-gradient(180deg, #C549FF 0%, #684CFF 100%)",
   coingeckoID: "canto",
   coingeckoPlatform: CoingeckoPlatform.Canto,
   assetsInfoHandler,

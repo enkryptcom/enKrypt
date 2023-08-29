@@ -19,7 +19,6 @@ const polkadotOptions: SubstrateNetworkOptions = {
   icon: require("./icons/polkadot.svg"),
   decimals: 10,
   prefix: 0,
-  gradient: "#E6007A",
   node: "wss://rpc.polkadot.io/",
   coingeckoID: "polkadot",
   coingeckoPlatform: CoingeckoPlatform.Polkadot,

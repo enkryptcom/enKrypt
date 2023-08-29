@@ -1,3 +1,4 @@
+import Browser from "webextension-polyfill";
 import { InternalStorageNamespace } from "@/types/provider";
 import BrowserStorage from "@/libs/common/browser-storage";
 import {
@@ -51,6 +52,7 @@ class SettingsState {
     return {
       evm: evmstate,
       substrate: substratestate,
+      manifestVersion: Browser.runtime.getManifest().manifest_version,
     };
   }
   async getStateByKey(key: string): Promise<any> {

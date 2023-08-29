@@ -31,7 +31,6 @@ export interface BitcoinNetworkOptions {
   currencyNameLong: string;
   icon: string;
   decimals: number;
-  gradient: string;
   node: string;
   coingeckoID?: string;
   basePath: string;

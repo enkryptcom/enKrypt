@@ -234,6 +234,10 @@ class ParaSwap extends ProviderClass {
             (meta.priceRoute as ParaswpQuoteResponse).srcAmount
           ),
         };
+      })
+      .catch((e) => {
+        console.error(e);
+        return Promise.resolve(null);
       });
   }
 
@@ -302,6 +306,10 @@ class ParaSwap extends ProviderClass {
           minMax: await this.getMinMaxAmount(),
         };
         return response;
+      })
+      .catch((e) => {
+        console.error(e);
+        return Promise.resolve(null);
       });
   }
 
