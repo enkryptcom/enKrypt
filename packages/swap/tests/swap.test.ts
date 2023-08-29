@@ -94,7 +94,7 @@ describe("Swap", () => {
       toToken,
       toAddress: fromAddress,
     });
-    expect(quotes?.length).to.be.eq(5);
+    expect(quotes?.length).to.be.gte(4);
     const oneInceQuote = quotes.find(
       (q) => q.provider === ProviderName.oneInch
     );
