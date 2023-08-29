@@ -8,11 +8,13 @@ import {
   SwapRequest,
   BlockchainMeta,
   RoutingResultType,
+  TransactionType as RangoTransactionType,
 } from "rango-sdk-basic";
 import {
   EVMTransaction,
   getQuoteOptions,
   MinMaxResponse,
+  NetworkType,
   ProviderClass,
   ProviderFromTokenResponse,
   ProviderName,
@@ -116,41 +118,24 @@ class Rango extends ProviderClass {
   }
 
   init(tokenList?: TokenType[]): Promise<void> {
-    const rangoToNetwork: Record<string, SupportedNetworkName> = {};
-    Object.keys(supportedNetworks).forEach((net) => {
-      rangoToNetwork[supportedNetworks[net].name] =
-        net as unknown as SupportedNetworkName;
-    });
-    const supportedCRangoNames = Object.values(supportedNetworks).map(
-      (s) => s.name
-    );
-    return rangoClient.meta().then((resMeta) => {
-      this.rangoMeta = resMeta;
-      const { blockchains } = resMeta;
-      if (!Rango.isSupported(this.network, blockchains)) return;
-
-      tokenList?.forEach((t) => {
-        if (
-          this.isNativeToken(t.address) ||
-          resMeta.tokens.find((token) => token.address === t.address)
-        ) {
-          this.fromTokens[t.address] = t;
-          blockchains.forEach((chain) => {
-            if (!supportedCRangoNames.includes(chain.name)) return;
-            if (!this.toTokens[rangoToNetwork[chain.name]])
-              this.toTokens[rangoToNetwork[chain.name]] = {};
-            this.toTokens[rangoToNetwork[chain.name]][t.address] = {
-              ...t,
-              networkInfo: {
-                name: rangoToNetwork[chain.name],
-                isAddress: (address: string) =>
-                  Promise.resolve(isEVMAddress(address)),
-              },
-            };
-          });
-        }
+    return rangoClient
+      .meta({
+        excludeNonPopulars: true,
+        transactionTypes: [RangoTransactionType.EVM],
+      })
+      .then((resMeta) => {
+        this.rangoMeta = resMeta;
+        const { blockchains, tokens } = resMeta;
+        if (!Rango.isSupported(this.network, blockchains)) return;
+        tokenList?.forEach((t) => {
+          const tokenSupport = tokens.find(
+            (token) => token.address === t.address
+          );
+          if (this.isNativeToken(t.address) || tokenSupport) {
+            this.fromTokens[t.address] = t;
+          }
+        });
       });
-    });
   }
 
   static isSupported(
@@ -175,7 +160,50 @@ class Rango extends ProviderClass {
   }
 
   getToTokens() {
+    const { tokens } = this.rangoMeta;
+    const supportedCRangoNames = Object.values(supportedNetworks).map(
+      (s) => s.name
+    );
+    const rangoToNetwork: Record<string, SupportedNetworkName> = {};
+    Object.keys(supportedNetworks).forEach((net) => {
+      rangoToNetwork[supportedNetworks[net].name] =
+        net as unknown as SupportedNetworkName;
+    });
+    tokens?.forEach((t) => {
+      if (!supportedCRangoNames.includes(t.blockchain)) return;
+      if (!this.toTokens[rangoToNetwork[t.blockchain]])
+        this.toTokens[rangoToNetwork[t.blockchain]] = {};
+      this.toTokens[rangoToNetwork[t.blockchain]][
+        t.address || NATIVE_TOKEN_ADDRESS
+      ] = {
+        ...t,
+        name: t.name || t.symbol,
+        logoURI: t.image,
+        type: NetworkType.EVM,
+        price: t.usdPrice,
+        networkInfo: {
+          name: rangoToNetwork[t.blockchain],
+          isAddress: (address: string) =>
+            Promise.resolve(isEVMAddress(address)),
+        },
+      };
+    });
+
     return this.toTokens;
+  }
+
+  /**
+   * Returns the symbol in Rango's specific form from the meta information.
+   * For cross-chain tokens like Ethereum (ETH) on the Binance Smart Chain (BSC) network,
+   * it returns the corresponding symbol like WETH.
+   */
+
+  private getSymbol(token: TokenType) {
+    const { tokens } = this.rangoMeta;
+    if (this.isNativeToken(token.address)) return token.symbol;
+    return Object.values(tokens || []).find(
+      (t) => t.address?.toLowerCase() === token.address?.toLowerCase()
+    )?.symbol;
   }
 
   private isNativeToken(address: string) {
@@ -218,18 +246,21 @@ class Rango extends ProviderClass {
     )?.name;
     const fromTokenAddress = options.fromToken.address;
     const toTokenAddress = options.toToken.address;
+    const fromSymbol = this.getSymbol(options.fromToken);
+    const toSymbol = this.getSymbol(options.toToken);
+    if (!fromSymbol || !toSymbol) return Promise.resolve(null);
     const params: SwapRequest = {
       from: {
         address: !this.isNativeToken(fromTokenAddress)
           ? fromTokenAddress
           : null,
         blockchain: fromBlockchain,
-        symbol: options.fromToken.symbol,
+        symbol: fromSymbol,
       },
       to: {
         address: !this.isNativeToken(toTokenAddress) ? toTokenAddress : null,
         blockchain: toBlockchain,
-        symbol: options.toToken.symbol,
+        symbol: toSymbol,
       },
       amount: options.amount.toString(),
       fromAddress: options.fromAddress,
