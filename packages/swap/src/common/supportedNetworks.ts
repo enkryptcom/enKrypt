@@ -175,7 +175,7 @@ const NetworkDetails: Record<SupportedNetworkName, NetworkInfo> = {
     decimals: 18,
     logoURI:
       "https://tokens.1inch.io/0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee.png",
-    name: "Ethereum",
+    name: "Aurora",
     signerType: [SignerType.secp256k1],
     type: NetworkType.EVM,
     rank: 15,
