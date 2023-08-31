@@ -15,6 +15,7 @@ const shibOptions: EvmNetworkOptions = {
   currencyNameLong: "BONE",
   node: "https://www.shibrpc.com",
   icon: require("./icons/shiba-inu.svg"),
+  coingeckoID: "bone-shibaswap",
   activityHandler: wrapActivityHandler(EtherscanActivity),
 };
 
