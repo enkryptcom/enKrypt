@@ -19,12 +19,25 @@ const cacheFetch = async (
   } else if (!storagetimestamp) {
     await storage.set(TIMESTAMP, { [TIMESTAMP]: new Date().getTime() });
   }
-  const hash = keccak256(options.url);
+  const hash = keccak256(JSON.stringify(options));
   const cached: StoredData = await storage.get(hash);
+
   if (cached && cached.timestamp + ttl > new Date().getTime()) {
     return JSON.parse(cached.data);
   } else {
-    return fetch(options.url)
+    const fetchOptions: {
+      method?: string;
+      headers?: Record<string, any>;
+      body?: string;
+    } = {};
+    if (options.post) {
+      fetchOptions.method = "POST";
+      fetchOptions.body = JSON.stringify(options.post);
+    }
+    if (options.headers) {
+      fetchOptions.headers = options.headers;
+    }
+    return fetch(options.url, fetchOptions)
       .then((res) => res.json())
       .then((json) => {
         const jsonstring = JSON.stringify(json);
