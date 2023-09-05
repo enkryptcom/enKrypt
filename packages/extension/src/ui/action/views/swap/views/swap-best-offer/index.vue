@@ -24,6 +24,7 @@
             :picked-trade="pickedTrade"
             :from-token="swapData.fromToken"
             :to-token="swapData.toToken"
+            :network="network"
             @update:picked-trade="selectTrade"
           />
           <best-offer-error
@@ -167,6 +168,7 @@ const swapData: SwapData = JSON.parse(
 swapData.trades.forEach((t) => {
   t.fromTokenAmount = toBN(`0x${t.fromTokenAmount}`);
   t.toTokenAmount = toBN(`0x${t.toTokenAmount}`);
+  t.additionalNativeFees = toBN(`0x${t.additionalNativeFees}`);
 });
 swapData.existentialDeposit = toBN(`0x${swapData.existentialDeposit}`);
 swapData.nativeBalance = toBN(`0x${swapData.nativeBalance}`);
@@ -245,7 +247,8 @@ const getTransactionFees = async (
     return getEVMTransactionFees(
       transactionObjects!,
       network.value as EvmNetwork,
-      swapData.nativePrice
+      swapData.nativePrice,
+      trade.additionalNativeFees
     );
   } else if (networkInfo.type === NetworkType.Substrate) {
     return getSubstrateGasVals(

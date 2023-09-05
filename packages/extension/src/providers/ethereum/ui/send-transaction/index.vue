@@ -100,7 +100,7 @@
 
       <send-alert
         v-show="hasEnoughBalance && nativeBalanceAfterTransaction.isNeg()"
-        :native-symbol="network.name"
+        :native-symbol="network.currencyName"
         :price="accountAssets[0]?.price || '0'"
         :native-value="
           fromBase(
@@ -401,6 +401,7 @@ const isInputsValid = computed<boolean>(() => {
   }
   if (new BigNumber(sendAmount.value).gt(assetMaxValue.value)) return false;
   if (gasCostValues.value.REGULAR.nativeValue === "0") return false;
+  if (nativeBalanceAfterTransaction.value.isNeg()) return false;
   return true;
 });
 
