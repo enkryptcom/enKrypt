@@ -49,6 +49,7 @@ export enum NetworkNames {
   Klaytn = "KLAY",
   Aurora = "AURORA",
   PuppyNet = "puppyNet",
+  Shibarium = "SHIB",
   Opal = "OPL",
   Quartz = "QTZ",
   Unique = "UNQ",
@@ -95,4 +96,5 @@ export enum CoingeckoPlatform {
   Unique = "unique-network",
   Base = "base",
   Celo = "celo",
+  Shibarium = "shibarium",
 }

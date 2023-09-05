@@ -55,7 +55,7 @@ const NetworkDetails: Record<SupportedNetworkName, NetworkInfo> = {
     cgId: "optimism",
     decimals: 18,
     logoURI:
-      "https://tokens.1inch.io/0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee.png",
+      "https://assets.coingecko.com/coins/images/25244/large/Optimism.png",
     name: "Optimism",
     symbol: "ETH",
     rank: 5,
@@ -67,7 +67,7 @@ const NetworkDetails: Record<SupportedNetworkName, NetworkInfo> = {
     cgId: "ethereum",
     decimals: 18,
     logoURI:
-      "https://tokens.1inch.io/0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee.png",
+      "https://assets.coingecko.com/coins/images/16547/large/photo_2023-03-29_21.47.00.jpeg",
     name: "Arbitrum",
     symbol: "ETH",
     rank: 6,
@@ -174,8 +174,8 @@ const NetworkDetails: Record<SupportedNetworkName, NetworkInfo> = {
     cgId: "ethereum",
     decimals: 18,
     logoURI:
-      "https://tokens.1inch.io/0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee.png",
-    name: "Ethereum",
+      "https://assets.coingecko.com/coins/images/20582/large/aurora.jpeg",
+    name: "Aurora",
     signerType: [SignerType.secp256k1],
     type: NetworkType.EVM,
     rank: 15,
