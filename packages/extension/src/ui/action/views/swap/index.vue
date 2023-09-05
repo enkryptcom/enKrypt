@@ -417,37 +417,59 @@ const isValidToAddress = debounce(() => {
     }
   }
 }, 200);
+const nativeSwapToken = computed(() => {
+  const nToken = fromTokens.value?.find(
+    (ft) => ft.address === NATIVE_TOKEN_ADDRESS
+  );
+  if (nToken) return new SwapToken(nToken);
+  return undefined;
+});
 
 const pickBestQuote = (fromAmountBN: BN, quotes: ProviderQuoteResponse[]) => {
   errors.value.inputAmount = "";
   if (!quotes.length) return;
-  const token = new SwapToken(fromToken.value!);
+  const fromT = new SwapToken(fromToken.value!);
+  const remainingBalance =
+    fromT.token.address === NATIVE_TOKEN_ADDRESS
+      ? nativeSwapToken.value!.getBalanceRaw().sub(fromAmountBN)
+      : nativeSwapToken.value!.getBalanceRaw();
   const filteredQuotes = quotes.filter((q) => {
     return (
       q.minMax.minimumFrom.lte(fromAmountBN) &&
-      q.minMax.maximumFrom.gte(fromAmountBN)
+      q.minMax.maximumFrom.gte(fromAmountBN) &&
+      q.additionalNativeFees.lte(remainingBalance)
     );
   });
   if (!filteredQuotes.length) {
     let lowestMinimum: BN = quotes[0].minMax.minimumFrom;
     let highestMaximum: BN = quotes[0].minMax.maximumFrom;
+    let smallestNativeFees: BN = nativeSwapToken.value!.getBalanceRaw();
     quotes.forEach((q) => {
       if (q.minMax.minimumFrom.lt(lowestMinimum))
         lowestMinimum = q.minMax.minimumFrom;
       if (q.minMax.maximumFrom.gt(highestMaximum))
         highestMaximum = q.minMax.maximumFrom;
+      if (
+        !q.additionalNativeFees.eqn(0) &&
+        q.additionalNativeFees.lt(smallestNativeFees)
+      )
+        smallestNativeFees = q.additionalNativeFees;
     });
     if (fromAmountBN.lt(lowestMinimum))
-      errors.value.inputAmount = `Minimum amount: ${token.toReadable(
+      errors.value.inputAmount = `Minimum amount: ${fromT.toReadable(
         lowestMinimum
       )}`;
-    if (fromAmountBN.gt(highestMaximum))
-      errors.value.inputAmount = `Maximum amount: ${token.toReadable(
+    else if (fromAmountBN.gt(highestMaximum))
+      errors.value.inputAmount = `Maximum amount: ${fromT.toReadable(
         highestMaximum
       )}`;
+    else if (smallestNativeFees.gt(remainingBalance)) {
+      errors.value.inputAmount = `Insufficient Bridging fees: ~${nativeSwapToken
+        .value!.toReadable(smallestNativeFees)
+        .substring(0, 6)} ${nativeSwapToken.value!.token.symbol} required`;
+    }
     return;
   }
-  const fromT = new SwapToken(fromToken.value!);
   if (fromT.getBalanceRaw().lt(fromAmountBN)) {
     errors.value.inputAmount = "Insufficient funds";
   }
@@ -492,7 +514,8 @@ watch(
       fromToken.value &&
       toToken.value &&
       fromAmount.value &&
-      !isNaN(((fromAmount.value || "") as any) && Number(fromAmount.value) > 0)
+      !isNaN(fromAmount.value as any) &&
+      Number(fromAmount.value) > 0
     ) {
       updateQuote();
     } else {
@@ -643,16 +666,13 @@ const sendAction = async () => {
     toggleSwapError();
     return;
   }
-  const nativeToken = fromTokens.value?.find(
-    (ft) => ft.address === NATIVE_TOKEN_ADDRESS
-  );
   const swapData: SwapData = {
     trades: trades as ProviderResponseWithStatus[],
     fromToken: localFromToken,
     toToken: localToToken,
     priceDifference: priceDifference,
-    nativeBalance: nativeToken!.balance || toBN("0"),
-    nativePrice: nativeToken!.price || 0,
+    nativeBalance: nativeSwapToken.value!.getBalanceRaw() || toBN("0"),
+    nativePrice: nativeSwapToken.value!.getFiatValue() || 0,
     existentialDeposit:
       (props.network as SubstrateNetwork).existentialDeposit || toBN("0"),
     fromAddress: props.accountInfo.selectedAccount!.address,

@@ -20,6 +20,7 @@ export default async (
     [NetworkNames.Arbitrum]: "arbitrum",
     [NetworkNames.Gnosis]: "gnosis",
     [NetworkNames.Avalanche]: "avalanche",
+    [NetworkNames.Matic]: "polygon",
     [NetworkNames.MaticZK]: "polygon-zkevm",
     [NetworkNames.ZkSync]: "zksync-era",
     [NetworkNames.ZkSyncGoerli]: "zksync-era-testnet",

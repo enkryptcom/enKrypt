@@ -7,6 +7,19 @@ const amount = toBN("10000000000000000000");
 const fromAddress = "0x6B175474E89094C44Da98b954EedeAC495271d0F";
 const toAddress = "0x255d4D554325568A2e628A1E93120EbA1157C07e";
 const nodeURL = "https://nodes.mewapi.io/rpc/eth";
+const nodeURLMatic = "https://nodes.mewapi.io/rpc/matic";
+
+const fromTokenNative: TokenType = {
+  address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+  decimals: 18,
+  logoURI: "",
+  name: "Matic",
+  symbol: "MATIC",
+  rank: 18,
+  cgId: "",
+  type: NetworkType.EVM,
+};
+
 const fromToken: TokenType = {
   address: "0x6b175474e89094c44da98b954eedeac495271d0f",
   decimals: 18,
@@ -36,14 +49,14 @@ const toTokenWETH: TokenTypeTo = {
 };
 
 const toToken: TokenTypeTo = {
-  address: "0x111111111117dc0aa78b770fa6a738034120c302",
-  decimals: 18,
+  address: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+  decimals: 6,
   logoURI:
-    "https://assets.coingecko.com/coins/images/13469/thumb/1inch-token.png?1608803028",
-  name: "1inch",
-  symbol: "1INCH",
+    "https://assets.coingecko.com/coins/images/6319/thumb/USD_Coin_icon.png?1547042389",
+  name: "USDC",
+  symbol: "usdc",
   rank: 100,
-  cgId: "1inch",
+  cgId: "usdc",
   type: NetworkType.EVM,
   networkInfo: {
     isAddress: async (address: string) => isAddress(address),
@@ -59,4 +72,6 @@ export {
   fromAddress,
   toAddress,
   nodeURL,
+  nodeURLMatic,
+  fromTokenNative,
 };

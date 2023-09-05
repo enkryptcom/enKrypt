@@ -3,16 +3,20 @@ import Transaction from "@/providers/ethereum/libs/transaction";
 import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
 import { fromBase } from "@enkryptcom/utils";
 import BigNumber from "bignumber.js";
+import { toBN } from "web3-utils";
 
 export const getEVMTransactionFees = async (
   txs: Transaction[],
   network: EvmNetwork,
-  price: number
+  price: number,
+  additionalFee: ReturnType<typeof toBN>
 ): Promise<GasFeeType> => {
   const gasPromises = txs.map((tx) => {
     return tx.getGasCosts().then(async (gasvals) => {
-      const getConvertedVal = (type: GasPriceTypes) =>
-        fromBase(gasvals[type], network.decimals);
+      const getConvertedVal = (type: GasPriceTypes) => {
+        const valWithAddition = toBN(gasvals[type]).add(additionalFee);
+        return fromBase(valWithAddition.toString(), network.decimals);
+      };
       return {
         [GasPriceTypes.ECONOMY]: {
           nativeValue: getConvertedVal(GasPriceTypes.ECONOMY),

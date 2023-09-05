@@ -63,6 +63,12 @@
         Offer includes
         {{ pickedTrade.fee.toFixed(3) }}% Enkrypt fee
       </p>
+      <p v-if="toReadableAdditionalFees !== '0'">
+        Offer includes
+        {{ $filters.formatFloatingPointValue(toReadableAdditionalFees).value }}
+        {{ network?.currencyName.toUpperCase() }}
+        Bridging fee
+      </p>
     </div>
   </div>
 </template>
@@ -74,6 +80,8 @@ import BestOfferList from "./components/best-offer-list.vue";
 import BestOfferError from "./components/best-offer-error.vue";
 import BigNumber from "bignumber.js";
 import { SwapBestOfferWarnings } from "@action/views/swap/types";
+import { BaseNetwork } from "@/types/base-network";
+import { fromBase } from "@enkryptcom/utils";
 import {
   ProviderSwapResponse,
   TokenType,
@@ -84,6 +92,7 @@ import { imageLoadError } from "@/ui/action/utils/misc";
 
 interface SwapBestOfferProps {
   trades: ProviderSwapResponse[];
+  network: BaseNetwork | undefined;
   pickedTrade: ProviderSwapResponse;
   fromToken: TokenType;
   toToken: TokenTypeTo;
@@ -109,6 +118,13 @@ const fromReadable = computed(() => {
 const toReadable = computed(() => {
   return new SwapToken(props.toToken).toReadable(
     props.pickedTrade.toTokenAmount
+  );
+});
+
+const toReadableAdditionalFees = computed(() => {
+  return fromBase(
+    props.pickedTrade.additionalNativeFees.toString(),
+    props.network?.decimals || 18
   );
 });
 
