@@ -58,6 +58,7 @@ export enum NetworkNames {
   Vara = "VARA",
   Base = "BASE",
   Celo = "CELO",
+  Kadena = "KDA",
 }
 
 export enum CoingeckoPlatform {
@@ -97,4 +98,5 @@ export enum CoingeckoPlatform {
   Base = "base",
   Celo = "celo",
   Shibarium = "shibarium",
+  Kadena = "kadena",
 }

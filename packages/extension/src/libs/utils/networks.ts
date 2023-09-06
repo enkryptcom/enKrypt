@@ -3,6 +3,7 @@ import { NetworkNames } from "@enkryptcom/types";
 import EthereumNetworks from "@/providers/ethereum/networks";
 import PolkadotNetworks from "@/providers/polkadot/networks";
 import BitcoinNetworks from "@/providers/bitcoin/networks";
+import KadenaNetworks from "@/providers/kadena/networks";
 import { BaseNetwork } from "@/types/base-network";
 import CustomNetworksState from "../custom-networks-state";
 import { CustomEvmNetwork } from "@/providers/ethereum/types/custom-evm-network";
@@ -14,6 +15,7 @@ const providerNetworks: Record<ProviderName, Record<string, BaseNetwork>> = {
   [ProviderName.ethereum]: EthereumNetworks,
   [ProviderName.polkadot]: PolkadotNetworks,
   [ProviderName.bitcoin]: BitcoinNetworks,
+  [ProviderName.kadena]: KadenaNetworks,
   [ProviderName.enkrypt]: {},
 };
 const getAllNetworks = async (): Promise<BaseNetwork[]> => {
@@ -26,6 +28,7 @@ const getAllNetworks = async (): Promise<BaseNetwork[]> => {
   return (Object.values(EthereumNetworks) as BaseNetwork[])
     .concat(Object.values(PolkadotNetworks) as BaseNetwork[])
     .concat(Object.values(BitcoinNetworks) as BaseNetwork[])
+    .concat(Object.values(KadenaNetworks) as BaseNetwork[])
     .concat(customNetworks);
 };
 const getNetworkByName = async (

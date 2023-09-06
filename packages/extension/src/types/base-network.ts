@@ -1,6 +1,7 @@
 import EvmAPI from "@/providers/ethereum/libs/api";
 import SubstrateAPI from "@/providers/polkadot/libs/api";
 import BitcoinAPI from "@/providers/bitcoin/libs/api";
+import KadenaAPI from "@/providers/kadena/libs/api";
 import { AssetsType, ProviderName } from "@/types/provider";
 import { CoingeckoPlatform, SignerType, NetworkNames } from "@enkryptcom/types";
 import { Activity } from "./activity";
@@ -26,7 +27,11 @@ export interface BaseNetworkOptions {
   coingeckoPlatform?: CoingeckoPlatform;
   identicon: (address: string) => string;
   basePath: string;
-  api: () => Promise<SubstrateAPI> | Promise<EvmAPI> | Promise<BitcoinAPI>;
+  api: () =>
+    | Promise<SubstrateAPI>
+    | Promise<EvmAPI>
+    | Promise<BitcoinAPI>
+    | Promise<KadenaAPI>;
   customTokens?: boolean;
 }
 
@@ -52,7 +57,8 @@ export abstract class BaseNetwork {
   public api: () =>
     | Promise<SubstrateAPI>
     | Promise<EvmAPI>
-    | Promise<BitcoinAPI>;
+    | Promise<BitcoinAPI>
+    | Promise<KadenaAPI>;
   public customTokens: boolean;
 
   constructor(options: BaseNetworkOptions) {

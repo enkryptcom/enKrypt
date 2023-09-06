@@ -23,6 +23,7 @@ export enum ProviderName {
   ethereum = "ethereum",
   bitcoin = "bitcoin",
   polkadot = "polkadot",
+  kadena = "kadena",
 }
 export enum InternalStorageNamespace {
   keyring = "KeyRing",
