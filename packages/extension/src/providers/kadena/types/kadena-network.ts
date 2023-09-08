@@ -5,6 +5,8 @@ import { AssetsType, ProviderName } from "@/types/provider";
 import { CoingeckoPlatform, NetworkNames, SignerType } from "@enkryptcom/types";
 import KadenaAPI from "@/providers/kadena/libs/api";
 
+import createIcon from "../libs/blockies";
+
 export interface KadenaNetworkOptions {
   name: NetworkNames;
   name_long: string;
@@ -31,7 +33,7 @@ export class KadenaNetwork extends BaseNetwork {
 
     const baseOptions: BaseNetworkOptions = {
       basePath: "//",
-      identicon: () => "",
+      identicon: createIcon,
       signer: [SignerType.ed25519kda],
       displayAddress: (address: string) => address,
       provider: ProviderName.kadena,
@@ -43,14 +45,17 @@ export class KadenaNetwork extends BaseNetwork {
   }
 
   public getAllTokens(address: string): Promise<BaseToken[]> {
-    throw new Error("Method not implemented.");
+    console.log("KadenaNetwork::getAllTokens", address);
+    return Promise.resolve([]);
   }
 
   public getAllTokenInfo(address: string): Promise<AssetsType[]> {
-    throw new Error("Method not implemented.");
+    console.log("KadenaNetwork::getAllTokenInfo", address);
+    return Promise.resolve([]);
   }
 
   public getAllActivity(address: string): Promise<Activity[]> {
-    throw new Error("Method not implemented.");
+    console.log("KadenaNetwork::getAllActivity", address);
+    return Promise.resolve([]);
   }
 }
