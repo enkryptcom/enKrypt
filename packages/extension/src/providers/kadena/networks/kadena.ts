@@ -13,7 +13,7 @@ const kadenaOptions: KadenaNetworkOptions = {
   currencyName: "KDA",
   currencyNameLong: "Kadena",
   icon: require("./icons/kadena-kda-logo.svg"),
-  decimals: 18,
+  decimals: 7,
   prefix: 0,
   node: "https://us-e1.chainweb.com/",
   coingeckoID: "kadena",

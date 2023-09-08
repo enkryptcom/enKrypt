@@ -17,7 +17,8 @@
       "@/*": ["./src/*"],
       "@action/*": ["./src/ui/action/*"]
     },
-    "lib": ["esnext", "dom", "dom.iterable", "scripthost"]
+    "lib": ["esnext", "dom", "dom.iterable", "scripthost"],
+    "allowJs": true
   },
   "include": ["src/**/*.ts", "src/**/*.vue", "tests/**/*.ts"],
   "exclude": ["node_modules"]
