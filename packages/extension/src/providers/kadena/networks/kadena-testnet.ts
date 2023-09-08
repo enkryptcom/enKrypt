@@ -4,21 +4,21 @@ import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
 import { kadenaScanActivity } from "../libs/activity-handlers";
 
 const kadenaOptions: KadenaNetworkOptions = {
-  name: NetworkNames.Kadena,
-  name_long: "Kadena",
+  name: NetworkNames.KadenaTestnet,
+  name_long: "Kadena Testnet",
   homePage: "https://kadena.io/",
-  blockExplorerTX: "https://explorer.chainweb.com/mainnet/tx/[[txHash]]",
+  blockExplorerTX: "https://explorer.chainweb.com/testnet/tx/[[txHash]]",
   blockExplorerAddr:
-    "https://explorer.chainweb.com/mainnet/account/[[address]]?token=coin",
-  isTestNetwork: false,
+    "https://explorer.chainweb.com/testnet/account/[[address]]?token=coin",
+  isTestNetwork: true,
   currencyName: "KDA",
   currencyNameLong: "Kadena",
   icon: require("./icons/kadena-kda-logo.svg"),
   decimals: 7,
   prefix: 0,
-  node: "https://api.chainweb.com/chainweb/0.0",
+  node: "https://api.testnet.chainweb.com/chainweb/0.0",
   kadenaApiOptions: {
-    networkId: "mainnet01",
+    networkId: "testnet04",
     chainId: "1",
   },
   coingeckoID: "kadena",
@@ -26,6 +26,6 @@ const kadenaOptions: KadenaNetworkOptions = {
   activityHandler: wrapActivityHandler(kadenaScanActivity),
 };
 
-const kadena = new KadenaNetwork(kadenaOptions);
+const kadenaTestnet = new KadenaNetwork(kadenaOptions);
 
-export default kadena;
+export default kadenaTestnet;

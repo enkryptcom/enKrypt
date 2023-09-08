@@ -5,4 +5,9 @@ export const KadenaNetworks = {
   KDA: NetworkNames.Kadena,
 };
 
+export interface KadenaApiOptions {
+  networkId: string;
+  chainId: string;
+}
+
 export { InjectedProvider };

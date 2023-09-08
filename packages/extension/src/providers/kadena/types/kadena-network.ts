@@ -16,6 +16,7 @@ import {
 import { fromBase } from "@enkryptcom/utils";
 import BigNumber from "bignumber.js";
 import { KDAToken } from "./kda-token";
+import { KadenaApiOptions } from ".";
 
 export interface KadenaNetworkOptions {
   name: NetworkNames;
@@ -30,6 +31,7 @@ export interface KadenaNetworkOptions {
   decimals: number;
   prefix: number;
   node: string;
+  kadenaApiOptions: KadenaApiOptions;
   coingeckoID?: string;
   coingeckoPlatform?: CoingeckoPlatform;
   activityHandler: (
@@ -45,7 +47,7 @@ export class KadenaNetwork extends BaseNetwork {
   ) => Promise<Activity[]>;
   constructor(options: KadenaNetworkOptions) {
     const api = async () => {
-      const api = new KadenaAPI(options.node);
+      const api = new KadenaAPI(options.node, options.kadenaApiOptions);
       return api;
     };
 

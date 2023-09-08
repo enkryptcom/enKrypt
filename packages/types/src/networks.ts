@@ -59,6 +59,7 @@ export enum NetworkNames {
   Base = "BASE",
   Celo = "CELO",
   Kadena = "KDA",
+  KadenaTestnet = "KDATestnet",
 }
 
 export enum CoingeckoPlatform {
