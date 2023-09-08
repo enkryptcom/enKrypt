@@ -32,9 +32,17 @@ export interface KadenaNetworkOptions {
   node: string;
   coingeckoID?: string;
   coingeckoPlatform?: CoingeckoPlatform;
+  activityHandler: (
+    network: BaseNetwork,
+    address: string
+  ) => Promise<Activity[]>;
 }
 
 export class KadenaNetwork extends BaseNetwork {
+  private activityHandler: (
+    network: BaseNetwork,
+    address: string
+  ) => Promise<Activity[]>;
   constructor(options: KadenaNetworkOptions) {
     const api = async () => {
       const api = new KadenaAPI(options.node);
@@ -52,6 +60,7 @@ export class KadenaNetwork extends BaseNetwork {
     };
 
     super(baseOptions);
+    this.activityHandler = options.activityHandler;
   }
 
   public async getAllTokens(pubkey: string): Promise<BaseToken[]> {
@@ -106,7 +115,6 @@ export class KadenaNetwork extends BaseNetwork {
   }
 
   public getAllActivity(address: string): Promise<Activity[]> {
-    console.log("KadenaNetwork::getAllActivity", address);
-    return Promise.resolve([]);
+    return this.activityHandler(this, address);
   }
 }
