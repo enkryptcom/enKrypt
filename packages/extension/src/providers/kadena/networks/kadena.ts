@@ -5,9 +5,10 @@ const kadenaOptions: KadenaNetworkOptions = {
   name: NetworkNames.Kadena,
   name_long: "Kadena",
   homePage: "https://kadena.io/",
-  blockExplorerTX: "https://explorer.chainweb.com/mainnet/tx/[[txHash]]",
+  //https://explorer.chainweb.com/testnet/account/92a1c888ce9cdf77523934a1dfa697e161450500019dc0e44593aa1f7be7b720?token=coin
+  blockExplorerTX: "https://explorer.chainweb.com/testnet/tx/[[txHash]]",
   blockExplorerAddr:
-    "https://explorer.chainweb.com/mainnet/account/[[address]]?token=coin",
+    "https://explorer.chainweb.com/testnet/account/[[address]]?token=coin",
   isTestNetwork: false,
   currencyName: "KDA",
   currencyNameLong: "Kadena",
