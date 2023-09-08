@@ -2,6 +2,7 @@ import KeyRing from "@/libs/keyring/keyring";
 import EthereumNetworks from "@/providers/ethereum/networks";
 import PolkadotNetworks from "@/providers/polkadot/networks";
 import BitcoinNetworks from "@/providers/bitcoin/networks";
+import KadenaNetworks from "@/providers/kadena/networks";
 import { WalletType } from "@enkryptcom/types";
 export default async (mnemonic: string, password: string): Promise<void> => {
   const kr = new KeyRing();
@@ -23,6 +24,12 @@ export default async (mnemonic: string, password: string): Promise<void> => {
     basePath: BitcoinNetworks.bitcoin.basePath,
     name: "Bitcoin Account 1",
     signerType: BitcoinNetworks.bitcoin.signer[0],
+    walletType: WalletType.mnemonic,
+  });
+  await kr.saveNewAccount({
+    basePath: KadenaNetworks.kadena.basePath,
+    name: "Kadena Account 1",
+    signerType: KadenaNetworks.kadena.signer[0],
     walletType: WalletType.mnemonic,
   });
 };

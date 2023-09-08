@@ -2426,6 +2426,7 @@ __metadata:
   dependencies:
     "@enkryptcom/signer-bitcoin": "workspace:^"
     "@enkryptcom/signer-ethereum": "workspace:^"
+    "@enkryptcom/signer-kadena": "workspace:^"
     "@enkryptcom/signer-polkadot": "workspace:^"
     "@enkryptcom/storage": "workspace:^"
     "@enkryptcom/types": "workspace:^"
@@ -2588,6 +2589,37 @@ __metadata:
     tsup: ^6.7.0
     tweetnacl: ^1.0.3
     tweetnacl-util: ^0.15.1
+    typescript: ^4.9.5
+    typescript-eslint: 0.0.1-alpha.0
+  languageName: unknown
+  linkType: soft
+
+"@enkryptcom/signer-kadena@workspace:^, @enkryptcom/signer-kadena@workspace:packages/signers/kadena":
+  version: 0.0.0-use.local
+  resolution: "@enkryptcom/signer-kadena@workspace:packages/signers/kadena"
+  dependencies:
+    "@enkryptcom/types": "workspace:^"
+    "@enkryptcom/utils": "workspace:^"
+    "@types/chai": ^4.3.5
+    "@types/hdkey": ^2.0.1
+    "@types/mocha": ^10.0.1
+    "@types/node": ^20.5.7
+    "@typescript-eslint/eslint-plugin": ^5.62.0
+    "@typescript-eslint/parser": ^5.62.0
+    cardano-crypto-kadena.js: ^6.0.1
+    chai: ^4.3.8
+    eslint: ^8.48.0
+    eslint-config-airbnb-base: ^15.0.0
+    eslint-config-prettier: ^8.10.0
+    eslint-import-resolver-alias: ^1.1.2
+    eslint-plugin-import: ^2.28.1
+    eslint-plugin-module-resolver: ^1.5.0
+    mocha: ^9.2.2
+    prettier: ^2.8.8
+    ts-mocha: ^9.0.2
+    ts-node: ^10.9.1
+    tsconfig-paths: ^3.14.2
+    tsup: ^6.7.0
     typescript: ^4.9.5
     typescript-eslint: 0.0.1-alpha.0
   languageName: unknown
@@ -9486,6 +9518,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"borc@npm:^2.1.1":
+  version: 2.1.2
+  resolution: "borc@npm:2.1.2"
+  dependencies:
+    bignumber.js: ^9.0.0
+    buffer: ^5.5.0
+    commander: ^2.15.0
+    ieee754: ^1.1.13
+    iso-url: ~0.4.7
+    json-text-sequence: ~0.1.0
+    readable-stream: ^3.6.0
+  checksum: 1914720baf2dd980edc82a957d1901b8cc80746c0482892fe747558c47c452127a1359104f01b3df9510ae8bb7954273c52796329f8f1445ca04415e05c8e9e2
+  languageName: node
+  linkType: hard
+
 "borsh@npm:^0.7.0":
   version: 0.7.0
   resolution: "borsh@npm:0.7.0"
@@ -10020,6 +10067,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"cardano-crypto-kadena.js@npm:^6.0.1":
+  version: 6.0.1
+  resolution: "cardano-crypto-kadena.js@npm:6.0.1"
+  dependencies:
+    bech32: ^1.1.4
+    bip39: ^3.0.2
+    borc: ^2.1.1
+    buffer: ^6.0.3
+    pbkdf2: ^3.0.17
+  checksum: 27fa4362942947a5c077f0f6d7859a68a25bf065549904c0eca4b3a0327e38376c56caf97b7a32d2544ce689ad851dfa61f2fda4d25a5f4148d6071d84c92deb
+  languageName: node
+  linkType: hard
+
 "case-sensitive-paths-webpack-plugin@npm:^2.3.0":
   version: 2.4.0
   resolution: "case-sensitive-paths-webpack-plugin@npm:2.4.0"
@@ -10550,7 +10610,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"commander@npm:^2.20.0, commander@npm:^2.20.3":
+"commander@npm:^2.15.0, commander@npm:^2.20.0, commander@npm:^2.20.3":
   version: 2.20.3
   resolution: "commander@npm:2.20.3"
   checksum: ab8c07884e42c3a8dbc5dd9592c606176c7eb5c1ca5ff274bcf907039b2c41de3626f684ea75ccf4d361ba004bbaff1f577d5384c155f3871e456bdf27becf9e
@@ -11547,6 +11607,13 @@ __metadata:
   version: 1.0.0
   resolution: "delegates@npm:1.0.0"
   checksum: a51744d9b53c164ba9c0492471a1a2ffa0b6727451bdc89e31627fdf4adda9d51277cfcbfb20f0a6f08ccb3c436f341df3e92631a3440226d93a8971724771fd
+  languageName: node
+  linkType: hard
+
+"delimit-stream@npm:0.1.0":
+  version: 0.1.0
+  resolution: "delimit-stream@npm:0.1.0"
+  checksum: 78e71f488950546f763a3f27bd68ec74de00432a27da55cf6804bee5e614efb2248144ac16b8dc8d757561d91442784328eeb410e63d7438af2407226585b4f7
   languageName: node
   linkType: hard
 
@@ -15452,6 +15519,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"iso-url@npm:~0.4.7":
+  version: 0.4.7
+  resolution: "iso-url@npm:0.4.7"
+  checksum: c42ae615b462fec55ea7b480548fc76ef69af26103fcbb12a305dd929a4c18c6b22e29c666b0601280e552f56b0f144eab0b28b9a6fbb12ec58dc7c8ae053124
+  languageName: node
+  linkType: hard
+
 "isobject@npm:^3.0.1":
   version: 3.0.1
   resolution: "isobject@npm:3.0.1"
@@ -15847,6 +15921,15 @@ __metadata:
   version: 5.0.1
   resolution: "json-stringify-safe@npm:5.0.1"
   checksum: 48ec0adad5280b8a96bb93f4563aa1667fd7a36334f79149abd42446d0989f2ddc58274b479f4819f1f00617957e6344c886c55d05a4e15ebb4ab931e4a6a8ee
+  languageName: node
+  linkType: hard
+
+"json-text-sequence@npm:~0.1.0":
+  version: 0.1.1
+  resolution: "json-text-sequence@npm:0.1.1"
+  dependencies:
+    delimit-stream: 0.1.0
+  checksum: 3d413b3d2b1b9a48b12221cae86f4f247ef400ab98fa65981a5e9c0d62a289d318aeeb0b7657b3d5df5a146d7533601f5d75297b0319175797e023088fd1c8e4
   languageName: node
   linkType: hard
 

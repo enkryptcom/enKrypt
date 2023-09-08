@@ -32,7 +32,7 @@ export class KadenaNetwork extends BaseNetwork {
     const baseOptions: BaseNetworkOptions = {
       basePath: "//",
       identicon: () => "",
-      signer: [SignerType.sr25519, SignerType.ed25519],
+      signer: [SignerType.ed25519kda],
       displayAddress: (address: string) => address,
       provider: ProviderName.kadena,
       api,
