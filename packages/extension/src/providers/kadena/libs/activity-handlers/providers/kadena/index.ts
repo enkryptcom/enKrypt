@@ -2,34 +2,35 @@ import cacheFetch from "@/libs/cache-fetch";
 import MarketData from "@/libs/market-data";
 import { Activity, ActivityStatus, ActivityType } from "@/types/activity";
 import { BaseNetwork } from "@/types/base-network";
-import { NetworkEndpoints } from "./configs";
+import { NetworkEndpoints, NetworkTtls } from "./configs";
 import { formatDecimals } from "../../../utils";
-
-const TTL = 30;
 
 const getAddressActivity = async (
   address: string,
-  endpoint: string
+  endpoint: string,
+  ttl: number
 ): Promise<any[]> => {
-  return cacheFetch(
-    {
-      url: `${endpoint}txs/account/${address}?limit=20&token=coin`,
-    },
-    TTL
-  ).then((res) => {
-    // if (res.message !== "Success") return [];
-    return res ? res : [];
-  });
+  const url = `${endpoint}txs/account/${address}?limit=20&token=coin`;
+
+  return cacheFetch({ url }, ttl)
+    .then((res) => {
+      return res ? res : [];
+    })
+    .catch((error) => {
+      console.error("Failed to fetch activity:", error);
+      return [];
+    });
 };
 
 export default async (
   network: BaseNetwork,
   address: string
 ): Promise<Activity[]> => {
-  const enpoint =
-    NetworkEndpoints[network.name as keyof typeof NetworkEndpoints];
+  const networkName = network.name as keyof typeof NetworkEndpoints;
+  const enpoint = NetworkEndpoints[networkName];
+  const ttl = NetworkTtls[networkName];
 
-  const activities = await getAddressActivity(address, enpoint);
+  const activities = await getAddressActivity(address, enpoint, ttl);
 
   let price = "0";
 

@@ -5,4 +5,9 @@ const NetworkEndpoints = {
   [NetworkNames.KadenaTestnet]: "https://estats.testnet.chainweb.com/",
 };
 
-export { NetworkEndpoints };
+const NetworkTtls = {
+  [NetworkNames.Kadena]: 30000,
+  [NetworkNames.KadenaTestnet]: 30,
+};
+
+export { NetworkEndpoints, NetworkTtls };
