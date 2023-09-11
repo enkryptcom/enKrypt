@@ -55,7 +55,7 @@ export class Provider extends EventEmitter implements ProviderInterface {
         })
       ).then((res) => {
         this.chainId = res;
-        this.networkVersion = res;
+        this.networkVersion = Number(res).toString();
       });
     }
     if (
