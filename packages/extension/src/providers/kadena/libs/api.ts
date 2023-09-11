@@ -4,12 +4,12 @@ import {
   BTCRawInfo,
 } from "@/types/activity";
 import { ProviderAPIInterface } from "@/types/provider";
-import { KadenaApiOptions } from "../types";
+import { KadenaNetworkOptions } from "../types/kadena-network";
+import { formatDecimals } from "./utils";
 
 class API implements ProviderAPIInterface {
-  node: string;
   decimals: number;
-  name: string;
+  node: string;
   networkId: string;
   chainId: string;
   apiHost: string;
@@ -18,13 +18,12 @@ class API implements ProviderAPIInterface {
     secretKey: "",
   };
 
-  constructor(node: string, options: KadenaApiOptions) {
-    this.decimals = 7;
-    this.name = "Kadena";
+  constructor(node: string, options: KadenaNetworkOptions) {
+    this.decimals = options.decimals;
 
     this.node = node;
-    this.networkId = options.networkId;
-    this.chainId = options.chainId;
+    this.networkId = options.kadenaApiOptions.networkId;
+    this.chainId = options.kadenaApiOptions.chainId;
     this.apiHost = `${node}/${this.networkId}/chain/${this.chainId}/pact`;
   }
 
@@ -36,6 +35,7 @@ class API implements ProviderAPIInterface {
   async init(): Promise<void> {}
 
   getTransactionStatus(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     hash: string
   ): Promise<EthereumRawInfo | SubscanExtrinsicInfo | BTCRawInfo | null> {
     throw new Error("Method not implemented.");
@@ -45,21 +45,12 @@ class API implements ProviderAPIInterface {
     const balance = await this.getBalanceAPI(address);
 
     if (balance.result.error) {
-      return "0".padEnd(7, "0");
+      return formatDecimals("0", this.decimals);
     }
 
     const balanceValue = balance.result.data.toString();
 
-    const balanceInt = balanceValue.substring(
-      0,
-      balance.result.data.toString().indexOf(".")
-    );
-
-    const balanceToString = balanceValue
-      .replace(".", "")
-      .padEnd(7 + balanceInt.toString().length, "0");
-
-    return balanceToString;
+    return formatDecimals(balanceValue, this.decimals);
   }
 
   async getBalanceAPI(account: string) {

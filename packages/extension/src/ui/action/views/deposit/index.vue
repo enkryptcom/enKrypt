@@ -17,7 +17,9 @@
       <div class="deposit__code">
         <qrcode-vue
           :value="
-            network.provider + ':' + network.displayAddress(account.address)
+            (network.qrcodeScheme || network.provider) +
+            ':' +
+            network.displayAddress(account.address)
           "
           :size="150"
           level="H"

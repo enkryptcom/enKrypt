@@ -45,9 +45,10 @@ export class KadenaNetwork extends BaseNetwork {
     network: BaseNetwork,
     address: string
   ) => Promise<Activity[]>;
+
   constructor(options: KadenaNetworkOptions) {
     const api = async () => {
-      const api = new KadenaAPI(options.node, options.kadenaApiOptions);
+      const api = new KadenaAPI(options.node, options);
       return api;
     };
 
@@ -57,6 +58,7 @@ export class KadenaNetwork extends BaseNetwork {
       signer: [SignerType.ed25519kda],
       displayAddress: (address: string) => address,
       provider: ProviderName.kadena,
+      qrcodeScheme: "k",
       api,
       ...options,
     };
@@ -67,6 +69,7 @@ export class KadenaNetwork extends BaseNetwork {
 
   public async getAllTokens(pubkey: string): Promise<BaseToken[]> {
     const assets = await this.getAllTokenInfo(pubkey);
+
     return assets.map((token) => {
       const bTokenOptions: BaseTokenOptions = {
         decimals: token.decimals,
@@ -77,6 +80,7 @@ export class KadenaNetwork extends BaseNetwork {
         price: token.value,
         coingeckoID: this.coingeckoID,
       };
+
       return new KDAToken(bTokenOptions);
     });
   }
@@ -84,14 +88,17 @@ export class KadenaNetwork extends BaseNetwork {
   public async getAllTokenInfo(pubkey: string): Promise<AssetsType[]> {
     const balance = await (await this.api()).getBalance(pubkey);
     let marketData: (CoinGeckoTokenMarket | null)[] = [];
+
     if (this.coingeckoID) {
       const market = new MarketData();
       marketData = await market.getMarketData([this.coingeckoID]);
     }
+
     const userBalance = fromBase(balance, this.decimals);
     const usdBalance = new BigNumber(userBalance).times(
       marketData.length ? marketData[0]!.current_price : 0
     );
+
     const nativeAsset: AssetsType = {
       balance: balance,
       balancef: formatFloatingPointValue(userBalance).value,
@@ -113,6 +120,7 @@ export class KadenaNetwork extends BaseNetwork {
         ? marketData[0]!.price_change_percentage_7d_in_currency
         : 0,
     };
+
     return [nativeAsset];
   }
 

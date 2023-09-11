@@ -3,6 +3,7 @@ import MarketData from "@/libs/market-data";
 import { Activity, ActivityStatus, ActivityType } from "@/types/activity";
 import { BaseNetwork } from "@/types/base-network";
 import { NetworkEndpoints } from "./configs";
+import { formatDecimals } from "../../../utils";
 
 const TTL = 30;
 
@@ -27,6 +28,7 @@ export default async (
 ): Promise<Activity[]> => {
   const enpoint =
     NetworkEndpoints[network.name as keyof typeof NetworkEndpoints];
+
   const activities = await getAddressActivity(address, enpoint);
 
   let price = "0";
@@ -39,13 +41,6 @@ export default async (
   }
 
   return activities.map((activity: any) => {
-    const amount = activity.amount.substring(0, activity.amount.indexOf("."));
-
-    const balanceToString = activity.amount
-      .toString()
-      .replace(".", "")
-      .padEnd(7 + amount.toString().length, "0");
-
     return {
       from: activity.fromAccount,
       to: activity.toAccount,
@@ -54,7 +49,7 @@ export default async (
       rawInfo: activity,
       status: ActivityStatus.success,
       timestamp: new Date(activity.blockTime).getTime(),
-      value: balanceToString,
+      value: formatDecimals(activity.amount, network.decimals),
       transactionHash: activity.requestKey,
       type: ActivityType.transaction,
       token: {

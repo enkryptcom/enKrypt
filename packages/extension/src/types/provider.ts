@@ -159,6 +159,7 @@ export interface NodeType {
   displayAddress: (address: string) => string;
   api?: () => Promise<ProviderAPIInterface>;
   provider: ProviderName;
+  qrcodeScheme?: string;
   coingeckoID?: string;
   NFTHandler?: (network: NodeType, address: string) => Promise<NFTCollection[]>;
   identicon: (address: string, options?: any) => string;
