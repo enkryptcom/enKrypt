@@ -10,7 +10,6 @@ import {
 import InjectedProvider from "./libs/injected-provider";
 import { SubstrateInjectedProvider } from "./types";
 import MessageRouter from "./libs/message-router";
-import { EXTENSION_VERSION } from "@/configs/constants";
 import { InjectedSendMessageHandler } from "./types";
 import { OnMessageResponse, RPCRequestType } from "@enkryptcom/types";
 import { SettingsType } from "@/libs/settings-state/types";
@@ -24,7 +23,7 @@ export class Provider
 {
   name: ProviderName;
   type: ProviderType;
-  version = EXTENSION_VERSION;
+  version = __VERSION__;
   sendMessageHandler: SendMessageHandler;
   constructor(options: ProviderOptions) {
     super();

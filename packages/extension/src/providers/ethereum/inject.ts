@@ -15,7 +15,6 @@ import {
   EIP6963ProviderInfo,
   EIP6963Events,
 } from "@/types/provider";
-import { EXTENSION_VERSION } from "@/configs/constants";
 import { SettingsType } from "@/libs/settings-state/types";
 import { EnkryptWindow } from "@/types/globals";
 import { v4 as randomUUID } from "uuid";
@@ -30,7 +29,7 @@ export class Provider extends EventEmitter implements ProviderInterface {
   connected: boolean;
   name: ProviderName;
   type: ProviderType;
-  version: string = EXTENSION_VERSION;
+  version: string = __VERSION__;
   autoRefreshOnNetworkChange = false;
   sendMessageHandler: SendMessageHandler;
   constructor(options: ProviderOptions) {
@@ -43,7 +42,7 @@ export class Provider extends EventEmitter implements ProviderInterface {
     this.connected = true;
     this.name = options.name;
     this.type = options.type;
-    this.version = EXTENSION_VERSION;
+    this.version = __VERSION__;
     this.sendMessageHandler = options.sendMessageHandler;
   }
   async request(request: EthereumRequest): Promise<EthereumResponse> {

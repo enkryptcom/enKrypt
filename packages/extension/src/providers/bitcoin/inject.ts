@@ -8,7 +8,6 @@ import {
   ProviderInterface,
   SendMessageHandler,
 } from "@/types/provider";
-import { EXTENSION_VERSION } from "@/configs/constants";
 import { EnkryptWindow } from "@/types/globals";
 import { BitcoinNetworks } from "./types";
 
@@ -16,7 +15,7 @@ export class Provider extends EventEmitter implements ProviderInterface {
   connected: boolean;
   name: ProviderName;
   type: ProviderType;
-  version: string = EXTENSION_VERSION;
+  version: string = __VERSION__;
   autoRefreshOnNetworkChange = false;
   networks: typeof BitcoinNetworks;
   sendMessageHandler: SendMessageHandler;
