@@ -149,7 +149,7 @@ class Rango extends ProviderClass {
         (chain) => chain[0] === (network as unknown as string)
       )[1];
       return !!blockchains.find(
-        (chain: BlockchainMeta) => chain.chainId === chainId
+        (chain: BlockchainMeta) => Number(chain.chainId) === Number(chainId)
       )?.enabled;
     }
     return true;
