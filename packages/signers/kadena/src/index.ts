@@ -4,9 +4,9 @@ import { SignerInterface, KeyPair } from "@enkryptcom/types";
 import kadenaCrypto from "cardano-crypto-kadena.js/kadena-crypto.js";
 
 class Signer implements SignerInterface {
-  async generate(mnemonic: string): Promise<KeyPair> {
+  async generate(mnemonic: string, derivationPath = ""): Promise<KeyPair> {
     const root = kadenaCrypto.kadenaMnemonicToRootKeypair("", mnemonic.trim());
-    const hardIndex = 0x80000000 + 0;
+    const hardIndex = 0x80000000 + Number(derivationPath);
     const privPubKey = kadenaCrypto.kadenaGenKeypair("", root, hardIndex);
 
     return {

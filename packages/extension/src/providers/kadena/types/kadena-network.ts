@@ -53,7 +53,7 @@ export class KadenaNetwork extends BaseNetwork {
     };
 
     const baseOptions: BaseNetworkOptions = {
-      basePath: "//",
+      basePath: "k/",
       identicon: createIcon,
       signer: [SignerType.ed25519kda],
       displayAddress: (address: string) => address,
