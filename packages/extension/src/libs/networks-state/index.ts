@@ -11,13 +11,9 @@ class NetworksState {
   }
 
   private async setInitialActiveNetworks(): Promise<void> {
-    const networks: NetworkStorageElement[] = (await getAllNetworks()).map(
-      ({ name }) => {
-        if (POPULAR_NAMES.includes(name)) {
-          return { name };
-        }
-      }
-    ) as NetworkStorageElement[];
+    const networks: NetworkStorageElement[] = POPULAR_NAMES.map((name) => ({
+      name,
+    }));
     await this.setState({ networks });
   }
 
