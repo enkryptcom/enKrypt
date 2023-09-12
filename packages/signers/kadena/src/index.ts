@@ -1,7 +1,8 @@
 import { SignerInterface, KeyPair } from "@enkryptcom/types";
-
 // eslint-disable-next-line import/extensions
 import kadenaCrypto from "cardano-crypto-kadena.js/kadena-crypto.js";
+
+const Pact = require("pact-lang-api");
 
 class Signer implements SignerInterface {
   async generate(mnemonic: string): Promise<KeyPair> {
@@ -22,17 +23,17 @@ class Signer implements SignerInterface {
     publicKey: string
   ): Promise<boolean> {
     console.log(msgHash, sig, publicKey);
-    return true;
+    return kadenaCrypto.kadenaVerify(msgHash, publicKey, sig);
   }
 
   async sign(msgHash: string, keyPair: KeyPair): Promise<string> {
     console.log(msgHash, keyPair);
-    return "";
+    return Pact.crypto.sign(msgHash, keyPair);
   }
 
   bufferToHex(buffer: Iterable<number>): string {
     return Array.from(new Uint8Array(buffer))
-      .map(b => b.toString(16).padStart(2, "0"))
+      .map((b) => b.toString(16).padStart(2, "0"))
       .join("");
   }
 }
