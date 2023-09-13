@@ -33,7 +33,7 @@ export interface VerifyTransactionParams {
 }
 
 export interface SignerTransactionOptions {
-  payload: ExtrinsicPayload;
+  payload: string | ExtrinsicPayload;
   network: BaseNetwork;
   account: EnkryptAccount;
 }

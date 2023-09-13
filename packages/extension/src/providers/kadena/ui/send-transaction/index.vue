@@ -113,7 +113,7 @@ import { toBN } from "web3-utils";
 import { formatFloatingPointValue } from "@/libs/utils/number-formatter";
 import { fromBase, toBase, isValidDecimals } from "@enkryptcom/utils";
 import BigNumber from "bignumber.js";
-import { VerifyTransactionParams } from "@/providers/polkadot/types";
+import { VerifyTransactionParams } from "../types";
 import { routes as RouterNames } from "@/ui/action/router";
 import { SendOptions } from "@/types/base-token";
 import { KDAToken } from "@/providers/kadena/types/kda-token";
@@ -209,71 +209,80 @@ onMounted(() => {
 
 const validateFields = async () => {
   if (selectedAsset.value && isAddress.value) {
-    if (!isValidDecimals(amount.value || "0", selectedAsset.value.decimals!)) {
-      hasEnough.value = false;
-      return;
-    }
-    console.log("validateFields", amount.value, selectedAsset.value.decimals!);
-
-    const api = (await props.network.api()).api as ApiPromise;
-    await api.isReady;
-
-    let rawAmount = toBN(
-      toBase(
-        amount.value ? amount.value.toString() : "0",
-        selectedAsset.value.decimals!
-      )
-    );
-
-    console.log("validateFields 2", rawAmount.toString());
-
-    const sendOptions: SendOptions | undefined = sendMax.value
-      ? { type: "all" }
-      : undefined;
-
-    const tx = await selectedAsset.value.send!(
-      api,
-      addressTo.value,
-      rawAmount.toString(),
-      sendOptions
-    );
-    const { partialFee } = (
-      await tx.paymentInfo(props.accountInfo.selectedAccount!.address)
-    ).toJSON();
-    const rawFee = toBN(partialFee?.toString() ?? "0");
-    const rawBalance = toBN(selectedAsset.value.balance!);
-    if (
-      sendMax.value &&
-      selectedAsset.value.name === accountAssets.value[0].name
-    ) {
-      rawAmount = rawAmount.sub(rawFee);
-      if (rawAmount.gtn(0)) {
-        amount.value = fromBase(
-          rawAmount.toString(),
-          selectedAsset.value.decimals!
-        );
-      }
-    }
-    if (rawAmount.ltn(0) || rawAmount.add(rawFee).gt(rawBalance)) {
-      hasEnough.value = false;
-    } else {
-      hasEnough.value = true;
-    }
-
-    const nativeAsset = accountAssets.value[0];
-    const txFeeHuman = fromBase(
-      partialFee?.toString() ?? "",
-      nativeAsset.decimals!
-    );
-
-    const txPrice = new BigNumber(nativeAsset.price!).times(txFeeHuman);
+    hasEnough.value = true;
 
     fee.value = {
       fiatSymbol: "USD",
-      fiatValue: txPrice.toString(),
-      nativeSymbol: nativeAsset.symbol ?? "",
-      nativeValue: txFeeHuman.toString(),
+      fiatValue: "".toString(),
+      nativeSymbol: "",
+      nativeValue: "",
     };
+    return;
+    // if (!isValidDecimals(amount.value || "0", selectedAsset.value.decimals!)) {
+    //   hasEnough.value = false;
+    //   return;
+    // }
+    // console.log("validateFields", amount.value, selectedAsset.value.decimals!);
+
+    // const api = (await props.network.api()).api as ApiPromise;
+    // await api.isReady;
+
+    // let rawAmount = toBN(
+    //   toBase(
+    //     amount.value ? amount.value.toString() : "0",
+    //     selectedAsset.value.decimals!
+    //   )
+    // );
+
+    // console.log("validateFields 2", rawAmount.toString());
+
+    // const sendOptions: SendOptions | undefined = sendMax.value
+    //   ? { type: "all" }
+    //   : undefined;
+
+    // const tx = await selectedAsset.value.send!(
+    //   api,
+    //   addressTo.value,
+    //   rawAmount.toString(),
+    //   sendOptions
+    // );
+    // const { partialFee } = (
+    //   await tx.paymentInfo(props.accountInfo.selectedAccount!.address)
+    // ).toJSON();
+    // const rawFee = toBN(partialFee?.toString() ?? "0");
+    // const rawBalance = toBN(selectedAsset.value.balance!);
+    // if (
+    //   sendMax.value &&
+    //   selectedAsset.value.name === accountAssets.value[0].name
+    // ) {
+    //   rawAmount = rawAmount.sub(rawFee);
+    //   if (rawAmount.gtn(0)) {
+    //     amount.value = fromBase(
+    //       rawAmount.toString(),
+    //       selectedAsset.value.decimals!
+    //     );
+    //   }
+    // }
+    // if (rawAmount.ltn(0) || rawAmount.add(rawFee).gt(rawBalance)) {
+    //   hasEnough.value = false;
+    // } else {
+    //   hasEnough.value = true;
+    // }
+
+    // const nativeAsset = accountAssets.value[0];
+    // const txFeeHuman = fromBase(
+    //   partialFee?.toString() ?? "",
+    //   nativeAsset.decimals!
+    // );
+
+    // const txPrice = new BigNumber(nativeAsset.price!).times(txFeeHuman);
+
+    // fee.value = {
+    //   fiatSymbol: "USD",
+    //   fiatValue: txPrice.toString(),
+    //   nativeSymbol: nativeAsset.symbol ?? "",
+    //   nativeValue: txFeeHuman.toString(),
+    // };
   }
 };
 watch([selectedAsset, addressTo], validateFields);
@@ -354,7 +363,7 @@ const selectAccountTo = (account: string) => {
   isOpenSelectContactTo.value = false;
 };
 
-const selectToken = (token: SubstrateToken | Partial<SubstrateToken>) => {
+const selectToken = (token: KDAToken | Partial<KDAToken>) => {
   selectedAsset.value = token;
   isOpenSelectToken.value = false;
 };
@@ -394,54 +403,53 @@ const setSendMax = (max: boolean) => {
 };
 
 const isDisabled = computed(() => {
-  let isDisabled = true;
+  return false;
+  // let isDisabled = true;
 
-  let addressIsValid = false;
+  // let addressIsValid = false;
 
-  try {
-    props.network.displayAddress(addressTo.value);
-    addressIsValid = true;
-  } catch {
-    addressIsValid = false;
-  }
+  // try {
+  //   props.network.displayAddress(addressTo.value);
+  //   addressIsValid = true;
+  // } catch {
+  //   addressIsValid = false;
+  // }
 
-  if (
-    amount.value !== undefined &&
-    amount.value !== "" &&
-    hasEnough.value &&
-    addressIsValid &&
-    !edWarn.value &&
-    edWarn.value !== undefined
-  )
-    isDisabled = false;
-  return isDisabled;
+  // if (
+  //   amount.value !== undefined &&
+  //   amount.value !== "" &&
+  //   hasEnough.value &&
+  //   addressIsValid &&
+  //   !edWarn.value &&
+  //   edWarn.value !== undefined
+  // )
+  //   isDisabled = false;
+  // return isDisabled;
 });
 
 const sendAction = async () => {
   const sendAmount = toBase(amount.value!, selectedAsset.value.decimals!);
 
-  const sendOptions: SendOptions | undefined = sendMax.value
-    ? { type: "all" }
-    : undefined;
+  // const sendOptions: SendOptions | undefined = sendMax.value
+  //   ? { type: "all" }
+  //   : undefined;
 
-  const api = (await props.network.api()).api as ApiPromise;
-  await api.isReady;
+  // const api = (await props.network.api()).api as ApiPromise;
+  // await api.isReady;
 
-  const tx = await selectedAsset.value?.send!(
-    api,
-    addressTo.value,
-    sendAmount,
-    sendOptions
-  );
+  // const tx = await selectedAsset.value?.send!(
+  //   api,
+  //   addressTo.value,
+  //   sendAmount,
+  //   sendOptions
+  // );
   const keyring = new PublicKeyRing();
-  const fromAccount = await keyring.getAccount(
-    polkadotEncodeAddress(addressFrom.value)
-  );
+  const fromAccount = await keyring.getAccount(addressFrom.value);
   const txVerifyInfo: VerifyTransactionParams = {
     TransactionData: {
       from: fromAccount.address,
       to: addressTo.value,
-      data: tx.toHex() as `0x{string}`,
+      data: "0x" as `0x{string}`,
       value: amount.value!,
     },
     toToken: {
@@ -471,22 +479,23 @@ const sendAction = async () => {
     },
   });
 
-  if (fromAccount.isHardware) {
-    await Browser.windows.create({
-      url: Browser.runtime.getURL(
-        getUiPath(
-          `dot-hw-verify?id=${routedRoute.query.id}&txData=${routedRoute.query.txData}`,
-          ProviderName.polkadot
-        )
-      ),
-      type: "popup",
-      focused: true,
-      height: 600,
-      width: 460,
-    });
-  } else {
-    router.push(routedRoute);
-  }
+  router.push(routedRoute);
+  // if (fromAccount.isHardware) {
+  //   await Browser.windows.create({
+  //     url: Browser.runtime.getURL(
+  //       getUiPath(
+  //         `dot-hw-verify?id=${routedRoute.query.id}&txData=${routedRoute.query.txData}`,
+  //         ProviderName.polkadot
+  //       )
+  //     ),
+  //     type: "popup",
+  //     focused: true,
+  //     height: 600,
+  //     width: 460,
+  //   });
+  // } else {
+  //   router.push(routedRoute);
+  // }
 };
 </script>
 

@@ -83,21 +83,16 @@ import HardwareWalletMsg from "@/providers/common/ui/verify-transaction/hardware
 import SendProcess from "@action/views/send-process/index.vue";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
 import { getCurrentContext } from "@/libs/messenger/extension";
-import { VerifyTransactionParams } from "@/providers/polkadot/ui/types";
-import { ApiPromise } from "@polkadot/api";
-import { u8aToHex } from "@polkadot/util";
-import type { SignerResult } from "@polkadot/api/types";
+import { VerifyTransactionParams } from "../../types";
 import {
-  DEFAULT_SUBSTRATE_NETWORK,
+  DEFAULT_KADENA_NETWORK,
   getNetworkByName,
 } from "@/libs/utils/networks";
-import { TypeRegistry } from "@polkadot/types";
 import { TransactionSigner } from "../../libs/signer";
-import { Activity, ActivityStatus, ActivityType } from "@/types/activity";
-import ActivityState from "@/libs/activity-state";
 import { EnkryptAccount } from "@enkryptcom/types";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 import { BaseNetwork } from "@/types/base-network";
+import { IUnsignedCommand, Pact, createClient } from "@kadena/client";
 
 const isSendDone = ref(false);
 const account = ref<EnkryptAccount>();
@@ -115,7 +110,7 @@ const isWindowPopup = ref(false);
 const verifyScrollRef = ref<ComponentPublicInstance<HTMLElement>>();
 defineExpose({ verifyScrollRef });
 
-const network = ref<BaseNetwork>(DEFAULT_SUBSTRATE_NETWORK);
+const network = ref<BaseNetwork>(DEFAULT_KADENA_NETWORK);
 onBeforeMount(async () => {
   network.value = (await getNetworkByName(selectedNetwork))!;
   account.value = await KeyRing.getAccount(txData.fromAddress);
@@ -131,87 +126,167 @@ const close = () => {
 
 const sendAction = async () => {
   isProcessing.value = true;
-  const api = await network.value.api();
-
-  const tx = (api.api as ApiPromise).tx(txData.TransactionData.data);
-
-  try {
-    const signedTx = await tx.signAsync(account.value!.address, {
-      signer: {
-        signPayload: (signPayload): Promise<SignerResult> => {
-          const registry = new TypeRegistry();
-          registry.setSignedExtensions(signPayload.signedExtensions);
-          const extType = registry.createType("ExtrinsicPayload", signPayload, {
-            version: signPayload.version,
-          });
-          return TransactionSigner({
-            account: account.value!,
-            network: network.value,
-            payload: extType,
-          }).then((res) => {
-            if (res.error) return Promise.reject(res.error);
-            else
-              return {
-                id: 0,
-                signature: JSON.parse(res.result as string),
-              };
-          });
-        },
-      },
-    });
-    const txActivity: Activity = {
-      from: txData.fromAddress,
-      to: txData.toAddress,
-      isIncoming: txData.fromAddress === txData.toAddress,
-      network: network.value.name,
-      status: ActivityStatus.pending,
-      timestamp: new Date().getTime(),
-      token: {
-        decimals: txData.toToken.decimals,
-        icon: txData.toToken.icon,
-        name: txData.toToken.name,
-        symbol: txData.toToken.symbol,
-        price: txData.toToken.price,
-      },
-      type: ActivityType.transaction,
-      value: txData.toToken.amount,
-      transactionHash: "",
-    };
-    const activityState = new ActivityState();
-    signedTx
-      .send()
-      .then(async (hash) => {
-        txActivity.transactionHash = u8aToHex(hash);
-        await activityState.addActivities([txActivity], {
-          address: network.value.displayAddress(txData.fromAddress),
-          network: network.value.name,
-        });
+  const modules = Pact.modules as any;
+  debugger;
+  const unsignedTransaction: IUnsignedCommand = Pact.builder
+    .execution(
+      modules.coin.transfer(txData.fromAddress, txData.toAddress, {
+        decimal: txData.TransactionData.value,
       })
-      .catch(() => {
-        txActivity.status = ActivityStatus.failed;
-        activityState.addActivities([txActivity], {
-          address: network.value.displayAddress(txData.fromAddress),
-          network: network.value.name,
-        });
-      });
+    )
+    .addSigner(txData.fromAddress, (withCapability: any) => [
+      withCapability("coin.GAS"),
+      withCapability("coin.TRANSFER", txData.fromAddress, txData.toAddress, {
+        decimal: txData.TransactionData.value,
+      }),
+    ])
+    .setMeta({ chainId: "1" })
+    .setNetworkId("testnet04")
+    .createTransaction();
+  // const unsignedTransaction = modules.coin
+  //   .transfer(
+  //     txData.fromAddress,
+  //     txData.toAddress,
+  //     txData.TransactionData.value
+  //   )
+  //   // .addSigner("public_key", (withCapability: any) => [
+  //   //   withCapability("coin.GAS"),
+  //   //   withCapability("coin.TRANSFER", txData.fromAddress, txData.toAddress, {
+  //   //     decimal: txData.TransactionData.value,
+  //   //   }),
+  //   // ])
+  //   // .addCap("coin.GAS", txData.fromAddress)
+  //   // .addCap(
+  //   //   "coin.TRANSFER",
+  //   //   txData.fromAddress,
+  //   //   txData.fromAddress,
+  //   //   txData.toAddress,
+  //   //   txData.TransactionData.value
+  //   // )
+  //   .setMeta({ sender: txData.fromAddress }, "testnet04")
+  //   .createTransaction();
+  debugger;
 
-    isSendDone.value = true;
-    if (getCurrentContext() === "popup") {
-      setTimeout(() => {
-        isProcessing.value = false;
-        router.go(-2);
-      }, 2500);
-    } else {
-      setTimeout(() => {
-        isProcessing.value = false;
-        window.close();
-      }, 1500);
-    }
-  } catch (error: any) {
-    isProcessing.value = false;
-    console.error("error", error);
-    errorMsg.value = JSON.stringify(error);
+  const transaction = await TransactionSigner({
+    account: account.value!,
+    network: network.value,
+    payload: unsignedTransaction.hash,
+  }).then((res) => {
+    debugger;
+    if (res.error) return Promise.reject(res.error);
+    else
+      return {
+        id: 0,
+        signature: res.result as string,
+      };
+  });
+  debugger;
+
+  const client = createClient(
+    "https://api.testnet.chainweb.com/chainweb/0.0/testnet04/chain/1/pact"
+  );
+  // const teste: any = JSON.parse(unsignedTransaction.cmd);
+  // teste.sigs = {
+  //   pubKey: txData.fromAddress,
+  //   sig: transaction.signature,
+  // };
+  // unsignedTransaction.cmd.sigs = {
+
+  // }
+  // check if all necessary signatures are added
+  const transactionDescriptor = await client.submit({
+    cmd: unsignedTransaction.cmd,
+    hash: unsignedTransaction.hash,
+    sigs: [{ sig: transaction.signature }],
+  });
+  const response = await client.listen(transactionDescriptor);
+  if (response.result.status === "failure") {
+    throw response.result.error;
+  } else {
+    console.log(response.result);
   }
+
+  // const api = await network.value.api();
+
+  // const tx = (api.api as ApiPromise).tx(txData.TransactionData.data);
+
+  // try {
+  //   const signedTx = await tx.signAsync(account.value!.address, {
+  //     signer: {
+  //       signPayload: (signPayload): Promise<SignerResult> => {
+  //         const registry = new TypeRegistry();
+  //         registry.setSignedExtensions(signPayload.signedExtensions);
+  //         const extType = registry.createType("ExtrinsicPayload", signPayload, {
+  //           version: signPayload.version,
+  //         });
+  //         return TransactionSigner({
+  //           account: account.value!,
+  //           network: network.value,
+  //           payload: extType,
+  //         }).then((res) => {
+  //           if (res.error) return Promise.reject(res.error);
+  //           else
+  //             return {
+  //               id: 0,
+  //               signature: JSON.parse(res.result as string),
+  //             };
+  //         });
+  //       },
+  //     },
+  //   });
+  //   const txActivity: Activity = {
+  //     from: txData.fromAddress,
+  //     to: txData.toAddress,
+  //     isIncoming: txData.fromAddress === txData.toAddress,
+  //     network: network.value.name,
+  //     status: ActivityStatus.pending,
+  //     timestamp: new Date().getTime(),
+  //     token: {
+  //       decimals: txData.toToken.decimals,
+  //       icon: txData.toToken.icon,
+  //       name: txData.toToken.name,
+  //       symbol: txData.toToken.symbol,
+  //       price: txData.toToken.price,
+  //     },
+  //     type: ActivityType.transaction,
+  //     value: txData.toToken.amount,
+  //     transactionHash: "",
+  //   };
+  //   const activityState = new ActivityState();
+  //   signedTx
+  //     .send()
+  //     .then(async (hash) => {
+  //       txActivity.transactionHash = u8aToHex(hash);
+  //       await activityState.addActivities([txActivity], {
+  //         address: network.value.displayAddress(txData.fromAddress),
+  //         network: network.value.name,
+  //       });
+  //     })
+  //     .catch(() => {
+  //       txActivity.status = ActivityStatus.failed;
+  //       activityState.addActivities([txActivity], {
+  //         address: network.value.displayAddress(txData.fromAddress),
+  //         network: network.value.name,
+  //       });
+  //     });
+
+  //   isSendDone.value = true;
+  //   if (getCurrentContext() === "popup") {
+  //     setTimeout(() => {
+  //       isProcessing.value = false;
+  //       router.go(-2);
+  //     }, 2500);
+  //   } else {
+  //     setTimeout(() => {
+  //       isProcessing.value = false;
+  //       window.close();
+  //     }, 1500);
+  //   }
+  // } catch (error: any) {
+  //   isProcessing.value = false;
+  //   console.error("error", error);
+  //   errorMsg.value = JSON.stringify(error);
+  // }
 };
 
 const isHasScroll = () => {

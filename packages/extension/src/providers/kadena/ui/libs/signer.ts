@@ -20,45 +20,46 @@ const TransactionSigner = (
   options: SignerTransactionOptions
 ): Promise<InternalOnMessageResponse> => {
   const { account, network, payload } = options;
-  if (account.isHardware) {
-    const hwWallet = new HWwallet();
-    return hwWallet
-      .signTransaction({
-        transaction: payload,
-        networkName: network.name,
-        pathIndex: account.pathIndex.toString(),
-        pathType: {
-          basePath: account.basePath,
-          path: account.HWOptions!.pathTemplate,
-        },
-        wallet: account.walletType as unknown as HWwalletType,
-      })
-      .then((signature: string) => ({
-        result: JSON.stringify(signature),
-      }))
-      .catch((e) => {
-        return Promise.reject({
-          error: getCustomError(e.message),
-        });
-      });
-  } else {
-    const signMsg = signPayload(payload);
-    return sendUsingInternalMessengers({
-      method: InternalMethods.sign,
-      params: [signMsg, account],
-    }).then((res) => {
-      if (res.error) return res;
+  // if (account.isHardware) {
+  //   const hwWallet = new HWwallet();
+  //   return hwWallet
+  //     .signTransaction({
+  //       transaction: payload,
+  //       networkName: network.name,
+  //       pathIndex: account.pathIndex.toString(),
+  //       pathType: {
+  //         basePath: account.basePath,
+  //         path: account.HWOptions!.pathTemplate,
+  //       },
+  //       wallet: account.walletType as unknown as HWwalletType,
+  //     })
+  //     .then((signature: string) => ({
+  //       result: JSON.stringify(signature),
+  //     }))
+  //     .catch((e) => {
+  //       return Promise.reject({
+  //         error: getCustomError(e.message),
+  //       });
+  //     });
+  // } else {
+  // const signMsg = signPayload(payload);
+  return sendUsingInternalMessengers({
+    method: InternalMethods.sign,
+    params: [payload, account],
+  }).then((res) => {
+    debugger;
+    if (res.error) return res;
 
-      const signed = payloadSignTransform(
-        JSON.parse(res.result as string),
-        account.signerType,
-        true
-      );
-      return {
-        result: JSON.stringify(signed),
-      };
-    });
-  }
+    // const signed = payloadSignTransform(
+    //   JSON.parse(res.result as string),
+    //   account.signerType,
+    //   true
+    // );
+    return {
+      result: JSON.parse(res.result as string),
+    };
+  });
+  // }
 };
 
 const MessageSigner = (
