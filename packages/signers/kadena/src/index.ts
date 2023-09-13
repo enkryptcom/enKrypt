@@ -1,7 +1,5 @@
 import { SignerInterface, KeyPair } from "@enkryptcom/types";
-
-// eslint-disable-next-line import/extensions
-import kadenaCrypto from "cardano-crypto-kadena.js/kadena-crypto.js";
+import kadenaCrypto from "cardano-crypto-kadena.js/kadena-crypto";
 
 class Signer implements SignerInterface {
   async generate(mnemonic: string, derivationPath = ""): Promise<KeyPair> {
@@ -21,19 +19,28 @@ class Signer implements SignerInterface {
     sig: string,
     publicKey: string
   ): Promise<boolean> {
-    console.log(msgHash, sig, publicKey);
-    return true;
+    const xpub = this.hexToBuffer(publicKey);
+    const xsig = this.hexToBuffer(sig);
+
+    return kadenaCrypto.kadenaVerify(msgHash, xpub, xsig);
   }
 
   async sign(msgHash: string, keyPair: KeyPair): Promise<string> {
-    console.log(msgHash, keyPair);
-    return "";
+    const xprv = this.hexToBuffer(keyPair.privateKey);
+
+    return this.bufferToHex(kadenaCrypto.kadenaSign("", msgHash, xprv));
   }
 
   bufferToHex(buffer: Iterable<number>): string {
     return Array.from(new Uint8Array(buffer))
       .map(b => b.toString(16).padStart(2, "0"))
       .join("");
+  }
+
+  hexToBuffer(hex: string): Uint8Array {
+    return new Uint8Array(
+      hex.match(/.{1,2}/g)?.map(byte => parseInt(byte, 16))
+    );
   }
 }
 
