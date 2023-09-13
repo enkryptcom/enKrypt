@@ -1,5 +1,5 @@
 import BrowserStorage from "../common/browser-storage";
-import { getAllNetworks, POPULAR_NAMES } from "../utils/networks";
+import { POPULAR_NAMES } from "../utils/networks";
 import { InternalStorageNamespace } from "@/types/provider";
 import { IState, StorageKeys, NetworkStorageElement } from "./types";
 
