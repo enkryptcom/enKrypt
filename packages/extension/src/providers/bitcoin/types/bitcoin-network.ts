@@ -19,6 +19,8 @@ import { CoinGeckoTokenMarket } from "@/libs/market-data/types";
 import Sparkline from "@/libs/sparkline";
 import { BTCToken } from "./btc-token";
 import { GasPriceTypes } from "@/providers/common/types";
+import type HaskoinAPI from "@/providers/bitcoin/libs/api";
+import type SSAPI from "@/providers/bitcoin/libs/api-ss";
 
 export interface BitcoinNetworkOptions {
   name: NetworkNames;
@@ -40,6 +42,7 @@ export interface BitcoinNetworkOptions {
     network: BaseNetwork,
     address: string
   ) => Promise<Activity[]>;
+  apiType: typeof HaskoinAPI | typeof SSAPI;
 }
 
 export class BitcoinNetwork extends BaseNetwork {
@@ -52,9 +55,9 @@ export class BitcoinNetwork extends BaseNetwork {
   feeHandler: () => Promise<Record<GasPriceTypes, number>>;
   constructor(options: BitcoinNetworkOptions) {
     const api = async () => {
-      const api = new BitcoinAPI(options.node, options.networkInfo);
+      const api = new options.apiType(options.node, options.networkInfo);
       await api.init();
-      return api;
+      return api as BitcoinAPI;
     };
 
     const baseOptions: BaseNetworkOptions = {

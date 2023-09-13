@@ -38,6 +38,13 @@ export interface HaskoinUnspentType {
   pkscript: string;
   value: number;
 }
+export interface SSUnspentType {
+  txid: string;
+  vout: number;
+  value: string;
+  height: number;
+  confirmations: number;
+}
 export interface HaskoinTxType {
   txid: string;
   size: number;
@@ -61,6 +68,27 @@ export interface HaskoinTxType {
     mempool?: number;
   };
   time: number;
+}
+
+export interface SSTxType {
+  txid: string;
+  blockHash: string;
+  blockHeight: number;
+  timestamp: number;
+  confirmations: number;
+  fee: string;
+  vin: {
+    txid: string;
+    addresses?: string[];
+    value: string;
+  }[];
+  vout: {
+    addresses?: string[];
+    value: string;
+    scriptPubKey: {
+      hex: string;
+    };
+  }[];
 }
 
 export interface RPCTxType {

@@ -6,6 +6,7 @@ import {
 import { haskoinHandler } from "../libs/activity-handlers";
 import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
 import { GasPriceTypes } from "@/providers/common/types";
+import HaskoinAPI from "../libs/api";
 
 const bitcoinOptions: BitcoinNetworkOptions = {
   name: NetworkNames.BitcoinTest,
@@ -23,6 +24,7 @@ const bitcoinOptions: BitcoinNetworkOptions = {
   activityHandler: wrapActivityHandler(haskoinHandler),
   basePath: "m/49'/1'/0'/0",
   coingeckoID: "bitcoin",
+  apiType: HaskoinAPI,
   feeHandler: () =>
     Promise.resolve({
       [GasPriceTypes.FASTEST]: 25,

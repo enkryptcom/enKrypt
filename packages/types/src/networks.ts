@@ -58,6 +58,7 @@ export enum NetworkNames {
   Vara = "VARA",
   Base = "BASE",
   Celo = "CELO",
+  Litecoin = "LTC",
 }
 
 export enum CoingeckoPlatform {

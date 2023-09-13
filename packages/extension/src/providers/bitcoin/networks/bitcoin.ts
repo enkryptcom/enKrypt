@@ -6,6 +6,7 @@ import {
 import { haskoinHandler } from "../libs/activity-handlers";
 import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
 import BTCFeeHandler from "../libs/btc-fee-handler";
+import HaskoinAPI from "../libs/api";
 
 const bitcoinOptions: BitcoinNetworkOptions = {
   name: NetworkNames.Bitcoin,
@@ -23,6 +24,7 @@ const bitcoinOptions: BitcoinNetworkOptions = {
   activityHandler: wrapActivityHandler(haskoinHandler),
   basePath: "m/49'/0'/0'/0",
   feeHandler: BTCFeeHandler,
+  apiType: HaskoinAPI,
   networkInfo: {
     messagePrefix: "\x18Bitcoin Signed Message:\n",
     bech32: "bc",
