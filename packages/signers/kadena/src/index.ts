@@ -1,13 +1,12 @@
 import { SignerInterface, KeyPair } from "@enkryptcom/types";
-// eslint-disable-next-line import/extensions
-import kadenaCrypto from "cardano-crypto-kadena.js/kadena-crypto.js";
+import kadenaCrypto from "cardano-crypto-kadena.js/kadena-crypto";
 
 // const Pact = require("pact-lang-api");
 
 class Signer implements SignerInterface {
-  async generate(mnemonic: string): Promise<KeyPair> {
+  async generate(mnemonic: string, derivationPath = ""): Promise<KeyPair> {
     const root = kadenaCrypto.kadenaMnemonicToRootKeypair("", mnemonic.trim());
-    const hardIndex = 0x80000000 + 0;
+    const hardIndex = 0x80000000 + Number(derivationPath);
     const privPubKey = kadenaCrypto.kadenaGenKeypair("", root, hardIndex);
 
     return {
@@ -22,20 +21,15 @@ class Signer implements SignerInterface {
     sig: string,
     publicKey: string
   ): Promise<boolean> {
-    // console.log(msgHash, sig, publicKey);
-    // return kadenaCrypto.kadenaVerify(msgHash, publicKey, sig);
     const xpub = this.hexToBuffer(publicKey);
     const xsig = this.hexToBuffer(sig);
+
     return kadenaCrypto.kadenaVerify(msgHash, xpub, xsig);
   }
 
   async sign(msgHash: string, keyPair: KeyPair): Promise<string> {
-    // console.log(msgHash, keyPair);
-    // console.log("Nova assinatura 2")
-    // // return kadenaCrypto.kadenaSign('', msgHash, keyPair.privateKey);
-    // return Pact.crypto.sign(msgHash, keyPair);
-
     const xprv = this.hexToBuffer(keyPair.privateKey);
+
     return this.bufferToHex(kadenaCrypto.kadenaSign("", msgHash, xprv));
   }
 
@@ -47,7 +41,7 @@ class Signer implements SignerInterface {
 
   hexToBuffer(hex: string): Uint8Array {
     return new Uint8Array(
-      hex.match(/.{1,2}/g)?.map((byte) => parseInt(byte, 16))
+      hex.match(/.{1,2}/g)?.map(byte => parseInt(byte, 16))
     );
   }
 }

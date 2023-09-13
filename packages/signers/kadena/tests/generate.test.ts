@@ -1,26 +1,39 @@
 import { expect } from "chai";
 import Signer from "../src";
 
-describe("Ethreum address generate", () => {
+describe("Kadena address generate", () => {
+  // You can check this derived address on:
+  // https://kadenakeys.io
+
   const MNEMONIC =
-    "awake book subject inch gentle blur grant damage process float month clown";
-  it("should generate bicoin addresses correctly", async () => {
-    const bitcoinSigner = new Signer();
-    let keypair = await bitcoinSigner.generate(MNEMONIC, "m/44'/0'/0'/0/0");
+    "clip coffee brain token leader kiss around main finger network avoid west";
+
+  it("should generate Kadena addresses correctly", async () => {
+    // Arrange
+    const kadenaSigner = new Signer();
+
+    // Act & Assert
+    let keypair = await kadenaSigner.generate(MNEMONIC, "0");
     expect(keypair.address).equals(
-      "0x03472412900c9f4ce53b0aa251e269979ba4f28912d8029b7556cb8397b14db45a"
+      "57b9e48323d8cf9d811a4032662ab86c1c8f440b974759b4267d27a1f1ca936f"
     );
-    keypair = await bitcoinSigner.generate(MNEMONIC, "m/44'/0'/0'/0/1");
+
+    // Act & Assert
+    keypair = await kadenaSigner.generate(MNEMONIC, "1");
     expect(keypair.address).equals(
-      "0x0344fc4582db2073485156fd17a58f933bebabfc6ba67d0b1ed656acbfdd1e0ee9"
+      "3c77941d21857bd26683154a5efc5c15169f27698fc56906bcf49b4c05e1006b"
     );
-    keypair = await bitcoinSigner.generate(MNEMONIC, "m/49'/0'/0'/0/3");
+
+    // Act & Assert
+    keypair = await kadenaSigner.generate(MNEMONIC, "2");
     expect(keypair.address).equals(
-      "0x02a2f83bc8a62a71679b957806901fbea35edb936165ebfd5184305d2d17a74d25"
+      "f8dc5d97bc43155b033f813833bcda9ef374b060689648b4c0226f5a1456935a"
     );
-    keypair = await bitcoinSigner.generate(MNEMONIC, "m/49'/0'/0'/0/12");
+
+    // Act & Assert
+    keypair = await kadenaSigner.generate(MNEMONIC, "3");
     expect(keypair.address).equals(
-      "0x035f9ee3234dc049f65825073db81af3f9a120d8b2d86602d405ac60c7f406a8e4"
+      "df3125da8789dc114be0c953040333e9a1a9afb31e1170ade42be52a6701842e"
     );
   });
 });

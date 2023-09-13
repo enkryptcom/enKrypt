@@ -11,5 +11,10 @@ export const pathParser = (
   ) {
     return index === 0 ? "" : `//${--index}`; // polkadotjs extension use "" for 0 index/root
   }
+
+  if (type === SignerType.ed25519kda) {
+    return index.toString();
+  }
+
   return `${basePath}/${index}`;
 };
