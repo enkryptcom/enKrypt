@@ -29,7 +29,6 @@ class NetworksState {
       isActive &&
       state.networks.findIndex((n) => n.name === targetNetworkName) === -1
     ) {
-      console.log("adding", targetNetworkName, state.networks);
       state.networks.push(targetNetwork as NetworkStorageElement);
     } else if (!isActive) {
       const idxArr = state.networks.map((_, i) => i);
