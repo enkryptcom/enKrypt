@@ -1,7 +1,6 @@
 import { SignerInterface, KeyPair } from "@enkryptcom/types";
 import kadenaCrypto from "cardano-crypto-kadena.js/kadena-crypto";
-
-// const Pact = require("pact-lang-api");
+import { base64UrlDecodeArr, hexToBin, sign, signHash, verifySig } from "@kadena/cryptography-utils";
 
 class Signer implements SignerInterface {
   async generate(mnemonic: string, derivationPath = ""): Promise<KeyPair> {
@@ -21,16 +20,36 @@ class Signer implements SignerInterface {
     sig: string,
     publicKey: string
   ): Promise<boolean> {
-    const xpub = this.hexToBuffer(publicKey);
-    const xsig = this.hexToBuffer(sig);
+    console.log('msgHash', msgHash);
+    console.log('sig', sig);
+    console.log('publicKey', publicKey);
 
-    return kadenaCrypto.kadenaVerify(msgHash, xpub, xsig);
+    const signCmd = {
+      hash: 'YbdNz31xZBhW6LaaXCmltf0WQdVSwDPw_LJWcTgwevA',
+      sig: '224a9a0624e1b22a3e34d8040850efb595e924c22f72c07a700a175a025c3bdd0a6a46cbc8f52cdc76fe01cdf2f92835ae255383e753115e8a3ba29dd0e80407',
+      pubKey: '57b9e48323d8cf9d811a4032662ab86c1c8f440b974759b4267d27a1f1ca936f',
+    };
+  
+    return verifySig(
+      base64UrlDecodeArr(signCmd.hash),
+      hexToBin(signCmd.sig),
+      hexToBin(signCmd.pubKey),
+    );
+  
+    // return verifySig(
+    //   base64UrlDecodeArr(msgHash),
+    //   hexToBin(sig),
+    //   hexToBin(publicKey),
+    // );
   }
 
   async sign(msgHash: string, keyPair: KeyPair): Promise<string> {
-    const xprv = this.hexToBuffer(keyPair.privateKey);
+    const signResult = signHash(msgHash, {
+      secretKey: keyPair.privateKey.slice(0, 128), // 256
+      publicKey: keyPair.publicKey,
+    });
 
-    return this.bufferToHex(kadenaCrypto.kadenaSign("", msgHash, xprv));
+    return signResult.sig;
   }
 
   bufferToHex(buffer: Iterable<number>): string {

@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "@enkryptcom/utils": "workspace:^",
+    "@kadena/cryptography-utils": "^0.3.8",
     "cardano-crypto-kadena.js": "^6.0.1",
     "chai": "^4.3.8"
   },

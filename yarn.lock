@@ -2601,6 +2601,7 @@ __metadata:
   dependencies:
     "@enkryptcom/types": "workspace:^"
     "@enkryptcom/utils": "workspace:^"
+    "@kadena/cryptography-utils": ^0.3.8
     "@types/chai": ^4.3.5
     "@types/hdkey": ^2.0.1
     "@types/mocha": ^10.0.1
@@ -3800,7 +3801,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@kadena/cryptography-utils@npm:0.3.8":
+"@kadena/cryptography-utils@npm:0.3.8, @kadena/cryptography-utils@npm:^0.3.8":
   version: 0.3.8
   resolution: "@kadena/cryptography-utils@npm:0.3.8"
   dependencies:
