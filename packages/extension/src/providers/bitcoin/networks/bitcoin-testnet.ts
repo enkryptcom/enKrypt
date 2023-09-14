@@ -2,6 +2,7 @@ import { NetworkNames } from "@enkryptcom/types";
 import {
   BitcoinNetwork,
   BitcoinNetworkOptions,
+  PaymentType,
 } from "../types/bitcoin-network";
 import { haskoinHandler } from "../libs/activity-handlers";
 import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
@@ -43,6 +44,7 @@ const bitcoinOptions: BitcoinNetworkOptions = {
     scriptHash: 0xc4,
     wif: 0xef,
     dustThreshold: null,
+    paymentType: PaymentType.P2WPKH,
   },
 };
 

@@ -1,15 +1,14 @@
 import { BTCRawInfo } from "@/types/activity";
 import { ProviderAPIInterface } from "@/types/provider";
-import { hexToBuffer } from "@enkryptcom/utils";
 import {
   BitcoinNetworkInfo,
   HaskoinUnspentType,
   SSTxType,
   SSUnspentType,
 } from "../types";
-import { payments } from "bitcoinjs-lib";
 import { toBN } from "web3-utils";
 import cacheFetch from "@/libs/cache-fetch";
+import { getAddress as getBitcoinAddress } from "../types/bitcoin-network";
 
 class API implements ProviderAPIInterface {
   node: string;
@@ -24,11 +23,7 @@ class API implements ProviderAPIInterface {
     return this;
   }
   private getAddress(pubkey: string) {
-    const { address } = payments.p2wpkh({
-      pubkey: hexToBuffer(pubkey),
-      network: this.networkInfo,
-    });
-    return address as string;
+    return getBitcoinAddress(pubkey, this.networkInfo);
   }
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   async init(): Promise<void> {}
@@ -63,9 +58,11 @@ class API implements ProviderAPIInterface {
     const address = pubkey.length < 64 ? pubkey : this.getAddress(pubkey);
     return fetch(`${this.node}/api/v1/account/${address}`)
       .then((res) => res.json())
-      .then((balance: { balance: string }) => {
+      .then((balance: { balance: string; unconfirmedBalance: string }) => {
         if ((balance as any).message) return "0";
-        return toBN(balance.balance).toString();
+        return toBN(balance.balance)
+          .add(toBN(balance.unconfirmedBalance))
+          .toString();
       });
   }
   async broadcastTx(rawtx: string): Promise<boolean> {
@@ -104,6 +101,7 @@ class API implements ProviderAPIInterface {
         pkscript: res.vout[utx.vout].scriptPubKey.hex,
         txid: utx.txid,
         value: Number(utx.value),
+        raw: res.hex,
       });
     }
     ret.sort((a, b) => {

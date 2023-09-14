@@ -1,5 +1,6 @@
 import { NetworkNames } from "@enkryptcom/types";
 import type { Provider as InjectedProvider } from "../inject";
+import { PaymentType } from "./bitcoin-network";
 
 export const BitcoinNetworks = {
   BTC: NetworkNames.Bitcoin,
@@ -17,6 +18,7 @@ export interface BitcoinNetworkInfo {
   scriptHash: number;
   wif: number;
   dustThreshold: null;
+  paymentType: PaymentType;
 }
 
 export interface HaskoinBalanceType {
@@ -37,6 +39,7 @@ export interface HaskoinUnspentType {
   index: number;
   pkscript: string;
   value: number;
+  raw?: string;
 }
 export interface SSUnspentType {
   txid: string;
@@ -77,6 +80,7 @@ export interface SSTxType {
   timestamp: number;
   confirmations: number;
   fee: string;
+  hex: string;
   vin: {
     txid: string;
     addresses?: string[];

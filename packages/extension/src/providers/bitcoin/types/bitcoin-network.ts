@@ -22,6 +22,10 @@ import { GasPriceTypes } from "@/providers/common/types";
 import type HaskoinAPI from "@/providers/bitcoin/libs/api";
 import type SSAPI from "@/providers/bitcoin/libs/api-ss";
 
+export enum PaymentType {
+  P2PKH = "p2pkh",
+  P2WPKH = "p2wpkh",
+}
 export interface BitcoinNetworkOptions {
   name: NetworkNames;
   name_long: string;
@@ -45,6 +49,14 @@ export interface BitcoinNetworkOptions {
   apiType: typeof HaskoinAPI | typeof SSAPI;
 }
 
+export const getAddress = (pubkey: string, network: BitcoinNetworkInfo) => {
+  if (pubkey.length < 64) return pubkey;
+  const { address } = payments[network.paymentType]({
+    network,
+    pubkey: hexToBuffer(pubkey),
+  });
+  return address as string;
+};
 export class BitcoinNetwork extends BaseNetwork {
   public assets: BaseToken[] = [];
   public networkInfo: BitcoinNetworkInfo;
@@ -64,14 +76,8 @@ export class BitcoinNetwork extends BaseNetwork {
       identicon: createIcon,
       signer: [SignerType.secp256k1btc],
       provider: ProviderName.bitcoin,
-      displayAddress: (pubkey: string) => {
-        if (pubkey.length < 64) return pubkey;
-        const { address } = payments.p2wpkh({
-          pubkey: hexToBuffer(pubkey),
-          network: options.networkInfo,
-        });
-        return address as string;
-      },
+      displayAddress: (pubkey: string) =>
+        getAddress(pubkey, options.networkInfo),
       api,
       ...options,
     };

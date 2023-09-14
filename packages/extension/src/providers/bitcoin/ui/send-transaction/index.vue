@@ -132,7 +132,7 @@ import { BaseNetwork } from "@/types/base-network";
 
 import { getGasCostValues, isAddress } from "../../libs/utils";
 import BitcoinAPI from "@/providers/bitcoin/libs/api";
-import { calculateSize } from "../libs/tx-size";
+import { calculateSizeBasedOnType } from "../libs/tx-size";
 import { HaskoinUnspentType } from "../../types";
 import { VerifyTransactionParams, BTCTxInfo } from "../types";
 
@@ -239,13 +239,10 @@ const updateUTXOs = async () => {
   const api = (await props.network.api()) as BitcoinAPI;
   return api.getUTXOs(addressFrom.value).then((utxos) => {
     accountUTXOs.value = utxos;
-    const txSize = calculateSize(
-      {
-        input_count: accountUTXOs.value.length,
-      },
-      {
-        p2wpkh_output_count: 2,
-      }
+    const txSize = calculateSizeBasedOnType(
+      accountUTXOs.value.length,
+      2,
+      (props.network as BitcoinNetwork).networkInfo.paymentType
     );
     setTransactionFees(Math.ceil(txSize.txVBytes));
   });
@@ -377,6 +374,7 @@ const sendAction = async () => {
     txInfo.inputs.push({
       hash: u.txid,
       index: u.index,
+      raw: u.raw,
       witnessUtxo: {
         script: u.pkscript,
         value: u.value,
