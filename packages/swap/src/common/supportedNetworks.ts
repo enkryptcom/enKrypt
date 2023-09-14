@@ -193,6 +193,28 @@ const NetworkDetails: Record<SupportedNetworkName, NetworkInfo> = {
     rank: 16,
     symbol: "ETH",
   },
+  [SupportedNetworkName.Litecoin]: {
+    id: SupportedNetworkName.Litecoin,
+    decimals: 8,
+    logoURI: "https://assets.coingecko.com/coins/images/2/thumb/litecoin.png",
+    name: "Litecoin",
+    symbol: "LTC",
+    cgId: "litecoin",
+    rank: 17,
+    signerType: [SignerType.secp256k1btc],
+    type: NetworkType.Bitcoin,
+  },
+  [SupportedNetworkName.Dogecoin]: {
+    id: SupportedNetworkName.Dogecoin,
+    decimals: 8,
+    logoURI: "https://assets.coingecko.com/coins/images/5/thumb/dogecoin.png",
+    name: "Dogecoin",
+    symbol: "DOGE",
+    cgId: "dogecoin",
+    rank: 18,
+    signerType: [SignerType.secp256k1btc],
+    type: NetworkType.Bitcoin,
+  },
 };
 export const isSupportedNetwork = (networkName: SupportedNetworkName) =>
   !!NetworkDetails[networkName];
