@@ -122,8 +122,9 @@ const getTokens = (
   }
   let url = "";
   if (chain === NetworkNames.Ethereum || chain === NetworkNames.Binance)
-    url = `${API_ENPOINT}${supportedNetworks[chain].tbName}?address=${address}`;
-  else url = `${API_ENPOINT2}${supportedNetworks[chain].tbName}/${address}`;
+    url = `${API_ENPOINT}${supportedNetworks[chain].tbName}?address=${address}&platform=enkrypt&type=internal`;
+  else
+    url = `${API_ENPOINT2}${supportedNetworks[chain].tbName}/${address}?platform=enkrypt&type=internal`;
   return fetch(url)
     .then((res) => res.json())
     .then((json) => {
