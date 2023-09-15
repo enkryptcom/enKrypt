@@ -41,6 +41,7 @@ export interface BitcoinNetworkOptions {
   coingeckoID?: string;
   basePath: string;
   networkInfo: BitcoinNetworkInfo;
+  dust: number;
   feeHandler: () => Promise<Record<GasPriceTypes, number>>;
   activityHandler: (
     network: BaseNetwork,
@@ -60,6 +61,7 @@ export const getAddress = (pubkey: string, network: BitcoinNetworkInfo) => {
 export class BitcoinNetwork extends BaseNetwork {
   public assets: BaseToken[] = [];
   public networkInfo: BitcoinNetworkInfo;
+  public dust: number;
   private activityHandler: (
     network: BaseNetwork,
     address: string
@@ -85,6 +87,7 @@ export class BitcoinNetwork extends BaseNetwork {
     this.activityHandler = options.activityHandler;
     this.networkInfo = options.networkInfo;
     this.feeHandler = options.feeHandler;
+    this.dust = options.dust;
   }
 
   public async getAllTokens(pubkey: string): Promise<BaseToken[]> {

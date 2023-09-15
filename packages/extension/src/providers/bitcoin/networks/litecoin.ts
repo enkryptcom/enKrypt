@@ -22,6 +22,7 @@ const litecoinOptions: BitcoinNetworkOptions = {
   decimals: 8,
   node: "https://partners.mewapi.io/nodes/ss/ltc",
   coingeckoID: "litecoin",
+  dust: 0.0001,
   apiType: SSApi,
   activityHandler: wrapActivityHandler(ssHandler),
   basePath: "m/49'/2'/0'/0",

@@ -26,6 +26,7 @@ const bitcoinOptions: BitcoinNetworkOptions = {
   basePath: "m/49'/0'/0'/0",
   feeHandler: BTCFeeHandler,
   apiType: HaskoinAPI,
+  dust: 0.00000546,
   networkInfo: {
     messagePrefix: "\x18Bitcoin Signed Message:\n",
     bech32: "bc",

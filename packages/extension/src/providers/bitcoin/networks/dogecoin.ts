@@ -23,6 +23,7 @@ const dogeOptions: BitcoinNetworkOptions = {
   node: "https://partners.mewapi.io/nodes/ss/doge",
   coingeckoID: "dogecoin",
   apiType: SSApi,
+  dust: 0.01,
   activityHandler: wrapActivityHandler(ssHandler),
   basePath: "m/44'/3'/0'/0",
   feeHandler: () => {

@@ -167,6 +167,9 @@ const hasEnoughBalance = computed(() => {
   if (!isValidDecimals(sendAmount.value, selectedAsset.value.decimals!)) {
     return false;
   }
+  if (Number(sendAmount.value) < (props.network as BitcoinNetwork).dust) {
+    return false;
+  }
   return toBN(selectedAsset.value.balance ?? "0").gte(
     toBN(toBase(sendAmount.value ?? "0", selectedAsset.value.decimals!)).add(
       toBN(
@@ -211,8 +214,10 @@ onMounted(async () => {
 });
 
 const nativeBalanceAfterTransaction = computed(() => {
-  if (nativeBalance.value && amount.value !== "") {
-    const rawAmount = toBN(toBase(amount.value, selectedAsset.value.decimals!));
+  if (nativeBalance.value) {
+    const rawAmount = toBN(
+      toBase(sendAmount.value, selectedAsset.value.decimals!)
+    );
     return toBN(nativeBalance.value).sub(rawAmount);
   }
   return toBN(0);
@@ -276,6 +281,8 @@ const isInputsValid = computed<boolean>(() => {
   if (!isValidDecimals(sendAmount.value, selectedAsset.value.decimals!)) {
     return false;
   }
+  if (Number(sendAmount.value) < (props.network as BitcoinNetwork).dust)
+    return false;
   if (new BigNumber(sendAmount.value).gt(assetMaxValue.value)) return false;
   return true;
 });
@@ -382,7 +389,7 @@ const sendAction = async () => {
     });
   });
   const balance = toBN(selectedAsset.value.balance!);
-  const toAmount = toBN(toBase(amount.value, selectedAsset.value.decimals));
+  const toAmount = toBN(toBase(sendAmount.value, selectedAsset.value.decimals));
   const currentFee = toBN(
     toBase(
       gasCostValues.value[selectedFee.value].nativeValue,
