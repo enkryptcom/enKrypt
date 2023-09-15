@@ -3,7 +3,8 @@ import commonjs from "@rollup/plugin-commonjs";
 import nodeResolve from "@rollup/plugin-node-resolve";
 import { uglify } from "rollup-plugin-uglify";
 import inject from "@rollup/plugin-inject";
-import json from "@rollup/plugin-json";
+import replace from "@rollup/plugin-replace";
+import packageJson from "../package.json" assert { type: "json" };
 
 const enableMinification = process.env.minify === "on";
 const base = {
@@ -14,9 +15,12 @@ const base = {
     sourcemap: process.env.minify !== "on",
   },
   plugins: [
+    replace({
+      preventAssignment: true,
+      __VERSION__: JSON.stringify(packageJson.version),
+    }),
     typescript(),
     commonjs(),
-    json(),
     inject({
       Buffer: ["buffer", "Buffer"],
     }),
