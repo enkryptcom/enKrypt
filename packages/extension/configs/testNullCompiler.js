@@ -1,5 +1,5 @@
 const noop = () => 1;
-
+global.__VERSION__ = "test";
 require.extensions[".css"] = noop;
 require.extensions[".scss"] = noop;
 require.extensions[".png"] = noop;
