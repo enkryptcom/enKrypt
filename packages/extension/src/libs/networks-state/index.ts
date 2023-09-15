@@ -25,9 +25,12 @@ class NetworksState {
     const targetNetwork: NetworkStorageElement = {
       name: targetNetworkName,
     };
-    if (isActive) {
+    if (
+      isActive &&
+      state.networks.findIndex((n) => n.name === targetNetworkName) === -1
+    ) {
       state.networks.push(targetNetwork as NetworkStorageElement);
-    } else {
+    } else if (!isActive) {
       const idxArr = state.networks.map((_, i) => i);
       const filteredIdx = idxArr
         .filter((i) => state.networks[i].name !== targetNetwork!.name)
