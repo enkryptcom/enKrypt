@@ -1,5 +1,5 @@
 import BrowserStorage from "../common/browser-storage";
-import { getAllNetworks, POPULAR_NAMES } from "../utils/networks";
+import { POPULAR_NAMES } from "../utils/networks";
 import { InternalStorageNamespace } from "@/types/provider";
 import { IState, StorageKeys, NetworkStorageElement } from "./types";
 
@@ -11,136 +11,63 @@ class NetworksState {
   }
 
   private async setInitialActiveNetworks(): Promise<void> {
-    const networks: NetworkStorageElement[] = (await getAllNetworks()).map(
-      ({ name }) => {
-        if (POPULAR_NAMES.includes(name)) {
-          return { name, isActive: true };
-        } else {
-          return { name, isActive: false };
-        }
-      }
-    );
-
-    networks
-      .filter((network) => network.isActive)
-      .forEach((network, index) => (network.order = index));
-
-    await this.storage.set(StorageKeys.networkInfo, { networks });
+    const networks: NetworkStorageElement[] = POPULAR_NAMES.map((name) => ({
+      name,
+    }));
+    await this.setState({ networks });
   }
 
   async setNetworkStatus(
     targetNetworkName: string,
     isActive: boolean
   ): Promise<void> {
-    const state: IState = await this.storage.get(StorageKeys.networkInfo);
-
-    if (state.networks) {
-      let targetNetwork: NetworkStorageElement | undefined =
-        state.networks.find((network) => network.name === targetNetworkName);
-      if (!targetNetwork) {
-        targetNetwork = {
-          name: targetNetworkName,
-          isActive: true,
-        };
-
-        state.networks.push(targetNetwork as NetworkStorageElement);
-      }
-      if (targetNetwork !== undefined) {
-        targetNetwork.isActive = isActive;
-
-        if (isActive) {
-          const numActive = state.networks.filter(
-            (network) => network.isActive
-          ).length;
-
-          targetNetwork.order = numActive - 1;
-        } else {
-          targetNetwork.order = undefined;
-          const activeNetworks = state.networks.filter(
-            (network) => network.isActive
-          );
-
-          activeNetworks.sort((a, b) => {
-            if (a.order! < b.order!) return -1;
-            return 1;
-          });
-
-          activeNetworks.forEach((network, index) => {
-            network.order = index;
-          });
-        }
-      }
-
-      await this.storage.set(StorageKeys.networkInfo, state);
+    const state: IState = await this.getState();
+    const targetNetwork: NetworkStorageElement = {
+      name: targetNetworkName,
+    };
+    if (
+      isActive &&
+      state.networks.findIndex((n) => n.name === targetNetworkName) === -1
+    ) {
+      state.networks.push(targetNetwork as NetworkStorageElement);
+    } else if (!isActive) {
+      const idxArr = state.networks.map((_, i) => i);
+      const filteredIdx = idxArr
+        .filter((i) => state.networks[i].name !== targetNetwork!.name)
+        .sort((a, b) => a - b);
+      const activeNetworks: NetworkStorageElement[] = [];
+      filteredIdx.forEach((i) => activeNetworks.push(state.networks[i]));
+      state.networks = activeNetworks;
     }
+    await this.setState(state);
   }
 
   async getActiveNetworkNames(): Promise<string[]> {
-    const state: IState | undefined = await this.storage.get(
-      StorageKeys.networkInfo
-    );
+    const state: IState | undefined = await this.getState();
     if (state && state.networks) {
-      return state.networks
-        .filter((network) => network.isActive)
-        .sort((a, b) => {
-          if (a.order! < b.order!) return -1;
-          return 1;
-        })
-        .map(({ name }) => name);
+      const validNetworks = state.networks.filter((net) => {
+        if ((net as any).isActive === undefined || (net as any).isActive) {
+          return true;
+        }
+      });
+      state.networks = validNetworks;
+      await this.setState(state);
+      return validNetworks.map(({ name }) => name);
     } else {
       await this.setInitialActiveNetworks();
       return POPULAR_NAMES;
     }
   }
 
-  async reorderNetwork(
-    targetNetworkName: string,
-    beforeNetworkName: string | undefined
-  ): Promise<void> {
-    const state: IState | undefined = await this.storage.get(
-      StorageKeys.networkInfo
+  async reorderNetwork(networkNames: string[]): Promise<void> {
+    const activeNetworks: NetworkStorageElement[] = networkNames.map(
+      (name) => ({ name })
     );
+    await this.setState({ networks: activeNetworks });
+  }
 
-    if (state && state.networks) {
-      const activeNetworks = state.networks
-        .filter((network) => network.isActive)
-        .sort((a, b) => {
-          if (a.order! < b.order!) return -1;
-          return 1;
-        });
-
-      const targetNetwork = activeNetworks.find(
-        (network) => network.name === targetNetworkName
-      );
-
-      const beforeNetwork = activeNetworks.find(
-        (network) => network.name === beforeNetworkName
-      );
-
-      if (targetNetwork !== undefined) {
-        if (beforeNetwork === undefined) {
-          targetNetwork.order = 0;
-        } else {
-          targetNetwork.order = beforeNetwork.order! + 1;
-        }
-      }
-
-      activeNetworks.sort((a, b) => {
-        if (a.order! < b.order!) {
-          return -1;
-        } else if (a.order === b.order && a.name === targetNetworkName) {
-          return -1;
-        }
-
-        return 1;
-      });
-
-      activeNetworks.forEach((network, index) => {
-        network.order = index;
-      });
-
-      await this.storage.set(StorageKeys.networkInfo, state);
-    }
+  async setState(state: IState): Promise<void> {
+    return this.storage.set(StorageKeys.networkInfo, state);
   }
 
   async getState(): Promise<IState> {
