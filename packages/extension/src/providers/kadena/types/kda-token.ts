@@ -1,12 +1,27 @@
-import {
-  BaseToken,
-  BaseTokenOptions,
-  SendOptions,
-  TransferType,
-} from "@/types/base-token";
+import { BaseToken, BaseTokenOptions, SendOptions } from "@/types/base-token";
 import KadenaAPI from "@/providers/kadena/libs/api";
+import {
+  ICommand,
+  ICommandResult,
+  IUnsignedCommand,
+  Pact,
+  addSignatures,
+  createClient,
+} from "@kadena/client";
+import { TransactionSigner } from "../ui/libs/signer";
+import { BaseNetwork } from "@/types/base-network";
+import { EnkryptAccount } from "@enkryptcom/types";
 
-export class KDAToken extends BaseToken {
+export abstract class KDABaseToken extends BaseToken {
+  public abstract sendLocal(
+    to: string,
+    from: EnkryptAccount,
+    amount: string,
+    network: BaseNetwork
+  ): Promise<ICommandResult>;
+}
+
+export class KDAToken extends KDABaseToken {
   constructor(options: BaseTokenOptions) {
     super(options);
   }
@@ -24,18 +39,79 @@ export class KDAToken extends BaseToken {
     amount: string,
     options: SendOptions
   ): Promise<any> {
-    throw new Error("EVM-send is not implemented here");
-    // const transferType: TransferType = options ? options.type : "keepAlive";
+    const modules = Pact.modules as any;
+    return Pact.builder
+      .execution(
+        modules.coin.transfer(to, to, {
+          decimal: amount,
+        })
+      )
+      .addData("ks", {
+        keys: [to],
+        pred: "keys-all",
+      })
+      .addSigner(to, (withCap: any) => [
+        withCap("coin.TRANSFER", to, to, {
+          decimal: amount,
+        }),
+        withCap("coin.GAS"),
+      ])
+      .setMeta({ chainId: "1", senderAccount: to })
+      .setNetworkId("testnet04")
+      .createTransaction();
+  }
 
-    // switch (transferType) {
-    //   case "transfer":
-    //     return (api as ApiPromise).tx.balances.transfer(to, amount);
-    //   case "keepAlive":
-    //     return (api as ApiPromise).tx.balances.transferKeepAlive(to, amount);
-    //   case "all":
-    //     return (api as ApiPromise).tx.balances.transferAll(to, false);
-    //   case "allKeepAlive":
-    //     return (api as ApiPromise).tx.balances.transferAll(to, true);
-    // }
+  public async sendLocal(
+    to: string,
+    from: EnkryptAccount | any,
+    amount: string,
+    network: BaseNetwork
+  ): Promise<ICommandResult> {
+    const modules = Pact.modules as any;
+    const unsignedTransaction = Pact.builder
+      .execution(
+        modules.coin.transfer(from.address, to, {
+          decimal: amount,
+        })
+      )
+      .addData("ks", {
+        keys: [to],
+        pred: "keys-all",
+      })
+      .addSigner(from.address, (withCap: any) => [
+        withCap("coin.TRANSFER", from.address, to, {
+          decimal: amount,
+        }),
+        withCap("coin.GAS"),
+      ])
+      .setMeta({ chainId: "1", senderAccount: from.address })
+      .setNetworkId("testnet04")
+      .createTransaction();
+
+    const transaction = await TransactionSigner({
+      account: from,
+      network: network,
+      payload: unsignedTransaction.cmd,
+    }).then((res) => {
+      if (res.error) return Promise.reject(res.error);
+      else
+        return {
+          id: 0,
+          signature: res.result as string,
+        };
+    });
+
+    const signedTranscation: IUnsignedCommand | ICommand = addSignatures(
+      unsignedTransaction,
+      {
+        sig: transaction.signature,
+        pubKey: from.address,
+      }
+    );
+
+    const client = createClient(
+      "https://api.testnet.chainweb.com/chainweb/0.0/testnet04/chain/1/pact"
+    );
+    return client.local(signedTranscation as ICommand);
   }
 }

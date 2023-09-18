@@ -68,7 +68,6 @@ class KadenaProvider
   }
 
   getUIPath(page: string): string {
-    debugger;
     return GetUIPath(page, this.namespace);
   }
 }

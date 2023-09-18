@@ -102,31 +102,24 @@ import SendTokenSelect from "./components/send-token-select.vue";
 import AssetsSelectList from "@action/views/assets-select-list/index.vue";
 import SendInputAmount from "./components/send-input-amount.vue";
 import SendFeeSelect from "./components/send-fee-select.vue";
-import SendAlert from "./components/send-alert.vue";
 import BaseButton from "@action/components/base-button/index.vue";
-import SubstrateApi from "@/providers/polkadot/libs/api";
-import { ApiPromise } from "@polkadot/api";
 import { AccountsHeaderData } from "@action/types/account";
 import { GasFeeInfo } from "@/providers/ethereum/ui/types";
-import { SubstrateNetwork } from "@/providers/polkadot/types/substrate-network";
 import { toBN } from "web3-utils";
 import { formatFloatingPointValue } from "@/libs/utils/number-formatter";
 import { fromBase, toBase, isValidDecimals } from "@enkryptcom/utils";
 import BigNumber from "bignumber.js";
 import { VerifyTransactionParams } from "../types";
 import { routes as RouterNames } from "@/ui/action/router";
-import { SendOptions } from "@/types/base-token";
 import { KDAToken } from "@/providers/kadena/types/kda-token";
-import Browser from "webextension-polyfill";
-import getUiPath from "@/libs/utils/get-ui-path";
-import { ProviderName } from "@/types/provider";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
-import { polkadotEncodeAddress } from "@enkryptcom/utils";
 import { GenericNameResolver, CoinType } from "@/libs/name-resolver";
+import { KadenaNetwork } from "../../types/kadena-network";
+import KadenaAPI from "@/providers/kadena/libs/api";
 
 const props = defineProps({
   network: {
-    type: Object as PropType<SubstrateNetwork>,
+    type: Object as PropType<KadenaNetwork>,
     default: () => ({}),
   },
   accountInfo: {
@@ -166,37 +159,36 @@ const selected: string = route.params.id as string;
 const isLoadingAssets = ref(true);
 
 const edWarn = computed(() => {
-  return true;
-  // if (!fee.value) {
-  //   return undefined;
-  // }
+  if (!fee.value) {
+    return undefined;
+  }
 
-  // if (!amount.value) {
-  //   return false;
-  // }
+  if (!amount.value) {
+    return false;
+  }
 
-  // if (!isValidDecimals(amount.value ?? "0", selectedAsset.value.decimals!)) {
-  //   return false;
-  // }
+  if (!isValidDecimals(amount.value ?? "0", selectedAsset.value.decimals!)) {
+    return false;
+  }
 
-  // const rawAmount = toBN(
-  //   toBase(amount.value.toString(), selectedAsset.value.decimals ?? 0)
-  // );
-  // const ed = selectedAsset.value.existentialDeposit ?? toBN(0);
-  // const userBalance = toBN(selectedAsset.value.balance ?? 0);
+  const rawAmount = toBN(
+    toBase(amount.value.toString(), selectedAsset.value.decimals ?? 0)
+  );
+  const ed = selectedAsset.value.existentialDeposit ?? toBN(0);
+  const userBalance = toBN(selectedAsset.value.balance ?? 0);
 
-  // if (!sendMax.value && userBalance.sub(rawAmount).lte(ed)) {
-  //   return true;
-  // }
+  if (!sendMax.value && userBalance.sub(rawAmount).lte(ed)) {
+    return true;
+  }
 
-  // const txFee = toBN(
-  //   toBase(fee.value.nativeValue, selectedAsset.value.decimals!)
-  // );
-  // if (!sendMax.value && userBalance.sub(txFee).sub(rawAmount).lt(ed)) {
-  //   return true;
-  // } else {
-  //   return false;
-  // }
+  const txFee = toBN(
+    toBase(fee.value.nativeValue, selectedAsset.value.decimals!)
+  );
+  if (!sendMax.value && userBalance.sub(txFee).sub(rawAmount).lt(ed)) {
+    return true;
+  } else {
+    return false;
+  }
 });
 
 const isAddress = computed(() => {
@@ -210,80 +202,60 @@ onMounted(() => {
 
 const validateFields = async () => {
   if (selectedAsset.value && isAddress.value) {
-    hasEnough.value = true;
+    if (!isValidDecimals(amount.value || "0", selectedAsset.value.decimals!)) {
+      hasEnough.value = false;
+      return;
+    }
+
+    let rawAmount = toBN(
+      toBase(
+        amount.value ? amount.value.toString() : "0",
+        selectedAsset.value.decimals!
+      )
+    );
+
+    const localTransaction = await selectedAsset.value.sendLocal!(
+      addressTo.value,
+      props.accountInfo.selectedAccount,
+      rawAmount.toString(),
+      props.network
+    );
+
+    const partialFee = localTransaction.gas;
+    const rawFee = toBN(partialFee?.toString() ?? "0");
+    const rawBalance = toBN(selectedAsset.value.balance!);
+    if (
+      sendMax.value &&
+      selectedAsset.value.name === accountAssets.value[0].name
+    ) {
+      rawAmount = rawAmount.sub(rawFee);
+      if (rawAmount.gtn(0)) {
+        amount.value = fromBase(
+          rawAmount.toString(),
+          selectedAsset.value.decimals!
+        );
+      }
+    }
+    if (rawAmount.ltn(0) || rawAmount.add(rawFee).gt(rawBalance)) {
+      hasEnough.value = false;
+    } else {
+      hasEnough.value = true;
+    }
+
+    const nativeAsset = accountAssets.value[0];
+    const txFeeHuman = fromBase(
+      partialFee?.toString() ?? "",
+      nativeAsset.decimals!
+    );
+
+    const txPrice = new BigNumber(nativeAsset.price!).times(txFeeHuman);
 
     fee.value = {
       fiatSymbol: "USD",
-      fiatValue: "".toString(),
-      nativeSymbol: "",
-      nativeValue: "",
+      fiatValue: txPrice.toString(),
+      nativeSymbol: nativeAsset.symbol ?? "",
+      nativeValue: txFeeHuman.toString(),
     };
-    return;
-    // if (!isValidDecimals(amount.value || "0", selectedAsset.value.decimals!)) {
-    //   hasEnough.value = false;
-    //   return;
-    // }
-    // console.log("validateFields", amount.value, selectedAsset.value.decimals!);
-
-    // const api = (await props.network.api()).api as ApiPromise;
-    // await api.isReady;
-
-    // let rawAmount = toBN(
-    //   toBase(
-    //     amount.value ? amount.value.toString() : "0",
-    //     selectedAsset.value.decimals!
-    //   )
-    // );
-
-    // console.log("validateFields 2", rawAmount.toString());
-
-    // const sendOptions: SendOptions | undefined = sendMax.value
-    //   ? { type: "all" }
-    //   : undefined;
-
-    // const tx = await selectedAsset.value.send!(
-    //   api,
-    //   addressTo.value,
-    //   rawAmount.toString(),
-    //   sendOptions
-    // );
-    // const { partialFee } = (
-    //   await tx.paymentInfo(props.accountInfo.selectedAccount!.address)
-    // ).toJSON();
-    // const rawFee = toBN(partialFee?.toString() ?? "0");
-    // const rawBalance = toBN(selectedAsset.value.balance!);
-    // if (
-    //   sendMax.value &&
-    //   selectedAsset.value.name === accountAssets.value[0].name
-    // ) {
-    //   rawAmount = rawAmount.sub(rawFee);
-    //   if (rawAmount.gtn(0)) {
-    //     amount.value = fromBase(
-    //       rawAmount.toString(),
-    //       selectedAsset.value.decimals!
-    //     );
-    //   }
-    // }
-    // if (rawAmount.ltn(0) || rawAmount.add(rawFee).gt(rawBalance)) {
-    //   hasEnough.value = false;
-    // } else {
-    //   hasEnough.value = true;
-    // }
-
-    // const nativeAsset = accountAssets.value[0];
-    // const txFeeHuman = fromBase(
-    //   partialFee?.toString() ?? "",
-    //   nativeAsset.decimals!
-    // );
-
-    // const txPrice = new BigNumber(nativeAsset.price!).times(txFeeHuman);
-
-    // fee.value = {
-    //   fiatSymbol: "USD",
-    //   fiatValue: txPrice.toString(),
-    //   nativeSymbol: nativeAsset.symbol ?? "",
-    //   nativeValue: txFeeHuman.toString(),
-    // };
   }
 };
 watch([selectedAsset, addressTo], validateFields);
@@ -293,7 +265,7 @@ watch(addressFrom, () => {
 });
 
 const fetchTokens = async () => {
-  const networkApi = (await props.network.api()) as SubstrateApi;
+  const networkApi = (await props.network.api()) as KadenaAPI;
   const networkAssets = await props.network.getAllTokens(addressFrom.value);
   const pricePromises = networkAssets.map((asset) => asset.getLatestPrice());
   const balancePromises = networkAssets.map((asset) => {
@@ -370,7 +342,6 @@ const selectToken = (token: KDAToken | Partial<KDAToken>) => {
 };
 
 const inputAmount = (number: string | undefined) => {
-  debugger;
   sendMax.value = false;
   amount.value = number ? (parseFloat(number) < 0 ? "0" : number) : number;
   validateFields();
@@ -406,7 +377,6 @@ const setSendMax = (max: boolean) => {
 
 const isDisabled = computed(() => {
   let isDisabled = true;
-
   let addressIsValid = false;
 
   try {
