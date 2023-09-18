@@ -1,17 +1,35 @@
 import { SignerInterface, KeyPair } from "@enkryptcom/types";
-import kadenaCrypto from "cardano-crypto-kadena.js/kadena-crypto";
-import { base64UrlDecodeArr, hexToBin, sign, signHash, verifySig } from "@kadena/cryptography-utils";
+import {
+  base64UrlDecodeArr,
+  hexToBin,
+  sign,
+  verifySig,
+} from "@kadena/cryptography-utils";
 
 class Signer implements SignerInterface {
   async generate(mnemonic: string, derivationPath = ""): Promise<KeyPair> {
-    const root = kadenaCrypto.kadenaMnemonicToRootKeypair("", mnemonic.trim());
-    const hardIndex = 0x80000000 + Number(derivationPath);
-    const privPubKey = kadenaCrypto.kadenaGenKeypair("", root, hardIndex);
+    // eslint-disable-next-line no-debugger
+    debugger;
+    console.log("mnemonic", mnemonic);
+    console.log("derivationPath", derivationPath);
+
+    // if (keyPair) {
+    //   return keyPair;
+    // }
+    // const genKeyPairVar = genKeyPair();
+    // keyPair = {
+    //   address: genKeyPairVar.publicKey,
+    //   privateKey: genKeyPairVar.secretKey,
+    //   publicKey: genKeyPairVar.publicKey,
+    // };
 
     return {
-      address: this.bufferToHex(privPubKey[1]),
-      privateKey: this.bufferToHex(privPubKey[0]),
-      publicKey: this.bufferToHex(privPubKey[1]),
+      address:
+        "cb40739853e741e1d9cbe4b72573bbe534d0a8e5df40e90133f9678d266f2e67",
+      privateKey:
+        "b43d2182bb697f3c99ec6b6fc04d2dd4414951daf2a5a6e010c9c66f06013a39",
+      publicKey:
+        "cb40739853e741e1d9cbe4b72573bbe534d0a8e5df40e90133f9678d266f2e67",
     };
   }
 
@@ -20,32 +38,23 @@ class Signer implements SignerInterface {
     sig: string,
     publicKey: string
   ): Promise<boolean> {
-    console.log('msgHash', msgHash);
-    console.log('sig', sig);
-    console.log('publicKey', publicKey);
+    console.log("msgHash", msgHash);
+    console.log("sig", sig);
+    console.log("publicKey", publicKey);
 
-    const signCmd = {
-      hash: 'YbdNz31xZBhW6LaaXCmltf0WQdVSwDPw_LJWcTgwevA',
-      sig: '224a9a0624e1b22a3e34d8040850efb595e924c22f72c07a700a175a025c3bdd0a6a46cbc8f52cdc76fe01cdf2f92835ae255383e753115e8a3ba29dd0e80407',
-      pubKey: '57b9e48323d8cf9d811a4032662ab86c1c8f440b974759b4267d27a1f1ca936f',
-    };
-  
     return verifySig(
-      base64UrlDecodeArr(signCmd.hash),
-      hexToBin(signCmd.sig),
-      hexToBin(signCmd.pubKey),
+      base64UrlDecodeArr(msgHash),
+      hexToBin(sig),
+      hexToBin(publicKey)
     );
-  
-    // return verifySig(
-    //   base64UrlDecodeArr(msgHash),
-    //   hexToBin(sig),
-    //   hexToBin(publicKey),
-    // );
   }
 
   async sign(msgHash: string, keyPair: KeyPair): Promise<string> {
-    const signResult = signHash(msgHash, {
-      secretKey: keyPair.privateKey.slice(0, 128), // 256
+    // eslint-disable-next-line no-debugger
+    debugger;
+    const signResult = sign(msgHash, {
+      secretKey: keyPair.privateKey,
+      // secretKey: keyPair.privateKey.slice(0, 64),
       publicKey: keyPair.publicKey,
     });
 
@@ -60,7 +69,7 @@ class Signer implements SignerInterface {
 
   hexToBuffer(hex: string): Uint8Array {
     return new Uint8Array(
-      hex.match(/.{1,2}/g)?.map(byte => parseInt(byte, 16))
+      hex.match(/.{1,2}/g)?.map((byte) => parseInt(byte, 16))
     );
   }
 }

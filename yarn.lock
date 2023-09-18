@@ -2286,6 +2286,7 @@ __metadata:
     "@enkryptcom/utils": "workspace:^"
     "@ethereumjs/common": ^3.2.0
     "@ethereumjs/tx": ^4.2.0
+    "@kadena/client": ^1.2.0
     "@ledgerhq/hw-transport-webusb": ^6.27.19
     "@metamask/eth-sig-util": ^6.0.0
     "@polkadot/api": ^10.9.1
@@ -2601,6 +2602,7 @@ __metadata:
   dependencies:
     "@enkryptcom/types": "workspace:^"
     "@enkryptcom/utils": "workspace:^"
+    "@kadena/client": ^1.2.0
     "@kadena/cryptography-utils": ^0.3.8
     "@types/chai": ^4.3.5
     "@types/hdkey": ^2.0.1

@@ -92,7 +92,16 @@ import { TransactionSigner } from "../../libs/signer";
 import { EnkryptAccount } from "@enkryptcom/types";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 import { BaseNetwork } from "@/types/base-network";
-import { IUnsignedCommand, Pact, createClient } from "@kadena/client";
+import {
+  IUnsignedCommand,
+  Pact,
+  createClient,
+  addSignatures,
+  ICommand,
+} from "@kadena/client";
+import ActivityState from "@/libs/activity-state";
+import { Activity, ActivityStatus, ActivityType } from "@/types/activity";
+import { u8aToHex } from "@polkadot/util";
 
 const isSendDone = ref(false);
 const account = ref<EnkryptAccount>();
@@ -128,51 +137,32 @@ const sendAction = async () => {
   isProcessing.value = true;
   const modules = Pact.modules as any;
   debugger;
-  const unsignedTransaction: IUnsignedCommand = Pact.builder
+
+  const unsignedTransaction = Pact.builder
     .execution(
       modules.coin.transfer(txData.fromAddress, txData.toAddress, {
         decimal: txData.TransactionData.value,
       })
     )
-    .addSigner(txData.fromAddress, (withCapability: any) => [
-      withCapability("coin.GAS"),
-      withCapability("coin.TRANSFER", txData.fromAddress, txData.toAddress, {
+    .addData("ks", {
+      keys: [txData.toAddress],
+      pred: "keys-all",
+    })
+    .addSigner(txData.fromAddress, (withCap: any) => [
+      withCap("coin.TRANSFER", txData.fromAddress, txData.toAddress, {
         decimal: txData.TransactionData.value,
       }),
+      withCap("coin.GAS"),
     ])
-    .setMeta({ chainId: "1" })
+    .setMeta({ chainId: "1", senderAccount: txData.fromAddress })
     .setNetworkId("testnet04")
     .createTransaction();
-  // const unsignedTransaction = modules.coin
-  //   .transfer(
-  //     txData.fromAddress,
-  //     txData.toAddress,
-  //     txData.TransactionData.value
-  //   )
-  //   // .addSigner("public_key", (withCapability: any) => [
-  //   //   withCapability("coin.GAS"),
-  //   //   withCapability("coin.TRANSFER", txData.fromAddress, txData.toAddress, {
-  //   //     decimal: txData.TransactionData.value,
-  //   //   }),
-  //   // ])
-  //   // .addCap("coin.GAS", txData.fromAddress)
-  //   // .addCap(
-  //   //   "coin.TRANSFER",
-  //   //   txData.fromAddress,
-  //   //   txData.fromAddress,
-  //   //   txData.toAddress,
-  //   //   txData.TransactionData.value
-  //   // )
-  //   .setMeta({ sender: txData.fromAddress }, "testnet04")
-  //   .createTransaction();
-  debugger;
 
   const transaction = await TransactionSigner({
     account: account.value!,
     network: network.value,
-    payload: unsignedTransaction.hash,
+    payload: unsignedTransaction.cmd,
   }).then((res) => {
-    debugger;
     if (res.error) return Promise.reject(res.error);
     else
       return {
@@ -180,25 +170,21 @@ const sendAction = async () => {
         signature: res.result as string,
       };
   });
-  debugger;
+
+  const signedTranscation: IUnsignedCommand | ICommand = addSignatures(
+    unsignedTransaction,
+    {
+      sig: transaction.signature,
+      pubKey: txData.fromAddress,
+    }
+  );
 
   const client = createClient(
     "https://api.testnet.chainweb.com/chainweb/0.0/testnet04/chain/1/pact"
   );
-  // const teste: any = JSON.parse(unsignedTransaction.cmd);
-  // teste.sigs = {
-  //   pubKey: txData.fromAddress,
-  //   sig: transaction.signature,
-  // };
-  // unsignedTransaction.cmd.sigs = {
-
-  // }
-  // check if all necessary signatures are added
-  const transactionDescriptor = await client.submit({
-    cmd: unsignedTransaction.cmd,
-    hash: unsignedTransaction.hash,
-    sigs: [{ sig: transaction.signature }],
-  });
+  const transactionDescriptor = await client.submit(
+    signedTranscation as ICommand
+  );
   const response = await client.listen(transactionDescriptor);
   if (response.result.status === "failure") {
     throw response.result.error;
@@ -206,82 +192,43 @@ const sendAction = async () => {
     console.log(response.result);
   }
 
-  // const api = await network.value.api();
+  const txActivity: Activity = {
+    from: txData.fromAddress,
+    to: txData.toAddress,
+    isIncoming: txData.fromAddress === txData.toAddress,
+    network: network.value.name,
+    status: ActivityStatus.pending,
+    timestamp: new Date().getTime(),
+    token: {
+      decimals: txData.toToken.decimals,
+      icon: txData.toToken.icon,
+      name: txData.toToken.name,
+      symbol: txData.toToken.symbol,
+      price: txData.toToken.price,
+    },
+    type: ActivityType.transaction,
+    value: txData.toToken.amount,
+    transactionHash: "",
+  };
+  const activityState = new ActivityState();
 
-  // const tx = (api.api as ApiPromise).tx(txData.TransactionData.data);
-
-  // try {
-  //   const signedTx = await tx.signAsync(account.value!.address, {
-  //     signer: {
-  //       signPayload: (signPayload): Promise<SignerResult> => {
-  //         const registry = new TypeRegistry();
-  //         registry.setSignedExtensions(signPayload.signedExtensions);
-  //         const extType = registry.createType("ExtrinsicPayload", signPayload, {
-  //           version: signPayload.version,
-  //         });
-  //         return TransactionSigner({
-  //           account: account.value!,
-  //           network: network.value,
-  //           payload: extType,
-  //         }).then((res) => {
-  //           if (res.error) return Promise.reject(res.error);
-  //           else
-  //             return {
-  //               id: 0,
-  //               signature: JSON.parse(res.result as string),
-  //             };
-  //         });
-  //       },
-  //     },
-  //   });
-  //   const txActivity: Activity = {
-  //     from: txData.fromAddress,
-  //     to: txData.toAddress,
-  //     isIncoming: txData.fromAddress === txData.toAddress,
-  //     network: network.value.name,
-  //     status: ActivityStatus.pending,
-  //     timestamp: new Date().getTime(),
-  //     token: {
-  //       decimals: txData.toToken.decimals,
-  //       icon: txData.toToken.icon,
-  //       name: txData.toToken.name,
-  //       symbol: txData.toToken.symbol,
-  //       price: txData.toToken.price,
-  //     },
-  //     type: ActivityType.transaction,
-  //     value: txData.toToken.amount,
-  //     transactionHash: "",
-  //   };
-  //   const activityState = new ActivityState();
-  //   signedTx
-  //     .send()
-  //     .then(async (hash) => {
-  //       txActivity.transactionHash = u8aToHex(hash);
-  //       await activityState.addActivities([txActivity], {
-  //         address: network.value.displayAddress(txData.fromAddress),
-  //         network: network.value.name,
-  //       });
-  //     })
-  //     .catch(() => {
-  //       txActivity.status = ActivityStatus.failed;
-  //       activityState.addActivities([txActivity], {
-  //         address: network.value.displayAddress(txData.fromAddress),
-  //         network: network.value.name,
-  //       });
-  //     });
-
-  //   isSendDone.value = true;
-  //   if (getCurrentContext() === "popup") {
-  //     setTimeout(() => {
-  //       isProcessing.value = false;
-  //       router.go(-2);
-  //     }, 2500);
-  //   } else {
-  //     setTimeout(() => {
-  //       isProcessing.value = false;
-  //       window.close();
-  //     }, 1500);
-  //   }
+  txActivity.transactionHash = transactionDescriptor.requestKey;
+  await activityState.addActivities([txActivity], {
+    address: network.value.displayAddress(txData.fromAddress),
+    network: network.value.name,
+  });
+  isSendDone.value = true;
+  if (getCurrentContext() === "popup") {
+    setTimeout(() => {
+      isProcessing.value = false;
+      router.go(-2);
+    }, 2500);
+  } else {
+    setTimeout(() => {
+      isProcessing.value = false;
+      window.close();
+    }, 1500);
+  }
   // } catch (error: any) {
   //   isProcessing.value = false;
   //   console.error("error", error);

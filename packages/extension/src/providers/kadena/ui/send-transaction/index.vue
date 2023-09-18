@@ -166,36 +166,37 @@ const selected: string = route.params.id as string;
 const isLoadingAssets = ref(true);
 
 const edWarn = computed(() => {
-  if (!fee.value) {
-    return undefined;
-  }
+  return true;
+  // if (!fee.value) {
+  //   return undefined;
+  // }
 
-  if (!amount.value) {
-    return false;
-  }
+  // if (!amount.value) {
+  //   return false;
+  // }
 
-  if (!isValidDecimals(amount.value ?? "0", selectedAsset.value.decimals!)) {
-    return false;
-  }
+  // if (!isValidDecimals(amount.value ?? "0", selectedAsset.value.decimals!)) {
+  //   return false;
+  // }
 
-  const rawAmount = toBN(
-    toBase(amount.value.toString(), selectedAsset.value.decimals ?? 0)
-  );
-  const ed = selectedAsset.value.existentialDeposit ?? toBN(0);
-  const userBalance = toBN(selectedAsset.value.balance ?? 0);
+  // const rawAmount = toBN(
+  //   toBase(amount.value.toString(), selectedAsset.value.decimals ?? 0)
+  // );
+  // const ed = selectedAsset.value.existentialDeposit ?? toBN(0);
+  // const userBalance = toBN(selectedAsset.value.balance ?? 0);
 
-  if (!sendMax.value && userBalance.sub(rawAmount).lte(ed)) {
-    return true;
-  }
+  // if (!sendMax.value && userBalance.sub(rawAmount).lte(ed)) {
+  //   return true;
+  // }
 
-  const txFee = toBN(
-    toBase(fee.value.nativeValue, selectedAsset.value.decimals!)
-  );
-  if (!sendMax.value && userBalance.sub(txFee).sub(rawAmount).lt(ed)) {
-    return true;
-  } else {
-    return false;
-  }
+  // const txFee = toBN(
+  //   toBase(fee.value.nativeValue, selectedAsset.value.decimals!)
+  // );
+  // if (!sendMax.value && userBalance.sub(txFee).sub(rawAmount).lt(ed)) {
+  //   return true;
+  // } else {
+  //   return false;
+  // }
 });
 
 const isAddress = computed(() => {
@@ -369,6 +370,7 @@ const selectToken = (token: KDAToken | Partial<KDAToken>) => {
 };
 
 const inputAmount = (number: string | undefined) => {
+  debugger;
   sendMax.value = false;
   amount.value = number ? (parseFloat(number) < 0 ? "0" : number) : number;
   validateFields();
@@ -403,32 +405,31 @@ const setSendMax = (max: boolean) => {
 };
 
 const isDisabled = computed(() => {
-  return false;
-  // let isDisabled = true;
+  let isDisabled = true;
 
-  // let addressIsValid = false;
+  let addressIsValid = false;
 
-  // try {
-  //   props.network.displayAddress(addressTo.value);
-  //   addressIsValid = true;
-  // } catch {
-  //   addressIsValid = false;
-  // }
+  try {
+    props.network.displayAddress(addressTo.value);
+    addressIsValid = true;
+  } catch {
+    addressIsValid = false;
+  }
 
-  // if (
-  //   amount.value !== undefined &&
-  //   amount.value !== "" &&
-  //   hasEnough.value &&
-  //   addressIsValid &&
-  //   !edWarn.value &&
-  //   edWarn.value !== undefined
-  // )
-  //   isDisabled = false;
-  // return isDisabled;
+  if (
+    amount.value !== undefined &&
+    amount.value !== "" &&
+    hasEnough.value &&
+    addressIsValid &&
+    !edWarn.value &&
+    edWarn.value !== undefined
+  )
+    isDisabled = false;
+  return isDisabled;
 });
 
 const sendAction = async () => {
-  const sendAmount = toBase(amount.value!, selectedAsset.value.decimals!);
+  // const sendAmount = toBase(amount.value!, selectedAsset.value.decimals!);
 
   // const sendOptions: SendOptions | undefined = sendMax.value
   //   ? { type: "all" }
@@ -443,6 +444,7 @@ const sendAction = async () => {
   //   sendAmount,
   //   sendOptions
   // );
+  debugger;
   const keyring = new PublicKeyRing();
   const fromAccount = await keyring.getAccount(addressFrom.value);
   const txVerifyInfo: VerifyTransactionParams = {
