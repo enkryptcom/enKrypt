@@ -116,6 +116,9 @@ import PublicKeyRing from "@/libs/keyring/public-keyring";
 import { GenericNameResolver, CoinType } from "@/libs/name-resolver";
 import { KadenaNetwork } from "../../types/kadena-network";
 import KadenaAPI from "@/providers/kadena/libs/api";
+import getUiPath from "@/libs/utils/get-ui-path";
+import { ProviderName } from "@/types/provider";
+import Browser from "webextension-polyfill";
 
 const props = defineProps({
   network: {
@@ -399,22 +402,6 @@ const isDisabled = computed(() => {
 });
 
 const sendAction = async () => {
-  // const sendAmount = toBase(amount.value!, selectedAsset.value.decimals!);
-
-  // const sendOptions: SendOptions | undefined = sendMax.value
-  //   ? { type: "all" }
-  //   : undefined;
-
-  // const api = (await props.network.api()).api as ApiPromise;
-  // await api.isReady;
-
-  // const tx = await selectedAsset.value?.send!(
-  //   api,
-  //   addressTo.value,
-  //   sendAmount,
-  //   sendOptions
-  // );
-  debugger;
   const keyring = new PublicKeyRing();
   const fromAccount = await keyring.getAccount(addressFrom.value);
   const txVerifyInfo: VerifyTransactionParams = {
@@ -451,23 +438,22 @@ const sendAction = async () => {
     },
   });
 
-  router.push(routedRoute);
-  // if (fromAccount.isHardware) {
-  //   await Browser.windows.create({
-  //     url: Browser.runtime.getURL(
-  //       getUiPath(
-  //         `dot-hw-verify?id=${routedRoute.query.id}&txData=${routedRoute.query.txData}`,
-  //         ProviderName.polkadot
-  //       )
-  //     ),
-  //     type: "popup",
-  //     focused: true,
-  //     height: 600,
-  //     width: 460,
-  //   });
-  // } else {
-  //   router.push(routedRoute);
-  // }
+  if (fromAccount.isHardware) {
+    await Browser.windows.create({
+      url: Browser.runtime.getURL(
+        getUiPath(
+          `dot-hw-verify?id=${routedRoute.query.id}&txData=${routedRoute.query.txData}`,
+          ProviderName.polkadot
+        )
+      ),
+      type: "popup",
+      focused: true,
+      height: 600,
+      width: 460,
+    });
+  } else {
+    router.push(routedRoute);
+  }
 };
 </script>
 

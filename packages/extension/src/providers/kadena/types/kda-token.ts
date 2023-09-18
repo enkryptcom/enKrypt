@@ -39,26 +39,7 @@ export class KDAToken extends KDABaseToken {
     amount: string,
     options: SendOptions
   ): Promise<any> {
-    const modules = Pact.modules as any;
-    return Pact.builder
-      .execution(
-        modules.coin.transfer(to, to, {
-          decimal: amount,
-        })
-      )
-      .addData("ks", {
-        keys: [to],
-        pred: "keys-all",
-      })
-      .addSigner(to, (withCap: any) => [
-        withCap("coin.TRANSFER", to, to, {
-          decimal: amount,
-        }),
-        withCap("coin.GAS"),
-      ])
-      .setMeta({ chainId: "1", senderAccount: to })
-      .setNetworkId("testnet04")
-      .createTransaction();
+    throw new Error("EVM-send is not implemented here");
   }
 
   public async sendLocal(
