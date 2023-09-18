@@ -1,6 +1,6 @@
 import { SignerInterface, KeyPair } from "@enkryptcom/types";
 import kadenaCrypto from "cardano-crypto-kadena.js/kadena-crypto";
-import { base64UrlDecodeArr, hexToBin, sign, signHash, verifySig } from "@kadena/cryptography-utils";
+import { base64UrlDecodeArr, hexToBin, signHash, verifySig } from "@kadena/cryptography-utils";
 
 class Signer implements SignerInterface {
   async generate(mnemonic: string, derivationPath = ""): Promise<KeyPair> {

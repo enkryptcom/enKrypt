@@ -46,7 +46,10 @@
         <h4>
           {{
             $filters.formatFloatingPointValue(
-              fromBase(activity.value, activity.token.decimals)
+              fromBase(
+                parseInt(activity.value).toString(),
+                activity.token.decimals
+              )
             ).value
           }}
           <span>{{ activity.token.symbol }}</span>
@@ -135,7 +138,10 @@ const transactionURL = computed(() => {
 });
 const getFiatValue = computed(() => {
   return new BigNumber(props.activity.token.price || "0").times(
-    fromBase(props.activity.value, props.activity.token.decimals)
+    fromBase(
+      parseInt(props.activity.value).toString(),
+      props.activity.token.decimals
+    )
   );
 });
 onMounted(() => {

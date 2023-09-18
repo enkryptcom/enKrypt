@@ -21,8 +21,6 @@ const kadenaOptions: KadenaNetworkOptions = {
     networkId: "testnet04",
     chainId: "1",
   },
-  coingeckoID: "kadena",
-  coingeckoPlatform: CoingeckoPlatform.Kadena,
   activityHandler: wrapActivityHandler(kadenaScanActivity),
 };
 
