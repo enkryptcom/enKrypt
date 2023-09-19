@@ -47,12 +47,12 @@ class KadenaProvider
   request(request: ProviderRPCRequest): Promise<OnMessageResponse> {
     return this.requestProvider
       .request(request)
-      .then((res) => {
+      .then((res: any) => {
         return {
           result: JSON.stringify(res),
         };
       })
-      .catch((e) => {
+      .catch((e: { message: any }) => {
         return {
           error: JSON.stringify(e.message),
         };

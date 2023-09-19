@@ -38,5 +38,8 @@
     "node-notifier": "^10.0.1",
     "nodemon": "^2.0.22",
     "ultra-runner": "^3.10.5"
+  },
+  "dependencies": {
+    "@kadena/client": "^1.2.0"
   }
 }

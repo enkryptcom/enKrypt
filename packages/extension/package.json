@@ -29,6 +29,7 @@
     "@enkryptcom/utils": "workspace:^",
     "@ethereumjs/common": "^3.2.0",
     "@ethereumjs/tx": "^4.2.0",
+    "@kadena/client": "^1.2.0",
     "@ledgerhq/hw-transport-webusb": "^6.27.19",
     "@metamask/eth-sig-util": "^6.0.0",
     "@types/chrome": "^0.0.244",

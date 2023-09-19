@@ -1,26 +1,26 @@
 export default {
   dotAccounts: {
-    path: "dot-accounts",
+    path: "kda-accounts",
     component: {},
     name: "dotAccounts",
   },
   dotTxApprove: {
-    path: "dot-tx-approve",
+    path: "kda-tx-approve",
     component: {},
     name: "dotTxApprove",
   },
   dotSignMessage: {
-    path: "dot-sign-message",
+    path: "kda-sign-message",
     component: {},
     name: "dotSignMessage",
   },
   dotUpdateMetadata: {
-    path: "dot-update-metadata",
+    path: "kda-update-metadata",
     component: {},
     name: "dotUpdateMetadata",
   },
   dotHWVerify: {
-    path: "dot-hw-verify",
+    path: "kda-hw-verify",
     name: "dotHWVerify",
     component: {},
   },

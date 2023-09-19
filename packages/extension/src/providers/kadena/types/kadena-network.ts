@@ -15,7 +15,7 @@ import {
 } from "@/libs/utils/number-formatter";
 import { fromBase } from "@enkryptcom/utils";
 import BigNumber from "bignumber.js";
-import { KDAToken } from "./kda-token";
+import { KDABaseToken, KDAToken } from "./kda-token";
 import { KadenaApiOptions } from ".";
 
 export interface KadenaNetworkOptions {
@@ -67,7 +67,7 @@ export class KadenaNetwork extends BaseNetwork {
     this.activityHandler = options.activityHandler;
   }
 
-  public async getAllTokens(pubkey: string): Promise<BaseToken[]> {
+  public async getAllTokens(pubkey: string): Promise<KDABaseToken[]> {
     const assets = await this.getAllTokenInfo(pubkey);
 
     return assets.map((token) => {

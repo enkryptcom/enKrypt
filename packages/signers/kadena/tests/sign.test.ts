@@ -36,9 +36,9 @@ describe("Kadena signing", () => {
     const msgHash = bufferToHex(blake2b(Buffer.from(msg), 32));
 
     // Act
-    const signResult = await kadenaSigner.verify(msgHash, signature, keypair.publicKey);
+    const verifyResult = await kadenaSigner.verify(msgHash, signature, keypair.publicKey);
 
     // Assert
-    expect(signResult).equals(true);
+    expect(verifyResult).equals(true);
   });
 });
