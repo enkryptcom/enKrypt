@@ -1,16 +1,16 @@
 import { BaseToken, BaseTokenOptions, SendOptions } from "@/types/base-token";
 import KadenaAPI from "@/providers/kadena/libs/api";
-import { ICommand, Pact, addSignatures } from "@kadena/client";
+import { ChainId, ICommand, Pact, addSignatures } from "@kadena/client";
 import { TransactionSigner } from "../ui/libs/signer";
-import { BaseNetwork } from "@/types/base-network";
 import { EnkryptAccount } from "@enkryptcom/types";
+import { KadenaNetwork } from "./kadena-network";
 
 export abstract class KDABaseToken extends BaseToken {
   public abstract buildTransaction(
     to: string,
     from: EnkryptAccount,
     amount: string,
-    network: BaseNetwork
+    network: KadenaNetwork
   ): Promise<ICommand>;
 }
 
@@ -39,7 +39,7 @@ export class KDAToken extends KDABaseToken {
     to: string,
     from: EnkryptAccount | any,
     amount: string,
-    network: BaseNetwork
+    network: KadenaNetwork
   ): Promise<ICommand> {
     const modules = Pact.modules as any;
     const unsignedTransaction = Pact.builder
@@ -58,8 +58,11 @@ export class KDAToken extends KDABaseToken {
         }),
         withCap("coin.GAS"),
       ])
-      .setMeta({ chainId: "1", senderAccount: from.address })
-      .setNetworkId("testnet04")
+      .setMeta({
+        chainId: network.options.kadenaApiOptions.chainId as ChainId,
+        senderAccount: from.address,
+      })
+      .setNetworkId(network.options.kadenaApiOptions.networkId)
       .createTransaction();
 
     const transaction = await TransactionSigner({
@@ -75,11 +78,9 @@ export class KDAToken extends KDABaseToken {
         };
     });
 
-    const signedTranscation = addSignatures(unsignedTransaction, {
+    return addSignatures(unsignedTransaction, {
       sig: transaction.signature,
       pubKey: from.address,
-    });
-
-    return signedTranscation as ICommand;
+    }) as ICommand;
   }
 }
