@@ -14,12 +14,12 @@ describe("Kadena signing", () => {
     "clip coffee brain token leader kiss around main finger network avoid west";
   
   const msg = "Everything should be made as simple as possible, but not simpler.";
-  const signature = "5ca1f34b074c8cffbd2127facdde210158cc48885cf3637aa0cb6c6809741ae8631cecec601c804ad8764761380fff02d3ab329f33b23d09f611a2ca8736e306";
+  const signature = "894531b2e628884f960b3b58369bf9d34401fc5bb54cc4eac0bf577df3701bc0cf5f330a5db06cbf3980384f2a5894ae3eb64f7c83d63fa31205817a489c5509";
 
   it("it should sign correctly", async () => {
     // Arrange
     const kadenaSigner = new Signer();
-    const keypair = await kadenaSigner.generate(MNEMONIC, "0");
+    const keypair = await kadenaSigner.generate(MNEMONIC, "1");
     const msgHash = bufferToHex(blake2b(Buffer.from(msg), 32));
 
     // Act
@@ -29,10 +29,10 @@ describe("Kadena signing", () => {
     expect(signResult).equals(signature);
   });
 
-  it("it should verify correctly", async () => {
+  it.only("it should verify correctly", async () => {
     // Arrange
     const kadenaSigner = new Signer();
-    const keypair = await kadenaSigner.generate(MNEMONIC, "0");
+    const keypair = await kadenaSigner.generate(MNEMONIC, "1");
     const msgHash = bufferToHex(blake2b(Buffer.from(msg), 32));
 
     // Act

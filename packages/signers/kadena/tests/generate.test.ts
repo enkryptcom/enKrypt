@@ -2,9 +2,6 @@ import { expect } from "chai";
 import Signer from "../src";
 
 describe("Kadena address generate", () => {
-  // You can check this derived address on:
-  // https://kadenakeys.io
-
   const MNEMONIC =
     "clip coffee brain token leader kiss around main finger network avoid west";
 
@@ -15,25 +12,25 @@ describe("Kadena address generate", () => {
     // Act & Assert
     let keypair = await kadenaSigner.generate(MNEMONIC, "0");
     expect(keypair.address).equals(
-      "57b9e48323d8cf9d811a4032662ab86c1c8f440b974759b4267d27a1f1ca936f"
+      "e84affbb41a62d74020bc4841ea206aba7734f9e0d30fb688a4a84fe2d30e291"
     );
 
     // Act & Assert
     keypair = await kadenaSigner.generate(MNEMONIC, "1");
     expect(keypair.address).equals(
-      "3c77941d21857bd26683154a5efc5c15169f27698fc56906bcf49b4c05e1006b"
+      "2ddd388820dfd8ddafa37a69926e0b5e57d29daa3adab2ede8a390f984038283"
     );
 
     // Act & Assert
     keypair = await kadenaSigner.generate(MNEMONIC, "2");
     expect(keypair.address).equals(
-      "f8dc5d97bc43155b033f813833bcda9ef374b060689648b4c0226f5a1456935a"
+      "16dcf13ed0261406c63561ef32853e4b417fe1c197a164b6385718c596261918"
     );
 
     // Act & Assert
     keypair = await kadenaSigner.generate(MNEMONIC, "3");
     expect(keypair.address).equals(
-      "df3125da8789dc114be0c953040333e9a1a9afb31e1170ade42be52a6701842e"
+      "af29ee6f585381b0109eef8ba51f55fbe9cca31c83375efdb8d72588be3995fc"
     );
   });
 });

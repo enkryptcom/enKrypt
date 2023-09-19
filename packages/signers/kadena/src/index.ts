@@ -1,16 +1,25 @@
 import { SignerInterface, KeyPair } from "@enkryptcom/types";
-import kadenaCrypto from "cardano-crypto-kadena.js/kadena-crypto";
+import { mnemonicToSeedSync } from 'bip39';
+import { derivePath } from 'ed25519-hd-key';
+import {
+  signHash,
+  verifySig,
+  binToHex,
+  hexToBin,
+  base64UrlDecodeArr,
+  restoreKeyPairFromSecretKey
+} from '@kadena/cryptography-utils';
 
 class Signer implements SignerInterface {
   async generate(mnemonic: string, derivationPath = ""): Promise<KeyPair> {
-    const root = kadenaCrypto.kadenaMnemonicToRootKeypair("", mnemonic.trim());
-    const hardIndex = 0x80000000 + Number(derivationPath);
-    const privPubKey = kadenaCrypto.kadenaGenKeypair("", root, hardIndex);
-
+    const seed = binToHex(mnemonicToSeedSync(mnemonic));
+    const keys = derivePath("m/44'/626'/0'", seed, 0x80000000 + Number(derivationPath));
+    const keyPair = restoreKeyPairFromSecretKey(binToHex(keys.key));
+    
     return {
-      address: this.bufferToHex(privPubKey[1]),
-      privateKey: this.bufferToHex(privPubKey[0]),
-      publicKey: this.bufferToHex(privPubKey[1]),
+      address: keyPair.publicKey,
+      privateKey: keyPair.secretKey,
+      publicKey: keyPair.publicKey,
     };
   }
 
@@ -19,28 +28,14 @@ class Signer implements SignerInterface {
     sig: string,
     publicKey: string
   ): Promise<boolean> {
-    const xpub = this.hexToBuffer(publicKey);
-    const xsig = this.hexToBuffer(sig);
-
-    return kadenaCrypto.kadenaVerify(msgHash, xpub, xsig);
+    return verifySig(base64UrlDecodeArr(msgHash), hexToBin(sig), hexToBin(publicKey));
   }
 
   async sign(msgHash: string, keyPair: KeyPair): Promise<string> {
-    const xprv = this.hexToBuffer(keyPair.privateKey);
-
-    return this.bufferToHex(kadenaCrypto.kadenaSign("", msgHash, xprv));
-  }
-
-  bufferToHex(buffer: Iterable<number>): string {
-    return Array.from(new Uint8Array(buffer))
-      .map(b => b.toString(16).padStart(2, "0"))
-      .join("");
-  }
-
-  hexToBuffer(hex: string): Uint8Array {
-    return new Uint8Array(
-      hex.match(/.{1,2}/g)?.map(byte => parseInt(byte, 16))
-    );
+    return signHash(msgHash, {
+      publicKey: keyPair.publicKey,
+      secretKey: keyPair.privateKey
+    }).sig;
   }
 }
 
