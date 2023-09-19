@@ -6,6 +6,12 @@ import {
 import { ProviderAPIInterface } from "@/types/provider";
 import { KadenaNetworkOptions } from "../types/kadena-network";
 import { formatDecimals } from "./utils";
+import {
+  ICommand,
+  ICommandResult,
+  ITransactionDescriptor,
+  createClient,
+} from "@kadena/client";
 
 class API implements ProviderAPIInterface {
   decimals: number;
@@ -70,6 +76,27 @@ class API implements ProviderAPIInterface {
     };
 
     return await Pact.fetch.local(cmd, this.apiHost);
+  }
+
+  async sendLocalTransaction(
+    signedTranscation: ICommand
+  ): Promise<ICommandResult> {
+    const client = createClient(this.apiHost);
+    return client.local(signedTranscation as ICommand);
+  }
+
+  async sendTransaction(
+    signedTranscation: ICommand
+  ): Promise<ITransactionDescriptor> {
+    const client = createClient(this.apiHost);
+    return client.submit(signedTranscation as ICommand);
+  }
+
+  async listen(
+    transactionDescriptor: ITransactionDescriptor
+  ): Promise<ICommandResult> {
+    const client = createClient(this.apiHost);
+    return client.listen(transactionDescriptor);
   }
 }
 

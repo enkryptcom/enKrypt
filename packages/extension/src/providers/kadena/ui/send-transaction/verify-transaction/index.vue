@@ -88,23 +88,17 @@ import {
   DEFAULT_KADENA_NETWORK,
   getNetworkByName,
 } from "@/libs/utils/networks";
-import { TransactionSigner } from "../../libs/signer";
 import { EnkryptAccount } from "@enkryptcom/types";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 import { BaseNetwork } from "@/types/base-network";
-import {
-  IUnsignedCommand,
-  Pact,
-  createClient,
-  addSignatures,
-  ICommand,
-} from "@kadena/client";
 import ActivityState from "@/libs/activity-state";
 import { Activity, ActivityStatus, ActivityType } from "@/types/activity";
-import { u8aToHex } from "@polkadot/util";
+import { KDAToken } from "@/providers/kadena/types/kda-token";
+import KadenaAPI from "@/providers/kadena/libs/api";
 
 const isSendDone = ref(false);
 const account = ref<EnkryptAccount>();
+const kdaToken = ref<KDAToken>();
 const KeyRing = new PublicKeyRing();
 const route = useRoute();
 const router = useRouter();
@@ -124,6 +118,14 @@ onBeforeMount(async () => {
   network.value = (await getNetworkByName(selectedNetwork))!;
   account.value = await KeyRing.getAccount(txData.fromAddress);
   isWindowPopup.value = account.value.isHardware;
+  kdaToken.value = new KDAToken({
+    icon: network.value.icon,
+    balance: "0",
+    price: "0",
+    name: "loading",
+    symbol: "loading",
+    decimals: 7,
+  });
 });
 const close = () => {
   if (getCurrentContext() === "popup") {
@@ -135,105 +137,63 @@ const close = () => {
 
 const sendAction = async () => {
   isProcessing.value = true;
-  const modules = Pact.modules as any;
-  debugger;
 
-  const unsignedTransaction = Pact.builder
-    .execution(
-      modules.coin.transfer(txData.fromAddress, txData.toAddress, {
-        decimal: txData.TransactionData.value,
-      })
-    )
-    .addData("ks", {
-      keys: [txData.toAddress],
-      pred: "keys-all",
-    })
-    .addSigner(txData.fromAddress, (withCap: any) => [
-      withCap("coin.TRANSFER", txData.fromAddress, txData.toAddress, {
-        decimal: txData.TransactionData.value,
-      }),
-      withCap("coin.GAS"),
-    ])
-    .setMeta({ chainId: "1", senderAccount: txData.fromAddress })
-    .setNetworkId("testnet04")
-    .createTransaction();
+  try {
+    const transaction = await kdaToken.value!.buildTransaction!(
+      txData.toAddress,
+      account.value!,
+      txData.TransactionData.value,
+      network.value
+    );
 
-  const transaction = await TransactionSigner({
-    account: account.value!,
-    network: network.value,
-    payload: unsignedTransaction.cmd,
-  }).then((res) => {
-    if (res.error) return Promise.reject(res.error);
-    else
-      return {
-        id: 0,
-        signature: res.result as string,
-      };
-  });
-
-  const signedTranscation: IUnsignedCommand | ICommand = addSignatures(
-    unsignedTransaction,
-    {
-      sig: transaction.signature,
-      pubKey: txData.fromAddress,
+    const networkApi = (await network.value.api()) as KadenaAPI;
+    const transactionDescriptor = await networkApi.sendTransaction(transaction);
+    const response = await networkApi.listen(transactionDescriptor);
+    if (response.result.status === "failure") {
+      throw response.result.error;
     }
-  );
 
-  const client = createClient(
-    "https://api.testnet.chainweb.com/chainweb/0.0/testnet04/chain/1/pact"
-  );
-  const transactionDescriptor = await client.submit(
-    signedTranscation as ICommand
-  );
-  const response = await client.listen(transactionDescriptor);
-  if (response.result.status === "failure") {
-    throw response.result.error;
-  } else {
-    console.log(response.result);
+    const txActivity: Activity = {
+      from: txData.fromAddress,
+      to: txData.toAddress,
+      isIncoming: txData.fromAddress === txData.toAddress,
+      network: network.value.name,
+      status: ActivityStatus.success,
+      timestamp: new Date().getTime(),
+      token: {
+        decimals: txData.toToken.decimals,
+        icon: txData.toToken.icon,
+        name: txData.toToken.name,
+        symbol: txData.toToken.symbol,
+        price: txData.toToken.price,
+      },
+      type: ActivityType.transaction,
+      value: txData.toToken.amount,
+      transactionHash: transactionDescriptor.requestKey,
+    };
+    const activityState = new ActivityState();
+
+    await activityState.addActivities([txActivity], {
+      address: network.value.displayAddress(txData.fromAddress),
+      network: network.value.name,
+    });
+    isSendDone.value = true;
+    if (getCurrentContext() === "popup") {
+      setTimeout(() => {
+        isProcessing.value = false;
+        router.go(-2);
+      }, 2500);
+    } else {
+      setTimeout(() => {
+        isProcessing.value = false;
+        window.close();
+      }, 1500);
+    }
+  } catch (error: any) {
+    isProcessing.value = false;
+    console.error("error", error);
+    errorMsg.value = JSON.stringify(error);
   }
-
-  const txActivity: Activity = {
-    from: txData.fromAddress,
-    to: txData.toAddress,
-    isIncoming: txData.fromAddress === txData.toAddress,
-    network: network.value.name,
-    status: ActivityStatus.pending,
-    timestamp: new Date().getTime(),
-    token: {
-      decimals: txData.toToken.decimals,
-      icon: txData.toToken.icon,
-      name: txData.toToken.name,
-      symbol: txData.toToken.symbol,
-      price: txData.toToken.price,
-    },
-    type: ActivityType.transaction,
-    value: txData.toToken.amount,
-    transactionHash: "",
-  };
-  const activityState = new ActivityState();
-
-  txActivity.transactionHash = transactionDescriptor.requestKey;
-  await activityState.addActivities([txActivity], {
-    address: network.value.displayAddress(txData.fromAddress),
-    network: network.value.name,
-  });
-  isSendDone.value = true;
-  if (getCurrentContext() === "popup") {
-    setTimeout(() => {
-      isProcessing.value = false;
-      router.go(-2);
-    }, 2500);
-  } else {
-    setTimeout(() => {
-      isProcessing.value = false;
-      window.close();
-    }, 1500);
-  }
-  // } catch (error: any) {
-  //   isProcessing.value = false;
-  //   console.error("error", error);
-  //   errorMsg.value = JSON.stringify(error);
-  // }
 };
 
 const isHasScroll = () => {

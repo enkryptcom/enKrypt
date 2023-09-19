@@ -217,14 +217,19 @@ const validateFields = async () => {
       )
     );
 
-    const localTransaction = await selectedAsset.value.sendLocal!(
+    const localTransaction = await selectedAsset.value.buildTransaction!(
       addressTo.value,
       props.accountInfo.selectedAccount,
       rawAmount.toString(),
       props.network
     );
 
-    const partialFee = localTransaction.gas;
+    const networkApi = (await props.network.api()) as KadenaAPI;
+    const transactionResult = await networkApi.sendLocalTransaction(
+      localTransaction
+    );
+
+    const partialFee = transactionResult.gas;
     const rawFee = toBN(partialFee?.toString() ?? "0");
     const rawBalance = toBN(selectedAsset.value.balance!);
     if (

@@ -1,24 +1,17 @@
 import { BaseToken, BaseTokenOptions, SendOptions } from "@/types/base-token";
 import KadenaAPI from "@/providers/kadena/libs/api";
-import {
-  ICommand,
-  ICommandResult,
-  IUnsignedCommand,
-  Pact,
-  addSignatures,
-  createClient,
-} from "@kadena/client";
+import { ICommand, Pact, addSignatures } from "@kadena/client";
 import { TransactionSigner } from "../ui/libs/signer";
 import { BaseNetwork } from "@/types/base-network";
 import { EnkryptAccount } from "@enkryptcom/types";
 
 export abstract class KDABaseToken extends BaseToken {
-  public abstract sendLocal(
+  public abstract buildTransaction(
     to: string,
     from: EnkryptAccount,
     amount: string,
     network: BaseNetwork
-  ): Promise<ICommandResult>;
+  ): Promise<ICommand>;
 }
 
 export class KDAToken extends KDABaseToken {
@@ -42,12 +35,12 @@ export class KDAToken extends KDABaseToken {
     throw new Error("EVM-send is not implemented here");
   }
 
-  public async sendLocal(
+  public async buildTransaction(
     to: string,
     from: EnkryptAccount | any,
     amount: string,
     network: BaseNetwork
-  ): Promise<ICommandResult> {
+  ): Promise<ICommand> {
     const modules = Pact.modules as any;
     const unsignedTransaction = Pact.builder
       .execution(
@@ -82,17 +75,11 @@ export class KDAToken extends KDABaseToken {
         };
     });
 
-    const signedTranscation: IUnsignedCommand | ICommand = addSignatures(
-      unsignedTransaction,
-      {
-        sig: transaction.signature,
-        pubKey: from.address,
-      }
-    );
+    const signedTranscation = addSignatures(unsignedTransaction, {
+      sig: transaction.signature,
+      pubKey: from.address,
+    });
 
-    const client = createClient(
-      "https://api.testnet.chainweb.com/chainweb/0.0/testnet04/chain/1/pact"
-    );
-    return client.local(signedTranscation as ICommand);
+    return signedTranscation as ICommand;
   }
 }
