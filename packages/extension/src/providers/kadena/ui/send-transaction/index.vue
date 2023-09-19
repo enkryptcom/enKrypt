@@ -195,7 +195,7 @@ const edWarn = computed(() => {
 });
 
 const isAddress = computed(() => {
-  return true;
+  return addressTo.value.length > 3 && addressTo.value.length < 256;
 });
 
 onMounted(() => {
@@ -306,7 +306,7 @@ const inputAddressFrom = (text: string) => {
 const inputAddressTo = (text: string) => {
   const debounceResolve = debounce(() => {
     nameResolver
-      .resolveName(text, [props.network.name as CoinType, "DOT", "KSM"])
+      .resolveName(text, [props.network.name as CoinType])
       .then((resolved) => {
         if (resolved) {
           addressTo.value = resolved;
@@ -443,7 +443,7 @@ const sendAction = async () => {
       url: Browser.runtime.getURL(
         getUiPath(
           `dot-hw-verify?id=${routedRoute.query.id}&txData=${routedRoute.query.txData}`,
-          ProviderName.polkadot
+          ProviderName.kadena
         )
       ),
       type: "popup",
