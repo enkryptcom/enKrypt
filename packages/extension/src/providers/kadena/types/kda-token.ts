@@ -47,6 +47,7 @@ export class KDAToken extends KDABaseToken {
     network: KadenaNetwork
   ): Promise<ICommand> {
     const accountDetails = await this.getAccountDetails(to, network);
+
     const modules = Pact.modules as any;
     const unsignedTransaction = Pact.builder
       .execution(
@@ -60,8 +61,8 @@ export class KDAToken extends KDABaseToken {
         )
       )
       .addData("ks", {
-        keys: accountDetails.data.guard.keys,
-        pred: accountDetails.data.guard.pred,
+        keys: accountDetails.data?.guard.keys || [to],
+        pred: accountDetails.data?.guard.pred || "keys-all",
       })
       .addSigner(from.address, (withCap: any) => [
         withCap("coin.TRANSFER", from.address, to, {
