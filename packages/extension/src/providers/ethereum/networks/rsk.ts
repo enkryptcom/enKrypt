@@ -2,8 +2,11 @@ import { CoingeckoPlatform, NetworkNames } from "@enkryptcom/types";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
 import { EtherscanActivity } from "../libs/activity-handlers";
 import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
-import { toChecksumAddress } from "ethereumjs-util";
-import { isAddress } from "web3-utils";
+import {
+  toChecksumAddress,
+  isValidChecksumAddress,
+  isValidAddress,
+} from "ethereumjs-util";
 import assetsInfoHandler from "@/providers/ethereum/libs/assets-handlers/assetinfo-mew";
 
 const rootstockOptions: EvmNetworkOptions = {
@@ -29,7 +32,10 @@ rootstockOptions.displayAddress = (address: string) => {
   return toChecksumAddress(address, rootstockOptions.chainID);
 };
 rootstockOptions.isAddress = (address: string) => {
-  return isAddress(address, parseInt(rootstockOptions.chainID));
+  return (
+    isValidAddress(address) ||
+    isValidChecksumAddress(address, rootstockOptions.chainID)
+  );
 };
 
 const rootstock = new EvmNetwork(rootstockOptions);

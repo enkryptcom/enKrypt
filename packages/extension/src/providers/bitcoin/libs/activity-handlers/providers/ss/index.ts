@@ -37,7 +37,7 @@ export default async (
       });
       return cleanedTxs.map((tx) => {
         const isIncoming = !tx.vin.find((i) => i.addresses![0] === address);
-
+        console.log(isIncoming, tx.vin, tx.vout, address);
         let toAddress = "";
         let value = 0;
 
@@ -56,6 +56,9 @@ export default async (
           if (relevantOut) {
             toAddress = relevantOut.addresses![0];
             value = Number(relevantOut.value);
+          } else {
+            toAddress = tx.vout[0].addresses![0];
+            value = Number(tx.vout[0].value);
           }
         }
 

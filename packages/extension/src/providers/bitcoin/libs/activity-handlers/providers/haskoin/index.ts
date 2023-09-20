@@ -43,6 +43,9 @@ export default async (
           if (relevantOut) {
             toAddress = relevantOut.address;
             value = relevantOut.value;
+          } else {
+            toAddress = tx.outputs[0].address;
+            value = Number(tx.outputs[0].value);
           }
         }
 
