@@ -5,13 +5,13 @@ import {
 } from "@/types/activity";
 import { ProviderAPIInterface } from "@/types/provider";
 import { KadenaNetworkOptions } from "../types/kadena-network";
-import { formatDecimals } from "./utils";
 import {
   ICommand,
   ICommandResult,
   ITransactionDescriptor,
   createClient,
 } from "@kadena/client";
+import { toBase } from "@enkryptcom/utils";
 
 class API implements ProviderAPIInterface {
   decimals: number;
@@ -51,12 +51,12 @@ class API implements ProviderAPIInterface {
     const balance = await this.getBalanceAPI(address);
 
     if (balance.result.error) {
-      return formatDecimals("0", this.decimals);
+      return toBase("0", this.decimals);
     }
 
     const balanceValue = balance.result.data.toString();
 
-    return formatDecimals(balanceValue, this.decimals);
+    return toBase(balanceValue, this.decimals);
   }
 
   async getBalanceAPI(account: string) {
