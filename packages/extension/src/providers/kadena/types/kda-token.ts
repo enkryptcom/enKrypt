@@ -41,16 +41,22 @@ export class KDAToken extends KDABaseToken {
     amount: string,
     network: KadenaNetwork
   ): Promise<ICommand> {
+    const accountDetails = await this.getAccountDetails(to, network);
     const modules = Pact.modules as any;
     const unsignedTransaction = Pact.builder
       .execution(
-        modules.coin.transfer(from.address, to, {
-          decimal: amount,
-        })
+        modules.coin["transfer-create"](
+          from.address,
+          to,
+          () => '(read-keyset "ks")',
+          {
+            decimal: amount,
+          }
+        )
       )
       .addData("ks", {
-        keys: [to],
-        pred: "keys-all",
+        keys: accountDetails.data.guard.keys,
+        pred: accountDetails.data.guard.pred,
       })
       .addSigner(from.address, (withCap: any) => [
         withCap("coin.TRANSFER", from.address, to, {
@@ -82,5 +88,22 @@ export class KDAToken extends KDABaseToken {
       sig: transaction.signature,
       pubKey: from.address,
     }) as ICommand;
+  }
+
+  public async getAccountDetails(
+    account: string,
+    network: KadenaNetwork
+  ): Promise<any> {
+    const modules = Pact.modules as any;
+    const unsignedTransaction = Pact.builder
+      .execution(modules.coin.details(account))
+      .setMeta({ chainId: network.options.kadenaApiOptions.chainId as ChainId })
+      .setNetworkId(network.options.kadenaApiOptions.networkId)
+      .createTransaction();
+
+    const api = (await network.api()) as KadenaAPI;
+    const response = await api.dirtyRead(unsignedTransaction as ICommand);
+
+    return response.result;
   }
 }
