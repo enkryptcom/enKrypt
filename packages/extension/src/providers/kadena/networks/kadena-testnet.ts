@@ -1,4 +1,4 @@
-import { CoingeckoPlatform, NetworkNames } from "@enkryptcom/types";
+import { NetworkNames } from "@enkryptcom/types";
 import { KadenaNetwork, KadenaNetworkOptions } from "../types/kadena-network";
 import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
 import { kadenaScanActivity } from "../libs/activity-handlers";
@@ -14,7 +14,7 @@ const kadenaOptions: KadenaNetworkOptions = {
   currencyName: "KDA",
   currencyNameLong: "Kadena",
   icon: require("./icons/kadena-kda-logo.svg"),
-  decimals: 7,
+  decimals: 8,
   prefix: 0,
   node: "https://api.testnet.chainweb.com/chainweb/0.0",
   kadenaApiOptions: {

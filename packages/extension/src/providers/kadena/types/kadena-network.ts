@@ -1,6 +1,6 @@
 import { Activity } from "@/types/activity";
 import { BaseNetwork, BaseNetworkOptions } from "@/types/base-network";
-import { BaseToken, BaseTokenOptions } from "@/types/base-token";
+import { BaseTokenOptions } from "@/types/base-token";
 import { AssetsType, ProviderName } from "@/types/provider";
 import { CoingeckoPlatform, NetworkNames, SignerType } from "@enkryptcom/types";
 import KadenaAPI from "@/providers/kadena/libs/api";
@@ -41,6 +41,8 @@ export interface KadenaNetworkOptions {
 }
 
 export class KadenaNetwork extends BaseNetwork {
+  public options: KadenaNetworkOptions;
+
   private activityHandler: (
     network: BaseNetwork,
     address: string
@@ -64,6 +66,7 @@ export class KadenaNetwork extends BaseNetwork {
     };
 
     super(baseOptions);
+    this.options = options;
     this.activityHandler = options.activityHandler;
   }
 
