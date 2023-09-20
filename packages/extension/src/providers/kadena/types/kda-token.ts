@@ -12,6 +12,11 @@ export abstract class KDABaseToken extends BaseToken {
     amount: string,
     network: KadenaNetwork
   ): Promise<ICommand>;
+
+  public abstract getAccountDetails(
+    account: string,
+    network: KadenaNetwork
+  ): Promise<any>;
 }
 
 export class KDAToken extends KDABaseToken {
