@@ -2,7 +2,7 @@ import { SignerInterface, KeyPair } from "@enkryptcom/types";
 import { mnemonicToSeedSync } from 'bip39';
 import { derivePath } from 'ed25519-hd-key';
 import {
-  signHash,
+  sign,
   verifySig,
   binToHex,
   hexToBin,
@@ -32,7 +32,8 @@ class Signer implements SignerInterface {
   }
 
   async sign(msgHash: string, keyPair: KeyPair): Promise<string> {
-    return signHash(msgHash, {
+    console.log("msghash", msgHash);
+    return sign(msgHash, {
       publicKey: keyPair.publicKey,
       secretKey: keyPair.privateKey
     }).sig;

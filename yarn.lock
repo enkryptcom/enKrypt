@@ -2602,10 +2602,7 @@ __metadata:
   dependencies:
     "@enkryptcom/types": "workspace:^"
     "@enkryptcom/utils": "workspace:^"
-<<<<<<< HEAD
-=======
     "@kadena/client": ^1.2.0
->>>>>>> add-send-page
     "@kadena/cryptography-utils": ^0.3.8
     "@types/chai": ^4.3.5
     "@types/hdkey": ^2.0.1
@@ -3778,9 +3775,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-<<<<<<< HEAD
-"@kadena/cryptography-utils@npm:^0.3.8":
-=======
 "@kadena/chainweb-node-client@npm:0.4.4":
   version: 0.4.4
   resolution: "@kadena/chainweb-node-client@npm:0.4.4"
@@ -3812,7 +3806,6 @@ __metadata:
   linkType: hard
 
 "@kadena/cryptography-utils@npm:0.3.8, @kadena/cryptography-utils@npm:^0.3.8":
->>>>>>> add-send-page
   version: 0.3.8
   resolution: "@kadena/cryptography-utils@npm:0.3.8"
   dependencies:
@@ -3824,8 +3817,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-<<<<<<< HEAD
-=======
 "@kadena/pactjs@npm:0.3.2":
   version: 0.3.2
   resolution: "@kadena/pactjs@npm:0.3.2"
@@ -3836,7 +3827,6 @@ __metadata:
   languageName: node
   linkType: hard
 
->>>>>>> add-send-page
 "@kadena/types@npm:0.4.2":
   version: 0.4.2
   resolution: "@kadena/types@npm:0.4.2"
