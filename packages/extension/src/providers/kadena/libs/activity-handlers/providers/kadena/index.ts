@@ -3,7 +3,7 @@ import MarketData from "@/libs/market-data";
 import { Activity, ActivityStatus, ActivityType } from "@/types/activity";
 import { BaseNetwork } from "@/types/base-network";
 import { NetworkEndpoints, NetworkTtls } from "./configs";
-import { toBase } from "@enkryptcom/utils";
+import BigNumber from "bignumber.js";
 import { formatFloatingPointValue } from "@/libs/utils/number-formatter";
 
 const getAddressActivity = async (
@@ -41,32 +41,30 @@ export default async (
       .getTokenPrice(network.coingeckoID)
       .then((mdata) => (price = mdata || "0"));
   }
-
-  debugger;
-  return activities.map((activity: any) => {
-    const tt = {
-      from: activity.fromAccount,
-      to: activity.toAccount,
-      isIncoming: activity.fromAccount !== address,
-      network: network.name,
-      rawInfo: activity,
-      status: ActivityStatus.success,
-      timestamp: new Date(activity.blockTime).getTime(),
-      value: formatFloatingPointValue(activity.amount).value,
-      // value: toBase(parseFloat(activity.amount).toString(), network.decimals),
-      // value: parseFloat(activity.amount).toFixed(network.decimals),
-      // value: toBase(parseFloat(activity.amount), network.decimals), // AINDA NAO RESOLVI
-      transactionHash: activity.requestKey,
-      type: ActivityType.transaction,
-      token: {
-        decimals: network.decimals,
-        icon: network.icon,
-        name: network.currencyNameLong,
-        symbol:
-          activity.token !== "coin" ? activity.token : network.currencyName,
-        price: price,
-      },
-    };
-    return tt;
-  });
+  return activities
+    .filter((a) => a.idx === 1) // idx === 0 is the gas fee activity
+    .map((activity: any, i: number) => {
+      const tt = {
+        nonce: i.toString(),
+        from: activity.fromAccount,
+        to: activity.toAccount,
+        isIncoming: activity.fromAccount !== address,
+        network: network.name,
+        rawInfo: activity,
+        status: ActivityStatus.success,
+        timestamp: new Date(activity.blockTime).getTime(),
+        value: formatFloatingPointValue(new BigNumber(activity.amount)).value,
+        transactionHash: activity.requestKey,
+        type: ActivityType.transaction,
+        token: {
+          decimals: network.decimals,
+          icon: network.icon,
+          name: network.currencyNameLong,
+          symbol:
+            activity.token !== "coin" ? activity.token : network.currencyName,
+          price: price,
+        },
+      };
+      return tt;
+    });
 };

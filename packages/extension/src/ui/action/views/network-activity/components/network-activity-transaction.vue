@@ -44,14 +44,7 @@
 
       <div class="network-activity__transaction-amount">
         <h4>
-          {{
-            $filters.formatFloatingPointValue(
-              fromBase(
-                parseInt(activity.value).toString(),
-                activity.token.decimals
-              )
-            ).value
-          }}
+          {{ activity.value }}
           <span>{{ activity.token.symbol }}</span>
         </h4>
         <p>$ {{ $filters.formatFiatValue(getFiatValue).value }}</p>
