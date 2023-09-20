@@ -3,7 +3,8 @@ import MarketData from "@/libs/market-data";
 import { Activity, ActivityStatus, ActivityType } from "@/types/activity";
 import { BaseNetwork } from "@/types/base-network";
 import { NetworkEndpoints, NetworkTtls } from "./configs";
-import { formatDecimals } from "../../../utils";
+import { toBase } from "@enkryptcom/utils";
+import { formatFloatingPointValue } from "@/libs/utils/number-formatter";
 
 const getAddressActivity = async (
   address: string,
@@ -41,8 +42,9 @@ export default async (
       .then((mdata) => (price = mdata || "0"));
   }
 
+  debugger;
   return activities.map((activity: any) => {
-    return {
+    const tt = {
       from: activity.fromAccount,
       to: activity.toAccount,
       isIncoming: activity.fromAccount !== address,
@@ -50,7 +52,10 @@ export default async (
       rawInfo: activity,
       status: ActivityStatus.success,
       timestamp: new Date(activity.blockTime).getTime(),
-      value: formatDecimals(activity.amount, network.decimals),
+      value: formatFloatingPointValue(activity.amount).value,
+      // value: toBase(parseFloat(activity.amount).toString(), network.decimals),
+      // value: parseFloat(activity.amount).toFixed(network.decimals),
+      // value: toBase(parseFloat(activity.amount), network.decimals), // AINDA NAO RESOLVI
       transactionHash: activity.requestKey,
       type: ActivityType.transaction,
       token: {
@@ -62,5 +67,6 @@ export default async (
         price: price,
       },
     };
+    return tt;
   });
 };
