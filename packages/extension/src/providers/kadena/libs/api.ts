@@ -98,6 +98,11 @@ class API implements ProviderAPIInterface {
     const client = createClient(this.apiHost);
     return client.listen(transactionDescriptor);
   }
+
+  async dirtyRead(signedTranscation: ICommand): Promise<ICommandResult> {
+    const client = createClient(this.apiHost);
+    return client.dirtyRead(signedTranscation);
+  }
 }
 
 export default API;
