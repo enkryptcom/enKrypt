@@ -1,6 +1,6 @@
 import getRequestProvider, { RequestClass } from "@enkryptcom/request";
 import { MiddlewareFunction, OnMessageResponse } from "@enkryptcom/types";
-// import Middlewares from "./methods";
+import Middlewares from "./methods";
 import EventEmitter from "eventemitter3";
 import {
   BackgroundProviderInterface,
@@ -25,7 +25,7 @@ class KadenaProvider
 
   constructor(toWindow: (message: string) => void) {
     super();
-    // this.setMiddleWares();
+    this.setMiddleWares();
     this.requestProvider = getRequestProvider("", this.middlewares);
     this.toWindow = toWindow;
     this.requestProvider.on("notification", (notif: any) => {
@@ -35,9 +35,9 @@ class KadenaProvider
     this.KeyRing = new PublicKeyRing();
   }
 
-  // private setMiddleWares(): void {
-  //   this.middlewares = Middlewares.map((mw) => mw.bind(this));
-  // }
+  private setMiddleWares(): void {
+    this.middlewares = Middlewares.map((mw) => mw.bind(this));
+  }
 
   setRequestProvider(network: BaseNetwork): void {
     this.requestProvider.disconnect();
