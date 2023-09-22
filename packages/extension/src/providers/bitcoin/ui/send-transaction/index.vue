@@ -51,11 +51,10 @@
         v-if="isSendToken"
         :amount="amount"
         :fiat-value="selectedAsset.price"
-        :has-enough-balance="hasEnoughBalance"
+        :has-enough-balance="!nativeBalanceAfterTransaction.isNeg()"
         @update:input-amount="inputAmount"
         @update:input-set-max="setMaxValue"
       />
-
       <send-fee-select
         :in-swap="false"
         :selected="selectedFee"
@@ -73,7 +72,7 @@
       />
 
       <send-alert
-        v-show="hasEnoughBalance && nativeBalanceAfterTransaction.isNeg()"
+        v-show="nativeBalanceAfterTransaction.isNeg() || (Number(sendAmount) < (props.network as BitcoinNetwork).dust && Number(sendAmount)>0)"
         :native-symbol="network.name"
         :price="selectedAsset.price || '0'"
         :native-value="
@@ -83,6 +82,9 @@
           )
         "
         :decimals="network.decimals"
+        :below-dust="Number(sendAmount) < (props.network as BitcoinNetwork).dust"
+        :dust="(props.network as BitcoinNetwork).dust.toString()"
+        :not-enough="nativeBalanceAfterTransaction.isNeg()"
       />
 
       <div class="send-transaction__buttons">
@@ -134,7 +136,8 @@ import { getGasCostValues, isAddress } from "../../libs/utils";
 import BitcoinAPI from "@/providers/bitcoin/libs/api";
 import { calculateSizeBasedOnType } from "../libs/tx-size";
 import { HaskoinUnspentType } from "../../types";
-import { VerifyTransactionParams, BTCTxInfo } from "../types";
+import { VerifyTransactionParams } from "../types";
+import { getTxInfo as getBTCTxInfo } from "@/providers/bitcoin/libs/utils";
 
 const props = defineProps({
   network: {
@@ -163,25 +166,6 @@ const selectedAsset = ref<BTCToken>(loadingAsset);
 const amount = ref<string>("");
 const accountUTXOs = ref<HaskoinUnspentType[]>([]);
 
-const hasEnoughBalance = computed(() => {
-  if (!isValidDecimals(sendAmount.value, selectedAsset.value.decimals!)) {
-    return false;
-  }
-  if (Number(sendAmount.value) < (props.network as BitcoinNetwork).dust) {
-    return false;
-  }
-  return toBN(selectedAsset.value.balance ?? "0").gte(
-    toBN(toBase(sendAmount.value ?? "0", selectedAsset.value.decimals!)).add(
-      toBN(
-        toBase(
-          gasCostValues.value[selectedFee.value].nativeValue,
-          selectedAsset.value.decimals!
-        )
-      )
-    )
-  );
-});
-
 const sendAmount = computed(() => {
   if (amount.value && amount.value !== "") return amount.value;
   return "0";
@@ -196,29 +180,22 @@ const addressFrom = ref<string>(
 const addressTo = ref<string>("");
 const isLoadingAssets = ref(true);
 
-const nativeBalance = computed(() => {
-  const accountIndex = props.accountInfo.activeAccounts.findIndex(
-    (acc) => acc.address === addressFrom.value
-  );
-  if (accountIndex !== -1) {
-    const balance = props.accountInfo.activeBalances[accountIndex];
-    if (balance !== "~") {
-      return toBase(balance, props.network.decimals);
-    }
-  }
-  return "0";
-});
-
 onMounted(async () => {
   fetchAssets().then(setBaseCosts);
 });
 
 const nativeBalanceAfterTransaction = computed(() => {
-  if (nativeBalance.value) {
-    const rawAmount = toBN(
-      toBase(sendAmount.value, selectedAsset.value.decimals!)
+  if (selectedAsset.value) {
+    return toBN(selectedAsset.value.balance ?? "0").sub(
+      toBN(toBase(sendAmount.value ?? "0", selectedAsset.value.decimals!)).add(
+        toBN(
+          toBase(
+            gasCostValues.value[selectedFee.value].nativeValue,
+            selectedAsset.value.decimals!
+          )
+        )
+      )
     );
-    return toBN(nativeBalance.value).sub(rawAmount);
   }
   return toBN(0);
 });
@@ -373,21 +350,7 @@ const selectFee = (type: GasPriceTypes) => {
 const sendAction = async () => {
   const keyring = new PublicKeyRing();
   const fromAccountInfo = await keyring.getAccount(addressFrom.value);
-  const txInfo: BTCTxInfo = {
-    inputs: [],
-    outputs: [],
-  };
-  accountUTXOs.value.forEach((u) => {
-    txInfo.inputs.push({
-      hash: u.txid,
-      index: u.index,
-      raw: u.raw,
-      witnessUtxo: {
-        script: u.pkscript,
-        value: u.value,
-      },
-    });
-  });
+  const txInfo = getBTCTxInfo(accountUTXOs.value);
   const balance = toBN(selectedAsset.value.balance!);
   const toAmount = toBN(toBase(sendAmount.value, selectedAsset.value.decimals));
   const currentFee = toBN(
@@ -503,5 +466,13 @@ const toggleSelector = (isTokenSend: boolean) => {
       width: 218px;
     }
   }
+}
+p {
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 20px;
+  letter-spacing: 0.25px;
+  color: @error;
+  margin: 0;
 }
 </style>

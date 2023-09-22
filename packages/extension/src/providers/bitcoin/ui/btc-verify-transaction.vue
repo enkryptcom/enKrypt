@@ -148,7 +148,7 @@ import { calculateSizeBasedOnType } from "./libs/tx-size";
 import { getGasCostValues } from "../libs/utils";
 import { computed } from "@vue/reactivity";
 import { toBN } from "web3-utils";
-import { BTCTxInfo } from "./types";
+import { getTxInfo as getBTCTxInfo } from "../libs/utils";
 
 const isProcessing = ref(false);
 const isOpenSelectFee = ref(false);
@@ -243,21 +243,7 @@ const updateUTXOs = async () => {
 };
 
 const getTxInfo = () => {
-  const txInfo: BTCTxInfo = {
-    inputs: [],
-    outputs: [],
-  };
-  accountUTXOs.value.forEach((u) => {
-    txInfo.inputs.push({
-      hash: u.txid,
-      index: u.index,
-      raw: u.raw,
-      witnessUtxo: {
-        script: u.pkscript,
-        value: u.value,
-      },
-    });
-  });
+  const txInfo = getBTCTxInfo(accountUTXOs.value);
   const balance = toBN(TokenBalance.value);
   const toAmount = toBN(tx.value.value.toString());
   const currentFee = toBN(
