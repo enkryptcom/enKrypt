@@ -238,7 +238,7 @@ const updateUTXOs = async () => {
       2,
       (network.value as BitcoinNetwork).networkInfo.paymentType
     );
-    setTransactionFees(Math.ceil(txSize.txVBytes));
+    setTransactionFees(Math.ceil(txSize));
   });
 };
 

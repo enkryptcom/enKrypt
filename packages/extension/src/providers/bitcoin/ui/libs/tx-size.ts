@@ -228,7 +228,6 @@ const calculateSize = (
     txVBytes +
     (inputWitnessSize * input_count * 3) / 4;
   const txWeight = txVBytes * 4;
-
   return {
     txVBytes,
     txBytes,
@@ -239,14 +238,14 @@ const calculateSizeBasedOnType = (
   numInputs: number,
   numOutputs: number,
   type: PaymentType
-) => {
+): number => {
   const output: calcOutputType = {};
   if (type === PaymentType.P2PKH) {
     output.p2pkh_output_count = numOutputs;
   } else {
     output.p2wpkh_output_count = numOutputs;
   }
-  return calculateSize(
+  const size = calculateSize(
     {
       input_script:
         type === PaymentType.P2PKH
@@ -256,5 +255,6 @@ const calculateSizeBasedOnType = (
     },
     output
   );
+  return type === PaymentType.P2PKH ? size.txBytes : size.txVBytes;
 };
 export { InputScriptType, calculateSize, calculateSizeBasedOnType };

@@ -18,7 +18,7 @@ export const getBitcoinGasVals = async (
   );
   return getGasCostValues(
     network as BitcoinNetwork,
-    Math.ceil(txSize.txVBytes),
+    Math.ceil(txSize),
     price.toString(),
     network.decimals,
     network.currencyName
