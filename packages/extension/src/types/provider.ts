@@ -33,6 +33,7 @@ export enum InternalStorageNamespace {
   evmAccountsState = "EVMAccountsState",
   substrateAccountsState = "SubstrateAccountsState",
   bitcoinAccountsState = "BitcoinAccountsState",
+  kadenaAccountsState = "KadenaAccountsState",
   activityState = "ActivityState",
   marketData = "MarketData",
   cacheFetch = "CacheFetch",
