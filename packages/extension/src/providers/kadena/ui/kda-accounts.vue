@@ -64,13 +64,13 @@ import { WindowPromiseHandler } from "@/libs/window-promise";
 import { ProviderRequestOptions } from "@/types/provider";
 import { getError } from "@/libs/error";
 import AccountState from "../libs/accounts-state";
-import { SubstrateNetwork } from "../types/substrate-network";
+import { KadenaNetwork } from "../types/kadena-network";
 import { ErrorCodes } from "@/providers/ethereum/types";
 import { truncate } from "lodash";
-import Polkadot from "@/providers/polkadot/networks/polkadot";
+import Kadena from "@/providers/kadena/networks/kadena";
 
 const windowPromise = WindowPromiseHandler(0);
-const network = ref<SubstrateNetwork>(Polkadot);
+const network = ref<KadenaNetwork>(Kadena);
 
 const Options = ref<ProviderRequestOptions>({
   domain: "",
