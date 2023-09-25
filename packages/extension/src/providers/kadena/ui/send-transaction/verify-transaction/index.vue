@@ -12,6 +12,13 @@
           </a>
         </div>
         <hardware-wallet-msg :wallet-type="account?.walletType" />
+        <p
+          class="verify-transaction__description"
+          style="color: red"
+          :class="{ popup: isPopup }"
+        >
+          {{ errorMsg }}
+        </p>
         <p class="verify-transaction__description" :class="{ popup: isPopup }">
           Double check the information and confirm transaction
         </p>
@@ -32,7 +39,6 @@
           />
           <verify-transaction-amount :token="txData.toToken" />
           <verify-transaction-fee :fee="txData.txFee" />
-          {{ errorMsg }}
         </div>
       </custom-scrollbar>
 
@@ -192,7 +198,9 @@ const sendAction = async () => {
   } catch (error: any) {
     isProcessing.value = false;
     console.error("error", error);
-    errorMsg.value = JSON.stringify(error);
+    errorMsg.value = `Error: ${
+      error.message || "Could not send the transaction"
+    }`;
   }
 };
 
