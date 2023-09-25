@@ -6,8 +6,8 @@
         class="common-popup__logo"
       ></sign-logo>
       <div class="common-popup__network">
-        <img :src="networks.polkadot.icon" />
-        <p>{{ metadata ? metadata.chain : networks.polkadot.name_long }}</p>
+        <img :src="networks.kadena.icon" />
+        <p>{{ metadata ? metadata.chain : networks.kadena.name_long }}</p>
       </div>
     </template>
 

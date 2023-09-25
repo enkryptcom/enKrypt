@@ -9,7 +9,7 @@
 
       <div class="common-popup__block">
         <div class="common-popup__account">
-          <img :src="networks.polkadot.identicon(account.address)" />
+          <img :src="networks.kadena.identicon(account.address)" />
           <div class="common-popup__account-info">
             <h4>{{ account.name }}</h4>
             <p>

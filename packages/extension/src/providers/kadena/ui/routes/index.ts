@@ -8,7 +8,6 @@ import RouteNames from "./names";
 
 const routes = Object.assign({}, RouteNames);
 routes.dotAccounts.component = dotAccounts;
-routes.dotTxApprove.component = dotVerifyTransaction;
 routes.dotSignMessage.component = dotSignMessage;
 routes.dotUpdateMetadata.component = dotUpdateMetadata;
 routes.dotHWVerify.component = dotHWVerify;
