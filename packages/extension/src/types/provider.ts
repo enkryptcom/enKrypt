@@ -1,6 +1,7 @@
 import type { InjectedProvider as EthereumProvider } from "../providers/ethereum/types";
 import type { InjectedProvider as PolkadotProvider } from "@/providers/polkadot/types";
 import type { InjectedProvider as BitcoinProvider } from "@/providers/bitcoin/types";
+import type { InjectedProvider as KadenaProvider } from "@/providers/kadena/types";
 import EventEmitter from "eventemitter3";
 import { EXTENSION_VERSION } from "@/configs/constants";
 import {
@@ -50,6 +51,7 @@ export enum ProviderType {
   evm,
   substrate,
   bitcoin,
+  kadena,
 }
 
 export type SendMessageHandler = (
@@ -126,8 +128,12 @@ export type handleOutgoingMessage = (
   provider: Provider,
   message: string
 ) => Promise<any>;
-export { EthereumProvider, PolkadotProvider, BitcoinProvider };
-export type Provider = EthereumProvider | PolkadotProvider | BitcoinProvider;
+export { EthereumProvider, PolkadotProvider, BitcoinProvider, KadenaProvider };
+export type Provider =
+  | EthereumProvider
+  | PolkadotProvider
+  | BitcoinProvider
+  | KadenaProvider;
 
 export interface ProviderRequestOptions {
   url: string;
