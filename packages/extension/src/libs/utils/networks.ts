@@ -72,6 +72,7 @@ const POPULAR_NAMES = [
   NetworkNames.Binance,
   NetworkNames.Rootstock,
   NetworkNames.Optimism,
+  NetworkNames.Kadena,
 ];
 export {
   getAllNetworks,
