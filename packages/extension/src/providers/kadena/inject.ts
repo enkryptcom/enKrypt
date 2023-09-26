@@ -1,4 +1,5 @@
 import EventEmitter from "eventemitter3";
+import { handleIncomingMessage } from "./libs/message-handler";
 import { EthereumRequest, EthereumResponse } from "@/providers/ethereum/types";
 import {
   ProviderName,
@@ -41,8 +42,9 @@ export class Provider extends EventEmitter implements ProviderInterface {
     return this.connected;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  handleMessage(msg: string): void {}
+  handleMessage(msg: string): void {
+    handleIncomingMessage(this, msg);
+  }
 }
 
 const injectDocument = (

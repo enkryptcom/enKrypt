@@ -11,4 +11,27 @@ export interface KadenaApiOptions {
   chainId: string;
 }
 
+export interface ProviderConnectInfo {
+  readonly chainId: string;
+}
+
+export interface ProviderMessage {
+  method: MessageMethod;
+  params: Array<any>;
+}
+
+export enum MessageMethod {
+  changeChainId = "changeChainId",
+  changeAddress = "changeAddress",
+  changeConnected = "changeConnected",
+}
+
+export enum EmitEvent {
+  accountsChanged = "accountsChanged",
+  chainChanged = "chainChanged",
+  connect = "connect",
+  disconnect = "disconnect",
+  message = "message",
+}
+
 export { InjectedProvider };

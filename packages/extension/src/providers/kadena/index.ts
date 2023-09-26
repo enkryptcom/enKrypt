@@ -33,9 +33,9 @@ class KadenaProvider
   ) {
     super();
     this.network = network;
+    this.toWindow = toWindow;
     this.setMiddleWares();
     this.requestProvider = getRequestProvider("", this.middlewares);
-    this.toWindow = toWindow;
     this.requestProvider.on("notification", (notif: any) => {
       this.sendNotification(JSON.stringify(notif));
     });
