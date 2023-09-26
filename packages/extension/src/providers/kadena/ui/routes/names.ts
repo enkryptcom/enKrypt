@@ -1,8 +1,8 @@
 export default {
-  dotAccounts: {
+  kdaAccounts: {
     path: "kda-accounts",
     component: {},
-    name: "dotAccounts",
+    name: "kdaAccounts",
   },
   dotTxApprove: {
     path: "kda-tx-approve",

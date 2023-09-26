@@ -10,12 +10,16 @@ import {
 import GetUIPath from "@/libs/utils/get-ui-path";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
 import UIRoutes from "./ui/routes/names";
+
+import Networks from "./networks";
 import { BaseNetwork } from "@/types/base-network";
+import { KadenaNetwork } from "./types/kadena-network";
 
 class KadenaProvider
   extends EventEmitter
   implements BackgroundProviderInterface
 {
+  network: KadenaNetwork;
   requestProvider: RequestClass;
   middlewares: MiddlewareFunction[] = [];
   namespace: string;
@@ -23,8 +27,12 @@ class KadenaProvider
   UIRoutes = UIRoutes;
   toWindow: (message: string) => void;
 
-  constructor(toWindow: (message: string) => void) {
+  constructor(
+    toWindow: (message: string) => void,
+    network: KadenaNetwork = Networks.kadena
+  ) {
     super();
+    this.network = network;
     this.setMiddleWares();
     this.requestProvider = getRequestProvider("", this.middlewares);
     this.toWindow = toWindow;
@@ -40,7 +48,7 @@ class KadenaProvider
   }
 
   setRequestProvider(network: BaseNetwork): void {
-    this.requestProvider.disconnect();
+    this.network = network as KadenaNetwork;
     this.requestProvider.changeNetwork(network.node);
   }
 

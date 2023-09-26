@@ -23,7 +23,7 @@ const method: MiddlewareFunction = function (
   res,
   next
 ): void {
-  if (payload.method !== "dot_accounts_get") return next();
+  if (payload.method !== "kda_accounts_get") return next();
   else {
     if (isAccountAccessPending) {
       pendingPromises.push({
@@ -77,7 +77,7 @@ const method: MiddlewareFunction = function (
             const windowPromise = new WindowPromise();
             windowPromise
               .getResponse(
-                this.getUIPath(this.UIRoutes.dotAccounts.path),
+                this.getUIPath(this.UIRoutes.kdaAccounts.path),
                 JSON.stringify(payload)
               )
               .then(({ error }) => {

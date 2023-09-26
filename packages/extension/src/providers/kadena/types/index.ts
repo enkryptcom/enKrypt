@@ -3,6 +3,7 @@ import type { Provider as InjectedProvider } from "../inject";
 
 export const KadenaNetworks = {
   KDA: NetworkNames.Kadena,
+  KDATestnet: NetworkNames.KadenaTestnet,
 };
 
 export interface KadenaApiOptions {

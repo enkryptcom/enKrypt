@@ -1,2 +1,4 @@
-import dotAccountsGet from "./dot_accounts_get";
-export default [dotAccountsGet];
+import kdaAccountsGet from "./kda_accounts_get";
+import kdaBalanceGet from "./kda_balance_get";
+
+export default [kdaAccountsGet, kdaBalanceGet];
