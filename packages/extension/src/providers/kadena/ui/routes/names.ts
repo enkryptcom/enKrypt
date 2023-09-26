@@ -4,24 +4,14 @@ export default {
     component: {},
     name: "kdaAccounts",
   },
-  dotTxApprove: {
-    path: "kda-tx-approve",
-    component: {},
-    name: "dotTxApprove",
-  },
-  dotSignMessage: {
+  kdaSignMessage: {
     path: "kda-sign-message",
     component: {},
-    name: "dotSignMessage",
+    name: "kdaSignMessage",
   },
-  dotUpdateMetadata: {
-    path: "kda-update-metadata",
-    component: {},
-    name: "dotUpdateMetadata",
-  },
-  dotHWVerify: {
+  kdaHWVerify: {
     path: "kda-hw-verify",
-    name: "dotHWVerify",
+    name: "kdaHWVerify",
     component: {},
   },
 };

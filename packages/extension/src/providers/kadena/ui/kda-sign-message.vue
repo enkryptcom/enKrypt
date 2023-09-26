@@ -50,12 +50,11 @@ import { getError } from "@/libs/error";
 import { ErrorCodes } from "@/providers/ethereum/types";
 import { WindowPromiseHandler } from "@/libs/window-promise";
 import { onBeforeMount, ref } from "vue";
-import { isUtf8, u8aToString, u8aUnwrapBytes } from "@polkadot/util";
 import networks from "../networks";
 import { ProviderRequestOptions } from "@/types/provider";
 import { EnkryptAccount } from "@enkryptcom/types";
-import { MessageSigner } from "./libs/signer";
-import { hexToBuffer } from "@enkryptcom/utils";
+import { TransactionSigner } from "./libs/signer";
+import kadenaTestnet from "../networks/kadena-testnet";
 
 const windowPromise = WindowPromiseHandler(0);
 
@@ -72,25 +71,31 @@ const account = ref({ address: "" } as EnkryptAccount);
 onBeforeMount(async () => {
   const { Request, options } = await windowPromise;
   Options.value = options;
-
-  message.value = isUtf8(Request.value.params![0])
-    ? u8aToString(u8aUnwrapBytes(Request.value.params![0]))
-    : Request.value.params![0];
-
+  message.value = Request.value.params![0].data;
   account.value = Request.value.params![1] as EnkryptAccount;
 });
 
 const approve = async () => {
   const { Request, Resolve } = await windowPromise;
 
-  const msg = Request.value.params![0] as `0x{string}`;
+  const msg = Request.value.params![0];
   const account = Request.value.params![1] as EnkryptAccount;
-  MessageSigner({
+
+  TransactionSigner({
     account,
-    payload: hexToBuffer(msg),
+    network: kadenaTestnet,
+    payload: msg.data,
   })
-    .then(Resolve.value)
-    .catch(Resolve.value);
+    .then((res) => {
+      Resolve.value({
+        result: res.result as string,
+      });
+    })
+    .catch((er) => {
+      Resolve.value({
+        error: getError(er),
+      });
+    });
 };
 const deny = async () => {
   const { Resolve } = await windowPromise;
