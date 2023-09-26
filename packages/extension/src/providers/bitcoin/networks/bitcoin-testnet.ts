@@ -22,7 +22,7 @@ const bitcoinOptions: BitcoinNetworkOptions = {
   icon: require("./icons/tbtc.svg"),
   decimals: 8,
   dust: 0.00000546,
-  node: "https://api.blockchain.info/haskoin-store/btc-testnet/",
+  node: "https://partners.mewapi.io/nodes/hk/btct/",
   activityHandler: wrapActivityHandler(haskoinHandler),
   basePath: "m/49'/1'/0'/0",
   coingeckoID: "bitcoin",

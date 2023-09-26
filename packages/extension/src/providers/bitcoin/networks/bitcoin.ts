@@ -20,7 +20,7 @@ const bitcoinOptions: BitcoinNetworkOptions = {
   currencyNameLong: "Bitcoin",
   icon: require("./icons/btc.svg"),
   decimals: 8,
-  node: "https://api.blockchain.info/haskoin-store/btc/",
+  node: "https://partners.mewapi.io/nodes/hk/btc/",
   coingeckoID: "bitcoin",
   activityHandler: wrapActivityHandler(haskoinHandler),
   basePath: "m/49'/0'/0'/0",

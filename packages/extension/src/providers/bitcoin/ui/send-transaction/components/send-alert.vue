@@ -1,7 +1,8 @@
 <template>
   <div class="send-alert">
     <alert-icon />
-    <p>
+    <p v-if="belowDust">Minimum amount: {{ dust }}</p>
+    <p v-else-if="notEnough">
       Not enough funds. You are<br />~{{
         $filters.formatFloatingPointValue(nativeValue).value
       }}
@@ -21,6 +22,9 @@ interface IProps {
   nativeSymbol: string;
   nativeValue: string;
   price?: string;
+  notEnough: boolean;
+  belowDust: boolean;
+  dust: string;
 }
 
 const props = defineProps<IProps>();

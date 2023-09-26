@@ -111,7 +111,7 @@ import SendAddressInput from "./components/send-address-input.vue";
 import SendFromContactsList from "@/providers/common/ui/send-transaction/send-from-contacts-list.vue";
 import SendContactsList from "@/providers/common/ui/send-transaction/send-contacts-list.vue";
 import SendTokenSelect from "./components/send-token-select.vue";
-import SendAlert from "@/providers/common/ui/send-transaction/send-alert.vue";
+import SendAlert from "@/providers/bitcoin/ui/send-transaction/components/send-alert.vue";
 import SendInputAmount from "@/providers/common/ui/send-transaction/send-input-amount.vue";
 import SendFeeSelect from "@/providers/common/ui/send-transaction/send-fee-select.vue";
 import TransactionFeeView from "@action/views/transaction-fee/index.vue";

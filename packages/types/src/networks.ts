@@ -90,7 +90,7 @@ export enum CoingeckoPlatform {
   Arbitrum = "arbitrum-one",
   Gnosis = "xdai",
   Avalanche = "avalanche",
-  Fantom = "avalanche",
+  Fantom = "fantom",
   Klaytn = "klay-token",
   Aurora = "aurora",
   Zksync = "zksync",
