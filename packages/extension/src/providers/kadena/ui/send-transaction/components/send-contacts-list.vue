@@ -51,26 +51,6 @@
             />
           </div>
         </div>
-
-        <!-- <div class="send-contacts-list__buttons">
-          <base-button
-            title="Send to my address"
-            :click="sendToMyAddress"
-          ></base-button>
-          <base-button
-            title="Paste from clipboard"
-            :click="pasteFromClipboard"
-          ></base-button>
-        </div>
-        <h3>My Accounts</h3>
-        <send-address-item
-          v-for="(account, index) in accountInfo.activeAccounts"
-          :key="index"
-          :account="account"
-          :identicon="identicon"
-          :is-checked="account.address == address"
-          v-bind="$attrs"
-        ></send-address-item> -->
       </custom-scrollbar>
     </div>
   </div>

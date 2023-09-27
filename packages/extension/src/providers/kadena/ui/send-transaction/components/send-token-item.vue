@@ -26,7 +26,6 @@
 <script setup lang="ts">
 import { onBeforeMount, ref } from "vue";
 import KadenaAPI from "@/providers/kadena/libs/api";
-import { ApiPromise } from "@polkadot/api";
 import { AssetsType } from "@/types/provider";
 import BigNumber from "bignumber.js";
 
@@ -34,7 +33,7 @@ interface IProps {
   token: AssetsType | Partial<AssetsType>;
   selectToken: (token: AssetsType | Partial<AssetsType>) => void;
   activeAccount?: string;
-  api?: KadenaAPI | ApiPromise;
+  api?: KadenaAPI;
 }
 
 const props = defineProps<IProps>();

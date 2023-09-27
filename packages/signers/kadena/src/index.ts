@@ -32,7 +32,6 @@ class Signer implements SignerInterface {
   }
 
   async sign(msgHash: string, keyPair: KeyPair): Promise<string> {
-    console.log("msghash", msgHash);
     return sign(msgHash, {
       publicKey: keyPair.publicKey,
       secretKey: keyPair.privateKey

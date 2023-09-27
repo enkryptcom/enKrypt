@@ -44,7 +44,7 @@ export default async (
   return activities
     .filter((a) => a.idx === 1) // idx === 0 is the gas fee activity
     .map((activity: any, i: number) => {
-      const tt = {
+      return {
         nonce: i.toString(),
         from: activity.fromAccount,
         to: activity.toAccount,
@@ -65,6 +65,5 @@ export default async (
           price: price,
         },
       };
-      return tt;
     });
 };
