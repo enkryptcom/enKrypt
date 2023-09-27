@@ -13,7 +13,7 @@ const getAddressActivity = async (
   ttl: number,
   height: number
 ): Promise<any[]> => {
-  const url = `${endpoint}txs/account/${address}?minheight=${height}&limit=100&token=coin`;
+  const url = `${endpoint}txs/account/${address}?minheight=${height}&limit=200&token=coin`;
 
   return cacheFetch({ url }, ttl)
     .then((res) => {
