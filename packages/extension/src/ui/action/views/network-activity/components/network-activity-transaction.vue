@@ -44,8 +44,18 @@
 
       <div class="network-activity__transaction-amount">
         <h4>
-          {{ activity.value }}
-          <span>{{ activity.token.symbol }}</span>
+          <div v-if="props.network.provider === ProviderName.kadena">
+            {{ activity.value }}
+            <span>{{ activity.token.symbol }}</span>
+          </div>
+          <div v-if="props.network.provider !== ProviderName.kadena">
+            {{
+              $filters.formatFloatingPointValue(
+                fromBase(activity.value, activity.token.decimals)
+              ).value
+            }}
+            <span>{{ activity.token.symbol }}</span>
+          </div>
         </h4>
         <p>$ {{ $filters.formatFiatValue(getFiatValue).value }}</p>
       </div>
@@ -109,6 +119,7 @@ import { BaseNetwork } from "@/types/base-network";
 import { fromBase } from "@enkryptcom/utils";
 import BigNumber from "bignumber.js";
 import { imageLoadError } from "@/ui/action/utils/misc";
+import { ProviderName } from "@/types/provider";
 const props = defineProps({
   activity: {
     type: Object as PropType<Activity>,
@@ -132,7 +143,9 @@ const transactionURL = computed(() => {
 const getFiatValue = computed(() => {
   return new BigNumber(props.activity.token.price || "0").times(
     fromBase(
-      parseInt(props.activity.value).toString(),
+      props.network.provider === ProviderName.kadena
+        ? parseInt(props.activity.value).toString()
+        : props.activity.value,
       props.activity.token.decimals
     )
   );
