@@ -44,7 +44,7 @@ export default async (
     address,
     enpoint,
     ttl,
-    lastActivity.rawInfo.height
+    lastActivity?.rawInfo?.height ?? 0
   );
 
   let price = "0";
