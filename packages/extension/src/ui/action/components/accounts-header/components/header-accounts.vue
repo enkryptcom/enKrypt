@@ -61,6 +61,7 @@ import DomainState from "@/libs/domain-state";
 import EvmAccountState from "@/providers/ethereum/libs/accounts-state";
 import BtcAccountState from "@/providers/bitcoin/libs/accounts-state";
 import SubstrateAccountState from "@/providers/polkadot/libs/accounts-state";
+import KadenaAccountState from "@/providers/kadena/libs/accounts-state";
 
 const isCopied = ref(false);
 const domainState = new DomainState();
@@ -70,6 +71,7 @@ const allAccountStates = [
   new EvmAccountState(),
   new BtcAccountState(),
   new SubstrateAccountState(),
+  new KadenaAccountState(),
 ];
 const props = defineProps({
   name: {
