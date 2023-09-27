@@ -9,10 +9,10 @@ const method: MiddlewareFunction = function (
   res,
   next
 ): void {
-  if (payload.method !== "kda_signer_signPayload") return next();
+  if (payload.method !== "kda_signTransaction") return next();
   else {
     if (!payload.params?.length)
-      return res(getCustomError("Missing Params: signer_signPayload"));
+      return res(getCustomError("Missing Params: kda_signTransaction"));
     const reqPayload = payload.params[0];
     this.KeyRing.getAccount(reqPayload.address)
       .then((account) => {

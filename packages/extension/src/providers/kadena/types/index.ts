@@ -21,17 +21,13 @@ export interface ProviderMessage {
 }
 
 export enum MessageMethod {
-  changeChainId = "changeChainId",
   changeAddress = "changeAddress",
-  changeConnected = "changeConnected",
+  changeNetwork = "changeNetwork",
 }
 
 export enum EmitEvent {
   accountsChanged = "accountsChanged",
-  chainChanged = "chainChanged",
-  connect = "connect",
-  disconnect = "disconnect",
-  message = "message",
+  networkChanged = "networkChanged",
 }
 
 export { InjectedProvider };

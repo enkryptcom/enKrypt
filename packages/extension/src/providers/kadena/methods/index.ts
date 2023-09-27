@@ -1,11 +1,11 @@
-import kdaAccountsGet from "./kda_accounts_get";
-import kdaBalanceGet from "./kda_balance_get";
-import kdaSignerSignPayload from "./kda_signer_signPayload";
+import kdaRequestAccounts from "./kda_requestAccounts";
+import kdaGetBalance from "./kda_getBalance";
+import kdaSignTransaction from "./kda_signTransaction";
 import kdaSwitchNetwork from "./kda_switchNetwork";
 
 export default [
-  kdaAccountsGet,
-  kdaBalanceGet,
-  kdaSignerSignPayload,
+  kdaRequestAccounts,
+  kdaGetBalance,
+  kdaSignTransaction,
   kdaSwitchNetwork,
 ];

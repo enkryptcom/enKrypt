@@ -23,7 +23,7 @@ const method: MiddlewareFunction = function (
   res,
   next
 ): void {
-  if (payload.method !== "kda_accounts_get") return next();
+  if (payload.method !== "kda_requestAccounts") return next();
   else {
     if (isAccountAccessPending) {
       pendingPromises.push({

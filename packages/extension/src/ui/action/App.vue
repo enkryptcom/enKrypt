@@ -110,6 +110,7 @@ import { AccountsHeaderData } from "./types/account";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
 import { sendToBackgroundFromAction } from "@/libs/messenger/extension";
 import { MessageMethod } from "@/providers/ethereum/types";
+import { MessageMethod as KadenaMessageMethod } from "@/providers/kadena/types";
 import { InternalMethods } from "@/types/messenger";
 import NetworksState from "@/libs/networks-state";
 import openOnboard from "@/libs/utils/open-onboard";
@@ -256,6 +257,7 @@ const setNetwork = async (network: BaseNetwork) => {
   router.push({ name: "assets", params: { id: network.name } });
   const tabId = await domainState.getCurrentTabId();
   const curSavedNetwork = await domainState.getSelectedNetWork();
+
   if (
     curSavedNetwork !== network.name &&
     (currentNetwork.value as EvmNetwork).chainID
@@ -282,7 +284,28 @@ const setNetwork = async (network: BaseNetwork) => {
       tabId,
     });
   }
+
+  if (
+    curSavedNetwork !== network.name &&
+    currentNetwork.value.provider === ProviderName.kadena
+  ) {
+    await sendToBackgroundFromAction({
+      message: JSON.stringify({
+        method: InternalMethods.sendToTab,
+        params: [
+          {
+            method: KadenaMessageMethod.changeNetwork,
+            params: [currentNetwork.value.name],
+          },
+        ],
+      }),
+      provider: currentNetwork.value.provider,
+      tabId,
+    });
+  }
+
   domainState.setSelectedNetwork(network.name);
+
   if (network.api) {
     try {
       const thisNetworkName = currentNetwork.value.name;

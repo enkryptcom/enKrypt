@@ -9,10 +9,10 @@ const method: MiddlewareFunction = function (
   res,
   next
 ): void {
-  if (payload.method !== "kda_balance_get") return next();
+  if (payload.method !== "kda_getBalance") return next();
   else {
     if (!payload.params || payload.params.length < 1) {
-      return res(getCustomError("kda_balance_get: invalid params"));
+      return res(getCustomError("kda_getBalance: invalid params"));
     }
 
     this.network.api().then((api) => {
