@@ -3,12 +3,15 @@ import {
   MiddlewareFunction,
   SignerType,
 } from "@enkryptcom/types";
-import KadenaProvider from "..";
 import { WindowPromise } from "@/libs/window-promise";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
-import AccountState from "../libs/accounts-state";
-import { ProviderRPCRequest } from "@/types/provider";
+import DomainState from "@/libs/domain-state";
 import { getCustomError } from "@/libs/error";
+import { ProviderRPCRequest } from "@/types/provider";
+
+import KadenaProvider from "..";
+import AccountState from "../libs/accounts-state";
+import { KadenaNetworks } from "../types";
 
 let isAccountAccessPending = false;
 
@@ -45,7 +48,37 @@ const method: MiddlewareFunction = function (
     };
 
     const getAccounts = () => {
+      const domainState = new DomainState();
       const publicKeyring = new PublicKeyRing();
+
+      const selectedAddressPromise = domainState.getSelectedAddress();
+      const selectedNetworkPromise = domainState.getSelectedNetWork();
+      const accountsPromise = publicKeyring.getAccounts([
+        SignerType.ed25519kda,
+      ]);
+
+      return Promise.all([
+        selectedAddressPromise,
+        selectedNetworkPromise,
+        accountsPromise,
+      ]).then(([selectedAddress, selectedNetwork, accounts]) => {
+        return {
+          selectedNetwork:
+            Object.values(KadenaNetworks).find((n) => n === selectedNetwork) ||
+            "",
+          selectedAddress:
+            accounts.find((acc) => acc.address === selectedAddress)?.address ||
+            "",
+          accounts: accounts.map((acc) => {
+            return {
+              address: acc.address,
+              genesisHash: "",
+              name: acc.name,
+              type: acc.signerType,
+            };
+          }),
+        };
+      });
 
       return publicKeyring.getAccounts([SignerType.ed25519kda]).then((acc) => {
         return acc.map((acc) => {
