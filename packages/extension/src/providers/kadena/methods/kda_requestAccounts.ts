@@ -12,6 +12,7 @@ import { ProviderRPCRequest } from "@/types/provider";
 import KadenaProvider from "..";
 import AccountState from "../libs/accounts-state";
 import { KadenaNetworks } from "../types";
+import { getNetworkInfo } from "../libs/network";
 
 let isAccountAccessPending = false;
 
@@ -62,33 +63,27 @@ const method: MiddlewareFunction = function (
         selectedNetworkPromise,
         accountsPromise,
       ]).then(([selectedAddress, selectedNetwork, accounts]) => {
+        const selectedNetworkName = Object.values(KadenaNetworks).find(
+          (n) => n === selectedNetwork
+        );
+
         return {
-          selectedNetwork:
-            Object.values(KadenaNetworks).find((n) => n === selectedNetwork) ||
-            "",
-          selectedAddress:
-            accounts.find((acc) => acc.address === selectedAddress)?.address ||
-            "",
+          selectedNetwork: selectedNetworkName
+            ? getNetworkInfo(selectedNetworkName)
+            : null,
+          selectedPublicKey:
+            accounts.find((acc) => acc.publicKey === selectedAddress)
+              ?.publicKey || "",
           accounts: accounts.map((acc) => {
             return {
               address: acc.address,
+              publicKey: acc.publicKey,
               genesisHash: "",
               name: acc.name,
               type: acc.signerType,
             };
           }),
         };
-      });
-
-      return publicKeyring.getAccounts([SignerType.ed25519kda]).then((acc) => {
-        return acc.map((acc) => {
-          return {
-            address: acc.address,
-            genesisHash: "",
-            name: acc.name,
-            type: acc.signerType,
-          };
-        });
       });
     };
 

@@ -11,12 +11,16 @@ const method: MiddlewareFunction = function (
 ): void {
   if (payload.method !== "kda_signTransaction") return next();
   else {
-    if (!payload.params?.length)
+    if (!payload.params?.length) {
       return res(getCustomError("Missing Params: kda_signTransaction"));
+    }
+
     const reqPayload = payload.params[0];
+
     this.KeyRing.getAccount(reqPayload.address)
       .then((account) => {
         const windowPromise = new WindowPromise();
+
         windowPromise
           .getResponse(
             this.getUIPath(this.UIRoutes.kdaSignMessage.path),
@@ -34,4 +38,5 @@ const method: MiddlewareFunction = function (
       .catch(res);
   }
 };
+
 export default method;

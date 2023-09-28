@@ -8,6 +8,7 @@ import DomainState from "@/libs/domain-state";
 import KadenaProvider from "..";
 import KDANetworks from "../networks";
 import { KadenaNetworks } from "../types";
+import { getNetworkInfo } from "../libs/network";
 
 const method: MiddlewareFunction = function (
   this: KadenaProvider,
@@ -42,7 +43,7 @@ const method: MiddlewareFunction = function (
         const domainState = new DomainState();
         domainState
           .setSelectedNetwork(validNetwork.name)
-          .then(() => res(null, true));
+          .then(() => res(null, getNetworkInfo(validNetwork.name)));
       });
     } else {
       return res(
