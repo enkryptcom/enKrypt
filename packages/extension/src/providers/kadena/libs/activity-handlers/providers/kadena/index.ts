@@ -5,13 +5,15 @@ import { BaseNetwork } from "@/types/base-network";
 import { NetworkEndpoints, NetworkTtls } from "./configs";
 import BigNumber from "bignumber.js";
 import { formatFloatingPointValue } from "@/libs/utils/number-formatter";
+import ActivityState from "@/libs/activity-state";
 
 const getAddressActivity = async (
   address: string,
   endpoint: string,
-  ttl: number
+  ttl: number,
+  height: number
 ): Promise<any[]> => {
-  const url = `${endpoint}txs/account/${address}?limit=20&token=coin`;
+  const url = `${endpoint}txs/account/${address}?minheight=${height}&limit=200&token=coin`;
 
   return cacheFetch({ url }, ttl)
     .then((res) => {
@@ -31,7 +33,19 @@ export default async (
   const enpoint = NetworkEndpoints[networkName];
   const ttl = NetworkTtls[networkName];
 
-  const activities = await getAddressActivity(address, enpoint, ttl);
+  const activityState = new ActivityState();
+  const options = {
+    address: address,
+    network: network.name,
+  };
+  const allActivities = await activityState.getAllActivities(options);
+  const lastActivity = allActivities[allActivities.length - 1] as any;
+  const activities = await getAddressActivity(
+    address,
+    enpoint,
+    ttl,
+    lastActivity?.rawInfo?.height ?? 0
+  );
 
   let price = "0";
 
