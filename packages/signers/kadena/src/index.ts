@@ -17,7 +17,7 @@ class Signer implements SignerInterface {
     const keyPair = restoreKeyPairFromSecretKey(binToHex(keys.key));
     
     return {
-      address: keyPair.publicKey,
+      address: `k:${keyPair.publicKey}`,
       privateKey: keyPair.secretKey,
       publicKey: keyPair.publicKey,
     };

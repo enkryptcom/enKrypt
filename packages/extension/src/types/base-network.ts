@@ -23,7 +23,6 @@ export interface BaseNetworkOptions {
   node: string;
   displayAddress: (address: string, chainId?: BNLike) => string;
   provider: ProviderName;
-  qrcodeScheme?: string;
   coingeckoID?: string;
   coingeckoPlatform?: CoingeckoPlatform;
   identicon: (address: string) => string;
@@ -50,7 +49,6 @@ export abstract class BaseNetwork {
   public node: string;
   public displayAddress: (address: string, chainId?: BNLike) => string;
   public provider: ProviderName;
-  public qrcodeScheme?: string;
   public coingeckoID: string | undefined;
   public coingeckoPlatform: CoingeckoPlatform | undefined;
   public identicon: (address: string) => string;
@@ -76,7 +74,6 @@ export abstract class BaseNetwork {
     this.node = options.node;
     this.displayAddress = options.displayAddress;
     this.provider = options.provider;
-    this.qrcodeScheme = options.qrcodeScheme;
     this.coingeckoID = options.coingeckoID;
     this.identicon = options.identicon;
     this.basePath = options.basePath;

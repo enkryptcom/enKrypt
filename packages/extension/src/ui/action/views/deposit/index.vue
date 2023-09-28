@@ -17,9 +17,9 @@
       <div class="deposit__code">
         <qrcode-vue
           :value="
-            (network.qrcodeScheme || network.provider) +
-            ':' +
-            network.displayAddress(account.address)
+            $props.network?.provider == ProviderName.kadena
+              ? network.displayAddress(account.address)
+              : network.provider + ':' + network.displayAddress(account.address)
           "
           :size="150"
           level="H"
@@ -62,6 +62,7 @@ import { NodeType } from "@/types/provider";
 import QrcodeVue from "qrcode.vue";
 import { EnkryptAccount } from "@enkryptcom/types";
 import Notification from "@action/components/notification/index.vue";
+import { ProviderName } from "@/types/provider";
 
 const isCopied = ref(false);
 

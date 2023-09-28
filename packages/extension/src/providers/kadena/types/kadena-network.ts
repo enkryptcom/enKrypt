@@ -60,7 +60,6 @@ export class KadenaNetwork extends BaseNetwork {
       signer: [SignerType.ed25519kda],
       displayAddress: (address: string) => address,
       provider: ProviderName.kadena,
-      qrcodeScheme: "k",
       api,
       ...options,
     };

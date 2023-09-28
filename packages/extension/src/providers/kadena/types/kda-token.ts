@@ -64,7 +64,7 @@ export class KDAToken extends KDABaseToken {
         keys: accountDetails.data?.guard.keys || [to],
         pred: accountDetails.data?.guard.pred || "keys-all",
       })
-      .addSigner(from.address, (withCap: any) => [
+      .addSigner(from.publicKey, (withCap: any) => [
         withCap("coin.TRANSFER", from.address, to, {
           decimal: amount,
         }),
@@ -92,7 +92,7 @@ export class KDAToken extends KDABaseToken {
 
     return addSignatures(unsignedTransaction, {
       sig: transaction.signature,
-      pubKey: from.address,
+      pubKey: from.pubKey,
     }) as ICommand;
   }
 
