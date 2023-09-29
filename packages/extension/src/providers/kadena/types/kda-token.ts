@@ -47,7 +47,7 @@ export class KDAToken extends KDABaseToken {
     network: KadenaNetwork
   ): Promise<ICommand> {
     const accountDetails = await this.getAccountDetails(to, network);
-
+    const keySetAccount = to.startsWith("k:") ? to.replace("k:", "") : to;
     const modules = Pact.modules as any;
     const unsignedTransaction = Pact.builder
       .execution(
@@ -61,7 +61,7 @@ export class KDAToken extends KDABaseToken {
         )
       )
       .addData("ks", {
-        keys: accountDetails.data?.guard.keys || [to],
+        keys: accountDetails.data?.guard.keys || [keySetAccount],
         pred: accountDetails.data?.guard.pred || "keys-all",
       })
       .addSigner(from.publicKey, (withCap: any) => [
