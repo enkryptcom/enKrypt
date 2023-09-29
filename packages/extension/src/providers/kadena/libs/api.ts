@@ -10,6 +10,8 @@ import {
   ICommandResult,
   ITransactionDescriptor,
   createClient,
+  Pact,
+  ChainId,
 } from "@kadena/client";
 import { toBase } from "@enkryptcom/utils";
 
@@ -50,7 +52,7 @@ class API implements ProviderAPIInterface {
   async getBalance(address: string): Promise<string> {
     const balance = await this.getBalanceAPI(address);
 
-    if (balance.result.error) {
+    if (balance.result.status === "failure") {
       return toBase("0", this.decimals);
     }
 
@@ -60,22 +62,17 @@ class API implements ProviderAPIInterface {
   }
 
   async getBalanceAPI(account: string) {
-    const Pact = require("pact-lang-api");
-    const cmd = {
-      networkId: this.networkId,
-      pactCode: `(coin.get-balance "${account}")`,
-      envData: {},
-      meta: {
-        creationTime: Math.round(new Date().getTime() / 1000),
-        ttl: 600,
-        gasLimit: 600,
-        chainId: this.chainId,
-        gasPrice: 0.0000001,
-        sender: this.keyPair.publicKey,
-      },
-    };
+    const modules = Pact.modules as any;
+    const transaction = Pact.builder
+      .execution(modules.coin["get-balance"](account))
+      .setMeta({ chainId: this.chainId as ChainId })
+      .createTransaction();
 
-    return await Pact.fetch.local(cmd, this.apiHost);
+    const client = createClient(this.apiHost);
+    return client.local(transaction, {
+      preflight: false,
+      signatureVerification: false,
+    });
   }
 
   async sendLocalTransaction(

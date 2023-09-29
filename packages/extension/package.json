@@ -55,7 +55,6 @@
     "memoize-one": "^6.0.0",
     "moment": "^2.29.4",
     "nanoevents": "^7.0.1",
-    "pact-lang-api": "^4.3.6",
     "pinia": "^2.1.6",
     "qrcode.vue": "^3.4.1",
     "switch-ts": "^1.1.1",
