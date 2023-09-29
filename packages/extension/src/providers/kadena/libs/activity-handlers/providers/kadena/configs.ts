@@ -7,7 +7,7 @@ const NetworkEndpoints = {
 
 const NetworkTtls = {
   [NetworkNames.Kadena]: 30000,
-  [NetworkNames.KadenaTestnet]: 30,
+  [NetworkNames.KadenaTestnet]: 30000,
 };
 
 export { NetworkEndpoints, NetworkTtls };
