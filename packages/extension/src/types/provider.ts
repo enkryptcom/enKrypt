@@ -3,7 +3,6 @@ import type { InjectedProvider as PolkadotProvider } from "@/providers/polkadot/
 import type { InjectedProvider as BitcoinProvider } from "@/providers/bitcoin/types";
 import type { InjectedProvider as KadenaProvider } from "@/providers/kadena/types";
 import EventEmitter from "eventemitter3";
-import { EXTENSION_VERSION } from "@/configs/constants";
 import {
   MiddlewareFunction,
   NetworkNames,
@@ -81,7 +80,7 @@ export enum EIP6963Events {
 export abstract class ProviderInterface extends EventEmitter {
   name: ProviderName;
   type: ProviderType;
-  version: string = EXTENSION_VERSION;
+  version = "";
   sendMessageHandler: SendMessageHandler;
   constructor(options: ProviderOptions) {
     super();

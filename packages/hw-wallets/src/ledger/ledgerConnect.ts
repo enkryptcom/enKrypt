@@ -1,7 +1,7 @@
 import { NetworkNames } from "@enkryptcom/types";
-import getDeviceInfo from "@ledgerhq/live-common/src/hw/getDeviceInfo";
-import openApp from "@ledgerhq/live-common/src/hw/openApp";
-import getAppAndVersion from "@ledgerhq/live-common/src/hw/getAppAndVersion";
+import getDeviceInfo from "@ledgerhq/live-common/lib/hw/getDeviceInfo";
+import openApp from "@ledgerhq/live-common/lib/hw/openApp";
+import getAppAndVersion from "@ledgerhq/live-common/lib/hw/getAppAndVersion";
 import type LedgerEthereum from "./ethereum";
 import type LedgerSubstrate from "./substrate";
 import { ledgerAppNames } from "../configs";
