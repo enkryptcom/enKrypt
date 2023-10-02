@@ -141,7 +141,7 @@ watch([contractAddress, props], async () => {
   if (isValidAddress.value) {
     const api = (await props.network.api()) as API;
 
-    const info = await api.getTokenInfo(contractAddress.value!);
+    const info = await api.getTokenInfo(contractAddress.value!.toLowerCase());
 
     if (info.name !== "Unknown") {
       let icon = props.network.icon;
@@ -168,7 +168,7 @@ watch([contractAddress, props], async () => {
           symbol: info.symbol,
           decimals: info.decimals,
           icon,
-          contract: contractAddress.value!,
+          contract: contractAddress.value!.toLowerCase(),
           coingeckoID,
         });
 
