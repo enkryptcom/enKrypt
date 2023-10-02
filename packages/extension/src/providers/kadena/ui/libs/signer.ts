@@ -51,28 +51,4 @@ const TransactionSigner = (
   }
 };
 
-const MessageSigner = (
-  options: SignerMessageOptions
-): Promise<InternalOnMessageResponse> => {
-  const { account, payload } = options;
-  if (account.isHardware) {
-    return Promise.reject({
-      error: getCustomError("polkadot-hardware-wallets cant sign raw messages"),
-    });
-  } else {
-    const bytes = isAscii(payload)
-      ? u8aToBuffer(u8aUnwrapBytes(payload))
-      : payload;
-    return sendUsingInternalMessengers({
-      method: InternalMethods.sign,
-      params: [bufferToHex(u8aToBuffer(u8aWrapBytes(bytes))), account],
-    }).then((res) => {
-      if (res.error) return res;
-      return {
-        result: res.result,
-      };
-    });
-  }
-};
-
-export { TransactionSigner, MessageSigner };
+export { TransactionSigner };
