@@ -2,6 +2,10 @@
   <common-popup>
     <template #header>
       <sign-logo class="common-popup__logo" />
+      <div class="common-popup__network">
+        <img :src="network.icon" />
+        <p>{{ network.name_long }}</p>
+      </div>
     </template>
 
     <template #content>
@@ -9,7 +13,7 @@
 
       <div class="common-popup__block">
         <div class="common-popup__account">
-          <img :src="networks.kadena.identicon(account.address)" />
+          <img :src="network.identicon(account.address)" />
           <div class="common-popup__account-info">
             <h4>{{ account.name }}</h4>
             <p>
@@ -50,13 +54,17 @@ import { getError } from "@/libs/error";
 import { ErrorCodes } from "@/providers/ethereum/types";
 import { WindowPromiseHandler } from "@/libs/window-promise";
 import { onBeforeMount, ref } from "vue";
-import networks from "../networks";
 import { ProviderRequestOptions } from "@/types/provider";
 import { EnkryptAccount } from "@enkryptcom/types";
 import { TransactionSigner } from "./libs/signer";
-import kadenaTestnet from "../networks/kadena-testnet";
+import { KadenaNetwork } from "../types/kadena-network";
+import {
+  DEFAULT_KADENA_NETWORK,
+  getNetworkByName,
+} from "@/libs/utils/networks";
 
 const windowPromise = WindowPromiseHandler(0);
+const network = ref<KadenaNetwork>(DEFAULT_KADENA_NETWORK);
 
 const Options = ref<ProviderRequestOptions>({
   domain: "",
@@ -70,9 +78,13 @@ const account = ref({ address: "" } as EnkryptAccount);
 
 onBeforeMount(async () => {
   const { Request, options } = await windowPromise;
+  console.log(Request.value.params);
   Options.value = options;
   message.value = Request.value.params![0].data;
   account.value = Request.value.params![1] as EnkryptAccount;
+  network.value = (await getNetworkByName(
+    Request.value.params![0].network
+  )) as KadenaNetwork;
 });
 
 const approve = async () => {
@@ -83,7 +95,7 @@ const approve = async () => {
 
   TransactionSigner({
     account,
-    network: kadenaTestnet,
+    network: network.value,
     payload: msg.data,
   })
     .then((res) => {
