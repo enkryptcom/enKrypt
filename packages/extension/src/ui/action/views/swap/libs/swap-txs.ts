@@ -17,7 +17,7 @@ import { ApiPromise } from "@polkadot/api";
 import { TransactionType } from "../types";
 import { BitcoinNetwork } from "@/providers/bitcoin/types/bitcoin-network";
 import BitcoinAPI from "@/providers/bitcoin/libs/api";
-import { BTCTxInfo } from "@/providers/bitcoin/ui/types";
+import { getTxInfo as getBTCTxInfo } from "@/providers/bitcoin/libs/utils";
 import { toBN } from "web3-utils";
 
 export const getSubstrateNativeTransation = async (
@@ -45,21 +45,10 @@ export const getBitcoinNativeTransaction = async (
 ) => {
   const api = (await network.api()) as BitcoinAPI;
   const utxos = await api.getUTXOs(tx.from);
-  const txInfo: BTCTxInfo = {
-    inputs: [],
-    outputs: [],
-  };
+  const txInfo = getBTCTxInfo(utxos);
   let balance = 0;
   utxos.forEach((u) => {
     balance += u.value;
-    txInfo.inputs.push({
-      hash: u.txid,
-      index: u.index,
-      witnessUtxo: {
-        script: u.pkscript,
-        value: u.value,
-      },
-    });
   });
   const toAmount = toBN(tx.value);
   const remainder = balance - toAmount.toNumber();

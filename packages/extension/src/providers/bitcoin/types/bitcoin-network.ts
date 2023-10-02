@@ -19,7 +19,13 @@ import { CoinGeckoTokenMarket } from "@/libs/market-data/types";
 import Sparkline from "@/libs/sparkline";
 import { BTCToken } from "./btc-token";
 import { GasPriceTypes } from "@/providers/common/types";
+import type HaskoinAPI from "@/providers/bitcoin/libs/api";
+import type SSAPI from "@/providers/bitcoin/libs/api-ss";
 
+export enum PaymentType {
+  P2PKH = "p2pkh",
+  P2WPKH = "p2wpkh",
+}
 export interface BitcoinNetworkOptions {
   name: NetworkNames;
   name_long: string;
@@ -35,16 +41,27 @@ export interface BitcoinNetworkOptions {
   coingeckoID?: string;
   basePath: string;
   networkInfo: BitcoinNetworkInfo;
+  dust: number;
   feeHandler: () => Promise<Record<GasPriceTypes, number>>;
   activityHandler: (
     network: BaseNetwork,
     address: string
   ) => Promise<Activity[]>;
+  apiType: typeof HaskoinAPI | typeof SSAPI;
 }
 
+export const getAddress = (pubkey: string, network: BitcoinNetworkInfo) => {
+  if (pubkey.length < 64) return pubkey;
+  const { address } = payments[network.paymentType]({
+    network,
+    pubkey: hexToBuffer(pubkey),
+  });
+  return address as string;
+};
 export class BitcoinNetwork extends BaseNetwork {
   public assets: BaseToken[] = [];
   public networkInfo: BitcoinNetworkInfo;
+  public dust: number;
   private activityHandler: (
     network: BaseNetwork,
     address: string
@@ -52,23 +69,17 @@ export class BitcoinNetwork extends BaseNetwork {
   feeHandler: () => Promise<Record<GasPriceTypes, number>>;
   constructor(options: BitcoinNetworkOptions) {
     const api = async () => {
-      const api = new BitcoinAPI(options.node, options.networkInfo);
+      const api = new options.apiType(options.node, options.networkInfo);
       await api.init();
-      return api;
+      return api as BitcoinAPI;
     };
 
     const baseOptions: BaseNetworkOptions = {
       identicon: createIcon,
       signer: [SignerType.secp256k1btc],
       provider: ProviderName.bitcoin,
-      displayAddress: (pubkey: string) => {
-        if (pubkey.length < 64) return pubkey;
-        const { address } = payments.p2wpkh({
-          pubkey: hexToBuffer(pubkey),
-          network: options.networkInfo,
-        });
-        return address as string;
-      },
+      displayAddress: (pubkey: string) =>
+        getAddress(pubkey, options.networkInfo),
       api,
       ...options,
     };
@@ -76,6 +87,7 @@ export class BitcoinNetwork extends BaseNetwork {
     this.activityHandler = options.activityHandler;
     this.networkInfo = options.networkInfo;
     this.feeHandler = options.feeHandler;
+    this.dust = options.dust;
   }
 
   public async getAllTokens(pubkey: string): Promise<BaseToken[]> {

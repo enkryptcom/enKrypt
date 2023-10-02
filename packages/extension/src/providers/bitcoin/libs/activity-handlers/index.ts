@@ -1,3 +1,3 @@
 import haskoinHandler from "./providers/haskoin";
-
-export { haskoinHandler };
+import ssHandler from "./providers/ss";
+export { haskoinHandler, ssHandler };

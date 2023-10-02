@@ -4,7 +4,7 @@
     @click="emit('selected:account', account.address)"
   >
     <div class="send-address-item__info">
-      <img :src="identicon(account.address)" />
+      <img :src="identicon(displayAddress(account.address))" />
 
       <div class="send-address-item__name">
         <h4>{{ account.name }}</h4>

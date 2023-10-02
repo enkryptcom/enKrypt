@@ -5,6 +5,7 @@ import sendUsingInternalMessengers from "@/libs/messenger/internal-messenger";
 import { hexToBuffer } from "@enkryptcom/utils";
 import { Psbt } from "bitcoinjs-lib";
 import { signAsync } from "bitcoinjs-message";
+import { PaymentType } from "../../types/bitcoin-network";
 
 const TransactionSigner = (
   options: SignerTransactionOptions
@@ -33,14 +34,26 @@ const TransactionSigner = (
     };
     const tx = new Psbt({ network: network.networkInfo });
     payload.inputs
-      .map((u) => ({
-        hash: u.hash,
-        index: u.index,
-        witnessUtxo: {
-          script: Buffer.from(u.witnessUtxo.script, "hex"),
-          value: u.witnessUtxo.value,
-        },
-      }))
+      .map((u) => {
+        const res: {
+          hash: string;
+          index: number;
+          witnessUtxo?: { script: Buffer; value: number };
+          nonWitnessUtxo?: Buffer;
+        } = {
+          hash: u.hash,
+          index: u.index,
+        };
+        if (network.networkInfo.paymentType === PaymentType.P2WPKH) {
+          res.witnessUtxo = {
+            script: Buffer.from(u.witnessUtxo.script, "hex"),
+            value: u.witnessUtxo.value,
+          };
+        } else if (network.networkInfo.paymentType === PaymentType.P2PKH) {
+          res.nonWitnessUtxo = Buffer.from(u.raw, "hex");
+        }
+        return res;
+      })
       .forEach((input) => tx.addInput(input));
     payload.outputs.forEach((output) => tx.addOutput(output));
     return tx.signAllInputsAsync(signer).then(() => {
