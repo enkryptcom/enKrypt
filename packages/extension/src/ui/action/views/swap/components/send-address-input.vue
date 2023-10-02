@@ -1,7 +1,7 @@
 <template>
   <div class="send-address-input" :class="{ focus: isFocus }">
     <div class="send-address-input__avatar">
-      <img v-if="isValidAddress" :src="identicon(value)" alt="" />
+      <img v-if="isValidAddress" :src="identicon(rawAddress)" alt="" />
     </div>
     <div class="send-address-input__address">
       <p>
@@ -63,6 +63,15 @@ const emit = defineEmits<{
   (e: "update:inputAddress", address: string): void;
   (e: "toggle:showContacts", show: boolean): void;
 }>();
+const rawAddress = computed(() => {
+  let displayAddress: string;
+  try {
+    displayAddress = props.displayAddress(props.value);
+  } catch {
+    displayAddress = props.value;
+  }
+  return displayAddress;
+});
 const address = computed({
   get: () => {
     let displayAddress: string;

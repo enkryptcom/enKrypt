@@ -58,6 +58,8 @@ export enum NetworkNames {
   Vara = "VARA",
   Base = "BASE",
   Celo = "CELO",
+  Litecoin = "LTC",
+  Dogecoin = "DOGE",
 }
 
 export enum CoingeckoPlatform {
@@ -88,7 +90,7 @@ export enum CoingeckoPlatform {
   Arbitrum = "arbitrum-one",
   Gnosis = "xdai",
   Avalanche = "avalanche",
-  Fantom = "avalanche",
+  Fantom = "fantom",
   Klaytn = "klay-token",
   Aurora = "aurora",
   Zksync = "zksync",

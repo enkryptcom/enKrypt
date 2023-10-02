@@ -1,6 +1,7 @@
 // https://github.com/jlopp/bitcoin-transaction-size-calculator/blob/master/index.html
 
 import { toBN } from "web3-utils";
+import { PaymentType } from "../../types/bitcoin-network";
 
 enum InputScriptType {
   P2PKH = "P2PKH",
@@ -104,22 +105,24 @@ const getTxOverheadVBytes = (
   );
 };
 
+interface calcInputType {
+  input_script?: InputScriptType;
+  input_n?: number;
+  input_m?: number;
+  input_count: number;
+}
+interface calcOutputType {
+  p2pkh_output_count?: number;
+  p2sh_output_count?: number;
+  p2sh_p2wpkh_output_count?: number;
+  p2sh_p2wsh_output_count?: number;
+  p2wpkh_output_count?: number;
+  p2wsh_output_count?: number;
+  p2tr_output_count?: number;
+}
 const calculateSize = (
-  inputOptions: {
-    input_script?: InputScriptType;
-    input_n?: number;
-    input_m?: number;
-    input_count: number;
-  },
-  outputOptions: {
-    p2pkh_output_count?: number;
-    p2sh_output_count?: number;
-    p2sh_p2wpkh_output_count?: number;
-    p2sh_p2wsh_output_count?: number;
-    p2wpkh_output_count?: number;
-    p2wsh_output_count?: number;
-    p2tr_output_count?: number;
-  }
+  inputOptions: calcInputType,
+  outputOptions: calcOutputType
 ) => {
   const defaultInputOptions = {
     input_script: InputScriptType.P2WPKH,
@@ -225,12 +228,33 @@ const calculateSize = (
     txVBytes +
     (inputWitnessSize * input_count * 3) / 4;
   const txWeight = txVBytes * 4;
-
   return {
     txVBytes,
     txBytes,
     txWeight,
   };
 };
-
-export { InputScriptType, calculateSize };
+const calculateSizeBasedOnType = (
+  numInputs: number,
+  numOutputs: number,
+  type: PaymentType
+): number => {
+  const output: calcOutputType = {};
+  if (type === PaymentType.P2PKH) {
+    output.p2pkh_output_count = numOutputs;
+  } else {
+    output.p2wpkh_output_count = numOutputs;
+  }
+  const size = calculateSize(
+    {
+      input_script:
+        type === PaymentType.P2PKH
+          ? InputScriptType.P2PKH
+          : InputScriptType.P2WPKH,
+      input_count: numInputs,
+    },
+    output
+  );
+  return type === PaymentType.P2PKH ? size.txBytes : size.txVBytes;
+};
+export { InputScriptType, calculateSize, calculateSizeBasedOnType };

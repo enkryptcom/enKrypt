@@ -44,6 +44,12 @@ const supportedNetworks: {
   [SupportedNetworkName.Bitcoin]: {
     changellyName: "bitcoin",
   },
+  [SupportedNetworkName.Litecoin]: {
+    changellyName: "litecoin",
+  },
+  [SupportedNetworkName.Dogecoin]: {
+    changellyName: "doge",
+  },
 };
 
 export default supportedNetworks;

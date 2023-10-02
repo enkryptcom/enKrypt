@@ -64,6 +64,16 @@ class PublicKeyRing {
         walletType: WalletType.mnemonic,
         isHardware: false,
       };
+      allKeys["ltc1qccf4af6j3xm9v3r6ujt7dlmvazywzq82hnuwgx"] = {
+        address: "ltc1qccf4af6j3xm9v3r6ujt7dlmvazywzq82hnuwgx",
+        basePath: "m/49'/2'/0'/1",
+        name: "fake ltc account #4",
+        pathIndex: 0,
+        publicKey: "0x0",
+        signerType: SignerType.secp256k1btc,
+        walletType: WalletType.mnemonic,
+        isHardware: false,
+      };
     }
     return allKeys;
   }
