@@ -2,10 +2,12 @@ import { NetworkNames } from "@enkryptcom/types";
 import {
   BitcoinNetwork,
   BitcoinNetworkOptions,
+  PaymentType,
 } from "../types/bitcoin-network";
 import { haskoinHandler } from "../libs/activity-handlers";
 import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
 import { GasPriceTypes } from "@/providers/common/types";
+import HaskoinAPI from "../libs/api";
 
 const bitcoinOptions: BitcoinNetworkOptions = {
   name: NetworkNames.BitcoinTest,
@@ -19,10 +21,12 @@ const bitcoinOptions: BitcoinNetworkOptions = {
   currencyNameLong: "Test Bitcoin",
   icon: require("./icons/tbtc.svg"),
   decimals: 8,
-  node: "https://api.blockchain.info/haskoin-store/btc-testnet/",
+  dust: 0.00000546,
+  node: "https://partners.mewapi.io/nodes/hk/btct/",
   activityHandler: wrapActivityHandler(haskoinHandler),
   basePath: "m/49'/1'/0'/0",
   coingeckoID: "bitcoin",
+  apiType: HaskoinAPI,
   feeHandler: () =>
     Promise.resolve({
       [GasPriceTypes.FASTEST]: 25,
@@ -41,6 +45,7 @@ const bitcoinOptions: BitcoinNetworkOptions = {
     scriptHash: 0xc4,
     wif: 0xef,
     dustThreshold: null,
+    paymentType: PaymentType.P2WPKH,
   },
 };
 

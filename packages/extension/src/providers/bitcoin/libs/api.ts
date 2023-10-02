@@ -1,14 +1,13 @@
 import { BTCRawInfo } from "@/types/activity";
 import { ProviderAPIInterface } from "@/types/provider";
-import { hexToBuffer } from "@enkryptcom/utils";
 import {
   BitcoinNetworkInfo,
   HaskoinBalanceType,
   HaskoinTxType,
   HaskoinUnspentType,
 } from "../types";
-import { payments } from "bitcoinjs-lib";
 import { toBN } from "web3-utils";
+import { getAddress as getBitcoinAddress } from "../types/bitcoin-network";
 
 class API implements ProviderAPIInterface {
   node: string;
@@ -23,11 +22,7 @@ class API implements ProviderAPIInterface {
     return this;
   }
   private getAddress(pubkey: string) {
-    const { address } = payments.p2wpkh({
-      pubkey: hexToBuffer(pubkey),
-      network: this.networkInfo,
-    });
-    return address as string;
+    return getBitcoinAddress(pubkey, this.networkInfo);
   }
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   async init(): Promise<void> {}

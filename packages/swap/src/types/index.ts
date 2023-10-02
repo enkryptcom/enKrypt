@@ -11,6 +11,8 @@ export enum Events {
 export enum SupportedNetworkName {
   Ethereum = NetworkNames.Ethereum,
   Binance = NetworkNames.Binance,
+  Litecoin = NetworkNames.Litecoin,
+  Dogecoin = NetworkNames.Dogecoin,
   Matic = NetworkNames.Matic,
   Optimism = NetworkNames.Optimism,
   Polkadot = NetworkNames.Polkadot,
