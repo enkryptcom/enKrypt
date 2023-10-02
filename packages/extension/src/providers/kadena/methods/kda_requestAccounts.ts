@@ -67,13 +67,13 @@ const method: MiddlewareFunction = function (
           (n) => n === selectedNetwork
         );
 
+        const account = accounts.find((acc) => acc.address === selectedAddress);
+
         return {
           selectedNetwork: selectedNetworkName
             ? getNetworkInfo(selectedNetworkName)
             : null,
-          selectedPublicKey:
-            accounts.find((acc) => acc.publicKey === selectedAddress)
-              ?.publicKey || "",
+          selectedAccountAddress: account?.address || "",
           accounts: accounts.map((acc) => {
             return {
               address: acc.address,
