@@ -2768,7 +2768,6 @@ __metadata:
     "@typescript-eslint/eslint-plugin": ^5.62.0
     "@typescript-eslint/parser": ^5.62.0
     bip39: ^3.1.0
-    cardano-crypto-kadena.js: ^6.0.1
     chai: ^4.3.8
     ed25519-hd-key: ^1.3.0
     eslint: ^8.48.0
@@ -11248,19 +11247,6 @@ __metadata:
   version: 0.2.5
   resolution: "capability@npm:0.2.5"
   checksum: 59ce65958dc0f2e76e7007fe8d5a0a85801b950bb957779c11948776f0e7a1290b9638bfd2da92b4b8bebd7584f92a8c38d4e6613659c9637783a6993026b08b
-  languageName: node
-  linkType: hard
-
-"cardano-crypto-kadena.js@npm:^6.0.1":
-  version: 6.0.1
-  resolution: "cardano-crypto-kadena.js@npm:6.0.1"
-  dependencies:
-    bech32: ^1.1.4
-    bip39: ^3.0.2
-    borc: ^2.1.1
-    buffer: ^6.0.3
-    pbkdf2: ^3.0.17
-  checksum: 27fa4362942947a5c077f0f6d7859a68a25bf065549904c0eca4b3a0327e38376c56caf97b7a32d2544ce689ad851dfa61f2fda4d25a5f4148d6071d84c92deb
   languageName: node
   linkType: hard
 

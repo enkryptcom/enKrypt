@@ -1,39 +1,30 @@
 import { expect } from "chai";
-import { blake2b } from "cardano-crypto-kadena.js/features/crypto-primitives";
-
 import Signer from "../src";
-
-function bufferToHex(buffer: Iterable<number>): string {
-  return Array.from(new Uint8Array(buffer))
-    .map(b => b.toString(16).padStart(2, "0"))
-    .join("");
-}
 
 describe("Kadena signing", () => {
   const MNEMONIC =
     "clip coffee brain token leader kiss around main finger network avoid west";
   
   const msg = "Everything should be made as simple as possible, but not simpler.";
-  const signature = "894531b2e628884f960b3b58369bf9d34401fc5bb54cc4eac0bf577df3701bc0cf5f330a5db06cbf3980384f2a5894ae3eb64f7c83d63fa31205817a489c5509";
+  const msgHash = "5GQQ6eK9yrL2JoZfZgob7bL1UJaGPToW1zbRkoxUMMQ";
+  const signature = "ed96b2e3e21e021f3b3e0b39b93585705dbbc53a9cf940365f2ea61f71bdd8a68a3272bfc6e79d5f5b89cc32d85a9aba01ce04173038ede70c8d8da8f7cb4506";
 
   it("it should sign correctly", async () => {
     // Arrange
     const kadenaSigner = new Signer();
     const keypair = await kadenaSigner.generate(MNEMONIC, "1");
-    const msgHash = bufferToHex(blake2b(Buffer.from(msg), 32));
 
     // Act
-    const signResult = await kadenaSigner.sign(msgHash, keypair);
+    const signResult = await kadenaSigner.sign(msg, keypair);
 
     // Assert
     expect(signResult).equals(signature);
   });
 
-  it.only("it should verify correctly", async () => {
+  it("it should verify correctly", async () => {
     // Arrange
     const kadenaSigner = new Signer();
     const keypair = await kadenaSigner.generate(MNEMONIC, "1");
-    const msgHash = bufferToHex(blake2b(Buffer.from(msg), 32));
 
     // Act
     const verifyResult = await kadenaSigner.verify(msgHash, signature, keypair.publicKey);
