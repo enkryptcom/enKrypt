@@ -11,10 +11,6 @@ export interface KadenaApiOptions {
   chainId: string;
 }
 
-export interface ProviderConnectInfo {
-  readonly chainId: string;
-}
-
 export interface ProviderMessage {
   method: MessageMethod;
   params: Array<any>;

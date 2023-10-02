@@ -1,43 +1,16 @@
 import { InternalMethods, InternalOnMessageResponse } from "@/types/messenger";
-import { HWwalletType } from "@enkryptcom/types";
-import HWwallet from "@enkryptcom/hw-wallets";
-import { SignerMessageOptions, SignerTransactionOptions } from "../types";
+import { SignerTransactionOptions } from "../types";
 import { getCustomError } from "@/libs/error";
 import sendUsingInternalMessengers from "@/libs/messenger/internal-messenger";
-import {
-  isAscii,
-  u8aToBuffer,
-  u8aUnwrapBytes,
-  u8aWrapBytes,
-} from "@polkadot/util";
-import { bufferToHex } from "ethereumjs-util";
-import { ExtrinsicPayload } from "@polkadot/types/interfaces";
 
 const TransactionSigner = (
   options: SignerTransactionOptions
 ): Promise<InternalOnMessageResponse> => {
-  const { account, network, payload } = options;
+  const { account, payload } = options;
   if (account.isHardware) {
-    const hwWallet = new HWwallet();
-    return hwWallet
-      .signTransaction({
-        transaction: payload as ExtrinsicPayload,
-        networkName: network.name,
-        pathIndex: account.pathIndex.toString(),
-        pathType: {
-          basePath: account.basePath,
-          path: account.HWOptions!.pathTemplate,
-        },
-        wallet: account.walletType as unknown as HWwalletType,
-      })
-      .then((signature: string) => ({
-        result: JSON.stringify(signature),
-      }))
-      .catch((e) => {
-        return Promise.reject({
-          error: getCustomError(e.message),
-        });
-      });
+    return new Promise((resolve, reject) => {
+      reject(getCustomError("NOT_IMPLEMENTED"));
+    });
   } else {
     return sendUsingInternalMessengers({
       method: InternalMethods.sign,

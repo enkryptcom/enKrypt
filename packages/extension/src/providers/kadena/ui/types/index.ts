@@ -1,13 +1,6 @@
 import { BaseNetwork } from "@/types/base-network";
 import { ToTokenData } from "@/ui/action/types/token";
 import { EnkryptAccount } from "@enkryptcom/types";
-import { ExtrinsicPayload } from "@polkadot/types/interfaces";
-
-export interface CallData {
-  method?: string;
-  section?: string;
-  args?: any;
-}
 
 export interface TxFeeInfo {
   nativeValue: string;
@@ -33,27 +26,7 @@ export interface VerifyTransactionParams {
 }
 
 export interface SignerTransactionOptions {
-  payload: string | ExtrinsicPayload;
+  payload: string;
   network: BaseNetwork;
   account: EnkryptAccount;
-}
-
-export interface SignerMessageOptions {
-  payload: Buffer;
-  account: EnkryptAccount;
-}
-
-export interface PalletBalancesAccountData {
-  free: string;
-  reserved: string;
-  miscFrozen: string;
-  feeFrozen: string;
-}
-
-export interface FrameSystemAccountInfo {
-  nonce: string;
-  consumers: string;
-  providers: string;
-  sufficients: string;
-  data: PalletBalancesAccountData;
 }

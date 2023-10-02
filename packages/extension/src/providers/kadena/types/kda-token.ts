@@ -37,7 +37,7 @@ export class KDAToken extends KDABaseToken {
     amount: string,
     options: SendOptions
   ): Promise<any> {
-    throw new Error("EVM-send is not implemented here");
+    throw new Error("KDA-send is not implemented here");
   }
 
   public async buildTransaction(

@@ -46,7 +46,8 @@ export interface SignTransactionRequest extends BaseRequest {
   transaction:
     | FeeMarketEIP1559Transaction
     | LegacyTransaction
-    | ExtrinsicPayload;
+    | ExtrinsicPayload
+    | string;
 }
 
 export interface getAddressRequest extends BaseRequest {

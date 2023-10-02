@@ -102,6 +102,7 @@ import { Activity, ActivityStatus, ActivityType } from "@/types/activity";
 import { KDAToken } from "@/providers/kadena/types/kda-token";
 import KadenaAPI from "@/providers/kadena/libs/api";
 import { fromBase } from "@enkryptcom/utils";
+import { KadenaNetwork } from "@/providers/kadena/types/kadena-network";
 
 const isSendDone = ref(false);
 const account = ref<EnkryptAccount>();
@@ -119,8 +120,8 @@ const isPopup: boolean = getCurrentContext() === "new-window";
 const isWindowPopup = ref(false);
 const verifyScrollRef = ref<ComponentPublicInstance<HTMLElement>>();
 defineExpose({ verifyScrollRef });
-
 const network = ref<BaseNetwork>(DEFAULT_KADENA_NETWORK);
+
 onBeforeMount(async () => {
   network.value = (await getNetworkByName(selectedNetwork))!;
   account.value = await KeyRing.getAccount(txData.fromAddress);
@@ -131,7 +132,7 @@ onBeforeMount(async () => {
     price: "0",
     name: "loading",
     symbol: "loading",
-    decimals: 7,
+    decimals: network.value.decimals,
   });
 });
 const close = () => {
@@ -150,7 +151,7 @@ const sendAction = async () => {
       txData.toAddress,
       account.value!,
       txData.TransactionData.value,
-      network.value
+      network.value as KadenaNetwork
     );
 
     const networkApi = (await network.value.api()) as KadenaAPI;

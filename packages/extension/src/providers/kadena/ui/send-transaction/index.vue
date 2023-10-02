@@ -152,7 +152,7 @@ const selectedAsset = ref<KDAToken | Partial<KDAToken>>(
     price: "0",
     name: "loading",
     symbol: "loading",
-    decimals: 7,
+    decimals: props.network.decimals,
   })
 );
 const hasEnough = ref(false);

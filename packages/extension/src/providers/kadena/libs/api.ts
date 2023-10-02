@@ -19,10 +19,6 @@ class API implements ProviderAPIInterface {
   networkId: string;
   chainId: string;
   apiHost: string;
-  keyPair = {
-    publicKey: "",
-    secretKey: "",
-  };
 
   constructor(node: string, options: KadenaNetworkOptions) {
     this.decimals = options.decimals;
@@ -71,7 +67,7 @@ class API implements ProviderAPIInterface {
         gasLimit: 600,
         chainId: this.chainId,
         gasPrice: 0.0000001,
-        sender: this.keyPair.publicKey,
+        sender: "",
       },
     };
 
