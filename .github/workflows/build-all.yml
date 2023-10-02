@@ -12,11 +12,11 @@ jobs:
         id: node-version
         run: |
           docker build -t enkrypt-build-container .
-          echo ::set-output name=NODE_VERSION::$(docker run --rm -v `pwd`:/home:rw enkrypt-build-container /bin/bash -c "node --version")
+          echo "NODE_VERSION=$(docker run --rm -v `pwd`:/home:rw enkrypt-build-container /bin/bash -c "node --version")" >> $GITHUB_OUTPUT
 
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn config get cacheFolder)"
+        run: echo "dir=$(yarn config get cacheFolder)" >> $GITHUB_OUTPUT
 
       - name: Cache yarn modules
         uses: actions/cache@v3
