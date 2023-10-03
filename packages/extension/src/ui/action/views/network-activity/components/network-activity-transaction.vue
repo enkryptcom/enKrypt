@@ -142,12 +142,9 @@ const transactionURL = computed(() => {
 });
 const getFiatValue = computed(() => {
   return new BigNumber(props.activity.token.price || "0").times(
-    fromBase(
-      props.network.provider === ProviderName.kadena
-        ? parseInt(props.activity.value).toString()
-        : props.activity.value,
-      props.activity.token.decimals
-    )
+    props.network.provider === ProviderName.kadena
+      ? props.activity.value
+      : fromBase(props.activity.value, props.activity.token.decimals)
   );
 });
 onMounted(() => {
