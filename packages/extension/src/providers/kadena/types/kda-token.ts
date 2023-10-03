@@ -32,10 +32,8 @@ export class KDAToken extends KDABaseToken {
   }
 
   public async send(
-    api: any,
-    to: string,
-    amount: string,
-    options: SendOptions
+    // eslint-disable-next-line
+    api: any, to: string, amount: string, options: SendOptions
   ): Promise<any> {
     throw new Error("KDA-send is not implemented here");
   }

@@ -156,17 +156,13 @@ const sendAction = async () => {
 
     const networkApi = (await network.value.api()) as KadenaAPI;
     const transactionDescriptor = await networkApi.sendTransaction(transaction);
-    const response = await networkApi.listen(transactionDescriptor);
-    if (response.result.status === "failure") {
-      throw response.result.error;
-    }
 
     const txActivity: Activity = {
       from: txData.fromAddress,
       to: txData.toAddress,
       isIncoming: txData.fromAddress === txData.toAddress,
       network: network.value.name,
-      status: ActivityStatus.success,
+      status: ActivityStatus.pending,
       timestamp: new Date().getTime(),
       token: {
         decimals: txData.toToken.decimals,
@@ -179,13 +175,16 @@ const sendAction = async () => {
       value: fromBase(txData.toToken.amount, txData.toToken.decimals),
       transactionHash: transactionDescriptor.requestKey,
     };
+
     const activityState = new ActivityState();
 
     await activityState.addActivities([txActivity], {
       address: network.value.displayAddress(txData.fromAddress),
       network: network.value.name,
     });
+
     isSendDone.value = true;
+
     if (getCurrentContext() === "popup") {
       setTimeout(() => {
         isProcessing.value = false;
@@ -299,7 +298,7 @@ const isHasScroll = () => {
     position: absolute;
     left: 0;
     bottom: 0;
-    padding: 0 32px 32px 32px;
+    padding: 8px 32px 32px 32px;
     display: flex;
     justify-content: space-between;
     align-items: center;

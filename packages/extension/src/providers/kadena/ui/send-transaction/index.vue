@@ -357,12 +357,14 @@ const inputAmount = (number: string | undefined) => {
 
 const sendButtonTitle = computed(() => {
   let title = "Send";
-  if (parseInt(amount.value ?? "0") > 0)
+
+  if (!isDisabled.value && amount.value)
     title =
       "Send " +
       formatFloatingPointValue(amount.value!).value +
       " " +
       selectedAsset.value?.symbol!.toUpperCase();
+
   return title;
 });
 

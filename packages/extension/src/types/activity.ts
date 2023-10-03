@@ -62,6 +62,14 @@ interface SubstrateRawInfo {
   asset_type: string;
 }
 
+interface KadenaRawInfo {
+  gas: number;
+  result: { status: string; data: string };
+  reqKey: string;
+  logs: string;
+  txId: number;
+}
+
 enum ActivityStatus {
   pending = "pending",
   success = "success",
@@ -94,7 +102,8 @@ interface Activity {
     | SubstrateRawInfo
     | SubscanExtrinsicInfo
     | BTCRawInfo
-    | SwapRawInfo;
+    | SwapRawInfo
+    | KadenaRawInfo;
 }
 
 export {
@@ -106,4 +115,5 @@ export {
   SubscanExtrinsicInfo,
   BTCRawInfo,
   SwapRawInfo,
+  KadenaRawInfo,
 };

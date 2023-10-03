@@ -16,7 +16,12 @@ import { RoutesType } from "./ui";
 import { NFTCollection } from "./nft";
 import { BaseNetwork } from "./base-network";
 import { BaseToken } from "./base-token";
-import { BTCRawInfo, EthereumRawInfo, SubscanExtrinsicInfo } from "./activity";
+import {
+  BTCRawInfo,
+  EthereumRawInfo,
+  SubscanExtrinsicInfo,
+  KadenaRawInfo,
+} from "./activity";
 
 export enum ProviderName {
   enkrypt = "enkrypt",
@@ -116,7 +121,9 @@ export abstract class ProviderAPIInterface {
   abstract getBalance(address: string): Promise<string>;
   abstract getTransactionStatus(
     hash: string
-  ): Promise<EthereumRawInfo | SubscanExtrinsicInfo | BTCRawInfo | null>;
+  ): Promise<
+    EthereumRawInfo | SubscanExtrinsicInfo | BTCRawInfo | KadenaRawInfo | null
+  >;
 }
 
 export type handleIncomingMessage = (
