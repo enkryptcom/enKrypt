@@ -55,29 +55,39 @@ export default async (
       .getTokenPrice(network.coingeckoID)
       .then((mdata) => (price = mdata || "0"));
   }
-  return activities
-    .filter((a) => a.idx === 1) // idx === 0 is the gas fee activity
-    .map((activity: any, i: number) => {
-      return {
-        nonce: i.toString(),
-        from: activity.fromAccount,
-        to: activity.toAccount,
-        isIncoming: activity.fromAccount !== address,
-        network: network.name,
-        rawInfo: activity,
-        status: ActivityStatus.success,
-        timestamp: new Date(activity.blockTime).getTime(),
-        value: formatFloatingPointValue(new BigNumber(activity.amount)).value,
-        transactionHash: activity.requestKey,
-        type: ActivityType.transaction,
-        token: {
-          decimals: network.decimals,
-          icon: network.icon,
-          name: network.currencyNameLong,
-          symbol:
-            activity.token !== "coin" ? activity.token : network.currencyName,
-          price: price,
-        },
-      };
-    });
+
+  const groupActivities = activities.reduce((acc: any, activity: any) => {
+    if (!acc[activity.requestKey]) {
+      acc[activity.requestKey] = activity;
+    }
+    if (activity.idx === 1) {
+      acc[activity.requestKey] = activity;
+    }
+    return acc;
+  }, {});
+
+  return Object.values(groupActivities).map((activity: any, i: number) => {
+    return {
+      nonce: i.toString(),
+      from: activity.fromAccount,
+      to: activity.toAccount,
+      isIncoming: activity.fromAccount !== address,
+      network: network.name,
+      rawInfo: activity,
+      status:
+        activity.idx === 1 ? ActivityStatus.success : ActivityStatus.failed,
+      timestamp: new Date(activity.blockTime).getTime(),
+      value: formatFloatingPointValue(new BigNumber(activity.amount)).value,
+      transactionHash: activity.requestKey,
+      type: ActivityType.transaction,
+      token: {
+        decimals: network.decimals,
+        icon: network.icon,
+        name: network.currencyNameLong,
+        symbol:
+          activity.token !== "coin" ? activity.token : network.currencyName,
+        price: price,
+      },
+    };
+  });
 };
