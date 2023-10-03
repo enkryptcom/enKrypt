@@ -144,11 +144,11 @@ import { GasPriceTypes } from "@/providers/common/types";
 import { RPCTxType } from "../types";
 import BitcoinAPI from "@/providers/bitcoin/libs/api";
 import { HaskoinUnspentType } from "../types";
-import { calculateSize } from "./libs/tx-size";
+import { calculateSizeBasedOnType } from "./libs/tx-size";
 import { getGasCostValues } from "../libs/utils";
 import { computed } from "@vue/reactivity";
 import { toBN } from "web3-utils";
-import { BTCTxInfo } from "./types";
+import { getTxInfo as getBTCTxInfo } from "../libs/utils";
 
 const isProcessing = ref(false);
 const isOpenSelectFee = ref(false);
@@ -233,33 +233,17 @@ const updateUTXOs = async () => {
   const api = (await network.value.api()) as BitcoinAPI;
   return api.getUTXOs(account.value.address).then((utxos) => {
     accountUTXOs.value = utxos;
-    const txSize = calculateSize(
-      {
-        input_count: accountUTXOs.value.length,
-      },
-      {
-        p2wpkh_output_count: 2,
-      }
+    const txSize = calculateSizeBasedOnType(
+      accountUTXOs.value.length,
+      2,
+      (network.value as BitcoinNetwork).networkInfo.paymentType
     );
-    setTransactionFees(Math.ceil(txSize.txVBytes));
+    setTransactionFees(Math.ceil(txSize));
   });
 };
 
 const getTxInfo = () => {
-  const txInfo: BTCTxInfo = {
-    inputs: [],
-    outputs: [],
-  };
-  accountUTXOs.value.forEach((u) => {
-    txInfo.inputs.push({
-      hash: u.txid,
-      index: u.index,
-      witnessUtxo: {
-        script: u.pkscript,
-        value: u.value,
-      },
-    });
-  });
+  const txInfo = getBTCTxInfo(accountUTXOs.value);
   const balance = toBN(TokenBalance.value);
   const toAmount = toBN(tx.value.value.toString());
   const currentFee = toBN(

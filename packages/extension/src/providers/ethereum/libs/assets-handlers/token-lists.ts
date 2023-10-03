@@ -24,6 +24,7 @@ const TokenList: Record<SupportedNetworkNames, string> = {
   [NetworkNames.Aurora]: `https://tokens.coingecko.com/${CoingeckoPlatform.Aurora}/all.json`,
   [NetworkNames.Celo]: `https://tokens.coingecko.com/${CoingeckoPlatform.Celo}/all.json`,
   [NetworkNames.TomoChain]: `https://tokens.coingecko.com/${CoingeckoPlatform.TomoChain}/all.json`,
+  [NetworkNames.Shibarium]: `https://tokens.coingecko.com/${CoingeckoPlatform.Shibarium}/all.json`,
 };
 
 const getKnownNetworkTokens = async (
@@ -35,14 +36,16 @@ const getKnownNetworkTokens = async (
       url: TokenList[networkName as SupportedNetworkNames],
     },
     TOKEN_FETCH_TTL
-  ).then((json) => {
-    const tokens: CGToken[] = json.tokens;
-    const tObject: Record<string, CGToken> = {};
-    tokens.forEach((t) => {
-      t.address = t.address.toLowerCase();
-      tObject[t.address] = t;
-    });
-    return tObject;
-  });
+  )
+    .then((json) => {
+      const tokens: CGToken[] = json.tokens;
+      const tObject: Record<string, CGToken> = {};
+      tokens.forEach((t) => {
+        t.address = t.address.toLowerCase();
+        tObject[t.address] = t;
+      });
+      return tObject;
+    })
+    .catch(() => ({}));
 };
 export { TokenList, getKnownNetworkTokens };

@@ -10,24 +10,31 @@ export default (
 ) => {
   const marketData = new MarketData();
   const fiatAmount = ref<string>(defaultFiatVal);
-  const cryptoAmount = computed(() => {
+
+  const cryptoAmountRaw = computed(() => {
     const selectedAccountIdx = accountInfo.value.activeAccounts.findIndex(
       (acc) => acc.address === accountInfo.value.selectedAccount?.address
     );
-    let balance = "0";
     if (selectedAccountIdx > -1) {
-      balance = accountInfo.value.activeBalances[selectedAccountIdx];
+      const balance = accountInfo.value.activeBalances[selectedAccountIdx];
+      return balance;
     }
-    return balance !== "~" ? formatFloatingPointValue(balance).value : balance;
+    return "0";
+  });
+
+  const cryptoAmount = computed(() => {
+    return cryptoAmountRaw.value !== "~"
+      ? formatFloatingPointValue(cryptoAmountRaw.value).value
+      : cryptoAmountRaw.value;
   });
 
   const updateFiatValues = async () => {
     fiatAmount.value = defaultFiatVal;
-    if (network.value.coingeckoID && cryptoAmount.value != "~") {
+    if (network.value.coingeckoID && cryptoAmountRaw.value != "~") {
       fiatAmount.value = `${
         formatFiatValue(
           await marketData.getTokenValue(
-            cryptoAmount.value,
+            cryptoAmountRaw.value,
             network.value.coingeckoID,
             "USD"
           )

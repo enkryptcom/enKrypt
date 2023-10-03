@@ -1,9 +1,10 @@
-import { BitcoinNetworkInfo } from "../types";
+import { BitcoinNetworkInfo, HaskoinUnspentType } from "../types";
 import { address as BTCAddress } from "bitcoinjs-lib";
 import { GasPriceTypes } from "@/providers/common/types";
 import { fromBase } from "@enkryptcom/utils";
 import BigNumber from "bignumber.js";
 import { BitcoinNetwork } from "../types/bitcoin-network";
+import { BTCTxInfo } from "../ui/types";
 
 const isAddress = (address: string, network: BitcoinNetworkInfo): boolean => {
   try {
@@ -13,6 +14,26 @@ const isAddress = (address: string, network: BitcoinNetworkInfo): boolean => {
     return false;
   }
 };
+
+const getTxInfo = (utxos: HaskoinUnspentType[]): BTCTxInfo => {
+  const txInfo: BTCTxInfo = {
+    inputs: [],
+    outputs: [],
+  };
+  utxos.forEach((u) => {
+    txInfo.inputs.push({
+      hash: u.txid,
+      index: u.index,
+      raw: u.raw,
+      witnessUtxo: {
+        script: u.pkscript,
+        value: u.value,
+      },
+    });
+  });
+  return txInfo;
+};
+
 const getGasCostValues = async (
   network: BitcoinNetwork,
   byteSize: number,
@@ -66,4 +87,4 @@ const getGasCostValues = async (
   };
   return gasCostValues;
 };
-export { isAddress, getGasCostValues };
+export { isAddress, getGasCostValues, getTxInfo };

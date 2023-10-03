@@ -60,6 +60,8 @@ export enum NetworkNames {
   Celo = "CELO",
   Kadena = "KDA",
   KadenaTestnet = "KDATestnet",
+  Litecoin = "LTC",
+  Dogecoin = "DOGE",
 }
 
 export enum CoingeckoPlatform {
@@ -90,7 +92,7 @@ export enum CoingeckoPlatform {
   Arbitrum = "arbitrum-one",
   Gnosis = "xdai",
   Avalanche = "avalanche",
-  Fantom = "avalanche",
+  Fantom = "fantom",
   Klaytn = "klay-token",
   Aurora = "aurora",
   Zksync = "zksync",

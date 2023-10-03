@@ -43,7 +43,7 @@
     </div>
 
     <div class="network-assets__token-price">
-      <h4>{{ token.balanceUSDf }}</h4>
+      <h4>${{ token.balanceUSDf }}</h4>
       <p>@{{ token.valuef }}</p>
     </div>
   </a>
