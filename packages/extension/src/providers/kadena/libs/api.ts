@@ -1,8 +1,4 @@
-import {
-  EthereumRawInfo,
-  SubscanExtrinsicInfo,
-  BTCRawInfo,
-} from "@/types/activity";
+import { KadenaRawInfo } from "@/types/activity";
 import { ProviderAPIInterface } from "@/types/provider";
 import { KadenaNetworkOptions } from "../types/kadena-network";
 import {
@@ -36,11 +32,13 @@ class API implements ProviderAPIInterface {
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   async init(): Promise<void> {}
 
-  getTransactionStatus(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    hash: string
-  ): Promise<EthereumRawInfo | SubscanExtrinsicInfo | BTCRawInfo | null> {
-    throw new Error("Method not implemented.");
+  async getTransactionStatus(hash: string): Promise<KadenaRawInfo | null> {
+    const Pact = require("pact-lang-api");
+
+    const cmd = { requestKeys: [hash] };
+    const transactions = await Pact.fetch.poll(cmd, this.apiHost);
+
+    return transactions[hash];
   }
 
   async getBalance(address: string): Promise<string> {
@@ -57,6 +55,7 @@ class API implements ProviderAPIInterface {
 
   async getBalanceAPI(account: string) {
     const Pact = require("pact-lang-api");
+
     const cmd = {
       networkId: this.networkId,
       pactCode: `(coin.get-balance "${account}")`,

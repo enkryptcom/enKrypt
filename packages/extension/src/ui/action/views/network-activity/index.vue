@@ -65,6 +65,7 @@ import {
   EthereumRawInfo,
   SubscanExtrinsicInfo,
   SwapRawInfo,
+  KadenaRawInfo,
 } from "@/types/activity";
 import NetworkActivityLoading from "./components/network-activity-loading.vue";
 import { ProviderName } from "@/types/provider";
@@ -162,6 +163,21 @@ const checkActivity = (activity: Activity): void => {
             const btcInfo = info as BTCRawInfo;
             activity.status = ActivityStatus.success;
             activity.rawInfo = btcInfo;
+            activityState
+              .updateActivity(activity, {
+                address: activityAddress.value,
+                network: props.network.name,
+              })
+              .then(() => updateVisibleActivity(activity));
+          } else if (props.network.provider === ProviderName.kadena) {
+            const kadenaInfo = info as KadenaRawInfo;
+
+            activity.status =
+              kadenaInfo.result.status == "success"
+                ? ActivityStatus.success
+                : ActivityStatus.failed;
+            activity.rawInfo = kadenaInfo;
+
             activityState
               .updateActivity(activity, {
                 address: activityAddress.value,
