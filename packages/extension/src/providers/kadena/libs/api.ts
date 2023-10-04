@@ -48,7 +48,9 @@ class API implements ProviderAPIInterface {
       return toBase("0", this.decimals);
     }
 
-    const balanceValue = balance.result.data.toString();
+    const balanceValue = parseFloat(balance.result.data.toString()).toFixed(
+      this.decimals
+    );
 
     return toBase(balanceValue, this.decimals);
   }
