@@ -3,9 +3,8 @@ import MarketData from "@/libs/market-data";
 import { Activity, ActivityStatus, ActivityType } from "@/types/activity";
 import { BaseNetwork } from "@/types/base-network";
 import { NetworkEndpoints, NetworkTtls } from "./configs";
-import BigNumber from "bignumber.js";
-import { formatFloatingPointValue } from "@/libs/utils/number-formatter";
 import ActivityState from "@/libs/activity-state";
+import { toBase } from "@enkryptcom/utils";
 
 const getAddressActivity = async (
   address: string,
@@ -67,6 +66,12 @@ export default async (
   }, {});
 
   return Object.values(groupActivities).map((activity: any, i: number) => {
+    const rawAmount = toBase(
+      activity.amount
+        ? parseFloat(activity.amount).toFixed(network.decimals)
+        : "0",
+      network.decimals
+    );
     return {
       nonce: i.toString(),
       from: activity.fromAccount,
@@ -77,7 +82,7 @@ export default async (
       status:
         activity.idx === 1 ? ActivityStatus.success : ActivityStatus.failed,
       timestamp: new Date(activity.blockTime).getTime(),
-      value: formatFloatingPointValue(new BigNumber(activity.amount)).value,
+      value: rawAmount,
       transactionHash: activity.requestKey,
       type: ActivityType.transaction,
       token: {

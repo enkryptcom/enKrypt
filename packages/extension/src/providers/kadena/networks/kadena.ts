@@ -14,7 +14,7 @@ const kadenaOptions: KadenaNetworkOptions = {
   currencyName: "KDA",
   currencyNameLong: "Kadena",
   icon: require("./icons/kadena-kda-logo.svg"),
-  decimals: 8,
+  decimals: 12,
   prefix: 0,
   node: "https://api.chainweb.com/chainweb/0.0",
   kadenaApiOptions: {
