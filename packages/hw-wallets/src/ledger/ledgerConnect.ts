@@ -4,10 +4,11 @@ import openApp from "@ledgerhq/live-common/lib/hw/openApp";
 import getAppAndVersion from "@ledgerhq/live-common/lib/hw/getAppAndVersion";
 import type LedgerEthereum from "./ethereum";
 import type LedgerSubstrate from "./substrate";
+import type LedgerKadena from "./kadena";
 import { ledgerAppNames } from "../configs";
 
 function connect(
-  this: LedgerEthereum | LedgerSubstrate,
+  this: LedgerEthereum | LedgerSubstrate | LedgerKadena,
   networkName: NetworkNames
 ): Promise<boolean> {
   return getDeviceInfo(this.transport)

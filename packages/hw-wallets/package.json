@@ -58,6 +58,7 @@
     "@zondax/ledger-substrate": "^0.41.2",
     "ethereumjs-util": "^7.1.5",
     "hdkey": "^2.1.0",
+    "hw-app-kda": "^0.0.0",
     "webextension-polyfill": "^0.10.0"
   }
 }

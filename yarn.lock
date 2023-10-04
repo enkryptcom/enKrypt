@@ -2568,6 +2568,7 @@ __metadata:
     eslint-plugin-module-resolver: ^1.5.0
     ethereumjs-util: ^7.1.5
     hdkey: ^2.1.0
+    hw-app-kda: ^0.0.0
     mocha: ^10.2.0
     prettier: ^2.8.8
     ts-mocha: ^10.0.0
@@ -4570,7 +4571,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ledgerhq/hw-transport@npm:^6.20.0, @ledgerhq/hw-transport@npm:^6.27.1, @ledgerhq/hw-transport@npm:^6.28.1, @ledgerhq/hw-transport@npm:^6.28.8":
+"@ledgerhq/hw-transport@npm:^6.20.0, @ledgerhq/hw-transport@npm:^6.27.1, @ledgerhq/hw-transport@npm:^6.28.1, @ledgerhq/hw-transport@npm:^6.28.8, @ledgerhq/hw-transport@npm:^6.3.0":
   version: 6.28.8
   resolution: "@ledgerhq/hw-transport@npm:6.28.8"
   dependencies:
@@ -13375,6 +13376,7 @@ __metadata:
     concurrently: ^8.2.1
     devmoji: ^2.3.0
     husky: ^8.0.3
+    hw-app-kda: ^0.0.0
     node-notifier: ^10.0.1
     nodemon: ^3.0.1
     ultra-runner: ^3.10.5
@@ -16026,6 +16028,17 @@ __metadata:
   bin:
     husky: lib/bin.js
   checksum: 837bc7e4413e58c1f2946d38fb050f5d7324c6f16b0fd66411ffce5703b294bd21429e8ba58711cd331951ee86ed529c5be4f76805959ff668a337dbfa82a1b0
+  languageName: node
+  linkType: hard
+
+"hw-app-kda@npm:^0.0.0":
+  version: 0.0.0
+  resolution: "hw-app-kda@npm:0.0.0"
+  dependencies:
+    "@ledgerhq/hw-transport": ^6.3.0
+  bin:
+    kda-cli: main.js
+  checksum: fcf34b18fa035716147a434ce39565d4698d339b157822c1e22590a80de4012fcab6cd6db393a6f85c4107c3fb6bea5156fe576d2937d414b3ca5d3948341270
   languageName: node
   linkType: hard
 
