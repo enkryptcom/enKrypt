@@ -19,6 +19,10 @@
         @update:gradient="updateGradient"
       />
       <div class="app__menu-footer" :class="{ border: networks.length > 9 }">
+        <mewwallet-banner
+          v-if="isMewwalletBanner"
+          :close="closeMewwalletBanner"
+        />
         <a class="app__menu-add" @click="addNetworkShow = !addNetworkShow">
           <manage-networks-icon />
           Manage networks
@@ -94,6 +98,7 @@ import MoreIcon from "./icons/actions/more.vue";
 import AddNetwork from "./views/add-network/index.vue";
 import Settings from "./views/settings/index.vue";
 import ModalRate from "./views/modal-rate/index.vue";
+import MewwalletBanner from "./components/mewwallet-banner/index.vue";
 import { useRouter, useRoute } from "vue-router";
 import { BaseNetwork } from "@/types/base-network";
 import {
@@ -124,10 +129,12 @@ import { onClickOutside } from "@vueuse/core";
 import RateState from "@/libs/rate-state";
 import SwapLookingAnimation from "@action/icons/swap/swap-looking-animation.vue";
 import { addNetworkSelectMetrics } from "@/libs/metrics";
+import BannersState from "@/libs/banners-state";
 
 const domainState = new DomainState();
 const networksState = new NetworksState();
 const rateState = new RateState();
+const bannersState = new BannersState();
 const appMenuRef = ref(null);
 const showDepositWindow = ref(false);
 const accountHeaderData = ref<AccountsHeaderData>({
@@ -153,6 +160,7 @@ const rateShow = ref(false);
 const dropdown = ref(null);
 const toggle = ref(null);
 const isLoading = ref(true);
+const isMewwalletBanner = ref(false);
 
 const setActiveNetworks = async () => {
   const activeNetworkNames = await networksState.getActiveNetworkNames();
@@ -211,6 +219,9 @@ const init = async () => {
 onMounted(async () => {
   if (await rateState.showPopup()) {
     rateShow.value = true;
+  }
+  if (await bannersState.showMewwalletBanner()) {
+    isMewwalletBanner.value = true;
   }
   const isInitialized = await kr.isInitialized();
   if (isInitialized) {
@@ -385,6 +396,10 @@ onClickOutside(
   },
   { ignore: [toggle] }
 );
+const closeMewwalletBanner = () => {
+  isMewwalletBanner.value = false;
+  bannersState.hideMewwalletBanner();
+};
 </script>
 
 <style lang="less">
