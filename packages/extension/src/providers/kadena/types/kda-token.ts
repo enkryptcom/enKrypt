@@ -33,7 +33,10 @@ export class KDAToken extends KDABaseToken {
 
   public async send(
     // eslint-disable-next-line
-    api: any, to: string, amount: string, options: SendOptions
+    api: any,
+    to: string,
+    amount: string,
+    options: SendOptions
   ): Promise<any> {
     throw new Error("KDA-send is not implemented here");
   }
@@ -46,17 +49,13 @@ export class KDAToken extends KDABaseToken {
   ): Promise<ICommand> {
     const accountDetails = await this.getAccountDetails(to, network);
     const keySetAccount = to.startsWith("k:") ? to.replace("k:", "") : to;
-    const modules = Pact.modules as any;
     const unsignedTransaction = Pact.builder
       .execution(
-        modules.coin["transfer-create"](
-          from.address,
-          to,
-          () => '(read-keyset "ks")',
-          {
-            decimal: amount,
-          }
-        )
+        `(coin.transfer-create "${
+          from.address
+        }" "${to}" (read-keyset "ks") ${parseFloat(amount).toFixed(
+          network.options.decimals
+        )})`
       )
       .addData("ks", {
         keys: accountDetails.data?.guard.keys || [keySetAccount],

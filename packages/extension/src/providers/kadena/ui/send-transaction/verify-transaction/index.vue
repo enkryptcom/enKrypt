@@ -101,7 +101,6 @@ import ActivityState from "@/libs/activity-state";
 import { Activity, ActivityStatus, ActivityType } from "@/types/activity";
 import { KDAToken } from "@/providers/kadena/types/kda-token";
 import KadenaAPI from "@/providers/kadena/libs/api";
-import { fromBase } from "@enkryptcom/utils";
 import { KadenaNetwork } from "@/providers/kadena/types/kadena-network";
 
 const isSendDone = ref(false);
@@ -172,7 +171,7 @@ const sendAction = async () => {
         price: txData.toToken.price,
       },
       type: ActivityType.transaction,
-      value: fromBase(txData.toToken.amount, txData.toToken.decimals),
+      value: txData.toToken.amount,
       transactionHash: transactionDescriptor.requestKey,
     };
 
