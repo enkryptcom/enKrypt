@@ -55,10 +55,10 @@ export class KadenaNetwork extends BaseNetwork {
     };
 
     const baseOptions: BaseNetworkOptions = {
-      basePath: "k/",
+      basePath: "m/44'/626'/0'",
       identicon: createIcon,
       signer: [SignerType.ed25519kda],
-      displayAddress: (address: string) => address,
+      displayAddress: (address: string) => address.replace("0x", "k:"),
       provider: ProviderName.kadena,
       api,
       ...options,

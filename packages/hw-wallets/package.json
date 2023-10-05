@@ -53,7 +53,7 @@
     "@ledgerhq/hw-transport-webusb": "^6.27.19",
     "@ledgerhq/live-common": "^31.7.0",
     "@polkadot/types": "^10.9.1",
-    "@polkadot/util": "^12.4.2",
+    "@polkadot/util": "^12.5.1",
     "@trezor/connect-web": "^9.1.2",
     "@zondax/ledger-substrate": "^0.41.2",
     "ethereumjs-util": "^7.1.5",

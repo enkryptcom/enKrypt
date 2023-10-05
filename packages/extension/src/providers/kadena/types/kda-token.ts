@@ -1,9 +1,11 @@
-import { BaseToken, BaseTokenOptions, SendOptions } from "@/types/base-token";
+import { BaseToken, BaseTokenOptions } from "@/types/base-token";
 import KadenaAPI from "@/providers/kadena/libs/api";
 import { ChainId, ICommand, Pact, addSignatures } from "@kadena/client";
-import { TransactionSigner } from "../ui/libs/signer";
 import { EnkryptAccount } from "@enkryptcom/types";
+import { blake2AsU8a } from "@polkadot/util-crypto";
 import { KadenaNetwork } from "./kadena-network";
+import { TransactionSigner } from "../ui/libs/signer";
+import { bufferToHex } from "@enkryptcom/utils";
 
 export abstract class KDABaseToken extends BaseToken {
   public abstract buildTransaction(
@@ -31,13 +33,7 @@ export class KDAToken extends KDABaseToken {
     return api.getBalance(pubkey);
   }
 
-  public async send(
-    // eslint-disable-next-line
-    api: any,
-    to: string,
-    amount: string,
-    options: SendOptions
-  ): Promise<any> {
+  public async send(): Promise<any> {
     throw new Error("KDA-send is not implemented here");
   }
 
@@ -77,7 +73,7 @@ export class KDAToken extends KDABaseToken {
     const transaction = await TransactionSigner({
       account: from,
       network: network,
-      payload: unsignedTransaction.cmd,
+      payload: bufferToHex(blake2AsU8a(unsignedTransaction.cmd)),
     }).then((res) => {
       if (res.error) return Promise.reject(res.error);
       else
