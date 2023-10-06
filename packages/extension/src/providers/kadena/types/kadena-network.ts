@@ -32,6 +32,7 @@ export interface KadenaNetworkOptions {
   prefix: number;
   node: string;
   kadenaApiOptions: KadenaApiOptions;
+  displayAddress: (address: string) => string;
   coingeckoID?: string;
   coingeckoPlatform?: CoingeckoPlatform;
   activityHandler: (
@@ -58,7 +59,6 @@ export class KadenaNetwork extends BaseNetwork {
       basePath: "m/44'/626'/0'",
       identicon: createIcon,
       signer: [SignerType.ed25519kda],
-      displayAddress: (address: string) => address.replace("0x", "k:"),
       provider: ProviderName.kadena,
       api,
       ...options,
