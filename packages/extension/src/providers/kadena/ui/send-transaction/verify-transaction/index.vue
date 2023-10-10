@@ -195,7 +195,7 @@ const sendAction = async () => {
         window.close();
       }, 1500);
     }
-  } catch (error: any) {
+  } catch ({ error }: any) {
     isProcessing.value = false;
     console.error("error", error);
     errorMsg.value = `Error: ${

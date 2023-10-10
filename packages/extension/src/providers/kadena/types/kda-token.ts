@@ -80,6 +80,7 @@ export class KDAToken extends KDABaseToken {
         network: network,
         payload: unsignedTransaction.cmd,
       }).then((res) => {
+        if (res.error) return Promise.reject(res.error);
         return JSON.parse(res.result as string);
       });
       return transaction as ICommand;
