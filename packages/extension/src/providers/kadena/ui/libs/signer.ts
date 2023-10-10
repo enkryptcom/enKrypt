@@ -13,7 +13,7 @@ const TransactionSigner = (
     const hwWallet = new HWwallet();
     return hwWallet
       .signTransaction({
-        transaction: payload as string,
+        transaction: payload as any,
         networkName: network.name,
         pathIndex: account.pathIndex.toString(),
         pathType: {

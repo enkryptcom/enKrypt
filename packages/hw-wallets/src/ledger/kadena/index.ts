@@ -79,7 +79,7 @@ class LedgerKadena implements HWWalletProvider {
     );
 
     const connection = new Kadena(this.transport);
-    const tx = JSON.parse(options.transaction as string) as any;
+    const tx = JSON.parse(options.transaction as any);
     const signedTransaction = await connection.signTransferCreateTx({
       path: pathValue,
       recipient: tx.signers[0].clist[0].args[1],
