@@ -61,7 +61,6 @@
     "ethereumjs-util": "^7.1.5",
     "hdkey": "^2.1.0",
     "hw-app-alamgu": "^0.1.1",
-    "hw-app-kda": "^0.0.0",
     "webextension-polyfill": "^0.10.0"
   }
 }

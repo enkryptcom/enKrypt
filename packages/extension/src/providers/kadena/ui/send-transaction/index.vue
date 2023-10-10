@@ -454,7 +454,7 @@ const sendAction = async () => {
     await Browser.windows.create({
       url: Browser.runtime.getURL(
         getUiPath(
-          `dot-hw-verify?id=${routedRoute.query.id}&txData=${routedRoute.query.txData}`,
+          `kda-hw-verify?id=${routedRoute.query.id}&txData=${routedRoute.query.txData}`,
           ProviderName.kadena
         )
       ),
