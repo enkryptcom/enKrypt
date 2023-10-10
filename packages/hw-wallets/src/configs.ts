@@ -22,6 +22,7 @@ const ledgerAppNames = {
   [NetworkNames.Karura]: "Karura",
   [NetworkNames.Edgeware]: "Edgeware",
   [NetworkNames.Kadena]: "Kadena",
+  [NetworkNames.KadenaTestnet]: "Kadena",
 };
 const MessengerName = "enkrypt_hw_wallets";
 

@@ -217,19 +217,24 @@ const validateFields = async () => {
       )
     );
 
-    const localTransaction = await selectedAsset.value.buildTransaction!(
-      addressTo.value,
-      props.accountInfo.selectedAccount,
-      rawAmount.toString(),
-      props.network
-    );
+    let partialFee;
+    if (props.accountInfo.selectedAccount!.isHardware) {
+      partialFee = 2500;
+    } else {
+      const localTransaction = await selectedAsset.value.buildTransaction!(
+        addressTo.value,
+        props.accountInfo.selectedAccount,
+        rawAmount.toString(),
+        props.network
+      );
 
-    const networkApi = (await props.network.api()) as KadenaAPI;
-    const transactionResult = await networkApi.sendLocalTransaction(
-      localTransaction
-    );
+      const networkApi = (await props.network.api()) as KadenaAPI;
+      const transactionResult = await networkApi.sendLocalTransaction(
+        localTransaction
+      );
+      partialFee = transactionResult.gas;
+    }
 
-    const partialFee = transactionResult.gas;
     const rawFee = toBN(partialFee?.toString() ?? "0");
     const rawBalance = toBN(selectedAsset.value.balance!);
     if (

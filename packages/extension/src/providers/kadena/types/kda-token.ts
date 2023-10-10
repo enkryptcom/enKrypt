@@ -74,6 +74,16 @@ export class KDAToken extends KDABaseToken {
       .setNetworkId(network.options.kadenaApiOptions.networkId)
       .createTransaction();
 
+    if (from.isHardware) {
+      const transaction = await TransactionSigner({
+        account: from,
+        network: network,
+        payload: unsignedTransaction.cmd,
+      }).then((res) => {
+        return JSON.parse(res.result as string);
+      });
+      return transaction as ICommand;
+    }
     const transaction = await TransactionSigner({
       account: from,
       network: network,
