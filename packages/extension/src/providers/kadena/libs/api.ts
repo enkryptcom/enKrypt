@@ -15,14 +15,15 @@ class API implements ProviderAPIInterface {
   networkId: string;
   chainId: string;
   apiHost: string;
+  displayAddress: (address: string) => string;
 
   constructor(node: string, options: KadenaNetworkOptions) {
     this.decimals = options.decimals;
-
     this.node = node;
     this.networkId = options.kadenaApiOptions.networkId;
     this.chainId = options.kadenaApiOptions.chainId;
     this.apiHost = `${node}/${this.networkId}/chain/${this.chainId}/pact`;
+    this.displayAddress = options.displayAddress;
   }
 
   public get api() {
@@ -42,7 +43,7 @@ class API implements ProviderAPIInterface {
   }
 
   async getBalance(address: string): Promise<string> {
-    const balance = await this.getBalanceAPI(address);
+    const balance = await this.getBalanceAPI(this.displayAddress(address));
 
     if (balance.result.error) {
       return toBase("0", this.decimals);

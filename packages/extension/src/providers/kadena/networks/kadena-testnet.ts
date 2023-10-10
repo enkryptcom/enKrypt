@@ -22,6 +22,7 @@ const kadenaOptions: KadenaNetworkOptions = {
     chainId: "1",
   },
   activityHandler: wrapActivityHandler(kadenaScanActivity),
+  displayAddress: (address: string) => address.replace("0x", "k:"),
 };
 
 const kadenaTestnet = new KadenaNetwork(kadenaOptions);

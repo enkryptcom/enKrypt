@@ -1,25 +1,24 @@
 import { SignerInterface, KeyPair } from "@enkryptcom/types";
-import { mnemonicToSeedSync } from 'bip39';
-import { derivePath } from 'ed25519-hd-key';
-import {
-  sign,
-  verifySig,
-  binToHex,
-  hexToBin,
-  base64UrlDecodeArr,
-  restoreKeyPairFromSecretKey
-} from '@kadena/cryptography-utils';
+import { mnemonicToSeedSync } from "bip39";
+import { sign as tweetSign } from "tweetnacl";
+import { bufferToHex, hexToBuffer } from "@enkryptcom/utils";
+import { derivePath } from "./libs/ed25519";
 
 class Signer implements SignerInterface {
   async generate(mnemonic: string, derivationPath = ""): Promise<KeyPair> {
-    const seed = binToHex(mnemonicToSeedSync(mnemonic));
-    const keys = derivePath("m/44'/626'/0'", seed, 0x80000000 + Number(derivationPath));
-    const keyPair = restoreKeyPairFromSecretKey(binToHex(keys.key));
-    
+    const seed = bufferToHex(mnemonicToSeedSync(mnemonic), true);
+    const dPathSegments = derivationPath.split("/");
+    const indexVal = Number(dPathSegments.pop());
+    const keys = derivePath(
+      dPathSegments.join("/"),
+      seed,
+      0x80000000 + indexVal
+    );
+    const keyPair = tweetSign.keyPair.fromSeed(keys.key);
     return {
-      address: `k:${keyPair.publicKey}`,
-      privateKey: keyPair.secretKey,
-      publicKey: keyPair.publicKey,
+      address: bufferToHex(keyPair.publicKey),
+      privateKey: bufferToHex(keyPair.secretKey),
+      publicKey: bufferToHex(keyPair.publicKey),
     };
   }
 
@@ -28,14 +27,19 @@ class Signer implements SignerInterface {
     sig: string,
     publicKey: string
   ): Promise<boolean> {
-    return verifySig(base64UrlDecodeArr(msgHash), hexToBin(sig), hexToBin(publicKey));
+    return tweetSign.detached.verify(
+      hexToBuffer(msgHash),
+      hexToBuffer(sig),
+      hexToBuffer(publicKey)
+    );
   }
 
   async sign(msgHash: string, keyPair: KeyPair): Promise<string> {
-    return sign(msgHash, {
-      publicKey: keyPair.publicKey,
-      secretKey: keyPair.privateKey
-    }).sig;
+    const sig = tweetSign.detached(
+      hexToBuffer(msgHash),
+      hexToBuffer(keyPair.privateKey)
+    );
+    return bufferToHex(sig);
   }
 }
 

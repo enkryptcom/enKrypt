@@ -1,9 +1,11 @@
-import { BaseToken, BaseTokenOptions, SendOptions } from "@/types/base-token";
+import { BaseToken, BaseTokenOptions } from "@/types/base-token";
 import KadenaAPI from "@/providers/kadena/libs/api";
 import { ChainId, ICommand, Pact, addSignatures } from "@kadena/client";
-import { TransactionSigner } from "../ui/libs/signer";
 import { EnkryptAccount } from "@enkryptcom/types";
+import { blake2AsU8a } from "@polkadot/util-crypto";
 import { KadenaNetwork } from "./kadena-network";
+import { TransactionSigner } from "../ui/libs/signer";
+import { bufferToHex } from "@enkryptcom/utils";
 
 export abstract class KDABaseToken extends BaseToken {
   public abstract buildTransaction(
@@ -31,13 +33,7 @@ export class KDAToken extends KDABaseToken {
     return api.getBalance(pubkey);
   }
 
-  public async send(
-    // eslint-disable-next-line
-    api: any,
-    to: string,
-    amount: string,
-    options: SendOptions
-  ): Promise<any> {
+  public async send(): Promise<any> {
     throw new Error("KDA-send is not implemented here");
   }
 
@@ -47,13 +43,14 @@ export class KDAToken extends KDABaseToken {
     amount: string,
     network: KadenaNetwork
   ): Promise<ICommand> {
+    to = network.displayAddress(to);
     const accountDetails = await this.getAccountDetails(to, network);
     const keySetAccount = to.startsWith("k:") ? to.replace("k:", "") : to;
     const unsignedTransaction = Pact.builder
       .execution(
-        `(coin.transfer-create "${
+        `(coin.transfer-create "${network.displayAddress(
           from.address
-        }" "${to}" (read-keyset "ks") ${parseFloat(amount).toFixed(
+        )}" "${to}" (read-keyset "ks") ${parseFloat(amount).toFixed(
           network.options.decimals
         )})`
       )
@@ -61,15 +58,15 @@ export class KDAToken extends KDABaseToken {
         keys: accountDetails.data?.guard.keys || [keySetAccount],
         pred: accountDetails.data?.guard.pred || "keys-all",
       })
-      .addSigner(from.publicKey, (withCap: any) => [
-        withCap("coin.TRANSFER", from.address, to, {
+      .addSigner(from.publicKey.replace("0x", ""), (withCap: any) => [
+        withCap("coin.TRANSFER", network.displayAddress(from.address), to, {
           decimal: amount,
         }),
         withCap("coin.GAS"),
       ])
       .setMeta({
         chainId: network.options.kadenaApiOptions.chainId as ChainId,
-        senderAccount: from.address,
+        senderAccount: network.displayAddress(from.address),
       })
       .setNetworkId(network.options.kadenaApiOptions.networkId)
       .createTransaction();
@@ -88,13 +85,13 @@ export class KDAToken extends KDABaseToken {
     const transaction = await TransactionSigner({
       account: from,
       network: network,
-      payload: unsignedTransaction.cmd,
+      payload: bufferToHex(blake2AsU8a(unsignedTransaction.cmd)),
     }).then((res) => {
       if (res.error) return Promise.reject(res.error);
       else
         return {
           id: 0,
-          signature: res.result as string,
+          signature: res.result?.replace("0x", "") as string,
         };
     });
 

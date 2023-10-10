@@ -298,8 +298,8 @@ const fetchTokens = async () => {
       nonZeroAssets.push(networkAssets[0]);
     }
 
-    selectedAsset.value = nonZeroAssets[0];
-    accountAssets.value = nonZeroAssets;
+    selectedAsset.value = nonZeroAssets[0] as KDAToken;
+    accountAssets.value = nonZeroAssets as KDAToken[];
 
     isLoadingAssets.value = false;
   });

@@ -24,6 +24,7 @@ const kadenaOptions: KadenaNetworkOptions = {
   coingeckoID: "kadena",
   coingeckoPlatform: CoingeckoPlatform.Kadena,
   activityHandler: wrapActivityHandler(kadenaScanActivity),
+  displayAddress: (address: string) => address.replace("0x", "k:"),
 };
 
 const kadena = new KadenaNetwork(kadenaOptions);

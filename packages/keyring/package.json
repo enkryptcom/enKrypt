@@ -24,7 +24,7 @@
     "@enkryptcom/storage": "workspace:^",
     "@enkryptcom/types": "workspace:^",
     "@enkryptcom/utils": "workspace:^",
-    "@polkadot/util": "^12.4.2",
+    "@polkadot/util": "^12.5.1",
     "assert": "^2.1.0",
     "bip39": "^3.1.0"
   },
