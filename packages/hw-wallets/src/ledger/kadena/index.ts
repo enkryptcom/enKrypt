@@ -39,12 +39,12 @@ class LedgerKadena implements HWWalletProvider {
 
   async getAddress(options: getAddressRequest): Promise<AddressResponse> {
     console.log("getAddress options", options);
-    // const pathValue = options.pathType.path.replace(
-    //   `{index}`,
-    //   options.pathIndex
-    // );
+    const pathValue = options.pathType.path.replace(
+      `{index}`,
+      options.pathIndex
+    );
     const connection = new Kadena(this.transport);
-    return connection.getPublicKey("44'/626'/0'/0/0").then((res) => {
+    return connection.getPublicKey(pathValue).then((res) => {
       console.log("getAddress res", res);
       return {
         address: `k:${Buffer.from(res.publicKey).toString("hex")}`,
@@ -76,15 +76,15 @@ class LedgerKadena implements HWWalletProvider {
 
   async signTransaction(options: SignTransactionRequest): Promise<string> {
     console.log("signTransaction options", options);
-    // const pathValue = options.pathType.path.replace(
-    //   `{index}`,
-    //   options.pathIndex
-    // );
+    const pathValue = options.pathType.path.replace(
+      `{index}`,
+      options.pathIndex
+    );
 
     const connection = new Kadena(this.transport);
     const tx = JSON.parse(options.transaction as string) as any;
-    const signedTransaction = await connection.signTransferTx({
-      path: "44'/626'/0'/0/0",
+    const signedTransaction = await connection.signTransferCreateTx({
+      path:pathValue,
       recipient: tx.signers[0].clist[0].args[1],
       amount: tx.signers[0].clist[0].args[2].decimal,
       chainId: tx.meta.chainId,

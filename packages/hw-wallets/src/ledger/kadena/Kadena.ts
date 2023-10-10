@@ -101,17 +101,17 @@ export default class Kadena extends Common {
   }
 
   /**
-   * Sign a transfer transaction.
+   * Sign a transfer create transaction.
    *
    * @param params - The `TransferTxParams` parameters used to construct the transaction.
    * @returns the signed Pact Command and the public key of the signer.
    */
-  async signTransferTx(
+  async signTransferCreateTx(
     params: TransferTxParams
   ): Promise<BuildTransactionResult> {
     const p1 = params as TransferCrossChainTxParams;
     p1.recipient_chainId = 1; // Ignored by Ledger App
-    return this.signTxInternal(p1, 0);
+    return this.signTxInternal(p1, 1);
   }
 
   private async signTxInternal(
