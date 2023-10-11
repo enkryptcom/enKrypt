@@ -1,3 +1,5 @@
+// Copied from https://github.com/obsidiansystems/hw-app-kda/blob/develop/src/Kadena.ts
+
 import type Transport from "@ledgerhq/hw-transport";
 import { Common } from "hw-app-alamgu";
 import blake2b from "blake2b";

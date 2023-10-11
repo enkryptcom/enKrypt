@@ -25,12 +25,12 @@ class LedgerKadena implements HWWalletProvider {
 
   async init(): Promise<boolean> {
     if (!this.transport) {
-      const support = await webUsbTransport.isSupported();
+      const support = await TransportWebHID.isSupported();
       if (support && !this.transport) {
         this.transport = await TransportWebHID.create();
       } else {
         return Promise.reject(
-          new Error("ledger-kadena: webusb is not supported")
+          new Error("ledger-kadena: webHID is not supported")
         );
       }
     }
