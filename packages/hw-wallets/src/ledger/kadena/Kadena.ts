@@ -120,7 +120,7 @@ export default class Kadena extends Common {
   ): Promise<BuildTransactionResult> {
     // Use defaults if value not specified
     const t: Date = new Date();
-    const path: any = params.path ? "44'/626'/0'/0/0" : params.path;
+    const path: any = !params.path ? "44'/626'/0'/0/0" : params.path;
     if (!(path.startsWith("44'/626'/") || path.startsWith("m/44'/626'/")))
       throw new TypeError(
         "Path does not start with `44'/626'/` or `m/44'/626'/`"
@@ -164,7 +164,6 @@ export default class Kadena extends Common {
 
     const nonce = !params.nonce ? "" : params.nonce;
     // Do APDU call
-    const paths = splitPath(path);
     const cla = 0x00;
     const ins = 0x10;
     const p1 = 0;
