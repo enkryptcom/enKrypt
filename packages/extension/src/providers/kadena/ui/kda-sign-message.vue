@@ -9,6 +9,7 @@
     </template>
 
     <template #content>
+      <hardware-wallet-msg :wallet-type="account?.walletType" />
       <h2>Sign message</h2>
 
       <div class="common-popup__block">
@@ -48,6 +49,7 @@
 
 <script setup lang="ts">
 import SignLogo from "@action/icons/common/sign-logo.vue";
+import HardwareWalletMsg from "@/providers/common/ui/verify-transaction/hardware-wallet-msg.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import CommonPopup from "@action/views/common-popup/index.vue";
 import { getError } from "@/libs/error";
