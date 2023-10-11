@@ -17,7 +17,7 @@ const method: MiddlewareFunction = function (
 
     const reqPayload = payload.params[0];
 
-    this.KeyRing.getAccount(reqPayload.address)
+    this.KeyRing.getAccount(reqPayload.address.replace("k:", "0x"))
       .then((account) => {
         const windowPromise = new WindowPromise();
 

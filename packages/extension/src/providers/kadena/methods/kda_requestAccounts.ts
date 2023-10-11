@@ -76,8 +76,8 @@ const method: MiddlewareFunction = function (
           selectedAccountAddress: account,
           accounts: accounts.map((acc) => {
             return {
-              address: acc.address,
-              publicKey: acc.publicKey,
+              address: this.network.displayAddress(acc.address),
+              publicKey: acc.publicKey.replace("0x", ""),
               isHardware: acc.isHardware,
               genesisHash: "",
               name: acc.name,
