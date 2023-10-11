@@ -1,5 +1,4 @@
 import type Transport from "@ledgerhq/hw-transport";
-import webUsbTransport from "@ledgerhq/hw-transport-webusb";
 import TransportWebHID from "@ledgerhq/hw-transport-webhid";
 import { HWwalletCapabilities, NetworkNames } from "@enkryptcom/types";
 import {
