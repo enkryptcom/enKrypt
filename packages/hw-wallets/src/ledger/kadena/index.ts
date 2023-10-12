@@ -44,7 +44,7 @@ class LedgerKadena implements HWWalletProvider {
     );
     const connection = new Kadena(this.transport);
     return connection.getPublicKey(pathValue).then((res) => ({
-        address: `k:${Buffer.from(res.publicKey).toString("hex")}`,
+        address: `0x${Buffer.from(res.publicKey).toString("hex")}`,
         publicKey: Buffer.from(res.publicKey).toString("hex"),
       }));
   }

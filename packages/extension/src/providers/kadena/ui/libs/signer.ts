@@ -4,6 +4,8 @@ import { HWwalletType } from "@enkryptcom/types";
 import HWwallet from "@enkryptcom/hw-wallets";
 import { getCustomError } from "@/libs/error";
 import sendUsingInternalMessengers from "@/libs/messenger/internal-messenger";
+import { bufferToHex } from "@enkryptcom/utils";
+import { blake2AsU8a } from "@polkadot/util-crypto";
 
 const TransactionSigner = (
   options: SignerTransactionOptions
@@ -35,11 +37,11 @@ const TransactionSigner = (
   } else {
     return sendUsingInternalMessengers({
       method: InternalMethods.sign,
-      params: [payload, account],
+      params: [bufferToHex(blake2AsU8a(payload)), account],
     }).then((res) => {
       if (res.error) return res;
       return {
-        result: JSON.parse(res.result as string),
+        result: JSON.parse(res.result?.replace("0x", "") as string),
       };
     });
   }

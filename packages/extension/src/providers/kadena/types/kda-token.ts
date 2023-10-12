@@ -85,13 +85,13 @@ export class KDAToken extends KDABaseToken {
     const transaction = await TransactionSigner({
       account: from,
       network: network,
-      payload: bufferToHex(blake2AsU8a(unsignedTransaction.cmd)),
+      payload: unsignedTransaction.cmd,
     }).then((res) => {
       if (res.error) return Promise.reject(res.error);
       else
         return {
           id: 0,
-          signature: res.result?.replace("0x", "") as string,
+          signature: res.result as string,
         };
     });
 
