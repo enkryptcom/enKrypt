@@ -18,13 +18,13 @@
   },
   "dependencies": {
     "@enkryptcom/utils": "workspace:^",
-    "@polkadot/util-crypto": "^12.5.1",
     "bip39": "^3.1.0",
     "chai": "^4.3.8",
     "tweetnacl": "^1.0.3"
   },
   "devDependencies": {
     "@enkryptcom/types": "workspace:^",
+    "@polkadot/util-crypto": "^12.5.1",
     "@types/chai": "^4.3.5",
     "@types/hdkey": "^2.0.1",
     "@types/mocha": "^10.0.1",
