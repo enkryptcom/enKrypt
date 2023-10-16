@@ -10,7 +10,7 @@ const artheraOptions: EvmNetworkOptions = {
   homePage: "https://arthera.net/",
   blockExplorerTX: "https://explorer-test.arthera.net/tx/[[txHash]]",
   blockExplorerAddr: "https://explorer-test.arthera.net/address/[[address]]",
-  chainID: "0xa4ec",
+  chainID: "0x2803",
   isTestNetwork: false,
   currencyName: "AA",
   currencyNameLong: "Arthera",
