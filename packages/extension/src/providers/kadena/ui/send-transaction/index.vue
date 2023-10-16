@@ -119,7 +119,6 @@ import KadenaAPI from "@/providers/kadena/libs/api";
 import getUiPath from "@/libs/utils/get-ui-path";
 import { ProviderName } from "@/types/provider";
 import Browser from "webextension-polyfill";
-import { computedAsync } from "@vueuse/core";
 
 const props = defineProps({
   network: {
@@ -158,6 +157,7 @@ const selectedAsset = ref<KDAToken | Partial<KDAToken>>(
 );
 const hasEnough = ref(false);
 const sendMax = ref(false);
+const addressToIsValid = ref(false);
 
 const selected: string = route.params.id as string;
 const isLoadingAssets = ref(true);
@@ -278,6 +278,19 @@ const validateFields = async () => {
       nativeSymbol: nativeAsset.symbol ?? "",
       nativeValue: txFeeHuman.toString(),
     };
+
+    if (addressTo.value.startsWith("k:") && addressTo.value.length == 66) {
+      addressToIsValid.value = true;
+    } else {
+      const to = props.network.displayAddress(addressTo.value);
+      const accountDetail = await accountAssets.value[0].getAccountDetails(
+        to,
+        props.network
+      );
+      if (accountDetail.error) {
+        addressToIsValid.value = false;
+      }
+    }
   }
 };
 watch([selectedAsset, addressTo], validateFields);
@@ -399,7 +412,7 @@ const setSendMax = (max: boolean) => {
   }
 };
 
-const isDisabled = computedAsync(async () => {
+const isDisabled = computed(() => {
   let isDisabled = true;
   let addressIsValid = false;
 
@@ -410,20 +423,12 @@ const isDisabled = computedAsync(async () => {
     addressIsValid = false;
   }
 
-  const to = props.network.displayAddress(addressTo.value);
-  const accountDetail = await accountAssets.value[0].getAccountDetails(
-    to,
-    props.network
-  );
-  if (accountDetail.error) {
-    addressIsValid = false;
-  }
-
   if (
     amount.value !== undefined &&
     amount.value !== "" &&
     hasEnough.value &&
     addressIsValid &&
+    addressToIsValid.value &&
     !edWarn.value &&
     edWarn.value !== undefined
   )
