@@ -248,7 +248,7 @@ const validateFields = async () => {
       sendMax.value &&
       selectedAsset.value.name === accountAssets.value[0].name
     ) {
-      rawAmount = rawAmount.sub(rawFee);
+      rawAmount = rawBalance.sub(rawFee);
 
       if (rawAmount.gtn(0)) {
         amount.value = fromBase(
