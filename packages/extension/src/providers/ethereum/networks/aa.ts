@@ -16,7 +16,6 @@ const artheraOptions: EvmNetworkOptions = {
   currencyNameLong: "Arthera",
   node: "wss://ws-test.arthera.net",
   icon: require("./icons/aa.svg"),
-  assetsInfoHandler,
   activityHandler: wrapActivityHandler(EtherscanActivity),
 };
 
