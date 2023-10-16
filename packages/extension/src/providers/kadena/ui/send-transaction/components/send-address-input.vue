@@ -84,7 +84,7 @@ const address = computed({
 });
 
 const isAddress = computed(() => {
-  return true;
+  return !!props.value;
 });
 
 const changeFocus = (val: FocusEvent) => {

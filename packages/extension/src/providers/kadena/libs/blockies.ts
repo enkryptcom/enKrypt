@@ -97,11 +97,15 @@ type options = {
   spotcolor?: string;
 };
 
+const formatAddress = (address: string): string => {
+  return address.replace("k:", "0x").toLowerCase();
+};
+
 const createIcon = (address: string, opts?: options): string => {
   opts = opts || {};
   const size = opts.size || 8;
   const scale = opts.scale || 4;
-  const seed = address.toLowerCase();
+  const seed = formatAddress(address);
   seedrand(seed);
   const color = opts.color || createColor();
   const bgcolor = opts.bgcolor || createColor();
