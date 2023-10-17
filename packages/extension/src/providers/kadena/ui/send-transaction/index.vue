@@ -289,6 +289,8 @@ const validateFields = async () => {
       );
       if (accountDetail.error) {
         addressToIsValid.value = false;
+      } else {
+        addressToIsValid.value = true;
       }
     }
   }
