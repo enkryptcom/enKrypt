@@ -61,6 +61,7 @@ export class KadenaNetwork extends BaseNetwork {
       signer: [SignerType.ed25519kda],
       provider: ProviderName.kadena,
       api,
+      importAccount: false,
       ...options,
     };
 

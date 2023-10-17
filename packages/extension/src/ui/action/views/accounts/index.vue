@@ -60,7 +60,11 @@
           Add hardware wallet account
         </a>
 
-        <a class="accounts__action-button import" @click="importAction">
+        <a
+          v-if="network.importAccount"
+          class="accounts__action-button import"
+          @click="importAction"
+        >
           <import-account-icon />
           Import account from another wallet
         </a>
@@ -91,7 +95,7 @@
   />
 
   <import-account
-    v-if="isImportAccount"
+    v-if="network.importAccount && isImportAccount"
     v-bind="$attrs"
     :network="network"
     @close="closeImportAccount"
