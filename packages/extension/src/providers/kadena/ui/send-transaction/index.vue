@@ -279,10 +279,11 @@ const validateFields = async () => {
       nativeValue: txFeeHuman.toString(),
     };
 
-    if (addressTo.value.startsWith("k:") && addressTo.value.length == 66) {
+    const to = props.network.displayAddress(addressTo.value);
+
+    if (to.startsWith("k:") && to.length == 66) {
       addressToIsValid.value = true;
     } else {
-      const to = props.network.displayAddress(addressTo.value);
       const accountDetail = await accountAssets.value[0].getAccountDetails(
         to,
         props.network
