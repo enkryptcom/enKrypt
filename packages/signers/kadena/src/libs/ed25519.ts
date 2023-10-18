@@ -58,9 +58,9 @@ const isValidPath = (path: string): boolean => {
 };
 
 const derivePath = (path: Path, seed: Hex, offset = HARDENED_OFFSET): Keys => {
-  // if (!isValidPath(path)) {
-  //   throw new Error("Invalid derivation path");
-  // }
+  if (!isValidPath(path)) {
+    throw new Error("Invalid derivation path");
+  }
 
   const { key, chainCode } = getMasterKeyFromSeed(seed);
   const segments = path
