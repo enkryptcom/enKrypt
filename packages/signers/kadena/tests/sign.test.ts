@@ -11,13 +11,13 @@ describe("Kadena signing", () => {
     "Everything should be made as simple as possible, but not simpler.";
   const msgHash = bufferToHex(blake2AsU8a(msg));
   const signature =
-    "0x5c23909b5b05854e79410777abd0ce3145c47defb5e7a32a887c617a28cb63c52ad22ecbc72dc87118eb7854fe3115fe1b47490364b2a240ce400cdc516ff70e";
+    "0x8fd01eccc203d17cbffe54393954c213fb087dd6e62cf3c50bc5635346a83d9fae80c214ecb20bab092a0eca10408223e6e1007f597a3d4bfb525d68a0573a05";
 
   const txMsg =
     '{"payload":{"exec":{"code":"(coin.transfer-create \\"k:e84affbb41a62d74020bc4841ea206aba7734f9e0d30fb688a4a84fe2d30e291\\" \\"k:e84affbb41a62d74020bc4841ea206aba7734f9e0d30fb688a4a84fe2d30e291\\" (read-keyset \\"ks\\") 0.000000000000)","data":{"ks":{"keys":["e84affbb41a62d74020bc4841ea206aba7734f9e0d30fb688a4a84fe2d30e291"],"pred":"keys-all"}}}},"nonce":"kjs:nonce:1696630965601","signers":[{"pubKey":"e84affbb41a62d74020bc4841ea206aba7734f9e0d30fb688a4a84fe2d30e291","scheme":"ED25519","clist":[{"name":"coin.TRANSFER","args":["k:e84affbb41a62d74020bc4841ea206aba7734f9e0d30fb688a4a84fe2d30e291","k:e84affbb41a62d74020bc4841ea206aba7734f9e0d30fb688a4a84fe2d30e291",{"decimal":"0"}]},{"name":"coin.GAS","args":[]}]}],"meta":{"gasLimit":2500,"gasPrice":1e-8,"sender":"k:e84affbb41a62d74020bc4841ea206aba7734f9e0d30fb688a4a84fe2d30e291","ttl":28800,"creationTime":1696630965,"chainId":"1"},"networkId":"testnet04"}';
 
   const txMsgSig =
-    "0xef8e48c609cd3f47852265785cc024900ee057eb766384292799f0cda38bf07839cff8aacd79581958f721098edb278ef92d112cdf1b623c69fde55b853af602";
+    "0xe929eecf16d77016646a95448fd24de3183488a5e4ab7ae0b1fcb5971fd6e3a524a6cc2879b2369e40f827b816355dbaad09b173442742c39ba487c68199a302";
   it("it should sign correctly", async () => {
     // Arrange
     const kadenaSigner = new Signer();

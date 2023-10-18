@@ -10,33 +10,27 @@ describe("Kadena address generate", () => {
     const kadenaSigner = new Signer();
 
     // Act & Assert
-    let keypair = await kadenaSigner.generate(MNEMONIC, "m/44'/626'/0'/0");
+    let keypair = await kadenaSigner.generate(MNEMONIC, "m/44'/626'/0'/0'/0");
     expect(keypair.address).equals(
-      "0x7a3931f9379b5b63c76d73e3d79efbc890f56cfb22f1505ad457b7d0fb025f6d"
-    );
-
-    // Act & Assert
-    keypair = await kadenaSigner.generate(MNEMONIC, "m/44'/626'/0'/0'/0");
-    expect(keypair.address).equals(
-      "0x46e43dc208df46dfcc0662777f23dd8853079e3e0e8e2a31abc816cfbf55ea55"
+      "0x40a9305bd53a921c44cf19dc9bac4e5d73465fc6a46343ab313defe6b0bfb0a3"
     );
 
     // Act & Assert
     keypair = await kadenaSigner.generate(MNEMONIC, "m/44'/626'/0'/0'/1");
     expect(keypair.address).equals(
-      "0x07a9263d75d8debb5dcaebf679d09d1291111ebdc4eaaee73992dc0401e10e04"
+      "0x50d824cb62578b1fcf8e4afb122e98884d5f04070950b93a102e1ba1e1f3d1bb"
     );
 
     // Act & Assert
     keypair = await kadenaSigner.generate(MNEMONIC, "m/44'/626'/0'/0'/2");
     expect(keypair.address).equals(
-      "0xc1937f9eca305cdd048ad5785aaf1ad168b04d565250f6cd6e550c6d957e00b3"
+      "0x287b9cdbd0894fbff67c664b4cc1e7da9eca9b03ef94fd5baa2cfabe2cd3c6a5"
     );
 
     // Act & Assert
     keypair = await kadenaSigner.generate(MNEMONIC, "m/44'/626'/0'/0'/3");
     expect(keypair.address).equals(
-      "0x0d7f186afcd0759cd509de3741d609d3465aa65d74d0393410ad4a137252295d"
+      "0xe00a31c57aabe95554ad71c700c723153c0dd67b072b569916209138e419c122"
     );
   });
 });
