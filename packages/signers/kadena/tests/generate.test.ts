@@ -3,34 +3,40 @@ import Signer from "../src";
 
 describe("Kadena address generate", () => {
   const MNEMONIC =
-    "clip coffee brain token leader kiss around main finger network avoid west";
+    "favorite service senior cluster chicken shift square endorse casual kidney doll exhibit";
 
-  it("should generate Kadena addresses correctly", async () => {
+  it.only("should generate Kadena addresses correctly", async () => {
     // Arrange
     const kadenaSigner = new Signer();
 
     // Act & Assert
     let keypair = await kadenaSigner.generate(MNEMONIC, "m/44'/626'/0'/0");
     expect(keypair.address).equals(
-      "0xe84affbb41a62d74020bc4841ea206aba7734f9e0d30fb688a4a84fe2d30e291"
+      "0x7a3931f9379b5b63c76d73e3d79efbc890f56cfb22f1505ad457b7d0fb025f6d"
     );
 
     // Act & Assert
-    keypair = await kadenaSigner.generate(MNEMONIC, "m/44'/626'/0'/1");
+    keypair = await kadenaSigner.generate(MNEMONIC, "m/44'/626'/0'/0/0");
     expect(keypair.address).equals(
-      "0x2ddd388820dfd8ddafa37a69926e0b5e57d29daa3adab2ede8a390f984038283"
+      "0x46e43dc208df46dfcc0662777f23dd8853079e3e0e8e2a31abc816cfbf55ea55"
     );
 
     // Act & Assert
-    keypair = await kadenaSigner.generate(MNEMONIC, "m/44'/626'/0'/2");
+    keypair = await kadenaSigner.generate(MNEMONIC, "m/44'/626'/0'/0/1");
     expect(keypair.address).equals(
-      "0x16dcf13ed0261406c63561ef32853e4b417fe1c197a164b6385718c596261918"
+      "0x07a9263d75d8debb5dcaebf679d09d1291111ebdc4eaaee73992dc0401e10e04"
     );
 
     // Act & Assert
-    keypair = await kadenaSigner.generate(MNEMONIC, "m/44'/626'/0'/3");
+    keypair = await kadenaSigner.generate(MNEMONIC, "m/44'/626'/0'/0/2");
     expect(keypair.address).equals(
-      "0xaf29ee6f585381b0109eef8ba51f55fbe9cca31c83375efdb8d72588be3995fc"
+      "0xc1937f9eca305cdd048ad5785aaf1ad168b04d565250f6cd6e550c6d957e00b3"
+    );
+
+    // Act & Assert
+    keypair = await kadenaSigner.generate(MNEMONIC, "m/44'/626'/0'/0/3");
+    expect(keypair.address).equals(
+      "0x0d7f186afcd0759cd509de3741d609d3465aa65d74d0393410ad4a137252295d"
     );
   });
 });
