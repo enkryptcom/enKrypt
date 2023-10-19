@@ -33,6 +33,7 @@ export interface BaseNetworkOptions {
     | Promise<BitcoinAPI>
     | Promise<KadenaAPI>;
   customTokens?: boolean;
+  importAccount?: boolean;
 }
 
 export abstract class BaseNetwork {
@@ -60,6 +61,7 @@ export abstract class BaseNetwork {
     | Promise<BitcoinAPI>
     | Promise<KadenaAPI>;
   public customTokens: boolean;
+  public importAccount: boolean;
 
   constructor(options: BaseNetworkOptions) {
     this.name = options.name;
@@ -80,6 +82,7 @@ export abstract class BaseNetwork {
     this.decimals = options.decimals;
     this.api = options.api;
     this.customTokens = options.customTokens ?? false;
+    this.importAccount = options.importAccount ?? true;
     this.coingeckoPlatform = options.coingeckoPlatform;
     this.currencyNameLong = options.currencyNameLong;
   }

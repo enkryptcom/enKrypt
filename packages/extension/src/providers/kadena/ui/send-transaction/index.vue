@@ -157,6 +157,7 @@ const selectedAsset = ref<KDAToken | Partial<KDAToken>>(
 );
 const hasEnough = ref(false);
 const sendMax = ref(false);
+const addressToIsValid = ref(false);
 
 const selected: string = route.params.id as string;
 const isLoadingAssets = ref(true);
@@ -217,6 +218,11 @@ const validateFields = async () => {
       )
     );
 
+    if (rawAmount.lten(0)) {
+      hasEnough.value = false;
+      return;
+    }
+
     const localTransaction = await selectedAsset.value.buildTransaction!(
       addressTo.value,
       props.accountInfo.selectedAccount,
@@ -229,14 +235,21 @@ const validateFields = async () => {
       localTransaction
     );
 
-    const partialFee = transactionResult.gas;
-    const rawFee = toBN(partialFee?.toString() ?? "0");
+    const gasLimit = transactionResult.metaData?.publicMeta?.gasLimit;
+    const gasPrice = transactionResult.metaData?.publicMeta?.gasPrice;
+    const gasFee = gasLimit && gasPrice ? gasLimit * gasPrice : 0;
+
+    const rawFee = toBN(
+      toBase(gasFee.toString(), selectedAsset.value.decimals!)
+    );
     const rawBalance = toBN(selectedAsset.value.balance!);
+
     if (
       sendMax.value &&
       selectedAsset.value.name === accountAssets.value[0].name
     ) {
-      rawAmount = rawAmount.sub(rawFee);
+      rawAmount = rawBalance.sub(rawFee);
+
       if (rawAmount.gtn(0)) {
         amount.value = fromBase(
           rawAmount.toString(),
@@ -244,7 +257,8 @@ const validateFields = async () => {
         );
       }
     }
-    if (rawAmount.ltn(0) || rawAmount.add(rawFee).gt(rawBalance)) {
+
+    if (rawAmount.add(rawFee).gt(rawBalance)) {
       hasEnough.value = false;
     } else {
       hasEnough.value = true;
@@ -252,7 +266,7 @@ const validateFields = async () => {
 
     const nativeAsset = accountAssets.value[0];
     const txFeeHuman = fromBase(
-      partialFee?.toString() ?? "",
+      rawFee?.toString() ?? "",
       nativeAsset.decimals!
     );
 
@@ -264,6 +278,22 @@ const validateFields = async () => {
       nativeSymbol: nativeAsset.symbol ?? "",
       nativeValue: txFeeHuman.toString(),
     };
+
+    const to = props.network.displayAddress(addressTo.value);
+
+    if (to.startsWith("k:") && to.length == 66) {
+      addressToIsValid.value = true;
+    } else {
+      const accountDetail = await accountAssets.value[0].getAccountDetails(
+        to,
+        props.network
+      );
+      if (accountDetail.error) {
+        addressToIsValid.value = false;
+      } else {
+        addressToIsValid.value = true;
+      }
+    }
   }
 };
 watch([selectedAsset, addressTo], validateFields);
@@ -401,6 +431,7 @@ const isDisabled = computed(() => {
     amount.value !== "" &&
     hasEnough.value &&
     addressIsValid &&
+    addressToIsValid.value &&
     !edWarn.value &&
     edWarn.value !== undefined
   )
