@@ -61,7 +61,7 @@
         </a>
 
         <a
-          v-if="network.importAccount"
+          v-if="network.provider !== ProviderName.kadena"
           class="accounts__action-button import"
           @click="importAction"
         >
@@ -95,7 +95,7 @@
   />
 
   <import-account
-    v-if="network.importAccount && isImportAccount"
+    v-if="isImportAccount"
     v-bind="$attrs"
     :network="network"
     @close="closeImportAccount"
@@ -122,6 +122,7 @@ import HWwallets from "@enkryptcom/hw-wallets";
 import { SignerType } from "@enkryptcom/types";
 import { BaseNetwork } from "@/types/base-network";
 import { WalletType } from "@enkryptcom/types";
+import { ProviderName } from "@/types/provider";
 
 const emit = defineEmits<{
   (e: "addressChanged", account: EnkryptAccount): void;

@@ -5,7 +5,7 @@ import { AssetsType, ProviderName } from "@/types/provider";
 import { CoingeckoPlatform, NetworkNames, SignerType } from "@enkryptcom/types";
 import KadenaAPI from "@/providers/kadena/libs/api";
 
-import createIcon from "../libs/blockies";
+import createIcon from "@/providers/ethereum/libs/blockies";
 import MarketData from "@/libs/market-data";
 import { CoinGeckoTokenMarket } from "@/libs/market-data/types";
 import Sparkline from "@/libs/sparkline";
@@ -35,6 +35,7 @@ export interface KadenaNetworkOptions {
   displayAddress: (address: string) => string;
   coingeckoID?: string;
   coingeckoPlatform?: CoingeckoPlatform;
+  isAddress: (address: string) => boolean;
   activityHandler: (
     network: BaseNetwork,
     address: string
@@ -49,6 +50,8 @@ export class KadenaNetwork extends BaseNetwork {
     address: string
   ) => Promise<Activity[]>;
 
+  public isAddress: (address: string) => boolean;
+
   constructor(options: KadenaNetworkOptions) {
     const api = async () => {
       const api = new KadenaAPI(options.node, options);
@@ -61,12 +64,12 @@ export class KadenaNetwork extends BaseNetwork {
       signer: [SignerType.ed25519kda],
       provider: ProviderName.kadena,
       api,
-      importAccount: false,
       ...options,
     };
 
     super(baseOptions);
     this.options = options;
+    this.isAddress = options.isAddress;
     this.activityHandler = options.activityHandler;
   }
 

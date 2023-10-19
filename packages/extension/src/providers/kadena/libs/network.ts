@@ -1,6 +1,7 @@
 import KDANetworks from "../networks";
+import { isHex } from "web3-utils";
 
-export function getNetworkInfo(networkName: string) {
+export const getNetworkInfo = (networkName: string) => {
   const networkObject = Object.values(KDANetworks).find(
     (n) => n.name === networkName
   );
@@ -12,4 +13,9 @@ export function getNetworkInfo(networkName: string) {
     chainId: networkObject?.options.kadenaApiOptions.chainId || "",
     explorer: networkObject?.options.blockExplorerTX || "",
   };
-}
+};
+
+export const isValidAddress = (address: string) =>
+  address.startsWith("k:") &&
+  isHex(address.replace("k:", "")) &&
+  address.length === 66;

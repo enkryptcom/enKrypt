@@ -8,7 +8,6 @@ class Signer implements SignerInterface {
   async generate(mnemonic: string, derivationPath = ""): Promise<KeyPair> {
     const seed = bufferToHex(mnemonicToSeedSync(mnemonic), true);
     const dPathSegments = `${derivationPath}'`.split("/");
-
     const keys = derivePath(dPathSegments.join("/"), seed);
     const keyPair = tweetSign.keyPair.fromSeed(keys.key);
     return {

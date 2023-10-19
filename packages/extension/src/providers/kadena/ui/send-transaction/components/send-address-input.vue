@@ -1,7 +1,11 @@
 <template>
   <div class="send-address-input" :class="{ focus: isFocus }">
     <div class="send-address-input__avatar">
-      <img v-if="isAddress" :src="network.identicon(value)" alt="" />
+      <img
+        v-if="isAddress"
+        :src="network.identicon(network.displayAddress(value))"
+        alt=""
+      />
     </div>
     <div class="send-address-input__address">
       <p v-if="!from">To:</p>
@@ -46,6 +50,10 @@ const props = defineProps({
     default: () => ({}),
   },
   disableDirectInput: Boolean,
+  isAddress: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const addressInput = ref<HTMLInputElement>();
@@ -61,16 +69,15 @@ defineExpose({ addressInput, pasteFromClipboard });
 const address = computed({
   get: () => {
     try {
-      if (isFocus.value && isAddress.value) {
+      if (isFocus.value && props.isAddress) {
         return props.network.displayAddress(props.value);
-      } else if (isAddress.value) {
+      } else if (props.isAddress) {
         return replaceWithEllipsis(
           props.network.displayAddress(props.value),
           6,
           6
         );
       }
-
       return props.value;
     } catch {
       return props.value;
@@ -81,10 +88,6 @@ const address = computed({
       emit("update:inputAddress", value);
     }
   },
-});
-
-const isAddress = computed(() => {
-  return !!props.value;
 });
 
 const changeFocus = (val: FocusEvent) => {
