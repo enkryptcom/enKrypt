@@ -8,7 +8,9 @@
         class="rename-account-form__input"
         :class="{ focus: isFocus && isValidName, error: !isValidName }"
       >
-        <img :src="network.identicon(account.address || '')" />
+        <img
+          :src="network.identicon(network.displayAddress(account.address))"
+        />
         <input
           ref="renameAccountInput"
           v-model="accountName"
