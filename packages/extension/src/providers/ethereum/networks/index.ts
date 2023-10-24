@@ -30,6 +30,7 @@ import sepoliaNode from "./sepolia";
 import baseNode from "./base";
 import celoNode from "./celo";
 import shibNode from "./shib";
+import artheraNode from "./aa";
 
 export default {
   goerli: goerliNode,
@@ -73,4 +74,5 @@ export default {
   base: baseNode,
   celo: celoNode,
   shib: shibNode,
+  arthera: artheraNode,
 };
