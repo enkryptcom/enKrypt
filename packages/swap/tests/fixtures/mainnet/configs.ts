@@ -32,6 +32,17 @@ const fromToken: TokenType = {
   type: NetworkType.EVM,
 };
 
+const fromTokenWBTC: TokenType = {
+  address: "0x2260fac5e5542a773aa44fbcfedf7c193bc2c599",
+  decimals: 8,
+  logoURI: "https://api.rango.exchange/tokens/ETH/WBTC.png",
+  name: "WBTC",
+  symbol: "WBTC",
+  rank: 18,
+  cgId: "bitcoin",
+  type: NetworkType.EVM,
+};
+
 const toTokenWETH: TokenTypeTo = {
   address: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
   decimals: 18,
@@ -68,6 +79,7 @@ export {
   fromToken,
   toToken,
   toTokenWETH,
+  fromTokenWBTC,
   amount,
   fromAddress,
   toAddress,
