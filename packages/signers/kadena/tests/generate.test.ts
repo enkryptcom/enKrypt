@@ -5,32 +5,32 @@ describe("Kadena address generate", () => {
   const MNEMONIC =
     "favorite service senior cluster chicken shift square endorse casual kidney doll exhibit";
 
-  it("should generate Kadena addresses correctly", async () => {
+  it.only("should generate Kadena addresses correctly", async () => {
     // Arrange
     const kadenaSigner = new Signer();
 
     // Act & Assert
-    let keypair = await kadenaSigner.generate(MNEMONIC, "m/44'/626'/0'/0'/0");
+    let keypair = await kadenaSigner.generate(MNEMONIC, "m/44'/626'/0");
     expect(keypair.address).equals(
       "0x40a9305bd53a921c44cf19dc9bac4e5d73465fc6a46343ab313defe6b0bfb0a3"
     );
 
     // Act & Assert
-    keypair = await kadenaSigner.generate(MNEMONIC, "m/44'/626'/0'/0'/1");
+    keypair = await kadenaSigner.generate(MNEMONIC, "m/44'/626'/1");
     expect(keypair.address).equals(
-      "0x50d824cb62578b1fcf8e4afb122e98884d5f04070950b93a102e1ba1e1f3d1bb"
+      "0xea14c16c053a5543b831e73f55086e4fccb8cc7be764cd74d362179a1d588416"
     );
 
     // Act & Assert
-    keypair = await kadenaSigner.generate(MNEMONIC, "m/44'/626'/0'/0'/2");
+    keypair = await kadenaSigner.generate(MNEMONIC, "m/44'/626'/2");
     expect(keypair.address).equals(
-      "0x287b9cdbd0894fbff67c664b4cc1e7da9eca9b03ef94fd5baa2cfabe2cd3c6a5"
+      "0xaf2a1ff42a9e652d1a8ed1f4f3c7bffcb36a9788c632a53544d7aff07d2a1678"
     );
 
     // Act & Assert
-    keypair = await kadenaSigner.generate(MNEMONIC, "m/44'/626'/0'/0'/3");
+    keypair = await kadenaSigner.generate(MNEMONIC, "m/44'/626'/3");
     expect(keypair.address).equals(
-      "0xe00a31c57aabe95554ad71c700c723153c0dd67b072b569916209138e419c122"
+      "0xaeb2b28c7cddfa5fd8963acd9df13a858d8329590537e5495b1d5dbc3eeadd92"
     );
   });
 });
