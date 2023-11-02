@@ -1,4 +1,5 @@
 import { MiddlewareFunction } from "@enkryptcom/types";
+import SDK from "@rpch/sdk";
 import { RequestClass } from "./types";
 import WSClient from "./libs/wsClient";
 import RPCClient from "./libs/rpcClient";
@@ -22,3 +23,28 @@ export default (
 };
 
 export { RequestClass };
+
+async function example() {
+  // this client secret can be found in your dashboard
+  const sdk = new SDK("grind-desire-splurge-draft-acquit", {
+    forceZeroHop: true,
+    discoveryPlatformEndpoint: "https://discovery.staging.rpch.tech",
+  });
+
+  const response = await sdk.send(
+    {
+      method: "eth_blockNumber",
+      params: [],
+      jsonrpc: "2.0",
+    },
+    {
+      provider: "https://ethereum-provider.rpch.tech",
+    }
+  );
+
+  return response;
+}
+
+example()
+  .then((res) => console.log(res))
+  .catch((err) => console.error(err));

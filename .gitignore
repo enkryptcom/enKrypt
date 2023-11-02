@@ -116,3 +116,5 @@ dist
 .DS_Store
 
 .nova/
+
+.idea
