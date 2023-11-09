@@ -71,7 +71,7 @@
 
       <send-fee-select
         v-if="!edWarn"
-        :fee="fee ?? { nativeSymbol: props.network.name }"
+        :fee="fee ?? { nativeSymbol: props.network.currencyName }"
       />
 
       <div class="send-transaction__buttons">
