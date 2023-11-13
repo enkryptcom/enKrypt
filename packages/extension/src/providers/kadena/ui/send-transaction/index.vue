@@ -14,6 +14,7 @@
         :value="addressFrom"
         :network="network"
         :disable-direct-input="true"
+        :is-address="true"
         @click="toggleSelectContactFrom(true)"
         @update:input-address="inputAddressFrom"
         @toggle:show-contacts="toggleSelectContactFrom"
@@ -33,6 +34,7 @@
         ref="addressInputTo"
         :value="addressTo"
         :network="network"
+        :is-address="addressToIsValid"
         @update:input-address="inputAddressTo"
         @toggle:show-contacts="toggleSelectContactTo"
       />
@@ -157,6 +159,7 @@ const selectedAsset = ref<KDAToken | Partial<KDAToken>>(
 );
 const hasEnough = ref(false);
 const sendMax = ref(false);
+const addressToIsValid = ref(false);
 
 const selected: string = route.params.id as string;
 const isLoadingAssets = ref(true);
@@ -205,71 +208,89 @@ onMounted(() => {
 
 const validateFields = async () => {
   if (selectedAsset.value && isAddress.value) {
-    if (!isValidDecimals(amount.value || "0", selectedAsset.value.decimals!)) {
-      hasEnough.value = false;
-      return;
-    }
+    const to = props.network.displayAddress(addressTo.value);
 
-    let rawAmount = toBN(
-      toBase(
-        amount.value ? amount.value.toString() : "0",
-        selectedAsset.value.decimals!
-      )
-    );
-
-    let partialFee;
-    if (props.accountInfo.selectedAccount!.isHardware) {
-      partialFee = 2500;
+    if (props.network.isAddress(to)) {
+      addressToIsValid.value = true;
     } else {
-      const localTransaction = await selectedAsset.value.buildTransaction!(
-        addressTo.value,
-        props.accountInfo.selectedAccount,
-        rawAmount.toString(),
+      const accountDetail = await accountAssets.value[0].getAccountDetails(
+        to,
         props.network
       );
-
-      const networkApi = (await props.network.api()) as KadenaAPI;
-      const transactionResult = await networkApi.sendLocalTransaction(
-        localTransaction
-      );
-      partialFee = transactionResult.gas;
-    }
-
-    const rawFee = toBN(partialFee?.toString() ?? "0");
-    const rawBalance = toBN(selectedAsset.value.balance!);
-    if (
-      sendMax.value &&
-      selectedAsset.value.name === accountAssets.value[0].name
-    ) {
-      rawAmount = rawAmount.sub(rawFee);
-      if (rawAmount.gtn(0)) {
-        amount.value = fromBase(
-          rawAmount.toString(),
-          selectedAsset.value.decimals!
-        );
+      if (accountDetail.error) {
+        addressToIsValid.value = false;
+      } else {
+        addressToIsValid.value = true;
       }
     }
-    if (rawAmount.ltn(0) || rawAmount.add(rawFee).gt(rawBalance)) {
-      hasEnough.value = false;
-    } else {
-      hasEnough.value = true;
-    }
-
-    const nativeAsset = accountAssets.value[0];
-    const txFeeHuman = fromBase(
-      partialFee?.toString() ?? "",
-      nativeAsset.decimals!
-    );
-
-    const txPrice = new BigNumber(nativeAsset.price!).times(txFeeHuman);
-
-    fee.value = {
-      fiatSymbol: "USD",
-      fiatValue: txPrice.toString(),
-      nativeSymbol: nativeAsset.symbol ?? "",
-      nativeValue: txFeeHuman.toString(),
-    };
   }
+
+  if (!isValidDecimals(amount.value || "0", selectedAsset.value.decimals!)) {
+    hasEnough.value = false;
+    return;
+  }
+  let rawAmount = toBN(
+    toBase(
+      amount.value ? amount.value.toString() : "0",
+      selectedAsset.value.decimals!
+    )
+  );
+
+  if (rawAmount.lten(0)) {
+    hasEnough.value = false;
+    return;
+  }
+
+  const localTransaction = await selectedAsset.value.buildTransaction!(
+    addressTo.value,
+    props.accountInfo.selectedAccount,
+    rawAmount.toString(),
+    props.network
+  );
+
+  const networkApi = (await props.network.api()) as KadenaAPI;
+  const transactionResult = await networkApi.sendLocalTransaction(
+    localTransaction
+  );
+
+  const gasLimit = transactionResult.metaData?.publicMeta?.gasLimit;
+  const gasPrice = transactionResult.metaData?.publicMeta?.gasPrice;
+  const gasFee = gasLimit && gasPrice ? gasLimit * gasPrice : 0;
+
+  const rawFee = toBN(toBase(gasFee.toString(), selectedAsset.value.decimals!));
+  const rawBalance = toBN(selectedAsset.value.balance!);
+
+  if (
+    sendMax.value &&
+    selectedAsset.value.name === accountAssets.value[0].name
+  ) {
+    rawAmount = rawBalance.sub(rawFee);
+
+    if (rawAmount.gtn(0)) {
+      amount.value = fromBase(
+        rawAmount.toString(),
+        selectedAsset.value.decimals!
+      );
+    }
+  }
+
+  if (rawAmount.add(rawFee).gt(rawBalance)) {
+    hasEnough.value = false;
+  } else {
+    hasEnough.value = true;
+  }
+
+  const nativeAsset = accountAssets.value[0];
+  const txFeeHuman = fromBase(rawFee?.toString() ?? "", nativeAsset.decimals!);
+
+  const txPrice = new BigNumber(nativeAsset.price!).times(txFeeHuman);
+
+  fee.value = {
+    fiatSymbol: "USD",
+    fiatValue: txPrice.toString(),
+    nativeSymbol: nativeAsset.symbol ?? "",
+    nativeValue: txFeeHuman.toString(),
+  };
 };
 watch([selectedAsset, addressTo], validateFields);
 
@@ -406,6 +427,7 @@ const isDisabled = computed(() => {
     amount.value !== "" &&
     hasEnough.value &&
     addressIsValid &&
+    addressToIsValid.value &&
     !edWarn.value &&
     edWarn.value !== undefined
   )

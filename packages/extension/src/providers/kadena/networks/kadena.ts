@@ -2,6 +2,7 @@ import { CoingeckoPlatform, NetworkNames } from "@enkryptcom/types";
 import { KadenaNetwork, KadenaNetworkOptions } from "../types/kadena-network";
 import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
 import { kadenaScanActivity } from "../libs/activity-handlers";
+import { isValidAddress } from "../libs/network";
 
 const kadenaOptions: KadenaNetworkOptions = {
   name: NetworkNames.Kadena,
@@ -25,6 +26,7 @@ const kadenaOptions: KadenaNetworkOptions = {
   coingeckoPlatform: CoingeckoPlatform.Kadena,
   activityHandler: wrapActivityHandler(kadenaScanActivity),
   displayAddress: (address: string) => address.replace("0x", "k:"),
+  isAddress: isValidAddress,
 };
 
 const kadena = new KadenaNetwork(kadenaOptions);

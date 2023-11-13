@@ -1,19 +1,14 @@
-import { SignerInterface, KeyPair } from "@enkryptcom/types";
+import { KeyPair, SignerInterface } from "@enkryptcom/types";
+import { bufferToHex, hexToBuffer } from "@enkryptcom/utils";
 import { mnemonicToSeedSync } from "bip39";
 import { sign as tweetSign } from "tweetnacl";
-import { bufferToHex, hexToBuffer } from "@enkryptcom/utils";
 import { derivePath } from "./libs/ed25519";
 
 class Signer implements SignerInterface {
   async generate(mnemonic: string, derivationPath = ""): Promise<KeyPair> {
     const seed = bufferToHex(mnemonicToSeedSync(mnemonic), true);
-    const dPathSegments = derivationPath.split("/");
-    const indexVal = Number(dPathSegments.pop());
-    const keys = derivePath(
-      dPathSegments.join("/"),
-      seed,
-      0x80000000 + indexVal
-    );
+    const dPathSegments = `${derivationPath}'`.split("/");
+    const keys = derivePath(dPathSegments.join("/"), seed);
     const keyPair = tweetSign.keyPair.fromSeed(keys.key);
     return {
       address: bufferToHex(keyPair.publicKey),
