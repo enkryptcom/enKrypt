@@ -241,23 +241,31 @@ const validateFields = async () => {
     return;
   }
 
-  const localTransaction = await selectedAsset.value.buildTransaction!(
-    addressTo.value,
-    props.accountInfo.selectedAccount,
-    rawAmount.toString(),
-    props.network
+  let partialFee;
+  debugger;
+  if (props.accountInfo.selectedAccount!.isHardware) {
+    partialFee = 0.000025;
+  } else {
+    const localTransaction = await selectedAsset.value.buildTransaction!(
+      addressTo.value,
+      props.accountInfo.selectedAccount,
+      rawAmount.toString(),
+      props.network
+    );
+
+    const networkApi = (await props.network.api()) as KadenaAPI;
+    const transactionResult = await networkApi.sendLocalTransaction(
+      localTransaction
+    );
+
+    const gasLimit = transactionResult.metaData?.publicMeta?.gasLimit;
+    const gasPrice = transactionResult.metaData?.publicMeta?.gasPrice;
+    partialFee = gasLimit && gasPrice ? gasLimit * gasPrice : 0;
+  }
+
+  const rawFee = toBN(
+    toBase(partialFee.toString(), selectedAsset.value.decimals!)
   );
-
-  const networkApi = (await props.network.api()) as KadenaAPI;
-  const transactionResult = await networkApi.sendLocalTransaction(
-    localTransaction
-  );
-
-  const gasLimit = transactionResult.metaData?.publicMeta?.gasLimit;
-  const gasPrice = transactionResult.metaData?.publicMeta?.gasPrice;
-  const gasFee = gasLimit && gasPrice ? gasLimit * gasPrice : 0;
-
-  const rawFee = toBN(toBase(gasFee.toString(), selectedAsset.value.decimals!));
   const rawBalance = toBN(selectedAsset.value.balance!);
 
   if (
