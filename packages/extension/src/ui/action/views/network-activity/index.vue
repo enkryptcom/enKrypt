@@ -101,6 +101,7 @@ const activities = ref<Activity[]>([]);
 const selectedAddress = computed(
   () => props.accountInfo.selectedAccount?.address || ""
 );
+const selectedChainId = computed(() => props.accountInfo.chainId || "");
 const apiPromise = props.network.api();
 const activityState = new ActivityState();
 let swap: Swap;
@@ -260,7 +261,7 @@ const setActivities = () => {
   else activities.value = [];
 };
 
-watch([selectedAddress, selectedNetworkName], setActivities);
+watch([selectedAddress, selectedNetworkName, selectedChainId], setActivities);
 onMounted(() => {
   setActivities();
   activityCheckTimers.forEach((timer) => clearInterval(timer));
