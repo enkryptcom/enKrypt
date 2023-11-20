@@ -127,8 +127,11 @@ import RateState from "@/libs/rate-state";
 import SwapLookingAnimation from "@action/icons/swap/swap-looking-animation.vue";
 import { addNetworkSelectMetrics } from "@/libs/metrics";
 import KadenaAPI from "@/providers/kadena/libs/api";
+import KadenaAccountState from "@/providers/kadena/libs/accounts-state";
+
 
 const domainState = new DomainState();
+const kadenaAccountState = new KadenaAccountState();
 const networksState = new NetworksState();
 const rateState = new RateState();
 const appMenuRef = ref(null);
@@ -250,12 +253,14 @@ const setNetwork = async (network: BaseNetwork) => {
     const found = activeAccounts.find((acc) => acc.address === selectedAddress);
     if (found) selectedAccount = found;
   }
+  const domain = await domainState.getCurrentDomain();
+  const state = await kadenaAccountState.getStateByDomain(domain);
   accountHeaderData.value = {
     activeAccounts,
     inactiveAccounts,
     selectedAccount,
     activeBalances: activeAccounts.map(() => "~"),
-    chainId: accountHeaderData.value.chainId,
+    chainId: state.chainId,
   };
   currentNetwork.value = network;
   router.push({ name: "assets", params: { id: network.name } });

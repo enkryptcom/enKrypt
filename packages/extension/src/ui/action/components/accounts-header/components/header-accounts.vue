@@ -96,11 +96,12 @@ const showChains = ref(false);
 const chainId = ref("1");
 const currentDomain = ref("");
 const chains = ["1", "2", "3", "4", "5", "6"];
+const kadenaAccountState = new KadenaAccountState();
 const allAccountStates = [
   new EvmAccountState(),
   new BtcAccountState(),
   new SubstrateAccountState(),
-  new KadenaAccountState(),
+  kadenaAccountState,
 ];
 const props = defineProps({
   name: {
@@ -148,21 +149,19 @@ const checkAndSetConnectedDapp = () => {
     });
   });
 };
-const getChainId = () => {
-  allAccountStates[3].getStateByDomain(currentDomain.value).then((res: any) => {
-    chainId.value = res.chainId;
-  });
+const getChainId = async () => {
+  const state = await kadenaAccountState.getStateByDomain(currentDomain.value);
+  chainId.value = state.chainId;
 };
 
 const selectChainId = async (chainId: string) => {
-  const kadenaState = allAccountStates[3] as KadenaAccountState;
-  await kadenaState.setChainId(currentDomain.value, chainId);
+  await kadenaAccountState.setChainId(currentDomain.value, chainId);
   emit("chainChanged", chainId);
 };
 onMounted(async () => {
   currentDomain.value = await domainState.getCurrentDomain();
   checkAndSetConnectedDapp();
-  getChainId();
+  await getChainId();
 });
 const disconnectFromDapp = async () => {
   await Promise.all(
