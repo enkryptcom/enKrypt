@@ -89,6 +89,7 @@ interface Activity {
   network: NetworkNames;
   from: string;
   to: string;
+  chainId?: string;
   value: string;
   timestamp: number;
   nonce?: string;

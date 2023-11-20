@@ -19,6 +19,12 @@ export abstract class KDABaseToken extends BaseToken {
     account: string,
     network: KadenaNetwork
   ): Promise<any>;
+
+  public abstract getBalance(
+    api: KadenaAPI,
+    pubkey: string,
+    chainId?: string
+  ): Promise<string>;
 }
 
 export class KDAToken extends KDABaseToken {
@@ -33,6 +39,14 @@ export class KDAToken extends KDABaseToken {
     throw new Error("KDA-getLatestUserBalance is not implemented here");
   }
 
+  public async getBalance(
+    api: KadenaAPI,
+    pubkey: string,
+    chainId?: string
+  ): Promise<string> {
+    return api.getBalance(pubkey, chainId);
+  }
+
   public async send(): Promise<any> {
     throw new Error("KDA-send is not implemented here");
   }
@@ -45,7 +59,7 @@ export class KDAToken extends KDABaseToken {
     chainId?: string
   ): Promise<ICommand> {
     to = network.displayAddress(to);
-    const accountDetails = await this.getAccountDetails(to, network);
+    const accountDetails = await this.getAccountDetails(to, network, chainId);
     const keySetAccount = to.startsWith("k:") ? to.replace("k:", "") : to;
     const unsignedTransaction = Pact.builder
       .execution(
@@ -108,7 +122,10 @@ export class KDAToken extends KDABaseToken {
       .createTransaction();
 
     const api = (await network.api()) as KadenaAPI;
-    const response = await api.dirtyRead(unsignedTransaction as ICommand);
+    const response = await api.dirtyRead(
+      unsignedTransaction as ICommand,
+      chainId!
+    );
 
     return response.result;
   }

@@ -330,6 +330,7 @@ const setNetwork = async (network: BaseNetwork) => {
 };
 const onSelectedChainIdChanged = async (chainId: string) => {
   try {
+    accountHeaderData.value.chainId = chainId;
     const activeAccounts = await getAccountsByNetworkName(
       currentNetwork.value.name
     );
@@ -338,7 +339,6 @@ const onSelectedChainIdChanged = async (chainId: string) => {
     const activeBalancePromises = activeAccounts.map(
       async (acc) => await kadenaAPI.getBalance(acc.address, chainId)
     );
-    accountHeaderData.value.chainId = chainId;
     Promise.all(activeBalancePromises).then((balances) => {
       if (thisNetworkName === currentNetwork.value.name)
         accountHeaderData.value.activeBalances = balances.map((bal) =>

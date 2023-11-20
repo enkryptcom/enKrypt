@@ -14,6 +14,7 @@ export interface SendTransactionDataType {
   value: string;
   to: string;
   data: `0x${string}`;
+  chainId: string;
 }
 
 export interface VerifyTransactionParams {

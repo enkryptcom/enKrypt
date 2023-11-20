@@ -215,7 +215,8 @@ const validateFields = async () => {
     } else {
       const accountDetail = await accountAssets.value[0].getAccountDetails(
         to,
-        props.network
+        props.network,
+        props.accountInfo.chainId!
       );
       if (accountDetail.error) {
         addressToIsValid.value = false;
@@ -245,12 +246,14 @@ const validateFields = async () => {
     addressTo.value,
     props.accountInfo.selectedAccount,
     rawAmount.toString(),
-    props.network
+    props.network,
+    props.accountInfo.chainId!
   );
 
   const networkApi = (await props.network.api()) as KadenaAPI;
   const transactionResult = await networkApi.sendLocalTransaction(
-    localTransaction
+    localTransaction,
+    props.accountInfo.chainId!
   );
 
   const gasLimit = transactionResult.metaData?.publicMeta?.gasLimit;
@@ -300,11 +303,18 @@ watch(addressFrom, () => {
 
 const fetchTokens = async () => {
   const networkApi = (await props.network.api()) as KadenaAPI;
-  const networkAssets = await props.network.getAllTokens(addressFrom.value);
+  const networkAssets = await props.network.getAllTokensByChainId(
+    addressFrom.value,
+    props.accountInfo.chainId!
+  );
   const pricePromises = networkAssets.map((asset) => asset.getLatestPrice());
   const balancePromises = networkAssets.map((asset) => {
     if (!asset.balance) {
-      return asset.getLatestUserBalance(networkApi.api, addressFrom.value);
+      return asset.getBalance(
+        networkApi.api,
+        addressFrom.value,
+        props.accountInfo.chainId!
+      );
     }
 
     return Promise.resolve(asset.balance);
@@ -444,6 +454,7 @@ const sendAction = async () => {
       to: addressTo.value,
       data: "0x" as `0x{string}`,
       value: amount.value!,
+      chainId: props.accountInfo.chainId!,
     },
     toToken: {
       amount: toBase(amount.value!, selectedAsset.value.decimals!),
