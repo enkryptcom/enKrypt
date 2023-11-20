@@ -30,7 +30,7 @@ export class KDAToken extends KDABaseToken {
     api: KadenaAPI,
     pubkey: string
   ): Promise<string> {
-    return api.getBalance(pubkey);
+    throw new Error("KDA-getLatestUserBalance is not implemented here");
   }
 
   public async send(): Promise<any> {
@@ -41,7 +41,8 @@ export class KDAToken extends KDABaseToken {
     to: string,
     from: EnkryptAccount | any,
     amount: string,
-    network: KadenaNetwork
+    network: KadenaNetwork,
+    chainId?: string
   ): Promise<ICommand> {
     to = network.displayAddress(to);
     const accountDetails = await this.getAccountDetails(to, network);
@@ -65,7 +66,8 @@ export class KDAToken extends KDABaseToken {
         withCap("coin.GAS"),
       ])
       .setMeta({
-        chainId: network.options.kadenaApiOptions.chainId as ChainId,
+        chainId: (chainId ??
+          network.options.kadenaApiOptions.chainId) as ChainId,
         senderAccount: network.displayAddress(from.address),
       })
       .setNetworkId(network.options.kadenaApiOptions.networkId)
@@ -92,12 +94,16 @@ export class KDAToken extends KDABaseToken {
 
   public async getAccountDetails(
     account: string,
-    network: KadenaNetwork
+    network: KadenaNetwork,
+    chainId?: string
   ): Promise<any> {
     const modules = Pact.modules as any;
     const unsignedTransaction = Pact.builder
       .execution(modules.coin.details(account))
-      .setMeta({ chainId: network.options.kadenaApiOptions.chainId as ChainId })
+      .setMeta({
+        chainId: (chainId ??
+          network.options.kadenaApiOptions.chainId) as ChainId,
+      })
       .setNetworkId(network.options.kadenaApiOptions.networkId)
       .createTransaction();
 

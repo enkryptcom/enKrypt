@@ -15,8 +15,12 @@ const method: MiddlewareFunction = function (
       return res(getCustomError("kda_getBalance: invalid params"));
     }
 
+    const address = payload.params[0];
+    // should accept params without chainId
+    const chainId =
+      payload.params[1] ?? this.network.options.kadenaApiOptions.chainId;
     this.network.api().then((api) => {
-      api.getBalance(payload.params![0]).then((bal) => {
+      api.getBalance(address, chainId).then((bal) => {
         res(null, bal);
       });
     });

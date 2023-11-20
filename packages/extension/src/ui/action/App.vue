@@ -47,6 +47,7 @@
         :show-deposit="showDepositWindow"
         @update:init="init"
         @address-changed="onSelectedAddressChanged"
+        @chain-changed="onSelectedChainIdChanged"
         @toggle:deposit="toggleDepositWindow"
       />
       <router-view v-slot="{ Component }" name="view">
@@ -125,6 +126,7 @@ import { onClickOutside } from "@vueuse/core";
 import RateState from "@/libs/rate-state";
 import SwapLookingAnimation from "@action/icons/swap/swap-looking-animation.vue";
 import { addNetworkSelectMetrics } from "@/libs/metrics";
+import KadenaAPI from "@/providers/kadena/libs/api";
 
 const domainState = new DomainState();
 const networksState = new NetworksState();
@@ -136,6 +138,7 @@ const accountHeaderData = ref<AccountsHeaderData>({
   inactiveAccounts: [],
   selectedAccount: null,
   activeBalances: [],
+  chainId: null,
 });
 const isOpenMore = ref(false);
 let timeout: ReturnType<typeof setTimeout> | null = null;
@@ -252,6 +255,7 @@ const setNetwork = async (network: BaseNetwork) => {
     inactiveAccounts,
     selectedAccount,
     activeBalances: activeAccounts.map(() => "~"),
+    chainId: accountHeaderData.value.chainId,
   };
   currentNetwork.value = network;
   router.push({ name: "assets", params: { id: network.name } });
@@ -322,6 +326,27 @@ const setNetwork = async (network: BaseNetwork) => {
     } catch (e) {
       console.error(e);
     }
+  }
+};
+const onSelectedChainIdChanged = async (chainId: string) => {
+  try {
+    const activeAccounts = await getAccountsByNetworkName(
+      currentNetwork.value.name
+    );
+    const thisNetworkName = currentNetwork.value.name;
+    const kadenaAPI = (await currentNetwork.value.api()) as KadenaAPI;
+    const activeBalancePromises = activeAccounts.map(
+      async (acc) => await kadenaAPI.getBalance(acc.address, chainId)
+    );
+    accountHeaderData.value.chainId = chainId;
+    Promise.all(activeBalancePromises).then((balances) => {
+      if (thisNetworkName === currentNetwork.value.name)
+        accountHeaderData.value.activeBalances = balances.map((bal) =>
+          fromBase(bal, currentNetwork.value.decimals)
+        );
+    });
+  } catch (e) {
+    console.error(e);
   }
 };
 

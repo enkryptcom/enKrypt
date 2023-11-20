@@ -9,20 +9,27 @@
       <switch-arrow />
     </a>
 
-    <tooltip
-      v-if="
-        props.network.name === NetworkNames.Kadena ||
-        props.network.name === NetworkNames.KadenaTestnet
-      "
-      text="Chain ID 1"
+    <div
+      class="chain__info"
+      :class="{ active: active }"
+      @click="showChains = !showChains"
     >
-      <a class="chain__info" :class="{ active: active }">
-        <div class="chain__info-name">
-          <p>{{ "Chain 1" }}</p>
-        </div>
-        <switch-arrow />
-      </a>
-    </tooltip>
+      <div class="custom-scrollbar__chain">
+        <custom-scrollbar
+          class="custom-scrollbar__scroll"
+          :class="{ show: showChains }"
+          :settings="scrollSettings({ suppressScrollX: true })"
+        >
+          <chainId-list-item
+            v-for="(name, index) in chains"
+            :key="index"
+            :name="name"
+            :select="selectChainId"
+            :is-checked="name == chainId"
+          />
+        </custom-scrollbar>
+      </div>
+    </div>
 
     <div class="account__actions">
       <notification
@@ -66,7 +73,10 @@
 <script setup lang="ts">
 import SwitchArrow from "@action/icons/header/switch_arrow.vue";
 import IconQr from "@action/icons/header/qr_icon.vue";
+import ChainIdListItem from "./chainId-list-item.vue";
+import scrollSettings from "@/libs/utils/scroll-settings";
 import IconDisconnect from "@action/icons/header/disconnect_icon.vue";
+import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 import IconCopy from "@action/icons/header/copy_icon.vue";
 import IconExternal from "@action/icons/header/external-icon.vue";
 import Tooltip from "@action/components/tooltip/index.vue";
@@ -78,12 +88,14 @@ import EvmAccountState from "@/providers/ethereum/libs/accounts-state";
 import BtcAccountState from "@/providers/bitcoin/libs/accounts-state";
 import SubstrateAccountState from "@/providers/polkadot/libs/accounts-state";
 import KadenaAccountState from "@/providers/kadena/libs/accounts-state";
-import { NetworkNames } from "@enkryptcom/types";
 
 const isCopied = ref(false);
 const domainState = new DomainState();
 const isConnectedDomain = ref(false);
+const showChains = ref(false);
+const chainId = ref("1");
 const currentDomain = ref("");
+const chains = ["1", "2", "3", "4", "5", "6"];
 const allAccountStates = [
   new EvmAccountState(),
   new BtcAccountState(),
@@ -109,8 +121,9 @@ const props = defineProps({
     default: () => ({}),
   },
 });
-defineEmits<{
+const emit = defineEmits<{
   (e: "toggle:deposit"): void;
+  (e: "chainChanged", chainId: string): void;
 }>();
 
 const copy = (address: string) => {
@@ -135,9 +148,21 @@ const checkAndSetConnectedDapp = () => {
     });
   });
 };
+const getChainId = () => {
+  allAccountStates[3].getStateByDomain(currentDomain.value).then((res: any) => {
+    chainId.value = res.chainId;
+  });
+};
+
+const selectChainId = async (chainId: string) => {
+  const kadenaState = allAccountStates[3] as KadenaAccountState;
+  await kadenaState.setChainId(currentDomain.value, chainId);
+  emit("chainChanged", chainId);
+};
 onMounted(async () => {
   currentDomain.value = await domainState.getCurrentDomain();
   checkAndSetConnectedDapp();
+  getChainId();
 });
 const disconnectFromDapp = async () => {
   await Promise.all(
@@ -347,6 +372,19 @@ const disconnectFromDapp = async () => {
       top: 10px;
       right: 4px;
     }
+  }
+}
+
+.custom-scrollbar__chain {
+  padding-top: 400px !important;
+  display: block !important;
+
+  .custom-scrollbar__scroll {
+    display: none;
+  }
+
+  .show {
+    display: block !important;
   }
 }
 </style>

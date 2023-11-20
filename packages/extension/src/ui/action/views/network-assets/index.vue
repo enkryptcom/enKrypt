@@ -71,6 +71,8 @@ import Deposit from "@action/views/deposit/index.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import CustomEvmToken from "./components/custom-evm-token.vue";
 import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
+import kadena from "@/providers/kadena/libs/activity-handlers/providers/kadena";
+import { KadenaNetwork } from "@/providers/kadena/types/kadena-network";
 
 const showDeposit = ref(false);
 
@@ -97,12 +99,25 @@ const selected: string = route.params.id as string;
 const updateAssets = () => {
   isLoading.value = true;
   assets.value = [];
-  props.network
-    .getAllTokenInfo(props.accountInfo.selectedAccount?.address || "")
-    .then((_assets) => {
-      assets.value = _assets;
-      isLoading.value = false;
-    });
+
+  if (props.network.currencyNameLong == "Kadena") {
+    (props.network as KadenaNetwork)
+      .getAllTokenInfoChainId(
+        props.accountInfo.selectedAccount?.address || "",
+        props.accountInfo.chainId!
+      )
+      .then((_assets) => {
+        assets.value = _assets;
+        isLoading.value = false;
+      });
+  } else {
+    props.network
+      .getAllTokenInfo(props.accountInfo.selectedAccount?.address || "")
+      .then((_assets) => {
+        assets.value = _assets;
+        isLoading.value = false;
+      });
+  }
 };
 const selectedAddress = computed(
   () => props.accountInfo.selectedAccount?.address || ""

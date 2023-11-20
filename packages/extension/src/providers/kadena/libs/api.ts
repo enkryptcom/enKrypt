@@ -34,16 +34,27 @@ class API implements ProviderAPIInterface {
   async init(): Promise<void> {}
 
   async getTransactionStatus(hash: string): Promise<KadenaRawInfo | null> {
+    return this.getTransactionStatusChainId(hash, this.chainId);
+  }
+
+  async getTransactionStatusChainId(
+    hash: string,
+    chainId: string
+  ): Promise<KadenaRawInfo | null> {
     const Pact = require("pact-lang-api");
+    const urlApiHost = `${this.node}/${this.networkId}/chain/${chainId}/pact`;
 
     const cmd = { requestKeys: [hash] };
-    const transactions = await Pact.fetch.poll(cmd, this.apiHost);
+    const transactions = await Pact.fetch.poll(cmd, urlApiHost);
 
     return transactions[hash];
   }
 
-  async getBalance(address: string): Promise<string> {
-    const balance = await this.getBalanceAPI(this.displayAddress(address));
+  async getBalance(address: string, chainId?: string): Promise<string> {
+    const balance = await this.getBalanceAPI(
+      this.displayAddress(address),
+      chainId ?? this.chainId
+    );
 
     if (balance.result.error) {
       return toBase("0", this.decimals);
@@ -56,9 +67,9 @@ class API implements ProviderAPIInterface {
     return toBase(balanceValue, this.decimals);
   }
 
-  async getBalanceAPI(account: string) {
+  async getBalanceAPI(account: string, chainId: string) {
     const Pact = require("pact-lang-api");
-
+    const urlApiHost = `${this.node}/${this.networkId}/chain/${chainId}/pact`;
     const cmd = {
       networkId: this.networkId,
       pactCode: `(coin.get-balance "${account}")`,
@@ -67,13 +78,13 @@ class API implements ProviderAPIInterface {
         creationTime: Math.round(new Date().getTime() / 1000),
         ttl: 600,
         gasLimit: 600,
-        chainId: this.chainId,
+        chainId: chainId,
         gasPrice: 0.0000001,
         sender: "",
       },
     };
 
-    return Pact.fetch.local(cmd, this.apiHost);
+    return Pact.fetch.local(cmd, urlApiHost);
   }
 
   async sendLocalTransaction(

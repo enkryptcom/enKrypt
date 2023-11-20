@@ -7,6 +7,7 @@
       :toggle-accounts="toggleAccounts"
       :active="showAccounts"
       :network="network"
+      v-bind="$attrs"
       @toggle:deposit="$emit('toggle:deposit')"
     />
 

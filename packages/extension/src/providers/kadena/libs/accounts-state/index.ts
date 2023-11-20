@@ -29,6 +29,11 @@ class AccountState {
       await this.#storage.set(StorageKeys.accountsState, allStates);
     }
   }
+  async setChainId(domain: string, chainId: string): Promise<void> {
+    const state = await this.getStateByDomain(domain);
+    state.chainId = chainId;
+    await this.setState(state, domain);
+  }
   async isConnected(domain: string): Promise<boolean> {
     return this.getStateByDomain(domain).then((res) => res.isApproved);
   }
@@ -45,6 +50,7 @@ class AccountState {
     if (!allStates[domain])
       return {
         isApproved: false,
+        chainId: "1",
       };
     else return allStates[domain];
   }
