@@ -30,6 +30,10 @@ class API implements ProviderAPIInterface {
     return this;
   }
 
+  private getApiHost(chainId: string) {
+    return `${this.node}/${this.networkId}/chain/${chainId}/pact`;
+  }
+
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   async init(): Promise<void> {}
 
@@ -42,10 +46,8 @@ class API implements ProviderAPIInterface {
     chainId: string
   ): Promise<KadenaRawInfo | null> {
     const Pact = require("pact-lang-api");
-    this.apiHost = `${this.node}/${this.networkId}/chain/${chainId}/pact`;
-
     const cmd = { requestKeys: [hash] };
-    const transactions = await Pact.fetch.poll(cmd, this.apiHost);
+    const transactions = await Pact.fetch.poll(cmd, this.getApiHost(chainId));
 
     return transactions[hash];
   }
@@ -69,7 +71,6 @@ class API implements ProviderAPIInterface {
 
   async getBalanceAPI(account: string, chainId: string) {
     const Pact = require("pact-lang-api");
-    this.apiHost = `${this.node}/${this.networkId}/chain/${chainId}/pact`;
     const cmd = {
       networkId: this.networkId,
       pactCode: `(coin.get-balance "${account}")`,
@@ -84,15 +85,14 @@ class API implements ProviderAPIInterface {
       },
     };
 
-    return Pact.fetch.local(cmd, this.apiHost);
+    return Pact.fetch.local(cmd, this.getApiHost(chainId));
   }
 
   async sendLocalTransaction(
     signedTranscation: ICommand,
     chainId: string
   ): Promise<ICommandResult> {
-    this.apiHost = `${this.node}/${this.networkId}/chain/${chainId}/pact`;
-    const client = createClient(this.apiHost);
+    const client = createClient(this.getApiHost(chainId));
     return client.local(signedTranscation as ICommand);
   }
 
@@ -100,8 +100,7 @@ class API implements ProviderAPIInterface {
     signedTranscation: ICommand,
     chainId: string
   ): Promise<ITransactionDescriptor> {
-    this.apiHost = `${this.node}/${this.networkId}/chain/${chainId}/pact`;
-    const client = createClient(this.apiHost);
+    const client = createClient(this.getApiHost(chainId));
     return client.submit(signedTranscation as ICommand);
   }
 
@@ -109,8 +108,7 @@ class API implements ProviderAPIInterface {
     transactionDescriptor: ITransactionDescriptor,
     chainId: string
   ): Promise<ICommandResult> {
-    this.apiHost = `${this.node}/${this.networkId}/chain/${chainId}/pact`;
-    const client = createClient(this.apiHost);
+    const client = createClient(this.getApiHost(chainId));
     return client.listen(transactionDescriptor);
   }
 
@@ -118,8 +116,7 @@ class API implements ProviderAPIInterface {
     signedTranscation: ICommand,
     chainId: string
   ): Promise<ICommandResult> {
-    this.apiHost = `${this.node}/${this.networkId}/chain/${chainId}/pact`;
-    const client = createClient(this.apiHost);
+    const client = createClient(this.getApiHost(chainId));
     return client.dirtyRead(signedTranscation);
   }
 }

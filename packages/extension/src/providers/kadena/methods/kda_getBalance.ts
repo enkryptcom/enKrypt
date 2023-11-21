@@ -16,7 +16,6 @@ const method: MiddlewareFunction = function (
     }
 
     const address = payload.params[0];
-    // should accept params without chainId
     const chainId =
       payload.params[1] ?? this.network.options.kadenaApiOptions.chainId;
     this.network.api().then((api) => {
