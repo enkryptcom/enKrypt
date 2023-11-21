@@ -11,9 +11,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
-import { onClickOutside } from "@vueuse/core";
 import DoneIcon from "@action/icons/common/done_icon.vue";
+import { onClickOutside } from "@vueuse/core";
+import { ref } from "vue";
 
 const openEdit = ref(false);
 const dropdown = ref(null);

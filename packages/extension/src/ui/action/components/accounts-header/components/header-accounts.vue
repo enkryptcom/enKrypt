@@ -14,6 +14,7 @@
       :class="{ active: active }"
       @click="showChains = !showChains"
     >
+      <p>{{ chaindId }}</p>
       <div class="custom-scrollbar__chain">
         <custom-scrollbar
           class="custom-scrollbar__scroll"
@@ -71,23 +72,26 @@
 </template>
 
 <script setup lang="ts">
-import SwitchArrow from "@action/icons/header/switch_arrow.vue";
-import IconQr from "@action/icons/header/qr_icon.vue";
-import ChainIdListItem from "./chainId-list-item.vue";
-import scrollSettings from "@/libs/utils/scroll-settings";
-import IconDisconnect from "@action/icons/header/disconnect_icon.vue";
-import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
-import IconCopy from "@action/icons/header/copy_icon.vue";
-import IconExternal from "@action/icons/header/external-icon.vue";
-import Tooltip from "@action/components/tooltip/index.vue";
-import { PropType, ref, computed, onMounted } from "vue";
-import Notification from "@action/components/notification/index.vue";
-import { BaseNetwork } from "@/types/base-network";
 import DomainState from "@/libs/domain-state";
-import EvmAccountState from "@/providers/ethereum/libs/accounts-state";
+import scrollSettings from "@/libs/utils/scroll-settings";
 import BtcAccountState from "@/providers/bitcoin/libs/accounts-state";
-import SubstrateAccountState from "@/providers/polkadot/libs/accounts-state";
+import EvmAccountState from "@/providers/ethereum/libs/accounts-state";
 import KadenaAccountState from "@/providers/kadena/libs/accounts-state";
+import ChainProvider, {
+  IChainProvider,
+} from "@/providers/kadena/libs/chain-provider";
+import SubstrateAccountState from "@/providers/polkadot/libs/accounts-state";
+import { BaseNetwork } from "@/types/base-network";
+import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
+import Notification from "@action/components/notification/index.vue";
+import Tooltip from "@action/components/tooltip/index.vue";
+import IconCopy from "@action/icons/header/copy_icon.vue";
+import IconDisconnect from "@action/icons/header/disconnect_icon.vue";
+import IconExternal from "@action/icons/header/external-icon.vue";
+import IconQr from "@action/icons/header/qr_icon.vue";
+import SwitchArrow from "@action/icons/header/switch_arrow.vue";
+import { PropType, computed, inject, onMounted, ref } from "vue";
+import ChainIdListItem from "./chainId-list-item.vue";
 
 const isCopied = ref(false);
 const domainState = new DomainState();
@@ -103,6 +107,10 @@ const allAccountStates = [
   new SubstrateAccountState(),
   kadenaAccountState,
 ];
+const chainProvider = inject<IChainProvider>(ChainProvider.name);
+
+const chaindId = chainProvider?.chainId ?? 99;
+
 const props = defineProps({
   name: {
     type: String,
@@ -155,6 +163,7 @@ const getChainId = async () => {
 };
 
 const selectChainId = async (chainId: string) => {
+  chainProvider?.setChainId(Number(chainId));
   await kadenaAccountState.setChainId(currentDomain.value, chainId);
   emit("chainChanged", chainId);
 };
@@ -313,6 +322,7 @@ const disconnectFromDapp = async () => {
     align-items: center;
     flex-direction: row;
     width: auto;
+    color: black;
     text-decoration: none;
     position: relative;
     box-sizing: border-box;

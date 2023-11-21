@@ -82,53 +82,54 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
-import AppMenu from "./components/app-menu/index.vue";
-import NetworkMenu from "./components/network-menu/index.vue";
-import AccountsHeader from "./components/accounts-header/index.vue";
-import BaseSearch from "./components/base-search/index.vue";
-import LogoMin from "./icons/common/logo-min.vue";
-import ManageNetworksIcon from "./icons/common/manage-networks-icon.vue";
-import SettingsIcon from "./icons/common/settings-icon.vue";
-import HoldIcon from "./icons/common/hold-icon.vue";
-import MoreIcon from "./icons/actions/more.vue";
-import AddNetwork from "./views/add-network/index.vue";
-import Settings from "./views/settings/index.vue";
-import ModalRate from "./views/modal-rate/index.vue";
-import { useRouter, useRoute } from "vue-router";
-import { BaseNetwork } from "@/types/base-network";
+import DomainState from "@/libs/domain-state";
+import PublicKeyRing from "@/libs/keyring/public-keyring";
+import { sendToBackgroundFromAction } from "@/libs/messenger/extension";
+import { addNetworkSelectMetrics } from "@/libs/metrics";
+import NetworksState from "@/libs/networks-state";
+import RateState from "@/libs/rate-state";
+import {
+  getAccountsByNetworkName,
+  getOtherSigners,
+} from "@/libs/utils/accounts";
 import {
   DEFAULT_EVM_NETWORK,
   getAllNetworks,
   getNetworkByName,
 } from "@/libs/utils/networks";
-import DomainState from "@/libs/domain-state";
-import {
-  getAccountsByNetworkName,
-  getOtherSigners,
-} from "@/libs/utils/accounts";
-import { AccountsHeaderData } from "./types/account";
-import PublicKeyRing from "@/libs/keyring/public-keyring";
-import { sendToBackgroundFromAction } from "@/libs/messenger/extension";
-import { MessageMethod } from "@/providers/ethereum/types";
-import { MessageMethod as KadenaMessageMethod } from "@/providers/kadena/types";
-import { InternalMethods } from "@/types/messenger";
-import NetworksState from "@/libs/networks-state";
 import openOnboard from "@/libs/utils/open-onboard";
-import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
-import { fromBase } from "@enkryptcom/utils";
-import { EnkryptAccount } from "@enkryptcom/types";
-import Browser from "webextension-polyfill";
-import EVMAccountState from "@/providers/ethereum/libs/accounts-state";
 import BTCAccountState from "@/providers/bitcoin/libs/accounts-state";
-import { ProviderName } from "@/types/provider";
-import { onClickOutside } from "@vueuse/core";
-import RateState from "@/libs/rate-state";
-import SwapLookingAnimation from "@action/icons/swap/swap-looking-animation.vue";
-import { addNetworkSelectMetrics } from "@/libs/metrics";
-import KadenaAPI from "@/providers/kadena/libs/api";
+import EVMAccountState from "@/providers/ethereum/libs/accounts-state";
+import { MessageMethod } from "@/providers/ethereum/types";
+import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
 import KadenaAccountState from "@/providers/kadena/libs/accounts-state";
-
+import KadenaAPI from "@/providers/kadena/libs/api";
+import ChainProvider from "@/providers/kadena/libs/chain-provider";
+import { MessageMethod as KadenaMessageMethod } from "@/providers/kadena/types";
+import { BaseNetwork } from "@/types/base-network";
+import { InternalMethods } from "@/types/messenger";
+import { ProviderName } from "@/types/provider";
+import SwapLookingAnimation from "@action/icons/swap/swap-looking-animation.vue";
+import { EnkryptAccount } from "@enkryptcom/types";
+import { fromBase } from "@enkryptcom/utils";
+import { onClickOutside } from "@vueuse/core";
+import { computed, onMounted, ref } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import Browser from "webextension-polyfill";
+import AccountsHeader from "./components/accounts-header/index.vue";
+import AppMenu from "./components/app-menu/index.vue";
+import BaseSearch from "./components/base-search/index.vue";
+import NetworkMenu from "./components/network-menu/index.vue";
+import MoreIcon from "./icons/actions/more.vue";
+import HoldIcon from "./icons/common/hold-icon.vue";
+import LogoMin from "./icons/common/logo-min.vue";
+import ManageNetworksIcon from "./icons/common/manage-networks-icon.vue";
+import SettingsIcon from "./icons/common/settings-icon.vue";
+import { AccountsHeaderData } from "./types/account";
+import AddNetwork from "./views/add-network/index.vue";
+import ModalRate from "./views/modal-rate/index.vue";
+import Settings from "./views/settings/index.vue";
+ChainProvider.setup();
 
 const domainState = new DomainState();
 const kadenaAccountState = new KadenaAccountState();
