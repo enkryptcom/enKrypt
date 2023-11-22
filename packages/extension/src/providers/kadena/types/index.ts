@@ -26,4 +26,6 @@ export enum EmitEvent {
   networkChanged = "networkChanged",
 }
 
+export const chainIds: string[] = ["0", "1", "2", "3", "4", "5"];
+
 export { InjectedProvider };
