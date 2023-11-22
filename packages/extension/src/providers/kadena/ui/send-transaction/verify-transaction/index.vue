@@ -125,7 +125,7 @@ const network = ref<BaseNetwork>(DEFAULT_KADENA_NETWORK);
 onBeforeMount(async () => {
   network.value = (await getNetworkByName(selectedNetwork))!;
   account.value = await KeyRing.getAccount(txData.fromAddress);
-  chainId.value = txData.TransactionData.chainId;
+  chainId.value = txData.chainId;
   isWindowPopup.value = account.value.isHardware;
   kdaToken.value = new KDAToken({
     icon: network.value.icon,

@@ -454,7 +454,6 @@ const sendAction = async () => {
       to: addressTo.value,
       data: "0x" as `0x{string}`,
       value: amount.value!,
-      chainId: props.accountInfo.chainId!,
     },
     toToken: {
       amount: toBase(amount.value!, selectedAsset.value.decimals!),
@@ -467,6 +466,7 @@ const sendAction = async () => {
       name: selectedAsset.value.name || "",
       price: selectedAsset.value.price || "0",
     },
+    chainId: props.accountInfo.chainId!,
     fromAddress: fromAccount.address,
     fromAddressName: fromAccount.name,
     txFee: fee.value!,

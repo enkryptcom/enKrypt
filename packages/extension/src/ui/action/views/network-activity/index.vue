@@ -78,6 +78,7 @@ import Swap, {
 import EvmAPI from "@/providers/ethereum/libs/api";
 import KadenaAPI from "@/providers/kadena/libs/api";
 import type Web3Eth from "web3-eth";
+import { NetworkNames } from "@enkryptcom/types";
 
 const props = defineProps({
   network: {
@@ -240,7 +241,10 @@ const setActivities = () => {
   isNoActivity.value = false;
   if (props.accountInfo.selectedAccount)
     props.network.getAllActivity(activityAddress.value).then((all) => {
-      if (props.network.currencyNameLong === "Kadena") {
+      if (
+        props.network.name === NetworkNames.Kadena ||
+        props.network.name === NetworkNames.KadenaTestnet
+      ) {
         all = all.filter((x: any) => x.chainId == props.accountInfo.chainId);
       }
       activities.value = all;

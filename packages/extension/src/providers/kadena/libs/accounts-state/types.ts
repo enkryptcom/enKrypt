@@ -4,5 +4,4 @@ export enum StorageKeys {
 }
 export interface IState {
   isApproved: boolean;
-  chainId: string;
 }

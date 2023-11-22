@@ -57,7 +57,6 @@ class AccountState {
     if (!allStates[domain])
       return {
         isApproved: false,
-        chainId: "1",
       };
     else return allStates[domain];
   }
