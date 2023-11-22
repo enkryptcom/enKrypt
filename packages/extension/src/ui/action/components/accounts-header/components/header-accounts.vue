@@ -14,7 +14,7 @@
       :class="{ active: active }"
       @click="showChains = !showChains"
     >
-      <p>{{ chaindId }}</p>
+      <p>{{ chainId }}</p>
       <div class="custom-scrollbar__chain">
         <custom-scrollbar
           class="custom-scrollbar__scroll"
@@ -22,7 +22,7 @@
           :settings="scrollSettings({ suppressScrollX: true })"
         >
           <chainId-list-item
-            v-for="(name, index) in chains"
+            v-for="(name, index) in chainIds"
             :key="index"
             :name="name"
             :select="selectChainId"
@@ -77,9 +77,6 @@ import scrollSettings from "@/libs/utils/scroll-settings";
 import BtcAccountState from "@/providers/bitcoin/libs/accounts-state";
 import EvmAccountState from "@/providers/ethereum/libs/accounts-state";
 import KadenaAccountState from "@/providers/kadena/libs/accounts-state";
-import ChainProvider, {
-  IChainProvider,
-} from "@/providers/kadena/libs/chain-provider";
 import SubstrateAccountState from "@/providers/polkadot/libs/accounts-state";
 import { BaseNetwork } from "@/types/base-network";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
@@ -90,8 +87,9 @@ import IconDisconnect from "@action/icons/header/disconnect_icon.vue";
 import IconExternal from "@action/icons/header/external-icon.vue";
 import IconQr from "@action/icons/header/qr_icon.vue";
 import SwitchArrow from "@action/icons/header/switch_arrow.vue";
-import { PropType, computed, inject, onMounted, ref } from "vue";
+import { PropType, computed, onMounted, ref } from "vue";
 import ChainIdListItem from "./chainId-list-item.vue";
+import { chainIds } from "@/providers/kadena/types";
 
 const isCopied = ref(false);
 const domainState = new DomainState();
@@ -99,7 +97,6 @@ const isConnectedDomain = ref(false);
 const showChains = ref(false);
 const chainId = ref("1");
 const currentDomain = ref("");
-const chains = ["1", "2", "3", "4", "5", "6"];
 const kadenaAccountState = new KadenaAccountState();
 const allAccountStates = [
   new EvmAccountState(),
@@ -107,9 +104,6 @@ const allAccountStates = [
   new SubstrateAccountState(),
   kadenaAccountState,
 ];
-const chainProvider = inject<IChainProvider>(ChainProvider.name);
-
-const chaindId = chainProvider?.chainId ?? 99;
 
 const props = defineProps({
   name: {
@@ -158,14 +152,12 @@ const checkAndSetConnectedDapp = () => {
   });
 };
 const getChainId = async () => {
-  const state = await kadenaAccountState.getStateByDomain(currentDomain.value);
-  chainId.value = state.chainId;
+  chainId.value = await kadenaAccountState.getChainId();
 };
-
-const selectChainId = async (chainId: string) => {
-  chainProvider?.setChainId(Number(chainId));
-  await kadenaAccountState.setChainId(currentDomain.value, chainId);
-  emit("chainChanged", chainId);
+const selectChainId = async (chainIdChanged: string) => {
+  await kadenaAccountState.setChainId(chainIdChanged);
+  chainId.value = chainIdChanged;
+  emit("chainChanged", chainIdChanged);
 };
 onMounted(async () => {
   currentDomain.value = await domainState.getCurrentDomain();

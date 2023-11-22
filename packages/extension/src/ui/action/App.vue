@@ -104,13 +104,12 @@ import { MessageMethod } from "@/providers/ethereum/types";
 import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
 import KadenaAccountState from "@/providers/kadena/libs/accounts-state";
 import KadenaAPI from "@/providers/kadena/libs/api";
-import ChainProvider from "@/providers/kadena/libs/chain-provider";
 import { MessageMethod as KadenaMessageMethod } from "@/providers/kadena/types";
 import { BaseNetwork } from "@/types/base-network";
 import { InternalMethods } from "@/types/messenger";
 import { ProviderName } from "@/types/provider";
 import SwapLookingAnimation from "@action/icons/swap/swap-looking-animation.vue";
-import { EnkryptAccount } from "@enkryptcom/types";
+import { EnkryptAccount, NetworkNames } from "@enkryptcom/types";
 import { fromBase } from "@enkryptcom/utils";
 import { onClickOutside } from "@vueuse/core";
 import { computed, onMounted, ref } from "vue";
@@ -129,7 +128,6 @@ import { AccountsHeaderData } from "./types/account";
 import AddNetwork from "./views/add-network/index.vue";
 import ModalRate from "./views/modal-rate/index.vue";
 import Settings from "./views/settings/index.vue";
-ChainProvider.setup();
 
 const domainState = new DomainState();
 const kadenaAccountState = new KadenaAccountState();
@@ -254,14 +252,13 @@ const setNetwork = async (network: BaseNetwork) => {
     const found = activeAccounts.find((acc) => acc.address === selectedAddress);
     if (found) selectedAccount = found;
   }
-  const domain = await domainState.getCurrentDomain();
-  const state = await kadenaAccountState.getStateByDomain(domain);
+  const chainIdState: any = await kadenaAccountState.getChainId();
   accountHeaderData.value = {
     activeAccounts,
     inactiveAccounts,
     selectedAccount,
     activeBalances: activeAccounts.map(() => "~"),
-    chainId: state.chainId,
+    chainId: chainIdState,
   };
   currentNetwork.value = network;
   router.push({ name: "assets", params: { id: network.name } });
@@ -321,7 +318,10 @@ const setNetwork = async (network: BaseNetwork) => {
       const thisNetworkName = currentNetwork.value.name;
       const api = await network.api();
       const activeBalancePromises = activeAccounts.map((acc) =>
-        api.getBalance(acc.address)
+        thisNetworkName === NetworkNames.Kadena ||
+        thisNetworkName === NetworkNames.KadenaTestnet
+          ? api.getBalance(acc.address, chainIdState)
+          : api.getBalance(acc.address)
       );
       Promise.all(activeBalancePromises).then((balances) => {
         if (thisNetworkName === currentNetwork.value.name)
