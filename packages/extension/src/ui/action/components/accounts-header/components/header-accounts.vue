@@ -10,6 +10,10 @@
     </a>
 
     <div
+      v-if="
+        network.name == NetworkNames.Kadena ||
+        network.name == NetworkNames.KadenaTestnet
+      "
       class="chain__info"
       :class="{ active: active }"
       @click="showChains = !showChains"
@@ -90,6 +94,7 @@ import SwitchArrow from "@action/icons/header/switch_arrow.vue";
 import { PropType, computed, onMounted, ref } from "vue";
 import ChainIdListItem from "./chainId-list-item.vue";
 import { chainIds } from "@/providers/kadena/types";
+import { NetworkNames } from "@enkryptcom/types";
 
 const isCopied = ref(false);
 const domainState = new DomainState();
@@ -294,7 +299,6 @@ const disconnectFromDapp = async () => {
 }
 
 .chain {
-  border-radius: 12px;
   width: 100%;
   height: 56px;
   display: block;
@@ -305,8 +309,8 @@ const disconnectFromDapp = async () => {
   flex-direction: row;
   position: relative;
   z-index: 104;
-  padding: 6px;
   box-sizing: border-box;
+  background-color: gray;
 
   &__info {
     display: flex;
@@ -320,7 +324,6 @@ const disconnectFromDapp = async () => {
     box-sizing: border-box;
     padding: 6px;
     padding-right: 32px;
-    border-radius: 10px;
     height: 44px;
     cursor: pointer;
     transition: background 300ms ease-in-out;
@@ -328,50 +331,6 @@ const disconnectFromDapp = async () => {
     &:hover,
     &.active {
       background: @black007;
-    }
-
-    img {
-      width: 32px;
-      height: 32px;
-      margin-right: 12px;
-      border-radius: 50%;
-    }
-
-    &-name {
-      p {
-        font-style: normal;
-        font-weight: 500;
-        font-size: 14px;
-        line-height: 20px;
-        letter-spacing: 0.25px;
-        color: @primaryLabel;
-        margin: 0;
-        white-space: nowrap;
-        -ms-text-overflow: ellipsis;
-        -o-text-overflow: ellipsis;
-        text-overflow: ellipsis;
-        overflow: hidden;
-        -ms-line-clamp: 1;
-        -webkit-line-clamp: 1;
-        line-clamp: 1;
-        max-width: 230px;
-      }
-
-      span {
-        display: block;
-        font-style: normal;
-        font-weight: normal;
-        font-size: 12px;
-        line-height: 16px;
-        color: @secondaryLabel;
-        letter-spacing: 0.5px;
-      }
-    }
-
-    svg {
-      position: absolute;
-      top: 10px;
-      right: 4px;
     }
   }
 }

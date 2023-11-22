@@ -56,13 +56,12 @@ onClickOutside(
   flex-direction: row;
   box-sizing: border-box;
   padding: 0 8px 0 8px;
+  background-color: white;
   cursor: pointer;
-  margin-left: 8px;
   transition: background 300ms ease-in-out;
-  border-radius: 10px;
 
   &:hover {
-    background: @black004;
+    background: gray;
 
     .accounts-item__more {
       display: block;
