@@ -163,8 +163,8 @@ const sendAction = async () => {
     );
 
     const txActivity: Activity = {
-      from: txData.fromAddress,
-      to: txData.toAddress,
+      from: network.value.displayAddress(txData.fromAddress),
+      to: network.value.displayAddress(txData.toAddress),
       isIncoming: txData.fromAddress === txData.toAddress,
       network: network.value.name,
       status: ActivityStatus.pending,
