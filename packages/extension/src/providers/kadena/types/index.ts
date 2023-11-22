@@ -27,5 +27,6 @@ export enum EmitEvent {
 }
 
 export const chainIds: string[] = ["0", "1", "2", "3", "4", "5"];
+export const defaultChainId = "0";
 
 export { InjectedProvider };
