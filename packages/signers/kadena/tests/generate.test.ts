@@ -3,7 +3,7 @@ import Signer from "../src";
 
 describe("Kadena address generate", () => {
   const MNEMONIC =
-    "favorite service senior cluster chicken shift square endorse casual kidney doll exhibit";
+    "vault grant math damage slight live equip turtle taxi prize phrase notice";
 
   it.only("should generate Kadena addresses correctly", async () => {
     // Arrange
@@ -12,25 +12,25 @@ describe("Kadena address generate", () => {
     // Act & Assert
     let keypair = await kadenaSigner.generate(MNEMONIC, "m/44'/626'/0");
     expect(keypair.address).equals(
-      "0x40a9305bd53a921c44cf19dc9bac4e5d73465fc6a46343ab313defe6b0bfb0a3"
+      "0x8910d3f54c8dff9fce85da39a4e2c194ffc73dd4182e47d0ddbf9883d6aaff06"
     );
 
     // Act & Assert
     keypair = await kadenaSigner.generate(MNEMONIC, "m/44'/626'/1");
     expect(keypair.address).equals(
-      "0xea14c16c053a5543b831e73f55086e4fccb8cc7be764cd74d362179a1d588416"
+      "0x3beae80c42b00b2847e27f3c35da801c728d5f22fb31647c2271c50c80179077"
     );
 
     // Act & Assert
     keypair = await kadenaSigner.generate(MNEMONIC, "m/44'/626'/2");
     expect(keypair.address).equals(
-      "0xaf2a1ff42a9e652d1a8ed1f4f3c7bffcb36a9788c632a53544d7aff07d2a1678"
+      "0x9a5881272654d58195b7e09c4630c7ec4081065dade87d6f7c394bf0858cd306"
     );
 
     // Act & Assert
     keypair = await kadenaSigner.generate(MNEMONIC, "m/44'/626'/3");
     expect(keypair.address).equals(
-      "0xaeb2b28c7cddfa5fd8963acd9df13a858d8329590537e5495b1d5dbc3eeadd92"
+      "0x94e167fd2fd2dc741fa0ce820a7c57857786dd60505f28de6a15dfe73934b5e9"
     );
   });
 });
