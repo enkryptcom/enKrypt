@@ -134,7 +134,11 @@ const checkActivity = (activity: Activity): void => {
   activity = toRaw(activity);
   const timer = setInterval(() => {
     apiPromise.then((api) => {
-      if (props.network.currencyNameLong === "Kadena") {
+      if (
+        props.network.name === NetworkNames.KadenaTestnet ||
+        props.network.name === NetworkNames.Kadena
+      ) {
+        debugger;
         const kadenaApi = api as KadenaAPI;
         kadenaApi
           .getTransactionStatusChainId(

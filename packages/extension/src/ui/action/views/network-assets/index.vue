@@ -73,6 +73,7 @@ import CustomEvmToken from "./components/custom-evm-token.vue";
 import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
 import kadena from "@/providers/kadena/libs/activity-handlers/providers/kadena";
 import { KadenaNetwork } from "@/providers/kadena/types/kadena-network";
+import { NetworkNames } from "@enkryptcom/types";
 
 const showDeposit = ref(false);
 
@@ -100,7 +101,11 @@ const updateAssets = () => {
   isLoading.value = true;
   assets.value = [];
 
-  if (props.network.currencyNameLong == "Kadena") {
+  if (
+    props.network.name === NetworkNames.Kadena ||
+    props.network.name === NetworkNames.KadenaTestnet
+  ) {
+    debugger;
     (props.network as KadenaNetwork)
       .getAllTokenInfoChainId(
         props.accountInfo.selectedAccount?.address || "",
