@@ -1,19 +1,16 @@
 <template>
-  <div class="accounts-item" @click="select(chain)">
-    <div class="accounts-item__info">
-      <p class="accounts-item__info-name">
-        {{ chain }}
-      </p>
-      <p class="accounts-item__info-amount">
-        <span v-show="isChecked">selected</span>
-      </p>
+  <div class="chains-item" @click="select(chain)">
+    <div class="chains-item__info">
+      <p class="chains-item__info-name">Chain {{ chain }}</p>
     </div>
+    <done-icon v-show="isChecked" class="chains-item__checked"></done-icon>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from "vue";
 import { onClickOutside } from "@vueuse/core";
+import DoneIcon from "@action/icons/common/done_icon.vue";
 
 const openEdit = ref(false);
 const dropdown = ref(null);
@@ -45,7 +42,7 @@ onClickOutside(
 <style lang="less">
 @import "~@action/styles/theme.less";
 
-.accounts-item {
+.chains-item {
   width: calc(~"100% - 16px");
   height: 56px;
   text-decoration: none;
@@ -65,20 +62,12 @@ onClickOutside(
     margin-top: 9px;
   }
 
+  &__checked {
+    padding-top: 5px;
+  }
+
   &:hover {
     background: @black004;
-
-    .accounts-item__more {
-      display: block;
-    }
-
-    .accounts-item__checked {
-      display: none !important;
-
-      &.visible {
-        display: block !important;
-      }
-    }
   }
 
   &.disabled {
@@ -103,7 +92,7 @@ onClickOutside(
       color: @primaryLabel;
       margin: 0;
       white-space: nowrap;
-      width: 220px;
+      width: auto;
       text-overflow: ellipsis;
       overflow: hidden;
     }

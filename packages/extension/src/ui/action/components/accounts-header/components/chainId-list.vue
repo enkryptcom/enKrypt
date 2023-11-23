@@ -69,7 +69,7 @@ const props = defineProps({
 
   &__wrap {
     position: absolute;
-    width: 100px;
+    width: 130px;
     height: auto;
     max-height: 530px;
     left: 330px;
@@ -97,6 +97,7 @@ const props = defineProps({
     margin: auto;
     width: 100%;
     max-height: 420px;
+    padding-right: 10px !important;
   }
 
   &__info {
