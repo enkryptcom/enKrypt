@@ -11,7 +11,7 @@ const method: MiddlewareFunction = function (
 ): void {
   if (payload.method !== "kda_getBalance") return next();
   else {
-    if (!payload.params || payload.params.length < 1) {
+    if (!payload.params || payload.params.length < 2) {
       return res(getCustomError("kda_getBalance: invalid params"));
     }
 
