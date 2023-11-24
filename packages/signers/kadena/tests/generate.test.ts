@@ -5,7 +5,7 @@ describe("Kadena address generate", () => {
   const MNEMONIC =
     "vault grant math damage slight live equip turtle taxi prize phrase notice";
 
-  it.only("should generate Kadena addresses correctly", async () => {
+  it("should generate Kadena addresses correctly", async () => {
     // Arrange
     const kadenaSigner = new Signer();
 
