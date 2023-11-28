@@ -44,6 +44,7 @@
 
       <div class="network-activity__transaction-amount">
         <h4>
+          {{ !activity.isIncoming ? `-` : `` }}
           {{
             $filters.formatFloatingPointValue(
               fromBase(activity.value, activity.token.decimals)
