@@ -226,6 +226,10 @@ const validateFields = async () => {
     }
   }
 
+  if (addressTo.value == addressFrom.value) {
+    addressToIsValid.value = false;
+    return;
+  }
   if (!isValidDecimals(amount.value || "0", selectedAsset.value.decimals!)) {
     hasEnough.value = false;
     return;
