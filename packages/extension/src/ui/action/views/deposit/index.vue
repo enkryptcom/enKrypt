@@ -9,7 +9,27 @@
       <img class="deposit__logo" :src="network.icon" />
 
       <h2>Your {{ network.name_long }} address</h2>
-      <p>
+      <p
+        v-if="
+          network.name === NetworkNames.KadenaTestnet ||
+          network.name === NetworkNames.Kadena
+        "
+      >
+        You can send {{ network.currencyName }} to this address
+        {{
+          network.name === NetworkNames.KadenaTestnet ||
+          network.name === NetworkNames.Kadena
+            ? `in Chain ${chainId}`
+            : ""
+        }}
+        using {{ network.name_long }} network.
+      </p>
+      <p
+        v-if="
+          network.name !== NetworkNames.KadenaTestnet &&
+          network.name !== NetworkNames.Kadena
+        "
+      >
         You can send {{ network.currencyName }} to this address using
         {{ network.name_long }} network.
       </p>
@@ -60,10 +80,9 @@ import CloseIcon from "@action/icons/common/close-icon.vue";
 import CopyIcon from "@action/icons/header/copy_icon.vue";
 import { NodeType } from "@/types/provider";
 import QrcodeVue from "qrcode.vue";
-import { EnkryptAccount } from "@enkryptcom/types";
+import { EnkryptAccount, NetworkNames } from "@enkryptcom/types";
 import Notification from "@action/components/notification/index.vue";
 import { ProviderName } from "@/types/provider";
-
 const isCopied = ref(false);
 
 defineProps({
@@ -80,6 +99,10 @@ defineProps({
   showDeposit: {
     type: Boolean,
     default: () => false,
+  },
+  chainId: {
+    type: String,
+    default: () => "",
   },
 });
 defineEmits<{

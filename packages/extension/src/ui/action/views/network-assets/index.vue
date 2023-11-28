@@ -38,6 +38,7 @@
       <deposit
         v-if="!!props.accountInfo.selectedAccount"
         :account="props.accountInfo.selectedAccount"
+        :chain-id="accountInfo.chainId ?? ''"
         :show-deposit="showDeposit"
         :network="network"
         :toggle="toggleDeposit"
