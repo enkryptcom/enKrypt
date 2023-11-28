@@ -186,10 +186,15 @@ const toggleDepositWindow = () => {
   showDepositWindow.value = !showDepositWindow.value;
 };
 const openBuyPage = () => {
+  const buyLink =
+    currentNetwork.value.name === NetworkNames.KadenaTestnet
+      ? (currentNetwork.value as any).options.buyLink
+      : `https://ccswap.myetherwallet.com/?to=${currentNetwork.value.displayAddress(
+          accountHeaderData.value.selectedAccount!.address
+        )}`;
+
   Browser.tabs.create({
-    url: `https://ccswap.myetherwallet.com/?to=${currentNetwork.value.displayAddress(
-      accountHeaderData.value.selectedAccount!.address
-    )}`,
+    url: buyLink,
   });
 };
 const isKeyRingLocked = async (): Promise<boolean> => {

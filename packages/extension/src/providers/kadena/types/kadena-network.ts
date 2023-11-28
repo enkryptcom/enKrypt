@@ -31,6 +31,7 @@ export interface KadenaNetworkOptions {
   decimals: number;
   prefix: number;
   node: string;
+  buyLink?: string | undefined;
   kadenaApiOptions: KadenaApiOptions;
   displayAddress: (address: string) => string;
   coingeckoID?: string;
