@@ -20,7 +20,7 @@
       "matches": ["file://*/*", "http://*/*", "https://*/*"]
     }
   ],
-  "minimum_chrome_version": "111",
+  "minimum_chrome_version": "1",
   "content_security_policy": {
     "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
   }
