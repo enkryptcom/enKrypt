@@ -106,7 +106,6 @@ const updateAssets = () => {
     props.network.name === NetworkNames.Kadena ||
     props.network.name === NetworkNames.KadenaTestnet
   ) {
-    debugger;
     (props.network as KadenaNetwork)
       .getAllTokenInfoChainId(
         props.accountInfo.selectedAccount?.address || "",

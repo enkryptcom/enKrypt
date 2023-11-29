@@ -138,7 +138,6 @@ const checkActivity = (activity: Activity): void => {
         props.network.name === NetworkNames.KadenaTestnet ||
         props.network.name === NetworkNames.Kadena
       ) {
-        debugger;
         const kadenaApi = api as KadenaAPI;
         kadenaApi
           .getTransactionStatusChainId(
