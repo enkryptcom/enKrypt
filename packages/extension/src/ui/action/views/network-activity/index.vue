@@ -76,7 +76,9 @@ import Swap, {
   WalletIdentifier,
 } from "@enkryptcom/swap";
 import EvmAPI from "@/providers/ethereum/libs/api";
+import KadenaAPI from "@/providers/kadena/libs/api";
 import type Web3Eth from "web3-eth";
+import { NetworkNames } from "@enkryptcom/types";
 
 const props = defineProps({
   network: {
@@ -100,6 +102,7 @@ const activities = ref<Activity[]>([]);
 const selectedAddress = computed(
   () => props.accountInfo.selectedAccount?.address || ""
 );
+const selectedChainId = computed(() => props.accountInfo.chainId || "");
 const apiPromise = props.network.api();
 const activityState = new ActivityState();
 let swap: Swap;
@@ -131,66 +134,84 @@ const checkActivity = (activity: Activity): void => {
   activity = toRaw(activity);
   const timer = setInterval(() => {
     apiPromise.then((api) => {
-      api.getTransactionStatus(activity.transactionHash).then((info) => {
-        if (info) {
-          if (props.network.provider === ProviderName.ethereum) {
-            const evmInfo = info as EthereumRawInfo;
-            activity.status = evmInfo.status
-              ? ActivityStatus.success
-              : ActivityStatus.failed;
-            activity.rawInfo = evmInfo;
-            activityState
-              .updateActivity(activity, {
-                address: activityAddress.value,
-                network: props.network.name,
-              })
-              .then(() => updateVisibleActivity(activity));
-          } else if (props.network.provider === ProviderName.polkadot) {
-            const subInfo = info as SubscanExtrinsicInfo;
-            if (!subInfo.pending) {
-              activity.status = subInfo.success
-                ? ActivityStatus.success
-                : ActivityStatus.failed;
-              activity.rawInfo = subInfo;
-              activityState
-                .updateActivity(activity, {
-                  address: activityAddress.value,
-                  network: props.network.name,
-                })
-                .then(() => updateVisibleActivity(activity));
-            }
-          } else if (props.network.provider === ProviderName.bitcoin) {
-            const btcInfo = info as BTCRawInfo;
-            activity.status = ActivityStatus.success;
-            activity.rawInfo = btcInfo;
-            activityState
-              .updateActivity(activity, {
-                address: activityAddress.value,
-                network: props.network.name,
-              })
-              .then(() => updateVisibleActivity(activity));
-          } else if (props.network.provider === ProviderName.kadena) {
-            const kadenaInfo = info as KadenaRawInfo;
-
-            activity.status =
-              kadenaInfo.result.status == "success"
-                ? ActivityStatus.success
-                : ActivityStatus.failed;
-            activity.rawInfo = kadenaInfo;
-
-            activityState
-              .updateActivity(activity, {
-                address: activityAddress.value,
-                network: props.network.name,
-              })
-              .then(() => updateVisibleActivity(activity));
-          }
-          clearInterval(timer);
-        }
-      });
+      if (
+        props.network.name === NetworkNames.KadenaTestnet ||
+        props.network.name === NetworkNames.Kadena
+      ) {
+        const kadenaApi = api as KadenaAPI;
+        kadenaApi
+          .getTransactionStatusChainId(
+            activity.transactionHash,
+            props.accountInfo.chainId!
+          )
+          .then((info) => {
+            getInfo(activity, info, timer);
+          });
+      } else {
+        api.getTransactionStatus(activity.transactionHash).then((info) => {
+          getInfo(activity, info, timer);
+        });
+      }
     });
   }, 5000);
   activityCheckTimers.push(timer);
+};
+const getInfo = (activity: Activity, info: any, timer: any) => {
+  if (info) {
+    if (props.network.provider === ProviderName.ethereum) {
+      const evmInfo = info as EthereumRawInfo;
+      activity.status = evmInfo.status
+        ? ActivityStatus.success
+        : ActivityStatus.failed;
+      activity.rawInfo = evmInfo;
+      activityState
+        .updateActivity(activity, {
+          address: activityAddress.value,
+          network: props.network.name,
+        })
+        .then(() => updateVisibleActivity(activity));
+    } else if (props.network.provider === ProviderName.polkadot) {
+      const subInfo = info as SubscanExtrinsicInfo;
+      if (!subInfo.pending) {
+        activity.status = subInfo.success
+          ? ActivityStatus.success
+          : ActivityStatus.failed;
+        activity.rawInfo = subInfo;
+        activityState
+          .updateActivity(activity, {
+            address: activityAddress.value,
+            network: props.network.name,
+          })
+          .then(() => updateVisibleActivity(activity));
+      }
+    } else if (props.network.provider === ProviderName.bitcoin) {
+      const btcInfo = info as BTCRawInfo;
+      activity.status = ActivityStatus.success;
+      activity.rawInfo = btcInfo;
+      activityState
+        .updateActivity(activity, {
+          address: activityAddress.value,
+          network: props.network.name,
+        })
+        .then(() => updateVisibleActivity(activity));
+    } else if (props.network.provider === ProviderName.kadena) {
+      const kadenaInfo = info as KadenaRawInfo;
+
+      activity.status =
+        kadenaInfo.result.status == "success"
+          ? ActivityStatus.success
+          : ActivityStatus.failed;
+      activity.rawInfo = kadenaInfo;
+
+      activityState
+        .updateActivity(activity, {
+          address: activityAddress.value,
+          network: props.network.name,
+        })
+        .then(() => updateVisibleActivity(activity));
+    }
+    clearInterval(timer);
+  }
 };
 const checkSwap = (activity: Activity): void => {
   activity = toRaw(activity);
@@ -223,6 +244,12 @@ const setActivities = () => {
   isNoActivity.value = false;
   if (props.accountInfo.selectedAccount)
     props.network.getAllActivity(activityAddress.value).then((all) => {
+      if (
+        props.network.name === NetworkNames.Kadena ||
+        props.network.name === NetworkNames.KadenaTestnet
+      ) {
+        all = all.filter((x: any) => x.chainId == props.accountInfo.chainId);
+      }
       activities.value = all;
       isNoActivity.value = all.length === 0;
       activities.value.forEach((act) => {
@@ -241,7 +268,7 @@ const setActivities = () => {
   else activities.value = [];
 };
 
-watch([selectedAddress, selectedNetworkName], setActivities);
+watch([selectedAddress, selectedNetworkName, selectedChainId], setActivities);
 onMounted(() => {
   setActivities();
   activityCheckTimers.forEach((timer) => clearInterval(timer));

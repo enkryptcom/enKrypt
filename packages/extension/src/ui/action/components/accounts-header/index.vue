@@ -7,6 +7,7 @@
       :toggle-accounts="toggleAccounts"
       :active="showAccounts"
       :network="network"
+      v-bind="$attrs"
       @toggle:deposit="$emit('toggle:deposit')"
     />
 
@@ -21,6 +22,7 @@
     <deposit
       v-if="!!accountInfo.selectedAccount"
       :account="accountInfo.selectedAccount"
+      :chain-id="accountInfo.chainId ?? ''"
       :show-deposit="showDeposit"
       :network="network"
       @toggle:deposit="$emit('toggle:deposit')"

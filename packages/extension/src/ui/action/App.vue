@@ -47,6 +47,7 @@
         :show-deposit="showDepositWindow"
         @update:init="init"
         @address-changed="onSelectedAddressChanged"
+        @chain-changed="onSelectedChainIdChanged"
         @toggle:deposit="toggleDepositWindow"
       />
       <router-view v-slot="{ Component }" name="view">
@@ -81,52 +82,55 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
-import AppMenu from "./components/app-menu/index.vue";
-import NetworkMenu from "./components/network-menu/index.vue";
-import AccountsHeader from "./components/accounts-header/index.vue";
-import BaseSearch from "./components/base-search/index.vue";
-import LogoMin from "./icons/common/logo-min.vue";
-import ManageNetworksIcon from "./icons/common/manage-networks-icon.vue";
-import SettingsIcon from "./icons/common/settings-icon.vue";
-import HoldIcon from "./icons/common/hold-icon.vue";
-import MoreIcon from "./icons/actions/more.vue";
-import AddNetwork from "./views/add-network/index.vue";
-import Settings from "./views/settings/index.vue";
-import ModalRate from "./views/modal-rate/index.vue";
-import { useRouter, useRoute } from "vue-router";
-import { BaseNetwork } from "@/types/base-network";
+import DomainState from "@/libs/domain-state";
+import PublicKeyRing from "@/libs/keyring/public-keyring";
+import { sendToBackgroundFromAction } from "@/libs/messenger/extension";
+import { addNetworkSelectMetrics } from "@/libs/metrics";
+import NetworksState from "@/libs/networks-state";
+import RateState from "@/libs/rate-state";
+import {
+  getAccountsByNetworkName,
+  getOtherSigners,
+} from "@/libs/utils/accounts";
 import {
   DEFAULT_EVM_NETWORK,
   getAllNetworks,
   getNetworkByName,
 } from "@/libs/utils/networks";
-import DomainState from "@/libs/domain-state";
-import {
-  getAccountsByNetworkName,
-  getOtherSigners,
-} from "@/libs/utils/accounts";
-import { AccountsHeaderData } from "./types/account";
-import PublicKeyRing from "@/libs/keyring/public-keyring";
-import { sendToBackgroundFromAction } from "@/libs/messenger/extension";
-import { MessageMethod } from "@/providers/ethereum/types";
-import { MessageMethod as KadenaMessageMethod } from "@/providers/kadena/types";
-import { InternalMethods } from "@/types/messenger";
-import NetworksState from "@/libs/networks-state";
 import openOnboard from "@/libs/utils/open-onboard";
-import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
-import { fromBase } from "@enkryptcom/utils";
-import { EnkryptAccount } from "@enkryptcom/types";
-import Browser from "webextension-polyfill";
-import EVMAccountState from "@/providers/ethereum/libs/accounts-state";
 import BTCAccountState from "@/providers/bitcoin/libs/accounts-state";
+import EVMAccountState from "@/providers/ethereum/libs/accounts-state";
+import { MessageMethod } from "@/providers/ethereum/types";
+import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
+import KadenaAccountState from "@/providers/kadena/libs/accounts-state";
+import KadenaAPI from "@/providers/kadena/libs/api";
+import { MessageMethod as KadenaMessageMethod } from "@/providers/kadena/types";
+import { BaseNetwork } from "@/types/base-network";
+import { InternalMethods } from "@/types/messenger";
 import { ProviderName } from "@/types/provider";
-import { onClickOutside } from "@vueuse/core";
-import RateState from "@/libs/rate-state";
 import SwapLookingAnimation from "@action/icons/swap/swap-looking-animation.vue";
-import { addNetworkSelectMetrics } from "@/libs/metrics";
+import { EnkryptAccount, NetworkNames } from "@enkryptcom/types";
+import { fromBase } from "@enkryptcom/utils";
+import { onClickOutside } from "@vueuse/core";
+import { computed, onMounted, ref } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import Browser from "webextension-polyfill";
+import AccountsHeader from "./components/accounts-header/index.vue";
+import AppMenu from "./components/app-menu/index.vue";
+import BaseSearch from "./components/base-search/index.vue";
+import NetworkMenu from "./components/network-menu/index.vue";
+import MoreIcon from "./icons/actions/more.vue";
+import HoldIcon from "./icons/common/hold-icon.vue";
+import LogoMin from "./icons/common/logo-min.vue";
+import ManageNetworksIcon from "./icons/common/manage-networks-icon.vue";
+import SettingsIcon from "./icons/common/settings-icon.vue";
+import { AccountsHeaderData } from "./types/account";
+import AddNetwork from "./views/add-network/index.vue";
+import ModalRate from "./views/modal-rate/index.vue";
+import Settings from "./views/settings/index.vue";
 
 const domainState = new DomainState();
+const kadenaAccountState = new KadenaAccountState();
 const networksState = new NetworksState();
 const rateState = new RateState();
 const appMenuRef = ref(null);
@@ -136,6 +140,7 @@ const accountHeaderData = ref<AccountsHeaderData>({
   inactiveAccounts: [],
   selectedAccount: null,
   activeBalances: [],
+  chainId: null,
 });
 const isOpenMore = ref(false);
 let timeout: ReturnType<typeof setTimeout> | null = null;
@@ -181,10 +186,15 @@ const toggleDepositWindow = () => {
   showDepositWindow.value = !showDepositWindow.value;
 };
 const openBuyPage = () => {
+  const buyLink =
+    currentNetwork.value.name === NetworkNames.KadenaTestnet
+      ? (currentNetwork.value as any).options.buyLink
+      : `https://ccswap.myetherwallet.com/?to=${currentNetwork.value.displayAddress(
+          accountHeaderData.value.selectedAccount!.address
+        )}`;
+
   Browser.tabs.create({
-    url: `https://ccswap.myetherwallet.com/?to=${currentNetwork.value.displayAddress(
-      accountHeaderData.value.selectedAccount!.address
-    )}`,
+    url: buyLink,
   });
 };
 const isKeyRingLocked = async (): Promise<boolean> => {
@@ -247,11 +257,13 @@ const setNetwork = async (network: BaseNetwork) => {
     const found = activeAccounts.find((acc) => acc.address === selectedAddress);
     if (found) selectedAccount = found;
   }
+  const chainIdState: any = await kadenaAccountState.getChainId();
   accountHeaderData.value = {
     activeAccounts,
     inactiveAccounts,
     selectedAccount,
     activeBalances: activeAccounts.map(() => "~"),
+    chainId: chainIdState,
   };
   currentNetwork.value = network;
   router.push({ name: "assets", params: { id: network.name } });
@@ -311,7 +323,10 @@ const setNetwork = async (network: BaseNetwork) => {
       const thisNetworkName = currentNetwork.value.name;
       const api = await network.api();
       const activeBalancePromises = activeAccounts.map((acc) =>
-        api.getBalance(acc.address)
+        thisNetworkName === NetworkNames.Kadena ||
+        thisNetworkName === NetworkNames.KadenaTestnet
+          ? api.getBalance(acc.address, chainIdState)
+          : api.getBalance(acc.address)
       );
       Promise.all(activeBalancePromises).then((balances) => {
         if (thisNetworkName === currentNetwork.value.name)
@@ -322,6 +337,27 @@ const setNetwork = async (network: BaseNetwork) => {
     } catch (e) {
       console.error(e);
     }
+  }
+};
+const onSelectedChainIdChanged = async (chainId: string) => {
+  try {
+    accountHeaderData.value.chainId = chainId;
+    const activeAccounts = await getAccountsByNetworkName(
+      currentNetwork.value.name
+    );
+    const thisNetworkName = currentNetwork.value.name;
+    const kadenaAPI = (await currentNetwork.value.api()) as KadenaAPI;
+    const activeBalancePromises = activeAccounts.map(
+      async (acc) => await kadenaAPI.getBalance(acc.address, chainId)
+    );
+    Promise.all(activeBalancePromises).then((balances) => {
+      if (thisNetworkName === currentNetwork.value.name)
+        accountHeaderData.value.activeBalances = balances.map((bal) =>
+          fromBase(bal, currentNetwork.value.decimals)
+        );
+    });
+  } catch (e) {
+    console.error(e);
   }
 };
 

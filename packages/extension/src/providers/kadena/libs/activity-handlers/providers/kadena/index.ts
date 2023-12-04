@@ -79,6 +79,7 @@ export default async (
       isIncoming: activity.fromAccount !== address,
       network: network.name,
       rawInfo: activity,
+      chainId: activity.chain.toString(),
       status:
         activity.idx === 1 ? ActivityStatus.success : ActivityStatus.failed,
       timestamp: new Date(activity.blockTime).getTime(),

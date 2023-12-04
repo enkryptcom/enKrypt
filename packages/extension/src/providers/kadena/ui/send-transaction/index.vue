@@ -73,7 +73,7 @@
 
       <send-fee-select
         v-if="!edWarn"
-        :fee="fee ?? { nativeSymbol: props.network.name }"
+        :fee="fee ?? { nativeSymbol: props.network.currencyName }"
       />
 
       <div class="send-transaction__buttons">
@@ -215,7 +215,8 @@ const validateFields = async () => {
     } else {
       const accountDetail = await accountAssets.value[0].getAccountDetails(
         to,
-        props.network
+        props.network,
+        props.accountInfo.chainId!
       );
       if (accountDetail.error) {
         addressToIsValid.value = false;
@@ -225,6 +226,10 @@ const validateFields = async () => {
     }
   }
 
+  if (addressTo.value == addressFrom.value) {
+    addressToIsValid.value = false;
+    return;
+  }
   if (!isValidDecimals(amount.value || "0", selectedAsset.value.decimals!)) {
     hasEnough.value = false;
     return;
@@ -242,7 +247,6 @@ const validateFields = async () => {
   }
 
   let partialFee;
-  debugger;
   if (props.accountInfo.selectedAccount!.isHardware) {
     partialFee = 0.000025;
   } else {
@@ -250,12 +254,14 @@ const validateFields = async () => {
       addressTo.value,
       props.accountInfo.selectedAccount,
       rawAmount.toString(),
-      props.network
+      props.network,
+      props.accountInfo.chainId!
     );
 
     const networkApi = (await props.network.api()) as KadenaAPI;
     const transactionResult = await networkApi.sendLocalTransaction(
-      localTransaction
+      localTransaction,
+      props.accountInfo.chainId!
     );
 
     const gasLimit = transactionResult.metaData?.publicMeta?.gasLimit;
@@ -308,11 +314,18 @@ watch(addressFrom, () => {
 
 const fetchTokens = async () => {
   const networkApi = (await props.network.api()) as KadenaAPI;
-  const networkAssets = await props.network.getAllTokens(addressFrom.value);
+  const networkAssets = await props.network.getAllTokensByChainId(
+    addressFrom.value,
+    props.accountInfo.chainId!
+  );
   const pricePromises = networkAssets.map((asset) => asset.getLatestPrice());
   const balancePromises = networkAssets.map((asset) => {
     if (!asset.balance) {
-      return asset.getLatestUserBalance(networkApi.api, addressFrom.value);
+      return asset.getBalance(
+        networkApi.api,
+        addressFrom.value,
+        props.accountInfo.chainId!
+      );
     }
 
     return Promise.resolve(asset.balance);
@@ -464,6 +477,7 @@ const sendAction = async () => {
       name: selectedAsset.value.name || "",
       price: selectedAsset.value.price || "0",
     },
+    chainId: props.accountInfo.chainId!,
     fromAddress: fromAccount.address,
     fromAddressName: fromAccount.name,
     txFee: fee.value!,
