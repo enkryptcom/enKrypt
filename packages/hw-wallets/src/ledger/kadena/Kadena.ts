@@ -112,7 +112,7 @@ export default class Kadena extends Common {
     params: TransferTxParams
   ): Promise<BuildTransactionResult> {
     const p1 = params as TransferCrossChainTxParams;
-    p1.recipient_chainId = 1; // Ignored by Ledger App
+    p1.recipient_chainId = params.chainId;
     return this.signTxInternal(p1, 1);
   }
 
@@ -122,7 +122,7 @@ export default class Kadena extends Common {
   ): Promise<BuildTransactionResult> {
     // Use defaults if value not specified
     const t: Date = new Date();
-    const path: any = !params.path ? "44'/626'/0'/0/0" : params.path;
+    const path: any = !params.path ? "44'/626'/0'" : params.path;
     if (!(path.startsWith("44'/626'/") || path.startsWith("m/44'/626'/")))
       throw new TypeError(
         "Path does not start with `44'/626'/` or `m/44'/626'/`"

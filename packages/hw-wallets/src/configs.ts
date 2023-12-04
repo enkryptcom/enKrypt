@@ -78,8 +78,8 @@ const bip44Paths = {
     label: "Substrate",
   },
   kadenaLedger: {
-    path: "m/44'/626'/0'/{index}",
-    basePath: "m/44'/626'/0",
+    path: "m/44'/626'/{index}'",
+    basePath: "m/44'/626'",
     label: "Kadena",
   },
 };
