@@ -230,6 +230,7 @@ const validateFields = async () => {
     addressToIsValid.value = false;
     return;
   }
+
   if (!isValidDecimals(amount.value || "0", selectedAsset.value.decimals!)) {
     hasEnough.value = false;
     return;
@@ -263,6 +264,11 @@ const validateFields = async () => {
       localTransaction,
       props.accountInfo.chainId!
     );
+
+    if (transactionResult.result.status !== "success") {
+      hasEnough.value = false;
+      return;
+    }
 
     const gasLimit = transactionResult.metaData?.publicMeta?.gasLimit;
     const gasPrice = transactionResult.metaData?.publicMeta?.gasPrice;
