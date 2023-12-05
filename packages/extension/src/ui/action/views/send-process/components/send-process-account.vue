@@ -8,11 +8,10 @@
     />
     <img
       v-else
-      :src="network.identicon(address)"
+      :src="network.identicon(network.displayAddress(address))"
       class="send-process-account__img avatar"
       alt=""
     />
-
     <div class="send-process-account__name">
       <p>To</p>
       <h4>{{ name ? name : network.displayAddress(address) }}</h4>

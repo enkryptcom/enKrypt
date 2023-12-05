@@ -9,4 +9,9 @@ export default {
     component: {},
     name: "kdaSignMessage",
   },
+  kdaHWVerify: {
+    path: "kda-hw-verify",
+    name: "kdaHWVerify",
+    component: {},
+  },
 };
