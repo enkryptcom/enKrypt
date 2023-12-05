@@ -31,6 +31,7 @@ export interface KadenaNetworkOptions {
   decimals: number;
   prefix: number;
   node: string;
+  buyLink?: string | undefined;
   kadenaApiOptions: KadenaApiOptions;
   displayAddress: (address: string) => string;
   coingeckoID?: string;
@@ -59,7 +60,7 @@ export class KadenaNetwork extends BaseNetwork {
     };
 
     const baseOptions: BaseNetworkOptions = {
-      basePath: "m/44'/626'/0'/0'",
+      basePath: "m/44'/626'",
       identicon: createIcon,
       signer: [SignerType.ed25519kda],
       provider: ProviderName.kadena,
@@ -74,7 +75,14 @@ export class KadenaNetwork extends BaseNetwork {
   }
 
   public async getAllTokens(pubkey: string): Promise<KDABaseToken[]> {
-    const assets = await this.getAllTokenInfo(pubkey);
+    throw new Error("Method not implemented.");
+  }
+
+  public async getAllTokensByChainId(
+    pubkey: string,
+    chainId: string
+  ): Promise<KDABaseToken[]> {
+    const assets = await this.getAllTokenInfoChainId(pubkey, chainId);
 
     return assets.map((token) => {
       const bTokenOptions: BaseTokenOptions = {
@@ -92,7 +100,14 @@ export class KadenaNetwork extends BaseNetwork {
   }
 
   public async getAllTokenInfo(pubkey: string): Promise<AssetsType[]> {
-    const balance = await (await this.api()).getBalance(pubkey);
+    throw new Error("Method not implemented.");
+  }
+
+  public async getAllTokenInfoChainId(
+    pubkey: string,
+    chainId: string | undefined
+  ): Promise<AssetsType[]> {
+    const balance = await (await this.api()).getBalance(pubkey, chainId);
     let marketData: (CoinGeckoTokenMarket | null)[] = [];
 
     if (this.coingeckoID) {

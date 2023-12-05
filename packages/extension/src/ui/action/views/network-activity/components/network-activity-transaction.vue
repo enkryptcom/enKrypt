@@ -45,6 +45,13 @@
       <div class="network-activity__transaction-amount">
         <h4>
           {{
+            !activity.isIncoming &&
+            (activity.network == NetworkNames.Kadena ||
+              activity.network == NetworkNames.KadenaTestnet)
+              ? `-`
+              : ``
+          }}
+          {{
             $filters.formatFloatingPointValue(
               fromBase(activity.value, activity.token.decimals)
             ).value
@@ -113,6 +120,7 @@ import { BaseNetwork } from "@/types/base-network";
 import { fromBase } from "@enkryptcom/utils";
 import BigNumber from "bignumber.js";
 import { imageLoadError } from "@/ui/action/utils/misc";
+import { NetworkNames } from "@enkryptcom/types";
 const props = defineProps({
   activity: {
     type: Object as PropType<Activity>,
