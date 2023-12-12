@@ -201,6 +201,7 @@ const selected: string = route.params.id as string;
 const accountAssets = ref<Erc20Token[]>([]);
 const selectedAsset = ref<Erc20Token | Partial<Erc20Token>>(loadingAsset);
 const amount = ref<string>("");
+const isEstimateValid = ref(true);
 const hasEnoughBalance = computed(() => {
   if (!isValidDecimals(sendAmount.value, selectedAsset.value.decimals!)) {
     return false;
@@ -319,45 +320,51 @@ const nativeBalanceAfterTransaction = computed(() => {
 });
 
 const setTransactionFees = (tx: Transaction) => {
-  return tx.getGasCosts().then(async (gasvals) => {
-    const getConvertedVal = (type: GasPriceTypes) =>
-      fromBase(gasvals[type], props.network.decimals);
-    const nativeVal = accountAssets.value[0].price || "0";
-    gasCostValues.value = {
-      [GasPriceTypes.ECONOMY]: {
-        nativeValue: getConvertedVal(GasPriceTypes.ECONOMY),
-        fiatValue: new BigNumber(getConvertedVal(GasPriceTypes.ECONOMY))
-          .times(nativeVal!)
-          .toString(),
-        nativeSymbol: props.network.currencyName,
-        fiatSymbol: "USD",
-      },
-      [GasPriceTypes.REGULAR]: {
-        nativeValue: getConvertedVal(GasPriceTypes.REGULAR),
-        fiatValue: new BigNumber(getConvertedVal(GasPriceTypes.REGULAR))
-          .times(nativeVal!)
-          .toString(),
-        nativeSymbol: props.network.currencyName,
-        fiatSymbol: "USD",
-      },
-      [GasPriceTypes.FAST]: {
-        nativeValue: getConvertedVal(GasPriceTypes.FAST),
-        fiatValue: new BigNumber(getConvertedVal(GasPriceTypes.FAST))
-          .times(nativeVal!)
-          .toString(),
-        nativeSymbol: props.network.currencyName,
-        fiatSymbol: "USD",
-      },
-      [GasPriceTypes.FASTEST]: {
-        nativeValue: getConvertedVal(GasPriceTypes.FASTEST),
-        fiatValue: new BigNumber(getConvertedVal(GasPriceTypes.FASTEST))
-          .times(nativeVal!)
-          .toString(),
-        nativeSymbol: props.network.currencyName,
-        fiatSymbol: "USD",
-      },
-    };
-  });
+  return tx
+    .getGasCosts()
+    .then(async (gasvals) => {
+      const getConvertedVal = (type: GasPriceTypes) =>
+        fromBase(gasvals[type], props.network.decimals);
+      const nativeVal = accountAssets.value[0].price || "0";
+      gasCostValues.value = {
+        [GasPriceTypes.ECONOMY]: {
+          nativeValue: getConvertedVal(GasPriceTypes.ECONOMY),
+          fiatValue: new BigNumber(getConvertedVal(GasPriceTypes.ECONOMY))
+            .times(nativeVal!)
+            .toString(),
+          nativeSymbol: props.network.currencyName,
+          fiatSymbol: "USD",
+        },
+        [GasPriceTypes.REGULAR]: {
+          nativeValue: getConvertedVal(GasPriceTypes.REGULAR),
+          fiatValue: new BigNumber(getConvertedVal(GasPriceTypes.REGULAR))
+            .times(nativeVal!)
+            .toString(),
+          nativeSymbol: props.network.currencyName,
+          fiatSymbol: "USD",
+        },
+        [GasPriceTypes.FAST]: {
+          nativeValue: getConvertedVal(GasPriceTypes.FAST),
+          fiatValue: new BigNumber(getConvertedVal(GasPriceTypes.FAST))
+            .times(nativeVal!)
+            .toString(),
+          nativeSymbol: props.network.currencyName,
+          fiatSymbol: "USD",
+        },
+        [GasPriceTypes.FASTEST]: {
+          nativeValue: getConvertedVal(GasPriceTypes.FASTEST),
+          fiatValue: new BigNumber(getConvertedVal(GasPriceTypes.FASTEST))
+            .times(nativeVal!)
+            .toString(),
+          nativeSymbol: props.network.currencyName,
+          fiatSymbol: "USD",
+        },
+      };
+      isEstimateValid.value = true;
+    })
+    .catch(() => {
+      isEstimateValid.value = false;
+    });
 };
 
 const setBaseCosts = () => {
@@ -400,6 +407,7 @@ const sendButtonTitle = computed(() => {
 });
 
 const isInputsValid = computed<boolean>(() => {
+  if (!isEstimateValid.value) return false;
   if (!props.network.isAddress(addressTo.value)) return false;
   if (!isValidDecimals(sendAmount.value, selectedAsset.value.decimals!)) {
     return false;
