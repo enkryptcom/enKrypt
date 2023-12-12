@@ -169,6 +169,7 @@ import Browser from "webextension-polyfill";
 import { ProviderName } from "@/types/provider";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
 import { GenericNameResolver, CoinType } from "@/libs/name-resolver";
+import { NetworkNames } from "@enkryptcom/types";
 
 const props = defineProps({
   network: {
@@ -214,7 +215,11 @@ const sendAmount = computed(() => {
   return "0";
 });
 const isMaxSelected = ref<boolean>(false);
-const selectedFee = ref<GasPriceTypes>(GasPriceTypes.REGULAR);
+const selectedFee = ref<GasPriceTypes>(
+  props.network.name === NetworkNames.Ethereum
+    ? GasPriceTypes.REGULAR
+    : GasPriceTypes.ECONOMY
+);
 const gasCostValues = ref<GasFeeType>(defaultGasCostVals);
 const addressFrom = ref<string>(
   props.accountInfo.selectedAccount?.address ?? ""
