@@ -293,7 +293,8 @@ const nativeBalanceAfterTransaction = computed(() => {
     nativeBalance.value &&
     selectedAsset.value &&
     selectedAsset.value.contract &&
-    amount.value !== ""
+    amount.value !== "" &&
+    isValidDecimals(sendAmount.value, selectedAsset.value.decimals!)
   ) {
     let endingAmount = toBN(nativeBalance.value);
 
@@ -471,7 +472,9 @@ const assetMaxValue = computed(() => {
 });
 const setMaxValue = () => {
   isMaxSelected.value = true;
-  updateTransactionFees(Tx.value);
+  if (isInputsValid.value) {
+    updateTransactionFees(Tx.value);
+  }
 };
 const inputAddressFrom = (text: string) => {
   addressFrom.value = text;
@@ -527,7 +530,9 @@ const inputAmount = (inputAmount: string) => {
   const inputAmountBn = new BigNumber(inputAmount);
   isMaxSelected.value = false;
   amount.value = inputAmountBn.lt(0) ? "0" : inputAmountBn.toFixed();
-  updateTransactionFees(Tx.value);
+  if (isInputsValid.value) {
+    updateTransactionFees(Tx.value);
+  }
 };
 
 const toggleSelectFee = () => {
@@ -537,7 +542,8 @@ const toggleSelectFee = () => {
 const selectFee = (type: GasPriceTypes) => {
   selectedFee.value = type;
   isOpenSelectFee.value = false;
-  if (isMaxSelected.value) updateTransactionFees(Tx.value);
+  if (isMaxSelected.value && isInputsValid.value)
+    updateTransactionFees(Tx.value);
 };
 
 const sendAction = async () => {
