@@ -19,6 +19,12 @@ export abstract class KDABaseToken extends BaseToken {
     account: string,
     network: KadenaNetwork
   ): Promise<any>;
+
+  public abstract getBalance(
+    api: KadenaAPI,
+    pubkey: string,
+    chainId?: string
+  ): Promise<string>;
 }
 
 export class KDAToken extends KDABaseToken {
@@ -30,7 +36,15 @@ export class KDAToken extends KDABaseToken {
     api: KadenaAPI,
     pubkey: string
   ): Promise<string> {
-    return api.getBalance(pubkey);
+    throw new Error("KDA-getLatestUserBalance is not implemented here");
+  }
+
+  public async getBalance(
+    api: KadenaAPI,
+    pubkey: string,
+    chainId?: string
+  ): Promise<string> {
+    return api.getBalance(pubkey, chainId);
   }
 
   public async send(): Promise<any> {
@@ -41,10 +55,11 @@ export class KDAToken extends KDABaseToken {
     to: string,
     from: EnkryptAccount | any,
     amount: string,
-    network: KadenaNetwork
+    network: KadenaNetwork,
+    chainId?: string
   ): Promise<ICommand> {
     to = network.displayAddress(to);
-    const accountDetails = await this.getAccountDetails(to, network);
+    const accountDetails = await this.getAccountDetails(to, network, chainId);
     const keySetAccount = to.startsWith("k:") ? to.replace("k:", "") : to;
     const unsignedTransaction = Pact.builder
       .execution(
@@ -65,7 +80,8 @@ export class KDAToken extends KDABaseToken {
         withCap("coin.GAS"),
       ])
       .setMeta({
-        chainId: network.options.kadenaApiOptions.chainId as ChainId,
+        chainId: (chainId ??
+          network.options.kadenaApiOptions.chainId) as ChainId,
         senderAccount: network.displayAddress(from.address),
       })
       .setNetworkId(network.options.kadenaApiOptions.networkId)
@@ -92,17 +108,24 @@ export class KDAToken extends KDABaseToken {
 
   public async getAccountDetails(
     account: string,
-    network: KadenaNetwork
+    network: KadenaNetwork,
+    chainId?: string
   ): Promise<any> {
     const modules = Pact.modules as any;
     const unsignedTransaction = Pact.builder
       .execution(modules.coin.details(account))
-      .setMeta({ chainId: network.options.kadenaApiOptions.chainId as ChainId })
+      .setMeta({
+        chainId: (chainId ??
+          network.options.kadenaApiOptions.chainId) as ChainId,
+      })
       .setNetworkId(network.options.kadenaApiOptions.networkId)
       .createTransaction();
 
     const api = (await network.api()) as KadenaAPI;
-    const response = await api.dirtyRead(unsignedTransaction as ICommand);
+    const response = await api.dirtyRead(
+      unsignedTransaction as ICommand,
+      chainId!
+    );
 
     return response.result;
   }

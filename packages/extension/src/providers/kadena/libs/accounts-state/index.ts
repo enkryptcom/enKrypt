@@ -1,6 +1,8 @@
 import { InternalStorageNamespace } from "@/types/provider";
 import BrowserStorage from "@/libs/common/browser-storage";
 import { IState, StorageKeys } from "./types";
+import { defaultChainId } from "../../types";
+
 class AccountState {
   #storage: BrowserStorage;
   constructor() {
@@ -28,6 +30,16 @@ class AccountState {
       delete allStates[domain];
       await this.#storage.set(StorageKeys.accountsState, allStates);
     }
+  }
+  async setChainId(chainId: string): Promise<void> {
+    await this.#storage.set(StorageKeys.chainIdState, {
+      [StorageKeys.chainIdState]: chainId as any,
+    });
+  }
+  async getChainId(): Promise<string> {
+    const allStates: any = await this.#storage.get(StorageKeys.chainIdState);
+    if (!allStates) return defaultChainId;
+    return allStates[StorageKeys.chainIdState];
   }
   async isConnected(domain: string): Promise<boolean> {
     return this.getStateByDomain(domain).then((res) => res.isApproved);

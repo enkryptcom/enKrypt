@@ -11,12 +11,15 @@ const method: MiddlewareFunction = function (
 ): void {
   if (payload.method !== "kda_getBalance") return next();
   else {
-    if (!payload.params || payload.params.length < 1) {
+    if (!payload.params || payload.params.length < 2) {
       return res(getCustomError("kda_getBalance: invalid params"));
     }
 
+    const address = payload.params[0];
+    const chainId =
+      payload.params[1] ?? this.network.options.kadenaApiOptions.chainId;
     this.network.api().then((api) => {
-      api.getBalance(payload.params![0]).then((bal) => {
+      api.getBalance(address, chainId).then((bal) => {
         res(null, bal);
       });
     });
