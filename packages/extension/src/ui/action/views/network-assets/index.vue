@@ -72,7 +72,6 @@ import Deposit from "@action/views/deposit/index.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import CustomEvmToken from "./components/custom-evm-token.vue";
 import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
-import kadena from "@/providers/kadena/libs/activity-handlers/providers/kadena";
 import { KadenaNetwork } from "@/providers/kadena/types/kadena-network";
 import { NetworkNames } from "@enkryptcom/types";
 

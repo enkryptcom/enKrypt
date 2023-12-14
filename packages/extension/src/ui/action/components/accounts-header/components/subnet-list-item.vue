@@ -1,34 +1,36 @@
 <template>
-  <div class="chains-item" @click="select(chain)">
+  <div class="chains-item" @click="$emit('select:subnetwork', network.id)">
     <div class="chains-item__info">
-      <p class="chains-item__info-name">Chain {{ chain }}</p>
+      <p class="chains-item__info-name">{{ network.name }}</p>
     </div>
     <done-icon v-show="isChecked" class="chains-item__checked"></done-icon>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { PropType, ref } from "vue";
 import { onClickOutside } from "@vueuse/core";
 import DoneIcon from "@action/icons/common/done_icon.vue";
+import { SubNetworkOptions } from "@/types/base-network";
 
 const openEdit = ref(false);
 const dropdown = ref(null);
 const toggle = ref(null);
 
 defineProps({
-  chain: {
-    type: String,
-    default: "",
+  network: {
+    type: Object as PropType<SubNetworkOptions>,
+    default: () => ({
+      id: "",
+      name: "",
+    }),
   },
   isChecked: Boolean,
-  select: {
-    type: Function,
-    default: () => {
-      return {};
-    },
-  },
 });
+
+defineEmits<{
+  (e: "select:subnetwork", id: string): void;
+}>();
 
 onClickOutside(
   dropdown,

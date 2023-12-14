@@ -1,5 +1,9 @@
 import { Activity } from "@/types/activity";
-import { BaseNetwork, BaseNetworkOptions } from "@/types/base-network";
+import {
+  BaseNetwork,
+  BaseNetworkOptions,
+  SubNetworkOptions,
+} from "@/types/base-network";
 import { BaseTokenOptions } from "@/types/base-token";
 import { AssetsType, ProviderName } from "@/types/provider";
 import { CoingeckoPlatform, NetworkNames, SignerType } from "@enkryptcom/types";
@@ -37,6 +41,7 @@ export interface KadenaNetworkOptions {
   coingeckoID?: string;
   coingeckoPlatform?: CoingeckoPlatform;
   isAddress: (address: string) => boolean;
+  subNetworks: SubNetworkOptions[];
   activityHandler: (
     network: BaseNetwork,
     address: string
@@ -74,7 +79,7 @@ export class KadenaNetwork extends BaseNetwork {
     this.activityHandler = options.activityHandler;
   }
 
-  public async getAllTokens(pubkey: string): Promise<KDABaseToken[]> {
+  public async getAllTokens(): Promise<KDABaseToken[]> {
     throw new Error("Method not implemented.");
   }
 
@@ -99,7 +104,7 @@ export class KadenaNetwork extends BaseNetwork {
     });
   }
 
-  public async getAllTokenInfo(pubkey: string): Promise<AssetsType[]> {
+  public async getAllTokenInfo(): Promise<AssetsType[]> {
     throw new Error("Method not implemented.");
   }
 

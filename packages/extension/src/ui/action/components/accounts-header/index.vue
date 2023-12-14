@@ -9,6 +9,7 @@
       :network="network"
       v-bind="$attrs"
       @toggle:deposit="$emit('toggle:deposit')"
+      @select:subnetwork="$emit('select:subnetwork', $event)"
     />
 
     <accounts-list
@@ -41,6 +42,7 @@ import { BaseNetwork } from "@/types/base-network";
 const router = useRouter();
 defineEmits<{
   (e: "toggle:deposit"): void;
+  (e: "select:subnetwork", id: string): void;
 }>();
 const showAccounts = ref(false);
 

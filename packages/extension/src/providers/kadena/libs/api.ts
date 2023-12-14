@@ -8,6 +8,7 @@ import {
   createClient,
 } from "@kadena/client";
 import { toBase } from "@enkryptcom/utils";
+import DomainState from "@/libs/domain-state";
 
 class API implements ProviderAPIInterface {
   decimals: number;
@@ -15,6 +16,7 @@ class API implements ProviderAPIInterface {
   networkId: string;
   chainId: string;
   apiHost: string;
+  domainState: DomainState;
   displayAddress: (address: string) => string;
 
   constructor(node: string, options: KadenaNetworkOptions) {
@@ -24,6 +26,7 @@ class API implements ProviderAPIInterface {
     this.chainId = options.kadenaApiOptions.chainId;
     this.apiHost = `${node}/${this.networkId}/chain/${this.chainId}/pact`;
     this.displayAddress = options.displayAddress;
+    this.domainState = new DomainState();
   }
 
   public get api() {
@@ -37,7 +40,7 @@ class API implements ProviderAPIInterface {
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   async init(): Promise<void> {}
 
-  async getTransactionStatus(hash: string): Promise<KadenaRawInfo | null> {
+  async getTransactionStatus(): Promise<KadenaRawInfo | null> {
     throw new Error("Method not implemented.");
   }
 

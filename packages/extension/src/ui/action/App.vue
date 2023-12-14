@@ -47,7 +47,7 @@
         :show-deposit="showDepositWindow"
         @update:init="init"
         @address-changed="onSelectedAddressChanged"
-        @chain-changed="onSelectedChainIdChanged"
+        @select:subnetwork="onSelectedSubnetworkChange"
         @toggle:deposit="toggleDepositWindow"
       />
       <router-view v-slot="{ Component }" name="view">
@@ -339,26 +339,28 @@ const setNetwork = async (network: BaseNetwork) => {
     }
   }
 };
-const onSelectedChainIdChanged = async (chainId: string) => {
-  try {
-    accountHeaderData.value.chainId = chainId;
-    const activeAccounts = await getAccountsByNetworkName(
-      currentNetwork.value.name
-    );
-    const thisNetworkName = currentNetwork.value.name;
-    const kadenaAPI = (await currentNetwork.value.api()) as KadenaAPI;
-    const activeBalancePromises = activeAccounts.map(
-      async (acc) => await kadenaAPI.getBalance(acc.address, chainId)
-    );
-    Promise.all(activeBalancePromises).then((balances) => {
-      if (thisNetworkName === currentNetwork.value.name)
-        accountHeaderData.value.activeBalances = balances.map((bal) =>
-          fromBase(bal, currentNetwork.value.decimals)
-        );
-    });
-  } catch (e) {
-    console.error(e);
-  }
+const onSelectedSubnetworkChange = async (id: string) => {
+  console.log(id, "subnet");
+  domainState.setSelectedSubNetwork(id);
+  // try {
+  //   accountHeaderData.value.chainId = chainId;
+  //   const activeAccounts = await getAccountsByNetworkName(
+  //     currentNetwork.value.name
+  //   );
+  //   const thisNetworkName = currentNetwork.value.name;
+  //   const kadenaAPI = (await currentNetwork.value.api()) as KadenaAPI;
+  //   const activeBalancePromises = activeAccounts.map(
+  //     async (acc) => await kadenaAPI.getBalance(acc.address, chainId)
+  //   );
+  //   Promise.all(activeBalancePromises).then((balances) => {
+  //     if (thisNetworkName === currentNetwork.value.name)
+  //       accountHeaderData.value.activeBalances = balances.map((bal) =>
+  //         fromBase(bal, currentNetwork.value.decimals)
+  //       );
+  //   });
+  // } catch (e) {
+  //   console.error(e);
+  // }
 };
 
 const onSelectedAddressChanged = async (newAccount: EnkryptAccount) => {

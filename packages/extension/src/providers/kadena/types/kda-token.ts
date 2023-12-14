@@ -32,10 +32,7 @@ export class KDAToken extends KDABaseToken {
     super(options);
   }
 
-  public async getLatestUserBalance(
-    api: KadenaAPI,
-    pubkey: string
-  ): Promise<string> {
+  public async getLatestUserBalance(): Promise<string> {
     throw new Error("KDA-getLatestUserBalance is not implemented here");
   }
 

@@ -6,12 +6,12 @@
         class="chains__scroll-area"
         :settings="scrollSettings({ suppressScrollX: true })"
       >
-        <chainId-list-item
-          v-for="(chain, index) in chains"
+        <subnet-list-item
+          v-for="(net, index) in subNets"
           :key="index"
-          :chain="chain"
-          :is-checked="selectedChain == chain"
-          :select="selectChains"
+          :network="net"
+          :is-checked="selectedId == net.id"
+          v-bind="$attrs"
         />
       </custom-scrollbar>
     </div>
@@ -22,22 +22,19 @@
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 import { PropType } from "vue";
 import scrollSettings from "@/libs/utils/scroll-settings";
-import ChainIdListItem from "./chainId-list-item.vue";
+import SubnetListItem from "./subnet-list-item.vue";
+import { SubNetworkOptions } from "@/types/base-network";
 
-const props = defineProps({
-  chains: {
-    type: Array as PropType<string[]>,
+defineProps({
+  subNets: {
+    type: Array as PropType<SubNetworkOptions[]>,
     default: () => [],
   },
-  selectedChain: {
+  selectedId: {
     type: String,
     default: "",
   },
   showChains: Boolean,
-  selectChains: {
-    type: Function,
-    default: () => ({}),
-  },
 });
 </script>
 

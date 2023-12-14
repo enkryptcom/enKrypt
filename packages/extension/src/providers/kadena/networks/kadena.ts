@@ -23,6 +23,20 @@ const kadenaOptions: KadenaNetworkOptions = {
     chainId: "1",
   },
   coingeckoID: "kadena",
+  subNetworks: [
+    {
+      id: "0x0",
+      name: "Chain 0",
+    },
+    {
+      id: "0x1",
+      name: "Chain 1",
+    },
+    {
+      id: "0x2",
+      name: "Chain 2",
+    },
+  ],
   coingeckoPlatform: CoingeckoPlatform.Kadena,
   activityHandler: wrapActivityHandler(kadenaScanActivity),
   displayAddress: (address: string) => address.replace("0x", "k:"),

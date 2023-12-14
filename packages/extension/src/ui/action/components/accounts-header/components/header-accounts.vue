@@ -11,24 +11,21 @@
 
     <div class="account__actions">
       <div
-        v-if="
-          network.name == NetworkNames.Kadena ||
-          network.name == NetworkNames.KadenaTestnet
-        "
+        v-if="network.subNetworks"
         class="account__info"
         :class="{ active: showChains }"
         @click="showChains = !showChains"
       >
         <div class="account__info-name">
-          <p>Chain {{ chainId }}</p>
+          <p>{{ currentSubNetwork.name }}</p>
         </div>
 
-        <chainId-list
-          :chains="chainIds"
+        <subnet-list
+          :sub-nets="network.subNetworks"
+          :selected-id="currentSubNetwork.id"
           :show-chains="showChains"
-          :select-chains="selectChainId"
-          :selected-chain="chainId"
           v-bind="$attrs"
+          @select:subnetwork="setSubNetwork"
         />
         <switch-arrow />
       </div>
@@ -76,7 +73,7 @@ import BtcAccountState from "@/providers/bitcoin/libs/accounts-state";
 import EvmAccountState from "@/providers/ethereum/libs/accounts-state";
 import KadenaAccountState from "@/providers/kadena/libs/accounts-state";
 import SubstrateAccountState from "@/providers/polkadot/libs/accounts-state";
-import { BaseNetwork } from "@/types/base-network";
+import { BaseNetwork, SubNetworkOptions } from "@/types/base-network";
 import Notification from "@action/components/notification/index.vue";
 import Tooltip from "@action/components/tooltip/index.vue";
 import IconCopy from "@action/icons/header/copy_icon.vue";
@@ -85,15 +82,16 @@ import IconExternal from "@action/icons/header/external-icon.vue";
 import IconQr from "@action/icons/header/qr_icon.vue";
 import SwitchArrow from "@action/icons/header/switch_arrow.vue";
 import { PropType, computed, onMounted, ref } from "vue";
-import ChainIdList from "./chainId-list.vue";
-import { chainIds } from "@/providers/kadena/types";
-import { NetworkNames } from "@enkryptcom/types";
+import SubnetList from "./subnet-list.vue";
 
 const isCopied = ref(false);
 const domainState = new DomainState();
 const isConnectedDomain = ref(false);
 const showChains = ref(false);
-const chainId = ref("");
+const currentSubNetwork = ref<SubNetworkOptions>({
+  id: "",
+  name: "",
+});
 const currentDomain = ref("");
 const kadenaAccountState = new KadenaAccountState();
 const allAccountStates = [
@@ -124,7 +122,7 @@ const props = defineProps({
 });
 const emit = defineEmits<{
   (e: "toggle:deposit"): void;
-  (e: "chainChanged", chainId: string): void;
+  (e: "select:subnetwork", id: string): void;
 }>();
 
 const copy = (address: string) => {
@@ -149,22 +147,30 @@ const checkAndSetConnectedDapp = () => {
     });
   });
 };
-const getChainId = async () => {
-  chainId.value = await kadenaAccountState.getChainId();
-};
-const selectChainId = async (chainIdChanged: string) => {
-  await kadenaAccountState.setChainId(chainIdChanged);
-  chainId.value = chainIdChanged;
-  emit("chainChanged", chainIdChanged);
 
+const setSubNetwork = async (id: string) => {
+  const subnet = props.network.subNetworks!.find((net) => net.id === id);
+  if (subnet) currentSubNetwork.value = subnet;
+  emit("select:subnetwork", id);
   setTimeout(() => {
     showChains.value = false;
   }, 100);
 };
+
 onMounted(async () => {
   currentDomain.value = await domainState.getCurrentDomain();
   checkAndSetConnectedDapp();
-  await getChainId();
+  if (props.network.subNetworks) {
+    domainState.getSelectedSubNetWork().then((id) => {
+      if (id) {
+        const subnet = props.network.subNetworks!.find((net) => net.id === id);
+        if (subnet) currentSubNetwork.value = subnet;
+        return;
+      }
+    });
+    currentSubNetwork.value = props.network.subNetworks[0];
+    setSubNetwork(currentSubNetwork.value.id);
+  }
 });
 const disconnectFromDapp = async () => {
   await Promise.all(

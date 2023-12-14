@@ -22,6 +22,12 @@ const kadenaOptions: KadenaNetworkOptions = {
     networkId: "testnet04",
     chainId: "1",
   },
+  subNetworks: [
+    {
+      id: "0x0",
+      name: "Chain 0",
+    },
+  ],
   buyLink: "https://faucet.testnet.chainweb.com/",
   activityHandler: wrapActivityHandler(kadenaScanActivity),
   displayAddress: (address: string) => address.replace("0x", "k:"),

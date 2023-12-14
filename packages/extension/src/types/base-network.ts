@@ -8,6 +8,10 @@ import { Activity } from "./activity";
 import { BaseToken } from "./base-token";
 import { BNLike } from "ethereumjs-util";
 
+export interface SubNetworkOptions {
+  id: string;
+  name: string;
+}
 export interface BaseNetworkOptions {
   name: NetworkNames;
   name_long: string;
@@ -27,6 +31,7 @@ export interface BaseNetworkOptions {
   coingeckoPlatform?: CoingeckoPlatform;
   identicon: (address: string) => string;
   basePath: string;
+  subNetworks?: SubNetworkOptions[];
   api: () =>
     | Promise<SubstrateAPI>
     | Promise<EvmAPI>
@@ -54,6 +59,7 @@ export abstract class BaseNetwork {
   public identicon: (address: string) => string;
   public basePath: string;
   public decimals: number;
+  public subNetworks?: SubNetworkOptions[];
   public api: () =>
     | Promise<SubstrateAPI>
     | Promise<EvmAPI>
@@ -82,6 +88,7 @@ export abstract class BaseNetwork {
     this.customTokens = options.customTokens ?? false;
     this.coingeckoPlatform = options.coingeckoPlatform;
     this.currencyNameLong = options.currencyNameLong;
+    this.subNetworks = options.subNetworks;
   }
 
   public abstract getAllTokens(address: string): Promise<BaseToken[]>;
