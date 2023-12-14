@@ -38,7 +38,6 @@
       <deposit
         v-if="!!props.accountInfo.selectedAccount"
         :account="props.accountInfo.selectedAccount"
-        :chain-id="accountInfo.chainId ?? ''"
         :show-deposit="showDeposit"
         :network="network"
         :toggle="toggleDeposit"
@@ -72,8 +71,6 @@ import Deposit from "@action/views/deposit/index.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import CustomEvmToken from "./components/custom-evm-token.vue";
 import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
-import { KadenaNetwork } from "@/providers/kadena/types/kadena-network";
-import { NetworkNames } from "@enkryptcom/types";
 
 const showDeposit = ref(false);
 
@@ -100,28 +97,12 @@ const selected: string = route.params.id as string;
 const updateAssets = () => {
   isLoading.value = true;
   assets.value = [];
-
-  if (
-    props.network.name === NetworkNames.Kadena ||
-    props.network.name === NetworkNames.KadenaTestnet
-  ) {
-    (props.network as KadenaNetwork)
-      .getAllTokenInfoChainId(
-        props.accountInfo.selectedAccount?.address || "",
-        props.accountInfo.chainId!
-      )
-      .then((_assets) => {
-        assets.value = _assets;
-        isLoading.value = false;
-      });
-  } else {
-    props.network
-      .getAllTokenInfo(props.accountInfo.selectedAccount?.address || "")
-      .then((_assets) => {
-        assets.value = _assets;
-        isLoading.value = false;
-      });
-  }
+  props.network
+    .getAllTokenInfo(props.accountInfo.selectedAccount?.address || "")
+    .then((_assets) => {
+      assets.value = _assets;
+      isLoading.value = false;
+    });
 };
 const selectedAddress = computed(
   () => props.accountInfo.selectedAccount?.address || ""

@@ -24,7 +24,7 @@ const kadenaOptions: KadenaNetworkOptions = {
   },
   subNetworks: [
     {
-      id: "0x0",
+      id: "0",
       name: "Chain 0",
     },
   ],

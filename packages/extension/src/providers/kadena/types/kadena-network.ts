@@ -79,15 +79,8 @@ export class KadenaNetwork extends BaseNetwork {
     this.activityHandler = options.activityHandler;
   }
 
-  public async getAllTokens(): Promise<KDABaseToken[]> {
-    throw new Error("Method not implemented.");
-  }
-
-  public async getAllTokensByChainId(
-    pubkey: string,
-    chainId: string
-  ): Promise<KDABaseToken[]> {
-    const assets = await this.getAllTokenInfoChainId(pubkey, chainId);
+  public async getAllTokens(pubkey: string): Promise<KDABaseToken[]> {
+    const assets = await this.getAllTokenInfo(pubkey);
 
     return assets.map((token) => {
       const bTokenOptions: BaseTokenOptions = {
@@ -104,15 +97,8 @@ export class KadenaNetwork extends BaseNetwork {
     });
   }
 
-  public async getAllTokenInfo(): Promise<AssetsType[]> {
-    throw new Error("Method not implemented.");
-  }
-
-  public async getAllTokenInfoChainId(
-    pubkey: string,
-    chainId: string | undefined
-  ): Promise<AssetsType[]> {
-    const balance = await (await this.api()).getBalance(pubkey, chainId);
+  public async getAllTokenInfo(pubkey: string): Promise<AssetsType[]> {
+    const balance = await (await this.api()).getBalance(pubkey);
     let marketData: (CoinGeckoTokenMarket | null)[] = [];
 
     if (this.coingeckoID) {

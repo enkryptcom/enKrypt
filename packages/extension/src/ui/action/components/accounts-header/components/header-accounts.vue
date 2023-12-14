@@ -81,7 +81,7 @@ import IconDisconnect from "@action/icons/header/disconnect_icon.vue";
 import IconExternal from "@action/icons/header/external-icon.vue";
 import IconQr from "@action/icons/header/qr_icon.vue";
 import SwitchArrow from "@action/icons/header/switch_arrow.vue";
-import { PropType, computed, onMounted, ref } from "vue";
+import { PropType, computed, onMounted, ref, watch } from "vue";
 import SubnetList from "./subnet-list.vue";
 
 const isCopied = ref(false);
@@ -147,6 +147,20 @@ const checkAndSetConnectedDapp = () => {
     });
   });
 };
+const checkAndSetSubNetwork = () => {
+  if (props.network.subNetworks) {
+    domainState.getSelectedSubNetWork().then((id) => {
+      console.log(id);
+      if (id) {
+        const subnet = props.network.subNetworks!.find((net) => net.id === id);
+        if (subnet) currentSubNetwork.value = subnet;
+      } else {
+        currentSubNetwork.value = props.network.subNetworks![0];
+      }
+      setSubNetwork(currentSubNetwork.value.id);
+    });
+  }
+};
 
 const setSubNetwork = async (id: string) => {
   const subnet = props.network.subNetworks!.find((net) => net.id === id);
@@ -160,18 +174,9 @@ const setSubNetwork = async (id: string) => {
 onMounted(async () => {
   currentDomain.value = await domainState.getCurrentDomain();
   checkAndSetConnectedDapp();
-  if (props.network.subNetworks) {
-    domainState.getSelectedSubNetWork().then((id) => {
-      if (id) {
-        const subnet = props.network.subNetworks!.find((net) => net.id === id);
-        if (subnet) currentSubNetwork.value = subnet;
-        return;
-      }
-    });
-    currentSubNetwork.value = props.network.subNetworks[0];
-    setSubNetwork(currentSubNetwork.value.id);
-  }
+  checkAndSetSubNetwork();
 });
+watch(() => props.network, checkAndSetSubNetwork);
 const disconnectFromDapp = async () => {
   await Promise.all(
     allAccountStates.map((as) => as.deleteState(currentDomain.value))

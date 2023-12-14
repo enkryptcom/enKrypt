@@ -40,25 +40,25 @@ class API implements ProviderAPIInterface {
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   async init(): Promise<void> {}
 
-  async getTransactionStatus(): Promise<KadenaRawInfo | null> {
-    throw new Error("Method not implemented.");
+  async getChainId(): Promise<string> {
+    return this.domainState.getSelectedSubNetWork().then((id) => {
+      if (id) return id;
+      return "0";
+    });
   }
 
-  async getTransactionStatusChainId(
-    hash: string,
-    chainId: string
-  ): Promise<KadenaRawInfo | null> {
+  async getTransactionStatus(hash: string): Promise<KadenaRawInfo | null> {
     const Pact = require("pact-lang-api");
     const cmd = { requestKeys: [hash] };
+    const chainId = await this.getChainId();
     const transactions = await Pact.fetch.poll(cmd, this.getApiHost(chainId));
-
     return transactions[hash];
   }
 
-  async getBalance(address: string, chainId?: string): Promise<string> {
+  async getBalanceByChainId(address: string, chainId: string): Promise<string> {
     const balance = await this.getBalanceAPI(
       this.displayAddress(address),
-      chainId ?? this.chainId
+      chainId
     );
 
     if (balance.result.error) {
@@ -70,6 +70,11 @@ class API implements ProviderAPIInterface {
     );
 
     return toBase(balanceValue, this.decimals);
+  }
+
+  async getBalance(address: string): Promise<string> {
+    const chainId = await this.getChainId();
+    return this.getBalanceByChainId(address, chainId);
   }
 
   async getBalanceAPI(account: string, chainId: string) {
@@ -92,33 +97,31 @@ class API implements ProviderAPIInterface {
   }
 
   async sendLocalTransaction(
-    signedTranscation: ICommand,
-    chainId: string
+    signedTranscation: ICommand
   ): Promise<ICommandResult> {
+    const chainId = await this.getChainId();
     const client = createClient(this.getApiHost(chainId));
     return client.local(signedTranscation as ICommand);
   }
 
   async sendTransaction(
-    signedTranscation: ICommand,
-    chainId: string
+    signedTranscation: ICommand
   ): Promise<ITransactionDescriptor> {
+    const chainId = await this.getChainId();
     const client = createClient(this.getApiHost(chainId));
     return client.submit(signedTranscation as ICommand);
   }
 
   async listen(
-    transactionDescriptor: ITransactionDescriptor,
-    chainId: string
+    transactionDescriptor: ITransactionDescriptor
   ): Promise<ICommandResult> {
+    const chainId = await this.getChainId();
     const client = createClient(this.getApiHost(chainId));
     return client.listen(transactionDescriptor);
   }
 
-  async dirtyRead(
-    signedTranscation: ICommand,
-    chainId: string
-  ): Promise<ICommandResult> {
+  async dirtyRead(signedTranscation: ICommand): Promise<ICommandResult> {
+    const chainId = await this.getChainId();
     const client = createClient(this.getApiHost(chainId));
     return client.dirtyRead(signedTranscation);
   }

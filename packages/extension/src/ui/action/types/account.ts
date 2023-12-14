@@ -13,5 +13,4 @@ export interface AccountsHeaderData {
   activeAccounts: EnkryptAccount[];
   inactiveAccounts: EnkryptAccount[];
   activeBalances: string[];
-  chainId: string | null;
 }

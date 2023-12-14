@@ -2,6 +2,7 @@ import { MiddlewareFunction } from "@enkryptcom/types";
 import KadenaProvider from "..";
 import { ProviderRPCRequest } from "@/types/provider";
 import { getCustomError } from "@/libs/error";
+import type KadenaAPI from "@/providers/kadena/libs/api";
 
 const method: MiddlewareFunction = function (
   this: KadenaProvider,
@@ -19,7 +20,7 @@ const method: MiddlewareFunction = function (
     const chainId =
       payload.params[1] ?? this.network.options.kadenaApiOptions.chainId;
     this.network.api().then((api) => {
-      api.getBalance(address, chainId).then((bal) => {
+      (api as KadenaAPI).getBalanceByChainId(address, chainId).then((bal) => {
         res(null, bal);
       });
     });

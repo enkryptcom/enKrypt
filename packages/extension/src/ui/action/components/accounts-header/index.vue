@@ -23,7 +23,6 @@
     <deposit
       v-if="!!accountInfo.selectedAccount"
       :account="accountInfo.selectedAccount"
-      :chain-id="accountInfo.chainId ?? ''"
       :show-deposit="showDeposit"
       :network="network"
       @toggle:deposit="$emit('toggle:deposit')"

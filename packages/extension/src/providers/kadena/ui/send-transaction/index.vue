@@ -215,8 +215,7 @@ const validateFields = async () => {
     } else {
       const accountDetail = await accountAssets.value[0].getAccountDetails(
         to,
-        props.network,
-        props.accountInfo.chainId!
+        props.network
       );
       if (accountDetail.error) {
         addressToIsValid.value = false;
@@ -251,14 +250,12 @@ const validateFields = async () => {
     addressTo.value,
     props.accountInfo.selectedAccount,
     amount.value!.toString(),
-    props.network,
-    props.accountInfo.chainId!
+    props.network
   );
 
   const networkApi = (await props.network.api()) as KadenaAPI;
   const transactionResult = await networkApi.sendLocalTransaction(
-    localTransaction,
-    props.accountInfo.chainId!
+    localTransaction
   );
 
   if (transactionResult.result.status !== "success") {
@@ -313,18 +310,11 @@ watch(addressFrom, () => {
 
 const fetchTokens = async () => {
   const networkApi = (await props.network.api()) as KadenaAPI;
-  const networkAssets = await props.network.getAllTokensByChainId(
-    addressFrom.value,
-    props.accountInfo.chainId!
-  );
+  const networkAssets = await props.network.getAllTokens(addressFrom.value);
   const pricePromises = networkAssets.map((asset) => asset.getLatestPrice());
   const balancePromises = networkAssets.map((asset) => {
     if (!asset.balance) {
-      return asset.getBalance(
-        networkApi.api,
-        addressFrom.value,
-        props.accountInfo.chainId!
-      );
+      return asset.getBalance(networkApi.api, addressFrom.value);
     }
 
     return Promise.resolve(asset.balance);
@@ -458,6 +448,8 @@ const isDisabled = computed(() => {
 const sendAction = async () => {
   const keyring = new PublicKeyRing();
   const fromAccount = await keyring.getAccount(addressFrom.value);
+  const networkApi = (await props.network.api()) as KadenaAPI;
+  const chainId = await networkApi.getChainId();
   const txVerifyInfo: VerifyTransactionParams = {
     TransactionData: {
       from: fromAccount.address,
@@ -476,7 +468,7 @@ const sendAction = async () => {
       name: selectedAsset.value.name || "",
       price: selectedAsset.value.price || "0",
     },
-    chainId: props.accountInfo.chainId!,
+    chainId: chainId,
     fromAddress: fromAccount.address,
     fromAddressName: fromAccount.name,
     txFee: fee.value!,

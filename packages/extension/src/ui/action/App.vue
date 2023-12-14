@@ -102,8 +102,6 @@ import BTCAccountState from "@/providers/bitcoin/libs/accounts-state";
 import EVMAccountState from "@/providers/ethereum/libs/accounts-state";
 import { MessageMethod } from "@/providers/ethereum/types";
 import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
-import KadenaAccountState from "@/providers/kadena/libs/accounts-state";
-import KadenaAPI from "@/providers/kadena/libs/api";
 import { MessageMethod as KadenaMessageMethod } from "@/providers/kadena/types";
 import { BaseNetwork } from "@/types/base-network";
 import { InternalMethods } from "@/types/messenger";
@@ -130,7 +128,6 @@ import ModalRate from "./views/modal-rate/index.vue";
 import Settings from "./views/settings/index.vue";
 
 const domainState = new DomainState();
-const kadenaAccountState = new KadenaAccountState();
 const networksState = new NetworksState();
 const rateState = new RateState();
 const appMenuRef = ref(null);
@@ -140,7 +137,6 @@ const accountHeaderData = ref<AccountsHeaderData>({
   inactiveAccounts: [],
   selectedAccount: null,
   activeBalances: [],
-  chainId: null,
 });
 const isOpenMore = ref(false);
 let timeout: ReturnType<typeof setTimeout> | null = null;
@@ -257,13 +253,12 @@ const setNetwork = async (network: BaseNetwork) => {
     const found = activeAccounts.find((acc) => acc.address === selectedAddress);
     if (found) selectedAccount = found;
   }
-  const chainIdState: any = await kadenaAccountState.getChainId();
+
   accountHeaderData.value = {
     activeAccounts,
     inactiveAccounts,
     selectedAccount,
     activeBalances: activeAccounts.map(() => "~"),
-    chainId: chainIdState,
   };
   currentNetwork.value = network;
   router.push({ name: "assets", params: { id: network.name } });
@@ -323,10 +318,7 @@ const setNetwork = async (network: BaseNetwork) => {
       const thisNetworkName = currentNetwork.value.name;
       const api = await network.api();
       const activeBalancePromises = activeAccounts.map((acc) =>
-        thisNetworkName === NetworkNames.Kadena ||
-        thisNetworkName === NetworkNames.KadenaTestnet
-          ? api.getBalance(acc.address, chainIdState)
-          : api.getBalance(acc.address)
+        api.getBalance(acc.address)
       );
       Promise.all(activeBalancePromises).then((balances) => {
         if (thisNetworkName === currentNetwork.value.name)
@@ -340,27 +332,8 @@ const setNetwork = async (network: BaseNetwork) => {
   }
 };
 const onSelectedSubnetworkChange = async (id: string) => {
-  console.log(id, "subnet");
-  domainState.setSelectedSubNetwork(id);
-  // try {
-  //   accountHeaderData.value.chainId = chainId;
-  //   const activeAccounts = await getAccountsByNetworkName(
-  //     currentNetwork.value.name
-  //   );
-  //   const thisNetworkName = currentNetwork.value.name;
-  //   const kadenaAPI = (await currentNetwork.value.api()) as KadenaAPI;
-  //   const activeBalancePromises = activeAccounts.map(
-  //     async (acc) => await kadenaAPI.getBalance(acc.address, chainId)
-  //   );
-  //   Promise.all(activeBalancePromises).then((balances) => {
-  //     if (thisNetworkName === currentNetwork.value.name)
-  //       accountHeaderData.value.activeBalances = balances.map((bal) =>
-  //         fromBase(bal, currentNetwork.value.decimals)
-  //       );
-  //   });
-  // } catch (e) {
-  //   console.error(e);
-  // }
+  await domainState.setSelectedSubNetwork(id);
+  setNetwork(currentNetwork.value);
 };
 
 const onSelectedAddressChanged = async (newAccount: EnkryptAccount) => {
