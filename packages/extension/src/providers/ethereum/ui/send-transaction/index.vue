@@ -217,7 +217,7 @@ const sendAmount = computed(() => {
 });
 const isMaxSelected = ref<boolean>(false);
 const selectedFee = ref<GasPriceTypes>(
-  props.network.name === NetworkNames.Ethereum
+  props.network.name === NetworkNames.Ethereum || NetworkNames.Binance
     ? GasPriceTypes.REGULAR
     : GasPriceTypes.ECONOMY
 );

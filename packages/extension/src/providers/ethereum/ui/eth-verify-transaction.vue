@@ -193,7 +193,7 @@ onBeforeMount(async () => {
     Request.value.params![2]
   )) as EvmNetwork;
   selectedFee.value =
-    network.value.name === NetworkNames.Ethereum
+    network.value.name === NetworkNames.Ethereum || NetworkNames.Binance
       ? GasPriceTypes.REGULAR
       : GasPriceTypes.ECONOMY;
   account.value = Request.value.params![1] as EnkryptAccount;
