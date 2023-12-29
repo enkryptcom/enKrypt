@@ -42,9 +42,11 @@ export class Provider
     }; //need a global var since, polkadot use enable as a function not from the class
   }
   handleMessage(msg: string): void {
+    console.log(msg);
     messagerRouter.handleMessage(msg);
   }
   enable(dappName: string): Promise<SubstrateInjectedProvider> {
+    console.log(dappName);
     const id = messagerRouter.nextPosition();
     const newProvider = new InjectedProvider({
       dappName,
@@ -62,6 +64,7 @@ const ProxyHandler = {
     return Object.keys(target).concat(this.proxymethods);
   },
   set(target: Provider, name: keyof Provider, value: any) {
+    console.log(name, value, "set");
     if (!this.ownKeys(target).includes(name)) this.proxymethods.push(name);
     return Reflect.set(target, name, value);
   },
@@ -74,6 +77,7 @@ const ProxyHandler = {
     };
   },
   get(target: Provider, prop: keyof Provider) {
+    console.log(prop, "get");
     if (typeof target[prop] === "function") {
       return (target[prop] as () => any).bind(target);
     }
@@ -97,7 +101,7 @@ const injectDocument = (
       JSON.stringify({ method: InternalMethods.getSettings, params: [] })
     )
     .then((settings: SettingsType) => {
-      if (!settings.substrate.injectPolkadotjs)
+      if (settings.substrate.injectPolkadotjs)
         document.injectedWeb3["polkadot-js"] = new Proxy(
           provider,
           ProxyHandler

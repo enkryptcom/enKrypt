@@ -30,7 +30,7 @@ class SettingsState {
   async getSubstrateSettings(): Promise<SubstrateSettingsType> {
     const state = await this.getStateByKey(StorageKeys.substrateState);
     const settings: SubstrateSettingsType = {
-      injectPolkadotjs: true,
+      injectPolkadotjs: false,
     };
     return merge(settings, state);
   }
