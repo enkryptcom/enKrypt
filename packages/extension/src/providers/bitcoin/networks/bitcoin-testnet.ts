@@ -46,6 +46,7 @@ const bitcoinOptions: BitcoinNetworkOptions = {
     wif: 0xef,
     dustThreshold: null,
     paymentType: PaymentType.P2WPKH,
+    maxFeeRate: 5000 * 2,
   },
 };
 
