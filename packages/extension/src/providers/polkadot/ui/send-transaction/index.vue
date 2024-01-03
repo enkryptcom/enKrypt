@@ -489,6 +489,7 @@ const sendAction = async () => {
       height: 600,
       width: 460,
     });
+    window.close();
   } else {
     router.push(routedRoute);
   }

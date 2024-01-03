@@ -19,6 +19,7 @@ export interface BitcoinNetworkInfo {
   wif: number;
   dustThreshold: null;
   paymentType: PaymentType;
+  maxFeeRate: number;
 }
 
 export interface HaskoinBalanceType {

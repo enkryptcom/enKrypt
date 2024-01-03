@@ -169,6 +169,7 @@ import Browser from "webextension-polyfill";
 import { ProviderName } from "@/types/provider";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
 import { GenericNameResolver, CoinType } from "@/libs/name-resolver";
+import { NetworkNames } from "@enkryptcom/types";
 
 const props = defineProps({
   network: {
@@ -200,6 +201,7 @@ const selected: string = route.params.id as string;
 const accountAssets = ref<Erc20Token[]>([]);
 const selectedAsset = ref<Erc20Token | Partial<Erc20Token>>(loadingAsset);
 const amount = ref<string>("");
+const isEstimateValid = ref(true);
 const hasEnoughBalance = computed(() => {
   if (!isValidDecimals(sendAmount.value, selectedAsset.value.decimals!)) {
     return false;
@@ -214,7 +216,11 @@ const sendAmount = computed(() => {
   return "0";
 });
 const isMaxSelected = ref<boolean>(false);
-const selectedFee = ref<GasPriceTypes>(GasPriceTypes.REGULAR);
+const selectedFee = ref<GasPriceTypes>(
+  props.network.name === NetworkNames.Ethereum || NetworkNames.Binance
+    ? GasPriceTypes.REGULAR
+    : GasPriceTypes.ECONOMY
+);
 const gasCostValues = ref<GasFeeType>(defaultGasCostVals);
 const addressFrom = ref<string>(
   props.accountInfo.selectedAccount?.address ?? ""
@@ -287,7 +293,8 @@ const nativeBalanceAfterTransaction = computed(() => {
     nativeBalance.value &&
     selectedAsset.value &&
     selectedAsset.value.contract &&
-    amount.value !== ""
+    amount.value !== "" &&
+    isValidDecimals(sendAmount.value, selectedAsset.value.decimals!)
   ) {
     let endingAmount = toBN(nativeBalance.value);
 
@@ -314,45 +321,51 @@ const nativeBalanceAfterTransaction = computed(() => {
 });
 
 const setTransactionFees = (tx: Transaction) => {
-  return tx.getGasCosts().then(async (gasvals) => {
-    const getConvertedVal = (type: GasPriceTypes) =>
-      fromBase(gasvals[type], props.network.decimals);
-    const nativeVal = accountAssets.value[0].price || "0";
-    gasCostValues.value = {
-      [GasPriceTypes.ECONOMY]: {
-        nativeValue: getConvertedVal(GasPriceTypes.ECONOMY),
-        fiatValue: new BigNumber(getConvertedVal(GasPriceTypes.ECONOMY))
-          .times(nativeVal!)
-          .toString(),
-        nativeSymbol: props.network.currencyName,
-        fiatSymbol: "USD",
-      },
-      [GasPriceTypes.REGULAR]: {
-        nativeValue: getConvertedVal(GasPriceTypes.REGULAR),
-        fiatValue: new BigNumber(getConvertedVal(GasPriceTypes.REGULAR))
-          .times(nativeVal!)
-          .toString(),
-        nativeSymbol: props.network.currencyName,
-        fiatSymbol: "USD",
-      },
-      [GasPriceTypes.FAST]: {
-        nativeValue: getConvertedVal(GasPriceTypes.FAST),
-        fiatValue: new BigNumber(getConvertedVal(GasPriceTypes.FAST))
-          .times(nativeVal!)
-          .toString(),
-        nativeSymbol: props.network.currencyName,
-        fiatSymbol: "USD",
-      },
-      [GasPriceTypes.FASTEST]: {
-        nativeValue: getConvertedVal(GasPriceTypes.FASTEST),
-        fiatValue: new BigNumber(getConvertedVal(GasPriceTypes.FASTEST))
-          .times(nativeVal!)
-          .toString(),
-        nativeSymbol: props.network.currencyName,
-        fiatSymbol: "USD",
-      },
-    };
-  });
+  return tx
+    .getGasCosts()
+    .then(async (gasvals) => {
+      const getConvertedVal = (type: GasPriceTypes) =>
+        fromBase(gasvals[type], props.network.decimals);
+      const nativeVal = accountAssets.value[0].price || "0";
+      gasCostValues.value = {
+        [GasPriceTypes.ECONOMY]: {
+          nativeValue: getConvertedVal(GasPriceTypes.ECONOMY),
+          fiatValue: new BigNumber(getConvertedVal(GasPriceTypes.ECONOMY))
+            .times(nativeVal!)
+            .toString(),
+          nativeSymbol: props.network.currencyName,
+          fiatSymbol: "USD",
+        },
+        [GasPriceTypes.REGULAR]: {
+          nativeValue: getConvertedVal(GasPriceTypes.REGULAR),
+          fiatValue: new BigNumber(getConvertedVal(GasPriceTypes.REGULAR))
+            .times(nativeVal!)
+            .toString(),
+          nativeSymbol: props.network.currencyName,
+          fiatSymbol: "USD",
+        },
+        [GasPriceTypes.FAST]: {
+          nativeValue: getConvertedVal(GasPriceTypes.FAST),
+          fiatValue: new BigNumber(getConvertedVal(GasPriceTypes.FAST))
+            .times(nativeVal!)
+            .toString(),
+          nativeSymbol: props.network.currencyName,
+          fiatSymbol: "USD",
+        },
+        [GasPriceTypes.FASTEST]: {
+          nativeValue: getConvertedVal(GasPriceTypes.FASTEST),
+          fiatValue: new BigNumber(getConvertedVal(GasPriceTypes.FASTEST))
+            .times(nativeVal!)
+            .toString(),
+          nativeSymbol: props.network.currencyName,
+          fiatSymbol: "USD",
+        },
+      };
+      isEstimateValid.value = true;
+    })
+    .catch(() => {
+      isEstimateValid.value = false;
+    });
 };
 
 const setBaseCosts = () => {
@@ -395,6 +408,7 @@ const sendButtonTitle = computed(() => {
 });
 
 const isInputsValid = computed<boolean>(() => {
+  if (!isEstimateValid.value) return false;
   if (!props.network.isAddress(addressTo.value)) return false;
   if (!isValidDecimals(sendAmount.value, selectedAsset.value.decimals!)) {
     return false;
@@ -458,7 +472,9 @@ const assetMaxValue = computed(() => {
 });
 const setMaxValue = () => {
   isMaxSelected.value = true;
-  updateTransactionFees(Tx.value);
+  if (isInputsValid.value) {
+    updateTransactionFees(Tx.value);
+  }
 };
 const inputAddressFrom = (text: string) => {
   addressFrom.value = text;
@@ -514,7 +530,9 @@ const inputAmount = (inputAmount: string) => {
   const inputAmountBn = new BigNumber(inputAmount);
   isMaxSelected.value = false;
   amount.value = inputAmountBn.lt(0) ? "0" : inputAmountBn.toFixed();
-  updateTransactionFees(Tx.value);
+  if (isInputsValid.value) {
+    updateTransactionFees(Tx.value);
+  }
 };
 
 const toggleSelectFee = () => {
@@ -524,7 +542,8 @@ const toggleSelectFee = () => {
 const selectFee = (type: GasPriceTypes) => {
   selectedFee.value = type;
   isOpenSelectFee.value = false;
-  if (isMaxSelected.value) updateTransactionFees(Tx.value);
+  if (isMaxSelected.value && isInputsValid.value)
+    updateTransactionFees(Tx.value);
 };
 
 const sendAction = async () => {
@@ -575,6 +594,7 @@ const sendAction = async () => {
       height: 600,
       width: 460,
     });
+    window.close();
   } else {
     router.push(routedRoute);
   }

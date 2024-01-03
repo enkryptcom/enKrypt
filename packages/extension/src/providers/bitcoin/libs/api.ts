@@ -56,7 +56,8 @@ class API implements ProviderAPIInterface {
       .then((balance: HaskoinBalanceType) => {
         if ((balance as any).error) return "0";
         return toBN(balance.confirmed).addn(balance.unconfirmed).toString();
-      });
+      })
+      .catch(() => "0");
   }
   async broadcastTx(rawtx: string): Promise<boolean> {
     return fetch(`${this.node}transactions`, {

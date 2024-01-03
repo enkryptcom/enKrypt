@@ -183,7 +183,7 @@ const openBuyPage = () => {
   Browser.tabs.create({
     url: `https://ccswap.myetherwallet.com/?to=${currentNetwork.value.displayAddress(
       accountHeaderData.value.selectedAccount!.address
-    )}`,
+    )}&platform=enkrypt`,
   });
 };
 const isKeyRingLocked = async (): Promise<boolean> => {
