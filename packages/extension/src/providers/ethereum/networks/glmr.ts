@@ -2,7 +2,6 @@ import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
 import { CoingeckoPlatform, NetworkNames } from "@enkryptcom/types";
 import { EtherscanActivity } from "../libs/activity-handlers";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
-import assetsInfoHandler from "@/providers/ethereum/libs/assets-handlers/assetinfo-mew";
 
 const moonbeamOptions: EvmNetworkOptions = {
   name: NetworkNames.Moonbeam,
@@ -18,7 +17,6 @@ const moonbeamOptions: EvmNetworkOptions = {
   icon: require("./icons/moonbeam.svg"),
   coingeckoID: "moonbeam",
   coingeckoPlatform: CoingeckoPlatform.Moonbeam,
-  assetsInfoHandler,
   activityHandler: wrapActivityHandler(EtherscanActivity),
 };
 

@@ -6,7 +6,7 @@
       </a>
       <div class="network-activity__action-divider" />
       <a class="network-activity__action-item" @click="$emit('open:buyAction')">
-        <Buy />Buy
+        <Buy />Buy/Sell
       </a>
       <div class="network-activity__action-divider" />
       <router-link

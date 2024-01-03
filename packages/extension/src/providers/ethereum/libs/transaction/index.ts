@@ -1,4 +1,4 @@
-import Web3Eth from "web3-eth";
+import Web3Eth, { FeeHistoryResult } from "web3-eth";
 import {
   EthereumTransaction,
   FinalizedFeeMarketEthereumTransaction,
@@ -69,26 +69,19 @@ class Transaction {
     gasLimit: string;
     formattedFeeHistory?: FormattedFeeHistory;
   }> {
-    const { isFeeMarketNetwork, baseFeePerGas } = await this.web3
-      .getBlock("pending", false)
-      .then((block) => {
-        if (block) {
-          return {
-            isFeeMarketNetwork: !!block.baseFeePerGas,
-            baseFeePerGas: block.baseFeePerGas?.toString(),
-          };
-        }
-        // some networks such as zksync era pending block is null
-        return this.web3.getBlock("latest", false).then((block) => {
-          return {
-            isFeeMarketNetwork: !!block.baseFeePerGas,
-            baseFeePerGas: block.baseFeePerGas?.toString(),
-          };
-        });
-      });
-    const gasPrice = await this.web3.getGasPrice();
+    const { isFeeMarketNetwork, feeHistory } = await this.web3
+      .getFeeHistory(6, "latest", GAS_PERCENTILES)
+      .then((history) => ({
+        isFeeMarketNetwork: true,
+        feeHistory: history,
+      }))
+      .catch(() => ({
+        isFeeMarketNetwork: false,
+        feeHistory: {} as FeeHistoryResult,
+      }));
     const nonce = await this.web3.getTransactionCount(this.tx.from, "pending");
     if (!isFeeMarketNetwork) {
+      const gasPrice = await this.web3.getGasPrice();
       const gasLimit =
         this.tx.gasLimit ||
         (numberToHex(await this.estimateGas()) as `0x${string}`);
@@ -114,11 +107,8 @@ class Transaction {
         gasLimit: legacyTx.gasLimit,
       };
     } else {
-      const feeHistory = await this.web3.getFeeHistory(
-        6,
-        "latest",
-        GAS_PERCENTILES
-      );
+      const baseFeePerGas =
+        feeHistory.baseFeePerGas[feeHistory.baseFeePerGas.length - 2]; // -2 since -1 is the pending block
       const formattedFeeHistory = formatFeeHistory(feeHistory);
       const feeMarket = this.getFeeMarketGasInfo(
         baseFeePerGas!,

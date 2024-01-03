@@ -63,7 +63,8 @@ class API implements ProviderAPIInterface {
         return toBN(balance.balance)
           .add(toBN(balance.unconfirmedBalance))
           .toString();
-      });
+      })
+      .catch(() => "0");
   }
   async broadcastTx(rawtx: string): Promise<boolean> {
     return fetch(`${this.node}/api/v1/send`, {

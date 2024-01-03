@@ -32,7 +32,10 @@ const TransactionSigner = (
         });
       },
     };
-    const tx = new Psbt({ network: network.networkInfo });
+    const tx = new Psbt({
+      network: network.networkInfo,
+      maximumFeeRate: network.networkInfo.maxFeeRate,
+    });
     payload.inputs
       .map((u) => {
         const res: {

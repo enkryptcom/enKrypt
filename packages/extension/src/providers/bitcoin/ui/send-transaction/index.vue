@@ -185,7 +185,10 @@ onMounted(async () => {
 });
 
 const nativeBalanceAfterTransaction = computed(() => {
-  if (selectedAsset.value) {
+  if (
+    selectedAsset.value &&
+    isValidDecimals(sendAmount.value, selectedAsset.value.decimals!)
+  ) {
     return toBN(selectedAsset.value.balance ?? "0").sub(
       toBN(toBase(sendAmount.value ?? "0", selectedAsset.value.decimals!)).add(
         toBN(
