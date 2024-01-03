@@ -4,21 +4,21 @@ import { EtherscanActivity } from "../libs/activity-handlers";
 import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
 import assetsInfoHandler from "@/providers/ethereum/libs/assets-handlers/assetinfo-mew";
 
-const artheraOptions: EvmNetworkOptions = {
-  name: NetworkNames.Arthera,
+const artheraTestOptions: EvmNetworkOptions = {
+  name: NetworkNames.ArtheraTest,
   name_long: "Arthera",
   homePage: "https://arthera.net/",
-  blockExplorerTX: "https://explorer.arthera.net/tx/[[txHash]]",
-  blockExplorerAddr: "https://explorer.arthera.net/address/[[address]]",
-  chainID: "0x2802",
-  isTestNetwork: false,
+  blockExplorerTX: "https://explorer-test.arthera.net/tx/[[txHash]]",
+  blockExplorerAddr: "https://explorer-test.arthera.net/address/[[address]]",
+  chainID: "0x2803",
+  isTestNetwork: true,
   currencyName: "AA",
   currencyNameLong: "Arthera",
-  node: "wss://ws.arthera.net",
+  node: "wss://ws-test.arthera.net",
   icon: require("./icons/aa.svg"),
   activityHandler: wrapActivityHandler(EtherscanActivity),
 };
 
-const arthera = new EvmNetwork(artheraOptions);
+const artheraTest = new EvmNetwork(artheraTestOptions);
 
-export default arthera;
+export default artheraTest;
