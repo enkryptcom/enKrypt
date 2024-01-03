@@ -41,6 +41,7 @@ const litecoinOptions: BitcoinNetworkOptions = {
     wif: 0xb0,
     dustThreshold: null,
     paymentType: PaymentType.P2WPKH,
+    maxFeeRate: 5000 * 2,
   },
 };
 

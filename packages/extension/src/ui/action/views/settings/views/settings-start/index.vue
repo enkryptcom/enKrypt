@@ -35,7 +35,7 @@
     </div>
 
     <div class="settings__copyright">
-      <p>Version {{ version }}</p>
+      <p>Version {{ version }} ({{ buildTime }})</p>
       <p>© {{ new Date().getFullYear() }} by MyEtherWallet Inc.</p>
     </div>
 
@@ -65,6 +65,7 @@ import ModalForgot from "@action/views/modal-forgot/index.vue";
 const isOpenSign = ref(false);
 const isForgot = ref(false);
 const version = process.env.PACKAGE_VERSION;
+const buildTime = process.env.BUILD_TIME;
 defineEmits<{
   (e: "action:reset"): void;
   (e: "action:support"): void;
