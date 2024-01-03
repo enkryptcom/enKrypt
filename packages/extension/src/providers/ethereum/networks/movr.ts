@@ -2,7 +2,6 @@ import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
 import { CoingeckoPlatform, NetworkNames } from "@enkryptcom/types";
 import { EtherscanActivity } from "../libs/activity-handlers";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
-import assetsInfoHandler from "@/providers/ethereum/libs/assets-handlers/assetinfo-mew";
 
 const moonriverOptions: EvmNetworkOptions = {
   name: NetworkNames.Moonriver,
@@ -18,7 +17,6 @@ const moonriverOptions: EvmNetworkOptions = {
   icon: require("./icons/moonriver.svg"),
   coingeckoID: "moonriver",
   coingeckoPlatform: CoingeckoPlatform.Moonriver,
-  assetsInfoHandler,
   activityHandler: wrapActivityHandler(EtherscanActivity),
 };
 
