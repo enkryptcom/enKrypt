@@ -1,6 +1,6 @@
 name: MacOS Safari Deploy
 
-on: [push]
+on: []
 
 jobs:
   buildApp:
