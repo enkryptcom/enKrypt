@@ -44,7 +44,7 @@ import Send from "@action/icons/actions/send.vue";
 import Swap from "@action/icons/actions/swap.vue";
 import { useRoute } from "vue-router";
 const route = useRoute();
-const showExchange = false;
+const showExchange = !process.env.IS_SAFARI;
 
 defineEmits<{
   (e: "toggle:deposit"): void;
