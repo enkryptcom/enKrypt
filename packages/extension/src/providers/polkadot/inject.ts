@@ -34,6 +34,7 @@ export class Provider
       id: number,
       message: RPCRequestType
     ): Promise<OnMessageResponse> => {
+      console.log(id, message);
       const { method, params } = message;
       return options.sendMessageHandler(
         options.name,
