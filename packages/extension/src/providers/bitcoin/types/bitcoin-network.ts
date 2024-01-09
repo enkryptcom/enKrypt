@@ -72,6 +72,10 @@ export class BitcoinNetwork extends BaseNetwork {
     address: string
   ) => Promise<Activity[]>;
   feeHandler: () => Promise<Record<GasPriceTypes, number>>;
+  NFTHandler?: (
+    network: BaseNetwork,
+    address: string
+  ) => Promise<NFTCollection[]>;
   constructor(options: BitcoinNetworkOptions) {
     const api = async () => {
       const api = new options.apiType(options.node, options.networkInfo);
@@ -92,6 +96,7 @@ export class BitcoinNetwork extends BaseNetwork {
     this.activityHandler = options.activityHandler;
     this.networkInfo = options.networkInfo;
     this.feeHandler = options.feeHandler;
+    this.NFTHandler = options.NFTHandler;
     this.dust = options.dust;
   }
 

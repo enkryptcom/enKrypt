@@ -19,6 +19,10 @@ export interface SHNFTType {
     description: string;
     image_url: string;
     external_url: string;
+    collection_id: string;
+  };
+  contract: {
+    name: string;
   };
 }
 export interface SHResponse {
