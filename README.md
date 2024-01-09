@@ -76,8 +76,8 @@ To get started make sure you have `nodejs` and `nvm` installed on your system
 
 - npm
   ```sh
-  nvm install 16
-  nvm use 16
+  nvm install 20
+  nvm use 20
   npm install yarn -g
   ```
 
