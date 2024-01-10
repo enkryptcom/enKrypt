@@ -53,6 +53,7 @@
         <transition :name="transitionName" mode="out-in">
           <component
             :is="Component"
+            :key="$route.fullPath"
             :network="currentNetwork"
             :account-info="accountHeaderData"
             @update:init="init"
