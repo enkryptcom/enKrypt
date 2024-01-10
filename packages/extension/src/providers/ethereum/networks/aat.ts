@@ -5,7 +5,7 @@ import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
 
 const artheraTestOptions: EvmNetworkOptions = {
   name: NetworkNames.ArtheraTest,
-  name_long: "Arthera",
+  name_long: "Arthera Test",
   homePage: "https://arthera.net/",
   blockExplorerTX: "https://explorer-test.arthera.net/tx/[[txHash]]",
   blockExplorerAddr: "https://explorer-test.arthera.net/address/[[address]]",
