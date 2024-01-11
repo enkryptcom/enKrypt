@@ -16,7 +16,7 @@ const method: MiddlewareFunction = function (
     if (!payload.params?.length)
       return res(getCustomError("Missing Params: signer_signPayload"));
     const reqPayload = payload.params[0] as SignerPayloadRaw;
-    if (reqPayload.type !== "bytes")
+    if (reqPayload.type !== "bytes" && reqPayload.type !== "payload")
       return res(getCustomError("type is not bytes: signer_signRaw"));
     this.KeyRing.getAccount(polkadotEncodeAddress(reqPayload.address)).then(
       (account) => {
