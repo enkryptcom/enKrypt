@@ -17,6 +17,7 @@ const sendLayouts: Record<ProviderName, any> = {
   [ProviderName.bitcoin]: SendTransactionBTC,
   [ProviderName.enkrypt]: null,
 };
+
 const layout = shallowRef();
 const route = useRoute();
 const networkName: string = route.params.id as string;
