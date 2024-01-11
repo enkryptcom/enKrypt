@@ -79,3 +79,10 @@ jobs:
           API_KEY: "${{ secrets.OSX_API_KEY }}"
           API_KEY_ID: "${{ secrets.OSX_API_KEY_ID }}"
           API_ISSUER_ID: "${{ secrets.OSX_API_ISSUER_ID }}"
+
+      - name: Upload Enkrypt pkg
+        uses: actions/upload-artifact@v3
+        with:
+          name: safari-build-pkg
+          path: macos/Enkrypt/build/Enkrypt.pkg
+          retention-days: 1
