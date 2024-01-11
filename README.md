@@ -52,6 +52,7 @@ Enkrypt is a web3 wallet built from the ground up to support the multi-chain fut
 - Aurora
 - Ontology
 - Puppy Net
+- Arthera
 - More coming soon!
 
 Looking to add your project? [Contact us!](https://mewwallet.typeform.com/enkrypt-inquiry?typeform-source=www.enkrypt.com)
@@ -75,8 +76,8 @@ To get started make sure you have `nodejs` and `nvm` installed on your system
 
 - npm
   ```sh
-  nvm install 16
-  nvm use 16
+  nvm install 20
+  nvm use 20
   npm install yarn -g
   ```
 

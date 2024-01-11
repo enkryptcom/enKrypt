@@ -2649,6 +2649,7 @@ __metadata:
     rimraf: ^5.0.5
     rollup: ^3.29.4
     rollup-plugin-uglify: ^6.0.4
+    semver: ^7.5.4
     stream-browserify: ^3.0.0
     stream-http: ^3.2.0
     switch-ts: ^1.1.1

@@ -53,6 +53,7 @@
         <transition :name="transitionName" mode="out-in">
           <component
             :is="Component"
+            :key="$route.fullPath"
             :network="currentNetwork"
             :account-info="accountHeaderData"
             @update:init="init"
@@ -77,6 +78,12 @@
 
     <settings v-if="settingsShow" @close:popup="settingsShow = !settingsShow" />
     <modal-rate v-if="rateShow" @close:popup="rateShow = !rateShow" />
+    <modal-new-version
+      v-if="updateShow"
+      :current-version="currentVersion"
+      :latest-version="latestVersion"
+      @close:popup="updateShow = !updateShow"
+    />
   </div>
 </template>
 
@@ -94,6 +101,7 @@ import MoreIcon from "./icons/actions/more.vue";
 import AddNetwork from "./views/add-network/index.vue";
 import Settings from "./views/settings/index.vue";
 import ModalRate from "./views/modal-rate/index.vue";
+import ModalNewVersion from "./views/modal-new-version/index.vue";
 import { useRouter, useRoute } from "vue-router";
 import { BaseNetwork } from "@/types/base-network";
 import {
@@ -124,6 +132,8 @@ import { onClickOutside } from "@vueuse/core";
 import RateState from "@/libs/rate-state";
 import SwapLookingAnimation from "@action/icons/swap/swap-looking-animation.vue";
 import { addNetworkSelectMetrics } from "@/libs/metrics";
+import { getLatestEnkryptVersion } from "@action/utils/browser";
+import { gt as semverGT } from "semver";
 
 const domainState = new DomainState();
 const networksState = new NetworksState();
@@ -150,9 +160,12 @@ const kr = new PublicKeyRing();
 const addNetworkShow = ref(false);
 const settingsShow = ref(false);
 const rateShow = ref(false);
+const updateShow = ref(false);
 const dropdown = ref(null);
 const toggle = ref(null);
 const isLoading = ref(true);
+const currentVersion = process.env.PACKAGE_VERSION as string;
+const latestVersion = ref("");
 
 const setActiveNetworks = async () => {
   const activeNetworkNames = await networksState.getActiveNetworkNames();
@@ -209,9 +222,6 @@ const init = async () => {
   isLoading.value = false;
 };
 onMounted(async () => {
-  if (await rateState.showPopup()) {
-    rateShow.value = true;
-  }
   const isInitialized = await kr.isInitialized();
   if (isInitialized) {
     const _isLocked = await isKeyRingLocked();
@@ -221,6 +231,24 @@ onMounted(async () => {
         .then(() => (isLoading.value = false));
     } else {
       init();
+      setTimeout(() => {
+        rateState.showPopup().then((show) => {
+          if (show) {
+            rateShow.value = true;
+          } else {
+            getLatestEnkryptVersion().then((version) => {
+              if (
+                currentVersion &&
+                version &&
+                semverGT(version, currentVersion)
+              ) {
+                latestVersion.value = version;
+                updateShow.value = true;
+              }
+            });
+          }
+        });
+      }, 2000);
     }
   } else {
     openOnboard();
