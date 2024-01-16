@@ -30,7 +30,7 @@ const kadenaOptions: KadenaNetworkOptions = {
         name: `Chain ${idx}`,
       };
     }),
-  buyLink: "https://faucet.testnet.chainweb.com/",
+  buyLink: "https://tools.kadena.io/faucet/new",
   activityHandler: wrapActivityHandler(kadenaScanActivity),
   displayAddress: (address: string) => address.replace("0x", "k:"),
   isAddress: isValidAddress,
