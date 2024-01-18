@@ -49,12 +49,16 @@ class API implements ProviderAPIInterface {
     });
   }
 
-  async getTransactionStatus(hash: string): Promise<KadenaRawInfo | null> {
-    const Pact = require("pact-lang-api");
-    const cmd = { requestKeys: [hash] };
+  async getTransactionStatus(requestKey: string): Promise<KadenaRawInfo> {
     const chainId = await this.getChainId();
-    const transactions = await Pact.fetch.poll(cmd, this.getApiHost(chainId));
-    return transactions[hash];
+    const networkId = this.networkId;
+    const { pollStatus } = createClient(this.getApiHost(chainId));
+    const responses = await pollStatus({
+      requestKey,
+      networkId,
+      chainId: chainId as ChainId,
+    });
+    return responses[requestKey];
   }
 
   async getBalanceByChainId(address: string, chainId: string): Promise<string> {
