@@ -23,7 +23,7 @@ const kadenaOptions: KadenaNetworkOptions = {
     chainId: "1",
   },
   coingeckoID: "kadena",
-  subNetworks: Array(19)
+  subNetworks: Array(20)
     .fill("")
     .map((_, idx) => {
       return {
