@@ -6,6 +6,8 @@ import {
   ICommandResult,
   ITransactionDescriptor,
   createClient,
+  Pact,
+  ChainId,
 } from "@kadena/client";
 import { toBase } from "@enkryptcom/utils";
 import DomainState from "@/libs/domain-state";
@@ -61,8 +63,14 @@ class API implements ProviderAPIInterface {
       chainId
     );
 
-    if (balance.result.error) {
-      return toBase("0", this.decimals);
+    if (balance.result.status === "failure") {
+      const error = balance.result.error as { message: string | undefined };
+      const message = error.message ?? "Unknown error retrieving balances";
+      // expected error when account does not exist on a chain (balance == 0)
+      if (message.includes("row not found")) {
+        return toBase("0", this.decimals);
+      }
+      throw new Error(message);
     }
 
     const balanceValue = parseFloat(balance.result.data.toString()).toFixed(
@@ -78,22 +86,17 @@ class API implements ProviderAPIInterface {
   }
 
   async getBalanceAPI(account: string, chainId: string) {
-    const Pact = require("pact-lang-api");
-    const cmd = {
-      networkId: this.networkId,
-      pactCode: `(coin.get-balance "${account}")`,
-      envData: {},
-      meta: {
-        creationTime: Math.round(new Date().getTime() / 1000),
-        ttl: 600,
-        gasLimit: 600,
-        chainId: chainId,
-        gasPrice: 0.0000001,
-        sender: "",
-      },
-    };
+    const { dirtyRead } = createClient(this.getApiHost(chainId));
 
-    return Pact.fetch.local(cmd, this.getApiHost(chainId));
+    const transaction = Pact.builder
+      .execution(Pact.modules.coin["get-balance"](account))
+      .setMeta({ chainId: chainId as ChainId })
+      .setNetworkId(this.networkId)
+      .createTransaction();
+
+    const res = await dirtyRead(transaction);
+
+    return res;
   }
 
   async sendLocalTransaction(

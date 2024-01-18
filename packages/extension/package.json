@@ -4,11 +4,13 @@
   "private": true,
   "scripts": {
     "zip": "cd dist; zip -r release.zip *;",
+    "prebuild": "yarn kadena:prebuild",
     "build:chrome": "cross-env BROWSER='chrome' vue-cli-service build && yarn build:rollup",
     "build:firefox": "cross-env BROWSER='firefox' vue-cli-service build && yarn build:rollup && node configs/get-system-info.js",
     "lint": "vue-cli-service lint --fix",
     "build:rollup": "cross-env minify=on rollup --config configs/rollup.config.contentscript.mjs && cross-env minify=on rollup --config configs/rollup.config.inject.mjs",
     "inspectWebpack": "vue-cli-service inspect > webpack.log",
+    "kadena:prebuild": "pactjs contract-generate --contract=coin --api https://api.chainweb.com/chainweb/0.0/mainnet01/chain/1/pact",
     "test": "ts-mocha --require ./configs/testNullCompiler.js --paths -p configs/tsconfig.test.json ./**/*.mocha.ts",
     "watch": "rimraf dist && concurrently 'npm:watch-*(!firefox)'",
     "watch:firefox": "concurrently 'npm:watch-*(!chrome)'",
@@ -73,6 +75,7 @@
     "zxcvbn": "^4.4.2"
   },
   "devDependencies": {
+    "@kadena/pactjs-cli": "^1.7.0",
     "@polkadot/api": "^10.9.1",
     "@polkadot/extension-inject": "^0.46.5",
     "@polkadot/keyring": "^12.5.1",
