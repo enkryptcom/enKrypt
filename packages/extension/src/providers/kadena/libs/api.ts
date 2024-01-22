@@ -3,6 +3,7 @@ import { ProviderAPIInterface } from "@/types/provider";
 import { KadenaNetworkOptions } from "../types/kadena-network";
 import {
   ICommand,
+  IUnsignedCommand,
   ICommandResult,
   ITransactionDescriptor,
   createClient,
@@ -90,17 +91,13 @@ class API implements ProviderAPIInterface {
   }
 
   async getBalanceAPI(account: string, chainId: string) {
-    const { dirtyRead } = createClient(this.getApiHost(chainId));
-
     const transaction = Pact.builder
       .execution(Pact.modules.coin["get-balance"](account))
       .setMeta({ chainId: chainId as ChainId })
       .setNetworkId(this.networkId)
       .createTransaction();
 
-    const res = await dirtyRead(transaction);
-
-    return res;
+    return this.dirtyRead(transaction);
   }
 
   async sendLocalTransaction(
@@ -127,7 +124,9 @@ class API implements ProviderAPIInterface {
     return client.listen(transactionDescriptor);
   }
 
-  async dirtyRead(signedTranscation: ICommand): Promise<ICommandResult> {
+  async dirtyRead(
+    signedTranscation: ICommand | IUnsignedCommand
+  ): Promise<ICommandResult> {
     const chainId = await this.getChainId();
     const client = createClient(this.getApiHost(chainId));
     return client.dirtyRead(signedTranscation);
