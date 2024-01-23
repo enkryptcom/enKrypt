@@ -58,7 +58,11 @@ jobs:
         with:
           name: safari-build-artifact
           path: packages/extension/dist
-
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.0"
+          bundler-cache: true
+          working-directory: "macos/Enkrypt"
       - name: Deploy via Fastlane
         uses: maierj/fastlane-action@v3.0.0
         with:
