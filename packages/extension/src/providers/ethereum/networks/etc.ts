@@ -13,7 +13,7 @@ const etcOptions: EvmNetworkOptions = {
   isTestNetwork: false,
   currencyName: "ETC",
   currencyNameLong: "Ethereum Classic",
-  node: "wss://nodes.mewapi.io/ws/etc",
+  node: "https://nodes.mewapi.io/rpc/etc",
   icon: require("./icons/etc.svg"),
   basePath: "m/44'/61'/0'/0",
   coingeckoID: "ethereum-classic",
