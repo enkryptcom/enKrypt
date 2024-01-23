@@ -76,7 +76,11 @@
       @update:active-networks="setActiveNetworks"
     />
 
-    <settings v-if="settingsShow" @close:popup="settingsShow = !settingsShow" />
+    <settings
+      v-if="settingsShow"
+      @close:popup="settingsShow = !settingsShow"
+      @action:lock="lockAction"
+    />
     <modal-rate v-if="rateShow" @close:popup="rateShow = !rateShow" />
     <modal-new-version
       v-if="updateShow"

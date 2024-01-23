@@ -5,7 +5,10 @@
       <h3>Add new {{ network.name_long }} account</h3>
 
       <div class="add-account-form__input" :class="{ focus: isFocus }">
-        <img :src="network.identicon(newAccount?.address || '')" />
+        <img
+          v-if="newAccount?.address"
+          :src="network.identicon(network.displayAddress(newAccount.address))"
+        />
         <input
           ref="addAccountInput"
           v-model="accountName"
