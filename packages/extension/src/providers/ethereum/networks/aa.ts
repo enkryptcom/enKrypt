@@ -13,7 +13,7 @@ const artheraOptions: EvmNetworkOptions = {
   isTestNetwork: false,
   currencyName: "AA",
   currencyNameLong: "Arthera",
-  node: "https://rpc.arthera.net",
+  node: "wss://ws.arthera.net",
   icon: require("./icons/aa.svg"),
   activityHandler: wrapActivityHandler(EtherscanActivity),
 };

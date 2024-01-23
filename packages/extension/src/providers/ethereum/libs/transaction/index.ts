@@ -69,10 +69,11 @@ class Transaction {
     gasLimit: string;
     formattedFeeHistory?: FormattedFeeHistory;
   }> {
+    const latestBlock = await this.web3.getBlock("latest", false);
     const { isFeeMarketNetwork, feeHistory } = await this.web3
       .getFeeHistory(6, "latest", GAS_PERCENTILES)
       .then((history) => ({
-        isFeeMarketNetwork: true,
+        isFeeMarketNetwork: !!latestBlock.baseFeePerGas,
         feeHistory: history,
       }))
       .catch(() => ({
