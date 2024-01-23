@@ -5,6 +5,7 @@ import {
   TokenTypeTo,
   StatusOptionsResponse,
 } from "@enkryptcom/swap";
+import { ICommandResult } from "@kadena/client";
 
 interface BTCInOuts {
   address: string;
@@ -62,13 +63,7 @@ interface SubstrateRawInfo {
   asset_type: string;
 }
 
-interface KadenaRawInfo {
-  gas: number;
-  result: { status: string; data: string };
-  reqKey: string;
-  logs: string;
-  txId: number;
-}
+type KadenaRawInfo = ICommandResult;
 
 enum ActivityStatus {
   pending = "pending",

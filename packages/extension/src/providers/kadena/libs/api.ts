@@ -3,9 +3,12 @@ import { ProviderAPIInterface } from "@/types/provider";
 import { KadenaNetworkOptions } from "../types/kadena-network";
 import {
   ICommand,
+  IUnsignedCommand,
   ICommandResult,
   ITransactionDescriptor,
   createClient,
+  Pact,
+  ChainId,
 } from "@kadena/client";
 import { toBase } from "@enkryptcom/utils";
 import DomainState from "@/libs/domain-state";
@@ -47,12 +50,16 @@ class API implements ProviderAPIInterface {
     });
   }
 
-  async getTransactionStatus(hash: string): Promise<KadenaRawInfo | null> {
-    const Pact = require("pact-lang-api");
-    const cmd = { requestKeys: [hash] };
+  async getTransactionStatus(requestKey: string): Promise<KadenaRawInfo> {
     const chainId = await this.getChainId();
-    const transactions = await Pact.fetch.poll(cmd, this.getApiHost(chainId));
-    return transactions[hash];
+    const networkId = this.networkId;
+    const { pollStatus } = createClient(this.getApiHost(chainId));
+    const responses = await pollStatus({
+      requestKey,
+      networkId,
+      chainId: chainId as ChainId,
+    });
+    return responses[requestKey];
   }
 
   async getBalanceByChainId(address: string, chainId: string): Promise<string> {
@@ -61,8 +68,14 @@ class API implements ProviderAPIInterface {
       chainId
     );
 
-    if (balance.result.error) {
-      return toBase("0", this.decimals);
+    if (balance.result.status === "failure") {
+      const error = balance.result.error as { message: string | undefined };
+      const message = error.message ?? "Unknown error retrieving balances";
+      // expected error when account does not exist on a chain (balance == 0)
+      if (message.includes("row not found")) {
+        return toBase("0", this.decimals);
+      }
+      throw new Error(message);
     }
 
     const balanceValue = parseFloat(balance.result.data.toString()).toFixed(
@@ -78,22 +91,13 @@ class API implements ProviderAPIInterface {
   }
 
   async getBalanceAPI(account: string, chainId: string) {
-    const Pact = require("pact-lang-api");
-    const cmd = {
-      networkId: this.networkId,
-      pactCode: `(coin.get-balance "${account}")`,
-      envData: {},
-      meta: {
-        creationTime: Math.round(new Date().getTime() / 1000),
-        ttl: 600,
-        gasLimit: 600,
-        chainId: chainId,
-        gasPrice: 0.0000001,
-        sender: "",
-      },
-    };
+    const transaction = Pact.builder
+      .execution(Pact.modules.coin["get-balance"](account))
+      .setMeta({ chainId: chainId as ChainId })
+      .setNetworkId(this.networkId)
+      .createTransaction();
 
-    return Pact.fetch.local(cmd, this.getApiHost(chainId));
+    return this.dirtyRead(transaction);
   }
 
   async sendLocalTransaction(
@@ -120,7 +124,9 @@ class API implements ProviderAPIInterface {
     return client.listen(transactionDescriptor);
   }
 
-  async dirtyRead(signedTranscation: ICommand): Promise<ICommandResult> {
+  async dirtyRead(
+    signedTranscation: ICommand | IUnsignedCommand
+  ): Promise<ICommandResult> {
     const chainId = await this.getChainId();
     const client = createClient(this.getApiHost(chainId));
     return client.dirtyRead(signedTranscation);
