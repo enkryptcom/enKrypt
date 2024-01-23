@@ -48,6 +48,10 @@ import BaseInput from "@action/components/base-input/index.vue";
 import KeyRingBase from "@/libs/keyring/keyring";
 import openOnboard from "@/libs/utils/open-onboard";
 
+const emit = defineEmits<{
+  (e: "action:lock"): void;
+}>();
+
 const reset = ref("");
 const isProcessing = ref(false);
 
@@ -63,6 +67,7 @@ const resetAction = async () => {
   isProcessing.value = true;
   const keyring = new KeyRingBase();
   await keyring.reset();
+  emit("action:lock");
   openOnboard();
 };
 </script>
