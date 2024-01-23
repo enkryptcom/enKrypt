@@ -64,7 +64,6 @@ jobs:
         with:
           lane: "buildandrelease"
           subdirectory: "macos/Enkrypt"
-          working-directory: "macos/Enkrypt"
         env:
           APPLE_ID: "${{ secrets.OSX_APPLE_ID }}"
           APP_ID: "${{ secrets.OSX_APP_ID }}"
