@@ -60,10 +60,11 @@ jobs:
           path: packages/extension/dist
 
       - name: Deploy via Fastlane
-        uses: maierj/fastlane-action@v2.2.0
+        uses: maierj/fastlane-action@v3
         with:
           lane: "buildandrelease"
           subdirectory: "macos/Enkrypt"
+          working-directory: "macos/Enkrypt"
         env:
           APPLE_ID: "${{ secrets.OSX_APPLE_ID }}"
           APP_ID: "${{ secrets.OSX_APP_ID }}"
