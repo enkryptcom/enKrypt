@@ -9,7 +9,7 @@
           <network-activity-total
             :crypto-amount="cryptoAmount"
             :fiat-amount="fiatAmount"
-            :symbol="network.currencyName"
+            :network="network"
           />
 
           <network-activity-action v-bind="$attrs" />
