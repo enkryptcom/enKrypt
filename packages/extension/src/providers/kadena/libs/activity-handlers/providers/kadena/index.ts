@@ -13,7 +13,6 @@ const getAddressActivity = async (
   height: number
 ): Promise<any[]> => {
   const url = `${endpoint}txs/account/${address}?minheight=${height}&limit=200&token=coin`;
-
   return cacheFetch({ url }, ttl)
     .then((res) => {
       return res ? res : [];
@@ -72,6 +71,16 @@ export default async (
         : "0",
       network.decimals
     );
+    // note: intentionally not using fromAccount === some-value
+    // I want to match both null and "" in fromAccount/toAccount
+    // actual values will be a (truthy) string
+    if (!activity.fromAccount && activity.crossChainAccount) {
+      activity.fromAccount = activity.crossChainAccount;
+    }
+    if (!activity.toAccount && activity.crossChainAccount) {
+      activity.toAccount = activity.crossChainAccount;
+    }
+    const { fromAccount, toAccount, crossChainAccount } = activity;
     return {
       nonce: i.toString(),
       from: activity.fromAccount,
@@ -80,6 +89,7 @@ export default async (
       network: network.name,
       rawInfo: activity,
       chainId: activity.chain.toString(),
+      crossChainId: activity.crossChainId,
       status:
         activity.idx === 1 ? ActivityStatus.success : ActivityStatus.failed,
       timestamp: new Date(activity.blockTime).getTime(),

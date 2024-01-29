@@ -85,6 +85,7 @@ interface Activity {
   from: string;
   to: string;
   chainId?: string;
+  crossChainId?: number;
   value: string;
   timestamp: number;
   nonce?: string;
