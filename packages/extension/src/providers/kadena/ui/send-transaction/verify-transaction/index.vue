@@ -194,7 +194,7 @@ const sendAction = async () => {
     if (getCurrentContext() === "popup") {
       setTimeout(() => {
         isProcessing.value = false;
-        router.go(-2);
+        router.push({ name: "activity", params: { id: network.value.name } });
       }, 2500);
     } else {
       setTimeout(() => {
