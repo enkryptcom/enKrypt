@@ -39,8 +39,8 @@
             />
             <span v-else-if="activity.timestamp !== 0">{{ date }}</span>
             <span
-              class="network-activity__transaction-info-chainid"
               v-if="chainId !== undefined"
+              class="network-activity__transaction-info-chainid"
               >{{ activity.isIncoming ? "on" : "from" }} chain
               {{ chainId }}</span
             >
