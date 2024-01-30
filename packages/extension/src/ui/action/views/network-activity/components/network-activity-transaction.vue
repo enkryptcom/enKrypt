@@ -41,7 +41,8 @@
             <span
               class="network-activity__transaction-info-chainid"
               v-if="chainId !== undefined"
-              >on chain {{ chainId }}</span
+              >{{ activity.isIncoming ? "on" : "from" }} chain
+              {{ chainId }}</span
             >
           </p>
         </div>
