@@ -8,6 +8,14 @@
         </a>
       </div>
 
+      <p
+        class="send-transaction__description"
+        style="color: red"
+        :class="{ popup: isPopup }"
+      >
+        {{ errorMsg }}
+      </p>
+
       <send-address-input
         ref="addressInputFrom"
         :from="true"
@@ -34,7 +42,7 @@
         ref="addressInputTo"
         :value="addressTo"
         :network="network"
-        :is-address="addressToIsValid"
+        :is-address="fieldsValidation.addressTo.valueOf"
         @update:input-address="inputAddressTo"
         @toggle:show-contacts="toggleSelectContactTo"
       />
@@ -66,13 +74,12 @@
       <send-input-amount
         :amount="amount"
         :fiat-value="selectedAsset.price"
-        :has-enough-balance="hasEnough"
+        :is-valid="fieldsValidation.amount.valueOf"
         @update:input-amount="inputAmount"
         @update:input-set-max="setSendMax"
       />
 
       <send-fee-select
-        v-if="!edWarn"
         :fee="fee ?? { nativeSymbol: props.network.currencyName }"
       />
 
@@ -121,6 +128,7 @@ import KadenaAPI from "@/providers/kadena/libs/api";
 import getUiPath from "@/libs/utils/get-ui-path";
 import { ProviderName } from "@/types/provider";
 import Browser from "webextension-polyfill";
+import { getCurrentContext } from "@/libs/messenger/extension";
 
 const props = defineProps({
   network: {
@@ -136,6 +144,8 @@ const props = defineProps({
 const route = useRoute();
 const router = useRouter();
 const nameResolver = new GenericNameResolver();
+const isPopup: boolean = getCurrentContext() === "new-window";
+const errorMsg = ref("");
 
 const addressInputTo = ref();
 const addressInputFrom = ref();
@@ -157,45 +167,15 @@ const selectedAsset = ref<KDAToken | Partial<KDAToken>>(
     decimals: props.network.decimals,
   })
 );
-const hasEnough = ref(false);
 const sendMax = ref(false);
-const addressToIsValid = ref(false);
+
+const fieldsValidation = ref({
+  addressTo: false,
+  amount: false,
+});
 
 const selected: string = route.params.id as string;
 const isLoadingAssets = ref(true);
-
-const edWarn = computed(() => {
-  if (!fee.value) {
-    return undefined;
-  }
-
-  if (!amount.value) {
-    return false;
-  }
-
-  if (!isValidDecimals(amount.value ?? "0", selectedAsset.value.decimals!)) {
-    return false;
-  }
-
-  const rawAmount = toBN(
-    toBase(amount.value.toString(), selectedAsset.value.decimals ?? 0)
-  );
-  const ed = selectedAsset.value.existentialDeposit ?? toBN(0);
-  const userBalance = toBN(selectedAsset.value.balance ?? 0);
-
-  if (!sendMax.value && userBalance.sub(rawAmount).lte(ed)) {
-    return true;
-  }
-
-  const txFee = toBN(
-    toBase(fee.value.nativeValue, selectedAsset.value.decimals!)
-  );
-  if (!sendMax.value && userBalance.sub(txFee).sub(rawAmount).lt(ed)) {
-    return true;
-  } else {
-    return false;
-  }
-});
 
 const isAddress = computed(() => {
   return addressTo.value.length > 3 && addressTo.value.length < 256;
@@ -207,102 +187,134 @@ onMounted(() => {
 });
 
 const validateFields = async () => {
-  if (selectedAsset.value && isAddress.value) {
-    const to = props.network.displayAddress(addressTo.value);
+  errorMsg.value = "";
 
-    if (props.network.isAddress(to)) {
-      addressToIsValid.value = true;
-    } else {
-      const accountDetail = await accountAssets.value[0].getAccountDetails(
-        to,
-        props.network
-      );
-      if (accountDetail.error) {
-        addressToIsValid.value = false;
-      } else {
-        addressToIsValid.value = true;
+  fieldsValidation.value = {
+    addressTo: true,
+    amount: true,
+  };
+
+  if (!selectedAsset.value) {
+    return;
+  }
+
+  try {
+    if (isAddress.value) {
+      const to = props.network.displayAddress(addressTo.value);
+      const from = props.network.displayAddress(addressFrom.value);
+
+      if (!props.network.isAddress(to)) {
+        const accountDetail = await accountAssets.value[0].getAccountDetails(
+          to,
+          props.network
+        );
+
+        if (accountDetail.error) {
+          fieldsValidation.value.addressTo = false;
+          errorMsg.value = 'Invalid "To" address';
+          return;
+        }
+      }
+
+      if (to == from) {
+        fieldsValidation.value.addressTo = false;
+        errorMsg.value = '"To" address cannot be the same as "From" address';
+        return;
       }
     }
-  }
 
-  if (addressTo.value == addressFrom.value) {
-    addressToIsValid.value = false;
-    return;
-  }
+    let rawAmount = toBN(toBase("0", selectedAsset.value.decimals!));
 
-  if (!isValidDecimals(amount.value || "0", selectedAsset.value.decimals!)) {
-    hasEnough.value = false;
-    return;
-  }
-  let rawAmount = toBN(
-    toBase(
-      amount.value ? amount.value.toString() : "0",
-      selectedAsset.value.decimals!
-    )
-  );
+    if (amount.value) {
+      if (!isValidDecimals(amount.value, selectedAsset.value.decimals!)) {
+        fieldsValidation.value.amount = false;
+        errorMsg.value = `Amount cannot have more than ${selectedAsset.value.decimals} decimals`;
+        return;
+      }
 
-  if (rawAmount.lten(0)) {
-    hasEnough.value = false;
-    return;
-  }
-
-  const localTransaction = await selectedAsset.value.buildTransaction!(
-    addressTo.value,
-    props.accountInfo.selectedAccount,
-    amount.value!.toString(),
-    props.network
-  );
-
-  const networkApi = (await props.network.api()) as KadenaAPI;
-  const transactionResult = await networkApi.sendLocalTransaction(
-    localTransaction
-  );
-
-  if (transactionResult.result.status !== "success") {
-    hasEnough.value = false;
-    return;
-  }
-
-  const gasLimit = transactionResult.metaData?.publicMeta?.gasLimit;
-  const gasPrice = transactionResult.metaData?.publicMeta?.gasPrice;
-  const gasFee = gasLimit && gasPrice ? gasLimit * gasPrice : 0;
-
-  const rawFee = toBN(toBase(gasFee.toString(), selectedAsset.value.decimals!));
-  const rawBalance = toBN(selectedAsset.value.balance!);
-
-  if (
-    sendMax.value &&
-    selectedAsset.value.name === accountAssets.value[0].name
-  ) {
-    rawAmount = rawBalance.sub(rawFee);
-
-    if (rawAmount.gtn(0)) {
-      amount.value = fromBase(
-        rawAmount.toString(),
-        selectedAsset.value.decimals!
+      rawAmount = toBN(
+        toBase(amount.value.toString(), selectedAsset.value.decimals!)
       );
+
+      if (rawAmount.lten(0)) {
+        fieldsValidation.value.amount = false;
+        errorMsg.value = "Amount must be greater than 0";
+        return;
+      }
     }
+
+    if (amount.value || sendMax.value) {
+      const localTransaction = await selectedAsset.value.buildTransaction!(
+        addressTo.value,
+        props.accountInfo.selectedAccount,
+        sendMax.value ? "0.000000000001" : amount.value!,
+        props.network
+      );
+
+      const networkApi = (await props.network.api()) as KadenaAPI;
+
+      const transactionResult = await networkApi.sendLocalTransaction(
+        localTransaction
+      );
+
+      if (transactionResult.result.status !== "success") {
+        fieldsValidation.value.amount = false;
+        errorMsg.value =
+          (transactionResult.result.error as any).message ||
+          "An error occurred";
+        return;
+      }
+
+      const gasLimit = transactionResult.metaData?.publicMeta?.gasLimit;
+      const gasPrice = transactionResult.metaData?.publicMeta?.gasPrice;
+      const gasFee = gasLimit && gasPrice ? gasLimit * gasPrice : 0;
+
+      const rawFee = toBN(
+        toBase(gasFee.toString(), selectedAsset.value.decimals!)
+      );
+      const rawBalance = toBN(selectedAsset.value.balance!);
+
+      if (
+        sendMax.value &&
+        selectedAsset.value.name === accountAssets.value[0].name
+      ) {
+        rawAmount = rawBalance.sub(rawFee);
+
+        if (rawAmount.gtn(0)) {
+          amount.value = fromBase(
+            rawAmount.toString(),
+            selectedAsset.value.decimals!
+          );
+        }
+      }
+
+      if (rawAmount.add(rawFee).gt(rawBalance)) {
+        fieldsValidation.value.amount = false;
+        errorMsg.value = "Insufficient funds";
+        return;
+      }
+
+      const nativeAsset = accountAssets.value[0];
+      const txFeeHuman = fromBase(
+        rawFee?.toString() ?? "",
+        nativeAsset.decimals!
+      );
+
+      const txPrice = new BigNumber(nativeAsset.price!).times(txFeeHuman);
+
+      fee.value = {
+        fiatSymbol: "USD",
+        fiatValue: txPrice.toString(),
+        nativeSymbol: nativeAsset.symbol ?? "",
+        nativeValue: txFeeHuman.toString(),
+      };
+    }
+  } catch (error: any) {
+    errorMsg.value = error.message || "An error occurred";
   }
-
-  if (rawAmount.add(rawFee).gt(rawBalance)) {
-    hasEnough.value = false;
-  } else {
-    hasEnough.value = true;
-  }
-
-  const nativeAsset = accountAssets.value[0];
-  const txFeeHuman = fromBase(rawFee?.toString() ?? "", nativeAsset.decimals!);
-
-  const txPrice = new BigNumber(nativeAsset.price!).times(txFeeHuman);
-
-  fee.value = {
-    fiatSymbol: "USD",
-    fiatValue: txPrice.toString(),
-    nativeSymbol: nativeAsset.symbol ?? "",
-    nativeValue: txFeeHuman.toString(),
-  };
 };
-watch([selectedAsset, addressTo], validateFields);
+
+watch([selectedAsset, addressTo, amount, sendMax], validateFields);
 
 watch(addressFrom, () => {
   fetchTokens();
@@ -387,8 +399,7 @@ const selectToken = (token: KDAToken | Partial<KDAToken>) => {
 
 const inputAmount = (number: string | undefined) => {
   sendMax.value = false;
-  amount.value = number ? (parseFloat(number) < 0 ? "0" : number) : number;
-  validateFields();
+  amount.value = number ? (parseFloat(number) < 0 ? "" : number) : number;
 };
 
 const sendButtonTitle = computed(() => {
@@ -411,38 +422,17 @@ const setSendMax = (max: boolean) => {
   }
 
   if (selectedAsset.value) {
-    const humanBalance = fromBase(
-      selectedAsset.value.balance!,
-      selectedAsset.value.decimals!
-    );
-    amount.value = humanBalance;
-    validateFields();
     sendMax.value = true;
   }
 };
 
 const isDisabled = computed(() => {
-  let isDisabled = true;
-  let addressIsValid = false;
-
-  try {
-    props.network.displayAddress(addressTo.value);
-    addressIsValid = true;
-  } catch {
-    addressIsValid = false;
-  }
-
-  if (
-    amount.value !== undefined &&
-    amount.value !== "" &&
-    hasEnough.value &&
-    addressIsValid &&
-    addressToIsValid.value &&
-    !edWarn.value &&
-    edWarn.value !== undefined
-  )
-    isDisabled = false;
-  return isDisabled;
+  return (
+    !addressTo.value ||
+    !amount.value ||
+    !fieldsValidation.value.amount ||
+    !fieldsValidation.value.addressTo
+  );
 });
 
 const sendAction = async () => {
@@ -549,6 +539,20 @@ const sendAction = async () => {
 
     &:hover {
       background: @black007;
+    }
+  }
+
+  &__description {
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 24px;
+    color: @secondaryLabel;
+    padding: 0px 32px;
+    margin: 0;
+
+    &.popup {
+      padding: 4px 0 16px 0;
     }
   }
 
