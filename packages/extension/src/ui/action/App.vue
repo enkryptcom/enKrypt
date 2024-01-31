@@ -55,6 +55,7 @@
           <component
             :is="Component"
             :network="currentNetwork"
+            :subnetwork="currentSubNetwork"
             :account-info="accountHeaderData"
             @update:init="init"
             @toggle:deposit="toggleDepositWindow"
@@ -148,6 +149,7 @@ const searchInput = ref("");
 const networks = ref<BaseNetwork[]>([]);
 const defaultNetwork = DEFAULT_EVM_NETWORK;
 const currentNetwork = ref<BaseNetwork>(defaultNetwork);
+const currentSubNetwork = ref<string>("");
 const kr = new PublicKeyRing();
 const addNetworkShow = ref(false);
 const settingsShow = ref(false);
@@ -333,6 +335,7 @@ const setNetwork = async (network: BaseNetwork) => {
 };
 const onSelectedSubnetworkChange = async (id: string) => {
   await domainState.setSelectedSubNetwork(id);
+  currentSubNetwork.value = id;
   setNetwork(currentNetwork.value);
 };
 
