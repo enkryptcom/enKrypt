@@ -74,17 +74,17 @@ export default async (
     // note: intentionally not using fromAccount === some-value
     // I want to match both null and "" in fromAccount/toAccount
     // actual values will be a (truthy) string
-    if (!activity.fromAccount && activity.crossChainAccount) {
-      activity.fromAccount = activity.crossChainAccount;
+    let { fromAccount, toAccount } = activity;
+    if (!fromAccount && activity.crossChainAccount) {
+      fromAccount = activity.crossChainAccount;
     }
-    if (!activity.toAccount && activity.crossChainAccount) {
-      activity.toAccount = activity.crossChainAccount;
+    if (!toAccount && activity.crossChainAccount) {
+      toAccount = activity.crossChainAccount;
     }
-    const { fromAccount, toAccount, crossChainAccount } = activity;
     return {
       nonce: i.toString(),
-      from: activity.fromAccount,
-      to: activity.toAccount,
+      from: fromAccount,
+      to: toAccount,
       isIncoming: activity.fromAccount !== address,
       network: network.name,
       rawInfo: activity,
