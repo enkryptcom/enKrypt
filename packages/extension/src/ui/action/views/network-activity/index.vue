@@ -9,6 +9,7 @@
           :crypto-amount="cryptoAmount"
           :fiat-amount="fiatAmount"
           :network="props.network"
+          :subnetwork="props.subnetwork"
         />
 
         <network-activity-action v-bind="$attrs" />

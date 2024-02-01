@@ -17,7 +17,6 @@
 <script setup lang="ts">
 import { watch, ref, PropType, onMounted } from "vue";
 import { BaseNetwork } from "@/types/base-network";
-import DomainState from "@/libs/domain-state";
 import BalanceLoader from "@action/icons/common/balance-loader.vue";
 
 const props = defineProps({
@@ -33,28 +32,22 @@ const props = defineProps({
     type: Object as PropType<BaseNetwork>,
     default: () => ({}),
   },
+  subnetwork: {
+    type: String,
+    default: "",
+  },
 });
 
 const currentChainId = ref("");
 
-const domainState = new DomainState();
 const checkAndSetKDAChainId = () => {
-  console.log("checkAndSetKDAChainId");
   if (props.network.currencyName === "KDA") {
-    domainState.getSelectedSubNetWork().then((id) => {
-      console.log("cASSN", id);
-      if (id) {
-        const subnet = props.network.subNetworks!.find((net) => net.id === id);
-        if (subnet) currentChainId.value = subnet.name;
-      } else {
-        currentChainId.value = props.network.subNetworks![0].name;
-      }
-    });
+    currentChainId.value = `Chain ${props.subnetwork}`;
   } else {
     currentChainId.value = "";
   }
 };
-watch(() => props.network, checkAndSetKDAChainId);
+watch(() => [props.network, props.subnetwork], checkAndSetKDAChainId);
 onMounted(() => {
   checkAndSetKDAChainId();
 });
