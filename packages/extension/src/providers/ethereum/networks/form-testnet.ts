@@ -13,7 +13,7 @@ const formTestnetOptions: EvmNetworkOptions = {
   chainID: "0x20726",
   isTestNetwork: true,
   currencyName: "ETH",
-  currencyNameLong: "Ethereu,",
+  currencyNameLong: "Ethereum",
   node: "wss://testnet-rpc.form.network/ws",
   icon: require("./icons/eth.svg"),
   activityHandler: wrapActivityHandler(EtherscanActivity),
