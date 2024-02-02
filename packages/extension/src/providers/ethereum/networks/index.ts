@@ -15,7 +15,7 @@ import cantoNode from "./canto";
 import rootstockNode from "./rsk";
 import edgeEvmNode from "./edg";
 import zkGoerliNode from "./zkgoerli";
-import tomoNode from "./tomo";
+import vicNode from "./vic";
 import zkSyncNode from "./zksync";
 import arbNode from "./arb";
 import * as skale from "./skale";
@@ -32,6 +32,7 @@ import celoNode from "./celo";
 import shibNode from "./shib";
 import artheraNode from "./aa";
 import formTestnet from "./form-testnet";
+import artheraTestNode from "./aat";
 
 export default {
   goerli: goerliNode,
@@ -52,7 +53,7 @@ export default {
   rootstock: rootstockNode,
   edgeEvm: edgeEvmNode,
   zkGoerli: zkGoerliNode,
-  tomo: tomoNode,
+  vic: vicNode,
   zkSync: zkSyncNode,
   skaleEuropa: skale.europaNode,
   skaleBlockBrawlers: skale.blockBrawlersNode,
@@ -77,4 +78,5 @@ export default {
   shib: shibNode,
   arthera: artheraNode,
   formTestnet: formTestnet,
+  artheraTest: artheraTestNode,
 };

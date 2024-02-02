@@ -17,8 +17,8 @@ const moonriverOptions: EvmNetworkOptions = {
   node: "wss://wss.api.moonriver.moonbeam.network",
   icon: require("./icons/moonriver.svg"),
   coingeckoID: "moonriver",
-  coingeckoPlatform: CoingeckoPlatform.Moonriver,
   assetsInfoHandler,
+  coingeckoPlatform: CoingeckoPlatform.Moonriver,
   activityHandler: wrapActivityHandler(EtherscanActivity),
 };
 

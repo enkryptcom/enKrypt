@@ -48,6 +48,8 @@ const NetworkEndpoints: Record<string, string> = {
   [NetworkNames.Celo]: "https://explorer.celo.org/mainnet/",
   [NetworkNames.Arthera]: "https://explorer-test.arthera.net/",
   [NetworkNames.FormTestnet]: "https://testnet-explorer.form.network/",
+  [NetworkNames.ArtheraTest]: "https://explorer-test.arthera.net/",
+  [NetworkNames.Arthera]: "https://explorer.arthera.net/",
 };
 
 export { NetworkEndpoints };

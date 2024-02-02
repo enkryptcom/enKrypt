@@ -37,3 +37,17 @@ export const openLink = (url: string) => {
     window.open(url, "_blank", "noopener");
   }
 };
+
+export const getLatestEnkryptVersion = (): Promise<string> => {
+  return fetch(
+    "https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/configs/versions.json"
+  )
+    .then((res) => res.json())
+    .then((versions) => {
+      const browser = detectBrowser();
+      if (versions[browser] && browser === BROWSER_NAMES.safari)
+        return versions[browser];
+      return null;
+    })
+    .catch(() => null);
+};

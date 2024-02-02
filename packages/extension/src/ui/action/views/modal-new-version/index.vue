@@ -1,21 +1,21 @@
 <template>
   <div class="rate__container">
-    <div class="rate__overlay" @click="close()" />
+    <div class="rate__overlay" @click="close" />
     <div class="rate__wrap">
       <div class="rate__header">
-        <h2>Enjoying Enkrypt so far?</h2>
-        <a class="rate__close" @click="close()">
+        <h2>New Enkrypt version available</h2>
+        <a class="rate__close" @click="close">
           <close-icon />
         </a>
       </div>
-      <p>Let us know how you feel, your feedback is important to us.</p>
-      <base-button title="Sure, I'll rate it" :click="goToRate" />
+      <p>For latest and greatest features please update!</p>
+      <p>
+        You current version: {{ currentVersion }} latest version:
+        {{ latestVersion }}
+      </p>
+      <base-button title="Update" :click="update" />
       <div class="rate__button-indent"></div>
-      <base-button
-        title="I have a feedback"
-        :no-background="true"
-        :click="goToFeedback"
-      />
+      <base-button title="Cancel" :no-background="true" :click="close" />
     </div>
   </div>
 </template>
@@ -23,52 +23,24 @@
 <script setup lang="ts">
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import BaseButton from "@action/components/base-button/index.vue";
-import RateState from "@/libs/rate-state";
-import { detectBrowser, BROWSER_NAMES, openLink } from "@action/utils/browser";
-
-const rateState = new RateState();
+import { openLink } from "@action/utils/browser";
 
 const emit = defineEmits<{
   (e: "close:popup"): void;
 }>();
 const close = async () => {
-  await rateState.resetPopupTimer();
   emit("close:popup");
 };
 
-const goToFeedback = async () => {
-  await rateState.resetPopupTimer();
+interface IProps {
+  currentVersion: string;
+  latestVersion: string;
+}
 
-  openLink("https://www.enkrypt.com/?ref=enkrypt_help");
-};
+defineProps<IProps>();
 
-const rateLinks: Record<string, string> = {
-  [BROWSER_NAMES.chrome]:
-    "https://chrome.google.com/webstore/detail/enkrypt-ethereum-polkadot/kkpllkodjeloidieedojogacfhpaihoh",
-  [BROWSER_NAMES.firefox]:
-    "https://addons.mozilla.org/en-US/firefox/addon/enkrypt/reviews/",
-  [BROWSER_NAMES.opera]:
-    "https://addons.opera.com/en/extensions/details/enkrypt/",
-  [BROWSER_NAMES.edge]:
-    "https://microsoftedge.microsoft.com/addons/detail/enkrypt-ethereum-polkad/gfenajajnjjmmdojhdjmnngomkhlnfjl",
-  [BROWSER_NAMES.brave]:
-    "https://chrome.google.com/webstore/detail/enkrypt-ethereum-polkadot/kkpllkodjeloidieedojogacfhpaihoh",
-  [BROWSER_NAMES.safari]:
-    "https://apps.apple.com/ae/app/enkrypt-web3-wallet/id1640164309?mt=12",
-};
-
-const goToRate = async () => {
-  await rateState.setRated();
-
-  const browser = detectBrowser();
-
-  const rateLink = rateLinks[browser];
-
-  if (rateLink) {
-    openLink(rateLink);
-  } else {
-    openLink(rateLinks[BROWSER_NAMES.chrome]);
-  }
+const update = async () => {
+  openLink("https://www.enkrypt.com");
 };
 </script>
 
@@ -86,7 +58,7 @@ const goToRate = async () => {
       0px 7px 24px rgba(0, 0, 0, 0.19);
     border-radius: 12px;
     box-sizing: border-box;
-    width: 360px;
+    width: 450px;
     height: auto;
     z-index: 107;
     position: relative;
