@@ -83,10 +83,6 @@ const props = defineProps({
     type: Object as PropType<BaseNetwork>,
     default: () => ({}),
   },
-  subnetwork: {
-    type: String,
-    default: "",
-  },
   accountInfo: {
     type: Object as PropType<AccountsHeaderData>,
     default: () => ({}),
