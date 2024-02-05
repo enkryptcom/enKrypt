@@ -8,18 +8,18 @@
       {{ cryptoAmount }} <span>{{ network.currencyName }}</span>
     </h3>
     <p>
-      <span v-if="currentChainId !== ''">{{ currentChainId }} &middot;</span>
+      <span v-if="subnetwork !== ''">Chain {{ subnetwork }} &middot;</span>
       {{ fiatAmount }}
     </p>
   </div>
 </template>
 
 <script setup lang="ts">
-import { watch, ref, PropType, onMounted } from "vue";
+import { PropType } from "vue";
 import { BaseNetwork } from "@/types/base-network";
 import BalanceLoader from "@action/icons/common/balance-loader.vue";
 
-const props = defineProps({
+defineProps({
   cryptoAmount: {
     type: String,
     default: "0",
@@ -36,20 +36,6 @@ const props = defineProps({
     type: String,
     default: "",
   },
-});
-
-const currentChainId = ref("");
-
-const checkAndSetKDAChainId = () => {
-  if (props.network.currencyName === "KDA") {
-    currentChainId.value = `Chain ${props.subnetwork}`;
-  } else {
-    currentChainId.value = "";
-  }
-};
-watch(() => [props.network, props.subnetwork], checkAndSetKDAChainId);
-onMounted(() => {
-  checkAndSetKDAChainId();
 });
 </script>
 
