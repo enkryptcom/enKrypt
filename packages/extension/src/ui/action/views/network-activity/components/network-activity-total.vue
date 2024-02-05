@@ -5,7 +5,7 @@
   </div>
   <div v-else class="network-activity__total">
     <h3>
-      {{ cryptoAmount }} <span>{{ network.currencyName }}</span>
+      {{ cryptoAmount }} <span>{{ symbol }}</span>
     </h3>
     <p>
       <span v-if="subnetwork !== ''">Chain {{ subnetwork }} &middot;</span>
@@ -15,8 +15,6 @@
 </template>
 
 <script setup lang="ts">
-import { PropType } from "vue";
-import { BaseNetwork } from "@/types/base-network";
 import BalanceLoader from "@action/icons/common/balance-loader.vue";
 
 defineProps({
@@ -28,9 +26,9 @@ defineProps({
     type: String,
     default: "0",
   },
-  network: {
-    type: Object as PropType<BaseNetwork>,
-    default: () => ({}),
+  symbol: {
+    type: String,
+    default: "",
   },
   subnetwork: {
     type: String,

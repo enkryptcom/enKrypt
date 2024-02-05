@@ -9,7 +9,7 @@
           <network-activity-total
             :crypto-amount="cryptoAmount"
             :fiat-amount="fiatAmount"
-            :network="network"
+            :symbol="network.currencyName"
             :subnetwork="props.subnetwork"
           />
 
