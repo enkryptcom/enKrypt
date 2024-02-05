@@ -65,6 +65,21 @@ interface SubstrateRawInfo {
 
 type KadenaRawInfo = ICommandResult;
 
+interface KadenaDBInfo {
+  amount: string;
+  blockHash: string;
+  blockTime: string;
+  chain: number;
+  crossChainAccount: string | null;
+  crossChainId: number | null;
+  fromAccount: string;
+  height: number;
+  idx: number;
+  requestKey: string;
+  toAccount: string;
+  token: string;
+}
+
 enum ActivityStatus {
   pending = "pending",
   success = "success",
@@ -100,7 +115,7 @@ interface Activity {
     | SubscanExtrinsicInfo
     | BTCRawInfo
     | SwapRawInfo
-    | KadenaRawInfo;
+    | KadenaDBInfo;
 }
 
 export {
