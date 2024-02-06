@@ -535,20 +535,6 @@ const sendAction = async () => {
     }
   }
 
-  &__description {
-    font-style: normal;
-    font-weight: 400;
-    font-size: 16px;
-    line-height: 24px;
-    color: @secondaryLabel;
-    padding: 0px 32px;
-    margin: 0;
-
-    &.popup {
-      padding: 4px 0 16px 0;
-    }
-  }
-
   &__buttons {
     position: absolute;
     left: 0;
