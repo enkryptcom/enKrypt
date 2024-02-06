@@ -97,28 +97,46 @@ const method: MiddlewareFunction = function (
         isAccountAccessPending = true;
         const accountsState = new AccountState();
 
-        accountsState.isApproved(_payload.options.domain).then((isApproved) => {
-          if (isApproved) {
-            getAccounts().then((acc) => {
-              _res(null, acc);
-              handleRemainingPromises();
-            });
-          } else {
-            const windowPromise = new WindowPromise();
-            windowPromise
-              .getResponse(
-                this.getUIPath(this.UIRoutes.kdaAccounts.path),
-                JSON.stringify(payload)
-              )
-              .then(({ error }) => {
-                if (error) res(error);
-                else getAccounts().then((acc) => res(null, acc));
-              })
-              .finally(handleRemainingPromises);
-          }
-        });
+        accountsState
+          .isApproved(_payload.options.domain)
+          .then((isApproved) => {
+            if (isApproved) {
+              getAccounts()
+                .then((acc) => {
+                  _res(null, acc);
+                })
+                .catch((err) => {
+                  throw err;
+                });
+            } else {
+              const windowPromise = new WindowPromise();
+              windowPromise
+                .getResponse(
+                  this.getUIPath(this.UIRoutes.kdaAccounts.path),
+                  JSON.stringify(payload)
+                )
+                .then(({ error }) => {
+                  if (error) {
+                    throw error;
+                  } else {
+                    getAccounts()
+                      .then((acc) => {
+                        _res(null, acc);
+                      })
+                      .catch((err) => {
+                        throw err;
+                      });
+                  }
+                });
+            }
+          })
+          .catch((err) => {
+            _res(err);
+          })
+          .finally(handleRemainingPromises);
       } else {
         _res(getCustomError("No domain set!"));
+        handleRemainingPromises();
       }
     };
 
