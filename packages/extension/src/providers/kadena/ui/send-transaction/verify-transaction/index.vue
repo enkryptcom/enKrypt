@@ -12,13 +12,7 @@
           </a>
         </div>
         <hardware-wallet-msg :wallet-type="account?.walletType" />
-        <p
-          class="verify-transaction__description"
-          style="color: red"
-          :class="{ popup: isPopup }"
-        >
-          {{ errorMsg }}
-        </p>
+
         <p class="verify-transaction__description" :class="{ popup: isPopup }">
           Double check the information and confirm transaction
         </p>
@@ -41,6 +35,10 @@
           <verify-transaction-fee :fee="txData.txFee" />
         </div>
       </custom-scrollbar>
+
+      <div class="verify-transaction__error">
+        <send-alert v-show="errorMsg" :error-msg="errorMsg" />
+      </div>
 
       <div
         class="verify-transaction__buttons"
@@ -85,6 +83,7 @@ import VerifyTransactionNetwork from "@/providers/common/ui/verify-transaction/v
 import VerifyTransactionAccount from "@/providers/common/ui/verify-transaction/verify-transaction-account.vue";
 import VerifyTransactionAmount from "@/providers/common/ui/verify-transaction/verify-transaction-amount.vue";
 import VerifyTransactionFee from "@/providers/common/ui/verify-transaction/verify-transaction-fee.vue";
+import SendAlert from "../components/send-alert.vue";
 import HardwareWalletMsg from "@/providers/common/ui/verify-transaction/hardware-wallet-msg.vue";
 import SendProcess from "@action/views/send-process/index.vue";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
@@ -349,6 +348,13 @@ const isHasScroll = () => {
     & > .ps__rail-y {
       right: 0 !important;
     }
+  }
+
+  &__error {
+    position: absolute;
+    top: 480px;
+    width: 100%;
+    background-color: white;
   }
 }
 </style>

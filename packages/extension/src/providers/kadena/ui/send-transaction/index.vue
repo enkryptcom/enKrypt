@@ -8,14 +8,6 @@
         </a>
       </div>
 
-      <p
-        class="send-transaction__description"
-        style="color: red"
-        :class="{ popup: isPopup }"
-      >
-        {{ errorMsg }}
-      </p>
-
       <send-address-input
         ref="addressInputFrom"
         :from="true"
@@ -83,6 +75,8 @@
         :fee="fee ?? { nativeSymbol: props.network.currencyName }"
       />
 
+      <send-alert v-show="errorMsg" :error-msg="errorMsg" />
+
       <div class="send-transaction__buttons">
         <div class="send-transaction__buttons-cancel">
           <base-button title="Cancel" :click="close" :no-background="true" />
@@ -111,6 +105,7 @@ import SendTokenSelect from "./components/send-token-select.vue";
 import AssetsSelectList from "@action/views/assets-select-list/index.vue";
 import SendInputAmount from "./components/send-input-amount.vue";
 import SendFeeSelect from "./components/send-fee-select.vue";
+import SendAlert from "./components/send-alert.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import { AccountsHeaderData } from "@action/types/account";
 import { GasFeeInfo } from "@/providers/ethereum/ui/types";
