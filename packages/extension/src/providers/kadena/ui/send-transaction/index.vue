@@ -123,7 +123,6 @@ import KadenaAPI from "@/providers/kadena/libs/api";
 import getUiPath from "@/libs/utils/get-ui-path";
 import { ProviderName } from "@/types/provider";
 import Browser from "webextension-polyfill";
-import { getCurrentContext } from "@/libs/messenger/extension";
 
 const props = defineProps({
   network: {
@@ -139,7 +138,6 @@ const props = defineProps({
 const route = useRoute();
 const router = useRouter();
 const nameResolver = new GenericNameResolver();
-const isPopup: boolean = getCurrentContext() === "new-window";
 const errorMsg = ref("");
 
 const addressInputTo = ref();

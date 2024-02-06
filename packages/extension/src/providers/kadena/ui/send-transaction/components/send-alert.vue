@@ -12,7 +12,7 @@ interface IProps {
   errorMsg: string;
 }
 
-const props = defineProps<IProps>();
+defineProps<IProps>();
 </script>
 
 <style lang="less">
