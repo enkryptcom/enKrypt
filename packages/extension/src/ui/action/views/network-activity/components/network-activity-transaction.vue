@@ -44,6 +44,12 @@
               :date="activity.timestamp"
             />
             <span v-else-if="activity.timestamp !== 0">{{ date }}</span>
+            <span
+              v-if="network.subNetworks && activity.chainId !== undefined"
+              class="network-activity__transaction-info-chainid"
+              >{{ activity.isIncoming ? "on" : "from" }} chain
+              {{ activity.chainId }}</span
+            >
           </p>
         </div>
       </div>
@@ -252,6 +258,10 @@ onMounted(() => {
 
       &-status {
         margin-right: 4px;
+      }
+
+      &-chainid {
+        margin-left: 4px;
       }
     }
 
