@@ -34,6 +34,7 @@
       />
       <reset-wallet
         v-if="isReset"
+        v-bind="$attrs"
         @window:close="close"
         @window:back="startAction"
       />

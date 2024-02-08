@@ -97,9 +97,11 @@ const selected: string = route.params.id as string;
 const updateAssets = () => {
   isLoading.value = true;
   assets.value = [];
+  const currentNetwork = selectedNetworkName.value;
   props.network
     .getAllTokenInfo(props.accountInfo.selectedAccount?.address || "")
     .then((_assets) => {
+      if (selectedNetworkName.value !== currentNetwork) return;
       assets.value = _assets;
       isLoading.value = false;
     });
