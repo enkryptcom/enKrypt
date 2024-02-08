@@ -35,6 +35,7 @@ const bitcoinOptions: BitcoinNetworkOptions = {
       [GasPriceTypes.ECONOMY]: 5,
     }),
   networkInfo: {
+    name: NetworkNames.BitcoinTest,
     messagePrefix: "\x18Bitcoin Signed Message:\n",
     bech32: "tb",
     bip32: {

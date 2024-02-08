@@ -8,6 +8,7 @@ export const BitcoinNetworks = {
 };
 
 export interface BitcoinNetworkInfo {
+  name: NetworkNames;
   messagePrefix: string;
   bech32: string;
   bip32: {

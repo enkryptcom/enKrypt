@@ -30,6 +30,7 @@ const dogeOptions: BitcoinNetworkOptions = {
     return SSFeeHandler("https://partners.mewapi.io/nodes/ss/doge/api/v1/fees");
   },
   networkInfo: {
+    name: NetworkNames.Dogecoin,
     messagePrefix: "\x19Dogecoin Signed Message:\n",
     bech32: "dc",
     bip32: {

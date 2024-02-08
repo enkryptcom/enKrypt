@@ -25,8 +25,21 @@ export interface SHNFTType {
     name: string;
   };
 }
+export interface SHOrdinalsNFTType extends SHNFTType {
+  extra_metadata: {
+    ordinal_details: {
+      location: string;
+    };
+  };
+}
 export interface SHResponse {
   next: string;
   previous: string;
   nfts: SHNFTType[];
+}
+
+export interface SHOrdinalsResponse {
+  next: string;
+  previous: string;
+  nfts: SHOrdinalsNFTType[];
 }

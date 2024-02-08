@@ -8,6 +8,7 @@ import {
 } from "../types";
 import { toBN } from "web3-utils";
 import { getAddress as getBitcoinAddress } from "../types/bitcoin-network";
+import { filterOutOrdinals } from "./filter-ordinals";
 
 class API implements ProviderAPIInterface {
   node: string;
@@ -83,10 +84,18 @@ class API implements ProviderAPIInterface {
       .then((res) => res.json())
       .then((utxos: HaskoinUnspentType[]) => {
         if ((utxos as any).error) return [];
-        utxos.sort((a, b) => {
-          return a.value - b.value;
-        });
-        return utxos;
+        return filterOutOrdinals(address, this.networkInfo.name, utxos).then(
+          (futxos) => {
+            futxos.sort((a, b) => {
+              return a.value - b.value;
+            });
+            return futxos;
+          }
+        );
+      })
+      .catch((e) => {
+        console.error(e);
+        return [];
       });
   }
 }
