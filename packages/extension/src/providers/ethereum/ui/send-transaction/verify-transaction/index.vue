@@ -38,7 +38,7 @@
             :network="network"
           />
           <verify-transaction-amount v-if="!isNft" :token="txData.toToken" />
-          <verify-transaction-nft v-if="isNft" :item="nft" />
+          <verify-transaction-nft v-if="isNft" :item="txData.NFTData!" />
           <verify-transaction-fee :fee="txData.gasFee" />
         </div>
       </custom-scrollbar>
@@ -72,6 +72,7 @@
       :network="network"
       :token="txData.toToken"
       :is-done="isSendDone"
+      :nft="txData.NFTData"
       :is-window-popup="isWindowPopup"
     />
   </div>
@@ -113,7 +114,7 @@ const selectedNetwork: string = route.query.id as string;
 const txData: VerifyTransactionParams = JSON.parse(
   Buffer.from(route.query.txData as string, "base64").toString("utf8")
 );
-const isNft = false;
+const isNft = ref(txData.isNFT);
 const isProcessing = ref(false);
 const network = ref<BaseNetwork>(DEFAULT_EVM_NETWORK);
 const isSendDone = ref(false);

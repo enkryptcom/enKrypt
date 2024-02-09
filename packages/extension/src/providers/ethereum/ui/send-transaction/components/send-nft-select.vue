@@ -5,9 +5,19 @@
         <img v-if="item.image !== ''" :src="item.image" alt="" />
       </div>
       <div class="send-nft-select__info">
-        <h5>{{ item.name }}</h5>
+        <h5>
+          {{
+            item.name.length > 25
+              ? item.name.substring(0, 25) + "..."
+              : item.name
+          }}
+        </h5>
         <p>
-          {{ item.collectionName }}
+          {{
+            item.collectionName.length > 50
+              ? item.collectionName.substring(0, 50) + "..."
+              : item.collectionName
+          }}
         </p>
       </div>
 
@@ -15,13 +25,17 @@
         <switch-arrow />
       </div>
     </a>
-
-    <img
-      v-if="item.image !== ''"
-      class="send-nft-select__view"
-      :src="item.image"
-      alt=""
-    />
+    <div>
+      <img
+        v-if="item.image !== ''"
+        class="send-nft-select__view"
+        :src="item.image"
+        alt=""
+      />
+      <p v-if="isSendingDisabled" class="send-nft-select__text">
+        Sending is disabled on this NFT!
+      </p>
+    </div>
   </div>
 </template>
 
@@ -39,6 +53,12 @@ defineProps({
     type: Object as PropType<NFTItemWithCollectionName>,
     default: () => {
       return {};
+    },
+  },
+  isSendingDisabled: {
+    type: Boolean,
+    default: () => {
+      return false;
     },
   },
 });
@@ -121,11 +141,25 @@ defineProps({
 
   &__view {
     width: 128px;
+    max-height: 150px;
     filter: drop-shadow(0px 0.25px 1px rgba(0, 0, 0, 0.039))
       drop-shadow(0px 0.85px 3px rgba(0, 0, 0, 0.19));
     border-radius: 12px;
     display: block;
     margin: 16px 0 16px 48px;
+    float: left;
+  }
+  &__text {
+    float: right;
+    max-width: 200px;
+    margin-right: 60px;
+    margin-top: 60px;
+    padding-right: 10px;
+    padding-left: 10px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    background: #f2f4f7;
+    border-radius: 6px;
   }
 }
 </style>

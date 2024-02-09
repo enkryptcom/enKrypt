@@ -20,6 +20,7 @@ export interface SHNFTType {
     image_url: string;
     external_url: string;
     collection_id: string;
+    spam_score: number;
   };
   contract: {
     name: string;

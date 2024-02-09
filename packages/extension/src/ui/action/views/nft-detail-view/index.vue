@@ -30,7 +30,7 @@
       <img :src="item.image" alt="" @error="imageLoadError" />
 
       <div class="nft-detail-view__action">
-        <action-menu :is-nft="true" :link="item.url" />
+        <action-menu :link="item.url" :item="item" />
       </div>
     </div>
   </div>

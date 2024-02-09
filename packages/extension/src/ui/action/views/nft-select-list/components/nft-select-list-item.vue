@@ -4,9 +4,19 @@
       <img :src="item.image" />
 
       <div class="nft-select-list__token-info-name">
-        <h4>{{ item.name }}</h4>
+        <h4>
+          {{
+            item.name.length > 40
+              ? item.name.substring(0, 40) + "..."
+              : item.name
+          }}
+        </h4>
         <p>
-          {{ item.collectionName }}
+          {{
+            item.collectionName.length > 50
+              ? item.collectionName.substring(0, 50) + "..."
+              : item.collectionName
+          }}
         </p>
       </div>
     </div>

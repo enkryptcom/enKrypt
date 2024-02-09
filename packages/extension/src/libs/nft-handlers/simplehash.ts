@@ -33,9 +33,9 @@ export default async (
   const fetchAll = (continuation?: string): Promise<void> => {
     const query = continuation
       ? continuation
-      : `${SH_ENDPOINT}owners?chains=${
+      : `${SH_ENDPOINT}owners_v2?chains=${
           supportedNetworks[network.name as keyof typeof supportedNetworks]
-        }&wallet_addresses=${address}`;
+        }&wallet_addresses=${address}&filters=spam_score__lte=75`;
     return cacheFetch(
       {
         url: query,

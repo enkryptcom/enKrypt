@@ -38,6 +38,7 @@ import SendProcessAmount from "./components/send-process-amount.vue";
 import SendProcessNft from "./components/send-process-nft.vue";
 import { ToTokenData } from "../../types/token";
 import { BaseNetwork } from "@/types/base-network";
+import { NFTItemWithCollectionName } from "@/types/nft";
 
 defineProps({
   network: {
@@ -62,6 +63,12 @@ defineProps({
     type: Boolean,
     default: () => {
       return false;
+    },
+  },
+  nft: {
+    type: Object as PropType<NFTItemWithCollectionName>,
+    default: () => {
+      return {};
     },
   },
   isWindowPopup: Boolean,

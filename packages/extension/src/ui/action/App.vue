@@ -138,13 +138,6 @@ import SwapLookingAnimation from "@action/icons/swap/swap-looking-animation.vue"
 import { addNetworkSelectMetrics } from "@/libs/metrics";
 import { getLatestEnkryptVersion } from "@action/utils/browser";
 import { gt as semverGT } from "semver";
-import { getAllOrdinals } from "@/providers/bitcoin/libs/filter-ordinals";
-
-getAllOrdinals(
-  "bc1puzz9tmxawd7zdd7klfgtywrgpma3u22fz5ecxhucd4j8tygqe5ms2vdd9y",
-  "BTC",
-  []
-).then(console.log);
 
 const domainState = new DomainState();
 const networksState = new NetworksState();

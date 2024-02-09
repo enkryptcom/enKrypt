@@ -31,7 +31,7 @@ import NftSelectListSearch from "./components/nft-select-list-search.vue";
 import scrollSettings from "@/libs/utils/scroll-settings";
 import { computed, onMounted, PropType, ref } from "vue";
 import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
-import { NFTCollection, NFTItemWithCollectionName } from "@/types/nft";
+import { NFTCollection, NFTItem, NFTItemWithCollectionName } from "@/types/nft";
 
 const props = defineProps({
   network: {
@@ -42,17 +42,9 @@ const props = defineProps({
     type: String,
     default: "",
   },
-  isSelectToToken: {
-    type: Boolean,
-    default: () => {
-      return false;
-    },
-  },
-  isSend: {
-    type: Boolean,
-    default: () => {
-      return false;
-    },
+  selectedNft: {
+    type: Object as PropType<NFTItem>,
+    default: () => ({}),
   },
 });
 
@@ -77,8 +69,18 @@ onMounted(() => {
       .NFTHandler(props.network, props.address)
       .then((collections) => {
         nftCollections.value = collections;
-        if (nftList.value.length) emit("selectNft", nftList.value[0]);
-        else
+        if (nftList.value.length) {
+          for (const nft of nftList.value) {
+            if (
+              props.selectedNft.contract === nft.contract &&
+              props.selectedNft.id === nft.id
+            ) {
+              emit("selectNft", nft);
+              return;
+            }
+          }
+          emit("selectNft", nftList.value[0]);
+        } else
           emit("selectNft", {
             id: "",
             contract: "",

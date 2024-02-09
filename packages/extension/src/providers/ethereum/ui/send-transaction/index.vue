@@ -64,6 +64,7 @@
       <send-nft-select
         v-if="!isSendToken"
         :item="selectedNft"
+        :is-sending-disabled="isInputsValid && !isEstimateValid"
         @toggle-select="toggleSelectNft"
       />
 
@@ -71,6 +72,7 @@
         v-show="isOpenSelectNft"
         :address="addressFrom"
         :network="network"
+        :selected-nft="paramNFTData"
         @close="toggleSelectNft"
         @select-nft="selectNFT"
       />
@@ -147,7 +149,7 @@ import SendInputAmount from "@/providers/common/ui/send-transaction/send-input-a
 import SendFeeSelect from "@/providers/common/ui/send-transaction/send-fee-select.vue";
 import TransactionFeeView from "@action/views/transaction-fee/index.vue";
 import BaseButton from "@action/components/base-button/index.vue";
-import { NFTItemWithCollectionName } from "@/types/nft";
+import { NFTItemWithCollectionName, NFTItem } from "@/types/nft";
 import { AccountsHeaderData } from "@action/types/account";
 import { numberToHex, toBN } from "web3-utils";
 import { GasPriceTypes, GasFeeType } from "@/providers/common/types";
@@ -201,6 +203,10 @@ const router = useRouter();
 const nameResolver = new GenericNameResolver();
 const addressInputTo = ref();
 const selected: string = route.params.id as string;
+const paramNFTData: NFTItem = JSON.parse(
+  route.params.tokenData ? (route.params.tokenData as string) : "{}"
+) as NFTItem;
+const isSendToken = ref(JSON.parse(route.params.isToken as string));
 const accountAssets = ref<Erc20Token[]>([]);
 const selectedAsset = ref<Erc20Token | Partial<Erc20Token>>(loadingAsset);
 const amount = ref<string>("");
@@ -297,14 +303,6 @@ const TxInfo = computed<SendTransactionDataType>(() => {
             selectedNft.value.id
           )
           .encodeABI();
-
-  console.log({
-    chainId: props.network.chainID,
-    from: addressFrom.value as `0x{string}`,
-    value: value as `0x${string}`,
-    to: toAddress as `0x${string}`,
-    data: data as `0x${string}`,
-  });
   return {
     chainId: props.network.chainID,
     from: addressFrom.value as `0x{string}`,
@@ -460,20 +458,23 @@ const updateTransactionFees = (tx: Transaction) => {
     }
   });
 };
-watch([isInputsValid, addressTo, selectedAsset, selectedNft], () => {
-  if (isInputsValid.value) {
-    updateTransactionFees(Tx.value);
-  }
-});
 
 const isOpenSelectContactFrom = ref<boolean>(false);
 const isOpenSelectContactTo = ref<boolean>(false);
 const isOpenSelectToken = ref<boolean>(false);
 
 const isOpenSelectFee = ref<boolean>(false);
-const isSendToken = ref(true);
 
 const isOpenSelectNft = ref(false);
+
+watch(
+  [isInputsValid, addressTo, selectedAsset, selectedNft, isSendToken],
+  () => {
+    if (isInputsValid.value) {
+      updateTransactionFees(Tx.value);
+    }
+  }
+);
 
 const close = () => {
   router.go(-1);
@@ -583,6 +584,8 @@ const sendAction = async () => {
   );
   const txVerifyInfo: VerifyTransactionParams = {
     TransactionData: TxInfo.value,
+    isNFT: !isSendToken.value,
+    NFTData: !isSendToken.value ? selectedNft.value : undefined,
     toToken: {
       amount: toBase(sendAmount.value, selectedAsset.value.decimals!),
       decimals: selectedAsset.value.decimals!,
