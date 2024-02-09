@@ -36,7 +36,6 @@ import ArrowDown from "@action/icons/send/arrow-down.vue";
 import SendProcessAccount from "./components/send-process-account.vue";
 import SendProcessAmount from "./components/send-process-amount.vue";
 import SendProcessNft from "./components/send-process-nft.vue";
-import { nft } from "@action/types/mock";
 import { ToTokenData } from "../../types/token";
 import { BaseNetwork } from "@/types/base-network";
 

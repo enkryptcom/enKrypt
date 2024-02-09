@@ -2,7 +2,7 @@
   <div class="nft-select-list">
     <div class="nft-select-list__header">
       <h3>Select NFT to send</h3>
-      <a class="nft-select-list__close" @click="close">
+      <a class="nft-select-list__close" @click="emit('close', false)">
         <close-icon />
       </a>
     </div>
@@ -17,7 +17,7 @@
         v-for="(item, index) in nftList"
         :key="index"
         :item="item"
-        :select-item="selectItem"
+        @select-nft="emit('selectNft', $event)"
       />
     </custom-scrollbar>
   </div>
@@ -29,20 +29,18 @@ import NftSelectListItem from "./components/nft-select-list-item.vue";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 import NftSelectListSearch from "./components/nft-select-list-search.vue";
 import scrollSettings from "@/libs/utils/scroll-settings";
-import { nftList } from "@action/types/mock";
+import { computed, onMounted, PropType, ref } from "vue";
+import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
+import { NFTCollection, NFTItemWithCollectionName } from "@/types/nft";
 
 const props = defineProps({
-  close: {
-    type: Function,
-    default: () => {
-      return null;
-    },
+  network: {
+    type: Object as PropType<EvmNetwork>,
+    default: () => ({}),
   },
-  selectItem: {
-    type: Function,
-    default: () => {
-      return null;
-    },
+  address: {
+    type: String,
+    default: "",
   },
   isSelectToToken: {
     type: Boolean,
@@ -58,9 +56,40 @@ const props = defineProps({
   },
 });
 
-const close = () => {
-  props.close();
-};
+const emit = defineEmits<{
+  (e: "selectNft", data: NFTItemWithCollectionName): void;
+  (e: "close", val: boolean): void;
+}>();
+
+const nftCollections = ref<NFTCollection[]>([]);
+const nftList = computed(() => {
+  const allItems: NFTItemWithCollectionName[] = [];
+  nftCollections.value.forEach((col) => {
+    col.items.forEach((item) => {
+      allItems.push({ ...item, ...{ collectionName: col.name } });
+    });
+  });
+  return allItems;
+});
+onMounted(() => {
+  if (props.network.NFTHandler) {
+    props.network
+      .NFTHandler(props.network, props.address)
+      .then((collections) => {
+        nftCollections.value = collections;
+        if (nftList.value.length) emit("selectNft", nftList.value[0]);
+        else
+          emit("selectNft", {
+            id: "",
+            contract: "",
+            image: "",
+            name: "No NFTs found",
+            url: "",
+            collectionName: "",
+          });
+      });
+  }
+});
 </script>
 
 <style lang="less">

@@ -1,13 +1,13 @@
 <template>
   <div class="send-nft-select__wrap">
-    <a class="send-nft-select" @click="open">
+    <a class="send-nft-select" @click="$emit('toggleSelect', item.id !== '')">
       <div class="send-nft-select__image">
-        <img :src="item.image" alt="" />
+        <img v-if="item.image !== ''" :src="item.image" alt="" />
       </div>
       <div class="send-nft-select__info">
         <h5>{{ item.name }}</h5>
         <p>
-          {{ item.author }}
+          {{ item.collectionName }}
         </p>
       </div>
 
@@ -16,36 +16,32 @@
       </div>
     </a>
 
-    <img class="send-nft-select__view" :src="item.image" alt="" />
+    <img
+      v-if="item.image !== ''"
+      class="send-nft-select__view"
+      :src="item.image"
+      alt=""
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, PropType } from "vue";
+import { PropType } from "vue";
 import SwitchArrow from "@action/icons/header/switch_arrow.vue";
-import { NFTItem } from "@action/types/nft";
+import { NFTItemWithCollectionName } from "@/types/nft";
 
-const isOpen = ref(false);
+defineEmits<{
+  (e: "toggleSelect", val: boolean): void;
+}>();
 
-const props = defineProps({
-  toggleSelect: {
-    type: Function,
-    default: () => {
-      return null;
-    },
-  },
+defineProps({
   item: {
-    type: Object as PropType<NFTItem>,
+    type: Object as PropType<NFTItemWithCollectionName>,
     default: () => {
       return {};
     },
   },
 });
-
-const open = () => {
-  isOpen.value = !isOpen.value;
-  props.toggleSelect(isOpen);
-};
 </script>
 
 <style lang="less">

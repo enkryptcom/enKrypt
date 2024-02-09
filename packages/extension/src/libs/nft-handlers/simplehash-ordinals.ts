@@ -37,12 +37,17 @@ export default async (
   if (!allItems || !allItems.length) return [];
   const collections: Record<string, NFTCollection> = {};
   allItems.forEach((item) => {
+    const collectionName =
+      item.extra_metadata.ordinal_details.protocol_name === "brc-20"
+        ? "BRC20"
+        : item.collection.name;
+    const contractAddress =
+      item.collection.collection_id || item.contract_address;
     if (!item.image_url && !item.previews.image_medium_url) return;
-    if (!item.collection.name) return;
+    if (!collectionName) return;
     if (collections[item.collection.collection_id]) {
-      console.log(item);
       const tItem: NFTItem = {
-        contract: item.contract_address,
+        contract: contractAddress,
         id: item.extra_metadata.ordinal_details.location,
         image: item.previews.image_medium_url,
         name: item.contract.name,
@@ -51,15 +56,15 @@ export default async (
       collections[item.collection.collection_id].items.push(tItem);
     } else {
       const ret: NFTCollection = {
-        name: item.collection.name,
+        name: collectionName,
         description: item.collection.description,
         image:
           item.collection.image_url ||
           require("@action/assets/common/not-found.jpg"),
-        contract: item.contract_address,
+        contract: contractAddress,
         items: [
           {
-            contract: item.contract_address,
+            contract: contractAddress,
             id: item.nft_id,
             image: item.image_url || item.previews.image_medium_url,
             name: item.contract.name,
@@ -67,7 +72,7 @@ export default async (
           },
         ],
       };
-      collections[item.collection.collection_id] = ret;
+      collections[contractAddress] = ret;
     }
   });
   return Object.values(collections);

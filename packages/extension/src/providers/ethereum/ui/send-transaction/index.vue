@@ -2,9 +2,10 @@
   <div class="container">
     <div v-if="!!selected" class="send-transaction">
       <send-header
-        :close="close"
-        :toggle-type="toggleSelector"
         :is-send-token="isSendToken"
+        :is-nft-available="!!network.NFTHandler"
+        @close="close"
+        @toggle-type="toggleSelector"
       />
 
       <send-address-input
@@ -63,13 +64,15 @@
       <send-nft-select
         v-if="!isSendToken"
         :item="selectedNft"
-        :toggle-select="toggleSelectNft"
+        @toggle-select="toggleSelectNft"
       />
 
       <nft-select-list
         v-show="isOpenSelectNft"
-        :close="toggleSelectNft"
-        :select-item="selectItem"
+        :address="addressFrom"
+        :network="network"
+        @close="toggleSelectNft"
+        @select-nft="selectNFT"
       />
 
       <send-input-amount
@@ -119,7 +122,7 @@
           <base-button
             :title="sendButtonTitle"
             :click="sendAction"
-            :disabled="!isInputsValid"
+            :disabled="!isInputsValid || !isEstimateValid"
           />
         </div>
       </div>
@@ -144,10 +147,9 @@ import SendInputAmount from "@/providers/common/ui/send-transaction/send-input-a
 import SendFeeSelect from "@/providers/common/ui/send-transaction/send-fee-select.vue";
 import TransactionFeeView from "@action/views/transaction-fee/index.vue";
 import BaseButton from "@action/components/base-button/index.vue";
-import { NFTItem } from "@action/types/nft";
+import { NFTItemWithCollectionName } from "@/types/nft";
 import { AccountsHeaderData } from "@action/types/account";
 import { numberToHex, toBN } from "web3-utils";
-import { nft } from "@action/types/mock";
 import { GasPriceTypes, GasFeeType } from "@/providers/common/types";
 import { EvmNetwork } from "../../types/evm-network";
 import { Erc20Token } from "../../types/erc20-token";
@@ -161,6 +163,7 @@ import {
 } from "../../libs/common";
 import { fromBase, toBase, isValidDecimals } from "@enkryptcom/utils";
 import erc20 from "../../libs/abi/erc20";
+import erc721 from "../../libs/abi/erc721";
 import { SendTransactionDataType, VerifyTransactionParams } from "../types";
 import { formatFloatingPointValue } from "@/libs/utils/number-formatter";
 import { routes as RouterNames } from "@/ui/action/router";
@@ -228,6 +231,15 @@ const addressFrom = ref<string>(
 const addressTo = ref<string>("");
 const isLoadingAssets = ref(true);
 
+const selectedNft = ref<NFTItemWithCollectionName>({
+  id: "",
+  contract: "",
+  image: "",
+  name: "Loading",
+  url: "",
+  collectionName: "",
+});
+
 const showMax = computed(() => {
   if (selectedAsset.value.contract !== NATIVE_TOKEN_ADDRESS) return true;
   if (MAX_UNAVAILABLE_NETWORKS.includes(props.network.name)) return false;
@@ -257,23 +269,42 @@ onMounted(async () => {
 const TxInfo = computed<SendTransactionDataType>(() => {
   const web3 = new Web3Eth();
   const value =
-    selectedAsset.value.contract === NATIVE_TOKEN_ADDRESS
+    isSendToken.value && selectedAsset.value.contract === NATIVE_TOKEN_ADDRESS
       ? numberToHex(toBase(sendAmount.value, props.network.decimals))
       : "0x0";
   const toAddress =
-    selectedAsset.value.contract === NATIVE_TOKEN_ADDRESS
+    isSendToken.value && selectedAsset.value.contract === NATIVE_TOKEN_ADDRESS
       ? addressTo.value
-      : selectedAsset.value.contract;
-  const tokenContract = new web3.Contract(erc20 as any);
+      : isSendToken.value
+      ? selectedAsset.value.contract
+      : selectedNft.value.contract;
+  const erc20Contract = new web3.Contract(erc20 as any);
+  const erc721Contract = new web3.Contract(erc721 as any);
   const data =
-    selectedAsset.value.contract === NATIVE_TOKEN_ADDRESS
+    isSendToken.value && selectedAsset.value.contract === NATIVE_TOKEN_ADDRESS
       ? "0x"
-      : tokenContract.methods
+      : isSendToken.value
+      ? erc20Contract.methods
           .transfer(
             addressTo.value,
             toBase(sendAmount.value, selectedAsset.value.decimals!)
           )
+          .encodeABI()
+      : erc721Contract.methods
+          .transferFrom(
+            addressFrom.value,
+            addressTo.value,
+            selectedNft.value.id
+          )
           .encodeABI();
+
+  console.log({
+    chainId: props.network.chainID,
+    from: addressFrom.value as `0x{string}`,
+    value: value as `0x${string}`,
+    to: toAddress as `0x${string}`,
+    data: data as `0x${string}`,
+  });
   return {
     chainId: props.network.chainID,
     from: addressFrom.value as `0x{string}`,
@@ -408,7 +439,6 @@ const sendButtonTitle = computed(() => {
 });
 
 const isInputsValid = computed<boolean>(() => {
-  if (!isEstimateValid.value) return false;
   if (!props.network.isAddress(addressTo.value)) return false;
   if (!isValidDecimals(sendAmount.value, selectedAsset.value.decimals!)) {
     return false;
@@ -430,7 +460,7 @@ const updateTransactionFees = (tx: Transaction) => {
     }
   });
 };
-watch([isInputsValid, addressTo, selectedAsset], () => {
+watch([isInputsValid, addressTo, selectedAsset, selectedNft], () => {
   if (isInputsValid.value) {
     updateTransactionFees(Tx.value);
   }
@@ -442,7 +472,7 @@ const isOpenSelectToken = ref<boolean>(false);
 
 const isOpenSelectFee = ref<boolean>(false);
 const isSendToken = ref(true);
-const selectedNft = ref(nft);
+
 const isOpenSelectNft = ref(false);
 
 const close = () => {
@@ -608,7 +638,7 @@ const toggleSelectNft = (open: boolean) => {
   isOpenSelectNft.value = open;
 };
 
-const selectItem = (item: NFTItem) => {
+const selectNFT = (item: NFTItemWithCollectionName) => {
   selectedNft.value = item;
   isOpenSelectNft.value = false;
 };

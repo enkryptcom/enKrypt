@@ -12,3 +12,6 @@ export interface NFTCollection {
   items: NFTItem[];
   contract: string;
 }
+export interface NFTItemWithCollectionName extends NFTItem {
+  collectionName: string;
+}

@@ -89,7 +89,6 @@ import VerifyTransactionFee from "@/providers/common/ui/verify-transaction/verif
 import VerifyTransactionNft from "./components/verify-transaction-nft.vue";
 import HardwareWalletMsg from "@/providers/common/ui/verify-transaction/hardware-wallet-msg.vue";
 import SendProcess from "@action/views/send-process/index.vue";
-import { nft } from "@action/types/mock";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
 import { VerifyTransactionParams } from "../../types";
 import Transaction from "@/providers/ethereum/libs/transaction";

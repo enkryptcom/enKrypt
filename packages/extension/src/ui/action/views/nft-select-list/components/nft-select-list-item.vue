@@ -1,12 +1,12 @@
 <template>
-  <a class="nft-select-list__token" @click="select">
+  <a class="nft-select-list__token" @click="$emit('selectNft', item)">
     <div class="nft-select-list__token-info">
       <img :src="item.image" />
 
       <div class="nft-select-list__token-info-name">
         <h4>{{ item.name }}</h4>
         <p>
-          {{ item.author }}
+          {{ item.collectionName }}
         </p>
       </div>
     </div>
@@ -15,24 +15,17 @@
 
 <script setup lang="ts">
 import { PropType } from "vue";
-import { NFTItem } from "@action/types/nft";
+import { NFTItemWithCollectionName } from "@/types/nft";
 
-const props = defineProps({
+defineEmits<{
+  (e: "selectNft", data: NFTItemWithCollectionName): void;
+}>();
+defineProps({
   item: {
-    type: Object as PropType<NFTItem>,
+    type: Object as PropType<NFTItemWithCollectionName>,
     default: () => ({}),
   },
-  selectItem: {
-    type: Function,
-    default: () => {
-      return null;
-    },
-  },
 });
-
-const select = () => {
-  props.selectItem(props.item);
-};
 </script>
 
 <style lang="less">

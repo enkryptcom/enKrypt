@@ -29,6 +29,7 @@ export interface SHOrdinalsNFTType extends SHNFTType {
   extra_metadata: {
     ordinal_details: {
       location: string;
+      protocol_name: string;
     };
   };
 }
