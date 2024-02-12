@@ -72,6 +72,7 @@ export default async (
           outputs: tx.vout.map((output) => ({
             address: output.addresses![0],
             value: Number(output.value),
+            pkscript: output.scriptPubKey.hex,
           })),
           transactionHash: tx.txid,
           timestamp: tx.timestamp * 1000,

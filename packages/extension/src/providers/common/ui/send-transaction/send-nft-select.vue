@@ -33,7 +33,7 @@
         alt=""
       />
       <p v-if="isSendingDisabled" class="send-nft-select__text">
-        Sending is disabled on this NFT!
+        This NFT is not transferable!
       </p>
     </div>
   </div>
@@ -140,8 +140,8 @@ defineProps({
   }
 
   &__view {
-    width: 128px;
-    max-height: 150px;
+    width: 82px;
+    max-height: 82px;
     filter: drop-shadow(0px 0.25px 1px rgba(0, 0, 0, 0.039))
       drop-shadow(0px 0.85px 3px rgba(0, 0, 0, 0.19));
     border-radius: 12px;
@@ -153,7 +153,7 @@ defineProps({
     float: right;
     max-width: 200px;
     margin-right: 60px;
-    margin-top: 60px;
+    margin-top: 40px;
     padding-right: 10px;
     padding-left: 10px;
     padding-top: 10px;

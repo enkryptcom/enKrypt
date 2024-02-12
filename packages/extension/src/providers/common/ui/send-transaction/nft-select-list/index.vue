@@ -29,13 +29,19 @@ import NftSelectListItem from "./components/nft-select-list-item.vue";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 import NftSelectListSearch from "./components/nft-select-list-search.vue";
 import scrollSettings from "@/libs/utils/scroll-settings";
-import { computed, onMounted, PropType, ref } from "vue";
+import { computed, onMounted, PropType, ref, watch } from "vue";
 import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
-import { NFTCollection, NFTItem, NFTItemWithCollectionName } from "@/types/nft";
+import {
+  NFTCollection,
+  NFTItem,
+  NFTItemWithCollectionName,
+  NFTType,
+} from "@/types/nft";
+import { BitcoinNetwork } from "@/providers/bitcoin/types/bitcoin-network";
 
 const props = defineProps({
   network: {
-    type: Object as PropType<EvmNetwork>,
+    type: Object as PropType<EvmNetwork | BitcoinNetwork>,
     default: () => ({}),
   },
   address: {
@@ -63,7 +69,7 @@ const nftList = computed(() => {
   });
   return allItems;
 });
-onMounted(() => {
+const updateNFTList = () => {
   if (props.network.NFTHandler) {
     props.network
       .NFTHandler(props.network, props.address)
@@ -88,9 +94,19 @@ onMounted(() => {
             name: "No NFTs found",
             url: "",
             collectionName: "",
+            type: NFTType.ERC721,
           });
       });
   }
+};
+watch(
+  () => props.address,
+  () => {
+    updateNFTList();
+  }
+);
+onMounted(() => {
+  updateNFTList();
 });
 </script>
 

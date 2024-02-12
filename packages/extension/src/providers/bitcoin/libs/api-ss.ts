@@ -34,6 +34,7 @@ class API implements ProviderAPIInterface {
       .then((tx: SSTxType) => {
         if ((tx as any).message) return null;
         if (tx.blockHeight < 0) return null;
+        console.log(tx);
         const rawInfo: BTCRawInfo = {
           blockNumber: tx.blockHeight,
           fee: Number(tx.fee),
@@ -48,6 +49,7 @@ class API implements ProviderAPIInterface {
             .map((output) => ({
               address: output.addresses![0],
               value: Number(output.value),
+              pkscript: output.scriptPubKey.hex,
             })),
           transactionHash: tx.txid,
           timestamp: tx.timestamp * 1000,

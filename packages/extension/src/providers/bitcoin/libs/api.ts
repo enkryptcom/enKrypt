@@ -43,6 +43,7 @@ class API implements ProviderAPIInterface {
           outputs: tx.outputs.map((output) => ({
             address: output.address,
             value: output.value,
+            pkscript: output.pkscript,
           })),
           transactionHash: tx.txid,
           timestamp: tx.time * 1000,

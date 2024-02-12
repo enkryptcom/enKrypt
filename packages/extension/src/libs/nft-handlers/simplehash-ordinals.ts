@@ -1,4 +1,4 @@
-import { NFTCollection, NFTItem } from "@/types/nft";
+import { NFTCollection, NFTItem, NFTType } from "@/types/nft";
 import cacheFetch from "../cache-fetch";
 import { NetworkNames } from "@enkryptcom/types";
 import { SHOrdinalsNFTType, SHOrdinalsResponse } from "./types/simplehash";
@@ -52,6 +52,7 @@ export default async (
         image: item.previews.image_medium_url,
         name: item.contract.name,
         url: `https://ordinals.com/inscription/${item.contract_address}`,
+        type: NFTType.Ordinals,
       };
       collections[item.collection.collection_id].items.push(tItem);
     } else {
@@ -69,6 +70,7 @@ export default async (
             image: item.image_url || item.previews.image_medium_url,
             name: item.contract.name,
             url: `https://ordinals.com/inscription/${item.contract_address}`,
+            type: NFTType.Ordinals,
           },
         ],
       };

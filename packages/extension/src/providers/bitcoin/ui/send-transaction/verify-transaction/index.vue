@@ -30,7 +30,8 @@
             :address="txData.toAddress"
             :network="network"
           />
-          <verify-transaction-amount :token="txData.toToken" />
+          <verify-transaction-amount v-if="!isNft" :token="txData.toToken" />
+          <verify-transaction-nft v-if="isNft" :item="txData.NFTData!" />
           <verify-transaction-fee :fee="txData.gasFee" />
           {{ errorMsg }}
         </div>
@@ -60,10 +61,12 @@
 
     <send-process
       v-if="isProcessing"
+      :is-nft="isNft"
       :to-address="txData.toAddress"
       :network="network"
       :token="txData.toToken"
       :is-done="isSendDone"
+      :nft="txData.NFTData"
       :is-window-popup="isWindowPopup"
     />
   </div>
@@ -78,6 +81,7 @@ import VerifyTransactionNetwork from "@/providers/common/ui/verify-transaction/v
 import VerifyTransactionAccount from "@/providers/common/ui/verify-transaction/verify-transaction-account.vue";
 import VerifyTransactionAmount from "@/providers/common/ui/verify-transaction/verify-transaction-amount.vue";
 import VerifyTransactionFee from "@/providers/common/ui/verify-transaction/verify-transaction-fee.vue";
+import VerifyTransactionNft from "@/providers/common/ui/send-transaction/verify-transaction-nft.vue";
 import HardwareWalletMsg from "@/providers/common/ui/verify-transaction/hardware-wallet-msg.vue";
 import SendProcess from "@action/views/send-process/index.vue";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
@@ -99,6 +103,8 @@ const selectedNetwork: string = route.query.id as string;
 const txData: VerifyTransactionParams = JSON.parse(
   Buffer.from(route.query.txData as string, "base64").toString("utf8")
 );
+const isNft = ref(txData.isNFT);
+console.log(txData);
 const isProcessing = ref(false);
 const network = ref<BitcoinNetwork>(DEFAULT_BTC_NETWORK);
 const isSendDone = ref(false);

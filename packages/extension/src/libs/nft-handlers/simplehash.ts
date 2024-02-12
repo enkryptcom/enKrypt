@@ -1,4 +1,4 @@
-import { NFTCollection, NFTItem } from "@/types/nft";
+import { NFTCollection, NFTItem, NFTType } from "@/types/nft";
 import { NodeType } from "@/types/provider";
 import cacheFetch from "../cache-fetch";
 import { NetworkNames } from "@enkryptcom/types";
@@ -52,6 +52,11 @@ export default async (
   const collections: Record<string, NFTCollection> = {};
   allItems.forEach((item) => {
     if (!item.image_url && !item.previews.image_medium_url) return;
+    if (
+      item.contract.type !== NFTType.ERC1155 &&
+      item.contract.type !== NFTType.ERC721
+    )
+      return;
     if (collections[item.contract_address]) {
       const tItem: NFTItem = {
         contract: item.contract_address,
@@ -61,6 +66,7 @@ export default async (
         url:
           item.external_url ||
           getExternalURL(network, item.contract_address, item.token_id),
+        type: item.contract.type,
       };
       collections[item.contract_address].items.push(tItem);
     } else {
@@ -80,6 +86,7 @@ export default async (
             url:
               item.external_url ||
               getExternalURL(network, item.contract_address, item.token_id),
+            type: item.contract.type,
           },
         ],
       };

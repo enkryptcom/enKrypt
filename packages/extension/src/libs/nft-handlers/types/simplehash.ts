@@ -1,3 +1,5 @@
+import { NFTType } from "@/types/nft";
+
 export interface SHNFTType {
   nft_id: string;
   chain: string;
@@ -24,6 +26,7 @@ export interface SHNFTType {
   };
   contract: {
     name: string;
+    type: NFTType;
   };
 }
 export interface SHOrdinalsNFTType extends SHNFTType {
