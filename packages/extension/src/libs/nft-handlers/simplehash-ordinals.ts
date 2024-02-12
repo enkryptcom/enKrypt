@@ -66,7 +66,7 @@ export default async (
         items: [
           {
             contract: contractAddress,
-            id: item.nft_id,
+            id: item.extra_metadata.ordinal_details.location,
             image: item.image_url || item.previews.image_medium_url,
             name: item.contract.name,
             url: `https://ordinals.com/inscription/${item.contract_address}`,

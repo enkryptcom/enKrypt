@@ -249,7 +249,7 @@ const updateUTXOs = async () => {
   return api.getUTXOs(addressFrom.value).then((utxos) => {
     accountUTXOs.value = utxos;
     const txSize = calculateSizeBasedOnType(
-      accountUTXOs.value.length,
+      accountUTXOs.value.length + (isSendToken.value ? 0 : 1),
       2,
       (props.network as BitcoinNetwork).networkInfo.paymentType
     );
@@ -398,11 +398,36 @@ const selectNFT = (item: NFTItemWithCollectionName) => {
 const sendAction = async () => {
   const keyring = new PublicKeyRing();
   const fromAccountInfo = await keyring.getAccount(addressFrom.value);
-  const txInfo = getBTCTxInfo(accountUTXOs.value);
+  let txInfo = getBTCTxInfo(accountUTXOs.value);
   const balance = toBN(selectedAsset.value.balance!);
-  const toAmount = isSendToken.value
-    ? toBN(toBase(sendAmount.value, selectedAsset.value.decimals))
-    : toBN(0);
+  let toAmount = toBN(toBase(sendAmount.value, selectedAsset.value.decimals));
+  if (isSendToken.value) {
+    txInfo.outputs.push({
+      address: addressTo.value,
+      value: toAmount.toNumber(),
+    });
+  } else {
+    const api = (await props.network.api()) as BitcoinAPI;
+    const [txid, index] = selectedNft.value.id.split(":");
+    const ordinalTx = await api.getTransactionStatus(txid);
+    const ordinalOutput = ordinalTx!.outputs[parseInt(index)];
+    txInfo = getBTCTxInfo(accountUTXOs.value, {
+      address: ordinalOutput.address,
+      block: {
+        height: ordinalTx!.blockNumber,
+        position: -1, // not needed
+      },
+      index: parseInt(index),
+      pkscript: ordinalOutput.pkscript,
+      txid,
+      value: ordinalOutput.value,
+    });
+    toAmount = toBN(ordinalOutput.value);
+    txInfo.outputs.push({
+      address: addressTo.value,
+      value: ordinalOutput.value,
+    });
+  }
   const currentFee = toBN(
     toBase(
       gasCostValues.value[selectedFee.value].nativeValue,
@@ -410,11 +435,6 @@ const sendAction = async () => {
     )
   );
   const remainder = balance.sub(toAmount).sub(currentFee);
-
-  txInfo.outputs.push({
-    address: addressTo.value,
-    value: toAmount.toNumber(),
-  });
 
   if (remainder.gtn(0)) {
     txInfo.outputs.push({
