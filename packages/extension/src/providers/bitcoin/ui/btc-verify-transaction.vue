@@ -56,7 +56,7 @@
             <h4>
               {{
                 $filters.formatFloatingPointValue(
-                  fromBase(tx.value.toString(), network.decimals)
+                  fromBase(getTotalOut.toString(), network.decimals)
                 ).value
               }}
               <span>{{ network.currencyName }}</span>
@@ -72,29 +72,26 @@
         </div>
 
         <div
-          v-if="!hasEnoughBalance"
+          v-if="!hasEnoughBalance && !isPreLoading"
           class="provider-verify-transaction__error"
         >
           <alert-icon />
           <p>You don't have enough balance for this transaction</p>
         </div>
       </div>
-
+      <div class="provider-verify-transaction__message">
+        <JsonTreeView
+          v-if="psbtJSON !== ''"
+          :data="psbtJSON"
+          :max-depth="1"
+          :root-key-string="'Transaction Data'"
+        />
+      </div>
       <send-fee-select
         :in-swap="true"
         :selected="selectedFee"
         :fee="gasCostValues[selectedFee]"
-        @open-popup="toggleSelectFee"
-      />
-
-      <transaction-fee-view
-        :fees="gasCostValues"
-        :show-fees="isOpenSelectFee"
-        :selected="selectedFee"
-        :is-header="true"
-        :is-popup="true"
-        @close-popup="toggleSelectFee"
-        @gas-type-changed="selectFee"
+        @open-popup="() => {}"
       />
     </template>
 
@@ -111,7 +108,7 @@
       <base-button
         title="Sign"
         :click="approve"
-        :disabled="isProcessing || !hasEnoughBalance"
+        :disabled="isProcessing || !hasEnoughBalance || isPreLoading"
       />
     </template>
   </common-popup>
@@ -125,33 +122,29 @@ import CommonPopup from "@action/views/common-popup/index.vue";
 import SendFeeSelect from "@/providers/common/ui/send-transaction/send-fee-select.vue";
 import HardwareWalletMsg from "@/providers/common/ui/verify-transaction/hardware-wallet-msg.vue";
 import AlertIcon from "@action/icons/send/alert-icon.vue";
-import TransactionFeeView from "@action/views/transaction-fee/index.vue";
-import { getCustomError, getError } from "@/libs/error";
+import { getError } from "@/libs/error";
 import { ErrorCodes } from "@/providers/ethereum/types";
 import { WindowPromiseHandler } from "@/libs/window-promise";
 import { DEFAULT_BTC_NETWORK, getNetworkByName } from "@/libs/utils/networks";
-import { fromBase, toBase } from "@enkryptcom/utils";
+import { fromBase, hexToBuffer } from "@enkryptcom/utils";
 import { ProviderRequestOptions } from "@/types/provider";
 import { GasFeeType } from "./types";
 import MarketData from "@/libs/market-data";
 import { defaultGasCostVals } from "@/providers/common/libs/default-vals";
 import { EnkryptAccount } from "@enkryptcom/types";
-import { TransactionSigner } from "./libs/signer";
-import { Activity, ActivityStatus, ActivityType } from "@/types/activity";
-import ActivityState from "@/libs/activity-state";
+import { PSBTSigner } from "./libs/signer";
 import { BitcoinNetwork } from "../types/bitcoin-network";
 import { GasPriceTypes } from "@/providers/common/types";
-import { RPCTxType } from "../types";
-import BitcoinAPI from "@/providers/bitcoin/libs/api";
-import { HaskoinUnspentType } from "../types";
-import { calculateSizeBasedOnType } from "./libs/tx-size";
-import { getGasCostValues } from "../libs/utils";
+import { SignPSBTOptions } from "../types";
 import { computed } from "@vue/reactivity";
 import { toBN } from "web3-utils";
-import { getTxInfo as getBTCTxInfo } from "../libs/utils";
+import { Psbt } from "bitcoinjs-lib";
+import BigNumber from "bignumber.js";
+import { JsonTreeView } from "@/libs/json-tree-view";
+import { bufferToHex } from "ethereumjs-util";
 
 const isProcessing = ref(false);
-const isOpenSelectFee = ref(false);
+const isPreLoading = ref(true);
 const providerVerifyTransactionScrollRef = ref<ComponentPublicInstance>();
 const TokenBalance = ref<string>("0");
 const fiatValue = ref<string>("~");
@@ -164,10 +157,10 @@ const account = ref<EnkryptAccount>({
   address: "",
 } as EnkryptAccount);
 const identicon = ref<string>("");
-const windowPromise = WindowPromiseHandler(3);
-const tx = ref<RPCTxType>({
-  to: "",
-  value: 0,
+const windowPromise = WindowPromiseHandler(4);
+const psbtHex = ref<string>("");
+const psbtOptions = ref<SignPSBTOptions>({
+  autoFinalized: false,
 });
 const Options = ref<ProviderRequestOptions>({
   domain: "",
@@ -176,18 +169,20 @@ const Options = ref<ProviderRequestOptions>({
   url: "",
   tabId: 0,
 });
-const accountUTXOs = ref<HaskoinUnspentType[]>([]);
 const selectedFee = ref<GasPriceTypes>(GasPriceTypes.ECONOMY);
+const PSBT = ref<Psbt | null>(null);
 
 defineExpose({ providerVerifyTransactionScrollRef });
 
 onBeforeMount(async () => {
   const { Request, options } = await windowPromise;
   network.value = (await getNetworkByName(
-    Request.value.params![2]
+    Request.value.params![3]
   )) as BitcoinNetwork;
-  account.value = Request.value.params![1] as EnkryptAccount;
-  tx.value = Request.value.params![0];
+  account.value = Request.value.params![2] as EnkryptAccount;
+  psbtHex.value = Request.value.params![0];
+  PSBT.value = Psbt.fromHex(psbtHex.value);
+  psbtOptions.value = Request.value.params![1] as SignPSBTOptions;
   identicon.value = network.value.identicon(account.value.address);
   Options.value = options;
   if (network.value.api) {
@@ -198,157 +193,143 @@ onBeforeMount(async () => {
     await marketdata
       .getTokenValue("1", network.value.coingeckoID, "USD")
       .then((val) => (nativePrice.value = val));
-  }
-  selectedFee.value = GasPriceTypes.ECONOMY;
-  setBaseCosts();
-});
-const hasEnoughBalance = computed(() => {
-  return toBN(TokenBalance.value).gte(
-    toBN(tx.value.value).add(
-      toBN(
-        toBase(
-          gasCostValues.value[selectedFee.value].nativeValue,
-          network.value.decimals!
-        )
-      )
+    fiatValue.value = new BigNumber(
+      fromBase(getTotalOut.value.toString(), network.value.decimals)
     )
-  );
+      .times(nativePrice.value)
+      .toString();
+  }
+  setBaseCosts();
+  isPreLoading.value = false;
 });
 
-const setTransactionFees = (byteSize: number) => {
-  getGasCostValues(
-    network.value as BitcoinNetwork,
-    byteSize,
-    nativePrice.value,
-    network.value.decimals,
-    network.value.currencyName
-  ).then((val) => (gasCostValues.value = val));
+const getFees = computed(() => {
+  if (!PSBT.value) return 0;
+  let totalIn = 0;
+  PSBT.value.data.inputs.forEach((i) => {
+    totalIn += i.witnessUtxo ? i.witnessUtxo.value : 0;
+  });
+  let totalOuts = 0;
+  PSBT.value.txOutputs.forEach((i) => {
+    totalOuts += i.value;
+  });
+  return totalIn - totalOuts;
+});
+
+const getTotalIn = computed(() => {
+  if (!PSBT.value) return 0;
+  let total = 0;
+  PSBT.value.data.inputs.forEach((i, idx) => {
+    if (PSBT.value!.inputHasPubkey(idx, hexToBuffer(account.value.address))) {
+      total += i.witnessUtxo ? i.witnessUtxo.value : 0;
+    }
+  });
+  return total;
+});
+
+const getTotalOut = computed(() => {
+  if (!PSBT.value) return 0;
+  let total = 0;
+  PSBT.value.txOutputs.forEach((i) => {
+    console.log(i.address, network.value.displayAddress(account.value.address));
+    if (i.address !== network.value.displayAddress(account.value.address)) {
+      total += i.value;
+    }
+  });
+  return total;
+});
+
+const psbtJSON = computed(() => {
+  if (!PSBT.value) return "";
+  const val = {
+    inputs: [] as { address: string; value: string }[],
+    outputs: [] as { address?: string; script?: string; value: string }[],
+  };
+  PSBT.value.data.inputs.forEach((i, idx) => {
+    if (PSBT.value!.inputHasPubkey(idx, hexToBuffer(account.value.address))) {
+      val.inputs.push({
+        address: network.value.displayAddress(account.value.address),
+        value: `${fromBase(
+          i.witnessUtxo!.value.toString(),
+          network.value.decimals
+        )} ${network.value.currencyName}`,
+      });
+    }
+  });
+  PSBT.value.txOutputs.forEach((i) => {
+    val.outputs.push({
+      address: i.address || undefined,
+      script: i.script ? bufferToHex(i.script).replace("0x", "") : undefined,
+      value: `${fromBase(i.value.toString(), network.value.decimals)} ${
+        network.value.currencyName
+      }`,
+    });
+  });
+  return JSON.stringify(val);
+});
+const hasEnoughBalance = computed(() => {
+  if (!PSBT.value) return false;
+  console.log(TokenBalance.value, getTotalIn.value);
+  return toBN(TokenBalance.value).gte(toBN(getTotalIn.value));
+});
+
+const setTransactionFees = () => {
+  gasCostValues.value.ECONOMY.nativeSymbol = "BTC";
+  gasCostValues.value.ECONOMY.nativeValue = fromBase(
+    getFees.value.toString(),
+    network.value.decimals
+  );
+  gasCostValues.value.ECONOMY.fiatValue = new BigNumber(
+    gasCostValues.value.ECONOMY.nativeValue
+  )
+    .times(nativePrice.value)
+    .toString();
+  console.log(
+    getTotalIn.value,
+    getTotalOut.value,
+    getFees.value,
+    gasCostValues.value[selectedFee.value]
+  );
 };
 
 const setBaseCosts = () => {
-  updateUTXOs();
-};
-
-const updateUTXOs = async () => {
-  const api = (await network.value.api()) as BitcoinAPI;
-  return api.getUTXOs(account.value.address).then((utxos) => {
-    accountUTXOs.value = utxos;
-    const txSize = calculateSizeBasedOnType(
-      accountUTXOs.value.length,
-      2,
-      (network.value as BitcoinNetwork).networkInfo.paymentType
-    );
-    setTransactionFees(Math.ceil(txSize));
-  });
-};
-
-const getTxInfo = () => {
-  const txInfo = getBTCTxInfo(accountUTXOs.value);
-  const balance = toBN(TokenBalance.value);
-  const toAmount = toBN(tx.value.value.toString());
-  const currentFee = toBN(
-    toBase(
-      gasCostValues.value[selectedFee.value].nativeValue,
-      network.value.decimals
-    )
-  );
-  const remainder = balance.sub(toAmount).sub(currentFee);
-
-  txInfo.outputs.push({
-    address: tx.value.to,
-    value: tx.value.value,
-  });
-
-  if (remainder.gtn(0)) {
-    txInfo.outputs.push({
-      address: network.value.displayAddress(account.value.address),
-      value: remainder.toNumber(),
-    });
-  }
-  return txInfo;
+  if (!PSBT.value) return;
+  setTransactionFees();
 };
 
 const approve = async () => {
   isProcessing.value = true;
   const { Resolve } = await windowPromise;
-
   isProcessing.value = true;
-  const txActivity: Activity = {
-    from: network.value.displayAddress(account.value.address),
-    to: tx.value.to,
-    isIncoming:
-      tx.value.to === network.value.displayAddress(account.value.address),
-    network: network.value.name,
-    status: ActivityStatus.pending,
-    timestamp: new Date().getTime(),
-    token: {
-      decimals: network.value.decimals,
-      icon: network.value.icon,
-      name: network.value.name_long,
-      symbol: network.value.currencyName,
-      price: nativePrice.value,
-    },
-    type: ActivityType.transaction,
-    value: tx.value.value.toString(),
-    transactionHash: "",
-  };
-  const activityState = new ActivityState();
-  const api = (await network.value.api()) as BitcoinAPI;
-  TransactionSigner({
-    account: account.value!,
-    network: network.value as BitcoinNetwork,
-    payload: getTxInfo(),
-  })
-    .then((signedTx) => {
-      api
-        .broadcastTx(signedTx.extractTransaction().toHex())
-        .then(() => {
-          activityState.addActivities(
-            [
-              {
-                ...txActivity,
-                ...{ transactionHash: signedTx.extractTransaction().getId() },
-              },
-            ],
-            {
-              address: network.value.displayAddress(account.value.address),
-              network: network.value.name,
-            }
-          );
-          Resolve.value({
-            result: JSON.stringify(signedTx.extractTransaction().getId()),
-          });
-        })
-        .catch((error) => {
-          txActivity.status = ActivityStatus.failed;
-          activityState.addActivities([txActivity], {
-            address: network.value.displayAddress(account.value.address),
-            network: network.value.name,
-          });
-          Resolve.value({
-            error: getCustomError(error.message),
-          });
-        });
-    })
-    .catch((error) => {
-      Resolve.value({
-        error: getCustomError(error.message),
-      });
+  const signer = PSBTSigner(account.value, network.value as BitcoinNetwork);
+  try {
+    for (let i = 0; i < PSBT.value!.data.inputs.length; i++) {
+      if (PSBT.value!.inputHasPubkey(i, hexToBuffer(account.value.address))) {
+        await PSBT.value!.signInputAsync(
+          i,
+          signer,
+          PSBT.value!.data.inputs[i].sighashType
+            ? [PSBT.value!.data.inputs[i].sighashType!]
+            : undefined
+        );
+        if (psbtOptions.value.autoFinalized) PSBT.value!.finalizeInput(i);
+      }
+    }
+    Resolve.value({
+      result: JSON.stringify(PSBT.value!.toHex()),
     });
+  } catch (e) {
+    console.log(e);
+    Resolve.value({
+      error: getError(ErrorCodes.userRejected),
+    });
+  }
 };
 const deny = async () => {
   const { Resolve } = await windowPromise;
   Resolve.value({
     error: getError(ErrorCodes.userRejected),
   });
-};
-
-const toggleSelectFee = () => {
-  isOpenSelectFee.value = !isOpenSelectFee.value;
-};
-const selectFee = (type: GasPriceTypes) => {
-  selectedFee.value = type;
-  toggleSelectFee();
 };
 </script>
 

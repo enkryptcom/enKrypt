@@ -5,7 +5,29 @@ import sendUsingInternalMessengers from "@/libs/messenger/internal-messenger";
 import { hexToBuffer } from "@enkryptcom/utils";
 import { Psbt } from "bitcoinjs-lib";
 import { signAsync } from "bitcoinjs-message";
-import { PaymentType } from "../../types/bitcoin-network";
+import { BitcoinNetwork, PaymentType } from "../../types/bitcoin-network";
+import { EnkryptAccount } from "@enkryptcom/types";
+
+const PSBTSigner = (account: EnkryptAccount, network: BitcoinNetwork) => {
+  return {
+    publicKey: hexToBuffer(account.address),
+    network: network.networkInfo,
+    sign: (hash: Buffer): Promise<Buffer> => {
+      return sendUsingInternalMessengers({
+        method: InternalMethods.sign,
+        params: [bufferToHex(hash), account],
+      }).then((res) => {
+        if (res.error) {
+          return Promise.reject({
+            error: res.error,
+          });
+        } else {
+          return hexToBuffer(JSON.parse(res.result!)).subarray(0, 64);
+        }
+      });
+    },
+  };
+};
 
 const TransactionSigner = (
   options: SignerTransactionOptions
@@ -14,24 +36,6 @@ const TransactionSigner = (
   if (account.isHardware) {
     throw new Error("btc-hardware not implemented");
   } else {
-    const signer = {
-      publicKey: hexToBuffer(account.address),
-      network: network.networkInfo,
-      sign: (hash: Buffer): Promise<Buffer> => {
-        return sendUsingInternalMessengers({
-          method: InternalMethods.sign,
-          params: [bufferToHex(hash), account],
-        }).then((res) => {
-          if (res.error) {
-            return Promise.reject({
-              error: res.error,
-            });
-          } else {
-            return hexToBuffer(JSON.parse(res.result!)).subarray(0, 64);
-          }
-        });
-      },
-    };
     const tx = new Psbt({
       network: network.networkInfo,
       maximumFeeRate: network.networkInfo.maxFeeRate,
@@ -59,6 +63,7 @@ const TransactionSigner = (
       })
       .forEach((input) => tx.addInput(input));
     payload.outputs.forEach((output) => tx.addOutput(output));
+    const signer = PSBTSigner(account, network);
     return tx.signAllInputsAsync(signer).then(() => {
       tx.finalizeAllInputs();
       return tx;
@@ -106,4 +111,4 @@ const MessageSigner = (
   }
 };
 
-export { TransactionSigner, MessageSigner };
+export { TransactionSigner, MessageSigner, PSBTSigner };

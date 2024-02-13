@@ -34,7 +34,8 @@ export class Provider extends EventEmitter implements ProviderInterface {
     )) as EthereumResponse;
     return res;
   }
-  requestAccounts = async () => {
+  requestAccounts = async (abc: any) => {
+    console.log("herere", "reqA", abc);
     return this.request({
       method: "btc_requestAccounts",
     });
@@ -55,6 +56,14 @@ export class Provider extends EventEmitter implements ProviderInterface {
     return this.request({
       method: "btc_signPsbt",
       params: [psbtHex, options],
+    });
+  };
+
+  signMessage = async (text: string, type: string) => {
+    console.log("text", text, "type", type);
+    return this.request({
+      method: "btc_signMessage",
+      params: [text, type],
     });
   };
 

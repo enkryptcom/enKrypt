@@ -1,14 +1,10 @@
-import { MiddlewareFunction } from "@enkryptcom/types";
-import { ProviderName, ProviderRPCRequest } from "@/types/provider";
-import AccountState from "../libs/accounts-state";
 import { getCustomError } from "@/libs/error";
+import { MiddlewareFunction } from "@enkryptcom/types";
 import BitcoinProvider from "..";
-import { Psbt, address } from "bitcoinjs-lib";
-import { hexToBuffer } from "@enkryptcom/utils";
-import { InternalMethods } from "@/types/messenger";
-import { bufferToHex } from "ethereumjs-util";
-import { sendToBackgroundFromBackground } from "@/libs/messenger/extension";
-
+import { WindowPromise } from "@/libs/window-promise";
+import { SignPSBTOptions } from "../types";
+import AccountState from "../libs/accounts-state";
+import { ProviderRPCRequest } from "@/types/provider";
 const method: MiddlewareFunction = function (
   this: BitcoinProvider,
   payload: ProviderRPCRequest,
@@ -17,82 +13,43 @@ const method: MiddlewareFunction = function (
 ): void {
   if (payload.method !== "btc_signPsbt") return next();
   else {
-    if (payload.options && payload.options.domain) {
-      const accountsState = new AccountState();
-      accountsState
-        .getApprovedAddresses(payload.options.domain)
-        .then((accounts) => {
-          if (accounts.length) {
-            this.KeyRing.getAccount(accounts[0])
-              .then(async (pubAccount) => {
-                const hex = payload.params![0];
-                const newPsbt = Psbt.fromHex(hex, {
-                  maximumFeeRate: this.network.networkInfo.maxFeeRate,
-                  network: this.network.networkInfo,
-                });
-                console.log(newPsbt);
-                const signer = {
-                  publicKey: hexToBuffer(pubAccount.address),
-                  network: this.network.networkInfo,
-                  sign: (hash: Buffer): Promise<Buffer> => {
-                    return sendToBackgroundFromBackground({
-                      provider: ProviderName.enkrypt,
-                      message: JSON.stringify({
-                        method: InternalMethods.sign,
-                        params: [bufferToHex(hash), pubAccount],
-                      }),
-                    }).then((res) => {
-                      console.log("res", res);
-                      if (res.error) {
-                        return Promise.reject({
-                          error: res.error,
-                        });
-                      } else {
-                        return hexToBuffer(JSON.parse(res.result!)).subarray(
-                          0,
-                          64
-                        );
-                      }
-                    });
-                  },
-                };
-
-                for (let i = 0; i < newPsbt.data.inputs.length; i++) {
-                  console.log(
-                    "signing",
-                    i,
-                    bufferToHex(newPsbt.data.inputs[i].witnessUtxo!.script)
-                  );
-                  if (
-                    newPsbt.inputHasPubkey(i, hexToBuffer(pubAccount.address))
-                  ) {
-                    await newPsbt.signInputAsync(
-                      i,
-                      signer,
-                      newPsbt.data.inputs[i].sighashType
-                        ? [newPsbt.data.inputs[i].sighashType!]
-                        : undefined
-                    );
-                    // newPsbt.finalizeInput(i);
-                  }
-                }
-                res(null, newPsbt.toHex());
-
-                //   newPsbt.signAllInputsAsync(signer).then(() => {
-                //     // newPsbt.finalizeAllInputs();
-                //     console.log(newPsbt.toHex());
-                //   });
-              })
-              .catch(() => {
-                res(null, "");
-              });
-          } else {
-            res(null, "");
-          }
-        });
-    } else {
-      res(getCustomError("No domain set!"));
+    if (!payload.params || payload.params.length < 2) {
+      return res(
+        getCustomError("btc_signPsbt: invalid request not enough params")
+      );
     }
+    if (!payload.options || !payload.options.domain) {
+      return res(getCustomError("btc_signPsbt: invalid domain"));
+    }
+    const psbt = payload.params[0] as string;
+    const options = payload.params[1] as SignPSBTOptions;
+    const accountsState = new AccountState();
+
+    accountsState
+      .getApprovedAddresses(payload.options!.domain)
+      .then((accounts) => {
+        if (!accounts.length) {
+          return res(null, "");
+        }
+        this.KeyRing.getAccount(accounts[0]).then((acc) => {
+          if (!acc)
+            return res(getCustomError("btc_signPsbt: account not found"));
+          const windowPromise = new WindowPromise();
+          windowPromise
+            .getResponse(
+              this.getUIPath(this.UIRoutes.btcSendTransaction.path),
+              JSON.stringify({
+                ...payload,
+                params: [psbt, options, acc, this.network.name],
+              }),
+              true
+            )
+            .then(({ error, result }) => {
+              if (error) return res(error);
+              res(null, JSON.parse(result as string));
+            });
+        });
+      });
   }
 };
 export default method;

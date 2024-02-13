@@ -4,7 +4,7 @@ import { NetworkNames } from "@enkryptcom/types";
 import { SHOrdinalsNFTType, SHOrdinalsResponse } from "./types/simplehash";
 import { BaseNetwork } from "@/types/base-network";
 const SH_ENDPOINT = "https://partners.mewapi.io/nfts/";
-const CACHE_TTL = 60 * 1000;
+const CACHE_TTL = 1 * 1000;
 export default async (
   network: BaseNetwork,
   address: string
@@ -40,12 +40,14 @@ export default async (
     const collectionName =
       item.extra_metadata.ordinal_details.protocol_name === "brc-20"
         ? "BRC20"
-        : item.collection.name;
+        : item.collection.name
+        ? item.collection.name
+        : "Unknown";
     const contractAddress =
       item.collection.collection_id || item.contract_address;
     if (!item.image_url && !item.previews.image_medium_url) return;
     if (!collectionName) return;
-    if (collections[item.collection.collection_id]) {
+    if (collections[contractAddress]) {
       const tItem: NFTItem = {
         contract: contractAddress,
         id: item.extra_metadata.ordinal_details.location,
@@ -54,7 +56,7 @@ export default async (
         url: `https://ordinals.com/inscription/${item.contract_address}`,
         type: NFTType.Ordinals,
       };
-      collections[item.collection.collection_id].items.push(tItem);
+      collections[contractAddress].items.push(tItem);
     } else {
       const ret: NFTCollection = {
         name: collectionName,

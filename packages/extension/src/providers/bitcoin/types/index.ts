@@ -102,4 +102,8 @@ export interface RPCTxType {
   value: number;
 }
 
+export interface SignPSBTOptions {
+  autoFinalized: boolean;
+}
+
 export { InjectedProvider };
