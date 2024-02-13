@@ -1,5 +1,5 @@
 import { CallbackFunction, MiddlewareFunction } from "@enkryptcom/types";
-import type EthereumProvider from "..";
+import type BitcoinProvider from "..";
 import { ProviderRPCRequest } from "@/types/provider";
 import { WindowPromise } from "@/libs/window-promise";
 import AccountState from "../libs/accounts-state";
@@ -10,7 +10,7 @@ const pendingPromises: {
   res: CallbackFunction;
 }[] = [];
 const method: MiddlewareFunction = function (
-  this: EthereumProvider,
+  this: BitcoinProvider,
   payload: ProviderRPCRequest,
   res,
   next

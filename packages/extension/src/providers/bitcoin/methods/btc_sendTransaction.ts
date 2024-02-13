@@ -1,11 +1,11 @@
 import { getCustomError } from "@/libs/error";
 import { MiddlewareFunction } from "@enkryptcom/types";
-import EthereumProvider from "..";
+import BitcoinProvider from "..";
 import { WindowPromise } from "@/libs/window-promise";
 
 import { RPCTxType } from "../types";
 const method: MiddlewareFunction = function (
-  this: EthereumProvider,
+  this: BitcoinProvider,
   payload,
   res,
   next
