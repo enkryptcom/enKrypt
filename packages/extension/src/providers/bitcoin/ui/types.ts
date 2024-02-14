@@ -43,4 +43,5 @@ export interface SignerMessageOptions {
   payload: Buffer;
   network: BitcoinNetwork;
   account: EnkryptAccount;
+  type: string;
 }

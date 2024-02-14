@@ -3,8 +3,8 @@ import type { Provider as InjectedProvider } from "../inject";
 import { PaymentType } from "./bitcoin-network";
 
 export const BitcoinNetworks = {
-  BTC: NetworkNames.Bitcoin,
-  BTCTest: NetworkNames.BitcoinTest,
+  livenet: NetworkNames.Bitcoin,
+  testnet: NetworkNames.BitcoinTest,
 };
 
 export interface BitcoinNetworkInfo {

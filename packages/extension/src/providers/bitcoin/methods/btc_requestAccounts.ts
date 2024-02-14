@@ -43,10 +43,9 @@ const method: MiddlewareFunction = function (
           .getApprovedAddresses(_payload.options.domain)
           .then((accounts) => {
             if (accounts.length) {
-              _res(
-                null,
-                accounts.map((acc) => this.network.displayAddress(acc))
-              );
+              _res(null, [
+                accounts.map((acc) => this.network.displayAddress(acc))[0],
+              ]);
               handleRemainingPromises();
             } else {
               const windowPromise = new WindowPromise();

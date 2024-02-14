@@ -3,7 +3,6 @@
  * refference: https://github.com/bitcoinjs/varuint-bitcoin/blob/master/index.js
  */
 
-import { EnkryptAccount } from "@enkryptcom/types";
 import { BitcoinNetwork, PaymentType } from "../types/bitcoin-network";
 import { address as BTCAddress, Transaction, Psbt } from "bitcoinjs-lib";
 import { sha256 } from "ethereumjs-util";
@@ -36,7 +35,7 @@ const encodingLength = (number: number) => {
     ? 5
     : 9;
 };
-const encode = (number: number, buffer?: Buffer, offset?: number) => {
+export const encode = (number: number, buffer?: Buffer, offset?: number) => {
   checkUInt53(number);
 
   if (!buffer) buffer = Buffer.allocUnsafe(encodingLength(number));
@@ -68,7 +67,7 @@ const encode = (number: number, buffer?: Buffer, offset?: number) => {
   return buffer;
 };
 
-const decode = (buffer: Buffer, offset: number) => {
+export const decode = (buffer: Buffer, offset: number) => {
   if (!Buffer.isBuffer(buffer))
     throw new TypeError("buffer must be a Buffer instance");
   if (!offset) offset = 0;

@@ -27,6 +27,7 @@ export class Provider extends EventEmitter implements ProviderInterface {
     this.networks = BitcoinNetworks;
     this.sendMessageHandler = options.sendMessageHandler;
   }
+
   async request(request: EthereumRequest): Promise<EthereumResponse> {
     const res = (await this.sendMessageHandler(
       this.name,
@@ -34,8 +35,14 @@ export class Provider extends EventEmitter implements ProviderInterface {
     )) as EthereumResponse;
     return res;
   }
-  requestAccounts = async (abc: any) => {
-    console.log("herere", "reqA", abc);
+
+  requestAccounts = async () => {
+    return this.request({
+      method: "btc_requestAccounts",
+    });
+  };
+
+  getAccounts = async () => {
     return this.request({
       method: "btc_requestAccounts",
     });
@@ -48,11 +55,25 @@ export class Provider extends EventEmitter implements ProviderInterface {
   };
 
   getNetwork = async () => {
-    return Promise.resolve("livenet");
+    return this.request({
+      method: "btc_getNetwork",
+    });
+  };
+
+  switchNetwork = async (network: string) => {
+    return this.request({
+      method: "btc_switchNetwork",
+      params: [network],
+    });
+  };
+
+  getBalance = async () => {
+    return this.request({
+      method: "btc_getBalance",
+    });
   };
 
   signPsbt = async (psbtHex: string, options?: any) => {
-    console.log(options);
     return this.request({
       method: "btc_signPsbt",
       params: [psbtHex, options],
@@ -60,11 +81,38 @@ export class Provider extends EventEmitter implements ProviderInterface {
   };
 
   signMessage = async (text: string, type: string) => {
-    console.log("text", text, "type", type);
     return this.request({
       method: "btc_signMessage",
       params: [text, type],
     });
+  };
+
+  getInscriptions = async () => {
+    return Promise.reject("not implemented");
+  };
+
+  sendBitcoin = async () => {
+    return Promise.reject("not implemented");
+  };
+
+  sendInscription = async () => {
+    return Promise.reject("not implemented");
+  };
+
+  inscribeTransfer = async () => {
+    return Promise.reject("not implemented");
+  };
+
+  pushTx = async () => {
+    return Promise.reject("not implemented");
+  };
+
+  signPsbts = async () => {
+    return Promise.reject("not implemented");
+  };
+
+  pushPsbt = async () => {
+    return Promise.reject("not implemented");
   };
 
   isConnected(): boolean {
@@ -75,43 +123,12 @@ export class Provider extends EventEmitter implements ProviderInterface {
   }
 }
 
-const ProxyHandler = {
-  proxymethods: ["request", "sendAsync", "send"],
-  writableVars: ["autoRefreshOnNetworkChange"],
-  ownKeys(target: Provider) {
-    return Object.keys(target).concat(this.proxymethods);
-  },
-  set(target: Provider, name: keyof Provider, value: any) {
-    if (!this.ownKeys(target).includes(name)) this.proxymethods.push(name);
-    return Reflect.set(target, name, value);
-  },
-  getOwnPropertyDescriptor(target: Provider, name: keyof Provider) {
-    return {
-      value: this.get(target, name),
-      configurable: true,
-      writable: this.writableVars.includes(name),
-      enumerable: true,
-    };
-  },
-  get(target: Provider, prop: keyof Provider) {
-    console.log(prop);
-    if (typeof target[prop] === "function") {
-      return (target[prop] as () => any).bind(target);
-    }
-    return target[prop];
-  },
-  has(target: Provider, name: keyof Provider) {
-    return this.ownKeys(target).includes(name);
-  },
-};
-
 const injectDocument = (
   document: EnkryptWindow | Window,
   options: ProviderOptions
 ): void => {
   const provider = new Provider(options);
-  const proxiedProvider = new Proxy(provider, ProxyHandler);
-  document["unisat"] = proxiedProvider;
+  document["unisat"] = provider;
   document["enkrypt"]["providers"][options.name] = provider;
 };
 export default injectDocument;

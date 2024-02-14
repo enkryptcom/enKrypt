@@ -398,6 +398,12 @@ const selectNFT = (item: NFTItemWithCollectionName) => {
 const sendAction = async () => {
   const keyring = new PublicKeyRing();
   const fromAccountInfo = await keyring.getAccount(addressFrom.value);
+  const currentFee = toBN(
+    toBase(
+      gasCostValues.value[selectedFee.value].nativeValue,
+      selectedAsset.value.decimals
+    )
+  );
   let txInfo = getBTCTxInfo(accountUTXOs.value);
   const balance = toBN(selectedAsset.value.balance!);
   let toAmount = toBN(toBase(sendAmount.value, selectedAsset.value.decimals));
@@ -428,14 +434,7 @@ const sendAction = async () => {
       value: ordinalOutput.value,
     });
   }
-  const currentFee = toBN(
-    toBase(
-      gasCostValues.value[selectedFee.value].nativeValue,
-      selectedAsset.value.decimals
-    )
-  );
   const remainder = balance.sub(toAmount).sub(currentFee);
-
   if (remainder.gtn(0)) {
     txInfo.outputs.push({
       address: props.network.displayAddress(addressFrom.value),

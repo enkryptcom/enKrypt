@@ -160,7 +160,7 @@ const identicon = ref<string>("");
 const windowPromise = WindowPromiseHandler(4);
 const psbtHex = ref<string>("");
 const psbtOptions = ref<SignPSBTOptions>({
-  autoFinalized: false,
+  autoFinalized: true,
 });
 const Options = ref<ProviderRequestOptions>({
   domain: "",
@@ -231,7 +231,6 @@ const getTotalOut = computed(() => {
   if (!PSBT.value) return 0;
   let total = 0;
   PSBT.value.txOutputs.forEach((i) => {
-    console.log(i.address, network.value.displayAddress(account.value.address));
     if (i.address !== network.value.displayAddress(account.value.address)) {
       total += i.value;
     }
@@ -269,7 +268,6 @@ const psbtJSON = computed(() => {
 });
 const hasEnoughBalance = computed(() => {
   if (!PSBT.value) return false;
-  console.log(TokenBalance.value, getTotalIn.value);
   return toBN(TokenBalance.value).gte(toBN(getTotalIn.value));
 });
 
@@ -284,12 +282,6 @@ const setTransactionFees = () => {
   )
     .times(nativePrice.value)
     .toString();
-  console.log(
-    getTotalIn.value,
-    getTotalOut.value,
-    getFees.value,
-    gasCostValues.value[selectedFee.value]
-  );
 };
 
 const setBaseCosts = () => {
@@ -319,7 +311,6 @@ const approve = async () => {
       result: JSON.stringify(PSBT.value!.toHex()),
     });
   } catch (e) {
-    console.log(e);
     Resolve.value({
       error: getError(ErrorCodes.userRejected),
     });

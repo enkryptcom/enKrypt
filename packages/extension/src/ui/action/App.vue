@@ -131,7 +131,7 @@ import { EnkryptAccount } from "@enkryptcom/types";
 import Browser from "webextension-polyfill";
 import EVMAccountState from "@/providers/ethereum/libs/accounts-state";
 import BTCAccountState from "@/providers/bitcoin/libs/accounts-state";
-import { ProviderName } from "@/types/provider";
+import { EnkryptProviderEventMethods, ProviderName } from "@/types/provider";
 import { onClickOutside } from "@vueuse/core";
 import RateState from "@/libs/rate-state";
 import SwapLookingAnimation from "@action/icons/swap/swap-looking-animation.vue";
@@ -321,6 +321,19 @@ const setNetwork = async (network: BaseNetwork) => {
       tabId,
     });
   }
+  await sendToBackgroundFromAction({
+    message: JSON.stringify({
+      method: InternalMethods.sendToTab,
+      params: [
+        {
+          method: EnkryptProviderEventMethods.chainChanged,
+          params: [network.name],
+        },
+      ],
+    }),
+    provider: currentNetwork.value.provider,
+    tabId,
+  });
   domainState.setSelectedNetwork(network.name);
   if (network.api) {
     try {

@@ -49,7 +49,6 @@ const props = defineProps({
     type: Object as PropType<ItemData>,
   },
   rootKeyString: {
-    required: true,
     type: String,
     default: "Sign typed data",
   },

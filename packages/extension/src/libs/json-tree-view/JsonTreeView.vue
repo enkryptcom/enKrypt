@@ -15,7 +15,6 @@ import { ItemType, type ValueTypes, type ItemData } from "./types";
 
 const props = defineProps({
   rootKeyString: {
-    required: true,
     type: String,
     default: "Sign typed data",
   },

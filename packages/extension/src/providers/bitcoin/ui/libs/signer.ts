@@ -7,6 +7,7 @@ import { Psbt } from "bitcoinjs-lib";
 import { signAsync } from "bitcoinjs-message";
 import { BitcoinNetwork, PaymentType } from "../../types/bitcoin-network";
 import { EnkryptAccount } from "@enkryptcom/types";
+import { signMessageOfBIP322Simple } from "../../libs/bip322-message-sign";
 
 const PSBTSigner = (account: EnkryptAccount, network: BitcoinNetwork) => {
   return {
@@ -74,40 +75,60 @@ const TransactionSigner = (
 const MessageSigner = (
   options: SignerMessageOptions
 ): Promise<InternalOnMessageResponse> => {
-  const { account, payload } = options;
+  const { account, payload, network } = options;
   if (account.isHardware) {
     throw new Error("btc-hardware not implemented");
   } else {
-    const signer = {
-      sign: (
-        hash: Buffer
-      ): Promise<{ signature: Buffer; recovery: number }> => {
-        return sendUsingInternalMessengers({
-          method: InternalMethods.sign,
-          params: [bufferToHex(hash), account],
-        }).then((res) => {
-          if (res.error) {
-            return Promise.reject({
-              error: res.error,
-            });
-          } else {
-            const sigBuffer = hexToBuffer(JSON.parse(res.result!)).subarray(
-              0,
-              64
-            );
-            return {
-              signature: sigBuffer.subarray(0, 64),
-              recovery: sigBuffer[64],
-            };
-          }
+    if (options.type === "bip322-simple") {
+      const signer = PSBTSigner(account, network);
+      return signMessageOfBIP322Simple({
+        address: account.address,
+        message: payload.toString(),
+        network: network,
+        Signer: signer,
+      })
+        .then((sig) => {
+          return {
+            result: JSON.stringify(sig),
+          };
+        })
+        .catch((e) => {
+          return {
+            error: e.message,
+          };
         });
-      },
-    };
-    return signAsync(payload, signer, false).then((res) => {
-      return {
-        result: JSON.stringify(bufferToHex(res)),
+    } else {
+      const signer = {
+        sign: (
+          hash: Buffer
+        ): Promise<{ signature: Buffer; recovery: number }> => {
+          return sendUsingInternalMessengers({
+            method: InternalMethods.sign,
+            params: [bufferToHex(hash), account],
+          }).then((res) => {
+            if (res.error) {
+              return Promise.reject({
+                error: res.error,
+              });
+            } else {
+              const sigBuffer = hexToBuffer(JSON.parse(res.result!)).subarray(
+                0,
+                64
+              );
+              return {
+                signature: sigBuffer.subarray(0, 64),
+                recovery: sigBuffer[64],
+              };
+            }
+          });
+        },
       };
-    });
+      return signAsync(payload, signer, false).then((res) => {
+        return {
+          result: JSON.stringify(res.toString("base64")),
+        };
+      });
+    }
   }
 };
 
