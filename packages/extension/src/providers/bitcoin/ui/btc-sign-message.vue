@@ -64,7 +64,8 @@ import { DEFAULT_BTC_NETWORK, getNetworkByName } from "@/libs/utils/networks";
 import { ProviderRequestOptions } from "@/types/provider";
 import { BitcoinNetwork } from "../types/bitcoin-network";
 import { EnkryptAccount } from "@enkryptcom/types";
-import { MessageSigner } from "./libs/signer";
+import { MessageSigner, PSBTSigner } from "./libs/signer";
+import { signMessageOfBIP322Simple } from "../libs/bip322-message-sign";
 
 const windowPromise = WindowPromiseHandler(4);
 const network = ref<BitcoinNetwork>(DEFAULT_BTC_NETWORK);
@@ -93,18 +94,40 @@ onBeforeMount(async () => {
   Options.value = options;
   message.value = Request.value.params![0];
   type.value = Request.value.params![1];
+  console.log(type.value);
 });
 
 const approve = async () => {
   const { Request, Resolve } = await windowPromise;
-  const msg = Request.value.params![0] as `0x{string}`;
-  MessageSigner({
-    account: account.value,
-    network: network.value as BitcoinNetwork,
-    payload: hexToBuffer(msg),
-  })
-    .then(Resolve.value)
-    .catch(Resolve.value);
+  const msg = Request.value.params![0] as string;
+  if (type.value === "bip322-simple") {
+    const signer = PSBTSigner(account.value, network.value as BitcoinNetwork);
+    signMessageOfBIP322Simple({
+      address: account.value.address,
+      message: msg,
+      network: network.value as BitcoinNetwork,
+      Signer: signer,
+    })
+      .then((sig) => {
+        console.log(sig);
+        Resolve.value({
+          result: JSON.stringify(sig),
+        });
+      })
+      .catch((e) => {
+        console.log(e);
+        Resolve.value({
+          error: e.message,
+        });
+      });
+  }
+  // MessageSigner({
+  //   account: account.value,
+  //   network: network.value as BitcoinNetwork,
+  //   payload: hexToBuffer(msg),
+  // })
+  //   .then(Resolve.value)
+  //   .catch(Resolve.value);
 };
 const deny = async () => {
   const { Resolve } = await windowPromise;

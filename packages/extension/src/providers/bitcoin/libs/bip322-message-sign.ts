@@ -103,7 +103,10 @@ export async function signMessageOfBIP322Simple({
   network: BitcoinNetwork;
   Signer: ReturnType<typeof PSBTSigner>;
 }) {
-  const outputScript = BTCAddress.toOutputScript(address, network.networkInfo);
+  const outputScript = BTCAddress.toOutputScript(
+    network.displayAddress(address),
+    network.networkInfo
+  );
   const addressType = network.networkInfo.paymentType;
   const supportedTypes = [PaymentType.P2WPKH];
   if (supportedTypes.includes(addressType) == false) {
@@ -140,7 +143,7 @@ export async function signMessageOfBIP322Simple({
   psbtToSign.addOutput({ script: Buffer.from("6a", "hex"), value: 0 });
 
   await psbtToSign.signAllInputsAsync(Signer);
-
+  psbtToSign.finalizeAllInputs();
   const txToSign = psbtToSign.extractTransaction();
 
   const encodeVarString = (b: Buffer) => {
