@@ -13,6 +13,7 @@
           :src="
             network.identicon(activity.isIncoming ? activity.from : activity.to)
           "
+          @error="imageLoadError"
         />
 
         <div class="network-activity__transaction-info-name">
@@ -51,7 +52,9 @@
           }}
           <span>{{ activity.token.symbol }}</span>
         </h4>
-        <p>$ {{ $filters.formatFiatValue(getFiatValue).value }}</p>
+        <p v-show="getFiatValue.gt(0)">
+          $ {{ $filters.formatFiatValue(getFiatValue).value }}
+        </p>
       </div>
     </a>
   </section>
@@ -91,7 +94,11 @@
               fromBase(activity.value, activity.token.decimals)
             ).value
           }}
-          <span>{{ activity.token.symbol }}</span>
+          <span>{{
+            activity.token.symbol.length > 40
+              ? activity.token.symbol.substring(0, 40) + "..."
+              : activity.token.symbol
+          }}</span>
         </h4>
         <p>$ {{ $filters.formatFiatValue(getFiatValue).value }}</p>
       </div>

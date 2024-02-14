@@ -150,14 +150,16 @@ const sendAction = async () => {
     status: ActivityStatus.pending,
     timestamp: new Date().getTime(),
     token: {
-      decimals: txData.toToken.decimals,
-      icon: txData.toToken.icon,
-      name: txData.toToken.name,
-      symbol: txData.toToken.symbol,
-      price: txData.toToken.price,
+      decimals: isNft.value ? 0 : txData.toToken.decimals,
+      icon: isNft.value ? txData.NFTData!.image : txData.toToken.icon,
+      name: isNft.value ? txData.NFTData!.name : txData.toToken.name,
+      symbol: isNft.value
+        ? txData.NFTData!.collectionName
+        : txData.toToken.symbol,
+      price: isNft.value ? "0" : txData.toToken.price,
     },
     type: ActivityType.transaction,
-    value: txData.toToken.amount,
+    value: isNft.value ? "1" : txData.toToken.amount,
     transactionHash: "",
   };
   const activityState = new ActivityState();

@@ -121,6 +121,7 @@ const toggleNotification = () => {
 
     img {
       width: 100%;
+      max-height: 355px;
       margin: 0 0 16px 0;
       box-shadow: 0px 0.25px 1px rgba(0, 0, 0, 0.039),
         0px 0.85px 3px rgba(0, 0, 0, 0.19);

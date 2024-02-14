@@ -511,6 +511,10 @@ watch(
   }
 );
 
+watch([isSendToken], () => {
+  inputAmount("0");
+});
+
 const close = () => {
   router.go(-1);
 };

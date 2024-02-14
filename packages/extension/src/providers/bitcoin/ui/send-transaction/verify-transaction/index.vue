@@ -138,8 +138,8 @@ const sendAction = async () => {
     timestamp: new Date().getTime(),
     token: {
       decimals: txData.toToken.decimals,
-      icon: txData.toToken.icon,
-      name: txData.toToken.name,
+      icon: isNft.value ? txData.NFTData!.image : txData.toToken.icon,
+      name: isNft.value ? txData.NFTData!.name : txData.toToken.name,
       symbol: txData.toToken.symbol,
       price: txData.toToken.price,
     },
