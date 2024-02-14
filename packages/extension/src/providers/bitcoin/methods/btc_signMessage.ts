@@ -42,11 +42,9 @@ const method: MiddlewareFunction = function (
               true
             )
             .then(({ error, result }) => {
-              console.log(error, result);
               if (error) return res(error);
               res(null, JSON.parse(result as string));
-            })
-            .catch(console.log);
+            });
         });
       });
   }

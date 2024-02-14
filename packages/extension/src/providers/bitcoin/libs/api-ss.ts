@@ -34,7 +34,6 @@ class API implements ProviderAPIInterface {
       .then((tx: SSTxType) => {
         if ((tx as any).message) return null;
         if (tx.blockHeight < 0) return null;
-        console.log(tx);
         const rawInfo: BTCRawInfo = {
           blockNumber: tx.blockHeight,
           fee: Number(tx.fee),

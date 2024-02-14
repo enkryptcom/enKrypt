@@ -104,7 +104,6 @@ const txData: VerifyTransactionParams = JSON.parse(
   Buffer.from(route.query.txData as string, "base64").toString("utf8")
 );
 const isNft = ref(txData.isNFT);
-console.log(txData);
 const isProcessing = ref(false);
 const network = ref<BitcoinNetwork>(DEFAULT_BTC_NETWORK);
 const isSendDone = ref(false);
