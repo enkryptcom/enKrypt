@@ -42,7 +42,7 @@ const dogeOptions: BitcoinNetworkOptions = {
     wif: 0x9e,
     dustThreshold: null,
     paymentType: PaymentType.P2PKH,
-    maxFeeRate: 5000 * 4,
+    maxFeeRate: 100000 * 10,
   },
 };
 
