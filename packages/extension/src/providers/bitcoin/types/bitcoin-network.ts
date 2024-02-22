@@ -21,6 +21,7 @@ import { BTCToken } from "./btc-token";
 import { GasPriceTypes } from "@/providers/common/types";
 import type HaskoinAPI from "@/providers/bitcoin/libs/api";
 import type SSAPI from "@/providers/bitcoin/libs/api-ss";
+import { NFTCollection } from "@/types/nft";
 
 export enum PaymentType {
   P2PKH = "p2pkh",
@@ -43,6 +44,10 @@ export interface BitcoinNetworkOptions {
   networkInfo: BitcoinNetworkInfo;
   dust: number;
   feeHandler: () => Promise<Record<GasPriceTypes, number>>;
+  NFTHandler?: (
+    network: BaseNetwork,
+    address: string
+  ) => Promise<NFTCollection[]>;
   activityHandler: (
     network: BaseNetwork,
     address: string
@@ -67,6 +72,10 @@ export class BitcoinNetwork extends BaseNetwork {
     address: string
   ) => Promise<Activity[]>;
   feeHandler: () => Promise<Record<GasPriceTypes, number>>;
+  NFTHandler?: (
+    network: BaseNetwork,
+    address: string
+  ) => Promise<NFTCollection[]>;
   constructor(options: BitcoinNetworkOptions) {
     const api = async () => {
       const api = new options.apiType(options.node, options.networkInfo);
@@ -87,6 +96,7 @@ export class BitcoinNetwork extends BaseNetwork {
     this.activityHandler = options.activityHandler;
     this.networkInfo = options.networkInfo;
     this.feeHandler = options.feeHandler;
+    this.NFTHandler = options.NFTHandler;
     this.dust = options.dust;
   }
 
