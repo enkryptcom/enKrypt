@@ -213,7 +213,7 @@ const nativeBalanceAfterTransaction = computed(() => {
     selectedAsset.value &&
     isValidDecimals(sendAmount.value, selectedAsset.value.decimals!)
   ) {
-    return toBN(selectedAsset.value.balance ?? "0").sub(
+    return UTXOBalance.value.sub(
       toBN(toBase(sendAmount.value ?? "0", selectedAsset.value.decimals!)).add(
         toBN(
           toBase(
@@ -319,9 +319,13 @@ const close = () => {
   router.go(-1);
 };
 
+const UTXOBalance = computed(() => {
+  return toBN(accountUTXOs.value.reduce((a, c) => a + c.value, 0));
+});
+
 const assetMaxValue = computed(() => {
   return fromBase(
-    toBN(selectedAsset.value.balance!)
+    UTXOBalance.value
       .sub(
         toBN(
           toBase(
@@ -405,7 +409,6 @@ const sendAction = async () => {
     )
   );
   let txInfo = getBTCTxInfo(accountUTXOs.value);
-  const balance = toBN(selectedAsset.value.balance!);
   let toAmount = toBN(toBase(sendAmount.value, selectedAsset.value.decimals));
   if (isSendToken.value) {
     txInfo.outputs.push({
@@ -434,7 +437,7 @@ const sendAction = async () => {
       value: ordinalOutput.value,
     });
   }
-  const remainder = balance.sub(toAmount).sub(currentFee);
+  const remainder = UTXOBalance.value.sub(toAmount).sub(currentFee);
   if (remainder.gtn(0)) {
     txInfo.outputs.push({
       address: props.network.displayAddress(addressFrom.value),
