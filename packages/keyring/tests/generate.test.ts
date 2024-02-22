@@ -10,6 +10,46 @@ describe("Keyring create tests", () => {
   const MNEMONIC =
     "bottom drive obey lake curtain smoke basket hold race lonely fit walk";
   // eslint-disable-next-line prefer-arrow-callback,func-names
+  it("keyring should generate ed25519kda keys", async () => {
+    const memStorage = new MemoryStorage();
+    const storage = new Storage("keyring", { storage: memStorage });
+    const keyring = new KeyRing(storage);
+    await keyring.init(password, { mnemonic: MNEMONIC });
+    const keyAdd: KeyRecordAdd = {
+      basePath: "m/44'/626'/0'",
+      signerType: SignerType.ed25519kda,
+      name: "0index",
+      walletType: WalletType.mnemonic,
+    };
+    await keyring.unlockMnemonic(password);
+    const pair = await keyring.createKey(keyAdd);
+    expect(pair.signerType).equals(SignerType.ed25519kda);
+    expect(pair.pathIndex).equals(0);
+    expect(pair.address).equals(
+      "0xd75b971cc4846f543caa92e9bf07bf2f4cee87774f4ba8db2fde5c3dacaed03f"
+    );
+    keyring.lock();
+  }).timeout(20000);
+  it("keyring should generate secp256k1btc keys", async () => {
+    const memStorage = new MemoryStorage();
+    const storage = new Storage("keyring", { storage: memStorage });
+    const keyring = new KeyRing(storage);
+    await keyring.init(password, { mnemonic: MNEMONIC });
+    const keyAdd: KeyRecordAdd = {
+      basePath: "m/49'/0'/0'/0",
+      signerType: SignerType.secp256k1btc,
+      name: "0index",
+      walletType: WalletType.mnemonic,
+    };
+    await keyring.unlockMnemonic(password);
+    const pair = await keyring.createKey(keyAdd);
+    expect(pair.signerType).equals(SignerType.secp256k1btc);
+    expect(pair.pathIndex).equals(0);
+    expect(pair.address).equals(
+      "0x03a8b8b68bec95d27f8a8d78712717bd18f605d95fa64f2b05d2325f873b457c82"
+    );
+    keyring.lock();
+  }).timeout(20000);
   it("keyring should generate sr25519 keys", async () => {
     const memStorage = new MemoryStorage();
     const storage = new Storage("keyring", { storage: memStorage });

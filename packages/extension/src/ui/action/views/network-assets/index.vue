@@ -10,6 +10,7 @@
             :crypto-amount="cryptoAmount"
             :fiat-amount="fiatAmount"
             :symbol="network.currencyName"
+            :subnetwork="props.subnetwork"
           />
 
           <network-activity-action v-bind="$attrs" />
@@ -80,6 +81,10 @@ const props = defineProps({
     type: Object as PropType<BaseNetwork>,
     default: () => ({}),
   },
+  subnetwork: {
+    type: String,
+    default: "",
+  },
   accountInfo: {
     type: Object as PropType<AccountsHeaderData>,
     default: () => ({}),
@@ -110,9 +115,10 @@ const selectedAddress = computed(
   () => props.accountInfo.selectedAccount?.address || ""
 );
 const selectedNetworkName = computed(() => props.network.name);
+const selectedSubnetwork = computed(() => props.subnetwork);
 const showAddCustomTokens = ref(false);
 
-watch([selectedAddress, selectedNetworkName], updateAssets);
+watch([selectedAddress, selectedNetworkName, selectedSubnetwork], updateAssets);
 onMounted(() => {
   updateAssets();
 });

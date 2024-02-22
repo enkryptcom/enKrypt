@@ -19,6 +19,7 @@
   "dependencies": {
     "@enkryptcom/signer-bitcoin": "workspace:^",
     "@enkryptcom/signer-ethereum": "workspace:^",
+    "@enkryptcom/signer-kadena": "workspace:^",
     "@enkryptcom/signer-polkadot": "workspace:^",
     "@enkryptcom/storage": "workspace:^",
     "@enkryptcom/types": "workspace:^",

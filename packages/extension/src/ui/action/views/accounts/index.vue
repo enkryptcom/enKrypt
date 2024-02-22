@@ -60,7 +60,11 @@
           Add hardware wallet account
         </a>
 
-        <a class="accounts__action-button import" @click="importAction">
+        <a
+          v-if="network.provider !== ProviderName.kadena"
+          class="accounts__action-button import"
+          @click="importAction"
+        >
           <import-account-icon />
           Import account from another wallet
         </a>
@@ -118,6 +122,7 @@ import HWwallets from "@enkryptcom/hw-wallets";
 import { SignerType } from "@enkryptcom/types";
 import { BaseNetwork } from "@/types/base-network";
 import { WalletType } from "@enkryptcom/types";
+import { ProviderName } from "@/types/provider";
 
 const emit = defineEmits<{
   (e: "addressChanged", account: EnkryptAccount): void;

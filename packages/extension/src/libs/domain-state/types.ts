@@ -3,5 +3,6 @@ export enum StorageKeys {
 }
 export interface IState {
   selectedNetwork?: string;
+  selectedSubNetworkId?: string;
   selectedAddress?: string;
 }

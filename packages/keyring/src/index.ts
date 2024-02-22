@@ -17,6 +17,7 @@ import { hexToBuffer, encrypt, decrypt } from "@enkryptcom/utils";
 import PolkadotSigner from "@enkryptcom/signer-polkadot";
 import EthereumSigner from "@enkryptcom/signer-ethereum";
 import BitcoinSigner from "@enkryptcom/signer-bitcoin";
+import KadenaSigner from "@enkryptcom/signer-kadena";
 import assert from "assert";
 import configs from "./configs";
 import { pathParser } from "./utils";
@@ -47,6 +48,7 @@ class KeyRing {
       [SignerType.ed25519]: new PolkadotSigner(SignerType.ed25519),
       [SignerType.sr25519]: new PolkadotSigner(SignerType.sr25519),
       [SignerType.secp256k1btc]: new BitcoinSigner(),
+      [SignerType.ed25519kda]: new KadenaSigner(),
     };
   }
 

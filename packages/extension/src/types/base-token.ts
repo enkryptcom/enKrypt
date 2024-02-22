@@ -3,6 +3,7 @@ import MarketData from "@/libs/market-data";
 import { ApiPromise } from "@polkadot/api";
 import BitcoinAPI from "@/providers/bitcoin/libs/api";
 import { BN } from "ethereumjs-util";
+import KadenaAPI from "@/providers/kadena/libs/api";
 
 export type TransferType = "keepAlive" | "all" | "allKeepAlive" | "transfer";
 
@@ -59,7 +60,7 @@ export abstract class BaseToken {
   }
 
   public abstract getLatestUserBalance(
-    api: EvmAPI | ApiPromise | BitcoinAPI,
+    api: EvmAPI | ApiPromise | BitcoinAPI | KadenaAPI,
     address: string
   ): Promise<string>;
 
