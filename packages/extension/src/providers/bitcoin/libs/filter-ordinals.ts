@@ -47,6 +47,7 @@ export const filterOutOrdinals = (
       for (const ord of ordinals) {
         const [txid, idx] = ord.output.split(":");
         if (utxo.txid === txid && utxo.index === parseInt(idx)) return false;
+        if (utxo.value <= 1000) return false; // most likely ordinal, safety precaution
       }
       return true;
     });
