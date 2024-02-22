@@ -30,6 +30,7 @@ const litecoinOptions: BitcoinNetworkOptions = {
     return SSFeeHandler("https://partners.mewapi.io/nodes/ss/ltc/api/v1/fees");
   },
   networkInfo: {
+    name: NetworkNames.Litecoin,
     messagePrefix: "\x19Litecoin Signed Message:\n",
     bech32: "ltc",
     bip32: {

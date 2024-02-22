@@ -2,8 +2,11 @@
   <div class="send-transaction__header">
     <a class="send-transaction__selector">
       <span v-if="isSendToken">Send token</span>
-      <!-- <span v-else>Send NFT</span>
-      <switch-arrow></switch-arrow> -->
+      <span v-else>Send NFT</span>
+      <switch-arrow
+        v-if="isNftAvailable"
+        @click="toggleSelector"
+      ></switch-arrow>
     </a>
     <div v-show="isOpenSelector" class="send-transaction__dropdown">
       <a class="send-transaction__dropdown-item" @click="toggleType(true)">
@@ -15,48 +18,45 @@
         <done-icon v-show="!isSendToken" />
       </a>
     </div>
-    <a class="send-transaction__close" @click="close">
+    <a class="send-transaction__close" @click="$emit('close')">
       <close-icon />
     </a>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, PropType } from "vue";
+import { ref } from "vue";
 import CloseIcon from "@action/icons/common/close-icon.vue";
-// import SwitchArrow from "@action/icons/header/switch_arrow.vue";
+import SwitchArrow from "@action/icons/header/switch_arrow.vue";
 import DoneIcon from "@action/icons/common/done_icon.vue";
 
 const isOpenSelector = ref(false);
 
-const props = defineProps({
-  close: {
-    type: Function as PropType<() => void>,
-    default: () => {
-      return null;
-    },
-  },
-  toggleType: {
-    type: Function as PropType<(isTokenSend: boolean) => void>,
-    default: () => {
-      return null;
-    },
-  },
+const emit = defineEmits<{
+  (e: "close"): void;
+  (e: "toggleType", val: boolean): void;
+}>();
+
+defineProps({
   isSendToken: {
     type: Boolean,
     default: () => {
       return false;
     },
   },
+  isNftAvailable: {
+    type: Boolean,
+    default: false,
+  },
 });
 
-// const toggleSelector = () => {
-//   isOpenSelector.value = !isOpenSelector.value;
-// };
+const toggleSelector = () => {
+  isOpenSelector.value = !isOpenSelector.value;
+};
 
 const toggleType = (isTokenSend: boolean) => {
   isOpenSelector.value = false;
-  props.toggleType(isTokenSend);
+  emit("toggleType", isTokenSend);
 };
 </script>
 

@@ -243,6 +243,7 @@ const isHasScroll = () => {
     margin: auto;
     width: 100%;
     max-height: 500px;
+    min-height: 250px;
     margin: 0;
     padding: 0 32px !important;
     box-sizing: border-box;

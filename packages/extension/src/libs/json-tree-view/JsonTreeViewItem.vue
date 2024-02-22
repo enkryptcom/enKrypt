@@ -7,7 +7,7 @@
         @click.stop="toggleOpen"
       >
         <div :class="classes"></div>
-        {{ data.key === "/" ? "Sign typed data" : data.key }} :
+        {{ data.key === "/" ? rootKeyString : data.key }} :
         <span class="properties">{{ lengthString }}</span>
       </button>
       <div v-if="state.open">
@@ -47,6 +47,10 @@ const props = defineProps({
   data: {
     required: true,
     type: Object as PropType<ItemData>,
+  },
+  rootKeyString: {
+    type: String,
+    default: "Sign typed data",
   },
   maxDepth: {
     type: Number,

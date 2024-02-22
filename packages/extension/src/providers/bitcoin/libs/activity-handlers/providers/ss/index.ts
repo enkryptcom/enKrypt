@@ -37,7 +37,6 @@ export default async (
       });
       return cleanedTxs.map((tx) => {
         const isIncoming = !tx.vin.find((i) => i.addresses![0] === address);
-        console.log(isIncoming, tx.vin, tx.vout, address);
         let toAddress = "";
         let value = 0;
 
@@ -72,6 +71,7 @@ export default async (
           outputs: tx.vout.map((output) => ({
             address: output.addresses![0],
             value: Number(output.value),
+            pkscript: output.scriptPubKey.hex,
           })),
           transactionHash: tx.txid,
           timestamp: tx.timestamp * 1000,

@@ -19,14 +19,14 @@ const method: MiddlewareFunction = function (
     if (
       !payload.params ||
       payload.params.length < 1 ||
-      !Object.values(BitcoinNetworks).includes(payload.params[0])
+      !Object.keys(BitcoinNetworks).includes(payload.params[0])
     ) {
       return res(getCustomError("btc_switchNetwork: invalid params"));
     }
+    const internalName =
+      BitcoinNetworks[payload.params![0] as keyof typeof BitcoinNetworks];
     const allNetworks = Object.values(BTCNetworks);
-    const validNetwork = allNetworks.find(
-      (net) => net.name === payload.params![0]
-    );
+    const validNetwork = allNetworks.find((net) => net.name === internalName);
     if (validNetwork) {
       addNetworkSelectMetrics(validNetwork.provider, validNetwork.name, 1);
       sendToBackgroundFromBackground({

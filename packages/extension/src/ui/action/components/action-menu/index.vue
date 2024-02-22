@@ -1,20 +1,10 @@
 <template>
-  <div v-if="isNft && link" class="action-menu">
+  <div class="action-menu">
     <div class="action-menu__wrap">
-      <!-- <a v-if="!isNft" class="action-menu__item" @click="buyAction">
-        <Buy />Buy</a
-      >
-      <div v-if="!isNft" class="action-menu__divider"></div>
-      <a v-if="!isNft" class="action-menu__item" @click="sendAction()">
-        <Send />Send</a
-      >
-      <div v-if="!isNft" class="action-menu__divider"></div>
-      <a v-if="!isNft" class="action-menu__item" @click="swapAction()">
-        <Swap />Swap</a
-      >
-      <div v-if="false" class="action-menu__divider"></div> -->
-      <a class="action-menu__item full" @click="openLink()">
-        <!-- <Rarible /> -->
+      <a class="action-menu__item" @click="openSend()"> <Send />Send NFT</a>
+      <div v-if="link" class="action-menu__divider"></div>
+      <a v-if="link" class="action-menu__item" @click="openLink()">
+        <View />
         View NFT
       </a>
     </div>
@@ -22,38 +12,39 @@
 </template>
 
 <script setup lang="ts">
+import Send from "@action/icons/actions/send.vue";
+import View from "@/ui/action/icons/actions/view.vue";
+import { useRoute, useRouter } from "vue-router";
 import { PropType } from "vue";
-// import Buy from "@action/icons/actions/buy.vue";
-// import Send from "@action/icons/actions/send.vue";
-// import Swap from "@action/icons/actions/swap.vue";
-// import Rarible from "@/ui/action/icons/actions/rarible.vue";
-
+import { NFTItem } from "@/types/nft";
+const route = useRoute();
+const router = useRouter();
 const props = defineProps({
-  buyAction: {
-    type: Function as PropType<() => void>,
-    default: () => ({}),
-  },
-  sendAction: {
-    type: Function as PropType<() => void>,
-    default: () => ({}),
-  },
-  swapAction: {
-    type: Function as PropType<() => void>,
-    default: () => ({}),
-  },
   link: {
     type: String,
     default: "",
   },
-  isNft: {
-    type: Boolean,
-    default: false,
+  item: {
+    type: Object as PropType<NFTItem>,
+    default: () => {
+      return {};
+    },
   },
 });
 const openLink = () => {
   if (props.link && props.link !== null) {
     window.open(props.link, "_blank");
   }
+};
+const openSend = () => {
+  router.push({
+    name: "send-transaction",
+    params: {
+      id: route.params.id,
+      isToken: "false",
+      tokenData: JSON.stringify(props.item),
+    },
+  });
 };
 </script>
 

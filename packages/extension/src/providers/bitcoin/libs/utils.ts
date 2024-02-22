@@ -15,7 +15,10 @@ const isAddress = (address: string, network: BitcoinNetworkInfo): boolean => {
   }
 };
 
-const getTxInfo = (utxos: HaskoinUnspentType[]): BTCTxInfo => {
+const getTxInfo = (
+  utxos: HaskoinUnspentType[],
+  ordinalUTXO?: HaskoinUnspentType
+): BTCTxInfo => {
   const txInfo: BTCTxInfo = {
     inputs: [],
     outputs: [],
@@ -31,6 +34,17 @@ const getTxInfo = (utxos: HaskoinUnspentType[]): BTCTxInfo => {
       },
     });
   });
+  if (ordinalUTXO) {
+    txInfo.inputs.unshift({
+      hash: ordinalUTXO.txid,
+      index: ordinalUTXO.index,
+      raw: ordinalUTXO.raw,
+      witnessUtxo: {
+        script: ordinalUTXO.pkscript,
+        value: ordinalUTXO.value,
+      },
+    });
+  }
   return txInfo;
 };
 
