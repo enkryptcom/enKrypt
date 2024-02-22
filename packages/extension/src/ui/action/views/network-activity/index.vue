@@ -9,7 +9,7 @@
           :crypto-amount="cryptoAmount"
           :fiat-amount="fiatAmount"
           :symbol="props.network.currencyName"
-          :subnetwork="props.subnetwork"
+          v-bind="$attrs"
         />
 
         <network-activity-action v-bind="$attrs" />
@@ -90,10 +90,6 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits<{
-  (e: "update:balance"): void;
-}>();
-
 const { cryptoAmount, fiatAmount } = accountInfo(
   toRef(props, "network"),
   toRef(props, "accountInfo")
@@ -138,7 +134,6 @@ const checkActivity = (activity: Activity): void => {
     apiPromise.then((api) => {
       api.getTransactionStatus(activity.transactionHash).then((info) => {
         getInfo(activity, info, timer);
-        emit("update:balance");
       });
     });
   }, 5000);
@@ -189,7 +184,7 @@ const getInfo = (activity: Activity, info: any, timer: any) => {
         kadenaInfo.result.status == "success"
           ? ActivityStatus.success
           : ActivityStatus.failed;
-      activity.rawInfo = kadenaInfo;
+      activity.rawInfo = kadenaInfo as KadenaRawInfo;
 
       activityState
         .updateActivity(activity, {

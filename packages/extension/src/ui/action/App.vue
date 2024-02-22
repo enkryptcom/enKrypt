@@ -61,7 +61,6 @@
             @update:init="init"
             @toggle:deposit="toggleDepositWindow"
             @open:buy-action="openBuyPage"
-            @update:balance="onUpdatedBalance"
           />
         </transition>
       </router-view>
@@ -378,28 +377,6 @@ const setNetwork = async (network: BaseNetwork) => {
     } catch (e) {
       console.error(e);
     }
-  }
-};
-
-const onUpdatedBalance = async () => {
-  try {
-    const thisNetworkName = currentNetwork.value.name;
-    const activeAccounts = await getAccountsByNetworkName(
-      currentNetwork.value.name
-    );
-    const api = await currentNetwork.value.api();
-    const activeBalancePromises = activeAccounts.map((acc) =>
-      api.getBalance(acc.address)
-    );
-
-    Promise.all(activeBalancePromises).then((balances) => {
-      if (thisNetworkName === currentNetwork.value.name)
-        accountHeaderData.value.activeBalances = balances.map((bal: any) =>
-          fromBase(bal, currentNetwork.value.decimals)
-        );
-    });
-  } catch (e) {
-    console.error(e);
   }
 };
 

@@ -119,7 +119,7 @@ interface Activity {
     | SubscanExtrinsicInfo
     | BTCRawInfo
     | SwapRawInfo
-    | KadenaDBInfo;
+    | KadenaRawInfo;
 }
 
 export {
@@ -132,4 +132,5 @@ export {
   BTCRawInfo,
   SwapRawInfo,
   KadenaRawInfo,
+  KadenaDBInfo,
 };
