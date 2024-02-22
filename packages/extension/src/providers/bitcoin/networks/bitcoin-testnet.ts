@@ -35,6 +35,7 @@ const bitcoinOptions: BitcoinNetworkOptions = {
       [GasPriceTypes.ECONOMY]: 5,
     }),
   networkInfo: {
+    name: NetworkNames.BitcoinTest,
     messagePrefix: "\x18Bitcoin Signed Message:\n",
     bech32: "tb",
     bip32: {
@@ -46,6 +47,7 @@ const bitcoinOptions: BitcoinNetworkOptions = {
     wif: 0xef,
     dustThreshold: null,
     paymentType: PaymentType.P2WPKH,
+    maxFeeRate: 5000 * 2,
   },
 };
 

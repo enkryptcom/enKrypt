@@ -6,13 +6,13 @@
       </a>
       <div class="network-activity__action-divider" />
       <a class="network-activity__action-item" @click="$emit('open:buyAction')">
-        <Buy />Buy
+        <Buy />Buy/Sell
       </a>
       <div class="network-activity__action-divider" />
       <router-link
         :to="{
           name: 'send-transaction',
-          params: { id: route.params.id },
+          params: { id: route.params.id, isToken: 'true' },
         }"
         class="network-activity__action-item"
       >

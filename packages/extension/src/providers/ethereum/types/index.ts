@@ -1,8 +1,8 @@
 import type { Provider as InjectedProvider } from "../inject";
 import { ProviderError, SignerType } from "@enkryptcom/types";
-import { NodeType } from "@/types/provider";
+import { EnkryptProviderEventMethods, NodeType } from "@/types/provider";
 export interface ProviderMessage {
-  method: MessageMethod;
+  method: MessageMethod | EnkryptProviderEventMethods;
   params: Array<any>;
 }
 export enum MessageMethod {
@@ -15,6 +15,7 @@ export enum MessageMethod {
 export enum EmitEvent {
   accountsChanged = "accountsChanged",
   chainChanged = "chainChanged",
+  networkChanged = "networkChanged",
   connect = "connect",
   disconnect = "disconnect",
   message = "message",

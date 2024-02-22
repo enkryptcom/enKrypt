@@ -38,7 +38,7 @@
             :network="network"
           />
           <verify-transaction-amount v-if="!isNft" :token="txData.toToken" />
-          <verify-transaction-nft v-if="isNft" :item="nft" />
+          <verify-transaction-nft v-if="isNft" :item="txData.NFTData!" />
           <verify-transaction-fee :fee="txData.gasFee" />
         </div>
       </custom-scrollbar>
@@ -72,6 +72,7 @@
       :network="network"
       :token="txData.toToken"
       :is-done="isSendDone"
+      :nft="txData.NFTData"
       :is-window-popup="isWindowPopup"
     />
   </div>
@@ -86,10 +87,9 @@ import VerifyTransactionNetwork from "@/providers/common/ui/verify-transaction/v
 import VerifyTransactionAccount from "@/providers/common/ui/verify-transaction/verify-transaction-account.vue";
 import VerifyTransactionAmount from "@/providers/common/ui/verify-transaction/verify-transaction-amount.vue";
 import VerifyTransactionFee from "@/providers/common/ui/verify-transaction/verify-transaction-fee.vue";
-import VerifyTransactionNft from "./components/verify-transaction-nft.vue";
+import VerifyTransactionNft from "@/providers/common/ui/send-transaction/verify-transaction-nft.vue";
 import HardwareWalletMsg from "@/providers/common/ui/verify-transaction/hardware-wallet-msg.vue";
 import SendProcess from "@action/views/send-process/index.vue";
-import { nft } from "@action/types/mock";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
 import { VerifyTransactionParams } from "../../types";
 import Transaction from "@/providers/ethereum/libs/transaction";
@@ -114,7 +114,7 @@ const selectedNetwork: string = route.query.id as string;
 const txData: VerifyTransactionParams = JSON.parse(
   Buffer.from(route.query.txData as string, "base64").toString("utf8")
 );
-const isNft = false;
+const isNft = ref(txData.isNFT);
 const isProcessing = ref(false);
 const network = ref<BaseNetwork>(DEFAULT_EVM_NETWORK);
 const isSendDone = ref(false);
@@ -150,14 +150,16 @@ const sendAction = async () => {
     status: ActivityStatus.pending,
     timestamp: new Date().getTime(),
     token: {
-      decimals: txData.toToken.decimals,
-      icon: txData.toToken.icon,
-      name: txData.toToken.name,
-      symbol: txData.toToken.symbol,
-      price: txData.toToken.price,
+      decimals: isNft.value ? 0 : txData.toToken.decimals,
+      icon: isNft.value ? txData.NFTData!.image : txData.toToken.icon,
+      name: isNft.value ? txData.NFTData!.name : txData.toToken.name,
+      symbol: isNft.value
+        ? txData.NFTData!.collectionName
+        : txData.toToken.symbol,
+      price: isNft.value ? "0" : txData.toToken.price,
     },
     type: ActivityType.transaction,
-    value: txData.toToken.amount,
+    value: isNft.value ? "1" : txData.toToken.amount,
     transactionHash: "",
   };
   const activityState = new ActivityState();

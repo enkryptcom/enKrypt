@@ -19,6 +19,8 @@ const SSFeeHandler = async (
     .then((json: FeeType) => {
       if (json.fast.satsPerKiloByte < 0)
         json.fast.satsPerKiloByte = json.average.satsPerKiloByte;
+      if (json.average.satsPerKiloByte < 0)
+        json.average.satsPerKiloByte = json.slow.satsPerKiloByte;
       return {
         [GasPriceTypes.FASTEST]:
           Math.ceil(json.fast.satsPerKiloByte / 1024) + 5,

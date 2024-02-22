@@ -14,6 +14,7 @@
 
 <script setup lang="ts">
 import { computed, ref, onMounted } from "vue";
+import BigNumber from "bignumber.js";
 const isFocus = ref(false);
 const swapAmountInput = ref(null);
 
@@ -59,7 +60,7 @@ onMounted(() => {
 const emit = defineEmits(["update:value"]);
 const textValue = computed({
   get: () => props.value,
-  set: (value) => emit("update:value", value.toString()),
+  set: (value) => emit("update:value", BigNumber(value).toFixed()),
 });
 const changeFocus = () => {
   isFocus.value = !isFocus.value;

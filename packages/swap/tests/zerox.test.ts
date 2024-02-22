@@ -72,7 +72,7 @@ describe("Zerox Provider", () => {
       `0x095ea7b3000000000000000000000000${ZEROX_APPROVAL.replace(
         "0x",
         ""
-      )}000000000000000000000000000000000000000000000000${numberToHex(
+      )}00000000000000000000000000000000000000000000000${numberToHex(
         amount
       ).replace("0x", "")}`
     );

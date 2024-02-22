@@ -19,6 +19,7 @@ const sendLayouts: Record<ProviderName, any> = {
   [ProviderName.kadena]: SendTransactionKadena,
   [ProviderName.enkrypt]: null,
 };
+
 const layout = shallowRef();
 const route = useRoute();
 const networkName: string = route.params.id as string;

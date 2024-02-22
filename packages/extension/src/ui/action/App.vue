@@ -54,6 +54,7 @@
         <transition :name="transitionName" mode="out-in">
           <component
             :is="Component"
+            :key="$route.fullPath"
             :network="currentNetwork"
             :subnetwork="currentSubNetwork"
             :account-info="accountHeaderData"
@@ -78,8 +79,18 @@
       @update:active-networks="setActiveNetworks"
     />
 
-    <settings v-if="settingsShow" @close:popup="settingsShow = !settingsShow" />
+    <settings
+      v-if="settingsShow"
+      @close:popup="settingsShow = !settingsShow"
+      @action:lock="lockAction"
+    />
     <modal-rate v-if="rateShow" @close:popup="rateShow = !rateShow" />
+    <modal-new-version
+      v-if="updateShow"
+      :current-version="currentVersion"
+      :latest-version="latestVersion"
+      @close:popup="updateShow = !updateShow"
+    />
   </div>
 </template>
 
@@ -87,13 +98,12 @@
 import DomainState from "@/libs/domain-state";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
 import { sendToBackgroundFromAction } from "@/libs/messenger/extension";
-import { addNetworkSelectMetrics } from "@/libs/metrics";
 import NetworksState from "@/libs/networks-state";
-import RateState from "@/libs/rate-state";
 import {
   getAccountsByNetworkName,
   getOtherSigners,
 } from "@/libs/utils/accounts";
+import ModalNewVersion from "./views/modal-new-version/index.vue";
 import {
   DEFAULT_EVM_NETWORK,
   getAllNetworks,
@@ -107,11 +117,8 @@ import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
 import { MessageMethod as KadenaMessageMethod } from "@/providers/kadena/types";
 import { BaseNetwork } from "@/types/base-network";
 import { InternalMethods } from "@/types/messenger";
-import { ProviderName } from "@/types/provider";
-import SwapLookingAnimation from "@action/icons/swap/swap-looking-animation.vue";
 import { EnkryptAccount, NetworkNames } from "@enkryptcom/types";
 import { fromBase } from "@enkryptcom/utils";
-import { onClickOutside } from "@vueuse/core";
 import { computed, onMounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import Browser from "webextension-polyfill";
@@ -128,6 +135,14 @@ import { AccountsHeaderData } from "./types/account";
 import AddNetwork from "./views/add-network/index.vue";
 import ModalRate from "./views/modal-rate/index.vue";
 import Settings from "./views/settings/index.vue";
+import { KadenaNetwork } from "@/providers/kadena/types/kadena-network";
+import { EnkryptProviderEventMethods, ProviderName } from "@/types/provider";
+import { onClickOutside } from "@vueuse/core";
+import RateState from "@/libs/rate-state";
+import SwapLookingAnimation from "@action/icons/swap/swap-looking-animation.vue";
+import { addNetworkSelectMetrics } from "@/libs/metrics";
+import { getLatestEnkryptVersion } from "@action/utils/browser";
+import { gt as semverGT } from "semver";
 
 const domainState = new DomainState();
 const networksState = new NetworksState();
@@ -155,9 +170,12 @@ const kr = new PublicKeyRing();
 const addNetworkShow = ref(false);
 const settingsShow = ref(false);
 const rateShow = ref(false);
+const updateShow = ref(false);
 const dropdown = ref(null);
 const toggle = ref(null);
 const isLoading = ref(true);
+const currentVersion = process.env.PACKAGE_VERSION as string;
+const latestVersion = ref("");
 
 const setActiveNetworks = async () => {
   const activeNetworkNames = await networksState.getActiveNetworkNames();
@@ -187,10 +205,10 @@ const toggleDepositWindow = () => {
 const openBuyPage = () => {
   const buyLink =
     currentNetwork.value.name === NetworkNames.KadenaTestnet
-      ? (currentNetwork.value as any).options.buyLink
+      ? (currentNetwork.value as KadenaNetwork).options.buyLink
       : `https://ccswap.myetherwallet.com/?to=${currentNetwork.value.displayAddress(
           accountHeaderData.value.selectedAccount!.address
-        )}`;
+        )}&platform=enkrypt`;
 
   Browser.tabs.create({
     url: buyLink,
@@ -219,9 +237,6 @@ const init = async () => {
   isLoading.value = false;
 };
 onMounted(async () => {
-  if (await rateState.showPopup()) {
-    rateShow.value = true;
-  }
   const isInitialized = await kr.isInitialized();
   if (isInitialized) {
     const _isLocked = await isKeyRingLocked();
@@ -231,6 +246,24 @@ onMounted(async () => {
         .then(() => (isLoading.value = false));
     } else {
       init();
+      setTimeout(() => {
+        rateState.showPopup().then((show) => {
+          if (show) {
+            rateShow.value = true;
+          } else {
+            getLatestEnkryptVersion().then((version) => {
+              if (
+                currentVersion &&
+                version &&
+                semverGT(version, currentVersion)
+              ) {
+                latestVersion.value = version;
+                updateShow.value = true;
+              }
+            });
+          }
+        });
+      }, 2000);
     }
   } else {
     openOnboard();
@@ -314,6 +347,19 @@ const setNetwork = async (network: BaseNetwork) => {
     });
   }
 
+  await sendToBackgroundFromAction({
+    message: JSON.stringify({
+      method: InternalMethods.sendToTab,
+      params: [
+        {
+          method: EnkryptProviderEventMethods.chainChanged,
+          params: [network.name],
+        },
+      ],
+    }),
+    provider: currentNetwork.value.provider,
+    tabId,
+  });
   domainState.setSelectedNetwork(network.name);
 
   if (network.api) {

@@ -336,6 +336,7 @@ class KeyRing {
   }
 
   async reset(): Promise<void> {
+    this.lock();
     const resetPromises = Object.values(configs.STORAGE_KEYS).map((name) =>
       this.#storage.remove(name)
     );

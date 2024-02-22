@@ -37,12 +37,6 @@ const emit = defineEmits<{
 }>();
 
 defineProps({
-  toggleSelect: {
-    type: Function,
-    default: () => {
-      return null;
-    },
-  },
   fee: {
     type: Object as PropType<GasFeeInfo>,
     default: () => {

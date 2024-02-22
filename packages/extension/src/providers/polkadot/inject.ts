@@ -97,7 +97,7 @@ const injectDocument = (
       JSON.stringify({ method: InternalMethods.getSettings, params: [] })
     )
     .then((settings: SettingsType) => {
-      if (!settings.substrate.injectPolkadotjs)
+      if (settings.substrate.injectPolkadotjs)
         document.injectedWeb3["polkadot-js"] = new Proxy(
           provider,
           ProxyHandler

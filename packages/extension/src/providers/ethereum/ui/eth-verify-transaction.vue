@@ -156,6 +156,7 @@ import { bigIntToBuffer, bigIntToHex, fromBase } from "@enkryptcom/utils";
 import broadcastTx from "../libs/tx-broadcaster";
 import TokenSigs from "../libs/transaction/lists/tokenSigs";
 import AlertIcon from "@action/icons/send/alert-icon.vue";
+import { NetworkNames } from "@enkryptcom/types";
 
 const isProcessing = ref(false);
 const isOpenSelectFee = ref(false);
@@ -182,7 +183,7 @@ const Options = ref<ProviderRequestOptions>({
   url: "",
   tabId: 0,
 });
-const selectedFee = ref<GasPriceTypes>(GasPriceTypes.REGULAR);
+const selectedFee = ref<GasPriceTypes>(GasPriceTypes.ECONOMY);
 
 defineExpose({ providerVerifyTransactionScrollRef });
 
@@ -191,6 +192,10 @@ onBeforeMount(async () => {
   network.value = (await getNetworkByName(
     Request.value.params![2]
   )) as EvmNetwork;
+  selectedFee.value =
+    network.value.name === NetworkNames.Ethereum || NetworkNames.Binance
+      ? GasPriceTypes.REGULAR
+      : GasPriceTypes.ECONOMY;
   account.value = Request.value.params![1] as EnkryptAccount;
   identicon.value = network.value.identicon(account.value.address);
   Options.value = options;

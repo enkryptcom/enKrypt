@@ -3,6 +3,7 @@
     :class="[{ 'root-item': true, dark: colorScheme === 'dark' }]"
     :data="parsed"
     :max-depth="maxDepth"
+    :root-key-string="rootKeyString"
     @selected="itemSelected"
   />
 </template>
@@ -13,6 +14,10 @@ import JsonTreeViewItem from "./JsonTreeViewItem.vue";
 import { ItemType, type ValueTypes, type ItemData } from "./types";
 
 const props = defineProps({
+  rootKeyString: {
+    type: String,
+    default: "Sign typed data",
+  },
   data: {
     type: String,
     required: false,
