@@ -58,6 +58,9 @@ const tempWindow: EnkryptWindow = {
       substrate: {
         injectPolkadotjs: true,
       },
+      btc: {
+        injectUnisat: false,
+      },
       manifestVersion: 3,
     },
   },

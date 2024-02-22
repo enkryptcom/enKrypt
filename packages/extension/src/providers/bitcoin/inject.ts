@@ -10,6 +10,8 @@ import {
 } from "@/types/provider";
 import { EnkryptWindow } from "@/types/globals";
 import { BitcoinNetworks } from "./types";
+import { InternalMethods } from "@/types/messenger";
+import { SettingsType } from "@/libs/settings-state/types";
 
 export class Provider extends EventEmitter implements ProviderInterface {
   connected: boolean;
@@ -128,7 +130,14 @@ const injectDocument = (
   options: ProviderOptions
 ): void => {
   const provider = new Provider(options);
-  document["unisat"] = provider;
+  options
+    .sendMessageHandler(
+      ProviderName.enkrypt,
+      JSON.stringify({ method: InternalMethods.getSettings, params: [] })
+    )
+    .then((settings: SettingsType) => {
+      if (settings.btc.injectUnisat) document["unisat"] = provider;
+    });
   document["enkrypt"]["providers"][options.name] = provider;
 };
 export default injectDocument;
