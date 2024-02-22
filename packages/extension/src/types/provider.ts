@@ -42,6 +42,7 @@ export enum InternalStorageNamespace {
 }
 export enum EnkryptProviderEventMethods {
   persistentEvents = "PersistentEvents",
+  chainChanged = "enkrypt_chainChanged",
 }
 export type StorageNamespace = ProviderName | InternalStorageNamespace;
 export enum ProviderType {

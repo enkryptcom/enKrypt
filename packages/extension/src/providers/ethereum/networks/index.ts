@@ -31,6 +31,7 @@ import baseNode from "./base";
 import celoNode from "./celo";
 import shibNode from "./shib";
 import artheraNode from "./aa";
+import formTestnet from "./form-testnet";
 import artheraTestNode from "./aat";
 
 export default {
@@ -76,5 +77,6 @@ export default {
   celo: celoNode,
   shib: shibNode,
   arthera: artheraNode,
+  formTestnet: formTestnet,
   artheraTest: artheraTestNode,
 };

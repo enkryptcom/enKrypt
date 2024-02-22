@@ -2,6 +2,7 @@ import { ToTokenData } from "@/ui/action/types/token";
 import { EnkryptAccount } from "@enkryptcom/types";
 import { GasPriceTypes } from "@/providers/common/types";
 import { BitcoinNetwork } from "../types/bitcoin-network";
+import { NFTItemWithCollectionName } from "@/types/nft";
 
 export interface GasFeeInfo {
   nativeValue: string;
@@ -21,6 +22,8 @@ export interface GasFeeType {
 }
 
 export interface VerifyTransactionParams {
+  isNFT: boolean;
+  NFTData?: NFTItemWithCollectionName;
   fromAddress: string;
   fromAddressName: string;
   toAddress: string;
@@ -40,4 +43,5 @@ export interface SignerMessageOptions {
   payload: Buffer;
   network: BitcoinNetwork;
   account: EnkryptAccount;
+  type: string;
 }

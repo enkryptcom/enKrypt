@@ -6,6 +6,7 @@ import {
   EVMSettingsType,
   SubstrateSettingsType,
   SettingsType,
+  BtcSettingsType,
 } from "./types";
 import { merge } from "lodash";
 class SettingsState {
@@ -34,6 +35,13 @@ class SettingsState {
     };
     return merge(settings, state);
   }
+  async getBtcSettings(): Promise<BtcSettingsType> {
+    const state = await this.getStateByKey(StorageKeys.btcState);
+    const settings: BtcSettingsType = {
+      injectUnisat: false,
+    };
+    return merge(settings, state);
+  }
   async deleteStateByKey(key: string): Promise<void> {
     await this.#storage.remove(key);
   }
@@ -46,12 +54,17 @@ class SettingsState {
   async setSubstrateSettings(state: SubstrateSettingsType): Promise<void> {
     await this.#storage.set(StorageKeys.substrateState, state);
   }
+  async setBtcSettings(state: BtcSettingsType): Promise<void> {
+    await this.#storage.set(StorageKeys.btcState, state);
+  }
   async getAllSettings(): Promise<SettingsType> {
     const evmstate = await this.getEVMSettings();
     const substratestate = await this.getSubstrateSettings();
+    const btcstate = await this.getBtcSettings();
     return {
       evm: evmstate,
       substrate: substratestate,
+      btc: btcstate,
       manifestVersion: Browser.runtime.getManifest().manifest_version,
     };
   }

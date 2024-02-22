@@ -4,18 +4,18 @@
 
     <div class="send-process-nft__info">
       <h4>{{ item.name }}</h4>
-      <h6>{{ item.author }}</h6>
+      <h6>{{ item.collectionName }}</h6>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { PropType } from "vue";
-import { NFTItem } from "@action/types/nft";
+import { NFTItemWithCollectionName } from "@/types/nft";
 
 defineProps({
   item: {
-    type: Object as PropType<NFTItem>,
+    type: Object as PropType<NFTItemWithCollectionName>,
     default: () => {
       return {};
     },

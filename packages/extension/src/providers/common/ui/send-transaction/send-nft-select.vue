@@ -1,13 +1,23 @@
 <template>
   <div class="send-nft-select__wrap">
-    <a class="send-nft-select" @click="open">
+    <a class="send-nft-select" @click="$emit('toggleSelect', item.id !== '')">
       <div class="send-nft-select__image">
-        <img :src="item.image" alt="" />
+        <img v-if="item.image !== ''" :src="item.image" alt="" />
       </div>
       <div class="send-nft-select__info">
-        <h5>{{ item.name }}</h5>
+        <h5>
+          {{
+            item.name.length > 25
+              ? item.name.substring(0, 25) + "..."
+              : item.name
+          }}
+        </h5>
         <p>
-          {{ item.author }}
+          {{
+            item.collectionName.length > 50
+              ? item.collectionName.substring(0, 50) + "..."
+              : item.collectionName
+          }}
         </p>
       </div>
 
@@ -15,37 +25,43 @@
         <switch-arrow />
       </div>
     </a>
-
-    <img class="send-nft-select__view" :src="item.image" alt="" />
+    <div>
+      <img
+        v-if="item.image !== ''"
+        class="send-nft-select__view"
+        :src="item.image"
+        alt=""
+      />
+      <p v-if="isSendingDisabled" class="send-nft-select__text">
+        This NFT is not transferable!
+      </p>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, PropType } from "vue";
+import { PropType } from "vue";
 import SwitchArrow from "@action/icons/header/switch_arrow.vue";
-import { NFTItem } from "@action/types/nft";
+import { NFTItemWithCollectionName } from "@/types/nft";
 
-const isOpen = ref(false);
+defineEmits<{
+  (e: "toggleSelect", val: boolean): void;
+}>();
 
-const props = defineProps({
-  toggleSelect: {
-    type: Function,
-    default: () => {
-      return null;
-    },
-  },
+defineProps({
   item: {
-    type: Object as PropType<NFTItem>,
+    type: Object as PropType<NFTItemWithCollectionName>,
     default: () => {
       return {};
     },
   },
+  isSendingDisabled: {
+    type: Boolean,
+    default: () => {
+      return false;
+    },
+  },
 });
-
-const open = () => {
-  isOpen.value = !isOpen.value;
-  props.toggleSelect(isOpen);
-};
 </script>
 
 <style lang="less">
@@ -124,12 +140,26 @@ const open = () => {
   }
 
   &__view {
-    width: 128px;
+    width: 82px;
+    max-height: 82px;
     filter: drop-shadow(0px 0.25px 1px rgba(0, 0, 0, 0.039))
       drop-shadow(0px 0.85px 3px rgba(0, 0, 0, 0.19));
     border-radius: 12px;
     display: block;
     margin: 16px 0 16px 48px;
+    float: left;
+  }
+  &__text {
+    float: right;
+    max-width: 200px;
+    margin-right: 60px;
+    margin-top: 40px;
+    padding-right: 10px;
+    padding-left: 10px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    background: #f2f4f7;
+    border-radius: 6px;
   }
 }
 </style>
