@@ -17,6 +17,9 @@ const defaultSettings = {
   substrate: {
     injectPolkadotjs: false,
   },
+  btc: {
+    injectUnisat: false,
+  },
   manifestVersion: 3,
 };
 

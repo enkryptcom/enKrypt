@@ -29,6 +29,15 @@
       <p>Prevent conflict with Polkadot-js extension</p>
     </div>
 
+    <settings-switch
+      title="Turn on Unisat injection"
+      :is-checked="isUnisatEnabled"
+      @update:check="toggleUnisatEnable"
+    />
+    <div class="settings__label">
+      <p>Enable Enkrypt act like Unisat wallet for dapps</p>
+    </div>
+
     <!-- <base-select
       :select="selecTimer"
       title="Auto-lock timer"
@@ -53,10 +62,12 @@ import { SettingsType } from "@/libs/settings-state/types";
 const settingsState = new SettingsState();
 const isEthereumDisabled = ref(false);
 const isPolkadotjsDisabled = ref(false);
+const isUnisatEnabled = ref(true);
 onMounted(async () => {
   const allSettings: SettingsType = await settingsState.getAllSettings();
   isEthereumDisabled.value = allSettings.evm.inject.disabled;
   isPolkadotjsDisabled.value = !allSettings.substrate.injectPolkadotjs;
+  isUnisatEnabled.value = allSettings.btc.injectUnisat;
 });
 const toggleEthereumDisable = async (isChecked: boolean) => {
   const evmSettings = await settingsState.getEVMSettings();
@@ -70,6 +81,11 @@ const togglePjsDisable = async (isChecked: boolean) => {
   const subSettings = await settingsState.getSubstrateSettings();
   subSettings.injectPolkadotjs = !isChecked;
   await settingsState.setSubstrateSettings(subSettings);
+};
+const toggleUnisatEnable = async (isChecked: boolean) => {
+  const btcSettings = await settingsState.getBtcSettings();
+  btcSettings.injectUnisat = isChecked;
+  await settingsState.setBtcSettings(btcSettings);
 };
 </script>
 

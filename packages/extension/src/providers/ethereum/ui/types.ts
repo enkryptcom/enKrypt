@@ -7,6 +7,7 @@ import {
 } from "@ethereumjs/tx";
 import { GasPriceTypes } from "@/providers/common/types";
 import { GasFeeInfo } from "@/providers/common/types";
+import { NFTItemWithCollectionName } from "@/types/nft";
 
 export interface SendTransactionDataType {
   chainId: `0x${string}`;
@@ -16,6 +17,8 @@ export interface SendTransactionDataType {
   data: `0x${string}`;
 }
 export interface VerifyTransactionParams {
+  isNFT: boolean;
+  NFTData?: NFTItemWithCollectionName;
   fromAddress: string;
   fromAddressName: string;
   toAddress: string;
