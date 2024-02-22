@@ -90,6 +90,10 @@ const props = defineProps({
   },
 });
 
+const emit = defineEmits<{
+  (e: "update:balance"): void;
+}>();
+
 const { cryptoAmount, fiatAmount } = accountInfo(
   toRef(props, "network"),
   toRef(props, "accountInfo")
@@ -134,6 +138,7 @@ const checkActivity = (activity: Activity): void => {
     apiPromise.then((api) => {
       api.getTransactionStatus(activity.transactionHash).then((info) => {
         getInfo(activity, info, timer);
+        emit("update:balance");
       });
     });
   }, 5000);
