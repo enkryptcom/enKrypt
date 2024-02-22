@@ -9,6 +9,7 @@
           :crypto-amount="cryptoAmount"
           :fiat-amount="fiatAmount"
           :symbol="props.network.currencyName"
+          v-bind="$attrs"
         />
 
         <network-activity-action v-bind="$attrs" />
@@ -132,65 +133,68 @@ const checkActivity = (activity: Activity): void => {
   const timer = setInterval(() => {
     apiPromise.then((api) => {
       api.getTransactionStatus(activity.transactionHash).then((info) => {
-        if (info) {
-          if (props.network.provider === ProviderName.ethereum) {
-            const evmInfo = info as EthereumRawInfo;
-            activity.status = evmInfo.status
-              ? ActivityStatus.success
-              : ActivityStatus.failed;
-            activity.rawInfo = evmInfo;
-            activityState
-              .updateActivity(activity, {
-                address: activityAddress.value,
-                network: props.network.name,
-              })
-              .then(() => updateVisibleActivity(activity));
-          } else if (props.network.provider === ProviderName.polkadot) {
-            const subInfo = info as SubscanExtrinsicInfo;
-            if (!subInfo.pending) {
-              activity.status = subInfo.success
-                ? ActivityStatus.success
-                : ActivityStatus.failed;
-              activity.rawInfo = subInfo;
-              activityState
-                .updateActivity(activity, {
-                  address: activityAddress.value,
-                  network: props.network.name,
-                })
-                .then(() => updateVisibleActivity(activity));
-            }
-          } else if (props.network.provider === ProviderName.bitcoin) {
-            const btcInfo = info as BTCRawInfo;
-            activity.status = ActivityStatus.success;
-            activity.rawInfo = btcInfo;
-            activityState
-              .updateActivity(activity, {
-                address: activityAddress.value,
-                network: props.network.name,
-              })
-              .then(() => updateVisibleActivity(activity));
-          } else if (props.network.provider === ProviderName.kadena) {
-            const kadenaInfo = info as KadenaRawInfo;
-
-            activity.status =
-              kadenaInfo.result.status == "success"
-                ? ActivityStatus.success
-                : ActivityStatus.failed;
-            activity.rawInfo = kadenaInfo;
-
-            activityState
-              .updateActivity(activity, {
-                address: activityAddress.value,
-                network: props.network.name,
-              })
-              .then(() => updateVisibleActivity(activity));
-          }
-          clearInterval(timer);
-        }
+        getInfo(activity, info, timer);
       });
     });
   }, 5000);
   activityCheckTimers.push(timer);
+};
+const getInfo = (activity: Activity, info: any, timer: any) => {
+  if (info) {
+    if (props.network.provider === ProviderName.ethereum) {
+      const evmInfo = info as EthereumRawInfo;
+      activity.status = evmInfo.status
+        ? ActivityStatus.success
+        : ActivityStatus.failed;
+      activity.rawInfo = evmInfo;
+      activityState
+        .updateActivity(activity, {
+          address: activityAddress.value,
+          network: props.network.name,
+        })
+        .then(() => updateVisibleActivity(activity));
+    } else if (props.network.provider === ProviderName.polkadot) {
+      const subInfo = info as SubscanExtrinsicInfo;
+      if (!subInfo.pending) {
+        activity.status = subInfo.success
+          ? ActivityStatus.success
+          : ActivityStatus.failed;
+        activity.rawInfo = subInfo;
+        activityState
+          .updateActivity(activity, {
+            address: activityAddress.value,
+            network: props.network.name,
+          })
+          .then(() => updateVisibleActivity(activity));
+      }
+    } else if (props.network.provider === ProviderName.bitcoin) {
+      const btcInfo = info as BTCRawInfo;
+      activity.status = ActivityStatus.success;
+      activity.rawInfo = btcInfo;
+      activityState
+        .updateActivity(activity, {
+          address: activityAddress.value,
+          network: props.network.name,
+        })
+        .then(() => updateVisibleActivity(activity));
+    } else if (props.network.provider === ProviderName.kadena) {
+      const kadenaInfo = info as KadenaRawInfo;
+
+      activity.status =
+        kadenaInfo.result.status == "success"
+          ? ActivityStatus.success
+          : ActivityStatus.failed;
+      activity.rawInfo = kadenaInfo as KadenaRawInfo;
+
+      activityState
+        .updateActivity(activity, {
+          address: activityAddress.value,
+          network: props.network.name,
+        })
+        .then(() => updateVisibleActivity(activity));
+    }
+    clearInterval(timer);
+  }
 };
 const checkSwap = (activity: Activity): void => {
   activity = toRaw(activity);

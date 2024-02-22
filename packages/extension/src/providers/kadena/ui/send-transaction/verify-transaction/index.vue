@@ -12,13 +12,7 @@
           </a>
         </div>
         <hardware-wallet-msg :wallet-type="account?.walletType" />
-        <p
-          class="verify-transaction__description"
-          style="color: red"
-          :class="{ popup: isPopup }"
-        >
-          {{ errorMsg }}
-        </p>
+
         <p class="verify-transaction__description" :class="{ popup: isPopup }">
           Double check the information and confirm transaction
         </p>
@@ -41,6 +35,10 @@
           <verify-transaction-fee :fee="txData.txFee" />
         </div>
       </custom-scrollbar>
+
+      <div class="verify-transaction__error">
+        <send-alert v-show="errorMsg" :error-msg="errorMsg" />
+      </div>
 
       <div
         class="verify-transaction__buttons"
@@ -85,6 +83,7 @@ import VerifyTransactionNetwork from "@/providers/common/ui/verify-transaction/v
 import VerifyTransactionAccount from "@/providers/common/ui/verify-transaction/verify-transaction-account.vue";
 import VerifyTransactionAmount from "@/providers/common/ui/verify-transaction/verify-transaction-amount.vue";
 import VerifyTransactionFee from "@/providers/common/ui/verify-transaction/verify-transaction-fee.vue";
+import SendAlert from "../components/send-alert.vue";
 import HardwareWalletMsg from "@/providers/common/ui/verify-transaction/hardware-wallet-msg.vue";
 import SendProcess from "@action/views/send-process/index.vue";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
@@ -105,6 +104,7 @@ import { KadenaNetwork } from "@/providers/kadena/types/kadena-network";
 
 const isSendDone = ref(false);
 const account = ref<EnkryptAccount>();
+const chainId = ref<string>();
 const kdaToken = ref<KDAToken>();
 const KeyRing = new PublicKeyRing();
 const route = useRoute();
@@ -124,6 +124,7 @@ const network = ref<BaseNetwork>(DEFAULT_KADENA_NETWORK);
 onBeforeMount(async () => {
   network.value = (await getNetworkByName(selectedNetwork))!;
   account.value = await KeyRing.getAccount(txData.fromAddress);
+  chainId.value = txData.chainId;
   isWindowPopup.value = account.value.isHardware;
   kdaToken.value = new KDAToken({
     icon: network.value.icon,
@@ -150,18 +151,23 @@ const sendAction = async () => {
       txData.toAddress,
       account.value!,
       txData.TransactionData.value,
-      network.value as KadenaNetwork
+      network.value as KadenaNetwork,
+      chainId.value!
     );
 
     const networkApi = (await network.value.api()) as KadenaAPI;
-    const transactionDescriptor = await networkApi.sendTransaction(transaction);
+    const transactionDescriptor = await networkApi.sendTransaction(
+      transaction,
+      chainId.value!
+    );
 
     const txActivity: Activity = {
-      from: txData.fromAddress,
-      to: txData.toAddress,
+      from: network.value.displayAddress(txData.fromAddress),
+      to: network.value.displayAddress(txData.toAddress),
       isIncoming: txData.fromAddress === txData.toAddress,
       network: network.value.name,
       status: ActivityStatus.pending,
+      chainId: chainId.value!,
       timestamp: new Date().getTime(),
       token: {
         decimals: txData.toToken.decimals,
@@ -187,7 +193,7 @@ const sendAction = async () => {
     if (getCurrentContext() === "popup") {
       setTimeout(() => {
         isProcessing.value = false;
-        router.go(-2);
+        router.push({ name: "activity", params: { id: network.value.name } });
       }, 2500);
     } else {
       setTimeout(() => {
@@ -342,6 +348,13 @@ const isHasScroll = () => {
     & > .ps__rail-y {
       right: 0 !important;
     }
+  }
+
+  &__error {
+    position: absolute;
+    top: 480px;
+    width: 100%;
+    background-color: white;
   }
 }
 </style>

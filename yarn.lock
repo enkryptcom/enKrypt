@@ -2386,6 +2386,7 @@ __metadata:
     "@ethereumjs/common": ^3.2.0
     "@ethereumjs/tx": ^4.2.0
     "@kadena/client": ^1.2.0
+    "@kadena/pactjs-cli": ^1.7.0
     "@ledgerhq/hw-transport-webusb": ^6.28.1
     "@metamask/eth-sig-util": ^7.0.1
     "@polkadot/api": ^10.11.2
@@ -4060,6 +4061,31 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@kadena/chainweb-node-client@npm:0.5.2":
+  version: 0.5.2
+  resolution: "@kadena/chainweb-node-client@npm:0.5.2"
+  dependencies:
+    "@kadena/cryptography-utils": 0.4.2
+    "@kadena/pactjs": 0.4.2
+    cross-fetch: ~3.1.5
+  checksum: 88be7f9f2745a0dd25131d6d226c6d21dceb546969c0043f342c99c92172b24ac76a66ce37d13688b13b74c01736a314efb2ea1ea5d6dac3e5f333bed8df9b77
+  languageName: node
+  linkType: hard
+
+"@kadena/client@npm:1.7.0":
+  version: 1.7.0
+  resolution: "@kadena/client@npm:1.7.0"
+  dependencies:
+    "@kadena/chainweb-node-client": 0.5.2
+    "@kadena/cryptography-utils": 0.4.2
+    "@kadena/pactjs": 0.4.2
+    "@walletconnect/sign-client": ~2.8.1
+    cross-fetch: ~3.1.5
+    debug: ~4.3.4
+  checksum: 6ea7dd8b997c16741e7f9fbb3b8db7aca368a3ff82401a8cd57de8d095fb13ba46bca0aa9b51906210d3e679211914cda49c1547b867b206013bdd31c607a4c8
+  languageName: node
+  linkType: hard
+
 "@kadena/client@npm:^1.2.0":
   version: 1.4.0
   resolution: "@kadena/client@npm:1.4.0"
@@ -4086,6 +4112,47 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@kadena/cryptography-utils@npm:0.4.2":
+  version: 0.4.2
+  resolution: "@kadena/cryptography-utils@npm:0.4.2"
+  dependencies:
+    blakejs: ^1.2.1
+    buffer: ^6.0.3
+    tweetnacl: ^1.0.3
+  checksum: 2389cdabc017049a1e72710f60694ef7e2cb1ca89634fb6efad80ffdba413b2e5173c4f64a3605b7dd1660f3a007877b692b063733fdadfadccb57b31840e697
+  languageName: node
+  linkType: hard
+
+"@kadena/pactjs-cli@npm:^1.7.0":
+  version: 1.7.0
+  resolution: "@kadena/pactjs-cli@npm:1.7.0"
+  dependencies:
+    "@kadena/client": 1.7.0
+    "@kadena/pactjs-generator": 1.7.0
+    commander: ^11.0.0
+    cross-fetch: ~3.1.5
+    debug: ~4.3.4
+    mkdirp: ~1.0.4
+    prettier: ~3.0.3
+    rimraf: ~5.0.1
+    zod: ~3.18.0
+  bin:
+    pactjs: bin/pactjs.js
+  checksum: cbc25020aa21494df9a09865ec771476afd33e66b637c403260e5add088731d00490473cd6031e5b253aabf1b3ffb72fb05032747457679a64506dbc9fa726ff
+  languageName: node
+  linkType: hard
+
+"@kadena/pactjs-generator@npm:1.7.0":
+  version: 1.7.0
+  resolution: "@kadena/pactjs-generator@npm:1.7.0"
+  dependencies:
+    memfs: ~3.5.1
+    moo: ~0.5.1
+    nearley: ~2.20.1
+  checksum: 50bafaf61f6548110b33f04e5b8d70f49e1111671c3069fd787bc3434b533584380b1a414b546233d5554f1f46e91e7272ffeb367b4349404771a390a6f4685d
+  languageName: node
+  linkType: hard
+
 "@kadena/pactjs@npm:0.3.2":
   version: 0.3.2
   resolution: "@kadena/pactjs@npm:0.3.2"
@@ -4093,6 +4160,15 @@ __metadata:
     "@kadena/types": 0.4.2
     bignumber.js: ^9.0.2
   checksum: dee9eda88b1c83119a4d853d57d0794c2676dced14e0b73a3ecccdbdce0d34d3dc30194e391a9b98486431abeccf6891e86b04c7c05e99cc79343fe2f1e61e05
+  languageName: node
+  linkType: hard
+
+"@kadena/pactjs@npm:0.4.2":
+  version: 0.4.2
+  resolution: "@kadena/pactjs@npm:0.4.2"
+  dependencies:
+    bignumber.js: ^9.1.2
+  checksum: bc1f22a7e55a6529db5c76aece3947619482c3cf8ee523fce2a7ac225d85eacacb0c98dc183847df059ce19d03ab0fea81a1feca72f4d9abf7ceaabd3604c358
   languageName: node
   linkType: hard
 
@@ -12031,7 +12107,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"commander@npm:^2.15.0, commander@npm:^2.20.0, commander@npm:^2.20.3":
+"commander@npm:^11.0.0":
+  version: 11.1.0
+  resolution: "commander@npm:11.1.0"
+  checksum: fd1a8557c6b5b622c89ecdfde703242ab7db3b628ea5d1755784c79b8e7cb0d74d65b4a262289b533359cd58e1bfc0bf50245dfbcd2954682a6f367c828b79ef
+  languageName: node
+  linkType: hard
+
+"commander@npm:^2.15.0, commander@npm:^2.19.0, commander@npm:^2.20.0, commander@npm:^2.20.3":
   version: 2.20.3
   resolution: "commander@npm:2.20.3"
   checksum: ab8c07884e42c3a8dbc5dd9592c606176c7eb5c1ca5ff274bcf907039b2c41de3626f684ea75ccf4d361ba004bbaff1f577d5384c155f3871e456bdf27becf9e
@@ -13274,6 +13357,13 @@ __metadata:
   dependencies:
     path-type: ^4.0.0
   checksum: fa05e18324510d7283f55862f3161c6759a3f2f8dbce491a2fc14c8324c498286c54282c1f0e933cb930da8419b30679389499b919122952a4f8592362ef4615
+  languageName: node
+  linkType: hard
+
+"discontinuous-range@npm:1.0.0":
+  version: 1.0.0
+  resolution: "discontinuous-range@npm:1.0.0"
+  checksum: 8ee88d7082445b6eadc7c03bebe6dc978f96760c45e9f65d16ca66174d9e086a9e3855ee16acf65625e1a07a846a17de674f02a5964a6aebe5963662baf8b5c8
   languageName: node
   linkType: hard
 
@@ -15340,6 +15430,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"fs-monkey@npm:^1.0.4":
+  version: 1.0.5
+  resolution: "fs-monkey@npm:1.0.5"
+  checksum: 424b67f65b37fe66117ae2bb061f790fe6d4b609e1d160487c74b3d69fbf42f262c665ccfba32e8b5f113f96f92e9a58fcdebe42d5f6649bdfc72918093a3119
+  languageName: node
+  linkType: hard
+
 "fs.realpath@npm:^1.0.0":
   version: 1.0.0
   resolution: "fs.realpath@npm:1.0.0"
@@ -15935,7 +16032,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"has@npm:^1.0.0, has@npm:^1.0.3":
+"has@npm:^1.0.0":
+  version: 1.0.4
+  resolution: "has@npm:1.0.4"
+  checksum: 8a11ba062e0627c9578a1d08285401e39f1d071a9692ddf793199070edb5648b21c774dd733e2a181edd635bf6862731885f476f4ccf67c998d7a5ff7cef2550
+  languageName: node
+  linkType: hard
+
+"has@npm:^1.0.3":
   version: 1.0.3
   resolution: "has@npm:1.0.3"
   dependencies:
@@ -18424,6 +18528,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"memfs@npm:~3.5.1":
+  version: 3.5.3
+  resolution: "memfs@npm:3.5.3"
+  dependencies:
+    fs-monkey: ^1.0.4
+  checksum: 18dfdeacad7c8047b976a6ccd58bc98ba76e122ad3ca0e50a21837fe2075fc0d9aafc58ab9cf2576c2b6889da1dd2503083f2364191b695273f40969db2ecc44
+  languageName: node
+  linkType: hard
+
 "memoize-one@npm:^6.0.0":
   version: 6.0.0
   resolution: "memoize-one@npm:6.0.0"
@@ -18836,7 +18949,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mkdirp@npm:*, mkdirp@npm:^1.0.3, mkdirp@npm:^1.0.4":
+"mkdirp@npm:*, mkdirp@npm:^1.0.3, mkdirp@npm:^1.0.4, mkdirp@npm:~1.0.4":
   version: 1.0.4
   resolution: "mkdirp@npm:1.0.4"
   bin:
@@ -18992,6 +19105,13 @@ __metadata:
   version: 2.30.1
   resolution: "moment@npm:2.30.1"
   checksum: 859236bab1e88c3e5802afcf797fc801acdbd0ee509d34ea3df6eea21eb6bcc2abd4ae4e4e64aa7c986aa6cba563c6e62806218e6412a765010712e5fa121ba6
+  languageName: node
+  linkType: hard
+
+"moo@npm:^0.5.0, moo@npm:~0.5.1":
+  version: 0.5.2
+  resolution: "moo@npm:0.5.2"
+  checksum: 5a41ddf1059fd0feb674d917c4774e41c877f1ca980253be4d3aae1a37f4bc513f88815041243f36f5cf67a62fb39324f3f997cf7fb17b6cb00767c165e7c499
   languageName: node
   linkType: hard
 
@@ -19227,6 +19347,23 @@ __metadata:
     text-encoding-utf-8: ^1.0.2
     tweetnacl: ^1.0.1
   checksum: d63625ab83d695d23a9126997355909fe141204c431a4818733050e1fcda11e5508dc70ff2e8fd55c1b2842908babd42fcf0ed4f3dc8c3fdb23ae422c497996d
+  languageName: node
+  linkType: hard
+
+"nearley@npm:~2.20.1":
+  version: 2.20.1
+  resolution: "nearley@npm:2.20.1"
+  dependencies:
+    commander: ^2.19.0
+    moo: ^0.5.0
+    railroad-diagrams: ^1.0.0
+    randexp: 0.4.6
+  bin:
+    nearley-railroad: bin/nearley-railroad.js
+    nearley-test: bin/nearley-test.js
+    nearley-unparse: bin/nearley-unparse.js
+    nearleyc: bin/nearleyc.js
+  checksum: 42c2c330c13c7991b48221c5df00f4352c2f8851636ae4d1f8ca3c8e193fc1b7668c78011d1cad88cca4c1c4dc087425420629c19cc286d7598ec15533aaef26
   languageName: node
   linkType: hard
 
@@ -21067,6 +21204,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"prettier@npm:~3.0.3":
+  version: 3.0.3
+  resolution: "prettier@npm:3.0.3"
+  bin:
+    prettier: bin/prettier.cjs
+  checksum: e10b9af02b281f6c617362ebd2571b1d7fc9fb8a3bd17e371754428cda992e5e8d8b7a046e8f7d3e2da1dcd21aa001e2e3c797402ebb6111b5cd19609dd228e0
+  languageName: node
+  linkType: hard
+
 "pretty-error@npm:^4.0.0":
   version: 4.0.0
   resolution: "pretty-error@npm:4.0.0"
@@ -21487,6 +21633,23 @@ __metadata:
   version: 5.1.1
   resolution: "quick-lru@npm:5.1.1"
   checksum: a516faa25574be7947969883e6068dbe4aa19e8ef8e8e0fd96cddd6d36485e9106d85c0041a27153286b0770b381328f4072aa40d3b18a19f5f7d2b78b94b5ed
+  languageName: node
+  linkType: hard
+
+"railroad-diagrams@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "railroad-diagrams@npm:1.0.0"
+  checksum: 9e312af352b5ed89c2118edc0c06cef2cc039681817f65266719606e4e91ff6ae5374c707cc9033fe29a82c2703edf3c63471664f97f0167c85daf6f93496319
+  languageName: node
+  linkType: hard
+
+"randexp@npm:0.4.6":
+  version: 0.4.6
+  resolution: "randexp@npm:0.4.6"
+  dependencies:
+    discontinuous-range: 1.0.0
+    ret: ~0.1.10
+  checksum: 3c0d440a3f89d6d36844aa4dd57b5cdb0cab938a41956a16da743d3a3578ab32538fc41c16cc0984b6938f2ae4cbc0216967e9829e52191f70e32690d8e3445d
   languageName: node
   linkType: hard
 
@@ -22051,6 +22214,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"ret@npm:~0.1.10":
+  version: 0.1.15
+  resolution: "ret@npm:0.1.15"
+  checksum: d76a9159eb8c946586567bd934358dfc08a36367b3257f7a3d7255fdd7b56597235af23c6afa0d7f0254159e8051f93c918809962ebd6df24ca2a83dbe4d4151
+  languageName: node
+  linkType: hard
+
 "retry@npm:^0.12.0":
   version: 0.12.0
   resolution: "retry@npm:0.12.0"
@@ -22094,7 +22264,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rimraf@npm:^5.0.5":
+"rimraf@npm:^5.0.5, rimraf@npm:~5.0.1":
   version: 5.0.5
   resolution: "rimraf@npm:5.0.5"
   dependencies:
@@ -27283,6 +27453,13 @@ __metadata:
   version: 3.22.2
   resolution: "zod@npm:3.22.2"
   checksum: 231e2180c8eabb56e88680d80baff5cf6cbe6d64df3c44c50ebe52f73081ecd0229b1c7215b9552537f537a36d9e36afac2737ddd86dc14e3519bdbc777e82b9
+  languageName: node
+  linkType: hard
+
+"zod@npm:~3.18.0":
+  version: 3.18.0
+  resolution: "zod@npm:3.18.0"
+  checksum: 86a9a9928f4b40a07020d4b9832842fa4a70050c2d7bd1b2866bc1acfd734aa53a40f87a99a4312a637341a608b0105770c7a1f83b56df78e97691b4f5badcd8
   languageName: node
   linkType: hard
 

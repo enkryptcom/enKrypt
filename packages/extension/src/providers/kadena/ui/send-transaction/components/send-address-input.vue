@@ -84,9 +84,7 @@ const address = computed({
     }
   },
   set: (value) => {
-    if (value) {
-      emit("update:inputAddress", value);
-    }
+    emit("update:inputAddress", value);
   },
 });
 

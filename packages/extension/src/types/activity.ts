@@ -5,6 +5,7 @@ import {
   TokenTypeTo,
   StatusOptionsResponse,
 } from "@enkryptcom/swap";
+import { ICommandResult } from "@kadena/client";
 
 interface BTCIns {
   address: string;
@@ -66,12 +67,21 @@ interface SubstrateRawInfo {
   asset_type: string;
 }
 
-interface KadenaRawInfo {
-  gas: number;
-  result: { status: string; data: string };
-  reqKey: string;
-  logs: string;
-  txId: number;
+type KadenaRawInfo = ICommandResult;
+
+interface KadenaDBInfo {
+  amount: string;
+  blockHash: string;
+  blockTime: string;
+  chain: number;
+  crossChainAccount: string | null;
+  crossChainId: number | null;
+  fromAccount: string;
+  height: number;
+  idx: number;
+  requestKey: string;
+  toAccount: string;
+  token: string;
 }
 
 enum ActivityStatus {
@@ -93,6 +103,8 @@ interface Activity {
   network: NetworkNames;
   from: string;
   to: string;
+  chainId?: string;
+  crossChainId?: number;
   value: string;
   timestamp: number;
   nonce?: string;
@@ -120,4 +132,5 @@ export {
   BTCRawInfo,
   SwapRawInfo,
   KadenaRawInfo,
+  KadenaDBInfo,
 };

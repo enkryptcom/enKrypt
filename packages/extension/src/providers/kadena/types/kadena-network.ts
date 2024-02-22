@@ -1,5 +1,9 @@
 import { Activity } from "@/types/activity";
-import { BaseNetwork, BaseNetworkOptions } from "@/types/base-network";
+import {
+  BaseNetwork,
+  BaseNetworkOptions,
+  SubNetworkOptions,
+} from "@/types/base-network";
 import { BaseTokenOptions } from "@/types/base-token";
 import { AssetsType, ProviderName } from "@/types/provider";
 import { CoingeckoPlatform, NetworkNames, SignerType } from "@enkryptcom/types";
@@ -31,11 +35,13 @@ export interface KadenaNetworkOptions {
   decimals: number;
   prefix: number;
   node: string;
+  buyLink?: string | undefined;
   kadenaApiOptions: KadenaApiOptions;
   displayAddress: (address: string) => string;
   coingeckoID?: string;
   coingeckoPlatform?: CoingeckoPlatform;
   isAddress: (address: string) => boolean;
+  subNetworks: SubNetworkOptions[];
   activityHandler: (
     network: BaseNetwork,
     address: string
@@ -59,7 +65,7 @@ export class KadenaNetwork extends BaseNetwork {
     };
 
     const baseOptions: BaseNetworkOptions = {
-      basePath: "m/44'/626'/0'/0'",
+      basePath: "m/44'/626'",
       identicon: createIcon,
       signer: [SignerType.ed25519kda],
       provider: ProviderName.kadena,

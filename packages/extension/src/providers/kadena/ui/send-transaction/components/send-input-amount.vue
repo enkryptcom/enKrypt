@@ -4,7 +4,7 @@
       v-model="amount"
       type="number"
       placeholder="0"
-      :class="{ error: !hasEnoughBalance }"
+      :class="{ error: !isValid }"
       @focus="changeFocus"
       @blur="changeFocus"
       @input="emit('update:inputSetMax', false)"
@@ -34,7 +34,7 @@ const emit = defineEmits<{
 const isFocus = ref(false);
 
 const props = defineProps({
-  hasEnoughBalance: {
+  isValid: {
     type: Boolean,
     default: false,
   },
