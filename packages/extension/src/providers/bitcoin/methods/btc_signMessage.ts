@@ -1,10 +1,12 @@
 import { getCustomError } from "@/libs/error";
 import { MiddlewareFunction } from "@enkryptcom/types";
-import EthereumProvider from "..";
+import BitcoinProvider from "..";
 import { WindowPromise } from "@/libs/window-promise";
+import { ProviderRPCRequest } from "@/types/provider";
+import AccountState from "../libs/accounts-state";
 const method: MiddlewareFunction = function (
-  this: EthereumProvider,
-  payload,
+  this: BitcoinProvider,
+  payload: ProviderRPCRequest,
   res,
   next
 ): void {
@@ -13,28 +15,38 @@ const method: MiddlewareFunction = function (
     if (!payload.params || payload.params.length < 2) {
       return res(getCustomError("btc_signMessage: invalid params"));
     }
-    const msg = payload.params[0];
-    this.KeyRing.getAccounts(this.network.signer).then((accounts) => {
-      const acc = accounts.find(
-        (a) => this.network.displayAddress(a.address) === payload.params![1]
-      );
-      if (!acc)
-        return res(getCustomError("btc_signMessage: account not found"));
-      const windowPromise = new WindowPromise();
-      windowPromise
-        .getResponse(
-          this.getUIPath(this.UIRoutes.btcSign.path),
-          JSON.stringify({
-            ...payload,
-            params: [msg, acc, this.network.name],
-          }),
-          true
-        )
-        .then(({ error, result }) => {
-          if (error) return res(error);
-          res(null, JSON.parse(result as string));
+    if (!payload.options || !payload.options.domain) {
+      return res(getCustomError("btc_signMessage: invalid domain"));
+    }
+    const msg = payload.params[0] as string;
+    const type = payload.params[1] as string;
+    const accountsState = new AccountState();
+
+    accountsState
+      .getApprovedAddresses(payload.options!.domain)
+      .then((accounts) => {
+        if (!accounts.length) {
+          return res(null, "");
+        }
+        this.KeyRing.getAccount(accounts[0]).then((acc) => {
+          if (!acc)
+            return res(getCustomError("btc_signMessage: account not found"));
+          const windowPromise = new WindowPromise();
+          windowPromise
+            .getResponse(
+              this.getUIPath(this.UIRoutes.btcSign.path),
+              JSON.stringify({
+                ...payload,
+                params: [msg, type, acc, this.network.name],
+              }),
+              true
+            )
+            .then(({ error, result }) => {
+              if (error) return res(error);
+              res(null, JSON.parse(result as string));
+            });
         });
-    });
+      });
   }
 };
 export default method;

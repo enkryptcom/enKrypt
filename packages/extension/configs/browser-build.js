@@ -61,6 +61,7 @@ const setConfig = (config) => {
     args[0]["process.env"] = {
       ..._base,
       PACKAGE_VERSION: JSON.stringify(package.version),
+      BUILD_TIME: new Date().toLocaleString().replace(/\D/g, ""),
       IS_DEV: process.env.NODE_ENV === "development",
       IS_FIREFOX: BROWSER === browserNames.firefox,
       PREFILL_PASSWORD:

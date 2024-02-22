@@ -9,6 +9,7 @@ import {
 import { toBN } from "web3-utils";
 import cacheFetch from "@/libs/cache-fetch";
 import { getAddress as getBitcoinAddress } from "../types/bitcoin-network";
+import { filterOutOrdinals } from "./filter-ordinals";
 
 class API implements ProviderAPIInterface {
   node: string;
@@ -47,6 +48,7 @@ class API implements ProviderAPIInterface {
             .map((output) => ({
               address: output.addresses![0],
               value: Number(output.value),
+              pkscript: output.scriptPubKey.hex,
             })),
           transactionHash: tx.txid,
           timestamp: tx.timestamp * 1000,
@@ -63,7 +65,8 @@ class API implements ProviderAPIInterface {
         return toBN(balance.balance)
           .add(toBN(balance.unconfirmedBalance))
           .toString();
-      });
+      })
+      .catch(() => "0");
   }
   async broadcastTx(rawtx: string): Promise<boolean> {
     return fetch(`${this.node}/api/v1/send`, {
@@ -114,9 +117,18 @@ class API implements ProviderAPIInterface {
     const address = pubkey.length < 64 ? pubkey : this.getAddress(pubkey);
     return fetch(`${this.node}/api/v1/account/${address}/utxos`)
       .then((res) => res.json())
-      .then((utxos: SSUnspentType[]) => {
+      .then(async (utxos: SSUnspentType[]) => {
         if ((utxos as any).message || !utxos.length) return [];
-        return this.SSToHaskoinUTXOs(utxos, address);
+        return filterOutOrdinals(
+          address,
+          this.networkInfo.name,
+          await this.SSToHaskoinUTXOs(utxos, address)
+        ).then((futxos) => {
+          futxos.sort((a, b) => {
+            return a.value - b.value;
+          });
+          return futxos;
+        });
       });
   }
 }

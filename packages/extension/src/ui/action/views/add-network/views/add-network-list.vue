@@ -108,9 +108,10 @@ const searchAllNetworks = computed(() => {
     a.name_long.toLowerCase().startsWith(searchInput.value.toLowerCase())
   );
 });
-onBeforeMount(async () => {
+
+const setNetworkLists = async (isTestActive: boolean) => {
   const allNetworksNotTestNets = (await getAllNetworksAndStatus())
-    .filter(({ isTestNetwork }) => !isTestNetwork)
+    .filter(({ isTestNetwork }) => !isTestNetwork || isTestActive)
     .sort((a, b) => a.name_long.localeCompare(b.name_long));
 
   const popularNetworks = allNetworksNotTestNets
@@ -119,16 +120,15 @@ onBeforeMount(async () => {
 
   all.value = allNetworksNotTestNets;
   popular.value = popularNetworks;
+};
+
+onBeforeMount(async () => {
+  await setNetworkLists(showTestNets.value);
 });
 
 const onTestNetCheck = async () => {
   showTestNets.value = !showTestNets.value;
-
-  if (showTestNets.value) {
-    all.value = await getAllNetworksAndStatus();
-  } else {
-    all.value = all.value.filter(({ isTestNetwork }) => !isTestNetwork);
-  }
+  await setNetworkLists(showTestNets.value);
 };
 
 const onToggle = async (networkName: string, isActive: boolean) => {
@@ -243,6 +243,7 @@ const isHasScroll = () => {
     margin: auto;
     width: 100%;
     max-height: 500px;
+    min-height: 250px;
     margin: 0;
     padding: 0 32px !important;
     box-sizing: border-box;

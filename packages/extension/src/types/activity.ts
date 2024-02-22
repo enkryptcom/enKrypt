@@ -6,17 +6,21 @@ import {
   StatusOptionsResponse,
 } from "@enkryptcom/swap";
 
-interface BTCInOuts {
+interface BTCIns {
   address: string;
   value: number;
+}
+
+interface BTCOuts extends BTCIns {
+  pkscript: string;
 }
 
 interface BTCRawInfo {
   blockNumber: number;
   transactionHash: string;
   timestamp: number | undefined;
-  inputs: BTCInOuts[];
-  outputs: BTCInOuts[];
+  inputs: BTCIns[];
+  outputs: BTCOuts[];
   fee: number;
 }
 

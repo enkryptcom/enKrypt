@@ -1,10 +1,8 @@
+import { NFTType } from "@/types/nft";
+
 export enum ContentRepresentation {
   IMAGE = "IMAGE",
   MEDIA = "MEDIA",
-}
-export enum SchemaType {
-  ERC721 = "ERC721",
-  ERC1155 = "ERC1155",
 }
 export interface Trait {
   trait: string;
@@ -36,7 +34,7 @@ export interface NFTCollection {
   name: string;
   description: string;
   image: string;
-  schema_type: SchemaType;
+  schema_type: NFTType;
   contract_address: string;
   contract_name: string;
   contract_symbol: string;

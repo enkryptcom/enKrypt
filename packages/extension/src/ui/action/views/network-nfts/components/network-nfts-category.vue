@@ -1,9 +1,13 @@
 <template>
   <div class="network-nfts__category">
     <div class="network-nfts__category-head">
-      <!-- <img :src="collection.image" alt="" /> -->
-      <p>{{ collection.name }}</p>
-
+      <p>
+        {{
+          collection.name.length > 25
+            ? $filters.replaceWithEllipsis(collection.name, 25, 4)
+            : collection.name
+        }}
+      </p>
       <a
         ref="toggle"
         class="network-nfts__category-sort"

@@ -9,7 +9,7 @@
         </a>
       </div>
       <p>Let us know how you feel, your feedback is important to us.</p>
-      <base-button title="Sure, I’ll rate it" :click="goToRate" />
+      <base-button title="Sure, I'll rate it" :click="goToRate" />
       <div class="rate__button-indent"></div>
       <base-button
         title="I have a feedback"

@@ -1,3 +1,5 @@
+import { NFTType } from "@/types/nft";
+
 export interface SHNFTType {
   nft_id: string;
   chain: string;
@@ -19,10 +21,30 @@ export interface SHNFTType {
     description: string;
     image_url: string;
     external_url: string;
+    collection_id: string;
+    spam_score: number;
+  };
+  contract: {
+    name: string;
+    type: NFTType;
+  };
+}
+export interface SHOrdinalsNFTType extends SHNFTType {
+  extra_metadata: {
+    ordinal_details: {
+      location: string;
+      protocol_name: string;
+    };
   };
 }
 export interface SHResponse {
   next: string;
   previous: string;
   nfts: SHNFTType[];
+}
+
+export interface SHOrdinalsResponse {
+  next: string;
+  previous: string;
+  nfts: SHOrdinalsNFTType[];
 }
