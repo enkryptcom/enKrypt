@@ -62,6 +62,7 @@ export enum NetworkNames {
   Dogecoin = "DOGE",
   ArtheraTest = "AATest",
   Arthera = "AA",
+  Starknet = "Starknet",
 }
 
 export enum CoingeckoPlatform {

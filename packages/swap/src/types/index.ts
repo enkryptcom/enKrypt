@@ -27,6 +27,7 @@ export enum SupportedNetworkName {
   Klaytn = NetworkNames.Klaytn,
   Aurora = NetworkNames.Aurora,
   Zksync = NetworkNames.ZkSync,
+  Starknet = NetworkNames.Starknet,
 }
 
 // eslint-disable-next-line no-shadow
@@ -118,6 +119,7 @@ export enum ProviderName {
   zerox = "zerox",
   changelly = "changelly",
   rango = "rango",
+  propellerHeads = "propellerHeads",
 }
 
 // eslint-disable-next-line no-shadow
