@@ -3,11 +3,12 @@ import type { Provider as InjectedProvider } from "../inject";
 import { PaymentType } from "./bitcoin-network";
 
 export const BitcoinNetworks = {
-  BTC: NetworkNames.Bitcoin,
-  BTCTest: NetworkNames.BitcoinTest,
+  livenet: NetworkNames.Bitcoin,
+  testnet: NetworkNames.BitcoinTest,
 };
 
 export interface BitcoinNetworkInfo {
+  name: NetworkNames;
   messagePrefix: string;
   bech32: string;
   bip32: {
@@ -99,6 +100,10 @@ export interface SSTxType {
 export interface RPCTxType {
   to: string;
   value: number;
+}
+
+export interface SignPSBTOptions {
+  autoFinalized: boolean;
 }
 
 export { InjectedProvider };

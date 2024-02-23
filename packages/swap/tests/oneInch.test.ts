@@ -71,7 +71,7 @@ describe("OneInch Provider", () => {
       `0x095ea7b3000000000000000000000000${ONEINCH_APPROVAL_ADDRESS.replace(
         "0x",
         ""
-      )}000000000000000000000000000000000000000000000000${numberToHex(
+      )}00000000000000000000000000000000000000000000000${numberToHex(
         amount
       ).replace("0x", "")}`
     );

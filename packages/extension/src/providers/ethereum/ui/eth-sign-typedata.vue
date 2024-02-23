@@ -26,7 +26,12 @@
           </div>
         </div>
         <div class="common-popup__message">
-          <JsonTreeView v-if="message !== ''" :data="message" :max-depth="1" />
+          <JsonTreeView
+            v-if="message !== ''"
+            :data="message"
+            :max-depth="1"
+            :root-key-string="'Sign typed data'"
+          />
         </div>
       </div>
     </template>

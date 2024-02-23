@@ -12,7 +12,7 @@
       <router-link
         :to="{
           name: 'send-transaction',
-          params: { id: route.params.id },
+          params: { id: route.params.id, isToken: 'true' },
         }"
         class="network-activity__action-item"
       >

@@ -4,6 +4,7 @@ import { ActivityOptions } from "./types";
 import { Activity, ActivityStatus } from "@/types/activity";
 const STORAGE_KEY = "activity";
 const MAX_PENDING_TIME = 12 * 60 * 60 * 1000; // 12 hours
+
 class ActivityState {
   #storage: BrowserStorage;
   constructor() {
@@ -19,39 +20,44 @@ class ActivityState {
     activity: Activity[],
     options: ActivityOptions
   ): Promise<void> {
-    const activities = await this.getActivitiesById(
-      this.getActivityId(options)
+    let activities = await this.getActivitiesById(this.getActivityId(options));
+    const liveHashesToRemove: string[] = [];
+    const oldHashesToRemove: string[] = [];
+    activities.forEach((act) => {
+      activity.forEach((lact) => {
+        if (act.transactionHash === lact.transactionHash) {
+          act.status = lact.status;
+          liveHashesToRemove.push(lact.transactionHash);
+        }
+        if (
+          act.nonce &&
+          act.nonce === lact.nonce &&
+          act.transactionHash !== lact.transactionHash &&
+          (lact.status === ActivityStatus.success ||
+            lact.status === ActivityStatus.failed)
+        ) {
+          oldHashesToRemove.push(act.transactionHash);
+        }
+      });
+    });
+    activity = activity.filter(
+      (a) => !liveHashesToRemove.includes(a.transactionHash)
     );
-    const combined = activity.concat(activities);
+    activities = activities.filter(
+      (a) => !oldHashesToRemove.includes(a.transactionHash)
+    );
+    let combined = activities.concat(activity);
     combined.sort((a, b) => {
       return b.timestamp - a.timestamp;
     });
-    const existingHashes: string[] = [];
-    const cleanArr: Activity[] = [];
     const currentTime = new Date().getTime();
-    const minedNonces = cleanArr
-      .filter(
-        (item) =>
-          (item.status === ActivityStatus.success ||
-            item.status === ActivityStatus.failed) &&
-          item.nonce
-      )
-      .map((item) => item.nonce);
-    for (let i = 0; i < combined.length; i++) {
-      if (!existingHashes.includes(combined[i].transactionHash)) {
-        if (
-          combined[i].status !== ActivityStatus.pending ||
-          !combined[i].nonce ||
-          !minedNonces.includes(combined[i].nonce) ||
-          (combined[i].status === ActivityStatus.pending &&
-            combined[i].timestamp > currentTime - MAX_PENDING_TIME)
-        )
-          cleanArr.push(combined[i]);
-      }
-      existingHashes.push(combined[i].transactionHash);
-    }
+    combined = combined.filter(
+      (a) =>
+        a.status !== ActivityStatus.pending ||
+        a.timestamp > currentTime - MAX_PENDING_TIME
+    );
     await this.setActivitiesById(
-      cleanArr.slice(0, 50),
+      combined.slice(0, 50),
       this.getActivityId(options)
     );
   }

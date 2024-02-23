@@ -55,7 +55,7 @@ const routes = {
     name: "nfts",
   },
   send: {
-    path: "/send/:id?",
+    path: "/send/:id/:isToken/:tokenData?",
     components: {
       view: SendTransaction,
     },

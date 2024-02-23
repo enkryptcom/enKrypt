@@ -59,7 +59,8 @@ const handleIncomingMessage: handleIncomingMessageType = (
         type: jsonMsg.method,
       });
     } else if (
-      jsonMsg.method === EnkryptProviderEventMethods.persistentEvents
+      (jsonMsg.method as EnkryptProviderEventMethods) ===
+      EnkryptProviderEventMethods.persistentEvents
     ) {
       const initialEvent = jsonMsg.params[0] as RPCRequestType;
       if (initialEvent.method === "eth_subscribe") {
@@ -69,8 +70,6 @@ const handleIncomingMessage: handleIncomingMessageType = (
       } else {
         console.error(`Unable to process persistentEvent:${message}`);
       }
-    } else {
-      console.error(`Unable to process message:${message}`);
     }
   } catch (e) {
     console.error(e);
