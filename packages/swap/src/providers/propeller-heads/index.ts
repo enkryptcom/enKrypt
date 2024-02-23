@@ -55,16 +55,20 @@ const supportedNetworks: {
     approvalAddress: "0xe832e655E4C3c36b2be5256915ECF8536a642f59",
     chainId: "324",
   },
-  // [SupportedNetworkName.Starknet]: {
-  //   approvalAddress: "0x060b1a6a696cbd77df0b6be6a2a951cf0fc7b951304a9371eac2f5d05a77357f",
-  //   chainId: "137",
-  // },
+  [SupportedNetworkName.Starknet]: {
+    approvalAddress:
+      "0x060b1a6a696cbd77df0b6be6a2a951cf0fc7b951304a9371eac2f5d05a77357f",
+    // TODO: Update chain id
+    chainId: "137",
+  },
 };
 
 const NetworkNamesToSupportedProppellerHeadsBlockchains: Partial<
   Record<SupportedNetworkName, string>
 > = {
   [SupportedNetworkName.Ethereum]: "ethereum",
+  [SupportedNetworkName.Zksync]: "zksync",
+  [SupportedNetworkName.Starknet]: "starknet",
 };
 
 const BASE_URL = "https://api.propellerheads.xyz/partner/v2";
