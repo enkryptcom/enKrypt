@@ -121,9 +121,7 @@ const MessageSigner = (
         },
       };
       const mHash = magicHash(payload);
-      console.log(mHash.length);
       return signer.sign(mHash).then((sig) => {
-        console.log(sig);
         return {
           result: JSON.stringify(
             toCompact(sig.recovery, sig.signature, true).toString("base64")
