@@ -63,7 +63,7 @@
     "vue": "^3.4.21",
     "vue-echarts": "6.6.9",
     "vue-router": "4.3.0",
-    "vue3-lottie": "^2.7.4",
+    "vue3-lottie": "^3.2.0",
     "vuedraggable": "^4.1.0",
     "web3-eth": "^1.10.4",
     "web3-utils": "^1.10.4",

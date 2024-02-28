@@ -2443,7 +2443,7 @@ __metadata:
     vue: ^3.4.21
     vue-echarts: 6.6.9
     vue-router: 4.3.0
-    vue3-lottie: ^2.7.4
+    vue3-lottie: ^3.2.0
     vuedraggable: ^4.1.0
     web3-eth: ^1.10.4
     web3-utils: ^1.10.4
@@ -24632,15 +24632,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vue3-lottie@npm:^2.7.4":
-  version: 2.7.4
-  resolution: "vue3-lottie@npm:2.7.4"
+"vue3-lottie@npm:^3.2.0":
+  version: 3.2.0
+  resolution: "vue3-lottie@npm:3.2.0"
   dependencies:
     lodash-es: ^4.17.21
     lottie-web: 5.12.2
   peerDependencies:
     vue: ^3.2
-  checksum: db74118b5c7f49a12b3c35d31c10b54ca8977e56b8f96a88323f451fb78619fbfcbb2fe8cb1e0f51c6919f1839f906597fae287f6d15a2518b89a2c42f286330
+  checksum: 9fa94a64606532d7c8113bb93c2b19840e87c4aa5c572df2a438f06bf3046a8cd1294f49033e401afb6e436fd3a20073d32c3eea885724c8f109d9afe2ffe44c
   languageName: node
   linkType: hard
 
