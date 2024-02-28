@@ -62,6 +62,9 @@ const setConfig = (config) => {
   });
   config.plugin("copy-manifest").use(copyManifest);
   config.plugin("define").tap((args) => {
+    Object.assign(args[0], {
+      __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: "false",
+    });
     const _base = args[0]["process.env"];
     args[0]["process.env"] = {
       ..._base,
