@@ -3,10 +3,7 @@ import { HWwalletCapabilities, NetworkNames } from "@enkryptcom/types";
 import HDKey from "hdkey";
 import { bigIntToHex, bufferToHex, hexToBuffer } from "@enkryptcom/utils";
 import { publicToAddress, toRpcSig } from "ethereumjs-util";
-import {
-  FeeMarketEIP1559Transaction,
-  Transaction as LegacyTransaction,
-} from "@ethereumjs/tx";
+import { FeeMarketEIP1559Transaction, LegacyTransaction } from "@ethereumjs/tx";
 import {
   AddressResponse,
   getAddressRequest,

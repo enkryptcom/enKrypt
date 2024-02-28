@@ -47,7 +47,7 @@
   "dependencies": {
     "@enkryptcom/types": "workspace:^",
     "@enkryptcom/utils": "workspace:^",
-    "@ethereumjs/tx": "^4.2.0",
+    "@ethereumjs/tx": "^5.2.1",
     "@ledgerhq/hw-app-eth": "^6.35.6",
     "@ledgerhq/hw-transport": "^6.30.4",
     "@ledgerhq/hw-transport-webusb": "^6.28.4",

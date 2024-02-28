@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "@enkryptcom/types": "workspace:^",
-    "@ethereumjs/util": "^8.1.0",
+    "@ethereumjs/util": "^9.0.2",
     "@polkadot/util-crypto": "^12.6.2",
     "bip39": "^3.1.0",
     "chai": "^4.4.1",

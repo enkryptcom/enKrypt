@@ -4,10 +4,7 @@ import ledgerService from "@ledgerhq/hw-app-eth/lib/services/ledger";
 import { HWwalletCapabilities, NetworkNames } from "@enkryptcom/types";
 import EthApp from "@ledgerhq/hw-app-eth";
 import { toRpcSig, publicToAddress, rlp } from "ethereumjs-util";
-import {
-  Transaction as LegacyTransaction,
-  FeeMarketEIP1559Transaction,
-} from "@ethereumjs/tx";
+import { LegacyTransaction, FeeMarketEIP1559Transaction } from "@ethereumjs/tx";
 import HDKey from "hdkey";
 import { bigIntToHex, bufferToHex, hexToBuffer } from "@enkryptcom/utils";
 import {
@@ -111,10 +108,10 @@ class LedgerEthereum implements HWWalletProvider {
     let msgToSign: string;
     if ((options.transaction as LegacyTransaction).gasPrice) {
       tx = options.transaction as LegacyTransaction;
-      msgToSign = rlp.encode(tx.getMessageToSign(false)).toString("hex");
+      msgToSign = rlp.encode(tx.getMessageToSign()).toString("hex");
     } else {
       tx = options.transaction as FeeMarketEIP1559Transaction;
-      msgToSign = tx.getMessageToSign(false).toString("hex");
+      msgToSign = bufferToHex(tx.getMessageToSign(), true);
     }
     const resolution = await ledgerService.resolveTransaction(
       msgToSign,

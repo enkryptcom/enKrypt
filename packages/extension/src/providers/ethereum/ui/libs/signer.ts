@@ -3,8 +3,9 @@ import { FeeMarketEIP1559Transaction } from "@ethereumjs/tx";
 import { SignerTransactionOptions, SignerMessageOptions } from "../types";
 import HWwallet from "@enkryptcom/hw-wallets";
 import { HWwalletType } from "@enkryptcom/types";
-import { bufferToHex, fromRpcSig, hashPersonalMessage } from "ethereumjs-util";
+import { fromRpcSig, hashPersonalMessage } from "ethereumjs-util";
 import { getCustomError } from "@/libs/error";
+import { bufferToHex } from "@enkryptcom/utils";
 import sendUsingInternalMessengers from "@/libs/messenger/internal-messenger";
 const TransactionSigner = (
   options: SignerTransactionOptions
@@ -25,9 +26,12 @@ const TransactionSigner = (
       })
       .then((rpcsig: string) => {
         const rpcSig = fromRpcSig(rpcsig);
-        const signedTx = (
-          payload as FeeMarketEIP1559Transaction
-        )._processSignature(BigInt(rpcSig.v), rpcSig.r, rpcSig.s);
+        const signedTx = (payload as FeeMarketEIP1559Transaction).addSignature(
+          BigInt(rpcSig.v),
+          rpcSig.r,
+          rpcSig.s,
+          true
+        );
         return signedTx;
       })
       .catch((e) => {
@@ -36,7 +40,7 @@ const TransactionSigner = (
         });
       });
   } else {
-    const msgHash = bufferToHex(payload.getMessageToSign(true));
+    const msgHash = bufferToHex(payload.getHashedMessageToSign());
     return sendUsingInternalMessengers({
       method: InternalMethods.sign,
       params: [msgHash, account],
@@ -45,9 +49,12 @@ const TransactionSigner = (
         return Promise.reject(res);
       } else {
         const rpcSig = fromRpcSig(JSON.parse(res.result as string) || "0x");
-        const signedTx = (
-          payload as FeeMarketEIP1559Transaction
-        )._processSignature(BigInt(rpcSig.v), rpcSig.r, rpcSig.s);
+        const signedTx = (payload as FeeMarketEIP1559Transaction).addSignature(
+          BigInt(rpcSig.v),
+          rpcSig.r,
+          rpcSig.s,
+          true
+        );
         return signedTx;
       }
     });

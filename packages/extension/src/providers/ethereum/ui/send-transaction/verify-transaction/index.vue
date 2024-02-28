@@ -105,7 +105,7 @@ import broadcastTx from "@/providers/ethereum/libs/tx-broadcaster";
 import { BaseNetwork } from "@/types/base-network";
 import { bigIntToHex } from "@ethereumjs/util";
 import { toBN } from "web3-utils";
-import { toBase } from "@enkryptcom/utils";
+import { bufferToHex, toBase } from "@enkryptcom/utils";
 
 const KeyRing = new PublicKeyRing();
 const route = useRoute();
@@ -203,16 +203,11 @@ const sendAction = async () => {
         payload: finalizedTx,
       })
         .then((signedTx) => {
-          broadcastTx(
-            "0x" + signedTx.serialize().toString("hex"),
-            network.value.name
-          )
+          broadcastTx(bufferToHex(signedTx.serialize()), network.value.name)
             .then(onHash)
             .catch(() => {
               web3
-                .sendSignedTransaction(
-                  "0x" + signedTx.serialize().toString("hex")
-                )
+                .sendSignedTransaction(bufferToHex(signedTx.serialize()))
                 .on("transactionHash", onHash)
                 .on("error", (error: any) => {
                   txActivity.status = ActivityStatus.failed;
