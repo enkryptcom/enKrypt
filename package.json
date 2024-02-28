@@ -33,7 +33,7 @@
     "@commitlint/config-conventional": "^19.0.3",
     "@swc/core": "^1.4.2",
     "concurrently": "^8.2.2",
-    "husky": "^8.0.3",
+    "husky": "^9.0.11",
     "node-notifier": "^10.0.1",
     "nodemon": "^3.1.0",
     "ultra-runner": "^3.10.5"
