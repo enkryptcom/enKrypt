@@ -1516,6 +1516,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@commitlint/config-conventional@npm:^19.0.3":
+  version: 19.0.3
+  resolution: "@commitlint/config-conventional@npm:19.0.3"
+  dependencies:
+    "@commitlint/types": ^19.0.3
+    conventional-changelog-conventionalcommits: ^7.0.2
+  checksum: 35fc2f8aba87196bf3a50f4d2c851ae462a5f993f0b2ea9baacd381d7db58dce07291874fa32b059ee6b88058acd44410ec7cf1b97519d9b2068f2cb532d0ed4
+  languageName: node
+  linkType: hard
+
 "@commitlint/config-validator@npm:^19.0.3":
   version: 19.0.3
   resolution: "@commitlint/config-validator@npm:19.0.3"
@@ -11232,7 +11242,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chalk@npm:^4.0.0, chalk@npm:^4.1.0, chalk@npm:^4.1.1, chalk@npm:^4.1.2":
+"chalk@npm:^4.0.0, chalk@npm:^4.1.0, chalk@npm:^4.1.2":
   version: 4.1.2
   resolution: "chalk@npm:4.1.2"
   dependencies:
@@ -11658,13 +11668,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"commander@npm:7.2.0, commander@npm:^7.2.0":
-  version: 7.2.0
-  resolution: "commander@npm:7.2.0"
-  checksum: 53501cbeee61d5157546c0bef0fedb6cdfc763a882136284bed9a07225f09a14b82d2a84e7637edfd1a679fb35ed9502fd58ef1d091e6287f60d790147f68ddc
-  languageName: node
-  linkType: hard
-
 "commander@npm:^2.15.0, commander@npm:^2.20.0, commander@npm:^2.20.3":
   version: 2.20.3
   resolution: "commander@npm:2.20.3"
@@ -11676,6 +11679,13 @@ __metadata:
   version: 4.1.1
   resolution: "commander@npm:4.1.1"
   checksum: d7b9913ff92cae20cb577a4ac6fcc121bd6223319e54a40f51a14740a681ad5c574fd29a57da478a5f234a6fa6c52cbf0b7c641353e03c648b1ae85ba670b977
+  languageName: node
+  linkType: hard
+
+"commander@npm:^7.2.0":
+  version: 7.2.0
+  resolution: "commander@npm:7.2.0"
+  checksum: 53501cbeee61d5157546c0bef0fedb6cdfc763a882136284bed9a07225f09a14b82d2a84e7637edfd1a679fb35ed9502fd58ef1d091e6287f60d790147f68ddc
   languageName: node
   linkType: hard
 
@@ -11841,6 +11851,15 @@ __metadata:
   dependencies:
     compare-func: ^2.0.0
   checksum: 2478962ad7ce42878449ba3568347d704f22c5c9af1cd36916b5600734bd7f82c09712a338c649195c44e907f1b0372ce52d6cb51df643f495c89af05ad4bc48
+  languageName: node
+  linkType: hard
+
+"conventional-changelog-conventionalcommits@npm:^7.0.2":
+  version: 7.0.2
+  resolution: "conventional-changelog-conventionalcommits@npm:7.0.2"
+  dependencies:
+    compare-func: ^2.0.0
+  checksum: e17ac5970ae09d6e9b0c3a7edaed075b836c0c09c34c514589cbe06554f46ed525067fa8150a8467cc03b1cf9af2073e7ecf48790d4f5ea399921b1cbe313711
   languageName: node
   linkType: hard
 
@@ -12763,19 +12782,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"devmoji@npm:^2.3.0":
-  version: 2.3.0
-  resolution: "devmoji@npm:2.3.0"
-  dependencies:
-    chalk: ^4.1.1
-    commander: 7.2.0
-    ts-interface-checker: 1.0.0
-  bin:
-    devmoji: bin/devmoji.js
-  checksum: 8b13866422085ac6834ffcd66fc342bb56b3128d0909647c00b475d29e11be83e6035f7ffcfeca3bcfec7299a0d3e3b3b84265993885d1aff33e3fc5467f2687
-  languageName: node
-  linkType: hard
-
 "diff-sequences@npm:^27.5.1":
   version: 27.5.1
   resolution: "diff-sequences@npm:27.5.1"
@@ -13154,9 +13160,10 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "enkrypt@workspace:."
   dependencies:
+    "@commitlint/cli": ^19.0.3
+    "@commitlint/config-conventional": ^19.0.3
     "@swc/core": ^1.4.2
     concurrently: ^8.2.2
-    devmoji: ^2.3.0
     husky: ^8.0.3
     node-notifier: ^10.0.1
     nodemon: ^3.1.0
@@ -23175,13 +23182,6 @@ __metadata:
     semver: ^5.6.0
     validator: ^13.7.0
   checksum: dd86cdae1db2aa5dfb5d7594cd5b28f49c85a313019452de4ac6fb8e74e2fcf12a83d933d1c562f2ba992fe2a788965b7ac3ca6090ed7e401897efe6a8ef0ead
-  languageName: node
-  linkType: hard
-
-"ts-interface-checker@npm:1.0.0":
-  version: 1.0.0
-  resolution: "ts-interface-checker@npm:1.0.0"
-  checksum: 3cf0b6037f3ccd6f6df1c963ce4dcff4ab540129b24d4f662b4df82abdd287276b2795824221b4bc1ae68244f03f37de90458f256e94e9de572d00ddaa023ff7
   languageName: node
   linkType: hard
 
