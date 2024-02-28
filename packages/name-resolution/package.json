@@ -45,7 +45,7 @@
   "author": "kvhnuke",
   "license": "MIT",
   "dependencies": {
-    "@ensdomains/address-encoder": "^0.2.22",
+    "@ensdomains/address-encoder": "^1.1.0",
     "@siddomains/sidjs": "0.1.29",
     "@unstoppabledomains/resolution": "^9.2.2",
     "ethers": "^5.7.2"
