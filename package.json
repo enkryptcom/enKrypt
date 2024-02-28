@@ -26,7 +26,8 @@
     "upgrade": "yarn upgrade-interactive",
     "version:bump:patch": "yarn workspaces foreach -pv --exclude @enkryptcom/extension exec 'yarn version --immediate patch'",
     "publish": "yarn workspaces foreach -pv --exclude @enkryptcom/extension exec 'yarn npm publish --access public --otp 474911'",
-    "version:apply": "yarn version apply --all"
+    "version:apply": "yarn version apply --all",
+    "prepare": "husky"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.0.3",
