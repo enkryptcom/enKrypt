@@ -4,10 +4,10 @@ import { bufferToHex } from "ethereumjs-util";
 import sendUsingInternalMessengers from "@/libs/messenger/internal-messenger";
 import { hexToBuffer } from "@enkryptcom/utils";
 import { Psbt } from "bitcoinjs-lib";
-import { signAsync } from "bitcoinjs-message";
 import { BitcoinNetwork, PaymentType } from "../../types/bitcoin-network";
 import { EnkryptAccount } from "@enkryptcom/types";
 import { signMessageOfBIP322Simple } from "../../libs/bip322-message-sign";
+import { magicHash, toCompact } from "../../libs/sign-message-utils";
 
 const PSBTSigner = (account: EnkryptAccount, network: BitcoinNetwork) => {
   return {
@@ -111,10 +111,7 @@ const MessageSigner = (
                 error: res.error,
               });
             } else {
-              const sigBuffer = hexToBuffer(JSON.parse(res.result!)).subarray(
-                0,
-                64
-              );
+              const sigBuffer = hexToBuffer(JSON.parse(res.result!));
               return {
                 signature: sigBuffer.subarray(0, 64),
                 recovery: sigBuffer[64],
@@ -123,9 +120,12 @@ const MessageSigner = (
           });
         },
       };
-      return signAsync(payload, signer, false).then((res) => {
+      const mHash = magicHash(payload);
+      return signer.sign(mHash).then((sig) => {
         return {
-          result: JSON.stringify(res.toString("base64")),
+          result: JSON.stringify(
+            toCompact(sig.recovery, sig.signature, true).toString("base64")
+          ),
         };
       });
     }
