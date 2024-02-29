@@ -47,7 +47,9 @@
   "dependencies": {
     "@enkryptcom/types": "workspace:^",
     "@enkryptcom/utils": "workspace:^",
+    "@ethereumjs/rlp": "^5.0.2",
     "@ethereumjs/tx": "^5.2.1",
+    "@ethereumjs/util": "^9.0.2",
     "@ledgerhq/hw-app-eth": "^6.35.6",
     "@ledgerhq/hw-transport": "^6.30.4",
     "@ledgerhq/hw-transport-webusb": "^6.28.4",
@@ -56,7 +58,6 @@
     "@polkadot/util": "^12.6.2",
     "@trezor/connect-web": "^9.1.12",
     "@zondax/ledger-substrate": "^0.41.3",
-    "ethereumjs-util": "^7.1.5",
     "hdkey": "^2.1.0",
     "webextension-polyfill": "^0.10.0"
   }

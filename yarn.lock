@@ -2360,6 +2360,7 @@ __metadata:
     "@enkryptcom/utils": "workspace:^"
     "@ethereumjs/common": ^4.2.0
     "@ethereumjs/tx": ^5.2.1
+    "@ethereumjs/util": ^9.0.2
     "@ledgerhq/hw-transport-webusb": ^6.28.4
     "@metamask/eth-sig-util": ^7.0.1
     "@polkadot/api": ^10.11.3
@@ -2410,8 +2411,8 @@ __metadata:
     eslint-config-prettier: ^8.10.0
     eslint-plugin-prettier: ^4.2.1
     eslint-plugin-vue: ^8.7.1
+    ethereum-cryptography: ^2.1.3
     ethereumjs-abi: ^0.6.8
-    ethereumjs-util: ^7.1.5
     ethereumjs-wallet: ^1.0.2
     eventemitter3: ^5.0.1
     https-browserify: ^1.0.0
@@ -2459,7 +2460,9 @@ __metadata:
   dependencies:
     "@enkryptcom/types": "workspace:^"
     "@enkryptcom/utils": "workspace:^"
+    "@ethereumjs/rlp": ^5.0.2
     "@ethereumjs/tx": ^5.2.1
+    "@ethereumjs/util": ^9.0.2
     "@ledgerhq/hw-app-eth": ^6.35.6
     "@ledgerhq/hw-transport": ^6.30.4
     "@ledgerhq/hw-transport-webusb": ^6.28.4
@@ -2480,7 +2483,6 @@ __metadata:
     eslint-import-resolver-alias: ^1.1.2
     eslint-plugin-import: ^2.29.1
     eslint-plugin-module-resolver: ^1.5.0
-    ethereumjs-util: ^7.1.5
     hdkey: ^2.1.0
     mocha: ^10.3.0
     prettier: ^2.8.8
@@ -2637,6 +2639,7 @@ __metadata:
   dependencies:
     "@enkryptcom/types": "workspace:^"
     "@enkryptcom/utils": "workspace:^"
+    "@ethereumjs/util": ^9.0.2
     "@types/chai": ^4.3.12
     "@types/hdkey": ^2.0.3
     "@types/mocha": ^10.0.6
@@ -2651,7 +2654,6 @@ __metadata:
     eslint-import-resolver-alias: ^1.1.2
     eslint-plugin-import: ^2.29.1
     eslint-plugin-module-resolver: ^1.5.0
-    ethereumjs-util: ^7.1.5
     hdkey: ^2.1.0
     mocha: ^10.3.0
     prettier: ^2.8.8

@@ -126,7 +126,7 @@ import { getError } from "@/libs/error";
 import { ErrorCodes } from "@/providers/ethereum/types";
 import { WindowPromiseHandler } from "@/libs/window-promise";
 import { DEFAULT_BTC_NETWORK, getNetworkByName } from "@/libs/utils/networks";
-import { fromBase, hexToBuffer } from "@enkryptcom/utils";
+import { fromBase, hexToBuffer, bufferToHex } from "@enkryptcom/utils";
 import { ProviderRequestOptions } from "@/types/provider";
 import { GasFeeType } from "./types";
 import MarketData from "@/libs/market-data";
@@ -141,7 +141,6 @@ import { toBN } from "web3-utils";
 import { Psbt } from "bitcoinjs-lib";
 import BigNumber from "bignumber.js";
 import { JsonTreeView } from "@/libs/json-tree-view";
-import { bufferToHex } from "ethereumjs-util";
 
 const isProcessing = ref(false);
 const isPreLoading = ref(true);

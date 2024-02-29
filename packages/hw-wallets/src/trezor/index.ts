@@ -2,7 +2,7 @@ import TrezorConnect from "@trezor/connect-web";
 import { HWwalletCapabilities, NetworkNames } from "@enkryptcom/types";
 import HDKey from "hdkey";
 import { bigIntToHex, bufferToHex, hexToBuffer } from "@enkryptcom/utils";
-import { publicToAddress, toRpcSig } from "ethereumjs-util";
+import { publicToAddress, toRpcSig } from "@ethereumjs/util";
 import { FeeMarketEIP1559Transaction, LegacyTransaction } from "@ethereumjs/tx";
 import {
   AddressResponse,
@@ -113,7 +113,7 @@ class TrezorEthereum implements HWWalletProvider {
         const rv = BigInt(parseInt(result.payload.v, 16));
         const cv = tx.common.chainId() * 2n + 35n;
         return toRpcSig(
-          bigIntToHex(rv - cv),
+          rv - cv,
           hexToBuffer(result.payload.r),
           hexToBuffer(result.payload.s)
         );
@@ -132,7 +132,7 @@ class TrezorEthereum implements HWWalletProvider {
       if (!result.success)
         throw new Error((result.payload as any).error as string);
       return toRpcSig(
-        result.payload.v,
+        BigInt(result.payload.v),
         hexToBuffer(result.payload.r),
         hexToBuffer(result.payload.s)
       );

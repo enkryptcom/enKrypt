@@ -3,7 +3,7 @@ import { FeeMarketEIP1559Transaction } from "@ethereumjs/tx";
 import { SignerTransactionOptions, SignerMessageOptions } from "../types";
 import HWwallet from "@enkryptcom/hw-wallets";
 import { HWwalletType } from "@enkryptcom/types";
-import { fromRpcSig, hashPersonalMessage } from "ethereumjs-util";
+import { fromRpcSig, hashPersonalMessage } from "@ethereumjs/util";
 import { getCustomError } from "@/libs/error";
 import { bufferToHex } from "@enkryptcom/utils";
 import sendUsingInternalMessengers from "@/libs/messenger/internal-messenger";
@@ -50,7 +50,7 @@ const TransactionSigner = (
       } else {
         const rpcSig = fromRpcSig(JSON.parse(res.result as string) || "0x");
         const signedTx = (payload as FeeMarketEIP1559Transaction).addSignature(
-          BigInt(rpcSig.v),
+          rpcSig.v,
           rpcSig.r,
           rpcSig.s,
           true
