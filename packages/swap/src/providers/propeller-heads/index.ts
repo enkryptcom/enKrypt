@@ -16,6 +16,7 @@ import {
   StatusOptionsResponse,
   SupportedNetworkName,
   SwapQuote,
+  SwapTransaction,
   TokenType,
   TransactionStatus,
   TransactionType,
@@ -58,8 +59,7 @@ const supportedNetworks: {
   [SupportedNetworkName.Starknet]: {
     approvalAddress:
       "0x060b1a6a696cbd77df0b6be6a2a951cf0fc7b951304a9371eac2f5d05a77357f",
-    // TODO: Update chain id
-    chainId: "137",
+    chainId: "0x534e5f4d41494e",
   },
 };
 
@@ -177,7 +177,11 @@ class PropellerHeads extends ProviderClass {
     })
       .then((res) => res.json())
       .then(async (response: PropellerHeadsResponseType) => {
-        const transactions: EVMTransaction[] = [];
+        const transactions: SwapTransaction[] = [];
+        const transactionType: TransactionType =
+          this.network === SupportedNetworkName.Starknet
+            ? TransactionType.generic
+            : TransactionType.evm;
 
         if (options.fromToken.address !== NATIVE_TOKEN_ADDRESS) {
           const approvalTxs = await getAllowanceTransactions({
@@ -196,7 +200,7 @@ class PropellerHeads extends ProviderClass {
           to: options.fromAddress,
           value: numberToHex(options.amount),
           data: stringToHex(JSON.stringify(response)),
-          type: TransactionType.evm,
+          type: transactionType,
         });
 
         return {
