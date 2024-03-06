@@ -3,7 +3,7 @@ import { BN, EVMTransaction } from "../../types";
 export interface OneInchResponseType {
   error?: string;
   description?: string;
-  toAmount: string;
+  dstAmount: string;
   tx: {
     from: string;
     to: string;
