@@ -282,7 +282,13 @@ const isInputsValid = computed<boolean>(() => {
     !isAddress(addressTo.value, (props.network as BitcoinNetwork).networkInfo)
   )
     return false;
-  if (!isValidDecimals(sendAmount.value, selectedAsset.value.decimals!)) {
+  if (
+    isSendToken.value &&
+    !isValidDecimals(sendAmount.value, selectedAsset.value.decimals!)
+  ) {
+    return false;
+  }
+  if (!isSendToken.value && !selectedNft.value.id) {
     return false;
   }
   if (
