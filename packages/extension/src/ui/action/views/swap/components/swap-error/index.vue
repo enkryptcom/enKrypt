@@ -21,23 +21,44 @@
         class="swap-looking__animation"
       />
       <Vue3Lottie
-        v-else-if="error === SwapError.NETWORK_NOT_SUPPORTED"
+        v-else-if="
+          error === SwapError.NETWORK_NOT_SUPPORTED ||
+          error === SwapError.TEMP_NOT_SUPPORTED
+        "
         :loop="true"
         :animation-data="LottieWarning"
         class="swap-looking__animation"
       />
 
-      <h3 v-if="error !== SwapError.NETWORK_NOT_SUPPORTED">
+      <h3
+        v-if="
+          error !== SwapError.NETWORK_NOT_SUPPORTED &&
+          error !== SwapError.TEMP_NOT_SUPPORTED
+        "
+      >
         {{ Errors[error!].title }}
       </h3>
-      <p v-if="error !== SwapError.NETWORK_NOT_SUPPORTED">
+      <p
+        v-if="
+          error !== SwapError.NETWORK_NOT_SUPPORTED &&
+          error !== SwapError.TEMP_NOT_SUPPORTED
+        "
+      >
         {{ Errors[error!].description }}
       </p>
 
       <h3 v-if="error === SwapError.NETWORK_NOT_SUPPORTED">
         Coming soon to<br />{{ networkName }}
       </h3>
-      <p v-if="error === SwapError.NETWORK_NOT_SUPPORTED">
+      <h3 v-if="error === SwapError.TEMP_NOT_SUPPORTED">
+        {{ networkName }}<br />is temporarily not supported
+      </h3>
+      <p
+        v-if="
+          error === SwapError.NETWORK_NOT_SUPPORTED ||
+          error === SwapError.TEMP_NOT_SUPPORTED
+        "
+      >
         Can't wait to swap? Try swapping on {{ supportedNets }}.
       </p>
     </div>
@@ -57,10 +78,11 @@ interface IProps {
   networkName: string;
   close: () => void;
 }
+const prop = defineProps<IProps>();
 const supportedNets = getSupportedNetworks()
   .map((net) => net.name)
+  .filter((name) => name !== prop.networkName)
   .join(", ");
-defineProps<IProps>();
 </script>
 
 <style lang="less" scoped>
