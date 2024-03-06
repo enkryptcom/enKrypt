@@ -10,52 +10,112 @@
         </div>
 
         <div class="swap__wrap">
-          <swap-token-amount-input v-if="fromToken" :value="fromAmount || ''" :token="fromToken" :autofocus="true"
-            :error-message="errors.inputAmount" @update:input-max="setMax" @toggle:select="toggleFromToken"
-            @update:value="inputAmountFrom" />
+          <swap-token-amount-input
+            v-if="fromToken"
+            :value="fromAmount || ''"
+            :token="fromToken"
+            :autofocus="true"
+            :error-message="errors.inputAmount"
+            @update:input-max="setMax"
+            @toggle:select="toggleFromToken"
+            @update:value="inputAmountFrom"
+          />
 
           <a class="swap__arrows"><swap-arrows /></a>
 
-          <swap-network-select v-if="toNetwork" :network="toNetwork" @toggle:select="toggleToNetwork" />
+          <swap-network-select
+            v-if="toNetwork"
+            :network="toNetwork"
+            @toggle:select="toggleToNetwork"
+          />
 
-          <swap-token-to-amount :token="toToken" :is-finding-rate="isFindingRate" :fast-list="trendingToTokens"
-            :total-tokens="toTokens.length - trendingToTokens.length" :amount="toAmount"
-            :no-providers="errors.noProviders" @update:select-asset="selectTokenTo" @toggle:select="toggleToToken" />
+          <swap-token-to-amount
+            :token="toToken"
+            :is-finding-rate="isFindingRate"
+            :fast-list="trendingToTokens"
+            :total-tokens="toTokens.length - trendingToTokens.length"
+            :amount="toAmount"
+            :no-providers="errors.noProviders"
+            @update:select-asset="selectTokenTo"
+            @toggle:select="toggleToToken"
+          />
 
-          <send-address-input ref="addressInput" :value="address" :is-valid-address="addressIsValid"
-            :network-name="toAddressInputMeta.networkName" :display-address="toAddressInputMeta.displayAddress"
-            :identicon="toAddressInputMeta.identicon" @update:input-address="inputAddress"
-            @toggle:show-contacts="toggleSelectContact" />
+          <send-address-input
+            ref="addressInput"
+            :value="address"
+            :is-valid-address="addressIsValid"
+            :network-name="toAddressInputMeta.networkName"
+            :display-address="toAddressInputMeta.displayAddress"
+            :identicon="toAddressInputMeta.identicon"
+            @update:input-address="inputAddress"
+            @toggle:show-contacts="toggleSelectContact"
+          />
 
-          <send-contacts-list :show-accounts="isOpenSelectContact" :accounts="toAccounts" :address="address"
-            :display-address="toAddressInputMeta.displayAddress" :identicon="toAddressInputMeta.identicon"
-            @selected:account="selectAccount" @update:paste-from-clipboard="addressInput.pasteFromClipboard()"
-            @close="toggleSelectContact" />
+          <send-contacts-list
+            :show-accounts="isOpenSelectContact"
+            :accounts="toAccounts"
+            :address="address"
+            :display-address="toAddressInputMeta.displayAddress"
+            :identicon="toAddressInputMeta.identicon"
+            @selected:account="selectAccount"
+            @update:paste-from-clipboard="addressInput.pasteFromClipboard()"
+            @close="toggleSelectContact"
+          />
         </div>
 
         <div class="swap__buttons">
           <div class="swap__buttons-cancel">
-            <base-button title="Cancel" :no-background="true" @click="$router.go(-1)" />
+            <base-button
+              title="Cancel"
+              :no-background="true"
+              @click="$router.go(-1)"
+            />
           </div>
           <div class="swap__buttons-send">
-            <base-button :title="sendButtonTitle" :click="sendAction" :disabled="isDisabled" />
+            <base-button
+              :title="sendButtonTitle"
+              :click="sendAction"
+              :disabled="isDisabled"
+            />
           </div>
         </div>
       </div>
     </div>
 
-    <network-select-list v-if="toNetworkOpen" :assets="toNetworks" @close="toggleToNetwork"
-      @update:select-asset="selectToNetwork" />
+    <network-select-list
+      v-if="toNetworkOpen"
+      :assets="toNetworks"
+      @close="toggleToNetwork"
+      @update:select-asset="selectToNetwork"
+    />
 
-    <assets-select-list v-if="fromSelectOpened" :assets="fromTokens" @close="toggleFromToken"
-      @update:select-asset="selectTokenFrom" />
+    <assets-select-list
+      v-if="fromSelectOpened"
+      :assets="fromTokens"
+      @close="toggleFromToken"
+      @update:select-asset="selectTokenFrom"
+    />
 
-    <assets-select-list v-show="toSelectOpened" :is-select-to-token="true" :assets="toTokens" :is-loading="fetchingTokens"
-      @close="toggleToToken" @update:select-asset="selectTokenTo" />
+    <assets-select-list
+      v-show="toSelectOpened"
+      :is-select-to-token="true"
+      :assets="toTokens"
+      :is-loading="fetchingTokens"
+      @close="toggleToToken"
+      @update:select-asset="selectTokenTo"
+    />
 
-    <swap-looking v-show="isLooking" :loading-type="LoadingType" :close="toggleLooking" />
-    <swap-error-popup v-if="showSwapError" :error="swapError" :network-name="network.name_long"
-      :close="toggleSwapError" />
+    <swap-looking
+      v-show="isLooking"
+      :loading-type="LoadingType"
+      :close="toggleLooking"
+    />
+    <swap-error-popup
+      v-if="showSwapError"
+      :error="swapError"
+      :network-name="network.name_long"
+      :close="toggleSwapError"
+    />
   </div>
 </template>
 
@@ -241,10 +301,10 @@ onMounted(async () => {
         if (props.network.name === net) {
           thisNetwork =
             swapToTokens.all[net as unknown as SupportedNetworkName].length ===
-              1
+            1
               ? getNetworkInfoByName(
-                NetworkNames.Ethereum as unknown as SupportedNetworkName
-              )
+                  NetworkNames.Ethereum as unknown as SupportedNetworkName
+                )
               : netInfo;
         }
         toNetworks.value.push(netInfo);
@@ -566,13 +626,13 @@ const sendAction = async () => {
   const marketData = new MarketData();
   const fromPrice = fromToken.value!.cgId
     ? await marketData
-      .getMarketData([fromToken.value!.cgId])
-      .then((res) => res[0]!.current_price)
+        .getMarketData([fromToken.value!.cgId])
+        .then((res) => res[0]!.current_price)
     : 0;
   const toPrice = toToken.value!.cgId
     ? await marketData
-      .getMarketData([toToken.value!.cgId])
-      .then((res) => res[0]!.current_price)
+        .getMarketData([toToken.value!.cgId])
+        .then((res) => res[0]!.current_price)
     : 0;
   const localFromToken = { ...fromToken.value! };
   const localToToken = { ...toToken.value! };
@@ -650,7 +710,6 @@ const sendAction = async () => {
 
 <style lang="less" scoped>
 @import "~@action/styles/theme.less";
-
 .container {
   width: 100%;
   height: 600px;
@@ -660,7 +719,6 @@ const sendAction = async () => {
   box-sizing: border-box;
   position: relative;
 }
-
 .swap {
   width: 100%;
   height: 100%;
@@ -755,7 +813,6 @@ const sendAction = async () => {
     max-height: 114px;
     padding: 8px;
     box-sizing: border-box;
-
     h3 {
       display: none;
     }
