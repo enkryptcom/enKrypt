@@ -35,7 +35,7 @@ import estimateGasList from "../../common/estimateGasList";
 import { isEVMAddress } from "../../utils/common";
 
 export const ONEINCH_APPROVAL_ADDRESS =
-  "0x1111111254eeb25477b68fb85ed929f73a960582";
+  "0x111111125421ca6dc452d289314280a0f8842a65";
 const supportedNetworks: {
   [key in SupportedNetworkName]?: { approvalAddress: string; chainId: string };
 } = {
@@ -80,12 +80,12 @@ const supportedNetworks: {
     chainId: "42161",
   },
   [SupportedNetworkName.Zksync]: {
-    approvalAddress: "0x6e2b76966cbd9cf4cc2fa0d76d24d5241e0abc2f",
+    approvalAddress: "0x6fd4383cb451173d5f9304f041c7bcbf27d561ff",
     chainId: "324",
   },
 };
 
-const BASE_URL = "https://partners.mewapi.io/oneinch/v5.2/";
+const BASE_URL = "https://partners.mewapi.io/oneinch/v6.0/";
 
 class OneInch extends ProviderClass {
   tokenList: TokenType[];
@@ -219,7 +219,7 @@ class OneInch extends ProviderClass {
         }
         return {
           transactions,
-          toTokenAmount: toBN(response.toAmount),
+          toTokenAmount: toBN(response.dstAmount),
           fromTokenAmount: options.amount,
         };
       })

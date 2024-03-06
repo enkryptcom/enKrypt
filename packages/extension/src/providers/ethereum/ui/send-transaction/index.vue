@@ -474,7 +474,13 @@ const isValidSend = computed<boolean>(() => {
 
 const isInputsValid = computed<boolean>(() => {
   if (!props.network.isAddress(addressTo.value)) return false;
-  if (!isValidDecimals(sendAmount.value, selectedAsset.value.decimals!)) {
+  if (
+    isSendToken.value &&
+    !isValidDecimals(sendAmount.value, selectedAsset.value.decimals!)
+  ) {
+    return false;
+  }
+  if (!isSendToken.value && !selectedNft.value.id) {
     return false;
   }
   if (new BigNumber(sendAmount.value).gt(assetMaxValue.value)) return false;

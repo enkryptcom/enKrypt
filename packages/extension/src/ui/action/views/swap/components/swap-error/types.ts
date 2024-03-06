@@ -8,6 +8,7 @@ export enum SwapError {
   SOME_TOKENS,
   NO_TRADES,
   NETWORK_NOT_SUPPORTED,
+  TEMP_NOT_SUPPORTED,
 }
 
 export const Errors: Record<number, ErrorInfo> = {
