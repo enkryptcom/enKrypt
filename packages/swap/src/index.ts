@@ -132,7 +132,7 @@ class Swap extends EventEmitter {
     };
     const native = this.fromTokens.all.shift();
     this.fromTokens.all.sort(sortByRank);
-    this.fromTokens.all.unshift(native);
+    if (native) this.fromTokens.all.unshift(native);
     const allToTokens: ProviderToTokenResponse = {};
     [...this.providers].reverse().forEach((p) => {
       merge(allToTokens, p.getToTokens());
@@ -142,7 +142,7 @@ class Swap extends EventEmitter {
       values.sort(sortNativeToFront);
       const nativeTo = values.shift();
       values.sort(sortByRank);
-      values.unshift(nativeTo);
+      if (nativeTo) values.unshift(nativeTo);
       values.forEach((val: TokenTypeTo) => {
         if (val.cgId && this.topTokenInfo.topTokens[val.cgId]) {
           if (!this.toTokens.top[nName]) this.toTokens.top[nName] = [];
