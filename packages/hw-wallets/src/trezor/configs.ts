@@ -5,6 +5,7 @@ const supportedPaths = {
   [NetworkNames.Ethereum]: [bip44Paths.ethereum],
   [NetworkNames.Matic]: [bip44Paths.ethereum],
   [NetworkNames.Avalanche]: [bip44Paths.ethereum],
+  [NetworkNames.Binance]: [bip44Paths.ethereum],
   [NetworkNames.EthereumClassic]: [bip44Paths.ethereumClassic],
   [NetworkNames.Goerli]: [bip44Paths.ethereumTestnet],
   [NetworkNames.Rootstock]: [bip44Paths.rootstock],
