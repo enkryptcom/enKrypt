@@ -2,7 +2,14 @@ import { NetworkNames } from "@enkryptcom/types";
 import { numberToHex } from "web3-utils";
 import { ProviderName, SupportedNetworkName, WalletIdentifier } from "./types";
 
-const FEE_CONFIGS = {
+type ProviderFeeConfig = Record<
+  WalletIdentifier,
+  { referrer: string; fee: number }
+>;
+
+type ProvidersFeeConfigs = Partial<Record<ProviderName, ProviderFeeConfig>>;
+
+const FEE_CONFIGS: ProvidersFeeConfigs = {
   [ProviderName.oneInch]: {
     [WalletIdentifier.enkrypt]: {
       referrer: "0x551d9d8eb02e1c713009da8f7c194870d651054a",
@@ -34,6 +41,17 @@ const FEE_CONFIGS = {
     },
   },
   [ProviderName.rango]: {
+    [WalletIdentifier.enkrypt]: {
+      referrer: "0xabe295bac4b5bce0edcf42d180a3a952ef718b9e",
+      fee: 0.00875,
+    },
+    [WalletIdentifier.mew]: {
+      referrer: "0x48ae878bf9f752ee65679c017e32e4cafac51696",
+      fee: 0.025,
+    },
+  },
+  // TODO: update referrer addresses
+  [ProviderName.propellerHeads]: {
     [WalletIdentifier.enkrypt]: {
       referrer: "0xabe295bac4b5bce0edcf42d180a3a952ef718b9e",
       fee: 0.00875,

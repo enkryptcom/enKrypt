@@ -7,6 +7,7 @@ import Paraswap from "./providers/paraswap";
 import Changelly from "./providers/changelly";
 import ZeroX from "./providers/zerox";
 import Rango from "./providers/rango";
+import PropellerHeads from "./providers/propeller-heads";
 import NetworkDetails, {
   isSupportedNetwork,
   getSupportedNetworks,
@@ -57,9 +58,18 @@ class Swap extends EventEmitter {
     | typeof Paraswap
     | typeof ZeroX
     | typeof Rango
+    | typeof Rango
+    | typeof PropellerHeads
   )[];
 
-  private providers: (OneInch | Changelly | Paraswap | ZeroX | Rango)[];
+  private providers: (
+    | OneInch
+    | Changelly
+    | Paraswap
+    | ZeroX
+    | Rango
+    | PropellerHeads
+  )[];
 
   private tokenList: FromTokenType;
 
@@ -81,7 +91,14 @@ class Swap extends EventEmitter {
         };
     this.api = options.api;
     this.walletId = options.walletIdentifier;
-    this.providerClasses = [OneInch, Paraswap, Changelly, ZeroX, Rango];
+    this.providerClasses = [
+      OneInch,
+      Paraswap,
+      Changelly,
+      ZeroX,
+      Rango,
+      PropellerHeads,
+    ];
     this.topTokenInfo = {
       contractsToId: {},
       topTokens: {},
