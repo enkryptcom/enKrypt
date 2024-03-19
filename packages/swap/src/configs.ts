@@ -50,14 +50,13 @@ const FEE_CONFIGS: ProvidersFeeConfigs = {
       fee: 0.025,
     },
   },
-  // TODO: update referrer addresses
   [ProviderName.propellerHeads]: {
     [WalletIdentifier.enkrypt]: {
-      referrer: "0xabe295bac4b5bce0edcf42d180a3a952ef718b9e",
+      referrer: "0x48ae878bf9f752ee65679c017e32e4cafac51696",
       fee: 0.00875,
     },
     [WalletIdentifier.mew]: {
-      referrer: "0x48ae878bf9f752ee65679c017e32e4cafac51696",
+      referrer: "0x4718cbb9f2bce9c587127b81d5ea88f44cd0324b",
       fee: 0.025,
     },
   },

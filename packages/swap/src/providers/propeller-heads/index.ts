@@ -1,4 +1,3 @@
-import dotenv from "dotenv";
 import Web3Eth from "web3-eth";
 import { numberToHex, stringToHex, toBN } from "web3-utils";
 import {
@@ -37,14 +36,6 @@ import {
 } from "../../utils/approvals";
 import { isEVMAddress } from "../../utils/common";
 
-dotenv.config();
-
-const { PROPELLER_HEADS_API_KEY } = process.env;
-
-if (!PROPELLER_HEADS_API_KEY) {
-  throw new Error("PROPELLER_HEADS_API_KEY is not set");
-}
-
 const supportedNetworks: {
   [key in SupportedNetworkName]?: { approvalAddress: string; chainId: string };
 } = {
@@ -56,11 +47,6 @@ const supportedNetworks: {
     approvalAddress: "0xe832e655E4C3c36b2be5256915ECF8536a642f59",
     chainId: "324",
   },
-  [SupportedNetworkName.Starknet]: {
-    approvalAddress:
-      "0x060b1a6a696cbd77df0b6be6a2a951cf0fc7b951304a9371eac2f5d05a77357f",
-    chainId: "0x534e5f4d41494e",
-  },
 };
 
 const NetworkNamesToSupportedProppellerHeadsBlockchains: Partial<
@@ -68,10 +54,9 @@ const NetworkNamesToSupportedProppellerHeadsBlockchains: Partial<
 > = {
   [SupportedNetworkName.Ethereum]: "ethereum",
   [SupportedNetworkName.Zksync]: "zksync",
-  [SupportedNetworkName.Starknet]: "starknet",
 };
 
-const BASE_URL = "https://api.propellerheads.xyz/partner/v2";
+const BASE_URL = "https://partners.mewapi.io/propellerheads/v2";
 
 class PropellerHeads extends ProviderClass {
   tokenList: TokenType[];
@@ -169,20 +154,10 @@ class PropellerHeads extends ProviderClass {
     return fetch(`${BASE_URL}/solver/quote?${params.toString()}`, {
       method: "POST",
       body: JSON.stringify(body),
-      headers: {
-        "x-api-key": PROPELLER_HEADS_API_KEY,
-        accept: "application/json",
-        "Content-Type": "application/json",
-      },
     })
       .then((res) => res.json())
       .then(async (response: PropellerHeadsResponseType) => {
         const transactions: SwapTransaction[] = [];
-        const transactionType: TransactionType =
-          this.network === SupportedNetworkName.Starknet
-            ? TransactionType.generic
-            : TransactionType.evm;
-
         if (options.fromToken.address !== NATIVE_TOKEN_ADDRESS) {
           const approvalTxs = await getAllowanceTransactions({
             infinityApproval: meta.infiniteApproval,
@@ -194,15 +169,15 @@ class PropellerHeads extends ProviderClass {
           });
           transactions.push(...approvalTxs);
         }
+        console.log(response);
         transactions.push({
           from: options.fromAddress,
           gasLimit: GAS_LIMITS.swap,
           to: options.fromAddress,
           value: numberToHex(options.amount),
           data: stringToHex(JSON.stringify(response)),
-          type: transactionType,
+          type: TransactionType.evm,
         });
-
         return {
           transactions,
           toTokenAmount: toBN(response.quotes[0].buy_amount),
