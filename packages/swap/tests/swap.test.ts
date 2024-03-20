@@ -1,3 +1,4 @@
+import { toBN } from "web3-utils";
 import { expect } from "chai";
 import Web3Eth from "web3-eth";
 import Swap from "../src";
@@ -8,9 +9,9 @@ import {
   WalletIdentifier,
 } from "../src/types";
 import {
+  amount,
   fromToken,
   toToken,
-  amount,
   fromAddress,
   toAddress,
   nodeURL,
@@ -72,14 +73,19 @@ describe("Swap", () => {
       (q) => q.provider === ProviderName.changelly
     );
     const zeroxQuote = quotes.find((q) => q.provider === ProviderName.zerox);
+    const propellerHeadsQuote = quotes.find(
+      (q) => q.provider === ProviderName.propellerHeads
+    );
     if (quotes?.length > 3) {
       const rangoQuote = quotes.find((q) => q.provider === ProviderName.rango);
       expect(rangoQuote!.provider).to.be.eq(ProviderName.rango);
     }
+
     expect(zeroxQuote).to.be.eq(undefined);
     expect(changellyQuote!.provider).to.be.eq(ProviderName.changelly);
     expect(oneInceQuote!.provider).to.be.eq(ProviderName.oneInch);
     expect(paraswapQuote!.provider).to.be.eq(ProviderName.paraswap);
+    expect(propellerHeadsQuote!.provider).to.be.eq(ProviderName.propellerHeads);
     const swapOneInch = await enkryptSwap.getSwap(oneInceQuote!.quote);
     expect(swapOneInch?.fromTokenAmount.toString()).to.be.eq(amount.toString());
     expect(swapOneInch?.transactions.length).to.be.eq(2);
@@ -107,11 +113,15 @@ describe("Swap", () => {
       (q) => q.provider === ProviderName.changelly
     );
     const zeroxQuote = quotes.find((q) => q.provider === ProviderName.zerox);
+    const propellerHeadsQuote = quotes.find(
+      (q) => q.provider === ProviderName.propellerHeads
+    );
     // const rangoQuote = quotes.find((q) => q.provider === ProviderName.rango);
     expect(zeroxQuote!.provider).to.be.eq(ProviderName.zerox);
     expect(changellyQuote!.provider).to.be.eq(ProviderName.changelly);
     expect(oneInceQuote!.provider).to.be.eq(ProviderName.oneInch);
     expect(paraswapQuote!.provider).to.be.eq(ProviderName.paraswap);
+    expect(propellerHeadsQuote!.provider).to.be.eq(ProviderName.propellerHeads);
     // expect(rangoQuote!.provider).to.be.eq(ProviderName.rango);
   }).timeout(10000);
 });

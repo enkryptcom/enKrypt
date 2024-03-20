@@ -2,16 +2,26 @@ import { BN, EVMTransaction } from "../../types";
 
 export interface PropellerHeadsResponseType {
   request_id: string;
-  quotes: [
+  solutions: [
     {
-      sell_token: string;
-      buy_token: string;
-      sell_amount: string;
-      buy_amount: string;
-      external_id: string;
+      orders: [
+        {
+          origin_address: string;
+          sell_token: string;
+          buy_token: string;
+          sell_amount: string;
+          executed_sell_amount: string;
+          buy_amount: string;
+          executed_buy_amount: string;
+          external_id: string;
+          receiver: string;
+        }
+      ];
+      call_data: string;
+      gas: string;
+      target_address: string;
     }
   ];
-  gas: number;
   buy_tokens: [
     {
       symbol: string;
