@@ -13,6 +13,7 @@ import { OnMessageResponse } from "@enkryptcom/types";
 import BackgroundHandler from "@/libs/background";
 import Browser from "webextension-polyfill";
 import openOnboard from "@/libs/utils/open-onboard";
+import PublicKeyRing from "@/libs/keyring/public-keyring";
 
 const backgroundHandler = new BackgroundHandler();
 backgroundHandler.init();
@@ -34,6 +35,22 @@ backgroundOnMessageFromCS((msg): Promise<OnMessageResponse> => {
 
 Browser.runtime.onInstalled.addListener((object) => {
   if (object.reason === "install") {
-    openOnboard();
+    const kr = new PublicKeyRing();
+    kr.isInitialized().then((isInit) => {
+      if (!isInit) openOnboard();
+    });
   }
 });
+
+if (process.env.IS_SAFARI) {
+  Browser.scripting.registerContentScripts([
+    {
+      id: "inject-script",
+      js: ["scripts/inject.js"],
+      persistAcrossSessions: false,
+      matches: ["http://*/*", "https://*/*"],
+      runAt: "document_start",
+      world: "MAIN",
+    } as any,
+  ]);
+}
