@@ -1,8 +1,7 @@
 import { InternalMethods, InternalOnMessageResponse } from "@/types/messenger";
 import { SignerTransactionOptions, SignerMessageOptions } from "../types";
-import { bufferToHex } from "ethereumjs-util";
 import sendUsingInternalMessengers from "@/libs/messenger/internal-messenger";
-import { hexToBuffer } from "@enkryptcom/utils";
+import { hexToBuffer, bufferToHex } from "@enkryptcom/utils";
 import { Psbt } from "bitcoinjs-lib";
 import { BitcoinNetwork, PaymentType } from "../../types/bitcoin-network";
 import { EnkryptAccount } from "@enkryptcom/types";

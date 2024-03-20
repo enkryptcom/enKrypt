@@ -150,9 +150,9 @@ import { defaultGasCostVals } from "@/providers/common/libs/default-vals";
 import { EnkryptAccount } from "@enkryptcom/types";
 import { TransactionSigner } from "./libs/signer";
 import { Activity, ActivityStatus, ActivityType } from "@/types/activity";
-import { generateAddress } from "ethereumjs-util";
+import { generateAddress, bigIntToBytes } from "@ethereumjs/util";
 import ActivityState from "@/libs/activity-state";
-import { bigIntToBuffer, bigIntToHex, fromBase } from "@enkryptcom/utils";
+import { bigIntToHex, fromBase, bufferToHex } from "@enkryptcom/utils";
 import broadcastTx from "../libs/tx-broadcaster";
 import TokenSigs from "../libs/transaction/lists/tokenSigs";
 import AlertIcon from "@action/icons/send/alert-icon.vue";
@@ -303,10 +303,12 @@ const approve = async () => {
             from: account.value.address,
             to: tx.to
               ? tx.to.toString()
-              : `0x${generateAddress(
-                  tx.getSenderAddress().toBuffer(),
-                  bigIntToBuffer(tx.nonce)
-                ).toString("hex")}`,
+              : bufferToHex(
+                  generateAddress(
+                    tx.getSenderAddress().toBytes(),
+                    bigIntToBytes(tx.nonce)
+                  )
+                ),
             isIncoming: tx.getSenderAddress().toString() === tx.to?.toString(),
             network: network.value.name,
             status: ActivityStatus.pending,
@@ -345,11 +347,11 @@ const approve = async () => {
                 });
               });
           };
-          broadcastTx("0x" + tx.serialize().toString("hex"), network.value.name)
+          broadcastTx(bufferToHex(tx.serialize()), network.value.name)
             .then(onHash)
             .catch(() => {
               web3
-                .sendSignedTransaction("0x" + tx.serialize().toString("hex"))
+                .sendSignedTransaction(bufferToHex(tx.serialize()))
                 .on("transactionHash", onHash)
                 .on("error", (error) => {
                   txActivity.status = ActivityStatus.failed;

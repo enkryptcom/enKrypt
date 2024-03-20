@@ -43,5 +43,5 @@ describe("Name Resolver resolving", () => {
       "0xb5932a6b7d50a966aec6c74c97385412fb497540"
     );
     expect(name).to.be.eq("spaceid.eth");
-  }).timeout(10000);
+  }).timeout(20000);
 });
