@@ -20,14 +20,24 @@ class SIDResolver implements BaseResolver {
   public async init(): Promise<void> {}
 
   public async resolveReverseName(address: string): Promise<string | null> {
-    const bnbProvider = new ethers.providers.JsonRpcProvider(this.rpc.node.bnb);
+    const bnbProvider = new ethers.providers.JsonRpcProvider({
+      url: this.rpc.node.bnb,
+      headers: {
+        "user-agent": "enkrypt/name-resolver",
+      },
+    });
     const sidBNB = new SID({
       provider: bnbProvider,
       sidAddress: getSidAddress("56"),
     });
     const nameBnb = await sidBNB.getName(address);
     if (nameBnb) return nameBnb.name;
-    const arbProvider = new ethers.providers.JsonRpcProvider(this.rpc.node.arb);
+    const arbProvider = new ethers.providers.JsonRpcProvider({
+      url: this.rpc.node.arb,
+      headers: {
+        "user-agent": "enkrypt/name-resolver",
+      },
+    });
     const sidArb = new SID({
       provider: arbProvider,
       sidAddress: getSidAddress("42161"),
@@ -38,9 +48,12 @@ class SIDResolver implements BaseResolver {
   }
 
   public async resolveAddress(name: string): Promise<string | null> {
-    const provider = new ethers.providers.JsonRpcProvider(
-      this.rpc.node[getTLD(name)]
-    );
+    const provider = new ethers.providers.JsonRpcProvider({
+      url: this.rpc.node[getTLD(name)],
+      headers: {
+        "user-agent": "enkrypt/name-resolver",
+      },
+    });
     const sid = new SID({
       provider,
       sidAddress: getSidAddress(getTLD(name) === "bnb" ? "56" : "42161"),
