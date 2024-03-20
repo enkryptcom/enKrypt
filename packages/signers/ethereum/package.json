@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "@enkryptcom/utils": "workspace:^",
-    "@ethereumjs/util": "^9.0.2",
+    "@ethereumjs/util": "^9.0.3",
     "bip39": "^3.1.0",
     "chai": "^4.4.1",
     "hdkey": "^2.1.0",
@@ -27,10 +27,10 @@
   },
   "devDependencies": {
     "@enkryptcom/types": "workspace:^",
-    "@types/chai": "^4.3.12",
+    "@types/chai": "^4.3.14",
     "@types/hdkey": "^2.0.3",
     "@types/mocha": "^10.0.6",
-    "@types/node": "^20.11.22",
+    "@types/node": "^20.11.30",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
     "eslint": "^8.57.0",

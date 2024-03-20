@@ -24,7 +24,7 @@
     "json-rpc-2.0": "^1.7.0",
     "lodash": "^4.17.21",
     "node-fetch": "^2.7.0",
-    "rango-sdk-basic": "^0.1.45",
+    "rango-sdk-basic": "^0.1.46",
     "reconnecting-websocket": "^4.4.0",
     "uuid": "^9.0.1",
     "web3-eth": "^1.10.4",
@@ -32,9 +32,9 @@
     "ws": "^8.16.0"
   },
   "devDependencies": {
-    "@types/chai": "^4.3.12",
+    "@types/chai": "^4.3.14",
     "@types/mocha": "^10.0.6",
-    "@types/node": "^20.11.22",
+    "@types/node": "^20.11.30",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
     "chai": "^4.4.1",

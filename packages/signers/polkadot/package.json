@@ -17,7 +17,7 @@
     "node": ">=14.15.0"
   },
   "dependencies": {
-    "@commitlint/cli": "^19.0.3",
+    "@commitlint/cli": "^19.2.1",
     "@enkryptcom/utils": "workspace:^",
     "@polkadot/util": "^12.6.2",
     "@polkadot/util-crypto": "^12.6.2",
@@ -27,9 +27,9 @@
   },
   "devDependencies": {
     "@enkryptcom/types": "workspace:^",
-    "@types/chai": "^4.3.12",
+    "@types/chai": "^4.3.14",
     "@types/mocha": "^10.0.6",
-    "@types/node": "^20.11.22",
+    "@types/node": "^20.11.30",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
     "eslint": "^8.57.0",

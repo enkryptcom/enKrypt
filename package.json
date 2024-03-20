@@ -1,6 +1,6 @@
 {
   "name": "enkrypt",
-  "packageManager": "yarn@3.6.3",
+  "packageManager": "yarn@3.8.1",
   "version": "0.0.2",
   "private": true,
   "workspaces": [
@@ -30,9 +30,9 @@
     "prepare": "husky"
   },
   "devDependencies": {
-    "@commitlint/cli": "^19.0.3",
-    "@commitlint/config-conventional": "^19.0.3",
-    "@swc/core": "^1.4.2",
+    "@commitlint/cli": "^19.2.1",
+    "@commitlint/config-conventional": "^19.1.0",
+    "@swc/core": "^1.4.8",
     "concurrently": "^8.2.2",
     "husky": "^9.0.11",
     "node-notifier": "^10.0.1",

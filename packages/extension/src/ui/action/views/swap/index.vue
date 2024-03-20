@@ -310,6 +310,11 @@ onMounted(async () => {
         toNetworks.value.push(netInfo);
       });
       toNetworks.value.sort(sortByRank);
+      if (!thisNetwork!) {
+        swapError.value = SwapError.TEMP_NOT_SUPPORTED;
+        toggleSwapError();
+        return;
+      }
       await initToNetworkInfo(thisNetwork!);
       setToTokens();
       isLooking.value = false;
@@ -597,7 +602,8 @@ const toggleLooking = () => {
 const toggleSwapError = () => {
   showSwapError.value = !showSwapError.value;
   if (
-    swapError.value === SwapError.NETWORK_NOT_SUPPORTED &&
+    (swapError.value === SwapError.NETWORK_NOT_SUPPORTED ||
+      swapError.value === SwapError.TEMP_NOT_SUPPORTED) &&
     !showSwapError.value
   ) {
     router.go(-1);
