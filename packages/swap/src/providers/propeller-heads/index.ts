@@ -1,5 +1,5 @@
 import Web3Eth from "web3-eth";
-import { numberToHex, stringToHex, toBN } from "web3-utils";
+import { numberToHex, toBN } from "web3-utils";
 import estimateGasList from "../../common/estimateGasList";
 import {
   EVMTransaction,
