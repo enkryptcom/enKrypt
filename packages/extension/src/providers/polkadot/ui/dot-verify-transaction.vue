@@ -151,7 +151,7 @@ import { u8aToHex } from "@polkadot/util";
 import ActivityState from "@/libs/activity-state";
 import Polkadot from "@/providers/polkadot/networks/polkadot";
 import { getAllNetworks } from "@/libs/utils/networks";
-import { addNetworkSelectMetrics } from "@/libs/metrics";
+import { trackNetworkSelected } from "@/libs/metrics";
 
 const windowPromise = WindowPromiseHandler(2);
 
@@ -193,7 +193,7 @@ onBeforeMount(async () => {
 
   if (targetNetwork) {
     network.value = targetNetwork;
-    addNetworkSelectMetrics(targetNetwork.provider, targetNetwork.name, 1);
+    trackNetworkSelected(targetNetwork.provider, targetNetwork.name);
   } else {
     networkIsUnknown.value = true;
   }

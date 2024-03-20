@@ -135,7 +135,7 @@ import { EnkryptProviderEventMethods, ProviderName } from "@/types/provider";
 import { onClickOutside } from "@vueuse/core";
 import RateState from "@/libs/rate-state";
 import SwapLookingAnimation from "@action/icons/swap/swap-looking-animation.vue";
-import { addNetworkSelectMetrics } from "@/libs/metrics";
+import { trackNetworkSelected } from "@/libs/metrics";
 import { getLatestEnkryptVersion } from "@action/utils/browser";
 import { gt as semverGT } from "semver";
 
@@ -266,7 +266,7 @@ const updateGradient = (newGradient: string) => {
     ).style.background = `radial-gradient(137.35% 97% at 100% 50%, rgba(250, 250, 250, 0.94) 0%, rgba(250, 250, 250, 0.96) 28.91%, rgba(250, 250, 250, 0.98) 100%), linear-gradient(180deg, ${newGradient} 80%, #684CFF 100%)`;
 };
 const setNetwork = async (network: BaseNetwork) => {
-  addNetworkSelectMetrics(network.provider, network.name, 1);
+  trackNetworkSelected(network.provider, network.name);
   const activeAccounts = await getAccountsByNetworkName(network.name);
 
   const inactiveAccounts = await kr.getAccounts(

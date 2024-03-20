@@ -18,6 +18,7 @@
     "watch-vue-firefox": "cross-env BROWSER='firefox' vue-cli-service build --watch --no-clean"
   },
   "dependencies": {
+    "@amplitude/analytics-browser": "^2.5.3",
     "@babel/runtime": "^7.23.8",
     "@enkryptcom/extension-bridge": "workspace:^",
     "@enkryptcom/hw-wallets": "workspace:^",

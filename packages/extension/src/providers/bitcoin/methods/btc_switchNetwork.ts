@@ -7,7 +7,7 @@ import BTCNetworks from "../networks";
 import DomainState from "@/libs/domain-state";
 import BitcoinProvider from "..";
 import { BitcoinNetworks } from "../types";
-import { addNetworkSelectMetrics } from "@/libs/metrics";
+import { trackNetworkSelected } from "@/libs/metrics";
 const method: MiddlewareFunction = function (
   this: BitcoinProvider,
   payload: ProviderRPCRequest,
@@ -28,7 +28,7 @@ const method: MiddlewareFunction = function (
     const allNetworks = Object.values(BTCNetworks);
     const validNetwork = allNetworks.find((net) => net.name === internalName);
     if (validNetwork) {
-      addNetworkSelectMetrics(validNetwork.provider, validNetwork.name, 1);
+      trackNetworkSelected(validNetwork.provider, validNetwork.name);
       sendToBackgroundFromBackground({
         message: JSON.stringify({
           method: InternalMethods.changeNetwork,

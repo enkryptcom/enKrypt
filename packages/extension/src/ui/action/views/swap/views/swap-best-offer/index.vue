@@ -151,6 +151,8 @@ import { executeSwap } from "../../libs/send-transactions";
 import { fromBase, toBase } from "@enkryptcom/utils";
 import ActivityState from "@/libs/activity-state";
 import { getBitcoinGasVals } from "../../libs/bitcoin-gasvals";
+import { trackSwapEvents } from "@/libs/metrics";
+import { SwapEventType } from "@/libs/metrics/types";
 
 const router = useRouter();
 const route = useRoute();
@@ -301,6 +303,11 @@ onMounted(async () => {
   pickedTrade.value = tempBestTrade;
   await setTransactionFees();
   isLooking.value = false;
+  trackSwapEvents(SwapEventType.SwapVerify, {
+    network: network.value.name,
+    fromToken: swapData.fromToken.name,
+    toToken: swapData.toToken.name,
+  });
 });
 
 const back = () => {
@@ -382,11 +389,24 @@ const sendAction = async () => {
           address: swapActivity.from,
           network: network.value!.name,
         });
+        trackSwapEvents(SwapEventType.SwapComplete, {
+          network: network.value!.name,
+          fromToken: swapData.fromToken.name,
+          toToken: swapData.toToken.name,
+          swapProvider: pickedTrade.value.provider,
+        });
       })
       .catch((err) => {
         console.error(err);
         isTXSendError.value = true;
         TXSendErrorMessage.value = err.error ? err.error.message : err.message;
+        trackSwapEvents(SwapEventType.swapFailed, {
+          network: network.value!.name,
+          fromToken: swapData.fromToken.name,
+          toToken: swapData.toToken.name,
+          swapProvider: pickedTrade.value.provider,
+          error: TXSendErrorMessage.value,
+        });
       });
     isTXSendLoading.value = false;
   } else {
