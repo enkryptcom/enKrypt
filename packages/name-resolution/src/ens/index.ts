@@ -17,7 +17,12 @@ class ENSResolver implements BaseResolver {
   }
 
   public async init(): Promise<void> {
-    this.ENSProvider = new ethers.providers.JsonRpcProvider(this.options.node);
+    this.ENSProvider = new ethers.providers.JsonRpcProvider({
+      url: this.options.node,
+      headers: {
+        "user-agent": "enkrypt/name-resolver",
+      },
+    });
   }
 
   public async resolveReverseName(address: string): Promise<string | null> {
