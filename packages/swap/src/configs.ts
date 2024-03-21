@@ -1,5 +1,5 @@
 import { NetworkNames } from "@enkryptcom/types";
-import { numberToHex } from "web3-utils";
+import { numberToHex } from "@enkryptcom/utils";
 import { ProviderName, SupportedNetworkName, WalletIdentifier } from "./types";
 
 const FEE_CONFIGS = {

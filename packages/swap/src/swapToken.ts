@@ -1,6 +1,5 @@
-import { fromBase, toBase } from "@enkryptcom/utils";
+import { fromBase, toBase, toBN } from "@enkryptcom/utils";
 import BigNumber from "bignumber.js";
-import { toBN } from "web3-utils";
 import { BN, TokenType } from "./types";
 
 class SwapToken {

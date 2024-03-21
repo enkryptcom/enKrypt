@@ -5,6 +5,7 @@ import {
   hexToBuffer,
   toBase,
   fromBase,
+  toBN,
 } from "../src";
 
 describe("Utility functions", () => {
@@ -20,6 +21,10 @@ describe("Utility functions", () => {
     const buf = Buffer.from("123456", "hex");
     expect(hexToBuffer("0x123456")).to.be.deep.equal(buf);
     expect(hexToBuffer("123456")).to.be.deep.equal(buf);
+  });
+  it("toBN to string", () => {
+    const bn = toBN("0xabcdef");
+    expect(bn.toString()).to.be.equal("11259375");
   });
   it("To Base/From Base", () => {
     expect(toBase("1193046", 18)).to.be.equal("1193046000000000000000000");

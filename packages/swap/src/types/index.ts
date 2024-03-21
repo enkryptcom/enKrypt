@@ -1,5 +1,5 @@
 import { NetworkNames, SignerType } from "@enkryptcom/types";
-import type { toBN } from "web3-utils";
+import type { toBN } from "@enkryptcom/utils";
 import type Web3Eth from "web3-eth";
 
 // eslint-disable-next-line no-shadow

@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import Web3Eth from "web3-eth";
-import { numberToHex } from "web3-utils";
+import { numberToHex } from "@enkryptcom/utils";
 import Parawap, { PARASWAP_APPROVAL_ADDRESS } from "../src/providers/paraswap";
 import {
   EVMTransaction,

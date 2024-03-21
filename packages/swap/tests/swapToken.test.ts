@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { toBN } from "web3-utils";
+import { toBN } from "@enkryptcom/utils";
 import { fromToken } from "./fixtures/mainnet/configs";
 import SwapToken from "../src/swapToken";
 

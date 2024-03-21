@@ -1,5 +1,6 @@
 import Web3Eth from "web3-eth";
-import { toBN } from "web3-utils";
+import Web3Contract from "web3-eth-contract";
+import { toBN } from "@enkryptcom/utils";
 import Erc20abi from "./abi/erc20";
 import { BN, EVMTransaction, TokenType, TransactionType } from "../types";
 import { GAS_LIMITS } from "../configs";
@@ -13,9 +14,10 @@ const getAllowance = (options: {
   spender: string;
   web3eth: Web3Eth;
 }): Promise<string> => {
-  const contract = new options.web3eth.Contract(
+  const contract = new Web3Contract(
     Erc20abi as any,
-    options.contract
+    options.contract,
+    options.web3eth
   );
   return contract.methods.allowance(options.owner, options.spender).call();
 };
@@ -26,8 +28,7 @@ const getTransfer = (options: {
   to: string;
   value: string;
 }): EVMTransaction => {
-  const web3Eth = new Web3Eth();
-  const contract = new web3Eth.Contract(Erc20abi as any);
+  const contract = new Web3Contract(Erc20abi as any);
   return {
     from: options.from,
     data: contract.methods.transfer(options.to, options.value).encodeABI(),
@@ -44,8 +45,7 @@ const getApproval = (options: {
   spender: string;
   value: string;
 }): EVMTransaction => {
-  const web3Eth = new Web3Eth();
-  const contract = new web3Eth.Contract(Erc20abi as any);
+  const contract = new Web3Contract(Erc20abi as any);
   return {
     from: options.from,
     data: contract.methods.approve(options.spender, options.value).encodeABI(),
