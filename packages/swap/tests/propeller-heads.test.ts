@@ -7,7 +7,12 @@ import {
   SupportedNetworkName,
   WalletIdentifier,
 } from "../src/types";
-import { fromTokenWBTC, toToken, nodeURL } from "./fixtures/mainnet/configs";
+import {
+  fromTokenWBTC,
+  toToken,
+  nodeURL,
+  toAddress,
+} from "./fixtures/mainnet/configs";
 
 describe("Propeller Heads Provider", () => {
   const web3eth = new Web3Eth(nodeURL);
@@ -22,10 +27,10 @@ describe("Propeller Heads Provider", () => {
     const quote = await propellerHeads.getQuote(
       {
         amount: localAmount,
-        fromAddress: "0x9ff58f4ffb29fa2266ab25e75e2a8b3503311656", // aave
+        fromAddress: "0x6daB3bCbFb336b29d06B9C793AEF7eaA57888922", // random address
         fromToken: fromTokenWBTC,
         toToken,
-        toAddress: "0x9ff58f4ffb29fa2266ab25e75e2a8b3503311656", // aave
+        toAddress,
       },
       { infiniteApproval: true, walletIdentifier: WalletIdentifier.enkrypt }
     );
@@ -53,10 +58,10 @@ describe("Propeller Heads Provider", () => {
     const quote = await propellerHeads.getQuote(
       {
         amount: localAmount,
-        fromAddress: "0x9ff58f4ffb29fa2266ab25e75e2a8b3503311656", // aave
+        fromAddress: "0x6daB3bCbFb336b29d06B9C793AEF7eaA57888922", // random address
         fromToken: fromTokenWBTC,
         toToken,
-        toAddress: "0x9ff58f4ffb29fa2266ab25e75e2a8b3503311656", // aave
+        toAddress,
       },
       { infiniteApproval: false, walletIdentifier: WalletIdentifier.enkrypt }
     );

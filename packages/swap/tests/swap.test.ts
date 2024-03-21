@@ -76,7 +76,7 @@ describe("Swap", () => {
     const propellerHeadsQuote = quotes.find(
       (q) => q.provider === ProviderName.propellerHeads
     );
-    if (quotes?.length > 3) {
+    if (quotes?.length > 4) {
       const rangoQuote = quotes.find((q) => q.provider === ProviderName.rango);
       expect(rangoQuote!.provider).to.be.eq(ProviderName.rango);
     }
@@ -102,7 +102,7 @@ describe("Swap", () => {
       toToken,
       toAddress: fromAddress,
     });
-    expect(quotes?.length).to.be.gte(4);
+    expect(quotes?.length).to.be.gte(5);
     const oneInceQuote = quotes.find(
       (q) => q.provider === ProviderName.oneInch
     );

@@ -132,10 +132,6 @@ class PropellerHeads extends ProviderClass {
       this.network !== options.toToken.networkInfo.name
     )
       return Promise.resolve(null);
-
-    if (options.fromAddress.toLowerCase() !== options.toAddress.toLowerCase())
-      return Promise.resolve(null);
-
     const body = {
       orders: [
         {
@@ -143,6 +139,7 @@ class PropellerHeads extends ProviderClass {
           buy_token: options.toToken.address,
           sell_amount: options.amount.toString(),
           origin_address: options.fromAddress,
+          receiver: options.toAddress,
         },
       ],
     };
@@ -151,7 +148,6 @@ class PropellerHeads extends ProviderClass {
       blockchain:
         NetworkNamesToSupportedProppellerHeadsBlockchains[this.network],
     });
-
     return fetch(`${BASE_URL}/solver/solve?${params.toString()}`, {
       method: "POST",
       body: JSON.stringify(body),
@@ -174,7 +170,10 @@ class PropellerHeads extends ProviderClass {
           from: options.fromAddress,
           gasLimit: GAS_LIMITS.swap,
           to: options.fromAddress,
-          value: numberToHex(options.amount),
+          value:
+            options.fromToken.address === NATIVE_TOKEN_ADDRESS
+              ? numberToHex(options.amount)
+              : "0x0",
           data: response.solutions[0].call_data,
           type: TransactionType.evm,
         });
