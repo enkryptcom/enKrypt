@@ -1,5 +1,6 @@
 import Web3Eth from "web3-eth";
-import { numberToHex, stringToHex, toBN } from "web3-utils";
+import { numberToHex, toBN } from "web3-utils";
+import estimateGasList from "../../common/estimateGasList";
 import {
   EVMTransaction,
   getQuoteOptions,
@@ -15,7 +16,6 @@ import {
   StatusOptionsResponse,
   SupportedNetworkName,
   SwapQuote,
-  SwapTransaction,
   TokenType,
   TransactionStatus,
   TransactionType,
@@ -122,7 +122,8 @@ class PropellerHeads extends ProviderClass {
 
   private getPropellerHeadsSwap(
     options: getQuoteOptions,
-    meta: QuoteMetaOptions
+    meta: QuoteMetaOptions,
+    accurateEstimate: boolean
   ): Promise<PropellerHeadsSwapResponse | null> {
     if (
       !PropellerHeads.isSupported(
@@ -151,13 +152,13 @@ class PropellerHeads extends ProviderClass {
         NetworkNamesToSupportedProppellerHeadsBlockchains[this.network],
     });
 
-    return fetch(`${BASE_URL}/solver/quote?${params.toString()}`, {
+    return fetch(`${BASE_URL}/solver/solve?${params.toString()}`, {
       method: "POST",
       body: JSON.stringify(body),
     })
       .then((res) => res.json())
       .then(async (response: PropellerHeadsResponseType) => {
-        const transactions: SwapTransaction[] = [];
+        const transactions: EVMTransaction[] = [];
         if (options.fromToken.address !== NATIVE_TOKEN_ADDRESS) {
           const approvalTxs = await getAllowanceTransactions({
             infinityApproval: meta.infiniteApproval,
@@ -169,19 +170,30 @@ class PropellerHeads extends ProviderClass {
           });
           transactions.push(...approvalTxs);
         }
-        console.log(response);
         transactions.push({
           from: options.fromAddress,
           gasLimit: GAS_LIMITS.swap,
           to: options.fromAddress,
           value: numberToHex(options.amount),
-          data: stringToHex(JSON.stringify(response)),
+          data: response.solutions[0].call_data,
           type: TransactionType.evm,
         });
+        if (accurateEstimate) {
+          const accurateGasEstimate = await estimateGasList(
+            transactions,
+            this.network
+          );
+          if (accurateGasEstimate) {
+            if (accurateGasEstimate.isError) return null;
+            transactions.forEach((tx, idx) => {
+              tx.gasLimit = accurateGasEstimate.result[idx];
+            });
+          }
+        }
         return {
           transactions,
-          toTokenAmount: toBN(response.quotes[0].buy_amount),
-          fromTokenAmount: toBN(response.quotes[0].sell_amount),
+          toTokenAmount: toBN(response.solutions[0].orders[0].buy_amount),
+          fromTokenAmount: toBN(response.solutions[0].orders[0].sell_amount),
         };
       })
       .catch((e) => {
@@ -194,51 +206,55 @@ class PropellerHeads extends ProviderClass {
     options: getQuoteOptions,
     meta: QuoteMetaOptions
   ): Promise<ProviderQuoteResponse | null> {
-    return this.getPropellerHeadsSwap(options, meta).then(async (res) => {
-      if (!res) return null;
-      const response: ProviderQuoteResponse = {
-        fromTokenAmount: res.fromTokenAmount,
-        additionalNativeFees: toBN(0),
-        toTokenAmount: res.toTokenAmount,
-        provider: this.name,
-        quote: {
-          meta,
-          options,
+    return this.getPropellerHeadsSwap(options, meta, false).then(
+      async (res) => {
+        if (!res) return null;
+        const response: ProviderQuoteResponse = {
+          fromTokenAmount: res.fromTokenAmount,
+          additionalNativeFees: toBN(0),
+          toTokenAmount: res.toTokenAmount,
           provider: this.name,
-        },
-        totalGaslimit: res.transactions.reduce(
-          (total: number, curVal: EVMTransaction) =>
-            total + toBN(curVal.gasLimit).toNumber(),
-          0
-        ),
-        minMax: await this.getMinMaxAmount(),
-      };
-      return response;
-    });
+          quote: {
+            meta,
+            options,
+            provider: this.name,
+          },
+          totalGaslimit: res.transactions.reduce(
+            (total: number, curVal: EVMTransaction) =>
+              total + toBN(curVal.gasLimit).toNumber(),
+            0
+          ),
+          minMax: await this.getMinMaxAmount(),
+        };
+        return response;
+      }
+    );
   }
 
   getSwap(quote: SwapQuote): Promise<ProviderSwapResponse | null> {
-    return this.getPropellerHeadsSwap(quote.options, quote.meta).then((res) => {
-      if (!res) return null;
-      const feeConfig =
-        FEE_CONFIGS[this.name][quote.meta.walletIdentifier].fee || 0;
-      const response: ProviderSwapResponse = {
-        fromTokenAmount: res.fromTokenAmount,
-        additionalNativeFees: toBN(0),
-        provider: this.name,
-        toTokenAmount: res.toTokenAmount,
-        transactions: res.transactions,
-        slippage: quote.meta.slippage || DEFAULT_SLIPPAGE,
-        fee: feeConfig * 100,
-        getStatusObject: async (
-          options: StatusOptions
-        ): Promise<StatusOptionsResponse> => ({
-          options,
+    return this.getPropellerHeadsSwap(quote.options, quote.meta, true).then(
+      (res) => {
+        if (!res) return null;
+        const feeConfig =
+          FEE_CONFIGS[this.name][quote.meta.walletIdentifier].fee || 0;
+        const response: ProviderSwapResponse = {
+          fromTokenAmount: res.fromTokenAmount,
+          additionalNativeFees: toBN(0),
           provider: this.name,
-        }),
-      };
-      return response;
-    });
+          toTokenAmount: res.toTokenAmount,
+          transactions: res.transactions,
+          slippage: quote.meta.slippage || DEFAULT_SLIPPAGE,
+          fee: feeConfig * 100,
+          getStatusObject: async (
+            options: StatusOptions
+          ): Promise<StatusOptionsResponse> => ({
+            options,
+            provider: this.name,
+          }),
+        };
+        return response;
+      }
+    );
   }
 
   getStatus(options: StatusOptions): Promise<TransactionStatus> {
