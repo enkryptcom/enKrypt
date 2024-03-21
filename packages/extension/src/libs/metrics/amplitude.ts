@@ -29,9 +29,13 @@ class Metrics {
     settingsState.getEnkryptSettings().then((set) => {
       this.installedTime = set.installedTimestamp;
       init("apikey", {
-        instanceName: "enkrypt-extension-dev",
+        instanceName: process.env.IS_DEV
+          ? "enkrypt-extension-dev"
+          : "enkrypt-extension",
         optOut: false,
-        serverUrl: "https://analytics-enkrypt-dev.mewwallet.dev/record",
+        serverUrl: process.env.IS_DEV
+          ? "https://analytics-enkrypt-dev.mewwallet.dev/record"
+          : "https://analytics-enkrypt.mewwallet.dev/record",
         appVersion: process.env.PACKAGE_VERSION as string,
         trackingOptions: {
           ipAddress: false,
