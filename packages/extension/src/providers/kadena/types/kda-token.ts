@@ -57,11 +57,9 @@ export class KDAToken extends KDABaseToken {
     const keySetAccount = to.startsWith("k:") ? to.replace("k:", "") : to;
     const unsignedTransaction = Pact.builder
       .execution(
-        `(coin.transfer-create "${network.displayAddress(
-          from.address
-        )}" "${to}" (read-keyset "ks") ${parseFloat(amount).toFixed(
-          network.options.decimals
-        )})`
+        Pact.modules.coin.transfer(network.displayAddress(from.address), to, {
+          decimal: amount,
+        })
       )
       .addData("ks", {
         keys: accountDetails.data?.guard.keys || [keySetAccount],
