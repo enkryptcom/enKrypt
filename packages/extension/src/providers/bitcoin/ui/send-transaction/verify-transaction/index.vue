@@ -95,6 +95,8 @@ import { EnkryptAccount } from "@enkryptcom/types";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 import { BitcoinNetwork } from "@/providers/bitcoin/types/bitcoin-network";
 import BitcoinAPI from "@/providers/bitcoin/libs/api";
+import { trackSendEvents } from "@/libs/metrics";
+import { SendEventType } from "@/libs/metrics/types";
 
 const KeyRing = new PublicKeyRing();
 const route = useRoute();
@@ -115,6 +117,7 @@ const errorMsg = ref("");
 defineExpose({ verifyScrollRef });
 onBeforeMount(async () => {
   network.value = (await getNetworkByName(selectedNetwork)!) as BitcoinNetwork;
+  trackSendEvents(SendEventType.SendVerify, { network: network.value.name });
   account.value = await KeyRing.getAccount(txData.fromAddress);
   isWindowPopup.value = account.value.isHardware;
 });
@@ -159,6 +162,9 @@ const sendAction = async () => {
       api
         .broadcastTx(signedTx.extractTransaction().toHex())
         .then(() => {
+          trackSendEvents(SendEventType.SendComplete, {
+            network: network.value.name,
+          });
           activityState.addActivities(
             [
               {
@@ -185,6 +191,10 @@ const sendAction = async () => {
           }
         })
         .catch((error) => {
+          trackSendEvents(SendEventType.SendFailed, {
+            network: network.value.name,
+            error: error.message,
+          });
           txActivity.status = ActivityStatus.failed;
           activityState.addActivities([txActivity], {
             address: txData.fromAddress,

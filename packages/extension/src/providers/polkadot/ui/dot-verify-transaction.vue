@@ -152,6 +152,7 @@ import ActivityState from "@/libs/activity-state";
 import Polkadot from "@/providers/polkadot/networks/polkadot";
 import { getAllNetworks } from "@/libs/utils/networks";
 import { trackNetworkSelected } from "@/libs/metrics";
+import { NetworkChangeEvents } from "@/libs/metrics/types";
 
 const windowPromise = WindowPromiseHandler(2);
 
@@ -193,7 +194,10 @@ onBeforeMount(async () => {
 
   if (targetNetwork) {
     network.value = targetNetwork;
-    trackNetworkSelected(targetNetwork.provider, targetNetwork.name);
+    trackNetworkSelected(NetworkChangeEvents.NetworkChangeAPI, {
+      provider: targetNetwork.provider,
+      network: targetNetwork.name,
+    });
   } else {
     networkIsUnknown.value = true;
   }

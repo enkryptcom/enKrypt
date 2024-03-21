@@ -62,6 +62,8 @@ import { NFTCollection, NFTItem } from "@/types/nft";
 import NFTState from "@/libs/nft-state";
 import scrollSettings from "@/libs/utils/scroll-settings";
 import NftDetailView from "@action/views/nft-detail-view/index.vue";
+import { trackNFTEvents } from "@/libs/metrics";
+import { NFTEventType } from "@/libs/metrics/types";
 
 const nftState = new NFTState();
 const props = defineProps({
@@ -86,6 +88,7 @@ watch([props.accountInfo, props.network], () => {
 });
 onMounted(() => {
   updateNFTInfo();
+  trackNFTEvents(NFTEventType.NFTOpen, { network: props.network.name });
 });
 const localUpdate = async () => {
   const favs = await nftState.getFavoriteNFTs();

@@ -20,6 +20,10 @@ const defaultSettings = {
   btc: {
     injectUnisat: false,
   },
+  enkrypt: {
+    installedTimestamp: 0,
+    randomUserID: "",
+  },
   manifestVersion: 3,
 };
 

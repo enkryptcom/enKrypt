@@ -19,6 +19,7 @@ import CustomNetworksState from "@/libs/custom-networks-state";
 import NetworksState from "@/libs/networks-state";
 import { EvmNetwork } from "../types/evm-network";
 import { trackNetworkSelected } from "@/libs/metrics";
+import { NetworkChangeEvents } from "@/libs/metrics/types";
 
 interface AddEthereumChainPayload {
   chainId: string;
@@ -127,10 +128,10 @@ const setExistingCustomNetwork = async (
     ) as EvmNetwork | undefined;
   }
   if (existingNetwork) {
-    trackNetworkSelected(
-      ProviderName.ethereum,
-      existingNetwork.name as NetworkNames
-    );
+    trackNetworkSelected(NetworkChangeEvents.NetworkChangeAPI, {
+      provider: ProviderName.ethereum,
+      network: existingNetwork.name as NetworkNames,
+    });
     return sendToBackgroundFromBackground({
       message: JSON.stringify({
         method: InternalMethods.changeNetwork,

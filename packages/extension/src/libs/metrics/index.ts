@@ -1,18 +1,22 @@
 import { ProviderName } from "@/types/provider";
 import { NetworkNames } from "@enkryptcom/types";
 import Metrics from "./amplitude";
-import { SwapEventType } from "./types";
+import {
+  BuyEventType,
+  DAppsEventType,
+  NFTEventType,
+  NetworkChangeEvents,
+  SendEventType,
+  SwapEventType,
+} from "./types";
 
 const metrics = new Metrics();
 
 const trackNetworkSelected = (
-  provider: ProviderName,
-  network: NetworkNames
+  event: NetworkChangeEvents,
+  options: { provider: ProviderName; network: NetworkNames }
 ) => {
-  metrics.track("network_selected", {
-    network,
-    provider,
-  });
+  metrics.track("network", { event, ...options });
 };
 
 const trackSwapEvents = (
@@ -25,7 +29,50 @@ const trackSwapEvents = (
     error?: string;
   }
 ) => {
-  metrics.track("swap_event", options);
+  metrics.track("swap", { event, ...options });
 };
 
-export { trackNetworkSelected, trackSwapEvents };
+const trackBuyEvents = (
+  event: BuyEventType,
+  options: {
+    network: NetworkNames;
+  }
+) => {
+  metrics.track("buy", { event, ...options });
+};
+
+const trackSendEvents = (
+  event: SendEventType,
+  options: {
+    network: NetworkNames;
+    error?: string;
+  }
+) => {
+  metrics.track("send", { event, ...options });
+};
+
+const trackNFTEvents = (
+  event: NFTEventType,
+  options: {
+    network: NetworkNames;
+  }
+) => {
+  metrics.track("nft", { event, ...options });
+};
+
+const trackDAppsEvents = (
+  event: DAppsEventType,
+  options: {
+    network: NetworkNames;
+  }
+) => {
+  metrics.track("dapps", { event, ...options });
+};
+export {
+  trackNetworkSelected,
+  trackSwapEvents,
+  trackBuyEvents,
+  trackSendEvents,
+  trackNFTEvents,
+  trackDAppsEvents,
+};

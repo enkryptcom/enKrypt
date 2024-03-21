@@ -176,6 +176,8 @@ import { ProviderName } from "@/types/provider";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
 import { GenericNameResolver, CoinType } from "@/libs/name-resolver";
 import { NetworkNames } from "@enkryptcom/types";
+import { trackSendEvents } from "@/libs/metrics";
+import { SendEventType } from "@/libs/metrics/types";
 
 const props = defineProps({
   network: {
@@ -271,6 +273,7 @@ const nativeBalance = computed(() => {
 });
 
 onMounted(async () => {
+  trackSendEvents(SendEventType.SendOpen, { network: props.network.name });
   fetchAssets().then(setBaseCosts);
 });
 

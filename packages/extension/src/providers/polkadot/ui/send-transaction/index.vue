@@ -126,6 +126,8 @@ import { ProviderName } from "@/types/provider";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
 import { polkadotEncodeAddress } from "@enkryptcom/utils";
 import { GenericNameResolver, CoinType } from "@/libs/name-resolver";
+import { trackSendEvents } from "@/libs/metrics";
+import { SendEventType } from "@/libs/metrics/types";
 
 const props = defineProps({
   network: {
@@ -212,6 +214,7 @@ const isAddress = computed(() => {
 
 onMounted(() => {
   isLoadingAssets.value = true;
+  trackSendEvents(SendEventType.SendOpen, { network: props.network.name });
   fetchTokens();
 });
 

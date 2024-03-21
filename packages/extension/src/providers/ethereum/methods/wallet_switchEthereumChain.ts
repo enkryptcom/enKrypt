@@ -10,6 +10,7 @@ import { getAllNetworks } from "@/libs/utils/networks";
 import { EvmNetwork } from "../types/evm-network";
 import NetworksState from "@/libs/networks-state";
 import { trackNetworkSelected } from "@/libs/metrics";
+import { NetworkChangeEvents } from "@/libs/metrics/types";
 
 const method: MiddlewareFunction = function (
   this: EthereumProvider,
@@ -32,7 +33,10 @@ const method: MiddlewareFunction = function (
         (net) => (net as EvmNetwork).chainID === payload.params![0].chainId
       ) as EvmNetwork | undefined;
       if (validNetwork) {
-        trackNetworkSelected(validNetwork.provider, validNetwork.name);
+        trackNetworkSelected(NetworkChangeEvents.NetworkChangeAPI, {
+          provider: validNetwork.provider,
+          network: validNetwork.name,
+        });
         sendToBackgroundFromBackground({
           message: JSON.stringify({
             method: InternalMethods.changeNetwork,

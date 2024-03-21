@@ -106,6 +106,8 @@ import { BaseNetwork } from "@/types/base-network";
 import { bigIntToHex } from "@ethereumjs/util";
 import { toBN } from "web3-utils";
 import { bufferToHex, toBase } from "@enkryptcom/utils";
+import { trackSendEvents } from "@/libs/metrics";
+import { SendEventType } from "@/libs/metrics/types";
 
 const KeyRing = new PublicKeyRing();
 const route = useRoute();
@@ -126,6 +128,7 @@ const errorMsg = ref("");
 defineExpose({ verifyScrollRef });
 onBeforeMount(async () => {
   network.value = (await getNetworkByName(selectedNetwork))!;
+  trackSendEvents(SendEventType.SendVerify, { network: network.value.name });
   account.value = await KeyRing.getAccount(txData.fromAddress);
   isWindowPopup.value = account.value.isHardware;
 });
@@ -172,6 +175,9 @@ const sendAction = async () => {
     })
     .then(async (finalizedTx) => {
       const onHash = (hash: string) => {
+        trackSendEvents(SendEventType.SendComplete, {
+          network: network.value.name,
+        });
         activityState.addActivities(
           [
             {
@@ -217,6 +223,10 @@ const sendAction = async () => {
                   });
                   isProcessing.value = false;
                   errorMsg.value = error.message;
+                  trackSendEvents(SendEventType.SendFailed, {
+                    network: network.value.name,
+                    error: errorMsg.value,
+                  });
                   console.error("ERROR", error);
                 });
             });
@@ -224,6 +234,10 @@ const sendAction = async () => {
         .catch((e) => {
           isProcessing.value = false;
           errorMsg.value = e.error ? e.error.message : e.message;
+          trackSendEvents(SendEventType.SendFailed, {
+            network: network.value.name,
+            error: errorMsg.value,
+          });
           console.error(e);
         });
     });

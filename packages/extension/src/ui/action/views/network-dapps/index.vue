@@ -27,6 +27,8 @@ import DappList from "@/libs/dapp-list";
 import Masonry from "@action/components/masonry/index.vue";
 import { DAppsItem } from "@/types/ui";
 import cacheFetch from "@/libs/cache-fetch";
+import { trackDAppsEvents } from "@/libs/metrics";
+import { DAppsEventType } from "@/libs/metrics/types";
 
 const route = useRoute();
 
@@ -51,6 +53,7 @@ onMounted(async () => {
       console.error("Could not retrieve dapps list");
     }
   }
+  trackDAppsEvents(DAppsEventType.DAppsOpen, { network: props.network.name });
 });
 </script>
 
