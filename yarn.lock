@@ -2840,6 +2840,7 @@ __metadata:
     web3-eth: ^4.5.0
     web3-eth-contract: ^4.2.0
     web3-utils: ^4.2.1
+    web3-validator: ^2.0.4
     ws: ^8.16.0
   languageName: unknown
   linkType: soft

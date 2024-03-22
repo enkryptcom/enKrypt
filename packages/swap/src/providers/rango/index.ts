@@ -295,7 +295,7 @@ class Rango extends ProviderClass {
         from: options.fromAddress,
         gasLimit: tx.gasLimit || GAS_LIMITS.swap,
         to: tx.txTo,
-        value: numberToHex(tx.value),
+        value: tx.value ? numberToHex(tx.value) : "0x0",
         data: tx.txData,
         type: TransactionType.evm,
       });

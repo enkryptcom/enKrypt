@@ -23,8 +23,10 @@ describe("Utility functions", () => {
     expect(hexToBuffer("123456")).to.be.deep.equal(buf);
   });
   it("toBN to string", () => {
-    const bn = toBN("0xabcdef");
+    let bn = toBN("0xabcdef");
     expect(bn.toString()).to.be.equal("11259375");
+    bn = toBN("0");
+    expect(bn.toString()).to.be.equal("0");
   });
   it("To Base/From Base", () => {
     expect(toBase("1193046", 18)).to.be.equal("1193046000000000000000000");

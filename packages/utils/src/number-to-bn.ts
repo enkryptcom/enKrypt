@@ -16,7 +16,10 @@ export const stripHexPrefix = (str: string) => {
  * @return {Object} `output` BN object of the number
  * @throws if the argument is not an array, object that isn't a bignumber, not a string number or number
  */
-export const numberToBN = (arg: string | number | BN) => {
+export const numberToBN = (arg: string | number | BN | bigint) => {
+  if (typeof arg === "bigint") {
+    return new BN(arg.toString());
+  }
   if (typeof arg === "string" || typeof arg === "number") {
     let multiplier = new BN(1);
     const formattedString = String(arg).toLowerCase().trim();
@@ -60,6 +63,14 @@ export const numberToBN = (arg: string | number | BN) => {
 export const toBN = (number: string | number) => {
   try {
     return numberToBN(number);
+  } catch (e) {
+    throw new Error(`${e} Given value: "${number}"`);
+  }
+};
+
+export const bnToBigInt = (number: BN): bigint => {
+  try {
+    return BigInt(number.toString());
   } catch (e) {
     throw new Error(`${e} Given value: "${number}"`);
   }

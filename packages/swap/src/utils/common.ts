@@ -1,5 +1,5 @@
 import { polkadotEncodeAddress } from "@enkryptcom/utils";
-import { isAddress } from "web3-utils";
+import { isAddress } from "web3-validator";
 import { NATIVE_TOKEN_ADDRESS } from "../configs";
 
 export const isPolkadotAddress = (address: string, prefix: number) => {

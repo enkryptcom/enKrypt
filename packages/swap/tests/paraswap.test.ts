@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import Web3Eth from "web3-eth";
-import { numberToHex } from "@enkryptcom/utils";
+import { bnToBigInt, numberToHex } from "@enkryptcom/utils";
 import Parawap, { PARASWAP_APPROVAL_ADDRESS } from "../src/providers/paraswap";
 import {
   EVMTransaction,
@@ -74,7 +74,7 @@ describe("Paraswap Provider", () => {
         "0x",
         ""
       )}00000000000000000000000000000000000000000000000${numberToHex(
-        amount
+        bnToBigInt(amount)
       ).replace("0x", "")}`
     );
     expect(swap?.transactions[1].to).to.be.eq(

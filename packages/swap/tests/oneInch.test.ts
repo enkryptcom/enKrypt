@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import Web3Eth from "web3-eth";
-import { numberToHex } from "@enkryptcom/utils";
+import { numberToHex, bnToBigInt } from "@enkryptcom/utils";
 import OneInch, { ONEINCH_APPROVAL_ADDRESS } from "../src/providers/oneInch";
 import {
   EVMTransaction,
@@ -72,7 +72,7 @@ describe("OneInch Provider", () => {
         "0x",
         ""
       )}00000000000000000000000000000000000000000000000${numberToHex(
-        amount
+        bnToBigInt(amount)
       ).replace("0x", "")}`
     );
     expect(swap?.transactions[1].to).to.be.eq(ONEINCH_APPROVAL_ADDRESS);

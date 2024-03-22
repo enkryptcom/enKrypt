@@ -1,10 +1,16 @@
-import { hexToBytes, keccak256, utf8ToHex, numberToHex } from "web3-utils";
+import {
+  hexToBytes,
+  keccak256,
+  utf8ToHex,
+  numberToHex,
+  toBigInt,
+} from "web3-utils";
 import { bigIntToBytes, bigIntToHex } from "@ethereumjs/util";
 import { encodeAddress as polkadotEncodeAddress } from "@polkadot/util-crypto";
 import { encrypt, decrypt } from "./encrypt";
 import MemoryStorage from "./memory-storage";
 import { fromBase, toBase, isValidDecimals } from "./units";
-import { toBN, stripHexPrefix } from "./number-to-bn";
+import { toBN, stripHexPrefix, bnToBigInt } from "./number-to-bn";
 
 const bufferToHex = (buf: Buffer | Uint8Array, nozerox = false): string =>
   nozerox
@@ -21,6 +27,8 @@ const hexToBuffer = (hex: string): Buffer =>
 
 export {
   toBN,
+  toBigInt,
+  bnToBigInt,
   stripHexPrefix,
   utf8ToHex,
   bufferToHex,
