@@ -319,6 +319,9 @@ const fetchTokens = async () => {
 };
 
 const close = () => {
+  trackSendEvents(SendEventType.SendDecline, {
+    network: props.network.name,
+  });
   router.go(-1);
 };
 

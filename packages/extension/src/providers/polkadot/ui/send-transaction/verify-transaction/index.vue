@@ -125,6 +125,9 @@ onBeforeMount(async () => {
   isWindowPopup.value = account.value.isHardware;
 });
 const close = () => {
+  trackSendEvents(SendEventType.SendDecline, {
+    network: network.value.name,
+  });
   if (getCurrentContext() === "popup") {
     router.go(-1);
   } else {
@@ -134,10 +137,11 @@ const close = () => {
 
 const sendAction = async () => {
   isProcessing.value = true;
+  trackSendEvents(SendEventType.SendApprove, {
+    network: network.value.name,
+  });
   const api = await network.value.api();
-
   const tx = (api.api as ApiPromise).tx(txData.TransactionData.data);
-
   try {
     const signedTx = await tx.signAsync(account.value!.address, {
       signer: {

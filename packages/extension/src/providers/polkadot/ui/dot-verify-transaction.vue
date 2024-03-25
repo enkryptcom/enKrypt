@@ -143,7 +143,7 @@ import { getViewAndProps } from "./custom-views";
 import SubstrateAPI from "../libs/api";
 import BigNumber from "bignumber.js";
 import { ProviderRequestOptions } from "@/types/provider";
-import { EnkryptAccount } from "@enkryptcom/types";
+import { EnkryptAccount, NetworkNames } from "@enkryptcom/types";
 import { TransactionSigner } from "./libs/signer";
 import { Activity, ActivityStatus, ActivityType } from "@/types/activity";
 import { ApiPromise } from "@polkadot/api";
@@ -151,8 +151,8 @@ import { u8aToHex } from "@polkadot/util";
 import ActivityState from "@/libs/activity-state";
 import Polkadot from "@/providers/polkadot/networks/polkadot";
 import { getAllNetworks } from "@/libs/utils/networks";
-import { trackNetworkSelected } from "@/libs/metrics";
-import { NetworkChangeEvents } from "@/libs/metrics/types";
+import { trackNetworkSelected, trackSendEvents } from "@/libs/metrics";
+import { NetworkChangeEvents, SendEventType } from "@/libs/metrics/types";
 
 const windowPromise = WindowPromiseHandler(2);
 
@@ -302,6 +302,11 @@ const toggleData = () => {
 };
 const approve = async () => {
   isSigning.value = true;
+  trackSendEvents(SendEventType.SendAPIApprove, {
+    network: network.value
+      ? network.value.name
+      : ("substrate-undefined" as NetworkNames),
+  });
   const { Request, Resolve } = await windowPromise;
   const registry = new TypeRegistry();
   const reqPayload = Request.value.params![0] as SignerPayloadJSON;
@@ -356,6 +361,11 @@ const approve = async () => {
           }
         );
       }
+      trackSendEvents(SendEventType.SendAPIComplete, {
+        network: network.value
+          ? network.value.name
+          : ("substrate-undefined" as NetworkNames),
+      });
       Resolve.value(res);
     })
     .catch(async (res) => {
@@ -366,11 +376,22 @@ const approve = async () => {
           network: network.value.name,
         });
       }
+      trackSendEvents(SendEventType.SendAPIFailed, {
+        network: network.value
+          ? network.value.name
+          : ("substrate-undefined" as NetworkNames),
+        error: res.error,
+      });
       Resolve.value(res);
     })
     .finally(() => (isSigning.value = false));
 };
 const deny = async () => {
+  trackSendEvents(SendEventType.SendAPIDecline, {
+    network: network.value
+      ? network.value.name
+      : ("substrate-undefined" as NetworkNames),
+  });
   const { Resolve } = await windowPromise;
   Resolve.value({
     error: getError(ErrorCodes.userRejected),

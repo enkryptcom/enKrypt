@@ -131,6 +131,9 @@ const close = () => {
 
 const sendAction = async () => {
   isProcessing.value = true;
+  trackSendEvents(SendEventType.SendApprove, {
+    network: network.value.name,
+  });
   const txActivity: Activity = {
     from: network.value.displayAddress(txData.fromAddress),
     to: txData.toAddress,

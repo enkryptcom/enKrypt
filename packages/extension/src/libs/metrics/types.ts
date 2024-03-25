@@ -18,8 +18,15 @@ export enum BuyEventType {
 export enum SendEventType {
   SendOpen = "send_open",
   SendVerify = "send_verify",
+  SendAPIVerify = "send_api_verify",
   SendComplete = "send_complete",
+  SendAPIComplete = "send_api_complete",
   SendFailed = "send_failed",
+  SendAPIFailed = "send_api_failed",
+  SendApprove = "send_approve",
+  SendDecline = "send_decline",
+  SendAPIApprove = "send_api_approve",
+  SendAPIDecline = "send_api_decline",
 }
 
 export enum NFTEventType {

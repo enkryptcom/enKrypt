@@ -157,6 +157,8 @@ import broadcastTx from "../libs/tx-broadcaster";
 import TokenSigs from "../libs/transaction/lists/tokenSigs";
 import AlertIcon from "@action/icons/send/alert-icon.vue";
 import { NetworkNames } from "@enkryptcom/types";
+import { trackSendEvents } from "@/libs/metrics";
+import { SendEventType } from "@/libs/metrics/types";
 
 const isProcessing = ref(false);
 const isOpenSelectFee = ref(false);
@@ -284,6 +286,9 @@ onBeforeMount(async () => {
 
 const approve = async () => {
   isProcessing.value = true;
+  trackSendEvents(SendEventType.SendAPIApprove, {
+    network: network.value.name,
+  });
   const { Request, Resolve } = await windowPromise;
   const web3 = new Web3Eth(network.value.node);
   const tx = new Transaction(
@@ -325,6 +330,9 @@ const approve = async () => {
             transactionHash: "",
           };
           const onHash = (hash: string) => {
+            trackSendEvents(SendEventType.SendAPIComplete, {
+              network: network.value.name,
+            });
             activityState
               .addActivities(
                 [
@@ -361,23 +369,31 @@ const approve = async () => {
                       network: network.value.name,
                     })
                     .then(() => {
+                      trackSendEvents(SendEventType.SendAPIFailed, {
+                        network: network.value.name,
+                        error: error.message,
+                      });
                       Resolve.value({
                         error: getCustomError(error.message),
                       });
                     });
                 });
-            })
-            .catch((err) => {
-              Resolve.value(err);
             });
         })
         .catch((err) => {
+          trackSendEvents(SendEventType.SendAPIFailed, {
+            network: network.value.name,
+            error: err.error,
+          });
           Resolve.value(err);
         });
     }
   );
 };
 const deny = async () => {
+  trackSendEvents(SendEventType.SendAPIDecline, {
+    network: network.value.name,
+  });
   const { Resolve } = await windowPromise;
   Resolve.value({
     error: getError(ErrorCodes.userRejected),

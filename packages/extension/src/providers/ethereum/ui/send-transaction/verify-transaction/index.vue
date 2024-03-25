@@ -142,6 +142,9 @@ const close = () => {
 
 const sendAction = async () => {
   isProcessing.value = true;
+  trackSendEvents(SendEventType.SendApprove, {
+    network: network.value.name,
+  });
   const web3 = new Web3Eth(network.value.node);
   const tx = new Transaction(txData.TransactionData, web3);
 
