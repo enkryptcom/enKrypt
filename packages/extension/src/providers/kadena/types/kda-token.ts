@@ -57,7 +57,6 @@ export class KDAToken extends KDABaseToken {
     network: KadenaNetwork
   ): Promise<ICommand> {
     to = network.displayAddress(to);
-    const toKey = to.replace("k:", "");
     const accountDetails = await this.getAccountDetails(to, network);
     const api = (await network.api()) as KadenaAPI;
     const chainID = await api.getChainId();
@@ -73,7 +72,7 @@ export class KDAToken extends KDABaseToken {
           }
         )
       )
-      .addKeyset("ks", "keys-all", toKey)
+      .addKeyset("ks", "keys-all", keySetAccount)
       .addSigner(from.publicKey.replace("0x", ""), (withCap: any) => [
         withCap("coin.TRANSFER", network.displayAddress(from.address), to, {
           decimal: amount,
