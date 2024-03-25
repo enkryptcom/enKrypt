@@ -6,7 +6,7 @@ https://github.com/ethers-io
 Note, Richard is a god of ether gods. Follow and respect him, and use Ethers.io!
 */
 
-import { toBN } from "web3-utils";
+import { toBN } from "./number-to-bn";
 
 const zero = toBN(0);
 const negative1 = toBN(-1);

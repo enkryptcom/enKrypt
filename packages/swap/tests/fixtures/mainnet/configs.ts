@@ -1,5 +1,6 @@
 import { NetworkNames } from "@enkryptcom/types";
-import { isAddress, toBN } from "web3-utils";
+import { isAddress } from "web3-utils";
+import { toBN } from "@enkryptcom/utils";
 import { NetworkType, TokenType, TokenTypeTo } from "../../../src/types";
 
 const amount = toBN("100000000000000000000");
