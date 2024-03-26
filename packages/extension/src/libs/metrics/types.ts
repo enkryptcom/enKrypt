@@ -4,6 +4,8 @@ export enum SwapEventType {
   SwapVerify = "swap_verify",
   SwapComplete = "swap_complete",
   swapFailed = "swap_failed",
+  swapCancelled = "swap_cancelled",
+  swapBack = "swap_back",
 }
 
 export enum NetworkChangeEvents {

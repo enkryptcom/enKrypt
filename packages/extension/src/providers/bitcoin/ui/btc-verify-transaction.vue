@@ -122,7 +122,7 @@ import CommonPopup from "@action/views/common-popup/index.vue";
 import SendFeeSelect from "@/providers/common/ui/send-transaction/send-fee-select.vue";
 import HardwareWalletMsg from "@/providers/common/ui/verify-transaction/hardware-wallet-msg.vue";
 import AlertIcon from "@action/icons/send/alert-icon.vue";
-import { getCustomError, getError } from "@/libs/error";
+import { getError } from "@/libs/error";
 import { ErrorCodes } from "@/providers/ethereum/types";
 import { WindowPromiseHandler } from "@/libs/window-promise";
 import { DEFAULT_BTC_NETWORK, getNetworkByName } from "@/libs/utils/networks";

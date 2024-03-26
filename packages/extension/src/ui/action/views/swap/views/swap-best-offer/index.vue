@@ -311,6 +311,12 @@ onMounted(async () => {
 });
 
 const back = () => {
+  trackSwapEvents(SwapEventType.swapBack, {
+    network: network.value!.name,
+    fromToken: swapData.fromToken.name,
+    toToken: swapData.toToken.name,
+    swapProvider: pickedTrade.value.provider,
+  });
   if (!isWindowPopup.value) {
     router.go(-1);
   } else {
@@ -319,6 +325,12 @@ const back = () => {
 };
 
 const close = () => {
+  trackSwapEvents(SwapEventType.swapCancelled, {
+    network: network.value!.name,
+    fromToken: swapData.fromToken.name,
+    toToken: swapData.toToken.name,
+    swapProvider: pickedTrade.value.provider,
+  });
   if (!isWindowPopup.value) {
     router.go(-2);
   } else {
