@@ -1,0 +1,35 @@
+import { NetworkNames } from "@enkryptcom/types";
+import { toBN } from "web3-utils";
+import {
+  SubstrateNetwork,
+  SubstrateNetworkOptions,
+} from "@/providers/polkadot/types/substrate-network";
+import { subscanActivity } from "@/providers/polkadot/libs/activity-handlers";
+import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
+import assetHandler from "@/providers/polkadot/libs/asset-handler";
+
+const assetHubOptions: SubstrateNetworkOptions = {
+  name: NetworkNames.AssetHub,
+  name_long: "Asset Hub",
+  homePage: "https://polkadot.network",
+  blockExplorerTX: "https://assethub-polkadot.subscan.io/extrinsic/[[txHash]]",
+  blockExplorerAddr: "https://assethub-polkadot.subscan.io/account/[[address]]",
+  isTestNetwork: false,
+  currencyName: "DOT",
+  currencyNameLong: "Polkadot",
+  icon: require("../icons/assethub.png"),
+  decimals: 10,
+  prefix: 0,
+  node: "wss://statemint-rpc.dwellir.com/",
+  coingeckoID: "polkadot",
+  genesisHash:
+    "0x68d56f15f85d3136970ec16946040bc1752654e906147f7e43e9d539d7c3de2f",
+  activityHandler: wrapActivityHandler(subscanActivity),
+  existentialDeposit: toBN("10000000000"),
+  assetHandler,
+  knownTokens: [],
+};
+
+const assetHub = new SubstrateNetwork(assetHubOptions);
+
+export default assetHub;
