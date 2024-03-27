@@ -6,7 +6,7 @@ import {
   SubstrateNetwork,
   SubstrateNetworkOptions,
 } from "../../types/substrate-network";
-import assetHandler from "./libs//assetinfo";
+import assetHandler from "@/providers/polkadot/libs/asset-handler";
 import { toBN } from "web3-utils";
 
 const shidenOptions: SubstrateNetworkOptions = {

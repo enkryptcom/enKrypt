@@ -105,7 +105,7 @@ export class SubstrateNetwork extends BaseNetwork {
     } else {
       const nativeToken = new SubstrateNativeToken({
         name: this.currencyNameLong,
-        symbol: this.name,
+        symbol: this.currencyName,
         coingeckoID: this.coingeckoID,
         decimals: this.decimals,
         icon: this.icon,
@@ -124,7 +124,7 @@ export class SubstrateNetwork extends BaseNetwork {
     if (supported.length === 0) {
       const nativeToken = new SubstrateNativeToken({
         name: this.currencyNameLong,
-        symbol: this.name,
+        symbol: this.currencyName,
         coingeckoID: this.coingeckoID,
         decimals: this.decimals,
         icon: this.icon,

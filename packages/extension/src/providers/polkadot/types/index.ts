@@ -64,6 +64,7 @@ export interface KnownTokenDisplay {
   symbol: string;
   coingeckoID?: string;
   icon: string;
+  id?: string;
 }
 
 export { InjectedProvider };

@@ -6,27 +6,19 @@ const assets: KnownTokenDisplay[] = [
     symbol: "MOVR",
     coingeckoID: "moonriver",
     icon: require("./icons/MOVR.png"),
+    id: "18446744073709551620",
   },
   {
     name: "Kusama",
     symbol: "KSM",
     icon: require("./icons/KSM.png"),
-  },
-  {
-    name: "Liquid Kusama",
-    symbol: "LKSM",
-    icon: require("./icons/LKSM.png"),
-  },
-  {
-    name: "Acala Dollar",
-    symbol: "aUSD",
-    icon: require("./icons/AUSD.png"),
-    coingeckoID: "acala-dollar",
+    id: "340282366920938463463374607431768211455",
   },
   {
     name: "Karura",
     symbol: "KAR",
     icon: require("./icons/KAR.svg"),
+    id: "18446744073709551618",
   },
 ];
 
