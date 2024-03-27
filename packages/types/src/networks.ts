@@ -63,7 +63,8 @@ export enum NetworkNames {
   ArtheraTest = "AATest",
   Arthera = "AA",
   FormTestnet = "FormTestnet",
-  AssetHub = "AssetHub",
+  AssetHubDOT = "AssetHubDOT",
+  AssetHubKSM = "AssetHubKSM",
 }
 
 export enum CoingeckoPlatform {

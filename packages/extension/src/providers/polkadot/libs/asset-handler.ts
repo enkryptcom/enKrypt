@@ -68,15 +68,11 @@ export default async (
     .map((tokenOption) => {
       if (knownTokens) {
         const knownToken = knownTokens.find(
-          (knownToken) =>
-            knownToken.name === tokenOption.name &&
-            knownToken.symbol === tokenOption.symbol &&
-            knownToken.id === tokenOption.id
+          (knownToken) => knownToken.id === tokenOption.id
         );
         if (knownToken) {
           tokenOption.coingeckoID = knownToken.coingeckoID;
           tokenOption.icon = knownToken.icon;
-          console.log(tokenOption);
         }
       }
       return tokenOption;
@@ -87,15 +83,21 @@ export default async (
     });
     const balances = await apiPromise.query.assets.account.multi(queries);
     balances.forEach((balanceInfo, index) => {
-      const data = balanceInfo.toJSON();
+      const data: {
+        balance: string;
+        status?: string;
+      } = balanceInfo.toJSON() as any;
       if (data) {
-        tokenOptions[index].balance = (data as any).balance.toString();
+        tokenOptions[index].balance = data.balance.toString();
+        if (data.status && data.status.toString() === "Frozen") {
+          tokenOptions[index].name = `${tokenOptions[index].name} (Frozen)`;
+        }
       }
     });
   }
   const nativeAsset = new SubstrateNativeToken({
     name: network.currencyNameLong,
-    symbol: network.name,
+    symbol: network.currencyName,
     decimals: network.decimals,
     existentialDeposit: network.existentialDeposit,
     icon: network.icon,

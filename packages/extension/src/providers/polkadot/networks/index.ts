@@ -14,7 +14,10 @@ import uniqueNode from "./unique/unique";
 import penNode from "./pendulum/pendulum";
 import ampeNode from "./pendulum/amplitude";
 import varaNode from "./vara";
-import assetHubNode from "./assethub";
+import {
+  assethubDOT as assetHubDotNode,
+  assethubKSM as assetHubKsmNode,
+} from "./assethub";
 
 export default {
   acala: acaNode,
@@ -33,5 +36,6 @@ export default {
   pendulum: penNode,
   amplitude: ampeNode,
   vara: varaNode,
-  assetHub: assetHubNode,
+  assetHubDOT: assetHubDotNode,
+  assetHubKSM: assetHubKsmNode,
 };

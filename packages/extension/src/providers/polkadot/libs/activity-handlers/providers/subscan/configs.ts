@@ -14,7 +14,8 @@ const NetworkEndpoints = {
   [NetworkNames.Quartz]: "https://quartz.api.subscan.io/",
   [NetworkNames.Unique]: "https://unique.api.subscan.io/",
   [NetworkNames.Vara]: "https://vara.api.subscan.io/",
-  [NetworkNames.AssetHub]: "https://assethub-polkadot.api.subscan.io/",
+  [NetworkNames.AssetHubDOT]: "https://assethub-polkadot.api.subscan.io/",
+  [NetworkNames.AssetHubKSM]: "https://assethub-kusama.api.subscan.io/",
 };
 
 export { NetworkEndpoints };
