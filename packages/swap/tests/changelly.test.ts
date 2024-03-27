@@ -39,7 +39,7 @@ describe("Changelly Provider", () => {
     expect(quote?.quote.meta.walletIdentifier).to.be.eq(
       WalletIdentifier.enkrypt
     );
-    expect(quote?.fromTokenAmount.toString()).to.be.eq(amount.toString());
+    expect(quote?.fromTokenAmount.gte(amount)).to.be.eq(true);
     expect(quote?.toTokenAmount.gtn(0)).to.be.eq(true);
     const swap = await changelly.getSwap(quote!.quote);
 

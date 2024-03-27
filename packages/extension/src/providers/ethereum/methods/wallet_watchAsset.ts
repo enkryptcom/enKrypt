@@ -4,7 +4,7 @@ import MarketData from "@/libs/market-data";
 import { CustomErc20Token, TokenType } from "@/libs/tokens-state/types";
 import { WindowPromise } from "@/libs/window-promise";
 import { MiddlewareFunction } from "@enkryptcom/types";
-import { isValidAddress } from "ethereumjs-util";
+import { isValidAddress } from "@ethereumjs/util";
 import EthereumProvider from "..";
 import API from "../libs/api";
 import { Erc20Token } from "../types/erc20-token";

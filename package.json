@@ -1,6 +1,6 @@
 {
   "name": "enkrypt",
-  "packageManager": "yarn@3.6.3",
+  "packageManager": "yarn@3.8.1",
   "version": "0.0.2",
   "private": true,
   "workspaces": [
@@ -26,15 +26,15 @@
     "upgrade": "yarn upgrade-interactive",
     "version:bump:patch": "yarn workspaces foreach -pv --exclude @enkryptcom/extension exec 'yarn version --immediate patch'",
     "publish": "yarn workspaces foreach -pv --exclude @enkryptcom/extension exec 'yarn npm publish --access public --otp 474911'",
-    "version:apply": "yarn version apply --all"
+    "version:apply": "yarn version apply --all",
+    "prepare": "husky"
   },
   "devDependencies": {
-    "@commitlint/cli": "^17.8.1",
-    "@commitlint/config-conventional": "^17.8.1",
-    "@swc/core": "^1.4.4",
+    "@commitlint/cli": "^19.2.1",
+    "@commitlint/config-conventional": "^19.1.0",
+    "@swc/core": "^1.4.8",
     "concurrently": "^8.2.2",
-    "devmoji": "^2.3.0",
-    "husky": "^8.0.3",
+    "husky": "^9.0.11",
     "node-notifier": "^10.0.1",
     "nodemon": "^3.1.0",
     "ultra-runner": "^3.10.5"

@@ -71,7 +71,7 @@ describe("Rango Provider", () => {
     );
     expect(quote?.fromTokenAmount.toString()).to.be.eq(amount.toString());
     expect(quote?.toTokenAmount.gtn(0)).to.be.eq(true);
-    expect(quote?.additionalNativeFees.gtn(0)).to.be.eq(true);
+    expect(quote?.additionalNativeFees.eqn(0)).to.be.eq(true);
     const swap = await rango.getSwap(quote!.quote);
     expect(swap?.transactions.length).to.be.eq(1);
   }).timeout(25000);

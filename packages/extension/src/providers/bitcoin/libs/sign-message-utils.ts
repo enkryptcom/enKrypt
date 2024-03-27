@@ -1,4 +1,4 @@
-import { sha256 } from "ethereumjs-util";
+import { sha256 } from "ethereum-cryptography/sha256";
 
 const MAGIC_BYTES = Buffer.from("Bitcoin Signed Message:\n");
 
@@ -28,7 +28,7 @@ export const magicHash = (messageBuffer: Buffer) => {
   const prefix1 = varintBufNum(MAGIC_BYTES.length);
   const prefix2 = varintBufNum(messageBuffer.length);
   const buf = Buffer.concat([prefix1, MAGIC_BYTES, prefix2, messageBuffer]);
-  return sha256(sha256(buf));
+  return Buffer.from(sha256(sha256(buf)));
 };
 
 export const toCompact = (

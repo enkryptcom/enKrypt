@@ -11,7 +11,7 @@ import {
   u8aUnwrapBytes,
   u8aWrapBytes,
 } from "@polkadot/util";
-import { bufferToHex } from "ethereumjs-util";
+import { bufferToHex } from "@enkryptcom/utils";
 
 const TransactionSigner = (
   options: SignerTransactionOptions

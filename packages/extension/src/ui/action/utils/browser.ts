@@ -9,6 +9,15 @@ export const BROWSER_NAMES = {
   safari: "safari",
 };
 
+export const detectOS = (): Promise<{ os: string; arch: string }> => {
+  return Browser.runtime.getPlatformInfo().then((info) => {
+    return {
+      os: info.os,
+      arch: info.arch,
+    };
+  });
+};
+
 export const detectBrowser = (): string => {
   const { userAgent } = navigator;
 

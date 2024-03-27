@@ -5,7 +5,7 @@ import { AssetsType, ProviderName } from "@/types/provider";
 import { CoingeckoPlatform, SignerType, NetworkNames } from "@enkryptcom/types";
 import { Activity } from "./activity";
 import { BaseToken } from "./base-token";
-import { BNLike } from "ethereumjs-util";
+import { BNType } from "@/providers/common/types";
 
 export interface BaseNetworkOptions {
   name: NetworkNames;
@@ -20,7 +20,7 @@ export interface BaseNetworkOptions {
   decimals: number;
   signer: SignerType[];
   node: string;
-  displayAddress: (address: string, chainId?: BNLike) => string;
+  displayAddress: (address: string, chainId?: BNType) => string;
   provider: ProviderName;
   coingeckoID?: string;
   coingeckoPlatform?: CoingeckoPlatform;
@@ -42,7 +42,7 @@ export abstract class BaseNetwork {
   public icon: string;
   public signer: SignerType[];
   public node: string;
-  public displayAddress: (address: string, chainId?: BNLike) => string;
+  public displayAddress: (address: string, chainId?: BNType) => string;
   public provider: ProviderName;
   public coingeckoID: string | undefined;
   public coingeckoPlatform: CoingeckoPlatform | undefined;

@@ -1,5 +1,5 @@
 import { GasPriceTypes } from "@/providers/common/types";
-import { BN } from "ethereumjs-util";
+import { BNType as BN } from "@/providers/common/types";
 
 export interface AccessList {
   address: `0x${string}`;

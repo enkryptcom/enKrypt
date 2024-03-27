@@ -1,5 +1,6 @@
 import browser from "webextension-polyfill";
-import { keccakFromString } from "ethereumjs-util";
+import { keccak256 } from "ethereum-cryptography/keccak";
+import { bufferToHex } from "@enkryptcom/utils";
 const filesToMonitor = {
   content: {
     path: "scripts/contentscript.js",
@@ -33,7 +34,7 @@ const checkFilesChanged = async () => {
     await fetch(exturl)
       .then((res) => res.text())
       .then((content) => {
-        const hash = keccakFromString(content).toString("hex");
+        const hash = bufferToHex(keccak256(Buffer.from(content)));
         if (value.hash !== hash) {
           filesChanged = true;
           value.hash = hash;

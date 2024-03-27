@@ -10,7 +10,7 @@ import {
 import { toBN } from "web3-utils";
 import { KnownTokenDisplay } from "@/providers/polkadot/types";
 import { SubstrateNativeToken } from "@/providers/polkadot/types/substrate-native-token";
-import { BN } from "ethereumjs-util";
+import { BNType } from "@/providers/common/types";
 
 type AssetMetadata = {
   name: `0x${string}`;
@@ -105,7 +105,7 @@ export default async (
       const ormlOptions: AcalaOrmlAssetOptions = {
         name: hexToString(asset!.name),
         symbol: hexToString(asset!.symbol),
-        existentialDeposit: asset!.minimalBalance as BN,
+        existentialDeposit: asset!.minimalBalance as BNType,
         assetType: asset!.assetLookupId,
         lookupValue: asset!.assetLookupValue,
         icon: network.icon,

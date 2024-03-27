@@ -7,8 +7,10 @@ import {
   SubstrateSettingsType,
   SettingsType,
   BtcSettingsType,
+  EnkryptSettingsType,
 } from "./types";
 import { merge } from "lodash";
+
 class SettingsState {
   #storage: BrowserStorage;
   constructor() {
@@ -42,6 +44,14 @@ class SettingsState {
     };
     return merge(settings, state);
   }
+  async getEnkryptSettings(): Promise<EnkryptSettingsType> {
+    const state = await this.getStateByKey(StorageKeys.enkryptState);
+    const settings: EnkryptSettingsType = {
+      installedTimestamp: 0,
+      randomUserID: "",
+    };
+    return merge(settings, state);
+  }
   async deleteStateByKey(key: string): Promise<void> {
     await this.#storage.remove(key);
   }
@@ -50,6 +60,9 @@ class SettingsState {
   }
   async setEVMSettings(state: EVMSettingsType): Promise<void> {
     await this.#storage.set(StorageKeys.evmState, state);
+  }
+  async setEnkryptSettings(state: EnkryptSettingsType): Promise<void> {
+    await this.#storage.set(StorageKeys.enkryptState, state);
   }
   async setSubstrateSettings(state: SubstrateSettingsType): Promise<void> {
     await this.#storage.set(StorageKeys.substrateState, state);
@@ -61,10 +74,12 @@ class SettingsState {
     const evmstate = await this.getEVMSettings();
     const substratestate = await this.getSubstrateSettings();
     const btcstate = await this.getBtcSettings();
+    const enkryptState = await this.getEnkryptSettings();
     return {
       evm: evmstate,
       substrate: substratestate,
       btc: btcstate,
+      enkrypt: enkryptState,
       manifestVersion: Browser.runtime.getManifest().manifest_version,
     };
   }

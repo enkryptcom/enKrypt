@@ -17,7 +17,7 @@ import { SubstrateNativeToken } from "./substrate-native-token";
 import { Activity } from "@/types/activity";
 import { getApi, addNewApi } from "../libs/api-promises";
 import { KnownTokenDisplay } from ".";
-import { BN } from "ethereumjs-util";
+import { BNType } from "@/providers/common/types";
 
 export interface SubstrateNetworkOptions {
   name: NetworkNames;
@@ -36,7 +36,7 @@ export interface SubstrateNetworkOptions {
   coingeckoPlatform?: CoingeckoPlatform;
   genesisHash: string;
   knownTokens?: KnownTokenDisplay[];
-  existentialDeposit?: BN;
+  existentialDeposit?: BNType;
   activityHandler: (
     network: BaseNetwork,
     address: string
@@ -52,7 +52,7 @@ export class SubstrateNetwork extends BaseNetwork {
   public prefix: number;
   public assets: BaseToken[] = [];
   public genesisHash: string;
-  public existentialDeposit?: BN;
+  public existentialDeposit?: BNType;
 
   private knownTokens?: KnownTokenDisplay[];
   private activityHandler: (

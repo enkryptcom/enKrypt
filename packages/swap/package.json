@@ -32,9 +32,9 @@
     "ws": "^8.16.0"
   },
   "devDependencies": {
-    "@types/chai": "^4.3.12",
+    "@types/chai": "^4.3.14",
     "@types/mocha": "^10.0.6",
-    "@types/node": "^20.11.24",
+    "@types/node": "^20.11.30",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
     "chai": "^4.4.1",
@@ -49,7 +49,7 @@
     "ts-mocha": "^10.0.0",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
-    "tsup": "^6.7.0",
+    "tsup": "^8.0.2",
     "typescript": "^4.9.5",
     "typescript-eslint": "0.0.1-alpha.0"
   },

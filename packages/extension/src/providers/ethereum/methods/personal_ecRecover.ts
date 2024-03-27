@@ -1,12 +1,12 @@
 import { getCustomError } from "@/libs/error";
 import { MiddlewareFunction } from "@enkryptcom/types";
-import { hexToBuffer } from "@enkryptcom/utils";
+import { bufferToHex, hexToBuffer } from "@enkryptcom/utils";
 import {
   ecrecover,
   fromRpcSig,
   hashPersonalMessage,
   publicToAddress,
-} from "ethereumjs-util";
+} from "@ethereumjs/util";
 import EthereumProvider from "..";
 const method: MiddlewareFunction = function (
   this: EthereumProvider,
@@ -23,7 +23,7 @@ const method: MiddlewareFunction = function (
       const hashedMessage = hashPersonalMessage(hexToBuffer(payload.params[0]));
       const { v, r, s } = fromRpcSig(payload.params[1]);
       const recoveredPubKey = ecrecover(hashedMessage, v, r, s);
-      return res(null, "0x" + publicToAddress(recoveredPubKey).toString("hex"));
+      return res(null, bufferToHex(publicToAddress(recoveredPubKey)));
     } catch (e) {
       return res(getCustomError((e as Error).message));
     }
