@@ -40,7 +40,7 @@
 
     <settings-switch
       title="Disable Amplitude Events"
-      :is-checked="isMetricsEnabled"
+      :is-checked="!isMetricsEnabled"
       @update:check="toggleMetricsEnabled"
     />
     <div class="settings__label">
@@ -104,9 +104,9 @@ const toggleUnisatEnable = async (isChecked: boolean) => {
 };
 const toggleMetricsEnabled = async (isChecked: boolean) => {
   const enkryptSettings = await settingsState.getEnkryptSettings();
-  enkryptSettings.isMetricsEnabled = isChecked;
+  enkryptSettings.isMetricsEnabled = !isChecked;
   await settingsState.setEnkryptSettings(enkryptSettings);
-  optOutofMetrics(!isChecked);
+  optOutofMetrics(isChecked);
 };
 </script>
 
