@@ -20,6 +20,7 @@ export interface BtcSettingsType {
 export interface EnkryptSettingsType {
   installedTimestamp: number;
   randomUserID: string;
+  isMetricsEnabled: boolean;
 }
 export interface SettingsType {
   evm: EVMSettingsType;

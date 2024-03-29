@@ -38,6 +38,18 @@
       <p>Enable Enkrypt act like Unisat wallet for dapps</p>
     </div>
 
+    <settings-switch
+      title="Disable Amplitude Events"
+      :is-checked="isMetricsEnabled"
+      @update:check="toggleMetricsEnabled"
+    />
+    <div class="settings__label">
+      <p>
+        MEW uses Amplitude events to improve Enkrypt. No identifiable
+        information is collected.
+      </p>
+    </div>
+
     <!-- <base-select
       :select="selecTimer"
       title="Auto-lock timer"
@@ -58,16 +70,19 @@ import SettingsInnerHeader from "@action/views/settings/components/settings-inne
 import SettingsSwitch from "@action/views/settings/components/settings-switch.vue";
 import SettingsState from "@/libs/settings-state";
 import { SettingsType } from "@/libs/settings-state/types";
+import { optOutofMetrics } from "@/libs/metrics";
 
 const settingsState = new SettingsState();
 const isEthereumDisabled = ref(false);
 const isPolkadotjsDisabled = ref(false);
 const isUnisatEnabled = ref(true);
+const isMetricsEnabled = ref(true);
 onMounted(async () => {
   const allSettings: SettingsType = await settingsState.getAllSettings();
   isEthereumDisabled.value = allSettings.evm.inject.disabled;
   isPolkadotjsDisabled.value = !allSettings.substrate.injectPolkadotjs;
   isUnisatEnabled.value = allSettings.btc.injectUnisat;
+  isMetricsEnabled.value = allSettings.enkrypt.isMetricsEnabled;
 });
 const toggleEthereumDisable = async (isChecked: boolean) => {
   const evmSettings = await settingsState.getEVMSettings();
@@ -86,6 +101,12 @@ const toggleUnisatEnable = async (isChecked: boolean) => {
   const btcSettings = await settingsState.getBtcSettings();
   btcSettings.injectUnisat = isChecked;
   await settingsState.setBtcSettings(btcSettings);
+};
+const toggleMetricsEnabled = async (isChecked: boolean) => {
+  const enkryptSettings = await settingsState.getEnkryptSettings();
+  enkryptSettings.isMetricsEnabled = isChecked;
+  await settingsState.setEnkryptSettings(enkryptSettings);
+  optOutofMetrics(!isChecked);
 };
 </script>
 

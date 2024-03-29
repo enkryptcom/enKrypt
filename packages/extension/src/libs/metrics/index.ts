@@ -7,6 +7,7 @@ import {
   NFTEventType,
   NetworkChangeEvents,
   SendEventType,
+  SettingEventType,
   SwapEventType,
 } from "./types";
 
@@ -68,6 +69,16 @@ const trackDAppsEvents = (
 ) => {
   metrics.track("dapps", { event, ...options });
 };
+
+const optOutofMetrics = (optOut: boolean) => {
+  metrics.setOptOut(false);
+  metrics.track("settings", {
+    event: SettingEventType.OptOut,
+    value: optOut ? 1 : 0,
+  });
+  metrics.setOptOut(optOut);
+};
+
 export {
   trackNetworkSelected,
   trackSwapEvents,
@@ -75,4 +86,5 @@ export {
   trackSendEvents,
   trackNFTEvents,
   trackDAppsEvents,
+  optOutofMetrics,
 };

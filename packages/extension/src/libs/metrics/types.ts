@@ -38,3 +38,7 @@ export enum NFTEventType {
 export enum DAppsEventType {
   DAppsOpen = "dapps_open",
 }
+
+export enum SettingEventType {
+  OptOut = "opt_out",
+}

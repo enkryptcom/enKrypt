@@ -1,4 +1,4 @@
-import { init, track, Types } from "@amplitude/analytics-browser";
+import { init, track, Types, setOptOut } from "@amplitude/analytics-browser";
 import { detectBrowser, detectOS } from "@action/utils/browser";
 import SettingsState from "../settings-state";
 
@@ -32,7 +32,7 @@ class Metrics {
         instanceName: process.env.IS_DEV
           ? "enkrypt-extension-dev"
           : "enkrypt-extension",
-        optOut: false,
+        optOut: !set.isMetricsEnabled,
         serverUrl: process.env.IS_DEV
           ? "https://analytics-enkrypt-dev.mewwallet.dev/record"
           : "https://analytics-enkrypt.mewwallet.dev/record",
@@ -62,6 +62,9 @@ class Metrics {
         device_model: this.arch,
       }
     );
+  }
+  setOptOut(val: boolean) {
+    setOptOut(val);
   }
 }
 
