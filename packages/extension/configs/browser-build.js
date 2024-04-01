@@ -8,6 +8,7 @@ const browserNames = {
   chrome: "chrome",
   firefox: "firefox",
   safari: "safari",
+  operaedge: "opera-edge",
 };
 
 const browserConfigs = {
@@ -21,6 +22,10 @@ const browserConfigs = {
   },
   [browserNames.safari]: {
     manifest: "./src/manifest/manifest-safari.json",
+    background: "./src/scripts/chrome/background.ts",
+  },
+  [browserNames.operaedge]: {
+    manifest: "./src/manifest/manifest-edge-opera.json",
     background: "./src/scripts/chrome/background.ts",
   },
 };
@@ -73,6 +78,7 @@ const setConfig = (config) => {
       IS_DEV: process.env.NODE_ENV === "development",
       IS_FIREFOX: BROWSER === browserNames.firefox,
       IS_SAFARI: BROWSER === browserNames.safari,
+      IS_OPERA_EDGE: BROWSER === browserNames.operaedge,
       PREFILL_PASSWORD:
         process.env.NODE_ENV === "development"
           ? JSON.stringify("test pass")

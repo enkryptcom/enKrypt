@@ -42,7 +42,7 @@ Browser.runtime.onInstalled.addListener((object) => {
   }
 });
 
-if (process.env.IS_SAFARI) {
+if (process.env.IS_SAFARI || process.env.IS_OPERA_EDGE) {
   Browser.scripting.registerContentScripts([
     {
       id: "inject-script",
