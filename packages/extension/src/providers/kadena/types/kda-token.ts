@@ -1,6 +1,12 @@
 import { BaseToken, BaseTokenOptions } from "@/types/base-token";
 import KadenaAPI from "@/providers/kadena/libs/api";
-import { ChainId, ICommand, Pact, addSignatures } from "@kadena/client";
+import {
+  ChainId,
+  ICommand,
+  Pact,
+  addSignatures,
+  readKeyset,
+} from "@kadena/client";
 import { EnkryptAccount } from "@enkryptcom/types";
 import { blake2AsU8a } from "@polkadot/util-crypto";
 import { KadenaNetwork } from "./kadena-network";
@@ -57,16 +63,16 @@ export class KDAToken extends KDABaseToken {
     const keySetAccount = to.startsWith("k:") ? to.replace("k:", "") : to;
     const unsignedTransaction = Pact.builder
       .execution(
-        `(coin.transfer-create "${network.displayAddress(
-          from.address
-        )}" "${to}" (read-keyset "ks") ${parseFloat(amount).toFixed(
-          network.options.decimals
-        )})`
+        Pact.modules.coin["transfer-create"](
+          network.displayAddress(from.address),
+          to,
+          readKeyset("ks"),
+          {
+            decimal: amount,
+          }
+        )
       )
-      .addData("ks", {
-        keys: accountDetails.data?.guard.keys || [keySetAccount],
-        pred: accountDetails.data?.guard.pred || "keys-all",
-      })
+      .addKeyset("ks", "keys-all", keySetAccount)
       .addSigner(from.publicKey.replace("0x", ""), (withCap: any) => [
         withCap("coin.TRANSFER", network.displayAddress(from.address), to, {
           decimal: amount,
