@@ -1,11 +1,11 @@
 import {
+  privateToPublic,
   ecsign,
   ecrecover,
   fromRpcSig,
   toRpcSig,
-  privateToPublic,
   privateToAddress,
-} from "ethereumjs-util";
+} from "@ethereumjs/util";
 import { mnemonicToSeed } from "bip39";
 import { Errors, SignerInterface, KeyPair } from "@enkryptcom/types";
 import { hexToBuffer, bufferToHex } from "@enkryptcom/utils";

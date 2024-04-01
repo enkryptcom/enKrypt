@@ -1,3 +1,5 @@
+import type { toBN } from "web3-utils";
+
 export interface GasFeeInfo {
   nativeValue: string;
   fiatValue: string;
@@ -16,3 +18,5 @@ export interface GasFeeType {
   [GasPriceTypes.FAST]: GasFeeInfo;
   [GasPriceTypes.FASTEST]: GasFeeInfo;
 }
+
+export type BNType = ReturnType<typeof toBN>;

@@ -4,6 +4,7 @@ import {
   Message,
 } from "@/types/messenger";
 import { RPCRequestType } from "@enkryptcom/types";
+import { v4 as randomUUID } from "uuid";
 import { getCustomError } from "../error";
 import KeyRingBase from "../keyring/keyring";
 import { sendToWindow } from "@/libs/messenger/extension";
@@ -35,11 +36,13 @@ class BackgroundHandler {
   #providers: ProviderType;
   #persistentEvents: PersistentEvents;
   #domainState: DomainState;
+  #settingsState: SettingsState;
 
   constructor() {
     this.#keyring = new KeyRingBase();
     this.#persistentEvents = new PersistentEvents();
     this.#domainState = new DomainState();
+    this.#settingsState = new SettingsState();
     this.#tabProviders = {
       [ProviderName.ethereum]: {},
       [ProviderName.polkadot]: {},
@@ -49,6 +52,21 @@ class BackgroundHandler {
   }
   async init(): Promise<void> {
     await handlePersistentEvents.bind(this)();
+    const enkryptSettings = await this.#settingsState.getEnkryptSettings();
+    if (!enkryptSettings.installedTimestamp) {
+      await this.#settingsState.setEnkryptSettings({
+        ...enkryptSettings,
+        ...{
+          installedTimestamp: new Date().getTime(),
+          randomUserID: randomUUID(),
+        },
+      });
+    } else {
+      await this.#settingsState.setEnkryptSettings({
+        ...enkryptSettings,
+        randomUserID: randomUUID(),
+      });
+    }
   }
   async externalHandler(
     msg: Message,
@@ -67,8 +85,7 @@ class BackgroundHandler {
           result: JSON.stringify(true),
         };
       } else if (method === InternalMethods.getSettings) {
-        const settingsState = new SettingsState();
-        return settingsState.getAllSettings().then((settings) => {
+        return this.#settingsState.getAllSettings().then((settings) => {
           return {
             result: JSON.stringify(settings),
           };

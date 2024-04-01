@@ -1,7 +1,7 @@
 import { NetworkNames, HWwalletType } from "@enkryptcom/types";
 import type {
   FeeMarketEIP1559Transaction,
-  Transaction as LegacyTransaction,
+  LegacyTransaction,
 } from "@ethereumjs/tx";
 import type { ExtrinsicPayload } from "@polkadot/types/interfaces";
 

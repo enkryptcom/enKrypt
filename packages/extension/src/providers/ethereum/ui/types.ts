@@ -1,10 +1,7 @@
 import { BaseNetwork } from "@/types/base-network";
 import { ToTokenData } from "@/ui/action/types/token";
 import { EnkryptAccount } from "@enkryptcom/types";
-import {
-  FeeMarketEIP1559Transaction,
-  Transaction as LegacyTransaction,
-} from "@ethereumjs/tx";
+import { FeeMarketEIP1559Transaction, LegacyTransaction } from "@ethereumjs/tx";
 import { GasPriceTypes } from "@/providers/common/types";
 import { GasFeeInfo } from "@/providers/common/types";
 import { NFTItemWithCollectionName } from "@/types/nft";

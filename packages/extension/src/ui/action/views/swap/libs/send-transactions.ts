@@ -23,7 +23,7 @@ import {
 import { SubstrateNetwork } from "@/providers/polkadot/types/substrate-network";
 import { toBN } from "web3-utils";
 import type Transaction from "@/providers/ethereum/libs/transaction";
-import { bigIntToHex, toBase } from "@enkryptcom/utils";
+import { bigIntToHex, bufferToHex, toBase } from "@enkryptcom/utils";
 import broadcastTx from "@/providers/ethereum/libs/tx-broadcaster";
 import { BitcoinNetwork } from "@/providers/bitcoin/types/bitcoin-network";
 import { getBitcoinGasVals } from "./bitcoin-gasvals";
@@ -213,15 +213,13 @@ export const executeSwap = async (
                   }
                 };
                 broadcastTx(
-                  `0x${signedTx.serialize().toString("hex")}`,
+                  bufferToHex(signedTx.serialize()),
                   options.network.name
                 )
                   .then(onHash)
                   .catch(() => {
                     web3
-                      .sendSignedTransaction(
-                        `0x${signedTx.serialize().toString("hex")}`
-                      )
+                      .sendSignedTransaction(bufferToHex(signedTx.serialize()))
                       .on("transactionHash", onHash)
                       .catch(reject);
                   });

@@ -1,6 +1,6 @@
 import { bufferToHex, hexToBuffer } from "@enkryptcom/utils";
 import { expect } from "chai";
-import { privateToPublic } from "ethereumjs-util";
+import { privateToPublic } from "@ethereumjs/util";
 import Signer from "../src";
 
 describe("Ethreum signing", () => {

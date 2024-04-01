@@ -1,7 +1,6 @@
 import BigNumber from "bignumber.js";
-import { BN } from "ethereumjs-util";
 import { toBN, toWei } from "web3-utils";
-import { GasPriceTypes } from "@/providers/common/types";
+import { BNType, GasPriceTypes } from "@/providers/common/types";
 import { FeeHistoryResult } from "web3-eth";
 import { FormattedFeeHistory } from "./types";
 
@@ -14,10 +13,10 @@ const FASTEST_MULTIPLIER = 1.21828571429;
 const LIMITER = 25000000000;
 const GAS_PERCENTILES = [25, 50, 75, 90];
 
-const getEconomy = (gasPrice: string): BN => {
+const getEconomy = (gasPrice: string): BNType => {
   return toBN(gasPrice);
 };
-const getRegular = (gasPrice: string): BN => {
+const getRegular = (gasPrice: string): BNType => {
   const gpBN = toBN(gasPrice);
   if (gpBN.gt(toBN(LIMITER))) {
     let initialValue = new BigNumber(gasPrice).times(MED_MULTIPLIER);
@@ -26,7 +25,7 @@ const getRegular = (gasPrice: string): BN => {
   }
   return toBN(new BigNumber(gasPrice).times(1.25).toFixed(0));
 };
-const getFast = (gasPrice: string): BN => {
+const getFast = (gasPrice: string): BNType => {
   const gpBN = toBN(gasPrice);
   if (gpBN.gt(toBN(LIMITER))) {
     let initialValue = new BigNumber(gasPrice).times(FAST_MULTIPLIER);
@@ -35,7 +34,7 @@ const getFast = (gasPrice: string): BN => {
   }
   return toBN(new BigNumber(gasPrice).times(1.5).toFixed(0));
 };
-const getFastest = (gasPrice: string): BN => {
+const getFastest = (gasPrice: string): BNType => {
   const gpBN = toBN(gasPrice);
   if (gpBN.gt(toBN(LIMITER))) {
     let initialValue = new BigNumber(gasPrice).times(FASTEST_MULTIPLIER);
@@ -48,7 +47,7 @@ const getFastest = (gasPrice: string): BN => {
 const getGasBasedOnType = (
   gasPrice: string,
   gasPriceType: GasPriceTypes
-): BN => {
+): BNType => {
   switch (gasPriceType) {
     case GasPriceTypes.ECONOMY:
       return getEconomy(gasPrice);
@@ -62,10 +61,10 @@ const getGasBasedOnType = (
       return getEconomy(gasPrice);
   }
 };
-const getMinPriorityFee = (): BN => {
+const getMinPriorityFee = (): BNType => {
   return toBN(toWei("0.1", "gwei"));
 };
-const getPriorityFeeAvg = (arr: BN[]): BN => {
+const getPriorityFeeAvg = (arr: BNType[]): BNType => {
   const sum = arr.reduce((a, v) => a.add(v));
   const fee = sum.divn(arr.length);
   if (fee.eqn(0)) return getMinPriorityFee();
@@ -75,7 +74,7 @@ const getPriorityFeeAvg = (arr: BN[]): BN => {
 const getPriorityFeeBasedOnType = (
   gasFeeHistory: FormattedFeeHistory,
   gasPriceType: GasPriceTypes
-): BN => {
+): BNType => {
   if (gasFeeHistory.blocks.length === 0) return getMinPriorityFee();
   switch (gasPriceType) {
     case GasPriceTypes.ECONOMY:
@@ -141,7 +140,7 @@ const formatFeeHistory = (
 const getBaseFeeBasedOnType = (
   baseFee: string,
   gasPriceType: GasPriceTypes
-): BN => {
+): BNType => {
   const baseFeeBN = toBN(baseFee);
   switch (gasPriceType) {
     case GasPriceTypes.ECONOMY:
