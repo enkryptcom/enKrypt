@@ -1,37 +1,90 @@
 import { ProviderName } from "@/types/provider";
 import { NetworkNames } from "@enkryptcom/types";
-import { debounce } from "lodash";
+import Metrics from "./amplitude";
+import {
+  BuyEventType,
+  DAppsEventType,
+  NFTEventType,
+  NetworkChangeEvents,
+  SendEventType,
+  SettingEventType,
+  SwapEventType,
+} from "./types";
 
-const networkRequestsCounter: Record<string, Record<string, number>> = {};
+const metrics = new Metrics();
 
-const send = () => {
-  const cloneCounter = { ...networkRequestsCounter };
-  Object.keys(networkRequestsCounter).forEach(
-    (provider) => (networkRequestsCounter[provider] = {})
-  );
-  fetch("https://partners.mewapi.io/enkrypt-metrics", {
-    method: "POST",
-    headers: {
-      Accept: "application/json",
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      method: "enkrypt_requests",
-      params: [cloneCounter],
-    }),
-  });
+const trackNetworkSelected = (
+  event: NetworkChangeEvents,
+  options: { provider: ProviderName; network: NetworkNames }
+) => {
+  metrics.track("network", { event, ...options });
 };
 
-const sendMetrics = debounce(send, 2000);
-
-export const addNetworkSelectMetrics = (
-  provider: ProviderName,
-  network: NetworkNames,
-  count: number
+const trackSwapEvents = (
+  event: SwapEventType,
+  options: {
+    network: NetworkNames;
+    fromToken?: string;
+    toToken?: string;
+    swapProvider?: string;
+    error?: string;
+  }
 ) => {
-  if (!networkRequestsCounter[provider]) networkRequestsCounter[provider] = {};
-  if (!networkRequestsCounter[provider][network])
-    networkRequestsCounter[provider][network] = 0;
-  networkRequestsCounter[provider][network] += count;
-  sendMetrics();
+  metrics.track("swap", { event, ...options });
+};
+
+const trackBuyEvents = (
+  event: BuyEventType,
+  options: {
+    network: NetworkNames;
+  }
+) => {
+  metrics.track("buy", { event, ...options });
+};
+
+const trackSendEvents = (
+  event: SendEventType,
+  options: {
+    network: NetworkNames;
+    error?: string;
+  }
+) => {
+  metrics.track("send", { event, ...options });
+};
+
+const trackNFTEvents = (
+  event: NFTEventType,
+  options: {
+    network: NetworkNames;
+  }
+) => {
+  metrics.track("nft", { event, ...options });
+};
+
+const trackDAppsEvents = (
+  event: DAppsEventType,
+  options: {
+    network: NetworkNames;
+  }
+) => {
+  metrics.track("dapps", { event, ...options });
+};
+
+const optOutofMetrics = (optOut: boolean) => {
+  metrics.setOptOut(false);
+  metrics.track("settings", {
+    event: SettingEventType.OptOut,
+    value: optOut ? 1 : 0,
+  });
+  metrics.setOptOut(optOut);
+};
+
+export {
+  trackNetworkSelected,
+  trackSwapEvents,
+  trackBuyEvents,
+  trackSendEvents,
+  trackNFTEvents,
+  trackDAppsEvents,
+  optOutofMetrics,
 };

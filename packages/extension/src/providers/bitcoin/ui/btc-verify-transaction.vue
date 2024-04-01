@@ -126,7 +126,7 @@ import { getError } from "@/libs/error";
 import { ErrorCodes } from "@/providers/ethereum/types";
 import { WindowPromiseHandler } from "@/libs/window-promise";
 import { DEFAULT_BTC_NETWORK, getNetworkByName } from "@/libs/utils/networks";
-import { fromBase, hexToBuffer } from "@enkryptcom/utils";
+import { fromBase, hexToBuffer, bufferToHex } from "@enkryptcom/utils";
 import { ProviderRequestOptions } from "@/types/provider";
 import { GasFeeType } from "./types";
 import MarketData from "@/libs/market-data";
@@ -141,7 +141,8 @@ import { toBN } from "web3-utils";
 import { Psbt } from "bitcoinjs-lib";
 import BigNumber from "bignumber.js";
 import { JsonTreeView } from "@/libs/json-tree-view";
-import { bufferToHex } from "ethereumjs-util";
+import { trackSendEvents } from "@/libs/metrics";
+import { SendEventType } from "@/libs/metrics/types";
 
 const isProcessing = ref(false);
 const isPreLoading = ref(true);
@@ -291,6 +292,9 @@ const setBaseCosts = () => {
 
 const approve = async () => {
   isProcessing.value = true;
+  trackSendEvents(SendEventType.SendAPIApprove, {
+    network: network.value.name,
+  });
   const { Resolve } = await windowPromise;
   isProcessing.value = true;
   const signer = PSBTSigner(account.value, network.value as BitcoinNetwork);
@@ -307,16 +311,24 @@ const approve = async () => {
         if (psbtOptions.value.autoFinalized) PSBT.value!.finalizeInput(i);
       }
     }
+    trackSendEvents(SendEventType.SendAPIComplete, {
+      network: network.value.name,
+    });
     Resolve.value({
       result: JSON.stringify(PSBT.value!.toHex()),
     });
-  } catch (e) {
-    Resolve.value({
-      error: getError(ErrorCodes.userRejected),
+  } catch (e: any) {
+    trackSendEvents(SendEventType.SendAPIComplete, {
+      network: network.value.name,
+      error: e.error,
     });
+    Resolve.value(e);
   }
 };
 const deny = async () => {
+  trackSendEvents(SendEventType.SendAPIDecline, {
+    network: network.value.name,
+  });
   const { Resolve } = await windowPromise;
   Resolve.value({
     error: getError(ErrorCodes.userRejected),

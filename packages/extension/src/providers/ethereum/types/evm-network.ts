@@ -14,12 +14,13 @@ import { NFTCollection } from "@/types/nft";
 import { AssetsType, ProviderName } from "@/types/provider";
 import { CoingeckoPlatform, NetworkNames, SignerType } from "@enkryptcom/types";
 import BigNumber from "bignumber.js";
-import { BNLike, toChecksumAddress } from "ethereumjs-util";
+import { toChecksumAddress } from "@ethereumjs/util";
 import { isAddress } from "web3-utils";
 import API from "../libs/api";
 import createIcon from "../libs/blockies";
 import { NATIVE_TOKEN_ADDRESS } from "../libs/common";
 import { Erc20Token, Erc20TokenOptions } from "./erc20-token";
+import { BNType } from "@/providers/common/types";
 
 export interface EvmNetworkOptions {
   name: NetworkNames;
@@ -49,8 +50,8 @@ export interface EvmNetworkOptions {
     address: string
   ) => Promise<Activity[]>;
   customTokens?: boolean;
-  displayAddress?: (address: string, chainId?: BNLike) => string;
-  isAddress?: (address: string, chainId?: BNLike) => boolean;
+  displayAddress?: (address: string, chainId?: BNType) => string;
+  isAddress?: (address: string, chainId?: BNType) => boolean;
 }
 
 export class EvmNetwork extends BaseNetwork {
@@ -73,7 +74,7 @@ export class EvmNetwork extends BaseNetwork {
 
   public assets: Erc20Token[] = [];
 
-  public isAddress: (address: string, chainId?: BNLike) => boolean;
+  public isAddress: (address: string, chainId?: BNType) => boolean;
 
   constructor(options: EvmNetworkOptions) {
     const api = async () => {

@@ -1,12 +1,11 @@
 import {
   stripHexPrefix,
-  bytesToHex,
   hexToBytes,
   keccak256,
   utf8ToHex,
   numberToHex,
 } from "web3-utils";
-import { bigIntToBuffer, bigIntToHex } from "@ethereumjs/util";
+import { bigIntToBytes, bigIntToHex } from "@ethereumjs/util";
 import { encodeAddress as polkadotEncodeAddress } from "@polkadot/util-crypto";
 import { encrypt, decrypt } from "./encrypt";
 import MemoryStorage from "./memory-storage";
@@ -29,7 +28,6 @@ export {
   utf8ToHex,
   bufferToHex,
   hexToBuffer,
-  bytesToHex,
   hexToBytes,
   encrypt,
   decrypt,
@@ -37,7 +35,7 @@ export {
   keccak256,
   polkadotEncodeAddress,
   numberToHex,
-  bigIntToBuffer,
+  bigIntToBytes,
   bigIntToHex,
   fromBase,
   toBase,
