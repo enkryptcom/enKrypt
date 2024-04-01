@@ -32,6 +32,10 @@ import shibNode from "./shib";
 import artheraNode from "./aa";
 import formTestnet from "./form-testnet";
 import artheraTestNode from "./aat";
+import syscoinTestNode from "./tsys";
+import syscoinNode from "./sys";
+import rolluxTestNode from "./trlx";
+import rolluxNode from "./rlx";
 
 export default {
   sepolia: sepoliaNode,
@@ -77,4 +81,8 @@ export default {
   arthera: artheraNode,
   formTestnet: formTestnet,
   artheraTest: artheraTestNode,
+  syscoinTest: syscoinTestNode,
+  syscoin: syscoinNode,
+  rolluxTest: rolluxTestNode,
+  rollux: rolluxNode,
 };
