@@ -18,6 +18,7 @@ const base = {
     replace({
       preventAssignment: true,
       __VERSION__: JSON.stringify(packageJson.version),
+      __IS_OPERA__: process.env.BROWSER === "opera-edge",
     }),
     typescript(),
     commonjs(),
