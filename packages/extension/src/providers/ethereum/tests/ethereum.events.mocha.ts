@@ -22,6 +22,7 @@ const defaultSettings = {
   enkrypt: {
     installedTimestamp: 0,
     randomUserID: "",
+    isMetricsEnabled: true,
   },
   manifestVersion: 3,
 };

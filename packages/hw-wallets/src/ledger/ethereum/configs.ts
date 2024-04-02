@@ -31,6 +31,5 @@ const supportedPaths = {
     bip44Paths.ethereumLedger,
     bip44Paths.ethereumLedgerLive,
   ],
-  [NetworkNames.Goerli]: [bip44Paths.ethereumTestnetLedger],
 };
 export { supportedPaths };

@@ -64,6 +64,7 @@ const tempWindow: EnkryptWindow = {
       enkrypt: {
         installedTimestamp: 0,
         randomUserID: "",
+        isMetricsEnabled: true,
       },
       manifestVersion: 3,
     },

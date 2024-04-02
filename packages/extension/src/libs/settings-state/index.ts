@@ -49,6 +49,7 @@ class SettingsState {
     const settings: EnkryptSettingsType = {
       installedTimestamp: 0,
       randomUserID: "",
+      isMetricsEnabled: true,
     };
     return merge(settings, state);
   }
