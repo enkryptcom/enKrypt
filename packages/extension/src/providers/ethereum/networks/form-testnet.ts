@@ -15,7 +15,7 @@ const formTestnetOptions: EvmNetworkOptions = {
   currencyName: "ETH",
   currencyNameLong: "Ethereum",
   node: "wss://testnet-rpc.form.network/ws",
-  icon: require("./icons/eth.svg"),
+  icon: require("./icons/form.png"),
   activityHandler: wrapActivityHandler(EtherscanActivity),
 };
 

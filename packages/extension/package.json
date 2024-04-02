@@ -1,11 +1,11 @@
 {
   "name": "@enkryptcom/extension",
-  "version": "1.37.0",
+  "version": "1.37.1",
   "private": true,
   "scripts": {
     "zip": "cd dist; zip -r release.zip *;",
     "build:chrome": "cross-env BROWSER='chrome' vue-cli-service build && yarn build:rollup",
-    "build:operaedge": "cross-env BROWSER='opera-edge' vue-cli-service build && yarn build:rollup",
+    "build:operaedge": "cross-env BROWSER='opera-edge' vue-cli-service build && cross-env BROWSER='opera-edge' yarn build:rollup",
     "build:firefox": "cross-env BROWSER='firefox' vue-cli-service build && yarn build:rollup && node configs/get-system-info.js",
     "build:safari": "cross-env BROWSER='safari' vue-cli-service build && yarn build:rollup",
     "lint": "vue-cli-service lint --fix",
