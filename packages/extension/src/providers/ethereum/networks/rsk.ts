@@ -6,7 +6,7 @@ import {
   toChecksumAddress,
   isValidChecksumAddress,
   isValidAddress,
-} from "ethereumjs-util";
+} from "@ethereumjs/util";
 import assetsInfoHandler from "@/providers/ethereum/libs/assets-handlers/assetinfo-mew";
 
 const rootstockOptions: EvmNetworkOptions = {

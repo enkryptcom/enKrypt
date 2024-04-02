@@ -17,7 +17,14 @@ const getAddressActivity = async (
 ): Promise<SubstrateRawInfo[]> => {
   return cacheFetch(
     {
-      url: `${endpoint}api/scan/transfers?address=${address}&row=50`,
+      url: `${endpoint}api/v2/scan/transfers`,
+      post: {
+        address: address,
+        row: 50,
+      },
+      headers: {
+        "Content-Type": "application/json",
+      },
     },
     TTL
   ).then((res) => {
@@ -59,7 +66,7 @@ export default async (
           activity.asset_symbol !== ""
             ? activity.asset_symbol
             : network.currencyName,
-        price: price,
+        price: activity.asset_symbol === network.currencyName ? price : "0",
       },
     };
   });

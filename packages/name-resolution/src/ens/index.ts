@@ -1,5 +1,5 @@
 import { ethers } from "ethers";
-import { formatsByName } from "@ensdomains/address-encoder";
+import { coinNameToTypeMap } from "@ensdomains/address-encoder";
 import { BaseResolver, CoinType } from "../types";
 import { ENSOptions } from "./types";
 import { getTLD } from "../utils";
@@ -17,7 +17,12 @@ class ENSResolver implements BaseResolver {
   }
 
   public async init(): Promise<void> {
-    this.ENSProvider = new ethers.providers.JsonRpcProvider(this.options.node);
+    this.ENSProvider = new ethers.providers.JsonRpcProvider({
+      url: this.options.node,
+      headers: {
+        "user-agent": "enkrypt/name-resolver",
+      },
+    });
   }
 
   public async resolveReverseName(address: string): Promise<string | null> {
@@ -33,7 +38,7 @@ class ENSResolver implements BaseResolver {
     const resolver = await this.ENSProvider.getResolver(name);
     if (resolver) {
       return resolver
-        .getAddress(formatsByName[coin].coinType)
+        .getAddress(coinNameToTypeMap[coin.toLowerCase()])
         .then((address) => {
           if (address) return address;
           return null;

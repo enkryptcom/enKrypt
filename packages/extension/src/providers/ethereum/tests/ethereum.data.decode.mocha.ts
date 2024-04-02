@@ -1,6 +1,6 @@
 import DataDecode from "../libs/transaction/data-decoder";
 import { expect } from "chai";
-import { BN } from "ethereumjs-util";
+import { toBN } from "web3-utils";
 import { numberToHex } from "web3-utils";
 describe("Test Ethereum data decoding", () => {
   it("should decode correct token transfer info", async () => {
@@ -15,7 +15,7 @@ describe("Test Ethereum data decoding", () => {
       "0x92eefc435008af9dfc428e9f84c2a6c0fd385e8f"
     );
     expect(dataDecoder.decode().values[1]).to.eq(
-      numberToHex(new BN("390343345"))
+      numberToHex(toBN("390343345"))
     );
   });
   it("should not decode unknown data", async () => {

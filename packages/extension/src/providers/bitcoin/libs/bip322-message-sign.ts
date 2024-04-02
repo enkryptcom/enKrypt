@@ -5,8 +5,9 @@
 
 import { BitcoinNetwork, PaymentType } from "../types/bitcoin-network";
 import { address as BTCAddress, Transaction, Psbt } from "bitcoinjs-lib";
-import { sha256 } from "ethereumjs-util";
+import { sha256 } from "ethereum-cryptography/sha256";
 import { PSBTSigner } from "../ui/libs/signer";
+import { bufferToHex } from "@enkryptcom/utils";
 
 const bip0322_hash = (message: string) => {
   const tag = "BIP0322-signed-message";
@@ -14,7 +15,7 @@ const bip0322_hash = (message: string) => {
   const result = sha256(
     Buffer.concat([tagHash, tagHash, Buffer.from(message)])
   );
-  return result.toString("hex");
+  return bufferToHex(result, true);
 };
 
 const MAX_SAFE_INTEGER = 9007199254740991;

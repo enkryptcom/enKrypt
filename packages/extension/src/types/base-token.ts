@@ -2,7 +2,7 @@ import EvmAPI from "@/providers/ethereum/libs/api";
 import MarketData from "@/libs/market-data";
 import { ApiPromise } from "@polkadot/api";
 import BitcoinAPI from "@/providers/bitcoin/libs/api";
-import { BN } from "ethereumjs-util";
+import { BNType } from "@/providers/common/types";
 
 export type TransferType = "keepAlive" | "all" | "allKeepAlive" | "transfer";
 
@@ -16,7 +16,7 @@ export interface BaseTokenOptions {
   decimals: number;
   icon: string;
   coingeckoID?: string;
-  existentialDeposit?: BN;
+  existentialDeposit?: BNType;
   balance?: string;
   price?: string;
 }
@@ -27,7 +27,7 @@ export abstract class BaseToken {
   public decimals: number;
   public icon: string;
   public coingeckoID: string | undefined;
-  public existentialDeposit: BN | undefined;
+  public existentialDeposit: BNType | undefined;
   public balance?: string;
   public price?: string;
 

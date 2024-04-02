@@ -317,8 +317,9 @@ class Rango extends ProviderClass {
           !f.token.address &&
           f.expenseType === "FROM_SOURCE_WALLET" &&
           f.name !== "Network Fee"
-        )
+        ) {
           additionalNativeFees = additionalNativeFees.add(toBN(f.amount));
+        }
       });
       return {
         transactions,
