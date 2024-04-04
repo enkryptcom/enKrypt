@@ -12,6 +12,13 @@
           </a>
         </div>
         <hardware-wallet-msg :wallet-type="account?.walletType" />
+        <p
+          class="verify-transaction__description"
+          style="color: red"
+          :class="{ popup: isPopup }"
+        >
+          {{ errorMsg }}
+        </p>
         <p class="verify-transaction__description" :class="{ popup: isPopup }">
           Double check the information and confirm transaction
         </p>
@@ -32,7 +39,6 @@
           />
           <verify-transaction-amount :token="txData.toToken" />
           <verify-transaction-fee :fee="txData.txFee" />
-          {{ errorMsg }}
         </div>
       </custom-scrollbar>
 
@@ -196,8 +202,22 @@ const sendAction = async () => {
           address: network.value.displayAddress(txData.fromAddress),
           network: network.value.name,
         });
+        isSendDone.value = true;
+        if (getCurrentContext() === "popup") {
+          setTimeout(() => {
+            isProcessing.value = false;
+            router.go(-2);
+          }, 2500);
+        } else {
+          setTimeout(() => {
+            isProcessing.value = false;
+            window.close();
+          }, 1500);
+        }
       })
       .catch((error) => {
+        isProcessing.value = false;
+        errorMsg.value = error.message;
         trackSendEvents(SendEventType.SendFailed, {
           network: network.value.name,
           error: error.message,
@@ -208,19 +228,6 @@ const sendAction = async () => {
           network: network.value.name,
         });
       });
-
-    isSendDone.value = true;
-    if (getCurrentContext() === "popup") {
-      setTimeout(() => {
-        isProcessing.value = false;
-        router.go(-2);
-      }, 2500);
-    } else {
-      setTimeout(() => {
-        isProcessing.value = false;
-        window.close();
-      }, 1500);
-    }
   } catch (error: any) {
     isProcessing.value = false;
     console.error(error);

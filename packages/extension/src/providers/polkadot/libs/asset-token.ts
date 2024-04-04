@@ -4,13 +4,13 @@ import { ApiPromise } from "@polkadot/api";
 import { SubmittableExtrinsic } from "@polkadot/api/types";
 import { ISubmittableResult } from "@polkadot/types/types";
 
-export interface AstarTokenOptions extends BaseTokenOptions {
+export interface AssetTokenOptions extends BaseTokenOptions {
   id: string;
 }
 
-export class AstarToken extends SubstrateToken {
+export class AssetToken extends SubstrateToken {
   private id: string;
-  constructor(options: AstarTokenOptions) {
+  constructor(options: AssetTokenOptions) {
     super(options);
     this.id = options.id;
   }
@@ -26,7 +26,6 @@ export class AstarToken extends SubstrateToken {
         this.balance = balance;
         return balance;
       }
-
       return "0";
     });
   }
@@ -35,9 +34,10 @@ export class AstarToken extends SubstrateToken {
     api: ApiPromise,
     to: string,
     amount: string,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    _options?: SendOptions | undefined
+    options?: SendOptions | undefined
   ): Promise<SubmittableExtrinsic<"promise", ISubmittableResult>> {
+    if (options && options.type === "all")
+      return api.tx.assets.transfer(this.id, { id: to }, amount);
     return api.tx.assets.transferKeepAlive(this.id, { id: to }, amount);
   }
 }
