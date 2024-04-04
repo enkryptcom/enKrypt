@@ -34,9 +34,10 @@ export class AssetToken extends SubstrateToken {
     api: ApiPromise,
     to: string,
     amount: string,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    _options?: SendOptions | undefined
+    options?: SendOptions | undefined
   ): Promise<SubmittableExtrinsic<"promise", ISubmittableResult>> {
+    if (options && options.type === "all")
+      return api.tx.assets.transfer(this.id, { id: to }, amount);
     return api.tx.assets.transferKeepAlive(this.id, { id: to }, amount);
   }
 }
