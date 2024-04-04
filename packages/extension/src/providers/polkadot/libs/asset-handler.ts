@@ -4,7 +4,7 @@ import { SubstrateNetwork } from "@/providers/polkadot/types/substrate-network";
 import { hexToString } from "@polkadot/util";
 
 import { toBN } from "web3-utils";
-import { AstarToken, AstarTokenOptions } from "../types/astar-token";
+import { AssetToken, AssetTokenOptions } from "./asset-token";
 
 type AssetMetadata = {
   name: `0x${string}`;
@@ -30,25 +30,19 @@ export default async (
   const assetMetadatas = metadata.map(([key, value]) => {
     const assetKey = (key.toHuman() as string[])[0].replaceAll(",", "");
     const assetMetadata = value.toJSON() as AssetMetadata;
-
     const info = {
       key: assetKey,
       name: hexToString(assetMetadata.name),
       symbol: hexToString(assetMetadata.symbol),
       decimals: assetMetadata.decimals,
     };
-
     return info;
   });
-
   const queries = assetMetadatas.map((metadata) => metadata.key);
-
   const assetInfos = await apiPromise.query.assets.asset.multi(queries);
-
   const tokenOptions = assetInfos
     .map((info, index) => {
       const infoHuman = info.toHuman() as AssetInfo;
-
       if (infoHuman) {
         const metadata = assetMetadatas[index];
         return {
@@ -61,7 +55,7 @@ export default async (
     })
     .filter((asset) => asset !== null)
     .map((asset) => {
-      const tokenOptions: AstarTokenOptions = {
+      const tokenOptions: AssetTokenOptions = {
         name: asset!.name,
         symbol: asset!.symbol,
         decimals: asset!.decimals,
@@ -69,50 +63,45 @@ export default async (
         id: asset!.key,
         existentialDeposit: toBN(asset!.minBalance),
       };
-
       return tokenOptions;
     })
     .map((tokenOption) => {
       if (knownTokens) {
         const knownToken = knownTokens.find(
-          (knownToken) =>
-            knownToken.name === tokenOption.name &&
-            knownToken.symbol === tokenOption.symbol
+          (knownToken) => knownToken.id === tokenOption.id
         );
-
         if (knownToken) {
           tokenOption.coingeckoID = knownToken.coingeckoID;
           tokenOption.icon = knownToken.icon;
         }
       }
-
       return tokenOption;
     });
-
   if (address) {
     const queries = tokenOptions.map((options) => {
       return [options.id, address];
     });
-
     const balances = await apiPromise.query.assets.account.multi(queries);
-
     balances.forEach((balanceInfo, index) => {
-      const data = balanceInfo.toJSON();
-
+      const data: {
+        balance: string;
+        status?: string;
+      } = balanceInfo.toJSON() as any;
       if (data) {
-        tokenOptions[index].balance = (data as any).balance.toString();
+        tokenOptions[index].balance = data.balance.toString();
+        if (data.status && data.status.toString() === "Frozen") {
+          tokenOptions[index].name = `${tokenOptions[index].name} (Frozen)`;
+        }
       }
     });
   }
-
   const nativeAsset = new SubstrateNativeToken({
     name: network.currencyNameLong,
-    symbol: network.name,
+    symbol: network.currencyName,
     decimals: network.decimals,
     existentialDeposit: network.existentialDeposit,
     icon: network.icon,
     coingeckoID: network.coingeckoID,
   });
-
-  return [nativeAsset, ...tokenOptions.map((o) => new AstarToken(o))];
+  return [nativeAsset, ...tokenOptions.map((o) => new AssetToken(o))];
 };

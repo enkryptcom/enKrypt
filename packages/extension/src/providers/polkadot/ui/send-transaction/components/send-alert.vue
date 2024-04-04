@@ -1,7 +1,7 @@
 <template>
   <div class="send-alert">
     <alert-icon />
-    <p>
+    <p v-if="alertType === AlertType.ED_WARN">
       Your balance will go the minimum balance, which will drop your remaining
       balance to 0.<br />
       <a
@@ -11,11 +11,27 @@
         >What is Existential Deposit?</a
       >
     </p>
+    <p v-if="alertType === AlertType.DESTINATION_BALANCE">
+      Destination address doesnt have minimum balance, please send
+      {{ existentialBalance }} before sending any tokens.<br />
+    </p>
   </div>
 </template>
 
 <script setup lang="ts">
 import AlertIcon from "@action/icons/send/alert-icon.vue";
+import { AlertType } from "../../types";
+import { PropType } from "vue";
+defineProps({
+  alertType: {
+    type: Number as PropType<AlertType>,
+    default: () => 0,
+  },
+  existentialBalance: {
+    type: String,
+    default: () => "0",
+  },
+});
 </script>
 
 <style lang="less">
