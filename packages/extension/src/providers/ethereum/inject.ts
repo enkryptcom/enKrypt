@@ -147,7 +147,7 @@ const injectDocument = (
   const proxiedProvider = new Proxy(provider, ProxyHandler);
   document["enkrypt"]["providers"][options.name] = provider;
   if (__IS_OPERA__) {
-    document[options.name] = proxiedProvider; // Opera expects you to inject immediatly and their wallet switcher will handle conflicts
+    document[options.name] = proxiedProvider; // Opera expects you to inject immediately and their wallet switcher will handle conflicts
   }
   options
     .sendMessageHandler(
