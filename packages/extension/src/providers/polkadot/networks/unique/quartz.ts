@@ -5,6 +5,7 @@ import {
   SubstrateNetworkOptions,
 } from "../../types/substrate-network";
 import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
+import { toBN } from "web3-utils";
 
 const quartzOptions: SubstrateNetworkOptions = {
   name: NetworkNames.Quartz,
@@ -23,6 +24,7 @@ const quartzOptions: SubstrateNetworkOptions = {
   coingeckoPlatform: CoingeckoPlatform.Quartz,
   genesisHash:
     "0xcd4d732201ebe5d6b014edda071c4203e16867305332301dc8d092044b28e554",
+  existentialDeposit: toBN(0),
   activityHandler: wrapActivityHandler(subscanActivity),
 };
 

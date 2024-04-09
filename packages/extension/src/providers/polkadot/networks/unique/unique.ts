@@ -5,6 +5,7 @@ import {
   SubstrateNetworkOptions,
 } from "../../types/substrate-network";
 import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
+import { toBN } from "web3-utils";
 
 const uniqueOptions: SubstrateNetworkOptions = {
   name: NetworkNames.Unique,
@@ -24,6 +25,7 @@ const uniqueOptions: SubstrateNetworkOptions = {
   genesisHash:
     "0x84322d9cddbf35088f1e54e9a85c967a41a56a4f43445768125e61af166c7d31",
   activityHandler: wrapActivityHandler(subscanActivity),
+  existentialDeposit: toBN(0),
 };
 
 const unique = new SubstrateNetwork(uniqueOptions);
