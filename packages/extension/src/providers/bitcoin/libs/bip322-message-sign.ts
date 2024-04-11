@@ -1,6 +1,6 @@
 /**
- * refference: https://github.com/unisat-wallet/wallet-sdk/blob/master/src/message/bip322-simple.ts
- * refference: https://github.com/bitcoinjs/varuint-bitcoin/blob/master/index.js
+ * reference: https://github.com/unisat-wallet/wallet-sdk/blob/master/src/message/bip322-simple.ts
+ * reference: https://github.com/bitcoinjs/varuint-bitcoin/blob/master/index.js
  */
 
 import { BitcoinNetwork, PaymentType } from "../types/bitcoin-network";
