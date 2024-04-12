@@ -37,12 +37,14 @@ export default async (
     network: network.name,
   };
   const allActivities = await activityState.getAllActivities(options);
-  const lastActivity = allActivities[allActivities.length - 1] as any;
+  // disabling this as there is a bug removing activities
+  // querying from height=zero should remedy it temporarily
+  // const lastActivity = allActivities[allActivities.length - 1] as any;
   const activities = await getAddressActivity(
     address,
     enpoint,
     ttl,
-    lastActivity?.rawInfo?.height ?? 0
+    0 // lastActivity?.rawInfo?.height ?? 0
   );
 
   let price = "0";
