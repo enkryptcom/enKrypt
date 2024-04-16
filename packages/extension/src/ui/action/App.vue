@@ -135,10 +135,18 @@ import { EnkryptProviderEventMethods, ProviderName } from "@/types/provider";
 import { onClickOutside } from "@vueuse/core";
 import RateState from "@/libs/rate-state";
 import SwapLookingAnimation from "@action/icons/swap/swap-looking-animation.vue";
-import { trackBuyEvents, trackNetworkSelected } from "@/libs/metrics";
+import {
+  trackBuyEvents,
+  trackNetworkSelected,
+  trackGenericEvents,
+} from "@/libs/metrics";
 import { getLatestEnkryptVersion } from "@action/utils/browser";
 import { gt as semverGT } from "semver";
-import { BuyEventType, NetworkChangeEvents } from "@/libs/metrics/types";
+import {
+  BuyEventType,
+  GenericEvents,
+  NetworkChangeEvents,
+} from "@/libs/metrics/types";
 
 const domainState = new DomainState();
 const networksState = new NetworksState();
@@ -255,6 +263,7 @@ onMounted(async () => {
           }
         });
       }, 2000);
+      trackGenericEvents(GenericEvents.login_success);
     }
   } else {
     openOnboard();

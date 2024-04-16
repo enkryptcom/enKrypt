@@ -1,8 +1,6 @@
 import { NetworkNames } from "@enkryptcom/types";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
-import { EtherscanActivity } from "../libs/activity-handlers";
 import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
-import assetsInfoHandler from "@/providers/ethereum/libs/assets-handlers/assetinfo-mew";
 
 const cagaTestOptions: EvmNetworkOptions = {
   name: NetworkNames.CagaAnkara,
@@ -18,7 +16,7 @@ const cagaTestOptions: EvmNetworkOptions = {
   currencyNameLong: "CAGA",
   node: "wss://wss.ankara-cagacrypto.com",
   icon: require("./icons/caga.svg"),
-  activityHandler: wrapActivityHandler(EtherscanActivity),
+  activityHandler: wrapActivityHandler(() => Promise.resolve([])),
 };
 
 const cagaAnkara = new EvmNetwork(cagaTestOptions);
