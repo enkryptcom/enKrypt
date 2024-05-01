@@ -150,7 +150,6 @@ const checkAndSetConnectedDapp = () => {
 const checkAndSetSubNetwork = () => {
   if (props.network.subNetworks) {
     domainState.getSelectedSubNetWork().then((id) => {
-      console.log(id);
       if (id) {
         const subnet = props.network.subNetworks!.find((net) => net.id === id);
         if (subnet) currentSubNetwork.value = subnet;

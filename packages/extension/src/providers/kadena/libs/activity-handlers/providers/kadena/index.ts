@@ -3,7 +3,6 @@ import MarketData from "@/libs/market-data";
 import { Activity, ActivityStatus, ActivityType } from "@/types/activity";
 import { BaseNetwork } from "@/types/base-network";
 import { NetworkEndpoints, NetworkTtls } from "./configs";
-import ActivityState from "@/libs/activity-state";
 import { toBase } from "@enkryptcom/utils";
 
 const getAddressActivity = async (
@@ -30,16 +29,6 @@ export default async (
   const networkName = network.name as keyof typeof NetworkEndpoints;
   const enpoint = NetworkEndpoints[networkName];
   const ttl = NetworkTtls[networkName];
-
-  const activityState = new ActivityState();
-  const options = {
-    address: address,
-    network: network.name,
-  };
-  const allActivities = await activityState.getAllActivities(options);
-  // disabling this as there is a bug removing activities
-  // querying from height=zero should remedy it temporarily
-  // const lastActivity = allActivities[allActivities.length - 1] as any;
   const activities = await getAddressActivity(
     address,
     enpoint,

@@ -57,7 +57,7 @@ export class KDAToken extends KDABaseToken {
     network: KadenaNetwork
   ): Promise<ICommand> {
     to = network.displayAddress(to);
-    const accountDetails = await this.getAccountDetails(to, network);
+    // const accountDetails = await this.getAccountDetails(to, network);
     const api = (await network.api()) as KadenaAPI;
     const chainID = await api.getChainId();
     const keySetAccount = to.startsWith("k:") ? to.replace("k:", "") : to;
