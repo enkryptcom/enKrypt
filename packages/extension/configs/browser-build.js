@@ -7,6 +7,7 @@ const BROWSER = process.env.BROWSER;
 const browserNames = {
   chrome: "chrome",
   firefox: "firefox",
+  operaedge: "opera-edge",
 };
 
 const browserConfigs = {
@@ -17,6 +18,10 @@ const browserConfigs = {
   [browserNames.firefox]: {
     manifest: "./src/manifest/manifest-firefox.json",
     background: "./src/scripts/firefox/background.ts",
+  },
+  [browserNames.operaedge]: {
+    manifest: "./src/manifest/manifest-edge-opera.json",
+    background: "./src/scripts/chrome/background.ts",
   },
 };
 
@@ -57,6 +62,9 @@ const setConfig = (config) => {
   });
   config.plugin("copy-manifest").use(copyManifest);
   config.plugin("define").tap((args) => {
+    Object.assign(args[0], {
+      __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: "false",
+    });
     const _base = args[0]["process.env"];
     args[0]["process.env"] = {
       ..._base,
@@ -64,6 +72,7 @@ const setConfig = (config) => {
       BUILD_TIME: new Date().toLocaleString().replace(/\D/g, ""),
       IS_DEV: process.env.NODE_ENV === "development",
       IS_FIREFOX: BROWSER === browserNames.firefox,
+      IS_OPERA_EDGE: BROWSER === browserNames.operaedge,
       PREFILL_PASSWORD:
         process.env.NODE_ENV === "development"
           ? JSON.stringify("test pass")

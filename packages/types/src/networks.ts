@@ -3,7 +3,6 @@ export enum NetworkNames {
   Okc = "OKT",
   Binance = "BNB",
   EthereumClassic = "ETC",
-  Goerli = "GOERLI",
   Sepolia = "SEPOLIA",
   Matic = "MATIC",
   MaticZK = "MATICZK",
@@ -65,6 +64,9 @@ export enum NetworkNames {
   ArtheraTest = "AATest",
   Arthera = "AA",
   FormTestnet = "FormTestnet",
+  AssetHubDOT = "AssetHubDOT",
+  AssetHubKSM = "AssetHubKSM",
+  CagaAnkara = "CagaAnkara"
 }
 
 export enum CoingeckoPlatform {

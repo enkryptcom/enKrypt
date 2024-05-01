@@ -3,6 +3,11 @@ import { ToTokenData } from "@/ui/action/types/token";
 import { EnkryptAccount } from "@enkryptcom/types";
 import { ExtrinsicPayload } from "@polkadot/types/interfaces";
 
+export enum AlertType {
+  ED_WARN,
+  DESTINATION_BALANCE,
+}
+
 export interface CallData {
   method?: string;
   section?: string;

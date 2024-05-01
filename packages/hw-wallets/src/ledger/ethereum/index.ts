@@ -3,13 +3,11 @@ import webUsbTransport from "@ledgerhq/hw-transport-webusb";
 import ledgerService from "@ledgerhq/hw-app-eth/lib/services/ledger";
 import { HWwalletCapabilities, NetworkNames } from "@enkryptcom/types";
 import EthApp from "@ledgerhq/hw-app-eth";
-import { toRpcSig, publicToAddress, rlp } from "ethereumjs-util";
-import {
-  Transaction as LegacyTransaction,
-  FeeMarketEIP1559Transaction,
-} from "@ethereumjs/tx";
+import { toRpcSig, publicToAddress } from "@ethereumjs/util";
+import { LegacyTransaction, FeeMarketEIP1559Transaction } from "@ethereumjs/tx";
 import HDKey from "hdkey";
-import { bigIntToHex, bufferToHex, hexToBuffer } from "@enkryptcom/utils";
+import { bufferToHex, hexToBuffer } from "@enkryptcom/utils";
+import { RLP } from "@ethereumjs/rlp";
 import {
   AddressResponse,
   getAddressRequest,
@@ -111,10 +109,10 @@ class LedgerEthereum implements HWWalletProvider {
     let msgToSign: string;
     if ((options.transaction as LegacyTransaction).gasPrice) {
       tx = options.transaction as LegacyTransaction;
-      msgToSign = rlp.encode(tx.getMessageToSign(false)).toString("hex");
+      msgToSign = bufferToHex(RLP.encode(tx.getMessageToSign()), true);
     } else {
       tx = options.transaction as FeeMarketEIP1559Transaction;
-      msgToSign = tx.getMessageToSign(false).toString("hex");
+      msgToSign = bufferToHex(tx.getMessageToSign(), true);
     }
     const resolution = await ledgerService.resolveTransaction(
       msgToSign,
@@ -132,13 +130,13 @@ class LedgerEthereum implements HWWalletProvider {
           const rv = BigInt(parseInt(result.v, 16));
           const cv = tx.common.chainId() * 2n + 35n;
           return toRpcSig(
-            bigIntToHex(rv - cv),
+            rv - cv,
             hexToBuffer(result.r),
             hexToBuffer(result.s)
           );
         }
         return toRpcSig(
-          `0x${result.v}`,
+          BigInt(`0x${result.v}`),
           hexToBuffer(result.r),
           hexToBuffer(result.s)
         );

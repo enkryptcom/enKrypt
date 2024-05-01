@@ -24,7 +24,6 @@ export default async (
     [NetworkNames.MaticZK]: "polygon-zkevm",
     [NetworkNames.ZkSync]: "zksync-era",
     [NetworkNames.ZkSyncGoerli]: "zksync-era-testnet",
-    [NetworkNames.Goerli]: "ethereum-goerli",
     [NetworkNames.Base]: "base",
   };
   if (!Object.keys(supportedNetworks).includes(network.name))

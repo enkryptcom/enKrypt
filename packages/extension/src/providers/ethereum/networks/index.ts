@@ -1,5 +1,4 @@
 import ethNode from "./eth";
-import goerliNode from "./goerli";
 import etcNode from "./etc";
 import maticNode from "./matic";
 import maticZkNode from "./maticzk";
@@ -33,9 +32,9 @@ import shibNode from "./shib";
 import artheraNode from "./aa";
 import formTestnet from "./form-testnet";
 import artheraTestNode from "./aat";
+import cagaAnkara from "./cagaAnkara";
 
 export default {
-  goerli: goerliNode,
   sepolia: sepoliaNode,
   ethereum: ethNode,
   etc: etcNode,
@@ -79,4 +78,5 @@ export default {
   arthera: artheraNode,
   formTestnet: formTestnet,
   artheraTest: artheraTestNode,
+  cagaAnkara: cagaAnkara,
 };

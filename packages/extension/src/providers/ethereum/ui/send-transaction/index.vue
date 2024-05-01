@@ -176,6 +176,8 @@ import { ProviderName } from "@/types/provider";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
 import { GenericNameResolver, CoinType } from "@/libs/name-resolver";
 import { NetworkNames } from "@enkryptcom/types";
+import { trackSendEvents } from "@/libs/metrics";
+import { SendEventType } from "@/libs/metrics/types";
 
 const props = defineProps({
   network: {
@@ -271,6 +273,7 @@ const nativeBalance = computed(() => {
 });
 
 onMounted(async () => {
+  trackSendEvents(SendEventType.SendOpen, { network: props.network.name });
   fetchAssets().then(setBaseCosts);
 });
 
@@ -474,7 +477,13 @@ const isValidSend = computed<boolean>(() => {
 
 const isInputsValid = computed<boolean>(() => {
   if (!props.network.isAddress(addressTo.value)) return false;
-  if (!isValidDecimals(sendAmount.value, selectedAsset.value.decimals!)) {
+  if (
+    isSendToken.value &&
+    !isValidDecimals(sendAmount.value, selectedAsset.value.decimals!)
+  ) {
+    return false;
+  }
+  if (!isSendToken.value && !selectedNft.value.id) {
     return false;
   }
   if (new BigNumber(sendAmount.value).gt(assetMaxValue.value)) return false;
@@ -516,6 +525,9 @@ watch([isSendToken], () => {
 });
 
 const close = () => {
+  trackSendEvents(SendEventType.SendDecline, {
+    network: props.network.name,
+  });
   router.go(-1);
 };
 

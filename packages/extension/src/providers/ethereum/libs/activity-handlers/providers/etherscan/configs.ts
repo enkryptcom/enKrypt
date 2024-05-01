@@ -2,7 +2,6 @@ import { NetworkNames } from "@enkryptcom/types";
 
 const NetworkEndpoints: Record<string, string> = {
   [NetworkNames.Ethereum]: "https://api.etherscan.io/",
-  [NetworkNames.Goerli]: "https://api-goerli.etherscan.io/",
   [NetworkNames.Binance]: "https://api.bscscan.com/",
   [NetworkNames.Matic]: "https://api.polygonscan.com/",
   [NetworkNames.Moonbeam]: "https://api-moonbeam.moonscan.io/",
@@ -34,8 +33,9 @@ const NetworkEndpoints: Record<string, string> = {
     "https://parallel-stormy-spica.explorer.mainnet.skalenodes.com/",
   [NetworkNames.SkaleChaos]:
     "https://staging-fast-active-bellatrix.explorer.staging-v3.skalenodes.com/",
-  [NetworkNames.ZkSyncGoerli]: "https://zksync2-testnet.zkscan.io/",
-  [NetworkNames.ZkSync]: "https://zksync2-mainnet.zkscan.io/",
+  [NetworkNames.ZkSyncGoerli]:
+    "https://block-explorer-api.testnets.zksync.dev/",
+  [NetworkNames.ZkSync]: "https://block-explorer-api.mainnet.zksync.io/",
   [NetworkNames.Arbitrum]: "https://api.arbiscan.io/",
   [NetworkNames.Gnosis]: "https://api.gnosisscan.io/",
   [NetworkNames.Avalanche]: "https://api.snowtrace.io/",
@@ -46,7 +46,6 @@ const NetworkEndpoints: Record<string, string> = {
   [NetworkNames.MaticZK]: "https://api-zkevm.polygonscan.com/",
   [NetworkNames.Base]: "https://api.basescan.org/",
   [NetworkNames.Celo]: "https://explorer.celo.org/mainnet/",
-  [NetworkNames.Arthera]: "https://explorer-test.arthera.net/",
   [NetworkNames.FormTestnet]: "https://testnet-explorer.form.network/",
   [NetworkNames.ArtheraTest]: "https://explorer-test.arthera.net/",
   [NetworkNames.Arthera]: "https://explorer.arthera.net/",

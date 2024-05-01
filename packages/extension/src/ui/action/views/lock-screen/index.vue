@@ -54,6 +54,8 @@ import { computed } from "@vue/reactivity";
 import SwapLookingAnimation from "@action/icons/swap/swap-looking-animation.vue";
 import KeyRing from "@/libs/keyring/keyring";
 import { initAccounts } from "@/libs/utils/initialize-wallet";
+import { trackGenericEvents } from "@/libs/metrics";
+import { GenericEvents } from "@/libs/metrics/types";
 
 const emit = defineEmits<{
   (e: "update:init"): void;
@@ -79,6 +81,7 @@ const unlockAction = async () => {
   if (unlockStatus.error) {
     isError.value = true;
     isUnlocking.value = false;
+    trackGenericEvents(GenericEvents.login_error);
   } else {
     isError.value = false;
     const privateKeyring = new KeyRing();
@@ -87,6 +90,7 @@ const unlockAction = async () => {
     password.value = "";
     emit("update:init");
     setTimeout(() => (isUnlocking.value = false), 750);
+    trackGenericEvents(GenericEvents.login_success);
   }
 };
 const forgotAction = () => {

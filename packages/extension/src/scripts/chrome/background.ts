@@ -37,3 +37,16 @@ Browser.runtime.onInstalled.addListener((object) => {
     openOnboard();
   }
 });
+
+if (process.env.IS_OPERA_EDGE) {
+  Browser.scripting.registerContentScripts([
+    {
+      id: "inject-script",
+      js: ["scripts/inject.js"],
+      persistAcrossSessions: false,
+      matches: ["http://*/*", "https://*/*"],
+      runAt: "document_start",
+      world: "MAIN",
+    } as any,
+  ]);
+}

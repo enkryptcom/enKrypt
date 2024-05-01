@@ -21,7 +21,6 @@ const zkSyncOptions: EvmNetworkOptions = {
   coingeckoPlatform: CoingeckoPlatform.Zksync,
   NFTHandler: shNFTHandler,
   assetsInfoHandler,
-
   activityHandler: wrapActivityHandler(EtherscanActivity),
 };
 

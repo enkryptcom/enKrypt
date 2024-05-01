@@ -157,6 +157,8 @@ import { HaskoinUnspentType } from "../../types";
 import { VerifyTransactionParams } from "../types";
 import { getTxInfo as getBTCTxInfo } from "@/providers/bitcoin/libs/utils";
 import { NFTItem, NFTItemWithCollectionName, NFTType } from "@/types/nft";
+import { trackSendEvents } from "@/libs/metrics";
+import { SendEventType } from "@/libs/metrics/types";
 
 const props = defineProps({
   network: {
@@ -205,6 +207,7 @@ const addressTo = ref<string>("");
 const isLoadingAssets = ref(true);
 
 onMounted(async () => {
+  trackSendEvents(SendEventType.SendOpen, { network: props.network.name });
   fetchAssets().then(setBaseCosts);
 });
 
@@ -282,7 +285,13 @@ const isInputsValid = computed<boolean>(() => {
     !isAddress(addressTo.value, (props.network as BitcoinNetwork).networkInfo)
   )
     return false;
-  if (!isValidDecimals(sendAmount.value, selectedAsset.value.decimals!)) {
+  if (
+    isSendToken.value &&
+    !isValidDecimals(sendAmount.value, selectedAsset.value.decimals!)
+  ) {
+    return false;
+  }
+  if (!isSendToken.value && !selectedNft.value.id) {
     return false;
   }
   if (
@@ -316,6 +325,9 @@ const selectedNft = ref<NFTItemWithCollectionName>({
 });
 
 const close = () => {
+  trackSendEvents(SendEventType.SendDecline, {
+    network: props.network.name,
+  });
   router.go(-1);
 };
 

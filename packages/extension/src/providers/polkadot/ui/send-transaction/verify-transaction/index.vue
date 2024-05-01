@@ -12,6 +12,13 @@
           </a>
         </div>
         <hardware-wallet-msg :wallet-type="account?.walletType" />
+        <p
+          class="verify-transaction__description"
+          style="color: red"
+          :class="{ popup: isPopup }"
+        >
+          {{ errorMsg }}
+        </p>
         <p class="verify-transaction__description" :class="{ popup: isPopup }">
           Double check the information and confirm transaction
         </p>
@@ -32,7 +39,6 @@
           />
           <verify-transaction-amount :token="txData.toToken" />
           <verify-transaction-fee :fee="txData.txFee" />
-          {{ errorMsg }}
         </div>
       </custom-scrollbar>
 
@@ -98,6 +104,8 @@ import ActivityState from "@/libs/activity-state";
 import { EnkryptAccount } from "@enkryptcom/types";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 import { BaseNetwork } from "@/types/base-network";
+import { trackSendEvents } from "@/libs/metrics";
+import { SendEventType } from "@/libs/metrics/types";
 
 const isSendDone = ref(false);
 const account = ref<EnkryptAccount>();
@@ -118,10 +126,14 @@ defineExpose({ verifyScrollRef });
 const network = ref<BaseNetwork>(DEFAULT_SUBSTRATE_NETWORK);
 onBeforeMount(async () => {
   network.value = (await getNetworkByName(selectedNetwork))!;
+  trackSendEvents(SendEventType.SendVerify, { network: network.value.name });
   account.value = await KeyRing.getAccount(txData.fromAddress);
   isWindowPopup.value = account.value.isHardware;
 });
 const close = () => {
+  trackSendEvents(SendEventType.SendDecline, {
+    network: network.value.name,
+  });
   if (getCurrentContext() === "popup") {
     router.go(-1);
   } else {
@@ -131,10 +143,11 @@ const close = () => {
 
 const sendAction = async () => {
   isProcessing.value = true;
+  trackSendEvents(SendEventType.SendApprove, {
+    network: network.value.name,
+  });
   const api = await network.value.api();
-
   const tx = (api.api as ApiPromise).tx(txData.TransactionData.data);
-
   try {
     const signedTx = await tx.signAsync(account.value!.address, {
       signer: {
@@ -181,36 +194,48 @@ const sendAction = async () => {
     signedTx
       .send()
       .then(async (hash) => {
+        trackSendEvents(SendEventType.SendComplete, {
+          network: network.value.name,
+        });
         txActivity.transactionHash = u8aToHex(hash);
         await activityState.addActivities([txActivity], {
           address: network.value.displayAddress(txData.fromAddress),
           network: network.value.name,
         });
+        isSendDone.value = true;
+        if (getCurrentContext() === "popup") {
+          setTimeout(() => {
+            isProcessing.value = false;
+            router.go(-2);
+          }, 2500);
+        } else {
+          setTimeout(() => {
+            isProcessing.value = false;
+            window.close();
+          }, 1500);
+        }
       })
-      .catch(() => {
+      .catch((error) => {
+        isProcessing.value = false;
+        errorMsg.value = error.message;
+        trackSendEvents(SendEventType.SendFailed, {
+          network: network.value.name,
+          error: error.message,
+        });
         txActivity.status = ActivityStatus.failed;
         activityState.addActivities([txActivity], {
           address: network.value.displayAddress(txData.fromAddress),
           network: network.value.name,
         });
       });
-
-    isSendDone.value = true;
-    if (getCurrentContext() === "popup") {
-      setTimeout(() => {
-        isProcessing.value = false;
-        router.go(-2);
-      }, 2500);
-    } else {
-      setTimeout(() => {
-        isProcessing.value = false;
-        window.close();
-      }, 1500);
-    }
   } catch (error: any) {
     isProcessing.value = false;
-    console.error("error", error);
+    console.error(error);
     errorMsg.value = JSON.stringify(error);
+    trackSendEvents(SendEventType.SendFailed, {
+      network: network.value.name,
+      error: errorMsg.value,
+    });
   }
 };
 

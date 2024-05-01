@@ -11,7 +11,7 @@ describe("SID Name resolving", () => {
       },
     });
     await resolver.init();
-    const address = await resolver.resolveAddress("spaceid.arb", "ARB1");
+    const address = await resolver.resolveAddress("spaceid.arb");
     expect(address).to.be.eq("0xb5932a6B7d50A966AEC6C74C97385412Fb497540");
   }).timeout(10000);
 
@@ -41,7 +41,7 @@ describe("SID Name resolving", () => {
       "0xe5dc07bdcdb8c98850050c7f67de7e164b1ea392"
     );
     expect(name).to.be.eq(null);
-    const address = await resolver.resolveAddress("sdfsfsdfsdfsdf.bnb", "BNB");
+    const address = await resolver.resolveAddress("sdfsfsdfsdfsdf.bnb");
     expect(address).to.be.eq(null);
   }).timeout(10000);
 });

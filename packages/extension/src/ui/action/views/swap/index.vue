@@ -168,6 +168,8 @@ import PublicKeyRing from "@/libs/keyring/public-keyring";
 import MarketData from "@/libs/market-data";
 import { ProviderResponseWithStatus } from "./types";
 import { GenericNameResolver, CoinType } from "@/libs/name-resolver";
+import { trackSwapEvents } from "@/libs/metrics";
+import { SwapEventType } from "@/libs/metrics/types";
 
 type BN = ReturnType<typeof toBN>;
 
@@ -245,6 +247,7 @@ const swap = new EnkryptSwap({
 });
 const keyring = new PublicKeyRing();
 onMounted(async () => {
+  trackSwapEvents(SwapEventType.SwapOpen, { network: props.network.name });
   if (
     !isSupportedNetwork(props.network.name as unknown as SupportedNetworkName)
   ) {
@@ -310,6 +313,11 @@ onMounted(async () => {
         toNetworks.value.push(netInfo);
       });
       toNetworks.value.sort(sortByRank);
+      if (!thisNetwork!) {
+        swapError.value = SwapError.TEMP_NOT_SUPPORTED;
+        toggleSwapError();
+        return;
+      }
       await initToNetworkInfo(thisNetwork!);
       setToTokens();
       isLooking.value = false;
@@ -488,6 +496,11 @@ const updateQuote = () => {
   errors.value.noProviders = false;
   const token = new SwapToken(fromToken.value!);
   const fromRawAmount = token.toRaw(fromAmount.value!);
+  trackSwapEvents(SwapEventType.SwapRate, {
+    network: props.network.name,
+    fromToken: fromToken.value!.name,
+    toToken: toToken.value!.name,
+  });
   swap
     .getQuotes({
       amount: fromRawAmount,
@@ -597,7 +610,8 @@ const toggleLooking = () => {
 const toggleSwapError = () => {
   showSwapError.value = !showSwapError.value;
   if (
-    swapError.value === SwapError.NETWORK_NOT_SUPPORTED &&
+    (swapError.value === SwapError.NETWORK_NOT_SUPPORTED ||
+      swapError.value === SwapError.TEMP_NOT_SUPPORTED) &&
     !showSwapError.value
   ) {
     router.go(-1);

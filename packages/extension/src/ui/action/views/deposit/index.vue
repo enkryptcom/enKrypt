@@ -143,7 +143,6 @@ const depositCopy = computed(() => {
 
   &__wrap {
     width: 360px;
-    height: 420px;
     background: @white;
     box-shadow: 0px 0.5px 5px rgba(0, 0, 0, 0.039),
       0px 3.75px 11px rgba(0, 0, 0, 0.19);

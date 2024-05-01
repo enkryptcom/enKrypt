@@ -17,10 +17,7 @@ import {
   getPriorityFeeBasedOnType,
 } from "./gas-utils";
 import { Hardfork, Common } from "@ethereumjs/common";
-import {
-  FeeMarketEIP1559Transaction,
-  Transaction as LegacyTransaction,
-} from "@ethereumjs/tx";
+import { FeeMarketEIP1559Transaction, LegacyTransaction } from "@ethereumjs/tx";
 
 class Transaction {
   tx: EthereumTransaction;
@@ -178,9 +175,9 @@ class Transaction {
       );
     }
   }
-  async getMessageToSign(options: TransactionOptions): Promise<Buffer> {
+  async getMessageToSign(options: TransactionOptions): Promise<Uint8Array> {
     const tx = await this.getFinalizedTransaction(options);
-    return tx.getMessageToSign(true);
+    return tx.getHashedMessageToSign();
   }
   async getGasCosts(): Promise<GasCosts> {
     const { gasLimit, gasPrice, baseFeePerGas, formattedFeeHistory } =
