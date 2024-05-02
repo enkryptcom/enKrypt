@@ -208,7 +208,7 @@ const openBuyPage = () => {
       ? (currentNetwork.value as KadenaNetwork).options.buyLink
       : `https://ccswap.myetherwallet.com/?to=${currentNetwork.value.displayAddress(
           accountHeaderData.value.selectedAccount!.address
-        )}&platform=enkrypt`;
+        )}&crypto=${currentNetwork.value.currencyName}&platform=enkrypt`;
   Browser.tabs.create({
     url: buyLink,
   });
@@ -281,6 +281,9 @@ const setNetwork = async (network: BaseNetwork) => {
     provider: network.provider,
     network: network.name,
   });
+  if (!network.subNetworks) {
+    currentSubNetwork.value = "";
+  }
   const activeAccounts = await getAccountsByNetworkName(network.name);
 
   const inactiveAccounts = await kr.getAccounts(

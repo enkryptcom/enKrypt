@@ -7,7 +7,6 @@
       :class="{ error: !isValid }"
       @focus="changeFocus"
       @blur="changeFocus"
-      @input="emit('update:inputSetMax', false)"
     />
 
     <div class="send-input-amount__fiat">
@@ -15,7 +14,7 @@
       <span>${{ $filters.formatFiatValue(fiatEquivalent).value }}</span>
     </div>
 
-    <a class="send-input-amount__max" @click="emit('update:inputSetMax', true)">
+    <a class="send-input-amount__max" @click="emit('update:inputSetMax')">
       Max
     </a>
   </div>
@@ -28,7 +27,7 @@ import BigNumber from "bignumber.js";
 
 const emit = defineEmits<{
   (e: "update:inputAmount", address: string | undefined): void;
-  (e: "update:inputSetMax", max: boolean): void;
+  (e: "update:inputSetMax"): void;
 }>();
 
 const isFocus = ref(false);

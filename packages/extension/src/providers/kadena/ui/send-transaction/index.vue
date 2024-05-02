@@ -34,7 +34,7 @@
         ref="addressInputTo"
         :value="addressTo"
         :network="network"
-        :is-address="fieldsValidation.addressTo.valueOf"
+        :is-address="fieldsValidation.addressTo"
         @update:input-address="inputAddressTo"
         @toggle:show-contacts="toggleSelectContactTo"
       />
@@ -66,7 +66,7 @@
       <send-input-amount
         :amount="amount"
         :fiat-value="selectedAsset.price"
-        :is-valid="fieldsValidation.amount.valueOf"
+        :is-valid="fieldsValidation.amount"
         @update:input-amount="inputAmount"
         @update:input-set-max="setSendMax"
       />
@@ -181,7 +181,7 @@ onMounted(() => {
 
 const validateFields = async () => {
   errorMsg.value = "";
-
+  fee.value = null;
   fieldsValidation.value = {
     addressTo: true,
     amount: true,
@@ -214,10 +214,13 @@ const validateFields = async () => {
         errorMsg.value = '"To" address cannot be the same as "From" address';
         return;
       }
+    } else {
+      fieldsValidation.value.addressTo = false;
+      return;
     }
 
     let rawAmount = toBN(toBase("0", selectedAsset.value.decimals!));
-
+    const minAmount = toBN(toBase("0.000001", props.network.decimals));
     if (amount.value) {
       if (!isValidDecimals(amount.value, selectedAsset.value.decimals!)) {
         fieldsValidation.value.amount = false;
@@ -229,21 +232,21 @@ const validateFields = async () => {
         toBase(amount.value.toString(), selectedAsset.value.decimals!)
       );
 
-      if (rawAmount.lten(0)) {
+      if (rawAmount.lt(minAmount)) {
         fieldsValidation.value.amount = false;
-        errorMsg.value = "Amount must be greater than 0";
+        errorMsg.value = "Amount must be greater than 0.000001";
         return;
       }
     }
-
     if (amount.value || sendMax.value) {
       const localTransaction = await selectedAsset.value.buildTransaction!(
         addressTo.value,
         props.accountInfo.selectedAccount,
-        sendMax.value ? "0.000000000001" : amount.value!,
+        sendMax.value
+          ? fromBase(minAmount.toString(), props.network.decimals)
+          : amount.value!,
         props.network
       );
-
       const networkApi = (await props.network.api()) as KadenaAPI;
 
       const transactionResult = await networkApi.sendLocalTransaction(
@@ -272,7 +275,6 @@ const validateFields = async () => {
         selectedAsset.value.name === accountAssets.value[0].name
       ) {
         rawAmount = rawBalance.sub(rawFee);
-
         if (rawAmount.gtn(0)) {
           amount.value = fromBase(
             rawAmount.toString(),
@@ -307,7 +309,7 @@ const validateFields = async () => {
   }
 };
 
-watch([selectedAsset, addressTo, amount, sendMax], validateFields);
+watch([selectedAsset, addressTo, amount], validateFields);
 
 watch(addressFrom, () => {
   fetchTokens();
@@ -408,15 +410,9 @@ const sendButtonTitle = computed(() => {
   return title;
 });
 
-const setSendMax = (max: boolean) => {
-  if (!max) {
-    sendMax.value = false;
-    return;
-  }
-
-  if (selectedAsset.value) {
-    sendMax.value = true;
-  }
+const setSendMax = () => {
+  sendMax.value = true;
+  validateFields();
 };
 
 const isDisabled = computed(() => {
@@ -424,7 +420,8 @@ const isDisabled = computed(() => {
     !addressTo.value ||
     !amount.value ||
     !fieldsValidation.value.amount ||
-    !fieldsValidation.value.addressTo
+    !fieldsValidation.value.addressTo ||
+    !fee.value
   );
 });
 
