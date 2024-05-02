@@ -50,6 +50,18 @@ const NetworkDetails: Record<SupportedNetworkName, NetworkInfo> = {
     signerType: [SignerType.secp256k1],
     type: NetworkType.EVM,
   },
+  [SupportedNetworkName.MaticZK]: {
+    id: SupportedNetworkName.MaticZK,
+    cgId: "matic-network",
+    decimals: 18,
+    logoURI:
+      "https://tokens.1inch.io/0x7d1afa7b718fb893db30a3abc0cfc608aacfebb0.png",
+    name: "Polygon ZK",
+    symbol: "MATIC",
+    rank: 4,
+    signerType: [SignerType.secp256k1],
+    type: NetworkType.EVM,
+  },
   [SupportedNetworkName.Optimism]: {
     id: SupportedNetworkName.Optimism,
     cgId: "optimism",
@@ -61,6 +73,18 @@ const NetworkDetails: Record<SupportedNetworkName, NetworkInfo> = {
     rank: 5,
     signerType: [SignerType.secp256k1],
     type: NetworkType.EVM,
+  },
+  [SupportedNetworkName.Base]: {
+    id: SupportedNetworkName.Base,
+    cgId: "ethereum",
+    decimals: 18,
+    logoURI:
+      "https://assets.coingecko.com/asset_platforms/images/131/large/base.jpeg",
+    name: "Base",
+    signerType: [SignerType.secp256k1],
+    type: NetworkType.EVM,
+    rank: 6,
+    symbol: "ETH",
   },
   [SupportedNetworkName.Arbitrum]: {
     id: SupportedNetworkName.Arbitrum,
