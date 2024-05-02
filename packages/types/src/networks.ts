@@ -57,6 +57,8 @@ export enum NetworkNames {
   Vara = "VARA",
   Base = "BASE",
   Celo = "CELO",
+  Kadena = "KDA",
+  KadenaTestnet = "KDATestnet",
   Litecoin = "LTC",
   Dogecoin = "DOGE",
   ArtheraTest = "AATest",
@@ -104,4 +106,5 @@ export enum CoingeckoPlatform {
   Base = "base",
   Celo = "celo",
   Shibarium = "shibarium",
+  Kadena = "kadena",
 }

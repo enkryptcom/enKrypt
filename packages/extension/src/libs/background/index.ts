@@ -47,6 +47,7 @@ class BackgroundHandler {
       [ProviderName.ethereum]: {},
       [ProviderName.polkadot]: {},
       [ProviderName.bitcoin]: {},
+      [ProviderName.kadena]: {},
     };
     this.#providers = Providers;
   }

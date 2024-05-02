@@ -21,6 +21,16 @@ class DomainState {
     if (state.selectedNetwork) return state.selectedNetwork;
     return null;
   }
+  async setSelectedSubNetwork(id: string): Promise<void> {
+    const state = await this.getState();
+    state.selectedSubNetworkId = id;
+    await this.setState(state);
+  }
+  async getSelectedSubNetWork(): Promise<string | null> {
+    const state = await this.getState();
+    if (state.selectedSubNetworkId) return state.selectedSubNetworkId;
+    return null;
+  }
   async setSelectedAddress(address: string): Promise<void> {
     const state = await this.getState();
     state.selectedAddress = address;

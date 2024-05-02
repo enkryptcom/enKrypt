@@ -8,7 +8,27 @@
       </div>
       <switch-arrow />
     </a>
+
     <div class="account__actions">
+      <div
+        v-if="network.subNetworks"
+        class="account__info"
+        :class="{ active: showChains }"
+        @click="showChains = !showChains"
+      >
+        <div class="account__info-name">
+          <p>{{ currentSubNetwork.name }}</p>
+        </div>
+
+        <subnet-list
+          :sub-nets="network.subNetworks"
+          :selected-id="currentSubNetwork.id"
+          :show-chains="showChains"
+          v-bind="$attrs"
+          @select:subnetwork="setSubNetwork"
+        />
+        <switch-arrow />
+      </div>
       <notification
         v-if="isCopied"
         :hide="toggleNotification"
@@ -48,29 +68,39 @@
 </template>
 
 <script setup lang="ts">
-import SwitchArrow from "@action/icons/header/switch_arrow.vue";
-import IconQr from "@action/icons/header/qr_icon.vue";
-import IconDisconnect from "@action/icons/header/disconnect_icon.vue";
-import IconCopy from "@action/icons/header/copy_icon.vue";
-import IconExternal from "@action/icons/header/external-icon.vue";
-import Tooltip from "@action/components/tooltip/index.vue";
-import { PropType, ref, computed, onMounted } from "vue";
-import Notification from "@action/components/notification/index.vue";
-import { BaseNetwork } from "@/types/base-network";
 import DomainState from "@/libs/domain-state";
-import EvmAccountState from "@/providers/ethereum/libs/accounts-state";
 import BtcAccountState from "@/providers/bitcoin/libs/accounts-state";
+import EvmAccountState from "@/providers/ethereum/libs/accounts-state";
+import KadenaAccountState from "@/providers/kadena/libs/accounts-state";
 import SubstrateAccountState from "@/providers/polkadot/libs/accounts-state";
+import { BaseNetwork, SubNetworkOptions } from "@/types/base-network";
+import Notification from "@action/components/notification/index.vue";
+import Tooltip from "@action/components/tooltip/index.vue";
+import IconCopy from "@action/icons/header/copy_icon.vue";
+import IconDisconnect from "@action/icons/header/disconnect_icon.vue";
+import IconExternal from "@action/icons/header/external-icon.vue";
+import IconQr from "@action/icons/header/qr_icon.vue";
+import SwitchArrow from "@action/icons/header/switch_arrow.vue";
+import { PropType, computed, onMounted, ref, watch } from "vue";
+import SubnetList from "./subnet-list.vue";
 
 const isCopied = ref(false);
 const domainState = new DomainState();
 const isConnectedDomain = ref(false);
+const showChains = ref(false);
+const currentSubNetwork = ref<SubNetworkOptions>({
+  id: "",
+  name: "",
+});
 const currentDomain = ref("");
+const kadenaAccountState = new KadenaAccountState();
 const allAccountStates = [
   new EvmAccountState(),
   new BtcAccountState(),
   new SubstrateAccountState(),
+  kadenaAccountState,
 ];
+
 const props = defineProps({
   name: {
     type: String,
@@ -90,8 +120,9 @@ const props = defineProps({
     default: () => ({}),
   },
 });
-defineEmits<{
+const emit = defineEmits<{
   (e: "toggle:deposit"): void;
+  (e: "select:subnetwork", id: string): void;
 }>();
 
 const copy = (address: string) => {
@@ -116,10 +147,35 @@ const checkAndSetConnectedDapp = () => {
     });
   });
 };
+const checkAndSetSubNetwork = () => {
+  if (props.network.subNetworks) {
+    domainState.getSelectedSubNetWork().then((id) => {
+      if (id) {
+        const subnet = props.network.subNetworks!.find((net) => net.id === id);
+        if (subnet) currentSubNetwork.value = subnet;
+      } else {
+        currentSubNetwork.value = props.network.subNetworks![0];
+      }
+      setSubNetwork(currentSubNetwork.value.id);
+    });
+  }
+};
+
+const setSubNetwork = async (id: string) => {
+  const subnet = props.network.subNetworks!.find((net) => net.id === id);
+  if (subnet) currentSubNetwork.value = subnet;
+  emit("select:subnetwork", id);
+  setTimeout(() => {
+    showChains.value = false;
+  }, 100);
+};
+
 onMounted(async () => {
   currentDomain.value = await domainState.getCurrentDomain();
   checkAndSetConnectedDapp();
+  checkAndSetSubNetwork();
 });
+watch(() => props.network, checkAndSetSubNetwork);
 const disconnectFromDapp = async () => {
   await Promise.all(
     allAccountStates.map((as) => as.deleteState(currentDomain.value))
@@ -130,6 +186,7 @@ const disconnectFromDapp = async () => {
 
 <style lang="less">
 @import "~@action/styles/theme.less";
+
 .account {
   border-radius: 12px;
   width: 100%;
@@ -192,6 +249,7 @@ const disconnectFromDapp = async () => {
         line-clamp: 1;
         max-width: 230px;
       }
+
       span {
         display: block;
         font-style: normal;
@@ -202,12 +260,14 @@ const disconnectFromDapp = async () => {
         letter-spacing: 0.5px;
       }
     }
+
     svg {
       position: absolute;
       top: 10px;
       right: 4px;
     }
   }
+
   &__actions {
     height: 100%;
     width: auto;
