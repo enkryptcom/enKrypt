@@ -195,7 +195,14 @@ const validateFields = async () => {
     if (isAddress.value) {
       const to = props.network.displayAddress(addressTo.value);
       const from = props.network.displayAddress(addressFrom.value);
-
+      const accountDetailFrom = await accountAssets.value[0].getAccountDetails(
+        from,
+        props.network
+      );
+      if (accountDetailFrom.error) {
+        errorMsg.value = "Not enough balance"; // account doesnt exist
+        return;
+      }
       if (!props.network.isAddress(to)) {
         const accountDetail = await accountAssets.value[0].getAccountDetails(
           to,
@@ -208,7 +215,6 @@ const validateFields = async () => {
           return;
         }
       }
-
       if (to == from) {
         fieldsValidation.value.addressTo = false;
         errorMsg.value = '"To" address cannot be the same as "From" address';
@@ -255,6 +261,7 @@ const validateFields = async () => {
 
       if (transactionResult.result.status !== "success") {
         fieldsValidation.value.amount = false;
+        console.log(transactionResult.result.error);
         errorMsg.value =
           (transactionResult.result.error as any).message ||
           "An error occurred";
