@@ -137,7 +137,8 @@ export type CoinType =
   | "NRG"
   | "ARB1"
   | "CELO"
-  | "AVAXC";
+  | "AVAXC"
+  | "LBC";
 
 export abstract class BaseResolver {
   name: string;

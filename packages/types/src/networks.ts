@@ -64,6 +64,7 @@ export enum NetworkNames {
   FormTestnet = "FormTestnet",
   AssetHubDOT = "AssetHubDOT",
   AssetHubKSM = "AssetHubKSM",
+  LBRY = "LBRY",
 }
 
 export enum CoingeckoPlatform {

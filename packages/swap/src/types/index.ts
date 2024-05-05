@@ -27,6 +27,7 @@ export enum SupportedNetworkName {
   Klaytn = NetworkNames.Klaytn,
   Aurora = NetworkNames.Aurora,
   Zksync = NetworkNames.ZkSync,
+  LBRY = NetworkNames.LBRY,
 }
 
 // eslint-disable-next-line no-shadow
