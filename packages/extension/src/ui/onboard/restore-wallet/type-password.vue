@@ -32,7 +32,7 @@ import BaseButton from "@action/components/base-button/index.vue";
 import BaseInput from "@action/components/base-input/index.vue";
 import { useRouter } from "vue-router";
 import { routes } from "../restore-wallet/routes";
-import initializeWallet from "@/libs/utils/initialize-wallet";
+import { onboardInitializeWallets } from "@/libs/utils/initialize-wallet";
 import { useRestoreStore } from "./store";
 const store = useRestoreStore();
 const router = useRouter();
@@ -42,7 +42,7 @@ const isInitializing = ref(false);
 const nextAction = () => {
   if (!isDisabled.value) {
     isInitializing.value = true;
-    initializeWallet(store.mnemonic, store.password).then(() => {
+    onboardInitializeWallets(store.mnemonic, store.password).then(() => {
       isInitializing.value = false;
       router.push({
         name: routes.walletReady.name,

@@ -11,5 +11,6 @@ export const pathParser = (
   ) {
     return index === 0 ? "" : `//${--index}`; // polkadotjs extension use "" for 0 index/root
   }
+
   return `${basePath}/${index}`;
 };
