@@ -8,6 +8,11 @@ export enum SwapEventType {
   swapBack = "swap_back",
 }
 
+export enum GenericEvents {
+  login_success = "successful_login",
+  login_error = "login_error",
+}
+
 export enum NetworkChangeEvents {
   NetworkChangePopup = "network_change_popup",
   NetworkChangeAPI = "network_change_api",

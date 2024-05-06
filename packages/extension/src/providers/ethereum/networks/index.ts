@@ -32,6 +32,7 @@ import shibNode from "./shib";
 import artheraNode from "./aa";
 import formTestnet from "./form-testnet";
 import artheraTestNode from "./aat";
+import cagaAnkara from "./cagaAnkara";
 
 export default {
   sepolia: sepoliaNode,
@@ -77,4 +78,5 @@ export default {
   arthera: artheraNode,
   formTestnet: formTestnet,
   artheraTest: artheraTestNode,
+  cagaAnkara: cagaAnkara,
 };
