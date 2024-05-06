@@ -7,7 +7,10 @@
     <h3>
       {{ cryptoAmount }} <span>{{ symbol }}</span>
     </h3>
-    <p>{{ fiatAmount }}</p>
+    <p>
+      <span v-if="subnetwork !== ''">Chain {{ subnetwork }} &middot;</span>
+      {{ fiatAmount }}
+    </p>
   </div>
 </template>
 
@@ -24,6 +27,10 @@ defineProps({
     default: "0",
   },
   symbol: {
+    type: String,
+    default: "",
+  },
+  subnetwork: {
     type: String,
     default: "",
   },

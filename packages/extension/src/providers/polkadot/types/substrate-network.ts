@@ -36,7 +36,7 @@ export interface SubstrateNetworkOptions {
   coingeckoPlatform?: CoingeckoPlatform;
   genesisHash: string;
   knownTokens?: KnownTokenDisplay[];
-  existentialDeposit?: BNType;
+  existentialDeposit: BNType;
   activityHandler: (
     network: BaseNetwork,
     address: string

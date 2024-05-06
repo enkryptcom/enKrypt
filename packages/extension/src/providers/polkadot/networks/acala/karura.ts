@@ -7,6 +7,8 @@ import {
 import { subscanActivity } from "../../libs/activity-handlers";
 import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
 import ormlAssetHandler from "./libs/assetinfo-orml";
+import { toBN } from "web3-utils";
+import { toBase } from "@enkryptcom/utils";
 
 const karuraOptions: SubstrateNetworkOptions = {
   name: NetworkNames.Karura,
@@ -27,6 +29,7 @@ const karuraOptions: SubstrateNetworkOptions = {
     "0xbaf5aabe40646d11f0ee8abbdc64f4a4b7674925cba08e4a05ff9ebed6e2126b",
   activityHandler: wrapActivityHandler(subscanActivity),
   assetHandler: ormlAssetHandler,
+  existentialDeposit: toBN(toBase("0.1", 12)),
   knownTokens: assets,
 };
 

@@ -52,10 +52,10 @@ import { sendToBackgroundFromAction } from "@/libs/messenger/extension";
 import { InternalMethods } from "@/types/messenger";
 import { computed } from "@vue/reactivity";
 import SwapLookingAnimation from "@action/icons/swap/swap-looking-animation.vue";
-import BitcoinNetworks from "@/providers/bitcoin/networks";
 import KeyRing from "@/libs/keyring/keyring";
-import { NetworkNames, WalletType } from "@enkryptcom/types";
-import { getAccountsByNetworkName } from "@/libs/utils/accounts";
+import { initAccounts } from "@/libs/utils/initialize-wallet";
+import { trackGenericEvents } from "@/libs/metrics";
+import { GenericEvents } from "@/libs/metrics/types";
 
 const emit = defineEmits<{
   (e: "update:init"): void;
@@ -81,31 +81,16 @@ const unlockAction = async () => {
   if (unlockStatus.error) {
     isError.value = true;
     isUnlocking.value = false;
+    trackGenericEvents(GenericEvents.login_error);
   } else {
     isError.value = false;
-
-    // Add bitcoin if not added.
-    const bitcoinAccounts = await getAccountsByNetworkName(
-      NetworkNames.Bitcoin
-    );
-
-    if (bitcoinAccounts.length == 0) {
-      const privateKeyring = new KeyRing();
-      await privateKeyring.unlock(password.value.trim());
-
-      await privateKeyring.saveNewAccount({
-        basePath: BitcoinNetworks.bitcoin.basePath,
-        name: "Bitcoin Account 1",
-        signerType: BitcoinNetworks.bitcoin.signer[0],
-        walletType: WalletType.mnemonic,
-      });
-
-      privateKeyring.lock();
-    }
-
+    const privateKeyring = new KeyRing();
+    await privateKeyring.unlock(password.value.trim());
+    await initAccounts(privateKeyring);
     password.value = "";
     emit("update:init");
     setTimeout(() => (isUnlocking.value = false), 750);
+    trackGenericEvents(GenericEvents.login_success);
   }
 };
 const forgotAction = () => {

@@ -22,7 +22,7 @@ import { useOnboardStore } from "./store";
 import { useRouter } from "vue-router";
 import { ref, computed } from "vue";
 import { chunk, shuffle, sample } from "lodash";
-import initializeWallet from "@/libs/utils/initialize-wallet";
+import { onboardInitializeWallets } from "@/libs/utils/initialize-wallet";
 
 const router = useRouter();
 const store = useOnboardStore();
@@ -57,7 +57,7 @@ const updateSelection = (idx: number, val: boolean) => {
 
 const nextAction = () => {
   isInitializing.value = true;
-  initializeWallet(phrase, password).then(() => {
+  onboardInitializeWallets(phrase, password).then(() => {
     isInitializing.value = false;
     router.push({ name: routes.walletReady.name });
   });
