@@ -13,7 +13,6 @@ const method: MiddlewareFunction = function (
 ): void {
   if (payload.method !== "dot_signer_signRaw") return next();
   else {
-    console.log(payload);
     if (!payload.params?.length)
       return res(getCustomError("Missing Params: signer_signPayload"));
     const reqPayload = payload.params[0] as SignerPayloadRaw;
