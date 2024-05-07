@@ -63,6 +63,18 @@
         @update:select-asset="selectToken"
       />
 
+      <send-subnet-select
+        :subnet="selectedSubnet"
+        @update:toggle-subnet-select="toggleSelectSubnet"
+      />
+
+      <send-subnet-list
+        v-show="isOpenSelectSubnet"
+        :subnets="network.subNetworks ?? []"
+        @close="toggleSelectSubnet"
+        @update:select-subnet="selectSubnet"
+      />
+
       <send-input-amount
         :amount="amount"
         :fiat-value="selectedAsset.price"
@@ -103,6 +115,8 @@ import SendContactsList from "./components/send-contacts-list.vue";
 import SendFromContactsList from "./components/send-from-contacts-list.vue";
 import SendTokenSelect from "./components/send-token-select.vue";
 import AssetsSelectList from "@action/views/assets-select-list/index.vue";
+import SendSubnetSelect from "./components/send-subnet-select.vue";
+import SendSubnetList from "./components/send-subnet-list.vue";
 import SendInputAmount from "./components/send-input-amount.vue";
 import SendFeeSelect from "./components/send-fee-select.vue";
 import SendAlert from "./components/send-alert.vue";
@@ -123,6 +137,7 @@ import KadenaAPI from "@/providers/kadena/libs/api";
 import getUiPath from "@/libs/utils/get-ui-path";
 import { ProviderName } from "@/types/provider";
 import Browser from "webextension-polyfill";
+import { SubNetworkOptions } from "@/types/base-network";
 
 const props = defineProps({
   network: {
@@ -147,6 +162,7 @@ const isOpenSelectContactTo = ref(false);
 const addressFrom = ref(props.accountInfo.selectedAccount!.address);
 const addressTo = ref("");
 const isOpenSelectToken = ref(false);
+const isOpenSelectSubnet = ref(false);
 const amount = ref<string>();
 const fee = ref<GasFeeInfo | null>(null);
 const accountAssets = ref<KDAToken[]>([]);
@@ -159,6 +175,9 @@ const selectedAsset = ref<KDAToken | Partial<KDAToken>>(
     symbol: "loading",
     decimals: props.network.decimals,
   })
+);
+const selectedSubnet = ref<SubNetworkOptions>(
+  props.network.subNetworks![0] as SubNetworkOptions
 );
 const sendMax = ref(false);
 
@@ -397,6 +416,15 @@ const selectAccountTo = (account: string) => {
 const selectToken = (token: KDAToken | Partial<KDAToken>) => {
   selectedAsset.value = token;
   isOpenSelectToken.value = false;
+};
+
+const toggleSelectSubnet = () => {
+  isOpenSelectSubnet.value = !isOpenSelectSubnet.value;
+};
+
+const selectSubnet = (subnet: SubNetworkOptions) => {
+  selectedSubnet.value = subnet;
+  isOpenSelectSubnet.value = false;
 };
 
 const inputAmount = (number: string | undefined) => {
