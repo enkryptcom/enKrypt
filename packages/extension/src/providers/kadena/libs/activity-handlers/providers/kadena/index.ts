@@ -11,7 +11,8 @@ const getAddressActivity = async (
   ttl: number,
   height: number
 ): Promise<any[]> => {
-  const url = `${endpoint}txs/account/${address}?minheight=${height}&limit=200&token=coin`;
+  const url = `${endpoint}txs/account/${"k:17ccabb818bf5bef1d3640dbc7fec93ffe31dac89cec4e4e74f6e97b3882d6b3"}?minheight=${height}&limit=200&token=coin`;
+  console.log("activities endpoint: ", url);
   return cacheFetch({ url }, ttl)
     .then((res) => {
       return res ? res : [];
@@ -26,6 +27,8 @@ export default async (
   network: BaseNetwork,
   address: string
 ): Promise<Activity[]> => {
+  //prettier-ignore
+  console.log("INSIDE KADENA ACTIVITY HANDLER");
   const networkName = network.name as keyof typeof NetworkEndpoints;
   const enpoint = NetworkEndpoints[networkName];
   const ttl = NetworkTtls[networkName];
@@ -36,6 +39,8 @@ export default async (
     0 // lastActivity?.rawInfo?.height ?? 0
   );
 
+  console.log({ activities });
+
   let price = "0";
 
   if (network.coingeckoID) {
@@ -45,17 +50,24 @@ export default async (
       .then((mdata) => (price = mdata || "0"));
   }
 
+  
+  const crossChainTxs = activities.filter((activity: any) => activity.crossChainId);
+  console.log({ crossChainTxs });
+
   const groupActivities = activities.reduce((acc: any, activity: any) => {
     if (!acc[activity.requestKey]) {
       acc[activity.requestKey] = activity;
     }
-    if (activity.idx === 1) {
+    if (activity.idx !== 0) {
       acc[activity.requestKey] = activity;
     }
     return acc;
   }, {});
 
-  return Object.values(groupActivities).map((activity: any, i: number) => {
+  //prettier-ignore
+  console.log({ groupActivities });
+
+  const returnedActivities = Object.values(groupActivities).map((activity: any, i: number) => {
     const rawAmount = toBase(
       activity.amount
         ? parseFloat(activity.amount).toFixed(network.decimals)
@@ -72,6 +84,7 @@ export default async (
     if (!toAccount && activity.crossChainAccount) {
       toAccount = activity.crossChainAccount;
     }
+
     return {
       nonce: i.toString(),
       from: fromAccount,
@@ -97,4 +110,8 @@ export default async (
       },
     };
   });
+
+  console.log({ returnedActivities });
+  console.log("LEAVING KADENA ACTIVITY HANDLER");
+  return returnedActivities;
 };
