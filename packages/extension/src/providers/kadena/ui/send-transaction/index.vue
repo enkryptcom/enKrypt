@@ -65,8 +65,9 @@
 
       <send-input-amount
         :amount="amount"
+        :show-max="true"
         :fiat-value="selectedAsset.price"
-        :is-valid="fieldsValidation.amount"
+        :has-enough-balance="fieldsValidation.amount"
         @update:input-amount="inputAmount"
         @update:input-set-max="setSendMax"
       />
@@ -103,7 +104,7 @@ import SendContactsList from "./components/send-contacts-list.vue";
 import SendFromContactsList from "./components/send-from-contacts-list.vue";
 import SendTokenSelect from "./components/send-token-select.vue";
 import AssetsSelectList from "@action/views/assets-select-list/index.vue";
-import SendInputAmount from "./components/send-input-amount.vue";
+import SendInputAmount from "@/providers/common/ui/send-transaction/send-input-amount.vue";
 import SendFeeSelect from "./components/send-fee-select.vue";
 import SendAlert from "./components/send-alert.vue";
 import BaseButton from "@action/components/base-button/index.vue";
@@ -399,9 +400,13 @@ const selectToken = (token: KDAToken | Partial<KDAToken>) => {
   isOpenSelectToken.value = false;
 };
 
-const inputAmount = (number: string | undefined) => {
+const inputAmount = (inputAmount: string) => {
+  if (inputAmount === "") {
+    inputAmount = "0";
+  }
+  const inputAmountBn = new BigNumber(inputAmount);
   sendMax.value = false;
-  amount.value = number ? (parseFloat(number) < 0 ? "" : number) : number;
+  amount.value = inputAmountBn.lt(0) ? "0" : inputAmount;
 };
 
 const sendButtonTitle = computed(() => {
