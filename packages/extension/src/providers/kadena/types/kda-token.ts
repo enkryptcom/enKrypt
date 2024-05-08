@@ -54,13 +54,17 @@ export class KDAToken extends KDABaseToken {
     to: string,
     from: EnkryptAccount | any,
     amount: string,
-    network: KadenaNetwork
+    network: KadenaNetwork,
+    toChainId?: string
   ): Promise<ICommand> {
     to = network.displayAddress(to);
-    // const accountDetails = await this.getAccountDetails(to, network);
     const api = (await network.api()) as KadenaAPI;
-    const chainID = await api.getChainId();
+    const fromChainID = await api.getChainId();
     const keySetAccount = to.startsWith("k:") ? to.replace("k:", "") : to;
+
+    console.log("fromChainID", fromChainID);
+    console.log("toChainId", toChainId);
+
     const unsignedTransaction = Pact.builder
       .execution(
         Pact.modules.coin["transfer-create"](
@@ -80,7 +84,7 @@ export class KDAToken extends KDABaseToken {
         withCap("coin.GAS"),
       ])
       .setMeta({
-        chainId: (chainID ??
+        chainId: (fromChainID ??
           network.options.kadenaApiOptions.chainId) as ChainId,
         senderAccount: network.displayAddress(from.address),
       })

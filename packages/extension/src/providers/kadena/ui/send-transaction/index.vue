@@ -49,6 +49,19 @@
         @close="toggleSelectContactTo"
       />
 
+      <send-subnetwork-select
+        :network="network"
+        :subnetwork="selectedSubnetwork"
+        @update:toggle-subnetwork-select="toggleSelectSubnetwork"
+      />
+
+      <send-subnetwork-list
+        v-show="isOpenSelectSubnetwork"
+        :subnetworks="network.subNetworks ?? []"
+        @close="toggleSelectSubnetwork"
+        @update:select-subnetwork="selectSubnetwork"
+      />
+
       <send-token-select
         :token="selectedAsset"
         @update:toggle-token-select="toggleSelectToken"
@@ -61,18 +74,6 @@
         :is-loading="isLoadingAssets"
         @close="toggleSelectToken"
         @update:select-asset="selectToken"
-      />
-
-      <send-subnet-select
-        :subnet="selectedSubnet"
-        @update:toggle-subnet-select="toggleSelectSubnet"
-      />
-
-      <send-subnet-list
-        v-show="isOpenSelectSubnet"
-        :subnets="network.subNetworks ?? []"
-        @close="toggleSelectSubnet"
-        @update:select-subnet="selectSubnet"
       />
 
       <send-input-amount
@@ -115,8 +116,8 @@ import SendContactsList from "./components/send-contacts-list.vue";
 import SendFromContactsList from "./components/send-from-contacts-list.vue";
 import SendTokenSelect from "./components/send-token-select.vue";
 import AssetsSelectList from "@action/views/assets-select-list/index.vue";
-import SendSubnetSelect from "./components/send-subnet-select.vue";
-import SendSubnetList from "./components/send-subnet-list.vue";
+import SendSubnetworkSelect from "./components/send-subnetwork-select.vue";
+import SendSubnetworkList from "./components/send-subnetwork-list.vue";
 import SendInputAmount from "./components/send-input-amount.vue";
 import SendFeeSelect from "./components/send-fee-select.vue";
 import SendAlert from "./components/send-alert.vue";
@@ -162,7 +163,7 @@ const isOpenSelectContactTo = ref(false);
 const addressFrom = ref(props.accountInfo.selectedAccount!.address);
 const addressTo = ref("");
 const isOpenSelectToken = ref(false);
-const isOpenSelectSubnet = ref(false);
+const isOpenSelectSubnetwork = ref(false);
 const amount = ref<string>();
 const fee = ref<GasFeeInfo | null>(null);
 const accountAssets = ref<KDAToken[]>([]);
@@ -176,7 +177,9 @@ const selectedAsset = ref<KDAToken | Partial<KDAToken>>(
     decimals: props.network.decimals,
   })
 );
-const selectedSubnet = ref<SubNetworkOptions>(
+// const kadenaApi = (await props.network.api()) as KadenaAPI;
+// const fromSubnetwork = ref<string>(await kadenaApi.getChainId());
+const selectedSubnetwork = ref<SubNetworkOptions>(
   props.network.subNetworks![0] as SubNetworkOptions
 );
 const sendMax = ref(false);
@@ -403,6 +406,10 @@ const toggleSelectToken = () => {
   isOpenSelectToken.value = !isOpenSelectToken.value;
 };
 
+const toggleSelectSubnetwork = () => {
+  isOpenSelectSubnetwork.value = !isOpenSelectSubnetwork.value;
+};
+
 const selectAccountFrom = (account: string) => {
   addressFrom.value = account;
   isOpenSelectContactFrom.value = false;
@@ -418,13 +425,9 @@ const selectToken = (token: KDAToken | Partial<KDAToken>) => {
   isOpenSelectToken.value = false;
 };
 
-const toggleSelectSubnet = () => {
-  isOpenSelectSubnet.value = !isOpenSelectSubnet.value;
-};
-
-const selectSubnet = (subnet: SubNetworkOptions) => {
-  selectedSubnet.value = subnet;
-  isOpenSelectSubnet.value = false;
+const selectSubnetwork = (subnet: SubNetworkOptions) => {
+  selectedSubnetwork.value = subnet;
+  isOpenSelectSubnetwork.value = false;
 };
 
 const inputAmount = (number: string | undefined) => {
@@ -463,8 +466,8 @@ const isDisabled = computed(() => {
 const sendAction = async () => {
   const keyring = new PublicKeyRing();
   const fromAccount = await keyring.getAccount(addressFrom.value);
-  const networkApi = (await props.network.api()) as KadenaAPI;
-  const chainId = await networkApi.getChainId();
+  const toChainId = selectedSubnetwork.value.id;
+
   const txVerifyInfo: VerifyTransactionParams = {
     TransactionData: {
       from: fromAccount.address,
@@ -483,7 +486,7 @@ const sendAction = async () => {
       name: selectedAsset.value.name || "",
       price: selectedAsset.value.price || "0",
     },
-    chainId: chainId,
+    toChainId: toChainId,
     fromAddress: fromAccount.address,
     fromAddressName: fromAccount.name,
     txFee: fee.value!,
@@ -541,7 +544,7 @@ const sendAction = async () => {
 
   &__header {
     position: relative;
-    padding: 24px 72px 12px 32px;
+    padding: 24px 72px 6px 32px;
 
     h3 {
       font-style: normal;

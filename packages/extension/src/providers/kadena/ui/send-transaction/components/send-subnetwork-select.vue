@@ -1,36 +1,50 @@
 <template>
-  <a class="send-subnet-select" @click="emit('update:toggleSubnetSelect')">
-    <div class="send-subnet-select__info">
-      <p>To chain:</p>
-      <h5>{{ subnet!.name }}</h5>
+  <a
+    class="send-subnetwork-select"
+    @click="emit('update:toggleSubnetworkSelect')"
+  >
+    <div class="send-subnetwork-select__info">
+      <p>Sending from Chain {{ fromNetwork }} to:</p>
+      <h5>{{ subnetwork!.name }}</h5>
     </div>
 
-    <div class="send-subnet-select__arrow">
+    <div class="send-subnetwork-select__arrow">
       <switch-arrow />
     </div>
   </a>
 </template>
 
 <script setup lang="ts">
+import { onMounted, ref } from "vue";
 import SwitchArrow from "@action/icons/header/switch_arrow.vue";
 import { SubNetworkOptions } from "@/types/base-network";
+import { KadenaNetwork } from "@/providers/kadena/types/kadena-network";
+import KadenaAPI from "@/providers/kadena/libs/api";
+
+const fromNetwork = ref<string>();
 
 const emit = defineEmits<{
-  (e: "update:toggleSubnetSelect"): void;
+  (e: "update:toggleSubnetworkSelect"): void;
 }>();
 
 interface IProps {
-  subnet?: SubNetworkOptions | Partial<SubNetworkOptions>;
+  network: KadenaNetwork;
+  subnetwork?: SubNetworkOptions | Partial<SubNetworkOptions>;
 }
 
-defineProps<IProps>();
+const props = defineProps<IProps>();
+
+onMounted(async () => {
+  const networkApi = (await props.network.api()) as KadenaAPI;
+  fromNetwork.value = await networkApi.getChainId();
+});
 </script>
 
 <style lang="less">
 @import "~@action/styles/theme.less";
 
-.send-subnet-select {
-  height: 64px;
+.send-subnetwork-select {
+  height: 56px;
   background: #ffffff;
   margin: 0 32px 8px 32px;
   box-sizing: border-box;
@@ -79,7 +93,7 @@ defineProps<IProps>();
     font-size: 0;
     padding: 4px;
     right: 8px;
-    top: 16px;
+    top: 12px;
   }
 }
 </style>

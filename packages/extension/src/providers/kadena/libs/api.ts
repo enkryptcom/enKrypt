@@ -109,11 +109,11 @@ class API implements ProviderAPIInterface {
   }
 
   async sendTransaction(
-    signedTranscation: ICommand
+    signedTransaction: ICommand
   ): Promise<ITransactionDescriptor> {
     const chainId = await this.getChainId();
     const client = createClient(this.getApiHost(chainId));
-    return client.submit(signedTranscation as ICommand);
+    return client.submit(signedTransaction as ICommand);
   }
 
   async listen(

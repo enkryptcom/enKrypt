@@ -26,10 +26,12 @@
             :address="network.displayAddress(txData.fromAddress)"
             :from="true"
             :network="network"
+            :subnetwork="fromChainId != toChainId ? 'Chain ' + fromChainId : ''"
           />
           <verify-transaction-account
             :address="network.displayAddress(txData.toAddress)"
             :network="network"
+            :subnetwork="fromChainId != toChainId ? 'Chain ' + toChainId : ''"
           />
           <verify-transaction-amount :token="txData.toToken" />
           <verify-transaction-fee :fee="txData.txFee" />
@@ -104,7 +106,8 @@ import { KadenaNetwork } from "@/providers/kadena/types/kadena-network";
 
 const isSendDone = ref(false);
 const account = ref<EnkryptAccount>();
-const chainId = ref<string>();
+const fromChainId = ref<string>();
+const toChainId = ref<string>();
 const kdaToken = ref<KDAToken>();
 const KeyRing = new PublicKeyRing();
 const route = useRoute();
@@ -123,8 +126,10 @@ const network = ref<BaseNetwork>(DEFAULT_KADENA_NETWORK);
 
 onBeforeMount(async () => {
   network.value = (await getNetworkByName(selectedNetwork))!;
+  const networkApi = (await network.value.api()) as KadenaAPI;
   account.value = await KeyRing.getAccount(txData.fromAddress);
-  chainId.value = txData.chainId;
+  fromChainId.value = await networkApi.getChainId();
+  toChainId.value = txData.toChainId;
   isWindowPopup.value = account.value.isHardware;
   kdaToken.value = new KDAToken({
     icon: network.value.icon,
@@ -135,6 +140,7 @@ onBeforeMount(async () => {
     decimals: network.value.decimals,
   });
 });
+
 const close = () => {
   if (getCurrentContext() === "popup") {
     router.go(-1);
@@ -152,14 +158,11 @@ const sendAction = async () => {
       account.value!,
       txData.TransactionData.value,
       network.value as KadenaNetwork,
-      chainId.value!
+      toChainId.value!
     );
 
     const networkApi = (await network.value.api()) as KadenaAPI;
-    const transactionDescriptor = await networkApi.sendTransaction(
-      transaction,
-      chainId.value!
-    );
+    const transactionDescriptor = await networkApi.sendTransaction(transaction);
 
     const txActivity: Activity = {
       from: network.value.displayAddress(txData.fromAddress),
@@ -167,7 +170,7 @@ const sendAction = async () => {
       isIncoming: txData.fromAddress === txData.toAddress,
       network: network.value.name,
       status: ActivityStatus.pending,
-      chainId: chainId.value!,
+      chainId: fromChainId.value!,
       timestamp: new Date().getTime(),
       token: {
         decimals: txData.toToken.decimals,

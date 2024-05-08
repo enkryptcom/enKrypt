@@ -1,20 +1,20 @@
 <template>
-  <div class="send-subnet-list">
-    <div class="send-subnet-list__header">
+  <div class="send-subnetwork-list">
+    <div class="send-subnetwork-list__header">
       <h3>Select chain to send</h3>
-      <a class="send-subnet-list__close" @click="close">
+      <a class="send-subnetwork-list__close" @click="close">
         <close-icon />
       </a>
     </div>
 
     <custom-scrollbar
-      class="send-subnet-list__scroll-area"
+      class="send-subnetwork-list__scroll-area"
       :settings="scrollSettings({ suppressScrollX: true })"
     >
-      <send-subnet-item
-        v-for="(subnet, index) in subnets"
+      <send-subnetwork-item
+        v-for="(subnetwork, index) in subnetworks"
         :key="index"
-        :subnet="subnet"
+        :subnetwork="subnetwork"
         v-bind="$attrs"
       />
     </custom-scrollbar>
@@ -23,7 +23,7 @@
 
 <script setup lang="ts">
 import CloseIcon from "@action/icons/common/close-icon.vue";
-import SendSubnetItem from "./send-subnet-item.vue";
+import SendSubnetworkItem from "./send-subnetwork-item.vue";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 import scrollSettings from "@/libs/utils/scroll-settings";
 import { PropType } from "vue";
@@ -34,7 +34,7 @@ const emit = defineEmits<{
 }>();
 
 defineProps({
-  subnets: {
+  subnetworks: {
     type: Array as PropType<SubNetworkOptions[]>,
     default: () => [],
   },
@@ -49,7 +49,7 @@ const close = () => {
 @import "~@action/styles/theme.less";
 @import "~@action/styles/custom-scroll.less";
 
-.send-subnet-list {
+.send-subnetwork-list {
   width: 100%;
   background: #ffffff;
   position: fixed;

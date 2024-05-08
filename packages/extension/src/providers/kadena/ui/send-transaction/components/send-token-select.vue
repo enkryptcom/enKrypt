@@ -44,7 +44,7 @@ const balance = computed(() =>
 @import "~@action/styles/theme.less";
 
 .send-token-select {
-  height: 64px;
+  height: 56px;
   background: #ffffff;
   margin: 0 32px 8px 32px;
   box-sizing: border-box;
@@ -108,7 +108,7 @@ const balance = computed(() =>
     font-size: 0;
     padding: 4px;
     right: 8px;
-    top: 16px;
+    top: 12px;
   }
 }
 </style>

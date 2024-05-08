@@ -1,8 +1,8 @@
 <template>
-  <a class="send-subnet-item__subnet" @click="select">
-    <div class="send-subnet-item__subnet-info">
-      <div class="send-subnet-item__subnet-info-name">
-        <h4>{{ subnet.name }}</h4>
+  <a class="send-subnetwork-item__subnetwork" @click="select">
+    <div class="send-subnetwork-item__subnetwork-info">
+      <div class="send-subnetwork-item__subnetwork-info-name">
+        <h4>{{ subnetwork.name }}</h4>
       </div>
     </div>
   </a>
@@ -13,26 +13,26 @@ import { PropType } from "vue";
 import { SubNetworkOptions } from "@/types/base-network";
 
 const emit = defineEmits<{
-  (e: "update:selectSubnet", subnet: SubNetworkOptions): void;
+  (e: "update:selectSubnetwork", subnetwork: SubNetworkOptions): void;
 }>();
 
 const props = defineProps({
-  subnet: {
+  subnetwork: {
     type: Object as PropType<SubNetworkOptions>,
     default: () => ({}),
   },
 });
 
 const select = () => {
-  emit("update:selectSubnet", props.subnet);
+  emit("update:selectSubnetwork", props.subnetwork);
 };
 </script>
 
 <style lang="less">
 @import "~@action/styles/theme.less";
 
-.send-subnet-item {
-  &__subnet {
+.send-subnetwork-item {
+  &__subnetwork {
     height: 48px;
     margin: 0 8px;
     padding: 0 8px;
