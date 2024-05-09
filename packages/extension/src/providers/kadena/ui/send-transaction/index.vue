@@ -49,6 +49,19 @@
         @close="toggleSelectContactTo"
       />
 
+      <send-subnetwork-select
+        :network="network"
+        :subnetwork="selectedSubnetwork"
+        @update:toggle-subnetwork-select="toggleSelectSubnetwork"
+      />
+
+      <send-subnetwork-list
+        v-show="isOpenSelectSubnetwork"
+        :subnetworks="network.subNetworks ?? []"
+        @close="toggleSelectSubnetwork"
+        @update:select-subnetwork="selectSubnetwork"
+      />
+
       <send-token-select
         :token="selectedAsset"
         @update:toggle-token-select="toggleSelectToken"
@@ -103,6 +116,8 @@ import SendContactsList from "./components/send-contacts-list.vue";
 import SendFromContactsList from "./components/send-from-contacts-list.vue";
 import SendTokenSelect from "./components/send-token-select.vue";
 import AssetsSelectList from "@action/views/assets-select-list/index.vue";
+import SendSubnetworkSelect from "./components/send-subnetwork-select.vue";
+import SendSubnetworkList from "./components/send-subnetwork-list.vue";
 import SendInputAmount from "./components/send-input-amount.vue";
 import SendFeeSelect from "./components/send-fee-select.vue";
 import SendAlert from "./components/send-alert.vue";
@@ -123,6 +138,7 @@ import KadenaAPI from "@/providers/kadena/libs/api";
 import getUiPath from "@/libs/utils/get-ui-path";
 import { ProviderName } from "@/types/provider";
 import Browser from "webextension-polyfill";
+import { SubNetworkOptions } from "@/types/base-network";
 
 const props = defineProps({
   network: {
@@ -147,6 +163,7 @@ const isOpenSelectContactTo = ref(false);
 const addressFrom = ref(props.accountInfo.selectedAccount!.address);
 const addressTo = ref("");
 const isOpenSelectToken = ref(false);
+const isOpenSelectSubnetwork = ref(false);
 const amount = ref<string>();
 const fee = ref<GasFeeInfo | null>(null);
 const accountAssets = ref<KDAToken[]>([]);
@@ -159,6 +176,9 @@ const selectedAsset = ref<KDAToken | Partial<KDAToken>>(
     symbol: "loading",
     decimals: props.network.decimals,
   })
+);
+const selectedSubnetwork = ref<SubNetworkOptions>(
+  props.network.subNetworks![0] as SubNetworkOptions
 );
 const sendMax = ref(false);
 
@@ -199,10 +219,12 @@ const validateFields = async () => {
         from,
         props.network
       );
+
       if (accountDetailFrom.error) {
         errorMsg.value = "Not enough balance"; // account doesnt exist
         return;
       }
+
       if (!props.network.isAddress(to)) {
         const accountDetail = await accountAssets.value[0].getAccountDetails(
           to,
@@ -215,6 +237,7 @@ const validateFields = async () => {
           return;
         }
       }
+
       if (to == from) {
         fieldsValidation.value.addressTo = false;
         errorMsg.value = '"To" address cannot be the same as "From" address';
@@ -227,6 +250,7 @@ const validateFields = async () => {
 
     let rawAmount = toBN(toBase("0", selectedAsset.value.decimals!));
     const minAmount = toBN(toBase("0.000001", props.network.decimals));
+
     if (amount.value) {
       if (!isValidDecimals(amount.value, selectedAsset.value.decimals!)) {
         fieldsValidation.value.amount = false;
@@ -244,16 +268,33 @@ const validateFields = async () => {
         return;
       }
     }
+
     if (amount.value || sendMax.value) {
-      const localTransaction = await selectedAsset.value.buildTransaction!(
-        addressTo.value,
-        props.accountInfo.selectedAccount,
-        sendMax.value
-          ? fromBase(minAmount.toString(), props.network.decimals)
-          : amount.value!,
-        props.network
-      );
       const networkApi = (await props.network.api()) as KadenaAPI;
+      const fromChainId = await networkApi.getChainId();
+      const toChainId = selectedSubnetwork.value.id;
+
+      const localTransaction =
+        fromChainId == toChainId
+          ? await selectedAsset.value.buildSameChainTransaction!(
+              addressTo.value,
+              props.accountInfo.selectedAccount,
+              sendMax.value
+                ? fromBase(minAmount.toString(), props.network.decimals)
+                : amount.value!,
+              props.network,
+              fromChainId
+            )
+          : await selectedAsset.value.buildCrossChainTransaction!(
+              addressTo.value,
+              props.accountInfo.selectedAccount,
+              sendMax.value
+                ? fromBase(minAmount.toString(), props.network.decimals)
+                : amount.value!,
+              props.network,
+              fromChainId,
+              toChainId
+            );
 
       const transactionResult = await networkApi.sendLocalTransaction(
         localTransaction
@@ -384,6 +425,10 @@ const toggleSelectToken = () => {
   isOpenSelectToken.value = !isOpenSelectToken.value;
 };
 
+const toggleSelectSubnetwork = () => {
+  isOpenSelectSubnetwork.value = !isOpenSelectSubnetwork.value;
+};
+
 const selectAccountFrom = (account: string) => {
   addressFrom.value = account;
   isOpenSelectContactFrom.value = false;
@@ -397,6 +442,11 @@ const selectAccountTo = (account: string) => {
 const selectToken = (token: KDAToken | Partial<KDAToken>) => {
   selectedAsset.value = token;
   isOpenSelectToken.value = false;
+};
+
+const selectSubnetwork = (subnet: SubNetworkOptions) => {
+  selectedSubnetwork.value = subnet;
+  isOpenSelectSubnetwork.value = false;
 };
 
 const inputAmount = (number: string | undefined) => {
@@ -435,8 +485,8 @@ const isDisabled = computed(() => {
 const sendAction = async () => {
   const keyring = new PublicKeyRing();
   const fromAccount = await keyring.getAccount(addressFrom.value);
-  const networkApi = (await props.network.api()) as KadenaAPI;
-  const chainId = await networkApi.getChainId();
+  const toChainId = selectedSubnetwork.value.id;
+
   const txVerifyInfo: VerifyTransactionParams = {
     TransactionData: {
       from: fromAccount.address,
@@ -455,7 +505,7 @@ const sendAction = async () => {
       name: selectedAsset.value.name || "",
       price: selectedAsset.value.price || "0",
     },
-    chainId: chainId,
+    toChainId: toChainId,
     fromAddress: fromAccount.address,
     fromAddressName: fromAccount.name,
     txFee: fee.value!,
@@ -513,7 +563,7 @@ const sendAction = async () => {
 
   &__header {
     position: relative;
-    padding: 24px 72px 12px 32px;
+    padding: 24px 72px 6px 32px;
 
     h3 {
       font-style: normal;

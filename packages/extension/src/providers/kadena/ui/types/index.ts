@@ -19,7 +19,7 @@ export interface SendTransactionDataType {
 export interface VerifyTransactionParams {
   fromAddress: string;
   fromAddressName: string;
-  chainId: string;
+  toChainId: string;
   toAddress: string;
   toToken: ToTokenData;
   txFee: TxFeeInfo;
@@ -28,6 +28,5 @@ export interface VerifyTransactionParams {
 
 export interface SignerTransactionOptions {
   payload: string;
-  network: BaseNetwork;
   account: EnkryptAccount;
 }

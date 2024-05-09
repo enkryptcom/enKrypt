@@ -68,7 +68,7 @@ const changeFocus = () => {
 @import "~@action/styles/theme.less";
 
 .send-input-amount {
-  height: 100px;
+  height: 72px;
   background: #ffffff;
   margin: 0 32px 8px 32px;
   box-sizing: border-box;
@@ -76,7 +76,7 @@ const changeFocus = () => {
   box-sizing: border-box;
   border-radius: 10px;
   width: calc(~"100% - 64px");
-  padding: 16px;
+  padding: 8px 16px;
   display: flex;
   justify-content: flex-start;
   align-items: flex-start;
@@ -114,7 +114,7 @@ const changeFocus = () => {
   &__fiat {
     position: absolute;
     left: 16px;
-    bottom: 16px;
+    bottom: 6px;
     display: flex;
     justify-content: flex-start;
     align-items: center;
