@@ -487,7 +487,6 @@ const sendAction = async () => {
   const keyring = new PublicKeyRing();
   const fromAccount = await keyring.getAccount(addressFrom.value);
   const toChainId = selectedSubnetwork.value.id;
-  
   let toAccount;
 
   try {

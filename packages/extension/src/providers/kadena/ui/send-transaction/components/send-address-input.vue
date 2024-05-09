@@ -77,7 +77,7 @@ const address = computed({
         );
       }
     } catch {
-      return props.network.displayAddress(props.value);  
+      return props.network.displayAddress(props.value);
     }
 
     return props.network.displayAddress(props.value);
