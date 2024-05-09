@@ -177,8 +177,6 @@ const selectedAsset = ref<KDAToken | Partial<KDAToken>>(
     decimals: props.network.decimals,
   })
 );
-// const kadenaApi = (await props.network.api()) as KadenaAPI;
-// const fromSubnetwork = ref<string>(await kadenaApi.getChainId());
 const selectedSubnetwork = ref<SubNetworkOptions>(
   props.network.subNetworks![0] as SubNetworkOptions
 );
