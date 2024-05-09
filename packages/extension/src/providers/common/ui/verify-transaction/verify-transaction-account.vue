@@ -15,8 +15,14 @@
     />
 
     <div class="verify-transaction-account__name">
-      <p v-if="from">From</p>
-      <p v-else>To</p>
+      <p v-if="from">
+        From
+        <span v-if="subnetwork">{{ subnetwork }}</span>
+      </p>
+      <p v-else>
+        To
+        <span v-if="subnetwork">{{ subnetwork }}</span>
+      </p>
       <h4>{{ name ? name : address }}</h4>
       <h6 v-show="!!name">
         {{ $filters.replaceWithEllipsis(address, 6, 4) }}
@@ -58,6 +64,12 @@ defineProps({
     type: Object as PropType<BaseNetwork>,
     default: () => {
       return {};
+    },
+  },
+  subnetwork: {
+    type: String,
+    default: () => {
+      return null;
     },
   },
 });

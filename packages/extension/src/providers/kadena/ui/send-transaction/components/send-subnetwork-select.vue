@@ -1,49 +1,49 @@
 <template>
-  <a class="send-token-select" @click="emit('update:toggleTokenSelect')">
-    <div class="send-token-select__image">
-      <img :src="token!.icon" alt="" />
-    </div>
-    <div class="send-token-select__info">
-      <h5>{{ token!.name }}</h5>
-      <p>
-        {{ balance ? $filters.formatFloatingPointValue(balance).value : "~" }}
-        <span>{{ token!.symbol }}</span>
-      </p>
+  <a
+    class="send-subnetwork-select"
+    @click="emit('update:toggleSubnetworkSelect')"
+  >
+    <div class="send-subnetwork-select__info">
+      <p>Sending from Chain {{ fromNetwork }} to:</p>
+      <h5>{{ subnetwork!.name }}</h5>
     </div>
 
-    <div class="send-token-select__arrow">
+    <div class="send-subnetwork-select__arrow">
       <switch-arrow />
     </div>
   </a>
 </template>
 
 <script setup lang="ts">
+import { onMounted, ref } from "vue";
 import SwitchArrow from "@action/icons/header/switch_arrow.vue";
-import { BaseToken } from "@/types/base-token";
-import { computed } from "@vue/reactivity";
-import { fromBase } from "@enkryptcom/utils";
+import { SubNetworkOptions } from "@/types/base-network";
+import { KadenaNetwork } from "@/providers/kadena/types/kadena-network";
+import KadenaAPI from "@/providers/kadena/libs/api";
+
+const fromNetwork = ref<string>();
 
 const emit = defineEmits<{
-  (e: "update:toggleTokenSelect"): void;
+  (e: "update:toggleSubnetworkSelect"): void;
 }>();
 
 interface IProps {
-  token?: BaseToken | Partial<BaseToken>;
+  network: KadenaNetwork;
+  subnetwork?: SubNetworkOptions | Partial<SubNetworkOptions>;
 }
 
 const props = defineProps<IProps>();
 
-const balance = computed(() =>
-  props.token && props.token.balance
-    ? fromBase(props.token.balance, props.token.decimals!)
-    : undefined
-);
+onMounted(async () => {
+  const networkApi = (await props.network.api()) as KadenaAPI;
+  fromNetwork.value = await networkApi.getChainId();
+});
 </script>
 
 <style lang="less">
 @import "~@action/styles/theme.less";
 
-.send-token-select {
+.send-subnetwork-select {
   height: 56px;
   background: #ffffff;
   margin: 0 32px 8px 32px;
@@ -60,21 +60,6 @@ const balance = computed(() =>
   position: relative;
   cursor: pointer;
   text-decoration: none;
-
-  &__image {
-    background: @buttonBg;
-    box-shadow: inset 0px 0px 1px rgba(0, 0, 0, 0.16);
-    width: 32px;
-    height: 32px;
-    border-radius: 100%;
-    overflow: hidden;
-    margin-right: 12px;
-
-    img {
-      width: 100%;
-      height: 100%;
-    }
-  }
 
   &__info {
     h5 {
