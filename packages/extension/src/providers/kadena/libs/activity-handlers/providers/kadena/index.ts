@@ -49,7 +49,6 @@ export default async (
       .getTokenPrice(network.coingeckoID)
       .then((mdata) => (price = mdata || "0"));
   }
-
   
   const crossChainTxs = activities.filter((activity: any) => activity.crossChainId);
   console.log({ crossChainTxs });
