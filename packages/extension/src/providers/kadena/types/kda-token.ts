@@ -3,6 +3,7 @@ import KadenaAPI from "@/providers/kadena/libs/api";
 import {
   ChainId,
   ICommand,
+  IUnsignedCommand,
   Pact,
   addSignatures,
   readKeyset,
@@ -14,11 +15,21 @@ import { TransactionSigner } from "../ui/libs/signer";
 import { bufferToHex } from "@enkryptcom/utils";
 
 export abstract class KDABaseToken extends BaseToken {
-  public abstract buildTransaction(
+  public abstract buildSameChainTransaction(
     to: string,
     from: EnkryptAccount,
     amount: string,
-    network: KadenaNetwork
+    network: KadenaNetwork,
+    chainId: string
+  ): Promise<ICommand>;
+
+  public abstract buildCrossChainTransaction(
+    to: string,
+    from: EnkryptAccount,
+    amount: string,
+    network: KadenaNetwork,
+    fromChainId: string,
+    toChainId: string
   ): Promise<ICommand>;
 
   public abstract getAccountDetails(
@@ -50,20 +61,15 @@ export class KDAToken extends KDABaseToken {
     throw new Error("KDA-send is not implemented here");
   }
 
-  public async buildTransaction(
+  public async buildSameChainTransaction(
     to: string,
     from: EnkryptAccount | any,
     amount: string,
     network: KadenaNetwork,
-    toChainId?: string
+    chainId?: string
   ): Promise<ICommand> {
     to = network.displayAddress(to);
-    const api = (await network.api()) as KadenaAPI;
-    const fromChainID = await api.getChainId();
     const keySetAccount = to.startsWith("k:") ? to.replace("k:", "") : to;
-
-    console.log("fromChainID", fromChainID);
-    console.log("toChainId", toChainId);
 
     const unsignedTransaction = Pact.builder
       .execution(
@@ -84,16 +90,69 @@ export class KDAToken extends KDABaseToken {
         withCap("coin.GAS"),
       ])
       .setMeta({
-        chainId: (fromChainID ??
+        chainId: (chainId ??
           network.options.kadenaApiOptions.chainId) as ChainId,
         senderAccount: network.displayAddress(from.address),
       })
       .setNetworkId(network.options.kadenaApiOptions.networkId)
       .createTransaction();
 
+    return this.signTransaction(unsignedTransaction, from);
+  }
+
+  public async buildCrossChainTransaction(
+    to: string,
+    from: EnkryptAccount | any,
+    amount: string,
+    network: KadenaNetwork,
+    fromChainId: string,
+    toChainId: string
+  ): Promise<ICommand> {
+    to = network.displayAddress(to);
+    const keySetAccount = to.startsWith("k:") ? to.replace("k:", "") : to;
+
+    const unsignedTransaction = Pact.builder
+      .execution(
+        Pact.modules.coin.defpact["transfer-crosschain"](
+          network.displayAddress(from.address),
+          to,
+          readKeyset("ks"),
+          toChainId,
+          {
+            decimal: amount,
+          }
+        )
+      )
+      .addKeyset("ks", "keys-all", keySetAccount)
+      .addSigner(from.publicKey.replace("0x", ""), (withCap: any) => [
+        withCap(
+          "coin.TRANSFER_XCHAIN",
+          network.displayAddress(from.address),
+          to,
+          {
+            decimal: amount,
+          },
+          toChainId
+        ),
+        withCap("coin.GAS"),
+      ])
+      .setMeta({
+        chainId: (fromChainId ??
+          network.options.kadenaApiOptions.chainId) as ChainId,
+        senderAccount: network.displayAddress(from.address),
+      })
+      .setNetworkId(network.options.kadenaApiOptions.networkId)
+      .createTransaction();
+
+    return this.signTransaction(unsignedTransaction, from);
+  }
+
+  private async signTransaction(
+    unsignedTransaction: IUnsignedCommand,
+    account: EnkryptAccount | any
+  ): Promise<ICommand> {
     const transaction = await TransactionSigner({
-      account: from,
-      network: network,
+      account,
       payload: bufferToHex(blake2AsU8a(unsignedTransaction.cmd)),
     }).then((res) => {
       if (res.error) return Promise.reject(res.error);
@@ -106,7 +165,7 @@ export class KDAToken extends KDABaseToken {
 
     return addSignatures(unsignedTransaction, {
       sig: transaction.signature,
-      pubKey: from.pubKey,
+      pubKey: account.pubKey,
     }) as ICommand;
   }
 

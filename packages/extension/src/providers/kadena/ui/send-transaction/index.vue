@@ -221,10 +221,12 @@ const validateFields = async () => {
         from,
         props.network
       );
+
       if (accountDetailFrom.error) {
         errorMsg.value = "Not enough balance"; // account doesnt exist
         return;
       }
+
       if (!props.network.isAddress(to)) {
         const accountDetail = await accountAssets.value[0].getAccountDetails(
           to,
@@ -237,6 +239,7 @@ const validateFields = async () => {
           return;
         }
       }
+
       if (to == from) {
         fieldsValidation.value.addressTo = false;
         errorMsg.value = '"To" address cannot be the same as "From" address';
@@ -249,6 +252,7 @@ const validateFields = async () => {
 
     let rawAmount = toBN(toBase("0", selectedAsset.value.decimals!));
     const minAmount = toBN(toBase("0.000001", props.network.decimals));
+
     if (amount.value) {
       if (!isValidDecimals(amount.value, selectedAsset.value.decimals!)) {
         fieldsValidation.value.amount = false;
@@ -266,16 +270,33 @@ const validateFields = async () => {
         return;
       }
     }
+
     if (amount.value || sendMax.value) {
-      const localTransaction = await selectedAsset.value.buildTransaction!(
-        addressTo.value,
-        props.accountInfo.selectedAccount,
-        sendMax.value
-          ? fromBase(minAmount.toString(), props.network.decimals)
-          : amount.value!,
-        props.network
-      );
       const networkApi = (await props.network.api()) as KadenaAPI;
+      const fromChainId = await networkApi.getChainId();
+      const toChainId = selectedSubnetwork.value.id;
+
+      const localTransaction =
+        fromChainId == toChainId
+          ? await selectedAsset.value.buildSameChainTransaction!(
+              addressTo.value,
+              props.accountInfo.selectedAccount,
+              sendMax.value
+                ? fromBase(minAmount.toString(), props.network.decimals)
+                : amount.value!,
+              props.network,
+              fromChainId
+            )
+          : await selectedAsset.value.buildCrossChainTransaction!(
+              addressTo.value,
+              props.accountInfo.selectedAccount,
+              sendMax.value
+                ? fromBase(minAmount.toString(), props.network.decimals)
+                : amount.value!,
+              props.network,
+              fromChainId,
+              toChainId
+            );
 
       const transactionResult = await networkApi.sendLocalTransaction(
         localTransaction

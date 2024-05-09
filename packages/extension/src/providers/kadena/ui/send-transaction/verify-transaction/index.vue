@@ -153,13 +153,23 @@ const sendAction = async () => {
   isProcessing.value = true;
 
   try {
-    const transaction = await kdaToken.value!.buildTransaction!(
-      txData.toAddress,
-      account.value!,
-      txData.TransactionData.value,
-      network.value as KadenaNetwork,
-      toChainId.value!
-    );
+    const transaction =
+      fromChainId.value == toChainId.value
+        ? await kdaToken.value!.buildSameChainTransaction!(
+            txData.toAddress,
+            account.value!,
+            txData.TransactionData.value,
+            network.value as KadenaNetwork,
+            fromChainId.value!
+          )
+        : await kdaToken.value!.buildCrossChainTransaction!(
+            txData.toAddress,
+            account.value!,
+            txData.TransactionData.value,
+            network.value as KadenaNetwork,
+            fromChainId.value!,
+            toChainId.value!
+          );
 
     const networkApi = (await network.value.api()) as KadenaAPI;
     const transactionDescriptor = await networkApi.sendTransaction(transaction);

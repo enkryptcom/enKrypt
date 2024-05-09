@@ -28,6 +28,5 @@ export interface VerifyTransactionParams {
 
 export interface SignerTransactionOptions {
   payload: string;
-  network: BaseNetwork;
   account: EnkryptAccount;
 }
