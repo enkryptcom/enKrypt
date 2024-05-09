@@ -21,6 +21,7 @@ export interface VerifyTransactionParams {
   fromAddressName: string;
   toChainId: string;
   toAddress: string;
+  toAddressName?: string;
   toToken: ToTokenData;
   txFee: TxFeeInfo;
   TransactionData: SendTransactionDataType;

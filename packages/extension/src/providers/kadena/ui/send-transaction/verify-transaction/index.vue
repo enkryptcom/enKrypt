@@ -29,6 +29,7 @@
             :subnetwork="fromChainId != toChainId ? 'Chain ' + fromChainId : ''"
           />
           <verify-transaction-account
+            :name="txData.toAddressName"
             :address="network.displayAddress(txData.toAddress)"
             :network="network"
             :subnetwork="fromChainId != toChainId ? 'Chain ' + toChainId : ''"
