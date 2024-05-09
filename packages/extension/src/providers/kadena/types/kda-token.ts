@@ -97,7 +97,7 @@ export class KDAToken extends KDABaseToken {
       .setNetworkId(network.options.kadenaApiOptions.networkId)
       .createTransaction();
 
-    return this.signTransaction(unsignedTransaction, from);
+    return await this.signTransaction(unsignedTransaction, from);
   }
 
   public async buildCrossChainTransaction(
@@ -144,7 +144,7 @@ export class KDAToken extends KDABaseToken {
       .setNetworkId(network.options.kadenaApiOptions.networkId)
       .createTransaction();
 
-    return this.signTransaction(unsignedTransaction, from);
+    return await this.signTransaction(unsignedTransaction, from);
   }
 
   private async signTransaction(
