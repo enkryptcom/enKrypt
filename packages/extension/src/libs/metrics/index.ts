@@ -4,6 +4,7 @@ import Metrics from "./amplitude";
 import {
   BuyEventType,
   DAppsEventType,
+  GenericEvents,
   NFTEventType,
   NetworkChangeEvents,
   SendEventType,
@@ -12,6 +13,10 @@ import {
 } from "./types";
 
 const metrics = new Metrics();
+
+const trackGenericEvents = (event: GenericEvents) => {
+  metrics.track("generic", { event });
+};
 
 const trackNetworkSelected = (
   event: NetworkChangeEvents,
@@ -87,4 +92,5 @@ export {
   trackNFTEvents,
   trackDAppsEvents,
   optOutofMetrics,
+  trackGenericEvents,
 };

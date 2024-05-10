@@ -1,6 +1,7 @@
 import type { InjectedProvider as EthereumProvider } from "../providers/ethereum/types";
 import type { InjectedProvider as PolkadotProvider } from "@/providers/polkadot/types";
 import type { InjectedProvider as BitcoinProvider } from "@/providers/bitcoin/types";
+import type { InjectedProvider as KadenaProvider } from "@/providers/kadena/types";
 import EventEmitter from "eventemitter3";
 import {
   MiddlewareFunction,
@@ -15,13 +16,19 @@ import { RoutesType } from "./ui";
 import { NFTCollection } from "./nft";
 import { BaseNetwork } from "./base-network";
 import { BaseToken } from "./base-token";
-import { BTCRawInfo, EthereumRawInfo, SubscanExtrinsicInfo } from "./activity";
+import {
+  BTCRawInfo,
+  EthereumRawInfo,
+  SubscanExtrinsicInfo,
+  KadenaRawInfo,
+} from "./activity";
 
 export enum ProviderName {
   enkrypt = "enkrypt",
   ethereum = "ethereum",
   bitcoin = "bitcoin",
   polkadot = "polkadot",
+  kadena = "kadena",
 }
 export enum InternalStorageNamespace {
   keyring = "KeyRing",
@@ -30,6 +37,7 @@ export enum InternalStorageNamespace {
   evmAccountsState = "EVMAccountsState",
   substrateAccountsState = "SubstrateAccountsState",
   bitcoinAccountsState = "BitcoinAccountsState",
+  kadenaAccountsState = "KadenaAccountsState",
   activityState = "ActivityState",
   marketData = "MarketData",
   cacheFetch = "CacheFetch",
@@ -49,6 +57,7 @@ export enum ProviderType {
   evm,
   substrate,
   bitcoin,
+  kadena,
 }
 
 export type SendMessageHandler = (
@@ -113,7 +122,9 @@ export abstract class ProviderAPIInterface {
   abstract getBalance(address: string): Promise<string>;
   abstract getTransactionStatus(
     hash: string
-  ): Promise<EthereumRawInfo | SubscanExtrinsicInfo | BTCRawInfo | null>;
+  ): Promise<
+    EthereumRawInfo | SubscanExtrinsicInfo | BTCRawInfo | KadenaRawInfo | null
+  >;
 }
 
 export type handleIncomingMessage = (
@@ -125,8 +136,12 @@ export type handleOutgoingMessage = (
   provider: Provider,
   message: string
 ) => Promise<any>;
-export { EthereumProvider, PolkadotProvider, BitcoinProvider };
-export type Provider = EthereumProvider | PolkadotProvider | BitcoinProvider;
+export { EthereumProvider, PolkadotProvider, BitcoinProvider, KadenaProvider };
+export type Provider =
+  | EthereumProvider
+  | PolkadotProvider
+  | BitcoinProvider
+  | KadenaProvider;
 
 export interface ProviderRequestOptions {
   url: string;
