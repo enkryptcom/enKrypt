@@ -50,6 +50,9 @@ const supportedNetworks: {
   [SupportedNetworkName.Dogecoin]: {
     changellyName: "doge",
   },
+  [SupportedNetworkName.LBRY]: {
+    changellyName: "lbry",
+  },
 };
 
 export default supportedNetworks;

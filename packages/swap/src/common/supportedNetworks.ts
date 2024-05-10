@@ -215,6 +215,17 @@ const NetworkDetails: Record<SupportedNetworkName, NetworkInfo> = {
     signerType: [SignerType.secp256k1btc],
     type: NetworkType.Bitcoin,
   },
+  [SupportedNetworkName.LBRY]: {
+    id: SupportedNetworkName.LBRY,
+    decimals: 8,
+    logoURI: "https://assets.coingecko.com/coins/images/463/thumb/lbc.png",
+    name: "LBRY",
+    symbol: "LBC",
+    cgId: "lbry-credits",
+    rank: 18,
+    signerType: [SignerType.secp256k1btc],
+    type: NetworkType.Bitcoin,
+  },
 };
 export const isSupportedNetwork = (networkName: SupportedNetworkName) =>
   !!NetworkDetails[networkName];
