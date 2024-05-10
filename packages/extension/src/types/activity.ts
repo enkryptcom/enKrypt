@@ -67,7 +67,7 @@ interface SubstrateRawInfo {
   asset_type: string;
 }
 
-type KadenaRawInfo = ICommandResult;
+type KadenaRawInfo = ICommandResult & { crossChainId?: number | null } ;
 
 interface KadenaDBInfo {
   amount: string;
@@ -104,7 +104,7 @@ interface Activity {
   from: string;
   to: string;
   chainId?: string;
-  crossChainId?: number;
+  crossChainId?: number | null;
   value: string;
   timestamp: number;
   nonce?: string;

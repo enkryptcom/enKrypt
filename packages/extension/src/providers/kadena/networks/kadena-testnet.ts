@@ -31,7 +31,7 @@ const kadenaOptions: KadenaNetworkOptions = {
       };
     }),
   buyLink: "https://tools.kadena.io/faucet/new",
-  activityHandler: wrapActivityHandler(kadenaScanActivity),
+  activityHandler: kadenaScanActivity, //@todo put the wrapper back
   displayAddress: (address: string) => address.replace("0x", "k:"),
   isAddress: isValidAddress,
 };

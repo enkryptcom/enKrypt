@@ -129,7 +129,6 @@ const updateVisibleActivity = (activity: Activity): void => {
 };
 
 const checkActivity = (activity: Activity): void => {
-  console.log("inside vue check activity");
   activity = toRaw(activity);
   const timer = setInterval(() => {
     apiPromise.then((api) => {
@@ -181,7 +180,6 @@ const getInfo = (activity: Activity, info: any, timer: any) => {
     } else if (props.network.provider === ProviderName.kadena) {
       //prettier-ignore
       //@todo: kevin
-      console.log("inside vue get info");
       const kadenaInfo = info as KadenaRawInfo;
 
       activity.status =
@@ -232,9 +230,7 @@ const setActivities = () => {
   activities.value = [];
   isNoActivity.value = false;
   if (props.accountInfo.selectedAccount)
-    // console.log("calling getAllActivities on vue");
     props.network.getAllActivity(activityAddress.value).then((all) => {
-      console.log("getting all activities", all); //investigate why this is wrong
       activities.value = all;
       isNoActivity.value = all.length === 0;
       activities.value.forEach((act) => {

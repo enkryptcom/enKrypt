@@ -94,7 +94,7 @@ export default async (
       chainId: activity.chain.toString(),
       crossChainId: activity.crossChainId,
       status:
-        activity.idx === 1 ? ActivityStatus.success : ActivityStatus.failed,
+        activity.idx !== 0 ? ActivityStatus.success : ActivityStatus.failed,
       timestamp: new Date(activity.blockTime).getTime(),
       value: rawAmount,
       transactionHash: activity.requestKey,
