@@ -212,6 +212,10 @@ const validateFields = async () => {
   }
 
   try {
+    const networkApi = (await props.network.api()) as KadenaAPI;
+    const fromChainId = await networkApi.getChainId();
+    const toChainId = selectedSubnetwork.value.id;
+
     if (isAddress.value) {
       const to = props.network.displayAddress(addressTo.value);
       const from = props.network.displayAddress(addressFrom.value);
@@ -221,26 +225,27 @@ const validateFields = async () => {
       );
 
       if (accountDetailFrom.error) {
-        errorMsg.value = "Not enough balance"; // account doesnt exist
+        errorMsg.value = "Not enough balance";
         return;
       }
 
       if (!props.network.isAddress(to)) {
-        const accountDetail = await accountAssets.value[0].getAccountDetails(
+        const accountDetailTo = await accountAssets.value[0].getAccountDetails(
           to,
           props.network
         );
 
-        if (accountDetail.error) {
+        if (accountDetailTo.error) {
           fieldsValidation.value.addressTo = false;
           errorMsg.value = 'Invalid "To" address';
           return;
         }
       }
 
-      if (to == from) {
+      if (toChainId == fromChainId && to == from) {
         fieldsValidation.value.addressTo = false;
-        errorMsg.value = '"To" address cannot be the same as "From" address';
+        errorMsg.value =
+          '"To" address cannot be the same as "From" address on the same chain';
         return;
       }
     } else {
@@ -270,10 +275,6 @@ const validateFields = async () => {
     }
 
     if (amount.value || sendMax.value) {
-      const networkApi = (await props.network.api()) as KadenaAPI;
-      const fromChainId = await networkApi.getChainId();
-      const toChainId = selectedSubnetwork.value.id;
-
       const localTransaction =
         fromChainId == toChainId
           ? await selectedAsset.value.buildSameChainTransaction!(
@@ -357,7 +358,7 @@ const validateFields = async () => {
   }
 };
 
-watch([selectedAsset, addressTo, amount], validateFields);
+watch([selectedAsset, addressTo, selectedSubnetwork, amount], validateFields);
 
 watch(addressFrom, () => {
   fetchTokens();
@@ -486,6 +487,14 @@ const sendAction = async () => {
   const keyring = new PublicKeyRing();
   const fromAccount = await keyring.getAccount(addressFrom.value);
   const toChainId = selectedSubnetwork.value.id;
+  let toAccount;
+
+  try {
+    toAccount = await keyring.getAccount(addressTo.value);
+  } catch {
+    // if the account do not exists on keyring,
+    // we will display the account address as the name
+  }
 
   const txVerifyInfo: VerifyTransactionParams = {
     TransactionData: {
@@ -510,6 +519,7 @@ const sendAction = async () => {
     fromAddressName: fromAccount.name,
     txFee: fee.value!,
     toAddress: addressTo.value,
+    toAddressName: toAccount?.name,
   };
 
   const routedRoute = router.resolve({

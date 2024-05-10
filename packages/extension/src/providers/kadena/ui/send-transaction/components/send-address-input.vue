@@ -69,19 +69,18 @@ defineExpose({ addressInput, pasteFromClipboard });
 const address = computed({
   get: () => {
     try {
-      if (isFocus.value && props.isAddress) {
-        return props.network.displayAddress(props.value);
-      } else if (props.isAddress) {
+      if (props.isAddress && !isFocus.value) {
         return replaceWithEllipsis(
           props.network.displayAddress(props.value),
           6,
           6
         );
       }
-      return props.value;
     } catch {
-      return props.value;
+      return props.network.displayAddress(props.value);
     }
+
+    return props.network.displayAddress(props.value);
   },
   set: (value) => {
     emit("update:inputAddress", value);
