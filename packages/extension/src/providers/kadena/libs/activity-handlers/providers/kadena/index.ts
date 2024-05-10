@@ -12,7 +12,6 @@ const getAddressActivity = async (
   height: number
 ): Promise<any[]> => {
   const url = `${endpoint}txs/account/${address}?minheight=${height}&limit=200&token=coin`;
-  console.log("activities endpoint: ", url);
   return cacheFetch({ url }, ttl)
     .then((res) => {
       return res ? res : [];
@@ -28,7 +27,6 @@ export default async (
   address: string
 ): Promise<Activity[]> => {
   //prettier-ignore
-  console.log("INSIDE KADENA ACTIVITY HANDLER");
   const networkName = network.name as keyof typeof NetworkEndpoints;
   const enpoint = NetworkEndpoints[networkName];
   const ttl = NetworkTtls[networkName];
@@ -39,8 +37,6 @@ export default async (
     0 // lastActivity?.rawInfo?.height ?? 0
   );
 
-  console.log({ activities });
-
   let price = "0";
 
   if (network.coingeckoID) {
@@ -50,9 +46,6 @@ export default async (
       .then((mdata) => (price = mdata || "0"));
   }
   
-  const crossChainTxs = activities.filter((activity: any) => activity.crossChainId);
-  console.log({ crossChainTxs });
-
   const groupActivities = activities.reduce((acc: any, activity: any) => {
     if (!acc[activity.requestKey]) {
       acc[activity.requestKey] = activity;
@@ -62,9 +55,6 @@ export default async (
     }
     return acc;
   }, {});
-
-  //prettier-ignore
-  console.log({ groupActivities });
 
   const returnedActivities = Object.values(groupActivities).map((activity: any, i: number) => {
     const rawAmount = toBase(
@@ -110,7 +100,5 @@ export default async (
     };
   });
 
-  console.log({ returnedActivities });
-  console.log("LEAVING KADENA ACTIVITY HANDLER");
   return returnedActivities;
 };
