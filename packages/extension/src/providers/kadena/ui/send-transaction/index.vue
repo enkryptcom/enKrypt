@@ -124,6 +124,7 @@ import KadenaAPI from "@/providers/kadena/libs/api";
 import getUiPath from "@/libs/utils/get-ui-path";
 import { ProviderName } from "@/types/provider";
 import Browser from "webextension-polyfill";
+import { ICommandResult } from "@kadena/client";
 
 const props = defineProps({
   network: {
@@ -256,21 +257,41 @@ const validateFields = async () => {
       );
       const networkApi = (await props.network.api()) as KadenaAPI;
 
-      const transactionResult = await networkApi.sendLocalTransaction(
-        localTransaction
-      );
+      const transactionResult = await networkApi
+        .sendLocalTransaction(localTransaction)
+        .catch((e) => {
+          if ((e.message as string).includes("Insufficient funds")) {
+            return {
+              result: {
+                status: "error",
+                error: {
+                  message: "Insufficient funds",
+                },
+              },
+            };
+          }
+          return {
+            result: {
+              status: "error",
+              error: {
+                message: "An error occurred",
+              },
+            },
+          };
+        });
 
       if (transactionResult.result.status !== "success") {
         fieldsValidation.value.amount = false;
-        console.log(transactionResult.result.error);
         errorMsg.value =
-          (transactionResult.result.error as any).message ||
+          (transactionResult.result as any).error.message ||
           "An error occurred";
         return;
       }
 
-      const gasLimit = transactionResult.metaData?.publicMeta?.gasLimit;
-      const gasPrice = transactionResult.metaData?.publicMeta?.gasPrice;
+      const gasLimit = (transactionResult as ICommandResult).metaData
+        ?.publicMeta?.gasLimit;
+      const gasPrice = (transactionResult as ICommandResult).metaData
+        ?.publicMeta?.gasPrice;
       const gasFee = gasLimit && gasPrice ? gasLimit * gasPrice : 0;
 
       const rawFee = toBN(
