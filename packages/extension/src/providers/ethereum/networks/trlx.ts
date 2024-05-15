@@ -10,7 +10,7 @@ const rolluxTestOptions: EvmNetworkOptions = {
   blockExplorerTX: "https://rollux.tanenbaum.io/tx/[[txHash]]",
   blockExplorerAddr: "https://rollux.tanenbaum.io/address/[[address]]",
   chainID: "0xdea8",
-  isTestNetwork: false,
+  isTestNetwork: true,
   currencyName: "TSYS",
   currencyNameLong: "Test Syscoin",
   node: "wss://rpc-tanenbaum.rollux.com/wss",

@@ -70,7 +70,7 @@ export enum NetworkNames {
   Syscoin = "SYS",
   RolluxTest = "TRLX",
   Rollux = "RLX",
-  CagaAnkara = "CagaAnkara"
+  CagaAnkara = "CagaAnkara",
 }
 
 export enum CoingeckoPlatform {
@@ -111,4 +111,6 @@ export enum CoingeckoPlatform {
   Celo = "celo",
   Shibarium = "shibarium",
   Kadena = "kadena",
+  Syscoin = "syscoin",
+  Rollux = "rollux",
 }

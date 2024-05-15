@@ -1,7 +1,8 @@
-import { NetworkNames } from "@enkryptcom/types";
+import { NetworkNames, CoingeckoPlatform } from "@enkryptcom/types";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
 import { EtherscanActivity } from "../libs/activity-handlers";
 import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
+import assetsInfoHandler from "@/providers/ethereum/libs/assets-handlers/assetinfo-mew";
 
 const rolluxOptions: EvmNetworkOptions = {
   name: NetworkNames.Rollux,
@@ -14,7 +15,10 @@ const rolluxOptions: EvmNetworkOptions = {
   currencyName: "SYS",
   currencyNameLong: "Syscoin",
   node: "wss://rpc.rollux.com/wss",
+  coingeckoID: "syscoin",
+  coingeckoPlatform: CoingeckoPlatform.Rollux,
   icon: require("./icons/sys_rollux.svg"),
+  assetsInfoHandler,
   activityHandler: wrapActivityHandler(EtherscanActivity),
 };
 

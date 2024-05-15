@@ -10,7 +10,7 @@ const syscoinTestOptions: EvmNetworkOptions = {
   blockExplorerTX: "https://tanenbaum.io/tx/[[txHash]]",
   blockExplorerAddr: "https://tanenbaum.io/address/[[address]]",
   chainID: "0x1644",
-  isTestNetwork: false,
+  isTestNetwork: true,
   currencyName: "TSYS",
   currencyNameLong: "Test Syscoin",
   node: "wss://rpc.tanenbaum.io/wss",
