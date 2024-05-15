@@ -66,6 +66,10 @@ export enum NetworkNames {
   FormTestnet = "FormTestnet",
   AssetHubDOT = "AssetHubDOT",
   AssetHubKSM = "AssetHubKSM",
+  SyscoinTest = "TSYS",
+  Syscoin = "SYS",
+  RolluxTest = "TRLX",
+  Rollux = "RLX",
   CagaAnkara = "CagaAnkara"
 }
 
