@@ -27,6 +27,12 @@
                 6
               )
             }}
+            <span v-if="Number.isFinite(activity.crossChainId)">
+              <sup
+                class="network-activity__transaction-info-crosschain-superscript"
+                >⛓️{{ activity.crossChainId }}</sup
+              >
+            </span>
           </h4>
           <p>
             <span
@@ -39,12 +45,19 @@
               :date="activity.timestamp"
             />
             <span v-else-if="activity.timestamp !== 0">{{ date }}</span>
+            <span
+              v-if="network.subNetworks && activity.chainId !== undefined"
+              class="network-activity__transaction-info-chainid"
+              >{{ activity.isIncoming ? "on" : "from" }} chain
+              {{ activity.chainId }}</span
+            >
           </p>
         </div>
       </div>
 
       <div class="network-activity__transaction-amount">
         <h4>
+          {{ !activity.isIncoming ? "-" : "" }}
           {{
             $filters.formatFloatingPointValue(
               fromBase(activity.value, activity.token.decimals)
@@ -246,8 +259,16 @@ onMounted(() => {
         }
       }
 
+      &-crosschain-superscript {
+        color: @secondaryLabel;
+      }
+
       &-status {
         margin-right: 4px;
+      }
+
+      &-chainid {
+        margin-left: 4px;
       }
     }
 

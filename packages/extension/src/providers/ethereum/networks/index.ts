@@ -36,6 +36,7 @@ import syscoinTestNode from "./tsys";
 import syscoinNode from "./sys";
 import rolluxTestNode from "./trlx";
 import rolluxNode from "./rlx";
+import cagaAnkara from "./cagaAnkara";
 
 export default {
   sepolia: sepoliaNode,
@@ -85,4 +86,5 @@ export default {
   syscoin: syscoinNode,
   rolluxTest: rolluxTestNode,
   rollux: rolluxNode,
+  cagaAnkara: cagaAnkara,
 };

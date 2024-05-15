@@ -4,8 +4,9 @@ import Home from "./home.vue";
 import EthereumUI from "@/providers/ethereum/ui";
 import PolkadotUI from "@/providers/polkadot/ui";
 import BitcoinUI from "@/providers/bitcoin/ui";
+import KadenaUI from "@/providers/kadena/ui";
 import EnkryptUI from "./enkrypt";
-const uiProviders = [EthereumUI, PolkadotUI, BitcoinUI, EnkryptUI];
+const uiProviders = [EthereumUI, PolkadotUI, BitcoinUI, EnkryptUI, KadenaUI];
 let uiRoutes: RouteRecordRaw[] = [];
 uiProviders.forEach((provider) => {
   uiRoutes = uiRoutes.concat(provider.routes);
