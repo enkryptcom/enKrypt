@@ -68,6 +68,14 @@ const supportedNetworks: {
     approvalAddress: PARASWAP_APPROVAL_ADDRESS,
     chainId: "42161",
   },
+  [SupportedNetworkName.Base]: {
+    approvalAddress: "0x93aAAe79a53759cD164340E4C8766E4Db5331cD7",
+    chainId: "8453",
+  },
+  [SupportedNetworkName.MaticZK]: {
+    approvalAddress: "0xc8a21fcd5a100c3ecc037c97e2f9c53a8d3a02a1",
+    chainId: "1101",
+  },
 };
 
 const BASE_URL = "https://apiv5.paraswap.io/";

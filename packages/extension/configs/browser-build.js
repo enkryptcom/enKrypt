@@ -69,7 +69,10 @@ const setConfig = (config) => {
     args[0]["process.env"] = {
       ..._base,
       PACKAGE_VERSION: JSON.stringify(package.version),
-      BUILD_TIME: new Date().toLocaleString().replace(/\D/g, ""),
+      BUILD_TIME:
+        BROWSER === browserNames.firefox
+          ? JSON.stringify("FF-build")
+          : new Date().toLocaleString().replace(/\D/g, ""),
       IS_DEV: process.env.NODE_ENV === "development",
       IS_FIREFOX: BROWSER === browserNames.firefox,
       IS_OPERA_EDGE: BROWSER === browserNames.operaedge,
