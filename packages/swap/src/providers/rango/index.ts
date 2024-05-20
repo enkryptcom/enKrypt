@@ -1,5 +1,5 @@
 import type Web3Eth from "web3-eth";
-import { numberToHex, toBN } from "web3-utils";
+import { numberToHex, toBN } from "@enkryptcom/utils";
 import {
   EvmTransaction as RangoEvmTransaction,
   RangoClient,
@@ -295,7 +295,7 @@ class Rango extends ProviderClass {
         from: options.fromAddress,
         gasLimit: tx.gasLimit || GAS_LIMITS.swap,
         to: tx.txTo,
-        value: numberToHex(tx.value),
+        value: tx.value ? numberToHex(tx.value) : "0x0",
         data: tx.txData,
         type: TransactionType.evm,
       });

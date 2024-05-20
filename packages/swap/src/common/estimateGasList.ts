@@ -1,5 +1,5 @@
 import fetch from "node-fetch";
-import { numberToHex, toBN } from "web3-utils";
+import { numberToHex, toBN } from "@enkryptcom/utils";
 import { EVMTransaction, SupportedNetworkName } from "../types";
 import { GAS_LIMITS } from "../configs";
 

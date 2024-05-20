@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { toBN } from "web3-utils";
+import { toBN } from "@enkryptcom/utils";
 import Web3Eth from "web3-eth";
 import Rango from "../src/providers/rango";
 import {
