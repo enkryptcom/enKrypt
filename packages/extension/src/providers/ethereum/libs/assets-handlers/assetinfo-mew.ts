@@ -115,6 +115,10 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
     tbName: "shib",
     cgPlatform: CoingeckoPlatform.Shibarium,
   },
+  [NetworkNames.Rollux]: {
+    tbName: "rollux",
+    cgPlatform: CoingeckoPlatform.Rollux,
+  },
 };
 
 const getTokens = (

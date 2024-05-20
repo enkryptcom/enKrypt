@@ -65,8 +65,9 @@
 
       <send-input-amount
         :amount="amount"
+        :show-max="true"
         :fiat-value="selectedAsset.price"
-        :is-valid="fieldsValidation.amount"
+        :has-enough-balance="fieldsValidation.amount"
         @update:input-amount="inputAmount"
         @update:input-set-max="setSendMax"
       />
@@ -103,7 +104,7 @@ import SendContactsList from "./components/send-contacts-list.vue";
 import SendFromContactsList from "./components/send-from-contacts-list.vue";
 import SendTokenSelect from "./components/send-token-select.vue";
 import AssetsSelectList from "@action/views/assets-select-list/index.vue";
-import SendInputAmount from "./components/send-input-amount.vue";
+import SendInputAmount from "@/providers/common/ui/send-transaction/send-input-amount.vue";
 import SendFeeSelect from "./components/send-fee-select.vue";
 import SendAlert from "./components/send-alert.vue";
 import BaseButton from "@action/components/base-button/index.vue";
@@ -123,6 +124,7 @@ import KadenaAPI from "@/providers/kadena/libs/api";
 import getUiPath from "@/libs/utils/get-ui-path";
 import { ProviderName } from "@/types/provider";
 import Browser from "webextension-polyfill";
+import { ICommandResult } from "@kadena/client";
 
 const props = defineProps({
   network: {
@@ -255,21 +257,41 @@ const validateFields = async () => {
       );
       const networkApi = (await props.network.api()) as KadenaAPI;
 
-      const transactionResult = await networkApi.sendLocalTransaction(
-        localTransaction
-      );
+      const transactionResult = await networkApi
+        .sendLocalTransaction(localTransaction)
+        .catch((e) => {
+          if ((e.message as string).includes("Insufficient funds")) {
+            return {
+              result: {
+                status: "error",
+                error: {
+                  message: "Insufficient funds",
+                },
+              },
+            };
+          }
+          return {
+            result: {
+              status: "error",
+              error: {
+                message: "An error occurred",
+              },
+            },
+          };
+        });
 
       if (transactionResult.result.status !== "success") {
         fieldsValidation.value.amount = false;
-        console.log(transactionResult.result.error);
         errorMsg.value =
-          (transactionResult.result.error as any).message ||
+          (transactionResult.result as any).error.message ||
           "An error occurred";
         return;
       }
 
-      const gasLimit = transactionResult.metaData?.publicMeta?.gasLimit;
-      const gasPrice = transactionResult.metaData?.publicMeta?.gasPrice;
+      const gasLimit = (transactionResult as ICommandResult).metaData
+        ?.publicMeta?.gasLimit;
+      const gasPrice = (transactionResult as ICommandResult).metaData
+        ?.publicMeta?.gasPrice;
       const gasFee = gasLimit && gasPrice ? gasLimit * gasPrice : 0;
 
       const rawFee = toBN(
@@ -399,9 +421,13 @@ const selectToken = (token: KDAToken | Partial<KDAToken>) => {
   isOpenSelectToken.value = false;
 };
 
-const inputAmount = (number: string | undefined) => {
+const inputAmount = (inputAmount: string) => {
+  if (inputAmount === "") {
+    inputAmount = "0";
+  }
+  const inputAmountBn = new BigNumber(inputAmount);
   sendMax.value = false;
-  amount.value = number ? (parseFloat(number) < 0 ? "" : number) : number;
+  amount.value = inputAmountBn.lt(0) ? "0" : inputAmount;
 };
 
 const sendButtonTitle = computed(() => {

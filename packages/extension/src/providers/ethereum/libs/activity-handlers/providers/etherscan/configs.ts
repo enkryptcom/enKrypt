@@ -49,6 +49,10 @@ const NetworkEndpoints: Record<string, string> = {
   [NetworkNames.FormTestnet]: "https://testnet-explorer.form.network/",
   [NetworkNames.ArtheraTest]: "https://explorer-test.arthera.net/",
   [NetworkNames.Arthera]: "https://explorer.arthera.net/",
+  [NetworkNames.SyscoinTest]: "https://tanenbaum.io/",
+  [NetworkNames.Syscoin]: "https://explorer.syscoin.org/",
+  [NetworkNames.RolluxTest]: "https://rollux.tanenbaum.io/",
+  [NetworkNames.Rollux]: "https://explorer.rollux.com/",
 };
 
 export { NetworkEndpoints };

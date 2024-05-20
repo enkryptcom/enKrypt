@@ -2,6 +2,7 @@ import BrowserStorage from "../common/browser-storage";
 import { POPULAR_NAMES } from "../utils/networks";
 import { InternalStorageNamespace } from "@/types/provider";
 import { IState, StorageKeys, NetworkStorageElement } from "./types";
+import { newNetworks, newSwaps } from "@/providers/common/libs/new-features";
 
 class NetworksState {
   private storage: BrowserStorage;
@@ -14,7 +15,7 @@ class NetworksState {
     const networks: NetworkStorageElement[] = POPULAR_NAMES.map((name) => ({
       name,
     }));
-    await this.setState({ networks });
+    await this.setState({ networks, newNetworksVersion: "" });
   }
 
   async setNetworkStatus(
@@ -33,7 +34,7 @@ class NetworksState {
     } else if (!isActive) {
       const idxArr = state.networks.map((_, i) => i);
       const filteredIdx = idxArr
-        .filter((i) => state.networks[i].name !== targetNetwork!.name)
+        .filter((i) => state.networks[i].name !== targetNetwork.name)
         .sort((a, b) => a - b);
       const activeNetworks: NetworkStorageElement[] = [];
       filteredIdx.forEach((i) => activeNetworks.push(state.networks[i]));
@@ -42,16 +43,41 @@ class NetworksState {
     await this.setState(state);
   }
 
+  async insertNetworksWithNewFeatures(): Promise<void> {
+    const state: IState | undefined = await this.getState();
+    if (
+      state &&
+      state.networks &&
+      state.newNetworksVersion !== process.env.PACKAGE_VERSION
+    ) {
+      let validNetworks = state.networks;
+      const netsWithFeatures = [
+        ...new Set([...newNetworks, ...newSwaps]),
+      ].sort();
+      const filteredNets = netsWithFeatures.filter((n) => {
+        for (const vn of validNetworks) if (vn.name === n) return false;
+        return true;
+      });
+      const fnetworkItem = filteredNets.map((name) => {
+        return {
+          name,
+        };
+      });
+      const insertIdx = validNetworks.length > 5 ? 5 : validNetworks.length;
+      validNetworks = validNetworks
+        .slice(0, insertIdx)
+        .concat(fnetworkItem, validNetworks.slice(insertIdx));
+      state.networks = validNetworks;
+      state.newNetworksVersion = process.env.PACKAGE_VERSION as string;
+      await this.setState(state);
+    }
+  }
+
   async getActiveNetworkNames(): Promise<string[]> {
+    await this.insertNetworksWithNewFeatures();
     const state: IState | undefined = await this.getState();
     if (state && state.networks) {
-      const validNetworks = state.networks.filter((net) => {
-        if ((net as any).isActive === undefined || (net as any).isActive) {
-          return true;
-        }
-      });
-      state.networks = validNetworks;
-      await this.setState(state);
+      const validNetworks = state.networks;
       return validNetworks.map(({ name }) => name);
     } else {
       await this.setInitialActiveNetworks();
@@ -60,10 +86,14 @@ class NetworksState {
   }
 
   async reorderNetwork(networkNames: string[]): Promise<void> {
+    const state: IState | undefined = await this.getState();
     const activeNetworks: NetworkStorageElement[] = networkNames.map(
-      (name) => ({ name })
+      (name) => ({ name, isActive: true })
     );
-    await this.setState({ networks: activeNetworks });
+    await this.setState({
+      networks: activeNetworks,
+      newNetworksVersion: state.newNetworksVersion,
+    });
   }
 
   async setState(state: IState): Promise<void> {

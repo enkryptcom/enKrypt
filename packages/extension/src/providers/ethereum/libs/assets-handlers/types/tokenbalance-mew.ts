@@ -47,4 +47,5 @@ export type SupportedNetworkNames =
   | NetworkNames.Shibarium
   | NetworkNames.MaticZK
   | NetworkNames.Celo
-  | NetworkNames.ZkSync;
+  | NetworkNames.ZkSync
+  | NetworkNames.Rollux;

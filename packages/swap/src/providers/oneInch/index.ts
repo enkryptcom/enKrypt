@@ -79,6 +79,10 @@ const supportedNetworks: {
     approvalAddress: ONEINCH_APPROVAL_ADDRESS,
     chainId: "42161",
   },
+  [SupportedNetworkName.Base]: {
+    approvalAddress: ONEINCH_APPROVAL_ADDRESS,
+    chainId: "8453",
+  },
   [SupportedNetworkName.Zksync]: {
     approvalAddress: "0x6fd4383cb451173d5f9304f041c7bcbf27d561ff",
     chainId: "324",
