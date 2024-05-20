@@ -71,7 +71,7 @@ const setConfig = (config) => {
       PACKAGE_VERSION: JSON.stringify(package.version),
       BUILD_TIME:
         BROWSER === browserNames.firefox
-          ? "FF-build"
+          ? JSON.stringify("FF-build")
           : new Date().toLocaleString().replace(/\D/g, ""),
       IS_DEV: process.env.NODE_ENV === "development",
       IS_FIREFOX: BROWSER === browserNames.firefox,
