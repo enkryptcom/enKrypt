@@ -97,13 +97,24 @@ To get started make sure you have `nodejs` and `nvm` installed on your system
    yarn watch-extension # chromium based browsers
    yarn watch:firefox # firefox
    ```
-4. Build the project for release
+4. Build the project for release (if you are Firefox team dont follow this)
    ```sh
    yarn build:all
    yarn build:chrome # chromium based browsers
    yarn build:firefox # firefox
    ```
-5. Add to your browser
+5. Build the project for release (For Firefox team)
+
+   Since Firefox verification team looking for identical builds, you have to build it using docker
+
+   ```sh
+   docker build -t enkrypt-build-container .
+   docker run --rm -v `pwd`:/home:rw --user "$(id -u):$(id -g)" enkrypt-build-container /bin/bash -c "yarn install --silent"
+   docker run --rm --user "$(id -u):$(id -g)" -v `pwd`:/home:rw enkrypt-build-container /bin/bash -c "cd packages/extension && yarn build:all"
+   docker run --rm --user "$(id -u):$(id -g)" -v `pwd`:/home:rw enkrypt-build-container /bin/bash -c "cd packages/extension && yarn build:firefox && yarn zip"
+   ```
+
+6. Add to your browser
    - [Chrome/Brave/Opera](https://developer.chrome.com/docs/extensions/mv2/getstarted/#manifest)
    - [Firefox](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Your_first_WebExtension#installing)
 

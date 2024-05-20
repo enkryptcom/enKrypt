@@ -8,4 +8,5 @@ export interface NetworkStorageElement {
 
 export interface IState {
   networks: NetworkStorageElement[];
+  newNetworksVersion: string;
 }

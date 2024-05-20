@@ -29,9 +29,9 @@
     "bip39": "^3.1.0"
   },
   "devDependencies": {
-    "@types/chai": "^4.3.14",
+    "@types/chai": "^4.3.16",
     "@types/mocha": "^10.0.6",
-    "@types/node": "^20.11.30",
+    "@types/node": "^20.12.10",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
     "chai": "^4.4.1",
@@ -41,7 +41,7 @@
     "eslint-import-resolver-alias": "^1.1.2",
     "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-module-resolver": "^1.5.0",
-    "mocha": "^10.3.0",
+    "mocha": "^10.4.0",
     "prettier": "^2.8.8",
     "ts-mocha": "^10.0.0",
     "ts-node": "^10.9.2",

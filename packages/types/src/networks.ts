@@ -66,7 +66,11 @@ export enum NetworkNames {
   FormTestnet = "FormTestnet",
   AssetHubDOT = "AssetHubDOT",
   AssetHubKSM = "AssetHubKSM",
-  CagaAnkara = "CagaAnkara"
+  SyscoinTest = "TSYS",
+  Syscoin = "SYS",
+  RolluxTest = "TRLX",
+  Rollux = "RLX",
+  CagaAnkara = "CagaAnkara",
 }
 
 export enum CoingeckoPlatform {
@@ -107,4 +111,6 @@ export enum CoingeckoPlatform {
   Celo = "celo",
   Shibarium = "shibarium",
   Kadena = "kadena",
+  Syscoin = "syscoin",
+  Rollux = "rollux",
 }

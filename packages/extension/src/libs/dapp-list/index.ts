@@ -67,6 +67,8 @@ const lists: Partial<Record<NetworkNames, string>> = {
     "https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/matic-zkevm.json",
   [NetworkNames.Bitcoin]:
     "https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/btc.json",
+  [NetworkNames.Arthera]:
+    "https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/arthera.json",
 };
 
 export default lists;

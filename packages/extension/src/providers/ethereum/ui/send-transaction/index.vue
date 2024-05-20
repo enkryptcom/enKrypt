@@ -614,7 +614,7 @@ const inputAmount = (inputAmount: string) => {
   }
   const inputAmountBn = new BigNumber(inputAmount);
   isMaxSelected.value = false;
-  amount.value = inputAmountBn.lt(0) ? "0" : inputAmountBn.toFixed();
+  amount.value = inputAmountBn.lt(0) ? "0" : inputAmount;
   if (isInputsValid.value) {
     updateTransactionFees(Tx.value);
   }
