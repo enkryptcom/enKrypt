@@ -4,6 +4,7 @@ import EnterRecoveryPhrase from "./enter-recovery-phrase.vue";
 import PickPassword from "./pick-password.vue";
 import TypePassword from "./type-password.vue";
 import WalletReady from "../create-wallet/wallet-ready.vue";
+import UserAnalytics from "../user-analytics.vue";
 import { RouteRecordRaw } from "vue-router";
 export const routes = {
   start: {
@@ -30,6 +31,11 @@ export const routes = {
     path: "type-password",
     name: "type-password",
     component: TypePassword,
+  },
+  userAnalytics: {
+    path: "user-analytics",
+    name: "user-analytics",
+    component: UserAnalytics,
   },
   walletReady: {
     path: "wallet-ready",
