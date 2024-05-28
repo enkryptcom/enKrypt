@@ -30,28 +30,28 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@amplitude/analytics-browser@npm:2.8.0":
-  version: 2.8.0
-  resolution: "@amplitude/analytics-browser@npm:2.8.0"
+"@amplitude/analytics-browser@npm:^2.8.0":
+  version: 2.8.1
+  resolution: "@amplitude/analytics-browser@npm:2.8.1"
   dependencies:
-    "@amplitude/analytics-client-common": ^2.2.0
+    "@amplitude/analytics-client-common": ^2.2.1
     "@amplitude/analytics-core": ^2.2.8
     "@amplitude/analytics-types": ^2.5.1
-    "@amplitude/plugin-page-view-tracking-browser": ^2.2.12
+    "@amplitude/plugin-page-view-tracking-browser": ^2.2.13
     tslib: ^2.4.1
-  checksum: 3f7cbec435ef7aa1393f608afff374d42543a64fe5019b3849c137c98918246ef4b905079d85893a2a88fba510749b5a0ac0685848551620187c21cbac7a4ea6
+  checksum: cff108e1e7d231108579082fd577fe2170a8261442c3cb9c4aca8730a3285fd2db8e3ca49db1e1de9e9ef769dfcdb9654ee4f665b78805524cb9f0cad04bddc9
   languageName: node
   linkType: hard
 
-"@amplitude/analytics-client-common@npm:^2.2.0":
-  version: 2.2.0
-  resolution: "@amplitude/analytics-client-common@npm:2.2.0"
+"@amplitude/analytics-client-common@npm:^2.2.1":
+  version: 2.2.1
+  resolution: "@amplitude/analytics-client-common@npm:2.2.1"
   dependencies:
     "@amplitude/analytics-connector": ^1.4.8
     "@amplitude/analytics-core": ^2.2.8
     "@amplitude/analytics-types": ^2.5.1
     tslib: ^2.4.1
-  checksum: eb9a7a122a6b02a16abcae6c9e112b04ed1e0c7430619334fea323e95ada9f894638dcd86c1e6cbcd7aeee6cdeb0f2e0ff13de1c10b7790774174b018a3d21ee
+  checksum: 5959bec05000aa42e2f8ae9494b766998222e3b090f37bab359d41fb7f40835f49af6e5ac5fc49faa563e4ae56bda7cdcd689923fcb9f990cd7ec2cd8163f47e
   languageName: node
   linkType: hard
 
@@ -79,14 +79,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@amplitude/plugin-page-view-tracking-browser@npm:^2.2.12":
-  version: 2.2.12
-  resolution: "@amplitude/plugin-page-view-tracking-browser@npm:2.2.12"
+"@amplitude/plugin-page-view-tracking-browser@npm:^2.2.13":
+  version: 2.2.13
+  resolution: "@amplitude/plugin-page-view-tracking-browser@npm:2.2.13"
   dependencies:
-    "@amplitude/analytics-client-common": ^2.2.0
+    "@amplitude/analytics-client-common": ^2.2.1
     "@amplitude/analytics-types": ^2.5.1
     tslib: ^2.4.1
-  checksum: 5073f93fbf4e58e3907954b7d2070d936e67cdf8a9e5f665ea60777c970622a0c211767ade22326c5a5062d7c4149d5cd0a9688e88ff29beddb1cf61f28e6415
+  checksum: cecc82e7c0bbe03ac3c1d8b9f31f762d5c221a2c491a688b885cf8db498e075952a82f40e34cf8c36ea0a6160b7500722c01566397ece3bc23209fc76c7723aa
   languageName: node
   linkType: hard
 
@@ -2546,7 +2546,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@enkryptcom/extension@workspace:packages/extension"
   dependencies:
-    "@amplitude/analytics-browser": 2.8.0
+    "@amplitude/analytics-browser": ^2.8.0
     "@babel/plugin-transform-class-static-block": ^7.24.4
     "@babel/runtime": ^7.24.5
     "@enkryptcom/extension-bridge": "workspace:^"
