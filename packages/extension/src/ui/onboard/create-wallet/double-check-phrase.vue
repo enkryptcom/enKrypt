@@ -59,7 +59,11 @@ const nextAction = () => {
   isInitializing.value = true;
   onboardInitializeWallets(phrase, password).then(() => {
     isInitializing.value = false;
-    router.push({ name: routes.walletReady.name });
+    if (process.env.IS_FIREFOX) {
+      router.push({ name: routes.userAnalytics.name });
+    } else {
+      router.push({ name: routes.walletReady.name });
+    }
   });
 };
 </script>

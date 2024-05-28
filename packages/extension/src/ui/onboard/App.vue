@@ -43,6 +43,7 @@ const isShowBackButton = () => {
   return (
     route.name &&
     route.name != "new-wallet" &&
+    route.name != "user-analytics" &&
     route.name != "create-wallet-wallet-ready" &&
     route.name != "restore-wallet-wallet-ready" &&
     !(route.name as string).includes("hardware-wallet")
