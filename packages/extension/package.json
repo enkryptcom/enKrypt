@@ -1,6 +1,6 @@
 {
   "name": "@enkryptcom/extension",
-  "version": "1.40.0",
+  "version": "1.40.1",
   "private": true,
   "scripts": {
     "zip": "cd dist; zip -r release.zip *;",
@@ -21,7 +21,7 @@
     "watch-vue-firefox": "cross-env BROWSER='firefox' vue-cli-service build --watch --no-clean"
   },
   "dependencies": {
-    "@amplitude/analytics-browser": "2.5.3",
+    "@amplitude/analytics-browser": "^2.8.0",
     "@babel/runtime": "^7.24.5",
     "@enkryptcom/extension-bridge": "workspace:^",
     "@enkryptcom/hw-wallets": "workspace:^",
