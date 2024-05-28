@@ -1,12 +1,23 @@
 <template>
   <div class="new-wallet">
     <logo-big class="new-wallet__logo" />
-    <h3>Privacy<br />Data collection.</h3>
-    <p>random text about data collection</p>
+    <h3>
+      Privacy and<br />
+      Data collection.
+    </h3>
+    <p>We collect the following anonymous data about your use of Enkrypt:</p>
     <p>
-      more text about data collection ore text about data collectionore text
-      about data collectionore text about data collectionore text about data
-      collectionore text about data collectionore text about data s
+      Blockchain, browser, operating system, session time, actions and page
+      views per visit, which we collect to enhance user experience with our
+      Services, and support our operations:
+    </p>
+    <p>
+      Choosing to decline anonymous data collection will have no impact on your
+      experience using the Enkrypt browser extension. Full details about the
+      anonymous data we collect and what we do with it are provided in our
+      <a href="https://www.myetherwallet.com/privacy-policy" target="_blank"
+        >Privacy Policy</a
+      >.
     </p>
 
     <div class="new-wallet__buttons">
@@ -25,7 +36,6 @@ import BaseButton from "@action/components/base-button/index.vue";
 import SettingsState from "@/libs/settings-state";
 import { optOutofMetrics } from "@/libs/metrics";
 import { routes as cwalletRoutes } from "./create-wallet/routes";
-// import { routes as rwalletRoutes } from "./restore-wallet/routes";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
