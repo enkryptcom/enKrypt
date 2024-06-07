@@ -8,9 +8,24 @@ let uiRoutes: RouteRecordRaw[] = [];
 uiRoutes = uiRoutes.concat(CreateWalletUI());
 uiRoutes = uiRoutes.concat(RestoreWalletUI());
 uiRoutes = uiRoutes.concat(HardwareWalletUI());
-const routes = [
-  { path: "/", component: NewWallet, name: "new-wallet" },
-  { path: "/user-analytics", component: UserAnalytics, name: "user-analytics" },
-  ...uiRoutes,
-];
+const routes = [...uiRoutes];
+if (process.env.IS_FIREFOX) {
+  routes.unshift({
+    path: "/new-wallet",
+    component: NewWallet,
+    name: "new-wallet",
+  });
+  routes.unshift({
+    path: "/",
+    component: UserAnalytics,
+    name: "user-analytics",
+  });
+  routes.unshift({
+    path: "/user-privacy",
+    component: UserAnalytics,
+    name: "user-privacy",
+  });
+} else {
+  routes.unshift({ path: "/", component: NewWallet, name: "new-wallet" });
+}
 export default routes;
