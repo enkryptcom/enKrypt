@@ -44,13 +44,9 @@ const nextAction = () => {
     isInitializing.value = true;
     onboardInitializeWallets(store.mnemonic, store.password).then(() => {
       isInitializing.value = false;
-      if (process.env.IS_FIREFOX) {
-        router.push({ name: routes.userAnalytics.name });
-      } else {
-        router.push({
-          name: routes.walletReady.name,
-        });
-      }
+      router.push({
+        name: routes.walletReady.name,
+      });
     });
   }
 };
