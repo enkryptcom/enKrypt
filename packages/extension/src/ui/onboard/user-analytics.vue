@@ -35,10 +35,10 @@ import LogoBig from "@action/icons/common/logo-big.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import SettingsState from "@/libs/settings-state";
 import { optOutofMetrics } from "@/libs/metrics";
-import { routes as cwalletRoutes } from "./create-wallet/routes";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 
 const router = useRouter();
+const route = useRoute();
 
 const settingsState = new SettingsState();
 
@@ -47,7 +47,11 @@ const agree = async () => {
   enkryptSettings.isMetricsEnabled = true;
   await settingsState.setEnkryptSettings(enkryptSettings);
   optOutofMetrics(false);
-  router.push({ name: cwalletRoutes.walletReady.name });
+  if (route.name === "user-privacy") {
+    window.close();
+  } else {
+    router.push({ name: "new-wallet" });
+  }
 };
 
 const deny = async () => {
@@ -55,7 +59,11 @@ const deny = async () => {
   enkryptSettings.isMetricsEnabled = false;
   await settingsState.setEnkryptSettings(enkryptSettings);
   optOutofMetrics(true);
-  router.push({ name: cwalletRoutes.walletReady.name });
+  if (route.name === "user-privacy") {
+    window.close();
+  } else {
+    router.push({ name: "new-wallet" });
+  }
 };
 </script>
 
