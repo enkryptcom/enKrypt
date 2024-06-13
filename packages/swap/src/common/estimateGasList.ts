@@ -100,7 +100,7 @@ const useStandardEstimate = (
     })
     .catch(() => null);
 
-const estimateGasList = (
+const estimateGasList = async (
   transactions: EVMTransaction[],
   network: SupportedNetworkName
 ): Promise<{

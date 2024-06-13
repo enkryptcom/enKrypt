@@ -120,6 +120,7 @@ export enum ProviderName {
   zerox = "zerox",
   changelly = "changelly",
   rango = "rango",
+  propellerHeads = "propellerHeads",
 }
 
 // eslint-disable-next-line no-shadow
