@@ -72,7 +72,7 @@ const approve = async () => {
   const { sendToBackground, Resolve } = await windowPromise;
   sendToBackground({
     method: InternalMethods.unlock,
-    params: [password.value],
+    params: [password.value, false],
   }).then((res) => {
     if (res.error) {
       errorMsg.value = res.error.message;

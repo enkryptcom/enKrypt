@@ -2,6 +2,7 @@ import { getCustomError } from "@/libs/error";
 import KeyRingBase from "@/libs/keyring/keyring";
 import { InternalOnMessageResponse } from "@/types/messenger";
 import { RPCRequestType } from "@enkryptcom/types";
+import { initAccounts } from "@/libs/utils/initialize-wallet";
 
 const unlock = (
   keyring: KeyRingBase,
@@ -12,9 +13,13 @@ const unlock = (
       error: getCustomError("background: invalid params for unlocking"),
     });
   const password = message.params[0] as string;
+  const initNewAccounts = (message.params[1] as boolean) ?? false;
   return keyring
     .unlock(password)
     .then(() => {
+      if (initNewAccounts) {
+        initAccounts(keyring);
+      }
       return {
         result: JSON.stringify(true),
       };
