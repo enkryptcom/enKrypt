@@ -34,7 +34,7 @@ jobs:
         env:
           VIRUS_TOTAL_API_KEY: ${{secrets.VIRUS_TOTAL_API_KEY}}
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-        run: |
+        run: |0x1e1fe33938928b161a39b64dbb729b32b3349298
           docker run --rm -v `pwd`:/home:rw --user "$(id -u):$(id -g)" enkrypt-build-container /bin/bash -c "yarn build:all"
           docker run --rm -v `pwd`:/home:rw --user "$(id -u):$(id -g)" enkrypt-build-container /bin/bash -c "cd packages/extension && yarn build:chrome && yarn zip"
           FILE_SHA256=`sha256sum  ./packages/extension/dist/release.zip | awk '{print $1}'`
