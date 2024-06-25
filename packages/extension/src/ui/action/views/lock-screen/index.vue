@@ -52,8 +52,6 @@ import { sendToBackgroundFromAction } from "@/libs/messenger/extension";
 import { InternalMethods } from "@/types/messenger";
 import { computed } from "@vue/reactivity";
 import SwapLookingAnimation from "@action/icons/swap/swap-looking-animation.vue";
-import KeyRing from "@/libs/keyring/keyring";
-import { initAccounts } from "@/libs/utils/initialize-wallet";
 import { trackGenericEvents } from "@/libs/metrics";
 import { GenericEvents } from "@/libs/metrics/types";
 
@@ -75,7 +73,7 @@ const unlockAction = async () => {
   const unlockStatus = await sendToBackgroundFromAction({
     message: JSON.stringify({
       method: InternalMethods.unlock,
-      params: [password.value.trim()],
+      params: [password.value.trim(), true],
     }),
   });
   if (unlockStatus.error) {
@@ -84,9 +82,6 @@ const unlockAction = async () => {
     trackGenericEvents(GenericEvents.login_error);
   } else {
     isError.value = false;
-    const privateKeyring = new KeyRing();
-    await privateKeyring.unlock(password.value.trim());
-    await initAccounts(privateKeyring);
     password.value = "";
     emit("update:init");
     setTimeout(() => (isUnlocking.value = false), 750);

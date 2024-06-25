@@ -18,7 +18,7 @@ interface getCoinGeckoTokenInfoAllType {
     }[];
   };
 }
-const ETHVM_BASE = `https://api-v2.ethvm.dev/`;
+const ETHVM_BASE = `https://api-v3.ethvm.dev`;
 
 const ethvmPost = (requestData: string): Promise<any> => {
   return cacheFetch(

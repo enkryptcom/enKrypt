@@ -76,11 +76,13 @@ const trackDAppsEvents = (
 };
 
 const optOutofMetrics = (optOut: boolean) => {
-  metrics.setOptOut(false);
-  metrics.track("settings", {
-    event: SettingEventType.OptOut,
-    value: optOut ? 1 : 0,
-  });
+  if (!process.env.IS_FIREFOX) {
+    metrics.setOptOut(false);
+    metrics.track("settings", {
+      event: SettingEventType.OptOut,
+      value: optOut ? 1 : 0,
+    });
+  }
   metrics.setOptOut(optOut);
 };
 

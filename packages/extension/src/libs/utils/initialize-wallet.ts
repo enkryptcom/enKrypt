@@ -45,6 +45,4 @@ export const onboardInitializeWallets = async (
 ): Promise<void> => {
   const kr = new KeyRing();
   await kr.init(mnemonic, password);
-  await kr.unlock(password);
-  await initAccounts(kr);
 };
