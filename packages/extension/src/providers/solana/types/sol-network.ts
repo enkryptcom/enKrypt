@@ -88,7 +88,7 @@ export class BitcoinNetwork extends BaseNetwork {
         price: token.value,
         coingeckoID: this.coingeckoID,
       };
-      return new BTCToken(bTokenOptions);
+      return new SOLToken(bTokenOptions);
     });
   }
 
