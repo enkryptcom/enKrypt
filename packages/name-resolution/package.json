@@ -18,7 +18,7 @@
   "devDependencies": {
     "@types/chai": "^4.3.16",
     "@types/mocha": "^10.0.6",
-    "@types/node": "^20.12.10",
+    "@types/node": "^20.14.6",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
     "chai": "^4.4.1",
@@ -33,7 +33,7 @@
     "ts-mocha": "^10.0.0",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
-    "tsup": "^8.0.2",
+    "tsup": "^8.1.0",
     "typescript": "^4.9.5",
     "typescript-eslint": "0.0.1-alpha.0"
   },
@@ -45,7 +45,7 @@
   "author": "kvhnuke",
   "license": "MIT",
   "dependencies": {
-    "@ensdomains/address-encoder": "^1.1.1",
+    "@ensdomains/address-encoder": "^1.1.2",
     "@siddomains/sidjs": "0.1.29",
     "@unstoppabledomains/resolution": "^9.2.2",
     "ethers": "^5.7.2"

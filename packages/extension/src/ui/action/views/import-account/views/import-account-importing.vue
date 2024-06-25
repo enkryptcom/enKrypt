@@ -146,7 +146,7 @@ const importAction = async () => {
           sendToBackgroundFromAction({
             message: JSON.stringify({
               method: InternalMethods.unlock,
-              params: [keyringPassword.value],
+              params: [keyringPassword.value, false],
             }),
           }); // needed to reinitialize background keyring with new vals
           isDone.value = true;
