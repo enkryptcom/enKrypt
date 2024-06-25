@@ -11,7 +11,7 @@ import {
 import { InternalOnMessageResponse } from "@/types/messenger";
 import { OnMessageResponse } from "@enkryptcom/types";
 import Browser from "webextension-polyfill";
-import openOnboard, { openPrivacy } from "@/libs/utils/open-onboard";
+import openOnboard from "@/libs/utils/open-onboard";
 
 import(/* webpackChunkName: "background-chunk" */ "@/libs/background").then(
   ({ default: BackgroundHandler }) => {
@@ -42,7 +42,5 @@ import(/* webpackChunkName: "background-chunk" */ "@/libs/background").then(
 Browser.runtime.onInstalled.addListener((object) => {
   if (object.reason === "install") {
     openOnboard();
-  } else if (object.reason === "update") {
-    openPrivacy();
   }
 });

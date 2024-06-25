@@ -8,6 +8,6 @@ describe("Encrypt Decrypt Functions", () => {
     const password = randomBytes(1024).toString("hex");
     const encryptedData = await encrypt(buf, password);
     const decryptedBuf = await decrypt(encryptedData, password);
-    expect(bufferToHex(decryptedBuf)).equals(bufferToHex(decryptedBuf));
+    expect(bufferToHex(decryptedBuf)).equals(bufferToHex(buf));
   }).timeout(20000);
 });
