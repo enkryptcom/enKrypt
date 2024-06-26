@@ -21,6 +21,7 @@ import {
   EthereumRawInfo,
   SubscanExtrinsicInfo,
   KadenaRawInfo,
+  SOLRawInfo,
 } from "./activity";
 
 export enum ProviderName {
@@ -29,6 +30,7 @@ export enum ProviderName {
   bitcoin = "bitcoin",
   polkadot = "polkadot",
   kadena = "kadena",
+  solana = "solana",
 }
 export enum InternalStorageNamespace {
   keyring = "KeyRing",
@@ -123,7 +125,12 @@ export abstract class ProviderAPIInterface {
   abstract getTransactionStatus(
     hash: string
   ): Promise<
-    EthereumRawInfo | SubscanExtrinsicInfo | BTCRawInfo | KadenaRawInfo | null
+    | EthereumRawInfo
+    | SubscanExtrinsicInfo
+    | BTCRawInfo
+    | KadenaRawInfo
+    | SOLRawInfo
+    | null
   >;
 }
 

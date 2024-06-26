@@ -71,6 +71,7 @@ export enum NetworkNames {
   RolluxTest = "TRLX",
   Rollux = "RLX",
   CagaAnkara = "CagaAnkara",
+  Solana = "SOL",
 }
 
 export enum CoingeckoPlatform {

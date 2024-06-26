@@ -1,6 +1,5 @@
 import { BaseNetwork } from "@/types/base-network";
 import getRequestProvider, { RequestClass } from "@enkryptcom/request";
-import Networks from "./networks";
 import { MiddlewareFunction, OnMessageResponse } from "@enkryptcom/types";
 import Middlewares from "./methods";
 import EventEmitter from "eventemitter3";
@@ -12,12 +11,14 @@ import {
 import GetUIPath from "@/libs/utils/get-ui-path";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
 import UIRoutes from "./ui/routes/names";
-import { BitcoinNetwork } from "./types/bitcoin-network";
+import { SolanaNetwork } from "./types/sol-network";
+import Networks from "./networks";
+
 class SolanaProvider
   extends EventEmitter
   implements BackgroundProviderInterface
 {
-  network: BitcoinNetwork;
+  network: SolanaNetwork;
   requestProvider: RequestClass;
   middlewares: MiddlewareFunction[] = [];
   namespace: string;
@@ -26,7 +27,7 @@ class SolanaProvider
   toWindow: (message: string) => void;
   constructor(
     toWindow: (message: string) => void,
-    network: BitcoinNetwork = Networks.bitcoin
+    network: SolanaNetwork = Networks.solana
   ) {
     super();
     this.network = network;
@@ -43,7 +44,7 @@ class SolanaProvider
     this.middlewares = Middlewares.map((mw) => mw.bind(this));
   }
   setRequestProvider(network: BaseNetwork): void {
-    this.network = network as BitcoinNetwork;
+    this.network = network as SolanaNetwork;
     this.requestProvider.changeNetwork(network.node);
   }
   async isPersistentEvent(): Promise<boolean> {
@@ -70,4 +71,4 @@ class SolanaProvider
     return GetUIPath(page, this.namespace);
   }
 }
-export default BitcoinProvider;
+export default SolanaProvider;

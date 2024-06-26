@@ -1,5 +1,5 @@
 import { BaseNetwork, BaseNetworkOptions } from "@/types/base-network";
-import BitcoinAPI from "@/providers/bitcoin/libs/api";
+import SolAPI from "@/providers/solana/libs/api";
 import { AssetsType } from "@/types/provider";
 import { BaseToken, BaseTokenOptions } from "@/types/base-token";
 import { ProviderName } from "@/types/provider";
@@ -16,7 +16,8 @@ import { CoinGeckoTokenMarket } from "@/libs/market-data/types";
 import Sparkline from "@/libs/sparkline";
 import { SOLToken } from "./sol-token";
 import { NFTCollection } from "@/types/nft";
-import { fromBase } from "@enkryptcom/utils";
+import { fromBase, hexToBuffer } from "@enkryptcom/utils";
+import bs58 from "bs58";
 
 export interface SolanaNetworkOptions {
   name: NetworkNames;
@@ -32,7 +33,6 @@ export interface SolanaNetworkOptions {
   node: string;
   coingeckoID?: string;
   basePath: string;
-  dust: number;
   NFTHandler?: (
     network: BaseNetwork,
     address: string
@@ -44,9 +44,10 @@ export interface SolanaNetworkOptions {
 }
 
 export const getAddress = (pubkey: string) => {
-  return pubkey as string;
+  return bs58.encode(hexToBuffer(pubkey));
 };
-export class BitcoinNetwork extends BaseNetwork {
+
+export class SolanaNetwork extends BaseNetwork {
   public assets: BaseToken[] = [];
   private activityHandler: (
     network: BaseNetwork,
@@ -58,16 +59,16 @@ export class BitcoinNetwork extends BaseNetwork {
   ) => Promise<NFTCollection[]>;
   constructor(options: SolanaNetworkOptions) {
     const api = async () => {
-      const api = new Api(options.node);
+      const api = new SolAPI(options.node);
       await api.init();
-      return api as BitcoinAPI;
+      return api as SolAPI;
     };
 
     const baseOptions: BaseNetworkOptions = {
       identicon: createIcon,
-      signer: [SignerType.secp256k1btc],
-      provider: ProviderName.bitcoin,
-      displayAddress: (pubkey: string) => getAddress(pubkey),
+      signer: [SignerType.ed25519sol],
+      provider: ProviderName.solana,
+      displayAddress: getAddress,
       api,
       ...options,
     };
