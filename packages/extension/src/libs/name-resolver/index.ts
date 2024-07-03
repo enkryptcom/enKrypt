@@ -11,6 +11,9 @@ class GenericNameResolver {
           arb: "https://nodes.mewapi.io/rpc/arb",
         },
       },
+      sns: {
+        network: "mainnet",
+      },
     });
   }
 
