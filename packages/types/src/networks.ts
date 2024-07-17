@@ -9,6 +9,7 @@ export enum NetworkNames {
   Moonbeam = "GLMR",
   Moonriver = "MOVR",
   Rootstock = "Rootstock",
+  RootstockTestnet = "RootstockTestnet",
   Acala = "ACA",
   Karura = "KAR",
   KaruraEVM = "evmKAR",

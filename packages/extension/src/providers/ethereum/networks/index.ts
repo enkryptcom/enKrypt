@@ -12,6 +12,7 @@ import astarEvmNode from "./astr";
 import optimismNode from "./op";
 import cantoNode from "./canto";
 import rootstockNode from "./rsk";
+import rootstockTestnetNode from "./rsk-testnet";
 import edgeEvmNode from "./edg";
 import zkGoerliNode from "./zkgoerli";
 import vicNode from "./vic";
@@ -54,6 +55,7 @@ export default {
   op: optimismNode,
   canto: cantoNode,
   rootstock: rootstockNode,
+  rootstockTestnet: rootstockTestnetNode,
   edgeEvm: edgeEvmNode,
   zkGoerli: zkGoerliNode,
   vic: vicNode,
