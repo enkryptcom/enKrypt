@@ -50,4 +50,5 @@ export type SupportedNetworkNames =
   | NetworkNames.ZkSync
   | NetworkNames.Telos
   | NetworkNames.Rollux
+  | NetworkNames.Sanko
   | NetworkNames.Blast;

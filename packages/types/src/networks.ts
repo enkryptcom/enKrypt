@@ -74,6 +74,8 @@ export enum NetworkNames {
   CagaAnkara = "CagaAnkara",
   Telos = "TLOS",
   Blast = "blast",
+  Sanko = "sanko",
+  Degen = "degen",
 }
 
 export enum CoingeckoPlatform {
@@ -118,4 +120,6 @@ export enum CoingeckoPlatform {
   Rollux = "rollux",
   Telos = "telos",
   Blast = "blast",
+  Sanko = "sanko",
+  Degen = "degen",
 }
