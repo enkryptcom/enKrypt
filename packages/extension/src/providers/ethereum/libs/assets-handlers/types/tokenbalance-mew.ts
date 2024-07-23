@@ -51,4 +51,5 @@ export type SupportedNetworkNames =
   | NetworkNames.Telos
   | NetworkNames.Rollux
   | NetworkNames.Sanko
+  | NetworkNames.Degen
   | NetworkNames.Blast;

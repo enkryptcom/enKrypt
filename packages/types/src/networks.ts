@@ -76,6 +76,7 @@ export enum NetworkNames {
   Blast = "blast",
   Sanko = "sanko",
   Degen = "degen",
+  Ham = "ham",
 }
 
 export enum CoingeckoPlatform {

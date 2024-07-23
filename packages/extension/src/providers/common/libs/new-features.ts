@@ -4,6 +4,7 @@ const newNetworks = [
   NetworkNames.Telos,
   NetworkNames.Blast,
   NetworkNames.Sanko,
+  NetworkNames.Degen,
 ];
 const newSwaps: NetworkNames[] = [];
 

@@ -41,6 +41,7 @@ import cagaAnkara from "./cagaAnkara";
 import telosNode from "./tlos";
 import blastNode from "./blast";
 import sankoNode from "./dmt";
+import degenNode from "./degen";
 
 export default {
   sepolia: sepoliaNode,
@@ -95,4 +96,5 @@ export default {
   telos: telosNode,
   blast: blastNode,
   sanko: sankoNode,
+  degen: degenNode,
 };
