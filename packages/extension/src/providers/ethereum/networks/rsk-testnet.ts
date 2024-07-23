@@ -13,7 +13,8 @@ const rootstockTestnetOptions: EvmNetworkOptions = {
   name_long: "Rootstock Testnet",
   homePage: "https://rootstock.io/",
   blockExplorerTX: "https://explorer.testnet.rootstock.io/tx/[[txHash]]",
-  blockExplorerAddr: "https://explorer.testnet.rootstock.io/address/[[address]]",
+  blockExplorerAddr:
+    "https://explorer.testnet.rootstock.io/address/[[address]]",
   chainID: "0x1f",
   isTestNetwork: true,
   currencyName: "tRBTC",

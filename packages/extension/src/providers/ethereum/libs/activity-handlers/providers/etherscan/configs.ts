@@ -1,9 +1,9 @@
 import { NetworkNames } from "@enkryptcom/types";
 
 const NetworkEndpoints: Record<string, string> = {
-  [NetworkNames.Ethereum]: "https://api.etherscan.io/",
+  [NetworkNames.Ethereum]: "https://eth.blockscout.com/",
   [NetworkNames.Binance]: "https://api.bscscan.com/",
-  [NetworkNames.Matic]: "https://api.polygonscan.com/",
+  [NetworkNames.Matic]: "https://polygon.blockscout.com/",
   [NetworkNames.Moonbeam]: "https://api-moonbeam.moonscan.io/",
   [NetworkNames.Moonriver]: "https://api-moonriver.moonscan.io/",
   [NetworkNames.KaruraEVM]: "https://blockscout.karura.network/",

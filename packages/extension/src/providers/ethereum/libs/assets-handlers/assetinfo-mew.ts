@@ -119,6 +119,10 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
     tbName: "rollux",
     cgPlatform: CoingeckoPlatform.Rollux,
   },
+  [NetworkNames.Telos]: {
+    tbName: "tlos",
+    cgPlatform: CoingeckoPlatform.Telos,
+  },
 };
 
 const getTokens = (
