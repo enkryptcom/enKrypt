@@ -55,6 +55,7 @@ const NetworkEndpoints: Record<string, string> = {
   [NetworkNames.RolluxTest]: "https://rollux.tanenbaum.io/",
   [NetworkNames.Rollux]: "https://explorer.rollux.com/",
   [NetworkNames.Blast]: "https://blastscan.io/",
+  [NetworkNames.Sanko]: "https://explorer.sanko.xyz/",
 };
 
 export { NetworkEndpoints };
