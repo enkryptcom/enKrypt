@@ -57,6 +57,7 @@ const NetworkEndpoints: Record<string, string> = {
   [NetworkNames.Blast]: "https://blastscan.io/",
   [NetworkNames.Sanko]: "https://explorer.sanko.xyz/",
   [NetworkNames.Degen]: "https://explorer.degen.tips/",
+  [NetworkNames.Ham]: "https://explorer.ham.fun/",
 };
 
 export { NetworkEndpoints };
