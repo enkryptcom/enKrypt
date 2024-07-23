@@ -12,6 +12,7 @@ import astarEvmNode from "./astr";
 import optimismNode from "./op";
 import cantoNode from "./canto";
 import rootstockNode from "./rsk";
+import rootstockTestnetNode from "./rsk-testnet";
 import edgeEvmNode from "./edg";
 import zkGoerliNode from "./zkgoerli";
 import vicNode from "./vic";
@@ -37,6 +38,7 @@ import syscoinNode from "./sys";
 import rolluxTestNode from "./trlx";
 import rolluxNode from "./rlx";
 import cagaAnkara from "./cagaAnkara";
+import telosNode from "./tlos";
 
 export default {
   sepolia: sepoliaNode,
@@ -54,6 +56,7 @@ export default {
   op: optimismNode,
   canto: cantoNode,
   rootstock: rootstockNode,
+  rootstockTestnet: rootstockTestnetNode,
   edgeEvm: edgeEvmNode,
   zkGoerli: zkGoerliNode,
   vic: vicNode,
@@ -87,4 +90,5 @@ export default {
   rolluxTest: rolluxTestNode,
   rollux: rolluxNode,
   cagaAnkara: cagaAnkara,
+  telos: telosNode,
 };
