@@ -42,5 +42,8 @@
   "resolutions": {
     "@ledgerhq/compressjs": "https://registry.yarnpkg.com/@favware/skip-dependency/-/skip-dependency-1.2.1.tgz",
     "@noble/hashes": "^1.4.0"
+  },
+  "dependencies": {
+    "@bonfida/sns-warp-evm": "^0.0.4"
   }
 }

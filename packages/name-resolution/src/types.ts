@@ -1,5 +1,6 @@
 import { ENSOptions } from "./ens/types";
 import { SIDOptions } from "./sid/types";
+import { SNSOptions } from "./sns/types";
 
 export type CoinType =
   | "BTC"
@@ -137,7 +138,9 @@ export type CoinType =
   | "NRG"
   | "ARB1"
   | "CELO"
-  | "AVAXC";
+  | "AVAXC"
+  | "BASE";
+
 
 export abstract class BaseResolver {
   name: string;
@@ -157,4 +160,5 @@ export abstract class BaseResolver {
 export interface NameResolverOptions {
   ens: ENSOptions;
   sid: SIDOptions;
+  sns: SNSOptions;
 }

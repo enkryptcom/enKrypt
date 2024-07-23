@@ -14,6 +14,9 @@ describe("Name Resolver resolving", () => {
           arb: "https://nodes.mewapi.io/rpc/arb",
         },
       },
+      sns: {
+        network: "testnet",
+      },
     });
     let address = await resolver.resolveAddress("test.eth", "ETH");
     expect(address).to.be.eq("0xeefB13C7D42eFCc655E528dA6d6F7bBcf9A2251d");
@@ -33,6 +36,9 @@ describe("Name Resolver resolving", () => {
           bnb: "https://nodes.mewapi.io/rpc/bsc",
           arb: "https://nodes.mewapi.io/rpc/arb",
         },
+      },
+      sns: {
+        network: "testnet",
       },
     });
     let name = await resolver.resolveReverseName(
