@@ -97,7 +97,9 @@
           <p>Data Hex: {{ decodedTx?.dataHex || "0x" }}</p>
         </div>
       </div>
-
+      <p v-if="errorMsg != ''" class="provider-verify-transaction__error">
+        {{ errorMsg }}
+      </p>
       <transaction-fee-view
         :fees="gasCostValues"
         :show-fees="isOpenSelectFee"
@@ -119,7 +121,11 @@
     </template>
 
     <template #button-right>
-      <base-button title="Send" :click="approve" :disabled="isProcessing" />
+      <base-button
+        title="Send"
+        :click="approve"
+        :disabled="isProcessing || errorMsg != ''"
+      />
     </template>
   </common-popup>
 </template>
@@ -172,6 +178,7 @@ const approvalAmount = ref("");
 const network = ref<EvmNetwork>(DEFAULT_EVM_NETWORK);
 const marketdata = new MarketData();
 const gasCostValues = ref<GasFeeType>(defaultGasCostVals);
+const errorMsg = ref("");
 const account = ref<EnkryptAccount>({
   name: "",
   address: "",
@@ -236,52 +243,57 @@ onBeforeMount(async () => {
     Request.value.params![0] as EthereumTransaction,
     web3
   );
-  await tx.getGasCosts().then(async (gasvals) => {
-    let nativeVal = "0";
-    if (network.value.coingeckoID) {
-      await marketdata
-        .getTokenValue("1", network.value.coingeckoID, "USD")
-        .then((val) => (nativeVal = val));
-    }
-    const getConvertedVal = (type: GasPriceTypes) =>
-      fromBase(gasvals[type], network.value.decimals);
+  await tx
+    .getGasCosts()
+    .then(async (gasvals) => {
+      let nativeVal = "0";
+      if (network.value.coingeckoID) {
+        await marketdata
+          .getTokenValue("1", network.value.coingeckoID, "USD")
+          .then((val) => (nativeVal = val));
+      }
+      const getConvertedVal = (type: GasPriceTypes) =>
+        fromBase(gasvals[type], network.value.decimals);
 
-    gasCostValues.value = {
-      [GasPriceTypes.ECONOMY]: {
-        nativeValue: getConvertedVal(GasPriceTypes.ECONOMY),
-        fiatValue: new BigNumber(getConvertedVal(GasPriceTypes.ECONOMY))
-          .times(nativeVal)
-          .toString(),
-        nativeSymbol: network.value.currencyName,
-        fiatSymbol: "USD",
-      },
-      [GasPriceTypes.REGULAR]: {
-        nativeValue: getConvertedVal(GasPriceTypes.REGULAR),
-        fiatValue: new BigNumber(getConvertedVal(GasPriceTypes.REGULAR))
-          .times(nativeVal)
-          .toString(),
-        nativeSymbol: network.value.currencyName,
-        fiatSymbol: "USD",
-      },
-      [GasPriceTypes.FAST]: {
-        nativeValue: getConvertedVal(GasPriceTypes.FAST),
-        fiatValue: new BigNumber(getConvertedVal(GasPriceTypes.FAST))
-          .times(nativeVal)
-          .toString(),
-        nativeSymbol: network.value.currencyName,
-        fiatSymbol: "USD",
-      },
-      [GasPriceTypes.FASTEST]: {
-        nativeValue: getConvertedVal(GasPriceTypes.FASTEST),
-        fiatValue: new BigNumber(getConvertedVal(GasPriceTypes.FASTEST))
-          .times(nativeVal)
-          .toString(),
-        nativeSymbol: network.value.currencyName,
-        fiatSymbol: "USD",
-      },
-    };
-    selectedFee.value = GasPriceTypes.REGULAR;
-  });
+      gasCostValues.value = {
+        [GasPriceTypes.ECONOMY]: {
+          nativeValue: getConvertedVal(GasPriceTypes.ECONOMY),
+          fiatValue: new BigNumber(getConvertedVal(GasPriceTypes.ECONOMY))
+            .times(nativeVal)
+            .toString(),
+          nativeSymbol: network.value.currencyName,
+          fiatSymbol: "USD",
+        },
+        [GasPriceTypes.REGULAR]: {
+          nativeValue: getConvertedVal(GasPriceTypes.REGULAR),
+          fiatValue: new BigNumber(getConvertedVal(GasPriceTypes.REGULAR))
+            .times(nativeVal)
+            .toString(),
+          nativeSymbol: network.value.currencyName,
+          fiatSymbol: "USD",
+        },
+        [GasPriceTypes.FAST]: {
+          nativeValue: getConvertedVal(GasPriceTypes.FAST),
+          fiatValue: new BigNumber(getConvertedVal(GasPriceTypes.FAST))
+            .times(nativeVal)
+            .toString(),
+          nativeSymbol: network.value.currencyName,
+          fiatSymbol: "USD",
+        },
+        [GasPriceTypes.FASTEST]: {
+          nativeValue: getConvertedVal(GasPriceTypes.FASTEST),
+          fiatValue: new BigNumber(getConvertedVal(GasPriceTypes.FASTEST))
+            .times(nativeVal)
+            .toString(),
+          nativeSymbol: network.value.currencyName,
+          fiatSymbol: "USD",
+        },
+      };
+      selectedFee.value = GasPriceTypes.REGULAR;
+    })
+    .catch((e) => {
+      errorMsg.value = e.message;
+    });
 });
 
 const approve = async () => {
