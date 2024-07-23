@@ -1,5 +1,4 @@
 import ENSResolver from "./ens";
-import SNSResolver from "./sns";
 import { CoinType, NameResolverOptions } from "./types";
 import UDResolver from "./ud";
 import RNSResolver from "./rns";
@@ -7,8 +6,6 @@ import SIDResolver from "./sid";
 
 class NameResolver {
   ens: ENSResolver;
-
-  sns: SNSResolver;
 
   rns: RNSResolver;
 
@@ -20,13 +17,11 @@ class NameResolver {
 
   constructor(options: NameResolverOptions) {
     this.ens = new ENSResolver(options.ens);
-    this.sns = new SNSResolver(options.sns);
     this.rns = new RNSResolver();
     this.ud = new UDResolver();
     this.sid = new SIDResolver(options.sid);
     this.initDone = Promise.all([
       this.ens.init(),
-      this.sns.init(),
       this.rns.init(),
       this.ud.init(),
       this.sid.init(),
@@ -37,7 +32,6 @@ class NameResolver {
     return this.initDone.then(() =>
       Promise.all([
         this.ens.resolveReverseName(address),
-        this.sns.resolveReverseName(address),
         this.sid.resolveReverseName(address),
         this.rns.resolveReverseName(address),
         this.ud.resolveReverseName(address),
@@ -56,8 +50,6 @@ class NameResolver {
     coin: CoinType = "ETH"
   ): Promise<string | null> {
     return this.initDone.then(() => {
-      if (this.sns.isSupportedName(name))
-        return this.sns.resolveAddress(name, coin);
       if (this.sid.isSupportedName(name)) return this.sid.resolveAddress(name);
       if (this.rns.isSupportedName(name))
         return this.rns.resolveAddress(name, coin);
@@ -70,5 +62,5 @@ class NameResolver {
     });
   }
 }
-export { ENSResolver, SNSResolver, UDResolver, CoinType };
+export { ENSResolver, UDResolver, CoinType };
 export default NameResolver;

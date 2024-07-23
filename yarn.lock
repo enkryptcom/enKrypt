@@ -1754,17 +1754,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@bonfida/sns-warp-evm@npm:^0.0.4":
-  version: 0.0.4
-  resolution: "@bonfida/sns-warp-evm@npm:0.0.4"
-  peerDependencies:
-    "@ethersproject/address": ^5.7.0
-    "@ethersproject/hash": ^5.7.0
-    "@ethersproject/providers": ^5.7.2
-  checksum: ad7e8c8a157f3c79668d8704eecb96708384f54f07088aaabcfb4798984d5d93082ddc80bb5b020e114d6bf9769781205aad53a1a9aa3c652558a6985b24a36f
-  languageName: node
-  linkType: hard
-
 "@cardano-foundation/ledgerjs-hw-app-cardano@npm:^6.0.1":
   version: 6.0.1
   resolution: "@cardano-foundation/ledgerjs-hw-app-cardano@npm:6.0.1"
@@ -14886,7 +14875,6 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "enkrypt@workspace:."
   dependencies:
-    "@bonfida/sns-warp-evm": ^0.0.4
     "@commitlint/cli": ^19.3.0
     "@commitlint/config-conventional": ^19.2.2
     "@swc/core": ^1.6.3
