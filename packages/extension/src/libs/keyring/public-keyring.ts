@@ -14,8 +14,8 @@ class PublicKeyRing {
   private async getKeysObject(): Promise<{ [key: string]: EnkryptAccount }> {
     const allKeys = await this.#keyring.getKeysObject();
     if (process.env.IS_DEV) {
-      allKeys["0x339d413ccefd986b1b3647a9cfa9cbbe70a30749"] = {
-        address: "0x339d413ccefd986b1b3647a9cfa9cbbe70a30749",
+      allKeys["0x99999990d598b918799f38163204bbc30611b6b6"] = {
+        address: "0x99999990d598b918799f38163204bbc30611b6b6",
         basePath: "m/44'/60'/1'/0",
         name: "fake account #1",
         pathIndex: 0,

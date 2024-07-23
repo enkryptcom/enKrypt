@@ -27,6 +27,7 @@ const TokenList: Record<SupportedNetworkNames, string> = {
   [NetworkNames.Shibarium]: `https://tokens.coingecko.com/${CoingeckoPlatform.Shibarium}/all.json`,
   [NetworkNames.Rollux]: `https://tokens.coingecko.com/${CoingeckoPlatform.Rollux}/all.json`,
   [NetworkNames.Telos]: `https://tokens.coingecko.com/${CoingeckoPlatform.Telos}/all.json`,
+  [NetworkNames.Blast]: `https://tokens.coingecko.com/${CoingeckoPlatform.Blast}/all.json`,
 };
 
 const getKnownNetworkTokens = async (

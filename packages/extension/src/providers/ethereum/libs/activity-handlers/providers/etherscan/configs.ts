@@ -54,6 +54,7 @@ const NetworkEndpoints: Record<string, string> = {
   [NetworkNames.Syscoin]: "https://explorer.syscoin.org/",
   [NetworkNames.RolluxTest]: "https://rollux.tanenbaum.io/",
   [NetworkNames.Rollux]: "https://explorer.rollux.com/",
+  [NetworkNames.Blast]: "https://blastscan.io/",
 };
 
 export { NetworkEndpoints };

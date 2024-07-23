@@ -123,6 +123,10 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
     tbName: "tlos",
     cgPlatform: CoingeckoPlatform.Telos,
   },
+  [NetworkNames.Blast]: {
+    tbName: "blast",
+    cgPlatform: CoingeckoPlatform.Blast,
+  },
 };
 
 const getTokens = (

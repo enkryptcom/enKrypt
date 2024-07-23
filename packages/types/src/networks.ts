@@ -72,7 +72,8 @@ export enum NetworkNames {
   RolluxTest = "TRLX",
   Rollux = "RLX",
   CagaAnkara = "CagaAnkara",
-  Telos = "TLOS"
+  Telos = "TLOS",
+  Blast = "blast",
 }
 
 export enum CoingeckoPlatform {
@@ -115,5 +116,6 @@ export enum CoingeckoPlatform {
   Kadena = "kadena",
   Syscoin = "syscoin",
   Rollux = "rollux",
-  Telos = "telos"
+  Telos = "telos",
+  Blast = "blast",
 }

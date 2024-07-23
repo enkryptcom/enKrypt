@@ -39,6 +39,7 @@ import rolluxTestNode from "./trlx";
 import rolluxNode from "./rlx";
 import cagaAnkara from "./cagaAnkara";
 import telosNode from "./tlos";
+import blastNode from "./blast";
 
 export default {
   sepolia: sepoliaNode,
@@ -91,4 +92,5 @@ export default {
   rollux: rolluxNode,
   cagaAnkara: cagaAnkara,
   telos: telosNode,
+  blast: blastNode,
 };
