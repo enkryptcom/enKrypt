@@ -24,7 +24,7 @@ const getAddressActivity = async (
   ).then((res) => {
     if (res.status === "0") return [];
     const results = res.result as EtherscanTxType[];
-    const newResults = results.reverse().map((tx) => {
+    const newResults = results.map((tx) => {
       const rawTx: EthereumRawInfo = {
         blockHash: tx.blockHash,
         blockNumber: numberToHex(tx.blockNumber),
