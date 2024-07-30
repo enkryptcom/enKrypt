@@ -1,30 +1,28 @@
 import browser from "webextension-polyfill";
-import { keccak256 } from "ethereum-cryptography/keccak";
-import { bufferToHex } from "@enkryptcom/utils";
 const filesToMonitor = {
   content: {
     path: "scripts/contentscript.js",
-    hash: "",
+    length: 0,
   },
   inject: {
     path: "scripts/inject.js",
-    hash: "",
+    length: 0,
   },
   background: {
     path: "scripts/background.js",
-    hash: "",
+    length: 0,
   },
   action: {
     path: "action.html",
-    hash: "",
+    length: 0,
   },
   index: {
     path: "index.html",
-    hash: "",
+    length: 0,
   },
   manifest: {
     path: "manifest.json",
-    hash: "",
+    length: 0,
   },
 };
 const checkFilesChanged = async () => {
@@ -34,10 +32,10 @@ const checkFilesChanged = async () => {
     await fetch(exturl)
       .then((res) => res.text())
       .then((content) => {
-        const hash = bufferToHex(keccak256(Buffer.from(content)));
-        if (value.hash !== hash) {
+        const length = content.length;
+        if (value.length !== length) {
           filesChanged = true;
-          value.hash = hash;
+          value.length = length;
         }
       });
   }

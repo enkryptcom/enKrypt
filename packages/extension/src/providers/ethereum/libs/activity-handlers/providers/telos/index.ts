@@ -10,7 +10,7 @@ import { BaseNetwork } from "@/types/base-network";
 import { numberToHex } from "web3-utils";
 import { decodeTx } from "../../../transaction/decoder";
 import { NetworkEndpoints } from "./configs";
-import { EtherscanTxType } from "./types";
+import { TelosTXType } from "./types";
 const TTL = 30000;
 const getAddressActivity = async (
   address: string,
@@ -18,28 +18,30 @@ const getAddressActivity = async (
 ): Promise<EthereumRawInfo[]> => {
   return cacheFetch(
     {
-      url: `${endpoint}api?module=account&action=txlist&address=${address}`,
+      url: `${endpoint}v1/address/${address}/transactions`,
     },
     TTL
   ).then((res) => {
-    if (res.status === "0") return [];
-    const results = res.result as EtherscanTxType[];
+    if (!res.success) return [];
+    const results = res.results as TelosTXType[];
     const newResults = results.map((tx) => {
       const rawTx: EthereumRawInfo = {
-        blockHash: tx.blockHash,
+        blockHash: "0x",
         blockNumber: numberToHex(tx.blockNumber),
-        contractAddress: tx.contractAddress,
+        contractAddress: tx.contractAddress
+          ? tx.contractAddress.toLowerCase()
+          : null,
         data: tx.input,
-        effectiveGasPrice: numberToHex(tx.gasPrice),
-        from: tx.from,
-        to: tx.to === "" ? null : tx.to,
-        gas: numberToHex(tx.gas),
-        gasUsed: numberToHex(tx.gasUsed),
+        effectiveGasPrice: tx.gasPrice,
+        from: tx.from.toLowerCase(),
+        to: tx.to === "" ? null : tx.to.toLowerCase(),
+        gas: tx.gasLimit,
+        gasUsed: tx.gasused,
         nonce: numberToHex(tx.nonce),
-        status: tx.isError === "0" ? true : false,
+        status: tx.status === "0x1" ? true : false,
         transactionHash: tx.hash,
-        value: numberToHex(tx.value),
-        timestamp: parseInt(tx.timeStamp) * 1000,
+        value: tx.value,
+        timestamp: tx.timestamp,
       };
       return rawTx;
     });

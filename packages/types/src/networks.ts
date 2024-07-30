@@ -9,6 +9,7 @@ export enum NetworkNames {
   Moonbeam = "GLMR",
   Moonriver = "MOVR",
   Rootstock = "Rootstock",
+  RootstockTestnet = "RootstockTestnet",
   Acala = "ACA",
   Karura = "KAR",
   KaruraEVM = "evmKAR",
@@ -71,6 +72,11 @@ export enum NetworkNames {
   RolluxTest = "TRLX",
   Rollux = "RLX",
   CagaAnkara = "CagaAnkara",
+  Telos = "TLOS",
+  Blast = "blast",
+  Sanko = "sanko",
+  Degen = "degen",
+  Ham = "ham",
 }
 
 export enum CoingeckoPlatform {
@@ -113,4 +119,8 @@ export enum CoingeckoPlatform {
   Kadena = "kadena",
   Syscoin = "syscoin",
   Rollux = "rollux",
+  Telos = "telos",
+  Blast = "blast",
+  Sanko = "sanko",
+  Degen = "degen",
 }
