@@ -1,9 +1,9 @@
 import { NetworkNames } from "@enkryptcom/types";
 
 const NetworkEndpoints: Record<string, string> = {
-  [NetworkNames.Ethereum]: "https://api.etherscan.io/",
+  [NetworkNames.Ethereum]: "https://eth.blockscout.com/",
   [NetworkNames.Binance]: "https://api.bscscan.com/",
-  [NetworkNames.Matic]: "https://api.polygonscan.com/",
+  [NetworkNames.Matic]: "https://polygon.blockscout.com/",
   [NetworkNames.Moonbeam]: "https://api-moonbeam.moonscan.io/",
   [NetworkNames.Moonriver]: "https://api-moonriver.moonscan.io/",
   [NetworkNames.KaruraEVM]: "https://blockscout.karura.network/",
@@ -13,6 +13,7 @@ const NetworkEndpoints: Record<string, string> = {
   [NetworkNames.Canto]: "https://evm.explorer.canto.io/",
   [NetworkNames.EdgeEVM]: "https://edgscan.live/",
   [NetworkNames.Rootstock]: "https://blockscout.com/rsk/mainnet/",
+  [NetworkNames.RootstockTestnet]: "https://rootstock-testnet.blockscout.com/",
   [NetworkNames.SkaleBlockBrawlers]:
     "https://frayed-decent-antares.explorer.mainnet.skalenodes.com/",
   [NetworkNames.SkaleCalypso]:
@@ -53,6 +54,10 @@ const NetworkEndpoints: Record<string, string> = {
   [NetworkNames.Syscoin]: "https://explorer.syscoin.org/",
   [NetworkNames.RolluxTest]: "https://rollux.tanenbaum.io/",
   [NetworkNames.Rollux]: "https://explorer.rollux.com/",
+  [NetworkNames.Blast]: "https://blastscan.io/",
+  [NetworkNames.Sanko]: "https://explorer.sanko.xyz/",
+  [NetworkNames.Degen]: "https://explorer.degen.tips/",
+  [NetworkNames.Ham]: "https://explorer.ham.fun/",
 };
 
 export { NetworkEndpoints };

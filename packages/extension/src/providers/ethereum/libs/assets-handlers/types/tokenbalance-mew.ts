@@ -48,4 +48,8 @@ export type SupportedNetworkNames =
   | NetworkNames.MaticZK
   | NetworkNames.Celo
   | NetworkNames.ZkSync
-  | NetworkNames.Rollux;
+  | NetworkNames.Telos
+  | NetworkNames.Rollux
+  | NetworkNames.Sanko
+  | NetworkNames.Degen
+  | NetworkNames.Blast;

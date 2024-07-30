@@ -36,7 +36,10 @@ export const getBackgroundPageType = (): RuntimeContext => {
     const url = new URL(browser.runtime.getURL(manifest.options_ui.page));
     if (url.pathname === window.location.pathname) return "options";
   }
-  if (window?.location?.pathname === "/index.html") {
+  if (
+    window?.location?.pathname === "/index.html" ||
+    window?.location?.pathname === "/onboard.html"
+  ) {
     return "new-window";
   }
   return "background";
