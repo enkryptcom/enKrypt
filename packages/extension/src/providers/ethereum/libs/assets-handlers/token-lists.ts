@@ -30,6 +30,7 @@ const TokenList: Record<SupportedNetworkNames, string> = {
   [NetworkNames.Blast]: `https://tokens.coingecko.com/${CoingeckoPlatform.Blast}/all.json`,
   [NetworkNames.Sanko]: `https://tokens.coingecko.com/${CoingeckoPlatform.Sanko}/all.json`,
   [NetworkNames.Degen]: `https://tokens.coingecko.com/${CoingeckoPlatform.Degen}/all.json`,
+  [NetworkNames.Solana]: `https://tokens.coingecko.com/${CoingeckoPlatform.Solana}/all.json`,
 };
 
 const getKnownNetworkTokens = async (
@@ -46,7 +47,10 @@ const getKnownNetworkTokens = async (
       const tokens: CGToken[] = json.tokens;
       const tObject: Record<string, CGToken> = {};
       tokens.forEach((t) => {
-        t.address = t.address.toLowerCase();
+        t.address =
+          networkName !== NetworkNames.Solana
+            ? t.address.toLowerCase()
+            : t.address;
         tObject[t.address] = t;
       });
       return tObject;

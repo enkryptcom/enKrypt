@@ -18,6 +18,7 @@ import { SOLToken } from "./sol-token";
 import { NFTCollection } from "@/types/nft";
 import { fromBase, hexToBuffer } from "@enkryptcom/utils";
 import bs58 from "bs58";
+import getBalances from "@/providers/ethereum/libs/assets-handlers/solanachain";
 
 export interface SolanaNetworkOptions {
   name: NetworkNames;
@@ -41,9 +42,14 @@ export interface SolanaNetworkOptions {
     network: BaseNetwork,
     address: string
   ) => Promise<Activity[]>;
+  assetsInfoHandler?: (
+    network: BaseNetwork,
+    address: string
+  ) => Promise<AssetsType[]>;
 }
 
 export const getAddress = (pubkey: string) => {
+  if (pubkey.length === 44) return pubkey;
   return bs58.encode(hexToBuffer(pubkey));
 };
 
@@ -57,6 +63,10 @@ export class SolanaNetwork extends BaseNetwork {
     network: BaseNetwork,
     address: string
   ) => Promise<NFTCollection[]>;
+  assetsInfoHandler?: (
+    network: BaseNetwork,
+    address: string
+  ) => Promise<AssetsType[]>;
   constructor(options: SolanaNetworkOptions) {
     const api = async () => {
       const api = new SolAPI(options.node);
@@ -75,6 +85,7 @@ export class SolanaNetwork extends BaseNetwork {
     super(baseOptions);
     this.activityHandler = options.activityHandler;
     this.NFTHandler = options.NFTHandler;
+    this.assetsInfoHandler = options.assetsInfoHandler;
   }
 
   public async getAllTokens(pubkey: string): Promise<BaseToken[]> {
@@ -94,38 +105,44 @@ export class SolanaNetwork extends BaseNetwork {
   }
 
   public async getAllTokenInfo(pubkey: string): Promise<AssetsType[]> {
-    const balance = await (await this.api()).getBalance(pubkey);
-    let marketData: (CoinGeckoTokenMarket | null)[] = [];
-    if (this.coingeckoID) {
-      const market = new MarketData();
-      marketData = await market.getMarketData([this.coingeckoID]);
+    if (this.assetsInfoHandler) {
+      return this.assetsInfoHandler(this, getAddress(pubkey));
+    } else {
+      const balance = await (await this.api()).getBalance(pubkey);
+      let marketData: (CoinGeckoTokenMarket | null)[] = [];
+      if (this.coingeckoID) {
+        const market = new MarketData();
+        marketData = await market.getMarketData([this.coingeckoID]);
+      }
+      const userBalance = fromBase(balance, this.decimals);
+      const usdBalance = new BigNumber(userBalance).times(
+        marketData.length ? marketData[0]!.current_price : 0
+      );
+      const nativeAsset: AssetsType = {
+        balance: balance,
+        balancef: formatFloatingPointValue(userBalance).value,
+        balanceUSD: usdBalance.toNumber(),
+        balanceUSDf: formatFiatValue(usdBalance.toString()).value,
+        icon: this.icon,
+        name: this.name_long,
+        symbol: this.currencyName,
+        value: marketData.length
+          ? marketData[0]!.current_price.toString()
+          : "0",
+        valuef: formatFiatValue(
+          marketData.length ? marketData[0]!.current_price.toString() : "0"
+        ).value,
+        contract: "",
+        decimals: this.decimals,
+        sparkline: marketData.length
+          ? new Sparkline(marketData[0]!.sparkline_in_7d.price, 25).dataValues
+          : "",
+        priceChangePercentage: marketData.length
+          ? marketData[0]!.price_change_percentage_7d_in_currency
+          : 0,
+      };
+      return [nativeAsset];
     }
-    const userBalance = fromBase(balance, this.decimals);
-    const usdBalance = new BigNumber(userBalance).times(
-      marketData.length ? marketData[0]!.current_price : 0
-    );
-    const nativeAsset: AssetsType = {
-      balance: balance,
-      balancef: formatFloatingPointValue(userBalance).value,
-      balanceUSD: usdBalance.toNumber(),
-      balanceUSDf: formatFiatValue(usdBalance.toString()).value,
-      icon: this.icon,
-      name: this.name_long,
-      symbol: this.currencyName,
-      value: marketData.length ? marketData[0]!.current_price.toString() : "0",
-      valuef: formatFiatValue(
-        marketData.length ? marketData[0]!.current_price.toString() : "0"
-      ).value,
-      contract: "",
-      decimals: this.decimals,
-      sparkline: marketData.length
-        ? new Sparkline(marketData[0]!.sparkline_in_7d.price, 25).dataValues
-        : "",
-      priceChangePercentage: marketData.length
-        ? marketData[0]!.price_change_percentage_7d_in_currency
-        : 0,
-    };
-    return [nativeAsset];
   }
   public getAllActivity(address: string): Promise<Activity[]> {
     return this.activityHandler(this, address);

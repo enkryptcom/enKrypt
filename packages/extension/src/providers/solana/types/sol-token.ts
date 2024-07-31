@@ -14,6 +14,6 @@ export class SOLToken extends BaseToken {
   }
 
   public async send(): Promise<any> {
-    throw new Error("EVM-send is not implemented here");
+    throw new Error("sol-send is not implemented here");
   }
 }
