@@ -12,7 +12,7 @@
         ref="addressInputFrom"
         :from="true"
         :value="addressFrom"
-        :network="(network as BitcoinNetwork)"
+        :network="network"
         :disable-direct-input="true"
         @click="toggleSelectContactFrom(true)"
         @update:input-address="inputAddressFrom"
@@ -31,7 +31,7 @@
       <send-address-input
         ref="addressInputTo"
         :value="addressTo"
-        :network="(network as BitcoinNetwork)"
+        :network="network"
         @update:input-address="inputAddressTo"
         @toggle:show-contacts="toggleSelectContactTo"
       />
@@ -46,12 +46,25 @@
         @close="toggleSelectContactTo"
       />
 
-      <send-token-select v-if="isSendToken" :token="selectedAsset" />
+      <send-token-select
+        v-if="isSendToken"
+        :token="selectedAsset"
+        @update:toggle-token-select="toggleSelectToken"
+      />
+
+      <assets-select-list
+        v-show="isOpenSelectToken"
+        :is-send="true"
+        :assets="accountAssets"
+        :is-loading="isLoadingAssets"
+        @close="toggleSelectToken"
+        @update:select-asset="selectToken"
+      />
 
       <send-nft-select
         v-if="!isSendToken"
         :item="selectedNft"
-        :is-sending-disabled="false"
+        :is-sending-disabled="isInputsValid && !isEstimateValid"
         @toggle-select="toggleSelectNft"
       />
 
@@ -67,11 +80,13 @@
       <send-input-amount
         v-if="isSendToken"
         :amount="amount"
+        :show-max="showMax"
         :fiat-value="selectedAsset.price"
-        :has-enough-balance="!nativeBalanceAfterTransaction.isNeg()"
+        :has-enough-balance="hasEnoughBalance"
         @update:input-amount="inputAmount"
         @update:input-set-max="setMaxValue"
       />
+
       <send-fee-select
         :in-swap="false"
         :selected="selectedFee"
@@ -89,9 +104,16 @@
       />
 
       <send-alert
-        v-show="nativeBalanceAfterTransaction.isNeg() || (Number(sendAmount) < (props.network as BitcoinNetwork).dust && Number(sendAmount)>0)"
-        :native-symbol="network.name"
-        :price="selectedAsset.price || '0'"
+        v-show="hasEnoughBalance"
+        :native-symbol="network.currencyName"
+        :price="accountAssets[0]?.price || '0'"
+        :native-value="'0'"
+        :decimals="network.decimals"
+      />
+      <!-- <send-alert
+        v-show="hasEnoughBalance && nativeBalanceAfterTransaction.isNeg()"
+        :native-symbol="network.currencyName"
+        :price="accountAssets[0]?.price || '0'"
         :native-value="
           fromBase(
             nativeBalanceAfterTransaction.abs().toString(),
@@ -99,10 +121,7 @@
           )
         "
         :decimals="network.decimals"
-        :below-dust="Number(sendAmount) < (props.network as BitcoinNetwork).dust"
-        :dust="(props.network as BitcoinNetwork).dust.toString()"
-        :not-enough="nativeBalanceAfterTransaction.isNeg()"
-      />
+      /> -->
 
       <div class="send-transaction__buttons">
         <div class="send-transaction__buttons-cancel">
@@ -112,7 +131,7 @@
           <base-button
             :title="sendButtonTitle"
             :click="sendAction"
-            :disabled="!isInputsValid"
+            :disabled="!isValidSend"
           />
         </div>
       </div>
@@ -123,46 +142,47 @@
 <script setup lang="ts">
 import { ref, onMounted, PropType, computed, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import { debounce } from "lodash";
 import SendHeader from "@/providers/common/ui/send-transaction/send-header.vue";
 import SendAddressInput from "./components/send-address-input.vue";
 import SendFromContactsList from "@/providers/common/ui/send-transaction/send-from-contacts-list.vue";
 import SendContactsList from "@/providers/common/ui/send-transaction/send-contacts-list.vue";
+import AssetsSelectList from "@action/views/assets-select-list/index.vue";
+import NftSelectList from "@/providers/common/ui/send-transaction/nft-select-list/index.vue";
 import SendTokenSelect from "./components/send-token-select.vue";
-import SendAlert from "@/providers/bitcoin/ui/send-transaction/components/send-alert.vue";
+import SendAlert from "@/providers/common/ui/send-transaction/send-alert.vue";
+import SendNftSelect from "@/providers/common/ui/send-transaction/send-nft-select.vue";
 import SendInputAmount from "@/providers/common/ui/send-transaction/send-input-amount.vue";
 import SendFeeSelect from "@/providers/common/ui/send-transaction/send-fee-select.vue";
 import TransactionFeeView from "@action/views/transaction-fee/index.vue";
 import BaseButton from "@action/components/base-button/index.vue";
-import SendNftSelect from "@/providers/common/ui/send-transaction/send-nft-select.vue";
-import NftSelectList from "@/providers/common/ui/send-transaction/nft-select-list/index.vue";
+import { NFTItemWithCollectionName, NFTItem, NFTType } from "@/types/nft";
 import { AccountsHeaderData } from "@action/types/account";
-import { toBN } from "web3-utils";
+import { numberToHex, toBN } from "web3-utils";
 import { GasPriceTypes, GasFeeType } from "@/providers/common/types";
-import { BitcoinNetwork } from "@/providers/bitcoin/types/bitcoin-network";
-import { BTCToken } from "../../types/btc-token";
+import { SolanaNetwork } from "../../types/sol-network";
+import { SOLToken } from "../../types/sol-token";
 import BigNumber from "bignumber.js";
 import { defaultGasCostVals } from "@/providers/common/libs/default-vals";
+import Transaction from "@/providers/ethereum/libs/transaction";
+import Web3Eth from "web3-eth";
 import { fromBase, toBase, isValidDecimals } from "@enkryptcom/utils";
+import { VerifyTransactionParams } from "../types";
 import { formatFloatingPointValue } from "@/libs/utils/number-formatter";
 import { routes as RouterNames } from "@/ui/action/router";
 import getUiPath from "@/libs/utils/get-ui-path";
 import Browser from "webextension-polyfill";
 import { ProviderName } from "@/types/provider";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
-
-import { getGasCostValues, isAddress } from "../../libs/utils";
-import BitcoinAPI from "@/providers/bitcoin/libs/api";
-import { calculateSizeBasedOnType } from "../libs/tx-size";
-import { HaskoinUnspentType } from "../../types";
-import { VerifyTransactionParams } from "../types";
-import { getTxInfo as getBTCTxInfo } from "@/providers/bitcoin/libs/utils";
-import { NFTItem, NFTItemWithCollectionName, NFTType } from "@/types/nft";
+import { GenericNameResolver, CoinType } from "@/libs/name-resolver";
+import { NetworkNames } from "@enkryptcom/types";
 import { trackSendEvents } from "@/libs/metrics";
 import { SendEventType } from "@/libs/metrics/types";
+import { NATIVE_TOKEN_ADDRESS } from "@/providers/ethereum/libs/common";
 
 const props = defineProps({
   network: {
-    type: Object as PropType<BitcoinNetwork>,
+    type: Object as PropType<SolanaNetwork>,
     default: () => ({}),
   },
   accountInfo: {
@@ -170,35 +190,50 @@ const props = defineProps({
     default: () => ({}),
   },
 });
-const loadingAsset = new BTCToken({
+
+const loadingAsset = new SOLToken({
   icon: props.network.icon,
   symbol: "Loading",
   balance: "0",
   price: "0",
   name: "loading",
-  decimals: props.network.decimals,
+  contract: "0x0",
+  decimals: 9,
 });
 
-const addressInputTo = ref();
 const route = useRoute();
 const router = useRouter();
+
+const nameResolver = new GenericNameResolver();
+const addressInputTo = ref();
 const selected: string = route.params.id as string;
 const paramNFTData: NFTItem = JSON.parse(
   route.params.tokenData ? (route.params.tokenData as string) : "{}"
 ) as NFTItem;
 const isSendToken = ref<boolean>(JSON.parse(route.params.isToken as string));
-const selectedAsset = ref<BTCToken>(loadingAsset);
+const accountAssets = ref<SOLToken[]>([]);
+const selectedAsset = ref<SOLToken>(loadingAsset);
 const amount = ref<string>("");
-const accountUTXOs = ref<HaskoinUnspentType[]>([]);
-const isOpenSelectNft = ref(false);
+const isEstimateValid = ref(true);
+const hasEnoughBalance = computed(() => {
+  if (!isValidDecimals(sendAmount.value, selectedAsset.value.decimals!)) {
+    return false;
+  }
 
+  return toBN(selectedAsset.value.balance ?? "0").gte(
+    toBN(toBase(sendAmount.value ?? "0", selectedAsset.value.decimals!))
+  );
+});
 const sendAmount = computed(() => {
   if (amount.value && amount.value !== "") return amount.value;
   return "0";
 });
-
 const isMaxSelected = ref<boolean>(false);
-const selectedFee = ref<GasPriceTypes>(GasPriceTypes.REGULAR);
+const selectedFee = ref<GasPriceTypes>(
+  props.network.name === NetworkNames.Ethereum || NetworkNames.Binance
+    ? GasPriceTypes.REGULAR
+    : GasPriceTypes.ECONOMY
+);
 const gasCostValues = ref<GasFeeType>(defaultGasCostVals);
 const addressFrom = ref<string>(
   props.accountInfo.selectedAccount?.address ?? ""
@@ -206,65 +241,216 @@ const addressFrom = ref<string>(
 const addressTo = ref<string>("");
 const isLoadingAssets = ref(true);
 
+const selectedNft = ref<NFTItemWithCollectionName>({
+  id: "",
+  contract: "",
+  image: "",
+  name: "Loading",
+  url: "",
+  collectionName: "",
+  type: NFTType.ERC721,
+});
+
+const showMax = computed(() => {
+  if (selectedAsset.value.contract !== NATIVE_TOKEN_ADDRESS) return true;
+  return true;
+});
+
+// const nativeBalance = computed(() => {
+//   const accountIndex = props.accountInfo.activeAccounts.findIndex(
+//     (acc) => acc.address === addressFrom.value
+//   );
+
+//   if (accountIndex !== -1) {
+//     const balance = props.accountInfo.activeBalances[accountIndex];
+
+//     if (balance !== "~") {
+//       return toBase(balance, props.network.decimals);
+//     }
+//   }
+
+//   return "0";
+// });
+
 onMounted(async () => {
   trackSendEvents(SendEventType.SendOpen, { network: props.network.name });
-  fetchAssets().then(setBaseCosts);
+  fetchAssets();
+  //.then(setBaseCosts);
 });
 
-const nativeBalanceAfterTransaction = computed(() => {
-  if (
-    selectedAsset.value &&
-    isValidDecimals(sendAmount.value, selectedAsset.value.decimals!)
-  ) {
-    return UTXOBalance.value.sub(
-      toBN(toBase(sendAmount.value ?? "0", selectedAsset.value.decimals!)).add(
-        toBN(
-          toBase(
-            gasCostValues.value[selectedFee.value].nativeValue,
-            selectedAsset.value.decimals!
-          )
-        )
-      )
-    );
-  }
-  return toBN(0);
-});
+// const TxInfo = computed<SendTransactionDataType>(() => {
+//   const web3 = new Web3Eth();
+//   const value =
+//     isSendToken.value && selectedAsset.value.contract === NATIVE_TOKEN_ADDRESS
+//       ? numberToHex(toBase(sendAmount.value, props.network.decimals))
+//       : "0x0";
+//   const toAddress =
+//     isSendToken.value && selectedAsset.value.contract === NATIVE_TOKEN_ADDRESS
+//       ? addressTo.value
+//       : isSendToken.value
+//       ? selectedAsset.value.contract
+//       : selectedNft.value.contract;
+//   const erc20Contract = new web3.Contract(erc20 as any);
+//   const erc721Contract = new web3.Contract(erc721 as any);
+//   const erc1155Contract = new web3.Contract(erc1155 as any);
+//   const data =
+//     isSendToken.value && selectedAsset.value.contract === NATIVE_TOKEN_ADDRESS
+//       ? "0x"
+//       : isSendToken.value
+//       ? erc20Contract.methods
+//           .transfer(
+//             addressTo.value,
+//             toBase(sendAmount.value, selectedAsset.value.decimals!)
+//           )
+//           .encodeABI()
+//       : selectedNft.value.type === NFTType.ERC721
+//       ? erc721Contract.methods
+//           .transferFrom(
+//             addressFrom.value,
+//             addressTo.value,
+//             selectedNft.value.id
+//           )
+//           .encodeABI()
+//       : erc1155Contract.methods
+//           .safeTransferFrom(
+//             addressFrom.value,
+//             addressTo.value,
+//             selectedNft.value.id,
+//             1,
+//             []
+//           )
+//           .encodeABI();
+//   return {
+//     chainId: props.network.chainID,
+//     from: addressFrom.value as `0x{string}`,
+//     value: value as `0x${string}`,
+//     to: toAddress as `0x${string}`,
+//     data: data as `0x${string}`,
+//   };
+// });
+// const Tx = computed(() => {
+//   const web3 = new Web3Eth(props.network.node);
+//   const tx = new Transaction(TxInfo.value, web3);
+//   return tx;
+// });
 
-const setTransactionFees = (byteSize: number) => {
-  const nativeVal = selectedAsset.value.price || "0";
-  getGasCostValues(
-    props.network as BitcoinNetwork,
-    byteSize,
-    nativeVal,
-    props.network.decimals,
-    props.network.currencyName
-  ).then((val) => (gasCostValues.value = val));
-};
+// const nativeBalanceAfterTransaction = computed(() => {
+//   if (
+//     isSendToken.value &&
+//     nativeBalance.value &&
+//     selectedAsset.value &&
+//     selectedAsset.value.contract &&
+//     amount.value !== "" &&
+//     isValidDecimals(sendAmount.value, selectedAsset.value.decimals!)
+//   ) {
+//     let endingAmount = toBN(nativeBalance.value);
 
-const setBaseCosts = () => {
-  updateUTXOs().then(() => {
-    if (isMaxSelected.value) setMaxValue();
-  });
-};
+//     if (selectedAsset.value.contract === NATIVE_TOKEN_ADDRESS) {
+//       const rawAmount = toBN(
+//         toBase(amount.value, selectedAsset.value.decimals!)
+//       );
+//       endingAmount = endingAmount.sub(rawAmount);
+//     }
 
-const updateUTXOs = async () => {
-  const api = (await props.network.api()) as BitcoinAPI;
-  return api.getUTXOs(addressFrom.value).then((utxos) => {
-    accountUTXOs.value = utxos;
-    const txSize = calculateSizeBasedOnType(
-      accountUTXOs.value.length + (isSendToken.value ? 0 : 1),
-      2,
-      (props.network as BitcoinNetwork).networkInfo.paymentType
-    );
-    setTransactionFees(Math.ceil(txSize));
-  });
-};
+//     endingAmount = endingAmount.sub(
+//       toBN(
+//         toBase(
+//           gasCostValues.value[selectedFee.value].nativeValue,
+//           props.network.decimals
+//         )
+//       )
+//     );
 
+//     return endingAmount;
+//   } else if (
+//     !isSendToken.value &&
+//     nativeBalance.value &&
+//     selectedNft.value.id
+//   ) {
+//     let endingAmount = toBN(nativeBalance.value);
+//     endingAmount = endingAmount.sub(
+//       toBN(
+//         toBase(
+//           gasCostValues.value[selectedFee.value].nativeValue,
+//           props.network.decimals
+//         )
+//       )
+//     );
+//     return endingAmount;
+//   }
+
+//   return toBN(0);
+// });
+
+// const setTransactionFees = (tx: Transaction) => {
+//   return tx
+//     .getGasCosts()
+//     .then(async (gasvals) => {
+//       const getConvertedVal = (type: GasPriceTypes) =>
+//         fromBase(gasvals[type], props.network.decimals);
+//       const nativeVal = accountAssets.value[0].price || "0";
+//       gasCostValues.value = {
+//         [GasPriceTypes.ECONOMY]: {
+//           nativeValue: getConvertedVal(GasPriceTypes.ECONOMY),
+//           fiatValue: new BigNumber(getConvertedVal(GasPriceTypes.ECONOMY))
+//             .times(nativeVal!)
+//             .toString(),
+//           nativeSymbol: props.network.currencyName,
+//           fiatSymbol: "USD",
+//         },
+//         [GasPriceTypes.REGULAR]: {
+//           nativeValue: getConvertedVal(GasPriceTypes.REGULAR),
+//           fiatValue: new BigNumber(getConvertedVal(GasPriceTypes.REGULAR))
+//             .times(nativeVal!)
+//             .toString(),
+//           nativeSymbol: props.network.currencyName,
+//           fiatSymbol: "USD",
+//         },
+//         [GasPriceTypes.FAST]: {
+//           nativeValue: getConvertedVal(GasPriceTypes.FAST),
+//           fiatValue: new BigNumber(getConvertedVal(GasPriceTypes.FAST))
+//             .times(nativeVal!)
+//             .toString(),
+//           nativeSymbol: props.network.currencyName,
+//           fiatSymbol: "USD",
+//         },
+//         [GasPriceTypes.FASTEST]: {
+//           nativeValue: getConvertedVal(GasPriceTypes.FASTEST),
+//           fiatValue: new BigNumber(getConvertedVal(GasPriceTypes.FASTEST))
+//             .times(nativeVal!)
+//             .toString(),
+//           nativeSymbol: props.network.currencyName,
+//           fiatSymbol: "USD",
+//         },
+//       };
+//       isEstimateValid.value = true;
+//     })
+//     .catch(() => {
+//       isEstimateValid.value = false;
+//     });
+// };
+
+// const setBaseCosts = () => {
+//   const web3 = new Web3Eth(props.network.node);
+//   const tx = new Transaction(
+//     {
+//       chainId: props.network.chainID,
+//       from: props.accountInfo.selectedAccount!.address as `0x{string}`,
+//       value: "0x0",
+//       to: NATIVE_TOKEN_ADDRESS,
+//     },
+//     web3
+//   );
+//   updateTransactionFees(tx);
+// };
 const fetchAssets = () => {
+  accountAssets.value = [];
   selectedAsset.value = loadingAsset;
   isLoadingAssets.value = true;
   return props.network.getAllTokens(addressFrom.value).then((allAssets) => {
-    selectedAsset.value = allAssets[0] as BTCToken;
+    accountAssets.value = allAssets as SOLToken[];
+    selectedAsset.value = allAssets[0] as SOLToken;
+
     isLoadingAssets.value = false;
   });
 };
@@ -277,14 +463,21 @@ const sendButtonTitle = computed(() => {
       formatFloatingPointValue(sendAmount.value).value +
       " " +
       selectedAsset.value?.symbol!.toUpperCase();
+  if (!isSendToken.value) {
+    title = "Send NFT";
+  }
   return title;
 });
 
+const isValidSend = computed<boolean>(() => {
+  // if (!isInputsValid.value) return false;
+  // if (nativeBalanceAfterTransaction.value.isNeg()) return false;
+  // if (!isEstimateValid.value) return false;
+  return true;
+});
+
 const isInputsValid = computed<boolean>(() => {
-  if (
-    !isAddress(addressTo.value, (props.network as BitcoinNetwork).networkInfo)
-  )
-    return false;
+  if (!props.network.isAddress(addressTo.value)) return false;
   if (
     isSendToken.value &&
     !isValidDecimals(sendAmount.value, selectedAsset.value.decimals!)
@@ -294,34 +487,42 @@ const isInputsValid = computed<boolean>(() => {
   if (!isSendToken.value && !selectedNft.value.id) {
     return false;
   }
-  if (
-    Number(sendAmount.value) < (props.network as BitcoinNetwork).dust &&
-    isSendToken.value
-  )
-    return false;
   if (new BigNumber(sendAmount.value).gt(assetMaxValue.value)) return false;
+  if (gasCostValues.value.REGULAR.nativeValue === "0") return false;
   return true;
 });
 
-watch([addressFrom], () => {
-  if (addressFrom.value) {
-    fetchAssets().then(setBaseCosts);
+const updateTransactionFees = (tx: Transaction) => {
+  if (isMaxSelected.value) {
+    amount.value = "";
   }
-});
+  // setTransactionFees(tx).then(() => {
+  //   if (isMaxSelected.value) {
+  //     amount.value =
+  //       parseFloat(assetMaxValue.value) < 0 ? "0" : assetMaxValue.value;
+  //   }
+  // });
+};
 
 const isOpenSelectContactFrom = ref<boolean>(false);
 const isOpenSelectContactTo = ref<boolean>(false);
+const isOpenSelectToken = ref<boolean>(false);
 
 const isOpenSelectFee = ref<boolean>(false);
 
-const selectedNft = ref<NFTItemWithCollectionName>({
-  id: "",
-  contract: "",
-  image: "",
-  name: "Loading",
-  url: "",
-  collectionName: "",
-  type: NFTType.Ordinals,
+const isOpenSelectNft = ref(false);
+
+// watch(
+//   [isInputsValid, addressTo, selectedAsset, selectedNft, isSendToken],
+//   () => {
+//     if (isInputsValid.value) {
+//       updateTransactionFees(Tx.value);
+//     }
+//   }
+// );
+
+watch([isSendToken], () => {
+  inputAmount("0");
 });
 
 const close = () => {
@@ -331,36 +532,51 @@ const close = () => {
   router.go(-1);
 };
 
-const UTXOBalance = computed(() => {
-  return toBN(accountUTXOs.value.reduce((a, c) => a + c.value, 0));
-});
-
 const assetMaxValue = computed(() => {
-  return fromBase(
-    UTXOBalance.value
-      .sub(
-        toBN(
-          toBase(
-            gasCostValues.value[selectedFee.value].nativeValue,
-            selectedAsset.value.decimals!
+  if (!isSendToken.value) {
+    return "0";
+  }
+  if (selectedAsset.value.contract === NATIVE_TOKEN_ADDRESS) {
+    return fromBase(
+      toBN(selectedAsset.value.balance || "0")
+        .sub(
+          toBN(
+            toBase(
+              gasCostValues.value[selectedFee.value].nativeValue,
+              selectedAsset.value.decimals!
+            )
           )
         )
-      )
-      .toString(),
-    selectedAsset.value.decimals!
-  );
+        .toString(),
+      selectedAsset.value.decimals!
+    );
+  } else
+    return fromBase(
+      selectedAsset.value.balance!,
+      selectedAsset.value.decimals!
+    );
 });
-
 const setMaxValue = () => {
   isMaxSelected.value = true;
-  amount.value =
-    parseFloat(assetMaxValue.value) < 0 ? "0" : assetMaxValue.value;
+  // if (isInputsValid.value) {
+  //   updateTransactionFees(Tx.value);
+  // }
 };
 const inputAddressFrom = (text: string) => {
   addressFrom.value = text;
 };
 
-const inputAddressTo = (text: string) => {
+const inputAddressTo = async (text: string) => {
+  const debounceResolve = debounce(() => {
+    nameResolver
+      .resolveName(text, [props.network.name as CoinType, "ETH"])
+      .then((resolved) => {
+        if (resolved) {
+          addressTo.value = resolved;
+        }
+      });
+  }, 500);
+  debounceResolve();
   addressTo.value = text;
 };
 
@@ -372,6 +588,10 @@ const toggleSelectContactTo = (open: boolean) => {
   isOpenSelectContactTo.value = open;
 };
 
+const toggleSelectToken = () => {
+  isOpenSelectToken.value = !isOpenSelectToken.value;
+};
+
 const selectAccountFrom = (account: string) => {
   addressFrom.value = account;
   isOpenSelectContactFrom.value = false;
@@ -379,8 +599,14 @@ const selectAccountFrom = (account: string) => {
 };
 
 const selectAccountTo = (account: string) => {
-  addressTo.value = props.network.displayAddress(account);
+  addressTo.value = account;
   isOpenSelectContactTo.value = false;
+};
+
+const selectToken = (token: SOLToken) => {
+  inputAmount("0");
+  selectedAsset.value = token;
+  isOpenSelectToken.value = false;
 };
 
 const inputAmount = (inputAmount: string) => {
@@ -390,6 +616,9 @@ const inputAmount = (inputAmount: string) => {
   const inputAmountBn = new BigNumber(inputAmount);
   isMaxSelected.value = false;
   amount.value = inputAmountBn.lt(0) ? "0" : inputAmount;
+  // if (isInputsValid.value) {
+  //   updateTransactionFees(Tx.value);
+  // }
 };
 
 const toggleSelectFee = () => {
@@ -399,7 +628,66 @@ const toggleSelectFee = () => {
 const selectFee = (type: GasPriceTypes) => {
   selectedFee.value = type;
   isOpenSelectFee.value = false;
-  if (isMaxSelected.value) setMaxValue();
+  // if (isMaxSelected.value && isInputsValid.value)
+  //   updateTransactionFees(Tx.value);
+};
+
+const sendAction = async () => {
+  // const keyring = new PublicKeyRing();
+  // const fromAccountInfo = await keyring.getAccount(
+  //   addressFrom.value.toLowerCase()
+  // );
+  // const txVerifyInfo: VerifyTransactionParams = {
+  //   TransactionData: TxInfo.value,
+  //   isNFT: !isSendToken.value,
+  //   NFTData: !isSendToken.value ? selectedNft.value : undefined,
+  //   toToken: {
+  //     amount: toBase(sendAmount.value, selectedAsset.value.decimals!),
+  //     decimals: selectedAsset.value.decimals!,
+  //     icon: selectedAsset.value.icon as string,
+  //     symbol: selectedAsset.value.symbol || "unknown",
+  //     valueUSD: new BigNumber(selectedAsset.value.price || "0")
+  //       .times(sendAmount.value)
+  //       .toString(),
+  //     name: selectedAsset.value.name || "",
+  //     price: selectedAsset.value.price || "0",
+  //   },
+  //   fromAddress: fromAccountInfo.address,
+  //   fromAddressName: fromAccountInfo.name,
+  //   gasFee: gasCostValues.value[selectedFee.value],
+  //   gasPriceType: selectedFee.value,
+  //   toAddress: addressTo.value,
+  // };
+  // const routedRoute = router.resolve({
+  //   name: RouterNames.verify.name,
+  //   query: {
+  //     id: selected,
+  //     txData: Buffer.from(JSON.stringify(txVerifyInfo), "utf8").toString(
+  //       "base64"
+  //     ),
+  //   },
+  // });
+  // if (fromAccountInfo.isHardware) {
+  //   await Browser.windows.create({
+  //     url: Browser.runtime.getURL(
+  //       getUiPath(
+  //         `eth-hw-verify?id=${routedRoute.query.id}&txData=${routedRoute.query.txData}`,
+  //         ProviderName.ethereum
+  //       )
+  //     ),
+  //     type: "popup",
+  //     focused: true,
+  //     height: 600,
+  //     width: 460,
+  //   });
+  //   window.close();
+  // } else {
+  //   router.push(routedRoute);
+  // }
+};
+
+const toggleSelector = (isTokenSend: boolean) => {
+  isSendToken.value = isTokenSend;
 };
 
 const toggleSelectNft = (open: boolean) => {
@@ -409,106 +697,6 @@ const toggleSelectNft = (open: boolean) => {
 const selectNFT = (item: NFTItemWithCollectionName) => {
   selectedNft.value = item;
   isOpenSelectNft.value = false;
-};
-
-const sendAction = async () => {
-  const keyring = new PublicKeyRing();
-  const fromAccountInfo = await keyring.getAccount(addressFrom.value);
-  const currentFee = toBN(
-    toBase(
-      gasCostValues.value[selectedFee.value].nativeValue,
-      selectedAsset.value.decimals
-    )
-  );
-  let txInfo = getBTCTxInfo(accountUTXOs.value);
-  let toAmount = toBN(toBase(sendAmount.value, selectedAsset.value.decimals));
-  if (isSendToken.value) {
-    txInfo.outputs.push({
-      address: addressTo.value,
-      value: toAmount.toNumber(),
-    });
-  } else {
-    const api = (await props.network.api()) as BitcoinAPI;
-    const [txid, index] = selectedNft.value.id.split(":");
-    const ordinalTx = await api.getTransactionStatus(txid);
-    const ordinalOutput = ordinalTx!.outputs[parseInt(index)];
-    txInfo = getBTCTxInfo(accountUTXOs.value, {
-      address: ordinalOutput.address,
-      block: {
-        height: ordinalTx!.blockNumber,
-        position: -1, // not needed
-      },
-      index: parseInt(index),
-      pkscript: ordinalOutput.pkscript,
-      txid,
-      value: ordinalOutput.value,
-    });
-    toAmount = toBN(ordinalOutput.value);
-    txInfo.outputs.push({
-      address: addressTo.value,
-      value: ordinalOutput.value,
-    });
-  }
-  const remainder = UTXOBalance.value.sub(toAmount).sub(currentFee);
-  if (remainder.gtn(0)) {
-    txInfo.outputs.push({
-      address: props.network.displayAddress(addressFrom.value),
-      value: remainder.toNumber(),
-    });
-  }
-
-  const txVerifyInfo: VerifyTransactionParams = {
-    TxInfo: JSON.stringify(txInfo),
-    isNFT: !isSendToken.value,
-    NFTData: !isSendToken.value ? selectedNft.value : undefined,
-    toToken: {
-      amount: toAmount.toString(),
-      decimals: selectedAsset.value.decimals!,
-      icon: selectedAsset.value.icon as string,
-      symbol: selectedAsset.value.symbol,
-      valueUSD: new BigNumber(selectedAsset.value.price || "0")
-        .times(sendAmount.value)
-        .toString(),
-      name: selectedAsset.value.name,
-      price: selectedAsset.value.price || "0",
-    },
-    fromAddress: fromAccountInfo.address,
-    fromAddressName: fromAccountInfo.name,
-    gasFee: gasCostValues.value[selectedFee.value],
-    gasPriceType: selectedFee.value,
-    toAddress: addressTo.value,
-  };
-
-  const routedRoute = router.resolve({
-    name: RouterNames.verify.name,
-    query: {
-      id: selected,
-      txData: Buffer.from(JSON.stringify(txVerifyInfo), "utf8").toString(
-        "base64"
-      ),
-    },
-  });
-
-  if (fromAccountInfo.isHardware) {
-    await Browser.windows.create({
-      url: Browser.runtime.getURL(
-        getUiPath(
-          `eth-hw-verify?id=${routedRoute.query.id}&txData=${routedRoute.query.txData}`,
-          ProviderName.ethereum
-        )
-      ),
-      type: "popup",
-      focused: true,
-      height: 600,
-      width: 460,
-    });
-  } else {
-    router.push(routedRoute);
-  }
-};
-
-const toggleSelector = (isTokenSend: boolean) => {
-  isSendToken.value = isTokenSend;
 };
 </script>
 
@@ -552,13 +740,5 @@ const toggleSelector = (isTokenSend: boolean) => {
       width: 218px;
     }
   }
-}
-p {
-  font-weight: 400;
-  font-size: 14px;
-  line-height: 20px;
-  letter-spacing: 0.25px;
-  color: @error;
-  margin: 0;
 }
 </style>

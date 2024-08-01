@@ -12,6 +12,13 @@
           </a>
         </div>
         <hardware-wallet-msg :wallet-type="account?.walletType" />
+        <p
+          class="verify-transaction__description"
+          style="color: red"
+          :class="{ popup: isPopup }"
+        >
+          {{ errorMsg }}
+        </p>
         <p class="verify-transaction__description" :class="{ popup: isPopup }">
           Double check the information and confirm transaction
         </p>
@@ -27,13 +34,12 @@
             :network="network"
           />
           <verify-transaction-account
-            :address="txData.toAddress"
+            :address="network.displayAddress(txData.toAddress)"
             :network="network"
           />
           <verify-transaction-amount v-if="!isNft" :token="txData.toToken" />
           <verify-transaction-nft v-if="isNft" :item="txData.NFTData!" />
           <verify-transaction-fee :fee="txData.gasFee" />
-          {{ errorMsg }}
         </div>
       </custom-scrollbar>
 
@@ -86,15 +92,20 @@ import HardwareWalletMsg from "@/providers/common/ui/verify-transaction/hardware
 import SendProcess from "@action/views/send-process/index.vue";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
 import { VerifyTransactionParams } from "../../types";
+import Transaction from "@/providers/ethereum/libs/transaction";
+import Web3Eth from "web3-eth";
 import { getCurrentContext } from "@/libs/messenger/extension";
-import { DEFAULT_BTC_NETWORK, getNetworkByName } from "@/libs/utils/networks";
+import { DEFAULT_EVM_NETWORK, getNetworkByName } from "@/libs/utils/networks";
 import { TransactionSigner } from "../../libs/signer";
 import { ActivityStatus, Activity, ActivityType } from "@/types/activity";
 import ActivityState from "@/libs/activity-state";
 import { EnkryptAccount } from "@enkryptcom/types";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
-import { BitcoinNetwork } from "@/providers/bitcoin/types/bitcoin-network";
-import BitcoinAPI from "@/providers/bitcoin/libs/api";
+import broadcastTx from "@/providers/ethereum/libs/tx-broadcaster";
+import { BaseNetwork } from "@/types/base-network";
+import { bigIntToHex } from "@ethereumjs/util";
+import { toBN } from "web3-utils";
+import { bufferToHex, toBase } from "@enkryptcom/utils";
 import { trackSendEvents } from "@/libs/metrics";
 import { SendEventType } from "@/libs/metrics/types";
 
@@ -107,7 +118,7 @@ const txData: VerifyTransactionParams = JSON.parse(
 );
 const isNft = ref(txData.isNFT);
 const isProcessing = ref(false);
-const network = ref<BitcoinNetwork>(DEFAULT_BTC_NETWORK);
+const network = ref<BaseNetwork>(DEFAULT_EVM_NETWORK);
 const isSendDone = ref(false);
 const account = ref<EnkryptAccount>();
 const isPopup: boolean = getCurrentContext() === "new-window";
@@ -116,7 +127,7 @@ const isWindowPopup = ref(false);
 const errorMsg = ref("");
 defineExpose({ verifyScrollRef });
 onBeforeMount(async () => {
-  network.value = (await getNetworkByName(selectedNetwork)!) as BitcoinNetwork;
+  network.value = (await getNetworkByName(selectedNetwork))!;
   trackSendEvents(SendEventType.SendVerify, { network: network.value.name });
   account.value = await KeyRing.getAccount(txData.fromAddress);
   isWindowPopup.value = account.value.isHardware;
@@ -134,8 +145,11 @@ const sendAction = async () => {
   trackSendEvents(SendEventType.SendApprove, {
     network: network.value.name,
   });
+  const web3 = new Web3Eth(network.value.node);
+  const tx = new Transaction(txData.TransactionData, web3);
+
   const txActivity: Activity = {
-    from: network.value.displayAddress(txData.fromAddress),
+    from: txData.fromAddress,
     to: txData.toAddress,
     isIncoming: txData.fromAddress === txData.toAddress,
     network: network.value.name,
@@ -155,61 +169,80 @@ const sendAction = async () => {
     transactionHash: "",
   };
   const activityState = new ActivityState();
-  const api = (await network.value.api()) as BitcoinAPI;
-  TransactionSigner({
-    account: account.value!,
-    network: network.value as BitcoinNetwork,
-    payload: JSON.parse(txData.TxInfo),
-  })
-    .then((signedTx) => {
-      api
-        .broadcastTx(signedTx.extractTransaction().toHex())
-        .then(() => {
-          trackSendEvents(SendEventType.SendComplete, {
-            network: network.value.name,
-          });
-          activityState.addActivities(
-            [
-              {
-                ...txActivity,
-                ...{ transactionHash: signedTx.extractTransaction().getId() },
-              },
-            ],
+  await tx
+    .getFinalizedTransaction({
+      gasPriceType: txData.gasPriceType,
+      totalGasPrice: toBN(
+        toBase(txData.gasFee.nativeValue, network.value.decimals)
+      ),
+    })
+    .then(async (finalizedTx) => {
+      const onHash = (hash: string) => {
+        trackSendEvents(SendEventType.SendComplete, {
+          network: network.value.name,
+        });
+        activityState.addActivities(
+          [
             {
-              address: network.value.displayAddress(txData.fromAddress),
-              network: network.value.name,
-            }
-          );
-          isSendDone.value = true;
-          if (getCurrentContext() === "popup") {
-            setTimeout(() => {
-              isProcessing.value = false;
-              router.go(-2);
-            }, 4500);
-          } else {
-            setTimeout(() => {
-              isProcessing.value = false;
-              window.close();
-            }, 1500);
-          }
+              ...txActivity,
+              ...{
+                transactionHash: hash,
+                nonce: bigIntToHex(finalizedTx.nonce),
+              },
+            },
+          ],
+          { address: txData.fromAddress, network: network.value.name }
+        );
+        isSendDone.value = true;
+        if (getCurrentContext() === "popup") {
+          setTimeout(() => {
+            isProcessing.value = false;
+            router.go(-2);
+          }, 4500);
+        } else {
+          setTimeout(() => {
+            isProcessing.value = false;
+            window.close();
+          }, 1500);
+        }
+      };
+      TransactionSigner({
+        account: account.value!,
+        network: network.value,
+        payload: finalizedTx,
+      })
+        .then((signedTx) => {
+          broadcastTx(bufferToHex(signedTx.serialize()), network.value.name)
+            .then(onHash)
+            .catch(() => {
+              web3
+                .sendSignedTransaction(bufferToHex(signedTx.serialize()))
+                .on("transactionHash", onHash)
+                .on("error", (error: any) => {
+                  txActivity.status = ActivityStatus.failed;
+                  activityState.addActivities([txActivity], {
+                    address: txData.fromAddress,
+                    network: network.value.name,
+                  });
+                  isProcessing.value = false;
+                  errorMsg.value = error.message;
+                  trackSendEvents(SendEventType.SendFailed, {
+                    network: network.value.name,
+                    error: errorMsg.value,
+                  });
+                  console.error("ERROR", error);
+                });
+            });
         })
-        .catch((error) => {
+        .catch((e) => {
+          isProcessing.value = false;
+          errorMsg.value = e.error ? e.error.message : e.message;
           trackSendEvents(SendEventType.SendFailed, {
             network: network.value.name,
-            error: error.message,
+            error: errorMsg.value,
           });
-          txActivity.status = ActivityStatus.failed;
-          activityState.addActivities([txActivity], {
-            address: txData.fromAddress,
-            network: network.value.name,
-          });
-          console.error("ERROR", error);
+          console.error(e);
         });
-    })
-    .catch((error) => {
-      isProcessing.value = false;
-      console.error("error", error);
-      errorMsg.value = JSON.stringify(error);
     });
 };
 const isHasScroll = () => {
@@ -236,6 +269,7 @@ const isHasScroll = () => {
 
   &.popup {
     box-shadow: none;
+    padding: 0 23px;
   }
 }
 
@@ -282,7 +316,7 @@ const isHasScroll = () => {
     font-size: 16px;
     line-height: 24px;
     color: @secondaryLabel;
-    padding: 4px 141px 16px 32px;
+    padding: 4px 141px 13px 32px;
     margin: 0;
 
     &.popup {
@@ -306,7 +340,7 @@ const isHasScroll = () => {
     position: absolute;
     left: 0;
     bottom: 0;
-    padding: 0 32px 32px 32px;
+    padding: 10px 32px 14px 32px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -315,8 +349,10 @@ const isHasScroll = () => {
     box-sizing: border-box;
 
     &.popup {
-      padding: 24px;
+      padding: 24px 0;
       background: @white;
+      box-shadow: none !important;
+      border-top: 1px solid rgba(0, 0, 0, 0.05);
     }
 
     &.border {

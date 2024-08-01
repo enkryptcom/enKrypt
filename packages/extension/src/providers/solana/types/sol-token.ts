@@ -1,9 +1,15 @@
 import { BaseToken, BaseTokenOptions } from "@/types/base-token";
 import SolanaAPI from "@/providers/bitcoin/libs/api";
 
+export interface SolTokenOptions extends BaseTokenOptions {
+  contract: string;
+}
+
 export class SOLToken extends BaseToken {
-  constructor(options: BaseTokenOptions) {
+  contract: string;
+  constructor(options: SolTokenOptions) {
     super(options);
+    this.contract = options.contract;
   }
 
   public async getLatestUserBalance(

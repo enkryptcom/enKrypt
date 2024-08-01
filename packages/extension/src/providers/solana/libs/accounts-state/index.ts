@@ -5,7 +5,7 @@ class AccountState {
   #storage: BrowserStorage;
   constructor() {
     this.#storage = new BrowserStorage(
-      InternalStorageNamespace.bitcoinAccountsState
+      InternalStorageNamespace.solanaAccountsState
     );
   }
   async addApprovedAddress(address: string, domain: string): Promise<void> {

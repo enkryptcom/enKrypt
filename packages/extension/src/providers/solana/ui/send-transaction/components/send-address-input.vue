@@ -2,8 +2,8 @@
   <div class="send-address-input" :class="{ focus: isFocus }">
     <div class="send-address-input__avatar">
       <img
-        v-if="isAddress(btcAddress, network.networkInfo)"
-        :src="network.identicon(btcAddress)"
+        v-if="network.isAddress(solAddress)"
+        :src="network.identicon(solAddress)"
         alt=""
       />
     </div>
@@ -17,7 +17,7 @@
         :disabled="disableDirectInput"
         placeholder="address"
         :style="{
-          color: !isAddress(btcAddress, network.networkInfo) ? 'red' : 'black',
+          color: !network.isAddress(solAddress) ? 'red' : 'black',
         }"
         @focus="changeFocus"
         @blur="changeFocus"
@@ -30,8 +30,7 @@
 import { replaceWithEllipsis } from "@/ui/action/utils/filters";
 import { computed } from "@vue/reactivity";
 import { PropType, ref } from "vue";
-import { isAddress } from "@/providers/bitcoin/libs/utils";
-import { BitcoinNetwork } from "@/providers/bitcoin/types/bitcoin-network";
+import { SolanaNetwork } from "@/providers/solana/types/sol-network";
 
 const isFocus = ref<boolean>(false);
 const addressInput = ref<HTMLInputElement>();
@@ -50,7 +49,7 @@ const props = defineProps({
     },
   },
   network: {
-    type: Object as PropType<BitcoinNetwork>,
+    type: Object as PropType<SolanaNetwork>,
     default: () => ({}),
   },
   from: {
@@ -63,16 +62,15 @@ const emit = defineEmits<{
   (e: "update:inputAddress", address: string): void;
   (e: "toggle:showContacts", show: boolean): void;
 }>();
-const btcAddress = computed(() => {
-  if (props.value && props.value.length > 66)
-    return props.network.displayAddress(props.value);
+const solAddress = computed(() => {
+  if (props.value) return props.network.displayAddress(props.value);
   else return props.value;
 });
 const address = computed({
   get: () =>
     isFocus.value
-      ? btcAddress.value
-      : replaceWithEllipsis(btcAddress.value, 6, 6),
+      ? solAddress.value
+      : replaceWithEllipsis(solAddress.value, 6, 6),
   set: (value) => emit("update:inputAddress", value),
 });
 

@@ -9,7 +9,7 @@ import {
   SendMessageHandler,
 } from "@/types/provider";
 import { EnkryptWindow } from "@/types/globals";
-import { BitcoinNetworks } from "./types";
+import { SolanaNetwork } from "./types/sol-network";
 import { InternalMethods } from "@/types/messenger";
 import { SettingsType } from "@/libs/settings-state/types";
 
@@ -19,14 +19,14 @@ export class Provider extends EventEmitter implements ProviderInterface {
   type: ProviderType;
   version: string = __VERSION__;
   autoRefreshOnNetworkChange = false;
-  networks: typeof BitcoinNetworks;
+  networks: typeof SolanaNetwork;
   sendMessageHandler: SendMessageHandler;
   constructor(options: ProviderOptions) {
     super();
     this.connected = true;
     this.name = options.name;
     this.type = options.type;
-    this.networks = BitcoinNetworks;
+    this.networks = SolanaNetwork;
     this.sendMessageHandler = options.sendMessageHandler;
   }
 

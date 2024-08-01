@@ -1,7 +1,7 @@
 import { ToTokenData } from "@/ui/action/types/token";
 import { EnkryptAccount } from "@enkryptcom/types";
 import { GasPriceTypes } from "@/providers/common/types";
-import { BitcoinNetwork } from "../types/bitcoin-network";
+import { SolanaNetwork } from "../types/sol-network";
 import { NFTItemWithCollectionName } from "@/types/nft";
 
 export interface GasFeeInfo {
@@ -35,13 +35,13 @@ export interface VerifyTransactionParams {
 
 export interface SignerTransactionOptions {
   payload: BTCTxInfo;
-  network: BitcoinNetwork;
+  network: SolanaNetwork;
   account: EnkryptAccount;
 }
 
 export interface SignerMessageOptions {
   payload: Buffer;
-  network: BitcoinNetwork;
+  network: SolanaNetwork;
   account: EnkryptAccount;
   type: string;
 }

@@ -14,11 +14,12 @@ import MarketData from "@/libs/market-data";
 import BigNumber from "bignumber.js";
 import { CoinGeckoTokenMarket } from "@/libs/market-data/types";
 import Sparkline from "@/libs/sparkline";
-import { SOLToken } from "./sol-token";
+import { SOLToken, SolTokenOptions } from "./sol-token";
 import { NFTCollection } from "@/types/nft";
 import { fromBase, hexToBuffer } from "@enkryptcom/utils";
 import bs58 from "bs58";
-import getBalances from "@/providers/ethereum/libs/assets-handlers/solanachain";
+import { NATIVE_TOKEN_ADDRESS } from "@/providers/ethereum/libs/common";
+import { isAddress as isSolanaAddress } from "../libs/utils";
 
 export interface SolanaNetworkOptions {
   name: NetworkNames;
@@ -91,7 +92,7 @@ export class SolanaNetwork extends BaseNetwork {
   public async getAllTokens(pubkey: string): Promise<BaseToken[]> {
     const assets = await this.getAllTokenInfo(pubkey);
     return assets.map((token) => {
-      const bTokenOptions: BaseTokenOptions = {
+      const bTokenOptions: SolTokenOptions = {
         decimals: token.decimals,
         icon: token.icon,
         name: token.name,
@@ -99,6 +100,7 @@ export class SolanaNetwork extends BaseNetwork {
         balance: token.balance,
         price: token.value,
         coingeckoID: this.coingeckoID,
+        contract: NATIVE_TOKEN_ADDRESS,
       };
       return new SOLToken(bTokenOptions);
     });
@@ -147,4 +149,6 @@ export class SolanaNetwork extends BaseNetwork {
   public getAllActivity(address: string): Promise<Activity[]> {
     return this.activityHandler(this, address);
   }
+
+  public isAddress = isSolanaAddress;
 }

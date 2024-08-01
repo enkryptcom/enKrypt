@@ -1,7 +1,7 @@
 <template>
-  <div class="send-token-select">
+  <a class="send-token-select" @click="emit('update:toggleTokenSelect')">
     <div class="send-token-select__image">
-      <img :src="token.icon" />
+      <img :src="token.icon" alt="" />
     </div>
     <div class="send-token-select__info">
       <h5>{{ token.name }}</h5>
@@ -10,17 +10,25 @@
         <span>{{ token.symbol }}</span>
       </p>
     </div>
-  </div>
+
+    <div class="send-token-select__arrow">
+      <switch-arrow />
+    </div>
+  </a>
 </template>
 
 <script setup lang="ts">
 import { computed, PropType } from "vue";
+import SwitchArrow from "@action/icons/header/switch_arrow.vue";
 import { fromBase } from "@enkryptcom/utils";
-import { BaseToken } from "@/types/base-token";
+import { SOLToken } from "@/providers/solana/types/sol-token";
+const emit = defineEmits<{
+  (e: "update:toggleTokenSelect"): void;
+}>();
 
 const props = defineProps({
   token: {
-    type: Object as PropType<BaseToken>,
+    type: Object as PropType<Partial<SOLToken>>,
     default: () => {
       return {};
     },
@@ -52,6 +60,7 @@ const balance = computed(() =>
   align-items: center;
   flex-direction: row;
   position: relative;
+  cursor: pointer;
   text-decoration: none;
 
   &__image {

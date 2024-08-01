@@ -38,10 +38,11 @@ import {
   NFTType,
 } from "@/types/nft";
 import { BitcoinNetwork } from "@/providers/bitcoin/types/bitcoin-network";
+import { SolanaNetwork } from "@/providers/solana/types/sol-network";
 
 const props = defineProps({
   network: {
-    type: Object as PropType<EvmNetwork | BitcoinNetwork>,
+    type: Object as PropType<EvmNetwork | BitcoinNetwork | SolanaNetwork>,
     default: () => ({}),
   },
   address: {

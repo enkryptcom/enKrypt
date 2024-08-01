@@ -1,5 +1,5 @@
 export enum StorageKeys {
-  accountsState = "bitcoin-accounts-state",
+  accountsState = "solana-accounts-state",
 }
 export interface IState {
   approvedAccounts: string[];

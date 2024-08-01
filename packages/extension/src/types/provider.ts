@@ -2,6 +2,7 @@ import type { InjectedProvider as EthereumProvider } from "../providers/ethereum
 import type { InjectedProvider as PolkadotProvider } from "@/providers/polkadot/types";
 import type { InjectedProvider as BitcoinProvider } from "@/providers/bitcoin/types";
 import type { InjectedProvider as KadenaProvider } from "@/providers/kadena/types";
+import type { InjectedProvider as SolanaProvider } from "@/providers/solana/types";
 import EventEmitter from "eventemitter3";
 import {
   MiddlewareFunction,
@@ -40,6 +41,7 @@ export enum InternalStorageNamespace {
   substrateAccountsState = "SubstrateAccountsState",
   bitcoinAccountsState = "BitcoinAccountsState",
   kadenaAccountsState = "KadenaAccountsState",
+  solanaAccountsState = "SolanaAccountsState",
   activityState = "ActivityState",
   marketData = "MarketData",
   cacheFetch = "CacheFetch",
@@ -148,7 +150,8 @@ export type Provider =
   | EthereumProvider
   | PolkadotProvider
   | BitcoinProvider
-  | KadenaProvider;
+  | KadenaProvider
+  | SolanaProvider;
 
 export interface ProviderRequestOptions {
   url: string;

@@ -38,27 +38,33 @@ class API implements ProviderAPIInterface {
     return true;
   }
   getTokenInfo = async (contractAddress: string): Promise<ERC20TokenInfo> => {
-    const allTokensResponse = await cacheFetch(
-      {
-        url: "https://utl.solcast.dev/solana-tokenlist.json",
-      },
-      10 * 60 * 1000
-    );
-    const allTokens = allTokensResponse.tokens as {
+    interface TokenDetails {
       address: string;
       decimals: number;
       name: string;
       symbol: string;
-    }[];
-    for (const t of allTokens) {
-      if (t.address === contractAddress) {
-        console.log(t, contractAddress);
-        return {
-          name: t.name,
-          symbol: t.symbol,
-          decimals: t.decimals,
-        };
-      }
+    }
+    const allTokensResponse = await cacheFetch(
+      {
+        url: "https://utl.solcast.dev/solana-tokenlist.json",
+        postProcess: (data: any) => {
+          const allTokens = data.tokens as TokenDetails[];
+          const tObj: Record<string, TokenDetails> = {};
+          allTokens.forEach((t) => {
+            tObj[t.address] = t;
+          });
+          return tObj;
+        },
+      },
+      60 * 60 * 1000
+    );
+    const allTokens = allTokensResponse as Record<string, TokenDetails>;
+    if (allTokens[contractAddress]) {
+      return {
+        name: allTokens[contractAddress].name,
+        symbol: allTokens[contractAddress].symbol,
+        decimals: allTokens[contractAddress].decimals,
+      };
     }
     return {
       name: "Unknown",

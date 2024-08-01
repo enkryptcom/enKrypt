@@ -205,7 +205,6 @@ export default (
           (obj, cur) => ({ ...obj, [cur.contract]: null }),
           {} as Record<string, CoinGeckoTokenMarket | null>
         );
-    console.log(marketInfo);
     if (network.coingeckoID) {
       const nativeMarket = await marketData.getMarketData([
         network.coingeckoID,
@@ -233,7 +232,6 @@ export default (
     const tokenInfo: Record<string, CGToken> = await getKnownNetworkTokens(
       network.name
     );
-    console.log(tokenInfo);
     tokenInfo[NATIVE_TOKEN_ADDRESS] = {
       chainId: (network as EvmNetwork).chainID,
       name: network.name_long,
@@ -246,7 +244,6 @@ export default (
     const unknownTokens: string[] = [];
     let nativeAsset: AssetsType | null = null;
     for (const [address, market] of Object.entries(marketInfo)) {
-      console.log(address, market, tokenInfo[address]);
       if (market && tokenInfo[address]) {
         const userBalance = fromBase(
           balances[address].balance,
