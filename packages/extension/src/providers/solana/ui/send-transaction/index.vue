@@ -80,7 +80,7 @@
       <send-input-amount
         v-if="isSendToken"
         :amount="amount"
-        :show-max="showMax"
+        :show-max="true"
         :fiat-value="selectedAsset.price"
         :has-enough-balance="hasEnoughBalance"
         @update:input-amount="inputAmount"
@@ -88,29 +88,11 @@
       />
 
       <send-fee-select
-        :in-swap="false"
         :selected="selectedFee"
         :fee="gasCostValues[selectedFee]"
-        @open-popup="toggleSelectFee"
-      />
-
-      <transaction-fee-view
-        :fees="gasCostValues"
-        :show-fees="isOpenSelectFee"
-        :selected="selectedFee"
-        :is-header="true"
-        @close-popup="toggleSelectFee"
-        @gas-type-changed="selectFee"
       />
 
       <send-alert
-        v-show="hasEnoughBalance"
-        :native-symbol="network.currencyName"
-        :price="accountAssets[0]?.price || '0'"
-        :native-value="'0'"
-        :decimals="network.decimals"
-      />
-      <!-- <send-alert
         v-show="hasEnoughBalance && nativeBalanceAfterTransaction.isNeg()"
         :native-symbol="network.currencyName"
         :price="accountAssets[0]?.price || '0'"
@@ -121,7 +103,7 @@
           )
         "
         :decimals="network.decimals"
-      /> -->
+      />
 
       <div class="send-transaction__buttons">
         <div class="send-transaction__buttons-cancel">
@@ -153,21 +135,18 @@ import SendTokenSelect from "./components/send-token-select.vue";
 import SendAlert from "@/providers/common/ui/send-transaction/send-alert.vue";
 import SendNftSelect from "@/providers/common/ui/send-transaction/send-nft-select.vue";
 import SendInputAmount from "@/providers/common/ui/send-transaction/send-input-amount.vue";
-import SendFeeSelect from "@/providers/common/ui/send-transaction/send-fee-select.vue";
-import TransactionFeeView from "@action/views/transaction-fee/index.vue";
+import SendFeeSelect from "./components/send-fee-select.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import { NFTItemWithCollectionName, NFTItem, NFTType } from "@/types/nft";
 import { AccountsHeaderData } from "@action/types/account";
 import { numberToHex, toBN } from "web3-utils";
 import { GasPriceTypes, GasFeeType } from "@/providers/common/types";
-import { SolanaNetwork } from "../../types/sol-network";
+import { SolanaNetwork, getAddress } from "../../types/sol-network";
 import { SOLToken } from "../../types/sol-token";
 import BigNumber from "bignumber.js";
 import { defaultGasCostVals } from "@/providers/common/libs/default-vals";
-import Transaction from "@/providers/ethereum/libs/transaction";
-import Web3Eth from "web3-eth";
 import { fromBase, toBase, isValidDecimals } from "@enkryptcom/utils";
-import { VerifyTransactionParams } from "../types";
+import { VerifyTransactionParams, SendTransactionDataType } from "../types";
 import { formatFloatingPointValue } from "@/libs/utils/number-formatter";
 import { routes as RouterNames } from "@/ui/action/router";
 import getUiPath from "@/libs/utils/get-ui-path";
@@ -175,10 +154,15 @@ import Browser from "webextension-polyfill";
 import { ProviderName } from "@/types/provider";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
 import { GenericNameResolver, CoinType } from "@/libs/name-resolver";
-import { NetworkNames } from "@enkryptcom/types";
 import { trackSendEvents } from "@/libs/metrics";
 import { SendEventType } from "@/libs/metrics/types";
 import { NATIVE_TOKEN_ADDRESS } from "@/providers/ethereum/libs/common";
+import {
+  Transaction as SolTransaction,
+  SystemProgram,
+  PublicKey,
+} from "@solana/web3.js";
+import SolanaAPI from "@/providers/solana/libs/api";
 
 const props = defineProps({
   network: {
@@ -198,11 +182,12 @@ const loadingAsset = new SOLToken({
   price: "0",
   name: "loading",
   contract: "0x0",
-  decimals: 9,
+  decimals: props.network.decimals,
 });
 
 const route = useRoute();
 const router = useRouter();
+const solConnection = ref<SolanaAPI>();
 
 const nameResolver = new GenericNameResolver();
 const addressInputTo = ref();
@@ -229,11 +214,7 @@ const sendAmount = computed(() => {
   return "0";
 });
 const isMaxSelected = ref<boolean>(false);
-const selectedFee = ref<GasPriceTypes>(
-  props.network.name === NetworkNames.Ethereum || NetworkNames.Binance
-    ? GasPriceTypes.REGULAR
-    : GasPriceTypes.ECONOMY
-);
+const selectedFee = ref<GasPriceTypes>(GasPriceTypes.ECONOMY);
 const gasCostValues = ref<GasFeeType>(defaultGasCostVals);
 const addressFrom = ref<string>(
   props.accountInfo.selectedAccount?.address ?? ""
@@ -251,198 +232,121 @@ const selectedNft = ref<NFTItemWithCollectionName>({
   type: NFTType.ERC721,
 });
 
-const showMax = computed(() => {
-  if (selectedAsset.value.contract !== NATIVE_TOKEN_ADDRESS) return true;
-  return true;
+const nativeBalance = computed(() => {
+  const accountIndex = props.accountInfo.activeAccounts.findIndex(
+    (acc) => acc.address === addressFrom.value
+  );
+  if (accountIndex !== -1) {
+    const balance = props.accountInfo.activeBalances[accountIndex];
+    if (balance !== "~") {
+      return toBase(balance, props.network.decimals);
+    }
+  }
+  return "0";
 });
-
-// const nativeBalance = computed(() => {
-//   const accountIndex = props.accountInfo.activeAccounts.findIndex(
-//     (acc) => acc.address === addressFrom.value
-//   );
-
-//   if (accountIndex !== -1) {
-//     const balance = props.accountInfo.activeBalances[accountIndex];
-
-//     if (balance !== "~") {
-//       return toBase(balance, props.network.decimals);
-//     }
-//   }
-
-//   return "0";
-// });
 
 onMounted(async () => {
   trackSendEvents(SendEventType.SendOpen, { network: props.network.name });
-  fetchAssets();
-  //.then(setBaseCosts);
+  solConnection.value = (await props.network.api()).api as SolanaAPI;
+  fetchAssets().then(setBaseCosts);
 });
 
-// const TxInfo = computed<SendTransactionDataType>(() => {
-//   const web3 = new Web3Eth();
-//   const value =
-//     isSendToken.value && selectedAsset.value.contract === NATIVE_TOKEN_ADDRESS
-//       ? numberToHex(toBase(sendAmount.value, props.network.decimals))
-//       : "0x0";
-//   const toAddress =
-//     isSendToken.value && selectedAsset.value.contract === NATIVE_TOKEN_ADDRESS
-//       ? addressTo.value
-//       : isSendToken.value
-//       ? selectedAsset.value.contract
-//       : selectedNft.value.contract;
-//   const erc20Contract = new web3.Contract(erc20 as any);
-//   const erc721Contract = new web3.Contract(erc721 as any);
-//   const erc1155Contract = new web3.Contract(erc1155 as any);
-//   const data =
-//     isSendToken.value && selectedAsset.value.contract === NATIVE_TOKEN_ADDRESS
-//       ? "0x"
-//       : isSendToken.value
-//       ? erc20Contract.methods
-//           .transfer(
-//             addressTo.value,
-//             toBase(sendAmount.value, selectedAsset.value.decimals!)
-//           )
-//           .encodeABI()
-//       : selectedNft.value.type === NFTType.ERC721
-//       ? erc721Contract.methods
-//           .transferFrom(
-//             addressFrom.value,
-//             addressTo.value,
-//             selectedNft.value.id
-//           )
-//           .encodeABI()
-//       : erc1155Contract.methods
-//           .safeTransferFrom(
-//             addressFrom.value,
-//             addressTo.value,
-//             selectedNft.value.id,
-//             1,
-//             []
-//           )
-//           .encodeABI();
-//   return {
-//     chainId: props.network.chainID,
-//     from: addressFrom.value as `0x{string}`,
-//     value: value as `0x${string}`,
-//     to: toAddress as `0x${string}`,
-//     data: data as `0x${string}`,
-//   };
-// });
-// const Tx = computed(() => {
-//   const web3 = new Web3Eth(props.network.node);
-//   const tx = new Transaction(TxInfo.value, web3);
-//   return tx;
-// });
+const TxInfo = computed<SendTransactionDataType>(() => {
+  const value = sendAmount.value
+    ? numberToHex(toBase(sendAmount.value, props.network.decimals))
+    : "0x0";
+  const toAddress = addressTo.value;
+  return {
+    from: addressFrom.value as `0x{string}`,
+    value: value as `0x${string}`,
+    to: toAddress as `0x${string}`,
+  };
+});
 
-// const nativeBalanceAfterTransaction = computed(() => {
-//   if (
-//     isSendToken.value &&
-//     nativeBalance.value &&
-//     selectedAsset.value &&
-//     selectedAsset.value.contract &&
-//     amount.value !== "" &&
-//     isValidDecimals(sendAmount.value, selectedAsset.value.decimals!)
-//   ) {
-//     let endingAmount = toBN(nativeBalance.value);
+const nativeBalanceAfterTransaction = computed(() => {
+  if (
+    isSendToken.value &&
+    nativeBalance.value &&
+    selectedAsset.value &&
+    selectedAsset.value.contract &&
+    amount.value !== "" &&
+    isValidDecimals(sendAmount.value, selectedAsset.value.decimals!)
+  ) {
+    let endingAmount = toBN(nativeBalance.value);
+    if (selectedAsset.value.contract === NATIVE_TOKEN_ADDRESS) {
+      const rawAmount = toBN(
+        toBase(amount.value, selectedAsset.value.decimals!)
+      );
+      endingAmount = endingAmount.sub(rawAmount);
+    }
+    endingAmount = endingAmount.sub(
+      toBN(
+        toBase(
+          gasCostValues.value[selectedFee.value].nativeValue,
+          props.network.decimals
+        )
+      )
+    );
+    return endingAmount;
+  } else if (
+    !isSendToken.value &&
+    nativeBalance.value &&
+    selectedNft.value.id
+  ) {
+    let endingAmount = toBN(nativeBalance.value);
+    endingAmount = endingAmount.sub(
+      toBN(
+        toBase(
+          gasCostValues.value[selectedFee.value].nativeValue,
+          props.network.decimals
+        )
+      )
+    );
+    return endingAmount;
+  }
+  return toBN(0);
+});
 
-//     if (selectedAsset.value.contract === NATIVE_TOKEN_ADDRESS) {
-//       const rawAmount = toBN(
-//         toBase(amount.value, selectedAsset.value.decimals!)
-//       );
-//       endingAmount = endingAmount.sub(rawAmount);
-//     }
+const setTransactionFees = (tx: SolTransaction) => {
+  return tx
+    .getEstimatedFee(solConnection.value!.web3)
+    .then(async (fee) => {
+      const getConvertedVal = () =>
+        fromBase(fee!.toString(), props.network.decimals);
+      const nativeVal = accountAssets.value[0].price || "0";
+      gasCostValues.value[GasPriceTypes.ECONOMY] = {
+        nativeValue: getConvertedVal(),
+        fiatValue: new BigNumber(getConvertedVal())
+          .times(nativeVal!)
+          .toString(),
+        nativeSymbol: props.network.currencyName,
+        fiatSymbol: "USD",
+      };
+      isEstimateValid.value = true;
+    })
+    .catch(() => {
+      isEstimateValid.value = false;
+    });
+};
 
-//     endingAmount = endingAmount.sub(
-//       toBN(
-//         toBase(
-//           gasCostValues.value[selectedFee.value].nativeValue,
-//           props.network.decimals
-//         )
-//       )
-//     );
+const Tx = computed<SolTransaction>(() => {
+  const from = new PublicKey(getAddress(TxInfo.value.from));
+  const transaction = new SolTransaction().add(
+    SystemProgram.transfer({
+      fromPubkey: from,
+      toPubkey: TxInfo.value.to
+        ? new PublicKey(getAddress(TxInfo.value.to))
+        : from,
+      lamports: toBN(TxInfo.value.value).toNumber(),
+    })
+  );
+  transaction.feePayer = from;
+  return transaction;
+});
+const setBaseCosts = async () => {
+  updateTransactionFees(Tx.value);
+};
 
-//     return endingAmount;
-//   } else if (
-//     !isSendToken.value &&
-//     nativeBalance.value &&
-//     selectedNft.value.id
-//   ) {
-//     let endingAmount = toBN(nativeBalance.value);
-//     endingAmount = endingAmount.sub(
-//       toBN(
-//         toBase(
-//           gasCostValues.value[selectedFee.value].nativeValue,
-//           props.network.decimals
-//         )
-//       )
-//     );
-//     return endingAmount;
-//   }
-
-//   return toBN(0);
-// });
-
-// const setTransactionFees = (tx: Transaction) => {
-//   return tx
-//     .getGasCosts()
-//     .then(async (gasvals) => {
-//       const getConvertedVal = (type: GasPriceTypes) =>
-//         fromBase(gasvals[type], props.network.decimals);
-//       const nativeVal = accountAssets.value[0].price || "0";
-//       gasCostValues.value = {
-//         [GasPriceTypes.ECONOMY]: {
-//           nativeValue: getConvertedVal(GasPriceTypes.ECONOMY),
-//           fiatValue: new BigNumber(getConvertedVal(GasPriceTypes.ECONOMY))
-//             .times(nativeVal!)
-//             .toString(),
-//           nativeSymbol: props.network.currencyName,
-//           fiatSymbol: "USD",
-//         },
-//         [GasPriceTypes.REGULAR]: {
-//           nativeValue: getConvertedVal(GasPriceTypes.REGULAR),
-//           fiatValue: new BigNumber(getConvertedVal(GasPriceTypes.REGULAR))
-//             .times(nativeVal!)
-//             .toString(),
-//           nativeSymbol: props.network.currencyName,
-//           fiatSymbol: "USD",
-//         },
-//         [GasPriceTypes.FAST]: {
-//           nativeValue: getConvertedVal(GasPriceTypes.FAST),
-//           fiatValue: new BigNumber(getConvertedVal(GasPriceTypes.FAST))
-//             .times(nativeVal!)
-//             .toString(),
-//           nativeSymbol: props.network.currencyName,
-//           fiatSymbol: "USD",
-//         },
-//         [GasPriceTypes.FASTEST]: {
-//           nativeValue: getConvertedVal(GasPriceTypes.FASTEST),
-//           fiatValue: new BigNumber(getConvertedVal(GasPriceTypes.FASTEST))
-//             .times(nativeVal!)
-//             .toString(),
-//           nativeSymbol: props.network.currencyName,
-//           fiatSymbol: "USD",
-//         },
-//       };
-//       isEstimateValid.value = true;
-//     })
-//     .catch(() => {
-//       isEstimateValid.value = false;
-//     });
-// };
-
-// const setBaseCosts = () => {
-//   const web3 = new Web3Eth(props.network.node);
-//   const tx = new Transaction(
-//     {
-//       chainId: props.network.chainID,
-//       from: props.accountInfo.selectedAccount!.address as `0x{string}`,
-//       value: "0x0",
-//       to: NATIVE_TOKEN_ADDRESS,
-//     },
-//     web3
-//   );
-//   updateTransactionFees(tx);
-// };
 const fetchAssets = () => {
   accountAssets.value = [];
   selectedAsset.value = loadingAsset;
@@ -470,14 +374,14 @@ const sendButtonTitle = computed(() => {
 });
 
 const isValidSend = computed<boolean>(() => {
-  // if (!isInputsValid.value) return false;
-  // if (nativeBalanceAfterTransaction.value.isNeg()) return false;
-  // if (!isEstimateValid.value) return false;
+  if (!isInputsValid.value) return false;
+  if (nativeBalanceAfterTransaction.value.isNeg()) return false;
+  if (!isEstimateValid.value) return false;
   return true;
 });
 
 const isInputsValid = computed<boolean>(() => {
-  if (!props.network.isAddress(addressTo.value)) return false;
+  if (!props.network.isAddress(getAddress(addressTo.value))) return false;
   if (
     isSendToken.value &&
     !isValidDecimals(sendAmount.value, selectedAsset.value.decimals!)
@@ -488,38 +392,38 @@ const isInputsValid = computed<boolean>(() => {
     return false;
   }
   if (new BigNumber(sendAmount.value).gt(assetMaxValue.value)) return false;
-  if (gasCostValues.value.REGULAR.nativeValue === "0") return false;
+  if (gasCostValues.value.ECONOMY.nativeValue === "0") return false;
   return true;
 });
 
-const updateTransactionFees = (tx: Transaction) => {
+const updateTransactionFees = (tx: SolTransaction) => {
   if (isMaxSelected.value) {
     amount.value = "";
   }
-  // setTransactionFees(tx).then(() => {
-  //   if (isMaxSelected.value) {
-  //     amount.value =
-  //       parseFloat(assetMaxValue.value) < 0 ? "0" : assetMaxValue.value;
-  //   }
-  // });
+  solConnection.value!.web3.getLatestBlockhash().then((bhash) => {
+    tx.recentBlockhash = bhash.blockhash;
+    setTransactionFees(tx).then(() => {
+      if (isMaxSelected.value) {
+        amount.value =
+          parseFloat(assetMaxValue.value) < 0 ? "0" : assetMaxValue.value;
+      }
+    });
+  });
 };
 
 const isOpenSelectContactFrom = ref<boolean>(false);
 const isOpenSelectContactTo = ref<boolean>(false);
 const isOpenSelectToken = ref<boolean>(false);
-
-const isOpenSelectFee = ref<boolean>(false);
-
 const isOpenSelectNft = ref(false);
 
-// watch(
-//   [isInputsValid, addressTo, selectedAsset, selectedNft, isSendToken],
-//   () => {
-//     if (isInputsValid.value) {
-//       updateTransactionFees(Tx.value);
-//     }
-//   }
-// );
+watch(
+  [isInputsValid, addressTo, selectedAsset, selectedNft, isSendToken],
+  () => {
+    if (isInputsValid.value) {
+      updateTransactionFees(Tx.value);
+    }
+  }
+);
 
 watch([isSendToken], () => {
   inputAmount("0");
@@ -558,9 +462,9 @@ const assetMaxValue = computed(() => {
 });
 const setMaxValue = () => {
   isMaxSelected.value = true;
-  // if (isInputsValid.value) {
-  //   updateTransactionFees(Tx.value);
-  // }
+  if (isInputsValid.value) {
+    updateTransactionFees(Tx.value);
+  }
 };
 const inputAddressFrom = (text: string) => {
   addressFrom.value = text;
@@ -616,74 +520,84 @@ const inputAmount = (inputAmount: string) => {
   const inputAmountBn = new BigNumber(inputAmount);
   isMaxSelected.value = false;
   amount.value = inputAmountBn.lt(0) ? "0" : inputAmount;
-  // if (isInputsValid.value) {
-  //   updateTransactionFees(Tx.value);
-  // }
-};
-
-const toggleSelectFee = () => {
-  isOpenSelectFee.value = !isOpenSelectFee.value;
-};
-
-const selectFee = (type: GasPriceTypes) => {
-  selectedFee.value = type;
-  isOpenSelectFee.value = false;
-  // if (isMaxSelected.value && isInputsValid.value)
-  //   updateTransactionFees(Tx.value);
+  if (isInputsValid.value) {
+    updateTransactionFees(Tx.value);
+  }
 };
 
 const sendAction = async () => {
-  // const keyring = new PublicKeyRing();
-  // const fromAccountInfo = await keyring.getAccount(
-  //   addressFrom.value.toLowerCase()
-  // );
-  // const txVerifyInfo: VerifyTransactionParams = {
-  //   TransactionData: TxInfo.value,
-  //   isNFT: !isSendToken.value,
-  //   NFTData: !isSendToken.value ? selectedNft.value : undefined,
-  //   toToken: {
-  //     amount: toBase(sendAmount.value, selectedAsset.value.decimals!),
-  //     decimals: selectedAsset.value.decimals!,
-  //     icon: selectedAsset.value.icon as string,
-  //     symbol: selectedAsset.value.symbol || "unknown",
-  //     valueUSD: new BigNumber(selectedAsset.value.price || "0")
-  //       .times(sendAmount.value)
-  //       .toString(),
-  //     name: selectedAsset.value.name || "",
-  //     price: selectedAsset.value.price || "0",
-  //   },
-  //   fromAddress: fromAccountInfo.address,
-  //   fromAddressName: fromAccountInfo.name,
-  //   gasFee: gasCostValues.value[selectedFee.value],
-  //   gasPriceType: selectedFee.value,
-  //   toAddress: addressTo.value,
-  // };
-  // const routedRoute = router.resolve({
-  //   name: RouterNames.verify.name,
-  //   query: {
-  //     id: selected,
-  //     txData: Buffer.from(JSON.stringify(txVerifyInfo), "utf8").toString(
-  //       "base64"
-  //     ),
-  //   },
+  const keyring = new PublicKeyRing();
+  const fromAccountInfo = await keyring.getAccount(
+    addressFrom.value.toLowerCase()
+  );
+  // const transaction = Tx.value;
+  // transaction.recentBlockhash = (
+  //   await solConnection.value!.web3.getLatestBlockhash()
+  // ).blockhash;
+  // const msgToSign = transaction.serializeMessage();
+  // sendUsingInternalMessengers({
+  //   method: InternalMethods.sign,
+  //   params: [bufferToHex(msgToSign), fromAccountInfo],
+  // }).then((res) => {
+  //   if (res.error) return res;
+  //   transaction.addSignature(
+  //     transaction.feePayer!,
+  //     hexToBuffer(JSON.parse(res.result!))
+  //   );
+  //   console.log(transaction.verifySignatures(true));
+  //   solConnection
+  //     .value!.web3.sendRawTransaction(transaction.serialize())
+  //     .then((hash) => {
+  //       console.log(`https://solscan.io/tx/${hash}`);
+  //     });
   // });
-  // if (fromAccountInfo.isHardware) {
-  //   await Browser.windows.create({
-  //     url: Browser.runtime.getURL(
-  //       getUiPath(
-  //         `eth-hw-verify?id=${routedRoute.query.id}&txData=${routedRoute.query.txData}`,
-  //         ProviderName.ethereum
-  //       )
-  //     ),
-  //     type: "popup",
-  //     focused: true,
-  //     height: 600,
-  //     width: 460,
-  //   });
-  //   window.close();
-  // } else {
-  //   router.push(routedRoute);
-  // }
+  const txVerifyInfo: VerifyTransactionParams = {
+    TransactionData: TxInfo.value,
+    isNFT: !isSendToken.value,
+    NFTData: !isSendToken.value ? selectedNft.value : undefined,
+    toToken: {
+      amount: toBase(sendAmount.value, selectedAsset.value.decimals!),
+      decimals: selectedAsset.value.decimals!,
+      icon: selectedAsset.value.icon as string,
+      symbol: selectedAsset.value.symbol || "unknown",
+      valueUSD: new BigNumber(selectedAsset.value.price || "0")
+        .times(sendAmount.value)
+        .toString(),
+      name: selectedAsset.value.name || "",
+      price: selectedAsset.value.price || "0",
+    },
+    fromAddress: fromAccountInfo.address,
+    fromAddressName: fromAccountInfo.name,
+    gasFee: gasCostValues.value[selectedFee.value],
+    gasPriceType: selectedFee.value,
+    toAddress: addressTo.value,
+  };
+  const routedRoute = router.resolve({
+    name: RouterNames.verify.name,
+    query: {
+      id: selected,
+      txData: Buffer.from(JSON.stringify(txVerifyInfo), "utf8").toString(
+        "base64"
+      ),
+    },
+  });
+  if (fromAccountInfo.isHardware) {
+    await Browser.windows.create({
+      url: Browser.runtime.getURL(
+        getUiPath(
+          `eth-hw-verify?id=${routedRoute.query.id}&txData=${routedRoute.query.txData}`,
+          ProviderName.ethereum
+        )
+      ),
+      type: "popup",
+      focused: true,
+      height: 600,
+      width: 460,
+    });
+    window.close();
+  } else {
+    router.push(routedRoute);
+  }
 };
 
 const toggleSelector = (isTokenSend: boolean) => {

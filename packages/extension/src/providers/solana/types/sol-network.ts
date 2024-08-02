@@ -1,7 +1,7 @@
 import { BaseNetwork, BaseNetworkOptions } from "@/types/base-network";
 import SolAPI from "@/providers/solana/libs/api";
 import { AssetsType } from "@/types/provider";
-import { BaseToken, BaseTokenOptions } from "@/types/base-token";
+import { BaseToken } from "@/types/base-token";
 import { ProviderName } from "@/types/provider";
 import { NetworkNames, SignerType } from "@enkryptcom/types";
 import createIcon from "../libs/blockies";

@@ -92,22 +92,26 @@ import HardwareWalletMsg from "@/providers/common/ui/verify-transaction/hardware
 import SendProcess from "@action/views/send-process/index.vue";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
 import { VerifyTransactionParams } from "../../types";
-import Transaction from "@/providers/ethereum/libs/transaction";
-import Web3Eth from "web3-eth";
 import { getCurrentContext } from "@/libs/messenger/extension";
 import { DEFAULT_EVM_NETWORK, getNetworkByName } from "@/libs/utils/networks";
-import { TransactionSigner } from "../../libs/signer";
 import { ActivityStatus, Activity, ActivityType } from "@/types/activity";
 import ActivityState from "@/libs/activity-state";
 import { EnkryptAccount } from "@enkryptcom/types";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
-import broadcastTx from "@/providers/ethereum/libs/tx-broadcaster";
 import { BaseNetwork } from "@/types/base-network";
-import { bigIntToHex } from "@ethereumjs/util";
 import { toBN } from "web3-utils";
-import { bufferToHex, toBase } from "@enkryptcom/utils";
+import { bufferToHex, hexToBuffer } from "@enkryptcom/utils";
 import { trackSendEvents } from "@/libs/metrics";
 import { SendEventType } from "@/libs/metrics/types";
+import {
+  Transaction as SolTransaction,
+  SystemProgram,
+  PublicKey,
+} from "@solana/web3.js";
+import { getAddress } from "@/providers/solana/types/sol-network";
+import SolanaAPI from "@/providers/solana/libs/api";
+import sendUsingInternalMessengers from "@/libs/messenger/internal-messenger";
+import { InternalMethods } from "@/types/messenger";
 
 const KeyRing = new PublicKeyRing();
 const route = useRoute();
@@ -145,8 +149,15 @@ const sendAction = async () => {
   trackSendEvents(SendEventType.SendApprove, {
     network: network.value.name,
   });
-  const web3 = new Web3Eth(network.value.node);
-  const tx = new Transaction(txData.TransactionData, web3);
+  const from = new PublicKey(getAddress(txData.TransactionData.from));
+  const transaction = new SolTransaction().add(
+    SystemProgram.transfer({
+      fromPubkey: from,
+      toPubkey: new PublicKey(getAddress(txData.TransactionData.to)),
+      lamports: toBN(txData.TransactionData.value).toNumber(),
+    })
+  );
+  transaction.feePayer = from;
 
   const txActivity: Activity = {
     from: txData.fromAddress,
@@ -169,81 +180,69 @@ const sendAction = async () => {
     transactionHash: "",
   };
   const activityState = new ActivityState();
-  await tx
-    .getFinalizedTransaction({
-      gasPriceType: txData.gasPriceType,
-      totalGasPrice: toBN(
-        toBase(txData.gasFee.nativeValue, network.value.decimals)
-      ),
-    })
-    .then(async (finalizedTx) => {
-      const onHash = (hash: string) => {
-        trackSendEvents(SendEventType.SendComplete, {
+  const solAPI = (await network.value.api()).api as SolanaAPI;
+  transaction.recentBlockhash = (
+    await solAPI.web3.getLatestBlockhash()
+  ).blockhash;
+  const msgToSign = transaction.serializeMessage();
+  sendUsingInternalMessengers({
+    method: InternalMethods.sign,
+    params: [bufferToHex(msgToSign), account.value!],
+  }).then((res) => {
+    if (res.error) return res;
+    transaction.addSignature(
+      transaction.feePayer!,
+      hexToBuffer(JSON.parse(res.result!))
+    );
+    const onHash = (hash: string) => {
+      trackSendEvents(SendEventType.SendComplete, {
+        network: network.value.name,
+      });
+      activityState.addActivities(
+        [
+          {
+            ...txActivity,
+            ...{
+              transactionHash: hash,
+            },
+          },
+        ],
+        { address: txData.fromAddress, network: network.value.name }
+      );
+      isSendDone.value = true;
+      if (getCurrentContext() === "popup") {
+        setTimeout(() => {
+          isProcessing.value = false;
+          router.go(-2);
+        }, 4500);
+      } else {
+        setTimeout(() => {
+          isProcessing.value = false;
+          window.close();
+        }, 1500);
+      }
+    };
+    solAPI.web3
+      .sendRawTransaction(transaction.serialize())
+      .then((hash) => {
+        onHash(hash);
+        console.log(`https://solscan.io/tx/${hash}`);
+      })
+      .catch((e) => {
+        txActivity.status = ActivityStatus.failed;
+        activityState.addActivities([txActivity], {
+          address: txData.fromAddress,
           network: network.value.name,
         });
-        activityState.addActivities(
-          [
-            {
-              ...txActivity,
-              ...{
-                transactionHash: hash,
-                nonce: bigIntToHex(finalizedTx.nonce),
-              },
-            },
-          ],
-          { address: txData.fromAddress, network: network.value.name }
-        );
-        isSendDone.value = true;
-        if (getCurrentContext() === "popup") {
-          setTimeout(() => {
-            isProcessing.value = false;
-            router.go(-2);
-          }, 4500);
-        } else {
-          setTimeout(() => {
-            isProcessing.value = false;
-            window.close();
-          }, 1500);
-        }
-      };
-      TransactionSigner({
-        account: account.value!,
-        network: network.value,
-        payload: finalizedTx,
-      })
-        .then((signedTx) => {
-          broadcastTx(bufferToHex(signedTx.serialize()), network.value.name)
-            .then(onHash)
-            .catch(() => {
-              web3
-                .sendSignedTransaction(bufferToHex(signedTx.serialize()))
-                .on("transactionHash", onHash)
-                .on("error", (error: any) => {
-                  txActivity.status = ActivityStatus.failed;
-                  activityState.addActivities([txActivity], {
-                    address: txData.fromAddress,
-                    network: network.value.name,
-                  });
-                  isProcessing.value = false;
-                  errorMsg.value = error.message;
-                  trackSendEvents(SendEventType.SendFailed, {
-                    network: network.value.name,
-                    error: errorMsg.value,
-                  });
-                  console.error("ERROR", error);
-                });
-            });
-        })
-        .catch((e) => {
-          isProcessing.value = false;
-          errorMsg.value = e.error ? e.error.message : e.message;
-          trackSendEvents(SendEventType.SendFailed, {
-            network: network.value.name,
-            error: errorMsg.value,
-          });
-          console.error(e);
+        isProcessing.value = false;
+        errorMsg.value = e.message;
+        trackSendEvents(SendEventType.SendFailed, {
+          network: network.value.name,
+          error: errorMsg.value,
         });
-    });
+        console.error("ERROR", e);
+      });
+  });
 };
 const isHasScroll = () => {
   if (verifyScrollRef.value) {
