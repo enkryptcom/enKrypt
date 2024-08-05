@@ -1,7 +1,5 @@
 import { ToTokenData } from "@/ui/action/types/token";
-import { EnkryptAccount } from "@enkryptcom/types";
 import { GasFeeInfo, GasPriceTypes } from "@/providers/common/types";
-import { SolanaNetwork } from "../types/sol-network";
 import { NFTItemWithCollectionName } from "@/types/nft";
 
 export interface SendTransactionDataType {
@@ -20,4 +18,5 @@ export interface VerifyTransactionParams {
   toToken: ToTokenData;
   gasFee: GasFeeInfo;
   gasPriceType: GasPriceTypes;
+  TxInfo: string;
 }
