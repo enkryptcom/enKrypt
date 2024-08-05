@@ -2783,6 +2783,7 @@ __metadata:
     "@rollup/plugin-node-resolve": ^15.2.3
     "@rollup/plugin-replace": ^5.0.7
     "@rollup/plugin-typescript": ^11.1.6
+    "@rpch/sdk": ^3.1.1
     "@types/chrome": ^0.0.268
     "@types/ethereumjs-abi": ^0.6.5
     "@types/events": ^3.0.3
@@ -2976,6 +2977,7 @@ __metadata:
   resolution: "@enkryptcom/request@workspace:packages/request"
   dependencies:
     "@enkryptcom/types": "workspace:^"
+    "@rpch/sdk": ^3.1.1
     "@types/chai": ^4.3.16
     "@types/mocha": ^10.0.6
     "@types/node": ^20.14.6
@@ -4459,6 +4461,30 @@ __metadata:
     expo:
       optional: true
   checksum: d6def0d0a07f0ffc95b99d266984ab4c38080af878633dbc7d1319bdc759009f4e1360a616a9a5dab0bb901783b2d20b744f14ab0a4d5ac492536dd60db0d18d
+  languageName: node
+  linkType: hard
+
+"@hoprnet/uhttp-crypto@npm:^1.0.1":
+  version: 1.0.1
+  resolution: "@hoprnet/uhttp-crypto@npm:1.0.1"
+  dependencies:
+    "@noble/ciphers": ^0.4.1
+    "@noble/curves": ^1.3.0
+    "@noble/hashes": ^1.3.3
+  checksum: 8eed63cca453543d030e9f917c31d19daafdacaaeefb5fc5dcafe4ef26caa7bea71a82b9ea2759c51ed23225801eb9cbc4af3754645dc7812a7ca0a9baea020b
+  languageName: node
+  linkType: hard
+
+"@hoprnet/uhttp-lib@npm:^3.2.1":
+  version: 3.2.1
+  resolution: "@hoprnet/uhttp-lib@npm:3.2.1"
+  dependencies:
+    "@hoprnet/uhttp-crypto": ^1.0.1
+    debug: ^4.3.4
+    isomorphic-ws: ^5.0.0
+    lz-string: ^1.5.0
+    ws: ^8.16.0
+  checksum: 3d7c787c46b95b4d72feccc3d114df781e982b46f4a0b3e53a530384d1622df70e52760d94d2dcb1d210878f089106271696836a952bb36b467ff1e657628181
   languageName: node
   linkType: hard
 
@@ -6086,6 +6112,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@noble/ciphers@npm:^0.4.0, @noble/ciphers@npm:^0.4.1":
+  version: 0.4.1
+  resolution: "@noble/ciphers@npm:0.4.1"
+  checksum: 8301334d6281c1cd6200716be6d01e30b8fd07b6ff7a537587187a649e625a347f24d52eba4812fc3535a077cd53e33a7abb77aeee19ff6662b7f048148f9e21
+  languageName: node
+  linkType: hard
+
 "@noble/curves@npm:1.2.0":
   version: 1.2.0
   resolution: "@noble/curves@npm:1.2.0"
@@ -7317,6 +7350,28 @@ __metadata:
   version: 4.18.0
   resolution: "@rollup/rollup-win32-x64-msvc@npm:4.18.0"
   conditions: os=win32 & cpu=x64
+  languageName: node
+  linkType: hard
+
+"@rpch/compat-crypto@npm:^0.8.0":
+  version: 0.8.0
+  resolution: "@rpch/compat-crypto@npm:0.8.0"
+  dependencies:
+    "@noble/ciphers": ^0.4.0
+    "@noble/curves": ^1.2.0
+    "@noble/hashes": ^1.3.2
+  checksum: 326040aee188bd7d442e4d009591dbd789e635c74c13408f1f74035a4e2d181b4304ecfad4ff7d4c4a3041ffff6d6c5c3bc8ee17443ef10e29a7472013ed5176
+  languageName: node
+  linkType: hard
+
+"@rpch/sdk@npm:^3.1.1":
+  version: 3.1.1
+  resolution: "@rpch/sdk@npm:3.1.1"
+  dependencies:
+    "@hoprnet/uhttp-lib": ^3.2.1
+    "@rpch/compat-crypto": ^0.8.0
+    debug: ^4.3.4
+  checksum: f9d080cbcd41f253d3934da1ea30222093cb4b3d837f5043601724d73709d2931afecada61f438c1445833ebd65dac36513d29b47c36bfd82e6f769580677c0f
   languageName: node
   linkType: hard
 
@@ -19837,6 +19892,15 @@ __metadata:
   version: 0.4.1
   resolution: "lru_map@npm:0.4.1"
   checksum: a3eb277ca7e673c7d6e78578193cc7c67a7410978c260f9b49418aa2053c7cb025d98326d3e74817119cb4ef5f114e2e05da58b7badfbde4a7b4d566c5f294e5
+  languageName: node
+  linkType: hard
+
+"lz-string@npm:^1.5.0":
+  version: 1.5.0
+  resolution: "lz-string@npm:1.5.0"
+  bin:
+    lz-string: bin/bin.js
+  checksum: 1ee98b4580246fd90dd54da6e346fb1caefcf05f677c686d9af237a157fdea3fd7c83a4bc58f858cd5b10a34d27afe0fdcbd0505a47e0590726a873dc8b8f65d
   languageName: node
   linkType: hard
 

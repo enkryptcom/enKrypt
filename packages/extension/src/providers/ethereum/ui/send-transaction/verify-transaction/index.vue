@@ -108,6 +108,7 @@ import { toBN } from "web3-utils";
 import { bufferToHex, toBase } from "@enkryptcom/utils";
 import { trackSendEvents } from "@/libs/metrics";
 import { SendEventType } from "@/libs/metrics/types";
+import { getSupportedRpchProvider } from "@/libs/RPChProvider";
 
 const KeyRing = new PublicKeyRing();
 const route = useRoute();
@@ -145,7 +146,7 @@ const sendAction = async () => {
   trackSendEvents(SendEventType.SendApprove, {
     network: network.value.name,
   });
-  const web3 = new Web3Eth(network.value.node);
+  const web3 = new Web3Eth(getSupportedRpchProvider(network.value.node));
   const tx = new Transaction(txData.TransactionData, web3);
 
   const txActivity: Activity = {

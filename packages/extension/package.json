@@ -1,6 +1,6 @@
 {
   "name": "@enkryptcom/extension",
-  "version": "1.42.0",
+  "version": "1.42.1",
   "private": true,
   "scripts": {
     "zip": "cd dist; zip -r release.zip *;",
@@ -38,6 +38,7 @@
     "@ledgerhq/hw-transport-webusb": "^6.29.0",
     "@metamask/eth-sig-util": "^7.0.2",
     "@rollup/plugin-replace": "^5.0.7",
+    "@rpch/sdk": "^3.1.1",
     "@types/chrome": "^0.0.268",
     "@types/events": "^3.0.3",
     "@types/less": "^3.0.6",

@@ -170,6 +170,7 @@ import { ProviderResponseWithStatus } from "./types";
 import { GenericNameResolver, CoinType } from "@/libs/name-resolver";
 import { trackSwapEvents } from "@/libs/metrics";
 import { SwapEventType } from "@/libs/metrics/types";
+import { getSupportedRpchProvider } from "@/libs/RPChProvider";
 
 type BN = ReturnType<typeof toBN>;
 
@@ -238,7 +239,7 @@ const isLooking = ref(false);
 const swapMax = ref(false);
 
 const swap = new EnkryptSwap({
-  api: new Web3Eth(props.network.node),
+  api: new Web3Eth(getSupportedRpchProvider(props.network.node)),
   network: props.network.name as unknown as SupportedNetworkName,
   walletIdentifier: WalletIdentifier.enkrypt,
   evmOptions: {
