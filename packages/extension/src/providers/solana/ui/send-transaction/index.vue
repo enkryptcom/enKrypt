@@ -161,7 +161,17 @@ import {
   Transaction as SolTransaction,
   SystemProgram,
   PublicKey,
+  ComputeBudgetProgram,
 } from "@solana/web3.js";
+import {
+  createTransferInstruction,
+  getAssociatedTokenAddressSync,
+  getAccount,
+  createAssociatedTokenAccountInstruction,
+  ACCOUNT_SIZE,
+} from "@solana/spl-token";
+import getPriorityFees from "../libs/get-priority-fees";
+
 import SolanaAPI from "@/providers/solana/libs/api";
 
 const props = defineProps({
@@ -200,6 +210,8 @@ const accountAssets = ref<SOLToken[]>([]);
 const selectedAsset = ref<SOLToken>(loadingAsset);
 const amount = ref<string>("");
 const isEstimateValid = ref(true);
+const priorityFee = ref(0);
+const storageFee = ref(0);
 const hasEnoughBalance = computed(() => {
   if (!isValidDecimals(sendAmount.value, selectedAsset.value.decimals!)) {
     return false;
@@ -255,11 +267,12 @@ const TxInfo = computed<SendTransactionDataType>(() => {
   const value = sendAmount.value
     ? numberToHex(toBase(sendAmount.value, props.network.decimals))
     : "0x0";
-  const toAddress = addressTo.value;
+  const contract = selectedAsset.value.contract;
   return {
-    from: addressFrom.value as `0x{string}`,
-    value: value as `0x${string}`,
-    to: toAddress as `0x${string}`,
+    from: addressFrom.value,
+    value,
+    to: addressTo.value,
+    contract,
   };
 });
 
@@ -311,8 +324,9 @@ const setTransactionFees = (tx: SolTransaction) => {
   return tx
     .getEstimatedFee(solConnection.value!.web3)
     .then(async (fee) => {
+      const totalFee = fee! + storageFee.value;
       const getConvertedVal = () =>
-        fromBase(fee!.toString(), props.network.decimals);
+        fromBase(totalFee.toString(), props.network.decimals);
       const nativeVal = accountAssets.value[0].price || "0";
       gasCostValues.value[GasPriceTypes.ECONOMY] = {
         nativeValue: getConvertedVal(),
@@ -329,22 +343,8 @@ const setTransactionFees = (tx: SolTransaction) => {
     });
 };
 
-const Tx = computed<SolTransaction>(() => {
-  const from = new PublicKey(getAddress(TxInfo.value.from));
-  const transaction = new SolTransaction().add(
-    SystemProgram.transfer({
-      fromPubkey: from,
-      toPubkey: TxInfo.value.to
-        ? new PublicKey(getAddress(TxInfo.value.to))
-        : from,
-      lamports: toBN(TxInfo.value.value).toNumber(),
-    })
-  );
-  transaction.feePayer = from;
-  return transaction;
-});
 const setBaseCosts = async () => {
-  updateTransactionFees(Tx.value);
+  updateTransactionFees();
 };
 
 const fetchAssets = () => {
@@ -396,13 +396,83 @@ const isInputsValid = computed<boolean>(() => {
   return true;
 });
 
-const updateTransactionFees = (tx: SolTransaction) => {
+const updateTransactionFees = async () => {
+  storageFee.value = 0;
+  const from = new PublicKey(getAddress(TxInfo.value.from));
+  const to = TxInfo.value.to
+    ? new PublicKey(getAddress(TxInfo.value.to))
+    : from;
+  let transaction = new SolTransaction().add(
+    SystemProgram.transfer({
+      fromPubkey: from,
+      toPubkey: to,
+      lamports: toBN(TxInfo.value.value).toNumber(),
+    })
+  );
+  if (selectedAsset.value.contract !== NATIVE_TOKEN_ADDRESS) {
+    console.log("herer", 1);
+    const contract = new PublicKey(selectedAsset.value.contract);
+    const associatedTokenTo = getAssociatedTokenAddressSync(contract, to);
+    const associatedTokenFrom = getAssociatedTokenAddressSync(contract, to);
+    const validATA = await getAccount(
+      solConnection.value!.web3,
+      associatedTokenTo
+    )
+      .then(() => true)
+      .catch(() => false);
+    if (validATA) {
+      console.log("herer", 2);
+      transaction = new SolTransaction().add(
+        createTransferInstruction(
+          associatedTokenFrom,
+          associatedTokenTo,
+          from,
+          toBN(TxInfo.value.value).toNumber()
+        )
+      );
+    } else {
+      console.log("herer", 3);
+      transaction = new SolTransaction().add(
+        createAssociatedTokenAccountInstruction(
+          from,
+          associatedTokenTo,
+          to,
+          contract
+        )
+      );
+      transaction.add(
+        createTransferInstruction(
+          associatedTokenFrom,
+          associatedTokenTo,
+          from,
+          toBN(TxInfo.value.value).toNumber()
+        )
+      );
+      storageFee.value =
+        await solConnection.value!.web3.getMinimumBalanceForRentExemption(
+          ACCOUNT_SIZE
+        );
+    }
+  }
+  transaction.feePayer = from;
+
   if (isMaxSelected.value) {
     amount.value = "";
   }
+  priorityFee.value = (
+    await getPriorityFees(
+      new PublicKey(getAddress(TxInfo.value.from)),
+      solConnection.value!.web3
+    )
+  ).high;
   solConnection.value!.web3.getLatestBlockhash().then((bhash) => {
-    tx.recentBlockhash = bhash.blockhash;
-    setTransactionFees(tx).then(() => {
+    transaction.add(
+      ComputeBudgetProgram.setComputeUnitPrice({
+        microLamports: priorityFee.value,
+      })
+    );
+    transaction.recentBlockhash = bhash.blockhash;
+    setTransactionFees(transaction).then(() => {
       if (isMaxSelected.value) {
         amount.value =
           parseFloat(assetMaxValue.value) < 0 ? "0" : assetMaxValue.value;
@@ -420,7 +490,7 @@ watch(
   [isInputsValid, addressTo, selectedAsset, selectedNft, isSendToken],
   () => {
     if (isInputsValid.value) {
-      updateTransactionFees(Tx.value);
+      updateTransactionFees();
     }
   }
 );
@@ -463,7 +533,7 @@ const assetMaxValue = computed(() => {
 const setMaxValue = () => {
   isMaxSelected.value = true;
   if (isInputsValid.value) {
-    updateTransactionFees(Tx.value);
+    updateTransactionFees();
   }
 };
 const inputAddressFrom = (text: string) => {
@@ -521,7 +591,7 @@ const inputAmount = (inputAmount: string) => {
   isMaxSelected.value = false;
   amount.value = inputAmountBn.lt(0) ? "0" : inputAmount;
   if (isInputsValid.value) {
-    updateTransactionFees(Tx.value);
+    updateTransactionFees();
   }
 };
 
@@ -530,27 +600,6 @@ const sendAction = async () => {
   const fromAccountInfo = await keyring.getAccount(
     addressFrom.value.toLowerCase()
   );
-  // const transaction = Tx.value;
-  // transaction.recentBlockhash = (
-  //   await solConnection.value!.web3.getLatestBlockhash()
-  // ).blockhash;
-  // const msgToSign = transaction.serializeMessage();
-  // sendUsingInternalMessengers({
-  //   method: InternalMethods.sign,
-  //   params: [bufferToHex(msgToSign), fromAccountInfo],
-  // }).then((res) => {
-  //   if (res.error) return res;
-  //   transaction.addSignature(
-  //     transaction.feePayer!,
-  //     hexToBuffer(JSON.parse(res.result!))
-  //   );
-  //   console.log(transaction.verifySignatures(true));
-  //   solConnection
-  //     .value!.web3.sendRawTransaction(transaction.serialize())
-  //     .then((hash) => {
-  //       console.log(`https://solscan.io/tx/${hash}`);
-  //     });
-  // });
   const txVerifyInfo: VerifyTransactionParams = {
     TransactionData: TxInfo.value,
     isNFT: !isSendToken.value,
@@ -569,6 +618,7 @@ const sendAction = async () => {
     fromAddress: fromAccountInfo.address,
     fromAddressName: fromAccountInfo.name,
     gasFee: gasCostValues.value[selectedFee.value],
+    priorityFee: priorityFee.value,
     gasPriceType: selectedFee.value,
     toAddress: addressTo.value,
   };
@@ -585,7 +635,7 @@ const sendAction = async () => {
     await Browser.windows.create({
       url: Browser.runtime.getURL(
         getUiPath(
-          `eth-hw-verify?id=${routedRoute.query.id}&txData=${routedRoute.query.txData}`,
+          `sol-hw-verify?id=${routedRoute.query.id}&txData=${routedRoute.query.txData}`,
           ProviderName.ethereum
         )
       ),

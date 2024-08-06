@@ -93,20 +93,24 @@ import SendProcess from "@action/views/send-process/index.vue";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
 import { VerifyTransactionParams } from "../../types";
 import { getCurrentContext } from "@/libs/messenger/extension";
-import { DEFAULT_EVM_NETWORK, getNetworkByName } from "@/libs/utils/networks";
+import {
+  DEFAULT_SOLANA_NETWORK,
+  getNetworkByName,
+} from "@/libs/utils/networks";
 import { ActivityStatus, Activity, ActivityType } from "@/types/activity";
 import ActivityState from "@/libs/activity-state";
 import { EnkryptAccount } from "@enkryptcom/types";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 import { BaseNetwork } from "@/types/base-network";
 import { toBN } from "web3-utils";
-import { bufferToHex, hexToBuffer } from "@enkryptcom/utils";
+import { bufferToHex, hexToBuffer, toBase } from "@enkryptcom/utils";
 import { trackSendEvents } from "@/libs/metrics";
 import { SendEventType } from "@/libs/metrics/types";
 import {
   Transaction as SolTransaction,
   SystemProgram,
   PublicKey,
+  ComputeBudgetProgram,
 } from "@solana/web3.js";
 import { getAddress } from "@/providers/solana/types/sol-network";
 import SolanaAPI from "@/providers/solana/libs/api";
@@ -122,7 +126,7 @@ const txData: VerifyTransactionParams = JSON.parse(
 );
 const isNft = ref(txData.isNFT);
 const isProcessing = ref(false);
-const network = ref<BaseNetwork>(DEFAULT_EVM_NETWORK);
+const network = ref<BaseNetwork>(DEFAULT_SOLANA_NETWORK);
 const isSendDone = ref(false);
 const account = ref<EnkryptAccount>();
 const isPopup: boolean = getCurrentContext() === "new-window";
@@ -155,6 +159,11 @@ const sendAction = async () => {
       fromPubkey: from,
       toPubkey: new PublicKey(getAddress(txData.TransactionData.to)),
       lamports: toBN(txData.TransactionData.value).toNumber(),
+    })
+  );
+  transaction.add(
+    ComputeBudgetProgram.setComputeUnitPrice({
+      microLamports: txData.priorityFee,
     })
   );
   transaction.feePayer = from;

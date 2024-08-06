@@ -3,9 +3,10 @@ import { GasFeeInfo, GasPriceTypes } from "@/providers/common/types";
 import { NFTItemWithCollectionName } from "@/types/nft";
 
 export interface SendTransactionDataType {
-  from: `0x${string}`;
-  value: `0x${string}`;
-  to: `0x${string}`;
+  from: string;
+  value: string;
+  to: string;
+  contract: string;
 }
 
 export interface VerifyTransactionParams {
@@ -17,6 +18,6 @@ export interface VerifyTransactionParams {
   toAddress: string;
   toToken: ToTokenData;
   gasFee: GasFeeInfo;
+  priorityFee: number;
   gasPriceType: GasPriceTypes;
-  TxInfo: string;
 }

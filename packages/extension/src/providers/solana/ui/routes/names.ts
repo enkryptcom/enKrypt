@@ -1,22 +1,22 @@
 export default {
-  btcSign: {
-    path: "btc-sign",
-    name: "btcSign",
+  solSign: {
+    path: "sol-sign",
+    name: "solSign",
     component: {},
   },
-  btcSendTransaction: {
-    path: "btc-send-transaction",
-    name: "btcSendTransaction",
+  solSendTransaction: {
+    path: "sol-send-transaction",
+    name: "solSendTransaction",
     component: {},
   },
-  btcConnectDApp: {
-    path: "btc-connect-dapp",
-    name: "btcConnectDApp",
+  solConnectDApp: {
+    path: "sol-connect-dapp",
+    name: "solConnectDApp",
     component: {},
   },
-  btcHWVerify: {
-    path: "btc-hw-verify",
-    name: "btcHWVerify",
+  solHWVerify: {
+    path: "sol-hw-verify",
+    name: "solHWVerify",
     component: {},
   },
 };

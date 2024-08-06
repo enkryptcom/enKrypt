@@ -18,7 +18,6 @@ import { SOLToken, SolTokenOptions } from "./sol-token";
 import { NFTCollection } from "@/types/nft";
 import { fromBase, hexToBuffer } from "@enkryptcom/utils";
 import bs58 from "bs58";
-import { NATIVE_TOKEN_ADDRESS } from "@/providers/ethereum/libs/common";
 import { isAddress as isSolanaAddress } from "../libs/utils";
 
 export interface SolanaNetworkOptions {
@@ -100,7 +99,7 @@ export class SolanaNetwork extends BaseNetwork {
         balance: token.balance,
         price: token.value,
         coingeckoID: this.coingeckoID,
-        contract: NATIVE_TOKEN_ADDRESS,
+        contract: token.contract!,
       };
       return new SOLToken(bTokenOptions);
     });

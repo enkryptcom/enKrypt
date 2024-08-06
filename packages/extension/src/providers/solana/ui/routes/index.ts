@@ -1,14 +1,14 @@
-import btcSign from "../btc-sign-message.vue";
-import btcSendTransaction from "../btc-verify-transaction.vue";
-import btcConnectDApp from "../btc-connect-dapp.vue";
-import btcHWVerify from "../send-transaction/verify-transaction/index.vue";
+import solSign from "../sol-sign-message.vue";
+import solSendTransaction from "../sol-verify-transaction.vue";
+import solConnectDApp from "../sol-connect-dapp.vue";
+import solHWVerify from "../send-transaction/verify-transaction/index.vue";
 import { RouteRecordRaw } from "vue-router";
 import RouteNames from "./names";
 const routes = Object.assign({}, RouteNames);
-routes.btcSign.component = btcSign;
-routes.btcSendTransaction.component = btcSendTransaction;
-routes.btcConnectDApp.component = btcConnectDApp;
-routes.btcHWVerify.component = btcHWVerify;
+routes.solSign.component = solSign;
+routes.solSendTransaction.component = solSendTransaction;
+routes.solConnectDApp.component = solConnectDApp;
+routes.solHWVerify.component = solHWVerify;
 export default (namespace: string): RouteRecordRaw[] => {
   return Object.values(routes).map((route) => {
     route.path = `/${namespace}/${route.path}`;
