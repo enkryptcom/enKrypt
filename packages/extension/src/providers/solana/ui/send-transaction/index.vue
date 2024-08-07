@@ -413,7 +413,7 @@ const updateTransactionFees = async () => {
     console.log("herer", 1);
     const contract = new PublicKey(selectedAsset.value.contract);
     const associatedTokenTo = getAssociatedTokenAddressSync(contract, to);
-    const associatedTokenFrom = getAssociatedTokenAddressSync(contract, to);
+    const associatedTokenFrom = getAssociatedTokenAddressSync(contract, from);
     const validATA = await getAccount(
       solConnection.value!.web3,
       associatedTokenTo
