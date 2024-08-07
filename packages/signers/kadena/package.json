@@ -1,6 +1,6 @@
 {
   "name": "@enkryptcom/signer-kadena",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Kadena blockchain signer",
   "main": "dist/index.js",
   "module": "dist/index.mjs",

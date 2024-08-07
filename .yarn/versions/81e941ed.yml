@@ -1,0 +1,7 @@
+undecided:
+  - enkrypt
+  - "@enkryptcom/keyring"
+  - "@enkryptcom/name-resolution"
+  - "@enkryptcom/signer-ethereum"
+  - "@enkryptcom/signer-kadena"
+  - "@enkryptcom/storage"

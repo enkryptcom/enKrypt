@@ -1,6 +1,6 @@
 {
   "name": "@enkryptcom/name-resolution",
-  "version": "0.0.6",
+  "version": "0.0.8",
   "description": "name resolution module for enkrypt",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

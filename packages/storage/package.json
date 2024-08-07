@@ -1,6 +1,6 @@
 {
   "name": "@enkryptcom/storage",
-  "version": "0.0.2",
+  "version": "0.0.4",
   "description": "Storage management for enkrypt",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
