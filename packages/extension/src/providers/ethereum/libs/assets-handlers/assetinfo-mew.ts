@@ -75,6 +75,10 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
     tbName: "arb",
     cgPlatform: CoingeckoPlatform.Arbitrum,
   },
+  [NetworkNames.ArbitrumNova]: {
+    tbName: "nova",
+    cgPlatform: CoingeckoPlatform.ArbitrumNova,
+  },
   [NetworkNames.Gnosis]: {
     tbName: "xdai",
     cgPlatform: CoingeckoPlatform.Gnosis,
