@@ -38,6 +38,7 @@ const NetworkEndpoints: Record<string, string> = {
     "https://block-explorer-api.testnets.zksync.dev/",
   [NetworkNames.ZkSync]: "https://block-explorer-api.mainnet.zksync.io/",
   [NetworkNames.Arbitrum]: "https://api.arbiscan.io/",
+  [NetworkNames.ArbitrumNova]: "https://nova-explorer.arbitrum.io/",
   [NetworkNames.Gnosis]: "https://api.gnosisscan.io/",
   [NetworkNames.Avalanche]: "https://api.snowtrace.io/",
   [NetworkNames.Fantom]: "https://api.ftmscan.com/",

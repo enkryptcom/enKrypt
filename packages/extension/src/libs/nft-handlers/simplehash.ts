@@ -18,6 +18,7 @@ export default async (
     [NetworkNames.Optimism]: "optimism",
     [NetworkNames.Binance]: "bsc",
     [NetworkNames.Arbitrum]: "arbitrum",
+    [NetworkNames.ArbitrumNova]: "arbitrum-nova",
     [NetworkNames.Gnosis]: "gnosis",
     [NetworkNames.Avalanche]: "avalanche",
     [NetworkNames.Matic]: "polygon",
