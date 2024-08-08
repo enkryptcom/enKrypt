@@ -2,6 +2,8 @@ export enum NFTType {
   ERC721 = "ERC721",
   ERC1155 = "ERC1155",
   Ordinals = "ORDINALS",
+  SolanaBGUM = "SOLANABGUM",
+  SolanaToken = "SOLANATOKEN",
 }
 
 export interface NFTItem {

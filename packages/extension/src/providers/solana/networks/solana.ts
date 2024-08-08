@@ -2,6 +2,7 @@ import { NetworkNames } from "@enkryptcom/types";
 import { SolanaNetwork, SolanaNetworkOptions } from "../types/sol-network";
 import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
 import assetsInfoHandler from "@/providers/ethereum/libs/assets-handlers/assetinfo-mew";
+import shNFTHandler from "@/libs/nft-handlers/simplehash-solana";
 
 const solanaOptions: SolanaNetworkOptions = {
   name: NetworkNames.Solana,
@@ -19,6 +20,7 @@ const solanaOptions: SolanaNetworkOptions = {
   activityHandler: wrapActivityHandler(() => Promise.resolve([])),
   basePath: "m/44'/501'",
   assetsInfoHandler,
+  NFTHandler: shNFTHandler,
 };
 
 const bitcoin = new SolanaNetwork(solanaOptions);

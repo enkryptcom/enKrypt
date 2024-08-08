@@ -90,7 +90,6 @@ const yEnd = throttle((event) => {
 const searchQuery = ref<string>();
 
 const listedAssets = computed(() => {
-  console.log(props.assets);
   if (searchQuery.value) {
     return props.assets
       .filter((token) => {

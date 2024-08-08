@@ -24,8 +24,21 @@ class API implements ProviderAPIInterface {
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   async init(): Promise<void> {}
   async getTransactionStatus(hash: string): Promise<SOLRawInfo | null> {
-    console.log(hash, "gettxstatus");
-    return null;
+    return this.web3
+      .getTransaction(hash, {
+        maxSupportedTransactionVersion: 0,
+        commitment: "confirmed",
+      })
+      .then((tx) => {
+        if (!tx) return null;
+        const retVal: SOLRawInfo = {
+          blockNumber: tx.slot,
+          timestamp: tx.blockTime,
+          transactionHash: hash,
+          status: tx.meta?.err ? false : true,
+        };
+        return retVal;
+      });
   }
   async getBalance(pubkey: string): Promise<string> {
     const balance = await this.web3.getBalance(

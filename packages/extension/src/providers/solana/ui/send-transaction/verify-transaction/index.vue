@@ -102,20 +102,20 @@ import ActivityState from "@/libs/activity-state";
 import { EnkryptAccount } from "@enkryptcom/types";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 import { BaseNetwork } from "@/types/base-network";
-import { toBN } from "web3-utils";
-import { bufferToHex, hexToBuffer, toBase } from "@enkryptcom/utils";
+import { bufferToHex, hexToBuffer } from "@enkryptcom/utils";
 import { trackSendEvents } from "@/libs/metrics";
 import { SendEventType } from "@/libs/metrics/types";
 import {
   Transaction as SolTransaction,
-  SystemProgram,
-  PublicKey,
   ComputeBudgetProgram,
+  VersionedTransaction,
+  TransactionMessage,
 } from "@solana/web3.js";
-import { getAddress } from "@/providers/solana/types/sol-network";
+import { getSimulationComputeUnits } from "@solana-developers/helpers";
 import SolanaAPI from "@/providers/solana/libs/api";
 import sendUsingInternalMessengers from "@/libs/messenger/internal-messenger";
 import { InternalMethods } from "@/types/messenger";
+import bs58 from "bs58";
 
 const KeyRing = new PublicKeyRing();
 const route = useRoute();
@@ -153,25 +153,33 @@ const sendAction = async () => {
   trackSendEvents(SendEventType.SendApprove, {
     network: network.value.name,
   });
-  const from = new PublicKey(getAddress(txData.TransactionData.from));
-  const transaction = new SolTransaction().add(
-    SystemProgram.transfer({
-      fromPubkey: from,
-      toPubkey: new PublicKey(getAddress(txData.TransactionData.to)),
-      lamports: toBN(txData.TransactionData.value).toNumber(),
-    })
+  const transactiontemp = SolTransaction.from(bs58.decode(txData.encodedTx));
+  const solAPI = (await network.value.api()).api as SolanaAPI;
+  const computeUnits = await getSimulationComputeUnits(
+    solAPI.web3,
+    transactiontemp.instructions,
+    transactiontemp.feePayer!,
+    []
   );
-  transaction.add(
-    ComputeBudgetProgram.setComputeUnitPrice({
-      microLamports: txData.priorityFee,
-    })
+  if (computeUnits) {
+    transactiontemp.instructions.unshift(
+      ComputeBudgetProgram.setComputeUnitLimit({ units: computeUnits + 5000 }) // adding few extra CUs as a buffer
+    );
+  }
+  const latestBlock = await solAPI.web3.getLatestBlockhash();
+  transactiontemp.recentBlockhash = latestBlock.blockhash;
+  const transaction = new VersionedTransaction(
+    new TransactionMessage({
+      instructions: transactiontemp.instructions,
+      recentBlockhash: latestBlock.blockhash,
+      payerKey: transactiontemp.feePayer!,
+    }).compileToV0Message([])
   );
-  transaction.feePayer = from;
-
   const txActivity: Activity = {
-    from: txData.fromAddress,
+    from: network.value.displayAddress(txData.fromAddress),
     to: txData.toAddress,
-    isIncoming: txData.fromAddress === txData.toAddress,
+    isIncoming:
+      network.value.displayAddress(txData.fromAddress) === txData.toAddress,
     network: network.value.name,
     status: ActivityStatus.pending,
     timestamp: new Date().getTime(),
@@ -189,18 +197,15 @@ const sendAction = async () => {
     transactionHash: "",
   };
   const activityState = new ActivityState();
-  const solAPI = (await network.value.api()).api as SolanaAPI;
-  transaction.recentBlockhash = (
-    await solAPI.web3.getLatestBlockhash()
-  ).blockhash;
-  const msgToSign = transaction.serializeMessage();
+  //transaction.message.serialize()
+  const msgToSign = transaction.message.serialize();
   sendUsingInternalMessengers({
     method: InternalMethods.sign,
     params: [bufferToHex(msgToSign), account.value!],
   }).then((res) => {
     if (res.error) return res;
     transaction.addSignature(
-      transaction.feePayer!,
+      transactiontemp.feePayer!,
       hexToBuffer(JSON.parse(res.result!))
     );
     const onHash = (hash: string) => {
@@ -216,7 +221,10 @@ const sendAction = async () => {
             },
           },
         ],
-        { address: txData.fromAddress, network: network.value.name }
+        {
+          address: network.value.displayAddress(txData.fromAddress),
+          network: network.value.name,
+        }
       );
       isSendDone.value = true;
       if (getCurrentContext() === "popup") {
@@ -232,15 +240,14 @@ const sendAction = async () => {
       }
     };
     solAPI.web3
-      .sendRawTransaction(transaction.serialize())
+      .sendRawTransaction(Buffer.from(transaction.serialize()))
       .then((hash) => {
         onHash(hash);
-        console.log(`https://solscan.io/tx/${hash}`);
       })
       .catch((e) => {
         txActivity.status = ActivityStatus.failed;
         activityState.addActivities([txActivity], {
-          address: txData.fromAddress,
+          address: network.value.displayAddress(txData.fromAddress),
           network: network.value.name,
         });
         isProcessing.value = false;

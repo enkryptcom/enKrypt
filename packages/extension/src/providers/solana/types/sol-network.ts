@@ -49,7 +49,7 @@ export interface SolanaNetworkOptions {
 }
 
 export const getAddress = (pubkey: string) => {
-  if (pubkey.length === 44) return pubkey;
+  if (pubkey.length <= 44) return pubkey;
   return bs58.encode(hexToBuffer(pubkey));
 };
 

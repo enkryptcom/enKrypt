@@ -157,11 +157,18 @@ import { GenericNameResolver, CoinType } from "@/libs/name-resolver";
 import { trackSendEvents } from "@/libs/metrics";
 import { SendEventType } from "@/libs/metrics/types";
 import { NATIVE_TOKEN_ADDRESS } from "@/providers/ethereum/libs/common";
+import { createUmi } from "@metaplex-foundation/umi-bundle-defaults";
+import {
+  getAssetWithProof,
+  transfer,
+  mplBubblegum,
+} from "@metaplex-foundation/mpl-bubblegum";
 import {
   Transaction as SolTransaction,
   SystemProgram,
   PublicKey,
   ComputeBudgetProgram,
+  TransactionInstruction,
 } from "@solana/web3.js";
 import {
   createTransferInstruction,
@@ -171,8 +178,10 @@ import {
   ACCOUNT_SIZE,
 } from "@solana/spl-token";
 import getPriorityFees from "../libs/get-priority-fees";
+import bs58 from "bs58";
 
 import SolanaAPI from "@/providers/solana/libs/api";
+import { getSimulationComputeUnits } from "@solana-developers/helpers";
 
 const props = defineProps({
   network: {
@@ -210,8 +219,8 @@ const accountAssets = ref<SOLToken[]>([]);
 const selectedAsset = ref<SOLToken>(loadingAsset);
 const amount = ref<string>("");
 const isEstimateValid = ref(true);
-const priorityFee = ref(0);
 const storageFee = ref(0);
+const SolTx = ref<SolTransaction>();
 const hasEnoughBalance = computed(() => {
   if (!isValidDecimals(sendAmount.value, selectedAsset.value.decimals!)) {
     return false;
@@ -241,7 +250,7 @@ const selectedNft = ref<NFTItemWithCollectionName>({
   name: "Loading",
   url: "",
   collectionName: "",
-  type: NFTType.ERC721,
+  type: NFTType.SolanaToken,
 });
 
 const nativeBalance = computed(() => {
@@ -265,12 +274,14 @@ onMounted(async () => {
 
 const TxInfo = computed<SendTransactionDataType>(() => {
   const value = sendAmount.value
-    ? numberToHex(toBase(sendAmount.value, props.network.decimals))
+    ? numberToHex(toBase(sendAmount.value, selectedAsset.value.decimals))
     : "0x0";
-  const contract = selectedAsset.value.contract;
+  const contract = isSendToken.value
+    ? selectedAsset.value.contract
+    : selectedNft.value.contract;
   return {
     from: addressFrom.value,
-    value,
+    value: isSendToken.value ? value : "0x1",
     to: addressTo.value,
     contract,
   };
@@ -354,7 +365,6 @@ const fetchAssets = () => {
   return props.network.getAllTokens(addressFrom.value).then((allAssets) => {
     accountAssets.value = allAssets as SOLToken[];
     selectedAsset.value = allAssets[0] as SOLToken;
-
     isLoadingAssets.value = false;
   });
 };
@@ -402,16 +412,30 @@ const updateTransactionFees = async () => {
   const to = TxInfo.value.to
     ? new PublicKey(getAddress(TxInfo.value.to))
     : from;
-  let transaction = new SolTransaction().add(
-    SystemProgram.transfer({
-      fromPubkey: from,
-      toPubkey: to,
-      lamports: toBN(TxInfo.value.value).toNumber(),
+  const priorityFee = (
+    await getPriorityFees(
+      new PublicKey(getAddress(TxInfo.value.from)),
+      solConnection.value!.web3
+    )
+  ).high;
+  const transaction = new SolTransaction().add(
+    ComputeBudgetProgram.setComputeUnitPrice({
+      microLamports: priorityFee * 100,
     })
   );
-  if (selectedAsset.value.contract !== NATIVE_TOKEN_ADDRESS) {
-    console.log("herer", 1);
-    const contract = new PublicKey(selectedAsset.value.contract);
+  if (isSendToken.value && TxInfo.value.contract === NATIVE_TOKEN_ADDRESS) {
+    transaction.add(
+      SystemProgram.transfer({
+        fromPubkey: from,
+        toPubkey: to,
+        lamports: toBN(TxInfo.value.value).toNumber(),
+      })
+    );
+  } else if (
+    isSendToken.value ||
+    (!isSendToken.value && selectedNft.value.type === NFTType.SolanaToken)
+  ) {
+    const contract = new PublicKey(TxInfo.value.contract);
     const associatedTokenTo = getAssociatedTokenAddressSync(contract, to);
     const associatedTokenFrom = getAssociatedTokenAddressSync(contract, from);
     const validATA = await getAccount(
@@ -421,8 +445,7 @@ const updateTransactionFees = async () => {
       .then(() => true)
       .catch(() => false);
     if (validATA) {
-      console.log("herer", 2);
-      transaction = new SolTransaction().add(
+      transaction.add(
         createTransferInstruction(
           associatedTokenFrom,
           associatedTokenTo,
@@ -431,8 +454,7 @@ const updateTransactionFees = async () => {
         )
       );
     } else {
-      console.log("herer", 3);
-      transaction = new SolTransaction().add(
+      transaction.add(
         createAssociatedTokenAccountInstruction(
           from,
           associatedTokenTo,
@@ -453,25 +475,36 @@ const updateTransactionFees = async () => {
           ACCOUNT_SIZE
         );
     }
+  } else if (
+    !isSendToken.value &&
+    selectedNft.value.type === NFTType.SolanaBGUM
+  ) {
+    const umi = createUmi(solConnection.value!.web3).use(mplBubblegum());
+    const assetWithProof = await getAssetWithProof(
+      umi,
+      new PublicKey(selectedNft.value.contract) as any
+    );
+    const txData = transfer(umi, {
+      ...assetWithProof,
+      leafOwner: from as any,
+      newLeafOwner: to as any,
+    });
+    txData.getInstructions().forEach((i) => {
+      i.keys = i.keys.map((k) => {
+        k.pubkey = new PublicKey(k.pubkey) as any;
+        return k;
+      });
+      i.programId = new PublicKey(i.programId) as any;
+      transaction.add(i as any);
+    });
   }
   transaction.feePayer = from;
-
   if (isMaxSelected.value) {
     amount.value = "";
   }
-  priorityFee.value = (
-    await getPriorityFees(
-      new PublicKey(getAddress(TxInfo.value.from)),
-      solConnection.value!.web3
-    )
-  ).high;
-  solConnection.value!.web3.getLatestBlockhash().then((bhash) => {
-    transaction.add(
-      ComputeBudgetProgram.setComputeUnitPrice({
-        microLamports: priorityFee.value,
-      })
-    );
+  solConnection.value!.web3.getLatestBlockhash().then(async (bhash) => {
     transaction.recentBlockhash = bhash.blockhash;
+    SolTx.value = transaction;
     setTransactionFees(transaction).then(() => {
       if (isMaxSelected.value) {
         amount.value =
@@ -618,9 +651,14 @@ const sendAction = async () => {
     fromAddress: fromAccountInfo.address,
     fromAddressName: fromAccountInfo.name,
     gasFee: gasCostValues.value[selectedFee.value],
-    priorityFee: priorityFee.value,
     gasPriceType: selectedFee.value,
     toAddress: addressTo.value,
+    encodedTx: bs58.encode(
+      SolTx.value!.serialize({
+        requireAllSignatures: false,
+        verifySignatures: false,
+      })
+    ),
   };
   const routedRoute = router.resolve({
     name: RouterNames.verify.name,

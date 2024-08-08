@@ -18,6 +18,6 @@ export interface VerifyTransactionParams {
   toAddress: string;
   toToken: ToTokenData;
   gasFee: GasFeeInfo;
-  priorityFee: number;
   gasPriceType: GasPriceTypes;
+  encodedTx: string;
 }

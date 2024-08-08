@@ -19,8 +19,8 @@ interface BTCOuts extends BTCIns {
 interface SOLRawInfo {
   blockNumber: number;
   transactionHash: string;
-  timestamp: number | undefined;
-  fee: number;
+  timestamp: number | null | undefined;
+  status: boolean;
 }
 
 interface BTCRawInfo {
@@ -126,7 +126,8 @@ interface Activity {
     | SubscanExtrinsicInfo
     | BTCRawInfo
     | SwapRawInfo
-    | KadenaRawInfo;
+    | KadenaRawInfo
+    | SOLRawInfo;
 }
 
 export {
