@@ -43,6 +43,7 @@ import blastNode from "./blast";
 import sankoNode from "./dmt";
 import degenNode from "./degen";
 import hamNode from "./ham";
+import formaNode from "./forma";
 
 export default {
   sepolia: sepoliaNode,
@@ -99,4 +100,5 @@ export default {
   sanko: sankoNode,
   degen: degenNode,
   ham: hamNode,
+  forma: formaNode,
 };

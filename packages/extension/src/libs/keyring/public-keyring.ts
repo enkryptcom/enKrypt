@@ -64,6 +64,16 @@ class PublicKeyRing {
         walletType: WalletType.mnemonic,
         isHardware: false,
       };
+      allKeys["0x4eb92ac9bae0d94ff5cbe17bbf7efccb9e303020"] = {
+        address: "0x4eb92ac9bae0d94ff5cbe17bbf7efccb9e303020",
+        basePath: "//",
+        name: "fake forma account #5",
+        pathIndex: 0,
+        publicKey: "0x0",
+        signerType: SignerType.secp256k1,
+        walletType: WalletType.mnemonic,
+        isHardware: false,
+      };
       allKeys[
         "bc1puzz9tmxawd7zdd7klfgtywrgpma3u22fz5ecxhucd4j8tygqe5ms2vdd9y"
       ] = {
