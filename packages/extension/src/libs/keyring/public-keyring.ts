@@ -90,26 +90,6 @@ class PublicKeyRing {
         walletType: WalletType.mnemonic,
         isHardware: false,
       };
-      allKeys["0x9a991382cbbcf03a7a8f59277478152f2c81f4d1"] = {
-        address: "0x9a991382cbbcf03a7a8f59277478152f2c81f4d1",
-        basePath: "m/44'/60'/0'/0",
-        name: "fake godwoken account #5",
-        pathIndex: 0,
-        publicKey: "0x0",
-        signerType: SignerType.secp256k1,
-        walletType: WalletType.mnemonic,
-        isHardware: false,
-      };
-      allKeys["0x51f6749dee3510f983c15b7c239cc6df4e4054ea"] = {
-        address: "0x51f6749dee3510f983c15b7c239cc6df4e4054ea",
-        basePath: "m/44'/60'/0'/0",
-        name: "fake godwoken account #6",
-        pathIndex: 0,
-        publicKey: "0x0",
-        signerType: SignerType.secp256k1,
-        walletType: WalletType.mnemonic,
-        isHardware: false,
-      };
     }
     return allKeys;
   }
