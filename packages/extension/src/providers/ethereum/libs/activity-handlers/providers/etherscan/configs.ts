@@ -58,6 +58,7 @@ const NetworkEndpoints: Record<string, string> = {
   [NetworkNames.Sanko]: "https://explorer.sanko.xyz/",
   [NetworkNames.Degen]: "https://explorer.degen.tips/",
   [NetworkNames.Ham]: "https://explorer.ham.fun/",
+  [NetworkNames.ImmutableZkevm]: "https://explorer.immutable.com/",
 };
 
 export { NetworkEndpoints };
