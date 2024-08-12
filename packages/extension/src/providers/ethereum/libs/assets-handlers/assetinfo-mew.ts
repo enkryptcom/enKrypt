@@ -135,6 +135,10 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
     tbName: "degen",
     cgPlatform: CoingeckoPlatform.Degen,
   },
+  [NetworkNames.MantaPacific]: {
+    tbName: "manta",
+    cgPlatform: CoingeckoPlatform.MantaPacific,
+  },
 };
 
 const getTokens = (

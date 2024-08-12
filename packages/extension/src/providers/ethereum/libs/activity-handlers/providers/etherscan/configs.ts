@@ -58,6 +58,7 @@ const NetworkEndpoints: Record<string, string> = {
   [NetworkNames.Sanko]: "https://explorer.sanko.xyz/",
   [NetworkNames.Degen]: "https://explorer.degen.tips/",
   [NetworkNames.Ham]: "https://explorer.ham.fun/",
+  [NetworkNames.MantaPacific]: "https://pacific-explorer.manta.network/",
 };
 
 export { NetworkEndpoints };
