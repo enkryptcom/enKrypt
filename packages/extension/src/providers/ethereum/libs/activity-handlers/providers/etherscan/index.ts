@@ -18,7 +18,7 @@ const getAddressActivity = async (
 ): Promise<EthereumRawInfo[]> => {
   return cacheFetch(
     {
-      url: `${endpoint}api?module=account&action=txlist&address=${address}`,
+      url: `${endpoint}api?module=account&action=txlist&address=${address}&page=1&offset=50&sort=desc`,
     },
     TTL
   ).then((res) => {
@@ -43,6 +43,7 @@ const getAddressActivity = async (
       };
       return rawTx;
     });
+    // Results are sorted in `ActivityState`
     return newResults.slice(0, 50) as EthereumRawInfo[];
   });
 };
