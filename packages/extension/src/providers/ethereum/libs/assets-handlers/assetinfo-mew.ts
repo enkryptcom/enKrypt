@@ -135,6 +135,10 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
     tbName: "degen",
     cgPlatform: CoingeckoPlatform.Degen,
   },
+  [NetworkNames.Linea]: {
+    tbName: "linea",
+    cgPlatform: CoingeckoPlatform.Linea,
+  },
 };
 
 const getTokens = (

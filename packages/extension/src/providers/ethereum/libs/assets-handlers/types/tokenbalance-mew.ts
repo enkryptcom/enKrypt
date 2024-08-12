@@ -52,4 +52,5 @@ export type SupportedNetworkNames =
   | NetworkNames.Rollux
   | NetworkNames.Sanko
   | NetworkNames.Degen
-  | NetworkNames.Blast;
+  | NetworkNames.Blast
+  | NetworkNames.Linea;
