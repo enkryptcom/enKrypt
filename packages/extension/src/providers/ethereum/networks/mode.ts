@@ -5,9 +5,6 @@ import { EtherscanActivity } from "../libs/activity-handlers";
 import assetsInfoHandler from "@/providers/ethereum/libs/assets-handlers/assetinfo-mew";
 import shNFTHandler from "@/libs/nft-handlers/simplehash";
 
-// https://docs.mode.network/
-// https://explorer.mode.network/
-
 const modeOptions: EvmNetworkOptions = {
   name: NetworkNames.Mode,
   name_long: "Mode",
