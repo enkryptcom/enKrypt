@@ -135,6 +135,10 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
     tbName: "degen",
     cgPlatform: CoingeckoPlatform.Degen,
   },
+  [NetworkNames.OpBNB]: {
+    tbName: "opbnb",
+    cgPlatform: CoingeckoPlatform.OpBNB,
+  },
 };
 
 const getTokens = (
