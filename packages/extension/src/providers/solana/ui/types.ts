@@ -1,6 +1,6 @@
-import { ToTokenData } from "@/ui/action/types/token";
-import { GasFeeInfo, GasPriceTypes } from "@/providers/common/types";
-import { NFTItemWithCollectionName } from "@/types/nft";
+import type { ToTokenData } from "@/ui/action/types/token";
+import type { GasFeeInfo, GasPriceTypes } from "@/providers/common/types";
+import type { NFTItemWithCollectionName } from "@/types/nft";
 
 export interface SendTransactionDataType {
   from: string;
@@ -20,4 +20,18 @@ export interface VerifyTransactionParams {
   gasFee: GasFeeInfo;
   gasPriceType: GasPriceTypes;
   encodedTx: string;
+}
+
+export interface SolSignInResponse {
+  address: string;
+  pubkey: string;
+  signature: string;
+  signedMessage: string;
+  signatureType: "ed25519";
+}
+
+export interface SolSignTransactionRequest {
+  hex: string;
+  address: string;
+  chain?: string;
 }

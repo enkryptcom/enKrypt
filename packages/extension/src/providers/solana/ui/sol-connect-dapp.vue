@@ -72,18 +72,22 @@ import SelectAccountInput from "@action/components/select-account-input/index.vu
 import ModalAccounts from "@action/views/modal-accounts/index.vue";
 import { AccountsHeaderData } from "@action/types/account";
 import { EnkryptAccount } from "@enkryptcom/types";
-import { DEFAULT_BTC_NETWORK, getNetworkByName } from "@/libs/utils/networks";
+import {
+  DEFAULT_BTC_NETWORK,
+  DEFAULT_SOLANA_NETWORK,
+  getNetworkByName,
+} from "@/libs/utils/networks";
 import { WindowPromiseHandler } from "@/libs/window-promise";
-import { BitcoinNetwork } from "../types/bitcoin-network";
 import { ProviderRequestOptions } from "@/types/provider";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
 import { fromBase } from "@enkryptcom/utils";
 import { getError } from "@/libs/error";
 import { ErrorCodes } from "@/providers/ethereum/types";
 import AccountState from "../libs/accounts-state";
+import { SolanaNetwork } from "../types/sol-network";
 
 const windowPromise = WindowPromiseHandler(1);
-const network = ref<BitcoinNetwork>(DEFAULT_BTC_NETWORK);
+const network = ref<SolanaNetwork>(DEFAULT_SOLANA_NETWORK);
 const identicon = ref<string>("");
 const displayAddress = ref<string>("");
 const accountHeaderData = ref<AccountsHeaderData>({
@@ -108,7 +112,7 @@ onBeforeMount(async () => {
   const { Request, options } = await windowPromise;
   network.value = (await getNetworkByName(
     Request.value.params![0]
-  )) as BitcoinNetwork;
+  )) as SolanaNetwork;
   const keyring = new PublicKeyRing();
   Options.value = options;
   const accounts = await keyring.getAccounts(network.value.signer);

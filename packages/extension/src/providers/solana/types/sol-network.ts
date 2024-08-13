@@ -3,7 +3,7 @@ import SolAPI from "@/providers/solana/libs/api";
 import { AssetsType } from "@/types/provider";
 import { BaseToken } from "@/types/base-token";
 import { ProviderName } from "@/types/provider";
-import { NetworkNames, SignerType } from "@enkryptcom/types";
+import { CoingeckoPlatform, NetworkNames, SignerType } from "@enkryptcom/types";
 import createIcon from "../libs/blockies";
 import { Activity } from "@/types/activity";
 import {
@@ -33,6 +33,7 @@ export interface SolanaNetworkOptions {
   decimals: number;
   node: string;
   coingeckoID?: string;
+  coingeckoPlatform: CoingeckoPlatform;
   basePath: string;
   NFTHandler?: (
     network: BaseNetwork,

@@ -1,4 +1,4 @@
-import { NetworkNames } from "@enkryptcom/types";
+import { CoingeckoPlatform, NetworkNames } from "@enkryptcom/types";
 import { SolanaNetwork, SolanaNetworkOptions } from "../types/sol-network";
 import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
 import assetsInfoHandler from "@/providers/ethereum/libs/assets-handlers/assetinfo-mew";
@@ -21,6 +21,7 @@ const solanaOptions: SolanaNetworkOptions = {
   basePath: "m/44'/501'",
   assetsInfoHandler,
   NFTHandler: shNFTHandler,
+  coingeckoPlatform: CoingeckoPlatform.Solana,
 };
 
 const bitcoin = new SolanaNetwork(solanaOptions);

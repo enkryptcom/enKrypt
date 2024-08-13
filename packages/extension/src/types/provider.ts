@@ -62,6 +62,7 @@ export enum ProviderType {
   substrate,
   bitcoin,
   kadena,
+  solana,
 }
 
 export type SendMessageHandler = (

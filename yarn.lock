@@ -2792,11 +2792,13 @@ __metadata:
     "@polkadot/wasm-crypto": ^7.3.2
     "@rollup/plugin-commonjs": ^26.0.1
     "@rollup/plugin-inject": ^5.0.5
+    "@rollup/plugin-json": ^6.1.0
     "@rollup/plugin-node-resolve": ^15.2.3
     "@rollup/plugin-replace": ^5.0.7
     "@rollup/plugin-typescript": ^11.1.6
     "@solana-developers/helpers": ^2.4.0
     "@solana/spl-token": ^0.4.8
+    "@solana/wallet-standard-features": ^1.2.0
     "@solana/web3.js": ^1.95.2
     "@types/bs58": ^4.0.4
     "@types/chrome": ^0.0.269
@@ -2818,6 +2820,7 @@ __metadata:
     "@vue/cli-service": ~5.0.8
     "@vue/eslint-config-typescript": ^11.0.3
     "@vueuse/core": ^10.11.0
+    "@wallet-standard/base": ^0.0.0-20240703212708
     add: ^2.0.6
     bignumber.js: ^9.1.2
     bip39: ^3.1.0
@@ -7439,6 +7442,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@rollup/plugin-json@npm:^6.1.0":
+  version: 6.1.0
+  resolution: "@rollup/plugin-json@npm:6.1.0"
+  dependencies:
+    "@rollup/pluginutils": ^5.1.0
+  peerDependencies:
+    rollup: ^1.20.0||^2.0.0||^3.0.0||^4.0.0
+  peerDependenciesMeta:
+    rollup:
+      optional: true
+  checksum: cc018d20c80242a2b8b44fae61a968049cf31bb8406218187cc7cda35747616594e79452dd65722e7da6dd825b392e90d4599d43cd4461a02fefa2865945164e
+  languageName: node
+  linkType: hard
+
 "@rollup/plugin-node-resolve@npm:^15.2.3":
   version: 15.2.3
   resolution: "@rollup/plugin-node-resolve@npm:15.2.3"
@@ -8065,6 +8082,16 @@ __metadata:
   dependencies:
     buffer: ^6.0.3
   checksum: 9bea6d9638fd2093db4542b12ac657407950737bd00ed919448308df59bfeb9d97a96e471d7824ba4077daeb01bbb0cf9e410d412767555e49a5bfc6bfb9bc91
+  languageName: node
+  linkType: hard
+
+"@solana/wallet-standard-features@npm:^1.2.0":
+  version: 1.2.0
+  resolution: "@solana/wallet-standard-features@npm:1.2.0"
+  dependencies:
+    "@wallet-standard/base": ^1.0.1
+    "@wallet-standard/features": ^1.0.3
+  checksum: 03ec568f9a4a945970dda57abed4c5a9f669798b272bd7c2d6c135c8baeba8fd78a5fd6d850364dba8257eaf84b7bf8578ba039666f377206c2fd89f6093fca3
   languageName: node
   linkType: hard
 
@@ -10726,6 +10753,29 @@ __metadata:
   dependencies:
     vue-demi: ">=0.14.8"
   checksum: 25257b8d1b9fb5726d2bee0d1054ba33cce2b01263785ce7ecd01ee3102f2f0af52d486e121eaa9536e1e44508d46279bd452cec3f537367b5e6629de6c8b7b2
+  languageName: node
+  linkType: hard
+
+"@wallet-standard/base@npm:^0.0.0-20240703212708":
+  version: 0.0.0-20240802213516
+  resolution: "@wallet-standard/base@npm:0.0.0-20240802213516"
+  checksum: e117172f5d1d71fcedcf028ebfa9e16c300873f8b0625f5937adba5b254fdb9e36b69e01151414025c8760f2283dd38261d74c0eeda4ce773d5bbb4dd2f9dd98
+  languageName: node
+  linkType: hard
+
+"@wallet-standard/base@npm:^1.0.1":
+  version: 1.0.1
+  resolution: "@wallet-standard/base@npm:1.0.1"
+  checksum: 8f40bee1c69d2c3c0a4c317b3069301406025f8dc1a794b4b4b6d36d2e8e1e38193e6db1c3ac729c773d380f4e2c3a7454bfd3e138708aa6821b6e2029063590
+  languageName: node
+  linkType: hard
+
+"@wallet-standard/features@npm:^1.0.3":
+  version: 1.0.3
+  resolution: "@wallet-standard/features@npm:1.0.3"
+  dependencies:
+    "@wallet-standard/base": ^1.0.1
+  checksum: 000a4087d6fd70aaed7f66b118c85097f1d75aa29b962467ee7dee179d01ce009ee685552f53caaef67fdfab63d452073f6fb3bcc0471e3c88fc7e742d2c4e05
   languageName: node
   linkType: hard
 

@@ -168,7 +168,6 @@ import {
   SystemProgram,
   PublicKey,
   ComputeBudgetProgram,
-  TransactionInstruction,
 } from "@solana/web3.js";
 import {
   createTransferInstruction,
@@ -179,9 +178,7 @@ import {
 } from "@solana/spl-token";
 import getPriorityFees from "../libs/get-priority-fees";
 import bs58 from "bs58";
-
 import SolanaAPI from "@/providers/solana/libs/api";
-import { getSimulationComputeUnits } from "@solana-developers/helpers";
 
 const props = defineProps({
   network: {

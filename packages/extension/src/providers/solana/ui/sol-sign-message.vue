@@ -28,7 +28,7 @@
       </div>
       <div class="common-popup__block">
         <div class="common-popup__info">
-          <img :src="Options.faviconURL" />
+          <img :src="Options.faviconURL || network.icon" />
           <div class="common-popup__info-info">
             <h4>{{ Options.title }}</h4>
             <p>{{ Options.domain }}</p>
@@ -59,14 +59,30 @@ import { getError } from "@/libs/error";
 import { ErrorCodes } from "@/providers/ethereum/types";
 import { WindowPromiseHandler } from "@/libs/window-promise";
 import { onBeforeMount, ref } from "vue";
-import { DEFAULT_BTC_NETWORK, getNetworkByName } from "@/libs/utils/networks";
+import {
+  DEFAULT_SOLANA_NETWORK,
+  getNetworkByName,
+} from "@/libs/utils/networks";
 import { ProviderRequestOptions } from "@/types/provider";
-import { BitcoinNetwork } from "../types/bitcoin-network";
-import { EnkryptAccount } from "@enkryptcom/types";
-import { MessageSigner } from "./libs/signer";
+import { SolanaNetwork } from "../types/sol-network";
+import { EnkryptAccount, SignerType } from "@enkryptcom/types";
+import {
+  SolanaSignInInput,
+  SolanaSignInOutput,
+} from "@solana/wallet-standard-features";
+import bs58 from "bs58";
+import { bufferToHex, hexToBuffer, utf8ToHex } from "@enkryptcom/utils";
+import PublicKeyRing from "@/libs/keyring/public-keyring";
+import { createSignInMessageText } from "./libs/signin-message";
+import sendUsingInternalMessengers from "@/libs/messenger/internal-messenger";
+import { InternalMethods } from "@/types/messenger";
+import { SolSignInResponse } from "./types";
+import { isUtf8 } from "@polkadot/util";
+import { hexToUtf8 } from "web3-utils";
 
-const windowPromise = WindowPromiseHandler(4);
-const network = ref<BitcoinNetwork>(DEFAULT_BTC_NETWORK);
+const windowPromise = WindowPromiseHandler(3);
+const keyring = new PublicKeyRing();
+const network = ref<SolanaNetwork>(DEFAULT_SOLANA_NETWORK);
 const account = ref<EnkryptAccount>({
   name: "",
   address: "",
@@ -80,31 +96,114 @@ const Options = ref<ProviderRequestOptions>({
   tabId: 0,
 });
 
+const signInMessage = ref<SolanaSignInInput>({});
+const signMessage = ref<{ address: string; message: string }>();
 const message = ref<string>("");
-const type = ref<string>("");
+const reqMethod = ref<"sol_signInMessage" | "sol_signMessage">(
+  "sol_signInMessage"
+);
 onBeforeMount(async () => {
-  const { Request, options } = await windowPromise;
+  const { Request, Resolve, options } = await windowPromise;
   network.value = (await getNetworkByName(
-    Request.value.params![3]
-  )) as BitcoinNetwork;
-  account.value = Request.value.params![2] as EnkryptAccount;
-  identicon.value = network.value.identicon(account.value.address);
+    Request.value.params![2]
+  )) as SolanaNetwork;
+  reqMethod.value = Request.value.params![0];
+  if (reqMethod.value === "sol_signInMessage") {
+    signInMessage.value = JSON.parse(
+      Request.value.params![1]
+    ) as SolanaSignInInput;
+    message.value = createSignInMessageText(signInMessage.value);
+    if (
+      signInMessage.value.address &&
+      network.value.isAddress(signInMessage.value.address)
+    ) {
+      const pubKey = bufferToHex(bs58.decode(signInMessage.value.address));
+      keyring
+        .getAccount(pubKey)
+        .then((acc) => {
+          account.value = acc;
+          identicon.value = network.value.identicon(account.value.address);
+        })
+        .catch((e) => {
+          console.log(e);
+          Resolve.value({
+            error: getError(ErrorCodes.unauthorized),
+          });
+        });
+    } else {
+      keyring.getAccounts([SignerType.ed25519sol]).then((accs) => {
+        account.value = accs[0];
+        identicon.value = network.value.identicon(account.value.address);
+        message.value = createSignInMessageText({
+          ...signInMessage.value,
+          address: network.value.displayAddress(account.value.address),
+        });
+      });
+    }
+  } else if (reqMethod.value === "sol_signMessage") {
+    signMessage.value = JSON.parse(Request.value.params![1]);
+    message.value = isUtf8(signMessage.value!.message)
+      ? hexToUtf8(signMessage.value!.message)
+      : signMessage.value!.message;
+    console.log(message.value);
+    keyring
+      .getAccount(bufferToHex(bs58.decode(signMessage.value!.address)))
+      .then((acc) => {
+        account.value = acc;
+        identicon.value = network.value.identicon(account.value.address);
+      })
+      .catch((e) => {
+        console.log(e);
+        Resolve.value({
+          error: getError(ErrorCodes.unauthorized),
+        });
+      });
+  }
   Options.value = options;
-  message.value = Request.value.params![0];
-  type.value = Request.value.params![1];
 });
 
 const approve = async () => {
-  const { Request, Resolve } = await windowPromise;
-  const msg = Request.value.params![0] as string;
-  MessageSigner({
-    account: account.value,
-    network: network.value as BitcoinNetwork,
-    payload: Buffer.from(msg, "utf8"),
-    type: type.value,
+  const { Resolve } = await windowPromise;
+  sendUsingInternalMessengers({
+    method: InternalMethods.sign,
+    params: [
+      reqMethod.value === "sol_signInMessage"
+        ? utf8ToHex(message.value)
+        : signMessage.value?.message,
+      account.value,
+    ],
   })
-    .then(Resolve.value)
-    .catch(Resolve.value);
+    .then((res) => {
+      if (res.error) {
+        return Promise.reject({
+          error: res.error,
+        });
+      } else {
+        const response: SolSignInResponse = {
+          address: bs58.encode(hexToBuffer(account.value.address)),
+          pubkey: account.value.address,
+          signature: JSON.parse(res.result!),
+          signedMessage: utf8ToHex(message.value),
+          signatureType: "ed25519",
+        };
+        Resolve.value({
+          result: JSON.stringify(response),
+        });
+      }
+    })
+    .catch((e) => {
+      Resolve.value({
+        error: e.message,
+      });
+    });
+  // MessageSigner({
+  //   account: account.value,
+  //   network: network.value as BitcoinNetwork,
+  //   payload: Buffer.from(msg, "utf8"),
+  //   type: type.value,
+  // })
+  //   .then(Resolve.value)
+  //   .catch(Resolve.value);
 };
 const deny = async () => {
   const { Resolve } = await windowPromise;

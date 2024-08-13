@@ -1,3 +1,5 @@
-import btcGetBalance from "./btc_getBalance";
+import solSignInMessage from "./sol_signInMessage";
+import solConnect from "./sol_connect";
+import solSignTransaction from "./sol_signTransaction";
 
-export default [btcGetBalance];
+export default [solSignInMessage, solConnect, solSignTransaction];

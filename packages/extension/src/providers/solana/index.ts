@@ -40,7 +40,7 @@ class SolanaProvider
     this.requestProvider.on("notification", (notif: any) => {
       this.sendNotification(JSON.stringify(notif));
     });
-    this.namespace = ProviderName.bitcoin;
+    this.namespace = ProviderName.solana;
     this.KeyRing = new PublicKeyRing();
   }
   private setMiddleWares(): void {
