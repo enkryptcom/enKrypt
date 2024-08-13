@@ -13,9 +13,9 @@ export interface NFTItem {
   type: NFTType;
 }
 export interface NFTCollection {
-  name: null | string;
+  name: string;
   image: string;
-  description: null | string;
+  description: string;
   items: NFTItem[];
   contract: string;
 }
