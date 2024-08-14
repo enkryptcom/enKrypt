@@ -11,7 +11,11 @@ const method: MiddlewareFunction = function (
   res,
   next
 ): void {
-  if (payload.method !== "sol_signTransaction") return next();
+  if (
+    payload.method !== "sol_signTransaction" &&
+    payload.method !== "sol_signAndSendTransaction"
+  )
+    return next();
   else {
     if (!payload.params || payload.params.length < 1) {
       return res(
@@ -29,7 +33,13 @@ const method: MiddlewareFunction = function (
             this.getUIPath(this.UIRoutes.solSendTransaction.path),
             JSON.stringify({
               ...payload,
-              params: [payload.params![0], account, this.network.name],
+              params: [
+                payload.method,
+                payload.params![0],
+                payload.params![1],
+                account,
+                this.network.name,
+              ],
             }),
             true
           )

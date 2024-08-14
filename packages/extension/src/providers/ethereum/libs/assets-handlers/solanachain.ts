@@ -33,6 +33,7 @@ const getBalances = (network: BaseNetwork, address: string) => {
         const balance = numberToHex(
           (acc.account.data as any).parsed.info.tokenAmount.amount
         );
+        if (balance === "0x0") return;
         const contract = (acc.account.data as any).parsed.info.mint;
         if (!balanceObj[contract]) balanceObj[contract] = toBN(0);
         balanceObj[contract] = balanceObj[contract].add(toBN(balance));

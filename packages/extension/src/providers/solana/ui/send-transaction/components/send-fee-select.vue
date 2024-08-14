@@ -46,12 +46,13 @@ defineProps({
   min-height: 40px;
   height: auto;
   background: #ffffff;
-  margin: 0px 32px 8px 32px;
+  margin-right: 32px;
+  margin-bottom: 8px;
   box-sizing: border-box;
   border: 1px solid @gray02;
   box-sizing: border-box;
   border-radius: 10px;
-  width: calc(~"100% - 64px");
+  width: calc(~"100%");
   padding: 10px 16px;
   display: flex;
   justify-content: flex-start;

@@ -1,7 +1,4 @@
-import type {
-  SolanaSignInInput,
-  SolanaSignInOutput,
-} from "@solana/wallet-standard-features";
+import type { SolanaSignInInput } from "@solana/wallet-standard-features";
 import type {
   SendOptions,
   Transaction,
@@ -41,14 +38,11 @@ export interface Enkrypt extends EnkryptEventEmitter {
   accounts: EnkryptSolAccount[];
   connect(options?: { onlyIfTrusted?: boolean }): Promise<EnkryptSolAccount[]>;
   disconnect(): Promise<void>;
-  signAndSendTransaction<T extends Transaction | VersionedTransaction>(
-    transaction: T,
+  signAndSendTransaction(
+    transaction: SolSignTransactionRequest,
     options?: SendOptions
-  ): Promise<{ signature: TransactionSignature }>;
+  ): Promise<string>;
   signTransaction(transaction: SolSignTransactionRequest): Promise<string>;
-  signAllTransactions<T extends Transaction | VersionedTransaction>(
-    transactions: T[]
-  ): Promise<T[]>;
   signMessage(options: {
     address: string;
     message: string;

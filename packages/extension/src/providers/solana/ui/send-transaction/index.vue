@@ -88,6 +88,7 @@
       />
 
       <send-fee-select
+        style="width: 394px"
         :selected="selectedFee"
         :fee="gasCostValues[selectedFee]"
       />
@@ -222,7 +223,6 @@ const hasEnoughBalance = computed(() => {
   if (!isValidDecimals(sendAmount.value, selectedAsset.value.decimals!)) {
     return false;
   }
-
   return toBN(selectedAsset.value.balance ?? "0").gte(
     toBN(toBase(sendAmount.value ?? "0", selectedAsset.value.decimals!))
   );

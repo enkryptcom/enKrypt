@@ -66,10 +66,7 @@ import {
 import { ProviderRequestOptions } from "@/types/provider";
 import { SolanaNetwork } from "../types/sol-network";
 import { EnkryptAccount, SignerType } from "@enkryptcom/types";
-import {
-  SolanaSignInInput,
-  SolanaSignInOutput,
-} from "@solana/wallet-standard-features";
+import { SolanaSignInInput } from "@solana/wallet-standard-features";
 import bs58 from "bs58";
 import { bufferToHex, hexToBuffer, utf8ToHex } from "@enkryptcom/utils";
 import PublicKeyRing from "@/libs/keyring/public-keyring";

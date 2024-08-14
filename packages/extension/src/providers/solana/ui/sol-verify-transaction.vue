@@ -46,74 +46,50 @@
           </div>
         </div>
 
-        <div
-          v-for="(item, index) in balanceChanges"
-          :key="index"
-          class="provider-verify-transaction__amount"
-        >
-          <img :src="item.icon" />
+        <div v-if="decodedTx?.length">
+          <div
+            v-for="(item, index) in decodedTx"
+            :key="index"
+            class="provider-verify-transaction__amount"
+          >
+            <img :src="item.icon || network.icon" />
 
-          <div class="provider-verify-transaction__amount-info">
-            <h4>
-              {{ parseFloat(item.change) < 0 ? "-" : "" }}
-              {{
-                $filters.formatFloatingPointValue(
-                  Math.abs(parseFloat(item.change))
-                ).value
-              }}
-              <span>{{ item.name }}</span>
-            </h4>
-            <p>
-              {{ parseFloat(item.change) < 0 ? "-" : "" }}
-              ${{
-                $filters.formatFiatValue(Math.abs(parseFloat(item.usdval)))
-                  .value
-              }}
-            </p>
+            <div class="provider-verify-transaction__amount-info">
+              <h4 :class="item.isNegative ? 'make-me-red' : ''">
+                {{ item.isNegative ? "-" : "" }}
+                {{
+                  $filters.formatFloatingPointValue(
+                    fromBase(item.change.toString(), item.decimals)
+                  ).value
+                }}
+                <span>{{ item.symbol }}</span>
+              </h4>
+              <p :class="item.isNegative ? 'make-me-red' : ''">
+                {{ item.isNegative ? "-" : "" }}
+                ${{ $filters.formatFiatValue(parseFloat(item.USDval)).value }}
+              </p>
+            </div>
           </div>
         </div>
 
-        <div v-if="isApproval" class="provider-verify-transaction__error">
+        <div v-if="!decodedTx" class="provider-verify-transaction__error">
           <alert-icon />
           <p>
-            Warning: you will allow this DApp to spend {{ approvalAmount }} of
-            {{ decodedTx?.tokenName || network.currencyName }} at any time in
-            the future. Please proceed only if you are trust this DApp.
+            Warning: This transaction failed during simulation, which means this
+            transaction will most likely fail!
           </p>
         </div>
       </div>
 
       <send-fee-select
-        :in-swap="true"
+        style="margin-left: 0px"
+        :in-swap="false"
         :selected="selectedFee"
         :fee="gasCostValues[selectedFee]"
-        @open-popup="toggleSelectFee"
       />
-
-      <div class="provider-verify-transaction__data">
-        <a
-          class="provider-verify-transaction__data-link"
-          :class="{ open: isOpenData }"
-          @click="toggleData"
-          ><span>Show data</span> <right-chevron
-        /></a>
-
-        <div v-show="isOpenData" class="provider-verify-transaction__data-text">
-          <p>Data Hex: {{ decodedTx?.dataHex || "0x" }}</p>
-        </div>
-      </div>
       <p v-if="errorMsg != ''" class="provider-verify-transaction__error">
         {{ errorMsg }}
       </p>
-      <transaction-fee-view
-        :fees="gasCostValues"
-        :show-fees="isOpenSelectFee"
-        :selected="selectedFee"
-        :is-header="true"
-        :is-popup="true"
-        @close-popup="toggleSelectFee"
-        @gas-type-changed="selectFee"
-      />
     </template>
 
     <template #button-left>
@@ -138,21 +114,17 @@
 <script setup lang="ts">
 import { ref, ComponentPublicInstance, onBeforeMount } from "vue";
 import SignLogo from "@action/icons/common/sign-logo.vue";
-import RightChevron from "@action/icons/common/right-chevron.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import CommonPopup from "@action/views/common-popup/index.vue";
-import SendFeeSelect from "@/providers/common/ui/send-transaction/send-fee-select.vue";
+import SendFeeSelect from "./send-transaction/components/send-fee-select.vue";
 import HardwareWalletMsg from "@/providers/common/ui/verify-transaction/hardware-wallet-msg.vue";
-import TransactionFeeView from "@action/views/transaction-fee/index.vue";
-import { getCustomError, getError } from "@/libs/error";
+import { getError } from "@/libs/error";
 import { ErrorCodes } from "@/providers/ethereum/types";
 import { WindowPromiseHandler } from "@/libs/window-promise";
 import {
-  DEFAULT_EVM_NETWORK,
   DEFAULT_SOLANA_NETWORK,
   getNetworkByName,
 } from "@/libs/utils/networks";
-import Web3Eth from "web3-eth";
 import { ProviderRequestOptions } from "@/types/provider";
 import BigNumber from "bignumber.js";
 import { GasFeeType, GasPriceTypes } from "@/providers/common/types";
@@ -160,52 +132,35 @@ import MarketData from "@/libs/market-data";
 import { defaultGasCostVals } from "@/providers/common/libs/default-vals";
 import { EnkryptAccount } from "@enkryptcom/types";
 import { Activity, ActivityStatus, ActivityType } from "@/types/activity";
-import { generateAddress, bigIntToBytes } from "@ethereumjs/util";
 import ActivityState from "@/libs/activity-state";
-import {
-  bigIntToHex,
-  fromBase,
-  bufferToHex,
-  hexToBuffer,
-} from "@enkryptcom/utils";
+import { fromBase, bufferToHex, hexToBuffer } from "@enkryptcom/utils";
 import AlertIcon from "@action/icons/send/alert-icon.vue";
-import { NetworkNames } from "@enkryptcom/types";
 import { trackSendEvents } from "@/libs/metrics";
 import { SendEventType } from "@/libs/metrics/types";
 import { SolanaNetwork } from "../types/sol-network";
 import SolanaAPI from "@/providers/solana/libs/api";
-import { PublicKey, Transaction, VersionedTransaction } from "@solana/web3.js";
+import { PublicKey, SendOptions, VersionedTransaction } from "@solana/web3.js";
 import { SolSignTransactionRequest } from "./types";
 import sendUsingInternalMessengers from "@/libs/messenger/internal-messenger";
 import { InternalMethods } from "@/types/messenger";
-import {
-  AccountLayout,
-  ACCOUNT_SIZE,
-  TOKEN_PROGRAM_ID,
-} from "@solana/spl-token";
 import bs58 from "bs58";
-import { toBN } from "web3-utils";
-import { NATIVE_TOKEN_ADDRESS } from "@/providers/ethereum/libs/common";
+import DecodeTransaction, { DecodedTxResponseType } from "./libs/decode-tx";
 
 const isProcessing = ref(false);
-const isOpenSelectFee = ref(false);
 const providerVerifyTransactionScrollRef = ref<ComponentPublicInstance>();
-const isOpenData = ref(false);
 const TokenBalance = ref<string>("~");
-const fiatValue = ref<string>("~");
-const decodedTx = ref();
-const isApproval = ref(false);
-const approvalAmount = ref("");
 const network = ref<SolanaNetwork>(DEFAULT_SOLANA_NETWORK);
 const marketdata = new MarketData();
+const activityState = new ActivityState();
 const gasCostValues = ref<GasFeeType>(defaultGasCostVals);
+const decodedTx = ref<DecodedTxResponseType[] | null>([]);
 const errorMsg = ref("");
 const account = ref<EnkryptAccount>({
   name: "",
   address: "",
 } as EnkryptAccount);
 const identicon = ref<string>("");
-const windowPromise = WindowPromiseHandler(3);
+const windowPromise = WindowPromiseHandler(5);
 const Options = ref<ProviderRequestOptions>({
   domain: "",
   faviconURL: "",
@@ -217,24 +172,19 @@ const selectedFee = ref<GasPriceTypes>(GasPriceTypes.ECONOMY);
 const solConnection = ref<SolanaAPI>();
 const Tx = ref<VersionedTransaction>();
 const accountPubkey = ref<PublicKey>();
-const balanceChanges = ref<
-  {
-    name: string;
-    symbol: string;
-    change: string;
-    icon: string;
-    usdval: string;
-  }[]
->([]);
+const sendOptions = ref<SendOptions>({});
+const payloadMethod = ref<"sol_signTransaction" | "sol_signAndSendTransaction">(
+  "sol_signTransaction"
+);
 defineExpose({ providerVerifyTransactionScrollRef });
-
 onBeforeMount(async () => {
+  isProcessing.value = true;
   const { Request, options } = await windowPromise;
   network.value = (await getNetworkByName(
-    Request.value.params![2]
+    Request.value.params![4]
   )) as SolanaNetwork;
   selectedFee.value = GasPriceTypes.ECONOMY;
-  account.value = Request.value.params![1] as EnkryptAccount;
+  account.value = Request.value.params![3] as EnkryptAccount;
   accountPubkey.value = new PublicKey(
     bs58.encode(hexToBuffer(account.value.address))
   );
@@ -246,9 +196,11 @@ onBeforeMount(async () => {
     TokenBalance.value = fromBase(balance, network.value.decimals);
   }
   solConnection.value = (await network.value.api()).api as SolanaAPI;
+  payloadMethod.value = Request.value.params![0];
   const txMessage = JSON.parse(
-    Request.value.params![0]
+    Request.value.params![1]
   ) as SolSignTransactionRequest;
+  sendOptions.value = JSON.parse(Request.value.params![2]) as SendOptions;
   Tx.value = VersionedTransaction.deserialize(hexToBuffer(txMessage.hex));
   solConnection.value.web3.getFeeForMessage(Tx.value.message).then((fee) => {
     const getConvertedVal = () =>
@@ -267,165 +219,15 @@ onBeforeMount(async () => {
         };
       });
   });
-  solConnection.value.web3
-    .simulateTransaction(Tx.value, {
-      accounts: {
-        addresses: [
-          ...Tx.value.message.staticAccountKeys.map((k) => k.toBase58()),
-        ],
-        encoding: "base64",
-      },
+  DecodeTransaction(
+    Tx.value,
+    accountPubkey.value,
+    network.value as SolanaNetwork
+  )
+    .then((vals) => {
+      decodedTx.value = vals;
     })
-    .then((result) => {
-      const balanceValues = [
-        {
-          contract: NATIVE_TOKEN_ADDRESS,
-          amount: BigInt(result.value.accounts![0]!.lamports),
-        },
-      ];
-      const balances = result.value
-        .accounts!.filter((a) => {
-          const data = Buffer.from(a!.data[0], "base64");
-          return (
-            a!.owner === TOKEN_PROGRAM_ID.toBase58() &&
-            data.length === ACCOUNT_SIZE
-          );
-        })
-        .map((a) => {
-          const data = Buffer.from(a!.data[0], "base64");
-          return AccountLayout.decode(data);
-        })
-        .filter(
-          (val) => val.owner.toBase58() === accountPubkey.value!.toBase58()
-        )
-        .map((val) => {
-          return {
-            contract: val.mint.toBase58(),
-            amount: val.amount,
-          };
-        });
-      balanceValues.push(...balances);
-      network.value
-        .getAllTokenInfo(accountPubkey.value!.toBase58())
-        .then((allTokens) => {
-          for (const balance of balanceValues) {
-            let foundToken = false;
-            allTokens.forEach((t) => {
-              if (t.contract! === balance.contract) {
-                foundToken = true;
-                const change = fromBase(
-                  toBN(balance.amount.toString())
-                    .sub(toBN(t.balance))
-                    .toString(),
-                  t.decimals
-                );
-                balanceChanges.value.push({
-                  change,
-                  name: t.name,
-                  symbol: t.symbol,
-                  icon: t.icon,
-                  usdval: (parseFloat(t.value) * parseFloat(change)).toString(),
-                });
-              }
-            });
-            if (!foundToken) {
-              solConnection
-                .value!.getTokenInfo(balance.contract)
-                .then(async (info) => {
-                  let usdVal = 0;
-                  let icon = network.value.icon;
-                  if (network.value.coingeckoPlatform) {
-                    const mdata = await marketdata.getMarketInfoByContracts(
-                      [balance.contract],
-                      network.value.coingeckoPlatform
-                    );
-                    if (mdata[balance.contract]) {
-                      usdVal = mdata[balance.contract]!.current_price;
-                      icon = mdata[balance.contract]!.image;
-                    }
-                  }
-                  const change = fromBase(
-                    toBN(balance.amount.toString()).toString(),
-                    info.decimals
-                  );
-                  balanceChanges.value.push({
-                    change,
-                    name: info.name,
-                    symbol: info.symbol,
-                    icon,
-                    usdval: (usdVal * parseFloat(change)).toString(),
-                  });
-                });
-            }
-          }
-        });
-    });
-  // const msgToSign = Tx.value!.message.serialize();
-  // const feePayer = new PublicKey(
-  //   network.value.displayAddress(account.value.address)
-  // );
-  // sendUsingInternalMessengers({
-  //   method: InternalMethods.sign,
-  //   params: [bufferToHex(msgToSign), account.value!],
-  // }).then((res) => {
-  //   if (res.error) return res;
-  //   Tx.value!.addSignature(feePayer, hexToBuffer(JSON.parse(res.result!)));
-  //   solConnection.value!.web3.simulateTransaction(Tx.value!).then(console.log);
-  //   // Resolve.value({
-  //   //   result: JSON.stringify(bufferToHex(Tx.value!.serialize())),
-  //   // });
-  // });
-  // await tx
-  //   .getGasCosts()
-  //   .then(async (gasvals) => {
-  //     let nativeVal = "0";
-  //     if (network.value.coingeckoID) {
-  //       await marketdata
-  //         .getTokenValue("1", network.value.coingeckoID, "USD")
-  //         .then((val) => (nativeVal = val));
-  //     }
-  //     const getConvertedVal = (type: GasPriceTypes) =>
-  //       fromBase(gasvals[type], network.value.decimals);
-
-  //     gasCostValues.value = {
-  //       [GasPriceTypes.ECONOMY]: {
-  //         nativeValue: getConvertedVal(GasPriceTypes.ECONOMY),
-  //         fiatValue: new BigNumber(getConvertedVal(GasPriceTypes.ECONOMY))
-  //           .times(nativeVal)
-  //           .toString(),
-  //         nativeSymbol: network.value.currencyName,
-  //         fiatSymbol: "USD",
-  //       },
-  //       [GasPriceTypes.REGULAR]: {
-  //         nativeValue: getConvertedVal(GasPriceTypes.REGULAR),
-  //         fiatValue: new BigNumber(getConvertedVal(GasPriceTypes.REGULAR))
-  //           .times(nativeVal)
-  //           .toString(),
-  //         nativeSymbol: network.value.currencyName,
-  //         fiatSymbol: "USD",
-  //       },
-  //       [GasPriceTypes.FAST]: {
-  //         nativeValue: getConvertedVal(GasPriceTypes.FAST),
-  //         fiatValue: new BigNumber(getConvertedVal(GasPriceTypes.FAST))
-  //           .times(nativeVal)
-  //           .toString(),
-  //         nativeSymbol: network.value.currencyName,
-  //         fiatSymbol: "USD",
-  //       },
-  //       [GasPriceTypes.FASTEST]: {
-  //         nativeValue: getConvertedVal(GasPriceTypes.FASTEST),
-  //         fiatValue: new BigNumber(getConvertedVal(GasPriceTypes.FASTEST))
-  //           .times(nativeVal)
-  //           .toString(),
-  //         nativeSymbol: network.value.currencyName,
-  //         fiatSymbol: "USD",
-  //       },
-  //     };
-  //   selectedFee.value = GasPriceTypes.REGULAR;
-  // })
-  // .catch((e) => {
-  //   errorMsg.value = e.message;
-  // });
+    .finally(() => (isProcessing.value = false));
 });
 
 const approve = async () => {
@@ -434,7 +236,6 @@ const approve = async () => {
   trackSendEvents(SendEventType.SendAPIApprove, {
     network: network.value.name,
   });
-  console.log(Tx.value);
   const msgToSign = Tx.value!.message.serialize();
   const feePayer = new PublicKey(
     network.value.displayAddress(account.value.address)
@@ -445,110 +246,60 @@ const approve = async () => {
   }).then((res) => {
     if (res.error) return res;
     Tx.value!.addSignature(feePayer, hexToBuffer(JSON.parse(res.result!)));
-    Resolve.value({
-      result: JSON.stringify(bufferToHex(Tx.value!.serialize())),
-    });
+    const toData =
+      decodedTx.value && decodedTx.value.length ? decodedTx.value[0] : null;
+    const txActivity: Activity = {
+      from: accountPubkey.value!.toBase58(),
+      to: toData ? toData.contract : accountPubkey.value!.toBase58(),
+      isIncoming: false,
+      network: network.value.name,
+      status: ActivityStatus.pending,
+      timestamp: new Date().getTime(),
+      token: {
+        decimals: toData ? toData.decimals : network.value.decimals,
+        icon: toData ? toData.icon : network.value.icon,
+        name: toData ? toData.name : network.value.currencyNameLong,
+        symbol: toData ? toData.symbol : network.value.currencyName,
+        price: toData ? toData.price : "0",
+      },
+      type: ActivityType.transaction,
+      value: toData ? toData.change.toString() : "0",
+      transactionHash: bs58.encode(Tx.value!.signatures[0]),
+    };
+    activityState
+      .addActivities(
+        [
+          {
+            ...txActivity,
+            ...{
+              isIncoming: txActivity.from === txActivity.to,
+            },
+          },
+        ],
+        {
+          address: txActivity.from,
+          network: network.value.name,
+        }
+      )
+      .then(() => {
+        trackSendEvents(SendEventType.SendAPIComplete, {
+          network: network.value.name,
+        });
+        if (payloadMethod.value === "sol_signTransaction") {
+          Resolve.value({
+            result: JSON.stringify(bufferToHex(Tx.value!.serialize())),
+          });
+        } else {
+          solConnection.value?.web3
+            .sendRawTransaction(Tx.value!.serialize(), sendOptions.value)
+            .then((sig) => {
+              Resolve.value({
+                result: JSON.stringify(sig),
+              });
+            });
+        }
+      });
   });
-  // const { Request, Resolve } = await windowPromise;
-  // const web3 = new Web3Eth(network.value.node);
-  // const tx = new Transaction(
-  //   Request.value.params![0] as EthereumTransaction,
-  //   web3
-  // );
-  // tx.getFinalizedTransaction({ gasPriceType: selectedFee.value }).then(
-  //   (finalizedTx) => {
-  //     const activityState = new ActivityState();
-  //     TransactionSigner({
-  //       account: account.value,
-  //       network: network.value,
-  //       payload: finalizedTx,
-  //     })
-  //       .then((tx) => {
-  //         const txActivity: Activity = {
-  //           from: account.value.address,
-  //           to: tx.to
-  //             ? tx.to.toString()
-  //             : bufferToHex(
-  //                 generateAddress(
-  //                   tx.getSenderAddress().toBytes(),
-  //                   bigIntToBytes(tx.nonce)
-  //                 )
-  //               ),
-  //           isIncoming: tx.getSenderAddress().toString() === tx.to?.toString(),
-  //           network: network.value.name,
-  //           status: ActivityStatus.pending,
-  //           timestamp: new Date().getTime(),
-  //           token: {
-  //             decimals: decodedTx.value?.tokenDecimals || 18,
-  //             icon: decodedTx.value?.tokenImage || "",
-  //             name: decodedTx.value?.tokenName || "Unknown",
-  //             symbol: decodedTx.value?.tokenSymbol || "UKNWN",
-  //             price: decodedTx.value?.currentPriceUSD.toString() || "0",
-  //           },
-  //           type: ActivityType.transaction,
-  //           value: decodedTx.value?.tokenValue || "0x0",
-  //           transactionHash: "",
-  //         };
-  //         const onHash = (hash: string) => {
-  //           trackSendEvents(SendEventType.SendAPIComplete, {
-  //             network: network.value.name,
-  //           });
-  //           activityState
-  //             .addActivities(
-  //               [
-  //                 {
-  //                   ...txActivity,
-  //                   ...{
-  //                     transactionHash: hash,
-  //                     nonce: bigIntToHex(finalizedTx.nonce),
-  //                   },
-  //                 },
-  //               ],
-  //               {
-  //                 address: txActivity.from,
-  //                 network: network.value.name,
-  //               }
-  //             )
-  //             .then(() => {
-  //               Resolve.value({
-  //                 result: JSON.stringify(hash),
-  //               });
-  //             });
-  //         };
-  //         broadcastTx(bufferToHex(tx.serialize()), network.value.name)
-  //           .then(onHash)
-  //           .catch(() => {
-  //             web3
-  //               .sendSignedTransaction(bufferToHex(tx.serialize()))
-  //               .on("transactionHash", onHash)
-  //               .on("error", (error) => {
-  //                 txActivity.status = ActivityStatus.failed;
-  //                 activityState
-  //                   .addActivities([txActivity], {
-  //                     address: txActivity.from,
-  //                     network: network.value.name,
-  //                   })
-  //                   .then(() => {
-  //                     trackSendEvents(SendEventType.SendAPIFailed, {
-  //                       network: network.value.name,
-  //                       error: error.message,
-  //                     });
-  //                     Resolve.value({
-  //                       error: getCustomError(error.message),
-  //                     });
-  //                   });
-  //               });
-  //           });
-  //       })
-  //       .catch((err) => {
-  //         trackSendEvents(SendEventType.SendAPIFailed, {
-  //           network: network.value.name,
-  //           error: err.error,
-  //         });
-  //         Resolve.value(err);
-  //       });
-  //   }
-  // );
 };
 const deny = async () => {
   trackSendEvents(SendEventType.SendAPIDecline, {
@@ -559,20 +310,12 @@ const deny = async () => {
     error: getError(ErrorCodes.userRejected),
   });
 };
-
-const toggleSelectFee = () => {
-  isOpenSelectFee.value = !isOpenSelectFee.value;
-};
-const selectFee = (type: GasPriceTypes) => {
-  selectedFee.value = type;
-  toggleSelectFee();
-};
-const toggleData = () => {
-  isOpenData.value = !isOpenData.value;
-};
 </script>
 
 <style lang="less">
 @import "~@action/styles/theme.less";
 @import "@/providers/common/ui/styles/verify-transaction.less";
+.make-me-red {
+  color: #f0580c !important;
+}
 </style>

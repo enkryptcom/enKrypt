@@ -2,9 +2,9 @@ import { SOLRawInfo } from "@/types/activity";
 import { ProviderAPIInterface } from "@/types/provider";
 import { getAddress as getSolAddress } from "../types/sol-network";
 import { Connection, PublicKey } from "@solana/web3.js";
-import { numberToHex } from "@enkryptcom/utils";
-import { ERC20TokenInfo } from "@/providers/ethereum/types";
+import { hexToBuffer, numberToHex } from "@enkryptcom/utils";
 import cacheFetch from "@/libs/cache-fetch";
+import { SPLTokenInfo } from "../types/sol-token";
 
 class API implements ProviderAPIInterface {
   node: string;
@@ -47,15 +47,19 @@ class API implements ProviderAPIInterface {
     return numberToHex(balance);
   }
   async broadcastTx(rawtx: string): Promise<boolean> {
-    console.log(rawtx, "broadcasttx");
-    return true;
+    return this.web3
+      .sendRawTransaction(hexToBuffer(rawtx))
+      .then(() => true)
+      .catch(() => false);
   }
-  getTokenInfo = async (contractAddress: string): Promise<ERC20TokenInfo> => {
+  getTokenInfo = async (contractAddress: string): Promise<SPLTokenInfo> => {
     interface TokenDetails {
       address: string;
       decimals: number;
       name: string;
       symbol: string;
+      logoURI: string;
+      extensions?: { coingeckoId: string };
     }
     const allTokensResponse = await cacheFetch(
       {
@@ -72,17 +76,33 @@ class API implements ProviderAPIInterface {
       60 * 60 * 1000
     );
     const allTokens = allTokensResponse as Record<string, TokenDetails>;
+    let decimals = 9;
     if (allTokens[contractAddress]) {
       return {
         name: allTokens[contractAddress].name,
         symbol: allTokens[contractAddress].symbol,
         decimals: allTokens[contractAddress].decimals,
+        icon: allTokens[contractAddress].logoURI,
+        cgId: allTokens[contractAddress].extensions?.coingeckoId
+          ? allTokens[contractAddress].extensions?.coingeckoId
+          : undefined,
       };
+    } else {
+      await this.web3
+        .getParsedAccountInfo(new PublicKey(contractAddress))
+        .then((info) => {
+          decimals = (info.value?.data as any).parsed.info.decimals;
+        })
+        .catch(() => {
+          decimals = 9;
+        });
     }
     return {
       name: "Unknown",
       symbol: "UNKNWN",
-      decimals: 9,
+      decimals,
+      icon: undefined,
+      cgId: undefined,
     };
   };
 }

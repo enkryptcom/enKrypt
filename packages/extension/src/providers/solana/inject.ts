@@ -9,21 +9,10 @@ import {
   SendMessageHandler,
 } from "@/types/provider";
 import { EnkryptWindow } from "@/types/globals";
-import { InternalMethods } from "@/types/messenger";
-import { SettingsType } from "@/libs/settings-state/types";
 import { Enkrypt, EnkryptSolAccount } from "./libs/wallet-standard/window";
-import type {
-  PublicKey,
-  SendOptions,
-  Transaction,
-  VersionedTransaction,
-} from "@solana/web3.js";
-import type {
-  SolanaSignInInput,
-  SolanaSignInOutput,
-} from "@solana/wallet-standard-features";
+import type { SendOptions } from "@solana/web3.js";
+import type { SolanaSignInInput } from "@solana/wallet-standard-features";
 import { initialize } from "./libs/wallet-standard";
-import { EnkryptWalletAccount } from "./libs/wallet-standard/account";
 import { SolSignInResponse, SolSignTransactionRequest } from "./ui/types";
 
 export class Provider
@@ -60,18 +49,15 @@ export class Provider
     console.log("disconnect");
     return Promise.reject("not implemented");
   }
-  signAndSendTransaction<T extends Transaction | VersionedTransaction>(
-    transaction: T,
+  signAndSendTransaction(
+    transaction: SolSignTransactionRequest,
     options?: SendOptions | undefined
-  ): Promise<{ signature: string }> {
+  ): Promise<string> {
     console.log("signAndSendTransaction");
-    return Promise.reject("not implemented");
-  }
-  signAllTransactions<T extends Transaction | VersionedTransaction>(
-    transactions: T[]
-  ): Promise<T[]> {
-    console.log("signAllTransactions");
-    return Promise.reject("not implemented");
+    return this.request({
+      method: "sol_signAndSendTransaction",
+      params: [JSON.stringify(transaction), JSON.stringify(options)],
+    }).then((res: string) => res);
   }
   signIn(input?: SolanaSignInInput | undefined): Promise<SolSignInResponse> {
     return this.request({
@@ -97,7 +83,6 @@ export class Provider
     }).then((res: SolSignInResponse) => res);
   }
   signTransaction(transaction: SolSignTransactionRequest): Promise<string> {
-    console.log("signTransaction");
     return this.request({
       method: "sol_signTransaction",
       params: [JSON.stringify(transaction)],

@@ -1,5 +1,11 @@
 import { BaseToken, BaseTokenOptions } from "@/types/base-token";
 import SolanaAPI from "@/providers/bitcoin/libs/api";
+import { ERC20TokenInfo } from "@/providers/ethereum/types";
+
+export interface SPLTokenInfo extends ERC20TokenInfo {
+  icon: string | undefined;
+  cgId: string | undefined;
+}
 
 export interface SolTokenOptions extends BaseTokenOptions {
   contract: string;

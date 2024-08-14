@@ -16,7 +16,6 @@ import {
   type SolanaSignTransactionMethod,
   type SolanaSignTransactionOutput,
 } from "@solana/wallet-standard-features";
-import { Transaction, VersionedTransaction } from "@solana/web3.js";
 import type { Wallet } from "@wallet-standard/base";
 import {
   StandardConnect,
@@ -33,13 +32,7 @@ import {
 } from "@wallet-standard/features";
 import { EnkryptWalletAccount } from "./account.js";
 import { icon } from "./icon.js";
-import type { SolanaChain } from "./solana.js";
-import {
-  isSolanaChain,
-  isVersionedTransaction,
-  SOLANA_CHAINS,
-} from "./solana.js";
-import { bytesEqual } from "./util.js";
+import { isSolanaChain, SOLANA_CHAINS } from "./solana.js";
 import type { Enkrypt } from "./window.js";
 
 export const EnkryptNamespace = "enkrypt:";
@@ -215,45 +208,32 @@ export class EnkryptWallet implements Wallet {
     ...inputs
   ) => {
     if (!this.#accounts?.length) throw new Error("not connected");
-    console.log(inputs);
-    throw new Error("not implemented: signAndSendTransaction");
-    // const outputs: SolanaSignAndSendTransactionOutput[] = [];
-
-    // if (inputs.length === 1) {
-    //   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    //   const { transaction, account, chain, options } = inputs[0]!;
-    //   const { minContextSlot, preflightCommitment, skipPreflight, maxRetries } =
-    //     options || {};
-    //   if (account !== this.#account) throw new Error("invalid account");
-    //   if (!isSolanaChain(chain)) throw new Error("invalid chain");
-
-    //   const { signature } = await this.#enkrypt.signAndSendTransaction(
-    //     VersionedTransaction.deserialize(transaction),
-    //     {
-    //       preflightCommitment,
-    //       minContextSlot,
-    //       maxRetries,
-    //       skipPreflight,
-    //     }
-    //   );
-
-    //   outputs.push({ signature: bs58.decode(signature) });
-    // } else if (inputs.length > 1) {
-    //   for (const input of inputs) {
-    //     outputs.push(...(await this.#signAndSendTransaction(input)));
-    //   }
-    // }
-
-    // return outputs;
+    const outputs: SolanaSignAndSendTransactionOutput[] = [];
+    for (const input of inputs) {
+      const { transaction, account, chain, options } = input;
+      const validAccount = this.#accounts.find(
+        (acc) => acc.address === account.address
+      );
+      if (!validAccount) throw new Error("invalid account");
+      if (!isSolanaChain(chain)) throw new Error("invalid chain");
+      const signature = await this.#enkrypt.signAndSendTransaction(
+        {
+          address: account.address,
+          hex: uint8ArrayToHex(transaction),
+          chain: chain,
+        },
+        options || {}
+      );
+      outputs.push({ signature: hexToUint8Array(signature) });
+    }
+    return outputs;
   };
 
   #signTransaction: SolanaSignTransactionMethod = async (...inputs) => {
     if (!this.#accounts?.length) throw new Error("not connected");
     const outputs: SolanaSignTransactionOutput[] = [];
-
-    if (inputs.length === 1) {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      const { transaction, account, chain } = inputs[0]!;
+    for (const input of inputs) {
+      const { transaction, account, chain } = input;
       const validAccount = this.#accounts.find(
         (acc) => acc.address === account.address
       );
@@ -265,56 +245,8 @@ export class EnkryptWallet implements Wallet {
         hex: uint8ArrayToHex(transaction),
         chain: chain,
       });
-
-      // const serializedTransaction = isVersionedTransaction(signedTransaction)
-      //   ? signedTransaction.serialize()
-      //   : new Uint8Array(
-      //       (signedTransaction as Transaction).serialize({
-      //         requireAllSignatures: false,
-      //         verifySignatures: false,
-      //       })
-      //     );
-
       outputs.push({ signedTransaction: hexToUint8Array(signedTransaction) });
-    } else if (inputs.length > 1) {
-      // let chain: SolanaChain | undefined = undefined;
-      // for (const input of inputs) {
-      //   const validAccount = this.#accounts.find(
-      //     (acc) => acc.address === input.account.address
-      //   );
-      //   if (!validAccount) throw new Error("invalid account");
-      //   if (input.chain) {
-      //     if (!isSolanaChain(input.chain)) throw new Error("invalid chain");
-      //     if (chain) {
-      //       if (input.chain !== chain) throw new Error("conflicting chain");
-      //     } else {
-      //       chain = input.chain;
-      //     }
-      //   }
-      // }
-      // const transactions = inputs.map(({ transaction }) =>
-      //   VersionedTransaction.deserialize(transaction)
-      // );
-      // const signedTransactions = await this.#enkrypt.signAllTransactions(
-      //   transactions
-      // );
-      // outputs.push(
-      //   ...signedTransactions.map((signedTransaction) => {
-      //     const serializedTransaction = isVersionedTransaction(
-      //       signedTransaction
-      //     )
-      //       ? signedTransaction.serialize()
-      //       : new Uint8Array(
-      //           (signedTransaction as Transaction).serialize({
-      //             requireAllSignatures: false,
-      //             verifySignatures: false,
-      //           })
-      //         );
-      //     return { signedTransaction: serializedTransaction };
-      //   })
-      // );
     }
-
     return outputs;
   };
 

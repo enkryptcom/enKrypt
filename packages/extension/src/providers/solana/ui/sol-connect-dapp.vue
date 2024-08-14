@@ -73,7 +73,6 @@ import ModalAccounts from "@action/views/modal-accounts/index.vue";
 import { AccountsHeaderData } from "@action/types/account";
 import { EnkryptAccount } from "@enkryptcom/types";
 import {
-  DEFAULT_BTC_NETWORK,
   DEFAULT_SOLANA_NETWORK,
   getNetworkByName,
 } from "@/libs/utils/networks";

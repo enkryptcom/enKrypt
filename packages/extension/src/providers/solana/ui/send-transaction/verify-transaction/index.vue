@@ -240,7 +240,7 @@ const sendAction = async () => {
       }
     };
     solAPI.web3
-      .sendRawTransaction(Buffer.from(transaction.serialize()))
+      .sendRawTransaction(transaction.serialize())
       .then((hash) => {
         onHash(hash);
       })
