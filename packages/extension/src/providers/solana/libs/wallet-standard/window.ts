@@ -1,10 +1,5 @@
 import type { SolanaSignInInput } from "@solana/wallet-standard-features";
-import type {
-  SendOptions,
-  Transaction,
-  TransactionSignature,
-  VersionedTransaction,
-} from "@solana/web3.js";
+import type { SendOptions } from "@solana/web3.js";
 import {
   SolSignInResponse,
   SolSignTransactionRequest,
