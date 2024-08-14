@@ -13,9 +13,16 @@ export const getSupportedRpchProvider = (
 };
 
 export class RPChProvider implements AbstractProvider {
+  private static _instance: RPChProvider;
   sdk: RPChSDK;
 
   constructor(rpcUrl: string) {
+
+    if (RPChProvider._instance) {
+      return RPChProvider._instance
+    }
+    RPChProvider._instance = this;
+
     const ops: Ops = {
       discoveryPlatformEndpoint:
         process.env.VUE_APP_DISCOVERY_PLATFORM_API_ENDPOINT || undefined,
