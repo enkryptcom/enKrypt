@@ -28,6 +28,7 @@ export default async (
     [NetworkNames.Base]: "base",
     [NetworkNames.Blast]: "blast",
     [NetworkNames.ImmutableZkevm]: "immutable-zkevm",
+    [NetworkNames.Forma]: "forma",
   };
   if (!Object.keys(supportedNetworks).includes(network.name))
     throw new Error("Simplehash: network not supported");

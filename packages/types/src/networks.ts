@@ -80,6 +80,7 @@ export enum NetworkNames {
   Ham = "ham",
   ZChains = "ZCD",
   ImmutableZkevm = "ImmutableZkevm",
+  Forma = "Forma",
 }
 
 export enum CoingeckoPlatform {

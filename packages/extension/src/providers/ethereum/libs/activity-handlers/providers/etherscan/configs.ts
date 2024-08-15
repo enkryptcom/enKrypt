@@ -60,6 +60,7 @@ const NetworkEndpoints: Record<string, string> = {
   [NetworkNames.Degen]: "https://explorer.degen.tips/",
   [NetworkNames.Ham]: "https://explorer.ham.fun/",
   [NetworkNames.ImmutableZkevm]: "https://explorer.immutable.com/",
+  [NetworkNames.Forma]: "https://explorer.forma.art/",
 };
 
 export { NetworkEndpoints };
