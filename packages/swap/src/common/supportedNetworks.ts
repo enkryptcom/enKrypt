@@ -253,17 +253,6 @@ const NetworkDetails: Record<SupportedNetworkName, NetworkInfo> = {
     signerType: [SignerType.secp256k1btc],
     type: NetworkType.EVM,
   },
-  // [SupportedNetworkName.Rootstock]: {
-  //   id: SupportedNetworkName.Rootstock,
-  //   decimals: 18,
-  //   logoURI: "https://coin-images.coingecko.com/coins/images/5070/large/RBTC-logo.png?1718152038",
-  //   name: "Rootstock",
-  //   symbol: "RBTC",
-  //   cgId: "rbtc",
-  //   rank: 19,
-  //   signerType: [SignerType.secp256k1btc],
-  //   type: NetworkType.EVM,
-  // },
 };
 export const isSupportedNetwork = (networkName: SupportedNetworkName) =>
   !!NetworkDetails[networkName];
