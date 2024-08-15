@@ -17,6 +17,7 @@ const TokenList: Record<SupportedNetworkNames, string> = {
   [NetworkNames.Rootstock]: `https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/tokenlists/rsk.json`,
   [NetworkNames.ZkSync]: `https://tokens.coingecko.com/${CoingeckoPlatform.Zksync}/all.json`,
   [NetworkNames.Arbitrum]: `https://tokens.coingecko.com/${CoingeckoPlatform.Arbitrum}/all.json`,
+  [NetworkNames.ArbitrumNova]: `https://tokens.coingecko.com/${CoingeckoPlatform.ArbitrumNova}/all.json`,
   [NetworkNames.Gnosis]: `https://tokens.coingecko.com/${CoingeckoPlatform.Gnosis}/all.json`,
   [NetworkNames.Avalanche]: `https://tokens.coingecko.com/${CoingeckoPlatform.Avalanche}/all.json`,
   [NetworkNames.Fantom]: `https://tokens.coingecko.com/${CoingeckoPlatform.Fantom}/all.json`,

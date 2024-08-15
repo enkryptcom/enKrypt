@@ -18,6 +18,7 @@ export default async (
     [NetworkNames.Optimism]: "optimism",
     [NetworkNames.Binance]: "bsc",
     [NetworkNames.Arbitrum]: "arbitrum",
+    [NetworkNames.ArbitrumNova]: "arbitrum-nova",
     [NetworkNames.Gnosis]: "gnosis",
     [NetworkNames.Avalanche]: "avalanche",
     [NetworkNames.Matic]: "polygon",
@@ -25,6 +26,7 @@ export default async (
     [NetworkNames.ZkSync]: "zksync-era",
     [NetworkNames.ZkSyncGoerli]: "zksync-era-testnet",
     [NetworkNames.Base]: "base",
+    [NetworkNames.Blast]: "blast",
   };
   if (!Object.keys(supportedNetworks).includes(network.name))
     throw new Error("Simplehash: network not supported");
