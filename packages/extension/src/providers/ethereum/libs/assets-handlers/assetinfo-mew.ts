@@ -135,6 +135,10 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
     tbName: "degen",
     cgPlatform: CoingeckoPlatform.Degen,
   },
+  [NetworkNames.Rari]: {
+    tbName: "rari",
+    cgPlatform: undefined,
+  },
 };
 
 const getTokens = (

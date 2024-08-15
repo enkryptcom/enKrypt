@@ -19,6 +19,7 @@ const rariOptions: EvmNetworkOptions = {
   node: "https://mainnet.rpc.rarichain.org/http",
   icon: require("./icons/rari.png"),
   NFTHandler: shNFTHandler,
+  assetsInfoHandler,
   activityHandler: wrapActivityHandler(EtherscanActivity),
 };
 
