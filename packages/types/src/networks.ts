@@ -124,5 +124,4 @@ export enum CoingeckoPlatform {
   Blast = "blast",
   Sanko = "sanko",
   Degen = "degen",
-  ZChains = "zchains",
 }
