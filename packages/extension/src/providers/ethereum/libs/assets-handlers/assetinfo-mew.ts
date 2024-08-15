@@ -142,6 +142,7 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
   [NetworkNames.ProofOfPlayApex]: {
     tbName: "apex",
     cgPlatform: undefined,
+  },
   [NetworkNames.Godwoken]: {
     tbName: "ckb",
     cgPlatform: CoingeckoPlatform.Godwoken,
