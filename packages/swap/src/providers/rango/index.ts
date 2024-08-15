@@ -43,8 +43,25 @@ import { isEVMAddress } from "../../utils/common";
 
 const RANGO_PUBLIC_API_KEY = "ee7da377-0ed8-4d42-aaf9-fa978a32b18d";
 const rangoClient = new RangoClient(RANGO_PUBLIC_API_KEY);
+
+/**
+ * `name` is the blockchain id on Rango
+ *
+ * You can use the Rango API to get a list of tokens to figure out the Rango name of a network
+ *
+ * @see https://rango-api.readme.io/reference/meta
+ *
+ * ```sh
+ * curl 'https://api.rango.exchange/basic/meta?apiKey=c6381a79-2817-4602-83bf-6a641a409e32' -H 'Accept:application/json'
+ * ```
+ */
 const supportedNetworks: {
-  [key in SupportedNetworkName]?: { chainId: string; name: string };
+  [key in SupportedNetworkName]?: {
+    /** Standard base10 chain ID, can be obtained from `https://chainlist.org` */
+    chainId: string;
+    /** Rango name (Rango's identifier for the chain) of a network */
+    name: string;
+  };
 } = {
   [SupportedNetworkName.Ethereum]: {
     chainId: "1",
@@ -85,6 +102,14 @@ const supportedNetworks: {
   [SupportedNetworkName.Moonbeam]: {
     chainId: "1284",
     name: "MOONBEAM",
+  },
+  [SupportedNetworkName.Blast]: {
+    chainId: "81457",
+    name: "BLAST",
+  },
+  [SupportedNetworkName.Telos]: {
+    chainId: "40",
+    name: "TELOS",
   },
 };
 

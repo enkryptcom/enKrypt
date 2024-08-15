@@ -63,6 +63,7 @@ const TOKEN_LISTS: {
   [NetworkNames.ZkSync]: `https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/swaplists/${SupportedNetworkName.Zksync}.json`,
   [NetworkNames.Base]: `https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/swaplists/${SupportedNetworkName.Base}.json`,
   [NetworkNames.MaticZK]: `https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/swaplists/${SupportedNetworkName.MaticZK}.json`,
+  [NetworkNames.Rootstock]: `https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/swaplists/${SupportedNetworkName.Rootstock}.json`,
 };
 
 const CHANGELLY_LIST =

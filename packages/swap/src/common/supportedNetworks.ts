@@ -1,6 +1,9 @@
 import { SignerType } from "@enkryptcom/types";
 import { NetworkInfo, NetworkType, SupportedNetworkName } from "../types";
 
+/**
+ * Sometimes you can get decimals and token info from here `https://raw.githubusercontent.com/MyEtherWallet/ethereum-lists/master/dist/master-file.json`
+ */
 const NetworkDetails: Record<SupportedNetworkName, NetworkInfo> = {
   [SupportedNetworkName.Bitcoin]: {
     id: SupportedNetworkName.Bitcoin,
@@ -239,6 +242,28 @@ const NetworkDetails: Record<SupportedNetworkName, NetworkInfo> = {
     signerType: [SignerType.secp256k1btc],
     type: NetworkType.Bitcoin,
   },
+  [SupportedNetworkName.Rootstock]: {
+    id: SupportedNetworkName.Rootstock,
+    decimals: 18,
+    logoURI: "https://coin-images.coingecko.com/coins/images/5070/large/RBTC-logo.png?1718152038",
+    name: "Rootstock",
+    symbol: "RBTC",
+    cgId: "rbtc",
+    rank: 19,
+    signerType: [SignerType.secp256k1btc],
+    type: NetworkType.EVM,
+  },
+  // [SupportedNetworkName.Rootstock]: {
+  //   id: SupportedNetworkName.Rootstock,
+  //   decimals: 18,
+  //   logoURI: "https://coin-images.coingecko.com/coins/images/5070/large/RBTC-logo.png?1718152038",
+  //   name: "Rootstock",
+  //   symbol: "RBTC",
+  //   cgId: "rbtc",
+  //   rank: 19,
+  //   signerType: [SignerType.secp256k1btc],
+  //   type: NetworkType.EVM,
+  // },
 };
 export const isSupportedNetwork = (networkName: SupportedNetworkName) =>
   !!NetworkDetails[networkName];
