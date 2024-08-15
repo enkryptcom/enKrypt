@@ -30,6 +30,7 @@ export default async (
     [NetworkNames.ImmutableZkevm]: "immutable-zkevm",
     [NetworkNames.Forma]: "forma",
     [NetworkNames.Godwoken]: "godwoken",
+    [NetworkNames.Linea]: "linea",
   };
   if (!Object.keys(supportedNetworks).includes(network.name))
     throw new Error("Simplehash: network not supported");
