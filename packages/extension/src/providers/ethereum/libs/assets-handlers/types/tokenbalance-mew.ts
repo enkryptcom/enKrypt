@@ -58,4 +58,5 @@ export type SupportedNetworkNames =
   | NetworkNames.Linea
   | NetworkNames.MantaPacific
   | NetworkNames.Mode
-  | NetworkNames.OpBNB;
+  | NetworkNames.OpBNB
+  | NetworkNames.Scroll;

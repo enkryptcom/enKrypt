@@ -88,6 +88,7 @@ export enum NetworkNames {
   OpBNB = "OpBNB",
   Palm = "palm",
   ProofOfPlayApex = "ProofOfPlayApex",
+  Scroll = "scroll",
 }
 
 export enum CoingeckoPlatform {
@@ -141,4 +142,5 @@ export enum CoingeckoPlatform {
   MantaPacific = "manta-pacific",
   Mode = "mode",
   OpBNB = "opbnb",
+  Scroll = "scroll",
 }

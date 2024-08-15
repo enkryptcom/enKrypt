@@ -159,6 +159,10 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
     tbName: "opbnb",
     cgPlatform: CoingeckoPlatform.OpBNB,
   },
+  [NetworkNames.Scroll]: {
+    tbName: "scrl",
+    cgPlatform: CoingeckoPlatform.Scroll,
+  },
 };
 
 const getTokens = (
