@@ -139,6 +139,10 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
     tbName: "degen",
     cgPlatform: CoingeckoPlatform.Degen,
   },
+  [NetworkNames.Godwoken]: {
+    tbName: "ckb",
+    cgPlatform: CoingeckoPlatform.Godwoken,
+  },
 };
 
 const getTokens = (

@@ -44,12 +44,10 @@ import blastNode from "./blast";
 import sankoNode from "./dmt";
 import degenNode from "./degen";
 import hamNode from "./ham";
-<<<<<<< HEAD
 import zcdNode from "./zcd";
 import immutableZkevmNode from "./immutable-zkevm";
-=======
 import formaNode from "./forma";
->>>>>>> develop
+import godwokenNode from "./godwoken";
 
 export default {
   sepolia: sepoliaNode,
@@ -110,4 +108,5 @@ export default {
   zcd: zcdNode,
   immutableZkevm: immutableZkevmNode,
   forma: formaNode,
+  godwoken: godwokenNode,
 };
