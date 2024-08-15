@@ -245,12 +245,13 @@ const NetworkDetails: Record<SupportedNetworkName, NetworkInfo> = {
   [SupportedNetworkName.Rootstock]: {
     id: SupportedNetworkName.Rootstock,
     decimals: 18,
-    logoURI: "https://coin-images.coingecko.com/coins/images/5070/large/RBTC-logo.png?1718152038",
+    logoURI:
+      "https://coin-images.coingecko.com/coins/images/5070/large/RBTC-logo.png?1718152038",
     name: "Rootstock",
     symbol: "RBTC",
-    cgId: "rbtc",
+    cgId: "rootstock",
     rank: 19,
-    signerType: [SignerType.secp256k1btc],
+    signerType: [SignerType.secp256k1],
     type: NetworkType.EVM,
   },
 };

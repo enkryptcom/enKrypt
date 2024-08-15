@@ -57,8 +57,6 @@ const supportedNetworks: {
   },
   [SupportedNetworkName.Rootstock]: {
     changellyName: "rootstock",
-    // changellyName: "RBTC",
-    // isAddress: (address: string) => Promise.resolve(isEVMAddress(address)),
   },
 };
 
