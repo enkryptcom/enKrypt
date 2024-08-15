@@ -89,6 +89,7 @@ export enum NetworkNames {
   Palm = "palm",
   ProofOfPlayApex = "ProofOfPlayApex",
   Scroll = "scroll",
+  Rari = "rari",
 }
 
 export enum CoingeckoPlatform {

@@ -167,6 +167,10 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
     tbName: "scrl",
     cgPlatform: CoingeckoPlatform.Scroll,
   },
+  [NetworkNames.Rari]: {
+    tbName: "rari",
+    cgPlatform: undefined,
+  },
 };
 
 const getTokens = (
