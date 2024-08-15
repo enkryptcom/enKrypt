@@ -16,6 +16,7 @@ const mantaPacificOptions: EvmNetworkOptions = {
   isTestNetwork: false,
   currencyName: "ETH",
   currencyNameLong: "Ethereum",
+  coingeckoID: "ethereum",
   node: "wss://pacific-rpc.manta.network/ws",
   icon: require("./icons/manta-pacific.png"),
   coingeckoPlatform: CoingeckoPlatform.MantaPacific,

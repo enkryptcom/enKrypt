@@ -16,6 +16,7 @@ const immutableZkEvmOptions: EvmNetworkOptions = {
   currencyNameLong: "Immutable X",
   node: "https://rpc.immutable.com",
   icon: require("./icons/immutable-zkevm.png"),
+  coingeckoID: "immutable-x",
   coingeckoPlatform: CoingeckoPlatform.ImmutableZkevm,
   NFTHandler: shNFTHandler,
   activityHandler: wrapActivityHandler(EtherscanActivity),

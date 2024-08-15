@@ -18,6 +18,7 @@ const modeOptions: EvmNetworkOptions = {
   node: "https://mainnet.mode.network",
   icon: require("./icons/mode.png"),
   coingeckoPlatform: CoingeckoPlatform.Mode,
+  coingeckoID: "ethereum",
   NFTHandler: shNFTHandler,
   assetsInfoHandler,
   activityHandler: wrapActivityHandler(EtherscanActivity),

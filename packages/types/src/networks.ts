@@ -87,6 +87,7 @@ export enum NetworkNames {
   Mode = "mode",
   OpBNB = "OpBNB",
   Palm = "palm",
+  ProofOfPlayApex = "ProofOfPlayApex",
 }
 
 export enum CoingeckoPlatform {
