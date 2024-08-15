@@ -31,6 +31,7 @@ export default async (
     [NetworkNames.Forma]: "forma",
     [NetworkNames.Godwoken]: "godwoken",
     [NetworkNames.Linea]: "linea",
+    [NetworkNames.MantaPacific]: "manta",
   };
   if (!Object.keys(supportedNetworks).includes(network.name))
     throw new Error("Simplehash: network not supported");

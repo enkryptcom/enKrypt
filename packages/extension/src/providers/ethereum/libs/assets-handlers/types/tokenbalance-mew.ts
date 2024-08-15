@@ -55,4 +55,5 @@ export type SupportedNetworkNames =
   | NetworkNames.Degen
   | NetworkNames.Blast
   | NetworkNames.Godwoken
-  | NetworkNames.Linea;
+  | NetworkNames.Linea
+  | NetworkNames.MantaPacific;

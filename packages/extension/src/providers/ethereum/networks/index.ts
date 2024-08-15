@@ -44,14 +44,12 @@ import blastNode from "./blast";
 import sankoNode from "./dmt";
 import degenNode from "./degen";
 import hamNode from "./ham";
-<<<<<<< HEAD
 import zcdNode from "./zcd";
 import immutableZkevmNode from "./immutable-zkevm";
 import formaNode from "./forma";
 import godwokenNode from "./godwoken";
-=======
 import lineaNode from "./linea";
->>>>>>> 038fec6090829b22db483c800d7701b36f74285b
+import mantaPacificNode from "./manta-pacific";
 
 export default {
   sepolia: sepoliaNode,
@@ -109,12 +107,10 @@ export default {
   sanko: sankoNode,
   degen: degenNode,
   ham: hamNode,
-<<<<<<< HEAD
   zcd: zcdNode,
   immutableZkevm: immutableZkevmNode,
   forma: formaNode,
   godwoken: godwokenNode,
-=======
   linea: lineaNode,
->>>>>>> 038fec6090829b22db483c800d7701b36f74285b
+  mantaPacific: mantaPacificNode,
 };
