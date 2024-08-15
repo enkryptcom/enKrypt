@@ -1,29 +1,29 @@
-import { NetworkNames } from "@enkryptcom/types";
+import { NetworkNames, CoingeckoPlatform } from "@enkryptcom/types";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
 import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
 import { EtherscanActivity } from "../libs/activity-handlers";
 import assetsInfoHandler from "@/providers/ethereum/libs/assets-handlers/assetinfo-mew";
 import shNFTHandler from "@/libs/nft-handlers/simplehash";
 
-const apexOptions: EvmNetworkOptions = {
-  name: NetworkNames.ProofOfPlayApex,
-  name_long: "Proof of Play Apex",
-  homePage: "https://www.proofofplay.com/",
-  blockExplorerTX: "https://explorer.apex.proofofplay.com/tx/[[txHash]]",
-  blockExplorerAddr:
-    "https://explorer.apex.proofofplay.com/address/[[address]]",
-  chainID: "0x1142c",
+const modeOptions: EvmNetworkOptions = {
+  name: NetworkNames.Mode,
+  name_long: "Mode",
+  homePage: "https://www.mode.network/",
+  blockExplorerTX: "https://explorer.mode.network/tx/[[txHash]]",
+  blockExplorerAddr: "https://explorer.mode.network/address/[[address]]",
+  chainID: "0x868b",
   isTestNetwork: false,
   currencyName: "ETH",
   currencyNameLong: "Ethereum",
-  node: "https://rpc.apex.proofofplay.com",
-  icon: require("./icons/apex.png"),
+  node: "https://mainnet.mode.network",
+  icon: require("./icons/mode.png"),
+  coingeckoPlatform: CoingeckoPlatform.Mode,
   coingeckoID: "ethereum",
   NFTHandler: shNFTHandler,
   assetsInfoHandler,
   activityHandler: wrapActivityHandler(EtherscanActivity),
 };
 
-const apex = new EvmNetwork(apexOptions);
+const mode = new EvmNetwork(modeOptions);
 
-export default apex;
+export default mode;

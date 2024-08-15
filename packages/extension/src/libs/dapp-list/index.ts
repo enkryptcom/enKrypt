@@ -69,6 +69,16 @@ const lists: Partial<Record<NetworkNames, string>> = {
     "https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/btc.json",
   [NetworkNames.Arthera]:
     "https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/arthera.json",
+  [NetworkNames.Blast]:
+    "https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/blast.json",
+  [NetworkNames.ArbitrumNova]:
+    "https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/nova.json",
+  [NetworkNames.Forma]:
+    "https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/forma.json",
+  [NetworkNames.Godwoken]:
+    "https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/godwoken.json",
+  [NetworkNames.ImmutableZkevm]:
+    "https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/imx.json",
 };
 
 export default lists;

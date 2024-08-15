@@ -24,9 +24,9 @@ describe("SID Name resolving", () => {
     });
     await resolver.init();
     const name = await resolver.resolveReverseName(
-      "0xb5932a6b7d50a966aec6c74c97385412fb497540"
+      "0x1e3157ead0f498d814495d228f6ea4f041a3dc40"
     );
-    expect(name).to.be.eq("spaceid.bnb");
+    expect(name).to.be.eq("melissaa.bnb");
   }).timeout(10000);
 
   it("it should return null if not found", async () => {

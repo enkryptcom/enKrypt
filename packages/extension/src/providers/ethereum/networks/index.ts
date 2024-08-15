@@ -18,6 +18,7 @@ import zkGoerliNode from "./zkgoerli";
 import vicNode from "./vic";
 import zkSyncNode from "./zksync";
 import arbNode from "./arb";
+import arbNovaNode from "./arb-nova";
 import * as skale from "./skale";
 import ontEVMNode from "./ontevm";
 import gnoNode from "./gno";
@@ -43,7 +44,17 @@ import blastNode from "./blast";
 import sankoNode from "./dmt";
 import degenNode from "./degen";
 import hamNode from "./ham";
+import zcdNode from "./zcd";
+import immutableZkevmNode from "./immutable-zkevm";
+import formaNode from "./forma";
+import godwokenNode from "./godwoken";
+import lineaNode from "./linea";
+import mantaPacificNode from "./manta-pacific";
+import modeNode from "./mode";
+import opbnbNode from "./op-bnb";
+import palmNode from "./palm";
 import proofOfPlayApexNode from "./pop-apex";
+import scrollNode from "./scroll";
 
 export default {
   sepolia: sepoliaNode,
@@ -78,6 +89,7 @@ export default {
   skaleChaos: skale.chaosNode,
   ontEVM: ontEVMNode,
   arbitrum: arbNode,
+  arbitrumNova: arbNovaNode,
   gnosis: gnoNode,
   avax: avaxNode,
   fantom: ftmNode,
@@ -100,5 +112,15 @@ export default {
   sanko: sankoNode,
   degen: degenNode,
   ham: hamNode,
+  zcd: zcdNode,
+  immutableZkevm: immutableZkevmNode,
+  forma: formaNode,
+  godwoken: godwokenNode,
+  linea: lineaNode,
+  mantaPacific: mantaPacificNode,
+  mode: modeNode,
+  opbnb: opbnbNode,
+  palm: palmNode,
   popApex: proofOfPlayApexNode,
+  scroll: scrollNode,
 };

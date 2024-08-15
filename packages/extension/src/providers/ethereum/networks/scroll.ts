@@ -5,25 +5,24 @@ import { EtherscanActivity } from "../libs/activity-handlers";
 import assetsInfoHandler from "@/providers/ethereum/libs/assets-handlers/assetinfo-mew";
 import shNFTHandler from "@/libs/nft-handlers/simplehash";
 
-const apexOptions: EvmNetworkOptions = {
-  name: NetworkNames.ProofOfPlayApex,
-  name_long: "Proof of Play Apex",
-  homePage: "https://www.proofofplay.com/",
-  blockExplorerTX: "https://explorer.apex.proofofplay.com/tx/[[txHash]]",
-  blockExplorerAddr:
-    "https://explorer.apex.proofofplay.com/address/[[address]]",
-  chainID: "0x1142c",
+const scrollOptions: EvmNetworkOptions = {
+  name: NetworkNames.Scroll,
+  name_long: "Scroll",
+  homePage: "https://scroll.io/",
+  blockExplorerTX: "https://scrollscan.com/tx/[[txHash]]",
+  blockExplorerAddr: "https://scrollscan.com/address/[[address]]",
+  chainID: "0x82750",
   isTestNetwork: false,
   currencyName: "ETH",
-  currencyNameLong: "Ethereum",
-  node: "https://rpc.apex.proofofplay.com",
-  icon: require("./icons/apex.png"),
-  coingeckoID: "ethereum",
+  currencyNameLong: "Scroll ETH",
+  node: "https://scroll.api.onfinality.io/public",
+  icon: require("./icons/scroll.png"),
   NFTHandler: shNFTHandler,
+  coingeckoID: "ethereum",
   assetsInfoHandler,
   activityHandler: wrapActivityHandler(EtherscanActivity),
 };
 
-const apex = new EvmNetwork(apexOptions);
+const scroll = new EvmNetwork(scrollOptions);
 
-export default apex;
+export default scroll;
