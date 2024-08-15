@@ -34,6 +34,7 @@ const TokenList: Record<SupportedNetworkNames, string> = {
   [NetworkNames.Godwoken]: `https://tokens.coingecko.com/${CoingeckoPlatform.Godwoken}/all.json`,
   [NetworkNames.Linea]: `https://tokens.coingecko.com/${CoingeckoPlatform.Linea}/all.json`,
   [NetworkNames.MantaPacific]: `https://tokens.coingecko.com/${CoingeckoPlatform.MantaPacific}/all.json`,
+  [NetworkNames.Mode]: `https://tokens.coingecko.com/${CoingeckoPlatform.Mode}/all.json`,
 };
 
 const getKnownNetworkTokens = async (
