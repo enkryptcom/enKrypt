@@ -78,6 +78,7 @@ export enum NetworkNames {
   Degen = "degen",
   Ham = "ham",
   Rari = "rari",
+  Forma = "Forma",
 }
 
 export enum CoingeckoPlatform {

@@ -59,6 +59,7 @@ const NetworkEndpoints: Record<string, string> = {
   [NetworkNames.Degen]: "https://explorer.degen.tips/",
   [NetworkNames.Ham]: "https://explorer.ham.fun/",
   [NetworkNames.Rari]: "https://mainnet.explorer.rarichain.org/",
+  [NetworkNames.Forma]: "https://explorer.forma.art/",
 };
 
 export { NetworkEndpoints };
