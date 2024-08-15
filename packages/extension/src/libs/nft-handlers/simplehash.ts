@@ -34,6 +34,7 @@ export default async (
     [NetworkNames.MantaPacific]: "manta",
     [NetworkNames.Mode]: "mode",
     [NetworkNames.OpBNB]: "opbnb",
+    [NetworkNames.Palm]: "palm",
   };
   if (!Object.keys(supportedNetworks).includes(network.name))
     throw new Error("Simplehash: network not supported");

@@ -52,6 +52,7 @@ import lineaNode from "./linea";
 import mantaPacificNode from "./manta-pacific";
 import modeNode from "./mode";
 import opbnbNode from "./op-bnb";
+import palmNode from "./palm";
 
 export default {
   sepolia: sepoliaNode,
@@ -117,4 +118,5 @@ export default {
   mantaPacific: mantaPacificNode,
   mode: modeNode,
   opbnb: opbnbNode,
+  palm: palmNode,
 };
