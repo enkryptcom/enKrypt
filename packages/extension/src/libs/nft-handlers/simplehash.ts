@@ -28,6 +28,7 @@ export default async (
     [NetworkNames.Base]: "base",
     [NetworkNames.Blast]: "blast",
     [NetworkNames.ImmutableZkevm]: "immutable-zkevm",
+    [NetworkNames.Rari]: "rari",
     [NetworkNames.Forma]: "forma",
     [NetworkNames.Godwoken]: "godwoken",
     [NetworkNames.Linea]: "linea",

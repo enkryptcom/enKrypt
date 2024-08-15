@@ -38,6 +38,7 @@ const TokenList: Record<SupportedNetworkNames, string> = {
   [NetworkNames.Mode]: `https://tokens.coingecko.com/${CoingeckoPlatform.Mode}/all.json`,
   [NetworkNames.OpBNB]: `https://tokens.coingecko.com/${CoingeckoPlatform.OpBNB}/all.json`,
   [NetworkNames.Scroll]: `https://tokens.coingecko.com/${CoingeckoPlatform.Scroll}/all.json`,
+  [NetworkNames.Rari]: `https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/tokenlists/rari.json`,
 };
 
 const getKnownNetworkTokens = async (

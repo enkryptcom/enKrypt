@@ -60,4 +60,5 @@ export type SupportedNetworkNames =
   | NetworkNames.MantaPacific
   | NetworkNames.Mode
   | NetworkNames.OpBNB
-  | NetworkNames.Scroll;
+  | NetworkNames.Scroll
+  | NetworkNames.Rari;

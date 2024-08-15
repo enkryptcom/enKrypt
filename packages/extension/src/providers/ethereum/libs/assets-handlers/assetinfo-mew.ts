@@ -142,6 +142,7 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
   [NetworkNames.ProofOfPlayApex]: {
     tbName: "apex",
     cgPlatform: undefined,
+  },
   [NetworkNames.Godwoken]: {
     tbName: "ckb",
     cgPlatform: CoingeckoPlatform.Godwoken,
@@ -165,6 +166,10 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
   [NetworkNames.Scroll]: {
     tbName: "scrl",
     cgPlatform: CoingeckoPlatform.Scroll,
+  },
+  [NetworkNames.Rari]: {
+    tbName: "rari",
+    cgPlatform: undefined,
   },
 };
 
