@@ -54,4 +54,5 @@ export type SupportedNetworkNames =
   | NetworkNames.Sanko
   | NetworkNames.Degen
   | NetworkNames.Blast
-  | NetworkNames.Godwoken;
+  | NetworkNames.Godwoken
+  | NetworkNames.Linea;
