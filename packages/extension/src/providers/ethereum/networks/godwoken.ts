@@ -15,6 +15,7 @@ const ethOptions: EvmNetworkOptions = {
   isTestNetwork: false,
   currencyName: "CKB",
   currencyNameLong: "CKByte",
+  coingeckoID: "nervos-network",
   node: "https://v1.mainnet.godwoken.io/rpc",
   icon: require("./icons/godwoken.png"),
   coingeckoPlatform: CoingeckoPlatform.Godwoken,

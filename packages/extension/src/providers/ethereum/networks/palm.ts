@@ -17,6 +17,7 @@ const palmNetworkOptions: EvmNetworkOptions = {
   currencyNameLong: "PALM",
   node: "https://palm-mainnet.public.blastapi.io",
   icon: require("./icons/palm.svg"),
+  coingeckoID: "palm-ai",
   NFTHandler: shNFTHandler,
   activityHandler: () => Promise.resolve([]),
 };

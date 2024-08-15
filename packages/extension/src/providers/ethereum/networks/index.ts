@@ -53,6 +53,7 @@ import mantaPacificNode from "./manta-pacific";
 import modeNode from "./mode";
 import opbnbNode from "./op-bnb";
 import palmNode from "./palm";
+import proofOfPlayApexNode from "./pop-apex";
 
 export default {
   sepolia: sepoliaNode,
@@ -119,4 +120,5 @@ export default {
   mode: modeNode,
   opbnb: opbnbNode,
   palm: palmNode,
+  popApex: proofOfPlayApexNode,
 };

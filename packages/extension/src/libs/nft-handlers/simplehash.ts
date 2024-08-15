@@ -35,6 +35,7 @@ export default async (
     [NetworkNames.Mode]: "mode",
     [NetworkNames.OpBNB]: "opbnb",
     [NetworkNames.Palm]: "palm",
+    [NetworkNames.ProofOfPlayApex]: "proof-of-play",
   };
   if (!Object.keys(supportedNetworks).includes(network.name))
     throw new Error("Simplehash: network not supported");
