@@ -18,6 +18,7 @@ import zkGoerliNode from "./zkgoerli";
 import vicNode from "./vic";
 import zkSyncNode from "./zksync";
 import arbNode from "./arb";
+import arbNovaNode from "./arb-nova";
 import * as skale from "./skale";
 import ontEVMNode from "./ontevm";
 import gnoNode from "./gno";
@@ -78,6 +79,7 @@ export default {
   skaleChaos: skale.chaosNode,
   ontEVM: ontEVMNode,
   arbitrum: arbNode,
+  arbitrumNova: arbNovaNode,
   gnosis: gnoNode,
   avax: avaxNode,
   fantom: ftmNode,
