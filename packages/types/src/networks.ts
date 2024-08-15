@@ -78,9 +78,13 @@ export enum NetworkNames {
   Sanko = "sanko",
   Degen = "degen",
   Ham = "ham",
+<<<<<<< HEAD
   ZChains = "ZCD",
   ImmutableZkevm = "ImmutableZkevm",
   Forma = "Forma",
+=======
+  Godwoken = "godwoken",
+>>>>>>> 9aa19afbeeddf0b41a6f8f82589ee488cef7c269
 }
 
 export enum CoingeckoPlatform {
@@ -129,4 +133,5 @@ export enum CoingeckoPlatform {
   Sanko = "sanko",
   Degen = "degen",
   ImmutableZkevm = "immutable",
+  Godwoken = "godwoken",
 }
