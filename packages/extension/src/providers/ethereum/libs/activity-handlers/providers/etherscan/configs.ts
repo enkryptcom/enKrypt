@@ -62,6 +62,7 @@ const NetworkEndpoints: Record<string, string> = {
   [NetworkNames.ImmutableZkevm]: "https://explorer.immutable.com/",
   [NetworkNames.Forma]: "https://explorer.forma.art/",
   [NetworkNames.Linea]: "https://api.lineascan.build/",
+  [NetworkNames.MantaPacific]: "https://pacific-explorer.manta.network/",
 };
 
 export { NetworkEndpoints };
