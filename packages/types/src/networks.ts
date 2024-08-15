@@ -86,6 +86,7 @@ export enum NetworkNames {
   MantaPacific = "MantaPacific",
   Mode = "mode",
   OpBNB = "OpBNB",
+  Palm = "palm",
 }
 
 export enum CoingeckoPlatform {
