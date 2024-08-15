@@ -54,6 +54,7 @@ import modeNode from "./mode";
 import opbnbNode from "./op-bnb";
 import palmNode from "./palm";
 import proofOfPlayApexNode from "./pop-apex";
+import scrollNode from "./scroll";
 
 export default {
   sepolia: sepoliaNode,
@@ -121,4 +122,5 @@ export default {
   opbnb: opbnbNode,
   palm: palmNode,
   popApex: proofOfPlayApexNode,
+  scroll: scrollNode,
 };

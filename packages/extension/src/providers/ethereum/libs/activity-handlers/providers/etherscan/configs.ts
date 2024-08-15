@@ -65,6 +65,7 @@ const NetworkEndpoints: Record<string, string> = {
   [NetworkNames.MantaPacific]: "https://pacific-explorer.manta.network/",
   [NetworkNames.Mode]: "https://explorer.mode.network/",
   [NetworkNames.ProofOfPlayApex]: "https://explorer.apex.proofofplay.com/",
+  [NetworkNames.Scroll]: "https://api.scrollscan.com/",
 };
 
 export { NetworkEndpoints };
