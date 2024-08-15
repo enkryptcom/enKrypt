@@ -45,6 +45,7 @@ import sankoNode from "./dmt";
 import degenNode from "./degen";
 import hamNode from "./ham";
 import zcdNode from "./zcd";
+import immutableZkevmNode from "./immutable-zkevm";
 
 export default {
   sepolia: sepoliaNode,
@@ -103,4 +104,5 @@ export default {
   degen: degenNode,
   ham: hamNode,
   zcd: zcdNode,
+  immutableZkevm: immutableZkevmNode,
 };
