@@ -85,6 +85,7 @@ export enum NetworkNames {
   Linea = "Linea",
   MantaPacific = "MantaPacific",
   Mode = "mode",
+  OpBNB = "OpBNB",
 }
 
 export enum CoingeckoPlatform {
@@ -137,4 +138,5 @@ export enum CoingeckoPlatform {
   Linea = "linea",
   MantaPacific = "manta-pacific",
   Mode = "mode",
+  OpBNB = "opbnb",
 }
