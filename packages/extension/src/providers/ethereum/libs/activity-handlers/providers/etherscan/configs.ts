@@ -63,6 +63,7 @@ const NetworkEndpoints: Record<string, string> = {
   [NetworkNames.Forma]: "https://explorer.forma.art/",
   [NetworkNames.Linea]: "https://api.lineascan.build/",
   [NetworkNames.MantaPacific]: "https://pacific-explorer.manta.network/",
+  [NetworkNames.Mode]: "https://explorer.mode.network/",
 };
 
 export { NetworkEndpoints };

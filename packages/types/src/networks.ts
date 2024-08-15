@@ -84,6 +84,7 @@ export enum NetworkNames {
   Godwoken = "godwoken",
   Linea = "Linea",
   MantaPacific = "MantaPacific",
+  Mode = "mode",
 }
 
 export enum CoingeckoPlatform {
@@ -135,4 +136,5 @@ export enum CoingeckoPlatform {
   Godwoken = "godwoken",
   Linea = "linea",
   MantaPacific = "manta-pacific",
+  Mode = "mode",
 }
