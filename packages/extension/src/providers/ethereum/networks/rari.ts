@@ -18,6 +18,7 @@ const rariOptions: EvmNetworkOptions = {
   currencyNameLong: "Rari ETH",
   node: "https://mainnet.rpc.rarichain.org/http",
   icon: require("./icons/rari.png"),
+  coingeckoID: "ethereum",
   NFTHandler: shNFTHandler,
   assetsInfoHandler,
   activityHandler: wrapActivityHandler(EtherscanActivity),
