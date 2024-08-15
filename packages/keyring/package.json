@@ -1,6 +1,6 @@
 {
   "name": "@enkryptcom/keyring",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Key management for enkrypt extension",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
