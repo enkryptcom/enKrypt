@@ -27,6 +27,7 @@ export default async (
     [NetworkNames.ZkSyncGoerli]: "zksync-era-testnet",
     [NetworkNames.Base]: "base",
     [NetworkNames.Blast]: "blast",
+    [NetworkNames.ImmutableZkevm]: "immutable-zkevm",
   };
   if (!Object.keys(supportedNetworks).includes(network.name))
     throw new Error("Simplehash: network not supported");
