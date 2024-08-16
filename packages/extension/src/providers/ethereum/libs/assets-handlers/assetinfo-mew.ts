@@ -75,6 +75,10 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
     tbName: "arb",
     cgPlatform: CoingeckoPlatform.Arbitrum,
   },
+  [NetworkNames.ArbitrumNova]: {
+    tbName: "nova",
+    cgPlatform: CoingeckoPlatform.ArbitrumNova,
+  },
   [NetworkNames.Gnosis]: {
     tbName: "xdai",
     cgPlatform: CoingeckoPlatform.Gnosis,
@@ -134,6 +138,38 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
   [NetworkNames.Degen]: {
     tbName: "degen",
     cgPlatform: CoingeckoPlatform.Degen,
+  },
+  [NetworkNames.ProofOfPlayApex]: {
+    tbName: "apex",
+    cgPlatform: undefined,
+  },
+  [NetworkNames.Godwoken]: {
+    tbName: "ckb",
+    cgPlatform: CoingeckoPlatform.Godwoken,
+  },
+  [NetworkNames.Linea]: {
+    tbName: "linea",
+    cgPlatform: CoingeckoPlatform.Linea,
+  },
+  [NetworkNames.MantaPacific]: {
+    tbName: "manta",
+    cgPlatform: CoingeckoPlatform.MantaPacific,
+  },
+  [NetworkNames.Mode]: {
+    tbName: "mode",
+    cgPlatform: CoingeckoPlatform.Mode,
+  },
+  [NetworkNames.OpBNB]: {
+    tbName: "opbnb",
+    cgPlatform: CoingeckoPlatform.OpBNB,
+  },
+  [NetworkNames.Scroll]: {
+    tbName: "scrl",
+    cgPlatform: CoingeckoPlatform.Scroll,
+  },
+  [NetworkNames.Rari]: {
+    tbName: "rari",
+    cgPlatform: undefined,
   },
 };
 
