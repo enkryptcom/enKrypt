@@ -43,6 +43,7 @@ export enum NetworkNames {
   SkaleChaos = "skaleCHAOS",
   OntologyEVM = "ontologyEVM",
   Arbitrum = "ARB",
+  ArbitrumNova = "ARBNova",
   Gnosis = "GNO",
   Avalanche = "AVAX",
   Fantom = "FTM",
@@ -78,7 +79,19 @@ export enum NetworkNames {
   Degen = "degen",
   Ham = "ham",
   Forma = "Forma",
-  XLayer = "XLayer"
+  XLayer = "XLayer",
+  ZChains = "ZCD",
+  ImmutableZkevm = "ImmutableZkevm",
+  Forma = "Forma",
+  Godwoken = "godwoken",
+  Linea = "Linea",
+  MantaPacific = "MantaPacific",
+  Mode = "mode",
+  OpBNB = "OpBNB",
+  Palm = "palm",
+  ProofOfPlayApex = "ProofOfPlayApex",
+  Scroll = "scroll",
+  Rari = "rari",
 }
 
 export enum CoingeckoPlatform {
@@ -107,6 +120,7 @@ export enum CoingeckoPlatform {
   SKALE = "skale",
   OntologyEVM = "ontology",
   Arbitrum = "arbitrum-one",
+  ArbitrumNova = "arbitrum-nova",
   Gnosis = "xdai",
   Avalanche = "avalanche",
   Fantom = "fantom",
@@ -126,4 +140,11 @@ export enum CoingeckoPlatform {
   Sanko = "sanko",
   Degen = "degen",
   XLayer = "x-layer",
+  ImmutableZkevm = "immutable",
+  Godwoken = "godwoken",
+  Linea = "linea",
+  MantaPacific = "manta-pacific",
+  Mode = "mode",
+  OpBNB = "opbnb",
+  Scroll = "scroll",
 }
