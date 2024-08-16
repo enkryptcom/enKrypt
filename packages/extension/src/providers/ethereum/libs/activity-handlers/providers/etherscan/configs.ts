@@ -62,7 +62,6 @@ const NetworkEndpoints: Record<string, string> = {
   [NetworkNames.ImmutableZkevm]: "https://explorer.immutable.com/",
   [NetworkNames.Rari]: "https://mainnet.explorer.rarichain.org/",
   [NetworkNames.Forma]: "https://explorer.forma.art/",
-  [NetworkNames.Forma]: "https://explorer.forma.art/",
   [NetworkNames.XLayer]: "https://www.oklink.com/api/v5/explorer/xlayer/",
   [NetworkNames.Linea]: "https://api.lineascan.build/",
   [NetworkNames.MantaPacific]: "https://pacific-explorer.manta.network/",
