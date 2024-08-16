@@ -59,6 +59,8 @@ const NetworkEndpoints: Record<string, string> = {
   [NetworkNames.Degen]: "https://explorer.degen.tips/",
   [NetworkNames.Ham]: "https://explorer.ham.fun/",
   [NetworkNames.Forma]: "https://explorer.forma.art/",
+  [NetworkNames.Forma]: "https://explorer.forma.art/",
+  [NetworkNames.XLayer]: "https://www.oklink.com/api/v5/explorer/xlayer/",
 };
 
 export { NetworkEndpoints };

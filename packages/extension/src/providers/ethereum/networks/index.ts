@@ -44,6 +44,7 @@ import sankoNode from "./dmt";
 import degenNode from "./degen";
 import hamNode from "./ham";
 import formaNode from "./forma";
+import xlayerNode from "./xlayer";
 
 export default {
   sepolia: sepoliaNode,
@@ -101,4 +102,5 @@ export default {
   degen: degenNode,
   ham: hamNode,
   forma: formaNode,
+  xlayer: xlayerNode,
 };

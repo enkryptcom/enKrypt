@@ -30,6 +30,7 @@ const TokenList: Record<SupportedNetworkNames, string> = {
   [NetworkNames.Blast]: `https://tokens.coingecko.com/${CoingeckoPlatform.Blast}/all.json`,
   [NetworkNames.Sanko]: `https://tokens.coingecko.com/${CoingeckoPlatform.Sanko}/all.json`,
   [NetworkNames.Degen]: `https://tokens.coingecko.com/${CoingeckoPlatform.Degen}/all.json`,
+  [NetworkNames.XLayer]: `https://tokens.coingecko.com/${CoingeckoPlatform.XLayer}/all.json`,
 };
 
 const getKnownNetworkTokens = async (
