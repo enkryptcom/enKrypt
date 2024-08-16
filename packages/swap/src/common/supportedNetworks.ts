@@ -254,6 +254,28 @@ const NetworkDetails: Record<SupportedNetworkName, NetworkInfo> = {
     signerType: [SignerType.secp256k1],
     type: NetworkType.EVM,
   },
+  [SupportedNetworkName.Blast]: {
+    id: SupportedNetworkName.Blast,
+    decimals: 18,
+    logoURI: "https://assets.coingecko.com/coins/images/35494/standard/Blast.jpg",
+    name: "Blast",
+    symbol: "ETH",
+    cgId: "ethereum",
+    rank: 20,
+    signerType: [SignerType.secp256k1],
+    type: NetworkType.EVM,
+  },
+  [SupportedNetworkName.Telos]: {
+    id: SupportedNetworkName.Telos,
+    decimals: 18,
+    logoURI: "https://assets.coingecko.com/coins/images/7588/standard/tlos_png.png",
+    name: "Telos",
+    symbol: "TLOS",
+    cgId: "telos",
+    rank: 21,
+    signerType: [SignerType.secp256k1],
+    type: NetworkType.EVM,
+  },
 };
 export const isSupportedNetwork = (networkName: SupportedNetworkName) =>
   !!NetworkDetails[networkName];

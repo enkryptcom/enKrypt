@@ -167,16 +167,26 @@ class Rango extends ProviderClass {
     network: SupportedNetworkName,
     blockchains: BlockchainMeta[]
   ) {
-    if (!Object.keys(supportedNetworks).includes(network as unknown as string))
+    // We must support this network
+    if (!Object.keys(supportedNetworks).includes(network as unknown as string)) {
       return false;
+    }
+
     if (blockchains.length) {
+      // Join Rango networks and our supported networks by their chain id
+
+      // Extract our info about this supported network
       const { chainId } = Object.entries(supportedNetworks).find(
         (chain) => chain[0] === (network as unknown as string)
       )[1];
+
+      // Does Rango support this chain id?
       return !!blockchains.find(
         (chain: BlockchainMeta) => Number(chain.chainId) === Number(chainId)
       )?.enabled;
     }
+
+    // Rango didn't give us anything so just assume Rango supports this network
     return true;
   }
 
