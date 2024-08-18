@@ -15,7 +15,7 @@ const xlayerOptions: EvmNetworkOptions = {
   isTestNetwork: false,
   currencyName: "OKB",
   currencyNameLong: "OKB",
-  node: "https://rpc.xlayer.tech",
+  node: "wss://ws.xlayer.tech",
   icon: require("./icons/xlayer.png"),
   coingeckoID: "okb",
   coingeckoPlatform: CoingeckoPlatform.XLayer,
