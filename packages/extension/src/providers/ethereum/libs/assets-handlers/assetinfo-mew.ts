@@ -139,6 +139,10 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
     tbName: "degen",
     cgPlatform: CoingeckoPlatform.Degen,
   },
+  [NetworkNames.XLayer]: {
+    tbName: "xlayer",
+    cgPlatform: CoingeckoPlatform.XLayer,
+  },
   [NetworkNames.ProofOfPlayApex]: {
     tbName: "apex",
     cgPlatform: undefined,
@@ -278,9 +282,8 @@ export default (
           balances[address].balance,
           tokenInfo[address].decimals
         );
-        const usdBalance = new BigNumber(userBalance).times(
-          market.current_price
-        );
+        const currentPrice = market.current_price ?? 0;
+        const usdBalance = new BigNumber(userBalance).times(currentPrice);
         const asset: AssetsType = {
           balance: toBN(balances[address].balance).toString(),
           balancef: formatFloatingPointValue(userBalance).value,
@@ -289,8 +292,8 @@ export default (
           icon: market.image,
           name: market.name,
           symbol: market.symbol,
-          value: market.current_price.toString(),
-          valuef: formatFiatValue(market.current_price.toString()).value,
+          value: currentPrice.toString(),
+          valuef: formatFiatValue(currentPrice.toString()).value,
           contract: address,
           decimals: tokenInfo[address].decimals,
           sparkline: new Sparkline(market.sparkline_in_7d.price, 25).dataValues,

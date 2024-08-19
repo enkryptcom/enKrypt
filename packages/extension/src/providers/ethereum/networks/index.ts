@@ -48,6 +48,7 @@ import zcdNode from "./zcd";
 import immutableZkevmNode from "./immutable-zkevm";
 import rariNode from "./rari";
 import formaNode from "./forma";
+import xlayerNode from "./xlayer";
 import godwokenNode from "./godwoken";
 import lineaNode from "./linea";
 import mantaPacificNode from "./manta-pacific";
@@ -117,6 +118,7 @@ export default {
   immutableZkevm: immutableZkevmNode,
   rari: rariNode,
   forma: formaNode,
+  xlayer: xlayerNode,
   godwoken: godwokenNode,
   linea: lineaNode,
   mantaPacific: mantaPacificNode,
