@@ -108,7 +108,7 @@ export class KadenaNetwork extends BaseNetwork {
 
     const userBalance = fromBase(balance, this.decimals);
     const usdBalance = new BigNumber(userBalance).times(
-      marketData.length ? marketData[0]!.current_price : 0
+      marketData[0]?.current_price ?? 0
     );
 
     const nativeAsset: AssetsType = {
@@ -119,10 +119,9 @@ export class KadenaNetwork extends BaseNetwork {
       icon: this.icon,
       name: this.name_long,
       symbol: this.currencyName,
-      value: marketData.length ? marketData[0]!.current_price.toString() : "0",
-      valuef: formatFiatValue(
-        marketData.length ? marketData[0]!.current_price.toString() : "0"
-      ).value,
+      value: marketData[0]?.current_price?.toString() ?? "0",
+      valuef: formatFiatValue(marketData[0]?.current_price?.toString() ?? "0")
+        .value,
       contract: "",
       decimals: this.decimals,
       sparkline: marketData.length
