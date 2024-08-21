@@ -25,7 +25,7 @@ export interface CoinGeckoTokenMarket {
   symbol: string;
   name: string;
   image: string;
-  current_price: number;
+  current_price: null | number;
   market_cap: number;
   market_cap_rank: number;
   high_24h: number;
