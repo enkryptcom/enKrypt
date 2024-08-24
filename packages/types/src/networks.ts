@@ -91,6 +91,7 @@ export enum NetworkNames {
   ProofOfPlayApex = "ProofOfPlayApex",
   Scroll = "scroll",
   Rari = "rari",
+  CotiDevnet = "CotiDevnet",
 }
 
 export enum CoingeckoPlatform {
