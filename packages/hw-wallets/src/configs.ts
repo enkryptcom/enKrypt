@@ -20,6 +20,7 @@ const ledgerAppNames = {
   [NetworkNames.Polkadot]: "Polkadot",
   [NetworkNames.Karura]: "Karura",
   [NetworkNames.Edgeware]: "Edgeware",
+  [NetworkNames.Bitcoin]: "Bitcoin",
 };
 const MessengerName = "enkrypt_hw_wallets";
 
@@ -73,6 +74,16 @@ const bip44Paths = {
     path: "m/0'/0'/{index}'",
     basePath: "m/0'/0'/0",
     label: "Substrate",
+  },
+  bitcoinSegwit: {
+    path: "m/84'/0'/0'/0/{index}",
+    basePath: "m/84'/0'/0'/0",
+    label: "Bitcoin",
+  },
+  bitcoinSegwitLedger: {
+    path: "m/84'/0'/{index}'/0/0",
+    basePath: "m/84'/0'",
+    label: "Bitcoin LedgerLive",
   },
 };
 export { walletConfigs, MessengerName, ledgerAppNames, bip44Paths };
