@@ -1,4 +1,3 @@
-import type Web3Eth from "web3-eth";
 import { v4 as uuidv4 } from "uuid";
 import fetch from "node-fetch";
 import { fromBase, toBase } from "@enkryptcom/utils";
@@ -53,8 +52,8 @@ class Changelly extends ProviderClass {
 
   contractToTicker: Record<string, string>;
 
-  constructor(_web3eth: Web3Eth, network: SupportedNetworkName) {
-    super(_web3eth, network);
+  constructor(network: SupportedNetworkName) {
+    super();
     this.network = network;
     this.tokenList = [];
     this.name = ProviderName.changelly;
@@ -233,7 +232,7 @@ class Changelly extends ProviderClass {
         const result = response.result[0];
         const evmGasLimit =
           options.fromToken.address === NATIVE_TOKEN_ADDRESS &&
-          options.fromToken.type === NetworkType.EVM
+            options.fromToken.type === NetworkType.EVM
             ? 21000
             : toBN(GAS_LIMITS.transferToken).toNumber();
         const retResponse: ProviderQuoteResponse = {

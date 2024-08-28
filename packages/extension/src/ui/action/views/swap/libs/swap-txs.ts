@@ -6,6 +6,7 @@ import {
   GenericTransaction,
   getNetworkInfoByName,
   NetworkType,
+  SolanaTransaction as EnkryptSolanaTransaction,
   SupportedNetworkName,
 } from "@enkryptcom/swap";
 import { NetworkNames } from "@enkryptcom/types";
@@ -19,6 +20,8 @@ import { BitcoinNetwork } from "@/providers/bitcoin/types/bitcoin-network";
 import BitcoinAPI from "@/providers/bitcoin/libs/api";
 import { getTxInfo as getBTCTxInfo } from "@/providers/bitcoin/libs/utils";
 import { toBN } from "web3-utils";
+import { BTCTxInfo } from "@/providers/bitcoin/ui/types";
+import { VersionedTransaction as SolanaVersionedTransaction } from "@solana/web3.js";
 
 export const getSubstrateNativeTransation = async (
   network: SubstrateNetwork,
@@ -42,7 +45,7 @@ export const getSubstrateNativeTransation = async (
 export const getBitcoinNativeTransaction = async (
   network: BitcoinNetwork,
   tx: GenericTransaction
-) => {
+): Promise<BTCTxInfo> => {
   const api = (await network.api()) as BitcoinAPI;
   const utxos = await api.getUTXOs(tx.from);
   const txInfo = getBTCTxInfo(utxos);
@@ -65,11 +68,16 @@ export const getBitcoinNativeTransaction = async (
   return txInfo;
 };
 
+/**
+ * Create a new internal representation of an EVM transaction
+ *
+ * (Doesn't do anything asynchronous, just async for lazy loading)
+ */
 export const getEVMTransaction = async (
   network: EvmNetwork,
   tx: EVMTransaction,
   nonce?: `0x${string}`
-) => {
+): Promise<Transaction> => {
   const api = await network.api();
   const txRes = new Transaction(
     {
@@ -103,6 +111,14 @@ export const getSwapTransactions = async (
     );
     const allTxs = await Promise.all(txPromises);
     return allTxs;
+  } else if (netInfo.type === NetworkType.Solana) {
+    const solTxs = (transactions as EnkryptSolanaTransaction[]).map(
+      (enkSolTx) =>
+        SolanaVersionedTransaction.deserialize(
+          Buffer.from(enkSolTx.serialized, "base64")
+        )
+    );
+    return solTxs;
   } else if (netInfo.type === NetworkType.Substrate) {
     if (transactions.length > 1)
       throw new Error(`Subtrate chains can only have maximum one transaction`);

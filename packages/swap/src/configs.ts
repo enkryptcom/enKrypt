@@ -2,7 +2,15 @@ import { NetworkNames } from "@enkryptcom/types";
 import { numberToHex } from "web3-utils";
 import { ProviderName, SupportedNetworkName, WalletIdentifier } from "./types";
 
-const FEE_CONFIGS = {
+export type SwapFeeConfig = {
+  referrer: string;
+  /** Percentage fee (0 to 1) */
+  fee: number;
+};
+
+const FEE_CONFIGS: Partial<
+  Record<ProviderName, Partial<Record<WalletIdentifier, SwapFeeConfig>>>
+> = {
   [ProviderName.oneInch]: {
     [WalletIdentifier.enkrypt]: {
       referrer: "0x551d9d8eb02e1c713009da8f7c194870d651054a",
@@ -43,6 +51,21 @@ const FEE_CONFIGS = {
       fee: 0.025,
     },
   },
+  // This address is the referral address created in the Jupiter fee dashboard
+  // You'll need to create an SPL token address using the jupiter dashboard for
+  // each kind of asset you want to receive fees for
+  [ProviderName.jupiter]: {
+    [WalletIdentifier.enkrypt]: {
+      // TODO: THIS IS NICK'S TESTING REFERRAL ADDRESS, NEEDS TO CHANGE BEFORE RELEASE
+      referrer: "78ZKhPea9sVW3jLsjvQov9jUooGe3qGnwauA1QoJFCq1",
+      fee: 0.00875,
+    },
+    [WalletIdentifier.mew]: {
+      // TODO: THIS IS NICK'S TESTING REFERRAL ADDRESS, NEEDS TO CHANGE BEFORE RELEASE
+      referrer: "78ZKhPea9sVW3jLsjvQov9jUooGe3qGnwauA1QoJFCq1",
+      fee: 0.025,
+    },
+  },
 };
 
 const TOKEN_LISTS: {
@@ -63,6 +86,7 @@ const TOKEN_LISTS: {
   [NetworkNames.ZkSync]: `https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/swaplists/${SupportedNetworkName.Zksync}.json`,
   [NetworkNames.Base]: `https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/swaplists/${SupportedNetworkName.Base}.json`,
   [NetworkNames.MaticZK]: `https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/swaplists/${SupportedNetworkName.MaticZK}.json`,
+  [NetworkNames.Solana]: `https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/swaplists/${SupportedNetworkName.Solana}.json`,
 };
 
 const CHANGELLY_LIST =
@@ -77,7 +101,10 @@ const GAS_LIMITS = {
   swap: numberToHex(1000000),
 };
 const NATIVE_TOKEN_ADDRESS = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
+
+/** 0.5% (unit: 0-100 percentage) */
 const DEFAULT_SLIPPAGE = "0.5";
+
 export {
   FEE_CONFIGS,
   GAS_LIMITS,

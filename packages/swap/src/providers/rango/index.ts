@@ -106,7 +106,7 @@ class Rango extends ProviderClass {
   transactionsStatus: { hash: string; status: RangoTransactionStatus }[];
 
   constructor(web3eth: Web3Eth, network: SupportedNetworkName) {
-    super(web3eth, network);
+    super();
     this.network = network;
     this.tokenList = [];
     this.web3eth = web3eth;

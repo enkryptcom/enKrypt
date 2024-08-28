@@ -10,6 +10,7 @@ import { toBN } from "web3-utils";
 import { getAddress as getBitcoinAddress } from "../types/bitcoin-network";
 import { filterOutOrdinals } from "./filter-ordinals";
 
+/** Bitcoin API wrapper */
 class API implements ProviderAPIInterface {
   node: string;
   networkInfo: BitcoinNetworkInfo;

@@ -170,6 +170,7 @@ import { ProviderResponseWithStatus } from "./types";
 import { GenericNameResolver, CoinType } from "@/libs/name-resolver";
 import { trackSwapEvents } from "@/libs/metrics";
 import { SwapEventType } from "@/libs/metrics/types";
+import { Connection } from "@solana/web3.js";
 
 type BN = ReturnType<typeof toBN>;
 
@@ -237,8 +238,19 @@ const isLooking = ref(false);
 
 const swapMax = ref(false);
 
+let api: Web3Eth | Connection;
+switch (props.network.name) {
+  case NetworkNames.Solana:
+    api = new Connection(props.network.node);
+    break;
+  default:
+    // Assume EVM
+    api = new Web3Eth(props.network.node);
+    break;
+}
+
 const swap = new EnkryptSwap({
-  api: new Web3Eth(props.network.node),
+  api,
   network: props.network.name as unknown as SupportedNetworkName,
   walletIdentifier: WalletIdentifier.enkrypt,
   evmOptions: {
@@ -433,14 +445,26 @@ const nativeSwapToken = computed(() => {
   return undefined;
 });
 
+/**
+ * Choose the best deal from a list of swap providers' quotes
+ *
+ * Update the quote list and dest asset amount based
+ */
 const pickBestQuote = (fromAmountBN: BN, quotes: ProviderQuoteResponse[]) => {
   errors.value.inputAmount = "";
+
+  // No quotes at all
   if (!quotes.length) return;
+
   const fromT = new SwapToken(fromToken.value!);
+
+  /** Users would-be balance of the source asset after the swap */
   const remainingBalance =
     fromT.token.address === NATIVE_TOKEN_ADDRESS
       ? nativeSwapToken.value!.getBalanceRaw().sub(fromAmountBN)
       : nativeSwapToken.value!.getBalanceRaw();
+
+  // Drop quotes that don't fit the users desired "amount"
   const filteredQuotes = quotes.filter((q) => {
     return (
       q.minMax.minimumFrom.lte(fromAmountBN) &&
@@ -448,7 +472,9 @@ const pickBestQuote = (fromAmountBN: BN, quotes: ProviderQuoteResponse[]) => {
       q.additionalNativeFees.lte(remainingBalance)
     );
   });
+
   if (!filteredQuotes.length) {
+    // No quotes fit the users sap "amount"
     let lowestMinimum: BN = quotes[0].minMax.minimumFrom;
     let highestMaximum: BN = quotes[0].minMax.maximumFrom;
     let smallestNativeFees: BN = nativeSwapToken.value!.getBalanceRaw();
@@ -478,10 +504,18 @@ const pickBestQuote = (fromAmountBN: BN, quotes: ProviderQuoteResponse[]) => {
     }
     return;
   }
+
+  // There exist quotes that fit the users swap amount
+
   if (fromT.getBalanceRaw().lt(fromAmountBN)) {
     errors.value.inputAmount = "Insufficient funds";
   }
+
+  // Sort remaining quotes descending by the amount of the dest asset to be received
+  // i.e. best deal first
   filteredQuotes.sort((a, b) => (b.toTokenAmount.gt(a.toTokenAmount) ? 1 : -1));
+
+  // Apply the results
   toAmount.value = new SwapToken(toToken.value!).toReadable(
     filteredQuotes[0].toTokenAmount
   );
@@ -489,6 +523,9 @@ const pickBestQuote = (fromAmountBN: BN, quotes: ProviderQuoteResponse[]) => {
   isFindingRate.value = false;
 };
 
+/**
+ * Request quotes from all swap providers & pick the best one
+ */
 const updateQuote = () => {
   isFindingRate.value = true;
   toAmount.value = "";
@@ -724,6 +761,7 @@ const sendAction = async () => {
 
 <style lang="less" scoped>
 @import "~@action/styles/theme.less";
+
 .container {
   width: 100%;
   height: 600px;
@@ -733,6 +771,7 @@ const sendAction = async () => {
   box-sizing: border-box;
   position: relative;
 }
+
 .swap {
   width: 100%;
   height: 100%;
@@ -827,6 +866,7 @@ const sendAction = async () => {
     max-height: 114px;
     padding: 8px;
     box-sizing: border-box;
+
     h3 {
       display: none;
     }

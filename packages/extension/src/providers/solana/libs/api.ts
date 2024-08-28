@@ -6,6 +6,7 @@ import { hexToBuffer, numberToHex } from "@enkryptcom/utils";
 import cacheFetch from "@/libs/cache-fetch";
 import { SPLTokenInfo } from "../types/sol-token";
 
+/** Solana API wrapper */
 class API implements ProviderAPIInterface {
   node: string;
   web3: Connection;

@@ -42,6 +42,19 @@ export interface BaseNetworkOptions {
   customTokens?: boolean;
 }
 
+/**
+ * The main representation of a network in the Enkrypt extension.
+ *
+ * Instantiated from a mostly static network config.
+ *
+ * Provides some common properties of networks used throughout UI elements and functionality in the app.
+ *
+ * Intended to be subclassed by different network types; for example EVMNetwork, SolanaNetwork, PolkadotNetwork etc.
+ *
+ * Has an `api` function (property) which returns a `ProviderAPIInterface` with some basic methods to interract with the network
+ * for balances, transaction statuses, etc. The implementing class of `ProviderAPIInterface` is typically one-to-one with the
+ * the network type. For example EVM networks have their own API (which wraps node JSON RPC). Solana networks have a different API.
+ */
 export abstract class BaseNetwork {
   public name: NetworkNames;
   public name_long: string;

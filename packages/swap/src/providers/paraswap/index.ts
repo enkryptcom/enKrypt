@@ -94,7 +94,7 @@ class ParaSwap extends ProviderClass {
   toTokens: ProviderToTokenResponse;
 
   constructor(web3eth: Web3Eth, network: SupportedNetworkName) {
-    super(web3eth, network);
+    super();
     this.network = network;
     this.tokenList = [];
     this.web3eth = web3eth;
@@ -183,8 +183,7 @@ class ParaSwap extends ProviderClass {
         : "0",
     });
     return fetch(
-      `${BASE_URL}transactions/${
-        supportedNetworks[this.network].chainId
+      `${BASE_URL}transactions/${supportedNetworks[this.network].chainId
       }?${params.toString()}`,
       {
         method: "POST",

@@ -72,7 +72,7 @@ export enum NetworkNames {
   RolluxTest = "TRLX",
   Rollux = "RLX",
   CagaAnkara = "CagaAnkara",
-  Solana = "SOL",
+  Solana = "SOLANA",
   Telos = "TLOS",
   Blast = "blast",
   Sanko = "sanko",

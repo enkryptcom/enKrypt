@@ -239,6 +239,18 @@ const NetworkDetails: Record<SupportedNetworkName, NetworkInfo> = {
     signerType: [SignerType.secp256k1btc],
     type: NetworkType.Bitcoin,
   },
+  [SupportedNetworkName.Solana]: {
+    id: SupportedNetworkName.Solana,
+    decimals: 8,
+    logoURI:
+      "https://assets.coingecko.com/coins/images/4128/standard/solana.png",
+    name: "Solana",
+    symbol: "SOL",
+    cgId: "solana",
+    rank: 19,
+    signerType: [SignerType.ed25519sol],
+    type: NetworkType.Solana,
+  },
 };
 export const isSupportedNetwork = (networkName: SupportedNetworkName) =>
   !!NetworkDetails[networkName];

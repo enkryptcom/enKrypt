@@ -105,7 +105,7 @@ class OneInch extends ProviderClass {
   toTokens: ProviderToTokenResponse;
 
   constructor(web3eth: Web3Eth, network: SupportedNetworkName) {
-    super(web3eth, network);
+    super();
     this.network = network;
     this.tokenList = [];
     this.web3eth = web3eth;
@@ -178,19 +178,26 @@ class OneInch extends ProviderClass {
       disableEstimate: "true",
     });
     return fetch(
-      `${BASE_URL}${
-        supportedNetworks[this.network].chainId
+      `${BASE_URL}${supportedNetworks[this.network].chainId
       }/swap?${params.toString()}`
     )
       .then((res) => res.json())
       .then(async (response: OneInchResponseType) => {
+        // OneInch gives us the swap transaction info for us to send
+        // but we might need to set approvals first so our spender address
+        // can perform the swap
+
         if (response.error) {
           console.error(response.error, response.description);
           return Promise.resolve(null);
         }
+
+        /** Transactions to perform in-order for the swap */
         const transactions: EVMTransaction[] = [];
 
         if (options.fromToken.address !== NATIVE_TOKEN_ADDRESS) {
+          // Prepare to grant our `approvalAddress` approval to spend
+          // `fromToken` on behalf of `fromAddress`
           const approvalTxs = await getAllowanceTransactions({
             infinityApproval: meta.infiniteApproval,
             spender: supportedNetworks[this.network].approvalAddress,
@@ -201,6 +208,8 @@ class OneInch extends ProviderClass {
           });
           transactions.push(...approvalTxs);
         }
+
+        // Prepare the actual swap transaction
         transactions.push({
           from: options.fromAddress,
           gasLimit: GAS_LIMITS.swap,
@@ -209,6 +218,7 @@ class OneInch extends ProviderClass {
           data: response.tx.data,
           type: TransactionType.evm,
         });
+
         if (accurateEstimate) {
           const accurateGasEstimate = await estimateGasList(
             transactions,
