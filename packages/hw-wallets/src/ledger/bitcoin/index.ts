@@ -54,13 +54,13 @@ class LedgerBitcoin implements HWWalletProvider {
       return Promise.reject(new Error("ledger-bitcoin: Invalid network name"));
     const isHardened = options.pathType.basePath.split("/").length - 1 === 2;
     const connection = new BtcApp({ transport: this.transport });
+    const hdKey = new HDKey();
     if (!isHardened) {
       if (!this.HDNodes[options.pathType.basePath]) {
         const rootPub = await connection.getWalletPublicKey(
           options.pathType.basePath,
           { format: "bech32" }
         );
-        const hdKey = new HDKey();
         hdKey.publicKey = Buffer.from(rootPub.publicKey, "hex");
         hdKey.chainCode = Buffer.from(rootPub.chainCode, "hex");
         this.HDNodes[options.pathType.basePath] = hdKey;
@@ -80,13 +80,13 @@ class LedgerBitcoin implements HWWalletProvider {
         { format: "bech32" }
       )
       .then((res) => {
-        console.log(res);
-        return res;
-      })
-      .then((res) => ({
-        address: `0x${res.publicKey}`,
-        publicKey: `0x${res.publicKey}`,
-      }));
+        hdKey.publicKey = Buffer.from(res.publicKey, "hex");
+        hdKey.chainCode = Buffer.from(res.chainCode, "hex");
+        return {
+          address: bufferToHex(hdKey.publicKey),
+          publicKey: bufferToHex(hdKey.publicKey),
+        };
+      });
   }
 
   signPersonalMessage(options: SignMessageRequest): Promise<string> {
