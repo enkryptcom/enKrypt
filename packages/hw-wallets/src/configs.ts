@@ -21,6 +21,7 @@ const ledgerAppNames = {
   [NetworkNames.Karura]: "Karura",
   [NetworkNames.Edgeware]: "Edgeware",
   [NetworkNames.Bitcoin]: "Bitcoin",
+  [NetworkNames.Litecoin]: "Litecoin",
 };
 const MessengerName = "enkrypt_hw_wallets";
 
@@ -79,6 +80,11 @@ const bip44Paths = {
     path: "m/84'/0'/{index}'/0/0",
     basePath: "m/84'/0'",
     label: "Bitcoin",
+  },
+  litecoinSegwitLedger: {
+    path: "m/84'/2'/{index}'/0/0",
+    basePath: "m/84'/2'",
+    label: "Litecoin",
   },
   bitcoinSegwitTrezor: {
     path: "m/84'/0'/0'/0/{index}",
