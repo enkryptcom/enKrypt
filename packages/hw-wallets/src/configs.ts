@@ -11,8 +11,6 @@ const walletConfigs: WalletConfigs = {
 };
 const ledgerAppNames = {
   [NetworkNames.Ethereum]: "Ethereum",
-  [NetworkNames.Matic]: "Ethereum",
-  [NetworkNames.Binance]: "Ethereum",
   [NetworkNames.Rootstock]: "RSK",
   [NetworkNames.EthereumClassic]: "Ethereum Classic",
   [NetworkNames.Acala]: "Acala",
