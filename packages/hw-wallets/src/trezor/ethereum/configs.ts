@@ -1,5 +1,5 @@
 import { NetworkNames } from "@enkryptcom/types";
-import { bip44Paths } from "../configs";
+import { bip44Paths } from "../../configs";
 
 const supportedPaths = {
   [NetworkNames.Ethereum]: [bip44Paths.ethereum],

@@ -75,15 +75,15 @@ const bip44Paths = {
     basePath: "m/0'/0'/0",
     label: "Substrate",
   },
-  bitcoinSegwit: {
-    path: "m/84'/0'/0'/0/{index}",
-    basePath: "m/84'/0'/0'/0",
-    label: "Bitcoin",
-  },
   bitcoinSegwitLedger: {
     path: "m/84'/0'/{index}'/0/0",
     basePath: "m/84'/0'",
-    label: "Bitcoin LedgerLive",
+    label: "Bitcoin",
+  },
+  bitcoinSegwitTrezor: {
+    path: "m/84'/0'/0'/0/{index}",
+    basePath: "m/84'/0'/0'/0",
+    label: "Bitcoin",
   },
 };
 export { walletConfigs, MessengerName, ledgerAppNames, bip44Paths };

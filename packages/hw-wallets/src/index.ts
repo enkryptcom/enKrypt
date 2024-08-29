@@ -2,7 +2,8 @@ import { NetworkNames, HWwalletType } from "@enkryptcom/types";
 import LedgerEthereum from "./ledger/ethereum";
 import LedgerBitcoin from "./ledger/bitcoin";
 import LedgerSubstrate from "./ledger/substrate";
-import TrezorEthereum from "./trezor";
+import TrezorEthereum from "./trezor/ethereum";
+import TrezorBitcoin from "./trezor/bitcoin";
 import {
   AddressResponse,
   getAddressRequest,
@@ -18,7 +19,8 @@ type ProviderType =
   | typeof LedgerEthereum
   | typeof LedgerSubstrate
   | typeof TrezorEthereum
-  | typeof LedgerBitcoin;
+  | typeof LedgerBitcoin
+  | typeof TrezorBitcoin;
 class HWwalletManager {
   providerTypes: Record<HWwalletType, ProviderType[]>;
 
@@ -27,7 +29,7 @@ class HWwalletManager {
   constructor() {
     this.providerTypes = {
       [HWwalletType.ledger]: [LedgerEthereum, LedgerSubstrate, LedgerBitcoin],
-      [HWwalletType.trezor]: [TrezorEthereum],
+      [HWwalletType.trezor]: [TrezorEthereum, TrezorBitcoin],
     };
     this.providers = {};
   }

@@ -57,6 +57,7 @@
     "@ledgerhq/live-common": "^34.1.0",
     "@polkadot/types": "^12.2.3",
     "@polkadot/util": "^13.0.2",
+    "@trezor/connect": "^9.4.0",
     "@trezor/connect-web": "^9.3.0",
     "@zondax/ledger-substrate": "^0.44.7",
     "bitcoinjs-lib": "^6.1.6",

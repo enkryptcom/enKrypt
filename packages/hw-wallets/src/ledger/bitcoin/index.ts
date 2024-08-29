@@ -108,7 +108,6 @@ class LedgerBitcoin implements HWWalletProvider {
 
   async signTransaction(options: SignTransactionRequest): Promise<string> {
     const connection = new BtcApp({ transport: this.transport });
-    console.log(options);
     const transactionOptions = options.transaction as BTCSignTransaction;
     const txOutputs = transactionOptions.psbtTx.txOutputs.map((out) => {
       const valLE = Buffer.alloc(8);
@@ -118,7 +117,6 @@ class LedgerBitcoin implements HWWalletProvider {
         script: Buffer.from(out.script),
       };
     });
-    console.log(txOutputs);
     const txArg: CreateTransactionArg = {
       inputs: transactionOptions.rawTxs.map((rTx, idx) => [
         connection.splitTransaction(rTx.replace("0x", ""), true),
@@ -139,7 +137,6 @@ class LedgerBitcoin implements HWWalletProvider {
       segwit: true,
       additionals: ["bech32"],
     };
-    console.log(txArg);
     return connection.createPaymentTransaction(txArg).then((result) => result);
   }
 
