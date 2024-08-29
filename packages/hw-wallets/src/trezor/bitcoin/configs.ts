@@ -3,5 +3,6 @@ import { bip44Paths } from "../../configs";
 
 const supportedPaths = {
   [NetworkNames.Bitcoin]: [bip44Paths.bitcoinSegwitTrezor],
+  [NetworkNames.Litecoin]: [bip44Paths.litecoinSegwitTrezor],
 };
 export { supportedPaths };

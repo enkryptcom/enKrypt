@@ -90,7 +90,7 @@ class TrezorEthereum implements HWWalletProvider {
       options.pathType.path.replace(`{index}`, options.pathIndex)
     );
     return TrezorConnect.signTransaction({
-      coin: "btc",
+      coin: this.network === NetworkNames.Bitcoin ? "btc" : "ltc",
       inputs: transactionOptions.psbtTx.txInputs.map((tx, idx) => ({
         address_n: addressN,
         prev_hash: tx.hash.reverse().toString("hex"),
