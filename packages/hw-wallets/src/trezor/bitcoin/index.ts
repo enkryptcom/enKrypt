@@ -95,7 +95,7 @@ class TrezorEthereum implements HWWalletProvider {
         address_n: addressN,
         prev_hash: tx.hash.reverse().toString("hex"),
         prev_index: tx.index,
-        amount: 0,
+        amount: 0, // doesnt seem like this do anything
         script_type: TrezorNetworkConfigs[this.network].isSegwit
           ? "SPENDWITNESS"
           : "SPENDADDRESS",
