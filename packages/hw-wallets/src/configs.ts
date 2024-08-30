@@ -20,6 +20,7 @@ const ledgerAppNames = {
   [NetworkNames.Edgeware]: "Edgeware",
   [NetworkNames.Bitcoin]: "Bitcoin",
   [NetworkNames.Litecoin]: "Litecoin",
+  [NetworkNames.Dogecoin]: "Dogecoin",
 };
 const MessengerName = "enkrypt_hw_wallets";
 
@@ -83,6 +84,11 @@ const bip44Paths = {
     path: "m/84'/2'/{index}'/0/0",
     basePath: "m/84'/2'",
     label: "Litecoin",
+  },
+  dogecoinLedger: {
+    path: "m/44'/3'/{index}'/0/0",
+    basePath: "m/44'/3'",
+    label: "Dogecoin",
   },
   bitcoinSegwitTrezor: {
     path: "m/84'/0'/0'/0/{index}",

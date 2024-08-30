@@ -166,7 +166,7 @@ const pasteFromClipboard = () => {
     position: relative;
     margin: auto;
     width: 100%;
-    max-height: 380px;
+    max-height: 330px;
   }
 
   h3 {

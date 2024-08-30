@@ -6,7 +6,6 @@ import HDKey from "hdkey";
 import type { CreateTransactionArg } from "@ledgerhq/hw-app-btc/lib/createTransaction";
 import { serializeTransactionOutputs } from "@ledgerhq/hw-app-btc/lib/serializeTransaction";
 import { bufferToHex } from "@enkryptcom/utils";
-
 import {
   AddressResponse,
   BTCSignTransaction,
@@ -26,10 +25,16 @@ class LedgerBitcoin implements HWWalletProvider {
 
   HDNodes: Record<string, HDKey>;
 
+  isSegwit: boolean;
+
   constructor(network: NetworkNames) {
     this.transport = null;
     this.network = network;
     this.HDNodes = {};
+    this.isSegwit = !!(
+      this.network === NetworkNames.Bitcoin ||
+      this.network === NetworkNames.Litecoin
+    );
   }
 
   async init(): Promise<boolean> {
@@ -59,7 +64,7 @@ class LedgerBitcoin implements HWWalletProvider {
       if (!this.HDNodes[options.pathType.basePath]) {
         const rootPub = await connection.getWalletPublicKey(
           options.pathType.basePath,
-          { format: "bech32" }
+          { format: this.isSegwit ? "bech32" : "legacy" }
         );
         hdKey.publicKey = Buffer.from(rootPub.publicKey, "hex");
         hdKey.chainCode = Buffer.from(rootPub.chainCode, "hex");
@@ -77,7 +82,7 @@ class LedgerBitcoin implements HWWalletProvider {
     return connection
       .getWalletPublicKey(
         options.pathType.path.replace(`{index}`, options.pathIndex),
-        { format: "bech32" }
+        { format: this.isSegwit ? "bech32" : "legacy" }
       )
       .then((res) => {
         hdKey.publicKey = Buffer.from(res.publicKey, "hex");
@@ -134,9 +139,12 @@ class LedgerBitcoin implements HWWalletProvider {
       outputScriptHex: serializeTransactionOutputs({
         outputs: txOutputs,
       } as any).toString("hex"),
-      segwit: true,
-      additionals: ["bech32"],
+      segwit: this.isSegwit,
+      additionals: [],
     };
+    if (this.isSegwit) {
+      txArg.additionals.push("bech32");
+    }
     return connection.createPaymentTransaction(txArg).then((result) => result);
   }
 
