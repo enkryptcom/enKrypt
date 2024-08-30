@@ -12,7 +12,7 @@ import {
   SignMessageRequest,
   SignTransactionRequest,
 } from "../../types";
-import { supportedPaths } from "./configs";
+import { supportedPaths, TrezorNetworkConfigs } from "./configs";
 
 class TrezorEthereum implements HWWalletProvider {
   network: NetworkNames;
@@ -90,13 +90,15 @@ class TrezorEthereum implements HWWalletProvider {
       options.pathType.path.replace(`{index}`, options.pathIndex)
     );
     return TrezorConnect.signTransaction({
-      coin: this.network === NetworkNames.Bitcoin ? "btc" : "ltc",
-      inputs: transactionOptions.psbtTx.txInputs.map((tx, idx) => ({
+      coin: TrezorNetworkConfigs[this.network].symbol,
+      inputs: transactionOptions.psbtTx.txInputs.map((tx) => ({
         address_n: addressN,
         prev_hash: tx.hash.reverse().toString("hex"),
         prev_index: tx.index,
-        amount: transactionOptions.psbtTx.data.inputs[idx].witnessUtxo.value,
-        script_type: "SPENDWITNESS",
+        amount: 0,
+        script_type: TrezorNetworkConfigs[this.network].isSegwit
+          ? "SPENDWITNESS"
+          : "SPENDADDRESS",
       })),
       outputs: transactionOptions.psbtTx.txOutputs.map((out) => ({
         amount: out.value,

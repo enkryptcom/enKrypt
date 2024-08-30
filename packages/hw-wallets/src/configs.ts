@@ -100,5 +100,10 @@ const bip44Paths = {
     basePath: "m/84'/2'/0'/0",
     label: "Litecoin",
   },
+  dogecoinTrezor: {
+    path: "m/44'/3'/0'/0/{index}",
+    basePath: "m/44'/3'/0'/0",
+    label: "Dogecoin",
+  },
 };
 export { walletConfigs, MessengerName, ledgerAppNames, bip44Paths };
