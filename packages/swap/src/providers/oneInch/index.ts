@@ -178,7 +178,8 @@ class OneInch extends ProviderClass {
       disableEstimate: "true",
     });
     return fetch(
-      `${BASE_URL}${supportedNetworks[this.network].chainId
+      `${BASE_URL}${
+        supportedNetworks[this.network].chainId
       }/swap?${params.toString()}`
     )
       .then((res) => res.json())

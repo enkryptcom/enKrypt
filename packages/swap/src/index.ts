@@ -74,8 +74,8 @@ class Swap extends EventEmitter {
     this.evmOptions = options.evmOptions
       ? options.evmOptions
       : {
-        infiniteApproval: true,
-      };
+          infiniteApproval: true,
+        };
     this.api = options.api;
     this.walletId = options.walletIdentifier;
     this.topTokenInfo = {
@@ -192,17 +192,26 @@ class Swap extends EventEmitter {
    *
    * Only providers that support the network will respond
    */
-  async getQuotes(options: getQuoteOptions, context?: { signal?: AbortSignal, }): Promise<ProviderQuoteResponse[]> {
+  async getQuotes(
+    options: getQuoteOptions,
+    context?: { signal?: AbortSignal }
+  ): Promise<ProviderQuoteResponse[]> {
     const response = await Promise.all(
       this.providers.map((provider) =>
-        provider.getQuote(options, {
-          infiniteApproval: this.evmOptions.infiniteApproval,
-          walletIdentifier: this.walletId,
-        }, context).then((res) => {
-          if (!res) return res;
-          this.emit(Events.QuoteUpdate, res.toTokenAmount);
-          return res;
-        })
+        provider
+          .getQuote(
+            options,
+            {
+              infiniteApproval: this.evmOptions.infiniteApproval,
+              walletIdentifier: this.walletId,
+            },
+            context
+          )
+          .then((res) => {
+            if (!res) return res;
+            this.emit(Events.QuoteUpdate, res.toTokenAmount);
+            return res;
+          })
       )
     );
     // Sort by the dest token amount i.e. best offer first
@@ -211,7 +220,10 @@ class Swap extends EventEmitter {
       .sort((a, b) => (b.toTokenAmount.gt(a.toTokenAmount) ? 1 : -1));
   }
 
-  getSwap(quote: SwapQuote, context?: { signal?: AbortSignal, }): Promise<ProviderSwapResponse | null> {
+  getSwap(
+    quote: SwapQuote,
+    context?: { signal?: AbortSignal }
+  ): Promise<ProviderSwapResponse | null> {
     const provider = this.providers.find((p) => p.name === quote.provider);
     return provider.getSwap(quote, context);
   }

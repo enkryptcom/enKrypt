@@ -183,7 +183,8 @@ class ParaSwap extends ProviderClass {
         : "0",
     });
     return fetch(
-      `${BASE_URL}transactions/${supportedNetworks[this.network].chainId
+      `${BASE_URL}transactions/${
+        supportedNetworks[this.network].chainId
       }?${params.toString()}`,
       {
         method: "POST",

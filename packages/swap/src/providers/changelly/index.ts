@@ -232,7 +232,7 @@ class Changelly extends ProviderClass {
         const result = response.result[0];
         const evmGasLimit =
           options.fromToken.address === NATIVE_TOKEN_ADDRESS &&
-            options.fromToken.type === NetworkType.EVM
+          options.fromToken.type === NetworkType.EVM
             ? 21000
             : toBN(GAS_LIMITS.transferToken).toNumber();
         const retResponse: ProviderQuoteResponse = {
