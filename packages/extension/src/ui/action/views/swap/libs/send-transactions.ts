@@ -37,8 +37,6 @@ import BitcoinAPI from "@/providers/bitcoin/libs/api";
 import SolanaAPI from "@/providers/solana/libs/api";
 import {
   VersionedTransaction as SolanaVersionedTransaction,
-  Transaction as SolanaTransaction,
-  PublicKey as SolPublicKey,
   PublicKey,
   SendTransactionError,
 } from "@solana/web3.js";

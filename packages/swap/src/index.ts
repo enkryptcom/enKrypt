@@ -192,13 +192,13 @@ class Swap extends EventEmitter {
    *
    * Only providers that support the network will respond
    */
-  async getQuotes(options: getQuoteOptions): Promise<ProviderQuoteResponse[]> {
+  async getQuotes(options: getQuoteOptions, context?: { signal?: AbortSignal, }): Promise<ProviderQuoteResponse[]> {
     const response = await Promise.all(
-      this.providers.map((Provider) =>
-        Provider.getQuote(options, {
+      this.providers.map((provider) =>
+        provider.getQuote(options, {
           infiniteApproval: this.evmOptions.infiniteApproval,
           walletIdentifier: this.walletId,
-        }).then((res) => {
+        }, context).then((res) => {
           if (!res) return res;
           this.emit(Events.QuoteUpdate, res.toTokenAmount);
           return res;
@@ -211,9 +211,9 @@ class Swap extends EventEmitter {
       .sort((a, b) => (b.toTokenAmount.gt(a.toTokenAmount) ? 1 : -1));
   }
 
-  getSwap(quote: SwapQuote): Promise<ProviderSwapResponse | null> {
+  getSwap(quote: SwapQuote, context?: { signal?: AbortSignal, }): Promise<ProviderSwapResponse | null> {
     const provider = this.providers.find((p) => p.name === quote.provider);
-    return provider.getSwap(quote);
+    return provider.getSwap(quote, context);
   }
 
   getStatus(options: StatusOptionsResponse): Promise<TransactionStatus | null> {

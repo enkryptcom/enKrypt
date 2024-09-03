@@ -206,6 +206,7 @@ const setWarning = async () => {
     console.warn("No gas cost values for selected fee");
     return;
   }
+
   const currentGasCost = toBase(
     selectedGasTier.nativeValue,
     network.value!.decimals

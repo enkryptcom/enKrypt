@@ -195,7 +195,7 @@ export interface ProviderQuoteResponse {
   toTokenAmount: BN;
   fromTokenAmount: BN;
   totalGaslimit: number;
-  // ? Is this priority fees ?
+  // ? What is this ?
   additionalNativeFees: BN;
   provider: ProviderName;
   quote: SwapQuote;
@@ -255,10 +255,11 @@ export abstract class ProviderClass {
 
   abstract getQuote(
     options: getQuoteOptions,
-    meta: QuoteMetaOptions
+    meta: QuoteMetaOptions,
+    context?: { signal?: AbortSignal, },
   ): Promise<ProviderQuoteResponse | null>;
 
-  abstract getSwap(quote: SwapQuote): Promise<ProviderSwapResponse | null>;
+  abstract getSwap(quote: SwapQuote, context?: { signal?: AbortSignal }): Promise<ProviderSwapResponse | null>;
 
   abstract getStatus(options: StatusOptions): Promise<TransactionStatus>;
 }

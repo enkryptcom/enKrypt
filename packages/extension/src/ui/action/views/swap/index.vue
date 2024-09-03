@@ -223,8 +223,12 @@ const errors = ref({
 });
 const bestProviderQuotes = ref<ProviderQuoteResponse[]>([]);
 
+/** Receiver address (address that will be receiving the swap output) */
 const address = ref<string>("");
+
+/** Is the receiver address valid */
 const addressIsValid = ref(true);
+
 const isOpenSelectContact = ref<boolean>(false);
 const addressInput = ref();
 const toAccounts = ref<EnkryptAccount[]>([]);
@@ -272,7 +276,7 @@ onMounted(async () => {
     .getAllTokenInfo(props.accountInfo.selectedAccount?.address as string)
     .then(async (tokens) => {
       await swap.initPromise;
-      let swapFromTokens = await swap.getFromTokens();
+      let swapFromTokens = swap.getFromTokens();
       const tokensWithBalance: Record<string, string> = {};
       tokens.forEach((t) => {
         if (
@@ -422,21 +426,29 @@ const toggleSelectContact = () => {
   isOpenSelectContact.value = !isOpenSelectContact.value;
 };
 
+/**
+ * Check whether the receiver address is a valid on the network
+ *
+ * If it is then asynchronously refresh the quote
+ */
 const isValidToAddress = debounce(() => {
   addressIsValid.value = true;
   if (!address.value) addressIsValid.value = false;
   else {
     try {
       const converted = toAddressInputMeta.value.displayAddress(address.value);
-      toToken.value?.networkInfo.isAddress(converted).then((res) => {
-        addressIsValid.value = res;
-        if (res) updateQuote();
-      });
+      toToken.value?.networkInfo
+        .isAddress(converted)
+        .then((receiverAddressIsValid) => {
+          addressIsValid.value = receiverAddressIsValid;
+          if (receiverAddressIsValid) checkUpdateQuote();
+        });
     } catch (e) {
       addressIsValid.value = false;
     }
   }
 }, 200);
+
 const nativeSwapToken = computed(() => {
   const nToken = fromTokens.value?.find(
     (ft) => ft.address === NATIVE_TOKEN_ADDRESS
@@ -451,6 +463,13 @@ const nativeSwapToken = computed(() => {
  * Update the quote list and dest asset amount based
  */
 const pickBestQuote = (fromAmountBN: BN, quotes: ProviderQuoteResponse[]) => {
+  if (toToken.value == null) {
+    console.debug(
+      "Skipping quote picking: no destination token amount selected yet"
+    );
+    return;
+  }
+
   errors.value.inputAmount = "";
 
   // No quotes at all
@@ -516,12 +535,40 @@ const pickBestQuote = (fromAmountBN: BN, quotes: ProviderQuoteResponse[]) => {
   filteredQuotes.sort((a, b) => (b.toTokenAmount.gt(a.toTokenAmount) ? 1 : -1));
 
   // Apply the results
+  // NOTE: toToken.value is sometimes not defined here? (it's null)
   toAmount.value = new SwapToken(toToken.value!).toReadable(
     filteredQuotes[0].toTokenAmount
   );
   bestProviderQuotes.value = filteredQuotes;
   isFindingRate.value = false;
 };
+
+/** Used to cancel avoid race conditions */
+const updateQuoteContext = {
+  /** view id */
+  id: Math.random().toString().substring(2).slice(0, 3).padStart(3, "0"),
+  current: {
+    /** context id */
+    id: 0,
+    /** context aborter */
+    aborter: new AbortController(),
+  },
+};
+
+function checkUpdateQuote() {
+  if (
+    fromToken.value &&
+    toToken.value &&
+    fromAmount.value &&
+    !isNaN(fromAmount.value as any) &&
+    Number(fromAmount.value) > 0
+  ) {
+    updateQuote();
+  } else {
+    isFindingRate.value = false;
+    toAmount.value = "";
+  }
+}
 
 /**
  * Request quotes from all swap providers & pick the best one
@@ -532,48 +579,88 @@ const updateQuote = () => {
   bestProviderQuotes.value = [];
   errors.value.noProviders = false;
   const token = new SwapToken(fromToken.value!);
-  const fromRawAmount = token.toRaw(fromAmount.value!);
+  if (fromAmount.value == null) {
+    // User probably set a destination token before setting a "from" amount
+    console.debug("Skipping quote update: no source token amount set");
+    return;
+  }
+  let fromRawAmount: BN;
+  try {
+    fromRawAmount = token.toRaw(fromAmount.value!);
+  } catch (err) {
+    console.warn(
+      `Failed to convert amount to raw: ${err}` +
+        `  fromAmount.value=${fromAmount.value} (${typeof fromAmount.value})`
+    );
+    throw err;
+  }
   trackSwapEvents(SwapEventType.SwapRate, {
     network: props.network.name,
     fromToken: fromToken.value!.name,
     toToken: toToken.value!.name,
   });
+  if (!toToken.value) {
+    console.warn("No destination token selected yet, yet requesting a quote??");
+  }
+
+  // Avoid race conditions
+  // Abort the previous execution (doesn't actually cancel anything
+  // since nothing is listening to the abort signal but once the quotes
+  // are ready they'll just be dropped)
+  updateQuoteContext.current.aborter.abort();
+  const vid = updateQuoteContext.id;
+  // Setup a new abortable context
+  const ctx = {
+    id: updateQuoteContext.current.id + 1,
+    aborter: new AbortController(),
+  };
+  updateQuoteContext.current = ctx;
+  console.debug(`Starting quote update  id=${vid}:${ctx.id}`);
+
   swap
-    .getQuotes({
-      amount: fromRawAmount,
-      fromAddress: props.network.displayAddress(
-        props.accountInfo.selectedAccount!.address
-      ),
-      fromToken: fromToken.value!,
-      toToken: toToken.value!,
-      toAddress: toAddressInputMeta.value.displayAddress(address.value),
-    })
+    .getQuotes(
+      {
+        amount: fromRawAmount,
+        fromAddress: props.network.displayAddress(
+          props.accountInfo.selectedAccount!.address
+        ),
+        fromToken: fromToken.value!,
+        toToken: toToken.value!,
+        toAddress: toAddressInputMeta.value.displayAddress(address.value),
+      },
+      { signal: ctx.aborter.signal }
+    )
     .then((quotes) => {
-      if (quotes.length) pickBestQuote(fromRawAmount, quotes);
-      else {
+      // Overidden by new update, drop these quotes
+      if (ctx.aborter.signal.aborted) {
+        console.debug(`Dropping quotes due to new update  id=${vid}:${ctx.id}`);
+        return;
+      }
+
+      if (quotes.length) {
+        console.debug(`Found ${quotes.length} quotes  id=${vid}:${ctx.id}`);
+        pickBestQuote(fromRawAmount, quotes);
+      } else {
+        console.debug(`No quotes  id=${vid}:${ctx.id}`);
         isFindingRate.value = false;
         errors.value.noProviders = true;
       }
+    })
+    .catch((err) => {
+      // Context aborted, just ignore the error
+      if (err === ctx.aborter.signal.reason) {
+        console.debug(
+          `Ignoring error due to quote request context abort  id=${vid}:${ctx.id}`
+        );
+        return;
+      }
+      throw err;
     });
 };
 
-watch(
-  [fromToken, toToken, fromAmount],
-  debounce(async () => {
-    if (
-      fromToken.value &&
-      toToken.value &&
-      fromAmount.value &&
-      !isNaN(fromAmount.value as any) &&
-      Number(fromAmount.value) > 0
-    ) {
-      updateQuote();
-    } else {
-      isFindingRate.value = false;
-      toAmount.value = "";
-    }
-  }, 300)
-);
+// Whenever the token types or amounts change, update the quote (within a
+// debounce)
+watch([fromToken, toToken, fromAmount], debounce(checkUpdateQuote, 300));
 
 const selectTokenFrom = (token: TokenType | TokenTypeTo) => {
   fromToken.value = token as TokenType;
@@ -704,11 +791,13 @@ const sendAction = async () => {
   const trades: (ProviderResponseWithStatus | null)[] = await Promise.all(
     tradePromises
   ).then((responses) => responses.filter((r) => !!r));
+
   const tradeStatusOptions = trades.map((t) =>
     t!.getStatusObject({
       transactionHashes: [],
     })
   );
+
   const statusObjects = await Promise.all(tradeStatusOptions);
   trades.forEach((t, idx) => (t!.status = statusObjects[idx]));
   if (!trades.length) {
