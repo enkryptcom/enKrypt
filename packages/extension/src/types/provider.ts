@@ -146,7 +146,13 @@ export type handleOutgoingMessage = (
   provider: Provider,
   message: string
 ) => Promise<any>;
-export { EthereumProvider, PolkadotProvider, BitcoinProvider, KadenaProvider };
+export {
+  EthereumProvider,
+  PolkadotProvider,
+  BitcoinProvider,
+  KadenaProvider,
+  SolanaProvider,
+};
 export type Provider =
   | EthereumProvider
   | PolkadotProvider

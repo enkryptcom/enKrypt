@@ -34,6 +34,7 @@ import { EnkryptWalletAccount } from "./account.js";
 import { icon } from "./icon.js";
 import { isSolanaChain, SOLANA_CHAINS } from "./solana.js";
 import type { Enkrypt } from "./window.js";
+import { EmitEvent } from "@/providers/ethereum/types/index.js";
 
 export const EnkryptNamespace = "enkrypt:";
 
@@ -134,9 +135,9 @@ export class EnkryptWallet implements Wallet {
       Object.freeze(this);
     }
     this.#enkrypt = enkrypt;
-    enkrypt.on("connect", this.#connected, this);
-    enkrypt.on("disconnect", this.#disconnected, this);
-    enkrypt.on("accountChanged", this.#reconnected, this);
+    enkrypt.on(EmitEvent.connect, this.#connected, this);
+    enkrypt.on(EmitEvent.disconnect, this.#disconnected, this);
+    enkrypt.on(EmitEvent.accountsChanged, this.#reconnected, this);
     this.#connected();
   }
 
@@ -165,15 +166,13 @@ export class EnkryptWallet implements Wallet {
 
   #connected = () => {
     if (this.#enkrypt.accounts.length) {
-      if (this.#accounts?.length !== this.#enkrypt.accounts.length) {
-        this.#accounts = this.#enkrypt.accounts.map((acc) => {
-          return new EnkryptWalletAccount({
-            address: acc.address,
-            publicKey: hexToUint8Array(acc.pubkey),
-          });
+      this.#accounts = this.#enkrypt.accounts.map((acc) => {
+        return new EnkryptWalletAccount({
+          address: acc.address,
+          publicKey: hexToUint8Array(acc.pubkey),
         });
-        this.#emit("change", { accounts: this.accounts });
-      }
+      });
+      this.#emit("change", { accounts: this.accounts });
     }
   };
 

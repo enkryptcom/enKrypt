@@ -4,17 +4,15 @@ import {
   EmitEvent,
 } from "@/providers/ethereum/types";
 import {
-  BitcoinProvider,
-  EnkryptProviderEventMethods,
+  SolanaProvider,
   handleIncomingMessage as handleIncomingMessageType,
 } from "@/types/provider";
-import { NetworkNames } from "@enkryptcom/types";
 const handleIncomingMessage: handleIncomingMessageType = (
   provider,
   message
 ): void => {
   try {
-    const _provider = provider as BitcoinProvider;
+    const _provider = provider as SolanaProvider;
     const jsonMsg = JSON.parse(message) as ProviderMessage;
     if (jsonMsg.method === MessageMethod.changeConnected) {
       const isConnected = jsonMsg.params[0] as boolean;
@@ -25,8 +23,15 @@ const handleIncomingMessage: handleIncomingMessageType = (
         _provider.emit(EmitEvent.disconnect);
       }
     } else if (jsonMsg.method === MessageMethod.changeAddress) {
-      const address = jsonMsg.params[0] as string;
-      _provider.emit(EmitEvent.accountsChanged, [address]);
+      _provider
+        .request({
+          method: "sol_connect",
+          params: [],
+        })
+        .then((res: { address: string; pubkey: string }[]) => {
+          _provider.accounts = res;
+          _provider.emit(EmitEvent.accountsChanged);
+        });
     }
   } catch (e) {
     console.error(e);
