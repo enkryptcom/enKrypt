@@ -76,7 +76,6 @@ import { DEFAULT_BTC_NETWORK, getNetworkByName } from "@/libs/utils/networks";
 import { WindowPromiseHandler } from "@/libs/window-promise";
 import { BitcoinNetwork } from "../types/bitcoin-network";
 import { ProviderRequestOptions } from "@/types/provider";
-import PublicKeyRing from "@/libs/keyring/public-keyring";
 import { fromBase } from "@enkryptcom/utils";
 import { getError } from "@/libs/error";
 import { ErrorCodes } from "@/providers/ethereum/types";

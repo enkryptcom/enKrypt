@@ -5,10 +5,8 @@ import {
 } from "@/providers/ethereum/types";
 import {
   BitcoinProvider,
-  EnkryptProviderEventMethods,
   handleIncomingMessage as handleIncomingMessageType,
 } from "@/types/provider";
-import { NetworkNames } from "@enkryptcom/types";
 const handleIncomingMessage: handleIncomingMessageType = (
   provider,
   message
