@@ -368,19 +368,22 @@ const setToTokens = () => {
     );
   });
   if (toTokens.value.length === 1) toToken.value = toTokens.value[0];
-  getAccountsByNetworkName(props.network.name).then((accounts) => {
-    toAccounts.value = accounts;
-    const currentAccount = accounts.find(
-      (a) => a.address === props.accountInfo.selectedAccount!.address
-    );
-    if (currentAccount) {
-      address.value = currentAccount.address;
-      isValidToAddress();
-    } else if (accounts.length) {
-      address.value = accounts[0].address;
-      isValidToAddress();
+
+  getAccountsByNetworkName(toNetwork.value!.id as unknown as NetworkNames).then(
+    (accounts) => {
+      toAccounts.value = accounts;
+      const currentAccount = accounts.find(
+        (a) => a.address === props.accountInfo.selectedAccount!.address
+      );
+      if (currentAccount) {
+        address.value = currentAccount.address;
+        isValidToAddress();
+      } else if (accounts.length) {
+        address.value = accounts[0].address;
+        isValidToAddress();
+      }
     }
-  });
+  );
 };
 
 const setMax = () => {
