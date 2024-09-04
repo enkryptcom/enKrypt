@@ -134,6 +134,7 @@ import SwapLooking from "./components/swap-loading/index.vue";
 import SwapErrorPopup from "./components/swap-error/index.vue";
 import SendAddressInput from "./components/send-address-input.vue";
 import SendContactsList from "./components/send-contacts-list.vue";
+import { getAccountsByNetworkName } from "@/libs/utils/accounts";
 import { AccountsHeaderData } from "../../types/account";
 import { getNetworkByName } from "@/libs/utils/networks";
 import { BaseNetwork } from "@/types/base-network";
@@ -164,7 +165,6 @@ import { SWAP_LOADING, SwapData } from "./types";
 import SwapNetworkSelect from "./components/swap-network-select/index.vue";
 import { toBase } from "@enkryptcom/utils";
 import { debounce } from "lodash";
-import PublicKeyRing from "@/libs/keyring/public-keyring";
 import MarketData from "@/libs/market-data";
 import { ProviderResponseWithStatus } from "./types";
 import { GenericNameResolver, CoinType } from "@/libs/name-resolver";
@@ -245,7 +245,7 @@ const swap = new EnkryptSwap({
     infiniteApproval: true,
   },
 });
-const keyring = new PublicKeyRing();
+
 onMounted(async () => {
   trackSwapEvents(SwapEventType.SwapOpen, { network: props.network.name });
   if (
@@ -368,7 +368,7 @@ const setToTokens = () => {
     );
   });
   if (toTokens.value.length === 1) toToken.value = toTokens.value[0];
-  keyring.getAccounts(toNetwork.value?.signerType).then((accounts) => {
+  getAccountsByNetworkName(props.network.name).then((accounts) => {
     toAccounts.value = accounts;
     const currentAccount = accounts.find(
       (a) => a.address === props.accountInfo.selectedAccount!.address

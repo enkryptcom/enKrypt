@@ -80,6 +80,7 @@ import PublicKeyRing from "@/libs/keyring/public-keyring";
 import { fromBase } from "@enkryptcom/utils";
 import { getError } from "@/libs/error";
 import { ErrorCodes } from "@/providers/ethereum/types";
+import { getAccountsByNetworkName } from "@/libs/utils/accounts";
 import AccountState from "../libs/accounts-state";
 
 const windowPromise = WindowPromiseHandler(1);
@@ -109,9 +110,8 @@ onBeforeMount(async () => {
   network.value = (await getNetworkByName(
     Request.value.params![0]
   )) as BitcoinNetwork;
-  const keyring = new PublicKeyRing();
   Options.value = options;
-  const accounts = await keyring.getAccounts(network.value.signer);
+  const accounts = await getAccountsByNetworkName(network.value.name);
   displayAddress.value = network.value.displayAddress(accounts[0].address);
   identicon.value = network.value.identicon(accounts[0].address);
   accountHeaderData.value = {
