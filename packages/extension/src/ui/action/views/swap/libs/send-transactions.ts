@@ -254,7 +254,7 @@ export const executeSwap = async (
         let msg = (err as Error).message;
         const len = msg.length;
         if (len > 512 + 10 + len.toString().length) {
-          msg = `${msg.slice(0, 512)}... (${len.toString()}/512)`;
+          msg = `${msg.slice(0, 512)}... (512/${len.toString()})`;
         }
         throw new Error(msg);
       }
