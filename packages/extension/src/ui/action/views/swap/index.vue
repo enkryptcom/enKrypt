@@ -548,10 +548,8 @@ const pickBestQuote = (fromAmountBN: BN, quotes: ProviderQuoteResponse[]) => {
   isFindingRate.value = false;
 };
 
-/** Used to cancel avoid race conditions */
+/** Used to cancel the request to avoid race conditions */
 const updateQuoteContext = {
-  /** view id */
-  id: Math.random().toString().substring(2).slice(0, 3).padStart(3, "0"),
   current: {
     /** context id */
     id: 0,
@@ -608,19 +606,18 @@ const updateQuote = () => {
     console.warn("No destination token selected yet, yet requesting a quote??");
   }
 
-  // Avoid race conditions
-  // Abort the previous execution (doesn't actually cancel anything
-  // since nothing is listening to the abort signal but once the quotes
-  // are ready they'll just be dropped)
+  // Abort the previous execution. Used to avoid race conditions in the UI and
+  // rapid pointless updates in succession when multiple requests are in-flight.
+  // AbortSignal gives the swap provider the abiltiy to cancel network requests
+  // and exit early when we call the context's abort controllers' abort() method.
   updateQuoteContext.current.aborter.abort();
-  const vid = updateQuoteContext.id;
   // Setup a new abortable context
   const ctx = {
     id: updateQuoteContext.current.id + 1,
     aborter: new AbortController(),
   };
   updateQuoteContext.current = ctx;
-  debug(`[swap/index.vue] Starting quote update  id=${vid}:${ctx.id}`);
+  debug(`[swap/index.vue] Starting quote update  id=${ctx.id}`);
 
   swap
     .getQuotes(
@@ -639,18 +636,16 @@ const updateQuote = () => {
       // Overidden by new update, drop these quotes
       if (ctx.aborter.signal.aborted) {
         debug(
-          `[swap/index.vue] Dropping quotes due to new update  id=${vid}:${ctx.id}`
+          `[swap/index.vue] Dropping quotes due to new update  id=${ctx.id}`
         );
         return;
       }
 
       if (quotes.length) {
-        debug(
-          `[swap/index.vue] Found ${quotes.length} quotes  id=${vid}:${ctx.id}`
-        );
+        debug(`[swap/index.vue] Found ${quotes.length} quotes  id=${ctx.id}`);
         pickBestQuote(fromRawAmount, quotes);
       } else {
-        debug(`[swap/index.vue] No quotes  id=${vid}:${ctx.id}`);
+        debug(`[swap/index.vue] No quotes  id=${ctx.id}`);
         isFindingRate.value = false;
         errors.value.noProviders = true;
       }
@@ -659,7 +654,7 @@ const updateQuote = () => {
       // Context aborted, just ignore the error
       if (err === ctx.aborter.signal.reason) {
         debug(
-          `[swap/index.vue] Ignoring error due to quote request context abort  id=${vid}:${ctx.id}`
+          `[swap/index.vue] Ignoring error due to quote request context abort  id=${ctx.id}`
         );
         return;
       }
