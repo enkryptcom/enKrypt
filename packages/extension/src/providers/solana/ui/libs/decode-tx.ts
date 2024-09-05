@@ -130,10 +130,10 @@ const decodeTransaction = async (
           res.isNegative = false;
           if (token.cgId) {
             const val = await marketData.getMarketData([token.cgId]);
-            res.USDval = new BigNumber(val[0]!.current_price)
+            res.USDval = new BigNumber(val[0]!.current_price ?? 0)
               .times(fromBase(res.change.toString(), res.decimals))
               .toString();
-            res.price = val[0]!.current_price.toString();
+            res.price = (val[0]!.current_price ?? 0).toString();
           }
         }
         if (token.decimals === 0) {

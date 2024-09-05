@@ -116,10 +116,11 @@ export class SolanaNetwork extends BaseNetwork {
         const market = new MarketData();
         marketData = await market.getMarketData([this.coingeckoID]);
       }
+      const currentPrice = marketData.length
+        ? marketData[0]!.current_price || 0
+        : 0;
       const userBalance = fromBase(balance, this.decimals);
-      const usdBalance = new BigNumber(userBalance).times(
-        marketData.length ? marketData[0]!.current_price : 0
-      );
+      const usdBalance = new BigNumber(userBalance).times(currentPrice);
       const nativeAsset: AssetsType = {
         balance: balance,
         balancef: formatFloatingPointValue(userBalance).value,
@@ -128,11 +129,9 @@ export class SolanaNetwork extends BaseNetwork {
         icon: this.icon,
         name: this.name_long,
         symbol: this.currencyName,
-        value: marketData.length
-          ? marketData[0]!.current_price.toString()
-          : "0",
+        value: marketData.length ? currentPrice.toString() : "0",
         valuef: formatFiatValue(
-          marketData.length ? marketData[0]!.current_price.toString() : "0"
+          marketData.length ? currentPrice.toString() : "0"
         ).value,
         contract: "",
         decimals: this.decimals,
