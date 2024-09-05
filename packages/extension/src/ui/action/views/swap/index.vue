@@ -172,6 +172,11 @@ import { trackSwapEvents } from "@/libs/metrics";
 import { SwapEventType } from "@/libs/metrics/types";
 import { Connection } from "@solana/web3.js";
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function
+const debug = (..._args: any[]) => {};
+// Use this debug instead to enable debug logging
+// const debug = console.debug.bind(console);
+
 type BN = ReturnType<typeof toBN>;
 
 const router = useRouter();
@@ -464,8 +469,8 @@ const nativeSwapToken = computed(() => {
  */
 const pickBestQuote = (fromAmountBN: BN, quotes: ProviderQuoteResponse[]) => {
   if (toToken.value == null) {
-    console.debug(
-      "Skipping quote picking: no destination token amount selected yet"
+    debug(
+      "[swap/index.vue] Skipping quote picking: no destination token amount selected yet"
     );
     return;
   }
@@ -581,7 +586,7 @@ const updateQuote = () => {
   const token = new SwapToken(fromToken.value!);
   if (fromAmount.value == null) {
     // User probably set a destination token before setting a "from" amount
-    console.debug("Skipping quote update: no source token amount set");
+    debug("[swap/index.vue] Skipping quote update: no source token amount set");
     return;
   }
   let fromRawAmount: BN;
@@ -615,7 +620,7 @@ const updateQuote = () => {
     aborter: new AbortController(),
   };
   updateQuoteContext.current = ctx;
-  console.debug(`Starting quote update  id=${vid}:${ctx.id}`);
+  debug(`[swap/index.vue] Starting quote update  id=${vid}:${ctx.id}`);
 
   swap
     .getQuotes(
@@ -633,15 +638,19 @@ const updateQuote = () => {
     .then((quotes) => {
       // Overidden by new update, drop these quotes
       if (ctx.aborter.signal.aborted) {
-        console.debug(`Dropping quotes due to new update  id=${vid}:${ctx.id}`);
+        debug(
+          `[swap/index.vue] Dropping quotes due to new update  id=${vid}:${ctx.id}`
+        );
         return;
       }
 
       if (quotes.length) {
-        console.debug(`Found ${quotes.length} quotes  id=${vid}:${ctx.id}`);
+        debug(
+          `[swap/index.vue] Found ${quotes.length} quotes  id=${vid}:${ctx.id}`
+        );
         pickBestQuote(fromRawAmount, quotes);
       } else {
-        console.debug(`No quotes  id=${vid}:${ctx.id}`);
+        debug(`[swap/index.vue] No quotes  id=${vid}:${ctx.id}`);
         isFindingRate.value = false;
         errors.value.noProviders = true;
       }
@@ -649,8 +658,8 @@ const updateQuote = () => {
     .catch((err) => {
       // Context aborted, just ignore the error
       if (err === ctx.aborter.signal.reason) {
-        console.debug(
-          `Ignoring error due to quote request context abort  id=${vid}:${ctx.id}`
+        debug(
+          `[swap/index.vue] Ignoring error due to quote request context abort  id=${vid}:${ctx.id}`
         );
         return;
       }

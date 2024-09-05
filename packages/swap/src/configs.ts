@@ -58,14 +58,18 @@ const FEE_CONFIGS: Partial<
     [WalletIdentifier.enkrypt]: {
       // TODO: THIS IS NICK'S TESTING REFERRAL ADDRESS, NEEDS TO CHANGE BEFORE RELEASE
       // referrer: "78ZKhPea9sVW3jLsjvQov9jUooGe3qGnwauA1QoJFCq1",
-      referrer: "41gBjMVCQ4FD2GAsKdjVPEGLQc7K6AxoY8C7PJ7HDp6y",
-      fee: 0.00875,
+      // referrer: "41gBjMVCQ4FD2GAsKdjVPEGLQc7K6AxoY8C7PJ7HDp6y",
+      referrer: "EcrQ8iRSczuUq8YPBQKx1mWRuH8xxi3t9uwfenb6o9aW",
+      // Rounded because Jupiter API only accepts bps integers
+      fee: 0.01,
     },
     [WalletIdentifier.mew]: {
       // TODO: THIS IS NICK'S TESTING REFERRAL ADDRESS, NEEDS TO CHANGE BEFORE RELEASE
       // referrer: "78ZKhPea9sVW3jLsjvQov9jUooGe3qGnwauA1QoJFCq1",
-      referrer: "41gBjMVCQ4FD2GAsKdjVPEGLQc7K6AxoY8C7PJ7HDp6y",
-      fee: 0.025,
+      // referrer: "41gBjMVCQ4FD2GAsKdjVPEGLQc7K6AxoY8C7PJ7HDp6y",
+      referrer: "EcrQ8iRSczuUq8YPBQKx1mWRuH8xxi3t9uwfenb6o9aW",
+      // Rounded because Jupiter API only accepts bps integers
+      fee: 0.030,
     },
   },
 };

@@ -249,7 +249,14 @@ export const executeSwap = async (
             }`
           );
         }
-        throw err;
+        // Solana transactions can have big errors
+        // Trim the error so it doesn't break the UI by being too huge
+        let msg = (err as Error).message;
+        const len = msg.length;
+        if (len > 512 + 10 + len.toString().length) {
+          msg = `${msg.slice(0, 512)}... (${len.toString()}/512)`;
+        }
+        throw new Error(msg);
       }
 
       // Update transaction activity for the UI

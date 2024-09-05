@@ -2,7 +2,9 @@
 
 import { NetworkNames } from "@enkryptcom/types";
 import {
+  AccountMeta,
   AddressLookupTableAccount,
+  ComputeBudgetInstruction,
   ComputeBudgetProgram,
   Connection,
   PublicKey,
@@ -48,6 +50,7 @@ import { toBN } from "web3-utils";
  * @see https://station.jup.ag/guides/jupiter-swap/how-referral-works
  * @see https://referral.jup.ag/
  * @see https://referral.jup.ag/api
+ * @see https://github.com/TeamRaccoons/referral
  *
  * Jupiter requires you to create a referral account. You can do this by
  * visiting the Jupiter referral dashboard https://referral.jup.ag/dashboard
@@ -127,6 +130,29 @@ export const TOKEN_PROGRAM_ID = new PublicKey(
 export const TOKEN_2022_PROGRAM_ID = new PublicKey(
   "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"
 );
+
+/**
+ * Address of the SPL Associated Token Account program
+ *
+ * @see https://solscan.io/account/TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb
+ */
+export const ASSOCIATED_TOKEN_PROGRAM_ID = new PublicKey(
+  "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+);
+
+/**
+ * Storage of a token ATA
+ *
+ * Required to calculate the extra cost if the swap fee if the swap needs to create a referral fee account
+ */
+const JUPITER_REFERRAL_ATA_ACCOUNT_SIZE_BYTES = 165;
+
+const SPL_TOKEN_ATA_ACCOUNT_SIZE_BYTES = 165;
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function
+const debug = (..._args: any[]) => { };
+// Use this debug instead to enable debug logging
+// const debug = console.debug.bind(console);
 
 // Jupiter API Tokens
 
@@ -366,15 +392,23 @@ export class Jupiter extends ProviderClass {
     jupiterSwap: JupiterSwapResponse;
     base64SwapTransaction: string;
     feePercentage: number;
+    slippagePercentage: number;
+    computeBudget: number;
+    rentFees: number;
   }> {
+    const signal = context?.signal;
+
     const feeConf = FEE_CONFIGS[this.name][meta.walletIdentifier];
+
     if (!feeConf)
       throw new Error("Something went wrong: no fee config for Jupiter swap");
+
     const referrerPubkey = new PublicKey(feeConf.referrer);
+
     /** Jupiter API requires an integer for bps so we must round */
     const feeBps = Math.round(100 * feeConf.fee);
 
-    const signal = context?.signal;
+    const fromPubkey = new PublicKey(options.fromAddress);
 
     /**
      * Source token.
@@ -410,15 +444,17 @@ export class Jupiter extends ProviderClass {
       referrerATAPubkey
     );
 
+    const slippageBps = Math.round(
+      100 * parseFloat(meta.slippage || DEFAULT_SLIPPAGE)
+    );
+
     const quote = await getJupiterQuote(
       {
         srcMint,
         dstMint,
         amount: BigInt(options.amount.toString(10)),
         // Integer so must round
-        slippageBps: Math.round(
-          100 * parseFloat(meta.slippage || DEFAULT_SLIPPAGE)
-        ),
+        slippageBps,
         referralFeeBps: feeBps,
       },
       { signal }
@@ -427,7 +463,7 @@ export class Jupiter extends ProviderClass {
     const swap = await getJupiterSwap(
       {
         quote,
-        signerPubkey: new PublicKey(options.fromAddress),
+        signerPubkey: fromPubkey,
         referrerATAPubkey,
       },
       { signal }
@@ -437,14 +473,22 @@ export class Jupiter extends ProviderClass {
       Buffer.from(swap.swapTransaction, "base64")
     );
 
+    const tokenProgramId = await getTokenProgramOfMint(this.conn, srcMint);
+
+    /** Rent from having to create ATA accounts for the wallet & mint and the referral fee holder & mint */
+    let rentFees = 0;
+
     if (!referrerATAExists) {
-      // Update the transaction so it creates a ATA account to receive referral fees in
-      // see `updateSwapTransactionToCreateJupiterReferrerATA` for more details
-      console.debug(
-        `Referrer ATA does not exist. Updating transaction with instruction to create it. Referral ATA pubkey: ${referrerATAPubkey.toBase58()}`
+      // The referral fee ATA account needs to be created or else we can't receive fees for this transaction
+      rentFees = await this.conn.getMinimumBalanceForRentExemption(
+        JUPITER_REFERRAL_ATA_ACCOUNT_SIZE_BYTES
       );
 
-      const tokenProgramId = await getTokenProgramOfMint(this.conn, srcMint);
+      debug(
+        `[Jupiter.querySwapInfo] Referrer ATA does not exist. Updating transaction with instruction to create it.` +
+        ` Referral ATA pubkey: ${referrerATAPubkey.toBase58()},` +
+        ` Rent: ${rentFees} lamports`
+      );
 
       tx = await updateSwapTransactionToCreateJupiterReferrerATA(
         this.conn,
@@ -459,11 +503,46 @@ export class Jupiter extends ProviderClass {
       );
     }
 
+    // Will the destination token ATA for the swapper need to be created?
+    const walletDstMintATAPubkey =
+      await getSolanaProgrammingLibraryAssociatedTokenAccountPubkey(
+        fromPubkey,
+        dstMint,
+        tokenProgramId
+      );
+    const walletDstMintATAExists = await solAccountExists(
+      this.conn,
+      walletDstMintATAPubkey
+    );
+    if (walletDstMintATAExists) {
+      debug(
+        `[Jupiter.querySwapInfo] Wallet destination mint ATA already exists, no need to record additional rent fees.` +
+        ` ATA pubkey: ${walletDstMintATAPubkey.toBase58()},` +
+        ` Destination mint: ${dstMint.toBase58()}`
+      );
+    } else {
+      rentFees += await this.conn.getMinimumBalanceForRentExemption(
+        SPL_TOKEN_ATA_ACCOUNT_SIZE_BYTES
+      );
+      debug(
+        `[Jupiter.querySwapInfo] Wallet destination mint ATA does not exist, it will be created by the swap transaction.` +
+        ` Adding ATA rent to extra transaction fees.` +
+        ` ATA pubkey: ${walletDstMintATAPubkey.toBase58()},` +
+        ` Destination mint: ${dstMint.toBase58()},` +
+        ` Rent: ${rentFees} lamports`
+      );
+    }
+
+    const computeBudget = extractComputeBudget(tx);
+
     return {
       feePercentage: feeBps / 100,
+      slippagePercentage: slippageBps / 100,
       jupiterSwap: swap,
       jupiterQuote: quote,
       base64SwapTransaction: Buffer.from(tx.serialize()).toString("base64"),
+      rentFees,
+      computeBudget,
     };
   }
 
@@ -472,26 +551,31 @@ export class Jupiter extends ProviderClass {
     meta: QuoteMetaOptions,
     context?: { signal?: AbortSignal }
   ): Promise<null | ProviderQuoteResponse> {
-    const { jupiterQuote } = await this.querySwapInfo(options, meta, context);
+    const { jupiterQuote, rentFees, computeBudget, feePercentage } =
+      await this.querySwapInfo(options, meta, context);
 
     // Jupiter swaps have four different kinds of fees:
     // 1. Transaction base fees: number of signatures * lamports per signature
     // 2. Transaction priority fees (sometimes): set via the Compute Budget program's "SetComputeUnitPrice"
-    // 3. Transaction referral fees: fees  p aid to MEW as the wa llet provider
-    // 4. The swap provider, Jupiter, probably takes a fee (I think 2.5%? IIRC documented somewhere)
+    // 3. Transaction referral fees: fees paid to MEW (97.5%) and Jupiter (2.5%) as the wallet provider
+    // 4. Rent for ATA accounts that may need to be created; the referral fee account and mint account
+
+    debug(
+      `[Jupiter.getQuote] Quote inAmount:  ${jupiterQuote.inAmount} ${options.fromToken.symbol}`
+    );
+    debug(
+      `[Jupiter.getQuote] Quote outAmount: ${jupiterQuote.outAmount} ${options.toToken.symbol}`
+    );
 
     const result: ProviderQuoteResponse = {
       fromTokenAmount: toBN(jupiterQuote.inAmount),
-      toTokenAmount: toBN(jupiterQuote.outAmount),
-      // Solana doesn't have the concept of a gas limit
-      // it does have something kind-of similar to gas though, but base fees aren't changed based
-      // on it, only priority fees
-      // Base fees are charged on signature count (number of accounts possibly touched in transaction,
-      // usually 5,000 Lamports per signature I think)
-      // (unitsConsumed is kind-of like gas)
-      totalGaslimit: 0,
-      // TODO: consider setting this to price we pay to create the referrer ATA account if it doesn't already exist
-      additionalNativeFees: toBN(0),
+      toTokenAmount: toBN(
+        Math.floor((1 - feePercentage) * Number(jupiterQuote.outAmount))
+          .toFixed(10)
+          .replace(/\.?0+$/, "")
+      ),
+      totalGaslimit: computeBudget,
+      additionalNativeFees: toBN(rentFees),
       provider: this.name,
       quote: {
         options,
@@ -499,7 +583,7 @@ export class Jupiter extends ProviderClass {
         provider: this.name,
       },
       minMax: {
-        // TODO: how do I get these limits?
+        // TODO: how can I get these limits?
         minimumFrom: toBN("1"),
         maximumFrom: toBN(TOKEN_AMOUNT_INFINITY_AND_BEYOND),
         minimumTo: toBN("1"),
@@ -514,7 +598,7 @@ export class Jupiter extends ProviderClass {
     quote: SwapQuote,
     context?: { signal?: AbortSignal }
   ): Promise<ProviderSwapResponse> {
-    const { feePercentage, jupiterQuote, base64SwapTransaction } =
+    const { feePercentage, jupiterQuote, base64SwapTransaction, rentFees } =
       await this.querySwapInfo(quote.options, quote.meta, context);
 
     const enkryptTransaction: SolanaTransaction = {
@@ -524,15 +608,26 @@ export class Jupiter extends ProviderClass {
       type: TransactionType.solana,
     };
 
+    debug(
+      `[Jupiter.getSwap] Quote inAmount:  ${jupiterQuote.inAmount} ${quote.options.fromToken.symbol}`
+    );
+    debug(
+      `[Jupiter.getSwap] Quote outAmount: ${jupiterQuote.outAmount} ${quote.options.toToken.symbol}`
+    );
+
     const result: ProviderSwapResponse = {
       transactions: [enkryptTransaction],
       fromTokenAmount: toBN(jupiterQuote.inAmount),
-      toTokenAmount: toBN(jupiterQuote.outAmount),
-      // TODO: consider setting this to price we pay to create the referrer ATA account if it doesn't already exist
-      additionalNativeFees: toBN(0),
+      toTokenAmount: toBN(
+        Math.floor((1 - feePercentage) * Number(jupiterQuote.outAmount))
+          .toFixed(10)
+          .replace(/\.?0+$/, "")
+      ),
+      additionalNativeFees: toBN(rentFees),
+      additionalNativeFeesDescription: "Storage fee",
       provider: this.name,
       slippage: quote.meta.slippage,
-      fee: feePercentage, // feeConf.fee * 100,
+      fee: feePercentage,
       getStatusObject: async (
         options: StatusOptions
       ): Promise<StatusOptionsResponse> => ({
@@ -635,7 +730,7 @@ async function getJupiterTokens(context?: {
     if (backoffi >= backoff.length) {
       // Failed after too many attempts
       throw new Error(
-        `Failed to get tokens after ${backoffi} retries: ${String(
+        `Failed to get Jupiter tokens after ${backoffi} retries: ${String(
           errRef?.err ?? "???"
         )}`
       );
@@ -643,7 +738,9 @@ async function getJupiterTokens(context?: {
 
     if (backoff[backoffi] > 0) {
       // Previous request failed, wait before retrying
-      console.debug(`Retrying after ${backoff[backoffi]}ms...`);
+      debug(
+        `[Jupiter.getJupiterTokens] Retrying after ${backoff[backoffi]}ms...`
+      );
       await new Promise<void>((res, rej) => {
         function onTimeout() {
           cleanupTimeout();
@@ -683,7 +780,9 @@ async function getJupiterTokens(context?: {
     };
 
     try {
-      console.debug(`Initiating HTTP request for Jupiter tokens ${url}`);
+      debug(
+        `[getJupiterTokens] Initiating HTTP request for Jupiter tokens ${url}`
+      );
       const res = await fetch(url, {
         signal: aborter.signal,
         headers: [["Accept", "application/json"]],
@@ -711,8 +810,7 @@ async function getJupiterTokens(context?: {
           default: /* noop */
         }
         throw new Error(
-          `Failed to get tokens, HTTP response returned not-ok status ${
-            res.status
+          `Failed to get Jupiter tokens, HTTP response returned not-ok status ${res.status
           } ${res.statusText || "<no status text>"}: ${msg}`
         );
       }
@@ -720,7 +818,7 @@ async function getJupiterTokens(context?: {
 
       if (!tokens) {
         throw new Error(
-          "Failed to get tokens: something went wrong and result is falsy"
+          "Failed to get Jupiter tokens: something went wrong and result is falsy"
         );
       }
 
@@ -728,10 +826,9 @@ async function getJupiterTokens(context?: {
     } catch (err) {
       if (signal?.aborted) throw signal.reason;
       if (failed) throw err;
-      console.debug(
-        `Failed to get tokens on attempt ${backoffi + 1}/${
-          backoff.length
-        }: ${String(err)}`
+      debug(
+        `[getJupiterTokens] Failed to get Jupiter tokens on attempt ${backoffi + 1
+        }/${backoff.length}: ${String(err)}`
       );
       errRef ??= { err: err as Error };
     } finally {
@@ -822,7 +919,7 @@ async function getJupiterQuote(
     if (backoffi >= backoff.length) {
       // Failed after too many attempts
       throw new Error(
-        `Failed to get quote after ${backoffi} retries at url ${url}: ${String(
+        `Failed to get Jupiter quote after ${backoffi} retries at url ${url}: ${String(
           errRef?.err ?? "???"
         )}`
       );
@@ -830,7 +927,9 @@ async function getJupiterQuote(
 
     if (backoff[backoffi] > 0) {
       // Previous request failed, wait before retrying
-      console.debug(`Retrying ${url} after ${backoff[backoffi]}ms...`);
+      debug(
+        `[getJupiterQuote] Retrying ${url} after ${backoff[backoffi]}ms...`
+      );
       await new Promise<void>((res, rej) => {
         function onTimeout() {
           cleanupTimeout();
@@ -870,7 +969,9 @@ async function getJupiterQuote(
     };
 
     try {
-      console.debug(`Initiating HTTP request for Jupiter quote ${url}`);
+      debug(
+        `[getJupiterQuote] Initiating HTTP request for Jupiter quote ${url}`
+      );
       const res = await fetch(url, {
         signal: aborter.signal,
         headers: [["Accept", "application/json"]],
@@ -898,8 +999,7 @@ async function getJupiterQuote(
           default: /* noop */
         }
         throw new Error(
-          `Failed to get quote, HTTP response returned not-ok status ${
-            res.status
+          `Failed to get Jupiter quote, HTTP response returned not-ok status ${res.status
           } ${res.statusText || "<no status text>"} at url ${url}: ${msg}`
         );
       }
@@ -907,7 +1007,7 @@ async function getJupiterQuote(
 
       if (!quote) {
         throw new Error(
-          `Failed to get quote at url ${url}, something went wrong and result is falsy`
+          `Failed to get Jupiter quote at url ${url}, something went wrong and result is falsy`
         );
       }
 
@@ -916,9 +1016,8 @@ async function getJupiterQuote(
       if (signal?.aborted) throw signal.reason;
       if (failed) throw err;
       console.warn(
-        `Failed to get quote on attempt ${backoffi + 1}/${
-          backoff.length
-        }: ${String(err)}`
+        `[getJupiterQuote] Failed to get Jupiter quote on attempt ${backoffi + 1
+        }/${backoff.length}: ${String(err)}`
       );
       errRef ??= { err: err as Error };
     } finally {
@@ -973,7 +1072,7 @@ async function getJupiterSwap(
     if (backoffi >= backoff.length) {
       // Failed after too many attempts
       throw new Error(
-        `Failed to get swap after ${backoffi} retries at url ${url}: ${String(
+        `Failed to get Jupiter swap after ${backoffi} retries at url ${url}: ${String(
           errRef?.err ?? "???"
         )}`
       );
@@ -981,7 +1080,7 @@ async function getJupiterSwap(
 
     if (backoff[backoffi] > 0) {
       // Previous request failed, wait before retrying
-      console.debug(`Retrying ${url} after ${backoff[backoffi]}ms...`);
+      debug(`[getJupiterSwap] Retrying ${url} after ${backoff[backoffi]}ms...`);
       await new Promise<void>((res, rej) => {
         function onTimeout() {
           cleanupTimeout();
@@ -1021,7 +1120,7 @@ async function getJupiterSwap(
     };
 
     try {
-      console.debug(`Initiating HTTP request for Jupiter swap ${url}`);
+      debug(`[getJupiterSwap] Initiating HTTP request for Jupiter swap ${url}`);
       const res = await fetch(url, {
         signal: aborter.signal,
         method: "POST",
@@ -1054,8 +1153,7 @@ async function getJupiterSwap(
           default: /* noop */
         }
         throw new Error(
-          `Failed to get swap, HTTP response returned not-ok status ${
-            res.status
+          `Failed to get Jupiter swap, HTTP response returned not-ok status ${res.status
           } ${res.statusText || "<no status text>"} at url ${url}: ${msg}`
         );
       }
@@ -1064,17 +1162,16 @@ async function getJupiterSwap(
 
       if (!quote) {
         throw new Error(
-          `Failed to get swap at url ${url}, something went wrong and result is falsy`
+          `Failed to get Jupiter swap at url ${url}, something went wrong and result is falsy`
         );
       }
 
       return swap;
     } catch (err) {
       if (failed) throw err;
-      console.debug(
-        `Failed to get swap on attempt ${backoffi + 1}/${
-          backoff.length
-        }: ${String(err)}`
+      debug(
+        `[getJupiterSwap] Failed to get Jupiter swap on attempt ${backoffi + 1
+        }/${backoff.length}: ${String(err)}`
       );
       errRef ??= { err: err as Error };
     } finally {
@@ -1269,8 +1366,9 @@ async function updateSwapTransactionToCreateJupiterReferrerATA(
       throw new Error(
         `Failed to get address lookup table for ${lookup.accountKey}`
       );
-    console.debug(
-      `Fetching lookup account ${i + 1}. ${lookup.accountKey.toBase58()}`
+    debug(
+      `[updateSwapTransactionToCreateJupiterReferrerATA] Fetching lookup account ${i + 1
+      }. ${lookup.accountKey.toBase58()}`
     );
     addressLookupTableAccounts[i] = addressLookupTableAccount;
   }
@@ -1298,8 +1396,8 @@ async function updateSwapTransactionToCreateJupiterReferrerATA(
         break;
       default: {
         // insert our instruction here & continue
-        console.debug(
-          `Inserting instruction to create an ATA account for Jupiter referrer with mint at instruction index ${i}`
+        debug(
+          `[updateSwapTransactionToCreateJupiterReferrerATA] Inserting instruction to create an ATA account for Jupiter referrer with mint at instruction index ${i}`
         );
         inserted = true;
         decompiledTransactionMessage.instructions.splice(i, 0, instruction);
@@ -1310,14 +1408,14 @@ async function updateSwapTransactionToCreateJupiterReferrerATA(
 
   if (!inserted) {
     // If there were no compute budget instructions then just add it at the start
-    console.debug(
-      `Inserting instruction to create an ATA account for Jupiter referrer with mint at start of instructions`
+    debug(
+      `[updateSwapTransactionToCreateJupiterReferrerATA] Inserting instruction to create an ATA account for Jupiter referrer with mint at start of instructions`
     );
     decompiledTransactionMessage.instructions.unshift(instruction);
   }
 
   // Switch to using this modified transaction
-  console.debug(`Re-compiling transaction`);
+  debug(`Re-compiling transaction`);
   const modifiedTx = new VersionedTransaction(
     decompiledTransactionMessage.compileToV0Message(addressLookupTableAccounts)
   );
@@ -1336,7 +1434,7 @@ async function getTokenProgramOfMint(
   conn: Connection,
   mint: PublicKey
 ): Promise<PublicKey> {
-  console.debug(`Checking mint account of ${mint.toBase58()}`);
+  debug(`[getTokenProgramOfMint] Checking mint account of ${mint.toBase58()}`);
   const srcMintAcc = await conn.getAccountInfo(mint);
 
   if (srcMintAcc == null) {
@@ -1352,8 +1450,81 @@ async function getTokenProgramOfMint(
     default:
       throw new Error(
         `Mint address is not a valid SPL token, must either have owner` +
-          ` TOKEN_PROGRAM_ID (${TOKEN_PROGRAM_ID.toBase58()})` +
-          ` or TOKEN_2022_PROGRAM_ID (${TOKEN_2022_PROGRAM_ID.toBase58()})`
+        ` TOKEN_PROGRAM_ID (${TOKEN_PROGRAM_ID.toBase58()})` +
+        ` or TOKEN_2022_PROGRAM_ID (${TOKEN_2022_PROGRAM_ID.toBase58()})`
       );
   }
+}
+
+/**
+ * Get the SPL token ATA pubkey for a wallet with a mint
+ */
+async function getSolanaProgrammingLibraryAssociatedTokenAccountPubkey(
+  wallet: PublicKey,
+  mint: PublicKey,
+  /** Either the SPL token program or the 2022 SPL token program */
+  tokenProgramId: PublicKey
+): Promise<PublicKey> {
+  const SEED = [wallet.toBuffer(), tokenProgramId.toBuffer(), mint.toBuffer()];
+  const [associatedTokenAddress] = await PublicKey.findProgramAddress(
+    SEED,
+    ASSOCIATED_TOKEN_PROGRAM_ID
+  );
+  return associatedTokenAddress;
+}
+
+/**
+ * @see https://solana.com/docs/core/fees#prioritization-fees
+ *
+ * > Transactions can only contain one of each type of compute budget
+ *   instruction. Duplicate instruction types will result in an
+ *   TransactionError::DuplicateInstruction error, and ultimately
+ *   transaction failure.
+ */
+function extractComputeBudget(tx: VersionedTransaction): undefined | number {
+  // extract the compute budget
+  let computeBudget: undefined | number;
+
+  instructionLoop: for (
+    let i = 0, len = tx.message.compiledInstructions.length;
+    i < len;
+    i++
+  ) {
+    const instr = tx.message.compiledInstructions[i];
+    const program = tx.message.staticAccountKeys[instr.programIdIndex];
+    if (!ComputeBudgetProgram.programId.equals(program)) continue;
+
+    const keys = instr.accountKeyIndexes.map(
+      (accountKeyIndex): AccountMeta => ({
+        pubkey: tx.message.staticAccountKeys[accountKeyIndex],
+        isSigner: tx.message.isAccountSigner(accountKeyIndex),
+        isWritable: tx.message.isAccountWritable(accountKeyIndex),
+      })
+    );
+
+    // Decompile the instruction
+    const instruction = new TransactionInstruction({
+      keys,
+      programId: program,
+      data: Buffer.from(instr.data),
+    });
+
+    const type = ComputeBudgetInstruction.decodeInstructionType(instruction);
+    switch (type) {
+      case "SetComputeUnitLimit": {
+        // Compute limit
+        const command =
+          ComputeBudgetInstruction.decodeSetComputeUnitLimit(instruction);
+        computeBudget = command.units;
+        break instructionLoop;
+      }
+      // You can use this to get the priorty fee
+      // case "SetComputeUnitPrice":
+      default: /** noop */
+        break;
+    }
+  }
+
+  // (default of 200_000 from Google)
+  return computeBudget ?? 200_000;
 }
