@@ -39,7 +39,7 @@ import estimateGasList from "../../common/estimateGasList";
 import { isEVMAddress } from "../../utils/common";
 
 export const PARASWAP_APPROVAL_ADDRESS =
-  "0x216b4b4ba9f3e719726886d34a177484278bfcae";
+  "0x6a000f20005980200259b80c5102003040001068";
 
 const supportedNetworks: {
   [key in SupportedNetworkName]?: { approvalAddress: string; chainId: string };
@@ -69,11 +69,11 @@ const supportedNetworks: {
     chainId: "42161",
   },
   [SupportedNetworkName.Base]: {
-    approvalAddress: "0x93aAAe79a53759cD164340E4C8766E4Db5331cD7",
+    approvalAddress: PARASWAP_APPROVAL_ADDRESS,
     chainId: "8453",
   },
   [SupportedNetworkName.MaticZK]: {
-    approvalAddress: "0xc8a21fcd5a100c3ecc037c97e2f9c53a8d3a02a1",
+    approvalAddress: PARASWAP_APPROVAL_ADDRESS,
     chainId: "1101",
   },
 };
@@ -181,6 +181,7 @@ class ParaSwap extends ProviderClass {
       partnerFeeBps: feeConfig
         ? parseInt((feeConfig.fee * 10000).toString(), 10).toString()
         : "0",
+      isDirectFeeTransfer: true,
     });
     return fetch(
       `${BASE_URL}transactions/${
@@ -269,10 +270,12 @@ class ParaSwap extends ProviderClass {
       destDecimals: options.toToken.decimals.toString(),
       amount: options.amount.toString(),
       side: "SELL",
+      excludeDEXS: "ParaSwapPool,ParaSwapLimitOrders",
       network: supportedNetworks[this.network].chainId,
       userAddress: options.fromAddress,
       receiver: options.toAddress,
       partnerAddress: feeConfig ? feeConfig.referrer : "",
+      version: "6.2",
       partnerFeeBps: feeConfig
         ? parseInt((feeConfig.fee * 10000).toString(), 10).toString()
         : "0",
