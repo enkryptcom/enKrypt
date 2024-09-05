@@ -629,7 +629,6 @@ export class Jupiter extends ProviderClass {
           .replace(/\.?0+$/, "")
       ),
       additionalNativeFees: toBN(rentFees),
-      additionalNativeFeesDescription: "Storage fee",
       provider: this.name,
       slippage: quote.meta.slippage,
       fee: feePercentage,

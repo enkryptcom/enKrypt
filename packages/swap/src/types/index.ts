@@ -195,7 +195,10 @@ export interface ProviderQuoteResponse {
   toTokenAmount: BN;
   fromTokenAmount: BN;
   totalGaslimit: number;
-  // ? What is this ?
+  /**
+   * Additional native currency that has to be paid for the transaction
+   * For example Changelly bridging fees, Solana rent fees
+   */
   additionalNativeFees: BN;
   provider: ProviderName;
   quote: SwapQuote;
@@ -215,11 +218,11 @@ export interface ProviderSwapResponse {
   transactions: SwapTransaction[];
   toTokenAmount: BN;
   fromTokenAmount: BN;
-  // Additional native currency that has to be paid for the transaction
-  // For example Changelly bridging fees, Solana rent fees
+  /**
+   * Additional native currency that has to be paid for the transaction
+   * For example Changelly bridging fees, Solana rent fees
+   */
   additionalNativeFees: BN;
-  /** Description of `additionalNativeFees` for the swap UI. default: "Bridging fee" */
-  additionalNativeFeesDescription?: string;
   provider: ProviderName;
   slippage: string;
   /** Percentage fee 0-1 (100 * basis points) */

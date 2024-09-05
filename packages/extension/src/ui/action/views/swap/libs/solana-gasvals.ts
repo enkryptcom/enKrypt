@@ -1,7 +1,9 @@
 import { GasFeeType, GasPriceTypes } from "@/providers/common/types";
 import SolanaAPI from "@/providers/solana/libs/api";
 import { SolanaNetwork } from "@/providers/solana/types/sol-network";
+import { fromBase } from "@enkryptcom/utils";
 import { VersionedTransaction } from "@solana/web3.js";
+import BigNumber from "bignumber.js";
 import { toBN } from "web3-utils";
 
 /**
@@ -24,7 +26,6 @@ export const getSolanaTransactionFees = async (
     /** Base fee + priority fee + rent fees (but the rent fees seem slightly higher than expected @ 2024-09-04) */
     const fee = await conn.getFeeForMessage(tx.message);
     if (fee.value == null) {
-      // TODO: handle this
       throw new Error(
         `Failed to get fee for Solana VersionedTransaction ${i}. Transaction block hash possibly expired.`
       );
@@ -33,15 +34,13 @@ export const getSolanaTransactionFees = async (
   }
 
   // Convert from lamports to SOL
-  // Hope that we'll never get 64 bit floating point overflow in BN.toNumber()...
-  const feesumsol = feesumlamp.toNumber() * 1e-9;
+  const feesumsol = fromBase(feesumlamp.toString(), network.decimals);
 
   // TODO: give different fees for different priority levels
   return {
     [GasPriceTypes.REGULAR]: {
-      // Convert to string, cut off floating point rounding errors, trim redundant trailing 0's
-      nativeValue: feesumsol.toFixed(10).replace(/\.?0+$/, ""),
-      fiatValue: (price * feesumsol).toFixed(10).replace(/\.?0+$/, ""),
+      nativeValue: feesumsol,
+      fiatValue: new BigNumber(feesumsol).times(price).toString(),
       nativeSymbol: "SOL",
       fiatSymbol: "USD",
     },

@@ -241,7 +241,7 @@ const NetworkDetails: Record<SupportedNetworkName, NetworkInfo> = {
   },
   [SupportedNetworkName.Solana]: {
     id: SupportedNetworkName.Solana,
-    decimals: 8,
+    decimals: 9,
     logoURI:
       "https://assets.coingecko.com/coins/images/4128/standard/solana.png",
     name: "Solana",

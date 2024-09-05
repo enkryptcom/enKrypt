@@ -42,7 +42,6 @@ import {
 } from "@solana/web3.js";
 import sendUsingInternalMessengers from "@/libs/messenger/internal-messenger";
 import { InternalMethods } from "@/types/messenger";
-import bs58 from "bs58";
 
 /**
  * Create an Activity model that can be displayed in the UI to represent
@@ -212,12 +211,8 @@ export const executeSwap = async (
       }
 
       // Add signature to the transaction
-      // (For some reason the address is hex encoded instead of base58
-      // encoded so we need to transform it)
       tx.addSignature(
-        new PublicKey(
-          bs58.encode(Buffer.from(options.from.address.slice(2), "hex"))
-        ),
+        new PublicKey(options.network.displayAddress(options.from.address)),
         hexToBuffer(JSON.parse(sigRes.result!))
       );
 
