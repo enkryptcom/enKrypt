@@ -7,9 +7,16 @@ import replace from "@rollup/plugin-replace";
 import json from "@rollup/plugin-json";
 import packageJson from "../package.json" assert { type: "json" };
 
+/** @typedef {import('rollup').InputOptions} InputOptions */
+
 const enableMinification = process.env.minify === "on";
+
+/** @type {InputOptions} */
 const base = {
   input: [],
+  watch: {
+    exclude: /node_modules/,
+  },
   output: {
     dir: "dist/scripts",
     format: "iife",

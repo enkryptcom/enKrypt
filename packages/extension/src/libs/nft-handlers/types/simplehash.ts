@@ -17,8 +17,8 @@ export interface SHNFTType {
   };
   external_url: string;
   collection: {
-    name: string;
-    description: string;
+    name: null | string;
+    description: null | string;
     image_url: string;
     external_url: string;
     collection_id: string;

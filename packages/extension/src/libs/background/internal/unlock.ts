@@ -16,9 +16,9 @@ const unlock = (
   const initNewAccounts = (message.params[1] as boolean) ?? false;
   return keyring
     .unlock(password)
-    .then(() => {
+    .then(async () => {
       if (initNewAccounts) {
-        initAccounts(keyring);
+        await initAccounts(keyring);
       }
       return {
         result: JSON.stringify(true),

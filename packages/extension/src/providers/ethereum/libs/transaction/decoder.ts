@@ -63,7 +63,7 @@ const decodeTx = async (
           .getMarketInfoByContracts([tx.to!], network.coingeckoPlatform!)
           .then((marketInfo) => {
             if (marketInfo[tx.to!]) {
-              currentPriceUSD = marketInfo[tx.to!]!.current_price;
+              currentPriceUSD = marketInfo[tx.to!]!.current_price ?? 0;
               CGToken = marketInfo[tx.to!]!.id;
             }
           });
@@ -76,7 +76,7 @@ const decodeTx = async (
   }
   if (CGToken === network.coingeckoID && network.coingeckoID) {
     await marketData.getMarketData([CGToken!]).then((marketInfo) => {
-      currentPriceUSD = marketInfo[0]!.current_price;
+      currentPriceUSD = marketInfo[0]!.current_price ?? 0;
     });
   }
   return {
