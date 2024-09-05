@@ -609,7 +609,7 @@ const updateQuote = () => {
   // Abort the previous execution. Used to avoid race conditions in the UI and
   // rapid pointless updates in succession when multiple requests are in-flight.
   // AbortSignal gives the swap provider the abiltiy to cancel network requests
-  // and exit early when we call the context's abort controllers' abort() method.
+  // and exit early.
   updateQuoteContext.current.aborter.abort();
   // Setup a new abortable context
   const ctx = {
