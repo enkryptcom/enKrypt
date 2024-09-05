@@ -52,31 +52,35 @@ import { toBN } from "web3-utils";
  * @see https://referral.jup.ag/api
  * @see https://github.com/TeamRaccoons/referral
  *
- * Jupiter requires you to create a referral account. You can do this by
- * visiting the Jupiter referral dashboard https://referral.jup.ag/dashboard
- * and selecting "create account".
+ * Jupiter requires referral account. A rferral account can be created on the
+ * Jupiter referral dashboard https://referral.jup.ag/dashboard
  *
  * After you have a referral account (associated with your Solana address) you
- * need to create token accounts for it so that it can receive referral fees
- * for those tokens. This is also done via the Jupiter referral dashboard
- * https://referral.jup.ag/dashboard.
+ * can create token accounts (ATA's) so that it can receive referral fees.
+ * We inject an instruction in swap transactions to create a referral fee ATA
+ * if the user tries to swap a token that doesn't one yet.
  *
- * ## Steps
+ * ## Swap flow
  *
  * 1. Request a quote from the Jupiter swap API
  * 2. Request a swap transaction from the Jupiter swap API with the quote provided
- * 2.5. Modify the transaction to create the referrer ATA to receive platform fees, if required
- * 3. Deserialize and signt the transaction
- * 4. Execute the transaction
+ * 3. Decompile, modify and recompile the transaction to add an instruction that
+ *    creates the referrer ATA to receive platform fees, if required
+ * 4. Sign the transaction
+ * 5. Execute the transaction
  *
  * ## Terminology
  *
- * - Mint: is the address of a token.
- * - SPL: Solana Program Library, a collection of on-chain programs that
- * - SPL Token: a token that uses the SPL program (an in-built standard Solana
- *              token program) to manage its state. Similar to an ERC20 token.
- * - ATA: Associated Token Account, an SPL token account that is associated with
- *        a Solana address. In EVM this would just be your own account.
+ * - Mint: a mint is a unique identifier for an SPL token, typically represented by a public key.
+ * - SPL (Solana Program Library): A collection of on-chain programs designed to support the Solana ecosystem.
+ * - SPL Token: A type of token on the Solana blockchain that adheres to the standards set by SPL Token
+ *     programs, analogous to ERC20 tokens on Ethereum. There are two main SPL Token programs:
+ *     the original "SPL Token Program" and the updated "2022 SPL Token Program."
+ * - ATA (Associated Token Account): An account that holds token balances and other program-associated data
+ *     for a specific address on Solana. ATAs are necessary to link an address with its assets, such as
+ *     tokens. The maintenance of an ATA involves a periodic rent, deducted from its balance, which varies
+ *     based on the data storage required. For instance, token programs typically require 165 bytes per ATA.
+ *     An ATA that maintains at least two years' worth of rent in its balance qualifies as rent-exempt.
  *
  * [Solana 101](https://2501babe.github.io/posts/solana101.html)
  */
@@ -381,7 +385,8 @@ export class Jupiter extends ProviderClass {
   }
 
   /**
-   * Get a quote and swap prepare a swap transactin for the assets
+   * Query the Jupiter Swap API for a quote, a swap transaction, transform the swap transaction if needed
+   * and extract additional information like rent fees and compute budget
    */
   private async querySwapInfo(
     options: getQuoteOptions,
