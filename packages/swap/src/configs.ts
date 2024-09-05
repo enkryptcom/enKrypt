@@ -69,7 +69,7 @@ const FEE_CONFIGS: Partial<
       // referrer: "41gBjMVCQ4FD2GAsKdjVPEGLQc7K6AxoY8C7PJ7HDp6y",
       referrer: "EcrQ8iRSczuUq8YPBQKx1mWRuH8xxi3t9uwfenb6o9aW",
       // Rounded because Jupiter API only accepts bps integers
-      fee: 0.030,
+      fee: 0.03,
     },
   },
 };

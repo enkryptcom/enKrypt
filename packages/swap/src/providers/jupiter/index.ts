@@ -150,7 +150,7 @@ const JUPITER_REFERRAL_ATA_ACCOUNT_SIZE_BYTES = 165;
 const SPL_TOKEN_ATA_ACCOUNT_SIZE_BYTES = 165;
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function
-const debug = (..._args: any[]) => { };
+const debug = (..._args: any[]) => {};
 // Use this debug instead to enable debug logging
 // const debug = console.debug.bind(console);
 
@@ -486,8 +486,8 @@ export class Jupiter extends ProviderClass {
 
       debug(
         `[Jupiter.querySwapInfo] Referrer ATA does not exist. Updating transaction with instruction to create it.` +
-        ` Referral ATA pubkey: ${referrerATAPubkey.toBase58()},` +
-        ` Rent: ${rentFees} lamports`
+          ` Referral ATA pubkey: ${referrerATAPubkey.toBase58()},` +
+          ` Rent: ${rentFees} lamports`
       );
 
       tx = await updateSwapTransactionToCreateJupiterReferrerATA(
@@ -517,8 +517,8 @@ export class Jupiter extends ProviderClass {
     if (walletDstMintATAExists) {
       debug(
         `[Jupiter.querySwapInfo] Wallet destination mint ATA already exists, no need to record additional rent fees.` +
-        ` ATA pubkey: ${walletDstMintATAPubkey.toBase58()},` +
-        ` Destination mint: ${dstMint.toBase58()}`
+          ` ATA pubkey: ${walletDstMintATAPubkey.toBase58()},` +
+          ` Destination mint: ${dstMint.toBase58()}`
       );
     } else {
       rentFees += await this.conn.getMinimumBalanceForRentExemption(
@@ -526,10 +526,10 @@ export class Jupiter extends ProviderClass {
       );
       debug(
         `[Jupiter.querySwapInfo] Wallet destination mint ATA does not exist, it will be created by the swap transaction.` +
-        ` Adding ATA rent to extra transaction fees.` +
-        ` ATA pubkey: ${walletDstMintATAPubkey.toBase58()},` +
-        ` Destination mint: ${dstMint.toBase58()},` +
-        ` Rent: ${rentFees} lamports`
+          ` Adding ATA rent to extra transaction fees.` +
+          ` ATA pubkey: ${walletDstMintATAPubkey.toBase58()},` +
+          ` Destination mint: ${dstMint.toBase58()},` +
+          ` Rent: ${rentFees} lamports`
       );
     }
 
@@ -810,7 +810,8 @@ async function getJupiterTokens(context?: {
           default: /* noop */
         }
         throw new Error(
-          `Failed to get Jupiter tokens, HTTP response returned not-ok status ${res.status
+          `Failed to get Jupiter tokens, HTTP response returned not-ok status ${
+            res.status
           } ${res.statusText || "<no status text>"}: ${msg}`
         );
       }
@@ -827,7 +828,8 @@ async function getJupiterTokens(context?: {
       if (signal?.aborted) throw signal.reason;
       if (failed) throw err;
       debug(
-        `[getJupiterTokens] Failed to get Jupiter tokens on attempt ${backoffi + 1
+        `[getJupiterTokens] Failed to get Jupiter tokens on attempt ${
+          backoffi + 1
         }/${backoff.length}: ${String(err)}`
       );
       errRef ??= { err: err as Error };
@@ -999,7 +1001,8 @@ async function getJupiterQuote(
           default: /* noop */
         }
         throw new Error(
-          `Failed to get Jupiter quote, HTTP response returned not-ok status ${res.status
+          `Failed to get Jupiter quote, HTTP response returned not-ok status ${
+            res.status
           } ${res.statusText || "<no status text>"} at url ${url}: ${msg}`
         );
       }
@@ -1016,7 +1019,8 @@ async function getJupiterQuote(
       if (signal?.aborted) throw signal.reason;
       if (failed) throw err;
       console.warn(
-        `[getJupiterQuote] Failed to get Jupiter quote on attempt ${backoffi + 1
+        `[getJupiterQuote] Failed to get Jupiter quote on attempt ${
+          backoffi + 1
         }/${backoff.length}: ${String(err)}`
       );
       errRef ??= { err: err as Error };
@@ -1153,7 +1157,8 @@ async function getJupiterSwap(
           default: /* noop */
         }
         throw new Error(
-          `Failed to get Jupiter swap, HTTP response returned not-ok status ${res.status
+          `Failed to get Jupiter swap, HTTP response returned not-ok status ${
+            res.status
           } ${res.statusText || "<no status text>"} at url ${url}: ${msg}`
         );
       }
@@ -1170,7 +1175,8 @@ async function getJupiterSwap(
     } catch (err) {
       if (failed) throw err;
       debug(
-        `[getJupiterSwap] Failed to get Jupiter swap on attempt ${backoffi + 1
+        `[getJupiterSwap] Failed to get Jupiter swap on attempt ${
+          backoffi + 1
         }/${backoff.length}: ${String(err)}`
       );
       errRef ??= { err: err as Error };
@@ -1367,7 +1373,8 @@ async function updateSwapTransactionToCreateJupiterReferrerATA(
         `Failed to get address lookup table for ${lookup.accountKey}`
       );
     debug(
-      `[updateSwapTransactionToCreateJupiterReferrerATA] Fetching lookup account ${i + 1
+      `[updateSwapTransactionToCreateJupiterReferrerATA] Fetching lookup account ${
+        i + 1
       }. ${lookup.accountKey.toBase58()}`
     );
     addressLookupTableAccounts[i] = addressLookupTableAccount;
@@ -1450,8 +1457,8 @@ async function getTokenProgramOfMint(
     default:
       throw new Error(
         `Mint address is not a valid SPL token, must either have owner` +
-        ` TOKEN_PROGRAM_ID (${TOKEN_PROGRAM_ID.toBase58()})` +
-        ` or TOKEN_2022_PROGRAM_ID (${TOKEN_2022_PROGRAM_ID.toBase58()})`
+          ` TOKEN_PROGRAM_ID (${TOKEN_PROGRAM_ID.toBase58()})` +
+          ` or TOKEN_2022_PROGRAM_ID (${TOKEN_2022_PROGRAM_ID.toBase58()})`
       );
   }
 }

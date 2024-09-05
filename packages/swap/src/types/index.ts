@@ -219,7 +219,7 @@ export interface ProviderSwapResponse {
   // For example Changelly bridging fees, Solana rent fees
   additionalNativeFees: BN;
   /** Description of `additionalNativeFees` for the swap UI. default: "Bridging fee" */
-  additionalNativeFeesDescription?: string,
+  additionalNativeFeesDescription?: string;
   provider: ProviderName;
   slippage: string;
   /** Percentage fee 0-1 (100 * basis points) */
