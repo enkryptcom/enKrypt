@@ -743,14 +743,14 @@ async function getJupiterTokens(context?: {
       );
       await new Promise<void>((res, rej) => {
         function onTimeout() {
-          cleanupTimeout();
+          cleanupSleep();
           res();
         }
         function onAbortDuringSleep() {
-          cleanupTimeout();
+          cleanupSleep();
           rej(signal!.reason);
         }
-        function cleanupTimeout() {
+        function cleanupSleep() {
           signal?.removeEventListener("abort", onAbortDuringSleep);
           clearTimeout(timeout);
         }
@@ -934,14 +934,14 @@ async function getJupiterQuote(
       );
       await new Promise<void>((res, rej) => {
         function onTimeout() {
-          cleanupTimeout();
+          cleanupSleep();
           res();
         }
         function onAbortDuringSleep() {
-          cleanupTimeout();
+          cleanupSleep();
           rej(signal!.reason);
         }
-        function cleanupTimeout() {
+        function cleanupSleep() {
           signal?.removeEventListener("abort", onAbortDuringSleep);
           clearTimeout(timeout);
         }
@@ -1087,14 +1087,14 @@ async function getJupiterSwap(
       debug(`[getJupiterSwap] Retrying ${url} after ${backoff[backoffi]}ms...`);
       await new Promise<void>((res, rej) => {
         function onTimeout() {
-          cleanupTimeout();
+          cleanupSleep();
           res();
         }
         function onAbortDuringSleep() {
-          cleanupTimeout();
+          cleanupSleep();
           rej(signal!.reason);
         }
-        function cleanupTimeout() {
+        function cleanupSleep() {
           signal?.removeEventListener("abort", onAbortDuringSleep);
           clearTimeout(timeout);
         }
