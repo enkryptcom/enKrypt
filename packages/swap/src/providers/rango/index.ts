@@ -161,7 +161,11 @@ class Rango extends ProviderClass {
         // has an 0x prefixed hex number
         (chain: BlockchainMeta) => {
           if (Number(chain.chainId) === Number(chainId)) return true;
-          if (chain.name === "SOLANA" && chain.chainId === "mainnet-beta")
+          if (
+            network === SupportedNetworkName.Solana &&
+            chain.name === "SOLANA" &&
+            chain.chainId === "mainnet-beta"
+          )
             return true;
           return false;
         }
