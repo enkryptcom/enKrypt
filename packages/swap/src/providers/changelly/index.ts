@@ -33,7 +33,7 @@ import {
 import { getTransfer } from "../../utils/approvals";
 import supportedNetworks from "./supported";
 import { ChangellyCurrency } from "./types";
-import estimateGasList from "../../common/estimateGasList";
+import estimateEVMGasList from "../../common/estimateGasList";
 
 const BASE_URL = "https://partners.mewapi.io/changelly-v2";
 
@@ -316,7 +316,7 @@ class Changelly extends ProviderClass {
               to: result.payinAddress,
               value: quote.options.amount.toString(),
             });
-          const accurateGasEstimate = await estimateGasList(
+          const accurateGasEstimate = await estimateEVMGasList(
             [transaction],
             this.network
           );

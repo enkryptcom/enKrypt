@@ -160,6 +160,7 @@ export interface EVMTransaction {
 
 export interface SolanaTransaction {
   from: string;
+  /** TODO: document what this is for, I think it's just for UI */
   to: string;
   /** base64 serialized unsigned solana transaction */
   serialized: string;

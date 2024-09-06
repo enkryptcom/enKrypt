@@ -100,7 +100,7 @@ const useStandardEstimate = (
     })
     .catch(() => null);
 
-const estimateGasList = (
+const estimateEVMGasList = (
   transactions: EVMTransaction[],
   network: SupportedNetworkName
 ): Promise<{
@@ -155,4 +155,4 @@ const estimateGasList = (
     .catch(() => null);
 };
 
-export default estimateGasList;
+export default estimateEVMGasList;

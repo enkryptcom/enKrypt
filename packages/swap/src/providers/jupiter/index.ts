@@ -2,9 +2,7 @@
 
 import { NetworkNames } from "@enkryptcom/types";
 import {
-  AccountMeta,
   AddressLookupTableAccount,
-  ComputeBudgetInstruction,
   ComputeBudgetProgram,
   Connection,
   PublicKey,
@@ -38,6 +36,7 @@ import {
   TokenNetworkType,
 } from "@src/types";
 import { TOKEN_AMOUNT_INFINITY_AND_BEYOND } from "@src/utils/approvals";
+import { extractComputeBudget } from "@src/utils/solana";
 import { toBN } from "web3-utils";
 
 /**
@@ -510,7 +509,7 @@ export class Jupiter extends ProviderClass {
 
     // Will the destination token ATA for the swapper need to be created?
     const walletDstMintATAPubkey =
-      await getSolanaProgrammingLibraryAssociatedTokenAccountPubkey(
+      getSolanaProgrammingLibraryAssociatedTokenAccountPubkey(
         fromPubkey,
         dstMint,
         tokenProgramId
@@ -1485,72 +1484,16 @@ async function getTokenProgramOfMint(
 /**
  * Get the SPL token ATA pubkey for a wallet with a mint
  */
-async function getSolanaProgrammingLibraryAssociatedTokenAccountPubkey(
+function getSolanaProgrammingLibraryAssociatedTokenAccountPubkey(
   wallet: PublicKey,
   mint: PublicKey,
   /** Either the SPL token program or the 2022 SPL token program */
   tokenProgramId: PublicKey
-): Promise<PublicKey> {
+): PublicKey {
   const SEED = [wallet.toBuffer(), tokenProgramId.toBuffer(), mint.toBuffer()];
-  const [associatedTokenAddress] = await PublicKey.findProgramAddress(
+  const [associatedTokenAddress] = PublicKey.findProgramAddressSync(
     SEED,
     ASSOCIATED_TOKEN_PROGRAM_ID
   );
   return associatedTokenAddress;
-}
-
-/**
- * @see https://solana.com/docs/core/fees#prioritization-fees
- *
- * > Transactions can only contain one of each type of compute budget
- *   instruction. Duplicate instruction types will result in an
- *   TransactionError::DuplicateInstruction error, and ultimately
- *   transaction failure.
- */
-function extractComputeBudget(tx: VersionedTransaction): undefined | number {
-  // extract the compute budget
-  let computeBudget: undefined | number;
-
-  instructionLoop: for (
-    let i = 0, len = tx.message.compiledInstructions.length;
-    i < len;
-    i++
-  ) {
-    const instr = tx.message.compiledInstructions[i];
-    const program = tx.message.staticAccountKeys[instr.programIdIndex];
-    if (!ComputeBudgetProgram.programId.equals(program)) continue;
-
-    const keys = instr.accountKeyIndexes.map(
-      (accountKeyIndex): AccountMeta => ({
-        pubkey: tx.message.staticAccountKeys[accountKeyIndex],
-        isSigner: tx.message.isAccountSigner(accountKeyIndex),
-        isWritable: tx.message.isAccountWritable(accountKeyIndex),
-      })
-    );
-
-    // Decompile the instruction
-    const instruction = new TransactionInstruction({
-      keys,
-      programId: program,
-      data: Buffer.from(instr.data),
-    });
-
-    const type = ComputeBudgetInstruction.decodeInstructionType(instruction);
-    switch (type) {
-      case "SetComputeUnitLimit": {
-        // Compute limit
-        const command =
-          ComputeBudgetInstruction.decodeSetComputeUnitLimit(instruction);
-        computeBudget = command.units;
-        break instructionLoop;
-      }
-      // You can use this to get the priorty fee
-      // case "SetComputeUnitPrice":
-      default: /** noop */
-        break;
-    }
-  }
-
-  // (default of 200_000 from Google)
-  return computeBudget ?? 200_000;
 }

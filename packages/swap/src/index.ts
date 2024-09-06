@@ -116,6 +116,7 @@ class Swap extends EventEmitter {
         // Solana
         this.providers = [
           new Jupiter(this.api as Web3Solana, this.network),
+          new Rango(this.api as Web3Solana, this.network),
           new Changelly(this.network),
         ];
         break;
