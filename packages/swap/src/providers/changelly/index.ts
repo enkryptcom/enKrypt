@@ -65,16 +65,23 @@ class Changelly extends ProviderClass {
   async init(): Promise<void> {
     if (!Changelly.isSupported(this.network)) return;
     this.changellyList = await fetch(CHANGELLY_LIST).then((res) => res.json());
+
+    /** Mapping of changelly network name -> enkrypt network name */
     const changellyToNetwork: Record<string, SupportedNetworkName> = {};
     Object.keys(supportedNetworks).forEach((net) => {
       changellyToNetwork[supportedNetworks[net].changellyName] =
         net as unknown as SupportedNetworkName;
     });
+
     const supportedChangellyNames = Object.values(supportedNetworks).map(
       (s) => s.changellyName
     );
+
     this.changellyList.forEach((cur) => {
-      if (!supportedChangellyNames.includes(cur.blockchain)) return;
+      // Must be a supported token
+      if (!supportedChangellyNames.includes(cur.blockchain)) {
+        return;
+      }
       if (
         cur.enabledFrom &&
         cur.fixRateEnabled &&
@@ -125,6 +132,7 @@ class Changelly extends ProviderClass {
   }
 
   private changellyRequest(method: string, params: any): Promise<any> {
+    // TODO: timeoutes & retries?
     return fetch(`${BASE_URL}`, {
       method: "POST",
       body: JSON.stringify({

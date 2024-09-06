@@ -612,12 +612,12 @@ const updateQuote = () => {
   // and exit early.
   updateQuoteContext.current.aborter.abort();
   // Setup a new abortable context
-  const ctx = {
+  const context = {
     id: updateQuoteContext.current.id + 1,
     aborter: new AbortController(),
   };
-  updateQuoteContext.current = ctx;
-  debug(`[swap/index.vue] Starting quote update  id=${ctx.id}`);
+  updateQuoteContext.current = context;
+  debug(`[swap/index.vue] Starting quote update  id=${context.id}`);
 
   swap
     .getQuotes(
@@ -630,31 +630,33 @@ const updateQuote = () => {
         toToken: toToken.value!,
         toAddress: toAddressInputMeta.value.displayAddress(address.value),
       },
-      { signal: ctx.aborter.signal }
+      { signal: context.aborter.signal }
     )
     .then((quotes) => {
       // Overidden by new update, drop these quotes
-      if (ctx.aborter.signal.aborted) {
+      if (context.aborter.signal.aborted) {
         debug(
-          `[swap/index.vue] Dropping quotes due to new update  id=${ctx.id}`
+          `[swap/index.vue] Dropping quotes due to new update  id=${context.id}`
         );
         return;
       }
 
       if (quotes.length) {
-        debug(`[swap/index.vue] Found ${quotes.length} quotes  id=${ctx.id}`);
+        debug(
+          `[swap/index.vue] Found ${quotes.length} quotes  id=${context.id}`
+        );
         pickBestQuote(fromRawAmount, quotes);
       } else {
-        debug(`[swap/index.vue] No quotes  id=${ctx.id}`);
+        debug(`[swap/index.vue] No quotes  id=${context.id}`);
         isFindingRate.value = false;
         errors.value.noProviders = true;
       }
     })
     .catch((err) => {
       // Context aborted, just ignore the error
-      if (err === ctx.aborter.signal.reason) {
+      if (err === context.aborter.signal.reason) {
         debug(
-          `[swap/index.vue] Ignoring error due to quote request context abort  id=${ctx.id}`
+          `[swap/index.vue] Ignoring error due to quote request context abort  id=${context.id}`
         );
         return;
       }

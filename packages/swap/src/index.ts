@@ -114,7 +114,10 @@ class Swap extends EventEmitter {
     switch (this.network) {
       case SupportedNetworkName.Solana:
         // Solana
-        this.providers = [new Jupiter(this.api as Web3Solana, this.network)];
+        this.providers = [
+          new Jupiter(this.api as Web3Solana, this.network),
+          new Changelly(this.network),
+        ];
         break;
       default:
         // EVM
