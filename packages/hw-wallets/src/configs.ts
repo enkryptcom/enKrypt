@@ -11,8 +11,6 @@ const walletConfigs: WalletConfigs = {
 };
 const ledgerAppNames = {
   [NetworkNames.Ethereum]: "Ethereum",
-  [NetworkNames.Matic]: "Ethereum",
-  [NetworkNames.Binance]: "Ethereum",
   [NetworkNames.Rootstock]: "RSK",
   [NetworkNames.EthereumClassic]: "Ethereum Classic",
   [NetworkNames.Acala]: "Acala",
@@ -20,6 +18,9 @@ const ledgerAppNames = {
   [NetworkNames.Polkadot]: "Polkadot",
   [NetworkNames.Karura]: "Karura",
   [NetworkNames.Edgeware]: "Edgeware",
+  [NetworkNames.Bitcoin]: "Bitcoin",
+  [NetworkNames.Litecoin]: "Litecoin",
+  [NetworkNames.Dogecoin]: "Dogecoin",
 };
 const MessengerName = "enkrypt_hw_wallets";
 
@@ -73,6 +74,36 @@ const bip44Paths = {
     path: "m/0'/0'/{index}'",
     basePath: "m/0'/0'/0",
     label: "Substrate",
+  },
+  bitcoinSegwitLedger: {
+    path: "m/84'/0'/{index}'/0/0",
+    basePath: "m/84'/0'",
+    label: "Bitcoin",
+  },
+  litecoinSegwitLedger: {
+    path: "m/84'/2'/{index}'/0/0",
+    basePath: "m/84'/2'",
+    label: "Litecoin",
+  },
+  dogecoinLedger: {
+    path: "m/44'/3'/{index}'/0/0",
+    basePath: "m/44'/3'",
+    label: "Dogecoin",
+  },
+  bitcoinSegwitTrezor: {
+    path: "m/84'/0'/0'/0/{index}",
+    basePath: "m/84'/0'/0'/0",
+    label: "Bitcoin",
+  },
+  litecoinSegwitTrezor: {
+    path: "m/84'/2'/0'/0/{index}",
+    basePath: "m/84'/2'/0'/0",
+    label: "Litecoin",
+  },
+  dogecoinTrezor: {
+    path: "m/44'/3'/0'/0/{index}",
+    basePath: "m/44'/3'/0'/0",
+    label: "Dogecoin",
   },
 };
 export { walletConfigs, MessengerName, ledgerAppNames, bip44Paths };
