@@ -20,7 +20,7 @@ import {
 describe("Changelly Provider", () => {
   // @ts-ignore
   const web3eth = new Web3Eth(nodeURL);
-  const changelly = new Changelly(web3eth, SupportedNetworkName.Ethereum);
+  const changelly = new Changelly(SupportedNetworkName.Ethereum);
   const init = changelly.init();
   it("it should return a quote ", async () => {
     await init;
@@ -70,7 +70,7 @@ describe("Changelly Provider", () => {
   });
 
   it("it should initialize other networks: Bitcoin", async () => {
-    const changelly2 = new Changelly(web3eth, SupportedNetworkName.Bitcoin);
+    const changelly2 = new Changelly(SupportedNetworkName.Bitcoin);
     await changelly2.init();
     const fromTokens = changelly2.getFromTokens();
     expect(Object.values(fromTokens).length).to.be.eq(1);
@@ -78,7 +78,7 @@ describe("Changelly Provider", () => {
   });
 
   it("it should initialize other networks: Polkadot", async () => {
-    const changelly2 = new Changelly(web3eth, SupportedNetworkName.Polkadot);
+    const changelly2 = new Changelly(SupportedNetworkName.Polkadot);
     await changelly2.init();
     const fromTokens = changelly2.getFromTokens();
     expect(Object.values(fromTokens).length).to.be.eq(1);

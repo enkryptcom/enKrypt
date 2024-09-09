@@ -11,11 +11,14 @@ import {
   TransactionMessage,
   VersionedTransaction,
 } from "@solana/web3.js";
+import { toBN } from "web3-utils";
+import { TOKEN_AMOUNT_INFINITY_AND_BEYOND } from "../../utils/approvals";
+import { extractComputeBudget } from "../../utils/solana";
 import {
   DEFAULT_SLIPPAGE,
   FEE_CONFIGS,
   NATIVE_TOKEN_ADDRESS,
-} from "@src/configs";
+} from "../../configs";
 import {
   ProviderClass,
   ProviderName,
@@ -34,10 +37,7 @@ import {
   StatusOptionsResponse,
   SolanaTransaction,
   TokenNetworkType,
-} from "@src/types";
-import { TOKEN_AMOUNT_INFINITY_AND_BEYOND } from "@src/utils/approvals";
-import { extractComputeBudget } from "@src/utils/solana";
-import { toBN } from "web3-utils";
+} from "../../types";
 
 /**
  * # Jupiter swap flow
