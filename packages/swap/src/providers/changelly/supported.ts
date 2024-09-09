@@ -1,6 +1,11 @@
 import { isPolkadotAddress, isEVMAddress } from "../../utils/common";
 import { SupportedNetworkName } from "../../types";
 
+/**
+ * ```sh
+ * curl https://partners.mewapi.io/changelly-v2 -X POST -H Accept:application/json -H Content-Type:application/json --data '{"id":"1","jsonrpc":"2.0","method":"getCurrenciesFull","params":{}}'
+ * ````
+ */
 const supportedNetworks: {
   [key in SupportedNetworkName]?: {
     changellyName: string;
@@ -49,6 +54,9 @@ const supportedNetworks: {
   },
   [SupportedNetworkName.Dogecoin]: {
     changellyName: "doge",
+  },
+  [SupportedNetworkName.Rootstock]: {
+    changellyName: "rootstock",
   },
 };
 
