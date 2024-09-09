@@ -29,7 +29,7 @@ const TransactionSigner = (
         wallet: account.walletType as unknown as HWwalletType,
       })
       .then((rpcsig: string) => {
-        const rpcSig = fromRpcSig(rpcsig);
+        const rpcSig = fromRpcSig(rpcsig as `0x${string}`);
         const signedTx = payload.addSignature(
           BigInt(rpcSig.v),
           rpcSig.r,

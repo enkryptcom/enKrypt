@@ -31,7 +31,7 @@ class Signer implements SignerInterface {
     sig: string,
     publicKey: string
   ): Promise<boolean> {
-    const sigdecoded = fromRpcSig(sig);
+    const sigdecoded = fromRpcSig(sig as `0x${string}`);
     const rpubkey = ecrecover(
       hexToBuffer(msgHash),
       sigdecoded.v,
