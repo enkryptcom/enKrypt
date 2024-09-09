@@ -1,5 +1,4 @@
 import { expect } from "chai";
-import Web3Eth from "web3-eth";
 import { NATIVE_TOKEN_ADDRESS } from "../src/configs";
 import Changelly from "../src/providers/changelly";
 import {
@@ -14,12 +13,10 @@ import {
   amount,
   fromAddress,
   toAddress,
-  nodeURL,
 } from "./fixtures/mainnet/configs";
 
 describe("Changelly Provider", () => {
   // @ts-ignore
-  const web3eth = new Web3Eth(nodeURL);
   const changelly = new Changelly(SupportedNetworkName.Ethereum);
   const init = changelly.init();
   it("it should return a quote ", async () => {
