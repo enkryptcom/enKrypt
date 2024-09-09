@@ -28,6 +28,15 @@ class API implements ProviderAPIInterface {
   }
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   async init(): Promise<void> {}
+  async getRawTransaction(hash: string): Promise<string | null> {
+    return fetch(`${this.node}/api/v1/tx/${hash}/raw`)
+      .then((res) => res.json())
+      .then((tx: { hex: string; error: unknown }) => {
+        if ((tx as any).error) return null;
+        if (!tx.hex) return null;
+        return `0x${tx.hex}`;
+      });
+  }
   async getTransactionStatus(hash: string): Promise<BTCRawInfo | null> {
     return fetch(`${this.node}/api/v1/tx/${hash}`)
       .then((res) => res.json())

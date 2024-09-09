@@ -150,9 +150,9 @@ export class EvmNetwork extends BaseNetwork {
           .value,
         balanceUSD: nativeUsdBalance.toNumber(),
         balanceUSDf: formatFiatValue(nativeUsdBalance.toString()).value,
-        value: nativeMarketData?.current_price.toString() ?? "0",
+        value: nativeMarketData?.current_price?.toString() ?? "0",
         valuef: formatFiatValue(
-          nativeMarketData?.current_price.toString() ?? "0"
+          nativeMarketData?.current_price?.toString() ?? "0"
         ).value,
         decimals: this.decimals,
         sparkline: nativeMarketData
@@ -265,12 +265,12 @@ export class EvmNetwork extends BaseNetwork {
       if (marketInfo) {
         const usdBalance = new BigNumber(
           fromBase(token.balance ?? "0", token.decimals)
-        ).times(marketInfo.current_price);
+        ).times(marketInfo.current_price ?? 0);
         asset.balanceUSD = usdBalance.toNumber();
         asset.balanceUSDf = formatFiatValue(usdBalance.toString()).value;
-        asset.value = marketInfo.current_price.toString();
+        asset.value = marketInfo.current_price?.toString() ?? "0";
         asset.valuef = formatFiatValue(
-          marketInfo.current_price.toString()
+          marketInfo.current_price?.toString() ?? "0"
         ).value;
         asset.sparkline = new Sparkline(
           marketInfo.sparkline_in_7d.price,

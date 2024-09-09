@@ -8,6 +8,9 @@ import { SupportedNetworkName } from "../../types";
  * ```sh
  * curl -sL https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/swaplists/changelly.json | jq --raw-output '.[].blockchain' | sort | uniq -c | sort -nr
  * ```
+ * ```sh
+ * curl https://partners.mewapi.io/changelly-v2 -X POST -H Accept:application/json -H Content-Type:application/json --data '{"id":"1","jsonrpc":"2.0","method":"getCurrenciesFull","params":{}}'
+ * ````
  */
 const supportedNetworks: {
   [key in SupportedNetworkName]?: {
@@ -69,6 +72,9 @@ const supportedNetworks: {
         return Promise.resolve(false);
       }
     },
+  },
+  [SupportedNetworkName.Rootstock]: {
+    changellyName: "rootstock",
   },
 };
 

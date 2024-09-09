@@ -30,6 +30,9 @@ export enum SupportedNetworkName {
   Zksync = NetworkNames.ZkSync,
   Base = NetworkNames.Base,
   MaticZK = NetworkNames.MaticZK,
+  Blast = NetworkNames.Blast,
+  Telos = NetworkNames.Telos,
+  Rootstock = NetworkNames.Rootstock,
   Solana = NetworkNames.Solana,
 }
 

@@ -48,6 +48,7 @@ class Changelly extends ProviderClass {
 
   toTokens: ProviderToTokenResponse;
 
+  /** Dynamically generated Changelly swap token data from the Enkrypt dynamic-lists repo {@link CHANGELLY_LIST} */
   changellyList: ChangellyCurrency[];
 
   contractToTicker: Record<string, string>;
@@ -67,12 +68,15 @@ class Changelly extends ProviderClass {
     this.changellyList = await fetch(CHANGELLY_LIST).then((res) => res.json());
 
     /** Mapping of changelly network name -> enkrypt network name */
+    /** changelly blockchain name -> enkrypt supported swap network name */
     const changellyToNetwork: Record<string, SupportedNetworkName> = {};
+    // Generate mapping of changelly blockchain -> enkrypt blockchain
     Object.keys(supportedNetworks).forEach((net) => {
       changellyToNetwork[supportedNetworks[net].changellyName] =
         net as unknown as SupportedNetworkName;
     });
 
+    /** List of changelly blockchain names */
     const supportedChangellyNames = Object.values(supportedNetworks).map(
       (s) => s.changellyName
     );
@@ -90,6 +94,8 @@ class Changelly extends ProviderClass {
       ) {
         this.fromTokens[cur.token.address] = cur.token;
       }
+
+      // Can currency can be swapped to?
       if (cur.enabledTo && cur.fixRateEnabled && cur.token) {
         if (!this.toTokens[changellyToNetwork[cur.blockchain]])
           this.toTokens[changellyToNetwork[cur.blockchain]] = {};

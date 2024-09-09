@@ -22,10 +22,9 @@
 
       <send-from-contacts-list
         :show-accounts="isOpenSelectContactFrom"
-        :accounts="accountInfo.activeAccounts"
+        :account-info="accountInfo"
         :address="addressFrom"
         :network="network"
-        :identicon="network.identicon"
         @selected:account="selectAccountFrom"
         @close="toggleSelectContactFrom"
       />
@@ -41,9 +40,9 @@
 
       <send-contacts-list
         :show-accounts="isOpenSelectContactTo"
-        :accounts="accountInfo.activeAccounts"
-        :network="network"
+        :account-info="accountInfo"
         :address="addressTo"
+        :network="network"
         @selected:account="selectAccountTo"
         @update:paste-from-clipboard="addressInputTo.pasteFromClipboard()"
         @close="toggleSelectContactTo"
@@ -100,8 +99,8 @@ import { useRoute, useRouter } from "vue-router";
 import { debounce } from "lodash";
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import SendAddressInput from "./components/send-address-input.vue";
-import SendContactsList from "./components/send-contacts-list.vue";
-import SendFromContactsList from "./components/send-from-contacts-list.vue";
+import SendContactsList from "@/providers/common/ui/send-transaction/send-contacts-list.vue";
+import SendFromContactsList from "@/providers/common/ui/send-transaction/send-from-contacts-list.vue";
 import SendTokenSelect from "./components/send-token-select.vue";
 import AssetsSelectList from "@action/views/assets-select-list/index.vue";
 import SendInputAmount from "@/providers/common/ui/send-transaction/send-input-amount.vue";

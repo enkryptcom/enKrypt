@@ -8,7 +8,7 @@ import {
 export interface EnkryptEvent {
   connect(...args: unknown[]): unknown;
   disconnect(...args: unknown[]): unknown;
-  accountChanged(...args: unknown[]): unknown;
+  accountsChanged(...args: unknown[]): unknown;
 }
 
 export interface EnkryptSolAccount {
