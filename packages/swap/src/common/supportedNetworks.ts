@@ -242,6 +242,18 @@ const NetworkDetails: Record<SupportedNetworkName, NetworkInfo> = {
     signerType: [SignerType.secp256k1btc],
     type: NetworkType.Bitcoin,
   },
+  [SupportedNetworkName.Solana]: {
+    id: SupportedNetworkName.Solana,
+    decimals: 9,
+    logoURI:
+      "https://assets.coingecko.com/coins/images/4128/standard/solana.png",
+    name: "Solana",
+    symbol: "SOL",
+    cgId: "solana",
+    rank: 19,
+    signerType: [SignerType.ed25519sol],
+    type: NetworkType.Solana,
+  },
   [SupportedNetworkName.Rootstock]: {
     id: SupportedNetworkName.Rootstock,
     decimals: 18,
@@ -257,7 +269,8 @@ const NetworkDetails: Record<SupportedNetworkName, NetworkInfo> = {
   [SupportedNetworkName.Blast]: {
     id: SupportedNetworkName.Blast,
     decimals: 18,
-    logoURI: "https://assets.coingecko.com/coins/images/35494/standard/Blast.jpg",
+    logoURI:
+      "https://assets.coingecko.com/coins/images/35494/standard/Blast.jpg",
     name: "Blast",
     symbol: "ETH",
     cgId: "ethereum",
@@ -268,7 +281,8 @@ const NetworkDetails: Record<SupportedNetworkName, NetworkInfo> = {
   [SupportedNetworkName.Telos]: {
     id: SupportedNetworkName.Telos,
     decimals: 18,
-    logoURI: "https://assets.coingecko.com/coins/images/7588/standard/tlos_png.png",
+    logoURI:
+      "https://assets.coingecko.com/coins/images/7588/standard/tlos_png.png",
     name: "Telos",
     symbol: "TLOS",
     cgId: "telos",

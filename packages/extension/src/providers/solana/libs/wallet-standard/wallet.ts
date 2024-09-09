@@ -252,6 +252,7 @@ export class EnkryptWallet implements Wallet {
   #signMessage: SolanaSignMessageMethod = async (...inputs) => {
     if (!this.#accounts?.length) throw new Error("not connected");
     const outputs: SolanaSignMessageOutput[] = [];
+
     if (inputs.length === 1) {
       const { message, account } = inputs[0]!;
       let isValidAccount = false;

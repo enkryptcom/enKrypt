@@ -1,5 +1,5 @@
 import { InternalMethods, InternalOnMessageResponse } from "@/types/messenger";
-import { FeeMarketEIP1559Transaction } from "@ethereumjs/tx";
+import { FeeMarketEIP1559Transaction, LegacyTransaction } from "@ethereumjs/tx";
 import { SignerTransactionOptions, SignerMessageOptions } from "../types";
 import HWwallet from "@enkryptcom/hw-wallets";
 import { HWwalletType } from "@enkryptcom/types";
@@ -7,9 +7,13 @@ import { fromRpcSig, hashPersonalMessage } from "@ethereumjs/util";
 import { getCustomError } from "@/libs/error";
 import { bufferToHex } from "@enkryptcom/utils";
 import sendUsingInternalMessengers from "@/libs/messenger/internal-messenger";
+
+/**
+ * Sign a transaction
+ */
 const TransactionSigner = (
   options: SignerTransactionOptions
-): Promise<FeeMarketEIP1559Transaction> => {
+): Promise<LegacyTransaction | FeeMarketEIP1559Transaction> => {
   const { account, network, payload } = options;
   if (account.isHardware) {
     const hwwallets = new HWwallet();
@@ -26,7 +30,7 @@ const TransactionSigner = (
       })
       .then((rpcsig: string) => {
         const rpcSig = fromRpcSig(rpcsig);
-        const signedTx = (payload as FeeMarketEIP1559Transaction).addSignature(
+        const signedTx = payload.addSignature(
           BigInt(rpcSig.v),
           rpcSig.r,
           rpcSig.s,
@@ -49,7 +53,7 @@ const TransactionSigner = (
         return Promise.reject(res);
       } else {
         const rpcSig = fromRpcSig(JSON.parse(res.result as string) || "0x");
-        const signedTx = (payload as FeeMarketEIP1559Transaction).addSignature(
+        const signedTx = payload.addSignature(
           rpcSig.v,
           rpcSig.r,
           rpcSig.s,
@@ -61,6 +65,9 @@ const TransactionSigner = (
   }
 };
 
+/**
+ * Sign a message
+ */
 const MessageSigner = (
   options: SignerMessageOptions
 ): Promise<InternalOnMessageResponse> => {

@@ -67,7 +67,7 @@
         Offer includes
         {{ $filters.formatFloatingPointValue(toReadableAdditionalFees).value }}
         {{ network?.currencyName.toUpperCase() }}
-        Bridging fee
+        {{ "Additional native fees" }}
       </p>
     </div>
   </div>

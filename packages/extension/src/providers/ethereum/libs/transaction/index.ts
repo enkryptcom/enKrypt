@@ -21,6 +21,7 @@ import { FeeMarketEIP1559Transaction, LegacyTransaction } from "@ethereumjs/tx";
 import { OPTIMISM_PRICE_ORACLE, OPTIMISM_PRICE_ORACLE_ABI } from "./op-data";
 import { bufferToHex } from "@enkryptcom/utils";
 
+/** Represents an EVM transaction */
 class Transaction {
   tx: EthereumTransaction;
   web3: Web3Eth;
@@ -72,6 +73,10 @@ class Transaction {
       maxFeePerGas,
     };
   };
+
+  /**
+   * Gathers the last bits of data required to serialize a transaction eg gas price, nonce, etc
+   */
   async finalizeTransaction(options: TransactionOptions): Promise<{
     transaction:
       | FinalizedFeeMarketEthereumTransaction
@@ -94,8 +99,10 @@ class Transaction {
         isFeeMarketNetwork: false,
         feeHistory: {} as FeeHistoryResult,
       }));
+    // Gets the number of transactions that they will have sent by the next pending block
     const nonce = await this.web3.getTransactionCount(this.tx.from, "pending");
     if (!isFeeMarketNetwork) {
+      // Legacy transaction
       const gasPrice = await this.web3.getGasPrice();
       const gasLimit =
         this.tx.gasLimit ||
@@ -122,6 +129,7 @@ class Transaction {
         gasLimit: legacyTx.gasLimit,
       };
     } else {
+      // Fee market transaction (post EIP1559)
       const baseFeePerGas =
         feeHistory.baseFeePerGas[feeHistory.baseFeePerGas.length - 2]; // -2 since -1 is the pending block
       const formattedFeeHistory = formatFeeHistory(feeHistory);
@@ -164,6 +172,13 @@ class Transaction {
       };
     }
   }
+
+  /**
+   * Create a sendable transaction
+   *
+   * Gathers last live bits of data required to send the transaction then
+   * creates a sendable transaction from it
+   */
   async getFinalizedTransaction(
     options: TransactionOptions
   ): Promise<LegacyTransaction | FeeMarketEIP1559Transaction> {
@@ -192,10 +207,12 @@ class Transaction {
       );
     }
   }
+
   async getMessageToSign(options: TransactionOptions): Promise<Uint8Array> {
     const tx = await this.getFinalizedTransaction(options);
     return tx.getHashedMessageToSign();
   }
+
   async getGasCosts(): Promise<GasCosts> {
     const { gasLimit, gasPrice, baseFeePerGas, formattedFeeHistory } =
       await this.finalizeTransaction({

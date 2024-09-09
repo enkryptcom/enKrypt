@@ -10,6 +10,8 @@ import {
   RoutingResultType,
   TransactionType as RangoTransactionType,
 } from "rango-sdk-basic";
+import { Connection, VersionedTransaction } from "@solana/web3.js";
+import { extractComputeBudget } from "@src/utils/solana";
 import {
   EVMTransaction,
   getQuoteOptions,
@@ -36,9 +38,9 @@ import {
   GAS_LIMITS,
   NATIVE_TOKEN_ADDRESS,
 } from "../../configs";
-import { RangoSwapResponse } from "./types";
+import { RangoNetworkedTransactions, RangoSwapResponse } from "./types";
 import { TOKEN_AMOUNT_INFINITY_AND_BEYOND } from "../../utils/approvals";
-import estimateGasList from "../../common/estimateGasList";
+import estimateEVMGasList from "../../common/estimateGasList";
 import { isEVMAddress } from "../../utils/common";
 
 const RANGO_PUBLIC_API_KEY = "ee7da377-0ed8-4d42-aaf9-fa978a32b18d";
@@ -103,6 +105,10 @@ const supportedNetworks: {
     chainId: "1284",
     name: "MOONBEAM",
   },
+  [SupportedNetworkName.Solana]: {
+    chainId: "900", // Doesn't match with Rango, their chainId value for this is "mainnet-beta"
+    name: "SOLANA",
+  },
   [SupportedNetworkName.Blast]: {
     chainId: "81457",
     name: "BLAST",
@@ -118,7 +124,7 @@ class Rango extends ProviderClass {
 
   network: SupportedNetworkName;
 
-  web3eth: Web3Eth;
+  web3: Web3Eth | Connection;
 
   name: ProviderName;
 
@@ -130,11 +136,11 @@ class Rango extends ProviderClass {
 
   transactionsStatus: { hash: string; status: RangoTransactionStatus }[];
 
-  constructor(web3eth: Web3Eth, network: SupportedNetworkName) {
-    super(web3eth, network);
+  constructor(web3: Web3Eth | Connection, network: SupportedNetworkName) {
+    super();
     this.network = network;
     this.tokenList = [];
-    this.web3eth = web3eth;
+    this.web3 = web3;
     this.name = ProviderName.rango;
     this.fromTokens = {};
     this.toTokens = {};
@@ -142,25 +148,23 @@ class Rango extends ProviderClass {
     this.transactionsStatus = [];
   }
 
-  init(tokenList?: TokenType[]): Promise<void> {
-    return rangoClient
-      .meta({
-        excludeNonPopulars: true,
-        transactionTypes: [RangoTransactionType.EVM],
-      })
-      .then((resMeta) => {
-        this.rangoMeta = resMeta;
-        const { blockchains, tokens } = resMeta;
-        if (!Rango.isSupported(this.network, blockchains)) return;
-        tokenList?.forEach((t) => {
-          const tokenSupport = tokens.find(
-            (token) => token.address === t.address
-          );
-          if (this.isNativeToken(t.address) || tokenSupport) {
-            this.fromTokens[t.address] = t;
-          }
-        });
-      });
+  async init(tokenList?: TokenType[]): Promise<void> {
+    (window as any).rango = this;
+    const resMeta = await rangoClient.meta({
+      excludeNonPopulars: true,
+      transactionTypes: [RangoTransactionType.EVM, RangoTransactionType.SOLANA],
+    });
+    this.rangoMeta = resMeta;
+    const { blockchains, tokens } = resMeta;
+    if (!Rango.isSupported(this.network, blockchains)) {
+      return;
+    }
+    tokenList?.forEach((t) => {
+      const tokenSupport = tokens.find((token) => token.address === t.address);
+      if (this.isNativeToken(t.address) || tokenSupport) {
+        this.fromTokens[t.address] = t;
+      }
+    });
   }
 
   static isSupported(
@@ -168,7 +172,9 @@ class Rango extends ProviderClass {
     blockchains: BlockchainMeta[]
   ) {
     // We must support this network
-    if (!Object.keys(supportedNetworks).includes(network as unknown as string)) {
+    if (
+      !Object.keys(supportedNetworks).includes(network as unknown as string)
+    ) {
       return false;
     }
 
@@ -179,11 +185,22 @@ class Rango extends ProviderClass {
       const { chainId } = Object.entries(supportedNetworks).find(
         (chain) => chain[0] === (network as unknown as string)
       )[1];
-
-      // Does Rango support this chain id?
-      return !!blockchains.find(
-        (chain: BlockchainMeta) => Number(chain.chainId) === Number(chainId)
+      const enabled = !!blockchains.find(
+        // Sometimes Rango chainId will be a number, sometimes it'll be something else
+        // for example they use "mainnet-beta" for Solana but for most (all?) EVM it
+        // has an 0x prefixed hex number
+        (chain: BlockchainMeta) => {
+          if (Number(chain.chainId) === Number(chainId)) return true;
+          if (
+            network === SupportedNetworkName.Solana &&
+            chain.name === "SOLANA" &&
+            chain.chainId === "mainnet-beta"
+          )
+            return true;
+          return false;
+        }
       )?.enabled;
+      return enabled;
     }
 
     // Rango didn't give us anything so just assume Rango supports this network
@@ -232,7 +249,6 @@ class Rango extends ProviderClass {
    * For cross-chain tokens like Ethereum (ETH) on the Binance Smart Chain (BSC) network,
    * it returns the corresponding symbol like WETH.
    */
-
   private getSymbol(token: TokenType) {
     const { tokens } = this.rangoMeta;
     if (this.isNativeToken(token.address)) return token.symbol;
@@ -254,12 +270,16 @@ class Rango extends ProviderClass {
     });
   }
 
-  private getRangoSwap(
+  private async getRangoSwap(
     options: getQuoteOptions,
     meta: QuoteMetaOptions,
     accurateEstimate: boolean
   ): Promise<RangoSwapResponse | null> {
     const { blockchains } = this.rangoMeta;
+
+    // Determine whether Enkrypt + Rango supports this swap
+
+    // Do we support Rango on this network?
     if (
       !Rango.isSupported(
         options.toToken.networkInfo.name as SupportedNetworkName,
@@ -268,22 +288,63 @@ class Rango extends ProviderClass {
       !Rango.isSupported(this.network, blockchains)
     )
       return Promise.resolve(null);
+
+    // Does Rango support these tokens?
     const feeConfig = FEE_CONFIGS[this.name][meta.walletIdentifier];
-    const fromBlockchain = blockchains.find(
-      (chain) =>
+
+    /** Source token Rango blockchain name */
+    const fromBlockchain = blockchains.find((chain) => {
+      // Chain id matches
+      if (
         Number(chain.chainId) ===
         Number(supportedNetworks[this.network].chainId)
-    )?.name;
-    const toBlockchain = blockchains.find(
-      (chain) =>
+      )
+        return true;
+      // It's Solana
+      if (
+        this.network === SupportedNetworkName.Solana &&
+        chain.name === "SOLANA" &&
+        chain.chainId === "mainnet-beta"
+      )
+        return true;
+      // No match
+      return false;
+    })?.name;
+
+    /** Destination token Rango blockchain name */
+    const toBlockchain = blockchains.find((chain) => {
+      // Chain id matchecs
+      if (
         Number(chain.chainId) ===
         Number(supportedNetworks[options.toToken.networkInfo.name].chainId)
-    )?.name;
+      )
+        return true;
+      // It's Solana
+      if (
+        options.toToken.networkInfo.name === SupportedNetworkName.Solana &&
+        chain.name === "SOLANA" &&
+        chain.chainId === "mainnet-beta"
+      )
+        return true;
+      // No match
+      return false;
+    })?.name;
+
     const fromTokenAddress = options.fromToken.address;
     const toTokenAddress = options.toToken.address;
+
+    /** Source token symbol */
     const fromSymbol = this.getSymbol(options.fromToken);
+
+    /** Destination token symbol */
     const toSymbol = this.getSymbol(options.toToken);
+
+    // If we can't get symbols for the tokens then we don't support them
     if (!fromSymbol || !toSymbol) return Promise.resolve(null);
+
+    // Enkrypt & Rango both likely support this swap (pair & networks)
+
+    // Request a swap transaction from Rango for the pair & networks
     const params: SwapRequest = {
       from: {
         address: !this.isNativeToken(fromTokenAddress)
@@ -305,171 +366,335 @@ class Rango extends ProviderClass {
       referrerAddress: feeConfig?.referrer || undefined,
       disableEstimate: true,
     };
-    return rangoClient.swap(params).then(async (response) => {
-      if (response.error || response.resultType !== RoutingResultType.OK) {
-        console.error(response.error);
-        return Promise.resolve(null);
+
+    const rangoSwapResponse = await rangoClient.swap(params);
+
+    if (
+      rangoSwapResponse.error ||
+      rangoSwapResponse.resultType !== RoutingResultType.OK
+    ) {
+      // Rango experienced some kind of error or is unable to route the swap
+      console.error(rangoSwapResponse.error);
+      return Promise.resolve(null);
+    }
+
+    // We have a swap transaction provided by Rango that can be executed
+
+    // Note additional routing fees
+    let additionalNativeFees = toBN(0);
+    rangoSwapResponse.route.fee.forEach((f) => {
+      if (
+        !f.token.address &&
+        f.expenseType === "FROM_SOURCE_WALLET" &&
+        f.name !== "Network Fee"
+      ) {
+        additionalNativeFees = additionalNativeFees.add(toBN(f.amount));
       }
-      const tx = response.tx as RangoEvmTransaction;
-      const transactions: EVMTransaction[] = [];
-      if (!this.isNativeToken(options.fromToken.address) && tx.approveTo) {
-        const approvalTxs: EVMTransaction[] = [
-          {
+    });
+
+    // Fill in gas values, add approval transactions, etc
+    let networkTransactions: RangoNetworkedTransactions;
+
+    switch (rangoSwapResponse.tx?.type) {
+      // Process Rango swap Solana transaction
+      case RangoTransactionType.SOLANA: {
+        let versionedTransaction: VersionedTransaction;
+        if (rangoSwapResponse.tx.serializedMessage == null) {
+          // TODO: when and why does this happen?
+          throw new Error(
+            `Rango did not return a serialized message for the Solana transaction`
+          );
+        }
+        switch (rangoSwapResponse.tx.txType) {
+          case "VERSIONED": {
+            versionedTransaction = VersionedTransaction.deserialize(
+              new Uint8Array(rangoSwapResponse.tx.serializedMessage)
+            );
+            break;
+          }
+          case "LEGACY": {
+            // TODO: does this work? versionedTransaction.version has type `'legacy' | 0` so maybe?
+            versionedTransaction = VersionedTransaction.deserialize(
+              new Uint8Array(rangoSwapResponse.tx.serializedMessage)
+            );
+            break;
+          }
+          default:
+            rangoSwapResponse.tx.txType satisfies never;
+            throw new Error(
+              `Unhandled Rango Solana transaction type: ${rangoSwapResponse.tx.txType}`
+            );
+        }
+
+        networkTransactions = {
+          type: NetworkType.Solana,
+          transactions: [
+            {
+              type: TransactionType.solana,
+              from: rangoSwapResponse.tx.from,
+              // TODO: is this right?
+              to: options.toToken.address,
+              serialized: Buffer.from(
+                versionedTransaction.serialize()
+              ).toString("base64"),
+            },
+          ],
+        };
+        break;
+      }
+
+      // Process Rango swap EVM transaction
+      case RangoTransactionType.EVM: {
+        const transactions: EVMTransaction[] = [];
+
+        // TODO: handle Solana transactions
+        const tx = rangoSwapResponse.tx as RangoEvmTransaction;
+        if (!this.isNativeToken(options.fromToken.address) && tx.approveTo) {
+          // The user needss to approve Rango to swap tokens on their behalf
+          const approvalTx: EVMTransaction = {
             from: tx.from,
             data: tx.approveData,
             gasLimit: GAS_LIMITS.approval,
             to: tx.approveTo,
             value: tx.value || "0x0",
             type: TransactionType.evm,
-          },
-        ];
-        transactions.push(...approvalTxs);
+          };
+          transactions.push(approvalTx);
+        }
+
+        // Stage the swap transaction
+        transactions.push({
+          from: options.fromAddress,
+          gasLimit: tx.gasLimit || GAS_LIMITS.swap,
+          to: tx.txTo,
+          value: numberToHex(tx.value),
+          data: tx.txData,
+          type: TransactionType.evm,
+        });
+
+        if (accurateEstimate) {
+          // Get accurate gas limits for each transactions
+          const accurateGasEstimate = await estimateEVMGasList(
+            transactions,
+            this.network
+          );
+          if (accurateGasEstimate) {
+            // Something went wrong estimating gas value, bail on the swap request
+            if (accurateGasEstimate.isError) return null;
+            // Update each transaction with their accurate gas limit
+            transactions.forEach((transaction, idx) => {
+              transaction.gasLimit = accurateGasEstimate.result[idx];
+            });
+          }
+        }
+
+        networkTransactions = { type: NetworkType.EVM, transactions };
+        break;
       }
 
-      transactions.push({
-        from: options.fromAddress,
-        gasLimit: tx.gasLimit || GAS_LIMITS.swap,
-        to: tx.txTo,
-        value: numberToHex(tx.value),
-        data: tx.txData,
-        type: TransactionType.evm,
-      });
-      if (accurateEstimate) {
-        const accurateGasEstimate = await estimateGasList(
-          transactions,
-          this.network
-        );
-        if (accurateGasEstimate) {
-          if (accurateGasEstimate.isError) return null;
-          transactions.forEach((transaction, idx) => {
-            transaction.gasLimit = accurateGasEstimate.result[idx];
-          });
-        }
+      case undefined:
+      case null: {
+        throw new Error(`Rango did not return a transaction type`);
       }
-      let additionalNativeFees = toBN(0);
-      response.route.fee.forEach((f) => {
-        if (
-          !f.token.address &&
-          f.expenseType === "FROM_SOURCE_WALLET" &&
-          f.name !== "Network Fee"
-        ) {
-          additionalNativeFees = additionalNativeFees.add(toBN(f.amount));
-        }
-      });
-      return {
-        transactions,
-        toTokenAmount: toBN(response.route.outputAmount),
-        fromTokenAmount: toBN(options.amount.toString()),
-        additionalNativeFees,
-        requestId: response.requestId,
-      };
-    });
+
+      default: {
+        throw new Error(
+          `Unhandled Rango transaction type: ${rangoSwapResponse.tx.type}`
+        );
+      }
+    }
+
+    const result: RangoSwapResponse = {
+      networkTransactions,
+      toTokenAmount: toBN(rangoSwapResponse.route.outputAmount),
+      fromTokenAmount: toBN(options.amount.toString()),
+      additionalNativeFees,
+      requestId: rangoSwapResponse.requestId,
+    };
+
+    return result;
   }
 
-  getQuote(
+  async getQuote(
     options: getQuoteOptions,
     meta: QuoteMetaOptions
   ): Promise<ProviderQuoteResponse | null> {
-    return this.getRangoSwap(options, meta, false).then(async (res) => {
-      if (!res) return null;
-      const response: ProviderQuoteResponse = {
-        fromTokenAmount: res.fromTokenAmount,
-        toTokenAmount: res.toTokenAmount,
-        additionalNativeFees: res.additionalNativeFees,
-        provider: this.name,
-        quote: {
-          meta,
-          options,
-          provider: this.name,
-        },
-        totalGaslimit: res.transactions.reduce(
+    const res = await this.getRangoSwap(options, meta, false);
+    if (!res) return null;
+
+    let totalGaslimit: number;
+    switch (res.networkTransactions.type) {
+      case NetworkType.EVM: {
+        totalGaslimit = res.networkTransactions.transactions.reduce(
           (total: number, curVal: EVMTransaction) =>
             total + toBN(curVal.gasLimit).toNumber(),
           0
-        ),
-        minMax: await this.getMinMaxAmount(),
-      };
-      return response;
-    });
-  }
+        );
+        break;
+      }
+      case NetworkType.Solana: {
+        for (
+          let i = 0, len = res.networkTransactions.transactions.length;
+          i < len;
+          i++
+        ) {
+          const tx = res.networkTransactions.transactions[i];
+          totalGaslimit += extractComputeBudget(
+            VersionedTransaction.deserialize(
+              Buffer.from(tx.serialized, "base64")
+            )
+          );
+        }
+        break;
+      }
+      default: {
+        res.networkTransactions satisfies never;
+        totalGaslimit = 0;
+        break;
+      }
+    }
 
-  getSwap(quote: SwapQuote): Promise<ProviderSwapResponse | null> {
-    return this.getRangoSwap(quote.options, quote.meta, true).then((res) => {
-      if (!res) return null;
-      const feeConfig =
-        FEE_CONFIGS[this.name][quote.meta.walletIdentifier].fee || 0;
-      const response: ProviderSwapResponse = {
-        fromTokenAmount: res.fromTokenAmount,
+    const response: ProviderQuoteResponse = {
+      fromTokenAmount: res.fromTokenAmount,
+      toTokenAmount: res.toTokenAmount,
+      additionalNativeFees: res.additionalNativeFees,
+      provider: this.name,
+      quote: {
+        meta,
+        options,
         provider: this.name,
-        toTokenAmount: res.toTokenAmount,
-        additionalNativeFees: res.additionalNativeFees,
-        transactions: res.transactions,
-        slippage: quote.meta.slippage || DEFAULT_SLIPPAGE,
-        fee: feeConfig * 100,
-        getStatusObject: async (
-          options: StatusOptions
-        ): Promise<StatusOptionsResponse> => ({
-          options: {
-            ...options,
-            requestId: res.requestId,
-          },
-          provider: this.name,
-        }),
-      };
+      },
+      totalGaslimit,
+      minMax: await this.getMinMaxAmount(),
+    };
 
-      return response;
-    });
+    return response;
   }
 
-  getStatus(options: StatusOptions): Promise<TransactionStatus> {
+  async getSwap(quote: SwapQuote): Promise<ProviderSwapResponse | null> {
+    const res = await this.getRangoSwap(quote.options, quote.meta, true);
+    if (!res) return null;
+    const feeConfig =
+      FEE_CONFIGS[this.name][quote.meta.walletIdentifier].fee || 0;
+    const response: ProviderSwapResponse = {
+      fromTokenAmount: res.fromTokenAmount,
+      provider: this.name,
+      toTokenAmount: res.toTokenAmount,
+      additionalNativeFees: res.additionalNativeFees,
+      transactions: res.networkTransactions.transactions,
+      slippage: quote.meta.slippage || DEFAULT_SLIPPAGE,
+      fee: feeConfig * 100,
+      getStatusObject: async (
+        options: StatusOptions
+      ): Promise<StatusOptionsResponse> => ({
+        options: {
+          ...options,
+          requestId: res.requestId,
+        },
+        provider: this.name,
+      }),
+    };
+
+    return response;
+  }
+
+  async getStatus(options: StatusOptions): Promise<TransactionStatus> {
     const { requestId, transactionHashes } = options;
+
     const transactionHash =
       transactionHashes.length > 0
         ? transactionHashes[transactionHashes.length - 1]
         : transactionHashes[0];
+
     const isAlreadySuccessOrFailed = [
       RangoTransactionStatus.FAILED,
       RangoTransactionStatus.SUCCESS,
     ].includes(
       this.transactionsStatus.find((t) => t.hash === transactionHash)?.status
     );
+
     if (requestId && !isAlreadySuccessOrFailed) {
-      return rangoClient
-        .status({
-          txId: transactionHash,
-          requestId,
-        })
-        .then((res) => {
-          if (res.error || res.status === RangoTransactionStatus.FAILED) {
-            this.transactionsStatus.push({
-              status: RangoTransactionStatus.FAILED,
-              hash: transactionHash,
-            });
-            return TransactionStatus.failed;
-          }
-          if (!res.status || res.status === RangoTransactionStatus.RUNNING) {
-            return TransactionStatus.pending;
-          }
-          this.transactionsStatus.push({
-            status: RangoTransactionStatus.SUCCESS,
-            hash: transactionHash,
-          });
-          return TransactionStatus.success;
+      const res = await rangoClient.status({
+        txId: transactionHash,
+        requestId,
+      });
+
+      if (res.error || res.status === RangoTransactionStatus.FAILED) {
+        this.transactionsStatus.push({
+          status: RangoTransactionStatus.FAILED,
+          hash: transactionHash,
         });
-    }
-    const promises = transactionHashes.map((hash) =>
-      this.web3eth.getTransactionReceipt(hash)
-    );
-    return Promise.all(promises).then((receipts) => {
-      // eslint-disable-next-line no-restricted-syntax
-      for (const receipt of receipts) {
-        if (!receipt || (receipt && !receipt.blockNumber)) {
-          return TransactionStatus.pending;
-        }
-        if (receipt && !receipt.status) return TransactionStatus.failed;
+        return TransactionStatus.failed;
       }
+      if (!res.status || res.status === RangoTransactionStatus.RUNNING) {
+        return TransactionStatus.pending;
+      }
+      this.transactionsStatus.push({
+        status: RangoTransactionStatus.SUCCESS,
+        hash: transactionHash,
+      });
       return TransactionStatus.success;
-    });
+    }
+
+    const statuses: TransactionStatus[] = [];
+    switch (this.network) {
+      case SupportedNetworkName.Solana: {
+        // Get status of Solana transactions
+        const sigStatuses = await (
+          this.web3 as Connection
+        ).getSignatureStatuses(transactionHashes);
+        for (let i = 0, len = sigStatuses.value.length; i < len; i++) {
+          const sigStatus = sigStatuses.value[i];
+          if (sigStatus == null) {
+            statuses.push(TransactionStatus.pending);
+          } else if (sigStatus.err != null) {
+            statuses.push(TransactionStatus.failed);
+          } else {
+            statuses.push(TransactionStatus.success);
+          }
+        }
+        break;
+      }
+      // Assume EVM
+      default: {
+        // Get status of EVM transactions
+        const receipts = await Promise.all(
+          transactionHashes.map((hash) =>
+            (this.web3 as Web3Eth).getTransactionReceipt(hash)
+          )
+        );
+
+        for (let i = 0, len = receipts.length; i < len; i++) {
+          const receipt = receipts[i];
+          let status: TransactionStatus;
+          if (!receipt || (receipt && !receipt.blockNumber)) {
+            status = TransactionStatus.pending;
+          } else if (receipt && !receipt.status) {
+            status = TransactionStatus.failed;
+          } else {
+            status = TransactionStatus.success;
+          }
+          statuses.push(status);
+        }
+        break;
+      }
+    }
+
+    // If any failed or are still pending, return their status
+    for (let i = 0, len = statuses.length; i < len; i++) {
+      const status = statuses[i];
+      switch (status) {
+        case TransactionStatus.failed:
+          return status;
+        case TransactionStatus.pending:
+          return status;
+        case TransactionStatus.success: /* noop */
+        default: /* noop */
+      }
+    }
+
+    // no failed or pending, assume success
+    return TransactionStatus.success;
   }
 }
 

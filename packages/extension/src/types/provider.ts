@@ -119,6 +119,12 @@ export abstract class BackgroundProviderInterface extends EventEmitter {
   abstract sendNotification(notif: string): Promise<void>;
 }
 
+/**
+ * Wraps basic network functionality to provide common features like balances and transaction statuses.
+ *
+ * Each network type will typically have its own implementing class. For example, for EVM networks the implementing
+ * class need just wrap JSON RPC calls.
+ */
 export abstract class ProviderAPIInterface {
   abstract node: string;
   // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function

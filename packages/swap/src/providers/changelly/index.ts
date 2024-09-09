@@ -1,4 +1,3 @@
-import type Web3Eth from "web3-eth";
 import { v4 as uuidv4 } from "uuid";
 import fetch from "node-fetch";
 import { fromBase, toBase } from "@enkryptcom/utils";
@@ -34,7 +33,7 @@ import {
 import { getTransfer } from "../../utils/approvals";
 import supportedNetworks from "./supported";
 import { ChangellyCurrency } from "./types";
-import estimateGasList from "../../common/estimateGasList";
+import estimateEVMGasList from "../../common/estimateGasList";
 
 const BASE_URL = "https://partners.mewapi.io/changelly-v2";
 
@@ -54,8 +53,8 @@ class Changelly extends ProviderClass {
 
   contractToTicker: Record<string, string>;
 
-  constructor(_web3eth: Web3Eth, network: SupportedNetworkName) {
-    super(_web3eth, network);
+  constructor(network: SupportedNetworkName) {
+    super();
     this.network = network;
     this.tokenList = [];
     this.name = ProviderName.changelly;
@@ -68,6 +67,7 @@ class Changelly extends ProviderClass {
     if (!Changelly.isSupported(this.network)) return;
     this.changellyList = await fetch(CHANGELLY_LIST).then((res) => res.json());
 
+    /** Mapping of changelly network name -> enkrypt network name */
     /** changelly blockchain name -> enkrypt supported swap network name */
     const changellyToNetwork: Record<string, SupportedNetworkName> = {};
     // Generate mapping of changelly blockchain -> enkrypt blockchain
@@ -82,10 +82,10 @@ class Changelly extends ProviderClass {
     );
 
     this.changellyList.forEach((cur) => {
-      // We must support the changelly network
-      if (!supportedChangellyNames.includes(cur.blockchain)) return;
-
-      // Can currency can be swapped from?
+      // Must be a supported token
+      if (!supportedChangellyNames.includes(cur.blockchain)) {
+        return;
+      }
       if (
         cur.enabledFrom &&
         cur.fixRateEnabled &&
@@ -138,6 +138,7 @@ class Changelly extends ProviderClass {
   }
 
   private changellyRequest(method: string, params: any): Promise<any> {
+    // TODO: timeoutes & retries?
     return fetch(`${BASE_URL}`, {
       method: "POST",
       body: JSON.stringify({
@@ -321,7 +322,7 @@ class Changelly extends ProviderClass {
               to: result.payinAddress,
               value: quote.options.amount.toString(),
             });
-          const accurateGasEstimate = await estimateGasList(
+          const accurateGasEstimate = await estimateEVMGasList(
             [transaction],
             this.network
           );

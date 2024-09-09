@@ -1,7 +1,13 @@
+import { PublicKey } from "@solana/web3.js";
 import { isPolkadotAddress, isEVMAddress } from "../../utils/common";
 import { SupportedNetworkName } from "../../types";
 
 /**
+ * Blockchain names:
+ *
+ * ```sh
+ * curl -sL https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/swaplists/changelly.json | jq --raw-output '.[].blockchain' | sort | uniq -c | sort -nr
+ * ```
  * ```sh
  * curl https://partners.mewapi.io/changelly-v2 -X POST -H Accept:application/json -H Content-Type:application/json --data '{"id":"1","jsonrpc":"2.0","method":"getCurrenciesFull","params":{}}'
  * ````
@@ -54,6 +60,18 @@ const supportedNetworks: {
   },
   [SupportedNetworkName.Dogecoin]: {
     changellyName: "doge",
+  },
+  [SupportedNetworkName.Solana]: {
+    changellyName: "solana",
+    isAddress: (address: string) => {
+      try {
+        // eslint-disable-next-line no-new
+        new PublicKey(address);
+        return Promise.resolve(true);
+      } catch (err) {
+        return Promise.resolve(false);
+      }
+    },
   },
   [SupportedNetworkName.Rootstock]: {
     changellyName: "rootstock",
