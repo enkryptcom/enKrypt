@@ -48,6 +48,7 @@ import zcdNode from "./zcd";
 import immutableZkevmNode from "./immutable-zkevm";
 import rariNode from "./rari";
 import formaNode from "./forma";
+import xlayerNode from "./xlayer";
 import godwokenNode from "./godwoken";
 import lineaNode from "./linea";
 import mantaPacificNode from "./manta-pacific";
@@ -56,6 +57,7 @@ import opbnbNode from "./op-bnb";
 import palmNode from "./palm";
 import proofOfPlayApexNode from "./pop-apex";
 import scrollNode from "./scroll";
+import cotiDevnetNode from "./coti-devnet";
 
 export default {
   sepolia: sepoliaNode,
@@ -117,6 +119,7 @@ export default {
   immutableZkevm: immutableZkevmNode,
   rari: rariNode,
   forma: formaNode,
+  xlayer: xlayerNode,
   godwoken: godwokenNode,
   linea: lineaNode,
   mantaPacific: mantaPacificNode,
@@ -125,4 +128,5 @@ export default {
   palm: palmNode,
   popApex: proofOfPlayApexNode,
   scroll: scrollNode,
+  cotiDevnet: cotiDevnetNode,
 };

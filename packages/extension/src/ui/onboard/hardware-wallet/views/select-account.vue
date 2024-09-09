@@ -57,8 +57,10 @@ import { polkadotEncodeAddress } from "@enkryptcom/utils";
 import { useHWStore } from "../store";
 import { BaseNetwork } from "@/types/base-network";
 import SubstrateAPI from "@/providers/polkadot/libs/api";
-import EvmAPI from "@/providers/ethereum/libs/api";
-import BtcApi from "@/providers/bitcoin/libs/api";
+import type EvmAPI from "@/providers/ethereum/libs/api";
+import type BtcApi from "@/providers/bitcoin/libs/api";
+import type SolApi from "@/providers/solana/libs/api";
+import type KdaApi from "@/providers/kadena/libs/api";
 const store = useHWStore();
 
 const router = useRouter();
@@ -78,7 +80,7 @@ const loading = ref(false);
 const currentAddressIndex = ref(0);
 const keyring = new PublicKeyRing();
 const existingAccounts = ref<EnkryptAccount[]>([]);
-const networkApi = ref<SubstrateAPI | EvmAPI | BtcApi>();
+const networkApi = ref<SubstrateAPI | EvmAPI | BtcApi | SolApi | KdaApi>();
 const accounts = ref<HWWalletAccountType[]>([]);
 const visibleAccounts = computed(() => {
   return accounts.value.slice(

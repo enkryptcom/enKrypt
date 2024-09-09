@@ -11,6 +11,8 @@ export const pathParser = (
   ) {
     return index === 0 ? "" : `//${--index}`; // polkadotjs extension use "" for 0 index/root
   }
-
+  if (type === SignerType.ed25519sol) {
+    return `${basePath}/${index}'/0`; // Solana uses hardened paths
+  }
   return `${basePath}/${index}`;
 };

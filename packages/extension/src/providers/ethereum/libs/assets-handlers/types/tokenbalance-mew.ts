@@ -54,6 +54,8 @@ export type SupportedNetworkNames =
   | NetworkNames.Sanko
   | NetworkNames.Degen
   | NetworkNames.Blast
+  | NetworkNames.Solana
+  | NetworkNames.XLayer
   | NetworkNames.ProofOfPlayApex
   | NetworkNames.Godwoken
   | NetworkNames.Linea

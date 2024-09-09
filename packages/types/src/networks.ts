@@ -79,6 +79,7 @@ export enum NetworkNames {
   Degen = "degen",
   Ham = "ham",
   Solana = "SOLANA",
+  XLayer = "XLayer",
   ZChains = "ZCD",
   ImmutableZkevm = "ImmutableZkevm",
   Forma = "Forma",
@@ -91,6 +92,7 @@ export enum NetworkNames {
   ProofOfPlayApex = "ProofOfPlayApex",
   Scroll = "scroll",
   Rari = "rari",
+  CotiDevnet = "CotiDevnet",
 }
 
 export enum CoingeckoPlatform {
@@ -138,6 +140,8 @@ export enum CoingeckoPlatform {
   Blast = "blast",
   Sanko = "sanko",
   Degen = "degen",
+  Solana = "solana",
+  XLayer = "x-layer",
   ImmutableZkevm = "immutable",
   Godwoken = "godwoken",
   Linea = "linea",

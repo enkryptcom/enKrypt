@@ -154,9 +154,9 @@ async function getPreconfiguredTokens(
         .value,
       balanceUSD: nativeAssetUsdBalance.toNumber(),
       balanceUSDf: formatFiatValue(nativeAssetUsdBalance.toString()).value,
-      value: nativeAssetMarketData[index]?.current_price.toString() ?? "0",
+      value: nativeAssetMarketData[index]?.current_price?.toString() ?? "0",
       valuef: formatFiatValue(
-        nativeAssetMarketData[index]?.current_price.toString() ?? "0"
+        nativeAssetMarketData[index]?.current_price?.toString() ?? "0"
       ).value,
       decimals: assetDecimals,
       sparkline: nativeAssetMarketData[index]

@@ -37,6 +37,10 @@ const addressInput = ref<HTMLInputElement>();
 
 const pasteFromClipboard = () => {
   addressInput.value?.focus();
+  // Clear existing data from address field
+  if (addressInput.value) {
+    addressInput.value.value = "";
+  }
   document.execCommand("paste");
 };
 defineExpose({ addressInput, pasteFromClipboard });

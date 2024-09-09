@@ -16,6 +16,13 @@ interface BTCOuts extends BTCIns {
   pkscript: string;
 }
 
+interface SOLRawInfo {
+  blockNumber: number;
+  transactionHash: string;
+  timestamp: number | null | undefined;
+  status: boolean;
+}
+
 interface BTCRawInfo {
   blockNumber: number;
   transactionHash: string;
@@ -119,7 +126,8 @@ interface Activity {
     | SubscanExtrinsicInfo
     | BTCRawInfo
     | SwapRawInfo
-    | KadenaRawInfo;
+    | KadenaRawInfo
+    | SOLRawInfo;
 }
 
 export {
@@ -133,4 +141,5 @@ export {
   SwapRawInfo,
   KadenaRawInfo,
   KadenaDBInfo,
+  SOLRawInfo,
 };

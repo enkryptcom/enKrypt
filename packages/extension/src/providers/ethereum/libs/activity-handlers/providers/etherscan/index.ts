@@ -7,6 +7,7 @@ import {
   EthereumRawInfo,
 } from "@/types/activity";
 import { BaseNetwork } from "@/types/base-network";
+import { NetworkNames } from "@enkryptcom/types";
 import { numberToHex } from "web3-utils";
 import { decodeTx } from "../../../transaction/decoder";
 import { NetworkEndpoints } from "./configs";
@@ -14,12 +15,14 @@ import { EtherscanTxType } from "./types";
 const TTL = 30000;
 const getAddressActivity = async (
   address: string,
-  endpoint: string
+  endpoint: string,
+  headers?: Record<string, string>
 ): Promise<EthereumRawInfo[]> => {
   return cacheFetch(
     {
       // Note: would like to add offset=50 (i.e. results per page) but it seems to cause polygon API to hang
       url: `${endpoint}api?module=account&action=txlist&address=${address}&sort=desc`,
+      headers,
     },
     TTL
   ).then((res) => {
@@ -52,9 +55,16 @@ export default async (
   address: string
 ): Promise<Activity[]> => {
   address = address.toLowerCase();
+  let headers: undefined | Record<string, string>;
+  if (network.name === NetworkNames.XLayer) {
+    // api console: https://www.oklink.com/account/my-api
+    // api header spec: https://www.oklink.com/docs/en/#quickstart-guide-api-authentication
+    // api docs: https://www.oklink.com/docs/en/#evm-rpc-data-address-get-normal-transactions-by-address
+    headers = { "OK-ACCESS-KEY": "df87e7eb-061f-44b1-84bc-83722fad717c" };
+  }
   const enpoint =
     NetworkEndpoints[network.name as keyof typeof NetworkEndpoints];
-  const activities = await getAddressActivity(address, enpoint);
+  const activities = await getAddressActivity(address, enpoint, headers);
   const Promises = activities.map((activity) => {
     return decodeTx(activity, network as EvmNetwork).then((txData) => {
       return {

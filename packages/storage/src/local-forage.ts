@@ -54,11 +54,6 @@ class LocalForage implements BrowserStorageArea {
       })
       .then(() => storeOb);
   }
-
-  //   setDriver(driver: LocalForageDriver) {
-  //     this.storage.defineDriver(driver);
-  //     this.storage.setDriver(driver._driver);
-  //   }
 }
 
 export default LocalForage;

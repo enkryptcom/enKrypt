@@ -7,6 +7,7 @@ import VerifyTransactionSubstrate from "@/providers/polkadot/ui/send-transaction
 import VerifyTransactionEVM from "@/providers/ethereum/ui/send-transaction/verify-transaction/index.vue";
 import VerifyTransactionBTC from "@/providers/bitcoin/ui/send-transaction/verify-transaction/index.vue";
 import VerifyTransactionKadena from "@/providers/kadena/ui/send-transaction/verify-transaction/index.vue";
+import VerifyTransactionSolana from "@/providers/solana/ui/send-transaction/verify-transaction/index.vue";
 import { useRoute } from "vue-router";
 import { ProviderName } from "@/types/provider";
 import { getNetworkByName } from "@/libs/utils/networks";
@@ -17,6 +18,7 @@ const sendLayouts: Record<ProviderName, any> = {
   [ProviderName.polkadot]: VerifyTransactionSubstrate,
   [ProviderName.bitcoin]: VerifyTransactionBTC,
   [ProviderName.kadena]: VerifyTransactionKadena,
+  [ProviderName.solana]: VerifyTransactionSolana,
   [ProviderName.enkrypt]: null,
 };
 const layout = shallowRef();

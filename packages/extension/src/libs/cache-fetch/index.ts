@@ -40,15 +40,16 @@ const cacheFetch = async (
     return fetch(options.url, fetchOptions)
       .then((res) => res.json())
       .then((json) => {
-        const jsonstring = JSON.stringify(json);
+        const jsondata = options.postProcess ? options.postProcess(json) : json;
+        const jsonstring = JSON.stringify(jsondata);
         if (!jsonstring.includes("error")) {
           const store: StoredData = {
             timestamp: new Date().getTime(),
             data: jsonstring,
           };
-          return storage.set(hash, store).then(() => json);
+          return storage.set(hash, store).then(() => jsondata);
         }
-        return json;
+        return jsondata;
       });
   }
 };
