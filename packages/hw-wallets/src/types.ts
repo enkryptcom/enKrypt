@@ -4,6 +4,7 @@ import type {
   LegacyTransaction,
 } from "@ethereumjs/tx";
 import type { ExtrinsicPayload } from "@polkadot/types/interfaces";
+import type { Psbt } from "bitcoinjs-lib";
 
 export type WalletConfigs = Record<HWwalletType, { isBackground: boolean }>;
 
@@ -42,11 +43,17 @@ export interface SignMessageRequest extends BaseRequest {
   message: Buffer;
 }
 
+export interface BTCSignTransaction {
+  rawTxs: string[];
+  psbtTx: Psbt;
+}
+
 export interface SignTransactionRequest extends BaseRequest {
   transaction:
     | FeeMarketEIP1559Transaction
     | LegacyTransaction
-    | ExtrinsicPayload;
+    | ExtrinsicPayload
+    | BTCSignTransaction;
 }
 
 export interface getAddressRequest extends BaseRequest {

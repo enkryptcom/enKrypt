@@ -11,7 +11,7 @@ import {
   PathType,
   SignMessageRequest,
   SignTransactionRequest,
-} from "../types";
+} from "../../types";
 import { supportedPaths } from "./configs";
 
 class TrezorEthereum implements HWWalletProvider {
@@ -59,10 +59,6 @@ class TrezorEthereum implements HWWalletProvider {
       address: bufferToHex(publicToAddress(pubkey, true)),
       publicKey: bufferToHex(pubkey),
     };
-  }
-
-  signMessage() {
-    throw new Error("Not Supported");
   }
 
   getSupportedPaths(): PathType[] {
