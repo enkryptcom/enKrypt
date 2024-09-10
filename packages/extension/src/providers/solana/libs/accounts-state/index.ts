@@ -9,7 +9,6 @@ class AccountState {
     );
   }
   async addApprovedAddress(address: string, domain: string): Promise<void> {
-    address = address.toLowerCase();
     const state = await this.getStateByDomain(domain);
     if (state.approvedAccounts.includes(address))
       state.approvedAccounts = state.approvedAccounts.filter(
@@ -19,7 +18,6 @@ class AccountState {
     await this.setState(state, domain);
   }
   async removeApprovedAddress(address: string, domain: string): Promise<void> {
-    address = address.toLowerCase();
     const state = await this.getStateByDomain(domain);
     if (state.approvedAccounts.includes(address)) {
       state.approvedAccounts = state.approvedAccounts.filter(

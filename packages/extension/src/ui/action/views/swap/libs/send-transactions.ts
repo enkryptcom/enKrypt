@@ -103,13 +103,13 @@ export const executeSwap = async (
     });
     const bitcoinApi = api as BitcoinAPI;
     bitcoinApi
-      .broadcastTx(signedTx.extractTransaction().toHex())
+      .broadcastTx(signedTx.toHex())
       .then(() => {
         activityState.addActivities(
           [
             {
               ...JSON.parse(JSON.stringify(txActivity)),
-              ...{ transactionHash: signedTx.extractTransaction().getId() },
+              ...{ transactionHash: signedTx.getId() },
             },
           ],
           { address: txActivity.from, network: options.network.name }
@@ -122,7 +122,7 @@ export const executeSwap = async (
           network: options.network.name,
         });
       });
-    return [signedTx.extractTransaction().getId() as `0x${string}`];
+    return [signedTx.getId() as `0x${string}`];
   } else if (options.networkType === NetworkType.Substrate) {
     const substrateTx = await getSubstrateNativeTransation(
       options.network as SubstrateNetwork,

@@ -111,6 +111,7 @@ import {
 import openOnboard from "@/libs/utils/open-onboard";
 import BTCAccountState from "@/providers/bitcoin/libs/accounts-state";
 import EVMAccountState from "@/providers/ethereum/libs/accounts-state";
+import SolAccountState from "@/providers/solana/libs/accounts-state";
 import { MessageMethod } from "@/providers/ethereum/types";
 import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
 import { MessageMethod as KadenaMessageMethod } from "@/providers/kadena/types";
@@ -395,14 +396,15 @@ const onSelectedSubnetworkChange = async (id: string) => {
 
 const onSelectedAddressChanged = async (newAccount: EnkryptAccount) => {
   accountHeaderData.value.selectedAccount = newAccount;
-  if (
-    currentNetwork.value.provider === ProviderName.ethereum ||
-    currentNetwork.value.provider === ProviderName.bitcoin
-  ) {
-    const AccountState =
-      currentNetwork.value.provider === ProviderName.ethereum
-        ? new EVMAccountState()
-        : new BTCAccountState();
+  const accountStates = {
+    [ProviderName.ethereum]: EVMAccountState,
+    [ProviderName.bitcoin]: BTCAccountState,
+    [ProviderName.solana]: SolAccountState,
+  };
+  if (Object.keys(accountStates).includes(currentNetwork.value.provider)) {
+    const AccountState = new accountStates[
+      currentNetwork.value.provider as keyof typeof accountStates
+    ]();
     const domain = await domainState.getCurrentDomain();
     AccountState.addApprovedAddress(newAccount.address, domain);
   }

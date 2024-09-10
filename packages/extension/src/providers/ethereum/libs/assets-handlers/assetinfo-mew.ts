@@ -76,6 +76,10 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
     tbName: "arb",
     cgPlatform: CoingeckoPlatform.Arbitrum,
   },
+  [NetworkNames.ArbitrumNova]: {
+    tbName: "nova",
+    cgPlatform: CoingeckoPlatform.ArbitrumNova,
+  },
   [NetworkNames.Gnosis]: {
     tbName: "xdai",
     cgPlatform: CoingeckoPlatform.Gnosis,
@@ -135,6 +139,42 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
   [NetworkNames.Degen]: {
     tbName: "degen",
     cgPlatform: CoingeckoPlatform.Degen,
+  },
+  [NetworkNames.XLayer]: {
+    tbName: "xlayer",
+    cgPlatform: CoingeckoPlatform.XLayer,
+  },
+  [NetworkNames.ProofOfPlayApex]: {
+    tbName: "apex",
+    cgPlatform: undefined,
+  },
+  [NetworkNames.Godwoken]: {
+    tbName: "ckb",
+    cgPlatform: CoingeckoPlatform.Godwoken,
+  },
+  [NetworkNames.Linea]: {
+    tbName: "linea",
+    cgPlatform: CoingeckoPlatform.Linea,
+  },
+  [NetworkNames.MantaPacific]: {
+    tbName: "manta",
+    cgPlatform: CoingeckoPlatform.MantaPacific,
+  },
+  [NetworkNames.Mode]: {
+    tbName: "mode",
+    cgPlatform: CoingeckoPlatform.Mode,
+  },
+  [NetworkNames.OpBNB]: {
+    tbName: "opbnb",
+    cgPlatform: CoingeckoPlatform.OpBNB,
+  },
+  [NetworkNames.Scroll]: {
+    tbName: "scrl",
+    cgPlatform: CoingeckoPlatform.Scroll,
+  },
+  [NetworkNames.Rari]: {
+    tbName: "rari",
+    cgPlatform: undefined,
   },
   [NetworkNames.Solana]: {
     tbName: "",
@@ -249,9 +289,8 @@ export default (
           balances[address].balance,
           tokenInfo[address].decimals
         );
-        const usdBalance = new BigNumber(userBalance).times(
-          market.current_price
-        );
+        const currentPrice = market.current_price ?? 0;
+        const usdBalance = new BigNumber(userBalance).times(currentPrice);
         const asset: AssetsType = {
           balance: toBN(balances[address].balance).toString(),
           balancef: formatFloatingPointValue(userBalance).value,
@@ -260,8 +299,8 @@ export default (
           icon: market.image,
           name: market.name,
           symbol: market.symbol,
-          value: market.current_price.toString(),
-          valuef: formatFiatValue(market.current_price.toString()).value,
+          value: currentPrice.toString(),
+          valuef: formatFiatValue(currentPrice.toString()).value,
           contract: address,
           decimals: tokenInfo[address].decimals,
           sparkline: new Sparkline(market.sparkline_in_7d.price, 25).dataValues,

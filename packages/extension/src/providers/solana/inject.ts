@@ -46,14 +46,13 @@ export class Provider
     });
   }
   disconnect(): Promise<void> {
-    console.log("disconnect");
-    return Promise.reject("not implemented");
+    this.accounts = [];
+    return Promise.resolve();
   }
   signAndSendTransaction(
     transaction: SolSignTransactionRequest,
     options?: SendOptions | undefined
   ): Promise<string> {
-    console.log("signAndSendTransaction");
     return this.request({
       method: "sol_signAndSendTransaction",
       params: [JSON.stringify(transaction), JSON.stringify(options)],
