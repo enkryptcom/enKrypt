@@ -49,7 +49,7 @@ describe("Jupiter Provider", () => {
   //   //
   // })
 
-  it("Should return a quote", async () => {
+  it("Should work", async () => {
     const quote: null | ProviderQuoteResponse = await jupiter.getQuote(
       {
         amount,
