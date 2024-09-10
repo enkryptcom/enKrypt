@@ -11,7 +11,7 @@ import {
   TransactionType as RangoTransactionType,
 } from "rango-sdk-basic";
 import { Connection, VersionedTransaction } from "@solana/web3.js";
-import { extractComputeBudget } from "@src/utils/solana";
+import { extractComputeBudget } from "../../utils/solana";
 import {
   EVMTransaction,
   getQuoteOptions,
@@ -124,7 +124,6 @@ class Rango extends ProviderClass {
   }
 
   async init(tokenList?: TokenType[]): Promise<void> {
-    (window as any).rango = this;
     const resMeta = await rangoClient.meta({
       excludeNonPopulars: true,
       transactionTypes: [RangoTransactionType.EVM, RangoTransactionType.SOLANA],

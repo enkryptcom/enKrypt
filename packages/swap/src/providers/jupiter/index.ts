@@ -11,11 +11,9 @@ import {
   TransactionMessage,
   VersionedTransaction,
 } from "@solana/web3.js";
-import {
-  DEFAULT_SLIPPAGE,
-  FEE_CONFIGS,
-  NATIVE_TOKEN_ADDRESS,
-} from "@src/configs";
+import { toBN } from "web3-utils";
+import { TOKEN_AMOUNT_INFINITY_AND_BEYOND } from "../../utils/approvals";
+import { extractComputeBudget } from "../../utils/solana";
 import {
   ProviderClass,
   ProviderName,
@@ -34,10 +32,12 @@ import {
   StatusOptionsResponse,
   SolanaTransaction,
   TokenNetworkType,
-} from "@src/types";
-import { TOKEN_AMOUNT_INFINITY_AND_BEYOND } from "@src/utils/approvals";
-import { extractComputeBudget } from "@src/utils/solana";
-import { toBN } from "web3-utils";
+} from "../../types";
+import {
+  DEFAULT_SLIPPAGE,
+  FEE_CONFIGS,
+  NATIVE_TOKEN_ADDRESS,
+} from "../../configs";
 
 /** Enables debug logging in this file */
 const DEBUG = false;
@@ -160,9 +160,8 @@ const SPL_TOKEN_ATA_ACCOUNT_SIZE_BYTES = 165;
 let debug: (...args: any[]) => void;
 if (DEBUG) {
   console.debug.bind(console);
-}
-// eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function
-else {
+} else {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function
   debug = (..._args: any[]) => {};
 }
 
@@ -1331,6 +1330,10 @@ function getCreateAssociatedTokenAccountIdempotentInstruction(params: {
    * @example new PublicKey('EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v') // USDC
    * @example new PublicKey('Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB') // USDT
    * @example new PublicKey('So11111111111111111111111111111111111111112') // Wrapped SOL
+   *
+   * USDC @see https://solscan.io/token/EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v
+   * USDT @see https://solscan.io/token/Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB
+   * Wrapped SOL @see https://solscan.io/token/So11111111111111111111111111111111111111112
    */
   mintPubkey: PublicKey;
   /**
