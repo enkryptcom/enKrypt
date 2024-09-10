@@ -219,6 +219,7 @@ export const executeSwap = async (
       // Send the transaction
       let txHash: string;
       try {
+        // TODO: don't skip preflight
         txHash = await conn.sendRawTransaction(tx.serialize());
       } catch (err) {
         // Log error info if possible
@@ -248,8 +249,8 @@ export const executeSwap = async (
         // Trim the error so it doesn't break the UI by being too huge
         let msg = (err as Error).message;
         const len = msg.length;
-        if (len > 128 + 10 + len.toString().length) {
-          msg = `${msg.slice(0, 128)}... (128/${len.toString()})`;
+        if (len > 160 + 10 + len.toString().length) {
+          msg = `${msg.slice(0, 160)}... (160/${len.toString()})`;
         }
         throw new Error(msg);
       }

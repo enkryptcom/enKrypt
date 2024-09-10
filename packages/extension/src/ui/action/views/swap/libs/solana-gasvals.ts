@@ -18,19 +18,57 @@ export const getSolanaTransactionFees = async (
 ): Promise<Pick<GasFeeType, GasPriceTypes.REGULAR>> => {
   let feesumlamp = additionalFee;
   const conn = ((await network.api()) as SolanaAPI).web3;
-  const latestBlockHash = await conn.getLatestBlockhash();
+  let latestBlockHash = await conn.getLatestBlockhash();
   for (let i = 0, len = txs.length; i < len; i++) {
     const tx = txs[i];
     // Use the latest block hash in-case it's fallen too far behind
     tx.message.recentBlockhash = latestBlockHash.blockhash;
-    /** Base fee + priority fee + rent fees (but the rent fees seem slightly higher than expected @ 2024-09-04) */
-    const fee = await conn.getFeeForMessage(tx.message);
-    if (fee.value == null) {
-      throw new Error(
-        `Failed to get fee for Solana VersionedTransaction ${i}. Transaction block hash possibly expired.`
-      );
+
+    // Not sure why but getFeeForMessage sometimes returns null, so we will retry
+    // with small backoff in-case it helps
+    const backoff = [0, 500, 1_500];
+    /** 0 indexed attempt, used to index backoff ms from `backoff` */
+    let attempt = 0;
+    let fee: number;
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+      if (attempt >= backoff.length) {
+        throw new Error(
+          `Failed to get fee for Solana VersionedTransaction ${i + 1}` +
+            ` after ${backoff.length} attempts.` +
+            ` Transaction block hash ${tx.message.recentBlockhash} possibly expired.`
+        );
+      }
+      if (backoff[attempt] > 0) {
+        // wait before retrying
+        await new Promise((res) => {
+          return setTimeout(res, backoff[attempt]);
+        });
+      }
+      // Update the block hash in-case it caused 0 fees to be returned
+      if (attempt > 0) {
+        latestBlockHash = await conn.getLatestBlockhash();
+        tx.message.recentBlockhash = latestBlockHash.blockhash;
+      }
+
+      /** Base fee + priority fee (Don't know why this returns null sometimes) */
+      const feeResult = await conn.getFeeForMessage(tx.message);
+      if (feeResult.value == null) {
+        console.warn(
+          `Failed to get fee for Solana VersionedTransaction` +
+            ` ${i + 1}. Transaction block hash ${tx.message.recentBlockhash}` +
+            ` possibly expired. Attempt ${attempt + 1}/${backoff.length}.`
+        );
+      } else {
+        // Success
+        fee = feeResult.value;
+        break;
+      }
+
+      attempt += 1;
     }
-    feesumlamp = feesumlamp.add(toBN(fee.value));
+
+    feesumlamp = feesumlamp.add(toBN(fee));
   }
 
   // Convert from lamports to SOL
