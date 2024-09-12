@@ -93,6 +93,7 @@ export enum NetworkNames {
   Scroll = "scroll",
   Rari = "rari",
   CotiDevnet = "CotiDevnet",
+  Holesky = "HOLESKY",
 }
 
 export enum CoingeckoPlatform {
