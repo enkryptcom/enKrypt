@@ -46,6 +46,37 @@ import { isEVMAddress } from "../../utils/common";
 const RANGO_PUBLIC_API_KEY = "ee7da377-0ed8-4d42-aaf9-fa978a32b18d";
 const rangoClient = new RangoClient(RANGO_PUBLIC_API_KEY);
 
+const DEBUG = false;
+
+let debug: (context: string, message: string, ...args: any[]) => void;
+if (DEBUG) {
+  debug = (context: string, message: string, ...args: any[]): void => {
+    const now = new Date();
+    const ymdhms =
+      // eslint-disable-next-line prefer-template
+      now.getFullYear().toString().padStart(4, "0") +
+      "-" +
+      (now.getMonth() + 1).toString().padStart(2, "0") +
+      "-" +
+      now.getDate().toString().padStart(2, "0") +
+      " " +
+      now.getHours().toString().padStart(2, "0") +
+      ":" +
+      now.getMinutes().toString().padStart(2, "0") +
+      ":" +
+      now.getSeconds().toString().padStart(2, "0") +
+      "." +
+      now.getMilliseconds().toString().padStart(3, "0");
+    console.info(
+      `\x1b[90m${ymdhms}\x1b[0m \x1b[32mRangoSwapProvider.${context}\x1b[0m: ${message}`,
+      ...args
+    );
+  };
+} else {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function
+  debug = () => {};
+}
+
 /**
  * `name` is the blockchain id on Rango
  *
@@ -149,13 +180,21 @@ class Rango extends ProviderClass {
   }
 
   async init(tokenList?: TokenType[]): Promise<void> {
+    debug("init", `Initialising against ${tokenList?.length} tokens...`);
     const resMeta = await rangoClient.meta({
       excludeNonPopulars: true,
       transactionTypes: [RangoTransactionType.EVM, RangoTransactionType.SOLANA],
     });
     this.rangoMeta = resMeta;
+    debug(
+      "init",
+      "Rango meta" +
+        `  tokens.length=${resMeta.tokens.length}` +
+        `  blockchains.length=${resMeta.blockchains.length}`
+    );
     const { blockchains, tokens } = resMeta;
     if (!Rango.isSupported(this.network, blockchains)) {
+      debug("init", `Not supported on network ${this.network}`);
       return;
     }
     tokenList?.forEach((t) => {
@@ -164,6 +203,7 @@ class Rango extends ProviderClass {
         this.fromTokens[t.address] = t;
       }
     });
+    debug("init", `Finished initialising`);
   }
 
   static isSupported(
@@ -206,11 +246,11 @@ class Rango extends ProviderClass {
     return true;
   }
 
-  getFromTokens() {
+  getFromTokens(): ProviderFromTokenResponse {
     return this.fromTokens;
   }
 
-  getToTokens() {
+  getToTokens(): ProviderToTokenResponse {
     const { tokens } = this.rangoMeta;
     const supportedCRangoNames = Object.values(supportedNetworks).map(
       (s) => s.name
@@ -275,6 +315,18 @@ class Rango extends ProviderClass {
     accurateEstimate: boolean
   ): Promise<RangoSwapResponse | null> {
     const { blockchains } = this.rangoMeta;
+    const startedAt = Date.now();
+
+    debug(
+      "getRangoSwap",
+      `Getting swap` +
+        `  srcToken=${options.fromToken.symbol}` +
+        `  dstToken=${options.toToken.symbol}` +
+        `  fromAddress=${options.fromAddress}` +
+        `  toAddress=${options.toAddress}` +
+        `  fromNetwork=${this.network}` +
+        `  toNetwork=${options.toToken.networkInfo.name}`
+    );
 
     // Determine whether Enkrypt + Rango supports this swap
 
@@ -285,8 +337,15 @@ class Rango extends ProviderClass {
         blockchains
       ) ||
       !Rango.isSupported(this.network, blockchains)
-    )
+    ) {
+      debug(
+        "getRangoSwap",
+        `No swap:` +
+          ` Enkrypt does not support Rango swap on the destination` +
+          ` network ${options.toToken.networkInfo.name}`
+      );
       return Promise.resolve(null);
+    }
 
     // Does Rango support these tokens?
     const feeConfig = FEE_CONFIGS[this.name][meta.walletIdentifier];
@@ -329,6 +388,13 @@ class Rango extends ProviderClass {
       return false;
     })?.name;
 
+    debug(
+      "getRangoSwap",
+      `Rango block chains ids` +
+        `  fromBlokchain=${fromBlockchain}` +
+        `  toBlockchain=${toBlockchain}`
+    );
+
     const fromTokenAddress = options.fromToken.address;
     const toTokenAddress = options.toToken.address;
 
@@ -339,9 +405,22 @@ class Rango extends ProviderClass {
     const toSymbol = this.getSymbol(options.toToken);
 
     // If we can't get symbols for the tokens then we don't support them
-    if (!fromSymbol || !toSymbol) return Promise.resolve(null);
+    if (!fromSymbol || !toSymbol) {
+      debug(
+        "getRangoSwap",
+        `No swap: No symbol for src token or dst token` +
+          `  srcTokenSymbol=${fromSymbol}` +
+          `  dstTokenSymbol=${toSymbol}`
+      );
+      return Promise.resolve(null);
+    }
 
     // Enkrypt & Rango both likely support this swap (pair & networks)
+
+    const slippage = Number(meta.slippage || DEFAULT_SLIPPAGE);
+    if (!Number.isFinite(slippage)) {
+      throw new Error(`Slippage is not a number: ${slippage}`);
+    }
 
     // Request a swap transaction from Rango for the pair & networks
     const params: SwapRequest = {
@@ -360,12 +439,13 @@ class Rango extends ProviderClass {
       amount: options.amount.toString(),
       fromAddress: options.fromAddress,
       toAddress: options.toAddress,
-      slippage: meta.slippage || DEFAULT_SLIPPAGE,
+      slippage,
       referrerFee: feeConfig ? (feeConfig.fee * 100).toFixed(3) : undefined,
       referrerAddress: feeConfig?.referrer || undefined,
       disableEstimate: true,
     };
 
+    debug("getRangoSwap", `Requesting quote from rango sdk...`);
     const rangoSwapResponse = await rangoClient.swap(params);
 
     if (
@@ -373,9 +453,12 @@ class Rango extends ProviderClass {
       rangoSwapResponse.resultType !== RoutingResultType.OK
     ) {
       // Rango experienced some kind of error or is unable to route the swap
-      console.error(rangoSwapResponse.error);
+      debug("getRangoSwap", `Rango swap SDK returned an error`);
+      console.error("Rango swap SDK error:", rangoSwapResponse.error);
       return Promise.resolve(null);
     }
+
+    debug("getRangoSwap", `Rango swap SDK returned OK`);
 
     // We have a swap transaction provided by Rango that can be executed
 
@@ -397,21 +480,27 @@ class Rango extends ProviderClass {
     switch (rangoSwapResponse.tx?.type) {
       // Process Rango swap Solana transaction
       case RangoTransactionType.SOLANA: {
+        debug("getRangoSwap", "Received Solana transaction");
+
         let versionedTransaction: VersionedTransaction;
         if (rangoSwapResponse.tx.serializedMessage == null) {
-          // TODO: when and why does this happen?
-          throw new Error(
-            `Rango did not return a serialized message for the Solana transaction`
+          // TODO: When how and why does this happen?
+          debug(
+            "getRangoSwap",
+            "Dropping rango swap transaction: Rango SDK returned a Solana transaction without any serializedMessage"
           );
+          return null;
         }
         switch (rangoSwapResponse.tx.txType) {
           case "VERSIONED": {
+            debug("getRangoSwap", `Deserializing Solana versioned transaction`);
             versionedTransaction = VersionedTransaction.deserialize(
               new Uint8Array(rangoSwapResponse.tx.serializedMessage)
             );
             break;
           }
           case "LEGACY": {
+            debug("getRangoSwap", `Deserializing Solana legacy transaction`);
             // TODO: does this work? versionedTransaction.version has type `'legacy' | 0` so maybe?
             versionedTransaction = VersionedTransaction.deserialize(
               new Uint8Array(rangoSwapResponse.tx.serializedMessage)
@@ -444,9 +533,9 @@ class Rango extends ProviderClass {
 
       // Process Rango swap EVM transaction
       case RangoTransactionType.EVM: {
-        const transactions: EVMTransaction[] = [];
+        debug("getRangoSwap", `Received EVM transaction`);
 
-        // TODO: handle Solana transactions
+        const transactions: EVMTransaction[] = [];
         const tx = rangoSwapResponse.tx as RangoEvmTransaction;
         if (!this.isNativeToken(options.fromToken.address) && tx.approveTo) {
           // The user needss to approve Rango to swap tokens on their behalf
@@ -510,6 +599,11 @@ class Rango extends ProviderClass {
       additionalNativeFees,
       requestId: rangoSwapResponse.requestId,
     };
+
+    debug(
+      "getRangoSwap",
+      `Done  took=${(Date.now() - startedAt).toLocaleString()}ms`
+    );
 
     return result;
   }

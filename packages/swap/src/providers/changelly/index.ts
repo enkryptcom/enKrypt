@@ -35,7 +35,38 @@ import supportedNetworks from "./supported";
 import { ChangellyCurrency } from "./types";
 import estimateEVMGasList from "../../common/estimateGasList";
 
+const DEBUG = false;
+
 const BASE_URL = "https://partners.mewapi.io/changelly-v2";
+
+let debug: (context: string, message: string, ...args: any[]) => void;
+if (DEBUG) {
+  debug = (context: string, message: string, ...args: any[]): void => {
+    const now = new Date();
+    const ymdhms =
+      // eslint-disable-next-line prefer-template
+      now.getFullYear().toString().padStart(4, "0") +
+      "-" +
+      (now.getMonth() + 1).toString().padStart(2, "0") +
+      "-" +
+      now.getDate().toString().padStart(2, "0") +
+      " " +
+      now.getHours().toString().padStart(2, "0") +
+      ":" +
+      now.getMinutes().toString().padStart(2, "0") +
+      ":" +
+      now.getSeconds().toString().padStart(2, "0") +
+      "." +
+      now.getMilliseconds().toString().padStart(3, "0");
+    console.info(
+      `\x1b[90m${ymdhms}\x1b[0m \x1b[32mChangellySwapProvider.${context}\x1b[0m: ${message}`,
+      ...args
+    );
+  };
+} else {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function
+  debug = () => {};
+}
 
 class Changelly extends ProviderClass {
   tokenList: TokenType[];
@@ -64,7 +95,14 @@ class Changelly extends ProviderClass {
   }
 
   async init(): Promise<void> {
-    if (!Changelly.isSupported(this.network)) return;
+    debug("init", "Initialising...");
+    if (!Changelly.isSupported(this.network)) {
+      debug(
+        "init",
+        `Enkrypt does not support Changelly on this network  network=${this.network}`
+      );
+      return;
+    }
     this.changellyList = await fetch(CHANGELLY_LIST).then((res) => res.json());
 
     /** Mapping of changelly network name -> enkrypt network name */
@@ -117,6 +155,11 @@ class Changelly extends ProviderClass {
           cur.ticker
         );
     });
+
+    debug(
+      "init",
+      `Finished initialising  this.changellyList.length=${this.changellyList.length}`
+    );
   }
 
   private setTicker(
@@ -156,8 +199,16 @@ class Changelly extends ProviderClass {
       currency: ticker,
       address,
     }).then((response) => {
-      if (response.error || !response.result) return false;
-      return response.result[0].result;
+      if (response.error) {
+        debug(
+          "isValidAddress",
+          `Error in response when validating address` +
+            `  address=${address}` +
+            `  err=${String(response.error.message)}`
+        );
+        return false;
+      }
+      return response.result?.[0]?.result ?? false;
     });
   }
 
@@ -177,13 +228,21 @@ class Changelly extends ProviderClass {
     fromToken: TokenType;
     toToken: TokenTypeTo;
   }): Promise<MinMaxResponse> {
+    const startedAt = Date.now();
+    debug(
+      "getMinMaxAmount",
+      `Getting min and max of swap pair` +
+        `  fromToken=${fromToken.symbol}` +
+        `  toToken=${toToken.symbol}`
+    );
     const emptyResponse = {
       minimumFrom: toBN("0"),
       maximumFrom: toBN("0"),
       minimumTo: toBN("0"),
       maximumTo: toBN("0"),
     };
-    return this.changellyRequest("getFixRate", {
+    const method = "getFixRate";
+    return this.changellyRequest(method, {
       from: this.getTicker(fromToken, this.network),
       to: this.getTicker(
         toToken as TokenType,
@@ -193,43 +252,118 @@ class Changelly extends ProviderClass {
       .then((response) => {
         if (response.error) return emptyResponse;
         const result = response.result[0];
-        return {
+        const minMax = {
           minimumFrom: toBN(toBase(result.minFrom, fromToken.decimals)),
           maximumFrom: toBN(toBase(result.maxFrom, fromToken.decimals)),
           minimumTo: toBN(toBase(result.minTo, toToken.decimals)),
           maximumTo: toBN(toBase(result.maxTo, toToken.decimals)),
         };
+        debug(
+          "getMinMaxAmount",
+          `Successfully got min and max of swap pair` +
+            `  method=${method}` +
+            `  fromToken=${fromToken.symbol}` +
+            `  toToken=${toToken.symbol}` +
+            `  took=${(Date.now() - startedAt).toLocaleString()}ms`
+        );
+        return minMax;
       })
-      .catch(() => emptyResponse);
+      .catch((err: Error) => {
+        debug(
+          "getMinMaxAmount",
+          `Errored calling getFixRate to get the min and max of swap pair` +
+            `  method=${method}` +
+            `  fromToken=${fromToken.symbol}` +
+            `  toToken=${toToken.symbol}` +
+            `  took=${(Date.now() - startedAt).toLocaleString()}ms` +
+            `  err=${String(err)}`
+        );
+        return emptyResponse;
+      });
   }
 
   async getQuote(
     options: getQuoteOptions,
     meta: QuoteMetaOptions
   ): Promise<ProviderQuoteResponse | null> {
+    const startedAt = Date.now();
+
+    debug(
+      "getQuote",
+      `Getting Changelly quote` +
+        `  srcToken=${options.fromToken.symbol}` +
+        `  dstToken=${options.toToken.symbol}` +
+        `  fromAddress=${options.fromAddress}` +
+        `  toAddress=${options.toAddress}` +
+        `  fromNetwork=${this.network}` +
+        `  toNetwork=${options.toToken.networkInfo.name}`
+    );
+
     if (
       !Changelly.isSupported(
         options.toToken.networkInfo.name as SupportedNetworkName
-      ) ||
-      !Changelly.isSupported(this.network) ||
-      !this.getTicker(options.fromToken, this.network) ||
+      )
+    ) {
+      debug(
+        "getQuote",
+        `No swap: Enkrypt does not support Changelly on the destination network` +
+          `  dstNetwork=${options.toToken.networkInfo.name}`
+      );
+      return null;
+    }
+
+    if (!Changelly.isSupported(this.network)) {
+      debug(
+        "getQuote",
+        `No swap: Enkrypt does not support Changelly on the source network` +
+          `  srcNetwork=${this.network}`
+      );
+      return null;
+    }
+
+    if (!this.getTicker(options.fromToken, this.network)) {
+      debug(
+        "getQuote",
+        `No swap: Failed to find ticker for src token` +
+          `  srcToken=${options.fromToken.symbol}` +
+          `  srcNetwork=${this.network}`
+      );
+      return null;
+    }
+
+    if (
       !this.getTicker(
         options.toToken as TokenType,
         options.toToken.networkInfo.name as SupportedNetworkName
       )
-    )
-      return Promise.resolve(null);
+    ) {
+      debug(
+        "getQuote",
+        `No swap: Failed to find ticker for dst token` +
+          `  dstToken=${options.toToken.symbol}` +
+          `  dstNetwork=${options.toToken.networkInfo.name}`
+      );
+      return null;
+    }
+
     const minMax = await this.getMinMaxAmount({
       fromToken: options.fromToken,
       toToken: options.toToken,
     });
+
     let quoteRequestAmount = options.amount;
+
+    // Clamp `quoteRequestAmount`
     if (quoteRequestAmount.lt(minMax.minimumFrom))
       quoteRequestAmount = minMax.minimumFrom;
     else if (quoteRequestAmount.gt(minMax.maximumFrom))
       quoteRequestAmount = minMax.maximumFrom;
+
     if (quoteRequestAmount.toString() === "0") return null;
-    return this.changellyRequest("getFixRateForAmount", {
+
+    const method = "getFixRateForAmount";
+    debug("getQuote", `Requesting changelly swap...  method=${method}`);
+    return this.changellyRequest(method, {
       from: this.getTicker(options.fromToken, this.network),
       to: this.getTicker(
         options.toToken as TokenType,
@@ -241,8 +375,16 @@ class Changelly extends ProviderClass {
       ),
     })
       .then(async (response) => {
-        if (response.error || !response.result || !response.result[0].id)
+        debug("getQuote", `Received Changelly swap response  method=${method}`);
+        if (response.error || !response.result || !response.result[0].id) {
+          debug(
+            "getQuote",
+            `No swap: response either contains error, no result or no id` +
+              `  method=${method}` +
+              `  took=${(Date.now() - startedAt).toLocaleString()}ms`
+          );
           return null;
+        }
         const result = response.result[0];
         const evmGasLimit =
           options.fromToken.address === NATIVE_TOKEN_ADDRESS &&
@@ -274,19 +416,53 @@ class Changelly extends ProviderClass {
             options.fromToken.type === NetworkType.EVM ? evmGasLimit : 0,
           minMax,
         };
+        debug(
+          "getQuote",
+          `Successfully processed Changelly swap response` +
+            `  took=${(Date.now() - startedAt).toLocaleString()}ms`
+        );
         return retResponse;
       })
-      .catch(() => null);
+      .catch((err) => {
+        debug(
+          "getQuote",
+          `Changelly request failed` +
+            `  method=${method}` +
+            `  took=${(Date.now() - startedAt).toLocaleString()}ms` +
+            `  err=${String(err)}`
+        );
+        return null;
+      });
   }
 
   getSwap(quote: SwapQuote): Promise<ProviderSwapResponse | null> {
+    const startedAt = Date.now();
+    debug("getSwap", `Getting Changelly swap`);
+
+    if (!Changelly.isSupported(this.network)) {
+      debug(
+        "getSwap",
+        `No swap: Enkrypt does not support Changelly on the source network` +
+          `  srcNetwork=${this.network}`
+      );
+      return Promise.resolve(null);
+    }
+
     if (
       !Changelly.isSupported(
         quote.options.toToken.networkInfo.name as SupportedNetworkName
-      ) ||
-      !Changelly.isSupported(this.network)
-    )
+      )
+    ) {
+      debug(
+        "getSwap",
+        `No swap: Enkrypt does not support Changelly on the destination network` +
+          `  dstNetwork=${quote.options.toToken.networkInfo.name}`
+      );
       return Promise.resolve(null);
+    }
+
+    const method = "createFixTransaction";
+    debug("getSwap", `Requesting Changelly swap...  method=${method}`);
     return this.changellyRequest("createFixTransaction", {
       from: this.getTicker(quote.options.fromToken, this.network),
       to: this.getTicker(
@@ -302,7 +478,16 @@ class Changelly extends ProviderClass {
       rateId: quote.meta.changellyQuoteId,
     })
       .then(async (response) => {
-        if (response.error || !response.result.id) return null;
+        debug("getSwap", `Received Changelly swap response  method=${method}`);
+        if (response.error || !response.result.id) {
+          debug(
+            "getSwap",
+            `No swap: response either contains error or no id` +
+              `  method=${method}` +
+              `  took=${(Date.now() - startedAt).toLocaleString()}ms`
+          );
+          return null;
+        }
         const { result } = response;
         let transaction: SwapTransaction;
         if (quote.options.fromToken.type === NetworkType.EVM) {
@@ -360,9 +545,23 @@ class Changelly extends ProviderClass {
             provider: this.name,
           }),
         };
+        debug(
+          "getSwap",
+          `Successfully processed Changelly swap response` +
+            `  took=${(Date.now() - startedAt).toLocaleString()}ms`
+        );
         return retResponse;
       })
-      .catch(() => null);
+      .catch((err) => {
+        debug(
+          "getSwap",
+          `Changelly request failed` +
+            `  method=${method}` +
+            `  took=${(Date.now() - startedAt).toLocaleString()}ms` +
+            `  err=${String(err)}`
+        );
+        return null;
+      });
   }
 
   getStatus(options: StatusOptions): Promise<TransactionStatus> {

@@ -158,12 +158,33 @@ const JUPITER_REFERRAL_ATA_ACCOUNT_SIZE_BYTES = 165;
 
 const SPL_TOKEN_ATA_ACCOUNT_SIZE_BYTES = 165;
 
-let debug: (...args: any[]) => void;
+let debug: (context: string, message: string, ...args: any[]) => void;
 if (DEBUG) {
-  console.debug.bind(console);
+  debug = (context: string, message: string, ...args: any[]): void => {
+    const now = new Date();
+    const ymdhms =
+      // eslint-disable-next-line prefer-template
+      now.getFullYear().toString().padStart(4, "0") +
+      "-" +
+      (now.getMonth() + 1).toString().padStart(2, "0") +
+      "-" +
+      now.getDate().toString().padStart(2, "0") +
+      " " +
+      now.getHours().toString().padStart(2, "0") +
+      ":" +
+      now.getMinutes().toString().padStart(2, "0") +
+      ":" +
+      now.getSeconds().toString().padStart(2, "0") +
+      "." +
+      now.getMilliseconds().toString().padStart(3, "0");
+    console.info(
+      `\x1b[90m${ymdhms}\x1b[0m \x1b[32mRangoSwapProvider.${context}\x1b[0m: ${message}`,
+      ...args
+    );
+  };
 } else {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function
-  debug = (..._args: any[]) => {};
+  debug = () => {};
 }
 
 // Jupiter API Tokens
@@ -505,7 +526,8 @@ export class Jupiter extends ProviderClass {
 
     if (referrerATAExists) {
       debug(
-        `[JupiterSwapProvider.querySwapInfo] Referrer ATA already exists. No need to record additional rent fees.` +
+        "querySwapInfo",
+        `Referrer ATA already exists. No need to record additional rent fees.` +
           ` ATA pubkey: ${referrerATAPubkey.toBase58()},` +
           ` Source mint: ${srcMint.toBase58()}`
       );
@@ -531,7 +553,8 @@ export class Jupiter extends ProviderClass {
       rentFees += extraRentFees;
 
       debug(
-        `[JupiterSwapProvider.querySwapInfo] Referrer ATA does not exist. Updating transaction with instruction to create it.` +
+        "querySwapInfo",
+        `Referrer ATA does not exist. Updating transaction with instruction to create it.` +
           ` Referral ATA pubkey: ${referrerATAPubkey.toBase58()},` +
           ` Rent: ${extraRentFees} lamports,` +
           ` Total Rent: ${extraRentFees} lamports`
@@ -543,7 +566,8 @@ export class Jupiter extends ProviderClass {
 
     if (dstATAExists) {
       debug(
-        `[JupiterSwapProvider.querySwapInfo] Wallet destination mint ATA already exists. No need to record additional rent fees.` +
+        "querySwapInfo",
+        `Wallet destination mint ATA already exists. No need to record additional rent fees.` +
           ` ATA pubkey: ${dstATAPubkey.toBase58()},` +
           ` Destination mint: ${dstMint.toBase58()}`
       );
@@ -566,7 +590,8 @@ export class Jupiter extends ProviderClass {
       extraInstructions.push(instruction);
 
       debug(
-        `[JupiterSwapProvider.querySwapInfo] Wallet destination mint ATA does not exist, registering custom instruction to create it.` +
+        "querySwapInfo",
+        `Wallet destination mint ATA does not exist, registering custom instruction to create it.` +
           ` Adding ATA rent to extra transaction fees.` +
           ` ATA pubkey: ${dstATAPubkey.toBase58()},` +
           ` Destination mint: ${dstMint.toBase58()},` +
@@ -603,7 +628,9 @@ export class Jupiter extends ProviderClass {
   ): Promise<null | ProviderQuoteResponse> {
     if (options.toToken.networkInfo.name !== SupportedNetworkName.Solana) {
       debug(
-        `[JupiterSwapProvider.getQuote] ignoring quote request to network ${options.toToken.networkInfo.name}, cross network swaps not supported`
+        "getQuote",
+        `ignoring quote request to network ${options.toToken.networkInfo.name},` +
+          ` cross network swaps not supported`
       );
       return null;
     }
@@ -618,10 +645,12 @@ export class Jupiter extends ProviderClass {
     // 4. Rent for ATA accounts that may need to be created; the referral fee account and mint account
 
     debug(
-      `[JupiterSwapProvider.getQuote] Quote inAmount:  ${jupiterQuote.inAmount} ${options.fromToken.symbol}`
+      "getQuote",
+      `Quote inAmount:  ${jupiterQuote.inAmount} ${options.fromToken.symbol}`
     );
     debug(
-      `[JupiterSwapProvider.getQuote] Quote outAmount: ${jupiterQuote.outAmount} ${options.toToken.symbol}`
+      "getQuote",
+      `Quote outAmount: ${jupiterQuote.outAmount} ${options.toToken.symbol}`
     );
 
     const result: ProviderQuoteResponse = {
@@ -666,10 +695,12 @@ export class Jupiter extends ProviderClass {
     };
 
     debug(
-      `[JupiterSwapProvider.getSwap] Quote inAmount:  ${jupiterQuote.inAmount} ${quote.options.fromToken.symbol}`
+      "getSwap",
+      `Quote inAmount:  ${jupiterQuote.inAmount} ${quote.options.fromToken.symbol}`
     );
     debug(
-      `[JupiterSwapProvider.getSwap] Quote outAmount: ${jupiterQuote.outAmount} ${quote.options.toToken.symbol}`
+      "getSwap",
+      `Quote outAmount: ${jupiterQuote.outAmount} ${quote.options.toToken.symbol}`
     );
 
     const result: ProviderSwapResponse = {
@@ -794,9 +825,7 @@ async function getJupiterTokens(context?: {
 
     if (backoff[backoffi] > 0) {
       // Previous request failed, wait before retrying
-      debug(
-        `[JupiterSwapProvider.getJupiterTokens] Retrying after ${backoff[backoffi]}ms...`
-      );
+      debug("getJupiterTokens", `Retrying after ${backoff[backoffi]}ms...`);
       await new Promise<void>((res, rej) => {
         function onTimeout() {
           cleanupSleep();
@@ -837,7 +866,8 @@ async function getJupiterTokens(context?: {
 
     try {
       debug(
-        `[JupiterSwapProvider.getJupiterTokens] Initiating HTTP request for Jupiter tokens ${url}`
+        "getJupiterTokens",
+        `Initiating HTTP request for Jupiter tokens ${url}`
       );
       const res = await fetch(url, {
         signal: aborter.signal,
@@ -848,7 +878,9 @@ async function getJupiterTokens(context?: {
       if (!res.ok) {
         let msg = await res
           .text()
-          .catch((err) => `Failed to decode response text: ${String(err)}`);
+          .catch(
+            (err: Error) => `Failed to decode response text: ${String(err)}`
+          );
         const msglen = msg.length;
         if (msglen > 512 + 7 + 3 + msglen.toString().length) {
           msg = `${msg.slice(0, 512)}... (512/${msglen})`;
@@ -884,9 +916,10 @@ async function getJupiterTokens(context?: {
       if (signal?.aborted) throw signal.reason;
       if (failed) throw err;
       debug(
-        `[JupiterSwapProvider.getJupiterTokens] Failed to get Jupiter tokens on attempt ${
-          backoffi + 1
-        }/${backoff.length}: ${String(err)}`
+        "getJupiterTokens",
+        `Failed to get Jupiter tokens on attempt ${backoffi + 1}/${
+          backoff.length
+        }: ${String(err)}`
       );
       errRef ??= { err: err as Error };
     } finally {
@@ -986,7 +1019,8 @@ async function getJupiterQuote(
     if (backoff[backoffi] > 0) {
       // Previous request failed, wait before retrying
       debug(
-        `[JupiterSwapProvider.getJupiterQuote] Retrying ${url} after ${backoff[backoffi]}ms...`
+        "getJupiterQuote",
+        `Retrying ${url} after ${backoff[backoffi]}ms...`
       );
       await new Promise<void>((res, rej) => {
         function onTimeout() {
@@ -1028,7 +1062,8 @@ async function getJupiterQuote(
 
     try {
       debug(
-        `[JupiterSwapProvider.getJupiterQuote] Initiating HTTP request for Jupiter quote ${url}`
+        "getJupiterQuote",
+        `Initiating HTTP request for Jupiter quote ${url}`
       );
       const res = await fetch(url, {
         signal: aborter.signal,
@@ -1039,7 +1074,9 @@ async function getJupiterQuote(
       if (!res.ok) {
         let msg = await res
           .text()
-          .catch((err) => `Failed to decode response text: ${String(err)}`);
+          .catch(
+            (err: Error) => `Failed to decode response text: ${String(err)}`
+          );
         const msglen = msg.length;
         if (msglen > 512 + 7 + 3 + msglen.toString().length) {
           msg = `${msg.slice(0, 512)}... (512/${msglen})`;
@@ -1144,7 +1181,8 @@ async function getJupiterSwap(
     if (backoff[backoffi] > 0) {
       // Previous request failed, wait before retrying
       debug(
-        `[JupiterSwapProvider.getJupiterSwap] Retrying ${url} after ${backoff[backoffi]}ms...`
+        "getJupiterSwap",
+        `Retrying ${url} after ${backoff[backoffi]}ms...`
       );
       await new Promise<void>((res, rej) => {
         function onTimeout() {
@@ -1186,7 +1224,8 @@ async function getJupiterSwap(
 
     try {
       debug(
-        `[JupiterSwapProvider.getJupiterSwap] Initiating HTTP request for Jupiter swap ${url}`
+        "getJupiterSwap",
+        `Initiating HTTP request for Jupiter swap ${url}`
       );
       const res = await fetch(url, {
         signal: aborter.signal,
@@ -1202,7 +1241,9 @@ async function getJupiterSwap(
       if (!res.ok) {
         let msg = await res
           .text()
-          .catch((err) => `Failed to decode response text: ${String(err)}`);
+          .catch(
+            (err: Error) => `Failed to decode response text: ${String(err)}`
+          );
         const msglen = msg.length;
         if (msglen > 512 + 7 + 3 + msglen.toString().length) {
           msg = `${msg.slice(0, 512)}... (512/${msglen})`;
@@ -1238,9 +1279,10 @@ async function getJupiterSwap(
     } catch (err) {
       if (failed) throw err;
       debug(
-        `[JupiterSwapProvider.getJupiterSwap] Failed to get Jupiter swap on attempt ${
-          backoffi + 1
-        }/${backoff.length}: ${String(err)}`
+        "getJupiterSwap",
+        `Failed to get Jupiter swap on attempt ${backoffi + 1}/${
+          backoff.length
+        }: ${String(err)}`
       );
       errRef ??= { err: err as Error };
     } finally {
@@ -1535,9 +1577,8 @@ async function insertInstructionsAtStartOfTransaction(
         `Failed to get address lookup table for ${lookup.accountKey}`
       );
     debug(
-      `[JupiterSwapProvider.insertInstructionsAtStartOfTransaction] Fetching lookup account ${
-        i + 1
-      }. ${lookup.accountKey.toBase58()}`
+      "insertInstructionsAtStartOfTransaction",
+      `Fetching lookup account ${i + 1}. ${lookup.accountKey.toBase58()}`
     );
     addressLookupTableAccounts[i] = addressLookupTableAccount;
   }
@@ -1566,7 +1607,8 @@ async function insertInstructionsAtStartOfTransaction(
       default: {
         // insert our instruction here & continue
         debug(
-          `[JupiterSwapProvider.insertInstructionsAtStartOfTransaction] Inserting instruction to create an ATA account for Jupiter referrer with mint at instruction index ${i}`
+          "insertInstructionsAtStartOfTransaction",
+          `Inserting instruction to create an ATA account for Jupiter referrer with mint at instruction index ${i}`
         );
         inserted = true;
         decompiledTransactionMessage.instructions.splice(i, 0, ...instructions);
@@ -1578,7 +1620,8 @@ async function insertInstructionsAtStartOfTransaction(
   if (!inserted) {
     // If there were no compute budget instructions then just add it at the start
     debug(
-      `[JupiterSwapProvider.insertInstructionsAtStartOfTransaction] Inserting instruction to create an ATA account for Jupiter referrer with mint at start of instructions`
+      "insertInstructionsAtStartOfTransaction",
+      `Inserting instruction to create an ATA account for Jupiter referrer with mint at start of instructions`
     );
     for (let len = instructions.length - 1, i = len - 1; i >= 0; i--) {
       decompiledTransactionMessage.instructions.unshift(instructions[i]);
@@ -1586,9 +1629,7 @@ async function insertInstructionsAtStartOfTransaction(
   }
 
   // Switch to using this modified transaction
-  debug(
-    `[JupiterSwapProvider.insertInstructionsAtStartOfTransaction] Re-compiling transaction`
-  );
+  debug("insertInstructionsAtStartOfTransaction", `Re-compiling transaction`);
   const modifiedTx = new VersionedTransaction(
     decompiledTransactionMessage.compileToV0Message(addressLookupTableAccounts)
   );
@@ -1607,9 +1648,7 @@ async function getTokenProgramOfMint(
   conn: Connection,
   mint: PublicKey
 ): Promise<PublicKey> {
-  debug(
-    `[JupiterSwapProvider.getTokenProgramOfMint] Checking mint account of ${mint.toBase58()}`
-  );
+  debug("getTokenProgramOfMint", `Checking mint account of ${mint.toBase58()}`);
   const srcMintAcc = await conn.getAccountInfo(mint);
 
   if (srcMintAcc == null) {
