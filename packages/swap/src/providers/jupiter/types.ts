@@ -121,10 +121,19 @@ export type JupiterSwapResponse = {
   computeUnitLimit?: number;
   prioritizationType?: {
     computeBudget?: {
-      microLamports: 71428;
-      estimatedMicroLamports: 142856;
+      /** @example 71428 */
+      microLamports: number;
+      /** @example 142856 */
+      estimatedMicroLamports: number;
     };
   };
-  dynamicSlippageReport: null;
+  // TODO: Narrow down
+  dynamicSlippageReport: null | {
+    slippageBps?: null | string | number;
+    otherAmount?: null | string | number;
+    simulatedIncurredSlippageBps?: null | string | number;
+    amplificationRatio?: null | string | number;
+  };
+  // TODO: Type
   simulationError: null;
 };
