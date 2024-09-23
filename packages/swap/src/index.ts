@@ -102,10 +102,12 @@ class Swap extends EventEmitter {
   }
 
   private async init() {
-    if (TOKEN_LISTS[this.network])
+    if (TOKEN_LISTS[this.network]) {
       this.tokenList = await fetch(TOKEN_LISTS[this.network]).then((res) =>
         res.json()
       );
+    }
+
     this.topTokenInfo = await fetch(TOP_TOKEN_INFO_LIST).then((res) =>
       res.json()
     );
@@ -117,7 +119,7 @@ class Swap extends EventEmitter {
         this.providers = [
           new Jupiter(this.api as Web3Solana, this.network),
           new Rango(this.api as Web3Solana, this.network),
-          new Changelly(this.network),
+          new Changelly(this.api, this.network),
         ];
         break;
       default:
@@ -125,7 +127,7 @@ class Swap extends EventEmitter {
         this.providers = [
           new OneInch(this.api as Web3Eth, this.network),
           new Paraswap(this.api as Web3Eth, this.network),
-          new Changelly(this.network),
+          new Changelly(this.api, this.network),
           new ZeroX(this.api as Web3Eth, this.network),
           new Rango(this.api as Web3Eth, this.network),
         ];

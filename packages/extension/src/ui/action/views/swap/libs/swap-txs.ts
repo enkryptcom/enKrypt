@@ -21,7 +21,10 @@ import BitcoinAPI from "@/providers/bitcoin/libs/api";
 import { getTxInfo as getBTCTxInfo } from "@/providers/bitcoin/libs/utils";
 import { toBN } from "web3-utils";
 import { BTCTxInfo } from "@/providers/bitcoin/ui/types";
-import { VersionedTransaction as SolanaVersionedTransaction } from "@solana/web3.js";
+import {
+  VersionedTransaction as SolanaVersionedTransaction,
+  Transaction as SolanaLegacyTransaction,
+} from "@solana/web3.js";
 
 export const getSubstrateNativeTransation = async (
   network: SubstrateNetwork,
@@ -97,7 +100,7 @@ export const getEVMTransaction = async (
 export const getSwapTransactions = async (
   networkName: SupportedNetworkName,
   transactions: TransactionType[]
-) => {
+): Promise<any[]> => {
   const netInfo = getNetworkInfoByName(networkName);
   const network = await getNetworkByName(
     networkName as unknown as NetworkNames
@@ -112,12 +115,25 @@ export const getSwapTransactions = async (
     const allTxs = await Promise.all(txPromises);
     return allTxs;
   } else if (netInfo.type === NetworkType.Solana) {
-    const solTxs = (transactions as EnkryptSolanaTransaction[]).map(
-      (enkSolTx) =>
-        SolanaVersionedTransaction.deserialize(
-          Buffer.from(enkSolTx.serialized, "base64")
-        )
-    );
+    const solTxs: (SolanaVersionedTransaction | SolanaLegacyTransaction)[] = (
+      transactions as EnkryptSolanaTransaction[]
+    ).map(function (enkSolTx) {
+      switch (enkSolTx.kind) {
+        case "legacy":
+          return SolanaLegacyTransaction.from(
+            Buffer.from(enkSolTx.serialized, "base64")
+          );
+        case "versioned":
+          return SolanaVersionedTransaction.deserialize(
+            Buffer.from(enkSolTx.serialized, "base64")
+          );
+        default:
+          enkSolTx.kind satisfies never;
+          throw new Error(
+            `Cannot deserialize Solana transaction: Unexpected kind: ${enkSolTx.kind}`
+          );
+      }
+    });
     return solTxs;
   } else if (netInfo.type === NetworkType.Substrate) {
     if (transactions.length > 1)

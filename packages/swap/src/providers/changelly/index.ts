@@ -1,7 +1,20 @@
+import type Web3Eth from "web3-eth";
 import { v4 as uuidv4 } from "uuid";
 import fetch from "node-fetch";
 import { fromBase, toBase } from "@enkryptcom/utils";
 import { numberToHex, toBN } from "web3-utils";
+import {
+  VersionedTransaction,
+  SystemProgram,
+  PublicKey,
+  TransactionMessage,
+  Connection,
+  TransactionInstruction,
+} from "@solana/web3.js";
+import {
+  ASSOCIATED_TOKEN_PROGRAM_ID,
+  createTransferInstruction as createSPLTransferInstruction,
+} from "@solana/spl-token";
 import {
   getQuoteOptions,
   MinMaxResponse,
@@ -32,9 +45,30 @@ import {
 
 import { getTransfer } from "../../utils/approvals";
 import supportedNetworks from "./supported";
-import { ChangellyCurrency } from "./types";
+import {
+  ChangellyApiCreateFixedRateTransactionParams,
+  ChangellyApiCreateFixedRateTransactionResult,
+  ChangellyApiGetFixRateForAmountParams,
+  ChangellyApiGetFixRateForAmountResult,
+  ChangellyApiGetFixRateParams,
+  ChangellyApiGetFixRateResult,
+  ChangellyApiGetStatusParams,
+  ChangellyApiGetStatusResult,
+  ChangellyApiResponse,
+  ChangellyApiValidateAddressParams,
+  ChangellyApiValidateAddressResult,
+  ChangellyCurrency,
+} from "./types";
 import estimateEVMGasList from "../../common/estimateGasList";
+import {
+  getCreateAssociatedTokenAccountIdempotentInstruction,
+  getSPLAssociatedTokenAccountPubkey,
+  getTokenProgramOfMint,
+  solAccountExists,
+  SPL_TOKEN_ATA_ACCOUNT_SIZE_BYTES,
+} from "../../utils/solana";
 
+/** Enables debug logging in this file */
 const DEBUG = false;
 
 const BASE_URL = "https://partners.mewapi.io/changelly-v2";
@@ -73,6 +107,8 @@ class Changelly extends ProviderClass {
 
   network: SupportedNetworkName;
 
+  web3: Web3Eth | Connection;
+
   name: ProviderName;
 
   fromTokens: ProviderFromTokenResponse;
@@ -84,8 +120,9 @@ class Changelly extends ProviderClass {
 
   contractToTicker: Record<string, string>;
 
-  constructor(network: SupportedNetworkName) {
+  constructor(web3: Web3Eth | Connection, network: SupportedNetworkName) {
     super();
+    this.web3 = web3;
     this.network = network;
     this.tokenList = [];
     this.name = ProviderName.changelly;
@@ -105,8 +142,7 @@ class Changelly extends ProviderClass {
     }
     this.changellyList = await fetch(CHANGELLY_LIST).then((res) => res.json());
 
-    /** Mapping of changelly network name -> enkrypt network name */
-    /** changelly blockchain name -> enkrypt supported swap network name */
+    /** Changelly blockchain name -> enkrypt supported swap network name */
     const changellyToNetwork: Record<string, SupportedNetworkName> = {};
     // Generate mapping of changelly blockchain -> enkrypt blockchain
     Object.keys(supportedNetworks).forEach((net) => {
@@ -180,36 +216,99 @@ class Changelly extends ProviderClass {
     );
   }
 
-  private changellyRequest(method: string, params: any): Promise<any> {
-    // TODO: timeoutes & retries?
-    return fetch(`${BASE_URL}`, {
-      method: "POST",
-      body: JSON.stringify({
-        id: uuidv4(),
-        jsonrpc: "2.0",
-        method,
-        params,
-      }),
-      headers: { "Content-Type": "application/json" },
-    }).then((res) => res.json());
+  /**
+   * Make a HTTP request to the Changelly Json RPC API
+   *
+   * @param method  JsonRPC request method
+   * @param params  JsonRPC request parameters
+   * @param context Cancellable execution context
+   * @returns       JsonRPC response, could be success or error
+   */
+  private async changellyRequest<T>(
+    method: string,
+    params: any,
+    context?: { signal?: AbortSignal }
+  ): Promise<ChangellyApiResponse<T>> {
+    const signal = context?.signal;
+    const aborter = new AbortController();
+    function onAbort() {
+      // Pass context signal to the request signal
+      aborter.abort(signal!.reason);
+    }
+    function onTimeout() {
+      aborter.abort(
+        new Error(`Changelly API request timed out ${BASE_URL} ${method}`)
+      );
+    }
+    function cleanup() {
+      // eslint-disable-next-line no-use-before-define
+      clearTimeout(timeout);
+      signal?.removeEventListener("abort", onAbort);
+    }
+    const timeout = setTimeout(onTimeout, 30_000);
+    signal?.addEventListener("abort", onAbort);
+    try {
+      const response = await fetch(BASE_URL, {
+        method: "POST",
+        signal: aborter.signal,
+        body: JSON.stringify({
+          id: uuidv4(),
+          jsonrpc: "2.0",
+          method,
+          params,
+        }),
+        headers: [
+          ["Content-Type", "application/json"],
+          ["Accept", "application/json"],
+        ],
+      });
+      const json = (await response.json()) as ChangellyApiResponse<T>;
+      return json;
+    } finally {
+      cleanup();
+    }
   }
 
-  isValidAddress(address: string, ticker: string): Promise<boolean> {
-    return this.changellyRequest("validateAddress", {
+  async isValidAddress(address: string, ticker: string): Promise<boolean> {
+    const params: ChangellyApiValidateAddressParams = {
       currency: ticker,
       address,
-    }).then((response) => {
-      if (response.error) {
-        debug(
-          "isValidAddress",
-          `Error in response when validating address` +
-            `  address=${address}` +
-            `  err=${String(response.error.message)}`
-        );
-        return false;
-      }
-      return response.result?.[0]?.result ?? false;
-    });
+    };
+
+    /** @see https://docs.changelly.com/validate-address */
+    const response =
+      await this.changellyRequest<ChangellyApiValidateAddressResult>(
+        "validateAddress",
+        params
+      );
+
+    if (response.error) {
+      console.warn(
+        `Error validating address with via Changelly` +
+          `  code=${String(response.error.code)}` +
+          `  message=${String(response.error.message)}`
+      );
+      return false;
+    }
+
+    if (typeof response.result.result !== "boolean") {
+      console.warn(
+        'Unexpected response to "validateAddress" call to Changelly.' +
+          ` Expected a response.result.result to be a boolean` +
+          ` but received response: ${JSON.stringify(response)}`
+      );
+      return false;
+    }
+
+    const isValid = response.result.result;
+    debug(
+      "isValidAddress",
+      `Changelly validateAddress result` +
+        `  address=${address}` +
+        `  ticker=${ticker}` +
+        `  isValid=${isValid}`
+    );
+    return isValid;
   }
 
   getFromTokens() {
@@ -221,71 +320,86 @@ class Changelly extends ProviderClass {
     return {};
   }
 
-  getMinMaxAmount({
-    fromToken,
-    toToken,
-  }: {
-    fromToken: TokenType;
-    toToken: TokenTypeTo;
-  }): Promise<MinMaxResponse> {
+  async getMinMaxAmount(
+    options: { fromToken: TokenType; toToken: TokenTypeTo },
+    context?: { signal?: AbortSignal }
+  ): Promise<MinMaxResponse> {
+    const { fromToken, toToken } = options;
+    const signal = context?.signal;
+
     const startedAt = Date.now();
-    debug(
-      "getMinMaxAmount",
-      `Getting min and max of swap pair` +
-        `  fromToken=${fromToken.symbol}` +
-        `  toToken=${toToken.symbol}`
-    );
     const emptyResponse = {
       minimumFrom: toBN("0"),
       maximumFrom: toBN("0"),
       minimumTo: toBN("0"),
       maximumTo: toBN("0"),
     };
-    const method = "getFixRate";
-    return this.changellyRequest(method, {
-      from: this.getTicker(fromToken, this.network),
-      to: this.getTicker(
-        toToken as TokenType,
-        toToken.networkInfo.name as SupportedNetworkName
-      ),
-    })
-      .then((response) => {
-        if (response.error) return emptyResponse;
-        const result = response.result[0];
-        const minMax = {
-          minimumFrom: toBN(toBase(result.minFrom, fromToken.decimals)),
-          maximumFrom: toBN(toBase(result.maxFrom, fromToken.decimals)),
-          minimumTo: toBN(toBase(result.minTo, toToken.decimals)),
-          maximumTo: toBN(toBase(result.maxTo, toToken.decimals)),
-        };
-        debug(
-          "getMinMaxAmount",
-          `Successfully got min and max of swap pair` +
-            `  method=${method}` +
-            `  fromToken=${fromToken.symbol}` +
-            `  toToken=${toToken.symbol}` +
-            `  took=${(Date.now() - startedAt).toLocaleString()}ms`
+
+    try {
+      const params: ChangellyApiGetFixRateParams = {
+        from: this.getTicker(fromToken, this.network),
+        to: this.getTicker(
+          toToken as TokenType,
+          toToken.networkInfo.name as SupportedNetworkName
+        ),
+      };
+
+      const response =
+        await this.changellyRequest<ChangellyApiGetFixRateResult>(
+          "getFixRate",
+          params,
+          { signal }
         );
-        return minMax;
-      })
-      .catch((err: Error) => {
-        debug(
-          "getMinMaxAmount",
-          `Errored calling getFixRate to get the min and max of swap pair` +
-            `  method=${method}` +
-            `  fromToken=${fromToken.symbol}` +
-            `  toToken=${toToken.symbol}` +
+
+      if (response.error) {
+        // JsonRPC ERR response
+        console.warn(
+          `Changelly "getFixRate" returned JSONRPC error response` +
+            `  fromToken=${fromToken.symbol} (${params.from})` +
+            `  toToken=${toToken.symbol} (${params.to})` +
             `  took=${(Date.now() - startedAt).toLocaleString()}ms` +
-            `  err=${String(err)}`
+            `  code=${String(response.error.code)}` +
+            `  message=${String(response.error.message)}`
         );
         return emptyResponse;
-      });
+      }
+
+      // JsonRPC OK response
+      const result = response.result[0];
+      const minMax = {
+        minimumFrom: toBN(toBase(result.minFrom, fromToken.decimals)),
+        maximumFrom: toBN(toBase(result.maxFrom, fromToken.decimals)),
+        minimumTo: toBN(toBase(result.minTo, toToken.decimals)),
+        maximumTo: toBN(toBase(result.maxTo, toToken.decimals)),
+      };
+      debug(
+        "getMinMaxAmount",
+        `Successfully got min and max of swap pair` +
+          `  fromToken=${fromToken.symbol} (${params.from})` +
+          `  toToken=${toToken.symbol} (${params.to})` +
+          `  took=${(Date.now() - startedAt).toLocaleString()}ms`
+      );
+      return minMax;
+    } catch (err) {
+      // HTTP request failed
+      console.warn(
+        `Errored calling Changelly JSONRPC HTTP API "getFixRate"` +
+          `  fromToken=${fromToken.symbol}` +
+          `  toToken=${toToken.symbol}` +
+          `  took=${(Date.now() - startedAt).toLocaleString()}ms` +
+          `  err=${String(err)}`
+      );
+      return emptyResponse;
+    }
   }
 
   async getQuote(
     options: getQuoteOptions,
-    meta: QuoteMetaOptions
+    meta: QuoteMetaOptions,
+    context?: { signal?: AbortSignal }
   ): Promise<ProviderQuoteResponse | null> {
+    const signal = context?.signal;
+
     const startedAt = Date.now();
 
     debug(
@@ -361,91 +475,189 @@ class Changelly extends ProviderClass {
 
     if (quoteRequestAmount.toString() === "0") return null;
 
-    const method = "getFixRateForAmount";
-    debug("getQuote", `Requesting changelly swap...  method=${method}`);
-    return this.changellyRequest(method, {
-      from: this.getTicker(options.fromToken, this.network),
-      to: this.getTicker(
-        options.toToken as TokenType,
-        options.toToken.networkInfo.name as SupportedNetworkName
-      ),
-      amountFrom: fromBase(
-        quoteRequestAmount.toString(),
-        options.fromToken.decimals
-      ),
-    })
-      .then(async (response) => {
-        debug("getQuote", `Received Changelly swap response  method=${method}`);
-        if (response.error || !response.result || !response.result[0].id) {
-          debug(
-            "getQuote",
-            `No swap: response either contains error, no result or no id` +
-              `  method=${method}` +
-              `  took=${(Date.now() - startedAt).toLocaleString()}ms`
-          );
-          return null;
-        }
-        const result = response.result[0];
-        const evmGasLimit =
-          options.fromToken.address === NATIVE_TOKEN_ADDRESS &&
-          options.fromToken.type === NetworkType.EVM
-            ? 21000
-            : toBN(GAS_LIMITS.transferToken).toNumber();
-        const retResponse: ProviderQuoteResponse = {
-          fromTokenAmount: quoteRequestAmount,
-          additionalNativeFees: toBN(0),
-          toTokenAmount: toBN(
-            toBase(result.amountTo, options.toToken.decimals)
-          ).sub(toBN(toBase(result.networkFee, options.toToken.decimals))),
-          provider: this.name,
-          quote: {
-            meta: {
-              ...meta,
-              changellyQuoteId: result.id,
-              changellynetworkFee: toBN(
-                toBase(result.networkFee, options.toToken.decimals)
-              ),
-            },
-            options: {
-              ...options,
-              amount: quoteRequestAmount,
-            },
-            provider: this.name,
-          },
-          totalGaslimit:
-            options.fromToken.type === NetworkType.EVM ? evmGasLimit : 0,
-          minMax,
-        };
-        debug(
-          "getQuote",
-          `Successfully processed Changelly swap response` +
-            `  took=${(Date.now() - startedAt).toLocaleString()}ms`
+    debug("getQuote", `Requesting changelly swap...`);
+
+    try {
+      const params: ChangellyApiGetFixRateForAmountParams = {
+        from: this.getTicker(options.fromToken, this.network),
+        to: this.getTicker(
+          options.toToken as TokenType,
+          options.toToken.networkInfo.name as SupportedNetworkName
+        ),
+        amountFrom: fromBase(
+          quoteRequestAmount.toString(),
+          options.fromToken.decimals
+        ),
+      };
+
+      const response =
+        await this.changellyRequest<ChangellyApiGetFixRateForAmountResult>(
+          "getFixRateForAmount",
+          params,
+          { signal }
         );
-        return retResponse;
-      })
-      .catch((err) => {
-        debug(
-          "getQuote",
-          `Changelly request failed` +
-            `  method=${method}` +
+
+      debug("getQuote", `Received Changelly swap response`);
+
+      if (response.error) {
+        console.warn(
+          `Changelly "getFixRateForAmount" returned JSONRPC error response,` +
+            ` returning no quotes` +
+            `  fromToken=${options.fromToken.symbol} (${params.from})` +
+            `  toToken=${options.toToken.symbol} (${params.to})` +
             `  took=${(Date.now() - startedAt).toLocaleString()}ms` +
-            `  err=${String(err)}`
+            `  code=${String(response.error.code)}` +
+            `  message=${String(response.error.message)}`
         );
         return null;
-      });
+      }
+
+      if (!response.result || !response.result[0]?.id) {
+        console.warn(
+          `Changelly "getFixRateForAmount" response contains no quotes,` +
+            ` returning no quotes` +
+            `  fromToken=${options.fromToken.symbol} (${params.from})` +
+            `  toToken=${options.toToken.symbol} (${params.to})` +
+            `  took=${(Date.now() - startedAt).toLocaleString()}ms` +
+            `  code=${String(response.error.code)}` +
+            `  message=${String(response.error.message)}`,
+          { ...response }
+        );
+        return null;
+      }
+
+      // TODO: Do we want to warn here? or just debug log? or nothing?
+      if (response.result.length > 1) {
+        console.warn(
+          `Changelly "getFixRateForAmount" returned more than one quote, continuing with first quote` +
+            `  fromToken=${options.fromToken.symbol} (${params.from})` +
+            `  toToken=${options.toToken.symbol} (${params.to})` +
+            `  took=${(Date.now() - startedAt).toLocaleString()}ms` +
+            `  count=${response.result.length}ms`,
+          { ...response }
+        );
+      }
+
+      const [firstChangellyFixRateQuote] = response.result;
+
+      const evmGasLimit =
+        options.fromToken.address === NATIVE_TOKEN_ADDRESS &&
+        options.fromToken.type === NetworkType.EVM
+          ? 21000
+          : toBN(GAS_LIMITS.transferToken).toNumber();
+
+      // `toBase` fails sometimes because Changelly returns more decimals than the token has
+      let toTokenAmountBase: string;
+      try {
+        toTokenAmountBase = toBase(
+          firstChangellyFixRateQuote.amountTo,
+          options.toToken.decimals
+        );
+      } catch (err) {
+        console.warn(
+          `Changelly "getFixRateForAmount" "amountTo" possibly returned more` +
+            ` decimals than the token has, attempting to trim trailing decimals...` +
+            `  amountTo=${firstChangellyFixRateQuote.amountTo}` +
+            `  toTokenDecimals=${options.toToken.decimals}` +
+            `  err=${String(err)}`
+        );
+        const original = firstChangellyFixRateQuote.amountTo;
+        // eslint-disable-next-line no-use-before-define
+        const [success, fixed] = trimDecimals(
+          original,
+          options.toToken.decimals
+        );
+        if (!success) throw err;
+        const rounded = (
+          BigInt(toBase(fixed, options.toToken.decimals)) - BigInt(1)
+        ).toString();
+        toTokenAmountBase = rounded;
+      }
+
+      // `toBase` fails sometimes because Changelly returns more decimals than the token has
+      let networkFeeBase: string;
+      try {
+        networkFeeBase = toBase(
+          firstChangellyFixRateQuote.networkFee,
+          options.toToken.decimals
+        );
+      } catch (err) {
+        console.warn(
+          `Changelly "getFixRateForAmount" "networkFee" possibly returned more` +
+            ` decimals than the token has, attempting to trim trailing decimals...` +
+            `  networkFee=${firstChangellyFixRateQuote.networkFee}` +
+            `  toTokenDecimals=${options.toToken.decimals}` +
+            `  err=${String(err)}`
+        );
+        const original = firstChangellyFixRateQuote.networkFee;
+        // eslint-disable-next-line no-use-before-define
+        const [success, fixed] = trimDecimals(
+          original,
+          options.toToken.decimals
+        );
+        if (!success) throw err;
+        const rounded = (
+          BigInt(toBase(fixed, options.toToken.decimals)) + BigInt(1)
+        ).toString();
+        networkFeeBase = rounded;
+      }
+
+      const providerQuoteResponse: ProviderQuoteResponse = {
+        fromTokenAmount: quoteRequestAmount,
+        additionalNativeFees: toBN(0),
+        toTokenAmount: toBN(toTokenAmountBase).sub(toBN(networkFeeBase)),
+        provider: this.name,
+        quote: {
+          meta: {
+            ...meta,
+            changellyQuoteId: firstChangellyFixRateQuote.id,
+            changellynetworkFee: toBN(networkFeeBase),
+          },
+          options: {
+            ...options,
+            amount: quoteRequestAmount,
+          },
+          provider: this.name,
+        },
+        totalGaslimit:
+          options.fromToken.type === NetworkType.EVM ? evmGasLimit : 0,
+        minMax,
+      };
+
+      debug(
+        "getQuote",
+        `Successfully retrieved quote from Changelly via "getFixRateForAmount"` +
+          `  took=${(Date.now() - startedAt).toLocaleString()}ms`
+      );
+
+      return providerQuoteResponse;
+    } catch (err) {
+      console.warn(
+        `Errored getting quotes from Changelly via "getFixRateForAmount",` +
+          ` returning no quotes` +
+          `  took=${(Date.now() - startedAt).toLocaleString()}ms` +
+          `  err=${String(err)}`
+      );
+      return null;
+    }
   }
 
-  getSwap(quote: SwapQuote): Promise<ProviderSwapResponse | null> {
+  async getSwap(
+    quote: SwapQuote,
+    context?: { signal?: AbortSignal }
+  ): Promise<ProviderSwapResponse | null> {
+    const signal = context?.signal;
+
     const startedAt = Date.now();
-    debug("getSwap", `Getting Changelly swap`);
+    debug("getSwap", `Requesting swap transaction from Changelly...`);
 
     if (!Changelly.isSupported(this.network)) {
       debug(
         "getSwap",
-        `No swap: Enkrypt does not support Changelly on the source network` +
+        `Enkrypt does not support Changelly on the source network, returning no swap` +
           `  srcNetwork=${this.network}`
       );
-      return Promise.resolve(null);
+      return null;
     }
 
     if (
@@ -455,58 +667,81 @@ class Changelly extends ProviderClass {
     ) {
       debug(
         "getSwap",
-        `No swap: Enkrypt does not support Changelly on the destination network` +
+        `Enkrypt does not support Changelly on the destination network, returning no swap` +
           `  dstNetwork=${quote.options.toToken.networkInfo.name}`
       );
-      return Promise.resolve(null);
+      return null;
     }
 
-    const method = "createFixTransaction";
-    debug("getSwap", `Requesting Changelly swap...  method=${method}`);
-    return this.changellyRequest("createFixTransaction", {
-      from: this.getTicker(quote.options.fromToken, this.network),
-      to: this.getTicker(
-        quote.options.toToken as TokenType,
-        quote.options.toToken.networkInfo.name as SupportedNetworkName
-      ),
-      refundAddress: quote.options.fromAddress,
-      address: quote.options.toAddress,
-      amountFrom: fromBase(
-        quote.options.amount.toString(),
-        quote.options.fromToken.decimals
-      ),
-      rateId: quote.meta.changellyQuoteId,
-    })
-      .then(async (response) => {
-        debug("getSwap", `Received Changelly swap response  method=${method}`);
-        if (response.error || !response.result.id) {
-          debug(
-            "getSwap",
-            `No swap: response either contains error or no id` +
-              `  method=${method}` +
-              `  took=${(Date.now() - startedAt).toLocaleString()}ms`
-          );
-          return null;
-        }
-        const { result } = response;
-        let transaction: SwapTransaction;
-        if (quote.options.fromToken.type === NetworkType.EVM) {
-          if (quote.options.fromToken.address === NATIVE_TOKEN_ADDRESS)
+    try {
+      const params: ChangellyApiCreateFixedRateTransactionParams = {
+        from: this.getTicker(quote.options.fromToken, this.network),
+        to: this.getTicker(
+          quote.options.toToken as TokenType,
+          quote.options.toToken.networkInfo.name as SupportedNetworkName
+        ),
+        refundAddress: quote.options.fromAddress,
+        address: quote.options.toAddress,
+        amountFrom: fromBase(
+          quote.options.amount.toString(),
+          quote.options.fromToken.decimals
+        ),
+        rateId: quote.meta.changellyQuoteId,
+      };
+
+      const response =
+        await this.changellyRequest<ChangellyApiCreateFixedRateTransactionResult>(
+          "createFixTransaction",
+          params,
+          { signal }
+        );
+
+      if (response.error) {
+        console.warn(
+          `Changelly "createFixTransaction" returned JSONRPC error response, returning no swap` +
+            `  fromToken=${quote.options.fromToken.symbol} (${params.from})` +
+            `  toToken=${quote.options.toToken.symbol} (${params.to})` +
+            `  took=${(Date.now() - startedAt).toLocaleString()}ms` +
+            `  code=${String(response.error.code)}` +
+            `  message=${String(response.error.message)}`
+        );
+        return null;
+      }
+
+      if (!response.result.id) {
+        console.warn(
+          `Changelly "createFixTransaction" response contains no id, returning no swap` +
+            `  fromToken=${quote.options.fromToken.symbol} (${params.from})` +
+            `  toToken=${quote.options.toToken.symbol} (${params.to})` +
+            `  took=${(Date.now() - startedAt).toLocaleString()}ms`,
+          { ...response }
+        );
+        return null;
+      }
+
+      let additionalNativeFees = toBN(0);
+      const changellyFixedRateTx = response.result;
+      let transaction: SwapTransaction;
+      switch (quote.options.fromToken.type) {
+        case NetworkType.EVM: {
+          debug("getSwap", `Preparing EVM transaction for Changelly swap`);
+          if (quote.options.fromToken.address === NATIVE_TOKEN_ADDRESS) {
             transaction = {
               from: quote.options.fromAddress,
               data: "0x",
               gasLimit: numberToHex(21000),
-              to: result.payinAddress,
+              to: changellyFixedRateTx.payinAddress,
               value: numberToHex(quote.options.amount),
               type: TransactionType.evm,
             };
-          else
+          } else {
             transaction = getTransfer({
               from: quote.options.fromAddress,
               contract: quote.options.fromToken.address,
-              to: result.payinAddress,
+              to: changellyFixedRateTx.payinAddress,
               value: quote.options.amount.toString(),
             });
+          }
           const accurateGasEstimate = await estimateEVMGasList(
             [transaction],
             this.network
@@ -516,75 +751,256 @@ class Changelly extends ProviderClass {
             const [txGaslimit] = accurateGasEstimate.result;
             transaction.gasLimit = txGaslimit;
           }
-        } else {
+          break;
+        }
+        case NetworkType.Solana: {
+          // TODO: finish implementing support for Solana
+          debug("getSwap", `Changelly is not supported on Solana at this time`);
+          if (true as any) return null;
+
+          const latestBlockHash = await (
+            this.web3 as Connection
+          ).getLatestBlockhash();
+
+          // Create a transaction to transfer this much of that token to that thing
+          let versionedTx: VersionedTransaction;
+          if (quote.options.fromToken.address === NATIVE_TOKEN_ADDRESS) {
+            debug(
+              "getSwap",
+              `Preparing Solana Changelly SOL swap transaction` +
+                `  quote.options.fromAddress=${quote.options.fromAddress}` +
+                `  latestBlockHash=${latestBlockHash.blockhash}` +
+                `  lastValidBlockHeight=${latestBlockHash.lastValidBlockHeight}` +
+                `  payinAddress=${changellyFixedRateTx.payinAddress}` +
+                `  lamports=${BigInt(quote.options.amount.toString())}`
+            );
+            versionedTx = new VersionedTransaction(
+              new TransactionMessage({
+                payerKey: new PublicKey(quote.options.fromAddress),
+                recentBlockhash: latestBlockHash.blockhash,
+                instructions: [
+                  SystemProgram.transfer({
+                    fromPubkey: new PublicKey(quote.options.fromAddress),
+                    toPubkey: new PublicKey(changellyFixedRateTx.payinAddress),
+                    lamports: BigInt(quote.options.amount.toString()),
+                  }),
+                ],
+              }).compileToV0Message()
+            );
+          } else {
+            const wallet = new PublicKey(quote.options.fromAddress);
+            const mint = new PublicKey(quote.options.fromToken.address);
+            const tokenProgramId = await getTokenProgramOfMint(
+              this.web3 as Connection,
+              mint
+            );
+            const walletMintAta = getSPLAssociatedTokenAccountPubkey(
+              wallet,
+              mint,
+              tokenProgramId
+            );
+            // TODO: is payin address an ATA or Wallet address?
+            const payinAta = new PublicKey(changellyFixedRateTx.payinAddress);
+            const amount = BigInt(quote.options.amount.toString());
+            debug(
+              "getSwap",
+              // eslint-disable-next-line prefer-template
+              `Preparing Solana Changelly SPL token swap transaction` +
+                `  srcMint=${mint.toBase58()}` +
+                `  wallet=${wallet.toBase58()}` +
+                `  walletSrcMintAta=${tokenProgramId.toBase58()}` +
+                `  dstMintAta=${payinAta.toBase58()}` +
+                `  tokenProgramId=${tokenProgramId.toBase58()}` +
+                `  latestBlockHash=${latestBlockHash.blockhash}` +
+                `  lastValidBlockHeight=${latestBlockHash.lastValidBlockHeight}` +
+                `  payinAddress=${changellyFixedRateTx.payinAddress}` +
+                `  amount=${amount}`
+            );
+
+            // If the ATA account doesn't exist we need create it
+            const ataExists = await solAccountExists(
+              this.web3 as Connection,
+              payinAta
+            );
+
+            const instructions: TransactionInstruction[] = [];
+            if (ataExists) {
+              debug(
+                "getSwap",
+                `Payin ATA already exists. No need to create it.`
+              );
+            } else {
+              debug("getSwap", `Payin ATA does not exist. Need to create it.`);
+              // TODO: finish implementing
+              const extraRentFee = await (
+                this.web3 as Connection
+              ).getMinimumBalanceForRentExemption(
+                SPL_TOKEN_ATA_ACCOUNT_SIZE_BYTES
+              );
+              const instruction =
+                getCreateAssociatedTokenAccountIdempotentInstruction({
+                  payerPubkey: wallet,
+                  ataPubkey: payinAta, // TODO: we'd need to get the owner
+                  ownerPubkey: new PublicKey("!! TODO !!"),
+                  mintPubkey: mint,
+                  systemProgramId: SystemProgram.programId,
+                  tokenProgramId,
+                  associatedTokenProgramId: ASSOCIATED_TOKEN_PROGRAM_ID,
+                });
+
+              instructions.push(instruction);
+              additionalNativeFees = additionalNativeFees.add(
+                toBN(extraRentFee)
+              );
+              throw new Error("TODO: Finish implementing Changelly on Solana");
+            }
+
+            instructions.push(
+              createSPLTransferInstruction(
+                /** source */ walletMintAta,
+                /** destination */ payinAta,
+                /** owner */ wallet,
+                /** amount */ amount,
+                /** multiSigners */ [],
+                /** programId */ tokenProgramId
+              )
+            );
+
+            versionedTx = new VersionedTransaction(
+              new TransactionMessage({
+                payerKey: wallet,
+                recentBlockhash: latestBlockHash.blockhash,
+                instructions,
+              }).compileToV0Message()
+            );
+          }
+
+          transaction = {
+            type: TransactionType.solana,
+            from: quote.options.fromAddress,
+            to: changellyFixedRateTx.payinAddress,
+            serialized: Buffer.from(versionedTx.serialize()).toString("base64"),
+            kind: "versioned",
+            signed: false,
+          };
+          break;
+        }
+        default: {
           transaction = {
             from: quote.options.fromAddress,
-            to: result.payinAddress,
+            to: changellyFixedRateTx.payinAddress,
             value: numberToHex(quote.options.amount),
             type: TransactionType.generic,
           };
+          break;
         }
-        const fee = 1;
-        const retResponse: ProviderSwapResponse = {
-          fromTokenAmount: quote.options.amount,
-          provider: this.name,
-          toTokenAmount: toBN(
-            toBase(result.amountExpectedTo, quote.options.toToken.decimals)
-          ).sub(quote.meta.changellynetworkFee),
-          additionalNativeFees: toBN(0),
-          transactions: [transaction],
-          slippage: quote.meta.slippage || DEFAULT_SLIPPAGE,
-          fee,
-          getStatusObject: async (
-            options: StatusOptions
-          ): Promise<StatusOptionsResponse> => ({
-            options: {
-              ...options,
-              swapId: result.id,
-            },
-            provider: this.name,
-          }),
-        };
-        debug(
-          "getSwap",
-          `Successfully processed Changelly swap response` +
-            `  took=${(Date.now() - startedAt).toLocaleString()}ms`
+      }
+
+      // `toBase` fails sometimes because Changelly returns more decimals than the token has
+      const fee = 1;
+      let baseToAmount: string;
+      try {
+        baseToAmount = toBase(
+          changellyFixedRateTx.amountExpectedTo,
+          quote.options.toToken.decimals
         );
-        return retResponse;
-      })
-      .catch((err) => {
-        debug(
-          "getSwap",
-          `Changelly request failed` +
-            `  method=${method}` +
-            `  took=${(Date.now() - startedAt).toLocaleString()}ms` +
+      } catch (err) {
+        console.warn(
+          `Changelly "createFixTransaction" "amountExpectedTo" possibly returned more` +
+            ` decimals than the token has, attempting to trim trailing decimals...` +
+            `  amountExpectedTo=${changellyFixedRateTx.amountExpectedTo}` +
+            `  toTokenDecimals=${quote.options.toToken.decimals}` +
             `  err=${String(err)}`
         );
-        return null;
-      });
+        const original = changellyFixedRateTx.amountExpectedTo;
+        // eslint-disable-next-line no-use-before-define
+        const [success, fixed] = trimDecimals(
+          original,
+          quote.options.toToken.decimals
+        );
+        if (!success) throw err;
+        const rounded = (
+          BigInt(toBase(fixed, quote.options.toToken.decimals)) - BigInt(1)
+        ).toString();
+        baseToAmount = rounded;
+      }
+
+      const retResponse: ProviderSwapResponse = {
+        fromTokenAmount: quote.options.amount,
+        provider: this.name,
+        toTokenAmount: toBN(baseToAmount).sub(quote.meta.changellynetworkFee),
+        additionalNativeFees,
+        transactions: [transaction],
+        slippage: quote.meta.slippage || DEFAULT_SLIPPAGE,
+        fee,
+        getStatusObject: async (
+          options: StatusOptions
+        ): Promise<StatusOptionsResponse> => ({
+          options: {
+            ...options,
+            swapId: changellyFixedRateTx.id,
+          },
+          provider: this.name,
+        }),
+      };
+      debug(
+        "getSwap",
+        `Successfully extracted Changelly swap transaction via "createFixTransaction"` +
+          `  took=${(Date.now() - startedAt).toLocaleString()}ms`
+      );
+      return retResponse;
+    } catch (err) {
+      console.warn(
+        `Errored processing Changelly swap response, returning no swap` +
+          `  took=${(Date.now() - startedAt).toLocaleString()}ms` +
+          `  err=${String(err)}`
+      );
+      return null;
+    }
   }
 
-  getStatus(options: StatusOptions): Promise<TransactionStatus> {
-    return this.changellyRequest("getStatus", {
+  async getStatus(options: StatusOptions): Promise<TransactionStatus> {
+    const params: ChangellyApiGetStatusParams = {
       id: options.swapId,
-    }).then(async (response) => {
-      if (response.error || !response.result) return TransactionStatus.pending;
-      const completedStatuses = ["finished"];
-      const pendingStatuses = [
-        "confirming",
-        "exchanging",
-        "sending",
-        "waiting",
-        "new",
-      ];
-      const failedStatuses = ["failed", "refunded", "hold", "expired"];
-      const status = response.result;
-      if (pendingStatuses.includes(status)) return TransactionStatus.pending;
-      if (completedStatuses.includes(status)) return TransactionStatus.success;
-      if (failedStatuses.includes(status)) return TransactionStatus.failed;
-      return TransactionStatus.pending;
-    });
+    };
+    const response = await this.changellyRequest<ChangellyApiGetStatusResult>(
+      "getStatus",
+      params
+    );
+
+    if (response.error || !response.result) return TransactionStatus.pending;
+    const completedStatuses = ["finished"];
+    const pendingStatuses = [
+      "confirming",
+      "exchanging",
+      "sending",
+      "waiting",
+      "new",
+    ];
+    const failedStatuses = ["failed", "refunded", "hold", "expired"];
+    const status = response.result;
+    if (pendingStatuses.includes(status)) return TransactionStatus.pending;
+    if (completedStatuses.includes(status)) return TransactionStatus.success;
+    if (failedStatuses.includes(status)) return TransactionStatus.failed;
+    return TransactionStatus.pending;
   }
+}
+
+function trimDecimals(
+  value: string,
+  decimals: number
+): [success: boolean, fixed: string] {
+  const original = value;
+  const parts = original.split(".");
+  if (parts.length !== 2) return [false, ""]; // More or less than one decimal, something else is wrong
+  // Possibly recoverable
+  const [integerPart, fractionPart] = parts;
+  if (fractionPart.length <= decimals) return [false, ""]; // Some other issue, decimals should be sufficient
+  const fractionTrimmed = fractionPart.slice(0, decimals);
+  const normalised = `${integerPart}.${fractionTrimmed}`;
+  // Round up one (higher price paid) since we lose precision
+  const rounded = (BigInt(toBase(normalised, decimals)) + BigInt(1)).toString();
+  return [true, rounded];
 }
 
 export default Changelly;

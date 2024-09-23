@@ -37,6 +37,7 @@ import BitcoinAPI from "@/providers/bitcoin/libs/api";
 import SolanaAPI from "@/providers/solana/libs/api";
 import {
   VersionedTransaction as SolanaVersionedTransaction,
+  Transaction as SolanaLegacyTransaction,
   PublicKey,
   SendTransactionError,
 } from "@solana/web3.js";
@@ -192,35 +193,88 @@ export const executeSwap = async (
     // Execute each transaction in-order one-by-one
     for (const enkSolTx of enkSolTxs) {
       // Transform the Enkrypt representation of the transaction into the Solana lib's representation
-      const tx = SolanaVersionedTransaction.deserialize(
-        Buffer.from(enkSolTx.serialized, "base64")
-      );
 
-      // Sign the transaction message
-      // Use the keyring running in the background script
-      const sigRes = await sendUsingInternalMessengers({
-        method: InternalMethods.sign,
-        params: [bufferToHex(tx.message.serialize()), options.from],
-      });
+      let serialized: Uint8Array;
+      switch (enkSolTx.kind) {
+        case "versioned": {
+          // Sign Versioned transaction
+          // (note: the transaction may already be signed by a third party,
+          // like Rango exchange)
 
-      // Did we fail to sign?
-      if (sigRes.error != null) {
-        throw new Error(
-          `Failed to sign Solana swap transaction: ${sigRes.error.code} ${sigRes.error.message}`
-        );
+          const tx = SolanaVersionedTransaction.deserialize(
+            Buffer.from(enkSolTx.serialized, "base64")
+          );
+
+          // Sign the transaction message
+          // Use the keyring running in the background script
+          const sigRes = await sendUsingInternalMessengers({
+            method: InternalMethods.sign,
+            params: [bufferToHex(tx.message.serialize()), options.from],
+          });
+
+          // Did we fail to sign?
+          if (sigRes.error != null) {
+            throw new Error(
+              `Failed to sign Solana versioned swap transaction: ${sigRes.error.code} ${sigRes.error.message}`
+            );
+          }
+
+          // Add signature to the transaction
+          tx.addSignature(
+            new PublicKey(options.network.displayAddress(options.from.address)),
+            hexToBuffer(JSON.parse(sigRes.result!))
+          );
+
+          serialized = tx.serialize();
+
+          break;
+        }
+
+        case "legacy": {
+          // Sign Versioned transaction
+          // (note: the transaction may already be signed by a third party,
+          // like Rango exchange)
+
+          const tx = SolanaLegacyTransaction.from(
+            Buffer.from(enkSolTx.serialized, "base64")
+          );
+
+          // Sign the transaction message
+          // Use the keyring running in the background script
+          const sigRes = await sendUsingInternalMessengers({
+            method: InternalMethods.sign,
+            params: [bufferToHex(tx.serialize()), options.from],
+          });
+
+          // Did we fail to sign?
+          if (sigRes.error != null) {
+            throw new Error(
+              `Failed to sign Solana legacy swap transaction: ${sigRes.error.code} ${sigRes.error.message}`
+            );
+          }
+
+          // Add signature to the transaction
+          tx.addSignature(
+            new PublicKey(options.network.displayAddress(options.from.address)),
+            hexToBuffer(JSON.parse(sigRes.result!))
+          );
+
+          serialized = tx.serialize();
+
+          break;
+        }
+
+        default:
+          enkSolTx.kind satisfies never;
+          throw new Error(
+            `Cannot send Solana transaction: unexpected kind ${enkSolTx.kind}`
+          );
       }
-
-      // Add signature to the transaction
-      tx.addSignature(
-        new PublicKey(options.network.displayAddress(options.from.address)),
-        hexToBuffer(JSON.parse(sigRes.result!))
-      );
 
       // Send the transaction
       let txHash: string;
       try {
-        // TODO: don't skip preflight
-        txHash = await conn.sendRawTransaction(tx.serialize());
+        txHash = await conn.sendRawTransaction(serialized);
       } catch (err) {
         // Log error info if possible
         // The Solana web3 library prompts you to call getLogs if your error is of type
@@ -262,9 +316,6 @@ export const executeSwap = async (
         address: activity.from,
         network: options.network.name,
       });
-
-      // TODO:get the status of the transaction?
-      // activity.status = // success | failed | pending
 
       solTxHashes.push(txHash);
     }

@@ -98,9 +98,19 @@ const TOKEN_LISTS: {
   [NetworkNames.Telos]: `https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/swaplists/${SupportedNetworkName.Telos}.json`,
 };
 
+/**
+ * ```sh
+ * curl -sL https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/swaplists/changelly.json | jq '.' -C | less -R
+ * ```
+ */
 const CHANGELLY_LIST =
   "https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/swaplists/changelly.json";
 
+/**
+ * ```sh
+ * curl -sL https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/swaplists/top-tokens.json | jq '.' -C | less -R
+ * ```
+ */
 const TOP_TOKEN_INFO_LIST =
   "https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/swaplists/top-tokens.json";
 

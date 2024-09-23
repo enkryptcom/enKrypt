@@ -165,8 +165,11 @@ export interface SolanaTransaction {
   from: string;
   /** TODO: document what this is for, I think it's just for UI */
   to: string;
+  kind: "legacy" | "versioned";
   /** base64 serialized unsigned solana transaction */
   serialized: string;
+  /** If the transaction is signed (by a third party like Rango) then we can't change it's recentblock hash */
+  signed: boolean;
   type: TransactionType.solana;
 }
 
