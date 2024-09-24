@@ -281,6 +281,7 @@ class Rango extends ProviderClass {
 
       this.toTokens[network][t.address || NATIVE_TOKEN_ADDRESS] = {
         ...t,
+        address: t.address || NATIVE_TOKEN_ADDRESS,
         name: t.name || t.symbol,
         logoURI: t.image,
         type: NetworkType.EVM,
@@ -301,11 +302,19 @@ class Rango extends ProviderClass {
    * For cross-chain tokens like Ethereum (ETH) on the Binance Smart Chain (BSC) network,
    * it returns the corresponding symbol like WETH.
    */
-  private getSymbol(token: TokenType) {
+  private getSymbol(token: TokenType): string | undefined {
     const { tokens } = this.rangoMeta;
     if (this.isNativeToken(token.address)) return token.symbol;
+    if (token.address == null) {
+      console.warn(
+        `Cannot get Rango token symbol: Token address is not defined` +
+          ` for token ${token.name} (${token.symbol}) - ${token.address}`
+      );
+      return undefined;
+    }
+    const lc = token.address?.toLowerCase();
     return Object.values(tokens || []).find(
-      (t) => t.address?.toLowerCase() === token.address?.toLowerCase()
+      (t) => t.address?.toLowerCase() === lc
     )?.symbol;
   }
 
@@ -458,7 +467,20 @@ class Rango extends ProviderClass {
       disableEstimate: true,
     };
 
-    debug("getRangoSwap", `Requesting quote from rango sdk...`);
+    debug(
+      "getRangoSwap",
+      `Requesting quote from rango sdk...` +
+        `  fromBlockchain=${fromBlockchain}` +
+        `  toBlockchain=${toBlockchain}` +
+        `  fromToken=${fromSymbol}` +
+        `  toToken=${toSymbol}` +
+        `  fromAddress=${options.fromAddress}` +
+        `  toAddress=${options.toAddress}` +
+        `  amount=${options.amount.toString()}` +
+        `  slippage=${slippage}` +
+        `  referrerFee=${params.referrerFee}`,
+      { ...params }
+    );
     const rangoSwapResponse = await rangoClient.swap(params);
 
     if (
@@ -746,8 +768,6 @@ class Rango extends ProviderClass {
                 return null;
               }
 
-              console.log("===== 1");
-              console.log({ ...rangoSwapResponse });
               const ltx = SolanaLegacyTransaction.populate(
                 new TransactionMessage({
                   instructions: rangoSwapResponse.tx.instructions.map(
@@ -779,7 +799,6 @@ class Rango extends ProviderClass {
                   )
                 )
               );
-              console.log("===== 2");
 
               enkSolTx = {
                 type: TransactionType.solana,
@@ -792,8 +811,6 @@ class Rango extends ProviderClass {
                   .serialize({ requireAllSignatures: false })
                   .toString("base64"),
               };
-
-              console.log("===== 3");
             }
             break;
           }

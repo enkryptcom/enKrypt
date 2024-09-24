@@ -155,7 +155,7 @@ if (DEBUG) {
       "." +
       now.getMilliseconds().toString().padStart(3, "0");
     console.info(
-      `\x1b[90m${ymdhms}\x1b[0m \x1b[32mRangoSwapProvider.${context}\x1b[0m: ${message}`,
+      `\x1b[90m${ymdhms}\x1b[0m \x1b[32mJupiterSwapProvider.${context}\x1b[0m: ${message}`,
       ...args
     );
   };
