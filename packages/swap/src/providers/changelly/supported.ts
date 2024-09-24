@@ -1,6 +1,6 @@
-import { PublicKey } from "@solana/web3.js";
 import { isPolkadotAddress, isEVMAddress } from "../../utils/common";
 import { SupportedNetworkName } from "../../types";
+// import { isValidSolanaAddress } from "../../utils/solana";
 
 /**
  * Blockchain names:
@@ -61,18 +61,13 @@ const supportedNetworks: {
   [SupportedNetworkName.Dogecoin]: {
     changellyName: "doge",
   },
-  [SupportedNetworkName.Solana]: {
-    changellyName: "solana",
-    isAddress: (address: string) => {
-      try {
-        // eslint-disable-next-line no-new
-        new PublicKey(address);
-        return Promise.resolve(true);
-      } catch (err) {
-        return Promise.resolve(false);
-      }
-    },
-  },
+  // TODO: Support Solana
+  // [SupportedNetworkName.Solana]: {
+  //   changellyName: "solana",
+  //   async isAddress(address: string) {
+  //     return isValidSolanaAddress(address);
+  //   },
+  // },
   [SupportedNetworkName.Rootstock]: {
     changellyName: "rootstock",
   },

@@ -10,8 +10,16 @@ import {
   RoutingResultType,
   TransactionType as RangoTransactionType,
 } from "rango-sdk-basic";
-import { Connection, VersionedTransaction } from "@solana/web3.js";
-import { extractComputeBudget } from "../../utils/solana";
+import {
+  Connection,
+  PublicKey,
+  TransactionInstruction,
+  TransactionMessage,
+  VersionedTransaction,
+  Transaction as SolanaLegacyTransaction,
+} from "@solana/web3.js";
+import bs58 from "bs58";
+import { extractComputeBudget, isValidSolanaAddress } from "../../utils/solana";
 import {
   EVMTransaction,
   getQuoteOptions,
@@ -24,6 +32,7 @@ import {
   ProviderSwapResponse,
   ProviderToTokenResponse,
   QuoteMetaOptions,
+  SolanaTransaction,
   StatusOptions,
   StatusOptionsResponse,
   SupportedNetworkName,
@@ -43,8 +52,40 @@ import { TOKEN_AMOUNT_INFINITY_AND_BEYOND } from "../../utils/approvals";
 import estimateEVMGasList from "../../common/estimateGasList";
 import { isEVMAddress } from "../../utils/common";
 
+/** Enables debug logging in this file */
+const DEBUG = false;
+
 const RANGO_PUBLIC_API_KEY = "ee7da377-0ed8-4d42-aaf9-fa978a32b18d";
 const rangoClient = new RangoClient(RANGO_PUBLIC_API_KEY);
+
+let debug: (context: string, message: string, ...args: any[]) => void;
+if (DEBUG) {
+  debug = (context: string, message: string, ...args: any[]): void => {
+    const now = new Date();
+    const ymdhms =
+      // eslint-disable-next-line prefer-template
+      now.getFullYear().toString().padStart(4, "0") +
+      "-" +
+      (now.getMonth() + 1).toString().padStart(2, "0") +
+      "-" +
+      now.getDate().toString().padStart(2, "0") +
+      " " +
+      now.getHours().toString().padStart(2, "0") +
+      ":" +
+      now.getMinutes().toString().padStart(2, "0") +
+      ":" +
+      now.getSeconds().toString().padStart(2, "0") +
+      "." +
+      now.getMilliseconds().toString().padStart(3, "0");
+    console.info(
+      `\x1b[90m${ymdhms}\x1b[0m \x1b[32mRangoSwapProvider.${context}\x1b[0m: ${message}`,
+      ...args
+    );
+  };
+} else {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function
+  debug = () => {};
+}
 
 /**
  * `name` is the blockchain id on Rango
@@ -149,13 +190,21 @@ class Rango extends ProviderClass {
   }
 
   async init(tokenList?: TokenType[]): Promise<void> {
+    debug("init", `Initialising against ${tokenList?.length} tokens...`);
     const resMeta = await rangoClient.meta({
       excludeNonPopulars: true,
       transactionTypes: [RangoTransactionType.EVM, RangoTransactionType.SOLANA],
     });
     this.rangoMeta = resMeta;
+    debug(
+      "init",
+      "Rango meta" +
+        `  tokens.length=${resMeta.tokens.length}` +
+        `  blockchains.length=${resMeta.blockchains.length}`
+    );
     const { blockchains, tokens } = resMeta;
     if (!Rango.isSupported(this.network, blockchains)) {
+      debug("init", `Not supported on network ${this.network}`);
       return;
     }
     tokenList?.forEach((t) => {
@@ -164,6 +213,7 @@ class Rango extends ProviderClass {
         this.fromTokens[t.address] = t;
       }
     });
+    debug("init", `Finished initialising`);
   }
 
   static isSupported(
@@ -206,11 +256,11 @@ class Rango extends ProviderClass {
     return true;
   }
 
-  getFromTokens() {
+  getFromTokens(): ProviderFromTokenResponse {
     return this.fromTokens;
   }
 
-  getToTokens() {
+  getToTokens(): ProviderToTokenResponse {
     const { tokens } = this.rangoMeta;
     const supportedCRangoNames = Object.values(supportedNetworks).map(
       (s) => s.name
@@ -220,13 +270,16 @@ class Rango extends ProviderClass {
       rangoToNetwork[supportedNetworks[net].name] =
         net as unknown as SupportedNetworkName;
     });
+
     tokens?.forEach((t) => {
+      // Unrecognised network
       if (!supportedCRangoNames.includes(t.blockchain)) return;
-      if (!this.toTokens[rangoToNetwork[t.blockchain]])
-        this.toTokens[rangoToNetwork[t.blockchain]] = {};
-      this.toTokens[rangoToNetwork[t.blockchain]][
-        t.address || NATIVE_TOKEN_ADDRESS
-      ] = {
+
+      const network = rangoToNetwork[t.blockchain];
+
+      this.toTokens[network] ??= {};
+
+      this.toTokens[network][t.address || NATIVE_TOKEN_ADDRESS] = {
         ...t,
         name: t.name || t.symbol,
         logoURI: t.image,
@@ -234,8 +287,8 @@ class Rango extends ProviderClass {
         price: t.usdPrice,
         networkInfo: {
           name: rangoToNetwork[t.blockchain],
-          isAddress: (address: string) =>
-            Promise.resolve(isEVMAddress(address)),
+          // eslint-disable-next-line no-use-before-define
+          isAddress: getIsAddressAsync(network),
         },
       };
     });
@@ -275,6 +328,18 @@ class Rango extends ProviderClass {
     accurateEstimate: boolean
   ): Promise<RangoSwapResponse | null> {
     const { blockchains } = this.rangoMeta;
+    const startedAt = Date.now();
+
+    debug(
+      "getRangoSwap",
+      `Getting swap` +
+        `  srcToken=${options.fromToken.symbol}` +
+        `  dstToken=${options.toToken.symbol}` +
+        `  fromAddress=${options.fromAddress}` +
+        `  toAddress=${options.toAddress}` +
+        `  fromNetwork=${this.network}` +
+        `  toNetwork=${options.toToken.networkInfo.name}`
+    );
 
     // Determine whether Enkrypt + Rango supports this swap
 
@@ -285,8 +350,15 @@ class Rango extends ProviderClass {
         blockchains
       ) ||
       !Rango.isSupported(this.network, blockchains)
-    )
+    ) {
+      debug(
+        "getRangoSwap",
+        `No swap:` +
+          ` Enkrypt does not support Rango swap on the destination` +
+          ` network ${options.toToken.networkInfo.name}`
+      );
       return Promise.resolve(null);
+    }
 
     // Does Rango support these tokens?
     const feeConfig = FEE_CONFIGS[this.name][meta.walletIdentifier];
@@ -329,6 +401,13 @@ class Rango extends ProviderClass {
       return false;
     })?.name;
 
+    debug(
+      "getRangoSwap",
+      `Rango block chains ids` +
+        `  fromBlokchain=${fromBlockchain}` +
+        `  toBlockchain=${toBlockchain}`
+    );
+
     const fromTokenAddress = options.fromToken.address;
     const toTokenAddress = options.toToken.address;
 
@@ -339,9 +418,22 @@ class Rango extends ProviderClass {
     const toSymbol = this.getSymbol(options.toToken);
 
     // If we can't get symbols for the tokens then we don't support them
-    if (!fromSymbol || !toSymbol) return Promise.resolve(null);
+    if (!fromSymbol || !toSymbol) {
+      debug(
+        "getRangoSwap",
+        `No swap: No symbol for src token or dst token` +
+          `  srcTokenSymbol=${fromSymbol}` +
+          `  dstTokenSymbol=${toSymbol}`
+      );
+      return Promise.resolve(null);
+    }
 
     // Enkrypt & Rango both likely support this swap (pair & networks)
+
+    const slippage = Number(meta.slippage || DEFAULT_SLIPPAGE);
+    if (!Number.isFinite(slippage)) {
+      throw new Error(`Slippage is not a number: ${slippage}`);
+    }
 
     // Request a swap transaction from Rango for the pair & networks
     const params: SwapRequest = {
@@ -360,12 +452,13 @@ class Rango extends ProviderClass {
       amount: options.amount.toString(),
       fromAddress: options.fromAddress,
       toAddress: options.toAddress,
-      slippage: meta.slippage || DEFAULT_SLIPPAGE,
+      slippage,
       referrerFee: feeConfig ? (feeConfig.fee * 100).toFixed(3) : undefined,
       referrerAddress: feeConfig?.referrer || undefined,
       disableEstimate: true,
     };
 
+    debug("getRangoSwap", `Requesting quote from rango sdk...`);
     const rangoSwapResponse = await rangoClient.swap(params);
 
     if (
@@ -373,9 +466,12 @@ class Rango extends ProviderClass {
       rangoSwapResponse.resultType !== RoutingResultType.OK
     ) {
       // Rango experienced some kind of error or is unable to route the swap
-      console.error(rangoSwapResponse.error);
+      debug("getRangoSwap", `Rango swap SDK returned an error`);
+      console.error("Rango swap SDK error:", rangoSwapResponse.error);
       return Promise.resolve(null);
     }
+
+    debug("getRangoSwap", `Rango swap SDK returned OK`);
 
     // We have a swap transaction provided by Rango that can be executed
 
@@ -395,58 +491,11 @@ class Rango extends ProviderClass {
     let networkTransactions: RangoNetworkedTransactions;
 
     switch (rangoSwapResponse.tx?.type) {
-      // Process Rango swap Solana transaction
-      case RangoTransactionType.SOLANA: {
-        let versionedTransaction: VersionedTransaction;
-        if (rangoSwapResponse.tx.serializedMessage == null) {
-          // TODO: when and why does this happen?
-          throw new Error(
-            `Rango did not return a serialized message for the Solana transaction`
-          );
-        }
-        switch (rangoSwapResponse.tx.txType) {
-          case "VERSIONED": {
-            versionedTransaction = VersionedTransaction.deserialize(
-              new Uint8Array(rangoSwapResponse.tx.serializedMessage)
-            );
-            break;
-          }
-          case "LEGACY": {
-            // TODO: does this work? versionedTransaction.version has type `'legacy' | 0` so maybe?
-            versionedTransaction = VersionedTransaction.deserialize(
-              new Uint8Array(rangoSwapResponse.tx.serializedMessage)
-            );
-            break;
-          }
-          default:
-            rangoSwapResponse.tx.txType satisfies never;
-            throw new Error(
-              `Unhandled Rango Solana transaction type: ${rangoSwapResponse.tx.txType}`
-            );
-        }
-
-        networkTransactions = {
-          type: NetworkType.Solana,
-          transactions: [
-            {
-              type: TransactionType.solana,
-              from: rangoSwapResponse.tx.from,
-              // TODO: is this right?
-              to: options.toToken.address,
-              serialized: Buffer.from(
-                versionedTransaction.serialize()
-              ).toString("base64"),
-            },
-          ],
-        };
-        break;
-      }
-
       // Process Rango swap EVM transaction
       case RangoTransactionType.EVM: {
-        const transactions: EVMTransaction[] = [];
+        debug("getRangoSwap", `Received EVM transaction`);
 
-        // TODO: handle Solana transactions
+        const transactions: EVMTransaction[] = [];
         const tx = rangoSwapResponse.tx as RangoEvmTransaction;
         if (!this.isNativeToken(options.fromToken.address) && tx.approveTo) {
           // The user needss to approve Rango to swap tokens on their behalf
@@ -491,6 +540,277 @@ class Rango extends ProviderClass {
         break;
       }
 
+      // Process Rango swap Solana transaction
+      case RangoTransactionType.SOLANA: {
+        debug("getRangoSwap", "Received Solana transaction");
+
+        let enkSolTx: SolanaTransaction;
+
+        switch (rangoSwapResponse.tx.txType) {
+          case "VERSIONED": {
+            if (rangoSwapResponse.tx.serializedMessage) {
+              debug(
+                "getRangoSwap",
+                `Deserializing Solana versioned unsigned transaction`
+              );
+
+              // Versioned transaction, not signed (we can modify it)
+              // > When serialized message appears, there is no need for other fields and you just sign and send it
+              // @see (2024-09-17) https://docs.rango.exchange/api-integration/main-api-multi-step/sample-transactions#solana-sample-transaction-test
+
+              // Sanity checks
+              if (rangoSwapResponse.tx.instructions.length) {
+                console.warn(
+                  "Expected Rango Solana unsigned versioned transaction NOT to have instructions but instructions array is not empty",
+                  { ...rangoSwapResponse.tx }
+                );
+                return null;
+              }
+              if (rangoSwapResponse.tx.signatures.length) {
+                console.warn(
+                  "Expected Rango Solana unsigned versioned transaction NOT to have signatures but signatures array is not empty",
+                  { ...rangoSwapResponse.tx }
+                );
+                return null;
+              }
+              if (rangoSwapResponse.tx.recentBlockhash) {
+                console.warn(
+                  "Expected Rango Solana unsigned versioned transaction NOT to have a recent blockhash but recentBlockhash is defined",
+                  { ...rangoSwapResponse.tx }
+                );
+                return null;
+              }
+
+              const vtx = VersionedTransaction.deserialize(
+                new Uint8Array(rangoSwapResponse.tx.serializedMessage)
+              );
+
+              enkSolTx = {
+                type: TransactionType.solana,
+                from: rangoSwapResponse.tx.from,
+                to: options.toToken.address,
+                kind: "versioned",
+                signed: false,
+                serialized: Buffer.from(vtx.serialize()).toString("base64"),
+              };
+            } else {
+              debug(
+                "getRangoSwap",
+                `Deserializing Solana versioned signed transaction`
+              );
+
+              // Versioned transaction signed by Rango
+              // We are unable to alter this transaction
+              // Since the recent block hash gets signed too, this transaction will need to be consumed quickly
+
+              // Sanity checks
+              if (!rangoSwapResponse.tx.instructions.length) {
+                console.warn(
+                  "Expected Rango Solana signed versioned transaction to have instructions but instructions array is empty",
+                  { ...rangoSwapResponse.tx }
+                );
+                return null;
+              }
+              if (!rangoSwapResponse.tx.signatures.length) {
+                console.warn(
+                  "Expected Rango Solana signed versioned transaction to have signatures but signatures array is empty",
+                  { ...rangoSwapResponse.tx }
+                );
+                return null;
+              }
+              if (!rangoSwapResponse.tx.recentBlockhash) {
+                console.warn(
+                  "Expected Rango Solana signed versioned transaction to have a recent blockhash but recentBlockhash is not defined",
+                  { ...rangoSwapResponse.tx }
+                );
+                return null;
+              }
+
+              const vtx = new VersionedTransaction(
+                new TransactionMessage({
+                  instructions: rangoSwapResponse.tx.instructions.map(
+                    (instr) =>
+                      new TransactionInstruction({
+                        keys: instr.keys.map(
+                          ({ pubkey, isSigner, isWritable }) => ({
+                            pubkey: new PublicKey(pubkey),
+                            isSigner,
+                            isWritable,
+                          })
+                        ),
+                        // For some reason Rango returns instruction data as signed 8 bit array
+                        // so we convert to unsigned
+                        data: Buffer.from(
+                          instr.data.map((int8) => (int8 + 256) % 256)
+                        ),
+                        programId: new PublicKey(instr.programId),
+                      })
+                  ),
+                  recentBlockhash: rangoSwapResponse.tx.recentBlockhash,
+                  payerKey: new PublicKey(options.fromAddress),
+                }).compileToV0Message(),
+                rangoSwapResponse.tx.signatures.map(
+                  // For some reason Rango returns signatures as a signed 8 bit array
+                  // so we convert to unsigned
+                  ({ signature }) =>
+                    new Uint8Array(signature.map((int8) => (int8 + 256) % 256))
+                )
+              );
+
+              enkSolTx = {
+                type: TransactionType.solana,
+                from: rangoSwapResponse.tx.from,
+                to: options.toToken.address,
+                kind: "versioned",
+                signed: true,
+                serialized: Buffer.from(vtx.serialize()).toString("base64"),
+              };
+            }
+            break;
+          }
+          case "LEGACY": {
+            if (rangoSwapResponse.tx.serializedMessage) {
+              debug(
+                "getRangoSwap",
+                `Deserializing Solana legacy unsigned transaction`
+              );
+
+              // Legacy transaction, not signed (we can modify it)
+              // > When serialized message appears, there is no need for other fields and you just sign and send it
+              // @see (2024-09-17) https://docs.rango.exchange/api-integration/main-api-multi-step/sample-transactions#solana-sample-transaction-test
+
+              // Sanity checks
+              if (rangoSwapResponse.tx.instructions.length) {
+                console.warn(
+                  "Expected Rango Solana unsigned legacy transaction NOT to have instructions but instructions array is not empty",
+                  { ...rangoSwapResponse.tx }
+                );
+                return null;
+              }
+              if (rangoSwapResponse.tx.signatures.length) {
+                console.warn(
+                  "Expected Rango Solana unsigned legacy transaction NOT to have signatures but signatures array is not empty",
+                  { ...rangoSwapResponse.tx }
+                );
+                return null;
+              }
+              if (rangoSwapResponse.tx.recentBlockhash) {
+                console.warn(
+                  "Expected Rango Solana unsigned legacy transaction NOT to have a recent blockhash but recentBlockhash is defined",
+                  { ...rangoSwapResponse.tx }
+                );
+                return null;
+              }
+              const ltx = SolanaLegacyTransaction.from(
+                rangoSwapResponse.tx.serializedMessage
+              );
+
+              enkSolTx = {
+                type: TransactionType.solana,
+                from: rangoSwapResponse.tx.from,
+                to: options.toToken.address,
+                kind: "legacy",
+                signed: false,
+                serialized: ltx.serialize().toString("base64"),
+              };
+            } else {
+              debug(
+                "getRangoSwap",
+                `Deserializing Solana legacy signed transaction`
+              );
+
+              // Legacy transaction signed by Rango
+              // We are unable to alter this transaction
+              // Since the recent block hash gets signed too, this transaction will need to be consumed quickly
+
+              // Sanity checks
+              if (!rangoSwapResponse.tx.instructions.length) {
+                console.warn(
+                  "Expected Rango Solana signed legacy transaction to have instructions but instructions array is empty",
+                  { ...rangoSwapResponse.tx }
+                );
+                return null;
+              }
+              if (!rangoSwapResponse.tx.signatures.length) {
+                console.warn(
+                  "Expected Rango Solana signed legacy transaction to have signatures but signatures array is empty",
+                  { ...rangoSwapResponse.tx }
+                );
+                return null;
+              }
+              if (!rangoSwapResponse.tx.recentBlockhash) {
+                console.warn(
+                  "Expected Rango Solana signed legacy transaction to have a recent blockhash but recentBlockhash is not defined",
+                  { ...rangoSwapResponse.tx }
+                );
+                return null;
+              }
+
+              console.log("===== 1");
+              console.log({ ...rangoSwapResponse });
+              const ltx = SolanaLegacyTransaction.populate(
+                new TransactionMessage({
+                  instructions: rangoSwapResponse.tx.instructions.map(
+                    (instr) =>
+                      new TransactionInstruction({
+                        keys: instr.keys.map(
+                          ({ pubkey, isSigner, isWritable }) => ({
+                            pubkey: new PublicKey(pubkey),
+                            isSigner,
+                            isWritable,
+                          })
+                        ),
+                        // For some reason Rango returns instruction data as signed 8 bit array
+                        // so we convert to unsigned
+                        data: Buffer.from(
+                          instr.data.map((int8) => (int8 + 256) % 256)
+                        ),
+                        programId: new PublicKey(instr.programId),
+                      })
+                  ),
+                  recentBlockhash: rangoSwapResponse.tx.recentBlockhash,
+                  payerKey: new PublicKey(options.fromAddress),
+                }).compileToLegacyMessage(),
+                rangoSwapResponse.tx.signatures.map(({ signature }) =>
+                  // For some reason Rango returns signatures as a signed 8 bit array
+                  // so we convert to unsigned
+                  bs58.encode(
+                    Buffer.from(signature.map((int8) => (int8 + 256) % 256))
+                  )
+                )
+              );
+              console.log("===== 2");
+
+              enkSolTx = {
+                type: TransactionType.solana,
+                from: rangoSwapResponse.tx.from,
+                to: options.toToken.address,
+                kind: "legacy",
+                signed: true,
+                // We'll provide our own signature later
+                serialized: ltx
+                  .serialize({ requireAllSignatures: false })
+                  .toString("base64"),
+              };
+
+              console.log("===== 3");
+            }
+            break;
+          }
+          default:
+            rangoSwapResponse.tx.txType satisfies never;
+            throw new Error(
+              `Unhandled Rango Solana transaction type: ${rangoSwapResponse.tx.txType}`
+            );
+        }
+
+        networkTransactions = {
+          type: NetworkType.Solana,
+          transactions: [enkSolTx],
+        };
+        break;
+      }
+
       case undefined:
       case null: {
         throw new Error(`Rango did not return a transaction type`);
@@ -510,6 +830,11 @@ class Rango extends ProviderClass {
       additionalNativeFees,
       requestId: rangoSwapResponse.requestId,
     };
+
+    debug(
+      "getRangoSwap",
+      `Done  took=${(Date.now() - startedAt).toLocaleString()}ms`
+    );
 
     return result;
   }
@@ -694,6 +1019,24 @@ class Rango extends ProviderClass {
 
     // no failed or pending, assume success
     return TransactionStatus.success;
+  }
+}
+
+async function isEVMAddressAsync(address: string): Promise<boolean> {
+  return isEVMAddress(address);
+}
+async function isSolanaAddressAsync(address: string): Promise<boolean> {
+  return isValidSolanaAddress(address);
+}
+
+function getIsAddressAsync(
+  network: SupportedNetworkName
+): (address: string) => Promise<boolean> {
+  switch (network) {
+    case SupportedNetworkName.Solana:
+      return isSolanaAddressAsync;
+    default:
+      return isEVMAddressAsync;
   }
 }
 

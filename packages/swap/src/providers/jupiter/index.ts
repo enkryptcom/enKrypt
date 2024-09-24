@@ -2,19 +2,27 @@
 
 import { NetworkNames } from "@enkryptcom/types";
 import {
-  AddressLookupTableAccount,
-  ComputeBudgetProgram,
   Connection,
   PublicKey,
   SystemProgram,
   TransactionInstruction,
-  TransactionMessage,
   VersionedTransaction,
 } from "@solana/web3.js";
 import { toBN } from "web3-utils";
 import fetch from "node-fetch";
 import { TOKEN_AMOUNT_INFINITY_AND_BEYOND } from "../../utils/approvals";
-import { extractComputeBudget } from "../../utils/solana";
+import {
+  ASSOCIATED_TOKEN_PROGRAM_ID,
+  extractComputeBudget,
+  getCreateAssociatedTokenAccountIdempotentInstruction,
+  getSPLAssociatedTokenAccountPubkey,
+  getTokenProgramOfMint,
+  insertInstructionsAtStartOfTransaction,
+  isValidSolanaAddressAsync,
+  solAccountExists,
+  SPL_TOKEN_ATA_ACCOUNT_SIZE_BYTES,
+  WRAPPED_SOL_ADDRESS,
+} from "../../utils/solana";
 import {
   ProviderClass,
   ProviderName,
@@ -39,6 +47,12 @@ import {
   FEE_CONFIGS,
   NATIVE_TOKEN_ADDRESS,
 } from "../../configs";
+import {
+  JupiterQuoteResponse,
+  JupiterSwapParams,
+  JupiterSwapResponse,
+  JupiterTokenInfo,
+} from "./types";
 
 /** Enables debug logging in this file */
 const DEBUG = false;
@@ -97,12 +111,6 @@ const JUPITER_TOKENS_URL = "https://tokens.jup.ag/tokens?tags=verified";
 const JUPITER_API_URL = "https://quote-api.jup.ag/v6/";
 
 /**
- * Wrapped SOL address
- * @see https://solscan.io/token/So11111111111111111111111111111111111111112
- */
-const WRAPPED_SOL_ADDRESS = "So11111111111111111111111111111111111111112";
-
-/**
  * @see https://solscan.io/account/45ruCyfdRkWpRNGEqWzjCiXRHkZs8WXCLQ67Pnpye7Hp
  *
  * Manages referral fees
@@ -121,183 +129,42 @@ const JUPITER_REFERRAL_PROGRAM_PUBKEY = new PublicKey(
 );
 
 /**
- * Address of the SPL Token program
- *
- * @see https://solscan.io/account/TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA
- */
-export const TOKEN_PROGRAM_ID = new PublicKey(
-  "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
-);
-
-/**
- * Address of the SPL Token 2022 program
- *
- * @see https://solscan.io/account/TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb
- */
-export const TOKEN_2022_PROGRAM_ID = new PublicKey(
-  "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"
-);
-
-/**
- * Address of the SPL Associated Token Account program
- *
- * (Creates Associated Token Accounts (ATA))
- *
- * @see https://solscan.io/account/ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL
- */
-export const ASSOCIATED_TOKEN_PROGRAM_ID = new PublicKey(
-  "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
-);
-
-/**
  * Storage of a token ATA
  *
  * Required to calculate the extra cost if the swap fee if the swap needs to create a referral fee account
  */
 const JUPITER_REFERRAL_ATA_ACCOUNT_SIZE_BYTES = 165;
 
-const SPL_TOKEN_ATA_ACCOUNT_SIZE_BYTES = 165;
-
-let debug: (...args: any[]) => void;
+let debug: (context: string, message: string, ...args: any[]) => void;
 if (DEBUG) {
-  console.debug.bind(console);
+  debug = (context: string, message: string, ...args: any[]): void => {
+    const now = new Date();
+    const ymdhms =
+      // eslint-disable-next-line prefer-template
+      now.getFullYear().toString().padStart(4, "0") +
+      "-" +
+      (now.getMonth() + 1).toString().padStart(2, "0") +
+      "-" +
+      now.getDate().toString().padStart(2, "0") +
+      " " +
+      now.getHours().toString().padStart(2, "0") +
+      ":" +
+      now.getMinutes().toString().padStart(2, "0") +
+      ":" +
+      now.getSeconds().toString().padStart(2, "0") +
+      "." +
+      now.getMilliseconds().toString().padStart(3, "0");
+    console.info(
+      `\x1b[90m${ymdhms}\x1b[0m \x1b[32mRangoSwapProvider.${context}\x1b[0m: ${message}`,
+      ...args
+    );
+  };
 } else {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function
-  debug = (..._args: any[]) => {};
+  debug = () => {};
 }
 
 // Jupiter API Tokens
-
-/**
- * curl -sL https://tokens.jup.ag/tokens?tags=verified | jq -C | less -N
- */
-type JupiterTokenInfo = {
-  address: string;
-  name: string;
-  symbol: string;
-  decimals: string;
-};
-
-// Jupiter API Quote
-
-/**
- * see https://station.jup.ag/api-v6/get-quote
- *
- * ```sh
- * curl -sL -H 'Accept: application/json' 'https://quote-api.jup.ag/v6/quote?inputMint=EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v&outputMint=So11111111111111111111111111111111111111112&amount=5'
- * ```
- */
-type JupiterQuoteResponse = {
-  /** @example "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v" */
-  inputMint: string;
-  /** @example "5" */
-  inAmount: string;
-  /** @example "So11111111111111111111111111111111111111112" */
-  outputMint: string;
-  /** @example "35" */
-  outAmount: string;
-  /** @example "35" */
-  otherAmountThreshold: string;
-  /** @example "ExactIn" */
-  swapMode: string;
-  /** @example 50 */
-  slippageBps: number;
-  /** @example {"amount":"1","feeBps":1} */
-  platformFee: null | {
-    /** @example '1' */
-    amount: string;
-    /** @example 1 */
-    feeBps: number;
-  };
-  /** @example "0" */
-  priceImpactPct: string;
-  routePlan: {
-    swapInfo: {
-      /** @example "5URw47pYHN9heEQFKtUFeHzTskHwN78bBvKefV5C98fe" */
-      ammKey: string;
-      /** @example "Oasis" */
-      label: string;
-      /** @example "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v" */
-      inputMint: string;
-      /** @example "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263" */
-      outputMint: string;
-      /** @example  "5" */
-      inAmount: string;
-      /** @e xample "28679" */
-      outAmount: string;
-      /** @exampl e "115" */
-      feeAmount: string;
-      /** @example "DezXAZ8z7Pn rnRJjz3wXBoRgixCa6xjnB7YaB1pPB263" */
-      feeMint: string;
-    };
-    /** @example 100  */
-    percent: number;
-  }[];
-  /** @example 284606533 */
-  contextSlot: number;
-  /** @example 0.743937514 */
-  timeTaken: number;
-};
-
-// Jupiter API Swap
-
-/**
- * @see https://station.jup.ag/api-v6/post-swap
- *
- * HTTP request JSON body to request a Swap transaction for a given quote
- */
-type JupiterSwapParams = {
-  userPublicKey: string;
-  /** Default: true */
-  wrapAndUnwrapSol?: boolean;
-  useSharedAccounts?: boolean;
-  /** Referral address */
-  feeAccount?: string;
-  /** Public key used to track transactions */
-  trackingAccount?: string;
-  /** Integer */
-  computeUnitPriceMicroLamports?: number;
-  prioritizationFeeLamports?: number;
-  /** Default: false */
-  asLegacyTransaction?: boolean;
-  /** Default: false */
-  useTokenLedger?: boolean;
-  /** Public key of key of token receiver. Default: user's own ATA. */
-  destinationTokenAccount?: string;
-  /**
-   * Simulate the swap to get the compute units (like gas in the EVM) &
-   * set in ComputeBudget's compute unit limit.
-   *
-   * Default: false
-   */
-  dynamicComputeUnitLimit?: boolean;
-  /** Do not do RPC calls to check on user's account. Default: false. */
-  skipUserAccountRpcCalls?: boolean;
-  /** Response from the Jupiter API quote endpoint */
-  quoteResponse: JupiterQuoteResponse;
-};
-
-/**
- * @see https://station.jup.ag/api-v6/post-swap
- */
-type JupiterSwapResponse = {
-  /** Base64 encoded versioned transaction */
-  swapTransaction: string;
-  /** @example 265642441 */
-  lastValidBlockHeight: number;
-  /** @example 99999 */
-  prioritizationFeeLamports?: number;
-  /** @example 1400000 */
-  computeUnitLimit?: number;
-  prioritizationType?: {
-    computeBudget?: {
-      microLamports: 71428;
-      estimatedMicroLamports: 142856;
-    };
-  };
-  dynamicSlippageReport: null;
-  simulationError: null;
-};
 
 /**
  * Jupiter is a DEX on Solana
@@ -358,7 +225,6 @@ export class Jupiter extends ProviderClass {
     /** Intersection of token list & jupiter tokens */
     this.toTokens[this.network] ??= {};
     for (let i = 0, len = enkryptTokenList.length; i < len; i++) {
-      // TODO: handle native address
       const enkryptToken = enkryptTokenList[i];
       let isTradeable = false;
       if (enkryptToken.address === NATIVE_TOKEN_ADDRESS) {
@@ -378,7 +244,7 @@ export class Jupiter extends ProviderClass {
         ...enkryptToken,
         networkInfo: {
           name: SupportedNetworkName.Solana,
-          isAddress: isValidSolanaAddress,
+          isAddress: isValidSolanaAddressAsync,
         } satisfies TokenNetworkType,
       };
     }
@@ -413,8 +279,9 @@ export class Jupiter extends ProviderClass {
 
     const feeConf = FEE_CONFIGS[this.name][meta.walletIdentifier];
 
-    if (!feeConf)
+    if (!feeConf) {
       throw new Error("Something went wrong: no fee config for Jupiter swap");
+    }
 
     const referrerPubkey = new PublicKey(feeConf.referrer);
 
@@ -505,7 +372,8 @@ export class Jupiter extends ProviderClass {
 
     if (referrerATAExists) {
       debug(
-        `[JupiterSwapProvider.querySwapInfo] Referrer ATA already exists. No need to record additional rent fees.` +
+        "querySwapInfo",
+        `Referrer ATA already exists. No need to record additional rent fees.` +
           ` ATA pubkey: ${referrerATAPubkey.toBase58()},` +
           ` Source mint: ${srcMint.toBase58()}`
       );
@@ -531,7 +399,8 @@ export class Jupiter extends ProviderClass {
       rentFees += extraRentFees;
 
       debug(
-        `[JupiterSwapProvider.querySwapInfo] Referrer ATA does not exist. Updating transaction with instruction to create it.` +
+        "querySwapInfo",
+        `Referrer ATA does not exist. Updating transaction with instruction to create it.` +
           ` Referral ATA pubkey: ${referrerATAPubkey.toBase58()},` +
           ` Rent: ${extraRentFees} lamports,` +
           ` Total Rent: ${extraRentFees} lamports`
@@ -543,7 +412,8 @@ export class Jupiter extends ProviderClass {
 
     if (dstATAExists) {
       debug(
-        `[JupiterSwapProvider.querySwapInfo] Wallet destination mint ATA already exists. No need to record additional rent fees.` +
+        "querySwapInfo",
+        `Wallet destination mint ATA already exists. No need to record additional rent fees.` +
           ` ATA pubkey: ${dstATAPubkey.toBase58()},` +
           ` Destination mint: ${dstMint.toBase58()}`
       );
@@ -566,7 +436,8 @@ export class Jupiter extends ProviderClass {
       extraInstructions.push(instruction);
 
       debug(
-        `[JupiterSwapProvider.querySwapInfo] Wallet destination mint ATA does not exist, registering custom instruction to create it.` +
+        "querySwapInfo",
+        `Wallet destination mint ATA does not exist, registering custom instruction to create it.` +
           ` Adding ATA rent to extra transaction fees.` +
           ` ATA pubkey: ${dstATAPubkey.toBase58()},` +
           ` Destination mint: ${dstMint.toBase58()},` +
@@ -603,7 +474,9 @@ export class Jupiter extends ProviderClass {
   ): Promise<null | ProviderQuoteResponse> {
     if (options.toToken.networkInfo.name !== SupportedNetworkName.Solana) {
       debug(
-        `[JupiterSwapProvider.getQuote] ignoring quote request to network ${options.toToken.networkInfo.name}, cross network swaps not supported`
+        "getQuote",
+        `ignoring quote request to network ${options.toToken.networkInfo.name},` +
+          ` cross network swaps not supported`
       );
       return null;
     }
@@ -618,10 +491,12 @@ export class Jupiter extends ProviderClass {
     // 4. Rent for ATA accounts that may need to be created; the referral fee account and mint account
 
     debug(
-      `[JupiterSwapProvider.getQuote] Quote inAmount:  ${jupiterQuote.inAmount} ${options.fromToken.symbol}`
+      "getQuote",
+      `Quote inAmount:  ${jupiterQuote.inAmount} ${options.fromToken.symbol}`
     );
     debug(
-      `[JupiterSwapProvider.getQuote] Quote outAmount: ${jupiterQuote.outAmount} ${options.toToken.symbol}`
+      "getQuote",
+      `Quote outAmount: ${jupiterQuote.outAmount} ${options.toToken.symbol}`
     );
 
     const result: ProviderQuoteResponse = {
@@ -663,13 +538,17 @@ export class Jupiter extends ProviderClass {
       to: quote.options.toAddress,
       serialized: base64SwapTransaction,
       type: TransactionType.solana,
+      kind: "versioned",
+      signed: false,
     };
 
     debug(
-      `[JupiterSwapProvider.getSwap] Quote inAmount:  ${jupiterQuote.inAmount} ${quote.options.fromToken.symbol}`
+      "getSwap",
+      `Quote inAmount:  ${jupiterQuote.inAmount} ${quote.options.fromToken.symbol}`
     );
     debug(
-      `[JupiterSwapProvider.getSwap] Quote outAmount: ${jupiterQuote.outAmount} ${quote.options.toToken.symbol}`
+      "getSwap",
+      `Quote outAmount: ${jupiterQuote.outAmount} ${quote.options.toToken.symbol}`
     );
 
     const result: ProviderSwapResponse = {
@@ -712,50 +591,15 @@ export class Jupiter extends ProviderClass {
     }
 
     if (txResponse.meta == null) {
-      // TODO: verify that `ConfirmedTransactionMeta` == null means pending
       return TransactionStatus.pending;
     }
 
     if (txResponse.meta.err != null) {
-      // TODO: verify that `err` != null means failed
       return TransactionStatus.failed;
     }
 
     return TransactionStatus.success;
   }
-}
-
-/**
- * Is the address a valid Solana address? (32 byte base58 string)
- *
- * @param address   hopefully 32 byte base58 string
- * @returns         true if `address` is a 32 byte base58 string
- */
-function isValidSolanaAddress(address: string): Promise<boolean> {
-  try {
-    new PublicKey(address);
-    return Promise.resolve(true);
-  } catch (err) {
-    return Promise.resolve(false);
-  }
-}
-
-/**
- * Does the Solana account exist?
- *
- * Checks if the account has been created
- *
- * @param conn      Solana connection
- * @param address   Address to check
- * @returns         `true` if there's an account at `address`
- */
-async function solAccountExists(
-  conn: Connection,
-  address: PublicKey
-): Promise<boolean> {
-  const account = await conn.getAccountInfo(address, "max");
-  const exists = account != null;
-  return exists;
 }
 
 /**
@@ -794,9 +638,7 @@ async function getJupiterTokens(context?: {
 
     if (backoff[backoffi] > 0) {
       // Previous request failed, wait before retrying
-      debug(
-        `[JupiterSwapProvider.getJupiterTokens] Retrying after ${backoff[backoffi]}ms...`
-      );
+      debug("getJupiterTokens", `Retrying after ${backoff[backoffi]}ms...`);
       await new Promise<void>((res, rej) => {
         function onTimeout() {
           cleanupSleep();
@@ -837,7 +679,8 @@ async function getJupiterTokens(context?: {
 
     try {
       debug(
-        `[JupiterSwapProvider.getJupiterTokens] Initiating HTTP request for Jupiter tokens ${url}`
+        "getJupiterTokens",
+        `Initiating HTTP request for Jupiter tokens ${url}`
       );
       const res = await fetch(url, {
         signal: aborter.signal,
@@ -848,7 +691,9 @@ async function getJupiterTokens(context?: {
       if (!res.ok) {
         let msg = await res
           .text()
-          .catch((err) => `Failed to decode response text: ${String(err)}`);
+          .catch(
+            (err: Error) => `Failed to decode response text: ${String(err)}`
+          );
         const msglen = msg.length;
         if (msglen > 512 + 7 + 3 + msglen.toString().length) {
           msg = `${msg.slice(0, 512)}... (512/${msglen})`;
@@ -884,9 +729,10 @@ async function getJupiterTokens(context?: {
       if (signal?.aborted) throw signal.reason;
       if (failed) throw err;
       debug(
-        `[JupiterSwapProvider.getJupiterTokens] Failed to get Jupiter tokens on attempt ${
-          backoffi + 1
-        }/${backoff.length}: ${String(err)}`
+        "getJupiterTokens",
+        `Failed to get Jupiter tokens on attempt ${backoffi + 1}/${
+          backoff.length
+        }: ${String(err)}`
       );
       errRef ??= { err: err as Error };
     } finally {
@@ -986,7 +832,8 @@ async function getJupiterQuote(
     if (backoff[backoffi] > 0) {
       // Previous request failed, wait before retrying
       debug(
-        `[JupiterSwapProvider.getJupiterQuote] Retrying ${url} after ${backoff[backoffi]}ms...`
+        "getJupiterQuote",
+        `Retrying ${url} after ${backoff[backoffi]}ms...`
       );
       await new Promise<void>((res, rej) => {
         function onTimeout() {
@@ -1028,7 +875,8 @@ async function getJupiterQuote(
 
     try {
       debug(
-        `[JupiterSwapProvider.getJupiterQuote] Initiating HTTP request for Jupiter quote ${url}`
+        "getJupiterQuote",
+        `Initiating HTTP request for Jupiter quote ${url}`
       );
       const res = await fetch(url, {
         signal: aborter.signal,
@@ -1039,7 +887,9 @@ async function getJupiterQuote(
       if (!res.ok) {
         let msg = await res
           .text()
-          .catch((err) => `Failed to decode response text: ${String(err)}`);
+          .catch(
+            (err: Error) => `Failed to decode response text: ${String(err)}`
+          );
         const msglen = msg.length;
         if (msglen > 512 + 7 + 3 + msglen.toString().length) {
           msg = `${msg.slice(0, 512)}... (512/${msglen})`;
@@ -1144,7 +994,8 @@ async function getJupiterSwap(
     if (backoff[backoffi] > 0) {
       // Previous request failed, wait before retrying
       debug(
-        `[JupiterSwapProvider.getJupiterSwap] Retrying ${url} after ${backoff[backoffi]}ms...`
+        "getJupiterSwap",
+        `Retrying ${url} after ${backoff[backoffi]}ms...`
       );
       await new Promise<void>((res, rej) => {
         function onTimeout() {
@@ -1186,7 +1037,8 @@ async function getJupiterSwap(
 
     try {
       debug(
-        `[JupiterSwapProvider.getJupiterSwap] Initiating HTTP request for Jupiter swap ${url}`
+        "getJupiterSwap",
+        `Initiating HTTP request for Jupiter swap ${url}`
       );
       const res = await fetch(url, {
         signal: aborter.signal,
@@ -1202,7 +1054,9 @@ async function getJupiterSwap(
       if (!res.ok) {
         let msg = await res
           .text()
-          .catch((err) => `Failed to decode response text: ${String(err)}`);
+          .catch(
+            (err: Error) => `Failed to decode response text: ${String(err)}`
+          );
         const msglen = msg.length;
         if (msglen > 512 + 7 + 3 + msglen.toString().length) {
           msg = `${msg.slice(0, 512)}... (512/${msglen})`;
@@ -1238,9 +1092,10 @@ async function getJupiterSwap(
     } catch (err) {
       if (failed) throw err;
       debug(
-        `[JupiterSwapProvider.getJupiterSwap] Failed to get Jupiter swap on attempt ${
-          backoffi + 1
-        }/${backoff.length}: ${String(err)}`
+        "getJupiterSwap",
+        `Failed to get Jupiter swap on attempt ${backoffi + 1}/${
+          backoff.length
+        }: ${String(err)}`
       );
       errRef ??= { err: err as Error };
     } finally {
@@ -1277,135 +1132,6 @@ function getJupiterReferrerAssociatedTokenAccount(
     JUPITER_REFERRAL_PROGRAM_PUBKEY
   );
   return referrerATAPubkey;
-}
-
-/**
- * Construct a CreateAssociatedTokenAccountIdempotent instruction
- *
- * @param payer                    Payer of the initialization fees
- * @param associatedToken          New associated token account
- * @param owner                    Owner of the new account
- * @param mint                     Token mint account
- * @param programId                SPL Token program account
- * @param associatedTokenProgramId SPL Associated Token program account
- *
- * @return Instruction to add to a transaction
- */
-export function createAssociatedTokenAccountIdempotentInstruction(
-  payer: PublicKey,
-  associatedToken: PublicKey,
-  owner: PublicKey,
-  mint: PublicKey,
-  programId = TOKEN_PROGRAM_ID,
-  associatedTokenProgramId = ASSOCIATED_TOKEN_PROGRAM_ID
-): TransactionInstruction {
-  return buildAssociatedTokenAccountInstruction(
-    payer,
-    associatedToken,
-    owner,
-    mint,
-    Buffer.from([1]),
-    programId,
-    associatedTokenProgramId
-  );
-}
-
-/**
- * Create a transaction instruction that creates the given ATA for the owner and mint.
- *
- * Does nothing if the mint already exists.
- *
- * @see https://github.com/solana-labs/solana-program-library/blob/e018a30e751e759e62e17ad01864d4c57d090c26/token/js/src/instructions/associatedTokenAccount.ts#L49
- * @see https://github.com/solana-labs/solana-program-library/blob/e018a30e751e759e62e17ad01864d4c57d090c26/token/js/src/instructions/associatedTokenAccount.ts#L100
- */
-function getCreateAssociatedTokenAccountIdempotentInstruction(params: {
-  /** Payer of initialization / rent fees */
-  payerPubkey: PublicKey;
-  /** Address of the Associated Token Account of `ownerPubkey` with `mintPubkey` @see `getSPLAssociatedTokenAccountPubkey` */
-  ataPubkey: PublicKey;
-  /** Owner of the new SPL Associated Token Account */
-  ownerPubkey: PublicKey;
-  /**
-   * SPL token address
-   *
-   * @example new PublicKey('EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v') // USDC
-   * @example new PublicKey('Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB') // USDT
-   * @example new PublicKey('So11111111111111111111111111111111111111112') // Wrapped SOL
-   *
-   * USDC @see https://solscan.io/token/EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v
-   * USDT @see https://solscan.io/token/Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB
-   * Wrapped SOL @see https://solscan.io/token/So11111111111111111111111111111111111111112
-   */
-  mintPubkey: PublicKey;
-  /**
-   * @example new PublicKey('11111111111111111111111111111111')
-   */
-  systemProgramId: PublicKey;
-  /**
-   * SPL Token Program or 2022 SPL token program
-   *
-   * @example new PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA')
-   * @example new PublicKey('TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb')
-   */
-  tokenProgramId: PublicKey;
-  /**
-   * SPL Associated Token Program account,
-   *
-   * @example new PublicKey('ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL')
-   *
-   * @see https://solscan.io/account/ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL
-   */
-  associatedTokenProgramId: PublicKey;
-}): TransactionInstruction {
-  const {
-    payerPubkey,
-    ataPubkey,
-    ownerPubkey,
-    mintPubkey,
-    systemProgramId,
-    tokenProgramId,
-    associatedTokenProgramId,
-  } = params;
-
-  const keys = [
-    { pubkey: payerPubkey, isSigner: true, isWritable: true },
-    { pubkey: ataPubkey, isSigner: false, isWritable: true },
-    { pubkey: ownerPubkey, isSigner: false, isWritable: false },
-    { pubkey: mintPubkey, isSigner: false, isWritable: false },
-    { pubkey: systemProgramId, isSigner: false, isWritable: false },
-    { pubkey: tokenProgramId, isSigner: false, isWritable: false },
-  ];
-
-  return new TransactionInstruction({
-    keys,
-    programId: associatedTokenProgramId,
-    data: Buffer.from([1]),
-  });
-}
-
-function buildAssociatedTokenAccountInstruction(
-  payer: PublicKey,
-  associatedToken: PublicKey,
-  owner: PublicKey,
-  mint: PublicKey,
-  instructionData: Buffer,
-  programId = TOKEN_PROGRAM_ID,
-  associatedTokenProgramId = ASSOCIATED_TOKEN_PROGRAM_ID
-): TransactionInstruction {
-  const keys = [
-    { pubkey: payer, isSigner: true, isWritable: true },
-    { pubkey: associatedToken, isSigner: false, isWritable: true },
-    { pubkey: owner, isSigner: false, isWritable: false },
-    { pubkey: mint, isSigner: false, isWritable: false },
-    { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
-    { pubkey: programId, isSigner: false, isWritable: false },
-  ];
-
-  return new TransactionInstruction({
-    keys,
-    programId: associatedTokenProgramId,
-    data: instructionData,
-  });
 }
 
 /**
@@ -1495,155 +1221,4 @@ function getJupiterInitialiseReferralTokenAccountInstruction(params: {
   });
 
   return instruction;
-}
-
-/**
- * Insert new instructions at the start of a transaction, after compute budget and compute limit instructions
- */
-async function insertInstructionsAtStartOfTransaction(
-  conn: Connection,
-  tx: VersionedTransaction,
-  instructions: TransactionInstruction[]
-): Promise<VersionedTransaction> {
-  if (instructions.length === 0) return tx;
-
-  // Now we need to:
-  // 1. Decompile the transaction
-  // 2. Put our instructions in it
-  // 3. Recompile it
-
-  // Request lookup accounts so that we can decompile the message
-  //
-  // Lookup accounts store arrays of addresses. These accounts let compiled transaction messages reference indexes
-  // in the lookup account rather than by the pubkey, saving lots of space (~4 byte integer index vs 32 byte pubkey).
-  //
-  // To decompile a message we first need all the lookup accounts that it includes so that we can get the
-  // the addresses that our message needs.
-  //
-  // We can also use the lookup accounts when re-compiling the transaction.
-  const lookupAccountsCount = tx.message.addressTableLookups.length;
-  const addressLookupTableAccounts: AddressLookupTableAccount[] = new Array(
-    lookupAccountsCount
-  );
-
-  for (let i = 0; i < lookupAccountsCount; i++) {
-    const lookup = tx.message.addressTableLookups[i];
-    const result = await conn.getAddressLookupTable(lookup.accountKey);
-    const addressLookupTableAccount = result.value;
-    if (addressLookupTableAccount == null)
-      throw new Error(
-        `Failed to get address lookup table for ${lookup.accountKey}`
-      );
-    debug(
-      `[JupiterSwapProvider.insertInstructionsAtStartOfTransaction] Fetching lookup account ${
-        i + 1
-      }. ${lookup.accountKey.toBase58()}`
-    );
-    addressLookupTableAccounts[i] = addressLookupTableAccount;
-  }
-
-  // Decompile the transaction message so we can modify it
-  const decompiledTransactionMessage = TransactionMessage.decompile(
-    tx.message,
-    { addressLookupTableAccounts }
-  );
-
-  // Insert our instruction to create an account directly after compute budget
-  // program instructions that compute limits and priority fees
-  const computeBudgetProgramAddr = ComputeBudgetProgram.programId.toBase58();
-  let inserted = false;
-  instructionLoop: for (
-    let i = 0, len = decompiledTransactionMessage.instructions.length;
-    i < len;
-    i++
-  ) {
-    // As soon as we hit a non compute budget program, insert our instruction to create the account
-    const existingInstruction = decompiledTransactionMessage.instructions[i];
-    switch (existingInstruction.programId.toBase58()) {
-      case computeBudgetProgramAddr:
-        // do nothing
-        break;
-      default: {
-        // insert our instruction here & continue
-        debug(
-          `[JupiterSwapProvider.insertInstructionsAtStartOfTransaction] Inserting instruction to create an ATA account for Jupiter referrer with mint at instruction index ${i}`
-        );
-        inserted = true;
-        decompiledTransactionMessage.instructions.splice(i, 0, ...instructions);
-        break instructionLoop;
-      }
-    }
-  }
-
-  if (!inserted) {
-    // If there were no compute budget instructions then just add it at the start
-    debug(
-      `[JupiterSwapProvider.insertInstructionsAtStartOfTransaction] Inserting instruction to create an ATA account for Jupiter referrer with mint at start of instructions`
-    );
-    for (let len = instructions.length - 1, i = len - 1; i >= 0; i--) {
-      decompiledTransactionMessage.instructions.unshift(instructions[i]);
-    }
-  }
-
-  // Switch to using this modified transaction
-  debug(
-    `[JupiterSwapProvider.insertInstructionsAtStartOfTransaction] Re-compiling transaction`
-  );
-  const modifiedTx = new VersionedTransaction(
-    decompiledTransactionMessage.compileToV0Message(addressLookupTableAccounts)
-  );
-
-  return modifiedTx;
-}
-
-/**
- * Get the SPL token program that owns (/created) the given mint (token). Either the SPL token program
- * or the 2022 SPL token program
- *
- * @returns   Pubkey of the SPL token token owner program
- * @throws    If the account does not exist or if it's not owned by one of the SPL token programs
- */
-async function getTokenProgramOfMint(
-  conn: Connection,
-  mint: PublicKey
-): Promise<PublicKey> {
-  debug(
-    `[JupiterSwapProvider.getTokenProgramOfMint] Checking mint account of ${mint.toBase58()}`
-  );
-  const srcMintAcc = await conn.getAccountInfo(mint);
-
-  if (srcMintAcc == null) {
-    throw new Error(
-      `There is no SPL token account at address ${mint.toBase58()}`
-    );
-  }
-
-  switch (srcMintAcc.owner.toBase58()) {
-    case TOKEN_PROGRAM_ID.toBase58():
-    case TOKEN_2022_PROGRAM_ID.toBase58():
-      return srcMintAcc.owner;
-    default:
-      throw new Error(
-        `Mint address is not a valid SPL token, must either have owner` +
-          ` TOKEN_PROGRAM_ID (${TOKEN_PROGRAM_ID.toBase58()})` +
-          ` or TOKEN_2022_PROGRAM_ID (${TOKEN_2022_PROGRAM_ID.toBase58()})`
-      );
-  }
-}
-
-/**
- * Get the SPL token ATA pubkey for a wallet with a mint
- */
-function getSPLAssociatedTokenAccountPubkey(
-  wallet: PublicKey,
-  mint: PublicKey,
-  /** Either the SPL token program or the 2022 SPL token program */
-  tokenProgramId: PublicKey
-): PublicKey {
-  const SEED = [wallet.toBuffer(), tokenProgramId.toBuffer(), mint.toBuffer()];
-  const [associatedTokenAddress] = PublicKey.findProgramAddressSync(
-    SEED,
-    ASSOCIATED_TOKEN_PROGRAM_ID
-  );
-  return associatedTokenAddress;
 }

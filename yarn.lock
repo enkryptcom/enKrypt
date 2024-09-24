@@ -3286,6 +3286,7 @@ __metadata:
   dependencies:
     "@enkryptcom/types": "workspace:^"
     "@enkryptcom/utils": "workspace:^"
+    "@solana/spl-token": ^0.4.8
     "@solana/web3.js": ^1.95.3
     "@types/chai": ^4.3.19
     "@types/mocha": ^10.0.7

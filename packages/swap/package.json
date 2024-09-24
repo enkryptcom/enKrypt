@@ -18,6 +18,7 @@
   "dependencies": {
     "@enkryptcom/types": "workspace:^",
     "@enkryptcom/utils": "workspace:^",
+    "@solana/spl-token": "^0.4.8",
     "@solana/web3.js": "^1.95.3",
     "bignumber.js": "^9.1.2",
     "eventemitter3": "^5.0.1",
