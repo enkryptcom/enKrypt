@@ -1,6 +1,6 @@
 {
   "name": "@enkryptcom/types",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "typescript types for enkrypt packages",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
