@@ -73,9 +73,7 @@ class Swap extends EventEmitter {
     this.network = options.network;
     this.evmOptions = options.evmOptions
       ? options.evmOptions
-      : {
-          infiniteApproval: true,
-        };
+      : { infiniteApproval: true };
     this.api = options.api;
     this.walletId = options.walletIdentifier;
     this.topTokenInfo = {
