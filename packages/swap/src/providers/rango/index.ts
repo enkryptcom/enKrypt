@@ -312,7 +312,7 @@ class Rango extends ProviderClass {
       );
       return undefined;
     }
-    const lc = token.address?.toLowerCase();
+    const lc = token.address.toLowerCase();
     return Object.values(tokens || []).find(
       (t) => t.address?.toLowerCase() === lc
     )?.symbol;
