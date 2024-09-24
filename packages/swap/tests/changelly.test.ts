@@ -1,4 +1,6 @@
+import { Connection } from "@solana/web3.js";
 import { expect } from "chai";
+import Web3Eth from "web3-eth";
 import { NATIVE_TOKEN_ADDRESS } from "../src/configs";
 import Changelly from "../src/providers/changelly";
 import {
@@ -13,11 +15,15 @@ import {
   amount,
   fromAddress,
   toAddress,
+  nodeURL as ethNodeURL,
 } from "./fixtures/mainnet/configs";
+import { nodeURL as solNodeURL } from "./fixtures/solana/configs";
 
 describe("Changelly Provider", () => {
   // @ts-ignore
-  const changelly = new Changelly(SupportedNetworkName.Ethereum);
+  const web3eth = new Web3Eth(ethNodeURL);
+  const solConn = new Connection(solNodeURL);
+  const changelly = new Changelly(web3eth, SupportedNetworkName.Ethereum);
   const init = changelly.init();
   it("it should return a quote ", async () => {
     await init;
@@ -67,7 +73,7 @@ describe("Changelly Provider", () => {
   });
 
   it("it should initialize other networks: Bitcoin", async () => {
-    const changelly2 = new Changelly(SupportedNetworkName.Bitcoin);
+    const changelly2 = new Changelly(web3eth, SupportedNetworkName.Bitcoin);
     await changelly2.init();
     const fromTokens = changelly2.getFromTokens();
     expect(Object.values(fromTokens).length).to.be.eq(1);
@@ -75,10 +81,18 @@ describe("Changelly Provider", () => {
   });
 
   it("it should initialize other networks: Polkadot", async () => {
-    const changelly2 = new Changelly(SupportedNetworkName.Polkadot);
+    const changelly2 = new Changelly(web3eth, SupportedNetworkName.Polkadot);
     await changelly2.init();
     const fromTokens = changelly2.getFromTokens();
     expect(Object.values(fromTokens).length).to.be.eq(1);
     expect(fromTokens[NATIVE_TOKEN_ADDRESS].name).to.be.eq("Polkadot");
+  });
+  // TODO: switch this test to assert that Solana DOES initialise
+  // once we enable Changelly on Solana
+  it("it NOT should initialize other networks: Solana", async () => {
+    const changelly2 = new Changelly(solConn, SupportedNetworkName.Solana);
+    await changelly2.init();
+    const fromTokens = changelly2.getFromTokens();
+    expect(Object.values(fromTokens).length).to.be.eq(0);
   });
 });
