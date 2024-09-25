@@ -41,6 +41,7 @@ export interface BaseRequest {
 }
 export interface SignMessageRequest extends BaseRequest {
   message: Buffer;
+  type?: string;
 }
 
 export interface BTCSignTransaction {

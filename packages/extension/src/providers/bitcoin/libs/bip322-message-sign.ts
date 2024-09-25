@@ -159,3 +159,70 @@ export async function signMessageOfBIP322Simple({
 
   return signature;
 }
+
+export function getPSBTMessageOfBIP322Simple({
+  message,
+  address,
+  network,
+}: {
+  message: string;
+  address: string;
+  network: BitcoinNetwork;
+}) {
+  const outputScript = BTCAddress.toOutputScript(
+    network.displayAddress(address),
+    network.networkInfo
+  );
+  const addressType = network.networkInfo.paymentType;
+  const supportedTypes = [PaymentType.P2WPKH];
+  if (supportedTypes.includes(addressType) == false) {
+    throw new Error("Not support address type to sign");
+  }
+
+  const prevoutHash = Buffer.from(
+    "0000000000000000000000000000000000000000000000000000000000000000",
+    "hex"
+  );
+  const prevoutIndex = 0xffffffff;
+  const sequence = 0;
+  const scriptSig = Buffer.concat([
+    Buffer.from("0020", "hex"),
+    Buffer.from(bip0322_hash(message), "hex"),
+  ]);
+
+  const txToSpend = new Transaction();
+  txToSpend.version = 0;
+  txToSpend.addInput(prevoutHash, prevoutIndex, sequence, scriptSig);
+  txToSpend.addOutput(outputScript, 0);
+
+  const psbtToSign = new Psbt();
+  psbtToSign.setVersion(0);
+  psbtToSign.addInput({
+    hash: txToSpend.getHash(),
+    index: 0,
+    sequence: 0,
+    witnessUtxo: {
+      script: outputScript,
+      value: 0,
+    },
+  });
+  psbtToSign.addOutput({ script: Buffer.from("6a", "hex"), value: 0 });
+
+  return psbtToSign;
+  // await psbtToSign.signAllInputsAsync(Signer);
+  // psbtToSign.finalizeAllInputs();
+  // const txToSign = psbtToSign.extractTransaction();
+
+  // const encodeVarString = (b: Buffer) => {
+  //   return Buffer.concat([encode(b.byteLength), b]);
+  // };
+
+  // const len = encode(txToSign.ins[0].witness.length);
+  // const result = Buffer.concat([
+  //   len,
+  //   ...txToSign.ins[0].witness.map((w) => encodeVarString(w)),
+  // ]);
+  // const signature = result.toString("base64");
+
+  // return signature;
+}

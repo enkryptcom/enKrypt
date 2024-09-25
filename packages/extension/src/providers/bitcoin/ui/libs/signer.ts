@@ -5,7 +5,10 @@ import { hexToBuffer, bufferToHex } from "@enkryptcom/utils";
 import { Psbt, Transaction } from "bitcoinjs-lib";
 import { BitcoinNetwork, PaymentType } from "../../types/bitcoin-network";
 import { EnkryptAccount, HWwalletType } from "@enkryptcom/types";
-import { signMessageOfBIP322Simple } from "../../libs/bip322-message-sign";
+import {
+  getPSBTMessageOfBIP322Simple,
+  signMessageOfBIP322Simple,
+} from "../../libs/bip322-message-sign";
 import { magicHash, toCompact } from "../../libs/sign-message-utils";
 import HWwallet from "@enkryptcom/hw-wallets";
 import type BitcoinAPI from "@/providers/bitcoin/libs/api";
@@ -84,7 +87,7 @@ const TransactionSigner = async (
         },
         wallet: account.walletType as unknown as HWwalletType,
       })
-      .then((strTx) => {
+      .then((strTx: string) => {
         return Transaction.fromHex(strTx);
       });
   } else {
@@ -100,8 +103,32 @@ const MessageSigner = (
   options: SignerMessageOptions
 ): Promise<InternalOnMessageResponse> => {
   const { account, payload, network } = options;
+  console.log(options);
   if (account.isHardware) {
-    throw new Error("btc-hardware not implemented");
+    const psbtToSign = getPSBTMessageOfBIP322Simple({
+      address: account.address,
+      message: payload.toString(),
+      network: network,
+    });
+    const hwwallets = new HWwallet();
+    return hwwallets
+      .signTransaction({
+        transaction: {
+          rawTxs: [],
+          psbtTx: psbtToSign,
+        },
+        networkName: network.name,
+        pathIndex: account.pathIndex.toString(),
+        pathType: {
+          basePath: account.basePath,
+          path: account.HWOptions!.pathTemplate,
+        },
+        wallet: account.walletType as unknown as HWwalletType,
+      })
+      .then((strTx: string) => {
+        console.log(Transaction.fromHex(strTx));
+        throw new Error("not supported");
+      });
   } else {
     if (options.type === "bip322-simple") {
       const signer = PSBTSigner(account, network);

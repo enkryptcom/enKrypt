@@ -93,14 +93,7 @@ class LedgerEthereum implements HWWalletProvider {
         options.pathType.path.replace(`{index}`, options.pathIndex),
         options.message.toString("hex")
       )
-      .then((result) => {
-        const v = result.v - 27;
-        let vs = v.toString(16);
-        if (vs.length < 2) {
-          vs = `0${v}`;
-        }
-        return `0x${result.r}${result.s}${vs}`;
-      });
+      .then((result) => `0x${result.r}${result.s}${result.v.toString(16)}`);
   }
 
   async signTransaction(options: SignTransactionRequest): Promise<string> {
