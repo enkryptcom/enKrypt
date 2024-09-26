@@ -7,7 +7,7 @@ import { BitcoinNetwork, PaymentType } from "../types/bitcoin-network";
 import { address as BTCAddress, Transaction, Psbt } from "bitcoinjs-lib";
 import { sha256 } from "ethereum-cryptography/sha256";
 import { PSBTSigner } from "../ui/libs/signer";
-import { bufferToHex } from "@enkryptcom/utils";
+import { bufferToHex, hexToBuffer } from "@enkryptcom/utils";
 
 const bip0322_hash = (message: string) => {
   const tag = "BIP0322-signed-message";
@@ -92,6 +92,10 @@ export const decode = (buffer: Buffer, offset: number) => {
   }
 };
 
+const encodeVarString = (b: Buffer) => {
+  return Buffer.concat([encode(b.byteLength), b]);
+};
+
 export async function signMessageOfBIP322Simple({
   message,
   address,
@@ -128,7 +132,6 @@ export async function signMessageOfBIP322Simple({
   txToSpend.version = 0;
   txToSpend.addInput(prevoutHash, prevoutIndex, sequence, scriptSig);
   txToSpend.addOutput(outputScript, 0);
-
   const psbtToSign = new Psbt();
   psbtToSign.setVersion(0);
   psbtToSign.addInput({
@@ -146,10 +149,6 @@ export async function signMessageOfBIP322Simple({
   psbtToSign.finalizeAllInputs();
   const txToSign = psbtToSign.extractTransaction();
 
-  const encodeVarString = (b: Buffer) => {
-    return Buffer.concat([encode(b.byteLength), b]);
-  };
-
   const len = encode(txToSign.ins[0].witness.length);
   const result = Buffer.concat([
     len,
@@ -160,6 +159,17 @@ export async function signMessageOfBIP322Simple({
   return signature;
 }
 
+export function getSignatureFromSignedTransaction(strTx: string): string {
+  const txToSign = Transaction.fromHex(strTx);
+  const len = encode(txToSign.ins[0].witness.length);
+  const result = Buffer.concat([
+    len,
+    ...txToSign.ins[0].witness.map((w) => encodeVarString(w)),
+  ]);
+  const signature = result.toString("base64");
+
+  return signature;
+}
 export function getPSBTMessageOfBIP322Simple({
   message,
   address,
@@ -205,10 +215,20 @@ export function getPSBTMessageOfBIP322Simple({
       script: outputScript,
       value: 0,
     },
+    bip32Derivation: [
+      {
+        masterFingerprint: Buffer.from("4ab28551", "hex"),
+        pubkey: hexToBuffer(address),
+        path: "m/84'/0'/0'/0/0",
+      },
+    ],
   });
   psbtToSign.addOutput({ script: Buffer.from("6a", "hex"), value: 0 });
 
-  return psbtToSign;
+  return {
+    psbtToSign,
+    txdata: txToSpend.toHex(),
+  };
   // await psbtToSign.signAllInputsAsync(Signer);
   // psbtToSign.finalizeAllInputs();
   // const txToSign = psbtToSign.extractTransaction();

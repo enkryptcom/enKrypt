@@ -39,10 +39,18 @@ export interface BaseRequest {
   wallet: HWwalletType;
   networkName: NetworkNames;
 }
-export interface SignMessageRequest extends BaseRequest {
+
+export interface GenericSignMessage extends BaseRequest {
   message: Buffer;
-  type?: string;
 }
+
+export interface BitcoinSignMessage extends BaseRequest {
+  message: Buffer;
+  type: "bip322-simple" | "classic";
+  psbtTx?: Psbt;
+}
+
+export type SignMessageRequest = GenericSignMessage | BitcoinSignMessage;
 
 export interface BTCSignTransaction {
   rawTxs: string[];

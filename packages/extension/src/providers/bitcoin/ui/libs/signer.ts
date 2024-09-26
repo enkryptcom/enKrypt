@@ -7,6 +7,7 @@ import { BitcoinNetwork, PaymentType } from "../../types/bitcoin-network";
 import { EnkryptAccount, HWwalletType } from "@enkryptcom/types";
 import {
   getPSBTMessageOfBIP322Simple,
+  getSignatureFromSignedTransaction,
   signMessageOfBIP322Simple,
 } from "../../libs/bip322-message-sign";
 import { magicHash, toCompact } from "../../libs/sign-message-utils";
@@ -112,11 +113,10 @@ const MessageSigner = (
     });
     const hwwallets = new HWwallet();
     return hwwallets
-      .signTransaction({
-        transaction: {
-          rawTxs: [],
-          psbtTx: psbtToSign,
-        },
+      .signPersonalMessage({
+        message: payload,
+        type: options.type as any,
+        psbtTx: psbtToSign.psbtToSign,
         networkName: network.name,
         pathIndex: account.pathIndex.toString(),
         pathType: {
@@ -126,8 +126,17 @@ const MessageSigner = (
         wallet: account.walletType as unknown as HWwalletType,
       })
       .then((strTx: string) => {
-        console.log(Transaction.fromHex(strTx));
-        throw new Error("not supported");
+        const sig = getSignatureFromSignedTransaction(strTx);
+        console.log(sig);
+        return {
+          result: JSON.stringify(sig),
+        };
+      })
+      .catch((e: any) => {
+        console.log(e);
+        return {
+          error: e.message,
+        };
       });
   } else {
     if (options.type === "bip322-simple") {

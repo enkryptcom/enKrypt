@@ -82,7 +82,6 @@ const Options = ref<ProviderRequestOptions>({
 
 const message = ref<string>("");
 const type = ref<string>("");
-console.log("hellooooooo");
 onBeforeMount(async () => {
   const { Request, options } = await windowPromise;
   network.value = (await getNetworkByName(
@@ -93,7 +92,6 @@ onBeforeMount(async () => {
   Options.value = options;
   message.value = Request.value.params![0];
   type.value = Request.value.params![1];
-  console.log(Request.value);
 });
 
 const approve = async () => {
@@ -104,9 +102,9 @@ const approve = async () => {
     network: network.value as BitcoinNetwork,
     payload: Buffer.from(msg, "utf8"),
     type: type.value,
-  });
-  // .then(Resolve.value)
-  // .catch(Resolve.value);
+  })
+    .then(Resolve.value)
+    .catch(Resolve.value);
 };
 const deny = async () => {
   const { Resolve } = await windowPromise;
