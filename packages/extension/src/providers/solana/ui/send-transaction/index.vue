@@ -504,8 +504,9 @@ const updateTransactionFees = async () => {
     SolTx.value = transaction;
     setTransactionFees(transaction).then(() => {
       if (isMaxSelected.value) {
-        amount.value =
-          parseFloat(assetMaxValue.value) < 0 ? "0" : assetMaxValue.value;
+        inputAmount(
+          parseFloat(assetMaxValue.value) < 0 ? "0" : assetMaxValue.value
+        );
       }
     });
   });

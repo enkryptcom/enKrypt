@@ -45,7 +45,10 @@
             <h4>{{ Options.domain }}</h4>
           </div>
         </div>
-
+        <swap-looking-animation
+          v-if="!decodedTx || !decodedTx.length"
+          style="height: 100px; margin-left: 100px"
+        />
         <div v-if="decodedTx?.length">
           <div
             v-for="(item, index) in decodedTx"
@@ -76,7 +79,8 @@
           <alert-icon />
           <p>
             Warning: This transaction failed during simulation, which means this
-            transaction will most likely fail!
+            transaction will most likely fail! We recommend to cancel and try
+            again!
           </p>
         </div>
       </div>
@@ -121,6 +125,7 @@ import HardwareWalletMsg from "@/providers/common/ui/verify-transaction/hardware
 import { getError } from "@/libs/error";
 import { ErrorCodes } from "@/providers/ethereum/types";
 import { WindowPromiseHandler } from "@/libs/window-promise";
+import SwapLookingAnimation from "@action/icons/swap/swap-looking-animation.vue";
 import {
   DEFAULT_SOLANA_NETWORK,
   getNetworkByName,
