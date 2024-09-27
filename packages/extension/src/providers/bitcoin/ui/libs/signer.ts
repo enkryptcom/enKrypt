@@ -104,7 +104,6 @@ const MessageSigner = (
   options: SignerMessageOptions
 ): Promise<InternalOnMessageResponse> => {
   const { account, payload, network } = options;
-  console.log(options);
   if (account.isHardware) {
     const psbtToSign = getPSBTMessageOfBIP322Simple({
       address: account.address,
@@ -117,6 +116,7 @@ const MessageSigner = (
         message: payload,
         type: options.type as any,
         psbtTx: psbtToSign.psbtToSign,
+        inputTx: psbtToSign.txdata,
         networkName: network.name,
         pathIndex: account.pathIndex.toString(),
         pathType: {
@@ -127,13 +127,11 @@ const MessageSigner = (
       })
       .then((strTx: string) => {
         const sig = getSignatureFromSignedTransaction(strTx);
-        console.log(sig);
         return {
           result: JSON.stringify(sig),
         };
       })
       .catch((e: any) => {
-        console.log(e);
         return {
           error: e.message,
         };

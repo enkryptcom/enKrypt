@@ -110,9 +110,11 @@ class LedgerBitcoin implements HWWalletProvider {
       }
       const client = new AppClient(this.transport as any);
       const fpr = await client.getMasterFingerprint();
-      const pathElems: number[] = pathStringToArray(
-        options.pathType.path.replace(`{index}`, options.pathIndex)
+      const accountPath = options.pathType.path.replace(
+        `{index}`,
+        options.pathIndex
       );
+      const pathElems: number[] = pathStringToArray(accountPath);
       const rootPath = pathElems.slice(0, -2);
       const accountRootPubkey = await client.getExtendedPubkey(
         pathArrayToString(rootPath),
@@ -120,28 +122,18 @@ class LedgerBitcoin implements HWWalletProvider {
       );
       options.psbtTx.data.inputs[0].bip32Derivation[0].masterFingerprint =
         Buffer.from(fpr, "hex");
-      options.psbtTx.data.inputs[0].bip32Derivation[0].path =
-        options.pathType.path.replace(`{index}`, options.pathIndex);
-
+      options.psbtTx.data.inputs[0].bip32Derivation[0].path = accountPath;
       options.psbtTx.updateGlobal({
         globalXpub: [
           {
-            extendedPubkey: Buffer.from(bs58.decode(accountRootPubkey)).slice(
-              0,
-              -4
-            ),
+            extendedPubkey: Buffer.from(
+              bs58.decode(accountRootPubkey)
+            ).subarray(0, -4),
             masterFingerprint: Buffer.from(fpr, "hex"),
-            path: options.pathType.path.replace(`{index}`, options.pathIndex),
+            path: accountPath,
           },
         ],
       });
-      console.log(options.psbtTx);
-      console.log(
-        fpr,
-        pathArrayToString(rootPath),
-        pathArrayToString(rootPath).replace("/m", "")
-      );
-      // eslint-disable-next-line @typescript-eslint/no-empty-function
       const accountPolicy = new DefaultWalletPolicy(
         "wpkh(@0/**)",
         `[${fpr}/${pathArrayToString(rootPath).replace(
@@ -149,7 +141,6 @@ class LedgerBitcoin implements HWWalletProvider {
           ""
         )}]${accountRootPubkey}`
       );
-      console.log(accountPolicy);
       const sigs = await client.signPsbt(
         options.psbtTx.toBase64(),
         accountPolicy,
