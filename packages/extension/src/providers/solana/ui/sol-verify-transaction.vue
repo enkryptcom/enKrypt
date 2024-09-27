@@ -46,7 +46,7 @@
           </div>
         </div>
         <swap-looking-animation
-          v-if="!decodedTx || !decodedTx.length"
+          v-if="(!decodedTx || !decodedTx.length) && !errorMsg"
           style="height: 100px; margin-left: 100px"
         />
         <div v-if="decodedTx?.length">
@@ -193,7 +193,9 @@ onBeforeMount(async () => {
   accountPubkey.value = new PublicKey(
     bs58.encode(hexToBuffer(account.value.address))
   );
-  identicon.value = network.value.identicon(account.value.address);
+  identicon.value = network.value.identicon(
+    network.value.displayAddress(account.value.address)
+  );
   Options.value = options;
   if (network.value.api) {
     const api = await network.value.api();

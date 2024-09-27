@@ -119,7 +119,9 @@ onBeforeMount(async () => {
         .getAccount(pubKey)
         .then((acc) => {
           account.value = acc;
-          identicon.value = network.value.identicon(account.value.address);
+          identicon.value = network.value.identicon(
+            network.value.displayAddress(account.value.address)
+          );
         })
         .catch((e) => {
           console.log(e);
@@ -130,7 +132,9 @@ onBeforeMount(async () => {
     } else {
       keyring.getAccounts([SignerType.ed25519sol]).then((accs) => {
         account.value = accs[0];
-        identicon.value = network.value.identicon(account.value.address);
+        identicon.value = network.value.identicon(
+          network.value.displayAddress(account.value.address)
+        );
         message.value = createSignInMessageText({
           ...signInMessage.value,
           address: network.value.displayAddress(account.value.address),
@@ -147,7 +151,9 @@ onBeforeMount(async () => {
       .getAccount(bufferToHex(bs58.decode(signMessage.value!.address)))
       .then((acc) => {
         account.value = acc;
-        identicon.value = network.value.identicon(account.value.address);
+        identicon.value = network.value.identicon(
+          network.value.displayAddress(account.value.address)
+        );
       })
       .catch((e) => {
         console.log(e);

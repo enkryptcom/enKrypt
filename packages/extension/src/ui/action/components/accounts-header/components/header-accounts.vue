@@ -72,6 +72,7 @@ import DomainState from "@/libs/domain-state";
 import BtcAccountState from "@/providers/bitcoin/libs/accounts-state";
 import EvmAccountState from "@/providers/ethereum/libs/accounts-state";
 import KadenaAccountState from "@/providers/kadena/libs/accounts-state";
+import SolanaAccountState from "@/providers/solana/libs/accounts-state";
 import SubstrateAccountState from "@/providers/polkadot/libs/accounts-state";
 import { BaseNetwork, SubNetworkOptions } from "@/types/base-network";
 import Notification from "@action/components/notification/index.vue";
@@ -97,6 +98,7 @@ const kadenaAccountState = new KadenaAccountState();
 const allAccountStates = [
   new EvmAccountState(),
   new BtcAccountState(),
+  new SolanaAccountState(),
   new SubstrateAccountState(),
   kadenaAccountState,
 ];

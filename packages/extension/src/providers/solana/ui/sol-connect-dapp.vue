@@ -116,7 +116,7 @@ onBeforeMount(async () => {
   Options.value = options;
   const accounts = await keyring.getAccounts(network.value.signer);
   displayAddress.value = network.value.displayAddress(accounts[0].address);
-  identicon.value = network.value.identicon(accounts[0].address);
+  identicon.value = network.value.identicon(displayAddress.value);
   accountHeaderData.value = {
     activeAccounts: accounts,
     selectedAccount: accounts[0],
@@ -166,7 +166,7 @@ const toggleAccounts = () => {
 const onSelectedAddressChanged = async (newAccount: EnkryptAccount) => {
   accountHeaderData.value.selectedAccount = newAccount;
   displayAddress.value = network.value.displayAddress(newAccount.address);
-  identicon.value = network.value.identicon(newAccount.address);
+  identicon.value = network.value.identicon(displayAddress.value);
 };
 </script>
 
