@@ -1,5 +1,7 @@
 import type Transport from "@ledgerhq/hw-transport";
 import webUsbTransport from "@ledgerhq/hw-transport-webusb";
+import bs58 from "bs58";
+import { AppClient, DefaultWalletPolicy } from "ledger-bitcoin";
 import { HWwalletCapabilities, NetworkNames } from "@enkryptcom/types";
 import BtcApp from "@ledgerhq/hw-app-btc";
 import HDKey from "hdkey";
@@ -7,12 +9,17 @@ import type { CreateTransactionArg } from "@ledgerhq/hw-app-btc/lib/createTransa
 import { serializeTransactionOutputs } from "@ledgerhq/hw-app-btc/lib/serializeTransaction";
 import { bufferToHex } from "@enkryptcom/utils";
 import {
+  pathStringToArray,
+  pathArrayToString,
+  // pubkeyFromXpub,
+} from "@ledgerhq/hw-app-btc/lib/bip32";
+import {
   AddressResponse,
+  BitcoinSignMessage,
   BTCSignTransaction,
   getAddressRequest,
   HWWalletProvider,
   PathType,
-  SignMessageRequest,
   SignTransactionRequest,
 } from "../../types";
 import { supportedPaths } from "./configs";
@@ -94,7 +101,57 @@ class LedgerBitcoin implements HWWalletProvider {
       });
   }
 
-  signPersonalMessage(options: SignMessageRequest): Promise<string> {
+  async signPersonalMessage(options: BitcoinSignMessage): Promise<string> {
+    if (options.type === "bip322-simple") {
+      if (!options.psbtTx) {
+        return Promise.reject(
+          new Error("ledger-bitcoin: psbt not set for message signing")
+        );
+      }
+      const client = new AppClient(this.transport as any);
+      const fpr = await client.getMasterFingerprint();
+      const accountPath = options.pathType.path.replace(
+        `{index}`,
+        options.pathIndex
+      );
+      const pathElems: number[] = pathStringToArray(accountPath);
+      const rootPath = pathElems.slice(0, -2);
+      const accountRootPubkey = await client.getExtendedPubkey(
+        pathArrayToString(rootPath),
+        false
+      );
+      options.psbtTx.data.inputs[0].bip32Derivation[0].masterFingerprint =
+        Buffer.from(fpr, "hex");
+      options.psbtTx.data.inputs[0].bip32Derivation[0].path = accountPath;
+      options.psbtTx.updateGlobal({
+        globalXpub: [
+          {
+            extendedPubkey: Buffer.from(
+              bs58.decode(accountRootPubkey)
+            ).subarray(0, -4),
+            masterFingerprint: Buffer.from(fpr, "hex"),
+            path: accountPath,
+          },
+        ],
+      });
+      const accountPolicy = new DefaultWalletPolicy(
+        "wpkh(@0/**)",
+        `[${fpr}/${pathArrayToString(rootPath).replace(
+          "m/",
+          ""
+        )}]${accountRootPubkey}`
+      );
+      const sigs = await client.signPsbt(
+        options.psbtTx.toBase64(),
+        accountPolicy,
+        null
+      );
+      options.psbtTx.updateInput(0, {
+        partialSig: [sigs[0][1]],
+      });
+      options.psbtTx.finalizeAllInputs();
+      return options.psbtTx.extractTransaction().toHex();
+    }
     const connection = new BtcApp({ transport: this.transport });
     return connection
       .signMessage(

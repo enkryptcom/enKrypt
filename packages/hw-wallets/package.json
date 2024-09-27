@@ -57,11 +57,13 @@
     "@ledgerhq/live-common": "^34.1.0",
     "@polkadot/types": "^12.4.2",
     "@polkadot/util": "^13.0.2",
-    "@trezor/connect": "^9.4.0",
-    "@trezor/connect-web": "^9.4.0",
+    "@trezor/connect": "^9.4.1",
+    "@trezor/connect-webextension": "^9.4.1",
     "@zondax/ledger-substrate": "^1.0.0",
     "bitcoinjs-lib": "^6.1.6",
+    "bs58": "^6.0.0",
     "hdkey": "^2.1.0",
+    "ledger-bitcoin": "^0.2.3",
     "webextension-polyfill": "^0.12.0"
   }
 }

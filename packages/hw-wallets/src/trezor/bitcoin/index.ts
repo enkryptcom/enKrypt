@@ -1,15 +1,15 @@
-import TrezorConnect from "@trezor/connect-web";
+import TrezorConnect from "@trezor/connect-webextension";
 import { getHDPath } from "@trezor/connect/lib/utils/pathUtils";
 import { HWwalletCapabilities, NetworkNames } from "@enkryptcom/types";
 import HDKey from "hdkey";
 import { bufferToHex } from "@enkryptcom/utils";
 import {
   AddressResponse,
+  BitcoinSignMessage,
   BTCSignTransaction,
   getAddressRequest,
   HWWalletProvider,
   PathType,
-  SignMessageRequest,
   SignTransactionRequest,
 } from "../../types";
 import { supportedPaths, TrezorNetworkConfigs } from "./configs";
@@ -25,9 +25,14 @@ class TrezorEthereum implements HWWalletProvider {
   }
 
   async init(): Promise<boolean> {
-    TrezorConnect.manifest({
-      email: "info@enkrypt.com",
-      appUrl: "https://www.enkrypt.com",
+    TrezorConnect.init({
+      manifest: {
+        email: "info@enkrypt.com",
+        appUrl: "https://www.enkrypt.com",
+      },
+      transports: ["BridgeTransport", "WebUsbTransport"],
+      connectSrc: "https://connect.trezor.io/9/",
+      _extendWebextensionLifetime: true,
     });
     return true;
   }
@@ -40,7 +45,7 @@ class TrezorEthereum implements HWWalletProvider {
       const rootPub = await TrezorConnect.getPublicKey({
         path: options.pathType.basePath,
         showOnTrezor: options.confirmAddress,
-      });
+      } as any);
       if (!rootPub.payload) {
         throw new Error("popup failed to open");
       }
@@ -73,12 +78,15 @@ class TrezorEthereum implements HWWalletProvider {
     return Promise.resolve(true);
   }
 
-  async signPersonalMessage(options: SignMessageRequest): Promise<string> {
+  async signPersonalMessage(options: BitcoinSignMessage): Promise<string> {
+    if (options.type === "bip322-simple") {
+      throw new Error("trezor-bitcoin: bip322 signing not supported");
+    }
     const result = await TrezorConnect.signMessage({
       path: options.pathType.path.replace(`{index}`, options.pathIndex),
       message: options.message.toString("hex"),
       hex: true,
-    });
+    } as any);
     if (!result.success)
       throw new Error((result.payload as any).error as string);
     return bufferToHex(Buffer.from(result.payload.signature, "base64"));
@@ -100,11 +108,14 @@ class TrezorEthereum implements HWWalletProvider {
           ? "SPENDWITNESS"
           : "SPENDADDRESS",
       })),
-      outputs: transactionOptions.psbtTx.txOutputs.map((out) => ({
-        amount: out.value,
-        address: out.address,
-        script_type: "PAYTOADDRESS",
-      })),
+      outputs: transactionOptions.psbtTx.txOutputs.map(
+        (out) =>
+          ({
+            amount: out.value,
+            address: out.address,
+            script_type: "PAYTOADDRESS",
+          } as any)
+      ),
     }).then((res) => {
       if (!res.success) throw new Error((res.payload as any).error as string);
       return res.payload.serializedTx;

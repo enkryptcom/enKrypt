@@ -1847,6 +1847,43 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@bitcoinerlab/descriptors@npm:^1.0.2":
+  version: 1.1.1
+  resolution: "@bitcoinerlab/descriptors@npm:1.1.1"
+  dependencies:
+    "@bitcoinerlab/miniscript": ^1.2.1
+    "@bitcoinerlab/secp256k1": ^1.0.5
+    bip32: ^4.0.0
+    bitcoinjs-lib: ^6.1.3
+    ecpair: ^2.1.0
+  peerDependencies:
+    ledger-bitcoin: ^0.2.2
+  peerDependenciesMeta:
+    ledger-bitcoin:
+      optional: true
+  checksum: 32c89e90fd0521db615ead50ea9a32cbbe0d698ad99b4d68e4ac8bd8165032993a739b2cfc327638406f4b30f0003e3bbef2c1cd7a9f5586f4312d2265084290
+  languageName: node
+  linkType: hard
+
+"@bitcoinerlab/miniscript@npm:^1.2.1":
+  version: 1.4.0
+  resolution: "@bitcoinerlab/miniscript@npm:1.4.0"
+  dependencies:
+    bip68: ^1.0.4
+  checksum: af708962cbfa3d0f40c5d502d6c1e9c4f4c2f35887d6f6b125147f79cb1415362fd8b39848bd97d0c4b482cbe1c1eed371ded592a33ec3135fc3b50245084587
+  languageName: node
+  linkType: hard
+
+"@bitcoinerlab/secp256k1@npm:^1.0.5":
+  version: 1.1.1
+  resolution: "@bitcoinerlab/secp256k1@npm:1.1.1"
+  dependencies:
+    "@noble/hashes": ^1.1.5
+    "@noble/secp256k1": ^1.7.1
+  checksum: 01f23cb05553ceb3783513b9c79b3303289bf55cd694150967b15ce60a35821cad68794ae958088cbe6b8a2b02c9294ebff78fd6b53d6fd78662eeda7bc742f1
+  languageName: node
+  linkType: hard
+
 "@cardano-foundation/ledgerjs-hw-app-cardano@npm:^6.0.1":
   version: 6.0.1
   resolution: "@cardano-foundation/ledgerjs-hw-app-cardano@npm:6.0.1"
@@ -2981,8 +3018,8 @@ __metadata:
     "@ledgerhq/live-common": ^34.1.0
     "@polkadot/types": ^12.4.2
     "@polkadot/util": ^13.0.2
-    "@trezor/connect": ^9.4.0
-    "@trezor/connect-web": ^9.4.0
+    "@trezor/connect": 9.4.0
+    "@trezor/connect-web": 9.4.0
     "@types/chai": ^4.3.19
     "@types/mocha": ^10.0.7
     "@types/node": ^20.16.5
@@ -2990,6 +3027,7 @@ __metadata:
     "@typescript-eslint/parser": ^5.62.0
     "@zondax/ledger-substrate": ^1.0.0
     bitcoinjs-lib: ^6.1.6
+    bs58: ^6.0.0
     chai: ^4.5.0
     eslint: ^8.57.0
     eslint-config-airbnb-base: ^15.0.0
@@ -2998,6 +3036,7 @@ __metadata:
     eslint-plugin-import: ^2.30.0
     eslint-plugin-module-resolver: ^1.5.0
     hdkey: ^2.1.0
+    ledger-bitcoin: ^0.2.3
     mocha: ^10.7.3
     prettier: ^2.8.8
     ts-mocha: ^10.0.0
@@ -9257,7 +9296,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@trezor/connect-web@npm:^9.4.0":
+"@trezor/connect-web@npm:9.4.0":
   version: 9.4.0
   resolution: "@trezor/connect-web@npm:9.4.0"
   dependencies:
@@ -9270,7 +9309,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@trezor/connect@npm:9.4.0, @trezor/connect@npm:^9.4.0":
+"@trezor/connect@npm:9.4.0":
   version: 9.4.0
   resolution: "@trezor/connect@npm:9.4.0"
   dependencies:
@@ -12751,6 +12790,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"bip32@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "bip32@npm:4.0.0"
+  dependencies:
+    "@noble/hashes": ^1.2.0
+    "@scure/base": ^1.1.1
+    typeforce: ^1.11.5
+    wif: ^2.0.6
+  checksum: a36253ac164db50a25e88effce84aec1eaba2ec2fbd7a19bc1f836f9b1c934fa148c3a01ddece7f136596330074d98c6b2a441e51914c302d130f56f0f893d0d
+  languageName: node
+  linkType: hard
+
 "bip39@npm:3.0.2":
   version: 3.0.2
   resolution: "bip39@npm:3.0.2"
@@ -12788,6 +12839,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"bip68@npm:^1.0.4":
+  version: 1.0.4
+  resolution: "bip68@npm:1.0.4"
+  checksum: 0955c87f73cb7ae627558c476ce885af635bbbb43f9d12dc54f3b6adb4e2b47a451215ff50d5e25628fa889b10a88cd59dd1fd5a31d900eaeaf262456b87e5da
+  languageName: node
+  linkType: hard
+
 "bitcoin-ops@npm:^1.3.0, bitcoin-ops@npm:^1.4.0, bitcoin-ops@npm:^1.4.1":
   version: 1.4.1
   resolution: "bitcoin-ops@npm:1.4.1"
@@ -12818,7 +12876,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"bitcoinjs-lib@npm:^6.1.6":
+"bitcoinjs-lib@npm:^6.1.3, bitcoinjs-lib@npm:^6.1.6":
   version: 6.1.6
   resolution: "bitcoinjs-lib@npm:6.1.6"
   dependencies:
@@ -15882,6 +15940,17 @@ __metadata:
     tslib: 2.3.0
     zrender: 5.6.0
   checksum: 1b8e00a9492157d6faa58483add07bac7560e273e8716bd62d6e75777809dbe43106cd5bceb7e0deebf36ae100356395e2be07ce3a21442496241e25a219482f
+  languageName: node
+  linkType: hard
+
+"ecpair@npm:^2.1.0":
+  version: 2.1.0
+  resolution: "ecpair@npm:2.1.0"
+  dependencies:
+    randombytes: ^2.1.0
+    typeforce: ^1.18.0
+    wif: ^2.0.6
+  checksum: 924a776808f91d2fdd33a7033f84e3bbfe668ae98c0b9764c7b923e018accd8de57012bf20e419e0a5ef73ec3ec3738a654e71abe12f537b2fd7bcf02b93659f
   languageName: node
   linkType: hard
 
@@ -20816,6 +20885,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"ledger-bitcoin@npm:^0.2.3":
+  version: 0.2.3
+  resolution: "ledger-bitcoin@npm:0.2.3"
+  dependencies:
+    "@bitcoinerlab/descriptors": ^1.0.2
+    "@bitcoinerlab/secp256k1": ^1.0.5
+    "@ledgerhq/hw-transport": ^6.20.0
+    bip32-path: ^0.4.2
+    bitcoinjs-lib: ^6.1.3
+  checksum: da54d4a88f29b1f2e1b61207456495eb7cb319cc525d6c9272b120915b7a7113205e0318d9c958610bebac3a2f2a3f9b3fe4a748dacfacc5edc9b6858ab0938f
+  languageName: node
+  linkType: hard
+
 "less-loader@npm:^12.2.0":
   version: 12.2.0
   resolution: "less-loader@npm:12.2.0"
@@ -22405,12 +22487,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"node-addon-api@npm:^7.0.0":
-  version: 7.0.0
-  resolution: "node-addon-api@npm:7.0.0"
+"node-addon-api@npm:^8.0.0":
+  version: 8.1.0
+  resolution: "node-addon-api@npm:8.1.0"
   dependencies:
     node-gyp: latest
-  checksum: 4349465d737e284b280fc0e5fd2384f9379bca6b7f2a5a1460bea676ba5b90bf563e7d02a9254c35b9ed808641c81d9b4ca9e1da17d2849cd07727660b00b332
+  checksum: a30398fa9bb029f164b57d77aac1dc57e62e46cf1a5c468e1a762e34b442ae9d3ee007a87de58e5866df19446f08d556a2dc261a39240d10f6512ed50acf8210
   languageName: node
   linkType: hard
 
@@ -28911,14 +28993,14 @@ __metadata:
   linkType: hard
 
 "usb@npm:^2.11.0":
-  version: 2.11.0
-  resolution: "usb@npm:2.11.0"
+  version: 2.14.0
+  resolution: "usb@npm:2.14.0"
   dependencies:
     "@types/w3c-web-usb": ^1.0.6
-    node-addon-api: ^7.0.0
+    node-addon-api: ^8.0.0
     node-gyp: latest
     node-gyp-build: ^4.5.0
-  checksum: c1c12140e8c93a76d15a0aecf84de19990694d57b568124f8eafe729e09b41293933a93856c3f37a9059c71f1fbd030b334f7392b868225243c1c5c99f0b2730
+  checksum: e04a61943536db2d7041a1c27db23212dac9b14660bf0d103902a087d4265f9160771776811ed7ef9ff527b0d4844016288258723cfd4af530205c8ba29ab837
   languageName: node
   linkType: hard
 
