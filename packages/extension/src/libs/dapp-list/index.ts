@@ -97,6 +97,8 @@ const lists: Partial<Record<NetworkNames, string>> = {
     "https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/rari.json",
   [NetworkNames.Solana]:
     "https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/sol.json",
+  [NetworkNames.Linea]:
+    "https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/linea.json",
 };
 
 export default lists;
