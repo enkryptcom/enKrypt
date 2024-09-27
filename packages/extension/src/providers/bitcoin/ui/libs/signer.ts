@@ -133,7 +133,10 @@ const MessageSigner = (
       })
       .catch((e: any) => {
         return {
-          error: e.message,
+          error: {
+            message: e.message,
+            code: -1,
+          },
         };
       });
   } else {
@@ -152,7 +155,10 @@ const MessageSigner = (
         })
         .catch((e) => {
           return {
-            error: e.message,
+            error: {
+              message: e.message,
+              code: -1,
+            },
           };
         });
     } else {
