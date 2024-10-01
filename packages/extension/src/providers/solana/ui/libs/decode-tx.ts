@@ -63,7 +63,6 @@ const decodeTransaction = async (
         contract: NATIVE_TOKEN_ADDRESS,
         amount: BigInt(result.value.accounts![0]!.lamports),
       };
-      console.log(result);
       const balanceChanges = result.value
         .accounts!.filter((a) => {
           const data = Buffer.from(a!.data[0], "base64");

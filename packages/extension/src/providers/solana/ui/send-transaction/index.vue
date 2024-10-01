@@ -520,7 +520,6 @@ const isOpenSelectNft = ref(false);
 watch(
   [isInputsValid, addressTo, selectedAsset, selectedNft, isSendToken],
   () => {
-    console.log(isInputsValid.value);
     if (isInputsValid.value) {
       updateTransactionFees();
     }
