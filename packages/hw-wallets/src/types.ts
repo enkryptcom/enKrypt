@@ -58,12 +58,17 @@ export interface BTCSignTransaction {
   psbtTx: Psbt;
 }
 
+export interface SolSignTransaction {
+  solTx: Buffer;
+}
+
 export interface SignTransactionRequest extends BaseRequest {
   transaction:
     | FeeMarketEIP1559Transaction
     | LegacyTransaction
     | ExtrinsicPayload
-    | BTCSignTransaction;
+    | BTCSignTransaction
+    | SolSignTransaction;
 }
 
 export interface getAddressRequest extends BaseRequest {

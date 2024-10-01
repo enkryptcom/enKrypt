@@ -45,3 +45,20 @@ export function createSignInMessageText(input: SolanaSignInInput): string {
 
   return message;
 }
+
+export function createOffChainMessage(message: string) {
+  const signingDomain = Buffer.from("\xffsolana offchain", "ascii");
+  const headerversion = Buffer.from([0]);
+  const msgFormat = Buffer.from([1]);
+  const messageLength = Buffer.alloc(2);
+  messageLength.writeUint16LE(message.length);
+  const msgBuffer = Buffer.from(message, "utf8");
+  const final = Buffer.concat([
+    signingDomain,
+    headerversion,
+    msgFormat,
+    messageLength,
+    msgBuffer,
+  ]);
+  return final;
+}

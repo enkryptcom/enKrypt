@@ -146,10 +146,10 @@ import { SolanaNetwork } from "../types/sol-network";
 import SolanaAPI from "@/providers/solana/libs/api";
 import { PublicKey, SendOptions, VersionedTransaction } from "@solana/web3.js";
 import { SolSignTransactionRequest } from "./types";
-import sendUsingInternalMessengers from "@/libs/messenger/internal-messenger";
-import { InternalMethods } from "@/types/messenger";
 import bs58 from "bs58";
 import DecodeTransaction, { DecodedTxResponseType } from "./libs/decode-tx";
+import { TransactionSigner } from "./libs/signer";
+import { NATIVE_TOKEN_ADDRESS } from "@/providers/ethereum/libs/common";
 
 const isProcessing = ref(false);
 const providerVerifyTransactionScrollRef = ref<ComponentPublicInstance>();
@@ -247,66 +247,77 @@ const approve = async () => {
   const feePayer = new PublicKey(
     network.value.displayAddress(account.value.address)
   );
-  sendUsingInternalMessengers({
-    method: InternalMethods.sign,
-    params: [bufferToHex(msgToSign), account.value!],
-  }).then((res) => {
-    if (res.error) return res;
-    Tx.value!.addSignature(feePayer, hexToBuffer(JSON.parse(res.result!)));
-    const toData =
-      decodedTx.value && decodedTx.value.length ? decodedTx.value[0] : null;
-    const txActivity: Activity = {
-      from: accountPubkey.value!.toBase58(),
-      to: toData ? toData.contract : accountPubkey.value!.toBase58(),
-      isIncoming: false,
-      network: network.value.name,
-      status: ActivityStatus.pending,
-      timestamp: new Date().getTime(),
-      token: {
-        decimals: toData ? toData.decimals : network.value.decimals,
-        icon: toData ? toData.icon : network.value.icon,
-        name: toData ? toData.name : network.value.currencyNameLong,
-        symbol: toData ? toData.symbol : network.value.currencyName,
-        price: toData ? toData.price : "0",
-      },
-      type: ActivityType.transaction,
-      value: toData ? toData.change.toString() : "0",
-      transactionHash: bs58.encode(Tx.value!.signatures[0]),
-    };
-    activityState
-      .addActivities(
-        [
-          {
-            ...txActivity,
-            ...{
-              isIncoming: txActivity.from === txActivity.to,
+  TransactionSigner({
+    account: account.value,
+    network: network.value,
+    transaction: Buffer.from(msgToSign),
+  })
+    .then((res) => {
+      Tx.value!.addSignature(feePayer, res);
+      const toData =
+        decodedTx.value && decodedTx.value.length ? decodedTx.value[0] : null;
+      const txActivity: Activity = {
+        from: accountPubkey.value!.toBase58(),
+        to: toData ? toData.contract : accountPubkey.value!.toBase58(),
+        isIncoming: false,
+        network: network.value.name,
+        status: ActivityStatus.pending,
+        timestamp: new Date().getTime(),
+        token: {
+          decimals: toData ? toData.decimals : network.value.decimals,
+          icon: toData ? toData.icon : network.value.icon,
+          name: toData ? toData.name : network.value.currencyNameLong,
+          symbol: toData ? toData.symbol : network.value.currencyName,
+          price: toData ? toData.price : "0",
+        },
+        type: ActivityType.transaction,
+        value: toData ? toData.change.toString() : "0",
+        transactionHash: bs58.encode(Tx.value!.signatures[0]),
+      };
+      txActivity.to =
+        txActivity.to === NATIVE_TOKEN_ADDRESS
+          ? "11111111111111111111111111111111"
+          : txActivity.to;
+      activityState
+        .addActivities(
+          [
+            {
+              ...txActivity,
+              ...{
+                isIncoming: txActivity.from === txActivity.to,
+              },
             },
-          },
-        ],
-        {
-          address: txActivity.from,
-          network: network.value.name,
-        }
-      )
-      .then(() => {
-        trackSendEvents(SendEventType.SendAPIComplete, {
-          network: network.value.name,
-        });
-        if (payloadMethod.value === "sol_signTransaction") {
-          Resolve.value({
-            result: JSON.stringify(bufferToHex(Tx.value!.serialize())),
+          ],
+          {
+            address: txActivity.from,
+            network: network.value.name,
+          }
+        )
+        .then(() => {
+          trackSendEvents(SendEventType.SendAPIComplete, {
+            network: network.value.name,
           });
-        } else {
-          solConnection.value?.web3
-            .sendRawTransaction(Tx.value!.serialize(), sendOptions.value)
-            .then((sig) => {
-              Resolve.value({
-                result: JSON.stringify(sig),
-              });
+          if (payloadMethod.value === "sol_signTransaction") {
+            Resolve.value({
+              result: JSON.stringify(bufferToHex(Tx.value!.serialize())),
             });
-        }
+          } else {
+            solConnection.value?.web3
+              .sendRawTransaction(Tx.value!.serialize(), sendOptions.value)
+              .then((sig) => {
+                Resolve.value({
+                  result: JSON.stringify(sig),
+                });
+              });
+          }
+        });
+    })
+    .catch((err) => {
+      trackSendEvents(SendEventType.SendAPIFailed, {
+        network: network.value.name,
       });
-  });
+      Resolve.value(err);
+    });
 };
 const deny = async () => {
   trackSendEvents(SendEventType.SendAPIDecline, {

@@ -52,6 +52,7 @@
     "@ethereumjs/util": "^9.1.0",
     "@ledgerhq/hw-app-btc": "^10.4.1",
     "@ledgerhq/hw-app-eth": "^6.38.0",
+    "@ledgerhq/hw-app-solana": "^7.2.4",
     "@ledgerhq/hw-transport": "^6.31.2",
     "@ledgerhq/hw-transport-webusb": "^6.29.2",
     "@ledgerhq/live-common": "^34.1.0",
