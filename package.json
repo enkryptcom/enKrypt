@@ -32,11 +32,11 @@
   "devDependencies": {
     "@commitlint/cli": "^19.4.1",
     "@commitlint/config-conventional": "^19.4.1",
-    "@swc/core": "^1.7.24",
+    "@swc/core": "^1.7.28",
     "concurrently": "^8.2.2",
-    "husky": "^9.1.5",
+    "husky": "^9.1.6",
     "node-notifier": "^10.0.1",
-    "nodemon": "^3.1.4",
+    "nodemon": "^3.1.7",
     "ultra-runner": "^3.10.5"
   },
   "resolutions": {
