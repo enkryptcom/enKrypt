@@ -204,7 +204,8 @@ export const executeSwap = async (
             account: options.from,
             network: options.network,
             transaction: Buffer.from(tx.message.serialize()),
-          }).catch((error) => {
+          }).catch((err) => {
+            const error = err.error ? err.error : err;
             throw new Error(
               `Failed to sign Solana versioned swap transaction: ${error.code} ${error.message}`
             );
@@ -236,7 +237,8 @@ export const executeSwap = async (
             account: options.from,
             network: options.network,
             transaction: Buffer.from(tx.serialize()),
-          }).catch((error) => {
+          }).catch((err) => {
+            const error = err.error ? err.error : err;
             throw new Error(
               `Failed to sign Solana versioned swap transaction: ${error.code} ${error.message}`
             );

@@ -200,59 +200,75 @@ const sendAction = async () => {
     account: account.value!,
     network: network.value,
     transaction: Buffer.from(msgToSign),
-  }).then((res) => {
-    transaction.addSignature(transactiontemp.feePayer!, res);
-    const onHash = (hash: string) => {
-      trackSendEvents(SendEventType.SendComplete, {
+  })
+    .then((res) => {
+      transaction.addSignature(transactiontemp.feePayer!, res);
+      const onHash = (hash: string) => {
+        trackSendEvents(SendEventType.SendComplete, {
+          network: network.value.name,
+        });
+        activityState.addActivities(
+          [
+            {
+              ...txActivity,
+              ...{
+                transactionHash: hash,
+              },
+            },
+          ],
+          {
+            address: network.value.displayAddress(txData.fromAddress),
+            network: network.value.name,
+          }
+        );
+        isSendDone.value = true;
+        if (getCurrentContext() === "popup") {
+          setTimeout(() => {
+            isProcessing.value = false;
+            router.go(-2);
+          }, 4500);
+        } else {
+          setTimeout(() => {
+            isProcessing.value = false;
+            window.close();
+          }, 1500);
+        }
+      };
+      solAPI.web3
+        .sendRawTransaction(transaction.serialize())
+        .then((hash) => {
+          onHash(hash);
+        })
+        .catch((e) => {
+          txActivity.status = ActivityStatus.failed;
+          activityState.addActivities([txActivity], {
+            address: network.value.displayAddress(txData.fromAddress),
+            network: network.value.name,
+          });
+          isProcessing.value = false;
+          errorMsg.value = e.message;
+          trackSendEvents(SendEventType.SendFailed, {
+            network: network.value.name,
+            error: errorMsg.value,
+          });
+          console.error("ERROR", e);
+        });
+    })
+    .catch((err) => {
+      const errror = err.error ? err.error : err;
+      txActivity.status = ActivityStatus.failed;
+      activityState.addActivities([txActivity], {
+        address: network.value.displayAddress(txData.fromAddress),
         network: network.value.name,
       });
-      activityState.addActivities(
-        [
-          {
-            ...txActivity,
-            ...{
-              transactionHash: hash,
-            },
-          },
-        ],
-        {
-          address: network.value.displayAddress(txData.fromAddress),
-          network: network.value.name,
-        }
-      );
-      isSendDone.value = true;
-      if (getCurrentContext() === "popup") {
-        setTimeout(() => {
-          isProcessing.value = false;
-          router.go(-2);
-        }, 4500);
-      } else {
-        setTimeout(() => {
-          isProcessing.value = false;
-          window.close();
-        }, 1500);
-      }
-    };
-    solAPI.web3
-      .sendRawTransaction(transaction.serialize())
-      .then((hash) => {
-        onHash(hash);
-      })
-      .catch((e) => {
-        txActivity.status = ActivityStatus.failed;
-        activityState.addActivities([txActivity], {
-          address: network.value.displayAddress(txData.fromAddress),
-          network: network.value.name,
-        });
-        isProcessing.value = false;
-        errorMsg.value = e.message;
-        trackSendEvents(SendEventType.SendFailed, {
-          network: network.value.name,
-          error: errorMsg.value,
-        });
-        console.error("ERROR", e);
+      isProcessing.value = false;
+      errorMsg.value = errror.message;
+      trackSendEvents(SendEventType.SendDecline, {
+        network: network.value.name,
+        error: errorMsg.value,
       });
-  });
+      console.error("ERROR", errror);
+    });
 };
 const isHasScroll = () => {
   if (verifyScrollRef.value) {
