@@ -168,9 +168,18 @@ export interface SolanaTransaction {
   kind: "legacy" | "versioned";
   /** base64 serialized unsigned solana transaction */
   serialized: string;
-  /** If the transaction is signed (by a third party like Rango) then we can't change it's recentblock hash */
-  signed: boolean;
   type: TransactionType.solana;
+  /**
+   * Signatures from swap providers (Rango) so they can verify we haven't tampered with the transaction
+   *
+   * If the transaction has signatures then we can't modify the transaction without invalidating the signatures
+   */
+  thirdPartySignatures: {
+    /** Base58 */
+    pubkey: string;
+    /** uint8 byte array */
+    signature: number[];
+  }[];
 }
 
 export interface GenericTransaction {

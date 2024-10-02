@@ -1,6 +1,6 @@
+// import { isValidSolanaAddress } from "../../utils/solana";
 import { isPolkadotAddress, isEVMAddress } from "../../utils/common";
 import { SupportedNetworkName } from "../../types";
-// import { isValidSolanaAddress } from "../../utils/solana";
 
 /**
  * Blockchain names:
@@ -61,7 +61,8 @@ const supportedNetworks: {
   [SupportedNetworkName.Dogecoin]: {
     changellyName: "doge",
   },
-  // TODO: Support Solana
+  // TODO: Re-enable Solana when all issues with Changelly and Solana on Enkrypt are fixed
+  // @2024-10-01
   // [SupportedNetworkName.Solana]: {
   //   changellyName: "solana",
   //   async isAddress(address: string) {

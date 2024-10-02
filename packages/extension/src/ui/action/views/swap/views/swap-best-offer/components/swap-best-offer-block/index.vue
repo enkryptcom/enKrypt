@@ -107,9 +107,12 @@ const emit = defineEmits<{
 
 const isOffersOpen = ref(false);
 
-const toTokenPrice = computed(() =>
-  new SwapToken(props.toToken).getRawToFiat(props.pickedTrade.toTokenAmount)
-);
+const toTokenPrice = computed(() => {
+  const val = new SwapToken(props.toToken).getRawToFiat(
+    props.pickedTrade.toTokenAmount
+  );
+  return val;
+});
 
 const fromReadable = computed(() => {
   return new SwapToken(props.fromToken).getBalanceReadable();

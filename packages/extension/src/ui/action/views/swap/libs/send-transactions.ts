@@ -189,54 +189,61 @@ export const executeSwap = async (
 
       let serialized: Uint8Array;
       switch (enkSolTx.kind) {
-        case "versioned": {
+        case "legacy": {
           // Sign Versioned transaction
-          // (note: the transaction may already be signed by a third party,
-          // like Rango exchange)
-
-          const tx = SolanaVersionedTransaction.deserialize(
-            Buffer.from(enkSolTx.serialized, "base64")
-          );
+          // (note: the transaction may already be signed by a third party like Rango exchange)
+          const bytes = Buffer.from(enkSolTx.serialized, "base64");
+          const legacyTx = SolanaLegacyTransaction.from(bytes);
 
           // Sign the transaction message
           // Use the keyring running in the background script
           const sigRes = await SolanaTransactionSigner({
             account: options.from,
             network: options.network,
-            transaction: Buffer.from(tx.message.serialize()),
+            transaction: legacyTx.serialize({
+              verifySignatures: true,
+              requireAllSignatures: false,
+            }),
           }).catch((err) => {
             const error = err.error ? err.error : err;
             throw new Error(
               `Failed to sign Solana versioned swap transaction: ${error.code} ${error.message}`
             );
           });
+          // Add third party signatures (eg Rango)
+          const { thirdPartySignatures } = enkSolTx;
+          for (let i = 0, len = thirdPartySignatures.length; i < len; i++) {
+            const { pubkey, signature } = enkSolTx.thirdPartySignatures[i];
+            legacyTx.addSignature(
+              new PublicKey(pubkey),
+              Buffer.from(signature)
+            );
+          }
 
           // Add signature to the transaction
-          tx.addSignature(
+          legacyTx.addSignature(
             new PublicKey(options.network.displayAddress(options.from.address)),
             sigRes
           );
 
-          serialized = tx.serialize();
-
+          serialized = legacyTx.serialize();
           break;
         }
 
-        case "legacy": {
+        case "versioned": {
           // Sign Versioned transaction
-          // (note: the transaction may already be signed by a third party,
-          // like Rango exchange)
+          // (note: the transaction may already be signed by a third party like Rango exchange)
 
-          const tx = SolanaLegacyTransaction.from(
-            Buffer.from(enkSolTx.serialized, "base64")
-          );
+          const bytes = Buffer.from(enkSolTx.serialized, "base64");
+          const versionedTx = SolanaVersionedTransaction.deserialize(bytes);
 
           // Sign the transaction message
           // Use the keyring running in the background script
+
           const sigRes = await SolanaTransactionSigner({
             account: options.from,
             network: options.network,
-            transaction: Buffer.from(tx.serialize()),
+            transaction: Buffer.from(versionedTx.message.serialize()),
           }).catch((err) => {
             const error = err.error ? err.error : err;
             throw new Error(
@@ -244,19 +251,27 @@ export const executeSwap = async (
             );
           });
 
+          // Add third party signatures (eg Rango)
+          const { thirdPartySignatures } = enkSolTx;
+          for (let i = 0, len = thirdPartySignatures.length; i < len; i++) {
+            const { pubkey, signature } = enkSolTx.thirdPartySignatures[i];
+            versionedTx.addSignature(
+              new PublicKey(pubkey),
+              Uint8Array.from(signature)
+            );
+          }
+
           // Add signature to the transaction
-          tx.addSignature(
+          versionedTx.addSignature(
             new PublicKey(options.network.displayAddress(options.from.address)),
             sigRes
           );
 
-          serialized = tx.serialize();
-
+          serialized = versionedTx.serialize();
           break;
         }
 
         default:
-          enkSolTx.kind satisfies never;
           throw new Error(
             `Cannot send Solana transaction: unexpected kind ${enkSolTx.kind}`
           );
@@ -285,9 +300,8 @@ export const executeSwap = async (
           }
         } else {
           console.error(
-            `Failed to send Solana swap transaction, unhandled error ${
-              (err as Error).name
-            }`
+            `Failed to send Solana swap transaction,` +
+              ` unhandled error ${(err as Error).name}`
           );
         }
         // Solana transactions can have big errors
