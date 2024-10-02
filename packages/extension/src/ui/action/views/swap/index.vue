@@ -344,7 +344,6 @@ onMounted(async () => {
       isLooking.value = false;
     });
 });
-/** What is this? */
 const defaultBNVals: Record<number, BN> = {};
 const setToTokens = () => {
   const swapToTokens = swap.getToTokens();
