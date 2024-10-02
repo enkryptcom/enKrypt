@@ -539,7 +539,7 @@ export class Jupiter extends ProviderClass {
       serialized: base64SwapTransaction,
       type: TransactionType.solana,
       kind: "versioned",
-      signed: false,
+      thirdPartySignatures: [],
     };
 
     debug(
@@ -609,10 +609,10 @@ export class Jupiter extends ProviderClass {
  *
  * @see https://station.jup.ag/api-v6/get-quote
  */
-async function getJupiterTokens(context?: {
+async function getJupiterTokens(abortable?: {
   signal?: AbortSignal;
 }): Promise<JupiterTokenInfo[]> {
-  const signal = context?.signal;
+  const signal = abortable?.signal;
 
   const url = JUPITER_TOKENS_URL;
   let failed = false;
@@ -639,43 +639,31 @@ async function getJupiterTokens(context?: {
     if (backoff[backoffi] > 0) {
       // Previous request failed, wait before retrying
       debug("getJupiterTokens", `Retrying after ${backoff[backoffi]}ms...`);
-      await new Promise<void>((res, rej) => {
-        function onTimeout() {
-          cleanupSleep();
-          res();
-        }
-        function onAbortDuringSleep() {
-          cleanupSleep();
-          rej(signal!.reason);
-        }
-        function cleanupSleep() {
-          signal?.removeEventListener("abort", onAbortDuringSleep);
-          clearTimeout(timeout);
-        }
-        signal?.addEventListener("abort", onAbortDuringSleep);
-        const timeout = setTimeout(onTimeout);
-      });
+      await sleep(backoff[backoffi], abortable);
     }
 
     /** Cancels the HTTP request */
     const aborter = new AbortController();
 
-    /** Cancel this request if the context cancels */
-    const onAbortDuringRequest = () => {
-      aborter.abort(signal!.reason);
+    /** Fired when the request takes too long */
+    const onTimeout = () => {
+      aborter.abort(new Error(`HTTP request timed out ${url}`));
     };
 
-    /** Times out the request */
-    const timeout = setTimeout(() => {
-      aborter.abort(new Error(`HTTP request timed out ${url}`));
-    }, 30_000);
-    signal?.addEventListener("abort", onAbortDuringRequest);
+    /** Cancel this request if the context cancels */
+    const onAbort = () => {
+      aborter.abort(signal!.reason);
+    };
 
     /** Cleanup timeouts and aborters */
     const cleanupRequest = () => {
       clearTimeout(timeout);
-      signal?.removeEventListener("abort", onAbortDuringRequest);
+      signal?.removeEventListener("abort", onAbort);
     };
+
+    /** Times out the request */
+    const timeout = setTimeout(onTimeout, 30_000);
+    signal?.addEventListener("abort", onAbort);
 
     try {
       debug(
@@ -762,13 +750,11 @@ async function getJupiterQuote(
     /** Integer */
     referralFeeBps?: number;
   },
-  context?: {
+  abortable?: {
     signal?: AbortSignal;
   }
 ): Promise<JupiterQuoteResponse> {
   const { srcMint, dstMint, amount, slippageBps, referralFeeBps } = params;
-
-  const signal = context?.signal;
 
   if (slippageBps != null) {
     if (!Number.isSafeInteger(slippageBps)) {
@@ -815,10 +801,7 @@ async function getJupiterQuote(
   let errRef: undefined | { err: Error };
 
   while (true) {
-    if (signal?.aborted) {
-      // Context aborted
-      throw signal.reason;
-    }
+    abortable?.signal?.throwIfAborted();
 
     if (backoffi >= backoff.length) {
       // Failed after too many attempts
@@ -835,43 +818,31 @@ async function getJupiterQuote(
         "getJupiterQuote",
         `Retrying ${url} after ${backoff[backoffi]}ms...`
       );
-      await new Promise<void>((res, rej) => {
-        function onTimeout() {
-          cleanupSleep();
-          res();
-        }
-        function onAbortDuringSleep() {
-          cleanupSleep();
-          rej(signal!.reason);
-        }
-        function cleanupSleep() {
-          signal?.removeEventListener("abort", onAbortDuringSleep);
-          clearTimeout(timeout);
-        }
-        signal?.addEventListener("abort", onAbortDuringSleep);
-        const timeout = setTimeout(onTimeout);
-      });
+      await sleep(backoff[backoffi], abortable);
     }
 
     /** Cancels the HTTP request */
     const aborter = new AbortController();
 
+    /** Fired when the request takes too long to complete */
+    const onTimeout = () => {
+      aborter.abort(new Error(`HTTP request timed out ${url}`));
+    };
+
     /** Cancel this request if the context cancels */
-    const onAbortDuringRequest = () => {
-      aborter.abort(signal!.reason);
+    const onAbort = () => {
+      aborter.abort(abortable!.signal!.reason);
+    };
+
+    /** Cleanup timeouts and aborters */
+    const cleanup = () => {
+      clearTimeout(timeout);
+      abortable?.signal?.removeEventListener("abort", onAbort);
     };
 
     /** Times out the request */
-    const timeout = setTimeout(() => {
-      aborter.abort(new Error(`HTTP request timed out ${url}`));
-    }, 30_000);
-    signal?.addEventListener("abort", onAbortDuringRequest);
-
-    /** Cleanup timeouts and aborters */
-    const cleanupRequest = () => {
-      clearTimeout(timeout);
-      signal?.removeEventListener("abort", onAbortDuringRequest);
-    };
+    const timeout = setTimeout(onTimeout, 30_000);
+    abortable?.signal?.addEventListener("abort", onAbort);
 
     try {
       debug(
@@ -922,7 +893,7 @@ async function getJupiterQuote(
 
       return quote;
     } catch (err) {
-      if (signal?.aborted) throw signal.reason;
+      if (abortable?.signal?.aborted) throw abortable?.signal.reason;
       if (failed) throw err;
       console.warn(
         `[getJupiterQuote] Failed to get Jupiter quote on attempt ${
@@ -931,7 +902,7 @@ async function getJupiterQuote(
       );
       errRef ??= { err: err as Error };
     } finally {
-      cleanupRequest();
+      cleanup();
     }
     backoffi += 1;
   }
@@ -955,12 +926,11 @@ async function getJupiterSwap(
     /** Response from Jupiter API */
     quote: JupiterQuoteResponse;
   },
-  context?: {
+  abortable?: {
     signal?: AbortSignal;
   }
 ): Promise<JupiterSwapResponse> {
   const { signerPubkey, dstATAPubkey, quote, referrerATAPubkey } = params;
-  const signal = context?.signal;
 
   const swapParams: JupiterSwapParams = {
     userPublicKey: signerPubkey.toBase58(),
@@ -977,10 +947,7 @@ async function getJupiterSwap(
   let errRef: undefined | { err: Error };
 
   while (true) {
-    if (signal?.aborted) {
-      // Context aborted
-      throw signal.reason;
-    }
+    abortable?.signal?.throwIfAborted();
 
     if (backoffi >= backoff.length) {
       // Failed after too many attempts
@@ -997,43 +964,31 @@ async function getJupiterSwap(
         "getJupiterSwap",
         `Retrying ${url} after ${backoff[backoffi]}ms...`
       );
-      await new Promise<void>((res, rej) => {
-        function onTimeout() {
-          cleanupSleep();
-          res();
-        }
-        function onAbortDuringSleep() {
-          cleanupSleep();
-          rej(signal!.reason);
-        }
-        function cleanupSleep() {
-          signal?.removeEventListener("abort", onAbortDuringSleep);
-          clearTimeout(timeout);
-        }
-        signal?.addEventListener("abort", onAbortDuringSleep);
-        const timeout = setTimeout(onTimeout);
-      });
+      await sleep(backoff[backoffi], abortable);
     }
 
     /** Cancels the HTTP request */
     const aborter = new AbortController();
 
-    /** Cancel this request if the context cancels */
-    const onAbortDuringRequest = () => {
-      aborter.abort(signal!.reason);
+    /** Fired when the HTTP request takes too long */
+    const onTimeout = () => {
+      aborter.abort(new Error(`HTTP request timed out ${url}`));
     };
 
-    /** Times out the request */
-    const timeout = setTimeout(() => {
-      aborter.abort(new Error(`HTTP request timed out ${url}`));
-    }, 30_000);
-    signal?.addEventListener("abort", onAbortDuringRequest);
+    /** Cancel this request if the context cancels */
+    const onAbort = () => {
+      aborter.abort(abortable.signal!.reason);
+    };
 
     /** Cleanup timeouts and aborters */
     const cleanupRequest = () => {
       clearTimeout(timeout);
-      signal?.removeEventListener("abort", onAbortDuringRequest);
+      abortable?.signal?.removeEventListener("abort", onAbort);
     };
+
+    /** Times out the request */
+    const timeout = setTimeout(onTimeout, 30_000);
+    abortable?.signal?.addEventListener("abort", onAbort);
 
     try {
       debug(
@@ -1221,4 +1176,28 @@ function getJupiterInitialiseReferralTokenAccountInstruction(params: {
   });
 
   return instruction;
+}
+
+function sleep(
+  duration: number,
+  abortable?: { signal?: AbortSignal }
+): Promise<void> {
+  if (abortable.signal.aborted) return Promise.reject(abortable.signal.reason);
+  if (duration <= 0) return Promise.resolve();
+  return new Promise<void>((res, rej) => {
+    function onTimeout() {
+      cleanupSleep();
+      res();
+    }
+    function onAbortDuringSleep() {
+      cleanupSleep();
+      rej(abortable.signal!.reason);
+    }
+    function cleanupSleep() {
+      abortable?.signal?.removeEventListener("abort", onAbortDuringSleep);
+      clearTimeout(timeout);
+    }
+    abortable?.signal?.addEventListener("abort", onAbortDuringSleep);
+    const timeout = setTimeout(onTimeout);
+  });
 }
