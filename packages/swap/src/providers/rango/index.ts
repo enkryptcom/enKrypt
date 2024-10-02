@@ -31,6 +31,7 @@ import {
   TransactionError,
   AccountMeta,
 } from "@solana/web3.js";
+import fetch from 'node-fetch'
 import { extractComputeBudget, isValidSolanaAddress } from "../../utils/solana";
 import {
   EVMTransaction,
@@ -101,7 +102,7 @@ if (DEBUG) {
     );
   };
 } else {
-  debug = () => {};
+  debug = () => { };
 }
 
 /**
@@ -270,8 +271,8 @@ class Rango extends ProviderClass {
     debug(
       "init",
       "Rango meta" +
-        `  tokens.length=${resMeta.tokens.length}` +
-        `  blockchains.length=${resMeta.blockchains.length}`
+      `  tokens.length=${resMeta.tokens.length}` +
+      `  blockchains.length=${resMeta.blockchains.length}`
     );
 
     const { blockchains, tokens } = resMeta;
@@ -394,7 +395,7 @@ class Rango extends ProviderClass {
     if (token.address == null) {
       console.warn(
         `Cannot get Rango token symbol: Token address is not defined` +
-          ` for token ${token.name} (${token.symbol}) - ${token.address}`
+        ` for token ${token.name} (${token.symbol}) - ${token.address}`
       );
       return undefined;
     }
@@ -429,12 +430,12 @@ class Rango extends ProviderClass {
     debug(
       "getRangoSwap",
       `Getting swap` +
-        `  srcToken=${options.fromToken.symbol}` +
-        `  dstToken=${options.toToken.symbol}` +
-        `  fromAddress=${options.fromAddress}` +
-        `  toAddress=${options.toAddress}` +
-        `  fromNetwork=${this.network}` +
-        `  toNetwork=${options.toToken.networkInfo.name}`
+      `  srcToken=${options.fromToken.symbol}` +
+      `  dstToken=${options.toToken.symbol}` +
+      `  fromAddress=${options.fromAddress}` +
+      `  toAddress=${options.toAddress}` +
+      `  fromNetwork=${this.network}` +
+      `  toNetwork=${options.toToken.networkInfo.name}`
     );
 
     try {
@@ -452,8 +453,8 @@ class Rango extends ProviderClass {
         debug(
           "getRangoSwap",
           `No swap:` +
-            ` Enkrypt does not support Rango swap on the destination` +
-            ` network ${options.toToken.networkInfo.name}`
+          ` Enkrypt does not support Rango swap on the destination` +
+          ` network ${options.toToken.networkInfo.name}`
         );
         return Promise.resolve(null);
       }
@@ -480,8 +481,8 @@ class Rango extends ProviderClass {
       debug(
         "getRangoSwap",
         `Rango block chains ids` +
-          `  fromBlokchain=${fromBlockchain}` +
-          `  toBlockchain=${toBlockchain}`
+        `  fromBlokchain=${fromBlockchain}` +
+        `  toBlockchain=${toBlockchain}`
       );
 
       const fromTokenAddress = options.fromToken.address;
@@ -498,8 +499,8 @@ class Rango extends ProviderClass {
         debug(
           "getRangoSwap",
           `No swap: No symbol for src token or dst token` +
-            `  srcTokenSymbol=${fromSymbol}` +
-            `  dstTokenSymbol=${toSymbol}`
+          `  srcTokenSymbol=${fromSymbol}` +
+          `  dstTokenSymbol=${toSymbol}`
         );
         return Promise.resolve(null);
       }
@@ -537,15 +538,15 @@ class Rango extends ProviderClass {
       debug(
         "getRangoSwap",
         `Requesting quote from rango sdk...` +
-          `  fromBlockchain=${fromBlockchain}` +
-          `  toBlockchain=${toBlockchain}` +
-          `  fromToken=${fromSymbol}` +
-          `  toToken=${toSymbol}` +
-          `  fromAddress=${options.fromAddress}` +
-          `  toAddress=${options.toAddress}` +
-          `  amount=${options.amount.toString()}` +
-          `  slippage=${slippage}` +
-          `  referrerFee=${params.referrerFee}`
+        `  fromBlockchain=${fromBlockchain}` +
+        `  toBlockchain=${toBlockchain}` +
+        `  fromToken=${fromSymbol}` +
+        `  toToken=${toSymbol}` +
+        `  fromAddress=${options.fromAddress}` +
+        `  toAddress=${options.toAddress}` +
+        `  amount=${options.amount.toString()}` +
+        `  slippage=${slippage}` +
+        `  referrerFee=${params.referrerFee}`
       );
       const rangoSwapResponse = await rangoClient.swap(params);
       debug("getRangoSwap", `Received quote from rango sdk`);
@@ -1170,7 +1171,7 @@ async function fetchRangoSwaplist(abortable?: {
     if (retryidx >= retries.length) {
       throw new Error(
         `Failed to fetch Rango swaplists after ${retries.length}` +
-          ` retries: ${String(errref?.err ?? "???")}`
+        ` retries: ${String(errref?.err ?? "???")}`
       );
     }
     const waitMs = retries[retryidx];
@@ -1392,7 +1393,7 @@ async function checkExpectedSolanaLegacyTransactionStatus(
       debug(
         "checkExpectedSolanaLegacyTransactionStatus",
         `Retrying Rango Solana unsigned legacy transaction simulation` +
-          ` with updated block hash ${latestBlockHash.blockhash}...`
+        ` with updated block hash ${latestBlockHash.blockhash}...`
       );
       legacyTx.recentBlockhash = latestBlockHash.blockhash;
     }
@@ -1447,7 +1448,7 @@ async function checkExpectedSolanaVersionedTransactionStatus(
       debug(
         "checkExpectedSolanaVersionedTransactionStatus",
         `Retrying Rango Solana unsigned versioned transaction simulation` +
-          ` with updated block hash ${latestBlockHash.blockhash}...`
+        ` with updated block hash ${latestBlockHash.blockhash}...`
       );
       versionedTx.message.recentBlockhash = latestBlockHash.blockhash;
     }
