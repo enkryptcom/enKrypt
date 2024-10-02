@@ -115,20 +115,36 @@ export const getSwapTransactions = async (
     const allTxs = await Promise.all(txPromises);
     return allTxs;
   } else if (netInfo.type === NetworkType.Solana) {
-    const solTxs: (SolanaVersionedTransaction | SolanaLegacyTransaction)[] = (
-      transactions as EnkryptSolanaTransaction[]
-    ).map(function (enkSolTx) {
+    const solTxs: (
+      | {
+          kind: "legacy";
+          instance: SolanaLegacyTransaction;
+          hasThirdPartySignatures: boolean;
+        }
+      | {
+          kind: "versioned";
+          instance: SolanaVersionedTransaction;
+          hasThirdPartySignatures: boolean;
+        }
+    )[] = (transactions as EnkryptSolanaTransaction[]).map(function (enkSolTx) {
       switch (enkSolTx.kind) {
         case "legacy":
-          return SolanaLegacyTransaction.from(
-            Buffer.from(enkSolTx.serialized, "base64")
-          );
+          return {
+            kind: "legacy",
+            hasThirdPartySignatures: enkSolTx.thirdPartySignatures.length > 0,
+            instance: SolanaLegacyTransaction.from(
+              Buffer.from(enkSolTx.serialized, "base64")
+            ),
+          };
         case "versioned":
-          return SolanaVersionedTransaction.deserialize(
-            Buffer.from(enkSolTx.serialized, "base64")
-          );
+          return {
+            kind: "versioned",
+            hasThirdPartySignatures: enkSolTx.thirdPartySignatures.length > 0,
+            instance: SolanaVersionedTransaction.deserialize(
+              Buffer.from(enkSolTx.serialized, "base64")
+            ),
+          };
         default:
-          enkSolTx.kind satisfies never;
           throw new Error(
             `Cannot deserialize Solana transaction: Unexpected kind: ${enkSolTx.kind}`
           );

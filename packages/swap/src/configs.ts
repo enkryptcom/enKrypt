@@ -43,6 +43,7 @@ const FEE_CONFIGS: Partial<
   },
   [ProviderName.rango]: {
     [WalletIdentifier.enkrypt]: {
+      // TODO: verify this works on SOL transactions
       referrer: "0xabe295bac4b5bce0edcf42d180a3a952ef718b9e",
       fee: 0.00875,
     },

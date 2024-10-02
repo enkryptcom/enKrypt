@@ -16,7 +16,18 @@ import { toBN } from "web3-utils";
  * (not nice but convenient)
  */
 export const getSolanaTransactionFees = async (
-  txs: (SolanaVersionedTransaction | SolanaLegacyTransaction)[],
+  txs: (
+    | {
+        kind: "legacy";
+        instance: SolanaLegacyTransaction;
+        hasThirdPartySignatures: boolean;
+      }
+    | {
+        kind: "versioned";
+        instance: SolanaVersionedTransaction;
+        hasThirdPartySignatures: boolean;
+      }
+  )[],
   network: SolanaNetwork,
   price: number,
   additionalFee: ReturnType<typeof toBN>
@@ -24,13 +35,42 @@ export const getSolanaTransactionFees = async (
   let feesumlamp = additionalFee;
   const conn = ((await network.api()) as SolanaAPI).web3;
   let latestBlockHash = await conn.getLatestBlockhash();
-  for (let i = 0, len = txs.length; i < len; i++) {
-    const tx = txs[i];
+  for (let txi = 0, len = txs.length; txi < len; txi++) {
+    const tx = txs[txi];
+
+    /** For logging / debugging */
+    let txkind: string;
+    switch (tx.kind) {
+      case "legacy":
+        txkind = "legacy";
+        break;
+      case "versioned":
+        txkind = `versioned (${tx.instance.version})`;
+        break;
+      case undefined:
+        txkind = "legacy";
+        break;
+      default:
+        txkind = `unknown (${(tx as SolanaVersionedTransaction).version})`;
+        break;
+    }
 
     // Use the latest block hash in-case it's fallen too far behind
     // (can't change block hash if it's already signed)
-    if (!tx.signatures.length) {
-      updateBlockHash(tx, latestBlockHash.blockhash);
+    if (!tx.hasThirdPartySignatures) {
+      switch (tx.kind) {
+        case "legacy":
+          tx.instance.recentBlockhash = latestBlockHash.blockhash;
+          break;
+        case "versioned":
+          tx.instance.message.recentBlockhash = latestBlockHash.blockhash;
+          break;
+        default:
+          tx satisfies never;
+          throw new Error(
+            `Unexpected Solana transaction kind ${(tx as any).kind}`
+          );
+      }
     }
 
     // Not sure why but getFeeForMessage sometimes returns null, so we will retry
@@ -42,11 +82,26 @@ export const getSolanaTransactionFees = async (
     // eslint-disable-next-line no-constant-condition
     while (true) {
       if (attempt >= backoff.length) {
+        let recentBlockHash: undefined | string;
+        switch (tx.kind) {
+          case "legacy":
+            recentBlockHash = tx.instance.recentBlockhash;
+            break;
+          case "versioned":
+            recentBlockHash = tx.instance.message.recentBlockhash;
+            break;
+          default:
+            tx satisfies never;
+            throw new Error(
+              `Unexpected Solana transaction kind ${(tx as any).kind}`
+            );
+        }
         throw new Error(
-          `Failed to get fee for Solana VersionedTransaction ${i + 1}` +
+          `Failed to get fee for Solana transaction ${txi + 1}` +
             ` after ${backoff.length} attempts.` +
             ` Transaction block hash` +
-            `${getRecentBlockHash(tx)} possibly expired.`
+            ` ${recentBlockHash} possibly expired.` +
+            `  txkind=${txkind}`
         );
       }
       if (backoff[attempt] > 0) {
@@ -55,29 +110,92 @@ export const getSolanaTransactionFees = async (
       }
       // Update the block hash in-case it caused 0 fees to be returned
       if (attempt > 0) {
-        if (!tx.signatures.length) {
+        if (!tx.hasThirdPartySignatures) {
+          let recentBlockHash: undefined | string;
+          switch (tx.kind) {
+            case "legacy":
+              recentBlockHash = tx.instance.recentBlockhash;
+              break;
+            case "versioned":
+              recentBlockHash = tx.instance.message.recentBlockhash;
+              break;
+            default:
+              tx satisfies never;
+              throw new Error(
+                `Unexpected Solana transaction kind ${(tx as any).kind}`
+              );
+          }
           console.warn(
             `Cannot update block hash for signed transaction` +
-              ` ${i + 1}, retrying getFeeForMessage using the same` +
-              ` block hash ${getRecentBlockHash(tx)}`
+              ` ${txi + 1}, retrying getFeeForMessage using the same` +
+              ` block hash ${recentBlockHash}` +
+              `  txkind=${txkind}`
           );
         } else {
           latestBlockHash = await conn.getLatestBlockhash();
-          updateBlockHash(tx, latestBlockHash.blockhash);
+          switch (tx.kind) {
+            case "legacy":
+              tx.instance.recentBlockhash = latestBlockHash.blockhash;
+              break;
+            case "versioned":
+              tx.instance.message.recentBlockhash = latestBlockHash.blockhash;
+              break;
+            default:
+              tx satisfies never;
+              throw new Error(
+                `Unexpected Solana transaction kind ${(tx as any).kind}`
+              );
+          }
         }
       }
 
       /** Base fee + priority fee (Don't know why this returns null sometimes) */
-      const feeResult = await conn.getFeeForMessage(getMessage(tx));
+      let msg: Message | VersionedMessage;
+      switch (tx.kind) {
+        case "legacy":
+          msg = tx.instance.compileMessage();
+          break;
+        case "versioned":
+          msg = tx.instance.message;
+          break;
+        default:
+          throw new Error(
+            `Unexpected Solana transaction kind ${(tx as any).kind}`
+          );
+      }
+      const feeResult = await conn.getFeeForMessage(msg);
       if (feeResult.value == null) {
+        let recentBlockHash: undefined | string;
+        switch (tx.kind) {
+          case "legacy":
+            recentBlockHash = tx.instance.recentBlockhash;
+            break;
+          case "versioned":
+            recentBlockHash = tx.instance.message.recentBlockhash;
+            break;
+          default:
+            tx satisfies never;
+            throw new Error(
+              `Unexpected Solana transaction kind ${(tx as any).kind}`
+            );
+        }
         console.warn(
-          `Failed to get fee for Solana VersionedTransaction ${i + 1}.` +
-            ` Transaction block hash ${getRecentBlockHash(tx)}` +
-            ` possibly expired. Attempt ${attempt + 1}/${backoff.length}.`
+          `Failed to get fee for Solana transaction ${txi + 1}/${len}.` +
+            ` Transaction block hash ${recentBlockHash}` +
+            ` possibly expired. Attempt ${attempt + 1}/${backoff.length}.` +
+            `  txkind=${txkind}`
         );
       } else {
         // Success
         fee = feeResult.value;
+        if (attempt > 0) {
+          console.debug(
+            `Successfully got fee for Solana transaction` +
+              ` ${txi + 1}/${len} after ${attempt + 1} attempts.` +
+              `  fee=${fee}` +
+              `  txkind=${txkind}`
+          );
+        }
         break;
       }
 
@@ -99,47 +217,3 @@ export const getSolanaTransactionFees = async (
     },
   };
 };
-
-function getRecentBlockHash(
-  tx: SolanaVersionedTransaction | SolanaLegacyTransaction
-): string {
-  return getMessage(tx).recentBlockhash;
-}
-
-function updateBlockHash(
-  tx: SolanaVersionedTransaction | SolanaLegacyTransaction,
-  recentBlockHash: string
-): void {
-  switch ((tx as SolanaVersionedTransaction).version) {
-    case 0:
-    case "legacy":
-      (tx as SolanaVersionedTransaction).message.recentBlockhash =
-        recentBlockHash;
-      break;
-    case undefined:
-      (tx as SolanaLegacyTransaction).recentBlockhash = recentBlockHash;
-      break;
-    default:
-      throw new Error(
-        `Cannot set block hash for Solana transaction: unexpected Solana transaction` +
-          ` type ${Object.getPrototypeOf(tx).constructor.name}`
-      );
-  }
-}
-
-function getMessage(
-  tx: SolanaVersionedTransaction | SolanaLegacyTransaction
-): Message | VersionedMessage {
-  switch ((tx as SolanaVersionedTransaction).version) {
-    case 0:
-    case "legacy":
-      return (tx as SolanaVersionedTransaction).message;
-    case undefined:
-      return (tx as SolanaLegacyTransaction).compileMessage();
-    default:
-      throw new Error(
-        `Cannot get Solana transaction message: unexpected Solana transaction` +
-          ` type ${Object.getPrototypeOf(tx).constructor.name}`
-      );
-  }
-}

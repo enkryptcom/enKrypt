@@ -350,6 +350,7 @@ const setToTokens = () => {
   trendingToTokens.value = [];
   toToken.value = null;
   const MAX_TRENDING = 5;
+  // Remove the source token from the list of destination tokens
   toTokens.value = swapToTokens.all[toNetwork.value!.id].filter((val) => {
     if (!defaultBNVals[val.decimals])
       defaultBNVals[val.decimals] = toBN(toBase("1", val.decimals));
@@ -457,6 +458,7 @@ const isValidToAddress = debounce(() => {
   }
 }, 200);
 
+/** Native currency on the source network */
 const nativeSwapToken = computed(() => {
   const nToken = fromTokens.value?.find(
     (ft) => ft.address === NATIVE_TOKEN_ADDRESS
@@ -485,50 +487,73 @@ const pickBestQuote = (fromAmountBN: BN, quotes: ProviderQuoteResponse[]) => {
 
   const fromT = new SwapToken(fromToken.value!);
 
-  /** Users would-be balance of the source asset after the swap */
+  /** Users would-be balance of the source asset after the swap, excluding fees */
   const remainingBalance =
     fromT.token.address === NATIVE_TOKEN_ADDRESS
       ? nativeSwapToken.value!.getBalanceRaw().sub(fromAmountBN)
       : nativeSwapToken.value!.getBalanceRaw();
 
   // Drop quotes that don't fit the users desired "amount"
+
+  /** Quotes that the user can affort & fit their desired source amount */
   const filteredQuotes = quotes.filter((q) => {
     return (
+      // Must be swapping enough tokens
       q.minMax.minimumFrom.lte(fromAmountBN) &&
+      // Must not be swapping too many tokens
       q.minMax.maximumFrom.gte(fromAmountBN) &&
+      // Must be able to afford the fees
       q.additionalNativeFees.lte(remainingBalance)
     );
   });
 
   if (!filteredQuotes.length) {
-    // No quotes fit the users sap "amount"
+    // User can't afford any quotes or none fit their requirements
+    // Show a message in the UI describing why
     let lowestMinimum: BN = quotes[0].minMax.minimumFrom;
     let highestMaximum: BN = quotes[0].minMax.maximumFrom;
     let smallestNativeFees: BN = nativeSwapToken.value!.getBalanceRaw();
+    // Note: this would show the fee instead of your balance as the required missing amount
+    // let smallestNativeFees: BN = quotes[0].additionalNativeFees;
+
+    // Loop through each quote to figure out the min and max swap src bounds
+    // and the smallest possible native fees
     quotes.forEach((q) => {
-      if (q.minMax.minimumFrom.lt(lowestMinimum))
+      // Minimum lower bound
+      if (q.minMax.minimumFrom.lt(lowestMinimum)) {
         lowestMinimum = q.minMax.minimumFrom;
-      if (q.minMax.maximumFrom.gt(highestMaximum))
+      }
+      // Maximum upper bound
+      if (q.minMax.maximumFrom.gt(highestMaximum)) {
         highestMaximum = q.minMax.maximumFrom;
+      }
+      // Minimum briding fees / rent fees / etc
       if (
         !q.additionalNativeFees.eqn(0) &&
         q.additionalNativeFees.lt(smallestNativeFees)
-      )
+      ) {
         smallestNativeFees = q.additionalNativeFees;
+      }
     });
-    if (fromAmountBN.lt(lowestMinimum))
+
+    // Decide what message to show
+    if (fromAmountBN.lt(lowestMinimum)) {
+      // Swapping too few tokens
       errors.value.inputAmount = `Minimum amount: ${fromT.toReadable(
         lowestMinimum
       )}`;
-    else if (fromAmountBN.gt(highestMaximum))
+    } else if (fromAmountBN.gt(highestMaximum)) {
+      // Swapping too many tokens
       errors.value.inputAmount = `Maximum amount: ${fromT.toReadable(
         highestMaximum
       )}`;
-    else if (smallestNativeFees.gt(remainingBalance)) {
+    } else if (smallestNativeFees.gt(remainingBalance)) {
+      // Can't afford the fees
       errors.value.inputAmount = `Insufficient Bridging fees: ~${nativeSwapToken
         .value!.toReadable(smallestNativeFees)
         .substring(0, 6)} ${nativeSwapToken.value!.token.symbol} required`;
     }
+
     return;
   }
 
@@ -771,20 +796,39 @@ const isDisabled = computed(() => {
 const sendAction = async () => {
   toggleLooking();
   const marketData = new MarketData();
-  const fromPrice = fromToken.value!.cgId
-    ? await marketData
-        .getMarketData([fromToken.value!.cgId])
-        .then((res) => res[0]!.current_price)
-    : 0;
-  const toPrice = toToken.value!.cgId
-    ? await marketData
-        .getMarketData([toToken.value!.cgId])
-        .then((res) => res[0]!.current_price)
-    : 0;
+
+  let fromPrice: null | number;
+  if (!fromToken.value!.cgId) {
+    console.warn(
+      `Source token ${fromToken.value!.symbol} (${fromToken.value!.name})` +
+        ` ${fromToken.value!.address} has no CoinGecko ID, setting price` +
+        ` to 0`
+    );
+    fromPrice = 0;
+  } else {
+    fromPrice = await marketData
+      .getMarketData([fromToken.value!.cgId])
+      .then((res) => res[0]!.current_price);
+  }
+
+  let toPrice: null | number;
+  if (!toToken.value!.cgId) {
+    console.warn(
+      `Destination token ${toToken.value!.symbol} (${toToken.value!.name})` +
+        ` ${toToken.value!.address} has no CoinGecko ID, setting price` +
+        ` to 0`
+    );
+    toPrice = 0;
+  } else {
+    toPrice = await marketData
+      .getMarketData([toToken.value!.cgId])
+      .then((res) => res[0]!.current_price);
+  }
+
   const localFromToken = { ...fromToken.value! };
   const localToToken = { ...toToken.value! };
-  localFromToken.price = fromPrice;
-  localToToken.price = toPrice;
+  localFromToken.price = fromPrice ?? undefined;
+  localToToken.price = toPrice ?? undefined;
   localFromToken.balance = bestProviderQuotes.value[0]!.fromTokenAmount;
   localToToken.balance = bestProviderQuotes.value[0]!.toTokenAmount;
   const swapToToken = new SwapToken(localToToken);

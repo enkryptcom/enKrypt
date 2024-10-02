@@ -520,8 +520,7 @@ class Changelly extends ProviderClass {
             `  toToken=${options.toToken.symbol} (${params.to})` +
             `  took=${(Date.now() - startedAt).toLocaleString()}ms` +
             `  code=${String(response.error.code)}` +
-            `  message=${String(response.error.message)}`,
-          { ...response }
+            `  message=${String(response.error.message)}`
         );
         return null;
       }
@@ -533,8 +532,7 @@ class Changelly extends ProviderClass {
             `  fromToken=${options.fromToken.symbol} (${params.from})` +
             `  toToken=${options.toToken.symbol} (${params.to})` +
             `  took=${(Date.now() - startedAt).toLocaleString()}ms` +
-            `  count=${response.result.length}ms`,
-          { ...response }
+            `  count=${response.result.length}ms`
         );
       }
 
@@ -713,8 +711,7 @@ class Changelly extends ProviderClass {
           `Changelly "createFixTransaction" response contains no id, returning no swap` +
             `  fromToken=${quote.options.fromToken.symbol} (${params.from})` +
             `  toToken=${quote.options.toToken.symbol} (${params.to})` +
-            `  took=${(Date.now() - startedAt).toLocaleString()}ms`,
-          { ...response }
+            `  took=${(Date.now() - startedAt).toLocaleString()}ms`
         );
         return null;
       }
@@ -758,9 +755,9 @@ class Changelly extends ProviderClass {
           debug("getSwap", `Changelly is not supported on Solana at this time`);
           if (true as any) return null;
 
-          const latestBlockHash = await (
-            this.web3 as Connection
-          ).getLatestBlockhash();
+          const conn = this.web3 as Connection;
+
+          const latestBlockHash = await conn.getLatestBlockhash();
 
           // Create a transaction to transfer this much of that token to that thing
           let versionedTx: VersionedTransaction;
@@ -790,16 +787,13 @@ class Changelly extends ProviderClass {
           } else {
             const wallet = new PublicKey(quote.options.fromAddress);
             const mint = new PublicKey(quote.options.fromToken.address);
-            const tokenProgramId = await getTokenProgramOfMint(
-              this.web3 as Connection,
-              mint
-            );
+            const tokenProgramId = await getTokenProgramOfMint(conn, mint);
             const walletMintAta = getSPLAssociatedTokenAccountPubkey(
               wallet,
               mint,
               tokenProgramId
             );
-            // TODO: is payin address an ATA or Wallet address?
+            // TODO: is payin address an ATA or Wallet address? (must be wallet, right?)
             const payinAta = new PublicKey(changellyFixedRateTx.payinAddress);
             const amount = BigInt(quote.options.amount.toString());
             debug(
@@ -818,10 +812,7 @@ class Changelly extends ProviderClass {
             );
 
             // If the ATA account doesn't exist we need create it
-            const ataExists = await solAccountExists(
-              this.web3 as Connection,
-              payinAta
-            );
+            const ataExists = await solAccountExists(conn, payinAta);
 
             const instructions: TransactionInstruction[] = [];
             if (ataExists) {
@@ -832,9 +823,7 @@ class Changelly extends ProviderClass {
             } else {
               debug("getSwap", `Payin ATA does not exist. Need to create it.`);
               // TODO: finish implementing
-              const extraRentFee = await (
-                this.web3 as Connection
-              ).getMinimumBalanceForRentExemption(
+              const extraRentFee = await conn.getMinimumBalanceForRentExemption(
                 SPL_TOKEN_ATA_ACCOUNT_SIZE_BYTES
               );
               const instruction =
@@ -852,7 +841,6 @@ class Changelly extends ProviderClass {
               additionalNativeFees = additionalNativeFees.add(
                 toBN(extraRentFee)
               );
-              throw new Error("TODO: Finish implementing Changelly on Solana");
             }
 
             instructions.push(
@@ -881,7 +869,7 @@ class Changelly extends ProviderClass {
             to: changellyFixedRateTx.payinAddress,
             serialized: Buffer.from(versionedTx.serialize()).toString("base64"),
             kind: "versioned",
-            signed: false,
+            thirdPartySignatures: [],
           };
           break;
         }
