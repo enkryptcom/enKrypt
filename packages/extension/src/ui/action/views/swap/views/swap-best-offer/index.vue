@@ -10,8 +10,12 @@
           <close-icon />
         </a>
       </div>
-
       <div class="swap-best-offer__wrap">
+        <hardware-wallet-msg
+          v-if="account"
+          :wallet-type="account.walletType"
+          style="width: 90%"
+        />
         <custom-scrollbar
           ref="bestOfferScrollRef"
           class="swap-best-offer__scroll-area"
@@ -110,6 +114,7 @@ import CloseIcon from "@action/icons/common/close-icon.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import SwapBestOfferBlock from "./components/swap-best-offer-block/index.vue";
 import SwapInitiated from "@action/views/swap-initiated/index.vue";
+import HardwareWalletMsg from "@/providers/common/ui/verify-transaction/hardware-wallet-msg.vue";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 import BestOfferError from "./components/swap-best-offer-block/components/best-offer-error.vue";
 import SendFeeSelect from "@/providers/common/ui/send-transaction/send-fee-select.vue";

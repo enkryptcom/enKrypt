@@ -21,6 +21,7 @@ const ledgerAppNames = {
   [NetworkNames.Bitcoin]: "Bitcoin",
   [NetworkNames.Litecoin]: "Litecoin",
   [NetworkNames.Dogecoin]: "Dogecoin",
+  [NetworkNames.Solana]: "Solana",
 };
 const MessengerName = "enkrypt_hw_wallets";
 
@@ -89,6 +90,16 @@ const bip44Paths = {
     path: "m/44'/3'/{index}'/0/0",
     basePath: "m/44'/3'",
     label: "Dogecoin",
+  },
+  solanaLedger: {
+    path: "44'/501'/{index}'",
+    basePath: "44'/501'",
+    label: "Solana",
+  },
+  solanaTrezor: {
+    path: "m/44'/501'/{index}'/0'",
+    basePath: "m/44'/501'",
+    label: "Solana",
   },
   bitcoinSegwitTrezor: {
     path: "m/84'/0'/0'/0/{index}",

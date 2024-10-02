@@ -13,6 +13,7 @@ import { ExecuteSwapOptions } from "../types";
 import { TransactionSigner as SubstrateTransactionSigner } from "@/providers/polkadot/ui/libs/signer";
 import { TransactionSigner as EvmTransactionSigner } from "@/providers/ethereum/ui/libs/signer";
 import { TransactionSigner as BitcoinTransactionSigner } from "@/providers/bitcoin/ui/libs/signer";
+import { TransactionSigner as SolanaTransactionSigner } from "@/providers/solana/ui/libs/signer";
 import ActivityState from "@/libs/activity-state";
 import { u8aToHex } from "@polkadot/util";
 import EvmAPI from "@/providers/ethereum/libs/api";
@@ -24,12 +25,7 @@ import {
 import { SubstrateNetwork } from "@/providers/polkadot/types/substrate-network";
 import { toBN } from "web3-utils";
 import type Transaction from "@/providers/ethereum/libs/transaction";
-import {
-  bigIntToHex,
-  bufferToHex,
-  hexToBuffer,
-  toBase,
-} from "@enkryptcom/utils";
+import { bigIntToHex, bufferToHex, toBase } from "@enkryptcom/utils";
 import broadcastTx from "@/providers/ethereum/libs/tx-broadcaster";
 import { BitcoinNetwork } from "@/providers/bitcoin/types/bitcoin-network";
 import { getBitcoinGasVals } from "./bitcoin-gasvals";
@@ -41,9 +37,6 @@ import {
   PublicKey,
   SendTransactionError,
 } from "@solana/web3.js";
-import sendUsingInternalMessengers from "@/libs/messenger/internal-messenger";
-import { InternalMethods } from "@/types/messenger";
-
 /**
  * Create an Activity model that can be displayed in the UI to represent
  * a transaction. By default returns a pending transaction.
@@ -204,26 +197,19 @@ export const executeSwap = async (
 
           // Sign the transaction message
           // Use the keyring running in the background script
-          const sigRes = await sendUsingInternalMessengers({
-            method: InternalMethods.sign,
-            params: [
-              bufferToHex(
-                legacyTx.serialize({
-                  verifySignatures: true,
-                  requireAllSignatures: false,
-                })
-              ),
-              options.from,
-            ],
-          });
-
-          // Did we fail to sign?
-          if (sigRes.error != null) {
+          const sigRes = await SolanaTransactionSigner({
+            account: options.from,
+            network: options.network,
+            transaction: legacyTx.serialize({
+              verifySignatures: true,
+              requireAllSignatures: false,
+            }),
+          }).catch((err) => {
+            const error = err.error ? err.error : err;
             throw new Error(
-              `Failed to sign Solana legacy swap transaction: ${sigRes.error.code} ${sigRes.error.message}`
+              `Failed to sign Solana versioned swap transaction: ${error.code} ${error.message}`
             );
-          }
-
+          });
           // Add third party signatures (eg Rango)
           const { thirdPartySignatures } = enkSolTx;
           for (let i = 0, len = thirdPartySignatures.length; i < len; i++) {
@@ -237,7 +223,7 @@ export const executeSwap = async (
           // Add signature to the transaction
           legacyTx.addSignature(
             new PublicKey(options.network.displayAddress(options.from.address)),
-            hexToBuffer(JSON.parse(sigRes.result!))
+            sigRes
           );
 
           serialized = legacyTx.serialize();
@@ -253,20 +239,17 @@ export const executeSwap = async (
 
           // Sign the transaction message
           // Use the keyring running in the background script
-          const sigRes = await sendUsingInternalMessengers({
-            method: InternalMethods.sign,
-            params: [
-              bufferToHex(versionedTx.message.serialize()),
-              options.from,
-            ],
-          });
 
-          // Did we fail to sign?
-          if (sigRes.error != null) {
+          const sigRes = await SolanaTransactionSigner({
+            account: options.from,
+            network: options.network,
+            transaction: Buffer.from(versionedTx.message.serialize()),
+          }).catch((err) => {
+            const error = err.error ? err.error : err;
             throw new Error(
-              `Failed to sign Solana versioned swap transaction: ${sigRes.error.code} ${sigRes.error.message}`
+              `Failed to sign Solana versioned swap transaction: ${error.code} ${error.message}`
             );
-          }
+          });
 
           // Add third party signatures (eg Rango)
           const { thirdPartySignatures } = enkSolTx;
@@ -281,7 +264,7 @@ export const executeSwap = async (
           // Add signature to the transaction
           versionedTx.addSignature(
             new PublicKey(options.network.displayAddress(options.from.address)),
-            hexToBuffer(JSON.parse(sigRes.result!))
+            sigRes
           );
 
           serialized = versionedTx.serialize();

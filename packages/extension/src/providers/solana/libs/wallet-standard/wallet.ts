@@ -263,12 +263,12 @@ export class EnkryptWallet implements Wallet {
         }
       }
       if (!isValidAccount) throw new Error("invalid account");
-      const { signature } = await this.#enkrypt.signMessage({
+      const { signature, signedMessage } = await this.#enkrypt.signMessage({
         address: account.address,
         message: uint8ArrayToHex(message),
       });
       outputs.push({
-        signedMessage: message,
+        signedMessage: hexToUint8Array(signedMessage),
         signature: hexToUint8Array(signature),
       });
     } else if (inputs.length > 1) {

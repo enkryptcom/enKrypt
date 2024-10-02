@@ -384,6 +384,7 @@ const isValidSend = computed<boolean>(() => {
   if (!isInputsValid.value) return false;
   if (nativeBalanceAfterTransaction.value.isNeg()) return false;
   if (!isEstimateValid.value) return false;
+  if (gasCostValues.value.ECONOMY.nativeValue === "0") return false;
   return true;
 });
 
@@ -399,7 +400,6 @@ const isInputsValid = computed<boolean>(() => {
     return false;
   }
   if (new BigNumber(sendAmount.value).gt(assetMaxValue.value)) return false;
-  if (gasCostValues.value.ECONOMY.nativeValue === "0") return false;
   return true;
 });
 
@@ -672,7 +672,7 @@ const sendAction = async () => {
       url: Browser.runtime.getURL(
         getUiPath(
           `sol-hw-verify?id=${routedRoute.query.id}&txData=${routedRoute.query.txData}`,
-          ProviderName.ethereum
+          ProviderName.solana
         )
       ),
       type: "popup",

@@ -6,7 +6,7 @@
 
     <template #content>
       <h2>Sign message</h2>
-
+      <hardware-wallet-msg :wallet-type="account.walletType" />
       <div class="common-popup__block">
         <div class="common-popup__account">
           <img :src="identicon" />
@@ -55,6 +55,7 @@
 import SignLogo from "@action/icons/common/sign-logo.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import CommonPopup from "@action/views/common-popup/index.vue";
+import HardwareWalletMsg from "@/providers/common/ui/verify-transaction/hardware-wallet-msg.vue";
 import { getError } from "@/libs/error";
 import { ErrorCodes } from "@/providers/ethereum/types";
 import { WindowPromiseHandler } from "@/libs/window-promise";
@@ -71,11 +72,10 @@ import bs58 from "bs58";
 import { bufferToHex, hexToBuffer, utf8ToHex } from "@enkryptcom/utils";
 import PublicKeyRing from "@/libs/keyring/public-keyring";
 import { createSignInMessageText } from "./libs/signin-message";
-import sendUsingInternalMessengers from "@/libs/messenger/internal-messenger";
-import { InternalMethods } from "@/types/messenger";
 import { SolSignInResponse } from "./types";
 import { isUtf8 } from "@polkadot/util";
 import { hexToUtf8 } from "web3-utils";
+import { MessageSigner } from "./libs/signer";
 
 const windowPromise = WindowPromiseHandler(3);
 const keyring = new PublicKeyRing();
@@ -146,7 +146,6 @@ onBeforeMount(async () => {
     message.value = isUtf8(signMessage.value!.message)
       ? hexToUtf8(signMessage.value!.message)
       : signMessage.value!.message;
-    console.log(message.value);
     keyring
       .getAccount(bufferToHex(bs58.decode(signMessage.value!.address)))
       .then((acc) => {
@@ -167,46 +166,25 @@ onBeforeMount(async () => {
 
 const approve = async () => {
   const { Resolve } = await windowPromise;
-  sendUsingInternalMessengers({
-    method: InternalMethods.sign,
-    params: [
-      reqMethod.value === "sol_signInMessage"
-        ? utf8ToHex(message.value)
-        : signMessage.value?.message,
-      account.value,
-    ],
+  MessageSigner({
+    account: account.value,
+    network: network.value as SolanaNetwork,
+    payload: utf8ToHex(message.value),
   })
     .then((res) => {
-      if (res.error) {
-        return Promise.reject({
-          error: res.error,
-        });
-      } else {
-        const response: SolSignInResponse = {
-          address: bs58.encode(hexToBuffer(account.value.address)),
-          pubkey: account.value.address,
-          signature: JSON.parse(res.result!),
-          signedMessage: utf8ToHex(message.value),
-          signatureType: "ed25519",
-        };
-        Resolve.value({
-          result: JSON.stringify(response),
-        });
-      }
-    })
-    .catch((e) => {
+      const resData = JSON.parse(res.result!);
+      const response: SolSignInResponse = {
+        address: bs58.encode(hexToBuffer(account.value.address)),
+        pubkey: account.value.address,
+        signature: resData.signature,
+        signedMessage: utf8ToHex(message.value),
+        signatureType: "ed25519",
+      };
       Resolve.value({
-        error: e.message,
+        result: JSON.stringify(response),
       });
-    });
-  // MessageSigner({
-  //   account: account.value,
-  //   network: network.value as BitcoinNetwork,
-  //   payload: Buffer.from(msg, "utf8"),
-  //   type: type.value,
-  // })
-  //   .then(Resolve.value)
-  //   .catch(Resolve.value);
+    })
+    .catch(Resolve.value);
 };
 const deny = async () => {
   const { Resolve } = await windowPromise;

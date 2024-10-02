@@ -4,6 +4,8 @@ import LedgerBitcoin from "./ledger/bitcoin";
 import LedgerSubstrate from "./ledger/substrate";
 import TrezorEthereum from "./trezor/ethereum";
 import TrezorBitcoin from "./trezor/bitcoin";
+import LedgerSolana from "./ledger/solana";
+import TrezorSolana from "./trezor/solana";
 import {
   AddressResponse,
   getAddressRequest,
@@ -20,7 +22,9 @@ type ProviderType =
   | typeof LedgerSubstrate
   | typeof TrezorEthereum
   | typeof LedgerBitcoin
-  | typeof TrezorBitcoin;
+  | typeof TrezorBitcoin
+  | typeof LedgerSolana
+  | typeof TrezorSolana;
 class HWwalletManager {
   providerTypes: Record<HWwalletType, ProviderType[]>;
 
@@ -28,8 +32,13 @@ class HWwalletManager {
 
   constructor() {
     this.providerTypes = {
-      [HWwalletType.ledger]: [LedgerEthereum, LedgerSubstrate, LedgerBitcoin],
-      [HWwalletType.trezor]: [TrezorEthereum, TrezorBitcoin],
+      [HWwalletType.ledger]: [
+        LedgerEthereum,
+        LedgerSubstrate,
+        LedgerBitcoin,
+        LedgerSolana,
+      ],
+      [HWwalletType.trezor]: [TrezorEthereum, TrezorBitcoin, TrezorSolana],
     };
     this.providers = {};
   }

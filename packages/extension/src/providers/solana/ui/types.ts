@@ -1,6 +1,8 @@
 import type { ToTokenData } from "@/ui/action/types/token";
 import type { GasFeeInfo, GasPriceTypes } from "@/providers/common/types";
 import type { NFTItemWithCollectionName } from "@/types/nft";
+import { EnkryptAccount } from "@enkryptcom/types";
+import { BaseNetwork } from "@/types/base-network";
 
 export interface SendTransactionDataType {
   from: string;
@@ -34,4 +36,16 @@ export interface SolSignTransactionRequest {
   hex: string;
   address: string;
   chain?: string;
+}
+
+export interface SolInternalSignTransactionRequest {
+  transaction: Buffer;
+  account: EnkryptAccount;
+  network: BaseNetwork;
+}
+
+export interface SolInternalSignMessageRequest {
+  payload: string;
+  account: EnkryptAccount;
+  network: BaseNetwork;
 }
