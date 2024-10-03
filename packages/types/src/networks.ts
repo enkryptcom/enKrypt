@@ -91,6 +91,7 @@ export enum NetworkNames {
   ProofOfPlayApex = "ProofOfPlayApex",
   Scroll = "scroll",
   Rari = "rari",
+  Fraxtal = "fraxtal",
 }
 
 export enum CoingeckoPlatform {
@@ -146,4 +147,5 @@ export enum CoingeckoPlatform {
   Mode = "mode",
   OpBNB = "opbnb",
   Scroll = "scroll",
+  Fraxtal = "fraxtal",
 }
