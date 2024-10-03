@@ -68,6 +68,7 @@ const NetworkEndpoints: Record<string, string> = {
   [NetworkNames.Mode]: "https://explorer.mode.network/",
   [NetworkNames.ProofOfPlayApex]: "https://explorer.apex.proofofplay.com/",
   [NetworkNames.Scroll]: "https://api.scrollscan.com/",
+  [NetworkNames.Fraxtal]: "https://api.fraxscan.com/",
 };
 
 export { NetworkEndpoints };

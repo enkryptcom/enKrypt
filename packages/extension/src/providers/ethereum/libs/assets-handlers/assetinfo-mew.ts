@@ -175,6 +175,10 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
     tbName: "rari",
     cgPlatform: undefined,
   },
+  [NetworkNames.Fraxtal]: {
+    tbName: "frax",
+    cgPlatform: CoingeckoPlatform.Fraxtal,
+  },
 };
 
 const getTokens = (

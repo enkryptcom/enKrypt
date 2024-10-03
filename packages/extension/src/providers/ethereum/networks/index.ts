@@ -57,6 +57,7 @@ import opbnbNode from "./op-bnb";
 import palmNode from "./palm";
 import proofOfPlayApexNode from "./pop-apex";
 import scrollNode from "./scroll";
+import fraxtalNode from "./fraxtal";
 
 export default {
   sepolia: sepoliaNode,
@@ -127,4 +128,5 @@ export default {
   palm: palmNode,
   popApex: proofOfPlayApexNode,
   scroll: scrollNode,
+  frax: fraxtalNode,
 };
