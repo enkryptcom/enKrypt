@@ -1,5 +1,5 @@
 {
-  "name": "Enkrypt: Ethereum & Polkadot Web3 Wallet",
+  "name": "Enkrypt: ETH, BTC and Solana Wallet",
   "manifest_version": 3,
   "action": {
     "default_icon": {
