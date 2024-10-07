@@ -4,6 +4,8 @@ import { PolkadotAPIOptions } from "../types";
 import { AccountInfoWithRefCount } from "@polkadot/types/interfaces";
 import { NetworkEndpoints } from "./activity-handlers/providers/subscan/configs";
 import { SubscanExtrinsicInfo } from "@/types/activity";
+
+/** Polkadot Substrate API wrapper */
 class API implements ProviderAPIInterface {
   node: string;
   decimals: number;

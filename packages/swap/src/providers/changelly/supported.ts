@@ -1,6 +1,17 @@
+// import { isValidSolanaAddress } from "../../utils/solana";
 import { isPolkadotAddress, isEVMAddress } from "../../utils/common";
 import { SupportedNetworkName } from "../../types";
 
+/**
+ * Blockchain names:
+ *
+ * ```sh
+ * curl -sL https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/swaplists/changelly.json | jq --raw-output '.[].blockchain' | sort | uniq -c | sort -nr
+ * ```
+ * ```sh
+ * curl https://partners.mewapi.io/changelly-v2 -X POST -H Accept:application/json -H Content-Type:application/json --data '{"id":"1","jsonrpc":"2.0","method":"getCurrenciesFull","params":{}}'
+ * ````
+ */
 const supportedNetworks: {
   [key in SupportedNetworkName]?: {
     changellyName: string;
@@ -49,6 +60,17 @@ const supportedNetworks: {
   },
   [SupportedNetworkName.Dogecoin]: {
     changellyName: "doge",
+  },
+  // TODO: Re-enable Solana when all issues with Changelly and Solana on Enkrypt are fixed
+  // @2024-10-01
+  // [SupportedNetworkName.Solana]: {
+  //   changellyName: "solana",
+  //   async isAddress(address: string) {
+  //     return isValidSolanaAddress(address);
+  //   },
+  // },
+  [SupportedNetworkName.Rootstock]: {
+    changellyName: "rootstock",
   },
 };
 

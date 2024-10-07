@@ -38,7 +38,11 @@ const getAddressActivity = async (
     method: "GET",
     headers: {
       "Content-Type": "application/json",
-      "Ok-Access-Key": "cdc4e1f0-a147-46af-9aa9-179b08c27fd3",
+      // OKLink Endpoint, requires OKLink API key
+      // api console: https://www.oklink.com/account/my-api
+      // api header spec: https://www.oklink.com/docs/en/#quickstart-guide-api-authentication
+      // api docs: https://www.oklink.com/docs/en/#evm-rpc-data-address-get-normal-transactions-by-address
+      "OK-ACCESS-KEY": "df87e7eb-061f-44b1-84bc-83722fad717c",
     },
   })
     .then((res) => res.json())

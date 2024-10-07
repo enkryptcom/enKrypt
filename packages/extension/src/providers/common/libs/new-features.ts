@@ -1,6 +1,6 @@
 import { NetworkNames } from "@enkryptcom/types";
 
-const newNetworks = [NetworkNames.MantaPacific];
+const newNetworks = [NetworkNames.Solana];
 const newSwaps: NetworkNames[] = [];
 
 export { newNetworks, newSwaps };

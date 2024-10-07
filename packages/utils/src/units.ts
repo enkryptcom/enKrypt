@@ -48,6 +48,9 @@ const numberToString = (arg: any) => {
   );
 };
 
+/**
+ * @returns base10 numeric string
+ */
 const fromBase = (
   weiInput: string,
   decimals: number,

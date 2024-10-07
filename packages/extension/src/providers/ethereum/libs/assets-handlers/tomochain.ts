@@ -1,6 +1,6 @@
 import { SupportedNetworkNames, TokenBalance } from "./types/tokenbalance-mew";
 import { NATIVE_TOKEN_ADDRESS } from "../common";
-import { numberToHex } from "web3-utils";
+import { numberToHex } from "@enkryptcom/utils";
 
 interface TokenBalanceType {
   token: string;

@@ -20,8 +20,14 @@
         </a>
       </div>
     </div>
-
     <base-button title="Finish" :click="finishAction" />
+    <h4 style="margin-left: 80px; margin-top: 10px">
+      <a
+        href="https://blog.enkrypt.com/getting-started-with-enkrypt-wallet/"
+        target="_blank"
+        >How to get started 👉</a
+      >
+    </h4>
   </div>
 </template>
 <script setup lang="ts">
@@ -58,6 +64,14 @@ const finishAction = () => {
     letter-spacing: 0.25px;
     color: @primaryLabel;
     margin: 0 0 24px 0;
+  }
+  h4 {
+    font-style: normal;
+    font-weight: 400;
+    font-size: 18px;
+    line-height: 24px;
+    color: @secondaryLabel;
+    margin: 0 0 8px 0;
   }
 
   &__social {

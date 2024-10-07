@@ -23,6 +23,12 @@ export interface SHNFTType {
     external_url: string;
     collection_id: string;
     spam_score: number;
+    marketplace_pages: {
+      marketplace_id: string;
+      marketplace_name: string;
+      collection_url: string;
+      nft_url: string;
+    }[];
   };
   contract: {
     name: string;
@@ -37,6 +43,13 @@ export interface SHOrdinalsNFTType extends SHNFTType {
     };
   };
 }
+
+export interface SHSolanaNFTType extends SHNFTType {
+  extra_metadata: {
+    token_program: string;
+  };
+}
+
 export interface SHResponse {
   next: string;
   previous: string;
