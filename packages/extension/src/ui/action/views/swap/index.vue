@@ -134,6 +134,7 @@ import SwapLooking from "./components/swap-loading/index.vue";
 import SwapErrorPopup from "./components/swap-error/index.vue";
 import SendAddressInput from "./components/send-address-input.vue";
 import SendContactsList from "./components/send-contacts-list.vue";
+import { getAccountsByNetworkName } from "@/libs/utils/accounts";
 import { AccountsHeaderData } from "../../types/account";
 import { getNetworkByName } from "@/libs/utils/networks";
 import { BaseNetwork } from "@/types/base-network";
@@ -164,12 +165,17 @@ import { SWAP_LOADING, SwapData } from "./types";
 import SwapNetworkSelect from "./components/swap-network-select/index.vue";
 import { toBase } from "@enkryptcom/utils";
 import { debounce } from "lodash";
-import PublicKeyRing from "@/libs/keyring/public-keyring";
 import MarketData from "@/libs/market-data";
 import { ProviderResponseWithStatus } from "./types";
 import { GenericNameResolver, CoinType } from "@/libs/name-resolver";
 import { trackSwapEvents } from "@/libs/metrics";
 import { SwapEventType } from "@/libs/metrics/types";
+import { Connection } from "@solana/web3.js";
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function
+const debug = (..._args: any[]) => {};
+// Use this debug instead to enable debug logging
+// const debug = console.debug.bind(console);
 
 type BN = ReturnType<typeof toBN>;
 
@@ -222,8 +228,12 @@ const errors = ref({
 });
 const bestProviderQuotes = ref<ProviderQuoteResponse[]>([]);
 
+/** Receiver address (address that will be receiving the swap output) */
 const address = ref<string>("");
+
+/** Is the receiver address valid */
 const addressIsValid = ref(true);
+
 const isOpenSelectContact = ref<boolean>(false);
 const addressInput = ref();
 const toAccounts = ref<EnkryptAccount[]>([]);
@@ -237,15 +247,26 @@ const isLooking = ref(false);
 
 const swapMax = ref(false);
 
+let api: Web3Eth | Connection;
+switch (props.network.name) {
+  case NetworkNames.Solana:
+    api = new Connection(props.network.node);
+    break;
+  default:
+    // Assume EVM
+    api = new Web3Eth(props.network.node);
+    break;
+}
+
 const swap = new EnkryptSwap({
-  api: new Web3Eth(props.network.node),
+  api,
   network: props.network.name as unknown as SupportedNetworkName,
   walletIdentifier: WalletIdentifier.enkrypt,
   evmOptions: {
     infiniteApproval: true,
   },
 });
-const keyring = new PublicKeyRing();
+
 onMounted(async () => {
   trackSwapEvents(SwapEventType.SwapOpen, { network: props.network.name });
   if (
@@ -260,7 +281,7 @@ onMounted(async () => {
     .getAllTokenInfo(props.accountInfo.selectedAccount?.address as string)
     .then(async (tokens) => {
       await swap.initPromise;
-      let swapFromTokens = await swap.getFromTokens();
+      let swapFromTokens = swap.getFromTokens();
       const tokensWithBalance: Record<string, string> = {};
       tokens.forEach((t) => {
         if (
@@ -329,6 +350,7 @@ const setToTokens = () => {
   trendingToTokens.value = [];
   toToken.value = null;
   const MAX_TRENDING = 5;
+  // Remove the source token from the list of destination tokens
   toTokens.value = swapToTokens.all[toNetwork.value!.id].filter((val) => {
     if (!defaultBNVals[val.decimals])
       defaultBNVals[val.decimals] = toBN(toBase("1", val.decimals));
@@ -368,19 +390,22 @@ const setToTokens = () => {
     );
   });
   if (toTokens.value.length === 1) toToken.value = toTokens.value[0];
-  keyring.getAccounts(toNetwork.value?.signerType).then((accounts) => {
-    toAccounts.value = accounts;
-    const currentAccount = accounts.find(
-      (a) => a.address === props.accountInfo.selectedAccount!.address
-    );
-    if (currentAccount) {
-      address.value = currentAccount.address;
-      isValidToAddress();
-    } else if (accounts.length) {
-      address.value = accounts[0].address;
-      isValidToAddress();
+
+  getAccountsByNetworkName(toNetwork.value!.id as unknown as NetworkNames).then(
+    (accounts) => {
+      toAccounts.value = accounts;
+      const currentAccount = accounts.find(
+        (a) => a.address === props.accountInfo.selectedAccount!.address
+      );
+      if (currentAccount) {
+        address.value = currentAccount.address;
+        isValidToAddress();
+      } else if (accounts.length) {
+        address.value = accounts[0].address;
+        isValidToAddress();
+      }
     }
-  });
+  );
 };
 
 const setMax = () => {
@@ -410,21 +435,30 @@ const toggleSelectContact = () => {
   isOpenSelectContact.value = !isOpenSelectContact.value;
 };
 
+/**
+ * Check whether the receiver address is a valid on the network
+ *
+ * If it is then asynchronously refresh the quote
+ */
 const isValidToAddress = debounce(() => {
   addressIsValid.value = true;
   if (!address.value) addressIsValid.value = false;
   else {
     try {
       const converted = toAddressInputMeta.value.displayAddress(address.value);
-      toToken.value?.networkInfo.isAddress(converted).then((res) => {
-        addressIsValid.value = res;
-        if (res) updateQuote();
-      });
+      toToken.value?.networkInfo
+        .isAddress(converted)
+        .then((receiverAddressIsValid) => {
+          addressIsValid.value = receiverAddressIsValid;
+          if (receiverAddressIsValid) checkUpdateQuote();
+        });
     } catch (e) {
       addressIsValid.value = false;
     }
   }
 }, 200);
+
+/** Native currency on the source network */
 const nativeSwapToken = computed(() => {
   const nToken = fromTokens.value?.find(
     (ft) => ft.address === NATIVE_TOKEN_ADDRESS
@@ -433,55 +467,108 @@ const nativeSwapToken = computed(() => {
   return undefined;
 });
 
+/**
+ * Choose the best deal from a list of swap providers' quotes
+ *
+ * Update the quote list and dest asset amount based
+ */
 const pickBestQuote = (fromAmountBN: BN, quotes: ProviderQuoteResponse[]) => {
+  if (toToken.value == null) {
+    debug(
+      "[swap/index.vue] Skipping quote picking: no destination token amount selected yet"
+    );
+    return;
+  }
+
   errors.value.inputAmount = "";
+
+  // No quotes at all
   if (!quotes.length) return;
+
   const fromT = new SwapToken(fromToken.value!);
+
+  /** Users would-be balance of the source asset after the swap, excluding fees */
   const remainingBalance =
     fromT.token.address === NATIVE_TOKEN_ADDRESS
       ? nativeSwapToken.value!.getBalanceRaw().sub(fromAmountBN)
       : nativeSwapToken.value!.getBalanceRaw();
+
+  // Drop quotes that don't fit the users desired "amount"
+
+  /** Quotes that the user can affort & fit their desired source amount */
   const filteredQuotes = quotes.filter((q) => {
     return (
+      // Must be swapping enough tokens
       q.minMax.minimumFrom.lte(fromAmountBN) &&
+      // Must not be swapping too many tokens
       q.minMax.maximumFrom.gte(fromAmountBN) &&
+      // Must be able to afford the fees
       q.additionalNativeFees.lte(remainingBalance)
     );
   });
+
   if (!filteredQuotes.length) {
+    // User can't afford any quotes or none fit their requirements
+    // Show a message in the UI describing why
     let lowestMinimum: BN = quotes[0].minMax.minimumFrom;
     let highestMaximum: BN = quotes[0].minMax.maximumFrom;
     let smallestNativeFees: BN = nativeSwapToken.value!.getBalanceRaw();
+    // Note: this would show the fee instead of your balance as the required missing amount
+    // let smallestNativeFees: BN = quotes[0].additionalNativeFees;
+
+    // Loop through each quote to figure out the min and max swap src bounds
+    // and the smallest possible native fees
     quotes.forEach((q) => {
-      if (q.minMax.minimumFrom.lt(lowestMinimum))
+      // Minimum lower bound
+      if (q.minMax.minimumFrom.lt(lowestMinimum)) {
         lowestMinimum = q.minMax.minimumFrom;
-      if (q.minMax.maximumFrom.gt(highestMaximum))
+      }
+      // Maximum upper bound
+      if (q.minMax.maximumFrom.gt(highestMaximum)) {
         highestMaximum = q.minMax.maximumFrom;
+      }
+      // Minimum briding fees / rent fees / etc
       if (
         !q.additionalNativeFees.eqn(0) &&
         q.additionalNativeFees.lt(smallestNativeFees)
-      )
+      ) {
         smallestNativeFees = q.additionalNativeFees;
+      }
     });
-    if (fromAmountBN.lt(lowestMinimum))
+
+    // Decide what message to show
+    if (fromAmountBN.lt(lowestMinimum)) {
+      // Swapping too few tokens
       errors.value.inputAmount = `Minimum amount: ${fromT.toReadable(
         lowestMinimum
       )}`;
-    else if (fromAmountBN.gt(highestMaximum))
+    } else if (fromAmountBN.gt(highestMaximum)) {
+      // Swapping too many tokens
       errors.value.inputAmount = `Maximum amount: ${fromT.toReadable(
         highestMaximum
       )}`;
-    else if (smallestNativeFees.gt(remainingBalance)) {
+    } else if (smallestNativeFees.gt(remainingBalance)) {
+      // Can't afford the fees
       errors.value.inputAmount = `Insufficient Bridging fees: ~${nativeSwapToken
         .value!.toReadable(smallestNativeFees)
         .substring(0, 6)} ${nativeSwapToken.value!.token.symbol} required`;
     }
+
     return;
   }
+
+  // There exist quotes that fit the users swap amount
+
   if (fromT.getBalanceRaw().lt(fromAmountBN)) {
     errors.value.inputAmount = "Insufficient funds";
   }
+
+  // Sort remaining quotes descending by the amount of the dest asset to be received
+  // i.e. best deal first
   filteredQuotes.sort((a, b) => (b.toTokenAmount.gt(a.toTokenAmount) ? 1 : -1));
+
+  // Apply the results
+  // NOTE: toToken.value is sometimes not defined here? (it's null)
   toAmount.value = new SwapToken(toToken.value!).toReadable(
     filteredQuotes[0].toTokenAmount
   );
@@ -489,54 +576,125 @@ const pickBestQuote = (fromAmountBN: BN, quotes: ProviderQuoteResponse[]) => {
   isFindingRate.value = false;
 };
 
+/** Used to cancel the request to avoid race conditions */
+const updateQuoteContext = {
+  current: {
+    /** context id */
+    id: 0,
+    /** context aborter */
+    aborter: new AbortController(),
+  },
+};
+
+function checkUpdateQuote() {
+  if (
+    fromToken.value &&
+    toToken.value &&
+    fromAmount.value &&
+    !isNaN(fromAmount.value as any) &&
+    Number(fromAmount.value) > 0
+  ) {
+    updateQuote();
+  } else {
+    isFindingRate.value = false;
+    toAmount.value = "";
+  }
+}
+
+/**
+ * Request quotes from all swap providers & pick the best one
+ */
 const updateQuote = () => {
   isFindingRate.value = true;
   toAmount.value = "";
   bestProviderQuotes.value = [];
   errors.value.noProviders = false;
   const token = new SwapToken(fromToken.value!);
-  const fromRawAmount = token.toRaw(fromAmount.value!);
+  if (fromAmount.value == null) {
+    // User probably set a destination token before setting a "from" amount
+    debug("[swap/index.vue] Skipping quote update: no source token amount set");
+    return;
+  }
+  let fromRawAmount: BN;
+  try {
+    fromRawAmount = token.toRaw(fromAmount.value!);
+  } catch (err) {
+    console.warn(
+      `Failed to convert amount to raw: ${err}` +
+        `  fromAmount.value=${fromAmount.value} (${typeof fromAmount.value})`
+    );
+    throw err;
+  }
   trackSwapEvents(SwapEventType.SwapRate, {
     network: props.network.name,
     fromToken: fromToken.value!.name,
     toToken: toToken.value!.name,
   });
+  if (!toToken.value) {
+    console.warn("No destination token selected yet, yet requesting a quote??");
+  }
+
+  // Abort the previous execution. Used to avoid race conditions in the UI and
+  // rapid pointless updates in succession when multiple requests are in-flight.
+  // AbortSignal gives the swap provider the abiltiy to cancel network requests
+  // and exit early.
+  updateQuoteContext.current.aborter.abort();
+  // Setup a new abortable context
+  const context = {
+    id: updateQuoteContext.current.id + 1,
+    aborter: new AbortController(),
+  };
+  updateQuoteContext.current = context;
+  debug(`[swap/index.vue] Starting quote update  id=${context.id}`);
+
   swap
-    .getQuotes({
-      amount: fromRawAmount,
-      fromAddress: props.network.displayAddress(
-        props.accountInfo.selectedAccount!.address
-      ),
-      fromToken: fromToken.value!,
-      toToken: toToken.value!,
-      toAddress: toAddressInputMeta.value.displayAddress(address.value),
-    })
+    .getQuotes(
+      {
+        amount: fromRawAmount,
+        fromAddress: props.network.displayAddress(
+          props.accountInfo.selectedAccount!.address
+        ),
+        fromToken: fromToken.value!,
+        toToken: toToken.value!,
+        toAddress: toAddressInputMeta.value.displayAddress(address.value),
+      },
+      { signal: context.aborter.signal }
+    )
     .then((quotes) => {
-      if (quotes.length) pickBestQuote(fromRawAmount, quotes);
-      else {
+      // Overidden by new update, drop these quotes
+      if (context.aborter.signal.aborted) {
+        debug(
+          `[swap/index.vue] Dropping quotes due to new update  id=${context.id}`
+        );
+        return;
+      }
+
+      if (quotes.length) {
+        debug(
+          `[swap/index.vue] Found ${quotes.length} quotes  id=${context.id}`
+        );
+        pickBestQuote(fromRawAmount, quotes);
+      } else {
+        debug(`[swap/index.vue] No quotes  id=${context.id}`);
         isFindingRate.value = false;
         errors.value.noProviders = true;
       }
+    })
+    .catch((err) => {
+      // Context aborted, just ignore the error
+      if (err === context.aborter.signal.reason) {
+        debug(
+          `[swap/index.vue] Ignoring error due to quote request context abort  id=${context.id}`
+        );
+        return;
+      }
+      throw err;
     });
 };
 
-watch(
-  [fromToken, toToken, fromAmount],
-  debounce(async () => {
-    if (
-      fromToken.value &&
-      toToken.value &&
-      fromAmount.value &&
-      !isNaN(fromAmount.value as any) &&
-      Number(fromAmount.value) > 0
-    ) {
-      updateQuote();
-    } else {
-      isFindingRate.value = false;
-      toAmount.value = "";
-    }
-  }, 300)
-);
+// Whenever the token types or amounts change, update the quote (within a
+// debounce)
+watch([fromToken, toToken, fromAmount], debounce(checkUpdateQuote, 300));
 
 const selectTokenFrom = (token: TokenType | TokenTypeTo) => {
   fromToken.value = token as TokenType;
@@ -638,20 +796,39 @@ const isDisabled = computed(() => {
 const sendAction = async () => {
   toggleLooking();
   const marketData = new MarketData();
-  const fromPrice = fromToken.value!.cgId
-    ? await marketData
-        .getMarketData([fromToken.value!.cgId])
-        .then((res) => res[0]!.current_price)
-    : 0;
-  const toPrice = toToken.value!.cgId
-    ? await marketData
-        .getMarketData([toToken.value!.cgId])
-        .then((res) => res[0]!.current_price)
-    : 0;
+
+  let fromPrice: null | number;
+  if (!fromToken.value!.cgId) {
+    console.warn(
+      `Source token ${fromToken.value!.symbol} (${fromToken.value!.name})` +
+        ` ${fromToken.value!.address} has no CoinGecko ID, setting price` +
+        ` to 0`
+    );
+    fromPrice = 0;
+  } else {
+    fromPrice = await marketData
+      .getMarketData([fromToken.value!.cgId])
+      .then((res) => res[0]!.current_price);
+  }
+
+  let toPrice: null | number;
+  if (!toToken.value!.cgId) {
+    console.warn(
+      `Destination token ${toToken.value!.symbol} (${toToken.value!.name})` +
+        ` ${toToken.value!.address} has no CoinGecko ID, setting price` +
+        ` to 0`
+    );
+    toPrice = 0;
+  } else {
+    toPrice = await marketData
+      .getMarketData([toToken.value!.cgId])
+      .then((res) => res[0]!.current_price);
+  }
+
   const localFromToken = { ...fromToken.value! };
   const localToToken = { ...toToken.value! };
-  localFromToken.price = fromPrice;
-  localToToken.price = toPrice;
+  localFromToken.price = fromPrice ?? undefined;
+  localToToken.price = toPrice ?? undefined;
   localFromToken.balance = bestProviderQuotes.value[0]!.fromTokenAmount;
   localToToken.balance = bestProviderQuotes.value[0]!.toTokenAmount;
   const swapToToken = new SwapToken(localToToken);
@@ -667,11 +844,13 @@ const sendAction = async () => {
   const trades: (ProviderResponseWithStatus | null)[] = await Promise.all(
     tradePromises
   ).then((responses) => responses.filter((r) => !!r));
+
   const tradeStatusOptions = trades.map((t) =>
     t!.getStatusObject({
       transactionHashes: [],
     })
   );
+
   const statusObjects = await Promise.all(tradeStatusOptions);
   trades.forEach((t, idx) => (t!.status = statusObjects[idx]));
   if (!trades.length) {
@@ -724,6 +903,7 @@ const sendAction = async () => {
 
 <style lang="less" scoped>
 @import "~@action/styles/theme.less";
+
 .container {
   width: 100%;
   height: 600px;
@@ -733,6 +913,7 @@ const sendAction = async () => {
   box-sizing: border-box;
   position: relative;
 }
+
 .swap {
   width: 100%;
   height: 100%;
@@ -827,6 +1008,7 @@ const sendAction = async () => {
     max-height: 114px;
     padding: 8px;
     box-sizing: border-box;
+
     h3 {
       display: none;
     }

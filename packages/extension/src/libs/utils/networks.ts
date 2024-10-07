@@ -4,6 +4,7 @@ import EthereumNetworks from "@/providers/ethereum/networks";
 import PolkadotNetworks from "@/providers/polkadot/networks";
 import BitcoinNetworks from "@/providers/bitcoin/networks";
 import KadenaNetworks from "@/providers/kadena/networks";
+import SolanaNetworks from "@/providers/solana/networks";
 import { BaseNetwork } from "@/types/base-network";
 import CustomNetworksState from "../custom-networks-state";
 import { CustomEvmNetwork } from "@/providers/ethereum/types/custom-evm-network";
@@ -11,12 +12,14 @@ import Ethereum from "@/providers/ethereum/networks/eth";
 import Polkadot from "@/providers/polkadot/networks/polkadot";
 import Bitcoin from "@/providers/bitcoin/networks/bitcoin";
 import Kadena from "@/providers/kadena/networks/kadena";
+import Solana from "@/providers/solana/networks/solana";
 
 const providerNetworks: Record<ProviderName, Record<string, BaseNetwork>> = {
   [ProviderName.ethereum]: EthereumNetworks,
   [ProviderName.polkadot]: PolkadotNetworks,
   [ProviderName.bitcoin]: BitcoinNetworks,
   [ProviderName.kadena]: KadenaNetworks,
+  [ProviderName.solana]: SolanaNetworks,
   [ProviderName.enkrypt]: {},
 };
 const getAllNetworks = async (): Promise<BaseNetwork[]> => {
@@ -30,6 +33,7 @@ const getAllNetworks = async (): Promise<BaseNetwork[]> => {
     .concat(Object.values(PolkadotNetworks) as BaseNetwork[])
     .concat(Object.values(BitcoinNetworks) as BaseNetwork[])
     .concat(Object.values(KadenaNetworks) as BaseNetwork[])
+    .concat(Object.values(SolanaNetworks) as BaseNetwork[])
     .concat(customNetworks);
 };
 const getNetworkByName = async (
@@ -58,11 +62,13 @@ const DEFAULT_EVM_NETWORK_NAME = NetworkNames.Ethereum;
 const DEFAULT_SUBSTRATE_NETWORK_NAME = NetworkNames.Polkadot;
 const DEFAULT_BTC_NETWORK_NAME = NetworkNames.Bitcoin;
 const DEFAULT_KADENA_NETWORK_NAME = NetworkNames.Kadena;
+const DEFAULT_SOLANA_NETWORK_NAME = NetworkNames.Solana;
 
 const DEFAULT_EVM_NETWORK = Ethereum;
 const DEFAULT_SUBSTRATE_NETWORK = Polkadot;
 const DEFAULT_BTC_NETWORK = Bitcoin;
 const DEFAULT_KADENA_NETWORK = Kadena;
+const DEFAULT_SOLANA_NETWORK = Solana;
 
 const POPULAR_NAMES = [
   NetworkNames.Bitcoin,
@@ -87,4 +93,6 @@ export {
   DEFAULT_BTC_NETWORK,
   DEFAULT_KADENA_NETWORK,
   DEFAULT_KADENA_NETWORK_NAME,
+  DEFAULT_SOLANA_NETWORK,
+  DEFAULT_SOLANA_NETWORK_NAME,
 };

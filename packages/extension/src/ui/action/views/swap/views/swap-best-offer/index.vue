@@ -10,8 +10,12 @@
           <close-icon />
         </a>
       </div>
-
       <div class="swap-best-offer__wrap">
+        <hardware-wallet-msg
+          v-if="account"
+          :wallet-type="account.walletType"
+          style="width: 90%"
+        />
         <custom-scrollbar
           ref="bestOfferScrollRef"
           class="swap-best-offer__scroll-area"
@@ -110,6 +114,7 @@ import CloseIcon from "@action/icons/common/close-icon.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import SwapBestOfferBlock from "./components/swap-best-offer-block/index.vue";
 import SwapInitiated from "@action/views/swap-initiated/index.vue";
+import HardwareWalletMsg from "@/providers/common/ui/verify-transaction/hardware-wallet-msg.vue";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 import BestOfferError from "./components/swap-best-offer-block/components/best-offer-error.vue";
 import SendFeeSelect from "@/providers/common/ui/send-transaction/send-fee-select.vue";
@@ -153,6 +158,8 @@ import ActivityState from "@/libs/activity-state";
 import { getBitcoinGasVals } from "../../libs/bitcoin-gasvals";
 import { trackSwapEvents } from "@/libs/metrics";
 import { SwapEventType } from "@/libs/metrics/types";
+import { getSolanaTransactionFees } from "../../libs/solana-gasvals";
+import { SolanaNetwork } from "@/providers/solana/types/sol-network";
 
 const router = useRouter();
 const route = useRoute();
@@ -183,7 +190,7 @@ const selectedFee = ref<GasPriceTypes>(GasPriceTypes.REGULAR);
 const pickedTrade = ref<ProviderResponseWithStatus>(
   swapData.trades[swapData.trades.length - 1]
 );
-const gasCostValues = ref<GasFeeType>(defaultGasCostVals);
+const gasCostValues = ref<Partial<GasFeeType>>(defaultGasCostVals);
 const balance = ref<BN>(swapData.nativeBalance);
 const KeyRing = new PublicKeyRing();
 const isWindowPopup = ref(false);
@@ -199,8 +206,14 @@ const isLooking = ref(true);
 
 const setWarning = async () => {
   if (balance.value.ltn(0)) return;
+  const selectedGasTier = gasCostValues.value[selectedFee.value];
+  if (!selectedGasTier) {
+    console.warn("No gas cost values for selected fee");
+    return;
+  }
+
   const currentGasCost = toBase(
-    gasCostValues.value[selectedFee.value].nativeValue,
+    selectedGasTier.nativeValue,
     network.value!.decimals
   );
 
@@ -240,7 +253,7 @@ defineExpose({ bestOfferScrollRef });
 const getTransactionFees = async (
   networkName: SupportedNetworkName,
   trade: ProviderResponseWithStatus
-): Promise<GasFeeType> => {
+): Promise<Partial<GasFeeType>> => {
   const transactionObjects = await getSwapTransactions(
     networkName,
     trade.transactions
@@ -252,13 +265,20 @@ const getTransactionFees = async (
       swapData.nativePrice,
       trade.additionalNativeFees
     );
+  } else if (networkInfo.type === NetworkType.Solana) {
+    return getSolanaTransactionFees(
+      transactionObjects!,
+      network.value as SolanaNetwork,
+      swapData.nativePrice,
+      trade.additionalNativeFees
+    );
   } else if (networkInfo.type === NetworkType.Substrate) {
     return getSubstrateGasVals(
       transactionObjects!,
       swapData.fromAddress,
       network.value!,
       swapData.nativePrice
-    ) as Promise<GasFeeType>;
+    );
   } else if (networkInfo.type === NetworkType.Bitcoin) {
     return getBitcoinGasVals(
       transactionObjects!,
@@ -293,7 +313,12 @@ onMounted(async () => {
       selectedNetwork as SupportedNetworkName,
       trade
     );
-    const gasCostFiat = parseFloat(gasCosts[selectedFee.value].fiatValue);
+    const gasTier = gasCosts[selectedFee.value];
+    if (!gasTier) {
+      console.warn("No gas cost tier for selected fee value");
+      throw new Error("No gas cost tier for selected fee value");
+    }
+    const gasCostFiat = parseFloat(gasTier.fiatValue);
     const finalToFiat = toTokenFiat - gasCostFiat;
     if (finalToFiat > tempFinalToFiat) {
       tempBestTrade = trade;
@@ -341,10 +366,12 @@ const close = () => {
 const sendButtonTitle = () => "Proceed with swap";
 
 const isDisabled = computed(() => {
+  const gasTier = gasCostValues.value[selectedFee.value];
   if (
     (warning.value !== SwapBestOfferWarnings.NONE &&
       warning.value !== SwapBestOfferWarnings.BAD_PRICE) ||
-    gasCostValues.value[selectedFee.value].nativeValue === "0"
+    !gasTier ||
+    gasTier.nativeValue === "0"
   ) {
     return true;
   }
@@ -358,6 +385,7 @@ const sendAction = async () => {
     TXSendErrorMessage.value = "";
     isTXSendLoading.value = true;
     isInitiated.value = true;
+    // The problem is in here
     await executeSwap({
       from: account.value!,
       fromToken: swapData.fromToken,

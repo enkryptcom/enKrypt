@@ -4,6 +4,7 @@ import nodeResolve from "@rollup/plugin-node-resolve";
 import { uglify } from "rollup-plugin-uglify";
 import inject from "@rollup/plugin-inject";
 import replace from "@rollup/plugin-replace";
+import json from "@rollup/plugin-json";
 import packageJson from "../package.json" assert { type: "json" };
 
 /** @typedef {import('rollup').InputOptions} InputOptions */
@@ -27,8 +28,11 @@ const base = {
       __VERSION__: JSON.stringify(packageJson.version),
       __IS_OPERA__: process.env.BROWSER === "opera-edge",
     }),
-    typescript(),
+    typescript({
+      exclude: [/node_modules/],
+    }),
     commonjs(),
+    json(),
     inject({
       Buffer: ["buffer", "Buffer"],
     }),

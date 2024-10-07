@@ -32,7 +32,7 @@
       "all_frames": false
     },
     {
-      "matches": ["*://connect.trezor.io/*/popup.html"],
+      "matches": ["*://connect.trezor.io/*/*"],
       "js": ["vendor/trezor-content-script.js"],
       "run_at": "document_start"
     }

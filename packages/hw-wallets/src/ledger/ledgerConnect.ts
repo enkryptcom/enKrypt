@@ -10,23 +10,24 @@ function connect(
   this: LedgerEthereum | LedgerSubstrate,
   networkName: NetworkNames
 ): Promise<boolean> {
+  const appName = ledgerAppNames[networkName]
+    ? ledgerAppNames[networkName]
+    : ledgerAppNames[NetworkNames.Ethereum];
   return getDeviceInfo(this.transport)
     .then(() =>
-      openApp(this.transport, ledgerAppNames[networkName])
+      openApp(this.transport, appName)
         .then(() => true)
         .catch(() => {
           throw new Error(
-            `Make sure you have ${ledgerAppNames[networkName]} App installed on your ledger`
+            `Make sure you have ${appName} App installed on your ledger`
           );
         })
     )
     .catch((e) => {
       if (e.message === "DeviceOnDashboardExpected") {
         return getAppAndVersion(this.transport).then((appInfo) => {
-          if (appInfo.name !== ledgerAppNames[networkName])
-            throw new Error(
-              `Make sure you have ${ledgerAppNames[networkName]} App opened`
-            );
+          if (appInfo.name !== appName)
+            throw new Error(`Make sure you have ${appName} App opened`);
           return true;
         });
       }

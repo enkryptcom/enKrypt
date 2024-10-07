@@ -13,6 +13,7 @@ import {
 import { toBase } from "@enkryptcom/utils";
 import DomainState from "@/libs/domain-state";
 
+/** Kadena API wrapper */
 class API implements ProviderAPIInterface {
   decimals: number;
   node: string;

@@ -6,7 +6,7 @@
 
     <template #content>
       <h2>Sign message</h2>
-
+      <hardware-wallet-msg :wallet-type="account.walletType" />
       <div class="common-popup__block">
         <div class="common-popup__account">
           <img :src="identicon" />
@@ -46,7 +46,7 @@
     </template>
 
     <template #button-right>
-      <base-button title="Sign" :click="approve" />
+      <base-button title="Sign" :click="approve" :disabled="isProcessing" />
     </template>
   </common-popup>
 </template>
@@ -55,6 +55,7 @@
 import SignLogo from "@action/icons/common/sign-logo.vue";
 import BaseButton from "@action/components/base-button/index.vue";
 import CommonPopup from "@action/views/common-popup/index.vue";
+import HardwareWalletMsg from "@/providers/common/ui/verify-transaction/hardware-wallet-msg.vue";
 import { getError } from "@/libs/error";
 import { ErrorCodes } from "@/providers/ethereum/types";
 import { WindowPromiseHandler } from "@/libs/window-promise";
@@ -82,6 +83,7 @@ const Options = ref<ProviderRequestOptions>({
 
 const message = ref<string>("");
 const type = ref<string>("");
+const isProcessing = ref(false);
 onBeforeMount(async () => {
   const { Request, options } = await windowPromise;
   network.value = (await getNetworkByName(
@@ -97,6 +99,7 @@ onBeforeMount(async () => {
 const approve = async () => {
   const { Request, Resolve } = await windowPromise;
   const msg = Request.value.params![0] as string;
+  isProcessing.value = true;
   MessageSigner({
     account: account.value,
     network: network.value as BitcoinNetwork,

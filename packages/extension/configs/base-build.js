@@ -20,6 +20,10 @@ const setConfig = (config) => {
     net: false,
     tls: false,
   });
+  config.set("externals", {
+    "node:path": "commonjs2 node:path",
+    "node:fs/promises": {},
+  });
   config
     .plugin("buffer") // <-arbitrary name to give this plugin entry I guess?
     .use(require.resolve("webpack/lib/ProvidePlugin"), [

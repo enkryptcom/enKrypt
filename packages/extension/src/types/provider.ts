@@ -2,6 +2,7 @@ import type { InjectedProvider as EthereumProvider } from "../providers/ethereum
 import type { InjectedProvider as PolkadotProvider } from "@/providers/polkadot/types";
 import type { InjectedProvider as BitcoinProvider } from "@/providers/bitcoin/types";
 import type { InjectedProvider as KadenaProvider } from "@/providers/kadena/types";
+import type { InjectedProvider as SolanaProvider } from "@/providers/solana/types";
 import EventEmitter from "eventemitter3";
 import {
   MiddlewareFunction,
@@ -21,6 +22,7 @@ import {
   EthereumRawInfo,
   SubscanExtrinsicInfo,
   KadenaRawInfo,
+  SOLRawInfo,
 } from "./activity";
 
 export enum ProviderName {
@@ -29,6 +31,7 @@ export enum ProviderName {
   bitcoin = "bitcoin",
   polkadot = "polkadot",
   kadena = "kadena",
+  solana = "solana",
 }
 export enum InternalStorageNamespace {
   keyring = "KeyRing",
@@ -38,6 +41,7 @@ export enum InternalStorageNamespace {
   substrateAccountsState = "SubstrateAccountsState",
   bitcoinAccountsState = "BitcoinAccountsState",
   kadenaAccountsState = "KadenaAccountsState",
+  solanaAccountsState = "SolanaAccountsState",
   activityState = "ActivityState",
   marketData = "MarketData",
   cacheFetch = "CacheFetch",
@@ -58,6 +62,7 @@ export enum ProviderType {
   substrate,
   bitcoin,
   kadena,
+  solana,
 }
 
 export type SendMessageHandler = (
@@ -114,6 +119,12 @@ export abstract class BackgroundProviderInterface extends EventEmitter {
   abstract sendNotification(notif: string): Promise<void>;
 }
 
+/**
+ * Wraps basic network functionality to provide common features like balances and transaction statuses.
+ *
+ * Each network type will typically have its own implementing class. For example, for EVM networks the implementing
+ * class need just wrap JSON RPC calls.
+ */
 export abstract class ProviderAPIInterface {
   abstract node: string;
   // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function
@@ -123,7 +134,12 @@ export abstract class ProviderAPIInterface {
   abstract getTransactionStatus(
     hash: string
   ): Promise<
-    EthereumRawInfo | SubscanExtrinsicInfo | BTCRawInfo | KadenaRawInfo | null
+    | EthereumRawInfo
+    | SubscanExtrinsicInfo
+    | BTCRawInfo
+    | KadenaRawInfo
+    | SOLRawInfo
+    | null
   >;
 }
 
@@ -136,12 +152,19 @@ export type handleOutgoingMessage = (
   provider: Provider,
   message: string
 ) => Promise<any>;
-export { EthereumProvider, PolkadotProvider, BitcoinProvider, KadenaProvider };
+export {
+  EthereumProvider,
+  PolkadotProvider,
+  BitcoinProvider,
+  KadenaProvider,
+  SolanaProvider,
+};
 export type Provider =
   | EthereumProvider
   | PolkadotProvider
   | BitcoinProvider
-  | KadenaProvider;
+  | KadenaProvider
+  | SolanaProvider;
 
 export interface ProviderRequestOptions {
   url: string;

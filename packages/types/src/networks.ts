@@ -73,6 +73,7 @@ export enum NetworkNames {
   RolluxTest = "TRLX",
   Rollux = "RLX",
   CagaAnkara = "CagaAnkara",
+  Solana = "SOLANA",
   Telos = "TLOS",
   Blast = "blast",
   Sanko = "sanko",
@@ -91,6 +92,8 @@ export enum NetworkNames {
   ProofOfPlayApex = "ProofOfPlayApex",
   Scroll = "scroll",
   Rari = "rari",
+  CotiDevnet = "CotiDevnet",
+  Holesky = "HOLESKY",
 }
 
 export enum CoingeckoPlatform {
@@ -138,6 +141,7 @@ export enum CoingeckoPlatform {
   Blast = "blast",
   Sanko = "sanko",
   Degen = "degen",
+  Solana = "solana",
   XLayer = "x-layer",
   ImmutableZkevm = "immutable",
   Godwoken = "godwoken",

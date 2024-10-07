@@ -8,6 +8,7 @@ import {
   TokenType,
   TokenTypeTo,
   StatusOptionsResponse,
+  SolanaTransaction,
 } from "@enkryptcom/swap";
 import { EnkryptAccount } from "@enkryptcom/types";
 export enum SWAP_LOADING {
@@ -38,7 +39,10 @@ export enum SwapBestOfferWarnings {
   NONE,
 }
 
-export type TransactionType = EVMTransaction | GenericTransaction;
+export type TransactionType =
+  | EVMTransaction
+  | GenericTransaction
+  | SolanaTransaction;
 
 export interface ExecuteSwapOptions {
   from: EnkryptAccount;

@@ -67,6 +67,7 @@ import {
   SubscanExtrinsicInfo,
   SwapRawInfo,
   KadenaRawInfo,
+  SOLRawInfo,
 } from "@/types/activity";
 import NetworkActivityLoading from "./components/network-activity-loading.vue";
 import { ProviderName } from "@/types/provider";
@@ -179,13 +180,24 @@ const getInfo = (activity: Activity, info: any, timer: any) => {
         .then(() => updateVisibleActivity(activity));
     } else if (props.network.provider === ProviderName.kadena) {
       const kadenaInfo = info as KadenaRawInfo;
-
       activity.status =
         kadenaInfo.result.status == "success"
           ? ActivityStatus.success
           : ActivityStatus.failed;
       activity.rawInfo = kadenaInfo as KadenaRawInfo;
 
+      activityState
+        .updateActivity(activity, {
+          address: activityAddress.value,
+          network: props.network.name,
+        })
+        .then(() => updateVisibleActivity(activity));
+    } else if (props.network.provider === ProviderName.solana) {
+      const solInfo = info as SOLRawInfo;
+      activity.status = info.status
+        ? ActivityStatus.success
+        : ActivityStatus.failed;
+      activity.rawInfo = solInfo;
       activityState
         .updateActivity(activity, {
           address: activityAddress.value,

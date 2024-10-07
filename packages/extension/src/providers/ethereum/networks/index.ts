@@ -57,6 +57,8 @@ import opbnbNode from "./op-bnb";
 import palmNode from "./palm";
 import proofOfPlayApexNode from "./pop-apex";
 import scrollNode from "./scroll";
+import cotiDevnetNode from "./coti-devnet";
+import holeskyNode from "./holesky";
 
 export default {
   sepolia: sepoliaNode,
@@ -127,4 +129,6 @@ export default {
   palm: palmNode,
   popApex: proofOfPlayApexNode,
   scroll: scrollNode,
+  cotiDevnet: cotiDevnetNode,
+  holesky: holeskyNode,
 };

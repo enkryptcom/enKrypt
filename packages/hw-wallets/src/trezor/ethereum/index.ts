@@ -1,4 +1,4 @@
-import TrezorConnect from "@trezor/connect-web";
+import TrezorConnect from "@trezor/connect-webextension";
 import { HWwalletCapabilities, NetworkNames } from "@enkryptcom/types";
 import HDKey from "hdkey";
 import { bigIntToHex, bufferToHex, hexToBuffer } from "@enkryptcom/utils";
@@ -11,7 +11,7 @@ import {
   PathType,
   SignMessageRequest,
   SignTransactionRequest,
-} from "../types";
+} from "../../types";
 import { supportedPaths } from "./configs";
 
 class TrezorEthereum implements HWWalletProvider {
@@ -25,9 +25,14 @@ class TrezorEthereum implements HWWalletProvider {
   }
 
   async init(): Promise<boolean> {
-    TrezorConnect.manifest({
-      email: "info@enkrypt.com",
-      appUrl: "https://www.enkrypt.com",
+    TrezorConnect.init({
+      manifest: {
+        email: "info@enkrypt.com",
+        appUrl: "https://www.enkrypt.com",
+      },
+      transports: ["BridgeTransport", "WebUsbTransport"],
+      connectSrc: "https://connect.trezor.io/9/",
+      _extendWebextensionLifetime: true,
     });
     return true;
   }
@@ -44,8 +49,7 @@ class TrezorEthereum implements HWWalletProvider {
       if (!rootPub.payload) {
         throw new Error("popup failed to open");
       }
-      if (!rootPub.success)
-        throw new Error((rootPub.payload as any).error as string);
+      if (!rootPub.success) throw new Error(rootPub.payload.error as string);
 
       const hdKey = new HDKey();
       hdKey.publicKey = Buffer.from(rootPub.payload.publicKey, "hex");
@@ -59,10 +63,6 @@ class TrezorEthereum implements HWWalletProvider {
       address: bufferToHex(publicToAddress(pubkey, true)),
       publicKey: bufferToHex(pubkey),
     };
-  }
-
-  signMessage() {
-    throw new Error("Not Supported");
   }
 
   getSupportedPaths(): PathType[] {
@@ -83,8 +83,7 @@ class TrezorEthereum implements HWWalletProvider {
       message: options.message.toString("hex"),
       hex: true,
     });
-    if (!result.success)
-      throw new Error((result.payload as any).error as string);
+    if (!result.success) throw new Error(result.payload.error as string);
     return bufferToHex(hexToBuffer(result.payload.signature));
   }
 
@@ -108,8 +107,7 @@ class TrezorEthereum implements HWWalletProvider {
           gasPrice: bigIntToHex(tx.gasPrice),
         },
       }).then((result) => {
-        if (!result.success)
-          throw new Error((result.payload as any).error as string);
+        if (!result.success) throw new Error(result.payload.error as string);
         const rv = BigInt(parseInt(result.payload.v, 16));
         const cv = tx.common.chainId() * 2n + 35n;
         return toRpcSig(
@@ -129,8 +127,7 @@ class TrezorEthereum implements HWWalletProvider {
         maxPriorityFeePerGas: bigIntToHex(tx.maxPriorityFeePerGas),
       },
     }).then((result) => {
-      if (!result.success)
-        throw new Error((result.payload as any).error as string);
+      if (!result.success) throw new Error(result.payload.error as string);
       return toRpcSig(
         BigInt(result.payload.v),
         hexToBuffer(result.payload.r),
