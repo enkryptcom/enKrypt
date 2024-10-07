@@ -100,7 +100,7 @@ const useStandardEstimate = (
     })
     .catch(() => null);
 
-const estimateGasList = (
+const estimateEVMGasList = (
   transactions: EVMTransaction[],
   network: SupportedNetworkName
 ): Promise<{
@@ -115,6 +115,7 @@ const estimateGasList = (
     network === SupportedNetworkName.Zksync
   )
     return useStandardEstimate(transactions, network);
+
   const strippedTxs = transactions.map((tx) => {
     const { from, to, data, value } = tx;
     return {
@@ -124,6 +125,7 @@ const estimateGasList = (
       value,
     };
   });
+
   return fetch(supportedNetworks[network].url, {
     method: "POST",
     body: JSON.stringify({
@@ -153,4 +155,4 @@ const estimateGasList = (
     .catch(() => null);
 };
 
-export default estimateGasList;
+export default estimateEVMGasList;

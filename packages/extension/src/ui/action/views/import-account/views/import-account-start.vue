@@ -11,7 +11,10 @@
     </p>
 
     <a
-      v-if="network.provider !== ProviderName.bitcoin"
+      v-if="
+        network.provider !== ProviderName.bitcoin &&
+        network.provider !== ProviderName.solana
+      "
       class="import-account-start__button"
       @click="$emit('select:keystore')"
     >

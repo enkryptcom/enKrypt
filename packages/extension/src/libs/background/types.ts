@@ -2,11 +2,16 @@ import BitcoinProvider from "@/providers/bitcoin";
 import type EthereumProvider from "@/providers/ethereum";
 import type PolkadotProvider from "@/providers/polkadot";
 import type KadenaProvider from "@/providers/kadena";
+import SolanaProvider from "@/providers/solana";
 
 export interface TabProviderType {
   [key: string]: Record<
     number,
-    EthereumProvider | PolkadotProvider | BitcoinProvider | KadenaProvider
+    | EthereumProvider
+    | PolkadotProvider
+    | BitcoinProvider
+    | KadenaProvider
+    | SolanaProvider
   >;
 }
 export interface ProviderType {
@@ -14,7 +19,8 @@ export interface ProviderType {
     | typeof EthereumProvider
     | typeof PolkadotProvider
     | typeof BitcoinProvider
-    | typeof KadenaProvider;
+    | typeof KadenaProvider
+    | typeof SolanaProvider;
 }
 export interface ExternalMessageOptions {
   savePersistentEvents: boolean;

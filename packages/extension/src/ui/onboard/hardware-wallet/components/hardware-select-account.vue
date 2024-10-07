@@ -6,7 +6,7 @@
     <div class="hardware-select-account__number">
       {{ index }}
     </div>
-    <img :src="network.identicon(address)" />
+    <img :src="network.identicon(network.displayAddress(address))" />
     <div class="hardware-select-account__info">
       <p class="hardware-select-account__info-name">
         {{

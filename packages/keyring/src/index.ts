@@ -49,6 +49,7 @@ class KeyRing {
       [SignerType.sr25519]: new PolkadotSigner(SignerType.sr25519),
       [SignerType.secp256k1btc]: new BitcoinSigner(),
       [SignerType.ed25519kda]: new KadenaSigner(),
+      [SignerType.ed25519sol]: new KadenaSigner(),
     };
   }
 

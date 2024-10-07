@@ -6,7 +6,7 @@
 
     <template #content>
       <h2>Sign message</h2>
-
+      <hardware-wallet-msg :wallet-type="account.walletType" />
       <div class="common-popup__block">
         <div class="common-popup__account">
           <img :src="identicon" />
@@ -37,7 +37,7 @@
     </template>
 
     <template #button-right>
-      <base-button title="Sign" :click="approve" />
+      <base-button title="Sign" :click="approve" :disabled="isProcessing" />
     </template>
   </common-popup>
 </template>
@@ -55,6 +55,7 @@ import { hexToUtf8 } from "web3-utils";
 import { DEFAULT_EVM_NETWORK, getNetworkByName } from "@/libs/utils/networks";
 import { ProviderRequestOptions } from "@/types/provider";
 import { isUtf8 } from "@polkadot/util";
+import HardwareWalletMsg from "@/providers/common/ui/verify-transaction/hardware-wallet-msg.vue";
 import { EvmNetwork } from "../types/evm-network";
 import { EnkryptAccount } from "@enkryptcom/types";
 import { MessageSigner } from "./libs/signer";
@@ -73,7 +74,7 @@ const Options = ref<ProviderRequestOptions>({
   url: "",
   tabId: 0,
 });
-
+const isProcessing = ref(false);
 const message = ref<string>("");
 onBeforeMount(async () => {
   const { Request, options } = await windowPromise;
@@ -91,6 +92,7 @@ onBeforeMount(async () => {
 const approve = async () => {
   const { Request, Resolve } = await windowPromise;
   const msg = Request.value.params![0] as `0x{string}`;
+  isProcessing.value = true;
   MessageSigner({
     account: account.value,
     network: network.value,

@@ -6,6 +6,7 @@ import { numberToHex, toBN } from "web3-utils";
 import { ERC20TokenInfo } from "../types";
 import erc20 from "./abi/erc20";
 
+/** Ethereum API wrapper */
 class API implements ProviderAPIInterface {
   node: string;
   web3: Web3Eth;

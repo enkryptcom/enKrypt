@@ -56,11 +56,14 @@ export default async (
 ): Promise<Activity[]> => {
   address = address.toLowerCase();
   let headers: undefined | Record<string, string>;
-  if (network.name === NetworkNames.XLayer) {
-    // api console: https://www.oklink.com/account/my-api
-    // api header spec: https://www.oklink.com/docs/en/#quickstart-guide-api-authentication
-    // api docs: https://www.oklink.com/docs/en/#evm-rpc-data-address-get-normal-transactions-by-address
-    headers = { "OK-ACCESS-KEY": "df87e7eb-061f-44b1-84bc-83722fad717c" };
+  switch (network.name) {
+    // OKLink Endpoints (require OKLink API key)
+    case NetworkNames.XLayer:
+      // api console: https://www.oklink.com/account/my-api
+      // api header spec: https://www.oklink.com/docs/en/#quickstart-guide-api-authentication
+      // api docs: https://www.oklink.com/docs/en/#evm-rpc-data-address-get-normal-transactions-by-address
+      headers = { "OK-ACCESS-KEY": "df87e7eb-061f-44b1-84bc-83722fad717c" };
+      break;
   }
   const enpoint =
     NetworkEndpoints[network.name as keyof typeof NetworkEndpoints];

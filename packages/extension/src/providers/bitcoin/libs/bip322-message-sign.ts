@@ -7,7 +7,7 @@ import { BitcoinNetwork, PaymentType } from "../types/bitcoin-network";
 import { address as BTCAddress, Transaction, Psbt } from "bitcoinjs-lib";
 import { sha256 } from "ethereum-cryptography/sha256";
 import { PSBTSigner } from "../ui/libs/signer";
-import { bufferToHex } from "@enkryptcom/utils";
+import { bufferToHex, hexToBuffer } from "@enkryptcom/utils";
 
 const bip0322_hash = (message: string) => {
   const tag = "BIP0322-signed-message";
@@ -92,16 +92,18 @@ export const decode = (buffer: Buffer, offset: number) => {
   }
 };
 
-export async function signMessageOfBIP322Simple({
+const encodeVarString = (b: Buffer) => {
+  return Buffer.concat([encode(b.byteLength), b]);
+};
+
+export function getPSBTMessageOfBIP322Simple({
   message,
   address,
   network,
-  Signer,
 }: {
   message: string;
   address: string;
   network: BitcoinNetwork;
-  Signer: ReturnType<typeof PSBTSigner>;
 }) {
   const outputScript = BTCAddress.toOutputScript(
     network.displayAddress(address),
@@ -139,17 +141,24 @@ export async function signMessageOfBIP322Simple({
       script: outputScript,
       value: 0,
     },
+    bip32Derivation: [
+      {
+        masterFingerprint: Buffer.from("4ab28551", "hex"), // this will be replaced in hw signer
+        pubkey: hexToBuffer(address),
+        path: "m/84'/0'/0'/0/0", // this will be replaced in hw signer
+      },
+    ],
   });
   psbtToSign.addOutput({ script: Buffer.from("6a", "hex"), value: 0 });
 
-  await psbtToSign.signAllInputsAsync(Signer);
-  psbtToSign.finalizeAllInputs();
-  const txToSign = psbtToSign.extractTransaction();
-
-  const encodeVarString = (b: Buffer) => {
-    return Buffer.concat([encode(b.byteLength), b]);
+  return {
+    psbtToSign,
+    txdata: txToSpend,
   };
+}
 
+export function getSignatureFromSignedTransaction(strTx: string): string {
+  const txToSign = Transaction.fromHex(strTx);
   const len = encode(txToSign.ins[0].witness.length);
   const result = Buffer.concat([
     len,
@@ -158,4 +167,26 @@ export async function signMessageOfBIP322Simple({
   const signature = result.toString("base64");
 
   return signature;
+}
+
+export async function signMessageOfBIP322Simple({
+  message,
+  address,
+  network,
+  Signer,
+}: {
+  message: string;
+  address: string;
+  network: BitcoinNetwork;
+  Signer: ReturnType<typeof PSBTSigner>;
+}) {
+  const psbtToSign = getPSBTMessageOfBIP322Simple({
+    message,
+    address,
+    network,
+  }).psbtToSign;
+  await psbtToSign.signAllInputsAsync(Signer);
+  psbtToSign.finalizeAllInputs();
+  const txToSign = psbtToSign.extractTransaction();
+  return getSignatureFromSignedTransaction(txToSign.toHex());
 }

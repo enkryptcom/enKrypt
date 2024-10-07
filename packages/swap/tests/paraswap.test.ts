@@ -51,7 +51,7 @@ describe("Paraswap Provider", () => {
       )}${TOKEN_AMOUNT_INFINITY_AND_BEYOND.replace("0x", "")}`
     );
     expect(swap?.transactions[1].to).to.be.eq(
-      "0xDEF171Fe48CF0115B1d80b88dc8eAB59176FEe57"
+      "0x6a000f20005980200259b80c5102003040001068"
     );
   }).timeout(10000);
 
@@ -78,7 +78,7 @@ describe("Paraswap Provider", () => {
       ).replace("0x", "")}`
     );
     expect(swap?.transactions[1].to).to.be.eq(
-      "0xDEF171Fe48CF0115B1d80b88dc8eAB59176FEe57"
+      "0x6a000f20005980200259b80c5102003040001068"
     );
   }).timeout(10000);
 });

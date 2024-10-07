@@ -493,8 +493,8 @@ const sendAction = async () => {
     await Browser.windows.create({
       url: Browser.runtime.getURL(
         getUiPath(
-          `eth-hw-verify?id=${routedRoute.query.id}&txData=${routedRoute.query.txData}`,
-          ProviderName.ethereum
+          `btc-hw-verify?id=${routedRoute.query.id}&txData=${routedRoute.query.txData}`,
+          ProviderName.bitcoin
         )
       ),
       type: "popup",
@@ -502,6 +502,7 @@ const sendAction = async () => {
       height: 600,
       width: 460,
     });
+    window.close();
   } else {
     router.push(routedRoute);
   }
