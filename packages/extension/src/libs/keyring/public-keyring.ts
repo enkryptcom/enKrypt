@@ -87,13 +87,16 @@ class PublicKeyRing {
         walletType: WalletType.mnemonic,
         isHardware: false,
       };
-      allKeys["tQvduDby4rvC6VU4rSirhVWuRYxbJz3rvUrVMkUWsZP"] = {
-        address: "tQvduDby4rvC6VU4rSirhVWuRYxbJz3rvUrVMkUWsZP",
+      allKeys[
+        "0xf3d9631c023472a6875f35702d6fa344afaba96ea938e2b382f138680c033f82"
+      ] = {
+        address:
+          "0xf3d9631c023472a6875f35702d6fa344afaba96ea938e2b382f138680c033f82",
         basePath: "m/44'/501'/0'/1",
-        name: "fake sol acc 2",
+        name: "fake kda acc 2",
         pathIndex: 0,
         publicKey: "0x0",
-        signerType: SignerType.ed25519sol,
+        signerType: SignerType.ed25519kda,
         walletType: WalletType.mnemonic,
         isHardware: false,
       };
