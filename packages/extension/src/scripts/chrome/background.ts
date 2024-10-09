@@ -1,6 +1,7 @@
 if (process.env.IS_DEV) {
   require("./hot-reload");
 }
+import "@/libs/utils/selective-wasm";
 import {
   backgroundOnMessageFromWindow,
   backgroundOnMessageFromNewWindow,

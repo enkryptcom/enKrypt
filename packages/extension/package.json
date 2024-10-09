@@ -1,6 +1,6 @@
 {
   "name": "@enkryptcom/extension",
-  "version": "1.44.3",
+  "version": "1.44.4",
   "private": true,
   "scripts": {
     "zip": "cd dist; zip -r release.zip *;",
