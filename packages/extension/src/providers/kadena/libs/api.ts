@@ -68,7 +68,6 @@ class API implements ProviderAPIInterface {
       this.displayAddress(address),
       chainId
     );
-
     if (balance.result.status === "failure") {
       const error = balance.result.error as { message: string | undefined };
       const message = error.message ?? "Unknown error retrieving balances";
@@ -78,11 +77,11 @@ class API implements ProviderAPIInterface {
       }
       throw new Error(message);
     }
-
-    const balanceValue = parseFloat(balance.result.data.toString()).toFixed(
-      this.decimals
-    );
-
+    const balanceValue = parseFloat(
+      balance.result.data.decimal
+        ? balance.result.data.decimal
+        : balance.result.data.toString()
+    ).toString();
     return toBase(balanceValue, this.decimals);
   }
 

@@ -263,8 +263,8 @@ export default (
         low_24h: 0,
         price_change_24h: 0,
         price_change_percentage_24h: 0,
-        sparkline_in_7d: { price: [] },
-        price_change_percentage_7d_in_currency: 0,
+        sparkline_in_24h: { price: [] },
+        price_change_percentage_24h_in_currency: 0,
       };
     }
 
@@ -303,9 +303,10 @@ export default (
           valuef: formatFiatValue(currentPrice.toString()).value,
           contract: address,
           decimals: tokenInfo[address].decimals,
-          sparkline: new Sparkline(market.sparkline_in_7d.price, 25).dataValues,
+          sparkline: new Sparkline(market.sparkline_in_24h.price, 25)
+            .dataValues,
           priceChangePercentage:
-            market.price_change_percentage_7d_in_currency || 0,
+            market.price_change_percentage_24h_in_currency || 0,
         };
         if (address !== NATIVE_TOKEN_ADDRESS) assets.push(asset);
         else nativeAsset = asset;
