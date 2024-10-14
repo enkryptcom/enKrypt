@@ -3,6 +3,7 @@
   "version": "0.0.5",
   "description": "typescript types for enkrypt packages",
   "main": "dist/index.js",
+  "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "files": [
     "dist"

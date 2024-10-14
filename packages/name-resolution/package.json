@@ -3,6 +3,7 @@
   "version": "0.0.8",
   "description": "name resolution module for enkrypt",
   "main": "dist/index.js",
+  "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "files": [
     "dist"

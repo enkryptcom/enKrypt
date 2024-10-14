@@ -1,0 +1,95 @@
+/*
+ * Container style
+ */
+ .ps {
+    overflow: hidden !important;
+    overflow-anchor: none;
+    -ms-overflow-style: none;
+    touch-action: auto;
+    -ms-touch-action: auto;
+  }
+  
+  /*
+   * Scrollbar rail styles
+   */
+  .ps__rail-x {
+    display: none;
+    opacity: 0;
+    transition: background-color .2s linear, opacity .2s linear;
+    -webkit-transition: background-color .2s linear, opacity .2s linear;
+    height: 15px;
+    /* there must be 'bottom' or 'top' for ps__rail-x */
+    bottom: 0px;
+    /* please don't change 'position' */
+    position: absolute;
+  }
+  
+  .ps__rail-y {
+    display: none;
+    opacity: 0;
+    transition: background-color .2s linear, opacity .2s linear;
+    -webkit-transition: background-color .2s linear, opacity .2s linear;
+    position: absolute;
+    width: 4px;
+    right: 8px;
+    top: 8px;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.08);
+    border-radius: 3px;
+    // height: 192px !important;
+    margin: 8px 0;
+    height: calc(~"100% - 16px");
+  }
+  
+  .ps--active-y {
+    padding-right: 20px;
+    box-sizing: border-box;
+  }
+  
+  /*
+   * Scrollbar thumb styles
+   */
+  .ps__thumb-x {
+    border-radius: 6px;
+    transition: background-color .2s linear, height .2s ease-in-out;
+    -webkit-transition: background-color .2s linear, height .2s ease-in-out;
+    height: 6px;
+    /* there must be 'bottom' for ps__thumb-x */
+    bottom: 2px;
+    /* please don't change 'position' */
+    position: absolute;
+  }
+  
+  .ps__thumb-y {
+    transition: background-color .2s linear, width .2s ease-in-out;
+    -webkit-transition: background-color .2s linear, width .2s ease-in-out;
+    width: 4px;
+    right: 0;    
+    background: rgba(0, 0, 0, 0.36);
+    border-radius: 3px;
+    position: absolute;
+    background: rgba(0, 0, 0, 0.36);
+  }
+  
+  /* MS supports */
+  @supports (-ms-overflow-style: none) {
+    .ps {
+      overflow: auto !important;
+    }
+  }
+  
+  @media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {
+    .ps {
+      overflow: auto !important;
+    }
+  }
+
+/*.ps:hover > .ps__rail-x,
+.ps:hover > .ps__rail-y,
+.ps--focus > .ps__rail-x,
+.ps--focus > .ps__rail-y,*/
+.ps--scrolling-x > .ps__rail-x,
+.ps--scrolling-y > .ps__rail-y {
+  opacity: 1.0;
+  display: block;
+}

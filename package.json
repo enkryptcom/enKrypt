@@ -10,6 +10,7 @@
     "packages/keyring",
     "packages/extension-bridge",
     "packages/extension",
+    "packages/extension-vite",
     "packages/storage",
     "packages/request",
     "packages/hw-wallets",
