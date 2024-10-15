@@ -22,7 +22,6 @@ const getPrioritizationFees = async (
       (await connection.getRecentPrioritizationFees(
         config
       )) as PrioritizationFeeObject[];
-
     if (prioritizationFeeObjects.length === 0) {
       return {
         low: 1000,
@@ -58,9 +57,9 @@ const getPrioritizationFees = async (
           : Math.floor((sortedFees[midIndex - 1] + sortedFees[midIndex]) / 2);
     }
     return {
-      low: averageFeeIncludingZeros,
-      medium: medianFee,
-      high: averageFeeExcludingZeros,
+      low: averageFeeIncludingZeros || 1000,
+      medium: medianFee || 1500,
+      high: averageFeeExcludingZeros || 2000,
     };
   } catch (error) {
     return {
