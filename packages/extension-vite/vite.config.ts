@@ -34,13 +34,13 @@ export default defineConfig({
     rollupOptions: {
       plugins: [],
       input: {
-        appSchoool: fileURLToPath(
+        index: fileURLToPath(
           new URL('./src/ui/provider-pages/index.html', import.meta.url),
         ),
-        appStudent: fileURLToPath(
+        action: fileURLToPath(
           new URL('./src/ui/action/index.html', import.meta.url),
         ),
-        appAuth: fileURLToPath(
+        onboard: fileURLToPath(
           new URL('./src/ui/onboard/index.html', import.meta.url),
         ),
       },
