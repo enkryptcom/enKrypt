@@ -150,12 +150,14 @@ import {
   VersionedTransaction,
   Transaction as LegacyTransaction,
   Connection,
+  ComputeBudgetProgram,
 } from "@solana/web3.js";
 import { SolSignTransactionRequest } from "./types";
 import bs58 from "bs58";
 import DecodeTransaction, { DecodedTxResponseType } from "./libs/decode-tx";
 import { TransactionSigner } from "./libs/signer";
 import { NATIVE_TOKEN_ADDRESS } from "@/providers/ethereum/libs/common";
+import getPrioritizationFees from "./libs/get-priority-fees";
 
 const isProcessing = ref(false);
 const providerVerifyTransactionScrollRef = ref<ComponentPublicInstance>();
@@ -219,6 +221,22 @@ onBeforeMount(async () => {
   TxType.value = Tx.value.version;
   if (TxType.value === "legacy") {
     Tx.value = LegacyTransaction.from(hexToBuffer(txMessage.hex));
+    let isPriorityFeesSet = false;
+    Tx.value.instructions.forEach((i) => {
+      if (i.programId.toBase58() === ComputeBudgetProgram.programId.toBase58())
+        isPriorityFeesSet = true;
+    });
+    const priorityFee = await getPrioritizationFees(
+      new PublicKey(network.value.displayAddress(account.value.address)),
+      solConnection.value!.web3
+    );
+    if (!isPriorityFeesSet && priorityFee) {
+      Tx.value.add(
+        ComputeBudgetProgram.setComputeUnitPrice({
+          microLamports: priorityFee.high * 100,
+        })
+      );
+    }
     Tx.value.recentBlockhash = (
       await solConnection.value.web3.getLatestBlockhash()
     ).blockhash;
@@ -263,6 +281,14 @@ const approve = async () => {
   trackSendEvents(SendEventType.SendAPIApprove, {
     network: network.value.name,
   });
+  const latestBlockHash = (await solConnection.value!.web3.getLatestBlockhash())
+    .blockhash;
+  if (TxType.value === "legacy") {
+    (Tx.value as LegacyTransaction).recentBlockhash = latestBlockHash;
+  } else {
+    (Tx.value as VersionedTransaction).message.recentBlockhash =
+      latestBlockHash;
+  }
   const msgToSign =
     TxType.value !== "legacy"
       ? (Tx.value! as VersionedTransaction).message.serialize()
