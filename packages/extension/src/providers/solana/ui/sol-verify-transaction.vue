@@ -149,7 +149,6 @@ import {
   SendOptions,
   VersionedTransaction,
   Transaction as LegacyTransaction,
-  Connection,
   ComputeBudgetProgram,
 } from "@solana/web3.js";
 import { SolSignTransactionRequest } from "./types";
