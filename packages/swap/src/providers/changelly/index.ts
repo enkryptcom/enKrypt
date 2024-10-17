@@ -473,7 +473,17 @@ class Changelly extends ProviderClass {
     else if (quoteRequestAmount.gt(minMax.maximumFrom))
       quoteRequestAmount = minMax.maximumFrom;
 
-    if (quoteRequestAmount.toString() === "0") return null;
+    if (quoteRequestAmount.toString() === "0") {
+      debug(
+        "getQuote",
+        `No swap: Quote request amount is zero` +
+          `  fromToken=${options.fromToken.symbol}` +
+          `  toToken=${options.toToken.symbol}` +
+          `  minimumFrom=${minMax.minimumFrom.toString()}` +
+          `  maximumFrom=${minMax.maximumFrom.toString()}`
+      );
+      return null;
+    }
 
     debug("getQuote", `Requesting changelly swap...`);
 
