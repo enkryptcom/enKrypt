@@ -101,7 +101,7 @@ const TOKEN_LISTS: {
 
 /**
  * ```sh
- * curl -sL https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/swaplists/changelly.json | jq '.' -C | less -R
+ * curl -sL https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/swaplists/changelly.json | jq . -C | less -R
  * ```
  */
 const CHANGELLY_LIST =
@@ -109,7 +109,7 @@ const CHANGELLY_LIST =
 
 /**
  * ```sh
- * curl -sL https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/swaplists/top-tokens.json | jq '.' -C | less -R
+ * curl -sL https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/swaplists/top-tokens.json | jq . -C | less -R
  * ```
  */
 const TOP_TOKEN_INFO_LIST =
