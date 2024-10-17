@@ -1,3 +1,4 @@
+import icon from "./icons/edgeware.svg";
 import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
 import { EtherscanActivity } from "../libs/activity-handlers";
@@ -14,7 +15,7 @@ const edgOptions: EvmNetworkOptions = {
   currencyName: "EDG",
   currencyNameLong: "Edgeware",
   node: "wss://edgeware.jelliedowl.net",
-  icon: require("./icons/edgeware.svg"),
+  icon,
   coingeckoID: "edgeware",
   coingeckoPlatform: CoingeckoPlatform.Edgeware,
   activityHandler: wrapActivityHandler(EtherscanActivity),

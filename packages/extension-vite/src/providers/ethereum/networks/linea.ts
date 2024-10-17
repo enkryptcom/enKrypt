@@ -1,3 +1,4 @@
+import icon from "./icons/linea.png";
 import { CoingeckoPlatform, NetworkNames } from "@enkryptcom/types";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
 import shNFTHandler from "@/libs/nft-handlers/simplehash";
@@ -16,7 +17,7 @@ const lineaOptions: EvmNetworkOptions = {
   currencyName: "ETH",
   currencyNameLong: "Ethereum",
   node: "https://rpc.linea.build",
-  icon: require("./icons/linea.png"),
+  icon,
   coingeckoPlatform: CoingeckoPlatform.Linea,
   NFTHandler: shNFTHandler,
   assetsInfoHandler,

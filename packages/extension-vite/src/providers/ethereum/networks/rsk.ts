@@ -1,3 +1,4 @@
+import icon from "./icons/rootstock.svg";
 import { CoingeckoPlatform, NetworkNames } from "@enkryptcom/types";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
 import { EtherscanActivity } from "../libs/activity-handlers";
@@ -20,7 +21,7 @@ const rootstockOptions: EvmNetworkOptions = {
   currencyName: "RBTC",
   currencyNameLong: "Rootstock",
   node: "wss://public-node.rsk.co/websocket",
-  icon: require("./icons/rootstock.svg"),
+  icon,
   basePath: "m/44'/137'/0'/0",
   coingeckoID: CoingeckoPlatform.Rootstock,
   coingeckoPlatform: CoingeckoPlatform.Rootstock,

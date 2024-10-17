@@ -1,3 +1,4 @@
+import icon from "./icons/godwoken.png";
 import { CoingeckoPlatform, NetworkNames } from "@enkryptcom/types";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
 import assetsInfoHandler from "@/providers/ethereum/libs/assets-handlers/assetinfo-mew";
@@ -17,7 +18,7 @@ const ethOptions: EvmNetworkOptions = {
   currencyNameLong: "CKByte",
   coingeckoID: "nervos-network",
   node: "https://v1.mainnet.godwoken.io/rpc",
-  icon: require("./icons/godwoken.png"),
+  icon,
   coingeckoPlatform: CoingeckoPlatform.Godwoken,
   NFTHandler: shNFTHandler,
   assetsInfoHandler,

@@ -1,3 +1,4 @@
+import icon from "./icons/bsc.svg";
 import { CoingeckoPlatform, NetworkNames } from "@enkryptcom/types";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
 import assetsInfoHandler from "@/providers/ethereum/libs/assets-handlers/assetinfo-mew";
@@ -16,7 +17,7 @@ const bscOptions: EvmNetworkOptions = {
   currencyName: "BNB",
   currencyNameLong: "Binance",
   node: "wss://nodes.mewapi.io/ws/bsc",
-  icon: require("./icons/bsc.svg"),
+  icon,
   coingeckoID: "binancecoin",
   coingeckoPlatform: CoingeckoPlatform.Binance,
   basePath: "m/44'/714'",

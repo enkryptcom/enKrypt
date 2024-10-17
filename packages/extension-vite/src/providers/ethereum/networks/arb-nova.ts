@@ -1,3 +1,4 @@
+import icon from "./icons/arbitrum-nova.png";
 import { CoingeckoPlatform, NetworkNames } from "@enkryptcom/types";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
 import assetsInfoHandler from "@/providers/ethereum/libs/assets-handlers/assetinfo-mew";
@@ -14,7 +15,7 @@ const arbNovaOptions: EvmNetworkOptions = {
   currencyName: "ETH",
   currencyNameLong: "Ethereum",
   node: "https://nova.arbitrum.io/rpc",
-  icon: require("./icons/arbitrum-nova.png"),
+  icon,
   coingeckoID: "ethereum",
   coingeckoPlatform: CoingeckoPlatform.ArbitrumNova,
   assetsInfoHandler,

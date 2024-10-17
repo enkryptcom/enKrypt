@@ -1,3 +1,4 @@
+import icon from "./icons/canto.svg";
 import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
 import { CoingeckoPlatform, NetworkNames } from "@enkryptcom/types";
 import { EtherscanActivity } from "../libs/activity-handlers";
@@ -15,7 +16,7 @@ const cantoOptions: EvmNetworkOptions = {
   currencyName: "CANTO",
   currencyNameLong: "Canto",
   node: "https://canto.gravitychain.io/",
-  icon: require("./icons/canto.svg"),
+  icon,
   coingeckoID: "canto",
   coingeckoPlatform: CoingeckoPlatform.Canto,
   assetsInfoHandler,

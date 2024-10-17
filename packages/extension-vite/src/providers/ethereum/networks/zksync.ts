@@ -1,3 +1,4 @@
+import icon from "./icons/zksync.svg";
 import { NetworkNames, CoingeckoPlatform } from "@enkryptcom/types";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
 import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
@@ -16,7 +17,7 @@ const zkSyncOptions: EvmNetworkOptions = {
   currencyName: "ETH",
   currencyNameLong: "zkSync ETH",
   node: "wss://mainnet.era.zksync.io/ws",
-  icon: require("./icons/zksync.svg"),
+  icon,
   coingeckoID: "ethereum",
   coingeckoPlatform: CoingeckoPlatform.Zksync,
   NFTHandler: shNFTHandler,

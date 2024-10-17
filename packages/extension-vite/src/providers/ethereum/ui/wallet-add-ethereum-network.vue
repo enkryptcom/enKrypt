@@ -96,8 +96,7 @@ import WarnIcon from '@/ui/action/icons/send/warning-icon.vue'
 import { CustomEvmNetworkOptions } from '../types/custom-evm-network'
 import CustomNetworksState from '@/libs/custom-networks-state'
 import { getCustomError } from '@/libs/error'
-
-const ethIcon = require('../networks/icons/eth.svg')
+import ethIcon from '../networks/icons/eth.svg'
 
 const windowPromise = WindowPromiseHandler(1)
 

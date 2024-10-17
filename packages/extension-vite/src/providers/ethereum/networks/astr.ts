@@ -1,3 +1,4 @@
+import icon from "./icons/astr.png";
 import { CoingeckoPlatform, NetworkNames } from "@enkryptcom/types";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
 import { EtherscanActivity } from "../libs/activity-handlers";
@@ -15,7 +16,7 @@ const astrOptions: EvmNetworkOptions = {
   currencyName: "ASTR",
   currencyNameLong: "Astar",
   node: "wss://astar.public.blastapi.io/",
-  icon: require("./icons/astr.png"),
+  icon,
   coingeckoID: "astar",
   coingeckoPlatform: CoingeckoPlatform.Astar,
   assetsInfoHandler,

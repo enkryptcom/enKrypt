@@ -1,3 +1,4 @@
+import icon from "./icons/sanko.png";
 import { CoingeckoPlatform, NetworkNames } from "@enkryptcom/types";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
 import assetsInfoHandler from "@/providers/ethereum/libs/assets-handlers/assetinfo-mew";
@@ -15,7 +16,7 @@ const ethOptions: EvmNetworkOptions = {
   currencyName: "DMT",
   currencyNameLong: "DMT",
   node: "https://mainnet.sanko.xyz",
-  icon: require("./icons/sanko.png"),
+  icon,
   coingeckoID: "dream-machine-token",
   coingeckoPlatform: CoingeckoPlatform.Sanko,
   assetsInfoHandler,

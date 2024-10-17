@@ -1,3 +1,4 @@
+import icon from "./icons/aa.svg";
 import { NetworkNames } from "@enkryptcom/types";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
 import { EtherscanActivity } from "../libs/activity-handlers";
@@ -14,7 +15,7 @@ const artheraTestOptions: EvmNetworkOptions = {
   currencyName: "AA",
   currencyNameLong: "Arthera",
   node: "wss://ws-test.arthera.net",
-  icon: require("./icons/aa.svg"),
+  icon,
   activityHandler: wrapActivityHandler(EtherscanActivity),
 };
 

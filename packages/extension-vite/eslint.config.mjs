@@ -25,7 +25,6 @@ export default [
       'vue/multi-word-component-names': 'off',
       '@typescript-eslint/no-unused-vars': 'warn',
       '@typescript-eslint/no-non-null-assertion': 'off',
-      '@typescript-eslint/no-require-imports': 'warn',
       'vue/no-side-effects-in-computed-properties': 'warn',
       '@typescript-eslint/no-unused-expressions': 'warn',
       '@typescript-eslint/ban-ts-comment': 'warn',

@@ -1,3 +1,4 @@
+import icon from "./icons/matic.svg";
 import { CoingeckoPlatform, NetworkNames } from "@enkryptcom/types";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
 import assetsInfoHandler from "@/providers/ethereum/libs/assets-handlers/assetinfo-mew";
@@ -16,7 +17,7 @@ const maticOptions: EvmNetworkOptions = {
   currencyName: "POL",
   currencyNameLong: "Polygon POL",
   node: "wss://nodes.mewapi.io/ws/matic",
-  icon: require("./icons/matic.svg"),
+  icon,
   coingeckoID: "polygon-ecosystem-token",
   coingeckoPlatform: CoingeckoPlatform.Matic,
   NFTHandler: shNFTHandler,

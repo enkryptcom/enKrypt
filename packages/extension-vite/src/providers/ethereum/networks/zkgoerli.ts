@@ -1,3 +1,4 @@
+import icon from "./icons/zksync.svg";
 import { NetworkNames } from "@enkryptcom/types";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
 import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
@@ -15,7 +16,7 @@ const zkgoerliOptions: EvmNetworkOptions = {
   currencyName: "GöETH",
   currencyNameLong: "zkSync Goerli",
   node: "wss://testnet.era.zksync.dev/ws",
-  icon: require("./icons/zksync.svg"),
+  icon,
   NFTHandler: shNFTHandler,
   activityHandler: wrapActivityHandler(EtherscanActivity),
 };

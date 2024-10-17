@@ -1,3 +1,4 @@
+import icon from "./icons/forma.png";
 import { NetworkNames } from "@enkryptcom/types";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
 import { EtherscanActivity } from "../libs/activity-handlers";
@@ -15,7 +16,7 @@ const formaOptions: EvmNetworkOptions = {
   currencyName: "TIA",
   currencyNameLong: "TIA",
   node: "https://rpc.forma.art",
-  icon: require("./icons/forma.png"),
+  icon,
   activityHandler: wrapActivityHandler(EtherscanActivity),
   NFTHandler: shNFTHandler,
 };

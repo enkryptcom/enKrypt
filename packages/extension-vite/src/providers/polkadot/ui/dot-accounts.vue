@@ -26,7 +26,7 @@
 
       <div class="common-popup__block no-inset">
         <div class="common-popup__account">
-          <img :src="require('@/ui/action/icons/raw/account.png')" />
+          <img :src="imgAccount" />
           <div class="common-popup__account-info">
             <h4>All accounts</h4>
           </div>
@@ -68,6 +68,7 @@ import { SubstrateNetwork } from '../types/substrate-network'
 import { ErrorCodes } from '@/providers/ethereum/types'
 import { truncate } from 'lodash'
 import Polkadot from '@/providers/polkadot/networks/polkadot'
+import imgAccount from '@/ui/action/icons/raw/account.png'
 
 const windowPromise = WindowPromiseHandler(0)
 const network = ref<SubstrateNetwork>(Polkadot)

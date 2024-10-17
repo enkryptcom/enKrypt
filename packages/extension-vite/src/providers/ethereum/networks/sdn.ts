@@ -1,3 +1,4 @@
+import icon from "./icons/sdn.png";
 import { CoingeckoPlatform, NetworkNames } from "@enkryptcom/types";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
 import { EtherscanActivity } from "../libs/activity-handlers";
@@ -15,7 +16,7 @@ const sdnOptions: EvmNetworkOptions = {
   currencyName: "SDN",
   currencyNameLong: "Shiden",
   node: "wss://shiden.public.blastapi.io",
-  icon: require("./icons/sdn.png"),
+  icon,
   coingeckoID: "shiden",
   coingeckoPlatform: CoingeckoPlatform.Shiden,
   assetsInfoHandler,

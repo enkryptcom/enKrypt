@@ -1,3 +1,4 @@
+import icon from "./icons/palm.svg";
 import { NetworkNames } from "@enkryptcom/types";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
 import shNFTHandler from "@/libs/nft-handlers/simplehash";
@@ -16,7 +17,7 @@ const palmNetworkOptions: EvmNetworkOptions = {
   currencyName: "PALM",
   currencyNameLong: "PALM",
   node: "https://palm-mainnet.public.blastapi.io",
-  icon: require("./icons/palm.svg"),
+  icon,
   coingeckoID: "palm-ai",
   NFTHandler: shNFTHandler,
   activityHandler: () => Promise.resolve([]),

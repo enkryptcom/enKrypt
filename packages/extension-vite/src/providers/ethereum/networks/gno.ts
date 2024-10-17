@@ -1,3 +1,4 @@
+import icon from "./icons/gno.svg";
 import { CoingeckoPlatform, NetworkNames } from "@enkryptcom/types";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
 import { EtherscanActivity } from "../libs/activity-handlers";
@@ -16,7 +17,7 @@ const gnoOptions: EvmNetworkOptions = {
   currencyName: "DAI",
   currencyNameLong: "DAI",
   node: "https://rpc.gnosischain.com",
-  icon: require("./icons/gno.svg"),
+  icon,
   coingeckoID: "dai",
   coingeckoPlatform: CoingeckoPlatform.Gnosis,
   assetsInfoHandler,

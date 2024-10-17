@@ -1,3 +1,4 @@
+import icon from "./icons/ftm.svg";
 import { CoingeckoPlatform, NetworkNames } from "@enkryptcom/types";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
 import { EtherscanActivity } from "../libs/activity-handlers";
@@ -15,7 +16,7 @@ const ftmOptions: EvmNetworkOptions = {
   currencyName: "FTM",
   currencyNameLong: "Fantom",
   node: "https://rpc.ankr.com/fantom/",
-  icon: require("./icons/ftm.svg"),
+  icon,
   coingeckoID: "fantom",
   coingeckoPlatform: CoingeckoPlatform.Fantom,
   assetsInfoHandler,

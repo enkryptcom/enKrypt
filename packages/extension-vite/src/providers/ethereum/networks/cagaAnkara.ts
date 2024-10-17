@@ -1,3 +1,4 @@
+import icon from "./icons/caga.svg";
 import { NetworkNames } from "@enkryptcom/types";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
 import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
@@ -15,7 +16,7 @@ const cagaTestOptions: EvmNetworkOptions = {
   currencyName: "CAGA",
   currencyNameLong: "CAGA",
   node: "wss://wss.ankara-cagacrypto.com",
-  icon: require("./icons/caga.svg"),
+  icon,
   activityHandler: wrapActivityHandler(() => Promise.resolve([])),
 };
 

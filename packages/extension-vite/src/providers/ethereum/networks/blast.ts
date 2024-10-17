@@ -1,3 +1,4 @@
+import icon from "./icons/blast.webp";
 import { CoingeckoPlatform, NetworkNames } from "@enkryptcom/types";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
 import assetsInfoHandler from "@/providers/ethereum/libs/assets-handlers/assetinfo-mew";
@@ -16,7 +17,7 @@ const ethOptions: EvmNetworkOptions = {
   currencyName: "ETH",
   currencyNameLong: "Ethereum",
   node: "wss://blast-rpc.publicnode.com",
-  icon: require("./icons/blast.webp"),
+  icon,
   coingeckoID: "ethereum",
   coingeckoPlatform: CoingeckoPlatform.Blast,
   assetsInfoHandler,

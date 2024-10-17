@@ -1,168 +1,183 @@
-import { KnownTokenDisplay } from "@/providers/polkadot/types";
+import { KnownTokenDisplay } from '@/providers/polkadot/types'
+import iconKAR from '../../icons/karura.svg'
+import iconAUSD from './icons/AUSD.png'
+import iconKSM from './icons/KSM.png'
+import iconLKSM from './icons/LKSM.png'
+import iconBNC from './icons/BNC.png'
+import iconKINT from './icons/KINT.png'
+import iconPHA from './icons/PHA.png'
+import iconCRAB from './icons/CRAB.png'
+import iconCSM from './icons/CSM.png'
+import iconGENS from './icons/GENS.png'
+import iconKBTC from './icons/KBTC.png'
+import iconKMA from './icons/KMA.png'
+import iconMOVR from './icons/MOVR.png'
+import iconQTZ from './icons/QTZ.png'
+import iconTEER from './icons/TEER.png'
+import iconUSDT from './icons/USDT.png'
+import iconAIR from './icons/AIR.png'
+import iconARIS from './icons/ARIS.png'
+import iconTUR from './icons/TUR.png'
+import iconNEER from './icons/NEER.png'
+import iconKICO from './icons/KICO.png'
+import iconHKO from './icons/HKO.png'
+import iconRMRK from './icons/RMRK.png'
+import iconBSX from './icons/BSX.png'
+import iconTAI from './icons/TAI.png'
+import iconTaiKSM from './icons/taiKSM.png'
 
 const assets: KnownTokenDisplay[] = [
   {
-    name: "Karura",
-    symbol: "KAR",
-    icon: require("../../icons/karura.svg"),
-    coingeckoID: "karura",
+    name: 'Karura',
+    symbol: 'KAR',
+    icon: iconKAR,
+    coingeckoID: 'karura',
   },
   {
-    name: "Acala Dollar",
-    symbol: "aUSD",
-    icon: require("./icons/AUSD.png"),
-    coingeckoID: "acala-dollar",
+    name: 'Acala Dollar',
+    symbol: 'aUSD',
+    icon: iconAUSD,
+    coingeckoID: 'acala-dollar',
   },
   {
-    name: "Kusama",
-    symbol: "KSM",
+    name: 'Kusama',
+    symbol: 'KSM',
 
-    icon: require("./icons/KSM.png"),
-    coingeckoID: "kusama",
+    icon: iconKSM,
+    coingeckoID: 'kusama',
   },
   {
-    name: "Liquid KSM",
-    symbol: "LKSM",
-    icon: require("./icons/LKSM.png"),
+    name: 'Liquid KSM',
+    symbol: 'LKSM',
+    icon: iconLKSM,
   },
   {
-    name: "Bifrost",
-    symbol: "BNC",
-
-    icon: require("./icons/BNC.png"),
-    coingeckoID: "bifrost-native-coin",
+    name: 'Bifrost',
+    symbol: 'BNC',
+    icon: iconBNC,
+    coingeckoID: 'bifrost-native-coin',
   },
   {
-    name: "Kintsugi",
-    symbol: "KINT",
-
-    icon: require("./icons/KINT.png"),
-    coingeckoID: "kintsugi",
+    name: 'Kintsugi',
+    symbol: 'KINT',
+    icon: iconKINT,
+    coingeckoID: 'kintsugi',
   },
   {
-    name: "Phala",
-    symbol: "PHA",
-    icon: require("./icons/PHA.png"),
-    coingeckoID: "pha",
+    name: 'Phala',
+    symbol: 'PHA',
+    icon: iconPHA,
+    coingeckoID: 'pha',
   },
   {
-    name: "Crab",
-    symbol: "CRAB",
-    icon: require("./icons/CRAB.png"),
-    coingeckoID: "darwinia-crab-network-native-token",
+    name: 'Crab',
+    symbol: 'CRAB',
+    icon: iconCRAB,
+    coingeckoID: 'darwinia-crab-network-native-token',
   },
   {
-    name: "Crust Shadow",
-    symbol: "CSM",
-    icon: require("./icons/CSM.png"),
-    coingeckoID: "crust-shadow",
+    name: 'Crust Shadow',
+    symbol: 'CSM',
+    icon: iconCSM,
+    coingeckoID: 'crust-shadow',
   },
   {
-    name: "Genshiro",
-    symbol: "GEN",
-
-    icon: require("./icons/GENS.png"),
-    coingeckoID: "genshiro",
+    name: 'Genshiro',
+    symbol: 'GEN',
+    icon: iconGENS,
+    coingeckoID: 'genshiro',
   },
   {
-    name: "Kintsugi Wrapped BTC",
-    symbol: "KBTC",
-
-    icon: require("./icons/KBTC.png"),
-    coingeckoID: "bitcoin",
+    name: 'Kintsugi Wrapped BTC',
+    symbol: 'KBTC',
+    icon: iconKBTC,
+    coingeckoID: 'bitcoin',
   },
   {
-    name: "Calamari",
-    symbol: "KMA",
-
-    icon: require("./icons/KMA.png"),
-    coingeckoID: "calamari-network",
+    name: 'Calamari',
+    symbol: 'KMA',
+    icon: iconKMA,
+    coingeckoID: 'calamari-network',
   },
   {
-    name: "Moonriver",
-    symbol: "MOVR",
-
-    icon: require("./icons/MOVR.png"),
-    coingeckoID: "moonriver",
+    name: 'Moonriver',
+    symbol: 'MOVR',
+    icon: iconMOVR,
+    coingeckoID: 'moonriver',
   },
   {
-    name: "Quartz",
-    symbol: "QTZ",
-
-    icon: require("./icons/QTZ.png"),
-    coingeckoID: "quartz",
+    name: 'Quartz',
+    symbol: 'QTZ',
+    icon: iconQTZ,
+    coingeckoID: 'quartz',
   },
   {
-    name: "Integritee",
-    symbol: "TEER",
-
-    icon: require("./icons/TEER.png"),
-    coingeckoID: "integritee",
+    name: 'Integritee',
+    symbol: 'TEER',
+    icon: iconTEER,
+    coingeckoID: 'integritee',
   },
   {
-    name: "Tether",
-    symbol: "USDT",
-
-    icon: require("./icons/USDT.png"),
-    coingeckoID: "tether",
+    name: 'Tether',
+    symbol: 'USDT',
+    icon: iconUSDT,
+    coingeckoID: 'tether',
   },
 
   {
-    name: "Altair",
-    symbol: "AIR",
-
-    icon: require("./icons/AIR.png"),
-    coingeckoID: "altair",
+    name: 'Altair',
+    symbol: 'AIR',
+    icon: iconAIR,
+    coingeckoID: 'altair',
   },
   {
-    name: "PolarisDAO",
-    symbol: "ARIS",
-
-    icon: require("./icons/ARIS.png"),
+    name: 'PolarisDAO',
+    symbol: 'ARIS',
+    icon: iconARIS,
   },
   {
-    name: "Turing",
-    symbol: "TUR",
-    icon: require("./icons/TUR.png"),
+    name: 'Turing',
+    symbol: 'TUR',
+    icon: iconTUR,
   },
   {
-    name: "Metaverse.Network",
-    symbol: "NEER",
-    icon: require("./icons/NEER.png"),
+    name: 'Metaverse.Network',
+    symbol: 'NEER',
+    icon: iconNEER,
   },
 
   {
-    name: "Kico",
-    symbol: "KICO",
-    icon: require("./icons/KICO.png"),
+    name: 'Kico',
+    symbol: 'KICO',
+    icon: iconKICO,
   },
   {
-    name: "Heiko",
-    symbol: "HKO",
-    icon: require("./icons/HKO.png"),
+    name: 'Heiko',
+    symbol: 'HKO',
+    icon: iconHKO,
   },
   {
-    name: "RMRK",
-    symbol: "RMRK",
-    icon: require("./icons/RMRK.png"),
-    coingeckoID: "rmrk",
+    name: 'RMRK',
+    symbol: 'RMRK',
+    icon: iconRMRK,
+    coingeckoID: 'rmrk',
   },
   {
-    name: "Basilisk",
-    symbol: "BSX",
-    icon: require("./icons/BSX.png"),
+    name: 'Basilisk',
+    symbol: 'BSX',
+    icon: iconBSX,
   },
   {
-    name: "Taiga",
-    symbol: "TAI",
-    icon: require("./icons/TAI.png"),
+    name: 'Taiga',
+    symbol: 'TAI',
+    icon: iconTAI,
   },
   {
-    name: "Taiga KSM",
-    symbol: "taiKSM",
-    icon: require("./icons/taiKSM.png"),
-    coingeckoID: "kusama",
+    name: 'Taiga KSM',
+    symbol: 'taiKSM',
+    icon: iconTaiKSM,
+    coingeckoID: 'kusama',
   },
-];
+]
 
-export default assets;
+export default assets

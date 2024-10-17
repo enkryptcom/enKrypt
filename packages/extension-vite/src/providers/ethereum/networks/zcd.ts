@@ -1,3 +1,4 @@
+import icon from "./icons/zcd.svg";
 import { NetworkNames } from "@enkryptcom/types";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
 import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
@@ -13,7 +14,7 @@ const zcdOptions: EvmNetworkOptions = {
   currencyName: "ZCD",
   currencyNameLong: "ZChains",
   node: "https://rpc.zchains.com",
-  icon: require("./icons/zcd.svg"),
+  icon,
   coingeckoID: "zchains",
   activityHandler: wrapActivityHandler(() => Promise.resolve([])),
 };

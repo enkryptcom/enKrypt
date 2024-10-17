@@ -1,3 +1,4 @@
+import icon from "./icons/form.png";
 import { NetworkNames } from "@enkryptcom/types";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
 import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
@@ -15,7 +16,7 @@ const formTestnetOptions: EvmNetworkOptions = {
   currencyName: "ETH",
   currencyNameLong: "Ethereum",
   node: "wss://testnet-rpc.form.network/ws",
-  icon: require("./icons/form.png"),
+  icon,
   activityHandler: wrapActivityHandler(EtherscanActivity),
 };
 

@@ -1,3 +1,4 @@
+import icon from "./icons/karura-evm.svg";
 import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
 import { CoingeckoPlatform, NetworkNames } from "@enkryptcom/types";
 import { EtherscanActivity } from "../libs/activity-handlers";
@@ -14,7 +15,7 @@ const karuraOptions: EvmNetworkOptions = {
   currencyName: "KAR",
   currencyNameLong: "Karura",
   node: "wss://eth-rpc-karura.aca-api.network/ws",
-  icon: require("./icons/karura-evm.svg"),
+  icon,
   coingeckoID: "karura",
   coingeckoPlatform: CoingeckoPlatform.Karura,
   activityHandler: wrapActivityHandler(EtherscanActivity),

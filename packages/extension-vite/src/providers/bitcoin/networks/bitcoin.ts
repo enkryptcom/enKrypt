@@ -1,3 +1,4 @@
+import icon from "./icons/btc.svg";
 import { NetworkNames } from "@enkryptcom/types";
 import {
   BitcoinNetwork,
@@ -19,7 +20,7 @@ const bitcoinOptions: BitcoinNetworkOptions = {
   isTestNetwork: false,
   currencyName: "BTC",
   currencyNameLong: "Bitcoin",
-  icon: require("./icons/btc.svg"),
+  icon,
   decimals: 8,
   node: "https://partners.mewapi.io/nodes/hk/btc/",
   coingeckoID: "bitcoin",

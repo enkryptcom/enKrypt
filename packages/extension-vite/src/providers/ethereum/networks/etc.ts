@@ -1,3 +1,4 @@
+import icon from "./icons/etc.svg";
 import { CoingeckoPlatform, NetworkNames } from "@enkryptcom/types";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
 import { RivetActivity } from "../libs/activity-handlers";
@@ -14,7 +15,7 @@ const etcOptions: EvmNetworkOptions = {
   currencyName: "ETC",
   currencyNameLong: "Ethereum Classic",
   node: "wss://nodes.mewapi.io/ws/etc",
-  icon: require("./icons/etc.svg"),
+  icon,
   basePath: "m/44'/61'/0'/0",
   coingeckoID: "ethereum-classic",
   coingeckoPlatform: CoingeckoPlatform.EthereumClassic,

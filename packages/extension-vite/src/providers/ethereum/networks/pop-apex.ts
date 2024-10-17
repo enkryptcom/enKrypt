@@ -1,3 +1,4 @@
+import icon from "./icons/apex.png";
 import { NetworkNames } from "@enkryptcom/types";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
 import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
@@ -17,7 +18,7 @@ const apexOptions: EvmNetworkOptions = {
   currencyName: "ETH",
   currencyNameLong: "Ethereum",
   node: "https://rpc.apex.proofofplay.com",
-  icon: require("./icons/apex.png"),
+  icon,
   coingeckoID: "ethereum",
   NFTHandler: shNFTHandler,
   assetsInfoHandler,

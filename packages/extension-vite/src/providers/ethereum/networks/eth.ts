@@ -1,3 +1,4 @@
+import icon from "./icons/eth.svg";
 import { CoingeckoPlatform, NetworkNames } from "@enkryptcom/types";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
 import assetsInfoHandler from "@/providers/ethereum/libs/assets-handlers/assetinfo-mew";
@@ -16,7 +17,7 @@ const ethOptions: EvmNetworkOptions = {
   currencyName: "ETH",
   currencyNameLong: "Ethereum",
   node: "wss://nodes.mewapi.io/ws/eth",
-  icon: require("./icons/eth.svg"),
+  icon,
   coingeckoID: "ethereum",
   coingeckoPlatform: CoingeckoPlatform.Ethereum,
   NFTHandler: mewNFTHandler,

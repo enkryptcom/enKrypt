@@ -1,3 +1,4 @@
+import icon from "./icons/celo.svg";
 import { CoingeckoPlatform, NetworkNames } from "@enkryptcom/types";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
 import { EtherscanActivity } from "../libs/activity-handlers";
@@ -15,7 +16,7 @@ const celoOptions: EvmNetworkOptions = {
   currencyName: "CELO",
   currencyNameLong: "Celo",
   node: "https://forno.celo.org",
-  icon: require("./icons/celo.svg"),
+  icon,
   coingeckoID: "celo",
   coingeckoPlatform: CoingeckoPlatform.Celo,
   assetsInfoHandler,
