@@ -1,19 +1,8 @@
 <template>
   <div class="base-input__wrap">
-    <input
-      v-model="textValue"
-      :type="showPassword ? 'text' : type"
-      :placeholder="placeholder"
-      class="base-input"
-      :class="{ error: isError }"
-      autofocus
-      autocomplete="off"
-    />
-    <a
-      v-if="type == 'password'"
-      class="base-input__hide"
-      @click="toggleVisibility"
-    >
+    <input v-model="textValue" :type="showPassword ? 'text' : type" :placeholder="placeholder" class="base-input"
+      :class="{ 'base-input_error': isError }" autofocus autocomplete="off" />
+    <a v-if="type == 'password'" class="base-input__hide" @click="toggleVisibility">
       <visible-icon v-if="showPassword" />
       <hide-icon v-else />
     </a>
@@ -63,6 +52,7 @@ const toggleVisibility = () => {
 
 <style lang="less">
 @import "~@action/styles/theme.less";
+
 .base-input {
   outline: none;
   background: @white;
@@ -78,22 +68,27 @@ const toggleVisibility = () => {
   color: @primaryLabel;
   width: 100%;
   box-sizing: border-box;
+
   &:focus {
     border: 2px solid @primary;
     line-height: 38px;
   }
-  &.error {
+
+  &.base-input_error {
     border: 2px solid @error;
     line-height: 38px;
   }
+
   &__wrap {
     position: relative;
   }
+
   &__hide {
     position: absolute;
     top: 12px;
     right: 12px;
     cursor: pointer;
+
     &:active {
       opacity: 0.7;
     }
