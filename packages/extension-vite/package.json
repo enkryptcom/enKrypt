@@ -28,6 +28,7 @@
     "watch-vue-firefox": "cross-env BROWSER='firefox' vue-cli-service build --watch --no-clean"
   },
   "dependencies": {
+    "@crxjs/vite-plugin": "^1.0.14",
     "@enkryptcom/extension-bridge": "workspace:^",
     "@enkryptcom/hw-wallets": "workspace:^",
     "@enkryptcom/keyring": "workspace:^",
@@ -126,13 +127,13 @@
     "npm-run-all2": "^6.2.3",
     "prettier": "^3.3.3",
     "rimraf": "^6.0.1",
-    "rollup": "^4.23.0",
+    "rollup": "^4.24.0",
     "rollup-plugin-uglify": "^6.0.4",
     "semver": "^7.6.3",
     "systeminformation": "^5.23.5",
     "typescript": "~5.5.4",
     "url": "^0.11.4",
-    "vite": "^5.4.8",
+    "vite": "^5.4.9",
     "vite-plugin-node-polyfills": "0.17.0",
     "vue-tsc": "^2.1.6",
     "webextension-polyfill": "^0.12.0"

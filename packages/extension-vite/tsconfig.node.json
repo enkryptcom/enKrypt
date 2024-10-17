@@ -5,7 +5,12 @@
     "vitest.config.*",
     "cypress.config.*",
     "nightwatch.conf.*",
-    "playwright.config.*"
+    "playwright.config.*",
+    "package.json",
+    "vite.config.ts",
+    "vite.firefox.config.ts",
+    "manifest.config.ts",
+    "manifest.firefox.config.ts"
   ],
   "compilerOptions": {
     "composite": true,
