@@ -156,10 +156,11 @@ export class EvmNetwork extends BaseNetwork {
         ).value,
         decimals: this.decimals,
         sparkline: nativeMarketData
-          ? new Sparkline(nativeMarketData.sparkline_in_7d.price, 25).dataValues
+          ? new Sparkline(nativeMarketData.sparkline_in_24h.price, 25)
+              .dataValues
           : "",
         priceChangePercentage:
-          nativeMarketData?.price_change_percentage_7d_in_currency ?? 0,
+          nativeMarketData?.price_change_percentage_24h_in_currency ?? 0,
         contract: NATIVE_TOKEN_ADDRESS,
       };
 
@@ -273,11 +274,11 @@ export class EvmNetwork extends BaseNetwork {
           marketInfo.current_price?.toString() ?? "0"
         ).value;
         asset.sparkline = new Sparkline(
-          marketInfo.sparkline_in_7d.price,
+          marketInfo.sparkline_in_24h.price,
           25
         ).dataValues;
         asset.priceChangePercentage =
-          marketInfo.price_change_percentage_7d_in_currency || 0;
+          marketInfo.price_change_percentage_24h_in_currency || 0;
       }
 
       return asset;

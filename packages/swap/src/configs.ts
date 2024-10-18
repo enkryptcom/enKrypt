@@ -57,19 +57,11 @@ const FEE_CONFIGS: Partial<
   // each kind of asset you want to receive fees for
   [ProviderName.jupiter]: {
     [WalletIdentifier.enkrypt]: {
-      // TODO: THIS IS NICK'S TESTING REFERRAL ADDRESS, NEEDS TO CHANGE BEFORE RELEASE
-      // referrer: "78ZKhPea9sVW3jLsjvQov9jUooGe3qGnwauA1QoJFCq1",
-      // referrer: "41gBjMVCQ4FD2GAsKdjVPEGLQc7K6AxoY8C7PJ7HDp6y",
-      referrer: "EcrQ8iRSczuUq8YPBQKx1mWRuH8xxi3t9uwfenb6o9aW",
-      // Rounded because Jupiter API only accepts bps integers
+      referrer: "D5qKNm99Fbh7FAVEQp5vTgRkw7NfdtSREW2rhNPFqq5x",
       fee: 0.01,
     },
     [WalletIdentifier.mew]: {
-      // TODO: THIS IS NICK'S TESTING REFERRAL ADDRESS, NEEDS TO CHANGE BEFORE RELEASE
-      // referrer: "78ZKhPea9sVW3jLsjvQov9jUooGe3qGnwauA1QoJFCq1",
-      // referrer: "41gBjMVCQ4FD2GAsKdjVPEGLQc7K6AxoY8C7PJ7HDp6y",
-      referrer: "EcrQ8iRSczuUq8YPBQKx1mWRuH8xxi3t9uwfenb6o9aW",
-      // Rounded because Jupiter API only accepts bps integers
+      referrer: "AUX4AgB6rwsXudMJ3U3rPFCUajhxKbwdG149i5xeVyFq",
       fee: 0.03,
     },
   },
@@ -101,7 +93,7 @@ const TOKEN_LISTS: {
 
 /**
  * ```sh
- * curl -sL https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/swaplists/changelly.json | jq '.' -C | less -R
+ * curl -sL https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/swaplists/changelly.json | jq . -C | less -R
  * ```
  */
 const CHANGELLY_LIST =
@@ -109,7 +101,7 @@ const CHANGELLY_LIST =
 
 /**
  * ```sh
- * curl -sL https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/swaplists/top-tokens.json | jq '.' -C | less -R
+ * curl -sL https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/swaplists/top-tokens.json | jq . -C | less -R
  * ```
  */
 const TOP_TOKEN_INFO_LIST =

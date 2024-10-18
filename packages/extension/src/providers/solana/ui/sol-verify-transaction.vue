@@ -144,12 +144,19 @@ import { trackSendEvents } from "@/libs/metrics";
 import { SendEventType } from "@/libs/metrics/types";
 import { SolanaNetwork } from "../types/sol-network";
 import SolanaAPI from "@/providers/solana/libs/api";
-import { PublicKey, SendOptions, VersionedTransaction } from "@solana/web3.js";
+import {
+  PublicKey,
+  SendOptions,
+  VersionedTransaction,
+  Transaction as LegacyTransaction,
+  ComputeBudgetProgram,
+} from "@solana/web3.js";
 import { SolSignTransactionRequest } from "./types";
 import bs58 from "bs58";
 import DecodeTransaction, { DecodedTxResponseType } from "./libs/decode-tx";
 import { TransactionSigner } from "./libs/signer";
 import { NATIVE_TOKEN_ADDRESS } from "@/providers/ethereum/libs/common";
+import getPrioritizationFees from "./libs/get-priority-fees";
 
 const isProcessing = ref(false);
 const providerVerifyTransactionScrollRef = ref<ComponentPublicInstance>();
@@ -175,7 +182,8 @@ const Options = ref<ProviderRequestOptions>({
 });
 const selectedFee = ref<GasPriceTypes>(GasPriceTypes.ECONOMY);
 const solConnection = ref<SolanaAPI>();
-const Tx = ref<VersionedTransaction>();
+const Tx = ref<VersionedTransaction | LegacyTransaction>();
+const TxType = ref<"legacy" | 0>(0);
 const accountPubkey = ref<PublicKey>();
 const sendOptions = ref<SendOptions>({});
 const payloadMethod = ref<"sol_signTransaction" | "sol_signAndSendTransaction">(
@@ -209,7 +217,34 @@ onBeforeMount(async () => {
   ) as SolSignTransactionRequest;
   sendOptions.value = JSON.parse(Request.value.params![2]) as SendOptions;
   Tx.value = VersionedTransaction.deserialize(hexToBuffer(txMessage.hex));
-  solConnection.value.web3.getFeeForMessage(Tx.value.message).then((fee) => {
+  TxType.value = Tx.value.version;
+  if (TxType.value === "legacy") {
+    Tx.value = LegacyTransaction.from(hexToBuffer(txMessage.hex));
+    let isPriorityFeesSet = false;
+    Tx.value.instructions.forEach((i) => {
+      if (i.programId.toBase58() === ComputeBudgetProgram.programId.toBase58())
+        isPriorityFeesSet = true;
+    });
+    const priorityFee = await getPrioritizationFees(
+      new PublicKey(network.value.displayAddress(account.value.address)),
+      solConnection.value!.web3
+    );
+    if (!isPriorityFeesSet && priorityFee) {
+      Tx.value.add(
+        ComputeBudgetProgram.setComputeUnitPrice({
+          microLamports: priorityFee.high * 100,
+        })
+      );
+    }
+    Tx.value.recentBlockhash = (
+      await solConnection.value.web3.getLatestBlockhash()
+    ).blockhash;
+  }
+  const feeMessage =
+    TxType.value === "legacy"
+      ? (Tx.value as LegacyTransaction).compileMessage()
+      : (Tx.value as VersionedTransaction).message;
+  solConnection.value.web3.getFeeForMessage(feeMessage).then((fee) => {
     const getConvertedVal = () =>
       fromBase(fee.value!.toString(), network.value.decimals);
     marketdata
@@ -226,10 +261,12 @@ onBeforeMount(async () => {
         };
       });
   });
+
   DecodeTransaction(
     Tx.value,
     accountPubkey.value,
-    network.value as SolanaNetwork
+    network.value as SolanaNetwork,
+    TxType.value
   )
     .then((vals) => {
       decodedTx.value = vals;
@@ -243,7 +280,18 @@ const approve = async () => {
   trackSendEvents(SendEventType.SendAPIApprove, {
     network: network.value.name,
   });
-  const msgToSign = Tx.value!.message.serialize();
+  const latestBlockHash = (await solConnection.value!.web3.getLatestBlockhash())
+    .blockhash;
+  if (TxType.value === "legacy") {
+    (Tx.value as LegacyTransaction).recentBlockhash = latestBlockHash;
+  } else {
+    (Tx.value as VersionedTransaction).message.recentBlockhash =
+      latestBlockHash;
+  }
+  const msgToSign =
+    TxType.value !== "legacy"
+      ? (Tx.value! as VersionedTransaction).message.serialize()
+      : (Tx.value! as LegacyTransaction).serializeMessage();
   const feePayer = new PublicKey(
     network.value.displayAddress(account.value.address)
   );
@@ -256,6 +304,10 @@ const approve = async () => {
       Tx.value!.addSignature(feePayer, res);
       const toData =
         decodedTx.value && decodedTx.value.length ? decodedTx.value[0] : null;
+      const TransactionHash =
+        TxType.value !== "legacy"
+          ? (Tx.value as VersionedTransaction).signatures[0]
+          : (Tx.value as LegacyTransaction).signatures[0].signature;
       const txActivity: Activity = {
         from: accountPubkey.value!.toBase58(),
         to: toData ? toData.contract : accountPubkey.value!.toBase58(),
@@ -272,7 +324,7 @@ const approve = async () => {
         },
         type: ActivityType.transaction,
         value: toData ? toData.change.toString() : "0",
-        transactionHash: bs58.encode(Tx.value!.signatures[0]),
+        transactionHash: bs58.encode(TransactionHash!),
       };
       txActivity.to =
         txActivity.to === NATIVE_TOKEN_ADDRESS
@@ -306,7 +358,7 @@ const approve = async () => {
               .sendRawTransaction(Tx.value!.serialize(), sendOptions.value)
               .then((sig) => {
                 Resolve.value({
-                  result: JSON.stringify(sig),
+                  result: JSON.stringify(bufferToHex(bs58.decode(sig))),
                 });
               });
           }

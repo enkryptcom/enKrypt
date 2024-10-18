@@ -10,9 +10,9 @@ import {
   WalletIdentifier,
 } from "../src/types";
 import {
-  fromToken,
+  fromTokenUSDT,
   toToken,
-  amount,
+  amountUSDT,
   fromAddress,
   toAddress,
   nodeURL as ethNodeURL,
@@ -29,9 +29,9 @@ describe("Changelly Provider", () => {
     await init;
     const quote = await changelly.getQuote(
       {
-        amount,
+        amount: amountUSDT,
         fromAddress,
-        fromToken,
+        fromToken: fromTokenUSDT,
         toToken,
         toAddress,
       },
@@ -42,7 +42,7 @@ describe("Changelly Provider", () => {
     expect(quote?.quote.meta.walletIdentifier).to.be.eq(
       WalletIdentifier.enkrypt
     );
-    expect(quote?.fromTokenAmount.gte(amount)).to.be.eq(true);
+    expect(quote?.fromTokenAmount.gte(amountUSDT)).to.be.eq(true);
     expect(quote?.toTokenAmount.gtn(0)).to.be.eq(true);
     const swap = await changelly.getSwap(quote!.quote);
 
@@ -87,12 +87,10 @@ describe("Changelly Provider", () => {
     expect(Object.values(fromTokens).length).to.be.eq(1);
     expect(fromTokens[NATIVE_TOKEN_ADDRESS].name).to.be.eq("Polkadot");
   });
-  // TODO: switch this test to assert that Solana DOES initialise
-  // once we enable Changelly on Solana
-  it("it NOT should initialize other networks: Solana", async () => {
+  it("it should initialize other networks: Solana", async () => {
     const changelly2 = new Changelly(solConn, SupportedNetworkName.Solana);
     await changelly2.init();
     const fromTokens = changelly2.getFromTokens();
-    expect(Object.values(fromTokens).length).to.be.eq(0);
+    expect(Object.values(fromTokens).length).to.be.gte(1);
   });
 });

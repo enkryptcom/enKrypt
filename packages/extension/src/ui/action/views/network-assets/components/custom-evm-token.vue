@@ -220,14 +220,14 @@ const addToken = async () => {
         fromBase(accountBalance.value ?? "0", tokenInfo.value.decimals)
       ).value;
       const balanceUSD = market.value
-        ? new BigNumber(balancef).times(market.value.current_price).toNumber()
+        ? new BigNumber(balancef).times(market.value.current_price!).toNumber()
         : 0;
       const balanceUSDf = market.value
-        ? new BigNumber(balancef).times(market.value.current_price).toString()
+        ? new BigNumber(balancef).times(market.value.current_price!).toString()
         : "0";
-      const value = market.value?.current_price.toString() ?? "0";
+      const value = market.value?.current_price!.toString() ?? "0";
       const sparkline = market.value
-        ? new Sparkline(market.value?.sparkline_in_7d.price, 25).dataValues
+        ? new Sparkline(market.value?.sparkline_in_24h.price, 25).dataValues
         : "";
       const priceChangePercentage =
         market.value?.price_change_percentage_24h ?? 0;
