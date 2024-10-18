@@ -4,7 +4,6 @@ import packageJson from './package.json'
 const { version } = packageJson
 
 export default {
-  author: 'https://www.enkrypt.com',
   homepage_url: 'https://www.enkrypt.com',
   version,
   name: 'Enkrypt: ETH, BTC and Solana Wallet',
@@ -36,17 +35,17 @@ export default {
     //   all_frames: false,
     //   world: 'MAIN',
     // },
-    {
-      matches: ['file://*/*', 'http://*/*', 'https://*/*'],
-      js: ['src/scripts/contentscript.ts'],
-      run_at: 'document_start',
-      all_frames: false,
-    },
-    {
-      matches: ['*://connect.trezor.io/*/*'],
-      js: ['public/vendor/trezor-content-script.js'],
-      run_at: 'document_start',
-    },
+    // {
+    //   matches: ['file://*/*', 'http://*/*', 'https://*/*'],
+    //   js: ['src/scripts/contentscript.ts'],
+    //   run_at: 'document_start',
+    //   all_frames: false,
+    // },
+    // {
+    //   matches: ['*://connect.trezor.io/*/*'],
+    //   js: ['public/vendor/trezor-content-script.js'],
+    //   run_at: 'document_start',
+    // },
   ],
   icons: {
     16: 'assets/img/icons/icon16.png',

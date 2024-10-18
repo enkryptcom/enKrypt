@@ -1,25 +1,32 @@
-import { Plugin, ResolvedConfig } from 'vite'
-import path from 'path'
-import fs from 'fs-extra'
+import { CrxPlugin } from '@crxjs/vite-plugin'
 
-function myPlugin(): Plugin {
-  let config: ResolvedConfig
-
+function transFormManifest(): CrxPlugin {
   return {
-    name: 'my-plugin:build',
-    apply: 'build',
-    async configResolved(_config) {
-      config = _config
-    },
-    writeBundle() {
-      const filePath = path.resolve(
-        config.root,
-        config.build.outDir,
-        'sprite.svg',
-      )
-      fs.ensureFileSync(filePath)
-      fs.writeFileSync(filePath, 'abc')
+    name: 'crx:enkrypt:transform-manifest',
+    enforce: 'post',
+    renderCrxManifest(manifest) {
+      manifest.content_scripts = [
+        {
+          matches: ['file://*/*', 'http://*/*', 'https://*/*'],
+          js: ['scripts/inject.js'],
+          run_at: 'document_start',
+          all_frames: false,
+          world: 'MAIN',
+        },
+        {
+          matches: ['file://*/*', 'http://*/*', 'https://*/*'],
+          js: ['scripts/contentscript.js'],
+          run_at: 'document_start',
+          all_frames: false,
+        },
+        {
+          matches: ['*://connect.trezor.io/*/*'],
+          js: ['vendor/trezor-content-script.js'],
+          run_at: 'document_start',
+        },
+      ] as any
+      return manifest
     },
   }
 }
-export default myPlugin
+export default transFormManifest

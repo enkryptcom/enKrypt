@@ -3,10 +3,11 @@ import { nodePolyfills } from 'vite-plugin-node-polyfills'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { crx } from '@crxjs/vite-plugin'
+// import typescript from '@rollup/plugin-typescript'
 import manifest from './manifest.config'
-import viteManifestHackIssue846 from './configs/vite/manifest-hack'
 import assetsRewritePlugin from './configs/vite/assets-rewrite'
 import transformManifest from './configs/vite/transform-manifest'
+import transformCSInject from './configs/vite/transform-cs-inject'
 
 export default defineConfig({
   server: {
@@ -33,15 +34,15 @@ export default defineConfig({
       ],
     }),
     vue(),
-    viteManifestHackIssue846,
     assetsRewritePlugin,
+    transformCSInject(),
+    transformManifest(),
     crx({
       manifest,
       contentScripts: {
         injectCss: false,
       },
     }),
-    transformManifest(),
   ],
   css: {
     preprocessorOptions: {
@@ -61,13 +62,12 @@ export default defineConfig({
         action: 'action.html',
         onboard: 'onboard.html',
         index: 'index.html',
-        inject: 'src/scripts/inject.ts',
       },
     },
   },
   optimizeDeps: {
-    include: ['vue', '@vueuse/core', 'webextension-polyfill'],
-    exclude: ['node:fs/promises'],
+    include: ['vue', '@vueuse/core', 'webextension-polyfill', 'crypto'],
+    exclude: ['node:fs/promises', 'zlib'],
   },
   resolve: {
     alias: {
