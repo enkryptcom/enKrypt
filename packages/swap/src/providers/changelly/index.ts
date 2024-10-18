@@ -10,6 +10,8 @@ import {
   TransactionMessage,
   Connection,
   TransactionInstruction,
+  ComputeBudgetInstruction,
+  ComputeBudgetProgram,
 } from "@solana/web3.js";
 import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
@@ -44,7 +46,7 @@ import {
 } from "../../configs";
 
 import { getTransfer } from "../../utils/approvals";
-import supportedNetworks from "./supported";
+import supportedNetworks, { supportedNetworksSet } from "./supported";
 import {
   ChangellyApiCreateFixedRateTransactionParams,
   ChangellyApiCreateFixedRateTransactionResult,
@@ -133,6 +135,7 @@ class Changelly extends ProviderClass {
 
   async init(): Promise<void> {
     debug("init", "Initialising...");
+
     if (!Changelly.isSupported(this.network)) {
       debug(
         "init",
@@ -151,15 +154,16 @@ class Changelly extends ProviderClass {
     });
 
     /** List of changelly blockchain names */
-    const supportedChangellyNames = Object.values(supportedNetworks).map(
-      (s) => s.changellyName
+    const supportedChangellyNames = new Set(
+      Object.values(supportedNetworks).map((s) => s.changellyName)
     );
 
     this.changellyList.forEach((cur) => {
       // Must be a supported token
-      if (!supportedChangellyNames.includes(cur.blockchain)) {
+      if (!supportedChangellyNames.has(cur.blockchain)) {
         return;
       }
+
       if (
         cur.enabledFrom &&
         cur.fixRateEnabled &&
@@ -184,6 +188,7 @@ class Changelly extends ProviderClass {
           },
         };
       }
+
       if (cur.token)
         this.setTicker(
           cur.token,
@@ -211,9 +216,7 @@ class Changelly extends ProviderClass {
   }
 
   static isSupported(network: SupportedNetworkName) {
-    return Object.keys(supportedNetworks).includes(
-      network as unknown as string
-    );
+    return supportedNetworksSet.has(network);
   }
 
   /**
@@ -571,15 +574,24 @@ class Changelly extends ProviderClass {
         );
         const original = firstChangellyFixRateQuote.amountTo;
         // eslint-disable-next-line no-use-before-define
-        const [success, fixed] = trimDecimals(
+        const [success, fixed] = fixBaseAndTrimDecimals(
           original,
           options.toToken.decimals
         );
         if (!success) throw err;
-        const rounded = (
-          BigInt(toBase(fixed, options.toToken.decimals)) - BigInt(1)
-        ).toString();
+        const rounded = (BigInt(fixed) - BigInt(1)).toString();
         toTokenAmountBase = rounded;
+
+        debug(
+          "getQuote",
+          `Fixed amountTo` +
+            `  firstChangellyFixRateQuote.amountTo=${firstChangellyFixRateQuote.amountTo}` +
+            `  toTokenAmountBase=${toTokenAmountBase}` +
+            `  options.toToken.decimals=${options.toToken.decimals}` +
+            `  options.toToken.symbol=${options.toToken.symbol}` +
+            `  options.toToken.name=${options.toToken.name}` +
+            `  options.toToken.address=${options.toToken.address}`
+        );
       }
 
       // `toBase` fails sometimes because Changelly returns more decimals than the token has
@@ -599,15 +611,24 @@ class Changelly extends ProviderClass {
         );
         const original = firstChangellyFixRateQuote.networkFee;
         // eslint-disable-next-line no-use-before-define
-        const [success, fixed] = trimDecimals(
+        const [success, fixed] = fixBaseAndTrimDecimals(
           original,
           options.toToken.decimals
         );
         if (!success) throw err;
-        const rounded = (
-          BigInt(toBase(fixed, options.toToken.decimals)) + BigInt(1)
-        ).toString();
+        const rounded = (BigInt(fixed) + BigInt(1)).toString();
         networkFeeBase = rounded;
+
+        debug(
+          "getQuote",
+          `Fixed networkFee` +
+            `  firstChangellyFixRateQuote.networkFee=${firstChangellyFixRateQuote.networkFee}` +
+            `  networkFeeBase=${networkFeeBase}` +
+            `  options.toToken.decimals=${options.toToken.decimals}` +
+            `  options.toToken.symbol=${options.toToken.symbol}` +
+            `  options.toToken.name=${options.toToken.name}` +
+            `  options.toToken.address=${options.toToken.address}`
+        );
       }
 
       const providerQuoteResponse: ProviderQuoteResponse = {
@@ -761,9 +782,7 @@ class Changelly extends ProviderClass {
           break;
         }
         case NetworkType.Solana: {
-          // TODO: finish implementing support for Solana
           debug("getSwap", `Changelly is not supported on Solana at this time`);
-          if (true as any) return null;
 
           const conn = this.web3 as Connection;
 
@@ -772,6 +791,8 @@ class Changelly extends ProviderClass {
           // Create a transaction to transfer this much of that token to that thing
           let versionedTx: VersionedTransaction;
           if (quote.options.fromToken.address === NATIVE_TOKEN_ADDRESS) {
+            // Swapping from native SOL
+
             debug(
               "getSwap",
               `Preparing Solana Changelly SOL swap transaction` +
@@ -795,52 +816,62 @@ class Changelly extends ProviderClass {
               }).compileToV0Message()
             );
           } else {
-            const wallet = new PublicKey(quote.options.fromAddress);
+            // Swapping from a token on SOL
+
+            // We need to send our src tokens to the payin address
+            // for Changelly to begin the cross-chain swap
+            // But first we'll need to create the src mint ATA for the payin address
+            // so it can receive the tokens
             const mint = new PublicKey(quote.options.fromToken.address);
             const tokenProgramId = await getTokenProgramOfMint(conn, mint);
-            const walletMintAta = getSPLAssociatedTokenAccountPubkey(
+            const wallet = new PublicKey(quote.options.fromAddress);
+            const walletAta = getSPLAssociatedTokenAccountPubkey(
               wallet,
               mint,
               tokenProgramId
             );
-            // TODO: is payin address an ATA or Wallet address? (must be wallet, right?)
-            const payinAta = new PublicKey(changellyFixedRateTx.payinAddress);
+            const payin = new PublicKey(changellyFixedRateTx.payinAddress);
+            const payinAta = getSPLAssociatedTokenAccountPubkey(
+              payin,
+              mint,
+              tokenProgramId
+            );
             const amount = BigInt(quote.options.amount.toString());
             debug(
               "getSwap",
-              // eslint-disable-next-line prefer-template
               `Preparing Solana Changelly SPL token swap transaction` +
                 `  srcMint=${mint.toBase58()}` +
+                `  srcTokenProgramId=${tokenProgramId.toBase58()}` +
                 `  wallet=${wallet.toBase58()}` +
-                `  walletSrcMintAta=${tokenProgramId.toBase58()}` +
-                `  dstMintAta=${payinAta.toBase58()}` +
-                `  tokenProgramId=${tokenProgramId.toBase58()}` +
+                `  walletAta=${tokenProgramId.toBase58()}` +
+                `  payin=${payin.toBase58()}` +
+                `  payinAta=${payinAta.toBase58()}` +
                 `  latestBlockHash=${latestBlockHash.blockhash}` +
                 `  lastValidBlockHeight=${latestBlockHash.lastValidBlockHeight}` +
-                `  payinAddress=${changellyFixedRateTx.payinAddress}` +
                 `  amount=${amount}`
             );
 
             // If the ATA account doesn't exist we need create it
-            const ataExists = await solAccountExists(conn, payinAta);
+            const payinAtaExists = await solAccountExists(conn, payinAta);
+
+            // We probably need to set some priority fees? IDK...
 
             const instructions: TransactionInstruction[] = [];
-            if (ataExists) {
+            if (payinAtaExists) {
               debug(
                 "getSwap",
                 `Payin ATA already exists. No need to create it.`
               );
             } else {
               debug("getSwap", `Payin ATA does not exist. Need to create it.`);
-              // TODO: finish implementing
               const extraRentFee = await conn.getMinimumBalanceForRentExemption(
                 SPL_TOKEN_ATA_ACCOUNT_SIZE_BYTES
               );
               const instruction =
                 getCreateAssociatedTokenAccountIdempotentInstruction({
                   payerPubkey: wallet,
-                  ataPubkey: payinAta, // TODO: we'd need to get the owner
-                  ownerPubkey: new PublicKey("!! TODO !!"),
+                  ataPubkey: payinAta,
+                  ownerPubkey: payin,
                   mintPubkey: mint,
                   systemProgramId: SystemProgram.programId,
                   tokenProgramId,
@@ -853,9 +884,82 @@ class Changelly extends ProviderClass {
               );
             }
 
+            /** Priority fee (units: micro lamports per compute unit) in recent transactions */
+            const recentFees = await conn.getRecentPrioritizationFees();
+            // Sort by fee amount ascending so we can get the median
+            recentFees.sort(
+              (a, b) => a.prioritizationFee - b.prioritizationFee
+            );
+            const recentFeeCount = recentFees.length;
+            let recentFeeCountWithoutZeroes = 0;
+            let recentFeeMin = 0;
+            let recentFeeMax = 0;
+            let recentFeeSum = 0;
+            let recentFeeMedian = 0;
+            const recentFeeMediani = Math.floor(recentFeeCount / 2);
+            // Use the minimum of the mean average and median average as our priority fee
+            for (
+              let recentFeei = 0;
+              recentFeei < recentFeeCount;
+              recentFeei++
+            ) {
+              const { prioritizationFee } = recentFees[recentFeei];
+              recentFeeSum += prioritizationFee;
+              if (recentFeei === recentFeeMediani)
+                recentFeeMedian = prioritizationFee;
+              if (prioritizationFee > 0) recentFeeCountWithoutZeroes++;
+              if (prioritizationFee < recentFeeMin)
+                recentFeeMin = prioritizationFee;
+              if (prioritizationFee > recentFeeMax)
+                recentFeeMax = prioritizationFee;
+            }
+            const recentFeeMean = recentFeeSum / recentFeeCountWithoutZeroes;
+            const recentFeeMinAvg = Math.min(recentFeeMean, recentFeeMedian);
+
+            // TODO: Do we want to set the compute budget? What should we set it to?
+            // Set compute budget
+            // instructions.unshift(
+            //   ComputeBudgetProgram.setComputeUnitLimit()
+            // )
+
+            // Set priority fee
+            if (recentFeeMinAvg <= 0) {
+              debug(
+                "getSwap",
+                `No recent fees, not setting priority fee` +
+                  `  recentFeeCount=${recentFeeCount}` +
+                  `  recentFeeCountWithoutZeroes=${recentFeeCountWithoutZeroes}` +
+                  `  recentFeeSum=${recentFeeSum}` +
+                  `  recentFeeMin=${recentFeeMin}` +
+                  `  recentFeeMax=${recentFeeMax}` +
+                  `  recentFeeMean=${recentFeeMean}` +
+                  `  recentFeeMedian=${recentFeeMedian}` +
+                  `  recentFeeMinAvg=${recentFeeMinAvg}`
+              );
+            } else {
+              debug(
+                "getSwap",
+                `Setting priority fee` +
+                  `  priority_fee=${recentFeeMinAvg} micro_lamports/compute_unit` +
+                  `  recentFeeCount=${recentFeeCount}` +
+                  `  recentFeeCountWithoutZeroes=${recentFeeCountWithoutZeroes}` +
+                  `  recentFeeSum=${recentFeeSum}` +
+                  `  recentFeeMin=${recentFeeMin}` +
+                  `  recentFeeMax=${recentFeeMax}` +
+                  `  recentFeeMean=${recentFeeMean}` +
+                  `  recentFeeMedian=${recentFeeMedian}` +
+                  `  recentFeeMinAvg=${recentFeeMinAvg}`
+              );
+              instructions.unshift(
+                ComputeBudgetProgram.setComputeUnitPrice({
+                  microLamports: recentFeeMinAvg,
+                })
+              );
+            }
+
             instructions.push(
               createSPLTransferInstruction(
-                /** source */ walletMintAta,
+                /** source */ walletAta,
                 /** destination */ payinAta,
                 /** owner */ wallet,
                 /** amount */ amount,
@@ -883,7 +987,9 @@ class Changelly extends ProviderClass {
           };
           break;
         }
+
         default: {
+          // Not EVM, not SOlana
           transaction = {
             from: quote.options.fromAddress,
             to: changellyFixedRateTx.payinAddress,
@@ -912,15 +1018,24 @@ class Changelly extends ProviderClass {
         );
         const original = changellyFixedRateTx.amountExpectedTo;
         // eslint-disable-next-line no-use-before-define
-        const [success, fixed] = trimDecimals(
+        const [success, fixed] = fixBaseAndTrimDecimals(
           original,
           quote.options.toToken.decimals
         );
         if (!success) throw err;
-        const rounded = (
-          BigInt(toBase(fixed, quote.options.toToken.decimals)) - BigInt(1)
-        ).toString();
+        const rounded = (BigInt(fixed) - BigInt(1)).toString();
         baseToAmount = rounded;
+
+        debug(
+          "getQuote",
+          `Fixed amountExpectedTo` +
+            `  changellyFixedRateTx.amountExpectedTo=${changellyFixedRateTx.amountExpectedTo}` +
+            `  baseToAmount=${baseToAmount}` +
+            `  quote.options.toToken.decimals=${quote.options.toToken.decimals}` +
+            `  quote.options.toToken.symbol=${quote.options.toToken.symbol}` +
+            `  quote.options.toToken.name=${quote.options.toToken.name}` +
+            `  quote.options.toToken.address=${quote.options.toToken.address}`
+        );
       }
 
       const retResponse: ProviderSwapResponse = {
@@ -984,7 +1099,7 @@ class Changelly extends ProviderClass {
   }
 }
 
-function trimDecimals(
+function fixBaseAndTrimDecimals(
   value: string,
   decimals: number
 ): [success: boolean, fixed: string] {
