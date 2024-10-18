@@ -3,7 +3,7 @@ import { isAddress, toBN } from "web3-utils";
 import { NetworkType, TokenType, TokenTypeTo } from "../../../src/types";
 
 const amount = toBN("100000000000000000000"); // DAI, $100, 18 decimals
-const amountUSDT = toBN("1000000000"); // USDT, $1,000, 6 decimals
+const amountUSDT = toBN("100000000"); // USDT, $100, 6 decimals
 
 const fromAddress = "0x6B175474E89094C44Da98b954EedeAC495271d0F";
 const toAddress = "0x255d4D554325568A2e628A1E93120EbA1157C07e";
