@@ -1,0 +1,26 @@
+diff --git a/lib/cjs/constants.js b/lib/cjs/constants.js
+index 5772226ef895bff7a6f7fa291fc1138b10049dab..c65a57bf3535e6c6d4d894657da9b571d7f40d8a 100644
+--- a/lib/cjs/constants.js
++++ b/lib/cjs/constants.js
+@@ -29,7 +29,7 @@ exports.AMPLITUDE_ORIGINS_MAP = {
+     EU: exports.AMPLITUDE_ORIGIN_EU,
+     STAGING: exports.AMPLITUDE_ORIGIN_STAGING,
+ };
+-exports.AMPLITUDE_VISUAL_TAGGING_SELECTOR_SCRIPT_URL = 'https://cdn.amplitude.com/libs/visual-tagging-selector-1.0.0-alpha.js.gz';
++exports.AMPLITUDE_VISUAL_TAGGING_SELECTOR_SCRIPT_URL = '';
+ // This is the class name used by the visual tagging selector to highlight the selected element.
+ // Should not use this class in the selector.
+ exports.AMPLITUDE_VISUAL_TAGGING_HIGHLIGHT_CLASS = 'amp-visual-tagging-selector-highlight';
+diff --git a/lib/esm/constants.js b/lib/esm/constants.js
+index 17e665c05e62e488032673d312a69432297cb6fd..7d75951a29fad79ba49c83c076785294166dd0bf 100644
+--- a/lib/esm/constants.js
++++ b/lib/esm/constants.js
+@@ -27,7 +27,7 @@ export var AMPLITUDE_ORIGINS_MAP = {
+     EU: AMPLITUDE_ORIGIN_EU,
+     STAGING: AMPLITUDE_ORIGIN_STAGING,
+ };
+-export var AMPLITUDE_VISUAL_TAGGING_SELECTOR_SCRIPT_URL = 'https://cdn.amplitude.com/libs/visual-tagging-selector-1.0.0-alpha.js.gz';
++export var AMPLITUDE_VISUAL_TAGGING_SELECTOR_SCRIPT_URL = '';
+ // This is the class name used by the visual tagging selector to highlight the selected element.
+ // Should not use this class in the selector.
+ export var AMPLITUDE_VISUAL_TAGGING_HIGHLIGHT_CLASS = 'amp-visual-tagging-selector-highlight';
