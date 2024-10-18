@@ -6,7 +6,8 @@
     "src/**/*.vue",
     "package.json",
     "vite.config.ts",
-    "manifest.config.ts"
+    "manifest.config.ts",
+    "configs/vite/*.ts"
   ],
   "exclude": ["src/**/__tests__/*"],
   "compilerOptions": {

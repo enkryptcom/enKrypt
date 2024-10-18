@@ -1,13 +1,15 @@
-import { createApp } from "vue";
-import App from "./App.vue";
-import router from "./router";
-import * as filters from "./utils/filters";
-import Vue3Lottie from "vue3-lottie";
+import { createApp } from 'vue'
+import App from './App.vue'
+import router from './router'
+import * as filters from './utils/filters'
+import Vue3Lottie from 'vue3-lottie'
 
-const app = createApp(App);
+global.WeakMap = WeakMap
 
-app.use(router).use(Vue3Lottie, { name: "vue3lottie" });
+const app = createApp(App)
 
-app.config.globalProperties.$filters = filters;
+app.use(router).use(Vue3Lottie, { name: 'vue3lottie' })
 
-app.mount("#app");
+app.config.globalProperties.$filters = filters
+
+app.mount('#app')
