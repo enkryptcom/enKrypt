@@ -204,7 +204,9 @@ export const executeSwap = async (
             thirdPartySignatures.length > 0;
 
           if (hasThirdPartySignatures) {
-            // Can't sign the transaction since it's signed / to be signed by third parties
+            // Can't update the block hash since it's signed / to be signed by third parties
+            // If the user waits too long before sending, the transaction may fail due to
+            // becoming out-of-date
           } else {
             // We can update the transaction since it's unsigned
             // Check if we need to update the block hash
@@ -312,7 +314,9 @@ export const executeSwap = async (
             thirdPartySignatures.length > 0;
 
           if (hasThirdPartySignatures) {
-            // Can't sign the transaction since it's signed / to be signed by third parties
+            // Can't update the block hash since it's signed / to be signed by third parties
+            // If the user waits too long before sending, the transaction may fail due to
+            // becoming out-of-date
           } else {
             // We can update the transaction since it's unsigned
             // Check if we need to update the block hash
