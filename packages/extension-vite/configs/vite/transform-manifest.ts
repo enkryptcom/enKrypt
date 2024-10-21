@@ -25,6 +25,15 @@ function transFormManifest(): CrxPlugin {
           run_at: 'document_start',
         },
       ] as any
+      manifest.web_accessible_resources?.push({
+        resources: [
+          'scripts/inject.js',
+          'scripts/contentscript.js',
+          'scripts/*.js.map',
+        ],
+        use_dynamic_url: false,
+        matches: ['file://*/*', 'http://*/*', 'https://*/*'],
+      })
       return manifest
     },
   }

@@ -56,6 +56,8 @@ export default defineConfig({
   build: {
     commonjsOptions: { transformMixedEsModules: true },
     emptyOutDir: true,
+    sourcemap: process.env.MINIFY === 'true' ? false : true,
+    minify: process.env.MINIFY === 'true' ? 'esbuild' : false,
     rollupOptions: {
       plugins: [],
       input: {

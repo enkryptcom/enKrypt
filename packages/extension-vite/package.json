@@ -13,7 +13,7 @@
     "format": "prettier --write src/",
     "zip": "cd dist; zip -r release.zip *;",
     "prebuild": "yarn kadena:prebuild",
-    "build:chrome": "yarn prebuild && cross-env BROWSER='chrome' vue-cli-service build && yarn build:rollup",
+    "build:chrome": "yarn prebuild && cross-env BROWSER='chrome' MINIFY='true' vite build",
     "build:firefox": "yarn prebuild && cross-env BROWSER='firefox' vue-cli-service build && yarn build:rollup && node configs/get-system-info.js",
     "build:operaedge": "yarn prebuild && cross-env BROWSER='opera-edge' vue-cli-service build && cross-env BROWSER='opera-edge' yarn build:rollup",
     "build:rollup": "cross-env minify=on rollup --config configs/rollup.config.contentscript.mjs && cross-env minify=on rollup --config configs/rollup.config.inject.mjs",

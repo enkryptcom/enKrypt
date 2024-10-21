@@ -8,7 +8,7 @@ import packageJson from '../package.json' assert { type: 'json' }
 import { RollupOptions, OutputOptions } from 'rollup'
 import terser from '@rollup/plugin-terser'
 
-const enableMinification = process.env.minify === 'on'
+const enableMinification = process.env.MINIFY === 'true'
 
 const base: RollupOptions = {
   logLevel: 'silent',
@@ -16,9 +16,9 @@ const base: RollupOptions = {
     exclude: /node_modules/,
   },
   output: {
-    dir: 'dist/scripts',
+    dir: 'scripts',
     format: 'iife',
-    sourcemap: process.env.minify !== 'on',
+    sourcemap: !enableMinification,
   },
   plugins: [
     replace({
