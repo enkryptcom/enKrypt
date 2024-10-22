@@ -1,8 +1,9 @@
 <template>
   <a class="assets-select-list__token" @click="select">
     <div class="assets-select-list__token-info">
-      <img :src="token.icon" @error="imageLoadError" />
-
+      <div class="assets-select-list__token-info__image">
+        <img :src="token.icon" @error="imageLoadError" />
+      </div>
       <div class="assets-select-list__token-info-name">
         <h4>{{ token.name }}</h4>
         <p>
@@ -11,7 +12,6 @@
         </p>
       </div>
     </div>
-
     <div class="assets-select-list__token-price">
       <h4>${{ price ? $filters.formatFiatValue(price).value : "~" }}</h4>
     </div>
@@ -81,12 +81,19 @@ const select = () => {
       align-items: center;
       flex-direction: row;
 
-      img {
+      &__image {
+        background: @buttonBg;
+        box-shadow: inset 0px 0px 1px rgba(0, 0, 0, 0.16);
         width: 32px;
         height: 32px;
-        margin-right: 16px;
         border-radius: 100%;
-        box-shadow: inset 0px 0px 1px rgba(0, 0, 0, 0.16);
+        overflow: hidden;
+        margin-right: 12px;
+
+        img {
+          width: 100%;
+          height: 100%;
+        }
       }
 
       &-name {

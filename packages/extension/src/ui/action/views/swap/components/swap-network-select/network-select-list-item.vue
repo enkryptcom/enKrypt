@@ -1,9 +1,8 @@
 <template>
-  <a class="assets-select-list__token" @click="select">
-    <div class="assets-select-list__token-info">
+  <a class="network-select-list__token" @click="select">
+    <div class="network-select-list__token-info">
       <img :src="token.logoURI" />
-
-      <div class="assets-select-list__token-info-name">
+      <div class="network-select-list__token-info-name">
         <h4>{{ token.name }}</h4>
       </div>
     </div>
@@ -33,7 +32,7 @@ const select = () => {
 <style lang="less">
 @import "~@action/styles/theme.less";
 
-.assets-select-list {
+.network-select-list {
   &__token {
     height: 64px;
     margin: 0 8px;

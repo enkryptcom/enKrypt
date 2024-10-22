@@ -1,8 +1,19 @@
 <template>
   <div class="base-input__wrap">
-    <input v-model="textValue" :type="showPassword ? 'text' : type" :placeholder="placeholder" class="base-input"
-      :class="{ 'base-input_error': isError }" autofocus autocomplete="off" />
-    <a v-if="type == 'password'" class="base-input__hide" @click="toggleVisibility">
+    <input
+      v-model="textValue"
+      :type="showPassword ? 'text' : type"
+      :placeholder="placeholder"
+      class="base-input"
+      :class="{ 'base-input_error': isError }"
+      autofocus
+      autocomplete="off"
+    />
+    <a
+      v-if="type == 'password'"
+      class="base-input__hide"
+      @click="toggleVisibility"
+    >
       <visible-icon v-if="showPassword" />
       <hide-icon v-else />
     </a>
