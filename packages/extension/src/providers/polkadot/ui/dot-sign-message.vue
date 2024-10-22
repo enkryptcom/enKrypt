@@ -43,64 +43,64 @@
 </template>
 
 <script setup lang="ts">
-import SignLogo from "@action/icons/common/sign-logo.vue";
-import BaseButton from "@action/components/base-button/index.vue";
-import CommonPopup from "@action/views/common-popup/index.vue";
-import { getError } from "@/libs/error";
-import { ErrorCodes } from "@/providers/ethereum/types";
-import { WindowPromiseHandler } from "@/libs/window-promise";
-import { onBeforeMount, ref } from "vue";
-import { isUtf8, u8aToString, u8aUnwrapBytes } from "@polkadot/util";
-import networks from "../networks";
-import { ProviderRequestOptions } from "@/types/provider";
-import { EnkryptAccount } from "@enkryptcom/types";
-import { MessageSigner } from "./libs/signer";
-import { hexToBuffer } from "@enkryptcom/utils";
+import SignLogo from '@action/icons/common/sign-logo.vue'
+import BaseButton from '@action/components/base-button/index.vue'
+import CommonPopup from '@action/views/common-popup/index.vue'
+import { getError } from '@/libs/error'
+import { ErrorCodes } from '@/providers/ethereum/types'
+import { WindowPromiseHandler } from '@/libs/window-promise'
+import { onBeforeMount, ref } from 'vue'
+import { isUtf8, u8aToString, u8aUnwrapBytes } from '@polkadot/util'
+import networks from '../networks'
+import { ProviderRequestOptions } from '@/types/provider'
+import { EnkryptAccount } from '@enkryptcom/types'
+import { MessageSigner } from './libs/signer'
+import { hexToBuffer } from '@enkryptcom/utils'
 
-const windowPromise = WindowPromiseHandler(0);
+const windowPromise = WindowPromiseHandler(0)
 
 const Options = ref<ProviderRequestOptions>({
-  domain: "",
-  faviconURL: "",
-  title: "",
-  url: "",
+  domain: '',
+  faviconURL: '',
+  title: '',
+  url: '',
   tabId: 0,
-});
-const message = ref("");
-const account = ref({ address: "" } as EnkryptAccount);
+})
+const message = ref('')
+const account = ref({ address: '' } as EnkryptAccount)
 
 onBeforeMount(async () => {
-  const { Request, options } = await windowPromise;
-  Options.value = options;
+  const { Request, options } = await windowPromise
+  Options.value = options
 
   message.value = isUtf8(Request.value.params![0])
     ? u8aToString(u8aUnwrapBytes(Request.value.params![0]))
-    : Request.value.params![0];
+    : Request.value.params![0]
 
-  account.value = Request.value.params![1] as EnkryptAccount;
-});
+  account.value = Request.value.params![1] as EnkryptAccount
+})
 
 const approve = async () => {
-  const { Request, Resolve } = await windowPromise;
+  const { Request, Resolve } = await windowPromise
 
-  const msg = Request.value.params![0] as `0x{string}`;
-  const account = Request.value.params![1] as EnkryptAccount;
+  const msg = Request.value.params![0] as `0x{string}`
+  const account = Request.value.params![1] as EnkryptAccount
   MessageSigner({
     account,
     payload: hexToBuffer(msg),
   })
     .then(Resolve.value)
-    .catch(Resolve.value);
-};
+    .catch(Resolve.value)
+}
 const deny = async () => {
-  const { Resolve } = await windowPromise;
+  const { Resolve } = await windowPromise
 
   Resolve.value({
     error: getError(ErrorCodes.userRejected),
-  });
-};
+  })
+}
 </script>
 
 <style lang="less" scoped>
-@import "~@/providers/ethereum/ui/styles/common-popup.less";
+@import '@/providers/ethereum/ui/styles/common-popup.less';
 </style>

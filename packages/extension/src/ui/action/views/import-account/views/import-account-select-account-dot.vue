@@ -25,16 +25,16 @@
   <import-account-process v-if="isProcessing" :is-done="isDone" />
 </template>
 <script setup lang="ts">
-import { PropType, ref } from "vue";
-import HardwareSelectAccount from "@/ui/onboard/hardware-wallet/components/hardware-select-account.vue";
-import BaseButton from "@action/components/base-button/index.vue";
-import ArrowNext from "@action/icons/common/arrow-next.vue";
-import ArrowPrev from "@action/icons/common/arrow-prev.vue";
-import ImportAccountHeader from "../components/import-account-header.vue";
-import ImportAccountProcess from "../components/import-account-process.vue";
+import { PropType, ref } from 'vue'
+import HardwareSelectAccount from '@/ui/onboard/hardware-wallet/components/hardware-select-account.vue'
+import BaseButton from '@action/components/base-button/index.vue'
+import ArrowNext from '@action/icons/common/arrow-next.vue'
+import ArrowPrev from '@action/icons/common/arrow-prev.vue'
+import ImportAccountHeader from '../components/import-account-header.vue'
+import ImportAccountProcess from '../components/import-account-process.vue'
 
-const isProcessing = ref(false);
-const isDone = ref(false);
+const isProcessing = ref(false)
+const isDone = ref(false)
 
 defineProps({
   close: {
@@ -45,19 +45,19 @@ defineProps({
     type: Function as PropType<() => void>,
     default: () => ({}),
   },
-});
+})
 
 const continueAction = () => {
-  isProcessing.value = true;
+  isProcessing.value = true
 
   setTimeout(() => {
-    isDone.value = true;
-  }, 3000);
-};
+    isDone.value = true
+  }, 3000)
+}
 </script>
 
 <style lang="less" scoped>
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .import-account-select-account {
   width: 100%;

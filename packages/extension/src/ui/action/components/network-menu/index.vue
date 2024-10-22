@@ -33,29 +33,29 @@
 </template>
 
 <script setup lang="ts">
-import Activity from "@action/icons/tabs/activity.vue";
-import Assets from "@action/icons/tabs/assets.vue";
-import NFTs from "@action/icons/tabs/nfts.vue";
-import DApps from "@action/icons/tabs/dapps.vue";
-import { PropType } from "vue";
-import DappList from "@/libs/dapp-list";
-import { BaseNetwork } from "@/types/base-network";
-import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
+import Activity from '@action/icons/tabs/activity.vue'
+import Assets from '@action/icons/tabs/assets.vue'
+import NFTs from '@action/icons/tabs/nfts.vue'
+import DApps from '@action/icons/tabs/dapps.vue'
+import { PropType } from 'vue'
+import DappList from '@/libs/dapp-list'
+import { BaseNetwork } from '@/types/base-network'
+import { EvmNetwork } from '@/providers/ethereum/types/evm-network'
 
 defineProps({
   selected: {
     type: String,
-    default: "",
+    default: '',
   },
   network: {
     type: Object as PropType<BaseNetwork>,
     default: () => ({}),
   },
-});
+})
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .network-menu {
   position: absolute;
@@ -66,7 +66,9 @@ defineProps({
   background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(50px);
   -webkit-backdrop-filter: blur(50px);
-  box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.05), 0px 0px 1px rgba(0, 0, 0, 0.25);
+  box-shadow:
+    0px 0px 6px rgba(0, 0, 0, 0.05),
+    0px 0px 1px rgba(0, 0, 0, 0.25);
   display: flex;
   justify-content: space-around;
   align-items: center;

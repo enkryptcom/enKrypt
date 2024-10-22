@@ -1,3 +1,4 @@
+import icon from "./icons/opbnb.png";
 import { CoingeckoPlatform, NetworkNames } from "@enkryptcom/types";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
 import assetsInfoHandler from "@/providers/ethereum/libs/assets-handlers/assetinfo-mew";
@@ -14,7 +15,7 @@ const opBnbOptions: EvmNetworkOptions = {
   currencyName: "BNB",
   currencyNameLong: "Binance Coin",
   node: "wss://opbnb-rpc.publicnode.com",
-  icon: require("./icons/opbnb.png"),
+  icon,
   coingeckoID: "binancecoin",
   coingeckoPlatform: CoingeckoPlatform.OpBNB,
   assetsInfoHandler,

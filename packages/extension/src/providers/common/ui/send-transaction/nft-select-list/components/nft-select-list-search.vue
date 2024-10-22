@@ -6,11 +6,11 @@
 </template>
 
 <script setup lang="ts">
-import SearchIcon from "@action/icons/common/search.vue";
+import SearchIcon from '@action/icons/common/search.vue'
 </script>
 
 <style lang="less" scoped>
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .nft-select-list-search {
   width: 100%;

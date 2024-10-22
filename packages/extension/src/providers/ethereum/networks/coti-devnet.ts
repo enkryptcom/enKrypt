@@ -1,3 +1,4 @@
+import icon from "./icons/coti.png";
 import { NetworkNames } from "@enkryptcom/types";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
 import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
@@ -13,7 +14,7 @@ const cotiDevnetOptions: EvmNetworkOptions = {
   currencyName: "COTI2",
   currencyNameLong: "COTI2 Devnet",
   node: "https://devnet.coti.io/rpc",
-  icon: require("./icons/coti.png"),
+  icon,
   activityHandler: wrapActivityHandler(() => Promise.resolve([])),
 };
 

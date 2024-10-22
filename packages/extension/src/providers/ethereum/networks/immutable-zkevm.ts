@@ -1,3 +1,4 @@
+import icon from "./icons/immutable-zkevm.png";
 import { NetworkNames, CoingeckoPlatform } from "@enkryptcom/types";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
 import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
@@ -15,7 +16,7 @@ const immutableZkEvmOptions: EvmNetworkOptions = {
   currencyName: "IMX",
   currencyNameLong: "Immutable X",
   node: "https://rpc.immutable.com",
-  icon: require("./icons/immutable-zkevm.png"),
+  icon,
   coingeckoID: "immutable-x",
   coingeckoPlatform: CoingeckoPlatform.ImmutableZkevm,
   NFTHandler: shNFTHandler,

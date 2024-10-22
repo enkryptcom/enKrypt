@@ -5,11 +5,11 @@
 </template>
 
 <script setup lang="ts">
-import Loader from "@action/icons/common/loader.vue";
+import Loader from '@action/icons/common/loader.vue'
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .network-assets {
   &__loading {

@@ -15,7 +15,7 @@
 </template>
 
 <script setup lang="ts">
-import WarningIcon from "@action/icons/send/warning-icon.vue";
+import WarningIcon from '@action/icons/send/warning-icon.vue'
 defineProps({
   feeWarning: {
     type: Boolean,
@@ -25,11 +25,11 @@ defineProps({
     type: Boolean,
     default: false,
   },
-});
+})
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 .best-offer-warning {
   margin: 0 0 8px 0;
   background: @orange01;

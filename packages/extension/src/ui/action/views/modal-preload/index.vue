@@ -12,12 +12,12 @@
 </template>
 
 <script setup lang="ts">
-import LottieSendProcess from "@action/assets/animation/send-process.json";
-import { Vue3Lottie } from "vue3-lottie";
+import LottieSendProcess from '@action/assets/animation/send-process.json'
+import { Vue3Lottie } from 'vue3-lottie'
 </script>
 
 <style lang="less" scoped>
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .modal-preload {
   width: 100%;
@@ -52,7 +52,8 @@ import { Vue3Lottie } from "vue3-lottie";
         rgba(250, 250, 250, 0.98) 100%
       )
       @primary;
-    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.039),
+    box-shadow:
+      0px 3px 6px rgba(0, 0, 0, 0.039),
       0px 7px 24px rgba(0, 0, 0, 0.19);
     width: 100%;
     height: 100%;

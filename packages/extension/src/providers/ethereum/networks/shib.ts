@@ -1,3 +1,4 @@
+import icon from "./icons/shiba-inu.svg";
 import { NetworkNames } from "@enkryptcom/types";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
 import { EtherscanActivity } from "../libs/activity-handlers";
@@ -15,7 +16,7 @@ const shibOptions: EvmNetworkOptions = {
   currencyName: "BONE",
   currencyNameLong: "BONE",
   node: "https://www.shibrpc.com",
-  icon: require("./icons/shiba-inu.svg"),
+  icon,
   coingeckoID: "bone-shibaswap",
   assetsInfoHandler,
   activityHandler: wrapActivityHandler(EtherscanActivity),

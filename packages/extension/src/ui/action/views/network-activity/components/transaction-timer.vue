@@ -6,33 +6,33 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
-import moment from "moment";
+import { onMounted, ref } from 'vue'
+import moment from 'moment'
 
-import SendSpinnerAnimation from "@action/icons/send/send-spinner-animation.vue";
+import SendSpinnerAnimation from '@action/icons/send/send-spinner-animation.vue'
 
 const props = defineProps({
   date: {
     type: Number,
     default: 0,
   },
-});
+})
 
-const timer = ref(moment.duration(moment(props.date).diff(Date.now())));
+const timer = ref(moment.duration(moment(props.date).diff(Date.now())))
 
 onMounted(() => {
-  updateTimer();
-});
+  updateTimer()
+})
 
 const updateTimer = () => {
   setInterval(() => {
-    timer.value = moment.duration(moment(props.date).diff(Date.now()));
-  }, 1000);
-};
+    timer.value = moment.duration(moment(props.date).diff(Date.now()))
+  }, 1000)
+}
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .status-timer {
   display: inline-block;

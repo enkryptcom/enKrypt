@@ -1,3 +1,4 @@
+import icon from "./icons/mode.png";
 import { NetworkNames, CoingeckoPlatform } from "@enkryptcom/types";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
 import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
@@ -16,7 +17,7 @@ const modeOptions: EvmNetworkOptions = {
   currencyName: "ETH",
   currencyNameLong: "Ethereum",
   node: "https://mainnet.mode.network",
-  icon: require("./icons/mode.png"),
+  icon,
   coingeckoPlatform: CoingeckoPlatform.Mode,
   coingeckoID: "ethereum",
   NFTHandler: shNFTHandler,

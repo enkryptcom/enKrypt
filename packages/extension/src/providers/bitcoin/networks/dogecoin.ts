@@ -1,3 +1,4 @@
+import icon from "./icons/doge.svg";
 import { NetworkNames } from "@enkryptcom/types";
 import {
   BitcoinNetwork,
@@ -18,7 +19,7 @@ const dogeOptions: BitcoinNetworkOptions = {
   isTestNetwork: false,
   currencyName: "Doge",
   currencyNameLong: "Dogecoin",
-  icon: require("./icons/doge.svg"),
+  icon,
   decimals: 8,
   node: "https://partners.mewapi.io/nodes/ss/doge",
   coingeckoID: "dogecoin",

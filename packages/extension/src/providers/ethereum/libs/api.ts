@@ -20,7 +20,7 @@ class API implements ProviderAPIInterface {
     return this;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
+   
   async init(): Promise<void> {}
   async getTransactionStatus(hash: string): Promise<EthereumRawInfo | null> {
     try {

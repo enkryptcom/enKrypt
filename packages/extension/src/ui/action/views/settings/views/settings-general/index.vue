@@ -64,54 +64,54 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
-import SettingsInnerHeader from "@action/views/settings/components/settings-inner-header.vue";
+import { onMounted, ref } from 'vue'
+import SettingsInnerHeader from '@action/views/settings/components/settings-inner-header.vue'
 // import BaseSelect from "@action/components/base-select/index.vue";
-import SettingsSwitch from "@action/views/settings/components/settings-switch.vue";
-import SettingsState from "@/libs/settings-state";
-import { SettingsType } from "@/libs/settings-state/types";
-import { optOutofMetrics } from "@/libs/metrics";
+import SettingsSwitch from '@action/views/settings/components/settings-switch.vue'
+import SettingsState from '@/libs/settings-state'
+import { SettingsType } from '@/libs/settings-state/types'
+import { optOutofMetrics } from '@/libs/metrics'
 
-const settingsState = new SettingsState();
-const isEthereumDisabled = ref(false);
-const isPolkadotjsDisabled = ref(false);
-const isUnisatEnabled = ref(true);
-const isMetricsEnabled = ref(true);
+const settingsState = new SettingsState()
+const isEthereumDisabled = ref(false)
+const isPolkadotjsDisabled = ref(false)
+const isUnisatEnabled = ref(true)
+const isMetricsEnabled = ref(true)
 onMounted(async () => {
-  const allSettings: SettingsType = await settingsState.getAllSettings();
-  isEthereumDisabled.value = allSettings.evm.inject.disabled;
-  isPolkadotjsDisabled.value = !allSettings.substrate.injectPolkadotjs;
-  isUnisatEnabled.value = allSettings.btc.injectUnisat;
-  isMetricsEnabled.value = allSettings.enkrypt.isMetricsEnabled;
-});
+  const allSettings: SettingsType = await settingsState.getAllSettings()
+  isEthereumDisabled.value = allSettings.evm.inject.disabled
+  isPolkadotjsDisabled.value = !allSettings.substrate.injectPolkadotjs
+  isUnisatEnabled.value = allSettings.btc.injectUnisat
+  isMetricsEnabled.value = allSettings.enkrypt.isMetricsEnabled
+})
 const toggleEthereumDisable = async (isChecked: boolean) => {
-  const evmSettings = await settingsState.getEVMSettings();
+  const evmSettings = await settingsState.getEVMSettings()
   evmSettings.inject = {
     disabled: isChecked,
     timestamp: new Date().getTime(),
-  };
-  await settingsState.setEVMSettings(evmSettings);
-};
+  }
+  await settingsState.setEVMSettings(evmSettings)
+}
 const togglePjsDisable = async (isChecked: boolean) => {
-  const subSettings = await settingsState.getSubstrateSettings();
-  subSettings.injectPolkadotjs = !isChecked;
-  await settingsState.setSubstrateSettings(subSettings);
-};
+  const subSettings = await settingsState.getSubstrateSettings()
+  subSettings.injectPolkadotjs = !isChecked
+  await settingsState.setSubstrateSettings(subSettings)
+}
 const toggleUnisatEnable = async (isChecked: boolean) => {
-  const btcSettings = await settingsState.getBtcSettings();
-  btcSettings.injectUnisat = isChecked;
-  await settingsState.setBtcSettings(btcSettings);
-};
+  const btcSettings = await settingsState.getBtcSettings()
+  btcSettings.injectUnisat = isChecked
+  await settingsState.setBtcSettings(btcSettings)
+}
 const toggleMetricsEnabled = async (isChecked: boolean) => {
-  const enkryptSettings = await settingsState.getEnkryptSettings();
-  enkryptSettings.isMetricsEnabled = !isChecked;
-  await settingsState.setEnkryptSettings(enkryptSettings);
-  optOutofMetrics(isChecked);
-};
+  const enkryptSettings = await settingsState.getEnkryptSettings()
+  enkryptSettings.isMetricsEnabled = !isChecked
+  await settingsState.setEnkryptSettings(enkryptSettings)
+  optOutofMetrics(isChecked)
+}
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .settings {
   &__label {

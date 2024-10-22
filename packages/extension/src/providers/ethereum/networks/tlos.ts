@@ -1,3 +1,4 @@
+import icon from "./icons/telos.svg";
 import { CoingeckoPlatform, NetworkNames } from "@enkryptcom/types";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
 import assetsInfoHandler from "@/providers/ethereum/libs/assets-handlers/assetinfo-mew";
@@ -15,7 +16,7 @@ const ethOptions: EvmNetworkOptions = {
   currencyName: "TLOS",
   currencyNameLong: "Telos",
   node: "https://mainnet-eu.telos.net/evm",
-  icon: require("./icons/telos.svg"),
+  icon,
   coingeckoID: "telos",
   coingeckoPlatform: CoingeckoPlatform.Telos,
   assetsInfoHandler,

@@ -79,7 +79,7 @@ export const getSolanaTransactionFees = async (
     /** 0 indexed attempt, used to index backoff ms from `backoff` */
     let attempt = 0;
     let fee: number;
-    // eslint-disable-next-line no-constant-condition
+     
     while (true) {
       if (attempt >= backoff.length) {
         let recentBlockHash: undefined | string;

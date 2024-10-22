@@ -9,7 +9,7 @@
 </template>
 
 <script setup lang="ts">
-import CloseIcon from "@action/icons/common/close-icon.vue";
+import CloseIcon from '@action/icons/common/close-icon.vue'
 
 defineProps({
   close: {
@@ -20,11 +20,11 @@ defineProps({
     type: Boolean,
     default: false,
   },
-});
+})
 </script>
 
 <style lang="less" scoped>
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .add-network {
   &__header {
@@ -45,7 +45,8 @@ defineProps({
     }
 
     &.border {
-      box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.05),
+      box-shadow:
+        0px 0px 6px rgba(0, 0, 0, 0.05),
         0px 0px 1px rgba(0, 0, 0, 0.25);
       padding: 14px 72px 12px 32px;
 

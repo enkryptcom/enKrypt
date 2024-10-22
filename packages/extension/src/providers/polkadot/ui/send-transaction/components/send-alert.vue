@@ -19,9 +19,9 @@
 </template>
 
 <script setup lang="ts">
-import AlertIcon from "@action/icons/send/alert-icon.vue";
-import { AlertType } from "../../types";
-import { PropType } from "vue";
+import AlertIcon from '@action/icons/send/alert-icon.vue'
+import { AlertType } from '../../types'
+import { PropType } from 'vue'
 defineProps({
   alertType: {
     type: Number as PropType<AlertType>,
@@ -29,13 +29,13 @@ defineProps({
   },
   existentialBalance: {
     type: String,
-    default: () => "0",
+    default: () => '0',
   },
-});
+})
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .send-alert {
   margin: 0 32px 8px 32px;

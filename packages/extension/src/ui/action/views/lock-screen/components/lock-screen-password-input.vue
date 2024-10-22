@@ -14,19 +14,19 @@
 </template>
 
 <script setup lang="ts">
-import BaseInput from "@action/components/base-input/index.vue";
+import BaseInput from '@action/components/base-input/index.vue'
 defineProps({
   isError: {
     type: Boolean,
     default: () => {
-      return false;
+      return false
     },
   },
-});
+})
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 .lock-screen-password-input {
   padding: 0 0 39px 0;
   width: 100%;

@@ -19,11 +19,11 @@
 </template>
 
 <script setup lang="ts">
-import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
-import { PropType } from "vue";
-import scrollSettings from "@/libs/utils/scroll-settings";
-import SubnetListItem from "./subnet-list-item.vue";
-import { SubNetworkOptions } from "@/types/base-network";
+import CustomScrollbar from '@action/components/custom-scrollbar/index.vue'
+import { PropType } from 'vue'
+import scrollSettings from '@/libs/utils/scroll-settings'
+import SubnetListItem from './subnet-list-item.vue'
+import { SubNetworkOptions } from '@/types/base-network'
 
 defineProps({
   subNets: {
@@ -32,15 +32,15 @@ defineProps({
   },
   selectedId: {
     type: String,
-    default: "",
+    default: '',
   },
   showChains: Boolean,
-});
+})
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
-@import "~@action/styles/custom-scroll.less";
+@import '@action/styles/theme.less';
+@import '@action/styles/custom-scroll.less';
 
 .chains {
   position: absolute;
@@ -72,7 +72,8 @@ defineProps({
     left: 330px;
     top: 50px;
     background: #ffffff;
-    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.039),
+    box-shadow:
+      0px 3px 6px rgba(0, 0, 0, 0.039),
       0px 7px 24px rgba(0, 0, 0, 0.19);
     border-radius: 12px;
     z-index: 107;
@@ -80,7 +81,9 @@ defineProps({
     box-sizing: border-box;
     opacity: 0;
     visibility: hidden;
-    transition: opacity 0.3s, visibility 0s ease-in-out 0.3s;
+    transition:
+      opacity 0.3s,
+      visibility 0s ease-in-out 0.3s;
 
     &.show {
       opacity: 1;

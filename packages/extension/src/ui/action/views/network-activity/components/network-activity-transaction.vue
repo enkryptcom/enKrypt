@@ -21,10 +21,10 @@
             {{
               $filters.replaceWithEllipsis(
                 network.displayAddress(
-                  activity.isIncoming ? activity.from : activity.to
+                  activity.isIncoming ? activity.from : activity.to,
                 ),
                 6,
-                6
+                6,
               )
             }}
             <span v-if="Number.isFinite(activity.crossChainId)">
@@ -48,7 +48,7 @@
             <span
               v-if="network.subNetworks && activity.chainId !== undefined"
               class="network-activity__transaction-info-chainid"
-              >{{ activity.isIncoming ? "on" : "from" }} chain
+              >{{ activity.isIncoming ? 'on' : 'from' }} chain
               {{ activity.chainId }}</span
             >
           </p>
@@ -57,10 +57,10 @@
 
       <div class="network-activity__transaction-amount">
         <h4>
-          {{ !activity.isIncoming ? "-" : "" }}
+          {{ !activity.isIncoming ? '-' : '' }}
           {{
             $filters.formatFloatingPointValue(
-              fromBase(activity.value, activity.token.decimals)
+              fromBase(activity.value, activity.token.decimals),
             ).value
           }}
           <span>{{ activity.token.symbol }}</span>
@@ -104,12 +104,12 @@
         <h4>
           {{
             $filters.formatFloatingPointValue(
-              fromBase(activity.value, activity.token.decimals)
+              fromBase(activity.value, activity.token.decimals),
             ).value
           }}
           <span>{{
             activity.token.symbol.length > 40
-              ? activity.token.symbol.substring(0, 40) + "..."
+              ? activity.token.symbol.substring(0, 40) + '...'
               : activity.token.symbol
           }}</span>
         </h4>
@@ -120,19 +120,19 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, PropType, ref } from "vue";
-import moment from "moment";
-import TransactionTimer from "./transaction-timer.vue";
+import { computed, onMounted, PropType, ref } from 'vue'
+import moment from 'moment'
+import TransactionTimer from './transaction-timer.vue'
 import {
   Activity,
   ActivityStatus,
   ActivityType,
   SwapRawInfo,
-} from "@/types/activity";
-import { BaseNetwork } from "@/types/base-network";
-import { fromBase } from "@enkryptcom/utils";
-import BigNumber from "bignumber.js";
-import { imageLoadError } from "@/ui/action/utils/misc";
+} from '@/types/activity'
+import { BaseNetwork } from '@/types/base-network'
+import { fromBase } from '@enkryptcom/utils'
+import BigNumber from 'bignumber.js'
+import { imageLoadError } from '@/ui/action/utils/misc'
 const props = defineProps({
   activity: {
     type: Object as PropType<Activity>,
@@ -142,58 +142,58 @@ const props = defineProps({
     type: Object as PropType<BaseNetwork>,
     default: () => ({}),
   },
-});
+})
 
-const status = ref("~");
-const date = ref("~");
+const status = ref('~')
+const date = ref('~')
 
 const transactionURL = computed(() => {
   return props.network.blockExplorerTX.replace(
-    "[[txHash]]",
-    props.activity.transactionHash
-  );
-});
+    '[[txHash]]',
+    props.activity.transactionHash,
+  )
+})
 const getFiatValue = computed(() => {
-  return new BigNumber(props.activity.token.price || "0").times(
-    fromBase(props.activity.value, props.activity.token.decimals)
-  );
-});
+  return new BigNumber(props.activity.token.price || '0').times(
+    fromBase(props.activity.value, props.activity.token.decimals),
+  )
+})
 onMounted(() => {
-  date.value = moment(props.activity.timestamp).fromNow();
+  date.value = moment(props.activity.timestamp).fromNow()
   if (
     props.activity.status === ActivityStatus.success &&
     props.activity.isIncoming
   )
     status.value =
-      props.activity.type === ActivityType.transaction ? "Received" : "Swapped";
+      props.activity.type === ActivityType.transaction ? 'Received' : 'Swapped'
   else if (
     props.activity.status === ActivityStatus.success &&
     !props.activity.isIncoming
   )
     status.value =
-      props.activity.type === ActivityType.transaction ? "Sent" : "Swapped";
+      props.activity.type === ActivityType.transaction ? 'Sent' : 'Swapped'
   else if (
     props.activity.status === ActivityStatus.pending &&
     props.activity.isIncoming
   )
     status.value =
       props.activity.type === ActivityType.transaction
-        ? "Receiving"
-        : "Swapping";
+        ? 'Receiving'
+        : 'Swapping'
   else if (
     props.activity.status === ActivityStatus.pending &&
     !props.activity.isIncoming
   )
     status.value =
-      props.activity.type === ActivityType.transaction ? "Sending" : "Swapping";
+      props.activity.type === ActivityType.transaction ? 'Sending' : 'Swapping'
   else {
-    status.value = "Failed";
+    status.value = 'Failed'
   }
-});
+})
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 .container-empty {
   display: contents;
 }

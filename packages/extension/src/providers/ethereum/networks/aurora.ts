@@ -1,3 +1,4 @@
+import icon from "./icons/aurora.png";
 import { CoingeckoPlatform, NetworkNames } from "@enkryptcom/types";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
 import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
@@ -15,7 +16,7 @@ const auroraOptions: EvmNetworkOptions = {
   currencyName: "ETH",
   currencyNameLong: "Ethereum",
   node: "https://mainnet.aurora.dev",
-  icon: require("./icons/aurora.png"),
+  icon,
   coingeckoID: "ethereum",
   coingeckoPlatform: CoingeckoPlatform.Aurora,
   assetsInfoHandler,

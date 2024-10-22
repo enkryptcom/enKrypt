@@ -110,7 +110,7 @@
         :native-value="
           fromBase(
             nativeBalanceAfterTransaction.abs().toString(),
-            network.decimals
+            network.decimals,
           )
         "
         :decimals="network.decimals"
@@ -133,51 +133,51 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, PropType, computed, watch } from "vue";
-import { useRoute, useRouter } from "vue-router";
-import { debounce } from "lodash";
-import SendHeader from "@/providers/common/ui/send-transaction/send-header.vue";
-import SendAddressInput from "./components/send-address-input.vue";
-import SendFromContactsList from "@/providers/common/ui/send-transaction/send-from-contacts-list.vue";
-import SendContactsList from "@/providers/common/ui/send-transaction/send-contacts-list.vue";
-import AssetsSelectList from "@action/views/assets-select-list/index.vue";
-import NftSelectList from "@/providers/common/ui/send-transaction/nft-select-list/index.vue";
-import SendTokenSelect from "./components/send-token-select.vue";
-import SendAlert from "@/providers/common/ui/send-transaction/send-alert.vue";
-import SendNftSelect from "@/providers/common/ui/send-transaction/send-nft-select.vue";
-import SendInputAmount from "@/providers/common/ui/send-transaction/send-input-amount.vue";
-import SendFeeSelect from "@/providers/common/ui/send-transaction/send-fee-select.vue";
-import TransactionFeeView from "@action/views/transaction-fee/index.vue";
-import BaseButton from "@action/components/base-button/index.vue";
-import { NFTItemWithCollectionName, NFTItem, NFTType } from "@/types/nft";
-import { AccountsHeaderData } from "@action/types/account";
-import { numberToHex, toBN } from "web3-utils";
-import { GasPriceTypes, GasFeeType } from "@/providers/common/types";
-import { EvmNetwork } from "../../types/evm-network";
-import { Erc20Token } from "../../types/erc20-token";
-import BigNumber from "bignumber.js";
-import { defaultGasCostVals } from "@/providers/common/libs/default-vals";
-import Transaction from "@/providers/ethereum/libs/transaction";
-import Web3Eth from "web3-eth";
+import { ref, onMounted, PropType, computed, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { debounce } from 'lodash'
+import SendHeader from '@/providers/common/ui/send-transaction/send-header.vue'
+import SendAddressInput from './components/send-address-input.vue'
+import SendFromContactsList from '@/providers/common/ui/send-transaction/send-from-contacts-list.vue'
+import SendContactsList from '@/providers/common/ui/send-transaction/send-contacts-list.vue'
+import AssetsSelectList from '@action/views/assets-select-list/index.vue'
+import NftSelectList from '@/providers/common/ui/send-transaction/nft-select-list/index.vue'
+import SendTokenSelect from './components/send-token-select.vue'
+import SendAlert from '@/providers/common/ui/send-transaction/send-alert.vue'
+import SendNftSelect from '@/providers/common/ui/send-transaction/send-nft-select.vue'
+import SendInputAmount from '@/providers/common/ui/send-transaction/send-input-amount.vue'
+import SendFeeSelect from '@/providers/common/ui/send-transaction/send-fee-select.vue'
+import TransactionFeeView from '@action/views/transaction-fee/index.vue'
+import BaseButton from '@action/components/base-button/index.vue'
+import { NFTItemWithCollectionName, NFTItem, NFTType } from '@/types/nft'
+import { AccountsHeaderData } from '@action/types/account'
+import { numberToHex, toBN } from 'web3-utils'
+import { GasPriceTypes, GasFeeType } from '@/providers/common/types'
+import { EvmNetwork } from '../../types/evm-network'
+import { Erc20Token } from '../../types/erc20-token'
+import BigNumber from 'bignumber.js'
+import { defaultGasCostVals } from '@/providers/common/libs/default-vals'
+import Transaction from '@/providers/ethereum/libs/transaction'
+import Web3Eth from 'web3-eth'
 import {
   NATIVE_TOKEN_ADDRESS,
   MAX_UNAVAILABLE_NETWORKS,
-} from "../../libs/common";
-import { fromBase, toBase, isValidDecimals } from "@enkryptcom/utils";
-import erc20 from "../../libs/abi/erc20";
-import erc721 from "../../libs/abi/erc721";
-import erc1155 from "../../libs/abi/erc1155";
-import { SendTransactionDataType, VerifyTransactionParams } from "../types";
-import { formatFloatingPointValue } from "@/libs/utils/number-formatter";
-import { routes as RouterNames } from "@/ui/action/router";
-import getUiPath from "@/libs/utils/get-ui-path";
-import Browser from "webextension-polyfill";
-import { ProviderName } from "@/types/provider";
-import PublicKeyRing from "@/libs/keyring/public-keyring";
-import { GenericNameResolver, CoinType } from "@/libs/name-resolver";
-import { NetworkNames } from "@enkryptcom/types";
-import { trackSendEvents } from "@/libs/metrics";
-import { SendEventType } from "@/libs/metrics/types";
+} from '../../libs/common'
+import { fromBase, toBase, isValidDecimals } from '@enkryptcom/utils'
+import erc20 from '../../libs/abi/erc20'
+import erc721 from '../../libs/abi/erc721'
+import erc1155 from '../../libs/abi/erc1155'
+import { SendTransactionDataType, VerifyTransactionParams } from '../types'
+import { formatFloatingPointValue } from '@/libs/utils/number-formatter'
+import { routes as RouterNames } from '@/ui/action/router'
+import getUiPath from '@/libs/utils/get-ui-path'
+import Browser from 'webextension-polyfill'
+import { ProviderName } from '@/types/provider'
+import PublicKeyRing from '@/libs/keyring/public-keyring'
+import { GenericNameResolver, CoinType } from '@/libs/name-resolver'
+import { NetworkNames } from '@enkryptcom/types'
+import { trackSendEvents } from '@/libs/metrics'
+import { SendEventType } from '@/libs/metrics/types'
 
 const props = defineProps({
   network: {
@@ -188,150 +188,150 @@ const props = defineProps({
     type: Object as PropType<AccountsHeaderData>,
     default: () => ({}),
   },
-});
+})
 
 const loadingAsset = new Erc20Token({
   icon: props.network.icon,
-  symbol: "Loading",
-  balance: "0",
-  price: "0",
-  name: "loading",
-  contract: "0x0",
+  symbol: 'Loading',
+  balance: '0',
+  price: '0',
+  name: 'loading',
+  contract: '0x0',
   decimals: 18,
-});
+})
 
-const route = useRoute();
-const router = useRouter();
+const route = useRoute()
+const router = useRouter()
 
-const nameResolver = new GenericNameResolver();
-const addressInputTo = ref();
-const selected: string = route.params.id as string;
+const nameResolver = new GenericNameResolver()
+const addressInputTo = ref()
+const selected: string = route.params.id as string
 const paramNFTData: NFTItem = JSON.parse(
-  route.params.tokenData ? (route.params.tokenData as string) : "{}"
-) as NFTItem;
-const isSendToken = ref<boolean>(JSON.parse(route.params.isToken as string));
-const accountAssets = ref<Erc20Token[]>([]);
-const selectedAsset = ref<Erc20Token | Partial<Erc20Token>>(loadingAsset);
-const amount = ref<string>("");
-const isEstimateValid = ref(true);
+  route.params.tokenData ? (route.params.tokenData as string) : '{}',
+) as NFTItem
+const isSendToken = ref<boolean>(JSON.parse(route.params.isToken as string))
+const accountAssets = ref<Erc20Token[]>([])
+const selectedAsset = ref<Erc20Token | Partial<Erc20Token>>(loadingAsset)
+const amount = ref<string>('')
+const isEstimateValid = ref(true)
 const hasEnoughBalance = computed(() => {
   if (!isValidDecimals(sendAmount.value, selectedAsset.value.decimals!)) {
-    return false;
+    return false
   }
 
-  return toBN(selectedAsset.value.balance ?? "0").gte(
-    toBN(toBase(sendAmount.value ?? "0", selectedAsset.value.decimals!))
-  );
-});
+  return toBN(selectedAsset.value.balance ?? '0').gte(
+    toBN(toBase(sendAmount.value ?? '0', selectedAsset.value.decimals!)),
+  )
+})
 const sendAmount = computed(() => {
-  if (amount.value && amount.value !== "") return amount.value;
-  return "0";
-});
-const isMaxSelected = ref<boolean>(false);
+  if (amount.value && amount.value !== '') return amount.value
+  return '0'
+})
+const isMaxSelected = ref<boolean>(false)
 const selectedFee = ref<GasPriceTypes>(
   props.network.name === NetworkNames.Ethereum || NetworkNames.Binance
     ? GasPriceTypes.REGULAR
-    : GasPriceTypes.ECONOMY
-);
-const gasCostValues = ref<GasFeeType>(defaultGasCostVals);
+    : GasPriceTypes.ECONOMY,
+)
+const gasCostValues = ref<GasFeeType>(defaultGasCostVals)
 const addressFrom = ref<string>(
-  props.accountInfo.selectedAccount?.address ?? ""
-);
-const addressTo = ref<string>("");
-const isLoadingAssets = ref(true);
+  props.accountInfo.selectedAccount?.address ?? '',
+)
+const addressTo = ref<string>('')
+const isLoadingAssets = ref(true)
 
 const selectedNft = ref<NFTItemWithCollectionName>({
-  id: "",
-  contract: "",
-  image: "",
-  name: "Loading",
-  url: "",
-  collectionName: "",
+  id: '',
+  contract: '',
+  image: '',
+  name: 'Loading',
+  url: '',
+  collectionName: '',
   type: NFTType.ERC721,
-});
+})
 
 const showMax = computed(() => {
-  if (selectedAsset.value.contract !== NATIVE_TOKEN_ADDRESS) return true;
-  if (MAX_UNAVAILABLE_NETWORKS.includes(props.network.name)) return false;
-  return true;
-});
+  if (selectedAsset.value.contract !== NATIVE_TOKEN_ADDRESS) return true
+  if (MAX_UNAVAILABLE_NETWORKS.includes(props.network.name)) return false
+  return true
+})
 
 const nativeBalance = computed(() => {
   const accountIndex = props.accountInfo.activeAccounts.findIndex(
-    (acc) => acc.address === addressFrom.value
-  );
+    acc => acc.address === addressFrom.value,
+  )
 
   if (accountIndex !== -1) {
-    const balance = props.accountInfo.activeBalances[accountIndex];
+    const balance = props.accountInfo.activeBalances[accountIndex]
 
-    if (balance !== "~") {
-      return toBase(balance, props.network.decimals);
+    if (balance !== '~') {
+      return toBase(balance, props.network.decimals)
     }
   }
 
-  return "0";
-});
+  return '0'
+})
 
 onMounted(async () => {
-  trackSendEvents(SendEventType.SendOpen, { network: props.network.name });
-  fetchAssets().then(setBaseCosts);
-});
+  trackSendEvents(SendEventType.SendOpen, { network: props.network.name })
+  fetchAssets().then(setBaseCosts)
+})
 
 const TxInfo = computed<SendTransactionDataType>(() => {
-  const web3 = new Web3Eth();
+  const web3 = new Web3Eth()
   const value =
     isSendToken.value && selectedAsset.value.contract === NATIVE_TOKEN_ADDRESS
       ? numberToHex(toBase(sendAmount.value, props.network.decimals))
-      : "0x0";
+      : '0x0'
   const toAddress =
     isSendToken.value && selectedAsset.value.contract === NATIVE_TOKEN_ADDRESS
       ? addressTo.value
       : isSendToken.value
-      ? selectedAsset.value.contract
-      : selectedNft.value.contract;
-  const erc20Contract = new web3.Contract(erc20 as any);
-  const erc721Contract = new web3.Contract(erc721 as any);
-  const erc1155Contract = new web3.Contract(erc1155 as any);
+        ? selectedAsset.value.contract
+        : selectedNft.value.contract
+  const erc20Contract = new web3.Contract(erc20 as any)
+  const erc721Contract = new web3.Contract(erc721 as any)
+  const erc1155Contract = new web3.Contract(erc1155 as any)
   const data =
     isSendToken.value && selectedAsset.value.contract === NATIVE_TOKEN_ADDRESS
-      ? "0x"
+      ? '0x'
       : isSendToken.value
-      ? erc20Contract.methods
-          .transfer(
-            addressTo.value,
-            toBase(sendAmount.value, selectedAsset.value.decimals!)
-          )
-          .encodeABI()
-      : selectedNft.value.type === NFTType.ERC721
-      ? erc721Contract.methods
-          .transferFrom(
-            addressFrom.value,
-            addressTo.value,
-            selectedNft.value.id
-          )
-          .encodeABI()
-      : erc1155Contract.methods
-          .safeTransferFrom(
-            addressFrom.value,
-            addressTo.value,
-            selectedNft.value.id,
-            1,
-            []
-          )
-          .encodeABI();
+        ? erc20Contract.methods
+            .transfer(
+              addressTo.value,
+              toBase(sendAmount.value, selectedAsset.value.decimals!),
+            )
+            .encodeABI()
+        : selectedNft.value.type === NFTType.ERC721
+          ? erc721Contract.methods
+              .transferFrom(
+                addressFrom.value,
+                addressTo.value,
+                selectedNft.value.id,
+              )
+              .encodeABI()
+          : erc1155Contract.methods
+              .safeTransferFrom(
+                addressFrom.value,
+                addressTo.value,
+                selectedNft.value.id,
+                1,
+                [],
+              )
+              .encodeABI()
   return {
     chainId: props.network.chainID,
     from: addressFrom.value as `0x{string}`,
     value: value as `0x${string}`,
     to: toAddress as `0x${string}`,
     data: data as `0x${string}`,
-  };
-});
+  }
+})
 const Tx = computed(() => {
-  const web3 = new Web3Eth(props.network.node);
-  const tx = new Transaction(TxInfo.value, web3);
-  return tx;
-});
+  const web3 = new Web3Eth(props.network.node)
+  const tx = new Transaction(TxInfo.value, web3)
+  return tx
+})
 
 const nativeBalanceAfterTransaction = computed(() => {
   if (
@@ -339,55 +339,55 @@ const nativeBalanceAfterTransaction = computed(() => {
     nativeBalance.value &&
     selectedAsset.value &&
     selectedAsset.value.contract &&
-    amount.value !== "" &&
+    amount.value !== '' &&
     isValidDecimals(sendAmount.value, selectedAsset.value.decimals!)
   ) {
-    let endingAmount = toBN(nativeBalance.value);
+    let endingAmount = toBN(nativeBalance.value)
 
     if (selectedAsset.value.contract === NATIVE_TOKEN_ADDRESS) {
       const rawAmount = toBN(
-        toBase(amount.value, selectedAsset.value.decimals!)
-      );
-      endingAmount = endingAmount.sub(rawAmount);
+        toBase(amount.value, selectedAsset.value.decimals!),
+      )
+      endingAmount = endingAmount.sub(rawAmount)
     }
 
     endingAmount = endingAmount.sub(
       toBN(
         toBase(
           gasCostValues.value[selectedFee.value].nativeValue,
-          props.network.decimals
-        )
-      )
-    );
+          props.network.decimals,
+        ),
+      ),
+    )
 
-    return endingAmount;
+    return endingAmount
   } else if (
     !isSendToken.value &&
     nativeBalance.value &&
     selectedNft.value.id
   ) {
-    let endingAmount = toBN(nativeBalance.value);
+    let endingAmount = toBN(nativeBalance.value)
     endingAmount = endingAmount.sub(
       toBN(
         toBase(
           gasCostValues.value[selectedFee.value].nativeValue,
-          props.network.decimals
-        )
-      )
-    );
-    return endingAmount;
+          props.network.decimals,
+        ),
+      ),
+    )
+    return endingAmount
   }
 
-  return toBN(0);
-});
+  return toBN(0)
+})
 
 const setTransactionFees = (tx: Transaction) => {
   return tx
     .getGasCosts()
-    .then(async (gasvals) => {
+    .then(async gasvals => {
       const getConvertedVal = (type: GasPriceTypes) =>
-        fromBase(gasvals[type], props.network.decimals);
-      const nativeVal = accountAssets.value[0].price || "0";
+        fromBase(gasvals[type], props.network.decimals)
+      const nativeVal = accountAssets.value[0].price || '0'
       gasCostValues.value = {
         [GasPriceTypes.ECONOMY]: {
           nativeValue: getConvertedVal(GasPriceTypes.ECONOMY),
@@ -395,7 +395,7 @@ const setTransactionFees = (tx: Transaction) => {
             .times(nativeVal!)
             .toString(),
           nativeSymbol: props.network.currencyName,
-          fiatSymbol: "USD",
+          fiatSymbol: 'USD',
         },
         [GasPriceTypes.REGULAR]: {
           nativeValue: getConvertedVal(GasPriceTypes.REGULAR),
@@ -403,7 +403,7 @@ const setTransactionFees = (tx: Transaction) => {
             .times(nativeVal!)
             .toString(),
           nativeSymbol: props.network.currencyName,
-          fiatSymbol: "USD",
+          fiatSymbol: 'USD',
         },
         [GasPriceTypes.FAST]: {
           nativeValue: getConvertedVal(GasPriceTypes.FAST),
@@ -411,7 +411,7 @@ const setTransactionFees = (tx: Transaction) => {
             .times(nativeVal!)
             .toString(),
           nativeSymbol: props.network.currencyName,
-          fiatSymbol: "USD",
+          fiatSymbol: 'USD',
         },
         [GasPriceTypes.FASTEST]: {
           nativeValue: getConvertedVal(GasPriceTypes.FASTEST),
@@ -419,223 +419,220 @@ const setTransactionFees = (tx: Transaction) => {
             .times(nativeVal!)
             .toString(),
           nativeSymbol: props.network.currencyName,
-          fiatSymbol: "USD",
+          fiatSymbol: 'USD',
         },
-      };
-      isEstimateValid.value = true;
+      }
+      isEstimateValid.value = true
     })
     .catch(() => {
-      isEstimateValid.value = false;
-    });
-};
+      isEstimateValid.value = false
+    })
+}
 
 const setBaseCosts = () => {
-  const web3 = new Web3Eth(props.network.node);
+  const web3 = new Web3Eth(props.network.node)
   const tx = new Transaction(
     {
       chainId: props.network.chainID,
       from: props.accountInfo.selectedAccount!.address as `0x{string}`,
-      value: "0x0",
+      value: '0x0',
       to: NATIVE_TOKEN_ADDRESS,
     },
-    web3
-  );
-  updateTransactionFees(tx);
-};
+    web3,
+  )
+  updateTransactionFees(tx)
+}
 const fetchAssets = () => {
-  accountAssets.value = [];
-  selectedAsset.value = loadingAsset;
-  isLoadingAssets.value = true;
-  return props.network.getAllTokens(addressFrom.value).then((allAssets) => {
-    accountAssets.value = allAssets as Erc20Token[];
-    selectedAsset.value = allAssets[0] as Erc20Token;
+  accountAssets.value = []
+  selectedAsset.value = loadingAsset
+  isLoadingAssets.value = true
+  return props.network.getAllTokens(addressFrom.value).then(allAssets => {
+    accountAssets.value = allAssets as Erc20Token[]
+    selectedAsset.value = allAssets[0] as Erc20Token
 
-    isLoadingAssets.value = false;
-  });
-};
+    isLoadingAssets.value = false
+  })
+}
 
 const sendButtonTitle = computed(() => {
-  let title = "Send";
+  let title = 'Send'
   if (parseInt(sendAmount.value) > 0)
     title =
-      "Send " +
+      'Send ' +
       formatFloatingPointValue(sendAmount.value).value +
-      " " +
-      selectedAsset.value?.symbol!.toUpperCase();
+      ' ' +
+      selectedAsset.value?.symbol!.toUpperCase()
   if (!isSendToken.value) {
-    title = "Send NFT";
+    title = 'Send NFT'
   }
-  return title;
-});
+  return title
+})
 
 const isValidSend = computed<boolean>(() => {
-  if (!isInputsValid.value) return false;
-  if (nativeBalanceAfterTransaction.value.isNeg()) return false;
-  if (!isEstimateValid.value) return false;
-  return true;
-});
+  if (!isInputsValid.value) return false
+  if (nativeBalanceAfterTransaction.value.isNeg()) return false
+  if (!isEstimateValid.value) return false
+  return true
+})
 
 const isInputsValid = computed<boolean>(() => {
-  if (!props.network.isAddress(addressTo.value)) return false;
+  if (!props.network.isAddress(addressTo.value)) return false
   if (
     isSendToken.value &&
     !isValidDecimals(sendAmount.value, selectedAsset.value.decimals!)
   ) {
-    return false;
+    return false
   }
   if (!isSendToken.value && !selectedNft.value.id) {
-    return false;
+    return false
   }
-  if (new BigNumber(sendAmount.value).gt(assetMaxValue.value)) return false;
-  if (gasCostValues.value.REGULAR.nativeValue === "0") return false;
-  return true;
-});
+  if (new BigNumber(sendAmount.value).gt(assetMaxValue.value)) return false
+  if (gasCostValues.value.REGULAR.nativeValue === '0') return false
+  return true
+})
 
 const updateTransactionFees = (tx: Transaction) => {
   if (isMaxSelected.value) {
-    amount.value = "";
+    amount.value = ''
   }
   setTransactionFees(tx).then(() => {
     if (isMaxSelected.value) {
       amount.value =
-        parseFloat(assetMaxValue.value) < 0 ? "0" : assetMaxValue.value;
+        parseFloat(assetMaxValue.value) < 0 ? '0' : assetMaxValue.value
     }
-  });
-};
+  })
+}
 
-const isOpenSelectContactFrom = ref<boolean>(false);
-const isOpenSelectContactTo = ref<boolean>(false);
-const isOpenSelectToken = ref<boolean>(false);
+const isOpenSelectContactFrom = ref<boolean>(false)
+const isOpenSelectContactTo = ref<boolean>(false)
+const isOpenSelectToken = ref<boolean>(false)
 
-const isOpenSelectFee = ref<boolean>(false);
+const isOpenSelectFee = ref<boolean>(false)
 
-const isOpenSelectNft = ref(false);
+const isOpenSelectNft = ref(false)
 
 watch(
   [isInputsValid, addressTo, selectedAsset, selectedNft, isSendToken],
   () => {
     if (isInputsValid.value) {
-      updateTransactionFees(Tx.value);
+      updateTransactionFees(Tx.value)
     }
-  }
-);
+  },
+)
 
 watch([isSendToken], () => {
-  inputAmount("0");
-});
+  inputAmount('0')
+})
 
 const close = () => {
   trackSendEvents(SendEventType.SendDecline, {
     network: props.network.name,
-  });
-  router.go(-1);
-};
+  })
+  router.go(-1)
+}
 
 const assetMaxValue = computed(() => {
   if (!isSendToken.value) {
-    return "0";
+    return '0'
   }
   if (selectedAsset.value.contract === NATIVE_TOKEN_ADDRESS) {
     return fromBase(
-      toBN(selectedAsset.value.balance || "0")
+      toBN(selectedAsset.value.balance || '0')
         .sub(
           toBN(
             toBase(
               gasCostValues.value[selectedFee.value].nativeValue,
-              selectedAsset.value.decimals!
-            )
-          )
+              selectedAsset.value.decimals!,
+            ),
+          ),
         )
         .toString(),
-      selectedAsset.value.decimals!
-    );
+      selectedAsset.value.decimals!,
+    )
   } else
-    return fromBase(
-      selectedAsset.value.balance!,
-      selectedAsset.value.decimals!
-    );
-});
+    return fromBase(selectedAsset.value.balance!, selectedAsset.value.decimals!)
+})
 const setMaxValue = () => {
-  isMaxSelected.value = true;
+  isMaxSelected.value = true
   if (isInputsValid.value) {
-    updateTransactionFees(Tx.value);
+    updateTransactionFees(Tx.value)
   }
-};
+}
 const inputAddressFrom = (text: string) => {
-  addressFrom.value = text;
-};
+  addressFrom.value = text
+}
 
 const inputAddressTo = async (text: string) => {
   const debounceResolve = debounce(() => {
     nameResolver
-      .resolveName(text, [props.network.name as CoinType, "ETH"])
-      .then((resolved) => {
+      .resolveName(text, [props.network.name as CoinType, 'ETH'])
+      .then(resolved => {
         if (resolved) {
-          addressTo.value = resolved;
+          addressTo.value = resolved
         }
-      });
-  }, 500);
-  debounceResolve();
-  addressTo.value = text;
-};
+      })
+  }, 500)
+  debounceResolve()
+  addressTo.value = text
+}
 
 const toggleSelectContactFrom = (open: boolean) => {
-  isOpenSelectContactFrom.value = open;
-};
+  isOpenSelectContactFrom.value = open
+}
 
 const toggleSelectContactTo = (open: boolean) => {
-  isOpenSelectContactTo.value = open;
-};
+  isOpenSelectContactTo.value = open
+}
 
 const toggleSelectToken = () => {
-  isOpenSelectToken.value = !isOpenSelectToken.value;
-};
+  isOpenSelectToken.value = !isOpenSelectToken.value
+}
 
 const selectAccountFrom = (account: string) => {
-  addressFrom.value = account;
-  isOpenSelectContactFrom.value = false;
-  fetchAssets();
-};
+  addressFrom.value = account
+  isOpenSelectContactFrom.value = false
+  fetchAssets()
+}
 
 const selectAccountTo = (account: string) => {
-  addressTo.value = account;
-  isOpenSelectContactTo.value = false;
-};
+  addressTo.value = account
+  isOpenSelectContactTo.value = false
+}
 
 const selectToken = (token: Erc20Token) => {
-  inputAmount("0");
-  selectedAsset.value = token;
-  isOpenSelectToken.value = false;
-};
+  inputAmount('0')
+  selectedAsset.value = token
+  isOpenSelectToken.value = false
+}
 
 const inputAmount = (inputAmount: string) => {
-  if (inputAmount === "") {
-    inputAmount = "0";
+  if (inputAmount === '') {
+    inputAmount = '0'
   }
-  const inputAmountBn = new BigNumber(inputAmount);
-  isMaxSelected.value = false;
-  amount.value = inputAmountBn.lt(0) ? "0" : inputAmount;
+  const inputAmountBn = new BigNumber(inputAmount)
+  isMaxSelected.value = false
+  amount.value = inputAmountBn.lt(0) ? '0' : inputAmount
   if (isInputsValid.value) {
-    updateTransactionFees(Tx.value);
+    updateTransactionFees(Tx.value)
   }
-};
+}
 
 const toggleSelectFee = () => {
-  isOpenSelectFee.value = !isOpenSelectFee.value;
-};
+  isOpenSelectFee.value = !isOpenSelectFee.value
+}
 
 const selectFee = (type: GasPriceTypes) => {
-  selectedFee.value = type;
-  isOpenSelectFee.value = false;
+  selectedFee.value = type
+  isOpenSelectFee.value = false
   if (isMaxSelected.value && isInputsValid.value)
-    updateTransactionFees(Tx.value);
-};
+    updateTransactionFees(Tx.value)
+}
 
 const sendAction = async () => {
-  const keyring = new PublicKeyRing();
+  const keyring = new PublicKeyRing()
   const fromAccountInfo = await keyring.getAccount(
-    addressFrom.value.toLowerCase()
-  );
+    addressFrom.value.toLowerCase(),
+  )
   const txVerifyInfo: VerifyTransactionParams = {
     TransactionData: TxInfo.value,
     isNFT: !isSendToken.value,
@@ -644,66 +641,66 @@ const sendAction = async () => {
       amount: toBase(sendAmount.value, selectedAsset.value.decimals!),
       decimals: selectedAsset.value.decimals!,
       icon: selectedAsset.value.icon as string,
-      symbol: selectedAsset.value.symbol || "unknown",
-      valueUSD: new BigNumber(selectedAsset.value.price || "0")
+      symbol: selectedAsset.value.symbol || 'unknown',
+      valueUSD: new BigNumber(selectedAsset.value.price || '0')
         .times(sendAmount.value)
         .toString(),
-      name: selectedAsset.value.name || "",
-      price: selectedAsset.value.price || "0",
+      name: selectedAsset.value.name || '',
+      price: selectedAsset.value.price || '0',
     },
     fromAddress: fromAccountInfo.address,
     fromAddressName: fromAccountInfo.name,
     gasFee: gasCostValues.value[selectedFee.value],
     gasPriceType: selectedFee.value,
     toAddress: addressTo.value,
-  };
+  }
 
   const routedRoute = router.resolve({
     name: RouterNames.verify.name,
     query: {
       id: selected,
-      txData: Buffer.from(JSON.stringify(txVerifyInfo), "utf8").toString(
-        "base64"
+      txData: Buffer.from(JSON.stringify(txVerifyInfo), 'utf8').toString(
+        'base64',
       ),
     },
-  });
+  })
 
   if (fromAccountInfo.isHardware) {
     await Browser.windows.create({
       url: Browser.runtime.getURL(
         getUiPath(
           `eth-hw-verify?id=${routedRoute.query.id}&txData=${routedRoute.query.txData}`,
-          ProviderName.ethereum
-        )
+          ProviderName.ethereum,
+        ),
       ),
-      type: "popup",
+      type: 'popup',
       focused: true,
       height: 600,
       width: 460,
-    });
-    window.close();
+    })
+    window.close()
   } else {
-    router.push(routedRoute);
+    router.push(routedRoute)
   }
-};
+}
 
 const toggleSelector = (isTokenSend: boolean) => {
-  isSendToken.value = isTokenSend;
-};
+  isSendToken.value = isTokenSend
+}
 
 const toggleSelectNft = (open: boolean) => {
-  isOpenSelectNft.value = open;
-};
+  isOpenSelectNft.value = open
+}
 
 const selectNFT = (item: NFTItemWithCollectionName) => {
-  selectedNft.value = item;
-  isOpenSelectNft.value = false;
-};
+  selectedNft.value = item
+  isOpenSelectNft.value = false
+}
 </script>
 
 <style lang="less" scoped>
-@import "~@action/styles/theme.less";
-@import "~@action/styles/custom-scroll.less";
+@import '@action/styles/theme.less';
+@import '@action/styles/custom-scroll.less';
 
 .container {
   width: 100%;

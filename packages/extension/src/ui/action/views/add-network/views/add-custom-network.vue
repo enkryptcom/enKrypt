@@ -80,59 +80,59 @@
 </template>
 
 <script setup lang="ts">
-import { PropType, ref, computed, onMounted } from "vue";
-import CloseIcon from "@action/icons/common/close-icon.vue";
-import ArrowBack from "@action/icons/common/arrow-back.vue";
-import LabelInput from "@action/components/label-input/index.vue";
-import BaseButton from "@action/components/base-button/index.vue";
-import Web3 from "web3-eth";
-import { CustomEvmNetworkOptions } from "@/providers/ethereum/types/custom-evm-network";
-import { toHex } from "web3-utils";
-import CustomNetworksState from "@/libs/custom-networks-state";
+import { PropType, ref, computed, onMounted } from 'vue'
+import CloseIcon from '@action/icons/common/close-icon.vue'
+import ArrowBack from '@action/icons/common/arrow-back.vue'
+import LabelInput from '@action/components/label-input/index.vue'
+import BaseButton from '@action/components/base-button/index.vue'
+import Web3 from 'web3-eth'
+import { CustomEvmNetworkOptions } from '@/providers/ethereum/types/custom-evm-network'
+import { toHex } from 'web3-utils'
+import CustomNetworksState from '@/libs/custom-networks-state'
 
 interface NetworkConfigItem {
-  name: string;
-  chain: string;
-  rpc: string[];
-  shortName: string;
+  name: string
+  chain: string
+  rpc: string[]
+  shortName: string
   nativeCurrency: {
-    name: string;
-    symbol: string;
-    decimals: number;
-  };
-  chainId: number;
-  networkId: number;
+    name: string
+    symbol: string
+    decimals: number
+  }
+  chainId: number
+  networkId: number
 }
 
-const customNetworksState = new CustomNetworksState();
+const customNetworksState = new CustomNetworksState()
 
-const nameValue = ref<string>("");
-const nameInvalid = ref(false);
+const nameValue = ref<string>('')
+const nameInvalid = ref(false)
 
-const rpcURLValue = ref<string>("");
-const rpcInvalid = ref(false);
-const rpcVerified = ref(false);
+const rpcURLValue = ref<string>('')
+const rpcInvalid = ref(false)
+const rpcVerified = ref(false)
 
-const chainIDValue = ref<string>("");
-const chainIDInvalid = ref(false);
+const chainIDValue = ref<string>('')
+const chainIDInvalid = ref(false)
 
-const symbolValue = ref<string>("");
-const symbolInvalid = ref(false);
+const symbolValue = ref<string>('')
+const symbolInvalid = ref(false)
 
-const blockURLValue = ref<string>("");
-const blockURLInvalid = ref(false);
+const blockURLValue = ref<string>('')
+const blockURLInvalid = ref(false)
 
-const networkConfigs = ref<NetworkConfigItem[]>([]);
+const networkConfigs = ref<NetworkConfigItem[]>([])
 
 const isValid = computed<boolean>(() => {
-  if (nameValue.value?.length < 1 || nameInvalid.value) return false;
-  if (rpcURLValue.value?.length < 1 || rpcInvalid.value) return false;
-  if (chainIDValue.value?.length < 1 || chainIDInvalid.value) return false;
-  if (symbolValue.value?.length < 1 || symbolInvalid.value) return false;
-  if (blockURLInvalid.value) return false;
+  if (nameValue.value?.length < 1 || nameInvalid.value) return false
+  if (rpcURLValue.value?.length < 1 || rpcInvalid.value) return false
+  if (chainIDValue.value?.length < 1 || chainIDInvalid.value) return false
+  if (symbolValue.value?.length < 1 || symbolInvalid.value) return false
+  if (blockURLInvalid.value) return false
 
-  return true;
-});
+  return true
+})
 
 const props = defineProps({
   close: {
@@ -143,109 +143,109 @@ const props = defineProps({
     type: Function as PropType<() => void>,
     default: () => ({}),
   },
-});
+})
 
 onMounted(() => {
-  fetchNetworkConfigs();
-});
+  fetchNetworkConfigs()
+})
 
 const fetchNetworkConfigs = async () => {
-  const res = await fetch("https://chainid.network/chains.json");
-  const data = await res.json();
+  const res = await fetch('https://chainid.network/chains.json')
+  const data = await res.json()
 
-  networkConfigs.value = data as NetworkConfigItem[];
-};
+  networkConfigs.value = data as NetworkConfigItem[]
+}
 
 const nameChanged = (newVal: string) => {
   if (newVal.trim().length > 0) {
-    nameInvalid.value = false;
+    nameInvalid.value = false
   } else {
-    nameInvalid.value = true;
+    nameInvalid.value = true
   }
 
-  nameValue.value = newVal;
-};
+  nameValue.value = newVal
+}
 
 const rpcURLChanged = async (newVal: string) => {
-  rpcURLValue.value = newVal;
+  rpcURLValue.value = newVal
 
   try {
-    new URL(newVal); // Check if value is URL
+    new URL(newVal) // Check if value is URL
 
-    const web3 = new Web3(newVal);
-    const chainId = await web3.getChainId();
+    const web3 = new Web3(newVal)
+    const chainId = await web3.getChainId()
 
-    rpcInvalid.value = false;
-    rpcVerified.value = true;
+    rpcInvalid.value = false
+    rpcVerified.value = true
 
     const networkConfig = networkConfigs.value.find(
-      (net) => net.chainId === chainId
-    );
+      net => net.chainId === chainId,
+    )
 
     if (networkConfig) {
-      symbolValue.value = networkConfig.nativeCurrency.symbol;
-      nameValue.value = networkConfig.name;
+      symbolValue.value = networkConfig.nativeCurrency.symbol
+      nameValue.value = networkConfig.name
     }
 
-    chainIDValue.value = chainId.toString();
+    chainIDValue.value = chainId.toString()
   } catch {
-    rpcInvalid.value = true;
-    rpcVerified.value = false;
+    rpcInvalid.value = true
+    rpcVerified.value = false
   }
-};
+}
 const symbolChanged = (newVal: string) => {
   if (newVal.trim().length > 0) {
-    symbolInvalid.value = false;
+    symbolInvalid.value = false
   } else {
-    symbolInvalid.value = true;
+    symbolInvalid.value = true
   }
 
-  symbolValue.value = newVal;
-};
+  symbolValue.value = newVal
+}
 const chainIDChanged = (newVal: string) => {
   if (
     newVal.trim().length < 1 ||
     isNaN(Number(newVal.trim())) ||
-    newVal.includes(".")
+    newVal.includes('.')
   ) {
-    chainIDInvalid.value = true;
+    chainIDInvalid.value = true
   } else {
-    chainIDInvalid.value = false;
+    chainIDInvalid.value = false
   }
 
-  chainIDValue.value = newVal;
-};
+  chainIDValue.value = newVal
+}
 const blockURLChanged = (newVal: string) => {
   try {
-    new URL(newVal);
-    blockURLInvalid.value = false;
+    new URL(newVal)
+    blockURLInvalid.value = false
   } catch {
     if (newVal.trim().length > 0) {
-      blockURLInvalid.value = true;
+      blockURLInvalid.value = true
     } else {
-      blockURLInvalid.value = false;
+      blockURLInvalid.value = false
     }
   }
 
-  blockURLValue.value = newVal;
-};
+  blockURLValue.value = newVal
+}
 const sendAction = async () => {
-  let blockExplorerAddr: string | undefined;
-  let blockExplorerTX: string | undefined;
+  let blockExplorerAddr: string | undefined
+  let blockExplorerTX: string | undefined
 
-  if (!blockURLInvalid.value && blockURLValue.value !== "") {
-    let blockExplorer = blockURLValue.value;
+  if (!blockURLInvalid.value && blockURLValue.value !== '') {
+    let blockExplorer = blockURLValue.value
 
-    if (!blockExplorer.endsWith("/")) {
-      blockExplorer = `${blockExplorer}/`;
+    if (!blockExplorer.endsWith('/')) {
+      blockExplorer = `${blockExplorer}/`
     }
 
-    blockExplorerAddr = `${blockExplorer}address/[[address]]`;
-    blockExplorerTX = `${blockExplorer}tx/[[txHash]]`;
+    blockExplorerAddr = `${blockExplorer}address/[[address]]`
+    blockExplorerTX = `${blockExplorer}tx/[[txHash]]`
   }
 
   const customNetworkOptions: CustomEvmNetworkOptions = {
-    name: nameValue.value.trim().split(" ").join(""),
+    name: nameValue.value.trim().split(' ').join(''),
     name_long: nameValue.value,
     currencyName: symbolValue.value,
     currencyNameLong: nameValue.value,
@@ -253,23 +253,23 @@ const sendAction = async () => {
     node: rpcURLValue.value,
     blockExplorerAddr,
     blockExplorerTX,
-  };
+  }
 
-  await customNetworksState.addCustomNetwork(customNetworkOptions);
+  await customNetworksState.addCustomNetwork(customNetworkOptions)
 
-  nameValue.value = "";
-  symbolValue.value = "";
-  chainIDValue.value = "";
-  rpcURLValue.value = "";
-  blockURLValue.value = "";
+  nameValue.value = ''
+  symbolValue.value = ''
+  chainIDValue.value = ''
+  rpcURLValue.value = ''
+  blockURLValue.value = ''
 
-  props.back();
-};
+  props.back()
+}
 </script>
 
 <style lang="less" scoped>
-@import "~@action/styles/theme.less";
-@import "~@action/styles/custom-scroll.less";
+@import '@action/styles/theme.less';
+@import '@action/styles/custom-scroll.less';
 
 .add-network {
   width: 100%;

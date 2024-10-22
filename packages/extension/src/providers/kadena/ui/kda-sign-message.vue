@@ -47,78 +47,75 @@
 </template>
 
 <script setup lang="ts">
-import { blake2AsU8a } from "@polkadot/util-crypto";
-import { bufferToHex } from "@enkryptcom/utils";
-import SignLogo from "@action/icons/common/sign-logo.vue";
-import BaseButton from "@action/components/base-button/index.vue";
-import CommonPopup from "@action/views/common-popup/index.vue";
-import { getError } from "@/libs/error";
-import { ErrorCodes } from "@/providers/ethereum/types";
-import { WindowPromiseHandler } from "@/libs/window-promise";
-import { onBeforeMount, ref } from "vue";
-import { ProviderRequestOptions } from "@/types/provider";
-import { EnkryptAccount } from "@enkryptcom/types";
-import { TransactionSigner } from "./libs/signer";
-import { KadenaNetwork } from "../types/kadena-network";
-import {
-  DEFAULT_KADENA_NETWORK,
-  getNetworkByName,
-} from "@/libs/utils/networks";
+import { blake2AsU8a } from '@polkadot/util-crypto'
+import { bufferToHex } from '@enkryptcom/utils'
+import SignLogo from '@action/icons/common/sign-logo.vue'
+import BaseButton from '@action/components/base-button/index.vue'
+import CommonPopup from '@action/views/common-popup/index.vue'
+import { getError } from '@/libs/error'
+import { ErrorCodes } from '@/providers/ethereum/types'
+import { WindowPromiseHandler } from '@/libs/window-promise'
+import { onBeforeMount, ref } from 'vue'
+import { ProviderRequestOptions } from '@/types/provider'
+import { EnkryptAccount } from '@enkryptcom/types'
+import { TransactionSigner } from './libs/signer'
+import { KadenaNetwork } from '../types/kadena-network'
+import { DEFAULT_KADENA_NETWORK, getNetworkByName } from '@/libs/utils/networks'
 
-const windowPromise = WindowPromiseHandler(0);
-const network = ref<KadenaNetwork>(DEFAULT_KADENA_NETWORK);
+const windowPromise = WindowPromiseHandler(0)
+const network = ref<KadenaNetwork>(DEFAULT_KADENA_NETWORK)
 
 const Options = ref<ProviderRequestOptions>({
-  domain: "",
-  faviconURL: "",
-  title: "",
-  url: "",
+  domain: '',
+  faviconURL: '',
+  title: '',
+  url: '',
   tabId: 0,
-});
-const message = ref("");
-const account = ref({ address: "" } as EnkryptAccount);
+})
+const message = ref('')
+const account = ref({ address: '' } as EnkryptAccount)
 
 onBeforeMount(async () => {
-  const { Request, options } = await windowPromise;
-  Options.value = options;
-  message.value = Request.value.params![0].data;
-  account.value = Request.value.params![1] as EnkryptAccount;
+  const { Request, options } = await windowPromise
+  Options.value = options
+  message.value = Request.value.params![0].data
+  account.value = Request.value.params![1] as EnkryptAccount
   network.value = (await getNetworkByName(
-    Request.value.params![0].network
-  )) as KadenaNetwork;
-});
+    Request.value.params![0].network,
+  )) as KadenaNetwork
+})
 
 const approve = async () => {
-  const { Request, Resolve } = await windowPromise;
+  const { Request, Resolve } = await windowPromise
 
-  const msg = Request.value.params![0];
-  const account = Request.value.params![1] as EnkryptAccount;
+  const msg = Request.value.params![0]
+  const account = Request.value.params![1] as EnkryptAccount
 
   TransactionSigner({
     account,
     network: network.value,
     payload: bufferToHex(blake2AsU8a(msg.data)),
   })
-    .then((res) => {
+    .then(res => {
       Resolve.value({
-        result: res.result?.replace("0x", "") as string,
-      });
+        result: res.result?.replace('0x', '') as string,
+      })
     })
-    .catch((er) => {
+    .catch(er => {
       Resolve.value({
         error: getError(er),
-      });
-    });
-};
+      })
+    })
+}
 const deny = async () => {
-  const { Resolve } = await windowPromise;
+  const { Resolve } = await windowPromise
 
   Resolve.value({
     error: getError(ErrorCodes.userRejected),
-  });
-};
+  })
+}
 </script>
 
 <style lang="less" scoped>
-@import "~@/providers/ethereum/ui/styles/common-popup.less";
+@import '@/providers/ethereum/ui/styles/common-popup.less';
 </style>

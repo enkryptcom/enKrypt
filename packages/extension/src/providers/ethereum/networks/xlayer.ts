@@ -1,3 +1,4 @@
+import icon from "./icons/xlayer.png";
 import { NetworkNames, CoingeckoPlatform } from "@enkryptcom/types";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
 import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
@@ -16,7 +17,7 @@ const xlayerOptions: EvmNetworkOptions = {
   currencyName: "OKB",
   currencyNameLong: "OKB",
   node: "wss://ws.xlayer.tech",
-  icon: require("./icons/xlayer.png"),
+  icon,
   coingeckoID: "okb",
   coingeckoPlatform: CoingeckoPlatform.XLayer,
   assetsInfoHandler,

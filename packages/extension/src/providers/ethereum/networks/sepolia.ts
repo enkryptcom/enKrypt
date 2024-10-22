@@ -1,3 +1,4 @@
+import icon from "./icons/eth.svg";
 import { NetworkNames } from "@enkryptcom/types";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
 import { RivetActivity } from "../libs/activity-handlers";
@@ -14,7 +15,7 @@ const goerliOptions: EvmNetworkOptions = {
   currencyName: "SEP",
   currencyNameLong: "Sepolia",
   node: "wss://nodes.mewapi.io/ws/sepolia",
-  icon: require("./icons/eth.svg"),
+  icon,
   activityHandler: wrapActivityHandler(RivetActivity),
 };
 

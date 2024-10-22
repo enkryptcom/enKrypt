@@ -9,7 +9,7 @@
         {{
           tokenBalance
             ? $filters.formatFloatingPointValue(tokenBalance).value
-            : "~"
+            : '~'
         }}
         <span>{{ token.symbol }}</span>
       </p>
@@ -31,41 +31,41 @@
 </template>
 
 <script setup lang="ts">
-import { ref, PropType } from "vue";
-import SwitchArrow from "@action/icons/header/switch_arrow.vue";
-import { computed } from "@vue/reactivity";
-import { TokenType, SwapToken } from "@enkryptcom/swap";
-import { imageLoadError } from "@/ui/action/utils/misc";
+import { ref, PropType } from 'vue'
+import SwitchArrow from '@action/icons/header/switch_arrow.vue'
+import { computed } from 'vue'
+import { TokenType, SwapToken } from '@enkryptcom/swap'
+import { imageLoadError } from '@/ui/action/utils/misc'
 
-const isOpen = ref(false);
+const isOpen = ref(false)
 const emit = defineEmits<{
-  (e: "toggle:select", isOpen: boolean): void;
-}>();
+  (e: 'toggle:select', isOpen: boolean): void
+}>()
 
 const props = defineProps({
   token: {
     type: Object as PropType<TokenType | null>,
     default: () => {
-      return {};
+      return {}
     },
   },
-});
+})
 
 const tokenBalance = computed(() => {
   if (props.token?.balance) {
-    return new SwapToken(props.token).getBalanceReadable();
+    return new SwapToken(props.token).getBalanceReadable()
   }
-  return null;
-});
+  return null
+})
 
 const open = () => {
-  isOpen.value = !isOpen.value;
-  emit("toggle:select", isOpen.value);
-};
+  isOpen.value = !isOpen.value
+  emit('toggle:select', isOpen.value)
+}
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 .swap-token-select {
   height: 54px;
   background: #ffffff;

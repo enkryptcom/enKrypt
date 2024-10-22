@@ -26,7 +26,7 @@ class API implements ProviderAPIInterface {
   private getAddress(pubkey: string) {
     return getBitcoinAddress(pubkey, this.networkInfo);
   }
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
+   
   async init(): Promise<void> {}
   async getRawTransaction(hash: string): Promise<string | null> {
     return fetch(`${this.node}/api/v1/tx/${hash}/raw`)

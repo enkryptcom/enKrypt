@@ -1,3 +1,4 @@
+import icon from "./icons/eth.svg";
 import { NetworkNames } from "@enkryptcom/types";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
 
@@ -12,7 +13,7 @@ const holeskyOptions: EvmNetworkOptions = {
   currencyName: "HOL",
   currencyNameLong: "Holesky",
   node: "wss://nodes.mewapi.io/ws/holesky",
-  icon: require("./icons/eth.svg"),
+  icon,
   activityHandler: () => Promise.resolve([]),
 };
 

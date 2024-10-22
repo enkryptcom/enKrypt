@@ -83,61 +83,61 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from "vue";
-import HelpIcon from "@action/icons/password/help-icon.vue";
-import { PasswordStrength } from "@action/types/password";
-import zxcvbn from "zxcvbn";
-import { computed } from "@vue/reactivity";
+import { ref, watch } from 'vue'
+import HelpIcon from '@action/icons/password/help-icon.vue'
+import { PasswordStrength } from '@action/types/password'
+import zxcvbn from 'zxcvbn'
+import { computed } from 'vue'
 
-const length = ref(2);
-const isTooltip = ref(false);
-const toolTipInfo = ref("");
+const length = ref(2)
+const isTooltip = ref(false)
+const toolTipInfo = ref('')
 const props = defineProps({
   value: {
     type: String,
-    default: "",
+    default: '',
   },
-});
+})
 const emit = defineEmits<{
   (
-    e: "update:strengthAndPassword",
-    info: { password: string; strength: number }
-  ): void;
-}>();
+    e: 'update:strengthAndPassword',
+    info: { password: string; strength: number },
+  ): void
+}>()
 const strength = computed(() => {
-  const passStrength = zxcvbn(props.value);
+  const passStrength = zxcvbn(props.value)
   toolTipInfo.value =
-    passStrength.crack_times_display.offline_slow_hashing_1e4_per_second.toString();
+    passStrength.crack_times_display.offline_slow_hashing_1e4_per_second.toString()
   if (passStrength.score === 4) {
-    length.value = 100;
-    return PasswordStrength.veryStrong;
+    length.value = 100
+    return PasswordStrength.veryStrong
   } else if (passStrength.score === 3) {
-    length.value = 84;
-    return PasswordStrength.strong;
+    length.value = 84
+    return PasswordStrength.strong
   } else if (passStrength.score === 2) {
-    length.value = 42;
-    return PasswordStrength.medium;
+    length.value = 42
+    return PasswordStrength.medium
   } else if (passStrength.score === 1) {
-    length.value = 21;
-    return PasswordStrength.weak;
+    length.value = 21
+    return PasswordStrength.weak
   } else {
-    length.value = 4;
-    return PasswordStrength.veryWeak;
+    length.value = 4
+    return PasswordStrength.veryWeak
   }
-});
+})
 watch([strength, props], () => {
-  emit("update:strengthAndPassword", {
+  emit('update:strengthAndPassword', {
     password: props.value,
     strength: strength.value,
-  });
-});
+  })
+})
 const toggleTooltip = () => {
-  isTooltip.value = !isTooltip.value;
-};
+  isTooltip.value = !isTooltip.value
+}
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .password-input-strength {
   margin: 0 0 16px 0;
@@ -242,7 +242,8 @@ const toggleTooltip = () => {
       width: 197px;
       height: 110px;
       background: @white;
-      box-shadow: 0px 0.5px 1.75px rgba(0, 0, 0, 0.039),
+      box-shadow:
+        0px 0.5px 1.75px rgba(0, 0, 0, 0.039),
         0px 1.85px 6.25px rgba(0, 0, 0, 0.19);
       border-radius: 12px;
       padding: 12px 16px;

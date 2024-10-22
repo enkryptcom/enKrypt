@@ -35,42 +35,42 @@
   </div>
 </template>
 <script setup lang="ts">
-import HardwareIcon from "@action/icons/hardware/hardware-icon.vue";
-import LedgerLogo from "@action/icons/hardware/ledger-logo.vue";
-import TrezorLogo from "@action/icons/hardware/trezor-logo.vue";
-import RightArrow from "@action/icons/common/right-arrow.vue";
-import { routes } from "./routes";
-import { useRoute } from "vue-router";
-import { HWwalletType, NetworkNames } from "@enkryptcom/types";
-import HWwallets from "@enkryptcom/hw-wallets";
-import { ref } from "vue";
-const hwWallet = new HWwallets();
-const isLedgerSupported = ref(false);
-const isTrezorSupported = ref(false);
-const route = useRoute();
+import HardwareIcon from '@action/icons/hardware/hardware-icon.vue'
+import LedgerLogo from '@action/icons/hardware/ledger-logo.vue'
+import TrezorLogo from '@action/icons/hardware/trezor-logo.vue'
+import RightArrow from '@action/icons/common/right-arrow.vue'
+import { routes } from './routes'
+import { useRoute } from 'vue-router'
+import { HWwalletType, NetworkNames } from '@enkryptcom/types'
+import HWwallets from '@enkryptcom/hw-wallets'
+import { ref } from 'vue'
+const hwWallet = new HWwallets()
+const isLedgerSupported = ref(false)
+const isTrezorSupported = ref(false)
+const route = useRoute()
 
 hwWallet
   .getSupportedPaths({
     wallet: HWwalletType.ledger,
     networkName: route.query.network as NetworkNames,
   })
-  .then((paths) => {
-    if (paths) isLedgerSupported.value = !process.env.IS_FIREFOX;
+  .then(paths => {
+    if (paths) isLedgerSupported.value = !process.env.IS_FIREFOX
   })
-  .catch(() => ({}));
+  .catch(() => ({}))
 hwWallet
   .getSupportedPaths({
     wallet: HWwalletType.trezor,
     networkName: route.query.network as NetworkNames,
   })
-  .then((paths) => {
-    if (paths) isTrezorSupported.value = true;
+  .then(paths => {
+    if (paths) isTrezorSupported.value = true
   })
-  .catch(() => ({}));
+  .catch(() => ({}))
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .add-hardware-wallet {
   width: 100%;

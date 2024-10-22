@@ -1,3 +1,4 @@
+import icon from "./icons/scroll.png";
 import { NetworkNames } from "@enkryptcom/types";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
 import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
@@ -16,7 +17,7 @@ const scrollOptions: EvmNetworkOptions = {
   currencyName: "ETH",
   currencyNameLong: "Scroll ETH",
   node: "https://scroll.api.onfinality.io/public",
-  icon: require("./icons/scroll.png"),
+  icon,
   NFTHandler: shNFTHandler,
   coingeckoID: "ethereum",
   assetsInfoHandler,

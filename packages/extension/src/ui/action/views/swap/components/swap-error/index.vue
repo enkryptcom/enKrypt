@@ -66,27 +66,27 @@
 </template>
 
 <script setup lang="ts">
-import CloseIcon from "@action/icons/common/close-icon.vue";
-import LottieWarning from "@action/assets/animation/warning.json";
-import LottieError from "@action/assets/animation/error-big.json";
-import { Vue3Lottie } from "vue3-lottie";
-import { getSupportedNetworks } from "@enkryptcom/swap";
-import { SwapError, Errors } from "./types";
+import CloseIcon from '@action/icons/common/close-icon.vue'
+import LottieWarning from '@action/assets/animation/warning.json'
+import LottieError from '@action/assets/animation/error-big.json'
+import { Vue3Lottie } from 'vue3-lottie'
+import { getSupportedNetworks } from '@enkryptcom/swap'
+import { SwapError, Errors } from './types'
 
 interface IProps {
-  error?: SwapError;
-  networkName: string;
-  close: () => void;
+  error?: SwapError
+  networkName: string
+  close: () => void
 }
-const prop = defineProps<IProps>();
+const prop = defineProps<IProps>()
 const supportedNets = getSupportedNetworks()
-  .map((net) => net.name)
-  .filter((name) => name !== prop.networkName)
-  .join(", ");
+  .map(net => net.name)
+  .filter(name => name !== prop.networkName)
+  .join(', ')
 </script>
 
 <style lang="less" scoped>
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 .swap-looking {
   width: 100%;
   height: auto;
@@ -94,7 +94,8 @@ const supportedNets = getSupportedNetworks()
 
   &__wrap {
     background: @white;
-    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.039),
+    box-shadow:
+      0px 3px 6px rgba(0, 0, 0, 0.039),
       0px 7px 24px rgba(0, 0, 0, 0.19);
     border-radius: 12px;
     box-sizing: border-box;

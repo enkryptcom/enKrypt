@@ -1,3 +1,4 @@
+import icon from "./icons/manta-pacific.png";
 import { NetworkNames, CoingeckoPlatform } from "@enkryptcom/types";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
 import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
@@ -18,7 +19,7 @@ const mantaPacificOptions: EvmNetworkOptions = {
   currencyNameLong: "Ethereum",
   coingeckoID: "ethereum",
   node: "wss://pacific-rpc.manta.network/ws",
-  icon: require("./icons/manta-pacific.png"),
+  icon,
   coingeckoPlatform: CoingeckoPlatform.MantaPacific,
   NFTHandler: shNFTHandler,
   assetsInfoHandler,

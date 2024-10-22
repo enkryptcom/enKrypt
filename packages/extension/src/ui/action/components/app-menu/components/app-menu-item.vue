@@ -20,83 +20,83 @@
 </template>
 
 <script setup lang="ts">
-import { NodeType } from "@/types/provider";
-import { PropType, ref, watch } from "vue";
-import DragIcon from "@action/icons/common/drag-icon.vue";
-import TestNetworkIcon from "@action/icons/common/test-network-icon.vue";
-import { newNetworks, newSwaps } from "@/providers/common/libs/new-features";
+import { NodeType } from '@/types/provider'
+import { PropType, ref, watch } from 'vue'
+import DragIcon from '@action/icons/common/drag-icon.vue'
+import TestNetworkIcon from '@action/icons/common/test-network-icon.vue'
+import { newNetworks, newSwaps } from '@/providers/common/libs/new-features'
 
 const props = defineProps({
   network: {
     type: Object as PropType<NodeType>,
     default: () => {
-      return {};
+      return {}
     },
   },
   isActive: {
     type: Boolean,
     default: () => {
-      return false;
+      return false
     },
   },
-});
-const imageTag = ref<HTMLImageElement | null>(null);
+})
+const imageTag = ref<HTMLImageElement | null>(null)
 const emit = defineEmits<{
-  (e: "update:gradient", data: string): void;
-}>();
+  (e: 'update:gradient', data: string): void
+}>()
 const componentToHex = (c: number) => {
-  const hex = c.toString(16);
-  return hex.length == 1 ? "0" + hex : hex;
-};
+  const hex = c.toString(16)
+  return hex.length == 1 ? '0' + hex : hex
+}
 const getAverageRGB = (imgEl: HTMLImageElement) => {
   const blockSize = 5, // only visit every 5 pixels
     defaultRGB = { r: 0, g: 0, b: 0 }, // for non-supporting envs
-    canvas = document.createElement("canvas"),
-    context = canvas.getContext && canvas.getContext("2d"),
-    rgb = { r: 0, g: 0, b: 0 };
-  let data: ImageData;
-  let count = 0;
-  let i = -4;
+    canvas = document.createElement('canvas'),
+    context = canvas.getContext && canvas.getContext('2d'),
+    rgb = { r: 0, g: 0, b: 0 }
+  let data: ImageData
+  let count = 0
+  let i = -4
 
   if (!context) {
-    return defaultRGB;
+    return defaultRGB
   }
   const height = (canvas.height =
-    imgEl.naturalHeight || imgEl.offsetHeight || imgEl.height);
+    imgEl.naturalHeight || imgEl.offsetHeight || imgEl.height)
   const width = (canvas.width =
-    imgEl.naturalWidth || imgEl.offsetWidth || imgEl.width);
-  context.drawImage(imgEl, 0, 0);
+    imgEl.naturalWidth || imgEl.offsetWidth || imgEl.width)
+  context.drawImage(imgEl, 0, 0)
   try {
-    data = context.getImageData(0, 0, width, height);
+    data = context.getImageData(0, 0, width, height)
   } catch (e) {
-    return defaultRGB;
+    return defaultRGB
   }
-  const length = data.data.length;
+  const length = data.data.length
   while ((i += blockSize * 4) < length) {
-    ++count;
-    rgb.r += data.data[i];
-    rgb.g += data.data[i + 1];
-    rgb.b += data.data[i + 2];
+    ++count
+    rgb.r += data.data[i]
+    rgb.g += data.data[i + 1]
+    rgb.b += data.data[i + 2]
   }
   // ~~ used to floor values
-  rgb.r = ~~(rgb.r / count);
-  rgb.g = ~~(rgb.g / count);
-  rgb.b = ~~(rgb.b / count);
+  rgb.r = ~~(rgb.r / count)
+  rgb.g = ~~(rgb.g / count)
+  rgb.b = ~~(rgb.b / count)
   emit(
-    "update:gradient",
-    `#${componentToHex(rgb.r)}${componentToHex(rgb.g)}${componentToHex(rgb.b)}`
-  );
-};
+    'update:gradient',
+    `#${componentToHex(rgb.r)}${componentToHex(rgb.g)}${componentToHex(rgb.b)}`,
+  )
+}
 watch(
   () => props.isActive,
   () => {
-    if (props.isActive) getAverageRGB(imageTag.value!);
-  }
-);
+    if (props.isActive) getAverageRGB(imageTag.value!)
+  },
+)
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 .tag {
   display: inline-block;
   padding: 0.2em 0.5em 0.3em;

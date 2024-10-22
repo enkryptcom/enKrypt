@@ -13,19 +13,19 @@
 </template>
 
 <script setup lang="ts">
-import CheckboxActive from "@action/icons/common/checkbox-active.vue";
+import CheckboxActive from '@action/icons/common/checkbox-active.vue'
 
 const emit = defineEmits<{
-  (e: "toggle:select"): void;
-}>();
+  (e: 'toggle:select'): void
+}>()
 defineProps({
   isChecked: Boolean,
   disabled: Boolean,
-});
+})
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .base-checkbox {
   width: 24px;

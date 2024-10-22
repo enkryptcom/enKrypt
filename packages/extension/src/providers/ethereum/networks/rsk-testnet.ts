@@ -1,3 +1,4 @@
+import icon from "./icons/rootstock.svg";
 import { NetworkNames } from "@enkryptcom/types";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
 import { EtherscanActivity } from "../libs/activity-handlers";
@@ -20,7 +21,7 @@ const rootstockTestnetOptions: EvmNetworkOptions = {
   currencyName: "tRBTC",
   currencyNameLong: "Rootstock Testnet",
   node: "wss://public-node.testnet.rsk.co/websocket",
-  icon: require("./icons/rootstock.svg"),
+  icon,
   basePath: "m/44'/37310'/0'/0",
   activityHandler: wrapActivityHandler(EtherscanActivity),
 };

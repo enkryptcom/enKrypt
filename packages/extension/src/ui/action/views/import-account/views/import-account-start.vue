@@ -34,28 +34,28 @@
 </template>
 
 <script setup lang="ts">
-import ImportStartIcon from "@action/icons/import/import-start-icon.vue";
-import ImportAccountHeader from "../components/import-account-header.vue";
-import RightArrow from "@action/icons/common/right-arrow.vue";
-import { PropType } from "vue";
-import { BaseNetwork } from "@/types/base-network";
-import { ProviderName } from "@/types/provider";
+import ImportStartIcon from '@action/icons/import/import-start-icon.vue'
+import ImportAccountHeader from '../components/import-account-header.vue'
+import RightArrow from '@action/icons/common/right-arrow.vue'
+import { PropType } from 'vue'
+import { BaseNetwork } from '@/types/base-network'
+import { ProviderName } from '@/types/provider'
 
 defineEmits<{
-  (e: "select:keystore"): void;
-  (e: "select:privkey"): void;
-}>();
+  (e: 'select:keystore'): void
+  (e: 'select:privkey'): void
+}>()
 
 defineProps({
   network: {
     type: Object as PropType<BaseNetwork>,
     default: () => ({}),
   },
-});
+})
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .import-account-start {
   width: 100%;

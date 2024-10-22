@@ -1,3 +1,4 @@
+import icon from "./icons/ham.png";
 import { NetworkNames } from "@enkryptcom/types";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
 import { EtherscanActivity } from "../libs/activity-handlers";
@@ -14,7 +15,7 @@ const ethOptions: EvmNetworkOptions = {
   currencyName: "ETH",
   currencyNameLong: "Ethereum",
   node: "https://rpc.ham.fun",
-  icon: require("./icons/ham.png"),
+  icon,
   coingeckoID: "ethereum",
   activityHandler: wrapActivityHandler(EtherscanActivity),
 };

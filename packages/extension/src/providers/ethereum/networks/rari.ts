@@ -1,3 +1,4 @@
+import icon from "./icons/rari.png";
 import { NetworkNames } from "@enkryptcom/types";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
 import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
@@ -17,7 +18,7 @@ const rariOptions: EvmNetworkOptions = {
   currencyName: "ETH",
   currencyNameLong: "Rari ETH",
   node: "https://mainnet.rpc.rarichain.org/http",
-  icon: require("./icons/rari.png"),
+  icon,
   coingeckoID: "ethereum",
   NFTHandler: shNFTHandler,
   assetsInfoHandler,

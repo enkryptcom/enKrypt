@@ -7,24 +7,24 @@
   </div>
 </template>
 <script setup lang="ts">
-import Loader from "@action/icons/common/loader.vue";
+import Loader from '@action/icons/common/loader.vue'
 defineProps({
   isEmpty: {
     type: Boolean,
     default: () => {
-      return false;
+      return false
     },
   },
   isLoading: {
     type: Boolean,
     default: () => {
-      return false;
+      return false
     },
   },
-});
+})
 </script>
 <style lang="less">
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .network-activity {
   &__loading {

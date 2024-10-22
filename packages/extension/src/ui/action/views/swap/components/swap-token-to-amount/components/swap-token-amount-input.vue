@@ -8,20 +8,20 @@
       !isFindingRate
         ? `${
             value
-              ? "≈ " + $filters.formatFloatingPointValue(value).value
+              ? '≈ ' + $filters.formatFloatingPointValue(value).value
               : noProviders
-              ? "No Providers"
-              : "Waiting"
+                ? 'No Providers'
+                : 'Waiting'
           }`
-        : "Getting rate"
+        : 'Getting rate'
     }}
   </div>
 </template>
 
 <script lang="ts">
 export default {
-  name: "SwapTokenAmountInput",
-};
+  name: 'SwapTokenAmountInput',
+}
 </script>
 
 <script setup lang="ts">
@@ -29,25 +29,25 @@ defineProps({
   placeholder: {
     type: String,
     default: () => {
-      return "";
+      return ''
     },
   },
   value: {
     type: String,
     default: () => {
-      return "";
+      return ''
     },
   },
   changeFocus: {
     type: Function,
     default: () => {
-      return null;
+      return null
     },
   },
   autofocus: {
     type: Boolean,
     default: () => {
-      return false;
+      return false
     },
   },
   isFindingRate: {
@@ -55,11 +55,11 @@ defineProps({
     default: () => false,
   },
   noProviders: Boolean,
-});
+})
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 .swap-token-amount-input {
   outline: none;
   background: @white;

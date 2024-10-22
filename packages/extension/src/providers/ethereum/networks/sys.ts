@@ -1,3 +1,4 @@
+import icon from "./icons/sys_nevm.svg";
 import { NetworkNames, CoingeckoPlatform } from "@enkryptcom/types";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
 import { EtherscanActivity } from "../libs/activity-handlers";
@@ -14,7 +15,7 @@ const syscoinOptions: EvmNetworkOptions = {
   currencyName: "SYS",
   currencyNameLong: "Syscoin",
   node: "wss://rpc.syscoin.org/wss",
-  icon: require("./icons/sys_nevm.svg"),
+  icon,
   coingeckoID: "syscoin",
   coingeckoPlatform: CoingeckoPlatform.Syscoin,
   activityHandler: wrapActivityHandler(EtherscanActivity),

@@ -14,28 +14,28 @@
 </template>
 
 <script setup lang="ts">
-import AlertIcon from "@action/icons/send/alert-icon.vue";
-import BigNumber from "bignumber.js";
-import { computed } from "vue";
+import AlertIcon from '@action/icons/send/alert-icon.vue'
+import BigNumber from 'bignumber.js'
+import { computed } from 'vue'
 
 interface IProps {
-  nativeSymbol: string;
-  nativeValue: string;
-  price?: string;
-  notEnough: boolean;
-  belowDust: boolean;
-  dust: string;
+  nativeSymbol: string
+  nativeValue: string
+  price?: string
+  notEnough: boolean
+  belowDust: boolean
+  dust: string
 }
 
-const props = defineProps<IProps>();
+const props = defineProps<IProps>()
 
 const priceDifference = computed(() => {
-  return new BigNumber(props.nativeValue).times(props.price ?? "0").toFixed();
-});
+  return new BigNumber(props.nativeValue).times(props.price ?? '0').toFixed()
+})
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .send-alert {
   margin: 0 32px 8px 32px;

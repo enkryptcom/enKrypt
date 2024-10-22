@@ -1,3 +1,4 @@
+import icon from "./icons/ltc.svg";
 import { NetworkNames } from "@enkryptcom/types";
 import {
   BitcoinNetwork,
@@ -18,7 +19,7 @@ const litecoinOptions: BitcoinNetworkOptions = {
   isTestNetwork: false,
   currencyName: "LTC",
   currencyNameLong: "Litecoin",
-  icon: require("./icons/ltc.svg"),
+  icon,
   decimals: 8,
   node: "https://partners.mewapi.io/nodes/ss/ltc",
   coingeckoID: "litecoin",

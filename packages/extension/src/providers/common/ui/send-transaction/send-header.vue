@@ -25,43 +25,43 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
-import CloseIcon from "@action/icons/common/close-icon.vue";
-import SwitchArrow from "@action/icons/header/switch_arrow.vue";
-import DoneIcon from "@action/icons/common/done_icon.vue";
+import { ref } from 'vue'
+import CloseIcon from '@action/icons/common/close-icon.vue'
+import SwitchArrow from '@action/icons/header/switch_arrow.vue'
+import DoneIcon from '@action/icons/common/done_icon.vue'
 
-const isOpenSelector = ref(false);
+const isOpenSelector = ref(false)
 
 const emit = defineEmits<{
-  (e: "close"): void;
-  (e: "toggleType", val: boolean): void;
-}>();
+  (e: 'close'): void
+  (e: 'toggleType', val: boolean): void
+}>()
 
 defineProps({
   isSendToken: {
     type: Boolean,
     default: () => {
-      return false;
+      return false
     },
   },
   isNftAvailable: {
     type: Boolean,
     default: false,
   },
-});
+})
 
 const toggleSelector = () => {
-  isOpenSelector.value = !isOpenSelector.value;
-};
+  isOpenSelector.value = !isOpenSelector.value
+}
 
 const toggleType = (isTokenSend: boolean) => {
-  isOpenSelector.value = false;
-  emit("toggleType", isTokenSend);
-};
+  isOpenSelector.value = false
+  emit('toggleType', isTokenSend)
+}
 </script>
 
 <style lang="less" scoped>
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .send-transaction {
   width: 100%;
@@ -109,7 +109,8 @@ const toggleType = (isTokenSend: boolean) => {
     height: 112px;
     padding: 8px;
     background: @white;
-    box-shadow: 0px 0.5px 5px rgba(0, 0, 0, 0.039),
+    box-shadow:
+      0px 0.5px 5px rgba(0, 0, 0, 0.039),
       0px 3.75px 11px rgba(0, 0, 0, 0.19);
     border-radius: 12px;
     box-sizing: border-box;

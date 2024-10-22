@@ -1,3 +1,4 @@
+import icon from "./icons/shiba-inu.svg";
 import { NetworkNames } from "@enkryptcom/types";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
 import { EtherscanActivity } from "../libs/activity-handlers";
@@ -14,7 +15,7 @@ const pupOptions: EvmNetworkOptions = {
   currencyName: "BONE",
   currencyNameLong: "BONE",
   node: "https://puppynet.shibrpc.com",
-  icon: require("./icons/shiba-inu.svg"),
+  icon,
   activityHandler: wrapActivityHandler(EtherscanActivity),
 };
 

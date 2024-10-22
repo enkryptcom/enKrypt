@@ -1,3 +1,4 @@
+import icon from "./icons/ont-evm.png";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
 import { NetworkNames } from "@enkryptcom/types";
 import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
@@ -14,7 +15,7 @@ const ontEVMOptions: EvmNetworkOptions = {
   currencyName: "ONG",
   currencyNameLong: "Ontology",
   node: "https://dappnode1.ont.io:10339",
-  icon: require("./icons/ont-evm.png"),
+  icon,
   coingeckoID: "ontology",
   activityHandler: wrapActivityHandler(OntEVMActivity),
 };

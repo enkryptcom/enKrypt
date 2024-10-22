@@ -6,35 +6,35 @@
 </template>
 
 <script setup lang="ts">
-import DoneIcon from "@action/icons/common/done_icon.vue";
+import DoneIcon from '@action/icons/common/done_icon.vue'
 const props = defineProps({
   select: {
     type: Function,
     default: () => {
-      return null;
+      return null
     },
   },
   title: {
     type: String,
     default: () => {
-      return "";
+      return ''
     },
   },
   isSelect: {
     type: Boolean,
     default: () => {
-      return false;
+      return false
     },
   },
-});
+})
 
 const select = () => {
-  props.select(props.title);
-};
+  props.select(props.title)
+}
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .base-select {
   &__option {

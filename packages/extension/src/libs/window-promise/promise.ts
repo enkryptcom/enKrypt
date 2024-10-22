@@ -63,7 +63,7 @@ class WindowPromise {
       });
     }
     const waitForWindow = async (): Promise<void> => {
-      // eslint-disable-next-line no-empty
+       
       while ((await Browser.tabs.get(tabId)).status !== "complete") {}
     };
     await waitForWindow();

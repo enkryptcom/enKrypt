@@ -1,3 +1,4 @@
+import icon from "./icons/moonbeam.svg";
 import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
 import { CoingeckoPlatform, NetworkNames } from "@enkryptcom/types";
 import { EtherscanActivity } from "../libs/activity-handlers";
@@ -15,7 +16,7 @@ const moonbeamOptions: EvmNetworkOptions = {
   currencyName: "GLMR",
   currencyNameLong: "Moonbeam",
   node: "wss://wss.api.moonbeam.network/",
-  icon: require("./icons/moonbeam.svg"),
+  icon,
   coingeckoID: "moonbeam",
   coingeckoPlatform: CoingeckoPlatform.Moonbeam,
   assetsInfoHandler,

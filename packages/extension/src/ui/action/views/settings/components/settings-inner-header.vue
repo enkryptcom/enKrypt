@@ -16,12 +16,12 @@
 </template>
 
 <script setup lang="ts">
-import CloseIcon from "@action/icons/common/close-icon.vue";
-import ArrowBack from "@action/icons/common/arrow-back.vue";
+import CloseIcon from '@action/icons/common/close-icon.vue'
+import ArrowBack from '@action/icons/common/arrow-back.vue'
 defineEmits<{
-  (e: "window:close"): void;
-  (e: "window:back"): void;
-}>();
+  (e: 'window:close'): void
+  (e: 'window:back'): void
+}>()
 defineProps({
   isGeneral: {
     type: Boolean,
@@ -43,11 +43,11 @@ defineProps({
     type: Boolean,
     default: false,
   },
-});
+})
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .settings {
   &__inner-header {

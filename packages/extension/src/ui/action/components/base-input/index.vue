@@ -21,48 +21,48 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
-import HideIcon from "@action/icons/password/hide-icon.vue";
-import VisibleIcon from "@action/icons/password/visible-icon.vue";
-const showPassword = ref(false);
+import { ref, computed } from 'vue'
+import HideIcon from '@action/icons/password/hide-icon.vue'
+import VisibleIcon from '@action/icons/password/visible-icon.vue'
+const showPassword = ref(false)
 const props = defineProps({
   placeholder: {
     type: String,
     default: () => {
-      return "";
+      return ''
     },
   },
   type: {
     type: String,
     default: () => {
-      return "text";
+      return 'text'
     },
   },
   value: {
     type: String,
     default: () => {
-      return "";
+      return ''
     },
   },
   isError: {
     type: Boolean,
     default: () => {
-      return false;
+      return false
     },
   },
-});
-const emit = defineEmits(["update:value"]);
+})
+const emit = defineEmits(['update:value'])
 const textValue = computed({
   get: () => props.value,
-  set: (value) => emit("update:value", value),
-});
+  set: value => emit('update:value', value),
+})
 const toggleVisibility = () => {
-  showPassword.value = !showPassword.value;
-};
+  showPassword.value = !showPassword.value
+}
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 .base-input {
   outline: none;
   background: @white;

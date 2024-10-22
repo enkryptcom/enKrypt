@@ -22,7 +22,7 @@ class API implements ProviderAPIInterface {
   private getAddress(pubkey: string) {
     return getSolAddress(pubkey);
   }
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
+   
   async init(): Promise<void> {}
   async getTransactionStatus(hash: string): Promise<SOLRawInfo | null> {
     return this.web3

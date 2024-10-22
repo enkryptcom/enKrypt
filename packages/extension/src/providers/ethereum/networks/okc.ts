@@ -1,3 +1,4 @@
+import icon from "./icons/okc.svg";
 import { CoingeckoPlatform, NetworkNames } from "@enkryptcom/types";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
 import { OkcActivity } from "../libs/activity-handlers";
@@ -15,7 +16,7 @@ const okcOptions: EvmNetworkOptions = {
   currencyName: "OKT",
   currencyNameLong: "OKT Chain",
   node: "https://exchainrpc.okex.org",
-  icon: require("./icons/okc.svg"),
+  icon,
   coingeckoID: "oec-token",
   coingeckoPlatform: CoingeckoPlatform.Okc,
   assetsInfoHandler,

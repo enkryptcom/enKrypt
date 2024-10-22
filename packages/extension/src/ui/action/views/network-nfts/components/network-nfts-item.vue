@@ -35,76 +35,76 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
-import { NFTItem } from "@/types/nft";
-import { PropType } from "vue";
-import NetworkNftsItemMoreMenu from "./network-nfts-item-more-menu.vue";
-import NftDetailView from "@action/views/nft-detail-view/index.vue";
-import { onClickOutside } from "@vueuse/core";
-import DomainState from "@/libs/domain-state";
-import { NetworkNames } from "@enkryptcom/types";
-import { imageLoadError } from "@/ui/action/utils/misc";
+import { ref } from 'vue'
+import { NFTItem } from '@/types/nft'
+import { PropType } from 'vue'
+import NetworkNftsItemMoreMenu from './network-nfts-item-more-menu.vue'
+import NftDetailView from '@action/views/nft-detail-view/index.vue'
+import { onClickOutside } from '@vueuse/core'
+import DomainState from '@/libs/domain-state'
+import { NetworkNames } from '@enkryptcom/types'
+import { imageLoadError } from '@/ui/action/utils/misc'
 
-const domainState = new DomainState();
+const domainState = new DomainState()
 
-const isOpenMore = ref(false);
-const isDetail = ref(false);
-const dropdown = ref(null);
-const toggle = ref(null);
+const isOpenMore = ref(false)
+const isDetail = ref(false)
+const dropdown = ref(null)
+const toggle = ref(null)
 
 const props = defineProps({
   item: {
     type: Object as PropType<NFTItem>,
     default: () => {
-      return {};
+      return {}
     },
   },
   isFavorite: {
     type: Boolean,
     default: () => {
-      return false;
+      return false
     },
   },
   isHidden: {
     type: Boolean,
     default: () => {
-      return false;
+      return false
     },
   },
-});
+})
 const toggleMoreMenu = () => {
-  isOpenMore.value = !isOpenMore.value;
-};
+  isOpenMore.value = !isOpenMore.value
+}
 const toggleDetail = () => {
-  isDetail.value = !isDetail.value;
-};
+  isDetail.value = !isDetail.value
+}
 const openLink = async () => {
   const selectedNetwork =
-    (await domainState.getSelectedNetWork()) as NetworkNames;
+    (await domainState.getSelectedNetWork()) as NetworkNames
 
-  let url: string | null = null;
+  let url: string | null = null
 
   if (selectedNetwork === NetworkNames.Optimism) {
-    url = `https://qx.app/asset/${props.item.contract}/${props.item.id}`;
+    url = `https://qx.app/asset/${props.item.contract}/${props.item.id}`
   } else {
-    url = props.item.url;
+    url = props.item.url
   }
 
   if (url) {
-    window.open(url, "_blank");
+    window.open(url, '_blank')
   }
-};
+}
 onClickOutside(
   dropdown,
   () => {
-    if (isOpenMore.value) isOpenMore.value = false;
+    if (isOpenMore.value) isOpenMore.value = false
   },
-  { ignore: [toggle] }
-);
+  { ignore: [toggle] },
+)
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .network-nfts {
   &__item {
@@ -122,7 +122,8 @@ onClickOutside(
       width: 128px;
       height: 128px;
       background: @buttonBg;
-      box-shadow: 0px 0.25px 1px rgba(0, 0, 0, 0.039),
+      box-shadow:
+        0px 0.25px 1px rgba(0, 0, 0, 0.039),
         0px 0.85px 3px rgba(0, 0, 0, 0.19);
       border-radius: 12px;
       overflow: hidden;

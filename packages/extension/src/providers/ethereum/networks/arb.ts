@@ -1,3 +1,4 @@
+import icon from "./icons/arbitrum.svg";
 import { CoingeckoPlatform, NetworkNames } from "@enkryptcom/types";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
 import { EtherscanActivity } from "../libs/activity-handlers";
@@ -16,7 +17,7 @@ const arbOptions: EvmNetworkOptions = {
   currencyName: "ETH",
   currencyNameLong: "Ethereum",
   node: "wss://nodes.mewapi.io/ws/arb",
-  icon: require("./icons/arbitrum.svg"),
+  icon,
   coingeckoID: "ethereum",
   coingeckoPlatform: CoingeckoPlatform.Arbitrum,
   assetsInfoHandler,

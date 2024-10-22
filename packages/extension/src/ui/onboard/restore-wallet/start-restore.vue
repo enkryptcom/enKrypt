@@ -17,22 +17,22 @@
   </div>
 </template>
 <script setup lang="ts">
-import BaseButton from "@action/components/base-button/index.vue";
-import { useRouter } from "vue-router";
-import { routes } from "./routes";
-const router = useRouter();
+import BaseButton from '@action/components/base-button/index.vue'
+import { useRouter } from 'vue-router'
+import { routes } from './routes'
+const router = useRouter()
 
 const restoreAction = () => {
-  router.push({ name: routes.enterRecoveryPhrase.name });
-};
+  router.push({ name: routes.enterRecoveryPhrase.name })
+}
 
 const otherAction = () => {
-  router.push({ name: routes.otherInfo.name });
-};
+  router.push({ name: routes.otherInfo.name })
+}
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .restore-wallet {
   h3 {

@@ -1,3 +1,4 @@
+import icon from "./icons/tsys_rollux.svg";
 import { NetworkNames } from "@enkryptcom/types";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
 import { EtherscanActivity } from "../libs/activity-handlers";
@@ -14,7 +15,7 @@ const rolluxTestOptions: EvmNetworkOptions = {
   currencyName: "TSYS",
   currencyNameLong: "Test Syscoin",
   node: "wss://rpc-tanenbaum.rollux.com/wss",
-  icon: require("./icons/tsys_rollux.svg"),
+  icon,
   activityHandler: wrapActivityHandler(EtherscanActivity),
 };
 

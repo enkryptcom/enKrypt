@@ -34,53 +34,53 @@
   </div>
 </template>
 <script setup lang="ts">
-import BaseButton from "@action/components/base-button/index.vue";
-import { useRouter } from "vue-router";
-import { onMounted, computed, ref } from "vue";
-import { generateMnemonic } from "bip39";
-import { routes } from "./routes";
-import { useOnboardStore } from "./store";
+import BaseButton from '@action/components/base-button/index.vue'
+import { useRouter } from 'vue-router'
+import { onMounted, computed, ref } from 'vue'
+import { generateMnemonic } from 'bip39'
+import { routes } from './routes'
+import { useOnboardStore } from './store'
 
-const router = useRouter();
-const store = useOnboardStore();
+const router = useRouter()
+const store = useOnboardStore()
 
-const password = store.password;
-const mnemonic = ref("");
+const password = store.password
+const mnemonic = ref('')
 
 const nextAction = () => {
-  store.setMnemonic(mnemonic.value);
+  store.setMnemonic(mnemonic.value)
   router.push({
     name: routes.checkPhrase.name,
-  });
-};
+  })
+}
 
 onMounted(() => {
-  createMnemonic();
-  checkForPassword();
-});
+  createMnemonic()
+  checkForPassword()
+})
 
 const checkForPassword = () => {
   if (!password) {
-    router.push({ path: routes.pickPassword.path });
+    router.push({ path: routes.pickPassword.path })
   }
-};
+}
 
 const createMnemonic = () => {
-  mnemonic.value = generateMnemonic(128);
-};
+  mnemonic.value = generateMnemonic(128)
+}
 
 const firstSet = computed(() => {
-  const copy = mnemonic.value.split(" ");
-  return copy.splice(0, 6);
-});
+  const copy = mnemonic.value.split(' ')
+  return copy.splice(0, 6)
+})
 const secondSet = computed(() => {
-  const copy = mnemonic.value.split(" ");
-  return copy.splice(6);
-});
+  const copy = mnemonic.value.split(' ')
+  return copy.splice(6)
+})
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .recovery-phrase {
   width: 100%;

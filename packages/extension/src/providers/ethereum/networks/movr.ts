@@ -1,3 +1,4 @@
+import icon from "./icons/moonriver.svg";
 import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
 import { CoingeckoPlatform, NetworkNames } from "@enkryptcom/types";
 import { EtherscanActivity } from "../libs/activity-handlers";
@@ -15,7 +16,7 @@ const moonriverOptions: EvmNetworkOptions = {
   currencyName: "MOVR",
   currencyNameLong: "Moonriver",
   node: "wss://wss.api.moonriver.moonbeam.network",
-  icon: require("./icons/moonriver.svg"),
+  icon,
   coingeckoID: "moonriver",
   assetsInfoHandler,
   coingeckoPlatform: CoingeckoPlatform.Moonriver,

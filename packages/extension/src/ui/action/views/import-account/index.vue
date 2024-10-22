@@ -70,47 +70,47 @@
 </template>
 
 <script setup lang="ts">
-import { ref, PropType } from "vue";
-import ImportAccountStart from "./views/import-account-start.vue";
-import ImportAccountKeystoreFile from "./views/import-account-keystore-file.vue";
-import ImportAccountPassword from "./views/import-account-password.vue";
-import ImportAccountImporting from "./views/import-account-importing.vue";
-import ImportAccountPrivateKey from "./views/import-account-private-key.vue";
+import { ref, PropType } from 'vue'
+import ImportAccountStart from './views/import-account-start.vue'
+import ImportAccountKeystoreFile from './views/import-account-keystore-file.vue'
+import ImportAccountPassword from './views/import-account-password.vue'
+import ImportAccountImporting from './views/import-account-importing.vue'
+import ImportAccountPrivateKey from './views/import-account-private-key.vue'
 // import ImportAccountStartDot from "./views/import-account-start-dot.vue";
 // import ImportAccountSelectAccountDot from "./views/import-account-select-account-dot.vue";
-import { BaseNetwork } from "@/types/base-network";
-import { KeyPairAdd, SignerType } from "@enkryptcom/types";
+import { BaseNetwork } from '@/types/base-network'
+import { KeyPairAdd, SignerType } from '@enkryptcom/types'
 
-const isStart = ref(true);
-const isKeystoreFile = ref(false);
-const isPrivateKey = ref(false);
-const isEnterPassword = ref(false);
-const isImportingAccount = ref(false);
-const iSelectAccount = ref(false);
-const inputFileError = ref(false);
-const keystorePassword = ref("");
-const keystorePassError = ref(false);
-const keystoreFile = ref<File>();
-const keystoreJSON = ref({});
+const isStart = ref(true)
+const isKeystoreFile = ref(false)
+const isPrivateKey = ref(false)
+const isEnterPassword = ref(false)
+const isImportingAccount = ref(false)
+const iSelectAccount = ref(false)
+const inputFileError = ref(false)
+const keystorePassword = ref('')
+const keystorePassError = ref(false)
+const keystoreFile = ref<File>()
+const keystoreJSON = ref({})
 const keyPair = ref<KeyPairAdd>({
-  address: "",
-  privateKey: "",
-  publicKey: "",
-  name: "",
+  address: '',
+  privateKey: '',
+  publicKey: '',
+  name: '',
   signerType: SignerType.secp256k1,
-});
+})
 const emit = defineEmits<{
-  (e: "close"): void;
-}>();
+  (e: 'close'): void
+}>()
 
 defineProps({
   network: {
     type: Object as PropType<BaseNetwork>,
     default: () => ({}),
   },
-});
-const isPrivKeyImport = ref(false);
-const isKeyStoreImport = ref(false);
+})
+const isPrivKeyImport = ref(false)
+const isKeyStoreImport = ref(false)
 
 const allVars = [
   isStart,
@@ -119,71 +119,71 @@ const allVars = [
   isEnterPassword,
   isImportingAccount,
   iSelectAccount,
-];
+]
 
 const close = () => {
-  emit("close");
-};
+  emit('close')
+}
 
 const startAction = () => {
-  allVars.forEach((val) => (val.value = false));
-  isStart.value = true;
-};
+  allVars.forEach(val => (val.value = false))
+  isStart.value = true
+}
 
 const keystoreFileAction = () => {
-  allVars.forEach((val) => (val.value = false));
-  isKeystoreFile.value = true;
-  isKeyStoreImport.value = true;
-  isPrivKeyImport.value = false;
-};
+  allVars.forEach(val => (val.value = false))
+  isKeystoreFile.value = true
+  isKeyStoreImport.value = true
+  isPrivKeyImport.value = false
+}
 
 const privateKeyAction = () => {
-  allVars.forEach((val) => (val.value = false));
-  isPrivateKey.value = true;
-  isKeyStoreImport.value = false;
-  isPrivKeyImport.value = true;
-};
+  allVars.forEach(val => (val.value = false))
+  isPrivateKey.value = true
+  isKeyStoreImport.value = false
+  isPrivKeyImport.value = true
+}
 
 const enterPasswordAction = () => {
-  allVars.forEach((val) => (val.value = false));
-  isEnterPassword.value = true;
-};
+  allVars.forEach(val => (val.value = false))
+  isEnterPassword.value = true
+}
 
 const importingAccountAction = () => {
-  allVars.forEach((val) => (val.value = false));
-  isImportingAccount.value = true;
-};
+  allVars.forEach(val => (val.value = false))
+  isImportingAccount.value = true
+}
 
 // const selectAccountAction = () => {
 //   allVars.forEach((val) => (val.value = false));
 //   iSelectAccount.value = true;
 // };
 const updateKeystorePassword = (password: string) => {
-  keystorePassword.value = password;
-};
+  keystorePassword.value = password
+}
 const fileSelected = (file: File) => {
-  const reader = new FileReader();
-  reader.addEventListener("load", (event) => {
+  const reader = new FileReader()
+  reader.addEventListener('load', event => {
     try {
-      keystoreJSON.value = JSON.parse(event.target!.result as string);
-      inputFileError.value = false;
-      keystoreFile.value = file;
-      enterPasswordAction();
+      keystoreJSON.value = JSON.parse(event.target!.result as string)
+      inputFileError.value = false
+      keystoreFile.value = file
+      enterPasswordAction()
     } catch (e) {
-      inputFileError.value = true;
+      inputFileError.value = true
     }
-  });
-  reader.readAsBinaryString(file);
-};
+  })
+  reader.readAsBinaryString(file)
+}
 
 const walletUpdate = (wallet: KeyPairAdd) => {
-  keyPair.value = wallet;
-  importingAccountAction();
-};
+  keyPair.value = wallet
+  importingAccountAction()
+}
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .import-account {
   width: 100%;
@@ -192,7 +192,8 @@ const walletUpdate = (wallet: KeyPairAdd) => {
 
   &__wrap {
     background: @white;
-    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.039),
+    box-shadow:
+      0px 3px 6px rgba(0, 0, 0, 0.039),
       0px 7px 24px rgba(0, 0, 0, 0.19);
     border-radius: 12px;
     box-sizing: border-box;

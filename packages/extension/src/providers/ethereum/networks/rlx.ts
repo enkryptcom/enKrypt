@@ -1,3 +1,4 @@
+import icon from "./icons/sys_rollux.svg";
 import { NetworkNames, CoingeckoPlatform } from "@enkryptcom/types";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
 import { EtherscanActivity } from "../libs/activity-handlers";
@@ -17,7 +18,7 @@ const rolluxOptions: EvmNetworkOptions = {
   node: "wss://rpc.rollux.com/wss",
   coingeckoID: "syscoin",
   coingeckoPlatform: CoingeckoPlatform.Rollux,
-  icon: require("./icons/sys_rollux.svg"),
+  icon,
   assetsInfoHandler,
   activityHandler: wrapActivityHandler(EtherscanActivity),
 };

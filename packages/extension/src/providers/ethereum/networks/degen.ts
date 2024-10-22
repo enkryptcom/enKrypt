@@ -1,3 +1,4 @@
+import icon from "./icons/degen.png";
 import { CoingeckoPlatform, NetworkNames } from "@enkryptcom/types";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
 import assetsInfoHandler from "@/providers/ethereum/libs/assets-handlers/assetinfo-mew";
@@ -15,7 +16,7 @@ const ethOptions: EvmNetworkOptions = {
   currencyName: "DEGEN",
   currencyNameLong: "DEGEN",
   node: "https://rpc.degen.tips",
-  icon: require("./icons/degen.png"),
+  icon,
   coingeckoID: "degen-base",
   coingeckoPlatform: CoingeckoPlatform.Degen,
   assetsInfoHandler,

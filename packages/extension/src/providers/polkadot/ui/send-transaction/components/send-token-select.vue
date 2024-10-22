@@ -6,7 +6,7 @@
     <div class="send-token-select__info">
       <h5>{{ token!.name }}</h5>
       <p>
-        {{ balance ? $filters.formatFloatingPointValue(balance).value : "~" }}
+        {{ balance ? $filters.formatFloatingPointValue(balance).value : '~' }}
         <span>{{ token!.symbol }}</span>
       </p>
     </div>
@@ -18,30 +18,30 @@
 </template>
 
 <script setup lang="ts">
-import SwitchArrow from "@action/icons/header/switch_arrow.vue";
-import { BaseToken } from "@/types/base-token";
-import { computed } from "@vue/reactivity";
-import { fromBase } from "@enkryptcom/utils";
+import SwitchArrow from '@action/icons/header/switch_arrow.vue'
+import { BaseToken } from '@/types/base-token'
+import { computed } from 'vue'
+import { fromBase } from '@enkryptcom/utils'
 
 const emit = defineEmits<{
-  (e: "update:toggleTokenSelect"): void;
-}>();
+  (e: 'update:toggleTokenSelect'): void
+}>()
 
 interface IProps {
-  token?: BaseToken | Partial<BaseToken>;
+  token?: BaseToken | Partial<BaseToken>
 }
 
-const props = defineProps<IProps>();
+const props = defineProps<IProps>()
 
 const balance = computed(() =>
   props.token && props.token.balance
     ? fromBase(props.token.balance, props.token.decimals!)
-    : undefined
-);
+    : undefined,
+)
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .send-token-select {
   height: 64px;
@@ -51,7 +51,7 @@ const balance = computed(() =>
   border: 1px solid @gray02;
   box-sizing: border-box;
   border-radius: 10px;
-  width: calc(~"100% - 64px");
+  width: calc(~'100% - 64px');
   padding: 16px;
   display: flex;
   justify-content: flex-start;

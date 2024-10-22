@@ -27,49 +27,49 @@
   </div>
 </template>
 <script setup lang="ts">
-import { onMounted, ref, computed } from "vue";
-import BaseButton from "@action/components/base-button/index.vue";
-import BaseInput from "@action/components/base-input/index.vue";
-import { useRouter } from "vue-router";
-import { routes } from "../restore-wallet/routes";
-import { onboardInitializeWallets } from "@/libs/utils/initialize-wallet";
-import { useRestoreStore } from "./store";
-const store = useRestoreStore();
-const router = useRouter();
+import { onMounted, ref, computed } from 'vue'
+import BaseButton from '@action/components/base-button/index.vue'
+import BaseInput from '@action/components/base-input/index.vue'
+import { useRouter } from 'vue-router'
+import { routes } from '../restore-wallet/routes'
+import { onboardInitializeWallets } from '@/libs/utils/initialize-wallet'
+import { useRestoreStore } from './store'
+const store = useRestoreStore()
+const router = useRouter()
 
-const typePassword = ref("");
-const isInitializing = ref(false);
+const typePassword = ref('')
+const isInitializing = ref(false)
 const nextAction = () => {
   if (!isDisabled.value) {
-    isInitializing.value = true;
+    isInitializing.value = true
     onboardInitializeWallets(store.mnemonic, store.password).then(() => {
-      isInitializing.value = false;
+      isInitializing.value = false
       router.push({
         name: routes.walletReady.name,
-      });
-    });
+      })
+    })
   }
-};
+}
 const isDisabled = computed(() => {
-  return typePassword.value !== store.password || isInitializing.value;
-});
+  return typePassword.value !== store.password || isInitializing.value
+})
 const passwordUpdated = (value: string) => {
-  typePassword.value = value.trim();
-};
+  typePassword.value = value.trim()
+}
 
 const checkMnemonicAndPassword = () => {
   if (!store.password || !store.mnemonic) {
-    router.push({ path: routes.start.path });
+    router.push({ path: routes.start.path })
   }
-};
+}
 
 onMounted(() => {
-  checkMnemonicAndPassword();
-});
+  checkMnemonicAndPassword()
+})
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .type-password {
   width: 100%;

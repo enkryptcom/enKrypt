@@ -17,7 +17,7 @@ export default class Signer implements SignerInterface {
     this.id = options.id;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+   
   public async signPayload(payload: SignerPayloadJSON): Promise<SignerResult> {
     return this.sendMessageHandler(this.id, {
       method: "dot_signer_signPayload",
@@ -31,7 +31,7 @@ export default class Signer implements SignerInterface {
     });
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+   
   public async signRaw(payload: SignerPayloadRaw): Promise<SignerResult> {
     return this.sendMessageHandler(this.id, {
       method: "dot_signer_signRaw",

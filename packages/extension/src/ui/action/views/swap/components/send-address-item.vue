@@ -19,16 +19,16 @@
 </template>
 
 <script setup lang="ts">
-import { PropType } from "vue";
-import { EnkryptAccount } from "@enkryptcom/types";
+import { PropType } from 'vue'
+import { EnkryptAccount } from '@enkryptcom/types'
 
 const emit = defineEmits<{
-  (e: "selected:account", address: string): void;
-}>();
+  (e: 'selected:account', address: string): void
+}>()
 defineProps({
   identicon: {
     type: Function,
-    default: () => "",
+    default: () => '',
   },
   displayAddress: {
     type: Function,
@@ -37,14 +37,14 @@ defineProps({
   account: {
     type: Object as PropType<EnkryptAccount>,
     default: () => {
-      return {};
+      return {}
     },
   },
-});
+})
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .send-address-item {
   text-decoration: none;

@@ -69,11 +69,11 @@ const tempWindow: EnkryptWindow = {
     providers: {},
     settings: defaultSettings,
   },
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
+   
   addEventListener: () => {},
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
+   
   CustomEvent: () => {},
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
+   
   dispatchEvent: () => {},
 };
 describe("Test Ethereum reponses", () => {

@@ -12,18 +12,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
-import BaseInput from "@action/components/base-input/index.vue";
-import PasswordInputStrength from "./components/password-input-strength.vue";
+import { ref } from 'vue'
+import BaseInput from '@action/components/base-input/index.vue'
+import PasswordInputStrength from './components/password-input-strength.vue'
 
-const password = ref("");
+const password = ref('')
 const passwordChanged = (newVal: string) => {
-  password.value = newVal;
-};
+  password.value = newVal
+}
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .password-input {
   margin: 0 0 16px 0;

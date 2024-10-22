@@ -1,3 +1,4 @@
+import icon from "./icons/klaytn.png";
 import { CoingeckoPlatform, NetworkNames } from "@enkryptcom/types";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
 import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
@@ -14,7 +15,7 @@ const klayOptions: EvmNetworkOptions = {
   currencyName: "KLAY",
   currencyNameLong: "Klaytn",
   node: "https://public-en-cypress.klaytn.net",
-  icon: require("./icons/klaytn.png"),
+  icon,
   coingeckoID: "klay-token",
   coingeckoPlatform: CoingeckoPlatform.Klaytn,
   assetsInfoHandler,

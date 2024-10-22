@@ -14,72 +14,72 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onMounted } from "vue";
-const isFocus = ref(false);
-const swapAmountInput = ref(null);
+import { computed, ref, onMounted } from 'vue'
+const isFocus = ref(false)
+const swapAmountInput = ref(null)
 
-defineExpose({ swapAmountInput });
+defineExpose({ swapAmountInput })
 
 const props = defineProps({
   placeholder: {
     type: String,
     default: () => {
-      return "";
+      return ''
     },
   },
   value: {
     type: String,
     default: () => {
-      return "";
+      return ''
     },
   },
   changeFocus: {
     type: Function,
     default: () => {
-      return null;
+      return null
     },
   },
   autofocus: {
     type: Boolean,
     default: () => {
-      return false;
+      return false
     },
   },
   error: {
     type: Boolean,
     default: () => {
-      return false;
+      return false
     },
   },
-});
+})
 onMounted(() => {
   if (swapAmountInput.value && props.autofocus) {
-    (swapAmountInput.value as HTMLInputElement).focus();
+    ;(swapAmountInput.value as HTMLInputElement).focus()
   }
-});
-const emit = defineEmits(["update:value"]);
+})
+const emit = defineEmits(['update:value'])
 const textValue = computed({
   get: () => props.value,
-  set: (value) => {
-    let fValue = value.toString();
-    if (fValue === ".") fValue = "0.";
-    emit("update:value", fValue);
+  set: value => {
+    let fValue = value.toString()
+    if (fValue === '.') fValue = '0.'
+    emit('update:value', fValue)
   },
-});
+})
 const changeFocus = () => {
-  isFocus.value = !isFocus.value;
-  props.changeFocus(isFocus.value);
-};
+  isFocus.value = !isFocus.value
+  props.changeFocus(isFocus.value)
+}
 const onlyNumber = ($event: KeyboardEvent) => {
-  const keyCode = $event.keyCode ? $event.keyCode : $event.which;
+  const keyCode = $event.keyCode ? $event.keyCode : $event.which
   if ((keyCode < 48 || keyCode > 57) && keyCode !== 46) {
-    $event.preventDefault();
+    $event.preventDefault()
   }
-};
+}
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 .swap-token-amount-input {
   outline: none;
   background: @white;

@@ -27,29 +27,29 @@
 </template>
 
 <script setup lang="ts">
-import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
-import { replaceWithEllipsis } from "@/ui/action/utils/filters";
-import { computed } from "@vue/reactivity";
-import { PropType, ref } from "vue";
+import { EvmNetwork } from '@/providers/ethereum/types/evm-network'
+import { replaceWithEllipsis } from '@/ui/action/utils/filters'
+import { computed } from 'vue'
+import { PropType, ref } from 'vue'
 
-const isFocus = ref<boolean>(false);
-const addressInput = ref<HTMLInputElement>();
+const isFocus = ref<boolean>(false)
+const addressInput = ref<HTMLInputElement>()
 
 const pasteFromClipboard = () => {
-  addressInput.value?.focus();
+  addressInput.value?.focus()
   // Clear existing data from address field
   if (addressInput.value) {
-    addressInput.value.value = "";
+    addressInput.value.value = ''
   }
-  document.execCommand("paste");
-};
-defineExpose({ addressInput, pasteFromClipboard });
+  document.execCommand('paste')
+}
+defineExpose({ addressInput, pasteFromClipboard })
 
 const props = defineProps({
   value: {
     type: String,
     default: () => {
-      return "";
+      return ''
     },
   },
   network: {
@@ -61,31 +61,31 @@ const props = defineProps({
     default: false,
   },
   disableDirectInput: Boolean,
-});
+})
 const emit = defineEmits<{
-  (e: "update:inputAddress", address: string): void;
-  (e: "toggle:showContacts", show: boolean): void;
-}>();
+  (e: 'update:inputAddress', address: string): void
+  (e: 'toggle:showContacts', show: boolean): void
+}>()
 const visibleAddress = computed(() => {
-  let address = props.value;
+  let address = props.value
   if (props.network.isAddress(address))
-    address = props.network.displayAddress(props.value);
-  if (isFocus.value) return address;
-  return replaceWithEllipsis(address, 6, 6);
-});
+    address = props.network.displayAddress(props.value)
+  if (isFocus.value) return address
+  return replaceWithEllipsis(address, 6, 6)
+})
 const address = computed({
   get: () => visibleAddress.value,
-  set: (value) => emit("update:inputAddress", value),
-});
+  set: value => emit('update:inputAddress', value),
+})
 
 const changeFocus = (val: FocusEvent) => {
-  isFocus.value = val.type === "focus";
-  if (isFocus.value) emit("toggle:showContacts", isFocus.value);
-};
+  isFocus.value = val.type === 'focus'
+  if (isFocus.value) emit('toggle:showContacts', isFocus.value)
+}
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .send-address-input {
   height: 64px;
@@ -95,7 +95,7 @@ const changeFocus = (val: FocusEvent) => {
   border: 1px solid @gray02;
   box-sizing: border-box;
   border-radius: 10px;
-  width: calc(~"100% - 64px");
+  width: calc(~'100% - 64px');
   padding: 16px;
   display: flex;
   justify-content: flex-start;
@@ -105,7 +105,7 @@ const changeFocus = (val: FocusEvent) => {
 
   &.focus {
     border: 2px solid @primary;
-    width: calc(~"100% - 62px");
+    width: calc(~'100% - 62px');
     margin: 12px 31px 8px 31px;
   }
 

@@ -40,38 +40,38 @@
 </template>
 
 <script setup lang="ts">
-import PublicKeyRing from "@/libs/keyring/public-keyring";
-import { BaseNetwork } from "@/types/base-network";
-import { BaseToken } from "@/types/base-token";
-import { polkadotEncodeAddress } from "@enkryptcom/utils";
-import { onBeforeMount, ref } from "vue";
-import { fromBase } from "@enkryptcom/utils";
-import Polkadot from "@/providers/polkadot/networks/polkadot";
+import PublicKeyRing from '@/libs/keyring/public-keyring'
+import { BaseNetwork } from '@/types/base-network'
+import { BaseToken } from '@/types/base-token'
+import { polkadotEncodeAddress } from '@enkryptcom/utils'
+import { onBeforeMount, ref } from 'vue'
+import { fromBase } from '@enkryptcom/utils'
+import Polkadot from '@/providers/polkadot/networks/polkadot'
 
 // For some reason passing TransferProps as the type to defineProps throws an error
 interface IProps {
-  to: string;
-  token: BaseToken;
-  amount: string;
-  network: BaseNetwork | undefined;
+  to: string
+  token: BaseToken
+  amount: string
+  network: BaseNetwork | undefined
 }
-const props = defineProps<IProps>();
-const destName = ref<string>();
-const defaultNetwork = Polkadot;
+const props = defineProps<IProps>()
+const destName = ref<string>()
+const defaultNetwork = Polkadot
 onBeforeMount(async () => {
-  const publicKeyring = new PublicKeyRing();
-  const to = polkadotEncodeAddress(props.to);
+  const publicKeyring = new PublicKeyRing()
+  const to = polkadotEncodeAddress(props.to)
   try {
-    const foundAddress = await publicKeyring.getAccount(to);
-    destName.value = foundAddress.name;
+    const foundAddress = await publicKeyring.getAccount(to)
+    destName.value = foundAddress.name
   } catch {
     // Just a pass so it's not empty as getAccount throws if there is no account
-    null;
+    null
   }
-});
+})
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
-@import "../styles/verify-transaction.less";
+@import '@action/styles/theme.less';
+@import '../styles/verify-transaction.less';
 </style>

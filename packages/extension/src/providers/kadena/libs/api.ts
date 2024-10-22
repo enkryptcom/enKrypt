@@ -41,7 +41,7 @@ class API implements ProviderAPIInterface {
     return `${this.node}/${this.networkId}/chain/${chainId}/pact`;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
+   
   async init(): Promise<void> {}
 
   async getChainId(): Promise<string> {

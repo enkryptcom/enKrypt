@@ -57,34 +57,34 @@
 </template>
 
 <script setup lang="ts">
-import { PropType, ref } from "vue";
-import CloseIcon from "@action/icons/common/close-icon.vue";
-import SparklineUp from "@action/icons/asset/sparkline-up.vue";
-import SparklineDown from "@action/icons/asset/sparkline-down.vue";
-import { AssetsType } from "@/types/provider";
-import Tooltip from "@/ui/action/components/tooltip/index.vue";
-import { use } from "echarts/core";
-import { SVGRenderer } from "echarts/renderers";
-import { LineChart } from "echarts/charts";
-import { TooltipComponent, GridComponent } from "echarts/components";
-import VChart from "vue-echarts";
+import { PropType, ref } from 'vue'
+import CloseIcon from '@action/icons/common/close-icon.vue'
+import SparklineUp from '@action/icons/asset/sparkline-up.vue'
+import SparklineDown from '@action/icons/asset/sparkline-down.vue'
+import { AssetsType } from '@/types/provider'
+import Tooltip from '@/ui/action/components/tooltip/index.vue'
+import { use } from 'echarts/core'
+import { SVGRenderer } from 'echarts/renderers'
+import { LineChart } from 'echarts/charts'
+import { TooltipComponent, GridComponent } from 'echarts/components'
+import VChart from 'vue-echarts'
 
 const props = defineProps({
   token: {
     type: Object as PropType<AssetsType>,
     default: () => ({}),
   },
-});
-use([SVGRenderer, LineChart, TooltipComponent, GridComponent]);
+})
+use([SVGRenderer, LineChart, TooltipComponent, GridComponent])
 const option = ref({
   width: 128,
   height: 128,
-  color: [props.token.priceChangePercentage >= 0 ? "#80FFA5" : "#e01f43"],
+  color: [props.token.priceChangePercentage >= 0 ? '#80FFA5' : '#e01f43'],
   grid: { show: false, left: 0, top: 0 },
   xAxis: [
     {
       show: false,
-      type: "category",
+      type: 'category',
       showGrid: false,
       boundaryGap: false,
       splitLine: {
@@ -95,7 +95,7 @@ const option = ref({
   yAxis: [
     {
       show: false,
-      type: "value",
+      type: 'value',
       splitLine: {
         show: false,
       },
@@ -103,31 +103,31 @@ const option = ref({
   ],
   series: [
     {
-      type: "line",
+      type: 'line',
       smooth: true,
       lineStyle: {
         width: 3,
       },
       showSymbol: false,
       emphasis: {
-        focus: "none",
+        focus: 'none',
       },
       data:
-        props.token.sparkline !== "" ? JSON.parse(props.token.sparkline) : [],
+        props.token.sparkline !== '' ? JSON.parse(props.token.sparkline) : [],
     },
   ],
-});
+})
 
 const emit = defineEmits<{
-  (e: "close:popup"): void;
-}>();
+  (e: 'close:popup'): void
+}>()
 const close = () => {
-  emit("close:popup");
-};
+  emit('close:popup')
+}
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 .chart-large {
   height: 128px;
   width: 128px;
@@ -139,7 +139,8 @@ const close = () => {
 
   &__wrap {
     background: @white;
-    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.039),
+    box-shadow:
+      0px 3px 6px rgba(0, 0, 0, 0.039),
       0px 7px 24px rgba(0, 0, 0, 0.19);
     border-radius: 12px;
     box-sizing: border-box;
@@ -266,7 +267,7 @@ const close = () => {
     &-divider {
       margin: 24px 0 24px -24px;
       height: 1px;
-      width: calc(~"100% + 48px");
+      width: calc(~'100% + 48px');
       background: @gray02;
     }
     &-balance {
@@ -305,7 +306,7 @@ const close = () => {
   }
   &__action {
     margin: 0 0 -12px -12px;
-    width: calc(~"100% + 24px");
+    width: calc(~'100% + 24px');
   }
 }
 </style>

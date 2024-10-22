@@ -15,28 +15,28 @@
 </template>
 
 <script setup lang="ts">
-import SwitchArrow from "@action/icons/header/switch_arrow.vue";
+import SwitchArrow from '@action/icons/header/switch_arrow.vue'
 defineEmits<{
-  (e: "toggle:selectAccounts"): void;
-}>();
+  (e: 'toggle:selectAccounts'): void
+}>()
 defineProps({
   name: {
     type: String,
-    default: "",
+    default: '',
   },
   address: {
     type: String,
-    default: "",
+    default: '',
   },
   identicon: {
     type: String,
-    default: "",
+    default: '',
   },
-});
+})
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 .select-account-input {
   width: 100%;
   height: 56px;

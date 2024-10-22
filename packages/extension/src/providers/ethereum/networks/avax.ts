@@ -1,3 +1,4 @@
+import icon from "./icons/avax.svg";
 import { CoingeckoPlatform, NetworkNames } from "@enkryptcom/types";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
 import { EtherscanActivity } from "../libs/activity-handlers";
@@ -16,7 +17,7 @@ const avaxOptions: EvmNetworkOptions = {
   currencyName: "AVAX",
   currencyNameLong: "Avalanche",
   node: "https://api.avax.network/ext/bc/C/rpc",
-  icon: require("./icons/avax.svg"),
+  icon,
   coingeckoID: "avalanche-2",
   coingeckoPlatform: CoingeckoPlatform.Avalanche,
   assetsInfoHandler,

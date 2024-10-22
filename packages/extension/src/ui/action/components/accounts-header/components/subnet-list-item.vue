@@ -8,44 +8,44 @@
 </template>
 
 <script setup lang="ts">
-import { PropType, ref } from "vue";
-import { onClickOutside } from "@vueuse/core";
-import DoneIcon from "@action/icons/common/done_icon.vue";
-import { SubNetworkOptions } from "@/types/base-network";
+import { PropType, ref } from 'vue'
+import { onClickOutside } from '@vueuse/core'
+import DoneIcon from '@action/icons/common/done_icon.vue'
+import { SubNetworkOptions } from '@/types/base-network'
 
-const openEdit = ref(false);
-const dropdown = ref(null);
-const toggle = ref(null);
+const openEdit = ref(false)
+const dropdown = ref(null)
+const toggle = ref(null)
 
 defineProps({
   network: {
     type: Object as PropType<SubNetworkOptions>,
     default: () => ({
-      id: "",
-      name: "",
+      id: '',
+      name: '',
     }),
   },
   isChecked: Boolean,
-});
+})
 
 defineEmits<{
-  (e: "select:subnetwork", id: string): void;
-}>();
+  (e: 'select:subnetwork', id: string): void
+}>()
 
 onClickOutside(
   dropdown,
   () => {
-    if (openEdit.value) openEdit.value = false;
+    if (openEdit.value) openEdit.value = false
   },
-  { ignore: [toggle] }
-);
+  { ignore: [toggle] },
+)
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .chains-item {
-  width: calc(~"100% - 16px");
+  width: calc(~'100% - 16px');
   height: 56px;
   text-decoration: none;
   display: flex;

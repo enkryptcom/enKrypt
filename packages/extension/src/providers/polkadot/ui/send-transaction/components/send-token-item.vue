@@ -9,7 +9,7 @@
           {{
             tokenBalance
               ? $filters.formatFloatingPointValue(tokenBalance).value
-              : "~"
+              : '~'
           }}
           <span>{{ token.symbol }}</span>
         </p>
@@ -24,39 +24,39 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeMount, ref } from "vue";
-import EvmAPI from "@/providers/ethereum/libs/api";
-import { ApiPromise } from "@polkadot/api";
-import { AssetsType } from "@/types/provider";
-import BigNumber from "bignumber.js";
+import { onBeforeMount, ref } from 'vue'
+import EvmAPI from '@/providers/ethereum/libs/api'
+import { ApiPromise } from '@polkadot/api'
+import { AssetsType } from '@/types/provider'
+import BigNumber from 'bignumber.js'
 
 interface IProps {
-  token: AssetsType | Partial<AssetsType>;
-  selectToken: (token: AssetsType | Partial<AssetsType>) => void;
-  activeAccount?: string;
-  api?: EvmAPI | ApiPromise;
+  token: AssetsType | Partial<AssetsType>
+  selectToken: (token: AssetsType | Partial<AssetsType>) => void
+  activeAccount?: string
+  api?: EvmAPI | ApiPromise
 }
 
-const props = defineProps<IProps>();
+const props = defineProps<IProps>()
 
-const tokenPrice = ref<number | undefined>();
-const tokenBalance = ref<string | undefined>("~");
+const tokenPrice = ref<number | undefined>()
+const tokenBalance = ref<string | undefined>('~')
 
 onBeforeMount(() => {
   if (props.token) {
     tokenBalance.value = new BigNumber(props.token.balance!)
       .div(new BigNumber(10 ** props.token.decimals!))
-      .toString();
+      .toString()
   }
-});
+})
 
 const select = () => {
-  props.selectToken(props.token);
-};
+  props.selectToken(props.token)
+}
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .send-token-item {
   display: block;
