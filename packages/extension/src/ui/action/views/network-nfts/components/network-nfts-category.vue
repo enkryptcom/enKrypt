@@ -3,8 +3,8 @@
     <div class="network-nfts__category-head">
       <p>
         {{
-          collection.name?.length > 25
-            ? $filters.replaceWithEllipsis(collection.name, 25, 4)
+          collection.name?.length > 40
+            ? $filters.replaceWithEllipsis(collection.name, 40, 0)
             : collection.name || "UNKNOWN"
         }}
       </p>
