@@ -18,10 +18,14 @@ const visible = ref(false);
 
 let timeout: ReturnType<typeof setTimeout> | null = null;
 
-defineProps({
+const props = defineProps({
   text: {
     type: String,
     default: "",
+  },
+  isTopRight: {
+    type: Boolean,
+    default: false,
   },
 });
 
@@ -42,7 +46,7 @@ const onHover = (e: any) => {
         visible.value = true;
       }, 50);
     }
-  }, 700);
+  }, 400);
 };
 
 const onHide = () => {
@@ -66,9 +70,11 @@ const onHide = () => {
 };
 
 const classObject = () => {
+  if (props.isTopRight) {
+    return { "right-top": true, visible: visible.value };
+  }
   const x = positionX.value;
   const y = positionY.value;
-
   switch (true) {
     case x > 740 && y < 50:
       return { "right-bottom": true, visible: visible.value };
@@ -120,6 +126,11 @@ const classObject = () => {
 
     &.right-bottom {
       top: calc(~"100% + 3px");
+      right: 0;
+      transform: translateX(0) translateY(0px);
+    }
+    &.right-top {
+      top: calc(~"-100% + 8px");
       right: 0;
       transform: translateX(0) translateY(0px);
     }

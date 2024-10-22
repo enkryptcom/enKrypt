@@ -17,7 +17,14 @@
       >
         <close-icon />
       </a>
-      <Switch :is-checked="isActive" @update:check="check" />
+      <tooltip
+        v-if="props.showTooltip && props.isActive"
+        text="At least one network must be selected"
+        is-top-right
+      >
+        <Switch :is-checked="isActive" @update:check="check" />
+      </tooltip>
+      <Switch v-else :is-checked="isActive" @update:check="check" />
     </div>
   </div>
 </template>
@@ -30,6 +37,7 @@ import CloseIcon from "@action/icons/common/close-icon.vue";
 import { NodeType } from "@/types/provider";
 import { CustomEvmNetwork } from "@/providers/ethereum/types/custom-evm-network";
 import TestNetworkIcon from "@action/icons/common/test-network-icon.vue";
+import Tooltip from "@/ui/action/components/tooltip/index.vue";
 
 const emit = defineEmits<{
   (e: "networkToggled", name: string, isActive: boolean): void;
@@ -45,6 +53,9 @@ const props = defineProps({
   },
   isActive: Boolean,
   isCustomNetwork: Boolean,
+  showTooltip: {
+    type: Boolean,
+  },
 });
 
 const check = async (isChecked: boolean) => {

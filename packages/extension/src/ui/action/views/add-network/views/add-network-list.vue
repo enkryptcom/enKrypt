@@ -31,6 +31,7 @@
           :key="index"
           :network="item"
           :is-active="item.isActive"
+          :show-tooltip="!hasMoreThanOneActiveNetwork"
           @network-toggled="onToggle"
         />
       </div>
@@ -41,6 +42,7 @@
         :network="item"
         :is-active="item.isActive"
         :is-custom-network="(item as unknown as CustomEvmNetwork).isCustomNetwork"
+        :show-tooltip="!hasMoreThanOneActiveNetwork"
         @network-toggled="onToggle"
         @network-deleted="onNetworkDeleted"
       />
@@ -76,6 +78,7 @@ const popular = ref<Array<NodeTypesWithActive>>([]);
 const scrollProgress = ref(0);
 const manageNetworkScrollRef = ref<ComponentPublicInstance<HTMLElement>>();
 const showTestNets = ref(false);
+const hasMoreThanOneActiveNetwork = ref(false);
 
 defineExpose({ manageNetworkScrollRef });
 
@@ -119,6 +122,8 @@ const setNetworkLists = async (isTestActive: boolean) => {
     .sort((a, b) => a.name_long.localeCompare(b.name_long));
 
   all.value = allNetworksNotTestNets;
+  hasMoreThanOneActiveNetwork.value =
+    all.value.filter((net) => net.isActive).length > 1;
   popular.value = popularNetworks;
 };
 
@@ -133,16 +138,21 @@ const onTestNetCheck = async () => {
 
 const onToggle = async (networkName: string, isActive: boolean) => {
   try {
-    await networksState.setNetworkStatus(networkName, isActive);
+    let _isActive = isActive;
+    if (!hasMoreThanOneActiveNetwork.value && !isActive) {
+      _isActive = true;
+    }
+    await networksState.setNetworkStatus(networkName, _isActive);
     emit("update:activeNetworks");
     all.value = all.value.map((network) => {
       if (network.name === networkName) {
-        network.isActive = isActive;
+        network.isActive = _isActive;
       }
 
       return network;
     });
-
+    hasMoreThanOneActiveNetwork.value =
+      all.value.filter((net) => net.isActive).length > 1;
     popular.value = all.value.filter(({ name }) =>
       POPULAR_NAMES.includes(name)
     );
@@ -156,6 +166,8 @@ const onNetworkDeleted = async (chainId: string) => {
   await customNetworksState.deleteEVMNetwork(chainId);
 
   all.value = await getAllNetworksAndStatus();
+  hasMoreThanOneActiveNetwork.value =
+    all.value.filter((net) => net.isActive).length > 1;
   emit("update:activeNetworks");
 };
 
