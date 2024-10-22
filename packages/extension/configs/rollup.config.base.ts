@@ -24,7 +24,7 @@ const base: RollupOptions = {
     replace({
       preventAssignment: true,
       __VERSION__: JSON.stringify(packageJson.version),
-      __IS_OPERA__: process.env.BROWSER === 'opera-edge',
+      __IS_OPERA__: process.env.BROWSER === 'opera',
     }),
     typescript({
       exclude: [/node_modules/],

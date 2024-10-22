@@ -18,7 +18,7 @@ function transFormManifest(): CrxPlugin {
           run_at: 'document_start',
         },
       ] as any
-      if (process.env.BROWSER === 'opera') {
+      if (process.env.BROWSER !== 'opera') {
         manifest.content_scripts?.push({
           matches: ['file://*/*', 'http://*/*', 'https://*/*'],
           js: ['scripts/inject.js'],
