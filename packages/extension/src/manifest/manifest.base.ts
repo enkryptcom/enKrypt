@@ -7,7 +7,7 @@ export default {
   version,
   name: 'Enkrypt: ETH, BTC and Solana Wallet',
   short_name: 'Enkrypt',
-  description: 'Everything in the blockchain made easy',
+  description: 'The best multichain crypto wallet',
   permissions: [
     'storage',
     'unlimitedStorage',

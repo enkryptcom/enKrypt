@@ -118,8 +118,7 @@ class Swap extends EventEmitter {
           new Jupiter(this.api as Web3Solana, this.network),
           // TODO: re-enable Rango on Solana when issues with it are fixed
           // new Rango(this.api as Web3Solana, this.network),
-          // TODO: re-enable Changelly on Solana when issues with it are fixed
-          // new Changelly(this.api, this.network),
+          new Changelly(this.api, this.network),
         ];
         break;
       default:
