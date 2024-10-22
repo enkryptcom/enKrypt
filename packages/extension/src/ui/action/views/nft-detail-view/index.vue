@@ -24,7 +24,7 @@
       />
 
       <h3>
-        {{ item.name && item.name.length > 0 ? item.name : "NFT #" + item.id }}
+        {{ nftTitle }}
       </h3>
 
       <img :src="item.image" alt="" @error="imageLoadError" />
@@ -37,7 +37,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, PropType, ref } from "vue";
+import { onMounted, PropType, ref, computed } from "vue";
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import ActionMenu from "@action/components/action-menu/index.vue";
 import NftMoreAddToFavorite from "@action/icons/nft/nft-more-add-to-favorite.vue";
@@ -76,6 +76,19 @@ const close = () => {
     emit("update:favClicked", localIsFavorite.value, props.item);
   emit("close:popup");
 };
+
+/**
+ * @description Truncate NFT title if it's too long. Since the title will prolong popup and it wont fit into the extension screen
+ */
+const nftTitle = computed(() => {
+  if (props.item.name && props.item.name.length > 0) {
+    return props.item.name.length > 118
+      ? props.item.name.slice(0, 118) + "..."
+      : props.item.name;
+  } else {
+    return "NFT #" + props.item.id;
+  }
+});
 const favClicked = (isFav: boolean) => {
   localIsFavorite.value = isFav;
   setTimeout(() => {
@@ -117,11 +130,13 @@ const toggleNotification = () => {
       letter-spacing: 0.15px;
       color: @primaryLabel;
       margin: 0 0 16px 0;
+      max-width: 236px;
+      overflow-wrap: break-word;
     }
 
     img {
       width: 100%;
-      max-height: 355px;
+      max-height: 296px;
       margin: 0 0 16px 0;
       box-shadow: 0px 0.25px 1px rgba(0, 0, 0, 0.039),
         0px 0.85px 3px rgba(0, 0, 0, 0.19);
