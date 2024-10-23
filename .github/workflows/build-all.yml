@@ -55,7 +55,8 @@ jobs:
           message: |
             Virus total analysis
             chrome: 
-            $VIRUS_TOTAL_URL_CHROME
+            ${VIRUS_TOTAL_URL_CHROME}
             firefox:
-            $VIRUS_TOTAL_URL_FIREFOX
-          comment_tag: pr_build_message
+            ${VIRUS_TOTAL_URL_FIREFOX}
+          comment-tag: pr_build_message
+          mode: recreate
