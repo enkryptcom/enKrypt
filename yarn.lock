@@ -1379,7 +1379,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@crxjs/vite-plugin@npm:^2.0.0-beta.25":
+"@crxjs/vite-plugin@npm:^2.0.0-beta.26":
   version: 2.0.0-beta.26
   resolution: "@crxjs/vite-plugin@npm:2.0.0-beta.26"
   dependencies:
@@ -1578,7 +1578,7 @@ __metadata:
   resolution: "@enkryptcom/extension@workspace:packages/extension"
   dependencies:
     "@amplitude/analytics-browser": ^2.11.8
-    "@crxjs/vite-plugin": ^2.0.0-beta.25
+    "@crxjs/vite-plugin": ^2.0.0-beta.26
     "@enkryptcom/extension-bridge": "workspace:^"
     "@enkryptcom/hw-wallets": "workspace:^"
     "@enkryptcom/keyring": "workspace:^"

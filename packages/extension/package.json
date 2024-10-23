@@ -89,7 +89,7 @@
     "zxcvbn": "^4.4.2"
   },
   "devDependencies": {
-    "@crxjs/vite-plugin": "^2.0.0-beta.25",
+    "@crxjs/vite-plugin": "^2.0.0-beta.26",
     "@rollup/plugin-commonjs": "^28.0.1",
     "@rollup/plugin-inject": "^5.0.5",
     "@rollup/plugin-json": "^6.1.0",
