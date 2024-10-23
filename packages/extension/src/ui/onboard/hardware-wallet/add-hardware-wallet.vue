@@ -67,7 +67,8 @@ hwWallet
     networkName: route.query.network as NetworkNames,
   })
   .then((paths) => {
-    if (paths) isTrezorSupported.value = !(
+    if (paths)
+      isTrezorSupported.value = !(
         process.env.IS_FIREFOX || process.env.IS_SAFARI
       );
   })
