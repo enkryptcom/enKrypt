@@ -158,12 +158,16 @@ const sendAction = async () => {
     transactiontemp.instructions,
     transactiontemp.feePayer!,
     []
-  );
+  ).catch((e) => {
+    console.error("ERROR", e);
+    return 0;
+  });
   if (computeUnits) {
     transactiontemp.instructions.unshift(
       ComputeBudgetProgram.setComputeUnitLimit({ units: computeUnits + 5000 }) // adding few extra CUs as a buffer
     );
   }
+
   const latestBlock = await solAPI.web3.getLatestBlockhash();
   transactiontemp.recentBlockhash = latestBlock.blockhash;
   const transaction = new VersionedTransaction(
