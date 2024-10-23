@@ -1830,7 +1830,6 @@ __metadata:
     isomorphic-ws: ^5.0.0
     json-rpc-2.0: ^1.7.0
     mocha: ^10.7.3
-    node-fetch: ^2.7.0
     prettier: ^2.8.8
     reconnecting-websocket: ^4.4.0
     ts-mocha: ^10.0.0
@@ -2037,7 +2036,6 @@ __metadata:
     json-rpc-2.0: ^1.7.0
     lodash: ^4.17.21
     mocha: ^10.7.3
-    node-fetch: ^2.7.0
     prettier: ^2.8.8
     rango-sdk-basic: ^0.1.57
     reconnecting-websocket: ^4.4.0

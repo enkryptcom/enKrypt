@@ -1,6 +1,5 @@
 import type Web3Eth from "web3-eth";
 import { v4 as uuidv4 } from "uuid";
-import fetch from "node-fetch";
 import { fromBase, toBase } from "@enkryptcom/utils";
 import { numberToHex, toBN } from "web3-utils";
 import {

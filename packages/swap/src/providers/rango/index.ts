@@ -30,7 +30,6 @@ import {
   TransactionError,
   AccountMeta,
 } from "@solana/web3.js";
-import fetch from "node-fetch";
 import { extractComputeBudget, isValidSolanaAddress } from "../../utils/solana";
 import {
   EVMTransaction,

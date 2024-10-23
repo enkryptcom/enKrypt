@@ -21,7 +21,6 @@
     "eventemitter3": "^5.0.1",
     "isomorphic-ws": "^5.0.0",
     "json-rpc-2.0": "^1.7.0",
-    "node-fetch": "^2.7.0",
     "reconnecting-websocket": "^4.4.0",
     "uuid": "^10.0.0",
     "ws": "^8.18.0"
