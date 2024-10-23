@@ -52,7 +52,7 @@ export interface Message extends SendMessage {
 }
 
 export type onMessageType = (
-  message: Message
+  message: Message,
 ) => Promise<OnMessageResponse | void>;
 
 export interface InternalOnMessageResponse {
@@ -60,5 +60,5 @@ export interface InternalOnMessageResponse {
   error?: ProviderError;
 }
 export type InternalMessageType = (
-  message: Message
+  message: Message,
 ) => Promise<InternalOnMessageResponse>;

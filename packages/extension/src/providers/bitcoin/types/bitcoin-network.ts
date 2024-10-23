@@ -46,11 +46,11 @@ export interface BitcoinNetworkOptions {
   feeHandler: () => Promise<Record<GasPriceTypes, number>>;
   NFTHandler?: (
     network: BaseNetwork,
-    address: string
+    address: string,
   ) => Promise<NFTCollection[]>;
   activityHandler: (
     network: BaseNetwork,
-    address: string
+    address: string,
   ) => Promise<Activity[]>;
   apiType: typeof HaskoinAPI | typeof SSAPI;
 }
@@ -69,12 +69,12 @@ export class BitcoinNetwork extends BaseNetwork {
   public dust: number;
   private activityHandler: (
     network: BaseNetwork,
-    address: string
+    address: string,
   ) => Promise<Activity[]>;
   feeHandler: () => Promise<Record<GasPriceTypes, number>>;
   NFTHandler?: (
     network: BaseNetwork,
-    address: string
+    address: string,
   ) => Promise<NFTCollection[]>;
   constructor(options: BitcoinNetworkOptions) {
     const api = async () => {
@@ -102,7 +102,7 @@ export class BitcoinNetwork extends BaseNetwork {
 
   public async getAllTokens(pubkey: string): Promise<BaseToken[]> {
     const assets = await this.getAllTokenInfo(pubkey);
-    return assets.map((token) => {
+    return assets.map(token => {
       const bTokenOptions: BaseTokenOptions = {
         decimals: token.decimals,
         icon: token.icon,
@@ -125,7 +125,7 @@ export class BitcoinNetwork extends BaseNetwork {
     }
     const userBalance = fromBase(balance, this.decimals);
     const usdBalance = new BigNumber(userBalance).times(
-      marketData[0]?.current_price ?? 0
+      marketData[0]?.current_price ?? 0,
     );
     const nativeAsset: AssetsType = {
       balance: balance,

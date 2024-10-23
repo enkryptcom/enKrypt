@@ -5,7 +5,7 @@ import { EnkryptAccount, RPCRequestType } from "@enkryptcom/types";
 
 const ethereumDecrypt = (
   keyring: KeyRingBase,
-  message: RPCRequestType
+  message: RPCRequestType,
 ): Promise<InternalOnMessageResponse> => {
   if (!message.params || message.params.length < 2)
     return Promise.resolve({
@@ -15,12 +15,12 @@ const ethereumDecrypt = (
   const account = message.params[1] as EnkryptAccount;
   return keyring
     .ethereumDecrypt(encryptedMessage, account)
-    .then((msg) => {
+    .then(msg => {
       return {
         result: JSON.stringify(msg),
       };
     })
-    .catch((e) => {
+    .catch(e => {
       return {
         error: getCustomError(e.message),
       };

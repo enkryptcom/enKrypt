@@ -62,15 +62,15 @@ class DomainState {
   async getCurrentTabId(): Promise<number> {
     return Browser.tabs
       .query({ active: true, currentWindow: true })
-      .then((tabs) => tabs[0].id as number);
+      .then(tabs => tabs[0].id as number);
   }
   async getCurrentTabInfo(): Promise<ProviderRequestOptions> {
     return Browser.tabs
       .query({ active: true, currentWindow: true })
-      .then((tabs) => tabInfo(tabs[0]));
+      .then(tabs => tabInfo(tabs[0]));
   }
   async getCurrentDomain(): Promise<string> {
-    return this.getCurrentTabInfo().then((info) => info.domain);
+    return this.getCurrentTabInfo().then(info => info.domain);
   }
   async setState(state: IState): Promise<void> {
     const domain = await this.getCurrentDomain();
@@ -91,7 +91,7 @@ class DomainState {
   }
   async getAllStates(): Promise<Record<string, IState>> {
     const allStates: Record<string, IState> = await this.#storage.get(
-      StorageKeys.providerInfo
+      StorageKeys.providerInfo,
     );
     if (!allStates) return {};
     return allStates;

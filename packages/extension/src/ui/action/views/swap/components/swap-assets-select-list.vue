@@ -37,7 +37,7 @@ const TokenTypeMap: Record<
 const BaseTokenAssets = computed(() => {
   const basetokens: BaseToken[] = [];
   const assets = [...props.assets].sort(sortByRank);
-  assets.forEach((asset) => {
+  assets.forEach(asset => {
     TokenTypeMap[asset.address || NATIVE_TOKEN_ADDRESS] = {
       baseToken: new Erc20Token({
         decimals: asset.decimals,
@@ -51,7 +51,7 @@ const BaseTokenAssets = computed(() => {
       TokenType: asset,
     };
     basetokens.push(
-      TokenTypeMap[asset.address || NATIVE_TOKEN_ADDRESS].baseToken
+      TokenTypeMap[asset.address || NATIVE_TOKEN_ADDRESS].baseToken,
     );
   });
   return basetokens;
@@ -59,7 +59,7 @@ const BaseTokenAssets = computed(() => {
 const selectToken = (token: BaseToken) => {
   emit(
     "update:selectAsset",
-    TokenTypeMap[(token as Erc20Token).contract].TokenType
+    TokenTypeMap[(token as Erc20Token).contract].TokenType,
   );
 };
 </script>

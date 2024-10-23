@@ -63,19 +63,19 @@ export default class PostMessageProvider implements InjectedProvider {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _?: boolean,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    subscription?: SubscriptionHandler
+    subscription?: SubscriptionHandler,
   ): Promise<any> {
     console.error(
       method,
       params,
-      "PostMessageProvider.send() is not implemented."
+      "PostMessageProvider.send() is not implemented.",
     );
   }
 
   public async startProvider(key: string): Promise<ProviderMeta> {
     console.error(
       key,
-      "PostMessageProvider.startprovider() is not implemented."
+      "PostMessageProvider.startprovider() is not implemented.",
     );
     return { network: "", node: "full", source: "", transport: "" };
   }
@@ -91,13 +91,13 @@ export default class PostMessageProvider implements InjectedProvider {
     type: string,
     method: string,
     params: unknown[],
-    callback: AnyFunction
+    callback: AnyFunction,
   ): Promise<number> {
     console.error(
       type,
       method,
       params,
-      "PostMessageProvider.subscribe() is not implemented."
+      "PostMessageProvider.subscribe() is not implemented.",
     );
     return this.send(method, params, false, {
       callback,
@@ -111,7 +111,7 @@ export default class PostMessageProvider implements InjectedProvider {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     method: string,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    id: number
+    id: number,
   ): Promise<boolean> {
     console.error("PostMessageProvider.unsubscribe() is not implemented.");
     return true;

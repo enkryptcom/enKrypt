@@ -9,7 +9,7 @@ const method: MiddlewareFunction = function (
   this: SolanaProvider,
   payload,
   res,
-  next
+  next,
 ): void {
   if (
     payload.method !== "sol_signTransaction" &&
@@ -19,14 +19,16 @@ const method: MiddlewareFunction = function (
   else {
     if (!payload.params || payload.params.length < 1) {
       return res(
-        getCustomError("eth_sendTransaction: invalid request not enough params")
+        getCustomError(
+          "eth_sendTransaction: invalid request not enough params",
+        ),
       );
     }
     const txMessage = JSON.parse(
-      payload.params[0]
+      payload.params[0],
     ) as SolSignTransactionRequest;
     this.KeyRing.getAccount(bufferToHex(bs58.decode(txMessage.address))).then(
-      (account) => {
+      account => {
         const windowPromise = new WindowPromise();
         windowPromise
           .getResponse(
@@ -41,13 +43,13 @@ const method: MiddlewareFunction = function (
                 this.network.name,
               ],
             }),
-            true
+            true,
           )
           .then(({ error, result }) => {
             if (error) return res(error);
             res(null, JSON.parse(result as string));
           });
-      }
+      },
     );
   }
 };

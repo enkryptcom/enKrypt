@@ -42,7 +42,7 @@ type AssetKey = Record<
 export default async (
   network: SubstrateNetwork,
   address: string | null,
-  knownTokens?: KnownTokenDisplay[]
+  knownTokens?: KnownTokenDisplay[],
 ) => {
   const api = (await network.api()) as API;
 
@@ -69,7 +69,7 @@ export default async (
         assetLookupValue = assetKey[AssetIds.FOREIGN_ASSET] as string;
       } else if (assetKey[AssetIds.NATIVE_ASSET]) {
         assetLookupId = Object.keys(
-          assetKey[AssetIds.NATIVE_ASSET]
+          assetKey[AssetIds.NATIVE_ASSET],
         )[0] as "token";
 
         assetLookupValue = (assetKey[AssetIds.NATIVE_ASSET] as NativeAsset)[
@@ -98,10 +98,10 @@ export default async (
         return null;
       }
     })
-    .filter((asset) => asset !== null);
+    .filter(asset => asset !== null);
 
   const tokenOptions: BifrostOrmlAssetOptions[] = assets
-    .map((asset) => {
+    .map(asset => {
       const ormlOptions: BifrostOrmlAssetOptions = {
         name: hexToString(asset!.name),
         symbol: hexToString(asset!.symbol),
@@ -114,12 +114,12 @@ export default async (
 
       return ormlOptions;
     })
-    .map((tokenOptions) => {
+    .map(tokenOptions => {
       if (knownTokens) {
         const knownToken = knownTokens.find(
-          (knownToken) =>
+          knownToken =>
             knownToken.name === tokenOptions.name &&
-            knownToken.symbol === tokenOptions.symbol
+            knownToken.symbol === tokenOptions.symbol,
         );
 
         if (knownToken) {
@@ -141,7 +141,7 @@ export default async (
 
   if (address) {
     await nativeAsset.getLatestUserBalance(apiPromise, address);
-    const queries = tokenOptions.map((asset) => {
+    const queries = tokenOptions.map(asset => {
       const token = { [asset.assetType]: asset.lookupValue };
       const query = [address, token];
 
@@ -157,5 +157,5 @@ export default async (
     });
   }
 
-  return [nativeAsset, ...tokenOptions.map((o) => new BifrostOrmlAsset(o))];
+  return [nativeAsset, ...tokenOptions.map(o => new BifrostOrmlAsset(o))];
 };

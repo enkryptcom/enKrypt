@@ -47,40 +47,40 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, PropType, ref, watch } from 'vue'
-import BaseButton from '@action/components/base-button/index.vue'
-import { NodeType } from '@/types/provider'
-import { sendToBackgroundFromAction } from '@/libs/messenger/extension'
-import { InternalMethods } from '@/types/messenger'
-import { EnkryptAccount, KeyRecordAdd, WalletType } from '@enkryptcom/types'
-import Keyring from '@/libs/keyring/public-keyring'
+import { onMounted, PropType, ref, watch } from "vue";
+import BaseButton from "@action/components/base-button/index.vue";
+import { NodeType } from "@/types/provider";
+import { sendToBackgroundFromAction } from "@/libs/messenger/extension";
+import { InternalMethods } from "@/types/messenger";
+import { EnkryptAccount, KeyRecordAdd, WalletType } from "@enkryptcom/types";
+import Keyring from "@/libs/keyring/public-keyring";
 
-const isFocus = ref(false)
-const accountName = ref('')
-const newAccount = ref<EnkryptAccount | null>(null)
-const isDisabled = ref(true)
-const addAccountInput = ref(null)
+const isFocus = ref(false);
+const accountName = ref("");
+const newAccount = ref<EnkryptAccount | null>(null);
+const isDisabled = ref(true);
+const addAccountInput = ref(null);
 
-defineExpose({ addAccountInput })
+defineExpose({ addAccountInput });
 const emit = defineEmits<{
-  (e: 'window:close'): void
-  (e: 'update:init'): void
-}>()
+  (e: "window:close"): void;
+  (e: "update:init"): void;
+}>();
 
 const props = defineProps({
   network: {
     type: Object as PropType<NodeType>,
     default: () => ({}),
   },
-})
-const kr = new Keyring()
+});
+const kr = new Keyring();
 const setNewAccountInfo = async () => {
   const keyReq: KeyRecordAdd = {
-    name: '',
+    name: "",
     basePath: props.network.basePath,
     signerType: props.network.signer[0],
     walletType: WalletType.mnemonic,
-  }
+  };
   await sendToBackgroundFromAction({
     message: JSON.stringify({
       method: InternalMethods.getNewAccount,
@@ -88,46 +88,46 @@ const setNewAccountInfo = async () => {
     }),
   }).then(res => {
     if (res.result) {
-      newAccount.value = JSON.parse(res.result) as EnkryptAccount
+      newAccount.value = JSON.parse(res.result) as EnkryptAccount;
     }
-  })
-}
+  });
+};
 onMounted(() => {
-  setNewAccountInfo()
+  setNewAccountInfo();
   if (addAccountInput.value) {
-    ;(addAccountInput.value as HTMLInputElement).focus()
+    (addAccountInput.value as HTMLInputElement).focus();
   }
-})
+});
 watch(accountName, async () => {
-  isDisabled.value = false
-  if (accountName.value.length < 3) return (isDisabled.value = true)
-  const allNames = await kr.getAccounts().then(all => all.map(a => a.name))
-  if (allNames.includes(accountName.value.trim())) isDisabled.value = true
-})
+  isDisabled.value = false;
+  if (accountName.value.length < 3) return (isDisabled.value = true);
+  const allNames = await kr.getAccounts().then(all => all.map(a => a.name));
+  if (allNames.includes(accountName.value.trim())) isDisabled.value = true;
+});
 const changeFocus = () => {
-  isFocus.value = !isFocus.value
-}
+  isFocus.value = !isFocus.value;
+};
 const addAccount = async () => {
   const keyReq: KeyRecordAdd = {
     name: accountName.value.trim(),
     basePath: props.network.basePath,
     signerType: props.network.signer[0],
     walletType: WalletType.mnemonic,
-  }
+  };
   await sendToBackgroundFromAction({
     message: JSON.stringify({
       method: InternalMethods.saveNewAccount,
       params: [keyReq],
     }),
   }).then(() => {
-    emit('update:init')
-    emit('window:close')
-  })
-}
+    emit("update:init");
+    emit("window:close");
+  });
+};
 </script>
 
 <style lang="less" scoped>
-@import '@action/styles/theme.less';
+@import "@action/styles/theme.less";
 .add-account-form {
   background: @white;
   box-shadow:

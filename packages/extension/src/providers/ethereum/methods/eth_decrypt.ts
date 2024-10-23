@@ -6,7 +6,7 @@ const method: MiddlewareFunction = function (
   this: EthereumProvider,
   payload,
   res,
-  next
+  next,
 ): void {
   if (payload.method !== "eth_decrypt") return next();
   else {
@@ -14,7 +14,7 @@ const method: MiddlewareFunction = function (
       return res(getCustomError("eth_decrypt: invalid params"));
     }
     const message = payload.params[0];
-    this.KeyRing.getAccount(payload.params[1].toLowerCase()).then((account) => {
+    this.KeyRing.getAccount(payload.params[1].toLowerCase()).then(account => {
       const windowPromise = new WindowPromise();
       windowPromise
         .getResponse(
@@ -23,7 +23,7 @@ const method: MiddlewareFunction = function (
             ...payload,
             params: [message, account, this.network.name],
           }),
-          true
+          true,
         )
         .then(({ error, result }) => {
           if (error) return res(error);

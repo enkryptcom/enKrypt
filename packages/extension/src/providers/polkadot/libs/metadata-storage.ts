@@ -25,7 +25,7 @@ class MetadataStorage {
       : null;
     if (!meta) {
       const targetNetwork = (await getAllNetworks()).find(
-        (network) => (network as SubstrateNetwork).genesisHash === genesisHash
+        network => (network as SubstrateNetwork).genesisHash === genesisHash,
       );
       if (targetNetwork) {
         const api = (await targetNetwork.api()).api as ApiPromise;
@@ -45,7 +45,7 @@ class MetadataStorage {
             api.registry,
             targetNetwork.name_long,
             api.runtimeVersion.specName,
-            api.runtimeVersion.specVersion
+            api.runtimeVersion.specVersion,
           ) as unknown as Record<string, string>,
         };
         await this.addMetadata(genesisHash, JSON.stringify(metadata));

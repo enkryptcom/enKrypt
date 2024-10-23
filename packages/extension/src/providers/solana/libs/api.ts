@@ -22,7 +22,7 @@ class API implements ProviderAPIInterface {
   private getAddress(pubkey: string) {
     return getSolAddress(pubkey);
   }
-   
+
   async init(): Promise<void> {}
   async getTransactionStatus(hash: string): Promise<SOLRawInfo | null> {
     return this.web3
@@ -30,7 +30,7 @@ class API implements ProviderAPIInterface {
         maxSupportedTransactionVersion: 0,
         commitment: "confirmed",
       })
-      .then((tx) => {
+      .then(tx => {
         if (!tx) return null;
         const retVal: SOLRawInfo = {
           blockNumber: tx.slot,
@@ -43,7 +43,7 @@ class API implements ProviderAPIInterface {
   }
   async getBalance(pubkey: string): Promise<string> {
     const balance = await this.web3.getBalance(
-      new PublicKey(this.getAddress(pubkey))
+      new PublicKey(this.getAddress(pubkey)),
     );
     return numberToHex(balance);
   }
@@ -68,13 +68,13 @@ class API implements ProviderAPIInterface {
         postProcess: (data: any) => {
           const allTokens = data.tokens as TokenDetails[];
           const tObj: Record<string, TokenDetails> = {};
-          allTokens.forEach((t) => {
+          allTokens.forEach(t => {
             tObj[t.address] = t;
           });
           return tObj;
         },
       },
-      60 * 60 * 1000
+      60 * 60 * 1000,
     );
     const allTokens = allTokensResponse as Record<string, TokenDetails>;
     let decimals = 9;
@@ -91,7 +91,7 @@ class API implements ProviderAPIInterface {
     } else {
       await this.web3
         .getParsedAccountInfo(new PublicKey(contractAddress))
-        .then((info) => {
+        .then(info => {
           decimals = (info.value?.data as any).parsed.info.decimals;
         })
         .catch(() => {

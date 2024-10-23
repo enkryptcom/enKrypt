@@ -7,7 +7,7 @@ export const getSubstrateGasVals = async (
   txs: any[],
   fromAddress: string,
   network: BaseNetwork,
-  price: number
+  price: number,
 ) => {
   const tx = txs[0];
   const gas = (await tx.paymentInfo(fromAddress)).partialFee.toHex();

@@ -9,7 +9,6 @@ import {
   TransactionMessage,
   Connection,
   TransactionInstruction,
-  ComputeBudgetInstruction,
   ComputeBudgetProgram,
 } from "@solana/web3.js";
 import {

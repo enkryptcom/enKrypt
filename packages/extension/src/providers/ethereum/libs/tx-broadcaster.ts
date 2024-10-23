@@ -16,8 +16,8 @@ const broadcastTx = (hexTx: string, network: NetworkNames): Promise<string> => {
         id: v4(),
       }),
     })
-      .then((response) => response.json())
-      .then((jRes) => {
+      .then(response => response.json())
+      .then(jRes => {
         if (jRes.error) return Promise.reject(jRes.error);
         else return jRes.result as string;
       });

@@ -3,7 +3,7 @@ import { isHex } from "web3-utils";
 
 export const getNetworkInfo = (networkName: string) => {
   const networkObject = Object.values(KDANetworks).find(
-    (n) => n.name === networkName
+    n => n.name === networkName,
   );
 
   return {

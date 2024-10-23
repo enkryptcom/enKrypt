@@ -14,7 +14,7 @@ export class SubstrateNativeToken extends SubstrateToken {
 
   public async getLatestUserBalance(
     api: ApiPromise,
-    address: any
+    address: any,
   ): Promise<string> {
     return api.query.system
       .account<AccountInfoWithRefCount>(address)
@@ -28,7 +28,7 @@ export class SubstrateNativeToken extends SubstrateToken {
     api: any,
     to: string,
     amount: string,
-    options: SendOptions
+    options: SendOptions,
   ): Promise<any> {
     const transferType: TransferType = options ? options.type : "keepAlive";
 

@@ -34,7 +34,7 @@ export const magicHash = (messageBuffer: Buffer) => {
 export const toCompact = (
   i: number,
   signature: Uint8Array,
-  compressed: boolean
+  compressed: boolean,
 ) => {
   if (!(i === 0 || i === 1 || i === 2 || i === 3)) {
     throw new Error("i must be equal to 0, 1, 2, or 3");

@@ -94,12 +94,12 @@ function getKey(itemDate: ItemData): string {
 
 function getValueColor(value: ValueTypes): string {
   return when(typeof value)
-    .is((v) => v === "string", then("var(--jtv-string-color)"))
-    .is((v) => v === "number", then("var(--jtv-number-color)"))
-    .is((v) => v === "bigint", then("var(--jtv-number-color)"))
-    .is((v) => v === "boolean", then("var(--jtv-boolean-color)"))
-    .is((v) => v === "object", then("var(--jtv-null-color)"))
-    .is((v) => v === "undefined", then("var(--jtv-null-color)"))
+    .is(v => v === "string", then("var(--jtv-string-color)"))
+    .is(v => v === "number", then("var(--jtv-number-color)"))
+    .is(v => v === "bigint", then("var(--jtv-number-color)"))
+    .is(v => v === "boolean", then("var(--jtv-boolean-color)"))
+    .is(v => v === "object", then("var(--jtv-null-color)"))
+    .is(v => v === "undefined", then("var(--jtv-null-color)"))
     .default(then("var(--jtv-valueKey-color)"));
 }
 
@@ -125,7 +125,7 @@ const lengthString = computed((): string => {
 const dataValue = computed((): string =>
   props.data.value === undefined
     ? "undefined"
-    : JSON.stringify(props.data.value)
+    : JSON.stringify(props.data.value),
 );
 </script>
 

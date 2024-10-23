@@ -17,9 +17,9 @@ export class AssetToken extends SubstrateToken {
 
   public async getLatestUserBalance(
     api: ApiPromise,
-    address: string
+    address: string,
   ): Promise<string> {
-    return api.query.assets.account(this.id, address).then((res) => {
+    return api.query.assets.account(this.id, address).then(res => {
       if (res) {
         const data = res.toJSON();
         const balance = data ? (data as any).balance.toString() : "0";
@@ -34,7 +34,7 @@ export class AssetToken extends SubstrateToken {
     api: ApiPromise,
     to: string,
     amount: string,
-    options?: SendOptions | undefined
+    options?: SendOptions | undefined,
   ): Promise<SubmittableExtrinsic<"promise", ISubmittableResult>> {
     if (options && options.type === "all")
       return api.tx.assets.transfer(this.id, { id: to }, amount);

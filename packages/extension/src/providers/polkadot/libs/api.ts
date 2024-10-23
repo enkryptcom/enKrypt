@@ -18,18 +18,18 @@ class API implements ProviderAPIInterface {
   }
   init(): Promise<void> {
     const provider = new WsProvider(this.node);
-    return ApiPromise.create({ provider }).then((api) => {
+    return ApiPromise.create({ provider }).then(api => {
       this.api = api;
     });
   }
   async getTransactionStatus(
-    hash: string
+    hash: string,
   ): Promise<SubscanExtrinsicInfo | null> {
     const endpoint =
       NetworkEndpoints[this.name as keyof typeof NetworkEndpoints];
     if (!endpoint)
       throw new Error(
-        "substrate-api: no handlers found to get transaction status"
+        "substrate-api: no handlers found to get transaction status",
       );
 
     const status: { code: number; message: string; data: any } = await fetch(
@@ -43,9 +43,9 @@ class API implements ProviderAPIInterface {
           hash,
           events_limit: 1,
         }),
-      }
+      },
     )
-      .then((res) => res.json())
+      .then(res => res.json())
       .catch(() => null);
     if (!status.data || status.message !== "Success") return null;
     return status.data as SubscanExtrinsicInfo;

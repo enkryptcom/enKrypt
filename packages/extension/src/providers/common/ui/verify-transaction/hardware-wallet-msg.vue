@@ -26,20 +26,20 @@
 </template>
 
 <script setup lang="ts">
-import TrezorIcon from '@action/icons/hardware/trezor-icon.vue'
-import LedgerIcon from '@/ui/action/icons/hardware/ledger-icon.vue'
-import type { PropType } from 'vue'
-import { WalletType } from '@enkryptcom/types'
+import TrezorIcon from "@action/icons/hardware/trezor-icon.vue";
+import LedgerIcon from "@/ui/action/icons/hardware/ledger-icon.vue";
+import type { PropType } from "vue";
+import { WalletType } from "@enkryptcom/types";
 defineProps({
   walletType: {
     type: String as PropType<WalletType>,
-    default: '',
+    default: "",
   },
-})
+});
 </script>
 
 <style lang="less">
-@import '@action/styles/theme.less';
-@import '@/providers/ethereum/ui/styles/common-popup.less';
-@import '../styles/verify-transaction.less';
+@import "@action/styles/theme.less";
+@import "@/providers/ethereum/ui/styles/common-popup.less";
+@import "../styles/verify-transaction.less";
 </style>

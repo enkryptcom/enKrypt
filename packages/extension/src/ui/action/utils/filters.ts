@@ -6,7 +6,7 @@ import {
 export const replaceWithEllipsis = (
   value: string,
   keepLeft: number,
-  keepRight: number
+  keepRight: number,
 ): string => {
   if (!value) return "";
   value = value.toString();
@@ -18,7 +18,7 @@ export const replaceWithEllipsis = (
 };
 export const formatDuration = (
   duration: moment.Duration,
-  date: number
+  date: number,
 ): string => {
   if (duration.days() < 0) return moment(date).fromNow();
 

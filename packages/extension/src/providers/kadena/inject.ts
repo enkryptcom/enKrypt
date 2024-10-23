@@ -32,7 +32,7 @@ export class Provider extends EventEmitter implements ProviderInterface {
   async request(request: EthereumRequest): Promise<EthereumResponse> {
     const res = (await this.sendMessageHandler(
       this.name,
-      JSON.stringify(request)
+      JSON.stringify(request),
     )) as EthereumResponse;
     return res;
   }
@@ -48,7 +48,7 @@ export class Provider extends EventEmitter implements ProviderInterface {
 
 const injectDocument = (
   document: EnkryptWindow | Window,
-  options: ProviderOptions
+  options: ProviderOptions,
 ): void => {
   const provider = new Provider(options);
   document["enkrypt"]["providers"][options.name] = provider;

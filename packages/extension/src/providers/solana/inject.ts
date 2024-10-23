@@ -35,7 +35,7 @@ export class Provider
     this.accounts = [];
   }
   connect(
-    options?: { onlyIfTrusted?: boolean | undefined } | undefined
+    options?: { onlyIfTrusted?: boolean | undefined } | undefined,
   ): Promise<EnkryptSolAccount[]> {
     return this.request({
       method: "sol_connect",
@@ -51,7 +51,7 @@ export class Provider
   }
   signAndSendTransaction(
     transaction: SolSignTransactionRequest,
-    options?: SendOptions | undefined
+    options?: SendOptions | undefined,
   ): Promise<string> {
     return this.request({
       method: "sol_signAndSendTransaction",
@@ -63,9 +63,7 @@ export class Provider
       method: "sol_signInMessage",
       params: [JSON.stringify(input)],
     }).then((res: SolSignInResponse) => {
-      const accExists = this.accounts.find(
-        (acc) => acc.address === res.address
-      );
+      const accExists = this.accounts.find(acc => acc.address === res.address);
       if (!accExists) {
         this.accounts.push({ address: res.address, pubkey: res.pubkey });
       }
@@ -90,7 +88,7 @@ export class Provider
   async request(request: EthereumRequest): Promise<any> {
     const res = (await this.sendMessageHandler(
       this.name,
-      JSON.stringify(request)
+      JSON.stringify(request),
     )) as EthereumResponse;
     return res;
   }
@@ -105,7 +103,7 @@ export class Provider
 
 const injectDocument = (
   document: EnkryptWindow | Window,
-  options: ProviderOptions
+  options: ProviderOptions,
 ): void => {
   const provider = new Provider(options);
   initialize(provider);

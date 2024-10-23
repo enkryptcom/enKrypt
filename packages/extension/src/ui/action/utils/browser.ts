@@ -10,7 +10,7 @@ export const BROWSER_NAMES = {
 };
 
 export const detectOS = (): Promise<{ os: string; arch: string }> => {
-  return Browser.runtime.getPlatformInfo().then((info) => {
+  return Browser.runtime.getPlatformInfo().then(info => {
     return {
       os: info.os,
       arch: info.arch,
@@ -49,10 +49,10 @@ export const openLink = (url: string) => {
 
 export const getLatestEnkryptVersion = (): Promise<string> => {
   return fetch(
-    "https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/configs/versions.json"
+    "https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/configs/versions.json",
   )
-    .then((res) => res.json())
-    .then((versions) => {
+    .then(res => res.json())
+    .then(versions => {
       const browser = detectBrowser();
       if (versions[browser] && browser === BROWSER_NAMES.safari)
         return versions[browser];

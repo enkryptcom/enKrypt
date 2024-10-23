@@ -11,7 +11,7 @@ import { TabProviderType } from "../types";
 
 const changeNetwork = async (
   msg: Message,
-  tabProviders: TabProviderType
+  tabProviders: TabProviderType,
 ): Promise<InternalOnMessageResponse> => {
   const message = JSON.parse(msg.message) as RPCRequestType;
   if (!message.params || message.params.length < 1)
@@ -27,7 +27,7 @@ const changeNetwork = async (
     tabProviders[actionMsg.provider][actionMsg.tabId]
   ) {
     tabProviders[actionMsg.provider][actionMsg.tabId].setRequestProvider(
-      network
+      network,
     );
   }
   return Promise.resolve({

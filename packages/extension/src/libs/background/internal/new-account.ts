@@ -5,7 +5,7 @@ import { KeyRecordAdd, RPCRequestType } from "@enkryptcom/types";
 
 const newAccount = (
   keyring: KeyRingBase,
-  message: RPCRequestType
+  message: RPCRequestType,
 ): Promise<InternalOnMessageResponse> => {
   if (!message.params || message.params.length < 1)
     return Promise.resolve({
@@ -17,12 +17,12 @@ const newAccount = (
       : "saveNewAccount";
   const keyrecord = message.params[0] as KeyRecordAdd;
   return keyring[method](keyrecord)
-    .then((res) => {
+    .then(res => {
       return {
         result: JSON.stringify(res),
       };
     })
-    .catch((e) => {
+    .catch(e => {
       return {
         error: getCustomError(e.message),
       };

@@ -67,100 +67,100 @@
         Offer includes
         {{ $filters.formatFloatingPointValue(toReadableAdditionalFees).value }}
         {{ network?.currencyName.toUpperCase() }}
-        {{ 'Additional native fees' }}
+        {{ "Additional native fees" }}
       </p>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import SwitchArrow from '@action/icons/header/switch_arrow.vue'
-import BestOfferList from './components/best-offer-list.vue'
-import BestOfferError from './components/best-offer-error.vue'
-import BigNumber from 'bignumber.js'
-import { SwapBestOfferWarnings } from '@action/views/swap/types'
-import { BaseNetwork } from '@/types/base-network'
-import { fromBase } from '@enkryptcom/utils'
+import { computed, ref } from "vue";
+import SwitchArrow from "@action/icons/header/switch_arrow.vue";
+import BestOfferList from "./components/best-offer-list.vue";
+import BestOfferError from "./components/best-offer-error.vue";
+import BigNumber from "bignumber.js";
+import { SwapBestOfferWarnings } from "@action/views/swap/types";
+import { BaseNetwork } from "@/types/base-network";
+import { fromBase } from "@enkryptcom/utils";
 import {
   ProviderSwapResponse,
   TokenType,
   TokenTypeTo,
   SwapToken,
-} from '@enkryptcom/swap'
-import { imageLoadError } from '@/ui/action/utils/misc'
+} from "@enkryptcom/swap";
+import { imageLoadError } from "@/ui/action/utils/misc";
 
 interface SwapBestOfferProps {
-  trades: ProviderSwapResponse[]
-  network: BaseNetwork | undefined
-  pickedTrade: ProviderSwapResponse
-  fromToken: TokenType
-  toToken: TokenTypeTo
-  warning?: SwapBestOfferWarnings
+  trades: ProviderSwapResponse[];
+  network: BaseNetwork | undefined;
+  pickedTrade: ProviderSwapResponse;
+  fromToken: TokenType;
+  toToken: TokenTypeTo;
+  warning?: SwapBestOfferWarnings;
 }
 
-const props = defineProps<SwapBestOfferProps>()
+const props = defineProps<SwapBestOfferProps>();
 
 const emit = defineEmits<{
-  (e: 'update:pickedTrade', trade: ProviderSwapResponse): void
-}>()
+  (e: "update:pickedTrade", trade: ProviderSwapResponse): void;
+}>();
 
-const isOffersOpen = ref(false)
+const isOffersOpen = ref(false);
 
 const toTokenPrice = computed(() => {
   const val = new SwapToken(props.toToken).getRawToFiat(
     props.pickedTrade.toTokenAmount,
-  )
-  return val
-})
+  );
+  return val;
+});
 
 const fromReadable = computed(() => {
-  return new SwapToken(props.fromToken).getBalanceReadable()
-})
+  return new SwapToken(props.fromToken).getBalanceReadable();
+});
 
 const toReadable = computed(() => {
   return new SwapToken(props.toToken).toReadable(
     props.pickedTrade.toTokenAmount,
-  )
-})
+  );
+});
 
 const toReadableAdditionalFees = computed(() => {
   return fromBase(
     props.pickedTrade.additionalNativeFees.toString(),
     props.network?.decimals || 18,
-  )
-})
+  );
+});
 
 const priceImpact = computed(() => {
-  if (!props.fromToken.price || !props.toToken.price) return null
+  if (!props.fromToken.price || !props.toToken.price) return null;
   else {
-    const fromValue = new SwapToken(props.fromToken).getFiatTotal()
-    const toValue = new SwapToken(props.toToken).getFiatTotal()
-    const pI = BigNumber('1')
+    const fromValue = new SwapToken(props.fromToken).getFiatTotal();
+    const toValue = new SwapToken(props.toToken).getFiatTotal();
+    const pI = BigNumber("1")
       .minus(BigNumber(fromValue).div(toValue))
-      .toFixed(3)
-    return pI
+      .toFixed(3);
+    return pI;
   }
-})
+});
 
 const ratio = computed(() => {
-  const fromValue = new SwapToken(props.fromToken).getBalanceReadable()
-  const toValue = new SwapToken(props.toToken).getBalanceReadable()
-  return new BigNumber(toValue).div(new BigNumber(fromValue))
-})
+  const fromValue = new SwapToken(props.fromToken).getBalanceReadable();
+  const toValue = new SwapToken(props.toToken).getBalanceReadable();
+  return new BigNumber(toValue).div(new BigNumber(fromValue));
+});
 
 const select = (trade: ProviderSwapResponse) => {
-  emit('update:pickedTrade', trade)
-  toggleOffers()
-}
+  emit("update:pickedTrade", trade);
+  toggleOffers();
+};
 
 const toggleOffers = () => {
-  isOffersOpen.value = !isOffersOpen.value
-}
+  isOffersOpen.value = !isOffersOpen.value;
+};
 </script>
 
 <style lang="less" scoped>
-@import '@action/styles/theme.less';
+@import "@action/styles/theme.less";
 
 .swap-best-offer-block {
   width: 100%;

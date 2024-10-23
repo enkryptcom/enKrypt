@@ -15,27 +15,27 @@
 </template>
 
 <script setup lang="ts">
-import { PropType } from 'vue'
-import { GasFeeInfo } from '@/providers/ethereum/ui/types'
+import { PropType } from "vue";
+import { GasFeeInfo } from "@/providers/ethereum/ui/types";
 
 defineProps({
   fee: {
     type: Object as PropType<Partial<GasFeeInfo>>,
     default: () => {
-      return {}
+      return {};
     },
   },
   inSwap: {
     type: Boolean,
     default: () => {
-      return false
+      return false;
     },
   },
-})
+});
 </script>
 
 <style lang="less">
-@import '@action/styles/theme.less';
+@import "@action/styles/theme.less";
 
 .send-fee-select {
   height: 40px;

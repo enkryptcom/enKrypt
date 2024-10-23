@@ -6,14 +6,14 @@ import { formatFloatingPointValue, formatFiatValue } from "../utils/filters";
 const defaultFiatVal = "0.00";
 export default (
   network: Ref<BaseNetwork>,
-  accountInfo: Ref<AccountsHeaderData>
+  accountInfo: Ref<AccountsHeaderData>,
 ) => {
   const marketData = new MarketData();
   const fiatAmount = ref<string>(defaultFiatVal);
 
   const cryptoAmountRaw = computed(() => {
     const selectedAccountIdx = accountInfo.value.activeAccounts.findIndex(
-      (acc) => acc.address === accountInfo.value.selectedAccount?.address
+      acc => acc.address === accountInfo.value.selectedAccount?.address,
     );
     if (selectedAccountIdx > -1) {
       const balance = accountInfo.value.activeBalances[selectedAccountIdx];
@@ -36,8 +36,8 @@ export default (
           await marketData.getTokenValue(
             cryptoAmountRaw.value,
             network.value.coingeckoID,
-            "USD"
-          )
+            "USD",
+          ),
         ).value
       } USD`;
     }

@@ -25,13 +25,13 @@
 </template>
 
 <script setup lang="ts">
-import { PropType } from 'vue'
-import { BaseNetwork } from '@/types/base-network'
-import DoneIcon from '@action/icons/common/done_icon.vue'
-import { EnkryptAccount } from '@enkryptcom/types'
+import { PropType } from "vue";
+import { BaseNetwork } from "@/types/base-network";
+import DoneIcon from "@action/icons/common/done_icon.vue";
+import { EnkryptAccount } from "@enkryptcom/types";
 const emit = defineEmits<{
-  (e: 'selected:account', address: string): void
-}>()
+  (e: "selected:account", address: string): void;
+}>();
 defineProps({
   network: {
     type: Object as PropType<BaseNetwork>,
@@ -40,18 +40,18 @@ defineProps({
   account: {
     type: Object as PropType<EnkryptAccount>,
     default: () => {
-      return {}
+      return {};
     },
   },
   isChecked: {
     type: Boolean,
     default: false,
   },
-})
+});
 </script>
 
 <style lang="less">
-@import '@action/styles/theme.less';
+@import "@action/styles/theme.less";
 
 .send-address-item {
   display: flex;

@@ -3,14 +3,14 @@
     <div class="send-fee-select__value">
       <p class="send-fee-select__value-fiat">
         Fee:
-        {{ fee.fiatValue ? $filters.formatFiatValue(fee.fiatValue).value : '' }}
-        {{ fee.fiatSymbol ?? '' }}
+        {{ fee.fiatValue ? $filters.formatFiatValue(fee.fiatValue).value : "" }}
+        {{ fee.fiatSymbol ?? "" }}
       </p>
       <p class="send-fee-select__value-crypto">
         {{
           fee.nativeValue
             ? $filters.formatFloatingPointValue(fee.nativeValue).value
-            : '~'
+            : "~"
         }}
         <span>{{ fee.nativeSymbol }}</span>
       </p>
@@ -19,27 +19,27 @@
 </template>
 
 <script setup lang="ts">
-import { PropType } from 'vue'
-import { GasFeeInfo } from '@/providers/ethereum/ui/types'
+import { PropType } from "vue";
+import { GasFeeInfo } from "@/providers/ethereum/ui/types";
 
 defineProps({
   fee: {
     type: Object as PropType<Partial<GasFeeInfo>>,
     default: () => {
-      return {}
+      return {};
     },
   },
   inSwap: {
     type: Boolean,
     default: () => {
-      return false
+      return false;
     },
   },
-})
+});
 </script>
 
 <style lang="less">
-@import '@action/styles/theme.less';
+@import "@action/styles/theme.less";
 
 .send-fee-select {
   height: 40px;
@@ -49,7 +49,7 @@ defineProps({
   border: 1px solid @gray02;
   box-sizing: border-box;
   border-radius: 10px;
-  width: calc(~'100% - 64px');
+  width: calc(~"100% - 64px");
   padding: 16px 10px;
   display: flex;
   justify-content: flex-start;

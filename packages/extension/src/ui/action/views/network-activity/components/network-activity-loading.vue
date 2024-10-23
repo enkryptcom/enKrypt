@@ -7,18 +7,18 @@
   </div>
 </template>
 <script setup lang="ts">
-import Loader from '@action/icons/common/loader.vue'
+import Loader from "@action/icons/common/loader.vue";
 defineProps({
   isEmpty: Boolean,
-})
+});
 </script>
 <style lang="less">
-@import '@action/styles/theme.less';
+@import "@action/styles/theme.less";
 
 .network-activity {
   &__loading {
     width: 100%;
-    height: calc(~'100% - 216px');
+    height: calc(~"100% - 216px");
     display: flex;
     justify-content: center;
     align-items: center;

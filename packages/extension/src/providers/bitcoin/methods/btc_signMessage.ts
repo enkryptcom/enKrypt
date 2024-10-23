@@ -8,7 +8,7 @@ const method: MiddlewareFunction = function (
   this: BitcoinProvider,
   payload: ProviderRPCRequest,
   res,
-  next
+  next,
 ): void {
   if (payload.method !== "btc_signMessage") return next();
   else {
@@ -24,11 +24,11 @@ const method: MiddlewareFunction = function (
 
     accountsState
       .getApprovedAddresses(payload.options!.domain)
-      .then((accounts) => {
+      .then(accounts => {
         if (!accounts.length) {
           return res(null, "");
         }
-        this.KeyRing.getAccount(accounts[0]).then((acc) => {
+        this.KeyRing.getAccount(accounts[0]).then(acc => {
           if (!acc)
             return res(getCustomError("btc_signMessage: account not found"));
           const windowPromise = new WindowPromise();
@@ -39,7 +39,7 @@ const method: MiddlewareFunction = function (
                 ...payload,
                 params: [msg, type, acc, this.network.name],
               }),
-              true
+              true,
             )
             .then(({ error, result }) => {
               if (error) return res(error);

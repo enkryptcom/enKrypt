@@ -12,7 +12,7 @@ const method: MiddlewareFunction = function (
   this: EthereumProvider,
   payload,
   res,
-  next
+  next,
 ): void {
   if (payload.method !== "personal_ecRecover") return next();
   else {

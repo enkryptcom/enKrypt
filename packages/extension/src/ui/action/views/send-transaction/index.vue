@@ -43,7 +43,7 @@ const props = defineProps({
   },
 });
 const networkName: string = route.params.id as string;
-getNetworkByName(networkName).then((network) => {
+getNetworkByName(networkName).then(network => {
   if (network) {
     localNetwork.value = props.network;
     localAccounts.value = props.accountInfo;

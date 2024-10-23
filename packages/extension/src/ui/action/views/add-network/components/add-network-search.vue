@@ -29,49 +29,49 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import BaseSearch from '@action/components/base-search/index.vue'
-import SliderIcon from '@action/icons/common/slider-icon.vue'
-import TestNetworkIcon from '@action/icons/common/test-network-icon.vue'
-import CustomNetworkIcon from '@action/icons/common/custom-network-icon.vue'
-import Switch from '@action/components/switch/index.vue'
-import { onClickOutside } from '@vueuse/core'
+import { ref } from "vue";
+import BaseSearch from "@action/components/base-search/index.vue";
+import SliderIcon from "@action/icons/common/slider-icon.vue";
+import TestNetworkIcon from "@action/icons/common/test-network-icon.vue";
+import CustomNetworkIcon from "@action/icons/common/custom-network-icon.vue";
+import Switch from "@action/components/switch/index.vue";
+import { onClickOutside } from "@vueuse/core";
 
-const openList = ref(false)
-const tooltip = ref(null)
+const openList = ref(false);
+const tooltip = ref(null);
 defineProps({
   value: {
     type: String,
     default: () => {
-      return ''
+      return "";
     },
   },
-})
+});
 defineEmits<{
-  (e: 'toggle:testNetworks'): void
-  (e: 'action:customNetwork'): void
-}>()
+  (e: "toggle:testNetworks"): void;
+  (e: "action:customNetwork"): void;
+}>();
 
 const action = () => {
   switch (openList.value) {
     case false:
-      openList.value = true
-      break
+      openList.value = true;
+      break;
     case true:
-      openList.value = false
-      break
+      openList.value = false;
+      break;
     default:
-      console.error('No status for openList')
+      console.error("No status for openList");
   }
-}
+};
 
 onClickOutside(tooltip, () => {
-  if (openList.value) openList.value = false
-})
+  if (openList.value) openList.value = false;
+});
 </script>
 
 <style lang="less" scoped>
-@import '@action/styles/theme.less';
+@import "@action/styles/theme.less";
 
 .add-network {
   &__search {

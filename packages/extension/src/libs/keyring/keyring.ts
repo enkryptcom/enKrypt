@@ -20,8 +20,8 @@ export class KeyRingBase {
     return this.#keyring.init(password, { mnemonic });
   }
   async reset(): Promise<void> {
-    const resetPromises = Object.values(InternalStorageNamespace).map((name) =>
-      new BrowserStorage(name).clear()
+    const resetPromises = Object.values(InternalStorageNamespace).map(name =>
+      new BrowserStorage(name).clear(),
     );
     await Promise.all(resetPromises);
   }
@@ -41,7 +41,7 @@ export class KeyRingBase {
   }
   sign(
     hexMessage: `0x${string}`,
-    options: SignOptions
+    options: SignOptions,
   ): Promise<`0x${string}`> {
     return this.#keyring
       .sign(hexMessage, options)
@@ -52,7 +52,7 @@ export class KeyRingBase {
   }
   ethereumDecrypt(
     encryptedMessage: string,
-    options: SignOptions
+    options: SignOptions,
   ): Promise<string> {
     return this.#keyring.ethereumDecrypt(encryptedMessage, options);
   }

@@ -32,7 +32,7 @@ const requestHandler = (request: string): OnMessageResponse => {
 };
 const providerSendMessage = async (
   provider: ProviderName,
-  message: string
+  message: string,
 ): Promise<any> => {
   if (provider === ProviderName.polkadot) {
     const res = requestHandler(message);
@@ -76,11 +76,13 @@ describe("Test Polkadot reponses", () => {
     const provider = tempWindow["injectedWeb3"]["enkrypt"] as PolkadotProvider;
     const injectedProvider = await provider.enable("dapp");
     expect(
-      await injectedProvider.sendMessageHandler(5, { method: "dot_testMethod" })
+      await injectedProvider.sendMessageHandler(5, {
+        method: "dot_testMethod",
+      }),
     ).to.equal("0xabcdef");
     await injectedProvider
       .sendMessageHandler(6, { method: "dot_noOp" })
-      .catch((e) => {
+      .catch(e => {
         expect(e).to.be.deep.equal({
           code: 4200,
           message:

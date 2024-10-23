@@ -11,7 +11,7 @@ import { decodeTx } from "../../../transaction/decoder";
 import { NetworkEndpoints } from "./configs";
 const getAddressActivity = async (
   address: string,
-  endpoint: string
+  endpoint: string,
 ): Promise<EthereumRawInfo[]> => {
   const transactions = fetch(endpoint, {
     method: "POST",
@@ -24,8 +24,8 @@ const getAddressActivity = async (
       params: [address],
     }),
   })
-    .then((res) => res.json())
-    .then((res) => res.result.items as EthereumRawInfo[]);
+    .then(res => res.json())
+    .then(res => res.result.items as EthereumRawInfo[]);
 
   const transactionsReceipts = fetch(endpoint, {
     method: "POST",
@@ -38,12 +38,12 @@ const getAddressActivity = async (
       params: [address],
     }),
   })
-    .then((res) => res.json())
-    .then((res) => res.result.items as EthereumRawInfo[]);
-  return Promise.all([transactions, transactionsReceipts]).then((responses) => {
-    let allInfo = responses[0].reverse().map((item) => {
+    .then(res => res.json())
+    .then(res => res.result.items as EthereumRawInfo[]);
+  return Promise.all([transactions, transactionsReceipts]).then(responses => {
+    let allInfo = responses[0].reverse().map(item => {
       const receipt = responses[1].find(
-        (r) => r.transactionHash === (item as any).hash
+        r => r.transactionHash === (item as any).hash,
       );
       if (receipt) {
         receipt.status =
@@ -52,21 +52,21 @@ const getAddressActivity = async (
       }
       return null;
     });
-    allInfo = allInfo.filter((i) => i !== null);
+    allInfo = allInfo.filter(i => i !== null);
     return allInfo.slice(0, 50) as EthereumRawInfo[];
   });
 };
 export default async (
   network: BaseNetwork,
-  address: string
+  address: string,
 ): Promise<Activity[]> => {
   address = address.toLowerCase();
   const enpoint =
     NetworkEndpoints[network.name as keyof typeof NetworkEndpoints];
   const activities = await getAddressActivity(address, enpoint);
 
-  const Promises = activities.map((activity) => {
-    return decodeTx(activity, network as EvmNetwork).then((txData) => {
+  const Promises = activities.map(activity => {
+    return decodeTx(activity, network as EvmNetwork).then(txData => {
       return {
         from: activity.from,
         to: activity.contractAddress

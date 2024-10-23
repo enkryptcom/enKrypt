@@ -9,7 +9,7 @@
     "preview": "vite preview",
     "build-only": "vite build",
     "type-check": "vue-tsc --build --force",
-    "lint": "eslint . --fix",
+    "lint": "eslint . --fix && yarn format",
     "format": "prettier --write src/",
     "zip": "cd dist; zip -r release.zip *;",
     "prebuild": "yarn kadena:prebuild",

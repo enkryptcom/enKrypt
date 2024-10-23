@@ -14,22 +14,22 @@
 </template>
 
 <script setup lang="ts">
-import { fromBase } from '@enkryptcom/utils'
-import { ToTokenData } from '@/ui/action/types/token'
-import { PropType } from 'vue'
+import { fromBase } from "@enkryptcom/utils";
+import { ToTokenData } from "@/ui/action/types/token";
+import { PropType } from "vue";
 
 defineProps({
   token: {
     type: Object as PropType<ToTokenData>,
     default: () => {
-      return {}
+      return {};
     },
   },
-})
+});
 </script>
 
 <style lang="less">
-@import '@action/styles/theme.less';
+@import "@action/styles/theme.less";
 
 .send-process-amount {
   text-decoration: none;

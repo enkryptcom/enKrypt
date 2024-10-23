@@ -7,7 +7,7 @@ const method: MiddlewareFunction = function (
   this: EthereumProvider,
   payload: ProviderRPCRequest,
   res,
-  next
+  next,
 ): void {
   if (
     payload.method !== "sol_signInMessage" &&
@@ -26,7 +26,7 @@ const method: MiddlewareFunction = function (
           ...payload,
           params: [payload.method, payload.params[0], this.network.name],
         }),
-        true
+        true,
       )
       .then(({ error, result }) => {
         if (error) return res(error);

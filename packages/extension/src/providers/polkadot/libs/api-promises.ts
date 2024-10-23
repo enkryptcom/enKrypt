@@ -6,7 +6,7 @@ const addNewApi = (node: string, api: SubstrateAPI) => {
   apiPromiseList[node] = api;
 };
 const closeAllConnections = () => {
-  Object.values(apiPromiseList).forEach((api) => api.api.disconnect());
+  Object.values(apiPromiseList).forEach(api => api.api.disconnect());
 };
 const getApi = (node: string): SubstrateAPI => {
   return apiPromiseList[node];

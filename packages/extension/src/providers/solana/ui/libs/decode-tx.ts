@@ -31,7 +31,7 @@ export interface DecodedTxResponseType {
 const assetFetch = (
   node: string,
   method: string,
-  params: any
+  params: any,
 ): Promise<any> => {
   return fetch(node, {
     method: "POST",
@@ -44,14 +44,14 @@ const assetFetch = (
       method,
       params,
     }),
-  }).then((res) => res.json());
+  }).then(res => res.json());
 };
 
 const decodeTransaction = async (
   tx: VersionedTransaction | Transaction,
   from: PublicKey,
   network: SolanaNetwork,
-  version: TransactionVersion
+  version: TransactionVersion,
 ) => {
   const solAPI = (await network.api()).api as SolanaAPI;
   const allBalances = await network.getAllTokenInfo(from.toBase58());
@@ -62,45 +62,45 @@ const decodeTransaction = async (
           accounts: {
             addresses: (
               tx as VersionedTransaction
-            ).message.staticAccountKeys.map((k) => k.toBase58()),
+            ).message.staticAccountKeys.map(k => k.toBase58()),
             encoding: "base64",
           },
         })
       : solAPI.web3.simulateTransaction(tx as Transaction, undefined, true)
-  ).then(async (result) => {
+  ).then(async result => {
     if (result.value.err) return null;
     const nativeChange = {
       contract: NATIVE_TOKEN_ADDRESS,
       amount: BigInt(result.value.accounts![0]!.lamports),
     };
     const balanceChanges = result.value
-      .accounts!.filter((a) => {
+      .accounts!.filter(a => {
         const data = Buffer.from(a!.data[0], "base64");
         return (
           a!.owner === TOKEN_PROGRAM_ID.toBase58() &&
           data.length === ACCOUNT_SIZE
         );
       })
-      .map((a) => {
+      .map(a => {
         const data = Buffer.from(a!.data[0], "base64");
         return AccountLayout.decode(data);
       })
-      .filter((val) => val.owner.toBase58() === from.toBase58())
-      .map((val) => {
+      .filter(val => val.owner.toBase58() === from.toBase58())
+      .map(val => {
         return {
           contract: val.mint.toBase58(),
           amount: val.amount,
         };
       });
     const getTokenInfoPromises = await Promise.all(
-      balanceChanges.map((val) => {
-        return solAPI.getTokenInfo(val.contract).then((info) => {
+      balanceChanges.map(val => {
+        return solAPI.getTokenInfo(val.contract).then(info => {
           return {
             ...info,
             ...val,
           };
         });
-      })
+      }),
     );
     getTokenInfoPromises.unshift({
       amount: nativeChange.amount,
@@ -124,7 +124,7 @@ const decodeTransaction = async (
         price: "0",
         USDval: "0",
       };
-      const balInfo = allBalances.find((b) => b.contract === token.contract);
+      const balInfo = allBalances.find(b => b.contract === token.contract);
       if (balInfo) {
         const curBalance = toBN(balInfo.balance);
         const newBalance = toBN(token.amount.toString());
@@ -160,7 +160,7 @@ const decodeTransaction = async (
       }
       retVal.push(res);
     }
-    retVal.sort((v) => (v.isNegative ? -1 * v.change : v.change));
+    retVal.sort(v => (v.isNegative ? -1 * v.change : v.change));
     return retVal;
   });
 };

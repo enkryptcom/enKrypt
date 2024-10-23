@@ -6,11 +6,11 @@ describe("Should derive proper bitcoin addresses", () => {
   it("should derive segwit address", async () => {
     const bitcoinMain = bitcoinNetworks.bitcoin;
     expect(bitcoinMain.displayAddress(pubkey)).to.be.eq(
-      "bc1qnjmf6vcjpyru5t8y2936260mrqa305qactwds2"
+      "bc1qnjmf6vcjpyru5t8y2936260mrqa305qactwds2",
     );
     const bitcoinTest = bitcoinNetworks.bitcoinTest;
     expect(bitcoinTest.displayAddress(pubkey)).to.be.eq(
-      "tb1qnjmf6vcjpyru5t8y2936260mrqa305qajd47te"
+      "tb1qnjmf6vcjpyru5t8y2936260mrqa305qajd47te",
     );
   });
 });

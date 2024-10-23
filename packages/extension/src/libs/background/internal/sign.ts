@@ -5,7 +5,7 @@ import { EnkryptAccount, RPCRequestType } from "@enkryptcom/types";
 
 const sign = (
   keyring: KeyRingBase,
-  message: RPCRequestType
+  message: RPCRequestType,
 ): Promise<InternalOnMessageResponse> => {
   if (!message.params || message.params.length < 2)
     return Promise.resolve({
@@ -15,12 +15,12 @@ const sign = (
   const account = message.params[1] as EnkryptAccount;
   return keyring
     .sign(msgHash, account)
-    .then((sig) => {
+    .then(sig => {
       return {
         result: JSON.stringify(sig),
       };
     })
-    .catch((e) => {
+    .catch(e => {
       return {
         error: getCustomError(e.message),
       };

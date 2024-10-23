@@ -26,7 +26,7 @@ export function isSolanaChain(chain: IdentifierString): chain is SolanaChain {
 }
 
 export function isVersionedTransaction(
-  transaction: Transaction | VersionedTransaction
+  transaction: Transaction | VersionedTransaction,
 ): transaction is VersionedTransaction {
   return "version" in transaction;
 }

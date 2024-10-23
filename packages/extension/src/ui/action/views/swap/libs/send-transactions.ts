@@ -74,19 +74,19 @@ const getBaseActivity = (options: ExecuteSwapOptions): Activity => {
  * Returns the hashes of transactions executed as part of the swap
  */
 export const executeSwap = async (
-  options: ExecuteSwapOptions
+  options: ExecuteSwapOptions,
 ): Promise<string[]> => {
   const activityState = new ActivityState();
   const api = await options.network.api();
   if (options.networkType === NetworkType.Bitcoin) {
     const bitcoinTx = await getBitcoinNativeTransaction(
       options.network as BitcoinNetwork,
-      options.swap.transactions[0] as GenericTransaction
+      options.swap.transactions[0] as GenericTransaction,
     );
     const gasVals = await getBitcoinGasVals([bitcoinTx], options.network, 0);
     const selectedVal = gasVals[options.gasPriceType].nativeValue;
     const nativeFeeAmount = toBN(
-      toBase(selectedVal, options.network.decimals)
+      toBase(selectedVal, options.network.decimals),
     ).toNumber();
     bitcoinTx.outputs[0].value = bitcoinTx.outputs[0].value - nativeFeeAmount;
     const txActivity = getBaseActivity(options);
@@ -106,7 +106,7 @@ export const executeSwap = async (
               ...{ transactionHash: signedTx.getId() },
             },
           ],
-          { address: txActivity.from, network: options.network.name }
+          { address: txActivity.from, network: options.network.name },
         );
       })
       .catch(() => {
@@ -120,7 +120,7 @@ export const executeSwap = async (
   } else if (options.networkType === NetworkType.Substrate) {
     const substrateTx = await getSubstrateNativeTransation(
       options.network as SubstrateNetwork,
-      options.swap.transactions[0] as GenericTransaction
+      options.swap.transactions[0] as GenericTransaction,
     );
     const txActivity = getBaseActivity(options);
     const tx = (api.api as ApiPromise).tx(substrateTx.toHex());
@@ -136,7 +136,7 @@ export const executeSwap = async (
             account: options.from,
             network: options.network,
             payload: extType,
-          }).then((res) => {
+          }).then(res => {
             if (res.error) return Promise.reject(res.error);
             else
               return {
@@ -158,7 +158,7 @@ export const executeSwap = async (
               transactionHash: hash,
             },
           ],
-          { address: txActivity.from, network: options.network.name }
+          { address: txActivity.from, network: options.network.name },
         );
       })
       .catch(async () => {
@@ -170,7 +170,7 @@ export const executeSwap = async (
               status: ActivityStatus.failed,
             },
           ],
-          { address: txActivity.from, network: options.network.name }
+          { address: txActivity.from, network: options.network.name },
         );
       });
     return [hash];
@@ -219,7 +219,7 @@ export const executeSwap = async (
               // Might need to update the block hash
               console.warn(
                 `Failed to get fee for legacy transaction while checking` +
-                  ` whether to update block hash: ${String(err)}`
+                  ` whether to update block hash: ${String(err)}`,
               );
               shouldUpdateBlockHash = true;
             }
@@ -228,17 +228,17 @@ export const executeSwap = async (
             if (shouldUpdateBlockHash) {
               console.warn(
                 `Unsigned legacy transaction might have an` +
-                  ` out-of-date block hash, trying to update it...`
+                  ` out-of-date block hash, trying to update it...`,
               );
               const backoff = [0, 500, 1_000, 2_000];
               let backoffi = 0;
-              // eslint-disable-next-line no-constant-condition
+
               update_block_hash: while (true) {
                 if (backoffi >= backoff.length) {
                   // Just continue and hope for the best with old block hash...
                   console.warn(
                     `Failed to get latest blockhash after ${backoffi} attempts,` +
-                      ` continuing with old block hash for legacy transaction...`
+                      ` continuing with old block hash for legacy transaction...`,
                   );
                   break update_block_hash;
                 }
@@ -246,9 +246,9 @@ export const executeSwap = async (
                 if (backoffMs > 0) {
                   console.warn(
                     `Waiting ${backoffMs}ms before retrying latest block` +
-                      ` hash for legacy transaction...`
+                      ` hash for legacy transaction...`,
                   );
-                  await new Promise((res) => setTimeout(res, backoffMs));
+                  await new Promise(res => setTimeout(res, backoffMs));
                 }
                 try {
                   const latest = await conn.getLatestBlockhash();
@@ -257,7 +257,7 @@ export const executeSwap = async (
                 } catch (err) {
                   console.warn(
                     `Failed to get latest blockhash on attempt` +
-                      ` ${backoffi + 1}: ${String(err)}`
+                      ` ${backoffi + 1}: ${String(err)}`,
                   );
                 }
                 backoffi++;
@@ -274,10 +274,10 @@ export const executeSwap = async (
               verifySignatures: true,
               requireAllSignatures: false,
             }),
-          }).catch((err) => {
+          }).catch(err => {
             const error = err.error ? err.error : err;
             throw new Error(
-              `Failed to sign Solana versioned swap transaction: ${error.code} ${error.message}`
+              `Failed to sign Solana versioned swap transaction: ${error.code} ${error.message}`,
             );
           });
           // Add third party signatures (eg Rango)
@@ -285,14 +285,14 @@ export const executeSwap = async (
             const { pubkey, signature } = enkSolTx.thirdPartySignatures[i];
             legacyTx.addSignature(
               new PublicKey(pubkey),
-              Buffer.from(signature)
+              Buffer.from(signature),
             );
           }
 
           // Add signature to the transaction
           legacyTx.addSignature(
             new PublicKey(options.network.displayAddress(options.from.address)),
-            sigRes
+            sigRes,
           );
 
           serialized = legacyTx.serialize();
@@ -330,7 +330,7 @@ export const executeSwap = async (
               // Might need to update the block hash
               console.warn(
                 `Failed to get fee for versioned transaction while checking` +
-                  ` whether to update block hash: ${String(err)}`
+                  ` whether to update block hash: ${String(err)}`,
               );
               shouldUpdateBlockHash = true;
             }
@@ -339,17 +339,17 @@ export const executeSwap = async (
             if (shouldUpdateBlockHash) {
               console.warn(
                 `Unsigned versioned transaction might have an` +
-                  ` out-of-date block hash, trying to update it...`
+                  ` out-of-date block hash, trying to update it...`,
               );
               const backoff = [0, 500, 1_000, 2_000];
               let backoffi = 0;
-              // eslint-disable-next-line no-constant-condition
+
               update_block_hash: while (true) {
                 if (backoffi >= backoff.length) {
                   // Just continue and hope for the best with old block hash...
                   console.warn(
                     `Failed to get latest blockhash after ${backoffi} attempts,` +
-                      ` continuing with old block hash for versioned transaction...`
+                      ` continuing with old block hash for versioned transaction...`,
                   );
                   break update_block_hash;
                 }
@@ -357,9 +357,9 @@ export const executeSwap = async (
                 if (backoffMs > 0) {
                   console.warn(
                     `Waiting ${backoffMs}ms before retrying latest block` +
-                      ` hash for versioned transaction...`
+                      ` hash for versioned transaction...`,
                   );
-                  await new Promise((res) => setTimeout(res, backoffMs));
+                  await new Promise(res => setTimeout(res, backoffMs));
                 }
                 try {
                   const latest = await conn.getLatestBlockhash();
@@ -368,7 +368,7 @@ export const executeSwap = async (
                 } catch (err) {
                   console.warn(
                     `Failed to get latest blockhash on attempt` +
-                      ` ${backoffi + 1}: ${String(err)}`
+                      ` ${backoffi + 1}: ${String(err)}`,
                   );
                 }
                 backoffi++;
@@ -382,10 +382,10 @@ export const executeSwap = async (
             account: options.from,
             network: options.network,
             transaction: Buffer.from(versionedTx.message.serialize()),
-          }).catch((err) => {
+          }).catch(err => {
             const error = err.error ? err.error : err;
             throw new Error(
-              `Failed to sign Solana versioned swap transaction: ${error.code} ${error.message}`
+              `Failed to sign Solana versioned swap transaction: ${error.code} ${error.message}`,
             );
           });
 
@@ -394,14 +394,14 @@ export const executeSwap = async (
             const { pubkey, signature } = enkSolTx.thirdPartySignatures[i];
             versionedTx.addSignature(
               new PublicKey(pubkey),
-              Uint8Array.from(signature)
+              Uint8Array.from(signature),
             );
           }
 
           // Add signature to the transaction
           versionedTx.addSignature(
             new PublicKey(options.network.displayAddress(options.from.address)),
-            sigRes
+            sigRes,
           );
 
           serialized = versionedTx.serialize();
@@ -410,7 +410,7 @@ export const executeSwap = async (
 
         default:
           throw new Error(
-            `Cannot send Solana transaction: unexpected kind ${enkSolTx.kind}`
+            `Cannot send Solana transaction: unexpected kind ${enkSolTx.kind}`,
           );
       }
 
@@ -430,12 +430,12 @@ export const executeSwap = async (
           if (errstr.includes("Blockhash not found")) {
             console.error(
               `Failed to send Solana swap transaction: blockhash not found`,
-              err
+              err,
             );
             throw new Error(
               "Failed to send Solana swap transaction: blockhash not found." +
                 " Too much time may have passed between the creation and sending" +
-                " of the transaction"
+                " of the transaction",
             );
           }
 
@@ -443,18 +443,18 @@ export const executeSwap = async (
             const logs = await err.getLogs(conn);
             console.error(
               "Failed to send Solana swap transaction. Logs:",
-              logs
+              logs,
             );
           } catch (err) {
             console.error(
               "Failed to send Solana swap transaction and failed to decode logs",
-              err
+              err,
             );
           }
         } else {
           console.error(
             `Failed to send Solana swap transaction,` +
-              ` unhandled error ${(err as Error).name}`
+              ` unhandled error ${(err as Error).name}`,
           );
         }
         // Solana transactions can have big errors
@@ -497,10 +497,10 @@ export const executeSwap = async (
         const evmTx: Transaction = await getEVMTransaction(
           options.network as EvmNetwork,
           tx,
-          `0x${toBN(nonce).addn(index).toString("hex")}` as `0x${string}`
+          `0x${toBN(nonce).addn(index).toString("hex")}` as `0x${string}`,
         );
         return [evmTx, txActivity] as const;
-      }
+      },
     );
     const txs = await Promise.all(txsPromises);
     /** Hashes of transactions successfully sent & mined, in order of execution */
@@ -514,17 +514,17 @@ export const executeSwap = async (
         .getFinalizedTransaction({
           gasPriceType: options.gasPriceType,
         })
-        .then((finalizedTx) =>
+        .then(finalizedTx =>
           // Sign the transaction
           EvmTransactionSigner({
             account: options.from,
             network: options.network,
             payload: finalizedTx,
-          }).then((signedTx) => {
+          }).then(signedTx => {
             return new Promise(
               (
                 resolve: (h: `0x${string}`) => void,
-                reject: (err: any) => void
+                reject: (err: any) => void,
               ) => {
                 const onHash = (hash: string) => {
                   if (activity) {
@@ -543,7 +543,7 @@ export const executeSwap = async (
                         {
                           address: activity.from,
                           network: options.network.name,
-                        }
+                        },
                       )
                       .then(() => resolve(hash as `0x${string}`));
                   }
@@ -552,7 +552,7 @@ export const executeSwap = async (
                 // EthVM Block Explorer, if this fails we fallback to regular endpoint
                 broadcastTx(
                   bufferToHex(signedTx.serialize()),
-                  options.network.name
+                  options.network.name,
                 )
                   .then(onHash)
                   .catch(() => {
@@ -562,9 +562,9 @@ export const executeSwap = async (
                       .on("transactionHash", onHash)
                       .catch(reject);
                   });
-              }
+              },
             );
-          })
+          }),
         );
       txPromises.push(hash);
     }

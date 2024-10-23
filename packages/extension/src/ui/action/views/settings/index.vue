@@ -43,70 +43,70 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import SettingsStart from './views/settings-start/index.vue'
-import SettingsGeneral from './views/settings-general/index.vue'
-import SettingsSupport from './views/settings-support/index.vue'
-import SettingsAbout from './views/settings-about/index.vue'
-import SettingsRecovery from './views/settings-recovery/index.vue'
-import ResetWallet from '@action/views/reset-wallet/index.vue'
+import { ref } from "vue";
+import SettingsStart from "./views/settings-start/index.vue";
+import SettingsGeneral from "./views/settings-general/index.vue";
+import SettingsSupport from "./views/settings-support/index.vue";
+import SettingsAbout from "./views/settings-about/index.vue";
+import SettingsRecovery from "./views/settings-recovery/index.vue";
+import ResetWallet from "@action/views/reset-wallet/index.vue";
 
-const isStart = ref(true)
-const isGeneral = ref(false)
-const isAbout = ref(false)
-const isSupport = ref(false)
-const isPhrase = ref(false)
-const isReset = ref(false)
-const mnemonic = ref('')
+const isStart = ref(true);
+const isGeneral = ref(false);
+const isAbout = ref(false);
+const isSupport = ref(false);
+const isPhrase = ref(false);
+const isReset = ref(false);
+const mnemonic = ref("");
 
 const emit = defineEmits<{
-  (e: 'close:popup'): void
-}>()
+  (e: "close:popup"): void;
+}>();
 const close = () => {
-  emit('close:popup')
-}
+  emit("close:popup");
+};
 const setAllToFalse = () => {
-  isStart.value = false
-  isGeneral.value = false
-  isAbout.value = false
-  isSupport.value = false
-  isPhrase.value = false
-  isReset.value = false
-  mnemonic.value = ''
-}
+  isStart.value = false;
+  isGeneral.value = false;
+  isAbout.value = false;
+  isSupport.value = false;
+  isPhrase.value = false;
+  isReset.value = false;
+  mnemonic.value = "";
+};
 const recoveryPhraseAction = (phrase: string) => {
-  setAllToFalse()
-  isPhrase.value = true
-  mnemonic.value = phrase
-}
+  setAllToFalse();
+  isPhrase.value = true;
+  mnemonic.value = phrase;
+};
 
 const resetAction = () => {
-  setAllToFalse()
-  isReset.value = true
-}
+  setAllToFalse();
+  isReset.value = true;
+};
 
 const supportAction = () => {
-  window.open('mailto:support@enkrypt.com', '_blank', 'noopener')
-}
+  window.open("mailto:support@enkrypt.com", "_blank", "noopener");
+};
 
 const generalAction = () => {
-  setAllToFalse()
-  isGeneral.value = true
-}
+  setAllToFalse();
+  isGeneral.value = true;
+};
 
 const aboutAction = () => {
-  setAllToFalse()
-  isAbout.value = true
-}
+  setAllToFalse();
+  isAbout.value = true;
+};
 
 const startAction = () => {
-  setAllToFalse()
-  isStart.value = true
-}
+  setAllToFalse();
+  isStart.value = true;
+};
 </script>
 
 <style lang="less">
-@import '@action/styles/theme.less';
+@import "@action/styles/theme.less";
 
 .settings {
   width: 100%;

@@ -8,10 +8,10 @@ import { polkadotEncodeAddress } from "@enkryptcom/utils";
 
 const transferCurrency = (
   network: SubstrateNetwork,
-  args: any
+  args: any,
 ): TransferProps | null => {
   const to = args.dest
-    ? polkadotEncodeAddress(args.dest.Id, network.prefix) ?? null
+    ? (polkadotEncodeAddress(args.dest.Id, network.prefix) ?? null)
     : null;
   const assetType = (
     args.currency_id ? Object.keys(args.currency_id) : [null]
@@ -19,7 +19,7 @@ const transferCurrency = (
   const rawAmount: string | null = args.amount ?? null;
 
   if (to !== null && assetType !== null && rawAmount !== null) {
-    const baseToken = network.assets.find((token) => {
+    const baseToken = network.assets.find(token => {
       const ormlToken = token as AcalaOrmlAsset;
       if (!ormlToken.assetType) return false;
 
@@ -49,10 +49,10 @@ const transferCurrency = (
 
 const transferNativeCurrency = (
   network: SubstrateNetwork,
-  args: any
+  args: any,
 ): TransferProps | null => {
   const to = args.dest
-    ? polkadotEncodeAddress(args.dest.Id, network.prefix) ?? null
+    ? (polkadotEncodeAddress(args.dest.Id, network.prefix) ?? null)
     : null;
   const token = new SubstrateNativeToken({
     decimals: network.decimals,

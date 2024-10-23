@@ -21,59 +21,59 @@
 </template>
 
 <script setup lang="ts">
-import CloseIcon from '@action/icons/common/close-icon.vue'
-import BaseButton from '@action/components/base-button/index.vue'
-import RateState from '@/libs/rate-state'
-import { detectBrowser, BROWSER_NAMES, openLink } from '@action/utils/browser'
+import CloseIcon from "@action/icons/common/close-icon.vue";
+import BaseButton from "@action/components/base-button/index.vue";
+import RateState from "@/libs/rate-state";
+import { detectBrowser, BROWSER_NAMES, openLink } from "@action/utils/browser";
 
-const rateState = new RateState()
+const rateState = new RateState();
 
 const emit = defineEmits<{
-  (e: 'close:popup'): void
-}>()
+  (e: "close:popup"): void;
+}>();
 const close = async () => {
-  await rateState.resetPopupTimer()
-  emit('close:popup')
-}
+  await rateState.resetPopupTimer();
+  emit("close:popup");
+};
 
 const goToFeedback = async () => {
-  await rateState.resetPopupTimer()
+  await rateState.resetPopupTimer();
 
-  openLink('https://www.enkrypt.com/?ref=enkrypt_help')
-}
+  openLink("https://www.enkrypt.com/?ref=enkrypt_help");
+};
 
 const rateLinks: Record<string, string> = {
   [BROWSER_NAMES.chrome]:
-    'https://chrome.google.com/webstore/detail/enkrypt-ethereum-polkadot/kkpllkodjeloidieedojogacfhpaihoh',
+    "https://chrome.google.com/webstore/detail/enkrypt-ethereum-polkadot/kkpllkodjeloidieedojogacfhpaihoh",
   [BROWSER_NAMES.firefox]:
-    'https://addons.mozilla.org/en-US/firefox/addon/enkrypt/reviews/',
+    "https://addons.mozilla.org/en-US/firefox/addon/enkrypt/reviews/",
   [BROWSER_NAMES.opera]:
-    'https://addons.opera.com/en/extensions/details/enkrypt/',
+    "https://addons.opera.com/en/extensions/details/enkrypt/",
   [BROWSER_NAMES.edge]:
-    'https://microsoftedge.microsoft.com/addons/detail/enkrypt-ethereum-polkad/gfenajajnjjmmdojhdjmnngomkhlnfjl',
+    "https://microsoftedge.microsoft.com/addons/detail/enkrypt-ethereum-polkad/gfenajajnjjmmdojhdjmnngomkhlnfjl",
   [BROWSER_NAMES.brave]:
-    'https://chrome.google.com/webstore/detail/enkrypt-ethereum-polkadot/kkpllkodjeloidieedojogacfhpaihoh',
+    "https://chrome.google.com/webstore/detail/enkrypt-ethereum-polkadot/kkpllkodjeloidieedojogacfhpaihoh",
   [BROWSER_NAMES.safari]:
-    'https://apps.apple.com/ae/app/enkrypt-web3-wallet/id1640164309?mt=12',
-}
+    "https://apps.apple.com/ae/app/enkrypt-web3-wallet/id1640164309?mt=12",
+};
 
 const goToRate = async () => {
-  await rateState.setRated()
+  await rateState.setRated();
 
-  const browser = detectBrowser()
+  const browser = detectBrowser();
 
-  const rateLink = rateLinks[browser]
+  const rateLink = rateLinks[browser];
 
   if (rateLink) {
-    openLink(rateLink)
+    openLink(rateLink);
   } else {
-    openLink(rateLinks[BROWSER_NAMES.chrome])
+    openLink(rateLinks[BROWSER_NAMES.chrome]);
   }
-}
+};
 </script>
 
 <style lang="less">
-@import '@action/styles/theme.less';
+@import "@action/styles/theme.less";
 
 .rate {
   width: 100%;

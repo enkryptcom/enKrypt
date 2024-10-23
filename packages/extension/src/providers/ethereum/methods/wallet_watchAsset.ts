@@ -29,7 +29,7 @@ const method: MiddlewareFunction = async function (
   this: EthereumProvider,
   payload,
   res,
-  next
+  next,
 ): Promise<void> {
   if (payload.method !== "wallet_watchAsset") return next();
 
@@ -62,7 +62,7 @@ const method: MiddlewareFunction = async function (
 
   const marketInfo = await marketData.getMarketInfoByContracts(
     [contractAddress.toLowerCase()],
-    this.network.coingeckoPlatform! ?? ""
+    this.network.coingeckoPlatform! ?? "",
   );
 
   const market = marketInfo[contractAddress.toLowerCase()];
@@ -98,7 +98,7 @@ const method: MiddlewareFunction = async function (
     try {
       const latestBalance = await erc20Token.getLatestUserBalance(
         api as API,
-        selectedAddress
+        selectedAddress,
       );
 
       balance = latestBalance;
@@ -115,7 +115,7 @@ const method: MiddlewareFunction = async function (
         ...payload,
         params: [customToken, balance, selectedAddress, this.network.name],
       }),
-      true
+      true,
     )
     .then(({ error, result }) => {
       if (error) return res(error);

@@ -12,27 +12,27 @@
 </template>
 
 <script setup lang="ts">
-import { PropType } from 'vue'
-import DoneIcon from '@action/icons/common/done_icon.vue'
+import { PropType } from "vue";
+import DoneIcon from "@action/icons/common/done_icon.vue";
 
 defineProps({
   abcSort: {
     type: Function as PropType<(isAbc: boolean) => void>,
     default: () => {
-      return null
+      return null;
     },
   },
   isAbcSort: {
     type: Boolean,
     default: () => {
-      return true
+      return true;
     },
   },
-})
+});
 </script>
 
 <style lang="less">
-@import '@action/styles/theme.less';
+@import "@action/styles/theme.less";
 
 .network-nfts-category {
   &__sort-menu {

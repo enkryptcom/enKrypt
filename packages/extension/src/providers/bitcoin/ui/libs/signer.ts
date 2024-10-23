@@ -22,7 +22,7 @@ const PSBTSigner = (account: EnkryptAccount, network: BitcoinNetwork) => {
       return sendUsingInternalMessengers({
         method: InternalMethods.sign,
         params: [bufferToHex(hash), account],
-      }).then((res) => {
+      }).then(res => {
         if (res.error) {
           return Promise.reject({
             error: res.error,
@@ -36,7 +36,7 @@ const PSBTSigner = (account: EnkryptAccount, network: BitcoinNetwork) => {
 };
 
 const TransactionSigner = async (
-  options: SignerTransactionOptions
+  options: SignerTransactionOptions,
 ): Promise<Transaction> => {
   const { account, network, payload } = options;
   const tx = new Psbt({
@@ -44,7 +44,7 @@ const TransactionSigner = async (
     maximumFeeRate: network.networkInfo.maxFeeRate,
   });
   payload.inputs
-    .map((u) => {
+    .map(u => {
       const res: {
         hash: string;
         index: number;
@@ -64,12 +64,12 @@ const TransactionSigner = async (
       }
       return res;
     })
-    .forEach((input) => tx.addInput(input));
-  payload.outputs.forEach((output) => tx.addOutput(output));
+    .forEach(input => tx.addInput(input));
+  payload.outputs.forEach(output => tx.addOutput(output));
   if (account.isHardware) {
     const hwwallets = new HWwallet();
     const api = (await network.api()) as BitcoinAPI;
-    const txPromises = payload.inputs.map((u) => api.getRawTransaction(u.hash));
+    const txPromises = payload.inputs.map(u => api.getRawTransaction(u.hash));
     const rawTxs = await Promise.all(txPromises);
     for (const t of rawTxs) {
       if (t === null) throw new Error("bitcoin-signer: Invalid tx hash");
@@ -101,7 +101,7 @@ const TransactionSigner = async (
 };
 
 const MessageSigner = (
-  options: SignerMessageOptions
+  options: SignerMessageOptions,
 ): Promise<InternalOnMessageResponse> => {
   const { account, payload, network } = options;
   if (account.isHardware) {
@@ -148,12 +148,12 @@ const MessageSigner = (
         network: network,
         Signer: signer,
       })
-        .then((sig) => {
+        .then(sig => {
           return {
             result: JSON.stringify(sig),
           };
         })
-        .catch((e) => {
+        .catch(e => {
           return {
             error: {
               message: e.message,
@@ -164,12 +164,12 @@ const MessageSigner = (
     } else {
       const signer = {
         sign: (
-          hash: Buffer
+          hash: Buffer,
         ): Promise<{ signature: Buffer; recovery: number }> => {
           return sendUsingInternalMessengers({
             method: InternalMethods.sign,
             params: [bufferToHex(hash), account],
-          }).then((res) => {
+          }).then(res => {
             if (res.error) {
               return Promise.reject({
                 error: res.error,
@@ -185,10 +185,10 @@ const MessageSigner = (
         },
       };
       const mHash = magicHash(payload);
-      return signer.sign(mHash).then((sig) => {
+      return signer.sign(mHash).then(sig => {
         return {
           result: JSON.stringify(
-            toCompact(sig.recovery, sig.signature, true).toString("base64")
+            toCompact(sig.recovery, sig.signature, true).toString("base64"),
           ),
         };
       });

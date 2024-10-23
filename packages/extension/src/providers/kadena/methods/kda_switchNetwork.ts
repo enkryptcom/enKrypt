@@ -14,7 +14,7 @@ const method: MiddlewareFunction = function (
   this: KadenaProvider,
   payload: ProviderRPCRequest,
   res,
-  next
+  next,
 ): void {
   if (payload.method !== "kda_switchNetwork") return next();
   else {
@@ -28,7 +28,7 @@ const method: MiddlewareFunction = function (
 
     const allNetworks = Object.values(KDANetworks);
     const validNetwork = allNetworks.find(
-      (net) => net.name === payload.params![0]
+      net => net.name === payload.params![0],
     );
 
     if (validNetwork) {
@@ -50,8 +50,8 @@ const method: MiddlewareFunction = function (
         getCustomError(
           `kda_switchNetwork: provided network ${
             payload.params![0]
-          } not supported`
-        )
+          } not supported`,
+        ),
       );
     }
   }

@@ -5,7 +5,7 @@ const method: MiddlewareFunction = function (
   this: EthereumProvider,
   payload,
   res,
-  next
+  next,
 ): void {
   if (payload.method !== "eth_signTransaction") return next();
   else return res(getCustomError("Not implemented"));

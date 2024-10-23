@@ -1,83 +1,83 @@
-import { KnownTokenDisplay } from '@/providers/polkadot/types'
-import iconBNC from './icons/BNC.png'
-import iconAUSD from './icons/AUSD.png'
-import iconMOVR from './icons/MOVR.png'
-import iconKAR from './icons/KAR.png'
-import iconRMRK from './icons/RMRK.png'
-import iconZLK from './icons/ZLK.png'
-import iconUSDT from './icons/USDT.png'
-import iconTUR from './icons/TUR.png'
-import iconCRAB from './icons/CRAB.png'
-import iconDOT from '../../icons/polkadot.svg'
-import iconKSM from '../../icons/kusama.svg'
+import { KnownTokenDisplay } from "@/providers/polkadot/types";
+import iconBNC from "./icons/BNC.png";
+import iconAUSD from "./icons/AUSD.png";
+import iconMOVR from "./icons/MOVR.png";
+import iconKAR from "./icons/KAR.png";
+import iconRMRK from "./icons/RMRK.png";
+import iconZLK from "./icons/ZLK.png";
+import iconUSDT from "./icons/USDT.png";
+import iconTUR from "./icons/TUR.png";
+import iconCRAB from "./icons/CRAB.png";
+import iconDOT from "../../icons/polkadot.svg";
+import iconKSM from "../../icons/kusama.svg";
 
 const assets: KnownTokenDisplay[] = [
   {
-    name: 'Bifrost',
-    symbol: 'BNC',
-    coingeckoID: 'bifrost-native-coin',
+    name: "Bifrost",
+    symbol: "BNC",
+    coingeckoID: "bifrost-native-coin",
     icon: iconBNC,
   },
   {
-    name: 'Polkadot',
-    symbol: 'DOT',
-    coingeckoID: 'polkadot',
+    name: "Polkadot",
+    symbol: "DOT",
+    coingeckoID: "polkadot",
     icon: iconDOT,
   },
   {
-    name: 'Kusama',
-    symbol: 'KSM',
-    coingeckoID: 'kusama',
+    name: "Kusama",
+    symbol: "KSM",
+    coingeckoID: "kusama",
     icon: iconKSM,
   },
   {
-    name: 'Acala Dollar',
-    symbol: 'aUSD',
+    name: "Acala Dollar",
+    symbol: "aUSD",
     icon: iconAUSD,
-    coingeckoID: 'acala-dollar',
+    coingeckoID: "acala-dollar",
   },
   {
-    name: 'Moonriver',
-    symbol: 'MOVR',
+    name: "Moonriver",
+    symbol: "MOVR",
     icon: iconMOVR,
-    coingeckoID: 'moonriver',
+    coingeckoID: "moonriver",
   },
   {
-    name: 'Karura',
-    symbol: 'KAR',
+    name: "Karura",
+    symbol: "KAR",
     icon: iconKAR,
-    coingeckoID: 'karura',
+    coingeckoID: "karura",
   },
   {
-    name: 'RMRK',
-    symbol: 'RMRK',
+    name: "RMRK",
+    symbol: "RMRK",
     icon: iconRMRK,
-    coingeckoID: 'rmrk',
+    coingeckoID: "rmrk",
   },
   {
-    name: 'Zenlink',
-    symbol: 'ZLK',
+    name: "Zenlink",
+    symbol: "ZLK",
     icon: iconZLK,
-    coingeckoID: 'zenlink-network-token',
+    coingeckoID: "zenlink-network-token",
   },
   {
-    name: 'USDT',
-    symbol: 'USDT',
+    name: "USDT",
+    symbol: "USDT",
     icon: iconUSDT,
-    coingeckoID: 'usdt',
+    coingeckoID: "usdt",
   },
   {
-    name: 'Turing Network',
-    symbol: 'TUR',
+    name: "Turing Network",
+    symbol: "TUR",
     icon: iconTUR,
-    coingeckoID: '',
+    coingeckoID: "",
   },
   {
-    name: 'Darwinia Crab',
-    symbol: 'CRAB',
+    name: "Darwinia Crab",
+    symbol: "CRAB",
     icon: iconCRAB,
-    coingeckoID: '',
+    coingeckoID: "",
   },
-]
+];
 
-export default assets
+export default assets;

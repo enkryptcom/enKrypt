@@ -25,15 +25,15 @@
 </template>
 
 <script setup lang="ts">
-import SwitchArrow from '@action/icons/header/switch_arrow.vue'
-import { PropType, ref } from 'vue'
-import { PathType } from '../types'
+import SwitchArrow from "@action/icons/header/switch_arrow.vue";
+import { PropType, ref } from "vue";
+import { PathType } from "../types";
 
 const emit = defineEmits<{
-  (e: 'update:selectedPath', path: PathType): void
-}>()
+  (e: "update:selectedPath", path: PathType): void;
+}>();
 
-const isSelectPath = ref(false)
+const isSelectPath = ref(false);
 defineProps({
   paths: {
     type: Array as PropType<PathType[]>,
@@ -43,20 +43,20 @@ defineProps({
     type: Object as PropType<PathType>,
     default: () => ({}),
   },
-})
+});
 
 const toggleSelectPath = () => {
-  isSelectPath.value = !isSelectPath.value
-}
+  isSelectPath.value = !isSelectPath.value;
+};
 
 const selectPath = (path: PathType) => {
-  toggleSelectPath()
-  emit('update:selectedPath', path)
-}
+  toggleSelectPath();
+  emit("update:selectedPath", path);
+};
 </script>
 
 <style lang="less" scoped>
-@import '@action/styles/theme.less';
+@import "@action/styles/theme.less";
 
 .hardware-select-patch {
   height: 40px;

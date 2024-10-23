@@ -17,49 +17,49 @@
 </template>
 
 <script setup lang="ts">
-import { useRoute } from 'vue-router'
-import NetworkDappsItem from './components/network-dapps-item.vue'
-import CustomScrollbar from '@action/components/custom-scrollbar/index.vue'
-import scrollSettings from '@/libs/utils/scroll-settings'
-import { onMounted, PropType, ref } from 'vue'
-import { BaseNetwork } from '@/types/base-network'
-import DappList from '@/libs/dapp-list'
-import Masonry from '@action/components/masonry/index.vue'
-import { DAppsItem } from '@/types/ui'
-import cacheFetch from '@/libs/cache-fetch'
-import { trackDAppsEvents } from '@/libs/metrics'
-import { DAppsEventType } from '@/libs/metrics/types'
+import { useRoute } from "vue-router";
+import NetworkDappsItem from "./components/network-dapps-item.vue";
+import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
+import scrollSettings from "@/libs/utils/scroll-settings";
+import { onMounted, PropType, ref } from "vue";
+import { BaseNetwork } from "@/types/base-network";
+import DappList from "@/libs/dapp-list";
+import Masonry from "@action/components/masonry/index.vue";
+import { DAppsItem } from "@/types/ui";
+import cacheFetch from "@/libs/cache-fetch";
+import { trackDAppsEvents } from "@/libs/metrics";
+import { DAppsEventType } from "@/libs/metrics/types";
 
-const route = useRoute()
+const route = useRoute();
 
 const props = defineProps({
   network: {
     type: Object as PropType<BaseNetwork>,
     default: () => ({}),
   },
-})
+});
 
-const selected: string = route.params.id as string
-const list = ref<DAppsItem[]>([])
+const selected: string = route.params.id as string;
+const list = ref<DAppsItem[]>([]);
 
 onMounted(async () => {
   if (DappList[props.network.name]) {
     try {
       const dappsList = await cacheFetch({
         url: DappList[props.network.name]!,
-      })
-      list.value = dappsList
+      });
+      list.value = dappsList;
     } catch {
-      console.error('Could not retrieve dapps list')
+      console.error("Could not retrieve dapps list");
     }
   }
-  trackDAppsEvents(DAppsEventType.DAppsOpen, { network: props.network.name })
-})
+  trackDAppsEvents(DAppsEventType.DAppsOpen, { network: props.network.name });
+});
 </script>
 
 <style lang="less" scoped>
-@import '@action/styles/theme.less';
-@import '@action/styles/custom-scroll.less';
+@import "@action/styles/theme.less";
+@import "@action/styles/custom-scroll.less";
 
 .container {
   width: 100%;

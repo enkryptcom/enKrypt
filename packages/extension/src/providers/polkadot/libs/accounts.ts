@@ -23,7 +23,7 @@ export default class Accounts implements InjectedAccounts {
   public subscribe(cb: (accounts: InjectedAccount[]) => unknown): Unsubcall {
     this.sendMessageHandler(this.id, {
       method: "dot_accounts_get",
-    }).then((res) => {
+    }).then(res => {
       cb(res);
     });
     return (): void => {

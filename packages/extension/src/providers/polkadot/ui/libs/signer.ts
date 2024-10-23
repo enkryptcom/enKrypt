@@ -14,7 +14,7 @@ import {
 import { bufferToHex } from "@enkryptcom/utils";
 
 const TransactionSigner = (
-  options: SignerTransactionOptions
+  options: SignerTransactionOptions,
 ): Promise<InternalOnMessageResponse> => {
   const { account, network, payload } = options;
   if (account.isHardware) {
@@ -33,7 +33,7 @@ const TransactionSigner = (
       .then((signature: string) => ({
         result: JSON.stringify(signature),
       }))
-      .catch((e) => {
+      .catch(e => {
         return Promise.reject({
           error: getCustomError(e.message),
         });
@@ -43,13 +43,13 @@ const TransactionSigner = (
     return sendUsingInternalMessengers({
       method: InternalMethods.sign,
       params: [signMsg, account],
-    }).then((res) => {
+    }).then(res => {
       if (res.error) return res;
 
       const signed = payloadSignTransform(
         JSON.parse(res.result as string),
         account.signerType,
-        true
+        true,
       );
       return {
         result: JSON.stringify(signed),
@@ -59,7 +59,7 @@ const TransactionSigner = (
 };
 
 const MessageSigner = (
-  options: SignerMessageOptions
+  options: SignerMessageOptions,
 ): Promise<InternalOnMessageResponse> => {
   const { account, payload } = options;
   if (account.isHardware) {
@@ -73,7 +73,7 @@ const MessageSigner = (
     return sendUsingInternalMessengers({
       method: InternalMethods.sign,
       params: [bufferToHex(u8aToBuffer(u8aWrapBytes(bytes))), account],
-    }).then((res) => {
+    }).then(res => {
       if (res.error) return res;
       return {
         result: res.result,

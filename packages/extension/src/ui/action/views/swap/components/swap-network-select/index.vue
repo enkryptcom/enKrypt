@@ -17,25 +17,25 @@
 </template>
 
 <script setup lang="ts">
-import { PropType } from 'vue'
-import SwitchArrow from '@action/icons/header/switch_arrow.vue'
-import { NetworkInfo } from '@enkryptcom/swap'
+import { PropType } from "vue";
+import SwitchArrow from "@action/icons/header/switch_arrow.vue";
+import { NetworkInfo } from "@enkryptcom/swap";
 defineEmits<{
-  (e: 'toggle:select'): void
-}>()
+  (e: "toggle:select"): void;
+}>();
 
 defineProps({
   network: {
     type: Object as PropType<NetworkInfo | null>,
     default: () => {
-      return {}
+      return {};
     },
   },
-})
+});
 </script>
 
 <style lang="less">
-@import '@action/styles/theme.less';
+@import "@action/styles/theme.less";
 .swap-token-select {
   height: 54px;
   background: #ffffff;

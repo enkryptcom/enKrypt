@@ -6,7 +6,7 @@ const STORAGE_TTL = 1000 * 60 * 60 * 24;
 const TIMESTAMP = "timestamp";
 const cacheFetch = async (
   options: RequestOptions,
-  ttl: number = STORAGE_TTL
+  ttl: number = STORAGE_TTL,
 ) => {
   const storage = new BrowserStorage(InternalStorageNamespace.cacheFetch);
   const storagetimestamp = await storage.get(TIMESTAMP);
@@ -38,8 +38,8 @@ const cacheFetch = async (
       fetchOptions.headers = options.headers;
     }
     return fetch(options.url, fetchOptions)
-      .then((res) => res.json())
-      .then((json) => {
+      .then(res => res.json())
+      .then(json => {
         const jsondata = options.postProcess ? options.postProcess(json) : json;
         const jsonstring = JSON.stringify(jsondata);
         if (!jsonstring.includes("error")) {

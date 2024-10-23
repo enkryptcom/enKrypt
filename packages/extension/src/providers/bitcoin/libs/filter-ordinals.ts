@@ -15,7 +15,7 @@ interface OridnalType {
 export const getAllOrdinals = (
   address: string,
   networkName: string,
-  currentItems: OridnalType[]
+  currentItems: OridnalType[],
 ): Promise<OridnalType[]> => {
   const query = `${OrdinalsEndpoint}${networkName.toLowerCase()}/ordinals/inscriptions?address=${address}&cursor=${
     currentItems.length
@@ -24,8 +24,8 @@ export const getAllOrdinals = (
     {
       url: query,
     },
-    CACHE_TTL
-  ).then((json) => {
+    CACHE_TTL,
+  ).then(json => {
     if (json.code !== 0)
       throw Promise.reject("Unknown error, cant retrieve ordinals");
     const items: OridnalType[] = json.data.list as OridnalType[];
@@ -38,12 +38,12 @@ export const getAllOrdinals = (
 export const filterOutOrdinals = (
   address: string,
   networkName: string,
-  utxos: HaskoinUnspentType[]
+  utxos: HaskoinUnspentType[],
 ): Promise<HaskoinUnspentType[]> => {
   if (!supportedNetworks.includes(networkName as NetworkNames))
     return Promise.resolve(utxos);
-  return getAllOrdinals(address, networkName, []).then((ordinals) => {
-    return utxos.filter((utxo) => {
+  return getAllOrdinals(address, networkName, []).then(ordinals => {
+    return utxos.filter(utxo => {
       for (const ord of ordinals) {
         const [txid, idx] = ord.output.split(":");
         if (utxo.txid === txid && utxo.index === parseInt(idx)) return false;

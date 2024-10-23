@@ -9,7 +9,7 @@ const method: MiddlewareFunction = function (
   this: SubstrateProvider,
   payload: ProviderRPCRequest,
   res,
-  next
+  next,
 ): void {
   if (payload.method !== "dot_signer_signRaw") return next();
   else {
@@ -23,7 +23,7 @@ const method: MiddlewareFunction = function (
         ? utf8ToHex(reqPayload.data)
         : reqPayload.data;
     this.KeyRing.getAccount(polkadotEncodeAddress(reqPayload.address)).then(
-      (account) => {
+      account => {
         const windowPromise = new WindowPromise();
         windowPromise
           .getResponse(
@@ -32,13 +32,13 @@ const method: MiddlewareFunction = function (
               ...payload,
               params: [data, account],
             }),
-            true
+            true,
           )
           .then(({ error, result }) => {
             if (error) return res(error);
             res(null, JSON.parse(result as string));
           });
-      }
+      },
     );
   }
 };

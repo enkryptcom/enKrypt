@@ -7,7 +7,7 @@ const method: MiddlewareFunction = function (
   this: EthereumProvider,
   payload,
   res,
-  next
+  next,
 ): void {
   if (payload.method !== "personal_sign") return next();
   else {
@@ -24,7 +24,7 @@ const method: MiddlewareFunction = function (
       address = payload.params[0].toLowerCase();
     }
     if (!isHexStrict(msg)) msg = utf8ToHex(msg);
-    this.KeyRing.getAccount(address).then((account) => {
+    this.KeyRing.getAccount(address).then(account => {
       const windowPromise = new WindowPromise();
       windowPromise
         .getResponse(
@@ -33,7 +33,7 @@ const method: MiddlewareFunction = function (
             ...payload,
             params: [msg, account, this.network.name],
           }),
-          true
+          true,
         )
         .then(({ error, result }) => {
           if (error) return res(error);

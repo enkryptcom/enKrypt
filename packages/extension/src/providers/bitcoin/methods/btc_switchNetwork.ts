@@ -13,7 +13,7 @@ const method: MiddlewareFunction = function (
   this: BitcoinProvider,
   payload: ProviderRPCRequest,
   res,
-  next
+  next,
 ): void {
   if (payload.method !== "btc_switchNetwork") return next();
   else {
@@ -27,7 +27,7 @@ const method: MiddlewareFunction = function (
     const internalName =
       BitcoinNetworks[payload.params![0] as keyof typeof BitcoinNetworks];
     const allNetworks = Object.values(BTCNetworks);
-    const validNetwork = allNetworks.find((net) => net.name === internalName);
+    const validNetwork = allNetworks.find(net => net.name === internalName);
     if (validNetwork) {
       trackNetworkSelected(NetworkChangeEvents.NetworkChangeAPI, {
         provider: validNetwork.provider,
@@ -51,8 +51,8 @@ const method: MiddlewareFunction = function (
         getCustomError(
           `btc_switchNetwork: porvided network ${
             payload.params![0]
-          } not supported`
-        )
+          } not supported`,
+        ),
       );
     }
   }

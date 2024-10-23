@@ -6,7 +6,7 @@ import { initAccounts } from "@/libs/utils/initialize-wallet";
 
 const unlock = (
   keyring: KeyRingBase,
-  message: RPCRequestType
+  message: RPCRequestType,
 ): Promise<InternalOnMessageResponse> => {
   if (!message.params || message.params.length < 1)
     return Promise.resolve({
@@ -24,7 +24,7 @@ const unlock = (
         result: JSON.stringify(true),
       };
     })
-    .catch((e) => {
+    .catch(e => {
       return {
         error: getCustomError(e.message),
       };

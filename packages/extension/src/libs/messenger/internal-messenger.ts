@@ -8,7 +8,7 @@ import { ProviderName } from "@/types/provider";
 import { RPCRequestType } from "@enkryptcom/types";
 
 const sendUsingInternalMessengers = (
-  req: RPCRequestType
+  req: RPCRequestType,
 ): Promise<InternalOnMessageResponse> => {
   const context = getCurrentContext();
   if (context === "popup") {

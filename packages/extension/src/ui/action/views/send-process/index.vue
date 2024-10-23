@@ -29,22 +29,22 @@
 </template>
 
 <script setup lang="ts">
-import { PropType } from 'vue'
-import SendProcessAnimation from '@action/icons/send/send-process-animation.vue'
-import SendCheckmarkAnimation from '@action/icons/send/send-checkmark-animation.vue'
-import ArrowDown from '@action/icons/send/arrow-down.vue'
-import SendProcessAccount from './components/send-process-account.vue'
-import SendProcessAmount from './components/send-process-amount.vue'
-import SendProcessNft from './components/send-process-nft.vue'
-import { ToTokenData } from '../../types/token'
-import { BaseNetwork } from '@/types/base-network'
-import { NFTItemWithCollectionName } from '@/types/nft'
+import { PropType } from "vue";
+import SendProcessAnimation from "@action/icons/send/send-process-animation.vue";
+import SendCheckmarkAnimation from "@action/icons/send/send-checkmark-animation.vue";
+import ArrowDown from "@action/icons/send/arrow-down.vue";
+import SendProcessAccount from "./components/send-process-account.vue";
+import SendProcessAmount from "./components/send-process-amount.vue";
+import SendProcessNft from "./components/send-process-nft.vue";
+import { ToTokenData } from "../../types/token";
+import { BaseNetwork } from "@/types/base-network";
+import { NFTItemWithCollectionName } from "@/types/nft";
 
 defineProps({
   network: {
     type: Object as PropType<BaseNetwork>,
     default: () => {
-      return {}
+      return {};
     },
   },
   isDone: Boolean,
@@ -52,31 +52,31 @@ defineProps({
   token: {
     type: Object as PropType<ToTokenData>,
     default: () => {
-      return {}
+      return {};
     },
   },
   toAddress: {
     type: String,
-    default: '',
+    default: "",
   },
   isNft: {
     type: Boolean,
     default: () => {
-      return false
+      return false;
     },
   },
   nft: {
     type: Object as PropType<NFTItemWithCollectionName>,
     default: () => {
-      return {}
+      return {};
     },
   },
   isWindowPopup: Boolean,
-})
+});
 </script>
 
 <style lang="less" scoped>
-@import '@action/styles/theme.less';
+@import "@action/styles/theme.less";
 
 .send-process {
   width: 100%;

@@ -7,7 +7,7 @@ import { KeyPairAdd, SignerType } from "@enkryptcom/types";
 
 const getAccountFromJSON = (
   json: KeyringPair$Json,
-  password: string
+  password: string,
 ): KeyPairAdd => {
   if (!json.encoding) throw new Error("Invalid substrate keystore file");
   const cryptoType = Array.isArray(json.encoding.content)
@@ -21,11 +21,11 @@ const getAccountFromJSON = (
     isHex(json.encoded)
       ? hexToU8a(json.encoded)
       : Buffer.from(json.encoded, "base64"),
-    encType
+    encType,
   );
   if (
     ![SignerType.ecdsa, SignerType.ed25519, SignerType.sr25519].includes(
-      cryptoType as SignerType
+      cryptoType as SignerType,
     )
   )
     throw new Error("substrate-keystore: invalid signer type");

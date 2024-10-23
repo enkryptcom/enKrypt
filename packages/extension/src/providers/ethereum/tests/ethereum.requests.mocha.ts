@@ -48,7 +48,7 @@ const requestHandler = (request: string): OnMessageResponse => {
 };
 const providerSendMessage = async (
   provider: ProviderName,
-  message: string
+  message: string,
 ): Promise<any> => {
   if (JSON.parse(message).method === InternalMethods.getSettings) {
     return defaultSettings as unknown as OnMessageResponse;
@@ -69,33 +69,33 @@ const tempWindow: EnkryptWindow = {
     providers: {},
     settings: defaultSettings,
   },
-   
+
   addEventListener: () => {},
-   
+
   CustomEvent: () => {},
-   
+
   dispatchEvent: () => {},
 };
 describe("Test Ethereum reponses", () => {
   it("should send proper responses", async () => {
     EthereumInject(tempWindow, options);
-    await new Promise((r) => setTimeout(r, 500));
+    await new Promise(r => setTimeout(r, 500));
     const provider = tempWindow[ProviderName.ethereum] as EthereumProvider;
     expect(await provider.request({ method: "eth_chainId" })).to.equal("0x1");
-    await provider.request({ method: "eth_requestAccounts" }).catch((e) => {
+    await provider.request({ method: "eth_requestAccounts" }).catch(e => {
       expect(e).to.be.deep.equal({
         code: 4001,
         message: "User Rejected Request: The user rejected the request.",
       });
     });
-    await provider.request({ method: "eth_unknownMethod" }).catch((e) => {
+    await provider.request({ method: "eth_unknownMethod" }).catch(e => {
       expect(e).to.be.deep.equal({
         code: 4200,
         message:
           "Unsupported Method: The Provider does not support the requested method.",
       });
     });
-    await provider.request({ method: "eth_accounts" }).then((res) => {
+    await provider.request({ method: "eth_accounts" }).then(res => {
       expect(res).to.be.deep.equal([
         "0xDECAF9CD2367cdbb726E904cD6397eDFcAe6068D",
       ]);

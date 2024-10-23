@@ -24,7 +24,7 @@
       />
 
       <h3>
-        {{ item.name && item.name.length > 0 ? item.name : 'NFT #' + item.id }}
+        {{ item.name && item.name.length > 0 ? item.name : "NFT #" + item.id }}
       </h3>
 
       <img :src="item.image" alt="" @error="imageLoadError" />
@@ -37,58 +37,58 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, PropType, ref } from 'vue'
-import CloseIcon from '@action/icons/common/close-icon.vue'
-import ActionMenu from '@action/components/action-menu/index.vue'
-import NftMoreAddToFavorite from '@action/icons/nft/nft-more-add-to-favorite.vue'
-import NftMoreDeleteFromFavorite from '@action/icons/nft/nft-more-delete-from-favorite.vue'
-import { NFTItem } from '@/types/nft'
-import Notification from '@action/components/notification/index.vue'
-import { imageLoadError } from '@action/utils/misc'
+import { onMounted, PropType, ref } from "vue";
+import CloseIcon from "@action/icons/common/close-icon.vue";
+import ActionMenu from "@action/components/action-menu/index.vue";
+import NftMoreAddToFavorite from "@action/icons/nft/nft-more-add-to-favorite.vue";
+import NftMoreDeleteFromFavorite from "@action/icons/nft/nft-more-delete-from-favorite.vue";
+import { NFTItem } from "@/types/nft";
+import Notification from "@action/components/notification/index.vue";
+import { imageLoadError } from "@action/utils/misc";
 
-const isFavoriteAction = ref(false)
-const localIsFavorite = ref(false)
+const isFavoriteAction = ref(false);
+const localIsFavorite = ref(false);
 const props = defineProps({
   item: {
     type: Object as PropType<NFTItem>,
     default: () => {
-      return {}
+      return {};
     },
   },
   isFavorite: {
     type: Boolean,
     default: () => {
-      return false
+      return false;
     },
   },
-})
+});
 
 onMounted(() => {
-  localIsFavorite.value = props.isFavorite
-})
+  localIsFavorite.value = props.isFavorite;
+});
 
 const emit = defineEmits<{
-  (e: 'close:popup'): void
-  (e: 'update:favClicked', isFav: boolean, item: NFTItem): void
-}>()
+  (e: "close:popup"): void;
+  (e: "update:favClicked", isFav: boolean, item: NFTItem): void;
+}>();
 const close = () => {
   if (localIsFavorite.value !== props.isFavorite)
-    emit('update:favClicked', localIsFavorite.value, props.item)
-  emit('close:popup')
-}
+    emit("update:favClicked", localIsFavorite.value, props.item);
+  emit("close:popup");
+};
 const favClicked = (isFav: boolean) => {
-  localIsFavorite.value = isFav
+  localIsFavorite.value = isFav;
   setTimeout(() => {
-    toggleNotification()
-  }, 100)
-}
+    toggleNotification();
+  }, 100);
+};
 const toggleNotification = () => {
-  isFavoriteAction.value = !isFavoriteAction.value
-}
+  isFavoriteAction.value = !isFavoriteAction.value;
+};
 </script>
 
 <style lang="less">
-@import '@action/styles/theme.less';
+@import "@action/styles/theme.less";
 
 .nft-detail-view {
   width: 100%;

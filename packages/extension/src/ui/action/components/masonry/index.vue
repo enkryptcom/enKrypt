@@ -15,7 +15,7 @@ const props = withDefaults(
     gap: 0,
     rtl: false,
     ssrColumns: 0,
-  }
+  },
 );
 const emit = defineEmits<{
   (event: "redraw"): void;
@@ -27,7 +27,7 @@ const masonry = ref<HTMLDivElement>() as Ref<HTMLDivElement>;
 function columnCount(): number {
   const count = Math.floor(
     (masonry.value.getBoundingClientRect().width + gap.value) /
-      (columnWidth.value + gap.value)
+      (columnWidth.value + gap.value),
   );
   return count > 0 ? Math.max(2, count) : 2;
 }
@@ -38,7 +38,7 @@ if (ssrColumns.value > 0) {
   const newColumns = createColumns(ssrColumns.value);
   if (items.value) {
     items.value.forEach((_: unknown, i: number) =>
-      newColumns[i % ssrColumns.value].push(i)
+      newColumns[i % ssrColumns.value].push(i),
     );
   }
 
@@ -56,7 +56,7 @@ async function fillColumns(itemIndex: number) {
   const target = columnDivs.reduce((prev, curr) =>
     curr.getBoundingClientRect().height < prev.getBoundingClientRect().height
       ? curr
-      : prev
+      : prev,
   );
   columns.value[+target.dataset.index!].push(itemIndex);
   await fillColumns(itemIndex + 1);
@@ -95,7 +95,11 @@ watch([columnWidth, gap], () => redraw());
         'flex-basis': '0px',
         'flex-direction': 'column',
         'flex-grow': 1,
-        height: ['-webkit-max-content', '-moz-max-content', 'max-content'] as any,
+        height: [
+          '-webkit-max-content',
+          '-moz-max-content',
+          'max-content',
+        ] as any,
         gap: `${gap}px`,
       }"
     >

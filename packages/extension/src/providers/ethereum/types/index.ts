@@ -32,7 +32,7 @@ export interface EthereumResponse {
 
 export type CallbackFunction = (
   err: Error | null,
-  res?: JsonRpcResponse
+  res?: JsonRpcResponse,
 ) => void;
 
 export enum ErrorCodes {

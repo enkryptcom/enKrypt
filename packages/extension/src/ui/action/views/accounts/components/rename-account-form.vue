@@ -49,21 +49,21 @@
 </template>
 
 <script setup lang="ts">
-import { PropType, ref, onMounted, computed } from 'vue'
-import BaseButton from '@action/components/base-button/index.vue'
-import { NodeType } from '@/types/provider'
-import { EnkryptAccount } from '@enkryptcom/types'
-import KeyRing from '@/libs/keyring/keyring'
+import { PropType, ref, onMounted, computed } from "vue";
+import BaseButton from "@action/components/base-button/index.vue";
+import { NodeType } from "@/types/provider";
+import { EnkryptAccount } from "@enkryptcom/types";
+import KeyRing from "@/libs/keyring/keyring";
 
-const isFocus = ref(false)
-const accountName = ref('')
-const renameAccountInput = ref(null)
-const isProcessing = ref(false)
-defineExpose({ renameAccountInput })
+const isFocus = ref(false);
+const accountName = ref("");
+const renameAccountInput = ref(null);
+const isProcessing = ref(false);
+defineExpose({ renameAccountInput });
 const emit = defineEmits<{
-  (e: 'window:close'): void
-  (e: 'update:init'): void
-}>()
+  (e: "window:close"): void;
+  (e: "update:init"): void;
+}>();
 const props = defineProps({
   network: {
     type: Object as PropType<NodeType>,
@@ -73,40 +73,40 @@ const props = defineProps({
     type: Object as PropType<EnkryptAccount>,
     default: () => ({}),
   },
-})
-const currentNames: string[] = []
-const keyring = new KeyRing()
+});
+const currentNames: string[] = [];
+const keyring = new KeyRing();
 
 const isValidName = computed(() => {
-  if (accountName.value === props.account.name) return true
-  if (accountName.value.length < 3) return false
-  if (currentNames.includes(accountName.value)) return false
-  return true
-})
+  if (accountName.value === props.account.name) return true;
+  if (accountName.value.length < 3) return false;
+  if (currentNames.includes(accountName.value)) return false;
+  return true;
+});
 
 onMounted(() => {
   if (renameAccountInput.value) {
-    ;(renameAccountInput.value as HTMLInputElement).focus()
+    (renameAccountInput.value as HTMLInputElement).focus();
   }
-  accountName.value = props.account.name
+  accountName.value = props.account.name;
   keyring.getKeysArray().then(accounts => {
-    accounts.forEach(acc => currentNames.push(acc.name))
-  })
-})
+    accounts.forEach(acc => currentNames.push(acc.name));
+  });
+});
 const changeFocus = () => {
-  isFocus.value = !isFocus.value
-}
+  isFocus.value = !isFocus.value;
+};
 const renameAccount = () => {
-  isProcessing.value = true
+  isProcessing.value = true;
   keyring.renameAccount(props.account.address, accountName.value).then(() => {
-    emit('window:close')
-    emit('update:init')
-  })
-}
+    emit("window:close");
+    emit("update:init");
+  });
+};
 </script>
 
 <style lang="less" scoped>
-@import '@action/styles/theme.less';
+@import "@action/styles/theme.less";
 .rename-account-form {
   background: @white;
   box-shadow:

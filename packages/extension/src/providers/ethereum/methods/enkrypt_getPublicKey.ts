@@ -11,7 +11,7 @@ const method: MiddlewareFunction = async function (
   this: EthereumProvider,
   payload: ProviderRPCRequest,
   res,
-  next
+  next,
 ): Promise<void> {
   if (payload.method !== "enkrypt_getPublicKey") return next();
   else {
@@ -23,7 +23,7 @@ const method: MiddlewareFunction = async function (
       throttledOpenOnboard();
       return res(getCustomError("Enkrypt not initialized"));
     } else {
-      this.KeyRing.getAccounts([SignerType.secp256k1]).then((accounts) => {
+      this.KeyRing.getAccounts([SignerType.secp256k1]).then(accounts => {
         res(null, accounts[0].publicKey);
       });
     }

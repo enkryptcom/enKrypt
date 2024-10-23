@@ -63,7 +63,7 @@ const getSizeOfScriptLengthElement = (length: number) => {
 
 const getTxOverheadExtraRawBytes = (
   input_script: InputScriptType,
-  input_count: number
+  input_count: number,
 ) => {
   let witness_bytes = 0;
   // Returns the remaining 3/4 bytes per witness bytes
@@ -83,7 +83,7 @@ const getTxOverheadExtraRawBytes = (
 const getTxOverheadVBytes = (
   input_script: InputScriptType,
   input_count: number,
-  output_count: number
+  output_count: number,
 ) => {
   let witness_vbytes = 0;
   if (
@@ -122,7 +122,7 @@ interface calcOutputType {
 }
 const calculateSize = (
   inputOptions: calcInputType,
-  outputOptions: calcOutputType
+  outputOptions: calcOutputType,
 ) => {
   const defaultInputOptions = {
     input_script: InputScriptType.P2WPKH,
@@ -237,7 +237,7 @@ const calculateSize = (
 const calculateSizeBasedOnType = (
   numInputs: number,
   numOutputs: number,
-  type: PaymentType
+  type: PaymentType,
 ): number => {
   const output: calcOutputType = {};
   if (type === PaymentType.P2PKH) {
@@ -253,7 +253,7 @@ const calculateSizeBasedOnType = (
           : InputScriptType.P2WPKH,
       input_count: numInputs,
     },
-    output
+    output,
   );
   return type === PaymentType.P2PKH ? size.txBytes : size.txVBytes;
 };

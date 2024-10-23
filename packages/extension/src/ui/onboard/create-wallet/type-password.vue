@@ -27,45 +27,45 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref } from 'vue'
-import BaseButton from '@action/components/base-button/index.vue'
-import BaseInput from '@action/components/base-input/index.vue'
-import { useRouter } from 'vue-router'
-import { onMounted } from 'vue'
-import { routes } from './routes'
-import { useOnboardStore } from './store'
+import { ref } from "vue";
+import BaseButton from "@action/components/base-button/index.vue";
+import BaseInput from "@action/components/base-input/index.vue";
+import { useRouter } from "vue-router";
+import { onMounted } from "vue";
+import { routes } from "./routes";
+import { useOnboardStore } from "./store";
 
-const router = useRouter()
-const store = useOnboardStore()
+const router = useRouter();
+const store = useOnboardStore();
 
-const password = store.password
+const password = store.password;
 
-const typePassword = ref('')
-const isDisabled = ref(true)
+const typePassword = ref("");
+const isDisabled = ref(true);
 
 const nextAction = () => {
   if (!isDisabled.value) {
     router.push({
       name: routes.recoveryPhrase.name,
-    })
+    });
   }
-}
+};
 
 const passwordUpdated = (value: string) => {
-  isDisabled.value = true
-  typePassword.value = value.trim()
-  if (value.trim() === password) isDisabled.value = false
-}
+  isDisabled.value = true;
+  typePassword.value = value.trim();
+  if (value.trim() === password) isDisabled.value = false;
+};
 
 onMounted(() => {
   if (!password) {
-    router.push({ path: routes.pickPassword.path })
+    router.push({ path: routes.pickPassword.path });
   }
-})
+});
 </script>
 
 <style lang="less">
-@import '@action/styles/theme.less';
+@import "@action/styles/theme.less";
 
 .type-password {
   width: 100%;

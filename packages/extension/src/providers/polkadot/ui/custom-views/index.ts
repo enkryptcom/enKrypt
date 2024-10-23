@@ -6,7 +6,7 @@ import mapping from "./mappings";
 export const getViewAndProps = (
   network: SubstrateNetwork,
   method: string,
-  data: any
+  data: any,
 ) => {
   if (mapping[network.name_long] && mapping[network.name_long][method]) {
     const [view, getProps] = mapping[network.name_long][method];

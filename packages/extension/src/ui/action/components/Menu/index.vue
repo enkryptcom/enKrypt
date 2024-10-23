@@ -12,9 +12,9 @@
 </template>
 
 <script setup lang="ts">
-import { PropType } from 'vue'
-import { NetworkItem } from '@action/types/network'
-import Item from './components/Item.vue'
+import { PropType } from "vue";
+import { NetworkItem } from "@action/types/network";
+import Item from "./components/Item.vue";
 defineProps({
   networks: {
     type: Array as PropType<Array<NetworkItem>>,
@@ -23,18 +23,18 @@ defineProps({
   selected: {
     type: Object as PropType<NetworkItem>,
     default: () => {
-      return {}
+      return {};
     },
   },
   setNetwork: {
     type: Function,
     default: () => ({}),
   },
-})
+});
 </script>
 
 <style lang="less">
-@import '@action/styles/theme.less';
+@import "@action/styles/theme.less";
 
 .app-menu {
   margin: 16px 0;

@@ -17,35 +17,35 @@
     />
 
     <div v-show="!!token && Number(amount) > 0" class="swap-token-input__fiat">
-      ≈ ${{ tokenPrice ? $filters.formatFiatValue(tokenPrice).value : '~' }}
+      ≈ ${{ tokenPrice ? $filters.formatFiatValue(tokenPrice).value : "~" }}
     </div>
   </div>
 </template>
 
 <script lang="ts">
 export default {
-  name: 'SwapTokenToAmount',
-}
+  name: "SwapTokenToAmount",
+};
 </script>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import SwapTokenSelect from '../swap-token-select/index.vue'
-import SwapTokenFastList from '../swap-token-fast-list/index.vue'
-import SwapTokenAmountInput from './components/swap-token-amount-input.vue'
-import { PropType } from 'vue'
-import { SwapToken, TokenTypeTo } from '@enkryptcom/swap'
+import { computed, ref } from "vue";
+import SwapTokenSelect from "../swap-token-select/index.vue";
+import SwapTokenFastList from "../swap-token-fast-list/index.vue";
+import SwapTokenAmountInput from "./components/swap-token-amount-input.vue";
+import { PropType } from "vue";
+import { SwapToken, TokenTypeTo } from "@enkryptcom/swap";
 
 const props = defineProps({
   token: {
     type: Object as PropType<TokenTypeTo | null>,
     default: () => {
-      return null
+      return null;
     },
   },
   amount: {
     type: String,
-    default: () => '',
+    default: () => "",
   },
   isFindingRate: {
     type: Boolean,
@@ -60,20 +60,20 @@ const props = defineProps({
     default: () => null,
   },
   noProviders: Boolean,
-})
+});
 
-const isFocus = ref(false)
+const isFocus = ref(false);
 
 const tokenPrice = computed(() => {
   if (props.token?.price && props.amount) {
-    return new SwapToken(props.token).getReadableToFiat(props.amount)
+    return new SwapToken(props.token).getReadableToFiat(props.amount);
   }
-  return 0
-})
+  return 0;
+});
 </script>
 
 <style lang="less" scoped>
-@import '@action/styles/theme.less';
+@import "@action/styles/theme.less";
 .swap-token-input {
   width: 100%;
   min-height: 136px;

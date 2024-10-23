@@ -17,16 +17,16 @@
 </template>
 
 <script setup lang="ts">
-import ImportAccountHeader from '../components/import-account-header.vue'
-import BaseFilePicker from '@action/components/base-file-picker/index.vue'
+import ImportAccountHeader from "../components/import-account-header.vue";
+import BaseFilePicker from "@action/components/base-file-picker/index.vue";
 
 defineProps({
   isError: Boolean,
-})
+});
 </script>
 
 <style lang="less">
-@import '@action/styles/theme.less';
+@import "@action/styles/theme.less";
 
 .import-account-keystore-file {
   width: 100%;

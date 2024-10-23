@@ -9,14 +9,14 @@ const getAddressActivity = async (
   address: string,
   endpoint: string,
   ttl: number,
-  height: number
+  height: number,
 ): Promise<any[]> => {
   const url = `${endpoint}txs/account/${address}?minheight=${height}&limit=200&token=coin`;
   return cacheFetch({ url }, ttl)
-    .then((res) => {
+    .then(res => {
       return res ? res : [];
     })
-    .catch((error) => {
+    .catch(error => {
       console.error("Failed to fetch activity:", error);
       return [];
     });
@@ -24,7 +24,7 @@ const getAddressActivity = async (
 
 export default async (
   network: BaseNetwork,
-  address: string
+  address: string,
 ): Promise<Activity[]> => {
   const networkName = network.name as keyof typeof NetworkEndpoints;
   const enpoint = NetworkEndpoints[networkName];
@@ -33,7 +33,7 @@ export default async (
     address,
     enpoint,
     ttl,
-    0 // lastActivity?.rawInfo?.height ?? 0
+    0, // lastActivity?.rawInfo?.height ?? 0
   );
 
   let price = "0";
@@ -42,7 +42,7 @@ export default async (
     const marketData = new MarketData();
     await marketData
       .getTokenPrice(network.coingeckoID)
-      .then((mdata) => (price = mdata || "0"));
+      .then(mdata => (price = mdata || "0"));
   }
 
   const groupActivities = activities.reduce((acc: any, activity: any) => {
@@ -60,7 +60,7 @@ export default async (
       activity.amount
         ? parseFloat(activity.amount).toFixed(network.decimals)
         : "0",
-      network.decimals
+      network.decimals,
     );
     // note: intentionally not using fromAccount === some-value
     // I want to match both null and "" in fromAccount/toAccount

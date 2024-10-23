@@ -7,7 +7,7 @@ const method: MiddlewareFunction = function (
   this: BitcoinProvider,
   payload: ProviderRPCRequest,
   res,
-  next
+  next,
 ): void {
   if (payload.method !== "btc_getNetwork") return next();
   else {
@@ -19,7 +19,7 @@ const method: MiddlewareFunction = function (
 
     accountsState
       .getApprovedAddresses(payload.options!.domain)
-      .then((accounts) => {
+      .then(accounts => {
         if (!accounts.length) {
           return res(null, "");
         }

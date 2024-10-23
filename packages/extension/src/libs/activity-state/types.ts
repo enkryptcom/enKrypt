@@ -8,5 +8,5 @@ export interface ActivityOptions {
 
 export type ActivityHandlerType = (
   _network: BaseNetwork,
-  _address: string
+  _address: string,
 ) => Promise<Activity[]>;

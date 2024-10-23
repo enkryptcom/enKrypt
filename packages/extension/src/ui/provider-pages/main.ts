@@ -1,21 +1,21 @@
-import { createApp } from 'vue'
-import App from './App.vue'
-import { createRouter, createWebHashHistory } from 'vue-router'
-import routes from './routes'
-import * as filters from '@action/utils/filters'
-import Vue3Lottie from 'vue3-lottie'
+import { createApp } from "vue";
+import App from "./App.vue";
+import { createRouter, createWebHashHistory } from "vue-router";
+import routes from "./routes";
+import * as filters from "@action/utils/filters";
+import Vue3Lottie from "vue3-lottie";
 
-global.WeakMap = WeakMap
+global.WeakMap = WeakMap;
 
 const router = createRouter({
   history: createWebHashHistory(),
   routes,
-})
+});
 
-const app = createApp(App)
+const app = createApp(App);
 
-app.use(router).use(Vue3Lottie, { name: 'vue3lottie' })
+app.use(router).use(Vue3Lottie, { name: "vue3lottie" });
 
-app.config.globalProperties.$filters = filters
+app.config.globalProperties.$filters = filters;
 
-app.mount('#app')
+app.mount("#app");

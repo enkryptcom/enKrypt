@@ -20,26 +20,26 @@ const getBestImageURL = (content: ContentURL[]) => {
 };
 export default async (
   network: NodeType,
-  address: string
+  address: string,
 ): Promise<NFTCollection[]> => {
   const supportedNetworks = [Networks.ethereum.name];
   if (!supportedNetworks.includes(network.name))
     throw new Error("MEW: network not supported");
   const fetchAll = (): Promise<MEWNFTCollection[]> => {
     const query = `${MEW_ENDPOINT}nfts/account?address=${address}`;
-    return cacheFetch({ url: query }, CACHE_TTL).then((json) => {
+    return cacheFetch({ url: query }, CACHE_TTL).then(json => {
       return json as MEWNFTCollection[];
     });
   };
   const allItems = await fetchAll();
   if (!allItems || !allItems.length) return [];
-  return allItems.map((item) => {
+  return allItems.map(item => {
     const ret: NFTCollection = {
       name: item.name,
       description: item.description,
       image: item.image,
       contract: item.contract_address,
-      items: item.assets.map((asset) => {
+      items: item.assets.map(asset => {
         const retAsset: NFTItem = {
           contract: item.contract_address,
           id: asset.token_id,

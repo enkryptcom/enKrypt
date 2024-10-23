@@ -20,7 +20,6 @@ class API implements ProviderAPIInterface {
     return this;
   }
 
-   
   async init(): Promise<void> {}
   async getTransactionStatus(hash: string): Promise<EthereumRawInfo | null> {
     try {

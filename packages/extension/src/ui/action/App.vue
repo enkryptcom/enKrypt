@@ -94,115 +94,115 @@
 </template>
 
 <script setup lang="ts">
-import DomainState from '@/libs/domain-state'
-import PublicKeyRing from '@/libs/keyring/public-keyring'
-import { sendToBackgroundFromAction } from '@/libs/messenger/extension'
-import NetworksState from '@/libs/networks-state'
+import DomainState from "@/libs/domain-state";
+import PublicKeyRing from "@/libs/keyring/public-keyring";
+import { sendToBackgroundFromAction } from "@/libs/messenger/extension";
+import NetworksState from "@/libs/networks-state";
 import {
   getAccountsByNetworkName,
   getOtherSigners,
-} from '@/libs/utils/accounts'
-import ModalNewVersion from './views/modal-new-version/index.vue'
+} from "@/libs/utils/accounts";
+import ModalNewVersion from "./views/modal-new-version/index.vue";
 import {
   DEFAULT_EVM_NETWORK,
   getAllNetworks,
   getNetworkByName,
-} from '@/libs/utils/networks'
-import openOnboard from '@/libs/utils/open-onboard'
-import BTCAccountState from '@/providers/bitcoin/libs/accounts-state'
-import EVMAccountState from '@/providers/ethereum/libs/accounts-state'
-import SolAccountState from '@/providers/solana/libs/accounts-state'
-import { MessageMethod } from '@/providers/ethereum/types'
-import { EvmNetwork } from '@/providers/ethereum/types/evm-network'
-import { MessageMethod as KadenaMessageMethod } from '@/providers/kadena/types'
-import { BaseNetwork } from '@/types/base-network'
-import { InternalMethods } from '@/types/messenger'
-import { EnkryptAccount, NetworkNames } from '@enkryptcom/types'
-import { fromBase } from '@enkryptcom/utils'
-import { computed, onMounted, ref } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import Browser from 'webextension-polyfill'
-import AccountsHeader from './components/accounts-header/index.vue'
-import AppMenu from './components/app-menu/index.vue'
-import BaseSearch from './components/base-search/index.vue'
-import NetworkMenu from './components/network-menu/index.vue'
-import MoreIcon from './icons/actions/more.vue'
-import HoldIcon from './icons/common/hold-icon.vue'
-import LogoMin from './icons/common/logo-min.vue'
-import ManageNetworksIcon from './icons/common/manage-networks-icon.vue'
-import SettingsIcon from './icons/common/settings-icon.vue'
-import { AccountsHeaderData } from './types/account'
-import AddNetwork from './views/add-network/index.vue'
-import ModalRate from './views/modal-rate/index.vue'
-import Settings from './views/settings/index.vue'
-import { KadenaNetwork } from '@/providers/kadena/types/kadena-network'
-import { EnkryptProviderEventMethods, ProviderName } from '@/types/provider'
-import { onClickOutside } from '@vueuse/core'
-import RateState from '@/libs/rate-state'
-import SwapLookingAnimation from '@action/icons/swap/swap-looking-animation.vue'
-import { trackBuyEvents, trackNetworkSelected } from '@/libs/metrics'
-import { getLatestEnkryptVersion } from '@action/utils/browser'
-import { gt as semverGT } from 'semver'
-import { BuyEventType, NetworkChangeEvents } from '@/libs/metrics/types'
+} from "@/libs/utils/networks";
+import openOnboard from "@/libs/utils/open-onboard";
+import BTCAccountState from "@/providers/bitcoin/libs/accounts-state";
+import EVMAccountState from "@/providers/ethereum/libs/accounts-state";
+import SolAccountState from "@/providers/solana/libs/accounts-state";
+import { MessageMethod } from "@/providers/ethereum/types";
+import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
+import { MessageMethod as KadenaMessageMethod } from "@/providers/kadena/types";
+import { BaseNetwork } from "@/types/base-network";
+import { InternalMethods } from "@/types/messenger";
+import { EnkryptAccount, NetworkNames } from "@enkryptcom/types";
+import { fromBase } from "@enkryptcom/utils";
+import { computed, onMounted, ref } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import Browser from "webextension-polyfill";
+import AccountsHeader from "./components/accounts-header/index.vue";
+import AppMenu from "./components/app-menu/index.vue";
+import BaseSearch from "./components/base-search/index.vue";
+import NetworkMenu from "./components/network-menu/index.vue";
+import MoreIcon from "./icons/actions/more.vue";
+import HoldIcon from "./icons/common/hold-icon.vue";
+import LogoMin from "./icons/common/logo-min.vue";
+import ManageNetworksIcon from "./icons/common/manage-networks-icon.vue";
+import SettingsIcon from "./icons/common/settings-icon.vue";
+import { AccountsHeaderData } from "./types/account";
+import AddNetwork from "./views/add-network/index.vue";
+import ModalRate from "./views/modal-rate/index.vue";
+import Settings from "./views/settings/index.vue";
+import { KadenaNetwork } from "@/providers/kadena/types/kadena-network";
+import { EnkryptProviderEventMethods, ProviderName } from "@/types/provider";
+import { onClickOutside } from "@vueuse/core";
+import RateState from "@/libs/rate-state";
+import SwapLookingAnimation from "@action/icons/swap/swap-looking-animation.vue";
+import { trackBuyEvents, trackNetworkSelected } from "@/libs/metrics";
+import { getLatestEnkryptVersion } from "@action/utils/browser";
+import { gt as semverGT } from "semver";
+import { BuyEventType, NetworkChangeEvents } from "@/libs/metrics/types";
 
-const domainState = new DomainState()
-const networksState = new NetworksState()
-const rateState = new RateState()
-const appMenuRef = ref(null)
-const showDepositWindow = ref(false)
+const domainState = new DomainState();
+const networksState = new NetworksState();
+const rateState = new RateState();
+const appMenuRef = ref(null);
+const showDepositWindow = ref(false);
 const accountHeaderData = ref<AccountsHeaderData>({
   activeAccounts: [],
   inactiveAccounts: [],
   selectedAccount: null,
   activeBalances: [],
-})
-const isOpenMore = ref(false)
-let timeout: ReturnType<typeof setTimeout> | null = null
-defineExpose({ appMenuRef })
-const router = useRouter()
-const route = useRoute()
-const transitionName = 'fade'
-const searchInput = ref('')
-const networks = ref<BaseNetwork[]>([])
-const defaultNetwork = DEFAULT_EVM_NETWORK
-const currentNetwork = ref<BaseNetwork>(defaultNetwork)
-const currentSubNetwork = ref<string>('')
-const kr = new PublicKeyRing()
-const addNetworkShow = ref(false)
-const settingsShow = ref(false)
-const rateShow = ref(false)
-const updateShow = ref(false)
-const dropdown = ref(null)
-const toggle = ref(null)
-const isLoading = ref(true)
-const currentVersion = __PACKAGE_VERSION__
-const latestVersion = ref('')
+});
+const isOpenMore = ref(false);
+let timeout: ReturnType<typeof setTimeout> | null = null;
+defineExpose({ appMenuRef });
+const router = useRouter();
+const route = useRoute();
+const transitionName = "fade";
+const searchInput = ref("");
+const networks = ref<BaseNetwork[]>([]);
+const defaultNetwork = DEFAULT_EVM_NETWORK;
+const currentNetwork = ref<BaseNetwork>(defaultNetwork);
+const currentSubNetwork = ref<string>("");
+const kr = new PublicKeyRing();
+const addNetworkShow = ref(false);
+const settingsShow = ref(false);
+const rateShow = ref(false);
+const updateShow = ref(false);
+const dropdown = ref(null);
+const toggle = ref(null);
+const isLoading = ref(true);
+const currentVersion = __PACKAGE_VERSION__;
+const latestVersion = ref("");
 
 const setActiveNetworks = async () => {
-  const activeNetworkNames = await networksState.getActiveNetworkNames()
+  const activeNetworkNames = await networksState.getActiveNetworkNames();
 
-  const allNetworks = await getAllNetworks()
-  const networksToShow: BaseNetwork[] = []
+  const allNetworks = await getAllNetworks();
+  const networksToShow: BaseNetwork[] = [];
 
   activeNetworkNames.forEach(name => {
-    const network = allNetworks.find(network => network.name === name)
-    if (network !== undefined) networksToShow.push(network)
-  })
-  networks.value = networksToShow
+    const network = allNetworks.find(network => network.name === name);
+    if (network !== undefined) networksToShow.push(network);
+  });
+  networks.value = networksToShow;
 
   if (!networks.value.includes(currentNetwork.value)) {
-    setNetwork(networks.value[0])
+    setNetwork(networks.value[0]);
   }
-}
+};
 const updateNetworkOrder = (newOrder: BaseNetwork[]) => {
-  if (searchInput.value === '') networks.value = newOrder
-}
+  if (searchInput.value === "") networks.value = newOrder;
+};
 const updateSearchValue = (newval: string) => {
-  searchInput.value = newval
-}
+  searchInput.value = newval;
+};
 const toggleDepositWindow = () => {
-  showDepositWindow.value = !showDepositWindow.value
-}
+  showDepositWindow.value = !showDepositWindow.value;
+};
 const openBuyPage = () => {
   const buyLink =
     currentNetwork.value.name === NetworkNames.KadenaTestnet
@@ -211,12 +211,12 @@ const openBuyPage = () => {
           accountHeaderData.value.selectedAccount!.address,
         )}&network=${currentNetwork.value.name}&crypto=${
           currentNetwork.value.currencyName
-        }&platform=enkrypt`
+        }&platform=enkrypt`;
   Browser.tabs.create({
     url: buyLink,
-  })
-  trackBuyEvents(BuyEventType.BuyClick, { network: currentNetwork.value.name })
-}
+  });
+  trackBuyEvents(BuyEventType.BuyClick, { network: currentNetwork.value.name });
+};
 const isKeyRingLocked = async (): Promise<boolean> => {
   return await sendToBackgroundFromAction({
     message: JSON.stringify({
@@ -225,32 +225,34 @@ const isKeyRingLocked = async (): Promise<boolean> => {
     }),
     provider: currentNetwork.value.provider,
     tabId: await domainState.getCurrentTabId(),
-  }).then(res => JSON.parse(res.result || 'true'))
-}
+  }).then(res => JSON.parse(res.result || "true"));
+};
 const init = async () => {
-  const curNetwork = await domainState.getSelectedNetWork()
+  const curNetwork = await domainState.getSelectedNetWork();
   if (curNetwork) {
-    const savedNetwork = await getNetworkByName(curNetwork)
-    if (savedNetwork) setNetwork(savedNetwork)
-    else setNetwork(defaultNetwork)
+    const savedNetwork = await getNetworkByName(curNetwork);
+    if (savedNetwork) setNetwork(savedNetwork);
+    else setNetwork(defaultNetwork);
   } else {
-    setNetwork(defaultNetwork)
+    setNetwork(defaultNetwork);
   }
-  await setActiveNetworks()
-  isLoading.value = false
-}
+  await setActiveNetworks();
+  isLoading.value = false;
+};
 onMounted(async () => {
-  const isInitialized = await kr.isInitialized()
+  const isInitialized = await kr.isInitialized();
   if (isInitialized) {
-    const _isLocked = await isKeyRingLocked()
+    const _isLocked = await isKeyRingLocked();
     if (_isLocked) {
-      router.push({ name: 'lock-screen' }).then(() => (isLoading.value = false))
+      router
+        .push({ name: "lock-screen" })
+        .then(() => (isLoading.value = false));
     } else {
-      init()
+      init();
       setTimeout(() => {
         rateState.showPopup().then(show => {
           if (show) {
-            rateShow.value = true
+            rateShow.value = true;
           } else {
             getLatestEnkryptVersion().then(version => {
               if (
@@ -258,52 +260,54 @@ onMounted(async () => {
                 version &&
                 semverGT(version, currentVersion)
               ) {
-                latestVersion.value = version
-                updateShow.value = true
+                latestVersion.value = version;
+                updateShow.value = true;
               }
-            })
+            });
           }
-        })
-      }, 2000)
+        });
+      }, 2000);
     }
   } else {
-    openOnboard()
+    openOnboard();
   }
-})
+});
 const updateGradient = (newGradient: string) => {
   //hack may be there is a better way. less.modifyVars doesnt work
   if (appMenuRef.value)
     (appMenuRef.value as HTMLElement).style.background =
-      `radial-gradient(137.35% 97% at 100% 50%, rgba(250, 250, 250, 0.94) 0%, rgba(250, 250, 250, 0.96) 28.91%, rgba(250, 250, 250, 0.98) 100%), linear-gradient(180deg, ${newGradient} 80%, #684CFF 100%)`
-}
+      `radial-gradient(137.35% 97% at 100% 50%, rgba(250, 250, 250, 0.94) 0%, rgba(250, 250, 250, 0.96) 28.91%, rgba(250, 250, 250, 0.98) 100%), linear-gradient(180deg, ${newGradient} 80%, #684CFF 100%)`;
+};
 const setNetwork = async (network: BaseNetwork) => {
   trackNetworkSelected(NetworkChangeEvents.NetworkChangePopup, {
     provider: network.provider,
     network: network.name,
-  })
+  });
   if (!network.subNetworks) {
-    currentSubNetwork.value = ''
+    currentSubNetwork.value = "";
   }
-  const activeAccounts = await getAccountsByNetworkName(network.name)
+  const activeAccounts = await getAccountsByNetworkName(network.name);
 
-  const inactiveAccounts = await kr.getAccounts(getOtherSigners(network.signer))
-  const selectedAddress = await domainState.getSelectedAddress()
-  let selectedAccount = activeAccounts[0]
+  const inactiveAccounts = await kr.getAccounts(
+    getOtherSigners(network.signer),
+  );
+  const selectedAddress = await domainState.getSelectedAddress();
+  let selectedAccount = activeAccounts[0];
   if (selectedAddress) {
-    const found = activeAccounts.find(acc => acc.address === selectedAddress)
-    if (found) selectedAccount = found
+    const found = activeAccounts.find(acc => acc.address === selectedAddress);
+    if (found) selectedAccount = found;
   }
 
   accountHeaderData.value = {
     activeAccounts,
     inactiveAccounts,
     selectedAccount,
-    activeBalances: activeAccounts.map(() => '~'),
-  }
-  currentNetwork.value = network
-  router.push({ name: 'assets', params: { id: network.name } })
-  const tabId = await domainState.getCurrentTabId()
-  const curSavedNetwork = await domainState.getSelectedNetWork()
+    activeBalances: activeAccounts.map(() => "~"),
+  };
+  currentNetwork.value = network;
+  router.push({ name: "assets", params: { id: network.name } });
+  const tabId = await domainState.getCurrentTabId();
+  const curSavedNetwork = await domainState.getSelectedNetWork();
 
   if (
     curSavedNetwork !== network.name &&
@@ -316,7 +320,7 @@ const setNetwork = async (network: BaseNetwork) => {
       }),
       provider: currentNetwork.value.provider,
       tabId,
-    })
+    });
     await sendToBackgroundFromAction({
       message: JSON.stringify({
         method: InternalMethods.sendToTab,
@@ -329,7 +333,7 @@ const setNetwork = async (network: BaseNetwork) => {
       }),
       provider: currentNetwork.value.provider,
       tabId,
-    })
+    });
   }
 
   if (
@@ -348,7 +352,7 @@ const setNetwork = async (network: BaseNetwork) => {
       }),
       provider: currentNetwork.value.provider,
       tabId,
-    })
+    });
   }
 
   await sendToBackgroundFromAction({
@@ -363,49 +367,49 @@ const setNetwork = async (network: BaseNetwork) => {
     }),
     provider: currentNetwork.value.provider,
     tabId,
-  })
-  domainState.setSelectedNetwork(network.name)
+  });
+  domainState.setSelectedNetwork(network.name);
 
   if (network.api) {
     try {
-      const thisNetworkName = currentNetwork.value.name
-      const api = await network.api()
+      const thisNetworkName = currentNetwork.value.name;
+      const api = await network.api();
       const activeBalancePromises = activeAccounts.map(acc =>
         api.getBalance(acc.address),
-      )
+      );
       Promise.all(activeBalancePromises).then(balances => {
         if (thisNetworkName === currentNetwork.value.name)
           accountHeaderData.value.activeBalances = balances.map(bal =>
             fromBase(bal, network.decimals),
-          )
-      })
+          );
+      });
     } catch (e) {
-      console.error(e)
+      console.error(e);
     }
   }
-}
+};
 
 const onSelectedSubnetworkChange = async (id: string) => {
-  await domainState.setSelectedSubNetwork(id)
-  currentSubNetwork.value = id
-  setNetwork(currentNetwork.value)
-}
+  await domainState.setSelectedSubNetwork(id);
+  currentSubNetwork.value = id;
+  setNetwork(currentNetwork.value);
+};
 
 const onSelectedAddressChanged = async (newAccount: EnkryptAccount) => {
-  accountHeaderData.value.selectedAccount = newAccount
+  accountHeaderData.value.selectedAccount = newAccount;
   const accountStates = {
     [ProviderName.ethereum]: EVMAccountState,
     [ProviderName.bitcoin]: BTCAccountState,
     [ProviderName.solana]: SolAccountState,
-  }
+  };
   if (Object.keys(accountStates).includes(currentNetwork.value.provider)) {
     const AccountState = new accountStates[
       currentNetwork.value.provider as keyof typeof accountStates
-    ]()
-    const domain = await domainState.getCurrentDomain()
-    AccountState.addApprovedAddress(newAccount.address, domain)
+    ]();
+    const domain = await domainState.getCurrentDomain();
+    AccountState.addApprovedAddress(newAccount.address, domain);
   }
-  await domainState.setSelectedAddress(newAccount.address)
+  await domainState.setSelectedAddress(newAccount.address);
   await sendToBackgroundFromAction({
     message: JSON.stringify({
       method: InternalMethods.sendToTab,
@@ -418,21 +422,21 @@ const onSelectedAddressChanged = async (newAccount: EnkryptAccount) => {
     }),
     provider: currentNetwork.value.provider,
     tabId: await domainState.getCurrentTabId(),
-  })
-}
+  });
+};
 const showNetworkMenu = computed(() => {
-  const selected = route.params.id as string
+  const selected = route.params.id as string;
   return (
     !!selected &&
-    (route.name == 'activity' ||
-      route.name == 'assets' ||
-      route.name == 'nfts' ||
-      route.name == 'dapps')
-  )
-})
+    (route.name == "activity" ||
+      route.name == "assets" ||
+      route.name == "nfts" ||
+      route.name == "dapps")
+  );
+});
 const isLocked = computed(() => {
-  return route.name == 'lock-screen'
-})
+  return route.name == "lock-screen";
+});
 
 const lockAction = async () => {
   sendToBackgroundFromAction({
@@ -441,52 +445,52 @@ const lockAction = async () => {
     }),
     provider: currentNetwork.value.provider,
     tabId: await domainState.getCurrentTabId(),
-  })
-  router.push({ name: 'lock-screen' })
-}
+  });
+  router.push({ name: "lock-screen" });
+};
 const settingsAction = () => {
-  closeMoreMenu()
-  settingsShow.value = !settingsShow.value
-}
+  closeMoreMenu();
+  settingsShow.value = !settingsShow.value;
+};
 const toggleMoreMenu = () => {
   if (timeout != null) {
-    clearTimeout(timeout)
+    clearTimeout(timeout);
 
-    timeout = null
+    timeout = null;
   }
   if (isOpenMore.value) {
-    closeMoreMenu()
+    closeMoreMenu();
   } else {
-    isOpenMore.value = true
+    isOpenMore.value = true;
   }
-}
+};
 const closeMoreMenu = () => {
   if (timeout != null) {
-    clearTimeout(timeout)
+    clearTimeout(timeout);
   }
   timeout = setTimeout(() => {
-    isOpenMore.value = false
-  }, 50)
-}
+    isOpenMore.value = false;
+  }, 50);
+};
 onClickOutside(
   dropdown,
   () => {
-    closeMoreMenu()
+    closeMoreMenu();
   },
   { ignore: [toggle] },
-)
+);
 </script>
 
 <style lang="less">
-@import './styles/theme.less';
+@import "./styles/theme.less";
 @import (css)
-  url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap');
+  url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap");
 
 body {
   margin: 0;
   padding: 0;
   overflow: hidden;
-  font-family: 'Roboto', sans-serif;
+  font-family: "Roboto", sans-serif;
 }
 .app {
   width: 800px;

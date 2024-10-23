@@ -32,7 +32,7 @@ interface OkcRawInfo {
 
 const getAddressActivity = async (
   address: string,
-  endpoint: string
+  endpoint: string,
 ): Promise<EthereumRawInfo[]> => {
   return fetch(endpoint + address, {
     method: "GET",
@@ -45,10 +45,10 @@ const getAddressActivity = async (
       "OK-ACCESS-KEY": "df87e7eb-061f-44b1-84bc-83722fad717c",
     },
   })
-    .then((res) => res.json())
-    .then((res) => {
+    .then(res => res.json())
+    .then(res => {
       const results = res.data[0].transactionLists as OkcRawInfo[];
-      const newResults = results.reverse().map((tx) => {
+      const newResults = results.reverse().map(tx => {
         const rawTx: EthereumRawInfo = {
           blockHash: tx.blockHash,
           blockNumber: numberToHex(tx.height),
@@ -73,15 +73,15 @@ const getAddressActivity = async (
 
 export default async (
   network: BaseNetwork,
-  address: string
+  address: string,
 ): Promise<Activity[]> => {
   address = address.toLowerCase();
   const enpoint =
     NetworkEndpoints[network.name as keyof typeof NetworkEndpoints];
   const activities = await getAddressActivity(address, enpoint);
 
-  const Promises = activities.map((activity) => {
-    return decodeTx(activity, network as EvmNetwork).then((txData) => {
+  const Promises = activities.map(activity => {
+    return decodeTx(activity, network as EvmNetwork).then(txData => {
       return {
         from: activity.from,
         to: activity.contractAddress

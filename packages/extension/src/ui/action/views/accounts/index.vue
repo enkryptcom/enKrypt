@@ -103,35 +103,35 @@
 </template>
 
 <script setup lang="ts">
-import AccountsSearch from './components/accounts-search.vue'
-import AccountsListItem from './components/accounts-list-item.vue'
-import CustomScrollbar from '@action/components/custom-scrollbar/index.vue'
-import AddAccount from '@action/icons/common/add-account.vue'
-import AddAccountForm from './components/add-account-form.vue'
-import RenameAccountForm from './components/rename-account-form.vue'
-import DeleteAccountForm from './components/delete-account-form.vue'
-import AddHardwareAccount from '@action/icons/actions/add-hardware-account.vue'
-import ImportAccountIcon from '@action/icons/actions/import-account-icon.vue'
-import ImportAccount from '@action/views/import-account/index.vue'
-import { AccountsHeaderData } from '../../types/account'
-import { PropType, ref } from 'vue'
-import openHardware from '@/libs/utils/open-hardware'
-import scrollSettings from '@/libs/utils/scroll-settings'
-import { EnkryptAccount } from '@enkryptcom/types'
-import HWwallets from '@enkryptcom/hw-wallets'
-import { SignerType } from '@enkryptcom/types'
-import { BaseNetwork } from '@/types/base-network'
-import { WalletType } from '@enkryptcom/types'
-import { ProviderName } from '@/types/provider'
+import AccountsSearch from "./components/accounts-search.vue";
+import AccountsListItem from "./components/accounts-list-item.vue";
+import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
+import AddAccount from "@action/icons/common/add-account.vue";
+import AddAccountForm from "./components/add-account-form.vue";
+import RenameAccountForm from "./components/rename-account-form.vue";
+import DeleteAccountForm from "./components/delete-account-form.vue";
+import AddHardwareAccount from "@action/icons/actions/add-hardware-account.vue";
+import ImportAccountIcon from "@action/icons/actions/import-account-icon.vue";
+import ImportAccount from "@action/views/import-account/index.vue";
+import { AccountsHeaderData } from "../../types/account";
+import { PropType, ref } from "vue";
+import openHardware from "@/libs/utils/open-hardware";
+import scrollSettings from "@/libs/utils/scroll-settings";
+import { EnkryptAccount } from "@enkryptcom/types";
+import HWwallets from "@enkryptcom/hw-wallets";
+import { SignerType } from "@enkryptcom/types";
+import { BaseNetwork } from "@/types/base-network";
+import { WalletType } from "@enkryptcom/types";
+import { ProviderName } from "@/types/provider";
 
 const emit = defineEmits<{
-  (e: 'addressChanged', account: EnkryptAccount): void
-}>()
-const isAddAccount = ref(false)
-const isRenameAccount = ref(false)
-const isDeleteAccount = ref(false)
-const isImportAccount = ref(false)
-const hwWallet = new HWwallets()
+  (e: "addressChanged", account: EnkryptAccount): void;
+}>();
+const isAddAccount = ref(false);
+const isRenameAccount = ref(false);
+const isDeleteAccount = ref(false);
+const isImportAccount = ref(false);
+const hwWallet = new HWwallets();
 const props = defineProps({
   network: {
     type: Object as PropType<BaseNetwork>,
@@ -146,70 +146,70 @@ const props = defineProps({
     type: Function,
     default: () => ({}),
   },
-})
-const accountToRename = ref<EnkryptAccount>()
-const accountToDelete = ref<EnkryptAccount>()
+});
+const accountToRename = ref<EnkryptAccount>();
+const accountToDelete = ref<EnkryptAccount>();
 
 const close = () => {
-  props.toggle()
-}
+  props.toggle();
+};
 const selectAccount = (address: string) => {
   for (const acc of props.accountInfo.activeAccounts) {
     if (props.network.displayAddress(acc.address) === address) {
-      emit('addressChanged', acc)
-      break
+      emit("addressChanged", acc);
+      break;
     }
   }
   setTimeout(() => {
-    props.toggle()
-  }, 100)
-}
+    props.toggle();
+  }, 100);
+};
 const addAccountAction = () => {
-  props.toggle()
+  props.toggle();
 
   setTimeout(() => {
-    isAddAccount.value = true
-  }, 100)
-}
+    isAddAccount.value = true;
+  }, 100);
+};
 const closeAddAccount = () => {
-  isAddAccount.value = false
-}
+  isAddAccount.value = false;
+};
 const renameAccount = (accountIdx: number) => {
-  accountToRename.value = props.accountInfo.activeAccounts[accountIdx]
-  props.toggle()
+  accountToRename.value = props.accountInfo.activeAccounts[accountIdx];
+  props.toggle();
   setTimeout(() => {
-    isRenameAccount.value = true
-  }, 100)
-}
+    isRenameAccount.value = true;
+  }, 100);
+};
 const closeRenameAccount = () => {
-  isRenameAccount.value = false
-}
+  isRenameAccount.value = false;
+};
 const deleteAccount = (accountIdx: number) => {
-  accountToDelete.value = props.accountInfo.activeAccounts[accountIdx]
-  props.toggle()
+  accountToDelete.value = props.accountInfo.activeAccounts[accountIdx];
+  props.toggle();
 
   setTimeout(() => {
-    isDeleteAccount.value = true
-  }, 100)
-}
+    isDeleteAccount.value = true;
+  }, 100);
+};
 const closeDeleteAccount = () => {
-  isDeleteAccount.value = false
-}
+  isDeleteAccount.value = false;
+};
 const importAction = () => {
-  props.toggle()
+  props.toggle();
 
   setTimeout(() => {
-    isImportAccount.value = true
-  }, 100)
-}
+    isImportAccount.value = true;
+  }, 100);
+};
 const closeImportAccount = () => {
-  isImportAccount.value = false
-}
+  isImportAccount.value = false;
+};
 </script>
 
 <style lang="less">
-@import '@action/styles/theme.less';
-@import '@action/styles/custom-scroll.less';
+@import "@action/styles/theme.less";
+@import "@action/styles/custom-scroll.less";
 
 .accounts {
   width: 800px;

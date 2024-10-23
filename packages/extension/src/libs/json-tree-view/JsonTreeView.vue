@@ -54,7 +54,7 @@ function build(
   value: ValueTypes,
   depth: number,
   path: string,
-  includeKey: boolean
+  includeKey: boolean,
 ): ItemData {
   if (value instanceof Object) {
     if (value instanceof Array) {
@@ -64,8 +64,8 @@ function build(
           element,
           depth + 1,
           includeKey ? `${path}${key}[${index}].` : `${path}`,
-          false
-        )
+          false,
+        ),
       );
       return {
         key,
@@ -83,8 +83,8 @@ function build(
         childValue,
         depth + 1,
         includeKey ? `${path}${key}.` : `${path}`,
-        true
-      )
+        true,
+      ),
     );
     return {
       key,

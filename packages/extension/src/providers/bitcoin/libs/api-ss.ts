@@ -26,11 +26,11 @@ class API implements ProviderAPIInterface {
   private getAddress(pubkey: string) {
     return getBitcoinAddress(pubkey, this.networkInfo);
   }
-   
+
   async init(): Promise<void> {}
   async getRawTransaction(hash: string): Promise<string | null> {
     return fetch(`${this.node}/api/v1/tx/${hash}/raw`)
-      .then((res) => res.json())
+      .then(res => res.json())
       .then((tx: { hex: string; error: unknown }) => {
         if ((tx as any).error) return null;
         if (!tx.hex) return null;
@@ -39,7 +39,7 @@ class API implements ProviderAPIInterface {
   }
   async getTransactionStatus(hash: string): Promise<BTCRawInfo | null> {
     return fetch(`${this.node}/api/v1/tx/${hash}`)
-      .then((res) => res.json())
+      .then(res => res.json())
       .then((tx: SSTxType) => {
         if ((tx as any).message) return null;
         if (tx.blockHeight < 0) return null;
@@ -47,14 +47,14 @@ class API implements ProviderAPIInterface {
           blockNumber: tx.blockHeight,
           fee: Number(tx.fee),
           inputs: tx.vin
-            .filter((t) => t.addresses && t.addresses.length)
-            .map((input) => ({
+            .filter(t => t.addresses && t.addresses.length)
+            .map(input => ({
               address: input.addresses![0],
               value: Number(input.value),
             })),
           outputs: tx.vout
-            .filter((t) => t.addresses && t.addresses.length)
-            .map((output) => ({
+            .filter(t => t.addresses && t.addresses.length)
+            .map(output => ({
               address: output.addresses![0],
               value: Number(output.value),
               pkscript: output.scriptPubKey.hex,
@@ -68,7 +68,7 @@ class API implements ProviderAPIInterface {
   async getBalance(pubkey: string): Promise<string> {
     const address = pubkey.length < 64 ? pubkey : this.getAddress(pubkey);
     return fetch(`${this.node}/api/v1/account/${address}`)
-      .then((res) => res.json())
+      .then(res => res.json())
       .then((balance: { balance: string; unconfirmedBalance: string }) => {
         if ((balance as any).message) return "0";
         return toBN(balance.balance)
@@ -86,8 +86,8 @@ class API implements ProviderAPIInterface {
       },
       body: JSON.stringify({ hex: rawtx }),
     })
-      .then((res) => res.json())
-      .then((response) => {
+      .then(res => res.json())
+      .then(response => {
         if (response.error) {
           return Promise.reject(response.message);
         }
@@ -96,7 +96,7 @@ class API implements ProviderAPIInterface {
   }
   async SSToHaskoinUTXOs(
     SSUTXOs: SSUnspentType[],
-    address: string
+    address: string,
   ): Promise<HaskoinUnspentType[]> {
     const ret: HaskoinUnspentType[] = [];
     for (const utx of SSUTXOs) {
@@ -125,14 +125,14 @@ class API implements ProviderAPIInterface {
   async getUTXOs(pubkey: string): Promise<HaskoinUnspentType[]> {
     const address = pubkey.length < 64 ? pubkey : this.getAddress(pubkey);
     return fetch(`${this.node}/api/v1/account/${address}/utxos`)
-      .then((res) => res.json())
+      .then(res => res.json())
       .then(async (utxos: SSUnspentType[]) => {
         if ((utxos as any).message || !utxos.length) return [];
         return filterOutOrdinals(
           address,
           this.networkInfo.name,
-          await this.SSToHaskoinUTXOs(utxos, address)
-        ).then((futxos) => {
+          await this.SSToHaskoinUTXOs(utxos, address),
+        ).then(futxos => {
           futxos.sort((a, b) => {
             return a.value - b.value;
           });

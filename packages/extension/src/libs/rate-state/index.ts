@@ -14,7 +14,7 @@ export default class RateState {
 
   async showPopup(): Promise<boolean> {
     const state: IState | undefined = await this.storage.get(
-      StorageKeys.rateInfo
+      StorageKeys.rateInfo,
     );
 
     if (state) {
@@ -46,7 +46,7 @@ export default class RateState {
 
   async resetPopupTimer(): Promise<void> {
     const state: IState | undefined = await this.storage.get(
-      StorageKeys.rateInfo
+      StorageKeys.rateInfo,
     );
 
     const now = Date.now();

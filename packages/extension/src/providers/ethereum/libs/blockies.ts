@@ -66,7 +66,7 @@ function createCanvas(
   color: string,
   scale: number,
   bgcolor: string,
-  spotcolor: string
+  spotcolor: string,
 ): HTMLCanvasElement {
   const width = Math.sqrt(imageData.length);
   const c = document.createElement("canvas");

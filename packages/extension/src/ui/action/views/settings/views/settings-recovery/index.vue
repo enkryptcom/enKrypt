@@ -34,28 +34,28 @@
 </template>
 
 <script setup lang="ts">
-import SettingsInnerHeader from '@action/views/settings/components/settings-inner-header.vue'
-import { computed } from 'vue'
+import SettingsInnerHeader from "@action/views/settings/components/settings-inner-header.vue";
+import { computed } from "vue";
 
 const props = defineProps({
   mnemonic: {
     type: String,
-    default: '',
+    default: "",
   },
-})
+});
 
 const firstSet = computed(() => {
-  const copy = props.mnemonic.split(' ')
-  return copy.splice(0, copy.length / 2)
-})
+  const copy = props.mnemonic.split(" ");
+  return copy.splice(0, copy.length / 2);
+});
 const secondSet = computed(() => {
-  const copy = props.mnemonic.split(' ')
-  return copy.splice(copy.length / 2)
-})
+  const copy = props.mnemonic.split(" ");
+  return copy.splice(copy.length / 2);
+});
 </script>
 
 <style lang="less">
-@import '@action/styles/theme.less';
+@import "@action/styles/theme.less";
 
 .settings {
   &__recovery-phrase {

@@ -20,12 +20,12 @@ export interface EnkryptEventEmitter {
   on<E extends keyof EnkryptEvent>(
     event: E,
     listener: EnkryptEvent[E],
-    context?: any
+    context?: any,
   ): void;
   off<E extends keyof EnkryptEvent>(
     event: E,
     listener: EnkryptEvent[E],
-    context?: any
+    context?: any,
   ): void;
 }
 
@@ -35,7 +35,7 @@ export interface Enkrypt extends EnkryptEventEmitter {
   disconnect(): Promise<void>;
   signAndSendTransaction(
     transaction: SolSignTransactionRequest,
-    options?: SendOptions
+    options?: SendOptions,
   ): Promise<string>;
   signTransaction(transaction: SolSignTransactionRequest): Promise<string>;
   signMessage(options: {

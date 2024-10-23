@@ -5,7 +5,7 @@
         {{
           collection.name?.length > 25
             ? $filters.replaceWithEllipsis(collection.name, 25, 4)
-            : collection.name || 'UNKNOWN'
+            : collection.name || "UNKNOWN"
         }}
       </p>
       <a
@@ -35,54 +35,54 @@
 </template>
 
 <script setup lang="ts">
-import { computed, PropType, ref } from 'vue'
-import NetworkNftsItem from './network-nfts-item.vue'
-import NftSortMenu from '@action/icons/nft/nft-sort-menu.vue'
-import NetworkNftsCategorySortMenu from './network-nfts-category-sort-menu.vue'
-import { NFTCollection } from '@/types/nft'
-import { onClickOutside } from '@vueuse/core'
+import { computed, PropType, ref } from "vue";
+import NetworkNftsItem from "./network-nfts-item.vue";
+import NftSortMenu from "@action/icons/nft/nft-sort-menu.vue";
+import NetworkNftsCategorySortMenu from "./network-nfts-category-sort-menu.vue";
+import { NFTCollection } from "@/types/nft";
+import { onClickOutside } from "@vueuse/core";
 
-const isOpenSort = ref(false)
-const isAbcSort = ref(true)
-const dropdown = ref(null)
-const toggle = ref(null)
+const isOpenSort = ref(false);
+const isAbcSort = ref(true);
+const dropdown = ref(null);
+const toggle = ref(null);
 
 const props = defineProps({
   collection: {
     type: Object as PropType<NFTCollection>,
     default: () => {
-      return {}
+      return {};
     },
   },
-})
+});
 const reactiveCollection = computed<NFTCollection>(() => {
   const collectionCopy = JSON.parse(
     JSON.stringify(props.collection),
-  ) as NFTCollection
+  ) as NFTCollection;
   if (isAbcSort.value)
     collectionCopy.items.sort((a, b) =>
       a.name > b.name ? 1 : b.name > a.name ? -1 : 0,
-    )
-  return collectionCopy
-})
+    );
+  return collectionCopy;
+});
 const toggleSortMenu = () => {
-  isOpenSort.value = !isOpenSort.value
-}
+  isOpenSort.value = !isOpenSort.value;
+};
 const abcSortAction = (isAbc: boolean) => {
-  isAbcSort.value = isAbc
-  isOpenSort.value = false
-}
+  isAbcSort.value = isAbc;
+  isOpenSort.value = false;
+};
 onClickOutside(
   dropdown,
   () => {
-    if (isOpenSort.value) isOpenSort.value = false
+    if (isOpenSort.value) isOpenSort.value = false;
   },
   { ignore: [toggle] },
-)
+);
 </script>
 
 <style lang="less">
-@import '@action/styles/theme.less';
+@import "@action/styles/theme.less";
 
 .network-nfts {
   &__category {

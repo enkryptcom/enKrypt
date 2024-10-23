@@ -13,7 +13,7 @@ import { NetworkEndpoints } from "./configs";
 const TTL = 30000;
 const getAddressActivity = async (
   address: string,
-  endpoint: string
+  endpoint: string,
 ): Promise<SubstrateRawInfo[]> => {
   return cacheFetch(
     {
@@ -26,15 +26,15 @@ const getAddressActivity = async (
         "Content-Type": "application/json",
       },
     },
-    TTL
-  ).then((res) => {
+    TTL,
+  ).then(res => {
     if (res.message !== "Success") return [];
     return res.data.transfers ? res.data.transfers : [];
   });
 };
 export default async (
   network: BaseNetwork,
-  address: string
+  address: string,
 ): Promise<Activity[]> => {
   const enpoint =
     NetworkEndpoints[network.name as keyof typeof NetworkEndpoints];
@@ -44,9 +44,9 @@ export default async (
     const marketData = new MarketData();
     await marketData
       .getTokenPrice(network.coingeckoID)
-      .then((mdata) => (price = mdata || "0"));
+      .then(mdata => (price = mdata || "0"));
   }
-  return activities.map((activity) => {
+  return activities.map(activity => {
     return {
       from: activity.from,
       to: activity.to,

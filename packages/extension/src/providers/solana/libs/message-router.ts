@@ -9,7 +9,7 @@ import {
 } from "@/types/provider";
 const handleIncomingMessage: handleIncomingMessageType = (
   provider,
-  message
+  message,
 ): void => {
   try {
     const _provider = provider as SolanaProvider;

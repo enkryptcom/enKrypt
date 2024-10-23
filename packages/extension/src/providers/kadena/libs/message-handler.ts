@@ -11,7 +11,7 @@ import {
 
 const handleIncomingMessage: handleIncomingMessageType = (
   provider,
-  message
+  message,
 ): void => {
   try {
     const _provider = provider as KadenaProvider;

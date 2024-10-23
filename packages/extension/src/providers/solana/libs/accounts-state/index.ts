@@ -5,14 +5,14 @@ class AccountState {
   #storage: BrowserStorage;
   constructor() {
     this.#storage = new BrowserStorage(
-      InternalStorageNamespace.solanaAccountsState
+      InternalStorageNamespace.solanaAccountsState,
     );
   }
   async addApprovedAddress(address: string, domain: string): Promise<void> {
     const state = await this.getStateByDomain(domain);
     if (state.approvedAccounts.includes(address))
       state.approvedAccounts = state.approvedAccounts.filter(
-        (add) => add !== address
+        add => add !== address,
       ); //this will make sure latest address is always infront
     state.approvedAccounts.unshift(address);
     await this.setState(state, domain);
@@ -21,7 +21,7 @@ class AccountState {
     const state = await this.getStateByDomain(domain);
     if (state.approvedAccounts.includes(address)) {
       state.approvedAccounts = state.approvedAccounts.filter(
-        (a) => a !== address
+        a => a !== address,
       );
       await this.setState(state, domain);
     }
@@ -40,7 +40,7 @@ class AccountState {
   }
   async isConnected(domain: string): Promise<boolean> {
     return this.getStateByDomain(domain).then(
-      (res) => res.approvedAccounts.length > 0
+      res => res.approvedAccounts.length > 0,
     );
   }
   async deleteAllStates(): Promise<void> {
@@ -61,7 +61,7 @@ class AccountState {
   }
   async getAllStates(): Promise<Record<string, IState>> {
     const allStates: Record<string, IState> = await this.#storage.get(
-      StorageKeys.accountsState
+      StorageKeys.accountsState,
     );
     if (!allStates) return {};
     return allStates;

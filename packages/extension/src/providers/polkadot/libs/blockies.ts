@@ -10,7 +10,7 @@ const createIcon = (address: string, options?: options): string => {
   })
     .map(
       ({ cx, cy, fill, r }) =>
-        `<circle cx="${cx}" cy="${cy}" fill="${fill}" r="${r}" />`
+        `<circle cx="${cx}" cy="${cy}" fill="${fill}" r="${r}" />`,
     )
     .join("");
   const svgHtml = `<svg height="${

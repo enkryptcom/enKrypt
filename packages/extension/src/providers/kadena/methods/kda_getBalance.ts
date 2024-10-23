@@ -8,7 +8,7 @@ const method: MiddlewareFunction = function (
   this: KadenaProvider,
   payload: ProviderRPCRequest,
   res,
-  next
+  next,
 ): void {
   if (payload.method !== "kda_getBalance") return next();
   else {
@@ -19,8 +19,8 @@ const method: MiddlewareFunction = function (
     const address = payload.params[0];
     const chainId =
       payload.params[1] ?? this.network.options.kadenaApiOptions.chainId;
-    this.network.api().then((api) => {
-      (api as KadenaAPI).getBalanceByChainId(address, chainId).then((bal) => {
+    this.network.api().then(api => {
+      (api as KadenaAPI).getBalanceByChainId(address, chainId).then(bal => {
         res(null, bal);
       });
     });

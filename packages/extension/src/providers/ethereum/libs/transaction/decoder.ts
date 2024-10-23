@@ -12,7 +12,7 @@ import MarketData from "@/libs/market-data";
 import { EthereumRawInfo } from "@/types/activity";
 const decodeTx = async (
   tx: EthereumTransaction | EthereumRawInfo,
-  network: EvmNetwork
+  network: EvmNetwork,
 ): Promise<DecodedTx> => {
   const isContractCreation = tx.to ? false : true;
   let tokenTo = tx.to || null;
@@ -30,8 +30,8 @@ const decodeTx = async (
     value: tx.value as string,
   });
   const setInfoFromNetwork = (): Promise<void> => {
-    return (network.api() as Promise<EvmApi>).then((api) => {
-      return api.getTokenInfo(tx.to as string).then((tokenInfo) => {
+    return (network.api() as Promise<EvmApi>).then(api => {
+      return api.getTokenInfo(tx.to as string).then(tokenInfo => {
         tokenName = tokenInfo.name;
         tokenDecimals = tokenInfo.decimals;
         tokenSymbol = tokenInfo.symbol;
@@ -61,7 +61,7 @@ const decodeTx = async (
         }
         await marketData
           .getMarketInfoByContracts([tx.to!], network.coingeckoPlatform!)
-          .then((marketInfo) => {
+          .then(marketInfo => {
             if (marketInfo[tx.to!]) {
               currentPriceUSD = marketInfo[tx.to!]!.current_price ?? 0;
               CGToken = marketInfo[tx.to!]!.id;
@@ -75,7 +75,7 @@ const decodeTx = async (
     }
   }
   if (CGToken === network.coingeckoID && network.coingeckoID) {
-    await marketData.getMarketData([CGToken!]).then((marketInfo) => {
+    await marketData.getMarketData([CGToken!]).then(marketInfo => {
       currentPriceUSD = marketInfo[0]!.current_price ?? 0;
     });
   }

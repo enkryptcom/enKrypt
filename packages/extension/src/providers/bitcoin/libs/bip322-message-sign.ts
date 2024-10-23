@@ -13,7 +13,7 @@ const bip0322_hash = (message: string) => {
   const tag = "BIP0322-signed-message";
   const tagHash = sha256(Buffer.from(tag));
   const result = sha256(
-    Buffer.concat([tagHash, tagHash, Buffer.from(message)])
+    Buffer.concat([tagHash, tagHash, Buffer.from(message)]),
   );
   return bufferToHex(result, true);
 };
@@ -31,10 +31,10 @@ const encodingLength = (number: number) => {
   return number < 0xfd
     ? 1
     : number <= 0xffff
-    ? 3
-    : number <= 0xffffffff
-    ? 5
-    : 9;
+      ? 3
+      : number <= 0xffffffff
+        ? 5
+        : 9;
 };
 export const encode = (number: number, buffer?: Buffer, offset?: number) => {
   checkUInt53(number);
@@ -107,7 +107,7 @@ export function getPSBTMessageOfBIP322Simple({
 }) {
   const outputScript = BTCAddress.toOutputScript(
     network.displayAddress(address),
-    network.networkInfo
+    network.networkInfo,
   );
   const addressType = network.networkInfo.paymentType;
   const supportedTypes = [PaymentType.P2WPKH];
@@ -117,7 +117,7 @@ export function getPSBTMessageOfBIP322Simple({
 
   const prevoutHash = Buffer.from(
     "0000000000000000000000000000000000000000000000000000000000000000",
-    "hex"
+    "hex",
   );
   const prevoutIndex = 0xffffffff;
   const sequence = 0;
@@ -162,7 +162,7 @@ export function getSignatureFromSignedTransaction(strTx: string): string {
   const len = encode(txToSign.ins[0].witness.length);
   const result = Buffer.concat([
     len,
-    ...txToSign.ins[0].witness.map((w) => encodeVarString(w)),
+    ...txToSign.ins[0].witness.map(w => encodeVarString(w)),
   ]);
   const signature = result.toString("base64");
 

@@ -46,7 +46,7 @@ export const routes = {
 export const namespace = "restore-wallet";
 
 export default (): RouteRecordRaw[] => {
-  return Object.values(routes).map((route) => {
+  return Object.values(routes).map(route => {
     route.path = `/${namespace}/${route.path}`;
     route.name = `${namespace}-${String(route.name)}`;
     return route;

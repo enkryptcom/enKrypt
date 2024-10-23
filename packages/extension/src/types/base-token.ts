@@ -47,7 +47,7 @@ export abstract class BaseToken {
     if (this.coingeckoID) {
       const market = new MarketData();
 
-      return market.getTokenPrice(this.coingeckoID).then((price) => {
+      return market.getTokenPrice(this.coingeckoID).then(price => {
         if (price) {
           this.price = price;
         }
@@ -61,13 +61,13 @@ export abstract class BaseToken {
 
   public abstract getLatestUserBalance(
     api: EvmAPI | ApiPromise | BitcoinAPI | KadenaAPI,
-    address: string
+    address: string,
   ): Promise<string>;
 
   public abstract send(
     api: EvmAPI | ApiPromise,
     to: string,
     amount: string,
-    options?: SendOptions
+    options?: SendOptions,
   ): Promise<any>;
 }

@@ -29,7 +29,7 @@ class KadenaProvider
 
   constructor(
     toWindow: (message: string) => void,
-    network: KadenaNetwork = Networks.kadena
+    network: KadenaNetwork = Networks.kadena,
   ) {
     super();
     this.network = network;
@@ -44,7 +44,7 @@ class KadenaProvider
   }
 
   private setMiddleWares(): void {
-    this.middlewares = Middlewares.map((mw) => mw.bind(this));
+    this.middlewares = Middlewares.map(mw => mw.bind(this));
   }
 
   setRequestProvider(network: BaseNetwork): void {

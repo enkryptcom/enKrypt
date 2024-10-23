@@ -8,6 +8,6 @@ export abstract class SubstrateToken extends BaseToken {
     api: ApiPromise,
     to: string,
     amount: string,
-    options?: SendOptions
+    options?: SendOptions,
   ): Promise<SubmittableExtrinsic<"promise", ISubmittableResult>>;
 }

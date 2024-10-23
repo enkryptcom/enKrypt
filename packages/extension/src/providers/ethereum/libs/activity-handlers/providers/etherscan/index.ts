@@ -16,7 +16,7 @@ const TTL = 30000;
 const getAddressActivity = async (
   address: string,
   endpoint: string,
-  headers?: Record<string, string>
+  headers?: Record<string, string>,
 ): Promise<EthereumRawInfo[]> => {
   return cacheFetch(
     {
@@ -24,11 +24,11 @@ const getAddressActivity = async (
       url: `${endpoint}api?module=account&action=txlist&address=${address}&sort=desc`,
       headers,
     },
-    TTL
-  ).then((res) => {
+    TTL,
+  ).then(res => {
     if (res.status === "0") return [];
     const results = res.result as EtherscanTxType[];
-    const newResults = results.map((tx) => {
+    const newResults = results.map(tx => {
       const rawTx: EthereumRawInfo = {
         blockHash: tx.blockHash,
         blockNumber: numberToHex(tx.blockNumber),
@@ -52,7 +52,7 @@ const getAddressActivity = async (
 };
 export default async (
   network: BaseNetwork,
-  address: string
+  address: string,
 ): Promise<Activity[]> => {
   address = address.toLowerCase();
   let headers: undefined | Record<string, string>;
@@ -68,8 +68,8 @@ export default async (
   const enpoint =
     NetworkEndpoints[network.name as keyof typeof NetworkEndpoints];
   const activities = await getAddressActivity(address, enpoint, headers);
-  const Promises = activities.map((activity) => {
-    return decodeTx(activity, network as EvmNetwork).then((txData) => {
+  const Promises = activities.map(activity => {
+    return decodeTx(activity, network as EvmNetwork).then(txData => {
       return {
         from: activity.from,
         to: activity.contractAddress

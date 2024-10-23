@@ -46,12 +46,12 @@ export type EnkryptFeature = {
 const hexToUint8Array = (hexString: string) => {
   hexString = hexString.replace("0x", "");
   return Uint8Array.from(
-    hexString.match(/.{1,2}/g)!.map((byte) => parseInt(byte, 16))
+    hexString.match(/.{1,2}/g)!.map(byte => parseInt(byte, 16)),
   );
 };
 const uint8ArrayToHex = (buffer: Uint8Array) => {
   const str = Array.prototype.map
-    .call(buffer, (x) => ("00" + x.toString(16)).slice(-2))
+    .call(buffer, x => ("00" + x.toString(16)).slice(-2))
     .join("");
   return `0x${str}`;
 };
@@ -152,21 +152,21 @@ export class EnkryptWallet implements Wallet {
     ...args: Parameters<StandardEventsListeners[E]>
   ): void {
     // eslint-disable-next-line prefer-spread
-    this.#listeners[event]?.forEach((listener) => listener.apply(null, args));
+    this.#listeners[event]?.forEach(listener => listener.apply(null, args));
   }
 
   #off<E extends StandardEventsNames>(
     event: E,
-    listener: StandardEventsListeners[E]
+    listener: StandardEventsListeners[E],
   ): void {
     this.#listeners[event] = this.#listeners[event]?.filter(
-      (existingListener) => listener !== existingListener
+      existingListener => listener !== existingListener,
     );
   }
 
   #connected = () => {
     if (this.#enkrypt.accounts.length) {
-      this.#accounts = this.#enkrypt.accounts.map((acc) => {
+      this.#accounts = this.#enkrypt.accounts.map(acc => {
         return new EnkryptWalletAccount({
           address: acc.address,
           publicKey: hexToUint8Array(acc.pubkey),
@@ -211,7 +211,7 @@ export class EnkryptWallet implements Wallet {
     for (const input of inputs) {
       const { transaction, account, chain, options } = input;
       const validAccount = this.#accounts.find(
-        (acc) => acc.address === account.address
+        acc => acc.address === account.address,
       );
       if (!validAccount) throw new Error("invalid account");
       if (!isSolanaChain(chain)) throw new Error("invalid chain");
@@ -221,7 +221,7 @@ export class EnkryptWallet implements Wallet {
           hex: uint8ArrayToHex(transaction),
           chain: chain,
         },
-        options || {}
+        options || {},
       );
       outputs.push({ signature: hexToUint8Array(signature) });
     }
@@ -234,7 +234,7 @@ export class EnkryptWallet implements Wallet {
     for (const input of inputs) {
       const { transaction, account, chain } = input;
       const validAccount = this.#accounts.find(
-        (acc) => acc.address === account.address
+        acc => acc.address === account.address,
       );
       if (!validAccount) throw new Error("invalid account");
       if (chain && !isSolanaChain(chain)) throw new Error("invalid chain");

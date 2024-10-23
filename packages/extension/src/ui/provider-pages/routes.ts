@@ -16,7 +16,7 @@ const uiProviders = [
   SolanaUI,
 ];
 let uiRoutes: RouteRecordRaw[] = [];
-uiProviders.forEach((provider) => {
+uiProviders.forEach(provider => {
   uiRoutes = uiRoutes.concat(provider.routes);
 });
 const routes = [{ path: "/", component: Home, name: "home" }, ...uiRoutes];

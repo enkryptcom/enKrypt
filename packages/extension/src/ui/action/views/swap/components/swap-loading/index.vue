@@ -22,22 +22,22 @@
 </template>
 
 <script setup lang="ts">
-import CloseIcon from '@action/icons/common/close-icon.vue'
-import SwapLookingAnimation from '@action/icons/swap/swap-looking-animation.vue'
-import { SWAP_LOADING } from '../../types'
+import CloseIcon from "@action/icons/common/close-icon.vue";
+import SwapLookingAnimation from "@action/icons/swap/swap-looking-animation.vue";
+import { SWAP_LOADING } from "../../types";
 interface Props {
-  close: () => void
-  showClose?: boolean
-  loadingType: SWAP_LOADING
+  close: () => void;
+  showClose?: boolean;
+  loadingType: SWAP_LOADING;
 }
 withDefaults(defineProps<Props>(), {
   loadingType: SWAP_LOADING.LOADING,
   showClose: false,
-})
+});
 </script>
 
 <style lang="less" scoped>
-@import '@action/styles/theme.less';
+@import "@action/styles/theme.less";
 .container {
   display: contents;
 }

@@ -21,21 +21,21 @@
 </template>
 
 <script setup lang="ts">
-import { BaseNetwork } from '@/types/base-network'
-import { replaceWithEllipsis } from '@/ui/action/utils/filters'
-import { polkadotEncodeAddress } from '@enkryptcom/utils'
-import { computed, PropType, ref } from 'vue'
+import { BaseNetwork } from "@/types/base-network";
+import { replaceWithEllipsis } from "@/ui/action/utils/filters";
+import { polkadotEncodeAddress } from "@enkryptcom/utils";
+import { computed, PropType, ref } from "vue";
 
 const emit = defineEmits<{
-  (e: 'update:inputAddress', address: string): void
-  (e: 'toggle:showContacts', show: boolean): void
-}>()
+  (e: "update:inputAddress", address: string): void;
+  (e: "toggle:showContacts", show: boolean): void;
+}>();
 
 const props = defineProps({
   value: {
     type: String,
     default: () => {
-      return ''
+      return "";
     },
   },
   from: {
@@ -47,60 +47,60 @@ const props = defineProps({
     default: () => ({}),
   },
   disableDirectInput: Boolean,
-})
+});
 
-const addressInput = ref<HTMLInputElement>()
-const isFocus = ref(false)
+const addressInput = ref<HTMLInputElement>();
+const isFocus = ref(false);
 
 const pasteFromClipboard = () => {
-  addressInput.value?.focus()
-  document.execCommand('paste')
-}
+  addressInput.value?.focus();
+  document.execCommand("paste");
+};
 
-defineExpose({ addressInput, pasteFromClipboard })
+defineExpose({ addressInput, pasteFromClipboard });
 
 const address = computed({
   get: () => {
     try {
       if (isFocus.value && isAddress.value) {
-        return props.network.displayAddress(props.value)
+        return props.network.displayAddress(props.value);
       } else if (isAddress.value) {
         return replaceWithEllipsis(
           props.network.displayAddress(props.value),
           6,
           6,
-        )
+        );
       }
 
-      return props.value
+      return props.value;
     } catch {
-      return props.value
+      return props.value;
     }
   },
   set: value => {
     if (value) {
-      emit('update:inputAddress', value)
+      emit("update:inputAddress", value);
     }
   },
-})
+});
 
 const isAddress = computed(() => {
   try {
-    polkadotEncodeAddress(props.value)
-    return true
+    polkadotEncodeAddress(props.value);
+    return true;
   } catch {
-    return false
+    return false;
   }
-})
+});
 
 const changeFocus = (val: FocusEvent) => {
-  isFocus.value = val.type === 'focus'
-  if (isFocus.value) emit('toggle:showContacts', isFocus.value)
-}
+  isFocus.value = val.type === "focus";
+  if (isFocus.value) emit("toggle:showContacts", isFocus.value);
+};
 </script>
 
 <style lang="less">
-@import '@action/styles/theme.less';
+@import "@action/styles/theme.less";
 
 .send-address-input {
   height: 64px;
@@ -110,7 +110,7 @@ const changeFocus = (val: FocusEvent) => {
   border: 1px solid @gray02;
   box-sizing: border-box;
   border-radius: 10px;
-  width: calc(~'100% - 64px');
+  width: calc(~"100% - 64px");
   padding: 16px;
   display: flex;
   justify-content: flex-start;
@@ -120,7 +120,7 @@ const changeFocus = (val: FocusEvent) => {
 
   &.focus {
     border: 2px solid @primary;
-    width: calc(~'100% - 62px');
+    width: calc(~"100% - 62px");
     margin: 12px 31px 8px 31px;
   }
 

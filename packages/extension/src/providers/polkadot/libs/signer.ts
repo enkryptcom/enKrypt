@@ -17,12 +17,11 @@ export default class Signer implements SignerInterface {
     this.id = options.id;
   }
 
-   
   public async signPayload(payload: SignerPayloadJSON): Promise<SignerResult> {
     return this.sendMessageHandler(this.id, {
       method: "dot_signer_signPayload",
       params: [payload],
-    }).then((sig) => {
+    }).then(sig => {
       nextId++;
       return {
         signature: sig,
@@ -31,12 +30,11 @@ export default class Signer implements SignerInterface {
     });
   }
 
-   
   public async signRaw(payload: SignerPayloadRaw): Promise<SignerResult> {
     return this.sendMessageHandler(this.id, {
       method: "dot_signer_signRaw",
       params: [payload],
-    }).then((sig) => {
+    }).then(sig => {
       nextId++;
       return {
         signature: sig,

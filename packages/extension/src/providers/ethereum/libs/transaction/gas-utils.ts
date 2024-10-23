@@ -46,7 +46,7 @@ const getFastest = (gasPrice: string): BNType => {
 
 const getGasBasedOnType = (
   gasPrice: string,
-  gasPriceType: GasPriceTypes
+  gasPriceType: GasPriceTypes,
 ): BNType => {
   switch (gasPriceType) {
     case GasPriceTypes.ECONOMY:
@@ -73,25 +73,25 @@ const getPriorityFeeAvg = (arr: BNType[]): BNType => {
 
 const getPriorityFeeBasedOnType = (
   gasFeeHistory: FormattedFeeHistory,
-  gasPriceType: GasPriceTypes
+  gasPriceType: GasPriceTypes,
 ): BNType => {
   if (gasFeeHistory.blocks.length === 0) return getMinPriorityFee();
   switch (gasPriceType) {
     case GasPriceTypes.ECONOMY:
       return getPriorityFeeAvg(
-        gasFeeHistory.blocks.map((b) => b.priorityFeePerGas[0])
+        gasFeeHistory.blocks.map(b => b.priorityFeePerGas[0]),
       );
     case GasPriceTypes.REGULAR:
       return getPriorityFeeAvg(
-        gasFeeHistory.blocks.map((b) => b.priorityFeePerGas[1])
+        gasFeeHistory.blocks.map(b => b.priorityFeePerGas[1]),
       );
     case GasPriceTypes.FAST:
       return getPriorityFeeAvg(
-        gasFeeHistory.blocks.map((b) => b.priorityFeePerGas[2])
+        gasFeeHistory.blocks.map(b => b.priorityFeePerGas[2]),
       );
     case GasPriceTypes.FASTEST:
       return getPriorityFeeAvg(
-        gasFeeHistory.blocks.map((b) => b.priorityFeePerGas[3])
+        gasFeeHistory.blocks.map(b => b.priorityFeePerGas[3]),
       );
     default:
       return getMinPriorityFee();
@@ -99,7 +99,7 @@ const getPriorityFeeBasedOnType = (
 };
 
 const formatFeeHistory = (
-  feeHistory: FeeHistoryResult
+  feeHistory: FeeHistoryResult,
 ): FormattedFeeHistory => {
   const historicalBlocks = feeHistory.baseFeePerGas.length - 1;
   let blockNum = toBN(feeHistory.oldestBlock).toNumber();
@@ -115,14 +115,14 @@ const formatFeeHistory = (
       gasUsedRatio: feeHistory.gasUsedRatio[index],
       priorityFeePerGas: feeHistory.reward
         ? feeHistory.reward[index]
-            .map((x) => toBN(x))
+            .map(x => toBN(x))
             .sort((a, b) => a.sub(b).toNumber())
         : GAS_PERCENTILES.map(() => toBN(0)),
     });
     blockNum += 1;
     index += 1;
   }
-  blocks = blocks.filter((b) => b.gasUsedRatio !== 0);
+  blocks = blocks.filter(b => b.gasUsedRatio !== 0);
   const pendingBaseFee = toBN(feeHistory.baseFeePerGas[historicalBlocks]);
   if (pendingBaseFee.gt(highestBaseFee)) highestBaseFee = pendingBaseFee;
   return {
@@ -139,7 +139,7 @@ const formatFeeHistory = (
 
 const getBaseFeeBasedOnType = (
   baseFee: string,
-  gasPriceType: GasPriceTypes
+  gasPriceType: GasPriceTypes,
 ): BNType => {
   const baseFeeBN = toBN(baseFee);
   switch (gasPriceType) {

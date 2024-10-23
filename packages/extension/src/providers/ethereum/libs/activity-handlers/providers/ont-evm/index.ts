@@ -26,7 +26,7 @@ interface OntEvmRawInfo {
 
 const getAddressActivity = async (
   address: string,
-  endpoint: string
+  endpoint: string,
 ): Promise<EthereumRawInfo[]> => {
   return fetch(
     `${endpoint}v2/addresses/${address}/txs?page_size=20&page_number=1`,
@@ -35,12 +35,12 @@ const getAddressActivity = async (
       headers: {
         "Content-Type": "application/json",
       },
-    }
+    },
   )
-    .then((res) => res.json())
-    .then((res) => {
+    .then(res => res.json())
+    .then(res => {
       const results = res.result.records as OntEvmRawInfo[];
-      const newResults = results.map((tx) => {
+      const newResults = results.map(tx => {
         const rawTx: EthereumRawInfo = {
           blockHash: "",
           blockNumber: numberToHex(tx.block_height),
@@ -65,7 +65,7 @@ const getAddressActivity = async (
 
 export default async (
   network: BaseNetwork,
-  address: string
+  address: string,
 ): Promise<Activity[]> => {
   address = address.toLowerCase();
   const enpoint =
@@ -73,7 +73,7 @@ export default async (
   const activities = await getAddressActivity(address, enpoint);
   const marketData = new MarketData();
   const price = await marketData.getTokenPrice(network.coingeckoID!);
-  const resActivities = activities.map((activity) => {
+  const resActivities = activities.map(activity => {
     const tActivity: Activity = {
       from: activity.from,
       to: activity.contractAddress ? activity.contractAddress : activity.to!,

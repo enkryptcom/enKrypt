@@ -33,7 +33,7 @@ class PolkadotProvider
     this.KeyRing = new PublicKeyRing();
   }
   private setMiddleWares(): void {
-    this.middlewares = Middlewares.map((mw) => mw.bind(this));
+    this.middlewares = Middlewares.map(mw => mw.bind(this));
   }
   setRequestProvider(network: BaseNetwork): void {
     this.requestProvider.disconnect();
@@ -42,12 +42,12 @@ class PolkadotProvider
   request(request: ProviderRPCRequest): Promise<OnMessageResponse> {
     return this.requestProvider
       .request(request)
-      .then((res) => {
+      .then(res => {
         return {
           result: JSON.stringify(res),
         };
       })
-      .catch((e) => {
+      .catch(e => {
         return {
           error: JSON.stringify(e.message),
         };

@@ -6,55 +6,55 @@
       <div class="assets-select-list__token-info-name">
         <h4>{{ token.name }}</h4>
         <p>
-          {{ balance ? $filters.formatFloatingPointValue(balance).value : '~' }}
+          {{ balance ? $filters.formatFloatingPointValue(balance).value : "~" }}
           <span>{{ token.symbol }}</span>
         </p>
       </div>
     </div>
 
     <div class="assets-select-list__token-price">
-      <h4>${{ price ? $filters.formatFiatValue(price).value : '~' }}</h4>
+      <h4>${{ price ? $filters.formatFiatValue(price).value : "~" }}</h4>
     </div>
   </a>
 </template>
 
 <script setup lang="ts">
-import { fromBase } from '@enkryptcom/utils'
-import { BaseToken } from '@/types/base-token'
-import BigNumber from 'bignumber.js'
-import { computed, PropType } from 'vue'
-import { imageLoadError } from '@/ui/action/utils/misc'
+import { fromBase } from "@enkryptcom/utils";
+import { BaseToken } from "@/types/base-token";
+import BigNumber from "bignumber.js";
+import { computed, PropType } from "vue";
+import { imageLoadError } from "@/ui/action/utils/misc";
 
 const emit = defineEmits<{
-  (e: 'update:selectAsset', asset: BaseToken): void
-}>()
+  (e: "update:selectAsset", asset: BaseToken): void;
+}>();
 
 const props = defineProps({
   token: {
     type: Object as PropType<BaseToken>,
     default: () => ({}),
   },
-})
+});
 
 const balance = computed(() =>
   props.token.balance
     ? fromBase(props.token.balance, props.token.decimals)
     : undefined,
-)
+);
 
 const price = computed(() =>
   balance.value
     ? new BigNumber(balance.value).times(props.token.price ?? 0).toFixed()
     : undefined,
-)
+);
 
 const select = () => {
-  emit('update:selectAsset', props.token)
-}
+  emit("update:selectAsset", props.token);
+};
 </script>
 
 <style lang="less">
-@import '@action/styles/theme.less';
+@import "@action/styles/theme.less";
 
 .assets-select-list {
   &__token {

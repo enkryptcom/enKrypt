@@ -56,37 +56,37 @@
 </template>
 
 <script setup lang="ts">
-import { PropType, ref } from 'vue'
-import SparklineUp from '@action/icons/asset/sparkline-up.vue'
-import SparklineDown from '@action/icons/asset/sparkline-down.vue'
-import AssetDetailView from '@action/views/asset-detail-view/index.vue'
-import { AssetsType } from '@/types/provider'
-import Tooltip from '@/ui/action/components/tooltip/index.vue'
-import { use } from 'echarts/core'
-import { SVGRenderer } from 'echarts/renderers'
-import { LineChart } from 'echarts/charts'
-import { TooltipComponent, GridComponent } from 'echarts/components'
-import VChart from 'vue-echarts'
+import { PropType, ref } from "vue";
+import SparklineUp from "@action/icons/asset/sparkline-up.vue";
+import SparklineDown from "@action/icons/asset/sparkline-down.vue";
+import AssetDetailView from "@action/views/asset-detail-view/index.vue";
+import { AssetsType } from "@/types/provider";
+import Tooltip from "@/ui/action/components/tooltip/index.vue";
+import { use } from "echarts/core";
+import { SVGRenderer } from "echarts/renderers";
+import { LineChart } from "echarts/charts";
+import { TooltipComponent, GridComponent } from "echarts/components";
+import VChart from "vue-echarts";
 
-const isDetail = ref(false)
+const isDetail = ref(false);
 
 const props = defineProps({
   token: {
     type: Object as PropType<AssetsType>,
     default: () => ({}),
   },
-})
-use([SVGRenderer, LineChart, TooltipComponent, GridComponent])
+});
+use([SVGRenderer, LineChart, TooltipComponent, GridComponent]);
 
 const option = ref({
   width: 32,
   height: 32,
-  color: [props.token.priceChangePercentage >= 0 ? '#80FFA5' : '#e01f43'],
+  color: [props.token.priceChangePercentage >= 0 ? "#80FFA5" : "#e01f43"],
   grid: { show: false, left: 0, top: 0 },
   xAxis: [
     {
       show: false,
-      type: 'category',
+      type: "category",
       showGrid: false,
       boundaryGap: false,
       splitLine: {
@@ -97,7 +97,7 @@ const option = ref({
   yAxis: [
     {
       show: false,
-      type: 'value',
+      type: "value",
       splitLine: {
         show: false,
       },
@@ -105,28 +105,28 @@ const option = ref({
   ],
   series: [
     {
-      type: 'line',
+      type: "line",
       smooth: true,
       lineStyle: {
         width: 1.5,
       },
       showSymbol: false,
       emphasis: {
-        focus: 'none',
+        focus: "none",
       },
       data:
-        props.token.sparkline !== '' ? JSON.parse(props.token.sparkline) : [],
+        props.token.sparkline !== "" ? JSON.parse(props.token.sparkline) : [],
     },
   ],
-})
+});
 
 const toggleDetail = () => {
-  isDetail.value = !isDetail.value
-}
+  isDetail.value = !isDetail.value;
+};
 </script>
 
 <style lang="less">
-@import '@action/styles/theme.less';
+@import "@action/styles/theme.less";
 .chart {
   height: 32px;
   width: 32px;

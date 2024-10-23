@@ -8,25 +8,25 @@
 </template>
 
 <script setup lang="ts">
-import { DAppsItem } from '@/types/ui'
-import { PropType } from 'vue'
-import DappsArrow from '@action/icons/common/dapps-arrow.vue'
+import { DAppsItem } from "@/types/ui";
+import { PropType } from "vue";
+import DappsArrow from "@action/icons/common/dapps-arrow.vue";
 
 const props = defineProps({
   app: {
     type: Object as PropType<DAppsItem>,
     default: () => {
-      return {}
+      return {};
     },
   },
-})
+});
 const openLink = () => {
-  window.open(props.app.link, '_blank', 'noopener')
-}
+  window.open(props.app.link, "_blank", "noopener");
+};
 </script>
 
 <style lang="less">
-@import '@action/styles/theme.less';
+@import "@action/styles/theme.less";
 
 .network-dapps {
   &__item {

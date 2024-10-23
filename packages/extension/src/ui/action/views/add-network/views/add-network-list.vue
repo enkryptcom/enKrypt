@@ -51,35 +51,35 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onBeforeMount, ComponentPublicInstance, PropType } from 'vue'
-import CloseIcon from '@action/icons/common/close-icon.vue'
-import AddNetworkSearch from '../components/add-network-search.vue'
-import AddNetworkItem from '../components/add-network-item.vue'
-import CustomScrollbar from '@action/components/custom-scrollbar/index.vue'
-import { NodeType } from '@/types/provider'
-import { getAllNetworks, POPULAR_NAMES } from '@/libs/utils/networks'
-import NetworksState from '@/libs/networks-state'
-import scrollSettings from '@/libs/utils/scroll-settings'
-import { computed } from 'vue'
-import { CustomEvmNetwork } from '@/providers/ethereum/types/custom-evm-network'
-import CustomNetworksState from '@/libs/custom-networks-state'
+import { ref, onBeforeMount, ComponentPublicInstance, PropType } from "vue";
+import CloseIcon from "@action/icons/common/close-icon.vue";
+import AddNetworkSearch from "../components/add-network-search.vue";
+import AddNetworkItem from "../components/add-network-item.vue";
+import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
+import { NodeType } from "@/types/provider";
+import { getAllNetworks, POPULAR_NAMES } from "@/libs/utils/networks";
+import NetworksState from "@/libs/networks-state";
+import scrollSettings from "@/libs/utils/scroll-settings";
+import { computed } from "vue";
+import { CustomEvmNetwork } from "@/providers/ethereum/types/custom-evm-network";
+import CustomNetworksState from "@/libs/custom-networks-state";
 
 interface NodeTypesWithActive extends NodeType {
-  isActive: boolean
+  isActive: boolean;
 }
 const emit = defineEmits<{
-  (e: 'update:activeNetworks'): void
-}>()
+  (e: "update:activeNetworks"): void;
+}>();
 
-const networksState = new NetworksState()
-const searchInput = ref('')
-const all = ref<Array<NodeTypesWithActive>>([])
-const popular = ref<Array<NodeTypesWithActive>>([])
-const scrollProgress = ref(0)
-const manageNetworkScrollRef = ref<ComponentPublicInstance<HTMLElement>>()
-const showTestNets = ref(false)
+const networksState = new NetworksState();
+const searchInput = ref("");
+const all = ref<Array<NodeTypesWithActive>>([]);
+const popular = ref<Array<NodeTypesWithActive>>([]);
+const scrollProgress = ref(0);
+const manageNetworkScrollRef = ref<ComponentPublicInstance<HTMLElement>>();
+const showTestNets = ref(false);
 
-defineExpose({ manageNetworkScrollRef })
+defineExpose({ manageNetworkScrollRef });
 
 defineProps({
   close: {
@@ -90,94 +90,96 @@ defineProps({
     type: Function as PropType<() => void>,
     default: () => ({}),
   },
-})
+});
 
 const getAllNetworksAndStatus = async () => {
-  const activeNetworks = await networksState.getActiveNetworkNames()
+  const activeNetworks = await networksState.getActiveNetworkNames();
 
   const allNetworks = (await getAllNetworks()).map(net => {
     return {
       ...net,
       isActive: activeNetworks.includes(net.name),
-    }
-  })
+    };
+  });
 
-  return allNetworks
-}
+  return allNetworks;
+};
 
 const searchAllNetworks = computed(() => {
   return all.value.filter(a =>
     a.name_long.toLowerCase().startsWith(searchInput.value.toLowerCase()),
-  )
-})
+  );
+});
 
 const setNetworkLists = async (isTestActive: boolean) => {
   const allNetworksNotTestNets = (await getAllNetworksAndStatus())
     .filter(({ isTestNetwork }) => !isTestNetwork || isTestActive)
-    .sort((a, b) => a.name_long.localeCompare(b.name_long))
+    .sort((a, b) => a.name_long.localeCompare(b.name_long));
 
   const popularNetworks = allNetworksNotTestNets
     .filter(net => POPULAR_NAMES.includes(net.name))
-    .sort((a, b) => a.name_long.localeCompare(b.name_long))
+    .sort((a, b) => a.name_long.localeCompare(b.name_long));
 
-  all.value = allNetworksNotTestNets
-  popular.value = popularNetworks
-}
+  all.value = allNetworksNotTestNets;
+  popular.value = popularNetworks;
+};
 
 onBeforeMount(async () => {
-  await setNetworkLists(showTestNets.value)
-})
+  await setNetworkLists(showTestNets.value);
+});
 
 const onTestNetCheck = async () => {
-  showTestNets.value = !showTestNets.value
-  await setNetworkLists(showTestNets.value)
-}
+  showTestNets.value = !showTestNets.value;
+  await setNetworkLists(showTestNets.value);
+};
 
 const onToggle = async (networkName: string, isActive: boolean) => {
   try {
-    await networksState.setNetworkStatus(networkName, isActive)
-    emit('update:activeNetworks')
+    await networksState.setNetworkStatus(networkName, isActive);
+    emit("update:activeNetworks");
     all.value = all.value.map(network => {
       if (network.name === networkName) {
-        network.isActive = isActive
+        network.isActive = isActive;
       }
 
-      return network
-    })
+      return network;
+    });
 
-    popular.value = all.value.filter(({ name }) => POPULAR_NAMES.includes(name))
+    popular.value = all.value.filter(({ name }) =>
+      POPULAR_NAMES.includes(name),
+    );
   } catch (e) {
-    console.error(e)
+    console.error(e);
   }
-}
+};
 
 const onNetworkDeleted = async (chainId: string) => {
-  const customNetworksState = new CustomNetworksState()
-  await customNetworksState.deleteEVMNetwork(chainId)
+  const customNetworksState = new CustomNetworksState();
+  await customNetworksState.deleteEVMNetwork(chainId);
 
-  all.value = await getAllNetworksAndStatus()
-  emit('update:activeNetworks')
-}
+  all.value = await getAllNetworksAndStatus();
+  emit("update:activeNetworks");
+};
 
 const updateSearch = (value: string) => {
-  searchInput.value = value
-}
+  searchInput.value = value;
+};
 const handleScroll = (e: any) => {
-  const progress = Number(e.target.lastChild.style.top.replace('px', ''))
-  scrollProgress.value = progress
-}
+  const progress = Number(e.target.lastChild.style.top.replace("px", ""));
+  scrollProgress.value = progress;
+};
 const isHasScroll = () => {
   if (manageNetworkScrollRef.value) {
-    return manageNetworkScrollRef.value.$el.classList.contains('ps--active-y')
+    return manageNetworkScrollRef.value.$el.classList.contains("ps--active-y");
   }
 
-  return false
-}
+  return false;
+};
 </script>
 
 <style lang="less" scoped>
-@import '@action/styles/theme.less';
-@import '@action/styles/custom-scroll.less';
+@import "@action/styles/theme.less";
+@import "@action/styles/custom-scroll.less";
 
 .add-network {
   width: 100%;

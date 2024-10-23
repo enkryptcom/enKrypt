@@ -8,26 +8,26 @@
 </template>
 
 <script setup lang="ts">
-import Switch from '@action/components/switch/index.vue'
+import Switch from "@action/components/switch/index.vue";
 
 defineProps({
   title: {
     type: String,
     default: () => {
-      return ''
+      return "";
     },
   },
   isChecked: {
     type: Boolean,
     default: () => {
-      return false
+      return false;
     },
   },
-})
+});
 </script>
 
 <style lang="less">
-@import '@action/styles/theme.less';
+@import "@action/styles/theme.less";
 
 .settings-switch {
   height: 48px;
@@ -37,7 +37,7 @@ defineProps({
   border: 1px solid @gray02;
   box-sizing: border-box;
   border-radius: 10px;
-  width: calc(~'100% - 64px');
+  width: calc(~"100% - 64px");
   padding: 12px 16px;
   display: block;
   position: relative;

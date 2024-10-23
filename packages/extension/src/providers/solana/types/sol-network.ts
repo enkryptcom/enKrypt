@@ -37,15 +37,15 @@ export interface SolanaNetworkOptions {
   basePath: string;
   NFTHandler?: (
     network: BaseNetwork,
-    address: string
+    address: string,
   ) => Promise<NFTCollection[]>;
   activityHandler: (
     network: BaseNetwork,
-    address: string
+    address: string,
   ) => Promise<Activity[]>;
   assetsInfoHandler?: (
     network: BaseNetwork,
-    address: string
+    address: string,
   ) => Promise<AssetsType[]>;
 }
 
@@ -58,15 +58,15 @@ export class SolanaNetwork extends BaseNetwork {
   public assets: BaseToken[] = [];
   private activityHandler: (
     network: BaseNetwork,
-    address: string
+    address: string,
   ) => Promise<Activity[]>;
   NFTHandler?: (
     network: BaseNetwork,
-    address: string
+    address: string,
   ) => Promise<NFTCollection[]>;
   assetsInfoHandler?: (
     network: BaseNetwork,
-    address: string
+    address: string,
   ) => Promise<AssetsType[]>;
   constructor(options: SolanaNetworkOptions) {
     const api = async () => {
@@ -91,7 +91,7 @@ export class SolanaNetwork extends BaseNetwork {
 
   public async getAllTokens(pubkey: string): Promise<BaseToken[]> {
     const assets = await this.getAllTokenInfo(pubkey);
-    return assets.map((token) => {
+    return assets.map(token => {
       const bTokenOptions: SolTokenOptions = {
         decimals: token.decimals,
         icon: token.icon,
@@ -131,7 +131,7 @@ export class SolanaNetwork extends BaseNetwork {
         symbol: this.currencyName,
         value: marketData.length ? currentPrice.toString() : "0",
         valuef: formatFiatValue(
-          marketData.length ? currentPrice.toString() : "0"
+          marketData.length ? currentPrice.toString() : "0",
         ).value,
         contract: "",
         decimals: this.decimals,

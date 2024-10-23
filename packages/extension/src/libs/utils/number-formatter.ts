@@ -73,7 +73,7 @@ BigNumber.config({ ROUNDING_MODE: 1 }); // equivalent
  */
 
 const formatIntegerToString = (
-  _value: BigNumber | string | number
+  _value: BigNumber | string | number,
 ): FormattedValue => {
   return {
     value: new BigNumber(_value).toFormat(),
@@ -87,7 +87,7 @@ const formatIntegerToString = (
  * @return {object} FormattedNumber
  */
 const formatIntegerValue = (
-  _value: BigNumber | string | number
+  _value: BigNumber | string | number,
 ): FormattedValue => {
   const value = new BigNumber(_value);
   /* Case I: value >= 1,000,000,000,000,000 */
@@ -123,7 +123,7 @@ const formatIntegerValue = (
  * @returns {object} FormattedNumber with value as formatted string, and tooltipText
  */
 function formatFloatingPointValue(
-  _value: BigNumber | string | number
+  _value: BigNumber | string | number,
 ): FormattedValue {
   const value = new BigNumber(_value);
   /**
@@ -185,7 +185,7 @@ function formatFloatingPointValue(
  * @returns {object} FormattedNumber with value as formatted string, unit and tooltipText
  */
 const formatBalanceEthValue = (
-  _value: BigNumber | string | number
+  _value: BigNumber | string | number,
 ): FormattedValue => {
   const value = new BigNumber(_value);
   const ethValue = new BigNumber(fromWei(_value.toString()));
@@ -252,7 +252,7 @@ const formatBalanceEthValue = (
  * @returns {object} FormattedNumber with value as formatted string, unit and tooltipText
  */
 const formatGasValue = (
-  _value: BigNumber | string | number
+  _value: BigNumber | string | number,
 ): FormattedValue => {
   const value = new BigNumber(_value);
   const gweiValue = new BigNumber(fromWei(_value.toString(), "gwei"));
@@ -310,7 +310,7 @@ const formatGasValue = (
  * @returns {object} FormattedNumber with value as formatted string, unit and tooltipText
  */
 const formatPercentageValue = (
-  _value: BigNumber | string | number
+  _value: BigNumber | string | number,
 ): FormattedValue => {
   /* Strip '%' if necessary */
   const value = new BigNumber(_value.toString().replaceAll("%", ""));
@@ -385,7 +385,7 @@ const formatPercentageValue = (
  * @returns Object FormattedNumber with value as formatted string and tooltipText
  */
 const formatFiatValue = (
-  _value: BigNumber | string | number
+  _value: BigNumber | string | number,
 ): FormattedValue => {
   const value = new BigNumber(_value);
   /**
@@ -495,7 +495,7 @@ const convertToQuadrillion = (value: BigNumber): FormattedValue => {
 const getRoundNumber = (
   value: BigNumber,
   round: number,
-  hasTrailingZeros = false
+  hasTrailingZeros = false,
 ): FormattedValue => {
   const dps = value.decimalPlaces();
   return {

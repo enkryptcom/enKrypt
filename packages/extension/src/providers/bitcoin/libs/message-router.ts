@@ -11,7 +11,7 @@ import {
 import { NetworkNames } from "@enkryptcom/types";
 const handleIncomingMessage: handleIncomingMessageType = (
   provider,
-  message
+  message,
 ): void => {
   try {
     const _provider = provider as BitcoinProvider;
@@ -37,7 +37,7 @@ const handleIncomingMessage: handleIncomingMessageType = (
       ) {
         _provider
           .switchNetwork(
-            jsonMsg.params[0] === NetworkNames.Bitcoin ? "livenet" : "testnet"
+            jsonMsg.params[0] === NetworkNames.Bitcoin ? "livenet" : "testnet",
           )
           .then(() => {
             _provider.emit(EmitEvent.networkChanged, [

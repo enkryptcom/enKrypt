@@ -63,7 +63,7 @@ const getVariables = (address: string) => ({
 
 function getLastTransfersByAddress(
   graphqlEndpoint: string,
-  address: string
+  address: string,
 ): Promise<ExtrinsicData[]> {
   const queryParams = new URLSearchParams({
     query,
@@ -73,10 +73,10 @@ function getLastTransfersByAddress(
   const url = `${graphqlEndpoint}?${queryParams.toString()}`;
 
   return cacheFetch({ url }, TTL)
-    .then((response) => {
+    .then(response => {
       return response.data.extrinsics.data;
     })
-    .catch((reason) => {
+    .catch(reason => {
       console.error("Failed to fetch activity", reason);
 
       return [];
@@ -86,7 +86,7 @@ function getLastTransfersByAddress(
 const transform = (
   address: string,
   network: BaseNetwork,
-  activity: ExtrinsicData
+  activity: ExtrinsicData,
 ): Activity => ({
   from: activity.from_owner_normalized,
   to: activity.from_owner_normalized,
@@ -120,11 +120,11 @@ const transform = (
 });
 
 export const getActivityHandler = (
-  graphqlEndpoint: string
+  graphqlEndpoint: string,
 ): ActivityHandlerType => {
   return async (network: BaseNetwork, address: string) => {
     const transfers = await getLastTransfersByAddress(graphqlEndpoint, address);
 
-    return transfers.map((transfer) => transform(address, network, transfer));
+    return transfers.map(transfer => transform(address, network, transfer));
   };
 };

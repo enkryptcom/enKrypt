@@ -19,7 +19,7 @@ const method: MiddlewareFunction = function (
   this: SubstrateProvider,
   payload: ProviderRPCRequest,
   res,
-  next
+  next,
 ): void {
   if (payload.method !== "dot_accounts_get") return next();
   else {
@@ -42,8 +42,8 @@ const method: MiddlewareFunction = function (
       const publicKeyring = new PublicKeyRing();
       return publicKeyring
         .getAccounts([SignerType.ed25519, SignerType.sr25519])
-        .then((acc) => {
-          return acc.map((acc) => {
+        .then(acc => {
+          return acc.map(acc => {
             return {
               address: acc.address,
               genesisHash: "",
@@ -55,14 +55,14 @@ const method: MiddlewareFunction = function (
     };
     const handleAccountAccess = (
       _payload: ProviderRPCRequest,
-      _res: CallbackFunction
+      _res: CallbackFunction,
     ) => {
       if (_payload.options && _payload.options.domain) {
         isAccountAccessPending = true;
         const accountsState = new AccountState();
-        accountsState.isApproved(_payload.options.domain).then((isApproved) => {
+        accountsState.isApproved(_payload.options.domain).then(isApproved => {
           if (isApproved) {
-            getAccounts().then((acc) => {
+            getAccounts().then(acc => {
               _res(null, acc);
               handleRemainingPromises();
             });
@@ -71,11 +71,11 @@ const method: MiddlewareFunction = function (
             windowPromise
               .getResponse(
                 this.getUIPath(this.UIRoutes.dotAccounts.path),
-                JSON.stringify(payload)
+                JSON.stringify(payload),
               )
               .then(({ error }) => {
                 if (error) res(error);
-                else getAccounts().then((acc) => res(null, acc));
+                else getAccounts().then(acc => res(null, acc));
               })
               .finally(handleRemainingPromises);
           }

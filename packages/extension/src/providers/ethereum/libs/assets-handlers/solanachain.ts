@@ -26,33 +26,31 @@ const getBalances = (network: BaseNetwork, address: string) => {
   ];
   return solConnection
     .getParsedProgramAccounts(TOKEN_PROGRAM_ID, { filters: filters })
-    .then((accounts) => {
+    .then(accounts => {
       const balances: TokenBalance[] = [];
       const balanceObj = {} as Record<string, BNType>;
-      accounts.forEach((acc) => {
+      accounts.forEach(acc => {
         const balance = numberToHex(
-          (acc.account.data as any).parsed.info.tokenAmount.amount
+          (acc.account.data as any).parsed.info.tokenAmount.amount,
         );
         if (balance === "0x0") return;
         const contract = (acc.account.data as any).parsed.info.mint;
         if (!balanceObj[contract]) balanceObj[contract] = toBN(0);
         balanceObj[contract] = balanceObj[contract].add(toBN(balance));
       });
-      Object.keys(balanceObj).forEach((contract) => {
+      Object.keys(balanceObj).forEach(contract => {
         balances.push({
           balance: numberToHex(balanceObj[contract]),
           contract,
         });
       });
-      return solConnection
-        .getBalance(new PublicKey(address))
-        .then((balance) => {
-          balances.unshift({
-            balance: numberToHex(balance),
-            contract: NATIVE_TOKEN_ADDRESS,
-          });
-          return balances;
+      return solConnection.getBalance(new PublicKey(address)).then(balance => {
+        balances.unshift({
+          balance: numberToHex(balance),
+          contract: NATIVE_TOKEN_ADDRESS,
         });
+        return balances;
+      });
     });
 };
 

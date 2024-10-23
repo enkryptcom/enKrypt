@@ -19,8 +19,8 @@
             <div>
               <p>
                 {{
-                  TokenBalance == '~'
-                    ? '~'
+                  TokenBalance == "~"
+                    ? "~"
                     : $filters.formatFloatingPointValue(TokenBalance).value
                 }}
                 <span>{{ network.currencyName }}</span>
@@ -59,7 +59,7 @@
 
             <div class="provider-verify-transaction__amount-info">
               <h4 :class="item.isNegative ? 'make-me-red' : ''">
-                {{ item.isNegative ? '-' : '' }}
+                {{ item.isNegative ? "-" : "" }}
                 {{
                   $filters.formatFloatingPointValue(
                     fromBase(item.change.toString(), item.decimals),
@@ -68,7 +68,7 @@
                 <span>{{ item.symbol }}</span>
               </h4>
               <p :class="item.isNegative ? 'make-me-red' : ''">
-                {{ item.isNegative ? '-' : '' }}
+                {{ item.isNegative ? "-" : "" }}
                 ${{ $filters.formatFiatValue(parseFloat(item.USDval)).value }}
               </p>
             </div>
@@ -116,148 +116,151 @@
 </template>
 
 <script setup lang="ts">
-import { ref, ComponentPublicInstance, onBeforeMount } from 'vue'
-import SignLogo from '@action/icons/common/sign-logo.vue'
-import BaseButton from '@action/components/base-button/index.vue'
-import CommonPopup from '@action/views/common-popup/index.vue'
-import SendFeeSelect from './send-transaction/components/send-fee-select.vue'
-import HardwareWalletMsg from '@/providers/common/ui/verify-transaction/hardware-wallet-msg.vue'
-import { getError } from '@/libs/error'
-import { ErrorCodes } from '@/providers/ethereum/types'
-import { WindowPromiseHandler } from '@/libs/window-promise'
-import SwapLookingAnimation from '@action/icons/swap/swap-looking-animation.vue'
-import { DEFAULT_SOLANA_NETWORK, getNetworkByName } from '@/libs/utils/networks'
-import { ProviderRequestOptions } from '@/types/provider'
-import BigNumber from 'bignumber.js'
-import { GasFeeType, GasPriceTypes } from '@/providers/common/types'
-import MarketData from '@/libs/market-data'
-import { defaultGasCostVals } from '@/providers/common/libs/default-vals'
-import { EnkryptAccount } from '@enkryptcom/types'
-import { Activity, ActivityStatus, ActivityType } from '@/types/activity'
-import ActivityState from '@/libs/activity-state'
-import { fromBase, bufferToHex, hexToBuffer } from '@enkryptcom/utils'
-import AlertIcon from '@action/icons/send/alert-icon.vue'
-import { trackSendEvents } from '@/libs/metrics'
-import { SendEventType } from '@/libs/metrics/types'
-import { SolanaNetwork } from '../types/sol-network'
-import SolanaAPI from '@/providers/solana/libs/api'
+import { ref, ComponentPublicInstance, onBeforeMount } from "vue";
+import SignLogo from "@action/icons/common/sign-logo.vue";
+import BaseButton from "@action/components/base-button/index.vue";
+import CommonPopup from "@action/views/common-popup/index.vue";
+import SendFeeSelect from "./send-transaction/components/send-fee-select.vue";
+import HardwareWalletMsg from "@/providers/common/ui/verify-transaction/hardware-wallet-msg.vue";
+import { getError } from "@/libs/error";
+import { ErrorCodes } from "@/providers/ethereum/types";
+import { WindowPromiseHandler } from "@/libs/window-promise";
+import SwapLookingAnimation from "@action/icons/swap/swap-looking-animation.vue";
+import {
+  DEFAULT_SOLANA_NETWORK,
+  getNetworkByName,
+} from "@/libs/utils/networks";
+import { ProviderRequestOptions } from "@/types/provider";
+import BigNumber from "bignumber.js";
+import { GasFeeType, GasPriceTypes } from "@/providers/common/types";
+import MarketData from "@/libs/market-data";
+import { defaultGasCostVals } from "@/providers/common/libs/default-vals";
+import { EnkryptAccount } from "@enkryptcom/types";
+import { Activity, ActivityStatus, ActivityType } from "@/types/activity";
+import ActivityState from "@/libs/activity-state";
+import { fromBase, bufferToHex, hexToBuffer } from "@enkryptcom/utils";
+import AlertIcon from "@action/icons/send/alert-icon.vue";
+import { trackSendEvents } from "@/libs/metrics";
+import { SendEventType } from "@/libs/metrics/types";
+import { SolanaNetwork } from "../types/sol-network";
+import SolanaAPI from "@/providers/solana/libs/api";
 import {
   PublicKey,
   SendOptions,
   VersionedTransaction,
   Transaction as LegacyTransaction,
   ComputeBudgetProgram,
-} from '@solana/web3.js'
-import { SolSignTransactionRequest } from './types'
-import bs58 from 'bs58'
-import DecodeTransaction, { DecodedTxResponseType } from './libs/decode-tx'
-import { TransactionSigner } from './libs/signer'
-import { NATIVE_TOKEN_ADDRESS } from '@/providers/ethereum/libs/common'
-import getPrioritizationFees from './libs/get-priority-fees'
+} from "@solana/web3.js";
+import { SolSignTransactionRequest } from "./types";
+import bs58 from "bs58";
+import DecodeTransaction, { DecodedTxResponseType } from "./libs/decode-tx";
+import { TransactionSigner } from "./libs/signer";
+import { NATIVE_TOKEN_ADDRESS } from "@/providers/ethereum/libs/common";
+import getPrioritizationFees from "./libs/get-priority-fees";
 
-const isProcessing = ref(false)
-const providerVerifyTransactionScrollRef = ref<ComponentPublicInstance>()
-const TokenBalance = ref<string>('~')
-const network = ref<SolanaNetwork>(DEFAULT_SOLANA_NETWORK)
-const marketdata = new MarketData()
-const activityState = new ActivityState()
-const gasCostValues = ref<GasFeeType>(defaultGasCostVals)
-const decodedTx = ref<DecodedTxResponseType[] | null>([])
-const errorMsg = ref('')
+const isProcessing = ref(false);
+const providerVerifyTransactionScrollRef = ref<ComponentPublicInstance>();
+const TokenBalance = ref<string>("~");
+const network = ref<SolanaNetwork>(DEFAULT_SOLANA_NETWORK);
+const marketdata = new MarketData();
+const activityState = new ActivityState();
+const gasCostValues = ref<GasFeeType>(defaultGasCostVals);
+const decodedTx = ref<DecodedTxResponseType[] | null>([]);
+const errorMsg = ref("");
 const account = ref<EnkryptAccount>({
-  name: '',
-  address: '',
-} as EnkryptAccount)
-const identicon = ref<string>('')
-const windowPromise = WindowPromiseHandler(5)
+  name: "",
+  address: "",
+} as EnkryptAccount);
+const identicon = ref<string>("");
+const windowPromise = WindowPromiseHandler(5);
 const Options = ref<ProviderRequestOptions>({
-  domain: '',
-  faviconURL: '',
-  title: '',
-  url: '',
+  domain: "",
+  faviconURL: "",
+  title: "",
+  url: "",
   tabId: 0,
-})
-const selectedFee = ref<GasPriceTypes>(GasPriceTypes.ECONOMY)
-const solConnection = ref<SolanaAPI>()
-const Tx = ref<VersionedTransaction | LegacyTransaction>()
-const TxType = ref<'legacy' | 0>(0)
-const accountPubkey = ref<PublicKey>()
-const sendOptions = ref<SendOptions>({})
-const payloadMethod = ref<'sol_signTransaction' | 'sol_signAndSendTransaction'>(
-  'sol_signTransaction',
-)
-defineExpose({ providerVerifyTransactionScrollRef })
+});
+const selectedFee = ref<GasPriceTypes>(GasPriceTypes.ECONOMY);
+const solConnection = ref<SolanaAPI>();
+const Tx = ref<VersionedTransaction | LegacyTransaction>();
+const TxType = ref<"legacy" | 0>(0);
+const accountPubkey = ref<PublicKey>();
+const sendOptions = ref<SendOptions>({});
+const payloadMethod = ref<"sol_signTransaction" | "sol_signAndSendTransaction">(
+  "sol_signTransaction",
+);
+defineExpose({ providerVerifyTransactionScrollRef });
 onBeforeMount(async () => {
-  isProcessing.value = true
-  const { Request, options } = await windowPromise
+  isProcessing.value = true;
+  const { Request, options } = await windowPromise;
   network.value = (await getNetworkByName(
     Request.value.params![4],
-  )) as SolanaNetwork
-  selectedFee.value = GasPriceTypes.ECONOMY
-  account.value = Request.value.params![3] as EnkryptAccount
+  )) as SolanaNetwork;
+  selectedFee.value = GasPriceTypes.ECONOMY;
+  account.value = Request.value.params![3] as EnkryptAccount;
   accountPubkey.value = new PublicKey(
     bs58.encode(hexToBuffer(account.value.address)),
-  )
+  );
   identicon.value = network.value.identicon(
     network.value.displayAddress(account.value.address),
-  )
-  Options.value = options
+  );
+  Options.value = options;
   if (network.value.api) {
-    const api = await network.value.api()
-    const balance = await api.getBalance(account.value.address)
-    TokenBalance.value = fromBase(balance, network.value.decimals)
+    const api = await network.value.api();
+    const balance = await api.getBalance(account.value.address);
+    TokenBalance.value = fromBase(balance, network.value.decimals);
   }
-  solConnection.value = (await network.value.api()).api as SolanaAPI
-  payloadMethod.value = Request.value.params![0]
+  solConnection.value = (await network.value.api()).api as SolanaAPI;
+  payloadMethod.value = Request.value.params![0];
   const txMessage = JSON.parse(
     Request.value.params![1],
-  ) as SolSignTransactionRequest
-  sendOptions.value = JSON.parse(Request.value.params![2]) as SendOptions
-  Tx.value = VersionedTransaction.deserialize(hexToBuffer(txMessage.hex))
-  TxType.value = Tx.value.version
-  if (TxType.value === 'legacy') {
-    Tx.value = LegacyTransaction.from(hexToBuffer(txMessage.hex))
-    let isPriorityFeesSet = false
+  ) as SolSignTransactionRequest;
+  sendOptions.value = JSON.parse(Request.value.params![2]) as SendOptions;
+  Tx.value = VersionedTransaction.deserialize(hexToBuffer(txMessage.hex));
+  TxType.value = Tx.value.version;
+  if (TxType.value === "legacy") {
+    Tx.value = LegacyTransaction.from(hexToBuffer(txMessage.hex));
+    let isPriorityFeesSet = false;
     Tx.value.instructions.forEach(i => {
       if (i.programId.toBase58() === ComputeBudgetProgram.programId.toBase58())
-        isPriorityFeesSet = true
-    })
+        isPriorityFeesSet = true;
+    });
     const priorityFee = await getPrioritizationFees(
       new PublicKey(network.value.displayAddress(account.value.address)),
       solConnection.value!.web3,
-    )
+    );
     if (!isPriorityFeesSet && priorityFee) {
       Tx.value.add(
         ComputeBudgetProgram.setComputeUnitPrice({
           microLamports: priorityFee.high * 100,
         }),
-      )
+      );
     }
     Tx.value.recentBlockhash = (
       await solConnection.value.web3.getLatestBlockhash()
-    ).blockhash
+    ).blockhash;
   }
   const feeMessage =
-    TxType.value === 'legacy'
+    TxType.value === "legacy"
       ? (Tx.value as LegacyTransaction).compileMessage()
-      : (Tx.value as VersionedTransaction).message
+      : (Tx.value as VersionedTransaction).message;
   solConnection.value.web3.getFeeForMessage(feeMessage).then(fee => {
     const getConvertedVal = () =>
-      fromBase(fee.value!.toString(), network.value.decimals)
+      fromBase(fee.value!.toString(), network.value.decimals);
     marketdata
-      .getTokenValue('1', network.value.coingeckoID!, 'USD')
+      .getTokenValue("1", network.value.coingeckoID!, "USD")
       .then(val => {
-        const nativeVal = val
+        const nativeVal = val;
         gasCostValues.value[GasPriceTypes.ECONOMY] = {
           nativeValue: getConvertedVal(),
           fiatValue: new BigNumber(getConvertedVal())
             .times(nativeVal!)
             .toString(),
           nativeSymbol: network.value.currencyName,
-          fiatSymbol: 'USD',
-        }
-      })
-  })
+          fiatSymbol: "USD",
+        };
+      });
+  });
 
   DecodeTransaction(
     Tx.value,
@@ -266,45 +269,45 @@ onBeforeMount(async () => {
     TxType.value,
   )
     .then(vals => {
-      decodedTx.value = vals
+      decodedTx.value = vals;
     })
-    .finally(() => (isProcessing.value = false))
-})
+    .finally(() => (isProcessing.value = false));
+});
 
 const approve = async () => {
-  const { Resolve } = await windowPromise
-  isProcessing.value = true
+  const { Resolve } = await windowPromise;
+  isProcessing.value = true;
   trackSendEvents(SendEventType.SendAPIApprove, {
     network: network.value.name,
-  })
+  });
   const latestBlockHash = (await solConnection.value!.web3.getLatestBlockhash())
-    .blockhash
-  if (TxType.value === 'legacy') {
-    ;(Tx.value as LegacyTransaction).recentBlockhash = latestBlockHash
+    .blockhash;
+  if (TxType.value === "legacy") {
+    (Tx.value as LegacyTransaction).recentBlockhash = latestBlockHash;
   } else {
-    ;(Tx.value as VersionedTransaction).message.recentBlockhash =
-      latestBlockHash
+    (Tx.value as VersionedTransaction).message.recentBlockhash =
+      latestBlockHash;
   }
   const msgToSign =
-    TxType.value !== 'legacy'
+    TxType.value !== "legacy"
       ? (Tx.value! as VersionedTransaction).message.serialize()
-      : (Tx.value! as LegacyTransaction).serializeMessage()
+      : (Tx.value! as LegacyTransaction).serializeMessage();
   const feePayer = new PublicKey(
     network.value.displayAddress(account.value.address),
-  )
+  );
   TransactionSigner({
     account: account.value,
     network: network.value,
     transaction: Buffer.from(msgToSign),
   })
     .then(res => {
-      Tx.value!.addSignature(feePayer, res)
+      Tx.value!.addSignature(feePayer, res);
       const toData =
-        decodedTx.value && decodedTx.value.length ? decodedTx.value[0] : null
+        decodedTx.value && decodedTx.value.length ? decodedTx.value[0] : null;
       const TransactionHash =
-        TxType.value !== 'legacy'
+        TxType.value !== "legacy"
           ? (Tx.value as VersionedTransaction).signatures[0]
-          : (Tx.value as LegacyTransaction).signatures[0].signature
+          : (Tx.value as LegacyTransaction).signatures[0].signature;
       const txActivity: Activity = {
         from: accountPubkey.value!.toBase58(),
         to: toData ? toData.contract : accountPubkey.value!.toBase58(),
@@ -317,16 +320,16 @@ const approve = async () => {
           icon: toData ? toData.icon : network.value.icon,
           name: toData ? toData.name : network.value.currencyNameLong,
           symbol: toData ? toData.symbol : network.value.currencyName,
-          price: toData ? toData.price : '0',
+          price: toData ? toData.price : "0",
         },
         type: ActivityType.transaction,
-        value: toData ? toData.change.toString() : '0',
+        value: toData ? toData.change.toString() : "0",
         transactionHash: bs58.encode(TransactionHash!),
-      }
+      };
       txActivity.to =
         txActivity.to === NATIVE_TOKEN_ADDRESS
-          ? '11111111111111111111111111111111'
-          : txActivity.to
+          ? "11111111111111111111111111111111"
+          : txActivity.to;
       activityState
         .addActivities(
           [
@@ -345,43 +348,43 @@ const approve = async () => {
         .then(() => {
           trackSendEvents(SendEventType.SendAPIComplete, {
             network: network.value.name,
-          })
-          if (payloadMethod.value === 'sol_signTransaction') {
+          });
+          if (payloadMethod.value === "sol_signTransaction") {
             Resolve.value({
               result: JSON.stringify(bufferToHex(Tx.value!.serialize())),
-            })
+            });
           } else {
             solConnection.value?.web3
               .sendRawTransaction(Tx.value!.serialize(), sendOptions.value)
               .then(sig => {
                 Resolve.value({
                   result: JSON.stringify(bufferToHex(bs58.decode(sig))),
-                })
-              })
+                });
+              });
           }
-        })
+        });
     })
     .catch(err => {
       trackSendEvents(SendEventType.SendAPIFailed, {
         network: network.value.name,
-      })
-      Resolve.value(err)
-    })
-}
+      });
+      Resolve.value(err);
+    });
+};
 const deny = async () => {
   trackSendEvents(SendEventType.SendAPIDecline, {
     network: network.value.name,
-  })
-  const { Resolve } = await windowPromise
+  });
+  const { Resolve } = await windowPromise;
   Resolve.value({
     error: getError(ErrorCodes.userRejected),
-  })
-}
+  });
+};
 </script>
 
 <style lang="less">
-@import '@action/styles/theme.less';
-@import '@/providers/common/ui/styles/verify-transaction.less';
+@import "@action/styles/theme.less";
+@import "@/providers/common/ui/styles/verify-transaction.less";
 .make-me-red {
   color: #f0580c !important;
 }

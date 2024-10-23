@@ -7,7 +7,7 @@ const method: MiddlewareFunction = function (
   this: BitcoinProvider,
   payload: ProviderRPCRequest,
   res,
-  next
+  next,
 ): void {
   if (payload.method !== "btc_getBalance") return next();
   else {
@@ -18,20 +18,18 @@ const method: MiddlewareFunction = function (
 
     accountsState
       .getApprovedAddresses(payload.options!.domain)
-      .then((accounts) => {
+      .then(accounts => {
         if (!accounts.length) {
           return res(null, "");
         }
-        this.network.api().then((api) => {
-          api
-            .getBalance(this.network.displayAddress(accounts[0]))
-            .then((bal) => {
-              res(null, {
-                confirmed: parseInt(bal),
-                unconfirmed: 0,
-                total: parseInt(bal),
-              });
+        this.network.api().then(api => {
+          api.getBalance(this.network.displayAddress(accounts[0])).then(bal => {
+            res(null, {
+              confirmed: parseInt(bal),
+              unconfirmed: 0,
+              total: parseInt(bal),
             });
+          });
         });
       });
   }

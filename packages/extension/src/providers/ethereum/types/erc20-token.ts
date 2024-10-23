@@ -19,7 +19,7 @@ export class Erc20Token extends BaseToken {
 
   public async getLatestUserBalance(
     api: EvmAPI,
-    address: string
+    address: string,
   ): Promise<string> {
     if (this.contract === NATIVE_TOKEN_ADDRESS) return api.getBalance(address);
     else {

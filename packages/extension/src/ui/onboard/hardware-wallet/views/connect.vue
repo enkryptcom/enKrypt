@@ -31,71 +31,71 @@
   />
 </template>
 <script setup lang="ts">
-import { computed, onBeforeMount, ref } from 'vue'
-import LedgerLogo from '@action/icons/hardware/ledger-logo.vue'
-import BaseButton from '@action/components/base-button/index.vue'
-import HardwareWalletProcess from '../components/hardware-wallet-process.vue'
-import HardwareWalletError from '../components/hardware-wallet-error.vue'
-import { useRoute, useRouter } from 'vue-router'
-import { routes } from '../routes'
-import { getNetworkByName } from '@/libs/utils/networks'
-import HWwallet, { ledgerAppNames } from '@enkryptcom/hw-wallets'
-import { HWwalletType } from '@enkryptcom/types'
-import TrezorLogo from '@action/icons/hardware/trezor-logo.vue'
-import { BaseNetwork } from '@/types/base-network'
+import { computed, onBeforeMount, ref } from "vue";
+import LedgerLogo from "@action/icons/hardware/ledger-logo.vue";
+import BaseButton from "@action/components/base-button/index.vue";
+import HardwareWalletProcess from "../components/hardware-wallet-process.vue";
+import HardwareWalletError from "../components/hardware-wallet-error.vue";
+import { useRoute, useRouter } from "vue-router";
+import { routes } from "../routes";
+import { getNetworkByName } from "@/libs/utils/networks";
+import HWwallet, { ledgerAppNames } from "@enkryptcom/hw-wallets";
+import { HWwalletType } from "@enkryptcom/types";
+import TrezorLogo from "@action/icons/hardware/trezor-logo.vue";
+import { BaseNetwork } from "@/types/base-network";
 
-const route = useRoute()
-const router = useRouter()
-const networkName = route.params.network as keyof typeof ledgerAppNames
-const walletType = route.params.walletType as HWwalletType
+const route = useRoute();
+const router = useRouter();
+const networkName = route.params.network as keyof typeof ledgerAppNames;
+const walletType = route.params.walletType as HWwalletType;
 
 if (!networkName || !walletType) {
-  router.push({ name: routes.addHardwareWallet.name })
+  router.push({ name: routes.addHardwareWallet.name });
 }
 
-const network = ref<BaseNetwork | undefined>()
+const network = ref<BaseNetwork | undefined>();
 
-const errorMessage = ref<string>('')
-const isProcessing = ref(false)
-const isError = ref(false)
+const errorMessage = ref<string>("");
+const isProcessing = ref(false);
+const isError = ref(false);
 
 onBeforeMount(async () => {
-  network.value = (await getNetworkByName(networkName as string))!
-})
+  network.value = (await getNetworkByName(networkName as string))!;
+});
 
 const appName = computed(() => {
-  return ledgerAppNames[networkName] || ''
-})
+  return ledgerAppNames[networkName] || "";
+});
 const connectAction = () => {
-  const hwwallet = new HWwallet()
-  isProcessing.value = true
-  isError.value = false
+  const hwwallet = new HWwallet();
+  isProcessing.value = true;
+  isError.value = false;
   hwwallet
     .isConnected({ wallet: walletType, networkName: network.value!.name })
     .then(() => {
       setTimeout(() => {
         hwwallet.close().then(() => {
-          isProcessing.value = false
+          isProcessing.value = false;
           router.push({
             name: routes.SelectAccount.name,
             params: {
               network: network.value!.name,
               walletType,
             },
-          })
-        })
-      }, 1000)
+          });
+        });
+      }, 1000);
     })
     .catch((e: Error) => {
-      isError.value = true
-      isProcessing.value = false
-      errorMessage.value = e.message
-    })
-}
+      isError.value = true;
+      isProcessing.value = false;
+      errorMessage.value = e.message;
+    });
+};
 </script>
 
 <style lang="less">
-@import '@action/styles/theme.less';
+@import "@action/styles/theme.less";
 
 .connect {
   width: 100%;

@@ -14,17 +14,17 @@ import { TomoscanTxType } from "./types";
 const TTL = 30000;
 const getAddressActivity = async (
   address: string,
-  endpoint: string
+  endpoint: string,
 ): Promise<EthereumRawInfo[]> => {
   return cacheFetch(
     {
       url: `${endpoint}api/transaction/list?account=${address}`,
     },
-    TTL
-  ).then((res) => {
+    TTL,
+  ).then(res => {
     if (res.error) return [];
     const results = res.data as TomoscanTxType[];
-    const newResults = results.map((tx) => {
+    const newResults = results.map(tx => {
       const rawTx: EthereumRawInfo = {
         blockHash: tx.blockHash,
         blockNumber: numberToHex(tx.blockNumber),
@@ -48,13 +48,13 @@ const getAddressActivity = async (
 };
 export default async (
   network: BaseNetwork,
-  address: string
+  address: string,
 ): Promise<Activity[]> => {
   address = address.toLowerCase();
   const enpoint = NetworkEndpoints[network.name];
   const activities = await getAddressActivity(address, enpoint);
-  const Promises = activities.map((activity) => {
-    return decodeTx(activity, network as EvmNetwork).then((txData) => {
+  const Promises = activities.map(activity => {
+    return decodeTx(activity, network as EvmNetwork).then(txData => {
       return {
         from: activity.from,
         to: activity.contractAddress

@@ -26,7 +26,7 @@ class BitcoinProvider
   toWindow: (message: string) => void;
   constructor(
     toWindow: (message: string) => void,
-    network: BitcoinNetwork = Networks.bitcoin
+    network: BitcoinNetwork = Networks.bitcoin,
   ) {
     super();
     this.network = network;
@@ -40,7 +40,7 @@ class BitcoinProvider
     this.KeyRing = new PublicKeyRing();
   }
   private setMiddleWares(): void {
-    this.middlewares = Middlewares.map((mw) => mw.bind(this));
+    this.middlewares = Middlewares.map(mw => mw.bind(this));
   }
   setRequestProvider(network: BaseNetwork): void {
     this.network = network as BitcoinNetwork;
@@ -55,12 +55,12 @@ class BitcoinProvider
   request(request: ProviderRPCRequest): Promise<OnMessageResponse> {
     return this.requestProvider
       .request(request)
-      .then((res) => {
+      .then(res => {
         return {
           result: JSON.stringify(res),
         };
       })
-      .catch((e) => {
+      .catch(e => {
         return {
           error: JSON.stringify(e.message),
         };

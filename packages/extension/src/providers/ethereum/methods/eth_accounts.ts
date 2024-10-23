@@ -11,7 +11,7 @@ const method: MiddlewareFunction = async function (
   this: EthereumProvider,
   payload: ProviderRPCRequest,
   res,
-  next
+  next,
 ): Promise<void> {
   if (payload.method !== "eth_accounts" && payload.method !== "eth_coinbase")
     return next();
@@ -25,11 +25,11 @@ const method: MiddlewareFunction = async function (
       const accountsState = new AccountState();
       accountsState
         .getApprovedAddresses(payload.options.domain)
-        .then((accounts) => {
+        .then(accounts => {
           if (accounts.length) {
             res(
               null,
-              payload.method === "eth_coinbase" ? accounts[0] : accounts
+              payload.method === "eth_coinbase" ? accounts[0] : accounts,
             );
           } else {
             res(null, payload.method === "eth_coinbase" ? "" : []);

@@ -4,7 +4,7 @@ import { getCustomError } from "@/libs/error";
 import sendUsingInternalMessengers from "@/libs/messenger/internal-messenger";
 
 const TransactionSigner = (
-  options: SignerTransactionOptions
+  options: SignerTransactionOptions,
 ): Promise<InternalOnMessageResponse> => {
   const { account, payload } = options;
   if (account.isHardware) {
@@ -15,7 +15,7 @@ const TransactionSigner = (
     return sendUsingInternalMessengers({
       method: InternalMethods.sign,
       params: [payload, account],
-    }).then((res) => {
+    }).then(res => {
       if (res.error) return res;
       return {
         result: JSON.parse(res.result as string),

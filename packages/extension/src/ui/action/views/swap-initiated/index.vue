@@ -54,35 +54,35 @@
 </template>
 
 <script setup lang="ts">
-import LottieSwapInitiated from '@action/assets/animation/swap-initiated.json'
-import ArrowDown from '@action/icons/send/arrow-down.vue'
-import SwapInitiatedAmount from './components/swap-initiated-amount.vue'
-import LottieError from '@action/assets/animation/error-big.json'
-import LottieStatus from '@action/assets/animation/status.json'
-import { Vue3Lottie } from 'vue3-lottie'
-import { TokenType } from '@enkryptcom/swap'
+import LottieSwapInitiated from "@action/assets/animation/swap-initiated.json";
+import ArrowDown from "@action/icons/send/arrow-down.vue";
+import SwapInitiatedAmount from "./components/swap-initiated-amount.vue";
+import LottieError from "@action/assets/animation/error-big.json";
+import LottieStatus from "@action/assets/animation/status.json";
+import { Vue3Lottie } from "vue3-lottie";
+import { TokenType } from "@enkryptcom/swap";
 
 interface IProps {
-  fromToken: TokenType
-  toToken: TokenType
-  fromAmount: string
-  toAmount: string
-  isLoading: boolean
-  isHardware: boolean
-  isError: boolean
-  errorMessage: string
+  fromToken: TokenType;
+  toToken: TokenType;
+  fromAmount: string;
+  toAmount: string;
+  isLoading: boolean;
+  isHardware: boolean;
+  isError: boolean;
+  errorMessage: string;
 }
 
 defineEmits<{
-  (e: 'update:close'): void
-  (e: 'update:tryAgain'): void
-}>()
+  (e: "update:close"): void;
+  (e: "update:tryAgain"): void;
+}>();
 
-defineProps<IProps>()
+defineProps<IProps>();
 </script>
 
 <style lang="less" scoped>
-@import '@action/styles/theme.less';
+@import "@action/styles/theme.less";
 .swap-initiated {
   width: 100%;
   height: 100%;

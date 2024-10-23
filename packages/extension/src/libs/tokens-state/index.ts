@@ -24,7 +24,7 @@ export class TokensState {
    */
   async addErc20Token(
     chainName: NetworkNames,
-    token: CustomErc20Token
+    token: CustomErc20Token,
   ): Promise<boolean> {
     let state: IState | null = await this.storage.get(StorageKeys.customTokens);
 
@@ -56,7 +56,7 @@ export class TokensState {
 
   async getTokensByNetwork(chainName: NetworkNames): Promise<CustomToken[]> {
     const state: IState | null = await this.storage.get(
-      StorageKeys.customTokens
+      StorageKeys.customTokens,
     );
 
     if (state) {

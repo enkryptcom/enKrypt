@@ -8,7 +8,7 @@ const method: MiddlewareFunction = function (
   this: SubstrateProvider,
   payload: ProviderRPCRequest,
   res,
-  next
+  next,
 ): void {
   if (payload.method !== "dot_metadata_set") return next();
   else {
@@ -23,7 +23,7 @@ const method: MiddlewareFunction = function (
           ...payload,
           params: [reqPayload],
         }),
-        false
+        false,
       )
       .then(({ error, result }) => {
         if (error) return res(error);

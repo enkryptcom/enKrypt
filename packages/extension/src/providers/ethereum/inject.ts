@@ -51,8 +51,8 @@ export class Provider extends EventEmitter implements ProviderInterface {
         this.name,
         JSON.stringify({
           method: "eth_chainId",
-        })
-      ).then((res) => {
+        }),
+      ).then(res => {
         this.chainId = res;
         this.networkVersion = Number(res).toString();
       });
@@ -62,10 +62,10 @@ export class Provider extends EventEmitter implements ProviderInterface {
       request.method === "eth_requestAccounts"
     ) {
       return this.sendMessageHandler(this.name, JSON.stringify(request)).then(
-        (res) => {
+        res => {
           this.selectedAddress = res[0];
           return res;
-        }
+        },
       );
     }
     return this.sendMessageHandler(this.name, JSON.stringify(request));
@@ -79,12 +79,12 @@ export class Provider extends EventEmitter implements ProviderInterface {
   //deprecated
   send(
     method: string | JsonRpcRequest,
-    params?: Array<unknown> | CallbackFunction
+    params?: Array<unknown> | CallbackFunction,
   ): Promise<EthereumResponse> | void {
     if ((method as JsonRpcRequest).method) {
       return this.sendAsync(
         method as JsonRpcRequest,
-        params as CallbackFunction
+        params as CallbackFunction,
       );
     } else {
       return this.request({
@@ -97,14 +97,14 @@ export class Provider extends EventEmitter implements ProviderInterface {
   sendAsync(data: JsonRpcRequest, callback: CallbackFunction): void {
     const { method, params } = data as EthereumRequest;
     this.request({ method, params })
-      .then((res) => {
+      .then(res => {
         callback(null, {
           id: data.id,
           jsonrpc: "2.0",
           result: res,
         });
       })
-      .catch((err) => callback(err));
+      .catch(err => callback(err));
   }
   handleMessage(msg: string): void {
     handleIncomingMessage(this, msg);
@@ -141,7 +141,7 @@ const ProxyHandler = {
 };
 const injectDocument = (
   document: EnkryptWindow | Window,
-  options: ProviderOptions
+  options: ProviderOptions,
 ): void => {
   const provider = new Provider(options);
   const proxiedProvider = new Proxy(provider, ProxyHandler);
@@ -152,7 +152,7 @@ const injectDocument = (
   options
     .sendMessageHandler(
       ProviderName.enkrypt,
-      JSON.stringify({ method: InternalMethods.getSettings, params: [] })
+      JSON.stringify({ method: InternalMethods.getSettings, params: [] }),
     )
     .then((settings: SettingsType) => {
       if (!settings.evm.inject.disabled)
@@ -170,7 +170,7 @@ const injectDocument = (
     document.dispatchEvent(
       new document.CustomEvent(EIP6963Events.announce, {
         detail: { info, provider: proxiedProvider },
-      })
+      }),
     );
   };
   document.addEventListener(EIP6963Events.request, () => {

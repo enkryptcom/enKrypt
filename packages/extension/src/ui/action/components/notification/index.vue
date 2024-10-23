@@ -7,32 +7,32 @@
 </template>
 
 <script setup lang="ts">
-import { PropType, ref } from 'vue'
+import { PropType, ref } from "vue";
 
-const visible = ref(true)
+const visible = ref(true);
 
 const props = defineProps({
   text: {
     type: String,
-    default: '',
+    default: "",
   },
   hide: {
     type: Function as PropType<() => void>,
     default: () => ({}),
   },
-})
+});
 
 setTimeout(() => {
-  visible.value = false
-}, 1000)
+  visible.value = false;
+}, 1000);
 
 setTimeout(() => {
-  props.hide()
-}, 1300)
+  props.hide();
+}, 1300);
 </script>
 
 <style lang="less">
-@import '@action/styles/theme.less';
+@import "@action/styles/theme.less";
 
 .notification {
   display: inline-block;

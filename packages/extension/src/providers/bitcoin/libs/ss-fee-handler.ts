@@ -12,10 +12,10 @@ interface FeeType {
   };
 }
 const SSFeeHandler = async (
-  url: string
+  url: string,
 ): Promise<Record<GasPriceTypes, number>> => {
   return fetch(url)
-    .then((res) => res.json())
+    .then(res => res.json())
     .then((json: FeeType) => {
       if (json.fast.satsPerKiloByte < 0)
         json.fast.satsPerKiloByte = json.average.satsPerKiloByte;

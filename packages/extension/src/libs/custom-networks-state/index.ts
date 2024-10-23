@@ -8,18 +8,18 @@ export default class CustomNetworksState {
 
   constructor() {
     this.storage = new BrowserStorage(
-      InternalStorageNamespace.customNetworksState
+      InternalStorageNamespace.customNetworksState,
     );
   }
 
   async addCustomNetwork(options: CustomEvmNetworkOptions): Promise<string> {
     const state: IState = await this.storage.get(
-      StorageKeys.customNetworksInfo
+      StorageKeys.customNetworksInfo,
     );
     options.name = `custom-${options.name}`;
     if (state && state.customEvmNetworks) {
       const networkExists = state.customEvmNetworks.find(
-        (net) => net.chainID === options.chainID
+        net => net.chainID === options.chainID,
       );
 
       if (networkExists) {
@@ -37,15 +37,15 @@ export default class CustomNetworksState {
   }
 
   async getCustomEVMNetwork(
-    chainId: `0x${string}`
+    chainId: `0x${string}`,
   ): Promise<CustomEvmNetworkOptions | null> {
     const state: IState = await this.storage.get(
-      StorageKeys.customNetworksInfo
+      StorageKeys.customNetworksInfo,
     );
 
     if (state && state.customEvmNetworks) {
       const networkOptions = state.customEvmNetworks.find(
-        (option) => option.chainID === chainId
+        option => option.chainID === chainId,
       );
 
       if (networkOptions) {
@@ -58,7 +58,7 @@ export default class CustomNetworksState {
 
   async getAllCustomEVMNetworks(): Promise<CustomEvmNetworkOptions[]> {
     const state: IState = await this.storage.get(
-      StorageKeys.customNetworksInfo
+      StorageKeys.customNetworksInfo,
     );
 
     if (state && state.customEvmNetworks) {
@@ -70,12 +70,12 @@ export default class CustomNetworksState {
 
   async deleteEVMNetwork(chainID: string): Promise<void> {
     const state: IState = await this.storage.get(
-      StorageKeys.customNetworksInfo
+      StorageKeys.customNetworksInfo,
     );
 
     if (state && state.customEvmNetworks) {
       state.customEvmNetworks = state.customEvmNetworks.filter(
-        (net) => net.chainID !== chainID
+        net => net.chainID !== chainID,
       );
 
       await this.storage.set(StorageKeys.customNetworksInfo, state);

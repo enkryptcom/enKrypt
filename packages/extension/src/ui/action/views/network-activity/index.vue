@@ -39,10 +39,10 @@
 </template>
 
 <script setup lang="ts">
-import NetworkActivityTotal from './components/network-activity-total.vue'
-import NetworkActivityAction from './components/network-activity-action.vue'
-import NetworkActivityTransaction from './components/network-activity-transaction.vue'
-import CustomScrollbar from '@action/components/custom-scrollbar/index.vue'
+import NetworkActivityTotal from "./components/network-activity-total.vue";
+import NetworkActivityAction from "./components/network-activity-action.vue";
+import NetworkActivityTransaction from "./components/network-activity-transaction.vue";
+import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 import {
   computed,
   onMounted,
@@ -52,11 +52,11 @@ import {
   toRaw,
   toRef,
   watch,
-} from 'vue'
-import { AccountsHeaderData } from '../../types/account'
-import accountInfoComposable from '@action/composables/account-info'
-import { BaseNetwork } from '@/types/base-network'
-import scrollSettings from '@/libs/utils/scroll-settings'
+} from "vue";
+import { AccountsHeaderData } from "../../types/account";
+import accountInfoComposable from "@action/composables/account-info";
+import { BaseNetwork } from "@/types/base-network";
+import scrollSettings from "@/libs/utils/scroll-settings";
 
 import {
   Activity,
@@ -68,17 +68,17 @@ import {
   SwapRawInfo,
   KadenaRawInfo,
   SOLRawInfo,
-} from '@/types/activity'
-import NetworkActivityLoading from './components/network-activity-loading.vue'
-import { ProviderName } from '@/types/provider'
-import ActivityState from '@/libs/activity-state'
+} from "@/types/activity";
+import NetworkActivityLoading from "./components/network-activity-loading.vue";
+import { ProviderName } from "@/types/provider";
+import ActivityState from "@/libs/activity-state";
 import Swap, {
   SupportedNetworkName,
   TransactionStatus,
   WalletIdentifier,
-} from '@enkryptcom/swap'
-import EvmAPI from '@/providers/ethereum/libs/api'
-import type Web3Eth from 'web3-eth'
+} from "@enkryptcom/swap";
+import EvmAPI from "@/providers/ethereum/libs/api";
+import type Web3Eth from "web3-eth";
 
 const props = defineProps({
   network: {
@@ -89,22 +89,22 @@ const props = defineProps({
     type: Object as PropType<AccountsHeaderData>,
     default: () => ({}),
   },
-})
+});
 
 const { cryptoAmount, fiatAmount } = accountInfoComposable(
-  toRef(props, 'network'),
-  toRef(props, 'accountInfo'),
-)
+  toRef(props, "network"),
+  toRef(props, "accountInfo"),
+);
 
-const forceUpdateVal = ref(0)
-const isNoActivity = ref(false)
-const activities = ref<Activity[]>([])
+const forceUpdateVal = ref(0);
+const isNoActivity = ref(false);
+const activities = ref<Activity[]>([]);
 const selectedAddress = computed(
-  () => props.accountInfo.selectedAccount?.address || '',
-)
-const apiPromise = props.network.api()
-const activityState = new ActivityState()
-let swap: Swap
+  () => props.accountInfo.selectedAccount?.address || "",
+);
+const apiPromise = props.network.api();
+const activityState = new ActivityState();
+let swap: Swap;
 apiPromise.then(api => {
   swap = new Swap({
     api: (api as EvmAPI).web3 as Web3Eth,
@@ -113,161 +113,161 @@ apiPromise.then(api => {
     evmOptions: {
       infiniteApproval: true,
     },
-  })
-})
+  });
+});
 
-const activityCheckTimers: any[] = []
+const activityCheckTimers: any[] = [];
 const activityAddress = computed(() =>
   props.network.displayAddress(props.accountInfo.selectedAccount!.address),
-)
+);
 const updateVisibleActivity = (activity: Activity): void => {
   activities.value.forEach((act, idx) => {
     if (act.transactionHash === activity.transactionHash) {
-      activities.value[idx] = activity
+      activities.value[idx] = activity;
     }
-  })
-  forceUpdateVal.value++
-}
+  });
+  forceUpdateVal.value++;
+};
 
 const checkActivity = (activity: Activity): void => {
-  activity = toRaw(activity)
+  activity = toRaw(activity);
   const timer = setInterval(() => {
     apiPromise.then(api => {
       api.getTransactionStatus(activity.transactionHash).then(info => {
-        getInfo(activity, info, timer)
-      })
-    })
-  }, 5000)
-  activityCheckTimers.push(timer)
-}
+        getInfo(activity, info, timer);
+      });
+    });
+  }, 5000);
+  activityCheckTimers.push(timer);
+};
 const getInfo = (activity: Activity, info: any, timer: any) => {
   if (info) {
     if (props.network.provider === ProviderName.ethereum) {
-      const evmInfo = info as EthereumRawInfo
+      const evmInfo = info as EthereumRawInfo;
       activity.status = evmInfo.status
         ? ActivityStatus.success
-        : ActivityStatus.failed
-      activity.rawInfo = evmInfo
+        : ActivityStatus.failed;
+      activity.rawInfo = evmInfo;
       activityState
         .updateActivity(activity, {
           address: activityAddress.value,
           network: props.network.name,
         })
-        .then(() => updateVisibleActivity(activity))
+        .then(() => updateVisibleActivity(activity));
     } else if (props.network.provider === ProviderName.polkadot) {
-      const subInfo = info as SubscanExtrinsicInfo
+      const subInfo = info as SubscanExtrinsicInfo;
       if (!subInfo.pending) {
         activity.status = subInfo.success
           ? ActivityStatus.success
-          : ActivityStatus.failed
-        activity.rawInfo = subInfo
+          : ActivityStatus.failed;
+        activity.rawInfo = subInfo;
         activityState
           .updateActivity(activity, {
             address: activityAddress.value,
             network: props.network.name,
           })
-          .then(() => updateVisibleActivity(activity))
+          .then(() => updateVisibleActivity(activity));
       }
     } else if (props.network.provider === ProviderName.bitcoin) {
-      const btcInfo = info as BTCRawInfo
-      activity.status = ActivityStatus.success
-      activity.rawInfo = btcInfo
+      const btcInfo = info as BTCRawInfo;
+      activity.status = ActivityStatus.success;
+      activity.rawInfo = btcInfo;
       activityState
         .updateActivity(activity, {
           address: activityAddress.value,
           network: props.network.name,
         })
-        .then(() => updateVisibleActivity(activity))
+        .then(() => updateVisibleActivity(activity));
     } else if (props.network.provider === ProviderName.kadena) {
-      const kadenaInfo = info as KadenaRawInfo
+      const kadenaInfo = info as KadenaRawInfo;
       activity.status =
-        kadenaInfo.result.status == 'success'
+        kadenaInfo.result.status == "success"
           ? ActivityStatus.success
-          : ActivityStatus.failed
-      activity.rawInfo = kadenaInfo as KadenaRawInfo
+          : ActivityStatus.failed;
+      activity.rawInfo = kadenaInfo as KadenaRawInfo;
 
       activityState
         .updateActivity(activity, {
           address: activityAddress.value,
           network: props.network.name,
         })
-        .then(() => updateVisibleActivity(activity))
+        .then(() => updateVisibleActivity(activity));
     } else if (props.network.provider === ProviderName.solana) {
-      const solInfo = info as SOLRawInfo
+      const solInfo = info as SOLRawInfo;
       activity.status = info.status
         ? ActivityStatus.success
-        : ActivityStatus.failed
-      activity.rawInfo = solInfo
+        : ActivityStatus.failed;
+      activity.rawInfo = solInfo;
       activityState
         .updateActivity(activity, {
           address: activityAddress.value,
           network: props.network.name,
         })
-        .then(() => updateVisibleActivity(activity))
+        .then(() => updateVisibleActivity(activity));
     }
-    clearInterval(timer)
+    clearInterval(timer);
   }
-}
+};
 const checkSwap = (activity: Activity): void => {
-  activity = toRaw(activity)
+  activity = toRaw(activity);
   const timer = setInterval(() => {
     if (swap) {
       swap.initPromise.then(() => {
         swap.getStatus((activity.rawInfo as SwapRawInfo).status).then(info => {
-          if (info === TransactionStatus.pending) return
+          if (info === TransactionStatus.pending) return;
           activity.status =
             info === TransactionStatus.success
               ? ActivityStatus.success
-              : ActivityStatus.failed
+              : ActivityStatus.failed;
           activityState
             .updateActivity(activity, {
               address: activityAddress.value,
               network: props.network.name,
             })
-            .then(() => updateVisibleActivity(activity))
-        })
-      })
+            .then(() => updateVisibleActivity(activity));
+        });
+      });
     }
-  }, 5000)
-  activityCheckTimers.push(timer)
-}
-const selectedNetworkName = computed(() => props.network.name)
+  }, 5000);
+  activityCheckTimers.push(timer);
+};
+const selectedNetworkName = computed(() => props.network.name);
 const setActivities = () => {
-  activities.value = []
-  isNoActivity.value = false
+  activities.value = [];
+  isNoActivity.value = false;
   if (props.accountInfo.selectedAccount)
     props.network.getAllActivity(activityAddress.value).then(all => {
-      activities.value = all
-      isNoActivity.value = all.length === 0
+      activities.value = all;
+      isNoActivity.value = all.length === 0;
       activities.value.forEach(act => {
         if (
           act.status === ActivityStatus.pending &&
           act.type === ActivityType.transaction
         )
-          checkActivity(act)
+          checkActivity(act);
         if (
           act.status === ActivityStatus.pending &&
           act.type === ActivityType.swap
         )
-          checkSwap(act)
-      })
-    })
-  else activities.value = []
-}
+          checkSwap(act);
+      });
+    });
+  else activities.value = [];
+};
 
-watch([selectedAddress, selectedNetworkName], setActivities)
+watch([selectedAddress, selectedNetworkName], setActivities);
 onMounted(() => {
-  setActivities()
-  activityCheckTimers.forEach(timer => clearInterval(timer))
-})
+  setActivities();
+  activityCheckTimers.forEach(timer => clearInterval(timer));
+});
 onUnmounted(() => {
-  activityCheckTimers.forEach(timer => clearInterval(timer))
-})
+  activityCheckTimers.forEach(timer => clearInterval(timer));
+});
 </script>
 
 <style lang="less" scoped>
-@import '@action/styles/theme.less';
-@import '@action/styles/custom-scroll.less';
+@import "@action/styles/theme.less";
+@import "@action/styles/custom-scroll.less";
 
 .container {
   width: 100%;

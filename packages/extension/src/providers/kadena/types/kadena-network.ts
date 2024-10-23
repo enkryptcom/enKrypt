@@ -44,7 +44,7 @@ export interface KadenaNetworkOptions {
   subNetworks: SubNetworkOptions[];
   activityHandler: (
     network: BaseNetwork,
-    address: string
+    address: string,
   ) => Promise<Activity[]>;
 }
 
@@ -53,7 +53,7 @@ export class KadenaNetwork extends BaseNetwork {
 
   private activityHandler: (
     network: BaseNetwork,
-    address: string
+    address: string,
   ) => Promise<Activity[]>;
 
   public isAddress: (address: string) => boolean;
@@ -82,7 +82,7 @@ export class KadenaNetwork extends BaseNetwork {
   public async getAllTokens(pubkey: string): Promise<KDABaseToken[]> {
     const assets = await this.getAllTokenInfo(pubkey);
 
-    return assets.map((token) => {
+    return assets.map(token => {
       const bTokenOptions: BaseTokenOptions = {
         decimals: token.decimals,
         icon: token.icon,
@@ -108,7 +108,7 @@ export class KadenaNetwork extends BaseNetwork {
 
     const userBalance = fromBase(balance, this.decimals);
     const usdBalance = new BigNumber(userBalance).times(
-      marketData[0]?.current_price ?? 0
+      marketData[0]?.current_price ?? 0,
     );
 
     const nativeAsset: AssetsType = {

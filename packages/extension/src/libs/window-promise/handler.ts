@@ -16,7 +16,7 @@ import { RPCRequestType } from "@enkryptcom/types";
 
 export default (paramCount: number): Promise<WindowPromiseType> => {
   let PromResolve: (val: WindowPromiseType) => void;
-  const RetPromise: Promise<WindowPromiseType> = new Promise((resolve) => {
+  const RetPromise: Promise<WindowPromiseType> = new Promise(resolve => {
     PromResolve = resolve;
   });
   const options: UnwrapNestedRefs<ProviderRequestOptions> = reactive({
@@ -29,18 +29,18 @@ export default (paramCount: number): Promise<WindowPromiseType> => {
   const PromiseResolve: Ref<(res: InternalOnMessageResponse) => void> = ref(
     () => {
       throw "window-promise-handler: not implemented";
-    }
+    },
   );
   const Request: Ref<ProviderRPCRequest> = ref({ method: "", value: "" });
   const KeyRing: PublicKeyRing = new PublicKeyRing();
 
   const sendToBackground = (
-    req: RPCRequestType
+    req: RPCRequestType,
   ): Promise<InternalOnMessageResponse> => {
     return sendToBackgroundFromNewWindow({
       provider: ProviderName.enkrypt,
       message: JSON.stringify(req),
-    }).then((response) => {
+    }).then(response => {
       if (response.error) return response;
       else
         return {
@@ -62,7 +62,7 @@ export default (paramCount: number): Promise<WindowPromiseType> => {
         ) {
           return Promise.resolve({
             error: getCustomError(
-              "window-promise-handler: invalid message sender"
+              "window-promise-handler: invalid message sender",
             ),
           });
         }
@@ -73,7 +73,7 @@ export default (paramCount: number): Promise<WindowPromiseType> => {
         ) {
           return Promise.resolve({
             error: getCustomError(
-              "window-promise-handler: invalid number of params"
+              "window-promise-handler: invalid number of params",
             ),
           });
         }
@@ -89,10 +89,10 @@ export default (paramCount: number): Promise<WindowPromiseType> => {
           sendToBackground,
           Resolve: PromiseResolve,
         });
-        return new Promise((resolve) => {
+        return new Promise(resolve => {
           PromiseResolve.value = resolve;
         });
-      }
+      },
     );
   });
   return RetPromise;

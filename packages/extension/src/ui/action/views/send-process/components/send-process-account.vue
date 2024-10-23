@@ -25,39 +25,39 @@
 </template>
 
 <script setup lang="ts">
-import { BaseNetwork } from '@/types/base-network'
-import { PropType } from 'vue'
+import { BaseNetwork } from "@/types/base-network";
+import { PropType } from "vue";
 
 defineProps({
   address: {
     type: String,
     default: () => {
-      return ''
+      return "";
     },
   },
   name: {
     type: String,
     default: () => {
-      return null
+      return null;
     },
   },
   network: {
     type: Object as PropType<BaseNetwork>,
     default: () => {
-      return {}
+      return {};
     },
   },
   avatar: {
     type: String,
     default: () => {
-      return null
+      return null;
     },
   },
-})
+});
 </script>
 
 <style lang="less">
-@import '@action/styles/theme.less';
+@import "@action/styles/theme.less";
 
 .send-process-account {
   text-decoration: none;

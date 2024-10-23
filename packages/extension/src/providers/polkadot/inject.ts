@@ -32,12 +32,12 @@ export class Provider
     this.sendMessageHandler = options.sendMessageHandler;
     sendMessageHandler = (
       id: number,
-      message: RPCRequestType
+      message: RPCRequestType,
     ): Promise<OnMessageResponse> => {
       const { method, params } = message;
       return options.sendMessageHandler(
         options.name,
-        JSON.stringify({ id, method, params })
+        JSON.stringify({ id, method, params }),
       );
     }; //need a global var since, polkadot use enable as a function not from the class
   }
@@ -86,7 +86,7 @@ const ProxyHandler = {
 
 const injectDocument = (
   document: EnkryptWindow | Window,
-  options: ProviderOptions
+  options: ProviderOptions,
 ): void => {
   const provider = new Provider(options);
   document.injectedWeb3 = document.injectedWeb3 || {};
@@ -94,13 +94,13 @@ const injectDocument = (
   options
     .sendMessageHandler(
       ProviderName.enkrypt,
-      JSON.stringify({ method: InternalMethods.getSettings, params: [] })
+      JSON.stringify({ method: InternalMethods.getSettings, params: [] }),
     )
     .then((settings: SettingsType) => {
       if (settings.substrate.injectPolkadotjs)
         document.injectedWeb3["polkadot-js"] = new Proxy(
           provider,
-          ProxyHandler
+          ProxyHandler,
         );
     });
   document["enkrypt"]["providers"][options.name] = provider;

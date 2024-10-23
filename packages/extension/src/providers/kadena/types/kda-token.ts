@@ -18,18 +18,18 @@ export abstract class KDABaseToken extends BaseToken {
     to: string,
     from: EnkryptAccount,
     amount: string,
-    network: KadenaNetwork
+    network: KadenaNetwork,
   ): Promise<ICommand>;
 
   public abstract getAccountDetails(
     account: string,
-    network: KadenaNetwork
+    network: KadenaNetwork,
   ): Promise<any>;
 
   public abstract getBalance(
     api: KadenaAPI,
     pubkey: string,
-    chainId?: string
+    chainId?: string,
   ): Promise<string>;
 }
 
@@ -54,7 +54,7 @@ export class KDAToken extends KDABaseToken {
     to: string,
     from: EnkryptAccount | any,
     amount: string,
-    network: KadenaNetwork
+    network: KadenaNetwork,
   ): Promise<ICommand> {
     to = network.displayAddress(to);
     // const accountDetails = await this.getAccountDetails(to, network);
@@ -69,8 +69,8 @@ export class KDAToken extends KDABaseToken {
           readKeyset("ks"),
           {
             decimal: amount,
-          }
-        )
+          },
+        ),
       )
       .addKeyset("ks", "keys-all", keySetAccount)
       .addSigner(from.publicKey.replace("0x", ""), (withCap: any) => [
@@ -91,7 +91,7 @@ export class KDAToken extends KDABaseToken {
       account: from,
       network: network,
       payload: bufferToHex(blake2AsU8a(unsignedTransaction.cmd)),
-    }).then((res) => {
+    }).then(res => {
       if (res.error) return Promise.reject(res.error);
       else
         return {
@@ -108,7 +108,7 @@ export class KDAToken extends KDABaseToken {
 
   public async getAccountDetails(
     account: string,
-    network: KadenaNetwork
+    network: KadenaNetwork,
   ): Promise<any> {
     const api = (await network.api()) as KadenaAPI;
     const chainID = await api.getChainId();

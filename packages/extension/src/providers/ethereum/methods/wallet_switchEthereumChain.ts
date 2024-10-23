@@ -16,7 +16,7 @@ const method: MiddlewareFunction = function (
   this: EthereumProvider,
   payload: ProviderRPCRequest,
   res,
-  next
+  next,
 ): void {
   if (payload.method !== "wallet_switchEthereumChain") return next();
   else {
@@ -28,9 +28,9 @@ const method: MiddlewareFunction = function (
       return res(getCustomError("wallet_switchEthereumChain: invalid params"));
     }
 
-    getAllNetworks().then((allNetworks) => {
+    getAllNetworks().then(allNetworks => {
       const validNetwork: EvmNetwork | undefined = allNetworks.find(
-        (net) => (net as EvmNetwork).chainID === payload.params![0].chainId
+        net => (net as EvmNetwork).chainID === payload.params![0].chainId,
       ) as EvmNetwork | undefined;
       if (validNetwork) {
         trackNetworkSelected(NetworkChangeEvents.NetworkChangeAPI, {
@@ -70,8 +70,8 @@ const method: MiddlewareFunction = function (
           getCustomError(
             `wallet_switchEthereumChain: provided network ${
               payload.params![0].chainId
-            } not supported`
-          )
+            } not supported`,
+          ),
         );
       }
     });

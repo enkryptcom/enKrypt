@@ -13,7 +13,7 @@ const method: MiddlewareFunction = function (
   this: BitcoinProvider,
   payload: ProviderRPCRequest,
   res,
-  next
+  next,
 ): void {
   if (payload.method !== "btc_requestAccounts") return next();
   else {
@@ -34,17 +34,17 @@ const method: MiddlewareFunction = function (
     };
     const handleAccountAccess = (
       _payload: ProviderRPCRequest,
-      _res: CallbackFunction
+      _res: CallbackFunction,
     ) => {
       if (_payload.options && _payload.options.domain) {
         isAccountAccessPending = true;
         const accountsState = new AccountState();
         accountsState
           .getApprovedAddresses(_payload.options.domain)
-          .then((accounts) => {
+          .then(accounts => {
             if (accounts.length) {
               _res(null, [
-                accounts.map((acc) => this.network.displayAddress(acc))[0],
+                accounts.map(acc => this.network.displayAddress(acc))[0],
               ]);
               handleRemainingPromises();
             } else {
@@ -55,7 +55,7 @@ const method: MiddlewareFunction = function (
                   JSON.stringify({
                     ..._payload,
                     params: [this.network.name],
-                  })
+                  }),
                 )
                 .then(({ error, result }) => {
                   if (error) _res(error as any);
@@ -63,8 +63,8 @@ const method: MiddlewareFunction = function (
                   _res(
                     null,
                     accounts.map((acc: string) =>
-                      this.network.displayAddress(acc)
-                    )
+                      this.network.displayAddress(acc),
+                    ),
                   );
                 })
                 .finally(handleRemainingPromises);

@@ -9,7 +9,7 @@ routes.loading.component = loading;
 routes.swapVerifyHW.component = SwapBestOffer;
 
 export default (namespace: string): RouteRecordRaw[] => {
-  return Object.values(routes).map((route) => {
+  return Object.values(routes).map(route => {
     route.path = `/${namespace}/${route.path}`;
     route.name = `${namespace}-${String(route.name)}`;
     return route;

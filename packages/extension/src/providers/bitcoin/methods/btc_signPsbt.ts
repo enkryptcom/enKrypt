@@ -9,13 +9,13 @@ const method: MiddlewareFunction = function (
   this: BitcoinProvider,
   payload: ProviderRPCRequest,
   res,
-  next
+  next,
 ): void {
   if (payload.method !== "btc_signPsbt") return next();
   else {
     if (!payload.params || payload.params.length < 2) {
       return res(
-        getCustomError("btc_signPsbt: invalid request not enough params")
+        getCustomError("btc_signPsbt: invalid request not enough params"),
       );
     }
     if (!payload.options || !payload.options.domain) {
@@ -27,11 +27,11 @@ const method: MiddlewareFunction = function (
 
     accountsState
       .getApprovedAddresses(payload.options!.domain)
-      .then((accounts) => {
+      .then(accounts => {
         if (!accounts.length) {
           return res(null, "");
         }
-        this.KeyRing.getAccount(accounts[0]).then((acc) => {
+        this.KeyRing.getAccount(accounts[0]).then(acc => {
           if (!acc)
             return res(getCustomError("btc_signPsbt: account not found"));
           const windowPromise = new WindowPromise();
@@ -42,7 +42,7 @@ const method: MiddlewareFunction = function (
                 ...payload,
                 params: [psbt, options, acc, this.network.name],
               }),
-              true
+              true,
             )
             .then(({ error, result }) => {
               if (error) return res(error);

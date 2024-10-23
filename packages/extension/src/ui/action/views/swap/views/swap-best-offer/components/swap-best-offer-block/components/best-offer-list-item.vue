@@ -16,46 +16,46 @@
 </template>
 
 <script setup lang="ts">
-import DoneIcon from '@action/icons/common/done_icon.vue'
-import LottieStatusJson from '@action/assets/animation/status.json'
-import { Vue3Lottie } from 'vue3-lottie'
+import DoneIcon from "@action/icons/common/done_icon.vue";
+import LottieStatusJson from "@action/assets/animation/status.json";
+import { Vue3Lottie } from "vue3-lottie";
 
 defineProps({
   select: {
     type: Function as () => void,
     default: () => {
-      return null
+      return null;
     },
   },
   swapNumber: {
     type: Number,
     default: () => {
-      return 0
+      return 0;
     },
   },
   amount: {
     type: String,
     default: () => {
-      return ''
+      return "";
     },
   },
   isLoading: {
     type: Boolean,
     default: () => {
-      return false
+      return false;
     },
   },
   isChecked: {
     type: Boolean,
     default: () => {
-      return false
+      return false;
     },
   },
-})
+});
 </script>
 
 <style lang="less" scoped>
-@import '@action/styles/theme.less';
+@import "@action/styles/theme.less";
 
 .best-offer-list-item {
   height: 56px;

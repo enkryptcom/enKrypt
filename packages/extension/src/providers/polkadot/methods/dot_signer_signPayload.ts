@@ -9,7 +9,7 @@ const method: MiddlewareFunction = function (
   this: SubstrateProvider,
   payload: ProviderRPCRequest,
   res,
-  next
+  next,
 ): void {
   if (payload.method !== "dot_signer_signPayload") return next();
   else {
@@ -17,7 +17,7 @@ const method: MiddlewareFunction = function (
       return res(getCustomError("Missing Params: signer_signPayload"));
     const reqPayload = payload.params[0] as SignerPayloadJSON;
     this.KeyRing.getAccount(polkadotEncodeAddress(reqPayload.address))
-      .then((account) => {
+      .then(account => {
         const windowPromise = new WindowPromise();
         windowPromise
           .getResponse(
@@ -26,7 +26,7 @@ const method: MiddlewareFunction = function (
               ...payload,
               params: [reqPayload, account],
             }),
-            true
+            true,
           )
           .then(({ error, result }) => {
             if (error) return res(error);

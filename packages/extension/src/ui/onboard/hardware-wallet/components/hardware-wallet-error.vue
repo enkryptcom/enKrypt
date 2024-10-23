@@ -11,11 +11,11 @@
   </div>
 </template>
 <script setup lang="ts">
-import ImportErrorAnimation from '@action/icons/import/import-error-animation.vue'
-import BaseButton from '@action/components/base-button/index.vue'
+import ImportErrorAnimation from "@action/icons/import/import-error-animation.vue";
+import BaseButton from "@action/components/base-button/index.vue";
 const emit = defineEmits<{
-  (e: 'retryConnection'): void
-}>()
+  (e: "retryConnection"): void;
+}>();
 
 defineProps({
   isLedger: {
@@ -24,17 +24,17 @@ defineProps({
   },
   errorMessage: {
     type: String,
-    default: '',
+    default: "",
   },
   appName: {
     type: String,
-    default: '',
+    default: "",
   },
-})
+});
 </script>
 
 <style lang="less" scoped>
-@import '@action/styles/theme.less';
+@import "@action/styles/theme.less";
 
 .hardware-wallet-error {
   width: 100%;

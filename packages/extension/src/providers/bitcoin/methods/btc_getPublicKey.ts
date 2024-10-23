@@ -8,7 +8,7 @@ const method: MiddlewareFunction = function (
   this: BitcoinProvider,
   payload: ProviderRPCRequest,
   res,
-  next
+  next,
 ): void {
   if (payload.method !== "btc_getPublicKey") return next();
   else {
@@ -16,9 +16,9 @@ const method: MiddlewareFunction = function (
       const accountsState = new AccountState();
       accountsState
         .getApprovedAddresses(payload.options.domain)
-        .then((accounts) => {
+        .then(accounts => {
           if (accounts.length) {
-            this.KeyRing.getAccount(accounts[0]).then((pubAccounts) => {
+            this.KeyRing.getAccount(accounts[0]).then(pubAccounts => {
               res(null, pubAccounts.address.replace("0x", ""));
             });
           } else {

@@ -31,7 +31,7 @@ export interface RouterOnMessage extends RPCRequestType {
 
 export type InjectedSendMessageHandler = (
   id: number,
-  message: RPCRequestType
+  message: RPCRequestType,
 ) => Promise<any>;
 
 export interface InjectLibOptions {

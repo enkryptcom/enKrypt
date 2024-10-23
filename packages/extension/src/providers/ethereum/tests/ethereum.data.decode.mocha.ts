@@ -12,10 +12,10 @@ describe("Test Ethereum data decoding", () => {
     expect(dataDecoder.decode().decoded).to.eq(true);
     expect(dataDecoder.decode().isToken).to.eq(true);
     expect(dataDecoder.decode().values[0]).to.eq(
-      "0x92eefc435008af9dfc428e9f84c2a6c0fd385e8f"
+      "0x92eefc435008af9dfc428e9f84c2a6c0fd385e8f",
     );
     expect(dataDecoder.decode().values[1]).to.eq(
-      numberToHex(toBN("390343345"))
+      numberToHex(toBN("390343345")),
     );
   });
   it("should not decode unknown data", async () => {

@@ -7,7 +7,7 @@ const method: MiddlewareFunction = function (
   this: KadenaProvider,
   payload: ProviderRPCRequest,
   res,
-  next
+  next,
 ): void {
   if (payload.method !== "kda_signTransaction") return next();
   else {
@@ -18,7 +18,7 @@ const method: MiddlewareFunction = function (
     const reqPayload = payload.params[0];
 
     this.KeyRing.getAccount(reqPayload.address.replace("k:", "0x"))
-      .then((account) => {
+      .then(account => {
         const windowPromise = new WindowPromise();
 
         windowPromise
@@ -28,7 +28,7 @@ const method: MiddlewareFunction = function (
               ...payload,
               params: [reqPayload, account],
             }),
-            true
+            true,
           )
           .then(({ error, result }) => {
             if (error) return res(error);

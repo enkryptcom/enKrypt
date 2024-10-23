@@ -13,7 +13,7 @@ class EventElement {
   }
 
   unbind(eventName, target) {
-    this.handlers[eventName] = this.handlers[eventName].filter((handler) => {
+    this.handlers[eventName] = this.handlers[eventName].filter(handler => {
       if (target && handler !== target) {
         return true;
       }
@@ -30,7 +30,7 @@ class EventElement {
 
   get isEmpty() {
     return Object.keys(this.handlers).every(
-      (key) => this.handlers[key].length === 0
+      key => this.handlers[key].length === 0,
     );
   }
 }
@@ -41,7 +41,7 @@ export default class EventManager {
   }
 
   eventElement(element) {
-    let ee = this.eventElements.filter((ee) => ee.element === element)[0];
+    let ee = this.eventElements.filter(ee => ee.element === element)[0];
     if (!ee) {
       ee = new EventElement(element);
       this.eventElements.push(ee);
@@ -64,13 +64,13 @@ export default class EventManager {
   }
 
   unbindAll() {
-    this.eventElements.forEach((e) => e.unbindAll());
+    this.eventElements.forEach(e => e.unbindAll());
     this.eventElements = [];
   }
 
   once(element, eventName, handler) {
     const ee = this.eventElement(element);
-    const onceHandler = (evt) => {
+    const onceHandler = evt => {
       ee.unbind(eventName, onceHandler);
       handler(evt);
     };

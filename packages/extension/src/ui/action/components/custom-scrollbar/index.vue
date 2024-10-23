@@ -17,9 +17,9 @@
 </template>
 
 <script lang="ts">
-import PerfectScrollbar from './perfect-scrollbar/index'
+import PerfectScrollbar from "./perfect-scrollbar/index";
 export default {
-  name: 'CustomScrollbar',
+  name: "CustomScrollbar",
   props: {
     settings: {
       type: Object,
@@ -31,83 +31,83 @@ export default {
     },
     tagname: {
       type: String,
-      default: 'section',
+      default: "section",
     },
   },
   data() {
     return {
       ps: null,
-    }
+    };
   },
   watch: {
     swicher(val) {
       if (val && !this._ps_inited) {
-        this.__init()
+        this.__init();
       }
       if (!val && this._ps_inited) {
-        this.__uninit()
+        this.__uninit();
       }
     },
     settings: {
       deep: true,
       handler() {
-        this.__uninit()
-        this.__init()
+        this.__uninit();
+        this.__init();
       },
     },
     $route() {
-      this.update()
+      this.update();
     },
   },
   mounted() {
     if (!this.$isServer) {
-      this.__init()
+      this.__init();
     }
   },
   updated() {
-    this.$nextTick(this.update)
+    this.$nextTick(this.update);
   },
   activated() {
-    this.__init()
+    this.__init();
   },
   deactivated() {
-    this.__uninit()
+    this.__uninit();
   },
   beforeUnmount() {
-    this.__uninit()
+    this.__uninit();
   },
   methods: {
     scrollHandle: function (evt) {
-      this.$emit(evt.type, evt)
+      this.$emit(evt.type, evt);
     },
     update: function () {
       if (this.ps) {
-        this.ps.update()
+        this.ps.update();
       }
     },
     __init: function () {
       if (this.swicher) {
         if (!this._ps_inited) {
-          this._ps_inited = true
-          this.ps = new PerfectScrollbar(this.$el, this.settings)
+          this._ps_inited = true;
+          this.ps = new PerfectScrollbar(this.$el, this.settings);
         } else {
-          this.ps.update()
+          this.ps.update();
         }
       }
     },
     __uninit: function () {
       if (this.ps) {
-        this.ps.destroy()
-        this.ps = null
-        this._ps_inited = false
+        this.ps.destroy();
+        this.ps = null;
+        this._ps_inited = false;
       }
     },
   },
-}
+};
 </script>
 
 <style lang="css">
-@import './perfect-scrollbar/css/perfect-scrollbar.css';
+@import "./perfect-scrollbar/css/perfect-scrollbar.css";
 .ps-container {
   position: relative;
 }

@@ -65,7 +65,7 @@ type TransactionListResult = {
 
 const getAddressActivity = async (
   address: string,
-  endpoint: string
+  endpoint: string,
 ): Promise<EthereumRawInfo[]> => {
   const response = await fetch(endpoint, {
     method: "POST",
@@ -134,11 +134,11 @@ query getTransactions(
     // blocked, rate limited, server down, etc
     let msg = await response
       .text()
-      .catch((err) => `Failed to decode response text: ${String(err)}`);
+      .catch(err => `Failed to decode response text: ${String(err)}`);
     const len = msg.length;
     if (len > 255 + 3) msg = `${msg.slice(0, 255)}... (255/${len})`;
     throw new Error(
-      `HTTP error fetching transactions ${response.status} ${response.statusText}: ${msg}`
+      `HTTP error fetching transactions ${response.status} ${response.statusText}: ${msg}`,
     );
   }
 
@@ -153,7 +153,7 @@ query getTransactions(
   }
 
   const rawdata: EthereumRawInfo[] = result.data.transactions.entries.map(
-    (tx) => ({
+    tx => ({
       blockHash: tx.block_hash,
       blockNumber: "0x" + tx.block_number.toString(16),
       contractAddress: tx.polyjuice.created_contract_address_hash,
@@ -168,7 +168,7 @@ query getTransactions(
       nonce: "0x" + tx.nonce.toString(16),
       value: "0x" + BigInt(tx.polyjuice.value).toString(16),
       timestamp: new Date(tx.block.timestamp).valueOf(),
-    })
+    }),
   );
 
   return rawdata;
@@ -176,15 +176,15 @@ query getTransactions(
 
 export default async (
   network: BaseNetwork,
-  address: string
+  address: string,
 ): Promise<Activity[]> => {
   address = address.toLowerCase();
   const enpoint =
     NetworkEndpoints[network.name as keyof typeof NetworkEndpoints];
   const activities = await getAddressActivity(address, enpoint);
 
-  const Promises = activities.map((activity) => {
-    return decodeTx(activity, network as EvmNetwork).then((txData) => {
+  const Promises = activities.map(activity => {
+    return decodeTx(activity, network as EvmNetwork).then(txData => {
       return {
         from: activity.from,
         to: activity.contractAddress

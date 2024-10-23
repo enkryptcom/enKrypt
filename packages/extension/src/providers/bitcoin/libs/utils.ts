@@ -17,13 +17,13 @@ const isAddress = (address: string, network: BitcoinNetworkInfo): boolean => {
 
 const getTxInfo = (
   utxos: HaskoinUnspentType[],
-  ordinalUTXO?: HaskoinUnspentType
+  ordinalUTXO?: HaskoinUnspentType,
 ): BTCTxInfo => {
   const txInfo: BTCTxInfo = {
     inputs: [],
     outputs: [],
   };
-  utxos.forEach((u) => {
+  utxos.forEach(u => {
     txInfo.inputs.push({
       hash: u.txid,
       index: u.index,
@@ -53,7 +53,7 @@ const getGasCostValues = async (
   byteSize: number,
   nativeVal = "0",
   decimals: number,
-  currencyName: string
+  currencyName: string,
 ) => {
   const fees = await network.feeHandler();
   const gasVals = {

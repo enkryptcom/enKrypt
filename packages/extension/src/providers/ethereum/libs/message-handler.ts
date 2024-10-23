@@ -14,7 +14,7 @@ import { RPCRequestType } from "@enkryptcom/types";
 const subscriptionMap: Record<string, any> = {};
 const handleIncomingMessage: handleIncomingMessageType = (
   provider,
-  message
+  message,
 ): void => {
   try {
     const _provider = provider as EthereumProvider;
@@ -34,7 +34,7 @@ const handleIncomingMessage: handleIncomingMessageType = (
       } else {
         _provider.emit(
           EmitEvent.disconnect,
-          getError(jsonMsg.params[1] as number)
+          getError(jsonMsg.params[1] as number),
         );
       }
     } else if (jsonMsg.method === MessageMethod.changeChainId) {

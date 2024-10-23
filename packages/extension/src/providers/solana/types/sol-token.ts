@@ -20,7 +20,7 @@ export class SOLToken extends BaseToken {
 
   public async getLatestUserBalance(
     api: SolanaAPI,
-    pubkey: string
+    pubkey: string,
   ): Promise<string> {
     return api.getBalance(pubkey);
   }

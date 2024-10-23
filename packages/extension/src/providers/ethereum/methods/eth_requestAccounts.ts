@@ -18,7 +18,7 @@ const method: MiddlewareFunction = async function (
   this: EthereumProvider,
   payload: ProviderRPCRequest,
   res,
-  next
+  next,
 ): Promise<void> {
   if (payload.method !== "eth_requestAccounts") return next();
   else {
@@ -41,7 +41,7 @@ const method: MiddlewareFunction = async function (
     };
     const handleAccountAccess = (
       _payload: ProviderRPCRequest,
-      _res: CallbackFunction
+      _res: CallbackFunction,
     ) => {
       if (_payload.options && _payload.options.domain) {
         isAccountAccessPending = true;
@@ -61,7 +61,7 @@ const method: MiddlewareFunction = async function (
         }
         accountsState
           .getApprovedAddresses(_payload.options.domain)
-          .then((accounts) => {
+          .then(accounts => {
             if (accounts.length) {
               _res(null, accounts);
               handleRemainingPromises();
@@ -73,7 +73,7 @@ const method: MiddlewareFunction = async function (
                   JSON.stringify({
                     ..._payload,
                     params: [this.network.name],
-                  })
+                  }),
                 )
                 .then(({ error, result }) => {
                   if (error) {

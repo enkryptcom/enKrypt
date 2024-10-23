@@ -6,28 +6,28 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref } from "vue";
 
-const label = ref('Select file...')
+const label = ref("Select file...");
 
 const emit = defineEmits<{
-  (e: 'update:selectFile', files: File): void
-}>()
+  (e: "update:selectFile", files: File): void;
+}>();
 
 const previewFiles = (e: any) => {
-  const files = e.target.files as FileList
+  const files = e.target.files as FileList;
 
   if (files[0]) {
-    label.value = files[0].name
-    emit('update:selectFile', files[0])
+    label.value = files[0].name;
+    emit("update:selectFile", files[0]);
   } else {
-    label.value = 'Select file...'
+    label.value = "Select file...";
   }
-}
+};
 </script>
 
 <style lang="less">
-@import '@action/styles/theme.less';
+@import "@action/styles/theme.less";
 
 .base-file-picker {
   background-color: @primary;
@@ -65,7 +65,7 @@ const previewFiles = (e: any) => {
   }
 
   &::after {
-    content: '';
+    content: "";
     position: absolute;
     width: 100%;
     height: 100%;

@@ -8,7 +8,7 @@ export class BTCToken extends BaseToken {
 
   public async getLatestUserBalance(
     api: BitcoinAPI,
-    pubkey: string
+    pubkey: string,
   ): Promise<string> {
     return api.getBalance(pubkey);
   }

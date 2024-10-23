@@ -27,7 +27,7 @@ class SolanaProvider
   toWindow: (message: string) => void;
   constructor(
     toWindow: (message: string) => void,
-    network: SolanaNetwork = Networks.solana
+    network: SolanaNetwork = Networks.solana,
   ) {
     super();
     this.network = network;
@@ -35,7 +35,7 @@ class SolanaProvider
     this.setMiddleWares();
     this.requestProvider = getRequestProvider(
       this.network.node,
-      this.middlewares
+      this.middlewares,
     );
     this.requestProvider.on("notification", (notif: any) => {
       this.sendNotification(JSON.stringify(notif));
@@ -44,7 +44,7 @@ class SolanaProvider
     this.KeyRing = new PublicKeyRing();
   }
   private setMiddleWares(): void {
-    this.middlewares = Middlewares.map((mw) => mw.bind(this));
+    this.middlewares = Middlewares.map(mw => mw.bind(this));
   }
   setRequestProvider(network: BaseNetwork): void {
     this.network = network as SolanaNetwork;
@@ -59,12 +59,12 @@ class SolanaProvider
   request(request: ProviderRPCRequest): Promise<OnMessageResponse> {
     return this.requestProvider
       .request(request)
-      .then((res) => {
+      .then(res => {
         return {
           result: JSON.stringify(res),
         };
       })
-      .catch((e) => {
+      .catch(e => {
         return {
           error: JSON.stringify(e.message),
         };

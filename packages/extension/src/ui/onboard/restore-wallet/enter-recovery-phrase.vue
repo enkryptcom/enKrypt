@@ -19,36 +19,36 @@
   </div>
 </template>
 <script setup lang="ts">
-import BaseButton from '@action/components/base-button/index.vue'
-import { useRouter } from 'vue-router'
-import { validateMnemonic } from 'bip39'
-import { ref, computed } from 'vue'
-import { routes } from './routes'
-import { useRestoreStore } from './store'
-const store = useRestoreStore()
-const mnemonic = ref('')
-const router = useRouter()
+import BaseButton from "@action/components/base-button/index.vue";
+import { useRouter } from "vue-router";
+import { validateMnemonic } from "bip39";
+import { ref, computed } from "vue";
+import { routes } from "./routes";
+import { useRestoreStore } from "./store";
+const store = useRestoreStore();
+const mnemonic = ref("");
+const router = useRouter();
 
 const nextAction = () => {
-  store.setMnemonic(formattedMnemonic.value)
-  mnemonic.value = ''
+  store.setMnemonic(formattedMnemonic.value);
+  mnemonic.value = "";
   router.push({
     name: routes.pickPassword.name,
-  })
-}
+  });
+};
 
 const formattedMnemonic = computed(() => {
-  const words = mnemonic.value.match(/\b(\w+)\b/g)
-  if (!words) return ''
-  return words.join(' ')
-})
+  const words = mnemonic.value.match(/\b(\w+)\b/g);
+  if (!words) return "";
+  return words.join(" ");
+});
 const validate = computed(() => {
-  return validateMnemonic(formattedMnemonic.value)
-})
+  return validateMnemonic(formattedMnemonic.value);
+});
 </script>
 
 <style lang="less">
-@import '@action/styles/theme.less';
+@import "@action/styles/theme.less";
 
 .enter-recovery-phrase {
   h3 {
@@ -80,7 +80,7 @@ const validate = computed(() => {
     color: @primaryLabel;
     outline: none !important;
     padding: 16px;
-    font-family: 'Roboto', sans-serif;
+    font-family: "Roboto", sans-serif;
     flex-direction: row;
 
     &:active,

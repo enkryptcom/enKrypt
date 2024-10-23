@@ -71,7 +71,7 @@ class BackgroundHandler {
   }
   async externalHandler(
     msg: Message,
-    options: ExternalMessageOptions = { savePersistentEvents: true }
+    options: ExternalMessageOptions = { savePersistentEvents: true },
   ): Promise<OnMessageResponse> {
     const { method, params } = JSON.parse(msg.message);
     const _provider = msg.provider;
@@ -86,7 +86,7 @@ class BackgroundHandler {
           result: JSON.stringify(true),
         };
       } else if (method === InternalMethods.getSettings) {
-        return this.#settingsState.getAllSettings().then((settings) => {
+        return this.#settingsState.getAllSettings().then(settings => {
           return {
             result: JSON.stringify(settings),
           };
@@ -104,24 +104,24 @@ class BackgroundHandler {
             provider: _provider,
             message,
           },
-          _tabid
+          _tabid,
         );
       };
       this.#tabProviders[_provider][_tabid] = new this.#providers[_provider](
-        toWindow
+        toWindow,
       );
       const domainState = await this.#domainState.getStateByDomain(
-        tabInfo.domain
+        tabInfo.domain,
       );
       if (domainState.selectedNetwork) {
         const providerNetwork = await getProviderNetworkByName(
           _provider,
-          domainState.selectedNetwork
+          domainState.selectedNetwork,
         );
 
         if (providerNetwork) {
           this.#tabProviders[_provider][_tabid].setRequestProvider(
-            providerNetwork
+            providerNetwork,
           );
         }
       }
@@ -135,7 +135,7 @@ class BackgroundHandler {
         params,
         options: tabInfo,
       })
-      .then((response) => {
+      .then(response => {
         if (isPersistent && !response.error && options.savePersistentEvents)
           return this.#persistentEvents
             .addEvent(_tabid, msg, response)
@@ -170,7 +170,7 @@ class BackgroundHandler {
       default:
         return Promise.resolve({
           error: getCustomError(
-            `background: unknown method: ${message.method}`
+            `background: unknown method: ${message.method}`,
           ),
         });
     }

@@ -13,23 +13,23 @@ export function registerWallet(wallet: Wallet): void {
     register(wallet);
   try {
     (window as WalletEventsWindow).dispatchEvent(
-      new RegisterWalletEvent(callback)
+      new RegisterWalletEvent(callback),
     );
   } catch (error) {
     console.error(
       "wallet-standard:register-wallet event could not be dispatched\n",
-      error
+      error,
     );
   }
   try {
     (window as WalletEventsWindow).addEventListener(
       "wallet-standard:app-ready",
-      ({ detail: api }) => callback(api)
+      ({ detail: api }) => callback(api),
     );
   } catch (error) {
     console.error(
       "wallet-standard:app-ready event listener could not be added\n",
-      error
+      error,
     );
   }
 }
@@ -75,7 +75,7 @@ export function DEPRECATED_registerWallet(wallet: Wallet): void {
   registerWallet(wallet);
   try {
     ((window as DEPRECATED_WalletsWindow).navigator.wallets ||= []).push(
-      ({ register }) => register(wallet)
+      ({ register }) => register(wallet),
     );
   } catch (error) {
     console.error("window.navigator.wallets could not be pushed\n", error);

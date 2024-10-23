@@ -15,7 +15,7 @@ export default function (
   axis,
   diff,
   useScrollingClass = true,
-  forceFireReachEvent = false
+  forceFireReachEvent = false,
 ) {
   let fields;
   if (axis === "top") {
@@ -48,7 +48,7 @@ function processScrollDiff(
   diff,
   [contentHeight, containerHeight, scrollTop, y, up, down],
   useScrollingClass = true,
-  forceFireReachEvent = false
+  forceFireReachEvent = false,
 ) {
   const element = i.element;
 

@@ -5,7 +5,7 @@ import { EnkryptAccount, RPCRequestType } from "@enkryptcom/types";
 
 const getEthereumPubKey = (
   keyring: KeyRingBase,
-  message: RPCRequestType
+  message: RPCRequestType,
 ): Promise<InternalOnMessageResponse> => {
   if (!message.params || message.params.length < 1)
     return Promise.resolve({
@@ -14,12 +14,12 @@ const getEthereumPubKey = (
   const account = message.params[0] as EnkryptAccount;
   return keyring
     .getEthereumEncryptionPublicKey(account)
-    .then((pubkey) => {
+    .then(pubkey => {
       return {
         result: JSON.stringify(pubkey),
       };
     })
-    .catch((e) => {
+    .catch(e => {
       return {
         error: getCustomError(e.message),
       };

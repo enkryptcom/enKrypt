@@ -5,13 +5,13 @@ const method: MiddlewareFunction = function (
   this: SubstrateProvider,
   payload,
   res,
-  next
+  next,
 ): void {
   if (payload.method !== "dot_metadata_get") return next();
   else {
     const mstorage = new MetadataStorage();
-    mstorage.getAllMetadata().then((allMeta) => {
-      const response = Object.keys(allMeta).map((key) => {
+    mstorage.getAllMetadata().then(allMeta => {
+      const response = Object.keys(allMeta).map(key => {
         return {
           genesisHash: key,
           specVersion: allMeta[key].specVersion,

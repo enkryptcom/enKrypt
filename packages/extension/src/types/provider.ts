@@ -67,7 +67,7 @@ export enum ProviderType {
 
 export type SendMessageHandler = (
   provider: ProviderName,
-  message: string
+  message: string,
 ) => Promise<any>;
 
 export interface ProviderOptions {
@@ -132,7 +132,7 @@ export abstract class ProviderAPIInterface {
   abstract init(): Promise<void>;
   abstract getBalance(address: string): Promise<string>;
   abstract getTransactionStatus(
-    hash: string
+    hash: string,
   ): Promise<
     | EthereumRawInfo
     | SubscanExtrinsicInfo
@@ -145,12 +145,12 @@ export abstract class ProviderAPIInterface {
 
 export type handleIncomingMessage = (
   provider: Provider,
-  message: string
+  message: string,
 ) => void;
 
 export type handleOutgoingMessage = (
   provider: Provider,
-  message: string
+  message: string,
 ) => Promise<any>;
 export {
   EthereumProvider,

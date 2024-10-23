@@ -12,7 +12,7 @@ import sendUsingInternalMessengers from "@/libs/messenger/internal-messenger";
  * Sign a transaction
  */
 const TransactionSigner = (
-  options: SignerTransactionOptions
+  options: SignerTransactionOptions,
 ): Promise<LegacyTransaction | FeeMarketEIP1559Transaction> => {
   const { account, network, payload } = options;
   if (account.isHardware) {
@@ -34,11 +34,11 @@ const TransactionSigner = (
           BigInt(rpcSig.v),
           rpcSig.r,
           rpcSig.s,
-          true
+          true,
         );
         return signedTx;
       })
-      .catch((e) => {
+      .catch(e => {
         return Promise.reject({
           error: getCustomError(e.message),
         });
@@ -48,7 +48,7 @@ const TransactionSigner = (
     return sendUsingInternalMessengers({
       method: InternalMethods.sign,
       params: [msgHash, account],
-    }).then((res) => {
+    }).then(res => {
       if (res.error) {
         return Promise.reject(res);
       } else {
@@ -57,7 +57,7 @@ const TransactionSigner = (
           rpcSig.v,
           rpcSig.r,
           rpcSig.s,
-          true
+          true,
         );
         return signedTx;
       }
@@ -69,7 +69,7 @@ const TransactionSigner = (
  * Sign a message
  */
 const MessageSigner = (
-  options: SignerMessageOptions
+  options: SignerMessageOptions,
 ): Promise<InternalOnMessageResponse> => {
   const { account, network, payload } = options;
   if (account.isHardware) {
@@ -98,7 +98,7 @@ const MessageSigner = (
     return sendUsingInternalMessengers({
       method: InternalMethods.sign,
       params: [msgHash, account],
-    }).then((res) => {
+    }).then(res => {
       if (res.error) return res;
       return {
         result: res.result,

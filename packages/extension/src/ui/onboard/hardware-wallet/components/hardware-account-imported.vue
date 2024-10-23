@@ -6,11 +6,11 @@
   </div>
 </template>
 <script setup lang="ts">
-import ImportDoneAnimation from '@action/icons/import/import-done-animation.vue'
+import ImportDoneAnimation from "@action/icons/import/import-done-animation.vue";
 </script>
 
 <style lang="less" scoped>
-@import '@action/styles/theme.less';
+@import "@action/styles/theme.less";
 
 .hardware-account-imported {
   width: 100%;

@@ -47,7 +47,7 @@ class DataDecode {
       const decoded = rawDecode(params, hexToBuffer(this.valueData));
       const decodedData: DataDecodeResponse = {
         decoded: true,
-        values: decoded.map((a) => toHex(a)),
+        values: decoded.map(a => toHex(a)),
         function: sig[0],
         isToken: this.isTokenAction,
       };

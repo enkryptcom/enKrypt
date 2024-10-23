@@ -184,7 +184,7 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
 
 const getTokens = (
   network: BaseNetwork,
-  address: string
+  address: string,
 ): Promise<TokenBalance[]> => {
   const chain = network.name as SupportedNetworkNames;
   if (chain === NetworkNames.TomoChain) {
@@ -198,11 +198,11 @@ const getTokens = (
   else
     url = `${API_ENPOINT2}${supportedNetworks[chain].tbName}/${address}?platform=enkrypt&type=internal`;
   return fetch(url)
-    .then((res) => res.json())
-    .then((json) => {
+    .then(res => res.json())
+    .then(json => {
       if (json.error)
         return Promise.reject(
-          `TOKENBALANCE-MEW: ${JSON.stringify(json.error)}`
+          `TOKENBALANCE-MEW: ${JSON.stringify(json.error)}`,
         );
       else {
         const isNativeAvailable = json.result.length
@@ -221,15 +221,15 @@ const getTokens = (
 
 export default (
   network: BaseNetwork,
-  address: string
+  address: string,
 ): Promise<AssetsType[]> => {
   if (!Object.keys(supportedNetworks).includes(network.name))
     throw new Error("TOKENBALANCE-MEW: network not supported");
   const networkName = network.name as SupportedNetworkNames;
-  return getTokens(network, address).then(async (tokens) => {
+  return getTokens(network, address).then(async tokens => {
     const balances: Record<string, TokenBalance> = tokens.reduce(
       (obj, cur) => ({ ...obj, [cur.contract]: cur }),
-      {}
+      {},
     );
 
     const marketData = new MarketData();
@@ -237,13 +237,13 @@ export default (
     const marketInfo = supportedNetworks[networkName].cgPlatform
       ? await marketData.getMarketInfoByContracts(
           Object.keys(balances).filter(
-            (contract) => contract !== NATIVE_TOKEN_ADDRESS
+            contract => contract !== NATIVE_TOKEN_ADDRESS,
           ),
-          supportedNetworks[networkName].cgPlatform as CoingeckoPlatform
+          supportedNetworks[networkName].cgPlatform as CoingeckoPlatform,
         )
       : tokens.reduce(
           (obj, cur) => ({ ...obj, [cur.contract]: null }),
-          {} as Record<string, CoinGeckoTokenMarket | null>
+          {} as Record<string, CoinGeckoTokenMarket | null>,
         );
     if (network.coingeckoID) {
       const nativeMarket = await marketData.getMarketData([
@@ -270,7 +270,7 @@ export default (
 
     const assets: AssetsType[] = [];
     const tokenInfo: Record<string, CGToken> = await getKnownNetworkTokens(
-      network.name
+      network.name,
     );
     tokenInfo[NATIVE_TOKEN_ADDRESS] = {
       chainId: (network as EvmNetwork).chainID,
@@ -287,7 +287,7 @@ export default (
       if (market && tokenInfo[address]) {
         const userBalance = fromBase(
           balances[address].balance,
-          tokenInfo[address].decimals
+          tokenInfo[address].decimals,
         );
         const currentPrice = market.current_price ?? 0;
         const usdBalance = new BigNumber(userBalance).times(currentPrice);
@@ -323,13 +323,13 @@ export default (
     assets.unshift(nativeAsset as AssetsType);
     if (unknownTokens.length && network.api) {
       const api = (await network.api()) as API;
-      const promises = unknownTokens.map((t) => api.getTokenInfo(t));
-      await Promise.all(promises).then((tokenMeta) => {
+      const promises = unknownTokens.map(t => api.getTokenInfo(t));
+      await Promise.all(promises).then(tokenMeta => {
         tokenMeta.forEach((tInfo, idx) => {
           if (tInfo.symbol === "UNKNWN") return;
           const userBalance = fromBase(
             balances[unknownTokens[idx]].balance,
-            tInfo.decimals
+            tInfo.decimals,
           );
           const asset: AssetsType = {
             balance: toBN(balances[unknownTokens[idx]].balance).toString(),

@@ -7,7 +7,7 @@ const method: MiddlewareFunction = function (
   this: EthereumProvider,
   payload,
   res,
-  next
+  next,
 ): void {
   const supportedMethods: Record<string, string> = {
     eth_signTypedData: "V1",
@@ -35,12 +35,12 @@ const method: MiddlewareFunction = function (
           `eth_signTypedData: Provided chainId ${
             typedDataJSON.domain.chainId
           } must match the active chainId ${toBN(
-            this.network.chainID
+            this.network.chainID,
           ).toString()}`,
-          -32603
-        )
+          -32603,
+        ),
       );
-    this.KeyRing.getAccount(address.toLowerCase()).then((account) => {
+    this.KeyRing.getAccount(address.toLowerCase()).then(account => {
       const windowPromise = new WindowPromise();
       windowPromise
         .getResponse(
@@ -49,7 +49,7 @@ const method: MiddlewareFunction = function (
             ...payload,
             params: [typedDataJSON, account, version, this.network.name],
           }),
-          true
+          true,
         )
         .then(({ error, result }) => {
           if (error) return res(error);

@@ -15,7 +15,7 @@
         <p class="hardware-importing-account__info-name">
           {{
             $filters.replaceWithEllipsis(
-              network.displayAddress ? network.displayAddress(address) : '',
+              network.displayAddress ? network.displayAddress(address) : "",
               6,
               4,
             )
@@ -23,7 +23,7 @@
         </p>
         <p class="hardware-importing-account__info-amount">
           {{ balance }}
-          <span>{{ network.currencyName ? network.currencyName : '' }}</span>
+          <span>{{ network.currencyName ? network.currencyName : "" }}</span>
         </p>
       </div>
     </div>
@@ -40,9 +40,9 @@
 </template>
 
 <script setup lang="ts">
-import LabelInput from '@action/components/label-input/index.vue'
-import { BaseNetwork } from '@/types/base-network'
-import { PropType } from 'vue'
+import LabelInput from "@action/components/label-input/index.vue";
+import { BaseNetwork } from "@/types/base-network";
+import { PropType } from "vue";
 defineProps({
   network: {
     type: Object as PropType<BaseNetwork>,
@@ -50,7 +50,7 @@ defineProps({
   },
   address: {
     type: String,
-    default: '',
+    default: "",
   },
   index: {
     type: Number,
@@ -58,19 +58,19 @@ defineProps({
   },
   balance: {
     type: String,
-    default: '',
+    default: "",
   },
   nameValue: {
     type: String,
-    default: '',
+    default: "",
   },
   isError: Boolean,
   noIndex: Boolean,
-})
+});
 </script>
 
 <style lang="less" scoped>
-@import '@action/styles/theme.less';
+@import "@action/styles/theme.less";
 
 .hardware-importing-account {
   margin: 0 0 16px 0;
@@ -97,7 +97,7 @@ defineProps({
   &__number {
     width: 16px;
     height: 16px;
-    font-family: 'Roboto';
+    font-family: "Roboto";
     font-style: normal;
     font-weight: 400;
     font-size: 12px;

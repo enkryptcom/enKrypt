@@ -27,7 +27,7 @@ const getAllNetworks = async (): Promise<BaseNetwork[]> => {
 
   const customNetworks = (
     await customNetworksState.getAllCustomEVMNetworks()
-  ).map((options) => new CustomEvmNetwork(options));
+  ).map(options => new CustomEvmNetwork(options));
 
   return (Object.values(EthereumNetworks) as BaseNetwork[])
     .concat(Object.values(PolkadotNetworks) as BaseNetwork[])
@@ -37,13 +37,13 @@ const getAllNetworks = async (): Promise<BaseNetwork[]> => {
     .concat(customNetworks);
 };
 const getNetworkByName = async (
-  name: string
+  name: string,
 ): Promise<BaseNetwork | undefined> => {
-  return (await getAllNetworks()).find((net) => net.name === name);
+  return (await getAllNetworks()).find(net => net.name === name);
 };
 const getProviderNetworkByName = async (
   provider: ProviderName,
-  networkName: string
+  networkName: string,
 ): Promise<BaseNetwork | undefined> => {
   let networks = Object.values(providerNetworks[provider]);
 
@@ -51,12 +51,12 @@ const getProviderNetworkByName = async (
     const customNetworkState = new CustomNetworksState();
     const customNetworks = (
       await customNetworkState.getAllCustomEVMNetworks()
-    ).map((options) => new CustomEvmNetwork(options));
+    ).map(options => new CustomEvmNetwork(options));
 
     networks = [...customNetworks, ...networks];
   }
 
-  return networks.find((net) => net.name === networkName);
+  return networks.find(net => net.name === networkName);
 };
 const DEFAULT_EVM_NETWORK_NAME = NetworkNames.Ethereum;
 const DEFAULT_SUBSTRATE_NETWORK_NAME = NetworkNames.Polkadot;

@@ -38,7 +38,7 @@ export default function (i) {
     return true;
   }
 
-  i.event.bind(i.ownerDocument, "keydown", (e) => {
+  i.event.bind(i.ownerDocument, "keydown", e => {
     if (
       (e.isDefaultPrevented && e.isDefaultPrevented()) ||
       e.defaultPrevented

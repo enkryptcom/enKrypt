@@ -50,7 +50,7 @@ export const initAccounts = async (keyring: KeyRing) => {
 };
 export const onboardInitializeWallets = async (
   mnemonic: string,
-  password: string
+  password: string,
 ): Promise<void> => {
   const kr = new KeyRing();
   await kr.init(mnemonic, password);

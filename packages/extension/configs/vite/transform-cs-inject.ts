@@ -3,7 +3,7 @@ import { resolve, dirname, basename } from 'node:path'
 import injectConfigs from '../rollup.config.inject'
 import contentScriptConfigs from '../rollup.config.contentscript'
 import { OutputOptions, PluginContext, rollup, RollupBuild } from 'rollup'
-import { CrxPlugin } from '@crxjs/vite-plugin'
+import { CrxPlugin, allFilesReady } from '@crxjs/vite-plugin'
 
 function transformCSInject(): CrxPlugin {
   let config: Partial<ResolvedConfig> = {}
@@ -59,6 +59,9 @@ function transformCSInject(): CrxPlugin {
     name: 'crx:enkrypt:transform-contentscript-inject',
     configResolved(_config) {
       config = _config
+      allFilesReady().then(() => {
+        console.log('Enkrypt: ready!')
+      })
     },
     async renderCrxManifest(manifest, bundle) {
       if (config.command === 'serve') {
@@ -81,7 +84,6 @@ function transformCSInject(): CrxPlugin {
           bundle[fileName] = chunk as any
         })
       }
-      console.log(`Enkrypt: Manifest ready!`)
       return manifest
     },
     async buildStart() {

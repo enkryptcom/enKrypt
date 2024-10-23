@@ -19,7 +19,7 @@ type AssetInfo = {
 export default async (
   network: SubstrateNetwork,
   address: string | null,
-  knownTokens?: any[]
+  knownTokens?: any[],
 ) => {
   const api = (await network.api()) as API;
 
@@ -38,7 +38,7 @@ export default async (
     };
     return info;
   });
-  const queries = assetMetadatas.map((metadata) => metadata.key);
+  const queries = assetMetadatas.map(metadata => metadata.key);
   const assetInfos = await apiPromise.query.assets.asset.multi(queries);
   const tokenOptions = assetInfos
     .map((info, index) => {
@@ -53,8 +53,8 @@ export default async (
         return null;
       }
     })
-    .filter((asset) => asset !== null)
-    .map((asset) => {
+    .filter(asset => asset !== null)
+    .map(asset => {
       const tokenOptions: AssetTokenOptions = {
         name: asset!.name,
         symbol: asset!.symbol,
@@ -65,10 +65,10 @@ export default async (
       };
       return tokenOptions;
     })
-    .map((tokenOption) => {
+    .map(tokenOption => {
       if (knownTokens) {
         const knownToken = knownTokens.find(
-          (knownToken) => knownToken.id === tokenOption.id
+          knownToken => knownToken.id === tokenOption.id,
         );
         if (knownToken) {
           tokenOption.coingeckoID = knownToken.coingeckoID;
@@ -78,7 +78,7 @@ export default async (
       return tokenOption;
     });
   if (address) {
-    const queries = tokenOptions.map((options) => {
+    const queries = tokenOptions.map(options => {
       return [options.id, address];
     });
     const balances = await apiPromise.query.assets.account.multi(queries);
@@ -103,5 +103,5 @@ export default async (
     icon: network.icon,
     coingeckoID: network.coingeckoID,
   });
-  return [nativeAsset, ...tokenOptions.map((o) => new AssetToken(o))];
+  return [nativeAsset, ...tokenOptions.map(o => new AssetToken(o))];
 };

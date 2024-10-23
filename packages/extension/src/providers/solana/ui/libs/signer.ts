@@ -13,7 +13,7 @@ import sendUsingInternalMessengers from "@/libs/messenger/internal-messenger";
  * Sign a transaction
  */
 const TransactionSigner = (
-  options: SolInternalSignTransactionRequest
+  options: SolInternalSignTransactionRequest,
 ): Promise<Buffer> => {
   const { transaction, network, account } = options;
   if (options.account.isHardware) {
@@ -32,7 +32,7 @@ const TransactionSigner = (
       .then((rpcsig: string) => {
         return hexToBuffer(rpcsig);
       })
-      .catch((e) => {
+      .catch(e => {
         return Promise.reject({
           error: getCustomError(e.message),
         });
@@ -42,7 +42,7 @@ const TransactionSigner = (
     return sendUsingInternalMessengers({
       method: InternalMethods.sign,
       params: [msgHash, account],
-    }).then((res) => {
+    }).then(res => {
       if (res.error) {
         return Promise.reject(res);
       } else {
@@ -56,7 +56,7 @@ const TransactionSigner = (
  * Sign a message
  */
 const MessageSigner = (
-  options: SolInternalSignMessageRequest
+  options: SolInternalSignMessageRequest,
 ): Promise<InternalOnMessageResponse> => {
   const { account, payload } = options;
   if (account.isHardware) {
@@ -95,7 +95,7 @@ const MessageSigner = (
     return sendUsingInternalMessengers({
       method: InternalMethods.sign,
       params: [payload, account],
-    }).then((res) => {
+    }).then(res => {
       if (res.error) return res;
       return {
         result: JSON.stringify({

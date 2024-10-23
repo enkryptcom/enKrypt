@@ -44,19 +44,19 @@ const TokenList: Record<SupportedNetworkNames, string> = {
 };
 
 const getKnownNetworkTokens = async (
-  networkName: NetworkNames
+  networkName: NetworkNames,
 ): Promise<Record<string, CGToken>> => {
   if (!TokenList[networkName as SupportedNetworkNames]) return {};
   return cacheFetch(
     {
       url: TokenList[networkName as SupportedNetworkNames],
     },
-    TOKEN_FETCH_TTL
+    TOKEN_FETCH_TTL,
   )
-    .then((json) => {
+    .then(json => {
       const tokens: CGToken[] = json.tokens;
       const tObject: Record<string, CGToken> = {};
-      tokens.forEach((t) => {
+      tokens.forEach(t => {
         t.address =
           networkName !== NetworkNames.Solana
             ? t.address.toLowerCase()

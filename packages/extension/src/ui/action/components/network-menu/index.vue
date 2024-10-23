@@ -33,29 +33,29 @@
 </template>
 
 <script setup lang="ts">
-import Activity from '@action/icons/tabs/activity.vue'
-import Assets from '@action/icons/tabs/assets.vue'
-import NFTs from '@action/icons/tabs/nfts.vue'
-import DApps from '@action/icons/tabs/dapps.vue'
-import { PropType } from 'vue'
-import DappList from '@/libs/dapp-list'
-import { BaseNetwork } from '@/types/base-network'
-import { EvmNetwork } from '@/providers/ethereum/types/evm-network'
+import Activity from "@action/icons/tabs/activity.vue";
+import Assets from "@action/icons/tabs/assets.vue";
+import NFTs from "@action/icons/tabs/nfts.vue";
+import DApps from "@action/icons/tabs/dapps.vue";
+import { PropType } from "vue";
+import DappList from "@/libs/dapp-list";
+import { BaseNetwork } from "@/types/base-network";
+import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
 
 defineProps({
   selected: {
     type: String,
-    default: '',
+    default: "",
   },
   network: {
     type: Object as PropType<BaseNetwork>,
     default: () => ({}),
   },
-})
+});
 </script>
 
 <style lang="less">
-@import '@action/styles/theme.less';
+@import "@action/styles/theme.less";
 
 .network-menu {
   position: absolute;

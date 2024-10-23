@@ -25,7 +25,7 @@ class MarketData {
   async getTokenValue(
     tokenBalance: string,
     coingeckoID: string,
-    fiatSymbol: string
+    fiatSymbol: string,
   ): Promise<string> {
     await this.setMarketInfo();
     const balanceBN = new BigNumber(tokenBalance);
@@ -44,15 +44,15 @@ class MarketData {
   }
   async getMarketInfoByContracts(
     contracts: string[],
-    platformId: CoingeckoPlatform
+    platformId: CoingeckoPlatform,
   ): Promise<Record<string, CoinGeckoTokenMarket | null>> {
     await this.setMarketInfo();
     const allTokens = Object.values(await this.#getAllTokens());
     const requested: Record<string, CoinGeckoTokenMarket | null> = {};
     const contractTokenMap: Record<string, string | null> = {};
-    contracts.forEach((add) => (contractTokenMap[add] = null));
+    contracts.forEach(add => (contractTokenMap[add] = null));
     const tokenIds = allTokens
-      .filter((token) => {
+      .filter(token => {
         if (
           token.platforms[platformId] &&
           contracts.includes(token.platforms[platformId])
@@ -62,13 +62,13 @@ class MarketData {
         }
         return false;
       })
-      .map((token) => token.id);
+      .map(token => token.id);
     if (!tokenIds.length) return requested;
     const marketData = await this.getMarketData(tokenIds);
-    Object.keys(contractTokenMap).forEach((contract) => {
+    Object.keys(contractTokenMap).forEach(contract => {
       if (contractTokenMap[contract]) {
         requested[contract] =
-          marketData.find((data) => data?.id === contractTokenMap[contract]) ||
+          marketData.find(data => data?.id === contractTokenMap[contract]) ||
           null;
       } else {
         requested[contract] = null;
@@ -77,10 +77,10 @@ class MarketData {
     return requested;
   }
   async getMarketData(
-    coingeckoIDs: string[]
+    coingeckoIDs: string[],
   ): Promise<Array<CoinGeckoTokenMarket | null>> {
     return getMarketInfoByIDs(coingeckoIDs).catch(() =>
-      coingeckoIDs.map(() => null)
+      coingeckoIDs.map(() => null),
     );
   }
   async getFiatValue(symbol: string): Promise<FiatMarket | null> {
@@ -104,7 +104,7 @@ class MarketData {
     return await this.#storage.get(StorageKeys.allTokens);
   }
   async #setFiatExchangeRates(
-    tokens: Record<string, FiatMarket>
+    tokens: Record<string, FiatMarket>,
   ): Promise<void> {
     await this.#storage.set(StorageKeys.fiatInfo, tokens);
   }
@@ -113,21 +113,21 @@ class MarketData {
     if (lastTimestamp && lastTimestamp >= new Date().getTime() - REFRESH_DELAY)
       return;
 
-    const allCoins = await getAllPlatformData().then((json) => {
+    const allCoins = await getAllPlatformData().then(json => {
       const allTokens = json as CoinGeckoToken[];
       const tokens: Record<string, CoinGeckoToken> = {};
-      allTokens.forEach((token) => {
+      allTokens.forEach(token => {
         tokens[token.id] = token;
       });
       return tokens;
     });
     await this.#setAllTokens(allCoins);
     const fiatMarketData = await fetch(`${FIAT_EXCHANGE_RATE_ENDPOINT}`)
-      .then((res) => res.json())
-      .then((json) => {
+      .then(res => res.json())
+      .then(json => {
         const topMarkets = json as FiatMarket[];
         const tokens: Record<string, FiatMarket> = {};
-        topMarkets.forEach((token) => {
+        topMarkets.forEach(token => {
           tokens[token.fiat_currency] = token;
         });
         return tokens;

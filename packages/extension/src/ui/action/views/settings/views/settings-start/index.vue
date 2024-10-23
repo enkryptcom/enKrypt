@@ -56,54 +56,58 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import SettingsHeader from '@action/views/settings/components/settings-header.vue'
-import SettingsButton from '@action/views/settings/components/settings-button.vue'
-import ModalSign from '@action/views/modal-sign/index.vue'
-import ModalForgot from '@action/views/modal-forgot/index.vue'
+import { ref } from "vue";
+import SettingsHeader from "@action/views/settings/components/settings-header.vue";
+import SettingsButton from "@action/views/settings/components/settings-button.vue";
+import ModalSign from "@action/views/modal-sign/index.vue";
+import ModalForgot from "@action/views/modal-forgot/index.vue";
 
-const isOpenSign = ref(false)
-const isForgot = ref(false)
-const version = __PACKAGE_VERSION__
-const buildTime = __BUILD_TIME__
+const isOpenSign = ref(false);
+const isForgot = ref(false);
+const version = __PACKAGE_VERSION__;
+const buildTime = __BUILD_TIME__;
 defineEmits<{
-  (e: 'action:reset'): void
-  (e: 'action:support'): void
-  (e: 'action:general'): void
-  (e: 'action:about'): void
-}>()
+  (e: "action:reset"): void;
+  (e: "action:support"): void;
+  (e: "action:general"): void;
+  (e: "action:about"): void;
+}>();
 
 const bugAction = () => {
   window.open(
-    'https://hackerone.com/myetherwallet?type=team',
-    '_blank',
-    'noopener',
-  )
-}
+    "https://hackerone.com/myetherwallet?type=team",
+    "_blank",
+    "noopener",
+  );
+};
 
 const privacyAction = () => {
   window.open(
-    'https://www.myetherwallet.com/privacy-policy',
-    '_blank',
-    'noopener',
-  )
-}
+    "https://www.myetherwallet.com/privacy-policy",
+    "_blank",
+    "noopener",
+  );
+};
 
 const contactSupport = () => {
-  window.open('https://www.enkrypt.com/?ref=enkrypt_help', '_blank', 'noopener')
-}
+  window.open(
+    "https://www.enkrypt.com/?ref=enkrypt_help",
+    "_blank",
+    "noopener",
+  );
+};
 
 const toggleSign = () => {
-  isOpenSign.value = !isOpenSign.value
-}
+  isOpenSign.value = !isOpenSign.value;
+};
 const toggleForgot = () => {
-  isOpenSign.value = false
-  isForgot.value = !isForgot.value
-}
+  isOpenSign.value = false;
+  isForgot.value = !isForgot.value;
+};
 </script>
 
 <style lang="less">
-@import '@action/styles/theme.less';
+@import "@action/styles/theme.less";
 
 .settings {
   &__copyright {

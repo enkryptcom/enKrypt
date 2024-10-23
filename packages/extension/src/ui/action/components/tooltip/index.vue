@@ -9,79 +9,79 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref } from "vue";
 
-const show = ref(false)
-const positionX = ref(0)
-const positionY = ref(0)
-const visible = ref(false)
+const show = ref(false);
+const positionX = ref(0);
+const positionY = ref(0);
+const visible = ref(false);
 
-let timeout: ReturnType<typeof setTimeout> | null = null
+let timeout: ReturnType<typeof setTimeout> | null = null;
 
 defineProps({
   text: {
     type: String,
-    default: '',
+    default: "",
   },
-})
+});
 
 const onHover = (e: any) => {
   if (timeout != null) {
-    clearTimeout(timeout)
+    clearTimeout(timeout);
   }
 
   timeout = setTimeout(() => {
-    const { pageX, pageY } = e
+    const { pageX, pageY } = e;
 
     if (!show.value) {
-      show.value = true
-      positionX.value = pageX
-      positionY.value = pageY
+      show.value = true;
+      positionX.value = pageX;
+      positionY.value = pageY;
 
       setTimeout(() => {
-        visible.value = true
-      }, 50)
+        visible.value = true;
+      }, 50);
     }
-  }, 700)
-}
+  }, 700);
+};
 
 const onHide = () => {
   if (timeout != null) {
-    clearTimeout(timeout)
+    clearTimeout(timeout);
 
-    timeout = null
+    timeout = null;
   }
   if (visible.value) {
-    visible.value = false
+    visible.value = false;
 
     setTimeout(() => {
-      show.value = false
-      positionX.value = 0
-      positionY.value = 0
-    }, 300)
+      show.value = false;
+      positionX.value = 0;
+      positionY.value = 0;
+    }, 300);
   } else {
-    visible.value = false
-    show.value = false
+    visible.value = false;
+    show.value = false;
   }
-}
+};
 
 const classObject = () => {
-  const x = positionX.value
-  const y = positionY.value
+  const x = positionX.value;
+  const y = positionY.value;
 
   switch (true) {
     case x > 740 && y < 50:
-      return { 'right-bottom': true, visible: visible.value }
+      return { "right-bottom": true, visible: visible.value };
     case x < 741 && y < 50:
-      return { bottom: true, visible: visible.value }
+      return { bottom: true, visible: visible.value };
     default:
-      return { normal: true, visible: visible.value }
+      return { normal: true, visible: visible.value };
   }
-}
+};
 </script>
 
 <style lang="less">
-@import '@action/styles/theme.less';
+@import "@action/styles/theme.less";
 
 .tooltip {
   display: inline-block;
@@ -114,19 +114,19 @@ const classObject = () => {
     }
 
     &.normal {
-      top: calc(~'-100% + 8px');
+      top: calc(~"-100% + 8px");
       left: 50%;
       transform: translateX(-50%) translateY(0px);
     }
 
     &.right-bottom {
-      top: calc(~'100% + 3px');
+      top: calc(~"100% + 3px");
       right: 0;
       transform: translateX(0) translateY(0px);
     }
 
     &.bottom {
-      top: calc(~'100% + 3px');
+      top: calc(~"100% + 3px");
       left: 50%;
       transform: translateX(-50%) translateY(0px);
     }

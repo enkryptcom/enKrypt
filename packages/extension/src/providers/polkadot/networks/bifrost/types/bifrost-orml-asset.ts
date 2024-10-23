@@ -29,12 +29,12 @@ export class BifrostOrmlAsset extends SubstrateToken {
 
   public async getLatestUserBalance(
     api: ApiPromise,
-    address: any
+    address: any,
   ): Promise<string> {
     const tokenLookup: Record<string, string | number> = {};
     tokenLookup[this.assetType] = this.lookupValue;
 
-    return api.query.tokens.accounts(address, tokenLookup).then((res) => {
+    return api.query.tokens.accounts(address, tokenLookup).then(res => {
       const balance = (res as unknown as OrmlTokensAccountData).free.toString();
       this.balance = balance;
       return balance;
@@ -44,7 +44,7 @@ export class BifrostOrmlAsset extends SubstrateToken {
   public async send(
     api: ApiPromise,
     to: string,
-    amount: string
+    amount: string,
   ): Promise<SubmittableExtrinsic<"promise", ISubmittableResult>> {
     const currencyId: Record<string, string | number> = {};
     currencyId[this.assetType] = this.lookupValue;

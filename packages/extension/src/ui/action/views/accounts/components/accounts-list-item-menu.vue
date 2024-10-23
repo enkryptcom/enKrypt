@@ -14,19 +14,19 @@
 </template>
 
 <script setup lang="ts">
-import EditIcon from '@action/icons/actions/edit.vue'
-import DeleteIcon from '@action/icons/actions/delete.vue'
+import EditIcon from "@action/icons/actions/edit.vue";
+import DeleteIcon from "@action/icons/actions/delete.vue";
 defineEmits<{
-  (e: 'action:rename'): void
-  (e: 'action:delete'): void
-}>()
+  (e: "action:rename"): void;
+  (e: "action:delete"): void;
+}>();
 defineProps({
   deletable: Boolean,
-})
+});
 </script>
 
 <style lang="less">
-@import '@action/styles/theme.less';
+@import "@action/styles/theme.less";
 
 .accounts-item {
   &__edit {
