@@ -33,18 +33,11 @@
 import { PropType } from 'vue';
 import Switch from '@action/components/switch/index.vue';
 // import InfoIcon from "@action/icons/common/info-icon.vue";
-<<<<<<< HEAD
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import { NodeType } from "@/types/provider";
 import { CustomEvmNetwork } from "@/providers/ethereum/types/custom-evm-network";
 import TestNetworkIcon from "@action/icons/common/test-network-icon.vue";
 import Tooltip from "@/ui/action/components/tooltip/index.vue";
-=======
-import CloseIcon from '@action/icons/common/close-icon.vue';
-import { NodeType } from '@/types/provider';
-import { CustomEvmNetwork } from '@/providers/ethereum/types/custom-evm-network';
-import TestNetworkIcon from '@action/icons/common/test-network-icon.vue';
->>>>>>> devop/vite-migrate
 
 const emit = defineEmits<{
   (e: 'networkToggled', name: string, isActive: boolean): void;
