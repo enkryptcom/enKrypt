@@ -58,25 +58,27 @@ jobs:
       - uses: actions/upload-artifact@v4
         id: artifact-upload-chrome
         with:
-          name: enkrypt-chrome-${{ env.SHORT_SHA }}.zip
+          name: enkrypt-chrome-${{ env.SHORT_SHA }}
           path: ./release/enkrypt-chrome.zip
+          retention-days: 3
 
       - uses: actions/upload-artifact@v4
         id: artifact-upload-firefox
         with:
-          name: enkrypt-firefox-${{ env.SHORT_SHA }}.zip
+          name: enkrypt-firefox-${{ env.SHORT_SHA }}
           path: ./release/enkrypt-firefox.zip
+          retention-days: 3
 
       - name: Comment PR
         uses: thollander/actions-comment-pull-request@v3
         with:
           message: |
-            Build Files
-            chrome: ${{ steps.artifact-upload-chrome.outputs.artifact-url }}
-            firefox: ${{ steps.artifact-upload-firefox.outputs.artifact-url }}
+            :briefcase: Build Files
+            chrome: [enkrypt-chrome-${{ env.SHORT_SHA }}.zip](${{ steps.artifact-upload-chrome.outputs.artifact-url }})
+            firefox: [enkrypt-firefox-${{ env.SHORT_SHA }}.zip](${{ steps.artifact-upload-firefox.outputs.artifact-url }})
 
-            Virus total analysis
-            chrome: ${{ env.VIRUS_TOTAL_URL_CHROME }}
-            firefox: ${{ env.VIRUS_TOTAL_URL_FIREFOX }}
+            :syringe: Virus total analysis
+            chrome: [${{ env.SHORT_SHA }}](${{ env.VIRUS_TOTAL_URL_CHROME }})
+            firefox: [${{ env.SHORT_SHA }}](${{ env.VIRUS_TOTAL_URL_FIREFOX }})
           comment-tag: pr_build_message
           mode: recreate
