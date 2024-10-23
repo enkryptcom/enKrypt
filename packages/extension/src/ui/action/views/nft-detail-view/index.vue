@@ -22,11 +22,18 @@
         "
         class="nft-detail-view__notification"
       />
-
-      <h3>
+      <tooltip
+        v-if="props.item.name.length > 118"
+        :text="props.item.name"
+        is-top-right
+      >
+        <h3>
+          {{ nftTitle }}
+        </h3>
+      </tooltip>
+      <h3 v-else>
         {{ nftTitle }}
       </h3>
-
       <img :src="item.image" alt="" @error="imageLoadError" />
 
       <div class="nft-detail-view__action">
@@ -45,6 +52,7 @@ import NftMoreDeleteFromFavorite from "@action/icons/nft/nft-more-delete-from-fa
 import { NFTItem } from "@/types/nft";
 import Notification from "@action/components/notification/index.vue";
 import { imageLoadError } from "@action/utils/misc";
+import Tooltip from "@/ui/action/components/tooltip/index.vue";
 
 const isFavoriteAction = ref(false);
 const localIsFavorite = ref(false);

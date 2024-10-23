@@ -4,7 +4,7 @@
       <img :src="item.image" alt="" @error="imageLoadError" />
       <div class="network-nfts__item-name">
         <div class="network-nfts__item-name-inner">
-          {{ item.name }}
+          {{ item.name || "Unknown" }}
         </div>
       </div>
     </a>
@@ -144,15 +144,12 @@ onClickOutside(
 
     &-name {
       width: 128px;
+      padding-top: 4px;
       min-height: 28px;
       max-height: 48px;
       left: 0px;
       bottom: 0px;
-      background: linear-gradient(
-        180deg,
-        rgba(0, 0, 0, 0) 0%,
-        rgba(0, 0, 0, 0.3) 100%
-      );
+      background-color: rgba(255, 255, 255, 0.9);
       font-style: normal;
       font-weight: 500;
       font-size: 14px;
@@ -239,5 +236,6 @@ onClickOutside(
   -moz-hyphens: none;
   -ms-hyphens: none;
   hyphens: none;
+  color: black;
 }
 </style>
