@@ -2,7 +2,8 @@ import { NetworkNames } from "@enkryptcom/types";
 import { isAddress, toBN } from "web3-utils";
 import { NetworkType, TokenType, TokenTypeTo } from "../../../src/types";
 
-const amount = toBN("100000000000000000000");
+const amount = toBN("100000000000000000000"); // DAI, $100, 18 decimals
+const amountUSDT = toBN("100000000"); // USDT, $100, 6 decimals
 
 const fromAddress = "0x6B175474E89094C44Da98b954EedeAC495271d0F";
 const toAddress = "0x255d4D554325568A2e628A1E93120EbA1157C07e";
@@ -29,6 +30,18 @@ const fromToken: TokenType = {
   symbol: "DAI",
   rank: 18,
   cgId: "dai",
+  type: NetworkType.EVM,
+};
+
+const fromTokenUSDT: TokenType = {
+  address: "0xdac17f958d2ee523a2206206994597c13d831ec7",
+  decimals: 6,
+  logoURI:
+    "https://assets.coingecko.com/coins/images/325/standard/Tether.png?1696501661",
+  name: "Tether",
+  symbol: "USDT",
+  rank: 18,
+  cgId: "tether",
   type: NetworkType.EVM,
 };
 
@@ -77,10 +90,12 @@ const toToken: TokenTypeTo = {
 
 export {
   fromToken,
+  fromTokenUSDT,
   toToken,
   toTokenWETH,
   fromTokenWBTC,
   amount,
+  amountUSDT,
   fromAddress,
   toAddress,
   nodeURL,
