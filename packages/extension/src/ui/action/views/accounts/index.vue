@@ -114,26 +114,26 @@
 </template>
 
 <script setup lang="ts">
-import AccountsListItem from "./components/accounts-list-item.vue";
-import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
-import AddAccount from "@action/icons/common/add-account.vue";
-import AddAccountForm from "./components/add-account-form.vue";
-import RenameAccountForm from "./components/rename-account-form.vue";
-import DeleteAccountForm from "./components/delete-account-form.vue";
-import AddHardwareAccount from "@action/icons/actions/add-hardware-account.vue";
-import ImportAccountIcon from "@action/icons/actions/import-account-icon.vue";
-import ImportAccount from "@action/views/import-account/index.vue";
-import BaseInputDebounced from "@action/components/base-input-debounced/index.vue";
-import { AccountsHeaderData } from "../../types/account";
-import { PropType, ref, computed } from "vue";
-import openHardware from "@/libs/utils/open-hardware";
-import scrollSettings from "@/libs/utils/scroll-settings";
-import { EnkryptAccount } from "@enkryptcom/types";
-import HWwallets from "@enkryptcom/hw-wallets";
-import { SignerType } from "@enkryptcom/types";
-import { BaseNetwork } from "@/types/base-network";
-import { WalletType } from "@enkryptcom/types";
-import { ProviderName } from "@/types/provider";
+import AccountsListItem from './components/accounts-list-item.vue';
+import CustomScrollbar from '@action/components/custom-scrollbar/index.vue';
+import AddAccount from '@action/icons/common/add-account.vue';
+import AddAccountForm from './components/add-account-form.vue';
+import RenameAccountForm from './components/rename-account-form.vue';
+import DeleteAccountForm from './components/delete-account-form.vue';
+import AddHardwareAccount from '@action/icons/actions/add-hardware-account.vue';
+import ImportAccountIcon from '@action/icons/actions/import-account-icon.vue';
+import ImportAccount from '@action/views/import-account/index.vue';
+import BaseInputDebounced from '@action/components/base-input-debounced/index.vue';
+import { AccountsHeaderData } from '../../types/account';
+import { PropType, ref, computed } from 'vue';
+import openHardware from '@/libs/utils/open-hardware';
+import scrollSettings from '@/libs/utils/scroll-settings';
+import { EnkryptAccount } from '@enkryptcom/types';
+import HWwallets from '@enkryptcom/hw-wallets';
+import { SignerType } from '@enkryptcom/types';
+import { BaseNetwork } from '@/types/base-network';
+import { WalletType } from '@enkryptcom/types';
+import { ProviderName } from '@/types/provider';
 
 const emit = defineEmits<{
   (e: 'addressChanged', account: EnkryptAccount): void;
@@ -218,11 +218,11 @@ const closeImportAccount = () => {
 };
 
 /*
-  ===================================================================================
+  ========================
     Search
-  ===================================================================================
+  ========================
 */
-const searchInput = ref("");
+const searchInput = ref('');
 
 const updateSearchInput = (value: string) => {
   searchInput.value = value;
@@ -231,9 +231,9 @@ const updateSearchInput = (value: string) => {
 function filterAndSortAccounts(accounts: EnkryptAccount[]) {
   // Filter accounts where the name or address contains inputText
   const filteredAccounts = accounts.filter(
-    (account) =>
+    account =>
       account.name.toLowerCase().includes(searchInput.value.toLowerCase()) ||
-      account.address.toLowerCase().includes(searchInput.value.toLowerCase())
+      account.address.toLowerCase().includes(searchInput.value.toLowerCase()),
   );
 
   // Sort the filtered accounts
@@ -277,13 +277,13 @@ function filterAndSortAccounts(accounts: EnkryptAccount[]) {
 }
 
 const displayActive = computed(() => {
-  if (!searchInput.value || searchInput.value === "") {
+  if (!searchInput.value || searchInput.value === '') {
     return props.accountInfo.activeAccounts;
   }
   return filterAndSortAccounts(props.accountInfo.activeAccounts);
 });
 const displayInactive = computed(() => {
-  if (!searchInput.value || searchInput.value === "") {
+  if (!searchInput.value || searchInput.value === '') {
     return props.accountInfo.inactiveAccounts;
   }
   return filterAndSortAccounts(props.accountInfo.inactiveAccounts);

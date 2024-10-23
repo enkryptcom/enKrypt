@@ -25,35 +25,35 @@ import { ref } from 'vue';
 import SearchIcon from '@action/icons/common/search.vue';
 import ClearIcon from '@action/icons/common/clear-icon.vue';
 
-const inputText = ref<string>("");
+const inputText = ref<string>('');
 defineProps({
   placeholder: {
     type: String,
     default: () => {
-      return "";
+      return '';
     },
   },
   type: {
     type: String,
     default: () => {
-      return "text";
+      return 'text';
     },
   },
 });
 
 const emit = defineEmits<{
-  (e: "update:valueDebounced", data: string): void;
+  (e: 'update:valueDebounced', data: string): void;
 }>();
 
 const clear = () => {
-  inputText.value = "";
-  emit("update:valueDebounced", inputText.value);
+  inputText.value = '';
+  emit('update:valueDebounced', inputText.value);
 };
 
 /*
-  ===================================================================================
+  ===================================
     Input debouncing
-  ===================================================================================
+  ===================================
   */
 const timeout = ref(0);
 
@@ -64,9 +64,9 @@ const onUserInput = (): void => {
   clearTimeout(timeout.value);
   timeout.value = window.setTimeout(() => {
     if (!inputText.value) {
-      inputText.value = "";
+      inputText.value = '';
     }
-    emit("update:valueDebounced", inputText.value);
+    emit('update:valueDebounced', inputText.value);
   }, 600);
 };
 </script>

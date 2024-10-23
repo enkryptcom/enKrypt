@@ -2,8 +2,8 @@
   <div class="add-network__block">
     <div class="add-network__text">
       <img :src="network.icon" alt="" />
-      <span>{{ network.name_long }} </span
-      ><test-network-icon v-if="network.isTestNetwork" />
+      <span>{{ network.name_long }} </span>
+      <test-network-icon v-if="network.isTestNetwork" />
     </div>
 
     <div class="add-network__action">
@@ -33,11 +33,11 @@
 import { PropType } from 'vue';
 import Switch from '@action/components/switch/index.vue';
 // import InfoIcon from "@action/icons/common/info-icon.vue";
-import CloseIcon from "@action/icons/common/close-icon.vue";
-import { NodeType } from "@/types/provider";
-import { CustomEvmNetwork } from "@/providers/ethereum/types/custom-evm-network";
-import TestNetworkIcon from "@action/icons/common/test-network-icon.vue";
-import Tooltip from "@/ui/action/components/tooltip/index.vue";
+import CloseIcon from '@action/icons/common/close-icon.vue';
+import { NodeType } from '@/types/provider';
+import { CustomEvmNetwork } from '@/providers/ethereum/types/custom-evm-network';
+import TestNetworkIcon from '@action/icons/common/test-network-icon.vue';
+import Tooltip from '@/ui/action/components/tooltip/index.vue';
 
 const emit = defineEmits<{
   (e: 'networkToggled', name: string, isActive: boolean): void;
