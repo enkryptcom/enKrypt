@@ -48,6 +48,8 @@ jobs:
           UPLOAD_URL=`curl --request GET --url https://www.virustotal.com/api/v3/files/upload_url --header "x-apikey: $VIRUS_TOTAL_API_KEY" | jq --raw-output '.data'`
           curl --request POST --url "$UPLOAD_URL" --header "x-apikey: $VIRUS_TOTAL_API_KEY" --header 'Accept: application/json' --header 'Content-Type: multipart/form-data' -F "file=@./packages/extension/dist/release.zip"
           VIRUS_TOTAL_URL_FIREFOX=https://www.virustotal.com/gui/file/$FILE_SHA256
+          echo "VIRUS_TOTAL_URL_CHROME=$VIRUS_TOTAL_URL_CHROME" >> $GITHUB_ENV
+          echo "VIRUS_TOTAL_URL_FIREFOX=$VIRUS_TOTAL_URL_FIREFOX" >> $GITHUB_ENV
 
       - name: Comment PR
         uses: thollander/actions-comment-pull-request@v3
@@ -55,8 +57,8 @@ jobs:
           message: |
             Virus total analysis
             chrome: 
-            ${{VIRUS_TOTAL_URL_CHROME}}
+            ${{ env.VIRUS_TOTAL_URL_CHROME }}
             firefox:
-            ${{VIRUS_TOTAL_URL_FIREFOX}}
+            ${{ env.VIRUS_TOTAL_URL_FIREFOX }}
           comment-tag: pr_build_message
           mode: recreate
