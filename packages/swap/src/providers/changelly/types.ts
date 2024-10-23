@@ -108,7 +108,8 @@ export type ChangellyApiValidateAddressResult = {
  *
  * @example
  * ```sh
- * curl -sL https://partners.mewapi.io/changelly-v2 -X POST -H Accept:application/json -H Content-Type:application/json --data '{"id":"1","jsonrpc":"2.0","method":"getFixRate","params":{"from":"sol","to":"btc"}}' | jq '.' -C | less -R
+ * # SOL to BTC
+ * curl -sL https://partners.mewapi.io/changelly-v2 -X POST -H Accept:application/json -H Content-Type:application/json --data '{"id":"1","jsonrpc":"2.0","method":"getFixRate","params":{"from":"sol","to":"btc"}}' | jq . -C | less -R
  * # {
  * #   "jsonrpc": "2.0",
  * #   "result": [
@@ -129,6 +130,9 @@ export type ChangellyApiValidateAddressResult = {
  * #   ],
  * #   "id": "1"
  * # }
+ *
+ * # DAI to USDC
+ * curl https://partners.mewapi.io/changelly-v2 -sL -X POST -H 'Accept: application/json' -H 'Content-Type: application/json' --data '{"jsonrpc":"2.0","id":"1","method":"getFixRate","params":{"from":"dai","to":"usdc"}}' | jq . -C | less -R
  * ````
  */
 export type ChangellyApiGetFixRateParams = {
