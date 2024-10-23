@@ -89,7 +89,7 @@ describe("Swap", () => {
     expect(swapOneInch?.transactions.length).to.be.eq(2);
     const swapChangelly = await enkryptSwap.getSwap(changellyQuote!.quote);
     if (swapChangelly) expect(swapChangelly?.transactions.length).to.be.eq(1);
-  }).timeout(10000);
+  }).timeout(20000);
 
   it("it should get quote and swap for same destination", async () => {
     await enkryptSwap.initPromise;
