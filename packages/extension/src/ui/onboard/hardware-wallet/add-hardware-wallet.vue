@@ -55,7 +55,7 @@ hwWallet
     networkName: route.query.network as NetworkNames,
   })
   .then(paths => {
-    if (paths) isLedgerSupported.value = !process.env.IS_FIREFOX
+    if (paths) isLedgerSupported.value = !__IS_FIREFOX__
   })
   .catch(() => ({}))
 hwWallet

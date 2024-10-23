@@ -9,6 +9,7 @@ import operaManifest from './src/manifest/manifest.opera'
 import assetsRewritePlugin from './configs/vite/assets-rewrite'
 import transformManifest from './configs/vite/transform-manifest'
 import transformCSInject from './configs/vite/transform-cs-inject'
+import { version as nodeVersion } from 'node:process'
 import { version } from './package.json'
 
 const BROWSER = process.env.BROWSER
@@ -33,14 +34,14 @@ export default defineConfig({
     },
   },
   define: {
-    'process.env.PREFILL_PASSWORD': JSON.stringify('test pass'),
-    'process.env.PACKAGE_VERSION': JSON.stringify(version),
-    'process.env.IS_DEV': process.env.NODE_ENV === 'development',
-    'process.env.IS_FIREFOX': BROWSER === 'firefox',
-    'process.env.IS_OPERA': BROWSER === 'opera',
-    'process.env.IS_CHROME': BROWSER === 'chrome',
-    'process.env.IS_SAFARI': BROWSER === 'safari',
-    'process.env.BUILD_TIME':
+    __PREFILL_PASSWORD__: JSON.stringify('test pass'),
+    PACKAGE_VERSION: JSON.stringify(version),
+    IS_DEV: process.env.NODE_ENV === 'development',
+    IS_FIREFOX: BROWSER === 'firefox',
+    IS_OPERA: BROWSER === 'opera',
+    IS_CHROME: BROWSER === 'chrome',
+    IS_SAFARI: BROWSER === 'safari',
+    BUILD_TIME:
       BROWSER === 'firefox'
         ? JSON.stringify('FF-build')
         : new Date().toLocaleString().replace(/\D/g, ''),
@@ -56,7 +57,9 @@ export default defineConfig({
         'http',
         'https',
         'path',
+        'process',
       ],
+      protocolImports: true,
     }),
     vue(),
     assetsRewritePlugin,

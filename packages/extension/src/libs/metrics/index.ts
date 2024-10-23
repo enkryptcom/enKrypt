@@ -1,6 +1,6 @@
-import { ProviderName } from "@/types/provider";
-import { NetworkNames } from "@enkryptcom/types";
-import Metrics from "./amplitude";
+import { ProviderName } from '@/types/provider'
+import { NetworkNames } from '@enkryptcom/types'
+import Metrics from './amplitude'
 import {
   BuyEventType,
   DAppsEventType,
@@ -10,81 +10,81 @@ import {
   SendEventType,
   SettingEventType,
   SwapEventType,
-} from "./types";
+} from './types'
 
-const metrics = new Metrics();
+const metrics = new Metrics()
 
 const trackGenericEvents = (event: GenericEvents) => {
-  metrics.track("generic", { event });
-};
+  metrics.track('generic', { event })
+}
 
 const trackNetworkSelected = (
   event: NetworkChangeEvents,
-  options: { provider: ProviderName; network: NetworkNames }
+  options: { provider: ProviderName; network: NetworkNames },
 ) => {
-  metrics.track("network", { event, ...options });
-};
+  metrics.track('network', { event, ...options })
+}
 
 const trackSwapEvents = (
   event: SwapEventType,
   options: {
-    network: NetworkNames;
-    fromToken?: string;
-    toToken?: string;
-    swapProvider?: string;
-    error?: string;
-  }
+    network: NetworkNames
+    fromToken?: string
+    toToken?: string
+    swapProvider?: string
+    error?: string
+  },
 ) => {
-  metrics.track("swap", { event, ...options });
-};
+  metrics.track('swap', { event, ...options })
+}
 
 const trackBuyEvents = (
   event: BuyEventType,
   options: {
-    network: NetworkNames;
-  }
+    network: NetworkNames
+  },
 ) => {
-  metrics.track("buy", { event, ...options });
-};
+  metrics.track('buy', { event, ...options })
+}
 
 const trackSendEvents = (
   event: SendEventType,
   options: {
-    network: NetworkNames;
-    error?: string;
-  }
+    network: NetworkNames
+    error?: string
+  },
 ) => {
-  metrics.track("send", { event, ...options });
-};
+  metrics.track('send', { event, ...options })
+}
 
 const trackNFTEvents = (
   event: NFTEventType,
   options: {
-    network: NetworkNames;
-  }
+    network: NetworkNames
+  },
 ) => {
-  metrics.track("nft", { event, ...options });
-};
+  metrics.track('nft', { event, ...options })
+}
 
 const trackDAppsEvents = (
   event: DAppsEventType,
   options: {
-    network: NetworkNames;
-  }
+    network: NetworkNames
+  },
 ) => {
-  metrics.track("dapps", { event, ...options });
-};
+  metrics.track('dapps', { event, ...options })
+}
 
 const optOutofMetrics = (optOut: boolean) => {
-  if (!process.env.IS_FIREFOX) {
-    metrics.setOptOut(false);
-    metrics.track("settings", {
+  if (!__IS_FIREFOX__) {
+    metrics.setOptOut(false)
+    metrics.track('settings', {
       event: SettingEventType.OptOut,
       value: optOut ? 1 : 0,
-    });
+    })
   }
-  metrics.setOptOut(optOut);
-};
+  metrics.setOptOut(optOut)
+}
 
 export {
   trackNetworkSelected,
@@ -95,4 +95,4 @@ export {
   trackDAppsEvents,
   optOutofMetrics,
   trackGenericEvents,
-};
+}

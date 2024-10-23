@@ -35,7 +35,7 @@ Browser.runtime.onInstalled.addListener(object => {
   }
 })
 
-if (process.env.IS_OPERA) {
+if (__IS_OPERA__) {
   Browser.scripting.registerContentScripts([
     {
       id: 'inject-script',

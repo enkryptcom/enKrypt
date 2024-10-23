@@ -59,7 +59,7 @@ const emit = defineEmits<{
   (e: 'update:init'): void
 }>()
 
-const password = ref(process.env.PREFILL_PASSWORD!)
+const password = ref(__PREFILL_PASSWORD__!)
 const isDisabled = computed(() => {
   return password.value.length < 5 || isUnlocking.value
 })

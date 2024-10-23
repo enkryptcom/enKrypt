@@ -14,7 +14,7 @@
     "verbatimModuleSyntax": false,
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
     "baseUrl": ".",
-    "types": [".kadena/pactjs-generated", "mocha"],
+    "types": ["./node_modules/.kadena/pactjs-generated", "mocha"],
     "paths": {
       "@/*": ["./src/*"],
       "@action/*": ["./src/ui/action/*"]

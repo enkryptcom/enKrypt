@@ -54,7 +54,7 @@
         <transition :name="transitionName" mode="out-in">
           <component
             :is="Component"
-            :key="$route.fullPath"
+            :key="route.fullPath"
             :network="currentNetwork"
             :subnetwork="currentSubNetwork"
             :account-info="accountHeaderData"
@@ -175,7 +175,7 @@ const updateShow = ref(false)
 const dropdown = ref(null)
 const toggle = ref(null)
 const isLoading = ref(true)
-const currentVersion = process.env.PACKAGE_VERSION as string
+const currentVersion = __PACKAGE_VERSION__
 const latestVersion = ref('')
 
 const setActiveNetworks = async () => {
