@@ -1,6 +1,6 @@
 name: Build all and Check VirusTotal
 
-on: [push]
+on: [pull_request]
 
 jobs:
   buildAll:
@@ -48,8 +48,14 @@ jobs:
           UPLOAD_URL=`curl --request GET --url https://www.virustotal.com/api/v3/files/upload_url --header "x-apikey: $VIRUS_TOTAL_API_KEY" | jq --raw-output '.data'`
           curl --request POST --url "$UPLOAD_URL" --header "x-apikey: $VIRUS_TOTAL_API_KEY" --header 'Accept: application/json' --header 'Content-Type: multipart/form-data' -F "file=@./packages/extension/dist/release.zip"
           VIRUS_TOTAL_URL_FIREFOX=https://www.virustotal.com/gui/file/$FILE_SHA256
-          curl -H "Authorization: token ${GITHUB_TOKEN}" -X POST \
-            -d "{\"body\": \"Virus total analysis <br/>chrome: <br/>$VIRUS_TOTAL_URL_CHROME<br/> \
-                            firefox: <br/> \
-                            $VIRUS_TOTAL_URL_FIREFOX\"}" \
-                            "https://api.github.com/repos/${GITHUB_REPOSITORY}/commits/${GITHUB_SHA}/comments"
+
+      - name: Comment PR
+        uses: thollander/actions-comment-pull-request@v3
+        with:
+          message: |
+            Virus total analysis
+            chrome: 
+            $VIRUS_TOTAL_URL_CHROME
+            firefox:
+            $VIRUS_TOTAL_URL_FIREFOX
+          comment_tag: pr_build_message
