@@ -17,7 +17,7 @@
     "build:firefox": "yarn prebuild && cross-env BROWSER='firefox' MINIFY='true' vite build && node configs/get-system-info.js",
     "build:opera": "yarn prebuild && cross-env BROWSER='opera' MINIFY='true' vite build",
     "kadena:prebuild": "pactjs contract-generate --contract=coin --api https://api.chainweb.com/chainweb/0.0/mainnet01/chain/1/pact",
-    "test": "ts-mocha --require ./configs/testNullCompiler.js --paths -p configs/tsconfig.test.json ./**/*.mocha.ts",
+    "test": "ts-mocha --require ./configs/testNullCompiler.cjs --paths -p configs/tsconfig.test.json ./**/*.mocha.ts",
     "watch": "yarn dev",
     "watch:chrome": "yarn dev",
     "watch:firefox": "yarn prebuild && cross-env BROWSER='firefox' vite"
@@ -132,6 +132,7 @@
     "rollup-plugin-uglify": "^6.0.4",
     "semver": "^7.6.3",
     "systeminformation": "^5.23.5",
+    "ts-mocha": "^10.0.0",
     "typescript": "~5.6.3",
     "url": "^0.11.4",
     "vite": "^5.4.9",
