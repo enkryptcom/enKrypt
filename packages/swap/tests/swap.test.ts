@@ -117,5 +117,5 @@ describe("Swap", () => {
     expect(oneInceQuote!.provider).to.be.eq(ProviderName.oneInch);
     expect(paraswapQuote!.provider).to.be.eq(ProviderName.paraswap);
     // expect(rangoQuote!.provider).to.be.eq(ProviderName.rango);
-  }).timeout(10000);
+  }).timeout(20000);
 });
