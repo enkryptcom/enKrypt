@@ -26,14 +26,14 @@
 </template>
 
 <script setup lang="ts">
-import { BaseNetwork } from "@/types/base-network";
-import { PropType } from "vue";
+import { BaseNetwork } from '@/types/base-network';
+import { PropType } from 'vue';
 
 defineProps({
   address: {
     type: String,
     default: () => {
-      return "";
+      return '';
     },
   },
   name: {
@@ -64,7 +64,7 @@ defineProps({
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .verify-transaction-account {
   text-decoration: none;

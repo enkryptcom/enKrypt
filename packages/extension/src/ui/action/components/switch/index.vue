@@ -11,19 +11,19 @@
 
 <script setup lang="ts">
 const emit = defineEmits<{
-  (e: "update:check", isChecked: boolean): void;
+  (e: 'update:check', isChecked: boolean): void;
 }>();
 defineProps({
   isChecked: Boolean,
 });
 
 const checkLocal = (e: any) => {
-  emit("update:check", e.target.checked);
+  emit('update:check', e.target.checked);
 };
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 /* The switch - the box around the slider */
 .switch {
@@ -55,13 +55,15 @@ const checkLocal = (e: any) => {
 
 .slider:before {
   position: absolute;
-  content: "";
+  content: '';
   height: 20px;
   width: 20px;
   left: 2px;
   bottom: 2px;
   background-color: @white;
-  box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.05), 0px 0px 1px rgba(0, 0, 0, 0.25);
+  box-shadow:
+    0px 0px 6px rgba(0, 0, 0, 0.05),
+    0px 0px 1px rgba(0, 0, 0, 0.25);
   -webkit-transition: 0.4s;
   transition: 0.4s;
 }

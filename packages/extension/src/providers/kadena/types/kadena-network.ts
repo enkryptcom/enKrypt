@@ -1,26 +1,26 @@
-import { Activity } from "@/types/activity";
+import { Activity } from '@/types/activity';
 import {
   BaseNetwork,
   BaseNetworkOptions,
   SubNetworkOptions,
-} from "@/types/base-network";
-import { BaseTokenOptions } from "@/types/base-token";
-import { AssetsType, ProviderName } from "@/types/provider";
-import { CoingeckoPlatform, NetworkNames, SignerType } from "@enkryptcom/types";
-import KadenaAPI from "@/providers/kadena/libs/api";
+} from '@/types/base-network';
+import { BaseTokenOptions } from '@/types/base-token';
+import { AssetsType, ProviderName } from '@/types/provider';
+import { CoingeckoPlatform, NetworkNames, SignerType } from '@enkryptcom/types';
+import KadenaAPI from '@/providers/kadena/libs/api';
 
-import createIcon from "@/providers/ethereum/libs/blockies";
-import MarketData from "@/libs/market-data";
-import { CoinGeckoTokenMarket } from "@/libs/market-data/types";
-import Sparkline from "@/libs/sparkline";
+import createIcon from '@/providers/ethereum/libs/blockies';
+import MarketData from '@/libs/market-data';
+import { CoinGeckoTokenMarket } from '@/libs/market-data/types';
+import Sparkline from '@/libs/sparkline';
 import {
   formatFloatingPointValue,
   formatFiatValue,
-} from "@/libs/utils/number-formatter";
-import { fromBase } from "@enkryptcom/utils";
-import BigNumber from "bignumber.js";
-import { KDABaseToken, KDAToken } from "./kda-token";
-import { KadenaApiOptions } from ".";
+} from '@/libs/utils/number-formatter';
+import { fromBase } from '@enkryptcom/utils';
+import BigNumber from 'bignumber.js';
+import { KDABaseToken, KDAToken } from './kda-token';
+import { KadenaApiOptions } from '.';
 
 export interface KadenaNetworkOptions {
   name: NetworkNames;
@@ -44,7 +44,7 @@ export interface KadenaNetworkOptions {
   subNetworks: SubNetworkOptions[];
   activityHandler: (
     network: BaseNetwork,
-    address: string
+    address: string,
   ) => Promise<Activity[]>;
 }
 
@@ -53,7 +53,7 @@ export class KadenaNetwork extends BaseNetwork {
 
   private activityHandler: (
     network: BaseNetwork,
-    address: string
+    address: string,
   ) => Promise<Activity[]>;
 
   public isAddress: (address: string) => boolean;
@@ -82,7 +82,7 @@ export class KadenaNetwork extends BaseNetwork {
   public async getAllTokens(pubkey: string): Promise<KDABaseToken[]> {
     const assets = await this.getAllTokenInfo(pubkey);
 
-    return assets.map((token) => {
+    return assets.map(token => {
       const bTokenOptions: BaseTokenOptions = {
         decimals: token.decimals,
         icon: token.icon,
@@ -108,7 +108,7 @@ export class KadenaNetwork extends BaseNetwork {
 
     const userBalance = fromBase(balance, this.decimals);
     const usdBalance = new BigNumber(userBalance).times(
-      marketData[0]?.current_price ?? 0
+      marketData[0]?.current_price ?? 0,
     );
 
     const nativeAsset: AssetsType = {
@@ -119,16 +119,16 @@ export class KadenaNetwork extends BaseNetwork {
       icon: this.icon,
       name: this.name_long,
       symbol: this.currencyName,
-      value: marketData[0]?.current_price?.toString() ?? "0",
-      valuef: formatFiatValue(marketData[0]?.current_price?.toString() ?? "0")
+      value: marketData[0]?.current_price?.toString() ?? '0',
+      valuef: formatFiatValue(marketData[0]?.current_price?.toString() ?? '0')
         .value,
-      contract: "",
+      contract: '',
       decimals: this.decimals,
       sparkline: marketData.length
-        ? new Sparkline(marketData[0]!.sparkline_in_7d.price, 25).dataValues
-        : "",
+        ? new Sparkline(marketData[0]!.sparkline_in_24h.price, 25).dataValues
+        : '',
       priceChangePercentage: marketData.length
-        ? marketData[0]!.price_change_percentage_7d_in_currency
+        ? marketData[0]!.price_change_percentage_24h_in_currency
         : 0,
     };
 

@@ -1,46 +1,47 @@
-import { NFTCollection, NFTItem, NFTType } from "@/types/nft";
-import { NodeType } from "@/types/provider";
-import cacheFetch from "../cache-fetch";
-import { NetworkNames } from "@enkryptcom/types";
-import { SHNFTType, SHResponse } from "./types/simplehash";
-const SH_ENDPOINT = "https://partners.mewapi.io/nfts/";
+import { NFTCollection, NFTItem, NFTType } from '@/types/nft';
+import { NodeType } from '@/types/provider';
+import cacheFetch from '../cache-fetch';
+import { NetworkNames } from '@enkryptcom/types';
+import { SHNFTType, SHResponse } from './types/simplehash';
+import imgNotFound from '@action/assets/common/not-found.jpg';
+const SH_ENDPOINT = 'https://partners.mewapi.io/nfts/';
 const CACHE_TTL = 60 * 1000;
 const getExternalURL = (network: NodeType, contract: string, id: string) => {
   if (network.name === NetworkNames.Gnosis)
     return `https://niftyfair.io/gc/asset/${contract}/${id}/`;
-  return "";
+  return '';
 };
 export default async (
   network: NodeType,
-  address: string
+  address: string,
 ): Promise<NFTCollection[]> => {
   const supportedNetworks = {
-    [NetworkNames.Optimism]: "optimism",
-    [NetworkNames.Binance]: "bsc",
-    [NetworkNames.Arbitrum]: "arbitrum",
-    [NetworkNames.ArbitrumNova]: "arbitrum-nova",
-    [NetworkNames.Gnosis]: "gnosis",
-    [NetworkNames.Avalanche]: "avalanche",
-    [NetworkNames.Matic]: "polygon",
-    [NetworkNames.MaticZK]: "polygon-zkevm",
-    [NetworkNames.ZkSync]: "zksync-era",
-    [NetworkNames.ZkSyncGoerli]: "zksync-era-testnet",
-    [NetworkNames.Base]: "base",
-    [NetworkNames.Blast]: "blast",
-    [NetworkNames.ImmutableZkevm]: "immutable-zkevm",
-    [NetworkNames.Rari]: "rari",
-    [NetworkNames.Forma]: "forma",
-    [NetworkNames.Godwoken]: "godwoken",
-    [NetworkNames.Linea]: "linea",
-    [NetworkNames.MantaPacific]: "manta",
-    [NetworkNames.Mode]: "mode",
-    [NetworkNames.OpBNB]: "opbnb",
-    [NetworkNames.Palm]: "palm",
-    [NetworkNames.ProofOfPlayApex]: "proof-of-play",
-    [NetworkNames.Scroll]: "scroll",
+    [NetworkNames.Optimism]: 'optimism',
+    [NetworkNames.Binance]: 'bsc',
+    [NetworkNames.Arbitrum]: 'arbitrum',
+    [NetworkNames.ArbitrumNova]: 'arbitrum-nova',
+    [NetworkNames.Gnosis]: 'gnosis',
+    [NetworkNames.Avalanche]: 'avalanche',
+    [NetworkNames.Matic]: 'polygon',
+    [NetworkNames.MaticZK]: 'polygon-zkevm',
+    [NetworkNames.ZkSync]: 'zksync-era',
+    [NetworkNames.ZkSyncGoerli]: 'zksync-era-testnet',
+    [NetworkNames.Base]: 'base',
+    [NetworkNames.Blast]: 'blast',
+    [NetworkNames.ImmutableZkevm]: 'immutable-zkevm',
+    [NetworkNames.Rari]: 'rari',
+    [NetworkNames.Forma]: 'forma',
+    [NetworkNames.Godwoken]: 'godwoken',
+    [NetworkNames.Linea]: 'linea',
+    [NetworkNames.MantaPacific]: 'manta',
+    [NetworkNames.Mode]: 'mode',
+    [NetworkNames.OpBNB]: 'opbnb',
+    [NetworkNames.Palm]: 'palm',
+    [NetworkNames.ProofOfPlayApex]: 'proof-of-play',
+    [NetworkNames.Scroll]: 'scroll',
   };
   if (!Object.keys(supportedNetworks).includes(network.name))
-    throw new Error("Simplehash: network not supported");
+    throw new Error('Simplehash: network not supported');
   let allItems: SHNFTType[] = [];
   const fetchAll = (continuation?: string): Promise<void> => {
     const query = continuation
@@ -52,8 +53,8 @@ export default async (
       {
         url: query,
       },
-      CACHE_TTL
-    ).then((json) => {
+      CACHE_TTL,
+    ).then(json => {
       const items: SHNFTType[] = (json.result as SHResponse).nfts;
       allItems = allItems.concat(items);
       if (json.result.next) return fetchAll(json.result.next);
@@ -62,7 +63,7 @@ export default async (
   await fetchAll();
   if (!allItems || !allItems.length) return [];
   const collections: Record<string, NFTCollection> = {};
-  allItems.forEach((item) => {
+  allItems.forEach(item => {
     if (!item.image_url && !item.previews.image_medium_url) return;
     if (
       item.contract.type !== NFTType.ERC1155 &&
@@ -85,9 +86,7 @@ export default async (
       const ret: NFTCollection = {
         name: item.collection.name,
         description: item.collection.description,
-        image:
-          item.collection.image_url ||
-          require("@action/assets/common/not-found.jpg"),
+        image: item.collection.image_url || imgNotFound,
         contract: item.contract_address,
         items: [
           {

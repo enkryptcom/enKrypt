@@ -1,5 +1,5 @@
-import { GasPriceTypes } from "@/providers/common/types";
-import { BNType as BN } from "@/providers/common/types";
+import { GasPriceTypes } from '@/providers/common/types';
+import { BNType as BN } from '@/providers/common/types';
 
 export interface AccessList {
   address: `0x${string}`;
@@ -48,7 +48,7 @@ export interface FinalizedLegacyEthereumTransaction
   value: `0x${string}`;
 }
 export interface FinalizedFeeMarketEthereumTransaction
-  extends Omit<EthereumTransaction, "gasPrice"> {
+  extends Omit<EthereumTransaction, 'gasPrice'> {
   data: `0x${string}`;
   gasLimit: `0x${string}`;
   maxPriorityFeePerGas: `0x${string}`;
@@ -56,7 +56,7 @@ export interface FinalizedFeeMarketEthereumTransaction
   nonce: `0x${string}`;
   to: `0x${string}` | undefined;
   value: `0x${string}`;
-  type: "0x02";
+  type: '0x02';
 }
 export interface DecodedTx {
   toAddress?: string;

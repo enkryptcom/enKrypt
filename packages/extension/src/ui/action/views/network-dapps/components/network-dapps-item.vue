@@ -8,9 +8,9 @@
 </template>
 
 <script setup lang="ts">
-import { DAppsItem } from "@/types/ui";
-import { PropType } from "vue";
-import DappsArrow from "@action/icons/common/dapps-arrow.vue";
+import { DAppsItem } from '@/types/ui';
+import { PropType } from 'vue';
+import DappsArrow from '@action/icons/common/dapps-arrow.vue';
 
 const props = defineProps({
   app: {
@@ -21,12 +21,12 @@ const props = defineProps({
   },
 });
 const openLink = () => {
-  window.open(props.app.link, "_blank", "noopener");
+  window.open(props.app.link, '_blank', 'noopener');
 };
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .network-dapps {
   &__item {
@@ -38,7 +38,8 @@ const openLink = () => {
     background: @buttonBg;
     border-radius: 12px;
     text-decoration: none;
-    box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.039),
+    box-shadow:
+      0px 0px 1px rgba(0, 0, 0, 0.039),
       0px 0.5px 1.5px rgba(0, 0, 0, 0.19);
     border-radius: 12px;
     background: @white;

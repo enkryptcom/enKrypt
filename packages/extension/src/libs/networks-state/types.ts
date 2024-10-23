@@ -1,5 +1,5 @@
 export enum StorageKeys {
-  networkInfo = "network-info",
+  networkInfo = 'network-info',
 }
 
 export interface NetworkStorageElement {

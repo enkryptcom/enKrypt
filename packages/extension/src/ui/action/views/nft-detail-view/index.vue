@@ -76,13 +76,13 @@ onMounted(() => {
 });
 
 const emit = defineEmits<{
-  (e: "close:popup"): void;
-  (e: "update:favClicked", isFav: boolean, item: NFTItem): void;
+  (e: 'close:popup'): void;
+  (e: 'update:favClicked', isFav: boolean, item: NFTItem): void;
 }>();
 const close = () => {
   if (localIsFavorite.value !== props.isFavorite)
-    emit("update:favClicked", localIsFavorite.value, props.item);
-  emit("close:popup");
+    emit('update:favClicked', localIsFavorite.value, props.item);
+  emit('close:popup');
 };
 
 /**
@@ -109,7 +109,7 @@ const toggleNotification = () => {
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .nft-detail-view {
   width: 100%;
@@ -118,7 +118,8 @@ const toggleNotification = () => {
 
   &__wrap {
     background: @white;
-    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.039),
+    box-shadow:
+      0px 3px 6px rgba(0, 0, 0, 0.039),
       0px 7px 24px rgba(0, 0, 0, 0.19);
     border-radius: 12px;
     box-sizing: border-box;
@@ -146,7 +147,8 @@ const toggleNotification = () => {
       width: 100%;
       max-height: 296px;
       margin: 0 0 16px 0;
-      box-shadow: 0px 0.25px 1px rgba(0, 0, 0, 0.039),
+      box-shadow:
+        0px 0.25px 1px rgba(0, 0, 0, 0.039),
         0px 0.85px 3px rgba(0, 0, 0, 0.19);
       border-radius: 12px;
     }

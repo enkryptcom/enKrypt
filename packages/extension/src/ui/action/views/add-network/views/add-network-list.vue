@@ -51,28 +51,28 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onBeforeMount, ComponentPublicInstance, PropType } from "vue";
-import CloseIcon from "@action/icons/common/close-icon.vue";
-import AddNetworkSearch from "../components/add-network-search.vue";
-import AddNetworkItem from "../components/add-network-item.vue";
-import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
-import { NodeType } from "@/types/provider";
-import { getAllNetworks, POPULAR_NAMES } from "@/libs/utils/networks";
-import NetworksState from "@/libs/networks-state";
-import scrollSettings from "@/libs/utils/scroll-settings";
-import { computed } from "@vue/reactivity";
-import { CustomEvmNetwork } from "@/providers/ethereum/types/custom-evm-network";
-import CustomNetworksState from "@/libs/custom-networks-state";
+import { ref, onBeforeMount, ComponentPublicInstance, PropType } from 'vue';
+import CloseIcon from '@action/icons/common/close-icon.vue';
+import AddNetworkSearch from '../components/add-network-search.vue';
+import AddNetworkItem from '../components/add-network-item.vue';
+import CustomScrollbar from '@action/components/custom-scrollbar/index.vue';
+import { NodeType } from '@/types/provider';
+import { getAllNetworks, POPULAR_NAMES } from '@/libs/utils/networks';
+import NetworksState from '@/libs/networks-state';
+import scrollSettings from '@/libs/utils/scroll-settings';
+import { computed } from 'vue';
+import { CustomEvmNetwork } from '@/providers/ethereum/types/custom-evm-network';
+import CustomNetworksState from '@/libs/custom-networks-state';
 
 interface NodeTypesWithActive extends NodeType {
   isActive: boolean;
 }
 const emit = defineEmits<{
-  (e: "update:activeNetworks"): void;
+  (e: 'update:activeNetworks'): void;
 }>();
 
 const networksState = new NetworksState();
-const searchInput = ref("");
+const searchInput = ref('');
 const all = ref<Array<NodeTypesWithActive>>([]);
 const popular = ref<Array<NodeTypesWithActive>>([]);
 const scrollProgress = ref(0);
@@ -96,7 +96,7 @@ defineProps({
 const getAllNetworksAndStatus = async () => {
   const activeNetworks = await networksState.getActiveNetworkNames();
 
-  const allNetworks = (await getAllNetworks()).map((net) => {
+  const allNetworks = (await getAllNetworks()).map(net => {
     return {
       ...net,
       isActive: activeNetworks.includes(net.name),
@@ -107,8 +107,8 @@ const getAllNetworksAndStatus = async () => {
 };
 
 const searchAllNetworks = computed(() => {
-  return all.value.filter((a) =>
-    a.name_long.toLowerCase().startsWith(searchInput.value.toLowerCase())
+  return all.value.filter(a =>
+    a.name_long.toLowerCase().startsWith(searchInput.value.toLowerCase()),
   );
 });
 
@@ -118,7 +118,7 @@ const setNetworkLists = async (isTestActive: boolean) => {
     .sort((a, b) => a.name_long.localeCompare(b.name_long));
 
   const popularNetworks = allNetworksNotTestNets
-    .filter((net) => POPULAR_NAMES.includes(net.name))
+    .filter(net => POPULAR_NAMES.includes(net.name))
     .sort((a, b) => a.name_long.localeCompare(b.name_long));
 
   all.value = allNetworksNotTestNets;
@@ -154,7 +154,7 @@ const onToggle = async (networkName: string, isActive: boolean) => {
     hasMoreThanOneActiveNetwork.value =
       all.value.filter((net) => net.isActive).length > 1;
     popular.value = all.value.filter(({ name }) =>
-      POPULAR_NAMES.includes(name)
+      POPULAR_NAMES.includes(name),
     );
   } catch (e) {
     console.error(e);
@@ -175,12 +175,12 @@ const updateSearch = (value: string) => {
   searchInput.value = value;
 };
 const handleScroll = (e: any) => {
-  const progress = Number(e.target.lastChild.style.top.replace("px", ""));
+  const progress = Number(e.target.lastChild.style.top.replace('px', ''));
   scrollProgress.value = progress;
 };
 const isHasScroll = () => {
   if (manageNetworkScrollRef.value) {
-    return manageNetworkScrollRef.value.$el.classList.contains("ps--active-y");
+    return manageNetworkScrollRef.value.$el.classList.contains('ps--active-y');
   }
 
   return false;
@@ -188,8 +188,8 @@ const isHasScroll = () => {
 </script>
 
 <style lang="less" scoped>
-@import "~@action/styles/theme.less";
-@import "~@action/styles/custom-scroll.less";
+@import '@action/styles/theme.less';
+@import '@action/styles/custom-scroll.less';
 
 .add-network {
   width: 100%;
@@ -214,7 +214,8 @@ const isHasScroll = () => {
     }
 
     &.border {
-      box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.05),
+      box-shadow:
+        0px 0px 6px rgba(0, 0, 0, 0.05),
         0px 0px 1px rgba(0, 0, 0, 0.25);
       padding: 14px 72px 12px 32px;
 

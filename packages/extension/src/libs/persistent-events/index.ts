@@ -1,19 +1,19 @@
-import { Message } from "@/types/messenger";
-import { InternalStorageNamespace } from "@/types/provider";
-import { OnMessageResponse } from "@enkryptcom/types";
-import BrowserStorage from "../common/browser-storage";
-import { IPersistentEvent, StorageKeys } from "./types";
+import { Message } from '@/types/messenger';
+import { InternalStorageNamespace } from '@/types/provider';
+import { OnMessageResponse } from '@enkryptcom/types';
+import BrowserStorage from '../common/browser-storage';
+import { IPersistentEvent, StorageKeys } from './types';
 class PersistentEvents {
   #storage: BrowserStorage;
   constructor() {
     this.#storage = new BrowserStorage(
-      InternalStorageNamespace.persistentEvents
+      InternalStorageNamespace.persistentEvents,
     );
   }
   async addEvent(
     tabId: number,
     event: Message,
-    response: OnMessageResponse
+    response: OnMessageResponse,
   ): Promise<void> {
     const parsedCurrentEvents: IPersistentEvent[] = await this.getEvents(tabId);
     parsedCurrentEvents.push({

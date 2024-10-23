@@ -1,14 +1,14 @@
-import { numberToHex } from "web3-utils";
+import { numberToHex } from 'web3-utils';
 import {
   Activity,
   ActivityStatus,
   ActivityType,
   EthereumRawInfo,
-} from "@/types/activity";
-import { BaseNetwork } from "@/types/base-network";
-import { NetworkEndpoints } from "./configs";
-import { toBase } from "@enkryptcom/utils";
-import MarketData from "@/libs/market-data";
+} from '@/types/activity';
+import { BaseNetwork } from '@/types/base-network';
+import { NetworkEndpoints } from './configs';
+import { toBase } from '@enkryptcom/utils';
+import MarketData from '@/libs/market-data';
 
 interface OntEvmRawInfo {
   tx_hash: string;
@@ -26,32 +26,32 @@ interface OntEvmRawInfo {
 
 const getAddressActivity = async (
   address: string,
-  endpoint: string
+  endpoint: string,
 ): Promise<EthereumRawInfo[]> => {
   return fetch(
     `${endpoint}v2/addresses/${address}/txs?page_size=20&page_number=1`,
     {
-      method: "GET",
+      method: 'GET',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
-    }
+    },
   )
-    .then((res) => res.json())
-    .then((res) => {
+    .then(res => res.json())
+    .then(res => {
       const results = res.result.records as OntEvmRawInfo[];
-      const newResults = results.map((tx) => {
+      const newResults = results.map(tx => {
         const rawTx: EthereumRawInfo = {
-          blockHash: "",
+          blockHash: '',
           blockNumber: numberToHex(tx.block_height),
           contractAddress: null,
-          data: "0x",
-          effectiveGasPrice: "0x0",
+          data: '0x',
+          effectiveGasPrice: '0x0',
           from: tx.transfers[0].from_address,
           to: tx.transfers[0].to_address,
-          gas: "0x0",
-          gasUsed: "0x0",
-          nonce: "0x0",
+          gas: '0x0',
+          gasUsed: '0x0',
+          nonce: '0x0',
           status: tx.confirm_flag === 1,
           transactionHash: tx.tx_hash,
           value: numberToHex(toBase(tx.transfers[0].amount, 18)),
@@ -65,7 +65,7 @@ const getAddressActivity = async (
 
 export default async (
   network: BaseNetwork,
-  address: string
+  address: string,
 ): Promise<Activity[]> => {
   address = address.toLowerCase();
   const enpoint =
@@ -73,7 +73,7 @@ export default async (
   const activities = await getAddressActivity(address, enpoint);
   const marketData = new MarketData();
   const price = await marketData.getTokenPrice(network.coingeckoID!);
-  const resActivities = activities.map((activity) => {
+  const resActivities = activities.map(activity => {
     const tActivity: Activity = {
       from: activity.from,
       to: activity.contractAddress ? activity.contractAddress : activity.to!,

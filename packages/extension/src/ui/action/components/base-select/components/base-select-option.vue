@@ -6,7 +6,7 @@
 </template>
 
 <script setup lang="ts">
-import DoneIcon from "@action/icons/common/done_icon.vue";
+import DoneIcon from '@action/icons/common/done_icon.vue';
 const props = defineProps({
   select: {
     type: Function,
@@ -17,7 +17,7 @@ const props = defineProps({
   title: {
     type: String,
     default: () => {
-      return "";
+      return '';
     },
   },
   isSelect: {
@@ -34,7 +34,7 @@ const select = () => {
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .base-select {
   &__option {

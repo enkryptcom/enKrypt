@@ -33,7 +33,13 @@
       stroke-miterlimit="4"
       opacity="1"
       transform="translate(64,64) rotate(1368.12)"
-      style="animation: 0.566s linear both spin_t_ca, 0.566s linear both spin_o_ca, 0.566s linear both spin_da_ca, 0.566s linear both spin_do_ca"
+      style="
+        animation:
+          0.566s linear both spin_t_ca,
+          0.566s linear both spin_o_ca,
+          0.566s linear both spin_da_ca,
+          0.566s linear both spin_do_ca;
+      "
     />
     <path
       id="check"
@@ -48,7 +54,11 @@
       stroke-miterlimit="4"
       opacity="0"
       transform="translate(22,22)"
-      style="animation: 0.566s linear both check_o_ca, 0.566s linear both check_da_ca"
+      style="
+        animation:
+          0.566s linear both check_o_ca,
+          0.566s linear both check_da_ca;
+      "
     />
   </svg>
 </template>

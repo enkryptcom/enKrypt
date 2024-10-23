@@ -2,16 +2,16 @@ import {
   ProviderMessage,
   MessageMethod,
   EmitEvent,
-} from "@/providers/ethereum/types";
+} from '@/providers/ethereum/types';
 import {
   BitcoinProvider,
   EnkryptProviderEventMethods,
   handleIncomingMessage as handleIncomingMessageType,
-} from "@/types/provider";
-import { NetworkNames } from "@enkryptcom/types";
+} from '@/types/provider';
+import { NetworkNames } from '@enkryptcom/types';
 const handleIncomingMessage: handleIncomingMessageType = (
   provider,
-  message
+  message,
 ): void => {
   try {
     const _provider = provider as BitcoinProvider;
@@ -37,13 +37,13 @@ const handleIncomingMessage: handleIncomingMessageType = (
       ) {
         _provider
           .switchNetwork(
-            jsonMsg.params[0] === NetworkNames.Bitcoin ? "livenet" : "testnet"
+            jsonMsg.params[0] === NetworkNames.Bitcoin ? 'livenet' : 'testnet',
           )
           .then(() => {
             _provider.emit(EmitEvent.networkChanged, [
               jsonMsg.params[0] === NetworkNames.Bitcoin
-                ? "livenet"
-                : "testnet",
+                ? 'livenet'
+                : 'testnet',
             ]);
           });
       }

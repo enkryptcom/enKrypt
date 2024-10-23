@@ -136,7 +136,7 @@ import { WalletType } from "@enkryptcom/types";
 import { ProviderName } from "@/types/provider";
 
 const emit = defineEmits<{
-  (e: "addressChanged", account: EnkryptAccount): void;
+  (e: 'addressChanged', account: EnkryptAccount): void;
 }>();
 const isAddAccount = ref(false);
 const isRenameAccount = ref(false);
@@ -167,7 +167,7 @@ const close = () => {
 const selectAccount = (address: string) => {
   for (const acc of props.accountInfo.activeAccounts) {
     if (props.network.displayAddress(acc.address) === address) {
-      emit("addressChanged", acc);
+      emit('addressChanged', acc);
       break;
     }
   }
@@ -291,8 +291,8 @@ const displayInactive = computed(() => {
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
-@import "~@action/styles/custom-scroll.less";
+@import '@action/styles/theme.less';
+@import '@action/styles/custom-scroll.less';
 
 .accounts {
   width: 800px;
@@ -324,7 +324,8 @@ const displayInactive = computed(() => {
     left: 348px;
     top: 50px;
     background: #ffffff;
-    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.039),
+    box-shadow:
+      0px 3px 6px rgba(0, 0, 0, 0.039),
       0px 7px 24px rgba(0, 0, 0, 0.19);
     border-radius: 12px;
     z-index: 107;
@@ -333,7 +334,9 @@ const displayInactive = computed(() => {
     box-sizing: border-box;
     opacity: 0;
     visibility: hidden;
-    transition: opacity 0.3s, visibility 0s ease-in-out 0.3s;
+    transition:
+      opacity 0.3s,
+      visibility 0s ease-in-out 0.3s;
     padding-bottom: 153px;
 
     &.show {
@@ -376,7 +379,9 @@ const displayInactive = computed(() => {
     bottom: 0px;
     width: 100%;
     background: @white;
-    box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.05), 0px 0px 1px rgba(0, 0, 0, 0.25);
+    box-shadow:
+      0px 0px 6px rgba(0, 0, 0, 0.05),
+      0px 0px 1px rgba(0, 0, 0, 0.25);
     position: absolute;
     padding: 8px;
     box-sizing: border-box;

@@ -1,9 +1,11 @@
-import { createApp } from "vue";
-import { createPinia } from "pinia";
-import App from "./App.vue";
-import { createRouter, createWebHashHistory } from "vue-router";
-import routes from "./routes";
-import * as filters from "@action/utils/filters";
+import { createApp } from 'vue';
+import { createPinia } from 'pinia';
+import App from './App.vue';
+import { createRouter, createWebHashHistory } from 'vue-router';
+import routes from './routes';
+import * as filters from '@action/utils/filters';
+
+global.WeakMap = WeakMap;
 
 const router = createRouter({
   history: createWebHashHistory(),
@@ -18,4 +20,4 @@ app.use(pinia);
 
 app.config.globalProperties.$filters = filters;
 
-app.mount("#app");
+app.mount('#app');

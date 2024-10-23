@@ -43,13 +43,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
-import SettingsStart from "./views/settings-start/index.vue";
-import SettingsGeneral from "./views/settings-general/index.vue";
-import SettingsSupport from "./views/settings-support/index.vue";
-import SettingsAbout from "./views/settings-about/index.vue";
-import SettingsRecovery from "./views/settings-recovery/index.vue";
-import ResetWallet from "@action/views/reset-wallet/index.vue";
+import { ref } from 'vue';
+import SettingsStart from './views/settings-start/index.vue';
+import SettingsGeneral from './views/settings-general/index.vue';
+import SettingsSupport from './views/settings-support/index.vue';
+import SettingsAbout from './views/settings-about/index.vue';
+import SettingsRecovery from './views/settings-recovery/index.vue';
+import ResetWallet from '@action/views/reset-wallet/index.vue';
 
 const isStart = ref(true);
 const isGeneral = ref(false);
@@ -57,13 +57,13 @@ const isAbout = ref(false);
 const isSupport = ref(false);
 const isPhrase = ref(false);
 const isReset = ref(false);
-const mnemonic = ref("");
+const mnemonic = ref('');
 
 const emit = defineEmits<{
-  (e: "close:popup"): void;
+  (e: 'close:popup'): void;
 }>();
 const close = () => {
-  emit("close:popup");
+  emit('close:popup');
 };
 const setAllToFalse = () => {
   isStart.value = false;
@@ -72,7 +72,7 @@ const setAllToFalse = () => {
   isSupport.value = false;
   isPhrase.value = false;
   isReset.value = false;
-  mnemonic.value = "";
+  mnemonic.value = '';
 };
 const recoveryPhraseAction = (phrase: string) => {
   setAllToFalse();
@@ -86,7 +86,7 @@ const resetAction = () => {
 };
 
 const supportAction = () => {
-  window.open("mailto:support@enkrypt.com", "_blank", "noopener");
+  window.open('mailto:support@enkrypt.com', '_blank', 'noopener');
 };
 
 const generalAction = () => {
@@ -106,7 +106,7 @@ const startAction = () => {
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .settings {
   width: 100%;
@@ -115,7 +115,8 @@ const startAction = () => {
 
   &__wrap {
     background: @white;
-    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.039),
+    box-shadow:
+      0px 3px 6px rgba(0, 0, 0, 0.039),
       0px 7px 24px rgba(0, 0, 0, 0.19);
     border-radius: 12px;
     box-sizing: border-box;

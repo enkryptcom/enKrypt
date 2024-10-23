@@ -1,6 +1,5 @@
 import type Web3Eth from "web3-eth";
 import { numberToHex, toBN } from "web3-utils";
-import fetch from "node-fetch";
 import {
   EVMTransaction,
   getQuoteOptions,

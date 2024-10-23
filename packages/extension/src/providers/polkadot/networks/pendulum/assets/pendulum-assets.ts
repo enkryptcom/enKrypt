@@ -1,28 +1,32 @@
-import { KnownTokenDisplay } from "@/providers/polkadot/types";
+import { KnownTokenDisplay } from '@/providers/polkadot/types';
+import iconPen from '../icons/PEN.png';
+import iconAmp from '../icons/AMPE.png';
+import iconDot from '../../icons/polkadot.svg';
+import iconKsm from '../../icons/kusama.svg';
 
 const assets: KnownTokenDisplay[] = [
   {
-    name: "Pendulum",
-    symbol: "PEN",
-    coingeckoID: "pendulum",
-    icon: require("../icons/PEN.png"),
+    name: 'Pendulum',
+    symbol: 'PEN',
+    coingeckoID: 'pendulum',
+    icon: iconPen,
   },
   {
-    name: "Amplitude",
-    symbol: "AMPE",
-    icon: require("../icons/AMPE.png"),
+    name: 'Amplitude',
+    symbol: 'AMPE',
+    icon: iconAmp,
   },
   {
-    name: "Polkadot",
-    symbol: "DOT",
-    coingeckoID: "polkadot",
-    icon: require("../../icons/polkadot.svg"),
+    name: 'Polkadot',
+    symbol: 'DOT',
+    coingeckoID: 'polkadot',
+    icon: iconDot,
   },
   {
-    name: "Kusama",
-    symbol: "KSM",
-    coingeckoID: "kusama",
-    icon: require("../../icons/kusama.svg"),
+    name: 'Kusama',
+    symbol: 'KSM',
+    coingeckoID: 'kusama',
+    icon: iconKsm,
   },
 ];
 

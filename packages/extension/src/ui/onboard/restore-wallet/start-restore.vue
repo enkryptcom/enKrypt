@@ -17,9 +17,9 @@
   </div>
 </template>
 <script setup lang="ts">
-import BaseButton from "@action/components/base-button/index.vue";
-import { useRouter } from "vue-router";
-import { routes } from "./routes";
+import BaseButton from '@action/components/base-button/index.vue';
+import { useRouter } from 'vue-router';
+import { routes } from './routes';
 const router = useRouter();
 
 const restoreAction = () => {
@@ -32,7 +32,7 @@ const otherAction = () => {
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .restore-wallet {
   h3 {

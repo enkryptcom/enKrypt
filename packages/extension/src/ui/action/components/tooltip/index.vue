@@ -9,7 +9,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref } from 'vue';
 
 const show = ref(false);
 const positionX = ref(0);
@@ -21,7 +21,7 @@ let timeout: ReturnType<typeof setTimeout> | null = null;
 const props = defineProps({
   text: {
     type: String,
-    default: "",
+    default: '',
   },
   isTopRight: {
     type: Boolean,
@@ -77,7 +77,7 @@ const classObject = () => {
   const y = positionY.value;
   switch (true) {
     case x > 740 && y < 50:
-      return { "right-bottom": true, visible: visible.value };
+      return { 'right-bottom': true, visible: visible.value };
     case x < 741 && y < 50:
       return { bottom: true, visible: visible.value };
     default:
@@ -87,7 +87,7 @@ const classObject = () => {
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .tooltip {
   display: inline-block;
@@ -99,7 +99,8 @@ const classObject = () => {
     position: absolute;
     background: @buttonBg;
     border: 0.5px solid rgba(0, 0, 0, 0.16);
-    box-shadow: 0px 1px 3px -2px rgba(0, 0, 0, 0.1),
+    box-shadow:
+      0px 1px 3px -2px rgba(0, 0, 0, 0.1),
       0px 2px 5px rgba(0, 0, 0, 0.12);
     border-radius: 6px;
     font-style: normal;
@@ -119,13 +120,13 @@ const classObject = () => {
     }
 
     &.normal {
-      top: calc(~"-100% + 8px");
+      top: calc(~'-100% + 8px');
       left: 50%;
       transform: translateX(-50%) translateY(0px);
     }
 
     &.right-bottom {
-      top: calc(~"100% + 3px");
+      top: calc(~'100% + 3px');
       right: 0;
       transform: translateX(0) translateY(0px);
     }
@@ -136,7 +137,7 @@ const classObject = () => {
     }
 
     &.bottom {
-      top: calc(~"100% + 3px");
+      top: calc(~'100% + 3px');
       left: 50%;
       transform: translateX(-50%) translateY(0px);
     }

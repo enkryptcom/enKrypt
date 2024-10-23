@@ -1,12 +1,12 @@
 export default {
   kdaAccounts: {
-    path: "kda-accounts",
+    path: 'kda-accounts',
     component: {},
-    name: "kdaAccounts",
+    name: 'kdaAccounts',
   },
   kdaSignMessage: {
-    path: "kda-sign-message",
+    path: 'kda-sign-message',
     component: {},
-    name: "kdaSignMessage",
+    name: 'kdaSignMessage',
   },
 };

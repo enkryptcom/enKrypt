@@ -30,18 +30,25 @@
 </template>
 
 <script setup lang="ts">
-import { PropType } from "vue";
-import Switch from "@action/components/switch/index.vue";
+import { PropType } from 'vue';
+import Switch from '@action/components/switch/index.vue';
 // import InfoIcon from "@action/icons/common/info-icon.vue";
+<<<<<<< HEAD
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import { NodeType } from "@/types/provider";
 import { CustomEvmNetwork } from "@/providers/ethereum/types/custom-evm-network";
 import TestNetworkIcon from "@action/icons/common/test-network-icon.vue";
 import Tooltip from "@/ui/action/components/tooltip/index.vue";
+=======
+import CloseIcon from '@action/icons/common/close-icon.vue';
+import { NodeType } from '@/types/provider';
+import { CustomEvmNetwork } from '@/providers/ethereum/types/custom-evm-network';
+import TestNetworkIcon from '@action/icons/common/test-network-icon.vue';
+>>>>>>> devop/vite-migrate
 
 const emit = defineEmits<{
-  (e: "networkToggled", name: string, isActive: boolean): void;
-  (e: "networkDeleted", chainId: string): void;
+  (e: 'networkToggled', name: string, isActive: boolean): void;
+  (e: 'networkDeleted', chainId: string): void;
 }>();
 
 const props = defineProps({
@@ -59,20 +66,20 @@ const props = defineProps({
 });
 
 const check = async (isChecked: boolean) => {
-  emit("networkToggled", props.network.name, isChecked);
+  emit('networkToggled', props.network.name, isChecked);
 };
 
 const deleteNetwork = async () => {
   const chainId = (props.network as unknown as CustomEvmNetwork).chainID;
 
   if (chainId !== undefined) {
-    emit("networkDeleted", chainId);
+    emit('networkDeleted', chainId);
   }
 };
 </script>
 
 <style lang="less" scoped>
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .add-network {
   &__block {

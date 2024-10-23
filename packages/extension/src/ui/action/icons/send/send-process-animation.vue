@@ -31,7 +31,11 @@
       stroke-dashoffset="0"
       stroke-miterlimit="4"
       transform="translate(64,64)"
-      style="animation: 3.5s linear infinite both spin_tsp, 3.5s linear infinite both spin_dasp"
+      style="
+        animation:
+          3.5s linear infinite both spin_tsp,
+          3.5s linear infinite both spin_dasp;
+      "
     />
   </svg>
 </template>

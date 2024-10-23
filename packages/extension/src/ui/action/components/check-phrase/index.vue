@@ -14,9 +14,9 @@
 </template>
 
 <script setup lang="ts">
-import { PropType } from "vue";
-import PhraseCheckbox from "@action/components/phrase-checkbox/index.vue";
-import { ref } from "vue";
+import { PropType } from 'vue';
+import PhraseCheckbox from '@action/components/phrase-checkbox/index.vue';
+import { ref } from 'vue';
 
 const props = defineProps({
   id: {
@@ -33,19 +33,19 @@ const props = defineProps({
   },
 });
 const emit = defineEmits<{
-  (e: "update:phrasevalidity", checked: boolean): void;
+  (e: 'update:phrasevalidity', checked: boolean): void;
 }>();
 const isChecked = ref<boolean[]>(props.phrases.map(() => false));
 const onChecked = (key: number, val: boolean) => {
   isChecked.value = props.phrases.map(() => false);
   isChecked.value[key] = val;
-  if (key === props.validIndex && val) emit("update:phrasevalidity", true);
-  else emit("update:phrasevalidity", false);
+  if (key === props.validIndex && val) emit('update:phrasevalidity', true);
+  else emit('update:phrasevalidity', false);
 };
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .check-phrase {
   width: 100%;

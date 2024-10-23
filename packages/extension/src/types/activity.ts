@@ -1,11 +1,11 @@
-import { NetworkNames } from "@enkryptcom/types";
-import { BaseTokenOptions } from "./base-token";
+import { NetworkNames } from '@enkryptcom/types';
+import { BaseTokenOptions } from './base-token';
 import {
   TokenType,
   TokenTypeTo,
   StatusOptionsResponse,
-} from "@enkryptcom/swap";
-import { ICommandResult } from "@kadena/client";
+} from '@enkryptcom/swap';
+import { ICommandResult } from '@kadena/client';
 
 interface BTCIns {
   address: string;
@@ -92,14 +92,14 @@ interface KadenaDBInfo {
 }
 
 enum ActivityStatus {
-  pending = "pending",
-  success = "success",
-  failed = "failed",
+  pending = 'pending',
+  success = 'success',
+  failed = 'failed',
 }
 
 enum ActivityType {
-  transaction = "transaction",
-  swap = "swap",
+  transaction = 'transaction',
+  swap = 'swap',
 }
 interface SwapRawInfo {
   fromToken: TokenType;

@@ -35,15 +35,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
-import { NFTItem } from "@/types/nft";
-import { PropType } from "vue";
-import NetworkNftsItemMoreMenu from "./network-nfts-item-more-menu.vue";
-import NftDetailView from "@action/views/nft-detail-view/index.vue";
-import { onClickOutside } from "@vueuse/core";
-import DomainState from "@/libs/domain-state";
-import { NetworkNames } from "@enkryptcom/types";
-import { imageLoadError } from "@/ui/action/utils/misc";
+import { ref } from 'vue';
+import { NFTItem } from '@/types/nft';
+import { PropType } from 'vue';
+import NetworkNftsItemMoreMenu from './network-nfts-item-more-menu.vue';
+import NftDetailView from '@action/views/nft-detail-view/index.vue';
+import { onClickOutside } from '@vueuse/core';
+import DomainState from '@/libs/domain-state';
+import { NetworkNames } from '@enkryptcom/types';
+import { imageLoadError } from '@/ui/action/utils/misc';
 
 const domainState = new DomainState();
 
@@ -91,7 +91,7 @@ const openLink = async () => {
   }
 
   if (url) {
-    window.open(url, "_blank");
+    window.open(url, '_blank');
   }
 };
 onClickOutside(
@@ -99,12 +99,12 @@ onClickOutside(
   () => {
     if (isOpenMore.value) isOpenMore.value = false;
   },
-  { ignore: [toggle] }
+  { ignore: [toggle] },
 );
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .network-nfts {
   &__item {
@@ -122,7 +122,8 @@ onClickOutside(
       width: 128px;
       height: 128px;
       background: @buttonBg;
-      box-shadow: 0px 0.25px 1px rgba(0, 0, 0, 0.039),
+      box-shadow:
+        0px 0.25px 1px rgba(0, 0, 0, 0.039),
         0px 0.85px 3px rgba(0, 0, 0, 0.19);
       border-radius: 12px;
       overflow: hidden;

@@ -1,4 +1,3 @@
-import fetch from "node-fetch";
 import { merge } from "lodash";
 import EventEmitter from "eventemitter3";
 import type Web3Eth from "web3-eth";
@@ -116,10 +115,8 @@ class Swap extends EventEmitter {
         // Solana
         this.providers = [
           new Jupiter(this.api as Web3Solana, this.network),
-          // TODO: re-enable Rango on Solana when issues with it are fixed
-          // new Rango(this.api as Web3Solana, this.network),
-          // TODO: re-enable Changelly on Solana when issues with it are fixed
-          // new Changelly(this.api, this.network),
+          new Rango(this.api as Web3Solana, this.network),
+          new Changelly(this.api, this.network),
         ];
         break;
       default:

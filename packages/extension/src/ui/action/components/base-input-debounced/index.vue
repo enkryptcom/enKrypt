@@ -21,9 +21,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
-import SearchIcon from "@action/icons/common/search.vue";
-import ClearIcon from "@action/icons/common/clear-icon.vue";
+import { ref } from 'vue';
+import SearchIcon from '@action/icons/common/search.vue';
+import ClearIcon from '@action/icons/common/clear-icon.vue';
 
 const inputText = ref<string>("");
 defineProps({
@@ -72,7 +72,7 @@ const onUserInput = (): void => {
 </script>
 
 <style lang="less" scoped>
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .explore__search {
   width: 100%;

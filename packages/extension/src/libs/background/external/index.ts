@@ -1,2 +1,2 @@
-import handlePersistentEvents from "./handle-persistent-events";
+import handlePersistentEvents from './handle-persistent-events';
 export { handlePersistentEvents };

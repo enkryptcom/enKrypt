@@ -47,46 +47,46 @@
 </template>
 
 <script setup lang="ts">
-import { JsonTreeView } from "@/libs/json-tree-view";
-import SignLogo from "@action/icons/common/sign-logo.vue";
-import BaseButton from "@action/components/base-button/index.vue";
-import CommonPopup from "@action/views/common-popup/index.vue";
-import { getCustomError, getError } from "@/libs/error";
-import { ErrorCodes } from "@/providers/ethereum/types";
-import { WindowPromiseHandler } from "@/libs/window-promise";
-import { InternalMethods } from "@/types/messenger";
-import { onMounted, ref } from "vue";
-import { DEFAULT_EVM_NETWORK, getNetworkByName } from "@/libs/utils/networks";
-import { ProviderRequestOptions } from "@/types/provider";
+import { JsonTreeView } from '@/libs/json-tree-view';
+import SignLogo from '@action/icons/common/sign-logo.vue';
+import BaseButton from '@action/components/base-button/index.vue';
+import CommonPopup from '@action/views/common-popup/index.vue';
+import { getCustomError, getError } from '@/libs/error';
+import { ErrorCodes } from '@/providers/ethereum/types';
+import { WindowPromiseHandler } from '@/libs/window-promise';
+import { InternalMethods } from '@/types/messenger';
+import { onMounted, ref } from 'vue';
+import { DEFAULT_EVM_NETWORK, getNetworkByName } from '@/libs/utils/networks';
+import { ProviderRequestOptions } from '@/types/provider';
 import {
   typedSignatureHash,
   TypedDataUtils,
   SignTypedDataVersion,
-} from "@metamask/eth-sig-util";
-import { sanitizeData } from "@/providers/ethereum/libs/sanitize-typed-data";
-import { bufferToHex } from "@enkryptcom/utils";
-import { EvmNetwork } from "../types/evm-network";
-import { EnkryptAccount } from "@enkryptcom/types";
+} from '@metamask/eth-sig-util';
+import { sanitizeData } from '@/providers/ethereum/libs/sanitize-typed-data';
+import { bufferToHex } from '@enkryptcom/utils';
+import { EvmNetwork } from '../types/evm-network';
+import { EnkryptAccount } from '@enkryptcom/types';
 
 const network = ref<EvmNetwork>(DEFAULT_EVM_NETWORK);
 const account = ref<EnkryptAccount>({
-  name: "",
-  address: "",
+  name: '',
+  address: '',
 } as EnkryptAccount);
-const identicon = ref<string>("");
+const identicon = ref<string>('');
 const windowPromise = WindowPromiseHandler(4);
 const Options = ref<ProviderRequestOptions>({
-  domain: "",
-  faviconURL: "",
-  title: "",
-  url: "",
+  domain: '',
+  faviconURL: '',
+  title: '',
+  url: '',
   tabId: 0,
 });
-const message = ref<string>("");
+const message = ref<string>('');
 onMounted(async () => {
   const { Request, options } = await windowPromise;
   network.value = (await getNetworkByName(
-    Request.value.params![3]
+    Request.value.params![3],
   )) as EvmNetwork;
   account.value = Request.value.params![1] as EnkryptAccount;
   identicon.value = network.value.identicon(account.value.address);
@@ -97,7 +97,7 @@ onMounted(async () => {
       message.value = JSON.stringify(Request.value.params![0]);
     } else {
       let parsedJSON = Request.value.params![0];
-      if (typeof parsedJSON === "string") parsedJSON = JSON.parse(parsedJSON);
+      if (typeof parsedJSON === 'string') parsedJSON = JSON.parse(parsedJSON);
       const sanitized = sanitizeData(parsedJSON, version);
       message.value = JSON.stringify(sanitized);
     }
@@ -125,7 +125,7 @@ const approve = async () => {
   sendToBackground({
     method: InternalMethods.sign,
     params: [msgHash, account.value],
-  }).then((res) => {
+  }).then(res => {
     if (res.error) {
       Resolve.value(res);
     } else {
@@ -144,5 +144,5 @@ const deny = async () => {
 </script>
 
 <style lang="less" scoped>
-@import "~@/providers/ethereum/ui/styles/common-popup.less";
+@import '@/providers/ethereum/ui/styles/common-popup.less';
 </style>
