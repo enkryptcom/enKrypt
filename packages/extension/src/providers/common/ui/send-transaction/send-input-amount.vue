@@ -27,13 +27,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, ComponentPublicInstance } from "vue";
-import SwitchArrowIcon from "@action/icons/send/switch-arrow-icon.vue";
-import BigNumber from "bignumber.js";
+import { ref, computed, ComponentPublicInstance } from 'vue';
+import SwitchArrowIcon from '@action/icons/send/switch-arrow-icon.vue';
+import BigNumber from 'bignumber.js';
 
 const emit = defineEmits<{
-  (e: "update:inputAmount", value: string): void;
-  (e: "update:inputSetMax"): void;
+  (e: 'update:inputAmount', value: string): void;
+  (e: 'update:inputSetMax'): void;
 }>();
 
 const isFocus = ref(false);
@@ -48,11 +48,11 @@ const props = defineProps({
   },
   fiatValue: {
     type: String,
-    default: "1",
+    default: '1',
   },
   amount: {
     type: String,
-    default: "",
+    default: '',
   },
   showMax: {
     type: Boolean,
@@ -66,8 +66,8 @@ const amount = computed({
   get: () => props.amount,
   set: value => {
     let fValue = value.toString();
-    if (fValue === ".") fValue = "0.";
-    emit("update:inputAmount", fValue);
+    if (fValue === '.') fValue = '0.';
+    emit('update:inputAmount', fValue);
   },
 });
 
@@ -83,7 +83,7 @@ const changeFocus = () => {
 </script>
 
 <style lang="less">
-@import "@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .send-input-amount {
   height: 100px;
@@ -93,7 +93,7 @@ const changeFocus = () => {
   border: 1px solid @gray02;
   box-sizing: border-box;
   border-radius: 10px;
-  width: calc(~"100% - 64px");
+  width: calc(~'100% - 64px');
   padding: 16px;
   display: flex;
   justify-content: flex-start;
@@ -120,12 +120,12 @@ const changeFocus = () => {
     padding: 0;
     caret-color: @primary;
   }
-  input[type="number"]::-webkit-outer-spin-button,
-  input[type="number"]::-webkit-inner-spin-button {
+  input[type='number']::-webkit-outer-spin-button,
+  input[type='number']::-webkit-inner-spin-button {
     -webkit-appearance: none;
     margin: 0;
   }
-  input[type="number"] {
+  input[type='number'] {
     -moz-appearance: textfield;
   }
 

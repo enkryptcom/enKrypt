@@ -1,13 +1,13 @@
-import BrowserStorage from "../common/browser-storage";
-import { InternalStorageNamespace } from "@/types/provider";
+import BrowserStorage from '../common/browser-storage';
+import { InternalStorageNamespace } from '@/types/provider';
 import {
   IState,
   StorageKeys,
   CustomToken,
   CustomErc20Token,
   TokenType,
-} from "./types";
-import { NetworkNames } from "@enkryptcom/types";
+} from './types';
+import { NetworkNames } from '@enkryptcom/types';
 
 export class TokensState {
   private storage: BrowserStorage;

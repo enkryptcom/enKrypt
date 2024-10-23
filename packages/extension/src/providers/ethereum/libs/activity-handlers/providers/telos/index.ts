@@ -1,16 +1,16 @@
-import cacheFetch from "@/libs/cache-fetch";
-import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
+import cacheFetch from '@/libs/cache-fetch';
+import { EvmNetwork } from '@/providers/ethereum/types/evm-network';
 import {
   Activity,
   ActivityStatus,
   ActivityType,
   EthereumRawInfo,
-} from "@/types/activity";
-import { BaseNetwork } from "@/types/base-network";
-import { numberToHex } from "web3-utils";
-import { decodeTx } from "../../../transaction/decoder";
-import { NetworkEndpoints } from "./configs";
-import { TelosTXType } from "./types";
+} from '@/types/activity';
+import { BaseNetwork } from '@/types/base-network';
+import { numberToHex } from 'web3-utils';
+import { decodeTx } from '../../../transaction/decoder';
+import { NetworkEndpoints } from './configs';
+import { TelosTXType } from './types';
 const TTL = 30000;
 const getAddressActivity = async (
   address: string,
@@ -26,7 +26,7 @@ const getAddressActivity = async (
     const results = res.results as TelosTXType[];
     const newResults = results.map(tx => {
       const rawTx: EthereumRawInfo = {
-        blockHash: "0x",
+        blockHash: '0x',
         blockNumber: numberToHex(tx.blockNumber),
         contractAddress: tx.contractAddress
           ? tx.contractAddress.toLowerCase()
@@ -34,11 +34,11 @@ const getAddressActivity = async (
         data: tx.input,
         effectiveGasPrice: tx.gasPrice,
         from: tx.from.toLowerCase(),
-        to: tx.to === "" ? null : tx.to.toLowerCase(),
+        to: tx.to === '' ? null : tx.to.toLowerCase(),
         gas: tx.gasLimit,
         gasUsed: tx.gasused,
         nonce: numberToHex(tx.nonce),
-        status: tx.status === "0x1" ? true : false,
+        status: tx.status === '0x1' ? true : false,
         transactionHash: tx.hash,
         value: tx.value,
         timestamp: tx.timestamp,

@@ -83,24 +83,24 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from "vue";
-import HelpIcon from "@action/icons/password/help-icon.vue";
-import { PasswordStrength } from "@action/types/password";
-import zxcvbn from "zxcvbn";
-import { computed } from "vue";
+import { ref, watch } from 'vue';
+import HelpIcon from '@action/icons/password/help-icon.vue';
+import { PasswordStrength } from '@action/types/password';
+import zxcvbn from 'zxcvbn';
+import { computed } from 'vue';
 
 const length = ref(2);
 const isTooltip = ref(false);
-const toolTipInfo = ref("");
+const toolTipInfo = ref('');
 const props = defineProps({
   value: {
     type: String,
-    default: "",
+    default: '',
   },
 });
 const emit = defineEmits<{
   (
-    e: "update:strengthAndPassword",
+    e: 'update:strengthAndPassword',
     info: { password: string; strength: number },
   ): void;
 }>();
@@ -126,7 +126,7 @@ const strength = computed(() => {
   }
 });
 watch([strength, props], () => {
-  emit("update:strengthAndPassword", {
+  emit('update:strengthAndPassword', {
     password: props.value,
     strength: strength.value,
   });
@@ -137,7 +137,7 @@ const toggleTooltip = () => {
 </script>
 
 <style lang="less">
-@import "@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .password-input-strength {
   margin: 0 0 16px 0;

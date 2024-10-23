@@ -5,7 +5,7 @@
         {{
           collection.name?.length > 25
             ? $filters.replaceWithEllipsis(collection.name, 25, 4)
-            : collection.name || "UNKNOWN"
+            : collection.name || 'UNKNOWN'
         }}
       </p>
       <a
@@ -35,12 +35,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed, PropType, ref } from "vue";
-import NetworkNftsItem from "./network-nfts-item.vue";
-import NftSortMenu from "@action/icons/nft/nft-sort-menu.vue";
-import NetworkNftsCategorySortMenu from "./network-nfts-category-sort-menu.vue";
-import { NFTCollection } from "@/types/nft";
-import { onClickOutside } from "@vueuse/core";
+import { computed, PropType, ref } from 'vue';
+import NetworkNftsItem from './network-nfts-item.vue';
+import NftSortMenu from '@action/icons/nft/nft-sort-menu.vue';
+import NetworkNftsCategorySortMenu from './network-nfts-category-sort-menu.vue';
+import { NFTCollection } from '@/types/nft';
+import { onClickOutside } from '@vueuse/core';
 
 const isOpenSort = ref(false);
 const isAbcSort = ref(true);
@@ -82,7 +82,7 @@ onClickOutside(
 </script>
 
 <style lang="less">
-@import "@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .network-nfts {
   &__category {

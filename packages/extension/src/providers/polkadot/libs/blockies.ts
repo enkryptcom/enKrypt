@@ -1,4 +1,4 @@
-import { polkadotIcon } from "@polkadot/ui-shared";
+import { polkadotIcon } from '@polkadot/ui-shared';
 type options = {
   size?: number;
   isAlternative?: boolean;
@@ -12,14 +12,14 @@ const createIcon = (address: string, options?: options): string => {
       ({ cx, cy, fill, r }) =>
         `<circle cx="${cx}" cy="${cy}" fill="${fill}" r="${r}" />`,
     )
-    .join("");
+    .join('');
   const svgHtml = `<svg height="${
     options.size || 32
   }" viewBox='0 0 64 64' width="${options.size || 32}">${circles}</svg>`;
-  const ele = document.createElement("div");
+  const ele = document.createElement('div');
   ele.innerHTML = svgHtml;
   const svgString = new XMLSerializer().serializeToString(ele.children[0]);
-  const base64 = Buffer.from(svgString).toString("base64");
+  const base64 = Buffer.from(svgString).toString('base64');
   return `data:image/svg+xml;base64,${base64}`;
 };
 

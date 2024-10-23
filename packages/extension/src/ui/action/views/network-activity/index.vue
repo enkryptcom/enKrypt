@@ -39,10 +39,10 @@
 </template>
 
 <script setup lang="ts">
-import NetworkActivityTotal from "./components/network-activity-total.vue";
-import NetworkActivityAction from "./components/network-activity-action.vue";
-import NetworkActivityTransaction from "./components/network-activity-transaction.vue";
-import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
+import NetworkActivityTotal from './components/network-activity-total.vue';
+import NetworkActivityAction from './components/network-activity-action.vue';
+import NetworkActivityTransaction from './components/network-activity-transaction.vue';
+import CustomScrollbar from '@action/components/custom-scrollbar/index.vue';
 import {
   computed,
   onMounted,
@@ -52,11 +52,11 @@ import {
   toRaw,
   toRef,
   watch,
-} from "vue";
-import { AccountsHeaderData } from "../../types/account";
-import accountInfoComposable from "@action/composables/account-info";
-import { BaseNetwork } from "@/types/base-network";
-import scrollSettings from "@/libs/utils/scroll-settings";
+} from 'vue';
+import { AccountsHeaderData } from '../../types/account';
+import accountInfoComposable from '@action/composables/account-info';
+import { BaseNetwork } from '@/types/base-network';
+import scrollSettings from '@/libs/utils/scroll-settings';
 
 import {
   Activity,
@@ -68,17 +68,17 @@ import {
   SwapRawInfo,
   KadenaRawInfo,
   SOLRawInfo,
-} from "@/types/activity";
-import NetworkActivityLoading from "./components/network-activity-loading.vue";
-import { ProviderName } from "@/types/provider";
-import ActivityState from "@/libs/activity-state";
+} from '@/types/activity';
+import NetworkActivityLoading from './components/network-activity-loading.vue';
+import { ProviderName } from '@/types/provider';
+import ActivityState from '@/libs/activity-state';
 import Swap, {
   SupportedNetworkName,
   TransactionStatus,
   WalletIdentifier,
-} from "@enkryptcom/swap";
-import EvmAPI from "@/providers/ethereum/libs/api";
-import type Web3Eth from "web3-eth";
+} from '@enkryptcom/swap';
+import EvmAPI from '@/providers/ethereum/libs/api';
+import type Web3Eth from 'web3-eth';
 
 const props = defineProps({
   network: {
@@ -92,15 +92,15 @@ const props = defineProps({
 });
 
 const { cryptoAmount, fiatAmount } = accountInfoComposable(
-  toRef(props, "network"),
-  toRef(props, "accountInfo"),
+  toRef(props, 'network'),
+  toRef(props, 'accountInfo'),
 );
 
 const forceUpdateVal = ref(0);
 const isNoActivity = ref(false);
 const activities = ref<Activity[]>([]);
 const selectedAddress = computed(
-  () => props.accountInfo.selectedAccount?.address || "",
+  () => props.accountInfo.selectedAccount?.address || '',
 );
 const apiPromise = props.network.api();
 const activityState = new ActivityState();
@@ -181,7 +181,7 @@ const getInfo = (activity: Activity, info: any, timer: any) => {
     } else if (props.network.provider === ProviderName.kadena) {
       const kadenaInfo = info as KadenaRawInfo;
       activity.status =
-        kadenaInfo.result.status == "success"
+        kadenaInfo.result.status == 'success'
           ? ActivityStatus.success
           : ActivityStatus.failed;
       activity.rawInfo = kadenaInfo as KadenaRawInfo;
@@ -266,8 +266,8 @@ onUnmounted(() => {
 </script>
 
 <style lang="less" scoped>
-@import "@action/styles/theme.less";
-@import "@action/styles/custom-scroll.less";
+@import '@action/styles/theme.less';
+@import '@action/styles/custom-scroll.less';
 
 .container {
   width: 100%;

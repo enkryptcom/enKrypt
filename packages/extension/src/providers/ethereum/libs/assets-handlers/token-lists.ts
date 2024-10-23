@@ -1,6 +1,6 @@
-import cacheFetch from "@/libs/cache-fetch";
-import { CoingeckoPlatform, NetworkNames } from "@enkryptcom/types";
-import { CGToken, SupportedNetworkNames } from "./types/tokenbalance-mew";
+import cacheFetch from '@/libs/cache-fetch';
+import { CoingeckoPlatform, NetworkNames } from '@enkryptcom/types';
+import { CGToken, SupportedNetworkNames } from './types/tokenbalance-mew';
 const TOKEN_FETCH_TTL = 1000 * 60 * 60;
 const TokenList: Record<SupportedNetworkNames, string> = {
   [NetworkNames.Binance]: `https://tokens.coingecko.com/${CoingeckoPlatform.Binance}/all.json`,

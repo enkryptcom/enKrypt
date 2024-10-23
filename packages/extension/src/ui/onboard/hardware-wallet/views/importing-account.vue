@@ -45,27 +45,27 @@
   <hardware-account-imported v-if="isProcessDone" />
 </template>
 <script setup lang="ts">
-import { ref, ComponentPublicInstance, onMounted } from "vue";
-import BaseButton from "@action/components/base-button/index.vue";
-import HardwareWalletProcess from "../components/hardware-wallet-process.vue";
-import HardwareImportingAccount from "../components/hardware-importing-account.vue";
-import HardwareAccountImported from "../components/hardware-account-imported.vue";
-import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
-import { useRoute, useRouter } from "vue-router";
-import { getNetworkByName } from "@/libs/utils/networks";
-import PublicKeyRing from "@/libs/keyring/public-keyring";
-import KeyRingBase from "@/libs/keyring/keyring";
-import { computed } from "vue";
+import { ref, ComponentPublicInstance, onMounted } from 'vue';
+import BaseButton from '@action/components/base-button/index.vue';
+import HardwareWalletProcess from '../components/hardware-wallet-process.vue';
+import HardwareImportingAccount from '../components/hardware-importing-account.vue';
+import HardwareAccountImported from '../components/hardware-account-imported.vue';
+import CustomScrollbar from '@action/components/custom-scrollbar/index.vue';
+import { useRoute, useRouter } from 'vue-router';
+import { getNetworkByName } from '@/libs/utils/networks';
+import PublicKeyRing from '@/libs/keyring/public-keyring';
+import KeyRingBase from '@/libs/keyring/keyring';
+import { computed } from 'vue';
 import {
   EnkryptAccount,
   HWwalletType,
   SignerType,
   WalletType,
-} from "@enkryptcom/types";
-import { routes } from "../routes";
-import { ProviderName } from "@/types/provider";
-import { useHWStore } from "../store";
-import { BaseNetwork } from "@/types/base-network";
+} from '@enkryptcom/types';
+import { routes } from '../routes';
+import { ProviderName } from '@/types/provider';
+import { useHWStore } from '../store';
+import { BaseNetwork } from '@/types/base-network';
 const store = useHWStore();
 
 const route = useRoute();
@@ -115,7 +115,7 @@ const isInvalidName = (name: string) => {
 const isHasScroll = () => {
   if (importingAccountScrollRef.value) {
     return importingAccountScrollRef.value.$el.classList.contains(
-      "ps--active-y",
+      'ps--active-y',
     );
   }
 
@@ -150,8 +150,8 @@ const addAccounts = async () => {
 </script>
 
 <style lang="less">
-@import "@action/styles/theme.less";
-@import "@action/styles/custom-scroll.less";
+@import '@action/styles/theme.less';
+@import '@action/styles/custom-scroll.less';
 
 .ledger-importing-account {
   width: 100%;
@@ -213,7 +213,7 @@ const addAccounts = async () => {
   &__scroll-area {
     position: relative;
     margin: auto;
-    width: calc(~"100% + 53px");
+    width: calc(~'100% + 53px');
     height: 456px;
     margin: 0;
     padding: 0 53px 0 0 !important;

@@ -1,24 +1,24 @@
-import { BaseNetwork, BaseNetworkOptions } from "@/types/base-network";
-import SolAPI from "@/providers/solana/libs/api";
-import { AssetsType } from "@/types/provider";
-import { BaseToken } from "@/types/base-token";
-import { ProviderName } from "@/types/provider";
-import { CoingeckoPlatform, NetworkNames, SignerType } from "@enkryptcom/types";
-import createIcon from "../libs/blockies";
-import { Activity } from "@/types/activity";
+import { BaseNetwork, BaseNetworkOptions } from '@/types/base-network';
+import SolAPI from '@/providers/solana/libs/api';
+import { AssetsType } from '@/types/provider';
+import { BaseToken } from '@/types/base-token';
+import { ProviderName } from '@/types/provider';
+import { CoingeckoPlatform, NetworkNames, SignerType } from '@enkryptcom/types';
+import createIcon from '../libs/blockies';
+import { Activity } from '@/types/activity';
 import {
   formatFiatValue,
   formatFloatingPointValue,
-} from "@/libs/utils/number-formatter";
-import MarketData from "@/libs/market-data";
-import BigNumber from "bignumber.js";
-import { CoinGeckoTokenMarket } from "@/libs/market-data/types";
-import Sparkline from "@/libs/sparkline";
-import { SOLToken, SolTokenOptions } from "./sol-token";
-import { NFTCollection } from "@/types/nft";
-import { fromBase, hexToBuffer } from "@enkryptcom/utils";
-import bs58 from "bs58";
-import { isAddress as isSolanaAddress } from "../libs/utils";
+} from '@/libs/utils/number-formatter';
+import MarketData from '@/libs/market-data';
+import BigNumber from 'bignumber.js';
+import { CoinGeckoTokenMarket } from '@/libs/market-data/types';
+import Sparkline from '@/libs/sparkline';
+import { SOLToken, SolTokenOptions } from './sol-token';
+import { NFTCollection } from '@/types/nft';
+import { fromBase, hexToBuffer } from '@enkryptcom/utils';
+import bs58 from 'bs58';
+import { isAddress as isSolanaAddress } from '../libs/utils';
 
 export interface SolanaNetworkOptions {
   name: NetworkNames;
@@ -129,15 +129,15 @@ export class SolanaNetwork extends BaseNetwork {
         icon: this.icon,
         name: this.name_long,
         symbol: this.currencyName,
-        value: marketData.length ? currentPrice.toString() : "0",
+        value: marketData.length ? currentPrice.toString() : '0',
         valuef: formatFiatValue(
-          marketData.length ? currentPrice.toString() : "0",
+          marketData.length ? currentPrice.toString() : '0',
         ).value,
-        contract: "",
+        contract: '',
         decimals: this.decimals,
         sparkline: marketData.length
           ? new Sparkline(marketData[0]!.sparkline_in_24h.price, 25).dataValues
-          : "",
+          : '',
         priceChangePercentage: marketData.length
           ? marketData[0]!.price_change_percentage_24h_in_currency
           : 0,

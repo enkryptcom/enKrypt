@@ -1,6 +1,6 @@
-import BrowserStorage from "../common/browser-storage";
-import { InternalStorageNamespace } from "@/types/provider";
-import { IState, StorageKeys } from "./types";
+import BrowserStorage from '../common/browser-storage';
+import { InternalStorageNamespace } from '@/types/provider';
+import { IState, StorageKeys } from './types';
 
 // Two weeks
 const POPUP_TIME = 1209600000;

@@ -31,11 +31,11 @@
   </div>
 </template>
 <script setup lang="ts">
-import LogoBig from "@action/icons/common/logo-big.vue";
-import BaseButton from "@action/components/base-button/index.vue";
-import SettingsState from "@/libs/settings-state";
-import { optOutofMetrics } from "@/libs/metrics";
-import { useRouter, useRoute } from "vue-router";
+import LogoBig from '@action/icons/common/logo-big.vue';
+import BaseButton from '@action/components/base-button/index.vue';
+import SettingsState from '@/libs/settings-state';
+import { optOutofMetrics } from '@/libs/metrics';
+import { useRouter, useRoute } from 'vue-router';
 
 const router = useRouter();
 const route = useRoute();
@@ -47,10 +47,10 @@ const agree = async () => {
   enkryptSettings.isMetricsEnabled = true;
   await settingsState.setEnkryptSettings(enkryptSettings);
   optOutofMetrics(false);
-  if (route.name === "user-privacy") {
+  if (route.name === 'user-privacy') {
     window.close();
   } else {
-    router.push({ name: "new-wallet" });
+    router.push({ name: 'new-wallet' });
   }
 };
 
@@ -59,16 +59,16 @@ const deny = async () => {
   enkryptSettings.isMetricsEnabled = false;
   await settingsState.setEnkryptSettings(enkryptSettings);
   optOutofMetrics(true);
-  if (route.name === "user-privacy") {
+  if (route.name === 'user-privacy') {
     window.close();
   } else {
-    router.push({ name: "new-wallet" });
+    router.push({ name: 'new-wallet' });
   }
 };
 </script>
 
 <style lang="less">
-@import "@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .new-wallet {
   &__logo {

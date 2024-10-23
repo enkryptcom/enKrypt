@@ -1,19 +1,19 @@
-import EventEmitter from "eventemitter3";
-import { handleIncomingMessage } from "./libs/message-router";
-import { EthereumRequest, EthereumResponse } from "@/providers/ethereum/types";
+import EventEmitter from 'eventemitter3';
+import { handleIncomingMessage } from './libs/message-router';
+import { EthereumRequest, EthereumResponse } from '@/providers/ethereum/types';
 import {
   ProviderName,
   ProviderOptions,
   ProviderType,
   ProviderInterface,
   SendMessageHandler,
-} from "@/types/provider";
-import { EnkryptWindow } from "@/types/globals";
-import { Enkrypt, EnkryptSolAccount } from "./libs/wallet-standard/window";
-import type { SendOptions } from "@solana/web3.js";
-import type { SolanaSignInInput } from "@solana/wallet-standard-features";
-import { initialize } from "./libs/wallet-standard";
-import { SolSignInResponse, SolSignTransactionRequest } from "./ui/types";
+} from '@/types/provider';
+import { EnkryptWindow } from '@/types/globals';
+import { Enkrypt, EnkryptSolAccount } from './libs/wallet-standard/window';
+import type { SendOptions } from '@solana/web3.js';
+import type { SolanaSignInInput } from '@solana/wallet-standard-features';
+import { initialize } from './libs/wallet-standard';
+import { SolSignInResponse, SolSignTransactionRequest } from './ui/types';
 
 export class Provider
   extends EventEmitter
@@ -38,7 +38,7 @@ export class Provider
     options?: { onlyIfTrusted?: boolean | undefined } | undefined,
   ): Promise<EnkryptSolAccount[]> {
     return this.request({
-      method: "sol_connect",
+      method: 'sol_connect',
       params: [options],
     }).then((res: { address: string; pubkey: string }[]) => {
       this.accounts = res;
@@ -54,13 +54,13 @@ export class Provider
     options?: SendOptions | undefined,
   ): Promise<string> {
     return this.request({
-      method: "sol_signAndSendTransaction",
+      method: 'sol_signAndSendTransaction',
       params: [JSON.stringify(transaction), JSON.stringify(options)],
     }).then((res: string) => res);
   }
   signIn(input?: SolanaSignInInput | undefined): Promise<SolSignInResponse> {
     return this.request({
-      method: "sol_signInMessage",
+      method: 'sol_signInMessage',
       params: [JSON.stringify(input)],
     }).then((res: SolSignInResponse) => {
       const accExists = this.accounts.find(acc => acc.address === res.address);
@@ -75,13 +75,13 @@ export class Provider
     message: string;
   }): Promise<SolSignInResponse> {
     return this.request({
-      method: "sol_signMessage",
+      method: 'sol_signMessage',
       params: [JSON.stringify(options)],
     }).then((res: SolSignInResponse) => res);
   }
   signTransaction(transaction: SolSignTransactionRequest): Promise<string> {
     return this.request({
-      method: "sol_signTransaction",
+      method: 'sol_signTransaction',
       params: [JSON.stringify(transaction)],
     }).then((res: string) => res);
   }
@@ -107,6 +107,6 @@ const injectDocument = (
 ): void => {
   const provider = new Provider(options);
   initialize(provider);
-  document["enkrypt"]["providers"][options.name] = provider;
+  document['enkrypt']['providers'][options.name] = provider;
 };
 export default injectDocument;

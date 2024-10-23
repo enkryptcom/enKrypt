@@ -17,7 +17,7 @@
                 $filters.replaceWithEllipsis(
                   account.address
                     ? network.displayAddress(account.address)
-                    : "",
+                    : '',
                   6,
                   4,
                 )
@@ -52,52 +52,52 @@
 </template>
 
 <script setup lang="ts">
-import SignLogo from "@action/icons/common/sign-logo.vue";
-import BaseButton from "@action/components/base-button/index.vue";
-import CommonPopup from "@action/views/common-popup/index.vue";
-import HardwareWalletMsg from "@/providers/common/ui/verify-transaction/hardware-wallet-msg.vue";
-import { getError } from "@/libs/error";
-import { ErrorCodes } from "@/providers/ethereum/types";
-import { WindowPromiseHandler } from "@/libs/window-promise";
-import { onBeforeMount, ref } from "vue";
+import SignLogo from '@action/icons/common/sign-logo.vue';
+import BaseButton from '@action/components/base-button/index.vue';
+import CommonPopup from '@action/views/common-popup/index.vue';
+import HardwareWalletMsg from '@/providers/common/ui/verify-transaction/hardware-wallet-msg.vue';
+import { getError } from '@/libs/error';
+import { ErrorCodes } from '@/providers/ethereum/types';
+import { WindowPromiseHandler } from '@/libs/window-promise';
+import { onBeforeMount, ref } from 'vue';
 import {
   DEFAULT_SOLANA_NETWORK,
   getNetworkByName,
-} from "@/libs/utils/networks";
-import { ProviderRequestOptions } from "@/types/provider";
-import { SolanaNetwork } from "../types/sol-network";
-import { EnkryptAccount, SignerType } from "@enkryptcom/types";
-import { SolanaSignInInput } from "@solana/wallet-standard-features";
-import bs58 from "bs58";
-import { bufferToHex, hexToBuffer, utf8ToHex } from "@enkryptcom/utils";
-import PublicKeyRing from "@/libs/keyring/public-keyring";
-import { createSignInMessageText } from "./libs/signin-message";
-import { SolSignInResponse } from "./types";
-import { isUtf8 } from "@polkadot/util";
-import { hexToUtf8 } from "web3-utils";
-import { MessageSigner } from "./libs/signer";
+} from '@/libs/utils/networks';
+import { ProviderRequestOptions } from '@/types/provider';
+import { SolanaNetwork } from '../types/sol-network';
+import { EnkryptAccount, SignerType } from '@enkryptcom/types';
+import { SolanaSignInInput } from '@solana/wallet-standard-features';
+import bs58 from 'bs58';
+import { bufferToHex, hexToBuffer, utf8ToHex } from '@enkryptcom/utils';
+import PublicKeyRing from '@/libs/keyring/public-keyring';
+import { createSignInMessageText } from './libs/signin-message';
+import { SolSignInResponse } from './types';
+import { isUtf8 } from '@polkadot/util';
+import { hexToUtf8 } from 'web3-utils';
+import { MessageSigner } from './libs/signer';
 
 const windowPromise = WindowPromiseHandler(3);
 const keyring = new PublicKeyRing();
 const network = ref<SolanaNetwork>(DEFAULT_SOLANA_NETWORK);
 const account = ref<EnkryptAccount>({
-  name: "",
-  address: "",
+  name: '',
+  address: '',
 } as EnkryptAccount);
-const identicon = ref<string>("");
+const identicon = ref<string>('');
 const Options = ref<ProviderRequestOptions>({
-  domain: "",
-  faviconURL: "",
-  title: "",
-  url: "",
+  domain: '',
+  faviconURL: '',
+  title: '',
+  url: '',
   tabId: 0,
 });
 
 const signInMessage = ref<SolanaSignInInput>({});
 const signMessage = ref<{ address: string; message: string }>();
-const message = ref<string>("");
-const reqMethod = ref<"sol_signInMessage" | "sol_signMessage">(
-  "sol_signInMessage",
+const message = ref<string>('');
+const reqMethod = ref<'sol_signInMessage' | 'sol_signMessage'>(
+  'sol_signInMessage',
 );
 onBeforeMount(async () => {
   const { Request, Resolve, options } = await windowPromise;
@@ -105,7 +105,7 @@ onBeforeMount(async () => {
     Request.value.params![2],
   )) as SolanaNetwork;
   reqMethod.value = Request.value.params![0];
-  if (reqMethod.value === "sol_signInMessage") {
+  if (reqMethod.value === 'sol_signInMessage') {
     signInMessage.value = JSON.parse(
       Request.value.params![1],
     ) as SolanaSignInInput;
@@ -141,7 +141,7 @@ onBeforeMount(async () => {
         });
       });
     }
-  } else if (reqMethod.value === "sol_signMessage") {
+  } else if (reqMethod.value === 'sol_signMessage') {
     signMessage.value = JSON.parse(Request.value.params![1]);
     message.value = isUtf8(signMessage.value!.message)
       ? hexToUtf8(signMessage.value!.message)
@@ -178,7 +178,7 @@ const approve = async () => {
         pubkey: account.value.address,
         signature: resData.signature,
         signedMessage: utf8ToHex(message.value),
-        signatureType: "ed25519",
+        signatureType: 'ed25519',
       };
       Resolve.value({
         result: JSON.stringify(response),
@@ -195,5 +195,5 @@ const deny = async () => {
 </script>
 
 <style lang="less" scoped>
-@import "@/providers/ethereum/ui/styles/common-popup.less";
+@import '@/providers/ethereum/ui/styles/common-popup.less';
 </style>

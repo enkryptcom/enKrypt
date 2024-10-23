@@ -8,8 +8,8 @@
   </div>
 </template>
 <script setup lang="ts">
-import LedgerConnection from "@action/icons/hardware/ledger-connection.vue";
-import TrezorConnection from "@action/icons/hardware/trezor-connection.vue";
+import LedgerConnection from '@action/icons/hardware/ledger-connection.vue';
+import TrezorConnection from '@action/icons/hardware/trezor-connection.vue';
 
 defineProps({
   isLedger: {
@@ -24,7 +24,7 @@ defineProps({
 </script>
 
 <style lang="less" scoped>
-@import "@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .hardware-wallet-process {
   width: 100%;

@@ -20,16 +20,16 @@
 </template>
 
 <script setup lang="ts">
-import { PropType } from "vue";
-import SendAddressItem from "./send-address-item.vue";
-import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
-import { AccountsHeaderData } from "@action/types/account";
-import scrollSettings from "@/libs/utils/scroll-settings";
-import { BaseNetwork } from "@/types/base-network";
+import { PropType } from 'vue';
+import SendAddressItem from './send-address-item.vue';
+import CustomScrollbar from '@action/components/custom-scrollbar/index.vue';
+import { AccountsHeaderData } from '@action/types/account';
+import scrollSettings from '@/libs/utils/scroll-settings';
+import { BaseNetwork } from '@/types/base-network';
 
 const emit = defineEmits<{
-  (e: "update:pasteFromClipboard"): void;
-  (e: "close", open: false): void;
+  (e: 'update:pasteFromClipboard'): void;
+  (e: 'close', open: false): void;
 }>();
 
 defineProps({
@@ -44,17 +44,17 @@ defineProps({
   },
   address: {
     type: String,
-    default: "",
+    default: '',
   },
 });
 
 const close = () => {
-  emit("close", false);
+  emit('close', false);
 };
 </script>
 
 <style lang="less">
-@import "@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .send-from-contacts-list {
   width: 100%;

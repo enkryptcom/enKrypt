@@ -1,14 +1,14 @@
-import NameResolver, { type CoinType } from "@enkryptcom/name-resolution";
+import NameResolver, { type CoinType } from '@enkryptcom/name-resolution';
 class GenericNameResolver {
   nameResolver: NameResolver;
 
   constructor() {
     this.nameResolver = new NameResolver({
-      ens: { node: "https://nodes.mewapi.io/rpc/eth" },
+      ens: { node: 'https://nodes.mewapi.io/rpc/eth' },
       sid: {
         node: {
-          bnb: "https://nodes.mewapi.io/rpc/bsc",
-          arb: "https://nodes.mewapi.io/rpc/arb",
+          bnb: 'https://nodes.mewapi.io/rpc/bsc',
+          arb: 'https://nodes.mewapi.io/rpc/arb',
         },
       },
     });

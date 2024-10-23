@@ -1,6 +1,6 @@
-import { BaseToken, BaseTokenOptions } from "@/types/base-token";
-import SolanaAPI from "@/providers/bitcoin/libs/api";
-import { ERC20TokenInfo } from "@/providers/ethereum/types";
+import { BaseToken, BaseTokenOptions } from '@/types/base-token';
+import SolanaAPI from '@/providers/bitcoin/libs/api';
+import { ERC20TokenInfo } from '@/providers/ethereum/types';
 
 export interface SPLTokenInfo extends ERC20TokenInfo {
   icon: string | undefined;
@@ -26,6 +26,6 @@ export class SOLToken extends BaseToken {
   }
 
   public async send(): Promise<any> {
-    throw new Error("sol-send is not implemented here");
+    throw new Error('sol-send is not implemented here');
   }
 }

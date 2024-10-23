@@ -25,15 +25,15 @@
 </template>
 
 <script setup lang="ts">
-import { ComponentPublicInstance, ref } from "vue";
-import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
+import { ComponentPublicInstance, ref } from 'vue';
+import CustomScrollbar from '@action/components/custom-scrollbar/index.vue';
 
 const commonPopupScrollRef = ref<ComponentPublicInstance<HTMLElement>>();
 defineExpose({ commonPopupScrollRef });
 
 const isHasScroll = () => {
   if (commonPopupScrollRef.value) {
-    return commonPopupScrollRef.value.$el.classList.contains("ps--active-y");
+    return commonPopupScrollRef.value.$el.classList.contains('ps--active-y');
   }
 
   return false;
@@ -41,6 +41,6 @@ const isHasScroll = () => {
 </script>
 
 <style lang="less" scoped>
-@import "@/providers/ethereum/ui/styles/common-popup.less";
-@import "@action/styles/custom-scroll.less";
+@import '@/providers/ethereum/ui/styles/common-popup.less';
+@import '@action/styles/custom-scroll.less';
 </style>

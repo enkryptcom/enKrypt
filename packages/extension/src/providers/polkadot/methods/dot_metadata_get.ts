@@ -1,13 +1,13 @@
-import { MiddlewareFunction } from "@enkryptcom/types";
-import SubstrateProvider from "..";
-import MetadataStorage from "../libs/metadata-storage";
+import { MiddlewareFunction } from '@enkryptcom/types';
+import SubstrateProvider from '..';
+import MetadataStorage from '../libs/metadata-storage';
 const method: MiddlewareFunction = function (
   this: SubstrateProvider,
   payload,
   res,
   next,
 ): void {
-  if (payload.method !== "dot_metadata_get") return next();
+  if (payload.method !== 'dot_metadata_get') return next();
   else {
     const mstorage = new MetadataStorage();
     mstorage.getAllMetadata().then(allMeta => {

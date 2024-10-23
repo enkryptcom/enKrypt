@@ -1,16 +1,16 @@
 // https://github.com/jlopp/bitcoin-transaction-size-calculator/blob/master/index.html
 
-import { toBN } from "web3-utils";
-import { PaymentType } from "../../types/bitcoin-network";
+import { toBN } from 'web3-utils';
+import { PaymentType } from '../../types/bitcoin-network';
 
 enum InputScriptType {
-  P2PKH = "P2PKH",
-  P2SH = "P2SH",
-  "P2SH-P2WPKH" = "P2SH-P2WPKH",
-  "P2SH-P2WSH" = "P2SH-P2WSH",
-  P2WPKH = "P2WPKH",
-  P2WSH = "P2WSH",
-  P2TR = "P2TR",
+  P2PKH = 'P2PKH',
+  P2SH = 'P2SH',
+  'P2SH-P2WPKH' = 'P2SH-P2WPKH',
+  'P2SH-P2WSH' = 'P2SH-P2WSH',
+  P2WPKH = 'P2WPKH',
+  P2WSH = 'P2WSH',
+  P2TR = 'P2TR',
 }
 const P2PKH_IN_SIZE = 148;
 const P2PKH_OUT_SIZE = 34;
@@ -40,10 +40,10 @@ const getSizeOfVarInt = (length: number) => {
     return 3;
   } else if (length < 4294967295) {
     return 5;
-  } else if (length < toBN("18446744073709551615").toNumber()) {
+  } else if (length < toBN('18446744073709551615').toNumber()) {
     return 9;
   } else {
-    alert("Invalid var int");
+    alert('Invalid var int');
   }
 };
 
@@ -57,7 +57,7 @@ const getSizeOfScriptLengthElement = (length: number) => {
   } else if (length <= 4294967295) {
     return 5;
   } else {
-    alert("Size of redeem script is too large");
+    alert('Size of redeem script is too large');
   }
 };
 
@@ -165,22 +165,22 @@ const calculateSize = (
   let redeemScriptSize = 0;
   let scriptSigSize = 0;
   switch (input_script) {
-    case "P2PKH":
+    case 'P2PKH':
       inputSize = P2PKH_IN_SIZE;
       break;
-    case "P2SH-P2WPKH":
+    case 'P2SH-P2WPKH':
       inputSize = P2SH_P2WPKH_IN_SIZE;
       inputWitnessSize = 107; // size(signature) + signature + size(pubkey) + pubkey
       break;
-    case "P2WPKH":
+    case 'P2WPKH':
       inputSize = P2WPKH_IN_SIZE;
       inputWitnessSize = 107; // size(signature) + signature + size(pubkey) + pubkey
       break;
-    case "P2TR": // Only consider the cooperative taproot signing path; assume multisig is done via aggregate signatures
+    case 'P2TR': // Only consider the cooperative taproot signing path; assume multisig is done via aggregate signatures
       inputSize = P2TR_IN_SIZE;
       inputWitnessSize = 65; // getSizeOfVarInt(schnorrSignature) + schnorrSignature;
       break;
-    case "P2SH":
+    case 'P2SH':
       redeemScriptSize =
         1 + // OP_M
         input_n * (1 + PUBKEY_SIZE) + // OP_PUSH33 <pubkey>
@@ -193,8 +193,8 @@ const calculateSize = (
         redeemScriptSize;
       inputSize = 32 + 4 + getSizeOfVarInt(scriptSigSize)! + scriptSigSize + 4;
       break;
-    case "P2SH-P2WSH":
-    case "P2WSH":
+    case 'P2SH-P2WSH':
+    case 'P2WSH':
       redeemScriptSize =
         1 + // OP_M
         input_n * (1 + PUBKEY_SIZE) + // OP_PUSH33 <pubkey>
@@ -209,7 +209,7 @@ const calculateSize = (
         36 + // outpoint (spent UTXO ID)
         inputWitnessSize / 4 + // witness program
         4; // nSequence
-      if (input_script == "P2SH-P2WSH") {
+      if (input_script == 'P2SH-P2WSH') {
         inputSize += 32 + 3; // P2SH wrapper (redeemscript hash) + overhead?
       }
   }

@@ -24,21 +24,21 @@
 </template>
 
 <script setup lang="ts">
-import CloseIcon from "@action/icons/common/close-icon.vue";
-import NftSelectListItem from "./components/nft-select-list-item.vue";
-import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
-import NftSelectListSearch from "./components/nft-select-list-search.vue";
-import scrollSettings from "@/libs/utils/scroll-settings";
-import { computed, onMounted, PropType, ref, watch } from "vue";
-import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
+import CloseIcon from '@action/icons/common/close-icon.vue';
+import NftSelectListItem from './components/nft-select-list-item.vue';
+import CustomScrollbar from '@action/components/custom-scrollbar/index.vue';
+import NftSelectListSearch from './components/nft-select-list-search.vue';
+import scrollSettings from '@/libs/utils/scroll-settings';
+import { computed, onMounted, PropType, ref, watch } from 'vue';
+import { EvmNetwork } from '@/providers/ethereum/types/evm-network';
 import {
   NFTCollection,
   NFTItem,
   NFTItemWithCollectionName,
   NFTType,
-} from "@/types/nft";
-import { BitcoinNetwork } from "@/providers/bitcoin/types/bitcoin-network";
-import { SolanaNetwork } from "@/providers/solana/types/sol-network";
+} from '@/types/nft';
+import { BitcoinNetwork } from '@/providers/bitcoin/types/bitcoin-network';
+import { SolanaNetwork } from '@/providers/solana/types/sol-network';
 
 const props = defineProps({
   network: {
@@ -47,7 +47,7 @@ const props = defineProps({
   },
   address: {
     type: String,
-    default: "",
+    default: '',
   },
   selectedNft: {
     type: Object as PropType<NFTItem>,
@@ -56,8 +56,8 @@ const props = defineProps({
 });
 
 const emit = defineEmits<{
-  (e: "selectNft", data: NFTItemWithCollectionName): void;
-  (e: "close", val: boolean): void;
+  (e: 'selectNft', data: NFTItemWithCollectionName): void;
+  (e: 'close', val: boolean): void;
 }>();
 
 const nftCollections = ref<NFTCollection[]>([]);
@@ -80,19 +80,19 @@ const updateNFTList = () => {
             props.selectedNft.contract === nft.contract &&
             props.selectedNft.id === nft.id
           ) {
-            emit("selectNft", nft);
+            emit('selectNft', nft);
             return;
           }
         }
-        emit("selectNft", nftList.value[0]);
+        emit('selectNft', nftList.value[0]);
       } else
-        emit("selectNft", {
-          id: "",
-          contract: "",
-          image: "",
-          name: "No NFTs found",
-          url: "",
-          collectionName: "",
+        emit('selectNft', {
+          id: '',
+          contract: '',
+          image: '',
+          name: 'No NFTs found',
+          url: '',
+          collectionName: '',
           type: NFTType.ERC721,
         });
     });
@@ -110,8 +110,8 @@ onMounted(() => {
 </script>
 
 <style lang="less">
-@import "@action/styles/theme.less";
-@import "@action/styles/custom-scroll.less";
+@import '@action/styles/theme.less';
+@import '@action/styles/custom-scroll.less';
 
 .nft-select-list {
   width: 100%;

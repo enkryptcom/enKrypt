@@ -9,16 +9,16 @@
 </template>
 
 <script setup lang="ts">
-import RightArrow from "@action/icons/common/right-arrow.vue";
-import ExternalIcon from "@action/icons/common/external-icon.vue";
+import RightArrow from '@action/icons/common/right-arrow.vue';
+import ExternalIcon from '@action/icons/common/external-icon.vue';
 defineEmits<{
-  (e: "click"): void;
+  (e: 'click'): void;
 }>();
 defineProps({
   title: {
     type: String,
     default: () => {
-      return "";
+      return '';
     },
   },
   isRed: {
@@ -37,7 +37,7 @@ defineProps({
 </script>
 
 <style lang="less">
-@import "@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .settings-button {
   height: 48px;
@@ -47,7 +47,7 @@ defineProps({
   border: 1px solid @gray02;
   box-sizing: border-box;
   border-radius: 10px;
-  width: calc(~"100% - 64px");
+  width: calc(~'100% - 64px');
   padding: 12px 16px;
   display: block;
   position: relative;

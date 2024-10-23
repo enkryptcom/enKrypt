@@ -1,8 +1,8 @@
-import { MiddlewareFunction } from "@enkryptcom/types";
-import KadenaProvider from "..";
-import { ProviderRPCRequest } from "@/types/provider";
-import { getCustomError } from "@/libs/error";
-import type KadenaAPI from "@/providers/kadena/libs/api";
+import { MiddlewareFunction } from '@enkryptcom/types';
+import KadenaProvider from '..';
+import { ProviderRPCRequest } from '@/types/provider';
+import { getCustomError } from '@/libs/error';
+import type KadenaAPI from '@/providers/kadena/libs/api';
 
 const method: MiddlewareFunction = function (
   this: KadenaProvider,
@@ -10,10 +10,10 @@ const method: MiddlewareFunction = function (
   res,
   next,
 ): void {
-  if (payload.method !== "kda_getBalance") return next();
+  if (payload.method !== 'kda_getBalance') return next();
   else {
     if (!payload.params || payload.params.length < 2) {
-      return res(getCustomError("kda_getBalance: invalid params"));
+      return res(getCustomError('kda_getBalance: invalid params'));
     }
 
     const address = payload.params[0];

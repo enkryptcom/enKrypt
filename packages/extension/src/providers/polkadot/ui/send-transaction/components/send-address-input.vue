@@ -21,21 +21,21 @@
 </template>
 
 <script setup lang="ts">
-import { BaseNetwork } from "@/types/base-network";
-import { replaceWithEllipsis } from "@/ui/action/utils/filters";
-import { polkadotEncodeAddress } from "@enkryptcom/utils";
-import { computed, PropType, ref } from "vue";
+import { BaseNetwork } from '@/types/base-network';
+import { replaceWithEllipsis } from '@/ui/action/utils/filters';
+import { polkadotEncodeAddress } from '@enkryptcom/utils';
+import { computed, PropType, ref } from 'vue';
 
 const emit = defineEmits<{
-  (e: "update:inputAddress", address: string): void;
-  (e: "toggle:showContacts", show: boolean): void;
+  (e: 'update:inputAddress', address: string): void;
+  (e: 'toggle:showContacts', show: boolean): void;
 }>();
 
 const props = defineProps({
   value: {
     type: String,
     default: () => {
-      return "";
+      return '';
     },
   },
   from: {
@@ -54,7 +54,7 @@ const isFocus = ref(false);
 
 const pasteFromClipboard = () => {
   addressInput.value?.focus();
-  document.execCommand("paste");
+  document.execCommand('paste');
 };
 
 defineExpose({ addressInput, pasteFromClipboard });
@@ -79,7 +79,7 @@ const address = computed({
   },
   set: value => {
     if (value) {
-      emit("update:inputAddress", value);
+      emit('update:inputAddress', value);
     }
   },
 });
@@ -94,13 +94,13 @@ const isAddress = computed(() => {
 });
 
 const changeFocus = (val: FocusEvent) => {
-  isFocus.value = val.type === "focus";
-  if (isFocus.value) emit("toggle:showContacts", isFocus.value);
+  isFocus.value = val.type === 'focus';
+  if (isFocus.value) emit('toggle:showContacts', isFocus.value);
 };
 </script>
 
 <style lang="less">
-@import "@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .send-address-input {
   height: 64px;
@@ -110,7 +110,7 @@ const changeFocus = (val: FocusEvent) => {
   border: 1px solid @gray02;
   box-sizing: border-box;
   border-radius: 10px;
-  width: calc(~"100% - 64px");
+  width: calc(~'100% - 64px');
   padding: 16px;
   display: flex;
   justify-content: flex-start;
@@ -120,7 +120,7 @@ const changeFocus = (val: FocusEvent) => {
 
   &.focus {
     border: 2px solid @primary;
-    width: calc(~"100% - 62px");
+    width: calc(~'100% - 62px');
     margin: 12px 31px 8px 31px;
   }
 

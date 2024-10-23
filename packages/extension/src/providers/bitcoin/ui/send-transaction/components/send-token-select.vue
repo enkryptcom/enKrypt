@@ -6,7 +6,7 @@
     <div class="send-token-select__info">
       <h5>{{ token.name }}</h5>
       <p>
-        {{ balance ? $filters.formatFloatingPointValue(balance).value : "~" }}
+        {{ balance ? $filters.formatFloatingPointValue(balance).value : '~' }}
         <span>{{ token.symbol }}</span>
       </p>
     </div>
@@ -14,9 +14,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, PropType } from "vue";
-import { fromBase } from "@enkryptcom/utils";
-import { BaseToken } from "@/types/base-token";
+import { computed, PropType } from 'vue';
+import { fromBase } from '@enkryptcom/utils';
+import { BaseToken } from '@/types/base-token';
 
 const props = defineProps({
   token: {
@@ -35,7 +35,7 @@ const balance = computed(() =>
 </script>
 
 <style lang="less">
-@import "@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .send-token-select {
   height: 64px;
@@ -45,7 +45,7 @@ const balance = computed(() =>
   border: 1px solid @gray02;
   box-sizing: border-box;
   border-radius: 10px;
-  width: calc(~"100% - 64px");
+  width: calc(~'100% - 64px');
   padding: 16px;
   display: flex;
   justify-content: flex-start;

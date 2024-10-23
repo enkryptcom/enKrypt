@@ -1,9 +1,9 @@
-import { GasFeeType, GasPriceTypes } from "@/providers/common/types";
-import Transaction from "@/providers/ethereum/libs/transaction";
-import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
-import { fromBase } from "@enkryptcom/utils";
-import BigNumber from "bignumber.js";
-import { toBN } from "web3-utils";
+import { GasFeeType, GasPriceTypes } from '@/providers/common/types';
+import Transaction from '@/providers/ethereum/libs/transaction';
+import { EvmNetwork } from '@/providers/ethereum/types/evm-network';
+import { fromBase } from '@enkryptcom/utils';
+import BigNumber from 'bignumber.js';
+import { toBN } from 'web3-utils';
 
 export const getEVMTransactionFees = async (
   txs: Transaction[],
@@ -92,25 +92,25 @@ export const getEVMTransactionFees = async (
       nativeValue: finalVal[GasPriceTypes.ECONOMY].nativeValue,
       fiatValue: finalVal[GasPriceTypes.ECONOMY].fiatValue.toString(),
       nativeSymbol: network.currencyName,
-      fiatSymbol: "USD",
+      fiatSymbol: 'USD',
     },
     [GasPriceTypes.REGULAR]: {
       nativeValue: finalVal[GasPriceTypes.REGULAR].nativeValue,
       fiatValue: finalVal[GasPriceTypes.REGULAR].fiatValue.toString(),
       nativeSymbol: network.currencyName,
-      fiatSymbol: "USD",
+      fiatSymbol: 'USD',
     },
     [GasPriceTypes.FAST]: {
       nativeValue: finalVal[GasPriceTypes.FAST].nativeValue,
       fiatValue: finalVal[GasPriceTypes.FAST].fiatValue.toString(),
       nativeSymbol: network.currencyName,
-      fiatSymbol: "USD",
+      fiatSymbol: 'USD',
     },
     [GasPriceTypes.FASTEST]: {
       nativeValue: finalVal[GasPriceTypes.FASTEST].nativeValue,
       fiatValue: finalVal[GasPriceTypes.FASTEST].fiatValue.toString(),
       nativeSymbol: network.currencyName,
-      fiatSymbol: "USD",
+      fiatSymbol: 'USD',
     },
   };
 };

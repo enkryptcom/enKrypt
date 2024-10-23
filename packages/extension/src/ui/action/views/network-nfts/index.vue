@@ -49,21 +49,21 @@
 </template>
 
 <script setup lang="ts">
-import { useRoute } from "vue-router";
-import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
-import NetworkNftsCategory from "./components/network-nfts-category.vue";
-import NetworkNftsFavorite from "./components/network-nfts-favorite.vue";
-import NetworkNftsHidden from "./components/network-nfts-hidden.vue";
-import NetworkNftsEmpty from "./components/network-nfts-empty.vue";
-import { onMounted, PropType, ref, watch, computed } from "vue";
-import { NodeType } from "@/types/provider";
-import { AccountsHeaderData } from "../../types/account";
-import { NFTCollection, NFTItem } from "@/types/nft";
-import NFTState from "@/libs/nft-state";
-import scrollSettings from "@/libs/utils/scroll-settings";
-import NftDetailView from "@action/views/nft-detail-view/index.vue";
-import { trackNFTEvents } from "@/libs/metrics";
-import { NFTEventType } from "@/libs/metrics/types";
+import { useRoute } from 'vue-router';
+import CustomScrollbar from '@action/components/custom-scrollbar/index.vue';
+import NetworkNftsCategory from './components/network-nfts-category.vue';
+import NetworkNftsFavorite from './components/network-nfts-favorite.vue';
+import NetworkNftsHidden from './components/network-nfts-hidden.vue';
+import NetworkNftsEmpty from './components/network-nfts-empty.vue';
+import { onMounted, PropType, ref, watch, computed } from 'vue';
+import { NodeType } from '@/types/provider';
+import { AccountsHeaderData } from '../../types/account';
+import { NFTCollection, NFTItem } from '@/types/nft';
+import NFTState from '@/libs/nft-state';
+import scrollSettings from '@/libs/utils/scroll-settings';
+import NftDetailView from '@action/views/nft-detail-view/index.vue';
+import { trackNFTEvents } from '@/libs/metrics';
+import { NFTEventType } from '@/libs/metrics/types';
 
 const nftState = new NFTState();
 const props = defineProps({
@@ -127,7 +127,7 @@ const updateNFTInfo = async () => {
     props.network
       .NFTHandler(
         props.network,
-        props.accountInfo.selectedAccount?.address || "",
+        props.accountInfo.selectedAccount?.address || '',
       )
       .then(collections => {
         liveNFTCollection.value = collections;
@@ -168,8 +168,8 @@ const isFavorite = computed(() => {
 </script>
 
 <style lang="less" scoped>
-@import "@action/styles/theme.less";
-@import "@action/styles/custom-scroll.less";
+@import '@action/styles/theme.less';
+@import '@action/styles/custom-scroll.less';
 
 .container {
   width: 100%;

@@ -1,7 +1,7 @@
-import { SignerType } from "@enkryptcom/types";
-import { u8aToHex, u8aConcat, hexToU8a } from "@polkadot/util";
-import { polkadotEncodeAddress } from "@enkryptcom/utils";
-import { GenericExtrinsicPayload } from "@polkadot/types";
+import { SignerType } from '@enkryptcom/types';
+import { u8aToHex, u8aConcat, hexToU8a } from '@polkadot/util';
+import { polkadotEncodeAddress } from '@enkryptcom/utils';
+import { GenericExtrinsicPayload } from '@polkadot/types';
 
 export const TYPE_PREFIX = {
   ecdsa: new Uint8Array([2]),

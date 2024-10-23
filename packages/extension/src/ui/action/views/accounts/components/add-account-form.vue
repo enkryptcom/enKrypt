@@ -47,24 +47,24 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, PropType, ref, watch } from "vue";
-import BaseButton from "@action/components/base-button/index.vue";
-import { NodeType } from "@/types/provider";
-import { sendToBackgroundFromAction } from "@/libs/messenger/extension";
-import { InternalMethods } from "@/types/messenger";
-import { EnkryptAccount, KeyRecordAdd, WalletType } from "@enkryptcom/types";
-import Keyring from "@/libs/keyring/public-keyring";
+import { onMounted, PropType, ref, watch } from 'vue';
+import BaseButton from '@action/components/base-button/index.vue';
+import { NodeType } from '@/types/provider';
+import { sendToBackgroundFromAction } from '@/libs/messenger/extension';
+import { InternalMethods } from '@/types/messenger';
+import { EnkryptAccount, KeyRecordAdd, WalletType } from '@enkryptcom/types';
+import Keyring from '@/libs/keyring/public-keyring';
 
 const isFocus = ref(false);
-const accountName = ref("");
+const accountName = ref('');
 const newAccount = ref<EnkryptAccount | null>(null);
 const isDisabled = ref(true);
 const addAccountInput = ref(null);
 
 defineExpose({ addAccountInput });
 const emit = defineEmits<{
-  (e: "window:close"): void;
-  (e: "update:init"): void;
+  (e: 'window:close'): void;
+  (e: 'update:init'): void;
 }>();
 
 const props = defineProps({
@@ -76,7 +76,7 @@ const props = defineProps({
 const kr = new Keyring();
 const setNewAccountInfo = async () => {
   const keyReq: KeyRecordAdd = {
-    name: "",
+    name: '',
     basePath: props.network.basePath,
     signerType: props.network.signer[0],
     walletType: WalletType.mnemonic,
@@ -120,14 +120,14 @@ const addAccount = async () => {
       params: [keyReq],
     }),
   }).then(() => {
-    emit("update:init");
-    emit("window:close");
+    emit('update:init');
+    emit('window:close');
   });
 };
 </script>
 
 <style lang="less" scoped>
-@import "@action/styles/theme.less";
+@import '@action/styles/theme.less';
 .add-account-form {
   background: @white;
   box-shadow:

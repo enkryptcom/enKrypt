@@ -1,18 +1,18 @@
-import { BaseNetwork } from "@/types/base-network";
-import getRequestProvider, { RequestClass } from "@enkryptcom/request";
-import Networks from "./networks";
-import { MiddlewareFunction, OnMessageResponse } from "@enkryptcom/types";
-import Middlewares from "./methods";
-import EventEmitter from "eventemitter3";
+import { BaseNetwork } from '@/types/base-network';
+import getRequestProvider, { RequestClass } from '@enkryptcom/request';
+import Networks from './networks';
+import { MiddlewareFunction, OnMessageResponse } from '@enkryptcom/types';
+import Middlewares from './methods';
+import EventEmitter from 'eventemitter3';
 import {
   BackgroundProviderInterface,
   ProviderName,
   ProviderRPCRequest,
-} from "@/types/provider";
-import GetUIPath from "@/libs/utils/get-ui-path";
-import PublicKeyRing from "@/libs/keyring/public-keyring";
-import UIRoutes from "./ui/routes/names";
-import { EvmNetwork } from "./types/evm-network";
+} from '@/types/provider';
+import GetUIPath from '@/libs/utils/get-ui-path';
+import PublicKeyRing from '@/libs/keyring/public-keyring';
+import UIRoutes from './ui/routes/names';
+import { EvmNetwork } from './types/evm-network';
 class EthereumProvider
   extends EventEmitter
   implements BackgroundProviderInterface
@@ -33,7 +33,7 @@ class EthereumProvider
     this.toWindow = toWindow;
     this.setMiddleWares();
     this.requestProvider = getRequestProvider(network.node, this.middlewares);
-    this.requestProvider.on("notification", (notif: any) => {
+    this.requestProvider.on('notification', (notif: any) => {
       this.sendNotification(JSON.stringify(notif));
     });
     this.namespace = ProviderName.ethereum;
@@ -52,7 +52,7 @@ class EthereumProvider
       this.requestProvider = getRequestProvider(network.node, this.middlewares);
   }
   async isPersistentEvent(request: ProviderRPCRequest): Promise<boolean> {
-    if (request.method === "eth_subscribe") return true;
+    if (request.method === 'eth_subscribe') return true;
     return false;
   }
   async sendNotification(notif: string): Promise<void> {

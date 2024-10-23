@@ -1,18 +1,18 @@
-import { getCustomError } from "@/libs/error";
-import { MiddlewareFunction } from "@enkryptcom/types";
-import EthereumProvider from "..";
-import { WindowPromise } from "@/libs/window-promise";
-import { isHexStrict, utf8ToHex } from "web3-utils";
+import { getCustomError } from '@/libs/error';
+import { MiddlewareFunction } from '@enkryptcom/types';
+import EthereumProvider from '..';
+import { WindowPromise } from '@/libs/window-promise';
+import { isHexStrict, utf8ToHex } from 'web3-utils';
 const method: MiddlewareFunction = function (
   this: EthereumProvider,
   payload,
   res,
   next,
 ): void {
-  if (payload.method !== "personal_sign") return next();
+  if (payload.method !== 'personal_sign') return next();
   else {
     if (!payload.params || payload.params.length < 2) {
-      return res(getCustomError("personal_sign: invalid params"));
+      return res(getCustomError('personal_sign: invalid params'));
     }
     let msg = payload.params[0];
     let address = payload.params[1].toLowerCase();

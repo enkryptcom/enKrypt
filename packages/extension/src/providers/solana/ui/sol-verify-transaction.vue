@@ -19,8 +19,8 @@
             <div>
               <p>
                 {{
-                  TokenBalance == "~"
-                    ? "~"
+                  TokenBalance == '~'
+                    ? '~'
                     : $filters.formatFloatingPointValue(TokenBalance).value
                 }}
                 <span>{{ network.currencyName }}</span>
@@ -59,7 +59,7 @@
 
             <div class="provider-verify-transaction__amount-info">
               <h4 :class="item.isNegative ? 'make-me-red' : ''">
-                {{ item.isNegative ? "-" : "" }}
+                {{ item.isNegative ? '-' : '' }}
                 {{
                   $filters.formatFloatingPointValue(
                     fromBase(item.change.toString(), item.decimals),
@@ -68,7 +68,7 @@
                 <span>{{ item.symbol }}</span>
               </h4>
               <p :class="item.isNegative ? 'make-me-red' : ''">
-                {{ item.isNegative ? "-" : "" }}
+                {{ item.isNegative ? '-' : '' }}
                 ${{ $filters.formatFiatValue(parseFloat(item.USDval)).value }}
               </p>
             </div>
@@ -116,78 +116,78 @@
 </template>
 
 <script setup lang="ts">
-import { ref, ComponentPublicInstance, onBeforeMount } from "vue";
-import SignLogo from "@action/icons/common/sign-logo.vue";
-import BaseButton from "@action/components/base-button/index.vue";
-import CommonPopup from "@action/views/common-popup/index.vue";
-import SendFeeSelect from "./send-transaction/components/send-fee-select.vue";
-import HardwareWalletMsg from "@/providers/common/ui/verify-transaction/hardware-wallet-msg.vue";
-import { getError } from "@/libs/error";
-import { ErrorCodes } from "@/providers/ethereum/types";
-import { WindowPromiseHandler } from "@/libs/window-promise";
-import SwapLookingAnimation from "@action/icons/swap/swap-looking-animation.vue";
+import { ref, ComponentPublicInstance, onBeforeMount } from 'vue';
+import SignLogo from '@action/icons/common/sign-logo.vue';
+import BaseButton from '@action/components/base-button/index.vue';
+import CommonPopup from '@action/views/common-popup/index.vue';
+import SendFeeSelect from './send-transaction/components/send-fee-select.vue';
+import HardwareWalletMsg from '@/providers/common/ui/verify-transaction/hardware-wallet-msg.vue';
+import { getError } from '@/libs/error';
+import { ErrorCodes } from '@/providers/ethereum/types';
+import { WindowPromiseHandler } from '@/libs/window-promise';
+import SwapLookingAnimation from '@action/icons/swap/swap-looking-animation.vue';
 import {
   DEFAULT_SOLANA_NETWORK,
   getNetworkByName,
-} from "@/libs/utils/networks";
-import { ProviderRequestOptions } from "@/types/provider";
-import BigNumber from "bignumber.js";
-import { GasFeeType, GasPriceTypes } from "@/providers/common/types";
-import MarketData from "@/libs/market-data";
-import { defaultGasCostVals } from "@/providers/common/libs/default-vals";
-import { EnkryptAccount } from "@enkryptcom/types";
-import { Activity, ActivityStatus, ActivityType } from "@/types/activity";
-import ActivityState from "@/libs/activity-state";
-import { fromBase, bufferToHex, hexToBuffer } from "@enkryptcom/utils";
-import AlertIcon from "@action/icons/send/alert-icon.vue";
-import { trackSendEvents } from "@/libs/metrics";
-import { SendEventType } from "@/libs/metrics/types";
-import { SolanaNetwork } from "../types/sol-network";
-import SolanaAPI from "@/providers/solana/libs/api";
+} from '@/libs/utils/networks';
+import { ProviderRequestOptions } from '@/types/provider';
+import BigNumber from 'bignumber.js';
+import { GasFeeType, GasPriceTypes } from '@/providers/common/types';
+import MarketData from '@/libs/market-data';
+import { defaultGasCostVals } from '@/providers/common/libs/default-vals';
+import { EnkryptAccount } from '@enkryptcom/types';
+import { Activity, ActivityStatus, ActivityType } from '@/types/activity';
+import ActivityState from '@/libs/activity-state';
+import { fromBase, bufferToHex, hexToBuffer } from '@enkryptcom/utils';
+import AlertIcon from '@action/icons/send/alert-icon.vue';
+import { trackSendEvents } from '@/libs/metrics';
+import { SendEventType } from '@/libs/metrics/types';
+import { SolanaNetwork } from '../types/sol-network';
+import SolanaAPI from '@/providers/solana/libs/api';
 import {
   PublicKey,
   SendOptions,
   VersionedTransaction,
   Transaction as LegacyTransaction,
   ComputeBudgetProgram,
-} from "@solana/web3.js";
-import { SolSignTransactionRequest } from "./types";
-import bs58 from "bs58";
-import DecodeTransaction, { DecodedTxResponseType } from "./libs/decode-tx";
-import { TransactionSigner } from "./libs/signer";
-import { NATIVE_TOKEN_ADDRESS } from "@/providers/ethereum/libs/common";
-import getPrioritizationFees from "./libs/get-priority-fees";
+} from '@solana/web3.js';
+import { SolSignTransactionRequest } from './types';
+import bs58 from 'bs58';
+import DecodeTransaction, { DecodedTxResponseType } from './libs/decode-tx';
+import { TransactionSigner } from './libs/signer';
+import { NATIVE_TOKEN_ADDRESS } from '@/providers/ethereum/libs/common';
+import getPrioritizationFees from './libs/get-priority-fees';
 
 const isProcessing = ref(false);
 const providerVerifyTransactionScrollRef = ref<ComponentPublicInstance>();
-const TokenBalance = ref<string>("~");
+const TokenBalance = ref<string>('~');
 const network = ref<SolanaNetwork>(DEFAULT_SOLANA_NETWORK);
 const marketdata = new MarketData();
 const activityState = new ActivityState();
 const gasCostValues = ref<GasFeeType>(defaultGasCostVals);
 const decodedTx = ref<DecodedTxResponseType[] | null>([]);
-const errorMsg = ref("");
+const errorMsg = ref('');
 const account = ref<EnkryptAccount>({
-  name: "",
-  address: "",
+  name: '',
+  address: '',
 } as EnkryptAccount);
-const identicon = ref<string>("");
+const identicon = ref<string>('');
 const windowPromise = WindowPromiseHandler(5);
 const Options = ref<ProviderRequestOptions>({
-  domain: "",
-  faviconURL: "",
-  title: "",
-  url: "",
+  domain: '',
+  faviconURL: '',
+  title: '',
+  url: '',
   tabId: 0,
 });
 const selectedFee = ref<GasPriceTypes>(GasPriceTypes.ECONOMY);
 const solConnection = ref<SolanaAPI>();
 const Tx = ref<VersionedTransaction | LegacyTransaction>();
-const TxType = ref<"legacy" | 0>(0);
+const TxType = ref<'legacy' | 0>(0);
 const accountPubkey = ref<PublicKey>();
 const sendOptions = ref<SendOptions>({});
-const payloadMethod = ref<"sol_signTransaction" | "sol_signAndSendTransaction">(
-  "sol_signTransaction",
+const payloadMethod = ref<'sol_signTransaction' | 'sol_signAndSendTransaction'>(
+  'sol_signTransaction',
 );
 defineExpose({ providerVerifyTransactionScrollRef });
 onBeforeMount(async () => {
@@ -218,7 +218,7 @@ onBeforeMount(async () => {
   sendOptions.value = JSON.parse(Request.value.params![2]) as SendOptions;
   Tx.value = VersionedTransaction.deserialize(hexToBuffer(txMessage.hex));
   TxType.value = Tx.value.version;
-  if (TxType.value === "legacy") {
+  if (TxType.value === 'legacy') {
     Tx.value = LegacyTransaction.from(hexToBuffer(txMessage.hex));
     let isPriorityFeesSet = false;
     Tx.value.instructions.forEach(i => {
@@ -241,14 +241,14 @@ onBeforeMount(async () => {
     ).blockhash;
   }
   const feeMessage =
-    TxType.value === "legacy"
+    TxType.value === 'legacy'
       ? (Tx.value as LegacyTransaction).compileMessage()
       : (Tx.value as VersionedTransaction).message;
   solConnection.value.web3.getFeeForMessage(feeMessage).then(fee => {
     const getConvertedVal = () =>
       fromBase(fee.value!.toString(), network.value.decimals);
     marketdata
-      .getTokenValue("1", network.value.coingeckoID!, "USD")
+      .getTokenValue('1', network.value.coingeckoID!, 'USD')
       .then(val => {
         const nativeVal = val;
         gasCostValues.value[GasPriceTypes.ECONOMY] = {
@@ -257,7 +257,7 @@ onBeforeMount(async () => {
             .times(nativeVal!)
             .toString(),
           nativeSymbol: network.value.currencyName,
-          fiatSymbol: "USD",
+          fiatSymbol: 'USD',
         };
       });
   });
@@ -282,14 +282,14 @@ const approve = async () => {
   });
   const latestBlockHash = (await solConnection.value!.web3.getLatestBlockhash())
     .blockhash;
-  if (TxType.value === "legacy") {
+  if (TxType.value === 'legacy') {
     (Tx.value as LegacyTransaction).recentBlockhash = latestBlockHash;
   } else {
     (Tx.value as VersionedTransaction).message.recentBlockhash =
       latestBlockHash;
   }
   const msgToSign =
-    TxType.value !== "legacy"
+    TxType.value !== 'legacy'
       ? (Tx.value! as VersionedTransaction).message.serialize()
       : (Tx.value! as LegacyTransaction).serializeMessage();
   const feePayer = new PublicKey(
@@ -305,7 +305,7 @@ const approve = async () => {
       const toData =
         decodedTx.value && decodedTx.value.length ? decodedTx.value[0] : null;
       const TransactionHash =
-        TxType.value !== "legacy"
+        TxType.value !== 'legacy'
           ? (Tx.value as VersionedTransaction).signatures[0]
           : (Tx.value as LegacyTransaction).signatures[0].signature;
       const txActivity: Activity = {
@@ -320,15 +320,15 @@ const approve = async () => {
           icon: toData ? toData.icon : network.value.icon,
           name: toData ? toData.name : network.value.currencyNameLong,
           symbol: toData ? toData.symbol : network.value.currencyName,
-          price: toData ? toData.price : "0",
+          price: toData ? toData.price : '0',
         },
         type: ActivityType.transaction,
-        value: toData ? toData.change.toString() : "0",
+        value: toData ? toData.change.toString() : '0',
         transactionHash: bs58.encode(TransactionHash!),
       };
       txActivity.to =
         txActivity.to === NATIVE_TOKEN_ADDRESS
-          ? "11111111111111111111111111111111"
+          ? '11111111111111111111111111111111'
           : txActivity.to;
       activityState
         .addActivities(
@@ -349,7 +349,7 @@ const approve = async () => {
           trackSendEvents(SendEventType.SendAPIComplete, {
             network: network.value.name,
           });
-          if (payloadMethod.value === "sol_signTransaction") {
+          if (payloadMethod.value === 'sol_signTransaction') {
             Resolve.value({
               result: JSON.stringify(bufferToHex(Tx.value!.serialize())),
             });
@@ -383,8 +383,8 @@ const deny = async () => {
 </script>
 
 <style lang="less">
-@import "@action/styles/theme.less";
-@import "@/providers/common/ui/styles/verify-transaction.less";
+@import '@action/styles/theme.less';
+@import '@/providers/common/ui/styles/verify-transaction.less';
 .make-me-red {
   color: #f0580c !important;
 }

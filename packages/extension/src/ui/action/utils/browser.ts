@@ -1,12 +1,12 @@
-import Browser from "webextension-polyfill";
+import Browser from 'webextension-polyfill';
 
 export const BROWSER_NAMES = {
-  chrome: "chrome",
-  firefox: "firefox",
-  brave: "brave",
-  edge: "edge",
-  opera: "opera",
-  safari: "safari",
+  chrome: 'chrome',
+  firefox: 'firefox',
+  brave: 'brave',
+  edge: 'edge',
+  opera: 'opera',
+  safari: 'safari',
 };
 
 export const detectOS = (): Promise<{ os: string; arch: string }> => {
@@ -36,20 +36,20 @@ export const detectBrowser = (): string => {
   if (userAgent.match(/firefox|fxios/i)) {
     return BROWSER_NAMES.firefox;
   }
-  return "";
+  return '';
 };
 
 export const openLink = (url: string) => {
   if (detectBrowser() === BROWSER_NAMES.firefox) {
     Browser.windows.create({ url, focused: true });
   } else {
-    window.open(url, "_blank", "noopener");
+    window.open(url, '_blank', 'noopener');
   }
 };
 
 export const getLatestEnkryptVersion = (): Promise<string> => {
   return fetch(
-    "https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/configs/versions.json",
+    'https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/configs/versions.json',
   )
     .then(res => res.json())
     .then(versions => {

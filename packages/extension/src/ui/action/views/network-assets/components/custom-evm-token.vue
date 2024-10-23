@@ -43,9 +43,9 @@
               {{
                 accountBalance
                   ? $filters.formatFloatingPointValue(
-                      fromBase(accountBalance ?? "0", tokenInfo.decimals),
+                      fromBase(accountBalance ?? '0', tokenInfo.decimals),
                     ).value
-                  : "~"
+                  : '~'
               }}
               <span>{{ tokenInfo.symbol }}</span>
             </p>
@@ -83,24 +83,24 @@
   </div>
 </template>
 <script setup lang="ts">
-import API from "@/providers/ethereum/libs/api";
-import { computed, ref, toRaw, watch } from "vue";
-import { Erc20Token } from "@/providers/ethereum/types/erc20-token";
-import { fromBase } from "@enkryptcom/utils";
-import CloseIcon from "@/ui/action/icons/common/close-icon.vue";
-import BaseButton from "@action/components/base-button/index.vue";
-import AlertIcon from "@action/icons/send/alert-icon.vue";
-import WarnIcon from "@action/icons/send/warning-icon.vue";
-import { TokensState } from "@/libs/tokens-state";
-import { CustomErc20Token, TokenType } from "@/libs/tokens-state/types";
-import { AssetsType } from "@/types/provider";
-import { formatFloatingPointValue } from "@/libs/utils/number-formatter";
-import MarketData from "@/libs/market-data";
-import Tooltip from "@/ui/action/components/tooltip/index.vue";
-import { CoinGeckoTokenMarket } from "@/libs/market-data/types";
-import BigNumber from "bignumber.js";
-import Sparkline from "@/libs/sparkline";
-import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
+import API from '@/providers/ethereum/libs/api';
+import { computed, ref, toRaw, watch } from 'vue';
+import { Erc20Token } from '@/providers/ethereum/types/erc20-token';
+import { fromBase } from '@enkryptcom/utils';
+import CloseIcon from '@/ui/action/icons/common/close-icon.vue';
+import BaseButton from '@action/components/base-button/index.vue';
+import AlertIcon from '@action/icons/send/alert-icon.vue';
+import WarnIcon from '@action/icons/send/warning-icon.vue';
+import { TokensState } from '@/libs/tokens-state';
+import { CustomErc20Token, TokenType } from '@/libs/tokens-state/types';
+import { AssetsType } from '@/types/provider';
+import { formatFloatingPointValue } from '@/libs/utils/number-formatter';
+import MarketData from '@/libs/market-data';
+import Tooltip from '@/ui/action/components/tooltip/index.vue';
+import { CoinGeckoTokenMarket } from '@/libs/market-data/types';
+import BigNumber from 'bignumber.js';
+import Sparkline from '@/libs/sparkline';
+import { EvmNetwork } from '@/providers/ethereum/types/evm-network';
 
 interface IProps {
   network: EvmNetwork;
@@ -108,8 +108,8 @@ interface IProps {
 }
 
 const emits = defineEmits<{
-  (e: "update:close"): void;
-  (e: "update:token-added", asset: AssetsType): void;
+  (e: 'update:close'): void;
+  (e: 'update:token-added', asset: AssetsType): void;
 }>();
 
 const props = defineProps<IProps>();
@@ -145,7 +145,7 @@ watch([contractAddress, props], async () => {
 
     const info = await api.getTokenInfo(contractAddress.value!.toLowerCase());
 
-    if (info.name !== "Unknown") {
+    if (info.name !== 'Unknown') {
       let icon = props.network.icon;
       let coingeckoID: string | undefined;
 
@@ -164,7 +164,7 @@ watch([contractAddress, props], async () => {
         coingeckoID = contractInfo.id;
       }
 
-      if (props.address !== "") {
+      if (props.address !== '') {
         const erc20Token = new Erc20Token({
           name: info.name,
           symbol: info.symbol,
@@ -199,11 +199,11 @@ watch([contractAddress, props], async () => {
 });
 
 const changeFocus = (val: FocusEvent) => {
-  isFocus.value = val.type === "focus";
+  isFocus.value = val.type === 'focus';
 };
 
 const close = () => {
-  emits("update:close");
+  emits('update:close');
 };
 
 const addToken = async () => {
@@ -215,22 +215,22 @@ const addToken = async () => {
 
     if (inserted) {
       const balance = fromBase(
-        accountBalance.value ?? "0",
+        accountBalance.value ?? '0',
         tokenInfo.value.decimals,
       );
       const balancef = formatFloatingPointValue(
-        fromBase(accountBalance.value ?? "0", tokenInfo.value.decimals),
+        fromBase(accountBalance.value ?? '0', tokenInfo.value.decimals),
       ).value;
       const balanceUSD = market.value
         ? new BigNumber(balancef).times(market.value.current_price!).toNumber()
         : 0;
       const balanceUSDf = market.value
         ? new BigNumber(balancef).times(market.value.current_price!).toString()
-        : "0";
-      const value = market.value?.current_price!.toString() ?? "0";
+        : '0';
+      const value = market.value?.current_price!.toString() ?? '0';
       const sparkline = market.value
         ? new Sparkline(market.value?.sparkline_in_24h.price, 25).dataValues
-        : "";
+        : '';
       const priceChangePercentage =
         market.value?.price_change_percentage_24h ?? 0;
       const icon = tokenInfo.value.icon;
@@ -251,15 +251,15 @@ const addToken = async () => {
         icon,
       };
 
-      emits("update:token-added", newAsset);
+      emits('update:token-added', newAsset);
     }
 
-    emits("update:close");
+    emits('update:close');
   }
 };
 </script>
 <style lang="less" scoped>
-@import "@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .container {
   display: flex;
@@ -324,7 +324,7 @@ const addToken = async () => {
     border: 1px solid @gray02;
     box-sizing: border-box;
     border-radius: 10px;
-    width: calc(~"100% - 64px");
+    width: calc(~'100% - 64px');
     padding: 16px;
     display: flex;
     justify-content: flex-start;
@@ -334,7 +334,7 @@ const addToken = async () => {
 
     &.focus {
       border: 2px solid @primary;
-      width: calc(~"100% - 62px");
+      width: calc(~'100% - 62px');
       margin: 12px 31px 8px 31px;
     }
 
@@ -379,7 +379,7 @@ const addToken = async () => {
     border: 1px solid @gray02;
     box-sizing: border-box;
     border-radius: 10px;
-    width: calc(~"100% - 64px");
+    width: calc(~'100% - 64px');
     padding: 16px;
     display: flex;
     justify-content: flex-start;

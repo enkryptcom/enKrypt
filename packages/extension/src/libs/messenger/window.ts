@@ -2,18 +2,18 @@ import {
   setNamespace,
   onMessage,
   sendMessage,
-} from "@enkryptcom/extension-bridge/dist/window";
-import { EXTENSION_NAMESPACE } from "@/configs/constants";
+} from '@enkryptcom/extension-bridge/dist/window';
+import { EXTENSION_NAMESPACE } from '@/configs/constants';
 import {
   Message,
   SendMessage,
   MessageType,
   Destination,
   onMessageType,
-} from "@/types/messenger";
-import { OnMessageResponse } from "@enkryptcom/types";
-import { ProviderName } from "@/types/provider";
-import { assert } from "chai";
+} from '@/types/messenger';
+import { OnMessageResponse } from '@enkryptcom/types';
+import { ProviderName } from '@/types/provider';
+import { assert } from 'chai';
 
 export const sendToBackgroundFromWindow = (
   message: SendMessage,
@@ -44,8 +44,8 @@ export const setWindowNamespace = (): void => {
 export const windowOnMessage = (cb: onMessageType): void => {
   onMessage(MessageType.WINDOW_REQUEST, async message => {
     assert(
-      message.sender.context === "background",
-      "Message didnt come from background",
+      message.sender.context === 'background',
+      'Message didnt come from background',
     );
     const msg = message.data as Message;
     msg.sender = message.sender;

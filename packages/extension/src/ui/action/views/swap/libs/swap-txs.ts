@@ -1,6 +1,6 @@
-import type Web3Eth from "web3-eth";
-import EvmAPI from "@/providers/ethereum/libs/api";
-import { getNetworkByName } from "@/libs/utils/networks";
+import type Web3Eth from 'web3-eth';
+import EvmAPI from '@/providers/ethereum/libs/api';
+import { getNetworkByName } from '@/libs/utils/networks';
 import {
   EVMTransaction,
   GenericTransaction,
@@ -8,23 +8,23 @@ import {
   NetworkType,
   SolanaTransaction as EnkryptSolanaTransaction,
   SupportedNetworkName,
-} from "@enkryptcom/swap";
-import { NetworkNames } from "@enkryptcom/types";
-import Transaction from "@/providers/ethereum/libs/transaction";
-import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
-import { SubstrateNativeToken } from "@/providers/polkadot/types/substrate-native-token";
-import { SubstrateNetwork } from "@/providers/polkadot/types/substrate-network";
-import { ApiPromise } from "@polkadot/api";
-import { TransactionType } from "../types";
-import { BitcoinNetwork } from "@/providers/bitcoin/types/bitcoin-network";
-import BitcoinAPI from "@/providers/bitcoin/libs/api";
-import { getTxInfo as getBTCTxInfo } from "@/providers/bitcoin/libs/utils";
-import { toBN } from "web3-utils";
-import { BTCTxInfo } from "@/providers/bitcoin/ui/types";
+} from '@enkryptcom/swap';
+import { NetworkNames } from '@enkryptcom/types';
+import Transaction from '@/providers/ethereum/libs/transaction';
+import { EvmNetwork } from '@/providers/ethereum/types/evm-network';
+import { SubstrateNativeToken } from '@/providers/polkadot/types/substrate-native-token';
+import { SubstrateNetwork } from '@/providers/polkadot/types/substrate-network';
+import { ApiPromise } from '@polkadot/api';
+import { TransactionType } from '../types';
+import { BitcoinNetwork } from '@/providers/bitcoin/types/bitcoin-network';
+import BitcoinAPI from '@/providers/bitcoin/libs/api';
+import { getTxInfo as getBTCTxInfo } from '@/providers/bitcoin/libs/utils';
+import { toBN } from 'web3-utils';
+import { BTCTxInfo } from '@/providers/bitcoin/ui/types';
 import {
   VersionedTransaction as SolanaVersionedTransaction,
   Transaction as SolanaLegacyTransaction,
-} from "@solana/web3.js";
+} from '@solana/web3.js';
 
 export const getSubstrateNativeTransation = async (
   network: SubstrateNetwork,
@@ -40,7 +40,7 @@ export const getSubstrateNativeTransation = async (
     coingeckoID: network!.coingeckoID,
   });
   const txRes = await fromToken.send(api.api as ApiPromise, tx.to, tx.value, {
-    type: "keepAlive",
+    type: 'keepAlive',
   });
   return txRes;
 };
@@ -115,31 +115,31 @@ export const getSwapTransactions = async (
   } else if (netInfo.type === NetworkType.Solana) {
     const solTxs: (
       | {
-          kind: "legacy";
+          kind: 'legacy';
           instance: SolanaLegacyTransaction;
           hasThirdPartySignatures: boolean;
         }
       | {
-          kind: "versioned";
+          kind: 'versioned';
           instance: SolanaVersionedTransaction;
           hasThirdPartySignatures: boolean;
         }
     )[] = (transactions as EnkryptSolanaTransaction[]).map(function (enkSolTx) {
       switch (enkSolTx.kind) {
-        case "legacy":
+        case 'legacy':
           return {
-            kind: "legacy",
+            kind: 'legacy',
             hasThirdPartySignatures: enkSolTx.thirdPartySignatures.length > 0,
             instance: SolanaLegacyTransaction.from(
-              Buffer.from(enkSolTx.serialized, "base64"),
+              Buffer.from(enkSolTx.serialized, 'base64'),
             ),
           };
-        case "versioned":
+        case 'versioned':
           return {
-            kind: "versioned",
+            kind: 'versioned',
             hasThirdPartySignatures: enkSolTx.thirdPartySignatures.length > 0,
             instance: SolanaVersionedTransaction.deserialize(
-              Buffer.from(enkSolTx.serialized, "base64"),
+              Buffer.from(enkSolTx.serialized, 'base64'),
             ),
           };
         default:
@@ -168,6 +168,6 @@ export const getSwapTransactions = async (
     );
     return [tx];
   } else {
-    throw new Error("unsupported network type");
+    throw new Error('unsupported network type');
   }
 };

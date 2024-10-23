@@ -35,15 +35,15 @@
   </div>
 </template>
 <script setup lang="ts">
-import HardwareIcon from "@action/icons/hardware/hardware-icon.vue";
-import LedgerLogo from "@action/icons/hardware/ledger-logo.vue";
-import TrezorLogo from "@action/icons/hardware/trezor-logo.vue";
-import RightArrow from "@action/icons/common/right-arrow.vue";
-import { routes } from "./routes";
-import { useRoute } from "vue-router";
-import { HWwalletType, NetworkNames } from "@enkryptcom/types";
-import HWwallets from "@enkryptcom/hw-wallets";
-import { ref } from "vue";
+import HardwareIcon from '@action/icons/hardware/hardware-icon.vue';
+import LedgerLogo from '@action/icons/hardware/ledger-logo.vue';
+import TrezorLogo from '@action/icons/hardware/trezor-logo.vue';
+import RightArrow from '@action/icons/common/right-arrow.vue';
+import { routes } from './routes';
+import { useRoute } from 'vue-router';
+import { HWwalletType, NetworkNames } from '@enkryptcom/types';
+import HWwallets from '@enkryptcom/hw-wallets';
+import { ref } from 'vue';
 const hwWallet = new HWwallets();
 const isLedgerSupported = ref(false);
 const isTrezorSupported = ref(false);
@@ -70,7 +70,7 @@ hwWallet
 </script>
 
 <style lang="less">
-@import "@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .add-hardware-wallet {
   width: 100%;

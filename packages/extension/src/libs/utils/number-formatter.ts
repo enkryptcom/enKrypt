@@ -1,7 +1,7 @@
-import BigNumber from "bignumber.js";
-import { isNull, isUndefined } from "lodash";
-import { toBN } from "web3-utils";
-import { fromWei } from "web3-utils";
+import BigNumber from 'bignumber.js';
+import { isNull, isUndefined } from 'lodash';
+import { toBN } from 'web3-utils';
+import { fromWei } from 'web3-utils';
 
 interface FormattedValue {
   value: string;
@@ -38,22 +38,22 @@ const OneTrillion = 1e12;
 const OneQuadrillion = 1e15;
 
 const FormattedNumberUnit = {
-  ETH: "ETH",
-  GWEI: "Gwei",
-  WEI: "wei",
-  PERCENT: "%",
-  USD: "$",
-  B: "B",
-  T: "T",
-  Q: "Q",
-  M: "M",
-  FIAT: "fiat",
+  ETH: 'ETH',
+  GWEI: 'Gwei',
+  WEI: 'wei',
+  PERCENT: '%',
+  USD: '$',
+  B: 'B',
+  T: 'T',
+  Q: 'Q',
+  M: 'M',
+  FIAT: 'fiat',
 };
 
 /*  Set the global formatting options */
 const fmt = {
-  decimalSeparator: ".",
-  groupSeparator: ",",
+  decimalSeparator: '.',
+  groupSeparator: ',',
   groupSize: 3,
 };
 BigNumber.config({ FORMAT: fmt });
@@ -131,7 +131,7 @@ function formatFloatingPointValue(
    * Return: "0"
    */
   if (value.isZero() || value.isNaN()) {
-    return { value: "0" };
+    return { value: '0' };
   }
 
   /**
@@ -195,7 +195,7 @@ const formatBalanceEthValue = (
    * Return: "0 ETH"
    */
   if (value.isZero()) {
-    return { value: "0", unit: FormattedNumberUnit.ETH };
+    return { value: '0', unit: FormattedNumberUnit.ETH };
   }
   /**
    * Case II: value < 10,000 wei
@@ -214,7 +214,7 @@ const formatBalanceEthValue = (
    */
   if (value.isLessThan(TenBillion)) {
     return {
-      value: new BigNumber(fromWei(_value.toString(), "gwei")).toFormat(),
+      value: new BigNumber(fromWei(_value.toString(), 'gwei')).toFormat(),
       unit: FormattedNumberUnit.GWEI,
       tooltipText: `${ethValue.toFormat()}`,
     };
@@ -255,7 +255,7 @@ const formatGasValue = (
   _value: BigNumber | string | number,
 ): FormattedValue => {
   const value = new BigNumber(_value);
-  const gweiValue = new BigNumber(fromWei(_value.toString(), "gwei"));
+  const gweiValue = new BigNumber(fromWei(_value.toString(), 'gwei'));
   const ethValue = new BigNumber(fromWei(_value.toString()));
   const unit = FormattedNumberUnit.GWEI;
 
@@ -264,7 +264,7 @@ const formatGasValue = (
    * Return: "0 Gwei"
    */
   if (value.isZero()) {
-    return { value: "0", unit };
+    return { value: '0', unit };
   }
 
   /**
@@ -313,14 +313,14 @@ const formatPercentageValue = (
   _value: BigNumber | string | number,
 ): FormattedValue => {
   /* Strip '%' if necessary */
-  const value = new BigNumber(_value.toString().replaceAll("%", ""));
+  const value = new BigNumber(_value.toString().replaceAll('%', ''));
   const unit = FormattedNumberUnit.PERCENT;
   /**
    * Case I: value === 0
    * Return: "0%"
    */
   if (value.isZero()) {
-    return { value: "0", unit };
+    return { value: '0', unit };
   }
 
   const isNegative = value.isNegative(); // Record whether value is negative
@@ -331,7 +331,7 @@ const formatPercentageValue = (
    * Return: >10,000% or <-10000% and tooltip
    */
   if (absoluteValue.isGreaterThan(TenThousand)) {
-    const result = isNegative ? "< -10,000%" : "> 10,000%";
+    const result = isNegative ? '< -10,000%' : '> 10,000%';
     return {
       value: result,
       unit: unit,
@@ -372,7 +372,7 @@ const formatPercentageValue = (
    * Case VI: If |value| < 0.000001
    * Return: '>-0.000001' '<0.000001'r and tooltip
    */
-  const result = isNegative ? "> -0.000001%" : "< 0.000001%";
+  const result = isNegative ? '> -0.000001%' : '< 0.000001%';
   return { value: result, unit: unit, tooltipText: `${value.toFormat()}%` };
 };
 
@@ -393,7 +393,7 @@ const formatFiatValue = (
    * Return: "$0.00"
    */
   if (value === undefined || value.isZero() || value.isNaN()) {
-    return { value: "0.00" };
+    return { value: '0.00' };
   }
 
   /**
@@ -479,7 +479,7 @@ const convertToTrillions = (value: BigNumber): FormattedValue => {
  */
 const convertToQuadrillion = (value: BigNumber): FormattedValue => {
   return {
-    value: "> 1Q",
+    value: '> 1Q',
     unit: FormattedNumberUnit.Q,
     tooltipText: value.toFormat(),
   };

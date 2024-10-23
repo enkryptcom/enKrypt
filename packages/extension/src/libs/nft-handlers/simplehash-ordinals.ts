@@ -1,20 +1,20 @@
-import { NFTCollection, NFTItem, NFTType } from "@/types/nft";
-import cacheFetch from "../cache-fetch";
-import { NetworkNames } from "@enkryptcom/types";
-import { SHOrdinalsNFTType, SHOrdinalsResponse } from "./types/simplehash";
-import { BaseNetwork } from "@/types/base-network";
-import imgNotFound from "@action/assets/common/not-found.jpg";
-const SH_ENDPOINT = "https://partners.mewapi.io/nfts/";
+import { NFTCollection, NFTItem, NFTType } from '@/types/nft';
+import cacheFetch from '../cache-fetch';
+import { NetworkNames } from '@enkryptcom/types';
+import { SHOrdinalsNFTType, SHOrdinalsResponse } from './types/simplehash';
+import { BaseNetwork } from '@/types/base-network';
+import imgNotFound from '@action/assets/common/not-found.jpg';
+const SH_ENDPOINT = 'https://partners.mewapi.io/nfts/';
 const CACHE_TTL = 1 * 1000;
 export default async (
   network: BaseNetwork,
   address: string,
 ): Promise<NFTCollection[]> => {
   const supportedNetworks = {
-    [NetworkNames.Bitcoin]: "bitcoin",
+    [NetworkNames.Bitcoin]: 'bitcoin',
   };
   if (!Object.keys(supportedNetworks).includes(network.name))
-    throw new Error("Simplehash: network not supported");
+    throw new Error('Simplehash: network not supported');
   let allItems: SHOrdinalsNFTType[] = [];
   const fetchAll = (continuation?: string): Promise<void> => {
     const query = continuation
@@ -39,11 +39,11 @@ export default async (
   const collections: Record<string, NFTCollection> = {};
   allItems.forEach(item => {
     const collectionName =
-      item.extra_metadata.ordinal_details.protocol_name === "brc-20"
-        ? "BRC20"
+      item.extra_metadata.ordinal_details.protocol_name === 'brc-20'
+        ? 'BRC20'
         : item.collection.name
           ? item.collection.name
-          : "Unknown";
+          : 'Unknown';
     const contractAddress =
       item.collection.collection_id || item.contract_address;
     if (!item.image_url && !item.previews.image_medium_url) return;

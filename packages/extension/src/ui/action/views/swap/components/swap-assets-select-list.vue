@@ -7,15 +7,15 @@
 </template>
 
 <script setup lang="ts">
-import AssetsSelectList from "@action/views/assets-select-list/index.vue";
-import { computed, PropType } from "vue";
-import { BaseToken } from "@/types/base-token";
-import { sortByRank, TokenType, TokenTypeTo } from "@enkryptcom/swap";
-import { Erc20Token } from "@/providers/ethereum/types/erc20-token";
-import { NATIVE_TOKEN_ADDRESS } from "@/providers/ethereum/libs/common";
+import AssetsSelectList from '@action/views/assets-select-list/index.vue';
+import { computed, PropType } from 'vue';
+import { BaseToken } from '@/types/base-token';
+import { sortByRank, TokenType, TokenTypeTo } from '@enkryptcom/swap';
+import { Erc20Token } from '@/providers/ethereum/types/erc20-token';
+import { NATIVE_TOKEN_ADDRESS } from '@/providers/ethereum/libs/common';
 
 const emit = defineEmits<{
-  (e: "update:selectAsset", asset: TokenType | TokenTypeTo): void;
+  (e: 'update:selectAsset', asset: TokenType | TokenTypeTo): void;
 }>();
 
 const props = defineProps({
@@ -46,7 +46,7 @@ const BaseTokenAssets = computed(() => {
         symbol: asset.symbol,
         name: asset.name,
         price: asset.price?.toString(),
-        balance: asset.balance ? asset.balance.toString() : "0",
+        balance: asset.balance ? asset.balance.toString() : '0',
       }),
       TokenType: asset,
     };
@@ -58,7 +58,7 @@ const BaseTokenAssets = computed(() => {
 });
 const selectToken = (token: BaseToken) => {
   emit(
-    "update:selectAsset",
+    'update:selectAsset',
     TokenTypeMap[(token as Erc20Token).contract].TokenType,
   );
 };

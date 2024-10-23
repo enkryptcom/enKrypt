@@ -1,14 +1,14 @@
-import { numberToHex } from "web3-utils";
+import { numberToHex } from 'web3-utils';
 import {
   Activity,
   ActivityStatus,
   ActivityType,
   EthereumRawInfo,
-} from "@/types/activity";
-import { BaseNetwork } from "@/types/base-network";
-import { NetworkEndpoints } from "./configs";
-import { toBase } from "@enkryptcom/utils";
-import MarketData from "@/libs/market-data";
+} from '@/types/activity';
+import { BaseNetwork } from '@/types/base-network';
+import { NetworkEndpoints } from './configs';
+import { toBase } from '@enkryptcom/utils';
+import MarketData from '@/libs/market-data';
 
 interface OntEvmRawInfo {
   tx_hash: string;
@@ -31,9 +31,9 @@ const getAddressActivity = async (
   return fetch(
     `${endpoint}v2/addresses/${address}/txs?page_size=20&page_number=1`,
     {
-      method: "GET",
+      method: 'GET',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
     },
   )
@@ -42,16 +42,16 @@ const getAddressActivity = async (
       const results = res.result.records as OntEvmRawInfo[];
       const newResults = results.map(tx => {
         const rawTx: EthereumRawInfo = {
-          blockHash: "",
+          blockHash: '',
           blockNumber: numberToHex(tx.block_height),
           contractAddress: null,
-          data: "0x",
-          effectiveGasPrice: "0x0",
+          data: '0x',
+          effectiveGasPrice: '0x0',
           from: tx.transfers[0].from_address,
           to: tx.transfers[0].to_address,
-          gas: "0x0",
-          gasUsed: "0x0",
-          nonce: "0x0",
+          gas: '0x0',
+          gasUsed: '0x0',
+          nonce: '0x0',
           status: tx.confirm_flag === 1,
           transactionHash: tx.tx_hash,
           value: numberToHex(toBase(tx.transfers[0].amount, 18)),

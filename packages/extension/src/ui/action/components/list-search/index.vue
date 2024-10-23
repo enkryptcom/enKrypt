@@ -6,7 +6,7 @@
 </template>
 
 <script setup lang="ts">
-import SearchIcon from "@action/icons/common/search.vue";
+import SearchIcon from '@action/icons/common/search.vue';
 
 const props = defineProps({
   input: {
@@ -18,7 +18,7 @@ const props = defineProps({
   placeholder: {
     type: String,
     default: () => {
-      return "";
+      return '';
     },
   },
 });
@@ -30,7 +30,7 @@ const changeValue = (event: Event) => {
 </script>
 
 <style lang="less" scoped>
-@import "@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .list-search {
   width: 100%;

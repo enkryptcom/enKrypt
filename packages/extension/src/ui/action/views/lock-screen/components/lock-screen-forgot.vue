@@ -43,18 +43,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
-import CloseIcon from "@action/icons/common/close-icon.vue";
-import BaseButton from "@action/components/base-button/index.vue";
-import AlertIcon from "@action/icons/send/alert-icon.vue";
-import BaseInput from "@action/components/base-input/index.vue";
-import KeyRingBase from "@/libs/keyring/keyring";
-import openOnboard from "@/libs/utils/open-onboard";
+import { ref, computed } from 'vue';
+import CloseIcon from '@action/icons/common/close-icon.vue';
+import BaseButton from '@action/components/base-button/index.vue';
+import AlertIcon from '@action/icons/send/alert-icon.vue';
+import BaseInput from '@action/components/base-input/index.vue';
+import KeyRingBase from '@/libs/keyring/keyring';
+import openOnboard from '@/libs/utils/open-onboard';
 
-const reset = ref("");
+const reset = ref('');
 const isProcessing = ref(false);
 defineEmits<{
-  (e: "toggle:forgot"): void;
+  (e: 'toggle:forgot'): void;
 }>();
 
 const resetChanged = (newVal: string) => {
@@ -62,7 +62,7 @@ const resetChanged = (newVal: string) => {
 };
 
 const isDisabled = computed(() => {
-  return reset.value !== "Reset" || isProcessing.value;
+  return reset.value !== 'Reset' || isProcessing.value;
 });
 
 const resetAction = async () => {
@@ -74,7 +74,7 @@ const resetAction = async () => {
 </script>
 
 <style lang="less">
-@import "@action/styles/theme.less";
+@import '@action/styles/theme.less';
 .lock-screen-forgot {
   background: @white;
   box-shadow: 0px 2px 16px rgba(0, 0, 0, 0.1);

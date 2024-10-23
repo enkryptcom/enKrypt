@@ -31,17 +31,17 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, PropType } from "vue";
-import AccountsHeaderAccount from "./components/header-accounts.vue";
-import AccountsList from "@action/views/accounts/index.vue";
-import Deposit from "@action/views/deposit/index.vue";
-import { useRouter } from "vue-router";
-import type { AccountsHeaderData } from "@action/types/account";
-import { BaseNetwork } from "@/types/base-network";
+import { onMounted, ref, PropType } from 'vue';
+import AccountsHeaderAccount from './components/header-accounts.vue';
+import AccountsList from '@action/views/accounts/index.vue';
+import Deposit from '@action/views/deposit/index.vue';
+import { useRouter } from 'vue-router';
+import type { AccountsHeaderData } from '@action/types/account';
+import { BaseNetwork } from '@/types/base-network';
 const router = useRouter();
 defineEmits<{
-  (e: "toggle:deposit"): void;
-  (e: "select:subnetwork", id: string): void;
+  (e: 'toggle:deposit'): void;
+  (e: 'select:subnetwork', id: string): void;
 }>();
 const showAccounts = ref(false);
 
@@ -70,7 +70,7 @@ const toggleAccounts = () => {
 </script>
 
 <style lang="less">
-@import "@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .network-header {
   position: fixed;

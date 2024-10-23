@@ -54,15 +54,15 @@
 </template>
 
 <script setup lang="ts">
-import { PropType, ref, onMounted, computed } from "vue";
-import CloseIcon from "@action/icons/common/close-icon.vue";
-import CopyIcon from "@action/icons/header/copy_icon.vue";
-import QrcodeVue from "qrcode.vue";
-import { EnkryptAccount } from "@enkryptcom/types";
-import Notification from "@action/components/notification/index.vue";
-import { ProviderName } from "@/types/provider";
-import { BaseNetwork, SubNetworkOptions } from "@/types/base-network";
-import DomainState from "@/libs/domain-state";
+import { PropType, ref, onMounted, computed } from 'vue';
+import CloseIcon from '@action/icons/common/close-icon.vue';
+import CopyIcon from '@action/icons/header/copy_icon.vue';
+import QrcodeVue from 'qrcode.vue';
+import { EnkryptAccount } from '@enkryptcom/types';
+import Notification from '@action/components/notification/index.vue';
+import { ProviderName } from '@/types/provider';
+import { BaseNetwork, SubNetworkOptions } from '@/types/base-network';
+import DomainState from '@/libs/domain-state';
 const isCopied = ref(false);
 const subNetwork = ref<SubNetworkOptions | null>(null);
 const props = defineProps({
@@ -82,7 +82,7 @@ const props = defineProps({
   },
 });
 defineEmits<{
-  (e: "toggle:deposit"): void;
+  (e: 'toggle:deposit'): void;
 }>();
 const copy = (address: string) => {
   navigator.clipboard.writeText(address);
@@ -112,7 +112,7 @@ const depositCopy = computed(() => {
 </script>
 
 <style lang="less" scoped>
-@import "@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .deposit {
   width: 800px;

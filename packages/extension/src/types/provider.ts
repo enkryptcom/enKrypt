@@ -1,60 +1,60 @@
-import type { InjectedProvider as EthereumProvider } from "../providers/ethereum/types";
-import type { InjectedProvider as PolkadotProvider } from "@/providers/polkadot/types";
-import type { InjectedProvider as BitcoinProvider } from "@/providers/bitcoin/types";
-import type { InjectedProvider as KadenaProvider } from "@/providers/kadena/types";
-import type { InjectedProvider as SolanaProvider } from "@/providers/solana/types";
-import EventEmitter from "eventemitter3";
+import type { InjectedProvider as EthereumProvider } from '../providers/ethereum/types';
+import type { InjectedProvider as PolkadotProvider } from '@/providers/polkadot/types';
+import type { InjectedProvider as BitcoinProvider } from '@/providers/bitcoin/types';
+import type { InjectedProvider as KadenaProvider } from '@/providers/kadena/types';
+import type { InjectedProvider as SolanaProvider } from '@/providers/solana/types';
+import EventEmitter from 'eventemitter3';
 import {
   MiddlewareFunction,
   NetworkNames,
   OnMessageResponse,
   RPCRequestType,
   SignerType,
-} from "@enkryptcom/types";
-import { RouteRecordRaw } from "vue-router";
-import PublicKeyRing from "@/libs/keyring/public-keyring";
-import { RoutesType } from "./ui";
-import { NFTCollection } from "./nft";
-import { BaseNetwork } from "./base-network";
-import { BaseToken } from "./base-token";
+} from '@enkryptcom/types';
+import { RouteRecordRaw } from 'vue-router';
+import PublicKeyRing from '@/libs/keyring/public-keyring';
+import { RoutesType } from './ui';
+import { NFTCollection } from './nft';
+import { BaseNetwork } from './base-network';
+import { BaseToken } from './base-token';
 import {
   BTCRawInfo,
   EthereumRawInfo,
   SubscanExtrinsicInfo,
   KadenaRawInfo,
   SOLRawInfo,
-} from "./activity";
+} from './activity';
 
 export enum ProviderName {
-  enkrypt = "enkrypt",
-  ethereum = "ethereum",
-  bitcoin = "bitcoin",
-  polkadot = "polkadot",
-  kadena = "kadena",
-  solana = "solana",
+  enkrypt = 'enkrypt',
+  ethereum = 'ethereum',
+  bitcoin = 'bitcoin',
+  polkadot = 'polkadot',
+  kadena = 'kadena',
+  solana = 'solana',
 }
 export enum InternalStorageNamespace {
-  keyring = "KeyRing",
-  persistentEvents = "PersistentEvents",
-  domainState = "DomainState",
-  evmAccountsState = "EVMAccountsState",
-  substrateAccountsState = "SubstrateAccountsState",
-  bitcoinAccountsState = "BitcoinAccountsState",
-  kadenaAccountsState = "KadenaAccountsState",
-  solanaAccountsState = "SolanaAccountsState",
-  activityState = "ActivityState",
-  marketData = "MarketData",
-  cacheFetch = "CacheFetch",
-  nftState = "NFTState",
-  networksState = "NetworksState",
-  settingsState = "SettingsState",
-  tokensState = "TokensState",
-  customNetworksState = "CustomNetworksState",
-  rateState = "RateState",
+  keyring = 'KeyRing',
+  persistentEvents = 'PersistentEvents',
+  domainState = 'DomainState',
+  evmAccountsState = 'EVMAccountsState',
+  substrateAccountsState = 'SubstrateAccountsState',
+  bitcoinAccountsState = 'BitcoinAccountsState',
+  kadenaAccountsState = 'KadenaAccountsState',
+  solanaAccountsState = 'SolanaAccountsState',
+  activityState = 'ActivityState',
+  marketData = 'MarketData',
+  cacheFetch = 'CacheFetch',
+  nftState = 'NFTState',
+  networksState = 'NetworksState',
+  settingsState = 'SettingsState',
+  tokensState = 'TokensState',
+  customNetworksState = 'CustomNetworksState',
+  rateState = 'RateState',
 }
 export enum EnkryptProviderEventMethods {
-  persistentEvents = "PersistentEvents",
-  chainChanged = "enkrypt_chainChanged",
+  persistentEvents = 'PersistentEvents',
+  chainChanged = 'enkrypt_chainChanged',
 }
 export type StorageNamespace = ProviderName | InternalStorageNamespace;
 export enum ProviderType {
@@ -84,14 +84,14 @@ export interface EIP6963ProviderInfo {
 }
 
 export enum EIP6963Events {
-  request = "eip6963:requestProvider",
-  announce = "eip6963:announceProvider",
+  request = 'eip6963:requestProvider',
+  announce = 'eip6963:announceProvider',
 }
 
 export abstract class ProviderInterface extends EventEmitter {
   name: ProviderName;
   type: ProviderType;
-  version = "";
+  version = '';
   sendMessageHandler: SendMessageHandler;
   constructor(options: ProviderOptions) {
     super();

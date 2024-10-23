@@ -1,4 +1,4 @@
-import { GasPriceTypes } from "@/providers/common/types";
+import { GasPriceTypes } from '@/providers/common/types';
 
 interface FeeType {
   fast: {

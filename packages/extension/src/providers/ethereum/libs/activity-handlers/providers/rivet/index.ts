@@ -1,26 +1,26 @@
-import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
+import { EvmNetwork } from '@/providers/ethereum/types/evm-network';
 import {
   Activity,
   ActivityStatus,
   ActivityType,
   EthereumRawInfo,
-} from "@/types/activity";
-import { BaseNetwork } from "@/types/base-network";
-import { toBN } from "web3-utils";
-import { decodeTx } from "../../../transaction/decoder";
-import { NetworkEndpoints } from "./configs";
+} from '@/types/activity';
+import { BaseNetwork } from '@/types/base-network';
+import { toBN } from 'web3-utils';
+import { decodeTx } from '../../../transaction/decoder';
+import { NetworkEndpoints } from './configs';
 const getAddressActivity = async (
   address: string,
   endpoint: string,
 ): Promise<EthereumRawInfo[]> => {
   const transactions = fetch(endpoint, {
-    method: "POST",
+    method: 'POST',
     headers: {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
     },
     body: JSON.stringify({
       id: 0,
-      method: "flume_getTransactionsByParticipant",
+      method: 'flume_getTransactionsByParticipant',
       params: [address],
     }),
   })
@@ -28,13 +28,13 @@ const getAddressActivity = async (
     .then(res => res.result.items as EthereumRawInfo[]);
 
   const transactionsReceipts = fetch(endpoint, {
-    method: "POST",
+    method: 'POST',
     headers: {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
     },
     body: JSON.stringify({
       id: 0,
-      method: "flume_getTransactionReceiptsByParticipant",
+      method: 'flume_getTransactionReceiptsByParticipant',
       params: [address],
     }),
   })
@@ -47,7 +47,7 @@ const getAddressActivity = async (
       );
       if (receipt) {
         receipt.status =
-          (receipt.status as unknown as string) === "0x1" ? true : false;
+          (receipt.status as unknown as string) === '0x1' ? true : false;
         return { ...item, ...receipt, data: (item as any).input };
       }
       return null;

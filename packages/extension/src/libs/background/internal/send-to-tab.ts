@@ -2,9 +2,9 @@ import {
   ActionSendMessage,
   InternalOnMessageResponse,
   Message,
-} from "@/types/messenger";
-import { RPCRequestType } from "@enkryptcom/types";
-import { TabProviderType } from "../types";
+} from '@/types/messenger';
+import { RPCRequestType } from '@enkryptcom/types';
+import { TabProviderType } from '../types';
 
 const sendToTab = (
   msg: Message,

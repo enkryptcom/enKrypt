@@ -1,16 +1,16 @@
-import API from "@/providers/polkadot/libs/api";
-import { SubstrateNetwork } from "@/providers/polkadot/types/substrate-network";
-import { hexToString, hexToBn } from "@polkadot/util";
+import API from '@/providers/polkadot/libs/api';
+import { SubstrateNetwork } from '@/providers/polkadot/types/substrate-network';
+import { hexToString, hexToBn } from '@polkadot/util';
 import {
   BifrostOrmlAsset,
   BifrostOrmlAssetOptions,
   OrmlAssetType,
-} from "../types/bifrost-orml-asset";
-import { OrmlTokensAccountData } from "../../acala/types/acala-orml-asset";
-import { toBN } from "web3-utils";
-import { KnownTokenDisplay } from "@/providers/polkadot/types";
-import { SubstrateNativeToken } from "@/providers/polkadot/types/substrate-native-token";
-import { BNType } from "@/providers/common/types";
+} from '../types/bifrost-orml-asset';
+import { OrmlTokensAccountData } from '../../acala/types/acala-orml-asset';
+import { toBN } from 'web3-utils';
+import { KnownTokenDisplay } from '@/providers/polkadot/types';
+import { SubstrateNativeToken } from '@/providers/polkadot/types/substrate-native-token';
+import { BNType } from '@/providers/common/types';
 
 type AssetMetadata = {
   name: `0x${string}`;
@@ -28,10 +28,10 @@ type StableAsset = string;
 type Erc20 = string;
 
 enum AssetIds {
-  NATIVE_ASSET = "NativeAssetId",
-  FOREIGN_ASSET = "ForeignAssetId",
-  STABLE_ASSET = "StableAssetId",
-  ERC20_ASSET = "Erc20",
+  NATIVE_ASSET = 'NativeAssetId',
+  FOREIGN_ASSET = 'ForeignAssetId',
+  STABLE_ASSET = 'StableAssetId',
+  ERC20_ASSET = 'Erc20',
 }
 
 type AssetKey = Record<
@@ -57,7 +57,7 @@ export default async (
       const assetMetadata = value.toJSON() as AssetMetadata;
       const decimals = assetMetadata.decimals;
       const minimalBalance =
-        typeof assetMetadata.minimalBalance === "string"
+        typeof assetMetadata.minimalBalance === 'string'
           ? hexToBn(assetMetadata.minimalBalance)
           : toBN(assetMetadata.minimalBalance);
 
@@ -65,18 +65,18 @@ export default async (
       let assetLookupValue: string | null = null;
 
       if (assetKey[AssetIds.FOREIGN_ASSET]) {
-        assetLookupId = "foreignAsset";
+        assetLookupId = 'foreignAsset';
         assetLookupValue = assetKey[AssetIds.FOREIGN_ASSET] as string;
       } else if (assetKey[AssetIds.NATIVE_ASSET]) {
         assetLookupId = Object.keys(
           assetKey[AssetIds.NATIVE_ASSET],
-        )[0] as "token";
+        )[0] as 'token';
 
         assetLookupValue = (assetKey[AssetIds.NATIVE_ASSET] as NativeAsset)[
           assetLookupId
         ] as string;
       } else if (assetKey[AssetIds.STABLE_ASSET]) {
-        assetLookupId = "stableAssetPoolToken";
+        assetLookupId = 'stableAssetPoolToken';
         assetLookupValue = assetKey[AssetIds.STABLE_ASSET] as string;
       } else if (assetKey[AssetIds.ERC20_ASSET]) {
         // TODO add Erc20 support, required special RPC call

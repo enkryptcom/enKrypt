@@ -1,8 +1,8 @@
-import BrowserStorage from "../common/browser-storage";
-import { POPULAR_NAMES } from "../utils/networks";
-import { InternalStorageNamespace } from "@/types/provider";
-import { IState, StorageKeys, NetworkStorageElement } from "./types";
-import { newNetworks, newSwaps } from "@/providers/common/libs/new-features";
+import BrowserStorage from '../common/browser-storage';
+import { POPULAR_NAMES } from '../utils/networks';
+import { InternalStorageNamespace } from '@/types/provider';
+import { IState, StorageKeys, NetworkStorageElement } from './types';
+import { newNetworks, newSwaps } from '@/providers/common/libs/new-features';
 
 class NetworksState {
   private storage: BrowserStorage;
@@ -15,7 +15,7 @@ class NetworksState {
     const networks: NetworkStorageElement[] = POPULAR_NAMES.map(name => ({
       name,
     }));
-    await this.setState({ networks, newNetworksVersion: "" });
+    await this.setState({ networks, newNetworksVersion: '' });
   }
 
   async setNetworkStatus(

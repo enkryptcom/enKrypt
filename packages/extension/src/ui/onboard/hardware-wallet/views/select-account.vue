@@ -37,30 +37,30 @@
   </div>
 </template>
 <script setup lang="ts">
-import HardwareSelectPath from "../components/hardware-select-path.vue";
-import HardwareSelectAccount from "../components/hardware-select-account.vue";
-import BaseButton from "@action/components/base-button/index.vue";
-import ArrowNext from "@action/icons/common/arrow-next.vue";
-import ArrowPrev from "@action/icons/common/arrow-prev.vue";
-import { useRoute, useRouter } from "vue-router";
-import { routes } from "../routes";
-import { getNetworkByName } from "@/libs/utils/networks";
-import { HWWalletAccountType, PathType } from "../types";
-import { computed, onMounted, ref } from "vue";
-import { EnkryptAccount, HWwalletType } from "@enkryptcom/types";
-import HWwallet from "@enkryptcom/hw-wallets";
-import PublicKeyRing from "@/libs/keyring/public-keyring";
-import { formatFloatingPointValue } from "@/libs/utils/number-formatter";
-import { fromBase } from "@enkryptcom/utils";
-import { ProviderName } from "@/types/provider";
-import { polkadotEncodeAddress } from "@enkryptcom/utils";
-import { useHWStore } from "../store";
-import { BaseNetwork } from "@/types/base-network";
-import SubstrateAPI from "@/providers/polkadot/libs/api";
-import type EvmAPI from "@/providers/ethereum/libs/api";
-import type BtcApi from "@/providers/bitcoin/libs/api";
-import type SolApi from "@/providers/solana/libs/api";
-import type KdaApi from "@/providers/kadena/libs/api";
+import HardwareSelectPath from '../components/hardware-select-path.vue';
+import HardwareSelectAccount from '../components/hardware-select-account.vue';
+import BaseButton from '@action/components/base-button/index.vue';
+import ArrowNext from '@action/icons/common/arrow-next.vue';
+import ArrowPrev from '@action/icons/common/arrow-prev.vue';
+import { useRoute, useRouter } from 'vue-router';
+import { routes } from '../routes';
+import { getNetworkByName } from '@/libs/utils/networks';
+import { HWWalletAccountType, PathType } from '../types';
+import { computed, onMounted, ref } from 'vue';
+import { EnkryptAccount, HWwalletType } from '@enkryptcom/types';
+import HWwallet from '@enkryptcom/hw-wallets';
+import PublicKeyRing from '@/libs/keyring/public-keyring';
+import { formatFloatingPointValue } from '@/libs/utils/number-formatter';
+import { fromBase } from '@enkryptcom/utils';
+import { ProviderName } from '@/types/provider';
+import { polkadotEncodeAddress } from '@enkryptcom/utils';
+import { useHWStore } from '../store';
+import { BaseNetwork } from '@/types/base-network';
+import SubstrateAPI from '@/providers/polkadot/libs/api';
+import type EvmAPI from '@/providers/ethereum/libs/api';
+import type BtcApi from '@/providers/bitcoin/libs/api';
+import type SolApi from '@/providers/solana/libs/api';
+import type KdaApi from '@/providers/kadena/libs/api';
 const store = useHWStore();
 
 const router = useRouter();
@@ -74,7 +74,7 @@ if (!networkName || !walletType) {
 const network = ref<BaseNetwork | undefined>();
 const hwWallet = new HWwallet();
 const networkPaths = ref<PathType[]>([]);
-const selectedPath = ref<PathType>({ path: "", label: "", basePath: "" });
+const selectedPath = ref<PathType>({ path: '', label: '', basePath: '' });
 const ADDRESSES_PER_PAGE = 5;
 const loading = ref(false);
 const currentAddressIndex = ref(0);
@@ -124,7 +124,7 @@ const loadAddresses = async (start: number, end: number) => {
       currentAddressIndex.value = i;
       continue;
     }
-    const reqPath = selectedPath.value.path.replace("{index}", i.toString());
+    const reqPath = selectedPath.value.path.replace('{index}', i.toString());
     const newAddress = await hwWallet.getAddress({
       confirmAddress: false,
       networkName: network.value!.name,
@@ -139,7 +139,7 @@ const loadAddresses = async (start: number, end: number) => {
     accounts.value.push({
       address,
       publicKey: newAddress.publicKey,
-      balance: "~",
+      balance: '~',
       path: reqPath,
       pathType: selectedPath.value,
       selected: false,
@@ -197,7 +197,7 @@ const continueAction = async () => {
 </script>
 
 <style lang="less" scoped>
-@import "@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .ledger-select-account {
   width: 100%;

@@ -1,9 +1,9 @@
-import { RequestOptions, StoredData } from "./types";
-import BrowserStorage from "../common/browser-storage";
-import { InternalStorageNamespace } from "@/types/provider";
-import { keccak256 } from "web3-utils";
+import { RequestOptions, StoredData } from './types';
+import BrowserStorage from '../common/browser-storage';
+import { InternalStorageNamespace } from '@/types/provider';
+import { keccak256 } from 'web3-utils';
 const STORAGE_TTL = 1000 * 60 * 60 * 24;
-const TIMESTAMP = "timestamp";
+const TIMESTAMP = 'timestamp';
 const cacheFetch = async (
   options: RequestOptions,
   ttl: number = STORAGE_TTL,
@@ -31,7 +31,7 @@ const cacheFetch = async (
       body?: string;
     } = {};
     if (options.post) {
-      fetchOptions.method = "POST";
+      fetchOptions.method = 'POST';
       fetchOptions.body = JSON.stringify(options.post);
     }
     if (options.headers) {
@@ -42,7 +42,7 @@ const cacheFetch = async (
       .then(json => {
         const jsondata = options.postProcess ? options.postProcess(json) : json;
         const jsonstring = JSON.stringify(jsondata);
-        if (!jsonstring.includes("error")) {
+        if (!jsonstring.includes('error')) {
           const store: StoredData = {
             timestamp: new Date().getTime(),
             data: jsonstring,

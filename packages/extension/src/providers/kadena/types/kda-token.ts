@@ -1,17 +1,17 @@
-import { BaseToken, BaseTokenOptions } from "@/types/base-token";
-import KadenaAPI from "@/providers/kadena/libs/api";
+import { BaseToken, BaseTokenOptions } from '@/types/base-token';
+import KadenaAPI from '@/providers/kadena/libs/api';
 import {
   ChainId,
   ICommand,
   Pact,
   addSignatures,
   readKeyset,
-} from "@kadena/client";
-import { EnkryptAccount } from "@enkryptcom/types";
-import { blake2AsU8a } from "@polkadot/util-crypto";
-import { KadenaNetwork } from "./kadena-network";
-import { TransactionSigner } from "../ui/libs/signer";
-import { bufferToHex } from "@enkryptcom/utils";
+} from '@kadena/client';
+import { EnkryptAccount } from '@enkryptcom/types';
+import { blake2AsU8a } from '@polkadot/util-crypto';
+import { KadenaNetwork } from './kadena-network';
+import { TransactionSigner } from '../ui/libs/signer';
+import { bufferToHex } from '@enkryptcom/utils';
 
 export abstract class KDABaseToken extends BaseToken {
   public abstract buildTransaction(
@@ -39,7 +39,7 @@ export class KDAToken extends KDABaseToken {
   }
 
   public async getLatestUserBalance(): Promise<string> {
-    throw new Error("KDA-getLatestUserBalance is not implemented here");
+    throw new Error('KDA-getLatestUserBalance is not implemented here');
   }
 
   public async getBalance(api: KadenaAPI, pubkey: string): Promise<string> {
@@ -47,7 +47,7 @@ export class KDAToken extends KDABaseToken {
   }
 
   public async send(): Promise<any> {
-    throw new Error("KDA-send is not implemented here");
+    throw new Error('KDA-send is not implemented here');
   }
 
   public async buildTransaction(
@@ -60,24 +60,24 @@ export class KDAToken extends KDABaseToken {
     // const accountDetails = await this.getAccountDetails(to, network);
     const api = (await network.api()) as KadenaAPI;
     const chainID = await api.getChainId();
-    const keySetAccount = to.startsWith("k:") ? to.replace("k:", "") : to;
+    const keySetAccount = to.startsWith('k:') ? to.replace('k:', '') : to;
     const unsignedTransaction = Pact.builder
       .execution(
-        Pact.modules.coin["transfer-create"](
+        Pact.modules.coin['transfer-create'](
           network.displayAddress(from.address),
           to,
-          readKeyset("ks"),
+          readKeyset('ks'),
           {
             decimal: amount,
           },
         ),
       )
-      .addKeyset("ks", "keys-all", keySetAccount)
-      .addSigner(from.publicKey.replace("0x", ""), (withCap: any) => [
-        withCap("coin.TRANSFER", network.displayAddress(from.address), to, {
+      .addKeyset('ks', 'keys-all', keySetAccount)
+      .addSigner(from.publicKey.replace('0x', ''), (withCap: any) => [
+        withCap('coin.TRANSFER', network.displayAddress(from.address), to, {
           decimal: amount,
         }),
-        withCap("coin.GAS"),
+        withCap('coin.GAS'),
       ])
       .setMeta({
         chainId: (chainID ??
@@ -96,7 +96,7 @@ export class KDAToken extends KDABaseToken {
       else
         return {
           id: 0,
-          signature: res.result?.replace("0x", "") as string,
+          signature: res.result?.replace('0x', '') as string,
         };
     });
 

@@ -21,9 +21,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
-import SwitchArrow from "@action/icons/header/switch_arrow.vue";
-import BaseSelectOption from "./components/base-select-option.vue";
+import { ref } from 'vue';
+import SwitchArrow from '@action/icons/header/switch_arrow.vue';
+import BaseSelectOption from './components/base-select-option.vue';
 
 const isOpen = ref(false);
 
@@ -37,13 +37,13 @@ const props = defineProps({
   title: {
     type: String,
     default: () => {
-      return "";
+      return '';
     },
   },
   value: {
     type: String,
     default: () => {
-      return "";
+      return '';
     },
   },
   list: {
@@ -65,7 +65,7 @@ const selectLanguage = (value: string) => {
 </script>
 
 <style lang="less">
-@import "@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .base-select {
   height: 56px;

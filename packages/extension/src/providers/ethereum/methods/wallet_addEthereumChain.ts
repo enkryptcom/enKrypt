@@ -1,25 +1,25 @@
-import { getCustomError } from "@/libs/error";
+import { getCustomError } from '@/libs/error';
 import {
   CallbackFunction,
   MiddlewareFunction,
   NetworkNames,
-} from "@enkryptcom/types";
-import EthereumProvider from "..";
-import { sendToBackgroundFromBackground } from "@/libs/messenger/extension";
-import { InternalMethods } from "@/types/messenger";
-import { ProviderName, ProviderRPCRequest } from "@/types/provider";
-import { MessageMethod } from "../types";
-import DomainState from "@/libs/domain-state";
-import Web3 from "web3-eth";
-import { CustomEvmNetworkOptions } from "../types/custom-evm-network";
-import { numberToHex } from "web3-utils";
-import { WindowPromise } from "@/libs/window-promise";
-import { getAllNetworks } from "@/libs/utils/networks";
-import CustomNetworksState from "@/libs/custom-networks-state";
-import NetworksState from "@/libs/networks-state";
-import { EvmNetwork } from "../types/evm-network";
-import { trackNetworkSelected } from "@/libs/metrics";
-import { NetworkChangeEvents } from "@/libs/metrics/types";
+} from '@enkryptcom/types';
+import EthereumProvider from '..';
+import { sendToBackgroundFromBackground } from '@/libs/messenger/extension';
+import { InternalMethods } from '@/types/messenger';
+import { ProviderName, ProviderRPCRequest } from '@/types/provider';
+import { MessageMethod } from '../types';
+import DomainState from '@/libs/domain-state';
+import Web3 from 'web3-eth';
+import { CustomEvmNetworkOptions } from '../types/custom-evm-network';
+import { numberToHex } from 'web3-utils';
+import { WindowPromise } from '@/libs/window-promise';
+import { getAllNetworks } from '@/libs/utils/networks';
+import CustomNetworksState from '@/libs/custom-networks-state';
+import NetworksState from '@/libs/networks-state';
+import { EvmNetwork } from '../types/evm-network';
+import { trackNetworkSelected } from '@/libs/metrics';
+import { NetworkChangeEvents } from '@/libs/metrics/types';
 
 interface AddEthereumChainPayload {
   chainId: string;
@@ -39,14 +39,14 @@ const method: MiddlewareFunction = async function (
   res,
   next,
 ): Promise<void> {
-  if (payload.method !== "wallet_addEthereumChain") return next();
+  if (payload.method !== 'wallet_addEthereumChain') return next();
   else {
     if (
       !payload.params ||
       payload.params.length < 1 ||
       !payload.params[0].chainId
     ) {
-      return res(getCustomError("wallet_addEthereumChain: invalid params"));
+      return res(getCustomError('wallet_addEthereumChain: invalid params'));
     }
     const setExisting = await setExistingCustomNetwork(
       payload.params![0].chainId,
@@ -58,7 +58,7 @@ const method: MiddlewareFunction = async function (
       const chainID = await networkChainId(params);
       if (chainID == null) {
         return res(
-          getCustomError("Cannot add custom network, RPC not responding"),
+          getCustomError('Cannot add custom network, RPC not responding'),
         );
       }
       const customNetworkOptions: CustomEvmNetworkOptions = {
@@ -71,7 +71,7 @@ const method: MiddlewareFunction = async function (
       };
       if (params.blockExplorerUrls?.length) {
         let blockExplorer = params.blockExplorerUrls[0];
-        if (!blockExplorer.endsWith("/")) {
+        if (!blockExplorer.endsWith('/')) {
           blockExplorer = `${blockExplorer}/`;
         }
         customNetworkOptions.blockExplorerTX = `${blockExplorer}tx/[[txHash]]`;

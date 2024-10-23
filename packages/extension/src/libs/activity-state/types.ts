@@ -1,5 +1,5 @@
-import { Activity } from "@/types/activity";
-import { BaseNetwork } from "@/types/base-network";
+import { Activity } from '@/types/activity';
+import { BaseNetwork } from '@/types/base-network';
 
 export interface ActivityOptions {
   address: string;

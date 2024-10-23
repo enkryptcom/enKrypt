@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { Ref } from "vue";
-import { nextTick, onMounted, ref, toRefs, watch } from "vue";
+import type { Ref } from 'vue';
+import { nextTick, onMounted, ref, toRefs, watch } from 'vue';
 type Column = number[];
 const props = withDefaults(
   defineProps<{
@@ -18,8 +18,8 @@ const props = withDefaults(
   },
 );
 const emit = defineEmits<{
-  (event: "redraw"): void;
-  (event: "redrawSkip"): void;
+  (event: 'redraw'): void;
+  (event: 'redrawSkip'): void;
 }>();
 const { columnWidth, items, gap, rtl, ssrColumns } = toRefs(props);
 const columns = ref<Column[]>([]);
@@ -63,14 +63,14 @@ async function fillColumns(itemIndex: number) {
 }
 async function redraw(force = false) {
   if (columns.value.length === columnCount() && !force) {
-    emit("redrawSkip");
+    emit('redrawSkip');
     return;
   }
   columns.value = createColumns(columnCount());
   const scrollY = window.scrollY;
   await fillColumns(0);
   window.scrollTo({ top: scrollY });
-  emit("redraw");
+  emit('redraw');
 }
 onMounted(() => {
   redraw();

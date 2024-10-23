@@ -1,15 +1,15 @@
-import { EvmNetwork } from "../../types/evm-network";
-import { DecodedTx, EthereumTransaction } from "./types";
+import { EvmNetwork } from '../../types/evm-network';
+import { DecodedTx, EthereumTransaction } from './types';
 import {
   getKnownNetworkTokens,
   TokenList,
-} from "../assets-handlers/token-lists";
-import { SupportedNetworkNames } from "../assets-handlers/types/tokenbalance-mew";
-import DataDecode from "./data-decoder";
-import { bufferToHex } from "@enkryptcom/utils";
-import type EvmApi from "../api";
-import MarketData from "@/libs/market-data";
-import { EthereumRawInfo } from "@/types/activity";
+} from '../assets-handlers/token-lists';
+import { SupportedNetworkNames } from '../assets-handlers/types/tokenbalance-mew';
+import DataDecode from './data-decoder';
+import { bufferToHex } from '@enkryptcom/utils';
+import type EvmApi from '../api';
+import MarketData from '@/libs/market-data';
+import { EthereumRawInfo } from '@/types/activity';
 const decodeTx = async (
   tx: EthereumTransaction | EthereumRawInfo,
   network: EvmNetwork,
@@ -17,7 +17,7 @@ const decodeTx = async (
   const isContractCreation = tx.to ? false : true;
   let tokenTo = tx.to || null;
   let tokenName: string = network.currencyName;
-  let tokenValue: string = tx.value && tx.value != "0x" ? tx.value : "0x0";
+  let tokenValue: string = tx.value && tx.value != '0x' ? tx.value : '0x0';
   let tokenDecimals: number = network.decimals;
   let tokenImage: string = network.icon;
   let tokenSymbol: string = network.currencyName;
@@ -45,10 +45,10 @@ const decodeTx = async (
       });
     });
   };
-  if (tokenValue === "0x0" && dataDecoder.isTokenAction) {
+  if (tokenValue === '0x0' && dataDecoder.isTokenAction) {
     if (TokenList[network.name as SupportedNetworkNames]) {
       const knownTokens = await getKnownNetworkTokens(network.name);
-      const curToken = knownTokens[tx.to?.toLowerCase() || ""];
+      const curToken = knownTokens[tx.to?.toLowerCase() || ''];
       if (curToken) {
         tokenName = curToken.name;
         tokenImage = curToken.logoURI;

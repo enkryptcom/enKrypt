@@ -15,8 +15,8 @@
 </template>
 
 <script setup lang="ts">
-import { ProviderSwapResponse, SwapToken, TokenTypeTo } from "@enkryptcom/swap";
-import BestOfferListItem from "./best-offer-list-item.vue";
+import { ProviderSwapResponse, SwapToken, TokenTypeTo } from '@enkryptcom/swap';
+import BestOfferListItem from './best-offer-list-item.vue';
 
 interface IProps {
   trades: ProviderSwapResponse[];
@@ -38,7 +38,7 @@ const select = (trade: ProviderSwapResponse) => {
 </script>
 
 <style lang="less" scoped>
-@import "@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .best-offer-list {
   background: #ffffff;

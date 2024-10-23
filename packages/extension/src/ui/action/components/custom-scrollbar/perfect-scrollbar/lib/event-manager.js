@@ -5,7 +5,7 @@ class EventElement {
   }
 
   bind(eventName, handler) {
-    if (typeof this.handlers[eventName] === "undefined") {
+    if (typeof this.handlers[eventName] === 'undefined') {
       this.handlers[eventName] = [];
     }
     this.handlers[eventName].push(handler);

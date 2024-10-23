@@ -43,31 +43,31 @@
 </template>
 
 <script setup lang="ts">
-import SignLogo from "@action/icons/common/sign-logo.vue";
-import BaseButton from "@action/components/base-button/index.vue";
-import CommonPopup from "@action/views/common-popup/index.vue";
-import { getError } from "@/libs/error";
-import { ErrorCodes } from "@/providers/ethereum/types";
-import { WindowPromiseHandler } from "@/libs/window-promise";
-import { onBeforeMount, ref } from "vue";
-import { isUtf8, u8aToString, u8aUnwrapBytes } from "@polkadot/util";
-import networks from "../networks";
-import { ProviderRequestOptions } from "@/types/provider";
-import { EnkryptAccount } from "@enkryptcom/types";
-import { MessageSigner } from "./libs/signer";
-import { hexToBuffer } from "@enkryptcom/utils";
+import SignLogo from '@action/icons/common/sign-logo.vue';
+import BaseButton from '@action/components/base-button/index.vue';
+import CommonPopup from '@action/views/common-popup/index.vue';
+import { getError } from '@/libs/error';
+import { ErrorCodes } from '@/providers/ethereum/types';
+import { WindowPromiseHandler } from '@/libs/window-promise';
+import { onBeforeMount, ref } from 'vue';
+import { isUtf8, u8aToString, u8aUnwrapBytes } from '@polkadot/util';
+import networks from '../networks';
+import { ProviderRequestOptions } from '@/types/provider';
+import { EnkryptAccount } from '@enkryptcom/types';
+import { MessageSigner } from './libs/signer';
+import { hexToBuffer } from '@enkryptcom/utils';
 
 const windowPromise = WindowPromiseHandler(0);
 
 const Options = ref<ProviderRequestOptions>({
-  domain: "",
-  faviconURL: "",
-  title: "",
-  url: "",
+  domain: '',
+  faviconURL: '',
+  title: '',
+  url: '',
   tabId: 0,
 });
-const message = ref("");
-const account = ref({ address: "" } as EnkryptAccount);
+const message = ref('');
+const account = ref({ address: '' } as EnkryptAccount);
 
 onBeforeMount(async () => {
   const { Request, options } = await windowPromise;
@@ -102,5 +102,5 @@ const deny = async () => {
 </script>
 
 <style lang="less" scoped>
-@import "@/providers/ethereum/ui/styles/common-popup.less";
+@import '@/providers/ethereum/ui/styles/common-popup.less';
 </style>

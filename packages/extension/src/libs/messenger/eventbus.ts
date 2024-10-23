@@ -1,4 +1,4 @@
-import { createNanoEvents } from "nanoevents";
+import { createNanoEvents } from 'nanoevents';
 const eventBus = createNanoEvents();
 const EventBusEmit = (key: string, message: any): Promise<any> => {
   return new Promise((resolve, reject) => {

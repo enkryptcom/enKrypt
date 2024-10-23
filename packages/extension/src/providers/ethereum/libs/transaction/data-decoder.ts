@@ -1,14 +1,14 @@
-import { bufferToHex, hexToBuffer } from "@enkryptcom/utils";
-import { isHexStrict, toHex } from "web3-utils";
-import { rawDecode } from "ethereumjs-abi";
-import { DataDecodeResponse } from "./types";
-import funcSigs from "./lists/4bytes";
-import tokenSigs from "./lists/tokenSigs";
+import { bufferToHex, hexToBuffer } from '@enkryptcom/utils';
+import { isHexStrict, toHex } from 'web3-utils';
+import { rawDecode } from 'ethereumjs-abi';
+import { DataDecodeResponse } from './types';
+import funcSigs from './lists/4bytes';
+import tokenSigs from './lists/tokenSigs';
 const getParams = (functionName: string): string[] => {
   const regExp = /\(([^)]+)\)/;
   const params = regExp.exec(functionName);
   if (!params || params?.length < 1) return [];
-  return params[1].split(",");
+  return params[1].split(',');
 };
 class DataDecode {
   data: Buffer;
@@ -18,15 +18,15 @@ class DataDecode {
   readonly value: string;
   readonly to?: string;
   constructor({
-    data = "0x",
-    value = "0x0",
+    data = '0x',
+    value = '0x0',
     to,
   }: {
     data: string;
     value: string;
     to?: string;
   }) {
-    if (!isHexStrict(data)) throw new Error("data-decoder: not a valid hex");
+    if (!isHexStrict(data)) throw new Error('data-decoder: not a valid hex');
     this.data = hexToBuffer(data);
     this.functionSig = bufferToHex(this.data.slice(0, 4));
     this.valueData = bufferToHex(this.data.slice(4));

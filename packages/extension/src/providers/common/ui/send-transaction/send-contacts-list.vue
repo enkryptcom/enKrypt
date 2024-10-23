@@ -57,19 +57,19 @@
 </template>
 
 <script setup lang="ts">
-import { PropType, ref } from "vue";
-import SendAddressItem from "./send-address-item.vue";
-import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
-import BaseButton from "@action/components/base-button/index.vue";
-import { AccountsHeaderData } from "@action/types/account";
-import scrollSettings from "@/libs/utils/scroll-settings";
-import { BaseNetwork } from "@/types/base-network";
-import PasteIcon from "@action/icons/actions/paste.vue";
-import ArrowBack from "@action/icons/common/arrow-back.vue";
+import { PropType, ref } from 'vue';
+import SendAddressItem from './send-address-item.vue';
+import CustomScrollbar from '@action/components/custom-scrollbar/index.vue';
+import BaseButton from '@action/components/base-button/index.vue';
+import { AccountsHeaderData } from '@action/types/account';
+import scrollSettings from '@/libs/utils/scroll-settings';
+import { BaseNetwork } from '@/types/base-network';
+import PasteIcon from '@action/icons/actions/paste.vue';
+import ArrowBack from '@action/icons/common/arrow-back.vue';
 
 const emit = defineEmits<{
-  (e: "update:pasteFromClipboard"): void;
-  (e: "close", open: false): void;
+  (e: 'update:pasteFromClipboard'): void;
+  (e: 'close', open: false): void;
 }>();
 
 const isMyAddress = ref(false);
@@ -86,12 +86,12 @@ defineProps({
   },
   address: {
     type: String,
-    default: "",
+    default: '',
   },
 });
 
 const close = () => {
-  emit("close", false);
+  emit('close', false);
 };
 
 const sendToMyAddress = () => {
@@ -103,12 +103,12 @@ const back = () => {
 };
 
 const pasteFromClipboard = () => {
-  emit("update:pasteFromClipboard");
+  emit('update:pasteFromClipboard');
 };
 </script>
 
 <style lang="less" scoped>
-@import "@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .send-contacts-list {
   width: 100%;

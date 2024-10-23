@@ -21,15 +21,15 @@
 </template>
 
 <script setup lang="ts">
-import CloseIcon from "@action/icons/common/close-icon.vue";
-import BaseButton from "@action/components/base-button/index.vue";
-import { openLink } from "@action/utils/browser";
+import CloseIcon from '@action/icons/common/close-icon.vue';
+import BaseButton from '@action/components/base-button/index.vue';
+import { openLink } from '@action/utils/browser';
 
 const emit = defineEmits<{
-  (e: "close:popup"): void;
+  (e: 'close:popup'): void;
 }>();
 const close = async () => {
-  emit("close:popup");
+  emit('close:popup');
 };
 
 interface IProps {
@@ -40,12 +40,12 @@ interface IProps {
 defineProps<IProps>();
 
 const update = async () => {
-  openLink("https://www.enkrypt.com");
+  openLink('https://www.enkrypt.com');
 };
 </script>
 
 <style lang="less">
-@import "@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .rate {
   width: 100%;

@@ -2,17 +2,17 @@ import {
   CallbackFunction,
   MiddlewareFunction,
   SignerType,
-} from "@enkryptcom/types";
-import { WindowPromise } from "@/libs/window-promise";
-import PublicKeyRing from "@/libs/keyring/public-keyring";
-import DomainState from "@/libs/domain-state";
-import { getCustomError } from "@/libs/error";
-import { ProviderRPCRequest } from "@/types/provider";
+} from '@enkryptcom/types';
+import { WindowPromise } from '@/libs/window-promise';
+import PublicKeyRing from '@/libs/keyring/public-keyring';
+import DomainState from '@/libs/domain-state';
+import { getCustomError } from '@/libs/error';
+import { ProviderRPCRequest } from '@/types/provider';
 
-import KadenaProvider from "..";
-import AccountState from "../libs/accounts-state";
-import { KadenaNetworks } from "../types";
-import { getNetworkInfo } from "../libs/network";
+import KadenaProvider from '..';
+import AccountState from '../libs/accounts-state';
+import { KadenaNetworks } from '../types';
+import { getNetworkInfo } from '../libs/network';
 
 let isAccountAccessPending = false;
 
@@ -27,7 +27,7 @@ const method: MiddlewareFunction = function (
   res,
   next,
 ): void {
-  if (payload.method !== "kda_requestAccounts") return next();
+  if (payload.method !== 'kda_requestAccounts') return next();
   else {
     if (isAccountAccessPending) {
       pendingPromises.push({
@@ -74,13 +74,13 @@ const method: MiddlewareFunction = function (
             ? getNetworkInfo(selectedNetworkName)
             : null,
           selectedAccountAddress: this.network.displayAddress(
-            account?.address || "",
+            account?.address || '',
           ),
           accounts: accounts.map(acc => {
             return {
               address: this.network.displayAddress(acc.address),
-              publicKey: acc.publicKey.replace("0x", ""),
-              genesisHash: "",
+              publicKey: acc.publicKey.replace('0x', ''),
+              genesisHash: '',
               name: acc.name,
               type: acc.signerType,
             };
@@ -135,7 +135,7 @@ const method: MiddlewareFunction = function (
           })
           .finally(handleRemainingPromises);
       } else {
-        _res(getCustomError("No domain set!"));
+        _res(getCustomError('No domain set!'));
         handleRemainingPromises();
       }
     };

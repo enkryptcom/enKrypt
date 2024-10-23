@@ -43,39 +43,39 @@
 </template>
 
 <script setup lang="ts">
-import SignLogo from "@action/icons/common/sign-logo.vue";
-import BaseButton from "@action/components/base-button/index.vue";
-import CommonPopup from "@action/views/common-popup/index.vue";
-import { getError } from "@/libs/error";
-import { ErrorCodes } from "@/providers/ethereum/types";
-import { WindowPromiseHandler } from "@/libs/window-promise";
-import { onBeforeMount, ref } from "vue";
-import { hexToBuffer } from "@enkryptcom/utils";
-import { hexToUtf8 } from "web3-utils";
-import { DEFAULT_EVM_NETWORK, getNetworkByName } from "@/libs/utils/networks";
-import { ProviderRequestOptions } from "@/types/provider";
-import { isUtf8 } from "@polkadot/util";
-import HardwareWalletMsg from "@/providers/common/ui/verify-transaction/hardware-wallet-msg.vue";
-import { EvmNetwork } from "../types/evm-network";
-import { EnkryptAccount } from "@enkryptcom/types";
-import { MessageSigner } from "./libs/signer";
+import SignLogo from '@action/icons/common/sign-logo.vue';
+import BaseButton from '@action/components/base-button/index.vue';
+import CommonPopup from '@action/views/common-popup/index.vue';
+import { getError } from '@/libs/error';
+import { ErrorCodes } from '@/providers/ethereum/types';
+import { WindowPromiseHandler } from '@/libs/window-promise';
+import { onBeforeMount, ref } from 'vue';
+import { hexToBuffer } from '@enkryptcom/utils';
+import { hexToUtf8 } from 'web3-utils';
+import { DEFAULT_EVM_NETWORK, getNetworkByName } from '@/libs/utils/networks';
+import { ProviderRequestOptions } from '@/types/provider';
+import { isUtf8 } from '@polkadot/util';
+import HardwareWalletMsg from '@/providers/common/ui/verify-transaction/hardware-wallet-msg.vue';
+import { EvmNetwork } from '../types/evm-network';
+import { EnkryptAccount } from '@enkryptcom/types';
+import { MessageSigner } from './libs/signer';
 
 const windowPromise = WindowPromiseHandler(3);
 const network = ref<EvmNetwork>(DEFAULT_EVM_NETWORK);
 const account = ref<EnkryptAccount>({
-  name: "",
-  address: "",
+  name: '',
+  address: '',
 } as EnkryptAccount);
-const identicon = ref<string>("");
+const identicon = ref<string>('');
 const Options = ref<ProviderRequestOptions>({
-  domain: "",
-  faviconURL: "",
-  title: "",
-  url: "",
+  domain: '',
+  faviconURL: '',
+  title: '',
+  url: '',
   tabId: 0,
 });
 const isProcessing = ref(false);
-const message = ref<string>("");
+const message = ref<string>('');
 onBeforeMount(async () => {
   const { Request, options } = await windowPromise;
   network.value = (await getNetworkByName(
@@ -110,5 +110,5 @@ const deny = async () => {
 </script>
 
 <style lang="less" scoped>
-@import "@/providers/ethereum/ui/styles/common-popup.less";
+@import '@/providers/ethereum/ui/styles/common-popup.less';
 </style>

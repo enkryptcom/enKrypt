@@ -1,23 +1,23 @@
-import { MiddlewareFunction } from "@enkryptcom/types";
-import KadenaProvider from "..";
-import { WindowPromise } from "@/libs/window-promise";
-import { ProviderRPCRequest } from "@/types/provider";
-import { getCustomError } from "@/libs/error";
+import { MiddlewareFunction } from '@enkryptcom/types';
+import KadenaProvider from '..';
+import { WindowPromise } from '@/libs/window-promise';
+import { ProviderRPCRequest } from '@/types/provider';
+import { getCustomError } from '@/libs/error';
 const method: MiddlewareFunction = function (
   this: KadenaProvider,
   payload: ProviderRPCRequest,
   res,
   next,
 ): void {
-  if (payload.method !== "kda_signTransaction") return next();
+  if (payload.method !== 'kda_signTransaction') return next();
   else {
     if (!payload.params?.length) {
-      return res(getCustomError("Missing Params: kda_signTransaction"));
+      return res(getCustomError('Missing Params: kda_signTransaction'));
     }
 
     const reqPayload = payload.params[0];
 
-    this.KeyRing.getAccount(reqPayload.address.replace("k:", "0x"))
+    this.KeyRing.getAccount(reqPayload.address.replace('k:', '0x'))
       .then(account => {
         const windowPromise = new WindowPromise();
 

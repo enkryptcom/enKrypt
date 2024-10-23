@@ -1,4 +1,4 @@
-import SubstrateAPI from "@/providers/polkadot/libs/api";
+import SubstrateAPI from '@/providers/polkadot/libs/api';
 
 const apiPromiseList: Record<string, SubstrateAPI> = {};
 

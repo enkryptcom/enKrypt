@@ -1,13 +1,13 @@
-import { NFTCollection, NFTItem } from "@/types/nft";
-import { NodeType } from "@/types/provider";
-import Networks from "@/providers/ethereum/networks";
+import { NFTCollection, NFTItem } from '@/types/nft';
+import { NodeType } from '@/types/provider';
+import Networks from '@/providers/ethereum/networks';
 import {
   ContentRepresentation,
   ContentURL,
   NFTCollection as MEWNFTCollection,
-} from "./types/mew";
-import cacheFetch from "../cache-fetch";
-const MEW_ENDPOINT = "https://mainnet.mewwallet.dev/v3/";
+} from './types/mew';
+import cacheFetch from '../cache-fetch';
+const MEW_ENDPOINT = 'https://mainnet.mewwallet.dev/v3/';
 const CACHE_TTL = 60 * 1000;
 const getBestImageURL = (content: ContentURL[]) => {
   const priority = [ContentRepresentation.IMAGE];
@@ -16,7 +16,7 @@ const getBestImageURL = (content: ContentURL[]) => {
       if (cont.type === pri) return cont.url;
     }
   }
-  return "";
+  return '';
 };
 export default async (
   network: NodeType,
@@ -24,7 +24,7 @@ export default async (
 ): Promise<NFTCollection[]> => {
   const supportedNetworks = [Networks.ethereum.name];
   if (!supportedNetworks.includes(network.name))
-    throw new Error("MEW: network not supported");
+    throw new Error('MEW: network not supported');
   const fetchAll = (): Promise<MEWNFTCollection[]> => {
     const query = `${MEW_ENDPOINT}nfts/account?address=${address}`;
     return cacheFetch({ url: query }, CACHE_TTL).then(json => {

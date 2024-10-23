@@ -11,11 +11,11 @@
 </template>
 
 <script setup lang="ts">
-import { PropType } from "vue";
-import { NetworkInfo } from "@enkryptcom/swap";
+import { PropType } from 'vue';
+import { NetworkInfo } from '@enkryptcom/swap';
 
 const emit = defineEmits<{
-  (e: "update:selectAsset", asset: NetworkInfo): void;
+  (e: 'update:selectAsset', asset: NetworkInfo): void;
 }>();
 
 const props = defineProps({
@@ -26,12 +26,12 @@ const props = defineProps({
 });
 
 const select = () => {
-  emit("update:selectAsset", props.token);
+  emit('update:selectAsset', props.token);
 };
 </script>
 
 <style lang="less">
-@import "@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .assets-select-list {
   &__token {

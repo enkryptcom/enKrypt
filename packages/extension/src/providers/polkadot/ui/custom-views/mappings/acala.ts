@@ -1,10 +1,10 @@
-import { nativeTransfer } from "./substrate";
-import TransferView from "../transfer-approvetx.vue";
-import { SubstrateNetwork } from "@/providers/polkadot/types/substrate-network";
-import { AcalaOrmlAsset } from "@/providers/polkadot/networks/acala/types/acala-orml-asset";
-import { MethodMap, TransferProps } from "../types";
-import { SubstrateNativeToken } from "@/providers/polkadot/types/substrate-native-token";
-import { polkadotEncodeAddress } from "@enkryptcom/utils";
+import { nativeTransfer } from './substrate';
+import TransferView from '../transfer-approvetx.vue';
+import { SubstrateNetwork } from '@/providers/polkadot/types/substrate-network';
+import { AcalaOrmlAsset } from '@/providers/polkadot/networks/acala/types/acala-orml-asset';
+import { MethodMap, TransferProps } from '../types';
+import { SubstrateNativeToken } from '@/providers/polkadot/types/substrate-native-token';
+import { polkadotEncodeAddress } from '@enkryptcom/utils';
 
 const transferCurrency = (
   network: SubstrateNetwork,
@@ -39,7 +39,7 @@ const transferCurrency = (
     });
 
     if (baseToken) {
-      const amount = rawAmount.replaceAll(",", "");
+      const amount = rawAmount.replaceAll(',', '');
       return { to, token: baseToken, amount };
     }
   }
@@ -63,16 +63,16 @@ const transferNativeCurrency = (
   const rawAmount: string | null = args.amount ?? null;
 
   if (to !== null && rawAmount !== null) {
-    const amount = rawAmount.replaceAll(",", "");
+    const amount = rawAmount.replaceAll(',', '');
     return { to, token, amount };
   }
   return null;
 };
 
 const methodsToArgs: MethodMap = {
-  "balances.transferKeepAlive": [TransferView, nativeTransfer],
-  "currencies.transfer": [TransferView, transferCurrency],
-  "currencies.transferNativeCurrency": [TransferView, transferNativeCurrency],
+  'balances.transferKeepAlive': [TransferView, nativeTransfer],
+  'currencies.transfer': [TransferView, transferCurrency],
+  'currencies.transferNativeCurrency': [TransferView, transferNativeCurrency],
 };
 
 export default methodsToArgs;

@@ -1,24 +1,24 @@
-import icon from "./icons/blast.webp";
-import { CoingeckoPlatform, NetworkNames } from "@enkryptcom/types";
-import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
-import assetsInfoHandler from "@/providers/ethereum/libs/assets-handlers/assetinfo-mew";
-import { EtherscanActivity } from "../libs/activity-handlers";
-import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
-import shNFTHandler from "@/libs/nft-handlers/simplehash";
+import icon from './icons/blast.webp';
+import { CoingeckoPlatform, NetworkNames } from '@enkryptcom/types';
+import { EvmNetwork, EvmNetworkOptions } from '../types/evm-network';
+import assetsInfoHandler from '@/providers/ethereum/libs/assets-handlers/assetinfo-mew';
+import { EtherscanActivity } from '../libs/activity-handlers';
+import wrapActivityHandler from '@/libs/activity-state/wrap-activity-handler';
+import shNFTHandler from '@/libs/nft-handlers/simplehash';
 
 const ethOptions: EvmNetworkOptions = {
   name: NetworkNames.Blast,
-  name_long: "Blast",
-  homePage: "https://blast.io/en",
-  blockExplorerTX: "https://blastscan.io/tx/[[txHash]]",
-  blockExplorerAddr: "https://blastscan.io/address/[[address]]",
-  chainID: "0x13e31",
+  name_long: 'Blast',
+  homePage: 'https://blast.io/en',
+  blockExplorerTX: 'https://blastscan.io/tx/[[txHash]]',
+  blockExplorerAddr: 'https://blastscan.io/address/[[address]]',
+  chainID: '0x13e31',
   isTestNetwork: false,
-  currencyName: "ETH",
-  currencyNameLong: "Ethereum",
-  node: "wss://blast-rpc.publicnode.com",
+  currencyName: 'ETH',
+  currencyNameLong: 'Ethereum',
+  node: 'wss://blast-rpc.publicnode.com',
   icon,
-  coingeckoID: "ethereum",
+  coingeckoID: 'ethereum',
   coingeckoPlatform: CoingeckoPlatform.Blast,
   assetsInfoHandler,
   NFTHandler: shNFTHandler,

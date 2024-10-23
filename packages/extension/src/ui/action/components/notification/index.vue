@@ -7,14 +7,14 @@
 </template>
 
 <script setup lang="ts">
-import { PropType, ref } from "vue";
+import { PropType, ref } from 'vue';
 
 const visible = ref(true);
 
 const props = defineProps({
   text: {
     type: String,
-    default: "",
+    default: '',
   },
   hide: {
     type: Function as PropType<() => void>,
@@ -32,7 +32,7 @@ setTimeout(() => {
 </script>
 
 <style lang="less">
-@import "@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .notification {
   display: inline-block;

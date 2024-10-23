@@ -42,21 +42,21 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
-import LogoBig from "@action/icons/common/logo-big.vue";
-import BaseButton from "@action/components/base-button/index.vue";
-import LockScreenPasswordInput from "./components/lock-screen-password-input.vue";
-import LockScreenForgot from "./components/lock-screen-forgot.vue";
-import LockScreenTimer from "./components/lock-screen-timer.vue";
-import { sendToBackgroundFromAction } from "@/libs/messenger/extension";
-import { InternalMethods } from "@/types/messenger";
-import { computed } from "vue";
-import SwapLookingAnimation from "@action/icons/swap/swap-looking-animation.vue";
-import { trackGenericEvents } from "@/libs/metrics";
-import { GenericEvents } from "@/libs/metrics/types";
+import { ref } from 'vue';
+import LogoBig from '@action/icons/common/logo-big.vue';
+import BaseButton from '@action/components/base-button/index.vue';
+import LockScreenPasswordInput from './components/lock-screen-password-input.vue';
+import LockScreenForgot from './components/lock-screen-forgot.vue';
+import LockScreenTimer from './components/lock-screen-timer.vue';
+import { sendToBackgroundFromAction } from '@/libs/messenger/extension';
+import { InternalMethods } from '@/types/messenger';
+import { computed } from 'vue';
+import SwapLookingAnimation from '@action/icons/swap/swap-looking-animation.vue';
+import { trackGenericEvents } from '@/libs/metrics';
+import { GenericEvents } from '@/libs/metrics/types';
 
 const emit = defineEmits<{
-  (e: "update:init"): void;
+  (e: 'update:init'): void;
 }>();
 
 const password = ref(__PREFILL_PASSWORD__!);
@@ -82,8 +82,8 @@ const unlockAction = async () => {
     trackGenericEvents(GenericEvents.login_error);
   } else {
     isError.value = false;
-    password.value = "";
-    emit("update:init");
+    password.value = '';
+    emit('update:init');
     setTimeout(() => (isUnlocking.value = false), 750);
     trackGenericEvents(GenericEvents.login_success);
   }
@@ -99,7 +99,7 @@ const toggleForgot = () => {
   isForgot.value = !isForgot.value;
 };
 const resetAction = () => {
-  password.value = "";
+  password.value = '';
 };
 const closeLockedAction = () => {
   isLocked.value = false;
@@ -107,7 +107,7 @@ const closeLockedAction = () => {
 </script>
 
 <style lang="less" scoped>
-@import "@action/styles/theme.less";
+@import '@action/styles/theme.less';
 .lock-screen {
   width: 100%;
   height: 100%;

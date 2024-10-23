@@ -1,13 +1,13 @@
-import { InternalMethods, InternalOnMessageResponse } from "@/types/messenger";
+import { InternalMethods, InternalOnMessageResponse } from '@/types/messenger';
 import {
   SolInternalSignMessageRequest,
   SolInternalSignTransactionRequest,
-} from "../types";
-import HWwallet from "@enkryptcom/hw-wallets";
-import { HWwalletType } from "@enkryptcom/types";
-import { getCustomError } from "@/libs/error";
-import { bufferToHex, hexToBuffer } from "@enkryptcom/utils";
-import sendUsingInternalMessengers from "@/libs/messenger/internal-messenger";
+} from '../types';
+import HWwallet from '@enkryptcom/hw-wallets';
+import { HWwalletType } from '@enkryptcom/types';
+import { getCustomError } from '@/libs/error';
+import { bufferToHex, hexToBuffer } from '@enkryptcom/utils';
+import sendUsingInternalMessengers from '@/libs/messenger/internal-messenger';
 
 /**
  * Sign a transaction
@@ -61,7 +61,7 @@ const MessageSigner = (
   const { account, payload } = options;
   if (account.isHardware) {
     return Promise.reject({
-      error: getCustomError("solana-hw-sign: hw wallets not supported"),
+      error: getCustomError('solana-hw-sign: hw wallets not supported'),
     });
     // only ledger supports offchain message signing but it is not widely accepted yet, will visit later
     // https://github.com/anza-xyz/wallet-standard/blob/master/packages/core/util/src/signMessage.ts

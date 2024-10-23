@@ -2,12 +2,12 @@ import {
   ProviderMessage,
   MessageMethod,
   EmitEvent,
-} from "@/providers/kadena/types";
+} from '@/providers/kadena/types';
 
 import {
   KadenaProvider,
   handleIncomingMessage as handleIncomingMessageType,
-} from "@/types/provider";
+} from '@/types/provider';
 
 const handleIncomingMessage: handleIncomingMessageType = (
   provider,

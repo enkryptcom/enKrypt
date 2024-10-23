@@ -1,8 +1,8 @@
-import BigNumber from "bignumber.js";
-import { toBN, toWei } from "web3-utils";
-import { BNType, GasPriceTypes } from "@/providers/common/types";
-import { FeeHistoryResult } from "web3-eth";
-import { FormattedFeeHistory } from "./types";
+import BigNumber from 'bignumber.js';
+import { toBN, toWei } from 'web3-utils';
+import { BNType, GasPriceTypes } from '@/providers/common/types';
+import { FeeHistoryResult } from 'web3-eth';
+import { FormattedFeeHistory } from './types';
 
 const MED_CONST = 21428571428.571;
 const MED_MULTIPLIER = 1.0714285714286;
@@ -62,7 +62,7 @@ const getGasBasedOnType = (
   }
 };
 const getMinPriorityFee = (): BNType => {
-  return toBN(toWei("0.1", "gwei"));
+  return toBN(toWei('0.1', 'gwei'));
 };
 const getPriorityFeeAvg = (arr: BNType[]): BNType => {
   const sum = arr.reduce((a, v) => a.add(v));
@@ -128,7 +128,7 @@ const formatFeeHistory = (
   return {
     blocks,
     pendingBlock: {
-      number: "pending",
+      number: 'pending',
       baseFeePerGas: pendingBaseFee,
       gasUsedRatio: 0,
       priorityFeePerGas: [],
@@ -157,24 +157,24 @@ const getBaseFeeBasedOnType = (
 };
 const FeeDescriptions = {
   [GasPriceTypes.ECONOMY]: {
-    title: "Economy",
-    description: "Will likely go through unless activity increases",
-    eta: "5 mins",
+    title: 'Economy',
+    description: 'Will likely go through unless activity increases',
+    eta: '5 mins',
   },
   [GasPriceTypes.REGULAR]: {
-    title: "Recommended",
-    description: "Will reliably go through in most scenarios",
-    eta: "2 mins",
+    title: 'Recommended',
+    description: 'Will reliably go through in most scenarios',
+    eta: '2 mins',
   },
   [GasPriceTypes.FAST]: {
-    title: "Higher priority",
-    description: "Will go through even if there is a sudden activity increase",
-    eta: "1 mins",
+    title: 'Higher priority',
+    description: 'Will go through even if there is a sudden activity increase',
+    eta: '1 mins',
   },
   [GasPriceTypes.FASTEST]: {
-    title: "Highest priority",
-    description: "Will go through, fast, in 99.99% of the cases",
-    eta: "30 secs",
+    title: 'Highest priority',
+    description: 'Will go through, fast, in 99.99% of the cases',
+    eta: '30 secs',
   },
 };
 export {

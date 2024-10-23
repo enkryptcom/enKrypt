@@ -1,7 +1,7 @@
-import { CustomEvmNetworkOptions } from "@/providers/ethereum/types/custom-evm-network";
-import { InternalStorageNamespace } from "@/types/provider";
-import BrowserStorage from "../common/browser-storage";
-import { IState, StorageKeys } from "./types";
+import { CustomEvmNetworkOptions } from '@/providers/ethereum/types/custom-evm-network';
+import { InternalStorageNamespace } from '@/types/provider';
+import BrowserStorage from '../common/browser-storage';
+import { IState, StorageKeys } from './types';
 
 export default class CustomNetworksState {
   private storage: BrowserStorage;

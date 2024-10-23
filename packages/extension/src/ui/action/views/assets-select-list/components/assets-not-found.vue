@@ -10,16 +10,16 @@
 </template>
 <script lang="ts">
 export default {
-  name: "AssetsNotFound",
+  name: 'AssetsNotFound',
 };
 </script>
 <script setup lang="ts">
-import { Vue3Lottie } from "vue3-lottie";
-import LottieSearchNotFound from "@action/assets/animation/search-not-found.json";
+import { Vue3Lottie } from 'vue3-lottie';
+import LottieSearchNotFound from '@action/assets/animation/search-not-found.json';
 </script>
 <style lang="less">
-@import "@action/styles/theme.less";
-@import "@action/styles/custom-scroll.less";
+@import '@action/styles/theme.less';
+@import '@action/styles/custom-scroll.less';
 .assets-not-found {
   width: 100%;
   height: 100%;

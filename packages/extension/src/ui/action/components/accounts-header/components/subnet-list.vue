@@ -19,11 +19,11 @@
 </template>
 
 <script setup lang="ts">
-import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
-import { PropType } from "vue";
-import scrollSettings from "@/libs/utils/scroll-settings";
-import SubnetListItem from "./subnet-list-item.vue";
-import { SubNetworkOptions } from "@/types/base-network";
+import CustomScrollbar from '@action/components/custom-scrollbar/index.vue';
+import { PropType } from 'vue';
+import scrollSettings from '@/libs/utils/scroll-settings';
+import SubnetListItem from './subnet-list-item.vue';
+import { SubNetworkOptions } from '@/types/base-network';
 
 defineProps({
   subNets: {
@@ -32,15 +32,15 @@ defineProps({
   },
   selectedId: {
     type: String,
-    default: "",
+    default: '',
   },
   showChains: Boolean,
 });
 </script>
 
 <style lang="less">
-@import "@action/styles/theme.less";
-@import "@action/styles/custom-scroll.less";
+@import '@action/styles/theme.less';
+@import '@action/styles/custom-scroll.less';
 
 .chains {
   position: absolute;

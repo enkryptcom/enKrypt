@@ -1,8 +1,8 @@
-import { InternalStorageNamespace } from "@/types/provider";
-import BrowserStorage from "@/libs/common/browser-storage";
-import { ActivityOptions } from "./types";
-import { Activity, ActivityStatus } from "@/types/activity";
-const STORAGE_KEY = "activity";
+import { InternalStorageNamespace } from '@/types/provider';
+import BrowserStorage from '@/libs/common/browser-storage';
+import { ActivityOptions } from './types';
+import { Activity, ActivityStatus } from '@/types/activity';
+const STORAGE_KEY = 'activity';
 const MAX_PENDING_TIME = 12 * 60 * 60 * 1000; // 12 hours
 
 class ActivityState {

@@ -1,7 +1,7 @@
-import { BaseToken, SendOptions } from "@/types/base-token";
-import { ApiPromise } from "@polkadot/api";
-import { SubmittableExtrinsic } from "@polkadot/api/types";
-import { ISubmittableResult } from "@polkadot/types/types";
+import { BaseToken, SendOptions } from '@/types/base-token';
+import { ApiPromise } from '@polkadot/api';
+import { SubmittableExtrinsic } from '@polkadot/api/types';
+import { ISubmittableResult } from '@polkadot/types/types';
 
 export abstract class SubstrateToken extends BaseToken {
   public abstract send(
@@ -9,5 +9,5 @@ export abstract class SubstrateToken extends BaseToken {
     to: string,
     amount: string,
     options?: SendOptions,
-  ): Promise<SubmittableExtrinsic<"promise", ISubmittableResult>>;
+  ): Promise<SubmittableExtrinsic<'promise', ISubmittableResult>>;
 }

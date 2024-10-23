@@ -1,10 +1,10 @@
-import { EthereumRawInfo } from "@/types/activity";
-import { ProviderAPIInterface } from "@/types/provider";
-import { isArray } from "lodash";
-import Web3Eth from "web3-eth";
-import { numberToHex, toBN } from "web3-utils";
-import { ERC20TokenInfo } from "../types";
-import erc20 from "./abi/erc20";
+import { EthereumRawInfo } from '@/types/activity';
+import { ProviderAPIInterface } from '@/types/provider';
+import { isArray } from 'lodash';
+import Web3Eth from 'web3-eth';
+import { numberToHex, toBN } from 'web3-utils';
+import { ERC20TokenInfo } from '../types';
+import erc20 from './abi/erc20';
 
 /** Ethereum API wrapper */
 class API implements ProviderAPIInterface {
@@ -65,7 +65,7 @@ class API implements ProviderAPIInterface {
       const name = results[0];
       const symbol = results[1];
       const decimals = results[2];
-      if (isArray(name) || isArray(symbol) || isArray(decimals)) throw "";
+      if (isArray(name) || isArray(symbol) || isArray(decimals)) throw '';
       return {
         name,
         symbol,
@@ -73,8 +73,8 @@ class API implements ProviderAPIInterface {
       };
     } catch (e) {
       return {
-        name: "Unknown",
-        symbol: "UNKNWN",
+        name: 'Unknown',
+        symbol: 'UNKNWN',
         decimals: 18,
       };
     }

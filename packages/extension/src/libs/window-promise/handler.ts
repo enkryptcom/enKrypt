@@ -1,18 +1,18 @@
-import { onMounted, reactive, ref, Ref, UnwrapNestedRefs } from "vue";
+import { onMounted, reactive, ref, Ref, UnwrapNestedRefs } from 'vue';
 import {
   newWindowOnMessageFromBackground,
   sendToBackgroundFromNewWindow,
-} from "@/libs/messenger/extension";
+} from '@/libs/messenger/extension';
 import {
   ProviderRPCRequest,
   ProviderRequestOptions,
   ProviderName,
-} from "@/types/provider";
-import { Destination, InternalOnMessageResponse } from "@/types/messenger";
-import PublicKeyRing from "@/libs/keyring/public-keyring";
-import type { WindowPromiseType } from "@/types/ui";
-import { getCustomError } from "@/libs/error";
-import { RPCRequestType } from "@enkryptcom/types";
+} from '@/types/provider';
+import { Destination, InternalOnMessageResponse } from '@/types/messenger';
+import PublicKeyRing from '@/libs/keyring/public-keyring';
+import type { WindowPromiseType } from '@/types/ui';
+import { getCustomError } from '@/libs/error';
+import { RPCRequestType } from '@enkryptcom/types';
 
 export default (paramCount: number): Promise<WindowPromiseType> => {
   let PromResolve: (val: WindowPromiseType) => void;
@@ -20,18 +20,18 @@ export default (paramCount: number): Promise<WindowPromiseType> => {
     PromResolve = resolve;
   });
   const options: UnwrapNestedRefs<ProviderRequestOptions> = reactive({
-    url: "",
-    domain: "",
-    faviconURL: "",
-    title: "",
+    url: '',
+    domain: '',
+    faviconURL: '',
+    title: '',
     tabId: 0,
   });
   const PromiseResolve: Ref<(res: InternalOnMessageResponse) => void> = ref(
     () => {
-      throw "window-promise-handler: not implemented";
+      throw 'window-promise-handler: not implemented';
     },
   );
-  const Request: Ref<ProviderRPCRequest> = ref({ method: "", value: "" });
+  const Request: Ref<ProviderRPCRequest> = ref({ method: '', value: '' });
   const KeyRing: PublicKeyRing = new PublicKeyRing();
 
   const sendToBackground = (
@@ -49,7 +49,7 @@ export default (paramCount: number): Promise<WindowPromiseType> => {
     });
   };
   onMounted(() => {
-    history.pushState(null, "", window.location.href);
+    history.pushState(null, '', window.location.href);
     history.back();
     window.onpopstate = () => history.forward();
     // prevents browser back button
@@ -62,7 +62,7 @@ export default (paramCount: number): Promise<WindowPromiseType> => {
         ) {
           return Promise.resolve({
             error: getCustomError(
-              "window-promise-handler: invalid message sender",
+              'window-promise-handler: invalid message sender',
             ),
           });
         }
@@ -73,7 +73,7 @@ export default (paramCount: number): Promise<WindowPromiseType> => {
         ) {
           return Promise.resolve({
             error: getCustomError(
-              "window-promise-handler: invalid number of params",
+              'window-promise-handler: invalid number of params',
             ),
           });
         }

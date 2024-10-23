@@ -1,11 +1,11 @@
-import { NetworkNames } from "@enkryptcom/types";
+import { NetworkNames } from '@enkryptcom/types';
 
 export enum StorageKeys {
-  customTokens = "custom-tokens",
+  customTokens = 'custom-tokens',
 }
 
 export enum TokenType {
-  ERC20 = "ERC20",
+  ERC20 = 'ERC20',
 }
 
 export interface CustomToken {

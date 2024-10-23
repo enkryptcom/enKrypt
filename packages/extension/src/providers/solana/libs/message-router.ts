@@ -2,11 +2,11 @@ import {
   ProviderMessage,
   MessageMethod,
   EmitEvent,
-} from "@/providers/ethereum/types";
+} from '@/providers/ethereum/types';
 import {
   SolanaProvider,
   handleIncomingMessage as handleIncomingMessageType,
-} from "@/types/provider";
+} from '@/types/provider';
 const handleIncomingMessage: handleIncomingMessageType = (
   provider,
   message,
@@ -25,7 +25,7 @@ const handleIncomingMessage: handleIncomingMessageType = (
     } else if (jsonMsg.method === MessageMethod.changeAddress) {
       _provider
         .request({
-          method: "sol_connect",
+          method: 'sol_connect',
           params: [],
         })
         .then((res: { address: string; pubkey: string }[]) => {

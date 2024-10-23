@@ -108,58 +108,58 @@
 </template>
 
 <script setup lang="ts">
-import { ComponentPublicInstance, computed, onMounted, ref } from "vue";
-import { useRouter, useRoute } from "vue-router";
-import CloseIcon from "@action/icons/common/close-icon.vue";
-import BaseButton from "@action/components/base-button/index.vue";
-import SwapBestOfferBlock from "./components/swap-best-offer-block/index.vue";
-import SwapInitiated from "@action/views/swap-initiated/index.vue";
-import HardwareWalletMsg from "@/providers/common/ui/verify-transaction/hardware-wallet-msg.vue";
-import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
-import BestOfferError from "./components/swap-best-offer-block/components/best-offer-error.vue";
-import SendFeeSelect from "@/providers/common/ui/send-transaction/send-fee-select.vue";
-import SendFeeDisplay from "@/providers/polkadot/ui/send-transaction/components/send-fee-display.vue";
-import TransactionFeeView from "@action/views/transaction-fee/index.vue";
-import SwapLooking from "../../components/swap-loading/index.vue";
-import { SWAP_LOADING } from "../../types";
-import scrollSettings from "@/libs/utils/scroll-settings";
-import { BaseNetwork } from "@/types/base-network";
-import { toBN } from "web3-utils";
-import BN from "bn.js";
+import { ComponentPublicInstance, computed, onMounted, ref } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
+import CloseIcon from '@action/icons/common/close-icon.vue';
+import BaseButton from '@action/components/base-button/index.vue';
+import SwapBestOfferBlock from './components/swap-best-offer-block/index.vue';
+import SwapInitiated from '@action/views/swap-initiated/index.vue';
+import HardwareWalletMsg from '@/providers/common/ui/verify-transaction/hardware-wallet-msg.vue';
+import CustomScrollbar from '@action/components/custom-scrollbar/index.vue';
+import BestOfferError from './components/swap-best-offer-block/components/best-offer-error.vue';
+import SendFeeSelect from '@/providers/common/ui/send-transaction/send-fee-select.vue';
+import SendFeeDisplay from '@/providers/polkadot/ui/send-transaction/components/send-fee-display.vue';
+import TransactionFeeView from '@action/views/transaction-fee/index.vue';
+import SwapLooking from '../../components/swap-loading/index.vue';
+import { SWAP_LOADING } from '../../types';
+import scrollSettings from '@/libs/utils/scroll-settings';
+import { BaseNetwork } from '@/types/base-network';
+import { toBN } from 'web3-utils';
+import BN from 'bn.js';
 import {
   Activity,
   ActivityStatus,
   ActivityType,
   SwapRawInfo,
-} from "@/types/activity";
-import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
-import { GasFeeType, GasPriceTypes } from "@/providers/common/types";
-import BigNumber from "bignumber.js";
-import { defaultGasCostVals } from "@/providers/common/libs/default-vals";
-import { SwapBestOfferWarnings } from "../../types";
-import { NATIVE_TOKEN_ADDRESS } from "@/providers/ethereum/libs/common";
-import { EnkryptAccount } from "@enkryptcom/types";
-import { getNetworkByName } from "@/libs/utils/networks";
+} from '@/types/activity';
+import { EvmNetwork } from '@/providers/ethereum/types/evm-network';
+import { GasFeeType, GasPriceTypes } from '@/providers/common/types';
+import BigNumber from 'bignumber.js';
+import { defaultGasCostVals } from '@/providers/common/libs/default-vals';
+import { SwapBestOfferWarnings } from '../../types';
+import { NATIVE_TOKEN_ADDRESS } from '@/providers/ethereum/libs/common';
+import { EnkryptAccount } from '@enkryptcom/types';
+import { getNetworkByName } from '@/libs/utils/networks';
 import {
   getNetworkInfoByName,
   NetworkType,
   ProviderSwapResponse,
   SupportedNetworkName,
   SwapToken,
-} from "@enkryptcom/swap";
-import PublicKeyRing from "@/libs/keyring/public-keyring";
-import { SwapData, ProviderResponseWithStatus } from "../../types";
-import { getSwapTransactions } from "../../libs/swap-txs";
-import { getEVMTransactionFees } from "../../libs/evm-gasvals";
-import { getSubstrateGasVals } from "../../libs/substrate-gasvals";
-import { executeSwap } from "../../libs/send-transactions";
-import { fromBase, toBase } from "@enkryptcom/utils";
-import ActivityState from "@/libs/activity-state";
-import { getBitcoinGasVals } from "../../libs/bitcoin-gasvals";
-import { trackSwapEvents } from "@/libs/metrics";
-import { SwapEventType } from "@/libs/metrics/types";
-import { getSolanaTransactionFees } from "../../libs/solana-gasvals";
-import { SolanaNetwork } from "@/providers/solana/types/sol-network";
+} from '@enkryptcom/swap';
+import PublicKeyRing from '@/libs/keyring/public-keyring';
+import { SwapData, ProviderResponseWithStatus } from '../../types';
+import { getSwapTransactions } from '../../libs/swap-txs';
+import { getEVMTransactionFees } from '../../libs/evm-gasvals';
+import { getSubstrateGasVals } from '../../libs/substrate-gasvals';
+import { executeSwap } from '../../libs/send-transactions';
+import { fromBase, toBase } from '@enkryptcom/utils';
+import ActivityState from '@/libs/activity-state';
+import { getBitcoinGasVals } from '../../libs/bitcoin-gasvals';
+import { trackSwapEvents } from '@/libs/metrics';
+import { SwapEventType } from '@/libs/metrics/types';
+import { getSolanaTransactionFees } from '../../libs/solana-gasvals';
+import { SolanaNetwork } from '@/providers/solana/types/sol-network';
 
 const router = useRouter();
 const route = useRoute();
@@ -172,7 +172,7 @@ const selectedNetwork: string = route.query.id as string;
 const network = ref<BaseNetwork>();
 const account = ref<EnkryptAccount>();
 const swapData: SwapData = JSON.parse(
-  Buffer.from(route.query.swapData as string, "base64").toString("utf8"),
+  Buffer.from(route.query.swapData as string, 'base64').toString('utf8'),
 );
 swapData.trades.forEach(t => {
   t.fromTokenAmount = toBN(`0x${t.fromTokenAmount}`);
@@ -201,14 +201,14 @@ const gasDifference = ref<string>();
 const priceDifference = ref<string>();
 const isTXSendLoading = ref<boolean>(false);
 const isTXSendError = ref(false);
-const TXSendErrorMessage = ref("");
+const TXSendErrorMessage = ref('');
 const isLooking = ref(true);
 
 const setWarning = async () => {
   if (balance.value.ltn(0)) return;
   const selectedGasTier = gasCostValues.value[selectedFee.value];
   if (!selectedGasTier) {
-    console.warn("No gas cost values for selected fee");
+    console.warn('No gas cost values for selected fee');
     return;
   }
 
@@ -286,7 +286,7 @@ const getTransactionFees = async (
       swapData.nativePrice,
     );
   } else {
-    throw new Error("unsupported network type");
+    throw new Error('unsupported network type');
   }
 };
 
@@ -315,8 +315,8 @@ onMounted(async () => {
     );
     const gasTier = gasCosts[selectedFee.value];
     if (!gasTier) {
-      console.warn("No gas cost tier for selected fee value");
-      throw new Error("No gas cost tier for selected fee value");
+      console.warn('No gas cost tier for selected fee value');
+      throw new Error('No gas cost tier for selected fee value');
     }
     const gasCostFiat = parseFloat(gasTier.fiatValue);
     const finalToFiat = toTokenFiat - gasCostFiat;
@@ -363,7 +363,7 @@ const close = () => {
   }
 };
 
-const sendButtonTitle = () => "Proceed with swap";
+const sendButtonTitle = () => 'Proceed with swap';
 
 const isDisabled = computed(() => {
   const gasTier = gasCostValues.value[selectedFee.value];
@@ -371,7 +371,7 @@ const isDisabled = computed(() => {
     (warning.value !== SwapBestOfferWarnings.NONE &&
       warning.value !== SwapBestOfferWarnings.BAD_PRICE) ||
     !gasTier ||
-    gasTier.nativeValue === "0"
+    gasTier.nativeValue === '0'
   ) {
     return true;
   }
@@ -382,7 +382,7 @@ const sendAction = async () => {
   if (pickedTrade.value) {
     await setTransactionFees();
     isTXSendError.value = false;
-    TXSendErrorMessage.value = "";
+    TXSendErrorMessage.value = '';
     isTXSendLoading.value = true;
     isInitiated.value = true;
     // The problem is in here
@@ -413,7 +413,7 @@ const sendAction = async () => {
             coingeckoID: swapData.toToken.cgId,
             price: swapData.toToken.price
               ? swapData.toToken.price.toString()
-              : "0",
+              : '0',
           },
           isIncoming: account.value!.address === swapData.toAddress,
           network: network.value!.name,
@@ -450,19 +450,19 @@ const sendAction = async () => {
       });
     isTXSendLoading.value = false;
   } else {
-    console.error("No trade yet");
+    console.error('No trade yet');
   }
 };
 
 const handleScroll = (e: any) => {
-  const progress = Number(e.target.lastChild.style.top.replace("px", ""));
+  const progress = Number(e.target.lastChild.style.top.replace('px', ''));
   scrollProgress.value = progress;
   height.value = 460 + Math.min(12, progress);
 };
 
 const isHasScroll = () => {
   if (bestOfferScrollRef.value) {
-    return bestOfferScrollRef.value.$el.classList.contains("ps--active-y");
+    return bestOfferScrollRef.value.$el.classList.contains('ps--active-y');
   }
 };
 
@@ -484,7 +484,7 @@ const selectTrade = (trade: ProviderSwapResponse) => {
 </script>
 
 <style lang="less">
-@import "@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .container {
   width: 100%;
@@ -549,7 +549,7 @@ const selectTrade = (trade: ProviderSwapResponse) => {
     flex-direction: column;
     width: 100%;
     box-sizing: border-box;
-    height: calc(~"100% - 128px");
+    height: calc(~'100% - 128px');
   }
 
   &__buttons {

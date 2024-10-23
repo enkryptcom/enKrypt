@@ -6,10 +6,10 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
-import moment from "moment";
+import { onMounted, ref } from 'vue';
+import moment from 'moment';
 
-import SendSpinnerAnimation from "@action/icons/send/send-spinner-animation.vue";
+import SendSpinnerAnimation from '@action/icons/send/send-spinner-animation.vue';
 
 const props = defineProps({
   date: {
@@ -32,7 +32,7 @@ const updateTimer = () => {
 </script>
 
 <style lang="less">
-@import "@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .status-timer {
   display: inline-block;

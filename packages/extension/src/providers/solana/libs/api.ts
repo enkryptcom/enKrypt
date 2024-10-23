@@ -1,10 +1,10 @@
-import { SOLRawInfo } from "@/types/activity";
-import { ProviderAPIInterface } from "@/types/provider";
-import { getAddress as getSolAddress } from "../types/sol-network";
-import { Connection, PublicKey } from "@solana/web3.js";
-import { hexToBuffer, numberToHex } from "@enkryptcom/utils";
-import cacheFetch from "@/libs/cache-fetch";
-import { SPLTokenInfo } from "../types/sol-token";
+import { SOLRawInfo } from '@/types/activity';
+import { ProviderAPIInterface } from '@/types/provider';
+import { getAddress as getSolAddress } from '../types/sol-network';
+import { Connection, PublicKey } from '@solana/web3.js';
+import { hexToBuffer, numberToHex } from '@enkryptcom/utils';
+import cacheFetch from '@/libs/cache-fetch';
+import { SPLTokenInfo } from '../types/sol-token';
 
 /** Solana API wrapper */
 class API implements ProviderAPIInterface {
@@ -28,7 +28,7 @@ class API implements ProviderAPIInterface {
     return this.web3
       .getTransaction(hash, {
         maxSupportedTransactionVersion: 0,
-        commitment: "confirmed",
+        commitment: 'confirmed',
       })
       .then(tx => {
         if (!tx) return null;
@@ -64,7 +64,7 @@ class API implements ProviderAPIInterface {
     }
     const allTokensResponse = await cacheFetch(
       {
-        url: "https://utl.solcast.dev/solana-tokenlist.json",
+        url: 'https://utl.solcast.dev/solana-tokenlist.json',
         postProcess: (data: any) => {
           const allTokens = data.tokens as TokenDetails[];
           const tObj: Record<string, TokenDetails> = {};
@@ -99,8 +99,8 @@ class API implements ProviderAPIInterface {
         });
     }
     return {
-      name: "Unknown",
-      symbol: "UNKNWN",
+      name: 'Unknown',
+      symbol: 'UNKNWN',
       decimals,
       icon: undefined,
       cgId: undefined,

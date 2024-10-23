@@ -1,11 +1,11 @@
 import {
   InternalStorageNamespace,
   ProviderRequestOptions,
-} from "@/types/provider";
-import Browser from "webextension-polyfill";
-import BrowserStorage from "../common/browser-storage";
-import tabInfo from "../utils/tab-info";
-import { IState, StorageKeys } from "./types";
+} from '@/types/provider';
+import Browser from 'webextension-polyfill';
+import BrowserStorage from '../common/browser-storage';
+import tabInfo from '../utils/tab-info';
+import { IState, StorageKeys } from './types';
 class DomainState {
   #storage: BrowserStorage;
   constructor() {

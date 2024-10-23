@@ -3,8 +3,8 @@ import {
   sendMessage,
   allowWindowMessaging,
   getCurrentContext,
-} from "@enkryptcom/extension-bridge";
-import { EXTENSION_NAMESPACE } from "@/configs/constants";
+} from '@enkryptcom/extension-bridge';
+import { EXTENSION_NAMESPACE } from '@/configs/constants';
 import {
   Message,
   MessageType,
@@ -14,10 +14,10 @@ import {
   InternalMessageType,
   InternalOnMessageResponse,
   ActionSendMessage,
-} from "@/types/messenger";
-import { OnMessageResponse } from "@enkryptcom/types";
-import { assert } from "chai";
-import { EventBusEmit, EventBusOn } from "./eventbus";
+} from '@/types/messenger';
+import { OnMessageResponse } from '@enkryptcom/types';
+import { assert } from 'chai';
+import { EventBusEmit, EventBusOn } from './eventbus';
 
 export { getCurrentContext };
 export const sendToWindow = (
@@ -99,7 +99,7 @@ export const backgroundOnMessageFromWindow = (cb: onMessageType): void => {
   backgroundOnMessage(MessageType.WINDOW_REQUEST, message => {
     assert(
       message.sender.context === Destination.window,
-      "Message didnt come from window",
+      'Message didnt come from window',
     );
     return cb(message);
   });
@@ -111,7 +111,7 @@ export const backgroundOnMessageFromNewWindow = (
   backgroundOnMessage(MessageType.NEWWINDOW_REQUEST, async message => {
     assert(
       message.sender.context === Destination.newWindow,
-      "Message didnt come from new-window",
+      'Message didnt come from new-window',
     );
     return cb(message);
   });
@@ -123,7 +123,7 @@ export const backgroundOnMessageFromAction = (
   backgroundOnMessage(MessageType.ACTION_REQUEST, async message => {
     assert(
       message.sender.context === Destination.popup,
-      "Message didnt come from popup",
+      'Message didnt come from popup',
     );
     return cb(message);
   });
@@ -133,7 +133,7 @@ export const backgroundOnMessageFromCS = (cb: onMessageType): void => {
   backgroundOnMessage(MessageType.CS_REQUEST, async message => {
     assert(
       message.sender.context === Destination.contentScript,
-      "Message didnt come from content script",
+      'Message didnt come from content script',
     );
     return cb(message);
   });
@@ -145,7 +145,7 @@ export const newWindowOnMessageFromBackground = (
   backgroundOnMessage(MessageType.NEWWINDOW_REQUEST, async message => {
     assert(
       message.sender.context === Destination.background,
-      "Message didnt come from background",
+      'Message didnt come from background',
     );
     return cb(message);
   });

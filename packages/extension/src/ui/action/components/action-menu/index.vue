@@ -12,17 +12,17 @@
 </template>
 
 <script setup lang="ts">
-import Send from "@action/icons/actions/send.vue";
-import View from "@/ui/action/icons/actions/view.vue";
-import { useRoute, useRouter } from "vue-router";
-import { PropType } from "vue";
-import { NFTItem } from "@/types/nft";
+import Send from '@action/icons/actions/send.vue';
+import View from '@/ui/action/icons/actions/view.vue';
+import { useRoute, useRouter } from 'vue-router';
+import { PropType } from 'vue';
+import { NFTItem } from '@/types/nft';
 const route = useRoute();
 const router = useRouter();
 const props = defineProps({
   link: {
     type: String,
-    default: "",
+    default: '',
   },
   item: {
     type: Object as PropType<NFTItem>,
@@ -33,15 +33,15 @@ const props = defineProps({
 });
 const openLink = () => {
   if (props.link && props.link !== null) {
-    window.open(props.link, "_blank");
+    window.open(props.link, '_blank');
   }
 };
 const openSend = () => {
   router.push({
-    name: "send-transaction",
+    name: 'send-transaction',
     params: {
       id: route.params.id,
-      isToken: "false",
+      isToken: 'false',
       tokenData: JSON.stringify(props.item),
     },
   });
@@ -49,7 +49,7 @@ const openSend = () => {
 </script>
 
 <style lang="less">
-@import "@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .action-menu {
   box-sizing: border-box;

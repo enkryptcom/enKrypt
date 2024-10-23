@@ -1,21 +1,21 @@
-import { NATIVE_TOKEN_ADDRESS } from "@/providers/ethereum/libs/common";
+import { NATIVE_TOKEN_ADDRESS } from '@/providers/ethereum/libs/common';
 import {
   ACCOUNT_SIZE,
   AccountLayout,
   TOKEN_PROGRAM_ID,
-} from "@solana/spl-token";
+} from '@solana/spl-token';
 import {
   VersionedTransaction,
   PublicKey,
   Transaction,
   TransactionVersion,
-} from "@solana/web3.js";
-import SolanaAPI from "@/providers/solana/libs/api";
-import { SolanaNetwork } from "../../types/sol-network";
-import { toBN } from "web3-utils";
-import BigNumber from "bignumber.js";
-import { fromBase } from "@enkryptcom/utils";
-import MarketData from "@/libs/market-data";
+} from '@solana/web3.js';
+import SolanaAPI from '@/providers/solana/libs/api';
+import { SolanaNetwork } from '../../types/sol-network';
+import { toBN } from 'web3-utils';
+import BigNumber from 'bignumber.js';
+import { fromBase } from '@enkryptcom/utils';
+import MarketData from '@/libs/market-data';
 
 export interface DecodedTxResponseType {
   contract: string;
@@ -34,13 +34,13 @@ const assetFetch = (
   params: any,
 ): Promise<any> => {
   return fetch(node, {
-    method: "POST",
+    method: 'POST',
     headers: {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      jsonrpc: "2.0",
-      id: "rpd-op-123",
+      jsonrpc: '2.0',
+      id: 'rpd-op-123',
       method,
       params,
     }),
@@ -57,13 +57,13 @@ const decodeTransaction = async (
   const allBalances = await network.getAllTokenInfo(from.toBase58());
   const marketData = new MarketData();
   return (
-    version !== "legacy"
+    version !== 'legacy'
       ? solAPI.web3.simulateTransaction(tx as VersionedTransaction, {
           accounts: {
             addresses: (
               tx as VersionedTransaction
             ).message.staticAccountKeys.map(k => k.toBase58()),
-            encoding: "base64",
+            encoding: 'base64',
           },
         })
       : solAPI.web3.simulateTransaction(tx as Transaction, undefined, true)
@@ -75,14 +75,14 @@ const decodeTransaction = async (
     };
     const balanceChanges = result.value
       .accounts!.filter(a => {
-        const data = Buffer.from(a!.data[0], "base64");
+        const data = Buffer.from(a!.data[0], 'base64');
         return (
           a!.owner === TOKEN_PROGRAM_ID.toBase58() &&
           data.length === ACCOUNT_SIZE
         );
       })
       .map(a => {
-        const data = Buffer.from(a!.data[0], "base64");
+        const data = Buffer.from(a!.data[0], 'base64');
         return AccountLayout.decode(data);
       })
       .filter(val => val.owner.toBase58() === from.toBase58())
@@ -117,12 +117,12 @@ const decodeTransaction = async (
         change: 0,
         contract: token.contract,
         decimals: token.decimals,
-        icon: token.icon || "",
+        icon: token.icon || '',
         isNegative: false,
         name: token.name,
         symbol: token.symbol,
-        price: "0",
-        USDval: "0",
+        price: '0',
+        USDval: '0',
       };
       const balInfo = allBalances.find(b => b.contract === token.contract);
       if (balInfo) {
@@ -147,7 +147,7 @@ const decodeTransaction = async (
         }
       }
       if (token.decimals === 0) {
-        const assetDetails = await assetFetch(network.node, "getAsset", {
+        const assetDetails = await assetFetch(network.node, 'getAsset', {
           id: token.contract,
         }).catch(() => {
           return null;

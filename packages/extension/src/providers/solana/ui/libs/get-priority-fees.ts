@@ -1,5 +1,5 @@
 // https://docs.chainstack.com/docs/solana-estimate-priority-fees-getrecentprioritizationfees
-import { Connection, PublicKey } from "@solana/web3.js";
+import { Connection, PublicKey } from '@solana/web3.js';
 
 interface PrioritizationFeeObject {
   slot: number;

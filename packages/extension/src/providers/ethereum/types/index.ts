@@ -1,24 +1,24 @@
-import type { Provider as InjectedProvider } from "../inject";
-import { ProviderError, SignerType } from "@enkryptcom/types";
-import { EnkryptProviderEventMethods, NodeType } from "@/types/provider";
+import type { Provider as InjectedProvider } from '../inject';
+import { ProviderError, SignerType } from '@enkryptcom/types';
+import { EnkryptProviderEventMethods, NodeType } from '@/types/provider';
 export interface ProviderMessage {
   method: MessageMethod | EnkryptProviderEventMethods;
   params: Array<any>;
 }
 export enum MessageMethod {
-  changeChainId = "changeChainId",
-  changeAddress = "changeAddress",
-  changeConnected = "changeConnected",
-  subscription = "eth_subscription",
+  changeChainId = 'changeChainId',
+  changeAddress = 'changeAddress',
+  changeConnected = 'changeConnected',
+  subscription = 'eth_subscription',
 }
 
 export enum EmitEvent {
-  accountsChanged = "accountsChanged",
-  chainChanged = "chainChanged",
-  networkChanged = "networkChanged",
-  connect = "connect",
-  disconnect = "disconnect",
-  message = "message",
+  accountsChanged = 'accountsChanged',
+  chainChanged = 'chainChanged',
+  networkChanged = 'networkChanged',
+  connect = 'connect',
+  disconnect = 'disconnect',
+  message = 'message',
 }
 
 export interface JSONError {
@@ -63,14 +63,14 @@ export interface ERC20TokenInfo {
 }
 export interface JsonRpcRequest {
   id: string;
-  jsonrpc: "2.0";
+  jsonrpc: '2.0';
   method: string;
   params?: any[];
 }
 
 export interface JsonRpcResponse {
   id: string;
-  jsonrpc: "2.0";
+  jsonrpc: '2.0';
   result?: unknown;
   error?: Error;
 }

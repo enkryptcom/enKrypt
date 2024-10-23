@@ -1,5 +1,5 @@
-import { BaseToken, BaseTokenOptions } from "@/types/base-token";
-import BitcoinAPI from "@/providers/bitcoin/libs/api";
+import { BaseToken, BaseTokenOptions } from '@/types/base-token';
+import BitcoinAPI from '@/providers/bitcoin/libs/api';
 
 export class BTCToken extends BaseToken {
   constructor(options: BaseTokenOptions) {
@@ -14,6 +14,6 @@ export class BTCToken extends BaseToken {
   }
 
   public async send(): Promise<any> {
-    throw new Error("EVM-send is not implemented here");
+    throw new Error('EVM-send is not implemented here');
   }
 }

@@ -1,17 +1,17 @@
-import { InternalMethods, InternalOnMessageResponse } from "@/types/messenger";
-import { HWwalletType } from "@enkryptcom/types";
-import HWwallet from "@enkryptcom/hw-wallets";
-import { SignerMessageOptions, SignerTransactionOptions } from "../types";
-import { getCustomError } from "@/libs/error";
-import { payloadSignTransform, signPayload } from "../../libs/signing-utils";
-import sendUsingInternalMessengers from "@/libs/messenger/internal-messenger";
+import { InternalMethods, InternalOnMessageResponse } from '@/types/messenger';
+import { HWwalletType } from '@enkryptcom/types';
+import HWwallet from '@enkryptcom/hw-wallets';
+import { SignerMessageOptions, SignerTransactionOptions } from '../types';
+import { getCustomError } from '@/libs/error';
+import { payloadSignTransform, signPayload } from '../../libs/signing-utils';
+import sendUsingInternalMessengers from '@/libs/messenger/internal-messenger';
 import {
   isAscii,
   u8aToBuffer,
   u8aUnwrapBytes,
   u8aWrapBytes,
-} from "@polkadot/util";
-import { bufferToHex } from "@enkryptcom/utils";
+} from '@polkadot/util';
+import { bufferToHex } from '@enkryptcom/utils';
 
 const TransactionSigner = (
   options: SignerTransactionOptions,
@@ -64,7 +64,7 @@ const MessageSigner = (
   const { account, payload } = options;
   if (account.isHardware) {
     return Promise.reject({
-      error: getCustomError("polkadot-hardware-wallets cant sign raw messages"),
+      error: getCustomError('polkadot-hardware-wallets cant sign raw messages'),
     });
   } else {
     const bytes = isAscii(payload)

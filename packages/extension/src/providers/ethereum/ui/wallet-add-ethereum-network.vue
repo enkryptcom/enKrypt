@@ -86,34 +86,34 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeMount, ref } from "vue";
-import SignLogo from "@action/icons/common/sign-logo.vue";
-import BaseButton from "@action/components/base-button/index.vue";
-import commonPopup from "@action/views/common-popup/index.vue";
-import { WindowPromiseHandler } from "@/libs/window-promise";
-import { ProviderRequestOptions } from "@/types/provider";
-import WarnIcon from "@/ui/action/icons/send/warning-icon.vue";
-import { CustomEvmNetworkOptions } from "../types/custom-evm-network";
-import CustomNetworksState from "@/libs/custom-networks-state";
-import { getCustomError } from "@/libs/error";
-import ethIcon from "../networks/icons/eth.svg";
+import { onBeforeMount, ref } from 'vue';
+import SignLogo from '@action/icons/common/sign-logo.vue';
+import BaseButton from '@action/components/base-button/index.vue';
+import commonPopup from '@action/views/common-popup/index.vue';
+import { WindowPromiseHandler } from '@/libs/window-promise';
+import { ProviderRequestOptions } from '@/types/provider';
+import WarnIcon from '@/ui/action/icons/send/warning-icon.vue';
+import { CustomEvmNetworkOptions } from '../types/custom-evm-network';
+import CustomNetworksState from '@/libs/custom-networks-state';
+import { getCustomError } from '@/libs/error';
+import ethIcon from '../networks/icons/eth.svg';
 
 const windowPromise = WindowPromiseHandler(1);
 
 const Options = ref<ProviderRequestOptions>({
-  domain: "",
-  faviconURL: "",
-  title: "",
-  url: "",
+  domain: '',
+  faviconURL: '',
+  title: '',
+  url: '',
   tabId: 0,
 });
 const networkOptions = ref<CustomEvmNetworkOptions>({
-  name: "~",
-  name_long: "~",
-  node: "",
-  chainID: "0x0",
-  currencyName: "~",
-  currencyNameLong: "~",
+  name: '~',
+  name_long: '~',
+  node: '',
+  chainID: '0x0',
+  currencyName: '~',
+  currencyNameLong: '~',
 });
 const isLoading = ref(true);
 
@@ -147,8 +147,8 @@ const addNetwork = async () => {
 </script>
 
 <style lang="less">
-@import "@/providers/ethereum/ui/styles/common-popup.less";
-@import "@action/styles/provider-connect-dapp.less";
+@import '@/providers/ethereum/ui/styles/common-popup.less';
+@import '@action/styles/provider-connect-dapp.less';
 
 .block-override {
   height: 56px !important;
@@ -176,7 +176,7 @@ const addNetwork = async () => {
 
         &.focus {
           border: 2px solid @primary;
-          width: calc(~"100% - 62px");
+          width: calc(~'100% - 62px');
           margin: 12px 31px 8px 31px;
         }
 

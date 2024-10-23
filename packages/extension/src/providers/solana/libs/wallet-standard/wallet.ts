@@ -15,8 +15,8 @@ import {
   type SolanaSignTransactionFeature,
   type SolanaSignTransactionMethod,
   type SolanaSignTransactionOutput,
-} from "@solana/wallet-standard-features";
-import type { Wallet } from "@wallet-standard/base";
+} from '@solana/wallet-standard-features';
+import type { Wallet } from '@wallet-standard/base';
 import {
   StandardConnect,
   type StandardConnectFeature,
@@ -29,14 +29,14 @@ import {
   type StandardEventsListeners,
   type StandardEventsNames,
   type StandardEventsOnMethod,
-} from "@wallet-standard/features";
-import { EnkryptWalletAccount } from "./account.js";
-import { icon } from "./icon.js";
-import { isSolanaChain, SOLANA_CHAINS } from "./solana.js";
-import type { Enkrypt } from "./window.js";
-import { EmitEvent } from "@/providers/ethereum/types/index.js";
+} from '@wallet-standard/features';
+import { EnkryptWalletAccount } from './account.js';
+import { icon } from './icon.js';
+import { isSolanaChain, SOLANA_CHAINS } from './solana.js';
+import type { Enkrypt } from './window.js';
+import { EmitEvent } from '@/providers/ethereum/types/index.js';
 
-export const EnkryptNamespace = "enkrypt:";
+export const EnkryptNamespace = 'enkrypt:';
 
 export type EnkryptFeature = {
   [EnkryptNamespace]: {
@@ -44,15 +44,15 @@ export type EnkryptFeature = {
   };
 };
 const hexToUint8Array = (hexString: string) => {
-  hexString = hexString.replace("0x", "");
+  hexString = hexString.replace('0x', '');
   return Uint8Array.from(
     hexString.match(/.{1,2}/g)!.map(byte => parseInt(byte, 16)),
   );
 };
 const uint8ArrayToHex = (buffer: Uint8Array) => {
   const str = Array.prototype.map
-    .call(buffer, x => ("00" + x.toString(16)).slice(-2))
-    .join("");
+    .call(buffer, x => ('00' + x.toString(16)).slice(-2))
+    .join('');
   return `0x${str}`;
 };
 
@@ -60,8 +60,8 @@ export class EnkryptWallet implements Wallet {
   readonly #listeners: {
     [E in StandardEventsNames]?: StandardEventsListeners[E][];
   } = {};
-  readonly #version = "1.0.0" as const;
-  readonly #name = "Enkrypt" as const;
+  readonly #version = '1.0.0' as const;
+  readonly #name = 'Enkrypt' as const;
   readonly #icon = icon;
   #accounts: EnkryptWalletAccount[] | null = null;
   readonly #enkrypt: Enkrypt;
@@ -92,33 +92,33 @@ export class EnkryptWallet implements Wallet {
     EnkryptFeature {
     return {
       [StandardConnect]: {
-        version: "1.0.0",
+        version: '1.0.0',
         connect: this.#connect,
       },
       [StandardDisconnect]: {
-        version: "1.0.0",
+        version: '1.0.0',
         disconnect: this.#disconnect,
       },
       [StandardEvents]: {
-        version: "1.0.0",
+        version: '1.0.0',
         on: this.#on,
       },
       [SolanaSignAndSendTransaction]: {
-        version: "1.0.0",
-        supportedTransactionVersions: ["legacy", 0],
+        version: '1.0.0',
+        supportedTransactionVersions: ['legacy', 0],
         signAndSendTransaction: this.#signAndSendTransaction,
       },
       [SolanaSignTransaction]: {
-        version: "1.0.0",
-        supportedTransactionVersions: ["legacy", 0],
+        version: '1.0.0',
+        supportedTransactionVersions: ['legacy', 0],
         signTransaction: this.#signTransaction,
       },
       [SolanaSignMessage]: {
-        version: "1.0.0",
+        version: '1.0.0',
         signMessage: this.#signMessage,
       },
       [SolanaSignIn]: {
-        version: "1.0.0",
+        version: '1.0.0',
         signIn: this.#signIn,
       },
       [EnkryptNamespace]: {
@@ -172,14 +172,14 @@ export class EnkryptWallet implements Wallet {
           publicKey: hexToUint8Array(acc.pubkey),
         });
       });
-      this.#emit("change", { accounts: this.accounts });
+      this.#emit('change', { accounts: this.accounts });
     }
   };
 
   #disconnected = () => {
     if (this.#accounts?.length) {
       this.#accounts = null;
-      this.#emit("change", { accounts: this.accounts });
+      this.#emit('change', { accounts: this.accounts });
     }
   };
 
@@ -206,15 +206,15 @@ export class EnkryptWallet implements Wallet {
   #signAndSendTransaction: SolanaSignAndSendTransactionMethod = async (
     ...inputs
   ) => {
-    if (!this.#accounts?.length) throw new Error("not connected");
+    if (!this.#accounts?.length) throw new Error('not connected');
     const outputs: SolanaSignAndSendTransactionOutput[] = [];
     for (const input of inputs) {
       const { transaction, account, chain, options } = input;
       const validAccount = this.#accounts.find(
         acc => acc.address === account.address,
       );
-      if (!validAccount) throw new Error("invalid account");
-      if (!isSolanaChain(chain)) throw new Error("invalid chain");
+      if (!validAccount) throw new Error('invalid account');
+      if (!isSolanaChain(chain)) throw new Error('invalid chain');
       const signature = await this.#enkrypt.signAndSendTransaction(
         {
           address: account.address,
@@ -229,15 +229,15 @@ export class EnkryptWallet implements Wallet {
   };
 
   #signTransaction: SolanaSignTransactionMethod = async (...inputs) => {
-    if (!this.#accounts?.length) throw new Error("not connected");
+    if (!this.#accounts?.length) throw new Error('not connected');
     const outputs: SolanaSignTransactionOutput[] = [];
     for (const input of inputs) {
       const { transaction, account, chain } = input;
       const validAccount = this.#accounts.find(
         acc => acc.address === account.address,
       );
-      if (!validAccount) throw new Error("invalid account");
-      if (chain && !isSolanaChain(chain)) throw new Error("invalid chain");
+      if (!validAccount) throw new Error('invalid account');
+      if (chain && !isSolanaChain(chain)) throw new Error('invalid chain');
 
       const signedTransaction = await this.#enkrypt.signTransaction({
         address: account.address,
@@ -250,7 +250,7 @@ export class EnkryptWallet implements Wallet {
   };
 
   #signMessage: SolanaSignMessageMethod = async (...inputs) => {
-    if (!this.#accounts?.length) throw new Error("not connected");
+    if (!this.#accounts?.length) throw new Error('not connected');
     const outputs: SolanaSignMessageOutput[] = [];
 
     if (inputs.length === 1) {
@@ -262,7 +262,7 @@ export class EnkryptWallet implements Wallet {
           break;
         }
       }
-      if (!isValidAccount) throw new Error("invalid account");
+      if (!isValidAccount) throw new Error('invalid account');
       const { signature, signedMessage } = await this.#enkrypt.signMessage({
         address: account.address,
         message: uint8ArrayToHex(message),

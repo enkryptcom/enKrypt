@@ -127,44 +127,44 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, PropType, computed, watch } from "vue";
-import { useRoute, useRouter } from "vue-router";
-import SendHeader from "@/providers/common/ui/send-transaction/send-header.vue";
-import SendAddressInput from "./components/send-address-input.vue";
-import SendFromContactsList from "@/providers/common/ui/send-transaction/send-from-contacts-list.vue";
-import SendContactsList from "@/providers/common/ui/send-transaction/send-contacts-list.vue";
-import SendTokenSelect from "./components/send-token-select.vue";
-import SendAlert from "@/providers/bitcoin/ui/send-transaction/components/send-alert.vue";
-import SendInputAmount from "@/providers/common/ui/send-transaction/send-input-amount.vue";
-import SendFeeSelect from "@/providers/common/ui/send-transaction/send-fee-select.vue";
-import TransactionFeeView from "@action/views/transaction-fee/index.vue";
-import BaseButton from "@action/components/base-button/index.vue";
-import SendNftSelect from "@/providers/common/ui/send-transaction/send-nft-select.vue";
-import NftSelectList from "@/providers/common/ui/send-transaction/nft-select-list/index.vue";
-import { AccountsHeaderData } from "@action/types/account";
-import { toBN } from "web3-utils";
-import { GasPriceTypes, GasFeeType } from "@/providers/common/types";
-import { BitcoinNetwork } from "@/providers/bitcoin/types/bitcoin-network";
-import { BTCToken } from "../../types/btc-token";
-import BigNumber from "bignumber.js";
-import { defaultGasCostVals } from "@/providers/common/libs/default-vals";
-import { fromBase, toBase, isValidDecimals } from "@enkryptcom/utils";
-import { formatFloatingPointValue } from "@/libs/utils/number-formatter";
-import { routes as RouterNames } from "@/ui/action/router";
-import getUiPath from "@/libs/utils/get-ui-path";
-import Browser from "webextension-polyfill";
-import { ProviderName } from "@/types/provider";
-import PublicKeyRing from "@/libs/keyring/public-keyring";
+import { ref, onMounted, PropType, computed, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import SendHeader from '@/providers/common/ui/send-transaction/send-header.vue';
+import SendAddressInput from './components/send-address-input.vue';
+import SendFromContactsList from '@/providers/common/ui/send-transaction/send-from-contacts-list.vue';
+import SendContactsList from '@/providers/common/ui/send-transaction/send-contacts-list.vue';
+import SendTokenSelect from './components/send-token-select.vue';
+import SendAlert from '@/providers/bitcoin/ui/send-transaction/components/send-alert.vue';
+import SendInputAmount from '@/providers/common/ui/send-transaction/send-input-amount.vue';
+import SendFeeSelect from '@/providers/common/ui/send-transaction/send-fee-select.vue';
+import TransactionFeeView from '@action/views/transaction-fee/index.vue';
+import BaseButton from '@action/components/base-button/index.vue';
+import SendNftSelect from '@/providers/common/ui/send-transaction/send-nft-select.vue';
+import NftSelectList from '@/providers/common/ui/send-transaction/nft-select-list/index.vue';
+import { AccountsHeaderData } from '@action/types/account';
+import { toBN } from 'web3-utils';
+import { GasPriceTypes, GasFeeType } from '@/providers/common/types';
+import { BitcoinNetwork } from '@/providers/bitcoin/types/bitcoin-network';
+import { BTCToken } from '../../types/btc-token';
+import BigNumber from 'bignumber.js';
+import { defaultGasCostVals } from '@/providers/common/libs/default-vals';
+import { fromBase, toBase, isValidDecimals } from '@enkryptcom/utils';
+import { formatFloatingPointValue } from '@/libs/utils/number-formatter';
+import { routes as RouterNames } from '@/ui/action/router';
+import getUiPath from '@/libs/utils/get-ui-path';
+import Browser from 'webextension-polyfill';
+import { ProviderName } from '@/types/provider';
+import PublicKeyRing from '@/libs/keyring/public-keyring';
 
-import { getGasCostValues, isAddress } from "../../libs/utils";
-import BitcoinAPI from "@/providers/bitcoin/libs/api";
-import { calculateSizeBasedOnType } from "../libs/tx-size";
-import { HaskoinUnspentType } from "../../types";
-import { VerifyTransactionParams } from "../types";
-import { getTxInfo as getBTCTxInfo } from "@/providers/bitcoin/libs/utils";
-import { NFTItem, NFTItemWithCollectionName, NFTType } from "@/types/nft";
-import { trackSendEvents } from "@/libs/metrics";
-import { SendEventType } from "@/libs/metrics/types";
+import { getGasCostValues, isAddress } from '../../libs/utils';
+import BitcoinAPI from '@/providers/bitcoin/libs/api';
+import { calculateSizeBasedOnType } from '../libs/tx-size';
+import { HaskoinUnspentType } from '../../types';
+import { VerifyTransactionParams } from '../types';
+import { getTxInfo as getBTCTxInfo } from '@/providers/bitcoin/libs/utils';
+import { NFTItem, NFTItemWithCollectionName, NFTType } from '@/types/nft';
+import { trackSendEvents } from '@/libs/metrics';
+import { SendEventType } from '@/libs/metrics/types';
 
 const props = defineProps({
   network: {
@@ -178,10 +178,10 @@ const props = defineProps({
 });
 const loadingAsset = new BTCToken({
   icon: props.network.icon,
-  symbol: "Loading",
-  balance: "0",
-  price: "0",
-  name: "loading",
+  symbol: 'Loading',
+  balance: '0',
+  price: '0',
+  name: 'loading',
   decimals: props.network.decimals,
 });
 
@@ -190,26 +190,26 @@ const route = useRoute();
 const router = useRouter();
 const selected: string = route.params.id as string;
 const paramNFTData: NFTItem = JSON.parse(
-  route.params.tokenData ? (route.params.tokenData as string) : "{}",
+  route.params.tokenData ? (route.params.tokenData as string) : '{}',
 ) as NFTItem;
 const isSendToken = ref<boolean>(JSON.parse(route.params.isToken as string));
 const selectedAsset = ref<BTCToken>(loadingAsset);
-const amount = ref<string>("");
+const amount = ref<string>('');
 const accountUTXOs = ref<HaskoinUnspentType[]>([]);
 const isOpenSelectNft = ref(false);
 
 const sendAmount = computed(() => {
-  if (amount.value && amount.value !== "") return amount.value;
-  return "0";
+  if (amount.value && amount.value !== '') return amount.value;
+  return '0';
 });
 
 const isMaxSelected = ref<boolean>(false);
 const selectedFee = ref<GasPriceTypes>(GasPriceTypes.REGULAR);
 const gasCostValues = ref<GasFeeType>(defaultGasCostVals);
 const addressFrom = ref<string>(
-  props.accountInfo.selectedAccount?.address ?? "",
+  props.accountInfo.selectedAccount?.address ?? '',
 );
-const addressTo = ref<string>("");
+const addressTo = ref<string>('');
 const isLoadingAssets = ref(true);
 
 onMounted(async () => {
@@ -223,7 +223,7 @@ const nativeBalanceAfterTransaction = computed(() => {
     isValidDecimals(sendAmount.value, selectedAsset.value.decimals!)
   ) {
     return UTXOBalance.value.sub(
-      toBN(toBase(sendAmount.value ?? "0", selectedAsset.value.decimals!)).add(
+      toBN(toBase(sendAmount.value ?? '0', selectedAsset.value.decimals!)).add(
         toBN(
           toBase(
             gasCostValues.value[selectedFee.value].nativeValue,
@@ -237,7 +237,7 @@ const nativeBalanceAfterTransaction = computed(() => {
 });
 
 const setTransactionFees = (byteSize: number) => {
-  const nativeVal = selectedAsset.value.price || "0";
+  const nativeVal = selectedAsset.value.price || '0';
   getGasCostValues(
     props.network as BitcoinNetwork,
     byteSize,
@@ -276,12 +276,12 @@ const fetchAssets = () => {
 };
 
 const sendButtonTitle = computed(() => {
-  let title = "Send";
+  let title = 'Send';
   if (parseInt(sendAmount.value) > 0)
     title =
-      "Send " +
+      'Send ' +
       formatFloatingPointValue(sendAmount.value).value +
-      " " +
+      ' ' +
       selectedAsset.value?.symbol!.toUpperCase();
   return title;
 });
@@ -321,12 +321,12 @@ const isOpenSelectContactTo = ref<boolean>(false);
 const isOpenSelectFee = ref<boolean>(false);
 
 const selectedNft = ref<NFTItemWithCollectionName>({
-  id: "",
-  contract: "",
-  image: "",
-  name: "Loading",
-  url: "",
-  collectionName: "",
+  id: '',
+  contract: '',
+  image: '',
+  name: 'Loading',
+  url: '',
+  collectionName: '',
   type: NFTType.Ordinals,
 });
 
@@ -360,7 +360,7 @@ const assetMaxValue = computed(() => {
 const setMaxValue = () => {
   isMaxSelected.value = true;
   amount.value =
-    parseFloat(assetMaxValue.value) < 0 ? "0" : assetMaxValue.value;
+    parseFloat(assetMaxValue.value) < 0 ? '0' : assetMaxValue.value;
 };
 const inputAddressFrom = (text: string) => {
   addressFrom.value = text;
@@ -390,12 +390,12 @@ const selectAccountTo = (account: string) => {
 };
 
 const inputAmount = (inputAmount: string) => {
-  if (inputAmount === "") {
-    inputAmount = "0";
+  if (inputAmount === '') {
+    inputAmount = '0';
   }
   const inputAmountBn = new BigNumber(inputAmount);
   isMaxSelected.value = false;
-  amount.value = inputAmountBn.lt(0) ? "0" : inputAmount;
+  amount.value = inputAmountBn.lt(0) ? '0' : inputAmount;
 };
 
 const toggleSelectFee = () => {
@@ -435,7 +435,7 @@ const sendAction = async () => {
     });
   } else {
     const api = (await props.network.api()) as BitcoinAPI;
-    const [txid, index] = selectedNft.value.id.split(":");
+    const [txid, index] = selectedNft.value.id.split(':');
     const ordinalTx = await api.getTransactionStatus(txid);
     const ordinalOutput = ordinalTx!.outputs[parseInt(index)];
     txInfo = getBTCTxInfo(accountUTXOs.value, {
@@ -472,11 +472,11 @@ const sendAction = async () => {
       decimals: selectedAsset.value.decimals!,
       icon: selectedAsset.value.icon as string,
       symbol: selectedAsset.value.symbol,
-      valueUSD: new BigNumber(selectedAsset.value.price || "0")
+      valueUSD: new BigNumber(selectedAsset.value.price || '0')
         .times(sendAmount.value)
         .toString(),
       name: selectedAsset.value.name,
-      price: selectedAsset.value.price || "0",
+      price: selectedAsset.value.price || '0',
     },
     fromAddress: fromAccountInfo.address,
     fromAddressName: fromAccountInfo.name,
@@ -489,8 +489,8 @@ const sendAction = async () => {
     name: RouterNames.verify.name,
     query: {
       id: selected,
-      txData: Buffer.from(JSON.stringify(txVerifyInfo), "utf8").toString(
-        "base64",
+      txData: Buffer.from(JSON.stringify(txVerifyInfo), 'utf8').toString(
+        'base64',
       ),
     },
   });
@@ -503,7 +503,7 @@ const sendAction = async () => {
           ProviderName.bitcoin,
         ),
       ),
-      type: "popup",
+      type: 'popup',
       focused: true,
       height: 600,
       width: 460,
@@ -520,8 +520,8 @@ const toggleSelector = (isTokenSend: boolean) => {
 </script>
 
 <style lang="less" scoped>
-@import "@action/styles/theme.less";
-@import "@action/styles/custom-scroll.less";
+@import '@action/styles/theme.less';
+@import '@action/styles/custom-scroll.less';
 
 .container {
   width: 100%;

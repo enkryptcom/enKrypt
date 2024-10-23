@@ -33,35 +33,35 @@
 </template>
 
 <script setup lang="ts">
-import { computed, PropType, ref } from "vue";
-import ImportAccountHeader from "../components/import-account-header.vue";
-import BaseInput from "@action/components/base-input/index.vue";
-import BaseButton from "@action/components/base-button/index.vue";
-import Wallet, { thirdparty } from "ethereumjs-wallet";
-import type { KeyringPair$Json } from "@polkadot/keyring/types";
-import { BaseNetwork } from "@/types/base-network";
-import { ProviderName } from "@/types/provider";
-import { getAccountFromJSON } from "@/providers/polkadot/libs/keystore";
-import { KeyPairAdd } from "@enkryptcom/types";
-import PublicKeyRing from "@/libs/keyring/public-keyring";
+import { computed, PropType, ref } from 'vue';
+import ImportAccountHeader from '../components/import-account-header.vue';
+import BaseInput from '@action/components/base-input/index.vue';
+import BaseButton from '@action/components/base-button/index.vue';
+import Wallet, { thirdparty } from 'ethereumjs-wallet';
+import type { KeyringPair$Json } from '@polkadot/keyring/types';
+import { BaseNetwork } from '@/types/base-network';
+import { ProviderName } from '@/types/provider';
+import { getAccountFromJSON } from '@/providers/polkadot/libs/keystore';
+import { KeyPairAdd } from '@enkryptcom/types';
+import PublicKeyRing from '@/libs/keyring/public-keyring';
 
 const emit = defineEmits<{
-  (e: "navigate:importAccount"): void;
-  (e: "update:wallet", wallet: KeyPairAdd): void;
+  (e: 'navigate:importAccount'): void;
+  (e: 'update:wallet', wallet: KeyPairAdd): void;
 }>();
 
 const keyring = new PublicKeyRing();
 
-const error = ref("");
+const error = ref('');
 
 const props = defineProps({
   keystorePassword: {
     type: String,
-    default: "",
+    default: '',
   },
   fileName: {
     type: String,
-    default: "",
+    default: '',
   },
   fileJson: {
     type: Object,
@@ -80,9 +80,9 @@ const isDisabled = computed(() => {
 
 const fromMyEtherWalletV2 = (json: any) => {
   if (json.privKey.length !== 64) {
-    throw new Error("Invalid private key length");
+    throw new Error('Invalid private key length');
   }
-  const privKey = Buffer.from(json.privKey, "hex");
+  const privKey = Buffer.from(json.privKey, 'hex');
   return new Wallet(privKey);
 };
 
@@ -97,14 +97,14 @@ const getWalletFromPrivKeyFile = (
     return Wallet.fromV3(jsonfile, password, true);
   } else if (jsonfile.hash != null)
     return Promise.resolve(thirdparty.fromEtherWallet(jsonfile, password));
-  else if (jsonfile.publisher == "MyEtherWallet")
+  else if (jsonfile.publisher == 'MyEtherWallet')
     return Promise.resolve(fromMyEtherWalletV2(jsonfile));
-  throw new Error("Invalid Wallet file");
+  throw new Error('Invalid Wallet file');
 };
 
 const unlock = async () => {
   isProcessing.value = true;
-  error.value = "";
+  error.value = '';
 
   if (props.network.provider === ProviderName.ethereum) {
     try {
@@ -113,18 +113,18 @@ const unlock = async () => {
         props.keystorePassword,
       );
 
-      const newAddress = `0x${wallet.getAddress().toString("hex")}`;
+      const newAddress = `0x${wallet.getAddress().toString('hex')}`;
 
       if (await keyring.accountAlreadyAdded(newAddress)) {
-        error.value = "This account has already been added";
+        error.value = 'This account has already been added';
         return;
       }
 
-      emit("update:wallet", {
+      emit('update:wallet', {
         privateKey: wallet.getPrivateKeyString(),
         publicKey: wallet.getPublicKeyString(),
         address: wallet.getAddressString(),
-        name: "",
+        name: '',
         signerType: props.network.signer[0],
       });
     } catch (e) {
@@ -139,11 +139,11 @@ const unlock = async () => {
       );
 
       if (await keyring.accountAlreadyAdded(account.address)) {
-        error.value = "This account has already been added";
+        error.value = 'This account has already been added';
         return;
       }
 
-      emit("update:wallet", account);
+      emit('update:wallet', account);
     } catch (e: any) {
       isProcessing.value = false;
       error.value = e.message;
@@ -153,7 +153,7 @@ const unlock = async () => {
 </script>
 
 <style lang="less">
-@import "@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .import-account-password {
   width: 100%;

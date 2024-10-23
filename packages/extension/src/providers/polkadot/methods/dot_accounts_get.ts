@@ -2,13 +2,13 @@ import {
   CallbackFunction,
   MiddlewareFunction,
   SignerType,
-} from "@enkryptcom/types";
-import SubstrateProvider from "..";
-import { WindowPromise } from "@/libs/window-promise";
-import PublicKeyRing from "@/libs/keyring/public-keyring";
-import AccountState from "../libs/accounts-state";
-import { ProviderRPCRequest } from "@/types/provider";
-import { getCustomError } from "@/libs/error";
+} from '@enkryptcom/types';
+import SubstrateProvider from '..';
+import { WindowPromise } from '@/libs/window-promise';
+import PublicKeyRing from '@/libs/keyring/public-keyring';
+import AccountState from '../libs/accounts-state';
+import { ProviderRPCRequest } from '@/types/provider';
+import { getCustomError } from '@/libs/error';
 
 let isAccountAccessPending = false;
 const pendingPromises: {
@@ -21,7 +21,7 @@ const method: MiddlewareFunction = function (
   res,
   next,
 ): void {
-  if (payload.method !== "dot_accounts_get") return next();
+  if (payload.method !== 'dot_accounts_get') return next();
   else {
     if (isAccountAccessPending) {
       pendingPromises.push({
@@ -46,7 +46,7 @@ const method: MiddlewareFunction = function (
           return acc.map(acc => {
             return {
               address: acc.address,
-              genesisHash: "",
+              genesisHash: '',
               name: acc.name,
               type: acc.signerType,
             };
@@ -81,7 +81,7 @@ const method: MiddlewareFunction = function (
           }
         });
       } else {
-        _res(getCustomError("No domain set!"));
+        _res(getCustomError('No domain set!'));
       }
     };
     handleAccountAccess(payload, res);

@@ -33,17 +33,17 @@
 </template>
 
 <script setup lang="ts">
-import { PropType } from "vue";
-import CloseIcon from "@action/icons/common/close-icon.vue";
-import { EnkryptAccount } from "@enkryptcom/types";
-import { AccountsHeaderData } from "../../types/account";
-import AccountsListItem from "@action/views/accounts/components/accounts-list-item.vue";
-import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
-import scrollSettings from "@/libs/utils/scroll-settings";
-import { BaseNetwork } from "@/types/base-network";
+import { PropType } from 'vue';
+import CloseIcon from '@action/icons/common/close-icon.vue';
+import { EnkryptAccount } from '@enkryptcom/types';
+import { AccountsHeaderData } from '../../types/account';
+import AccountsListItem from '@action/views/accounts/components/accounts-list-item.vue';
+import CustomScrollbar from '@action/components/custom-scrollbar/index.vue';
+import scrollSettings from '@/libs/utils/scroll-settings';
+import { BaseNetwork } from '@/types/base-network';
 
 const emit = defineEmits<{
-  (e: "addressChanged", account: EnkryptAccount): void;
+  (e: 'addressChanged', account: EnkryptAccount): void;
 }>();
 
 const props = defineProps({
@@ -72,7 +72,7 @@ const close = () => {
 const selectAccount = (address: string) => {
   for (const acc of props.accountInfo.activeAccounts) {
     if (props.network.displayAddress(acc.address) === address) {
-      emit("addressChanged", acc);
+      emit('addressChanged', acc);
       break;
     }
   }
@@ -83,8 +83,8 @@ const selectAccount = (address: string) => {
 </script>
 
 <style lang="less">
-@import "@action/styles/theme.less";
-@import "@action/styles/custom-scroll.less";
+@import '@action/styles/theme.less';
+@import '@action/styles/custom-scroll.less';
 
 .modal-accounts {
   width: 100%;

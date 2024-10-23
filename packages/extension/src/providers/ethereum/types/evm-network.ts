@@ -1,26 +1,26 @@
-import MarketData from "@/libs/market-data";
-import Sparkline from "@/libs/sparkline";
-import { TokensState } from "@/libs/tokens-state";
-import { CustomErc20Token, TokenType } from "@/libs/tokens-state/types";
+import MarketData from '@/libs/market-data';
+import Sparkline from '@/libs/sparkline';
+import { TokensState } from '@/libs/tokens-state';
+import { CustomErc20Token, TokenType } from '@/libs/tokens-state/types';
 import {
   formatFiatValue,
   formatFloatingPointValue,
-} from "@/libs/utils/number-formatter";
-import { fromBase } from "@enkryptcom/utils";
-import { Activity } from "@/types/activity";
-import { BaseNetwork } from "@/types/base-network";
-import { BaseToken } from "@/types/base-token";
-import { NFTCollection } from "@/types/nft";
-import { AssetsType, ProviderName } from "@/types/provider";
-import { CoingeckoPlatform, NetworkNames, SignerType } from "@enkryptcom/types";
-import BigNumber from "bignumber.js";
-import { toChecksumAddress } from "@ethereumjs/util";
-import { isAddress } from "web3-utils";
-import API from "../libs/api";
-import createIcon from "../libs/blockies";
-import { NATIVE_TOKEN_ADDRESS } from "../libs/common";
-import { Erc20Token, Erc20TokenOptions } from "./erc20-token";
-import { BNType } from "@/providers/common/types";
+} from '@/libs/utils/number-formatter';
+import { fromBase } from '@enkryptcom/utils';
+import { Activity } from '@/types/activity';
+import { BaseNetwork } from '@/types/base-network';
+import { BaseToken } from '@/types/base-token';
+import { NFTCollection } from '@/types/nft';
+import { AssetsType, ProviderName } from '@/types/provider';
+import { CoingeckoPlatform, NetworkNames, SignerType } from '@enkryptcom/types';
+import BigNumber from 'bignumber.js';
+import { toChecksumAddress } from '@ethereumjs/util';
+import { isAddress } from 'web3-utils';
+import API from '../libs/api';
+import createIcon from '../libs/blockies';
+import { NATIVE_TOKEN_ADDRESS } from '../libs/common';
+import { Erc20Token, Erc20TokenOptions } from './erc20-token';
+import { BNType } from '@/providers/common/types';
 
 export interface EvmNetworkOptions {
   name: NetworkNames;
@@ -150,15 +150,15 @@ export class EvmNetwork extends BaseNetwork {
           .value,
         balanceUSD: nativeUsdBalance.toNumber(),
         balanceUSDf: formatFiatValue(nativeUsdBalance.toString()).value,
-        value: nativeMarketData?.current_price?.toString() ?? "0",
+        value: nativeMarketData?.current_price?.toString() ?? '0',
         valuef: formatFiatValue(
-          nativeMarketData?.current_price?.toString() ?? "0",
+          nativeMarketData?.current_price?.toString() ?? '0',
         ).value,
         decimals: this.decimals,
         sparkline: nativeMarketData
           ? new Sparkline(nativeMarketData.sparkline_in_24h.price, 25)
               .dataValues
-          : "",
+          : '',
         priceChangePercentage:
           nativeMarketData?.price_change_percentage_24h_in_currency ?? 0,
         contract: NATIVE_TOKEN_ADDRESS,
@@ -183,17 +183,17 @@ export class EvmNetwork extends BaseNetwork {
               fromBase(token.balance!, token.decimals),
             ).value,
             balanceUSD: 0,
-            balanceUSDf: "0",
-            value: "0",
-            valuef: "0",
+            balanceUSDf: '0',
+            value: '0',
+            valuef: '0',
             decimals: token.decimals,
-            sparkline: "",
+            sparkline: '',
             priceChangePercentage: 0,
             contract: token.contract,
           };
           return assetsType;
         })
-        .filter(asset => asset.balancef !== "0");
+        .filter(asset => asset.balancef !== '0');
 
       assets = [nativeAsset, ...assetInfos];
     }
@@ -246,17 +246,17 @@ export class EvmNetwork extends BaseNetwork {
       const asset: AssetsType = {
         name: token.name,
         symbol: token.symbol,
-        balance: token.balance ?? "0",
+        balance: token.balance ?? '0',
         balancef: formatFloatingPointValue(
-          fromBase(token.balance ?? "0", token.decimals),
+          fromBase(token.balance ?? '0', token.decimals),
         ).value,
         contract: token.contract,
         balanceUSD: 0,
-        balanceUSDf: "0",
-        value: "0",
-        valuef: "0",
+        balanceUSDf: '0',
+        value: '0',
+        valuef: '0',
         decimals: token.decimals,
-        sparkline: "",
+        sparkline: '',
         priceChangePercentage: 0,
         icon: token.icon,
       };
@@ -265,13 +265,13 @@ export class EvmNetwork extends BaseNetwork {
 
       if (marketInfo) {
         const usdBalance = new BigNumber(
-          fromBase(token.balance ?? "0", token.decimals),
+          fromBase(token.balance ?? '0', token.decimals),
         ).times(marketInfo.current_price ?? 0);
         asset.balanceUSD = usdBalance.toNumber();
         asset.balanceUSDf = formatFiatValue(usdBalance.toString()).value;
-        asset.value = marketInfo.current_price?.toString() ?? "0";
+        asset.value = marketInfo.current_price?.toString() ?? '0';
         asset.valuef = formatFiatValue(
-          marketInfo.current_price?.toString() ?? "0",
+          marketInfo.current_price?.toString() ?? '0',
         ).value;
         asset.sparkline = new Sparkline(
           marketInfo.sparkline_in_24h.price,

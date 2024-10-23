@@ -102,42 +102,42 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, PropType, ref, watch } from "vue";
-import { useRoute, useRouter } from "vue-router";
-import { debounce } from "lodash";
-import CloseIcon from "@action/icons/common/close-icon.vue";
-import SendAddressInput from "./components/send-address-input.vue";
-import SendContactsList from "@/providers/common/ui/send-transaction/send-contacts-list.vue";
-import SendFromContactsList from "@/providers/common/ui/send-transaction/send-from-contacts-list.vue";
-import SendTokenSelect from "./components/send-token-select.vue";
-import AssetsSelectList from "@action/views/assets-select-list/index.vue";
-import SendInputAmount from "@/providers/common/ui/send-transaction/send-input-amount.vue";
-import SendFeeSelect from "./components/send-fee-select.vue";
-import SendAlert from "./components/send-alert.vue";
-import BaseButton from "@action/components/base-button/index.vue";
-import SubstrateApi from "@/providers/polkadot/libs/api";
-import { ApiPromise } from "@polkadot/api";
-import { AccountsHeaderData } from "@action/types/account";
-import { GasFeeInfo } from "@/providers/ethereum/ui/types";
-import { SubstrateNetwork } from "../../types/substrate-network";
-import { toBN } from "web3-utils";
-import { formatFloatingPointValue } from "@/libs/utils/number-formatter";
-import { fromBase, toBase, isValidDecimals } from "@enkryptcom/utils";
-import BigNumber from "bignumber.js";
-import { AlertType, VerifyTransactionParams } from "../types";
-import { routes as RouterNames } from "@/ui/action/router";
-import { SendOptions } from "@/types/base-token";
-import { SubstrateToken } from "../../types/substrate-token";
-import { SubstrateNativeToken } from "../../types/substrate-native-token";
-import Browser from "webextension-polyfill";
-import getUiPath from "@/libs/utils/get-ui-path";
-import { ProviderName } from "@/types/provider";
-import PublicKeyRing from "@/libs/keyring/public-keyring";
-import { polkadotEncodeAddress } from "@enkryptcom/utils";
-import { GenericNameResolver, CoinType } from "@/libs/name-resolver";
-import { trackSendEvents } from "@/libs/metrics";
-import { SendEventType } from "@/libs/metrics/types";
-import { BNType } from "@/providers/common/types";
+import { computed, onMounted, PropType, ref, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { debounce } from 'lodash';
+import CloseIcon from '@action/icons/common/close-icon.vue';
+import SendAddressInput from './components/send-address-input.vue';
+import SendContactsList from '@/providers/common/ui/send-transaction/send-contacts-list.vue';
+import SendFromContactsList from '@/providers/common/ui/send-transaction/send-from-contacts-list.vue';
+import SendTokenSelect from './components/send-token-select.vue';
+import AssetsSelectList from '@action/views/assets-select-list/index.vue';
+import SendInputAmount from '@/providers/common/ui/send-transaction/send-input-amount.vue';
+import SendFeeSelect from './components/send-fee-select.vue';
+import SendAlert from './components/send-alert.vue';
+import BaseButton from '@action/components/base-button/index.vue';
+import SubstrateApi from '@/providers/polkadot/libs/api';
+import { ApiPromise } from '@polkadot/api';
+import { AccountsHeaderData } from '@action/types/account';
+import { GasFeeInfo } from '@/providers/ethereum/ui/types';
+import { SubstrateNetwork } from '../../types/substrate-network';
+import { toBN } from 'web3-utils';
+import { formatFloatingPointValue } from '@/libs/utils/number-formatter';
+import { fromBase, toBase, isValidDecimals } from '@enkryptcom/utils';
+import BigNumber from 'bignumber.js';
+import { AlertType, VerifyTransactionParams } from '../types';
+import { routes as RouterNames } from '@/ui/action/router';
+import { SendOptions } from '@/types/base-token';
+import { SubstrateToken } from '../../types/substrate-token';
+import { SubstrateNativeToken } from '../../types/substrate-native-token';
+import Browser from 'webextension-polyfill';
+import getUiPath from '@/libs/utils/get-ui-path';
+import { ProviderName } from '@/types/provider';
+import PublicKeyRing from '@/libs/keyring/public-keyring';
+import { polkadotEncodeAddress } from '@enkryptcom/utils';
+import { GenericNameResolver, CoinType } from '@/libs/name-resolver';
+import { trackSendEvents } from '@/libs/metrics';
+import { SendEventType } from '@/libs/metrics/types';
+import { BNType } from '@/providers/common/types';
 
 const props = defineProps({
   network: {
@@ -159,7 +159,7 @@ const addressInputFrom = ref();
 const isOpenSelectContactFrom = ref(false);
 const isOpenSelectContactTo = ref(false);
 const addressFrom = ref(props.accountInfo.selectedAccount!.address);
-const addressTo = ref("");
+const addressTo = ref('');
 const isOpenSelectToken = ref(false);
 const amount = ref<string>();
 const fee = ref<GasFeeInfo | null>(null);
@@ -167,17 +167,17 @@ const accountAssets = ref<SubstrateToken[]>([]);
 const selectedAsset = ref<SubstrateToken | Partial<SubstrateToken>>(
   new SubstrateNativeToken({
     icon: props.network.icon,
-    balance: "0",
-    price: "0",
-    name: "loading",
-    symbol: "loading",
+    balance: '0',
+    price: '0',
+    name: 'loading',
+    symbol: 'loading',
     decimals: 12,
   }),
 );
 const hasEnough = ref(false);
 const destinationHasEnough = ref(true);
 const sendMax = ref(false);
-const existentialBalance = ref("0");
+const existentialBalance = ref('0');
 const selected: string = route.params.id as string;
 const isLoadingAssets = ref(true);
 
@@ -190,7 +190,7 @@ const edWarn = computed(() => {
     return false;
   }
 
-  if (!isValidDecimals(amount.value ?? "0", selectedAsset.value.decimals!)) {
+  if (!isValidDecimals(amount.value ?? '0', selectedAsset.value.decimals!)) {
     return false;
   }
 
@@ -236,7 +236,7 @@ onMounted(() => {
 const validateFields = async () => {
   if (selectedAsset.value && isAddress.value) {
     destinationHasEnough.value = true;
-    if (!isValidDecimals(amount.value || "0", selectedAsset.value.decimals!)) {
+    if (!isValidDecimals(amount.value || '0', selectedAsset.value.decimals!)) {
       hasEnough.value = false;
       return;
     }
@@ -246,13 +246,13 @@ const validateFields = async () => {
 
     let rawAmount = toBN(
       toBase(
-        amount.value ? amount.value.toString() : "0",
+        amount.value ? amount.value.toString() : '0',
         selectedAsset.value.decimals!,
       ),
     );
 
     const sendOptions: SendOptions | undefined = sendMax.value
-      ? { type: "all" }
+      ? { type: 'all' }
       : undefined;
     const addressToBalance = await api.query.system
       .account(addressTo.value)
@@ -274,7 +274,7 @@ const validateFields = async () => {
     const { partialFee } = (
       await tx.paymentInfo(props.accountInfo.selectedAccount!.address)
     ).toJSON();
-    const rawFee = toBN(partialFee?.toString() ?? "0");
+    const rawFee = toBN(partialFee?.toString() ?? '0');
     const rawBalance = toBN(selectedAsset.value.balance!);
     if (
       sendMax.value &&
@@ -306,16 +306,16 @@ const validateFields = async () => {
     }
 
     const txFeeHuman = fromBase(
-      partialFee?.toString() ?? "",
+      partialFee?.toString() ?? '',
       nativeAsset.decimals!,
     );
 
     const txPrice = new BigNumber(nativeAsset.price!).times(txFeeHuman);
 
     fee.value = {
-      fiatSymbol: "USD",
+      fiatSymbol: 'USD',
       fiatValue: txPrice.toString(),
-      nativeSymbol: nativeAsset.symbol ?? "",
+      nativeSymbol: nativeAsset.symbol ?? '',
       nativeValue: txFeeHuman.toString(),
     };
   }
@@ -340,7 +340,7 @@ const fetchTokens = async () => {
 
   Promise.all([...pricePromises, ...balancePromises]).then(() => {
     const nonZeroAssets = networkAssets.filter(
-      asset => !toBN(asset.balance ?? "0").isZero(),
+      asset => !toBN(asset.balance ?? '0').isZero(),
     );
 
     if (nonZeroAssets.length == 0) {
@@ -368,7 +368,7 @@ const inputAddressFrom = (text: string) => {
 const inputAddressTo = (text: string) => {
   const debounceResolve = debounce(() => {
     nameResolver
-      .resolveName(text, [props.network.name as CoinType, "DOT", "KSM"])
+      .resolveName(text, [props.network.name as CoinType, 'DOT', 'KSM'])
       .then(resolved => {
         if (resolved) {
           addressTo.value = resolved;
@@ -407,22 +407,22 @@ const selectToken = (token: SubstrateToken | Partial<SubstrateToken>) => {
 };
 
 const inputAmount = (inputAmount: string) => {
-  if (inputAmount === "") {
-    inputAmount = "0";
+  if (inputAmount === '') {
+    inputAmount = '0';
   }
   const inputAmountBn = new BigNumber(inputAmount);
   sendMax.value = false;
-  amount.value = inputAmountBn.lt(0) ? "0" : inputAmount;
+  amount.value = inputAmountBn.lt(0) ? '0' : inputAmount;
   validateFields();
 };
 
 const sendButtonTitle = computed(() => {
-  let title = "Send";
-  if (parseInt(amount.value ?? "0") > 0)
+  let title = 'Send';
+  if (parseInt(amount.value ?? '0') > 0)
     title =
-      "Send " +
+      'Send ' +
       formatFloatingPointValue(amount.value!).value +
-      " " +
+      ' ' +
       selectedAsset.value?.symbol!.toUpperCase();
   return title;
 });
@@ -450,7 +450,7 @@ const destinationBalanceCheck = computed(() => {
     else {
       const rawAmount = toBN(
         toBase(
-          amount.value?.toString() ?? "0",
+          amount.value?.toString() ?? '0',
           selectedAsset.value.decimals ?? 0,
         ),
       );
@@ -474,7 +474,7 @@ const isDisabled = computed(() => {
   }
   if (
     amount.value !== undefined &&
-    amount.value !== "" &&
+    amount.value !== '' &&
     hasEnough.value &&
     addressIsValid &&
     !edWarn.value &&
@@ -489,7 +489,7 @@ const sendAction = async () => {
   const sendAmount = toBase(amount.value!, selectedAsset.value.decimals!);
 
   const sendOptions: SendOptions | undefined = sendMax.value
-    ? { type: "all" }
+    ? { type: 'all' }
     : undefined;
 
   const api = (await props.network.api()).api as ApiPromise;
@@ -516,12 +516,12 @@ const sendAction = async () => {
       amount: toBase(amount.value!, selectedAsset.value.decimals!),
       decimals: selectedAsset.value.decimals!,
       icon: selectedAsset.value.icon as string,
-      symbol: selectedAsset.value.symbol || "unknown",
-      valueUSD: new BigNumber(selectedAsset.value.price || "0")
+      symbol: selectedAsset.value.symbol || 'unknown',
+      valueUSD: new BigNumber(selectedAsset.value.price || '0')
         .times(amount.value!)
         .toFixed(),
-      name: selectedAsset.value.name || "",
-      price: selectedAsset.value.price || "0",
+      name: selectedAsset.value.name || '',
+      price: selectedAsset.value.price || '0',
     },
     fromAddress: fromAccount.address,
     fromAddressName: fromAccount.name,
@@ -533,8 +533,8 @@ const sendAction = async () => {
     name: RouterNames.verify.name,
     query: {
       id: selected,
-      txData: Buffer.from(JSON.stringify(txVerifyInfo), "utf8").toString(
-        "base64",
+      txData: Buffer.from(JSON.stringify(txVerifyInfo), 'utf8').toString(
+        'base64',
       ),
     },
   });
@@ -547,7 +547,7 @@ const sendAction = async () => {
           ProviderName.polkadot,
         ),
       ),
-      type: "popup",
+      type: 'popup',
       focused: true,
       height: 600,
       width: 460,
@@ -560,8 +560,8 @@ const sendAction = async () => {
 </script>
 
 <style lang="less" scoped>
-@import "@action/styles/theme.less";
-@import "@action/styles/custom-scroll.less";
+@import '@action/styles/theme.less';
+@import '@action/styles/custom-scroll.less';
 
 .container {
   width: 100%;

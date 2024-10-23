@@ -1,15 +1,15 @@
-import { ApiPromise } from "@polkadot/api";
-import { OrmlTokensAccountData } from "../../acala/types/acala-orml-asset";
-import { SubmittableExtrinsic } from "@polkadot/api/types";
-import { ISubmittableResult } from "@polkadot/types/types";
-import { SubstrateToken } from "@/providers/polkadot/types/substrate-token";
-import { BaseTokenOptions } from "@/types/base-token";
+import { ApiPromise } from '@polkadot/api';
+import { OrmlTokensAccountData } from '../../acala/types/acala-orml-asset';
+import { SubmittableExtrinsic } from '@polkadot/api/types';
+import { ISubmittableResult } from '@polkadot/types/types';
+import { SubstrateToken } from '@/providers/polkadot/types/substrate-token';
+import { BaseTokenOptions } from '@/types/base-token';
 
 export type OrmlAssetType =
-  | "token"
-  | "foreignAsset"
-  | "stableAssetPoolToken"
-  | "liquidCrowdloan";
+  | 'token'
+  | 'foreignAsset'
+  | 'stableAssetPoolToken'
+  | 'liquidCrowdloan';
 
 export interface BifrostOrmlAssetOptions extends BaseTokenOptions {
   assetType: OrmlAssetType;
@@ -45,7 +45,7 @@ export class BifrostOrmlAsset extends SubstrateToken {
     api: ApiPromise,
     to: string,
     amount: string,
-  ): Promise<SubmittableExtrinsic<"promise", ISubmittableResult>> {
+  ): Promise<SubmittableExtrinsic<'promise', ISubmittableResult>> {
     const currencyId: Record<string, string | number> = {};
     currencyId[this.assetType] = this.lookupValue;
 

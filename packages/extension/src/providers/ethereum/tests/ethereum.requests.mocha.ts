@@ -1,11 +1,11 @@
-import { expect } from "chai";
-import { ProviderName, ProviderType, EthereumProvider } from "@/types/provider";
-import EthereumInject from "../inject";
-import { EthereumRequest } from "../types";
-import { OnMessageResponse } from "@enkryptcom/types";
-import { getError } from "@/libs/error";
-import { EnkryptWindow } from "@/types/globals";
-import { InternalMethods } from "@/types/messenger";
+import { expect } from 'chai';
+import { ProviderName, ProviderType, EthereumProvider } from '@/types/provider';
+import EthereumInject from '../inject';
+import { EthereumRequest } from '../types';
+import { OnMessageResponse } from '@enkryptcom/types';
+import { getError } from '@/libs/error';
+import { EnkryptWindow } from '@/types/globals';
+import { InternalMethods } from '@/types/messenger';
 
 const defaultSettings = {
   evm: {
@@ -22,7 +22,7 @@ const defaultSettings = {
   },
   enkrypt: {
     installedTimestamp: 0,
-    randomUserID: "",
+    randomUserID: '',
     isMetricsEnabled: true,
   },
   manifestVersion: 3,
@@ -30,17 +30,17 @@ const defaultSettings = {
 
 const requestHandler = (request: string): OnMessageResponse => {
   const req = JSON.parse(request) as EthereumRequest;
-  if (req.method === "eth_chainId")
+  if (req.method === 'eth_chainId')
     return {
-      result: JSON.stringify("0x1"),
+      result: JSON.stringify('0x1'),
     };
-  else if (req.method === "eth_requestAccounts")
+  else if (req.method === 'eth_requestAccounts')
     return {
       error: JSON.stringify(getError(4001)),
     };
-  else if (req.method === "eth_accounts")
+  else if (req.method === 'eth_accounts')
     return {
-      result: JSON.stringify(["0xDECAF9CD2367cdbb726E904cD6397eDFcAe6068D"]),
+      result: JSON.stringify(['0xDECAF9CD2367cdbb726E904cD6397eDFcAe6068D']),
     };
   return {
     error: JSON.stringify(getError(4200)),
@@ -76,28 +76,28 @@ const tempWindow: EnkryptWindow = {
 
   dispatchEvent: () => {},
 };
-describe("Test Ethereum reponses", () => {
-  it("should send proper responses", async () => {
+describe('Test Ethereum reponses', () => {
+  it('should send proper responses', async () => {
     EthereumInject(tempWindow, options);
     await new Promise(r => setTimeout(r, 500));
     const provider = tempWindow[ProviderName.ethereum] as EthereumProvider;
-    expect(await provider.request({ method: "eth_chainId" })).to.equal("0x1");
-    await provider.request({ method: "eth_requestAccounts" }).catch(e => {
+    expect(await provider.request({ method: 'eth_chainId' })).to.equal('0x1');
+    await provider.request({ method: 'eth_requestAccounts' }).catch(e => {
       expect(e).to.be.deep.equal({
         code: 4001,
-        message: "User Rejected Request: The user rejected the request.",
+        message: 'User Rejected Request: The user rejected the request.',
       });
     });
-    await provider.request({ method: "eth_unknownMethod" }).catch(e => {
+    await provider.request({ method: 'eth_unknownMethod' }).catch(e => {
       expect(e).to.be.deep.equal({
         code: 4200,
         message:
-          "Unsupported Method: The Provider does not support the requested method.",
+          'Unsupported Method: The Provider does not support the requested method.',
       });
     });
-    await provider.request({ method: "eth_accounts" }).then(res => {
+    await provider.request({ method: 'eth_accounts' }).then(res => {
       expect(res).to.be.deep.equal([
-        "0xDECAF9CD2367cdbb726E904cD6397eDFcAe6068D",
+        '0xDECAF9CD2367cdbb726E904cD6397eDFcAe6068D',
       ]);
     });
   });

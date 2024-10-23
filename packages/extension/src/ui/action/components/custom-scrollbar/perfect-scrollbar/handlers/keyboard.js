@@ -1,13 +1,13 @@
-import * as DOM from "../lib/dom";
-import updateGeometry from "../update-geometry";
-import { isEditable } from "../lib/util";
+import * as DOM from '../lib/dom';
+import updateGeometry from '../update-geometry';
+import { isEditable } from '../lib/util';
 
 export default function (i) {
   const element = i.element;
 
-  const elementHovered = () => DOM.matches(element, ":hover");
+  const elementHovered = () => DOM.matches(element, ':hover');
   const scrollbarFocused = () =>
-    DOM.matches(i.scrollbarX, ":focus") || DOM.matches(i.scrollbarY, ":focus");
+    DOM.matches(i.scrollbarX, ':focus') || DOM.matches(i.scrollbarY, ':focus');
 
   function shouldPreventDefault(deltaX, deltaY) {
     const scrollTop = Math.floor(element.scrollTop);
@@ -38,7 +38,7 @@ export default function (i) {
     return true;
   }
 
-  i.event.bind(i.ownerDocument, "keydown", e => {
+  i.event.bind(i.ownerDocument, 'keydown', e => {
     if (
       (e.isDefaultPrevented && e.isDefaultPrevented()) ||
       e.defaultPrevented
@@ -54,7 +54,7 @@ export default function (i) {
       ? document.activeElement
       : i.ownerDocument.activeElement;
     if (activeElement) {
-      if (activeElement.tagName === "IFRAME") {
+      if (activeElement.tagName === 'IFRAME') {
         activeElement = activeElement.contentDocument.activeElement;
       } else {
         // go deeper if element is a webcomponent

@@ -1,10 +1,10 @@
-import { BitcoinNetworkInfo, HaskoinUnspentType } from "../types";
-import { address as BTCAddress } from "bitcoinjs-lib";
-import { GasPriceTypes } from "@/providers/common/types";
-import { fromBase } from "@enkryptcom/utils";
-import BigNumber from "bignumber.js";
-import { BitcoinNetwork } from "../types/bitcoin-network";
-import { BTCTxInfo } from "../ui/types";
+import { BitcoinNetworkInfo, HaskoinUnspentType } from '../types';
+import { address as BTCAddress } from 'bitcoinjs-lib';
+import { GasPriceTypes } from '@/providers/common/types';
+import { fromBase } from '@enkryptcom/utils';
+import BigNumber from 'bignumber.js';
+import { BitcoinNetwork } from '../types/bitcoin-network';
+import { BTCTxInfo } from '../ui/types';
 
 const isAddress = (address: string, network: BitcoinNetworkInfo): boolean => {
   try {
@@ -51,7 +51,7 @@ const getTxInfo = (
 const getGasCostValues = async (
   network: BitcoinNetwork,
   byteSize: number,
-  nativeVal = "0",
+  nativeVal = '0',
   decimals: number,
   currencyName: string,
 ) => {
@@ -72,7 +72,7 @@ const getGasCostValues = async (
         .times(nativeVal!)
         .toString(),
       nativeSymbol: currencyName,
-      fiatSymbol: "USD",
+      fiatSymbol: 'USD',
     },
     [GasPriceTypes.REGULAR]: {
       nativeValue: getConvertedVal(GasPriceTypes.REGULAR),
@@ -80,7 +80,7 @@ const getGasCostValues = async (
         .times(nativeVal!)
         .toString(),
       nativeSymbol: currencyName,
-      fiatSymbol: "USD",
+      fiatSymbol: 'USD',
     },
     [GasPriceTypes.FAST]: {
       nativeValue: getConvertedVal(GasPriceTypes.FAST),
@@ -88,7 +88,7 @@ const getGasCostValues = async (
         .times(nativeVal!)
         .toString(),
       nativeSymbol: currencyName,
-      fiatSymbol: "USD",
+      fiatSymbol: 'USD',
     },
     [GasPriceTypes.FASTEST]: {
       nativeValue: getConvertedVal(GasPriceTypes.FASTEST),
@@ -96,7 +96,7 @@ const getGasCostValues = async (
         .times(nativeVal!)
         .toString(),
       nativeSymbol: currencyName,
-      fiatSymbol: "USD",
+      fiatSymbol: 'USD',
     },
   };
   return gasCostValues;

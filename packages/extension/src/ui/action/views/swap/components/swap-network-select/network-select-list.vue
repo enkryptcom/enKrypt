@@ -22,15 +22,15 @@
 </template>
 
 <script setup lang="ts">
-import CloseIcon from "@action/icons/common/close-icon.vue";
-import NetworkSelectListItem from "./network-select-list-item.vue";
-import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
-import scrollSettings from "@/libs/utils/scroll-settings";
-import { PropType } from "vue";
-import { NetworkInfo } from "@enkryptcom/swap";
+import CloseIcon from '@action/icons/common/close-icon.vue';
+import NetworkSelectListItem from './network-select-list-item.vue';
+import CustomScrollbar from '@action/components/custom-scrollbar/index.vue';
+import scrollSettings from '@/libs/utils/scroll-settings';
+import { PropType } from 'vue';
+import { NetworkInfo } from '@enkryptcom/swap';
 
 const emit = defineEmits<{
-  (e: "close", close: boolean): void;
+  (e: 'close', close: boolean): void;
 }>();
 
 defineProps({
@@ -41,13 +41,13 @@ defineProps({
 });
 
 const close = () => {
-  emit("close", false);
+  emit('close', false);
 };
 </script>
 
 <style lang="less">
-@import "@action/styles/theme.less";
-@import "@action/styles/custom-scroll.less";
+@import '@action/styles/theme.less';
+@import '@action/styles/custom-scroll.less';
 
 .assets-select-list {
   width: 100%;

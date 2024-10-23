@@ -79,58 +79,58 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeMount, ref, ComponentPublicInstance } from "vue";
-import { useRoute, useRouter } from "vue-router";
-import CloseIcon from "@action/icons/common/close-icon.vue";
-import BaseButton from "@action/components/base-button/index.vue";
-import VerifyTransactionNetwork from "@/providers/common/ui/verify-transaction/verify-transaction-network.vue";
-import VerifyTransactionAccount from "@/providers/common/ui/verify-transaction/verify-transaction-account.vue";
-import VerifyTransactionAmount from "@/providers/common/ui/verify-transaction/verify-transaction-amount.vue";
-import VerifyTransactionFee from "@/providers/common/ui/verify-transaction/verify-transaction-fee.vue";
-import VerifyTransactionNft from "@/providers/common/ui/send-transaction/verify-transaction-nft.vue";
-import HardwareWalletMsg from "@/providers/common/ui/verify-transaction/hardware-wallet-msg.vue";
-import SendProcess from "@action/views/send-process/index.vue";
-import PublicKeyRing from "@/libs/keyring/public-keyring";
-import { VerifyTransactionParams } from "../../types";
-import { getCurrentContext } from "@/libs/messenger/extension";
+import { onBeforeMount, ref, ComponentPublicInstance } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import CloseIcon from '@action/icons/common/close-icon.vue';
+import BaseButton from '@action/components/base-button/index.vue';
+import VerifyTransactionNetwork from '@/providers/common/ui/verify-transaction/verify-transaction-network.vue';
+import VerifyTransactionAccount from '@/providers/common/ui/verify-transaction/verify-transaction-account.vue';
+import VerifyTransactionAmount from '@/providers/common/ui/verify-transaction/verify-transaction-amount.vue';
+import VerifyTransactionFee from '@/providers/common/ui/verify-transaction/verify-transaction-fee.vue';
+import VerifyTransactionNft from '@/providers/common/ui/send-transaction/verify-transaction-nft.vue';
+import HardwareWalletMsg from '@/providers/common/ui/verify-transaction/hardware-wallet-msg.vue';
+import SendProcess from '@action/views/send-process/index.vue';
+import PublicKeyRing from '@/libs/keyring/public-keyring';
+import { VerifyTransactionParams } from '../../types';
+import { getCurrentContext } from '@/libs/messenger/extension';
 import {
   DEFAULT_SOLANA_NETWORK,
   getNetworkByName,
-} from "@/libs/utils/networks";
-import { ActivityStatus, Activity, ActivityType } from "@/types/activity";
-import ActivityState from "@/libs/activity-state";
-import { EnkryptAccount } from "@enkryptcom/types";
-import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
-import { BaseNetwork } from "@/types/base-network";
-import { trackSendEvents } from "@/libs/metrics";
-import { SendEventType } from "@/libs/metrics/types";
+} from '@/libs/utils/networks';
+import { ActivityStatus, Activity, ActivityType } from '@/types/activity';
+import ActivityState from '@/libs/activity-state';
+import { EnkryptAccount } from '@enkryptcom/types';
+import CustomScrollbar from '@action/components/custom-scrollbar/index.vue';
+import { BaseNetwork } from '@/types/base-network';
+import { trackSendEvents } from '@/libs/metrics';
+import { SendEventType } from '@/libs/metrics/types';
 import {
   Transaction as SolTransaction,
   ComputeBudgetProgram,
   VersionedTransaction,
   TransactionMessage,
-} from "@solana/web3.js";
-import { getSimulationComputeUnits } from "@solana-developers/helpers";
-import SolanaAPI from "@/providers/solana/libs/api";
-import bs58 from "bs58";
-import { TransactionSigner } from "../../libs/signer";
+} from '@solana/web3.js';
+import { getSimulationComputeUnits } from '@solana-developers/helpers';
+import SolanaAPI from '@/providers/solana/libs/api';
+import bs58 from 'bs58';
+import { TransactionSigner } from '../../libs/signer';
 
 const KeyRing = new PublicKeyRing();
 const route = useRoute();
 const router = useRouter();
 const selectedNetwork: string = route.query.id as string;
 const txData: VerifyTransactionParams = JSON.parse(
-  Buffer.from(route.query.txData as string, "base64").toString("utf8"),
+  Buffer.from(route.query.txData as string, 'base64').toString('utf8'),
 );
 const isNft = ref(txData.isNFT);
 const isProcessing = ref(false);
 const network = ref<BaseNetwork>(DEFAULT_SOLANA_NETWORK);
 const isSendDone = ref(false);
 const account = ref<EnkryptAccount>();
-const isPopup: boolean = getCurrentContext() === "new-window";
+const isPopup: boolean = getCurrentContext() === 'new-window';
 const verifyScrollRef = ref<ComponentPublicInstance<HTMLElement>>();
 const isWindowPopup = ref(false);
-const errorMsg = ref("");
+const errorMsg = ref('');
 defineExpose({ verifyScrollRef });
 onBeforeMount(async () => {
   network.value = (await getNetworkByName(selectedNetwork))!;
@@ -139,7 +139,7 @@ onBeforeMount(async () => {
   isWindowPopup.value = account.value.isHardware;
 });
 const close = () => {
-  if (getCurrentContext() === "popup") {
+  if (getCurrentContext() === 'popup') {
     router.go(-1);
   } else {
     window.close();
@@ -188,11 +188,11 @@ const sendAction = async () => {
       symbol: isNft.value
         ? txData.NFTData!.collectionName
         : txData.toToken.symbol,
-      price: isNft.value ? "0" : txData.toToken.price,
+      price: isNft.value ? '0' : txData.toToken.price,
     },
     type: ActivityType.transaction,
-    value: isNft.value ? "1" : txData.toToken.amount,
-    transactionHash: "",
+    value: isNft.value ? '1' : txData.toToken.amount,
+    transactionHash: '',
   };
   const activityState = new ActivityState();
   const msgToSign = transaction.message.serialize();
@@ -222,7 +222,7 @@ const sendAction = async () => {
           },
         );
         isSendDone.value = true;
-        if (getCurrentContext() === "popup") {
+        if (getCurrentContext() === 'popup') {
           setTimeout(() => {
             isProcessing.value = false;
             router.go(-2);
@@ -251,7 +251,7 @@ const sendAction = async () => {
             network: network.value.name,
             error: errorMsg.value,
           });
-          console.error("ERROR", e);
+          console.error('ERROR', e);
         });
     })
     .catch(err => {
@@ -267,12 +267,12 @@ const sendAction = async () => {
         network: network.value.name,
         error: errorMsg.value,
       });
-      console.error("ERROR", errror);
+      console.error('ERROR', errror);
     });
 };
 const isHasScroll = () => {
   if (verifyScrollRef.value) {
-    return verifyScrollRef.value.$el.classList.contains("ps--active-y");
+    return verifyScrollRef.value.$el.classList.contains('ps--active-y');
   }
 
   return false;
@@ -280,8 +280,8 @@ const isHasScroll = () => {
 </script>
 
 <style lang="less" scoped>
-@import "@action/styles/theme.less";
-@import "@action/styles/custom-scroll.less";
+@import '@action/styles/theme.less';
+@import '@action/styles/custom-scroll.less';
 
 .container {
   width: 100%;
@@ -398,8 +398,8 @@ const isHasScroll = () => {
   &__scroll-area {
     position: relative;
     margin: auto;
-    width: calc(~"100% + 53px");
-    height: calc(~"100% - 88px");
+    width: calc(~'100% + 53px');
+    height: calc(~'100% - 88px');
     margin: 0;
     padding: 0 53px 0 0 !important;
     margin-right: -53px;

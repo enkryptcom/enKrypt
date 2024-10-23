@@ -6,10 +6,10 @@
 </template>
 
 <script setup lang="ts">
-import { TokenTypeTo } from "@enkryptcom/swap";
-import { PropType } from "vue";
+import { TokenTypeTo } from '@enkryptcom/swap';
+import { PropType } from 'vue';
 defineEmits<{
-  (e: "update:selectAsset", asset: TokenTypeTo): void;
+  (e: 'update:selectAsset', asset: TokenTypeTo): void;
 }>();
 defineProps({
   token: {
@@ -20,7 +20,7 @@ defineProps({
 </script>
 
 <style lang="less">
-@import "@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .swap-token-fast {
   &__token {

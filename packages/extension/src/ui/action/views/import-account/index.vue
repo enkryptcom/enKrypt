@@ -70,16 +70,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, PropType } from "vue";
-import ImportAccountStart from "./views/import-account-start.vue";
-import ImportAccountKeystoreFile from "./views/import-account-keystore-file.vue";
-import ImportAccountPassword from "./views/import-account-password.vue";
-import ImportAccountImporting from "./views/import-account-importing.vue";
-import ImportAccountPrivateKey from "./views/import-account-private-key.vue";
+import { ref, PropType } from 'vue';
+import ImportAccountStart from './views/import-account-start.vue';
+import ImportAccountKeystoreFile from './views/import-account-keystore-file.vue';
+import ImportAccountPassword from './views/import-account-password.vue';
+import ImportAccountImporting from './views/import-account-importing.vue';
+import ImportAccountPrivateKey from './views/import-account-private-key.vue';
 // import ImportAccountStartDot from "./views/import-account-start-dot.vue";
 // import ImportAccountSelectAccountDot from "./views/import-account-select-account-dot.vue";
-import { BaseNetwork } from "@/types/base-network";
-import { KeyPairAdd, SignerType } from "@enkryptcom/types";
+import { BaseNetwork } from '@/types/base-network';
+import { KeyPairAdd, SignerType } from '@enkryptcom/types';
 
 const isStart = ref(true);
 const isKeystoreFile = ref(false);
@@ -88,19 +88,19 @@ const isEnterPassword = ref(false);
 const isImportingAccount = ref(false);
 const iSelectAccount = ref(false);
 const inputFileError = ref(false);
-const keystorePassword = ref("");
+const keystorePassword = ref('');
 const keystorePassError = ref(false);
 const keystoreFile = ref<File>();
 const keystoreJSON = ref({});
 const keyPair = ref<KeyPairAdd>({
-  address: "",
-  privateKey: "",
-  publicKey: "",
-  name: "",
+  address: '',
+  privateKey: '',
+  publicKey: '',
+  name: '',
   signerType: SignerType.secp256k1,
 });
 const emit = defineEmits<{
-  (e: "close"): void;
+  (e: 'close'): void;
 }>();
 
 defineProps({
@@ -122,7 +122,7 @@ const allVars = [
 ];
 
 const close = () => {
-  emit("close");
+  emit('close');
 };
 
 const startAction = () => {
@@ -163,7 +163,7 @@ const updateKeystorePassword = (password: string) => {
 };
 const fileSelected = (file: File) => {
   const reader = new FileReader();
-  reader.addEventListener("load", event => {
+  reader.addEventListener('load', event => {
     try {
       keystoreJSON.value = JSON.parse(event.target!.result as string);
       inputFileError.value = false;
@@ -183,7 +183,7 @@ const walletUpdate = (wallet: KeyPairAdd) => {
 </script>
 
 <style lang="less">
-@import "@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .import-account {
   width: 100%;

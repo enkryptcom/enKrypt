@@ -1,7 +1,7 @@
-import { Component } from "vue";
-import { SubstrateNetwork } from "../../types/substrate-network";
-import BlindVerifyView from "./blind-approvetx.vue";
-import mapping from "./mappings";
+import { Component } from 'vue';
+import { SubstrateNetwork } from '../../types/substrate-network';
+import BlindVerifyView from './blind-approvetx.vue';
+import mapping from './mappings';
 
 export const getViewAndProps = (
   network: SubstrateNetwork,

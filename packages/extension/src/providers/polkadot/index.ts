@@ -1,16 +1,16 @@
-import getRequestProvider, { RequestClass } from "@enkryptcom/request";
-import { MiddlewareFunction, OnMessageResponse } from "@enkryptcom/types";
-import Middlewares from "./methods";
-import EventEmitter from "eventemitter3";
+import getRequestProvider, { RequestClass } from '@enkryptcom/request';
+import { MiddlewareFunction, OnMessageResponse } from '@enkryptcom/types';
+import Middlewares from './methods';
+import EventEmitter from 'eventemitter3';
 import {
   BackgroundProviderInterface,
   ProviderName,
   ProviderRPCRequest,
-} from "@/types/provider";
-import GetUIPath from "@/libs/utils/get-ui-path";
-import PublicKeyRing from "@/libs/keyring/public-keyring";
-import UIRoutes from "./ui/routes/names";
-import { BaseNetwork } from "@/types/base-network";
+} from '@/types/provider';
+import GetUIPath from '@/libs/utils/get-ui-path';
+import PublicKeyRing from '@/libs/keyring/public-keyring';
+import UIRoutes from './ui/routes/names';
+import { BaseNetwork } from '@/types/base-network';
 class PolkadotProvider
   extends EventEmitter
   implements BackgroundProviderInterface
@@ -24,9 +24,9 @@ class PolkadotProvider
   constructor(toWindow: (message: string) => void) {
     super();
     this.setMiddleWares();
-    this.requestProvider = getRequestProvider("", this.middlewares);
+    this.requestProvider = getRequestProvider('', this.middlewares);
     this.toWindow = toWindow;
-    this.requestProvider.on("notification", (notif: any) => {
+    this.requestProvider.on('notification', (notif: any) => {
       this.sendNotification(JSON.stringify(notif));
     });
     this.namespace = ProviderName.polkadot;

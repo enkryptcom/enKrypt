@@ -1,8 +1,8 @@
-import { MiddlewareFunction } from "@enkryptcom/types";
-import { ProviderRPCRequest } from "@/types/provider";
-import AccountState from "../libs/accounts-state";
-import { getCustomError } from "@/libs/error";
-import BitcoinProvider from "..";
+import { MiddlewareFunction } from '@enkryptcom/types';
+import { ProviderRPCRequest } from '@/types/provider';
+import AccountState from '../libs/accounts-state';
+import { getCustomError } from '@/libs/error';
+import BitcoinProvider from '..';
 
 const method: MiddlewareFunction = function (
   this: BitcoinProvider,
@@ -10,7 +10,7 @@ const method: MiddlewareFunction = function (
   res,
   next,
 ): void {
-  if (payload.method !== "btc_getPublicKey") return next();
+  if (payload.method !== 'btc_getPublicKey') return next();
   else {
     if (payload.options && payload.options.domain) {
       const accountsState = new AccountState();
@@ -19,14 +19,14 @@ const method: MiddlewareFunction = function (
         .then(accounts => {
           if (accounts.length) {
             this.KeyRing.getAccount(accounts[0]).then(pubAccounts => {
-              res(null, pubAccounts.address.replace("0x", ""));
+              res(null, pubAccounts.address.replace('0x', ''));
             });
           } else {
-            res(null, "");
+            res(null, '');
           }
         });
     } else {
-      res(getCustomError("No domain set!"));
+      res(getCustomError('No domain set!'));
     }
   }
 };

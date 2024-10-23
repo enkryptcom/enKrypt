@@ -1,6 +1,6 @@
-import { InternalStorageNamespace } from "@/types/provider";
-import BrowserStorage from "@/libs/common/browser-storage";
-import { IState, StorageKeys } from "./types";
+import { InternalStorageNamespace } from '@/types/provider';
+import BrowserStorage from '@/libs/common/browser-storage';
+import { IState, StorageKeys } from './types';
 
 class AccountState {
   #storage: BrowserStorage;

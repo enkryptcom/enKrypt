@@ -117,47 +117,47 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeMount, ref, toRaw } from "vue";
-import SignLogo from "@action/icons/common/sign-logo.vue";
-import BaseButton from "@action/components/base-button/index.vue";
-import commonPopup from "@action/views/common-popup/index.vue";
-import { DEFAULT_EVM_NETWORK, getNetworkByName } from "@/libs/utils/networks";
-import { WindowPromiseHandler } from "@/libs/window-promise";
-import { EvmNetwork } from "../types/evm-network";
-import { ProviderRequestOptions } from "@/types/provider";
-import AlertIcon from "@/ui/action/icons/send/alert-icon.vue";
-import WarnIcon from "@/ui/action/icons/send/warning-icon.vue";
-import { CustomErc20Token, TokenType } from "@/libs/tokens-state/types";
-import ExternalIcon from "@action/icons/header/external-icon.vue";
-import Tooltip from "@action/components/tooltip/index.vue";
-import { fromBase } from "@enkryptcom/utils";
-import { formatFloatingPointValue } from "@/libs/utils/number-formatter";
-import { TokensState } from "@/libs/tokens-state";
+import { computed, onBeforeMount, ref, toRaw } from 'vue';
+import SignLogo from '@action/icons/common/sign-logo.vue';
+import BaseButton from '@action/components/base-button/index.vue';
+import commonPopup from '@action/views/common-popup/index.vue';
+import { DEFAULT_EVM_NETWORK, getNetworkByName } from '@/libs/utils/networks';
+import { WindowPromiseHandler } from '@/libs/window-promise';
+import { EvmNetwork } from '../types/evm-network';
+import { ProviderRequestOptions } from '@/types/provider';
+import AlertIcon from '@/ui/action/icons/send/alert-icon.vue';
+import WarnIcon from '@/ui/action/icons/send/warning-icon.vue';
+import { CustomErc20Token, TokenType } from '@/libs/tokens-state/types';
+import ExternalIcon from '@action/icons/header/external-icon.vue';
+import Tooltip from '@action/components/tooltip/index.vue';
+import { fromBase } from '@enkryptcom/utils';
+import { formatFloatingPointValue } from '@/libs/utils/number-formatter';
+import { TokensState } from '@/libs/tokens-state';
 
 const windowPromise = WindowPromiseHandler(4);
 const network = ref<EvmNetwork>(DEFAULT_EVM_NETWORK);
 const tokenNotFound = ref(false);
 const tokenInfo = ref<CustomErc20Token>({
   type: TokenType.ERC20,
-  name: "Unknown",
-  symbol: "UNKNWN",
+  name: 'Unknown',
+  symbol: 'UNKNWN',
   decimals: 18,
   icon: network.value.icon,
-  address: "0x000000000000000000000000",
+  address: '0x000000000000000000000000',
 });
-const userBalance = ref<string>("");
+const userBalance = ref<string>('');
 
 const Options = ref<ProviderRequestOptions>({
-  domain: "",
-  faviconURL: "",
-  title: "",
-  url: "",
+  domain: '',
+  faviconURL: '',
+  title: '',
+  url: '',
   tabId: 0,
 });
 
 const externalLink = computed(() => {
   return network.value.blockExplorerAddr.replace(
-    "[[address]]",
+    '[[address]]',
     tokenInfo.value.address,
   );
 });
@@ -171,7 +171,7 @@ onBeforeMount(async () => {
   )) as EvmNetwork;
   const balance = Request.value.params![1];
 
-  if (balance !== "") {
+  if (balance !== '') {
     userBalance.value = formatFloatingPointValue(
       fromBase(balance, tokenInfo.value.decimals),
     ).value;
@@ -203,8 +203,8 @@ const addToken = async () => {
 </script>
 
 <style lang="less">
-@import "@/providers/ethereum/ui/styles/common-popup.less";
-@import "@action/styles/provider-connect-dapp.less";
+@import '@/providers/ethereum/ui/styles/common-popup.less';
+@import '@action/styles/provider-connect-dapp.less';
 
 .block-override {
   height: 56px !important;
@@ -232,7 +232,7 @@ const addToken = async () => {
 
         &.focus {
           border: 2px solid @primary;
-          width: calc(~"100% - 62px");
+          width: calc(~'100% - 62px');
           margin: 12px 31px 8px 31px;
         }
 

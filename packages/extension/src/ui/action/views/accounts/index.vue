@@ -103,29 +103,29 @@
 </template>
 
 <script setup lang="ts">
-import AccountsSearch from "./components/accounts-search.vue";
-import AccountsListItem from "./components/accounts-list-item.vue";
-import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
-import AddAccount from "@action/icons/common/add-account.vue";
-import AddAccountForm from "./components/add-account-form.vue";
-import RenameAccountForm from "./components/rename-account-form.vue";
-import DeleteAccountForm from "./components/delete-account-form.vue";
-import AddHardwareAccount from "@action/icons/actions/add-hardware-account.vue";
-import ImportAccountIcon from "@action/icons/actions/import-account-icon.vue";
-import ImportAccount from "@action/views/import-account/index.vue";
-import { AccountsHeaderData } from "../../types/account";
-import { PropType, ref } from "vue";
-import openHardware from "@/libs/utils/open-hardware";
-import scrollSettings from "@/libs/utils/scroll-settings";
-import { EnkryptAccount } from "@enkryptcom/types";
-import HWwallets from "@enkryptcom/hw-wallets";
-import { SignerType } from "@enkryptcom/types";
-import { BaseNetwork } from "@/types/base-network";
-import { WalletType } from "@enkryptcom/types";
-import { ProviderName } from "@/types/provider";
+import AccountsSearch from './components/accounts-search.vue';
+import AccountsListItem from './components/accounts-list-item.vue';
+import CustomScrollbar from '@action/components/custom-scrollbar/index.vue';
+import AddAccount from '@action/icons/common/add-account.vue';
+import AddAccountForm from './components/add-account-form.vue';
+import RenameAccountForm from './components/rename-account-form.vue';
+import DeleteAccountForm from './components/delete-account-form.vue';
+import AddHardwareAccount from '@action/icons/actions/add-hardware-account.vue';
+import ImportAccountIcon from '@action/icons/actions/import-account-icon.vue';
+import ImportAccount from '@action/views/import-account/index.vue';
+import { AccountsHeaderData } from '../../types/account';
+import { PropType, ref } from 'vue';
+import openHardware from '@/libs/utils/open-hardware';
+import scrollSettings from '@/libs/utils/scroll-settings';
+import { EnkryptAccount } from '@enkryptcom/types';
+import HWwallets from '@enkryptcom/hw-wallets';
+import { SignerType } from '@enkryptcom/types';
+import { BaseNetwork } from '@/types/base-network';
+import { WalletType } from '@enkryptcom/types';
+import { ProviderName } from '@/types/provider';
 
 const emit = defineEmits<{
-  (e: "addressChanged", account: EnkryptAccount): void;
+  (e: 'addressChanged', account: EnkryptAccount): void;
 }>();
 const isAddAccount = ref(false);
 const isRenameAccount = ref(false);
@@ -156,7 +156,7 @@ const close = () => {
 const selectAccount = (address: string) => {
   for (const acc of props.accountInfo.activeAccounts) {
     if (props.network.displayAddress(acc.address) === address) {
-      emit("addressChanged", acc);
+      emit('addressChanged', acc);
       break;
     }
   }
@@ -208,8 +208,8 @@ const closeImportAccount = () => {
 </script>
 
 <style lang="less">
-@import "@action/styles/theme.less";
-@import "@action/styles/custom-scroll.less";
+@import '@action/styles/theme.less';
+@import '@action/styles/custom-scroll.less';
 
 .accounts {
   width: 800px;

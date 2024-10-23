@@ -21,14 +21,14 @@
 </template>
 
 <script setup lang="ts">
-import SendTokenItem from "./send-token-item.vue";
-import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
-import ListSearch from "@action/components/list-search/index.vue";
-import { BaseToken } from "@/types/base-token";
-import EvmAPI from "@/providers/ethereum/libs/api";
-import { ApiPromise } from "@polkadot/api";
-import { onUpdated, ref } from "vue";
-import { AssetsType } from "@/types/provider";
+import SendTokenItem from './send-token-item.vue';
+import CustomScrollbar from '@action/components/custom-scrollbar/index.vue';
+import ListSearch from '@action/components/list-search/index.vue';
+import { BaseToken } from '@/types/base-token';
+import EvmAPI from '@/providers/ethereum/libs/api';
+import { ApiPromise } from '@polkadot/api';
+import { onUpdated, ref } from 'vue';
+import { AssetsType } from '@/types/provider';
 
 interface IProps {
   showTokens: boolean;
@@ -58,7 +58,7 @@ const close = () => {
 };
 
 const search = (searchParam: string) => {
-  if (searchParam === "") {
+  if (searchParam === '') {
     searchAssets.value = props.assets;
   } else {
     const lowerSearchParam = searchParam.toLowerCase();
@@ -76,7 +76,7 @@ const selectToken = (token: BaseToken) => {
 </script>
 
 <style lang="less">
-@import "@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .send-token-list {
   width: 100%;

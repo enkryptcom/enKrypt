@@ -1,39 +1,39 @@
-import { CoingeckoPlatform, NetworkNames } from "@enkryptcom/types";
-import { EvmNetworkOptions, EvmNetwork } from "../../types/evm-network";
-import { EtherscanActivity } from "../../libs/activity-handlers";
-import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
+import { CoingeckoPlatform, NetworkNames } from '@enkryptcom/types';
+import { EvmNetworkOptions, EvmNetwork } from '../../types/evm-network';
+import { EtherscanActivity } from '../../libs/activity-handlers';
+import wrapActivityHandler from '@/libs/activity-state/wrap-activity-handler';
 
-import { AssetsType } from "@/types/provider";
-import MarketData from "@/libs/market-data";
-import { fromBase } from "@enkryptcom/utils";
-import BigNumber from "bignumber.js";
+import { AssetsType } from '@/types/provider';
+import MarketData from '@/libs/market-data';
+import { fromBase } from '@enkryptcom/utils';
+import BigNumber from 'bignumber.js';
 import {
   formatFiatValue,
   formatFloatingPointValue,
-} from "@/libs/utils/number-formatter";
-import API from "@/providers/ethereum/libs/api";
-import Sparkline from "@/libs/sparkline";
-import { NATIVE_TOKEN_ADDRESS } from "../../libs/common";
-import { Erc20Token, Erc20TokenOptions } from "../../types/erc20-token";
-import icon from "../icons/skl-fuel.png";
+} from '@/libs/utils/number-formatter';
+import API from '@/providers/ethereum/libs/api';
+import Sparkline from '@/libs/sparkline';
+import { NATIVE_TOKEN_ADDRESS } from '../../libs/common';
+import { Erc20Token, Erc20TokenOptions } from '../../types/erc20-token';
+import icon from '../icons/skl-fuel.png';
 
 const DEFAULT_DECIMALS = 18;
 
 function getBlockExplorerValue(
   chainName: string,
   isTestNetwork: boolean,
-  type: "tx" | "address" | string,
+  type: 'tx' | 'address' | string,
 ) {
   return (
-    "https://" +
+    'https://' +
     `${chainName}` +
-    ".explorer." +
-    `${isTestNetwork ? "staging-v3" : "mainnet"}` +
-    ".skalenodes.com/" +
+    '.explorer.' +
+    `${isTestNetwork ? 'staging-v3' : 'mainnet'}` +
+    '.skalenodes.com/' +
     `${type}` +
-    "/[[" +
-    `${type === "tx" ? "txHash" : type}` +
-    "]]"
+    '/[[' +
+    `${type === 'tx' ? 'txHash' : type}` +
+    ']]'
   );
 }
 
@@ -72,11 +72,11 @@ async function nativeAsset(
     balancef: formatFloatingPointValue(fromBase(balance, network.decimals))
       .value,
     balanceUSD: 0,
-    balanceUSDf: "0",
-    value: "0",
-    valuef: "0",
+    balanceUSDf: '0',
+    value: '0',
+    valuef: '0',
     decimals: network.decimals,
-    sparkline: "",
+    sparkline: '',
     priceChangePercentage: 0,
     contract: NATIVE_TOKEN_ADDRESS,
   } as AssetsType;
@@ -107,17 +107,17 @@ async function assetInfos(
           fromBase(token.balance!, token.decimals),
         ).value,
         balanceUSD: 0,
-        balanceUSDf: "0",
-        value: "0",
-        valuef: "0",
+        balanceUSDf: '0',
+        value: '0',
+        valuef: '0',
         decimals: token.decimals,
-        sparkline: "",
+        sparkline: '',
         priceChangePercentage: 0,
         contract: token.contract,
       };
       return assetsType;
     })
-    .filter(asset => asset.balancef !== "0");
+    .filter(asset => asset.balancef !== '0');
 }
 
 async function getPreconfiguredTokens(
@@ -145,20 +145,20 @@ async function getPreconfiguredTokens(
     ).times(nativeAssetMarketData[index]?.current_price ?? 0);
 
     const assetData: AssetsType = {
-      name: asset?.name ?? nativeAssetMarketData[index]?.name ?? "Name",
-      symbol: asset?.symbol ?? nativeAssetMarketData[index]?.symbol ?? "Symbol",
+      name: asset?.name ?? nativeAssetMarketData[index]?.name ?? 'Name',
+      symbol: asset?.symbol ?? nativeAssetMarketData[index]?.symbol ?? 'Symbol',
       icon:
         nativeAssetMarketData[index]?.image ??
         new URL(`../icons/${asset.icon}`, import.meta.url).href ??
-        new URL("../icons/skl.png", import.meta.url).href,
+        new URL('../icons/skl.png', import.meta.url).href,
       balance: balanceAsset,
       balancef: formatFloatingPointValue(fromBase(balanceAsset, assetDecimals))
         .value,
       balanceUSD: nativeAssetUsdBalance.toNumber(),
       balanceUSDf: formatFiatValue(nativeAssetUsdBalance.toString()).value,
-      value: nativeAssetMarketData[index]?.current_price?.toString() ?? "0",
+      value: nativeAssetMarketData[index]?.current_price?.toString() ?? '0',
       valuef: formatFiatValue(
-        nativeAssetMarketData[index]?.current_price?.toString() ?? "0",
+        nativeAssetMarketData[index]?.current_price?.toString() ?? '0',
       ).value,
       decimals: assetDecimals,
       sparkline: nativeAssetMarketData[index]
@@ -166,13 +166,13 @@ async function getPreconfiguredTokens(
             nativeAssetMarketData[index]?.sparkline_in_24h.price,
             25,
           ).dataValues
-        : "",
+        : '',
       priceChangePercentage:
         nativeAssetMarketData[index]?.price_change_percentage_24h_in_currency ??
         0,
       contract: asset.address,
     };
-    if (asset.showZero || assetData.balancef !== "0")
+    if (asset.showZero || assetData.balancef !== '0')
       preconfiguredAssets.push(assetData);
   }
   return preconfiguredAssets;
@@ -210,26 +210,26 @@ export function createSkaleEvmNetwork(
   return new EvmNetwork({
     name: params.name,
     name_long: params.name_long,
-    homePage: "https://skale.space",
+    homePage: 'https://skale.space',
     blockExplorerTX: getBlockExplorerValue(
       params.chainName,
       params.isTestNetwork ?? false,
-      "tx",
+      'tx',
     ),
     blockExplorerAddr: getBlockExplorerValue(
       params.chainName,
       params.isTestNetwork ?? false,
-      "address",
+      'address',
     ),
     chainID: params.chainID,
     isTestNetwork: params.isTestNetwork ?? false,
-    currencyName: params.currencyName ?? "sFUEL",
-    currencyNameLong: params.currencyNameLong ?? "SKALE FUEL",
+    currencyName: params.currencyName ?? 'sFUEL',
+    currencyNameLong: params.currencyNameLong ?? 'SKALE FUEL',
     node: `wss://${
-      params.isTestNetwork ? "staging-v3" : "mainnet"
+      params.isTestNetwork ? 'staging-v3' : 'mainnet'
     }.skalenodes.com/v1/ws/${params.chainName}`,
-    icon: new URL(`../icons/${params.icon ?? "skl.png"}`, import.meta.url).href,
-    coingeckoID: "skale",
+    icon: new URL(`../icons/${params.icon ?? 'skl.png'}`, import.meta.url).href,
+    coingeckoID: 'skale',
     coingeckoPlatform: CoingeckoPlatform.SKALE,
     assetsInfoHandler: getAssetHandler(assets),
     activityHandler: wrapActivityHandler(EtherscanActivity),

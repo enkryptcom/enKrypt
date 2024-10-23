@@ -1,6 +1,6 @@
-import { sha256 } from "ethereum-cryptography/sha256";
+import { sha256 } from 'ethereum-cryptography/sha256';
 
-const MAGIC_BYTES = Buffer.from("Bitcoin Signed Message:\n");
+const MAGIC_BYTES = Buffer.from('Bitcoin Signed Message:\n');
 
 const varintBufNum = (n: number) => {
   let buf;
@@ -37,7 +37,7 @@ export const toCompact = (
   compressed: boolean,
 ) => {
   if (!(i === 0 || i === 1 || i === 2 || i === 3)) {
-    throw new Error("i must be equal to 0, 1, 2, or 3");
+    throw new Error('i must be equal to 0, 1, 2, or 3');
   }
   let val = i + 27 + 4;
   if (!compressed) {

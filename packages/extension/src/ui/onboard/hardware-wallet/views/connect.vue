@@ -31,18 +31,18 @@
   />
 </template>
 <script setup lang="ts">
-import { computed, onBeforeMount, ref } from "vue";
-import LedgerLogo from "@action/icons/hardware/ledger-logo.vue";
-import BaseButton from "@action/components/base-button/index.vue";
-import HardwareWalletProcess from "../components/hardware-wallet-process.vue";
-import HardwareWalletError from "../components/hardware-wallet-error.vue";
-import { useRoute, useRouter } from "vue-router";
-import { routes } from "../routes";
-import { getNetworkByName } from "@/libs/utils/networks";
-import HWwallet, { ledgerAppNames } from "@enkryptcom/hw-wallets";
-import { HWwalletType } from "@enkryptcom/types";
-import TrezorLogo from "@action/icons/hardware/trezor-logo.vue";
-import { BaseNetwork } from "@/types/base-network";
+import { computed, onBeforeMount, ref } from 'vue';
+import LedgerLogo from '@action/icons/hardware/ledger-logo.vue';
+import BaseButton from '@action/components/base-button/index.vue';
+import HardwareWalletProcess from '../components/hardware-wallet-process.vue';
+import HardwareWalletError from '../components/hardware-wallet-error.vue';
+import { useRoute, useRouter } from 'vue-router';
+import { routes } from '../routes';
+import { getNetworkByName } from '@/libs/utils/networks';
+import HWwallet, { ledgerAppNames } from '@enkryptcom/hw-wallets';
+import { HWwalletType } from '@enkryptcom/types';
+import TrezorLogo from '@action/icons/hardware/trezor-logo.vue';
+import { BaseNetwork } from '@/types/base-network';
 
 const route = useRoute();
 const router = useRouter();
@@ -55,7 +55,7 @@ if (!networkName || !walletType) {
 
 const network = ref<BaseNetwork | undefined>();
 
-const errorMessage = ref<string>("");
+const errorMessage = ref<string>('');
 const isProcessing = ref(false);
 const isError = ref(false);
 
@@ -64,7 +64,7 @@ onBeforeMount(async () => {
 });
 
 const appName = computed(() => {
-  return ledgerAppNames[networkName] || "";
+  return ledgerAppNames[networkName] || '';
 });
 const connectAction = () => {
   const hwwallet = new HWwallet();
@@ -95,7 +95,7 @@ const connectAction = () => {
 </script>
 
 <style lang="less">
-@import "@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .connect {
   width: 100%;

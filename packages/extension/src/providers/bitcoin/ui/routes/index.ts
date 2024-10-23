@@ -1,9 +1,9 @@
-import btcSign from "../btc-sign-message.vue";
-import btcSendTransaction from "../btc-verify-transaction.vue";
-import btcConnectDApp from "../btc-connect-dapp.vue";
-import btcHWVerify from "../send-transaction/verify-transaction/index.vue";
-import { RouteRecordRaw } from "vue-router";
-import RouteNames from "./names";
+import btcSign from '../btc-sign-message.vue';
+import btcSendTransaction from '../btc-verify-transaction.vue';
+import btcConnectDApp from '../btc-connect-dapp.vue';
+import btcHWVerify from '../send-transaction/verify-transaction/index.vue';
+import { RouteRecordRaw } from 'vue-router';
+import RouteNames from './names';
 const routes = Object.assign({}, RouteNames);
 routes.btcSign.component = btcSign;
 routes.btcSendTransaction.component = btcSendTransaction;

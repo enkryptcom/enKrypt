@@ -28,14 +28,14 @@
 </template>
 
 <script setup lang="ts">
-import KeyRingBase from "@/libs/keyring/keyring";
-import BaseButton from "@action/components/base-button/index.vue";
-import { EnkryptAccount } from "@enkryptcom/types";
-import { PropType } from "vue";
+import KeyRingBase from '@/libs/keyring/keyring';
+import BaseButton from '@action/components/base-button/index.vue';
+import { EnkryptAccount } from '@enkryptcom/types';
+import { PropType } from 'vue';
 
 const emit = defineEmits<{
-  (e: "window:close"): void;
-  (e: "update:init"): void;
+  (e: 'window:close'): void;
+  (e: 'update:init'): void;
 }>();
 
 const props = defineProps({
@@ -47,14 +47,14 @@ const props = defineProps({
 const deleteAccount = () => {
   const keyring = new KeyRingBase();
   keyring.deleteAccount(props.account.address).then(() => {
-    emit("window:close");
-    emit("update:init");
+    emit('window:close');
+    emit('update:init');
   });
 };
 </script>
 
 <style lang="less" scoped>
-@import "@action/styles/theme.less";
+@import '@action/styles/theme.less';
 .delete-account-form {
   background: @white;
   box-shadow:

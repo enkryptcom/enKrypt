@@ -8,7 +8,7 @@
 </template>
 
 <script setup lang="ts">
-import LockScreenForgot from "@action/views/lock-screen/components/lock-screen-forgot.vue";
+import LockScreenForgot from '@action/views/lock-screen/components/lock-screen-forgot.vue';
 
 defineProps({
   isForgot: {
@@ -19,7 +19,7 @@ defineProps({
 </script>
 
 <style lang="less" scoped>
-@import "@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .modal-forgot {
   width: 100%;

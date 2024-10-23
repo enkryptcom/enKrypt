@@ -1,12 +1,12 @@
-import MarketData from "@/libs/market-data";
-import { SSTxType } from "@/providers/bitcoin/types";
+import MarketData from '@/libs/market-data';
+import { SSTxType } from '@/providers/bitcoin/types';
 import {
   Activity,
   ActivityStatus,
   ActivityType,
   BTCRawInfo,
-} from "@/types/activity";
-import { BaseNetwork } from "@/types/base-network";
+} from '@/types/activity';
+import { BaseNetwork } from '@/types/base-network';
 export default async (
   network: BaseNetwork,
   pubkey: string,
@@ -19,12 +19,12 @@ export default async (
     .then(res => res.json())
     .then(async (txs: { txs: SSTxType[] }) => {
       if ((txs as any).message) return [];
-      let tokenPrice = "0";
+      let tokenPrice = '0';
       if (network.coingeckoID) {
         const marketData = new MarketData();
         await marketData
           .getTokenPrice(network.coingeckoID)
-          .then(mdata => (tokenPrice = mdata || "0"));
+          .then(mdata => (tokenPrice = mdata || '0'));
       }
 
       const address = network.displayAddress(pubkey);
@@ -37,7 +37,7 @@ export default async (
       });
       return cleanedTxs.map(tx => {
         const isIncoming = !tx.vin.find(i => i.addresses![0] === address);
-        let toAddress = "";
+        let toAddress = '';
         let value = 0;
 
         if (isIncoming) {

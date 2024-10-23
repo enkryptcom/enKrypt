@@ -1,4 +1,4 @@
-import { SettingsType } from "@/libs/settings-state/types";
+import { SettingsType } from '@/libs/settings-state/types';
 
 export interface EnkryptWindow {
   enkrypt: {

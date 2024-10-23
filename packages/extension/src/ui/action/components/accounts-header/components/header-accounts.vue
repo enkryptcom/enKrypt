@@ -68,32 +68,32 @@
 </template>
 
 <script setup lang="ts">
-import DomainState from "@/libs/domain-state";
-import BtcAccountState from "@/providers/bitcoin/libs/accounts-state";
-import EvmAccountState from "@/providers/ethereum/libs/accounts-state";
-import KadenaAccountState from "@/providers/kadena/libs/accounts-state";
-import SolanaAccountState from "@/providers/solana/libs/accounts-state";
-import SubstrateAccountState from "@/providers/polkadot/libs/accounts-state";
-import { BaseNetwork, SubNetworkOptions } from "@/types/base-network";
-import Notification from "@action/components/notification/index.vue";
-import Tooltip from "@action/components/tooltip/index.vue";
-import IconCopy from "@action/icons/header/copy_icon.vue";
-import IconDisconnect from "@action/icons/header/disconnect_icon.vue";
-import IconExternal from "@action/icons/header/external-icon.vue";
-import IconQr from "@action/icons/header/qr_icon.vue";
-import SwitchArrow from "@action/icons/header/switch_arrow.vue";
-import { PropType, computed, onMounted, ref, watch } from "vue";
-import SubnetList from "./subnet-list.vue";
+import DomainState from '@/libs/domain-state';
+import BtcAccountState from '@/providers/bitcoin/libs/accounts-state';
+import EvmAccountState from '@/providers/ethereum/libs/accounts-state';
+import KadenaAccountState from '@/providers/kadena/libs/accounts-state';
+import SolanaAccountState from '@/providers/solana/libs/accounts-state';
+import SubstrateAccountState from '@/providers/polkadot/libs/accounts-state';
+import { BaseNetwork, SubNetworkOptions } from '@/types/base-network';
+import Notification from '@action/components/notification/index.vue';
+import Tooltip from '@action/components/tooltip/index.vue';
+import IconCopy from '@action/icons/header/copy_icon.vue';
+import IconDisconnect from '@action/icons/header/disconnect_icon.vue';
+import IconExternal from '@action/icons/header/external-icon.vue';
+import IconQr from '@action/icons/header/qr_icon.vue';
+import SwitchArrow from '@action/icons/header/switch_arrow.vue';
+import { PropType, computed, onMounted, ref, watch } from 'vue';
+import SubnetList from './subnet-list.vue';
 
 const isCopied = ref(false);
 const domainState = new DomainState();
 const isConnectedDomain = ref(false);
 const showChains = ref(false);
 const currentSubNetwork = ref<SubNetworkOptions>({
-  id: "",
-  name: "",
+  id: '',
+  name: '',
 });
-const currentDomain = ref("");
+const currentDomain = ref('');
 const kadenaAccountState = new KadenaAccountState();
 const allAccountStates = [
   new EvmAccountState(),
@@ -106,11 +106,11 @@ const allAccountStates = [
 const props = defineProps({
   name: {
     type: String,
-    default: "",
+    default: '',
   },
   address: {
     type: String,
-    default: "",
+    default: '',
   },
   active: Boolean,
   toggleAccounts: {
@@ -123,8 +123,8 @@ const props = defineProps({
   },
 });
 const emit = defineEmits<{
-  (e: "toggle:deposit"): void;
-  (e: "select:subnetwork", id: string): void;
+  (e: 'toggle:deposit'): void;
+  (e: 'select:subnetwork', id: string): void;
 }>();
 
 const copy = (address: string) => {
@@ -135,7 +135,7 @@ const showAccounts = () => {
   props.toggleAccounts();
 };
 const externalLink = computed(() => {
-  return props.network.blockExplorerAddr.replace("[[address]]", props.address);
+  return props.network.blockExplorerAddr.replace('[[address]]', props.address);
 });
 const toggleNotification = () => {
   isCopied.value = !isCopied.value;
@@ -166,7 +166,7 @@ const checkAndSetSubNetwork = () => {
 const setSubNetwork = async (id: string) => {
   const subnet = props.network.subNetworks!.find(net => net.id === id);
   if (subnet) currentSubNetwork.value = subnet;
-  emit("select:subnetwork", id);
+  emit('select:subnetwork', id);
   setTimeout(() => {
     showChains.value = false;
   }, 100);
@@ -187,7 +187,7 @@ const disconnectFromDapp = async () => {
 </script>
 
 <style lang="less">
-@import "@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .account {
   border-radius: 12px;

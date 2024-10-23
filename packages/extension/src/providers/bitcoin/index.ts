@@ -1,18 +1,18 @@
-import { BaseNetwork } from "@/types/base-network";
-import getRequestProvider, { RequestClass } from "@enkryptcom/request";
-import Networks from "./networks";
-import { MiddlewareFunction, OnMessageResponse } from "@enkryptcom/types";
-import Middlewares from "./methods";
-import EventEmitter from "eventemitter3";
+import { BaseNetwork } from '@/types/base-network';
+import getRequestProvider, { RequestClass } from '@enkryptcom/request';
+import Networks from './networks';
+import { MiddlewareFunction, OnMessageResponse } from '@enkryptcom/types';
+import Middlewares from './methods';
+import EventEmitter from 'eventemitter3';
 import {
   BackgroundProviderInterface,
   ProviderName,
   ProviderRPCRequest,
-} from "@/types/provider";
-import GetUIPath from "@/libs/utils/get-ui-path";
-import PublicKeyRing from "@/libs/keyring/public-keyring";
-import UIRoutes from "./ui/routes/names";
-import { BitcoinNetwork } from "./types/bitcoin-network";
+} from '@/types/provider';
+import GetUIPath from '@/libs/utils/get-ui-path';
+import PublicKeyRing from '@/libs/keyring/public-keyring';
+import UIRoutes from './ui/routes/names';
+import { BitcoinNetwork } from './types/bitcoin-network';
 class BitcoinProvider
   extends EventEmitter
   implements BackgroundProviderInterface
@@ -32,8 +32,8 @@ class BitcoinProvider
     this.network = network;
     this.toWindow = toWindow;
     this.setMiddleWares();
-    this.requestProvider = getRequestProvider("", this.middlewares);
-    this.requestProvider.on("notification", (notif: any) => {
+    this.requestProvider = getRequestProvider('', this.middlewares);
+    this.requestProvider.on('notification', (notif: any) => {
       this.sendNotification(JSON.stringify(notif));
     });
     this.namespace = ProviderName.bitcoin;

@@ -1,23 +1,23 @@
-import icon from "./icons/astr.png";
-import { CoingeckoPlatform, NetworkNames } from "@enkryptcom/types";
-import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
-import { EtherscanActivity } from "../libs/activity-handlers";
-import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
-import assetsInfoHandler from "@/providers/ethereum/libs/assets-handlers/assetinfo-mew";
+import icon from './icons/astr.png';
+import { CoingeckoPlatform, NetworkNames } from '@enkryptcom/types';
+import { EvmNetwork, EvmNetworkOptions } from '../types/evm-network';
+import { EtherscanActivity } from '../libs/activity-handlers';
+import wrapActivityHandler from '@/libs/activity-state/wrap-activity-handler';
+import assetsInfoHandler from '@/providers/ethereum/libs/assets-handlers/assetinfo-mew';
 
 const astrOptions: EvmNetworkOptions = {
   name: NetworkNames.AstarEVM,
-  name_long: "Astar EVM",
-  homePage: "https://astar.network/",
-  blockExplorerTX: "https://blockscout.com/astar/tx/[[txHash]]",
-  blockExplorerAddr: "https://blockscout.com/astar/address/[[address]]",
-  chainID: "0x250",
+  name_long: 'Astar EVM',
+  homePage: 'https://astar.network/',
+  blockExplorerTX: 'https://blockscout.com/astar/tx/[[txHash]]',
+  blockExplorerAddr: 'https://blockscout.com/astar/address/[[address]]',
+  chainID: '0x250',
   isTestNetwork: false,
-  currencyName: "ASTR",
-  currencyNameLong: "Astar",
-  node: "wss://astar.public.blastapi.io/",
+  currencyName: 'ASTR',
+  currencyNameLong: 'Astar',
+  node: 'wss://astar.public.blastapi.io/',
   icon,
-  coingeckoID: "astar",
+  coingeckoID: 'astar',
   coingeckoPlatform: CoingeckoPlatform.Astar,
   assetsInfoHandler,
   activityHandler: wrapActivityHandler(EtherscanActivity),

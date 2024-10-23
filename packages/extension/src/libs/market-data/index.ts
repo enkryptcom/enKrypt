@@ -1,20 +1,20 @@
-import { InternalStorageNamespace } from "@/types/provider";
-import BrowserStorage from "../common/browser-storage";
+import { InternalStorageNamespace } from '@/types/provider';
+import BrowserStorage from '../common/browser-storage';
 import {
   StorageKeys,
   CoinGeckoToken,
   CoinGeckoTokenMarket,
   FiatMarket,
-} from "./types";
-import BigNumber from "bignumber.js";
-import { CoingeckoPlatform } from "@enkryptcom/types";
+} from './types';
+import BigNumber from 'bignumber.js';
+import { CoingeckoPlatform } from '@enkryptcom/types';
 import {
   getAllPlatformData,
   getMarketInfoByIDs,
   getUSDPriceById,
-} from "./ethvm";
+} from './ethvm';
 const FIAT_EXCHANGE_RATE_ENDPOINT =
-  "https://mainnet.mewwallet.dev/v2/prices/exchange-rates";
+  'https://mainnet.mewwallet.dev/v2/prices/exchange-rates';
 const REFRESH_DELAY = 1000 * 60 * 5;
 
 class MarketData {
@@ -37,7 +37,7 @@ class MarketData {
         .multipliedBy(fiat.exchange_rate)
         .toFixed(2);
     }
-    return "0";
+    return '0';
   }
   async getTokenPrice(coingeckoID: string): Promise<string | null> {
     return getUSDPriceById(coingeckoID);

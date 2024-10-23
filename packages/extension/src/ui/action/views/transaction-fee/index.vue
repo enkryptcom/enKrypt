@@ -48,15 +48,15 @@
 </template>
 
 <script setup lang="ts">
-import { PropType } from "vue";
-import TransactionFeeItem from "./components/transaction-fee-item.vue";
-import TimeIcon from "@action/icons/fee/time-icon.vue";
-import CloseIcon from "@action/icons/common/close-icon.vue";
+import { PropType } from 'vue';
+import TransactionFeeItem from './components/transaction-fee-item.vue';
+import TimeIcon from '@action/icons/fee/time-icon.vue';
+import CloseIcon from '@action/icons/common/close-icon.vue';
 
-import { GasFeeType, GasPriceTypes } from "@/providers/common/types";
-import { FeeDescriptions } from "@/providers/ethereum/libs/transaction/gas-utils";
+import { GasFeeType, GasPriceTypes } from '@/providers/common/types';
+import { FeeDescriptions } from '@/providers/ethereum/libs/transaction/gas-utils';
 const emit = defineEmits<{
-  (e: "closePopup"): void;
+  (e: 'closePopup'): void;
 }>();
 
 defineProps({
@@ -96,12 +96,12 @@ defineProps({
 });
 
 const closepopup = () => {
-  emit("closePopup");
+  emit('closePopup');
 };
 </script>
 
 <style lang="less">
-@import "@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .transaction-fee {
   width: 100%;

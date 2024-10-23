@@ -1,9 +1,9 @@
-import { CallbackFunction, MiddlewareFunction } from "@enkryptcom/types";
-import type BitcoinProvider from "..";
-import { ProviderRPCRequest } from "@/types/provider";
-import { WindowPromise } from "@/libs/window-promise";
-import AccountState from "../libs/accounts-state";
-import { getCustomError } from "@/libs/error";
+import { CallbackFunction, MiddlewareFunction } from '@enkryptcom/types';
+import type BitcoinProvider from '..';
+import { ProviderRPCRequest } from '@/types/provider';
+import { WindowPromise } from '@/libs/window-promise';
+import AccountState from '../libs/accounts-state';
+import { getCustomError } from '@/libs/error';
 let isAccountAccessPending = false;
 const pendingPromises: {
   payload: ProviderRPCRequest;
@@ -15,7 +15,7 @@ const method: MiddlewareFunction = function (
   res,
   next,
 ): void {
-  if (payload.method !== "btc_requestAccounts") return next();
+  if (payload.method !== 'btc_requestAccounts') return next();
   else {
     if (isAccountAccessPending) {
       pendingPromises.push({
@@ -59,7 +59,7 @@ const method: MiddlewareFunction = function (
                 )
                 .then(({ error, result }) => {
                   if (error) _res(error as any);
-                  const accounts = JSON.parse(result || "[]");
+                  const accounts = JSON.parse(result || '[]');
                   _res(
                     null,
                     accounts.map((acc: string) =>
@@ -71,7 +71,7 @@ const method: MiddlewareFunction = function (
             }
           });
       } else {
-        _res(getCustomError("No domain set!"));
+        _res(getCustomError('No domain set!'));
       }
     };
     handleAccountAccess(payload, res);

@@ -1,7 +1,7 @@
-import { EnkryptAccount, NetworkNames, SignerType } from "@enkryptcom/types";
-import PublicKeyRing from "../keyring/public-keyring";
-import { getNetworkByName } from "./networks";
-import { ProviderName } from "@/types/provider";
+import { EnkryptAccount, NetworkNames, SignerType } from '@enkryptcom/types';
+import PublicKeyRing from '../keyring/public-keyring';
+import { getNetworkByName } from './networks';
+import { ProviderName } from '@/types/provider';
 
 const getOtherSigners = (signers: SignerType[]): SignerType[] => {
   const otherSigners: SignerType[] = [];
@@ -35,9 +35,9 @@ export const getAccountsByNetworkName = async (
   return filtered.map(f => {
     if (
       network.signer.includes(SignerType.secp256k1btc) &&
-      f.name === "Bitcoin Account 1"
+      f.name === 'Bitcoin Account 1'
     ) {
-      f.name = f.name.replace("Bitcoin", network.name_long);
+      f.name = f.name.replace('Bitcoin', network.name_long);
     }
     return f;
   });

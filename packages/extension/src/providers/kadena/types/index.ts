@@ -1,5 +1,5 @@
-import { NetworkNames } from "@enkryptcom/types";
-import type { Provider as InjectedProvider } from "../inject";
+import { NetworkNames } from '@enkryptcom/types';
+import type { Provider as InjectedProvider } from '../inject';
 
 export const KadenaNetworks = {
   KDA: NetworkNames.Kadena,
@@ -17,13 +17,13 @@ export interface ProviderMessage {
 }
 
 export enum MessageMethod {
-  changeAddress = "changeAddress",
-  changeNetwork = "changeNetwork",
+  changeAddress = 'changeAddress',
+  changeNetwork = 'changeNetwork',
 }
 
 export enum EmitEvent {
-  accountsChanged = "accountsChanged",
-  networkChanged = "networkChanged",
+  accountsChanged = 'accountsChanged',
+  networkChanged = 'networkChanged',
 }
 
 export { InjectedProvider };

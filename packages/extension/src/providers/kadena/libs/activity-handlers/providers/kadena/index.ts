@@ -1,9 +1,9 @@
-import cacheFetch from "@/libs/cache-fetch";
-import MarketData from "@/libs/market-data";
-import { Activity, ActivityStatus, ActivityType } from "@/types/activity";
-import { BaseNetwork } from "@/types/base-network";
-import { NetworkEndpoints, NetworkTtls } from "./configs";
-import { toBase } from "@enkryptcom/utils";
+import cacheFetch from '@/libs/cache-fetch';
+import MarketData from '@/libs/market-data';
+import { Activity, ActivityStatus, ActivityType } from '@/types/activity';
+import { BaseNetwork } from '@/types/base-network';
+import { NetworkEndpoints, NetworkTtls } from './configs';
+import { toBase } from '@enkryptcom/utils';
 
 const getAddressActivity = async (
   address: string,
@@ -17,7 +17,7 @@ const getAddressActivity = async (
       return res ? res : [];
     })
     .catch(error => {
-      console.error("Failed to fetch activity:", error);
+      console.error('Failed to fetch activity:', error);
       return [];
     });
 };
@@ -36,13 +36,13 @@ export default async (
     0, // lastActivity?.rawInfo?.height ?? 0
   );
 
-  let price = "0";
+  let price = '0';
 
   if (network.coingeckoID) {
     const marketData = new MarketData();
     await marketData
       .getTokenPrice(network.coingeckoID)
-      .then(mdata => (price = mdata || "0"));
+      .then(mdata => (price = mdata || '0'));
   }
 
   const groupActivities = activities.reduce((acc: any, activity: any) => {
@@ -59,7 +59,7 @@ export default async (
     const rawAmount = toBase(
       activity.amount
         ? parseFloat(activity.amount).toFixed(network.decimals)
-        : "0",
+        : '0',
       network.decimals,
     );
     // note: intentionally not using fromAccount === some-value
@@ -92,7 +92,7 @@ export default async (
         icon: network.icon,
         name: network.currencyNameLong,
         symbol:
-          activity.token !== "coin" ? activity.token : network.currencyName,
+          activity.token !== 'coin' ? activity.token : network.currencyName,
         price: price,
       },
     };

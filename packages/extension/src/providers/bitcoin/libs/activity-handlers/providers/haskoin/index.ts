@@ -1,12 +1,12 @@
-import MarketData from "@/libs/market-data";
-import { HaskoinTxType } from "@/providers/bitcoin/types";
+import MarketData from '@/libs/market-data';
+import { HaskoinTxType } from '@/providers/bitcoin/types';
 import {
   Activity,
   ActivityStatus,
   ActivityType,
   BTCRawInfo,
-} from "@/types/activity";
-import { BaseNetwork } from "@/types/base-network";
+} from '@/types/activity';
+import { BaseNetwork } from '@/types/base-network';
 export default async (
   network: BaseNetwork,
   pubkey: string,
@@ -17,19 +17,19 @@ export default async (
     .then(res => res.json())
     .then(async (txs: HaskoinTxType[]) => {
       if ((txs as any).error) return [];
-      let tokenPrice = "0";
+      let tokenPrice = '0';
       if (network.coingeckoID) {
         const marketData = new MarketData();
         await marketData
           .getTokenPrice(network.coingeckoID)
-          .then(mdata => (tokenPrice = mdata || "0"));
+          .then(mdata => (tokenPrice = mdata || '0'));
       }
 
       const address = network.displayAddress(pubkey);
       return txs.map(tx => {
         const isIncoming = !tx.inputs.find(i => i.address === address);
 
-        let toAddress = "";
+        let toAddress = '';
         let value = 0;
 
         if (isIncoming) {

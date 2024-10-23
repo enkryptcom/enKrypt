@@ -1,21 +1,21 @@
-import { getCustomError } from "@/libs/error";
-import { MiddlewareFunction } from "@enkryptcom/types";
-import EthereumProvider from "..";
-import { EthereumTransaction } from "../libs/transaction/types";
-import { WindowPromise } from "@/libs/window-promise";
-import { numberToHex } from "web3-utils";
+import { getCustomError } from '@/libs/error';
+import { MiddlewareFunction } from '@enkryptcom/types';
+import EthereumProvider from '..';
+import { EthereumTransaction } from '../libs/transaction/types';
+import { WindowPromise } from '@/libs/window-promise';
+import { numberToHex } from 'web3-utils';
 const method: MiddlewareFunction = function (
   this: EthereumProvider,
   payload,
   res,
   next,
 ): void {
-  if (payload.method !== "eth_sendTransaction") return next();
+  if (payload.method !== 'eth_sendTransaction') return next();
   else {
     if (!payload.params || payload.params.length < 1) {
       return res(
         getCustomError(
-          "eth_sendTransaction: invalid request not enough params",
+          'eth_sendTransaction: invalid request not enough params',
         ),
       );
     }

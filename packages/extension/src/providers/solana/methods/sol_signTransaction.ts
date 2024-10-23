@@ -1,10 +1,10 @@
-import { getCustomError } from "@/libs/error";
-import { MiddlewareFunction } from "@enkryptcom/types";
-import SolanaProvider from "..";
-import { WindowPromise } from "@/libs/window-promise";
-import bs58 from "bs58";
-import { bufferToHex } from "@enkryptcom/utils";
-import { SolSignTransactionRequest } from "../ui/types";
+import { getCustomError } from '@/libs/error';
+import { MiddlewareFunction } from '@enkryptcom/types';
+import SolanaProvider from '..';
+import { WindowPromise } from '@/libs/window-promise';
+import bs58 from 'bs58';
+import { bufferToHex } from '@enkryptcom/utils';
+import { SolSignTransactionRequest } from '../ui/types';
 const method: MiddlewareFunction = function (
   this: SolanaProvider,
   payload,
@@ -12,15 +12,15 @@ const method: MiddlewareFunction = function (
   next,
 ): void {
   if (
-    payload.method !== "sol_signTransaction" &&
-    payload.method !== "sol_signAndSendTransaction"
+    payload.method !== 'sol_signTransaction' &&
+    payload.method !== 'sol_signAndSendTransaction'
   )
     return next();
   else {
     if (!payload.params || payload.params.length < 1) {
       return res(
         getCustomError(
-          "eth_sendTransaction: invalid request not enough params",
+          'eth_sendTransaction: invalid request not enough params',
         ),
       );
     }

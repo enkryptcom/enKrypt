@@ -62,48 +62,48 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeMount, ref } from "vue";
-import SignLogo from "@action/icons/common/sign-logo.vue";
-import BaseButton from "@action/components/base-button/index.vue";
-import commonPopup from "@action/views/common-popup/index.vue";
-import LinkIcon from "@action/icons/connect/link-icon.vue";
-import InfoIconGray from "@action/icons/common/info-icon-gray.vue";
-import SelectAccountInput from "@action/components/select-account-input/index.vue";
-import ModalAccounts from "@action/views/modal-accounts/index.vue";
-import { AccountsHeaderData } from "@action/types/account";
-import { EnkryptAccount } from "@enkryptcom/types";
+import { onBeforeMount, ref } from 'vue';
+import SignLogo from '@action/icons/common/sign-logo.vue';
+import BaseButton from '@action/components/base-button/index.vue';
+import commonPopup from '@action/views/common-popup/index.vue';
+import LinkIcon from '@action/icons/connect/link-icon.vue';
+import InfoIconGray from '@action/icons/common/info-icon-gray.vue';
+import SelectAccountInput from '@action/components/select-account-input/index.vue';
+import ModalAccounts from '@action/views/modal-accounts/index.vue';
+import { AccountsHeaderData } from '@action/types/account';
+import { EnkryptAccount } from '@enkryptcom/types';
 import {
   DEFAULT_SOLANA_NETWORK,
   getNetworkByName,
-} from "@/libs/utils/networks";
-import { WindowPromiseHandler } from "@/libs/window-promise";
-import { ProviderRequestOptions } from "@/types/provider";
-import PublicKeyRing from "@/libs/keyring/public-keyring";
-import { fromBase } from "@enkryptcom/utils";
-import { getError } from "@/libs/error";
-import { ErrorCodes } from "@/providers/ethereum/types";
-import AccountState from "../libs/accounts-state";
-import { SolanaNetwork } from "../types/sol-network";
+} from '@/libs/utils/networks';
+import { WindowPromiseHandler } from '@/libs/window-promise';
+import { ProviderRequestOptions } from '@/types/provider';
+import PublicKeyRing from '@/libs/keyring/public-keyring';
+import { fromBase } from '@enkryptcom/utils';
+import { getError } from '@/libs/error';
+import { ErrorCodes } from '@/providers/ethereum/types';
+import AccountState from '../libs/accounts-state';
+import { SolanaNetwork } from '../types/sol-network';
 
 const windowPromise = WindowPromiseHandler(1);
 const network = ref<SolanaNetwork>(DEFAULT_SOLANA_NETWORK);
-const identicon = ref<string>("");
-const displayAddress = ref<string>("");
+const identicon = ref<string>('');
+const displayAddress = ref<string>('');
 const accountHeaderData = ref<AccountsHeaderData>({
   activeAccounts: [],
   inactiveAccounts: [],
   selectedAccount: {
-    name: "",
-    address: "",
+    name: '',
+    address: '',
   } as EnkryptAccount,
   activeBalances: [],
 });
 
 const Options = ref<ProviderRequestOptions>({
-  domain: "",
-  faviconURL: "",
-  title: "",
-  url: "",
+  domain: '',
+  faviconURL: '',
+  title: '',
+  url: '',
   tabId: 0,
 });
 
@@ -120,7 +120,7 @@ onBeforeMount(async () => {
   accountHeaderData.value = {
     activeAccounts: accounts,
     selectedAccount: accounts[0],
-    activeBalances: accounts.map(() => "~"),
+    activeBalances: accounts.map(() => '~'),
     inactiveAccounts: [],
   };
   try {
@@ -171,6 +171,6 @@ const onSelectedAddressChanged = async (newAccount: EnkryptAccount) => {
 </script>
 
 <style lang="less">
-@import "@/providers/ethereum/ui/styles/common-popup.less";
-@import "@action/styles/provider-connect-dapp.less";
+@import '@/providers/ethereum/ui/styles/common-popup.less';
+@import '@action/styles/provider-connect-dapp.less';
 </style>

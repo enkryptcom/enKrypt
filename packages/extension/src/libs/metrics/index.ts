@@ -1,6 +1,6 @@
-import { ProviderName } from "@/types/provider";
-import { NetworkNames } from "@enkryptcom/types";
-import Metrics from "./amplitude";
+import { ProviderName } from '@/types/provider';
+import { NetworkNames } from '@enkryptcom/types';
+import Metrics from './amplitude';
 import {
   BuyEventType,
   DAppsEventType,
@@ -10,19 +10,19 @@ import {
   SendEventType,
   SettingEventType,
   SwapEventType,
-} from "./types";
+} from './types';
 
 const metrics = new Metrics();
 
 const trackGenericEvents = (event: GenericEvents) => {
-  metrics.track("generic", { event });
+  metrics.track('generic', { event });
 };
 
 const trackNetworkSelected = (
   event: NetworkChangeEvents,
   options: { provider: ProviderName; network: NetworkNames },
 ) => {
-  metrics.track("network", { event, ...options });
+  metrics.track('network', { event, ...options });
 };
 
 const trackSwapEvents = (
@@ -35,7 +35,7 @@ const trackSwapEvents = (
     error?: string;
   },
 ) => {
-  metrics.track("swap", { event, ...options });
+  metrics.track('swap', { event, ...options });
 };
 
 const trackBuyEvents = (
@@ -44,7 +44,7 @@ const trackBuyEvents = (
     network: NetworkNames;
   },
 ) => {
-  metrics.track("buy", { event, ...options });
+  metrics.track('buy', { event, ...options });
 };
 
 const trackSendEvents = (
@@ -54,7 +54,7 @@ const trackSendEvents = (
     error?: string;
   },
 ) => {
-  metrics.track("send", { event, ...options });
+  metrics.track('send', { event, ...options });
 };
 
 const trackNFTEvents = (
@@ -63,7 +63,7 @@ const trackNFTEvents = (
     network: NetworkNames;
   },
 ) => {
-  metrics.track("nft", { event, ...options });
+  metrics.track('nft', { event, ...options });
 };
 
 const trackDAppsEvents = (
@@ -72,13 +72,13 @@ const trackDAppsEvents = (
     network: NetworkNames;
   },
 ) => {
-  metrics.track("dapps", { event, ...options });
+  metrics.track('dapps', { event, ...options });
 };
 
 const optOutofMetrics = (optOut: boolean) => {
   if (!__IS_FIREFOX__) {
     metrics.setOptOut(false);
-    metrics.track("settings", {
+    metrics.track('settings', {
       event: SettingEventType.OptOut,
       value: optOut ? 1 : 0,
     });

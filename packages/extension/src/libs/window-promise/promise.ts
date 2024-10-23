@@ -1,14 +1,14 @@
 import {
   sendToBackgroundFromBackground,
   sendToNewWindowFromBackground,
-} from "@/libs/messenger/extension";
-import { ProviderName } from "@/types/provider";
-import Browser from "webextension-polyfill";
-import { InternalMethods, InternalOnMessageResponse } from "@/types/messenger";
-import { getCustomError, getError } from "../error";
-import getUiPath from "../utils/get-ui-path";
-import UIRoutes from "@/ui/provider-pages/enkrypt/routes/names";
-import { ErrorCodes } from "@/providers/ethereum/types";
+} from '@/libs/messenger/extension';
+import { ProviderName } from '@/types/provider';
+import Browser from 'webextension-polyfill';
+import { InternalMethods, InternalOnMessageResponse } from '@/types/messenger';
+import { getCustomError, getError } from '../error';
+import getUiPath from '../utils/get-ui-path';
+import UIRoutes from '@/ui/provider-pages/enkrypt/routes/names';
+import { ErrorCodes } from '@/providers/ethereum/types';
 
 const UNLOCK_PATH = getUiPath(UIRoutes.unlock.path, ProviderName.enkrypt);
 class WindowPromise {
@@ -20,7 +20,7 @@ class WindowPromise {
     return new Promise(resolve => {
       Browser.tabs.onUpdated.addListener(function listener(_tabId, info, tab) {
         if (
-          info.status === "complete" &&
+          info.status === 'complete' &&
           _tabId === tabInfo.tabId &&
           tab.url === url
         ) {
@@ -51,13 +51,13 @@ class WindowPromise {
     msg: string,
     unlockKeyring = false,
   ): Promise<InternalOnMessageResponse> {
-    const loadingURL = "/index.html#/enkrypt/loading";
+    const loadingURL = '/index.html#/enkrypt/loading';
     const tabInfo = {
       tabId: -1,
     };
     const windowInfo = await Browser.windows.create({
       url: loadingURL,
-      type: "popup",
+      type: 'popup',
       focused: true,
       height: 600,
       width: 460,
@@ -66,13 +66,13 @@ class WindowPromise {
       windowId: windowInfo.id,
     });
     tabInfo.tabId = validTabs.length && validTabs[0].id ? validTabs[0].id : -1;
-    if (typeof tabInfo.tabId === "undefined" || tabInfo.tabId === -1) {
+    if (typeof tabInfo.tabId === 'undefined' || tabInfo.tabId === -1) {
       return Promise.resolve({
-        error: getCustomError("unknown error, no tabId"),
+        error: getCustomError('unknown error, no tabId'),
       });
     }
     const waitForWindow = async (): Promise<void> => {
-      while ((await Browser.tabs.get(tabInfo.tabId)).status !== "complete") {}
+      while ((await Browser.tabs.get(tabInfo.tabId)).status !== 'complete') {}
     };
     await waitForWindow();
     const monitorTabs = (): Promise<InternalOnMessageResponse> => {

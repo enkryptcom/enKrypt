@@ -16,9 +16,9 @@
 </template>
 
 <script setup lang="ts">
-import DoneIcon from "@action/icons/common/done_icon.vue";
-import LottieStatusJson from "@action/assets/animation/status.json";
-import { Vue3Lottie } from "vue3-lottie";
+import DoneIcon from '@action/icons/common/done_icon.vue';
+import LottieStatusJson from '@action/assets/animation/status.json';
+import { Vue3Lottie } from 'vue3-lottie';
 
 defineProps({
   select: {
@@ -36,7 +36,7 @@ defineProps({
   amount: {
     type: String,
     default: () => {
-      return "";
+      return '';
     },
   },
   isLoading: {
@@ -55,7 +55,7 @@ defineProps({
 </script>
 
 <style lang="less" scoped>
-@import "@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .best-offer-list-item {
   height: 56px;

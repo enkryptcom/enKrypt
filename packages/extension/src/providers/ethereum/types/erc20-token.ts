@@ -1,9 +1,9 @@
-import { BaseToken, BaseTokenOptions } from "@/types/base-token";
-import { numberToHex } from "web3-utils";
-import erc20 from "../libs/abi/erc20";
-import EvmAPI from "../libs/api";
-import { NATIVE_TOKEN_ADDRESS } from "../libs/common";
-import { BNType } from "@/providers/common/types";
+import { BaseToken, BaseTokenOptions } from '@/types/base-token';
+import { numberToHex } from 'web3-utils';
+import erc20 from '../libs/abi/erc20';
+import EvmAPI from '../libs/api';
+import { NATIVE_TOKEN_ADDRESS } from '../libs/common';
+import { BNType } from '@/providers/common/types';
 
 export interface Erc20TokenOptions extends BaseTokenOptions {
   contract: string;
@@ -36,6 +36,6 @@ export class Erc20Token extends BaseToken {
   }
 
   public async send(): Promise<any> {
-    throw new Error("EVM-send is not implemented here");
+    throw new Error('EVM-send is not implemented here');
   }
 }

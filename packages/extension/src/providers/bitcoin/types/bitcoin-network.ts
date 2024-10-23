@@ -1,31 +1,31 @@
-import { BaseNetwork, BaseNetworkOptions } from "@/types/base-network";
-import BitcoinAPI from "@/providers/bitcoin/libs/api";
-import { AssetsType } from "@/types/provider";
-import { BaseToken, BaseTokenOptions } from "@/types/base-token";
-import { ProviderName } from "@/types/provider";
-import { NetworkNames, SignerType } from "@enkryptcom/types";
-import createIcon from "../libs/blockies";
-import { Activity } from "@/types/activity";
-import { BitcoinNetworkInfo } from ".";
-import { payments } from "bitcoinjs-lib";
-import { hexToBuffer, fromBase } from "@enkryptcom/utils";
+import { BaseNetwork, BaseNetworkOptions } from '@/types/base-network';
+import BitcoinAPI from '@/providers/bitcoin/libs/api';
+import { AssetsType } from '@/types/provider';
+import { BaseToken, BaseTokenOptions } from '@/types/base-token';
+import { ProviderName } from '@/types/provider';
+import { NetworkNames, SignerType } from '@enkryptcom/types';
+import createIcon from '../libs/blockies';
+import { Activity } from '@/types/activity';
+import { BitcoinNetworkInfo } from '.';
+import { payments } from 'bitcoinjs-lib';
+import { hexToBuffer, fromBase } from '@enkryptcom/utils';
 import {
   formatFiatValue,
   formatFloatingPointValue,
-} from "@/libs/utils/number-formatter";
-import MarketData from "@/libs/market-data";
-import BigNumber from "bignumber.js";
-import { CoinGeckoTokenMarket } from "@/libs/market-data/types";
-import Sparkline from "@/libs/sparkline";
-import { BTCToken } from "./btc-token";
-import { GasPriceTypes } from "@/providers/common/types";
-import type HaskoinAPI from "@/providers/bitcoin/libs/api";
-import type SSAPI from "@/providers/bitcoin/libs/api-ss";
-import { NFTCollection } from "@/types/nft";
+} from '@/libs/utils/number-formatter';
+import MarketData from '@/libs/market-data';
+import BigNumber from 'bignumber.js';
+import { CoinGeckoTokenMarket } from '@/libs/market-data/types';
+import Sparkline from '@/libs/sparkline';
+import { BTCToken } from './btc-token';
+import { GasPriceTypes } from '@/providers/common/types';
+import type HaskoinAPI from '@/providers/bitcoin/libs/api';
+import type SSAPI from '@/providers/bitcoin/libs/api-ss';
+import { NFTCollection } from '@/types/nft';
 
 export enum PaymentType {
-  P2PKH = "p2pkh",
-  P2WPKH = "p2wpkh",
+  P2PKH = 'p2pkh',
+  P2WPKH = 'p2wpkh',
 }
 export interface BitcoinNetworkOptions {
   name: NetworkNames;
@@ -135,14 +135,14 @@ export class BitcoinNetwork extends BaseNetwork {
       icon: this.icon,
       name: this.name_long,
       symbol: this.currencyName,
-      value: marketData[0]?.current_price?.toString() ?? "0",
-      valuef: formatFiatValue(marketData[0]?.current_price?.toString() ?? "0")
+      value: marketData[0]?.current_price?.toString() ?? '0',
+      valuef: formatFiatValue(marketData[0]?.current_price?.toString() ?? '0')
         .value,
-      contract: "",
+      contract: '',
       decimals: this.decimals,
       sparkline: marketData.length
         ? new Sparkline(marketData[0]!.sparkline_in_24h.price, 25).dataValues
-        : "",
+        : '',
       priceChangePercentage: marketData.length
         ? marketData[0]!.price_change_percentage_24h_in_currency
         : 0,

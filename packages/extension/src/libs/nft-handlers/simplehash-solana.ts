@@ -1,24 +1,24 @@
-import { NFTCollection, NFTItem, NFTType } from "@/types/nft";
-import { NodeType } from "@/types/provider";
-import cacheFetch from "../cache-fetch";
-import { NetworkNames } from "@enkryptcom/types";
-import { SHNFTType, SHResponse, SHSolanaNFTType } from "./types/simplehash";
-import imgNotFound from "@action/assets/common/not-found.jpg";
-const SH_ENDPOINT = "https://partners.mewapi.io/nfts/";
+import { NFTCollection, NFTItem, NFTType } from '@/types/nft';
+import { NodeType } from '@/types/provider';
+import cacheFetch from '../cache-fetch';
+import { NetworkNames } from '@enkryptcom/types';
+import { SHNFTType, SHResponse, SHSolanaNFTType } from './types/simplehash';
+import imgNotFound from '@action/assets/common/not-found.jpg';
+const SH_ENDPOINT = 'https://partners.mewapi.io/nfts/';
 const CACHE_TTL = 60 * 1000;
 const SolanaTokenPrograms = {
-  Bubblegum: "BGUMAp9Gq7iTEuizy4pqaxsTyUCBK68MDfK752saRPUY",
-  Token: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+  Bubblegum: 'BGUMAp9Gq7iTEuizy4pqaxsTyUCBK68MDfK752saRPUY',
+  Token: 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
 };
 export default async (
   network: NodeType,
   address: string,
 ): Promise<NFTCollection[]> => {
   const supportedNetworks = {
-    [NetworkNames.Solana]: "solana",
+    [NetworkNames.Solana]: 'solana',
   };
   if (!Object.keys(supportedNetworks).includes(network.name))
-    throw new Error("Simplehash: network not supported");
+    throw new Error('Simplehash: network not supported');
   let allItems: SHSolanaNFTType[] = [];
   const fetchAll = (continuation?: string): Promise<void> => {
     const query = continuation

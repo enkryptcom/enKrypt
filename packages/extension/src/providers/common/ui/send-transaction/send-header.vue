@@ -25,16 +25,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
-import CloseIcon from "@action/icons/common/close-icon.vue";
-import SwitchArrow from "@action/icons/header/switch_arrow.vue";
-import DoneIcon from "@action/icons/common/done_icon.vue";
+import { ref } from 'vue';
+import CloseIcon from '@action/icons/common/close-icon.vue';
+import SwitchArrow from '@action/icons/header/switch_arrow.vue';
+import DoneIcon from '@action/icons/common/done_icon.vue';
 
 const isOpenSelector = ref(false);
 
 const emit = defineEmits<{
-  (e: "close"): void;
-  (e: "toggleType", val: boolean): void;
+  (e: 'close'): void;
+  (e: 'toggleType', val: boolean): void;
 }>();
 
 defineProps({
@@ -56,12 +56,12 @@ const toggleSelector = () => {
 
 const toggleType = (isTokenSend: boolean) => {
   isOpenSelector.value = false;
-  emit("toggleType", isTokenSend);
+  emit('toggleType', isTokenSend);
 };
 </script>
 
 <style lang="less" scoped>
-@import "@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .send-transaction {
   width: 100%;

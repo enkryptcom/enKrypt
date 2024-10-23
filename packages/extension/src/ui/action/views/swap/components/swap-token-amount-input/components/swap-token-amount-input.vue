@@ -14,7 +14,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onMounted } from "vue";
+import { computed, ref, onMounted } from 'vue';
 const isFocus = ref(false);
 const swapAmountInput = ref(null);
 
@@ -24,13 +24,13 @@ const props = defineProps({
   placeholder: {
     type: String,
     default: () => {
-      return "";
+      return '';
     },
   },
   value: {
     type: String,
     default: () => {
-      return "";
+      return '';
     },
   },
   changeFocus: {
@@ -57,13 +57,13 @@ onMounted(() => {
     (swapAmountInput.value as HTMLInputElement).focus();
   }
 });
-const emit = defineEmits(["update:value"]);
+const emit = defineEmits(['update:value']);
 const textValue = computed({
   get: () => props.value,
   set: value => {
     let fValue = value.toString();
-    if (fValue === ".") fValue = "0.";
-    emit("update:value", fValue);
+    if (fValue === '.') fValue = '0.';
+    emit('update:value', fValue);
   },
 });
 const changeFocus = () => {
@@ -79,7 +79,7 @@ const onlyNumber = ($event: KeyboardEvent) => {
 </script>
 
 <style lang="less">
-@import "@action/styles/theme.less";
+@import '@action/styles/theme.less';
 .swap-token-amount-input {
   outline: none;
   background: @white;

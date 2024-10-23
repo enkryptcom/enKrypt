@@ -18,7 +18,7 @@
 defineProps({
   title: {
     type: String,
-    default: "",
+    default: '',
   },
   noBackground: {
     type: Boolean,
@@ -45,7 +45,7 @@ defineProps({
 </script>
 
 <style lang="less">
-@import "@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .button {
   background-color: @primary;
@@ -78,7 +78,7 @@ defineProps({
   }
 
   &::after {
-    content: "";
+    content: '';
     position: absolute;
     width: 100%;
     height: 100%;

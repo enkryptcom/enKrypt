@@ -1,15 +1,15 @@
-import { TokenBalance } from "./types/tokenbalance-mew";
-import { NATIVE_TOKEN_ADDRESS } from "../common";
-import { numberToHex } from "@enkryptcom/utils";
-import { BaseNetwork } from "@/types/base-network";
+import { TokenBalance } from './types/tokenbalance-mew';
+import { NATIVE_TOKEN_ADDRESS } from '../common';
+import { numberToHex } from '@enkryptcom/utils';
+import { BaseNetwork } from '@/types/base-network';
 import {
   Connection,
   GetProgramAccountsFilter,
   PublicKey,
-} from "@solana/web3.js";
-import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
-import { BNType } from "@/providers/common/types";
-import { toBN } from "web3-utils";
+} from '@solana/web3.js';
+import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
+import { BNType } from '@/providers/common/types';
+import { toBN } from 'web3-utils';
 
 const getBalances = (network: BaseNetwork, address: string) => {
   const solConnection = new Connection(network.node);
@@ -33,7 +33,7 @@ const getBalances = (network: BaseNetwork, address: string) => {
         const balance = numberToHex(
           (acc.account.data as any).parsed.info.tokenAmount.amount,
         );
-        if (balance === "0x0") return;
+        if (balance === '0x0') return;
         const contract = (acc.account.data as any).parsed.info.mint;
         if (!balanceObj[contract]) balanceObj[contract] = toBN(0);
         balanceObj[contract] = balanceObj[contract].add(toBN(balance));

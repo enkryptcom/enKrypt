@@ -1,14 +1,14 @@
-import { BTCRawInfo } from "@/types/activity";
-import { ProviderAPIInterface } from "@/types/provider";
+import { BTCRawInfo } from '@/types/activity';
+import { ProviderAPIInterface } from '@/types/provider';
 import {
   BitcoinNetworkInfo,
   HaskoinBalanceType,
   HaskoinTxType,
   HaskoinUnspentType,
-} from "../types";
-import { toBN } from "web3-utils";
-import { getAddress as getBitcoinAddress } from "../types/bitcoin-network";
-import { filterOutOrdinals } from "./filter-ordinals";
+} from '../types';
+import { toBN } from 'web3-utils';
+import { getAddress as getBitcoinAddress } from '../types/bitcoin-network';
+import { filterOutOrdinals } from './filter-ordinals';
 
 /** Bitcoin API wrapper */
 class API implements ProviderAPIInterface {
@@ -66,24 +66,24 @@ class API implements ProviderAPIInterface {
     return fetch(`${this.node}address/${address}/balance`)
       .then(res => res.json())
       .then((balance: HaskoinBalanceType) => {
-        if ((balance as any).error) return "0";
+        if ((balance as any).error) return '0';
         return toBN(balance.confirmed).addn(balance.unconfirmed).toString();
       })
-      .catch(() => "0");
+      .catch(() => '0');
   }
   async broadcastTx(rawtx: string): Promise<boolean> {
     return fetch(`${this.node}transactions`, {
-      method: "POST",
+      method: 'POST',
       headers: {
-        Accept: "application/json",
-        "Content-Type": "text/plain",
+        Accept: 'application/json',
+        'Content-Type': 'text/plain',
       },
       body: rawtx,
     })
       .then(res => res.json())
       .then(response => {
         if (response.error) {
-          if (response.error === "server-error") return true; // haskoin api return error when it timesout or something
+          if (response.error === 'server-error') return true; // haskoin api return error when it timesout or something
           return Promise.reject(response.message);
         }
         return true;

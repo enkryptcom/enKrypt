@@ -1,9 +1,9 @@
-import PersistentEvents from "@/libs/persistent-events";
-import Browser from "webextension-polyfill";
-import { sendToWindow } from "@/libs/messenger/extension";
-import { OnMessageResponse } from "@enkryptcom/types";
-import { EnkryptProviderEventMethods } from "@/types/provider";
-import type BackgroundHandler from "..";
+import PersistentEvents from '@/libs/persistent-events';
+import Browser from 'webextension-polyfill';
+import { sendToWindow } from '@/libs/messenger/extension';
+import { OnMessageResponse } from '@enkryptcom/types';
+import { EnkryptProviderEventMethods } from '@/types/provider';
+import type BackgroundHandler from '..';
 
 async function handlePersistentEvents(this: BackgroundHandler) {
   const persistentEvents = new PersistentEvents();

@@ -15,30 +15,30 @@
 </template>
 
 <script setup lang="ts">
-import BalanceLoader from "@action/icons/common/balance-loader.vue";
+import BalanceLoader from '@action/icons/common/balance-loader.vue';
 
 defineProps({
   cryptoAmount: {
     type: String,
-    default: "0",
+    default: '0',
   },
   fiatAmount: {
     type: String,
-    default: "0",
+    default: '0',
   },
   symbol: {
     type: String,
-    default: "",
+    default: '',
   },
   subnetwork: {
     type: String,
-    default: "",
+    default: '',
   },
 });
 </script>
 
 <style lang="less">
-@import "@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .network-activity {
   &__total {

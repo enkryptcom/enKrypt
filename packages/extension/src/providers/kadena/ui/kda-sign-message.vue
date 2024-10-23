@@ -47,36 +47,36 @@
 </template>
 
 <script setup lang="ts">
-import { blake2AsU8a } from "@polkadot/util-crypto";
-import { bufferToHex } from "@enkryptcom/utils";
-import SignLogo from "@action/icons/common/sign-logo.vue";
-import BaseButton from "@action/components/base-button/index.vue";
-import CommonPopup from "@action/views/common-popup/index.vue";
-import { getError } from "@/libs/error";
-import { ErrorCodes } from "@/providers/ethereum/types";
-import { WindowPromiseHandler } from "@/libs/window-promise";
-import { onBeforeMount, ref } from "vue";
-import { ProviderRequestOptions } from "@/types/provider";
-import { EnkryptAccount } from "@enkryptcom/types";
-import { TransactionSigner } from "./libs/signer";
-import { KadenaNetwork } from "../types/kadena-network";
+import { blake2AsU8a } from '@polkadot/util-crypto';
+import { bufferToHex } from '@enkryptcom/utils';
+import SignLogo from '@action/icons/common/sign-logo.vue';
+import BaseButton from '@action/components/base-button/index.vue';
+import CommonPopup from '@action/views/common-popup/index.vue';
+import { getError } from '@/libs/error';
+import { ErrorCodes } from '@/providers/ethereum/types';
+import { WindowPromiseHandler } from '@/libs/window-promise';
+import { onBeforeMount, ref } from 'vue';
+import { ProviderRequestOptions } from '@/types/provider';
+import { EnkryptAccount } from '@enkryptcom/types';
+import { TransactionSigner } from './libs/signer';
+import { KadenaNetwork } from '../types/kadena-network';
 import {
   DEFAULT_KADENA_NETWORK,
   getNetworkByName,
-} from "@/libs/utils/networks";
+} from '@/libs/utils/networks';
 
 const windowPromise = WindowPromiseHandler(0);
 const network = ref<KadenaNetwork>(DEFAULT_KADENA_NETWORK);
 
 const Options = ref<ProviderRequestOptions>({
-  domain: "",
-  faviconURL: "",
-  title: "",
-  url: "",
+  domain: '',
+  faviconURL: '',
+  title: '',
+  url: '',
   tabId: 0,
 });
-const message = ref("");
-const account = ref({ address: "" } as EnkryptAccount);
+const message = ref('');
+const account = ref({ address: '' } as EnkryptAccount);
 
 onBeforeMount(async () => {
   const { Request, options } = await windowPromise;
@@ -101,7 +101,7 @@ const approve = async () => {
   })
     .then(res => {
       Resolve.value({
-        result: res.result?.replace("0x", "") as string,
+        result: res.result?.replace('0x', '') as string,
       });
     })
     .catch(er => {
@@ -120,5 +120,5 @@ const deny = async () => {
 </script>
 
 <style lang="less" scoped>
-@import "@/providers/ethereum/ui/styles/common-popup.less";
+@import '@/providers/ethereum/ui/styles/common-popup.less';
 </style>

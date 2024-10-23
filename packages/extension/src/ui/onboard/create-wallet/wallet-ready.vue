@@ -31,12 +31,12 @@
   </div>
 </template>
 <script setup lang="ts">
-import BaseButton from "@action/components/base-button/index.vue";
-import LogoBig from "@action/icons/common/logo-big.vue";
-import GithubIcon from "@action/icons/social/github-icon.vue";
-import InstagramIcon from "@action/icons/social/instagram-icon.vue";
-import RedditIcon from "@action/icons/social/reddit-icon.vue";
-import TwitterIcon from "@action/icons/social/twitter-icon.vue";
+import BaseButton from '@action/components/base-button/index.vue';
+import LogoBig from '@action/icons/common/logo-big.vue';
+import GithubIcon from '@action/icons/social/github-icon.vue';
+import InstagramIcon from '@action/icons/social/instagram-icon.vue';
+import RedditIcon from '@action/icons/social/reddit-icon.vue';
+import TwitterIcon from '@action/icons/social/twitter-icon.vue';
 
 const finishAction = () => {
   window.close();
@@ -44,7 +44,7 @@ const finishAction = () => {
 </script>
 
 <style lang="less">
-@import "@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .wallet-ready {
   width: 100%;

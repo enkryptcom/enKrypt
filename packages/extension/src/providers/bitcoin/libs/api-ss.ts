@@ -1,15 +1,15 @@
-import { BTCRawInfo } from "@/types/activity";
-import { ProviderAPIInterface } from "@/types/provider";
+import { BTCRawInfo } from '@/types/activity';
+import { ProviderAPIInterface } from '@/types/provider';
 import {
   BitcoinNetworkInfo,
   HaskoinUnspentType,
   SSTxType,
   SSUnspentType,
-} from "../types";
-import { toBN } from "web3-utils";
-import cacheFetch from "@/libs/cache-fetch";
-import { getAddress as getBitcoinAddress } from "../types/bitcoin-network";
-import { filterOutOrdinals } from "./filter-ordinals";
+} from '../types';
+import { toBN } from 'web3-utils';
+import cacheFetch from '@/libs/cache-fetch';
+import { getAddress as getBitcoinAddress } from '../types/bitcoin-network';
+import { filterOutOrdinals } from './filter-ordinals';
 
 class API implements ProviderAPIInterface {
   node: string;
@@ -70,19 +70,19 @@ class API implements ProviderAPIInterface {
     return fetch(`${this.node}/api/v1/account/${address}`)
       .then(res => res.json())
       .then((balance: { balance: string; unconfirmedBalance: string }) => {
-        if ((balance as any).message) return "0";
+        if ((balance as any).message) return '0';
         return toBN(balance.balance)
           .add(toBN(balance.unconfirmedBalance))
           .toString();
       })
-      .catch(() => "0");
+      .catch(() => '0');
   }
   async broadcastTx(rawtx: string): Promise<boolean> {
     return fetch(`${this.node}/api/v1/send`, {
-      method: "POST",
+      method: 'POST',
       headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({ hex: rawtx }),
     })

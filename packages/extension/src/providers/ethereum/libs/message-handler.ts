@@ -3,14 +3,14 @@ import {
   MessageMethod,
   EmitEvent,
   ProviderConnectInfo,
-} from "../types";
+} from '../types';
 import {
   EnkryptProviderEventMethods,
   EthereumProvider,
   handleIncomingMessage as handleIncomingMessageType,
-} from "@/types/provider";
-import { getError } from "../../../libs/error";
-import { RPCRequestType } from "@enkryptcom/types";
+} from '@/types/provider';
+import { getError } from '../../../libs/error';
+import { RPCRequestType } from '@enkryptcom/types';
 const subscriptionMap: Record<string, any> = {};
 const handleIncomingMessage: handleIncomingMessageType = (
   provider,
@@ -63,7 +63,7 @@ const handleIncomingMessage: handleIncomingMessageType = (
       EnkryptProviderEventMethods.persistentEvents
     ) {
       const initialEvent = jsonMsg.params[0] as RPCRequestType;
-      if (initialEvent.method === "eth_subscribe") {
+      if (initialEvent.method === 'eth_subscribe') {
         const initialRes = jsonMsg.params[1];
         const newRes = jsonMsg.params[2];
         subscriptionMap[JSON.parse(newRes)] = JSON.parse(initialRes);

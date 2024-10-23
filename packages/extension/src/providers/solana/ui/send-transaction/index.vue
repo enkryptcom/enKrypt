@@ -123,63 +123,63 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, PropType, computed, watch } from "vue";
-import { useRoute, useRouter } from "vue-router";
-import { debounce } from "lodash";
-import SendHeader from "@/providers/common/ui/send-transaction/send-header.vue";
-import SendAddressInput from "./components/send-address-input.vue";
-import SendFromContactsList from "@/providers/common/ui/send-transaction/send-from-contacts-list.vue";
-import SendContactsList from "@/providers/common/ui/send-transaction/send-contacts-list.vue";
-import AssetsSelectList from "@action/views/assets-select-list/index.vue";
-import NftSelectList from "@/providers/common/ui/send-transaction/nft-select-list/index.vue";
-import SendTokenSelect from "./components/send-token-select.vue";
-import SendAlert from "@/providers/common/ui/send-transaction/send-alert.vue";
-import SendNftSelect from "@/providers/common/ui/send-transaction/send-nft-select.vue";
-import SendInputAmount from "@/providers/common/ui/send-transaction/send-input-amount.vue";
-import SendFeeSelect from "./components/send-fee-select.vue";
-import BaseButton from "@action/components/base-button/index.vue";
-import { NFTItemWithCollectionName, NFTItem, NFTType } from "@/types/nft";
-import { AccountsHeaderData } from "@action/types/account";
-import { numberToHex, toBN } from "web3-utils";
-import { GasPriceTypes, GasFeeType } from "@/providers/common/types";
-import { SolanaNetwork, getAddress } from "../../types/sol-network";
-import { SOLToken } from "../../types/sol-token";
-import BigNumber from "bignumber.js";
-import { defaultGasCostVals } from "@/providers/common/libs/default-vals";
-import { fromBase, toBase, isValidDecimals } from "@enkryptcom/utils";
-import { VerifyTransactionParams, SendTransactionDataType } from "../types";
-import { formatFloatingPointValue } from "@/libs/utils/number-formatter";
-import { routes as RouterNames } from "@/ui/action/router";
-import getUiPath from "@/libs/utils/get-ui-path";
-import Browser from "webextension-polyfill";
-import { ProviderName } from "@/types/provider";
-import PublicKeyRing from "@/libs/keyring/public-keyring";
-import { GenericNameResolver, CoinType } from "@/libs/name-resolver";
-import { trackSendEvents } from "@/libs/metrics";
-import { SendEventType } from "@/libs/metrics/types";
-import { NATIVE_TOKEN_ADDRESS } from "@/providers/ethereum/libs/common";
-import { createUmi } from "@metaplex-foundation/umi-bundle-defaults";
+import { ref, onMounted, PropType, computed, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { debounce } from 'lodash';
+import SendHeader from '@/providers/common/ui/send-transaction/send-header.vue';
+import SendAddressInput from './components/send-address-input.vue';
+import SendFromContactsList from '@/providers/common/ui/send-transaction/send-from-contacts-list.vue';
+import SendContactsList from '@/providers/common/ui/send-transaction/send-contacts-list.vue';
+import AssetsSelectList from '@action/views/assets-select-list/index.vue';
+import NftSelectList from '@/providers/common/ui/send-transaction/nft-select-list/index.vue';
+import SendTokenSelect from './components/send-token-select.vue';
+import SendAlert from '@/providers/common/ui/send-transaction/send-alert.vue';
+import SendNftSelect from '@/providers/common/ui/send-transaction/send-nft-select.vue';
+import SendInputAmount from '@/providers/common/ui/send-transaction/send-input-amount.vue';
+import SendFeeSelect from './components/send-fee-select.vue';
+import BaseButton from '@action/components/base-button/index.vue';
+import { NFTItemWithCollectionName, NFTItem, NFTType } from '@/types/nft';
+import { AccountsHeaderData } from '@action/types/account';
+import { numberToHex, toBN } from 'web3-utils';
+import { GasPriceTypes, GasFeeType } from '@/providers/common/types';
+import { SolanaNetwork, getAddress } from '../../types/sol-network';
+import { SOLToken } from '../../types/sol-token';
+import BigNumber from 'bignumber.js';
+import { defaultGasCostVals } from '@/providers/common/libs/default-vals';
+import { fromBase, toBase, isValidDecimals } from '@enkryptcom/utils';
+import { VerifyTransactionParams, SendTransactionDataType } from '../types';
+import { formatFloatingPointValue } from '@/libs/utils/number-formatter';
+import { routes as RouterNames } from '@/ui/action/router';
+import getUiPath from '@/libs/utils/get-ui-path';
+import Browser from 'webextension-polyfill';
+import { ProviderName } from '@/types/provider';
+import PublicKeyRing from '@/libs/keyring/public-keyring';
+import { GenericNameResolver, CoinType } from '@/libs/name-resolver';
+import { trackSendEvents } from '@/libs/metrics';
+import { SendEventType } from '@/libs/metrics/types';
+import { NATIVE_TOKEN_ADDRESS } from '@/providers/ethereum/libs/common';
+import { createUmi } from '@metaplex-foundation/umi-bundle-defaults';
 import {
   getAssetWithProof,
   transfer,
   mplBubblegum,
-} from "@metaplex-foundation/mpl-bubblegum";
+} from '@metaplex-foundation/mpl-bubblegum';
 import {
   Transaction as SolTransaction,
   SystemProgram,
   PublicKey,
   ComputeBudgetProgram,
-} from "@solana/web3.js";
+} from '@solana/web3.js';
 import {
   createTransferInstruction,
   getAssociatedTokenAddressSync,
   getAccount,
   createAssociatedTokenAccountInstruction,
   ACCOUNT_SIZE,
-} from "@solana/spl-token";
-import getPriorityFees from "../libs/get-priority-fees";
-import bs58 from "bs58";
-import SolanaAPI from "@/providers/solana/libs/api";
+} from '@solana/spl-token';
+import getPriorityFees from '../libs/get-priority-fees';
+import bs58 from 'bs58';
+import SolanaAPI from '@/providers/solana/libs/api';
 
 const props = defineProps({
   network: {
@@ -194,11 +194,11 @@ const props = defineProps({
 
 const loadingAsset = new SOLToken({
   icon: props.network.icon,
-  symbol: "Loading",
-  balance: "0",
-  price: "0",
-  name: "loading",
-  contract: "0x0",
+  symbol: 'Loading',
+  balance: '0',
+  price: '0',
+  name: 'loading',
+  contract: '0x0',
   decimals: props.network.decimals,
 });
 
@@ -210,12 +210,12 @@ const nameResolver = new GenericNameResolver();
 const addressInputTo = ref();
 const selected: string = route.params.id as string;
 const paramNFTData: NFTItem = JSON.parse(
-  route.params.tokenData ? (route.params.tokenData as string) : "{}",
+  route.params.tokenData ? (route.params.tokenData as string) : '{}',
 ) as NFTItem;
 const isSendToken = ref<boolean>(JSON.parse(route.params.isToken as string));
 const accountAssets = ref<SOLToken[]>([]);
 const selectedAsset = ref<SOLToken>(loadingAsset);
-const amount = ref<string>("");
+const amount = ref<string>('');
 const isEstimateValid = ref(true);
 const storageFee = ref(0);
 const SolTx = ref<SolTransaction>();
@@ -223,30 +223,30 @@ const hasEnoughBalance = computed(() => {
   if (!isValidDecimals(sendAmount.value, selectedAsset.value.decimals!)) {
     return false;
   }
-  return toBN(selectedAsset.value.balance ?? "0").gte(
-    toBN(toBase(sendAmount.value ?? "0", selectedAsset.value.decimals!)),
+  return toBN(selectedAsset.value.balance ?? '0').gte(
+    toBN(toBase(sendAmount.value ?? '0', selectedAsset.value.decimals!)),
   );
 });
 const sendAmount = computed(() => {
-  if (amount.value && amount.value !== "") return amount.value;
-  return "0";
+  if (amount.value && amount.value !== '') return amount.value;
+  return '0';
 });
 const isMaxSelected = ref<boolean>(false);
 const selectedFee = ref<GasPriceTypes>(GasPriceTypes.ECONOMY);
 const gasCostValues = ref<GasFeeType>(defaultGasCostVals);
 const addressFrom = ref<string>(
-  props.accountInfo.selectedAccount?.address ?? "",
+  props.accountInfo.selectedAccount?.address ?? '',
 );
-const addressTo = ref<string>("");
+const addressTo = ref<string>('');
 const isLoadingAssets = ref(true);
 
 const selectedNft = ref<NFTItemWithCollectionName>({
-  id: "",
-  contract: "",
-  image: "",
-  name: "Loading",
-  url: "",
-  collectionName: "",
+  id: '',
+  contract: '',
+  image: '',
+  name: 'Loading',
+  url: '',
+  collectionName: '',
   type: NFTType.SolanaToken,
 });
 
@@ -256,11 +256,11 @@ const nativeBalance = computed(() => {
   );
   if (accountIndex !== -1) {
     const balance = props.accountInfo.activeBalances[accountIndex];
-    if (balance !== "~") {
+    if (balance !== '~') {
       return toBase(balance, props.network.decimals);
     }
   }
-  return "0";
+  return '0';
 });
 
 onMounted(async () => {
@@ -272,13 +272,13 @@ onMounted(async () => {
 const TxInfo = computed<SendTransactionDataType>(() => {
   const value = sendAmount.value
     ? numberToHex(toBase(sendAmount.value, selectedAsset.value.decimals))
-    : "0x0";
+    : '0x0';
   const contract = isSendToken.value
     ? selectedAsset.value.contract
     : selectedNft.value.contract;
   return {
     from: addressFrom.value,
-    value: isSendToken.value ? value : "0x1",
+    value: isSendToken.value ? value : '0x1',
     to: addressTo.value,
     contract,
   };
@@ -290,7 +290,7 @@ const nativeBalanceAfterTransaction = computed(() => {
     nativeBalance.value &&
     selectedAsset.value &&
     selectedAsset.value.contract &&
-    amount.value !== "" &&
+    amount.value !== '' &&
     isValidDecimals(sendAmount.value, selectedAsset.value.decimals!)
   ) {
     let endingAmount = toBN(nativeBalance.value);
@@ -335,14 +335,14 @@ const setTransactionFees = (tx: SolTransaction) => {
       const totalFee = fee! + storageFee.value;
       const getConvertedVal = () =>
         fromBase(totalFee.toString(), props.network.decimals);
-      const nativeVal = accountAssets.value[0].price || "0";
+      const nativeVal = accountAssets.value[0].price || '0';
       gasCostValues.value[GasPriceTypes.ECONOMY] = {
         nativeValue: getConvertedVal(),
         fiatValue: new BigNumber(getConvertedVal())
           .times(nativeVal!)
           .toString(),
         nativeSymbol: props.network.currencyName,
-        fiatSymbol: "USD",
+        fiatSymbol: 'USD',
       };
       isEstimateValid.value = true;
     })
@@ -367,15 +367,15 @@ const fetchAssets = () => {
 };
 
 const sendButtonTitle = computed(() => {
-  let title = "Send";
+  let title = 'Send';
   if (parseInt(sendAmount.value) > 0)
     title =
-      "Send " +
+      'Send ' +
       formatFloatingPointValue(sendAmount.value).value +
-      " " +
+      ' ' +
       selectedAsset.value?.symbol!.toUpperCase();
   if (!isSendToken.value) {
-    title = "Send NFT";
+    title = 'Send NFT';
   }
   return title;
 });
@@ -384,7 +384,7 @@ const isValidSend = computed<boolean>(() => {
   if (!isInputsValid.value) return false;
   if (nativeBalanceAfterTransaction.value.isNeg()) return false;
   if (!isEstimateValid.value) return false;
-  if (gasCostValues.value.ECONOMY.nativeValue === "0") return false;
+  if (gasCostValues.value.ECONOMY.nativeValue === '0') return false;
   return true;
 });
 
@@ -497,7 +497,7 @@ const updateTransactionFees = async () => {
   }
   transaction.feePayer = from;
   if (isMaxSelected.value) {
-    amount.value = "";
+    amount.value = '';
   }
   solConnection.value!.web3.getLatestBlockhash().then(async bhash => {
     transaction.recentBlockhash = bhash.blockhash;
@@ -505,7 +505,7 @@ const updateTransactionFees = async () => {
     setTransactionFees(transaction).then(() => {
       if (isMaxSelected.value) {
         inputAmount(
-          parseFloat(assetMaxValue.value) < 0 ? "0" : assetMaxValue.value,
+          parseFloat(assetMaxValue.value) < 0 ? '0' : assetMaxValue.value,
         );
       }
     });
@@ -527,7 +527,7 @@ watch(
 );
 
 watch([isSendToken], () => {
-  inputAmount("0");
+  inputAmount('0');
 });
 
 const close = () => {
@@ -539,11 +539,11 @@ const close = () => {
 
 const assetMaxValue = computed(() => {
   if (!isSendToken.value) {
-    return "0";
+    return '0';
   }
   if (selectedAsset.value.contract === NATIVE_TOKEN_ADDRESS) {
     return fromBase(
-      toBN(selectedAsset.value.balance || "0")
+      toBN(selectedAsset.value.balance || '0')
         .sub(
           toBN(
             toBase(
@@ -574,7 +574,7 @@ const inputAddressFrom = (text: string) => {
 const inputAddressTo = async (text: string) => {
   const debounceResolve = debounce(() => {
     nameResolver
-      .resolveName(text, [props.network.name as CoinType, "ETH"])
+      .resolveName(text, [props.network.name as CoinType, 'ETH'])
       .then(resolved => {
         if (resolved) {
           addressTo.value = resolved;
@@ -609,18 +609,18 @@ const selectAccountTo = (account: string) => {
 };
 
 const selectToken = (token: SOLToken) => {
-  inputAmount("0");
+  inputAmount('0');
   selectedAsset.value = token;
   isOpenSelectToken.value = false;
 };
 
 const inputAmount = (inputAmount: string) => {
-  if (inputAmount === "") {
-    inputAmount = "0";
+  if (inputAmount === '') {
+    inputAmount = '0';
   }
   const inputAmountBn = new BigNumber(inputAmount);
   isMaxSelected.value = false;
-  amount.value = inputAmountBn.lt(0) ? "0" : inputAmount;
+  amount.value = inputAmountBn.lt(0) ? '0' : inputAmount;
   if (isInputsValid.value) {
     updateTransactionFees();
   }
@@ -639,12 +639,12 @@ const sendAction = async () => {
       amount: toBase(sendAmount.value, selectedAsset.value.decimals!),
       decimals: selectedAsset.value.decimals!,
       icon: selectedAsset.value.icon as string,
-      symbol: selectedAsset.value.symbol || "unknown",
-      valueUSD: new BigNumber(selectedAsset.value.price || "0")
+      symbol: selectedAsset.value.symbol || 'unknown',
+      valueUSD: new BigNumber(selectedAsset.value.price || '0')
         .times(sendAmount.value)
         .toString(),
-      name: selectedAsset.value.name || "",
-      price: selectedAsset.value.price || "0",
+      name: selectedAsset.value.name || '',
+      price: selectedAsset.value.price || '0',
     },
     fromAddress: fromAccountInfo.address,
     fromAddressName: fromAccountInfo.name,
@@ -662,8 +662,8 @@ const sendAction = async () => {
     name: RouterNames.verify.name,
     query: {
       id: selected,
-      txData: Buffer.from(JSON.stringify(txVerifyInfo), "utf8").toString(
-        "base64",
+      txData: Buffer.from(JSON.stringify(txVerifyInfo), 'utf8').toString(
+        'base64',
       ),
     },
   });
@@ -675,7 +675,7 @@ const sendAction = async () => {
           ProviderName.solana,
         ),
       ),
-      type: "popup",
+      type: 'popup',
       focused: true,
       height: 600,
       width: 460,
@@ -701,8 +701,8 @@ const selectNFT = (item: NFTItemWithCollectionName) => {
 </script>
 
 <style lang="less" scoped>
-@import "@action/styles/theme.less";
-@import "@action/styles/custom-scroll.less";
+@import '@action/styles/theme.less';
+@import '@action/styles/custom-scroll.less';
 
 .container {
   width: 100%;

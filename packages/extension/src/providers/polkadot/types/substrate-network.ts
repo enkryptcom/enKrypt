@@ -1,23 +1,23 @@
-import { BaseNetwork, BaseNetworkOptions } from "@/types/base-network";
-import SubstrateAPI from "@/providers/polkadot/libs/api";
-import { AssetsType } from "@/types/provider";
-import { BaseToken } from "@/types/base-token";
-import { ProviderName } from "@/types/provider";
-import { CoingeckoPlatform, NetworkNames, SignerType } from "@enkryptcom/types";
-import { polkadotEncodeAddress, fromBase } from "@enkryptcom/utils";
-import createIcon from "../libs/blockies";
-import MarketData from "@/libs/market-data";
-import BigNumber from "bignumber.js";
+import { BaseNetwork, BaseNetworkOptions } from '@/types/base-network';
+import SubstrateAPI from '@/providers/polkadot/libs/api';
+import { AssetsType } from '@/types/provider';
+import { BaseToken } from '@/types/base-token';
+import { ProviderName } from '@/types/provider';
+import { CoingeckoPlatform, NetworkNames, SignerType } from '@enkryptcom/types';
+import { polkadotEncodeAddress, fromBase } from '@enkryptcom/utils';
+import createIcon from '../libs/blockies';
+import MarketData from '@/libs/market-data';
+import BigNumber from 'bignumber.js';
 import {
   formatFiatValue,
   formatFloatingPointValue,
-} from "@/libs/utils/number-formatter";
-import Sparkline from "@/libs/sparkline";
-import { SubstrateNativeToken } from "./substrate-native-token";
-import { Activity } from "@/types/activity";
-import { getApi, addNewApi } from "../libs/api-promises";
-import { KnownTokenDisplay } from ".";
-import { BNType } from "@/providers/common/types";
+} from '@/libs/utils/number-formatter';
+import Sparkline from '@/libs/sparkline';
+import { SubstrateNativeToken } from './substrate-native-token';
+import { Activity } from '@/types/activity';
+import { getApi, addNewApi } from '../libs/api-promises';
+import { KnownTokenDisplay } from '.';
+import { BNType } from '@/providers/common/types';
 
 export interface SubstrateNetworkOptions {
   name: NetworkNames;
@@ -78,7 +78,7 @@ export class SubstrateNetwork extends BaseNetwork {
     };
 
     const baseOptions: BaseNetworkOptions = {
-      basePath: "//",
+      basePath: '//',
       identicon: createIcon,
       signer: [SignerType.sr25519, SignerType.ed25519],
       displayAddress: (address: string) =>
@@ -144,7 +144,7 @@ export class SubstrateNetwork extends BaseNetwork {
     });
     const marketData = new MarketData();
     const market = await marketData.getMarketData(
-      supported.map(({ coingeckoID }) => coingeckoID ?? ""),
+      supported.map(({ coingeckoID }) => coingeckoID ?? ''),
     );
 
     const balances = (await Promise.all(
@@ -169,16 +169,16 @@ export class SubstrateNetwork extends BaseNetwork {
           market[idx]?.price_change_percentage_24h_in_currency || 0,
         sparkline: market[idx]
           ? new Sparkline(market[idx]?.sparkline_in_24h.price, 25).dataValues
-          : "",
-        value: market[idx]?.current_price?.toString() || "0",
+          : '',
+        value: market[idx]?.current_price?.toString() || '0',
         valuef: formatFloatingPointValue(
-          market[idx]?.current_price?.toString() || "0",
+          market[idx]?.current_price?.toString() || '0',
         ).value,
         baseToken: st,
       };
     });
     const nonNativNonZeroList = tokens.filter(
-      (asset, idx) => idx !== 0 && asset.balance !== "0",
+      (asset, idx) => idx !== 0 && asset.balance !== '0',
     );
     nonNativNonZeroList.sort((a, b) => {
       if (a.balanceUSD < b.balanceUSD) return 1;

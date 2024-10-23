@@ -1,9 +1,9 @@
-import { GasFeeType } from "@/providers/common/types";
-import { BaseNetwork } from "@/types/base-network";
-import { calculateSizeBasedOnType } from "@/providers/bitcoin/ui/libs/tx-size";
-import { BTCTxInfo } from "@/providers/bitcoin/ui/types";
-import { getGasCostValues } from "@/providers/bitcoin/libs/utils";
-import { BitcoinNetwork } from "@/providers/bitcoin/types/bitcoin-network";
+import { GasFeeType } from '@/providers/common/types';
+import { BaseNetwork } from '@/types/base-network';
+import { calculateSizeBasedOnType } from '@/providers/bitcoin/ui/libs/tx-size';
+import { BTCTxInfo } from '@/providers/bitcoin/ui/types';
+import { getGasCostValues } from '@/providers/bitcoin/libs/utils';
+import { BitcoinNetwork } from '@/providers/bitcoin/types/bitcoin-network';
 
 export const getBitcoinGasVals = async (
   txs: any[],

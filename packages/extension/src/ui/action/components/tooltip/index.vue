@@ -9,7 +9,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref } from 'vue';
 
 const show = ref(false);
 const positionX = ref(0);
@@ -21,7 +21,7 @@ let timeout: ReturnType<typeof setTimeout> | null = null;
 defineProps({
   text: {
     type: String,
-    default: "",
+    default: '',
   },
 });
 
@@ -71,7 +71,7 @@ const classObject = () => {
 
   switch (true) {
     case x > 740 && y < 50:
-      return { "right-bottom": true, visible: visible.value };
+      return { 'right-bottom': true, visible: visible.value };
     case x < 741 && y < 50:
       return { bottom: true, visible: visible.value };
     default:
@@ -81,7 +81,7 @@ const classObject = () => {
 </script>
 
 <style lang="less">
-@import "@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .tooltip {
   display: inline-block;
@@ -114,19 +114,19 @@ const classObject = () => {
     }
 
     &.normal {
-      top: calc(~"-100% + 8px");
+      top: calc(~'-100% + 8px');
       left: 50%;
       transform: translateX(-50%) translateY(0px);
     }
 
     &.right-bottom {
-      top: calc(~"100% + 3px");
+      top: calc(~'100% + 3px');
       right: 0;
       transform: translateX(0) translateY(0px);
     }
 
     &.bottom {
-      top: calc(~"100% + 3px");
+      top: calc(~'100% + 3px');
       left: 50%;
       transform: translateX(-50%) translateY(0px);
     }

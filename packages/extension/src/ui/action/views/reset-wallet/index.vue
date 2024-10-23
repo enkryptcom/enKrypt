@@ -40,19 +40,19 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
-import SettingsInnerHeader from "@action/views/settings/components/settings-inner-header.vue";
-import AlertIcon from "@action/icons/send/alert-icon.vue";
-import BaseButton from "@action/components/base-button/index.vue";
-import BaseInput from "@action/components/base-input/index.vue";
-import KeyRingBase from "@/libs/keyring/keyring";
-import openOnboard from "@/libs/utils/open-onboard";
+import { ref, computed } from 'vue';
+import SettingsInnerHeader from '@action/views/settings/components/settings-inner-header.vue';
+import AlertIcon from '@action/icons/send/alert-icon.vue';
+import BaseButton from '@action/components/base-button/index.vue';
+import BaseInput from '@action/components/base-input/index.vue';
+import KeyRingBase from '@/libs/keyring/keyring';
+import openOnboard from '@/libs/utils/open-onboard';
 
 const emit = defineEmits<{
-  (e: "action:lock"): void;
+  (e: 'action:lock'): void;
 }>();
 
-const reset = ref("");
+const reset = ref('');
 const isProcessing = ref(false);
 
 const resetChanged = (newVal: string) => {
@@ -60,20 +60,20 @@ const resetChanged = (newVal: string) => {
 };
 
 const isDisabled = computed(() => {
-  return reset.value !== "Reset" || isProcessing.value;
+  return reset.value !== 'Reset' || isProcessing.value;
 });
 
 const resetAction = async () => {
   isProcessing.value = true;
   const keyring = new KeyRingBase();
   await keyring.reset();
-  emit("action:lock");
+  emit('action:lock');
   openOnboard();
 };
 </script>
 
 <style lang="less">
-@import "@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .reset-wallet {
   &__wrap {

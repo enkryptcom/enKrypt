@@ -1,7 +1,7 @@
-import * as CSS from "./lib/css";
-import * as DOM from "./lib/dom";
-import cls from "./lib/class-names";
-import { toInt } from "./lib/util";
+import * as CSS from './lib/css';
+import * as DOM from './lib/dom';
+import cls from './lib/class-names';
+import { toInt } from './lib/util';
 
 export default function (i) {
   const element = i.element;
@@ -16,14 +16,14 @@ export default function (i) {
 
   if (!element.contains(i.scrollbarXRail)) {
     // clean up and append
-    DOM.queryChildren(element, cls.element.rail("x")).forEach(el =>
+    DOM.queryChildren(element, cls.element.rail('x')).forEach(el =>
       DOM.remove(el),
     );
     element.appendChild(i.scrollbarXRail);
   }
   if (!element.contains(i.scrollbarYRail)) {
     // clean up and append
-    DOM.queryChildren(element, cls.element.rail("y")).forEach(el =>
+    DOM.queryChildren(element, cls.element.rail('y')).forEach(el =>
       DOM.remove(el),
     );
     element.appendChild(i.scrollbarYRail);
@@ -78,17 +78,17 @@ export default function (i) {
   updateCss(element, i);
 
   if (i.scrollbarXActive) {
-    element.classList.add(cls.state.active("x"));
+    element.classList.add(cls.state.active('x'));
   } else {
-    element.classList.remove(cls.state.active("x"));
+    element.classList.remove(cls.state.active('x'));
     i.scrollbarXWidth = 0;
     i.scrollbarXLeft = 0;
     element.scrollLeft = i.isRtl === true ? i.contentWidth : 0;
   }
   if (i.scrollbarYActive) {
-    element.classList.add(cls.state.active("y"));
+    element.classList.add(cls.state.active('y'));
   } else {
-    element.classList.remove(cls.state.active("y"));
+    element.classList.remove(cls.state.active('y'));
     i.scrollbarYHeight = 0;
     i.scrollbarYTop = 0;
     element.scrollTop = 0;

@@ -11,10 +11,10 @@
   </div>
 </template>
 <script setup lang="ts">
-import ImportKeystoreAnimation from "@action/icons/import/import-keystore-animation.vue";
-import ImportPrivateKeyAnimation from "@action/icons/import/import-private-key-animation.vue";
-import ImportAccountAnimation from "@action/icons/import/import-account-animation.vue";
-import ImportDoneAnimation from "@action/icons/import/import-done-animation.vue";
+import ImportKeystoreAnimation from '@action/icons/import/import-keystore-animation.vue';
+import ImportPrivateKeyAnimation from '@action/icons/import/import-private-key-animation.vue';
+import ImportAccountAnimation from '@action/icons/import/import-account-animation.vue';
+import ImportDoneAnimation from '@action/icons/import/import-done-animation.vue';
 
 defineProps({
   isKeystore: {
@@ -33,7 +33,7 @@ defineProps({
 </script>
 
 <style lang="less" scoped>
-@import "@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .import-account-process {
   width: 100%;

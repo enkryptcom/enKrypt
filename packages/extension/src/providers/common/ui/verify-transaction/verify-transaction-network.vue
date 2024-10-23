@@ -10,8 +10,8 @@
 </template>
 
 <script setup lang="ts">
-import { PropType } from "vue";
-import { BaseNetwork } from "@/types/base-network";
+import { PropType } from 'vue';
+import { BaseNetwork } from '@/types/base-network';
 
 defineProps({
   network: {
@@ -24,7 +24,7 @@ defineProps({
 </script>
 
 <style lang="less">
-@import "@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .verify-transaction-network {
   text-decoration: none;

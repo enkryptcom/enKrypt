@@ -17,9 +17,9 @@
 </template>
 
 <script lang="ts">
-import PerfectScrollbar from "./perfect-scrollbar/index";
+import PerfectScrollbar from './perfect-scrollbar/index';
 export default {
-  name: "CustomScrollbar",
+  name: 'CustomScrollbar',
   props: {
     settings: {
       type: Object,
@@ -31,7 +31,7 @@ export default {
     },
     tagname: {
       type: String,
-      default: "section",
+      default: 'section',
     },
   },
   data() {
@@ -107,7 +107,7 @@ export default {
 </script>
 
 <style lang="css">
-@import "./perfect-scrollbar/css/perfect-scrollbar.css";
+@import './perfect-scrollbar/css/perfect-scrollbar.css';
 .ps-container {
   position: relative;
 }

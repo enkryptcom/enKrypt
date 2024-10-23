@@ -17,10 +17,10 @@
 </template>
 
 <script setup lang="ts">
-import { PropType, ref } from "vue";
-import NetworkNftsItem from "./network-nfts-item.vue";
-import SwitchArrow from "@action/icons/header/switch_arrow.vue";
-import { NFTItem } from "@/types/nft";
+import { PropType, ref } from 'vue';
+import NetworkNftsItem from './network-nfts-item.vue';
+import SwitchArrow from '@action/icons/header/switch_arrow.vue';
+import { NFTItem } from '@/types/nft';
 const isOpen = ref(true);
 
 defineProps({
@@ -38,7 +38,7 @@ const toggle = () => {
 </script>
 
 <style lang="less">
-@import "@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .network-nfts {
   &__favorite {

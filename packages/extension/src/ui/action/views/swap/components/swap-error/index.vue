@@ -66,12 +66,12 @@
 </template>
 
 <script setup lang="ts">
-import CloseIcon from "@action/icons/common/close-icon.vue";
-import LottieWarning from "@action/assets/animation/warning.json";
-import LottieError from "@action/assets/animation/error-big.json";
-import { Vue3Lottie } from "vue3-lottie";
-import { getSupportedNetworks } from "@enkryptcom/swap";
-import { SwapError, Errors } from "./types";
+import CloseIcon from '@action/icons/common/close-icon.vue';
+import LottieWarning from '@action/assets/animation/warning.json';
+import LottieError from '@action/assets/animation/error-big.json';
+import { Vue3Lottie } from 'vue3-lottie';
+import { getSupportedNetworks } from '@enkryptcom/swap';
+import { SwapError, Errors } from './types';
 
 interface IProps {
   error?: SwapError;
@@ -82,11 +82,11 @@ const prop = defineProps<IProps>();
 const supportedNets = getSupportedNetworks()
   .map(net => net.name)
   .filter(name => name !== prop.networkName)
-  .join(", ");
+  .join(', ');
 </script>
 
 <style lang="less" scoped>
-@import "@action/styles/theme.less";
+@import '@action/styles/theme.less';
 .swap-looking {
   width: 100%;
   height: auto;

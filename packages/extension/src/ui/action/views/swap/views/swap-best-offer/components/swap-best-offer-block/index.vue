@@ -67,28 +67,28 @@
         Offer includes
         {{ $filters.formatFloatingPointValue(toReadableAdditionalFees).value }}
         {{ network?.currencyName.toUpperCase() }}
-        {{ "Additional native fees" }}
+        {{ 'Additional native fees' }}
       </p>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
-import SwitchArrow from "@action/icons/header/switch_arrow.vue";
-import BestOfferList from "./components/best-offer-list.vue";
-import BestOfferError from "./components/best-offer-error.vue";
-import BigNumber from "bignumber.js";
-import { SwapBestOfferWarnings } from "@action/views/swap/types";
-import { BaseNetwork } from "@/types/base-network";
-import { fromBase } from "@enkryptcom/utils";
+import { computed, ref } from 'vue';
+import SwitchArrow from '@action/icons/header/switch_arrow.vue';
+import BestOfferList from './components/best-offer-list.vue';
+import BestOfferError from './components/best-offer-error.vue';
+import BigNumber from 'bignumber.js';
+import { SwapBestOfferWarnings } from '@action/views/swap/types';
+import { BaseNetwork } from '@/types/base-network';
+import { fromBase } from '@enkryptcom/utils';
 import {
   ProviderSwapResponse,
   TokenType,
   TokenTypeTo,
   SwapToken,
-} from "@enkryptcom/swap";
-import { imageLoadError } from "@/ui/action/utils/misc";
+} from '@enkryptcom/swap';
+import { imageLoadError } from '@/ui/action/utils/misc';
 
 interface SwapBestOfferProps {
   trades: ProviderSwapResponse[];
@@ -102,7 +102,7 @@ interface SwapBestOfferProps {
 const props = defineProps<SwapBestOfferProps>();
 
 const emit = defineEmits<{
-  (e: "update:pickedTrade", trade: ProviderSwapResponse): void;
+  (e: 'update:pickedTrade', trade: ProviderSwapResponse): void;
 }>();
 
 const isOffersOpen = ref(false);
@@ -136,7 +136,7 @@ const priceImpact = computed(() => {
   else {
     const fromValue = new SwapToken(props.fromToken).getFiatTotal();
     const toValue = new SwapToken(props.toToken).getFiatTotal();
-    const pI = BigNumber("1")
+    const pI = BigNumber('1')
       .minus(BigNumber(fromValue).div(toValue))
       .toFixed(3);
     return pI;
@@ -150,7 +150,7 @@ const ratio = computed(() => {
 });
 
 const select = (trade: ProviderSwapResponse) => {
-  emit("update:pickedTrade", trade);
+  emit('update:pickedTrade', trade);
   toggleOffers();
 };
 
@@ -160,7 +160,7 @@ const toggleOffers = () => {
 </script>
 
 <style lang="less" scoped>
-@import "@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .swap-best-offer-block {
   width: 100%;

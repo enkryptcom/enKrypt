@@ -13,12 +13,12 @@
 </template>
 
 <script setup lang="ts">
-import AlertIcon from "@action/icons/send/alert-icon.vue";
+import AlertIcon from '@action/icons/send/alert-icon.vue';
 
 // const props = defineProps<null>();
 </script>
 
 <style lang="less">
-@import "@action/styles/theme.less";
-@import "../styles/verify-transaction.less";
+@import '@action/styles/theme.less';
+@import '../styles/verify-transaction.less';
 </style>

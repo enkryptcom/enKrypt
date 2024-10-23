@@ -1,7 +1,7 @@
-import { GasPriceTypes } from "@/providers/common/types";
-import { BaseNetwork } from "@/types/base-network";
-import { fromBase } from "@enkryptcom/utils";
-import BigNumber from "bignumber.js";
+import { GasPriceTypes } from '@/providers/common/types';
+import { BaseNetwork } from '@/types/base-network';
+import { fromBase } from '@enkryptcom/utils';
+import BigNumber from 'bignumber.js';
 
 export const getSubstrateGasVals = async (
   txs: any[],
@@ -17,7 +17,7 @@ export const getSubstrateGasVals = async (
       nativeValue: fromBase(gas as `0x${string}`, network.decimals),
       fiatValue: BigNumber(nativeValue).times(price).toFixed(4),
       nativeSymbol: network.currencyName,
-      fiatSymbol: "USD",
+      fiatSymbol: 'USD',
     },
   };
 };

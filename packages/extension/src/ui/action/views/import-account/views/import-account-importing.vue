@@ -53,35 +53,35 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, PropType, ref } from "vue";
-import ImportAccountHeader from "../components/import-account-header.vue";
-import BaseButton from "@action/components/base-button/index.vue";
-import HardwareImportingAccount from "@/ui/onboard/hardware-wallet/components/hardware-importing-account.vue";
-import ImportAccountProcess from "../components/import-account-process.vue";
-import { BaseNetwork } from "@/types/base-network";
-import API from "@/providers/ethereum/libs/api";
-import { EnkryptAccount, KeyPairAdd } from "@enkryptcom/types";
-import { formatFloatingPointValue } from "@/libs/utils/number-formatter";
-import { fromBase } from "@enkryptcom/utils";
-import PublicKeyRing from "@/libs/keyring/public-keyring";
-import KeyRingBase from "@/libs/keyring/keyring";
-import BaseInput from "@action/components/base-input/index.vue";
-import { sendToBackgroundFromAction } from "@/libs/messenger/extension";
-import { InternalMethods } from "@/types/messenger";
+import { computed, onMounted, PropType, ref } from 'vue';
+import ImportAccountHeader from '../components/import-account-header.vue';
+import BaseButton from '@action/components/base-button/index.vue';
+import HardwareImportingAccount from '@/ui/onboard/hardware-wallet/components/hardware-importing-account.vue';
+import ImportAccountProcess from '../components/import-account-process.vue';
+import { BaseNetwork } from '@/types/base-network';
+import API from '@/providers/ethereum/libs/api';
+import { EnkryptAccount, KeyPairAdd } from '@enkryptcom/types';
+import { formatFloatingPointValue } from '@/libs/utils/number-formatter';
+import { fromBase } from '@enkryptcom/utils';
+import PublicKeyRing from '@/libs/keyring/public-keyring';
+import KeyRingBase from '@/libs/keyring/keyring';
+import BaseInput from '@action/components/base-input/index.vue';
+import { sendToBackgroundFromAction } from '@/libs/messenger/extension';
+import { InternalMethods } from '@/types/messenger';
 
 const isProcessing = ref(false);
 const isDone = ref(false);
-const balance = ref("0.00");
+const balance = ref('0.00');
 const nodeAPI = ref<API>();
 const pubKeyRing = new PublicKeyRing();
 const keyringBase = new KeyRingBase();
 const allAccounts = ref<EnkryptAccount[]>([]);
-const nameValue = ref("");
+const nameValue = ref('');
 const keyringError = ref(false);
-const keyringPassword = ref("");
+const keyringPassword = ref('');
 
 const emit = defineEmits<{
-  (e: "update:init"): void;
+  (e: 'update:init'): void;
 }>();
 
 const props = defineProps({
@@ -100,11 +100,11 @@ const isDisabled = computed(() => {
   return keyringPassword.value.length < 3;
 });
 const isNameTaken = computed(() => {
-  if (nameValue.value === "") return true;
+  if (nameValue.value === '') return true;
   return allAccounts.value.map(acc => acc.name).includes(nameValue.value);
 });
 onMounted(() => {
-  nameValue.value = props.keypair.name || "My private account";
+  nameValue.value = props.keypair.name || 'My private account';
   props.network.api().then(api => {
     nodeAPI.value = api as API;
     updateBalance();
@@ -142,7 +142,7 @@ const importAction = async () => {
           keyringPassword.value,
         )
         .then(() => {
-          emit("update:init");
+          emit('update:init');
           sendToBackgroundFromAction({
             message: JSON.stringify({
               method: InternalMethods.unlock,
@@ -164,7 +164,7 @@ const updateKeyringPassword = (password: string) => {
 </script>
 
 <style lang="less">
-@import "@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .import-account-importing {
   width: 100%;

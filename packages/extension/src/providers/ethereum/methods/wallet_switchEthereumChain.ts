@@ -1,16 +1,16 @@
-import { getCustomError } from "@/libs/error";
-import { sendToBackgroundFromBackground } from "@/libs/messenger/extension";
-import { InternalMethods } from "@/types/messenger";
-import { ProviderRPCRequest } from "@/types/provider";
-import { MiddlewareFunction } from "@enkryptcom/types";
-import EthereumProvider from "..";
-import { MessageMethod } from "../types";
-import DomainState from "@/libs/domain-state";
-import { getAllNetworks } from "@/libs/utils/networks";
-import { EvmNetwork } from "../types/evm-network";
-import NetworksState from "@/libs/networks-state";
-import { trackNetworkSelected } from "@/libs/metrics";
-import { NetworkChangeEvents } from "@/libs/metrics/types";
+import { getCustomError } from '@/libs/error';
+import { sendToBackgroundFromBackground } from '@/libs/messenger/extension';
+import { InternalMethods } from '@/types/messenger';
+import { ProviderRPCRequest } from '@/types/provider';
+import { MiddlewareFunction } from '@enkryptcom/types';
+import EthereumProvider from '..';
+import { MessageMethod } from '../types';
+import DomainState from '@/libs/domain-state';
+import { getAllNetworks } from '@/libs/utils/networks';
+import { EvmNetwork } from '../types/evm-network';
+import NetworksState from '@/libs/networks-state';
+import { trackNetworkSelected } from '@/libs/metrics';
+import { NetworkChangeEvents } from '@/libs/metrics/types';
 
 const method: MiddlewareFunction = function (
   this: EthereumProvider,
@@ -18,14 +18,14 @@ const method: MiddlewareFunction = function (
   res,
   next,
 ): void {
-  if (payload.method !== "wallet_switchEthereumChain") return next();
+  if (payload.method !== 'wallet_switchEthereumChain') return next();
   else {
     if (
       !payload.params ||
       payload.params.length < 1 ||
       !payload.params[0].chainId
     ) {
-      return res(getCustomError("wallet_switchEthereumChain: invalid params"));
+      return res(getCustomError('wallet_switchEthereumChain: invalid params'));
     }
 
     getAllNetworks().then(allNetworks => {

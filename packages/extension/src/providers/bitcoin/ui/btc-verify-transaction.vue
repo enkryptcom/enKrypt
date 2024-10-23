@@ -30,7 +30,7 @@
                   $filters.replaceWithEllipsis(
                     account.address
                       ? network.displayAddress(account.address)
-                      : "",
+                      : '',
                     6,
                     4,
                   )
@@ -63,7 +63,7 @@
             </h4>
             <p>
               ${{
-                fiatValue !== "~"
+                fiatValue !== '~'
                   ? $filters.formatFiatValue(fiatValue).value
                   : fiatValue
               }}
@@ -115,59 +115,59 @@
 </template>
 
 <script setup lang="ts">
-import { ref, ComponentPublicInstance, onBeforeMount } from "vue";
-import SignLogo from "@action/icons/common/sign-logo.vue";
-import BaseButton from "@action/components/base-button/index.vue";
-import CommonPopup from "@action/views/common-popup/index.vue";
-import SendFeeSelect from "@/providers/common/ui/send-transaction/send-fee-select.vue";
-import HardwareWalletMsg from "@/providers/common/ui/verify-transaction/hardware-wallet-msg.vue";
-import AlertIcon from "@action/icons/send/alert-icon.vue";
-import { getError } from "@/libs/error";
-import { ErrorCodes } from "@/providers/ethereum/types";
-import { WindowPromiseHandler } from "@/libs/window-promise";
-import { DEFAULT_BTC_NETWORK, getNetworkByName } from "@/libs/utils/networks";
-import { fromBase, hexToBuffer, bufferToHex } from "@enkryptcom/utils";
-import { ProviderRequestOptions } from "@/types/provider";
-import { GasFeeType } from "./types";
-import MarketData from "@/libs/market-data";
-import { defaultGasCostVals } from "@/providers/common/libs/default-vals";
-import { EnkryptAccount } from "@enkryptcom/types";
-import { PSBTSigner } from "./libs/signer";
-import { BitcoinNetwork } from "../types/bitcoin-network";
-import { GasPriceTypes } from "@/providers/common/types";
-import { SignPSBTOptions } from "../types";
-import { computed } from "vue";
-import { toBN } from "web3-utils";
-import { Psbt } from "bitcoinjs-lib";
-import BigNumber from "bignumber.js";
-import { JsonTreeView } from "@/libs/json-tree-view";
-import { trackSendEvents } from "@/libs/metrics";
-import { SendEventType } from "@/libs/metrics/types";
+import { ref, ComponentPublicInstance, onBeforeMount } from 'vue';
+import SignLogo from '@action/icons/common/sign-logo.vue';
+import BaseButton from '@action/components/base-button/index.vue';
+import CommonPopup from '@action/views/common-popup/index.vue';
+import SendFeeSelect from '@/providers/common/ui/send-transaction/send-fee-select.vue';
+import HardwareWalletMsg from '@/providers/common/ui/verify-transaction/hardware-wallet-msg.vue';
+import AlertIcon from '@action/icons/send/alert-icon.vue';
+import { getError } from '@/libs/error';
+import { ErrorCodes } from '@/providers/ethereum/types';
+import { WindowPromiseHandler } from '@/libs/window-promise';
+import { DEFAULT_BTC_NETWORK, getNetworkByName } from '@/libs/utils/networks';
+import { fromBase, hexToBuffer, bufferToHex } from '@enkryptcom/utils';
+import { ProviderRequestOptions } from '@/types/provider';
+import { GasFeeType } from './types';
+import MarketData from '@/libs/market-data';
+import { defaultGasCostVals } from '@/providers/common/libs/default-vals';
+import { EnkryptAccount } from '@enkryptcom/types';
+import { PSBTSigner } from './libs/signer';
+import { BitcoinNetwork } from '../types/bitcoin-network';
+import { GasPriceTypes } from '@/providers/common/types';
+import { SignPSBTOptions } from '../types';
+import { computed } from 'vue';
+import { toBN } from 'web3-utils';
+import { Psbt } from 'bitcoinjs-lib';
+import BigNumber from 'bignumber.js';
+import { JsonTreeView } from '@/libs/json-tree-view';
+import { trackSendEvents } from '@/libs/metrics';
+import { SendEventType } from '@/libs/metrics/types';
 
 const isProcessing = ref(false);
 const isPreLoading = ref(true);
 const providerVerifyTransactionScrollRef = ref<ComponentPublicInstance>();
-const TokenBalance = ref<string>("0");
-const fiatValue = ref<string>("~");
-const nativePrice = ref<string>("0");
+const TokenBalance = ref<string>('0');
+const fiatValue = ref<string>('~');
+const nativePrice = ref<string>('0');
 const network = ref<BitcoinNetwork>(DEFAULT_BTC_NETWORK);
 const marketdata = new MarketData();
 const gasCostValues = ref<GasFeeType>(defaultGasCostVals);
 const account = ref<EnkryptAccount>({
-  name: "",
-  address: "",
+  name: '',
+  address: '',
 } as EnkryptAccount);
-const identicon = ref<string>("");
+const identicon = ref<string>('');
 const windowPromise = WindowPromiseHandler(4);
-const psbtHex = ref<string>("");
+const psbtHex = ref<string>('');
 const psbtOptions = ref<SignPSBTOptions>({
   autoFinalized: true,
 });
 const Options = ref<ProviderRequestOptions>({
-  domain: "",
-  faviconURL: "",
-  title: "",
-  url: "",
+  domain: '',
+  faviconURL: '',
+  title: '',
+  url: '',
   tabId: 0,
 });
 const selectedFee = ref<GasPriceTypes>(GasPriceTypes.ECONOMY);
@@ -192,7 +192,7 @@ onBeforeMount(async () => {
   }
   if (network.value.coingeckoID) {
     await marketdata
-      .getTokenValue("1", network.value.coingeckoID, "USD")
+      .getTokenValue('1', network.value.coingeckoID, 'USD')
       .then(val => (nativePrice.value = val));
     fiatValue.value = new BigNumber(
       fromBase(getTotalOut.value.toString(), network.value.decimals),
@@ -240,7 +240,7 @@ const getTotalOut = computed(() => {
 });
 
 const psbtJSON = computed(() => {
-  if (!PSBT.value) return "";
+  if (!PSBT.value) return '';
   const val = {
     inputs: [] as { address: string; value: string }[],
     outputs: [] as { address?: string; script?: string; value: string }[],
@@ -259,7 +259,7 @@ const psbtJSON = computed(() => {
   PSBT.value.txOutputs.forEach(i => {
     val.outputs.push({
       address: i.address || undefined,
-      script: i.script ? bufferToHex(i.script).replace("0x", "") : undefined,
+      script: i.script ? bufferToHex(i.script).replace('0x', '') : undefined,
       value: `${fromBase(i.value.toString(), network.value.decimals)} ${
         network.value.currencyName
       }`,
@@ -273,7 +273,7 @@ const hasEnoughBalance = computed(() => {
 });
 
 const setTransactionFees = () => {
-  gasCostValues.value.ECONOMY.nativeSymbol = "BTC";
+  gasCostValues.value.ECONOMY.nativeSymbol = 'BTC';
   gasCostValues.value.ECONOMY.nativeValue = fromBase(
     getFees.value.toString(),
     network.value.decimals,
@@ -337,6 +337,6 @@ const deny = async () => {
 </script>
 
 <style lang="less">
-@import "@action/styles/theme.less";
-@import "./styles/verify-transaction.less";
+@import '@action/styles/theme.less';
+@import './styles/verify-transaction.less';
 </style>

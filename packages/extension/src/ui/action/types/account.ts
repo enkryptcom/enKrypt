@@ -1,5 +1,5 @@
-import { EnkryptAccount } from "@enkryptcom/types";
-import { Token } from "./token";
+import { EnkryptAccount } from '@enkryptcom/types';
+import { Token } from './token';
 
 export interface Account {
   name: string;

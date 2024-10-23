@@ -3,14 +3,14 @@
     <logo-big class="lock-screen-timer__logo" />
     <p>You need to wait until entering password again</p>
     <h4>
-      {{ timer == 60 ? "1:00" : "0:" + (timer > 9 ? timer : "0" + timer) }}
+      {{ timer == 60 ? '1:00' : '0:' + (timer > 9 ? timer : '0' + timer) }}
     </h4>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
-import LogoBig from "@action/icons/common/logo-big.vue";
+import { onMounted, ref } from 'vue';
+import LogoBig from '@action/icons/common/logo-big.vue';
 const timer = ref(60);
 onMounted(() => {
   updateTimer();
@@ -36,7 +36,7 @@ const updateTimer = () => {
 </script>
 
 <style lang="less">
-@import "@action/styles/theme.less";
+@import '@action/styles/theme.less';
 .lock-screen-timer {
   width: 320px;
   height: auto;

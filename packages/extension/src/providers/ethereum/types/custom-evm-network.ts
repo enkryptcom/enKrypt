@@ -1,7 +1,7 @@
-import { NetworkNames } from "@enkryptcom/types";
-import { EvmNetwork, EvmNetworkOptions } from "./evm-network";
-import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
-import icon from "../networks/icons/eth.svg";
+import { NetworkNames } from '@enkryptcom/types';
+import { EvmNetwork, EvmNetworkOptions } from './evm-network';
+import wrapActivityHandler from '@/libs/activity-state/wrap-activity-handler';
+import icon from '../networks/icons/eth.svg';
 
 export interface CustomEvmNetworkOptions {
   name: string;
@@ -25,9 +25,9 @@ export class CustomEvmNetwork extends EvmNetwork {
       icon,
       activityHandler: wrapActivityHandler(() => Promise.resolve([])),
       blockExplorerAddr:
-        options.blockExplorerAddr ?? "https://www.enkrypt.com/",
-      blockExplorerTX: options.blockExplorerTX ?? "https://www.enkrypt.com/",
-      homePage: "https://www.enkrypt.com/",
+        options.blockExplorerAddr ?? 'https://www.enkrypt.com/',
+      blockExplorerTX: options.blockExplorerTX ?? 'https://www.enkrypt.com/',
+      homePage: 'https://www.enkrypt.com/',
       isTestNetwork: false,
       name: networkName,
     };

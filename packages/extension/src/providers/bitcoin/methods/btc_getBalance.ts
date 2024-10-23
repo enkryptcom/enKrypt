@@ -1,18 +1,18 @@
-import { MiddlewareFunction } from "@enkryptcom/types";
-import { ProviderRPCRequest } from "@/types/provider";
-import { getCustomError } from "@/libs/error";
-import BitcoinProvider from "..";
-import AccountState from "../libs/accounts-state";
+import { MiddlewareFunction } from '@enkryptcom/types';
+import { ProviderRPCRequest } from '@/types/provider';
+import { getCustomError } from '@/libs/error';
+import BitcoinProvider from '..';
+import AccountState from '../libs/accounts-state';
 const method: MiddlewareFunction = function (
   this: BitcoinProvider,
   payload: ProviderRPCRequest,
   res,
   next,
 ): void {
-  if (payload.method !== "btc_getBalance") return next();
+  if (payload.method !== 'btc_getBalance') return next();
   else {
     if (!payload.options || !payload.options.domain) {
-      return res(getCustomError("btc_getNetwork: invalid domain"));
+      return res(getCustomError('btc_getNetwork: invalid domain'));
     }
     const accountsState = new AccountState();
 
@@ -20,7 +20,7 @@ const method: MiddlewareFunction = function (
       .getApprovedAddresses(payload.options!.domain)
       .then(accounts => {
         if (!accounts.length) {
-          return res(null, "");
+          return res(null, '');
         }
         this.network.api().then(api => {
           api.getBalance(this.network.displayAddress(accounts[0])).then(bal => {

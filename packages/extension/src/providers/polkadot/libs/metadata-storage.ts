@@ -1,13 +1,13 @@
-import { MetadataDef } from "@polkadot/extension-inject/types";
-import BrowserStorage from "@/libs/common/browser-storage";
-import { PolkadotStorageNamespace } from "../types";
-import { getAllNetworks } from "@/libs/utils/networks";
-import { SubstrateNetwork } from "../types/substrate-network";
-import { ApiPromise } from "@polkadot/api";
-import { base64Encode } from "@polkadot/util-crypto";
-import { isNumber } from "@polkadot/util";
-import { getSpecTypes } from "@polkadot/types-known";
-const STORE = "store";
+import { MetadataDef } from '@polkadot/extension-inject/types';
+import BrowserStorage from '@/libs/common/browser-storage';
+import { PolkadotStorageNamespace } from '../types';
+import { getAllNetworks } from '@/libs/utils/networks';
+import { SubstrateNetwork } from '../types/substrate-network';
+import { ApiPromise } from '@polkadot/api';
+import { base64Encode } from '@polkadot/util-crypto';
+import { isNumber } from '@polkadot/util';
+import { getSpecTypes } from '@polkadot/types-known';
+const STORE = 'store';
 class MetadataStorage {
   #storage: BrowserStorage;
   constructor() {
@@ -31,9 +31,9 @@ class MetadataStorage {
         const api = (await targetNetwork.api()).api as ApiPromise;
         const metadata: MetadataDef = {
           chain: targetNetwork.name,
-          chainType: "substrate",
+          chainType: 'substrate',
           genesisHash: api.genesisHash.toHex(),
-          icon: "polkadot",
+          icon: 'polkadot',
           metaCalls: base64Encode(api.runtimeMetadata.asCallsOnly.toU8a()),
           specVersion: api.runtimeVersion.specVersion.toNumber(),
           ss58Format: isNumber(api.registry.chainSS58)

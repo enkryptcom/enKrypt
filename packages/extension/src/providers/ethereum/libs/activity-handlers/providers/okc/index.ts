@@ -1,15 +1,15 @@
-import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
-import { numberToHex } from "web3-utils";
+import { EvmNetwork } from '@/providers/ethereum/types/evm-network';
+import { numberToHex } from 'web3-utils';
 import {
   Activity,
   ActivityStatus,
   ActivityType,
   EthereumRawInfo,
-} from "@/types/activity";
-import { BaseNetwork } from "@/types/base-network";
-import { decodeTx } from "../../../transaction/decoder";
-import { NetworkEndpoints } from "./configs";
-import { toBase } from "@enkryptcom/utils";
+} from '@/types/activity';
+import { BaseNetwork } from '@/types/base-network';
+import { decodeTx } from '../../../transaction/decoder';
+import { NetworkEndpoints } from './configs';
+import { toBase } from '@enkryptcom/utils';
 
 interface OkcRawInfo {
   blockHash: string;
@@ -35,14 +35,14 @@ const getAddressActivity = async (
   endpoint: string,
 ): Promise<EthereumRawInfo[]> => {
   return fetch(endpoint + address, {
-    method: "GET",
+    method: 'GET',
     headers: {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
       // OKLink Endpoint, requires OKLink API key
       // api console: https://www.oklink.com/account/my-api
       // api header spec: https://www.oklink.com/docs/en/#quickstart-guide-api-authentication
       // api docs: https://www.oklink.com/docs/en/#evm-rpc-data-address-get-normal-transactions-by-address
-      "OK-ACCESS-KEY": "df87e7eb-061f-44b1-84bc-83722fad717c",
+      'OK-ACCESS-KEY': 'df87e7eb-061f-44b1-84bc-83722fad717c',
     },
   })
     .then(res => res.json())
@@ -52,12 +52,12 @@ const getAddressActivity = async (
         const rawTx: EthereumRawInfo = {
           blockHash: tx.blockHash,
           blockNumber: numberToHex(tx.height),
-          contractAddress: "",
-          data: "0x0",
-          effectiveGasPrice: "0",
+          contractAddress: '',
+          data: '0x0',
+          effectiveGasPrice: '0',
           from: tx.from,
-          to: tx.to === "" ? null : tx.to,
-          gas: "0x0",
+          to: tx.to === '' ? null : tx.to,
+          gas: '0x0',
           gasUsed: tx.txFee,
           nonce: numberToHex(0),
           status: true,

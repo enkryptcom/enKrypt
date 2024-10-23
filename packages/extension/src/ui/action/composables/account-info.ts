@@ -1,9 +1,9 @@
-import MarketData from "@/libs/market-data";
-import { BaseNetwork } from "@/types/base-network";
-import { computed, ref, watch, onMounted, Ref } from "vue";
-import { AccountsHeaderData } from "../types/account";
-import { formatFloatingPointValue, formatFiatValue } from "../utils/filters";
-const defaultFiatVal = "0.00";
+import MarketData from '@/libs/market-data';
+import { BaseNetwork } from '@/types/base-network';
+import { computed, ref, watch, onMounted, Ref } from 'vue';
+import { AccountsHeaderData } from '../types/account';
+import { formatFloatingPointValue, formatFiatValue } from '../utils/filters';
+const defaultFiatVal = '0.00';
 export default (
   network: Ref<BaseNetwork>,
   accountInfo: Ref<AccountsHeaderData>,
@@ -19,24 +19,24 @@ export default (
       const balance = accountInfo.value.activeBalances[selectedAccountIdx];
       return balance;
     }
-    return "0";
+    return '0';
   });
 
   const cryptoAmount = computed(() => {
-    return cryptoAmountRaw.value !== "~"
+    return cryptoAmountRaw.value !== '~'
       ? formatFloatingPointValue(cryptoAmountRaw.value).value
       : cryptoAmountRaw.value;
   });
 
   const updateFiatValues = async () => {
     fiatAmount.value = defaultFiatVal;
-    if (network.value.coingeckoID && cryptoAmountRaw.value != "~") {
+    if (network.value.coingeckoID && cryptoAmountRaw.value != '~') {
       fiatAmount.value = `${
         formatFiatValue(
           await marketData.getTokenValue(
             cryptoAmountRaw.value,
             network.value.coingeckoID,
-            "USD",
+            'USD',
           ),
         ).value
       } USD`;

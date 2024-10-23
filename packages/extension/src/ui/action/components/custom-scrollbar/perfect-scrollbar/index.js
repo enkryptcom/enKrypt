@@ -1,19 +1,19 @@
-import * as CSS from "./lib/css";
-import * as DOM from "./lib/dom";
-import cls from "./lib/class-names";
-import EventManager from "./lib/event-manager";
-import processScrollDiff from "./process-scroll-diff";
-import updateGeometry from "./update-geometry";
-import { toInt, outerWidth } from "./lib/util";
+import * as CSS from './lib/css';
+import * as DOM from './lib/dom';
+import cls from './lib/class-names';
+import EventManager from './lib/event-manager';
+import processScrollDiff from './process-scroll-diff';
+import updateGeometry from './update-geometry';
+import { toInt, outerWidth } from './lib/util';
 
-import clickRail from "./handlers/click-rail";
-import dragThumb from "./handlers/drag-thumb";
-import keyboard from "./handlers/keyboard";
-import wheel from "./handlers/mouse-wheel";
-import touch from "./handlers/touch";
+import clickRail from './handlers/click-rail';
+import dragThumb from './handlers/drag-thumb';
+import keyboard from './handlers/keyboard';
+import wheel from './handlers/mouse-wheel';
+import touch from './handlers/touch';
 
 const defaultSettings = () => ({
-  handlers: ["click-rail", "drag-thumb", "keyboard", "wheel", "touch"],
+  handlers: ['click-rail', 'drag-thumb', 'keyboard', 'wheel', 'touch'],
   maxScrollbarLength: null,
   minScrollbarLength: null,
   scrollingThreshold: 1000,
@@ -28,8 +28,8 @@ const defaultSettings = () => ({
 });
 
 const handlers = {
-  "click-rail": clickRail,
-  "drag-thumb": dragThumb,
+  'click-rail': clickRail,
+  'drag-thumb': dragThumb,
   keyboard,
   wheel,
   touch,
@@ -37,12 +37,12 @@ const handlers = {
 
 export default class PerfectScrollbar {
   constructor(element, userSettings = {}) {
-    if (typeof element === "string") {
+    if (typeof element === 'string') {
       element = document.querySelector(element);
     }
 
     if (!element || !element.nodeName) {
-      throw new Error("no element is specified to initialize PerfectScrollbar");
+      throw new Error('no element is specified to initialize PerfectScrollbar');
     }
 
     this.element = element;
@@ -62,7 +62,7 @@ export default class PerfectScrollbar {
     const focus = () => element.classList.add(cls.state.focus);
     const blur = () => element.classList.remove(cls.state.focus);
 
-    this.isRtl = CSS.get(element).direction === "rtl";
+    this.isRtl = CSS.get(element).direction === 'rtl';
     if (this.isRtl === true) {
       element.classList.add(cls.rtl);
     }
@@ -80,13 +80,13 @@ export default class PerfectScrollbar {
     this.event = new EventManager();
     this.ownerDocument = element.ownerDocument || document;
 
-    this.scrollbarXRail = DOM.div(cls.element.rail("x"));
+    this.scrollbarXRail = DOM.div(cls.element.rail('x'));
     element.appendChild(this.scrollbarXRail);
-    this.scrollbarX = DOM.div(cls.element.thumb("x"));
+    this.scrollbarX = DOM.div(cls.element.thumb('x'));
     this.scrollbarXRail.appendChild(this.scrollbarX);
-    this.scrollbarX.setAttribute("tabindex", 0);
-    this.event.bind(this.scrollbarX, "focus", focus);
-    this.event.bind(this.scrollbarX, "blur", blur);
+    this.scrollbarX.setAttribute('tabindex', 0);
+    this.event.bind(this.scrollbarX, 'focus', focus);
+    this.event.bind(this.scrollbarX, 'blur', blur);
     this.scrollbarXActive = null;
     this.scrollbarXWidth = null;
     this.scrollbarXLeft = null;
@@ -101,20 +101,20 @@ export default class PerfectScrollbar {
     this.railBorderXWidth =
       toInt(railXStyle.borderLeftWidth) + toInt(railXStyle.borderRightWidth);
     // Set rail to display:block to calculate margins
-    CSS.set(this.scrollbarXRail, { display: "block" });
+    CSS.set(this.scrollbarXRail, { display: 'block' });
     this.railXMarginWidth =
       toInt(railXStyle.marginLeft) + toInt(railXStyle.marginRight);
-    CSS.set(this.scrollbarXRail, { display: "" });
+    CSS.set(this.scrollbarXRail, { display: '' });
     this.railXWidth = null;
     this.railXRatio = null;
 
-    this.scrollbarYRail = DOM.div(cls.element.rail("y"));
+    this.scrollbarYRail = DOM.div(cls.element.rail('y'));
     element.appendChild(this.scrollbarYRail);
-    this.scrollbarY = DOM.div(cls.element.thumb("y"));
+    this.scrollbarY = DOM.div(cls.element.thumb('y'));
     this.scrollbarYRail.appendChild(this.scrollbarY);
-    this.scrollbarY.setAttribute("tabindex", 0);
-    this.event.bind(this.scrollbarY, "focus", focus);
-    this.event.bind(this.scrollbarY, "blur", blur);
+    this.scrollbarY.setAttribute('tabindex', 0);
+    this.event.bind(this.scrollbarY, 'focus', focus);
+    this.event.bind(this.scrollbarY, 'blur', blur);
     this.scrollbarYActive = null;
     this.scrollbarYHeight = null;
     this.scrollbarYTop = null;
@@ -129,25 +129,25 @@ export default class PerfectScrollbar {
     this.scrollbarYOuterWidth = this.isRtl ? outerWidth(this.scrollbarY) : null;
     this.railBorderYWidth =
       toInt(railYStyle.borderTopWidth) + toInt(railYStyle.borderBottomWidth);
-    CSS.set(this.scrollbarYRail, { display: "block" });
+    CSS.set(this.scrollbarYRail, { display: 'block' });
     this.railYMarginHeight =
       toInt(railYStyle.marginTop) + toInt(railYStyle.marginBottom);
-    CSS.set(this.scrollbarYRail, { display: "" });
+    CSS.set(this.scrollbarYRail, { display: '' });
     this.railYHeight = null;
     this.railYRatio = null;
 
     this.reach = {
       x:
         element.scrollLeft <= 0
-          ? "start"
+          ? 'start'
           : element.scrollLeft >= this.contentWidth - this.containerWidth
-            ? "end"
+            ? 'end'
             : null,
       y:
         element.scrollTop <= 0
-          ? "start"
+          ? 'start'
           : element.scrollTop >= this.contentHeight - this.containerHeight
-            ? "end"
+            ? 'end'
             : null,
     };
 
@@ -157,7 +157,7 @@ export default class PerfectScrollbar {
 
     this.lastScrollTop = Math.floor(element.scrollTop); // for onScroll only
     this.lastScrollLeft = element.scrollLeft; // for onScroll only
-    this.event.bind(this.element, "scroll", e => this.onScroll(e));
+    this.event.bind(this.element, 'scroll', e => this.onScroll(e));
     updateGeometry(this);
   }
 
@@ -172,8 +172,8 @@ export default class PerfectScrollbar {
       : 0;
 
     // Recalculate rail margins
-    CSS.set(this.scrollbarXRail, { display: "block" });
-    CSS.set(this.scrollbarYRail, { display: "block" });
+    CSS.set(this.scrollbarXRail, { display: 'block' });
+    CSS.set(this.scrollbarYRail, { display: 'block' });
     this.railXMarginWidth =
       toInt(CSS.get(this.scrollbarXRail).marginLeft) +
       toInt(CSS.get(this.scrollbarXRail).marginRight);
@@ -182,16 +182,16 @@ export default class PerfectScrollbar {
       toInt(CSS.get(this.scrollbarYRail).marginBottom);
 
     // Hide scrollbars not to affect scrollWidth and scrollHeight
-    CSS.set(this.scrollbarXRail, { display: "none" });
-    CSS.set(this.scrollbarYRail, { display: "none" });
+    CSS.set(this.scrollbarXRail, { display: 'none' });
+    CSS.set(this.scrollbarYRail, { display: 'none' });
 
     updateGeometry(this);
 
-    processScrollDiff(this, "top", 0, false, true);
-    processScrollDiff(this, "left", 0, false, true);
+    processScrollDiff(this, 'top', 0, false, true);
+    processScrollDiff(this, 'left', 0, false, true);
 
-    CSS.set(this.scrollbarXRail, { display: "" });
-    CSS.set(this.scrollbarYRail, { display: "" });
+    CSS.set(this.scrollbarXRail, { display: '' });
+    CSS.set(this.scrollbarYRail, { display: '' });
   }
 
   onScroll() {
@@ -200,10 +200,10 @@ export default class PerfectScrollbar {
     }
 
     updateGeometry(this);
-    processScrollDiff(this, "top", this.element.scrollTop - this.lastScrollTop);
+    processScrollDiff(this, 'top', this.element.scrollTop - this.lastScrollTop);
     processScrollDiff(
       this,
-      "left",
+      'left',
       this.element.scrollLeft - this.lastScrollLeft,
     );
 
@@ -235,8 +235,8 @@ export default class PerfectScrollbar {
 
   removePsClasses() {
     this.element.className = this.element.className
-      .split(" ")
+      .split(' ')
       .filter(name => !name.match(/^ps([-_].+|)$/))
-      .join(" ");
+      .join(' ');
   }
 }

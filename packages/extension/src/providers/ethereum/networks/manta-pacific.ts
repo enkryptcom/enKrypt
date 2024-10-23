@@ -1,24 +1,24 @@
-import icon from "./icons/manta-pacific.png";
-import { NetworkNames, CoingeckoPlatform } from "@enkryptcom/types";
-import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
-import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
-import { EtherscanActivity } from "../libs/activity-handlers";
-import assetsInfoHandler from "@/providers/ethereum/libs/assets-handlers/assetinfo-mew";
-import shNFTHandler from "@/libs/nft-handlers/simplehash";
+import icon from './icons/manta-pacific.png';
+import { NetworkNames, CoingeckoPlatform } from '@enkryptcom/types';
+import { EvmNetwork, EvmNetworkOptions } from '../types/evm-network';
+import wrapActivityHandler from '@/libs/activity-state/wrap-activity-handler';
+import { EtherscanActivity } from '../libs/activity-handlers';
+import assetsInfoHandler from '@/providers/ethereum/libs/assets-handlers/assetinfo-mew';
+import shNFTHandler from '@/libs/nft-handlers/simplehash';
 
 const mantaPacificOptions: EvmNetworkOptions = {
   name: NetworkNames.MantaPacific,
-  name_long: "Manta Pacific",
-  homePage: "https://pacific-info.manta.network/",
-  blockExplorerTX: "https://pacific-explorer.manta.network/tx/[[txHash]]",
+  name_long: 'Manta Pacific',
+  homePage: 'https://pacific-info.manta.network/',
+  blockExplorerTX: 'https://pacific-explorer.manta.network/tx/[[txHash]]',
   blockExplorerAddr:
-    "https://pacific-explorer.manta.network/address/[[address]]",
-  chainID: "0xa9",
+    'https://pacific-explorer.manta.network/address/[[address]]',
+  chainID: '0xa9',
   isTestNetwork: false,
-  currencyName: "ETH",
-  currencyNameLong: "Ethereum",
-  coingeckoID: "ethereum",
-  node: "wss://pacific-rpc.manta.network/ws",
+  currencyName: 'ETH',
+  currencyNameLong: 'Ethereum',
+  coingeckoID: 'ethereum',
+  node: 'wss://pacific-rpc.manta.network/ws',
   icon,
   coingeckoPlatform: CoingeckoPlatform.MantaPacific,
   NFTHandler: shNFTHandler,

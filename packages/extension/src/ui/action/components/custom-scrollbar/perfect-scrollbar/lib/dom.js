@@ -1,11 +1,11 @@
 export function div(className) {
-  const div = document.createElement("div");
+  const div = document.createElement('div');
   div.className = className;
   return div;
 }
 
 const elMatches =
-  typeof Element !== "undefined" &&
+  typeof Element !== 'undefined' &&
   (Element.prototype.matches ||
     Element.prototype.webkitMatchesSelector ||
     Element.prototype.mozMatchesSelector ||
@@ -13,7 +13,7 @@ const elMatches =
 
 export function matches(element, query) {
   if (!elMatches) {
-    throw new Error("No element matching method supported");
+    throw new Error('No element matching method supported');
   }
 
   return elMatches.call(element, query);

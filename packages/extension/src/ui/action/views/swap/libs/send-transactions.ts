@@ -1,42 +1,42 @@
-import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
-import { Activity, ActivityStatus, ActivityType } from "@/types/activity";
+import { EvmNetwork } from '@/providers/ethereum/types/evm-network';
+import { Activity, ActivityStatus, ActivityType } from '@/types/activity';
 import {
   EVMTransaction,
   GenericTransaction,
   SolanaTransaction as EnkryptSolanaTransaction,
   NetworkType,
-} from "@enkryptcom/swap";
-import { ApiPromise } from "@polkadot/api";
-import { TypeRegistry } from "@polkadot/types";
-import { SignerResult } from "@polkadot/types/types";
-import { ExecuteSwapOptions } from "../types";
-import { TransactionSigner as SubstrateTransactionSigner } from "@/providers/polkadot/ui/libs/signer";
-import { TransactionSigner as EvmTransactionSigner } from "@/providers/ethereum/ui/libs/signer";
-import { TransactionSigner as BitcoinTransactionSigner } from "@/providers/bitcoin/ui/libs/signer";
-import { TransactionSigner as SolanaTransactionSigner } from "@/providers/solana/ui/libs/signer";
-import ActivityState from "@/libs/activity-state";
-import { u8aToHex } from "@polkadot/util";
-import EvmAPI from "@/providers/ethereum/libs/api";
+} from '@enkryptcom/swap';
+import { ApiPromise } from '@polkadot/api';
+import { TypeRegistry } from '@polkadot/types';
+import { SignerResult } from '@polkadot/types/types';
+import { ExecuteSwapOptions } from '../types';
+import { TransactionSigner as SubstrateTransactionSigner } from '@/providers/polkadot/ui/libs/signer';
+import { TransactionSigner as EvmTransactionSigner } from '@/providers/ethereum/ui/libs/signer';
+import { TransactionSigner as BitcoinTransactionSigner } from '@/providers/bitcoin/ui/libs/signer';
+import { TransactionSigner as SolanaTransactionSigner } from '@/providers/solana/ui/libs/signer';
+import ActivityState from '@/libs/activity-state';
+import { u8aToHex } from '@polkadot/util';
+import EvmAPI from '@/providers/ethereum/libs/api';
 import {
   getBitcoinNativeTransaction,
   getEVMTransaction,
   getSubstrateNativeTransation,
-} from "./swap-txs";
-import { SubstrateNetwork } from "@/providers/polkadot/types/substrate-network";
-import { toBN } from "web3-utils";
-import type Transaction from "@/providers/ethereum/libs/transaction";
-import { bigIntToHex, bufferToHex, toBase } from "@enkryptcom/utils";
-import broadcastTx from "@/providers/ethereum/libs/tx-broadcaster";
-import { BitcoinNetwork } from "@/providers/bitcoin/types/bitcoin-network";
-import { getBitcoinGasVals } from "./bitcoin-gasvals";
-import BitcoinAPI from "@/providers/bitcoin/libs/api";
-import SolanaAPI from "@/providers/solana/libs/api";
+} from './swap-txs';
+import { SubstrateNetwork } from '@/providers/polkadot/types/substrate-network';
+import { toBN } from 'web3-utils';
+import type Transaction from '@/providers/ethereum/libs/transaction';
+import { bigIntToHex, bufferToHex, toBase } from '@enkryptcom/utils';
+import broadcastTx from '@/providers/ethereum/libs/tx-broadcaster';
+import { BitcoinNetwork } from '@/providers/bitcoin/types/bitcoin-network';
+import { getBitcoinGasVals } from './bitcoin-gasvals';
+import BitcoinAPI from '@/providers/bitcoin/libs/api';
+import SolanaAPI from '@/providers/solana/libs/api';
 import {
   VersionedTransaction as SolanaVersionedTransaction,
   Transaction as SolanaLegacyTransaction,
   PublicKey,
   SendTransactionError,
-} from "@solana/web3.js";
+} from '@solana/web3.js';
 /**
  * Create an Activity model that can be displayed in the UI to represent
  * a transaction. By default returns a pending transaction.
@@ -51,7 +51,7 @@ const getBaseActivity = (options: ExecuteSwapOptions): Activity => {
       name: options.fromToken.name,
       symbol: options.fromToken.symbol,
       coingeckoID: options.fromToken.cgId,
-      price: options.fromToken.price ? options.fromToken.price.toString() : "0",
+      price: options.fromToken.price ? options.fromToken.price.toString() : '0',
     },
     isIncoming: false,
     network: options.network.name,
@@ -59,7 +59,7 @@ const getBaseActivity = (options: ExecuteSwapOptions): Activity => {
     timestamp: new Date().getTime(),
     type: ActivityType.transaction,
     value: options.swap.fromTokenAmount.toString(),
-    transactionHash: "",
+    transactionHash: '',
   };
   return txActivity;
 };
@@ -129,7 +129,7 @@ export const executeSwap = async (
         signPayload: (signPayload): Promise<SignerResult> => {
           const registry = new TypeRegistry();
           registry.setSignedExtensions(signPayload.signedExtensions);
-          const extType = registry.createType("ExtrinsicPayload", signPayload, {
+          const extType = registry.createType('ExtrinsicPayload', signPayload, {
             version: signPayload.version,
           });
           return SubstrateTransactionSigner({
@@ -190,10 +190,10 @@ export const executeSwap = async (
 
       let serialized: Uint8Array;
       switch (enkSolTx.kind) {
-        case "legacy": {
+        case 'legacy': {
           // Sign Versioned transaction
           // (note: the transaction may already be signed by a third party like Rango exchange)
-          const bytes = Buffer.from(enkSolTx.serialized, "base64");
+          const bytes = Buffer.from(enkSolTx.serialized, 'base64');
           const legacyTx = SolanaLegacyTransaction.from(bytes);
           const { thirdPartySignatures } = enkSolTx;
 
@@ -299,11 +299,11 @@ export const executeSwap = async (
           break;
         }
 
-        case "versioned": {
+        case 'versioned': {
           // Sign Versioned transaction
           // (note: the transaction may already be signed by a third party like Rango exchange)
 
-          const bytes = Buffer.from(enkSolTx.serialized, "base64");
+          const bytes = Buffer.from(enkSolTx.serialized, 'base64');
           const versionedTx = SolanaVersionedTransaction.deserialize(bytes);
           const { thirdPartySignatures } = enkSolTx;
 
@@ -427,27 +427,27 @@ export const executeSwap = async (
 
           // The error thrown here is shown to the user in the UI
           // so make it descriptive if possible
-          if (errstr.includes("Blockhash not found")) {
+          if (errstr.includes('Blockhash not found')) {
             console.error(
               `Failed to send Solana swap transaction: blockhash not found`,
               err,
             );
             throw new Error(
-              "Failed to send Solana swap transaction: blockhash not found." +
-                " Too much time may have passed between the creation and sending" +
-                " of the transaction",
+              'Failed to send Solana swap transaction: blockhash not found.' +
+                ' Too much time may have passed between the creation and sending' +
+                ' of the transaction',
             );
           }
 
           try {
             const logs = await err.getLogs(conn);
             console.error(
-              "Failed to send Solana swap transaction. Logs:",
+              'Failed to send Solana swap transaction. Logs:',
               logs,
             );
           } catch (err) {
             console.error(
-              "Failed to send Solana swap transaction and failed to decode logs",
+              'Failed to send Solana swap transaction and failed to decode logs',
               err,
             );
           }
@@ -492,12 +492,12 @@ export const executeSwap = async (
         txActivity.value =
           index === options.swap.transactions.length - 1
             ? options.swap.fromTokenAmount.toString()
-            : "0";
+            : '0';
         txActivity.to = tx.to;
         const evmTx: Transaction = await getEVMTransaction(
           options.network as EvmNetwork,
           tx,
-          `0x${toBN(nonce).addn(index).toString("hex")}` as `0x${string}`,
+          `0x${toBN(nonce).addn(index).toString('hex')}` as `0x${string}`,
         );
         return [evmTx, txActivity] as const;
       },
@@ -559,7 +559,7 @@ export const executeSwap = async (
                     // Fallback to node
                     web3
                       .sendSignedTransaction(bufferToHex(signedTx.serialize()))
-                      .on("transactionHash", onHash)
+                      .on('transactionHash', onHash)
                       .catch(reject);
                   });
               },
@@ -570,6 +570,6 @@ export const executeSwap = async (
     }
     return txPromises;
   } else {
-    throw new Error("Network type not supported");
+    throw new Error('Network type not supported');
   }
 };

@@ -1,6 +1,6 @@
-import { InternalStorageNamespace } from "@/types/provider";
-import BrowserStorage from "../common/browser-storage";
-import { NFTInfo, StorageKey } from "./types";
+import { InternalStorageNamespace } from '@/types/provider';
+import BrowserStorage from '../common/browser-storage';
+import { NFTInfo, StorageKey } from './types';
 class NFTState {
   #storage: BrowserStorage;
   constructor() {

@@ -1,18 +1,18 @@
-import { BaseNetwork } from "@/types/base-network";
-import getRequestProvider, { RequestClass } from "@enkryptcom/request";
-import { MiddlewareFunction, OnMessageResponse } from "@enkryptcom/types";
-import Middlewares from "./methods";
-import EventEmitter from "eventemitter3";
+import { BaseNetwork } from '@/types/base-network';
+import getRequestProvider, { RequestClass } from '@enkryptcom/request';
+import { MiddlewareFunction, OnMessageResponse } from '@enkryptcom/types';
+import Middlewares from './methods';
+import EventEmitter from 'eventemitter3';
 import {
   BackgroundProviderInterface,
   ProviderName,
   ProviderRPCRequest,
-} from "@/types/provider";
-import GetUIPath from "@/libs/utils/get-ui-path";
-import PublicKeyRing from "@/libs/keyring/public-keyring";
-import UIRoutes from "./ui/routes/names";
-import { SolanaNetwork } from "./types/sol-network";
-import Networks from "./networks";
+} from '@/types/provider';
+import GetUIPath from '@/libs/utils/get-ui-path';
+import PublicKeyRing from '@/libs/keyring/public-keyring';
+import UIRoutes from './ui/routes/names';
+import { SolanaNetwork } from './types/sol-network';
+import Networks from './networks';
 
 class SolanaProvider
   extends EventEmitter
@@ -37,7 +37,7 @@ class SolanaProvider
       this.network.node,
       this.middlewares,
     );
-    this.requestProvider.on("notification", (notif: any) => {
+    this.requestProvider.on('notification', (notif: any) => {
       this.sendNotification(JSON.stringify(notif));
     });
     this.namespace = ProviderName.solana;

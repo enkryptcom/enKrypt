@@ -1,9 +1,9 @@
-import type { SolanaSignInInput } from "@solana/wallet-standard-features";
-import type { SendOptions } from "@solana/web3.js";
+import type { SolanaSignInInput } from '@solana/wallet-standard-features';
+import type { SendOptions } from '@solana/web3.js';
 import {
   SolSignInResponse,
   SolSignTransactionRequest,
-} from "@/providers/solana/ui/types";
+} from '@/providers/solana/ui/types';
 
 export interface EnkryptEvent {
   connect(...args: unknown[]): unknown;
