@@ -184,8 +184,9 @@ export const executeSwap = async (
     const enkSolTxs = options.swap.transactions as EnkryptSolanaTransaction[];
 
     // Execute each transaction in-order one-by-one
-    for (const enkSolTx of enkSolTxs) {
+    for (let i = 0, len = enkSolTxs.length; i < len; i++) {
       // Transform the Enkrypt representation of the transaction into the Solana lib's representation
+      const enkSolTx = enkSolTxs[i];
 
       let serialized: Uint8Array;
       switch (enkSolTx.kind) {
@@ -194,6 +195,75 @@ export const executeSwap = async (
           // (note: the transaction may already be signed by a third party like Rango exchange)
           const bytes = Buffer.from(enkSolTx.serialized, "base64");
           const legacyTx = SolanaLegacyTransaction.from(bytes);
+          const { thirdPartySignatures } = enkSolTx;
+
+          const hasThirdPartySignatures =
+            // Serialized versioned transaction was already signed
+            legacyTx.signatures.length > 1 ||
+            // Need to apply third aprty signatures to the transaction
+            thirdPartySignatures.length > 0;
+
+          if (hasThirdPartySignatures) {
+            // Can't update the block hash since it's signed / to be signed by third parties
+            // If the user waits too long before sending, the transaction may fail due to
+            // becoming out-of-date
+          } else {
+            // We can update the transaction since it's unsigned
+            // Check if we need to update the block hash
+            let shouldUpdateBlockHash: boolean;
+            try {
+              // We won't be able to get the fee if the block hash is too old
+              const fee = await legacyTx.getEstimatedFee(conn);
+              shouldUpdateBlockHash = fee == null;
+            } catch (err) {
+              // Might need to update the block hash
+              console.warn(
+                `Failed to get fee for legacy transaction while checking` +
+                  ` whether to update block hash: ${String(err)}`
+              );
+              shouldUpdateBlockHash = true;
+            }
+
+            // Try to update the block hash
+            if (shouldUpdateBlockHash) {
+              console.warn(
+                `Unsigned legacy transaction might have an` +
+                  ` out-of-date block hash, trying to update it...`
+              );
+              const backoff = [0, 500, 1_000, 2_000];
+              let backoffi = 0;
+              // eslint-disable-next-line no-constant-condition
+              update_block_hash: while (true) {
+                if (backoffi >= backoff.length) {
+                  // Just continue and hope for the best with old block hash...
+                  console.warn(
+                    `Failed to get latest blockhash after ${backoffi} attempts,` +
+                      ` continuing with old block hash for legacy transaction...`
+                  );
+                  break update_block_hash;
+                }
+                const backoffMs = backoff[backoffi];
+                if (backoffMs > 0) {
+                  console.warn(
+                    `Waiting ${backoffMs}ms before retrying latest block` +
+                      ` hash for legacy transaction...`
+                  );
+                  await new Promise((res) => setTimeout(res, backoffMs));
+                }
+                try {
+                  const latest = await conn.getLatestBlockhash();
+                  legacyTx.recentBlockhash = latest.blockhash;
+                  break update_block_hash;
+                } catch (err) {
+                  console.warn(
+                    `Failed to get latest blockhash on attempt` +
+                      ` ${backoffi + 1}: ${String(err)}`
+                  );
+                }
+                backoffi++;
+              }
+            }
+          }
 
           // Sign the transaction message
           // Use the keyring running in the background script
@@ -211,7 +281,6 @@ export const executeSwap = async (
             );
           });
           // Add third party signatures (eg Rango)
-          const { thirdPartySignatures } = enkSolTx;
           for (let i = 0, len = thirdPartySignatures.length; i < len; i++) {
             const { pubkey, signature } = enkSolTx.thirdPartySignatures[i];
             legacyTx.addSignature(
@@ -236,10 +305,79 @@ export const executeSwap = async (
 
           const bytes = Buffer.from(enkSolTx.serialized, "base64");
           const versionedTx = SolanaVersionedTransaction.deserialize(bytes);
+          const { thirdPartySignatures } = enkSolTx;
+
+          const hasThirdPartySignatures =
+            // Serialized versioned transaction was already signed
+            versionedTx.signatures.length > 1 ||
+            // Need to apply third aprty signatures to the transaction
+            thirdPartySignatures.length > 0;
+
+          if (hasThirdPartySignatures) {
+            // Can't update the block hash since it's signed / to be signed by third parties
+            // If the user waits too long before sending, the transaction may fail due to
+            // becoming out-of-date
+          } else {
+            // We can update the transaction since it's unsigned
+            // Check if we need to update the block hash
+            let shouldUpdateBlockHash: boolean;
+            try {
+              // We won't be able to get the fee if the block hash is too old
+              const msg = versionedTx.message;
+              const fee = await conn.getFeeForMessage(msg);
+              shouldUpdateBlockHash = fee.value == null;
+            } catch (err) {
+              // Might need to update the block hash
+              console.warn(
+                `Failed to get fee for versioned transaction while checking` +
+                  ` whether to update block hash: ${String(err)}`
+              );
+              shouldUpdateBlockHash = true;
+            }
+
+            // Try to update the block hash
+            if (shouldUpdateBlockHash) {
+              console.warn(
+                `Unsigned versioned transaction might have an` +
+                  ` out-of-date block hash, trying to update it...`
+              );
+              const backoff = [0, 500, 1_000, 2_000];
+              let backoffi = 0;
+              // eslint-disable-next-line no-constant-condition
+              update_block_hash: while (true) {
+                if (backoffi >= backoff.length) {
+                  // Just continue and hope for the best with old block hash...
+                  console.warn(
+                    `Failed to get latest blockhash after ${backoffi} attempts,` +
+                      ` continuing with old block hash for versioned transaction...`
+                  );
+                  break update_block_hash;
+                }
+                const backoffMs = backoff[backoffi];
+                if (backoffMs > 0) {
+                  console.warn(
+                    `Waiting ${backoffMs}ms before retrying latest block` +
+                      ` hash for versioned transaction...`
+                  );
+                  await new Promise((res) => setTimeout(res, backoffMs));
+                }
+                try {
+                  const latest = await conn.getLatestBlockhash();
+                  versionedTx.message.recentBlockhash = latest.blockhash;
+                  break update_block_hash;
+                } catch (err) {
+                  console.warn(
+                    `Failed to get latest blockhash on attempt` +
+                      ` ${backoffi + 1}: ${String(err)}`
+                  );
+                }
+                backoffi++;
+              }
+            }
+          }
 
           // Sign the transaction message
           // Use the keyring running in the background script
-
           const sigRes = await SolanaTransactionSigner({
             account: options.from,
             network: options.network,
@@ -252,7 +390,6 @@ export const executeSwap = async (
           });
 
           // Add third party signatures (eg Rango)
-          const { thirdPartySignatures } = enkSolTx;
           for (let i = 0, len = thirdPartySignatures.length; i < len; i++) {
             const { pubkey, signature } = enkSolTx.thirdPartySignatures[i];
             versionedTx.addSignature(
@@ -286,6 +423,22 @@ export const executeSwap = async (
         // The Solana web3 library prompts you to call getLogs if your error is of type
         // SendTransactionError to get more info about the error
         if (err instanceof SendTransactionError) {
+          const errstr = String(err);
+
+          // The error thrown here is shown to the user in the UI
+          // so make it descriptive if possible
+          if (errstr.includes("Blockhash not found")) {
+            console.error(
+              `Failed to send Solana swap transaction: blockhash not found`,
+              err
+            );
+            throw new Error(
+              "Failed to send Solana swap transaction: blockhash not found." +
+                " Too much time may have passed between the creation and sending" +
+                " of the transaction"
+            );
+          }
+
           try {
             const logs = await err.getLogs(conn);
             console.error(
