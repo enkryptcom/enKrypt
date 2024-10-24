@@ -52,7 +52,9 @@
         />
 
         <a
-          v-if="hwWallet.isNetworkSupported(network.name)"
+          v-if="
+            hwWallet.isNetworkSupported(network.name) && isBrowserHWSupported
+          "
           class="accounts__action-button hardware"
           @click="openHardware(network.name)"
         >
@@ -149,7 +151,7 @@ const props = defineProps({
 });
 const accountToRename = ref<EnkryptAccount>();
 const accountToDelete = ref<EnkryptAccount>();
-
+const isBrowserHWSupported = !(process.env.IS_FIREFOX || process.env.IS_SAFARI);
 const close = () => {
   props.toggle();
 };
@@ -241,7 +243,8 @@ const closeImportAccount = () => {
     left: 348px;
     top: 50px;
     background: #ffffff;
-    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.039),
+    box-shadow:
+      0px 3px 6px rgba(0, 0, 0, 0.039),
       0px 7px 24px rgba(0, 0, 0, 0.19);
     border-radius: 12px;
     z-index: 107;
@@ -250,7 +253,9 @@ const closeImportAccount = () => {
     box-sizing: border-box;
     opacity: 0;
     visibility: hidden;
-    transition: opacity 0.3s, visibility 0s ease-in-out 0.3s;
+    transition:
+      opacity 0.3s,
+      visibility 0s ease-in-out 0.3s;
     padding-bottom: 153px;
 
     &.show {
@@ -293,7 +298,9 @@ const closeImportAccount = () => {
     bottom: 0px;
     width: 100%;
     background: @white;
-    box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.05), 0px 0px 1px rgba(0, 0, 0, 0.25);
+    box-shadow:
+      0px 0px 6px rgba(0, 0, 0, 0.05),
+      0px 0px 1px rgba(0, 0, 0, 0.25);
     position: absolute;
     padding: 8px;
     box-sizing: border-box;
