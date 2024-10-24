@@ -12,10 +12,10 @@
 </template>
 
 <script setup lang="ts">
-import { TokenType, SwapToken } from "@enkryptcom/swap";
-import { PropType } from "vue";
-import { toBN } from "web3-utils";
-import { imageLoadError } from "@/ui/action/utils/misc";
+import { TokenType, SwapToken } from '@enkryptcom/swap';
+import { PropType } from 'vue';
+import { toBN } from 'web3-utils';
+import { imageLoadError } from '@/ui/action/utils/misc';
 
 const props = defineProps({
   token: {
@@ -26,14 +26,14 @@ const props = defineProps({
   },
   amount: {
     type: String,
-    default: "0",
+    default: '0',
   },
 });
 const tokenReadable = new SwapToken(props.token).toReadable(toBN(props.amount));
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 .swap-initiated-amount {
   text-decoration: none;
   display: flex;

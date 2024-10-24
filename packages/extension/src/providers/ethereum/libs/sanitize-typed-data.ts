@@ -4,13 +4,13 @@ import {
   MessageTypeProperty,
   MessageTypes,
   TypedMessage,
-} from "@metamask/eth-sig-util";
+} from '@metamask/eth-sig-util';
 
 const encodeData = (
   primaryType: string,
   data: Record<string, unknown>,
   types: Record<string, MessageTypeProperty[]>,
-  version: SignTypedDataVersion.V3 | SignTypedDataVersion.V4
+  version: SignTypedDataVersion.V3 | SignTypedDataVersion.V4,
 ): Record<string, unknown> => {
   const retObject: Record<string, unknown> = {};
   for (const field of types[primaryType]) {
@@ -24,19 +24,19 @@ const encodeData = (
 
 const sanitizeData = <T extends MessageTypes>(
   typedData: TypedMessage<T>,
-  version: SignTypedDataVersion.V3 | SignTypedDataVersion.V4
+  version: SignTypedDataVersion.V3 | SignTypedDataVersion.V4,
 ): Record<string, unknown> => {
   const sanitizedData = TypedDataUtils.sanitizeData(typedData);
   const { domain, types, primaryType, message } = sanitizedData;
   const domainType = { EIP712Domain: sanitizedData.types.EIP712Domain };
-  const domainData = encodeData("EIP712Domain", domain, domainType, version);
+  const domainData = encodeData('EIP712Domain', domain, domainType, version);
 
-  if (sanitizedData.primaryType !== "EIP712Domain") {
+  if (sanitizedData.primaryType !== 'EIP712Domain') {
     const messageData = encodeData(
       primaryType as string,
       message,
       types,
-      version
+      version,
     );
     return {
       domain: domainData,

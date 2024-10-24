@@ -49,20 +49,20 @@
 </template>
 
 <script setup lang="ts">
-import { PropType, ref, onMounted, computed } from "vue";
-import BaseButton from "@action/components/base-button/index.vue";
-import { NodeType } from "@/types/provider";
-import { EnkryptAccount } from "@enkryptcom/types";
-import KeyRing from "@/libs/keyring/keyring";
+import { PropType, ref, onMounted, computed } from 'vue';
+import BaseButton from '@action/components/base-button/index.vue';
+import { NodeType } from '@/types/provider';
+import { EnkryptAccount } from '@enkryptcom/types';
+import KeyRing from '@/libs/keyring/keyring';
 
 const isFocus = ref(false);
-const accountName = ref("");
+const accountName = ref('');
 const renameAccountInput = ref(null);
 const isProcessing = ref(false);
 defineExpose({ renameAccountInput });
 const emit = defineEmits<{
-  (e: "window:close"): void;
-  (e: "update:init"): void;
+  (e: 'window:close'): void;
+  (e: 'update:init'): void;
 }>();
 const props = defineProps({
   network: {
@@ -89,8 +89,8 @@ onMounted(() => {
     (renameAccountInput.value as HTMLInputElement).focus();
   }
   accountName.value = props.account.name;
-  keyring.getKeysArray().then((accounts) => {
-    accounts.forEach((acc) => currentNames.push(acc.name));
+  keyring.getKeysArray().then(accounts => {
+    accounts.forEach(acc => currentNames.push(acc.name));
   });
 });
 const changeFocus = () => {
@@ -99,17 +99,19 @@ const changeFocus = () => {
 const renameAccount = () => {
   isProcessing.value = true;
   keyring.renameAccount(props.account.address, accountName.value).then(() => {
-    emit("window:close");
-    emit("update:init");
+    emit('window:close');
+    emit('update:init');
   });
 };
 </script>
 
 <style lang="less" scoped>
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 .rename-account-form {
   background: @white;
-  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.039), 0px 7px 24px rgba(0, 0, 0, 0.19);
+  box-shadow:
+    0px 3px 6px rgba(0, 0, 0, 0.039),
+    0px 7px 24px rgba(0, 0, 0, 0.19);
   border-radius: 12px;
   padding: 16px;
   box-sizing: border-box;

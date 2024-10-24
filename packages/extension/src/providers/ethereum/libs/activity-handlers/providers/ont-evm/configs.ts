@@ -1,5 +1,5 @@
-import { NetworkNames } from "@enkryptcom/types";
+import { NetworkNames } from '@enkryptcom/types';
 
 export const NetworkEndpoints = {
-  [NetworkNames.OntologyEVM]: "https://explorer.ont.io/",
+  [NetworkNames.OntologyEVM]: 'https://explorer.ont.io/',
 };

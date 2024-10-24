@@ -13,7 +13,7 @@
             $filters.replaceWithEllipsis(
               network.displayAddress(account.address),
               6,
-              4
+              4,
             )
           }}
         </p>
@@ -25,12 +25,12 @@
 </template>
 
 <script setup lang="ts">
-import { PropType } from "vue";
-import { BaseNetwork } from "@/types/base-network";
-import DoneIcon from "@action/icons/common/done_icon.vue";
-import { EnkryptAccount } from "@enkryptcom/types";
+import { PropType } from 'vue';
+import { BaseNetwork } from '@/types/base-network';
+import DoneIcon from '@action/icons/common/done_icon.vue';
+import { EnkryptAccount } from '@enkryptcom/types';
 const emit = defineEmits<{
-  (e: "selected:account", address: string): void;
+  (e: 'selected:account', address: string): void;
 }>();
 defineProps({
   network: {
@@ -51,7 +51,7 @@ defineProps({
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .send-address-item {
   display: flex;

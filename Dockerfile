@@ -1,4 +1,4 @@
-FROM node:20-bookworm
+FROM node:22.10-bookworm
 RUN apt update
 RUN apt install build-essential zip -y
 ENV HOME /home

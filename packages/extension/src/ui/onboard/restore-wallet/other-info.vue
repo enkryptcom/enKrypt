@@ -29,12 +29,12 @@
   </div>
 </template>
 <script setup lang="ts">
-import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
-import scrollSettings from "@/libs/utils/scroll-settings";
+import CustomScrollbar from '@action/components/custom-scrollbar/index.vue';
+import scrollSettings from '@/libs/utils/scroll-settings';
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .restore-wallet-other-info {
   h3 {
@@ -60,7 +60,7 @@ import scrollSettings from "@/libs/utils/scroll-settings";
   &__scroll-area {
     position: relative;
     margin: auto;
-    width: calc(~"100% + 15px");
+    width: calc(~'100% + 15px');
     max-height: 488px;
     padding-right: 15px;
     box-sizing: border-box;

@@ -1,4 +1,3 @@
-import fetch from "node-fetch";
 import { merge } from "lodash";
 import EventEmitter from "eventemitter3";
 import type Web3Eth from "web3-eth";

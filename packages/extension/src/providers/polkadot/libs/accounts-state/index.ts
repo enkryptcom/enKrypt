@@ -1,11 +1,11 @@
-import { InternalStorageNamespace } from "@/types/provider";
-import BrowserStorage from "@/libs/common/browser-storage";
-import { IState, StorageKeys } from "./types";
+import { InternalStorageNamespace } from '@/types/provider';
+import BrowserStorage from '@/libs/common/browser-storage';
+import { IState, StorageKeys } from './types';
 class AccountState {
   #storage: BrowserStorage;
   constructor() {
     this.#storage = new BrowserStorage(
-      InternalStorageNamespace.substrateAccountsState
+      InternalStorageNamespace.substrateAccountsState,
     );
   }
   async addApprovedDomain(domain: string): Promise<void> {
@@ -30,7 +30,7 @@ class AccountState {
     }
   }
   async isConnected(domain: string): Promise<boolean> {
-    return this.getStateByDomain(domain).then((res) => res.isApproved);
+    return this.getStateByDomain(domain).then(res => res.isApproved);
   }
   async deleteAllStates(): Promise<void> {
     return await this.#storage.remove(StorageKeys.accountsState);
@@ -50,7 +50,7 @@ class AccountState {
   }
   async getAllStates(): Promise<Record<string, IState>> {
     const allStates: Record<string, IState> = await this.#storage.get(
-      StorageKeys.accountsState
+      StorageKeys.accountsState,
     );
     if (!allStates) return {};
     return allStates;

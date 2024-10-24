@@ -37,7 +37,7 @@
 </template>
 
 <script setup lang="ts">
-import AlertIcon from "@action/icons/send/alert-icon.vue";
+import AlertIcon from '@action/icons/send/alert-icon.vue';
 defineProps({
   badTrade: {
     type: Boolean,
@@ -57,21 +57,21 @@ defineProps({
   },
   nativeSymbol: {
     type: String,
-    default: () => "",
+    default: () => '',
   },
   nativeValue: {
     type: String,
-    default: () => "",
+    default: () => '',
   },
   price: {
     type: String,
-    default: () => "",
+    default: () => '',
   },
 });
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 .best-offer-error {
   margin: 0 0 8px 0;
   background: @error01;

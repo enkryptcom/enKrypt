@@ -1,8 +1,8 @@
-import BigNumber from "bignumber.js";
-import { toBN, toWei } from "web3-utils";
-import { BNType, GasPriceTypes } from "@/providers/common/types";
-import { FeeHistoryResult } from "web3-eth";
-import { FormattedFeeHistory } from "./types";
+import BigNumber from 'bignumber.js';
+import { toBN, toWei } from 'web3-utils';
+import { BNType, GasPriceTypes } from '@/providers/common/types';
+import { FeeHistoryResult } from 'web3-eth';
+import { FormattedFeeHistory } from './types';
 
 const MED_CONST = 21428571428.571;
 const MED_MULTIPLIER = 1.0714285714286;
@@ -46,7 +46,7 @@ const getFastest = (gasPrice: string): BNType => {
 
 const getGasBasedOnType = (
   gasPrice: string,
-  gasPriceType: GasPriceTypes
+  gasPriceType: GasPriceTypes,
 ): BNType => {
   switch (gasPriceType) {
     case GasPriceTypes.ECONOMY:
@@ -62,7 +62,7 @@ const getGasBasedOnType = (
   }
 };
 const getMinPriorityFee = (): BNType => {
-  return toBN(toWei("0.1", "gwei"));
+  return toBN(toWei('0.1', 'gwei'));
 };
 const getPriorityFeeAvg = (arr: BNType[]): BNType => {
   const sum = arr.reduce((a, v) => a.add(v));
@@ -73,25 +73,25 @@ const getPriorityFeeAvg = (arr: BNType[]): BNType => {
 
 const getPriorityFeeBasedOnType = (
   gasFeeHistory: FormattedFeeHistory,
-  gasPriceType: GasPriceTypes
+  gasPriceType: GasPriceTypes,
 ): BNType => {
   if (gasFeeHistory.blocks.length === 0) return getMinPriorityFee();
   switch (gasPriceType) {
     case GasPriceTypes.ECONOMY:
       return getPriorityFeeAvg(
-        gasFeeHistory.blocks.map((b) => b.priorityFeePerGas[0])
+        gasFeeHistory.blocks.map(b => b.priorityFeePerGas[0]),
       );
     case GasPriceTypes.REGULAR:
       return getPriorityFeeAvg(
-        gasFeeHistory.blocks.map((b) => b.priorityFeePerGas[1])
+        gasFeeHistory.blocks.map(b => b.priorityFeePerGas[1]),
       );
     case GasPriceTypes.FAST:
       return getPriorityFeeAvg(
-        gasFeeHistory.blocks.map((b) => b.priorityFeePerGas[2])
+        gasFeeHistory.blocks.map(b => b.priorityFeePerGas[2]),
       );
     case GasPriceTypes.FASTEST:
       return getPriorityFeeAvg(
-        gasFeeHistory.blocks.map((b) => b.priorityFeePerGas[3])
+        gasFeeHistory.blocks.map(b => b.priorityFeePerGas[3]),
       );
     default:
       return getMinPriorityFee();
@@ -99,7 +99,7 @@ const getPriorityFeeBasedOnType = (
 };
 
 const formatFeeHistory = (
-  feeHistory: FeeHistoryResult
+  feeHistory: FeeHistoryResult,
 ): FormattedFeeHistory => {
   const historicalBlocks = feeHistory.baseFeePerGas.length - 1;
   let blockNum = toBN(feeHistory.oldestBlock).toNumber();
@@ -115,20 +115,20 @@ const formatFeeHistory = (
       gasUsedRatio: feeHistory.gasUsedRatio[index],
       priorityFeePerGas: feeHistory.reward
         ? feeHistory.reward[index]
-            .map((x) => toBN(x))
+            .map(x => toBN(x))
             .sort((a, b) => a.sub(b).toNumber())
         : GAS_PERCENTILES.map(() => toBN(0)),
     });
     blockNum += 1;
     index += 1;
   }
-  blocks = blocks.filter((b) => b.gasUsedRatio !== 0);
+  blocks = blocks.filter(b => b.gasUsedRatio !== 0);
   const pendingBaseFee = toBN(feeHistory.baseFeePerGas[historicalBlocks]);
   if (pendingBaseFee.gt(highestBaseFee)) highestBaseFee = pendingBaseFee;
   return {
     blocks,
     pendingBlock: {
-      number: "pending",
+      number: 'pending',
       baseFeePerGas: pendingBaseFee,
       gasUsedRatio: 0,
       priorityFeePerGas: [],
@@ -139,7 +139,7 @@ const formatFeeHistory = (
 
 const getBaseFeeBasedOnType = (
   baseFee: string,
-  gasPriceType: GasPriceTypes
+  gasPriceType: GasPriceTypes,
 ): BNType => {
   const baseFeeBN = toBN(baseFee);
   switch (gasPriceType) {
@@ -157,24 +157,24 @@ const getBaseFeeBasedOnType = (
 };
 const FeeDescriptions = {
   [GasPriceTypes.ECONOMY]: {
-    title: "Economy",
-    description: "Will likely go through unless activity increases",
-    eta: "5 mins",
+    title: 'Economy',
+    description: 'Will likely go through unless activity increases',
+    eta: '5 mins',
   },
   [GasPriceTypes.REGULAR]: {
-    title: "Recommended",
-    description: "Will reliably go through in most scenarios",
-    eta: "2 mins",
+    title: 'Recommended',
+    description: 'Will reliably go through in most scenarios',
+    eta: '2 mins',
   },
   [GasPriceTypes.FAST]: {
-    title: "Higher priority",
-    description: "Will go through even if there is a sudden activity increase",
-    eta: "1 mins",
+    title: 'Higher priority',
+    description: 'Will go through even if there is a sudden activity increase',
+    eta: '1 mins',
   },
   [GasPriceTypes.FASTEST]: {
-    title: "Highest priority",
-    description: "Will go through, fast, in 99.99% of the cases",
-    eta: "30 secs",
+    title: 'Highest priority',
+    description: 'Will go through, fast, in 99.99% of the cases',
+    eta: '30 secs',
   },
 };
 export {

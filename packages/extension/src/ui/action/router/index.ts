@@ -1,98 +1,98 @@
-import { createRouter, createWebHashHistory } from "vue-router";
-import AddNetwork from "@action/views/add-network/index.vue";
-import NetworkActivity from "@action/views/network-activity/index.vue";
-import NetworkAssets from "@action/views/network-assets/index.vue";
-import NetworkDApps from "@action/views/network-dapps/index.vue";
-import NetworkNFTs from "@action/views/network-nfts/index.vue";
-import LockScreen from "@action/views/lock-screen/index.vue";
-import Intro from "@action/views/intro/index.vue";
-import Swap from "@action/views/swap/index.vue";
-import SwapBestOffer from "@action/views/swap/views/swap-best-offer/index.vue";
-import VerifyTransaction from "@action/views/verify-transaction/index.vue";
-import SendTransaction from "@action/views/send-transaction/index.vue";
+import { createRouter, createWebHashHistory } from 'vue-router';
+import AddNetwork from '@action/views/add-network/index.vue';
+import NetworkActivity from '@action/views/network-activity/index.vue';
+import NetworkAssets from '@action/views/network-assets/index.vue';
+import NetworkDApps from '@action/views/network-dapps/index.vue';
+import NetworkNFTs from '@action/views/network-nfts/index.vue';
+import LockScreen from '@action/views/lock-screen/index.vue';
+import Intro from '@action/views/intro/index.vue';
+import Swap from '@action/views/swap/index.vue';
+import SwapBestOffer from '@action/views/swap/views/swap-best-offer/index.vue';
+import VerifyTransaction from '@action/views/verify-transaction/index.vue';
+import SendTransaction from '@action/views/send-transaction/index.vue';
 
 const routes = {
   intro: {
-    path: "/",
+    path: '/',
     components: {
       view: Intro,
     },
-    name: "intro-screen",
+    name: 'intro-screen',
   },
   locked: {
-    path: "/locked",
+    path: '/locked',
     components: {
       view: LockScreen,
     },
-    name: "lock-screen",
+    name: 'lock-screen',
   },
   activity: {
-    path: "/activity/:id?",
+    path: '/activity/:id?',
     components: {
       view: NetworkActivity,
     },
-    name: "activity",
+    name: 'activity',
   },
   assets: {
-    path: "/assets/:id?",
+    path: '/assets/:id?',
     components: {
       view: NetworkAssets,
     },
-    name: "assets",
+    name: 'assets',
   },
   dapps: {
-    path: "/dapps/:id?",
+    path: '/dapps/:id?',
     components: {
       view: NetworkDApps,
     },
-    name: "dapps",
+    name: 'dapps',
   },
   nfts: {
-    path: "/nfts/:id?",
+    path: '/nfts/:id?',
     components: {
       view: NetworkNFTs,
     },
-    name: "nfts",
+    name: 'nfts',
   },
   send: {
-    path: "/send/:id/:isToken/:tokenData?",
+    path: '/send/:id/:isToken/:tokenData?',
     components: {
       view: SendTransaction,
     },
-    name: "send-transaction",
+    name: 'send-transaction',
   },
   verify: {
-    path: "/verify-transaction/:id?",
+    path: '/verify-transaction/:id?',
     components: {
       view: VerifyTransaction,
     },
-    name: "verify-transaction",
+    name: 'verify-transaction',
   },
   swap: {
-    path: "/swap/:id?",
+    path: '/swap/:id?',
     components: {
       view: Swap,
     },
-    name: "swap",
+    name: 'swap',
   },
   swapBestOffer: {
-    path: "/swap-best-offer/:id?",
+    path: '/swap-best-offer/:id?',
     components: {
       view: SwapBestOffer,
     },
-    name: "swap-best-offer",
+    name: 'swap-best-offer',
   },
   swapBestOfferHW: {
-    path: "/swap-best-offer-hw/:id?",
+    path: '/swap-best-offer-hw/:id?',
     component: SwapBestOffer,
-    name: "swap-best-offer-hw",
+    name: 'swap-best-offer-hw',
   },
   addNetwork: {
-    path: "/add-network",
+    path: '/add-network',
     components: {
       view: AddNetwork,
     },
-    name: "add-network",
+    name: 'add-network',
   },
 };
 

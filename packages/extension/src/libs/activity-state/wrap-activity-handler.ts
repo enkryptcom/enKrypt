@@ -1,5 +1,5 @@
-import ActivityState from ".";
-import { ActivityHandlerType } from "./types";
+import ActivityState from '.';
+import { ActivityHandlerType } from './types';
 const CACHE_TTL = 1000 * 60 * 5; // 5 mins
 export default (activityHandler: ActivityHandlerType): ActivityHandlerType => {
   const returnFunction: ActivityHandlerType = async (network, address) => {

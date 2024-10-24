@@ -1,10 +1,10 @@
-import API from "@/providers/polkadot/libs/api";
-import { SubstrateNativeToken } from "@/providers/polkadot/types/substrate-native-token";
-import { SubstrateNetwork } from "@/providers/polkadot/types/substrate-network";
-import { hexToString } from "@polkadot/util";
+import API from '@/providers/polkadot/libs/api';
+import { SubstrateNativeToken } from '@/providers/polkadot/types/substrate-native-token';
+import { SubstrateNetwork } from '@/providers/polkadot/types/substrate-network';
+import { hexToString } from '@polkadot/util';
 
-import { toBN } from "web3-utils";
-import { AssetToken, AssetTokenOptions } from "./asset-token";
+import { toBN } from 'web3-utils';
+import { AssetToken, AssetTokenOptions } from './asset-token';
 
 type AssetMetadata = {
   name: `0x${string}`;
@@ -19,7 +19,7 @@ type AssetInfo = {
 export default async (
   network: SubstrateNetwork,
   address: string | null,
-  knownTokens?: any[]
+  knownTokens?: any[],
 ) => {
   const api = (await network.api()) as API;
 
@@ -28,7 +28,7 @@ export default async (
   const metadata = await apiPromise.query.assets.metadata.entries();
 
   const assetMetadatas = metadata.map(([key, value]) => {
-    const assetKey = (key.toHuman() as string[])[0].replaceAll(",", "");
+    const assetKey = (key.toHuman() as string[])[0].replaceAll(',', '');
     const assetMetadata = value.toJSON() as AssetMetadata;
     const info = {
       key: assetKey,
@@ -38,7 +38,7 @@ export default async (
     };
     return info;
   });
-  const queries = assetMetadatas.map((metadata) => metadata.key);
+  const queries = assetMetadatas.map(metadata => metadata.key);
   const assetInfos = await apiPromise.query.assets.asset.multi(queries);
   const tokenOptions = assetInfos
     .map((info, index) => {
@@ -46,15 +46,15 @@ export default async (
       if (infoHuman) {
         const metadata = assetMetadatas[index];
         return {
-          minBalance: infoHuman.minBalance.replaceAll(",", ""),
+          minBalance: infoHuman.minBalance.replaceAll(',', ''),
           ...metadata,
         };
       } else {
         return null;
       }
     })
-    .filter((asset) => asset !== null)
-    .map((asset) => {
+    .filter(asset => asset !== null)
+    .map(asset => {
       const tokenOptions: AssetTokenOptions = {
         name: asset!.name,
         symbol: asset!.symbol,
@@ -65,10 +65,10 @@ export default async (
       };
       return tokenOptions;
     })
-    .map((tokenOption) => {
+    .map(tokenOption => {
       if (knownTokens) {
         const knownToken = knownTokens.find(
-          (knownToken) => knownToken.id === tokenOption.id
+          knownToken => knownToken.id === tokenOption.id,
         );
         if (knownToken) {
           tokenOption.coingeckoID = knownToken.coingeckoID;
@@ -78,7 +78,7 @@ export default async (
       return tokenOption;
     });
   if (address) {
-    const queries = tokenOptions.map((options) => {
+    const queries = tokenOptions.map(options => {
       return [options.id, address];
     });
     const balances = await apiPromise.query.assets.account.multi(queries);
@@ -89,7 +89,7 @@ export default async (
       } = balanceInfo.toJSON() as any;
       if (data) {
         tokenOptions[index].balance = data.balance.toString();
-        if (data.status && data.status.toString() === "Frozen") {
+        if (data.status && data.status.toString() === 'Frozen') {
           tokenOptions[index].name = `${tokenOptions[index].name} (Frozen)`;
         }
       }
@@ -103,5 +103,5 @@ export default async (
     icon: network.icon,
     coingeckoID: network.coingeckoID,
   });
-  return [nativeAsset, ...tokenOptions.map((o) => new AssetToken(o))];
+  return [nativeAsset, ...tokenOptions.map(o => new AssetToken(o))];
 };

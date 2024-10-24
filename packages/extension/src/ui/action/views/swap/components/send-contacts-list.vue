@@ -26,16 +26,16 @@
 </template>
 
 <script setup lang="ts">
-import { PropType } from "vue";
-import SendAddressItem from "./send-address-item.vue";
-import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
-import BaseButton from "@action/components/base-button/index.vue";
-import scrollSettings from "@/libs/utils/scroll-settings";
-import { EnkryptAccount } from "@enkryptcom/types";
+import { PropType } from 'vue';
+import SendAddressItem from './send-address-item.vue';
+import CustomScrollbar from '@action/components/custom-scrollbar/index.vue';
+import BaseButton from '@action/components/base-button/index.vue';
+import scrollSettings from '@/libs/utils/scroll-settings';
+import { EnkryptAccount } from '@enkryptcom/types';
 
 const emit = defineEmits<{
-  (e: "update:pasteFromClipboard"): void;
-  (e: "close", open: false): void;
+  (e: 'update:pasteFromClipboard'): void;
+  (e: 'close', open: false): void;
 }>();
 
 defineProps({
@@ -47,20 +47,20 @@ defineProps({
 });
 
 const close = () => {
-  emit("close", false);
+  emit('close', false);
 };
 
 const sendToMyAddress = () => {
-  console.log("sendToMyAddress");
+  console.log('sendToMyAddress');
 };
 
 const pasteFromClipboard = () => {
-  emit("update:pasteFromClipboard");
+  emit('update:pasteFromClipboard');
 };
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .send-contacts-list {
   width: 100%;
@@ -92,7 +92,8 @@ const pasteFromClipboard = () => {
     left: 32px;
     top: 146px;
     background: #ffffff;
-    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.039),
+    box-shadow:
+      0px 3px 6px rgba(0, 0, 0, 0.039),
       0px 7px 24px rgba(0, 0, 0, 0.19);
     border-radius: 12px;
     z-index: 103;
@@ -101,7 +102,9 @@ const pasteFromClipboard = () => {
     box-sizing: border-box;
     opacity: 0;
     visibility: hidden;
-    transition: opacity 0.3s, visibility 0s ease-in-out 0.3s;
+    transition:
+      opacity 0.3s,
+      visibility 0s ease-in-out 0.3s;
 
     &.show {
       opacity: 1;

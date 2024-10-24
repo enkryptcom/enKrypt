@@ -2,17 +2,17 @@ import {
   CallbackFunction,
   MiddlewareFunction,
   SignerType,
-} from "@enkryptcom/types";
-import { WindowPromise } from "@/libs/window-promise";
-import PublicKeyRing from "@/libs/keyring/public-keyring";
-import DomainState from "@/libs/domain-state";
-import { getCustomError } from "@/libs/error";
-import { ProviderRPCRequest } from "@/types/provider";
+} from '@enkryptcom/types';
+import { WindowPromise } from '@/libs/window-promise';
+import PublicKeyRing from '@/libs/keyring/public-keyring';
+import DomainState from '@/libs/domain-state';
+import { getCustomError } from '@/libs/error';
+import { ProviderRPCRequest } from '@/types/provider';
 
-import KadenaProvider from "..";
-import AccountState from "../libs/accounts-state";
-import { KadenaNetworks } from "../types";
-import { getNetworkInfo } from "../libs/network";
+import KadenaProvider from '..';
+import AccountState from '../libs/accounts-state';
+import { KadenaNetworks } from '../types';
+import { getNetworkInfo } from '../libs/network';
 
 let isAccountAccessPending = false;
 
@@ -25,9 +25,9 @@ const method: MiddlewareFunction = function (
   this: KadenaProvider,
   payload: ProviderRPCRequest,
   res,
-  next
+  next,
 ): void {
-  if (payload.method !== "kda_requestAccounts") return next();
+  if (payload.method !== 'kda_requestAccounts') return next();
   else {
     if (isAccountAccessPending) {
       pendingPromises.push({
@@ -64,23 +64,23 @@ const method: MiddlewareFunction = function (
         accountsPromise,
       ]).then(([selectedAddress, selectedNetwork, accounts]) => {
         const selectedNetworkName = Object.values(KadenaNetworks).find(
-          (n) => n === selectedNetwork
+          n => n === selectedNetwork,
         );
 
-        const account = accounts.find((acc) => acc.address === selectedAddress);
+        const account = accounts.find(acc => acc.address === selectedAddress);
 
         return {
           selectedNetwork: selectedNetworkName
             ? getNetworkInfo(selectedNetworkName)
             : null,
           selectedAccountAddress: this.network.displayAddress(
-            account?.address || ""
+            account?.address || '',
           ),
-          accounts: accounts.map((acc) => {
+          accounts: accounts.map(acc => {
             return {
               address: this.network.displayAddress(acc.address),
-              publicKey: acc.publicKey.replace("0x", ""),
-              genesisHash: "",
+              publicKey: acc.publicKey.replace('0x', ''),
+              genesisHash: '',
               name: acc.name,
               type: acc.signerType,
             };
@@ -91,7 +91,7 @@ const method: MiddlewareFunction = function (
 
     const handleAccountAccess = (
       _payload: ProviderRPCRequest,
-      _res: CallbackFunction
+      _res: CallbackFunction,
     ) => {
       if (_payload.options && _payload.options.domain) {
         isAccountAccessPending = true;
@@ -99,13 +99,13 @@ const method: MiddlewareFunction = function (
 
         accountsState
           .isApproved(_payload.options.domain)
-          .then((isApproved) => {
+          .then(isApproved => {
             if (isApproved) {
               getAccounts()
-                .then((acc) => {
+                .then(acc => {
                   _res(null, acc);
                 })
-                .catch((err) => {
+                .catch(err => {
                   throw err;
                 });
             } else {
@@ -113,29 +113,29 @@ const method: MiddlewareFunction = function (
               windowPromise
                 .getResponse(
                   this.getUIPath(this.UIRoutes.kdaAccounts.path),
-                  JSON.stringify(payload)
+                  JSON.stringify(payload),
                 )
                 .then(({ error }) => {
                   if (error) {
                     throw error;
                   } else {
                     getAccounts()
-                      .then((acc) => {
+                      .then(acc => {
                         _res(null, acc);
                       })
-                      .catch((err) => {
+                      .catch(err => {
                         throw err;
                       });
                   }
                 });
             }
           })
-          .catch((err) => {
+          .catch(err => {
             _res(err);
           })
           .finally(handleRemainingPromises);
       } else {
-        _res(getCustomError("No domain set!"));
+        _res(getCustomError('No domain set!'));
         handleRemainingPromises();
       }
     };

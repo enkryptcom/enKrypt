@@ -1,5 +1,5 @@
 export enum StorageKeys {
-  rateInfo = "rate-info",
+  rateInfo = 'rate-info',
 }
 
 export interface Rate {

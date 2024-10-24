@@ -1,25 +1,28 @@
-import { KnownTokenDisplay } from "@/providers/polkadot/types";
+import { KnownTokenDisplay } from '@/providers/polkadot/types';
+import iconUSDC from './icons/usdc.png';
+import iconUSDT from './icons/usdt.png';
+import iconDED from './icons/ded.png';
 
 const assets: KnownTokenDisplay[] = [
   {
-    name: "USD Coin",
-    symbol: "USDC",
-    coingeckoID: "usd-coin",
-    icon: require("./icons/usdc.png"),
-    id: "1337",
+    name: 'USD Coin',
+    symbol: 'USDC',
+    coingeckoID: 'usd-coin',
+    icon: iconUSDC,
+    id: '1337',
   },
   {
-    name: "Tether USD",
-    symbol: "USDt",
-    coingeckoID: "tether",
-    icon: require("./icons/usdt.png"),
-    id: "1984",
+    name: 'Tether USD',
+    symbol: 'USDt',
+    coingeckoID: 'tether',
+    icon: iconUSDT,
+    id: '1984',
   },
   {
-    name: "DOT is Dead",
-    symbol: "DED",
-    icon: require("./icons/ded.png"),
-    id: "30",
+    name: 'DOT is Dead',
+    symbol: 'DED',
+    icon: iconDED,
+    id: '30',
   },
 ];
 

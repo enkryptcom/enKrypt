@@ -2,16 +2,16 @@ import type {
   InjectedProvider,
   ProviderList,
   ProviderMeta,
-} from "@polkadot/extension-inject/types";
+} from '@polkadot/extension-inject/types';
 import type {
   ProviderInterface,
   ProviderInterfaceEmitCb,
   ProviderInterfaceEmitted,
-} from "@polkadot/rpc-provider/types";
-import type { AnyFunction } from "@polkadot/types/types";
+} from '@polkadot/rpc-provider/types';
+import type { AnyFunction } from '@polkadot/types/types';
 
-import EventEmitter from "eventemitter3";
-import { InjectedSendMessageHandler, InjectLibOptions } from "../types";
+import EventEmitter from 'eventemitter3';
+import { InjectedSendMessageHandler, InjectLibOptions } from '../types';
 
 type CallbackHandler = (error?: null | Error, value?: unknown) => void;
 
@@ -36,24 +36,24 @@ export default class PostMessageProvider implements InjectedProvider {
     return new PostMessageProvider(this.options);
   }
   public async connect(): Promise<void> {
-    console.error("PostMessageProvider.connect() is not implemented.");
+    console.error('PostMessageProvider.connect() is not implemented.');
   }
   public async disconnect(): Promise<void> {
-    console.error("PostMessageProvider.disconnect() is not implemented.");
+    console.error('PostMessageProvider.disconnect() is not implemented.');
   }
 
   public get hasSubscriptions(): boolean {
-    console.error("PostMessageProvider.hassubsriptions() is not implemented.");
+    console.error('PostMessageProvider.hassubsriptions() is not implemented.');
     return false;
   }
 
   public get isConnected(): boolean {
-    console.error("PostMessageProvider.isconnected() is not implemented.");
+    console.error('PostMessageProvider.isconnected() is not implemented.');
     return true;
   }
 
   public listProviders(): Promise<ProviderList> {
-    console.error("PostMessageProvider.listProviders() is not implemented.");
+    console.error('PostMessageProvider.listProviders() is not implemented.');
     return Promise.resolve({});
   }
 
@@ -63,25 +63,25 @@ export default class PostMessageProvider implements InjectedProvider {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _?: boolean,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    subscription?: SubscriptionHandler
+    subscription?: SubscriptionHandler,
   ): Promise<any> {
     console.error(
       method,
       params,
-      "PostMessageProvider.send() is not implemented."
+      'PostMessageProvider.send() is not implemented.',
     );
   }
 
   public async startProvider(key: string): Promise<ProviderMeta> {
     console.error(
       key,
-      "PostMessageProvider.startprovider() is not implemented."
+      'PostMessageProvider.startprovider() is not implemented.',
     );
-    return { network: "", node: "full", source: "", transport: "" };
+    return { network: '', node: 'full', source: '', transport: '' };
   }
 
   on(type: ProviderInterfaceEmitted, sub: ProviderInterfaceEmitCb): () => void {
-    console.error("PostMessageProvider.on() is not implemented.");
+    console.error('PostMessageProvider.on() is not implemented.');
     this.eventEmitter.on(type, sub);
     return (): void => {
       // FIXME we need the ability to unsubscribe
@@ -91,13 +91,13 @@ export default class PostMessageProvider implements InjectedProvider {
     type: string,
     method: string,
     params: unknown[],
-    callback: AnyFunction
+    callback: AnyFunction,
   ): Promise<number> {
     console.error(
       type,
       method,
       params,
-      "PostMessageProvider.subscribe() is not implemented."
+      'PostMessageProvider.subscribe() is not implemented.',
     );
     return this.send(method, params, false, {
       callback,
@@ -111,9 +111,9 @@ export default class PostMessageProvider implements InjectedProvider {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     method: string,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    id: number
+    id: number,
   ): Promise<boolean> {
-    console.error("PostMessageProvider.unsubscribe() is not implemented.");
+    console.error('PostMessageProvider.unsubscribe() is not implemented.');
     return true;
   }
 }

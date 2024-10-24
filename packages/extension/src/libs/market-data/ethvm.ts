@@ -1,9 +1,9 @@
-import cacheFetch from "../cache-fetch";
+import cacheFetch from '../cache-fetch';
 import {
   CoinGeckoToken,
   CoinGeckoTokenMarket,
   CoingeckPlatforms,
-} from "./types";
+} from './types';
 
 interface getCoinGeckoTokenInfoAllType {
   data: {
@@ -26,22 +26,22 @@ const ethvmPost = (requestData: string): Promise<any> => {
       url: ETHVM_BASE,
       post: JSON.parse(requestData),
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
     },
-    10 * 60 * 1000
+    10 * 60 * 1000,
   );
 };
 
 export const getAllPlatformData = (): Promise<CoinGeckoToken[]> => {
   return ethvmPost(
-    '{"operationName":null,"variables":{},"query":"{\\n  getCoinGeckoTokenInfoAll {\\n    id\\n    symbol\\n    name\\n    platforms {\\n      platform\\n      address\\n    }\\n  }\\n}\\n"}'
+    '{"operationName":null,"variables":{},"query":"{\\n  getCoinGeckoTokenInfoAll {\\n    id\\n    symbol\\n    name\\n    platforms {\\n      platform\\n      address\\n    }\\n  }\\n}\\n"}',
   ).then((json: getCoinGeckoTokenInfoAllType) => {
     const retResponse: CoinGeckoToken[] = [];
-    json.data.getCoinGeckoTokenInfoAll.forEach((item) => {
+    json.data.getCoinGeckoTokenInfoAll.forEach(item => {
       const { id, name, symbol, platforms } = item;
       const cgPlatforms: CoingeckPlatforms = {};
-      platforms.forEach((p) => {
+      platforms.forEach(p => {
         cgPlatforms[p.platform] = p.address;
       });
       const token: CoinGeckoToken = {
@@ -60,9 +60,9 @@ export const getUSDPriceById = (id: string): Promise<string | null> => {
   return ethvmPost(
     '{"operationName":null,"variables":{},"query":"{\\n  getCoinGeckoTokenMarketDataByIds(coinGeckoTokenIds: [\\"' +
       id +
-      '\\"]) {\\n    current_price\\n  }\\n}\\n"}'
+      '\\"]) {\\n    current_price\\n  }\\n}\\n"}',
   )
-    .then((json) => {
+    .then(json => {
       return json.data.getCoinGeckoTokenMarketDataByIds[0]
         ? json.data.getCoinGeckoTokenMarketDataByIds[0].current_price.toString()
         : null;
@@ -71,14 +71,14 @@ export const getUSDPriceById = (id: string): Promise<string | null> => {
 };
 
 export const getMarketInfoByIDs = (
-  ids: string[]
+  ids: string[],
 ): Promise<Array<CoinGeckoTokenMarket | null>> => {
-  const params = ids.map((i) => '\\"' + i + '\\"').join(", ");
+  const params = ids.map(i => '\\"' + i + '\\"').join(', ');
   return ethvmPost(
     '{"operationName":null,"variables":{},"query":"{\\n  getCoinGeckoTokenMarketDataByIds(coinGeckoTokenIds: [' +
       params +
-      ']) {\\n    id\\n    symbol\\n    name\\n    image\\n    market_cap\\n    market_cap_rank\\n    high_24h\\n    low_24h\\n    price_change_24h\\n    price_change_percentage_24h\\n    sparkline_in_24h {\\n      price\\n    }\\n    price_change_percentage_24h_in_currency\\n    current_price\\n  }\\n}\\n"}'
-  ).then((json) => {
+      ']) {\\n    id\\n    symbol\\n    name\\n    image\\n    market_cap\\n    market_cap_rank\\n    high_24h\\n    low_24h\\n    price_change_24h\\n    price_change_percentage_24h\\n    sparkline_in_24h {\\n      price\\n    }\\n    price_change_percentage_24h_in_currency\\n    current_price\\n  }\\n}\\n"}',
+  ).then(json => {
     return json.data.getCoinGeckoTokenMarketDataByIds as CoinGeckoTokenMarket[];
   });
 };

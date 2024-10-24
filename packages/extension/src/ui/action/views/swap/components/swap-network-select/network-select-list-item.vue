@@ -1,9 +1,8 @@
 <template>
-  <a class="assets-select-list__token" @click="select">
-    <div class="assets-select-list__token-info">
+  <a class="network-select-list__token" @click="select">
+    <div class="network-select-list__token-info">
       <img :src="token.logoURI" />
-
-      <div class="assets-select-list__token-info-name">
+      <div class="network-select-list__token-info-name">
         <h4>{{ token.name }}</h4>
       </div>
     </div>
@@ -11,11 +10,11 @@
 </template>
 
 <script setup lang="ts">
-import { PropType } from "vue";
-import { NetworkInfo } from "@enkryptcom/swap";
+import { PropType } from 'vue';
+import { NetworkInfo } from '@enkryptcom/swap';
 
 const emit = defineEmits<{
-  (e: "update:selectAsset", asset: NetworkInfo): void;
+  (e: 'update:selectAsset', asset: NetworkInfo): void;
 }>();
 
 const props = defineProps({
@@ -26,14 +25,14 @@ const props = defineProps({
 });
 
 const select = () => {
-  emit("update:selectAsset", props.token);
+  emit('update:selectAsset', props.token);
 };
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
-.assets-select-list {
+.network-select-list {
   &__token {
     height: 64px;
     margin: 0 8px;

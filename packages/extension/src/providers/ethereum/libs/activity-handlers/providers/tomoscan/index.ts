@@ -1,30 +1,30 @@
-import cacheFetch from "@/libs/cache-fetch";
-import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
+import cacheFetch from '@/libs/cache-fetch';
+import { EvmNetwork } from '@/providers/ethereum/types/evm-network';
 import {
   Activity,
   ActivityStatus,
   ActivityType,
   EthereumRawInfo,
-} from "@/types/activity";
-import { BaseNetwork } from "@/types/base-network";
-import { numberToHex } from "web3-utils";
-import { decodeTx } from "../../../transaction/decoder";
-import { NetworkEndpoints } from "./configs";
-import { TomoscanTxType } from "./types";
+} from '@/types/activity';
+import { BaseNetwork } from '@/types/base-network';
+import { numberToHex } from 'web3-utils';
+import { decodeTx } from '../../../transaction/decoder';
+import { NetworkEndpoints } from './configs';
+import { TomoscanTxType } from './types';
 const TTL = 30000;
 const getAddressActivity = async (
   address: string,
-  endpoint: string
+  endpoint: string,
 ): Promise<EthereumRawInfo[]> => {
   return cacheFetch(
     {
       url: `${endpoint}api/transaction/list?account=${address}`,
     },
-    TTL
-  ).then((res) => {
+    TTL,
+  ).then(res => {
     if (res.error) return [];
     const results = res.data as TomoscanTxType[];
-    const newResults = results.map((tx) => {
+    const newResults = results.map(tx => {
       const rawTx: EthereumRawInfo = {
         blockHash: tx.blockHash,
         blockNumber: numberToHex(tx.blockNumber),
@@ -32,11 +32,11 @@ const getAddressActivity = async (
         data: tx.input,
         effectiveGasPrice: numberToHex(tx.gasPrice),
         from: tx.from,
-        to: tx.to === "" ? null : tx.to,
+        to: tx.to === '' ? null : tx.to,
         gas: numberToHex(tx.gas),
         gasUsed: numberToHex(tx.gasUsed),
         nonce: numberToHex(tx.nonce),
-        status: tx.status === "success",
+        status: tx.status === 'success',
         transactionHash: tx.hash,
         value: numberToHex(tx.value),
         timestamp: tx.timestamp * 1000,
@@ -48,13 +48,13 @@ const getAddressActivity = async (
 };
 export default async (
   network: BaseNetwork,
-  address: string
+  address: string,
 ): Promise<Activity[]> => {
   address = address.toLowerCase();
   const enpoint = NetworkEndpoints[network.name];
   const activities = await getAddressActivity(address, enpoint);
-  const Promises = activities.map((activity) => {
-    return decodeTx(activity, network as EvmNetwork).then((txData) => {
+  const Promises = activities.map(activity => {
+    return decodeTx(activity, network as EvmNetwork).then(txData => {
       return {
         from: activity.from,
         to: activity.contractAddress

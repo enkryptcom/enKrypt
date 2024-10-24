@@ -1,12 +1,12 @@
-import { CallbackFunction, MiddlewareFunction } from "@enkryptcom/types";
-import type EthereumProvider from "..";
-import { ProviderRPCRequest } from "@/types/provider";
-import { WindowPromise } from "@/libs/window-promise";
-import AccountState from "../libs/accounts-state";
-import { getCustomError } from "@/libs/error";
-import openOnboard from "@/libs/utils/open-onboard";
+import { CallbackFunction, MiddlewareFunction } from '@enkryptcom/types';
+import type EthereumProvider from '..';
+import { ProviderRPCRequest } from '@/types/provider';
+import { WindowPromise } from '@/libs/window-promise';
+import AccountState from '../libs/accounts-state';
+import { getCustomError } from '@/libs/error';
+import openOnboard from '@/libs/utils/open-onboard';
 let isAccountAccessPending = false;
-import { throttle } from "lodash";
+import { throttle } from 'lodash';
 
 const throttledOpenOnboard = throttle(() => openOnboard(), 10000);
 const existingErrors: Record<string, { time: number; error: any }> = {};
@@ -18,9 +18,9 @@ const method: MiddlewareFunction = async function (
   this: EthereumProvider,
   payload: ProviderRPCRequest,
   res,
-  next
+  next,
 ): Promise<void> {
-  if (payload.method !== "eth_requestAccounts") return next();
+  if (payload.method !== 'eth_requestAccounts') return next();
   else {
     if (isAccountAccessPending) {
       pendingPromises.push({
@@ -41,12 +41,12 @@ const method: MiddlewareFunction = async function (
     };
     const handleAccountAccess = (
       _payload: ProviderRPCRequest,
-      _res: CallbackFunction
+      _res: CallbackFunction,
     ) => {
       if (_payload.options && _payload.options.domain) {
         isAccountAccessPending = true;
         if (!isInitialized) {
-          _res(getCustomError("Enkrypt not initialized"));
+          _res(getCustomError('Enkrypt not initialized'));
           throttledOpenOnboard();
           return handleRemainingPromises();
         }
@@ -61,7 +61,7 @@ const method: MiddlewareFunction = async function (
         }
         accountsState
           .getApprovedAddresses(_payload.options.domain)
-          .then((accounts) => {
+          .then(accounts => {
             if (accounts.length) {
               _res(null, accounts);
               handleRemainingPromises();
@@ -73,7 +73,7 @@ const method: MiddlewareFunction = async function (
                   JSON.stringify({
                     ..._payload,
                     params: [this.network.name],
-                  })
+                  }),
                 )
                 .then(({ error, result }) => {
                   if (error) {
@@ -83,14 +83,14 @@ const method: MiddlewareFunction = async function (
                     };
                     return _res(error as any);
                   }
-                  const accounts = JSON.parse(result || "[]");
+                  const accounts = JSON.parse(result || '[]');
                   _res(null, accounts);
                 })
                 .finally(handleRemainingPromises);
             }
           });
       } else {
-        _res(getCustomError("No domain set!"));
+        _res(getCustomError('No domain set!'));
       }
     };
     handleAccountAccess(payload, res);

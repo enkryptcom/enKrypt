@@ -1,4 +1,4 @@
-import { PublicKey } from "@solana/web3.js";
+import { PublicKey } from '@solana/web3.js';
 const isAddress = (address: string): boolean => {
   try {
     const addPub = new PublicKey(address);

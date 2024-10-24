@@ -2,15 +2,15 @@ import {
   setWindowNamespace,
   windowOnMessage,
   providerSendMessage,
-} from "@/libs/messenger/window";
-import { ProviderName, ProviderType } from "@/types/provider";
-import EthereumProvider from "@/providers/ethereum/inject";
-import PolkadotProvider from "@/providers/polkadot/inject";
-import BitcoinProvider from "@/providers/bitcoin/inject";
-import KadenaProvider from "@/providers/kadena/inject";
-import SolanaProvider from "@/providers/solana/inject";
+} from '@/libs/messenger/window';
+import { ProviderName, ProviderType } from '@/types/provider';
+import EthereumProvider from '@/providers/ethereum/inject';
+import PolkadotProvider from '@/providers/polkadot/inject';
+import BitcoinProvider from '@/providers/bitcoin/inject';
+import KadenaProvider from '@/providers/kadena/inject';
+import SolanaProvider from '@/providers/solana/inject';
 
-import { InternalMethods } from "@/types/messenger";
+import { InternalMethods } from '@/types/messenger';
 
 setWindowNamespace();
 (window as Window).enkrypt = {
@@ -48,18 +48,18 @@ const loadInjectedProviders = () => {
 loadInjectedProviders();
 
 windowOnMessage(async (msg): Promise<void> => {
-  window["enkrypt"]["providers"][msg.provider].handleMessage(msg.message);
+  window['enkrypt']['providers'][msg.provider].handleMessage(msg.message);
 });
-window.addEventListener("load", () => {
+window.addEventListener('load', () => {
   providerSendMessage(
     ProviderName.enkrypt,
-    JSON.stringify({ method: InternalMethods.newWindowInit })
+    JSON.stringify({ method: InternalMethods.newWindowInit }),
   );
 });
-window.addEventListener("beforeunload", () => {
+window.addEventListener('beforeunload', () => {
   providerSendMessage(
     ProviderName.enkrypt,
-    JSON.stringify({ method: InternalMethods.newWindowUnload })
+    JSON.stringify({ method: InternalMethods.newWindowUnload }),
   );
 });
-console.info("Enkrypt: Hello from IN");
+console.info('Enkrypt: Hello from IN');

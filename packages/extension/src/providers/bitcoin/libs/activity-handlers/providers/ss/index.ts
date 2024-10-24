@@ -1,57 +1,53 @@
-import MarketData from "@/libs/market-data";
-import { SSTxType } from "@/providers/bitcoin/types";
+import MarketData from '@/libs/market-data';
+import { SSTxType } from '@/providers/bitcoin/types';
 import {
   Activity,
   ActivityStatus,
   ActivityType,
   BTCRawInfo,
-} from "@/types/activity";
-import { BaseNetwork } from "@/types/base-network";
+} from '@/types/activity';
+import { BaseNetwork } from '@/types/base-network';
 export default async (
   network: BaseNetwork,
-  pubkey: string
+  pubkey: string,
 ): Promise<Activity[]> => {
   return fetch(
     `${network.node}/api/v1/account/${network.displayAddress(
-      pubkey
-    )}/txs?pageSize=40`
+      pubkey,
+    )}/txs?pageSize=40`,
   )
-    .then((res) => res.json())
+    .then(res => res.json())
     .then(async (txs: { txs: SSTxType[] }) => {
       if ((txs as any).message) return [];
-      let tokenPrice = "0";
+      let tokenPrice = '0';
       if (network.coingeckoID) {
         const marketData = new MarketData();
         await marketData
           .getTokenPrice(network.coingeckoID)
-          .then((mdata) => (tokenPrice = mdata || "0"));
+          .then(mdata => (tokenPrice = mdata || '0'));
       }
 
       const address = network.displayAddress(pubkey);
-      const cleanedTxs = txs.txs.map((tx) => {
+      const cleanedTxs = txs.txs.map(tx => {
         return {
           ...tx,
-          vin: tx.vin.filter((vi) => vi.addresses),
-          vout: tx.vout.filter((vo) => vo.addresses),
+          vin: tx.vin.filter(vi => vi.addresses),
+          vout: tx.vout.filter(vo => vo.addresses),
         };
       });
-      return cleanedTxs.map((tx) => {
-        const isIncoming = !tx.vin.find((i) => i.addresses![0] === address);
-        let toAddress = "";
+      return cleanedTxs.map(tx => {
+        const isIncoming = !tx.vin.find(i => i.addresses![0] === address);
+        let toAddress = '';
         let value = 0;
 
         if (isIncoming) {
-          const relevantOut = tx.vout.find(
-            (tx) => tx.addresses![0] === address
-          );
+          const relevantOut = tx.vout.find(tx => tx.addresses![0] === address);
           if (relevantOut) {
             toAddress = relevantOut.addresses![0];
             value = Number(relevantOut.value);
           }
         } else {
-          const relevantOut = tx.vout.find(
-            (tx) => tx.addresses![0] !== address
-          );
+          const relevantOut = tx.vout.find(tx => tx.addresses![0] !== address);
           if (relevantOut) {
             toAddress = relevantOut.addresses![0];
             value = Number(relevantOut.value);
@@ -64,11 +60,11 @@ export default async (
         const rawInfo: BTCRawInfo = {
           blockNumber: tx.blockHeight!,
           fee: Number(tx.fee),
-          inputs: tx.vin.map((input) => ({
+          inputs: tx.vin.map(input => ({
             address: input.addresses![0],
             value: Number(input.value),
           })),
-          outputs: tx.vout.map((output) => ({
+          outputs: tx.vout.map(output => ({
             address: output.addresses![0],
             value: Number(output.value),
             pkscript: output.scriptPubKey.hex,

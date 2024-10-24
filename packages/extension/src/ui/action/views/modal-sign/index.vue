@@ -36,19 +36,19 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
-import CloseIcon from "@action/icons/common/close-icon.vue";
-import BaseButton from "@action/components/base-button/index.vue";
-import LockScreenPasswordInput from "@action/views/lock-screen/components/lock-screen-password-input.vue";
-import KeyRingBase from "@/libs/keyring/keyring";
+import { ref, computed } from 'vue';
+import CloseIcon from '@action/icons/common/close-icon.vue';
+import BaseButton from '@action/components/base-button/index.vue';
+import LockScreenPasswordInput from '@action/views/lock-screen/components/lock-screen-password-input.vue';
+import KeyRingBase from '@/libs/keyring/keyring';
 
 const emit = defineEmits<{
-  (e: "toggle:forgot"): void;
-  (e: "window:close"): void;
-  (e: "action:recoveryPhrase", val: string): void;
+  (e: 'toggle:forgot'): void;
+  (e: 'window:close'): void;
+  (e: 'action:recoveryPhrase', val: string): void;
 }>();
 
-const password = ref("");
+const password = ref('');
 const isError = ref(false);
 const isProcessing = ref(false);
 
@@ -73,8 +73,8 @@ const unlock = () => {
   const keyring = new KeyRingBase();
   keyring
     .getMnemonic(password.value)
-    .then((mnemonic) => {
-      emit("action:recoveryPhrase", mnemonic);
+    .then(mnemonic => {
+      emit('action:recoveryPhrase', mnemonic);
     })
     .catch(() => {
       isError.value = true;
@@ -83,16 +83,16 @@ const unlock = () => {
 };
 
 const buttonTitle = computed(() => {
-  let title = "Confirm";
+  let title = 'Confirm';
   if (props.isUnlock) {
-    title = "Unlock";
+    title = 'Unlock';
   }
   return title;
 });
 </script>
 
 <style lang="less" scoped>
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .modal-sign {
   width: 100%;
@@ -133,7 +133,8 @@ const buttonTitle = computed(() => {
 
   &__wrap {
     background: @white;
-    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.039),
+    box-shadow:
+      0px 3px 6px rgba(0, 0, 0, 0.039),
       0px 7px 24px rgba(0, 0, 0, 0.19);
     border-radius: 12px;
     box-sizing: border-box;

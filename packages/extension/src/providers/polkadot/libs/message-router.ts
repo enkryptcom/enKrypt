@@ -1,5 +1,5 @@
-import { RouterOnMessage } from "../types";
-import InjectedProvider from "./injected-provider";
+import { RouterOnMessage } from '../types';
+import InjectedProvider from './injected-provider';
 class MessageRouter {
   providers: [InjectedProvider?] = [];
 

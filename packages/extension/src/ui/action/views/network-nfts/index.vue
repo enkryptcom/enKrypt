@@ -49,21 +49,21 @@
 </template>
 
 <script setup lang="ts">
-import { useRoute } from "vue-router";
-import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
-import NetworkNftsCategory from "./components/network-nfts-category.vue";
-import NetworkNftsFavorite from "./components/network-nfts-favorite.vue";
-import NetworkNftsHidden from "./components/network-nfts-hidden.vue";
-import NetworkNftsEmpty from "./components/network-nfts-empty.vue";
-import { onMounted, PropType, ref, watch, computed } from "vue";
-import { NodeType } from "@/types/provider";
-import { AccountsHeaderData } from "../../types/account";
-import { NFTCollection, NFTItem } from "@/types/nft";
-import NFTState from "@/libs/nft-state";
-import scrollSettings from "@/libs/utils/scroll-settings";
-import NftDetailView from "@action/views/nft-detail-view/index.vue";
-import { trackNFTEvents } from "@/libs/metrics";
-import { NFTEventType } from "@/libs/metrics/types";
+import { useRoute } from 'vue-router';
+import CustomScrollbar from '@action/components/custom-scrollbar/index.vue';
+import NetworkNftsCategory from './components/network-nfts-category.vue';
+import NetworkNftsFavorite from './components/network-nfts-favorite.vue';
+import NetworkNftsHidden from './components/network-nfts-hidden.vue';
+import NetworkNftsEmpty from './components/network-nfts-empty.vue';
+import { onMounted, PropType, ref, watch, computed } from 'vue';
+import { NodeType } from '@/types/provider';
+import { AccountsHeaderData } from '../../types/account';
+import { NFTCollection, NFTItem } from '@/types/nft';
+import NFTState from '@/libs/nft-state';
+import scrollSettings from '@/libs/utils/scroll-settings';
+import NftDetailView from '@action/views/nft-detail-view/index.vue';
+import { trackNFTEvents } from '@/libs/metrics';
+import { NFTEventType } from '@/libs/metrics/types';
 
 const nftState = new NFTState();
 const props = defineProps({
@@ -96,27 +96,27 @@ const localUpdate = async () => {
   favoriteNFTs.value = [];
   hiddenNFTs.value = [];
   const collections = JSON.parse(
-    JSON.stringify(liveNFTCollection.value)
+    JSON.stringify(liveNFTCollection.value),
   ) as NFTCollection[];
-  collections.forEach((col) => {
+  collections.forEach(col => {
     if (favs[col.contract]) {
-      col.items.forEach((item) => {
+      col.items.forEach(item => {
         if (favs[col.contract].includes(item.id)) favoriteNFTs.value.push(item);
       });
       col.items = col.items.filter(
-        (item) => !favs[col.contract].includes(item.id)
+        item => !favs[col.contract].includes(item.id),
       );
     }
     if (hidden[col.contract]) {
-      col.items.forEach((item) => {
+      col.items.forEach(item => {
         if (hidden[col.contract].includes(item.id)) hiddenNFTs.value.push(item);
       });
       col.items = col.items.filter(
-        (item) => !hidden[col.contract].includes(item.id)
+        item => !hidden[col.contract].includes(item.id),
       );
     }
   });
-  NFTs.value = collections.filter((col) => col.items.length);
+  NFTs.value = collections.filter(col => col.items.length);
   isNoNFTs.value = collections.length === 0;
 };
 const updateNFTInfo = async () => {
@@ -127,9 +127,9 @@ const updateNFTInfo = async () => {
     props.network
       .NFTHandler(
         props.network,
-        props.accountInfo.selectedAccount?.address || ""
+        props.accountInfo.selectedAccount?.address || '',
       )
-      .then((collections) => {
+      .then(collections => {
         liveNFTCollection.value = collections;
         localUpdate();
       });
@@ -168,8 +168,8 @@ const isFavorite = computed(() => {
 </script>
 
 <style lang="less" scoped>
-@import "~@action/styles/theme.less";
-@import "~@action/styles/custom-scroll.less";
+@import '@action/styles/theme.less';
+@import '@action/styles/custom-scroll.less';
 
 .container {
   width: 100%;

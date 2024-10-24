@@ -1,5 +1,5 @@
-import KeyRingBase from "@/libs/keyring/keyring";
-import { InternalOnMessageResponse } from "@/types/messenger";
+import KeyRingBase from '@/libs/keyring/keyring';
+import { InternalOnMessageResponse } from '@/types/messenger';
 
 const lock = (keyring: KeyRingBase): Promise<InternalOnMessageResponse> => {
   keyring.lock();

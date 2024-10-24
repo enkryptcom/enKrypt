@@ -4,7 +4,7 @@
       <sign-logo class="common-popup__logo" />
       <div class="common-popup__network">
         <img :src="network ? network.icon : defaultNetwork.icon" />
-        <p>{{ network ? network.name_long : "" }}</p>
+        <p>{{ network ? network.name_long : '' }}</p>
       </div>
     </template>
 
@@ -21,7 +21,7 @@
             "
           />
           <div class="provider-verify-transaction__account-info">
-            <h4>{{ account?.name || "" }}</h4>
+            <h4>{{ account?.name || '' }}</h4>
             <div>
               <p v-if="userBalance">
                 {{ formatBalance(userBalance.balance) }}
@@ -34,7 +34,7 @@
                     ? $filters.replaceWithEllipsis(
                         network.displayAddress(account!.address),
                         4,
-                        4
+                        4,
                       )
                     : $filters.replaceWithEllipsis(account?.address)
                 }}
@@ -47,7 +47,7 @@
         <div class="provider-verify-transaction__info">
           <img :src="network ? network.icon : defaultNetwork.icon" />
           <div class="provider-verify-transaction__info-info">
-            <h4>{{ network ? network.name_long : "Loading.." }}</h4>
+            <h4>{{ network ? network.name_long : 'Loading..' }}</h4>
             <p>
               {{ Options.url }}
             </p>
@@ -60,7 +60,7 @@
       <div v-if="!networkIsUnknown" class="provider-verify-transaction__fee">
         <div class="provider-verify-transaction__fee-value">
           <p class="provider-verify-transaction__fee-value-fiat">
-            Fee: {{ txFee ? `${formatBalance(txFee)}` : "~" }}
+            Fee: {{ txFee ? `${formatBalance(txFee)}` : '~' }}
           </p>
           <!-- <p class="provider-verify-transaction__fee-value-crypto">
             0.0019
@@ -86,7 +86,7 @@
               {{
                 callData.method
                   ? `${callData.section}.${callData.method}`
-                  : "Loading"
+                  : 'Loading'
               }}
             </p>
             <p>Parameters:</p>
@@ -120,39 +120,39 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeMount, ref, shallowRef, watch } from "vue";
-import { base64Decode } from "@polkadot/util-crypto";
-import SignLogo from "@action/icons/common/sign-logo.vue";
-import CommonPopup from "@action/views/common-popup/index.vue";
-import RightChevron from "@action/icons/common/right-chevron.vue";
-import BaseButton from "@action/components/base-button/index.vue";
-import BestOfferError from "@action/views/swap/views/swap-best-offer/components/swap-best-offer-block/components/best-offer-error.vue";
-import HardwareWalletMsg from "@/providers/common/ui/verify-transaction/hardware-wallet-msg.vue";
-import { getError } from "@/libs/error";
-import { ErrorCodes } from "@/providers/ethereum/types";
-import { WindowPromiseHandler } from "@/libs/window-promise";
-import { TypeRegistry, Metadata } from "@polkadot/types";
-import { Registry, SignerPayloadJSON } from "@polkadot/types/types";
-import MetadataStorage from "../libs/metadata-storage";
-import { CallData, FrameSystemAccountInfo } from "./types";
-import { SubstrateNetwork } from "../types/substrate-network";
-import { BaseNetwork } from "@/types/base-network";
-import BlindVerifyView from "./custom-views/blind-approvetx.vue";
-import { polkadotEncodeAddress } from "@enkryptcom/utils";
-import { getViewAndProps } from "./custom-views";
-import SubstrateAPI from "../libs/api";
-import BigNumber from "bignumber.js";
-import { ProviderRequestOptions } from "@/types/provider";
-import { EnkryptAccount, NetworkNames } from "@enkryptcom/types";
-import { TransactionSigner } from "./libs/signer";
-import { Activity, ActivityStatus, ActivityType } from "@/types/activity";
-import { ApiPromise } from "@polkadot/api";
-import { u8aToHex } from "@polkadot/util";
-import ActivityState from "@/libs/activity-state";
-import Polkadot from "@/providers/polkadot/networks/polkadot";
-import { getAllNetworks } from "@/libs/utils/networks";
-import { trackNetworkSelected, trackSendEvents } from "@/libs/metrics";
-import { NetworkChangeEvents, SendEventType } from "@/libs/metrics/types";
+import { onBeforeMount, ref, shallowRef, watch } from 'vue';
+import { base64Decode } from '@polkadot/util-crypto';
+import SignLogo from '@action/icons/common/sign-logo.vue';
+import CommonPopup from '@action/views/common-popup/index.vue';
+import RightChevron from '@action/icons/common/right-chevron.vue';
+import BaseButton from '@action/components/base-button/index.vue';
+import BestOfferError from '@action/views/swap/views/swap-best-offer/components/swap-best-offer-block/components/best-offer-error.vue';
+import HardwareWalletMsg from '@/providers/common/ui/verify-transaction/hardware-wallet-msg.vue';
+import { getError } from '@/libs/error';
+import { ErrorCodes } from '@/providers/ethereum/types';
+import { WindowPromiseHandler } from '@/libs/window-promise';
+import { TypeRegistry, Metadata } from '@polkadot/types';
+import { Registry, SignerPayloadJSON } from '@polkadot/types/types';
+import MetadataStorage from '../libs/metadata-storage';
+import { CallData, FrameSystemAccountInfo } from './types';
+import { SubstrateNetwork } from '../types/substrate-network';
+import { BaseNetwork } from '@/types/base-network';
+import BlindVerifyView from './custom-views/blind-approvetx.vue';
+import { polkadotEncodeAddress } from '@enkryptcom/utils';
+import { getViewAndProps } from './custom-views';
+import SubstrateAPI from '../libs/api';
+import BigNumber from 'bignumber.js';
+import { ProviderRequestOptions } from '@/types/provider';
+import { EnkryptAccount, NetworkNames } from '@enkryptcom/types';
+import { TransactionSigner } from './libs/signer';
+import { Activity, ActivityStatus, ActivityType } from '@/types/activity';
+import { ApiPromise } from '@polkadot/api';
+import { u8aToHex } from '@polkadot/util';
+import ActivityState from '@/libs/activity-state';
+import Polkadot from '@/providers/polkadot/networks/polkadot';
+import { getAllNetworks } from '@/libs/utils/networks';
+import { trackNetworkSelected, trackSendEvents } from '@/libs/metrics';
+import { NetworkChangeEvents, SendEventType } from '@/libs/metrics/types';
 
 const windowPromise = WindowPromiseHandler(2);
 
@@ -167,10 +167,10 @@ const txFee = ref<BigNumber>();
 const userBalance = ref<{ balance: BigNumber; symbol: string }>();
 const insufficientBalance = ref(false);
 const Options = ref<ProviderRequestOptions>({
-  domain: "",
-  faviconURL: "",
-  title: "",
-  url: "",
+  domain: '',
+  faviconURL: '',
+  title: '',
+  url: '',
   tabId: 0,
 });
 const isProcessing = ref(false);
@@ -188,8 +188,8 @@ onBeforeMount(async () => {
   const reqPayload = Request.value.params![0] as SignerPayloadJSON;
   const reqAccount = Request.value.params![1] as EnkryptAccount;
   const targetNetwork = (await getAllNetworks()).find(
-    (network) =>
-      (network as SubstrateNetwork).genesisHash === reqPayload.genesisHash
+    network =>
+      (network as SubstrateNetwork).genesisHash === reqPayload.genesisHash,
   );
 
   if (targetNetwork) {
@@ -208,7 +208,7 @@ onBeforeMount(async () => {
   if (metadata && metadata.metaCalls) {
     const registry = new TypeRegistry();
     registry.setMetadata(
-      new Metadata(registry, base64Decode(metadata.metaCalls))
+      new Metadata(registry, base64Decode(metadata.metaCalls)),
     );
     registry.setSignedExtensions(reqPayload.signedExtensions);
     setCallData(reqPayload, registry);
@@ -224,14 +224,14 @@ const setAccount = async (reqAccount: EnkryptAccount) => {
   if (network.value) {
     reqAccount.address = polkadotEncodeAddress(
       reqAccount.address,
-      (network.value as SubstrateNetwork).prefix
+      (network.value as SubstrateNetwork).prefix,
     );
   }
   account.value = reqAccount;
 };
 
 const setCallData = (reqPayload: SignerPayloadJSON, registry: Registry) => {
-  const data = registry.createType("Call", reqPayload.method).toHuman();
+  const data = registry.createType('Call', reqPayload.method).toHuman();
   callData.value = {
     method: data.method as string,
     section: data.section as string,
@@ -245,7 +245,7 @@ const setViewAndProps = (network: BaseNetwork) => {
     const [view, viewProps] = getViewAndProps(
       network as SubstrateNetwork,
       fullMethod,
-      callData.value.args
+      callData.value.args,
     );
     txViewProps.value = { ...viewProps, ...{ network } };
     txView.value = view;
@@ -255,20 +255,20 @@ const setViewAndProps = (network: BaseNetwork) => {
 const setBalanceAndFees = (
   network: BaseNetwork,
   payload: SignerPayloadJSON,
-  registry: Registry
+  registry: Registry,
 ) => {
-  (network.api() as Promise<SubstrateAPI>).then((api) => {
-    const extrinsic = registry.createType("Extrinsic", payload, {
+  (network.api() as Promise<SubstrateAPI>).then(api => {
+    const extrinsic = registry.createType('Extrinsic', payload, {
       version: payload.version,
     });
     api.api
       .tx(extrinsic)
       .paymentInfo(payload.address, { era: 0 })
-      .then((info) => {
+      .then(info => {
         const { partialFee } = info.toJSON();
         txFee.value = new BigNumber(partialFee as string | number);
       });
-    api.api.query.system.account(payload.address).then((accountInfo) => {
+    api.api.query.system.account(payload.address).then(accountInfo => {
       const { data } =
         accountInfo.toJSON() as unknown as FrameSystemAccountInfo;
       const balance = {
@@ -284,7 +284,7 @@ const formatBalance = (balance: BigNumber): string => {
   if (network.value) {
     return balance.div(new BigNumber(10 ** network.value.decimals)).toString();
   }
-  return "~";
+  return '~';
 };
 
 watch([txFee, userBalance], () => {
@@ -305,14 +305,14 @@ const approve = async () => {
   trackSendEvents(SendEventType.SendAPIApprove, {
     network: network.value
       ? network.value.name
-      : ("substrate-undefined" as NetworkNames),
+      : ('substrate-undefined' as NetworkNames),
   });
   const { Request, Resolve } = await windowPromise;
   const registry = new TypeRegistry();
   const reqPayload = Request.value.params![0] as SignerPayloadJSON;
   registry.setSignedExtensions(reqPayload.signedExtensions);
 
-  const extType = registry.createType("ExtrinsicPayload", reqPayload, {
+  const extType = registry.createType('ExtrinsicPayload', reqPayload, {
     version: reqPayload.version,
   });
   let txActivity: Activity;
@@ -329,11 +329,11 @@ const approve = async () => {
         icon: network.value.icon,
         name: network.value.name,
         symbol: network.value.currencyName,
-        price: "0",
+        price: '0',
       },
       type: ActivityType.transaction,
-      value: "0x0",
-      transactionHash: "",
+      value: '0x0',
+      transactionHash: '',
     };
   }
   const activityState = new ActivityState();
@@ -342,33 +342,33 @@ const approve = async () => {
     network: network.value!,
     payload: extType,
   })
-    .then(async (res) => {
+    .then(async res => {
       if (network.value) {
         const api = (await network.value.api()).api as ApiPromise;
-        const extrinsic = api.createType("Extrinsic", reqPayload, {
+        const extrinsic = api.createType('Extrinsic', reqPayload, {
           version: reqPayload.version,
         });
         const signed = extrinsic.addSignature(
           account.value!.address,
           JSON.parse(res.result as string),
-          reqPayload
+          reqPayload,
         );
         await activityState.addActivities(
           [{ ...txActivity, ...{ transactionHash: u8aToHex(signed.hash) } }],
           {
             address: txActivity.from,
             network: network.value.name,
-          }
+          },
         );
       }
       trackSendEvents(SendEventType.SendAPIComplete, {
         network: network.value
           ? network.value.name
-          : ("substrate-undefined" as NetworkNames),
+          : ('substrate-undefined' as NetworkNames),
       });
       Resolve.value(res);
     })
-    .catch(async (res) => {
+    .catch(async res => {
       if (network.value) {
         txActivity.status = ActivityStatus.failed;
         await activityState.addActivities([txActivity], {
@@ -379,7 +379,7 @@ const approve = async () => {
       trackSendEvents(SendEventType.SendAPIFailed, {
         network: network.value
           ? network.value.name
-          : ("substrate-undefined" as NetworkNames),
+          : ('substrate-undefined' as NetworkNames),
         error: res.error,
       });
       Resolve.value(res);
@@ -390,7 +390,7 @@ const deny = async () => {
   trackSendEvents(SendEventType.SendAPIDecline, {
     network: network.value
       ? network.value.name
-      : ("substrate-undefined" as NetworkNames),
+      : ('substrate-undefined' as NetworkNames),
   });
   const { Resolve } = await windowPromise;
   Resolve.value({
@@ -400,7 +400,7 @@ const deny = async () => {
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
-@import "~@/providers/ethereum/ui/styles/common-popup.less";
-@import "./styles/verify-transaction.less";
+@import '@action/styles/theme.less';
+@import '@/providers/ethereum/ui/styles/common-popup.less';
+@import './styles/verify-transaction.less';
 </style>

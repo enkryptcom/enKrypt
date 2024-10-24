@@ -9,7 +9,6 @@ import {
   VersionedTransaction,
 } from "@solana/web3.js";
 import { toBN } from "web3-utils";
-import fetch from "node-fetch";
 import { TOKEN_AMOUNT_INFINITY_AND_BEYOND } from "../../utils/approvals";
 import {
   ASSOCIATED_TOKEN_PROGRAM_ID,

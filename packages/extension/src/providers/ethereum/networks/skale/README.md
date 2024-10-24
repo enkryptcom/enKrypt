@@ -2,14 +2,13 @@
 
 Folder with all SKALE chains supported by enKrypt
 
-
 ## Add new SKALE chain
+
 ### Add Network to Network Types
 
 Navigate to `packages/types/src/networks.ts`.
 
 Add `SkaleNewName = "skaleNEWNAME",` at the end of enum `NetworkNames`
-
 
 ### Add SKALE chain params file
 
@@ -43,7 +42,7 @@ export const assets: ICustomSKALEAsset[] = [                // optional param - 
   },
   {
     name: "Your Token",                                     // optional param - name of your token (default: imported from coingecko )
-    symbol: "YST",                                          // optional param - symbol of your token (default: imported from coingecko ) 
+    symbol: "YST",                                          // optional param - symbol of your token (default: imported from coingecko )
     address: "0x7777777777777777777777777777777777777777",  // address of your token on SKALE chain
     coingeckoID: "ethereum",                                // coingecko platform ID of your token
     showZero: true,                                         // optional param - show token balance if balance is zero (default: false )
@@ -56,7 +55,6 @@ export default createSkaleEvmNetwork(skaleOptions, assets); // "assets" optional
 
 ```
 
-
 ### Add SKALE chain to export in skale folder
 
 Navigate to `packages/extension/src/providers/ethereum/networks/skale/index.ts`
@@ -64,32 +62,32 @@ Navigate to `packages/extension/src/providers/ethereum/networks/skale/index.ts`
 1. Add `import { newNameNode } from "./newName";` at the end of imports at the top
 2. Add `newNameNode,` at the end of exports object
 
-
 ### Add SKALE chain to export in networks folder
 
 Navigate to `packages/extension/src/providers/ethereum/networks/index.ts`
 
 Add `skaleNewName: skale.newNameNode,` at the end of exports object
 
-
 ### Add SKALE chain to etherscan activity handler
 
 Navigate to `packages/extension/src/providers/ethereum/libs/activity-handler/providers/etherscan/configs.ts`
 Add your SKALE chain support to the end of `NetworkEndpoints`:
+
 ```
 [NetworkNames.SkaleNewName]:
     "https://new-name-chain.explorer.mainnet.skalenodes.com/",  // change `mainnet` to `staging-v3` if chain is test network
 ```
 
-
 ### Test on your local
 
 1. Run in root folder
+
 ```
 yarn --frozen-lockfile
 yarn build:all
 yarn watch-extension
 ```
+
 2. Add Extension in Chrome(or other browser)
 
 Extension path: `packages/extension/dist`

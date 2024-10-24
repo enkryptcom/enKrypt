@@ -1,32 +1,32 @@
-import cacheFetch from "@/libs/cache-fetch";
-import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
+import cacheFetch from '@/libs/cache-fetch';
+import { EvmNetwork } from '@/providers/ethereum/types/evm-network';
 import {
   Activity,
   ActivityStatus,
   ActivityType,
   EthereumRawInfo,
-} from "@/types/activity";
-import { BaseNetwork } from "@/types/base-network";
-import { numberToHex } from "web3-utils";
-import { decodeTx } from "../../../transaction/decoder";
-import { NetworkEndpoints } from "./configs";
-import { TelosTXType } from "./types";
+} from '@/types/activity';
+import { BaseNetwork } from '@/types/base-network';
+import { numberToHex } from 'web3-utils';
+import { decodeTx } from '../../../transaction/decoder';
+import { NetworkEndpoints } from './configs';
+import { TelosTXType } from './types';
 const TTL = 30000;
 const getAddressActivity = async (
   address: string,
-  endpoint: string
+  endpoint: string,
 ): Promise<EthereumRawInfo[]> => {
   return cacheFetch(
     {
       url: `${endpoint}v1/address/${address}/transactions`,
     },
-    TTL
-  ).then((res) => {
+    TTL,
+  ).then(res => {
     if (!res.success) return [];
     const results = res.results as TelosTXType[];
-    const newResults = results.map((tx) => {
+    const newResults = results.map(tx => {
       const rawTx: EthereumRawInfo = {
-        blockHash: "0x",
+        blockHash: '0x',
         blockNumber: numberToHex(tx.blockNumber),
         contractAddress: tx.contractAddress
           ? tx.contractAddress.toLowerCase()
@@ -34,11 +34,11 @@ const getAddressActivity = async (
         data: tx.input,
         effectiveGasPrice: tx.gasPrice,
         from: tx.from.toLowerCase(),
-        to: tx.to === "" ? null : tx.to.toLowerCase(),
+        to: tx.to === '' ? null : tx.to.toLowerCase(),
         gas: tx.gasLimit,
         gasUsed: tx.gasused,
         nonce: numberToHex(tx.nonce),
-        status: tx.status === "0x1" ? true : false,
+        status: tx.status === '0x1' ? true : false,
         transactionHash: tx.hash,
         value: tx.value,
         timestamp: tx.timestamp,
@@ -50,14 +50,14 @@ const getAddressActivity = async (
 };
 export default async (
   network: BaseNetwork,
-  address: string
+  address: string,
 ): Promise<Activity[]> => {
   address = address.toLowerCase();
   const enpoint =
     NetworkEndpoints[network.name as keyof typeof NetworkEndpoints];
   const activities = await getAddressActivity(address, enpoint);
-  const Promises = activities.map((activity) => {
-    return decodeTx(activity, network as EvmNetwork).then((txData) => {
+  const Promises = activities.map(activity => {
+    return decodeTx(activity, network as EvmNetwork).then(txData => {
       return {
         from: activity.from,
         to: activity.contractAddress

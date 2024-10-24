@@ -1,16 +1,16 @@
 export enum StorageKeys {
-  lastTimestamp = "last-time-stamp",
-  allTokens = "all-tokens",
-  fiatInfo = "fiat-info",
+  lastTimestamp = 'last-time-stamp',
+  allTokens = 'all-tokens',
+  fiatInfo = 'fiat-info',
 }
 
 export interface CoingeckPlatforms {
   [key: string]: any;
   ethereum?: string;
-  "ethereum-classic"?: string;
-  "binance-smart-chain"?: string;
+  'ethereum-classic'?: string;
+  'binance-smart-chain'?: string;
   gochain?: string;
-  "polygon-pos"?: string;
+  'polygon-pos'?: string;
   moonbeam?: string;
   rootstock?: string;
 }

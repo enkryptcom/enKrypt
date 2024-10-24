@@ -10,8 +10,8 @@
 </template>
 
 <script setup lang="ts">
-import { PropType } from "vue";
-import { NFTItemWithCollectionName } from "@/types/nft";
+import { PropType } from 'vue';
+import { NFTItemWithCollectionName } from '@/types/nft';
 
 defineProps({
   item: {
@@ -24,7 +24,7 @@ defineProps({
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .send-process-nft {
   text-decoration: none;

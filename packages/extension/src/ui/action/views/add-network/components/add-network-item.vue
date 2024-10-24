@@ -2,8 +2,8 @@
   <div class="add-network__block">
     <div class="add-network__text">
       <img :src="network.icon" alt="" />
-      <span>{{ network.name_long }} </span
-      ><test-network-icon v-if="network.isTestNetwork" />
+      <span>{{ network.name_long }} </span>
+      <test-network-icon v-if="network.isTestNetwork" />
     </div>
 
     <div class="add-network__action">
@@ -17,23 +17,31 @@
       >
         <close-icon />
       </a>
-      <Switch :is-checked="isActive" @update:check="check" />
+      <tooltip
+        v-if="props.showTooltip && props.isActive"
+        text="At least one network must be selected"
+        is-top-right
+      >
+        <Switch :is-checked="isActive" @update:check="check" />
+      </tooltip>
+      <Switch v-else :is-checked="isActive" @update:check="check" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { PropType } from "vue";
-import Switch from "@action/components/switch/index.vue";
+import { PropType } from 'vue';
+import Switch from '@action/components/switch/index.vue';
 // import InfoIcon from "@action/icons/common/info-icon.vue";
-import CloseIcon from "@action/icons/common/close-icon.vue";
-import { NodeType } from "@/types/provider";
-import { CustomEvmNetwork } from "@/providers/ethereum/types/custom-evm-network";
-import TestNetworkIcon from "@action/icons/common/test-network-icon.vue";
+import CloseIcon from '@action/icons/common/close-icon.vue';
+import { NodeType } from '@/types/provider';
+import { CustomEvmNetwork } from '@/providers/ethereum/types/custom-evm-network';
+import TestNetworkIcon from '@action/icons/common/test-network-icon.vue';
+import Tooltip from '@/ui/action/components/tooltip/index.vue';
 
 const emit = defineEmits<{
-  (e: "networkToggled", name: string, isActive: boolean): void;
-  (e: "networkDeleted", chainId: string): void;
+  (e: 'networkToggled', name: string, isActive: boolean): void;
+  (e: 'networkDeleted', chainId: string): void;
 }>();
 
 const props = defineProps({
@@ -45,23 +53,26 @@ const props = defineProps({
   },
   isActive: Boolean,
   isCustomNetwork: Boolean,
+  showTooltip: {
+    type: Boolean,
+  },
 });
 
 const check = async (isChecked: boolean) => {
-  emit("networkToggled", props.network.name, isChecked);
+  emit('networkToggled', props.network.name, isChecked);
 };
 
 const deleteNetwork = async () => {
   const chainId = (props.network as unknown as CustomEvmNetwork).chainID;
 
   if (chainId !== undefined) {
-    emit("networkDeleted", chainId);
+    emit('networkDeleted', chainId);
   }
 };
 </script>
 
 <style lang="less" scoped>
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .add-network {
   &__block {

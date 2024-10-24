@@ -1,27 +1,27 @@
 export default {
   dotAccounts: {
-    path: "dot-accounts",
+    path: 'dot-accounts',
     component: {},
-    name: "dotAccounts",
+    name: 'dotAccounts',
   },
   dotTxApprove: {
-    path: "dot-tx-approve",
+    path: 'dot-tx-approve',
     component: {},
-    name: "dotTxApprove",
+    name: 'dotTxApprove',
   },
   dotSignMessage: {
-    path: "dot-sign-message",
+    path: 'dot-sign-message',
     component: {},
-    name: "dotSignMessage",
+    name: 'dotSignMessage',
   },
   dotUpdateMetadata: {
-    path: "dot-update-metadata",
+    path: 'dot-update-metadata',
     component: {},
-    name: "dotUpdateMetadata",
+    name: 'dotUpdateMetadata',
   },
   dotHWVerify: {
-    path: "dot-hw-verify",
-    name: "dotHWVerify",
+    path: 'dot-hw-verify',
+    name: 'dotHWVerify',
     component: {},
   },
 };

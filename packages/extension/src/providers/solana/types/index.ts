@@ -1,3 +1,3 @@
-import type { Provider as InjectedProvider } from "../inject";
+import type { Provider as InjectedProvider } from '../inject';
 
 export { InjectedProvider };

@@ -7,7 +7,7 @@
         @click.stop="toggleOpen"
       >
         <div :class="classes"></div>
-        {{ data.key === "/" ? rootKeyString : data.key }} :
+        {{ data.key === '/' ? rootKeyString : data.key }} :
         <span class="properties">{{ lengthString }}</span>
       </button>
       <div v-if="state.open">
@@ -39,9 +39,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, type PropType, reactive } from "vue";
-import { then, when } from "switch-ts";
-import { ItemData, ItemType, Data, ValueTypes } from "./types";
+import { computed, type PropType, reactive } from 'vue';
+import { then, when } from 'switch-ts';
+import { ItemData, ItemType, Data, ValueTypes } from './types';
 
 const props = defineProps({
   data: {
@@ -50,7 +50,7 @@ const props = defineProps({
   },
   rootKeyString: {
     type: String,
-    default: "Sign typed data",
+    default: 'Sign typed data',
   },
   maxDepth: {
     type: Number,
@@ -64,7 +64,7 @@ const props = defineProps({
   },
 });
 const emit = defineEmits<{
-  (e: "selected", data: any): void;
+  (e: 'selected', data: any): void;
 }>();
 
 const state = reactive({
@@ -76,7 +76,7 @@ function toggleOpen(): void {
 }
 
 function onClick(data: ItemData): void {
-  emit("selected", {
+  emit('selected', {
     key: data.key,
     value: data.value,
     path: data.path,
@@ -84,7 +84,7 @@ function onClick(data: ItemData): void {
 }
 
 function bubbleSelected(data: Data): void {
-  emit("selected", data);
+  emit('selected', data);
 }
 
 function getKey(itemDate: ItemData): string {
@@ -94,25 +94,25 @@ function getKey(itemDate: ItemData): string {
 
 function getValueColor(value: ValueTypes): string {
   return when(typeof value)
-    .is((v) => v === "string", then("var(--jtv-string-color)"))
-    .is((v) => v === "number", then("var(--jtv-number-color)"))
-    .is((v) => v === "bigint", then("var(--jtv-number-color)"))
-    .is((v) => v === "boolean", then("var(--jtv-boolean-color)"))
-    .is((v) => v === "object", then("var(--jtv-null-color)"))
-    .is((v) => v === "undefined", then("var(--jtv-null-color)"))
-    .default(then("var(--jtv-valueKey-color)"));
+    .is(v => v === 'string', then('var(--jtv-string-color)'))
+    .is(v => v === 'number', then('var(--jtv-number-color)'))
+    .is(v => v === 'bigint', then('var(--jtv-number-color)'))
+    .is(v => v === 'boolean', then('var(--jtv-boolean-color)'))
+    .is(v => v === 'object', then('var(--jtv-null-color)'))
+    .is(v => v === 'undefined', then('var(--jtv-null-color)'))
+    .default(then('var(--jtv-valueKey-color)'));
 }
 
 const classes = computed((): unknown => {
   return {
-    "chevron-arrow": true,
+    'chevron-arrow': true,
     opened: state.open,
   };
 });
 const valueClasses = computed((): unknown => {
   return {
-    "value-key": true,
-    "can-select": props.canSelect,
+    'value-key': true,
+    'can-select': props.canSelect,
   };
 });
 const lengthString = computed((): string => {
@@ -124,8 +124,8 @@ const lengthString = computed((): string => {
 });
 const dataValue = computed((): string =>
   props.data.value === undefined
-    ? "undefined"
-    : JSON.stringify(props.data.value)
+    ? 'undefined'
+    : JSON.stringify(props.data.value),
 );
 </script>
 

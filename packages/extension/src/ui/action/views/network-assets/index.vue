@@ -48,7 +48,7 @@
     <custom-evm-token
       v-if="showAddCustomTokens"
       :address="props.accountInfo.selectedAccount?.address!"
-      :network="(props.network as EvmNetwork)"
+      :network="props.network as EvmNetwork"
       @update:token-added="addCustomAsset"
       @update:close="toggleShowAddCustomTokens"
     ></custom-evm-token>
@@ -56,22 +56,22 @@
 </template>
 
 <script setup lang="ts">
-import { useRoute } from "vue-router";
-import NetworkActivityTotal from "../network-activity/components/network-activity-total.vue";
-import NetworkActivityAction from "../network-activity/components/network-activity-action.vue";
-import NetworkAssetsItem from "./components/network-assets-item.vue";
-import NetworkAssetsLoading from "./components/network-assets-loading.vue";
-import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
-import { computed, onMounted, PropType, ref, toRef, watch } from "vue";
-import { AssetsType } from "@/types/provider";
-import { AccountsHeaderData } from "../../types/account";
-import accountInfo from "@action/composables/account-info";
-import { BaseNetwork } from "@/types/base-network";
-import scrollSettings from "@/libs/utils/scroll-settings";
-import Deposit from "@action/views/deposit/index.vue";
-import BaseButton from "@action/components/base-button/index.vue";
-import CustomEvmToken from "./components/custom-evm-token.vue";
-import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
+import { useRoute } from 'vue-router';
+import NetworkActivityTotal from '../network-activity/components/network-activity-total.vue';
+import NetworkActivityAction from '../network-activity/components/network-activity-action.vue';
+import NetworkAssetsItem from './components/network-assets-item.vue';
+import NetworkAssetsLoading from './components/network-assets-loading.vue';
+import CustomScrollbar from '@action/components/custom-scrollbar/index.vue';
+import { computed, onMounted, type PropType, ref, toRef, watch } from 'vue';
+import type { AssetsType } from '@/types/provider';
+import type { AccountsHeaderData } from '../../types/account';
+import accountInfoComposable from '@action/composables/account-info';
+import { BaseNetwork } from '@/types/base-network';
+import scrollSettings from '@/libs/utils/scroll-settings';
+import Deposit from '@action/views/deposit/index.vue';
+import BaseButton from '@action/components/base-button/index.vue';
+import CustomEvmToken from './components/custom-evm-token.vue';
+import { EvmNetwork } from '@/providers/ethereum/types/evm-network';
 
 const showDeposit = ref(false);
 
@@ -83,7 +83,7 @@ const props = defineProps({
   },
   subnetwork: {
     type: String,
-    default: "",
+    default: '',
   },
   accountInfo: {
     type: Object as PropType<AccountsHeaderData>,
@@ -93,9 +93,9 @@ const props = defineProps({
 const assets = ref<AssetsType[]>([]);
 const isLoading = ref(false);
 
-const { cryptoAmount, fiatAmount } = accountInfo(
-  toRef(props, "network"),
-  toRef(props, "accountInfo")
+const { cryptoAmount, fiatAmount } = accountInfoComposable(
+  toRef(props, 'network'),
+  toRef(props, 'accountInfo'),
 );
 const selected: string = route.params.id as string;
 
@@ -104,15 +104,15 @@ const updateAssets = () => {
   assets.value = [];
   const currentNetwork = selectedNetworkName.value;
   props.network
-    .getAllTokenInfo(props.accountInfo.selectedAccount?.address || "")
-    .then((_assets) => {
+    .getAllTokenInfo(props.accountInfo.selectedAccount?.address || '')
+    .then(_assets => {
       if (selectedNetworkName.value !== currentNetwork) return;
       assets.value = _assets;
       isLoading.value = false;
     });
 };
 const selectedAddress = computed(
-  () => props.accountInfo.selectedAccount?.address || ""
+  () => props.accountInfo.selectedAccount?.address || '',
 );
 const selectedNetworkName = computed(() => props.network.name);
 const selectedSubnetwork = computed(() => props.subnetwork);
@@ -132,7 +132,7 @@ const toggleShowAddCustomTokens = () => {
 };
 
 const addCustomAsset = (asset: AssetsType) => {
-  const existingAsset = assets.value.find((a) => {
+  const existingAsset = assets.value.find(a => {
     if (
       a.contract &&
       asset.contract &&
@@ -151,8 +151,8 @@ const addCustomAsset = (asset: AssetsType) => {
 </script>
 
 <style lang="less" scoped>
-@import "~@action/styles/theme.less";
-@import "~@action/styles/custom-scroll.less";
+@import '@action/styles/theme.less';
+@import '@action/styles/custom-scroll.less';
 
 .container {
   width: 100%;

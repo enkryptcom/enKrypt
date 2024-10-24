@@ -1,4 +1,4 @@
-import { HWwalletType } from "@enkryptcom/types";
+import { HWwalletType } from '@enkryptcom/types';
 
 export interface PathType {
   path: string;

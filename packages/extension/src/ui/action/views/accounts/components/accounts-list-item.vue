@@ -37,11 +37,11 @@
 </template>
 
 <script setup lang="ts">
-import DoneIcon from "@action/icons/common/done_icon.vue";
-import MoreIcon from "@action/icons/common/more-icon.vue";
-import AccountsListItemMenu from "./accounts-list-item-menu.vue";
-import { PropType, ref } from "vue";
-import { onClickOutside } from "@vueuse/core";
+import DoneIcon from '@action/icons/common/done_icon.vue';
+import MoreIcon from '@action/icons/common/more-icon.vue';
+import AccountsListItemMenu from './accounts-list-item-menu.vue';
+import { PropType, ref } from 'vue';
+import { onClickOutside } from '@vueuse/core';
 
 const openEdit = ref(false);
 const dropdown = ref(null);
@@ -50,19 +50,19 @@ const toggle = ref(null);
 defineProps({
   name: {
     type: String,
-    default: "",
+    default: '',
   },
   address: {
     type: String,
-    default: "",
+    default: '',
   },
   amount: {
     type: String,
-    default: "",
+    default: '',
   },
   symbol: {
     type: String,
-    default: "",
+    default: '',
   },
   isChecked: Boolean,
   select: {
@@ -89,15 +89,15 @@ onClickOutside(
   () => {
     if (openEdit.value) openEdit.value = false;
   },
-  { ignore: [toggle] }
+  { ignore: [toggle] },
 );
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .accounts-item {
-  width: calc(~"100% - 16px");
+  width: calc(~'100% - 16px');
   height: 56px;
   text-decoration: none;
   display: flex;

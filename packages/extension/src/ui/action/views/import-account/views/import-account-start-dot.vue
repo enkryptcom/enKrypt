@@ -39,14 +39,14 @@
 </template>
 
 <script setup lang="ts">
-import { PropType, ref, computed } from "vue";
-import ImportStartIcon from "@action/icons/import/import-start-icon.vue";
-import ImportAccountHeader from "../components/import-account-header.vue";
-import BaseButton from "@action/components/base-button/index.vue";
-import LabelInput from "@action/components/label-input/index.vue";
+import { PropType, ref, computed } from 'vue';
+import ImportStartIcon from '@action/icons/import/import-start-icon.vue';
+import ImportAccountHeader from '../components/import-account-header.vue';
+import BaseButton from '@action/components/base-button/index.vue';
+import LabelInput from '@action/components/label-input/index.vue';
 
-const mnemonic = ref("");
-const path = ref("//");
+const mnemonic = ref('');
+const path = ref('//');
 
 defineProps({
   close: {
@@ -69,7 +69,7 @@ const pathChanged = (newVal: string) => {
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .import-account-start {
   &__input {
@@ -77,7 +77,7 @@ const pathChanged = (newVal: string) => {
     height: 114px;
     background: rgba(95, 99, 104, 0.01);
     border: 1px solid rgba(95, 99, 104, 0.2);
-    font-family: "Roboto";
+    font-family: 'Roboto';
     box-sizing: border-box;
     border-radius: 10px;
     margin-bottom: 8px;

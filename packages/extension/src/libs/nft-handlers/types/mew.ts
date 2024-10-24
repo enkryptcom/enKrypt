@@ -1,8 +1,8 @@
-import { NFTType } from "@/types/nft";
+import { NFTType } from '@/types/nft';
 
 export enum ContentRepresentation {
-  IMAGE = "IMAGE",
-  MEDIA = "MEDIA",
+  IMAGE = 'IMAGE',
+  MEDIA = 'MEDIA',
 }
 export interface Trait {
   trait: string;

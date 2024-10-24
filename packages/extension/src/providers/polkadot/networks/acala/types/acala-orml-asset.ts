@@ -1,15 +1,15 @@
-import { ApiPromise } from "@polkadot/api";
-import { SubmittableExtrinsic } from "@polkadot/api/types";
-import { ISubmittableResult } from "@polkadot/types/types";
-import { SubstrateToken } from "@/providers/polkadot/types/substrate-token";
-import { BaseTokenOptions } from "@/types/base-token";
-import type { u128 } from "@polkadot/types-codec";
+import { ApiPromise } from '@polkadot/api';
+import { SubmittableExtrinsic } from '@polkadot/api/types';
+import { ISubmittableResult } from '@polkadot/types/types';
+import { SubstrateToken } from '@/providers/polkadot/types/substrate-token';
+import { BaseTokenOptions } from '@/types/base-token';
+import type { u128 } from '@polkadot/types-codec';
 
 export type OrmlAssetType =
-  | "token"
-  | "foreignAsset"
-  | "stableAssetPoolToken"
-  | "liquidCrowdloan";
+  | 'token'
+  | 'foreignAsset'
+  | 'stableAssetPoolToken'
+  | 'liquidCrowdloan';
 
 export type OrmlTokensAccountData = {
   free: u128;
@@ -34,12 +34,12 @@ export class AcalaOrmlAsset extends SubstrateToken {
 
   public async getLatestUserBalance(
     api: ApiPromise,
-    address: any
+    address: any,
   ): Promise<string> {
     const tokenLookup: Record<string, string | number> = {};
     tokenLookup[this.assetType] = this.lookupValue;
 
-    return api.query.tokens.accounts(address, tokenLookup).then((res) => {
+    return api.query.tokens.accounts(address, tokenLookup).then(res => {
       const balance = (res as unknown as OrmlTokensAccountData).free.toString();
       this.balance = balance;
       return balance;
@@ -49,8 +49,8 @@ export class AcalaOrmlAsset extends SubstrateToken {
   public async send(
     api: ApiPromise,
     to: string,
-    amount: string
-  ): Promise<SubmittableExtrinsic<"promise", ISubmittableResult>> {
+    amount: string,
+  ): Promise<SubmittableExtrinsic<'promise', ISubmittableResult>> {
     const currencyId: Record<string, string | number> = {};
     currencyId[this.assetType] = this.lookupValue;
 

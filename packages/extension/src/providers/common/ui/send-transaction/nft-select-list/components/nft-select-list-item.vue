@@ -7,14 +7,14 @@
         <h4>
           {{
             item.name.length > 40
-              ? item.name.substring(0, 40) + "..."
+              ? item.name.substring(0, 40) + '...'
               : item.name
           }}
         </h4>
         <p>
           {{
             item.collectionName.length > 50
-              ? item.collectionName.substring(0, 50) + "..."
+              ? item.collectionName.substring(0, 50) + '...'
               : item.collectionName
           }}
         </p>
@@ -24,11 +24,11 @@
 </template>
 
 <script setup lang="ts">
-import { PropType } from "vue";
-import { NFTItemWithCollectionName } from "@/types/nft";
+import { PropType } from 'vue';
+import { NFTItemWithCollectionName } from '@/types/nft';
 
 defineEmits<{
-  (e: "selectNft", data: NFTItemWithCollectionName): void;
+  (e: 'selectNft', data: NFTItemWithCollectionName): void;
 }>();
 defineProps({
   item: {
@@ -39,7 +39,7 @@ defineProps({
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .nft-select-list {
   &__token {

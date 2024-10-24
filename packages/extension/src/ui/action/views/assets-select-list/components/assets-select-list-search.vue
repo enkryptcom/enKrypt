@@ -12,24 +12,24 @@
 </template>
 
 <script setup lang="ts">
-import SearchIcon from "@action/icons/common/search.vue";
-import { ref } from "vue";
+import SearchIcon from '@action/icons/common/search.vue';
+import { ref } from 'vue';
 
 const emit = defineEmits<{
-  (e: "update:tokenSearchInput", searchQuery: string): void;
+  (e: 'update:tokenSearchInput', searchQuery: string): void;
 }>();
 
 const searchInput = ref<HTMLInputElement>();
 
 const searchUpdate = () => {
   if (searchInput.value) {
-    emit("update:tokenSearchInput", searchInput.value.value);
+    emit('update:tokenSearchInput', searchInput.value.value);
   }
 };
 </script>
 
 <style lang="less" scoped>
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .assets-select-list-search {
   width: 100%;

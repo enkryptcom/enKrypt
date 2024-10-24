@@ -1,4 +1,4 @@
-import type { toBN } from "web3-utils";
+import type { toBN } from 'web3-utils';
 
 export interface GasFeeInfo {
   nativeValue: string;
@@ -7,10 +7,10 @@ export interface GasFeeInfo {
   fiatSymbol: string;
 }
 export enum GasPriceTypes {
-  ECONOMY = "ECONOMY",
-  REGULAR = "REGULAR",
-  FAST = "FAST",
-  FASTEST = "FASTEST",
+  ECONOMY = 'ECONOMY',
+  REGULAR = 'REGULAR',
+  FAST = 'FAST',
+  FASTEST = 'FASTEST',
 }
 export interface GasFeeType {
   [GasPriceTypes.ECONOMY]: GasFeeInfo;

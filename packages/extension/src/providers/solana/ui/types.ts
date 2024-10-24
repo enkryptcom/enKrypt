@@ -1,8 +1,8 @@
-import type { ToTokenData } from "@/ui/action/types/token";
-import type { GasFeeInfo, GasPriceTypes } from "@/providers/common/types";
-import type { NFTItemWithCollectionName } from "@/types/nft";
-import { EnkryptAccount } from "@enkryptcom/types";
-import { BaseNetwork } from "@/types/base-network";
+import type { ToTokenData } from '@/ui/action/types/token';
+import type { GasFeeInfo, GasPriceTypes } from '@/providers/common/types';
+import type { NFTItemWithCollectionName } from '@/types/nft';
+import { EnkryptAccount } from '@enkryptcom/types';
+import { BaseNetwork } from '@/types/base-network';
 
 export interface SendTransactionDataType {
   from: string;
@@ -29,7 +29,7 @@ export interface SolSignInResponse {
   pubkey: string;
   signature: string;
   signedMessage: string;
-  signatureType: "ed25519";
+  signatureType: 'ed25519';
 }
 
 export interface SolSignTransactionRequest {

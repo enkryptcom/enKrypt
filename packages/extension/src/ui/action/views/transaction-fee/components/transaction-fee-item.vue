@@ -18,24 +18,24 @@
         class="transaction-fee-item__block-amount"
         :class="{ down: parseFloat(diff) < 0 }"
       >
-        {{ parseFloat(diff) < 0 ? "-" : "+" }}${{ Math.abs(parseFloat(diff)) }}
+        {{ parseFloat(diff) < 0 ? '-' : '+' }}${{ Math.abs(parseFloat(diff)) }}
       </div>
     </div>
   </a>
 </template>
 
 <script setup lang="ts">
-import { PropType, computed } from "vue";
-import EconomyIcon from "@action/icons/fee/economy-icon.vue";
-import RecomendedIcon from "@action/icons/fee/recomended-icon.vue";
-import HigherIcon from "@action/icons/fee/higher-icon.vue";
-import HighestIcon from "@action/icons/fee/highest-icon.vue";
-import { GasFeeType, GasPriceTypes } from "@/providers/common/types";
-import { FeeDescriptions } from "@/providers/ethereum/libs/transaction/gas-utils";
-import BigNumber from "bignumber.js";
+import { PropType, computed } from 'vue';
+import EconomyIcon from '@action/icons/fee/economy-icon.vue';
+import RecomendedIcon from '@action/icons/fee/recomended-icon.vue';
+import HigherIcon from '@action/icons/fee/higher-icon.vue';
+import HighestIcon from '@action/icons/fee/highest-icon.vue';
+import { GasFeeType, GasPriceTypes } from '@/providers/common/types';
+import { FeeDescriptions } from '@/providers/ethereum/libs/transaction/gas-utils';
+import BigNumber from 'bignumber.js';
 
 const emit = defineEmits<{
-  (e: "gasTypeChanged", type: GasPriceTypes): void;
+  (e: 'gasTypeChanged', type: GasPriceTypes): void;
 }>();
 const props = defineProps({
   allFees: {
@@ -59,16 +59,16 @@ const diff = computed(() => {
       .minus(selectedVal.fiatValue)
       .toFixed(4);
   } else {
-    return "0";
+    return '0';
   }
 });
 const select = () => {
-  emit("gasTypeChanged", props.type);
+  emit('gasTypeChanged', props.type);
 };
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .transaction-fee-item {
   text-decoration: none;

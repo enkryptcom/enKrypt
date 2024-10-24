@@ -11,8 +11,8 @@
 </template>
 
 <script setup lang="ts">
-import SwapTokenFastItem from "./components/swap-token-fast-item.vue";
-import { TokenTypeTo } from "@enkryptcom/swap";
+import SwapTokenFastItem from './components/swap-token-fast-item.vue';
+import { TokenTypeTo } from '@enkryptcom/swap';
 
 interface IProps {
   fastList?: TokenTypeTo[];
@@ -23,7 +23,7 @@ defineProps<IProps>();
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .swap-token-fast-list {
   width: 100%;

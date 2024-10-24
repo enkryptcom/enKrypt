@@ -1,13 +1,13 @@
-import DomainState from "@/libs/domain-state";
-import { getCustomError } from "@/libs/error";
-import MarketData from "@/libs/market-data";
-import { CustomErc20Token, TokenType } from "@/libs/tokens-state/types";
-import { WindowPromise } from "@/libs/window-promise";
-import { MiddlewareFunction } from "@enkryptcom/types";
-import { isValidAddress } from "@ethereumjs/util";
-import EthereumProvider from "..";
-import API from "../libs/api";
-import { Erc20Token } from "../types/erc20-token";
+import DomainState from '@/libs/domain-state';
+import { getCustomError } from '@/libs/error';
+import MarketData from '@/libs/market-data';
+import { CustomErc20Token, TokenType } from '@/libs/tokens-state/types';
+import { WindowPromise } from '@/libs/window-promise';
+import { MiddlewareFunction } from '@enkryptcom/types';
+import { isValidAddress } from '@ethereumjs/util';
+import EthereumProvider from '..';
+import API from '../libs/api';
+import { Erc20Token } from '../types/erc20-token';
 
 interface WatchAssetParams {
   type?: string;
@@ -20,7 +20,7 @@ interface WatchAssetParams {
 }
 
 enum AddAssetType {
-  ERC20 = "ERC20",
+  ERC20 = 'ERC20',
 }
 
 type Params = WatchAssetParams | undefined;
@@ -29,14 +29,14 @@ const method: MiddlewareFunction = async function (
   this: EthereumProvider,
   payload,
   res,
-  next
+  next,
 ): Promise<void> {
-  if (payload.method !== "wallet_watchAsset") return next();
+  if (payload.method !== 'wallet_watchAsset') return next();
 
   const params = payload.params as Params;
 
   if (!params || !params.options || !params.options.address) {
-    return res(getCustomError("wallet_watchAsset: invalid params"));
+    return res(getCustomError('wallet_watchAsset: invalid params'));
   }
 
   if (params.type !== AddAssetType.ERC20) {
@@ -46,7 +46,7 @@ const method: MiddlewareFunction = async function (
   const contractAddress = params.options.address;
 
   if (!isValidAddress(contractAddress)) {
-    return res(getCustomError("wallet_watchAsset: invalid contract address"));
+    return res(getCustomError('wallet_watchAsset: invalid contract address'));
   }
 
   const domainState = new DomainState();
@@ -56,13 +56,13 @@ const method: MiddlewareFunction = async function (
 
   const tokenInfo = await (api as API).getTokenInfo(contractAddress);
 
-  let balance = "";
+  let balance = '';
 
   const marketData = new MarketData();
 
   const marketInfo = await marketData.getMarketInfoByContracts(
     [contractAddress.toLowerCase()],
-    this.network.coingeckoPlatform! ?? ""
+    this.network.coingeckoPlatform! ?? '',
   );
 
   const market = marketInfo[contractAddress.toLowerCase()];
@@ -85,7 +85,7 @@ const method: MiddlewareFunction = async function (
     address: contractAddress,
   };
 
-  if (tokenInfo.name !== "Unknown" && selectedAddress) {
+  if (tokenInfo.name !== 'Unknown' && selectedAddress) {
     const erc20Token = new Erc20Token({
       name: tokenInfo.name,
       symbol: tokenInfo.symbol,
@@ -98,7 +98,7 @@ const method: MiddlewareFunction = async function (
     try {
       const latestBalance = await erc20Token.getLatestUserBalance(
         api as API,
-        selectedAddress
+        selectedAddress,
       );
 
       balance = latestBalance;
@@ -115,7 +115,7 @@ const method: MiddlewareFunction = async function (
         ...payload,
         params: [customToken, balance, selectedAddress, this.network.name],
       }),
-      true
+      true,
     )
     .then(({ error, result }) => {
       if (error) return res(error);

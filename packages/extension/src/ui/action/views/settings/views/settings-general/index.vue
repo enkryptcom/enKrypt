@@ -64,13 +64,13 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
-import SettingsInnerHeader from "@action/views/settings/components/settings-inner-header.vue";
+import { onMounted, ref } from 'vue';
+import SettingsInnerHeader from '@action/views/settings/components/settings-inner-header.vue';
 // import BaseSelect from "@action/components/base-select/index.vue";
-import SettingsSwitch from "@action/views/settings/components/settings-switch.vue";
-import SettingsState from "@/libs/settings-state";
-import { SettingsType } from "@/libs/settings-state/types";
-import { optOutofMetrics } from "@/libs/metrics";
+import SettingsSwitch from '@action/views/settings/components/settings-switch.vue';
+import SettingsState from '@/libs/settings-state';
+import { SettingsType } from '@/libs/settings-state/types';
+import { optOutofMetrics } from '@/libs/metrics';
 
 const settingsState = new SettingsState();
 const isEthereumDisabled = ref(false);
@@ -111,7 +111,7 @@ const toggleMetricsEnabled = async (isChecked: boolean) => {
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .settings {
   &__label {

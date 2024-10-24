@@ -1,4 +1,4 @@
-import Web3Eth, { FeeHistoryResult } from "web3-eth";
+import Web3Eth, { FeeHistoryResult } from 'web3-eth';
 import {
   EthereumTransaction,
   FinalizedFeeMarketEthereumTransaction,
@@ -6,20 +6,20 @@ import {
   FormattedFeeHistory,
   GasCosts,
   TransactionOptions,
-} from "./types";
-import { BNType, GasPriceTypes } from "@/providers/common/types";
-import { numberToHex, toBN } from "web3-utils";
+} from './types';
+import { BNType, GasPriceTypes } from '@/providers/common/types';
+import { numberToHex, toBN } from 'web3-utils';
 import {
   GAS_PERCENTILES,
   formatFeeHistory,
   getBaseFeeBasedOnType,
   getGasBasedOnType,
   getPriorityFeeBasedOnType,
-} from "./gas-utils";
-import { Hardfork, Common } from "@ethereumjs/common";
-import { FeeMarketEIP1559Transaction, LegacyTransaction } from "@ethereumjs/tx";
-import { OPTIMISM_PRICE_ORACLE, OPTIMISM_PRICE_ORACLE_ABI } from "./op-data";
-import { bufferToHex } from "@enkryptcom/utils";
+} from './gas-utils';
+import { Hardfork, Common } from '@ethereumjs/common';
+import { FeeMarketEIP1559Transaction, LegacyTransaction } from '@ethereumjs/tx';
+import { OPTIMISM_PRICE_ORACLE, OPTIMISM_PRICE_ORACLE_ABI } from './op-data';
+import { bufferToHex } from '@enkryptcom/utils';
 
 /** Represents an EVM transaction */
 class Transaction {
@@ -34,14 +34,14 @@ class Transaction {
     return this.web3.estimateGas({
       to: this.tx.to || undefined,
       from: this.tx.from,
-      data: this.tx.data || "0x",
-      value: this.tx.value || "0x0",
+      data: this.tx.data || '0x',
+      value: this.tx.value || '0x0',
     });
   }
   async getOPfees(): Promise<BNType> {
     const OPContract = new this.web3.Contract(
       OPTIMISM_PRICE_ORACLE_ABI as any,
-      OPTIMISM_PRICE_ORACLE
+      OPTIMISM_PRICE_ORACLE,
     );
     const fTx = await this.getFinalizedTransaction({
       gasPriceType: GasPriceTypes.ECONOMY,
@@ -56,15 +56,15 @@ class Transaction {
   private getFeeMarketGasInfo = (
     baseFeePerGas: string,
     formattedFeeHistory: FormattedFeeHistory,
-    priceType: GasPriceTypes
+    priceType: GasPriceTypes,
   ) => {
     const adjustedBaseFeePerGas = getBaseFeeBasedOnType(
       baseFeePerGas,
-      priceType
+      priceType,
     );
     const maxPriorityFeePerGas = getPriorityFeeBasedOnType(
       formattedFeeHistory,
-      priceType
+      priceType,
     );
     const maxFeePerGas = adjustedBaseFeePerGas.add(maxPriorityFeePerGas);
     return {
@@ -88,10 +88,10 @@ class Transaction {
     gasLimit: string;
     formattedFeeHistory?: FormattedFeeHistory;
   }> {
-    const latestBlock = await this.web3.getBlock("latest", false);
+    const latestBlock = await this.web3.getBlock('latest', false);
     const { isFeeMarketNetwork, feeHistory } = await this.web3
-      .getFeeHistory(6, "latest", GAS_PERCENTILES)
-      .then((history) => ({
+      .getFeeHistory(6, 'latest', GAS_PERCENTILES)
+      .then(history => ({
         isFeeMarketNetwork: !!latestBlock.baseFeePerGas,
         feeHistory: history,
       }))
@@ -100,7 +100,7 @@ class Transaction {
         feeHistory: {} as FeeHistoryResult,
       }));
     // Gets the number of transactions that they will have sent by the next pending block
-    const nonce = await this.web3.getTransactionCount(this.tx.from, "pending");
+    const nonce = await this.web3.getTransactionCount(this.tx.from, 'pending');
     if (!isFeeMarketNetwork) {
       // Legacy transaction
       const gasPrice = await this.web3.getGasPrice();
@@ -110,18 +110,18 @@ class Transaction {
       const legacyTx: FinalizedLegacyEthereumTransaction = {
         to: this.tx.to || undefined,
         chainId: this.tx.chainId,
-        data: this.tx.data || "0x",
+        data: this.tx.data || '0x',
         from: this.tx.from,
         gasLimit,
         gasPrice: !options.totalGasPrice
           ? (numberToHex(
-              getGasBasedOnType(gasPrice, options.gasPriceType)
+              getGasBasedOnType(gasPrice, options.gasPriceType),
             ) as `0x${string}`)
           : (numberToHex(
-              options.totalGasPrice.div(toBN(gasLimit))
+              options.totalGasPrice.div(toBN(gasLimit)),
             ) as `0x${string}`),
         nonce: this.tx.nonce || (numberToHex(nonce) as `0x${string}`),
-        value: this.tx.value || "0x0",
+        value: this.tx.value || '0x0',
       };
       return {
         transaction: legacyTx,
@@ -136,7 +136,7 @@ class Transaction {
       const feeMarket = this.getFeeMarketGasInfo(
         baseFeePerGas!,
         formattedFeeHistory,
-        options.gasPriceType
+        options.gasPriceType,
       );
       const gasLimit =
         this.tx.gasLimit ||
@@ -148,18 +148,18 @@ class Transaction {
       const feeMarketTx: FinalizedFeeMarketEthereumTransaction = {
         to: this.tx.to || undefined,
         chainId: this.tx.chainId,
-        data: this.tx.data || "0x",
+        data: this.tx.data || '0x',
         from: this.tx.from,
         gasLimit,
         nonce: this.tx.nonce || (numberToHex(nonce) as `0x${string}`),
-        value: this.tx.value || "0x0",
+        value: this.tx.value || '0x0',
         maxFeePerGas: numberToHex(maxFeePerGas) as `0x${string}`,
         maxPriorityFeePerGas: numberToHex(
           maxPriorityFeePerGas.gt(maxFeePerGas)
             ? maxFeePerGas
-            : maxPriorityFeePerGas
+            : maxPriorityFeePerGas,
         ) as `0x${string}`,
-        type: "0x02",
+        type: '0x02',
         accessList: this.tx.accessList || [],
       };
       return {
@@ -180,7 +180,7 @@ class Transaction {
    * creates a sendable transaction from it
    */
   async getFinalizedTransaction(
-    options: TransactionOptions
+    options: TransactionOptions,
   ): Promise<LegacyTransaction | FeeMarketEIP1559Transaction> {
     const { transaction } = await this.finalizeTransaction(options);
 
@@ -192,7 +192,7 @@ class Transaction {
         transaction as FinalizedLegacyEthereumTransaction,
         {
           common,
-        }
+        },
       );
     } else {
       const common = Common.custom({
@@ -203,7 +203,7 @@ class Transaction {
         transaction as FinalizedFeeMarketEthereumTransaction,
         {
           common,
-        }
+        },
       );
     }
   }
@@ -224,22 +224,22 @@ class Transaction {
         [GasPriceTypes.ECONOMY]: numberToHex(
           getGasBasedOnType(gasPrice, GasPriceTypes.ECONOMY)
             .mul(toBN(gasLimit))
-            .add(opFee)
+            .add(opFee),
         ),
         [GasPriceTypes.REGULAR]: numberToHex(
           getGasBasedOnType(gasPrice, GasPriceTypes.REGULAR)
             .mul(toBN(gasLimit))
-            .add(opFee)
+            .add(opFee),
         ),
         [GasPriceTypes.FAST]: numberToHex(
           getGasBasedOnType(gasPrice, GasPriceTypes.FAST)
             .mul(toBN(gasLimit))
-            .add(opFee)
+            .add(opFee),
         ),
         [GasPriceTypes.FASTEST]: numberToHex(
           getGasBasedOnType(gasPrice, GasPriceTypes.FASTEST)
             .mul(toBN(gasLimit))
-            .add(opFee)
+            .add(opFee),
         ),
       };
     } else {
@@ -248,37 +248,37 @@ class Transaction {
           this.getFeeMarketGasInfo(
             baseFeePerGas!,
             formattedFeeHistory!,
-            GasPriceTypes.ECONOMY
+            GasPriceTypes.ECONOMY,
           )
             .maxFeePerGas.mul(toBN(gasLimit))
-            .add(opFee)
+            .add(opFee),
         ),
         [GasPriceTypes.REGULAR]: numberToHex(
           this.getFeeMarketGasInfo(
             baseFeePerGas!,
             formattedFeeHistory!,
-            GasPriceTypes.REGULAR
+            GasPriceTypes.REGULAR,
           )
             .maxFeePerGas.mul(toBN(gasLimit))
-            .add(opFee)
+            .add(opFee),
         ),
         [GasPriceTypes.FAST]: numberToHex(
           this.getFeeMarketGasInfo(
             baseFeePerGas!,
             formattedFeeHistory!,
-            GasPriceTypes.FAST
+            GasPriceTypes.FAST,
           )
             .maxFeePerGas.mul(toBN(gasLimit))
-            .add(opFee)
+            .add(opFee),
         ),
         [GasPriceTypes.FASTEST]: numberToHex(
           this.getFeeMarketGasInfo(
             baseFeePerGas!,
             formattedFeeHistory!,
-            GasPriceTypes.FASTEST
+            GasPriceTypes.FASTEST,
           )
             .maxFeePerGas.mul(toBN(gasLimit))
-            .add(opFee)
+            .add(opFee),
         ),
       };
     }

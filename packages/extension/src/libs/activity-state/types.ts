@@ -1,5 +1,5 @@
-import { Activity } from "@/types/activity";
-import { BaseNetwork } from "@/types/base-network";
+import { Activity } from '@/types/activity';
+import { BaseNetwork } from '@/types/base-network';
 
 export interface ActivityOptions {
   address: string;
@@ -8,5 +8,5 @@ export interface ActivityOptions {
 
 export type ActivityHandlerType = (
   _network: BaseNetwork,
-  _address: string
+  _address: string,
 ) => Promise<Activity[]>;

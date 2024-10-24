@@ -1,5 +1,5 @@
-import { BaseToken } from "@/types/base-token";
-import { SubstrateNetwork } from "../../types/substrate-network";
+import { BaseToken } from '@/types/base-token';
+import { SubstrateNetwork } from '../../types/substrate-network';
 
 export interface TransferProps {
   to: string;

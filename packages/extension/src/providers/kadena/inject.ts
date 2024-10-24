@@ -1,15 +1,15 @@
-import EventEmitter from "eventemitter3";
-import { handleIncomingMessage } from "./libs/message-handler";
-import { EthereumRequest, EthereumResponse } from "@/providers/ethereum/types";
+import EventEmitter from 'eventemitter3';
+import { handleIncomingMessage } from './libs/message-handler';
+import { EthereumRequest, EthereumResponse } from '@/providers/ethereum/types';
 import {
   ProviderName,
   ProviderOptions,
   ProviderType,
   ProviderInterface,
   SendMessageHandler,
-} from "@/types/provider";
-import { EnkryptWindow } from "@/types/globals";
-import { KadenaNetworks } from "./types";
+} from '@/types/provider';
+import { EnkryptWindow } from '@/types/globals';
+import { KadenaNetworks } from './types';
 
 export class Provider extends EventEmitter implements ProviderInterface {
   connected: boolean;
@@ -32,7 +32,7 @@ export class Provider extends EventEmitter implements ProviderInterface {
   async request(request: EthereumRequest): Promise<EthereumResponse> {
     const res = (await this.sendMessageHandler(
       this.name,
-      JSON.stringify(request)
+      JSON.stringify(request),
     )) as EthereumResponse;
     return res;
   }
@@ -48,10 +48,10 @@ export class Provider extends EventEmitter implements ProviderInterface {
 
 const injectDocument = (
   document: EnkryptWindow | Window,
-  options: ProviderOptions
+  options: ProviderOptions,
 ): void => {
   const provider = new Provider(options);
-  document["enkrypt"]["providers"][options.name] = provider;
+  document['enkrypt']['providers'][options.name] = provider;
 };
 
 export default injectDocument;

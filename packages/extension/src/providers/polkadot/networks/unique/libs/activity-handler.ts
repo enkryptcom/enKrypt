@@ -1,7 +1,7 @@
-import { ActivityHandlerType } from "@/libs/activity-state/types";
-import cacheFetch from "@/libs/cache-fetch";
-import { BaseNetwork } from "@/types/base-network";
-import { Activity, ActivityStatus, ActivityType } from "@/types/activity";
+import { ActivityHandlerType } from '@/libs/activity-state/types';
+import cacheFetch from '@/libs/cache-fetch';
+import { BaseNetwork } from '@/types/base-network';
+import { Activity, ActivityStatus, ActivityType } from '@/types/activity';
 
 const TTL = 30000;
 
@@ -38,19 +38,19 @@ const query = `
       timestamp
     }
   }
-`.replace(/[\n ]+/g, " ");
+`.replace(/[\n ]+/g, ' ');
 
 const getVariables = (address: string) => ({
-  orderBy: { timestamp: "desc" },
+  orderBy: { timestamp: 'desc' },
   where: {
     _and: [
       { amount: { _neq: 0 } },
       {
         method: {
-          _in: ["transfer", "transfer_all", "transfer_keep_alive"],
+          _in: ['transfer', 'transfer_all', 'transfer_keep_alive'],
         },
       },
-      { section: { _eq: "Balances" } },
+      { section: { _eq: 'Balances' } },
       {
         _or: [
           { from_owner_normalized: { _eq: address } },
@@ -63,7 +63,7 @@ const getVariables = (address: string) => ({
 
 function getLastTransfersByAddress(
   graphqlEndpoint: string,
-  address: string
+  address: string,
 ): Promise<ExtrinsicData[]> {
   const queryParams = new URLSearchParams({
     query,
@@ -73,11 +73,11 @@ function getLastTransfersByAddress(
   const url = `${graphqlEndpoint}?${queryParams.toString()}`;
 
   return cacheFetch({ url }, TTL)
-    .then((response) => {
+    .then(response => {
       return response.data.extrinsics.data;
     })
-    .catch((reason) => {
-      console.error("Failed to fetch activity", reason);
+    .catch(reason => {
+      console.error('Failed to fetch activity', reason);
 
       return [];
     });
@@ -86,7 +86,7 @@ function getLastTransfersByAddress(
 const transform = (
   address: string,
   network: BaseNetwork,
-  activity: ExtrinsicData
+  activity: ExtrinsicData,
 ): Activity => ({
   from: activity.from_owner_normalized,
   to: activity.from_owner_normalized,
@@ -104,11 +104,11 @@ const transform = (
     fee: activity.fee.toString(),
     nonce: 0,
     asset_symbol: network.currencyName,
-    asset_type: "",
+    asset_type: '',
   },
   status: activity.success ? ActivityStatus.success : ActivityStatus.failed,
   timestamp: activity.timestamp * 1000,
-  value: activity.amount + "".padStart(network.decimals, "0"),
+  value: activity.amount + ''.padStart(network.decimals, '0'),
   transactionHash: activity.block_index,
   type: ActivityType.transaction,
   token: {
@@ -120,11 +120,11 @@ const transform = (
 });
 
 export const getActivityHandler = (
-  graphqlEndpoint: string
+  graphqlEndpoint: string,
 ): ActivityHandlerType => {
   return async (network: BaseNetwork, address: string) => {
     const transfers = await getLastTransfersByAddress(graphqlEndpoint, address);
 
-    return transfers.map((transfer) => transform(address, network, transfer));
+    return transfers.map(transfer => transform(address, network, transfer));
   };
 };

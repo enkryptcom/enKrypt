@@ -1,6 +1,5 @@
 <template>
-  <a class="best-offer-list-item" @click="(select as ()=>void)">
-    <!-- <img :src="require('@/ui/action/icons/raw/paraswap.png')" /> -->
+  <a class="best-offer-list-item" @click="select">
     <div class="best-offer-list-item__info">
       <p>Offer {{ swapNumber }}</p>
       <h5>{{ amount }}</h5>
@@ -17,13 +16,13 @@
 </template>
 
 <script setup lang="ts">
-import DoneIcon from "@action/icons/common/done_icon.vue";
-import LottieStatusJson from "@action/assets/animation/status.json";
-import { Vue3Lottie } from "vue3-lottie";
+import DoneIcon from '@action/icons/common/done_icon.vue';
+import LottieStatusJson from '@action/assets/animation/status.json';
+import { Vue3Lottie } from 'vue3-lottie';
 
 defineProps({
   select: {
-    type: Function,
+    type: Function as () => void,
     default: () => {
       return null;
     },
@@ -37,7 +36,7 @@ defineProps({
   amount: {
     type: String,
     default: () => {
-      return "";
+      return '';
     },
   },
   isLoading: {
@@ -56,7 +55,7 @@ defineProps({
 </script>
 
 <style lang="less" scoped>
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .best-offer-list-item {
   height: 56px;

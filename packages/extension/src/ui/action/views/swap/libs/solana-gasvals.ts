@@ -1,24 +1,24 @@
-import { GasFeeType, GasPriceTypes } from "@/providers/common/types";
-import SolanaAPI from "@/providers/solana/libs/api";
-import { SolanaNetwork } from "@/providers/solana/types/sol-network";
-import { fromBase } from "@enkryptcom/utils";
+import { GasFeeType, GasPriceTypes } from '@/providers/common/types';
+import SolanaAPI from '@/providers/solana/libs/api';
+import { SolanaNetwork } from '@/providers/solana/types/sol-network';
+import { fromBase } from '@enkryptcom/utils';
 import {
   VersionedTransaction as SolanaVersionedTransaction,
   Transaction as SolanaLegacyTransaction,
   VersionedMessage,
   Message,
-} from "@solana/web3.js";
-import BigNumber from "bignumber.js";
-import { toBN } from "web3-utils";
+} from '@solana/web3.js';
+import BigNumber from 'bignumber.js';
+import { toBN } from 'web3-utils';
 
 type TaggedLegacyTransaction = {
-  kind: "legacy";
+  kind: 'legacy';
   instance: SolanaLegacyTransaction;
   hasThirdPartySignatures: boolean;
 };
 
 type TaggedVersionedTransaction = {
-  kind: "versioned";
+  kind: 'versioned';
   instance: SolanaVersionedTransaction;
   hasThirdPartySignatures: boolean;
 };
@@ -28,10 +28,10 @@ type TaggedTransaction = TaggedLegacyTransaction | TaggedVersionedTransaction;
 function getTxBlockHash(tx: TaggedTransaction): undefined | string {
   let recentBlockHash: undefined | string;
   switch (tx.kind) {
-    case "legacy":
+    case 'legacy':
       recentBlockHash = tx.instance.recentBlockhash;
       break;
-    case "versioned":
+    case 'versioned':
       recentBlockHash = tx.instance.message.recentBlockhash;
       break;
     default:
@@ -43,10 +43,10 @@ function getTxBlockHash(tx: TaggedTransaction): undefined | string {
 
 function setTxBlockHash(tx: TaggedTransaction, blockHash: string): void {
   switch (tx.kind) {
-    case "legacy":
+    case 'legacy':
       tx.instance.recentBlockhash = blockHash;
       break;
-    case "versioned":
+    case 'versioned':
       tx.instance.message.recentBlockhash = blockHash;
       break;
     default:
@@ -58,10 +58,10 @@ function setTxBlockHash(tx: TaggedTransaction, blockHash: string): void {
 function getTxMessage(tx: TaggedTransaction): Message | VersionedMessage {
   let msg: Message | VersionedMessage;
   switch (tx.kind) {
-    case "legacy":
+    case 'legacy':
       msg = tx.instance.compileMessage();
       break;
-    case "versioned":
+    case 'versioned':
       msg = tx.instance.message;
       break;
     default:
@@ -78,7 +78,7 @@ export const getSolanaTransactionFees = async (
   txs: (TaggedLegacyTransaction | TaggedVersionedTransaction)[],
   network: SolanaNetwork,
   price: number,
-  additionalFee: ReturnType<typeof toBN>
+  additionalFee: ReturnType<typeof toBN>,
 ): Promise<Pick<GasFeeType, GasPriceTypes.REGULAR>> => {
   let feesumlamp = additionalFee;
   const conn = ((await network.api()) as SolanaAPI).web3;
@@ -89,14 +89,14 @@ export const getSolanaTransactionFees = async (
     /** For logging / debugging */
     let txkind: string;
     switch (tx.kind) {
-      case "legacy":
-        txkind = "legacy";
+      case 'legacy':
+        txkind = 'legacy';
         break;
-      case "versioned":
+      case 'versioned':
         txkind = `versioned (${tx.instance.version})`;
         break;
       case undefined:
-        txkind = "legacy";
+        txkind = 'legacy';
         break;
       default:
         txkind = `unknown (${(tx as SolanaVersionedTransaction).version})`;
@@ -115,7 +115,7 @@ export const getSolanaTransactionFees = async (
     /** 0 indexed attempt, used to index backoff ms from `backoff` */
     let attempt = 0;
     let fee: number;
-    // eslint-disable-next-line no-constant-condition
+
     while (true) {
       if (attempt >= backoff.length) {
         const blockHash = getTxBlockHash(tx);
@@ -124,12 +124,12 @@ export const getSolanaTransactionFees = async (
             ` after ${backoff.length} attempts.` +
             ` Transaction block hash` +
             ` ${blockHash} possibly expired.` +
-            `  txkind=${txkind}`
+            `  txkind=${txkind}`,
         );
       }
       if (backoff[attempt] > 0) {
         // wait before retrying
-        await new Promise((res) => setTimeout(res, backoff[attempt]));
+        await new Promise(res => setTimeout(res, backoff[attempt]));
       }
       // Update the block hash in-case it caused 0 fees to be returned
       if (attempt > 0) {
@@ -139,7 +139,7 @@ export const getSolanaTransactionFees = async (
             `Cannot update block hash for signed transaction` +
               ` ${txi + 1}, retrying getFeeForMessage using the same` +
               ` block hash ${blockHash}` +
-              `  txkind=${txkind}`
+              `  txkind=${txkind}`,
           );
         } else {
           latestBlockHash = await conn.getLatestBlockhash();
@@ -156,7 +156,7 @@ export const getSolanaTransactionFees = async (
           `Failed to get fee for Solana transaction ${txi + 1}/${len}.` +
             ` Transaction block hash ${recentBlockHash}` +
             ` possibly expired. Attempt ${attempt + 1}/${backoff.length}.` +
-            `  txkind=${txkind}`
+            `  txkind=${txkind}`,
         );
       } else {
         // Success
@@ -166,7 +166,7 @@ export const getSolanaTransactionFees = async (
             `Successfully got fee for Solana transaction` +
               ` ${txi + 1}/${len} after ${attempt + 1} attempts.` +
               `  fee=${fee}` +
-              `  txkind=${txkind}`
+              `  txkind=${txkind}`,
           );
         }
         break;
@@ -185,8 +185,8 @@ export const getSolanaTransactionFees = async (
     [GasPriceTypes.REGULAR]: {
       nativeValue: feesumsol,
       fiatValue: new BigNumber(feesumsol).times(price).toString(),
-      nativeSymbol: "SOL",
-      fiatSymbol: "USD",
+      nativeSymbol: 'SOL',
+      fiatSymbol: 'USD',
     },
   };
 };

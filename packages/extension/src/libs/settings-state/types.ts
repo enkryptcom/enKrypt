@@ -1,8 +1,8 @@
 export enum StorageKeys {
-  evmState = "evm-settings-state",
-  substrateState = "substrate-settings-state",
-  btcState = "btc-settings-state",
-  enkryptState = "enkrypt-settings-state",
+  evmState = 'evm-settings-state',
+  substrateState = 'substrate-settings-state',
+  btcState = 'btc-settings-state',
+  enkryptState = 'enkrypt-settings-state',
 }
 export interface EVMInjectSettings {
   disabled: boolean;

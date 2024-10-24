@@ -1,4 +1,4 @@
-import { NetworkNames } from "@enkryptcom/types";
+import { NetworkNames } from '@enkryptcom/types';
 
 const newNetworks = [NetworkNames.Solana];
 const newSwaps: NetworkNames[] = [];

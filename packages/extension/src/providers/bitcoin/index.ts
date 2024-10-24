@@ -1,18 +1,18 @@
-import { BaseNetwork } from "@/types/base-network";
-import getRequestProvider, { RequestClass } from "@enkryptcom/request";
-import Networks from "./networks";
-import { MiddlewareFunction, OnMessageResponse } from "@enkryptcom/types";
-import Middlewares from "./methods";
-import EventEmitter from "eventemitter3";
+import { BaseNetwork } from '@/types/base-network';
+import getRequestProvider, { RequestClass } from '@enkryptcom/request';
+import Networks from './networks';
+import { MiddlewareFunction, OnMessageResponse } from '@enkryptcom/types';
+import Middlewares from './methods';
+import EventEmitter from 'eventemitter3';
 import {
   BackgroundProviderInterface,
   ProviderName,
   ProviderRPCRequest,
-} from "@/types/provider";
-import GetUIPath from "@/libs/utils/get-ui-path";
-import PublicKeyRing from "@/libs/keyring/public-keyring";
-import UIRoutes from "./ui/routes/names";
-import { BitcoinNetwork } from "./types/bitcoin-network";
+} from '@/types/provider';
+import GetUIPath from '@/libs/utils/get-ui-path';
+import PublicKeyRing from '@/libs/keyring/public-keyring';
+import UIRoutes from './ui/routes/names';
+import { BitcoinNetwork } from './types/bitcoin-network';
 class BitcoinProvider
   extends EventEmitter
   implements BackgroundProviderInterface
@@ -26,21 +26,21 @@ class BitcoinProvider
   toWindow: (message: string) => void;
   constructor(
     toWindow: (message: string) => void,
-    network: BitcoinNetwork = Networks.bitcoin
+    network: BitcoinNetwork = Networks.bitcoin,
   ) {
     super();
     this.network = network;
     this.toWindow = toWindow;
     this.setMiddleWares();
-    this.requestProvider = getRequestProvider("", this.middlewares);
-    this.requestProvider.on("notification", (notif: any) => {
+    this.requestProvider = getRequestProvider('', this.middlewares);
+    this.requestProvider.on('notification', (notif: any) => {
       this.sendNotification(JSON.stringify(notif));
     });
     this.namespace = ProviderName.bitcoin;
     this.KeyRing = new PublicKeyRing();
   }
   private setMiddleWares(): void {
-    this.middlewares = Middlewares.map((mw) => mw.bind(this));
+    this.middlewares = Middlewares.map(mw => mw.bind(this));
   }
   setRequestProvider(network: BaseNetwork): void {
     this.network = network as BitcoinNetwork;
@@ -55,12 +55,12 @@ class BitcoinProvider
   request(request: ProviderRPCRequest): Promise<OnMessageResponse> {
     return this.requestProvider
       .request(request)
-      .then((res) => {
+      .then(res => {
         return {
           result: JSON.stringify(res),
         };
       })
-      .catch((e) => {
+      .catch(e => {
         return {
           error: JSON.stringify(e.message),
         };

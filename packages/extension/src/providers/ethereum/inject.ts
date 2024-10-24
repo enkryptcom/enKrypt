@@ -1,11 +1,11 @@
-import EventEmitter from "eventemitter3";
-import { handleIncomingMessage } from "./libs/message-handler";
+import EventEmitter from 'eventemitter3';
+import { handleIncomingMessage } from './libs/message-handler';
 import {
   EthereumRequest,
   EthereumResponse,
   JsonRpcRequest,
   CallbackFunction,
-} from "./types";
+} from './types';
 import {
   ProviderName,
   ProviderOptions,
@@ -14,11 +14,11 @@ import {
   SendMessageHandler,
   EIP6963ProviderInfo,
   EIP6963Events,
-} from "@/types/provider";
-import { SettingsType } from "@/libs/settings-state/types";
-import { EnkryptWindow } from "@/types/globals";
-import { v4 as randomUUID } from "uuid";
-import { InternalMethods } from "@/types/messenger";
+} from '@/types/provider';
+import { SettingsType } from '@/libs/settings-state/types';
+import { EnkryptWindow } from '@/types/globals';
+import { v4 as randomUUID } from 'uuid';
+import { InternalMethods } from '@/types/messenger';
 
 export class Provider extends EventEmitter implements ProviderInterface {
   chainId: string | null;
@@ -35,7 +35,7 @@ export class Provider extends EventEmitter implements ProviderInterface {
   constructor(options: ProviderOptions) {
     super();
     this.chainId = null; //deprecated
-    this.networkVersion = "0x1"; //deprecated
+    this.networkVersion = '0x1'; //deprecated
     this.isEnkrypt = true;
     this.isMetaMask = true;
     this.selectedAddress = null; //deprecated
@@ -50,28 +50,28 @@ export class Provider extends EventEmitter implements ProviderInterface {
       await this.sendMessageHandler(
         this.name,
         JSON.stringify({
-          method: "eth_chainId",
-        })
-      ).then((res) => {
+          method: 'eth_chainId',
+        }),
+      ).then(res => {
         this.chainId = res;
         this.networkVersion = Number(res).toString();
       });
     }
     if (
       this.selectedAddress === null &&
-      request.method === "eth_requestAccounts"
+      request.method === 'eth_requestAccounts'
     ) {
       return this.sendMessageHandler(this.name, JSON.stringify(request)).then(
-        (res) => {
+        res => {
           this.selectedAddress = res[0];
           return res;
-        }
+        },
       );
     }
     return this.sendMessageHandler(this.name, JSON.stringify(request));
   }
   enable(): Promise<any> {
-    return this.request({ method: "eth_requestAccounts" });
+    return this.request({ method: 'eth_requestAccounts' });
   }
   isConnected(): boolean {
     return this.connected;
@@ -79,12 +79,12 @@ export class Provider extends EventEmitter implements ProviderInterface {
   //deprecated
   send(
     method: string | JsonRpcRequest,
-    params?: Array<unknown> | CallbackFunction
+    params?: Array<unknown> | CallbackFunction,
   ): Promise<EthereumResponse> | void {
     if ((method as JsonRpcRequest).method) {
       return this.sendAsync(
         method as JsonRpcRequest,
-        params as CallbackFunction
+        params as CallbackFunction,
       );
     } else {
       return this.request({
@@ -97,14 +97,14 @@ export class Provider extends EventEmitter implements ProviderInterface {
   sendAsync(data: JsonRpcRequest, callback: CallbackFunction): void {
     const { method, params } = data as EthereumRequest;
     this.request({ method, params })
-      .then((res) => {
+      .then(res => {
         callback(null, {
           id: data.id,
-          jsonrpc: "2.0",
+          jsonrpc: '2.0',
           result: res,
         });
       })
-      .catch((err) => callback(err));
+      .catch(err => callback(err));
   }
   handleMessage(msg: string): void {
     handleIncomingMessage(this, msg);
@@ -112,8 +112,8 @@ export class Provider extends EventEmitter implements ProviderInterface {
 }
 
 const ProxyHandler = {
-  proxymethods: ["request", "sendAsync", "send"],
-  writableVars: ["autoRefreshOnNetworkChange"],
+  proxymethods: ['request', 'sendAsync', 'send'],
+  writableVars: ['autoRefreshOnNetworkChange'],
   ownKeys(target: Provider) {
     return Object.keys(target).concat(this.proxymethods);
   },
@@ -130,7 +130,7 @@ const ProxyHandler = {
     };
   },
   get(target: Provider, prop: keyof Provider) {
-    if (typeof target[prop] === "function") {
+    if (typeof target[prop] === 'function') {
       return (target[prop] as () => any).bind(target);
     }
     return target[prop];
@@ -141,18 +141,18 @@ const ProxyHandler = {
 };
 const injectDocument = (
   document: EnkryptWindow | Window,
-  options: ProviderOptions
+  options: ProviderOptions,
 ): void => {
   const provider = new Provider(options);
   const proxiedProvider = new Proxy(provider, ProxyHandler);
-  document["enkrypt"]["providers"][options.name] = provider;
+  document['enkrypt']['providers'][options.name] = provider;
   if (__IS_OPERA__) {
     document[options.name] = proxiedProvider; // Opera expects you to inject immediately and their wallet switcher will handle conflicts
   }
   options
     .sendMessageHandler(
       ProviderName.enkrypt,
-      JSON.stringify({ method: InternalMethods.getSettings, params: [] })
+      JSON.stringify({ method: InternalMethods.getSettings, params: [] }),
     )
     .then((settings: SettingsType) => {
       if (!settings.evm.inject.disabled)
@@ -164,13 +164,13 @@ const injectDocument = (
     const info: EIP6963ProviderInfo = {
       uuid: ENKRYPT_UUID_V4,
       icon: `data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODEiIGhlaWdodD0iODEiIHZpZXdCb3g9IjAgMCA4MSA4MSIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZmlsbC1ydWxlPSJldmVub2RkIiBjbGlwLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik0xNy4wMDU3IDE3LjAwNjJDMTguOTMwMyAxNS4wODE2IDIxLjU0MDUgMTQuMDAwNCAyNC4yNjIyIDE0LjAwMDRMNjcuMzI5NiAxNFYyMS44NzQxQzY3LjMyOTYgMjMuODMwNSA2Ni41NTIzIDI1LjcwNjcgNjUuMTY5IDI3LjA5QzYzLjc4NTcgMjguNDczMyA2MS45MDk1IDI5LjI1MDQgNTkuOTUzMiAyOS4yNTA0SDM5LjcwNDVDMzYuOTgyOCAyOS4yNTA0IDM0LjM3MjYgMzAuMzMxNiAzMi40NDggMzIuMjU2MUMzMC41MjM1IDM0LjE4MDcgMjkuNDQyMyAzNi43OTA5IDI5LjQ0MjMgMzkuNTEyNlY0Mi4xMjQyQzI5LjQ0MjMgNDQuODQ1OSAzMC41MjM1IDQ3LjQ1NjEgMzIuNDQ4IDQ5LjM4MDZDMzQuMzcyNiA1MS4zMDUxIDM2Ljk4MjggNTIuMzg2MyAzOS43MDQ1IDUyLjM4NjNINTkuOTUzMkM2MS45MDk1IDUyLjM4NjMgNjMuNzg1NyA1My4xNjM1IDY1LjE2OSA1NC41NDY4QzY2LjU1MjMgNTUuOTMwMSA2Ny4zMjk2IDU3LjgwNjMgNjcuMzI5NiA1OS43NjI2VjY3LjMzSDI0LjI2MjJDMjEuNTQwNSA2Ny4zMyAxOC45MzAzIDY2LjI0ODggMTcuMDA1NyA2NC4zMjQzQzE1LjA4MTIgNjIuMzk5NyAxNCA1OS43ODk1IDE0IDU3LjA2NzhWMjQuMjYyNkMxNCAyMS41NDA5IDE1LjA4MTIgMTguOTMwNyAxNy4wMDU3IDE3LjAwNjJaTTQwLjE0NzkgMzMuNTQyM0g2MC45MTU3QzY0LjQ1OCAzMy41NDIzIDY3LjMyOTUgMzYuNDEzOCA2Ny4zMjk1IDM5Ljk1NjFWNDEuNjgxNkM2Ny4zMjk1IDQ1LjIyMzggNjQuNDU4IDQ4LjA5NTQgNjAuOTE1NyA0OC4wOTU0SDQwLjE0NzlDMzYuNjA1NyA0OC4wOTU0IDMzLjczNDEgNDUuMjIzOCAzMy43MzQxIDQxLjY4MTZWMzkuOTU2MUMzMy43MzQxIDM2LjQxMzggMzYuNjA1NyAzMy41NDIzIDQwLjE0NzkgMzMuNTQyM1oiIGZpbGw9InVybCgjcGFpbnQwX2xpbmVhcl8yODdfMjM1OSkiLz4KPGRlZnM+CjxsaW5lYXJHcmFkaWVudCBpZD0icGFpbnQwX2xpbmVhcl8yODdfMjM1OSIgeDE9IjE5LjM2MDIiIHkxPSIxNCIgeDI9IjU2Ljc2OTYiIHkyPSI2OS44MDA1IiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+CjxzdG9wIHN0b3AtY29sb3I9IiNDNTQ5RkYiLz4KPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjNjU0QkZGIi8+CjwvbGluZWFyR3JhZGllbnQ+CjwvZGVmcz4KPC9zdmc+Cg==`,
-      name: "Enkrypt",
-      rdns: "com.enkrypt",
+      name: 'Enkrypt',
+      rdns: 'com.enkrypt',
     };
     document.dispatchEvent(
       new document.CustomEvent(EIP6963Events.announce, {
         detail: { info, provider: proxiedProvider },
-      })
+      }),
     );
   };
   document.addEventListener(EIP6963Events.request, () => {
