@@ -14,7 +14,7 @@ jobs:
           message: |
             :monkey: Monkeys are building your code...
           comment-tag: pr_build_message
-          mode: recreate
+          mode: upsert
 
       - name: setup env
         id: node-version
@@ -69,14 +69,14 @@ jobs:
       - uses: actions/upload-artifact@v4
         id: artifact-upload-chrome
         with:
-          name: enkrypt-chrome-${{ env.SHORT_SHA }}.zip
+          name: enkrypt-chrome-${{ env.SHORT_SHA }}
           path: ./release-chrome
           retention-days: 3
 
       - uses: actions/upload-artifact@v4
         id: artifact-upload-firefox
         with:
-          name: enkrypt-firefox-${{ env.SHORT_SHA }}.xpi
+          name: enkrypt-firefox-${{ env.SHORT_SHA }}
           path: ./release-firefox
           retention-days: 3
 
@@ -92,4 +92,4 @@ jobs:
             chrome:   [${{ env.SHORT_SHA }}](${{ env.VIRUS_TOTAL_URL_CHROME }})
             firefox:  [${{ env.SHORT_SHA }}](${{ env.VIRUS_TOTAL_URL_FIREFOX }})
           comment-tag: pr_build_message
-          mode: recreate
+          mode: upsert
