@@ -8,6 +8,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Comment Building
+        uses: thollander/actions-comment-pull-request@v3
+        with:
+          message: |
+            :monkey: Monkeys are building your code...
+          comment-tag: pr_build_message
+          mode: recreate
+
       - name: setup env
         id: node-version
         run: |
