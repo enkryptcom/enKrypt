@@ -7,6 +7,7 @@ const BROWSER = process.env.BROWSER;
 const browserNames = {
   chrome: "chrome",
   firefox: "firefox",
+  safari: "safari",
   operaedge: "opera-edge",
 };
 
@@ -18,6 +19,10 @@ const browserConfigs = {
   [browserNames.firefox]: {
     manifest: "./src/manifest/manifest-firefox.json",
     background: "./src/scripts/firefox/background.ts",
+  },
+  [browserNames.safari]: {
+    manifest: "./src/manifest/manifest-safari.json",
+    background: "./src/scripts/chrome/background.ts",
   },
   [browserNames.operaedge]: {
     manifest: "./src/manifest/manifest-edge-opera.json",
@@ -75,6 +80,7 @@ const setConfig = (config) => {
           : new Date().toLocaleString().replace(/\D/g, ""),
       IS_DEV: process.env.NODE_ENV === "development",
       IS_FIREFOX: BROWSER === browserNames.firefox,
+      IS_SAFARI: BROWSER === browserNames.safari,
       IS_OPERA_EDGE: BROWSER === browserNames.operaedge,
       PREFILL_PASSWORD:
         process.env.NODE_ENV === "development"

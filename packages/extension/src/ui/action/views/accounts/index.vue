@@ -52,7 +52,9 @@
         />
 
         <a
-          v-if="hwWallet.isNetworkSupported(network.name)"
+          v-if="
+            hwWallet.isNetworkSupported(network.name) && isBrowserHWSupported
+          "
           class="accounts__action-button hardware"
           @click="openHardware(network.name)"
         >
@@ -149,7 +151,7 @@ const props = defineProps({
 });
 const accountToRename = ref<EnkryptAccount>();
 const accountToDelete = ref<EnkryptAccount>();
-
+const isBrowserHWSupported = !(process.env.IS_FIREFOX || process.env.IS_SAFARI);
 const close = () => {
   props.toggle();
 };

@@ -21,7 +21,7 @@
       <NFTs /><br />NFTs
     </router-link>
     <router-link
-      v-if="DappList[network.name]"
+      v-if="DappList[network.name] && !is_safari"
       :to="{
         name: 'dapps',
         params: { id: !!selected ? selected : null },
@@ -41,6 +41,8 @@ import { PropType } from "vue";
 import DappList from "@/libs/dapp-list";
 import { BaseNetwork } from "@/types/base-network";
 import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
+
+const is_safari = process.env.IS_SAFARI;
 
 defineProps({
   selected: {

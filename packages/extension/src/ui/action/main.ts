@@ -3,6 +3,7 @@ import App from "./App.vue";
 import router from "./router";
 import * as filters from "./utils/filters";
 import Vue3Lottie from "vue3-lottie";
+import "@/libs/utils/selective-wasm";
 
 const app = createApp(App);
 

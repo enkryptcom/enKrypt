@@ -4,6 +4,7 @@ import { createRouter, createWebHashHistory } from "vue-router";
 import routes from "./routes";
 import * as filters from "@action/utils/filters";
 import Vue3Lottie from "vue3-lottie";
+import "@/libs/utils/selective-wasm";
 
 const router = createRouter({
   history: createWebHashHistory(),
