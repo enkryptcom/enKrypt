@@ -1,6 +1,10 @@
 <template>
   <label class="switch">
-    <input type="checkbox" :checked="isChecked" @change="checkLocal($event)" />
+    <input
+      type="checkbox"
+      :checked="isChecked"
+      @click.prevent="checkLocal($event)"
+    />
     <span class="slider round" />
   </label>
 </template>
