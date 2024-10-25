@@ -12,7 +12,7 @@ describe("Keyring signing test", () => {
   const MNEMONIC2 =
     "else number fox shop mouse crush fire daughter portion hamster similar escape";
   // eslint-disable-next-line prefer-arrow-callback,func-names
-  it.only(
+  it(
     "keyring should sign ethereum messages",
     { timeout: 10_000 },
     async () => {

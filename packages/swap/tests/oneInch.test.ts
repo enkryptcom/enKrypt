@@ -24,7 +24,7 @@ describe("OneInch Provider", () => {
   const oneInch = new OneInch(web3eth, SupportedNetworkName.Ethereum);
   it(
     "it should return a quote infinity approval",
-    { timeout: 5_000 },
+    { timeout: 10_000 },
     async () => {
       const quote = await oneInch.getQuote(
         {
@@ -59,7 +59,7 @@ describe("OneInch Provider", () => {
 
   it(
     "it should return a quote non infinity approval",
-    { timeout: 5_000 },
+    { timeout: 10_000 },
     async () => {
       const quote = await oneInch.getQuote(
         {
