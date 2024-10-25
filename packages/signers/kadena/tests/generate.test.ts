@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import Signer from "../src";
+import { KadenaSigner } from "../src";
 
 describe("Kadena address generate", () => {
   const MNEMONIC =
@@ -7,7 +7,7 @@ describe("Kadena address generate", () => {
 
   it("should generate Kadena addresses correctly", async () => {
     // Arrange
-    const kadenaSigner = new Signer();
+    const kadenaSigner = new KadenaSigner();
 
     // Act & Assert
     let keypair = await kadenaSigner.generate(MNEMONIC, "m/44'/626'/0");

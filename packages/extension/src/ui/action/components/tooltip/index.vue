@@ -71,7 +71,7 @@ const onHide = () => {
 
 const classObject = () => {
   if (props.isTopRight) {
-    return { "right-top": true, visible: visible.value };
+    return { 'right-top': true, visible: visible.value };
   }
   const x = positionX.value;
   const y = positionY.value;
@@ -131,7 +131,7 @@ const classObject = () => {
       transform: translateX(0) translateY(0px);
     }
     &.right-top {
-      top: calc(~"-100% + 8px");
+      top: calc(~'-100% + 8px');
       right: 0;
       transform: translateX(0) translateY(0px);
     }

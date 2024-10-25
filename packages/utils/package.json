@@ -3,8 +3,8 @@
   "version": "0.0.5",
   "description": "utility functions for enkrypt extension",
   "type": "module",
-  "main": "dist/index.js",
-  "module": "dist/index.mjs",
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
     "dist"

@@ -11,13 +11,13 @@ import {
   WalletType,
   KeyPair,
 } from "@enkryptcom/types";
-import Storage from "@enkryptcom/storage";
+import { Storage } from "@enkryptcom/storage";
 import { entropyToMnemonic, generateMnemonic, mnemonicToEntropy } from "bip39";
 import { hexToBuffer, encrypt, decrypt } from "@enkryptcom/utils";
-import PolkadotSigner from "@enkryptcom/signer-polkadot";
-import EthereumSigner from "@enkryptcom/signer-ethereum";
-import BitcoinSigner from "@enkryptcom/signer-bitcoin";
-import KadenaSigner from "@enkryptcom/signer-kadena";
+import { PolkadotSigner } from "@enkryptcom/signer-polkadot";
+import { EthereumSigner } from "@enkryptcom/signer-ethereum";
+import { BitcoinSigner } from "@enkryptcom/signer-bitcoin";
+import { KadenaSigner } from "@enkryptcom/signer-kadena";
 import assert from "assert";
 import configs from "./configs";
 import { pathParser } from "./utils";

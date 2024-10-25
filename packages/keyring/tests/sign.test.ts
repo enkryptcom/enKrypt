@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { MemoryStorage, keccak256 } from "@enkryptcom/utils";
-import Storage from "@enkryptcom/storage";
+import { Storage } from "@enkryptcom/storage";
 import { SignerType, WalletType } from "@enkryptcom/types";
 import { u8aWrapBytes, u8aToHex, stringToU8a } from "@polkadot/util";
 import KeyRing from "../src";
@@ -12,57 +12,53 @@ describe("Keyring signing test", () => {
   const MNEMONIC2 =
     "else number fox shop mouse crush fire daughter portion hamster similar escape";
   // eslint-disable-next-line prefer-arrow-callback,func-names
-  it(
-    "keyring should sign ethereum messages",
-    { timeout: 10_000 },
-    async () => {
-      const memStorage = new MemoryStorage();
-      const storage = new Storage("keyring", { storage: memStorage });
-      const keyring = new KeyRing(storage, 30000);
-      await keyring.init(password, { mnemonic: MNEMONIC });
-      expect(keyring.isLocked()).to.be.equals(true);
-      await keyring.unlockMnemonic(password);
-      const keyRecord = await keyring.createKey({
-        name: "abc",
-        basePath: "m/44'/60'/0'/0",
+  it("keyring should sign ethereum messages", { timeout: 10_000 }, async () => {
+    const memStorage = new MemoryStorage();
+    const storage = new Storage("keyring", { storage: memStorage });
+    const keyring = new KeyRing(storage, 30000);
+    await keyring.init(password, { mnemonic: MNEMONIC });
+    expect(keyring.isLocked()).to.be.equals(true);
+    await keyring.unlockMnemonic(password);
+    const keyRecord = await keyring.createKey({
+      name: "abc",
+      basePath: "m/44'/60'/0'/0",
+      signerType: SignerType.secp256k1,
+      walletType: WalletType.mnemonic,
+    });
+    expect(keyRecord.address).to.be.equal(
+      "0xf24ff3a9cf04c71dbc94d0b566f7a27b94566cac"
+    );
+    const keyRecord2 = await keyring.addKeyPair(
+      {
+        address: "0x7763488dceb716cb2d8656e65c5846a4b9df1b5d",
+        name: "test",
+        privateKey:
+          "0x9777ca05af8d998bc9e36b4ca3d98a4ec816671df645dc970124f5df265ff003",
+        publicKey:
+          "0x03330102972e476d0a0c8004d7329641760ac01ab695058b2134ada99737f89b97",
         signerType: SignerType.secp256k1,
-        walletType: WalletType.mnemonic,
-      });
-      expect(keyRecord.address).to.be.equal(
-        "0xf24ff3a9cf04c71dbc94d0b566f7a27b94566cac"
-      );
-      const keyRecord2 = await keyring.addKeyPair(
-        {
-          address: "0x7763488dceb716cb2d8656e65c5846a4b9df1b5d",
-          name: "test",
-          privateKey:
-            "0x9777ca05af8d998bc9e36b4ca3d98a4ec816671df645dc970124f5df265ff003",
-          publicKey:
-            "0x03330102972e476d0a0c8004d7329641760ac01ab695058b2134ada99737f89b97",
-          signerType: SignerType.secp256k1,
-        },
-        password
-      );
-      expect(keyRecord2.address).to.be.equal(
-        "0x7763488dceb716cb2d8656e65c5846a4b9df1b5d"
-      );
-      const message = "abcd";
-      const msgToSign = keccak256(
-        `\x19Ethereum Signed Message:\n${message.length}${message}`
-      );
-      keccak256(`\x19Ethereum Signed Message:\n${message.length}${message}`);
+      },
+      password
+    );
+    expect(keyRecord2.address).to.be.equal(
+      "0x7763488dceb716cb2d8656e65c5846a4b9df1b5d"
+    );
+    const message = "abcd";
+    const msgToSign = keccak256(
+      `\x19Ethereum Signed Message:\n${message.length}${message}`
+    );
+    keccak256(`\x19Ethereum Signed Message:\n${message.length}${message}`);
 
-      const sig = await keyring.sign(msgToSign, keyRecord);
-      expect(sig).to.be.equal(
-        `0xc0cd7923162bbcf6065ca563f69eb44503ac67e9edb9870f8651ff926c9a007c5d26b90e29819915df9cda30e974722edf69c6d1f69a02b76716b74db57767d71b`
-      );
+    const sig = await keyring.sign(msgToSign, keyRecord);
+    expect(sig).to.be.equal(
+      `0xc0cd7923162bbcf6065ca563f69eb44503ac67e9edb9870f8651ff926c9a007c5d26b90e29819915df9cda30e974722edf69c6d1f69a02b76716b74db57767d71b`
+    );
 
-      const sig2 = await keyring.sign(msgToSign, keyRecord2);
-      expect(sig2).to.be.equal(
-        `0x85242cbd5c409001f7c3412b2c0e21e0207ae83547d28abca32324a4ea2cff892bb38d060d51cea045abd7391ffef9eb1fab8b2d50f949a6c1904c6b9e0da2cb1b`
-      );
-    }
-  );
+    const sig2 = await keyring.sign(msgToSign, keyRecord2);
+    expect(sig2).to.be.equal(
+      `0x85242cbd5c409001f7c3412b2c0e21e0207ae83547d28abca32324a4ea2cff892bb38d060d51cea045abd7391ffef9eb1fab8b2d50f949a6c1904c6b9e0da2cb1b`
+    );
+  });
   it(
     "keyring should sign substrate messages",
     { timeout: 10_000 },

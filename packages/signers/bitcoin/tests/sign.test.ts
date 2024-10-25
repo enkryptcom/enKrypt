@@ -1,12 +1,12 @@
 import { describe, it, expect } from "vitest";
 import { bufferToHex, hexToBuffer } from "@enkryptcom/utils";
 import { getPublicKey } from "@noble/secp256k1";
-import Signer from "../src";
+import { BitcoinSigner } from "../src";
 import fixtures from "./fixtures";
 
 describe("Ethreum signing", () => {
   it("it should sign correctly", { timeout: 20_000 }, async () => {
-    const ethreumSigner = new Signer();
+    const ethreumSigner = new BitcoinSigner();
     const promises = fixtures.valid.map((f) => {
       const ecpair = {
         publicKey: bufferToHex(getPublicKey(hexToBuffer(f.d))),

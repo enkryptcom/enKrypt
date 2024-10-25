@@ -1,11 +1,11 @@
 import { describe, it, expect } from "vitest";
-import Signer from "../src";
+import { BitcoinSigner } from "../src";
 
 describe("Ethreum address generate", () => {
   const MNEMONIC =
     "awake book subject inch gentle blur grant damage process float month clown";
   it("should generate bicoin addresses correctly", async () => {
-    const bitcoinSigner = new Signer();
+    const bitcoinSigner = new BitcoinSigner();
     let keypair = await bitcoinSigner.generate(MNEMONIC, "m/44'/0'/0'/0/0");
     expect(keypair.address).equals(
       "0x03472412900c9f4ce53b0aa251e269979ba4f28912d8029b7556cb8397b14db45a"

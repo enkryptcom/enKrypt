@@ -4,7 +4,7 @@
       <img :src="item.image" alt="" @error="imageLoadError" />
       <div class="network-nfts__item-name">
         <div class="network-nfts__item-name-inner">
-          {{ item.name || "Unknown" }}
+          {{ item.name || 'Unknown' }}
         </div>
       </div>
     </a>

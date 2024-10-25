@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { KeyRecordAdd, SignerType, WalletType } from "@enkryptcom/types";
 import { MemoryStorage } from "@enkryptcom/utils";
-import Storage from "@enkryptcom/storage";
+import { Storage } from "@enkryptcom/storage";
 import KeyRing from "../src";
 
 describe("Keyring create tests", () => {

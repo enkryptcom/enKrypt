@@ -1,4 +1,4 @@
-import Storage from '@enkryptcom/storage';
+import { Storage } from '@enkryptcom/storage';
 import { BrowserStorageArea } from '@enkryptcom/types';
 
 class BrowserStorage extends Storage {

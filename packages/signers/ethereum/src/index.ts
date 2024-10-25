@@ -14,7 +14,7 @@ import { box as naclBox } from "tweetnacl";
 import { encodeBase64 } from "tweetnacl-util";
 import { encryptedDataStringToJson, naclDecodeHex, naclDecrypt } from "./utils";
 
-class Signer implements SignerInterface {
+export class EthereumSigner implements SignerInterface {
   async generate(mnemonic: string, derivationPath = ""): Promise<KeyPair> {
     const seed = await mnemonicToSeed(mnemonic);
     const hdkey = HDkey.fromMasterSeed(seed);
@@ -64,4 +64,3 @@ class Signer implements SignerInterface {
     return naclDecrypt({ encryptedData, privateKey: keyPair.privateKey });
   }
 }
-export default Signer;

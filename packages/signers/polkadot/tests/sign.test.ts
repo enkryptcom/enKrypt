@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-restricted-syntax */
 import { SignerType } from "@enkryptcom/types";
-import Signer from "../src";
+import { PolkadotSigner } from "../src";
 
 describe("Polkadot signers", () => {
   // the tests container
@@ -12,7 +12,7 @@ describe("Polkadot signers", () => {
   const MSG_HASH =
     "82ff40c0a986c6a5cfad4ddf4c3aa6996f1a7837f9c398e17e5de5cbd5a12b28";
   it("ecdsa signer should work", async () => {
-    const signer = new Signer(SignerType.ecdsa);
+    const signer = new PolkadotSigner(SignerType.ecdsa);
     for (const bool of [true, false]) {
       const keypair = await signer.generate(MNEMONIC, "", { onlyJS: bool });
       const signature = await signer.sign(MSG_HASH, keypair, { onlyJS: bool });
@@ -22,7 +22,7 @@ describe("Polkadot signers", () => {
     }
   });
   it("sr25519 signer should work", async () => {
-    const signer = new Signer(SignerType.sr25519);
+    const signer = new PolkadotSigner(SignerType.sr25519);
     for (const bool of [true, false]) {
       const keypair = await signer.generate(MNEMONIC, "", { onlyJS: bool });
       const signature = await signer.sign(MSG_HASH, keypair, { onlyJS: bool });
@@ -33,7 +33,7 @@ describe("Polkadot signers", () => {
     }
   });
   it("ed25519 signer should work", async () => {
-    const signer = new Signer(SignerType.ed25519);
+    const signer = new PolkadotSigner(SignerType.ed25519);
     for (const bool of [true, false]) {
       const keypair = await signer.generate(MNEMONIC, "", { onlyJS: bool });
       const signature = await signer.sign(MSG_HASH, keypair, { onlyJS: bool });

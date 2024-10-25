@@ -12,6 +12,11 @@ export default defineConfig({
       ],
     }),
   ],
+  define: {
+    // setting __VERSION__ here blows it up for some reason
+    // __VERSION__: 'testing',
+    __IS_OPERA__: false,
+  },
   test: {
     environment: 'jsdom',
     setupFiles: ['./tests/setup.ts'],

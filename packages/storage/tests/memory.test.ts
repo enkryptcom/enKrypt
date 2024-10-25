@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { MemoryStorage } from "@enkryptcom/utils";
-import Storage from "../src";
+import { Storage } from "../src";
 
 describe("Storage checker", () => {
   // the tests container

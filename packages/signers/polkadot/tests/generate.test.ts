@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-restricted-syntax */
 import { SignerType } from "@enkryptcom/types";
-import Signer from "../src";
+import { PolkadotSigner } from "../src";
 
 describe("Polkadot Address generate", () => {
   // the tests container
@@ -12,7 +12,7 @@ describe("Polkadot Address generate", () => {
     "bottom drive obey lake curtain smoke basket hold race lonely fit walk";
 
   it("sr25519 addresses should work", { timeout: 5_000 }, async () => {
-    const signer = new Signer(SignerType.sr25519);
+    const signer = new PolkadotSigner(SignerType.sr25519);
     for (const bool of [true, false]) {
       let keypair = await signer.generate(MNEMONIC, "//0", { onlyJS: bool });
       expect(keypair.address).equals(
@@ -84,7 +84,7 @@ describe("Polkadot Address generate", () => {
     }
   });
   it("ecdsa addresses should work", async () => {
-    const signer = new Signer(SignerType.ecdsa);
+    const signer = new PolkadotSigner(SignerType.ecdsa);
     for (const bool of [true, false]) {
       let keypair = await signer.generate(PHRASE, "//Alice", { onlyJS: bool });
       expect(keypair.address).equals(
@@ -101,7 +101,7 @@ describe("Polkadot Address generate", () => {
     }
   });
   it("ed25519 addresses should work", async () => {
-    const signer = new Signer(SignerType.ed25519);
+    const signer = new PolkadotSigner(SignerType.ed25519);
     for (const bool of [true, false]) {
       let keypair = await signer.generate(PHRASE, "//Alice", { onlyJS: bool });
       expect(keypair.address).equals(
