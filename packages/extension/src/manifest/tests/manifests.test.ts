@@ -1,5 +1,5 @@
+import { describe, it, expect } from 'vitest';
 import BaseManifest from '../manifest.base';
-import { expect } from 'chai';
 
 describe('Various tests related to manifest', () => {
   it('should have correct lengths', async () => {

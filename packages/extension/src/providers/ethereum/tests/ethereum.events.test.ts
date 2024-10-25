@@ -1,4 +1,4 @@
-import { expect } from 'chai';
+import { describe, it, expect } from 'vitest';
 import { ProviderName, ProviderType, EthereumProvider } from '@/types/provider';
 import EthereumInject from '../inject';
 import { MessageMethod, EmitEvent } from '../types';
@@ -51,7 +51,7 @@ const tempWindow: EnkryptWindow = {
 
   addEventListener: () => {},
 
-  CustomEvent: () => {},
+  CustomEvent: class {},
 
   dispatchEvent: () => {},
 };
@@ -67,14 +67,16 @@ describe('Test injected Ethereum', () => {
 });
 
 describe('Test emitted events', () => {
-  it('should emit chainChanged', done => {
+  it('should emit chainChanged', async () => {
     EthereumInject(tempWindow, options);
     const provider = tempWindow[ProviderName.ethereum] as EthereumProvider;
     const chainId = '0x5';
-    provider.on(EmitEvent.chainChanged, _chainId => {
-      expect(provider.chainId).to.equal(chainId);
-      expect(_chainId).to.equal(chainId);
-      done();
+    let res: (value: unknown) => void;
+    const promise = new Promise<unknown>(function (_res) {
+      res = _res;
+    });
+    provider.on(EmitEvent.chainChanged, __chainId => {
+      res(__chainId);
     });
     provider.handleMessage(
       JSON.stringify({
@@ -82,15 +84,18 @@ describe('Test emitted events', () => {
         params: ['0x5'],
       }),
     );
+    const _chainId = await promise;
+    expect(provider.chainId).to.equal(chainId);
+    expect(_chainId).to.equal(chainId);
   });
-  it('should emit accountsChanged', done => {
+  it('should emit accountsChanged', async () => {
     EthereumInject(tempWindow, options);
     const provider = tempWindow[ProviderName.ethereum] as EthereumProvider;
     const address = '0xDECAF9CD2367cdbb726E904cD6397eDFcAe6068D';
-    provider.on(EmitEvent.accountsChanged, addresses => {
-      expect(addresses).deep.equal([address]);
-      expect(provider.selectedAddress).to.deep.equal(address);
-      done();
+    const promise = new Promise<unknown>(function (res) {
+      provider.on(EmitEvent.accountsChanged, _addresses => {
+        res(_addresses);
+      });
     });
     provider.handleMessage(
       JSON.stringify({
@@ -98,17 +103,18 @@ describe('Test emitted events', () => {
         params: [address],
       }),
     );
+    const addresses = await promise;
+    expect(addresses).deep.equal([address]);
+    expect(provider.selectedAddress).to.deep.equal(address);
   });
-  it('should emit connect', done => {
+  it('should emit connect', async () => {
     EthereumInject(tempWindow, options);
     const provider = tempWindow[ProviderName.ethereum] as EthereumProvider;
     const chainId = '0x5';
-    provider.on(EmitEvent.connect, connectionInfo => {
-      expect(connectionInfo).deep.equal({
-        chainId,
+    const promise = new Promise(function (res) {
+      provider.on(EmitEvent.connect, _connectionInfo => {
+        res(_connectionInfo);
       });
-      expect(provider.chainId).to.equal(chainId);
-      done();
     });
     provider.handleMessage(
       JSON.stringify({
@@ -116,19 +122,20 @@ describe('Test emitted events', () => {
         params: [true, chainId],
       }),
     );
+    const connectionInfo = await promise;
+    expect(connectionInfo).deep.equal({
+      chainId,
+    });
+    expect(provider.chainId).to.equal(chainId);
   });
-  it('should emit disconnect', done => {
+  it('should emit disconnect', async () => {
     EthereumInject(tempWindow, options);
     const provider = tempWindow[ProviderName.ethereum] as EthereumProvider;
     const disconnectCode = 4901;
-    provider.on(EmitEvent.disconnect, connectionInfo => {
-      expect(connectionInfo).deep.equal({
-        code: 4901,
-        message:
-          'Chain Disconnected: The Provider is not connected to the requested chain.',
+    const promise = new Promise(function (res) {
+      provider.on(EmitEvent.disconnect, _connectionInfo => {
+        res(_connectionInfo);
       });
-      expect(provider.isConnected()).to.equal(false);
-      done();
     });
     provider.handleMessage(
       JSON.stringify({
@@ -136,5 +143,12 @@ describe('Test emitted events', () => {
         params: [false, disconnectCode],
       }),
     );
+    const connectionInfo = await promise;
+    expect(connectionInfo).deep.equal({
+      code: 4901,
+      message:
+        'Chain Disconnected: The Provider is not connected to the requested chain.',
+    });
+    expect(provider.isConnected()).to.equal(false);
   });
 });

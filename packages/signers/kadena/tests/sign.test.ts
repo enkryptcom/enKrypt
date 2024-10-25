@@ -1,4 +1,4 @@
-import { expect } from "chai";
+import { describe, it, expect } from "vitest";
 import { blake2AsU8a } from "@polkadot/util-crypto";
 import { bufferToHex } from "@enkryptcom/utils";
 import Signer from "../src";

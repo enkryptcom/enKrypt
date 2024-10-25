@@ -4,8 +4,8 @@ import {
   WalletType,
   EnkryptAccount,
 } from '@enkryptcom/types';
-import { assert } from 'chai';
 import { KeyRingBase } from './keyring';
+
 class PublicKeyRing {
   #keyring: KeyRingBase;
   constructor() {
@@ -110,7 +110,9 @@ class PublicKeyRing {
   }
   async getAccount(address: string): Promise<EnkryptAccount> {
     const allKeys = await this.getKeysObject();
-    assert(allKeys[address], Errors.KeyringErrors.AddressDoesntExists);
+    if (!allKeys[address]) {
+      throw new Error(Errors.KeyringErrors.AddressDoesntExists);
+    }
     return allKeys[address];
   }
   isLocked(): boolean {

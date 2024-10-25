@@ -1,6 +1,5 @@
 import { ErrorCodes, JSONError } from '@/providers/ethereum/types';
 import { ProviderError } from '@enkryptcom/types';
-import { assert } from 'chai';
 const errors: Record<number, any> = {
   4001: {
     name: 'User Rejected Request',
@@ -33,7 +32,7 @@ export const getCustomError = (msg: string, code = 8546): ProviderError => {
   return ret;
 };
 export const getError = (code: ErrorCodes, data?: unknown): ProviderError => {
-  assert(errors[code], 'error code is invalid');
+  if (!errors[code]) throw new Error('Error code is invalid');
   const ret: ProviderError = {
     code,
     message: `${errors[code].name}: ${errors[code].description}`,

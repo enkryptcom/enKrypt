@@ -2,6 +2,7 @@
   "name": "@enkryptcom/name-resolution",
   "version": "0.0.8",
   "description": "name resolution module for enkrypt",
+  "type": "module",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
@@ -11,27 +12,22 @@
   "scripts": {
     "build": "tsup src/index.ts --format esm,cjs --dts",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
-    "test": "ts-mocha -p tsconfig.json tests/**/*.test.ts"
+    "test": "vitest run"
   },
   "engines": {
     "node": ">=14.15.0"
   },
   "devDependencies": {
-    "@types/chai": "^5.0.0",
-    "@types/mocha": "^10.0.9",
     "@types/node": "^22.7.8",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
-    "chai": "^4.5.0",
     "eslint": "^8.57.1",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-prettier": "^8.10.0",
     "eslint-import-resolver-alias": "^1.1.2",
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-module-resolver": "^1.5.0",
-    "mocha": "^10.7.3",
     "prettier": "^2.8.8",
-    "ts-mocha": "^10.0.0",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
     "tsup": "^8.3.0",
@@ -49,6 +45,7 @@
     "@ensdomains/address-encoder": "^1.1.2",
     "@siddomains/sidjs": "0.1.29",
     "@unstoppabledomains/resolution": "^9.3.0",
-    "ethers": "^5.7.2"
+    "ethers": "^5.7.2",
+    "vitest": "^2.1.3"
   }
 }

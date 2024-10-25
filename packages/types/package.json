@@ -2,6 +2,7 @@
   "name": "@enkryptcom/types",
   "version": "0.0.5",
   "description": "typescript types for enkrypt packages",
+  "type": "module",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",

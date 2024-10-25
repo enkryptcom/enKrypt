@@ -11,7 +11,7 @@
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
     "sourceMap": true,
-    "types": ["mocha", "chrome"],
+    "types": ["chrome"],
     "paths": {
       "@/*": ["../src/*"],
       "@action/*": ["../src/ui/action/*"]
