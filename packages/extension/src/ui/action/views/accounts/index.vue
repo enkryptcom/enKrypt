@@ -2,13 +2,16 @@
   <div class="accounts" :class="{ show: showAccounts }">
     <div class="accounts__overlay" @click="close()" />
     <div class="accounts__wrap" :class="{ show: showAccounts }">
-      <accounts-search />
+      <BaseInputDebounced
+        placeholder="Search Accounts"
+        @update:value-debounced="updateSearchInput"
+      />
       <custom-scrollbar
         class="accounts__scroll-area"
         :settings="scrollSettings({ suppressScrollX: true })"
       >
         <accounts-list-item
-          v-for="(account, index) in accountInfo.activeAccounts"
+          v-for="(account, index) in displayActive"
           :key="index"
           :name="account.name"
           :address="network.displayAddress(account.address)"
@@ -24,10 +27,12 @@
           @action:delete="deleteAccount(index)"
         />
 
-        <div class="accounts__info">Incompatible accounts</div>
+        <div v-if="displayInactive.length > 0" class="accounts__info">
+          Incompatible accounts
+        </div>
 
         <accounts-list-item
-          v-for="(account, index) in accountInfo.inactiveAccounts"
+          v-for="(account, index) in displayInactive"
           :key="index"
           :name="account.name"
           :address="account.address"
@@ -35,6 +40,12 @@
           :active="false"
           :identicon-element="network.identicon"
         />
+        <div
+          v-if="displayInactive.length === 0 && displayActive.length === 0"
+          class="accounts__info"
+        >
+          Accounts not found
+        </div>
       </custom-scrollbar>
 
       <div class="accounts__action">
@@ -103,7 +114,6 @@
 </template>
 
 <script setup lang="ts">
-import AccountsSearch from './components/accounts-search.vue';
 import AccountsListItem from './components/accounts-list-item.vue';
 import CustomScrollbar from '@action/components/custom-scrollbar/index.vue';
 import AddAccount from '@action/icons/common/add-account.vue';
@@ -113,8 +123,9 @@ import DeleteAccountForm from './components/delete-account-form.vue';
 import AddHardwareAccount from '@action/icons/actions/add-hardware-account.vue';
 import ImportAccountIcon from '@action/icons/actions/import-account-icon.vue';
 import ImportAccount from '@action/views/import-account/index.vue';
+import BaseInputDebounced from '@action/components/base-input-debounced/index.vue';
 import { AccountsHeaderData } from '../../types/account';
-import { PropType, ref } from 'vue';
+import { PropType, ref, computed } from 'vue';
 import openHardware from '@/libs/utils/open-hardware';
 import scrollSettings from '@/libs/utils/scroll-settings';
 import { EnkryptAccount } from '@enkryptcom/types';
@@ -205,6 +216,78 @@ const importAction = () => {
 const closeImportAccount = () => {
   isImportAccount.value = false;
 };
+
+/*
+  ========================
+    Search
+  ========================
+*/
+const searchInput = ref('');
+
+const updateSearchInput = (value: string) => {
+  searchInput.value = value;
+};
+
+function filterAndSortAccounts(accounts: EnkryptAccount[]) {
+  // Filter accounts where the name or address contains inputText
+  const filteredAccounts = accounts.filter(
+    account =>
+      account.name.toLowerCase().includes(searchInput.value.toLowerCase()) ||
+      account.address.toLowerCase().includes(searchInput.value.toLowerCase()),
+  );
+
+  // Sort the filtered accounts
+  return filteredAccounts.sort((a, b) => {
+    const aNameStartsWith = a.name
+      .toLowerCase()
+      .startsWith(searchInput.value.toLowerCase());
+    const bNameStartsWith = b.name
+      .toLowerCase()
+      .startsWith(searchInput.value.toLowerCase());
+    const aAddressStartsWith = a.address
+      .toLowerCase()
+      .startsWith(searchInput.value.toLowerCase());
+    const bAddressStartsWith = b.address
+      .toLowerCase()
+      .startsWith(searchInput.value.toLowerCase());
+
+    // Prioritize objects that start with searchInput.value
+    if (aNameStartsWith || aAddressStartsWith) {
+      if (!(bNameStartsWith || bAddressStartsWith)) {
+        return -1; // a starts with searchInput.value, b does not
+      }
+    } else if (bNameStartsWith || bAddressStartsWith) {
+      return 1; // b starts with searchInput.value, a does not
+    }
+
+    // If both or neither start with searchInput.value, sort alphabetically
+    const aPrimary = (
+      a.name.toLowerCase().startsWith(searchInput.value.toLowerCase())
+        ? a.name
+        : a.address
+    ).toLowerCase();
+    const bPrimary = (
+      b.name.toLowerCase().startsWith(searchInput.value.toLowerCase())
+        ? b.name
+        : b.address
+    ).toLowerCase();
+
+    return aPrimary.localeCompare(bPrimary);
+  });
+}
+
+const displayActive = computed(() => {
+  if (!searchInput.value || searchInput.value === '') {
+    return props.accountInfo.activeAccounts;
+  }
+  return filterAndSortAccounts(props.accountInfo.activeAccounts);
+});
+const displayInactive = computed(() => {
+  if (!searchInput.value || searchInput.value === '') {
+    return props.accountInfo.inactiveAccounts;
+  }
+  return filterAndSortAccounts(props.accountInfo.inactiveAccounts);
+});
 </script>
 
 <style lang="less">
@@ -267,7 +350,7 @@ const closeImportAccount = () => {
     position: relative;
     margin: auto;
     width: 100%;
-    max-height: 420px;
+    height: 420px;
     padding-bottom: 100px !important;
   }
 

@@ -2,14 +2,16 @@
   <div class="explore__search">
     <span class="explore__search-icon"><search-icon /></span>
     <input
-      v-model="searchText"
-      type="text"
-      placeholder="Search accounts"
+      v-model="inputText"
+      :type="type"
+      :placeholder="placeholder"
       autocomplete="off"
+      autofocus
+      @input="onUserInput"
     />
 
     <a
-      v-if="searchText.length > 0"
+      v-if="inputText && inputText.length > 0"
       class="explore__search-clear"
       @click="clear"
     >
@@ -23,10 +25,49 @@ import { ref } from 'vue';
 import SearchIcon from '@action/icons/common/search.vue';
 import ClearIcon from '@action/icons/common/clear-icon.vue';
 
-const searchText = ref('');
+const inputText = ref<string>('');
+defineProps({
+  placeholder: {
+    type: String,
+    default: () => {
+      return '';
+    },
+  },
+  type: {
+    type: String,
+    default: () => {
+      return 'text';
+    },
+  },
+});
+
+const emit = defineEmits<{
+  (e: 'update:valueDebounced', data: string): void;
+}>();
 
 const clear = () => {
-  searchText.value = '';
+  inputText.value = '';
+  emit('update:valueDebounced', inputText.value);
+};
+
+/*
+  ===================================
+    Input debouncing
+  ===================================
+  */
+const timeout = ref(0);
+
+/**
+ * Emits user input to parent with the timeout of 600
+ */
+const onUserInput = (): void => {
+  clearTimeout(timeout.value);
+  timeout.value = window.setTimeout(() => {
+    if (!inputText.value) {
+      inputText.value = '';
+    }
+    emit('update:valueDebounced', inputText.value);
+  }, 600);
 };
 </script>
 

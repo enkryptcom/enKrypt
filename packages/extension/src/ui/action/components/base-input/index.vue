@@ -5,7 +5,7 @@
       :type="showPassword ? 'text' : type"
       :placeholder="placeholder"
       class="base-input"
-      :class="{ error: isError }"
+      :class="{ 'base-input_error': isError }"
       autofocus
       autocomplete="off"
     />
@@ -78,22 +78,27 @@ const toggleVisibility = () => {
   color: @primaryLabel;
   width: 100%;
   box-sizing: border-box;
+
   &:focus {
     border: 2px solid @primary;
     line-height: 38px;
   }
-  &.error {
+
+  &.base-input_error {
     border: 2px solid @error;
     line-height: 38px;
   }
+
   &__wrap {
     position: relative;
   }
+
   &__hide {
     position: absolute;
     top: 12px;
     right: 12px;
     cursor: pointer;
+
     &:active {
       opacity: 0.7;
     }
