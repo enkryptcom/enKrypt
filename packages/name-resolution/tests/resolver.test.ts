@@ -1,9 +1,9 @@
-import { expect } from "chai";
+import { describe, it, expect } from "vitest"
 import NameResolver from "../src";
 
 describe("Name Resolver resolving", () => {
   // the tests container
-  it("it should properly resolve address", async () => {
+  it("it should properly resolve address", { timeout: 20_000 }, async () => {
     const resolver = new NameResolver({
       ens: {
         node: "https://nodes.mewapi.io/rpc/eth",
@@ -21,9 +21,9 @@ describe("Name Resolver resolving", () => {
     expect(address).to.be.eq("0x8aaD44321A86b170879d7A244c1e8d360c99DdA8");
     address = await resolver.resolveAddress("spaceid.arb", "ARB1");
     expect(address).to.be.eq("0xb5932a6B7d50A966AEC6C74C97385412Fb497540");
-  }).timeout(20000);
+  });
 
-  it("it should properly reverse resolve", async () => {
+  it("it should properly reverse resolve", { timeout: 20_000 }, async () => {
     const resolver = new NameResolver({
       ens: {
         node: "https://nodes.mewapi.io/rpc/eth",
@@ -43,5 +43,5 @@ describe("Name Resolver resolving", () => {
       "0xb5932a6b7d50a966aec6c74c97385412fb497540"
     );
     expect(name).to.be.eq("spaceid.eth");
-  }).timeout(20000);
+  });
 });

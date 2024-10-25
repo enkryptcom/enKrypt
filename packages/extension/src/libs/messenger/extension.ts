@@ -16,7 +16,6 @@ import {
   ActionSendMessage,
 } from '@/types/messenger';
 import { OnMessageResponse } from '@enkryptcom/types';
-import { assert } from 'chai';
 import { EventBusEmit, EventBusOn } from './eventbus';
 
 export { getCurrentContext };
@@ -97,10 +96,9 @@ const backgroundOnMessage = (
 
 export const backgroundOnMessageFromWindow = (cb: onMessageType): void => {
   backgroundOnMessage(MessageType.WINDOW_REQUEST, message => {
-    assert(
-      message.sender.context === Destination.window,
-      'Message didnt come from window',
-    );
+    if (message.sender.context !== Destination.window) {
+      throw new Error('Message didnt come from window');
+    }
     return cb(message);
   });
 };
@@ -109,10 +107,9 @@ export const backgroundOnMessageFromNewWindow = (
   cb: InternalMessageType,
 ): void => {
   backgroundOnMessage(MessageType.NEWWINDOW_REQUEST, async message => {
-    assert(
-      message.sender.context === Destination.newWindow,
-      'Message didnt come from new-window',
-    );
+    if (message.sender.context !== Destination.newWindow) {
+      throw new Error('Message didnt come from new-window');
+    }
     return cb(message);
   });
 };
@@ -121,20 +118,18 @@ export const backgroundOnMessageFromAction = (
   cb: InternalMessageType,
 ): void => {
   backgroundOnMessage(MessageType.ACTION_REQUEST, async message => {
-    assert(
-      message.sender.context === Destination.popup,
-      'Message didnt come from popup',
-    );
+    if (message.sender.context !== Destination.popup) {
+      throw new Error('Message didnt come from popup');
+    }
     return cb(message);
   });
 };
 
 export const backgroundOnMessageFromCS = (cb: onMessageType): void => {
   backgroundOnMessage(MessageType.CS_REQUEST, async message => {
-    assert(
-      message.sender.context === Destination.contentScript,
-      'Message didnt come from content script',
-    );
+    if (message.sender.context !== Destination.contentScript) {
+      throw new Error('Message didnt come from content script');
+    }
     return cb(message);
   });
 };
@@ -143,10 +138,9 @@ export const newWindowOnMessageFromBackground = (
   cb: InternalMessageType,
 ): void => {
   backgroundOnMessage(MessageType.NEWWINDOW_REQUEST, async message => {
-    assert(
-      message.sender.context === Destination.background,
-      'Message didnt come from background',
-    );
+    if (message.sender.context !== Destination.background) {
+      throw new Error('Message didnt come from background');
+    }
     return cb(message);
   });
 };

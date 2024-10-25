@@ -1,4 +1,5 @@
-import { expect } from "chai";
+import { describe, it, expect } from "vitest";
+
 describe("Simple addition", () => {
   // the tests container
   it("it should properly add", async () => {

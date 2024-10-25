@@ -1,4 +1,4 @@
-import { expect } from 'chai';
+import { describe, it, expect } from 'vitest';
 import { ProviderName, ProviderType, EthereumProvider } from '@/types/provider';
 import EthereumInject from '../inject';
 import { EthereumRequest } from '../types';
@@ -55,6 +55,7 @@ const providerSendMessage = async (
   }
   if (provider === ProviderName.ethereum) {
     const res = requestHandler(message);
+    // TODO: should this reject with an error or a plain object?
     if (res.error) return Promise.reject(JSON.parse(res.error));
     else return JSON.parse(res.result as string);
   }
@@ -72,7 +73,7 @@ const tempWindow: EnkryptWindow = {
 
   addEventListener: () => {},
 
-  CustomEvent: () => {},
+  CustomEvent: class {},
 
   dispatchEvent: () => {},
 };

@@ -1,4 +1,4 @@
-import { expect } from "chai";
+import { describe, it, expect } from "vitest";
 import LocalForageLib from "localforage";
 import Storage from "../src";
 import LocalForage from "../src/local-forage";

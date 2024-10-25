@@ -13,7 +13,6 @@ import {
 } from '@/types/messenger';
 import { OnMessageResponse } from '@enkryptcom/types';
 import { ProviderName } from '@/types/provider';
-import { assert } from 'chai';
 
 export const sendToBackgroundFromWindow = (
   message: SendMessage,
@@ -43,10 +42,9 @@ export const setWindowNamespace = (): void => {
 
 export const windowOnMessage = (cb: onMessageType): void => {
   onMessage(MessageType.WINDOW_REQUEST, async message => {
-    assert(
-      message.sender.context === 'background',
-      'Message didnt come from background',
-    );
+    if (message.sender.context !== 'background') {
+      throw new Error('Message didnt come from background');
+    }
     const msg = message.data as Message;
     msg.sender = message.sender;
     return cb(msg);

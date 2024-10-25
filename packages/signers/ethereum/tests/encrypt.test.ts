@@ -1,6 +1,6 @@
+import { describe, it, expect } from "vitest";
 import { bufferToHex, hexToBuffer } from "@enkryptcom/utils";
-import { expect } from "chai";
-import { privateToPublic } from "ethereumjs-util";
+import { privateToPublic } from "@ethereumjs/util";
 import Signer from "../src";
 
 // https://github.com/MetaMask/eth-sig-util/blob/main/src/encryption.test.ts

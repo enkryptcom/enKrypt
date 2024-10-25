@@ -11,6 +11,7 @@
     "outDir": "dist",
     "resolveJsonModule": true,
     "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "declaration": true
   },
   "include": ["src/**/*.ts", "tests/**/*.ts"],

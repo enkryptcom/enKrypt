@@ -1,11 +1,11 @@
+import { describe, it, expect } from "vitest";
 import { bufferToHex, hexToBuffer } from "@enkryptcom/utils";
 import { getPublicKey } from "@noble/secp256k1";
-import { expect } from "chai";
 import Signer from "../src";
 import fixtures from "./fixtures";
 
 describe("Ethreum signing", () => {
-  it("it should sign correctly", async () => {
+  it("it should sign correctly", { timeout: 20_000 }, async () => {
     const ethreumSigner = new Signer();
     const promises = fixtures.valid.map((f) => {
       const ecpair = {
@@ -24,5 +24,5 @@ describe("Ethreum signing", () => {
       });
     });
     await Promise.all(promises);
-  }).timeout(20000);
+  });
 });

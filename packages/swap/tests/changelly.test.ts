@@ -1,5 +1,5 @@
+import { describe, it, expect } from "vitest";
 import { Connection } from "@solana/web3.js";
-import { expect } from "chai";
 import Web3Eth from "web3-eth";
 import { NATIVE_TOKEN_ADDRESS } from "../src/configs";
 import Changelly from "../src/providers/changelly";
@@ -25,7 +25,7 @@ describe("Changelly Provider", () => {
   const solConn = new Connection(solNodeURL);
   const changelly = new Changelly(web3eth, SupportedNetworkName.Ethereum);
   const init = changelly.init();
-  it("it should return a quote ", async () => {
+  it("it should return a quote ", { timeout: 15_000 }, async () => {
     await init;
     const quote = await changelly.getQuote(
       {
@@ -56,7 +56,7 @@ describe("Changelly Provider", () => {
       ).options
     );
     expect(status).to.be.eq("pending");
-  }).timeout(15000);
+  });
 
   it("it should return correct tokens", async () => {
     await init;

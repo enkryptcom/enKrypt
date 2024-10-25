@@ -1,4 +1,4 @@
-import { expect } from "chai";
+import { describe, it, expect } from "vitest";
 import { toBN } from "web3-utils";
 import Web3Eth from "web3-eth";
 import Rango from "../src/providers/rango";
@@ -20,7 +20,7 @@ import {
 
 describe("Rango Provider", () => {
   // @ts-ignore
-  it("it should return a quote", async () => {
+  it("it should return a quote", { timeout: 25_000 }, async () => {
     const localAmount = toBN("100000000");
     const web3eth = new Web3Eth(nodeURL);
     const rango = new Rango(web3eth, SupportedNetworkName.Ethereum);
@@ -47,9 +47,9 @@ describe("Rango Provider", () => {
     const swap = await rango.getSwap(quote!.quote);
     expect(swap?.transactions.length).to.be.eq(2);
     expect(swap?.transactions[0].to).to.be.eq(fromTokenWBTC.address);
-  }).timeout(25000);
+  });
 
-  it("it should return cross chain swap", async () => {
+  it("it should return cross chain swap", { timeout: 25_000 }, async () => {
     const web3eth = new Web3Eth(nodeURLMatic);
     const rango = new Rango(web3eth, SupportedNetworkName.Matic);
     const init = rango.init();
@@ -74,5 +74,5 @@ describe("Rango Provider", () => {
     expect(quote?.additionalNativeFees.gten(0)).to.be.eq(true);
     const swap = await rango.getSwap(quote!.quote);
     expect(swap?.transactions.length).to.be.eq(1);
-  }).timeout(25000);
+  });
 });

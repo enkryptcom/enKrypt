@@ -1,6 +1,6 @@
+import { describe, it, expect } from "vitest";
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-restricted-syntax */
-import { expect } from "chai";
 import { SignerType } from "@enkryptcom/types";
 import Signer from "../src";
 
@@ -11,7 +11,7 @@ describe("Polkadot Address generate", () => {
   const PHRASE =
     "bottom drive obey lake curtain smoke basket hold race lonely fit walk";
 
-  it("sr25519 addresses should work", async () => {
+  it("sr25519 addresses should work", { timeout: 5_000 }, async () => {
     const signer = new Signer(SignerType.sr25519);
     for (const bool of [true, false]) {
       let keypair = await signer.generate(MNEMONIC, "//0", { onlyJS: bool });
@@ -82,7 +82,7 @@ describe("Polkadot Address generate", () => {
         expect(keypair.address).equals(item.ss);
       }
     }
-  }).timeout(5000);
+  });
   it("ecdsa addresses should work", async () => {
     const signer = new Signer(SignerType.ecdsa);
     for (const bool of [true, false]) {

@@ -1,4 +1,4 @@
-import { expect } from "chai";
+import { describe, it, expect } from "vitest";
 import Signer from "../src";
 
 describe("Kadena address generate", () => {

@@ -1,5 +1,5 @@
+import { describe, it, expect } from 'vitest';
 import DataDecode from '../libs/transaction/data-decoder';
-import { expect } from 'chai';
 import { toBN } from 'web3-utils';
 import { numberToHex } from 'web3-utils';
 describe('Test Ethereum data decoding', () => {
