@@ -22,9 +22,13 @@
     "url": "git+https://github.com/enkryptcom/enKrypt/tree/main/packages/extension-bridge"
   },
   "author": "Neek Sandhu <neek.sandhu@outlook.com>",
-  "main": "dist/index.cjs",
-  "module": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "src/index.ts",
+  "module": "src/index.ts",
+  "publishConfig": {
+    "main": "dist/index.cjs",
+    "module": "dist/index.js",
+    "types": "dist/index.d.ts"
+  },
   "scripts": {
     "build": "tsup src/index.ts src/window/index.ts src/types.ts --clean --format esm,cjs --dts",
     "test": "echo 'no-tests'",

@@ -1,28 +1,28 @@
-import { fileURLToPath, URL } from 'node:url'
-import { nodePolyfills } from 'vite-plugin-node-polyfills'
-import { defineConfig } from 'vite'
-import vue from '@vitejs/plugin-vue'
-import { crx } from '@crxjs/vite-plugin'
-import chromeManifest from './src/manifest/manifest.chrome'
-import firefoxManifest from './src/manifest/manifest.firefox'
-import operaManifest from './src/manifest/manifest.opera'
-import assetsRewritePlugin from './configs/vite/assets-rewrite'
-import transformManifest from './configs/vite/transform-manifest'
-import transformCSInject from './configs/vite/transform-cs-inject'
-import { version } from './package.json'
+import { fileURLToPath, URL } from 'node:url';
+import { nodePolyfills } from 'vite-plugin-node-polyfills';
+import { defineConfig } from 'vite';
+import vue from '@vitejs/plugin-vue';
+import { crx } from '@crxjs/vite-plugin';
+import chromeManifest from './src/manifest/manifest.chrome';
+import firefoxManifest from './src/manifest/manifest.firefox';
+import operaManifest from './src/manifest/manifest.opera';
+import assetsRewritePlugin from './configs/vite/assets-rewrite';
+import transformManifest from './configs/vite/transform-manifest';
+import transformCSInject from './configs/vite/transform-cs-inject';
+import { version } from './package.json';
 
-const BROWSER = process.env.BROWSER
+const BROWSER = process.env.BROWSER;
 
 const getManifest = () => {
   switch (BROWSER) {
     case 'firefox':
-      return firefoxManifest
+      return firefoxManifest;
     case 'opera':
-      return operaManifest
+      return operaManifest;
     default:
-      return chromeManifest
+      return chromeManifest;
   }
-}
+};
 
 export default defineConfig({
   server: {
@@ -104,4 +104,4 @@ export default defineConfig({
       '@action': fileURLToPath(new URL('./src/ui/action', import.meta.url)),
     },
   },
-})
+});
