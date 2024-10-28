@@ -22,7 +22,15 @@ describe("Zerox Provider", () => {
   const web3eth = new Web3Eth(nodeURL);
   const zerox = new Zerox(web3eth, SupportedNetworkName.Ethereum);
   const ZEROX_APPROVAL = "0xdef1c0ded9bec7f1a1670819833240f027b25eff";
-  if (process.env.CI) return;
+
+  if (process.env.CI) {
+    // We need at-least one test otherwise vitest reports failure
+    it('No ZeroX swap tests in CI', function() {
+      expect(true).toBeTruthy()
+    })
+    return
+  }
+
   it(
     "it should return a quote infinity approval",
     { timeout: 10_000 },
