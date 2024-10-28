@@ -1,15 +1,14 @@
-import typescript from '@rollup/plugin-typescript'
-import commonjs from '@rollup/plugin-commonjs'
-import nodeResolve from '@rollup/plugin-node-resolve'
-import inject from '@rollup/plugin-inject'
-import replace from '@rollup/plugin-replace'
-import json from '@rollup/plugin-json'
-import packageJson from '../package.json' with { type: 'json' }
-import { RollupOptions, OutputOptions } from 'rollup'
-import terser from '@rollup/plugin-terser'
+import typescript from '@rollup/plugin-typescript';
+import commonjs from '@rollup/plugin-commonjs';
+import nodeResolve from '@rollup/plugin-node-resolve';
+import inject from '@rollup/plugin-inject';
+import replace from '@rollup/plugin-replace';
+import json from '@rollup/plugin-json';
+import packageJson from '../package.json' with { type: 'json' };
+import { RollupOptions, OutputOptions } from 'rollup';
+import terser from '@rollup/plugin-terser';
 
-const enableMinification = process.env.MINIFY === 'true'
-
+const enableMinification = process.env.MINIFY === 'true';
 const base: RollupOptions = {
   logLevel: 'silent',
   watch: {
@@ -29,6 +28,7 @@ const base: RollupOptions = {
     typescript({
       exclude: [/node_modules/],
       tsconfig: './configs/tsconfig.rollup.json',
+      rootDir: '../../',
     }),
     commonjs(),
     json(),
@@ -37,9 +37,9 @@ const base: RollupOptions = {
     }),
     nodeResolve({ preferBuiltins: false }),
   ],
-}
+};
 if (enableMinification) {
-  ; (base.output as OutputOptions).plugins = [terser()]
+  (base.output as OutputOptions).plugins = [terser()];
 }
 
-export default base
+export default base;

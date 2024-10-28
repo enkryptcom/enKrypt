@@ -147,16 +147,16 @@ import getUiPath from '@/libs/utils/get-ui-path';
 import UIRoutes from '@/ui/provider-pages/enkrypt/routes/names';
 import { ProviderName } from '@/types/provider';
 import EnkryptSwap, {
-  TokenType,
-  TokenTypeTo,
+  type TokenType,
+  type TokenTypeTo,
   WalletIdentifier,
-  SupportedNetworkName,
+  type SupportedNetworkName,
   isSupportedNetwork,
   getNetworkInfoByName,
-  NetworkInfo,
+  type NetworkInfo,
   sortByRank,
   SwapToken,
-  ProviderQuoteResponse,
+  type ProviderQuoteResponse,
 } from '@enkryptcom/swap';
 import Web3Eth from 'web3-eth';
 import { toBN } from 'web3-utils';
