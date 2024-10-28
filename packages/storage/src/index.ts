@@ -1,8 +1,8 @@
 import { BrowserStorageArea } from "@enkryptcom/types";
 import { StorageOptions } from "./types";
-import LocalForage from "./local-forage";
+import { LocalForage } from "./local-forage";
 
-class Storage {
+export class Storage {
   namespace: string;
 
   private storage: BrowserStorageArea;
@@ -43,4 +43,4 @@ class Storage {
   }
 }
 
-export default Storage;
+// export default Storage;

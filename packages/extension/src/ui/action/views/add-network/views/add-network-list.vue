@@ -41,7 +41,9 @@
         :key="item.name"
         :network="item"
         :is-active="item.isActive"
-        :is-custom-network="(item as unknown as CustomEvmNetwork).isCustomNetwork"
+        :is-custom-network="
+          (item as unknown as CustomEvmNetwork).isCustomNetwork
+        "
         :show-tooltip="!hasMoreThanOneActiveNetwork"
         @network-toggled="onToggle"
         @network-deleted="onNetworkDeleted"
@@ -123,7 +125,7 @@ const setNetworkLists = async (isTestActive: boolean) => {
 
   all.value = allNetworksNotTestNets;
   hasMoreThanOneActiveNetwork.value =
-    all.value.filter((net) => net.isActive).length > 1;
+    all.value.filter(net => net.isActive).length > 1;
   popular.value = popularNetworks;
 };
 
@@ -143,8 +145,8 @@ const onToggle = async (networkName: string, isActive: boolean) => {
       _isActive = true;
     }
     await networksState.setNetworkStatus(networkName, _isActive);
-    emit("update:activeNetworks");
-    all.value = all.value.map((network) => {
+    emit('update:activeNetworks');
+    all.value = all.value.map(network => {
       if (network.name === networkName) {
         network.isActive = _isActive;
       }
@@ -152,7 +154,7 @@ const onToggle = async (networkName: string, isActive: boolean) => {
       return network;
     });
     hasMoreThanOneActiveNetwork.value =
-      all.value.filter((net) => net.isActive).length > 1;
+      all.value.filter(net => net.isActive).length > 1;
     popular.value = all.value.filter(({ name }) =>
       POPULAR_NAMES.includes(name),
     );
@@ -167,8 +169,8 @@ const onNetworkDeleted = async (chainId: string) => {
 
   all.value = await getAllNetworksAndStatus();
   hasMoreThanOneActiveNetwork.value =
-    all.value.filter((net) => net.isActive).length > 1;
-  emit("update:activeNetworks");
+    all.value.filter(net => net.isActive).length > 1;
+  emit('update:activeNetworks');
 };
 
 const updateSearch = (value: string) => {

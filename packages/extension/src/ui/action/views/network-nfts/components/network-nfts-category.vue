@@ -11,7 +11,7 @@
         </p></tooltip
       >
       <p v-else>
-        {{ collection.name || "Unkown" }}
+        {{ collection.name || 'Unkown' }}
       </p>
       <a
         ref="toggle"
@@ -40,13 +40,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed, PropType, ref } from "vue";
-import NetworkNftsItem from "./network-nfts-item.vue";
-import NftSortMenu from "@action/icons/nft/nft-sort-menu.vue";
-import NetworkNftsCategorySortMenu from "./network-nfts-category-sort-menu.vue";
-import { NFTCollection } from "@/types/nft";
-import { onClickOutside } from "@vueuse/core";
-import Tooltip from "@/ui/action/components/tooltip/index.vue";
+import { computed, PropType, ref } from 'vue';
+import NetworkNftsItem from './network-nfts-item.vue';
+import NftSortMenu from '@action/icons/nft/nft-sort-menu.vue';
+import NetworkNftsCategorySortMenu from './network-nfts-category-sort-menu.vue';
+import { NFTCollection } from '@/types/nft';
+import { onClickOutside } from '@vueuse/core';
+import Tooltip from '@/ui/action/components/tooltip/index.vue';
 
 const isOpenSort = ref(false);
 const isAbcSort = ref(true);

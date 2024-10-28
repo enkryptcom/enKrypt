@@ -44,15 +44,15 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, PropType, ref, computed } from "vue";
-import CloseIcon from "@action/icons/common/close-icon.vue";
-import ActionMenu from "@action/components/action-menu/index.vue";
-import NftMoreAddToFavorite from "@action/icons/nft/nft-more-add-to-favorite.vue";
-import NftMoreDeleteFromFavorite from "@action/icons/nft/nft-more-delete-from-favorite.vue";
-import { NFTItem } from "@/types/nft";
-import Notification from "@action/components/notification/index.vue";
-import { imageLoadError } from "@action/utils/misc";
-import Tooltip from "@/ui/action/components/tooltip/index.vue";
+import { onMounted, PropType, ref, computed } from 'vue';
+import CloseIcon from '@action/icons/common/close-icon.vue';
+import ActionMenu from '@action/components/action-menu/index.vue';
+import NftMoreAddToFavorite from '@action/icons/nft/nft-more-add-to-favorite.vue';
+import NftMoreDeleteFromFavorite from '@action/icons/nft/nft-more-delete-from-favorite.vue';
+import { NFTItem } from '@/types/nft';
+import Notification from '@action/components/notification/index.vue';
+import { imageLoadError } from '@action/utils/misc';
+import Tooltip from '@/ui/action/components/tooltip/index.vue';
 
 const isFavoriteAction = ref(false);
 const localIsFavorite = ref(false);
@@ -91,10 +91,10 @@ const close = () => {
 const nftTitle = computed(() => {
   if (props.item.name && props.item.name.length > 0) {
     return props.item.name.length > 118
-      ? props.item.name.slice(0, 118) + "..."
+      ? props.item.name.slice(0, 118) + '...'
       : props.item.name;
   } else {
-    return "NFT #" + props.item.id;
+    return 'NFT #' + props.item.id;
   }
 });
 const favClicked = (isFav: boolean) => {

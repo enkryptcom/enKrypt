@@ -1,3 +1,4 @@
+import { describe, it, expect } from "vitest";
 import {
   AddressLookupTableAccount,
   ComputeBudgetInstruction,
@@ -6,7 +7,6 @@ import {
   TransactionMessage,
   VersionedTransaction,
 } from "@solana/web3.js";
-import { expect } from "chai";
 import { Jupiter } from "../src/providers/jupiter";
 import {
   ProviderName,
@@ -49,7 +49,7 @@ describe("Jupiter Provider", () => {
   //   //
   // })
 
-  it("Should work", async () => {
+  it("Should work", { timeout: 10_000 }, async () => {
     const quote: null | ProviderQuoteResponse = await jupiter.getQuote(
       {
         amount,
@@ -144,5 +144,5 @@ describe("Jupiter Provider", () => {
       decompiledMessage.payerKey.toBase58(),
       "Payer key is not the from address"
     ).to.equal(fromAddress);
-  }).timeout(10_000);
+  });
 });

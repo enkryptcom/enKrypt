@@ -1,8 +1,9 @@
-import { expect } from 'chai';
+import { describe, it, expect } from 'vitest';
 import { ProviderName, ProviderType, PolkadotProvider } from '@/types/provider';
 import PolkadotInject from '../inject';
 import { OnMessageResponse, RPCRequestType } from '@enkryptcom/types';
 import { EnkryptWindow } from '@/types/globals';
+import { InternalMethods } from '@/types/messenger';
 
 const sampleAccount = [
   {
@@ -34,6 +35,9 @@ const providerSendMessage = async (
   provider: ProviderName,
   message: string,
 ): Promise<any> => {
+  if (JSON.parse(message).method === InternalMethods.getSettings) {
+    return tempWindow.enkrypt.settings;
+  }
   if (provider === ProviderName.polkadot) {
     const res = requestHandler(message);
     if (res.error) return Promise.reject(JSON.parse(res.error));

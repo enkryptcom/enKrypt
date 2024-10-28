@@ -26,7 +26,9 @@ import { KeyPair, SignOptions } from "./types";
 
 const SUBSTRATE_PREFIX = 42;
 
-class Signer implements SignerInterface {
+export { SignerType };
+
+export class PolkadotSigner implements SignerInterface {
   type: SignerType;
 
   constructor(signer: SignerType) {
@@ -143,5 +145,3 @@ class Signer implements SignerInterface {
     }
   }
 }
-export { SignerType };
-export default Signer;

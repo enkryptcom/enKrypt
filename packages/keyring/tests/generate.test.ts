@@ -1,8 +1,7 @@
-// eslint-disable-next-line import/no-extraneous-dependencies
-import { expect } from "chai";
+import { describe, it, expect } from "vitest";
 import { KeyRecordAdd, SignerType, WalletType } from "@enkryptcom/types";
 import { MemoryStorage } from "@enkryptcom/utils";
-import Storage from "@enkryptcom/storage";
+import { Storage } from "@enkryptcom/storage";
 import KeyRing from "../src";
 
 describe("Keyring create tests", () => {
@@ -10,47 +9,55 @@ describe("Keyring create tests", () => {
   const MNEMONIC =
     "bottom drive obey lake curtain smoke basket hold race lonely fit walk";
   // eslint-disable-next-line prefer-arrow-callback,func-names
-  it("keyring should generate ed25519kda keys", async () => {
-    const memStorage = new MemoryStorage();
-    const storage = new Storage("keyring", { storage: memStorage });
-    const keyring = new KeyRing(storage);
-    await keyring.init(password, { mnemonic: MNEMONIC });
-    const keyAdd: KeyRecordAdd = {
-      basePath: "m/44'/626'/0'",
-      signerType: SignerType.ed25519kda,
-      name: "0index",
-      walletType: WalletType.mnemonic,
-    };
-    await keyring.unlockMnemonic(password);
-    const pair = await keyring.createKey(keyAdd);
-    expect(pair.signerType).equals(SignerType.ed25519kda);
-    expect(pair.pathIndex).equals(0);
-    expect(pair.address).equals(
-      "0xd75b971cc4846f543caa92e9bf07bf2f4cee87774f4ba8db2fde5c3dacaed03f"
-    );
-    keyring.lock();
-  }).timeout(20000);
-  it("keyring should generate secp256k1btc keys", async () => {
-    const memStorage = new MemoryStorage();
-    const storage = new Storage("keyring", { storage: memStorage });
-    const keyring = new KeyRing(storage);
-    await keyring.init(password, { mnemonic: MNEMONIC });
-    const keyAdd: KeyRecordAdd = {
-      basePath: "m/49'/0'/0'/0",
-      signerType: SignerType.secp256k1btc,
-      name: "0index",
-      walletType: WalletType.mnemonic,
-    };
-    await keyring.unlockMnemonic(password);
-    const pair = await keyring.createKey(keyAdd);
-    expect(pair.signerType).equals(SignerType.secp256k1btc);
-    expect(pair.pathIndex).equals(0);
-    expect(pair.address).equals(
-      "0x03a8b8b68bec95d27f8a8d78712717bd18f605d95fa64f2b05d2325f873b457c82"
-    );
-    keyring.lock();
-  }).timeout(20000);
-  it("keyring should generate sr25519 keys", async () => {
+  it(
+    "keyring should generate ed25519kda keys",
+    { timeout: 20_000 },
+    async () => {
+      const memStorage = new MemoryStorage();
+      const storage = new Storage("keyring", { storage: memStorage });
+      const keyring = new KeyRing(storage);
+      await keyring.init(password, { mnemonic: MNEMONIC });
+      const keyAdd: KeyRecordAdd = {
+        basePath: "m/44'/626'/0'",
+        signerType: SignerType.ed25519kda,
+        name: "0index",
+        walletType: WalletType.mnemonic,
+      };
+      await keyring.unlockMnemonic(password);
+      const pair = await keyring.createKey(keyAdd);
+      expect(pair.signerType).equals(SignerType.ed25519kda);
+      expect(pair.pathIndex).equals(0);
+      expect(pair.address).equals(
+        "0xd75b971cc4846f543caa92e9bf07bf2f4cee87774f4ba8db2fde5c3dacaed03f"
+      );
+      keyring.lock();
+    }
+  );
+  it(
+    "keyring should generate secp256k1btc keys",
+    { timeout: 20_000 },
+    async () => {
+      const memStorage = new MemoryStorage();
+      const storage = new Storage("keyring", { storage: memStorage });
+      const keyring = new KeyRing(storage);
+      await keyring.init(password, { mnemonic: MNEMONIC });
+      const keyAdd: KeyRecordAdd = {
+        basePath: "m/49'/0'/0'/0",
+        signerType: SignerType.secp256k1btc,
+        name: "0index",
+        walletType: WalletType.mnemonic,
+      };
+      await keyring.unlockMnemonic(password);
+      const pair = await keyring.createKey(keyAdd);
+      expect(pair.signerType).equals(SignerType.secp256k1btc);
+      expect(pair.pathIndex).equals(0);
+      expect(pair.address).equals(
+        "0x03a8b8b68bec95d27f8a8d78712717bd18f605d95fa64f2b05d2325f873b457c82"
+      );
+      keyring.lock();
+    }
+  );
+  it("keyring should generate sr25519 keys", { timeout: 20_000 }, async () => {
     const memStorage = new MemoryStorage();
     const storage = new Storage("keyring", { storage: memStorage });
     const keyring = new KeyRing(storage);
@@ -69,8 +76,8 @@ describe("Keyring create tests", () => {
       "5DfhGyQdFobKM8NsWvEeAKk5EQQgYe9AydgJ7rMB6E1EqRzV"
     );
     keyring.lock();
-  }).timeout(20000);
-  it("keyring should generate ecdsa keys", async () => {
+  });
+  it("keyring should generate ecdsa keys", { timeout: 20_000 }, async () => {
     const memStorage = new MemoryStorage();
     const storage = new Storage("keyring", { storage: memStorage });
     const keyring = new KeyRing(storage);
@@ -88,8 +95,8 @@ describe("Keyring create tests", () => {
     expect(pair.address).equals(
       "5GKyBtzbxKU1qjhZrKpMiwtJj7o6jJcXbKQVtYq74DCPerXN"
     );
-  }).timeout(20000);
-  it("keyring should generate ed25519 keys", async () => {
+  });
+  it("keyring should generate ed25519 keys", { timeout: 20_000 }, async () => {
     const memStorage = new MemoryStorage();
     const storage = new Storage("keyring", { storage: memStorage });
     const keyring = new KeyRing(storage);
@@ -107,8 +114,8 @@ describe("Keyring create tests", () => {
     expect(pair.address).equals(
       "5DFJF7tY4bpbpcKPJcBTQaKuCDEPCpiz8TRjpmLeTtweqmXL"
     );
-  }).timeout(20000);
-  it("keyring should generate ethereum keys", async () => {
+  });
+  it("keyring should generate ethereum keys", { timeout: 20_000 }, async () => {
     const memStorage = new MemoryStorage();
     const storage = new Storage("keyring", { storage: memStorage });
     const keyring = new KeyRing(storage);
@@ -132,27 +139,31 @@ describe("Keyring create tests", () => {
       .then(() => true)
       .catch(() => false);
     expect(tryToDelete).equals(false);
-  }).timeout(20000);
+  });
 
-  it("keyring should delete non mnemonic wallets", async () => {
-    const memStorage = new MemoryStorage();
-    const storage = new Storage("keyring", { storage: memStorage });
-    const keyring = new KeyRing(storage);
-    await keyring.init(password, { mnemonic: MNEMONIC });
-    const keyAdd: KeyRecordAdd = {
-      basePath: "m/44'/60'/0'/0",
-      signerType: SignerType.secp256k1,
-      walletType: WalletType.ledger,
-      name: "hw-wallet",
-    };
-    await keyring.unlockMnemonic(password);
-    const pair = await keyring.createAndSaveKey(keyAdd);
-    const tryToDelete = await keyring
-      .deleteAccount(pair.address)
-      .then(() => true)
-      .catch(() => false);
-    expect(tryToDelete).equals(true);
-    const deletedAccount = (await keyring.getKeysObject())[pair.address];
-    expect(deletedAccount).equals(undefined);
-  }).timeout(20000);
+  it(
+    "keyring should delete non mnemonic wallets",
+    { timeout: 20_000 },
+    async () => {
+      const memStorage = new MemoryStorage();
+      const storage = new Storage("keyring", { storage: memStorage });
+      const keyring = new KeyRing(storage);
+      await keyring.init(password, { mnemonic: MNEMONIC });
+      const keyAdd: KeyRecordAdd = {
+        basePath: "m/44'/60'/0'/0",
+        signerType: SignerType.secp256k1,
+        walletType: WalletType.ledger,
+        name: "hw-wallet",
+      };
+      await keyring.unlockMnemonic(password);
+      const pair = await keyring.createAndSaveKey(keyAdd);
+      const tryToDelete = await keyring
+        .deleteAccount(pair.address)
+        .then(() => true)
+        .catch(() => false);
+      expect(tryToDelete).equals(true);
+      const deletedAccount = (await keyring.getKeysObject())[pair.address];
+      expect(deletedAccount).equals(undefined);
+    }
+  );
 });

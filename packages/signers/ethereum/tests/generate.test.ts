@@ -1,11 +1,11 @@
-import { expect } from "chai";
-import Signer from "../src";
+import { describe, it, expect } from "vitest";
+import { EthereumSigner } from "../src";
 
 describe("Ethreum address generate", () => {
   const MNEMONIC =
     "awake book subject inch gentle blur grant damage process float month clown";
   it("should generate ethereum addresses correctly", async () => {
-    const ethreumSigner = new Signer();
+    const ethreumSigner = new EthereumSigner();
     let keypair = await ethreumSigner.generate(MNEMONIC, "m/44'/60'/0'/0/0");
     expect(keypair.address).equals(
       "0x4dcccf58c6573eb896250b0c9647a40c1673af44"

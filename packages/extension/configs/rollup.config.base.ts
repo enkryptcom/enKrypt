@@ -4,7 +4,7 @@ import nodeResolve from '@rollup/plugin-node-resolve'
 import inject from '@rollup/plugin-inject'
 import replace from '@rollup/plugin-replace'
 import json from '@rollup/plugin-json'
-import packageJson from '../package.json' assert { type: 'json' }
+import packageJson from '../package.json' with { type: 'json' }
 import { RollupOptions, OutputOptions } from 'rollup'
 import terser from '@rollup/plugin-terser'
 
@@ -39,7 +39,7 @@ const base: RollupOptions = {
   ],
 }
 if (enableMinification) {
-  ;(base.output as OutputOptions).plugins = [terser()]
+  ; (base.output as OutputOptions).plugins = [terser()]
 }
 
 export default base

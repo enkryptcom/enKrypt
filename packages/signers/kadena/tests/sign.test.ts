@@ -1,7 +1,7 @@
-import { expect } from "chai";
+import { describe, it, expect } from "vitest";
 import { blake2AsU8a } from "@polkadot/util-crypto";
 import { bufferToHex } from "@enkryptcom/utils";
-import Signer from "../src";
+import { KadenaSigner } from "../src";
 
 describe("Kadena signing", () => {
   const MNEMONIC =
@@ -20,7 +20,7 @@ describe("Kadena signing", () => {
     "0x91a2c04d766f9fdd7150b55608686c6d227a4c411467c140be0833803845060f6f6b18b71378f33ae96029cf8b8a90d9b7244ff14c60e4c4e7c8f88214946f07";
   it("it should sign correctly", async () => {
     // Arrange
-    const kadenaSigner = new Signer();
+    const kadenaSigner = new KadenaSigner();
     const keypair = await kadenaSigner.generate(MNEMONIC, "m/44'/626'/0");
 
     // Act
@@ -32,7 +32,7 @@ describe("Kadena signing", () => {
 
   it("it should sign tx msgs correctly", async () => {
     // Arrange
-    const kadenaSigner = new Signer();
+    const kadenaSigner = new KadenaSigner();
     const keypair = await kadenaSigner.generate(MNEMONIC, "m/44'/626'/0");
     const txMsgHash = bufferToHex(blake2AsU8a(txMsg));
     // Act
@@ -43,7 +43,7 @@ describe("Kadena signing", () => {
 
   it("it should verify correctly", async () => {
     // Arrange
-    const kadenaSigner = new Signer();
+    const kadenaSigner = new KadenaSigner();
     const keypair = await kadenaSigner.generate(MNEMONIC, "m/44'/626'/0");
 
     // Act
