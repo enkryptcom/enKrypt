@@ -96,7 +96,7 @@ export default defineConfig({
   },
   optimizeDeps: {
     include: ['vue', '@vueuse/core', 'webextension-polyfill', 'crypto'],
-    exclude: ['node:fs/promises', 'zlib'],
+    exclude: ['node:fs/promises', 'zlib', 'vue-demi'],
   },
   resolve: {
     alias: {
