@@ -94,6 +94,7 @@ export enum NetworkNames {
   Rari = "rari",
   CotiDevnet = "CotiDevnet",
   Holesky = "HOLESKY",
+  Bitrock = "bitrock",
 }
 
 export enum CoingeckoPlatform {
