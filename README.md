@@ -32,6 +32,8 @@ Enkrypt is a web3 wallet built from the ground up to support the multi-chain fut
 ## Currently Supported Chains
 
 - Ethereum
+- Bitcoin
+- Solana
 - Polygon
 - BNB Smart Chain
 - Moonbeam
