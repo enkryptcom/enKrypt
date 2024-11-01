@@ -1,3 +1,4 @@
+import { CoingeckoPlatform, NetworkNames } from "@enkryptcom/types";
 import { NetworkNames } from "@enkryptcom/types";
 import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
 
@@ -14,6 +15,7 @@ const bitrockOptions: EvmNetworkOptions = {
   node: "https://brockrpc.io",
   icon: require("./icons/bitrock.svg"),
   coingeckoID: "bitrock",
+  coingeckoPlatform: CoingeckoPlatform.Bitrock,
   activityHandler: () => Promise.resolve([]),
 };
 
