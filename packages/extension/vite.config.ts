@@ -33,7 +33,10 @@ export default defineConfig({
     },
   },
   define: {
-    __PREFILL_PASSWORD__: JSON.stringify('test pass'),
+    __PREFILL_PASSWORD__:
+      process.env.NODE_ENV === 'development'
+        ? JSON.stringify('test pass')
+        : JSON.stringify(''),
     __PACKAGE_VERSION__: JSON.stringify(version),
     __IS_DEV__: process.env.NODE_ENV === 'development',
     __IS_FIREFOX__: BROWSER === 'firefox',

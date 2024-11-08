@@ -91,22 +91,26 @@ const toggleEthereumDisable = async (isChecked: boolean) => {
     timestamp: new Date().getTime(),
   };
   await settingsState.setEVMSettings(evmSettings);
+  isEthereumDisabled.value = isChecked;
 };
 const togglePjsDisable = async (isChecked: boolean) => {
   const subSettings = await settingsState.getSubstrateSettings();
   subSettings.injectPolkadotjs = !isChecked;
   await settingsState.setSubstrateSettings(subSettings);
+  isPolkadotjsDisabled.value = isChecked;
 };
 const toggleUnisatEnable = async (isChecked: boolean) => {
   const btcSettings = await settingsState.getBtcSettings();
   btcSettings.injectUnisat = isChecked;
   await settingsState.setBtcSettings(btcSettings);
+  isUnisatEnabled.value = isChecked;
 };
 const toggleMetricsEnabled = async (isChecked: boolean) => {
   const enkryptSettings = await settingsState.getEnkryptSettings();
   enkryptSettings.isMetricsEnabled = !isChecked;
   await settingsState.setEnkryptSettings(enkryptSettings);
   optOutofMetrics(isChecked);
+  isMetricsEnabled.value = !isChecked;
 };
 </script>
 

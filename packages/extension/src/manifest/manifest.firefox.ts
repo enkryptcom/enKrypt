@@ -24,7 +24,9 @@ const firefoxManifest = {
       strict_min_version: '100.0',
     },
   },
-  content_security_policy: "script-src 'self' 'unsafe-eval' 'wasm-unsafe-eval'",
+  content_security_policy: {
+    extension_pages: "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'",
+  },
 };
 
 export default defineManifest({
