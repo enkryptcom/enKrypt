@@ -1,6 +1,6 @@
-import polkadotMap from "./polkadot";
-import acalaMap from "./acala";
-import type { MethodMap } from "../types";
+import polkadotMap from './polkadot';
+import acalaMap from './acala';
+import type { MethodMap } from '../types';
 
 const mapping: Record<string, MethodMap> = {
   Polkadot: polkadotMap,

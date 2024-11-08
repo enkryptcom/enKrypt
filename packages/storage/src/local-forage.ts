@@ -1,10 +1,10 @@
 import { BrowserStorageArea } from "@enkryptcom/types";
 import LocalForageLib from "localforage";
 
-class LocalForage implements BrowserStorageArea {
+export class LocalForage implements BrowserStorageArea {
   namespace: string;
 
-  private storage: globalThis.LocalForage;
+  private storage: typeof LocalForageLib;
 
   constructor(
     namespace: string,
@@ -55,5 +55,3 @@ class LocalForage implements BrowserStorageArea {
       .then(() => storeOb);
   }
 }
-
-export default LocalForage;

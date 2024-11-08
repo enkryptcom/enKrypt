@@ -120,59 +120,59 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, PropType, ref, watch } from "vue";
-import { useRoute, useRouter } from "vue-router";
-import Browser from "webextension-polyfill";
-import CloseIcon from "@action/icons/common/close-icon.vue";
-import SwapArrows from "@action/icons/swap/swap-arrows.vue";
-import BaseButton from "@action/components/base-button/index.vue";
-import SwapTokenAmountInput from "./components/swap-token-amount-input/index.vue";
-import SwapTokenToAmount from "./components/swap-token-to-amount/index.vue";
-import AssetsSelectList from "./components/swap-assets-select-list.vue";
-import NetworkSelectList from "./components/swap-network-select/network-select-list.vue";
-import SwapLooking from "./components/swap-loading/index.vue";
-import SwapErrorPopup from "./components/swap-error/index.vue";
-import SendAddressInput from "./components/send-address-input.vue";
-import SendContactsList from "./components/send-contacts-list.vue";
-import { getAccountsByNetworkName } from "@/libs/utils/accounts";
-import { AccountsHeaderData } from "../../types/account";
-import { getNetworkByName } from "@/libs/utils/networks";
-import { BaseNetwork } from "@/types/base-network";
-import BigNumber from "bignumber.js";
-import { SubstrateNetwork } from "@/providers/polkadot/types/substrate-network";
-import { EnkryptAccount, NetworkNames } from "@enkryptcom/types";
-import { SwapError } from "./components/swap-error/types";
-import { routes as RouterNames } from "@/ui/action/router";
-import getUiPath from "@/libs/utils/get-ui-path";
-import UIRoutes from "@/ui/provider-pages/enkrypt/routes/names";
-import { ProviderName } from "@/types/provider";
+import { computed, onMounted, PropType, ref, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import Browser from 'webextension-polyfill';
+import CloseIcon from '@action/icons/common/close-icon.vue';
+import SwapArrows from '@action/icons/swap/swap-arrows.vue';
+import BaseButton from '@action/components/base-button/index.vue';
+import SwapTokenAmountInput from './components/swap-token-amount-input/index.vue';
+import SwapTokenToAmount from './components/swap-token-to-amount/index.vue';
+import AssetsSelectList from './components/swap-assets-select-list.vue';
+import NetworkSelectList from './components/swap-network-select/network-select-list.vue';
+import SwapLooking from './components/swap-loading/index.vue';
+import SwapErrorPopup from './components/swap-error/index.vue';
+import SendAddressInput from './components/send-address-input.vue';
+import SendContactsList from './components/send-contacts-list.vue';
+import { getAccountsByNetworkName } from '@/libs/utils/accounts';
+import { AccountsHeaderData } from '../../types/account';
+import { getNetworkByName } from '@/libs/utils/networks';
+import { BaseNetwork } from '@/types/base-network';
+import BigNumber from 'bignumber.js';
+import { SubstrateNetwork } from '@/providers/polkadot/types/substrate-network';
+import { EnkryptAccount, NetworkNames } from '@enkryptcom/types';
+import { SwapError } from './components/swap-error/types';
+import { routes as RouterNames } from '@/ui/action/router';
+import getUiPath from '@/libs/utils/get-ui-path';
+import UIRoutes from '@/ui/provider-pages/enkrypt/routes/names';
+import { ProviderName } from '@/types/provider';
 import EnkryptSwap, {
-  TokenType,
-  TokenTypeTo,
+  type TokenType,
+  type TokenTypeTo,
   WalletIdentifier,
-  SupportedNetworkName,
+  type SupportedNetworkName,
   isSupportedNetwork,
   getNetworkInfoByName,
-  NetworkInfo,
+  type NetworkInfo,
   sortByRank,
   SwapToken,
-  ProviderQuoteResponse,
-} from "@enkryptcom/swap";
-import Web3Eth from "web3-eth";
-import { toBN } from "web3-utils";
-import { NATIVE_TOKEN_ADDRESS } from "@/providers/ethereum/libs/common";
-import { SWAP_LOADING, SwapData } from "./types";
-import SwapNetworkSelect from "./components/swap-network-select/index.vue";
-import { toBase } from "@enkryptcom/utils";
-import { debounce } from "lodash";
-import MarketData from "@/libs/market-data";
-import { ProviderResponseWithStatus } from "./types";
-import { GenericNameResolver, CoinType } from "@/libs/name-resolver";
-import { trackSwapEvents } from "@/libs/metrics";
-import { SwapEventType } from "@/libs/metrics/types";
-import { Connection } from "@solana/web3.js";
+  type ProviderQuoteResponse,
+} from '@enkryptcom/swap';
+import Web3Eth from 'web3-eth';
+import { toBN } from 'web3-utils';
+import { NATIVE_TOKEN_ADDRESS } from '@/providers/ethereum/libs/common';
+import { SWAP_LOADING, SwapData } from './types';
+import SwapNetworkSelect from './components/swap-network-select/index.vue';
+import { toBase } from '@enkryptcom/utils';
+import { debounce } from 'lodash';
+import MarketData from '@/libs/market-data';
+import { ProviderResponseWithStatus } from './types';
+import { GenericNameResolver, CoinType } from '@/libs/name-resolver';
+import { trackSwapEvents } from '@/libs/metrics';
+import { SwapEventType } from '@/libs/metrics/types';
+import { Connection } from '@solana/web3.js';
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const debug = (..._args: any[]) => {};
 // Use this debug instead to enable debug logging
 // const debug = console.debug.bind(console);
@@ -197,12 +197,12 @@ const selected: string = route.params.id as string;
 
 const fromTokens = ref<TokenType[]>();
 const fromToken = ref<TokenType | null>({
-  name: "Loading",
-  symbol: "",
+  name: 'Loading',
+  symbol: '',
   decimals: 18,
-  address: "",
+  address: '',
   logoURI: props.network.icon,
-  type: "" as any,
+  type: '' as any,
 });
 const fromAmount = ref<string | null>(null);
 const toNetworks = ref<NetworkInfo[]>([]);
@@ -210,7 +210,7 @@ const toNetwork = ref<NetworkInfo | null>(null);
 const toNetworkOpen = ref(false);
 const toToken = ref<TokenTypeTo | null>(null);
 const toTokens = ref<TokenTypeTo[]>([]);
-const toAmount = ref<string>("");
+const toAmount = ref<string>('');
 const trendingToTokens = ref<TokenTypeTo[]>([]);
 const swapError = ref<SwapError>();
 const showSwapError = ref(false);
@@ -219,17 +219,17 @@ const isFindingRate = ref(false);
 const toAddressInputMeta = ref({
   displayAddress: (address: string) => address,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  identicon: (address: string) => "" as string,
-  networkName: "",
+  identicon: (address: string) => '' as string,
+  networkName: '',
 });
 const errors = ref({
-  inputAmount: "",
+  inputAmount: '',
   noProviders: false,
 });
 const bestProviderQuotes = ref<ProviderQuoteResponse[]>([]);
 
 /** Receiver address (address that will be receiving the swap output) */
-const address = ref<string>("");
+const address = ref<string>('');
 
 /** Is the receiver address valid */
 const addressIsValid = ref(true);
@@ -279,11 +279,11 @@ onMounted(async () => {
   isLooking.value = true;
   props.network
     .getAllTokenInfo(props.accountInfo.selectedAccount?.address as string)
-    .then(async (tokens) => {
+    .then(async tokens => {
       await swap.initPromise;
       let swapFromTokens = swap.getFromTokens();
       const tokensWithBalance: Record<string, string> = {};
-      tokens.forEach((t) => {
+      tokens.forEach(t => {
         if (
           toBN(t.balance).gtn(0) ||
           t.contract === NATIVE_TOKEN_ADDRESS ||
@@ -292,21 +292,21 @@ onMounted(async () => {
           tokensWithBalance[t.contract || NATIVE_TOKEN_ADDRESS] = t.balance;
       });
       swapFromTokens = {
-        all: swapFromTokens.all.filter((t) => {
+        all: swapFromTokens.all.filter(t => {
           if (tokensWithBalance[t.address]) {
             t.balance = toBN(tokensWithBalance[t.address]);
             return true;
           }
           return false;
         }),
-        top: swapFromTokens.top.filter((t) => {
+        top: swapFromTokens.top.filter(t => {
           if (tokensWithBalance[t.address]) {
             t.balance = toBN(tokensWithBalance[t.address]);
             return true;
           }
           return false;
         }),
-        trending: swapFromTokens.trending.filter((t) => {
+        trending: swapFromTokens.trending.filter(t => {
           if (tokensWithBalance[t.address]) {
             t.balance = toBN(tokensWithBalance[t.address]);
             return true;
@@ -320,14 +320,14 @@ onMounted(async () => {
       const swapToTokens = swap.getToTokens();
       const supportedNetworks = Object.keys(swapToTokens.all);
       let thisNetwork: NetworkInfo;
-      supportedNetworks.forEach((net) => {
+      supportedNetworks.forEach(net => {
         const netInfo = getNetworkInfoByName(net as SupportedNetworkName);
         if (props.network.name === net) {
           thisNetwork =
             swapToTokens.all[net as unknown as SupportedNetworkName].length ===
             1
               ? getNetworkInfoByName(
-                  NetworkNames.Ethereum as unknown as SupportedNetworkName
+                  NetworkNames.Ethereum as unknown as SupportedNetworkName,
                 )
               : netInfo;
         }
@@ -351,9 +351,9 @@ const setToTokens = () => {
   toToken.value = null;
   const MAX_TRENDING = 5;
   // Remove the source token from the list of destination tokens
-  toTokens.value = swapToTokens.all[toNetwork.value!.id].filter((val) => {
+  toTokens.value = swapToTokens.all[toNetwork.value!.id].filter(val => {
     if (!defaultBNVals[val.decimals])
-      defaultBNVals[val.decimals] = toBN(toBase("1", val.decimals));
+      defaultBNVals[val.decimals] = toBN(toBase('1', val.decimals));
     val.balance = defaultBNVals[val.decimals];
     return (
       (toNetwork.value!.id as string) !== (props.network.name as string) ||
@@ -363,7 +363,7 @@ const setToTokens = () => {
 
   if (swapToTokens.trending[toNetwork.value!.id])
     trendingToTokens.value.push(
-      ...swapToTokens.trending[toNetwork.value!.id].slice(0, MAX_TRENDING)
+      ...swapToTokens.trending[toNetwork.value!.id].slice(0, MAX_TRENDING),
     );
   if (
     swapToTokens.top[toNetwork.value!.id] &&
@@ -372,14 +372,14 @@ const setToTokens = () => {
     trendingToTokens.value.push(
       ...swapToTokens.top[toNetwork.value!.id].slice(
         0,
-        MAX_TRENDING - trendingToTokens.value.length
-      )
+        MAX_TRENDING - trendingToTokens.value.length,
+      ),
     );
   }
   const existingtrending: string[] = [];
-  trendingToTokens.value = trendingToTokens.value.filter((val) => {
+  trendingToTokens.value = trendingToTokens.value.filter(val => {
     if (!defaultBNVals[val.decimals])
-      defaultBNVals[val.decimals] = toBN(toBase("1", val.decimals));
+      defaultBNVals[val.decimals] = toBN(toBase('1', val.decimals));
     val.balance = defaultBNVals[val.decimals];
     const isInTrending = existingtrending.includes(val.address);
     existingtrending.push(val.address);
@@ -392,10 +392,10 @@ const setToTokens = () => {
   if (toTokens.value.length === 1) toToken.value = toTokens.value[0];
 
   getAccountsByNetworkName(toNetwork.value!.id as unknown as NetworkNames).then(
-    (accounts) => {
+    accounts => {
       toAccounts.value = accounts;
       const currentAccount = accounts.find(
-        (a) => a.address === props.accountInfo.selectedAccount!.address
+        a => a.address === props.accountInfo.selectedAccount!.address,
       );
       if (currentAccount) {
         address.value = currentAccount.address;
@@ -404,7 +404,7 @@ const setToTokens = () => {
         address.value = accounts[0].address;
         isValidToAddress();
       }
-    }
+    },
   );
 };
 
@@ -415,14 +415,14 @@ const setMax = () => {
 const inputAddress = (text: string) => {
   const debounceResolve = debounce(() => {
     nameResolver
-      .resolveName(text, [props.network.name as CoinType, "ETH"])
-      .then((resolved) => {
+      .resolveName(text, [props.network.name as CoinType, 'ETH'])
+      .then(resolved => {
         if (resolved) {
           inputAddress(resolved);
         }
       });
   }, 500);
-  if (text.includes(".")) debounceResolve();
+  if (text.includes('.')) debounceResolve();
   try {
     address.value = toAddressInputMeta.value.displayAddress(text);
   } catch {
@@ -448,7 +448,7 @@ const isValidToAddress = debounce(() => {
       const converted = toAddressInputMeta.value.displayAddress(address.value);
       toToken.value?.networkInfo
         .isAddress(converted)
-        .then((receiverAddressIsValid) => {
+        .then(receiverAddressIsValid => {
           addressIsValid.value = receiverAddressIsValid;
           if (receiverAddressIsValid) checkUpdateQuote();
         });
@@ -461,7 +461,7 @@ const isValidToAddress = debounce(() => {
 /** Native currency on the source network */
 const nativeSwapToken = computed(() => {
   const nToken = fromTokens.value?.find(
-    (ft) => ft.address === NATIVE_TOKEN_ADDRESS
+    ft => ft.address === NATIVE_TOKEN_ADDRESS,
   );
   if (nToken) return new SwapToken(nToken);
   return undefined;
@@ -475,12 +475,12 @@ const nativeSwapToken = computed(() => {
 const pickBestQuote = (fromAmountBN: BN, quotes: ProviderQuoteResponse[]) => {
   if (toToken.value == null) {
     debug(
-      "[swap/index.vue] Skipping quote picking: no destination token amount selected yet"
+      '[swap/index.vue] Skipping quote picking: no destination token amount selected yet',
     );
     return;
   }
 
-  errors.value.inputAmount = "";
+  errors.value.inputAmount = '';
 
   // No quotes at all
   if (!quotes.length) return;
@@ -496,7 +496,7 @@ const pickBestQuote = (fromAmountBN: BN, quotes: ProviderQuoteResponse[]) => {
   // Drop quotes that don't fit the users desired "amount"
 
   /** Quotes that the user can affort & fit their desired source amount */
-  const filteredQuotes = quotes.filter((q) => {
+  const filteredQuotes = quotes.filter(q => {
     return (
       // Must be swapping enough tokens
       q.minMax.minimumFrom.lte(fromAmountBN) &&
@@ -518,7 +518,7 @@ const pickBestQuote = (fromAmountBN: BN, quotes: ProviderQuoteResponse[]) => {
 
     // Loop through each quote to figure out the min and max swap src bounds
     // and the smallest possible native fees
-    quotes.forEach((q) => {
+    quotes.forEach(q => {
       // Minimum lower bound
       if (q.minMax.minimumFrom.lt(lowestMinimum)) {
         lowestMinimum = q.minMax.minimumFrom;
@@ -540,12 +540,12 @@ const pickBestQuote = (fromAmountBN: BN, quotes: ProviderQuoteResponse[]) => {
     if (fromAmountBN.lt(lowestMinimum)) {
       // Swapping too few tokens
       errors.value.inputAmount = `Minimum amount: ${fromT.toReadable(
-        lowestMinimum
+        lowestMinimum,
       )}`;
     } else if (fromAmountBN.gt(highestMaximum)) {
       // Swapping too many tokens
       errors.value.inputAmount = `Maximum amount: ${fromT.toReadable(
-        highestMaximum
+        highestMaximum,
       )}`;
     } else if (smallestNativeFees.gt(remainingBalance)) {
       // Can't afford the fees
@@ -560,7 +560,7 @@ const pickBestQuote = (fromAmountBN: BN, quotes: ProviderQuoteResponse[]) => {
   // There exist quotes that fit the users swap amount
 
   if (fromT.getBalanceRaw().lt(fromAmountBN)) {
-    errors.value.inputAmount = "Insufficient funds";
+    errors.value.inputAmount = 'Insufficient funds';
   }
 
   // Sort remaining quotes descending by the amount of the dest asset to be received
@@ -570,7 +570,7 @@ const pickBestQuote = (fromAmountBN: BN, quotes: ProviderQuoteResponse[]) => {
   // Apply the results
   // NOTE: toToken.value is sometimes not defined here? (it's null)
   toAmount.value = new SwapToken(toToken.value!).toReadable(
-    filteredQuotes[0].toTokenAmount
+    filteredQuotes[0].toTokenAmount,
   );
   bestProviderQuotes.value = filteredQuotes;
   isFindingRate.value = false;
@@ -597,7 +597,7 @@ function checkUpdateQuote() {
     updateQuote();
   } else {
     isFindingRate.value = false;
-    toAmount.value = "";
+    toAmount.value = '';
   }
 }
 
@@ -606,13 +606,13 @@ function checkUpdateQuote() {
  */
 const updateQuote = () => {
   isFindingRate.value = true;
-  toAmount.value = "";
+  toAmount.value = '';
   bestProviderQuotes.value = [];
   errors.value.noProviders = false;
   const token = new SwapToken(fromToken.value!);
   if (fromAmount.value == null) {
     // User probably set a destination token before setting a "from" amount
-    debug("[swap/index.vue] Skipping quote update: no source token amount set");
+    debug('[swap/index.vue] Skipping quote update: no source token amount set');
     return;
   }
   let fromRawAmount: BN;
@@ -621,7 +621,7 @@ const updateQuote = () => {
   } catch (err) {
     console.warn(
       `Failed to convert amount to raw: ${err}` +
-        `  fromAmount.value=${fromAmount.value} (${typeof fromAmount.value})`
+        `  fromAmount.value=${fromAmount.value} (${typeof fromAmount.value})`,
     );
     throw err;
   }
@@ -631,7 +631,7 @@ const updateQuote = () => {
     toToken: toToken.value!.name,
   });
   if (!toToken.value) {
-    console.warn("No destination token selected yet, yet requesting a quote??");
+    console.warn('No destination token selected yet, yet requesting a quote??');
   }
 
   // Abort the previous execution. Used to avoid race conditions in the UI and
@@ -652,26 +652,26 @@ const updateQuote = () => {
       {
         amount: fromRawAmount,
         fromAddress: props.network.displayAddress(
-          props.accountInfo.selectedAccount!.address
+          props.accountInfo.selectedAccount!.address,
         ),
         fromToken: fromToken.value!,
         toToken: toToken.value!,
         toAddress: toAddressInputMeta.value.displayAddress(address.value),
       },
-      { signal: context.aborter.signal }
+      { signal: context.aborter.signal },
     )
-    .then((quotes) => {
+    .then(quotes => {
       // Overidden by new update, drop these quotes
       if (context.aborter.signal.aborted) {
         debug(
-          `[swap/index.vue] Dropping quotes due to new update  id=${context.id}`
+          `[swap/index.vue] Dropping quotes due to new update  id=${context.id}`,
         );
         return;
       }
 
       if (quotes.length) {
         debug(
-          `[swap/index.vue] Found ${quotes.length} quotes  id=${context.id}`
+          `[swap/index.vue] Found ${quotes.length} quotes  id=${context.id}`,
         );
         pickBestQuote(fromRawAmount, quotes);
       } else {
@@ -680,11 +680,11 @@ const updateQuote = () => {
         errors.value.noProviders = true;
       }
     })
-    .catch((err) => {
+    .catch(err => {
       // Context aborted, just ignore the error
       if (err === context.aborter.signal.reason) {
         debug(
-          `[swap/index.vue] Ignoring error due to quote request context abort  id=${context.id}`
+          `[swap/index.vue] Ignoring error due to quote request context abort  id=${context.id}`,
         );
         return;
       }
@@ -698,14 +698,14 @@ watch([fromToken, toToken, fromAmount], debounce(checkUpdateQuote, 300));
 
 const selectTokenFrom = (token: TokenType | TokenTypeTo) => {
   fromToken.value = token as TokenType;
-  fromAmount.value = "";
-  errors.value.inputAmount = "";
+  fromAmount.value = '';
+  errors.value.inputAmount = '';
   toggleFromToken();
   setToTokens();
 };
 
 const initToNetworkInfo = async (network: NetworkInfo) => {
-  await getNetworkByName(network.id).then((net) => {
+  await getNetworkByName(network.id).then(net => {
     if (net) {
       toAddressInputMeta.value = {
         displayAddress: net.displayAddress,
@@ -715,18 +715,18 @@ const initToNetworkInfo = async (network: NetworkInfo) => {
     } else {
       toAddressInputMeta.value = {
         displayAddress: (address: string) => address,
-        identicon: () => "",
+        identicon: () => '',
         networkName: network.name,
       };
     }
   });
   toNetwork.value = network;
-  inputAddress("");
+  inputAddress('');
 };
 
 const selectToNetwork = (network: NetworkInfo) => {
   toAccounts.value = [];
-  address.value = "";
+  address.value = '';
   toggleToNetwork();
   initToNetworkInfo(network).then(() => {
     setToTokens();
@@ -777,15 +777,15 @@ const toggleSwapError = () => {
 };
 
 const sendButtonTitle = computed(() => {
-  if (!fromAmount.value || fromAmount.value === "0" || errors.value.inputAmount)
-    return "Enter valid amount";
-  if (!toToken.value) return "Select To Token";
-  if (!address.value || !addressIsValid.value) return "Enter address";
-  return "Preview swap";
+  if (!fromAmount.value || fromAmount.value === '0' || errors.value.inputAmount)
+    return 'Enter valid amount';
+  if (!toToken.value) return 'Select To Token';
+  if (!address.value || !addressIsValid.value) return 'Enter address';
+  return 'Preview swap';
 });
 
 const isDisabled = computed(() => {
-  if (!fromAmount.value || fromAmount.value === "0" || errors.value.inputAmount)
+  if (!fromAmount.value || fromAmount.value === '0' || errors.value.inputAmount)
     return true;
   if (!toToken.value) return true;
   if (!address.value || !addressIsValid.value) return true;
@@ -802,13 +802,13 @@ const sendAction = async () => {
     console.warn(
       `Source token ${fromToken.value!.symbol} (${fromToken.value!.name})` +
         ` ${fromToken.value!.address} has no CoinGecko ID, setting price` +
-        ` to 0`
+        ` to 0`,
     );
     fromPrice = 0;
   } else {
     fromPrice = await marketData
       .getMarketData([fromToken.value!.cgId])
-      .then((res) => res[0]!.current_price);
+      .then(res => res[0]!.current_price);
   }
 
   let toPrice: null | number;
@@ -816,13 +816,13 @@ const sendAction = async () => {
     console.warn(
       `Destination token ${toToken.value!.symbol} (${toToken.value!.name})` +
         ` ${toToken.value!.address} has no CoinGecko ID, setting price` +
-        ` to 0`
+        ` to 0`,
     );
     toPrice = 0;
   } else {
     toPrice = await marketData
       .getMarketData([toToken.value!.cgId])
-      .then((res) => res[0]!.current_price);
+      .then(res => res[0]!.current_price);
   }
 
   const localFromToken = { ...fromToken.value! };
@@ -837,18 +837,18 @@ const sendAction = async () => {
     .div(swapToToken.getFiatTotal())
     .toString();
 
-  const tradePromises = bestProviderQuotes.value.map((q) =>
-    swap.getSwap(q.quote)
+  const tradePromises = bestProviderQuotes.value.map(q =>
+    swap.getSwap(q.quote),
   );
 
   const trades: (ProviderResponseWithStatus | null)[] = await Promise.all(
-    tradePromises
-  ).then((responses) => responses.filter((r) => !!r));
+    tradePromises,
+  ).then(responses => responses.filter(r => !!r));
 
-  const tradeStatusOptions = trades.map((t) =>
+  const tradeStatusOptions = trades.map(t =>
     t!.getStatusObject({
       transactionHashes: [],
-    })
+    }),
   );
 
   const statusObjects = await Promise.all(tradeStatusOptions);
@@ -864,10 +864,10 @@ const sendAction = async () => {
     fromToken: localFromToken,
     toToken: localToToken,
     priceDifference: priceDifference,
-    nativeBalance: nativeSwapToken.value!.getBalanceRaw() || toBN("0"),
+    nativeBalance: nativeSwapToken.value!.getBalanceRaw() || toBN('0'),
     nativePrice: nativeSwapToken.value!.getFiatValue() || 0,
     existentialDeposit:
-      (props.network as SubstrateNetwork).existentialDeposit || toBN("0"),
+      (props.network as SubstrateNetwork).existentialDeposit || toBN('0'),
     fromAddress: props.accountInfo.selectedAccount!.address,
     toAddress: address.value,
   };
@@ -875,8 +875,8 @@ const sendAction = async () => {
     name: RouterNames.swapBestOffer.name,
     query: {
       id: selected,
-      swapData: Buffer.from(JSON.stringify(swapData), "utf8").toString(
-        "base64"
+      swapData: Buffer.from(JSON.stringify(swapData), 'utf8').toString(
+        'base64',
       ),
     },
   });
@@ -886,10 +886,10 @@ const sendAction = async () => {
       url: Browser.runtime.getURL(
         getUiPath(
           `${UIRoutes.swapVerifyHW.path}?id=${routedRoute.query.id}&swapData=${routedRoute.query.swapData}`,
-          ProviderName.enkrypt
-        )
+          ProviderName.enkrypt,
+        ),
       ),
-      type: "popup",
+      type: 'popup',
       focused: true,
       height: 600,
       width: 460,
@@ -902,7 +902,7 @@ const sendAction = async () => {
 </script>
 
 <style lang="less" scoped>
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .container {
   width: 100%;
@@ -956,7 +956,7 @@ const sendAction = async () => {
     flex-direction: column;
     width: 100%;
     box-sizing: border-box;
-    height: calc(~"100% - 172px");
+    height: calc(~'100% - 172px');
   }
 
   &__arrows {

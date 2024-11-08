@@ -1,3 +1,3 @@
-import kadenaScanActivity from "./providers/kadena";
+import kadenaScanActivity from './providers/kadena';
 
 export { kadenaScanActivity };

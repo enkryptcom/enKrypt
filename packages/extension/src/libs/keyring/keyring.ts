@@ -1,6 +1,6 @@
-import KeyRing from "@enkryptcom/keyring";
-import { InternalStorageNamespace } from "@/types/provider";
-import BrowserStorage from "../common/browser-storage";
+import KeyRing from '@enkryptcom/keyring';
+import { InternalStorageNamespace } from '@/types/provider';
+import BrowserStorage from '../common/browser-storage';
 import {
   EnkryptAccount,
   HWWalletAdd,
@@ -9,7 +9,7 @@ import {
   SignerType,
   SignOptions,
   WalletType,
-} from "@enkryptcom/types";
+} from '@enkryptcom/types';
 export class KeyRingBase {
   #keyring: KeyRing;
   constructor() {
@@ -20,8 +20,8 @@ export class KeyRingBase {
     return this.#keyring.init(password, { mnemonic });
   }
   async reset(): Promise<void> {
-    const resetPromises = Object.values(InternalStorageNamespace).map((name) =>
-      new BrowserStorage(name).clear()
+    const resetPromises = Object.values(InternalStorageNamespace).map(name =>
+      new BrowserStorage(name).clear(),
     );
     await Promise.all(resetPromises);
   }
@@ -30,7 +30,7 @@ export class KeyRingBase {
     signerType: SignerType;
   }): Promise<EnkryptAccount> {
     return this.#keyring.createKey({
-      name: "",
+      name: '',
       basePath: options.basePath,
       signerType: options.signerType,
       walletType: WalletType.mnemonic,
@@ -41,7 +41,7 @@ export class KeyRingBase {
   }
   sign(
     hexMessage: `0x${string}`,
-    options: SignOptions
+    options: SignOptions,
   ): Promise<`0x${string}`> {
     return this.#keyring
       .sign(hexMessage, options)
@@ -52,7 +52,7 @@ export class KeyRingBase {
   }
   ethereumDecrypt(
     encryptedMessage: string,
-    options: SignOptions
+    options: SignOptions,
   ): Promise<string> {
     return this.#keyring.ethereumDecrypt(encryptedMessage, options);
   }

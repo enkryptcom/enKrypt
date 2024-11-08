@@ -1,19 +1,19 @@
-import getRequestProvider, { RequestClass } from "@enkryptcom/request";
-import { MiddlewareFunction, OnMessageResponse } from "@enkryptcom/types";
-import Middlewares from "./methods";
-import EventEmitter from "eventemitter3";
+import getRequestProvider, { RequestClass } from '@enkryptcom/request';
+import { MiddlewareFunction, OnMessageResponse } from '@enkryptcom/types';
+import Middlewares from './methods';
+import EventEmitter from 'eventemitter3';
 import {
   BackgroundProviderInterface,
   ProviderName,
   ProviderRPCRequest,
-} from "@/types/provider";
-import GetUIPath from "@/libs/utils/get-ui-path";
-import PublicKeyRing from "@/libs/keyring/public-keyring";
-import UIRoutes from "./ui/routes/names";
+} from '@/types/provider';
+import GetUIPath from '@/libs/utils/get-ui-path';
+import PublicKeyRing from '@/libs/keyring/public-keyring';
+import UIRoutes from './ui/routes/names';
 
-import Networks from "./networks";
-import { BaseNetwork } from "@/types/base-network";
-import { KadenaNetwork } from "./types/kadena-network";
+import Networks from './networks';
+import { BaseNetwork } from '@/types/base-network';
+import { KadenaNetwork } from './types/kadena-network';
 
 class KadenaProvider
   extends EventEmitter
@@ -29,14 +29,14 @@ class KadenaProvider
 
   constructor(
     toWindow: (message: string) => void,
-    network: KadenaNetwork = Networks.kadena
+    network: KadenaNetwork = Networks.kadena,
   ) {
     super();
     this.network = network;
     this.toWindow = toWindow;
     this.setMiddleWares();
-    this.requestProvider = getRequestProvider("", this.middlewares);
-    this.requestProvider.on("notification", (notif: any) => {
+    this.requestProvider = getRequestProvider('', this.middlewares);
+    this.requestProvider.on('notification', (notif: any) => {
       this.sendNotification(JSON.stringify(notif));
     });
     this.namespace = ProviderName.kadena;
@@ -44,7 +44,7 @@ class KadenaProvider
   }
 
   private setMiddleWares(): void {
-    this.middlewares = Middlewares.map((mw) => mw.bind(this));
+    this.middlewares = Middlewares.map(mw => mw.bind(this));
   }
 
   setRequestProvider(network: BaseNetwork): void {

@@ -22,11 +22,18 @@
         "
         class="nft-detail-view__notification"
       />
-
-      <h3>
-        {{ item.name && item.name.length > 0 ? item.name : "NFT #" + item.id }}
+      <tooltip
+        v-if="props.item.name.length > 118"
+        :text="props.item.name"
+        is-top-right
+      >
+        <h3>
+          {{ nftTitle }}
+        </h3>
+      </tooltip>
+      <h3 v-else>
+        {{ nftTitle }}
       </h3>
-
       <img :src="item.image" alt="" @error="imageLoadError" />
 
       <div class="nft-detail-view__action">
@@ -37,14 +44,15 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, PropType, ref } from "vue";
-import CloseIcon from "@action/icons/common/close-icon.vue";
-import ActionMenu from "@action/components/action-menu/index.vue";
-import NftMoreAddToFavorite from "@action/icons/nft/nft-more-add-to-favorite.vue";
-import NftMoreDeleteFromFavorite from "@action/icons/nft/nft-more-delete-from-favorite.vue";
-import { NFTItem } from "@/types/nft";
-import Notification from "@action/components/notification/index.vue";
-import { imageLoadError } from "@action/utils/misc";
+import { onMounted, PropType, ref, computed } from 'vue';
+import CloseIcon from '@action/icons/common/close-icon.vue';
+import ActionMenu from '@action/components/action-menu/index.vue';
+import NftMoreAddToFavorite from '@action/icons/nft/nft-more-add-to-favorite.vue';
+import NftMoreDeleteFromFavorite from '@action/icons/nft/nft-more-delete-from-favorite.vue';
+import { NFTItem } from '@/types/nft';
+import Notification from '@action/components/notification/index.vue';
+import { imageLoadError } from '@action/utils/misc';
+import Tooltip from '@/ui/action/components/tooltip/index.vue';
 
 const isFavoriteAction = ref(false);
 const localIsFavorite = ref(false);
@@ -68,14 +76,27 @@ onMounted(() => {
 });
 
 const emit = defineEmits<{
-  (e: "close:popup"): void;
-  (e: "update:favClicked", isFav: boolean, item: NFTItem): void;
+  (e: 'close:popup'): void;
+  (e: 'update:favClicked', isFav: boolean, item: NFTItem): void;
 }>();
 const close = () => {
   if (localIsFavorite.value !== props.isFavorite)
-    emit("update:favClicked", localIsFavorite.value, props.item);
-  emit("close:popup");
+    emit('update:favClicked', localIsFavorite.value, props.item);
+  emit('close:popup');
 };
+
+/**
+ * @description Truncate NFT title if it's too long. Since the title will prolong popup and it wont fit into the extension screen
+ */
+const nftTitle = computed(() => {
+  if (props.item.name && props.item.name.length > 0) {
+    return props.item.name.length > 118
+      ? props.item.name.slice(0, 118) + '...'
+      : props.item.name;
+  } else {
+    return 'NFT #' + props.item.id;
+  }
+});
 const favClicked = (isFav: boolean) => {
   localIsFavorite.value = isFav;
   setTimeout(() => {
@@ -88,7 +109,7 @@ const toggleNotification = () => {
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .nft-detail-view {
   width: 100%;
@@ -97,7 +118,8 @@ const toggleNotification = () => {
 
   &__wrap {
     background: @white;
-    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.039),
+    box-shadow:
+      0px 3px 6px rgba(0, 0, 0, 0.039),
       0px 7px 24px rgba(0, 0, 0, 0.19);
     border-radius: 12px;
     box-sizing: border-box;
@@ -117,13 +139,16 @@ const toggleNotification = () => {
       letter-spacing: 0.15px;
       color: @primaryLabel;
       margin: 0 0 16px 0;
+      max-width: 236px;
+      overflow-wrap: break-word;
     }
 
     img {
       width: 100%;
-      max-height: 355px;
+      max-height: 296px;
       margin: 0 0 16px 0;
-      box-shadow: 0px 0.25px 1px rgba(0, 0, 0, 0.039),
+      box-shadow:
+        0px 0.25px 1px rgba(0, 0, 0, 0.039),
         0px 0.85px 3px rgba(0, 0, 0, 0.19);
       border-radius: 12px;
     }

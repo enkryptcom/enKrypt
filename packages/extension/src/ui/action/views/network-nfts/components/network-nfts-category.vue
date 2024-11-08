@@ -1,12 +1,17 @@
 <template>
   <div class="network-nfts__category">
     <div class="network-nfts__category-head">
-      <p>
-        {{
-          collection.name?.length > 25
-            ? $filters.replaceWithEllipsis(collection.name, 25, 4)
-            : collection.name || "UNKNOWN"
-        }}
+      <tooltip
+        v-if="collection.name && collection.name?.length > 40"
+        :text="collection.name"
+        is-top-right
+      >
+        <p>
+          {{ $filters.replaceWithEllipsis(collection.name, 40, 0) }}
+        </p></tooltip
+      >
+      <p v-else>
+        {{ collection.name || 'Unkown' }}
       </p>
       <a
         ref="toggle"
@@ -35,12 +40,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed, PropType, ref } from "vue";
-import NetworkNftsItem from "./network-nfts-item.vue";
-import NftSortMenu from "@action/icons/nft/nft-sort-menu.vue";
-import NetworkNftsCategorySortMenu from "./network-nfts-category-sort-menu.vue";
-import { NFTCollection } from "@/types/nft";
-import { onClickOutside } from "@vueuse/core";
+import { computed, PropType, ref } from 'vue';
+import NetworkNftsItem from './network-nfts-item.vue';
+import NftSortMenu from '@action/icons/nft/nft-sort-menu.vue';
+import NetworkNftsCategorySortMenu from './network-nfts-category-sort-menu.vue';
+import { NFTCollection } from '@/types/nft';
+import { onClickOutside } from '@vueuse/core';
+import Tooltip from '@/ui/action/components/tooltip/index.vue';
 
 const isOpenSort = ref(false);
 const isAbcSort = ref(true);
@@ -57,11 +63,11 @@ const props = defineProps({
 });
 const reactiveCollection = computed<NFTCollection>(() => {
   const collectionCopy = JSON.parse(
-    JSON.stringify(props.collection)
+    JSON.stringify(props.collection),
   ) as NFTCollection;
   if (isAbcSort.value)
     collectionCopy.items.sort((a, b) =>
-      a.name > b.name ? 1 : b.name > a.name ? -1 : 0
+      a.name > b.name ? 1 : b.name > a.name ? -1 : 0,
     );
   return collectionCopy;
 });
@@ -77,12 +83,12 @@ onClickOutside(
   () => {
     if (isOpenSort.value) isOpenSort.value = false;
   },
-  { ignore: [toggle] }
+  { ignore: [toggle] },
 );
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .network-nfts {
   &__category {

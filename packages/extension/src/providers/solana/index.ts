@@ -1,18 +1,18 @@
-import { BaseNetwork } from "@/types/base-network";
-import getRequestProvider, { RequestClass } from "@enkryptcom/request";
-import { MiddlewareFunction, OnMessageResponse } from "@enkryptcom/types";
-import Middlewares from "./methods";
-import EventEmitter from "eventemitter3";
+import { BaseNetwork } from '@/types/base-network';
+import getRequestProvider, { RequestClass } from '@enkryptcom/request';
+import { MiddlewareFunction, OnMessageResponse } from '@enkryptcom/types';
+import Middlewares from './methods';
+import EventEmitter from 'eventemitter3';
 import {
   BackgroundProviderInterface,
   ProviderName,
   ProviderRPCRequest,
-} from "@/types/provider";
-import GetUIPath from "@/libs/utils/get-ui-path";
-import PublicKeyRing from "@/libs/keyring/public-keyring";
-import UIRoutes from "./ui/routes/names";
-import { SolanaNetwork } from "./types/sol-network";
-import Networks from "./networks";
+} from '@/types/provider';
+import GetUIPath from '@/libs/utils/get-ui-path';
+import PublicKeyRing from '@/libs/keyring/public-keyring';
+import UIRoutes from './ui/routes/names';
+import { SolanaNetwork } from './types/sol-network';
+import Networks from './networks';
 
 class SolanaProvider
   extends EventEmitter
@@ -27,7 +27,7 @@ class SolanaProvider
   toWindow: (message: string) => void;
   constructor(
     toWindow: (message: string) => void,
-    network: SolanaNetwork = Networks.solana
+    network: SolanaNetwork = Networks.solana,
   ) {
     super();
     this.network = network;
@@ -35,16 +35,16 @@ class SolanaProvider
     this.setMiddleWares();
     this.requestProvider = getRequestProvider(
       this.network.node,
-      this.middlewares
+      this.middlewares,
     );
-    this.requestProvider.on("notification", (notif: any) => {
+    this.requestProvider.on('notification', (notif: any) => {
       this.sendNotification(JSON.stringify(notif));
     });
     this.namespace = ProviderName.solana;
     this.KeyRing = new PublicKeyRing();
   }
   private setMiddleWares(): void {
-    this.middlewares = Middlewares.map((mw) => mw.bind(this));
+    this.middlewares = Middlewares.map(mw => mw.bind(this));
   }
   setRequestProvider(network: BaseNetwork): void {
     this.network = network as SolanaNetwork;
@@ -59,12 +59,12 @@ class SolanaProvider
   request(request: ProviderRPCRequest): Promise<OnMessageResponse> {
     return this.requestProvider
       .request(request)
-      .then((res) => {
+      .then(res => {
         return {
           result: JSON.stringify(res),
         };
       })
-      .catch((e) => {
+      .catch(e => {
         return {
           error: JSON.stringify(e.message),
         };

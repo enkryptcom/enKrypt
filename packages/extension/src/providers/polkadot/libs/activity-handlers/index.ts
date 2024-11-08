@@ -1,3 +1,3 @@
-import subscanActivity from "./providers/subscan";
+import subscanActivity from './providers/subscan';
 
 export { subscanActivity };

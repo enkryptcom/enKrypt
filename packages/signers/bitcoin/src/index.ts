@@ -4,7 +4,7 @@ import { hexToBuffer, bufferToHex } from "@enkryptcom/utils";
 import { getPublicKey, verify, sign } from "@noble/secp256k1";
 import HDkey from "hdkey";
 
-class Signer implements SignerInterface {
+export class BitcoinSigner implements SignerInterface {
   async generate(mnemonic: string, derivationPath = ""): Promise<KeyPair> {
     const seed = await mnemonicToSeed(mnemonic);
     const hdkey = HDkey.fromMasterSeed(seed);
@@ -48,4 +48,3 @@ class Signer implements SignerInterface {
     return bufferToHex(signature);
   }
 }
-export default Signer;

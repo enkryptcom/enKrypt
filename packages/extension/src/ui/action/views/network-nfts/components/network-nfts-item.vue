@@ -4,7 +4,7 @@
       <img :src="item.image" alt="" @error="imageLoadError" />
       <div class="network-nfts__item-name">
         <div class="network-nfts__item-name-inner">
-          {{ item.name }}
+          {{ item.name || 'Unknown' }}
         </div>
       </div>
     </a>
@@ -35,15 +35,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
-import { NFTItem } from "@/types/nft";
-import { PropType } from "vue";
-import NetworkNftsItemMoreMenu from "./network-nfts-item-more-menu.vue";
-import NftDetailView from "@action/views/nft-detail-view/index.vue";
-import { onClickOutside } from "@vueuse/core";
-import DomainState from "@/libs/domain-state";
-import { NetworkNames } from "@enkryptcom/types";
-import { imageLoadError } from "@/ui/action/utils/misc";
+import { ref } from 'vue';
+import { NFTItem } from '@/types/nft';
+import { PropType } from 'vue';
+import NetworkNftsItemMoreMenu from './network-nfts-item-more-menu.vue';
+import NftDetailView from '@action/views/nft-detail-view/index.vue';
+import { onClickOutside } from '@vueuse/core';
+import DomainState from '@/libs/domain-state';
+import { NetworkNames } from '@enkryptcom/types';
+import { imageLoadError } from '@/ui/action/utils/misc';
 
 const domainState = new DomainState();
 
@@ -91,7 +91,7 @@ const openLink = async () => {
   }
 
   if (url) {
-    window.open(url, "_blank");
+    window.open(url, '_blank');
   }
 };
 onClickOutside(
@@ -99,12 +99,12 @@ onClickOutside(
   () => {
     if (isOpenMore.value) isOpenMore.value = false;
   },
-  { ignore: [toggle] }
+  { ignore: [toggle] },
 );
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .network-nfts {
   &__item {
@@ -122,7 +122,8 @@ onClickOutside(
       width: 128px;
       height: 128px;
       background: @buttonBg;
-      box-shadow: 0px 0.25px 1px rgba(0, 0, 0, 0.039),
+      box-shadow:
+        0px 0.25px 1px rgba(0, 0, 0, 0.039),
         0px 0.85px 3px rgba(0, 0, 0, 0.19);
       border-radius: 12px;
       overflow: hidden;
@@ -144,15 +145,12 @@ onClickOutside(
 
     &-name {
       width: 128px;
+      padding-top: 4px;
       min-height: 28px;
       max-height: 48px;
       left: 0px;
       bottom: 0px;
-      background: linear-gradient(
-        180deg,
-        rgba(0, 0, 0, 0) 0%,
-        rgba(0, 0, 0, 0.3) 100%
-      );
+      background-color: rgba(255, 255, 255, 0.9);
       font-style: normal;
       font-weight: 500;
       font-size: 14px;
@@ -239,5 +237,6 @@ onClickOutside(
   -moz-hyphens: none;
   -ms-hyphens: none;
   hyphens: none;
+  color: black;
 }
 </style>

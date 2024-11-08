@@ -8,26 +8,26 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed } from 'vue';
 
 const props = defineProps({
   isChecked: Boolean,
   title: {
     type: String,
-    default: "",
+    default: '',
   },
 });
 const emit = defineEmits<{
-  (e: "update:checked", checked: boolean): void;
+  (e: 'update:checked', checked: boolean): void;
 }>();
 const checked = computed<boolean>({
   get: () => props.isChecked,
-  set: (value) => emit("update:checked", value),
+  set: value => emit('update:checked', value),
 });
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .phrase-checkbox {
   width: 110px;

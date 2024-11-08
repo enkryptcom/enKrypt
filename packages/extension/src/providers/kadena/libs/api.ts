@@ -1,6 +1,6 @@
-import { KadenaRawInfo } from "@/types/activity";
-import { ProviderAPIInterface } from "@/types/provider";
-import { KadenaNetworkOptions } from "../types/kadena-network";
+import { KadenaRawInfo } from '@/types/activity';
+import { ProviderAPIInterface } from '@/types/provider';
+import { KadenaNetworkOptions } from '../types/kadena-network';
 import {
   ICommand,
   IUnsignedCommand,
@@ -9,9 +9,9 @@ import {
   createClient,
   Pact,
   ChainId,
-} from "@kadena/client";
-import { toBase } from "@enkryptcom/utils";
-import DomainState from "@/libs/domain-state";
+} from '@kadena/client';
+import { toBase } from '@enkryptcom/utils';
+import DomainState from '@/libs/domain-state';
 
 /** Kadena API wrapper */
 class API implements ProviderAPIInterface {
@@ -41,13 +41,12 @@ class API implements ProviderAPIInterface {
     return `${this.node}/${this.networkId}/chain/${chainId}/pact`;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
   async init(): Promise<void> {}
 
   async getChainId(): Promise<string> {
-    return this.domainState.getSelectedSubNetWork().then((id) => {
+    return this.domainState.getSelectedSubNetWork().then(id => {
       if (id) return id;
-      return "0";
+      return '0';
     });
   }
 
@@ -66,21 +65,21 @@ class API implements ProviderAPIInterface {
   async getBalanceByChainId(address: string, chainId: string): Promise<string> {
     const balance = await this.getBalanceAPI(
       this.displayAddress(address),
-      chainId
+      chainId,
     );
-    if (balance.result.status === "failure") {
+    if (balance.result.status === 'failure') {
       const error = balance.result.error as { message: string | undefined };
-      const message = error.message ?? "Unknown error retrieving balances";
+      const message = error.message ?? 'Unknown error retrieving balances';
       // expected error when account does not exist on a chain (balance == 0)
-      if (message.includes("row not found")) {
-        return toBase("0", this.decimals);
+      if (message.includes('row not found')) {
+        return toBase('0', this.decimals);
       }
       throw new Error(message);
     }
     const balanceValue = parseFloat(
       balance.result.data.decimal
         ? balance.result.data.decimal
-        : balance.result.data.toString()
+        : balance.result.data.toString(),
     ).toString();
     return toBase(balanceValue, this.decimals);
   }
@@ -92,7 +91,7 @@ class API implements ProviderAPIInterface {
 
   async getBalanceAPI(account: string, chainId: string) {
     const transaction = Pact.builder
-      .execution(Pact.modules.coin["get-balance"](account))
+      .execution(Pact.modules.coin['get-balance'](account))
       .setMeta({ chainId: chainId as ChainId })
       .setNetworkId(this.networkId)
       .createTransaction();
@@ -101,7 +100,7 @@ class API implements ProviderAPIInterface {
   }
 
   async sendLocalTransaction(
-    signedTranscation: ICommand
+    signedTranscation: ICommand,
   ): Promise<ICommandResult> {
     const chainId = await this.getChainId();
     const client = createClient(this.getApiHost(chainId));
@@ -109,7 +108,7 @@ class API implements ProviderAPIInterface {
   }
 
   async sendTransaction(
-    signedTranscation: ICommand
+    signedTranscation: ICommand,
   ): Promise<ITransactionDescriptor> {
     const chainId = await this.getChainId();
     const client = createClient(this.getApiHost(chainId));
@@ -117,7 +116,7 @@ class API implements ProviderAPIInterface {
   }
 
   async listen(
-    transactionDescriptor: ITransactionDescriptor
+    transactionDescriptor: ITransactionDescriptor,
   ): Promise<ICommandResult> {
     const chainId = await this.getChainId();
     const client = createClient(this.getApiHost(chainId));
@@ -125,7 +124,7 @@ class API implements ProviderAPIInterface {
   }
 
   async dirtyRead(
-    signedTranscation: ICommand | IUnsignedCommand
+    signedTranscation: ICommand | IUnsignedCommand,
   ): Promise<ICommandResult> {
     const chainId = await this.getChainId();
     const client = createClient(this.getApiHost(chainId));

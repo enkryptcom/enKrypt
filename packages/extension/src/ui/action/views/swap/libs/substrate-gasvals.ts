@@ -1,13 +1,13 @@
-import { GasPriceTypes } from "@/providers/common/types";
-import { BaseNetwork } from "@/types/base-network";
-import { fromBase } from "@enkryptcom/utils";
-import BigNumber from "bignumber.js";
+import { GasPriceTypes } from '@/providers/common/types';
+import { BaseNetwork } from '@/types/base-network';
+import { fromBase } from '@enkryptcom/utils';
+import BigNumber from 'bignumber.js';
 
 export const getSubstrateGasVals = async (
   txs: any[],
   fromAddress: string,
   network: BaseNetwork,
-  price: number
+  price: number,
 ) => {
   const tx = txs[0];
   const gas = (await tx.paymentInfo(fromAddress)).partialFee.toHex();
@@ -17,7 +17,7 @@ export const getSubstrateGasVals = async (
       nativeValue: fromBase(gas as `0x${string}`, network.decimals),
       fiatValue: BigNumber(nativeValue).times(price).toFixed(4),
       nativeSymbol: network.currencyName,
-      fiatSymbol: "USD",
+      fiatSymbol: 'USD',
     },
   };
 };

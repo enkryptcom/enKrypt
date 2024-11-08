@@ -1,5 +1,5 @@
-import { BNType, GasPriceTypes } from "@/providers/common/types";
-import { BaseNetwork } from "@/types/base-network";
+import { BNType, GasPriceTypes } from '@/providers/common/types';
+import { BaseNetwork } from '@/types/base-network';
 import {
   EVMTransaction,
   GenericTransaction,
@@ -9,11 +9,11 @@ import {
   TokenTypeTo,
   StatusOptionsResponse,
   SolanaTransaction,
-} from "@enkryptcom/swap";
-import { EnkryptAccount } from "@enkryptcom/types";
+} from '@enkryptcom/swap';
+import { EnkryptAccount } from '@enkryptcom/types';
 export enum SWAP_LOADING {
-  LOADING = "loading",
-  LOOKING_FOR_OFFERS = "looking",
+  LOADING = 'loading',
+  LOOKING_FOR_OFFERS = 'looking',
 }
 
 export interface SwapData {

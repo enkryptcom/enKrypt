@@ -17,13 +17,13 @@
 </template>
 
 <script setup lang="ts">
-import { PropType } from "vue";
-import AppMenuItem from "./components/app-menu-item.vue";
-import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
-import draggable from "vuedraggable";
-import NetworksState from "@/libs/networks-state";
-import { BaseNetwork } from "@/types/base-network";
-import { computed } from "@vue/reactivity";
+import { PropType } from 'vue';
+import AppMenuItem from './components/app-menu-item.vue';
+import CustomScrollbar from '@action/components/custom-scrollbar/index.vue';
+import draggable from 'vuedraggable';
+import NetworksState from '@/libs/networks-state';
+import { BaseNetwork } from '@/types/base-network';
+import { computed } from 'vue';
 const networksState = new NetworksState();
 const props = defineProps({
   networks: {
@@ -32,7 +32,7 @@ const props = defineProps({
   },
   selected: {
     type: String,
-    default: "",
+    default: '',
   },
   setNetwork: {
     type: Function,
@@ -40,37 +40,37 @@ const props = defineProps({
   },
   searchInput: {
     type: String,
-    default: "",
+    default: '',
   },
 });
 const emit = defineEmits<{
-  (e: "update:network", network: BaseNetwork): void;
-  (e: "update:order", networks: BaseNetwork[]): void;
+  (e: 'update:network', network: BaseNetwork): void;
+  (e: 'update:order', networks: BaseNetwork[]): void;
 }>();
 
 const searchNetworks = computed({
   get: () => {
     return props.networks.filter(
-      (net) =>
+      net =>
         net.name_long
           .toLowerCase()
           .startsWith(props.searchInput.toLowerCase()) ||
         net.currencyName
           .toLowerCase()
-          .startsWith(props.searchInput.toLowerCase())
+          .startsWith(props.searchInput.toLowerCase()),
     );
   },
-  set: (value) => {
-    emit("update:order", value);
-    if (props.searchInput === "") {
-      networksState.reorderNetwork(value.map((v) => v.name));
+  set: value => {
+    emit('update:order', value);
+    if (props.searchInput === '') {
+      networksState.reorderNetwork(value.map(v => v.name));
     }
   },
 });
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .app-menu {
   margin-top: 16px;

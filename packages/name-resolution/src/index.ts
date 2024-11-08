@@ -1,5 +1,5 @@
 import ENSResolver from "./ens";
-import { CoinType, NameResolverOptions } from "./types";
+import type { CoinType, NameResolverOptions } from "./types";
 import UDResolver from "./ud";
 import RNSResolver from "./rns";
 import SIDResolver from "./sid";

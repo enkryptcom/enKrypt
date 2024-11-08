@@ -1,6 +1,6 @@
-import Browser from "webextension-polyfill";
-import { InternalStorageNamespace } from "@/types/provider";
-import BrowserStorage from "@/libs/common/browser-storage";
+import Browser from 'webextension-polyfill';
+import { InternalStorageNamespace } from '@/types/provider';
+import BrowserStorage from '@/libs/common/browser-storage';
 import {
   StorageKeys,
   EVMSettingsType,
@@ -8,8 +8,8 @@ import {
   SettingsType,
   BtcSettingsType,
   EnkryptSettingsType,
-} from "./types";
-import { merge } from "lodash";
+} from './types';
+import { merge } from 'lodash';
 
 class SettingsState {
   #storage: BrowserStorage;
@@ -48,7 +48,7 @@ class SettingsState {
     const state = await this.getStateByKey(StorageKeys.enkryptState);
     const settings: EnkryptSettingsType = {
       installedTimestamp: 0,
-      randomUserID: "",
+      randomUserID: '',
       isMetricsEnabled: true,
     };
     return merge(settings, state);

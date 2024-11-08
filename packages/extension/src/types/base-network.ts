@@ -1,13 +1,13 @@
-import EvmAPI from "@/providers/ethereum/libs/api";
-import SubstrateAPI from "@/providers/polkadot/libs/api";
-import BitcoinAPI from "@/providers/bitcoin/libs/api";
-import KadenaAPI from "@/providers/kadena/libs/api";
-import SolanaAPI from "@/providers/solana/libs/api";
-import { AssetsType, ProviderName } from "@/types/provider";
-import { CoingeckoPlatform, SignerType, NetworkNames } from "@enkryptcom/types";
-import { Activity } from "./activity";
-import { BaseToken } from "./base-token";
-import { BNType } from "@/providers/common/types";
+import EvmAPI from '@/providers/ethereum/libs/api';
+import SubstrateAPI from '@/providers/polkadot/libs/api';
+import BitcoinAPI from '@/providers/bitcoin/libs/api';
+import KadenaAPI from '@/providers/kadena/libs/api';
+import SolanaAPI from '@/providers/solana/libs/api';
+import { AssetsType, ProviderName } from '@/types/provider';
+import { CoingeckoPlatform, SignerType, NetworkNames } from '@enkryptcom/types';
+import { Activity } from './activity';
+import { BaseToken } from './base-token';
+import { BNType } from '@/providers/common/types';
 
 export interface SubNetworkOptions {
   id: string;

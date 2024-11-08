@@ -1,13 +1,13 @@
-import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
+import { EvmNetwork } from '@/providers/ethereum/types/evm-network';
 import {
   Activity,
   ActivityStatus,
   ActivityType,
   EthereumRawInfo,
-} from "@/types/activity";
-import { BaseNetwork } from "@/types/base-network";
-import { decodeTx } from "../../../transaction/decoder";
-import { NetworkEndpoints } from "./configs";
+} from '@/types/activity';
+import { BaseNetwork } from '@/types/base-network';
+import { decodeTx } from '../../../transaction/decoder';
+import { NetworkEndpoints } from './configs';
 
 type GraphQLResponse<T> = GraphQLErrorResponse | GraphQLOkResponse<T>;
 
@@ -55,7 +55,7 @@ type TransactionListResult = {
         input: `0x${string}`;
         /** bytes20 */
         created_contract_address_hash: null | `0x${string}`;
-        status: "FAILED" | "SUCCEEDED";
+        status: 'FAILED' | 'SUCCEEDED';
         /** base10 bigint string */
         value: string;
       };
@@ -65,17 +65,17 @@ type TransactionListResult = {
 
 const getAddressActivity = async (
   address: string,
-  endpoint: string
+  endpoint: string,
 ): Promise<EthereumRawInfo[]> => {
   const response = await fetch(endpoint, {
-    method: "POST",
+    method: 'POST',
     signal: AbortSignal.timeout(30_000),
     headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
     },
     body: JSON.stringify({
-      operationName: "getTransactions",
+      operationName: 'getTransactions',
       variables: {
         address: address,
         limit: 50,
@@ -134,11 +134,11 @@ query getTransactions(
     // blocked, rate limited, server down, etc
     let msg = await response
       .text()
-      .catch((err) => `Failed to decode response text: ${String(err)}`);
+      .catch(err => `Failed to decode response text: ${String(err)}`);
     const len = msg.length;
     if (len > 255 + 3) msg = `${msg.slice(0, 255)}... (255/${len})`;
     throw new Error(
-      `HTTP error fetching transactions ${response.status} ${response.statusText}: ${msg}`
+      `HTTP error fetching transactions ${response.status} ${response.statusText}: ${msg}`,
     );
   }
 
@@ -146,29 +146,29 @@ query getTransactions(
 
   if (result.errors) {
     // GraphQL error, probably something wrong with query or variables
-    let msg = result.errors[0].message ?? "???";
+    let msg = result.errors[0].message ?? '???';
     const len = msg.length;
     if (len > 512 + 3) msg = `${msg.slice(0, 512)}... (512/${len})`;
     throw new Error(`GraphQL error fetching transactions: ${msg}`);
   }
 
   const rawdata: EthereumRawInfo[] = result.data.transactions.entries.map(
-    (tx) => ({
+    tx => ({
       blockHash: tx.block_hash,
-      blockNumber: "0x" + tx.block_number.toString(16),
+      blockNumber: '0x' + tx.block_number.toString(16),
       contractAddress: tx.polyjuice.created_contract_address_hash,
-      effectiveGasPrice: "0x" + BigInt(tx.polyjuice.gas_price).toString(16),
+      effectiveGasPrice: '0x' + BigInt(tx.polyjuice.gas_price).toString(16),
       from: tx.from_account.eth_address,
       to: tx.to_account?.eth_address ?? null,
-      gas: "0x" + BigInt(tx.polyjuice.gas_limit).toString(16),
-      gasUsed: "0x" + BigInt(tx.polyjuice.gas_used).toString(16),
-      status: tx.polyjuice.status === "SUCCEEDED" ? true : false,
+      gas: '0x' + BigInt(tx.polyjuice.gas_limit).toString(16),
+      gasUsed: '0x' + BigInt(tx.polyjuice.gas_used).toString(16),
+      status: tx.polyjuice.status === 'SUCCEEDED' ? true : false,
       transactionHash: tx.hash,
       data: tx.polyjuice.input,
-      nonce: "0x" + tx.nonce.toString(16),
-      value: "0x" + BigInt(tx.polyjuice.value).toString(16),
+      nonce: '0x' + tx.nonce.toString(16),
+      value: '0x' + BigInt(tx.polyjuice.value).toString(16),
       timestamp: new Date(tx.block.timestamp).valueOf(),
-    })
+    }),
   );
 
   return rawdata;
@@ -176,15 +176,15 @@ query getTransactions(
 
 export default async (
   network: BaseNetwork,
-  address: string
+  address: string,
 ): Promise<Activity[]> => {
   address = address.toLowerCase();
   const enpoint =
     NetworkEndpoints[network.name as keyof typeof NetworkEndpoints];
   const activities = await getAddressActivity(address, enpoint);
 
-  const Promises = activities.map((activity) => {
-    return decodeTx(activity, network as EvmNetwork).then((txData) => {
+  const Promises = activities.map(activity => {
+    return decodeTx(activity, network as EvmNetwork).then(txData => {
       return {
         from: activity.from,
         to: activity.contractAddress

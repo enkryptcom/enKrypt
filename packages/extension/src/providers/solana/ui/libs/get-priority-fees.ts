@@ -1,5 +1,5 @@
 // https://docs.chainstack.com/docs/solana-estimate-priority-fees-getrecentprioritizationfees
-import { Connection, PublicKey } from "@solana/web3.js";
+import { Connection, PublicKey } from '@solana/web3.js';
 
 interface PrioritizationFeeObject {
   slot: number;
@@ -12,7 +12,7 @@ interface Config {
 
 const getPrioritizationFees = async (
   payer: PublicKey,
-  connection: Connection
+  connection: Connection,
 ): Promise<{ low: number; medium: number; high: number }> => {
   try {
     const config: Config = {
@@ -20,7 +20,7 @@ const getPrioritizationFees = async (
     };
     const prioritizationFeeObjects =
       (await connection.getRecentPrioritizationFees(
-        config
+        config,
       )) as PrioritizationFeeObject[];
     if (prioritizationFeeObjects.length === 0) {
       return {
@@ -34,17 +34,17 @@ const getPrioritizationFees = async (
         ? Math.floor(
             prioritizationFeeObjects.reduce(
               (acc, feeObject) => acc + feeObject.prioritizationFee,
-              0
-            ) / prioritizationFeeObjects.length
+              0,
+            ) / prioritizationFeeObjects.length,
           )
         : 0;
     const nonZeroFees = prioritizationFeeObjects
-      .map((feeObject) => feeObject.prioritizationFee)
-      .filter((fee) => fee !== 0);
+      .map(feeObject => feeObject.prioritizationFee)
+      .filter(fee => fee !== 0);
     const averageFeeExcludingZeros =
       nonZeroFees.length > 0
         ? Math.floor(
-            nonZeroFees.reduce((acc, fee) => acc + fee, 0) / nonZeroFees.length
+            nonZeroFees.reduce((acc, fee) => acc + fee, 0) / nonZeroFees.length,
           )
         : 0;
     const sortedFees = nonZeroFees.sort((a, b) => a - b);

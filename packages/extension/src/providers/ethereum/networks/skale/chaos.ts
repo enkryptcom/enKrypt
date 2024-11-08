@@ -1,24 +1,24 @@
-import { NetworkNames } from "@enkryptcom/types";
+import { NetworkNames } from '@enkryptcom/types';
 import {
   SkaleParams,
   createSkaleEvmNetwork,
   ICustomSKALEAsset,
-} from "./skale-base";
+} from './skale-base';
 
 const skaleOptions: SkaleParams = {
   name: NetworkNames.SkaleChaos,
-  name_long: "CHAOS chain | SKALE",
-  chainName: "staging-fast-active-bellatrix",
-  chainID: "0x50877ed6",
+  name_long: 'CHAOS chain | SKALE',
+  chainName: 'staging-fast-active-bellatrix',
+  chainID: '0x50877ed6',
   isTestNetwork: true,
 };
 
 const assets: ICustomSKALEAsset[] = [
   {
-    name: "Ethereum Clone",
-    symbol: "ETHC",
-    address: "0xD2Aaa00700000000000000000000000000000000",
-    coingeckoID: "ethereum",
+    name: 'Ethereum Clone',
+    symbol: 'ETHC',
+    address: '0xD2Aaa00700000000000000000000000000000000',
+    coingeckoID: 'ethereum',
   },
 ];
 

@@ -1,30 +1,31 @@
-import { CoingeckoPlatform, NetworkNames } from "@enkryptcom/types";
-import { KadenaNetwork, KadenaNetworkOptions } from "../types/kadena-network";
-import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
-import { kadenaScanActivity } from "../libs/activity-handlers";
-import { isValidAddress } from "../libs/network";
+import { CoingeckoPlatform, NetworkNames } from '@enkryptcom/types';
+import { KadenaNetwork, KadenaNetworkOptions } from '../types/kadena-network';
+import wrapActivityHandler from '@/libs/activity-state/wrap-activity-handler';
+import { kadenaScanActivity } from '../libs/activity-handlers';
+import { isValidAddress } from '../libs/network';
+import icon from './icons/kadena-kda-logo.svg';
 
 const kadenaOptions: KadenaNetworkOptions = {
   name: NetworkNames.Kadena,
-  name_long: "Kadena",
-  homePage: "https://kadena.io/",
-  blockExplorerTX: "https://explorer.chainweb.com/mainnet/tx/[[txHash]]",
+  name_long: 'Kadena',
+  homePage: 'https://kadena.io/',
+  blockExplorerTX: 'https://explorer.chainweb.com/mainnet/tx/[[txHash]]',
   blockExplorerAddr:
-    "https://explorer.chainweb.com/mainnet/account/[[address]]?token=coin",
+    'https://explorer.chainweb.com/mainnet/account/[[address]]?token=coin',
   isTestNetwork: false,
-  currencyName: "KDA",
-  currencyNameLong: "Kadena",
-  icon: require("./icons/kadena-kda-logo.svg"),
+  currencyName: 'KDA',
+  currencyNameLong: 'Kadena',
+  icon,
   decimals: 12,
   prefix: 0,
-  node: "https://api.chainweb.com/chainweb/0.0",
+  node: 'https://api.chainweb.com/chainweb/0.0',
   kadenaApiOptions: {
-    networkId: "mainnet01",
-    chainId: "1",
+    networkId: 'mainnet01',
+    chainId: '1',
   },
-  coingeckoID: "kadena",
+  coingeckoID: 'kadena',
   subNetworks: Array(20)
-    .fill("")
+    .fill('')
     .map((_, idx) => {
       return {
         id: idx.toString(),
@@ -33,7 +34,7 @@ const kadenaOptions: KadenaNetworkOptions = {
     }),
   coingeckoPlatform: CoingeckoPlatform.Kadena,
   activityHandler: wrapActivityHandler(kadenaScanActivity),
-  displayAddress: (address: string) => address.replace("0x", "k:"),
+  displayAddress: (address: string) => address.replace('0x', 'k:'),
   isAddress: isValidAddress,
 };
 

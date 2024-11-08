@@ -1,8 +1,7 @@
+import { describe, it, expect } from "vitest";
 import { bufferToHex, hexToBuffer } from "@enkryptcom/utils";
-import { expect } from "chai";
-import { privateToPublic } from "ethereumjs-util";
 import { privateToPublic } from "@ethereumjs/util";
-import Signer from "../src";
+import { EthereumSigner } from "../src";
 
 // https://github.com/MetaMask/eth-sig-util/blob/main/src/encryption.test.ts
 describe("Ethreum encrypt", () => {
@@ -21,12 +20,12 @@ describe("Ethreum encrypt", () => {
   };
   const secretMessage = "My name is Satoshi Buterin";
   it("it should return correct encryption pubkey", async () => {
-    const ethereumSigner = new Signer();
+    const ethereumSigner = new EthereumSigner();
     const pubkey = await ethereumSigner.getEncryptionPublicKey(ecpair);
     expect(pubkey).equals(encryptionPublicKey);
   });
   it("it should decrypt", async () => {
-    const ethereumSigner = new Signer();
+    const ethereumSigner = new EthereumSigner();
     const encryptedMessage = bufferToHex(
       Buffer.from(JSON.stringify(encryptedData), "utf8")
     );

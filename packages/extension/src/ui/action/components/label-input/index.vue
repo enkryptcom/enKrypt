@@ -16,7 +16,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, ref } from 'vue';
 
 const isFocus = ref(false);
 
@@ -24,19 +24,19 @@ const props = defineProps({
   placeholder: {
     type: String,
     default: () => {
-      return "";
+      return '';
     },
   },
   type: {
     type: String,
     default: () => {
-      return "text";
+      return 'text';
     },
   },
   value: {
     type: String,
     default: () => {
-      return "";
+      return '';
     },
   },
   isError: {
@@ -48,14 +48,14 @@ const props = defineProps({
   label: {
     type: String,
     default: () => {
-      return "";
+      return '';
     },
   },
 });
-const emit = defineEmits(["update:value"]);
+const emit = defineEmits(['update:value']);
 const textValue = computed({
   get: () => props.value,
-  set: (value) => emit("update:value", value),
+  set: value => emit('update:value', value),
 });
 const changeFocus = () => {
   isFocus.value = !isFocus.value;
@@ -63,7 +63,7 @@ const changeFocus = () => {
 </script>
 
 <style lang="less" scoped>
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 .label-input {
   outline: none;
   border: 0 none;

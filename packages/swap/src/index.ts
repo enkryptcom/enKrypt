@@ -1,4 +1,3 @@
-import fetch from "node-fetch";
 import { merge } from "lodash";
 import EventEmitter from "eventemitter3";
 import type Web3Eth from "web3-eth";
@@ -14,9 +13,8 @@ import NetworkDetails, {
   getSupportedNetworks,
   getNetworkInfoByName,
 } from "./common/supportedNetworks";
-import {
+import type {
   APIType,
-  Events,
   EvmOptions,
   FromTokenType,
   getQuoteOptions,
@@ -25,23 +23,26 @@ import {
   ProviderQuoteResponse,
   ProviderSwapResponse,
   ProviderToTokenResponse,
-  SupportedNetworkName,
   SwapOptions,
   SwapQuote,
   TokenType,
   TokenTypeTo,
   TopTokenInfo,
   ToTokenType,
-  WalletIdentifier,
-  NetworkType,
   GenericTransaction,
   SolanaTransaction,
   EVMTransaction,
-  TransactionType,
   StatusOptionsResponse,
-  TransactionStatus,
   StatusOptions,
   ProviderClass,
+} from "./types";
+import {
+  SupportedNetworkName,
+  Events,
+  WalletIdentifier,
+  NetworkType,
+  TransactionType,
+  TransactionStatus,
 } from "./types";
 import { sortByRank, sortNativeToFront } from "./utils/common";
 import SwapToken from "./swapToken";
