@@ -25,10 +25,10 @@ describe("Zerox Provider", () => {
 
   if (process.env.CI) {
     // We need at-least one test otherwise vitest reports failure
-    it('No ZeroX swap tests in CI', function() {
-      expect(true).toBeTruthy()
-    })
-    return
+    it("No ZeroX swap tests in CI", function () {
+      expect(true).toBeTruthy();
+    });
+    return;
   }
 
   it(
