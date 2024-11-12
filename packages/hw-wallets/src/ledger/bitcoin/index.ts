@@ -54,7 +54,7 @@ class LedgerBitcoin implements HWWalletProvider {
         });
       } else {
         return Promise.reject(
-          new Error("ledger-bitcoin: webusb is not supported")
+          new Error("ledger-bitcoin: webusb is not supported"),
         );
       }
     }
@@ -71,14 +71,14 @@ class LedgerBitcoin implements HWWalletProvider {
       if (!this.HDNodes[options.pathType.basePath]) {
         const rootPub = await connection.getWalletPublicKey(
           options.pathType.basePath,
-          { format: this.isSegwit ? "bech32" : "legacy" }
+          { format: this.isSegwit ? "bech32" : "legacy" },
         );
         hdKey.publicKey = Buffer.from(rootPub.publicKey, "hex");
         hdKey.chainCode = Buffer.from(rootPub.chainCode, "hex");
         this.HDNodes[options.pathType.basePath] = hdKey;
       }
       const pubkey = this.HDNodes[options.pathType.basePath].derive(
-        `m/${options.pathIndex}`
+        `m/${options.pathIndex}`,
       ).publicKey;
       return {
         address: bufferToHex(pubkey),
@@ -89,7 +89,7 @@ class LedgerBitcoin implements HWWalletProvider {
     return connection
       .getWalletPublicKey(
         options.pathType.path.replace(`{index}`, options.pathIndex),
-        { format: this.isSegwit ? "bech32" : "legacy" }
+        { format: this.isSegwit ? "bech32" : "legacy" },
       )
       .then((res) => {
         hdKey.publicKey = Buffer.from(res.publicKey, "hex");
@@ -105,20 +105,20 @@ class LedgerBitcoin implements HWWalletProvider {
     if (options.type === "bip322-simple") {
       if (!options.psbtTx) {
         return Promise.reject(
-          new Error("ledger-bitcoin: psbt not set for message signing")
+          new Error("ledger-bitcoin: psbt not set for message signing"),
         );
       }
       const client = new AppClient(this.transport as any);
       const fpr = await client.getMasterFingerprint();
       const accountPath = options.pathType.path.replace(
         `{index}`,
-        options.pathIndex
+        options.pathIndex,
       );
       const pathElems: number[] = pathStringToArray(accountPath);
       const rootPath = pathElems.slice(0, -2);
       const accountRootPubkey = await client.getExtendedPubkey(
         pathArrayToString(rootPath),
-        false
+        false,
       );
       options.psbtTx.data.inputs[0].bip32Derivation[0].masterFingerprint =
         Buffer.from(fpr, "hex");
@@ -127,7 +127,7 @@ class LedgerBitcoin implements HWWalletProvider {
         globalXpub: [
           {
             extendedPubkey: Buffer.from(
-              bs58.decode(accountRootPubkey)
+              bs58.decode(accountRootPubkey),
             ).subarray(0, -4),
             masterFingerprint: Buffer.from(fpr, "hex"),
             path: accountPath,
@@ -138,13 +138,13 @@ class LedgerBitcoin implements HWWalletProvider {
         "wpkh(@0/**)",
         `[${fpr}/${pathArrayToString(rootPath).replace(
           "m/",
-          ""
-        )}]${accountRootPubkey}`
+          "",
+        )}]${accountRootPubkey}`,
       );
       const sigs = await client.signPsbt(
         options.psbtTx.toBase64(),
         accountPolicy,
-        null
+        null,
       );
       options.psbtTx.updateInput(0, {
         partialSig: [sigs[0][1]],
@@ -156,13 +156,13 @@ class LedgerBitcoin implements HWWalletProvider {
     return connection
       .signMessage(
         options.pathType.path.replace(`{index}`, options.pathIndex),
-        options.message.toString("hex")
+        options.message.toString("hex"),
       )
       .then((result) => {
         const v = result.v + 27 + 4;
         const signature = Buffer.from(
           v.toString(16) + result.r + result.s,
-          "hex"
+          "hex",
         );
         return bufferToHex(signature);
       });
@@ -185,13 +185,13 @@ class LedgerBitcoin implements HWWalletProvider {
         transactionOptions.psbtTx.txInputs[idx].index,
         transactionOptions.psbtTx.data.inputs[idx].witnessScript
           ? transactionOptions.psbtTx.data.inputs[idx].witnessScript.toString(
-              "hex"
+              "hex",
             )
           : undefined,
         undefined,
       ]),
       associatedKeysets: transactionOptions.rawTxs.map(() =>
-        options.pathType.path.replace(`{index}`, options.pathIndex)
+        options.pathType.path.replace(`{index}`, options.pathIndex),
       ),
       outputScriptHex: serializeTransactionOutputs({
         outputs: txOutputs,

@@ -34,12 +34,12 @@ describe("Rango Provider", () => {
         toToken,
         toAddress,
       },
-      { infiniteApproval: true, walletIdentifier: WalletIdentifier.enkrypt }
+      { infiniteApproval: true, walletIdentifier: WalletIdentifier.enkrypt },
     );
     expect(quote?.provider).to.be.eq(ProviderName.rango);
     expect(quote?.quote.meta.infiniteApproval).to.be.eq(true);
     expect(quote?.quote.meta.walletIdentifier).to.be.eq(
-      WalletIdentifier.enkrypt
+      WalletIdentifier.enkrypt,
     );
     expect(quote?.fromTokenAmount.toString()).to.be.eq(localAmount.toString());
     expect(quote?.toTokenAmount.gtn(0)).to.be.eq(true);
@@ -62,12 +62,12 @@ describe("Rango Provider", () => {
         toToken,
         toAddress,
       },
-      { infiniteApproval: true, walletIdentifier: WalletIdentifier.enkrypt }
+      { infiniteApproval: true, walletIdentifier: WalletIdentifier.enkrypt },
     );
     expect(quote?.provider).to.be.eq(ProviderName.rango);
     expect(quote?.quote.meta.infiniteApproval).to.be.eq(true);
     expect(quote?.quote.meta.walletIdentifier).to.be.eq(
-      WalletIdentifier.enkrypt
+      WalletIdentifier.enkrypt,
     );
     expect(quote?.fromTokenAmount.toString()).to.be.eq(amount.toString());
     expect(quote?.toTokenAmount.gtn(0)).to.be.eq(true);

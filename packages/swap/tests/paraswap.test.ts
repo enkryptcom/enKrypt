@@ -34,12 +34,12 @@ describe("Paraswap Provider", () => {
           toToken,
           toAddress,
         },
-        { infiniteApproval: true, walletIdentifier: WalletIdentifier.enkrypt }
+        { infiniteApproval: true, walletIdentifier: WalletIdentifier.enkrypt },
       );
       expect(quote?.provider).to.be.eq(ProviderName.paraswap);
       expect(quote?.quote.meta.infiniteApproval).to.be.eq(true);
       expect(quote?.quote.meta.walletIdentifier).to.be.eq(
-        WalletIdentifier.enkrypt
+        WalletIdentifier.enkrypt,
       );
       expect(quote?.fromTokenAmount.toString()).to.be.eq(amount.toString());
       expect(quote?.toTokenAmount.gtn(0)).to.be.eq(true);
@@ -50,13 +50,13 @@ describe("Paraswap Provider", () => {
       expect((swap?.transactions[0] as EVMTransaction).data).to.be.eq(
         `0x095ea7b3000000000000000000000000${PARASWAP_APPROVAL_ADDRESS.replace(
           "0x",
-          ""
-        )}${TOKEN_AMOUNT_INFINITY_AND_BEYOND.replace("0x", "")}`
+          "",
+        )}${TOKEN_AMOUNT_INFINITY_AND_BEYOND.replace("0x", "")}`,
       );
       expect(swap?.transactions[1].to).to.be.eq(
-        "0x6a000f20005980200259b80c5102003040001068"
+        "0x6a000f20005980200259b80c5102003040001068",
       );
-    }
+    },
   );
 
   it(
@@ -71,7 +71,7 @@ describe("Paraswap Provider", () => {
           toToken,
           toAddress,
         },
-        { infiniteApproval: false, walletIdentifier: WalletIdentifier.enkrypt }
+        { infiniteApproval: false, walletIdentifier: WalletIdentifier.enkrypt },
       );
       expect(quote?.quote.meta.infiniteApproval).to.be.eq(false);
       const swap = await paraSwap.getSwap(quote!.quote);
@@ -79,14 +79,14 @@ describe("Paraswap Provider", () => {
       expect((swap?.transactions[0] as EVMTransaction).data).to.be.eq(
         `0x095ea7b3000000000000000000000000${PARASWAP_APPROVAL_ADDRESS.replace(
           "0x",
-          ""
+          "",
         )}00000000000000000000000000000000000000000000000${numberToHex(
-          amount
-        ).replace("0x", "")}`
+          amount,
+        ).replace("0x", "")}`,
       );
       expect(swap?.transactions[1].to).to.be.eq(
-        "0x6a000f20005980200259b80c5102003040001068"
+        "0x6a000f20005980200259b80c5102003040001068",
       );
-    }
+    },
   );
 });

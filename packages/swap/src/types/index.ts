@@ -278,12 +278,12 @@ export abstract class ProviderClass {
   abstract getQuote(
     options: getQuoteOptions,
     meta: QuoteMetaOptions,
-    context?: { signal?: AbortSignal }
+    context?: { signal?: AbortSignal },
   ): Promise<ProviderQuoteResponse | null>;
 
   abstract getSwap(
     quote: SwapQuote,
-    context?: { signal?: AbortSignal }
+    context?: { signal?: AbortSignal },
   ): Promise<ProviderSwapResponse | null>;
 
   abstract getStatus(options: StatusOptions): Promise<TransactionStatus>;

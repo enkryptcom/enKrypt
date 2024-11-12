@@ -26,11 +26,11 @@ export const sortByRank = (x: { rank?: number }, y: { rank?: number }) => {
 
 export const sortNativeToFront = (
   x: { address: string },
-  y: { address: string }
+  y: { address: string },
 ) =>
   // eslint-disable-next-line no-nested-ternary
   x.address === NATIVE_TOKEN_ADDRESS
     ? -1
     : y.address === NATIVE_TOKEN_ADDRESS
-    ? 1
-    : 0;
+      ? 1
+      : 0;

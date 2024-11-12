@@ -45,7 +45,7 @@ class HWwalletManager {
 
   async #initialize(
     wallet: HWwalletType,
-    network: NetworkNames
+    network: NetworkNames,
   ): Promise<void> {
     if (!this.providers[network]) {
       this.providers[network] = this.#getProvider(wallet, network);
@@ -56,7 +56,7 @@ class HWwalletManager {
   async getAddress(options: getAddressRequest): Promise<AddressResponse> {
     await this.#initialize(options.wallet, options.networkName);
     return (this.providers[options.networkName] as HWWalletProvider).getAddress(
-      options
+      options,
     );
   }
 
@@ -77,7 +77,7 @@ class HWwalletManager {
   async getSupportedPaths(options: isConnectedRequest): Promise<PathType[]> {
     return this.#getProvider(
       options.wallet,
-      options.networkName
+      options.networkName,
     ).getSupportedPaths();
   }
 
@@ -99,7 +99,7 @@ class HWwalletManager {
 
   async close(): Promise<void> {
     return Promise.all(
-      Object.values(this.providers).map((p) => (p as HWWalletProvider).close())
+      Object.values(this.providers).map((p) => (p as HWWalletProvider).close()),
     ).then();
   }
 

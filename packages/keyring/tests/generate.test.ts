@@ -28,10 +28,10 @@ describe("Keyring create tests", () => {
       expect(pair.signerType).equals(SignerType.ed25519kda);
       expect(pair.pathIndex).equals(0);
       expect(pair.address).equals(
-        "0xd75b971cc4846f543caa92e9bf07bf2f4cee87774f4ba8db2fde5c3dacaed03f"
+        "0xd75b971cc4846f543caa92e9bf07bf2f4cee87774f4ba8db2fde5c3dacaed03f",
       );
       keyring.lock();
-    }
+    },
   );
   it(
     "keyring should generate secp256k1btc keys",
@@ -52,10 +52,10 @@ describe("Keyring create tests", () => {
       expect(pair.signerType).equals(SignerType.secp256k1btc);
       expect(pair.pathIndex).equals(0);
       expect(pair.address).equals(
-        "0x03a8b8b68bec95d27f8a8d78712717bd18f605d95fa64f2b05d2325f873b457c82"
+        "0x03a8b8b68bec95d27f8a8d78712717bd18f605d95fa64f2b05d2325f873b457c82",
       );
       keyring.lock();
-    }
+    },
   );
   it("keyring should generate sr25519 keys", { timeout: 20_000 }, async () => {
     const memStorage = new MemoryStorage();
@@ -73,7 +73,7 @@ describe("Keyring create tests", () => {
     expect(pair.signerType).equals(SignerType.sr25519);
     expect(pair.pathIndex).equals(0);
     expect(pair.address).equals(
-      "5DfhGyQdFobKM8NsWvEeAKk5EQQgYe9AydgJ7rMB6E1EqRzV"
+      "5DfhGyQdFobKM8NsWvEeAKk5EQQgYe9AydgJ7rMB6E1EqRzV",
     );
     keyring.lock();
   });
@@ -93,7 +93,7 @@ describe("Keyring create tests", () => {
     expect(pair.signerType).equals(SignerType.ecdsa);
     expect(pair.pathIndex).equals(0);
     expect(pair.address).equals(
-      "5GKyBtzbxKU1qjhZrKpMiwtJj7o6jJcXbKQVtYq74DCPerXN"
+      "5GKyBtzbxKU1qjhZrKpMiwtJj7o6jJcXbKQVtYq74DCPerXN",
     );
   });
   it("keyring should generate ed25519 keys", { timeout: 20_000 }, async () => {
@@ -112,7 +112,7 @@ describe("Keyring create tests", () => {
     expect(pair.signerType).equals(SignerType.ed25519);
     expect(pair.pathIndex).equals(0);
     expect(pair.address).equals(
-      "5DFJF7tY4bpbpcKPJcBTQaKuCDEPCpiz8TRjpmLeTtweqmXL"
+      "5DFJF7tY4bpbpcKPJcBTQaKuCDEPCpiz8TRjpmLeTtweqmXL",
     );
   });
   it("keyring should generate ethereum keys", { timeout: 20_000 }, async () => {
@@ -164,6 +164,6 @@ describe("Keyring create tests", () => {
       expect(tryToDelete).equals(true);
       const deletedAccount = (await keyring.getKeysObject())[pair.address];
       expect(deletedAccount).equals(undefined);
-    }
+    },
   );
 });

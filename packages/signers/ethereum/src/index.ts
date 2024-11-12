@@ -29,14 +29,14 @@ export class EthereumSigner implements SignerInterface {
   async verify(
     msgHash: string,
     sig: string,
-    publicKey: string
+    publicKey: string,
   ): Promise<boolean> {
     const sigdecoded = fromRpcSig(sig as `0x${string}`);
     const rpubkey = ecrecover(
       hexToBuffer(msgHash),
       sigdecoded.v,
       sigdecoded.r,
-      sigdecoded.s
+      sigdecoded.s,
     );
     return bufferToHex(rpubkey) === publicKey;
   }

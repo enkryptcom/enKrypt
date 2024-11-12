@@ -25,10 +25,10 @@ describe("Zerox Provider", () => {
 
   if (process.env.CI) {
     // We need at-least one test otherwise vitest reports failure
-    it('No ZeroX swap tests in CI', function() {
-      expect(true).toBeTruthy()
-    })
-    return
+    it("No ZeroX swap tests in CI", function () {
+      expect(true).toBeTruthy();
+    });
+    return;
   }
 
   it(
@@ -43,12 +43,12 @@ describe("Zerox Provider", () => {
           toToken,
           toAddress: fromAddress,
         },
-        { infiniteApproval: true, walletIdentifier: WalletIdentifier.enkrypt }
+        { infiniteApproval: true, walletIdentifier: WalletIdentifier.enkrypt },
       );
       expect(quote?.provider).to.be.eq(ProviderName.zerox);
       expect(quote?.quote.meta.infiniteApproval).to.be.eq(true);
       expect(quote?.quote.meta.walletIdentifier).to.be.eq(
-        WalletIdentifier.enkrypt
+        WalletIdentifier.enkrypt,
       );
       expect(quote?.fromTokenAmount.toString()).to.be.eq(amount.toString());
       expect(quote?.toTokenAmount.gtn(0)).to.be.eq(true);
@@ -59,11 +59,11 @@ describe("Zerox Provider", () => {
       expect((swap?.transactions[0] as EVMTransaction).data).to.be.eq(
         `0x095ea7b3000000000000000000000000${ZEROX_APPROVAL.replace(
           "0x",
-          ""
-        )}${TOKEN_AMOUNT_INFINITY_AND_BEYOND.replace("0x", "")}`
+          "",
+        )}${TOKEN_AMOUNT_INFINITY_AND_BEYOND.replace("0x", "")}`,
       );
       expect(swap?.transactions[1].to).to.be.eq(ZEROX_APPROVAL);
-    }
+    },
   );
 
   it(
@@ -78,7 +78,7 @@ describe("Zerox Provider", () => {
           toToken,
           toAddress: fromAddress,
         },
-        { infiniteApproval: false, walletIdentifier: WalletIdentifier.enkrypt }
+        { infiniteApproval: false, walletIdentifier: WalletIdentifier.enkrypt },
       );
       expect(quote?.quote.meta.infiniteApproval).to.be.eq(false);
       const swap = await zerox.getSwap(quote!.quote);
@@ -86,12 +86,12 @@ describe("Zerox Provider", () => {
       expect((swap?.transactions[0] as EVMTransaction).data).to.be.eq(
         `0x095ea7b3000000000000000000000000${ZEROX_APPROVAL.replace(
           "0x",
-          ""
+          "",
         )}00000000000000000000000000000000000000000000000${numberToHex(
-          amount
-        ).replace("0x", "")}`
+          amount,
+        ).replace("0x", "")}`,
       );
       expect(swap?.transactions[1].to).to.be.eq(ZEROX_APPROVAL);
-    }
+    },
   );
 });

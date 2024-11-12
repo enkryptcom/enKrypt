@@ -20,7 +20,7 @@ const hexToBuffer = (hex: string): Buffer =>
     stripHexPrefix(hex).length % 2 === 1
       ? `0${stripHexPrefix(hex)}`
       : stripHexPrefix(hex),
-    "hex"
+    "hex",
   );
 
 export {

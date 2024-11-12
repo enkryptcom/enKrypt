@@ -18,8 +18,8 @@ describe("Ethreum signing", () => {
             Buffer.concat([
               hexToBuffer(f.signature),
               Buffer.from([f.recoveryId]),
-            ])
-          )
+            ]),
+          ),
         );
       });
     });
