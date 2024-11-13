@@ -30,7 +30,7 @@
         @update:value="updateSearchValue"
       />
       <app-menu
-        :networks="networks"
+        :networks="displayNetworks"
         :selected="route.params.id as string"
         :search-input="searchInput"
         @update:order="updateNetworkOrder"
@@ -163,7 +163,10 @@ const router = useRouter();
 const route = useRoute();
 const transitionName = 'fade';
 const searchInput = ref('');
+//TODO: MAKE THIS A CONST
+const activeCategory = ref('all');
 const networks = ref<BaseNetwork[]>([]);
+const pinnedNetworks = ref<BaseNetwork[]>([]);
 const defaultNetwork = DEFAULT_EVM_NETWORK;
 const currentNetwork = ref<BaseNetwork>(defaultNetwork);
 const currentSubNetwork = ref<string>('');
@@ -188,14 +191,15 @@ const setActiveNetworks = async () => {
     const network = allNetworks.find(network => network.name === name);
     if (network !== undefined) networksToShow.push(network);
   });
+  pinnedNetworks.value = networksToShow;
   networks.value = networksToShow;
 
-  if (!networks.value.includes(currentNetwork.value)) {
-    setNetwork(networks.value[0]);
+  if (!pinnedNetworks.value.includes(currentNetwork.value)) {
+    setNetwork(pinnedNetworks.value[0]);
   }
 };
 const updateNetworkOrder = (newOrder: BaseNetwork[]) => {
-  if (searchInput.value === '') networks.value = newOrder;
+  if (searchInput.value === '') pinnedNetworks.value = newOrder;
 };
 const updateSearchValue = (newval: string) => {
   searchInput.value = newval;
@@ -438,9 +442,30 @@ const isLocked = computed(() => {
   return route.name == 'lock-screen';
 });
 
+/**
+ * Display Networks
+ * Categories: All, Popular, Pinned, New
+ */
+const displayNetworks = computed<BaseNetwork[]>(() => {
+  switch (activeCategory.value) {
+    case 'all':
+      // TODO: FILTER OUT TESTNETS THAT ARE NOT ENABLED
+      return networks.value;
+    // case 'popular':
+    //   return networks.value.filter(net => POPULAR_NAMES.includes(net.name));
+    case 'pinned':
+      return pinnedNetworks.value;
+    // case 'new':
+    //   return networks.value.filter(net => !POPULAR_NAMES.includes(net.name));
+    default:
+      return networks.value;
+  }
+});
+
 /** -------------------
  * Menu Actions
  * ------------------- */
+
 const lockAction = async () => {
   sendToBackgroundFromAction({
     message: JSON.stringify({
