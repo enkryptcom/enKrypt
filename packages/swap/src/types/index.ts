@@ -223,10 +223,10 @@ export interface ProviderQuoteResponse {
 
 export type StatusOptionTransaction = {
   /** Transaction hash */
-  hash: string,
+  hash: string;
   /** Unix epoch milliseconds `Date.now()` */
-  sentAt: number,
-}
+  sentAt: number;
+};
 
 export interface StatusOptions {
   [key: string]: any;

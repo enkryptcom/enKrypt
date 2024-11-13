@@ -165,7 +165,8 @@ class ZeroX extends ProviderClass {
       affiliateAddress: feeConfig ? feeConfig.referrer : "",
     });
     return fetch(
-      `${BASE_URL}${supportedNetworks[this.network].chainId
+      `${BASE_URL}${
+        supportedNetworks[this.network].chainId
       }/swap/v1/quote?${params.toString()}`
     )
       .then((res) => res.json())
