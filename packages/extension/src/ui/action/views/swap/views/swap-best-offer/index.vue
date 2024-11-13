@@ -421,7 +421,7 @@ const sendAction = async () => {
           timestamp: new Date().getTime(),
           type: ActivityType.swap,
           value: pickedTrade.value.toTokenAmount.toString(),
-          transactionHash: `${txs[0]}-swap`,
+          transactionHash: `${txs[0].hash}-swap`,
           rawInfo: JSON.parse(JSON.stringify(swapRaw)),
         };
         const activityState = new ActivityState();
