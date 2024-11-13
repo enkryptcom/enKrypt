@@ -27,8 +27,7 @@
     "bip39": "^3.1.0",
     "hdkey": "^2.1.0",
     "tweetnacl": "^1.0.3",
-    "tweetnacl-util": "^0.15.1",
-    "vitest": "^2.1.4"
+    "tweetnacl-util": "^0.15.1"
   },
   "devDependencies": {
     "@enkryptcom/types": "workspace:^",
@@ -47,7 +46,8 @@
     "tsconfig-paths": "^4.2.0",
     "tsup": "^8.3.5",
     "typescript": "^5.6.3",
-    "typescript-eslint": "8.14.0"
+    "typescript-eslint": "8.14.0",
+    "vitest": "^2.1.4"
   },
   "repository": {
     "type": "git",

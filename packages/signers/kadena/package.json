@@ -24,8 +24,7 @@
   "dependencies": {
     "@enkryptcom/utils": "workspace:^",
     "bip39": "^3.1.0",
-    "tweetnacl": "^1.0.3",
-    "vitest": "^2.1.4"
+    "tweetnacl": "^1.0.3"
   },
   "devDependencies": {
     "@enkryptcom/types": "workspace:^",
@@ -45,7 +44,8 @@
     "tsconfig-paths": "^4.2.0",
     "tsup": "^8.3.5",
     "typescript": "^5.6.3",
-    "typescript-eslint": "8.14.0"
+    "typescript-eslint": "8.14.0",
+    "vitest": "^2.1.4"
   },
   "repository": {
     "type": "git",
