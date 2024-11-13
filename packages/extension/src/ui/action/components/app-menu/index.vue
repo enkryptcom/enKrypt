@@ -1,6 +1,10 @@
 <template>
-  <div class="app-menu">
-    <custom-scrollbar v-if="!!networks" class="app-menu__scroll-area">
+  <div :class="['app-menu', { 'has-bg': isScrolling }]">
+    <custom-scrollbar
+      v-if="!!networks"
+      :class="'app-menu__scroll-area'"
+      @changeIsScrolling="setIsScrolling"
+    >
       <draggable v-model="searchNetworks" item-key="name" :animation="300">
         <template #item="{ element }">
           <app-menu-item
@@ -17,7 +21,7 @@
 </template>
 
 <script setup lang="ts">
-import { PropType } from 'vue';
+import { PropType, ref } from 'vue';
 import AppMenuItem from './components/app-menu-item.vue';
 import CustomScrollbar from '@action/components/custom-scrollbar/index.vue';
 import draggable from 'vuedraggable';
@@ -67,29 +71,39 @@ const searchNetworks = computed({
     }
   },
 });
+
+const isScrolling = ref(false);
+const setIsScrolling = (val: boolean) => {
+  isScrolling.value = val;
+};
 </script>
 
 <style lang="less">
 @import '@action/styles/theme.less';
 
 .app-menu {
-  margin-top: 16px;
+  margin-top: 8px;
   overflow-y: auto;
-  margin-bottom: 56px;
+  transition: background-color 0.5s ease-in-out;
+  background-color: transparent;
+  margin: 0px -12px 0px -12px;
+  padding: 0px 12px 0px 12px;
 
   &__scroll-area {
     position: relative;
     margin: auto;
     width: 100%;
-    max-height: 432px;
+    max-height: 452px;
 
     &.ps--active-y {
       padding-right: 0 !important;
     }
-
     .ps__rail-y {
       right: 4px !important;
     }
   }
+}
+.has-bg {
+  background: rgba(247, 239, 244, 1);
 }
 </style>

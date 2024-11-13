@@ -96,7 +96,7 @@ defineProps({
 });
 
 const getAllNetworksAndStatus = async () => {
-  const activeNetworks = await networksState.getActiveNetworkNames();
+  const activeNetworks = await networksState.getPinnedNetworkNames();
 
   const allNetworks = (await getAllNetworks()).map(net => {
     return {

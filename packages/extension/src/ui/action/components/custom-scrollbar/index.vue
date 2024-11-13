@@ -37,6 +37,7 @@ export default {
   data() {
     return {
       ps: null,
+      scrollTimeout: 0,
     };
   },
   watch: {
@@ -75,10 +76,20 @@ export default {
   },
   beforeUnmount() {
     this.__uninit();
+    if (this.scrollTimeout) {
+      clearTimeout(this.scrollTimeout);
+    }
   },
   methods: {
-    scrollHandle: function (evt) {
+    scrollHandle: function (evt: Event) {
       this.$emit(evt.type, evt);
+      this.$emit('changeIsScrolling', true);
+      if (this.scrollTimeout) {
+        clearTimeout(this.scrollTimeout);
+      }
+      this.scrollTimeout = window.setTimeout(() => {
+        this.$emit('changeIsScrolling', false);
+      }, 1500);
     },
     update: function () {
       if (this.ps) {

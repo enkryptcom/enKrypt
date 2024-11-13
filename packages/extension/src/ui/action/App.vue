@@ -4,7 +4,26 @@
       <swap-looking-animation />
     </div>
     <div v-show="!isLoading" ref="appMenuRef" class="app__menu">
-      <logo-min class="app__menu-logo" />
+      <!-- LOGO & TOP MENU -->
+      <div class="app__menu-row" :class="{ border: networks.length > 9 }">
+        <logo-min class="app__menu-logo" />
+        <div>
+          <a ref="toggle" class="app__menu-link" @click="toggleMoreMenu">
+            <more-icon />
+          </a>
+          <div v-show="isOpenMore" ref="dropdown" class="app__menu-dropdown">
+            <a class="app__menu-dropdown-link" @click="customNetworksAction">
+              <manage-networks-icon /> <span>Custom networks</span>
+            </a>
+            <a class="app__menu-dropdown-link" @click="lockAction">
+              <hold-icon /> <span>Lock Enkrypt</span>
+            </a>
+            <a class="app__menu-dropdown-link" @click="settingsAction">
+              <settings-icon /> <span>Settings</span>
+            </a>
+          </div>
+        </div>
+      </div>
       <base-search
         :value="searchInput"
         :is-border="false"
@@ -18,25 +37,6 @@
         @update:network="setNetwork"
         @update:gradient="updateGradient"
       />
-      <div class="app__menu-footer" :class="{ border: networks.length > 9 }">
-        <a class="app__menu-add" @click="addNetworkShow = !addNetworkShow">
-          <manage-networks-icon />
-          Manage networks
-        </a>
-        <div>
-          <a ref="toggle" class="app__menu-link" @click="toggleMoreMenu">
-            <more-icon />
-          </a>
-          <div v-show="isOpenMore" ref="dropdown" class="app__menu-dropdown">
-            <a class="app__menu-dropdown-link" @click="lockAction">
-              <hold-icon /> <span>Lock Enkrypt</span>
-            </a>
-            <a class="app__menu-dropdown-link" @click="settingsAction">
-              <settings-icon /> <span>Settings</span>
-            </a>
-          </div>
-        </div>
-      </div>
     </div>
 
     <div v-show="!isLoading" class="app__content">
@@ -179,12 +179,12 @@ const currentVersion = __PACKAGE_VERSION__;
 const latestVersion = ref('');
 
 const setActiveNetworks = async () => {
-  const activeNetworkNames = await networksState.getActiveNetworkNames();
+  const pinnedNetwrokNames = await networksState.getPinnedNetworkNames();
 
   const allNetworks = await getAllNetworks();
   const networksToShow: BaseNetwork[] = [];
 
-  activeNetworkNames.forEach(name => {
+  pinnedNetwrokNames.forEach(name => {
     const network = allNetworks.find(network => network.name === name);
     if (network !== undefined) networksToShow.push(network);
   });
@@ -438,6 +438,9 @@ const isLocked = computed(() => {
   return route.name == 'lock-screen';
 });
 
+/** -------------------
+ * Menu Actions
+ * ------------------- */
 const lockAction = async () => {
   sendToBackgroundFromAction({
     message: JSON.stringify({
@@ -451,6 +454,10 @@ const lockAction = async () => {
 const settingsAction = () => {
   closeMoreMenu();
   settingsShow.value = !settingsShow.value;
+};
+const customNetworksAction = () => {
+  closeMoreMenu();
+  addNetworkShow.value = !addNetworkShow.value;
 };
 const toggleMoreMenu = () => {
   if (timeout != null) {
@@ -540,7 +547,7 @@ body {
     position: absolute;
     left: 0;
     top: 0;
-    padding: 16px 12px 8px 12px;
+    padding: 8px 12px 2px 12px;
     box-sizing: border-box;
     z-index: 1;
     background: @defaultGradient;
@@ -549,25 +556,12 @@ body {
       margin-left: 8px;
     }
 
-    &-footer {
-      position: absolute;
-      width: 100%;
-      height: 56px;
-      bottom: 0;
-      left: 0;
-      padding: 0 12px;
-      box-sizing: border-box;
+    &-row {
+      height: 40px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       flex-direction: row;
-      background: rgba(255, 255, 255, 0.01);
-
-      &.border {
-        box-shadow:
-          0px 0px 6px -1px rgba(0, 0, 0, 0.05),
-          0px 0px 1px rgba(0, 0, 0, 0.2);
-      }
     }
 
     &-add {
@@ -626,7 +620,8 @@ body {
       border-radius: 12px;
       position: absolute;
       right: 8px;
-      bottom: 52px;
+      top: 48px;
+      z-index: 3;
 
       &-link {
         width: 100%;

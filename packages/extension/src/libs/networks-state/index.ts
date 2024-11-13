@@ -20,6 +20,7 @@ class NetworksState {
 
   async setNetworkStatus(
     targetNetworkName: string,
+    // isActive represents whether or not the network is pinned on the ui
     isActive: boolean,
   ): Promise<void> {
     const state: IState = await this.getState();
@@ -73,7 +74,19 @@ class NetworksState {
     }
   }
 
-  async getActiveNetworkNames(): Promise<string[]> {
+  /**
+   * Retrieves the names of the pinned networks.
+   *
+   * This method first ensures that networks with new features are inserted.
+   * It then attempts to retrieve the current state. If the state and its networks
+   * are defined, it maps and returns the names of the valid networks.
+   * If the state or networks are not defined, it sets the initial active networks
+   * and returns a predefined list of popular network names.
+   *
+   * Previously, the method was named `getActiveNetworks`.
+   * @returns {Promise<string[]>} A promise that resolves to an array of active network names.
+   */
+  async getPinnedNetworkNames(): Promise<string[]> {
     await this.insertNetworksWithNewFeatures();
     const state: IState | undefined = await this.getState();
     if (state && state.networks) {
