@@ -165,8 +165,7 @@ class ZeroX extends ProviderClass {
       affiliateAddress: feeConfig ? feeConfig.referrer : "",
     });
     return fetch(
-      `${BASE_URL}${
-        supportedNetworks[this.network].chainId
+      `${BASE_URL}${supportedNetworks[this.network].chainId
       }/swap/v1/quote?${params.toString()}`
     )
       .then((res) => res.json())
@@ -272,7 +271,7 @@ class ZeroX extends ProviderClass {
   }
 
   getStatus(options: StatusOptions): Promise<TransactionStatus> {
-    const promises = options.transactionHashes.map((hash) =>
+    const promises = options.transactions.map(({ hash }) =>
       this.web3eth.getTransactionReceipt(hash)
     );
     return Promise.all(promises).then((receipts) => {

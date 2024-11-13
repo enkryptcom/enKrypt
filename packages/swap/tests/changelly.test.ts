@@ -52,7 +52,7 @@ describe("Changelly Provider", () => {
     ).to.be.eq(true);
     const status = await changelly.getStatus(
       (
-        await swap!.getStatusObject({ transactionHashes: [] })
+        await swap!.getStatusObject({ transactions: [] })
       ).options
     );
     expect(status).to.be.eq("pending");

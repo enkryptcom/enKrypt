@@ -220,9 +220,17 @@ export interface ProviderQuoteResponse {
   quote: SwapQuote;
   minMax: MinMaxResponse;
 }
+
+export type StatusOptionTransaction = {
+  /** Transaction hash */
+  hash: string,
+  /** Unix epoch milliseconds `Date.now()` */
+  sentAt: number,
+}
+
 export interface StatusOptions {
   [key: string]: any;
-  transactionHashes: string[];
+  transactions: StatusOptionTransaction[];
 }
 
 export interface StatusOptionsResponse {

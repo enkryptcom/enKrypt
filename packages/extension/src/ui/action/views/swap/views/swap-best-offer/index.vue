@@ -395,8 +395,8 @@ const sendAction = async () => {
       swap: pickedTrade.value,
       toToken: swapData.toToken,
     })
-      .then(hashes => {
-        pickedTrade.value.status!.options.transactionHashes = hashes;
+      .then(txs => {
+        pickedTrade.value.status!.options.transactions = txs;
         const swapRaw: SwapRawInfo = {
           fromToken: swapData.fromToken,
           toToken: swapData.toToken,
@@ -421,7 +421,7 @@ const sendAction = async () => {
           timestamp: new Date().getTime(),
           type: ActivityType.swap,
           value: pickedTrade.value.toTokenAmount.toString(),
-          transactionHash: `${hashes[0]}-swap`,
+          transactionHash: `${txs[0]}-swap`,
           rawInfo: JSON.parse(JSON.stringify(swapRaw)),
         };
         const activityState = new ActivityState();
