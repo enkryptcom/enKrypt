@@ -1,18 +1,17 @@
 <template>
   <a class="app-menu__link" :class="{ active: isActive }">
-    <img ref="imageTag" :src="network.icon" alt="" />
+    <div style="position: relative">
+      <img ref="imageTag" :src="network.icon" alt="" />
+      <new-icon v-if="newNetworks.includes(network.name)" class="tag-new" />
+    </div>
     <span>{{ network.name_long }} </span
     ><test-network-icon v-if="network.isTestNetwork" />
-    <span
-      v-if="newNetworks.includes(network.name)"
-      class="tag tag-new tag-sm shimmer"
-      >New</span
-    >
-    <span
+
+    <!-- <span
       v-if="newSwaps.includes(network.name)"
       class="tag tag-swap tag-sm shimmer"
       >Swap</span
-    >
+    > -->
     <div class="app-menu__link-drag">
       <drag-icon />
     </div>
@@ -24,6 +23,7 @@ import { NodeType } from '@/types/provider';
 import { PropType, ref, watch } from 'vue';
 import DragIcon from '@action/icons/common/drag-icon.vue';
 import TestNetworkIcon from '@action/icons/common/test-network-icon.vue';
+import NewIcon from '@action/icons/asset/new-icon.vue';
 import { newNetworks, newSwaps } from '@/providers/common/libs/new-features';
 
 const props = defineProps({
@@ -114,8 +114,15 @@ watch(
   color: #35495e !important;
 }
 .tag-new {
-  background: #a481d5;
+  height: 9px;
+  padding: 1px 3px 1px 3px;
+  background: rgba(0, 122, 255, 1);
   color: #fff !important;
+  border-radius: 6px;
+  border: 1px solid @white;
+  position: absolute;
+  left: 23px;
+  top: -5px;
 }
 .shimmer {
   color: grey;
@@ -172,8 +179,9 @@ watch(
     }
 
     &.active {
-      background: @black007;
+      background: @white09;
       border-radius: 10px;
+      box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.16);
 
       span {
         font-weight: 500;
