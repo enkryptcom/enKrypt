@@ -160,7 +160,7 @@ if (DEBUG) {
   };
 } else {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function
-  debug = () => { };
+  debug = () => {};
 }
 
 // Jupiter API Tokens
@@ -373,8 +373,8 @@ export class Jupiter extends ProviderClass {
       debug(
         "querySwapInfo",
         `Referrer ATA already exists. No need to record additional rent fees.` +
-        ` ATA pubkey: ${referrerATAPubkey.toBase58()},` +
-        ` Source mint: ${srcMint.toBase58()}`
+          ` ATA pubkey: ${referrerATAPubkey.toBase58()},` +
+          ` Source mint: ${srcMint.toBase58()}`
       );
     } else {
       // The referral fee ATA account needs to be created or else we can't receive fees for this transaction
@@ -400,9 +400,9 @@ export class Jupiter extends ProviderClass {
       debug(
         "querySwapInfo",
         `Referrer ATA does not exist. Updating transaction with instruction to create it.` +
-        ` Referral ATA pubkey: ${referrerATAPubkey.toBase58()},` +
-        ` Rent: ${extraRentFees} lamports,` +
-        ` Total Rent: ${extraRentFees} lamports`
+          ` Referral ATA pubkey: ${referrerATAPubkey.toBase58()},` +
+          ` Rent: ${extraRentFees} lamports,` +
+          ` Total Rent: ${extraRentFees} lamports`
       );
     }
 
@@ -413,8 +413,8 @@ export class Jupiter extends ProviderClass {
       debug(
         "querySwapInfo",
         `Wallet destination mint ATA already exists. No need to record additional rent fees.` +
-        ` ATA pubkey: ${dstATAPubkey.toBase58()},` +
-        ` Destination mint: ${dstMint.toBase58()}`
+          ` ATA pubkey: ${dstATAPubkey.toBase58()},` +
+          ` Destination mint: ${dstMint.toBase58()}`
       );
     } else {
       const extraRentFee = await this.conn.getMinimumBalanceForRentExemption(
@@ -437,11 +437,11 @@ export class Jupiter extends ProviderClass {
       debug(
         "querySwapInfo",
         `Wallet destination mint ATA does not exist, registering custom instruction to create it.` +
-        ` Adding ATA rent to extra transaction fees.` +
-        ` ATA pubkey: ${dstATAPubkey.toBase58()},` +
-        ` Destination mint: ${dstMint.toBase58()},` +
-        ` Rent: ${extraRentFee} lamports,` +
-        ` Total rent: ${rentFees} lamports`
+          ` Adding ATA rent to extra transaction fees.` +
+          ` ATA pubkey: ${dstATAPubkey.toBase58()},` +
+          ` Destination mint: ${dstMint.toBase58()},` +
+          ` Rent: ${extraRentFee} lamports,` +
+          ` Total rent: ${rentFees} lamports`
       );
     }
 
@@ -475,7 +475,7 @@ export class Jupiter extends ProviderClass {
       debug(
         "getQuote",
         `ignoring quote request to network ${options.toToken.networkInfo.name},` +
-        ` cross network swaps not supported`
+          ` cross network swaps not supported`
       );
       return null;
     }
@@ -704,7 +704,8 @@ async function getJupiterTokens(abortable?: {
           default: /* noop */
         }
         throw new Error(
-          `Failed to get Jupiter tokens, HTTP response returned not-ok status ${res.status
+          `Failed to get Jupiter tokens, HTTP response returned not-ok status ${
+            res.status
           } ${res.statusText || "<no status text>"}: ${msg}`
         );
       }
@@ -722,7 +723,8 @@ async function getJupiterTokens(abortable?: {
       if (failed) throw err;
       debug(
         "getJupiterTokens",
-        `Failed to get Jupiter tokens on attempt ${backoffi + 1}/${backoff.length
+        `Failed to get Jupiter tokens on attempt ${backoffi + 1}/${
+          backoff.length
         }: ${String(err)}`
       );
       errRef ??= { err: err as Error };
@@ -881,7 +883,8 @@ async function getJupiterQuote(
           default: /* noop */
         }
         throw new Error(
-          `Failed to get Jupiter quote, HTTP response returned not-ok status ${res.status
+          `Failed to get Jupiter quote, HTTP response returned not-ok status ${
+            res.status
           } ${res.statusText || "<no status text>"} at url ${url}: ${msg}`
         );
       }
@@ -898,7 +901,8 @@ async function getJupiterQuote(
       if (abortable?.signal?.aborted) throw abortable?.signal.reason;
       if (failed) throw err;
       console.warn(
-        `[getJupiterQuote] Failed to get Jupiter quote on attempt ${backoffi + 1
+        `[getJupiterQuote] Failed to get Jupiter quote on attempt ${
+          backoffi + 1
         }/${backoff.length}: ${String(err)}`
       );
       errRef ??= { err: err as Error };
@@ -1030,7 +1034,8 @@ async function getJupiterSwap(
           default: /* noop */
         }
         throw new Error(
-          `Failed to get Jupiter swap, HTTP response returned not-ok status ${res.status
+          `Failed to get Jupiter swap, HTTP response returned not-ok status ${
+            res.status
           } ${res.statusText || "<no status text>"} at url ${url}: ${msg}`
         );
       }
@@ -1048,7 +1053,8 @@ async function getJupiterSwap(
       if (failed) throw err;
       debug(
         "getJupiterSwap",
-        `Failed to get Jupiter swap on attempt ${backoffi + 1}/${backoff.length
+        `Failed to get Jupiter swap on attempt ${backoffi + 1}/${
+          backoff.length
         }: ${String(err)}`
       );
       errRef ??= { err: err as Error };
