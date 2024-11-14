@@ -220,7 +220,7 @@ const hasEnoughBalance = computed(() => {
   }
 
   // check if valid sendAmount.value
-  if (!isNumeric(sendAmount.value)) {
+  if (!isNumericPositive(sendAmount.value)) {
     return false;
   }
 
@@ -350,7 +350,7 @@ const nativeBalanceAfterTransaction = computed(() => {
     let endingAmount = toBN(nativeBalance.value);
 
     if (selectedAsset.value.contract === NATIVE_TOKEN_ADDRESS) {
-      const locAmount = isNumeric(amount.value) ? amount.value : '0';
+      const locAmount = isNumericPositive(amount.value) ? amount.value : '0';
       const rawAmount = toBN(
         toBase(locAmount ?? '0', selectedAsset.value.decimals!),
       );
@@ -537,8 +537,8 @@ const close = () => {
   router.go(-1);
 };
 
-const isNumeric = (value: string) => {
-  return /^-?\d+(\.\d+)?$/.test(value);
+const isNumericPositive = (value: string) => {
+  return /^\d+(\.\d+)?$/.test(value);
 };
 
 const assetMaxValue = computed(() => {
