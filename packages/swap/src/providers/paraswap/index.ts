@@ -120,7 +120,7 @@ class ParaSwap extends ProviderClass {
 
   static isSupported(network: SupportedNetworkName) {
     return Object.keys(supportedNetworks).includes(
-      network as unknown as string
+      network as unknown as string,
     );
   }
 
@@ -144,11 +144,11 @@ class ParaSwap extends ProviderClass {
   private getParaswapSwap(
     options: getQuoteOptions,
     meta: QuoteMetaOptions,
-    accurateEstimate: boolean
+    accurateEstimate: boolean,
   ): Promise<ParaSwapSwapResponse | null> {
     if (
       !ParaSwap.isSupported(
-        options.toToken.networkInfo.name as SupportedNetworkName
+        options.toToken.networkInfo.name as SupportedNetworkName,
       ) ||
       this.network !== options.toToken.networkInfo.name
     )
@@ -173,7 +173,7 @@ class ParaSwap extends ProviderClass {
         (
           parseFloat(meta.slippage ? meta.slippage : DEFAULT_SLIPPAGE) * 10
         ).toString(),
-        10
+        10,
       ).toString(),
       deadline: Math.floor(Date.now() / 1000) + 300,
       partnerAddress: feeConfig ? feeConfig.referrer : "",
@@ -193,7 +193,7 @@ class ParaSwap extends ProviderClass {
           "Content-Type": "application/json",
         },
         body,
-      }
+      },
     )
       .then((res) => res.json())
       .then(async (response: ParaswapResponseType) => {
@@ -225,7 +225,7 @@ class ParaSwap extends ProviderClass {
         if (accurateEstimate) {
           const accurateGasEstimate = await estimateEVMGasList(
             transactions,
-            this.network
+            this.network,
           );
           if (accurateGasEstimate) {
             if (accurateGasEstimate.isError) return null;
@@ -237,10 +237,10 @@ class ParaSwap extends ProviderClass {
         return {
           transactions,
           toTokenAmount: toBN(
-            (meta.priceRoute as ParaswpQuoteResponse).destAmount
+            (meta.priceRoute as ParaswpQuoteResponse).destAmount,
           ),
           fromTokenAmount: toBN(
-            (meta.priceRoute as ParaswpQuoteResponse).srcAmount
+            (meta.priceRoute as ParaswpQuoteResponse).srcAmount,
           ),
         };
       })
@@ -252,11 +252,11 @@ class ParaSwap extends ProviderClass {
 
   getQuote(
     options: getQuoteOptions,
-    meta: QuoteMetaOptions
+    meta: QuoteMetaOptions,
   ): Promise<ProviderQuoteResponse | null> {
     if (
       !ParaSwap.isSupported(
-        options.toToken.networkInfo.name as SupportedNetworkName
+        options.toToken.networkInfo.name as SupportedNetworkName,
       ) ||
       this.network !== options.toToken.networkInfo.name
     )
@@ -313,7 +313,7 @@ class ParaSwap extends ProviderClass {
             transactions.reduce(
               (total: number, curVal: EVMTransaction) =>
                 total + toBN(curVal.gasLimit).toNumber(),
-              0
+              0,
             ) + toBN(GAS_LIMITS.swap).toNumber(),
           minMax: await this.getMinMaxAmount(),
         };
@@ -339,7 +339,7 @@ class ParaSwap extends ProviderClass {
         slippage: quote.meta.slippage || DEFAULT_SLIPPAGE,
         fee: feeConfig * 100,
         getStatusObject: async (
-          options: StatusOptions
+          options: StatusOptions,
         ): Promise<StatusOptionsResponse> => ({
           options,
           provider: this.name,
@@ -351,7 +351,7 @@ class ParaSwap extends ProviderClass {
 
   getStatus(options: StatusOptions): Promise<TransactionStatus> {
     const promises = options.transactionHashes.map((hash) =>
-      this.web3eth.getTransactionReceipt(hash)
+      this.web3eth.getTransactionReceipt(hash),
     );
     return Promise.all(promises).then((receipts) => {
       // eslint-disable-next-line no-restricted-syntax

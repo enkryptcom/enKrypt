@@ -74,7 +74,7 @@ const supportedNetworks: {
 };
 
 export const supportedNetworksSet = new Set(
-  Object.keys(supportedNetworks)
+  Object.keys(supportedNetworks),
 ) as unknown as Set<SupportedNetworkName>;
 
 export default supportedNetworks;

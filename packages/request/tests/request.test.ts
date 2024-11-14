@@ -15,7 +15,7 @@ describe("Request calls test", () => {
       expect(chainId).to.equal("0x1");
       await request.request({ method: "eth_wrongMethod" }).catch((e) => {
         expect(e.message).to.be.equal(
-          "the method eth_wrongMethod does not exist/is not available"
+          "the method eth_wrongMethod does not exist/is not available",
         );
       });
       const blockNumber = await request.request({
@@ -50,7 +50,7 @@ describe("Middleware calls", () => {
     [middleware1, middleware2],
     {
       headers: { "User-Agent": " Mozilla/5.0" },
-    }
+    },
   );
   const requesters = [rpcRequest, wsRequest];
   it("middlewares should respond", { timeout: 3_000 }, async () => {

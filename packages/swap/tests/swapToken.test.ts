@@ -7,10 +7,10 @@ describe("SwapToken", () => {
   it("it should convert", async () => {
     const token = new SwapToken(fromToken);
     expect(token.toRaw("1526.652").toString()).to.be.eq(
-      "1526652000000000000000"
+      "1526652000000000000000",
     );
     expect(
-      token.toReadable(toBN("1526652000000000000000")).toString()
+      token.toReadable(toBN("1526652000000000000000")).toString(),
     ).to.be.eq("1526.652");
   });
 });
