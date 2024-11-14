@@ -629,6 +629,7 @@ class Rango extends ProviderClass {
             ` Enkrypt does not support Rango swap on the source network` +
             `  fromNetwork=${this.network}`,
         );
+        return null;
       }
 
       // We must support Rango on the destination network
@@ -642,6 +643,7 @@ class Rango extends ProviderClass {
             ` Enkrypt does not support Rango swap on the destination network` +
             `  fromNetwork=${this.network}`,
         );
+        return null;
       }
 
       // Rango must support the source network
