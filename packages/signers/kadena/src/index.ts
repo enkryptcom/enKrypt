@@ -21,19 +21,19 @@ export class KadenaSigner implements SignerInterface {
   async verify(
     msgHash: string,
     sig: string,
-    publicKey: string
+    publicKey: string,
   ): Promise<boolean> {
     return tweetSign.detached.verify(
       hexToBuffer(msgHash),
       hexToBuffer(sig),
-      hexToBuffer(publicKey)
+      hexToBuffer(publicKey),
     );
   }
 
   async sign(msgHash: string, keyPair: KeyPair): Promise<string> {
     const sig = tweetSign.detached(
       hexToBuffer(msgHash),
-      hexToBuffer(keyPair.privateKey)
+      hexToBuffer(keyPair.privateKey),
     );
     return bufferToHex(sig);
   }

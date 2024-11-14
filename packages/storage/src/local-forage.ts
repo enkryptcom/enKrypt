@@ -11,7 +11,7 @@ export class LocalForage implements BrowserStorageArea {
     drivers: Array<string> = [
       LocalForageLib.INDEXEDDB,
       LocalForageLib.LOCALSTORAGE,
-    ]
+    ],
   ) {
     this.namespace = namespace;
     this.storage = LocalForageLib.createInstance({

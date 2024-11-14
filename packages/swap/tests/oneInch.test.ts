@@ -34,12 +34,12 @@ describe("OneInch Provider", () => {
           toToken,
           toAddress,
         },
-        { infiniteApproval: true, walletIdentifier: WalletIdentifier.enkrypt }
+        { infiniteApproval: true, walletIdentifier: WalletIdentifier.enkrypt },
       );
       expect(quote?.provider).to.be.eq(ProviderName.oneInch);
       expect(quote?.quote.meta.infiniteApproval).to.be.eq(true);
       expect(quote?.quote.meta.walletIdentifier).to.be.eq(
-        WalletIdentifier.enkrypt
+        WalletIdentifier.enkrypt,
       );
       expect(quote?.fromTokenAmount.toString()).to.be.eq(amount.toString());
       expect(quote?.toTokenAmount.gtn(0)).to.be.eq(true);
@@ -50,11 +50,11 @@ describe("OneInch Provider", () => {
       expect((swap?.transactions[0] as EVMTransaction).data).to.be.eq(
         `0x095ea7b3000000000000000000000000${ONEINCH_APPROVAL_ADDRESS.replace(
           "0x",
-          ""
-        )}${TOKEN_AMOUNT_INFINITY_AND_BEYOND.replace("0x", "")}`
+          "",
+        )}${TOKEN_AMOUNT_INFINITY_AND_BEYOND.replace("0x", "")}`,
       );
       expect(swap?.transactions[1].to).to.be.eq(ONEINCH_APPROVAL_ADDRESS);
-    }
+    },
   );
 
   it(
@@ -69,7 +69,7 @@ describe("OneInch Provider", () => {
           toToken,
           toAddress,
         },
-        { infiniteApproval: false, walletIdentifier: WalletIdentifier.enkrypt }
+        { infiniteApproval: false, walletIdentifier: WalletIdentifier.enkrypt },
       );
       expect(quote?.quote.meta.infiniteApproval).to.be.eq(false);
       const swap = await oneInch.getSwap(quote!.quote);
@@ -77,12 +77,12 @@ describe("OneInch Provider", () => {
       expect((swap?.transactions[0] as EVMTransaction).data).to.be.eq(
         `0x095ea7b3000000000000000000000000${ONEINCH_APPROVAL_ADDRESS.replace(
           "0x",
-          ""
+          "",
         )}00000000000000000000000000000000000000000000000${numberToHex(
-          amount
-        ).replace("0x", "")}`
+          amount,
+        ).replace("0x", "")}`,
       );
       expect(swap?.transactions[1].to).to.be.eq(ONEINCH_APPROVAL_ADDRESS);
-    }
+    },
   );
 });

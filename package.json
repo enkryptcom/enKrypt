@@ -34,8 +34,8 @@
   "devDependencies": {
     "@commitlint/cli": "^19.5.0",
     "@commitlint/config-conventional": "^19.5.0",
-    "@swc/core": "^1.7.39",
-    "concurrently": "^9.0.1",
+    "@swc/core": "^1.9.2",
+    "concurrently": "^9.1.0",
     "husky": "^9.1.6",
     "node-notifier": "^10.0.1",
     "nodemon": "^3.1.7",

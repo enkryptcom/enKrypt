@@ -103,12 +103,12 @@ class Swap extends EventEmitter {
   private async init() {
     if (TOKEN_LISTS[this.network]) {
       this.tokenList = await fetch(TOKEN_LISTS[this.network]).then((res) =>
-        res.json()
+        res.json(),
       );
     }
 
     this.topTokenInfo = await fetch(TOP_TOKEN_INFO_LIST).then((res) =>
-      res.json()
+      res.json(),
     );
 
     // TODO: use network type instead?
@@ -134,7 +134,7 @@ class Swap extends EventEmitter {
     }
 
     await Promise.all(
-      this.providers.map((Provider) => Provider.init(this.tokenList.all))
+      this.providers.map((Provider) => Provider.init(this.tokenList.all)),
     );
     const allFromTokens: ProviderFromTokenResponse = {};
     [...this.providers].reverse().forEach((p) => {
@@ -144,7 +144,7 @@ class Swap extends EventEmitter {
       all: Object.values(allFromTokens).sort(sortNativeToFront),
       top: this.tokenList.top.filter((topt) => !!allFromTokens[topt.address]),
       trending: this.tokenList.trending.filter(
-        (trendt) => !!allFromTokens[trendt.address]
+        (trendt) => !!allFromTokens[trendt.address],
       ),
     };
     const native = this.fromTokens.all.shift();
@@ -199,7 +199,7 @@ class Swap extends EventEmitter {
    */
   async getQuotes(
     options: getQuoteOptions,
-    context?: { signal?: AbortSignal }
+    context?: { signal?: AbortSignal },
   ): Promise<ProviderQuoteResponse[]> {
     const response = await Promise.all(
       this.providers.map((provider) =>
@@ -210,14 +210,14 @@ class Swap extends EventEmitter {
               infiniteApproval: this.evmOptions.infiniteApproval,
               walletIdentifier: this.walletId,
             },
-            context
+            context,
           )
           .then((res) => {
             if (!res) return res;
             this.emit(Events.QuoteUpdate, res.toTokenAmount);
             return res;
-          })
-      )
+          }),
+      ),
     );
     // Sort by the dest token amount i.e. best offer first
     return response
@@ -227,7 +227,7 @@ class Swap extends EventEmitter {
 
   getSwap(
     quote: SwapQuote,
-    context?: { signal?: AbortSignal }
+    context?: { signal?: AbortSignal },
   ): Promise<ProviderSwapResponse | null> {
     const provider = this.providers.find((p) => p.name === quote.provider);
     return provider.getSwap(quote, context);

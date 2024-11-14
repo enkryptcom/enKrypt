@@ -35,12 +35,12 @@ onMessage<{ channel: string; streamId: string }, string>(
       };
 
       readyup();
-    })
+    }),
 );
 
 async function openStream(
   channel: string,
-  destination: RuntimeContext | Endpoint | string
+  destination: RuntimeContext | Endpoint | string,
 ): Promise<Stream> {
   if (openStreams.has(channel))
     throw new Error("webext-bridge: A Stream is already open at this channel");
@@ -58,11 +58,11 @@ async function openStream(
 
 function onOpenStreamChannel(
   channel: string,
-  callback: (stream: Stream) => void
+  callback: (stream: Stream) => void,
 ): void {
   if (onOpenStreamCallbacks.has(channel))
     throw new Error(
-      "webext-bridge: This channel has already been claimed. Stream allows only one-on-one communication"
+      "webext-bridge: This channel has already been claimed. Stream allows only one-on-one communication",
     );
 
   onOpenStreamCallbacks.set(channel, callback);

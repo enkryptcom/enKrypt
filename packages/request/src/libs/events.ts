@@ -44,13 +44,13 @@ export interface WebSocketEventMap {
 
 export interface WebSocketEventListenerMap {
   close: (
-    event: CloseEvent
+    event: CloseEvent,
   ) => void | { handleEvent: (localEvent: CloseEvent) => void };
   error: (
-    event: ErrorEvent
+    event: ErrorEvent,
   ) => void | { handleEvent: (localEvent: ErrorEvent) => void };
   message: (
-    event: MessageEvent
+    event: MessageEvent,
   ) => void | { handleEvent: (localEvent: MessageEvent) => void };
   open: (event: Event) => void | { handleEvent: (localEvent: Event) => void };
 }

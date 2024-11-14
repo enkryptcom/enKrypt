@@ -42,7 +42,7 @@ class LedgerEthereum implements HWWalletProvider {
         });
       } else {
         return Promise.reject(
-          new Error("ledger-ethereum: webusb is not supported")
+          new Error("ledger-ethereum: webusb is not supported"),
         );
       }
     }
@@ -59,7 +59,7 @@ class LedgerEthereum implements HWWalletProvider {
         const rootPub = await connection.getAddress(
           options.pathType.basePath,
           options.confirmAddress,
-          true
+          true,
         );
         const hdKey = new HDKey();
         hdKey.publicKey = Buffer.from(rootPub.publicKey, "hex");
@@ -67,7 +67,7 @@ class LedgerEthereum implements HWWalletProvider {
         this.HDNodes[options.pathType.basePath] = hdKey;
       }
       const pubkey = this.HDNodes[options.pathType.basePath].derive(
-        `m/${options.pathIndex}`
+        `m/${options.pathIndex}`,
       ).publicKey;
       return {
         address: bufferToHex(publicToAddress(pubkey, true)),
@@ -78,7 +78,7 @@ class LedgerEthereum implements HWWalletProvider {
     return connection
       .getAddress(
         options.pathType.path.replace(`{index}`, options.pathIndex),
-        options.confirmAddress
+        options.confirmAddress,
       )
       .then((res) => ({
         address: res.address.toLowerCase(),
@@ -91,7 +91,7 @@ class LedgerEthereum implements HWWalletProvider {
     return connection
       .signPersonalMessage(
         options.pathType.path.replace(`{index}`, options.pathIndex),
-        options.message.toString("hex")
+        options.message.toString("hex"),
       )
       .then((result) => `0x${result.r}${result.s}${result.v.toString(16)}`);
   }
@@ -110,13 +110,13 @@ class LedgerEthereum implements HWWalletProvider {
     const resolution = await ledgerService.resolveTransaction(
       msgToSign,
       {},
-      {}
+      {},
     );
     return connection
       .signTransaction(
         options.pathType.path.replace(`{index}`, options.pathIndex),
         msgToSign,
-        resolution
+        resolution,
       )
       .then((result) => {
         if ((tx as LegacyTransaction).gasPrice) {
@@ -125,13 +125,13 @@ class LedgerEthereum implements HWWalletProvider {
           return toRpcSig(
             rv - cv,
             hexToBuffer(result.r),
-            hexToBuffer(result.s)
+            hexToBuffer(result.s),
           );
         }
         return toRpcSig(
           BigInt(`0x${result.v}`),
           hexToBuffer(result.r),
-          hexToBuffer(result.s)
+          hexToBuffer(result.s),
         );
       });
   }

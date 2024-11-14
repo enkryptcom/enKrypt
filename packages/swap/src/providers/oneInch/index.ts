@@ -131,7 +131,7 @@ class OneInch extends ProviderClass {
 
   static isSupported(network: SupportedNetworkName) {
     return Object.keys(supportedNetworks).includes(
-      network as unknown as string
+      network as unknown as string,
     );
   }
 
@@ -155,11 +155,11 @@ class OneInch extends ProviderClass {
   private getOneInchSwap(
     options: getQuoteOptions,
     meta: QuoteMetaOptions,
-    accurateEstimate: boolean
+    accurateEstimate: boolean,
   ): Promise<OneInchSwapResponse | null> {
     if (
       !OneInch.isSupported(
-        options.toToken.networkInfo.name as SupportedNetworkName
+        options.toToken.networkInfo.name as SupportedNetworkName,
       ) ||
       this.network !== options.toToken.networkInfo.name
     )
@@ -179,7 +179,7 @@ class OneInch extends ProviderClass {
     return fetch(
       `${BASE_URL}${
         supportedNetworks[this.network].chainId
-      }/swap?${params.toString()}`
+      }/swap?${params.toString()}`,
     )
       .then((res) => res.json())
       .then(async (response: OneInchResponseType) => {
@@ -222,7 +222,7 @@ class OneInch extends ProviderClass {
         if (accurateEstimate) {
           const accurateGasEstimate = await estimateEVMGasList(
             transactions,
-            this.network
+            this.network,
           );
           if (accurateGasEstimate) {
             if (accurateGasEstimate.isError) return null;
@@ -245,7 +245,7 @@ class OneInch extends ProviderClass {
 
   getQuote(
     options: getQuoteOptions,
-    meta: QuoteMetaOptions
+    meta: QuoteMetaOptions,
   ): Promise<ProviderQuoteResponse | null> {
     return this.getOneInchSwap(options, meta, false).then(async (res) => {
       if (!res) return null;
@@ -262,7 +262,7 @@ class OneInch extends ProviderClass {
         totalGaslimit: res.transactions.reduce(
           (total: number, curVal: EVMTransaction) =>
             total + toBN(curVal.gasLimit).toNumber(),
-          0
+          0,
         ),
         minMax: await this.getMinMaxAmount(),
       };
@@ -284,7 +284,7 @@ class OneInch extends ProviderClass {
         slippage: quote.meta.slippage || DEFAULT_SLIPPAGE,
         fee: feeConfig * 100,
         getStatusObject: async (
-          options: StatusOptions
+          options: StatusOptions,
         ): Promise<StatusOptionsResponse> => ({
           options,
           provider: this.name,
@@ -296,7 +296,7 @@ class OneInch extends ProviderClass {
 
   getStatus(options: StatusOptions): Promise<TransactionStatus> {
     const promises = options.transactions.map(({ hash }) =>
-      this.web3eth.getTransactionReceipt(hash)
+      this.web3eth.getTransactionReceipt(hash),
     );
     return Promise.all(promises).then((receipts) => {
       // eslint-disable-next-line no-restricted-syntax

@@ -18,7 +18,7 @@ class Middleware {
   executeMiddleware(req: RPCRequestType, res: CallbackFunction, done): void {
     this.middlewares.reduceRight(
       (_done, next) => () => next(req, res, _done),
-      done
+      done,
     )(req, res);
   }
 

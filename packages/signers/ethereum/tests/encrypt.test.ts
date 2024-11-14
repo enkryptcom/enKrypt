@@ -27,7 +27,7 @@ describe("Ethreum encrypt", () => {
   it("it should decrypt", async () => {
     const ethereumSigner = new EthereumSigner();
     const encryptedMessage = bufferToHex(
-      Buffer.from(JSON.stringify(encryptedData), "utf8")
+      Buffer.from(JSON.stringify(encryptedData), "utf8"),
     );
     const decrypted = await ethereumSigner.decrypt(encryptedMessage, ecpair);
     expect(decrypted).equals(secretMessage);
