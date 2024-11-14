@@ -538,7 +538,9 @@ const close = () => {
 };
 
 const isNumericPositive = (value: string) => {
-  return /^\d+(\.\d+)?$/.test(value);
+  if (/^\d+(\.\d+)?$/.test(value)) return false;
+  const num = BigNumber(value);
+  return !num.isNaN() && num.isPositive() && num.lt(new BigNumber(2).pow(256));
 };
 
 const assetMaxValue = computed(() => {
