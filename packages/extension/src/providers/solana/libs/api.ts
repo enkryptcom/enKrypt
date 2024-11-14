@@ -28,9 +28,6 @@ class API implements ProviderAPIInterface {
   /**
    * Returns null if the transaction hasn't been received by the node
    * or has been dropped
-   *
-   * Sometimes Solana transactions get dropped because there's too much
-   * network activity, in which case
    */
   async getTransactionStatus(hash: string): Promise<SOLRawInfo | null> {
     const tx = await this.web3.getTransaction(hash, {
