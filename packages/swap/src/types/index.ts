@@ -135,6 +135,7 @@ export enum TransactionStatus {
   pending = "pending",
   failed = "failed",
   success = "success",
+  dropped = "dropped",
 }
 
 export interface getQuoteOptions {

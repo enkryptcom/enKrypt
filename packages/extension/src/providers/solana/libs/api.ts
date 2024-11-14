@@ -23,36 +23,51 @@ class API implements ProviderAPIInterface {
     return getSolAddress(pubkey);
   }
 
-  async init(): Promise<void> {}
+  async init(): Promise<void> { }
+
+  /**
+   * Returns null if the transaction hasn't been received by the node
+   * or has been dropped
+   *
+   * Sometimes Solana transactions get dropped because there's too much
+   * network activity, in which case
+   */
   async getTransactionStatus(hash: string): Promise<SOLRawInfo | null> {
-    return this.web3
-      .getTransaction(hash, {
-        maxSupportedTransactionVersion: 0,
-        commitment: 'confirmed',
-      })
-      .then(tx => {
-        if (!tx) return null;
-        const retVal: SOLRawInfo = {
-          blockNumber: tx.slot,
-          timestamp: tx.blockTime,
-          transactionHash: hash,
-          status: tx.meta?.err ? false : true,
-        };
-        return retVal;
-      });
+    const tx = await this.web3.getTransaction(hash, {
+      maxSupportedTransactionVersion: 0,
+      commitment: 'confirmed',
+    })
+
+    if (!tx) {
+      // Transaction hasn't been picked up by the node
+      // (maybe it's too soon, or maybe node is behind, or maybe it's been dropped)
+      return null;
+    }
+
+    const retVal: SOLRawInfo = {
+      blockNumber: tx.slot,
+      timestamp: tx.blockTime,
+      transactionHash: hash,
+      status: tx.meta?.err ? false : true,
+    };
+
+    return retVal;
   }
+
   async getBalance(pubkey: string): Promise<string> {
     const balance = await this.web3.getBalance(
       new PublicKey(this.getAddress(pubkey)),
     );
     return numberToHex(balance);
   }
+
   async broadcastTx(rawtx: string): Promise<boolean> {
     return this.web3
       .sendRawTransaction(hexToBuffer(rawtx))
       .then(() => true)
       .catch(() => false);
   }
+
   getTokenInfo = async (contractAddress: string): Promise<SPLTokenInfo> => {
     interface TokenDetails {
       address: string;

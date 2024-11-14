@@ -200,7 +200,7 @@ export const executeSwap = async (
           const hasThirdPartySignatures =
             // Serialized versioned transaction was already signed
             legacyTx.signatures.length > 1 ||
-            // Need to apply third aprty signatures to the transaction
+            // Need to apply third party signatures to the transaction
             thirdPartySignatures.length > 0;
 
           if (hasThirdPartySignatures) {
