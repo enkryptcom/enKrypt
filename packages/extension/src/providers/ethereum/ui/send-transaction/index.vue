@@ -168,7 +168,10 @@ import erc20 from '../../libs/abi/erc20';
 import erc721 from '../../libs/abi/erc721';
 import erc1155 from '../../libs/abi/erc1155';
 import { SendTransactionDataType, VerifyTransactionParams } from '../types';
-import { formatFloatingPointValue } from '@/libs/utils/number-formatter';
+import {
+  formatFloatingPointValue,
+  isNumericPositive,
+} from '@/libs/utils/number-formatter';
 import { routes as RouterNames } from '@/ui/action/router';
 import getUiPath from '@/libs/utils/get-ui-path';
 import Browser from 'webextension-polyfill';
@@ -494,6 +497,7 @@ const isInputsValid = computed<boolean>(() => {
   }
   if (new BigNumber(sendAmount.value).gt(assetMaxValue.value)) return false;
   if (gasCostValues.value.REGULAR.nativeValue === '0') return false;
+  if (!isNumericPositive(sendAmount.value)) return false;
   return true;
 });
 
@@ -535,12 +539,6 @@ const close = () => {
     network: props.network.name,
   });
   router.go(-1);
-};
-
-const isNumericPositive = (value: string) => {
-  if (/^\d+(\.\d+)?$/.test(value)) return false;
-  const num = BigNumber(value);
-  return !num.isNaN() && num.isPositive() && num.lt(new BigNumber(2).pow(256));
 };
 
 const assetMaxValue = computed(() => {

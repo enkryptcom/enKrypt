@@ -517,6 +517,12 @@ const toBNSafe = (number: number) => {
   return toBN(new BigNumber(number).toFixed(0));
 };
 
+const isNumericPositive = (value: string) => {
+  const num = BigNumber(value);
+  return !num.isNaN() && num.isPositive() && num.lt(new BigNumber(2).pow(256));
+};
+
+
 export {
   formatIntegerToString,
   formatIntegerValue,
@@ -526,4 +532,5 @@ export {
   formatPercentageValue,
   formatGasValue,
   toBNSafe,
+  isNumericPositive
 };
