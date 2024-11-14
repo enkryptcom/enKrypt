@@ -517,7 +517,14 @@ const toBNSafe = (number: number) => {
   return toBN(new BigNumber(number).toFixed(0));
 };
 
+/**
+ * Validates if a string represents a positive numeric value less than 2^256.
+ * Used for validating transaction amounts across different blockchain implementations.
+ * @param {string} value - The string value to validate
+ * @returns {boolean} - True if the value is a valid positive number within bounds
+ */
 const isNumericPositive = (value: string) => {
+  if (!value?.trim()) return false;
   const num = BigNumber(value);
   return !num.isNaN() && num.isPositive() && num.lt(new BigNumber(2).pow(256));
 };
