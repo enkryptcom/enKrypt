@@ -47,7 +47,14 @@
                     ).value
                   : '~'
               }}
-              <span>{{ tokenInfo.symbol }}</span>
+              <span v-if="tokenInfo.symbol.length <= 16">{{
+                tokenInfo.symbol
+              }}</span>
+              <tooltip v-else :text="tokenInfo.symbol"
+                ><span>{{
+                  `${tokenInfo.symbol.slice(0, 12)}...`
+                }}</span></tooltip
+              >
             </p>
           </div>
         </div>
@@ -279,7 +286,7 @@ const addToken = async () => {
 
 .add-custom-token {
   width: 460px;
-  height: 568px;
+  height: 385px;
   box-sizing: border-box;
   position: relative;
   border-radius: 12px;
@@ -422,10 +429,11 @@ const addToken = async () => {
         letter-spacing: 0.5px;
         color: @secondaryLabel;
         margin: 0;
-        width: 128px;
+        display: flex;
 
         span {
           font-variant: small-caps;
+          font-size: 12px;
         }
       }
     }
