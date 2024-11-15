@@ -37,6 +37,45 @@
         @update:network="setNetwork"
         @update:gradient="updateGradient"
       />
+      <!-- network list type logic -->
+      <div class="tab__container">
+        <div
+          :class="[
+            'tab__container-tab',
+            activeCategory === NetworksCategory.Popular ? 'active' : '',
+          ]"
+          @click="setActiveCategory(NetworksCategory.Popular)"
+        >
+          Popular
+        </div>
+        <div
+          :class="[
+            'tab__container-tab',
+            activeCategory === NetworksCategory.All ? 'active' : '',
+          ]"
+          @click="setActiveCategory(NetworksCategory.All)"
+        >
+          All
+        </div>
+        <div
+          :class="[
+            'tab__container-tab',
+            activeCategory === NetworksCategory.Pinned ? 'active' : '',
+          ]"
+          @click="setActiveCategory(NetworksCategory.Pinned)"
+        >
+          Pinned
+        </div>
+        <div
+          :class="[
+            'tab__container-tab',
+            activeCategory === NetworksCategory.New ? 'active' : '',
+          ]"
+          @click="setActiveCategory(NetworksCategory.New)"
+        >
+          New
+        </div>
+      </div>
     </div>
 
     <div v-show="!isLoading" class="app__content">
@@ -145,6 +184,13 @@ import { getLatestEnkryptVersion } from '@action/utils/browser';
 import { gt as semverGT } from 'semver';
 import { BuyEventType, NetworkChangeEvents } from '@/libs/metrics/types';
 
+const NetworksCategory = {
+  All: 'all',
+  Popular: 'popular',
+  Pinned: 'pinned',
+  New: 'new',
+};
+
 const domainState = new DomainState();
 const networksState = new NetworksState();
 const rateState = new RateState();
@@ -156,6 +202,7 @@ const accountHeaderData = ref<AccountsHeaderData>({
   selectedAccount: null,
   activeBalances: [],
 });
+
 const isOpenMore = ref(false);
 let timeout: ReturnType<typeof setTimeout> | null = null;
 defineExpose({ appMenuRef });
@@ -180,6 +227,10 @@ const toggle = ref(null);
 const isLoading = ref(true);
 const currentVersion = __PACKAGE_VERSION__;
 const latestVersion = ref('');
+
+const setActiveCategory = (category: string) => {
+  activeCategory.value = category;
+};
 
 const setActiveNetworks = async () => {
   const pinnedNetwrokNames = await networksState.getPinnedNetworkNames();
@@ -448,12 +499,12 @@ const isLocked = computed(() => {
  */
 const displayNetworks = computed<BaseNetwork[]>(() => {
   switch (activeCategory.value) {
-    case 'all':
+    case NetworksCategory.All:
       // TODO: FILTER OUT TESTNETS THAT ARE NOT ENABLED
       return networks.value;
     // case 'popular':
     //   return networks.value.filter(net => POPULAR_NAMES.includes(net.name));
-    case 'pinned':
+    case NetworksCategory.Pinned:
       return pinnedNetworks.value;
     // case 'new':
     //   return networks.value.filter(net => !POPULAR_NAMES.includes(net.name));
@@ -706,5 +757,28 @@ body {
 .slide-right-enter {
   opacity: 0;
   transform: translate(-2em, 0);
+}
+
+.tab__container {
+  padding: 6px;
+  background: @darkBg;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 35px;
+  border-radius: 10px;
+
+  &-tab {
+    padding: 8px 14px;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: large;
+    font-weight: 500;
+
+    &.active {
+      color: @primary;
+      background: @primaryBg;
+    }
+  }
 }
 </style>
