@@ -141,7 +141,6 @@ import { GenericNameResolver, CoinType } from '@/libs/name-resolver';
 import { trackSendEvents } from '@/libs/metrics';
 import { SendEventType } from '@/libs/metrics/types';
 import { BNType } from '@/providers/common/types';
-import { a } from 'vitest/dist/chunks/suite.B2jumIFP.js';
 
 const props = defineProps({
   network: {
