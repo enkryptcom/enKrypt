@@ -239,7 +239,6 @@ const validateFields = async () => {
       }
 
       if (!isNumericPositive(amount.value)) {
-        console.log('amount', amount.value, !isNumericPositive(amount.value));
         fieldsValidation.value.amount = false;
         errorMsg.value = 'Invalid amount. Amount has to be greater than 0';
         return;
