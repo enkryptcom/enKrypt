@@ -21,6 +21,6 @@ describe("Keyring locking tests", () => {
         res();
       });
       expect(keyring.isLocked()).to.be.equals(true);
-    }
+    },
   );
 });

@@ -36,7 +36,7 @@ class RPCClient extends EventEmitter implements RequestClass {
           return Promise.reject(new Error(response.statusText));
         }
         return Promise.reject(new Error(`unknown error: ${response.status}`));
-      })
+      }),
     );
   }
 
@@ -56,7 +56,7 @@ class RPCClient extends EventEmitter implements RequestClass {
       this.middleware
         .run(req, callback)
         .then(() =>
-          this.client.request(req.method, req.params).then(resolve, reject)
+          this.client.request(req.method, req.params).then(resolve, reject),
         );
     });
   }

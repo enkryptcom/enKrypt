@@ -24,11 +24,11 @@ import { parseEndpoint } from "../utils";
  */
 export async function sendMessage<
   ReturnType extends JsonValue,
-  K extends DataTypeKey | string
+  K extends DataTypeKey | string,
 >(
   messageID: K,
   data: GetDataType<K, JsonValue>,
-  destination: Destination = "background"
+  destination: Destination = "background",
 ) {
   const endpoint =
     typeof destination === "string" ? parseEndpoint(destination) : destination;
@@ -36,13 +36,13 @@ export async function sendMessage<
 
   if (!endpoint.context)
     throw new TypeError(
-      `${errFn} Destination must be any one of known destinations`
+      `${errFn} Destination must be any one of known destinations`,
     );
   if (context === "background") {
     const { context: dest, tabId: destTabId } = endpoint;
     if (dest !== "background" && !destTabId)
       throw new TypeError(
-        `${errFn} When sending messages from background page, use @tabId syntax to target specific tab`
+        `${errFn} When sending messages from background page, use @tabId syntax to target specific tab`,
       );
   }
 

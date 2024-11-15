@@ -8,7 +8,7 @@ import { ledgerAppNames } from "../configs";
 
 function connect(
   this: LedgerEthereum | LedgerSubstrate,
-  networkName: NetworkNames
+  networkName: NetworkNames,
 ): Promise<boolean> {
   const appName = ledgerAppNames[networkName]
     ? ledgerAppNames[networkName]
@@ -19,9 +19,9 @@ function connect(
         .then(() => true)
         .catch(() => {
           throw new Error(
-            `Make sure you have ${appName} App installed on your ledger`
+            `Make sure you have ${appName} App installed on your ledger`,
           );
-        })
+        }),
     )
     .catch((e) => {
       if (e.message === "DeviceOnDashboardExpected") {

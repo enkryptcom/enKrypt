@@ -333,7 +333,7 @@ function _serialize(value, callback) {
     } catch (e) {
       window.console.error(
         "Couldn't convert value into a JSON " + "string: ",
-        value
+        value,
       );
 
       callback(e);
@@ -356,7 +356,7 @@ function _deserialize(value) {
   const serializedString = value.substring(TYPE_SERIALIZED_MARKER_LENGTH);
   const type = value.substring(
     SERIALIZED_MARKER_LENGTH,
-    TYPE_SERIALIZED_MARKER_LENGTH
+    TYPE_SERIALIZED_MARKER_LENGTH,
   );
 
   // Fill the string into a ArrayBuffer.
@@ -423,7 +423,7 @@ function executeCallback(promise, callback) {
       },
       (error) => {
         callback(error);
-      }
+      },
     );
   }
 }

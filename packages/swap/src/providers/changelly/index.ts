@@ -94,7 +94,7 @@ if (DEBUG) {
       now.getMilliseconds().toString().padStart(3, "0");
     console.info(
       `\x1b[90m${ymdhms}\x1b[0m \x1b[32mChangellySwapProvider.${context}\x1b[0m: ${message}`,
-      ...args
+      ...args,
     );
   };
 } else {
@@ -137,7 +137,7 @@ class Changelly extends ProviderClass {
     if (!Changelly.isSupported(this.network)) {
       debug(
         "init",
-        `Enkrypt does not support Changelly on this network  network=${this.network}`
+        `Enkrypt does not support Changelly on this network  network=${this.network}`,
       );
       return;
     }
@@ -153,7 +153,7 @@ class Changelly extends ProviderClass {
 
     /** List of changelly blockchain names */
     const supportedChangellyNames = new Set(
-      Object.values(supportedNetworks).map((s) => s.changellyName)
+      Object.values(supportedNetworks).map((s) => s.changellyName),
     );
 
     this.changellyList.forEach((cur) => {
@@ -191,20 +191,20 @@ class Changelly extends ProviderClass {
         this.setTicker(
           cur.token,
           changellyToNetwork[cur.blockchain],
-          cur.ticker
+          cur.ticker,
         );
     });
 
     debug(
       "init",
-      `Finished initialising  this.changellyList.length=${this.changellyList.length}`
+      `Finished initialising  this.changellyList.length=${this.changellyList.length}`,
     );
   }
 
   private setTicker(
     token: TokenType,
     network: SupportedNetworkName,
-    ticker: string
+    ticker: string,
   ) {
     this.contractToTicker[`${network}-${token.address}`] = ticker;
   }
@@ -228,7 +228,7 @@ class Changelly extends ProviderClass {
   private async changellyRequest<T>(
     method: string,
     params: any,
-    context?: { signal?: AbortSignal }
+    context?: { signal?: AbortSignal },
   ): Promise<ChangellyApiResponse<T>> {
     const signal = context?.signal;
     const aborter = new AbortController();
@@ -238,7 +238,7 @@ class Changelly extends ProviderClass {
     }
     function onTimeout() {
       aborter.abort(
-        new Error(`Changelly API request timed out ${BASE_URL} ${method}`)
+        new Error(`Changelly API request timed out ${BASE_URL} ${method}`),
       );
     }
     function cleanup() {
@@ -280,14 +280,14 @@ class Changelly extends ProviderClass {
     const response =
       await this.changellyRequest<ChangellyApiValidateAddressResult>(
         "validateAddress",
-        params
+        params,
       );
 
     if (response.error) {
       console.warn(
         `Error validating address with via Changelly` +
           `  code=${String(response.error.code)}` +
-          `  message=${String(response.error.message)}`
+          `  message=${String(response.error.message)}`,
       );
       return false;
     }
@@ -296,7 +296,7 @@ class Changelly extends ProviderClass {
       console.warn(
         'Unexpected response to "validateAddress" call to Changelly.' +
           ` Expected a response.result.result to be a boolean` +
-          ` but received response: ${JSON.stringify(response)}`
+          ` but received response: ${JSON.stringify(response)}`,
       );
       return false;
     }
@@ -307,7 +307,7 @@ class Changelly extends ProviderClass {
       `Changelly validateAddress result` +
         `  address=${address}` +
         `  ticker=${ticker}` +
-        `  isValid=${isValid}`
+        `  isValid=${isValid}`,
     );
     return isValid;
   }
@@ -323,7 +323,7 @@ class Changelly extends ProviderClass {
 
   async getMinMaxAmount(
     options: { fromToken: TokenType; toToken: TokenTypeTo },
-    context?: { signal?: AbortSignal }
+    context?: { signal?: AbortSignal },
   ): Promise<MinMaxResponse> {
     const { fromToken, toToken } = options;
     const signal = context?.signal;
@@ -341,7 +341,7 @@ class Changelly extends ProviderClass {
         from: this.getTicker(fromToken, this.network),
         to: this.getTicker(
           toToken as TokenType,
-          toToken.networkInfo.name as SupportedNetworkName
+          toToken.networkInfo.name as SupportedNetworkName,
         ),
       };
 
@@ -349,7 +349,7 @@ class Changelly extends ProviderClass {
         await this.changellyRequest<ChangellyApiGetFixRateResult>(
           "getFixRate",
           params,
-          { signal }
+          { signal },
         );
 
       if (response.error) {
@@ -360,7 +360,7 @@ class Changelly extends ProviderClass {
             `  toToken=${toToken.symbol} (${params.to})` +
             `  took=${(Date.now() - startedAt).toLocaleString()}ms` +
             `  code=${String(response.error.code)}` +
-            `  message=${String(response.error.message)}`
+            `  message=${String(response.error.message)}`,
         );
         return emptyResponse;
       }
@@ -378,7 +378,7 @@ class Changelly extends ProviderClass {
         `Successfully got min and max of swap pair` +
           `  fromToken=${fromToken.symbol} (${params.from})` +
           `  toToken=${toToken.symbol} (${params.to})` +
-          `  took=${(Date.now() - startedAt).toLocaleString()}ms`
+          `  took=${(Date.now() - startedAt).toLocaleString()}ms`,
       );
       return minMax;
     } catch (err) {
@@ -388,7 +388,7 @@ class Changelly extends ProviderClass {
           `  fromToken=${fromToken.symbol}` +
           `  toToken=${toToken.symbol}` +
           `  took=${(Date.now() - startedAt).toLocaleString()}ms` +
-          `  err=${String(err)}`
+          `  err=${String(err)}`,
       );
       return emptyResponse;
     }
@@ -397,7 +397,7 @@ class Changelly extends ProviderClass {
   async getQuote(
     options: getQuoteOptions,
     meta: QuoteMetaOptions,
-    context?: { signal?: AbortSignal }
+    context?: { signal?: AbortSignal },
   ): Promise<ProviderQuoteResponse | null> {
     const signal = context?.signal;
 
@@ -411,18 +411,18 @@ class Changelly extends ProviderClass {
         `  fromAddress=${options.fromAddress}` +
         `  toAddress=${options.toAddress}` +
         `  fromNetwork=${this.network}` +
-        `  toNetwork=${options.toToken.networkInfo.name}`
+        `  toNetwork=${options.toToken.networkInfo.name}`,
     );
 
     if (
       !Changelly.isSupported(
-        options.toToken.networkInfo.name as SupportedNetworkName
+        options.toToken.networkInfo.name as SupportedNetworkName,
       )
     ) {
       debug(
         "getQuote",
         `No swap: Enkrypt does not support Changelly on the destination network` +
-          `  dstNetwork=${options.toToken.networkInfo.name}`
+          `  dstNetwork=${options.toToken.networkInfo.name}`,
       );
       return null;
     }
@@ -431,7 +431,7 @@ class Changelly extends ProviderClass {
       debug(
         "getQuote",
         `No swap: Enkrypt does not support Changelly on the source network` +
-          `  srcNetwork=${this.network}`
+          `  srcNetwork=${this.network}`,
       );
       return null;
     }
@@ -441,7 +441,7 @@ class Changelly extends ProviderClass {
         "getQuote",
         `No swap: Failed to find ticker for src token` +
           `  srcToken=${options.fromToken.symbol}` +
-          `  srcNetwork=${this.network}`
+          `  srcNetwork=${this.network}`,
       );
       return null;
     }
@@ -449,14 +449,14 @@ class Changelly extends ProviderClass {
     if (
       !this.getTicker(
         options.toToken as TokenType,
-        options.toToken.networkInfo.name as SupportedNetworkName
+        options.toToken.networkInfo.name as SupportedNetworkName,
       )
     ) {
       debug(
         "getQuote",
         `No swap: Failed to find ticker for dst token` +
           `  dstToken=${options.toToken.symbol}` +
-          `  dstNetwork=${options.toToken.networkInfo.name}`
+          `  dstNetwork=${options.toToken.networkInfo.name}`,
       );
       return null;
     }
@@ -481,7 +481,7 @@ class Changelly extends ProviderClass {
           `  fromToken=${options.fromToken.symbol}` +
           `  toToken=${options.toToken.symbol}` +
           `  minimumFrom=${minMax.minimumFrom.toString()}` +
-          `  maximumFrom=${minMax.maximumFrom.toString()}`
+          `  maximumFrom=${minMax.maximumFrom.toString()}`,
       );
       return null;
     }
@@ -493,11 +493,11 @@ class Changelly extends ProviderClass {
         from: this.getTicker(options.fromToken, this.network),
         to: this.getTicker(
           options.toToken as TokenType,
-          options.toToken.networkInfo.name as SupportedNetworkName
+          options.toToken.networkInfo.name as SupportedNetworkName,
         ),
         amountFrom: fromBase(
           quoteRequestAmount.toString(),
-          options.fromToken.decimals
+          options.fromToken.decimals,
         ),
       };
 
@@ -505,7 +505,7 @@ class Changelly extends ProviderClass {
         await this.changellyRequest<ChangellyApiGetFixRateForAmountResult>(
           "getFixRateForAmount",
           params,
-          { signal }
+          { signal },
         );
 
       debug("getQuote", `Received Changelly swap response`);
@@ -518,7 +518,7 @@ class Changelly extends ProviderClass {
             `  toToken=${options.toToken.symbol} (${params.to})` +
             `  took=${(Date.now() - startedAt).toLocaleString()}ms` +
             `  code=${String(response.error.code)}` +
-            `  message=${String(response.error.message)}`
+            `  message=${String(response.error.message)}`,
         );
         return null;
       }
@@ -531,7 +531,7 @@ class Changelly extends ProviderClass {
             `  toToken=${options.toToken.symbol} (${params.to})` +
             `  took=${(Date.now() - startedAt).toLocaleString()}ms` +
             `  code=${String(response.error.code)}` +
-            `  message=${String(response.error.message)}`
+            `  message=${String(response.error.message)}`,
         );
         return null;
       }
@@ -543,7 +543,7 @@ class Changelly extends ProviderClass {
             `  fromToken=${options.fromToken.symbol} (${params.from})` +
             `  toToken=${options.toToken.symbol} (${params.to})` +
             `  took=${(Date.now() - startedAt).toLocaleString()}ms` +
-            `  count=${response.result.length}ms`
+            `  count=${response.result.length}ms`,
         );
       }
 
@@ -560,7 +560,7 @@ class Changelly extends ProviderClass {
       try {
         toTokenAmountBase = toBase(
           firstChangellyFixRateQuote.amountTo,
-          options.toToken.decimals
+          options.toToken.decimals,
         );
       } catch (err) {
         console.warn(
@@ -568,13 +568,13 @@ class Changelly extends ProviderClass {
             ` decimals than the token has, attempting to trim trailing decimals...` +
             `  amountTo=${firstChangellyFixRateQuote.amountTo}` +
             `  toTokenDecimals=${options.toToken.decimals}` +
-            `  err=${String(err)}`
+            `  err=${String(err)}`,
         );
         const original = firstChangellyFixRateQuote.amountTo;
         // eslint-disable-next-line no-use-before-define
         const [success, fixed] = fixBaseAndTrimDecimals(
           original,
-          options.toToken.decimals
+          options.toToken.decimals,
         );
         if (!success) throw err;
         const rounded = (BigInt(fixed) - BigInt(1)).toString();
@@ -588,7 +588,7 @@ class Changelly extends ProviderClass {
             `  options.toToken.decimals=${options.toToken.decimals}` +
             `  options.toToken.symbol=${options.toToken.symbol}` +
             `  options.toToken.name=${options.toToken.name}` +
-            `  options.toToken.address=${options.toToken.address}`
+            `  options.toToken.address=${options.toToken.address}`,
         );
       }
 
@@ -597,7 +597,7 @@ class Changelly extends ProviderClass {
       try {
         networkFeeBase = toBase(
           firstChangellyFixRateQuote.networkFee,
-          options.toToken.decimals
+          options.toToken.decimals,
         );
       } catch (err) {
         console.warn(
@@ -605,13 +605,13 @@ class Changelly extends ProviderClass {
             ` decimals than the token has, attempting to trim trailing decimals...` +
             `  networkFee=${firstChangellyFixRateQuote.networkFee}` +
             `  toTokenDecimals=${options.toToken.decimals}` +
-            `  err=${String(err)}`
+            `  err=${String(err)}`,
         );
         const original = firstChangellyFixRateQuote.networkFee;
         // eslint-disable-next-line no-use-before-define
         const [success, fixed] = fixBaseAndTrimDecimals(
           original,
-          options.toToken.decimals
+          options.toToken.decimals,
         );
         if (!success) throw err;
         const rounded = (BigInt(fixed) + BigInt(1)).toString();
@@ -625,7 +625,7 @@ class Changelly extends ProviderClass {
             `  options.toToken.decimals=${options.toToken.decimals}` +
             `  options.toToken.symbol=${options.toToken.symbol}` +
             `  options.toToken.name=${options.toToken.name}` +
-            `  options.toToken.address=${options.toToken.address}`
+            `  options.toToken.address=${options.toToken.address}`,
         );
       }
 
@@ -654,7 +654,7 @@ class Changelly extends ProviderClass {
       debug(
         "getQuote",
         `Successfully retrieved quote from Changelly via "getFixRateForAmount"` +
-          `  took=${(Date.now() - startedAt).toLocaleString()}ms`
+          `  took=${(Date.now() - startedAt).toLocaleString()}ms`,
       );
 
       return providerQuoteResponse;
@@ -663,7 +663,7 @@ class Changelly extends ProviderClass {
         `Errored getting quotes from Changelly via "getFixRateForAmount",` +
           ` returning no quotes` +
           `  took=${(Date.now() - startedAt).toLocaleString()}ms` +
-          `  err=${String(err)}`
+          `  err=${String(err)}`,
       );
       return null;
     }
@@ -671,7 +671,7 @@ class Changelly extends ProviderClass {
 
   async getSwap(
     quote: SwapQuote,
-    context?: { signal?: AbortSignal }
+    context?: { signal?: AbortSignal },
   ): Promise<ProviderSwapResponse | null> {
     const signal = context?.signal;
 
@@ -682,20 +682,20 @@ class Changelly extends ProviderClass {
       debug(
         "getSwap",
         `Enkrypt does not support Changelly on the source network, returning no swap` +
-          `  srcNetwork=${this.network}`
+          `  srcNetwork=${this.network}`,
       );
       return null;
     }
 
     if (
       !Changelly.isSupported(
-        quote.options.toToken.networkInfo.name as SupportedNetworkName
+        quote.options.toToken.networkInfo.name as SupportedNetworkName,
       )
     ) {
       debug(
         "getSwap",
         `Enkrypt does not support Changelly on the destination network, returning no swap` +
-          `  dstNetwork=${quote.options.toToken.networkInfo.name}`
+          `  dstNetwork=${quote.options.toToken.networkInfo.name}`,
       );
       return null;
     }
@@ -705,13 +705,13 @@ class Changelly extends ProviderClass {
         from: this.getTicker(quote.options.fromToken, this.network),
         to: this.getTicker(
           quote.options.toToken as TokenType,
-          quote.options.toToken.networkInfo.name as SupportedNetworkName
+          quote.options.toToken.networkInfo.name as SupportedNetworkName,
         ),
         refundAddress: quote.options.fromAddress,
         address: quote.options.toAddress,
         amountFrom: fromBase(
           quote.options.amount.toString(),
-          quote.options.fromToken.decimals
+          quote.options.fromToken.decimals,
         ),
         rateId: quote.meta.changellyQuoteId,
       };
@@ -720,7 +720,7 @@ class Changelly extends ProviderClass {
         await this.changellyRequest<ChangellyApiCreateFixedRateTransactionResult>(
           "createFixTransaction",
           params,
-          { signal }
+          { signal },
         );
 
       if (response.error) {
@@ -730,7 +730,7 @@ class Changelly extends ProviderClass {
             `  toToken=${quote.options.toToken.symbol} (${params.to})` +
             `  took=${(Date.now() - startedAt).toLocaleString()}ms` +
             `  code=${String(response.error.code)}` +
-            `  message=${String(response.error.message)}`
+            `  message=${String(response.error.message)}`,
         );
         return null;
       }
@@ -740,7 +740,7 @@ class Changelly extends ProviderClass {
           `Changelly "createFixTransaction" response contains no id, returning no swap` +
             `  fromToken=${quote.options.fromToken.symbol} (${params.from})` +
             `  toToken=${quote.options.toToken.symbol} (${params.to})` +
-            `  took=${(Date.now() - startedAt).toLocaleString()}ms`
+            `  took=${(Date.now() - startedAt).toLocaleString()}ms`,
         );
         return null;
       }
@@ -770,7 +770,7 @@ class Changelly extends ProviderClass {
           }
           const accurateGasEstimate = await estimateEVMGasList(
             [transaction],
-            this.network
+            this.network,
           );
           if (accurateGasEstimate) {
             if (accurateGasEstimate.isError) return null;
@@ -798,7 +798,7 @@ class Changelly extends ProviderClass {
                 `  latestBlockHash=${latestBlockHash.blockhash}` +
                 `  lastValidBlockHeight=${latestBlockHash.lastValidBlockHeight}` +
                 `  payinAddress=${changellyFixedRateTx.payinAddress}` +
-                `  lamports=${BigInt(quote.options.amount.toString())}`
+                `  lamports=${BigInt(quote.options.amount.toString())}`,
             );
             versionedTx = new VersionedTransaction(
               new TransactionMessage({
@@ -811,7 +811,7 @@ class Changelly extends ProviderClass {
                     lamports: BigInt(quote.options.amount.toString()),
                   }),
                 ],
-              }).compileToV0Message()
+              }).compileToV0Message(),
             );
           } else {
             // Swapping from a token on SOL
@@ -826,13 +826,13 @@ class Changelly extends ProviderClass {
             const walletAta = getSPLAssociatedTokenAccountPubkey(
               wallet,
               mint,
-              tokenProgramId
+              tokenProgramId,
             );
             const payin = new PublicKey(changellyFixedRateTx.payinAddress);
             const payinAta = getSPLAssociatedTokenAccountPubkey(
               payin,
               mint,
-              tokenProgramId
+              tokenProgramId,
             );
             const amount = BigInt(quote.options.amount.toString());
             debug(
@@ -846,7 +846,7 @@ class Changelly extends ProviderClass {
                 `  payinAta=${payinAta.toBase58()}` +
                 `  latestBlockHash=${latestBlockHash.blockhash}` +
                 `  lastValidBlockHeight=${latestBlockHash.lastValidBlockHeight}` +
-                `  amount=${amount}`
+                `  amount=${amount}`,
             );
 
             // If the ATA account doesn't exist we need create it
@@ -858,12 +858,12 @@ class Changelly extends ProviderClass {
             if (payinAtaExists) {
               debug(
                 "getSwap",
-                `Payin ATA already exists. No need to create it.`
+                `Payin ATA already exists. No need to create it.`,
               );
             } else {
               debug("getSwap", `Payin ATA does not exist. Need to create it.`);
               const extraRentFee = await conn.getMinimumBalanceForRentExemption(
-                SPL_TOKEN_ATA_ACCOUNT_SIZE_BYTES
+                SPL_TOKEN_ATA_ACCOUNT_SIZE_BYTES,
               );
               const instruction =
                 getCreateAssociatedTokenAccountIdempotentInstruction({
@@ -878,7 +878,7 @@ class Changelly extends ProviderClass {
 
               instructions.push(instruction);
               additionalNativeFees = additionalNativeFees.add(
-                toBN(extraRentFee)
+                toBN(extraRentFee),
               );
             }
 
@@ -886,7 +886,7 @@ class Changelly extends ProviderClass {
             const recentFees = await conn.getRecentPrioritizationFees();
             // Sort by fee amount ascending so we can get the median
             recentFees.sort(
-              (a, b) => a.prioritizationFee - b.prioritizationFee
+              (a, b) => a.prioritizationFee - b.prioritizationFee,
             );
             const recentFeeCount = recentFees.length;
             let recentFeeCountWithoutZeroes = 0;
@@ -932,7 +932,7 @@ class Changelly extends ProviderClass {
                   `  recentFeeMax=${recentFeeMax}` +
                   `  recentFeeMean=${recentFeeMean}` +
                   `  recentFeeMedian=${recentFeeMedian}` +
-                  `  recentFeeMinAvg=${recentFeeMinAvg}`
+                  `  recentFeeMinAvg=${recentFeeMinAvg}`,
               );
             } else {
               debug(
@@ -946,12 +946,12 @@ class Changelly extends ProviderClass {
                   `  recentFeeMax=${recentFeeMax}` +
                   `  recentFeeMean=${recentFeeMean}` +
                   `  recentFeeMedian=${recentFeeMedian}` +
-                  `  recentFeeMinAvg=${recentFeeMinAvg}`
+                  `  recentFeeMinAvg=${recentFeeMinAvg}`,
               );
               instructions.unshift(
                 ComputeBudgetProgram.setComputeUnitPrice({
                   microLamports: recentFeeMinAvg,
-                })
+                }),
               );
             }
 
@@ -962,8 +962,8 @@ class Changelly extends ProviderClass {
                 /** owner */ wallet,
                 /** amount */ amount,
                 /** multiSigners */ [],
-                /** programId */ tokenProgramId
-              )
+                /** programId */ tokenProgramId,
+              ),
             );
 
             versionedTx = new VersionedTransaction(
@@ -971,7 +971,7 @@ class Changelly extends ProviderClass {
                 payerKey: wallet,
                 recentBlockhash: latestBlockHash.blockhash,
                 instructions,
-              }).compileToV0Message()
+              }).compileToV0Message(),
             );
           }
 
@@ -1004,7 +1004,7 @@ class Changelly extends ProviderClass {
       try {
         baseToAmount = toBase(
           changellyFixedRateTx.amountExpectedTo,
-          quote.options.toToken.decimals
+          quote.options.toToken.decimals,
         );
       } catch (err) {
         console.warn(
@@ -1012,13 +1012,13 @@ class Changelly extends ProviderClass {
             ` decimals than the token has, attempting to trim trailing decimals...` +
             `  amountExpectedTo=${changellyFixedRateTx.amountExpectedTo}` +
             `  toTokenDecimals=${quote.options.toToken.decimals}` +
-            `  err=${String(err)}`
+            `  err=${String(err)}`,
         );
         const original = changellyFixedRateTx.amountExpectedTo;
         // eslint-disable-next-line no-use-before-define
         const [success, fixed] = fixBaseAndTrimDecimals(
           original,
-          quote.options.toToken.decimals
+          quote.options.toToken.decimals,
         );
         if (!success) throw err;
         const rounded = (BigInt(fixed) - BigInt(1)).toString();
@@ -1032,7 +1032,7 @@ class Changelly extends ProviderClass {
             `  quote.options.toToken.decimals=${quote.options.toToken.decimals}` +
             `  quote.options.toToken.symbol=${quote.options.toToken.symbol}` +
             `  quote.options.toToken.name=${quote.options.toToken.name}` +
-            `  quote.options.toToken.address=${quote.options.toToken.address}`
+            `  quote.options.toToken.address=${quote.options.toToken.address}`,
         );
       }
 
@@ -1045,7 +1045,7 @@ class Changelly extends ProviderClass {
         slippage: quote.meta.slippage || DEFAULT_SLIPPAGE,
         fee,
         getStatusObject: async (
-          options: StatusOptions
+          options: StatusOptions,
         ): Promise<StatusOptionsResponse> => ({
           options: {
             ...options,
@@ -1057,14 +1057,14 @@ class Changelly extends ProviderClass {
       debug(
         "getSwap",
         `Successfully extracted Changelly swap transaction via "createFixTransaction"` +
-          `  took=${(Date.now() - startedAt).toLocaleString()}ms`
+          `  took=${(Date.now() - startedAt).toLocaleString()}ms`,
       );
       return retResponse;
     } catch (err) {
       console.warn(
         `Errored processing Changelly swap response, returning no swap` +
           `  took=${(Date.now() - startedAt).toLocaleString()}ms` +
-          `  err=${String(err)}`
+          `  err=${String(err)}`,
       );
       return null;
     }
@@ -1076,7 +1076,7 @@ class Changelly extends ProviderClass {
     };
     const response = await this.changellyRequest<ChangellyApiGetStatusResult>(
       "getStatus",
-      params
+      params,
     );
 
     if (response.error || !response.result) return TransactionStatus.pending;
@@ -1099,7 +1099,7 @@ class Changelly extends ProviderClass {
 
 function fixBaseAndTrimDecimals(
   value: string,
-  decimals: number
+  decimals: number,
 ): [success: boolean, fixed: string] {
   const original = value;
   const parts = original.split(".");

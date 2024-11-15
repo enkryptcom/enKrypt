@@ -19,12 +19,12 @@ export class BitcoinSigner implements SignerInterface {
   async verify(
     msgHash: string,
     sig: string,
-    publicKey: string
+    publicKey: string,
   ): Promise<boolean> {
     return verify(
       hexToBuffer(sig),
       hexToBuffer(msgHash),
-      hexToBuffer(publicKey)
+      hexToBuffer(publicKey),
     );
   }
 
@@ -40,7 +40,7 @@ export class BitcoinSigner implements SignerInterface {
       !this.verify(
         bufferToHex(msgHashBuffer),
         bufferToHex(signature),
-        keyPair.publicKey
+        keyPair.publicKey,
       )
     ) {
       throw new Error(Errors.SigningErrors.UnableToVerify);
