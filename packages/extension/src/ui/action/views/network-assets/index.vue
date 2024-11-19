@@ -18,6 +18,8 @@
             v-for="(item, index) in assets"
             :key="index"
             :token="item"
+            :network="network"
+            @update:tokens="updateAssets"
           ></network-assets-item>
           <div
             v-show="network.customTokens && assets.length !== 0"
@@ -147,6 +149,9 @@ const addCustomAsset = (asset: AssetsType) => {
   if (!existingAsset) {
     assets.value = [...assets.value, asset];
   }
+
+  // refetches assets to update the custom token
+  updateAssets();
 };
 </script>
 
