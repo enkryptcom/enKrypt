@@ -25,7 +25,7 @@ const runCipherBuffer = (cipher: Cipher | Decipher, data: Buffer): Buffer =>
 
 export const encrypt = async (
   msg: Buffer,
-  password: string
+  password: string,
 ): Promise<EncryptedData> => {
   const sparams = {
     ...{
@@ -40,12 +40,12 @@ export const encrypt = async (
     sparams.n,
     sparams.p,
     sparams.r,
-    sparams.dklen
+    sparams.dklen,
   );
   const cipher = createCipheriv(
     sparams.cipher,
     derivedKey.slice(0, 16),
-    sparams.iv
+    sparams.iv,
   );
   const ciphertext = runCipherBuffer(cipher, msg);
   const mac = keccak256(
@@ -53,8 +53,8 @@ export const encrypt = async (
       Buffer.concat([
         Buffer.from(derivedKey.slice(16, 32)),
         Buffer.from(ciphertext),
-      ])
-    )
+      ]),
+    ),
   );
   return {
     ciphertext: bufferToHex(ciphertext),
@@ -67,7 +67,7 @@ export const encrypt = async (
 
 export const decrypt = async (
   encryptedData: EncryptedData,
-  password: string
+  password: string,
 ): Promise<Buffer> => {
   const sparams = {
     ...{
@@ -85,18 +85,21 @@ export const decrypt = async (
     sparams.n,
     sparams.p,
     sparams.r,
-    sparams.dklen
+    sparams.dklen,
   );
   const mac = keccak256(
     bufferToHex(
-      Buffer.concat([Buffer.from(derivedKey.slice(16, 32)), sparams.ciphertext])
-    )
+      Buffer.concat([
+        Buffer.from(derivedKey.slice(16, 32)),
+        sparams.ciphertext,
+      ]),
+    ),
   );
   if (mac !== sparams.mac) throw new Error(Errors.OtherErrors.WrongPassword);
   const decipher = createDecipheriv(
     sparams.cipher,
     derivedKey.slice(0, 16),
-    sparams.iv
+    sparams.iv,
   );
   return runCipherBuffer(decipher, sparams.ciphertext);
 };

@@ -23,7 +23,7 @@ export interface IBridgeMessage<T extends JsonValue> {
 }
 
 export type OnMessageCallback<T extends JsonValue, R = void | JsonValue> = (
-  message: IBridgeMessage<T>
+  message: IBridgeMessage<T>,
 ) => R | Promise<R>;
 
 export interface IInternalMessage {
@@ -61,7 +61,7 @@ declare const ProtocolWithReturnSymbol: unique symbol;
 
 export interface ProtocolWithReturn<
   Data extends JsonValue,
-  Return extends JsonValue
+  Return extends JsonValue,
 > {
   data: Data;
   return: Return;
@@ -84,7 +84,7 @@ export type DataTypeKey = keyof ProtocolMap;
 
 export type GetDataType<
   K extends DataTypeKey | string,
-  Fallback extends JsonValue
+  Fallback extends JsonValue,
 > = K extends DataTypeKey
   ? ProtocolMap[K] extends ProtocolWithReturn<infer Data, any>
     ? Data
@@ -93,7 +93,7 @@ export type GetDataType<
 
 export type GetReturnType<
   K extends DataTypeKey | string,
-  Fallback extends JsonValue
+  Fallback extends JsonValue,
 > = K extends DataTypeKey
   ? ProtocolMap[K] extends ProtocolWithReturn<any, infer Return>
     ? Return

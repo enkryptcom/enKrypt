@@ -74,7 +74,7 @@ class Stream {
   public send(msg?: JsonValue): void {
     if (this.isClosed)
       throw new Error(
-        "Attempting to send a message over closed stream. Use stream.onClose(<callback>) to keep an eye on stream status"
+        "Attempting to send a message over closed stream. Use stream.onClose(<callback>) to keep an eye on stream status",
       );
 
     sendMessage(
@@ -84,7 +84,7 @@ class Stream {
         streamTransfer: msg,
         action: "transfer",
       },
-      this.internalInfo.endpoint
+      this.internalInfo.endpoint,
     );
   }
 
@@ -106,7 +106,7 @@ class Stream {
         streamTransfer: null,
         action: "close",
       },
-      this.internalInfo.endpoint
+      this.internalInfo.endpoint,
     );
   }
 
@@ -115,7 +115,7 @@ class Stream {
    * @param callback
    */
   public onMessage<T extends JsonValue>(
-    callback: (msg?: T) => void
+    callback: (msg?: T) => void,
   ): HybridUnsubscriber {
     return this.getDisposable("message", callback);
   }
@@ -125,7 +125,7 @@ class Stream {
    * @param callback
    */
   public onClose<T extends JsonValue>(
-    callback: (msg?: T) => void
+    callback: (msg?: T) => void,
   ): HybridUnsubscriber {
     return this.getDisposable("closed", callback);
   }
@@ -140,7 +140,7 @@ class Stream {
 
   private getDisposable(
     event: string,
-    callback: () => void
+    callback: () => void,
   ): HybridUnsubscriber {
     const off = this.emitter.on(event, callback);
 

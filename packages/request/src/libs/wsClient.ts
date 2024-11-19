@@ -25,7 +25,7 @@ class WSClient extends EventEmitter implements RequestClass {
   constructor(
     url: string,
     middlewares: MiddlewareFunction[],
-    wsOptions: WSOptions = {}
+    wsOptions: WSOptions = {},
   ) {
     super();
     this.queue = {};
@@ -64,7 +64,7 @@ class WSClient extends EventEmitter implements RequestClass {
     };
     this.ws.onclose = (event) => {
       this.client.rejectAllPendingRequests(
-        `Connection is closed (${event.reason}).`
+        `Connection is closed (${event.reason}).`,
       );
     };
     this.ws.onopen = () => {
@@ -98,8 +98,8 @@ class WSClient extends EventEmitter implements RequestClass {
             },
             (error) => {
               reject(error);
-            }
-          )
+            },
+          ),
         );
       });
     }

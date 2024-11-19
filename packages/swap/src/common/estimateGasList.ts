@@ -24,7 +24,7 @@ const supportedNetworks: {
 
 const useStandardEstimate = (
   transactions: EVMTransaction[],
-  network: SupportedNetworkName
+  network: SupportedNetworkName,
 ): Promise<{
   isError?: boolean;
   errorMessage?: string;
@@ -101,7 +101,7 @@ const useStandardEstimate = (
 
 const estimateEVMGasList = (
   transactions: EVMTransaction[],
-  network: SupportedNetworkName
+  network: SupportedNetworkName,
 ): Promise<{
   isError?: boolean;
   errorMessage?: string;

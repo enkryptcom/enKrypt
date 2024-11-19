@@ -29,7 +29,7 @@ class LedgerSubstrate implements HWWalletProvider {
     if (!LedgerApps[this.network])
       throw new Error("ledger-substrate: Invalid network name");
     const pathValues = bip32ToAddressNList(
-      options.pathType.path.replace(`{index}`, options.pathIndex)
+      options.pathType.path.replace(`{index}`, options.pathIndex),
     );
     if (pathValues.length < 3)
       throw new Error("ledger-substrate: Invalid path");
@@ -42,7 +42,7 @@ class LedgerSubstrate implements HWWalletProvider {
         this.transport = await webUsbTransport.create();
       } else {
         return Promise.reject(
-          new Error("ledger-substrate: webusb is not supported")
+          new Error("ledger-substrate: webusb is not supported"),
         );
       }
     }
@@ -53,7 +53,7 @@ class LedgerSubstrate implements HWWalletProvider {
     this.validatePathAndNetwork(options);
     const app = LedgerApps[this.network];
     const pathValues = bip32ToAddressNList(
-      options.pathType.path.replace(`{index}`, options.pathIndex)
+      options.pathType.path.replace(`{index}`, options.pathIndex),
     );
     const connection = app(this.transport);
     return connection
@@ -61,7 +61,7 @@ class LedgerSubstrate implements HWWalletProvider {
         pathValues[0],
         pathValues[1],
         pathValues[2],
-        options.confirmAddress
+        options.confirmAddress,
       )
       .then((res) => ({
         address: res.address,
@@ -93,7 +93,7 @@ class LedgerSubstrate implements HWWalletProvider {
   async signTransaction(options: SignTransactionRequest): Promise<string> {
     this.validatePathAndNetwork(options);
     const pathValues = bip32ToAddressNList(
-      options.pathType.path.replace(`{index}`, options.pathIndex)
+      options.pathType.path.replace(`{index}`, options.pathIndex),
     );
     const app = LedgerApps[this.network];
     const tx = options.transaction as ExtrinsicPayload;
@@ -103,7 +103,7 @@ class LedgerSubstrate implements HWWalletProvider {
         pathValues[0],
         pathValues[1],
         pathValues[2],
-        u8aToBuffer(tx.toU8a(true))
+        u8aToBuffer(tx.toU8a(true)),
       )
       .then((result) => {
         if (result.error_message !== "No errors")

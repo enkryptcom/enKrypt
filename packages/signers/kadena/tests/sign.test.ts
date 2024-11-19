@@ -50,7 +50,7 @@ describe("Kadena signing", () => {
     const verifyResult = await kadenaSigner.verify(
       msgHash,
       signature,
-      keypair.publicKey
+      keypair.publicKey,
     );
 
     // Assert

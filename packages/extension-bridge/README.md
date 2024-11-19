@@ -36,7 +36,7 @@ button.addEventListener("click", async () => {
   const res = await sendMessage(
     "get-selection",
     { ignoreCasing: true },
-    "content-script"
+    "content-script",
   );
   console.log(res); // > "The brown fox is alive and well"
 });
@@ -57,7 +57,7 @@ onMessage("get-selection", async (message) => {
   const { selection } = await sendMessage(
     "get-preferences",
     { sync: false },
-    "background"
+    "background",
   );
   return calculateSelection(data.ignoreCasing, selection);
 });

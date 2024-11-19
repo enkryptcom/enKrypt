@@ -25,7 +25,7 @@ const numberToString = (arg: any) => {
   if (typeof arg === "string") {
     if (!arg.match(/^-?[0-9.]+$/)) {
       throw new Error(
-        `while converting number to string, invalid number value '${arg}', should be a number matching (^-?[0-9.]+).`
+        `while converting number to string, invalid number value '${arg}', should be a number matching (^-?[0-9.]+).`,
       );
     }
     return arg;
@@ -44,7 +44,7 @@ const numberToString = (arg: any) => {
     return arg.toString(10);
   }
   throw new Error(
-    `while converting number to string, invalid number value '${arg}' type ${typeof arg}.`
+    `while converting number to string, invalid number value '${arg}' type ${typeof arg}.`,
   );
 };
 
@@ -54,7 +54,7 @@ const numberToString = (arg: any) => {
 const fromBase = (
   weiInput: string,
   decimals: number,
-  optionsInput?: any
+  optionsInput?: any,
 ): string => {
   let wei = toBN(weiInput);
   const negative = wei.lt(zero);
@@ -104,7 +104,7 @@ const toBase = (etherInput: string, decimals: number): string => {
 
   if (ether === ".") {
     throw new Error(
-      `[ethjs-unit] while converting number ${etherInput} to wei, invalid value`
+      `[ethjs-unit] while converting number ${etherInput} to wei, invalid value`,
     );
   }
 
@@ -112,7 +112,7 @@ const toBase = (etherInput: string, decimals: number): string => {
   const comps = ether.split(".");
   if (comps.length > 2) {
     throw new Error(
-      `[ethjs-unit] while converting number ${etherInput} to wei,  too many decimal points`
+      `[ethjs-unit] while converting number ${etherInput} to wei,  too many decimal points`,
     );
   }
 
@@ -127,7 +127,7 @@ const toBase = (etherInput: string, decimals: number): string => {
   }
   if (fraction.length > baseLength) {
     throw new Error(
-      `[ethjs-unit] while converting number ${etherInput} to wei, too many decimal places`
+      `[ethjs-unit] while converting number ${etherInput} to wei, too many decimal places`,
     );
   }
 

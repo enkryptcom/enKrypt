@@ -38,17 +38,17 @@ export class PolkadotSigner implements SignerInterface {
   async generate(
     mnemonic: string,
     derivationPath = "",
-    options: SignOptions = { onlyJS: false }
+    options: SignOptions = { onlyJS: false },
   ): Promise<KRKeyPair> {
     await waitReady();
     const { path, phrase, password } = keyExtractSuri(
-      `${mnemonic}${derivationPath}`
+      `${mnemonic}${derivationPath}`,
     );
     const seed = mnemonicToMiniSecret(
       phrase,
       password,
       undefined,
-      options.onlyJS
+      options.onlyJS,
     );
     let pair: KeyPair;
     switch (this.type) {
@@ -56,14 +56,14 @@ export class PolkadotSigner implements SignerInterface {
         pair = keyFromPath(
           secp256k1PairFromSeed(seed, options.onlyJS),
           path,
-          "ecdsa"
+          "ecdsa",
         );
         break;
       case SignerType.ed25519:
         pair = keyFromPath(
           ed25519PairFromSeed(seed, options.onlyJS),
           path,
-          "ed25519"
+          "ed25519",
         );
         break;
       case SignerType.sr25519:
@@ -85,7 +85,7 @@ export class PolkadotSigner implements SignerInterface {
   async verify(
     msgHash: string,
     sig: string,
-    publicKey: string
+    publicKey: string,
   ): Promise<boolean> {
     await waitReady();
     const rpubkey = signatureVerify(msgHash, sig, publicKey);
@@ -95,7 +95,7 @@ export class PolkadotSigner implements SignerInterface {
   async sign(
     msgHash: string,
     keyPair: KRKeyPair,
-    options: SignOptions = { onlyJS: false }
+    options: SignOptions = { onlyJS: false },
   ): Promise<string> {
     const msgHashBuffer = hexToBuffer(msgHash);
     let sig: Buffer;
@@ -107,15 +107,15 @@ export class PolkadotSigner implements SignerInterface {
     switch (this.type) {
       case SignerType.ecdsa:
         sig = Buffer.from(
-          secp256k1Sign(msgHashBuffer, pair, "blake2", options.onlyJS)
+          secp256k1Sign(msgHashBuffer, pair, "blake2", options.onlyJS),
         );
         assert(
           this.verify(
             bufferToHex(msgHashBuffer),
             bufferToHex(sig),
-            bufferToHex(pair.publicKey)
+            bufferToHex(pair.publicKey),
           ),
-          Errors.SigningErrors.UnableToVerify
+          Errors.SigningErrors.UnableToVerify,
         );
         return bufferToHex(sig);
       case SignerType.ed25519:
@@ -124,9 +124,9 @@ export class PolkadotSigner implements SignerInterface {
           this.verify(
             bufferToHex(msgHashBuffer),
             bufferToHex(sig),
-            bufferToHex(pair.publicKey)
+            bufferToHex(pair.publicKey),
           ),
-          Errors.SigningErrors.UnableToVerify
+          Errors.SigningErrors.UnableToVerify,
         );
         return bufferToHex(sig);
       case SignerType.sr25519:
@@ -135,9 +135,9 @@ export class PolkadotSigner implements SignerInterface {
           this.verify(
             bufferToHex(msgHashBuffer),
             bufferToHex(sig),
-            bufferToHex(pair.publicKey)
+            bufferToHex(pair.publicKey),
           ),
-          Errors.SigningErrors.UnableToVerify
+          Errors.SigningErrors.UnableToVerify,
         );
         return bufferToHex(sig);
       default:
