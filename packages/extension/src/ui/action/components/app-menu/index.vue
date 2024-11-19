@@ -6,13 +6,16 @@
       @changeIsScrolling="setIsScrolling"
     >
       <draggable v-model="searchNetworks" item-key="name" :animation="300">
+        <!-- NOTE: WHATS seletced props is for, it is not in the component-->
         <template #item="{ element }">
           <app-menu-item
             v-bind="$attrs"
             :network="element"
             :is-active="!!selected && element.name === selected"
             :selected="selected"
+            :pinnedNetworks="pinnedNetworks"
             @click="emit('update:network', element)"
+            @open:swap="emit('open:swap', element)"
           />
         </template>
       </draggable>
@@ -46,10 +49,15 @@ const props = defineProps({
     type: String,
     default: '',
   },
+  pinnedNetworks: {
+    type: Array as PropType<BaseNetwork[]>,
+    default: () => [],
+  },
 });
 const emit = defineEmits<{
   (e: 'update:network', network: BaseNetwork): void;
   (e: 'update:order', networks: BaseNetwork[]): void;
+  (e: 'open:swap', network: BaseNetwork): void;
 }>();
 
 const searchNetworks = computed({
@@ -87,7 +95,7 @@ const setIsScrolling = (val: boolean) => {
   transition: background-color 0.5s ease-in-out;
   background-color: transparent;
   margin: 0px -12px 0px -12px;
-  padding: 0px 12px 0px 12px;
+  padding: 10px 10px 0px 10px;
 
   &__scroll-area {
     position: relative;

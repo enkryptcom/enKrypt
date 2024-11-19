@@ -1,30 +1,56 @@
 <template>
-  <a class="app-menu__link" :class="{ active: isActive }">
-    <div style="position: relative">
-      <img ref="imageTag" :src="network.icon" alt="" />
-      <new-icon v-if="newNetworks.includes(network.name)" class="tag-new" />
+  <a
+    class="app-menu__link hover-transition-no-bg"
+    :class="{ active: isActive }"
+    @mouseover="isHovered = true"
+    @mouseleave="isHovered = false"
+  >
+    <div class="app-menu__link__block">
+      <div style="position: relative">
+        <img ref="imageTag" :src="network.icon" alt="" />
+        <new-icon v-if="newNetworks.includes(network.name)" class="tag-new" />
+      </div>
+      <span>{{ network.name_long }} </span
+      ><test-network-icon
+        v-if="network.isTestNetwork"
+        class="test-network-icon"
+      />
     </div>
-    <span>{{ network.name_long }} </span
-    ><test-network-icon v-if="network.isTestNetwork" />
-
-    <!-- <span
-      v-if="newSwaps.includes(network.name)"
-      class="tag tag-swap tag-sm shimmer"
-      >Swap</span
-    > -->
-    <div class="app-menu__link-drag">
-      <drag-icon />
+    <div class="app-menu__link__block">
+      <div
+        v-if="showSwap"
+        class="app-menu__link__block__swap hover-transition-bg"
+        @click="openSwap"
+      >
+        Swap
+      </div>
+      <p
+        v-if="showIsPinned"
+        :class="[
+          'app-menu__link__block__pin hover-transition-bg',
+          {
+            'app-menu__link__block__pin__active': pinIconIsActive,
+          },
+        ]"
+      >
+        <pin-icon :is-pinned="showIsPinned" :is-active="pinIconIsActive" />
+      </p>
     </div>
   </a>
 </template>
 
 <script setup lang="ts">
 import { NodeType } from '@/types/provider';
-import { PropType, ref, watch } from 'vue';
-import DragIcon from '@action/icons/common/drag-icon.vue';
+import { PropType, ref, watch, onMounted, computed } from 'vue';
 import TestNetworkIcon from '@action/icons/common/test-network-icon.vue';
 import NewIcon from '@action/icons/asset/new-icon.vue';
-import { newNetworks, newSwaps } from '@/providers/common/libs/new-features';
+import PinIcon from '@action/icons/actions/pin.vue';
+import { newNetworks } from '@/providers/common/libs/new-features';
+import {
+  type SupportedNetworkName,
+  isSupportedNetwork,
+} from '@enkryptcom/swap';
+import { BaseNetwork } from '@/types/base-network';
 
 const props = defineProps({
   network: {
@@ -39,11 +65,18 @@ const props = defineProps({
       return false;
     },
   },
+  pinnedNetworks: {
+    type: Array as PropType<BaseNetwork[]>,
+    default: () => [],
+  },
 });
 const imageTag = ref<HTMLImageElement | null>(null);
+
 const emit = defineEmits<{
   (e: 'update:gradient', data: string): void;
+  (e: 'open:swap', network: NodeType): void;
 }>();
+// NOTE: WHAT IS THIS?
 const componentToHex = (c: number) => {
   const hex = c.toString(16);
   return hex.length == 1 ? '0' + hex : hex;
@@ -93,26 +126,80 @@ watch(
     if (props.isActive) getAverageRGB(imageTag.value!);
   },
 );
+/** ------------------------
+ * Buttons
+ * ------------------------*/
+const isHovered = ref(false);
+const hasSwap = ref(false);
+
+/**
+ * Computed property to determine whether to show secondary buttons.
+ *
+ * This property returns `true` if the `isActive` prop is `true`,
+ * otherwise it returns the value of `isHovered`.
+ *
+ * @returns {boolean} - `true` if secondary buttons should be shown, `false` otherwise.
+ */
+const showSwap = computed(() => {
+  if (hasSwap.value) {
+    return props.isActive || isHovered.value;
+  }
+  return false;
+});
+
+/**
+ * Computed property to determine whether to show the "Pin" button.
+ *
+ * This property returns `true` if the network is Pinned,
+ * otherwise it returns `false`.
+ *
+ * @returns {boolean} - `true` if the "Pin" button should be shown, `false` otherwise.
+ */
+const isPinned = computed(() => {
+  return props.pinnedNetworks.some(
+    pinnedNetwork => pinnedNetwork.name === props.network.name,
+  );
+});
+
+/**
+ * Computed property to determine if the menu item should be shown as pinned.
+ *
+ * @returns {boolean} - Returns true if the menu item is active, or if it is either pinned or hovered.
+ */
+const showIsPinned = computed(() => {
+  return props.isActive ? true : isPinned.value || isHovered.value;
+});
+
+const pinIconIsActive = computed(() => {
+  return props.isActive || isHovered.value;
+});
+
+const openSwap = () => {
+  emit('open:swap', props.network);
+};
+
+/**
+ * Lifecycle hook that is called when the component is mounted.
+ *
+ * This function checks if the network specified in the component's props
+ * is a supported swap network. If it is, it sets the `hasSwap` reactive property to true.
+ *
+ * @async
+ * @function onMounted
+ * @returns {Promise<void>}
+ */
+onMounted(async () => {
+  if (
+    isSupportedNetwork(props.network.name as unknown as SupportedNetworkName)
+  ) {
+    hasSwap.value = true;
+  }
+});
 </script>
 
 <style lang="less">
 @import '@action/styles/theme.less';
-.tag {
-  display: inline-block;
-  padding: 0.2em 0.5em 0.3em;
-  border-radius: 8px;
-  margin: 0.25em 0.1em;
-  margin-left: 0.5em;
-}
-.tag-sm {
-  display: inline-block;
-  letter-spacing: 0.15ch;
-  font-weight: 400;
-}
-.tag-swap {
-  background: #41b883;
-  color: #35495e !important;
-}
+
 .tag-new {
   height: 9px;
   padding: 1px 3px 1px 3px;
@@ -124,39 +211,57 @@ watch(
   left: 23px;
   top: -5px;
 }
-.shimmer {
-  color: grey;
-  display: inline-block;
-  -webkit-mask: linear-gradient(-60deg, #000 30%, #0005, #000 70%) right/300%
-    100%;
-  background-repeat: no-repeat;
-  animation: shimmer 2.5s infinite;
-  font-size: 50px;
-  max-width: 200px;
-}
 
-@keyframes shimmer {
-  100% {
-    -webkit-mask-position: left;
-  }
-}
 .app-menu {
   &__link {
     text-decoration: none;
     display: flex;
-    justify-content: flex-start;
+    justify-content: space-between;
+    justify-self: center;
     align-items: center;
     flex-direction: row;
-    width: 100%;
+    width: 96%;
     height: 40px;
-    margin-bottom: 4px;
+    margin-bottom: 3px;
+    margin-top: 3px;
     cursor: pointer;
     position: relative;
+    border-radius: 10px;
+    padding-right: 8px;
+    &__block {
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      flex-direction: row;
+      gap: 4px;
+      &__swap {
+        max-width: 47px;
+        max-height: 24px;
+        padding: 4px 8px 4px 8px;
+        border-radius: 24px;
+        background-color: @primary;
+        color: @white;
+        text-decoration: none;
+        font-size: 12px;
+        font-weight: 500;
+        line-height: 16px;
+        letter-spacing: 0.5px;
+      }
+      &__pin {
+        max-width: 32px;
+        max-height: 24px;
+        padding: 5px 8px 3px 8px;
 
+        &__active {
+          max-width: 32px;
+          max-height: 24px;
+          padding: 5px 8px 3px 8px;
+          border-radius: 24px;
+          background-color: @primaryLight;
+        }
+      }
+    }
     &:hover {
-      background: @black004;
-      border-radius: 10px;
-
       .app-menu__link-drag {
         display: block !important;
       }
@@ -180,11 +285,12 @@ watch(
 
     &.active {
       background: @white09;
-      border-radius: 10px;
       box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.16);
-
       span {
         font-weight: 500;
+      }
+      &:hover {
+        background: @white09;
       }
     }
 
@@ -197,6 +303,9 @@ watch(
       cursor: grab;
       display: none;
     }
+  }
+  .test-network-icon {
+    height: 14px;
   }
 }
 </style>

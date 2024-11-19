@@ -31,11 +31,13 @@
       />
       <app-menu
         :networks="displayNetworks"
+        :pinnedNetworks="pinnedNetworks"
         :selected="route.params.id as string"
         :search-input="searchInput"
         @update:order="updateNetworkOrder"
         @update:network="setNetwork"
         @update:gradient="updateGradient"
+        @open:swap="openSwap"
       />
     </div>
 
@@ -182,17 +184,19 @@ const currentVersion = __PACKAGE_VERSION__;
 const latestVersion = ref('');
 
 const setActiveNetworks = async () => {
-  const pinnedNetwrokNames = await networksState.getPinnedNetworkNames();
-
+  const pinnedNetworkNames = await networksState.getPinnedNetworkNames();
   const allNetworks = await getAllNetworks();
-  const networksToShow: BaseNetwork[] = [];
-
-  pinnedNetwrokNames.forEach(name => {
+  pinnedNetworkNames.forEach(name => {
     const network = allNetworks.find(network => network.name === name);
-    if (network !== undefined) networksToShow.push(network);
+    if (network !== undefined) pinnedNetworks.value.push(network);
   });
-  pinnedNetworks.value = networksToShow;
-  networks.value = networksToShow;
+
+  networks.value = [
+    ...pinnedNetworks.value,
+    ...allNetworks.filter(
+      network => !pinnedNetworkNames.includes(network.name),
+    ),
+  ];
 
   if (!pinnedNetworks.value.includes(currentNetwork.value)) {
     setNetwork(pinnedNetworks.value[0]);
@@ -276,6 +280,7 @@ onMounted(async () => {
     openOnboard();
   }
 });
+//TODO: WHAT IS THIS?
 const updateGradient = (newGradient: string) => {
   //hack may be there is a better way. less.modifyVars doesnt work
   if (appMenuRef.value)
@@ -461,6 +466,21 @@ const displayNetworks = computed<BaseNetwork[]>(() => {
       return networks.value;
   }
 });
+/**
+ * openSwap
+ */
+const openSwap = async (network: BaseNetwork) => {
+  try {
+    isLoading.value = true;
+    await setNetwork(network);
+    router.push({ name: 'swap', params: { id: network.name } });
+    isLoading.value = false;
+  } catch (e) {
+    //TODO: HANDLE ERROR
+    console.error(e);
+    isLoading.value = false;
+  }
+};
 
 /** -------------------
  * Menu Actions
