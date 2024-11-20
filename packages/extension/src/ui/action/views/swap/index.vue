@@ -547,12 +547,12 @@ const pickBestQuote = (fromAmountBN: BN, quotes: ProviderQuoteResponse[]) => {
         errors.value.inputAmount = `Minimum amount may be lower than: ~${fromT.toReadable(
           lowestMinimum,
         )}`;
-        return;
+      } else {
+        // Swapping too few tokens
+        errors.value.inputAmount = `Minimum amount: ${fromT.toReadable(
+          lowestMinimum,
+        )}`;
       }
-      // Swapping too few tokens
-      errors.value.inputAmount = `Minimum amount: ${fromT.toReadable(
-        lowestMinimum,
-      )}`;
     } else if (fromAmountBN.gt(highestMaximum)) {
       // Swapping too many tokens
       errors.value.inputAmount = `Maximum amount: ${fromT.toReadable(
