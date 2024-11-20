@@ -231,7 +231,6 @@ const addressFrom = ref<string>(
 );
 const addressTo = ref<string>('');
 const isLoadingAssets = ref(true);
-const hasMinimumForRent = ref(false);
 
 const selectedNft = ref<NFTItemWithCollectionName>({
   id: '',
@@ -346,9 +345,6 @@ const errorMsg = computed(() => {
         formatFiatValue(priceDifference.value).value
       }) short.`;
   }
-  if (!hasMinimumForRent.value && addressTo.value !== '') {
-    return `Recipient doesn't have enough ${props.network.currencyName} to receive.`;
-  }
   if (
     !props.network.isAddress(getAddress(addressTo.value)) &&
     addressTo.value !== ''
@@ -367,43 +363,6 @@ const errorMsg = computed(() => {
     return `Amount exceeds maximum value.`;
   return '';
 });
-
-const checkIfToIsRentExempt = async () => {
-  const toPubKey = new PublicKey(getAddress(addressTo.value));
-  const balance = await solConnection.value!.web3.getBalance(toPubKey);
-  const rentExempt =
-    await solConnection.value!.web3.getMinimumBalanceForRentExemption(
-      ACCOUNT_SIZE,
-    );
-
-  // rent is added to ATA so no need to check
-  if (
-    isSendToken.value &&
-    selectedAsset.value.contract !== NATIVE_TOKEN_ADDRESS
-  ) {
-    hasMinimumForRent.value = true;
-    return;
-  }
-
-  /** balance is lower than rent but to amount is higher than rent
-   else if balance is higher than rent
-   else if balance is lower than rent and to amount is lower than rent **/
-  if (
-    toBN(balance).lt(toBN(rentExempt)) &&
-    toBN(sendAmount.value).gt(toBN(rentExempt))
-  ) {
-    hasMinimumForRent.value = true;
-  } else if (toBN(balance).gte(toBN(rentExempt))) {
-    hasMinimumForRent.value = true;
-  } else if (
-    toBN(balance).lt(toBN(rentExempt)) &&
-    toBN(sendAmount.value).lt(toBN(rentExempt))
-  ) {
-    hasMinimumForRent.value = false;
-  } else {
-    hasMinimumForRent.value = false;
-  }
-};
 
 const setTransactionFees = (tx: SolTransaction) => {
   return tx
@@ -459,7 +418,6 @@ const sendButtonTitle = computed(() => {
 
 const isValidSend = computed<boolean>(() => {
   if (!isInputsValid.value) return false;
-  if (!hasMinimumForRent.value) return false;
   if (nativeBalanceAfterTransaction.value.isNeg()) return false;
   if (!isEstimateValid.value) return false;
   if (gasCostValues.value.ECONOMY.nativeValue === '0') return false;
@@ -499,6 +457,12 @@ const updateTransactionFees = async () => {
     }),
   );
   if (isSendToken.value && TxInfo.value.contract === NATIVE_TOKEN_ADDRESS) {
+    const toPubKey = new PublicKey(getAddress(addressTo.value));
+    const balance = await solConnection.value!.web3.getBalance(toPubKey);
+    const rentExempt =
+      await solConnection.value!.web3.getMinimumBalanceForRentExemption(
+        ACCOUNT_SIZE,
+      );
     transaction.add(
       SystemProgram.transfer({
         fromPubkey: from,
@@ -506,6 +470,12 @@ const updateTransactionFees = async () => {
         lamports: toBN(TxInfo.value.value).toNumber(),
       }),
     );
+    if (toBN(balance).lt(toBN(rentExempt))) {
+      storageFee.value =
+        await solConnection.value!.web3.getMinimumBalanceForRentExemption(
+          ACCOUNT_SIZE,
+        );
+    }
   } else if (
     isSendToken.value ||
     (!isSendToken.value && selectedNft.value.type === NFTType.SolanaToken)
@@ -600,7 +570,6 @@ watch(
   () => {
     if (isInputsValid.value) {
       updateTransactionFees();
-      checkIfToIsRentExempt();
     }
   },
 );
