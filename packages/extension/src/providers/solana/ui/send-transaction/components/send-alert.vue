@@ -1,7 +1,7 @@
 <template>
-  <div class="send-alert">
+  <div class="send-alert" role="alert" aria-live="polite">
     <alert-icon />
-    <p>{{ errorMsg }}</p>
+    <p aria-label="Error message">{{ errorMsg }}</p>
   </div>
 </template>
 
