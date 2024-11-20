@@ -17,13 +17,6 @@
       />
     </div>
     <div class="app-menu__link__block">
-      <div
-        v-if="showSwap"
-        class="app-menu__link__block__swap hover-transition-bg"
-        @click="openSwap"
-      >
-        Swap
-      </div>
       <p
         v-if="showIsPinned"
         :class="[
@@ -41,15 +34,11 @@
 
 <script setup lang="ts">
 import { NodeType } from '@/types/provider';
-import { PropType, ref, watch, onMounted, computed } from 'vue';
+import { PropType, ref, watch, computed } from 'vue';
 import TestNetworkIcon from '@action/icons/common/test-network-icon.vue';
 import NewIcon from '@action/icons/asset/new-icon.vue';
 import PinIcon from '@action/icons/actions/pin.vue';
 import { newNetworks } from '@/providers/common/libs/new-features';
-import {
-  type SupportedNetworkName,
-  isSupportedNetwork,
-} from '@enkryptcom/swap';
 import { BaseNetwork } from '@/types/base-network';
 
 const props = defineProps({
@@ -74,7 +63,6 @@ const imageTag = ref<HTMLImageElement | null>(null);
 
 const emit = defineEmits<{
   (e: 'update:gradient', data: string): void;
-  (e: 'open:swap', network: NodeType): void;
 }>();
 // NOTE: WHAT IS THIS?
 const componentToHex = (c: number) => {
@@ -130,22 +118,6 @@ watch(
  * Buttons
  * ------------------------*/
 const isHovered = ref(false);
-const hasSwap = ref(false);
-
-/**
- * Computed property to determine whether to show secondary buttons.
- *
- * This property returns `true` if the `isActive` prop is `true`,
- * otherwise it returns the value of `isHovered`.
- *
- * @returns {boolean} - `true` if secondary buttons should be shown, `false` otherwise.
- */
-const showSwap = computed(() => {
-  if (hasSwap.value) {
-    return props.isActive || isHovered.value;
-  }
-  return false;
-});
 
 /**
  * Computed property to determine whether to show the "Pin" button.
@@ -172,28 +144,6 @@ const showIsPinned = computed(() => {
 
 const pinIconIsActive = computed(() => {
   return props.isActive || isHovered.value;
-});
-
-const openSwap = () => {
-  emit('open:swap', props.network);
-};
-
-/**
- * Lifecycle hook that is called when the component is mounted.
- *
- * This function checks if the network specified in the component's props
- * is a supported swap network. If it is, it sets the `hasSwap` reactive property to true.
- *
- * @async
- * @function onMounted
- * @returns {Promise<void>}
- */
-onMounted(async () => {
-  if (
-    isSupportedNetwork(props.network.name as unknown as SupportedNetworkName)
-  ) {
-    hasSwap.value = true;
-  }
 });
 </script>
 
@@ -234,19 +184,6 @@ onMounted(async () => {
       align-items: center;
       flex-direction: row;
       gap: 4px;
-      &__swap {
-        max-width: 47px;
-        max-height: 24px;
-        padding: 4px 8px 4px 8px;
-        border-radius: 24px;
-        background-color: @primary;
-        color: @white;
-        text-decoration: none;
-        font-size: 12px;
-        font-weight: 500;
-        line-height: 16px;
-        letter-spacing: 0.5px;
-      }
       &__pin {
         max-width: 32px;
         max-height: 24px;

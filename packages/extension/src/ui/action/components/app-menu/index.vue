@@ -15,7 +15,6 @@
             :selected="selected"
             :pinnedNetworks="pinnedNetworks"
             @click="emit('update:network', element)"
-            @open:swap="emit('open:swap', element)"
           />
         </template>
       </draggable>
@@ -57,7 +56,6 @@ const props = defineProps({
 const emit = defineEmits<{
   (e: 'update:network', network: BaseNetwork): void;
   (e: 'update:order', networks: BaseNetwork[]): void;
-  (e: 'open:swap', network: BaseNetwork): void;
 }>();
 
 const searchNetworks = computed({
