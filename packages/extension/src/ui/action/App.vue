@@ -37,7 +37,6 @@
         @update:order="updateNetworkOrder"
         @update:network="setNetwork"
         @update:gradient="updateGradient"
-        @open:swap="openSwap"
       />
       <!-- network list type logic -->
       <div class="tab__container">
@@ -517,21 +516,6 @@ const displayNetworks = computed<BaseNetwork[]>(() => {
       return networks.value;
   }
 });
-/**
- * openSwap
- */
-const openSwap = async (network: BaseNetwork) => {
-  try {
-    isLoading.value = true;
-    await setNetwork(network);
-    router.push({ name: 'swap', params: { id: network.name } });
-    isLoading.value = false;
-  } catch (e) {
-    //TODO: HANDLE ERROR
-    console.error(e);
-    isLoading.value = false;
-  }
-};
 
 /** -------------------
  * Menu Actions
