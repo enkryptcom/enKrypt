@@ -114,7 +114,7 @@
 <script setup lang="ts">
 import { ref, onMounted, PropType, computed, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { debounce, has } from 'lodash';
+import { debounce } from 'lodash';
 import SendHeader from '@/providers/common/ui/send-transaction/send-header.vue';
 import SendAddressInput from './components/send-address-input.vue';
 import SendFromContactsList from '@/providers/common/ui/send-transaction/send-from-contacts-list.vue';
@@ -347,7 +347,7 @@ const errorMsg = computed(() => {
       }) short.`;
   }
   if (!hasMinimumForRent.value && addressTo.value !== '') {
-    return `Recipient doesn't have enough ${props.network.currencyName} to receive`;
+    return `Recipient doesn't have enough ${props.network.currencyName} to receive.`;
   }
   if (
     !props.network.isAddress(getAddress(addressTo.value)) &&
