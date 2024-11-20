@@ -93,18 +93,7 @@
         :fee="gasCostValues[selectedFee]"
       />
 
-      <send-alert
-        v-show="hasEnoughBalance && nativeBalanceAfterTransaction.isNeg()"
-        :native-symbol="network.currencyName"
-        :price="accountAssets[0]?.price || '0'"
-        :native-value="
-          fromBase(
-            nativeBalanceAfterTransaction.abs().toString(),
-            network.decimals,
-          )
-        "
-        :decimals="network.decimals"
-      />
+      <send-alert v-show="errorMsg" :error-msg="errorMsg" />
 
       <div class="send-transaction__buttons">
         <div class="send-transaction__buttons-cancel">
@@ -125,7 +114,7 @@
 <script setup lang="ts">
 import { ref, onMounted, PropType, computed, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { debounce } from 'lodash';
+import { debounce, has } from 'lodash';
 import SendHeader from '@/providers/common/ui/send-transaction/send-header.vue';
 import SendAddressInput from './components/send-address-input.vue';
 import SendFromContactsList from '@/providers/common/ui/send-transaction/send-from-contacts-list.vue';
@@ -133,7 +122,7 @@ import SendContactsList from '@/providers/common/ui/send-transaction/send-contac
 import AssetsSelectList from '@action/views/assets-select-list/index.vue';
 import NftSelectList from '@/providers/common/ui/send-transaction/nft-select-list/index.vue';
 import SendTokenSelect from './components/send-token-select.vue';
-import SendAlert from '@/providers/common/ui/send-transaction/send-alert.vue';
+import SendAlert from './components/send-alert.vue';
 import SendNftSelect from '@/providers/common/ui/send-transaction/send-nft-select.vue';
 import SendInputAmount from '@/providers/common/ui/send-transaction/send-input-amount.vue';
 import SendFeeSelect from './components/send-fee-select.vue';
@@ -148,7 +137,10 @@ import BigNumber from 'bignumber.js';
 import { defaultGasCostVals } from '@/providers/common/libs/default-vals';
 import { fromBase, toBase, isValidDecimals } from '@enkryptcom/utils';
 import { VerifyTransactionParams, SendTransactionDataType } from '../types';
-import { formatFloatingPointValue } from '@/libs/utils/number-formatter';
+import {
+  formatFloatingPointValue,
+  formatFiatValue,
+} from '@/libs/utils/number-formatter';
 import { routes as RouterNames } from '@/ui/action/router';
 import getUiPath from '@/libs/utils/get-ui-path';
 import Browser from 'webextension-polyfill';
@@ -239,6 +231,7 @@ const addressFrom = ref<string>(
 );
 const addressTo = ref<string>('');
 const isLoadingAssets = ref(true);
+const hasMinimumForRent = ref(false);
 
 const selectedNft = ref<NFTItemWithCollectionName>({
   id: '',
@@ -328,6 +321,90 @@ const nativeBalanceAfterTransaction = computed(() => {
   return toBN(0);
 });
 
+const nativeValue = computed(() => {
+  return fromBase(
+    nativeBalanceAfterTransaction.value.toString(),
+    props.network.decimals,
+  );
+});
+
+const nativePrice = computed(() => {
+  return accountAssets.value[0]?.price || '0';
+});
+
+const priceDifference = computed(() => {
+  return new BigNumber(nativeValue.value)
+    .times(nativePrice.value ?? '0')
+    .toFixed();
+});
+
+const errorMsg = computed(() => {
+  if (hasEnoughBalance.value && nativeBalanceAfterTransaction.value.isNeg()) {
+    return `Not enough funds. You are
+      ~${formatFloatingPointValue(nativeValue.value).value}
+      ${props.network.currencyName} ($ ${
+        formatFiatValue(priceDifference.value).value
+      }) short.`;
+  }
+  if (!hasMinimumForRent.value && addressTo.value !== '') {
+    return `Recipient doesn't have enough ${props.network.currencyName} to receive`;
+  }
+  if (
+    !props.network.isAddress(getAddress(addressTo.value)) &&
+    addressTo.value !== ''
+  )
+    return `Invalid to address.`;
+  if (
+    isSendToken.value &&
+    !isValidDecimals(sendAmount.value, selectedAsset.value.decimals!)
+  ) {
+    return `Invalid decimals for ${selectedAsset.value.symbol}.`;
+  }
+  if (!isSendToken.value && !selectedNft.value.id) {
+    return `Invalid NFT selected.`;
+  }
+  if (new BigNumber(sendAmount.value).gt(assetMaxValue.value))
+    return `Amount exceeds maximum value.`;
+  return '';
+});
+
+const checkIfToIsRentExempt = async () => {
+  const toPubKey = new PublicKey(getAddress(addressTo.value));
+  const balance = await solConnection.value!.web3.getBalance(toPubKey);
+  const rentExempt =
+    await solConnection.value!.web3.getMinimumBalanceForRentExemption(
+      ACCOUNT_SIZE,
+    );
+
+  // rent is added to ATA so no need to check
+  if (
+    isSendToken.value &&
+    selectedAsset.value.contract !== NATIVE_TOKEN_ADDRESS
+  ) {
+    hasMinimumForRent.value = true;
+    return;
+  }
+
+  /** balance is lower than rent but to amount is higher than rent
+   else if balance is higher than rent
+   else if balance is lower than rent and to amount is lower than rent **/
+  if (
+    toBN(balance).lt(toBN(rentExempt)) &&
+    toBN(sendAmount.value).gt(toBN(rentExempt))
+  ) {
+    hasMinimumForRent.value = true;
+  } else if (toBN(balance).gte(toBN(rentExempt))) {
+    hasMinimumForRent.value = true;
+  } else if (
+    toBN(balance).lt(toBN(rentExempt)) &&
+    toBN(sendAmount.value).lt(toBN(rentExempt))
+  ) {
+    hasMinimumForRent.value = false;
+  } else {
+    hasMinimumForRent.value = false;
+  }
+};
+
 const setTransactionFees = (tx: SolTransaction) => {
   return tx
     .getEstimatedFee(solConnection.value!.web3)
@@ -382,6 +459,7 @@ const sendButtonTitle = computed(() => {
 
 const isValidSend = computed<boolean>(() => {
   if (!isInputsValid.value) return false;
+  if (!hasMinimumForRent.value) return false;
   if (nativeBalanceAfterTransaction.value.isNeg()) return false;
   if (!isEstimateValid.value) return false;
   if (gasCostValues.value.ECONOMY.nativeValue === '0') return false;
@@ -522,6 +600,7 @@ watch(
   () => {
     if (isInputsValid.value) {
       updateTransactionFees();
+      checkIfToIsRentExempt();
     }
   },
 );
