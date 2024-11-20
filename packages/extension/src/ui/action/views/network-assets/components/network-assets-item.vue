@@ -134,11 +134,15 @@ const customTokens = ref<CustomErc20Token[]>([]);
 
 const tokenState = new TokensState();
 const fetchCustomTokens = async () => {
-  return await tokenState.getTokensByNetwork(props.network.name).then(res => {
-    customTokens.value = res.filter(
-      (token): token is CustomErc20Token => 'address' in token,
-    );
-  });
+  try {
+    return await tokenState.getTokensByNetwork(props.network.name).then(res => {
+      customTokens.value = res.filter(
+        (token): token is CustomErc20Token => 'address' in token,
+      );
+    });
+  } catch {
+    customTokens.value = [];
+  }
 };
 
 onMounted(async () => {
@@ -146,6 +150,7 @@ onMounted(async () => {
 });
 
 const isCustomToken = computed(() => {
+  if (!props.token.contract) return false;
   return customTokens.value.some(
     token =>
       token.address.toLowerCase() === props.token.contract?.toLowerCase(),

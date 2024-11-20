@@ -147,11 +147,9 @@ const addCustomAsset = (asset: AssetsType) => {
   });
 
   if (!existingAsset) {
-    assets.value = [...assets.value, asset];
+    // refetches assets to update the custom token
+    updateAssets();
   }
-
-  // refetches assets to update the custom token
-  updateAssets();
 };
 </script>
 
