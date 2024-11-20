@@ -538,6 +538,17 @@ const pickBestQuote = (fromAmountBN: BN, quotes: ProviderQuoteResponse[]) => {
 
     // Decide what message to show
     if (fromAmountBN.lt(lowestMinimum)) {
+      /**
+       * weird edgecase for solana where rango doesn't return
+       * minumum amount for the swap and returns changelly
+       * but rango's actual minimum is a lot lower than changelly's
+       */
+      if (quotes.length === 1) {
+        errors.value.inputAmount = `Minimum amount may be lower than: ~${fromT.toReadable(
+          lowestMinimum,
+        )}`;
+        return;
+      }
       // Swapping too few tokens
       errors.value.inputAmount = `Minimum amount: ${fromT.toReadable(
         lowestMinimum,
