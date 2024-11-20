@@ -528,9 +528,11 @@ const pickBestQuote = (fromAmountBN: BN, quotes: ProviderQuoteResponse[]) => {
         highestMaximum = q.minMax.maximumFrom;
       }
       // Minimum briding fees / rent fees / etc
+      // set smallest fee to q.additionalNativeFees if it's smaller than the current smallest or if smallest is 0
       if (
-        !q.additionalNativeFees.eqn(0) &&
-        q.additionalNativeFees.lt(smallestNativeFees)
+        (!q.additionalNativeFees.eqn(0) &&
+          q.additionalNativeFees.lt(smallestNativeFees)) ||
+        (smallestNativeFees.eqn(0) && !q.additionalNativeFees.eqn(0))
       ) {
         smallestNativeFees = q.additionalNativeFees;
       }
@@ -562,7 +564,7 @@ const pickBestQuote = (fromAmountBN: BN, quotes: ProviderQuoteResponse[]) => {
       // Can't afford the fees
       errors.value.inputAmount = `Insufficient Bridging fees: ~${nativeSwapToken
         .value!.toReadable(smallestNativeFees)
-        .substring(0, 6)} ${nativeSwapToken.value!.token.symbol} required`;
+        .substring(0, 10)} ${nativeSwapToken.value!.token.symbol} required`;
     }
 
     return;

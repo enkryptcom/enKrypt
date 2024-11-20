@@ -100,7 +100,7 @@ if (DEBUG) {
     );
   };
 } else {
-  debug = () => {};
+  debug = () => { };
 }
 
 type SupportedNetworkInfo = {
@@ -403,8 +403,8 @@ class Rango extends ProviderClass {
     debug(
       "init",
       "Rango meta" +
-        `  tokens.length=${rangoMeta.tokens.length}` +
-        `  blockchains.length=${rangoMeta.blockchains.length}`,
+      `  tokens.length=${rangoMeta.tokens.length}` +
+      `  blockchains.length=${rangoMeta.blockchains.length}`,
     );
 
     const supportedNetworkInfo = supportedNetworkInfoByName.get(this.network);
@@ -573,7 +573,7 @@ class Rango extends ProviderClass {
     if (token.address == null) {
       console.warn(
         `Cannot get Rango token symbol: Token address is not defined` +
-          ` for token ${token.name} (${token.symbol}) - ${token.address}`,
+        ` for token ${token.name} (${token.symbol}) - ${token.address}`,
       );
       return undefined;
     }
@@ -607,12 +607,12 @@ class Rango extends ProviderClass {
     debug(
       "getRangoSwap",
       `Getting swap` +
-        `  fromNetwork=${this.network}` +
-        `  toNetwork=${options.toToken.networkInfo.name}` +
-        `  fromToken=${options.fromToken.symbol}` +
-        `  toToken=${options.toToken.symbol}` +
-        `  fromAddress=${options.fromAddress}` +
-        `  toAddress=${options.toAddress}`,
+      `  fromNetwork=${this.network}` +
+      `  toNetwork=${options.toToken.networkInfo.name}` +
+      `  fromToken=${options.fromToken.symbol}` +
+      `  toToken=${options.toToken.symbol}` +
+      `  fromAddress=${options.fromAddress}` +
+      `  toAddress=${options.toAddress}`,
     );
 
     try {
@@ -626,8 +626,8 @@ class Rango extends ProviderClass {
         debug(
           "getRangoSwap",
           "No swap:" +
-            ` Enkrypt does not support Rango swap on the source network` +
-            `  fromNetwork=${this.network}`,
+          ` Enkrypt does not support Rango swap on the source network` +
+          `  fromNetwork=${this.network}`,
         );
         return null;
       }
@@ -640,8 +640,8 @@ class Rango extends ProviderClass {
         debug(
           "getRangoSwap",
           "No swap:" +
-            ` Enkrypt does not support Rango swap on the destination network` +
-            `  fromNetwork=${this.network}`,
+          ` Enkrypt does not support Rango swap on the destination network` +
+          `  fromNetwork=${this.network}`,
         );
         return null;
       }
@@ -655,10 +655,10 @@ class Rango extends ProviderClass {
         debug(
           "getRangoSwap",
           `No swap:` +
-            ` Rango does not support swap on the source network` +
-            `  fromNetwork=${this.network}` +
-            `  fromBlockchain=${fromRangoBlockchain.name}` +
-            `  enabled=${fromRangoBlockchain.enabled}`,
+          ` Rango does not support swap on the source network` +
+          `  fromNetwork=${this.network}` +
+          `  fromBlockchain=${fromRangoBlockchain.name}` +
+          `  enabled=${fromRangoBlockchain.enabled}`,
         );
         return null;
       }
@@ -673,10 +673,10 @@ class Rango extends ProviderClass {
         debug(
           "getRangoSwap",
           `No swap:` +
-            ` Rango does not support swap on the destination network` +
-            `  toNetwork=${options.toToken.networkInfo.name}` +
-            `  toBlockchain=${toRangoBlockchain.name}` +
-            `  enabled=${toRangoBlockchain.enabled}`,
+          ` Rango does not support swap on the destination network` +
+          `  toNetwork=${options.toToken.networkInfo.name}` +
+          `  toBlockchain=${toRangoBlockchain.name}` +
+          `  enabled=${toRangoBlockchain.enabled}`,
         );
         return null;
       }
@@ -688,8 +688,8 @@ class Rango extends ProviderClass {
       debug(
         "getRangoSwap",
         `Rango block chains ids` +
-          `  fromRangoBlockchain=${fromRangoBlockchainName}` +
-          `  toRangoBlockchain=${toRangoBlockchainName}`,
+        `  fromRangoBlockchain=${fromRangoBlockchainName}` +
+        `  toRangoBlockchain=${toRangoBlockchainName}`,
       );
 
       const fromTokenAddress = options.fromToken.address;
@@ -712,8 +712,8 @@ class Rango extends ProviderClass {
         debug(
           "getRangoSwap",
           `No swap: No symbol for src token or dst token` +
-            `  fromTokenSymbol=${fromRangoTokenSymbol}` +
-            `  toTokenSymbol=${toRangoTokenSymbol}`,
+          `  fromTokenSymbol=${fromRangoTokenSymbol}` +
+          `  toTokenSymbol=${toRangoTokenSymbol}`,
         );
         return null;
       }
@@ -751,15 +751,15 @@ class Rango extends ProviderClass {
       debug(
         "getRangoSwap",
         `Requesting quote from rango sdk...` +
-          `  fromRangoBlockchain=${fromRangoBlockchainName}` +
-          `  toRangoBlockchain=${toRangoBlockchainName}` +
-          `  fromToken=${fromRangoTokenSymbol}` +
-          `  toToken=${toRangoTokenSymbol}` +
-          `  fromAddress=${options.fromAddress}` +
-          `  toAddress=${options.toAddress}` +
-          `  amount=${options.amount.toString()}` +
-          `  slippage=${slippage}` +
-          `  referrerFee=${params.referrerFee}`,
+        `  fromRangoBlockchain=${fromRangoBlockchainName}` +
+        `  toRangoBlockchain=${toRangoBlockchainName}` +
+        `  fromToken=${fromRangoTokenSymbol}` +
+        `  toToken=${toRangoTokenSymbol}` +
+        `  fromAddress=${options.fromAddress}` +
+        `  toAddress=${options.toAddress}` +
+        `  amount=${options.amount.toString()}` +
+        `  slippage=${slippage}` +
+        `  referrerFee=${params.referrerFee}`,
       );
       const rangoSwapResponse = await rangoClient.swap(params, abortable);
       debug("getRangoSwap", `Received quote from rango sdk`);
@@ -784,9 +784,7 @@ class Rango extends ProviderClass {
       let additionalNativeFees = toBN(0);
       rangoSwapResponse.route.fee.forEach((f) => {
         if (
-          !f.token.address &&
-          f.expenseType === "FROM_SOURCE_WALLET" &&
-          f.name !== "Network Fee"
+          f.expenseType === "FROM_SOURCE_WALLET"
         ) {
           additionalNativeFees = additionalNativeFees.add(toBN(f.amount));
         }
@@ -1011,7 +1009,7 @@ class Rango extends ProviderClass {
               debug(
                 "getRangoSwap",
                 `Checking Rango signatures...` +
-                  `  signatures=${thirdPartySignatures.length}`,
+                `  signatures=${thirdPartySignatures.length}`,
                 `  pubkeys=${thirdPartySignatures
                   .map(({ pubkey }) => pubkey)
                   .join(",")}`,
@@ -1389,7 +1387,7 @@ async function fetchRangoSwaplist(abortable?: {
     if (retryidx >= retries.length) {
       throw new Error(
         `Failed to fetch Rango swaplists after ${retries.length}` +
-          ` retries: ${String(errref?.err ?? "???")}`,
+        ` retries: ${String(errref?.err ?? "???")}`,
       );
     }
     const waitMs = retries[retryidx];
@@ -1614,7 +1612,7 @@ async function checkExpectedSolanaLegacyTransactionStatus(
       debug(
         "checkExpectedSolanaLegacyTransactionStatus",
         `Retrying Rango Solana unsigned legacy transaction simulation` +
-          ` with updated block hash ${latestBlockHash.blockhash}...`,
+        ` with updated block hash ${latestBlockHash.blockhash}...`,
       );
       legacyTx.recentBlockhash = latestBlockHash.blockhash;
       abortable?.signal?.throwIfAborted();
@@ -1670,7 +1668,7 @@ async function checkExpectedSolanaVersionedTransactionStatus(
       debug(
         "checkExpectedSolanaVersionedTransactionStatus",
         `Retrying Rango Solana unsigned versioned transaction simulation` +
-          ` with updated block hash ${latestBlockHash.blockhash}...`,
+        ` with updated block hash ${latestBlockHash.blockhash}...`,
       );
       versionedTx.message.recentBlockhash = latestBlockHash.blockhash;
     }
