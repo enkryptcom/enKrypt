@@ -51,7 +51,7 @@
     </p>
 
     <a
-      v-if="value.length > 0"
+      v-if="value.length > 0 && strength != PasswordStrength.veryStrong"
       class="password-input-strength__help visible"
       @mouseenter="toggleTooltip"
       @mouseleave="toggleTooltip"
@@ -68,13 +68,7 @@
         <h4 v-if="strength == PasswordStrength.medium" class="medium">
           {{ toolTipInfo }}
         </h4>
-        <h4
-          v-if="
-            strength == PasswordStrength.strong ||
-            strength == PasswordStrength.veryStrong
-          "
-          class="strong"
-        >
+        <h4 v-if="strength == PasswordStrength.strong" class="strong">
           {{ toolTipInfo }}
         </h4>
       </div>
