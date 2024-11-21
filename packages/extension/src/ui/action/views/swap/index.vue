@@ -548,18 +548,18 @@ const pickBestQuote = (fromAmountBN: BN, quotes: ProviderQuoteResponse[]) => {
       if (quotes.length === 1) {
         errors.value.inputAmount = `Minimum amount may be lower than: ~${fromT.toReadable(
           lowestMinimum,
-        )}`;
+        )} ${nativeSwapToken.value!.token.symbol}`;
       } else {
         // Swapping too few tokens
         errors.value.inputAmount = `Minimum amount: ${fromT.toReadable(
           lowestMinimum,
-        )}`;
+        )} ${nativeSwapToken.value!.token.symbol}`;
       }
     } else if (fromAmountBN.gt(highestMaximum)) {
       // Swapping too many tokens
       errors.value.inputAmount = `Maximum amount: ${fromT.toReadable(
         highestMaximum,
-      )}`;
+      )} ${nativeSwapToken.value!.token.symbol}`;
     } else if (smallestNativeFees.gt(remainingBalance)) {
       // Can't afford the fees
       errors.value.inputAmount = `Insufficient Bridging fees: ~${nativeSwapToken
