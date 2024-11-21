@@ -616,7 +616,7 @@ async function getJupiterTokens(abortable?: {
   const url = JUPITER_TOKENS_URL;
   let failed = false;
   let tokens: JupiterTokenInfo[];
-  const backoff = [0, 100, 500, 1000, 2_500, 5_000];
+  const backoff = [0, 100, 500, 1000, 2_000, 4_000];
   let backoffi = 0;
   let errRef: undefined | { err: Error };
 
@@ -795,7 +795,7 @@ async function getJupiterQuote(
 
   let failed = false;
   let quote: JupiterQuoteResponse;
-  const backoff = [0, 100, 500, 1000, 2_500, 5_000];
+  const backoff = [0, 100, 500, 1000, 2_000, 4_000];
   let backoffi = 0;
   let errRef: undefined | { err: Error };
 
@@ -936,12 +936,19 @@ async function getJupiterSwap(
     feeAccount: referrerATAPubkey?.toBase58(),
     quoteResponse: quote,
     destinationTokenAccount: dstATAPubkey?.toBase58(),
+    prioritizationFeeLamports: {
+      /**
+       * The automatic fee seems low and frequently causes transactions
+       * to be dropped when traffic is high
+       */
+      autoMultiplier: 3,
+    },
   };
 
   const url = `${JUPITER_API_URL}swap`;
   let failed = false;
   let swap: JupiterSwapResponse;
-  const backoff = [0, 100, 500, 1000, 2_500, 5_000];
+  const backoff = [0, 100, 500, 1000, 2_000, 4_000];
   let backoffi = 0;
   let errRef: undefined | { err: Error };
 
@@ -1197,6 +1204,6 @@ function sleep(
       clearTimeout(timeout);
     }
     abortable?.signal?.addEventListener("abort", onAbortDuringSleep);
-    const timeout = setTimeout(onTimeout);
+    const timeout = setTimeout(onTimeout, duration);
   });
 }
