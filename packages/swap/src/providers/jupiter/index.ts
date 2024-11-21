@@ -936,12 +936,16 @@ async function getJupiterSwap(
     feeAccount: referrerATAPubkey?.toBase58(),
     quoteResponse: quote,
     destinationTokenAccount: dstATAPubkey?.toBase58(),
+    /** @see https://station.jup.ag/api-v6/post-swap */
     prioritizationFeeLamports: {
       /**
        * The automatic fee seems low and frequently causes transactions
        * to be dropped when traffic is high
+       *
+       * This number has been arbitrary selected from manual testing @ 2024-11-21
+       * where there's been a bunch of network activity causing dropped transactions
        */
-      autoMultiplier: 3,
+      autoMultiplier: 6,
     },
   };
 
