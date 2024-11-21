@@ -64,7 +64,7 @@ class API implements ProviderAPIInterface {
     }
     const allTokensResponse = await cacheFetch(
       {
-        url: 'https://utl.solcast.dev/solana-tokenlist.json',
+        url: 'https://raw.githubusercontent.com/solflare-wallet/token-list/refs/heads/master/solana-tokenlist.json',
         postProcess: (data: any) => {
           const allTokens = data.tokens as TokenDetails[];
           const tObj: Record<string, TokenDetails> = {};
@@ -74,7 +74,7 @@ class API implements ProviderAPIInterface {
           return tObj;
         },
       },
-      60 * 60 * 1000,
+      6 * 60 * 60 * 1000,
     );
     const allTokens = allTokensResponse as Record<string, TokenDetails>;
     let decimals = 9;

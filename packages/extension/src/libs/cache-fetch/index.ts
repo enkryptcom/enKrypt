@@ -42,7 +42,7 @@ const cacheFetch = async (
       .then(json => {
         const jsondata = options.postProcess ? options.postProcess(json) : json;
         const jsonstring = JSON.stringify(jsondata);
-        if (!jsonstring.includes('error')) {
+        if (!json.error) {
           const store: StoredData = {
             timestamp: new Date().getTime(),
             data: jsonstring,

@@ -457,8 +457,7 @@ const updateTransactionFees = async () => {
     }),
   );
   if (isSendToken.value && TxInfo.value.contract === NATIVE_TOKEN_ADDRESS) {
-    const toPubKey = new PublicKey(getAddress(addressTo.value));
-    const balance = await solConnection.value!.web3.getBalance(toPubKey);
+    const toBalance = await solConnection.value!.web3.getBalance(to);
     const rentExempt =
       await solConnection.value!.web3.getMinimumBalanceForRentExemption(
         ACCOUNT_SIZE,
@@ -470,11 +469,15 @@ const updateTransactionFees = async () => {
         lamports: toBN(TxInfo.value.value).toNumber(),
       }),
     );
-    if (toBN(balance).lt(toBN(rentExempt))) {
-      storageFee.value =
-        await solConnection.value!.web3.getMinimumBalanceForRentExemption(
-          ACCOUNT_SIZE,
-        );
+    if (toBN(toBalance).lt(toBN(rentExempt))) {
+      storageFee.value = rentExempt - toBalance;
+      transaction.add(
+        SystemProgram.transfer({
+          fromPubkey: from,
+          toPubkey: to,
+          lamports: storageFee.value,
+        }),
+      );
     }
   } else if (
     isSendToken.value ||
