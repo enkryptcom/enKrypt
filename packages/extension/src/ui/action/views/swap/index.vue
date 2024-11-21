@@ -545,7 +545,7 @@ const pickBestQuote = (fromAmountBN: BN, quotes: ProviderQuoteResponse[]) => {
        * minumum amount for the swap and returns changelly
        * but rango's actual minimum is a lot lower than changelly's
        */
-      if (quotes.length === 1) {
+      if (quotes.length === 1 && props.network.name === NetworkNames.Solana) {
         errors.value.inputAmount = `Minimum amount may be lower than: ~${fromT.toReadable(
           lowestMinimum,
         )} ${nativeSwapToken.value!.token.symbol}`;
@@ -562,8 +562,8 @@ const pickBestQuote = (fromAmountBN: BN, quotes: ProviderQuoteResponse[]) => {
       )} ${nativeSwapToken.value!.token.symbol}`;
     } else if (smallestNativeFees.gt(remainingBalance)) {
       // Can't afford the fees
-      errors.value.inputAmount = `Insufficient Bridging fees: ~${nativeSwapToken
-        .value!.toReadable(smallestNativeFees)
+      errors.value.inputAmount = `Insufficient Bridging fees: ~${fromT
+        .toReadable(smallestNativeFees)
         .substring(0, 10)} ${nativeSwapToken.value!.token.symbol} required`;
     }
 

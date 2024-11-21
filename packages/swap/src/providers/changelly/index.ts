@@ -597,7 +597,7 @@ class Changelly extends ProviderClass {
       try {
         networkFeeBase = toBase(
           firstChangellyFixRateQuote.networkFee,
-          options.toToken.decimals,
+          options.fromToken.decimals,
         );
       } catch (err) {
         console.warn(
@@ -628,10 +628,9 @@ class Changelly extends ProviderClass {
           `  options.toToken.address=${options.toToken.address}`,
         );
       }
-
       const providerQuoteResponse: ProviderQuoteResponse = {
         fromTokenAmount: quoteRequestAmount,
-        additionalNativeFees: toBN(firstChangellyFixRateQuote.networkFee),
+        additionalNativeFees: toBN(networkFeeBase),
         toTokenAmount: toBN(toTokenAmountBase).sub(toBN(networkFeeBase)),
         provider: this.name,
         quote: {
