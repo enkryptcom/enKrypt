@@ -4,7 +4,7 @@
       class="add-network__header"
       :class="{ border: isHasScroll() && scrollProgress > 0 }"
     >
-      <h3>Manage networks</h3>
+      <h3>Custom Networks & Testnets</h3>
 
       <a class="add-network__close" @click="close">
         <close-icon />

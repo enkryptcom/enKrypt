@@ -12,8 +12,8 @@
             <more-icon />
           </a>
           <div v-show="isOpenMore" ref="dropdown" class="app__menu-dropdown">
-            <a class="app__menu-dropdown-link" @click="customNetworksAction">
-              <manage-networks-icon /> <span>Custom networks</span>
+            <a class="app__menu-dropdown-link" @click="otherNetworksAction">
+              <manage-networks-icon /> <span>Other networks</span>
             </a>
             <a class="app__menu-dropdown-link" @click="lockAction">
               <hold-icon /> <span>Lock Enkrypt</span>
@@ -535,7 +535,7 @@ const settingsAction = () => {
   closeMoreMenu();
   settingsShow.value = !settingsShow.value;
 };
-const customNetworksAction = () => {
+const otherNetworksAction = () => {
   closeMoreMenu();
   addNetworkShow.value = !addNetworkShow.value;
 };
