@@ -40,7 +40,6 @@ import TestNetworkIcon from '@action/icons/common/test-network-icon.vue';
 import NewIcon from '@action/icons/asset/new-icon.vue';
 import PinIcon from '@action/icons/actions/pin.vue';
 import { newNetworks } from '@/providers/common/libs/new-features';
-import { BaseNetwork } from '@/types/base-network';
 
 const props = defineProps({
   network: {
@@ -55,9 +54,9 @@ const props = defineProps({
       return false;
     },
   },
-  pinnedNetworks: {
-    type: Array as PropType<BaseNetwork[]>,
-    default: () => [],
+  isPinned: {
+    type: Boolean,
+    required: true,
   },
 });
 const imageTag = ref<HTMLImageElement | null>(null);
@@ -130,9 +129,7 @@ const isHovered = ref(false);
  * @returns {boolean} - `true` if the "Pin" button should be shown, `false` otherwise.
  */
 const isPinned = computed(() => {
-  return props.pinnedNetworks.some(
-    pinnedNetwork => pinnedNetwork.name === props.network.name,
-  );
+  return props.isPinned;
 });
 
 /**
@@ -177,7 +174,8 @@ const setPinned = async () => {
     align-items: center;
     flex-direction: row;
     width: 96%;
-    height: 40px;
+    min-height: 40px !important;
+    max-height: 40px;
     margin-bottom: 3px;
     margin-top: 3px;
     cursor: pointer;

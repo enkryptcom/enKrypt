@@ -6,19 +6,31 @@
       @scroll="setIsScrolling"
     >
       <!-- NOTE: WHATS seletced props is for, it is not in the component-->
-      <draggable v-model="searchNetworks" item-key="name" :animation="300">
+
+      <draggable v-model="draggableNetworks" item-key="name" :animation="500">
         <template #item="{ element }">
           <app-menu-item
             v-bind="$attrs"
             :network="element"
             :is-active="!!selected && element.name === selected"
             :selected="selected"
-            :pinnedNetworks="pinnedNetworks"
+            :is-pinned="getIsPinned(element.name)"
             @click="emit('update:network', element)"
             @update:pin-network="updatePinNetwork"
           />
         </template>
       </draggable>
+      <app-menu-item
+        v-for="element in otherNetworks"
+        :key="element.name"
+        v-bind="$attrs"
+        :network="element"
+        :is-active="!!selected && element.name === selected"
+        :selected="selected"
+        :is-pinned="getIsPinned(element.name)"
+        @click="emit('update:network', element)"
+        @update:pin-network="updatePinNetwork"
+      />
     </div>
   </div>
 </template>
@@ -29,7 +41,7 @@ import AppMenuItem from './components/app-menu-item.vue';
 import draggable from 'vuedraggable';
 import NetworksState from '@/libs/networks-state';
 import { BaseNetwork } from '@/types/base-network';
-
+import { NetworkNames } from '@enkryptcom/types';
 const networksState = new NetworksState();
 const props = defineProps({
   networks: {
@@ -59,6 +71,9 @@ const emit = defineEmits<{
   (e: 'update:pinNetwork', network: string, isPinned: boolean): void;
 }>();
 
+const getIsPinned = (network: NetworkNames) => {
+  return props.pinnedNetworks.map(pinned => pinned.name).includes(network);
+};
 const searchNetworks = computed({
   get: () => {
     return props.networks.filter(
@@ -77,6 +92,16 @@ const searchNetworks = computed({
       networksState.reorderNetwork(value.map(v => v.name));
     }
   },
+});
+
+const draggableNetworks = computed(() => {
+  return searchNetworks.value.filter(network => {
+    return getIsPinned(network.name);
+  });
+});
+
+const otherNetworks = computed(() => {
+  return searchNetworks.value.filter(network => !getIsPinned(network.name));
 });
 
 const updatePinNetwork = (network: string, isPinned: boolean) => {
@@ -125,7 +150,6 @@ onBeforeUnmount(() => {
     max-height: 452px;
     display: flex;
     flex-direction: column;
-    gap: 4px;
     overflow-y: scroll;
     scroll-behavior: smooth;
     margin-right: -4px;
