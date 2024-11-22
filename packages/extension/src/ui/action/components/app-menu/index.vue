@@ -6,7 +6,6 @@
       @scroll="setIsScrolling"
     >
       <!-- NOTE: WHATS seletced props is for, it is not in the component-->
-
       <draggable v-model="draggableNetworks" item-key="name" :animation="500">
         <template #item="{ element }">
           <app-menu-item
@@ -74,30 +73,26 @@ const emit = defineEmits<{
 const getIsPinned = (network: NetworkNames) => {
   return props.pinnedNetworks.map(pinned => pinned.name).includes(network);
 };
-const searchNetworks = computed({
-  get: () => {
-    return props.networks.filter(
-      net =>
-        net.name_long
-          .toLowerCase()
-          .startsWith(props.searchInput.toLowerCase()) ||
-        net.currencyName
-          .toLowerCase()
-          .startsWith(props.searchInput.toLowerCase()),
-    );
-  },
-  set: value => {
-    emit('update:order', value);
-    if (props.searchInput === '') {
-      networksState.reorderNetwork(value.map(v => v.name));
-    }
-  },
+const searchNetworks = computed(() => {
+  return props.networks.filter(
+    net =>
+      net.name_long.toLowerCase().startsWith(props.searchInput.toLowerCase()) ||
+      net.currencyName
+        .toLowerCase()
+        .startsWith(props.searchInput.toLowerCase()),
+  );
 });
 
-const draggableNetworks = computed(() => {
-  return searchNetworks.value.filter(network => {
-    return getIsPinned(network.name);
-  });
+const draggableNetworks = computed({
+  get() {
+    return props.pinnedNetworks;
+  },
+  set(value: BaseNetwork[]) {
+    emit('update:order', value);
+    if (props.searchInput === '') {
+      networksState.reorderNetwork(value.map((v: BaseNetwork) => v.name));
+    }
+  },
 });
 
 const otherNetworks = computed(() => {
