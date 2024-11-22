@@ -597,7 +597,7 @@ class Changelly extends ProviderClass {
       try {
         networkFeeBase = toBase(
           firstChangellyFixRateQuote.networkFee,
-          options.fromToken.decimals,
+          options.toToken.decimals,
         );
       } catch (err) {
         console.warn(
