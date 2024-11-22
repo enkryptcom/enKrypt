@@ -20,13 +20,14 @@
       <p
         v-if="showIsPinned"
         :class="[
-          'app-menu__link__block__pin hover-transition-bg',
+          'app-menu__link__block__pin',
           {
             'app-menu__link__block__pin__active': pinIconIsActive,
           },
         ]"
+        @click="setPinned"
       >
-        <pin-icon :is-pinned="showIsPinned" :is-active="pinIconIsActive" />
+        <pin-icon :is-pinned="isPinned" :is-active="pinIconIsActive" />
       </p>
     </div>
   </a>
@@ -63,6 +64,7 @@ const imageTag = ref<HTMLImageElement | null>(null);
 
 const emit = defineEmits<{
   (e: 'update:gradient', data: string): void;
+  (e: 'update:pinNetwork', network: string, isPinned: boolean): void;
 }>();
 // NOTE: WHAT IS THIS?
 const componentToHex = (c: number) => {
@@ -145,6 +147,10 @@ const showIsPinned = computed(() => {
 const pinIconIsActive = computed(() => {
   return props.isActive || isHovered.value;
 });
+
+const setPinned = async () => {
+  emit('update:pinNetwork', props.network.name, !isPinned.value);
+};
 </script>
 
 <style lang="less">
@@ -188,13 +194,11 @@ const pinIconIsActive = computed(() => {
         max-width: 32px;
         max-height: 24px;
         padding: 5px 8px 3px 8px;
-
+        background: transparent;
+        border-radius: 24px;
+        transition: @opacity-noBG-transition;
         &__active {
-          max-width: 32px;
-          max-height: 24px;
-          padding: 5px 8px 3px 8px;
-          border-radius: 24px;
-          background-color: @primaryLight;
+          background: @primaryLight;
         }
       }
     }

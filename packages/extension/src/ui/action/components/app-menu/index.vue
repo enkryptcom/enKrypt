@@ -15,6 +15,7 @@
             :selected="selected"
             :pinnedNetworks="pinnedNetworks"
             @click="emit('update:network', element)"
+            @update:pin-network="updatePinNetwork"
           />
         </template>
       </draggable>
@@ -55,6 +56,7 @@ const props = defineProps({
 const emit = defineEmits<{
   (e: 'update:network', network: BaseNetwork): void;
   (e: 'update:order', networks: BaseNetwork[]): void;
+  (e: 'update:pinNetwork', network: string, isPinned: boolean): void;
 }>();
 
 const searchNetworks = computed({
@@ -76,6 +78,11 @@ const searchNetworks = computed({
     }
   },
 });
+
+const updatePinNetwork = (network: string, isPinned: boolean) => {
+  emit('update:pinNetwork', network, isPinned);
+};
+
 /** ------------------
  * Scroll
  -------------------*/

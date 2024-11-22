@@ -41,6 +41,7 @@
         @update:order="updateNetworkOrder"
         @update:network="setNetwork"
         @update:gradient="updateGradient"
+        @update:pin-network="setIsPinnedNetwork"
       />
     </div>
 
@@ -191,21 +192,23 @@ const latestVersion = ref('');
 const setActiveNetworks = async () => {
   const pinnedNetworkNames = await networksState.getPinnedNetworkNames();
   const allNetworks = await getAllNetworks();
+  pinnedNetworks.value = [];
   pinnedNetworkNames.forEach(name => {
     const network = allNetworks.find(network => network.name === name);
     if (network !== undefined) pinnedNetworks.value.push(network);
   });
-
   networks.value = [
     ...pinnedNetworks.value,
     ...allNetworks.filter(
       network => !pinnedNetworkNames.includes(network.name),
     ),
   ];
-
-  if (!pinnedNetworks.value.includes(currentNetwork.value)) {
-    setNetwork(pinnedNetworks.value[0]);
-  }
+  networks.value = [
+    ...networks.value.filter(network => !network.isTestNetwork),
+  ];
+  // if (!pinnedNetworks.value.includes(currentNetwork.value)) {
+  //   setNetwork(pinnedNetworks.value[0]);
+  // }
 };
 const updateNetworkOrder = (newOrder: BaseNetwork[]) => {
   if (searchInput.value === '') pinnedNetworks.value = newOrder;
@@ -526,6 +529,10 @@ onClickOutside(
   },
   { ignore: [toggle] },
 );
+const setIsPinnedNetwork = async (network: string, isPinned: boolean) => {
+  await networksState.setNetworkStatus(network, isPinned);
+  await setActiveNetworks();
+};
 </script>
 
 <style lang="less">
