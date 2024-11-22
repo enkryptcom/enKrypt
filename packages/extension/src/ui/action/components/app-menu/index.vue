@@ -5,9 +5,9 @@
       class="app-menu__scroll-area"
       @scroll="setIsScrolling"
     >
+      <!-- NOTE: WHATS seletced props is for, it is not in the component-->
       <draggable v-model="searchNetworks" item-key="name" :animation="300">
         <template #item="{ element }">
-          <!-- NOTE: WHATS seletced props is for, it is not in the component-->
           <app-menu-item
             v-bind="$attrs"
             :network="element"
@@ -23,12 +23,11 @@
 </template>
 
 <script setup lang="ts">
-import { PropType, ref, onBeforeUnmount } from 'vue';
+import { PropType, ref, onBeforeUnmount, computed } from 'vue';
 import AppMenuItem from './components/app-menu-item.vue';
 import draggable from 'vuedraggable';
 import NetworksState from '@/libs/networks-state';
 import { BaseNetwork } from '@/types/base-network';
-import { computed } from 'vue';
 
 const networksState = new NetworksState();
 const props = defineProps({
