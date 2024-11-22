@@ -6,10 +6,11 @@
     <div ref="tooltip" class="add-network__search-wrap">
       <div class="add-network__search-add">
         <a @click="action">
-          <slider-icon />
+          <new-icon />
         </a>
       </div>
-      <div v-show="openList" class="add-network__search-list">
+
+      <!-- <div v-show="openList" class="add-network__search-list">
         <a
           class="add-network__search-list-item"
           @click="$emit('action:customNetwork')"
@@ -23,7 +24,7 @@
             @update:check="$emit('toggle:testNetworks')"
           />
         </div>
-      </div>
+      </div> -->
     </div>
   </div>
 </template>
@@ -31,7 +32,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import BaseSearch from '@action/components/base-search/index.vue';
-import SliderIcon from '@action/icons/common/slider-icon.vue';
+import NewIcon from '@action/icons/common/add-icon.vue';
 import TestNetworkIcon from '@action/icons/common/test-network-icon.vue';
 import CustomNetworkIcon from '@action/icons/common/custom-network-icon.vue';
 import Switch from '@action/components/switch/index.vue';

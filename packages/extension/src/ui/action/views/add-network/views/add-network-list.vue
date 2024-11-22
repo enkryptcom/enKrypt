@@ -4,7 +4,7 @@
       class="add-network__header"
       :class="{ border: isHasScroll() && scrollProgress > 0 }"
     >
-      <h3>Custom Networks & Testnets</h3>
+      <h3>Testnets & custom networks</h3>
 
       <a class="add-network__close" @click="close">
         <close-icon />
@@ -35,7 +35,7 @@
           @network-toggled="onToggle"
         />
       </div>
-      <h3 class="add-network__list-header">All networks</h3>
+      <h3 class="add-network__list-header">Test networks</h3>
       <add-network-item
         v-for="item in searchAllNetworks"
         :key="item.name"
