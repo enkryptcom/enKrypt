@@ -1,13 +1,13 @@
 <template>
   <div :class="['app-menu', { 'has-bg': isScrolling }]">
-    <custom-scrollbar
+    <div
       v-if="!!networks"
-      :class="'app-menu__scroll-area'"
-      @changeIsScrolling="setIsScrolling"
+      class="app-menu__scroll-area"
+      @scroll="setIsScrolling"
     >
       <draggable v-model="searchNetworks" item-key="name" :animation="300">
-        <!-- NOTE: WHATS seletced props is for, it is not in the component-->
         <template #item="{ element }">
+          <!-- NOTE: WHATS seletced props is for, it is not in the component-->
           <app-menu-item
             v-bind="$attrs"
             :network="element"
@@ -18,18 +18,18 @@
           />
         </template>
       </draggable>
-    </custom-scrollbar>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { PropType, ref } from 'vue';
+import { PropType, ref, onBeforeUnmount } from 'vue';
 import AppMenuItem from './components/app-menu-item.vue';
-import CustomScrollbar from '@action/components/custom-scrollbar/index.vue';
 import draggable from 'vuedraggable';
 import NetworksState from '@/libs/networks-state';
 import { BaseNetwork } from '@/types/base-network';
 import { computed } from 'vue';
+
 const networksState = new NetworksState();
 const props = defineProps({
   networks: {
@@ -77,39 +77,65 @@ const searchNetworks = computed({
     }
   },
 });
-
+/** ------------------
+ * Scroll
+ -------------------*/
+const scrollTimeout = ref<number | null>(null);
 const isScrolling = ref(false);
-const setIsScrolling = (val: boolean) => {
-  isScrolling.value = val;
+const setIsScrolling = () => {
+  isScrolling.value = true;
+  if (scrollTimeout.value) {
+    clearTimeout(scrollTimeout.value);
+  }
+  scrollTimeout.value = window.setTimeout(() => {
+    isScrolling.value = false;
+  }, 1500);
 };
+
+onBeforeUnmount(() => {
+  if (scrollTimeout.value) {
+    clearTimeout(scrollTimeout.value);
+  }
+});
 </script>
 
 <style lang="less">
 @import '@action/styles/theme.less';
 
 .app-menu {
-  margin-top: 8px;
   overflow-y: auto;
   transition: background-color 0.5s ease-in-out;
   background-color: transparent;
+  box-shadow: none;
   margin: 0px -12px 0px -12px;
-  padding: 10px 10px 0px 10px;
-
+  padding: 4px 10px 0px 10px;
+  transition:
+    background-color 0.4s ease-in-out,
+    box-shadow 0.4s ease-in-out;
   &__scroll-area {
     position: relative;
     margin: auto;
     width: 100%;
     max-height: 452px;
-
-    &.ps--active-y {
-      padding-right: 0 !important;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    overflow-y: scroll;
+    scroll-behavior: smooth;
+    margin-right: -4px;
+    padding-right: 4px;
+    &::-webkit-scrollbar {
+      width: 4px;
     }
-    .ps__rail-y {
-      right: 4px !important;
+    &::-webkit-scrollbar-thumb {
+      background: rgba(0, 0, 0, 0.36);
+      border-radius: 20px;
     }
   }
 }
 .has-bg {
-  background: rgba(247, 239, 244, 1);
+  background-color: rgba(247, 239, 244, 1);
+  box-shadow: inset 0px 1px 2px rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(40px);
 }
 </style>
