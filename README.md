@@ -32,28 +32,81 @@ Enkrypt is a web3 wallet built from the ground up to support the multi-chain fut
 ## Currently Supported Chains
 
 - Ethereum
-- Polygon
-- BNB Smart Chain
+- Bitcoin
+- Solana
+- Acala
+- Amplitude
+- Arbitrum
+- Arbitrum Nova
+- Arthera
+- Astar
+- Astar EVM
+- Aurora
+- Avalanche
+- Base
+- Bifrost
+- Bifrost (Kusama)
+- Binance Smart Chain
+- Bitcoin Testnet
+- Bitrock
+- Blast
+- Caga Ankara Testnet
+- Canto
+- Celo
+- Degen
+- Dogecoin
+- Edgeware
+- Edgeware EVM
+- Ethereum Classic
+- Fantom
+- Forma
+- Gnosis
+- Godwoken
+- Goerli
+- Ham Chain
+- Immutable zkEVM
+- Kadena
+- Karura
+- Karura EVM
+- Klaytn
+- Kusama
+- Linea
+- Litecoin
+- Manta Pacific
+- Mode
 - Moonbeam
 - Moonriver
-- Karura EVM
-- Ethereum Classic
+- OKX Chain
+- Ontology EVM
+- Opal
+- opBNB
+- Optimism
+- Palm Network
+- Pendulum
 - Polkadot
-- Kusama
-- Edgeware
-- Acala
-- Karura
-- TomoChain
-- Arbitrum
-- Gnosis
-- Avalanche
-- Fantom
-- Klaytn
-- Aurora
-- Ontology
+- Polygon
+- Polygon zkEVM
+- Proof of Play Apex
 - Puppy Net
-- Arthera
-- Caga Ankara Testnet
+- Quartz
+- RARI Chain
+- Rollux
+- Rootstock
+- Sanko Chain
+- Scroll
+- Shibarium
+- Shiden
+- Shiden EVM
+- Sepolia
+- Syscoin
+- Telos EVM
+- Unique
+- Vara Network
+- Viction
+- Westend
+- ZChains
+- zkSync
+- zkSync Goerli
 - More coming soon!
 
 Looking to add your project? [Contact us!](https://mewwallet.typeform.com/enkrypt-inquiry?typeform-source=www.enkrypt.com)
