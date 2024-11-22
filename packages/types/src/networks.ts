@@ -94,6 +94,7 @@ export enum NetworkNames {
   Rari = "rari",
   CotiDevnet = "CotiDevnet",
   Holesky = "HOLESKY",
+  Bitrock = "bitrock",
 }
 
 export enum CoingeckoPlatform {
@@ -150,4 +151,5 @@ export enum CoingeckoPlatform {
   Mode = "mode",
   OpBNB = "opbnb",
   Scroll = "scroll",
+  Bitrock = "bitrock",
 }
