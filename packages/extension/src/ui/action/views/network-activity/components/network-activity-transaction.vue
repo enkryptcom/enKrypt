@@ -81,9 +81,7 @@
 
         <div class="network-activity__transaction-info-name">
           <h4>
-            Swap from
-            {{ (activity.rawInfo as SwapRawInfo).fromToken.symbol }} to
-            {{ (activity.rawInfo as SwapRawInfo).toToken.symbol }}
+            {{ swapMessage }}
           </h4>
           <p>
             <span
@@ -120,7 +118,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, PropType, ref } from 'vue';
+import { computed, onMounted, PropType, ref, watch } from 'vue';
 import moment from 'moment';
 import TransactionTimer from './transaction-timer.vue';
 import {
@@ -131,6 +129,7 @@ import {
 } from '@/types/activity';
 import { BaseNetwork } from '@/types/base-network';
 import { fromBase } from '@enkryptcom/utils';
+import { getNetworkByName } from '@/libs/utils/networks';
 import BigNumber from 'bignumber.js';
 import { imageLoadError } from '@/ui/action/utils/misc';
 const props = defineProps({
@@ -153,11 +152,91 @@ const transactionURL = computed(() => {
     props.activity.transactionHash,
   );
 });
+
 const getFiatValue = computed(() => {
   return new BigNumber(props.activity.token.price || '0').times(
     fromBase(props.activity.value, props.activity.token.decimals),
   );
 });
+
+type SwapActivityDescriptionData = {
+  fromNetworkName: string;
+  toNetworkName: string;
+  fromTokenSymbol: string;
+  toTokenSymbol: string;
+};
+
+const getSwapActivityDescriptionSync = (
+  data: SwapActivityDescriptionData,
+): string => {
+  const { fromNetworkName, toNetworkName, fromTokenSymbol, toTokenSymbol } =
+    data;
+  if (fromNetworkName === toNetworkName || fromTokenSymbol !== toTokenSymbol) {
+    return `Swap from` + ` ${fromTokenSymbol}` + ` to ${toTokenSymbol}`;
+  }
+
+  return (
+    `Swap from` +
+    ` ${fromTokenSymbol}` +
+    ` to ${toTokenSymbol}` +
+    ` (Loading...)`
+  );
+};
+
+const getSwapActivityDescriptionAsync = async (
+  data: SwapActivityDescriptionData,
+): Promise<string> => {
+  const { fromNetworkName, toNetworkName, fromTokenSymbol, toTokenSymbol } =
+    data;
+  if (fromNetworkName === toNetworkName || fromTokenSymbol !== toTokenSymbol) {
+    return `Swap from` + ` ${fromTokenSymbol}` + ` to ${toTokenSymbol}`;
+  }
+
+  const toNetwork = await getNetworkByName(toNetworkName);
+  if (!toNetwork) {
+    return (
+      `Swap from` +
+      ` ${fromTokenSymbol}` +
+      ` to ${fromTokenSymbol}` +
+      ` (Unknown)`
+    );
+  }
+
+  return (
+    `Swap from` +
+    ` ${fromTokenSymbol}` +
+    ` to ${toTokenSymbol}` +
+    ` (${toNetwork.name_long})`
+  );
+};
+
+const swapMessage = ref('');
+/** Used to avoid updating the description to include (Loading...) when nothing has changed */
+let swapActivityDescriptionId: null | string = null;
+watch(
+  () => props.activity,
+  function (activity) {
+    if (activity.type !== ActivityType.swap) return;
+    const rawInfo = activity.rawInfo as SwapRawInfo;
+    const data: SwapActivityDescriptionData = {
+      fromNetworkName: activity.network,
+      toNetworkName: rawInfo.toToken.networkInfo.name,
+      fromTokenSymbol: rawInfo.fromToken.symbol,
+      toTokenSymbol: rawInfo.toToken.symbol,
+    };
+    const thisId = JSON.stringify(data);
+    // no change
+    if (swapActivityDescriptionId === thisId) return;
+    swapActivityDescriptionId = thisId;
+    swapMessage.value = getSwapActivityDescriptionSync(data);
+    getSwapActivityDescriptionAsync(data).then(asyncMessage => {
+      if (swapActivityDescriptionId !== thisId) return;
+      swapMessage.value = asyncMessage;
+    });
+  },
+  { immediate: true },
+);
+
 onMounted(() => {
   date.value = moment(props.activity.timestamp).fromNow();
   if (
