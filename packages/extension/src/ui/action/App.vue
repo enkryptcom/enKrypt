@@ -29,6 +29,10 @@
         :is-border="false"
         @update:value="updateSearchValue"
       />
+      <app-menu-tab
+        :active-category="activeCategory"
+        @update:category="setActiveCategory"
+      />
       <app-menu
         :networks="displayNetworks"
         :pinnedNetworks="pinnedNetworks"
@@ -37,46 +41,8 @@
         @update:order="updateNetworkOrder"
         @update:network="setNetwork"
         @update:gradient="updateGradient"
+        @update:pin-network="setIsPinnedNetwork"
       />
-      <!-- network list type logic -->
-      <div class="tab__container">
-        <div
-          :class="[
-            'tab__container-tab',
-            activeCategory === NetworksCategory.Popular ? 'active' : '',
-          ]"
-          @click="setActiveCategory(NetworksCategory.Popular)"
-        >
-          Popular
-        </div>
-        <div
-          :class="[
-            'tab__container-tab',
-            activeCategory === NetworksCategory.All ? 'active' : '',
-          ]"
-          @click="setActiveCategory(NetworksCategory.All)"
-        >
-          All
-        </div>
-        <div
-          :class="[
-            'tab__container-tab',
-            activeCategory === NetworksCategory.Pinned ? 'active' : '',
-          ]"
-          @click="setActiveCategory(NetworksCategory.Pinned)"
-        >
-          Pinned
-        </div>
-        <div
-          :class="[
-            'tab__container-tab',
-            activeCategory === NetworksCategory.New ? 'active' : '',
-          ]"
-          @click="setActiveCategory(NetworksCategory.New)"
-        >
-          New
-        </div>
-      </div>
     </div>
 
     <div v-show="!isLoading" class="app__content">
@@ -164,6 +130,7 @@ import { useRoute, useRouter } from 'vue-router';
 import Browser from 'webextension-polyfill';
 import AccountsHeader from './components/accounts-header/index.vue';
 import AppMenu from './components/app-menu/index.vue';
+import AppMenuTab from './components/app-menu/components/app-menu-tab.vue';
 import BaseSearch from './components/base-search/index.vue';
 import NetworkMenu from './components/network-menu/index.vue';
 import MoreIcon from './icons/actions/more.vue';
@@ -184,13 +151,7 @@ import { trackBuyEvents, trackNetworkSelected } from '@/libs/metrics';
 import { getLatestEnkryptVersion } from '@action/utils/browser';
 import { gt as semverGT } from 'semver';
 import { BuyEventType, NetworkChangeEvents } from '@/libs/metrics/types';
-
-const NetworksCategory = {
-  All: 'all',
-  Popular: 'popular',
-  Pinned: 'pinned',
-  New: 'new',
-};
+import { NetworksCategory } from '@action/types/network-category';
 
 const domainState = new DomainState();
 const networksState = new NetworksState();
@@ -211,8 +172,7 @@ const router = useRouter();
 const route = useRoute();
 const transitionName = 'fade';
 const searchInput = ref('');
-//TODO: MAKE THIS A CONST
-const activeCategory = ref('all');
+const activeCategory = ref<NetworksCategory>(NetworksCategory.All);
 const networks = ref<BaseNetwork[]>([]);
 const pinnedNetworks = ref<BaseNetwork[]>([]);
 const defaultNetwork = DEFAULT_EVM_NETWORK;
@@ -229,28 +189,26 @@ const isLoading = ref(true);
 const currentVersion = __PACKAGE_VERSION__;
 const latestVersion = ref('');
 
-const setActiveCategory = (category: string) => {
-  activeCategory.value = category;
-};
-
 const setActiveNetworks = async () => {
   const pinnedNetworkNames = await networksState.getPinnedNetworkNames();
   const allNetworks = await getAllNetworks();
+  pinnedNetworks.value = [];
   pinnedNetworkNames.forEach(name => {
     const network = allNetworks.find(network => network.name === name);
     if (network !== undefined) pinnedNetworks.value.push(network);
   });
-
   networks.value = [
     ...pinnedNetworks.value,
     ...allNetworks.filter(
       network => !pinnedNetworkNames.includes(network.name),
     ),
   ];
-
-  if (!pinnedNetworks.value.includes(currentNetwork.value)) {
-    setNetwork(pinnedNetworks.value[0]);
-  }
+  networks.value = [
+    ...networks.value.filter(network => !network.isTestNetwork),
+  ];
+  // if (!pinnedNetworks.value.includes(currentNetwork.value)) {
+  //   setNetwork(pinnedNetworks.value[0]);
+  // }
 };
 const updateNetworkOrder = (newOrder: BaseNetwork[]) => {
   if (searchInput.value === '') pinnedNetworks.value = newOrder;
@@ -497,17 +455,22 @@ const isLocked = computed(() => {
   return route.name == 'lock-screen';
 });
 
+/**-------------------
+ * Network Categories
+ -------------------*/
+const setActiveCategory = (category: NetworksCategory) => {
+  activeCategory.value = category;
+};
+
 /**
  * Display Networks
- * Categories: All, Popular, Pinned, New
+ * Categories: All, Pinned, New
  */
 const displayNetworks = computed<BaseNetwork[]>(() => {
   switch (activeCategory.value) {
     case NetworksCategory.All:
       // TODO: FILTER OUT TESTNETS THAT ARE NOT ENABLED
       return networks.value;
-    // case 'popular':
-    //   return networks.value.filter(net => POPULAR_NAMES.includes(net.name));
     case NetworksCategory.Pinned:
       return pinnedNetworks.value;
     // case 'new':
@@ -566,6 +529,10 @@ onClickOutside(
   },
   { ignore: [toggle] },
 );
+const setIsPinnedNetwork = async (network: string, isPinned: boolean) => {
+  await networksState.setNetworkStatus(network, isPinned);
+  await setActiveNetworks();
+};
 </script>
 
 <style lang="less">
@@ -631,7 +598,7 @@ body {
     box-sizing: border-box;
     z-index: 1;
     background: @defaultGradient;
-
+    box-shadow: inset -1px 0px 2px 0px rgba(0, 0, 0, 0.16);
     &-logo {
       margin-left: 8px;
     }
