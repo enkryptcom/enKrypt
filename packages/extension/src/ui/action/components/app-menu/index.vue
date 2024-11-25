@@ -19,17 +19,19 @@
           />
         </template>
       </draggable>
-      <app-menu-item
-        v-for="element in otherNetworks"
-        :key="element.name"
-        v-bind="$attrs"
-        :network="element"
-        :is-active="!!selected && element.name === selected"
-        :selected="selected"
-        :is-pinned="getIsPinned(element.name)"
-        @click="emit('update:network', element)"
-        @update:pin-network="updatePinNetwork"
-      />
+      <div>
+        <app-menu-item
+          v-for="element in otherNetworks"
+          :key="element.name"
+          v-bind="$attrs"
+          :network="element"
+          :is-active="!!selected && element.name === selected"
+          :selected="selected"
+          :is-pinned="getIsPinned(element.name)"
+          @click="emit('update:network', element)"
+          @update:pin-network="updatePinNetwork"
+        />
+      </div>
     </div>
   </div>
 </template>
