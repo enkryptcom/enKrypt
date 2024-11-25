@@ -52,9 +52,10 @@ import {
   JupiterSwapResponse,
   JupiterTokenInfo,
 } from "./types";
+import { DebugLogger } from "@enkryptcom/utils";
 
-/** Enables debug logging in this file */
-const DEBUG = false;
+const logger = new DebugLogger("swap:jupiter");
+globalThis.__ENKRYPT_LOGGER__ = logger;
 
 /**
  * # Jupiter swap flow
@@ -133,35 +134,6 @@ const JUPITER_REFERRAL_PROGRAM_PUBKEY = new PublicKey(
  * Required to calculate the extra cost if the swap fee if the swap needs to create a referral fee account
  */
 const JUPITER_REFERRAL_ATA_ACCOUNT_SIZE_BYTES = 165;
-
-let debug: (context: string, message: string, ...args: any[]) => void;
-if (DEBUG) {
-  debug = (context: string, message: string, ...args: any[]): void => {
-    const now = new Date();
-    const ymdhms =
-      // eslint-disable-next-line prefer-template
-      now.getFullYear().toString().padStart(4, "0") +
-      "-" +
-      (now.getMonth() + 1).toString().padStart(2, "0") +
-      "-" +
-      now.getDate().toString().padStart(2, "0") +
-      " " +
-      now.getHours().toString().padStart(2, "0") +
-      ":" +
-      now.getMinutes().toString().padStart(2, "0") +
-      ":" +
-      now.getSeconds().toString().padStart(2, "0") +
-      "." +
-      now.getMilliseconds().toString().padStart(3, "0");
-    console.info(
-      `\x1b[90m${ymdhms}\x1b[0m \x1b[32mJupiterSwapProvider.${context}\x1b[0m: ${message}`,
-      ...args,
-    );
-  };
-} else {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function
-  debug = () => {};
-}
 
 // Jupiter API Tokens
 
@@ -370,9 +342,8 @@ export class Jupiter extends ProviderClass {
     const extraInstructions: TransactionInstruction[] = [];
 
     if (referrerATAExists) {
-      debug(
-        "querySwapInfo",
-        `Referrer ATA already exists. No need to record additional rent fees.` +
+      logger.info(
+        `querySwapInfo: Referrer ATA already exists. No need to record additional rent fees.` +
           ` ATA pubkey: ${referrerATAPubkey.toBase58()},` +
           ` Source mint: ${srcMint.toBase58()}`,
       );
@@ -397,9 +368,8 @@ export class Jupiter extends ProviderClass {
       extraInstructions.push(instruction);
       rentFees += extraRentFees;
 
-      debug(
-        "querySwapInfo",
-        `Referrer ATA does not exist. Updating transaction with instruction to create it.` +
+      logger.info(
+        `querySwapInfo: Referrer ATA does not exist. Updating transaction with instruction to create it.` +
           ` Referral ATA pubkey: ${referrerATAPubkey.toBase58()},` +
           ` Rent: ${extraRentFees} lamports,` +
           ` Total Rent: ${extraRentFees} lamports`,
@@ -410,9 +380,8 @@ export class Jupiter extends ProviderClass {
     const dstATAExists = await solAccountExists(this.conn, dstATAPubkey);
 
     if (dstATAExists) {
-      debug(
-        "querySwapInfo",
-        `Wallet destination mint ATA already exists. No need to record additional rent fees.` +
+      logger.info(
+        `querySwapInfo: Wallet destination mint ATA already exists. No need to record additional rent fees.` +
           ` ATA pubkey: ${dstATAPubkey.toBase58()},` +
           ` Destination mint: ${dstMint.toBase58()}`,
       );
@@ -434,9 +403,8 @@ export class Jupiter extends ProviderClass {
       rentFees += extraRentFee;
       extraInstructions.push(instruction);
 
-      debug(
-        "querySwapInfo",
-        `Wallet destination mint ATA does not exist, registering custom instruction to create it.` +
+      logger.info(
+        `querySwapInfo: Wallet destination mint ATA does not exist, registering custom instruction to create it.` +
           ` Adding ATA rent to extra transaction fees.` +
           ` ATA pubkey: ${dstATAPubkey.toBase58()},` +
           ` Destination mint: ${dstMint.toBase58()},` +
@@ -472,9 +440,8 @@ export class Jupiter extends ProviderClass {
     context?: { signal?: AbortSignal },
   ): Promise<null | ProviderQuoteResponse> {
     if (options.toToken.networkInfo.name !== SupportedNetworkName.Solana) {
-      debug(
-        "getQuote",
-        `ignoring quote request to network ${options.toToken.networkInfo.name},` +
+      logger.info(
+        `getQuote: ignoring quote request to network ${options.toToken.networkInfo.name},` +
           ` cross network swaps not supported`,
       );
       return null;
@@ -489,13 +456,11 @@ export class Jupiter extends ProviderClass {
     // 3. Transaction referral fees: fees paid to MEW (97.5%) and Jupiter (2.5%) as the wallet provider
     // 4. Rent for ATA accounts that may need to be created; the referral fee account and mint account
 
-    debug(
-      "getQuote",
-      `Quote inAmount:  ${jupiterQuote.inAmount} ${options.fromToken.symbol}`,
+    logger.info(
+      `getQuote: Quote inAmount: ${jupiterQuote.inAmount} ${options.fromToken.symbol}`,
     );
-    debug(
-      "getQuote",
-      `Quote outAmount: ${jupiterQuote.outAmount} ${options.toToken.symbol}`,
+    logger.info(
+      `getQuote: Quote outAmount: ${jupiterQuote.outAmount} ${options.toToken.symbol}`,
     );
 
     const result: ProviderQuoteResponse = {
@@ -541,13 +506,11 @@ export class Jupiter extends ProviderClass {
       thirdPartySignatures: [],
     };
 
-    debug(
-      "getSwap",
-      `Quote inAmount:  ${jupiterQuote.inAmount} ${quote.options.fromToken.symbol}`,
+    logger.info(
+      `getSwap: Quote inAmount:  ${jupiterQuote.inAmount} ${quote.options.fromToken.symbol}`,
     );
-    debug(
-      "getSwap",
-      `Quote outAmount: ${jupiterQuote.outAmount} ${quote.options.toToken.symbol}`,
+    logger.info(
+      `getSwap: Quote outAmount: ${jupiterQuote.outAmount} ${quote.options.toToken.symbol}`,
     );
 
     const result: ProviderSwapResponse = {
@@ -637,7 +600,7 @@ async function getJupiterTokens(abortable?: {
 
     if (backoff[backoffi] > 0) {
       // Previous request failed, wait before retrying
-      debug("getJupiterTokens", `Retrying after ${backoff[backoffi]}ms...`);
+      logger.info(`getJupiterTokens: Retrying after ${backoff[backoffi]}ms...`);
       await sleep(backoff[backoffi], abortable);
     }
 
@@ -665,9 +628,8 @@ async function getJupiterTokens(abortable?: {
     signal?.addEventListener("abort", onAbort);
 
     try {
-      debug(
-        "getJupiterTokens",
-        `Initiating HTTP request for Jupiter tokens ${url}`,
+      logger.info(
+        `getJupiterTokens: Initiating HTTP request for Jupiter tokens ${url}`,
       );
       const res = await fetch(url, {
         signal: aborter.signal,
@@ -715,9 +677,8 @@ async function getJupiterTokens(abortable?: {
     } catch (err) {
       if (signal?.aborted) throw signal.reason;
       if (failed) throw err;
-      debug(
-        "getJupiterTokens",
-        `Failed to get Jupiter tokens on attempt ${backoffi + 1}/${
+      logger.info(
+        `getJupiterTokens: Failed to get Jupiter tokens on attempt ${backoffi + 1}/${
           backoff.length
         }: ${String(err)}`,
       );
@@ -813,9 +774,8 @@ async function getJupiterQuote(
 
     if (backoff[backoffi] > 0) {
       // Previous request failed, wait before retrying
-      debug(
-        "getJupiterQuote",
-        `Retrying ${url} after ${backoff[backoffi]}ms...`,
+      logger.info(
+        `getJupiterQuote: Retrying ${url} after ${backoff[backoffi]}ms...`,
       );
       await sleep(backoff[backoffi], abortable);
     }
@@ -844,9 +804,8 @@ async function getJupiterQuote(
     abortable?.signal?.addEventListener("abort", onAbort);
 
     try {
-      debug(
-        "getJupiterQuote",
-        `Initiating HTTP request for Jupiter quote ${url}`,
+      logger.info(
+        `getJupiterQuote: Initiating HTTP request for Jupiter quote ${url}`,
       );
       const res = await fetch(url, {
         signal: aborter.signal,
@@ -959,9 +918,8 @@ async function getJupiterSwap(
 
     if (backoff[backoffi] > 0) {
       // Previous request failed, wait before retrying
-      debug(
-        "getJupiterSwap",
-        `Retrying ${url} after ${backoff[backoffi]}ms...`,
+      logger.info(
+        `getJupiterSwap: Retrying ${url} after ${backoff[backoffi]}ms...`,
       );
       await sleep(backoff[backoffi], abortable);
     }
@@ -990,9 +948,8 @@ async function getJupiterSwap(
     abortable?.signal?.addEventListener("abort", onAbort);
 
     try {
-      debug(
-        "getJupiterSwap",
-        `Initiating HTTP request for Jupiter swap ${url}`,
+      logger.info(
+        `getJupiterSwap: Initiating HTTP request for Jupiter swap ${url}`,
       );
       const res = await fetch(url, {
         signal: aborter.signal,
@@ -1045,9 +1002,8 @@ async function getJupiterSwap(
       return swap;
     } catch (err) {
       if (failed) throw err;
-      debug(
-        "getJupiterSwap",
-        `Failed to get Jupiter swap on attempt ${backoffi + 1}/${
+      logger.info(
+        `getJupiterSwap: Failed to get Jupiter swap on attempt ${backoffi + 1}/${
           backoff.length
         }: ${String(err)}`,
       );

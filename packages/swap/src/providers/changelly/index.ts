@@ -1,6 +1,6 @@
 import type Web3Eth from "web3-eth";
 import { v4 as uuidv4 } from "uuid";
-import { fromBase, toBase } from "@enkryptcom/utils";
+import { DebugLogger, fromBase, toBase } from "@enkryptcom/utils";
 import { numberToHex, toBN } from "web3-utils";
 import {
   VersionedTransaction,
@@ -68,39 +68,9 @@ import {
   SPL_TOKEN_ATA_ACCOUNT_SIZE_BYTES,
 } from "../../utils/solana";
 
-/** Enables debug logging in this file */
-const DEBUG = false;
+const logger = new DebugLogger("swap:changelly");
 
 const BASE_URL = "https://partners.mewapi.io/changelly-v2";
-
-let debug: (context: string, message: string, ...args: any[]) => void;
-if (DEBUG) {
-  debug = (context: string, message: string, ...args: any[]): void => {
-    const now = new Date();
-    const ymdhms =
-      // eslint-disable-next-line prefer-template
-      now.getFullYear().toString().padStart(4, "0") +
-      "-" +
-      (now.getMonth() + 1).toString().padStart(2, "0") +
-      "-" +
-      now.getDate().toString().padStart(2, "0") +
-      " " +
-      now.getHours().toString().padStart(2, "0") +
-      ":" +
-      now.getMinutes().toString().padStart(2, "0") +
-      ":" +
-      now.getSeconds().toString().padStart(2, "0") +
-      "." +
-      now.getMilliseconds().toString().padStart(3, "0");
-    console.info(
-      `\x1b[90m${ymdhms}\x1b[0m \x1b[32mChangellySwapProvider.${context}\x1b[0m: ${message}`,
-      ...args,
-    );
-  };
-} else {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function
-  debug = () => {};
-}
 
 class Changelly extends ProviderClass {
   tokenList: TokenType[];
@@ -132,12 +102,11 @@ class Changelly extends ProviderClass {
   }
 
   async init(): Promise<void> {
-    debug("init", "Initialising...");
+    logger.info("init: Initialising...");
 
     if (!Changelly.isSupported(this.network)) {
-      debug(
-        "init",
-        `Enkrypt does not support Changelly on this network  network=${this.network}`,
+      logger.info(
+        `init: Enkrypt does not support Changelly on this network  network=${this.network}`,
       );
       return;
     }
@@ -195,9 +164,8 @@ class Changelly extends ProviderClass {
         );
     });
 
-    debug(
-      "init",
-      `Finished initialising  this.changellyList.length=${this.changellyList.length}`,
+    logger.info(
+      `init: Finished initialising  this.changellyList.length=${this.changellyList.length}`,
     );
   }
 
@@ -302,9 +270,8 @@ class Changelly extends ProviderClass {
     }
 
     const isValid = response.result.result;
-    debug(
-      "isValidAddress",
-      `Changelly validateAddress result` +
+    logger.info(
+      `isValidAddress: Changelly validateAddress result` +
         `  address=${address}` +
         `  ticker=${ticker}` +
         `  isValid=${isValid}`,
@@ -373,9 +340,8 @@ class Changelly extends ProviderClass {
         minimumTo: toBN(toBase(result.minTo, toToken.decimals)),
         maximumTo: toBN(toBase(result.maxTo, toToken.decimals)),
       };
-      debug(
-        "getMinMaxAmount",
-        `Successfully got min and max of swap pair` +
+      logger.info(
+        `getMinMaxAmount: Successfully got min and max of swap pair` +
           `  fromToken=${fromToken.symbol} (${params.from})` +
           `  toToken=${toToken.symbol} (${params.to})` +
           `  took=${(Date.now() - startedAt).toLocaleString()}ms`,
@@ -403,9 +369,8 @@ class Changelly extends ProviderClass {
 
     const startedAt = Date.now();
 
-    debug(
-      "getQuote",
-      `Getting Changelly quote` +
+    logger.info(
+      `getQuote: Getting Changelly quote` +
         `  srcToken=${options.fromToken.symbol}` +
         `  dstToken=${options.toToken.symbol}` +
         `  fromAddress=${options.fromAddress}` +
@@ -419,27 +384,24 @@ class Changelly extends ProviderClass {
         options.toToken.networkInfo.name as SupportedNetworkName,
       )
     ) {
-      debug(
-        "getQuote",
-        `No swap: Enkrypt does not support Changelly on the destination network` +
+      logger.info(
+        `getQuote: No swap: Enkrypt does not support Changelly on the destination network` +
           `  dstNetwork=${options.toToken.networkInfo.name}`,
       );
       return null;
     }
 
     if (!Changelly.isSupported(this.network)) {
-      debug(
-        "getQuote",
-        `No swap: Enkrypt does not support Changelly on the source network` +
+      logger.info(
+        `getQuote: No swap: Enkrypt does not support Changelly on the source network` +
           `  srcNetwork=${this.network}`,
       );
       return null;
     }
 
     if (!this.getTicker(options.fromToken, this.network)) {
-      debug(
-        "getQuote",
-        `No swap: Failed to find ticker for src token` +
+      logger.info(
+        `getQuote: No swap: Failed to find ticker for src token` +
           `  srcToken=${options.fromToken.symbol}` +
           `  srcNetwork=${this.network}`,
       );
@@ -452,9 +414,8 @@ class Changelly extends ProviderClass {
         options.toToken.networkInfo.name as SupportedNetworkName,
       )
     ) {
-      debug(
-        "getQuote",
-        `No swap: Failed to find ticker for dst token` +
+      logger.info(
+        `getQuote: No swap: Failed to find ticker for dst token` +
           `  dstToken=${options.toToken.symbol}` +
           `  dstNetwork=${options.toToken.networkInfo.name}`,
       );
@@ -475,9 +436,8 @@ class Changelly extends ProviderClass {
       quoteRequestAmount = minMax.maximumFrom;
 
     if (quoteRequestAmount.toString() === "0") {
-      debug(
-        "getQuote",
-        `No swap: Quote request amount is zero` +
+      logger.info(
+        `getQuote: No swap: Quote request amount is zero` +
           `  fromToken=${options.fromToken.symbol}` +
           `  toToken=${options.toToken.symbol}` +
           `  minimumFrom=${minMax.minimumFrom.toString()}` +
@@ -486,7 +446,7 @@ class Changelly extends ProviderClass {
       return null;
     }
 
-    debug("getQuote", `Requesting changelly swap...`);
+    logger.info(`getQuote: Requesting changelly swap...`);
 
     try {
       const params: ChangellyApiGetFixRateForAmountParams = {
@@ -508,7 +468,7 @@ class Changelly extends ProviderClass {
           { signal },
         );
 
-      debug("getQuote", `Received Changelly swap response`);
+      logger.info(`getQuote: Received Changelly swap response`);
 
       if (response.error) {
         console.warn(
@@ -580,9 +540,8 @@ class Changelly extends ProviderClass {
         const rounded = (BigInt(fixed) - BigInt(1)).toString();
         toTokenAmountBase = rounded;
 
-        debug(
-          "getQuote",
-          `Fixed amountTo` +
+        logger.info(
+          `getQuote: Fixed amountTo` +
             `  firstChangellyFixRateQuote.amountTo=${firstChangellyFixRateQuote.amountTo}` +
             `  toTokenAmountBase=${toTokenAmountBase}` +
             `  options.toToken.decimals=${options.toToken.decimals}` +
@@ -617,9 +576,8 @@ class Changelly extends ProviderClass {
         const rounded = (BigInt(fixed) + BigInt(1)).toString();
         networkFeeBase = rounded;
 
-        debug(
-          "getQuote",
-          `Fixed networkFee` +
+        logger.info(
+          `getQuote: Fixed networkFee` +
             `  firstChangellyFixRateQuote.networkFee=${firstChangellyFixRateQuote.networkFee}` +
             `  networkFeeBase=${networkFeeBase}` +
             `  options.toToken.decimals=${options.toToken.decimals}` +
@@ -651,9 +609,8 @@ class Changelly extends ProviderClass {
         minMax,
       };
 
-      debug(
-        "getQuote",
-        `Successfully retrieved quote from Changelly via "getFixRateForAmount"` +
+      logger.info(
+        `getQuote: Successfully retrieved quote from Changelly via "getFixRateForAmount"` +
           `  took=${(Date.now() - startedAt).toLocaleString()}ms`,
       );
 
@@ -676,12 +633,11 @@ class Changelly extends ProviderClass {
     const signal = context?.signal;
 
     const startedAt = Date.now();
-    debug("getSwap", `Requesting swap transaction from Changelly...`);
+    logger.info(`getSwap: Requesting swap transaction from Changelly...`);
 
     if (!Changelly.isSupported(this.network)) {
-      debug(
-        "getSwap",
-        `Enkrypt does not support Changelly on the source network, returning no swap` +
+      logger.info(
+        `getSwap: Enkrypt does not support Changelly on the source network, returning no swap` +
           `  srcNetwork=${this.network}`,
       );
       return null;
@@ -692,9 +648,8 @@ class Changelly extends ProviderClass {
         quote.options.toToken.networkInfo.name as SupportedNetworkName,
       )
     ) {
-      debug(
-        "getSwap",
-        `Enkrypt does not support Changelly on the destination network, returning no swap` +
+      logger.info(
+        `getSwap: Enkrypt does not support Changelly on the destination network, returning no swap` +
           `  dstNetwork=${quote.options.toToken.networkInfo.name}`,
       );
       return null;
@@ -750,7 +705,7 @@ class Changelly extends ProviderClass {
       let transaction: SwapTransaction;
       switch (quote.options.fromToken.type) {
         case NetworkType.EVM: {
-          debug("getSwap", `Preparing EVM transaction for Changelly swap`);
+          logger.info(`getSwap: Preparing EVM transaction for Changelly swap`);
           if (quote.options.fromToken.address === NATIVE_TOKEN_ADDRESS) {
             transaction = {
               from: quote.options.fromAddress,
@@ -780,7 +735,9 @@ class Changelly extends ProviderClass {
           break;
         }
         case NetworkType.Solana: {
-          debug("getSwap", `Changelly is not supported on Solana at this time`);
+          logger.info(
+            `getSwap: Changelly is not supported on Solana at this time`,
+          );
 
           const conn = this.web3 as Connection;
 
@@ -791,9 +748,8 @@ class Changelly extends ProviderClass {
           if (quote.options.fromToken.address === NATIVE_TOKEN_ADDRESS) {
             // Swapping from native SOL
 
-            debug(
-              "getSwap",
-              `Preparing Solana Changelly SOL swap transaction` +
+            logger.info(
+              `getSwap: Preparing Solana Changelly SOL swap transaction` +
                 `  quote.options.fromAddress=${quote.options.fromAddress}` +
                 `  latestBlockHash=${latestBlockHash.blockhash}` +
                 `  lastValidBlockHeight=${latestBlockHash.lastValidBlockHeight}` +
@@ -835,9 +791,8 @@ class Changelly extends ProviderClass {
               tokenProgramId,
             );
             const amount = BigInt(quote.options.amount.toString());
-            debug(
-              "getSwap",
-              `Preparing Solana Changelly SPL token swap transaction` +
+            logger.info(
+              `getSwap: Preparing Solana Changelly SPL token swap transaction` +
                 `  srcMint=${mint.toBase58()}` +
                 `  srcTokenProgramId=${tokenProgramId.toBase58()}` +
                 `  wallet=${wallet.toBase58()}` +
@@ -856,12 +811,13 @@ class Changelly extends ProviderClass {
 
             const instructions: TransactionInstruction[] = [];
             if (payinAtaExists) {
-              debug(
-                "getSwap",
-                `Payin ATA already exists. No need to create it.`,
+              logger.info(
+                `getSwap: Payin ATA already exists. No need to create it.`,
               );
             } else {
-              debug("getSwap", `Payin ATA does not exist. Need to create it.`);
+              logger.info(
+                `getSwap: Payin ATA does not exist. Need to create it.`,
+              );
               const extraRentFee = await conn.getMinimumBalanceForRentExemption(
                 SPL_TOKEN_ATA_ACCOUNT_SIZE_BYTES,
               );
@@ -922,9 +878,8 @@ class Changelly extends ProviderClass {
 
             // Set priority fee
             if (recentFeeMinAvg <= 0) {
-              debug(
-                "getSwap",
-                `No recent fees, not setting priority fee` +
+              logger.info(
+                `getSwap: No recent fees, not setting priority fee` +
                   `  recentFeeCount=${recentFeeCount}` +
                   `  recentFeeCountWithoutZeroes=${recentFeeCountWithoutZeroes}` +
                   `  recentFeeSum=${recentFeeSum}` +
@@ -935,9 +890,8 @@ class Changelly extends ProviderClass {
                   `  recentFeeMinAvg=${recentFeeMinAvg}`,
               );
             } else {
-              debug(
-                "getSwap",
-                `Setting priority fee` +
+              logger.info(
+                `getSwap: Setting priority fee` +
                   `  priority_fee=${recentFeeMinAvg} micro_lamports/compute_unit` +
                   `  recentFeeCount=${recentFeeCount}` +
                   `  recentFeeCountWithoutZeroes=${recentFeeCountWithoutZeroes}` +
@@ -1024,9 +978,8 @@ class Changelly extends ProviderClass {
         const rounded = (BigInt(fixed) - BigInt(1)).toString();
         baseToAmount = rounded;
 
-        debug(
-          "getQuote",
-          `Fixed amountExpectedTo` +
+        logger.info(
+          `getQuote: Fixed amountExpectedTo` +
             `  changellyFixedRateTx.amountExpectedTo=${changellyFixedRateTx.amountExpectedTo}` +
             `  baseToAmount=${baseToAmount}` +
             `  quote.options.toToken.decimals=${quote.options.toToken.decimals}` +
@@ -1054,9 +1007,8 @@ class Changelly extends ProviderClass {
           provider: this.name,
         }),
       };
-      debug(
-        "getSwap",
-        `Successfully extracted Changelly swap transaction via "createFixTransaction"` +
+      logger.info(
+        `getSwap: Successfully extracted Changelly swap transaction via "createFixTransaction"` +
           `  took=${(Date.now() - startedAt).toLocaleString()}ms`,
       );
       return retResponse;
