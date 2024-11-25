@@ -250,7 +250,7 @@ function getEnabler(): DebugLogEnabler {
  * ```.env
  * DEBUG_LOG= # Log nothing
  * DEBUG_LOG='*'                                 # Log everything
- * DEBUG_LOG='jupiter'                           # Log only contexts name "swap:jupiter"
+ * DEBUG_LOG='swap:jupiter'                      # Log only contexts name "swap:jupiter"
  * DEBUG_LOG='swap:*'                            # Log contexts starting with "swap:*"
  * DEBUG_LOG='(warn)'                            # Set the log level to trace
  * DEBUG_LOG='(warn),swap:jupiter(trace)'        # Set the log level to warn but jupiter contexts to trace
