@@ -37,6 +37,7 @@
         :networks="displayNetworks"
         :pinnedNetworks="pinnedNetworks"
         :selected="route.params.id as string"
+        :active-category="activeCategory"
         :search-input="searchInput"
         @update:order="updateNetworkOrder"
         @update:network="setNetwork"
@@ -152,6 +153,7 @@ import { getLatestEnkryptVersion } from '@action/utils/browser';
 import { gt as semverGT } from 'semver';
 import { BuyEventType, NetworkChangeEvents } from '@/libs/metrics/types';
 import { NetworksCategory } from '@action/types/network-category';
+import { newNetworks } from '@/providers/common/libs/new-features';
 
 const domainState = new DomainState();
 const networksState = new NetworksState();
@@ -473,8 +475,8 @@ const displayNetworks = computed<BaseNetwork[]>(() => {
       return networks.value;
     case NetworksCategory.Pinned:
       return pinnedNetworks.value;
-    // case 'new':
-    //   return networks.value.filter(net => !POPULAR_NAMES.includes(net.name));
+    case NetworksCategory.New:
+      return networks.value.filter(net => newNetworks.includes(net.name));
     default:
       return networks.value;
   }

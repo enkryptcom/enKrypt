@@ -32,6 +32,17 @@
           @update:pin-network="updatePinNetwork"
         />
       </div>
+      <div v-if="showMessage" class="app-menu__scroll-area__message">
+        <p
+          v-if="!searchInput && activeCategory === NetworksCategory.Pinned"
+          class="app-menu__scroll-area__message__pin"
+        >
+          Press <pin-icon /> Pin button
+        </p>
+        <p>
+          {{ displayMessage }}
+        </p>
+      </div>
     </div>
   </div>
 </template>
@@ -43,6 +54,9 @@ import draggable from 'vuedraggable';
 import NetworksState from '@/libs/networks-state';
 import { BaseNetwork } from '@/types/base-network';
 import { NetworkNames } from '@enkryptcom/types';
+import { NetworksCategory } from '@action/types/network-category';
+import PinIcon from '@action/icons/actions/pin.vue';
+
 const networksState = new NetworksState();
 const props = defineProps({
   networks: {
@@ -64,6 +78,10 @@ const props = defineProps({
   pinnedNetworks: {
     type: Array as PropType<BaseNetwork[]>,
     default: () => [],
+  },
+  activeCategory: {
+    type: String as PropType<NetworksCategory>,
+    required: true,
   },
 });
 const emit = defineEmits<{
@@ -87,7 +105,9 @@ const searchNetworks = computed(() => {
 
 const draggableNetworks = computed({
   get() {
-    return props.pinnedNetworks;
+    return searchNetworks.value.filter(net =>
+      props.pinnedNetworks.includes(net),
+    );
   },
   set(value: BaseNetwork[]) {
     emit('update:order', value);
@@ -104,6 +124,25 @@ const otherNetworks = computed(() => {
 const updatePinNetwork = (network: string, isPinned: boolean) => {
   emit('update:pinNetwork', network, isPinned);
 };
+
+/**
+ * Message for empty search results & No New Networks
+ */
+
+const showMessage = computed(() => {
+  return searchNetworks.value.length < 1;
+});
+
+const displayMessage = computed(() => {
+  if (props.searchInput) {
+    return `Network not found: '${props.searchInput}'.`;
+  } else if (props.activeCategory === NetworksCategory.New) {
+    return 'There are no new networks.';
+  } else if (props.activeCategory === NetworksCategory.Pinned) {
+    return 'to add your favorite network here.';
+  }
+  return 'Networks not available.';
+});
 
 /** ------------------
  * Scroll
@@ -144,7 +183,7 @@ onBeforeUnmount(() => {
     position: relative;
     margin: auto;
     width: 100%;
-    max-height: 452px;
+    height: 452px;
     display: flex;
     flex-direction: column;
     overflow-y: scroll;
@@ -157,6 +196,39 @@ onBeforeUnmount(() => {
     &::-webkit-scrollbar-thumb {
       background: rgba(0, 0, 0, 0.36);
       border-radius: 20px;
+    }
+    &__message {
+      padding-top: 104px;
+      height: 100%;
+      max-width: 222px;
+      margin-left: auto;
+      margin-right: auto;
+      p {
+        color: @tertiaryLabel;
+        font-size: 14px;
+        line-height: 20px;
+        font-weight: 400;
+        letter-spacing: 0.25px;
+        text-align: end;
+        margin-top: 0px;
+        margin-bottom: 0px;
+      }
+      &__pin {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        svg {
+          max-width: 32px;
+          max-height: 24px;
+          padding: 4px 8px 4px 8px;
+          background: transparent;
+          border-radius: 24px;
+          background: @primaryLight;
+          margin-right: 4px;
+          margin-left: 4px;
+        }
+      }
     }
   }
 }
