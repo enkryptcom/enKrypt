@@ -154,31 +154,26 @@ const defaultParsedConfig: ParsedConfig = {
 };
 
 function getDebugConfigString(): undefined | string {
-  try {
-    // Dynamically added in dev console (overrides environment configuration)
-    if (typeof globalThis !== "undefined") {
-      // Set to a string
-      if (typeof globalThis?.__ENKRYPT_DEBUG_LOG__ == "string") {
-        return globalThis.__ENKRYPT_DEBUG_LOG__;
-      }
-      if (globalThis?.__ENKRYPT_DEBUG_LOG__ === null) {
-        return undefined;
-      }
+  // Dynamically added in dev console (overrides environment configuration)
+  if (typeof globalThis !== "undefined") {
+    // Set to a string
+    if (typeof globalThis?.__ENKRYPT_DEBUG_LOG__ == "string") {
+      return globalThis.__ENKRYPT_DEBUG_LOG__;
     }
-
-    // Added as part of environment configuration
-    if (
-      typeof process !== "undefined" &&
-      typeof process?.env?.DEBUG_LOG === "string"
-    ) {
-      return process?.env?.DEBUG_LOG;
+    if (globalThis?.__ENKRYPT_DEBUG_LOG__ === null) {
+      return undefined;
     }
-
-    return undefined;
-  } catch (err) {
-    // Silently drop errors in-case something goes horribly wrong
-    return undefined;
   }
+
+  // Added as part of environment configuration
+  if (
+    typeof process !== "undefined" &&
+    typeof process?.env?.DEBUG_LOG === "string"
+  ) {
+    return process?.env?.DEBUG_LOG;
+  }
+
+  return undefined;
 }
 
 class DebugLogEnabler {
