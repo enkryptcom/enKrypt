@@ -4,7 +4,7 @@
       <div v-if="!!selected" class="swap">
         <div class="swap__header">
           <h3>Swap</h3>
-          <a class="swap__close" @click="$router.go(-1)">
+          <a class="swap__close" @click="router.go(-1)">
             <close-icon />
           </a>
         </div>
@@ -68,7 +68,7 @@
             <base-button
               title="Cancel"
               :no-background="true"
-              @click="$router.go(-1)"
+              @click="router.go(-1)"
             />
           </div>
           <div class="swap__buttons-send">
@@ -530,31 +530,16 @@ const pickBestQuote = (fromAmountBN: BN, quotes: ProviderQuoteResponse[]) => {
       // Minimum briding fees / rent fees / etc
       // set smallest fee to q.additionalNativeFees if it's smaller than the current smallest or if smallest is 0
       if (
-        (!q.additionalNativeFees.eqn(0) &&
-          q.additionalNativeFees.lt(smallestNativeFees)) ||
-        (smallestNativeFees.eqn(0) && !q.additionalNativeFees.eqn(0))
+        !q.additionalNativeFees.eqn(0) &&
+        q.additionalNativeFees.lt(smallestNativeFees)
       ) {
         smallestNativeFees = q.additionalNativeFees;
       }
     });
-
-    // Decide what message to show
-    if (fromAmountBN.lt(lowestMinimum)) {
-      /**
-       * weird edgecase for solana where rango doesn't return
-       * minumum amount for the swap and returns changelly
-       * but rango's actual minimum is a lot lower than changelly's
-       */
-      if (quotes.length === 1 && props.network.name === NetworkNames.Solana) {
-        errors.value.inputAmount = `Minimum amount may be lower than: ~${fromT.toReadable(
-          lowestMinimum,
-        )} ${nativeSwapToken.value!.token.symbol}`;
-      } else {
-        // Swapping too few tokens
-        errors.value.inputAmount = `Minimum amount: ${fromT.toReadable(
-          lowestMinimum,
-        )} ${nativeSwapToken.value!.token.symbol}`;
-      }
+    if (fromAmountBN.gt(fromT.getBalanceRaw())) {
+      errors.value.inputAmount = 'Insufficient funds';
+    } else if (fromAmountBN.lt(lowestMinimum)) {
+      errors.value.inputAmount = `Amount too low`;
     } else if (fromAmountBN.gt(highestMaximum)) {
       // Swapping too many tokens
       errors.value.inputAmount = `Maximum amount: ${fromT.toReadable(
@@ -568,12 +553,6 @@ const pickBestQuote = (fromAmountBN: BN, quotes: ProviderQuoteResponse[]) => {
     }
 
     return;
-  }
-
-  // There exist quotes that fit the users swap amount
-
-  if (fromT.getBalanceRaw().lt(fromAmountBN)) {
-    errors.value.inputAmount = 'Insufficient funds';
   }
 
   // Sort remaining quotes descending by the amount of the dest asset to be received
@@ -755,6 +734,7 @@ const selectTokenTo = (token: TokenTypeTo | TokenType) => {
 const inputAmountFrom = async (newVal: string) => {
   fromAmount.value = newVal;
   swapMax.value = false;
+  errors.value.inputAmount = '';
 };
 const selectAccount = (account: string) => {
   address.value = account;
