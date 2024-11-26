@@ -376,18 +376,18 @@ export class DebugLogger {
   info(...args: any[]): void {
     const level = this.level();
     if (level < LogLevel.INFO) return;
-    console.debug(this._formatHeader(LogLevel.INFO), ...args);
+    console.info(this._formatHeader(LogLevel.INFO), ...args);
   }
 
   warn(...args: any[]): void {
     const level = this.level();
     if (level < LogLevel.WARN) return;
-    console.debug(this._formatHeader(LogLevel.WARN), ...args);
+    console.warn(this._formatHeader(LogLevel.WARN), ...args);
   }
 
   error(...args: any[]): void {
     const level = this.level();
     if (level < LogLevel.ERROR) return;
-    console.debug(this._formatHeader(LogLevel.ERROR), ...args);
+    console.error(this._formatHeader(LogLevel.ERROR), ...args);
   }
 }
