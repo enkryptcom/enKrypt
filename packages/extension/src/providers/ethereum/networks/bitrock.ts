@@ -1,6 +1,7 @@
 import icon from './icons/bitrock.svg';
 import { CoingeckoPlatform, NetworkNames } from '@enkryptcom/types';
 import { EvmNetwork, EvmNetworkOptions } from '../types/evm-network';
+import wrapActivityHandler from '@/libs/activity-state/wrap-activity-handler';
 
 const bitrockOptions: EvmNetworkOptions = {
   name: NetworkNames.Bitrock,
@@ -16,7 +17,7 @@ const bitrockOptions: EvmNetworkOptions = {
   icon,
   coingeckoID: 'bitrock',
   coingeckoPlatform: CoingeckoPlatform.Bitrock,
-  activityHandler: () => Promise.resolve([]),
+  activityHandler: wrapActivityHandler(() => Promise.resolve([])),
 };
 
 const bitrock = new EvmNetwork(bitrockOptions);
