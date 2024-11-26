@@ -83,7 +83,7 @@ export class TokensState {
             delete state[chainName];
           }
 
-          this.storage.set(StorageKeys.customTokens, state);
+          await this.storage.set(StorageKeys.customTokens, state);
           return true;
         }
       }
