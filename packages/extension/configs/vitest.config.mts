@@ -13,6 +13,7 @@ export default defineConfig({
     }),
   ],
   define: {
+    __ENKRYPT_DEBUG_LOG__: process.env.DEBUG_LOG,
     // setting __VERSION__ here blows it up for some reason
     // __VERSION__: 'testing',
     __IS_OPERA__: false,

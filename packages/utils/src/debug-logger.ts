@@ -154,35 +154,21 @@ const defaultParsedConfig: ParsedConfig = {
 };
 
 function getDebugConfigString(): undefined | string {
-  // Dynamically added in dev console (overrides environment configuration)
+  // Load from global
   if (typeof globalThis !== "undefined") {
-    // Set to a string
-    if (typeof globalThis?.__ENKRYPT_DEBUG_LOG__ == "string") {
-      return globalThis.__ENKRYPT_DEBUG_LOG__;
-    }
-    if (globalThis?.__ENKRYPT_DEBUG_LOG__ === null) {
-      return undefined;
-    }
+    const confString = globalThis?.__ENKRYPT_DEBUG_LOG_CONF__;
+    if (typeof confString === "string") return confString;
   }
-
-  // Added as part of environment configuration
-  if (
-    typeof process !== "undefined" &&
-    typeof process?.env?.DEBUG_LOG === "string"
-  ) {
-    return process?.env?.DEBUG_LOG;
-  }
-
   return undefined;
 }
 
 class DebugLogEnabler {
-  _config: Readonly<ParsedConfig>;
   _cache: Map<string, number>;
+  _config: Readonly<ParsedConfig>;
 
   constructor() {
-    this._config = parseConfig(getDebugConfigString() ?? "");
     this._cache = new Map();
+    this._config = parseConfig(getDebugConfigString() ?? "");
   }
 
   clear() {
@@ -227,15 +213,22 @@ class DebugLogEnabler {
   }
 }
 
+// Initialise this before creating a DebugLogEnabler instance
+let currentConfString = globalThis.__ENKRYPT_DEBUG_LOG_CONF__;
+Object.defineProperty(globalThis, "__ENKRYPT_DEBUG_LOG_CONF__", {
+  get() {
+    return currentConfString;
+  },
+  set(value) {
+    currentConfString = value;
+    (globalThis.__ENKRYPT_DEBUG_LOG_ENABLER__ as DebugLogEnabler)?.refresh?.();
+  },
+});
+
 // Parses the debug logger configuration string, provides
 // log levels and caches results
 globalThis.__ENKRYPT_DEBUG_LOG_ENABLER__ = new DebugLogEnabler();
-
-// Sets the debug logger configuration string
-globalThis.__ENKRYPT_DEBUG_LOG_SET__ = (context: string) => {
-  globalThis.__ENKRYPT_DEBUG_LOG__ = context;
-  (globalThis.__ENKRYPT_DEBUG_LOG_ENABLER__ as DebugLogEnabler).refresh();
-};
+globalThis.__ENKRYPT_DEBUG_LOG_ENABLER__.refresh();
 
 function getEnabler(): DebugLogEnabler {
   return globalThis.__ENKRYPT_DEBUG_LOG_ENABLER__;
@@ -248,14 +241,14 @@ function getEnabler(): DebugLogEnabler {
  *
  * Envfile:
  * ```.env
- * DEBUG_LOG= # Log nothing
- * DEBUG_LOG='*'                                 # Log everything
- * DEBUG_LOG='swap:jupiter'                      # Log only contexts name "swap:jupiter"
- * DEBUG_LOG='swap:*'                            # Log contexts starting with "swap:*"
- * DEBUG_LOG='(warn)'                            # Set the log level to trace
- * DEBUG_LOG='(warn),swap:jupiter(trace)'        # Set the log level to warn but jupiter contexts to trace
- * DEBUG_LOG='(warn),swap:jupiter(trace),swap:*'
- * DEBUG_LOG='-swap:jupiter,swap:*'              # Log swap: context's except jupiter
+ * VITE_DEBUG_LOG= # Log nothing
+ * VITE_DEBUG_LOG='*'                                 # Log everything
+ * VITE_DEBUG_LOG='swap:jupiter'                      # Log only contexts name "swap:jupiter"
+ * VITE_DEBUG_LOG='swap:*'                            # Log contexts starting with "swap:*"
+ * VITE_DEBUG_LOG='(warn)'                            # Set the log level to trace
+ * VITE_DEBUG_LOG='(warn),swap:jupiter(trace)'        # Set the log level to warn but jupiter contexts to trace
+ * VITE_DEBUG_LOG='(warn),swap:jupiter(trace),swap:*'
+ * VITE_DEBUG_LOG='-swap:jupiter,swap:*'              # Log swap: context's except jupiter
  * ```
  *
  * TypeScript files:
@@ -281,8 +274,8 @@ function getEnabler(): DebugLogEnabler {
  * Browser developer console:
  * ```
  * // Configure logging
- * __ENKRYPT_DEBUG_LOG_SET__('swap:jupiter')
- * __ENKRYPT_DEBUG_LOG_SET__('swap:*')
+ * __ENKRYPT_DEBUG_LOG_CONF__ = 'swap:jupiter'
+ * __ENKRYPT_DEBUG_LOG_CONF__ = 'swap:*'
  * // ...etc. Same as envfiles
  * ```
  */

@@ -55,7 +55,6 @@ import {
 import { DebugLogger } from "@enkryptcom/utils";
 
 const logger = new DebugLogger("swap:jupiter");
-globalThis.__ENKRYPT_LOGGER__ = logger;
 
 /**
  * # Jupiter swap flow

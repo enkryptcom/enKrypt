@@ -10,6 +10,7 @@ import assetsRewritePlugin from './configs/vite/assets-rewrite';
 import transformManifest from './configs/vite/transform-manifest';
 import transformCSInject from './configs/vite/transform-cs-inject';
 import { version } from './package.json';
+import { } from 'dotenv'
 
 const BROWSER = process.env.BROWSER;
 
