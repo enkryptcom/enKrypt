@@ -37,7 +37,7 @@
         </div>
         <div v-else class="add-network__no-custom-networks">
           You can add your own custom networks. <br />
-          Just press the + button above.
+          Just press the <plus-small-icon /> button above.
         </div>
         <h3 class="add-network__list-header">Test networks</h3>
         <add-network-item
@@ -73,6 +73,7 @@ import {
   CustomEvmNetworkOptions,
 } from '@/providers/ethereum/types/custom-evm-network';
 import { BaseNetwork } from '@/types/base-network';
+import PlusSmallIcon from '@/ui/action/icons/common/plus-small-icon.vue';
 
 interface NodeTypesWithActive extends NodeType {
   isActive: boolean;

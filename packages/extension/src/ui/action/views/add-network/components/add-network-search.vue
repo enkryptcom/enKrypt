@@ -6,7 +6,7 @@
     <div ref="tooltip" class="add-network__search-wrap">
       <div class="add-network__search-add">
         <a @click="$emit('action:customNetwork')">
-          <add-icon />
+          <plus-icon />
         </a>
       </div>
     </div>
@@ -16,7 +16,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import BaseSearch from '@action/components/base-search/index.vue';
-import AddIcon from '@action/icons/common/add-icon.vue';
+import PlusIcon from '@action/icons/common/plus-icon.vue';
 import { onClickOutside } from '@vueuse/core';
 
 const openList = ref(false);
@@ -60,7 +60,6 @@ onClickOutside(tooltip, () => {
     }
 
     &-add {
-      width: 40px;
       font-size: 0;
       border-radius: 8px;
       transition: background 300ms ease-in-out;
