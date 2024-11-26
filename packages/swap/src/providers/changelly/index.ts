@@ -628,7 +628,6 @@ class Changelly extends ProviderClass {
             `  options.toToken.address=${options.toToken.address}`,
         );
       }
-
       const providerQuoteResponse: ProviderQuoteResponse = {
         fromTokenAmount: quoteRequestAmount,
         additionalNativeFees: toBN(0),
