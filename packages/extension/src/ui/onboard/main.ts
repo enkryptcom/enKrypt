@@ -6,7 +6,10 @@ import routes from './routes';
 import * as filters from '@action/utils/filters';
 
 global.WeakMap = WeakMap;
-(globalThis as any).__ENKRYPT_DEBUG_LOG_CONF__ = import.meta.env.VITE_DEBUG_LOG
+
+if (import.meta.env.DEV) {
+  globalThis.__ENKRYPT_DEBUG_LOG_CONF__ = import.meta.env.VITE_DEBUG_LOG
+}
 
 const router = createRouter({
   history: createWebHashHistory(),
