@@ -20,34 +20,38 @@
       <add-network-search
         :value="searchInput"
         @update:value="updateSearch"
-        @toggle:test-networks="onTestNetCheck"
         @action:custom-network="toCustom"
       />
-
       <div v-if="searchInput === ''">
-        <h3 class="add-network__list-header">Popular</h3>
+        <h3 class="add-network__list-header">My custom networks</h3>
+        <div v-if="hasCustomNetworks">
+          <add-network-item
+            v-for="(item, index) in allCustomNetworks"
+            :key="index"
+            :network="item"
+            :is-active="item.isActive"
+            :is-custom-network="true"
+            @network-toggled="onToggle"
+            @network-deleted="onNetworkDeleted"
+          />
+        </div>
+        <div v-else class="add-network__no-custom-networks">
+          You can add your own custom networks. <br />
+          Just press the + button above.
+        </div>
+        <h3 class="add-network__list-header">Test networks</h3>
         <add-network-item
-          v-for="(item, index) in popular"
-          :key="index"
+          v-for="item in searchAllNetworks"
+          :key="item.name"
           :network="item"
           :is-active="item.isActive"
-          :show-tooltip="!hasMoreThanOneActiveNetwork"
+          :is-custom-network="
+            (item as unknown as CustomEvmNetwork).isCustomNetwork
+          "
           @network-toggled="onToggle"
+          @network-deleted="onNetworkDeleted"
         />
       </div>
-      <h3 class="add-network__list-header">Test networks</h3>
-      <add-network-item
-        v-for="item in searchAllNetworks"
-        :key="item.name"
-        :network="item"
-        :is-active="item.isActive"
-        :is-custom-network="
-          (item as unknown as CustomEvmNetwork).isCustomNetwork
-        "
-        :show-tooltip="!hasMoreThanOneActiveNetwork"
-        @network-toggled="onToggle"
-        @network-deleted="onNetworkDeleted"
-      />
     </custom-scrollbar>
   </div>
 </template>
@@ -59,12 +63,16 @@ import AddNetworkSearch from '../components/add-network-search.vue';
 import AddNetworkItem from '../components/add-network-item.vue';
 import CustomScrollbar from '@action/components/custom-scrollbar/index.vue';
 import { NodeType } from '@/types/provider';
-import { getAllNetworks, POPULAR_NAMES } from '@/libs/utils/networks';
+import { getAllNetworks } from '@/libs/utils/networks';
 import NetworksState from '@/libs/networks-state';
+import CustomNetworksState from '@/libs/custom-networks-state';
 import scrollSettings from '@/libs/utils/scroll-settings';
 import { computed } from 'vue';
-import { CustomEvmNetwork } from '@/providers/ethereum/types/custom-evm-network';
-import CustomNetworksState from '@/libs/custom-networks-state';
+import {
+  CustomEvmNetwork,
+  CustomEvmNetworkOptions,
+} from '@/providers/ethereum/types/custom-evm-network';
+import { BaseNetwork } from '@/types/base-network';
 
 interface NodeTypesWithActive extends NodeType {
   isActive: boolean;
@@ -74,13 +82,14 @@ const emit = defineEmits<{
 }>();
 
 const networksState = new NetworksState();
+const customNetworksState = new CustomNetworksState();
 const searchInput = ref('');
-const all = ref<Array<NodeTypesWithActive>>([]);
-const popular = ref<Array<NodeTypesWithActive>>([]);
+const allTestNets = ref<Array<NodeTypesWithActive>>([]);
 const scrollProgress = ref(0);
 const manageNetworkScrollRef = ref<ComponentPublicInstance<HTMLElement>>();
 const showTestNets = ref(false);
 const hasMoreThanOneActiveNetwork = ref(false);
+const allCustomNetworks = ref<CustomEvmNetwork[]>([]);
 
 defineExpose({ manageNetworkScrollRef });
 
@@ -98,7 +107,7 @@ defineProps({
 const getAllNetworksAndStatus = async () => {
   const activeNetworks = await networksState.getPinnedNetworkNames();
 
-  const allNetworks = (await getAllNetworks()).map(net => {
+  const allNetworks = (await getAllNetworks(false)).map(net => {
     return {
       ...net,
       isActive: activeNetworks.includes(net.name),
@@ -109,67 +118,61 @@ const getAllNetworksAndStatus = async () => {
 };
 
 const searchAllNetworks = computed(() => {
-  return all.value.filter(a =>
+  return allTestNets.value.filter(a =>
     a.name_long.toLowerCase().startsWith(searchInput.value.toLowerCase()),
   );
 });
 
-const setNetworkLists = async (isTestActive: boolean) => {
-  const allNetworksNotTestNets = (await getAllNetworksAndStatus())
-    .filter(({ isTestNetwork }) => !isTestNetwork || isTestActive)
+const hasCustomNetworks = computed(() => {
+  return allCustomNetworks.value.length > 0;
+});
+
+const setNetworkLists = async () => {
+  const activeNetworks = await networksState.getPinnedNetworkNames();
+  const customs = await customNetworksState.getAllCustomEVMNetworks();
+  const customNetworks = customs.map(options => {
+    const newCustomNetwork = new CustomEvmNetwork(options);
+    return {
+      ...newCustomNetwork,
+      isActive: activeNetworks.includes(newCustomNetwork.name),
+    };
+  });
+  const networks = await getAllNetworksAndStatus();
+  const allNetworksTestNets = networks
+    .filter(({ isTestNetwork }) => isTestNetwork)
     .sort((a, b) => a.name_long.localeCompare(b.name_long));
 
-  const popularNetworks = allNetworksNotTestNets
-    .filter(net => POPULAR_NAMES.includes(net.name))
-    .sort((a, b) => a.name_long.localeCompare(b.name_long));
-
-  all.value = allNetworksNotTestNets;
-  hasMoreThanOneActiveNetwork.value =
-    all.value.filter(net => net.isActive).length > 1;
-  popular.value = popularNetworks;
+  allTestNets.value = allNetworksTestNets;
+  allCustomNetworks.value = customNetworks;
 };
 
 onBeforeMount(async () => {
-  await setNetworkLists(showTestNets.value);
+  await setNetworkLists();
 });
-
-const onTestNetCheck = async () => {
-  showTestNets.value = !showTestNets.value;
-  await setNetworkLists(showTestNets.value);
-};
 
 const onToggle = async (networkName: string, isActive: boolean) => {
   try {
-    let _isActive = isActive;
-    if (!hasMoreThanOneActiveNetwork.value && !isActive) {
-      _isActive = true;
-    }
-    await networksState.setNetworkStatus(networkName, _isActive);
+    await networksState.setNetworkStatus(networkName, isActive);
     emit('update:activeNetworks');
-    all.value = all.value.map(network => {
+    allTestNets.value = allTestNets.value.map(network => {
       if (network.name === networkName) {
-        network.isActive = _isActive;
+        network.isActive = isActive;
       }
 
       return network;
     });
-    hasMoreThanOneActiveNetwork.value =
-      all.value.filter(net => net.isActive).length > 1;
-    popular.value = all.value.filter(({ name }) =>
-      POPULAR_NAMES.includes(name),
-    );
   } catch (e) {
     console.error(e);
   }
 };
 
 const onNetworkDeleted = async (chainId: string) => {
-  const customNetworksState = new CustomNetworksState();
   await customNetworksState.deleteEVMNetwork(chainId);
 
-  all.value = await getAllNetworksAndStatus();
-  hasMoreThanOneActiveNetwork.value =
-    all.value.filter(net => net.isActive).length > 1;
+  // allTestNets.value = await getAllNetworksAndStatus();
+  // hasMoreThanOneActiveNetwork.value =
+  //   allTestNets.value.filter(net => net.isActive).length > 1;
+  await setNetworkLists();
   emit('update:activeNetworks');
 };
 
@@ -266,6 +269,12 @@ const isHasScroll = () => {
     &.ps--active-y {
       padding-right: 0;
     }
+  }
+
+  &__no-custom-networks {
+    padding: 16px 0;
+    text-align: center;
+    color: rgba(0, 0, 0, 0.38);
   }
 }
 </style>

@@ -30,6 +30,7 @@ const setActiveNetworks = () => {
 };
 
 const closePopup = () => {
+  isNetworkList.value = true;
   emit('close:popup');
 };
 
