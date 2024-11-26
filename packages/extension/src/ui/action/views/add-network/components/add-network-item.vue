@@ -1,7 +1,8 @@
 <template>
   <div class="add-network__block">
     <div class="add-network__text">
-      <img :src="network.icon" alt="" />
+      <img v-if="!props.isCustomNetwork" :src="network.icon" alt="" />
+      <custom-network-icon v-else />
       <span>{{ network.name_long }} </span>
       <test-network-icon v-if="network.isTestNetwork" />
     </div>
@@ -38,6 +39,7 @@ import { NodeType } from '@/types/provider';
 import { CustomEvmNetwork } from '@/providers/ethereum/types/custom-evm-network';
 import TestNetworkIcon from '@action/icons/common/test-network-icon.vue';
 import Tooltip from '@/ui/action/components/tooltip/index.vue';
+import customNetworkIcon from '@/ui/action/icons/common/custom-network-icon.vue';
 
 const emit = defineEmits<{
   (e: 'networkToggled', name: string, isActive: boolean): void;
@@ -92,6 +94,11 @@ const deleteNetwork = async () => {
     flex-direction: row;
 
     img {
+      width: 16px;
+      height: 16px;
+      margin-right: 8px;
+    }
+    svg {
       width: 16px;
       height: 16px;
       margin-right: 8px;

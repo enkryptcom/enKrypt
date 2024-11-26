@@ -162,6 +162,7 @@ const onToggle = async (networkName: string, isActive: boolean) => {
 
       return network;
     });
+    await setNetworkLists();
   } catch (e) {
     console.error(e);
   }
