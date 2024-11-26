@@ -149,7 +149,10 @@ import { BTCToken } from '../../types/btc-token';
 import BigNumber from 'bignumber.js';
 import { defaultGasCostVals } from '@/providers/common/libs/default-vals';
 import { fromBase, toBase, isValidDecimals } from '@enkryptcom/utils';
-import { formatFloatingPointValue } from '@/libs/utils/number-formatter';
+import {
+  formatFloatingPointValue,
+  isNumericPositive,
+} from '@/libs/utils/number-formatter';
 import { routes as RouterNames } from '@/ui/action/router';
 import getUiPath from '@/libs/utils/get-ui-path';
 import Browser from 'webextension-polyfill';
@@ -218,6 +221,10 @@ onMounted(async () => {
 });
 
 const nativeBalanceAfterTransaction = computed(() => {
+  if (!isNumericPositive(sendAmount.value)) {
+    return toBN(0);
+  }
+
   if (
     selectedAsset.value &&
     isValidDecimals(sendAmount.value, selectedAsset.value.decimals!)

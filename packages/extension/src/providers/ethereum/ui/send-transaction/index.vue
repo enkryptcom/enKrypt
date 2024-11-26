@@ -168,7 +168,10 @@ import erc20 from '../../libs/abi/erc20';
 import erc721 from '../../libs/abi/erc721';
 import erc1155 from '../../libs/abi/erc1155';
 import { SendTransactionDataType, VerifyTransactionParams } from '../types';
-import { formatFloatingPointValue } from '@/libs/utils/number-formatter';
+import {
+  formatFloatingPointValue,
+  isNumericPositive,
+} from '@/libs/utils/number-formatter';
 import { routes as RouterNames } from '@/ui/action/router';
 import getUiPath from '@/libs/utils/get-ui-path';
 import Browser from 'webextension-polyfill';
@@ -216,6 +219,11 @@ const amount = ref<string>('');
 const isEstimateValid = ref(true);
 const hasEnoughBalance = computed(() => {
   if (!isValidDecimals(sendAmount.value, selectedAsset.value.decimals!)) {
+    return false;
+  }
+
+  // check if valid sendAmount.value
+  if (!isNumericPositive(sendAmount.value)) {
     return false;
   }
 
@@ -345,8 +353,9 @@ const nativeBalanceAfterTransaction = computed(() => {
     let endingAmount = toBN(nativeBalance.value);
 
     if (selectedAsset.value.contract === NATIVE_TOKEN_ADDRESS) {
+      const locAmount = isNumericPositive(amount.value) ? amount.value : '0';
       const rawAmount = toBN(
-        toBase(amount.value, selectedAsset.value.decimals!),
+        toBase(locAmount ?? '0', selectedAsset.value.decimals!),
       );
       endingAmount = endingAmount.sub(rawAmount);
     }
@@ -488,6 +497,7 @@ const isInputsValid = computed<boolean>(() => {
   }
   if (new BigNumber(sendAmount.value).gt(assetMaxValue.value)) return false;
   if (gasCostValues.value.REGULAR.nativeValue === '0') return false;
+  if (!isNumericPositive(sendAmount.value)) return false;
   return true;
 });
 
