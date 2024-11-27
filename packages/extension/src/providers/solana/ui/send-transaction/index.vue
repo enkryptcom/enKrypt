@@ -336,10 +336,10 @@ const nativeBalanceAfterTransactionInBaseUnits = computed(() => {
 });
 
 /**
- * Native balance after the transaction in the base unit of the
+ * Native balance after the transaction in the main unit of the
  * native currency (eg in ETH, SOL, BTC, ...)
  */
-const nativeBalanceAfterTransactionInCoreUnits = computed(() => {
+const nativeBalanceAfterTransactionInMainUnits = computed(() => {
   return fromBase(
     nativeBalanceAfterTransactionInBaseUnits.value.abs().toString(),
     props.network.decimals,
@@ -353,7 +353,7 @@ const dstAssetNativePriceInNativeCurrency = computed(() => {
 
 const priceDifferenceUsd = computed(() => {
   return new BigNumber(
-    nativeBalanceAfterTransactionInCoreUnits.value.toString(),
+    nativeBalanceAfterTransactionInMainUnits.value.toString(),
   )
     .times(dstAssetNativePriceInNativeCurrency.value ?? '0')
     .toFixed();
@@ -373,7 +373,7 @@ const errorMsg = computed(() => {
     nativeBalanceAfterTransactionInBaseUnits.value.isNeg()
   ) {
     return `Not enough funds. You are
-      ~${formatFloatingPointValue(nativeBalanceAfterTransactionInCoreUnits.value).value}
+      ~${formatFloatingPointValue(nativeBalanceAfterTransactionInMainUnits.value).value}
       ${props.network.currencyName} ($ ${
         formatFiatValue(priceDifferenceUsd.value).value
       }) short.`;
