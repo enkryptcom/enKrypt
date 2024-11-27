@@ -403,8 +403,7 @@ const nativeBalanceAfterTransactionInHumanUnits = computed(() => {
   );
 });
 
-/** Destination assets price in the native currency of the network */
-const dstAssetNativePriceInNativeCurrency = computed(() => {
+const nativeCurrencyUsdPrice = computed(() => {
   return accountAssets.value[0]?.price || '0';
 });
 
@@ -412,7 +411,7 @@ const priceDifferenceUsd = computed(() => {
   return new BigNumber(
     nativeBalanceAfterTransactionInHumanUnits.value.toString(),
   )
-    .times(dstAssetNativePriceInNativeCurrency.value ?? '0')
+    .times(nativeCurrencyUsdPrice.value ?? '0')
     .toFixed();
 });
 
