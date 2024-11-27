@@ -407,7 +407,7 @@ const nativeCurrencyUsdPrice = computed(() => {
   return accountAssets.value[0]?.price || '0';
 });
 
-const priceDifferenceUsd = computed(() => {
+const balanceAfterInUsd = computed(() => {
   return new BigNumber(
     nativeBalanceAfterTransactionInHumanUnits.value.toString(),
   )
@@ -431,7 +431,7 @@ const errorMsg = computed(() => {
     return `Not enough funds. You are
       ~${formatFloatingPointValue(nativeBalanceAfterTransactionInHumanUnits.value).value}
       ${props.network.currencyName} ($ ${
-        formatFiatValue(priceDifferenceUsd.value).value
+        formatFiatValue(balanceAfterInUsd.value).value
       }) short.`;
   }
 
