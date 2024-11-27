@@ -86,9 +86,13 @@ import ArrowBack from '@action/icons/common/arrow-back.vue';
 import LabelInput from '@action/components/label-input/index.vue';
 import BaseButton from '@action/components/base-button/index.vue';
 import Web3 from 'web3-eth';
-import { CustomEvmNetworkOptions } from '@/providers/ethereum/types/custom-evm-network';
+import {
+  CustomEvmNetwork,
+  CustomEvmNetworkOptions,
+} from '@/providers/ethereum/types/custom-evm-network';
 import { toHex } from 'web3-utils';
 import CustomNetworksState from '@/libs/custom-networks-state';
+import NetworksState from '@/libs/networks-state';
 
 interface NetworkConfigItem {
   name: string;
@@ -105,6 +109,7 @@ interface NetworkConfigItem {
 }
 
 const customNetworksState = new CustomNetworksState();
+const networksState = new NetworksState();
 
 const nameValue = ref<string>('');
 const nameInvalid = ref(false);
@@ -256,6 +261,7 @@ const sendAction = async () => {
   };
 
   await customNetworksState.addCustomNetwork(customNetworkOptions);
+  await networksState.setNetworkStatus(customNetworkOptions.name, true);
 
   nameValue.value = '';
   symbolValue.value = '';

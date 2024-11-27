@@ -40,6 +40,7 @@ const toCustomNetwork = () => {
 
 const toNetworkList = () => {
   isNetworkList.value = true;
+  emit('update:activeNetworks');
 };
 </script>
 
