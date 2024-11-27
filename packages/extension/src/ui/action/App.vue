@@ -731,27 +731,4 @@ body {
   opacity: 0;
   transform: translate(-2em, 0);
 }
-
-.tab__container {
-  padding: 6px;
-  background: @darkBg;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  height: 35px;
-  border-radius: 10px;
-
-  &-tab {
-    padding: 8px 14px;
-    cursor: pointer;
-    border-radius: 5px;
-    font-size: large;
-    font-weight: 500;
-
-    &.active {
-      color: @primary;
-      background: @primaryBg;
-    }
-  }
-}
 </style>
