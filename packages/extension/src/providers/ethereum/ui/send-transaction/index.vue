@@ -104,7 +104,10 @@
       />
 
       <send-alert
-        v-show="hasEnoughBalance && nativeBalanceAfterTransaction.isNeg()"
+        v-show="
+          hasValidDecimals &&
+          (!hasEnoughBalance || nativeBalanceAfterTransaction.isNeg())
+        "
         :native-symbol="network.currencyName"
         :price="accountAssets[0]?.price || '0'"
         :native-value="
@@ -214,11 +217,13 @@ const accountAssets = ref<Erc20Token[]>([]);
 const selectedAsset = ref<Erc20Token | Partial<Erc20Token>>(loadingAsset);
 const amount = ref<string>('');
 const isEstimateValid = ref(true);
+const hasValidDecimals = computed(() => {
+  return isValidDecimals(sendAmount.value, selectedAsset.value.decimals!);
+});
 const hasEnoughBalance = computed(() => {
-  if (!isValidDecimals(sendAmount.value, selectedAsset.value.decimals!)) {
+  if (!hasValidDecimals.value) {
     return false;
   }
-
   return toBN(selectedAsset.value.balance ?? '0').gte(
     toBN(toBase(sendAmount.value ?? '0', selectedAsset.value.decimals!)),
   );

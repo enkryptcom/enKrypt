@@ -94,7 +94,10 @@
       />
 
       <send-alert
-        v-show="hasEnoughBalance && nativeBalanceAfterTransaction.isNeg()"
+        v-show="
+          hasValidDecimals &&
+          (!hasEnoughBalance || nativeBalanceAfterTransaction.isNeg())
+        "
         :native-symbol="network.currencyName"
         :price="accountAssets[0]?.price || '0'"
         :native-value="
@@ -219,8 +222,11 @@ const amount = ref<string>('');
 const isEstimateValid = ref(true);
 const storageFee = ref(0);
 const SolTx = ref<SolTransaction>();
-const hasEnoughBalance = computed(() => {
-  if (!isValidDecimals(sendAmount.value, selectedAsset.value.decimals!)) {
+const hasValidDecimals = computed((): boolean => {
+  return isValidDecimals(sendAmount.value, selectedAsset.value.decimals!);
+});
+const hasEnoughBalance = computed((): boolean => {
+  if (!hasValidDecimals.value) {
     return false;
   }
   return toBN(selectedAsset.value.balance ?? '0').gte(
