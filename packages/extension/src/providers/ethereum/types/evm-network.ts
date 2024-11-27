@@ -157,7 +157,7 @@ export class EvmNetwork extends BaseNetwork {
         decimals: this.decimals,
         sparkline: nativeMarketData
           ? new Sparkline(nativeMarketData.sparkline_in_24h.price, 25)
-              .dataValues
+            .dataValues
           : '',
         priceChangePercentage:
           nativeMarketData?.price_change_percentage_24h_in_currency ?? 0,
@@ -197,7 +197,6 @@ export class EvmNetwork extends BaseNetwork {
 
       assets = [nativeAsset, ...assetInfos];
     }
-
     const customTokens = await tokensState
       .getTokensByNetwork(this.name)
       .then(tokens => {
@@ -211,7 +210,7 @@ export class EvmNetwork extends BaseNetwork {
               a.contract &&
               (token as CustomErc20Token).address &&
               a.contract.toLowerCase() ===
-                (token as CustomErc20Token).address.toLowerCase()
+              (token as CustomErc20Token).address.toLowerCase()
             ) {
               return false;
             }

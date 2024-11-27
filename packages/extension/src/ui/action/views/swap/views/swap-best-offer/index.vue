@@ -477,7 +477,6 @@ const selectFee = (option: GasPriceTypes) => {
 };
 
 const selectTrade = (trade: ProviderSwapResponse) => {
-  console.log(trade.provider);
   pickedTrade.value = trade;
   setTransactionFees();
 };
