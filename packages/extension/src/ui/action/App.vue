@@ -80,7 +80,7 @@
     </div>
 
     <add-network
-      v-show="addNetworkShow"
+      v-if="addNetworkShow"
       @close:popup="addNetworkShow = !addNetworkShow"
       @update:active-networks="setActiveNetworks"
     />
@@ -201,13 +201,13 @@ const setActiveNetworks = async () => {
   });
   networks.value = [
     ...pinnedNetworks.value,
-    ...allNetworks.filter(
-      network => !pinnedNetworkNames.includes(network.name),
-    ),
+    ...allNetworks
+      .filter(network => !pinnedNetworkNames.includes(network.name))
+      .filter(network => !network.isTestNetwork),
   ];
-  networks.value = [
-    ...networks.value.filter(network => !network.isTestNetwork),
-  ];
+  // networks.value = [
+  // ...networks.value.filter(network => !network.isTestNetwork),
+  // ];
   // if (!pinnedNetworks.value.includes(currentNetwork.value)) {
   //   setNetwork(pinnedNetworks.value[0]);
   // }

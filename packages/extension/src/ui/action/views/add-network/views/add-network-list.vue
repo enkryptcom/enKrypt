@@ -31,8 +31,8 @@
             :network="item"
             :is-active="item.isActive"
             :is-custom-network="true"
-            @network-toggled="onToggle"
             @network-deleted="onNetworkDeleted"
+            @update:pin-network="onToggle"
           />
         </div>
         <div v-else class="add-network__no-custom-networks">
@@ -48,8 +48,8 @@
           :is-custom-network="
             (item as unknown as CustomEvmNetwork).isCustomNetwork
           "
-          @network-toggled="onToggle"
           @network-deleted="onNetworkDeleted"
+          @update:pin-network="onToggle"
         />
       </div>
     </custom-scrollbar>
@@ -68,11 +68,7 @@ import NetworksState from '@/libs/networks-state';
 import CustomNetworksState from '@/libs/custom-networks-state';
 import scrollSettings from '@/libs/utils/scroll-settings';
 import { computed } from 'vue';
-import {
-  CustomEvmNetwork,
-  CustomEvmNetworkOptions,
-} from '@/providers/ethereum/types/custom-evm-network';
-import { BaseNetwork } from '@/types/base-network';
+import { CustomEvmNetwork } from '@/providers/ethereum/types/custom-evm-network';
 import PlusSmallIcon from '@/ui/action/icons/common/plus-small-icon.vue';
 
 interface NodeTypesWithActive extends NodeType {
@@ -88,8 +84,6 @@ const searchInput = ref('');
 const allTestNets = ref<Array<NodeTypesWithActive>>([]);
 const scrollProgress = ref(0);
 const manageNetworkScrollRef = ref<ComponentPublicInstance<HTMLElement>>();
-const showTestNets = ref(false);
-const hasMoreThanOneActiveNetwork = ref(false);
 const allCustomNetworks = ref<CustomEvmNetwork[]>([]);
 
 defineExpose({ manageNetworkScrollRef });
