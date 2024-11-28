@@ -1,11 +1,17 @@
 <template>
-  <div class="app__menu__sort">
+  <div
+    class="app__menu__sort"
+    @mouseover="isHovered = true"
+    @mouseleave="isHovered = false"
+  >
     <a
       ref="toggleSortButton"
       class="app__menu__sort__button hover-transition-no-bg"
       @click="toggleSortMenu"
     >
-      sort: {{ sortBy.name }} {{ sortBy.direction }}
+      <sort-btn-icon />
+      <span>{{ sortString }}</span>
+      -{{ sortBy.direction }}
     </a>
     <div
       v-show="isOpenSort"
@@ -13,29 +19,54 @@
       class="app__menu__sort__dropdown"
     >
       <a
-        class="app__menu-dropdown-link"
+        class="app__menu__sort__dropdown-link"
         @click="setActiveSort(NetworkSortOption.Name)"
       >
-        Name
+        <span>Name</span>
+        <sort-direction-icon
+          v-if="sortBy.name === NetworkSortOption.Name"
+          :is-asc="sortBy.direction === NetworkSortDirection.Asc"
+        />
+
+        <sort-active-icon
+          :is-active="sortBy.name == NetworkSortOption.Name"
+          class="activeSvg"
+        />
       </a>
       <a
-        class="app__menu-dropdown-link"
-        @click="setActiveSort(NetworkSortOption.Name)"
+        class="app__menu__sort__dropdown-link"
+        @click="setActiveSort(NetworkSortOption.Tvl)"
       >
-        Total value Locked
+        <span>Total value Locked</span>
+        <sort-direction-icon
+          v-if="sortBy.name === NetworkSortOption.Tvl"
+          :is-asc="sortBy.direction === NetworkSortDirection.Asc"
+        />
+
+        <sort-active-icon
+          :is-active="sortBy.name == NetworkSortOption.Tvl"
+          class="activeSvg"
+        />
       </a>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, PropType } from 'vue';
+import { ref, PropType, computed, watch } from 'vue';
 import { onClickOutside } from '@vueuse/core';
-import { NetworkSort, NetworkSortOption } from '@action/types/network-sort';
+import {
+  NetworkSort,
+  NetworkSortOption,
+  NetworkSortDirection,
+} from '@action/types/network-sort';
+import SortBtnIcon from '@/ui/action/icons/actions/sort/sort-btn-icon.vue';
+import SortDirectionIcon from '@/ui/action/icons/actions/sort/sort-direction-icon.vue';
+import SortActiveIcon from '@/ui/action/icons/actions/sort/sort-active-icon.vue';
 
 const props = defineProps({
   sortBy: {
-    type: String as PropType<NetworkSort>,
+    type: Object as PropType<NetworkSort>,
     required: true,
   },
 });
@@ -46,7 +77,12 @@ const emit = defineEmits<{
 const setActiveSort = (_sort: NetworkSortOption) => {
   const newSortBy = props.sortBy;
   if (_sort === props.sortBy.name) {
-    newSortBy.direction = !newSortBy.direction;
+    newSortBy.direction =
+      newSortBy.direction === NetworkSortDirection.Asc
+        ? NetworkSortDirection.Desc
+        : NetworkSortDirection.Asc;
+  } else {
+    newSortBy.name = _sort;
   }
   emit('update:sort', newSortBy);
 };
@@ -57,20 +93,21 @@ let timeout: ReturnType<typeof setTimeout> | null = null;
 const dropdownSort = ref(null);
 const toggleSortButton = ref(null);
 
-const sortString = (sort: NetworkSort) => {
-  switch (sort.name) {
+const sortString = computed(() => {
+  switch (props.sortBy.name) {
     case NetworkSortOption.Name:
       return 'Name';
-    case NetworkSortOption.TotalValueLocked:
+    case NetworkSortOption.Tvl:
       return 'Total value Locked';
     default:
-      return `${sort.name} ${sort.direction}`;
+      return `${props.sortBy.name} ${props.sortBy.direction}`;
   }
-};
+});
 
 /** -------------------
  * Menu Actions
  * ------------------- */
+const isHovered = ref<boolean>(false);
 
 const toggleSortMenu = () => {
   if (timeout != null) {
@@ -84,13 +121,13 @@ const toggleSortMenu = () => {
     isOpenSort.value = true;
   }
 };
-const closeSortMenu = () => {
+const closeSortMenu = (_time = 100) => {
   if (timeout != null) {
     clearTimeout(timeout);
   }
   timeout = setTimeout(() => {
     isOpenSort.value = false;
-  }, 50);
+  }, _time);
 };
 onClickOutside(
   dropdownSort,
@@ -99,6 +136,23 @@ onClickOutside(
   },
   { ignore: [toggleSortButton] },
 );
+
+watch(isHovered, () => {
+  if (isOpenSort.value && !isHovered.value) {
+    if (timeout != null) {
+      clearTimeout(timeout);
+      timeout = null;
+    } else {
+      closeSortMenu(1000);
+    }
+  }
+  if (isOpenSort.value && isHovered.value) {
+    if (timeout != null) {
+      clearTimeout(timeout);
+      timeout = null;
+    }
+  }
+});
 </script>
 
 <style lang="less">
@@ -123,10 +177,14 @@ onClickOutside(
         cursor: pointer;
         color: @black06;
         border-radius: 12px;
+        display: flex;
+        span {
+          padding-left: 4px;
+        }
       }
       &__dropdown {
         padding: 8px;
-        width: 172px;
+        width: 212px;
         background: @white;
         box-shadow:
           0px 0.5px 5px rgba(0, 0, 0, 0.039),
@@ -138,8 +196,7 @@ onClickOutside(
         z-index: 3;
 
         &-link {
-          width: 100%;
-          height: 48px;
+          height: 28px;
           display: flex;
           justify-content: flex-start;
           align-items: center;
@@ -147,15 +204,18 @@ onClickOutside(
           cursor: pointer;
           transition: background 300ms ease-in-out;
           border-radius: 8px;
-
+          padding: 6px 12px 6px 16px;
           &:hover,
           &.active {
             background: rgba(0, 0, 0, 0.04);
           }
 
           svg {
-            margin-right: 12px;
-            margin-left: 12px;
+            margin-left: 8px;
+          }
+          .activeSvg {
+            margin-left: auto;
+            height: 20px;
           }
 
           span {
