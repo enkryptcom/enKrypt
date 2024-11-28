@@ -1,0 +1,18 @@
+// Change opacity on hovered element with background color
+@opacity-hasBG-color: 0.8;
+@opacity-hasBG-transition: opacity 300ms ease-in-out;
+// Change background on hovered element with no color
+@opacity-noBG-transition: background 300ms ease-in-out;
+
+.hover-transition-bg {
+  transition: @opacity-hasBG-transition;
+  &:hover {
+    opacity: @opacity-hasBG-color;
+  }
+}
+.hover-transition-no-bg {
+  transition: @opacity-noBG-transition;
+  &:hover {
+    background: @black004;
+  }
+}

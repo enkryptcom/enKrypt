@@ -1,31 +1,58 @@
 <template>
-  <a class="app-menu__link" :class="{ active: isActive }">
-    <img ref="imageTag" :src="network.icon" alt="" />
-    <span>{{ network.name_long }} </span
-    ><test-network-icon v-if="network.isTestNetwork" />
-    <span
-      v-if="newNetworks.includes(network.name)"
-      class="tag tag-new tag-sm shimmer"
-      >New</span
-    >
-    <span
-      v-if="newSwaps.includes(network.name)"
-      class="tag tag-swap tag-sm shimmer"
-      >Swap</span
-    >
-    <div class="app-menu__link-drag">
-      <drag-icon />
+  <a
+    ref="target"
+    class="app-menu__link hover-transition-no-bg"
+    :class="[
+      { active: isActive },
+      { 'sticky-top': isStickyTop },
+      { 'sticky-bottom': isStickyTop === false },
+    ]"
+    @mouseover="isHovered = true"
+    @mouseleave="isHovered = false"
+  >
+    <div class="app-menu__link__block">
+      <div style="position: relative">
+        <img ref="imageTag" :src="network.icon" alt="" />
+        <new-icon v-if="newNetworks.includes(network.name)" class="tag-new" />
+      </div>
+      <span>{{ network.name_long }} </span
+      ><test-network-icon
+        v-if="network.isTestNetwork"
+        class="test-network-icon"
+      />
+    </div>
+    <div class="app-menu__link__block">
+      <DragIcon
+        v-if="canDrag"
+        :class="[
+          'app-menu__link__block__drag',
+          { 'app-menu__link__block__drag__hovered': isHovered },
+        ]"
+      />
+      <p
+        v-if="showIsPinned"
+        :class="[
+          'app-menu__link__block__pin',
+          {
+            'app-menu__link__block__pin__active': pinIconIsActive,
+          },
+        ]"
+        @click="setPinned"
+      >
+        <pin-icon :is-pinned="isPinned" :is-active="pinIconIsActive" />
+      </p>
     </div>
   </a>
 </template>
 
 <script setup lang="ts">
 import { NodeType } from '@/types/provider';
-import { PropType, ref, watch } from 'vue';
-import DragIcon from '@action/icons/common/drag-icon.vue';
+import { PropType, ref, watch, computed, onMounted, nextTick } from 'vue';
 import TestNetworkIcon from '@action/icons/common/test-network-icon.vue';
-import { newNetworks, newSwaps } from '@/providers/common/libs/new-features';
-
+import NewIcon from '@action/icons/asset/new-icon.vue';
+import PinIcon from '@action/icons/actions/pin.vue';
+import { newNetworks } from '@/providers/common/libs/new-features';
+import DragIcon from '@action/icons/common/drag-icon.vue';
 const props = defineProps({
   network: {
     type: Object as PropType<NodeType>,
@@ -39,11 +66,26 @@ const props = defineProps({
       return false;
     },
   },
+  isPinned: {
+    type: Boolean,
+    required: true,
+  },
+  scrollPosition: {
+    type: Number,
+    default: 0,
+  },
+  canDrag: {
+    type: Boolean,
+    required: false,
+  },
 });
 const imageTag = ref<HTMLImageElement | null>(null);
+
 const emit = defineEmits<{
   (e: 'update:gradient', data: string): void;
+  (e: 'update:pinNetwork', network: string, isPinned: boolean): void;
 }>();
+// NOTE: WHAT IS THIS?
 const componentToHex = (c: number) => {
   const hex = c.toString(16);
   return hex.length == 1 ? '0' + hex : hex;
@@ -93,63 +135,157 @@ watch(
     if (props.isActive) getAverageRGB(imageTag.value!);
   },
 );
+/** ------------------------
+ * Buttons
+ * ------------------------*/
+const isHovered = ref(false);
+
+/**
+ * Computed property to determine whether to show the "Pin" button.
+ *
+ * This property returns `true` if the network is Pinned,
+ * otherwise it returns `false`.
+ *
+ * @returns {boolean} - `true` if the "Pin" button should be shown, `false` otherwise.
+ */
+const isPinned = computed(() => {
+  return props.isPinned;
+});
+
+/**
+ * Computed property to determine if the menu item should be shown as pinned.
+ *
+ * @returns {boolean} - Returns true if the menu item is active, or if it is either pinned or hovered.
+ */
+const showIsPinned = computed(() => {
+  return props.isActive ? true : isPinned.value || isHovered.value;
+});
+
+const pinIconIsActive = computed(() => {
+  return props.isActive || isHovered.value;
+});
+
+const setPinned = async () => {
+  emit('update:pinNetwork', props.network.name, !isPinned.value);
+};
+/** ------------------------
+ * Scroll
+------------------------*/
+const target = ref<HTMLElement | null>(null);
+/**
+ * Reactive variable to determine the sticky state of the menu item.
+ * It is set to `true` if the menu item is sticky at the top, `false` if it is sticky at the bottom, and `undefined` if it is not sticky.
+ */
+const isStickyTop = ref<boolean | undefined>(undefined);
+
+/**
+ * Function to determine the position of the menu item and set its sticky state top or bottom.
+ * It calculates the position based on the scroll position, direction and the offset.
+ */
+const getPosition = () => {
+  const height = target.value?.offsetHeight || 0;
+  const offset = -height;
+  const anchorTop = (target.value?.offsetTop || 0) + offset;
+
+  if (props.scrollPosition > anchorTop) {
+    isStickyTop.value = true;
+  } else {
+    isStickyTop.value = false;
+  }
+};
+
+/**
+ * Ensures that selected menu items are sticky when the page is mounted.
+ */
+onMounted(() => {
+  nextTick(() => {
+    if (props.isActive) {
+      getPosition();
+    }
+  });
+});
+
+/**
+ * Watcher to update the position of the menu item when the scroll position changes.
+ */
+watch(
+  () => props.scrollPosition,
+  () => {
+    if (props.isActive) {
+      getPosition();
+    }
+  },
+);
 </script>
 
 <style lang="less">
 @import '@action/styles/theme.less';
-.tag {
-  display: inline-block;
-  padding: 0.2em 0.5em 0.3em;
-  border-radius: 8px;
-  margin: 0.25em 0.1em;
-  margin-left: 0.5em;
-}
-.tag-sm {
-  display: inline-block;
-  letter-spacing: 0.15ch;
-  font-weight: 400;
-}
-.tag-swap {
-  background: #41b883;
-  color: #35495e !important;
-}
+
 .tag-new {
-  background: #a481d5;
+  height: 9px;
+  padding: 1px 3px 1px 3px;
+  background: rgba(0, 122, 255, 1);
   color: #fff !important;
-}
-.shimmer {
-  color: grey;
-  display: inline-block;
-  -webkit-mask: linear-gradient(-60deg, #000 30%, #0005, #000 70%) right/300%
-    100%;
-  background-repeat: no-repeat;
-  animation: shimmer 2.5s infinite;
-  font-size: 50px;
-  max-width: 200px;
+  border-radius: 6px;
+  border: 1px solid @white;
+  position: absolute;
+  left: 23px;
+  top: -5px;
 }
 
-@keyframes shimmer {
-  100% {
-    -webkit-mask-position: left;
-  }
-}
 .app-menu {
   &__link {
     text-decoration: none;
     display: flex;
-    justify-content: flex-start;
+    justify-content: space-between;
+    justify-self: center;
     align-items: center;
     flex-direction: row;
-    width: 100%;
-    height: 40px;
-    margin-bottom: 4px;
+    width: 97%;
+    min-height: 40px !important;
+    max-height: 40px;
+    margin-bottom: 3px;
+    margin-top: 3px;
     cursor: pointer;
     position: relative;
-
+    border-radius: 10px;
+    padding-right: 8px;
+    transition: top 1s linear;
+    transition: bottom 1s linear;
+    &:first-of-type {
+      margin-top: 0; /* Removes top margin for the first element */
+    }
+    &__block {
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      flex-direction: row;
+      gap: 4px;
+      &__pin {
+        max-width: 32px;
+        max-height: 24px;
+        padding: 5px 8px 3px 8px;
+        background: transparent;
+        border-radius: 24px;
+        transition: @opacity-noBG-transition;
+        &__active {
+          background: @primaryLight;
+        }
+      }
+      &__drag {
+        max-width: 32px;
+        max-height: 24px;
+        padding: 5px 8px 3px 8px;
+        background: transparent;
+        border-radius: 24px;
+        opacity: 0;
+        transition: opacity 0.3s ease-in;
+        &__hovered {
+          opacity: 100;
+        }
+      }
+    }
     &:hover {
-      background: @black004;
-      border-radius: 10px;
-
       .app-menu__link-drag {
         display: block !important;
       }
@@ -172,12 +308,26 @@ watch(
     }
 
     &.active {
-      background: @black007;
-      border-radius: 10px;
-
+      background: @white;
+      box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.16);
+      position: -webkit-sticky;
+      position: sticky;
+      z-index: 2;
+      opacity: 100;
       span {
         font-weight: 500;
       }
+      &:hover {
+        background: @white;
+      }
+    }
+    /* Sticky to top or bottom */
+    &.sticky-top {
+      top: 0;
+    }
+
+    &.sticky-bottom {
+      bottom: 0;
     }
 
     &-drag {
@@ -189,6 +339,9 @@ watch(
       cursor: grab;
       display: none;
     }
+  }
+  .test-network-icon {
+    height: 14px;
   }
 }
 </style>
