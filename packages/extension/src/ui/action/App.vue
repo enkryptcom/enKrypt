@@ -212,8 +212,13 @@ const setActiveNetworks = async () => {
   //   setNetwork(pinnedNetworks.value[0]);
   // }
 };
+
 const updateNetworkOrder = (newOrder: BaseNetwork[]) => {
-  if (searchInput.value === '') pinnedNetworks.value = newOrder;
+  if (searchInput.value === '') {
+    if (activeCategory.value === NetworksCategory.Pinned)
+      pinnedNetworks.value = newOrder;
+    else networks.value = newOrder;
+  }
 };
 const updateSearchValue = (newval: string) => {
   searchInput.value = newval;
@@ -460,7 +465,8 @@ const isLocked = computed(() => {
 /**-------------------
  * Network Categories
  -------------------*/
-const setActiveCategory = (category: NetworksCategory) => {
+const setActiveCategory = async (category: NetworksCategory) => {
+  await setActiveNetworks();
   activeCategory.value = category;
 };
 

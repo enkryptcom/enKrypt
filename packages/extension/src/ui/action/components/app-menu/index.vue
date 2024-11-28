@@ -1,61 +1,66 @@
 <template>
-  <div :class="['app-menu', { 'has-bg': isScrolling }]">
-    <div
-      v-if="!!networks"
-      class="app-menu__scroll-area"
-      @scroll="setIsScrolling"
-    >
-      <!-- NOTE: WHATS seletced props is for, it is not in the component-->
-      <draggable v-model="draggableNetworks" item-key="name" :animation="500">
-        <template #item="{ element }">
-          <app-menu-item
-            v-bind="$attrs"
-            :network="element"
-            :is-active="!!selected && element.name === selected"
-            :selected="selected"
-            :is-pinned="getIsPinned(element.name)"
-            @click="emit('update:network', element)"
-            @update:pin-network="updatePinNetwork"
-          />
-        </template>
-      </draggable>
-      <div>
-        <app-menu-item
-          v-for="element in otherNetworks"
-          :key="element.name"
-          v-bind="$attrs"
-          :network="element"
-          :is-active="!!selected && element.name === selected"
-          :selected="selected"
-          :is-pinned="getIsPinned(element.name)"
-          @click="emit('update:network', element)"
-          @update:pin-network="updatePinNetwork"
-        />
-      </div>
-      <div v-if="showMessage" class="app-menu__scroll-area__message">
-        <p
-          v-if="!searchInput && activeCategory === NetworksCategory.Pinned"
-          class="app-menu__scroll-area__message__pin"
+  <div>
+    <!-- Sort -->
+    <div>
+      <app-menu-sort :sortBy="sortBy" @update:sort="updateSort" />
+    </div>
+    <!-- Scrollable Networks  -->
+    <div :class="['app-menu', { 'has-bg': isScrolling }]">
+      <div v-if="!!networks" class="app-menu__scroll-area" ref="scrollDiv">
+        <draggable
+          v-model="searchNetworks"
+          item-key="name"
+          :animation="500"
+          draggable=":not(.do-not-drag)"
         >
-          Press <pin-icon /> Pin button
-        </p>
-        <p>
-          {{ displayMessage }}
-        </p>
+          <template #item="{ element }">
+            <app-menu-item
+              v-bind="$attrs"
+              :network="element"
+              :is-active="!!selected && element.name === selected"
+              :is-pinned="getIsPinned(element.name)"
+              :scroll-position="y"
+              :can-drag="getCanDrag(element)"
+              @click="emit('update:network', element)"
+              @update:pin-network="updatePinNetwork"
+              :class="{
+                'do-not-drag': !getCanDrag(element),
+              }"
+            />
+          </template>
+        </draggable>
+        <div v-if="showMessage" class="app-menu__scroll-area__message">
+          <p
+            v-if="!searchInput && activeCategory === NetworksCategory.Pinned"
+            class="app-menu__scroll-area__message__pin"
+          >
+            Press <pin-icon /> Pin button
+          </p>
+          <p>
+            {{ displayMessage }}
+          </p>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { PropType, ref, onBeforeUnmount, computed } from 'vue';
+import { PropType, ref, computed } from 'vue';
 import AppMenuItem from './components/app-menu-item.vue';
+import AppMenuSort from './components/app-menu-sort.vue';
 import draggable from 'vuedraggable';
 import NetworksState from '@/libs/networks-state';
 import { BaseNetwork } from '@/types/base-network';
 import { NetworkNames } from '@enkryptcom/types';
 import { NetworksCategory } from '@action/types/network-category';
 import PinIcon from '@action/icons/actions/pin.vue';
+import {
+  NetworkSort,
+  NetworkSortOption,
+  NetworkSortDirection,
+} from '@action/types/network-sort';
+import { useScroll } from '@vueuse/core';
 
 const networksState = new NetworksState();
 const props = defineProps({
@@ -90,44 +95,71 @@ const emit = defineEmits<{
   (e: 'update:pinNetwork', network: string, isPinned: boolean): void;
 }>();
 
+/** ------------------
+ * Pinned
+ ------------------*/
 const getIsPinned = (network: NetworkNames) => {
   return props.pinnedNetworks.map(pinned => pinned.name).includes(network);
 };
-const searchNetworks = computed(() => {
-  return props.networks.filter(
-    net =>
-      net.name_long.toLowerCase().startsWith(props.searchInput.toLowerCase()) ||
-      net.currencyName
-        .toLowerCase()
-        .startsWith(props.searchInput.toLowerCase()),
-  );
-});
 
-const draggableNetworks = computed({
-  get() {
-    return searchNetworks.value.filter(net =>
-      props.pinnedNetworks.includes(net),
-    );
-  },
-  set(value: BaseNetwork[]) {
-    emit('update:order', value);
-    if (props.searchInput === '') {
-      networksState.reorderNetwork(value.map((v: BaseNetwork) => v.name));
-    }
-  },
-});
-
-const otherNetworks = computed(() => {
-  return searchNetworks.value.filter(network => !getIsPinned(network.name));
-});
-
+/**
+ *  Emits an event that network is pinned or unpinned
+ * */
 const updatePinNetwork = (network: string, isPinned: boolean) => {
   emit('update:pinNetwork', network, isPinned);
 };
 
-/**
+/** ------------------
+ * Sorting
+ ------------------*/
+
+const sortBy = ref<NetworkSort>({
+  name: NetworkSortOption.Name,
+  direction: NetworkSortDirection.Asc,
+});
+
+const updateSort = (sort: NetworkSort) => {
+  sortBy.value = sort;
+};
+
+// const sortNetworks = (networks: BaseNetwork[], sortBy: NetworkSort) => {
+//   return networks.sort((a, b) => {
+//     if (sortBy.name === NetworkSortName.Name) {
+//       return sortBy.direction
+//         ? a.name.localeCompare(b.name)
+//         : b.name.localeCompare(a.name);
+//     }
+//     return 0;
+//   });
+// };
+
+/** ------------------
+ * Displayed Networks
+ ------------------*/
+const searchNetworks = computed({
+  get() {
+    return props.networks.filter(
+      net =>
+        net.name_long
+          .toLowerCase()
+          .startsWith(props.searchInput.toLowerCase()) ||
+        net.currencyName
+          .toLowerCase()
+          .startsWith(props.searchInput.toLowerCase()),
+    );
+  },
+  set(value: BaseNetwork[]) {
+    const pinned = value.filter(net => props.pinnedNetworks.includes(net));
+    emit('update:order', value);
+    if (props.searchInput === '') {
+      networksState.reorderNetwork(pinned.map((v: BaseNetwork) => v.name));
+    }
+  },
+});
+
+/** ------------------
  * Message for empty search results & No New Networks
- */
+  ------------------*/
 
 const showMessage = computed(() => {
   return searchNetworks.value.length < 1;
@@ -147,23 +179,16 @@ const displayMessage = computed(() => {
 /** ------------------
  * Scroll
  -------------------*/
-const scrollTimeout = ref<number | null>(null);
-const isScrolling = ref(false);
-const setIsScrolling = () => {
-  isScrolling.value = true;
-  if (scrollTimeout.value) {
-    clearTimeout(scrollTimeout.value);
-  }
-  scrollTimeout.value = window.setTimeout(() => {
-    isScrolling.value = false;
-  }, 1500);
-};
+const scrollDiv = ref<HTMLElement | null>(null);
+const { isScrolling, y } = useScroll(scrollDiv, { throttle: 100 });
 
-onBeforeUnmount(() => {
-  if (scrollTimeout.value) {
-    clearTimeout(scrollTimeout.value);
-  }
-});
+const getCanDrag = (network: BaseNetwork) => {
+  return (
+    getIsPinned(network.name) &&
+    props.searchInput === '' &&
+    props.activeCategory !== NetworksCategory.New
+  );
+};
 </script>
 
 <style lang="less">
@@ -175,21 +200,23 @@ onBeforeUnmount(() => {
   background-color: transparent;
   box-shadow: none;
   margin: 0px -12px 0px -12px;
-  padding: 4px 10px 0px 10px;
+  padding: 1px 8px 1px 10px;
   transition:
     background-color 0.4s ease-in-out,
     box-shadow 0.4s ease-in-out;
   &__scroll-area {
-    position: relative;
+    position: static;
     margin: auto;
     width: 100%;
-    height: 452px;
+    height: 420px;
     display: flex;
     flex-direction: column;
     overflow-y: scroll;
     scroll-behavior: smooth;
     margin-right: -4px;
     padding-right: 4px;
+    padding-bottom: 3px;
+    padding-top: 3px;
     &::-webkit-scrollbar {
       width: 4px;
     }
