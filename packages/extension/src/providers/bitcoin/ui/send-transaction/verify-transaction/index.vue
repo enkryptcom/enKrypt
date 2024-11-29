@@ -163,7 +163,7 @@ const sendAction = async () => {
   })
     .then((signedTx) => {
       api
-        .broadcastTx(signedTx.extractTransaction().toHex())
+        .broadcastTx(signedTx.toHex())
         .then(() => {
           trackSendEvents(SendEventType.SendComplete, {
             network: network.value.name,
@@ -172,7 +172,7 @@ const sendAction = async () => {
             [
               {
                 ...txActivity,
-                ...{ transactionHash: signedTx.extractTransaction().getId() },
+                ...{ transactionHash: signedTx.getId() },
               },
             ],
             {

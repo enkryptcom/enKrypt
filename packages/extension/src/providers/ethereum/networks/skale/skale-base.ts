@@ -154,17 +154,19 @@ async function getPreconfiguredTokens(
         .value,
       balanceUSD: nativeAssetUsdBalance.toNumber(),
       balanceUSDf: formatFiatValue(nativeAssetUsdBalance.toString()).value,
-      value: nativeAssetMarketData[index]?.current_price.toString() ?? "0",
+      value: nativeAssetMarketData[index]?.current_price?.toString() ?? "0",
       valuef: formatFiatValue(
-        nativeAssetMarketData[index]?.current_price.toString() ?? "0"
+        nativeAssetMarketData[index]?.current_price?.toString() ?? "0"
       ).value,
       decimals: assetDecimals,
       sparkline: nativeAssetMarketData[index]
-        ? new Sparkline(nativeAssetMarketData[index]?.sparkline_in_7d.price, 25)
-            .dataValues
+        ? new Sparkline(
+            nativeAssetMarketData[index]?.sparkline_in_24h.price,
+            25
+          ).dataValues
         : "",
       priceChangePercentage:
-        nativeAssetMarketData[index]?.price_change_percentage_7d_in_currency ??
+        nativeAssetMarketData[index]?.price_change_percentage_24h_in_currency ??
         0,
       contract: asset.address,
     };

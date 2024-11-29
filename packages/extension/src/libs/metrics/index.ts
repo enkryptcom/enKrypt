@@ -4,6 +4,7 @@ import Metrics from "./amplitude";
 import {
   BuyEventType,
   DAppsEventType,
+  GenericEvents,
   NFTEventType,
   NetworkChangeEvents,
   SendEventType,
@@ -12,6 +13,10 @@ import {
 } from "./types";
 
 const metrics = new Metrics();
+
+const trackGenericEvents = (event: GenericEvents) => {
+  metrics.track("generic", { event });
+};
 
 const trackNetworkSelected = (
   event: NetworkChangeEvents,
@@ -71,11 +76,13 @@ const trackDAppsEvents = (
 };
 
 const optOutofMetrics = (optOut: boolean) => {
-  metrics.setOptOut(false);
-  metrics.track("settings", {
-    event: SettingEventType.OptOut,
-    value: optOut ? 1 : 0,
-  });
+  if (!process.env.IS_FIREFOX) {
+    metrics.setOptOut(false);
+    metrics.track("settings", {
+      event: SettingEventType.OptOut,
+      value: optOut ? 1 : 0,
+    });
+  }
   metrics.setOptOut(optOut);
 };
 
@@ -87,4 +94,5 @@ export {
   trackNFTEvents,
   trackDAppsEvents,
   optOutofMetrics,
+  trackGenericEvents,
 };

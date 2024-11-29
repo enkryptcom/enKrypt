@@ -3,13 +3,12 @@ import {
   InternalOnMessageResponse,
   Message,
 } from "@/types/messenger";
-import { RPCRequestType } from "@enkryptcom/types";
+import { RPCRequestType, OnMessageResponse } from "@enkryptcom/types";
 import { v4 as randomUUID } from "uuid";
 import { getCustomError } from "../error";
 import KeyRingBase from "../keyring/keyring";
 import { sendToWindow } from "@/libs/messenger/extension";
 import { ProviderName } from "@/types/provider";
-import { OnMessageResponse } from "@enkryptcom/types";
 import Providers from "@/providers";
 import Browser from "webextension-polyfill";
 import TabInfo from "@/libs/utils/tab-info";
@@ -47,6 +46,8 @@ class BackgroundHandler {
       [ProviderName.ethereum]: {},
       [ProviderName.polkadot]: {},
       [ProviderName.bitcoin]: {},
+      [ProviderName.kadena]: {},
+      [ProviderName.solana]: {},
     };
     this.#providers = Providers;
   }

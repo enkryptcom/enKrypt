@@ -32,27 +32,80 @@ Enkrypt is a web3 wallet built from the ground up to support the multi-chain fut
 ## Currently Supported Chains
 
 - Ethereum
-- Polygon
-- BNB Smart Chain
+- Bitcoin
+- Solana
+- Acala
+- Amplitude
+- Arbitrum
+- Arbitrum Nova
+- Arthera
+- Astar
+- Astar EVM
+- Aurora
+- Avalanche
+- Base
+- Bifrost
+- Bifrost (Kusama)
+- Binance Smart Chain
+- Bitcoin Testnet
+- Blast
+- Caga Ankara Testnet
+- Canto
+- Celo
+- Degen
+- Dogecoin
+- Edgeware
+- Edgeware EVM
+- Ethereum Classic
+- Fantom
+- Forma
+- Gnosis
+- Godwoken
+- Goerli
+- Ham Chain
+- Immutable zkEVM
+- Kadena
+- Karura
+- Karura EVM
+- Klaytn
+- Kusama
+- Linea
+- Litecoin
+- Manta Pacific
+- Mode
 - Moonbeam
 - Moonriver
-- Karura EVM
-- Ethereum Classic
+- OKX Chain
+- Ontology EVM
+- Opal
+- opBNB
+- Optimism
+- Palm Network
+- Pendulum
 - Polkadot
-- Kusama
-- Edgeware
-- Acala
-- Karura
-- TomoChain
-- Arbitrum
-- Gnosis
-- Avalanche
-- Fantom
-- Klaytn
-- Aurora
-- Ontology
+- Polygon
+- Polygon zkEVM
+- Proof of Play Apex
 - Puppy Net
-- Arthera
+- Quartz
+- RARI Chain
+- Rollux
+- Rootstock
+- Sanko Chain
+- Scroll
+- Shibarium
+- Shiden
+- Shiden EVM
+- Sepolia
+- Syscoin
+- Telos EVM
+- Unique
+- Vara Network
+- Viction
+- Westend
+- ZChains
+- zkSync
+- zkSync Goerli
 - More coming soon!
 
 Looking to add your project? [Contact us!](https://mewwallet.typeform.com/enkrypt-inquiry?typeform-source=www.enkrypt.com)
@@ -96,13 +149,24 @@ To get started make sure you have `nodejs` and `nvm` installed on your system
    yarn watch-extension # chromium based browsers
    yarn watch:firefox # firefox
    ```
-4. Build the project for release
+4. Build the project for release (if you are Firefox team dont follow this)
    ```sh
    yarn build:all
    yarn build:chrome # chromium based browsers
    yarn build:firefox # firefox
    ```
-5. Add to your browser
+5. Build the project for release (For Firefox team)
+
+   Since Firefox verification team looking for identical builds, you have to build it using docker
+
+   ```sh
+   docker build -t enkrypt-build-container .
+   docker run --rm -v `pwd`:/home:rw --user "$(id -u):$(id -g)" enkrypt-build-container /bin/bash -c "yarn install --silent"
+   docker run --rm --user "$(id -u):$(id -g)" -v `pwd`:/home:rw enkrypt-build-container /bin/bash -c "cd packages/extension && yarn build:all"
+   docker run --rm --user "$(id -u):$(id -g)" -v `pwd`:/home:rw enkrypt-build-container /bin/bash -c "cd packages/extension && yarn build:firefox && yarn zip"
+   ```
+
+6. Add to your browser
    - [Chrome/Brave/Opera](https://developer.chrome.com/docs/extensions/mv2/getstarted/#manifest)
    - [Firefox](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Your_first_WebExtension#installing)
 

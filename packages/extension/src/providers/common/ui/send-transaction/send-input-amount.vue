@@ -3,9 +3,10 @@
     <input
       ref="inputRef"
       v-model="amount"
-      type="number"
+      type="text"
       placeholder="0"
       :style="{ color: !hasEnoughBalance ? 'red' : 'black' }"
+      @keypress="onlyNumber"
       @focus="changeFocus"
       @blur="changeFocus"
     />
@@ -31,7 +32,7 @@ import SwitchArrowIcon from "@action/icons/send/switch-arrow-icon.vue";
 import BigNumber from "bignumber.js";
 
 const emit = defineEmits<{
-  (e: "update:inputAmount", address: string): void;
+  (e: "update:inputAmount", value: string): void;
   (e: "update:inputSetMax"): void;
 }>();
 
@@ -64,10 +65,18 @@ const fiatEquivalent = computed(() => {
 const amount = computed({
   get: () => props.amount,
   set: (value) => {
-    emit("update:inputAmount", value.toString());
+    let fValue = value.toString();
+    if (fValue === ".") fValue = "0.";
+    emit("update:inputAmount", fValue);
   },
 });
 
+const onlyNumber = ($event: KeyboardEvent) => {
+  const keyCode = $event.keyCode ? $event.keyCode : $event.which;
+  if ((keyCode < 48 || keyCode > 57) && keyCode !== 46) {
+    $event.preventDefault();
+  }
+};
 const changeFocus = () => {
   isFocus.value = !isFocus.value;
 };

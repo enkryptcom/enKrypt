@@ -31,7 +31,7 @@ import {
   getAllowanceTransactions,
   TOKEN_AMOUNT_INFINITY_AND_BEYOND,
 } from "../../utils/approvals";
-import estimateGasList from "../../common/estimateGasList";
+import estimateEVMGasList from "../../common/estimateGasList";
 import { isEVMAddress } from "../../utils/common";
 
 const supportedNetworks: {
@@ -65,6 +65,10 @@ const supportedNetworks: {
     approvalAddress: "0xdef1c0ded9bec7f1a1670819833240f027b25eff",
     chainId: "42161",
   },
+  [SupportedNetworkName.Base]: {
+    approvalAddress: "0xdef1c0ded9bec7f1a1670819833240f027b25eff",
+    chainId: "1101",
+  },
 };
 
 const BASE_URL = "https://partners.mewapi.io/zerox/";
@@ -83,7 +87,7 @@ class ZeroX extends ProviderClass {
   toTokens: ProviderToTokenResponse;
 
   constructor(web3eth: Web3Eth, network: SupportedNetworkName) {
-    super(web3eth, network);
+    super();
     this.network = network;
     this.tokenList = [];
     this.web3eth = web3eth;
@@ -194,7 +198,7 @@ class ZeroX extends ProviderClass {
           type: TransactionType.evm,
         });
         if (accurateEstimate) {
-          const accurateGasEstimate = await estimateGasList(
+          const accurateGasEstimate = await estimateEVMGasList(
             transactions,
             this.network
           );

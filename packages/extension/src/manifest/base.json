@@ -2,7 +2,7 @@
   "author": "https://www.enkrypt.com",
   "homepage_url": "https://www.enkrypt.com",
   "version": "",
-  "name": "Enkrypt: Multichain Crypto Wallet",
+  "name": "Enkrypt: ETH, BTC and Solana Wallet",
   "short_name": "Enkrypt",
   "permissions": [
     "storage",
@@ -36,12 +36,12 @@
       "all_frames": false
     },
     {
-      "matches": ["*://connect.trezor.io/*/popup.html"],
+      "matches": ["*://connect.trezor.io/*/*"],
       "js": ["vendor/trezor-content-script.js"],
       "run_at": "document_start"
     }
   ],
-  "description": "Everything in the blockchain made easy",
+  "description": "The best multichain crypto wallet",
   "icons": {
     "16": "assets/img/icons/icon16.png",
     "32": "assets/img/icons/icon32.png",

@@ -1,9 +1,9 @@
 import { NetworkNames } from "@enkryptcom/types";
 
 const NetworkEndpoints: Record<string, string> = {
-  [NetworkNames.Ethereum]: "https://api.etherscan.io/",
+  [NetworkNames.Ethereum]: "https://eth.blockscout.com/",
   [NetworkNames.Binance]: "https://api.bscscan.com/",
-  [NetworkNames.Matic]: "https://api.polygonscan.com/",
+  [NetworkNames.Matic]: "https://polygon.blockscout.com/",
   [NetworkNames.Moonbeam]: "https://api-moonbeam.moonscan.io/",
   [NetworkNames.Moonriver]: "https://api-moonriver.moonscan.io/",
   [NetworkNames.KaruraEVM]: "https://blockscout.karura.network/",
@@ -13,6 +13,7 @@ const NetworkEndpoints: Record<string, string> = {
   [NetworkNames.Canto]: "https://evm.explorer.canto.io/",
   [NetworkNames.EdgeEVM]: "https://edgscan.live/",
   [NetworkNames.Rootstock]: "https://blockscout.com/rsk/mainnet/",
+  [NetworkNames.RootstockTestnet]: "https://rootstock-testnet.blockscout.com/",
   [NetworkNames.SkaleBlockBrawlers]:
     "https://frayed-decent-antares.explorer.mainnet.skalenodes.com/",
   [NetworkNames.SkaleCalypso]:
@@ -37,6 +38,7 @@ const NetworkEndpoints: Record<string, string> = {
     "https://block-explorer-api.testnets.zksync.dev/",
   [NetworkNames.ZkSync]: "https://block-explorer-api.mainnet.zksync.io/",
   [NetworkNames.Arbitrum]: "https://api.arbiscan.io/",
+  [NetworkNames.ArbitrumNova]: "https://nova-explorer.arbitrum.io/",
   [NetworkNames.Gnosis]: "https://api.gnosisscan.io/",
   [NetworkNames.Avalanche]: "https://api.snowtrace.io/",
   [NetworkNames.Fantom]: "https://api.ftmscan.com/",
@@ -49,6 +51,23 @@ const NetworkEndpoints: Record<string, string> = {
   [NetworkNames.FormTestnet]: "https://testnet-explorer.form.network/",
   [NetworkNames.ArtheraTest]: "https://explorer-test.arthera.net/",
   [NetworkNames.Arthera]: "https://explorer.arthera.net/",
+  [NetworkNames.SyscoinTest]: "https://tanenbaum.io/",
+  [NetworkNames.Syscoin]: "https://explorer.syscoin.org/",
+  [NetworkNames.RolluxTest]: "https://rollux.tanenbaum.io/",
+  [NetworkNames.Rollux]: "https://explorer.rollux.com/",
+  [NetworkNames.Blast]: "https://api.blastscan.io/",
+  [NetworkNames.Sanko]: "https://explorer.sanko.xyz/",
+  [NetworkNames.Degen]: "https://explorer.degen.tips/",
+  [NetworkNames.Ham]: "https://explorer.ham.fun/",
+  [NetworkNames.ImmutableZkevm]: "https://explorer.immutable.com/",
+  [NetworkNames.Rari]: "https://mainnet.explorer.rarichain.org/",
+  [NetworkNames.Forma]: "https://explorer.forma.art/",
+  [NetworkNames.XLayer]: "https://www.oklink.com/api/v5/explorer/xlayer/",
+  [NetworkNames.Linea]: "https://api.lineascan.build/",
+  [NetworkNames.MantaPacific]: "https://pacific-explorer.manta.network/",
+  [NetworkNames.Mode]: "https://explorer.mode.network/",
+  [NetworkNames.ProofOfPlayApex]: "https://explorer.apex.proofofplay.com/",
+  [NetworkNames.Scroll]: "https://api.scrollscan.com/",
 };
 
 export { NetworkEndpoints };

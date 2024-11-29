@@ -32,7 +32,7 @@
       "all_frames": false
     },
     {
-      "matches": ["*://connect.trezor.io/*/popup.html"],
+      "matches": ["*://connect.trezor.io/*/*"],
       "js": ["vendor/trezor-content-script.js"],
       "run_at": "document_start"
     }
@@ -41,5 +41,6 @@
     "gecko": {
       "strict_min_version": "100.0"
     }
-  }
+  },
+  "content_security_policy": "script-src 'self' 'unsafe-eval' 'wasm-unsafe-eval'"
 }

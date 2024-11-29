@@ -47,6 +47,7 @@
         :show-deposit="showDepositWindow"
         @update:init="init"
         @address-changed="onSelectedAddressChanged"
+        @select:subnetwork="onSelectedSubnetworkChange"
         @toggle:deposit="toggleDepositWindow"
       />
       <router-view v-slot="{ Component }" name="view">
@@ -55,6 +56,7 @@
             :is="Component"
             :key="$route.fullPath"
             :network="currentNetwork"
+            :subnetwork="currentSubNetwork"
             :account-info="accountHeaderData"
             @update:init="init"
             @toggle:deposit="toggleDepositWindow"
@@ -92,45 +94,48 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
-import AppMenu from "./components/app-menu/index.vue";
-import NetworkMenu from "./components/network-menu/index.vue";
-import AccountsHeader from "./components/accounts-header/index.vue";
-import BaseSearch from "./components/base-search/index.vue";
-import LogoMin from "./icons/common/logo-min.vue";
-import ManageNetworksIcon from "./icons/common/manage-networks-icon.vue";
-import SettingsIcon from "./icons/common/settings-icon.vue";
-import HoldIcon from "./icons/common/hold-icon.vue";
-import MoreIcon from "./icons/actions/more.vue";
-import AddNetwork from "./views/add-network/index.vue";
-import Settings from "./views/settings/index.vue";
-import ModalRate from "./views/modal-rate/index.vue";
+import DomainState from "@/libs/domain-state";
+import PublicKeyRing from "@/libs/keyring/public-keyring";
+import { sendToBackgroundFromAction } from "@/libs/messenger/extension";
+import NetworksState from "@/libs/networks-state";
+import {
+  getAccountsByNetworkName,
+  getOtherSigners,
+} from "@/libs/utils/accounts";
 import ModalNewVersion from "./views/modal-new-version/index.vue";
-import { useRouter, useRoute } from "vue-router";
-import { BaseNetwork } from "@/types/base-network";
 import {
   DEFAULT_EVM_NETWORK,
   getAllNetworks,
   getNetworkByName,
 } from "@/libs/utils/networks";
-import DomainState from "@/libs/domain-state";
-import {
-  getAccountsByNetworkName,
-  getOtherSigners,
-} from "@/libs/utils/accounts";
-import { AccountsHeaderData } from "./types/account";
-import PublicKeyRing from "@/libs/keyring/public-keyring";
-import { sendToBackgroundFromAction } from "@/libs/messenger/extension";
-import { MessageMethod } from "@/providers/ethereum/types";
-import { InternalMethods } from "@/types/messenger";
-import NetworksState from "@/libs/networks-state";
 import openOnboard from "@/libs/utils/open-onboard";
-import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
-import { fromBase } from "@enkryptcom/utils";
-import { EnkryptAccount } from "@enkryptcom/types";
-import Browser from "webextension-polyfill";
-import EVMAccountState from "@/providers/ethereum/libs/accounts-state";
 import BTCAccountState from "@/providers/bitcoin/libs/accounts-state";
+import EVMAccountState from "@/providers/ethereum/libs/accounts-state";
+import SolAccountState from "@/providers/solana/libs/accounts-state";
+import { MessageMethod } from "@/providers/ethereum/types";
+import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
+import { MessageMethod as KadenaMessageMethod } from "@/providers/kadena/types";
+import { BaseNetwork } from "@/types/base-network";
+import { InternalMethods } from "@/types/messenger";
+import { EnkryptAccount, NetworkNames } from "@enkryptcom/types";
+import { fromBase } from "@enkryptcom/utils";
+import { computed, onMounted, ref } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import Browser from "webextension-polyfill";
+import AccountsHeader from "./components/accounts-header/index.vue";
+import AppMenu from "./components/app-menu/index.vue";
+import BaseSearch from "./components/base-search/index.vue";
+import NetworkMenu from "./components/network-menu/index.vue";
+import MoreIcon from "./icons/actions/more.vue";
+import HoldIcon from "./icons/common/hold-icon.vue";
+import LogoMin from "./icons/common/logo-min.vue";
+import ManageNetworksIcon from "./icons/common/manage-networks-icon.vue";
+import SettingsIcon from "./icons/common/settings-icon.vue";
+import { AccountsHeaderData } from "./types/account";
+import AddNetwork from "./views/add-network/index.vue";
+import ModalRate from "./views/modal-rate/index.vue";
+import Settings from "./views/settings/index.vue";
+import { KadenaNetwork } from "@/providers/kadena/types/kadena-network";
 import { EnkryptProviderEventMethods, ProviderName } from "@/types/provider";
 import { onClickOutside } from "@vueuse/core";
 import RateState from "@/libs/rate-state";
@@ -161,6 +166,7 @@ const searchInput = ref("");
 const networks = ref<BaseNetwork[]>([]);
 const defaultNetwork = DEFAULT_EVM_NETWORK;
 const currentNetwork = ref<BaseNetwork>(defaultNetwork);
+const currentSubNetwork = ref<string>("");
 const kr = new PublicKeyRing();
 const addNetworkShow = ref(false);
 const settingsShow = ref(false);
@@ -198,12 +204,18 @@ const toggleDepositWindow = () => {
   showDepositWindow.value = !showDepositWindow.value;
 };
 const openBuyPage = () => {
-  trackBuyEvents(BuyEventType.BuyClick, { network: currentNetwork.value.name });
+  const buyLink =
+    currentNetwork.value.name === NetworkNames.KadenaTestnet
+      ? (currentNetwork.value as KadenaNetwork).options.buyLink
+      : `https://ccswap.myetherwallet.com/?to=${currentNetwork.value.displayAddress(
+          accountHeaderData.value.selectedAccount!.address
+        )}&network=${currentNetwork.value.name}&crypto=${
+          currentNetwork.value.currencyName
+        }&platform=enkrypt`;
   Browser.tabs.create({
-    url: `https://ccswap.myetherwallet.com/?to=${currentNetwork.value.displayAddress(
-      accountHeaderData.value.selectedAccount!.address
-    )}&platform=enkrypt`,
+    url: buyLink,
   });
+  trackBuyEvents(BuyEventType.BuyClick, { network: currentNetwork.value.name });
 };
 const isKeyRingLocked = async (): Promise<boolean> => {
   return await sendToBackgroundFromAction({
@@ -272,6 +284,9 @@ const setNetwork = async (network: BaseNetwork) => {
     provider: network.provider,
     network: network.name,
   });
+  if (!network.subNetworks) {
+    currentSubNetwork.value = "";
+  }
   const activeAccounts = await getAccountsByNetworkName(network.name);
 
   const inactiveAccounts = await kr.getAccounts(
@@ -283,6 +298,7 @@ const setNetwork = async (network: BaseNetwork) => {
     const found = activeAccounts.find((acc) => acc.address === selectedAddress);
     if (found) selectedAccount = found;
   }
+
   accountHeaderData.value = {
     activeAccounts,
     inactiveAccounts,
@@ -293,6 +309,7 @@ const setNetwork = async (network: BaseNetwork) => {
   router.push({ name: "assets", params: { id: network.name } });
   const tabId = await domainState.getCurrentTabId();
   const curSavedNetwork = await domainState.getSelectedNetWork();
+
   if (
     curSavedNetwork !== network.name &&
     (currentNetwork.value as EvmNetwork).chainID
@@ -319,6 +336,26 @@ const setNetwork = async (network: BaseNetwork) => {
       tabId,
     });
   }
+
+  if (
+    curSavedNetwork !== network.name &&
+    currentNetwork.value.provider === ProviderName.kadena
+  ) {
+    await sendToBackgroundFromAction({
+      message: JSON.stringify({
+        method: InternalMethods.sendToTab,
+        params: [
+          {
+            method: KadenaMessageMethod.changeNetwork,
+            params: [currentNetwork.value.name],
+          },
+        ],
+      }),
+      provider: currentNetwork.value.provider,
+      tabId,
+    });
+  }
+
   await sendToBackgroundFromAction({
     message: JSON.stringify({
       method: InternalMethods.sendToTab,
@@ -333,6 +370,7 @@ const setNetwork = async (network: BaseNetwork) => {
     tabId,
   });
   domainState.setSelectedNetwork(network.name);
+
   if (network.api) {
     try {
       const thisNetworkName = currentNetwork.value.name;
@@ -352,16 +390,23 @@ const setNetwork = async (network: BaseNetwork) => {
   }
 };
 
+const onSelectedSubnetworkChange = async (id: string) => {
+  await domainState.setSelectedSubNetwork(id);
+  currentSubNetwork.value = id;
+  setNetwork(currentNetwork.value);
+};
+
 const onSelectedAddressChanged = async (newAccount: EnkryptAccount) => {
   accountHeaderData.value.selectedAccount = newAccount;
-  if (
-    currentNetwork.value.provider === ProviderName.ethereum ||
-    currentNetwork.value.provider === ProviderName.bitcoin
-  ) {
-    const AccountState =
-      currentNetwork.value.provider === ProviderName.ethereum
-        ? new EVMAccountState()
-        : new BTCAccountState();
+  const accountStates = {
+    [ProviderName.ethereum]: EVMAccountState,
+    [ProviderName.bitcoin]: BTCAccountState,
+    [ProviderName.solana]: SolAccountState,
+  };
+  if (Object.keys(accountStates).includes(currentNetwork.value.provider)) {
+    const AccountState = new accountStates[
+      currentNetwork.value.provider as keyof typeof accountStates
+    ]();
     const domain = await domainState.getCurrentDomain();
     AccountState.addApprovedAddress(newAccount.address, domain);
   }

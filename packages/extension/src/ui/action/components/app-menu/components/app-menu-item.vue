@@ -3,7 +3,16 @@
     <img ref="imageTag" :src="network.icon" alt="" />
     <span>{{ network.name_long }} </span
     ><test-network-icon v-if="network.isTestNetwork" />
-
+    <span
+      v-if="newNetworks.includes(network.name)"
+      class="tag tag-new tag-sm shimmer"
+      >New</span
+    >
+    <span
+      v-if="newSwaps.includes(network.name)"
+      class="tag tag-swap tag-sm shimmer"
+      >Swap</span
+    >
     <div class="app-menu__link-drag">
       <drag-icon />
     </div>
@@ -15,6 +24,7 @@ import { NodeType } from "@/types/provider";
 import { PropType, ref, watch } from "vue";
 import DragIcon from "@action/icons/common/drag-icon.vue";
 import TestNetworkIcon from "@action/icons/common/test-network-icon.vue";
+import { newNetworks, newSwaps } from "@/providers/common/libs/new-features";
 
 const props = defineProps({
   network: {
@@ -87,7 +97,42 @@ watch(
 
 <style lang="less">
 @import "~@action/styles/theme.less";
+.tag {
+  display: inline-block;
+  padding: 0.2em 0.5em 0.3em;
+  border-radius: 8px;
+  margin: 0.25em 0.1em;
+  margin-left: 0.5em;
+}
+.tag-sm {
+  display: inline-block;
+  letter-spacing: 0.15ch;
+  font-weight: 400;
+}
+.tag-swap {
+  background: #41b883;
+  color: #35495e !important;
+}
+.tag-new {
+  background: #a481d5;
+  color: #fff !important;
+}
+.shimmer {
+  color: grey;
+  display: inline-block;
+  -webkit-mask: linear-gradient(-60deg, #000 30%, #0005, #000 70%) right/300%
+    100%;
+  background-repeat: no-repeat;
+  animation: shimmer 2.5s infinite;
+  font-size: 50px;
+  max-width: 200px;
+}
 
+@keyframes shimmer {
+  100% {
+    -webkit-mask-position: left;
+  }
+}
 .app-menu {
   &__link {
     text-decoration: none;

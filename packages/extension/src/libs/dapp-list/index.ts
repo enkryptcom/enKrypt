@@ -67,6 +67,40 @@ const lists: Partial<Record<NetworkNames, string>> = {
     "https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/matic-zkevm.json",
   [NetworkNames.Bitcoin]:
     "https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/btc.json",
+  [NetworkNames.Arthera]:
+    "https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/arthera.json",
+  [NetworkNames.Blast]:
+    "https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/blast.json",
+  [NetworkNames.ArbitrumNova]:
+    "https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/nova.json",
+  [NetworkNames.Forma]:
+    "https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/forma.json",
+  [NetworkNames.Godwoken]:
+    "https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/godwoken.json",
+  [NetworkNames.ImmutableZkevm]:
+    "https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/imx.json",
+  [NetworkNames.ZChains]:
+    "https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/zchains.json",
+  [NetworkNames.MantaPacific]:
+    "https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/manta.json",
+  [NetworkNames.Mode]:
+    "https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/mode.json",
+  [NetworkNames.OpBNB]:
+    "https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/opBNB.json",
+  [NetworkNames.Palm]:
+    "https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/palm.json",
+  [NetworkNames.ProofOfPlayApex]:
+    "https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/popApex.json",
+  [NetworkNames.Scroll]:
+    "https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/scroll.json",
+  [NetworkNames.Rari]:
+    "https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/rari.json",
+  [NetworkNames.Solana]:
+    "https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/sol.json",
+  [NetworkNames.Linea]:
+    "https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/linea.json",
+  [NetworkNames.XLayer]:
+    "https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/xlayer.json",
 };
 
 export default lists;

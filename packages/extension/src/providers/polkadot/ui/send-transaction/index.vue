@@ -21,10 +21,9 @@
 
       <send-from-contacts-list
         :show-accounts="isOpenSelectContactFrom"
-        :accounts="accountInfo.activeAccounts"
+        :account-info="accountInfo"
         :address="addressFrom"
         :network="network"
-        :identicon="network.identicon"
         @selected:account="selectAccountFrom"
         @close="toggleSelectContactFrom"
       />
@@ -39,9 +38,9 @@
 
       <send-contacts-list
         :show-accounts="isOpenSelectContactTo"
-        :accounts="accountInfo.activeAccounts"
-        :network="network"
+        :account-info="accountInfo"
         :address="addressTo"
+        :network="network"
         @selected:account="selectAccountTo"
         @update:paste-from-clipboard="addressInputTo.pasteFromClipboard()"
         @close="toggleSelectContactTo"
@@ -63,6 +62,7 @@
 
       <send-input-amount
         :amount="amount"
+        :show-max="true"
         :fiat-value="selectedAsset.price"
         :has-enough-balance="hasEnough"
         @update:input-amount="inputAmount"
@@ -107,11 +107,11 @@ import { useRoute, useRouter } from "vue-router";
 import { debounce } from "lodash";
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import SendAddressInput from "./components/send-address-input.vue";
-import SendContactsList from "./components/send-contacts-list.vue";
-import SendFromContactsList from "./components/send-from-contacts-list.vue";
+import SendContactsList from "@/providers/common/ui/send-transaction/send-contacts-list.vue";
+import SendFromContactsList from "@/providers/common/ui/send-transaction/send-from-contacts-list.vue";
 import SendTokenSelect from "./components/send-token-select.vue";
 import AssetsSelectList from "@action/views/assets-select-list/index.vue";
-import SendInputAmount from "./components/send-input-amount.vue";
+import SendInputAmount from "@/providers/common/ui/send-transaction/send-input-amount.vue";
 import SendFeeSelect from "./components/send-fee-select.vue";
 import SendAlert from "./components/send-alert.vue";
 import BaseButton from "@action/components/base-button/index.vue";
@@ -406,9 +406,13 @@ const selectToken = (token: SubstrateToken | Partial<SubstrateToken>) => {
   isOpenSelectToken.value = false;
 };
 
-const inputAmount = (number: string | undefined) => {
+const inputAmount = (inputAmount: string) => {
+  if (inputAmount === "") {
+    inputAmount = "0";
+  }
+  const inputAmountBn = new BigNumber(inputAmount);
   sendMax.value = false;
-  amount.value = number ? (parseFloat(number) < 0 ? "0" : number) : number;
+  amount.value = inputAmountBn.lt(0) ? "0" : inputAmount;
   validateFields();
 };
 
@@ -423,12 +427,7 @@ const sendButtonTitle = computed(() => {
   return title;
 });
 
-const setSendMax = (max: boolean) => {
-  if (!max) {
-    sendMax.value = false;
-    return;
-  }
-
+const setSendMax = () => {
   if (selectedAsset.value) {
     const humanBalance = fromBase(
       selectedAsset.value.balance!,

@@ -1,7 +1,7 @@
 {
   "name": "enkrypt",
   "packageManager": "yarn@3.8.1",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "private": true,
   "workspaces": [
     "packages/signers/*",
@@ -25,21 +25,24 @@
     "watch-ts": "nodemon --exec 'yarn run build:all && node scripts/compile-done.js'",
     "upgrade": "yarn upgrade-interactive",
     "version:bump:patch": "yarn workspaces foreach -pv --exclude @enkryptcom/extension exec 'yarn version --immediate patch'",
-    "publish": "yarn workspaces foreach -pv --exclude @enkryptcom/extension exec 'yarn npm publish --access public --otp 474911'",
+    "publish": "yarn workspaces foreach -pv --exclude @enkryptcom/extension exec 'yarn npm publish --access public --otp 312003'",
     "version:apply": "yarn version apply --all",
     "prepare": "husky"
   },
   "devDependencies": {
-    "@commitlint/cli": "^19.2.1",
-    "@commitlint/config-conventional": "^19.1.0",
-    "@swc/core": "^1.4.8",
+    "@commitlint/cli": "^19.4.1",
+    "@commitlint/config-conventional": "^19.4.1",
+    "@swc/core": "^1.7.28",
     "concurrently": "^8.2.2",
-    "husky": "^9.0.11",
+    "husky": "^9.1.6",
     "node-notifier": "^10.0.1",
-    "nodemon": "^3.1.0",
+    "nodemon": "^3.1.7",
     "ultra-runner": "^3.10.5"
   },
   "resolutions": {
-    "@ledgerhq/compressjs": "https://registry.yarnpkg.com/@favware/skip-dependency/-/skip-dependency-1.2.1.tgz"
+    "@ledgerhq/compressjs": "https://registry.yarnpkg.com/@favware/skip-dependency/-/skip-dependency-1.2.1.tgz",
+    "@noble/hashes": "^1.4.0",
+    "fork-ts-checker-webpack-plugin": "^6.5.3",
+    "@amplitude/plugin-autocapture-browser@^1.0.2": "patch:@amplitude/plugin-autocapture-browser@npm%3A1.0.3#./.yarn/patches/@amplitude-plugin-autocapture-browser-npm-1.0.3-edb25bef55.patch"
   }
 }

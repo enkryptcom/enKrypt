@@ -4,7 +4,13 @@
       <div v-if="!noIndex" class="hardware-importing-account__number">
         {{ index }}
       </div>
-      <img :src="network.identicon ? network.identicon(address) : ''" />
+      <img
+        :src="
+          network.identicon
+            ? network.identicon(network.displayAddress(address))
+            : ''
+        "
+      />
       <div class="hardware-importing-account__info">
         <p class="hardware-importing-account__info-name">
           {{

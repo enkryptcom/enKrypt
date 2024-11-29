@@ -28,28 +28,30 @@ class Metrics {
     const settingsState = new SettingsState();
     settingsState.getEnkryptSettings().then((set) => {
       this.installedTime = set.installedTimestamp;
-      init("apikey", {
-        instanceName: process.env.IS_DEV
-          ? "enkrypt-extension-dev"
-          : "enkrypt-extension",
-        optOut: !set.isMetricsEnabled,
-        serverUrl: process.env.IS_DEV
-          ? "https://analytics-enkrypt-dev.mewwallet.dev/record"
-          : "https://analytics-enkrypt.mewwallet.dev/record",
-        appVersion: process.env.PACKAGE_VERSION as string,
-        trackingOptions: {
-          ipAddress: false,
-        },
-        userId: set.randomUserID,
-        useBatch: true,
-        identityStorage: "none",
-        logLevel: Types.LogLevel.None,
-        defaultTracking: {
-          formInteractions: false,
-          pageViews: false,
-          sessions: false,
-        },
-      });
+      if (typeof window !== "undefined") {
+        init("apikey", {
+          instanceName: process.env.IS_DEV
+            ? "enkrypt-extension-dev"
+            : "enkrypt-extension",
+          optOut: !set.isMetricsEnabled,
+          serverUrl: process.env.IS_DEV
+            ? "https://analytics-enkrypt-dev.mewwallet.dev/record"
+            : "https://analytics-enkrypt.mewwallet.dev/record",
+          appVersion: process.env.PACKAGE_VERSION as string,
+          trackingOptions: {
+            ipAddress: false,
+          },
+          userId: set.randomUserID,
+          useBatch: true,
+          identityStorage: "none",
+          sessionTimeout: 15 * 60 * 1000, // 15 mins
+          logLevel: Types.LogLevel.None,
+          defaultTracking: {
+            formInteractions: false,
+            pageViews: false,
+          },
+        });
+      }
     });
   }
   track(event: string, options: Record<string, unknown>) {

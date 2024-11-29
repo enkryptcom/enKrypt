@@ -1,12 +1,18 @@
 import EvmAPI from "@/providers/ethereum/libs/api";
 import SubstrateAPI from "@/providers/polkadot/libs/api";
 import BitcoinAPI from "@/providers/bitcoin/libs/api";
+import KadenaAPI from "@/providers/kadena/libs/api";
+import SolanaAPI from "@/providers/solana/libs/api";
 import { AssetsType, ProviderName } from "@/types/provider";
 import { CoingeckoPlatform, SignerType, NetworkNames } from "@enkryptcom/types";
 import { Activity } from "./activity";
 import { BaseToken } from "./base-token";
 import { BNType } from "@/providers/common/types";
 
+export interface SubNetworkOptions {
+  id: string;
+  name: string;
+}
 export interface BaseNetworkOptions {
   name: NetworkNames;
   name_long: string;
@@ -26,10 +32,29 @@ export interface BaseNetworkOptions {
   coingeckoPlatform?: CoingeckoPlatform;
   identicon: (address: string) => string;
   basePath: string;
-  api: () => Promise<SubstrateAPI> | Promise<EvmAPI> | Promise<BitcoinAPI>;
+  subNetworks?: SubNetworkOptions[];
+  api: () =>
+    | Promise<SubstrateAPI>
+    | Promise<EvmAPI>
+    | Promise<BitcoinAPI>
+    | Promise<KadenaAPI>
+    | Promise<SolanaAPI>;
   customTokens?: boolean;
 }
 
+/**
+ * The main representation of a network in the Enkrypt extension.
+ *
+ * Instantiated from a mostly static network config.
+ *
+ * Provides some common properties of networks used throughout UI elements and functionality in the app.
+ *
+ * Intended to be subclassed by different network types; for example EVMNetwork, SolanaNetwork, PolkadotNetwork etc.
+ *
+ * Has an `api` function (property) which returns a `ProviderAPIInterface` with some basic methods to interract with the network
+ * for balances, transaction statuses, etc. The implementing class of `ProviderAPIInterface` is typically one-to-one with the
+ * the network type. For example EVM networks have their own API (which wraps node JSON RPC). Solana networks have a different API.
+ */
 export abstract class BaseNetwork {
   public name: NetworkNames;
   public name_long: string;
@@ -49,10 +74,13 @@ export abstract class BaseNetwork {
   public identicon: (address: string) => string;
   public basePath: string;
   public decimals: number;
+  public subNetworks?: SubNetworkOptions[];
   public api: () =>
     | Promise<SubstrateAPI>
     | Promise<EvmAPI>
-    | Promise<BitcoinAPI>;
+    | Promise<BitcoinAPI>
+    | Promise<KadenaAPI>
+    | Promise<SolanaAPI>;
   public customTokens: boolean;
 
   constructor(options: BaseNetworkOptions) {
@@ -76,6 +104,7 @@ export abstract class BaseNetwork {
     this.customTokens = options.customTokens ?? false;
     this.coingeckoPlatform = options.coingeckoPlatform;
     this.currencyNameLong = options.currencyNameLong;
+    this.subNetworks = options.subNetworks;
   }
 
   public abstract getAllTokens(address: string): Promise<BaseToken[]>;

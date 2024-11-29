@@ -17,6 +17,7 @@ const TokenList: Record<SupportedNetworkNames, string> = {
   [NetworkNames.Rootstock]: `https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/tokenlists/rsk.json`,
   [NetworkNames.ZkSync]: `https://tokens.coingecko.com/${CoingeckoPlatform.Zksync}/all.json`,
   [NetworkNames.Arbitrum]: `https://tokens.coingecko.com/${CoingeckoPlatform.Arbitrum}/all.json`,
+  [NetworkNames.ArbitrumNova]: `https://tokens.coingecko.com/${CoingeckoPlatform.ArbitrumNova}/all.json`,
   [NetworkNames.Gnosis]: `https://tokens.coingecko.com/${CoingeckoPlatform.Gnosis}/all.json`,
   [NetworkNames.Avalanche]: `https://tokens.coingecko.com/${CoingeckoPlatform.Avalanche}/all.json`,
   [NetworkNames.Fantom]: `https://tokens.coingecko.com/${CoingeckoPlatform.Fantom}/all.json`,
@@ -25,6 +26,21 @@ const TokenList: Record<SupportedNetworkNames, string> = {
   [NetworkNames.Celo]: `https://tokens.coingecko.com/${CoingeckoPlatform.Celo}/all.json`,
   [NetworkNames.TomoChain]: `https://tokens.coingecko.com/${CoingeckoPlatform.TomoChain}/all.json`,
   [NetworkNames.Shibarium]: `https://tokens.coingecko.com/${CoingeckoPlatform.Shibarium}/all.json`,
+  [NetworkNames.Rollux]: `https://tokens.coingecko.com/${CoingeckoPlatform.Rollux}/all.json`,
+  [NetworkNames.Telos]: `https://tokens.coingecko.com/${CoingeckoPlatform.Telos}/all.json`,
+  [NetworkNames.Blast]: `https://tokens.coingecko.com/${CoingeckoPlatform.Blast}/all.json`,
+  [NetworkNames.Sanko]: `https://tokens.coingecko.com/${CoingeckoPlatform.Sanko}/all.json`,
+  [NetworkNames.Degen]: `https://tokens.coingecko.com/${CoingeckoPlatform.Degen}/all.json`,
+  [NetworkNames.Solana]: `https://tokens.coingecko.com/${CoingeckoPlatform.Solana}/all.json`,
+  [NetworkNames.XLayer]: `https://tokens.coingecko.com/${CoingeckoPlatform.XLayer}/all.json`,
+  [NetworkNames.ProofOfPlayApex]: `https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/tokenlists/apex.json`,
+  [NetworkNames.Godwoken]: `https://tokens.coingecko.com/${CoingeckoPlatform.Godwoken}/all.json`,
+  [NetworkNames.Linea]: `https://tokens.coingecko.com/${CoingeckoPlatform.Linea}/all.json`,
+  [NetworkNames.MantaPacific]: `https://tokens.coingecko.com/${CoingeckoPlatform.MantaPacific}/all.json`,
+  [NetworkNames.Mode]: `https://tokens.coingecko.com/${CoingeckoPlatform.Mode}/all.json`,
+  [NetworkNames.OpBNB]: `https://tokens.coingecko.com/${CoingeckoPlatform.OpBNB}/all.json`,
+  [NetworkNames.Scroll]: `https://tokens.coingecko.com/${CoingeckoPlatform.Scroll}/all.json`,
+  [NetworkNames.Rari]: `https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/tokenlists/rari.json`,
 };
 
 const getKnownNetworkTokens = async (
@@ -41,7 +57,10 @@ const getKnownNetworkTokens = async (
       const tokens: CGToken[] = json.tokens;
       const tObject: Record<string, CGToken> = {};
       tokens.forEach((t) => {
-        t.address = t.address.toLowerCase();
+        t.address =
+          networkName !== NetworkNames.Solana
+            ? t.address.toLowerCase()
+            : t.address;
         tObject[t.address] = t;
       });
       return tObject;

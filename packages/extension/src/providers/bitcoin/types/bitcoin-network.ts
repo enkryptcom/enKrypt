@@ -125,7 +125,7 @@ export class BitcoinNetwork extends BaseNetwork {
     }
     const userBalance = fromBase(balance, this.decimals);
     const usdBalance = new BigNumber(userBalance).times(
-      marketData.length ? marketData[0]!.current_price : 0
+      marketData[0]?.current_price ?? 0
     );
     const nativeAsset: AssetsType = {
       balance: balance,
@@ -135,17 +135,16 @@ export class BitcoinNetwork extends BaseNetwork {
       icon: this.icon,
       name: this.name_long,
       symbol: this.currencyName,
-      value: marketData.length ? marketData[0]!.current_price.toString() : "0",
-      valuef: formatFiatValue(
-        marketData.length ? marketData[0]!.current_price.toString() : "0"
-      ).value,
+      value: marketData[0]?.current_price?.toString() ?? "0",
+      valuef: formatFiatValue(marketData[0]?.current_price?.toString() ?? "0")
+        .value,
       contract: "",
       decimals: this.decimals,
       sparkline: marketData.length
-        ? new Sparkline(marketData[0]!.sparkline_in_7d.price, 25).dataValues
+        ? new Sparkline(marketData[0]!.sparkline_in_24h.price, 25).dataValues
         : "",
       priceChangePercentage: marketData.length
-        ? marketData[0]!.price_change_percentage_7d_in_currency
+        ? marketData[0]!.price_change_percentage_24h_in_currency
         : 0,
     };
     return [nativeAsset];

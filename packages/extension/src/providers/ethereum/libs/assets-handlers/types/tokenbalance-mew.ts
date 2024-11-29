@@ -38,6 +38,7 @@ export type SupportedNetworkNames =
   | NetworkNames.Canto
   | NetworkNames.Rootstock
   | NetworkNames.Arbitrum
+  | NetworkNames.ArbitrumNova
   | NetworkNames.Gnosis
   | NetworkNames.Avalanche
   | NetworkNames.Fantom
@@ -47,4 +48,19 @@ export type SupportedNetworkNames =
   | NetworkNames.Shibarium
   | NetworkNames.MaticZK
   | NetworkNames.Celo
-  | NetworkNames.ZkSync;
+  | NetworkNames.ZkSync
+  | NetworkNames.Telos
+  | NetworkNames.Rollux
+  | NetworkNames.Sanko
+  | NetworkNames.Degen
+  | NetworkNames.Blast
+  | NetworkNames.Solana
+  | NetworkNames.XLayer
+  | NetworkNames.ProofOfPlayApex
+  | NetworkNames.Godwoken
+  | NetworkNames.Linea
+  | NetworkNames.MantaPacific
+  | NetworkNames.Mode
+  | NetworkNames.OpBNB
+  | NetworkNames.Scroll
+  | NetworkNames.Rari;

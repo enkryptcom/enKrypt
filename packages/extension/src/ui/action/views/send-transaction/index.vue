@@ -10,6 +10,8 @@
 import SendTransactionSubstrate from "@/providers/polkadot/ui/send-transaction/index.vue";
 import SendTransactionEVM from "@/providers/ethereum/ui/send-transaction/index.vue";
 import SendTransactionBTC from "@/providers/bitcoin/ui/send-transaction/index.vue";
+import SendTransactionKadena from "@/providers/kadena/ui/send-transaction/index.vue";
+import SendTransactionSolana from "@/providers/solana/ui/send-transaction/index.vue";
 import { useRoute } from "vue-router";
 import { ProviderName } from "@/types/provider";
 import { getNetworkByName } from "@/libs/utils/networks";
@@ -21,6 +23,8 @@ const sendLayouts: Record<ProviderName, any> = {
   [ProviderName.ethereum]: SendTransactionEVM,
   [ProviderName.polkadot]: SendTransactionSubstrate,
   [ProviderName.bitcoin]: SendTransactionBTC,
+  [ProviderName.kadena]: SendTransactionKadena,
+  [ProviderName.solana]: SendTransactionSolana,
   [ProviderName.enkrypt]: null,
 };
 

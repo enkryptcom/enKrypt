@@ -18,7 +18,7 @@ interface getCoinGeckoTokenInfoAllType {
     }[];
   };
 }
-const ETHVM_BASE = `https://api-v2.ethvm.dev/`;
+const ETHVM_BASE = `https://api-v3.ethvm.dev`;
 
 const ethvmPost = (requestData: string): Promise<any> => {
   return cacheFetch(
@@ -77,7 +77,7 @@ export const getMarketInfoByIDs = (
   return ethvmPost(
     '{"operationName":null,"variables":{},"query":"{\\n  getCoinGeckoTokenMarketDataByIds(coinGeckoTokenIds: [' +
       params +
-      ']) {\\n    id\\n    symbol\\n    name\\n    image\\n    market_cap\\n    market_cap_rank\\n    high_24h\\n    low_24h\\n    price_change_24h\\n    price_change_percentage_24h\\n    sparkline_in_7d {\\n      price\\n    }\\n    price_change_percentage_7d_in_currency\\n    current_price\\n  }\\n}\\n"}'
+      ']) {\\n    id\\n    symbol\\n    name\\n    image\\n    market_cap\\n    market_cap_rank\\n    high_24h\\n    low_24h\\n    price_change_24h\\n    price_change_percentage_24h\\n    sparkline_in_24h {\\n      price\\n    }\\n    price_change_percentage_24h_in_currency\\n    current_price\\n  }\\n}\\n"}'
   ).then((json) => {
     return json.data.getCoinGeckoTokenMarketDataByIds as CoinGeckoTokenMarket[];
   });

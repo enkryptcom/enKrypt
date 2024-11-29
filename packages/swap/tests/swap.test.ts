@@ -8,9 +8,11 @@ import {
   WalletIdentifier,
 } from "../src/types";
 import {
-  fromToken,
+  // fromToken,
+  fromTokenUSDT,
   toToken,
-  amount,
+  // amount,
+  amountUSDT,
   fromAddress,
   toAddress,
   nodeURL,
@@ -55,9 +57,9 @@ describe("Swap", () => {
   it("it should get quote and swap for different destination", async () => {
     await enkryptSwap.initPromise;
     const quotes = await enkryptSwap.getQuotes({
-      amount,
+      amount: amountUSDT,
       fromAddress,
-      fromToken,
+      fromToken: fromTokenUSDT,
       toToken,
       toAddress,
     });
@@ -81,18 +83,20 @@ describe("Swap", () => {
     expect(oneInceQuote!.provider).to.be.eq(ProviderName.oneInch);
     expect(paraswapQuote!.provider).to.be.eq(ProviderName.paraswap);
     const swapOneInch = await enkryptSwap.getSwap(oneInceQuote!.quote);
-    expect(swapOneInch?.fromTokenAmount.toString()).to.be.eq(amount.toString());
+    expect(swapOneInch?.fromTokenAmount.toString()).to.be.eq(
+      amountUSDT.toString()
+    );
     expect(swapOneInch?.transactions.length).to.be.eq(2);
     const swapChangelly = await enkryptSwap.getSwap(changellyQuote!.quote);
     if (swapChangelly) expect(swapChangelly?.transactions.length).to.be.eq(1);
-  }).timeout(10000);
+  }).timeout(20000);
 
   it("it should get quote and swap for same destination", async () => {
     await enkryptSwap.initPromise;
     const quotes = await enkryptSwap.getQuotes({
-      amount,
+      amount: amountUSDT,
       fromAddress,
-      fromToken,
+      fromToken: fromTokenUSDT,
       toToken,
       toAddress: fromAddress,
     });
@@ -113,5 +117,5 @@ describe("Swap", () => {
     expect(oneInceQuote!.provider).to.be.eq(ProviderName.oneInch);
     expect(paraswapQuote!.provider).to.be.eq(ProviderName.paraswap);
     // expect(rangoQuote!.provider).to.be.eq(ProviderName.rango);
-  }).timeout(10000);
+  }).timeout(20000);
 });

@@ -7,6 +7,8 @@ import { ProviderName, ProviderType } from "@/types/provider";
 import EthereumProvider from "@/providers/ethereum/inject";
 import PolkadotProvider from "@/providers/polkadot/inject";
 import BitcoinProvider from "@/providers/bitcoin/inject";
+import KadenaProvider from "@/providers/kadena/inject";
+import SolanaProvider from "@/providers/solana/inject";
 
 import { InternalMethods } from "@/types/messenger";
 
@@ -29,6 +31,16 @@ const loadInjectedProviders = () => {
   BitcoinProvider(window, {
     name: ProviderName.bitcoin,
     type: ProviderType.bitcoin,
+    sendMessageHandler: providerSendMessage,
+  });
+  KadenaProvider(window, {
+    name: ProviderName.kadena,
+    type: ProviderType.kadena,
+    sendMessageHandler: providerSendMessage,
+  });
+  SolanaProvider(window, {
+    name: ProviderName.solana,
+    type: ProviderType.solana,
     sendMessageHandler: providerSendMessage,
   });
 };

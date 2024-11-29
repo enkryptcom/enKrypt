@@ -33,7 +33,7 @@ class MarketData {
     const fiat = await this.getFiatValue(fiatSymbol);
     if (market && fiat) {
       return balanceBN
-        .multipliedBy(market.current_price)
+        .multipliedBy(market.current_price ?? 0)
         .multipliedBy(fiat.exchange_rate)
         .toFixed(2);
     }

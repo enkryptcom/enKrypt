@@ -2,6 +2,8 @@ export enum NFTType {
   ERC721 = "ERC721",
   ERC1155 = "ERC1155",
   Ordinals = "ORDINALS",
+  SolanaBGUM = "SOLANABGUM",
+  SolanaToken = "SOLANATOKEN",
 }
 
 export interface NFTItem {
@@ -13,9 +15,9 @@ export interface NFTItem {
   type: NFTType;
 }
 export interface NFTCollection {
-  name: string;
+  name: null | string;
   image: string;
-  description: string;
+  description: null | string;
   items: NFTItem[];
   contract: string;
 }
