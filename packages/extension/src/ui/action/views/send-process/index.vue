@@ -129,7 +129,7 @@ defineProps({
     width: 100%;
     height: 224px;
     background-color: @lightBg;
-    padding: 16px;
+    padding: 4px 16px;
     box-sizing: border-box;
 
     &-arrow {

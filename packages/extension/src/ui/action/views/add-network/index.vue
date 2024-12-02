@@ -30,6 +30,7 @@ const setActiveNetworks = () => {
 };
 
 const closePopup = () => {
+  isNetworkList.value = true;
   emit('close:popup');
 };
 
@@ -39,6 +40,7 @@ const toCustomNetwork = () => {
 
 const toNetworkList = () => {
   isNetworkList.value = true;
+  emit('update:activeNetworks');
 };
 </script>
 

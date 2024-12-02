@@ -12,8 +12,8 @@
             <more-icon />
           </a>
           <div v-show="isOpenMore" ref="dropdown" class="app__menu-dropdown">
-            <a class="app__menu-dropdown-link" @click="customNetworksAction">
-              <manage-networks-icon /> <span>Custom networks</span>
+            <a class="app__menu-dropdown-link" @click="otherNetworksAction">
+              <manage-networks-icon /> <span>Other networks</span>
             </a>
             <a class="app__menu-dropdown-link" @click="lockAction">
               <hold-icon /> <span>Lock Enkrypt</span>
@@ -80,7 +80,7 @@
     </div>
 
     <add-network
-      v-show="addNetworkShow"
+      v-if="addNetworkShow"
       @close:popup="addNetworkShow = !addNetworkShow"
       @update:active-networks="setActiveNetworks"
     />
@@ -201,13 +201,13 @@ const setActiveNetworks = async () => {
   });
   networks.value = [
     ...pinnedNetworks.value,
-    ...allNetworks.filter(
-      network => !pinnedNetworkNames.includes(network.name),
-    ),
+    ...allNetworks
+      .filter(network => !pinnedNetworkNames.includes(network.name))
+      .filter(network => !network.isTestNetwork),
   ];
-  networks.value = [
-    ...networks.value.filter(network => !network.isTestNetwork),
-  ];
+  // networks.value = [
+  // ...networks.value.filter(network => !network.isTestNetwork),
+  // ];
   // if (!pinnedNetworks.value.includes(currentNetwork.value)) {
   //   setNetwork(pinnedNetworks.value[0]);
   // }
@@ -506,7 +506,7 @@ const settingsAction = () => {
   closeMoreMenu();
   settingsShow.value = !settingsShow.value;
 };
-const customNetworksAction = () => {
+const otherNetworksAction = () => {
   closeMoreMenu();
   addNetworkShow.value = !addNetworkShow.value;
 };

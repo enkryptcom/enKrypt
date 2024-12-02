@@ -22,19 +22,21 @@ const providerNetworks: Record<ProviderName, Record<string, BaseNetwork>> = {
   [ProviderName.solana]: SolanaNetworks,
   [ProviderName.enkrypt]: {},
 };
-const getAllNetworks = async (): Promise<BaseNetwork[]> => {
+const getAllNetworks = async (includeCustom: boolean = true): Promise<BaseNetwork[]> => {
   const customNetworksState = new CustomNetworksState();
 
   const customNetworks = (
     await customNetworksState.getAllCustomEVMNetworks()
   ).map(options => new CustomEvmNetwork(options));
-
-  return (Object.values(EthereumNetworks) as BaseNetwork[])
+  const allNetworks = (Object.values(EthereumNetworks) as BaseNetwork[])
     .concat(Object.values(PolkadotNetworks) as BaseNetwork[])
     .concat(Object.values(BitcoinNetworks) as BaseNetwork[])
     .concat(Object.values(KadenaNetworks) as BaseNetwork[])
-    .concat(Object.values(SolanaNetworks) as BaseNetwork[])
-    .concat(customNetworks);
+    .concat(Object.values(SolanaNetworks) as BaseNetwork[]);
+  if (!includeCustom) {
+    return allNetworks
+  }
+  return allNetworks.concat(customNetworks);
 };
 const getNetworkByName = async (
   name: string,
