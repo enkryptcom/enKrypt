@@ -14,9 +14,9 @@
       <a
         v-show="isCustomNetwork"
         class="add-network__close"
-        @click="() => deleteNetwork()"
+        @click="() => editNetwork(network)"
       >
-        <close-icon />
+        <edit-icon />
       </a>
       <div
         class="add-network__link__block"
@@ -41,13 +41,11 @@
 
 <script setup lang="ts">
 import { PropType, computed, ref } from 'vue';
-import Switch from '@action/components/switch/index.vue';
-// import InfoIcon from "@action/icons/common/info-icon.vue";
-import CloseIcon from '@action/icons/common/close-icon.vue';
+// import Switch from '@action/components/switch/index.vue';
+import editIcon from '@/ui/action/icons/actions/edit.vue';
 import { NodeType } from '@/types/provider';
 import { CustomEvmNetwork } from '@/providers/ethereum/types/custom-evm-network';
 import TestNetworkIcon from '@action/icons/common/test-network-icon.vue';
-import Tooltip from '@/ui/action/components/tooltip/index.vue';
 import PinIcon from '@action/icons/actions/pin.vue';
 import customNetworkIcon from '@/ui/action/icons/common/custom-network-icon.vue';
 
@@ -73,9 +71,6 @@ const props = defineProps({
   },
 });
 
-const check = async (isChecked: boolean) => {
-  emit('networkToggled', props.network.name, isChecked);
-};
 const pinIconIsActive = computed(() => {
   return props.isActive || isHovered.value;
 });
@@ -84,7 +79,7 @@ const setPinned = async () => {
   emit('update:pinNetwork', props.network.name, !props.isActive);
 };
 
-const deleteNetwork = async () => {
+const editNetwork = async () => {
   const chainId = (props.network as unknown as CustomEvmNetwork).chainID;
 
   if (chainId !== undefined) {
@@ -215,6 +210,10 @@ const deleteNetwork = async () => {
     cursor: pointer;
     font-size: 0;
     transition: background 300ms ease-in-out;
+    svg {
+      width: 16px;
+      height: 16px;
+    }
 
     &:hover {
       background: @black007;
