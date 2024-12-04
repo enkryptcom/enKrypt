@@ -103,18 +103,7 @@
         @gas-type-changed="selectFee"
       />
 
-      <send-alert
-        v-show="hasEnoughBalance && nativeBalanceAfterTransaction.isNeg()"
-        :native-symbol="network.currencyName"
-        :price="accountAssets[0]?.price || '0'"
-        :native-value="
-          fromBase(
-            nativeBalanceAfterTransaction.abs().toString(),
-            network.decimals,
-          )
-        "
-        :decimals="network.decimals"
-      />
+      <send-alert v-show="errorMsg" :error-msg="errorMsg" />
 
       <div class="send-transaction__buttons">
         <div class="send-transaction__buttons-cancel">
@@ -143,7 +132,7 @@ import SendContactsList from '@/providers/common/ui/send-transaction/send-contac
 import AssetsSelectList from '@action/views/assets-select-list/index.vue';
 import NftSelectList from '@/providers/common/ui/send-transaction/nft-select-list/index.vue';
 import SendTokenSelect from './components/send-token-select.vue';
-import SendAlert from '@/providers/common/ui/send-transaction/send-alert.vue';
+import SendAlert from './components/send-alert.vue';
 import SendNftSelect from '@/providers/common/ui/send-transaction/send-nft-select.vue';
 import SendInputAmount from '@/providers/common/ui/send-transaction/send-input-amount.vue';
 import SendFeeSelect from '@/providers/common/ui/send-transaction/send-fee-select.vue';
@@ -168,7 +157,11 @@ import erc20 from '../../libs/abi/erc20';
 import erc721 from '../../libs/abi/erc721';
 import erc1155 from '../../libs/abi/erc1155';
 import { SendTransactionDataType, VerifyTransactionParams } from '../types';
-import { formatFloatingPointValue } from '@/libs/utils/number-formatter';
+import {
+  formatFiatValue,
+  formatFloatingPointValue,
+  isNumericPositive,
+} from '@/libs/utils/number-formatter';
 import { routes as RouterNames } from '@/ui/action/router';
 import getUiPath from '@/libs/utils/get-ui-path';
 import Browser from 'webextension-polyfill';
@@ -214,8 +207,21 @@ const accountAssets = ref<Erc20Token[]>([]);
 const selectedAsset = ref<Erc20Token | Partial<Erc20Token>>(loadingAsset);
 const amount = ref<string>('');
 const isEstimateValid = ref(true);
+const hasValidDecimals = computed(() => {
+  return isValidDecimals(sendAmount.value, selectedAsset.value.decimals!);
+});
+const hasPositiveSendAmount = computed(() => {
+  return isNumericPositive(sendAmount.value);
+});
 const hasEnoughBalance = computed(() => {
-  if (!isValidDecimals(sendAmount.value, selectedAsset.value.decimals!)) {
+  if (!hasValidDecimals.value) {
+    return false;
+  }
+  if (!hasPositiveSendAmount.value) {
+    return false;
+  }
+  // check if valid sendAmount.value
+  if (!isNumericPositive(sendAmount.value)) {
     return false;
   }
 
@@ -333,7 +339,11 @@ const Tx = computed(() => {
   return tx;
 });
 
-const nativeBalanceAfterTransaction = computed(() => {
+/**
+ * Native balance after the transaction in the base unit of the
+ * native currency (eg in WETH, Lamports, Satoshis, ...)
+ */
+const nativeBalanceAfterTransactionInBaseUnits = computed(() => {
   if (
     isSendToken.value &&
     nativeBalance.value &&
@@ -345,8 +355,9 @@ const nativeBalanceAfterTransaction = computed(() => {
     let endingAmount = toBN(nativeBalance.value);
 
     if (selectedAsset.value.contract === NATIVE_TOKEN_ADDRESS) {
+      const locAmount = isNumericPositive(amount.value) ? amount.value : '0';
       const rawAmount = toBN(
-        toBase(amount.value, selectedAsset.value.decimals!),
+        toBase(locAmount ?? '0', selectedAsset.value.decimals!),
       );
       endingAmount = endingAmount.sub(rawAmount);
     }
@@ -379,6 +390,71 @@ const nativeBalanceAfterTransaction = computed(() => {
   }
 
   return toBN(0);
+});
+
+/**
+ * Native balance after the transaction in the human unit of the
+ * native currency (eg in ETH, SOL, BTC, ...)
+ */
+const nativeBalanceAfterTransactionInHumanUnits = computed(() => {
+  return fromBase(
+    nativeBalanceAfterTransactionInBaseUnits.value.abs().toString(),
+    props.network.decimals,
+  );
+});
+
+const nativeCurrencyUsdPrice = computed(() => {
+  return accountAssets.value[0]?.price || '0';
+});
+
+const balanceAfterInUsd = computed(() => {
+  return new BigNumber(
+    nativeBalanceAfterTransactionInHumanUnits.value.toString(),
+  )
+    .times(nativeCurrencyUsdPrice.value ?? '0')
+    .toFixed();
+});
+
+const errorMsg = computed(() => {
+  if (!hasValidDecimals.value) {
+    return `Too many decimals.`;
+  }
+
+  if (!hasPositiveSendAmount.value) {
+    return `Invalid amount.`;
+  }
+
+  if (
+    !hasEnoughBalance.value &&
+    nativeBalanceAfterTransactionInBaseUnits.value.isNeg()
+  ) {
+    return `Not enough funds. You are
+      ~${formatFloatingPointValue(nativeBalanceAfterTransactionInHumanUnits.value).value}
+      ${props.network.currencyName} ($ ${
+        formatFiatValue(balanceAfterInUsd.value).value
+      }) short.`;
+  }
+
+  if (!props.network.isAddress(addressTo.value) && addressTo.value !== '') {
+    return `Invalid to address.`;
+  }
+
+  if (
+    isSendToken.value &&
+    !isValidDecimals(sendAmount.value, selectedAsset.value.decimals!)
+  ) {
+    return `Invalid decimals for ${selectedAsset.value.symbol}.`;
+  }
+
+  if (!isSendToken.value && !selectedNft.value.id) {
+    return `Invalid NFT selected.`;
+  }
+
+  if (new BigNumber(sendAmount.value).gt(assetMaxValue.value)) {
+    return `Amount exceeds maximum value.`;
+  }
+
+  return '';
 });
 
 const setTransactionFees = (tx: Transaction) => {
@@ -470,7 +546,7 @@ const sendButtonTitle = computed(() => {
 
 const isValidSend = computed<boolean>(() => {
   if (!isInputsValid.value) return false;
-  if (nativeBalanceAfterTransaction.value.isNeg()) return false;
+  if (nativeBalanceAfterTransactionInBaseUnits.value.isNeg()) return false;
   if (!isEstimateValid.value) return false;
   return true;
 });
@@ -486,8 +562,11 @@ const isInputsValid = computed<boolean>(() => {
   if (!isSendToken.value && !selectedNft.value.id) {
     return false;
   }
-  if (new BigNumber(sendAmount.value).gt(assetMaxValue.value)) return false;
+  const sendAmountBigNumber = new BigNumber(sendAmount.value)
+  if (sendAmountBigNumber.isNaN()) return false
+  if (sendAmountBigNumber.gt(assetMaxValue.value)) return false;
   if (gasCostValues.value.REGULAR.nativeValue === '0') return false;
+  if (!isNumericPositive(sendAmount.value)) return false;
   return true;
 });
 

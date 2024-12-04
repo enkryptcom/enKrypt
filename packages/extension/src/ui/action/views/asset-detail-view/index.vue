@@ -52,12 +52,24 @@
         </h4>
         <p>${{ token.balanceUSDf }}</p>
       </div>
+      <div class="asset-detail-view__token-divider" v-if="isCustomToken" />
+      <div class="asset-detail-view__action" v-if="isCustomToken">
+        <base-button
+          title="Delete custom token"
+          :red="true"
+          :click="removeToken"
+        />
+        <span class="label"
+          >*Deleting custom token deletes it for the whole network.</span
+        >
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { PropType, ref } from 'vue';
+import BaseButton from '@action/components/base-button/index.vue';
 import CloseIcon from '@action/icons/common/close-icon.vue';
 import SparklineUp from '@action/icons/asset/sparkline-up.vue';
 import SparklineDown from '@action/icons/asset/sparkline-down.vue';
@@ -68,11 +80,18 @@ import { SVGRenderer } from 'echarts/renderers';
 import { LineChart } from 'echarts/charts';
 import { TooltipComponent, GridComponent } from 'echarts/components';
 import VChart from 'vue-echarts';
-
 const props = defineProps({
   token: {
     type: Object as PropType<AssetsType>,
     default: () => ({}),
+  },
+  isCustomToken: {
+    type: Boolean,
+    default: false,
+  },
+  removeToken: {
+    type: Function,
+    default: () => {},
   },
 });
 use([SVGRenderer, LineChart, TooltipComponent, GridComponent]);
@@ -307,6 +326,11 @@ const close = () => {
   &__action {
     margin: 0 0 -12px -12px;
     width: calc(~'100% + 24px');
+    text-align: center;
+
+    .label {
+      color: @secondaryLabel;
+    }
   }
 }
 </style>

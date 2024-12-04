@@ -11,11 +11,7 @@
         </a>
       </div>
       <div class="swap-best-offer__wrap">
-        <hardware-wallet-msg
-          v-if="account"
-          :wallet-type="account.walletType"
-          style="width: 90%"
-        />
+        <hardware-wallet-msg v-if="account" :wallet-type="account.walletType" />
         <custom-scrollbar
           ref="bestOfferScrollRef"
           class="swap-best-offer__scroll-area"
@@ -477,7 +473,6 @@ const selectFee = (option: GasPriceTypes) => {
 };
 
 const selectTrade = (trade: ProviderSwapResponse) => {
-  console.log(trade.provider);
   pickedTrade.value = trade;
   setTransactionFees();
 };
