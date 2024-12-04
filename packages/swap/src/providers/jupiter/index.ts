@@ -578,7 +578,7 @@ async function getJupiterTokens(abortable?: {
   const url = JUPITER_TOKENS_URL;
   let failed = false;
   let tokens: JupiterTokenInfo[];
-  const backoff = [0, 100, 500, 1000, 2_500, 5_000];
+  const backoff = [0, 100, 500, 1000, 2_000, 4_000];
   let backoffi = 0;
   let errRef: undefined | { err: Error };
 
@@ -755,7 +755,7 @@ async function getJupiterQuote(
 
   let failed = false;
   let quote: JupiterQuoteResponse;
-  const backoff = [0, 100, 500, 1000, 2_500, 5_000];
+  const backoff = [0, 100, 500, 1000, 2_000, 4_000];
   let backoffi = 0;
   let errRef: undefined | { err: Error };
 
@@ -894,12 +894,23 @@ async function getJupiterSwap(
     feeAccount: referrerATAPubkey?.toBase58(),
     quoteResponse: quote,
     destinationTokenAccount: dstATAPubkey?.toBase58(),
+    /** @see https://station.jup.ag/api-v6/post-swap */
+    prioritizationFeeLamports: {
+      /**
+       * The automatic fee seems low and frequently causes transactions
+       * to be dropped when traffic is high
+       *
+       * This number has been arbitrary selected from manual testing @ 2024-11-21
+       * where there's been a bunch of network activity causing dropped transactions
+       */
+      autoMultiplier: 6,
+    },
   };
 
   const url = `${JUPITER_API_URL}swap`;
   let failed = false;
   let swap: JupiterSwapResponse;
-  const backoff = [0, 100, 500, 1000, 2_500, 5_000];
+  const backoff = [0, 100, 500, 1000, 2_000, 4_000];
   let backoffi = 0;
   let errRef: undefined | { err: Error };
 
@@ -1152,6 +1163,6 @@ function sleep(
       clearTimeout(timeout);
     }
     abortable?.signal?.addEventListener("abort", onAbortDuringSleep);
-    const timeout = setTimeout(onTimeout);
+    const timeout = setTimeout(onTimeout, duration);
   });
 }
