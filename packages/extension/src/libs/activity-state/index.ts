@@ -61,6 +61,7 @@ class ActivityState {
       this.getActivityId(options),
     );
   }
+
   async updateActivity(
     activity: Activity,
     options: ActivityOptions,
@@ -75,11 +76,13 @@ class ActivityState {
     });
     await this.setActivitiesById(clone, this.getActivityId(options));
   }
+
   async setCacheTime(options: ActivityOptions): Promise<void> {
     await this.#storage.set(this.getActivityCacheId(options), {
       [STORAGE_KEY]: new Date().getTime(),
     });
   }
+
   async getCacheTime(options: ActivityOptions): Promise<number> {
     const cacheTime: Record<string, number> = await this.#storage.get(
       this.getActivityCacheId(options),
@@ -87,12 +90,15 @@ class ActivityState {
     if (!cacheTime || !cacheTime[STORAGE_KEY]) return 0;
     return cacheTime[STORAGE_KEY];
   }
+
   async getAllActivities(options: ActivityOptions): Promise<Activity[]> {
     return this.getActivitiesById(this.getActivityId(options));
   }
+
   async deleteAllActivities(options: ActivityOptions): Promise<void> {
     this.setActivitiesById([], this.getActivityId(options));
   }
+
   private async setActivitiesById(
     activities: Activity[],
     id: string,
@@ -101,6 +107,7 @@ class ActivityState {
       [STORAGE_KEY]: activities,
     });
   }
+
   private async getActivitiesById(id: string): Promise<Activity[]> {
     const allStates: Record<string, Activity[]> = await this.#storage.get(id);
     if (!allStates || !allStates[STORAGE_KEY]) return [];

@@ -536,17 +536,23 @@ export class Jupiter extends ProviderClass {
   }
 
   async getStatus(options: StatusOptions): Promise<TransactionStatus> {
-    if (options.transactionHashes.length !== 1) {
+    if (options.transactions.length !== 1) {
       throw new TypeError(
-        `JupiterSwap.getStatus: Expected one transaction hash but got ${options.transactionHashes.length}`,
+        `JupiterSwap.getStatus: Expected one transaction hash but got ${options.transactions.length}`,
       );
     }
-    const [txhash] = options.transactionHashes;
-    const txResponse = await this.conn.getTransaction(txhash, {
+    const [{ sentAt, hash }] = options.transactions;
+    const txResponse = await this.conn.getTransaction(hash, {
       maxSupportedTransactionVersion: 0,
     });
 
     if (txResponse == null) {
+      // Consider dropped (/failed) if it's still null after 3 minutes
+      // (block hashes expire after 2 minutes so 3 minutes gives 1 minute of leeway)
+      if (Date.now() > sentAt + 3 * 60_000) {
+        return TransactionStatus.dropped;
+      }
+
       // Transaction hasn't been picked up by the node yet
       return TransactionStatus.pending;
     }

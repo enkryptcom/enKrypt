@@ -1022,6 +1022,9 @@ class Changelly extends ProviderClass {
   }
 
   async getStatus(options: StatusOptions): Promise<TransactionStatus> {
+    // TODO: If a Solana transaction hasn't been found after 3 minutes then consider dropping it
+    // I'm not sure how Rango's API handles Solana transactions being dropped...
+
     const params: ChangellyApiGetStatusParams = {
       id: options.swapId,
     };

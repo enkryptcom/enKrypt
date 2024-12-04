@@ -37,7 +37,10 @@
           <p>
             <span
               class="network-activity__transaction-info-status"
-              :class="{ error: activity.status === ActivityStatus.failed }"
+              :class="{
+                error: activity.status === ActivityStatus.failed,
+                dropped: activity.status === ActivityStatus.dropped,
+              }"
               >{{ status }}</span
             >
             <transaction-timer
@@ -86,7 +89,10 @@
           <p>
             <span
               class="network-activity__transaction-info-status"
-              :class="{ error: activity.status === ActivityStatus.failed }"
+              :class="{
+                error: activity.status === ActivityStatus.failed,
+                dropped: activity.status === ActivityStatus.dropped,
+              }"
               >{{ status }}</span
             >
             <transaction-timer
@@ -242,30 +248,32 @@ onMounted(() => {
   if (
     props.activity.status === ActivityStatus.success &&
     props.activity.isIncoming
-  )
+  ) {
     status.value =
       props.activity.type === ActivityType.transaction ? 'Received' : 'Swapped';
-  else if (
+  } else if (
     props.activity.status === ActivityStatus.success &&
     !props.activity.isIncoming
-  )
+  ) {
     status.value =
       props.activity.type === ActivityType.transaction ? 'Sent' : 'Swapped';
-  else if (
+  } else if (
     props.activity.status === ActivityStatus.pending &&
     props.activity.isIncoming
-  )
+  ) {
     status.value =
       props.activity.type === ActivityType.transaction
         ? 'Receiving'
         : 'Swapping';
-  else if (
+  } else if (
     props.activity.status === ActivityStatus.pending &&
     !props.activity.isIncoming
-  )
+  ) {
     status.value =
       props.activity.type === ActivityType.transaction ? 'Sending' : 'Swapping';
-  else {
+  } else if (props.activity.status === ActivityStatus.dropped) {
+    status.value = 'Dropped';
+  } else {
     status.value = 'Failed';
   }
 });
@@ -334,6 +342,9 @@ onMounted(() => {
 
           .error {
             color: @error;
+          }
+          .dropped {
+            /* TODO: Consider different color */
           }
         }
       }

@@ -1192,30 +1192,34 @@ class Rango extends ProviderClass {
   }
 
   async getStatus(options: StatusOptions): Promise<TransactionStatus> {
-    const { requestId, transactionHashes } = options;
+    const { requestId, transactions } = options;
 
-    const transactionHash =
-      transactionHashes.length > 0
-        ? transactionHashes[transactionHashes.length - 1]
-        : transactionHashes[0];
+    // TODO: If a Solana transaction hasn't been found after 3 minutes then consider dropping it
+    // I'm not sure how Rango's API handles Solana transactions being dropped...
+
+    const mostRecentTransactionHash =
+      transactions.length > 0
+        ? transactions[transactions.length - 1].hash
+        : transactions[0].hash;
 
     const isAlreadySuccessOrFailed = [
       RangoTransactionStatus.FAILED,
       RangoTransactionStatus.SUCCESS,
     ].includes(
-      this.transactionsStatus.find((t) => t.hash === transactionHash)?.status,
+      this.transactionsStatus.find((t) => t.hash === mostRecentTransactionHash)
+        ?.status,
     );
 
     if (requestId && !isAlreadySuccessOrFailed) {
       const res = await rangoClient.status({
-        txId: transactionHash,
+        txId: mostRecentTransactionHash,
         requestId,
       });
 
       if (res.error || res.status === RangoTransactionStatus.FAILED) {
         this.transactionsStatus.push({
           status: RangoTransactionStatus.FAILED,
-          hash: transactionHash,
+          hash: mostRecentTransactionHash,
         });
         return TransactionStatus.failed;
       }
@@ -1224,7 +1228,7 @@ class Rango extends ProviderClass {
       }
       this.transactionsStatus.push({
         status: RangoTransactionStatus.SUCCESS,
-        hash: transactionHash,
+        hash: mostRecentTransactionHash,
       });
       return TransactionStatus.success;
     }
@@ -1235,7 +1239,7 @@ class Rango extends ProviderClass {
         // Get status of Solana transactions
         const sigStatuses = await (
           this.web3 as Connection
-        ).getSignatureStatuses(transactionHashes);
+        ).getSignatureStatuses(transactions.map(({ hash }) => hash));
         for (let i = 0, len = sigStatuses.value.length; i < len; i++) {
           const sigStatus = sigStatuses.value[i];
           if (sigStatus == null) {
@@ -1252,7 +1256,7 @@ class Rango extends ProviderClass {
       default: {
         // Get status of EVM transactions
         const receipts = await Promise.all(
-          transactionHashes.map((hash) =>
+          transactions.map(({ hash }) =>
             (this.web3 as Web3Eth).getTransactionReceipt(hash),
           ),
         );
