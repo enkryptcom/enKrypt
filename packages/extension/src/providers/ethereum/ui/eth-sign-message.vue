@@ -59,6 +59,7 @@ import HardwareWalletMsg from '@/providers/common/ui/verify-transaction/hardware
 import { EvmNetwork } from '../types/evm-network';
 import { EnkryptAccount } from '@enkryptcom/types';
 import { MessageSigner } from './libs/signer';
+import { getRTLOLTLOSafeString } from '@/libs/utils/unicode-detection';
 
 const windowPromise = WindowPromiseHandler(3);
 const network = ref<EvmNetwork>(DEFAULT_EVM_NETWORK);
@@ -85,7 +86,7 @@ onBeforeMount(async () => {
   identicon.value = network.value.identicon(account.value.address);
   Options.value = options;
   message.value = isUtf8(Request.value.params![0])
-    ? hexToUtf8(Request.value.params![0])
+    ? getRTLOLTLOSafeString(hexToUtf8(Request.value.params![0]))
     : Request.value.params![0];
 });
 
