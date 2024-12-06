@@ -76,6 +76,7 @@ import { SolSignInResponse } from './types';
 import { isUtf8 } from '@polkadot/util';
 import { hexToUtf8 } from 'web3-utils';
 import { MessageSigner } from './libs/signer';
+import { getRTLOLTLOSafeString } from '@/libs/utils/unicode-detection';
 
 const windowPromise = WindowPromiseHandler(3);
 const keyring = new PublicKeyRing();
@@ -144,7 +145,7 @@ onBeforeMount(async () => {
   } else if (reqMethod.value === 'sol_signMessage') {
     signMessage.value = JSON.parse(Request.value.params![1]);
     message.value = isUtf8(signMessage.value!.message)
-      ? hexToUtf8(signMessage.value!.message)
+      ? getRTLOLTLOSafeString(hexToUtf8(signMessage.value!.message))
       : signMessage.value!.message;
     keyring
       .getAccount(bufferToHex(bs58.decode(signMessage.value!.address)))

@@ -312,7 +312,10 @@ const isInputsValid = computed<boolean>(() => {
     isSendToken.value
   )
     return false;
-  if (new BigNumber(sendAmount.value).gt(assetMaxValue.value)) return false;
+
+  const sendAmountBigNumber = new BigNumber(sendAmount.value)
+  if (sendAmountBigNumber.isNaN()) return false
+  if (sendAmountBigNumber.gt(assetMaxValue.value)) return false;
   return true;
 });
 

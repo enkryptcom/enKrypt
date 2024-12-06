@@ -84,7 +84,7 @@ withDefaults(defineProps<Props>(), {
 
   &__container {
     width: 100%;
-    height: 600px;
+    height: 100%;
     left: 0px;
     top: 0px;
     position: fixed;

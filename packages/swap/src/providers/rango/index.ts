@@ -63,9 +63,9 @@ import { RangoNetworkedTransactions, RangoSwapResponse } from "./types";
 import { TOKEN_AMOUNT_INFINITY_AND_BEYOND } from "../../utils/approvals";
 import estimateEVMGasList from "../../common/estimateGasList";
 import { isEVMAddress } from "../../utils/common";
+import { DebugLogger } from "@enkryptcom/utils";
 
-/** Enables debug logging in this file */
-const DEBUG = false;
+const logger = new DebugLogger("swap:rango");
 
 /**
  * curl -sL https://raw.githubusercontent.com/enkryptcom/dynamic-data/refs/heads/main/swaplists/rango.json | jq . -C | less -R
@@ -75,33 +75,6 @@ const RANGO_LIST =
 
 const RANGO_PUBLIC_API_KEY = "ee7da377-0ed8-4d42-aaf9-fa978a32b18d";
 const rangoClient = new RangoClient(RANGO_PUBLIC_API_KEY);
-
-let debug: (context: string, message: string, ...args: any[]) => void;
-if (DEBUG) {
-  debug = (context: string, message: string, ...args: any[]): void => {
-    const now = new Date();
-    const ymdhms =
-      now.getFullYear().toString().padStart(4, "0") +
-      "-" +
-      (now.getMonth() + 1).toString().padStart(2, "0") +
-      "-" +
-      now.getDate().toString().padStart(2, "0") +
-      " " +
-      now.getHours().toString().padStart(2, "0") +
-      ":" +
-      now.getMinutes().toString().padStart(2, "0") +
-      ":" +
-      now.getSeconds().toString().padStart(2, "0") +
-      "." +
-      now.getMilliseconds().toString().padStart(3, "0");
-    console.info(
-      `\x1b[90m${ymdhms}\x1b[0m \x1b[32mRangoSwapProvider.${context}\x1b[0m: ${message}`,
-      ...args,
-    );
-  };
-} else {
-  debug = () => {};
-}
 
 type SupportedNetworkInfo = {
   /** Standard base10 chain ID, can be obtained from `https://chainlist.org` */
@@ -336,7 +309,7 @@ class Rango extends ProviderClass {
   }
 
   async init(tokenList?: TokenType[]): Promise<void> {
-    debug("init", `Initialising against ${tokenList?.length} tokens...`);
+    logger.info(`init: Initialising against ${tokenList?.length} tokens...`);
 
     const [rangoMeta, swaplist] = await Promise.all([
       rangoClient.meta({
@@ -400,9 +373,8 @@ class Rango extends ProviderClass {
       tokensByBlockchainAddress: rangoTokensByBlockchainAddress,
     };
 
-    debug(
-      "init",
-      "Rango meta" +
+    logger.info(
+      "init: Rango meta" +
         `  tokens.length=${rangoMeta.tokens.length}` +
         `  blockchains.length=${rangoMeta.blockchains.length}`,
     );
@@ -410,14 +382,16 @@ class Rango extends ProviderClass {
     const supportedNetworkInfo = supportedNetworkInfoByName.get(this.network);
 
     if (!supportedNetworkInfo) {
-      debug("init", `Network not supported on Enkrypt+Rango: ${this.network}`);
+      logger.info(
+        `init: Network not supported on Enkrypt+Rango: ${this.network}`,
+      );
       return;
     }
 
     if (
       !Rango.isNetworkSupportedByRango(supportedNetworkInfo, rangoBlockchains)
     ) {
-      debug("init", `Network not supported on Rango: ${this.network}`);
+      logger.info(`init: Network not supported on Rango: ${this.network}`);
       return;
     }
 
@@ -437,7 +411,7 @@ class Rango extends ProviderClass {
       }
     }
 
-    debug("init", `Finished initialising`);
+    logger.info(`init: Finished initialising`);
   }
 
   static findRangoBlockchainForSupportedNetwork(
@@ -604,9 +578,8 @@ class Rango extends ProviderClass {
     const { blockchains } = this.rangoMeta;
     const startedAt = Date.now();
 
-    debug(
-      "getRangoSwap",
-      `Getting swap` +
+    logger.info(
+      `getRangoSwap: Getting swap` +
         `  fromNetwork=${this.network}` +
         `  toNetwork=${options.toToken.networkInfo.name}` +
         `  fromToken=${options.fromToken.symbol}` +
@@ -623,9 +596,8 @@ class Rango extends ProviderClass {
       // (note: probably redundant since we should always support rango on the source network if we got this far)
       const fromNetworkInfo = supportedNetworkInfoByName.get(this.network);
       if (!fromNetworkInfo) {
-        debug(
-          "getRangoSwap",
-          "No swap:" +
+        logger.info(
+          "getRangoSwap: No swap:" +
             ` Enkrypt does not support Rango swap on the source network` +
             `  fromNetwork=${this.network}`,
         );
@@ -637,9 +609,8 @@ class Rango extends ProviderClass {
         options.toToken.networkInfo.name as SupportedNetworkName,
       );
       if (!toNetworkInfo) {
-        debug(
-          "getRangoSwap",
-          "No swap:" +
+        logger.info(
+          "getRangoSwap: No swap:" +
             ` Enkrypt does not support Rango swap on the destination network` +
             `  fromNetwork=${this.network}`,
         );
@@ -652,9 +623,8 @@ class Rango extends ProviderClass {
         blockchains,
       );
       if (!fromRangoBlockchain?.enabled) {
-        debug(
-          "getRangoSwap",
-          `No swap:` +
+        logger.info(
+          `getRangoSwap: No swap:` +
             ` Rango does not support swap on the source network` +
             `  fromNetwork=${this.network}` +
             `  fromBlockchain=${fromRangoBlockchain.name}` +
@@ -670,9 +640,8 @@ class Rango extends ProviderClass {
         blockchains,
       );
       if (!toRangoBlockchain?.enabled) {
-        debug(
-          "getRangoSwap",
-          `No swap:` +
+        logger.info(
+          `getRangoSwap: No swap:` +
             ` Rango does not support swap on the destination network` +
             `  toNetwork=${options.toToken.networkInfo.name}` +
             `  toBlockchain=${toRangoBlockchain.name}` +
@@ -685,9 +654,8 @@ class Rango extends ProviderClass {
       // Does Rango support these tokens?
       const feeConfig = FEE_CONFIGS[this.name][meta.walletIdentifier];
 
-      debug(
-        "getRangoSwap",
-        `Rango block chains ids` +
+      logger.info(
+        `getRangoSwap: Rango block chains ids` +
           `  fromRangoBlockchain=${fromRangoBlockchainName}` +
           `  toRangoBlockchain=${toRangoBlockchainName}`,
       );
@@ -709,9 +677,8 @@ class Rango extends ProviderClass {
 
       // If we can't get symbols for the tokens then we don't support them
       if (!fromRangoTokenSymbol || !toRangoTokenSymbol) {
-        debug(
-          "getRangoSwap",
-          `No swap: No symbol for src token or dst token` +
+        logger.info(
+          `getRangoSwap: No swap: No symbol for src token or dst token` +
             `  fromTokenSymbol=${fromRangoTokenSymbol}` +
             `  toTokenSymbol=${toRangoTokenSymbol}`,
         );
@@ -748,9 +715,8 @@ class Rango extends ProviderClass {
         disableEstimate: true,
       };
 
-      debug(
-        "getRangoSwap",
-        `Requesting quote from rango sdk...` +
+      logger.info(
+        `getRangoSwap: Requesting quote from rango sdk...` +
           `  fromRangoBlockchain=${fromRangoBlockchainName}` +
           `  toRangoBlockchain=${toRangoBlockchainName}` +
           `  fromToken=${fromRangoTokenSymbol}` +
@@ -762,7 +728,7 @@ class Rango extends ProviderClass {
           `  referrerFee=${params.referrerFee}`,
       );
       const rangoSwapResponse = await rangoClient.swap(params, abortable);
-      debug("getRangoSwap", `Received quote from rango sdk`);
+      logger.info(`getRangoSwap: Received quote from rango sdk`);
 
       abortable?.signal?.throwIfAborted();
 
@@ -771,12 +737,12 @@ class Rango extends ProviderClass {
         rangoSwapResponse.resultType !== RoutingResultType.OK
       ) {
         // Rango experienced some kind of error or is unable to route the swap
-        debug("getRangoSwap", `Rango swap SDK returned an error`);
+        logger.info(`getRangoSwap: Rango swap SDK returned an error`);
         console.error("Rango swap SDK error:", rangoSwapResponse.error);
         return null;
       }
 
-      debug("getRangoSwap", `Rango swap SDK returned OK`);
+      logger.info(`getRangoSwap: Rango swap SDK returned OK`);
 
       // We have a swap transaction provided by Rango that can be executed
 
@@ -792,9 +758,8 @@ class Rango extends ProviderClass {
         }
       });
 
-      debug(
-        "getRangoSwap",
-        `Additional non-network source fees ${additionalNativeFees.toString()}`,
+      logger.info(
+        `getRangoSwap: Additional non-network source fees ${additionalNativeFees.toString()}`,
       );
 
       // Fill in gas values, add approval transactions, etc
@@ -803,7 +768,7 @@ class Rango extends ProviderClass {
       switch (rangoSwapResponse.tx?.type) {
         // Process Rango swap EVM transaction
         case RangoTransactionType.EVM: {
-          debug("getRangoSwap", `Received EVM transaction`);
+          logger.info(`getRangoSwap: Received EVM transaction`);
 
           const transactions: EVMTransaction[] = [];
           const tx = rangoSwapResponse.tx as RangoEvmTransaction;
@@ -856,16 +821,15 @@ class Rango extends ProviderClass {
         // Process Rango swap Solana transaction
         case RangoTransactionType.SOLANA: {
           const conn = this.web3 as Connection;
-          debug("getRangoSwap", "Received Solana transaction");
+          logger.info("getRangoSwap: Received Solana transaction");
 
           let enkSolTx: SolanaTransaction;
           switch (rangoSwapResponse.tx.txType) {
             case "LEGACY": {
               let legacyTx: SolanaLegacyTransaction;
               if (rangoSwapResponse.tx.serializedMessage) {
-                debug(
-                  "getRangoSwap",
-                  `Deserializing Solana legacy unsigned transaction`,
+                logger.info(
+                  `getRangoSwap: Deserializing Solana legacy unsigned transaction`,
                 );
                 // Legacy transaction, not signed (we can modify it)
                 // > When serialized message appears, there is no need for other fields and you just sign and send it
@@ -874,9 +838,8 @@ class Rango extends ProviderClass {
                   rangoSwapResponse.tx.serializedMessage,
                 );
               } else {
-                debug(
-                  "getRangoSwap",
-                  `Constructing Solana legacy signed transaction`,
+                logger.info(
+                  `getRangoSwap: Constructing Solana legacy signed transaction`,
                 );
                 // Legacy transaction signed by Rango, we cannot alter this transaction
                 // Since the recent block hash gets signed too, this transaction will need to be consumed quickly
@@ -888,15 +851,14 @@ class Rango extends ProviderClass {
                 );
               }
 
-              debug(
-                "getRangoSwap",
-                "Extracting third party Rango signatures...",
+              logger.info(
+                "getRangoSwap: Extracting third party Rango signatures...",
               );
               const thirdPartySignatures =
                 extractSignaturesFromRangoTransaction(rangoSwapResponse.tx);
 
               // Verify Rango signatures incase rango gives us invalid transaction signatures
-              debug("getRangoSwap", "Checking Rango signatures...");
+              logger.info("getRangoSwap: Checking Rango signatures...");
               const signaturesAreValid = checkSolanaLegacyTransactionSignatures(
                 legacyTx,
                 thirdPartySignatures,
@@ -930,7 +892,7 @@ class Rango extends ProviderClass {
 
               // Sometimes Rango gives us bad transactions @ 2024-09-25
               // Simulate the transaction to check if it actually works so we don't use it to quote the user
-              debug("getRangoSwap", "Simulating transaction...");
+              logger.info("getRangoSwap: Simulating transaction...");
               const statusResult =
                 await checkExpectedSolanaLegacyTransactionStatus(
                   conn,
@@ -974,9 +936,8 @@ class Rango extends ProviderClass {
             case "VERSIONED": {
               let versionedTx: VersionedTransaction;
               if (rangoSwapResponse.tx.serializedMessage) {
-                debug(
-                  "getRangoSwap",
-                  `Deserializing Solana versioned unsigned transaction`,
+                logger.info(
+                  `getRangoSwap: Deserializing Solana versioned unsigned transaction`,
                 );
                 // Versioned transaction, not signed (we can modify it)
                 // > When serialized message appears, there is no need for other fields and you just sign and send it
@@ -986,9 +947,8 @@ class Rango extends ProviderClass {
                 );
                 versionedTx = VersionedTransaction.deserialize(bytes);
               } else {
-                debug(
-                  "getRangoSwap",
-                  `Constructing Solana versioned signed transaction`,
+                logger.info(
+                  `getRangoSwap: Constructing Solana versioned signed transaction`,
                 );
                 // Versioned transaction signed by Rango, we cannot alter this transaction
                 // Since the recent block hash gets signed too, this transaction will need to be consumed quickly
@@ -1000,17 +960,15 @@ class Rango extends ProviderClass {
                 );
               }
 
-              debug(
-                "getRangoSwap",
-                "Extracting third party Rango signatures...",
+              logger.info(
+                "getRangoSwap: Extracting third party Rango signatures...",
               );
               const thirdPartySignatures =
                 extractSignaturesFromRangoTransaction(rangoSwapResponse.tx);
 
               // Verify Rango signatures incase rango gives us invalid transaction signatures
-              debug(
-                "getRangoSwap",
-                `Checking Rango signatures...` +
+              logger.info(
+                `getRangoSwap: Checking Rango signatures...` +
                   `  signatures=${thirdPartySignatures.length}`,
                 `  pubkeys=${thirdPartySignatures
                   .map(({ pubkey }) => pubkey)
@@ -1050,7 +1008,7 @@ class Rango extends ProviderClass {
 
               // Sometimes Rango gives us bad transactions @ 2024-09-25
               // Simulate the transaction to check if it actually works so we don't use it to quote the user
-              debug("getRangoSwap", "Simulating transaction...");
+              logger.info("getRangoSwap: Simulating transaction...");
               const statusResult =
                 await checkExpectedSolanaVersionedTransactionStatus(
                   conn,
@@ -1125,9 +1083,8 @@ class Rango extends ProviderClass {
         requestId: rangoSwapResponse.requestId,
       };
 
-      debug(
-        "getRangoSwap",
-        `Done  took=${(Date.now() - startedAt).toLocaleString()}ms`,
+      logger.info(
+        `getRangoSwap: Done  took=${(Date.now() - startedAt).toLocaleString()}ms`,
       );
 
       return result;
@@ -1235,30 +1192,34 @@ class Rango extends ProviderClass {
   }
 
   async getStatus(options: StatusOptions): Promise<TransactionStatus> {
-    const { requestId, transactionHashes } = options;
+    const { requestId, transactions } = options;
 
-    const transactionHash =
-      transactionHashes.length > 0
-        ? transactionHashes[transactionHashes.length - 1]
-        : transactionHashes[0];
+    // TODO: If a Solana transaction hasn't been found after 3 minutes then consider dropping it
+    // I'm not sure how Rango's API handles Solana transactions being dropped...
+
+    const mostRecentTransactionHash =
+      transactions.length > 0
+        ? transactions[transactions.length - 1].hash
+        : transactions[0].hash;
 
     const isAlreadySuccessOrFailed = [
       RangoTransactionStatus.FAILED,
       RangoTransactionStatus.SUCCESS,
     ].includes(
-      this.transactionsStatus.find((t) => t.hash === transactionHash)?.status,
+      this.transactionsStatus.find((t) => t.hash === mostRecentTransactionHash)
+        ?.status,
     );
 
     if (requestId && !isAlreadySuccessOrFailed) {
       const res = await rangoClient.status({
-        txId: transactionHash,
+        txId: mostRecentTransactionHash,
         requestId,
       });
 
       if (res.error || res.status === RangoTransactionStatus.FAILED) {
         this.transactionsStatus.push({
           status: RangoTransactionStatus.FAILED,
-          hash: transactionHash,
+          hash: mostRecentTransactionHash,
         });
         return TransactionStatus.failed;
       }
@@ -1267,7 +1228,7 @@ class Rango extends ProviderClass {
       }
       this.transactionsStatus.push({
         status: RangoTransactionStatus.SUCCESS,
-        hash: transactionHash,
+        hash: mostRecentTransactionHash,
       });
       return TransactionStatus.success;
     }
@@ -1278,7 +1239,7 @@ class Rango extends ProviderClass {
         // Get status of Solana transactions
         const sigStatuses = await (
           this.web3 as Connection
-        ).getSignatureStatuses(transactionHashes);
+        ).getSignatureStatuses(transactions.map(({ hash }) => hash));
         for (let i = 0, len = sigStatuses.value.length; i < len; i++) {
           const sigStatus = sigStatuses.value[i];
           if (sigStatus == null) {
@@ -1295,7 +1256,7 @@ class Rango extends ProviderClass {
       default: {
         // Get status of EVM transactions
         const receipts = await Promise.all(
-          transactionHashes.map((hash) =>
+          transactions.map(({ hash }) =>
             (this.web3 as Web3Eth).getTransactionReceipt(hash),
           ),
         );
@@ -1611,9 +1572,8 @@ async function checkExpectedSolanaLegacyTransactionStatus(
       // so we'll modify the block hash and retry a few times in-case (only works for unsigned
       // transactions)
       const latestBlockHash = await conn.getLatestBlockhash();
-      debug(
-        "checkExpectedSolanaLegacyTransactionStatus",
-        `Retrying Rango Solana unsigned legacy transaction simulation` +
+      logger.info(
+        `checkExpectedSolanaLegacyTransactionStatus: Retrying Rango Solana unsigned legacy transaction simulation` +
           ` with updated block hash ${latestBlockHash.blockhash}...`,
       );
       legacyTx.recentBlockhash = latestBlockHash.blockhash;
@@ -1667,9 +1627,8 @@ async function checkExpectedSolanaVersionedTransactionStatus(
       // so we'll modify the block hash and retry a few times in-case (only works for unsigned
       // transactions)
       const latestBlockHash = await conn.getLatestBlockhash();
-      debug(
-        "checkExpectedSolanaVersionedTransactionStatus",
-        `Retrying Rango Solana unsigned versioned transaction simulation` +
+      logger.info(
+        `checkExpectedSolanaVersionedTransactionStatus: Retrying Rango Solana unsigned versioned transaction simulation` +
           ` with updated block hash ${latestBlockHash.blockhash}...`,
       );
       versionedTx.message.recentBlockhash = latestBlockHash.blockhash;

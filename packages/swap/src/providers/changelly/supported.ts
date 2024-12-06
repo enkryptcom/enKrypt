@@ -27,6 +27,10 @@ const supportedNetworks: {
     changellyName: "binance_smart_chain",
     isAddress: (address: string) => Promise.resolve(isEVMAddress(address)),
   },
+  [SupportedNetworkName.Base]: {
+    changellyName: "BASE",
+    isAddress: (address: string) => Promise.resolve(isEVMAddress(address)),
+  },
   [SupportedNetworkName.Matic]: {
     changellyName: "polygon",
     isAddress: (address: string) => Promise.resolve(isEVMAddress(address)),

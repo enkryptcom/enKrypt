@@ -73,9 +73,16 @@ const amount = computed({
 
 const onlyNumber = ($event: KeyboardEvent) => {
   const keyCode = $event.keyCode ? $event.keyCode : $event.which;
-  if ((keyCode < 48 || keyCode > 57) && keyCode !== 46) {
-    $event.preventDefault();
+  // Numeric
+  if (keyCode >= /* 0 */ 48 && keyCode <= /* 9 */ 57) {
+    return;
   }
+  // Only allow a single period
+  if (keyCode === /* '.' */ 46 && amount.value.indexOf('.') === -1) {
+    return;
+  }
+  // Alphabetical (/non-numeric) or mulitple periods. Don't propagate change
+  $event.preventDefault();
 };
 const changeFocus = () => {
   isFocus.value = !isFocus.value;
