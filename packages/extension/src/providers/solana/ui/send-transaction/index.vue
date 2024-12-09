@@ -140,6 +140,7 @@ import { VerifyTransactionParams, SendTransactionDataType } from '../types';
 import {
   formatFloatingPointValue,
   formatFiatValue,
+  isNumericPositive,
 } from '@/libs/utils/number-formatter';
 import { routes as RouterNames } from '@/ui/action/router';
 import getUiPath from '@/libs/utils/get-ui-path';
@@ -172,6 +173,7 @@ import {
 import getPriorityFees from '../libs/get-priority-fees';
 import bs58 from 'bs58';
 import SolanaAPI from '@/providers/solana/libs/api';
+import { ComputedRefSymbol } from '@vue/reactivity';
 
 const props = defineProps({
   network: {
@@ -211,8 +213,17 @@ const amount = ref<string>('');
 const isEstimateValid = ref(true);
 const storageFee = ref(0);
 const SolTx = ref<SolTransaction>();
-const hasEnoughBalance = computed(() => {
-  if (!isValidDecimals(sendAmount.value, selectedAsset.value.decimals!)) {
+const hasValidDecimals = computed((): boolean => {
+  return isValidDecimals(sendAmount.value, selectedAsset.value.decimals!);
+});
+const hasPositiveSendAmount = computed(() => {
+  return isNumericPositive(sendAmount.value);
+});
+const hasEnoughBalance = computed((): boolean => {
+  if (!hasValidDecimals.value) {
+    return false;
+  }
+  if (!hasPositiveSendAmount.value) {
     return false;
   }
   return toBN(selectedAsset.value.balance ?? '0').gte(
@@ -276,7 +287,11 @@ const TxInfo = computed<SendTransactionDataType>(() => {
   };
 });
 
-const nativeBalanceAfterTransaction = computed(() => {
+/**
+ * Native balance after the transaction in the base unit of the
+ * native currency (eg in WETH, Lamports, Satoshis, ...)
+ */
+const nativeBalanceAfterTransactionInBaseUnits = computed(() => {
   if (
     isSendToken.value &&
     nativeBalance.value &&
@@ -320,47 +335,71 @@ const nativeBalanceAfterTransaction = computed(() => {
   return toBN(0);
 });
 
-const nativeValue = computed(() => {
+/**
+ * Native balance after the transaction in the human unit of the
+ * native currency (eg in ETH, SOL, BTC, ...)
+ */
+const nativeBalanceAfterTransactionInHumanUnits = computed(() => {
   return fromBase(
-    nativeBalanceAfterTransaction.value.toString(),
+    nativeBalanceAfterTransactionInBaseUnits.value.abs().toString(),
     props.network.decimals,
   );
 });
 
-const nativePrice = computed(() => {
+const nativeCurrencyUsdPrice = computed(() => {
   return accountAssets.value[0]?.price || '0';
 });
 
-const priceDifference = computed(() => {
-  return new BigNumber(nativeValue.value)
-    .times(nativePrice.value ?? '0')
+const balanceAfterInUsd = computed(() => {
+  return new BigNumber(
+    nativeBalanceAfterTransactionInHumanUnits.value.toString(),
+  )
+    .times(nativeCurrencyUsdPrice.value ?? '0')
     .toFixed();
 });
 
 const errorMsg = computed(() => {
-  if (hasEnoughBalance.value && nativeBalanceAfterTransaction.value.isNeg()) {
+  if (!hasValidDecimals.value) {
+    return `Too many decimals.`;
+  }
+
+  if (!hasPositiveSendAmount.value) {
+    return `Invalid amount.`;
+  }
+
+  if (
+    !hasEnoughBalance.value &&
+    nativeBalanceAfterTransactionInBaseUnits.value.isNeg()
+  ) {
     return `Not enough funds. You are
-      ~${formatFloatingPointValue(nativeValue.value).value}
+      ~${formatFloatingPointValue(nativeBalanceAfterTransactionInHumanUnits.value).value}
       ${props.network.currencyName} ($ ${
-        formatFiatValue(priceDifference.value).value
+        formatFiatValue(balanceAfterInUsd.value).value
       }) short.`;
   }
+
   if (
     !props.network.isAddress(getAddress(addressTo.value)) &&
     addressTo.value !== ''
-  )
+  ) {
     return `Invalid to address.`;
+  }
+
   if (
     isSendToken.value &&
     !isValidDecimals(sendAmount.value, selectedAsset.value.decimals!)
   ) {
     return `Invalid decimals for ${selectedAsset.value.symbol}.`;
   }
+
   if (!isSendToken.value && !selectedNft.value.id) {
     return `Invalid NFT selected.`;
   }
-  if (new BigNumber(sendAmount.value).gt(assetMaxValue.value))
+
+  if (new BigNumber(sendAmount.value).gt(assetMaxValue.value)) {
     return `Amount exceeds maximum value.`;
+  }
+
   return '';
 });
 
@@ -418,7 +457,7 @@ const sendButtonTitle = computed(() => {
 
 const isValidSend = computed<boolean>(() => {
   if (!isInputsValid.value) return false;
-  if (nativeBalanceAfterTransaction.value.isNeg()) return false;
+  if (nativeBalanceAfterTransactionInBaseUnits.value.isNeg()) return false;
   if (!isEstimateValid.value) return false;
   if (gasCostValues.value.ECONOMY.nativeValue === '0') return false;
   return true;
@@ -435,7 +474,9 @@ const isInputsValid = computed<boolean>(() => {
   if (!isSendToken.value && !selectedNft.value.id) {
     return false;
   }
-  if (new BigNumber(sendAmount.value).gt(assetMaxValue.value)) return false;
+  const sendAmountBigNumber = new BigNumber(sendAmount.value);
+  if (sendAmountBigNumber.isNaN()) return false;
+  if (sendAmountBigNumber.gt(assetMaxValue.value)) return false;
   return true;
 });
 

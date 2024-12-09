@@ -272,7 +272,7 @@ class ZeroX extends ProviderClass {
   }
 
   getStatus(options: StatusOptions): Promise<TransactionStatus> {
-    const promises = options.transactionHashes.map((hash) =>
+    const promises = options.transactions.map(({ hash }) =>
       this.web3eth.getTransactionReceipt(hash),
     );
     return Promise.all(promises).then((receipts) => {
