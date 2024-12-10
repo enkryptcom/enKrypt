@@ -13,48 +13,114 @@
         {{ depositCopy }}
       </p>
 
-      <div class="deposit__code">
-        <qrcode-vue
-          :value="
-            $props.network?.provider == ProviderName.kadena
-              ? network.displayAddress(account.address)
-              : network.provider + ':' + network.displayAddress(account.address)
-          "
-          :size="150"
-          level="H"
-        />
+      <div v-show="!!sparkAccount" class="deposit__tabs">
+        <button
+          :class="activeTab === 'transparent' && 'deposit__tabs-active'"
+          @click="setActiveTab('transparent')"
+        >
+          Transparent address
+        </button>
+        <button
+          :class="activeTab === 'spark' && 'deposit__tabs-active'"
+          @click="setActiveTab('spark')"
+        >
+          Spark address
+        </button>
       </div>
 
-      <div class="deposit__account">
-        <img
-          :src="network.identicon(network.displayAddress(account.address))"
-        />
-
-        <div class="deposit__account-info">
-          <h4>{{ account.name }}</h4>
-          <p>{{ network.displayAddress(account.address) }}</p>
+      <div v-show="activeTab === 'transparent'">
+        <div class="deposit__code">
+          <qrcode-vue
+            :value="
+              $props.network?.provider == ProviderName.kadena
+                ? network.displayAddress(account.address)
+                : network.provider +
+                  ':' +
+                  network.displayAddress(account.address)
+            "
+            :size="150"
+            level="H"
+          />
         </div>
 
-        <a
-          class="deposit__account-copy"
-          @click="copy(network.displayAddress(account.address))"
-        >
-          <CopyIcon /><span>copy</span>
-        </a>
+        <div class="deposit__account">
+          <img
+            :src="network.identicon(network.displayAddress(account.address))"
+          />
 
-        <notification
-          v-if="isCopied"
-          :hide="toggleNotification"
-          text="Address copied"
-          class="deposit__notification"
-        />
+          <div class="deposit__account-info">
+            <h4>{{ account.name }}</h4>
+            <p>{{ network.displayAddress(account.address) }}</p>
+          </div>
+
+          <a
+            class="deposit__account-copy"
+            @click="copy(network.displayAddress(account.address))"
+          >
+            <CopyIcon /><span>copy</span>
+          </a>
+
+          <notification
+            v-if="isCopied"
+            :hide="toggleNotification"
+            text="Address copied"
+            class="deposit__notification"
+          />
+        </div>
+      </div>
+
+      <div v-show="activeTab === 'spark' && !!sparkAccount">
+        <div class="deposit__code">
+          <qrcode-vue
+            :value="network.provider + ':' + sparkAccount?.defaultAddress"
+            :size="150"
+            level="H"
+          />
+        </div>
+
+        <div class="deposit__generate">
+          <button
+            class="deposit__generate-new-spark-address"
+            @click="generateNewSparkAddress()"
+          >
+            Generate new address
+          </button>
+        </div>
+
+        <div class="deposit__account">
+          <div class="deposit__account-info">
+            <p class="deposit__account-text">
+              {{ sparkAccount?.defaultAddress }}
+            </p>
+          </div>
+
+          <a
+            class="deposit__account-copy"
+            @click="copy(sparkAccount?.defaultAddress ?? '')"
+          >
+            <CopyIcon /><span>copy</span>
+          </a>
+
+          <notification
+            v-if="isCopied"
+            :hide="toggleNotification"
+            text="Address copied"
+            class="deposit__notification"
+          />
+          <notification
+            v-if="isGenerated"
+            :hide="toggleGeneratedNotification"
+            text="New Spark address generated"
+            class="deposit__notification"
+          />
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { PropType, ref, onMounted, computed } from 'vue';
+import { PropType, ref, onMounted, computed, watch } from 'vue';
 import CloseIcon from '@action/icons/common/close-icon.vue';
 import CopyIcon from '@action/icons/header/copy_icon.vue';
 import QrcodeVue from 'qrcode.vue';
@@ -63,8 +129,13 @@ import Notification from '@action/components/notification/index.vue';
 import { ProviderName } from '@/types/provider';
 import { BaseNetwork, SubNetworkOptions } from '@/types/base-network';
 import DomainState from '@/libs/domain-state';
+import { SparkAccount } from "../../types/account";
+
 const isCopied = ref(false);
+const isGenerated = ref(false);
+const activeTab = ref<"transparent" | "spark">("transparent");
 const subNetwork = ref<SubNetworkOptions | null>(null);
+
 const props = defineProps({
   network: {
     type: Object as PropType<BaseNetwork>,
@@ -76,14 +147,23 @@ const props = defineProps({
       return {};
     },
   },
+  sparkAccount: {
+    type: Object as PropType<SparkAccount | null>,
+    default: () => {
+      return {};
+    },
+  },
   showDeposit: {
     type: Boolean,
     default: () => false,
   },
 });
-defineEmits<{
+
+const emits = defineEmits<{
   (e: 'toggle:deposit'): void;
+  (e: "action:generate-new-spark"): void;
 }>();
+
 const copy = (address: string) => {
   navigator.clipboard.writeText(address);
   toggleNotification();
@@ -91,6 +171,19 @@ const copy = (address: string) => {
 
 const toggleNotification = () => {
   isCopied.value = !isCopied.value;
+};
+
+const setActiveTab = (value: "transparent" | "spark") => {
+  activeTab.value = value;
+};
+
+const generateNewSparkAddress = () => {
+  emits("action:generate-new-spark");
+  toggleGeneratedNotification();
+};
+
+const toggleGeneratedNotification = () => {
+  isGenerated.value = !isGenerated.value;
 };
 
 onMounted(() => {
@@ -102,6 +195,17 @@ onMounted(() => {
     });
   }
 });
+
+watch(
+  () => props.showDeposit,
+  (v) => {
+    if (!v) {
+      isCopied.value = false;
+      isGenerated.value = false;
+      activeTab.value = "transparent";
+    }
+  }
+);
 
 const depositCopy = computed(() => {
   if (subNetwork.value !== null)
@@ -129,6 +233,83 @@ const depositCopy = computed(() => {
 
   &.show {
     display: flex;
+  }
+
+  &__generate {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 12px;
+
+    &-new-spark-address {
+      border: 1px solid #6b0404;
+      outline: none;
+      border-radius: 8px;
+      padding: 8px 12px;
+      box-sizing: border-box;
+      display: block;
+      background: @buttonBg;
+      text-decoration: none;
+      font-style: normal;
+      font-weight: 500;
+      font-size: 11px;
+      line-height: 16px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: @primaryLabel;
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      flex-direction: row;
+      cursor: pointer;
+      transition: opacity 300ms ease-in-out;
+
+      &:hover {
+        opacity: 0.8;
+      }
+    }
+  }
+
+  &__tabs {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 12px;
+
+    &-active {
+      border-color: @primaryLabel !important;
+    }
+
+    button {
+      outline: none;
+      border: 1px solid @buttonBg;
+      padding: 4px 8px 4px 4px;
+      box-sizing: border-box;
+      height: 24px;
+      display: block;
+      background: @buttonBg;
+      border-radius: 6px;
+      text-decoration: none;
+      font-style: normal;
+      font-weight: 500;
+      font-size: 11px;
+      line-height: 16px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: @primaryLabel;
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      flex-direction: row;
+      cursor: pointer;
+      transition: opacity 300ms ease-in-out;
+
+      &:hover {
+        border-color: @primaryLabel;
+      }
+    }
   }
 
   &__overlay {
@@ -226,7 +407,7 @@ const depositCopy = computed(() => {
 
   &__account {
     display: flex;
-    justify-content: flex-start;
+    justify-content: space-between;
     align-items: center;
     flex-direction: row;
 
@@ -260,6 +441,10 @@ const depositCopy = computed(() => {
         max-width: 190px;
         word-break: break-all;
       }
+    }
+
+    &-text {
+      max-width: unset !important;
     }
 
     &-copy {

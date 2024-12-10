@@ -49,6 +49,7 @@
         @address-changed="onSelectedAddressChanged"
         @select:subnetwork="onSelectedSubnetworkChange"
         @toggle:deposit="toggleDepositWindow"
+        @action:generate-new-spark="generateNewSparkAddress"
       />
       <router-view v-slot="{ Component }" name="view">
         <transition :name="transitionName" mode="out-in">
@@ -60,6 +61,7 @@
             :account-info="accountHeaderData"
             @update:init="init"
             @toggle:deposit="toggleDepositWindow"
+            @action:generate-new-spark="generateNewSparkAddress"
             @open:buy-action="openBuyPage"
           />
         </transition>
@@ -131,7 +133,7 @@ import HoldIcon from './icons/common/hold-icon.vue';
 import LogoMin from './icons/common/logo-min.vue';
 import ManageNetworksIcon from './icons/common/manage-networks-icon.vue';
 import SettingsIcon from './icons/common/settings-icon.vue';
-import { AccountsHeaderData } from './types/account';
+import { AccountsHeaderData, SparkAccount } from './types/account';
 import AddNetwork from './views/add-network/index.vue';
 import ModalRate from './views/modal-rate/index.vue';
 import Settings from './views/settings/index.vue';
@@ -144,6 +146,7 @@ import { trackBuyEvents, trackNetworkSelected } from '@/libs/metrics';
 import { getLatestEnkryptVersion } from '@action/utils/browser';
 import { gt as semverGT } from 'semver';
 import { BuyEventType, NetworkChangeEvents } from '@/libs/metrics/types';
+import { generateSparkAddress, getSparkState } from "@/libs/spark-handler";
 
 const domainState = new DomainState();
 const networksState = new NetworksState();
@@ -155,6 +158,7 @@ const accountHeaderData = ref<AccountsHeaderData>({
   inactiveAccounts: [],
   selectedAccount: null,
   activeBalances: [],
+  sparkAccount: null,
 });
 const isOpenMore = ref(false);
 let timeout: ReturnType<typeof setTimeout> | null = null;
@@ -275,8 +279,19 @@ onMounted(async () => {
 const updateGradient = (newGradient: string) => {
   //hack may be there is a better way. less.modifyVars doesnt work
   if (appMenuRef.value)
-    (appMenuRef.value as HTMLElement).style.background =
-      `radial-gradient(137.35% 97% at 100% 50%, rgba(250, 250, 250, 0.94) 0%, rgba(250, 250, 250, 0.96) 28.91%, rgba(250, 250, 250, 0.98) 100%), linear-gradient(180deg, ${newGradient} 80%, #684CFF 100%)`;
+    (
+      appMenuRef.value as HTMLElement
+    ).style.background = `radial-gradient(137.35% 97% at 100% 50%, rgba(250, 250, 250, 0.94) 0%, rgba(250, 250, 250, 0.96) 28.91%, rgba(250, 250, 250, 0.98) 100%), linear-gradient(180deg, ${newGradient} 80%, #684CFF 100%)`;
+};
+const generateNewSparkAddress = async () => {
+  const newSparkAddressResponse = await generateSparkAddress();
+  if (accountHeaderData.value.sparkAccount) {
+    accountHeaderData.value.sparkAccount.defaultAddress =
+      newSparkAddressResponse;
+    accountHeaderData.value.sparkAccount.allAddresses.push(
+      newSparkAddressResponse
+    );
+  }
 };
 const setNetwork = async (network: BaseNetwork) => {
   trackNetworkSelected(NetworkChangeEvents.NetworkChangePopup, {
@@ -298,12 +313,21 @@ const setNetwork = async (network: BaseNetwork) => {
     if (found) selectedAccount = found;
   }
 
+  let sparkAccount: SparkAccount | null = null;
+
+  if (network.name === NetworkNames.Firo) {
+    const sparkAccountResponse = await getSparkState();
+    sparkAccount = { ...sparkAccountResponse };
+  }
+
   accountHeaderData.value = {
     activeAccounts,
     inactiveAccounts,
     selectedAccount,
     activeBalances: activeAccounts.map(() => '~'),
+    sparkAccount,
   };
+
   currentNetwork.value = network;
   router.push({ name: 'assets', params: { id: network.name } });
   const tabId = await domainState.getCurrentTabId();
