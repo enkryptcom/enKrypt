@@ -208,6 +208,7 @@ PLATFORMS
   universal-darwin-22
   x86_64-darwin-20
   x86_64-darwin-21
+  arm64-darwin-23
 
 DEPENDENCIES
   fastlane
