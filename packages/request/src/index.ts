@@ -7,7 +7,7 @@ import NoClient from "./libs/noClient";
 export default (
   url: string,
   middlewares: MiddlewareFunction[],
-  options?: any
+  options?: any,
 ): RequestClass => {
   if (!url) {
     return new NoClient(url, middlewares);

@@ -26,7 +26,7 @@
 
       <div class="common-popup__block no-inset">
         <div class="common-popup__account">
-          <img :src="require('@/ui/action/icons/raw/account.png')" />
+          <img :src="imgAccount" />
           <div class="common-popup__account-info">
             <h4>All accounts</h4>
           </div>
@@ -54,29 +54,30 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeMount, ref } from "vue";
-import SignLogo from "@action/icons/common/sign-logo.vue";
-import BaseButton from "@action/components/base-button/index.vue";
-import CommonPopup from "@action/views/common-popup/index.vue";
-import LinkIcon from "@action/icons/connect/link-icon.vue";
-import InfoIconGray from "@action/icons/common/info-icon-gray.vue";
-import { WindowPromiseHandler } from "@/libs/window-promise";
-import { ProviderRequestOptions } from "@/types/provider";
-import { getError } from "@/libs/error";
-import AccountState from "../libs/accounts-state";
-import { SubstrateNetwork } from "../types/substrate-network";
-import { ErrorCodes } from "@/providers/ethereum/types";
-import { truncate } from "lodash";
-import Polkadot from "@/providers/polkadot/networks/polkadot";
+import { onBeforeMount, ref } from 'vue';
+import SignLogo from '@action/icons/common/sign-logo.vue';
+import BaseButton from '@action/components/base-button/index.vue';
+import CommonPopup from '@action/views/common-popup/index.vue';
+import LinkIcon from '@action/icons/connect/link-icon.vue';
+import InfoIconGray from '@action/icons/common/info-icon-gray.vue';
+import { WindowPromiseHandler } from '@/libs/window-promise';
+import { ProviderRequestOptions } from '@/types/provider';
+import { getError } from '@/libs/error';
+import AccountState from '../libs/accounts-state';
+import { SubstrateNetwork } from '../types/substrate-network';
+import { ErrorCodes } from '@/providers/ethereum/types';
+import { truncate } from 'lodash';
+import Polkadot from '@/providers/polkadot/networks/polkadot';
+import imgAccount from '@/ui/action/icons/raw/account.png';
 
 const windowPromise = WindowPromiseHandler(0);
 const network = ref<SubstrateNetwork>(Polkadot);
 
 const Options = ref<ProviderRequestOptions>({
-  domain: "",
-  faviconURL: "",
-  title: "",
-  url: "",
+  domain: '',
+  faviconURL: '',
+  title: '',
+  url: '',
   tabId: 0,
 });
 
@@ -103,6 +104,6 @@ const connect = async () => {
 </script>
 
 <style lang="less">
-@import "~@/providers/ethereum/ui/styles/common-popup.less";
-@import "~@action/styles/provider-connect-dapp.less";
+@import '@/providers/ethereum/ui/styles/common-popup.less';
+@import '@action/styles/provider-connect-dapp.less';
 </style>

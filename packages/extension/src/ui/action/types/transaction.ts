@@ -1,5 +1,5 @@
-import { Account } from "./account";
-import { Token } from "./token";
+import { Account } from './account';
+import { Token } from './token';
 
 export interface Transaction {
   from: Account;

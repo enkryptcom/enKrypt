@@ -21,7 +21,7 @@ const naclDecrypt = ({
     case "x25519-xsalsa20-poly1305": {
       const recieverPrivateKeyUint8Array = naclDecodeHex(privateKey);
       const recieverEncryptionPrivateKey = naclBox.keyPair.fromSecretKey(
-        recieverPrivateKeyUint8Array
+        recieverPrivateKeyUint8Array,
       ).secretKey;
       const nonce = decodeBase64(encryptedData.nonce);
       const ciphertext = decodeBase64(encryptedData.ciphertext);
@@ -30,7 +30,7 @@ const naclDecrypt = ({
         ciphertext,
         nonce,
         ephemPublicKey,
-        recieverEncryptionPrivateKey
+        recieverEncryptionPrivateKey,
       );
       let output;
       try {

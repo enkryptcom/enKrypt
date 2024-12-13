@@ -1,45 +1,45 @@
-import MarketData from "@/libs/market-data";
-import { HaskoinTxType } from "@/providers/bitcoin/types";
+import MarketData from '@/libs/market-data';
+import { HaskoinTxType } from '@/providers/bitcoin/types';
 import {
   Activity,
   ActivityStatus,
   ActivityType,
   BTCRawInfo,
-} from "@/types/activity";
-import { BaseNetwork } from "@/types/base-network";
+} from '@/types/activity';
+import { BaseNetwork } from '@/types/base-network';
 export default async (
   network: BaseNetwork,
-  pubkey: string
+  pubkey: string,
 ): Promise<Activity[]> => {
   return fetch(
-    `${network.node}address/${network.displayAddress(pubkey)}/transactions/full`
+    `${network.node}address/${network.displayAddress(pubkey)}/transactions/full`,
   )
-    .then((res) => res.json())
+    .then(res => res.json())
     .then(async (txs: HaskoinTxType[]) => {
       if ((txs as any).error) return [];
-      let tokenPrice = "0";
+      let tokenPrice = '0';
       if (network.coingeckoID) {
         const marketData = new MarketData();
         await marketData
           .getTokenPrice(network.coingeckoID)
-          .then((mdata) => (tokenPrice = mdata || "0"));
+          .then(mdata => (tokenPrice = mdata || '0'));
       }
 
       const address = network.displayAddress(pubkey);
-      return txs.map((tx) => {
-        const isIncoming = !tx.inputs.find((i) => i.address === address);
+      return txs.map(tx => {
+        const isIncoming = !tx.inputs.find(i => i.address === address);
 
-        let toAddress = "";
+        let toAddress = '';
         let value = 0;
 
         if (isIncoming) {
-          const relevantOut = tx.outputs.find((tx) => tx.address === address);
+          const relevantOut = tx.outputs.find(tx => tx.address === address);
           if (relevantOut) {
             toAddress = relevantOut.address;
             value = relevantOut.value;
           }
         } else {
-          const relevantOut = tx.outputs.find((tx) => tx.address !== address);
+          const relevantOut = tx.outputs.find(tx => tx.address !== address);
           if (relevantOut) {
             toAddress = relevantOut.address;
             value = relevantOut.value;
@@ -52,11 +52,11 @@ export default async (
         const rawInfo: BTCRawInfo = {
           blockNumber: tx.block.height!,
           fee: tx.fee,
-          inputs: tx.inputs.map((input) => ({
+          inputs: tx.inputs.map(input => ({
             address: input.address,
             value: input.value,
           })),
-          outputs: tx.outputs.map((output) => ({
+          outputs: tx.outputs.map(output => ({
             address: output.address,
             value: output.value,
             pkscript: output.pkscript,

@@ -94,36 +94,39 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, PropType, ref, watch } from "vue";
-import { useRoute, useRouter } from "vue-router";
-import { debounce } from "lodash";
-import CloseIcon from "@action/icons/common/close-icon.vue";
-import SendAddressInput from "./components/send-address-input.vue";
-import SendContactsList from "@/providers/common/ui/send-transaction/send-contacts-list.vue";
-import SendFromContactsList from "@/providers/common/ui/send-transaction/send-from-contacts-list.vue";
-import SendTokenSelect from "./components/send-token-select.vue";
-import AssetsSelectList from "@action/views/assets-select-list/index.vue";
-import SendInputAmount from "@/providers/common/ui/send-transaction/send-input-amount.vue";
-import SendFeeSelect from "./components/send-fee-select.vue";
-import SendAlert from "./components/send-alert.vue";
-import BaseButton from "@action/components/base-button/index.vue";
-import { AccountsHeaderData } from "@action/types/account";
-import { GasFeeInfo } from "@/providers/ethereum/ui/types";
-import { toBN } from "web3-utils";
-import { formatFloatingPointValue } from "@/libs/utils/number-formatter";
-import { fromBase, toBase, isValidDecimals } from "@enkryptcom/utils";
-import BigNumber from "bignumber.js";
-import { VerifyTransactionParams } from "../types";
-import { routes as RouterNames } from "@/ui/action/router";
-import { KDAToken } from "@/providers/kadena/types/kda-token";
-import PublicKeyRing from "@/libs/keyring/public-keyring";
-import { GenericNameResolver, CoinType } from "@/libs/name-resolver";
-import { KadenaNetwork } from "../../types/kadena-network";
-import KadenaAPI from "@/providers/kadena/libs/api";
-import getUiPath from "@/libs/utils/get-ui-path";
-import { ProviderName } from "@/types/provider";
-import Browser from "webextension-polyfill";
-import { ICommandResult } from "@kadena/client";
+import { computed, onMounted, PropType, ref, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { debounce } from 'lodash';
+import CloseIcon from '@action/icons/common/close-icon.vue';
+import SendAddressInput from './components/send-address-input.vue';
+import SendContactsList from '@/providers/common/ui/send-transaction/send-contacts-list.vue';
+import SendFromContactsList from '@/providers/common/ui/send-transaction/send-from-contacts-list.vue';
+import SendTokenSelect from './components/send-token-select.vue';
+import AssetsSelectList from '@action/views/assets-select-list/index.vue';
+import SendInputAmount from '@/providers/common/ui/send-transaction/send-input-amount.vue';
+import SendFeeSelect from './components/send-fee-select.vue';
+import SendAlert from './components/send-alert.vue';
+import BaseButton from '@action/components/base-button/index.vue';
+import { AccountsHeaderData } from '@action/types/account';
+import { GasFeeInfo } from '@/providers/ethereum/ui/types';
+import { toBN } from 'web3-utils';
+import {
+  formatFloatingPointValue,
+  isNumericPositive,
+} from '@/libs/utils/number-formatter';
+import { fromBase, toBase, isValidDecimals } from '@enkryptcom/utils';
+import BigNumber from 'bignumber.js';
+import { VerifyTransactionParams } from '../types';
+import { routes as RouterNames } from '@/ui/action/router';
+import { KDAToken } from '@/providers/kadena/types/kda-token';
+import PublicKeyRing from '@/libs/keyring/public-keyring';
+import { GenericNameResolver, CoinType } from '@/libs/name-resolver';
+import { KadenaNetwork } from '../../types/kadena-network';
+import KadenaAPI from '@/providers/kadena/libs/api';
+import getUiPath from '@/libs/utils/get-ui-path';
+import { ProviderName } from '@/types/provider';
+import Browser from 'webextension-polyfill';
+import { ICommandResult } from '@kadena/client';
 
 const props = defineProps({
   network: {
@@ -139,14 +142,14 @@ const props = defineProps({
 const route = useRoute();
 const router = useRouter();
 const nameResolver = new GenericNameResolver();
-const errorMsg = ref("");
+const errorMsg = ref('');
 
 const addressInputTo = ref();
 const addressInputFrom = ref();
 const isOpenSelectContactFrom = ref(false);
 const isOpenSelectContactTo = ref(false);
 const addressFrom = ref(props.accountInfo.selectedAccount!.address);
-const addressTo = ref("");
+const addressTo = ref('');
 const isOpenSelectToken = ref(false);
 const amount = ref<string>();
 const fee = ref<GasFeeInfo | null>(null);
@@ -154,12 +157,12 @@ const accountAssets = ref<KDAToken[]>([]);
 const selectedAsset = ref<KDAToken | Partial<KDAToken>>(
   new KDAToken({
     icon: props.network.icon,
-    balance: "0",
-    price: "0",
-    name: "loading",
-    symbol: "loading",
+    balance: '0',
+    price: '0',
+    name: 'loading',
+    symbol: 'loading',
     decimals: props.network.decimals,
-  })
+  }),
 );
 const sendMax = ref(false);
 
@@ -181,7 +184,7 @@ onMounted(() => {
 });
 
 const validateFields = async () => {
-  errorMsg.value = "";
+  errorMsg.value = '';
   fee.value = null;
   fieldsValidation.value = {
     addressTo: true,
@@ -198,16 +201,16 @@ const validateFields = async () => {
       const from = props.network.displayAddress(addressFrom.value);
       const accountDetailFrom = await accountAssets.value[0].getAccountDetails(
         from,
-        props.network
+        props.network,
       );
       if (accountDetailFrom.error) {
-        errorMsg.value = "Not enough balance"; // account doesnt exist
+        errorMsg.value = 'Not enough balance'; // account doesnt exist
         return;
       }
       if (!props.network.isAddress(to)) {
         const accountDetail = await accountAssets.value[0].getAccountDetails(
           to,
-          props.network
+          props.network,
         );
 
         if (accountDetail.error) {
@@ -226,8 +229,8 @@ const validateFields = async () => {
       return;
     }
 
-    let rawAmount = toBN(toBase("0", selectedAsset.value.decimals!));
-    const minAmount = toBN(toBase("0.000001", props.network.decimals));
+    let rawAmount = toBN(toBase('0', selectedAsset.value.decimals!));
+    const minAmount = toBN(toBase('0.000001', props.network.decimals));
     if (amount.value) {
       if (!isValidDecimals(amount.value, selectedAsset.value.decimals!)) {
         fieldsValidation.value.amount = false;
@@ -235,13 +238,19 @@ const validateFields = async () => {
         return;
       }
 
+      if (!isNumericPositive(amount.value)) {
+        fieldsValidation.value.amount = false;
+        errorMsg.value = 'Invalid amount. Amount has to be greater than 0';
+        return;
+      }
+
       rawAmount = toBN(
-        toBase(amount.value.toString(), selectedAsset.value.decimals!)
+        toBase(amount.value.toString(), selectedAsset.value.decimals!),
       );
 
       if (rawAmount.lt(minAmount)) {
         fieldsValidation.value.amount = false;
-        errorMsg.value = "Amount must be greater than 0.000001";
+        errorMsg.value = 'Amount must be greater than 0.000001';
         return;
       }
     }
@@ -252,38 +261,38 @@ const validateFields = async () => {
         sendMax.value
           ? fromBase(minAmount.toString(), props.network.decimals)
           : amount.value!,
-        props.network
+        props.network,
       );
       const networkApi = (await props.network.api()) as KadenaAPI;
 
       const transactionResult = await networkApi
         .sendLocalTransaction(localTransaction)
-        .catch((e) => {
-          if ((e.message as string).includes("Insufficient funds")) {
+        .catch(e => {
+          if ((e.message as string).includes('Insufficient funds')) {
             return {
               result: {
-                status: "error",
+                status: 'error',
                 error: {
-                  message: "Insufficient funds",
+                  message: 'Insufficient funds',
                 },
               },
             };
           }
           return {
             result: {
-              status: "error",
+              status: 'error',
               error: {
-                message: "An error occurred",
+                message: 'An error occurred',
               },
             },
           };
         });
 
-      if (transactionResult.result.status !== "success") {
+      if (transactionResult.result.status !== 'success') {
         fieldsValidation.value.amount = false;
         errorMsg.value =
           (transactionResult.result as any).error.message ||
-          "An error occurred";
+          'An error occurred';
         return;
       }
 
@@ -294,7 +303,7 @@ const validateFields = async () => {
       const gasFee = gasLimit && gasPrice ? gasLimit * gasPrice : 0;
 
       const rawFee = toBN(
-        toBase(gasFee.toString(), selectedAsset.value.decimals!)
+        toBase(gasFee.toString(), selectedAsset.value.decimals!),
       );
       const rawBalance = toBN(selectedAsset.value.balance!);
 
@@ -306,34 +315,34 @@ const validateFields = async () => {
         if (rawAmount.gtn(0)) {
           amount.value = fromBase(
             rawAmount.toString(),
-            selectedAsset.value.decimals!
+            selectedAsset.value.decimals!,
           );
         }
       }
 
       if (rawAmount.add(rawFee).gt(rawBalance)) {
         fieldsValidation.value.amount = false;
-        errorMsg.value = "Insufficient funds";
+        errorMsg.value = 'Insufficient funds';
         return;
       }
 
       const nativeAsset = accountAssets.value[0];
       const txFeeHuman = fromBase(
-        rawFee?.toString() ?? "",
-        nativeAsset.decimals!
+        rawFee?.toString() ?? '',
+        nativeAsset.decimals!,
       );
 
       const txPrice = new BigNumber(nativeAsset.price!).times(txFeeHuman);
 
       fee.value = {
-        fiatSymbol: "USD",
+        fiatSymbol: 'USD',
         fiatValue: txPrice.toString(),
-        nativeSymbol: nativeAsset.symbol ?? "",
+        nativeSymbol: nativeAsset.symbol ?? '',
         nativeValue: txFeeHuman.toString(),
       };
     }
   } catch (error: any) {
-    errorMsg.value = error.message || "An error occurred";
+    errorMsg.value = error.message || 'An error occurred';
   }
 };
 
@@ -346,8 +355,8 @@ watch(addressFrom, () => {
 const fetchTokens = async () => {
   const networkApi = (await props.network.api()) as KadenaAPI;
   const networkAssets = await props.network.getAllTokens(addressFrom.value);
-  const pricePromises = networkAssets.map((asset) => asset.getLatestPrice());
-  const balancePromises = networkAssets.map((asset) => {
+  const pricePromises = networkAssets.map(asset => asset.getLatestPrice());
+  const balancePromises = networkAssets.map(asset => {
     if (!asset.balance) {
       return asset.getBalance(networkApi.api, addressFrom.value);
     }
@@ -357,7 +366,7 @@ const fetchTokens = async () => {
 
   Promise.all([...pricePromises, ...balancePromises]).then(() => {
     const nonZeroAssets = networkAssets.filter(
-      (asset) => !toBN(asset.balance ?? "0").isZero()
+      asset => !toBN(asset.balance ?? '0').isZero(),
     );
 
     if (nonZeroAssets.length == 0) {
@@ -383,7 +392,7 @@ const inputAddressTo = (text: string) => {
   const debounceResolve = debounce(() => {
     nameResolver
       .resolveName(text, [props.network.name as CoinType])
-      .then((resolved) => {
+      .then(resolved => {
         if (resolved) {
           addressTo.value = resolved;
         }
@@ -421,22 +430,22 @@ const selectToken = (token: KDAToken | Partial<KDAToken>) => {
 };
 
 const inputAmount = (inputAmount: string) => {
-  if (inputAmount === "") {
-    inputAmount = "0";
+  if (inputAmount === '') {
+    inputAmount = '0';
   }
   const inputAmountBn = new BigNumber(inputAmount);
   sendMax.value = false;
-  amount.value = inputAmountBn.lt(0) ? "0" : inputAmount;
+  amount.value = inputAmountBn.lt(0) ? '0' : inputAmount;
 };
 
 const sendButtonTitle = computed(() => {
-  let title = "Send";
+  let title = 'Send';
 
   if (!isDisabled.value && amount.value)
     title =
-      "Send " +
+      'Send ' +
       formatFloatingPointValue(amount.value!).value +
-      " " +
+      ' ' +
       selectedAsset.value?.symbol!.toUpperCase();
 
   return title;
@@ -466,19 +475,19 @@ const sendAction = async () => {
     TransactionData: {
       from: fromAccount.address,
       to: addressTo.value,
-      data: "0x" as `0x{string}`,
+      data: '0x' as `0x{string}`,
       value: amount.value!,
     },
     toToken: {
       amount: toBase(amount.value!, selectedAsset.value.decimals!),
       decimals: selectedAsset.value.decimals!,
       icon: selectedAsset.value.icon as string,
-      symbol: selectedAsset.value.symbol || "unknown",
-      valueUSD: new BigNumber(selectedAsset.value.price || "0")
+      symbol: selectedAsset.value.symbol || 'unknown',
+      valueUSD: new BigNumber(selectedAsset.value.price || '0')
         .times(amount.value!)
         .toFixed(),
-      name: selectedAsset.value.name || "",
-      price: selectedAsset.value.price || "0",
+      name: selectedAsset.value.name || '',
+      price: selectedAsset.value.price || '0',
     },
     chainId: chainId,
     fromAddress: fromAccount.address,
@@ -491,8 +500,8 @@ const sendAction = async () => {
     name: RouterNames.verify.name,
     query: {
       id: selected,
-      txData: Buffer.from(JSON.stringify(txVerifyInfo), "utf8").toString(
-        "base64"
+      txData: Buffer.from(JSON.stringify(txVerifyInfo), 'utf8').toString(
+        'base64',
       ),
     },
   });
@@ -502,10 +511,10 @@ const sendAction = async () => {
       url: Browser.runtime.getURL(
         getUiPath(
           `dot-hw-verify?id=${routedRoute.query.id}&txData=${routedRoute.query.txData}`,
-          ProviderName.kadena
-        )
+          ProviderName.kadena,
+        ),
       ),
-      type: "popup",
+      type: 'popup',
       focused: true,
       height: 600,
       width: 460,
@@ -518,8 +527,8 @@ const sendAction = async () => {
 </script>
 
 <style lang="less" scoped>
-@import "~@action/styles/theme.less";
-@import "~@action/styles/custom-scroll.less";
+@import '@action/styles/theme.less';
+@import '@action/styles/custom-scroll.less';
 
 .container {
   width: 100%;

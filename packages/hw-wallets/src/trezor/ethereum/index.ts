@@ -57,7 +57,7 @@ class TrezorEthereum implements HWWalletProvider {
       this.HDNodes[options.pathType.basePath] = hdKey;
     }
     const pubkey = this.HDNodes[options.pathType.basePath].derive(
-      `m/${options.pathIndex}`
+      `m/${options.pathIndex}`,
     ).publicKey;
     return {
       address: bufferToHex(publicToAddress(pubkey, true)),
@@ -113,7 +113,7 @@ class TrezorEthereum implements HWWalletProvider {
         return toRpcSig(
           rv - cv,
           hexToBuffer(result.payload.r),
-          hexToBuffer(result.payload.s)
+          hexToBuffer(result.payload.s),
         );
       });
     }
@@ -131,7 +131,7 @@ class TrezorEthereum implements HWWalletProvider {
       return toRpcSig(
         BigInt(result.payload.v),
         hexToBuffer(result.payload.r),
-        hexToBuffer(result.payload.s)
+        hexToBuffer(result.payload.s),
       );
     });
   }

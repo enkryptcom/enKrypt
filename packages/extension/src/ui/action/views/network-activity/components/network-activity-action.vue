@@ -38,22 +38,22 @@
 </template>
 
 <script setup lang="ts">
-import Deposit from "@action/icons/actions/deposit.vue";
-import Buy from "@action/icons/actions/buy.vue";
-import Send from "@action/icons/actions/send.vue";
-import Swap from "@action/icons/actions/swap.vue";
-import { useRoute } from "vue-router";
+import Deposit from '@action/icons/actions/deposit.vue';
+import Buy from '@action/icons/actions/buy.vue';
+import Send from '@action/icons/actions/send.vue';
+import Swap from '@action/icons/actions/swap.vue';
+import { useRoute } from 'vue-router';
 const route = useRoute();
-const showExchange = !process.env.IS_SAFARI;
+const showExchange = !__IS_SAFARI__;
 
 defineEmits<{
-  (e: "toggle:deposit"): void;
-  (e: "open:buyAction"): void;
+  (e: 'toggle:deposit'): void;
+  (e: 'open:buyAction'): void;
 }>();
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .network-activity {
   &__action {

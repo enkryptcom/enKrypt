@@ -39,7 +39,7 @@ class LedgerSolana implements HWWalletProvider {
         });
       } else {
         return Promise.reject(
-          new Error("ledger-solana: webusb is not supported")
+          new Error("ledger-solana: webusb is not supported"),
         );
       }
     }
@@ -53,7 +53,7 @@ class LedgerSolana implements HWWalletProvider {
     return connection
       .getAddress(
         options.pathType.path.replace(`{index}`, options.pathIndex),
-        false
+        false,
       )
       .then((res) => ({
         address: bufferToHex(res.address),
@@ -66,7 +66,7 @@ class LedgerSolana implements HWWalletProvider {
     return connection
       .signOffchainMessage(
         options.pathType.path.replace(`{index}`, options.pathIndex),
-        options.message
+        options.message,
       )
       .then((result) => bufferToHex(result.signature));
   }
@@ -76,7 +76,7 @@ class LedgerSolana implements HWWalletProvider {
     return connection
       .signTransaction(
         options.pathType.path.replace(`{index}`, options.pathIndex),
-        (options.transaction as SolSignTransaction).solTx
+        (options.transaction as SolSignTransaction).solTx,
       )
       .then((result) => bufferToHex(result.signature));
   }

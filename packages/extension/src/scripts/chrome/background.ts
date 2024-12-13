@@ -1,20 +1,15 @@
-if (process.env.IS_DEV) {
-  require("./hot-reload");
-}
-import "@/libs/utils/selective-wasm";
 import {
   backgroundOnMessageFromWindow,
   backgroundOnMessageFromNewWindow,
   backgroundOnMessageFromAction,
   backgroundOnMessageFromBackground,
   backgroundOnMessageFromCS,
-} from "@/libs/messenger/extension";
-import { InternalOnMessageResponse } from "@/types/messenger";
-import { OnMessageResponse } from "@enkryptcom/types";
-import BackgroundHandler from "@/libs/background";
-import Browser from "webextension-polyfill";
-import openOnboard from "@/libs/utils/open-onboard";
-import PublicKeyRing from "@/libs/keyring/public-keyring";
+} from '@/libs/messenger/extension';
+import { InternalOnMessageResponse } from '@/types/messenger';
+import { OnMessageResponse } from '@enkryptcom/types';
+import BackgroundHandler from '@/libs/background';
+import Browser from 'webextension-polyfill';
+import openOnboard from '@/libs/utils/open-onboard';
 
 const backgroundHandler = new BackgroundHandler();
 backgroundHandler.init();
@@ -34,24 +29,21 @@ backgroundOnMessageFromCS((msg): Promise<OnMessageResponse> => {
   return backgroundHandler.externalHandler(msg);
 });
 
-Browser.runtime.onInstalled.addListener((object) => {
-  if (object.reason === "install") {
-    const kr = new PublicKeyRing();
-    kr.isInitialized().then((isInit) => {
-      if (!isInit) openOnboard();
-    });
+Browser.runtime.onInstalled.addListener(object => {
+  if (object.reason === 'install') {
+    openOnboard();
   }
 });
 
-if (process.env.IS_SAFARI || process.env.IS_OPERA_EDGE) {
+if (__IS_OPERA__ || __IS_SAFARI__) {
   Browser.scripting.registerContentScripts([
     {
-      id: "inject-script",
-      js: ["scripts/inject.js"],
+      id: 'inject-script',
+      js: ['scripts/inject.js'],
       persistAcrossSessions: false,
-      matches: ["http://*/*", "https://*/*"],
-      runAt: "document_start",
-      world: "MAIN",
+      matches: ['http://*/*', 'https://*/*'],
+      runAt: 'document_start',
+      world: 'MAIN',
     } as any,
   ]);
 }

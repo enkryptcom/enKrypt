@@ -1,18 +1,18 @@
-import { GasFeeType, GasPriceTypes } from "@/providers/common/types";
-import Transaction from "@/providers/ethereum/libs/transaction";
-import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
-import { fromBase } from "@enkryptcom/utils";
-import BigNumber from "bignumber.js";
-import { toBN } from "web3-utils";
+import { GasFeeType, GasPriceTypes } from '@/providers/common/types';
+import Transaction from '@/providers/ethereum/libs/transaction';
+import { EvmNetwork } from '@/providers/ethereum/types/evm-network';
+import { fromBase } from '@enkryptcom/utils';
+import BigNumber from 'bignumber.js';
+import { toBN } from 'web3-utils';
 
 export const getEVMTransactionFees = async (
   txs: Transaction[],
   network: EvmNetwork,
   price: number,
-  additionalFee: ReturnType<typeof toBN>
+  additionalFee: ReturnType<typeof toBN>,
 ): Promise<GasFeeType> => {
-  const gasPromises = txs.map((tx) => {
-    return tx.getGasCosts().then(async (gasvals) => {
+  const gasPromises = txs.map(tx => {
+    return tx.getGasCosts().then(async gasvals => {
       const getConvertedVal = (type: GasPriceTypes) => {
         const valWithAddition = toBN(gasvals[type]).add(additionalFee);
         return fromBase(valWithAddition.toString(), network.decimals);
@@ -21,25 +21,25 @@ export const getEVMTransactionFees = async (
         [GasPriceTypes.ECONOMY]: {
           nativeValue: getConvertedVal(GasPriceTypes.ECONOMY),
           fiatValue: new BigNumber(
-            getConvertedVal(GasPriceTypes.ECONOMY)
+            getConvertedVal(GasPriceTypes.ECONOMY),
           ).times(price),
         },
         [GasPriceTypes.REGULAR]: {
           nativeValue: getConvertedVal(GasPriceTypes.REGULAR),
           fiatValue: new BigNumber(
-            getConvertedVal(GasPriceTypes.REGULAR)
+            getConvertedVal(GasPriceTypes.REGULAR),
           ).times(price),
         },
         [GasPriceTypes.FAST]: {
           nativeValue: getConvertedVal(GasPriceTypes.FAST),
           fiatValue: new BigNumber(getConvertedVal(GasPriceTypes.FAST)).times(
-            price
+            price,
           ),
         },
         [GasPriceTypes.FASTEST]: {
           nativeValue: getConvertedVal(GasPriceTypes.FASTEST),
           fiatValue: new BigNumber(
-            getConvertedVal(GasPriceTypes.FASTEST)
+            getConvertedVal(GasPriceTypes.FASTEST),
           ).times(price),
         },
       };
@@ -57,7 +57,7 @@ export const getEVMTransactionFees = async (
           .plus(curr[GasPriceTypes.ECONOMY].nativeValue)
           .toString(),
         fiatValue: prev[GasPriceTypes.ECONOMY].fiatValue.plus(
-          curr[GasPriceTypes.ECONOMY].fiatValue
+          curr[GasPriceTypes.ECONOMY].fiatValue,
         ),
       },
       [GasPriceTypes.REGULAR]: {
@@ -65,7 +65,7 @@ export const getEVMTransactionFees = async (
           .plus(curr[GasPriceTypes.REGULAR].nativeValue)
           .toString(),
         fiatValue: prev[GasPriceTypes.REGULAR].fiatValue.plus(
-          curr[GasPriceTypes.REGULAR].fiatValue
+          curr[GasPriceTypes.REGULAR].fiatValue,
         ),
       },
       [GasPriceTypes.FAST]: {
@@ -73,7 +73,7 @@ export const getEVMTransactionFees = async (
           .plus(curr[GasPriceTypes.FAST].nativeValue)
           .toString(),
         fiatValue: prev[GasPriceTypes.FAST].fiatValue.plus(
-          curr[GasPriceTypes.FAST].fiatValue
+          curr[GasPriceTypes.FAST].fiatValue,
         ),
       },
       [GasPriceTypes.FASTEST]: {
@@ -81,7 +81,7 @@ export const getEVMTransactionFees = async (
           .plus(curr[GasPriceTypes.FASTEST].nativeValue)
           .toString(),
         fiatValue: prev[GasPriceTypes.FASTEST].fiatValue.plus(
-          curr[GasPriceTypes.FASTEST].fiatValue
+          curr[GasPriceTypes.FASTEST].fiatValue,
         ),
       },
     };
@@ -92,25 +92,25 @@ export const getEVMTransactionFees = async (
       nativeValue: finalVal[GasPriceTypes.ECONOMY].nativeValue,
       fiatValue: finalVal[GasPriceTypes.ECONOMY].fiatValue.toString(),
       nativeSymbol: network.currencyName,
-      fiatSymbol: "USD",
+      fiatSymbol: 'USD',
     },
     [GasPriceTypes.REGULAR]: {
       nativeValue: finalVal[GasPriceTypes.REGULAR].nativeValue,
       fiatValue: finalVal[GasPriceTypes.REGULAR].fiatValue.toString(),
       nativeSymbol: network.currencyName,
-      fiatSymbol: "USD",
+      fiatSymbol: 'USD',
     },
     [GasPriceTypes.FAST]: {
       nativeValue: finalVal[GasPriceTypes.FAST].nativeValue,
       fiatValue: finalVal[GasPriceTypes.FAST].fiatValue.toString(),
       nativeSymbol: network.currencyName,
-      fiatSymbol: "USD",
+      fiatSymbol: 'USD',
     },
     [GasPriceTypes.FASTEST]: {
       nativeValue: finalVal[GasPriceTypes.FASTEST].nativeValue,
       fiatValue: finalVal[GasPriceTypes.FASTEST].fiatValue.toString(),
       nativeSymbol: network.currencyName,
-      fiatSymbol: "USD",
+      fiatSymbol: 'USD',
     },
   };
 };

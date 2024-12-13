@@ -1,6 +1,6 @@
-import { NetworkNames } from "@enkryptcom/types";
-import type { Provider as InjectedProvider } from "../inject";
-import { PaymentType } from "./bitcoin-network";
+import { NetworkNames } from '@enkryptcom/types';
+import type { Provider as InjectedProvider } from '../inject';
+import { PaymentType } from './bitcoin-network';
 
 export const BitcoinNetworks = {
   livenet: NetworkNames.Bitcoin,

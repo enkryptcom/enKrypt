@@ -1,48 +1,51 @@
 {
   "name": "enkrypt",
-  "packageManager": "yarn@3.8.1",
+  "packageManager": "yarn@4.5.1",
   "version": "0.0.3",
   "private": true,
-  "workspaces": [
-    "packages/signers/*",
-    "packages/types",
-    "packages/utils",
-    "packages/keyring",
-    "packages/extension-bridge",
-    "packages/extension",
-    "packages/storage",
-    "packages/request",
-    "packages/hw-wallets",
-    "packages/swap",
-    "packages/name-resolution"
-  ],
+  "workspaces": {
+    "packages": [
+      "packages/signers/*",
+      "packages/types",
+      "packages/utils",
+      "packages/keyring",
+      "packages/extension-bridge",
+      "packages/extension",
+      "packages/storage",
+      "packages/request",
+      "packages/hw-wallets",
+      "packages/swap",
+      "packages/name-resolution"
+    ]
+  },
   "scripts": {
-    "test": "yarn workspaces foreach -v run test",
-    "lint": "yarn workspaces foreach run lint",
+    "test": "yarn workspaces foreach --worktree -v run test",
+    "lint": "yarn workspaces foreach --worktree run lint",
     "build:all": "ultra -r build",
     "watch": "concurrently 'npm:watch-*'",
-    "watch-extension": "cd packages/extension && npm run watch",
+    "watch-extension": "cd packages/extension && yarn watch",
     "watch-ts": "nodemon --exec 'yarn run build:all && node scripts/compile-done.js'",
     "upgrade": "yarn upgrade-interactive",
-    "version:bump:patch": "yarn workspaces foreach -pv --exclude @enkryptcom/extension exec 'yarn version --immediate patch'",
-    "publish": "yarn workspaces foreach -pv --exclude @enkryptcom/extension exec 'yarn npm publish --access public --otp 312003'",
+    "version:bump:patch": "yarn workspaces foreach --worktree -pv --exclude @enkryptcom/extension exec 'yarn version --immediate patch'",
+    "publish": "yarn workspaces foreach --worktree -pv --exclude @enkryptcom/extension exec 'yarn npm publish --access public --otp 312003'",
     "version:apply": "yarn version apply --all",
     "prepare": "husky"
   },
   "devDependencies": {
-    "@commitlint/cli": "^19.4.1",
-    "@commitlint/config-conventional": "^19.4.1",
-    "@swc/core": "^1.7.28",
-    "concurrently": "^8.2.2",
+    "@commitlint/cli": "^19.5.0",
+    "@commitlint/config-conventional": "^19.5.0",
+    "@swc/core": "^1.9.2",
+    "concurrently": "^9.1.0",
     "husky": "^9.1.6",
     "node-notifier": "^10.0.1",
     "nodemon": "^3.1.7",
     "ultra-runner": "^3.10.5"
   },
   "resolutions": {
+    "@zondax/ledger-cosmos-js/vue": "^3.5.12",
     "@ledgerhq/compressjs": "https://registry.yarnpkg.com/@favware/skip-dependency/-/skip-dependency-1.2.1.tgz",
-    "@noble/hashes": "^1.4.0",
-    "fork-ts-checker-webpack-plugin": "^6.5.3",
+    "@ledgerhq/speculos-transport": "https://registry.yarnpkg.com/@favware/skip-dependency/-/skip-dependency-1.2.1.tgz",
+    "@ledgerhq/ledger-key-ring-protocol": "https://registry.yarnpkg.com/@favware/skip-dependency/-/skip-dependency-1.2.1.tgz",
     "@amplitude/plugin-autocapture-browser@^1.0.2": "patch:@amplitude/plugin-autocapture-browser@npm%3A1.0.3#./.yarn/patches/@amplitude-plugin-autocapture-browser-npm-1.0.3-edb25bef55.patch"
   }
 }

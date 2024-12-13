@@ -1,8 +1,8 @@
-import { NetworkNames } from "@enkryptcom/types";
+import { NetworkNames } from '@enkryptcom/types';
 
 const NetworkEndpoints = {
-  [NetworkNames.Kadena]: "https://estats.chainweb.com/",
-  [NetworkNames.KadenaTestnet]: "https://estats.testnet.chainweb.com/",
+  [NetworkNames.Kadena]: 'https://estats.chainweb.com/',
+  [NetworkNames.KadenaTestnet]: 'https://estats.testnet.chainweb.com/',
 };
 
 const NetworkTtls = {

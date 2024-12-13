@@ -64,13 +64,13 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
-import SettingsInnerHeader from "@action/views/settings/components/settings-inner-header.vue";
+import { onMounted, ref } from 'vue';
+import SettingsInnerHeader from '@action/views/settings/components/settings-inner-header.vue';
 // import BaseSelect from "@action/components/base-select/index.vue";
-import SettingsSwitch from "@action/views/settings/components/settings-switch.vue";
-import SettingsState from "@/libs/settings-state";
-import { SettingsType } from "@/libs/settings-state/types";
-import { optOutofMetrics } from "@/libs/metrics";
+import SettingsSwitch from '@action/views/settings/components/settings-switch.vue';
+import SettingsState from '@/libs/settings-state';
+import { SettingsType } from '@/libs/settings-state/types';
+import { optOutofMetrics } from '@/libs/metrics';
 
 const settingsState = new SettingsState();
 const isEthereumDisabled = ref(false);
@@ -91,27 +91,31 @@ const toggleEthereumDisable = async (isChecked: boolean) => {
     timestamp: new Date().getTime(),
   };
   await settingsState.setEVMSettings(evmSettings);
+  isEthereumDisabled.value = isChecked;
 };
 const togglePjsDisable = async (isChecked: boolean) => {
   const subSettings = await settingsState.getSubstrateSettings();
   subSettings.injectPolkadotjs = !isChecked;
   await settingsState.setSubstrateSettings(subSettings);
+  isPolkadotjsDisabled.value = isChecked;
 };
 const toggleUnisatEnable = async (isChecked: boolean) => {
   const btcSettings = await settingsState.getBtcSettings();
   btcSettings.injectUnisat = isChecked;
   await settingsState.setBtcSettings(btcSettings);
+  isUnisatEnabled.value = isChecked;
 };
 const toggleMetricsEnabled = async (isChecked: boolean) => {
   const enkryptSettings = await settingsState.getEnkryptSettings();
   enkryptSettings.isMetricsEnabled = !isChecked;
   await settingsState.setEnkryptSettings(enkryptSettings);
   optOutofMetrics(isChecked);
+  isMetricsEnabled.value = !isChecked;
 };
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .settings {
   &__label {

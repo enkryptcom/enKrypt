@@ -1,0 +1,23 @@
+{
+  "extends": "@vue/tsconfig/tsconfig.dom.json",
+  "include": [
+    "env.d.ts",
+    "src/**/*",
+    "src/**/*.vue",
+    "package.json",
+    "vite.config.ts",
+    "configs/**/*.ts"
+  ],
+  "exclude": ["src/**/__tests__/*"],
+  "compilerOptions": {
+    "composite": true,
+    "verbatimModuleSyntax": false,
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+    "baseUrl": ".",
+    "types": ["./node_modules/.kadena/pactjs-generated"],
+    "paths": {
+      "@/*": ["./src/*"],
+      "@action/*": ["./src/ui/action/*"]
+    }
+  }
+}

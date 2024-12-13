@@ -1,6 +1,6 @@
-import { BaseNetwork } from "@/types/base-network";
-import { ToTokenData } from "@/ui/action/types/token";
-import { EnkryptAccount } from "@enkryptcom/types";
+import { BaseNetwork } from '@/types/base-network';
+import { ToTokenData } from '@/ui/action/types/token';
+import { EnkryptAccount } from '@enkryptcom/types';
 
 export interface TxFeeInfo {
   nativeValue: string;

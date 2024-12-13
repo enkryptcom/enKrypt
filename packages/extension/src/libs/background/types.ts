@@ -1,8 +1,8 @@
-import BitcoinProvider from "@/providers/bitcoin";
-import type EthereumProvider from "@/providers/ethereum";
-import type PolkadotProvider from "@/providers/polkadot";
-import type KadenaProvider from "@/providers/kadena";
-import SolanaProvider from "@/providers/solana";
+import BitcoinProvider from '@/providers/bitcoin';
+import type EthereumProvider from '@/providers/ethereum';
+import type PolkadotProvider from '@/providers/polkadot';
+import type KadenaProvider from '@/providers/kadena';
+import SolanaProvider from '@/providers/solana';
 
 export interface TabProviderType {
   [key: string]: Record<

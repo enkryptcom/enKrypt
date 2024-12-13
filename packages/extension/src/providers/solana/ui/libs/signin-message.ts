@@ -1,4 +1,4 @@
-import { SolanaSignInInput } from "@solana/wallet-standard-features";
+import { SolanaSignInInput } from '@solana/wallet-standard-features';
 
 export function createSignInMessageText(input: SolanaSignInInput): string {
   let message = `${input.domain} wants you to sign in with your Solana account:\n`;
@@ -40,19 +40,19 @@ export function createSignInMessageText(input: SolanaSignInInput): string {
     }
   }
   if (fields.length) {
-    message += `\n\n${fields.join("\n")}`;
+    message += `\n\n${fields.join('\n')}`;
   }
 
   return message;
 }
 
 export function createOffChainMessage(message: string) {
-  const signingDomain = Buffer.from("\xffsolana offchain", "ascii");
+  const signingDomain = Buffer.from('\xffsolana offchain', 'ascii');
   const headerversion = Buffer.from([0]);
   const msgFormat = Buffer.from([1]);
   const messageLength = Buffer.alloc(2);
   messageLength.writeUint16LE(message.length);
-  const msgBuffer = Buffer.from(message, "utf8");
+  const msgBuffer = Buffer.from(message, 'utf8');
   const final = Buffer.concat([
     signingDomain,
     headerversion,

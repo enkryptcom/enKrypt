@@ -39,7 +39,11 @@
         stroke-dashoffset="0"
         stroke-dasharray="0 182"
         transform="translate(29,29)"
-        style="animation: 2s linear infinite both spingroup1_t, 2s linear infinite both spingroup1_da"
+        style="
+          animation:
+            2s linear infinite both spingroup1_t,
+            2s linear infinite both spingroup1_da;
+        "
       />
     </g>
   </svg>

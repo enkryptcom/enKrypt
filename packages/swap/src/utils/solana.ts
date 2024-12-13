@@ -17,7 +17,7 @@ import {
  * @see https://solscan.io/account/TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA
  */
 export const TOKEN_PROGRAM_ID = new PublicKey(
-  "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+  "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
 );
 
 /**
@@ -26,7 +26,7 @@ export const TOKEN_PROGRAM_ID = new PublicKey(
  * @see https://solscan.io/account/TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb
  */
 export const TOKEN_2022_PROGRAM_ID = new PublicKey(
-  "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"
+  "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",
 );
 
 /**
@@ -37,7 +37,7 @@ export const TOKEN_2022_PROGRAM_ID = new PublicKey(
  * @see https://solscan.io/account/ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL
  */
 export const ASSOCIATED_TOKEN_PROGRAM_ID = new PublicKey(
-  "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+  "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
 );
 
 export const SPL_TOKEN_ATA_ACCOUNT_SIZE_BYTES = 165;
@@ -58,7 +58,7 @@ export const WRAPPED_SOL_ADDRESS =
  *   transaction failure.
  */
 export function extractComputeBudget(
-  tx: VersionedTransaction
+  tx: VersionedTransaction,
 ): undefined | number {
   // extract the compute budget
 
@@ -80,7 +80,7 @@ export function extractComputeBudget(
         pubkey: tx.message.staticAccountKeys[accountKeyIndex],
         isSigner: tx.message.isAccountSigner(accountKeyIndex),
         isWritable: tx.message.isAccountWritable(accountKeyIndex),
-      })
+      }),
     );
 
     // Decompile the instruction
@@ -119,12 +119,64 @@ export function extractComputeBudget(
 }
 
 /**
+ * @see https://solana.com/docs/core/fees#prioritization-fees
+ */
+export function extractComputeUnitPriceMicroLamports(
+  tx: VersionedTransaction,
+): undefined | number | bigint {
+  /** Compute unit price */
+  let computeUnitPriceMicroLamports: undefined | number | bigint;
+
+  // eslint-disable-next-line no-restricted-syntax, no-labels
+  instructionLoop: for (
+    let i = 0, len = tx.message.compiledInstructions.length;
+    i < len;
+    i++
+  ) {
+    const instr = tx.message.compiledInstructions[i];
+    const program = tx.message.staticAccountKeys[instr.programIdIndex];
+    if (!ComputeBudgetProgram.programId.equals(program)) continue;
+
+    const keys = instr.accountKeyIndexes.map(
+      (accountKeyIndex): AccountMeta => ({
+        pubkey: tx.message.staticAccountKeys[accountKeyIndex],
+        isSigner: tx.message.isAccountSigner(accountKeyIndex),
+        isWritable: tx.message.isAccountWritable(accountKeyIndex),
+      }),
+    );
+
+    // Decompile the instruction
+    const instruction = new TransactionInstruction({
+      keys,
+      programId: program,
+      data: Buffer.from(instr.data),
+    });
+
+    const type = ComputeBudgetInstruction.decodeInstructionType(instruction);
+    switch (type) {
+      case "SetComputeUnitPrice": {
+        // Compute limit
+        const command =
+          ComputeBudgetInstruction.decodeSetComputeUnitPrice(instruction);
+        computeUnitPriceMicroLamports = command.microLamports;
+        // eslint-disable-next-line no-labels
+        break instructionLoop;
+      }
+      default: /** noop */
+        break;
+    }
+  }
+
+  return computeUnitPriceMicroLamports;
+}
+
+/**
  * Insert new instructions at the start of a transaction, after compute budget and compute limit instructions
  */
 export async function insertInstructionsAtStartOfTransaction(
   conn: Connection,
   tx: VersionedTransaction,
-  instructions: TransactionInstruction[]
+  instructions: TransactionInstruction[],
 ): Promise<VersionedTransaction> {
   if (instructions.length === 0) return tx;
 
@@ -144,7 +196,7 @@ export async function insertInstructionsAtStartOfTransaction(
   // We can also use the lookup accounts when re-compiling the transaction.
   const lookupAccountsCount = tx.message.addressTableLookups.length;
   const addressLookupTableAccounts: AddressLookupTableAccount[] = new Array(
-    lookupAccountsCount
+    lookupAccountsCount,
   );
 
   for (let i = 0; i < lookupAccountsCount; i++) {
@@ -153,7 +205,7 @@ export async function insertInstructionsAtStartOfTransaction(
     const addressLookupTableAccount = result.value;
     if (addressLookupTableAccount == null)
       throw new Error(
-        `Failed to get address lookup table for ${lookup.accountKey}`
+        `Failed to get address lookup table for ${lookup.accountKey}`,
       );
     // debug(
     //   "insertInstructionsAtStartOfTransaction",
@@ -165,7 +217,7 @@ export async function insertInstructionsAtStartOfTransaction(
   // Decompile the transaction message so we can modify it
   const decompiledTransactionMessage = TransactionMessage.decompile(
     tx.message,
-    { addressLookupTableAccounts }
+    { addressLookupTableAccounts },
   );
 
   // Insert our instruction to create an account directly after compute budget
@@ -212,7 +264,7 @@ export async function insertInstructionsAtStartOfTransaction(
   // Switch to using this modified transaction
   // debug("insertInstructionsAtStartOfTransaction", `Re-compiling transaction`);
   const modifiedTx = new VersionedTransaction(
-    decompiledTransactionMessage.compileToV0Message(addressLookupTableAccounts)
+    decompiledTransactionMessage.compileToV0Message(addressLookupTableAccounts),
   );
 
   return modifiedTx;
@@ -227,14 +279,14 @@ export async function insertInstructionsAtStartOfTransaction(
  */
 export async function getTokenProgramOfMint(
   conn: Connection,
-  mint: PublicKey
+  mint: PublicKey,
 ): Promise<PublicKey> {
   // debug("getTokenProgramOfMint", `Checking mint account of ${mint.toBase58()}`);
   const srcMintAcc = await conn.getAccountInfo(mint);
 
   if (srcMintAcc == null) {
     throw new Error(
-      `There is no SPL token account at address ${mint.toBase58()}`
+      `There is no SPL token account at address ${mint.toBase58()}`,
     );
   }
 
@@ -246,7 +298,7 @@ export async function getTokenProgramOfMint(
       throw new Error(
         `Mint address is not a valid SPL token, must either have owner` +
           ` TOKEN_PROGRAM_ID (${TOKEN_PROGRAM_ID.toBase58()})` +
-          ` or TOKEN_2022_PROGRAM_ID (${TOKEN_2022_PROGRAM_ID.toBase58()})`
+          ` or TOKEN_2022_PROGRAM_ID (${TOKEN_2022_PROGRAM_ID.toBase58()})`,
       );
   }
 }
@@ -258,12 +310,12 @@ export function getSPLAssociatedTokenAccountPubkey(
   wallet: PublicKey,
   mint: PublicKey,
   /** Either the SPL token program or the 2022 SPL token program */
-  tokenProgramId: PublicKey
+  tokenProgramId: PublicKey,
 ): PublicKey {
   const SEED = [wallet.toBuffer(), tokenProgramId.toBuffer(), mint.toBuffer()];
   const [associatedTokenAddress] = PublicKey.findProgramAddressSync(
     SEED,
-    ASSOCIATED_TOKEN_PROGRAM_ID
+    ASSOCIATED_TOKEN_PROGRAM_ID,
   );
   return associatedTokenAddress;
 }
@@ -286,7 +338,7 @@ export function createAssociatedTokenAccountIdempotentInstruction(
   owner: PublicKey,
   mint: PublicKey,
   programId = TOKEN_PROGRAM_ID,
-  associatedTokenProgramId = ASSOCIATED_TOKEN_PROGRAM_ID
+  associatedTokenProgramId = ASSOCIATED_TOKEN_PROGRAM_ID,
 ): TransactionInstruction {
   // eslint-disable-next-line no-use-before-define
   return buildAssociatedTokenAccountInstruction(
@@ -296,7 +348,7 @@ export function createAssociatedTokenAccountIdempotentInstruction(
     mint,
     Buffer.from([1]),
     programId,
-    associatedTokenProgramId
+    associatedTokenProgramId,
   );
 }
 
@@ -307,7 +359,7 @@ export function buildAssociatedTokenAccountInstruction(
   mint: PublicKey,
   instructionData: Buffer,
   programId = TOKEN_PROGRAM_ID,
-  associatedTokenProgramId = ASSOCIATED_TOKEN_PROGRAM_ID
+  associatedTokenProgramId = ASSOCIATED_TOKEN_PROGRAM_ID,
 ): TransactionInstruction {
   const keys = [
     { pubkey: payer, isSigner: true, isWritable: true },
@@ -415,7 +467,7 @@ export function isValidSolanaAddress(address: string): boolean {
 }
 
 export async function isValidSolanaAddressAsync(
-  address: string
+  address: string,
 ): Promise<boolean> {
   return isValidSolanaAddress(address);
 }
@@ -431,7 +483,7 @@ export async function isValidSolanaAddressAsync(
  */
 export async function solAccountExists(
   conn: Connection,
-  address: PublicKey
+  address: PublicKey,
 ): Promise<boolean> {
   const account = await conn.getAccountInfo(address, "max");
   const exists = account != null;

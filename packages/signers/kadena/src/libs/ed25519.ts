@@ -71,7 +71,7 @@ const derivePath = (path: Path, seed: Hex, offset = HARDENED_OFFSET): Keys => {
 
   return segments.reduce(
     (parentKeys, segment) => CKDPriv(parentKeys, segment + offset),
-    { key, chainCode }
+    { key, chainCode },
   );
 };
 

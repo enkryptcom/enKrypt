@@ -2,6 +2,7 @@
   "name": "@enkryptcom/extension-bridge",
   "version": "0.0.2",
   "description": "Messaging in Web Extensions made easy. Out of the box.",
+  "type": "module",
   "keywords": [
     "chrome",
     "extension",
@@ -21,9 +22,13 @@
     "url": "git+https://github.com/enkryptcom/enKrypt/tree/main/packages/extension-bridge"
   },
   "author": "Neek Sandhu <neek.sandhu@outlook.com>",
-  "main": "dist/index.js",
-  "module": "dist/index.mjs",
-  "types": "dist/index.d.ts",
+  "main": "src/index.ts",
+  "module": "src/index.ts",
+  "publishConfig": {
+    "main": "dist/index.cjs",
+    "module": "dist/index.js",
+    "types": "dist/index.d.ts"
+  },
   "scripts": {
     "build": "tsup src/index.ts src/window/index.ts src/types.ts --clean --format esm,cjs --dts",
     "test": "echo 'no-tests'",
@@ -33,31 +38,29 @@
     "dist"
   ],
   "dependencies": {
-    "nanoevents": "^9.0.0",
+    "nanoevents": "^9.1.0",
     "serialize-error": "11.0.3",
     "tiny-uid": "^1.1.2",
     "webextension-polyfill": "^0.12.0"
   },
   "devDependencies": {
-    "@types/chai": "^4.3.20",
-    "@types/mocha": "^10.0.8",
-    "@types/node": "^20.16.10",
+    "@types/node": "^22.9.0",
     "@types/webextension-polyfill": "^0.12.1",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
-    "bumpp": "^9.6.1",
-    "eslint": "^8.57.0",
+    "bumpp": "^9.8.1",
+    "eslint": "^9.14.0",
     "eslint-config-airbnb-base": "^15.0.0",
-    "eslint-config-prettier": "^8.10.0",
+    "eslint-config-prettier": "^9.1.0",
     "eslint-import-resolver-alias": "^1.1.2",
-    "eslint-plugin-import": "^2.30.0",
+    "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-module-resolver": "^1.5.0",
-    "prettier": "^2.8.8",
+    "prettier": "^3.3.3",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
-    "tsup": "^8.3.0",
+    "tsup": "^8.3.5",
     "type-fest": "^4.26.1",
-    "typescript": "^4.9.5",
-    "typescript-eslint": "0.0.1-alpha.0"
+    "typescript": "^5.6.3",
+    "typescript-eslint": "8.14.0"
   }
 }

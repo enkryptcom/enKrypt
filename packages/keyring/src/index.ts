@@ -11,13 +11,13 @@ import {
   WalletType,
   KeyPair,
 } from "@enkryptcom/types";
-import Storage from "@enkryptcom/storage";
+import { Storage } from "@enkryptcom/storage";
 import { entropyToMnemonic, generateMnemonic, mnemonicToEntropy } from "bip39";
 import { hexToBuffer, encrypt, decrypt } from "@enkryptcom/utils";
-import PolkadotSigner from "@enkryptcom/signer-polkadot";
-import EthereumSigner from "@enkryptcom/signer-ethereum";
-import BitcoinSigner from "@enkryptcom/signer-bitcoin";
-import KadenaSigner from "@enkryptcom/signer-kadena";
+import { PolkadotSigner } from "@enkryptcom/signer-polkadot";
+import { EthereumSigner } from "@enkryptcom/signer-ethereum";
+import { BitcoinSigner } from "@enkryptcom/signer-bitcoin";
+import { KadenaSigner } from "@enkryptcom/signer-kadena";
 import assert from "assert";
 import configs from "./configs";
 import { pathParser } from "./utils";
@@ -58,11 +58,11 @@ class KeyRing {
     {
       strength = configs.MNEMONIC_STRENGTH,
       mnemonic = generateMnemonic(strength),
-    }: { strength?: number; mnemonic?: string } = {}
+    }: { strength?: number; mnemonic?: string } = {},
   ): Promise<void> {
     assert(
       !(await this.#storage.get(configs.STORAGE_KEYS.ENCRYPTED_MNEMONIC)),
-      Errors.KeyringErrors.MnemonicExists
+      Errors.KeyringErrors.MnemonicExists,
     );
     assert(password, Errors.KeyringErrors.NoPassword);
     const entropy = hexToBuffer(mnemonicToEntropy(mnemonic));
@@ -94,7 +94,7 @@ class KeyRing {
 
   async #getMnemonic(password: string): Promise<string> {
     const encrypted = await this.#storage.get(
-      configs.STORAGE_KEYS.ENCRYPTED_MNEMONIC
+      configs.STORAGE_KEYS.ENCRYPTED_MNEMONIC,
     );
     assert(encrypted, Errors.KeyringErrors.NotInitialized);
     const decryptedEntropy = await decrypt(encrypted, password);
@@ -132,7 +132,7 @@ class KeyRing {
     } else {
       keypair = await this.#signers[key.signerType].generate(
         this.#mnemonic,
-        pathParser(key.basePath, nextIndex, key.signerType)
+        pathParser(key.basePath, nextIndex, key.signerType),
       );
     }
     return {
@@ -157,7 +157,7 @@ class KeyRing {
     const existingKeys = await this.getKeysObject();
     assert(
       !existingKeys[keyRecord.address],
-      Errors.KeyringErrors.AddressExists
+      Errors.KeyringErrors.AddressExists,
     );
     existingKeys[keyRecord.address] = keyRecord;
     await this.#storage.set(configs.STORAGE_KEYS.KEY_INFO, existingKeys);
@@ -172,15 +172,15 @@ class KeyRing {
     this.#resetTimeout();
     assert(
       !Object.values(HWwalletType).includes(
-        options.walletType as unknown as HWwalletType
+        options.walletType as unknown as HWwalletType,
       ),
-      Errors.KeyringErrors.CannotUseKeyring
+      Errors.KeyringErrors.CannotUseKeyring,
     );
     let keypair: KeyPair;
     if (options.walletType === WalletType.privkey) {
       const pubKey = (await this.getKeysArray()).find(
         (i) =>
-          i.basePath === options.basePath && i.pathIndex === options.pathIndex
+          i.basePath === options.basePath && i.pathIndex === options.pathIndex,
       ).publicKey;
       keypair = {
         privateKey: this.#privkeys[options.pathIndex.toString()],
@@ -189,7 +189,7 @@ class KeyRing {
     } else {
       keypair = await this.#signers[options.signerType].generate(
         this.#mnemonic,
-        pathParser(options.basePath, options.pathIndex, options.signerType)
+        pathParser(options.basePath, options.pathIndex, options.signerType),
       );
     }
     return this.#signers[options.signerType].sign(msgHash, keypair);
@@ -200,17 +200,17 @@ class KeyRing {
     this.#resetTimeout();
     assert(
       !Object.values(HWwalletType).includes(
-        options.walletType as unknown as HWwalletType
+        options.walletType as unknown as HWwalletType,
       ),
-      Errors.KeyringErrors.CannotUseKeyring
+      Errors.KeyringErrors.CannotUseKeyring,
     );
     assert(
       options.signerType === SignerType.secp256k1,
-      Errors.KeyringErrors.EnckryptDecryptNotSupported
+      Errors.KeyringErrors.EnckryptDecryptNotSupported,
     );
     const keypair = await this.#signers[options.signerType].generate(
       this.#mnemonic,
-      pathParser(options.basePath, options.pathIndex, options.signerType)
+      pathParser(options.basePath, options.pathIndex, options.signerType),
     );
     return (
       this.#signers[options.signerType] as EthereumSigner
@@ -219,27 +219,27 @@ class KeyRing {
 
   async ethereumDecrypt(
     encryptedMessage: string,
-    options: SignOptions
+    options: SignOptions,
   ): Promise<string> {
     assert(!this.#isLocked, Errors.KeyringErrors.Locked);
     this.#resetTimeout();
     assert(
       !Object.values(HWwalletType).includes(
-        options.walletType as unknown as HWwalletType
+        options.walletType as unknown as HWwalletType,
       ),
-      Errors.KeyringErrors.CannotUseKeyring
+      Errors.KeyringErrors.CannotUseKeyring,
     );
     assert(
       options.signerType === SignerType.secp256k1,
-      Errors.KeyringErrors.EnckryptDecryptNotSupported
+      Errors.KeyringErrors.EnckryptDecryptNotSupported,
     );
     const keypair = await this.#signers[options.signerType].generate(
       this.#mnemonic,
-      pathParser(options.basePath, options.pathIndex, options.signerType)
+      pathParser(options.basePath, options.pathIndex, options.signerType),
     );
     return (this.#signers[options.signerType] as EthereumSigner).decrypt(
       encryptedMessage,
-      keypair
+      keypair,
     );
   }
 
@@ -264,7 +264,7 @@ class KeyRing {
 
   async renameAccount(
     address: string,
-    newName: string
+    newName: string,
   ): Promise<EnkryptAccount> {
     const existingKeys = await this.getKeysObject();
     assert(existingKeys[address], Errors.KeyringErrors.AddressDoesntExists);
@@ -280,17 +280,17 @@ class KeyRing {
     assert(existingKeys[address], Errors.KeyringErrors.AddressDoesntExists);
     assert(
       existingKeys[address].walletType !== WalletType.mnemonic,
-      Errors.KeyringErrors.CantRemoveMnemonicAddress
+      Errors.KeyringErrors.CantRemoveMnemonicAddress,
     );
     delete existingKeys[address];
     await this.#storage.set(configs.STORAGE_KEYS.KEY_INFO, existingKeys);
   }
 
   async #getPrivateKeys(
-    keyringPassword: string
+    keyringPassword: string,
   ): Promise<Record<string, string>> {
     const encrypted = await this.#storage.get(
-      configs.STORAGE_KEYS.ENCRYPTED_PRIVKEYS
+      configs.STORAGE_KEYS.ENCRYPTED_PRIVKEYS,
     );
     if (!encrypted) return {};
     const decrypted = await decrypt(encrypted, keyringPassword);
@@ -300,14 +300,14 @@ class KeyRing {
   async #setPrivateKey(
     pathIndex: string,
     privKey: string,
-    keyringPassword: string
+    keyringPassword: string,
   ): Promise<void> {
     const allKeys = await this.#getPrivateKeys(keyringPassword);
     assert(!allKeys[pathIndex], Errors.KeyringErrors.AddressExists);
     allKeys[pathIndex] = privKey;
     const encrypted = await encrypt(
       Buffer.from(JSON.stringify(allKeys), "utf-8"),
-      keyringPassword
+      keyringPassword,
     );
     await this.#storage.set(configs.STORAGE_KEYS.ENCRYPTED_PRIVKEYS, encrypted);
     this.#privkeys = allKeys;
@@ -315,7 +315,7 @@ class KeyRing {
 
   async addKeyPair(
     keyPair: KeyPairAdd,
-    keyringPassword: string
+    keyringPassword: string,
   ): Promise<EnkryptAccount> {
     const existingKeys = await this.getKeysObject();
     assert(!existingKeys[keyPair.address], Errors.KeyringErrors.AddressExists);
@@ -330,7 +330,7 @@ class KeyRing {
     await this.#setPrivateKey(
       kpAcc.pathIndex.toString(),
       keyPair.privateKey,
-      keyringPassword
+      keyringPassword,
     );
     await this.#saveKeyRecord(kpAcc);
     return kpAcc;
@@ -339,7 +339,7 @@ class KeyRing {
   async reset(): Promise<void> {
     this.lock();
     const resetPromises = Object.values(configs.STORAGE_KEYS).map((name) =>
-      this.#storage.remove(name)
+      this.#storage.remove(name),
     );
     await Promise.all(resetPromises);
   }

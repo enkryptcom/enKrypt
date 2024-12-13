@@ -1,4 +1,4 @@
-import { NFTType } from "@/types/nft";
+import { NFTType } from '@/types/nft';
 
 export interface SHNFTType {
   nft_id: string;

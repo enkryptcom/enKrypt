@@ -12,5 +12,5 @@ export interface TelosTXType {
   hash: string;
   timestamp: number;
   gasPrice: string;
-  status: "0x1" | "0x0";
+  status: '0x1' | '0x0';
 }

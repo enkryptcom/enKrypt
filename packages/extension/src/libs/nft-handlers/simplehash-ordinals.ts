@@ -1,19 +1,20 @@
-import { NFTCollection, NFTItem, NFTType } from "@/types/nft";
-import cacheFetch from "../cache-fetch";
-import { NetworkNames } from "@enkryptcom/types";
-import { SHOrdinalsNFTType, SHOrdinalsResponse } from "./types/simplehash";
-import { BaseNetwork } from "@/types/base-network";
-const SH_ENDPOINT = "https://partners.mewapi.io/nfts/";
+import { NFTCollection, NFTItem, NFTType } from '@/types/nft';
+import cacheFetch from '../cache-fetch';
+import { NetworkNames } from '@enkryptcom/types';
+import { SHOrdinalsNFTType, SHOrdinalsResponse } from './types/simplehash';
+import { BaseNetwork } from '@/types/base-network';
+import imgNotFound from '@action/assets/common/not-found.jpg';
+const SH_ENDPOINT = 'https://partners.mewapi.io/nfts/';
 const CACHE_TTL = 1 * 1000;
 export default async (
   network: BaseNetwork,
-  address: string
+  address: string,
 ): Promise<NFTCollection[]> => {
   const supportedNetworks = {
-    [NetworkNames.Bitcoin]: "bitcoin",
+    [NetworkNames.Bitcoin]: 'bitcoin',
   };
   if (!Object.keys(supportedNetworks).includes(network.name))
-    throw new Error("Simplehash: network not supported");
+    throw new Error('Simplehash: network not supported');
   let allItems: SHOrdinalsNFTType[] = [];
   const fetchAll = (continuation?: string): Promise<void> => {
     const query = continuation
@@ -25,8 +26,8 @@ export default async (
       {
         url: query,
       },
-      CACHE_TTL
-    ).then((json) => {
+      CACHE_TTL,
+    ).then(json => {
       const items: SHOrdinalsNFTType[] = (json.result as SHOrdinalsResponse)
         .nfts;
       allItems = allItems.concat(items);
@@ -36,13 +37,13 @@ export default async (
   await fetchAll();
   if (!allItems || !allItems.length) return [];
   const collections: Record<string, NFTCollection> = {};
-  allItems.forEach((item) => {
+  allItems.forEach(item => {
     const collectionName =
-      item.extra_metadata.ordinal_details.protocol_name === "brc-20"
-        ? "BRC20"
+      item.extra_metadata.ordinal_details.protocol_name === 'brc-20'
+        ? 'BRC20'
         : item.collection.name
-        ? item.collection.name
-        : "Unknown";
+          ? item.collection.name
+          : 'Unknown';
     const contractAddress =
       item.collection.collection_id || item.contract_address;
     if (!item.image_url && !item.previews.image_medium_url) return;
@@ -61,9 +62,7 @@ export default async (
       const ret: NFTCollection = {
         name: collectionName,
         description: item.collection.description,
-        image:
-          item.collection.image_url ||
-          require("@action/assets/common/not-found.jpg"),
+        image: item.collection.image_url || imgNotFound,
         contract: contractAddress,
         items: [
           {

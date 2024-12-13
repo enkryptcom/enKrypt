@@ -1,16 +1,16 @@
-import API from "@/providers/polkadot/libs/api";
-import { SubstrateNetwork } from "@/providers/polkadot/types/substrate-network";
-import { hexToString, hexToBn } from "@polkadot/util";
+import API from '@/providers/polkadot/libs/api';
+import { SubstrateNetwork } from '@/providers/polkadot/types/substrate-network';
+import { hexToString, hexToBn } from '@polkadot/util';
 import {
   AcalaOrmlAsset,
   AcalaOrmlAssetOptions,
   OrmlAssetType,
   OrmlTokensAccountData,
-} from "../types/acala-orml-asset";
-import { toBN } from "web3-utils";
-import { KnownTokenDisplay } from "@/providers/polkadot/types";
-import { SubstrateNativeToken } from "@/providers/polkadot/types/substrate-native-token";
-import { BNType } from "@/providers/common/types";
+} from '../types/acala-orml-asset';
+import { toBN } from 'web3-utils';
+import { KnownTokenDisplay } from '@/providers/polkadot/types';
+import { SubstrateNativeToken } from '@/providers/polkadot/types/substrate-native-token';
+import { BNType } from '@/providers/common/types';
 
 type AssetMetadata = {
   name: `0x${string}`;
@@ -28,10 +28,10 @@ type StableAsset = string;
 type Erc20 = string;
 
 enum AssetIds {
-  NATIVE_ASSET = "NativeAssetId",
-  FOREIGN_ASSET = "ForeignAssetId",
-  STABLE_ASSET = "StableAssetId",
-  ERC20_ASSET = "Erc20",
+  NATIVE_ASSET = 'NativeAssetId',
+  FOREIGN_ASSET = 'ForeignAssetId',
+  STABLE_ASSET = 'StableAssetId',
+  ERC20_ASSET = 'Erc20',
 }
 
 type AssetKey = Record<
@@ -42,7 +42,7 @@ type AssetKey = Record<
 export default async (
   network: SubstrateNetwork,
   address: string | null,
-  knownTokens?: KnownTokenDisplay[]
+  knownTokens?: KnownTokenDisplay[],
 ) => {
   const api = (await network.api()) as API;
 
@@ -57,7 +57,7 @@ export default async (
       const assetMetadata = value.toJSON() as AssetMetadata;
       const decimals = assetMetadata.decimals;
       const minimalBalance =
-        typeof assetMetadata.minimalBalance === "string"
+        typeof assetMetadata.minimalBalance === 'string'
           ? hexToBn(assetMetadata.minimalBalance)
           : toBN(assetMetadata.minimalBalance);
 
@@ -65,18 +65,18 @@ export default async (
       let assetLookupValue: string | null = null;
 
       if (assetKey[AssetIds.FOREIGN_ASSET]) {
-        assetLookupId = "foreignAsset";
+        assetLookupId = 'foreignAsset';
         assetLookupValue = assetKey[AssetIds.FOREIGN_ASSET] as string;
       } else if (assetKey[AssetIds.NATIVE_ASSET]) {
         assetLookupId = Object.keys(
-          assetKey[AssetIds.NATIVE_ASSET]
-        )[0] as "token";
+          assetKey[AssetIds.NATIVE_ASSET],
+        )[0] as 'token';
 
         assetLookupValue = (assetKey[AssetIds.NATIVE_ASSET] as NativeAsset)[
           assetLookupId
         ] as string;
       } else if (assetKey[AssetIds.STABLE_ASSET]) {
-        assetLookupId = "stableAssetPoolToken";
+        assetLookupId = 'stableAssetPoolToken';
         assetLookupValue = assetKey[AssetIds.STABLE_ASSET] as string;
       } else if (assetKey[AssetIds.ERC20_ASSET]) {
         // TODO add Erc20 support, required special RPC call
@@ -98,10 +98,10 @@ export default async (
         return null;
       }
     })
-    .filter((asset) => asset !== null);
+    .filter(asset => asset !== null);
 
   const tokenOptions: AcalaOrmlAssetOptions[] = assets
-    .map((asset) => {
+    .map(asset => {
       const ormlOptions: AcalaOrmlAssetOptions = {
         name: hexToString(asset!.name),
         symbol: hexToString(asset!.symbol),
@@ -114,12 +114,12 @@ export default async (
 
       return ormlOptions;
     })
-    .map((tokenOptions) => {
+    .map(tokenOptions => {
       if (knownTokens) {
         const knownToken = knownTokens.find(
-          (knownToken) =>
+          knownToken =>
             knownToken.name === tokenOptions.name &&
-            knownToken.symbol === tokenOptions.symbol
+            knownToken.symbol === tokenOptions.symbol,
         );
 
         if (knownToken) {
@@ -141,7 +141,7 @@ export default async (
 
   if (address) {
     await nativeAsset.getLatestUserBalance(apiPromise, address);
-    const queries = tokenOptions.map((asset) => {
+    const queries = tokenOptions.map(asset => {
       const token = { [asset.assetType]: asset.lookupValue };
       const query = [address, token];
 
@@ -157,5 +157,5 @@ export default async (
     });
   }
 
-  return [nativeAsset, ...tokenOptions.map((o) => new AcalaOrmlAsset(o))];
+  return [nativeAsset, ...tokenOptions.map(o => new AcalaOrmlAsset(o))];
 };

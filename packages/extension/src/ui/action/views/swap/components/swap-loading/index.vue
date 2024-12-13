@@ -22,9 +22,9 @@
 </template>
 
 <script setup lang="ts">
-import CloseIcon from "@action/icons/common/close-icon.vue";
-import SwapLookingAnimation from "@action/icons/swap/swap-looking-animation.vue";
-import { SWAP_LOADING } from "../../types";
+import CloseIcon from '@action/icons/common/close-icon.vue';
+import SwapLookingAnimation from '@action/icons/swap/swap-looking-animation.vue';
+import { SWAP_LOADING } from '../../types';
 interface Props {
   close: () => void;
   showClose?: boolean;
@@ -37,7 +37,7 @@ withDefaults(defineProps<Props>(), {
 </script>
 
 <style lang="less" scoped>
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 .container {
   display: contents;
 }
@@ -48,7 +48,8 @@ withDefaults(defineProps<Props>(), {
 
   &__wrap {
     background: @white;
-    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.039),
+    box-shadow:
+      0px 3px 6px rgba(0, 0, 0, 0.039),
       0px 7px 24px rgba(0, 0, 0, 0.19);
     border-radius: 12px;
     box-sizing: border-box;
@@ -83,7 +84,7 @@ withDefaults(defineProps<Props>(), {
 
   &__container {
     width: 100%;
-    height: 600px;
+    height: 100%;
     left: 0px;
     top: 0px;
     position: fixed;
