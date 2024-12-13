@@ -6,6 +6,7 @@ import { crx } from '@crxjs/vite-plugin';
 import chromeManifest from './src/manifest/manifest.chrome';
 import firefoxManifest from './src/manifest/manifest.firefox';
 import operaManifest from './src/manifest/manifest.opera';
+import safariManifest from './src/manifest/manifest.safari';
 import assetsRewritePlugin from './configs/vite/assets-rewrite';
 import transformManifest from './configs/vite/transform-manifest';
 import transformCSInject from './configs/vite/transform-cs-inject';
@@ -19,6 +20,8 @@ const getManifest = () => {
       return firefoxManifest;
     case 'opera':
       return operaManifest;
+    case 'safari':
+      return safariManifest;
     default:
       return chromeManifest;
   }

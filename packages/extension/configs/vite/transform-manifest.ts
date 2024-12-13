@@ -27,8 +27,13 @@ function transFormManifest(): CrxPlugin {
           world: 'MAIN',
         } as any);
       }
-      if (process.env.BROWSER === 'opera' || process.env.BROWSER === 'safari') {
-        manifest.permissions?.push('scripting');
+      if (process.env.BROWSER === 'safari') {
+        (manifest as any).browser_specific_settings = {
+          safari: {
+            strict_min_version: '16.6',
+            strict_max_version: '18.*',
+          },
+        };
       }
       manifest.web_accessible_resources?.push({
         resources: [
