@@ -8,7 +8,7 @@ import Vue3Lottie from 'vue3-lottie';
 global.WeakMap = WeakMap;
 
 if (import.meta.env.DEV) {
-  globalThis.__ENKRYPT_DEBUG_LOG_CONF__ = import.meta.env.VITE_DEBUG_LOG
+  globalThis.__ENKRYPT_DEBUG_LOG_CONF__ = import.meta.env.VITE_DEBUG_LOG;
 }
 
 const router = createRouter({
