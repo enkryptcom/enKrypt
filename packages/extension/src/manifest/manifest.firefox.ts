@@ -21,7 +21,8 @@ const firefoxManifest = {
   web_accessible_resources: [],
   browser_specific_settings: {
     gecko: {
-      strict_min_version: '100.0',
+      id: '{21a9e8ea-7aa4-4aae-923c-ec8211f2779c}',
+      strict_min_version: '112.0',
     },
   },
   content_security_policy: {
