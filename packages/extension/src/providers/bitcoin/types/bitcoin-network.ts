@@ -21,6 +21,7 @@ import { BTCToken } from './btc-token';
 import { GasPriceTypes } from '@/providers/common/types';
 import type HaskoinAPI from '@/providers/bitcoin/libs/api';
 import type SSAPI from '@/providers/bitcoin/libs/api-ss';
+import type FiroAPI from "@/providers/bitcoin/libs/api-firo";
 import { NFTCollection } from '@/types/nft';
 
 export enum PaymentType {
@@ -52,7 +53,7 @@ export interface BitcoinNetworkOptions {
     network: BaseNetwork,
     address: string,
   ) => Promise<Activity[]>;
-  apiType: typeof HaskoinAPI | typeof SSAPI;
+  apiType: typeof HaskoinAPI | typeof SSAPI | typeof FiroAPI;
 }
 
 export const getAddress = (pubkey: string, network: BitcoinNetworkInfo) => {

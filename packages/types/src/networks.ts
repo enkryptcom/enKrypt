@@ -18,6 +18,8 @@ export enum NetworkNames {
   Westend = "WND",
   Bitcoin = "BTC",
   BitcoinTest = "BTCTest",
+  Firo = "Firo",
+  FiroTest = "FiroTest",
   Astar = "ASTR",
   Shiden = "SDN",
   ShidenEVM = "SDNEVM",
