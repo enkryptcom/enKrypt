@@ -1,23 +1,24 @@
-import { CoingeckoPlatform, NetworkNames } from "@enkryptcom/types";
-import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
-import assetsInfoHandler from "@/providers/ethereum/libs/assets-handlers/assetinfo-mew";
-import { EtherscanActivity } from "../libs/activity-handlers";
-import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
-import shNFTHandler from "@/libs/nft-handlers/simplehash";
+import icon from './icons/matic.svg';
+import { CoingeckoPlatform, NetworkNames } from '@enkryptcom/types';
+import { EvmNetwork, EvmNetworkOptions } from '../types/evm-network';
+import assetsInfoHandler from '@/providers/ethereum/libs/assets-handlers/assetinfo-mew';
+import { EtherscanActivity } from '../libs/activity-handlers';
+import wrapActivityHandler from '@/libs/activity-state/wrap-activity-handler';
+import shNFTHandler from '@/libs/nft-handlers/simplehash';
 
 const maticOptions: EvmNetworkOptions = {
   name: NetworkNames.MaticZK,
-  name_long: "Polygon | zkEVM",
-  homePage: "https://zkevm.polygonscan.com/",
-  blockExplorerTX: "https://zkevm.polygonscan.com/tx/[[txHash]]",
-  blockExplorerAddr: "https://zkevm.polygonscan.com/address/[[address]]",
-  chainID: "0x44d",
+  name_long: 'Polygon | zkEVM',
+  homePage: 'https://zkevm.polygonscan.com/',
+  blockExplorerTX: 'https://zkevm.polygonscan.com/tx/[[txHash]]',
+  blockExplorerAddr: 'https://zkevm.polygonscan.com/address/[[address]]',
+  chainID: '0x44d',
   isTestNetwork: false,
-  currencyName: "POL",
-  currencyNameLong: "Polygon POL",
-  node: "wss://nodes.mewapi.io/ws/maticzk",
-  icon: require("./icons/matic.svg"),
-  coingeckoID: "polygon-ecosystem-token",
+  currencyName: 'ETH',
+  currencyNameLong: 'Ethereum',
+  node: 'wss://nodes.mewapi.io/ws/maticzk',
+  icon,
+  coingeckoID: 'ethereum',
   coingeckoPlatform: CoingeckoPlatform.MaticZK,
   NFTHandler: shNFTHandler,
   assetsInfoHandler,

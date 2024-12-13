@@ -7,10 +7,11 @@ export default class Sparkline {
 
   public constructor(values: number[] = [], maxValues: number) {
     this._values = values.filter(
-      (val, idx) => idx % parseInt((values.length / maxValues).toString()) === 0
+      (val, idx) =>
+        idx % parseInt((values.length / maxValues).toString()) === 0,
     );
     this._values.push(values[values.length - 1]);
-    this._values = this._values.map((val) => {
+    this._values = this._values.map(val => {
       return (
         normalize(val, Math.max(...this._values), Math.min(...this._values)) *
         100

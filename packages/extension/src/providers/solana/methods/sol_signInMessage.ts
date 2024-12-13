@@ -1,22 +1,22 @@
-import { getCustomError } from "@/libs/error";
-import { MiddlewareFunction } from "@enkryptcom/types";
-import EthereumProvider from "..";
-import { WindowPromise } from "@/libs/window-promise";
-import { ProviderRPCRequest } from "@/types/provider";
+import { getCustomError } from '@/libs/error';
+import { MiddlewareFunction } from '@enkryptcom/types';
+import EthereumProvider from '..';
+import { WindowPromise } from '@/libs/window-promise';
+import { ProviderRPCRequest } from '@/types/provider';
 const method: MiddlewareFunction = function (
   this: EthereumProvider,
   payload: ProviderRPCRequest,
   res,
-  next
+  next,
 ): void {
   if (
-    payload.method !== "sol_signInMessage" &&
-    payload.method !== "sol_signMessage"
+    payload.method !== 'sol_signInMessage' &&
+    payload.method !== 'sol_signMessage'
   )
     return next();
   else {
     if (!payload.params || payload.params.length < 1) {
-      return res(getCustomError("sol_signInMessage: invalid params"));
+      return res(getCustomError('sol_signInMessage: invalid params'));
     }
     const windowPromise = new WindowPromise();
     windowPromise
@@ -26,7 +26,7 @@ const method: MiddlewareFunction = function (
           ...payload,
           params: [payload.method, payload.params[0], this.network.name],
         }),
-        true
+        true,
       )
       .then(({ error, result }) => {
         if (error) return res(error);

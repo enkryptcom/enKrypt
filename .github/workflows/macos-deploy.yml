@@ -7,7 +7,7 @@ jobs:
     name: safari build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: setup env
         id: node-version
@@ -20,7 +20,7 @@ jobs:
         run: echo "dir=$(yarn config get cacheFolder)" >> $GITHUB_OUTPUT
 
       - name: Cache yarn modules
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         id: yarn-cache
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
@@ -34,7 +34,7 @@ jobs:
           mkdir release
           docker run --rm --user "$(id -u):$(id -g)" -v `pwd`:/home:rw enkrypt-build-container /bin/bash -c "cd packages/extension && yarn build:all && yarn build:safari"
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: safari-build-artifact
           path: packages/extension/dist
@@ -51,10 +51,10 @@ jobs:
           xcode-version: "latest-stable"
 
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Retrieve saved safari build
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: safari-build-artifact
           path: packages/extension/dist

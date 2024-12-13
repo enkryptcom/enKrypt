@@ -4,7 +4,7 @@ import { mnemonicToSeedSync } from "bip39";
 import { sign as tweetSign } from "tweetnacl";
 import { derivePath } from "./libs/ed25519";
 
-class Signer implements SignerInterface {
+export class KadenaSigner implements SignerInterface {
   async generate(mnemonic: string, derivationPath = ""): Promise<KeyPair> {
     const seed = bufferToHex(mnemonicToSeedSync(mnemonic), true);
     const dPathSegments = `${derivationPath}'`.split("/");
@@ -21,22 +21,20 @@ class Signer implements SignerInterface {
   async verify(
     msgHash: string,
     sig: string,
-    publicKey: string
+    publicKey: string,
   ): Promise<boolean> {
     return tweetSign.detached.verify(
       hexToBuffer(msgHash),
       hexToBuffer(sig),
-      hexToBuffer(publicKey)
+      hexToBuffer(publicKey),
     );
   }
 
   async sign(msgHash: string, keyPair: KeyPair): Promise<string> {
     const sig = tweetSign.detached(
       hexToBuffer(msgHash),
-      hexToBuffer(keyPair.privateKey)
+      hexToBuffer(keyPair.privateKey),
     );
     return bufferToHex(sig);
   }
 }
-
-export default Signer;

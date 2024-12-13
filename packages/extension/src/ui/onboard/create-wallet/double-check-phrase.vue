@@ -15,14 +15,14 @@
   </div>
 </template>
 <script setup lang="ts">
-import BaseButton from "@action/components/base-button/index.vue";
-import CheckPhrase from "@action/components/check-phrase/index.vue";
-import { routes } from "./routes";
-import { useOnboardStore } from "./store";
-import { useRouter } from "vue-router";
-import { ref, computed } from "vue";
-import { chunk, shuffle, sample } from "lodash";
-import { onboardInitializeWallets } from "@/libs/utils/initialize-wallet";
+import BaseButton from '@action/components/base-button/index.vue';
+import CheckPhrase from '@action/components/check-phrase/index.vue';
+import { routes } from './routes';
+import { useOnboardStore } from './store';
+import { useRouter } from 'vue-router';
+import { ref, computed } from 'vue';
+import { chunk, shuffle, sample } from 'lodash';
+import { onboardInitializeWallets } from '@/libs/utils/initialize-wallet';
 
 const router = useRouter();
 const store = useOnboardStore();
@@ -32,7 +32,7 @@ let phraseArr: string[] = [];
 if (!phrase) {
   router.push({ path: routes.pickPassword.path });
 } else {
-  phraseArr = phrase.split(" ");
+  phraseArr = phrase.split(' ');
 }
 const shuffledArr = shuffle(phraseArr);
 const chunkedArr = chunk(shuffledArr, 3);
@@ -43,12 +43,12 @@ const isDisabled = computed<boolean>(() => {
   return validSelection.value.includes(false) || isInitializing.value;
 });
 
-chunkedArr.forEach((chunk) => {
-  const randWord = sample(chunk) || "";
+chunkedArr.forEach(chunk => {
+  const randWord = sample(chunk) || '';
   phraseItems.push({
-    id: phraseArr.findIndex((p) => p === randWord),
+    id: phraseArr.findIndex(p => p === randWord),
     items: chunk,
-    validIndex: chunk.findIndex((p) => p === randWord),
+    validIndex: chunk.findIndex(p => p === randWord),
   });
 });
 const updateSelection = (idx: number, val: boolean) => {
@@ -65,7 +65,7 @@ const nextAction = () => {
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .double-check-phrase {
   width: 100%;

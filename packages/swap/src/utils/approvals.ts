@@ -18,7 +18,7 @@ const getAllowance = (options: {
 }): Promise<string> => {
   const contract = new options.web3eth.Contract(
     Erc20abi as any,
-    options.contract
+    options.contract,
   );
   return contract.methods.allowance(options.owner, options.spender).call();
 };
@@ -87,7 +87,7 @@ const getAllowanceTransactions = async (options: {
       owner: options.fromAddress,
       spender: options.spender,
       web3eth: options.web3eth,
-    })
+    }),
   );
   if (approvedAmount.lt(options.amount)) {
     // `spender` isn't approved for enough
@@ -101,7 +101,7 @@ const getAllowanceTransactions = async (options: {
             ? TOKEN_AMOUNT_INFINITY_AND_BEYOND
             : options.amount.toString(),
           contract: options.fromToken.address,
-        })
+        }),
       );
     } else {
       // `spender` is approved for some, but not enough
@@ -113,7 +113,7 @@ const getAllowanceTransactions = async (options: {
           spender: options.spender,
           value: "0",
           contract: options.fromToken.address,
-        })
+        }),
       );
       // Request approval for `spender`
       transactions.push(
@@ -124,7 +124,7 @@ const getAllowanceTransactions = async (options: {
             ? TOKEN_AMOUNT_INFINITY_AND_BEYOND
             : options.amount.toString(),
           contract: options.fromToken.address,
-        })
+        }),
       );
     }
   }

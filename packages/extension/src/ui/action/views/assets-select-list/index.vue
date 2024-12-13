@@ -36,19 +36,19 @@
 </template>
 
 <script setup lang="ts">
-import CloseIcon from "@action/icons/common/close-icon.vue";
-import AssetsSelectListItem from "./components/assets-select-list-item.vue";
-import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
-import AssetsSelectListSearch from "./components/assets-select-list-search.vue";
-import SwapTokenFastList from "@action/views/swap/components/swap-token-fast-list/index.vue";
-import scrollSettings from "@/libs/utils/scroll-settings";
-import { computed, PropType, ref } from "vue";
-import AssetsSelectLoading from "./components/assets-select-loading.vue";
-import { BaseToken } from "@/types/base-token";
-import { throttle } from "lodash";
+import CloseIcon from '@action/icons/common/close-icon.vue';
+import AssetsSelectListItem from './components/assets-select-list-item.vue';
+import CustomScrollbar from '@action/components/custom-scrollbar/index.vue';
+import AssetsSelectListSearch from './components/assets-select-list-search.vue';
+import SwapTokenFastList from '@action/views/swap/components/swap-token-fast-list/index.vue';
+import scrollSettings from '@/libs/utils/scroll-settings';
+import { computed, PropType, ref } from 'vue';
+import AssetsSelectLoading from './components/assets-select-loading.vue';
+import { BaseToken } from '@/types/base-token';
+import { throttle } from 'lodash';
 
 const emit = defineEmits<{
-  (e: "close", close: boolean): void;
+  (e: 'close', close: boolean): void;
 }>();
 
 const props = defineProps({
@@ -78,10 +78,10 @@ const props = defineProps({
 
 const refInitialAmount = ref(50);
 
-const yEnd = throttle((event) => {
+const yEnd = throttle(event => {
   if (
     props.assets.length > refInitialAmount.value &&
-    event.srcElement.classList.contains("ps--active-y")
+    event.srcElement.classList.contains('ps--active-y')
   ) {
     refInitialAmount.value = refInitialAmount.value + 25;
   }
@@ -92,12 +92,12 @@ const searchQuery = ref<string>();
 const listedAssets = computed(() => {
   if (searchQuery.value) {
     return props.assets
-      .filter((token) => {
+      .filter(token => {
         const tokenNameLowerCase = token.name.toLowerCase();
         const tokenSymbolLowerCase = token.symbol.toLowerCase();
         const tokenAddressLowerCase = (token as any).contract
           ? (token as any).contract.toLowerCase()
-          : "";
+          : '';
         const searchQueryLowerCase = searchQuery.value!.toLowerCase();
 
         if (
@@ -121,19 +121,21 @@ const updateSearchInput = (newSearchQuery: string) => {
 };
 
 const close = () => {
-  emit("close", false);
+  emit('close', false);
 };
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
-@import "~@action/styles/custom-scroll.less";
+@import '@action/styles/theme.less';
+@import '@action/styles/custom-scroll.less';
 
 .assets-select-list {
   width: 100%;
   background: #ffffff;
   position: fixed;
-  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.039), 0px 7px 24px rgba(0, 0, 0, 0.19);
+  box-shadow:
+    0px 3px 6px rgba(0, 0, 0, 0.039),
+    0px 7px 24px rgba(0, 0, 0, 0.19);
   border-radius: 12px;
   width: 428px;
   height: 568px;

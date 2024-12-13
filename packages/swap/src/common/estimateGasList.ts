@@ -1,4 +1,3 @@
-import fetch from "node-fetch";
 import { numberToHex, toBN } from "web3-utils";
 import { EVMTransaction, SupportedNetworkName } from "../types";
 import { GAS_LIMITS } from "../configs";
@@ -25,7 +24,7 @@ const supportedNetworks: {
 
 const useStandardEstimate = (
   transactions: EVMTransaction[],
-  network: SupportedNetworkName
+  network: SupportedNetworkName,
 ): Promise<{
   isError?: boolean;
   errorMessage?: string;
@@ -102,7 +101,7 @@ const useStandardEstimate = (
 
 const estimateEVMGasList = (
   transactions: EVMTransaction[],
-  network: SupportedNetworkName
+  network: SupportedNetworkName,
 ): Promise<{
   isError?: boolean;
   errorMessage?: string;

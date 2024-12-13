@@ -20,11 +20,11 @@
 </template>
 
 <script setup lang="ts">
-import { NodeType } from "@/types/provider";
-import { PropType, ref, watch } from "vue";
-import DragIcon from "@action/icons/common/drag-icon.vue";
-import TestNetworkIcon from "@action/icons/common/test-network-icon.vue";
-import { newNetworks, newSwaps } from "@/providers/common/libs/new-features";
+import { NodeType } from '@/types/provider';
+import { PropType, ref, watch } from 'vue';
+import DragIcon from '@action/icons/common/drag-icon.vue';
+import TestNetworkIcon from '@action/icons/common/test-network-icon.vue';
+import { newNetworks, newSwaps } from '@/providers/common/libs/new-features';
 
 const props = defineProps({
   network: {
@@ -42,17 +42,17 @@ const props = defineProps({
 });
 const imageTag = ref<HTMLImageElement | null>(null);
 const emit = defineEmits<{
-  (e: "update:gradient", data: string): void;
+  (e: 'update:gradient', data: string): void;
 }>();
 const componentToHex = (c: number) => {
   const hex = c.toString(16);
-  return hex.length == 1 ? "0" + hex : hex;
+  return hex.length == 1 ? '0' + hex : hex;
 };
 const getAverageRGB = (imgEl: HTMLImageElement) => {
   const blockSize = 5, // only visit every 5 pixels
     defaultRGB = { r: 0, g: 0, b: 0 }, // for non-supporting envs
-    canvas = document.createElement("canvas"),
-    context = canvas.getContext && canvas.getContext("2d"),
+    canvas = document.createElement('canvas'),
+    context = canvas.getContext && canvas.getContext('2d'),
     rgb = { r: 0, g: 0, b: 0 };
   let data: ImageData;
   let count = 0;
@@ -83,20 +83,20 @@ const getAverageRGB = (imgEl: HTMLImageElement) => {
   rgb.g = ~~(rgb.g / count);
   rgb.b = ~~(rgb.b / count);
   emit(
-    "update:gradient",
-    `#${componentToHex(rgb.r)}${componentToHex(rgb.g)}${componentToHex(rgb.b)}`
+    'update:gradient',
+    `#${componentToHex(rgb.r)}${componentToHex(rgb.g)}${componentToHex(rgb.b)}`,
   );
 };
 watch(
   () => props.isActive,
   () => {
     if (props.isActive) getAverageRGB(imageTag.value!);
-  }
+  },
 );
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 .tag {
   display: inline-block;
   padding: 0.2em 0.5em 0.3em;

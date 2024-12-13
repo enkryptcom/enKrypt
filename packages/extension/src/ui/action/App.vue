@@ -12,7 +12,7 @@
       />
       <app-menu
         :networks="networks"
-        :selected="(route.params.id as string)"
+        :selected="route.params.id as string"
         :search-input="searchInput"
         @update:order="updateNetworkOrder"
         @update:network="setNetwork"
@@ -54,7 +54,7 @@
         <transition :name="transitionName" mode="out-in">
           <component
             :is="Component"
-            :key="$route.fullPath"
+            :key="route.fullPath"
             :network="currentNetwork"
             :subnetwork="currentSubNetwork"
             :account-info="accountHeaderData"
@@ -67,7 +67,7 @@
 
       <network-menu
         v-show="showNetworkMenu"
-        :selected="(route.params.id as string)"
+        :selected="route.params.id as string"
         :network="currentNetwork"
       />
     </div>
@@ -94,56 +94,56 @@
 </template>
 
 <script setup lang="ts">
-import DomainState from "@/libs/domain-state";
-import PublicKeyRing from "@/libs/keyring/public-keyring";
-import { sendToBackgroundFromAction } from "@/libs/messenger/extension";
-import NetworksState from "@/libs/networks-state";
+import DomainState from '@/libs/domain-state';
+import PublicKeyRing from '@/libs/keyring/public-keyring';
+import { sendToBackgroundFromAction } from '@/libs/messenger/extension';
+import NetworksState from '@/libs/networks-state';
 import {
   getAccountsByNetworkName,
   getOtherSigners,
-} from "@/libs/utils/accounts";
-import ModalNewVersion from "./views/modal-new-version/index.vue";
+} from '@/libs/utils/accounts';
+import ModalNewVersion from './views/modal-new-version/index.vue';
 import {
   DEFAULT_EVM_NETWORK,
   getAllNetworks,
   getNetworkByName,
-} from "@/libs/utils/networks";
-import openOnboard from "@/libs/utils/open-onboard";
-import BTCAccountState from "@/providers/bitcoin/libs/accounts-state";
-import EVMAccountState from "@/providers/ethereum/libs/accounts-state";
-import SolAccountState from "@/providers/solana/libs/accounts-state";
-import { MessageMethod } from "@/providers/ethereum/types";
-import { EvmNetwork } from "@/providers/ethereum/types/evm-network";
-import { MessageMethod as KadenaMessageMethod } from "@/providers/kadena/types";
-import { BaseNetwork } from "@/types/base-network";
-import { InternalMethods } from "@/types/messenger";
-import { EnkryptAccount, NetworkNames } from "@enkryptcom/types";
-import { fromBase } from "@enkryptcom/utils";
-import { computed, onMounted, ref } from "vue";
-import { useRoute, useRouter } from "vue-router";
-import Browser from "webextension-polyfill";
-import AccountsHeader from "./components/accounts-header/index.vue";
-import AppMenu from "./components/app-menu/index.vue";
-import BaseSearch from "./components/base-search/index.vue";
-import NetworkMenu from "./components/network-menu/index.vue";
-import MoreIcon from "./icons/actions/more.vue";
-import HoldIcon from "./icons/common/hold-icon.vue";
-import LogoMin from "./icons/common/logo-min.vue";
-import ManageNetworksIcon from "./icons/common/manage-networks-icon.vue";
-import SettingsIcon from "./icons/common/settings-icon.vue";
-import { AccountsHeaderData } from "./types/account";
-import AddNetwork from "./views/add-network/index.vue";
-import ModalRate from "./views/modal-rate/index.vue";
-import Settings from "./views/settings/index.vue";
-import { KadenaNetwork } from "@/providers/kadena/types/kadena-network";
-import { EnkryptProviderEventMethods, ProviderName } from "@/types/provider";
-import { onClickOutside } from "@vueuse/core";
-import RateState from "@/libs/rate-state";
-import SwapLookingAnimation from "@action/icons/swap/swap-looking-animation.vue";
-import { trackBuyEvents, trackNetworkSelected } from "@/libs/metrics";
-import { getLatestEnkryptVersion } from "@action/utils/browser";
-import { gt as semverGT } from "semver";
-import { BuyEventType, NetworkChangeEvents } from "@/libs/metrics/types";
+} from '@/libs/utils/networks';
+import openOnboard from '@/libs/utils/open-onboard';
+import BTCAccountState from '@/providers/bitcoin/libs/accounts-state';
+import EVMAccountState from '@/providers/ethereum/libs/accounts-state';
+import SolAccountState from '@/providers/solana/libs/accounts-state';
+import { MessageMethod } from '@/providers/ethereum/types';
+import { EvmNetwork } from '@/providers/ethereum/types/evm-network';
+import { MessageMethod as KadenaMessageMethod } from '@/providers/kadena/types';
+import { BaseNetwork } from '@/types/base-network';
+import { InternalMethods } from '@/types/messenger';
+import { EnkryptAccount, NetworkNames } from '@enkryptcom/types';
+import { fromBase } from '@enkryptcom/utils';
+import { computed, onMounted, ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import Browser from 'webextension-polyfill';
+import AccountsHeader from './components/accounts-header/index.vue';
+import AppMenu from './components/app-menu/index.vue';
+import BaseSearch from './components/base-search/index.vue';
+import NetworkMenu from './components/network-menu/index.vue';
+import MoreIcon from './icons/actions/more.vue';
+import HoldIcon from './icons/common/hold-icon.vue';
+import LogoMin from './icons/common/logo-min.vue';
+import ManageNetworksIcon from './icons/common/manage-networks-icon.vue';
+import SettingsIcon from './icons/common/settings-icon.vue';
+import { AccountsHeaderData } from './types/account';
+import AddNetwork from './views/add-network/index.vue';
+import ModalRate from './views/modal-rate/index.vue';
+import Settings from './views/settings/index.vue';
+import { KadenaNetwork } from '@/providers/kadena/types/kadena-network';
+import { EnkryptProviderEventMethods, ProviderName } from '@/types/provider';
+import { onClickOutside } from '@vueuse/core';
+import RateState from '@/libs/rate-state';
+import SwapLookingAnimation from '@action/icons/swap/swap-looking-animation.vue';
+import { trackBuyEvents, trackNetworkSelected } from '@/libs/metrics';
+import { getLatestEnkryptVersion } from '@action/utils/browser';
+import { gt as semverGT } from 'semver';
+import { BuyEventType, NetworkChangeEvents } from '@/libs/metrics/types';
 
 const domainState = new DomainState();
 const networksState = new NetworksState();
@@ -161,12 +161,12 @@ let timeout: ReturnType<typeof setTimeout> | null = null;
 defineExpose({ appMenuRef });
 const router = useRouter();
 const route = useRoute();
-const transitionName = "fade";
-const searchInput = ref("");
+const transitionName = 'fade';
+const searchInput = ref('');
 const networks = ref<BaseNetwork[]>([]);
 const defaultNetwork = DEFAULT_EVM_NETWORK;
 const currentNetwork = ref<BaseNetwork>(defaultNetwork);
-const currentSubNetwork = ref<string>("");
+const currentSubNetwork = ref<string>('');
 const kr = new PublicKeyRing();
 const addNetworkShow = ref(false);
 const settingsShow = ref(false);
@@ -175,8 +175,8 @@ const updateShow = ref(false);
 const dropdown = ref(null);
 const toggle = ref(null);
 const isLoading = ref(true);
-const currentVersion = process.env.PACKAGE_VERSION as string;
-const latestVersion = ref("");
+const currentVersion = __PACKAGE_VERSION__;
+const latestVersion = ref('');
 
 const setActiveNetworks = async () => {
   const activeNetworkNames = await networksState.getActiveNetworkNames();
@@ -184,8 +184,8 @@ const setActiveNetworks = async () => {
   const allNetworks = await getAllNetworks();
   const networksToShow: BaseNetwork[] = [];
 
-  activeNetworkNames.forEach((name) => {
-    const network = allNetworks.find((network) => network.name === name);
+  activeNetworkNames.forEach(name => {
+    const network = allNetworks.find(network => network.name === name);
     if (network !== undefined) networksToShow.push(network);
   });
   networks.value = networksToShow;
@@ -195,7 +195,7 @@ const setActiveNetworks = async () => {
   }
 };
 const updateNetworkOrder = (newOrder: BaseNetwork[]) => {
-  if (searchInput.value === "") networks.value = newOrder;
+  if (searchInput.value === '') networks.value = newOrder;
 };
 const updateSearchValue = (newval: string) => {
   searchInput.value = newval;
@@ -208,7 +208,7 @@ const openBuyPage = () => {
     currentNetwork.value.name === NetworkNames.KadenaTestnet
       ? (currentNetwork.value as KadenaNetwork).options.buyLink
       : `https://ccswap.myetherwallet.com/?to=${currentNetwork.value.displayAddress(
-          accountHeaderData.value.selectedAccount!.address
+          accountHeaderData.value.selectedAccount!.address,
         )}&network=${currentNetwork.value.name}&crypto=${
           currentNetwork.value.currencyName
         }&platform=enkrypt`;
@@ -225,7 +225,7 @@ const isKeyRingLocked = async (): Promise<boolean> => {
     }),
     provider: currentNetwork.value.provider,
     tabId: await domainState.getCurrentTabId(),
-  }).then((res) => JSON.parse(res.result || "true"));
+  }).then(res => JSON.parse(res.result || 'true'));
 };
 const init = async () => {
   const curNetwork = await domainState.getSelectedNetWork();
@@ -245,16 +245,16 @@ onMounted(async () => {
     const _isLocked = await isKeyRingLocked();
     if (_isLocked) {
       router
-        .push({ name: "lock-screen" })
+        .push({ name: 'lock-screen' })
         .then(() => (isLoading.value = false));
     } else {
       init();
       setTimeout(() => {
-        rateState.showPopup().then((show) => {
+        rateState.showPopup().then(show => {
           if (show) {
             rateShow.value = true;
           } else {
-            getLatestEnkryptVersion().then((version) => {
+            getLatestEnkryptVersion().then(version => {
               if (
                 currentVersion &&
                 version &&
@@ -275,9 +275,8 @@ onMounted(async () => {
 const updateGradient = (newGradient: string) => {
   //hack may be there is a better way. less.modifyVars doesnt work
   if (appMenuRef.value)
-    (
-      appMenuRef.value as HTMLElement
-    ).style.background = `radial-gradient(137.35% 97% at 100% 50%, rgba(250, 250, 250, 0.94) 0%, rgba(250, 250, 250, 0.96) 28.91%, rgba(250, 250, 250, 0.98) 100%), linear-gradient(180deg, ${newGradient} 80%, #684CFF 100%)`;
+    (appMenuRef.value as HTMLElement).style.background =
+      `radial-gradient(137.35% 97% at 100% 50%, rgba(250, 250, 250, 0.94) 0%, rgba(250, 250, 250, 0.96) 28.91%, rgba(250, 250, 250, 0.98) 100%), linear-gradient(180deg, ${newGradient} 80%, #684CFF 100%)`;
 };
 const setNetwork = async (network: BaseNetwork) => {
   trackNetworkSelected(NetworkChangeEvents.NetworkChangePopup, {
@@ -285,17 +284,17 @@ const setNetwork = async (network: BaseNetwork) => {
     network: network.name,
   });
   if (!network.subNetworks) {
-    currentSubNetwork.value = "";
+    currentSubNetwork.value = '';
   }
   const activeAccounts = await getAccountsByNetworkName(network.name);
 
   const inactiveAccounts = await kr.getAccounts(
-    getOtherSigners(network.signer)
+    getOtherSigners(network.signer),
   );
   const selectedAddress = await domainState.getSelectedAddress();
   let selectedAccount = activeAccounts[0];
   if (selectedAddress) {
-    const found = activeAccounts.find((acc) => acc.address === selectedAddress);
+    const found = activeAccounts.find(acc => acc.address === selectedAddress);
     if (found) selectedAccount = found;
   }
 
@@ -303,10 +302,10 @@ const setNetwork = async (network: BaseNetwork) => {
     activeAccounts,
     inactiveAccounts,
     selectedAccount,
-    activeBalances: activeAccounts.map(() => "~"),
+    activeBalances: activeAccounts.map(() => '~'),
   };
   currentNetwork.value = network;
-  router.push({ name: "assets", params: { id: network.name } });
+  router.push({ name: 'assets', params: { id: network.name } });
   const tabId = await domainState.getCurrentTabId();
   const curSavedNetwork = await domainState.getSelectedNetWork();
 
@@ -375,13 +374,13 @@ const setNetwork = async (network: BaseNetwork) => {
     try {
       const thisNetworkName = currentNetwork.value.name;
       const api = await network.api();
-      const activeBalancePromises = activeAccounts.map((acc) =>
-        api.getBalance(acc.address)
+      const activeBalancePromises = activeAccounts.map(acc =>
+        api.getBalance(acc.address),
       );
-      Promise.all(activeBalancePromises).then((balances) => {
+      Promise.all(activeBalancePromises).then(balances => {
         if (thisNetworkName === currentNetwork.value.name)
-          accountHeaderData.value.activeBalances = balances.map((bal) =>
-            fromBase(bal, network.decimals)
+          accountHeaderData.value.activeBalances = balances.map(bal =>
+            fromBase(bal, network.decimals),
           );
       });
     } catch (e) {
@@ -429,14 +428,14 @@ const showNetworkMenu = computed(() => {
   const selected = route.params.id as string;
   return (
     !!selected &&
-    (route.name == "activity" ||
-      route.name == "assets" ||
-      route.name == "nfts" ||
-      route.name == "dapps")
+    (route.name == 'activity' ||
+      route.name == 'assets' ||
+      route.name == 'nfts' ||
+      route.name == 'dapps')
   );
 });
 const isLocked = computed(() => {
-  return route.name == "lock-screen";
+  return route.name == 'lock-screen';
 });
 
 const lockAction = async () => {
@@ -447,7 +446,7 @@ const lockAction = async () => {
     provider: currentNetwork.value.provider,
     tabId: await domainState.getCurrentTabId(),
   });
-  router.push({ name: "lock-screen" });
+  router.push({ name: 'lock-screen' });
 };
 const settingsAction = () => {
   closeMoreMenu();
@@ -478,31 +477,41 @@ onClickOutside(
   () => {
     closeMoreMenu();
   },
-  { ignore: [toggle] }
+  { ignore: [toggle] },
 );
 </script>
 
 <style lang="less">
-@import "./styles/theme.less";
+@import './styles/theme.less';
 @import (css)
-  url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap");
+  url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap');
 
 body {
   margin: 0;
   padding: 0;
   overflow: hidden;
-  font-family: "Roboto", sans-serif;
+  font-family: 'Roboto', sans-serif;
 }
 .app {
   width: 800px;
   height: 600px;
   overflow: hidden;
   position: relative;
-  -webkit-transition: width 0.3s ease-in, height 0.3s ease-in;
-  -moz-transition: width 0.3s ease-in, height 0.3s ease-in;
-  -ms-transition: width 0.3s ease-in, height 0.3s ease-in;
-  -o-transition: width 0.3s ease-in, height 0.3s ease-in;
-  transition: width 0.3s ease-in, height 0.3s ease-in;
+  -webkit-transition:
+    width 0.3s ease-in,
+    height 0.3s ease-in;
+  -moz-transition:
+    width 0.3s ease-in,
+    height 0.3s ease-in;
+  -ms-transition:
+    width 0.3s ease-in,
+    height 0.3s ease-in;
+  -o-transition:
+    width 0.3s ease-in,
+    height 0.3s ease-in;
+  transition:
+    width 0.3s ease-in,
+    height 0.3s ease-in;
 
   &__loading {
     width: 800px;
@@ -555,7 +564,8 @@ body {
       background: rgba(255, 255, 255, 0.01);
 
       &.border {
-        box-shadow: 0px 0px 6px -1px rgba(0, 0, 0, 0.05),
+        box-shadow:
+          0px 0px 6px -1px rgba(0, 0, 0, 0.05),
           0px 0px 1px rgba(0, 0, 0, 0.2);
       }
     }
@@ -610,7 +620,8 @@ body {
       position: relative;
       width: 172px;
       background: @white;
-      box-shadow: 0px 0.5px 5px rgba(0, 0, 0, 0.039),
+      box-shadow:
+        0px 0.5px 5px rgba(0, 0, 0, 0.039),
         0px 3.75px 11px rgba(0, 0, 0, 0.19);
       border-radius: 12px;
       position: absolute;

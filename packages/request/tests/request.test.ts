@@ -1,4 +1,4 @@
-import { expect } from "chai";
+import { describe, it, expect } from "vitest";
 import { MiddlewareFunction } from "@enkryptcom/types";
 import Request from "../src";
 
@@ -8,14 +8,14 @@ describe("Request calls test", () => {
     headers: { "User-Agent": " Mozilla/5.0" },
   });
   const requesters = [rpcRequest, wsRequest];
-  it("calls should properly respond", async () => {
+  it("calls should properly respond", { timeout: 30_000 }, async () => {
     // eslint-disable-next-line no-restricted-syntax
     for (const request of requesters) {
       const chainId = await request.request({ method: "eth_chainId" });
       expect(chainId).to.equal("0x1");
       await request.request({ method: "eth_wrongMethod" }).catch((e) => {
         expect(e.message).to.be.equal(
-          "the method eth_wrongMethod does not exist/is not available"
+          "the method eth_wrongMethod does not exist/is not available",
         );
       });
       const blockNumber = await request.request({
@@ -29,7 +29,7 @@ describe("Request calls test", () => {
       expect(balance).to.be.a("string");
       request.disconnect();
     }
-  }).timeout(30000);
+  });
 });
 
 describe("Middleware calls", () => {
@@ -39,7 +39,7 @@ describe("Middleware calls", () => {
   };
   const middleware2: MiddlewareFunction = (payload, response, next) => {
     if (payload.method !== "eth_testFunc2") return next();
-    return response(new Error("super crazy error"));
+    return response({ message: "super crazy error", code: 3000 });
   };
   const rpcRequest = Request("https://nodes.mewapi.io/rpc/eth", [
     middleware1,
@@ -50,10 +50,10 @@ describe("Middleware calls", () => {
     [middleware1, middleware2],
     {
       headers: { "User-Agent": " Mozilla/5.0" },
-    }
+    },
   );
   const requesters = [rpcRequest, wsRequest];
-  it("middlewares should respond", async () => {
+  it("middlewares should respond", { timeout: 3_000 }, async () => {
     // eslint-disable-next-line no-restricted-syntax
     for (const request of requesters) {
       const chainId = await request.request({ method: "eth_chainId" });
@@ -65,5 +65,5 @@ describe("Middleware calls", () => {
       });
       request.disconnect();
     }
-  }).timeout(3000);
+  });
 });

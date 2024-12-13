@@ -14,7 +14,7 @@ import { box as naclBox } from "tweetnacl";
 import { encodeBase64 } from "tweetnacl-util";
 import { encryptedDataStringToJson, naclDecodeHex, naclDecrypt } from "./utils";
 
-class Signer implements SignerInterface {
+export class EthereumSigner implements SignerInterface {
   async generate(mnemonic: string, derivationPath = ""): Promise<KeyPair> {
     const seed = await mnemonicToSeed(mnemonic);
     const hdkey = HDkey.fromMasterSeed(seed);
@@ -29,14 +29,14 @@ class Signer implements SignerInterface {
   async verify(
     msgHash: string,
     sig: string,
-    publicKey: string
+    publicKey: string,
   ): Promise<boolean> {
     const sigdecoded = fromRpcSig(sig as `0x${string}`);
     const rpubkey = ecrecover(
       hexToBuffer(msgHash),
       sigdecoded.v,
       sigdecoded.r,
-      sigdecoded.s
+      sigdecoded.s,
     );
     return bufferToHex(rpubkey) === publicKey;
   }
@@ -64,4 +64,3 @@ class Signer implements SignerInterface {
     return naclDecrypt({ encryptedData, privateKey: keyPair.privateKey });
   }
 }
-export default Signer;

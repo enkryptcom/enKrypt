@@ -87,7 +87,14 @@ export type JupiterSwapParams = {
   trackingAccount?: string;
   /** Integer */
   computeUnitPriceMicroLamports?: number;
-  prioritizationFeeLamports?: number;
+  /** Integer */
+  prioritizationFeeLamports?:
+    | number
+    | "auto"
+    | {
+        /** Integer */
+        autoMultiplier: number;
+      };
   /** Default: false */
   asLegacyTransaction?: boolean;
   /** Default: false */

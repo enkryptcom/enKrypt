@@ -34,7 +34,7 @@ class RPCClient extends EventEmitter implements RequestClass {
       this.middleware
         .run(req, callback)
         .then(() =>
-          reject(new Error(`${req.method} no implemented on noClient`))
+          reject(new Error(`${req.method} no implemented on noClient`)),
         );
     });
   }

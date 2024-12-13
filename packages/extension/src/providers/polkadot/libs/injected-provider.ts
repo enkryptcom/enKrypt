@@ -2,12 +2,12 @@ import {
   InjectedSendMessageHandler,
   InjectLibOptions,
   SubstrateInjectedProvider,
-} from "../types";
-import Accounts from "./accounts";
-import Metadata from "./metadata";
-import Provider from "./provider";
-import Signer from "./signer";
-import { RPCRequestType } from "@enkryptcom/types";
+} from '../types';
+import Accounts from './accounts';
+import Metadata from './metadata';
+import Provider from './provider';
+import Signer from './signer';
+import { RPCRequestType } from '@enkryptcom/types';
 
 class InjectedProvider implements SubstrateInjectedProvider {
   accounts: Accounts;
@@ -36,7 +36,7 @@ const ProxyHandler = {
     return Reflect.set(target, name, value);
   },
   get(target: any, prop: keyof any) {
-    if (typeof target[prop] === "function") {
+    if (typeof target[prop] === 'function') {
       return (target[prop] as () => any).bind(target);
     }
     return target[prop];

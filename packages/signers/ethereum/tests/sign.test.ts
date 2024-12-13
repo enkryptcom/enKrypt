@@ -1,7 +1,7 @@
+import { describe, it, expect } from "vitest";
 import { bufferToHex, hexToBuffer } from "@enkryptcom/utils";
-import { expect } from "chai";
 import { privateToPublic } from "@ethereumjs/util";
-import Signer from "../src";
+import { EthereumSigner } from "../src";
 
 describe("Ethreum signing", () => {
   const echash =
@@ -13,10 +13,10 @@ describe("Ethreum signing", () => {
     privateKey: ecprivkey,
   };
   it("it should sign correctly", async () => {
-    const ethreumSigner = new Signer();
+    const ethreumSigner = new EthereumSigner();
     const signature = await ethreumSigner.sign(echash, ecpair);
     expect(signature).equals(
-      "0x99e71a99cb2270b8cac5254f9e99b6210c6c10224a1579cf389ef88b20a1abe9129ff05af364204442bdb53ab6f18a99ab48acc9326fa689f228040429e3ca661b"
+      "0x99e71a99cb2270b8cac5254f9e99b6210c6c10224a1579cf389ef88b20a1abe9129ff05af364204442bdb53ab6f18a99ab48acc9326fa689f228040429e3ca661b",
     );
   });
 });

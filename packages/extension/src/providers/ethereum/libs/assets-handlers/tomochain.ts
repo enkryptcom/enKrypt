@@ -1,6 +1,6 @@
-import { SupportedNetworkNames, TokenBalance } from "./types/tokenbalance-mew";
-import { NATIVE_TOKEN_ADDRESS } from "../common";
-import { numberToHex } from "@enkryptcom/utils";
+import { SupportedNetworkNames, TokenBalance } from './types/tokenbalance-mew';
+import { NATIVE_TOKEN_ADDRESS } from '../common';
+import { numberToHex } from '@enkryptcom/utils';
 
 interface TokenBalanceType {
   token: string;
@@ -14,17 +14,17 @@ interface AccountBalanceType {
 
 const getBalances = (chain: SupportedNetworkNames, address: string) => {
   return fetch(`https://tomoscan.io/api/account/${address}/tokenBalance`)
-    .then((res) => res.json())
-    .then(async (json) => {
+    .then(res => res.json())
+    .then(async json => {
       if (json.error)
         return Promise.reject(
-          `TOKENBALANCE-MEW: ${JSON.stringify(json.error)}`
+          `TOKENBALANCE-MEW: ${JSON.stringify(json.error)}`,
         );
       else {
         const nativeBalance = await fetch(
-          `https://tomoscan.io/api/account/${address}`
+          `https://tomoscan.io/api/account/${address}`,
         )
-          .then((res) => res.json())
+          .then(res => res.json())
           .then((json: AccountBalanceType) => json.balance);
         const newResults = (json.data as TokenBalanceType[]).map((tb: any) => {
           const rawTx: TokenBalance = {

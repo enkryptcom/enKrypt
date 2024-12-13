@@ -1,7 +1,7 @@
 const bip32Like = (path: string): boolean => {
   if (path === "m/") return true;
   return /^m(((\/[0-9]+h)+|(\/[0-9]+H)+|(\/[0-9]+')*)((\/[0-9]+)*))$/.test(
-    path
+    path,
   );
 };
 const HARDENED = 0x80000000;

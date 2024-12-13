@@ -11,8 +11,8 @@
 </template>
 
 <script setup lang="ts">
-import { PropType } from "vue";
-import { GasFeeInfo } from "@/providers/common/types";
+import { PropType } from 'vue';
+import { GasFeeInfo } from '@/providers/common/types';
 
 defineProps({
   fee: {
@@ -25,7 +25,7 @@ defineProps({
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .verify-transaction-fee {
   width: 100%;

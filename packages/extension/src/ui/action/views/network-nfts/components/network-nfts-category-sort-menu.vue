@@ -12,8 +12,8 @@
 </template>
 
 <script setup lang="ts">
-import { PropType } from "vue";
-import DoneIcon from "@action/icons/common/done_icon.vue";
+import { PropType } from 'vue';
+import DoneIcon from '@action/icons/common/done_icon.vue';
 
 defineProps({
   abcSort: {
@@ -32,7 +32,7 @@ defineProps({
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .network-nfts-category {
   &__sort-menu {
@@ -41,7 +41,8 @@ defineProps({
     top: 36px;
     right: -8px;
     background: @white;
-    box-shadow: 0px 0.5px 5px rgba(0, 0, 0, 0.039),
+    box-shadow:
+      0px 0.5px 5px rgba(0, 0, 0, 0.039),
       0px 3.75px 11px rgba(0, 0, 0, 0.19);
     border-radius: 12px;
     z-index: 1;

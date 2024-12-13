@@ -1,6 +1,7 @@
 // import { isValidSolanaAddress } from "../../utils/solana";
 import { isPolkadotAddress, isEVMAddress } from "../../utils/common";
 import { SupportedNetworkName } from "../../types";
+import { isValidSolanaAddress } from "../../utils/solana";
 
 /**
  * Blockchain names:
@@ -13,7 +14,7 @@ import { SupportedNetworkName } from "../../types";
  * ````
  */
 const supportedNetworks: {
-  [key in SupportedNetworkName]?: {
+  readonly [key in SupportedNetworkName]?: {
     changellyName: string;
     isAddress?: (addr: string) => Promise<boolean>;
   };
@@ -24,6 +25,10 @@ const supportedNetworks: {
   },
   [SupportedNetworkName.Binance]: {
     changellyName: "binance_smart_chain",
+    isAddress: (address: string) => Promise.resolve(isEVMAddress(address)),
+  },
+  [SupportedNetworkName.Base]: {
+    changellyName: "BASE",
     isAddress: (address: string) => Promise.resolve(isEVMAddress(address)),
   },
   [SupportedNetworkName.Matic]: {
@@ -61,17 +66,19 @@ const supportedNetworks: {
   [SupportedNetworkName.Dogecoin]: {
     changellyName: "doge",
   },
-  // TODO: Re-enable Solana when all issues with Changelly and Solana on Enkrypt are fixed
-  // @2024-10-01
-  // [SupportedNetworkName.Solana]: {
-  //   changellyName: "solana",
-  //   async isAddress(address: string) {
-  //     return isValidSolanaAddress(address);
-  //   },
-  // },
+  [SupportedNetworkName.Solana]: {
+    changellyName: "solana",
+    async isAddress(address: string) {
+      return isValidSolanaAddress(address);
+    },
+  },
   [SupportedNetworkName.Rootstock]: {
     changellyName: "rootstock",
   },
 };
+
+export const supportedNetworksSet = new Set(
+  Object.keys(supportedNetworks),
+) as unknown as Set<SupportedNetworkName>;
 
 export default supportedNetworks;
