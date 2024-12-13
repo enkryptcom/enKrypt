@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		848405B52D0CC6C100D6CA98 /* service-worker-loader.js in Resources */ = {isa = PBXBuildFile; fileRef = 848405B42D0CC6C100D6CA98 /* service-worker-loader.js */; };
 		849394FD28AC474C009F7287 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849394FC28AC474C009F7287 /* AppDelegate.swift */; };
 		8493950128AC474C009F7287 /* Main.html in Resources */ = {isa = PBXBuildFile; fileRef = 849394FF28AC474C009F7287 /* Main.html */; };
 		8493950528AC474C009F7287 /* Style.css in Resources */ = {isa = PBXBuildFile; fileRef = 8493950428AC474C009F7287 /* Style.css */; };
@@ -18,10 +19,7 @@
 		8493951C28AC474E009F7287 /* SafariWebExtensionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8493951B28AC474E009F7287 /* SafariWebExtensionHandler.swift */; };
 		8493953528AC474F009F7287 /* favicon.ico in Resources */ = {isa = PBXBuildFile; fileRef = 8493952928AC474E009F7287 /* favicon.ico */; };
 		8493953628AC474F009F7287 /* index.html in Resources */ = {isa = PBXBuildFile; fileRef = 8493952A28AC474E009F7287 /* index.html */; };
-		8493953728AC474F009F7287 /* css in Resources */ = {isa = PBXBuildFile; fileRef = 8493952B28AC474E009F7287 /* css */; };
 		8493953828AC474F009F7287 /* onboard.html in Resources */ = {isa = PBXBuildFile; fileRef = 8493952C28AC474F009F7287 /* onboard.html */; };
-		8493953928AC474F009F7287 /* js in Resources */ = {isa = PBXBuildFile; fileRef = 8493952D28AC474F009F7287 /* js */; };
-		8493953A28AC474F009F7287 /* img in Resources */ = {isa = PBXBuildFile; fileRef = 8493952E28AC474F009F7287 /* img */; };
 		8493953B28AC474F009F7287 /* trezor-usb-permissions.html in Resources */ = {isa = PBXBuildFile; fileRef = 8493952F28AC474F009F7287 /* trezor-usb-permissions.html */; };
 		8493953C28AC474F009F7287 /* scripts in Resources */ = {isa = PBXBuildFile; fileRef = 8493953028AC474F009F7287 /* scripts */; };
 		8493953D28AC474F009F7287 /* manifest.json in Resources */ = {isa = PBXBuildFile; fileRef = 8493953128AC474F009F7287 /* manifest.json */; };
@@ -58,6 +56,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		848405B42D0CC6C100D6CA98 /* service-worker-loader.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = "../../../packages/extension/dist/service-worker-loader.js"; sourceTree = "<group>"; };
 		849394F928AC474C009F7287 /* Enkrypt.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Enkrypt.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		849394FC28AC474C009F7287 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		8493950028AC474C009F7287 /* Base */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = Base; path = ../Base.lproj/Main.html; sourceTree = "<group>"; };
@@ -74,10 +73,7 @@
 		8493951E28AC474E009F7287 /* Enkrypt_Extension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Enkrypt_Extension.entitlements; sourceTree = "<group>"; };
 		8493952928AC474E009F7287 /* favicon.ico */ = {isa = PBXFileReference; lastKnownFileType = image.ico; name = favicon.ico; path = ../../../packages/extension/dist/favicon.ico; sourceTree = "<group>"; };
 		8493952A28AC474E009F7287 /* index.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = index.html; path = ../../../packages/extension/dist/index.html; sourceTree = "<group>"; };
-		8493952B28AC474E009F7287 /* css */ = {isa = PBXFileReference; lastKnownFileType = folder; name = css; path = ../../../packages/extension/dist/css; sourceTree = "<group>"; };
 		8493952C28AC474F009F7287 /* onboard.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = onboard.html; path = ../../../packages/extension/dist/onboard.html; sourceTree = "<group>"; };
-		8493952D28AC474F009F7287 /* js */ = {isa = PBXFileReference; lastKnownFileType = folder; name = js; path = ../../../packages/extension/dist/js; sourceTree = "<group>"; };
-		8493952E28AC474F009F7287 /* img */ = {isa = PBXFileReference; lastKnownFileType = folder; name = img; path = ../../../packages/extension/dist/img; sourceTree = "<group>"; };
 		8493952F28AC474F009F7287 /* trezor-usb-permissions.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = "trezor-usb-permissions.html"; path = "../../../packages/extension/dist/trezor-usb-permissions.html"; sourceTree = "<group>"; };
 		8493953028AC474F009F7287 /* scripts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = scripts; path = ../../../packages/extension/dist/scripts; sourceTree = "<group>"; };
 		8493953128AC474F009F7287 /* manifest.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = manifest.json; path = ../../../packages/extension/dist/manifest.json; sourceTree = "<group>"; };
@@ -166,12 +162,10 @@
 		8493952828AC474E009F7287 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				848405B42D0CC6C100D6CA98 /* service-worker-loader.js */,
 				8493952928AC474E009F7287 /* favicon.ico */,
 				8493952A28AC474E009F7287 /* index.html */,
-				8493952B28AC474E009F7287 /* css */,
 				8493952C28AC474F009F7287 /* onboard.html */,
-				8493952D28AC474F009F7287 /* js */,
-				8493952E28AC474F009F7287 /* img */,
 				8493952F28AC474F009F7287 /* trezor-usb-permissions.html */,
 				8493953028AC474F009F7287 /* scripts */,
 				8493953128AC474F009F7287 /* manifest.json */,
@@ -280,11 +274,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				8493954028AC474F009F7287 /* vendor in Resources */,
-				8493953A28AC474F009F7287 /* img in Resources */,
-				8493953928AC474F009F7287 /* js in Resources */,
 				8493953E28AC474F009F7287 /* action.html in Resources */,
 				8493953828AC474F009F7287 /* onboard.html in Resources */,
-				8493953728AC474F009F7287 /* css in Resources */,
+				848405B52D0CC6C100D6CA98 /* service-worker-loader.js in Resources */,
 				8493953D28AC474F009F7287 /* manifest.json in Resources */,
 				8493953B28AC474F009F7287 /* trezor-usb-permissions.html in Resources */,
 				8493953528AC474F009F7287 /* favicon.ico in Resources */,
