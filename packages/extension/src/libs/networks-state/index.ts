@@ -1,8 +1,8 @@
-import BrowserStorage from "../common/browser-storage";
-import { POPULAR_NAMES } from "../utils/networks";
-import { InternalStorageNamespace } from "@/types/provider";
-import { IState, StorageKeys, NetworkStorageElement } from "./types";
-import { newNetworks, newSwaps } from "@/providers/common/libs/new-features";
+import BrowserStorage from '../common/browser-storage';
+import { POPULAR_NAMES } from '../utils/networks';
+import { InternalStorageNamespace } from '@/types/provider';
+import { IState, StorageKeys, NetworkStorageElement } from './types';
+import { newNetworks, newSwaps } from '@/providers/common/libs/new-features';
 
 class NetworksState {
   private storage: BrowserStorage;
@@ -12,15 +12,15 @@ class NetworksState {
   }
 
   private async setInitialActiveNetworks(): Promise<void> {
-    const networks: NetworkStorageElement[] = POPULAR_NAMES.map((name) => ({
+    const networks: NetworkStorageElement[] = POPULAR_NAMES.map(name => ({
       name,
     }));
-    await this.setState({ networks, newNetworksVersion: "" });
+    await this.setState({ networks, newNetworksVersion: '' });
   }
 
   async setNetworkStatus(
     targetNetworkName: string,
-    isActive: boolean
+    isActive: boolean,
   ): Promise<void> {
     const state: IState = await this.getState();
     const targetNetwork: NetworkStorageElement = {
@@ -28,16 +28,16 @@ class NetworksState {
     };
     if (
       isActive &&
-      state.networks.findIndex((n) => n.name === targetNetworkName) === -1
+      state.networks.findIndex(n => n.name === targetNetworkName) === -1
     ) {
       state.networks.push(targetNetwork as NetworkStorageElement);
     } else if (!isActive) {
       const idxArr = state.networks.map((_, i) => i);
       const filteredIdx = idxArr
-        .filter((i) => state.networks[i].name !== targetNetwork.name)
+        .filter(i => state.networks[i].name !== targetNetwork.name)
         .sort((a, b) => a - b);
       const activeNetworks: NetworkStorageElement[] = [];
-      filteredIdx.forEach((i) => activeNetworks.push(state.networks[i]));
+      filteredIdx.forEach(i => activeNetworks.push(state.networks[i]));
       state.networks = activeNetworks;
     }
     await this.setState(state);
@@ -48,17 +48,17 @@ class NetworksState {
     if (
       state &&
       state.networks &&
-      state.newNetworksVersion !== process.env.PACKAGE_VERSION
+      state.newNetworksVersion !== __PACKAGE_VERSION__
     ) {
       let validNetworks = state.networks;
       const netsWithFeatures = [
         ...new Set([...newNetworks, ...newSwaps]),
       ].sort();
-      const filteredNets = netsWithFeatures.filter((n) => {
+      const filteredNets = netsWithFeatures.filter(n => {
         for (const vn of validNetworks) if (vn.name === n) return false;
         return true;
       });
-      const fnetworkItem = filteredNets.map((name) => {
+      const fnetworkItem = filteredNets.map(name => {
         return {
           name,
         };
@@ -68,7 +68,7 @@ class NetworksState {
         .slice(0, insertIdx)
         .concat(fnetworkItem, validNetworks.slice(insertIdx));
       state.networks = validNetworks;
-      state.newNetworksVersion = process.env.PACKAGE_VERSION as string;
+      state.newNetworksVersion = __PACKAGE_VERSION__ as string;
       await this.setState(state);
     }
   }
@@ -87,9 +87,10 @@ class NetworksState {
 
   async reorderNetwork(networkNames: string[]): Promise<void> {
     const state: IState | undefined = await this.getState();
-    const activeNetworks: NetworkStorageElement[] = networkNames.map(
-      (name) => ({ name, isActive: true })
-    );
+    const activeNetworks: NetworkStorageElement[] = networkNames.map(name => ({
+      name,
+      isActive: true,
+    }));
     await this.setState({
       networks: activeNetworks,
       newNetworksVersion: state.newNetworksVersion,

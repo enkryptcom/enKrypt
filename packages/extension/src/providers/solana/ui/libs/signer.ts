@@ -1,19 +1,19 @@
-import { InternalMethods, InternalOnMessageResponse } from "@/types/messenger";
+import { InternalMethods, InternalOnMessageResponse } from '@/types/messenger';
 import {
   SolInternalSignMessageRequest,
   SolInternalSignTransactionRequest,
-} from "../types";
-import HWwallet from "@enkryptcom/hw-wallets";
-import { HWwalletType } from "@enkryptcom/types";
-import { getCustomError } from "@/libs/error";
-import { bufferToHex, hexToBuffer } from "@enkryptcom/utils";
-import sendUsingInternalMessengers from "@/libs/messenger/internal-messenger";
+} from '../types';
+import HWwallet from '@enkryptcom/hw-wallets';
+import { HWwalletType } from '@enkryptcom/types';
+import { getCustomError } from '@/libs/error';
+import { bufferToHex, hexToBuffer } from '@enkryptcom/utils';
+import sendUsingInternalMessengers from '@/libs/messenger/internal-messenger';
 
 /**
  * Sign a transaction
  */
 const TransactionSigner = (
-  options: SolInternalSignTransactionRequest
+  options: SolInternalSignTransactionRequest,
 ): Promise<Buffer> => {
   const { transaction, network, account } = options;
   if (options.account.isHardware) {
@@ -32,7 +32,7 @@ const TransactionSigner = (
       .then((rpcsig: string) => {
         return hexToBuffer(rpcsig);
       })
-      .catch((e) => {
+      .catch(e => {
         return Promise.reject({
           error: getCustomError(e.message),
         });
@@ -42,7 +42,7 @@ const TransactionSigner = (
     return sendUsingInternalMessengers({
       method: InternalMethods.sign,
       params: [msgHash, account],
-    }).then((res) => {
+    }).then(res => {
       if (res.error) {
         return Promise.reject(res);
       } else {
@@ -56,12 +56,12 @@ const TransactionSigner = (
  * Sign a message
  */
 const MessageSigner = (
-  options: SolInternalSignMessageRequest
+  options: SolInternalSignMessageRequest,
 ): Promise<InternalOnMessageResponse> => {
   const { account, payload } = options;
   if (account.isHardware) {
     return Promise.reject({
-      error: getCustomError("solana-hw-sign: hw wallets not supported"),
+      error: getCustomError('solana-hw-sign: hw wallets not supported'),
     });
     // only ledger supports offchain message signing but it is not widely accepted yet, will visit later
     // https://github.com/anza-xyz/wallet-standard/blob/master/packages/core/util/src/signMessage.ts
@@ -95,7 +95,7 @@ const MessageSigner = (
     return sendUsingInternalMessengers({
       method: InternalMethods.sign,
       params: [payload, account],
-    }).then((res) => {
+    }).then(res => {
       if (res.error) return res;
       return {
         result: JSON.stringify({

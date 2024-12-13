@@ -1,5 +1,5 @@
+import { describe, it, expect } from "vitest";
 import { Connection } from "@solana/web3.js";
-import { expect } from "chai";
 import Web3Eth from "web3-eth";
 import { NATIVE_TOKEN_ADDRESS } from "../src/configs";
 import Changelly from "../src/providers/changelly";
@@ -25,7 +25,7 @@ describe("Changelly Provider", () => {
   const solConn = new Connection(solNodeURL);
   const changelly = new Changelly(web3eth, SupportedNetworkName.Ethereum);
   const init = changelly.init();
-  it("it should return a quote ", async () => {
+  it("it should return a quote ", { timeout: 15_000 }, async () => {
     await init;
     const quote = await changelly.getQuote(
       {
@@ -35,12 +35,12 @@ describe("Changelly Provider", () => {
         toToken,
         toAddress,
       },
-      { infiniteApproval: true, walletIdentifier: WalletIdentifier.enkrypt }
+      { infiniteApproval: true, walletIdentifier: WalletIdentifier.enkrypt },
     );
     expect(quote?.provider).to.be.eq(ProviderName.changelly);
     expect(quote?.quote.meta.infiniteApproval).to.be.eq(true);
     expect(quote?.quote.meta.walletIdentifier).to.be.eq(
-      WalletIdentifier.enkrypt
+      WalletIdentifier.enkrypt,
     );
     expect(quote?.fromTokenAmount.gte(amountUSDT)).to.be.eq(true);
     expect(quote?.toTokenAmount.gtn(0)).to.be.eq(true);
@@ -48,27 +48,27 @@ describe("Changelly Provider", () => {
 
     expect(swap?.transactions.length).to.be.eq(1);
     expect(
-      (swap?.transactions[0] as EVMTransaction).data.startsWith("0xa9059cbb")
+      (swap?.transactions[0] as EVMTransaction).data.startsWith("0xa9059cbb"),
     ).to.be.eq(true);
     const status = await changelly.getStatus(
       (
-        await swap!.getStatusObject({ transactionHashes: [] })
-      ).options
+        await swap!.getStatusObject({ transactions: [] })
+      ).options,
     );
     expect(status).to.be.eq("pending");
-  }).timeout(15000);
+  });
 
   it("it should return correct tokens", async () => {
     await init;
     const toTokens = changelly.getToTokens();
     expect(
-      Object.values(toTokens[SupportedNetworkName.Polkadot]).length
+      Object.values(toTokens[SupportedNetworkName.Polkadot]).length,
     ).to.be.eq(1);
     expect(
-      Object.values(toTokens[SupportedNetworkName.Bitcoin]).length
+      Object.values(toTokens[SupportedNetworkName.Bitcoin]).length,
     ).to.be.eq(1);
     expect(
-      Object.values(toTokens[SupportedNetworkName.EthereumClassic]).length
+      Object.values(toTokens[SupportedNetworkName.EthereumClassic]).length,
     ).to.be.eq(1);
   });
 

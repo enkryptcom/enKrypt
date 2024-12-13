@@ -29,16 +29,16 @@
 </template>
 
 <script setup lang="ts">
-import { PropType } from "vue";
-import SendProcessAnimation from "@action/icons/send/send-process-animation.vue";
-import SendCheckmarkAnimation from "@action/icons/send/send-checkmark-animation.vue";
-import ArrowDown from "@action/icons/send/arrow-down.vue";
-import SendProcessAccount from "./components/send-process-account.vue";
-import SendProcessAmount from "./components/send-process-amount.vue";
-import SendProcessNft from "./components/send-process-nft.vue";
-import { ToTokenData } from "../../types/token";
-import { BaseNetwork } from "@/types/base-network";
-import { NFTItemWithCollectionName } from "@/types/nft";
+import { PropType } from 'vue';
+import SendProcessAnimation from '@action/icons/send/send-process-animation.vue';
+import SendCheckmarkAnimation from '@action/icons/send/send-checkmark-animation.vue';
+import ArrowDown from '@action/icons/send/arrow-down.vue';
+import SendProcessAccount from './components/send-process-account.vue';
+import SendProcessAmount from './components/send-process-amount.vue';
+import SendProcessNft from './components/send-process-nft.vue';
+import { ToTokenData } from '../../types/token';
+import { BaseNetwork } from '@/types/base-network';
+import { NFTItemWithCollectionName } from '@/types/nft';
 
 defineProps({
   network: {
@@ -57,7 +57,7 @@ defineProps({
   },
   toAddress: {
     type: String,
-    default: "",
+    default: '',
   },
   isNft: {
     type: Boolean,
@@ -76,7 +76,7 @@ defineProps({
 </script>
 
 <style lang="less" scoped>
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .send-process {
   width: 100%;
@@ -129,7 +129,7 @@ defineProps({
     width: 100%;
     height: 224px;
     background-color: @lightBg;
-    padding: 16px;
+    padding: 4px 16px;
     box-sizing: border-box;
 
     &-arrow {

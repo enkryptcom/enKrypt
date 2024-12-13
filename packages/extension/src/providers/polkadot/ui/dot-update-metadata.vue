@@ -24,31 +24,31 @@
         <div class="update-metadata__block-row">
           <div class="update-metadata__block-row-left">Chain</div>
           <div class="update-metadata__block-row-right">
-            {{ metadata ? metadata.chain : "" }}
+            {{ metadata ? metadata.chain : '' }}
           </div>
         </div>
         <div class="update-metadata__block-row">
           <div class="update-metadata__block-row-left">Icon</div>
           <div class="update-metadata__block-row-right">
-            {{ metadata ? metadata.icon : "" }}
+            {{ metadata ? metadata.icon : '' }}
           </div>
         </div>
         <div class="update-metadata__block-row">
           <div class="update-metadata__block-row-left">Decimals</div>
           <div class="update-metadata__block-row-right">
-            {{ metadata ? metadata.tokenDecimals : "" }}
+            {{ metadata ? metadata.tokenDecimals : '' }}
           </div>
         </div>
         <div class="update-metadata__block-row">
           <div class="update-metadata__block-row-left">Symbol</div>
           <div class="update-metadata__block-row-right">
-            {{ metadata ? metadata.tokenSymbol : "" }}
+            {{ metadata ? metadata.tokenSymbol : '' }}
           </div>
         </div>
         <div class="update-metadata__block-row">
           <div class="update-metadata__block-row-left">Upgrade</div>
           <div class="update-metadata__block-row-right">
-            {{ currentVersion }} -> {{ metadata ? metadata.specVersion : "" }}
+            {{ currentVersion }} -> {{ metadata ? metadata.specVersion : '' }}
           </div>
         </div>
       </div>
@@ -69,26 +69,26 @@
 </template>
 
 <script setup lang="ts">
-import SignLogo from "@action/icons/common/sign-logo.vue";
-import BaseButton from "@action/components/base-button/index.vue";
-import CommonPopup from "@action/views/common-popup/index.vue";
-import { getCustomError } from "@/libs/error";
-import { WindowPromiseHandler } from "@/libs/window-promise";
-import { onBeforeMount, ref, watch } from "vue";
-import { MetadataDef } from "@polkadot/extension-inject/types";
-import MetadataStorage from "@/providers/polkadot/libs/metadata-storage";
-import { ProviderRequestOptions } from "@/types/provider";
-import networks from "../networks";
+import SignLogo from '@action/icons/common/sign-logo.vue';
+import BaseButton from '@action/components/base-button/index.vue';
+import CommonPopup from '@action/views/common-popup/index.vue';
+import { getCustomError } from '@/libs/error';
+import { WindowPromiseHandler } from '@/libs/window-promise';
+import { onBeforeMount, ref, watch } from 'vue';
+import { MetadataDef } from '@polkadot/extension-inject/types';
+import MetadataStorage from '@/providers/polkadot/libs/metadata-storage';
+import { ProviderRequestOptions } from '@/types/provider';
+import networks from '../networks';
 
 const windowPromise = WindowPromiseHandler(0);
 
 const mstorage = new MetadataStorage();
-const currentVersion = ref("unknown");
+const currentVersion = ref('unknown');
 const Options = ref<ProviderRequestOptions>({
-  domain: "",
-  faviconURL: "",
-  title: "",
-  url: "",
+  domain: '',
+  faviconURL: '',
+  title: '',
+  url: '',
   tabId: 0,
 });
 const metadata = ref<MetadataDef | null>(null);
@@ -98,7 +98,7 @@ onBeforeMount(async () => {
   Options.value = options;
   metadata.value = Request.value.params![0] as MetadataDef;
   if (metadata.value.genesisHash) {
-    mstorage.getMetadata(metadata.value.genesisHash).then((m) => {
+    mstorage.getMetadata(metadata.value.genesisHash).then(m => {
       if (m) {
         currentVersion.value = m.specVersion.toString();
       }
@@ -108,7 +108,7 @@ onBeforeMount(async () => {
 
 watch(metadata, () => {
   if (metadata.value && metadata.value.genesisHash) {
-    mstorage.getMetadata(metadata.value.genesisHash).then((m) => {
+    mstorage.getMetadata(metadata.value.genesisHash).then(m => {
       if (m) {
         currentVersion.value = m.specVersion.toString();
       }
@@ -124,7 +124,7 @@ const approve = async () => {
     !metadata.value ||
     !metadata.value.genesisHash
   ) {
-    return Resolve.value({ error: getCustomError("No params") });
+    return Resolve.value({ error: getCustomError('No params') });
   }
 
   mstorage
@@ -144,8 +144,8 @@ const deny = async () => {
 </script>
 
 <style lang="less" scoped>
-@import "~@action/styles/theme.less";
-@import "~@/providers/ethereum/ui/styles/common-popup.less";
+@import '@action/styles/theme.less';
+@import '@/providers/ethereum/ui/styles/common-popup.less';
 
 .update-metadata {
   &__block {

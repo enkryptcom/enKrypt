@@ -58,7 +58,7 @@ class TrezorEthereum implements HWWalletProvider {
       this.HDNodes[options.pathType.basePath] = hdKey;
     }
     const pubkey = this.HDNodes[options.pathType.basePath].derive(
-      `m/${options.pathIndex}`
+      `m/${options.pathIndex}`,
     ).publicKey;
     return {
       address: bufferToHex(pubkey),
@@ -95,7 +95,7 @@ class TrezorEthereum implements HWWalletProvider {
   async signTransaction(options: SignTransactionRequest): Promise<string> {
     const transactionOptions = options.transaction as BTCSignTransaction;
     const addressN = getHDPath(
-      options.pathType.path.replace(`{index}`, options.pathIndex)
+      options.pathType.path.replace(`{index}`, options.pathIndex),
     );
     return TrezorConnect.signTransaction({
       coin: TrezorNetworkConfigs[this.network].symbol,
@@ -114,7 +114,7 @@ class TrezorEthereum implements HWWalletProvider {
             amount: out.value,
             address: out.address,
             script_type: "PAYTOADDRESS",
-          } as any)
+          }) as any,
       ),
     }).then((res) => {
       if (!res.success) throw new Error((res.payload as any).error as string);

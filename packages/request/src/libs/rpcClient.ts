@@ -1,6 +1,5 @@
 import EventEmitter from "eventemitter3";
 import { JSONRPCClient } from "json-rpc-2.0";
-import fetch from "node-fetch";
 import { MiddlewareFunction, RPCRequestType } from "@enkryptcom/types";
 import { RequestClass } from "../types";
 import MiddleWare from "./middleware";
@@ -37,7 +36,7 @@ class RPCClient extends EventEmitter implements RequestClass {
           return Promise.reject(new Error(response.statusText));
         }
         return Promise.reject(new Error(`unknown error: ${response.status}`));
-      })
+      }),
     );
   }
 
@@ -57,7 +56,7 @@ class RPCClient extends EventEmitter implements RequestClass {
       this.middleware
         .run(req, callback)
         .then(() =>
-          this.client.request(req.method, req.params).then(resolve, reject)
+          this.client.request(req.method, req.params).then(resolve, reject),
         );
     });
   }

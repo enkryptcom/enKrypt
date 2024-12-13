@@ -20,16 +20,16 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
-import BaseButton from "@action/components/base-button/index.vue";
-import PasswordInput from "@action/components/password-input/index.vue";
-import { useRouter } from "vue-router";
-import { routes } from "./routes";
-import { useRestoreStore } from "./store";
+import { ref, onMounted } from 'vue';
+import BaseButton from '@action/components/base-button/index.vue';
+import PasswordInput from '@action/components/password-input/index.vue';
+import { useRouter } from 'vue-router';
+import { routes } from './routes';
+import { useRestoreStore } from './store';
 const store = useRestoreStore();
 const router = useRouter();
 
-const password = ref("");
+const password = ref('');
 const isDisabled = ref(true);
 
 const nextAction = () => {
@@ -55,7 +55,7 @@ onMounted(() => {
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .pick-password {
   width: 100%;

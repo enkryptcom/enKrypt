@@ -1,4 +1,4 @@
-import { createNanoEvents } from "nanoevents";
+import { createNanoEvents } from 'nanoevents';
 const eventBus = createNanoEvents();
 const EventBusEmit = (key: string, message: any): Promise<any> => {
   return new Promise((resolve, reject) => {
@@ -13,9 +13,9 @@ const EventBusOn = (key: string, cb: (message: any) => Promise<any>) => {
     key,
     (message: any, ebCB: (err: Error | null, res?: any) => void) => {
       cb(message)
-        .then((res) => ebCB(null, res))
-        .catch((err) => ebCB(err));
-    }
+        .then(res => ebCB(null, res))
+        .catch(err => ebCB(err));
+    },
   );
 };
 

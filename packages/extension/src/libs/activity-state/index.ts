@@ -1,8 +1,8 @@
-import { InternalStorageNamespace } from "@/types/provider";
-import BrowserStorage from "@/libs/common/browser-storage";
-import { ActivityOptions } from "./types";
-import { Activity, ActivityStatus } from "@/types/activity";
-const STORAGE_KEY = "activity";
+import { InternalStorageNamespace } from '@/types/provider';
+import BrowserStorage from '@/libs/common/browser-storage';
+import { ActivityOptions } from './types';
+import { Activity, ActivityStatus } from '@/types/activity';
+const STORAGE_KEY = 'activity';
 const MAX_PENDING_TIME = 12 * 60 * 60 * 1000; // 12 hours
 
 class ActivityState {
@@ -18,13 +18,13 @@ class ActivityState {
   }
   async addActivities(
     activity: Activity[],
-    options: ActivityOptions
+    options: ActivityOptions,
   ): Promise<void> {
     let activities = await this.getActivitiesById(this.getActivityId(options));
     const liveHashesToRemove: string[] = [];
     const oldHashesToRemove: string[] = [];
-    activities.forEach((act) => {
-      activity.forEach((lact) => {
+    activities.forEach(act => {
+      activity.forEach(lact => {
         if (act.transactionHash === lact.transactionHash) {
           act.status = lact.status;
           liveHashesToRemove.push(lact.transactionHash);
@@ -41,10 +41,10 @@ class ActivityState {
       });
     });
     activity = activity.filter(
-      (a) => !liveHashesToRemove.includes(a.transactionHash)
+      a => !liveHashesToRemove.includes(a.transactionHash),
     );
     activities = activities.filter(
-      (a) => !oldHashesToRemove.includes(a.transactionHash)
+      a => !oldHashesToRemove.includes(a.transactionHash),
     );
     let combined = activities.concat(activity);
     combined.sort((a, b) => {
@@ -52,21 +52,22 @@ class ActivityState {
     });
     const currentTime = new Date().getTime();
     combined = combined.filter(
-      (a) =>
+      a =>
         a.status !== ActivityStatus.pending ||
-        a.timestamp > currentTime - MAX_PENDING_TIME
+        a.timestamp > currentTime - MAX_PENDING_TIME,
     );
     await this.setActivitiesById(
       combined.slice(0, 50),
-      this.getActivityId(options)
+      this.getActivityId(options),
     );
   }
+
   async updateActivity(
     activity: Activity,
-    options: ActivityOptions
+    options: ActivityOptions,
   ): Promise<void> {
     const activities = await this.getActivitiesById(
-      this.getActivityId(options)
+      this.getActivityId(options),
     );
     const clone = [...activities];
     activities.forEach((act, idx) => {
@@ -75,32 +76,38 @@ class ActivityState {
     });
     await this.setActivitiesById(clone, this.getActivityId(options));
   }
+
   async setCacheTime(options: ActivityOptions): Promise<void> {
     await this.#storage.set(this.getActivityCacheId(options), {
       [STORAGE_KEY]: new Date().getTime(),
     });
   }
+
   async getCacheTime(options: ActivityOptions): Promise<number> {
     const cacheTime: Record<string, number> = await this.#storage.get(
-      this.getActivityCacheId(options)
+      this.getActivityCacheId(options),
     );
     if (!cacheTime || !cacheTime[STORAGE_KEY]) return 0;
     return cacheTime[STORAGE_KEY];
   }
+
   async getAllActivities(options: ActivityOptions): Promise<Activity[]> {
     return this.getActivitiesById(this.getActivityId(options));
   }
+
   async deleteAllActivities(options: ActivityOptions): Promise<void> {
     this.setActivitiesById([], this.getActivityId(options));
   }
+
   private async setActivitiesById(
     activities: Activity[],
-    id: string
+    id: string,
   ): Promise<void> {
     await this.#storage.set(id, {
       [STORAGE_KEY]: activities,
     });
   }
+
   private async getActivitiesById(id: string): Promise<Activity[]> {
     const allStates: Record<string, Activity[]> = await this.#storage.get(id);
     if (!allStates || !allStates[STORAGE_KEY]) return [];

@@ -1,20 +1,20 @@
-import EventEmitter from "eventemitter3";
-import type { InjectedWindowProvider } from "@polkadot/extension-inject/types";
+import EventEmitter from 'eventemitter3';
+import type { InjectedWindowProvider } from '@polkadot/extension-inject/types';
 import {
   ProviderInterface,
   ProviderName,
   ProviderType,
   ProviderOptions,
   SendMessageHandler,
-} from "@/types/provider";
-import InjectedProvider from "./libs/injected-provider";
-import { SubstrateInjectedProvider } from "./types";
-import MessageRouter from "./libs/message-router";
-import { InjectedSendMessageHandler } from "./types";
-import { OnMessageResponse, RPCRequestType } from "@enkryptcom/types";
-import { SettingsType } from "@/libs/settings-state/types";
-import { EnkryptWindow } from "@/types/globals";
-import { InternalMethods } from "@/types/messenger";
+} from '@/types/provider';
+import InjectedProvider from './libs/injected-provider';
+import { SubstrateInjectedProvider } from './types';
+import MessageRouter from './libs/message-router';
+import { InjectedSendMessageHandler } from './types';
+import { OnMessageResponse, RPCRequestType } from '@enkryptcom/types';
+import { SettingsType } from '@/libs/settings-state/types';
+import { EnkryptWindow } from '@/types/globals';
+import { InternalMethods } from '@/types/messenger';
 let sendMessageHandler: InjectedSendMessageHandler;
 const messagerRouter = new MessageRouter();
 export class Provider
@@ -32,12 +32,12 @@ export class Provider
     this.sendMessageHandler = options.sendMessageHandler;
     sendMessageHandler = (
       id: number,
-      message: RPCRequestType
+      message: RPCRequestType,
     ): Promise<OnMessageResponse> => {
       const { method, params } = message;
       return options.sendMessageHandler(
         options.name,
-        JSON.stringify({ id, method, params })
+        JSON.stringify({ id, method, params }),
       );
     }; //need a global var since, polkadot use enable as a function not from the class
   }
@@ -57,7 +57,7 @@ export class Provider
 }
 
 const ProxyHandler = {
-  proxymethods: ["enable"],
+  proxymethods: ['enable'],
   ownKeys(target: Provider) {
     return Object.keys(target).concat(this.proxymethods);
   },
@@ -74,7 +74,7 @@ const ProxyHandler = {
     };
   },
   get(target: Provider, prop: keyof Provider) {
-    if (typeof target[prop] === "function") {
+    if (typeof target[prop] === 'function') {
       return (target[prop] as () => any).bind(target);
     }
     return target[prop];
@@ -86,24 +86,24 @@ const ProxyHandler = {
 
 const injectDocument = (
   document: EnkryptWindow | Window,
-  options: ProviderOptions
+  options: ProviderOptions,
 ): void => {
   const provider = new Provider(options);
   document.injectedWeb3 = document.injectedWeb3 || {};
-  document.injectedWeb3["enkrypt"] = new Proxy(provider, ProxyHandler);
+  document.injectedWeb3['enkrypt'] = new Proxy(provider, ProxyHandler);
   options
     .sendMessageHandler(
       ProviderName.enkrypt,
-      JSON.stringify({ method: InternalMethods.getSettings, params: [] })
+      JSON.stringify({ method: InternalMethods.getSettings, params: [] }),
     )
     .then((settings: SettingsType) => {
       if (settings.substrate.injectPolkadotjs)
-        document.injectedWeb3["polkadot-js"] = new Proxy(
+        document.injectedWeb3['polkadot-js'] = new Proxy(
           provider,
-          ProxyHandler
+          ProxyHandler,
         );
     });
-  document["enkrypt"]["providers"][options.name] = provider;
+  document['enkrypt']['providers'][options.name] = provider;
 };
 
 export default injectDocument;

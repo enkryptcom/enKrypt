@@ -9,15 +9,15 @@
 </template>
 
 <script setup lang="ts">
-import CloseIcon from "@action/icons/common/close-icon.vue";
+import CloseIcon from '@action/icons/common/close-icon.vue';
 
 defineEmits<{
-  (e: "window:close"): void;
+  (e: 'window:close'): void;
 }>();
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .settings {
   &__header {

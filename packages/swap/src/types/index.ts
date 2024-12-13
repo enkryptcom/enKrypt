@@ -135,6 +135,7 @@ export enum TransactionStatus {
   pending = "pending",
   failed = "failed",
   success = "success",
+  dropped = "dropped",
 }
 
 export interface getQuoteOptions {
@@ -220,9 +221,17 @@ export interface ProviderQuoteResponse {
   quote: SwapQuote;
   minMax: MinMaxResponse;
 }
+
+export type StatusOptionTransaction = {
+  /** Transaction hash */
+  hash: string;
+  /** Unix epoch milliseconds `Date.now()` */
+  sentAt: number;
+};
+
 export interface StatusOptions {
   [key: string]: any;
-  transactionHashes: string[];
+  transactions: StatusOptionTransaction[];
 }
 
 export interface StatusOptionsResponse {
@@ -278,12 +287,12 @@ export abstract class ProviderClass {
   abstract getQuote(
     options: getQuoteOptions,
     meta: QuoteMetaOptions,
-    context?: { signal?: AbortSignal }
+    context?: { signal?: AbortSignal },
   ): Promise<ProviderQuoteResponse | null>;
 
   abstract getSwap(
     quote: SwapQuote,
-    context?: { signal?: AbortSignal }
+    context?: { signal?: AbortSignal },
   ): Promise<ProviderSwapResponse | null>;
 
   abstract getStatus(options: StatusOptions): Promise<TransactionStatus>;

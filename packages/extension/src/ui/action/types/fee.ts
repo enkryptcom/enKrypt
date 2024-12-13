@@ -15,7 +15,6 @@ export interface TransactionFeePrice {
 
 export enum TransactionFeeSpeed {
   zero = 0,
-  legacy = 1,
   opportunistic = 0.9,
   economy = 1,
   recommended = 1.25,

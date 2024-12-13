@@ -3,7 +3,7 @@ import { SignerType } from "@enkryptcom/types";
 export const pathParser = (
   basePath: string,
   index: number,
-  type: SignerType
+  type: SignerType,
 ): string => {
   if (
     [SignerType.ecdsa, SignerType.ed25519, SignerType.sr25519].includes(type) &&

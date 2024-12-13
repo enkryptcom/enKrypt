@@ -14,12 +14,12 @@ import { hasAPI, parseEndpoint, getBackgroundPageType } from "./utils";
 export const context: RuntimeContext = hasAPI("devtools")
   ? "devtools"
   : hasAPI("tabs")
-  ? getBackgroundPageType()
-  : hasAPI("extension")
-  ? "content-script"
-  : typeof document !== "undefined"
-  ? "window"
-  : null;
+    ? getBackgroundPageType()
+    : hasAPI("extension")
+      ? "content-script"
+      : typeof document !== "undefined"
+        ? "window"
+        : null;
 
 const runtimeId: string = uuid();
 export const openTransactions = new Map<
@@ -51,7 +51,7 @@ export const allowWindowMessaging = (nsps: string): void => {
   namespace = nsps;
 };
 const handleInboundMessage = async (
-  message: IInternalMessage
+  message: IInternalMessage,
 ): Promise<void> => {
   const { transactionId, messageID, messageType } = message;
 
@@ -63,7 +63,7 @@ const handleInboundMessage = async (
         const dehydratedErr = err as Record<string, string>;
         const errCtr = self[dehydratedErr.name] as any;
         const hydratedErr = new (typeof errCtr === "function" ? errCtr : Error)(
-          dehydratedErr.message
+          dehydratedErr.message,
         );
         Object.keys(dehydratedErr).forEach((prop) => {
           hydratedErr[prop] = dehydratedErr[prop];
@@ -93,7 +93,7 @@ const handleInboundMessage = async (
       } else {
         noHandlerFoundError = true;
         throw new Error(
-          `[webext-bridge] No handler registered in '${context}' to accept messages with id '${messageID}'`
+          `[webext-bridge] No handler registered in '${context}' to accept messages with id '${messageID}'`,
         );
       }
     } catch (error) {
@@ -128,7 +128,7 @@ const handleInboundMessage = async (
 const initIntercoms = () => {
   if (context === null)
     throw new Error(
-      "Unable to detect runtime context i.e webext-bridge can't figure out what to do"
+      "Unable to detect runtime context i.e webext-bridge can't figure out what to do",
     );
 
   if (context === "window" || context === "content-script")
@@ -245,7 +245,7 @@ const initIntercoms = () => {
 
 initIntercoms();
 export const routeMessage = (
-  message: IInternalMessage
+  message: IInternalMessage,
 ): void | Promise<void> => {
   const { origin, destination } = message;
   if (message.hops.includes(runtimeId)) return;
@@ -275,7 +275,7 @@ export const routeMessage = (
       routeMessageThroughWindow(window, message);
     } else if (
       ["devtools", "content-script", "popup", "options", "new-window"].includes(
-        context
+        context,
       )
     ) {
       if (destination.context === "background") message.destination = null;
@@ -320,7 +320,7 @@ export const routeMessage = (
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
 const assertInternalMessage: (x: unknown) => asserts x = (
-  _msg: any
+  _msg: any,
 ): asserts _msg is IInternalMessage => {
   // todo
 };
@@ -373,7 +373,7 @@ const routeMessageThroughWindow = (win: Window, msg: IInternalMessage) => {
         context,
         payload: msg,
       },
-      "*"
+      "*",
     );
   };
   win.postMessage(
@@ -383,7 +383,7 @@ const routeMessageThroughWindow = (win: Window, msg: IInternalMessage) => {
       context,
     },
     "*",
-    [channel.port2]
+    [channel.port2],
   );
 };
 
@@ -393,7 +393,7 @@ function ensureNamespaceSet() {
       'webext-bridge uses window.postMessage to talk with other "window"(s), for message routing and stuff,' +
         "which is global/conflicting operation in case there are other scripts using webext-bridge. " +
         "Call Bridge#setNamespace(nsps) to isolate your app. Example: setNamespace('com.facebook.react-devtools'). " +
-        "Make sure to use same namespace across all your scripts whereever window.postMessage is likely to be used`"
+        "Make sure to use same namespace across all your scripts whereever window.postMessage is likely to be used`",
     );
   }
 }

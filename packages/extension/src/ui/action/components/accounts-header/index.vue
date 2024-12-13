@@ -31,17 +31,17 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, PropType } from "vue";
-import AccountsHeaderAccount from "./components/header-accounts.vue";
-import AccountsList from "@action/views/accounts/index.vue";
-import Deposit from "@action/views/deposit/index.vue";
-import { useRouter } from "vue-router";
-import type { AccountsHeaderData } from "@action/types/account";
-import { BaseNetwork } from "@/types/base-network";
+import { onMounted, ref, PropType } from 'vue';
+import AccountsHeaderAccount from './components/header-accounts.vue';
+import AccountsList from '@action/views/accounts/index.vue';
+import Deposit from '@action/views/deposit/index.vue';
+import { useRouter } from 'vue-router';
+import type { AccountsHeaderData } from '@action/types/account';
+import { BaseNetwork } from '@/types/base-network';
 const router = useRouter();
 defineEmits<{
-  (e: "toggle:deposit"): void;
-  (e: "select:subnetwork", id: string): void;
+  (e: 'toggle:deposit'): void;
+  (e: 'select:subnetwork', id: string): void;
 }>();
 const showAccounts = ref(false);
 
@@ -70,7 +70,7 @@ const toggleAccounts = () => {
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .network-header {
   position: fixed;
@@ -81,7 +81,9 @@ const toggleAccounts = () => {
   background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(50px);
   -webkit-backdrop-filter: blur(50px);
-  box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.05), 0px 0px 1px rgba(0, 0, 0, 0.25);
+  box-shadow:
+    0px 0px 6px rgba(0, 0, 0, 0.05),
+    0px 0px 1px rgba(0, 0, 0, 0.25);
   z-index: 2;
 }
 </style>

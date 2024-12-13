@@ -23,11 +23,11 @@
   </div>
 </template>
 <script setup lang="ts">
-import LogoBig from "@action/icons/common/logo-big.vue";
-import BaseButton from "@action/components/base-button/index.vue";
-import { routes as cwalletRoutes } from "./create-wallet/routes";
-import { routes as rwalletRoutes } from "./restore-wallet/routes";
-import { useRouter } from "vue-router";
+import LogoBig from '@action/icons/common/logo-big.vue';
+import BaseButton from '@action/components/base-button/index.vue';
+import { routes as cwalletRoutes } from './create-wallet/routes';
+import { routes as rwalletRoutes } from './restore-wallet/routes';
+import { useRouter } from 'vue-router';
 
 const router = useRouter();
 
@@ -41,7 +41,7 @@ const restoreAction = () => {
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .new-wallet {
   &__logo {

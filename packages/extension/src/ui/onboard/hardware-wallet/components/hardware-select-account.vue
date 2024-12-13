@@ -12,7 +12,7 @@
         {{
           $filters.replaceWithEllipsis(network.displayAddress(address), 6, 4)
         }}
-        {{ disabled ? " (imported)" : "" }}
+        {{ disabled ? ' (imported)' : '' }}
       </p>
       <p class="hardware-select-account__info-amount">
         {{ balance }}
@@ -29,9 +29,9 @@
 </template>
 
 <script setup lang="ts">
-import { BaseNetwork } from "@/types/base-network";
-import BaseCheckbox from "@action/components/base-checkbox/index.vue";
-import { PropType } from "vue";
+import { BaseNetwork } from '@/types/base-network';
+import BaseCheckbox from '@action/components/base-checkbox/index.vue';
+import { PropType } from 'vue';
 defineProps({
   network: {
     type: Object as PropType<BaseNetwork>,
@@ -39,7 +39,7 @@ defineProps({
   },
   address: {
     type: String,
-    default: "",
+    default: '',
   },
   selected: {
     type: Boolean,
@@ -51,14 +51,14 @@ defineProps({
   },
   balance: {
     type: String,
-    default: "",
+    default: '',
   },
   disabled: Boolean,
 });
 </script>
 
 <style lang="less" scoped>
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .hardware-select-account {
   height: 56px;
@@ -91,7 +91,7 @@ defineProps({
   &__number {
     width: 16px;
     height: 16px;
-    font-family: "Roboto";
+    font-family: 'Roboto';
     font-style: normal;
     font-weight: 400;
     font-size: 12px;

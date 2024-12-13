@@ -18,9 +18,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
-import SearchIcon from "@action/icons/common/search.vue";
-import ClearIcon from "@action/icons/common/clear-icon.vue";
+import { computed, ref } from 'vue';
+import SearchIcon from '@action/icons/common/search.vue';
+import ClearIcon from '@action/icons/common/clear-icon.vue';
 
 const isFocus = ref(false);
 
@@ -34,7 +34,7 @@ const props = defineProps({
   value: {
     type: String,
     default: () => {
-      return "";
+      return '';
     },
   },
 });
@@ -44,19 +44,19 @@ const changeFocus = () => {
 };
 
 const clear = () => {
-  emit("update:value", "");
+  emit('update:value', '');
 };
 
-const emit = defineEmits(["update:value"]);
+const emit = defineEmits(['update:value']);
 
 const textValue = computed({
   get: () => props.value,
-  set: (value) => emit("update:value", value),
+  set: value => emit('update:value', value),
 });
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .app-search {
   background: transparent;
@@ -79,7 +79,8 @@ const textValue = computed({
 
   &.focus {
     background: @white;
-    box-shadow: 0px 0.25px 1px rgba(0, 0, 0, 0.039),
+    box-shadow:
+      0px 0.25px 1px rgba(0, 0, 0, 0.039),
       0px 0.85px 3px rgba(0, 0, 0, 0.19);
     border-color: @white;
   }

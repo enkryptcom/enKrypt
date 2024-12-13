@@ -69,7 +69,7 @@ class TrezorSolana implements HWWalletProvider {
     return TrezorConnect.solanaSignTransaction({
       path: options.pathType.path.replace(`{index}`, options.pathIndex),
       serializedTx: (options.transaction as SolSignTransaction).solTx.toString(
-        "hex"
+        "hex",
       ),
     }).then((result) => result.payload.signature);
   }

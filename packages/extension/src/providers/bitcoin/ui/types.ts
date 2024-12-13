@@ -1,8 +1,8 @@
-import { ToTokenData } from "@/ui/action/types/token";
-import { EnkryptAccount } from "@enkryptcom/types";
-import { GasPriceTypes } from "@/providers/common/types";
-import { BitcoinNetwork } from "../types/bitcoin-network";
-import { NFTItemWithCollectionName } from "@/types/nft";
+import { ToTokenData } from '@/ui/action/types/token';
+import { EnkryptAccount } from '@enkryptcom/types';
+import { GasPriceTypes } from '@/providers/common/types';
+import { BitcoinNetwork } from '../types/bitcoin-network';
+import { NFTItemWithCollectionName } from '@/types/nft';
 
 export interface GasFeeInfo {
   nativeValue: string;

@@ -1,12 +1,12 @@
-import type { SendMessageHandler, NodeType } from "@/types/provider";
-import type Accounts from "../libs/accounts";
-import type Metadata from "../libs/metadata";
-import type Provider from "../libs/provider";
-import type Signer from "../libs/signer";
-import type { RPCRequestType } from "@enkryptcom/types";
-import type { Injected } from "@polkadot/extension-inject/types";
-import type { Provider as InjectedProvider } from "../inject";
-import { SignerType } from "@enkryptcom/types";
+import type { SendMessageHandler, NodeType } from '@/types/provider';
+import type Accounts from '../libs/accounts';
+import type Metadata from '../libs/metadata';
+import type Provider from '../libs/provider';
+import type Signer from '../libs/signer';
+import type { RPCRequestType } from '@enkryptcom/types';
+import type { Injected } from '@polkadot/extension-inject/types';
+import type { Provider as InjectedProvider } from '../inject';
+import { SignerType } from '@enkryptcom/types';
 
 export interface SubstrateInjectOptions {
   dappName: string;
@@ -31,7 +31,7 @@ export interface RouterOnMessage extends RPCRequestType {
 
 export type InjectedSendMessageHandler = (
   id: number,
-  message: RPCRequestType
+  message: RPCRequestType,
 ) => Promise<any>;
 
 export interface InjectLibOptions {
@@ -56,7 +56,7 @@ export interface PolkadotAPIOptions {
   decimals: number;
 }
 export enum PolkadotStorageNamespace {
-  metadata = "polkadot_metadata",
+  metadata = 'polkadot_metadata',
 }
 
 export interface KnownTokenDisplay {

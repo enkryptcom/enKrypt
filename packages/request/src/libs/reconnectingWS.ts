@@ -97,7 +97,7 @@ export default class ReconnectingWebSocket {
   constructor(
     url: UrlProvider,
     protocols?: string | string[],
-    options: Options = {}
+    options: Options = {},
   ) {
     this._url = url;
     this._protocols = protocols;
@@ -293,7 +293,7 @@ export default class ReconnectingWebSocket {
    */
   public addEventListener<T extends keyof Events.WebSocketEventListenerMap>(
     type: T,
-    listener: Events.WebSocketEventListenerMap[T]
+    listener: Events.WebSocketEventListenerMap[T],
   ): void {
     if (this._listeners[type]) {
       // @ts-ignore
@@ -318,12 +318,12 @@ export default class ReconnectingWebSocket {
    */
   public removeEventListener<T extends keyof Events.WebSocketEventListenerMap>(
     type: T,
-    listener: Events.WebSocketEventListenerMap[T]
+    listener: Events.WebSocketEventListenerMap[T],
   ): void {
     if (this._listeners[type]) {
       // @ts-ignore
       this._listeners[type] = this._listeners[type].filter(
-        (l) => l !== listener
+        (l) => l !== listener,
       );
     }
   }
@@ -420,7 +420,7 @@ export default class ReconnectingWebSocket {
 
         this._connectTimeout = setTimeout(
           () => this._handleTimeout(),
-          connectionTimeout
+          connectionTimeout,
         );
       });
   }
@@ -452,7 +452,7 @@ export default class ReconnectingWebSocket {
 
   private _callEventListener<T extends keyof Events.WebSocketEventListenerMap>(
     event: Events.WebSocketEventMap[T],
-    listener: Events.WebSocketEventListenerMap[T]
+    listener: Events.WebSocketEventListenerMap[T],
   ) {
     if ("handleEvent" in listener) {
       // @ts-ignore
@@ -481,7 +481,7 @@ export default class ReconnectingWebSocket {
       this.onopen(event);
     }
     this._listeners.open.forEach((listener) =>
-      this._callEventListener(event, listener)
+      this._callEventListener(event, listener),
     );
   };
 
@@ -492,7 +492,7 @@ export default class ReconnectingWebSocket {
       this.onmessage(event);
     }
     this._listeners.message.forEach((listener) =>
-      this._callEventListener(event, listener)
+      this._callEventListener(event, listener),
     );
   };
 
@@ -500,7 +500,7 @@ export default class ReconnectingWebSocket {
     this._debug("error event", event.message);
     this._disconnect(
       undefined,
-      event.message === "TIMEOUT" ? "timeout" : undefined
+      event.message === "TIMEOUT" ? "timeout" : undefined,
     );
 
     if (this.onerror) {
@@ -508,7 +508,7 @@ export default class ReconnectingWebSocket {
     }
     this._debug("exec error listeners");
     this._listeners.error.forEach((listener) =>
-      this._callEventListener(event, listener)
+      this._callEventListener(event, listener),
     );
 
     this._connect();
@@ -526,7 +526,7 @@ export default class ReconnectingWebSocket {
       this.onclose(event);
     }
     this._listeners.close.forEach((listener) =>
-      this._callEventListener(event, listener)
+      this._callEventListener(event, listener),
     );
   };
 

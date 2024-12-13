@@ -51,22 +51,28 @@
   <asset-detail-view
     v-if="isDetail"
     :token="token"
+    :network="network"
+    :is-custom-token="isCustomToken"
+    :remove-token="removeToken"
     @close:popup="toggleDetail"
   />
 </template>
 
 <script setup lang="ts">
-import { PropType, ref } from "vue";
-import SparklineUp from "@action/icons/asset/sparkline-up.vue";
-import SparklineDown from "@action/icons/asset/sparkline-down.vue";
-import AssetDetailView from "@action/views/asset-detail-view/index.vue";
-import { AssetsType } from "@/types/provider";
-import Tooltip from "@/ui/action/components/tooltip/index.vue";
-import { use } from "echarts/core";
-import { SVGRenderer } from "echarts/renderers";
-import { LineChart } from "echarts/charts";
-import { TooltipComponent, GridComponent } from "echarts/components";
-import VChart from "vue-echarts";
+import { PropType, ref, computed, onMounted } from 'vue';
+import { CustomErc20Token } from '@/libs/tokens-state/types.ts';
+import { BaseNetwork } from '@/types/base-network';
+import SparklineUp from '@action/icons/asset/sparkline-up.vue';
+import SparklineDown from '@action/icons/asset/sparkline-down.vue';
+import AssetDetailView from '@action/views/asset-detail-view/index.vue';
+import { AssetsType } from '@/types/provider';
+import Tooltip from '@/ui/action/components/tooltip/index.vue';
+import { use } from 'echarts/core';
+import { SVGRenderer } from 'echarts/renderers';
+import { LineChart } from 'echarts/charts';
+import { TooltipComponent, GridComponent } from 'echarts/components';
+import { TokensState } from '@/libs/tokens-state';
+import VChart from 'vue-echarts';
 
 const isDetail = ref(false);
 
@@ -75,18 +81,22 @@ const props = defineProps({
     type: Object as PropType<AssetsType>,
     default: () => ({}),
   },
+  network: {
+    type: Object as PropType<BaseNetwork>,
+    default: () => ({}),
+  },
 });
 use([SVGRenderer, LineChart, TooltipComponent, GridComponent]);
 
 const option = ref({
   width: 32,
   height: 32,
-  color: [props.token.priceChangePercentage >= 0 ? "#80FFA5" : "#e01f43"],
+  color: [props.token.priceChangePercentage >= 0 ? '#80FFA5' : '#e01f43'],
   grid: { show: false, left: 0, top: 0 },
   xAxis: [
     {
       show: false,
-      type: "category",
+      type: 'category',
       showGrid: false,
       boundaryGap: false,
       splitLine: {
@@ -97,7 +107,7 @@ const option = ref({
   yAxis: [
     {
       show: false,
-      type: "value",
+      type: 'value',
       splitLine: {
         show: false,
       },
@@ -105,20 +115,62 @@ const option = ref({
   ],
   series: [
     {
-      type: "line",
+      type: 'line',
       smooth: true,
       lineStyle: {
         width: 1.5,
       },
       showSymbol: false,
       emphasis: {
-        focus: "none",
+        focus: 'none',
       },
       data:
-        props.token.sparkline !== "" ? JSON.parse(props.token.sparkline) : [],
+        props.token.sparkline !== '' ? JSON.parse(props.token.sparkline) : [],
     },
   ],
 });
+
+const customTokens = ref<CustomErc20Token[]>([]);
+
+const tokenState = new TokensState();
+const fetchCustomTokens = async () => {
+  try {
+    return await tokenState.getTokensByNetwork(props.network.name).then(res => {
+      customTokens.value = res.filter(
+        (token): token is CustomErc20Token => 'address' in token,
+      );
+    });
+  } catch {
+    customTokens.value = [];
+  }
+};
+
+onMounted(async () => {
+  await fetchCustomTokens();
+});
+
+const isCustomToken = computed(() => {
+  if (!props.token.contract) return false;
+  return customTokens.value.some(
+    token =>
+      token.address.toLowerCase() === props.token.contract?.toLowerCase(),
+  );
+});
+
+const emit = defineEmits<{
+  (e: 'update:tokens'): void;
+}>();
+
+const removeToken = () => {
+  if (props.token.contract) {
+    tokenState
+      .removeErc20Token(props.network.name, props.token.contract)
+      .then(() => {
+        isDetail.value = !isDetail.value;
+        emit('update:tokens');
+      });
+  }
+};
 
 const toggleDetail = () => {
   isDetail.value = !isDetail.value;
@@ -126,7 +178,7 @@ const toggleDetail = () => {
 </script>
 
 <style lang="less">
-@import "~@action/styles/theme.less";
+@import '@action/styles/theme.less';
 .chart {
   height: 32px;
   width: 32px;
