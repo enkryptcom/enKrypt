@@ -51,7 +51,9 @@ describe("Changelly Provider", () => {
       (swap?.transactions[0] as EVMTransaction).data.startsWith("0xa9059cbb"),
     ).to.be.eq(true);
     const status = await changelly.getStatus(
-      (await swap!.getStatusObject({ transactionHashes: [] })).options,
+      (
+        await swap!.getStatusObject({ transactions: [] })
+      ).options,
     );
     expect(status).to.be.eq("pending");
   });

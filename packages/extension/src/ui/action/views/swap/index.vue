@@ -840,7 +840,7 @@ const sendAction = async () => {
 
   const tradeStatusOptions = trades.map(t =>
     t!.getStatusObject({
-      transactionHashes: [],
+      transactions: [],
     }),
   );
 
