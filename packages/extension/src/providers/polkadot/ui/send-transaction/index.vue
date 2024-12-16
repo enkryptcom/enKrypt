@@ -121,7 +121,10 @@ import { AccountsHeaderData } from '@action/types/account';
 import { GasFeeInfo } from '@/providers/ethereum/ui/types';
 import { SubstrateNetwork } from '../../types/substrate-network';
 import { toBN } from 'web3-utils';
-import { formatFloatingPointValue } from '@/libs/utils/number-formatter';
+import {
+  formatFloatingPointValue,
+  isNumericPositive,
+} from '@/libs/utils/number-formatter';
 import { fromBase, toBase, isValidDecimals } from '@enkryptcom/utils';
 import BigNumber from 'bignumber.js';
 import { AlertType, VerifyTransactionParams } from '../types';
@@ -195,7 +198,12 @@ const edWarn = computed(() => {
   }
 
   const rawAmount = toBN(
-    toBase(amount.value.toString(), selectedAsset.value.decimals ?? 0),
+    toBase(
+      isNumericPositive(amount.value.toString())
+        ? amount.value.toString()
+        : '0',
+      selectedAsset.value.decimals ?? 0,
+    ),
   );
   const ed = selectedAsset.value.existentialDeposit ?? toBN(0);
   const userBalance = toBN(selectedAsset.value.balance ?? 0);
@@ -246,7 +254,9 @@ const validateFields = async () => {
 
     let rawAmount = toBN(
       toBase(
-        amount.value ? amount.value.toString() : '0',
+        amount.value && isNumericPositive(amount.value.toString())
+          ? amount.value.toString()
+          : '0',
         selectedAsset.value.decimals!,
       ),
     );
@@ -448,9 +458,10 @@ const destinationBalanceCheck = computed(() => {
     if (selectedAsset.value.symbol !== accountAssets.value[0].symbol)
       return destinationHasEnough.value;
     else {
+      const checkedValue = amount.value?.toString() ?? '0';
       const rawAmount = toBN(
         toBase(
-          amount.value?.toString() ?? '0',
+          isNumericPositive(checkedValue) ? checkedValue : '0',
           selectedAsset.value.decimals ?? 0,
         ),
       );
@@ -475,6 +486,7 @@ const isDisabled = computed(() => {
   if (
     amount.value !== undefined &&
     amount.value !== '' &&
+    isNumericPositive(amount.value) &&
     hasEnough.value &&
     addressIsValid &&
     !edWarn.value &&

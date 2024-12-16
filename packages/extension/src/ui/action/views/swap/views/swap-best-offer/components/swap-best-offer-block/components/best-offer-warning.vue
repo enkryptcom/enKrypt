@@ -15,6 +15,8 @@
 </template>
 
 <script setup lang="ts">
+// TODO: Is this component deprecated?
+
 import WarningIcon from '@action/icons/send/warning-icon.vue';
 defineProps({
   feeWarning: {

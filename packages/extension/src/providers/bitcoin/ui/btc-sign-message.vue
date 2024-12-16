@@ -65,6 +65,7 @@ import { ProviderRequestOptions } from '@/types/provider';
 import { BitcoinNetwork } from '../types/bitcoin-network';
 import { EnkryptAccount } from '@enkryptcom/types';
 import { MessageSigner } from './libs/signer';
+import { getRTLOLTLOSafeString } from '@/libs/utils/unicode-detection';
 
 const windowPromise = WindowPromiseHandler(4);
 const network = ref<BitcoinNetwork>(DEFAULT_BTC_NETWORK);
@@ -92,7 +93,7 @@ onBeforeMount(async () => {
   account.value = Request.value.params![2] as EnkryptAccount;
   identicon.value = network.value.identicon(account.value.address);
   Options.value = options;
-  message.value = Request.value.params![0];
+  message.value = getRTLOLTLOSafeString(Request.value.params![0]);
   type.value = Request.value.params![1];
 });
 

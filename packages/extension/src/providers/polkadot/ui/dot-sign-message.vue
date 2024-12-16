@@ -56,6 +56,7 @@ import { ProviderRequestOptions } from '@/types/provider';
 import { EnkryptAccount } from '@enkryptcom/types';
 import { MessageSigner } from './libs/signer';
 import { hexToBuffer } from '@enkryptcom/utils';
+import { getRTLOLTLOSafeString } from '@/libs/utils/unicode-detection';
 
 const windowPromise = WindowPromiseHandler(0);
 
@@ -74,7 +75,9 @@ onBeforeMount(async () => {
   Options.value = options;
 
   message.value = isUtf8(Request.value.params![0])
-    ? u8aToString(u8aUnwrapBytes(Request.value.params![0]))
+    ? getRTLOLTLOSafeString(
+        u8aToString(u8aUnwrapBytes(Request.value.params![0])),
+      )
     : Request.value.params![0];
 
   account.value = Request.value.params![1] as EnkryptAccount;

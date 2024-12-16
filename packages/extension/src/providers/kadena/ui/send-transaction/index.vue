@@ -110,7 +110,10 @@ import BaseButton from '@action/components/base-button/index.vue';
 import { AccountsHeaderData } from '@action/types/account';
 import { GasFeeInfo } from '@/providers/ethereum/ui/types';
 import { toBN } from 'web3-utils';
-import { formatFloatingPointValue } from '@/libs/utils/number-formatter';
+import {
+  formatFloatingPointValue,
+  isNumericPositive,
+} from '@/libs/utils/number-formatter';
 import { fromBase, toBase, isValidDecimals } from '@enkryptcom/utils';
 import BigNumber from 'bignumber.js';
 import { VerifyTransactionParams } from '../types';
@@ -232,6 +235,12 @@ const validateFields = async () => {
       if (!isValidDecimals(amount.value, selectedAsset.value.decimals!)) {
         fieldsValidation.value.amount = false;
         errorMsg.value = `Amount cannot have more than ${selectedAsset.value.decimals} decimals`;
+        return;
+      }
+
+      if (!isNumericPositive(amount.value)) {
+        fieldsValidation.value.amount = false;
+        errorMsg.value = 'Invalid amount. Amount has to be greater than 0';
         return;
       }
 
