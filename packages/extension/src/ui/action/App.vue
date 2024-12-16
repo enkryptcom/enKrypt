@@ -212,8 +212,13 @@ const setActiveNetworks = async () => {
   //   setNetwork(pinnedNetworks.value[0]);
   // }
 };
+
 const updateNetworkOrder = (newOrder: BaseNetwork[]) => {
-  if (searchInput.value === '') pinnedNetworks.value = newOrder;
+  if (searchInput.value === '') {
+    if (activeCategory.value === NetworksCategory.Pinned)
+      pinnedNetworks.value = newOrder;
+    else networks.value = newOrder;
+  }
 };
 const updateSearchValue = (newval: string) => {
   searchInput.value = newval;
@@ -460,7 +465,8 @@ const isLocked = computed(() => {
 /**-------------------
  * Network Categories
  -------------------*/
-const setActiveCategory = (category: NetworksCategory) => {
+const setActiveCategory = async (category: NetworksCategory) => {
+  await setActiveNetworks();
   activeCategory.value = category;
 };
 
@@ -730,28 +736,5 @@ body {
 .slide-right-enter {
   opacity: 0;
   transform: translate(-2em, 0);
-}
-
-.tab__container {
-  padding: 6px;
-  background: @darkBg;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  height: 35px;
-  border-radius: 10px;
-
-  &-tab {
-    padding: 8px 14px;
-    cursor: pointer;
-    border-radius: 5px;
-    font-size: large;
-    font-weight: 500;
-
-    &.active {
-      color: @primary;
-      background: @primaryBg;
-    }
-  }
 }
 </style>

@@ -1,7 +1,12 @@
 <template>
   <a
+    ref="target"
     class="app-menu__link hover-transition-no-bg"
-    :class="{ active: isActive }"
+    :class="[
+      { active: isActive },
+      { 'sticky-top': isStickyTop },
+      { 'sticky-bottom': isStickyTop === false },
+    ]"
     @mouseover="isHovered = true"
     @mouseleave="isHovered = false"
   >
@@ -17,6 +22,13 @@
       />
     </div>
     <div class="app-menu__link__block">
+      <DragIcon
+        v-if="canDrag"
+        :class="[
+          'app-menu__link__block__drag',
+          { 'app-menu__link__block__drag__hovered': isHovered },
+        ]"
+      />
       <p
         v-if="showIsPinned"
         :class="[
@@ -35,12 +47,12 @@
 
 <script setup lang="ts">
 import { NodeType } from '@/types/provider';
-import { PropType, ref, watch, computed } from 'vue';
+import { PropType, ref, watch, computed, onMounted, nextTick } from 'vue';
 import TestNetworkIcon from '@action/icons/common/test-network-icon.vue';
 import NewIcon from '@action/icons/asset/new-icon.vue';
 import PinIcon from '@action/icons/actions/pin.vue';
 import { newNetworks } from '@/providers/common/libs/new-features';
-
+import DragIcon from '@action/icons/common/drag-icon.vue';
 const props = defineProps({
   network: {
     type: Object as PropType<NodeType>,
@@ -57,6 +69,14 @@ const props = defineProps({
   isPinned: {
     type: Boolean,
     required: true,
+  },
+  scrollPosition: {
+    type: Number,
+    default: 0,
+  },
+  canDrag: {
+    type: Boolean,
+    required: false,
   },
 });
 const imageTag = ref<HTMLImageElement | null>(null);
@@ -148,6 +168,54 @@ const pinIconIsActive = computed(() => {
 const setPinned = async () => {
   emit('update:pinNetwork', props.network.name, !isPinned.value);
 };
+/** ------------------------
+ * Scroll
+------------------------*/
+const target = ref<HTMLElement | null>(null);
+/**
+ * Reactive variable to determine the sticky state of the menu item.
+ * It is set to `true` if the menu item is sticky at the top, `false` if it is sticky at the bottom, and `undefined` if it is not sticky.
+ */
+const isStickyTop = ref<boolean | undefined>(undefined);
+
+/**
+ * Function to determine the position of the menu item and set its sticky state top or bottom.
+ * It calculates the position based on the scroll position, direction and the offset.
+ */
+const getPosition = () => {
+  const height = target.value?.offsetHeight || 0;
+  const offset = -height;
+  const anchorTop = (target.value?.offsetTop || 0) + offset;
+
+  if (props.scrollPosition > anchorTop) {
+    isStickyTop.value = true;
+  } else {
+    isStickyTop.value = false;
+  }
+};
+
+/**
+ * Ensures that selected menu items are sticky when the page is mounted.
+ */
+onMounted(() => {
+  nextTick(() => {
+    if (props.isActive) {
+      getPosition();
+    }
+  });
+});
+
+/**
+ * Watcher to update the position of the menu item when the scroll position changes.
+ */
+watch(
+  () => props.scrollPosition,
+  () => {
+    if (props.isActive) {
+      getPosition();
+    }
+  },
+);
 </script>
 
 <style lang="less">
@@ -173,7 +241,7 @@ const setPinned = async () => {
     justify-self: center;
     align-items: center;
     flex-direction: row;
-    width: 96%;
+    width: 97%;
     min-height: 40px !important;
     max-height: 40px;
     margin-bottom: 3px;
@@ -182,6 +250,11 @@ const setPinned = async () => {
     position: relative;
     border-radius: 10px;
     padding-right: 8px;
+    transition: top 1s linear;
+    transition: bottom 1s linear;
+    &:first-of-type {
+      margin-top: 0; /* Removes top margin for the first element */
+    }
     &__block {
       display: flex;
       justify-content: flex-start;
@@ -197,6 +270,18 @@ const setPinned = async () => {
         transition: @opacity-noBG-transition;
         &__active {
           background: @primaryLight;
+        }
+      }
+      &__drag {
+        max-width: 32px;
+        max-height: 24px;
+        padding: 5px 8px 3px 8px;
+        background: transparent;
+        border-radius: 24px;
+        opacity: 0;
+        transition: opacity 0.3s ease-in;
+        &__hovered {
+          opacity: 100;
         }
       }
     }
@@ -223,14 +308,26 @@ const setPinned = async () => {
     }
 
     &.active {
-      background: @white09;
+      background: @white;
       box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.16);
+      position: -webkit-sticky;
+      position: sticky;
+      z-index: 2;
+      opacity: 100;
       span {
         font-weight: 500;
       }
       &:hover {
-        background: @white09;
+        background: @white;
       }
+    }
+    /* Sticky to top or bottom */
+    &.sticky-top {
+      top: 0;
+    }
+
+    &.sticky-bottom {
+      bottom: 0;
     }
 
     &-drag {

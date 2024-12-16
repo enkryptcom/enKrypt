@@ -64,6 +64,7 @@ import {
   DEFAULT_KADENA_NETWORK,
   getNetworkByName,
 } from '@/libs/utils/networks';
+import { getRTLOLTLOSafeString } from '@/libs/utils/unicode-detection';
 
 const windowPromise = WindowPromiseHandler(0);
 const network = ref<KadenaNetwork>(DEFAULT_KADENA_NETWORK);
@@ -81,7 +82,7 @@ const account = ref({ address: '' } as EnkryptAccount);
 onBeforeMount(async () => {
   const { Request, options } = await windowPromise;
   Options.value = options;
-  message.value = Request.value.params![0].data;
+  message.value = getRTLOLTLOSafeString(Request.value.params![0].data);
   account.value = Request.value.params![1] as EnkryptAccount;
   network.value = (await getNetworkByName(
     Request.value.params![0].network,

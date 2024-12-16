@@ -95,6 +95,7 @@ enum ActivityStatus {
   pending = 'pending',
   success = 'success',
   failed = 'failed',
+  dropped = 'dropped',
 }
 
 enum ActivityType {
@@ -121,13 +122,13 @@ interface Activity {
   status: ActivityStatus;
   type: ActivityType;
   rawInfo?:
-    | EthereumRawInfo
-    | SubstrateRawInfo
-    | SubscanExtrinsicInfo
-    | BTCRawInfo
-    | SwapRawInfo
-    | KadenaRawInfo
-    | SOLRawInfo;
+  | EthereumRawInfo
+  | SubstrateRawInfo
+  | SubscanExtrinsicInfo
+  | BTCRawInfo
+  | SwapRawInfo
+  | KadenaRawInfo
+  | SOLRawInfo;
 }
 
 export {

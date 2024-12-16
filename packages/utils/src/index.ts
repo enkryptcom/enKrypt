@@ -10,6 +10,7 @@ import { encodeAddress as polkadotEncodeAddress } from "@polkadot/util-crypto";
 import { encrypt, decrypt } from "./encrypt";
 import MemoryStorage from "./memory-storage";
 import { fromBase, toBase, isValidDecimals } from "./units";
+import { DebugLogger } from "./debug-logger";
 
 const bufferToHex = (buf: Buffer | Uint8Array, nozerox = false): string =>
   nozerox
@@ -40,4 +41,5 @@ export {
   fromBase,
   toBase,
   isValidDecimals,
+  DebugLogger,
 };

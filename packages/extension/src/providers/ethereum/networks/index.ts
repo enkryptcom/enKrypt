@@ -59,6 +59,8 @@ import proofOfPlayApexNode from './pop-apex';
 import scrollNode from './scroll';
 import cotiDevnetNode from './coti-devnet';
 import holeskyNode from './holesky';
+import bitrockNode from './bitrock';
+import fraxtalNode from './fraxtal';
 
 export default {
   sepolia: sepoliaNode,
@@ -131,4 +133,6 @@ export default {
   scroll: scrollNode,
   cotiDevnet: cotiDevnetNode,
   holesky: holeskyNode,
+  bitrock: bitrockNode,
+  frax: fraxtalNode,
 };
