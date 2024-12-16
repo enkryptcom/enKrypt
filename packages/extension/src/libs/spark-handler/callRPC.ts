@@ -4,7 +4,7 @@ const rpcURL = "https://firo-rpc.publicnode.com/";
 
 export async function callRPC<T = any>(
   method: string,
-  params = []
+  params?: object
 ): Promise<T> {
   try {
     const response = await axios.post(
@@ -13,7 +13,7 @@ export async function callRPC<T = any>(
         jsonrpc: "1.0",
         id: "js-client",
         method: method,
-        params: params,
+        params: params ?? [],
       },
       {
         headers: {

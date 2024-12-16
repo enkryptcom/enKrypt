@@ -18,3 +18,11 @@ export async function generateSparkAddress(): Promise<string> {
   const newSparkAddress = await callRPC<string[]>("getnewsparkaddress");
   return newSparkAddress[0];
 }
+
+export async function sendToSparkAddress(to: string, amount: string) {
+  return await callRPC<string[]>("mintspark", [
+    {
+      [to]: { amount: Number(amount) },
+    },
+  ]);
+}

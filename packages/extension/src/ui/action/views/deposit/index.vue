@@ -28,7 +28,7 @@
         </button>
       </div>
 
-      <div v-show="activeTab === 'transparent'">
+      <div v-if="activeTab === 'transparent'">
         <div class="deposit__code">
           <qrcode-vue
             :value="
@@ -69,7 +69,7 @@
         </div>
       </div>
 
-      <div v-show="activeTab === 'spark' && !!sparkAccount">
+      <div v-if="activeTab === 'spark' && !!sparkAccount">
         <div class="deposit__code">
           <qrcode-vue
             :value="network.provider + ':' + sparkAccount?.defaultAddress"

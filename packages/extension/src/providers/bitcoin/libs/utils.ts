@@ -6,6 +6,14 @@ import BigNumber from 'bignumber.js';
 import { BitcoinNetwork } from '../types/bitcoin-network';
 import { BTCTxInfo } from '../ui/types';
 
+export const isSparkAddress = (address = "") => {
+  if (address.length === 144 && address.startsWith("sm1")) {
+    // TODO: hack, change in future
+    return true;
+  }
+  return false;
+};
+
 const isAddress = (address: string, network: BitcoinNetworkInfo): boolean => {
   try {
     BTCAddress.toOutputScript(address, network);

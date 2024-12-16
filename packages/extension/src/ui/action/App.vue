@@ -63,6 +63,7 @@
             @toggle:deposit="toggleDepositWindow"
             @action:generate-new-spark="generateNewSparkAddress"
             @open:buy-action="openBuyPage"
+            @update:spark-state-changed="getSparkAccountState"
           />
         </transition>
       </router-view>
@@ -293,6 +294,15 @@ const generateNewSparkAddress = async () => {
     );
   }
 };
+const getSparkAccountState = async (network: BaseNetwork) => {
+  if (
+    network.name === NetworkNames.Firo ||
+    network.name === NetworkNames.FiroTest
+  ) {
+    const sparkAccountResponse = await getSparkState();
+    accountHeaderData.value.sparkAccount = { ...sparkAccountResponse };
+  }
+};
 const setNetwork = async (network: BaseNetwork) => {
   trackNetworkSelected(NetworkChangeEvents.NetworkChangePopup, {
     provider: network.provider,
@@ -315,7 +325,10 @@ const setNetwork = async (network: BaseNetwork) => {
 
   let sparkAccount: SparkAccount | null = null;
 
-  if (network.name === NetworkNames.Firo) {
+  if (
+    network.name === NetworkNames.Firo ||
+    network.name === NetworkNames.FiroTest
+  ) {
     const sparkAccountResponse = await getSparkState();
     sparkAccount = { ...sparkAccountResponse };
   }
