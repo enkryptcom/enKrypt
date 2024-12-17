@@ -397,7 +397,7 @@ const errorMsg = computed(() => {
   }
 
   if (new BigNumber(sendAmount.value).gt(assetMaxValue.value)) {
-    return `Amount exceeds maximum value.`;
+    return `Not enough balance.`;
   }
 
   return '';
