@@ -97,10 +97,16 @@ class API implements ProviderAPIInterface {
     let decimals = 9;
     if (tokenResponse.result) {
       return {
-        name: tokenResponse.result.content.metadata.name,
+        name: tokenResponse.result.content.metadata.name
+          ? tokenResponse.result.content.metadata.name
+          : tokenResponse.result.content.metadata.symbol,
         symbol: tokenResponse.result.content.metadata.symbol,
         decimals: tokenResponse.result.token_info.decimals,
-        icon: `https://img.mewapi.io/?image=${tokenResponse.result.content.files[0].uri}`,
+        icon:
+          tokenResponse.result.content.files &&
+          tokenResponse.result.content.files.length > 0
+            ? `https://img.mewapi.io/?image=${tokenResponse.result.content.files[0].uri}`
+            : undefined,
       };
     } else {
       await this.web3

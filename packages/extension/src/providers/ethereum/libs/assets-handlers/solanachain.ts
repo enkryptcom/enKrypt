@@ -34,9 +34,6 @@ const getBalances = (network: BaseNetwork, address: string) => {
           (acc.account.data as any).parsed.info.tokenAmount.amount,
         );
         if (balance === '0x0') return;
-        if ((acc.account.data as any).parsed.info.tokenAmount.decimals === 0)
-          // skip tokens with 0 decimals because it is an NFT
-          return;
         const contract = (acc.account.data as any).parsed.info.mint;
         if (!balanceObj[contract]) balanceObj[contract] = toBN(0);
         balanceObj[contract] = balanceObj[contract].add(toBN(balance));
