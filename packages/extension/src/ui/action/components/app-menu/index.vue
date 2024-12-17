@@ -138,15 +138,40 @@ const updateSort = (sort: NetworkSort) => {
  ------------------*/
 const searchNetworks = computed({
   get() {
-    return props.networks.filter(
-      net =>
-        net.name_long
-          .toLowerCase()
-          .startsWith(props.searchInput.toLowerCase()) ||
-        net.currencyName
-          .toLowerCase()
-          .startsWith(props.searchInput.toLowerCase()),
-    );
+    if (!props.searchInput && props.searchInput === '') {
+      return props.networks;
+    }
+    const beginsWithName: BaseNetwork[] = [];
+    const beginsWithSpaceName: BaseNetwork[] = [];
+    const includesName: BaseNetwork[] = [];
+    const beginsWithCurrency: BaseNetwork[] = [];
+    const includesCurrency: BaseNetwork[] = [];
+    const search = props.searchInput.toLowerCase();
+    for (const network of props.networks) {
+      const name_long = network.name_long.toLowerCase();
+      const currencyName = network.currencyName.toLowerCase();
+      //Check Name
+      if (name_long.startsWith(search)) {
+        beginsWithName.push(network);
+      } else if (name_long.includes(` ${search}`)) {
+        beginsWithSpaceName.push(network);
+      } else if (name_long.includes(search)) {
+        includesName.push(network);
+      }
+      //Check Currency
+      else if (currencyName.startsWith(search)) {
+        beginsWithCurrency.push(network);
+      } else if (currencyName.includes(search)) {
+        includesCurrency.push(network);
+      }
+    }
+    return [
+      ...beginsWithName,
+      ...beginsWithSpaceName,
+      ...includesName,
+      ...beginsWithCurrency,
+      ...includesCurrency,
+    ];
   },
   set(value: BaseNetwork[]) {
     const pinned = value.filter(net => props.pinnedNetworks.includes(net));
