@@ -82,7 +82,7 @@
     <add-network
       v-if="addNetworkShow"
       @close:popup="addNetworkShow = !addNetworkShow"
-      @update:active-networks="setActiveNetworks"
+      @update:pin-network="setIsPinnedNetwork"
     />
 
     <settings
@@ -201,9 +201,9 @@ const setActiveNetworks = async () => {
   });
   networks.value = [
     ...pinnedNetworks.value,
-    ...allNetworks
-      .filter(network => !pinnedNetworkNames.includes(network.name))
-      .filter(network => !network.isTestNetwork),
+    ...allNetworks.filter(
+      network => !pinnedNetworkNames.includes(network.name),
+    ),
   ];
   // networks.value = [
   // ...networks.value.filter(network => !network.isTestNetwork),

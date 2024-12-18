@@ -57,7 +57,7 @@ const setActiveCategory = (category: NetworksCategory) => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  height: 40px;
+  height: 32px;
   border-radius: 10px;
   padding: 4px;
   gap: 1px;
@@ -68,7 +68,7 @@ const setActiveCategory = (category: NetworksCategory) => {
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 32px;
+    height: 24px;
     width: 100%;
     padding: 4px 8px;
     cursor: pointer;

@@ -4,7 +4,7 @@
       <img v-if="!props.isCustomNetwork" :src="network.icon" alt="" />
       <custom-network-icon v-else />
       <span>{{ network.name_long }} </span>
-      <test-network-icon v-if="network.isTestNetwork" />
+      <!-- <test-network-icon v-if="network.isTestNetwork" /> -->
     </div>
 
     <div class="add-network__action">
@@ -14,7 +14,7 @@
       <a
         v-show="isCustomNetwork"
         class="add-network__close"
-        @click="() => editNetwork(network)"
+        @click="() => editNetwork"
       >
         <edit-icon />
       </a>
@@ -28,20 +28,25 @@
           :class="[
             'add-network__link__block__pin',
             {
-              'add-network__link__block__pin__active': pinIconIsActive,
+              'add-network__link__block__pin__active': isHovered,
             },
           ]"
         >
-          <pin-icon :is-pinned="isActive" :is-active="pinIconIsActive" />
+          <pin-icon :is-pinned="isPinned" :is-active="true" />
         </p>
       </div>
+      <Switch
+        v-if="network.isTestNetwork"
+        :is-checked="isActive"
+        @update:check="addTestnet"
+      />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { PropType, computed, ref } from 'vue';
-// import Switch from '@action/components/switch/index.vue';
+import Switch from '@action/components/switch/index.vue';
 import editIcon from '@/ui/action/icons/actions/edit.vue';
 import { NodeType } from '@/types/provider';
 import { CustomEvmNetwork } from '@/providers/ethereum/types/custom-evm-network';
@@ -55,36 +60,54 @@ const emit = defineEmits<{
   (e: 'networkToggled', name: string, isActive: boolean): void;
   (e: 'networkDeleted', chainId: string): void;
   (e: 'update:pinNetwork', network: string, isPinned: boolean): void;
+  (e: 'testNetworkToggled', name: string, isActive: boolean): void;
 }>();
 
 const props = defineProps({
   network: {
-    type: Object as PropType<NodeType>,
+    type: Object as PropType<NodeType | CustomEvmNetwork>,
     default: () => {
       return {};
     },
+    required: true,
   },
   isActive: Boolean,
   isCustomNetwork: Boolean,
   showTooltip: {
     type: Boolean,
   },
+  isPinned: {
+    type: Boolean,
+    required: true,
+  },
 });
-
+/**
+ * Pin Network
+ */
 const pinIconIsActive = computed(() => {
-  return props.isActive || isHovered.value;
+  return props.isPinned || isHovered.value;
 });
 
 const setPinned = async () => {
-  emit('update:pinNetwork', props.network.name, !props.isActive);
+  emit('update:pinNetwork', props.network.name, !props.isPinned);
 };
 
+/**
+ * Edit Custom Network
+ */
 const editNetwork = async () => {
   const chainId = (props.network as unknown as CustomEvmNetwork).chainID;
 
   if (chainId !== undefined) {
     emit('networkDeleted', chainId);
   }
+};
+
+/**
+ * Add Testnet
+ */
+const addTestnet = async (value: boolean) => {
+  emit('testNetworkToggled', props.network.name, value);
 };
 </script>
 
@@ -118,6 +141,7 @@ const editNetwork = async () => {
         max-width: 32px;
         max-height: 24px;
         padding: 5px 8px 3px 8px;
+        margin-right: 4px;
         background: transparent;
         border-radius: 24px;
         transition: @opacity-noBG-transition;
@@ -172,14 +196,14 @@ const editNetwork = async () => {
     flex-direction: row;
 
     img {
-      width: 16px;
-      height: 16px;
-      margin-right: 8px;
+      width: 24px;
+      height: 24px;
+      margin-right: 16px;
     }
     svg {
-      width: 16px;
-      height: 16px;
-      margin-right: 8px;
+      width: 24px;
+      height: 24px;
+      margin-right: 16px;
     }
 
     span {

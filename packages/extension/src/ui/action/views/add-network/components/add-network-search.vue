@@ -63,7 +63,7 @@ onClickOutside(tooltip, () => {
       font-size: 0;
       border-radius: 8px;
       transition: background 300ms ease-in-out;
-
+      padding: 8px;
       &:hover {
         background: @black007;
       }
