@@ -295,7 +295,9 @@ onMounted(async () => {
     openOnboard();
   }
 });
-//TODO: WHAT IS THIS?
+/**
+ * Update the gradient of the app menu on the active network change
+ */
 const updateGradient = (newGradient: string) => {
   //hack may be there is a better way. less.modifyVars doesnt work
   if (appMenuRef.value)

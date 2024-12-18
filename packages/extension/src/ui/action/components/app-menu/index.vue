@@ -23,6 +23,7 @@
               :can-drag="getCanDrag(element)"
               @click="emit('update:network', element)"
               @update:pin-network="updatePinNetwork"
+              @update:gradient="emit('update:gradient', $event)"
               :class="{
                 'do-not-drag': !getCanDrag(element),
               }"
@@ -93,6 +94,7 @@ const emit = defineEmits<{
   (e: 'update:network', network: BaseNetwork): void;
   (e: 'update:order', networks: BaseNetwork[]): void;
   (e: 'update:pinNetwork', network: string, isPinned: boolean): void;
+  (e: 'update:gradient', data: string): void;
 }>();
 
 /** ------------------
