@@ -1,7 +1,7 @@
 <template>
   <a class="nft-select-list__token" @click="$emit('selectNft', item)">
     <div class="nft-select-list__token-info">
-      <img :src="item.image" />
+      <img :src="item.image" @error="imageLoadError" />
 
       <div class="nft-select-list__token-info-name">
         <h4>
@@ -26,6 +26,7 @@
 <script setup lang="ts">
 import { PropType } from 'vue';
 import { NFTItemWithCollectionName } from '@/types/nft';
+import { imageLoadError } from '@/ui/action/utils/misc';
 
 defineEmits<{
   (e: 'selectNft', data: NFTItemWithCollectionName): void;
