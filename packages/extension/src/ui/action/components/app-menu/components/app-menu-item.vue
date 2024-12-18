@@ -13,7 +13,10 @@
     <div class="app-menu__link__block">
       <div style="position: relative">
         <img ref="imageTag" :src="network.icon" alt="" />
-        <new-icon v-if="newNetworks.includes(network.name)" class="tag-new" />
+        <new-icon
+          v-if="newNetworkTags.networks.includes(network.name)"
+          class="tag-new"
+        />
       </div>
       <span>{{ network.name_long }} </span
       ><test-network-icon
@@ -51,7 +54,6 @@ import { PropType, ref, watch, computed, onMounted, nextTick } from 'vue';
 import TestNetworkIcon from '@action/icons/common/test-network-icon.vue';
 import NewIcon from '@action/icons/asset/new-icon.vue';
 import PinIcon from '@action/icons/actions/pin.vue';
-import { newNetworks } from '@/providers/common/libs/new-features';
 import DragIcon from '@action/icons/common/drag-icon.vue';
 const props = defineProps({
   network: {
@@ -77,6 +79,12 @@ const props = defineProps({
   canDrag: {
     type: Boolean,
     required: false,
+  },
+  newNetworkTags: {
+    type: Object as PropType<{ networks: string[]; swap: string[] }>,
+    default: () => {
+      return { networks: [], swap: [] };
+    },
   },
 });
 const imageTag = ref<HTMLImageElement | null>(null);

@@ -15,7 +15,12 @@ class NetworksState {
     const networks: NetworkStorageElement[] = POPULAR_NAMES.map(name => ({
       name,
     }));
-    await this.setState({ networks, newNetworksVersion: '' });
+    await this.setState({
+      networks,
+      newNetworksVersion: '',
+      enabledTestNetworks: [],
+      newUsedFeatures: { networks: [], swap: [] },
+    });
   }
 
   async setNetworkStatus(
@@ -80,8 +85,29 @@ class NetworksState {
         .concat(fnetworkItem, validNetworks.slice(insertIdx));
       state.networks = validNetworks;
       state.newNetworksVersion = __PACKAGE_VERSION__ as string;
+      state.newUsedFeatures = { networks: [], swap: [] };
       await this.setState(state);
     }
+  }
+
+  async setUsedFeature(feature: 'networks' | 'swap', networkName: string) {
+    const state: IState | undefined = await this.getState();
+    if (state) {
+      const newUsedFeatures = state.newUsedFeatures || {
+        networks: [],
+        swap: [],
+      };
+      newUsedFeatures[feature].push(networkName);
+      await this.setState({ ...state, newUsedFeatures });
+    }
+  }
+
+  async getUsedFeatures(): Promise<IState['newUsedFeatures']> {
+    const state: IState | undefined = await this.getState();
+    if (state && state.newUsedFeatures) {
+      return state.newUsedFeatures;
+    }
+    return { networks: [], swap: [] };
   }
 
   /**
@@ -108,16 +134,37 @@ class NetworksState {
     }
   }
 
+  async getEnabeledTestNetworks(): Promise<string[]> {
+    await this.insertNetworksWithNewFeatures();
+    const state: IState | undefined = await this.getState();
+    if (state && state.enabledTestNetworks) {
+      const validNetworks = state.enabledTestNetworks;
+      return validNetworks.map(({ name }) => name);
+    } else {
+      this.setState(Object.assign({}, state, { enabledTestNetworks: [] }));
+      return [];
+    }
+  }
+
+  async setTestnetStatus(
+    networkName: string,
+    isEnabled: boolean,
+  ): Promise<void> {
+    const state: IState | undefined = await this.getState();
+    const enabledTestNetworks = (state.enabledTestNetworks || []).filter(
+      n => n.name !== networkName,
+    );
+    if (isEnabled) enabledTestNetworks.push({ name: networkName });
+    await this.setState({ ...state, enabledTestNetworks });
+  }
+
   async reorderNetwork(networkNames: string[]): Promise<void> {
     const state: IState | undefined = await this.getState();
     const activeNetworks: NetworkStorageElement[] = networkNames.map(name => ({
       name,
       isActive: true,
     }));
-    await this.setState({
-      networks: activeNetworks,
-      newNetworksVersion: state.newNetworksVersion,
-    });
+    await this.setState({ ...state, networks: activeNetworks });
   }
 
   async setState(state: IState): Promise<void> {

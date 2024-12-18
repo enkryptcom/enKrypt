@@ -21,7 +21,8 @@
               :is-pinned="getIsPinned(element.name)"
               :scroll-position="y"
               :can-drag="getCanDrag(element)"
-              @click="emit('update:network', element)"
+              :new-network-tags="newNetworksWithTags"
+              @click="setNetwork(element)"
               @update:pin-network="updatePinNetwork"
               :class="{
                 'do-not-drag': !getCanDrag(element),
@@ -46,7 +47,7 @@
 </template>
 
 <script setup lang="ts">
-import { PropType, ref, computed } from 'vue';
+import { PropType, ref, computed, onMounted } from 'vue';
 import AppMenuItem from './components/app-menu-item.vue';
 import AppMenuSort from './components/app-menu-sort.vue';
 import draggable from 'vuedraggable';
@@ -61,6 +62,7 @@ import {
   NetworkSortDirection,
 } from '@action/types/network-sort';
 import { useScroll } from '@vueuse/core';
+import { newNetworks, newSwaps } from '@/providers/common/libs/new-features';
 
 const networksState = new NetworksState();
 const props = defineProps({
@@ -71,10 +73,6 @@ const props = defineProps({
   selected: {
     type: String,
     default: '',
-  },
-  setNetwork: {
-    type: Function,
-    default: () => ({}),
   },
   searchInput: {
     type: String,
@@ -94,6 +92,35 @@ const emit = defineEmits<{
   (e: 'update:order', networks: BaseNetwork[]): void;
   (e: 'update:pinNetwork', network: string, isPinned: boolean): void;
 }>();
+const newNetworksWithTags = ref<{ networks: string[]; swap: string[] }>({
+  networks: [],
+  swap: [],
+});
+
+const setNetwork = async (network: BaseNetwork) => {
+  if (newNetworks.includes(network.name)) {
+    await networksState.setUsedFeature('networks', network.name);
+    newNetworksWithTags.value.networks =
+      newNetworksWithTags.value.networks.filter(net => net !== network.name);
+  }
+  if (newSwaps.includes(network.name)) {
+    await networksState.setUsedFeature('swap', network.name);
+    newNetworksWithTags.value.swap = newNetworksWithTags.value.swap.filter(
+      net => net !== network.name,
+    );
+  }
+  emit('update:network', network);
+};
+
+onMounted(async () => {
+  const usedNetworks = await networksState.getUsedFeatures();
+  newNetworksWithTags.value.networks = newNetworks.filter(
+    net => !usedNetworks.networks.includes(net),
+  );
+  newNetworksWithTags.value.swap = newSwaps.filter(
+    net => !usedNetworks.swap.includes(net),
+  );
+});
 
 /** ------------------
  * Pinned

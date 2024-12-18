@@ -46,8 +46,9 @@
           :key="item.name"
           :network="item"
           :is-pinned="getIsPinned(item.name)"
-          :is-active="getIsPinned(item.name)"
+          :is-active="getIsEnabled(item.name)"
           :is-custom-network="false"
+          @test-network-toggled="onTestnetToggle"
           @network-deleted="onNetworkDeleted"
           @update:pin-network="onTogglePin"
         />
@@ -84,6 +85,7 @@ const scrollProgress = ref(0);
 const manageNetworkScrollRef = ref<ComponentPublicInstance<HTMLElement>>();
 const allCustomNetworks = ref<CustomEvmNetwork[]>([]);
 const pinnedNetworks = ref<string[]>([]);
+const enabledTestNetworks = ref<string[]>([]);
 
 defineExpose({ manageNetworkScrollRef });
 
@@ -97,21 +99,6 @@ defineProps({
     default: () => ({}),
   },
 });
-
-// const getAllNetworksAndStatus = async () => {
-//   pinnedNetworks.value = await networksState.getPinnedNetworkNames();
-//   allTestNets.value = await getAllNetworks(false);
-//   allTestNets.value = allTestNets.value.filter(net => net.isTestNetwork);
-//   //
-//   const allNetworks = (await getAllNetworks(false)).map(net => {
-//     return {
-//       ...net,
-//       isActive: pinnedNetworks.value.includes(net.name),
-//     };
-//   });
-
-//   return allNetworks;
-// };
 
 const displayTestNetworks = computed<NodeType[]>(() => {
   return allTestNets.value.filter(a =>
@@ -137,7 +124,7 @@ const setNetworkLists = async () => {
   const allNetworksTestNets = testNetworks
     .filter(({ isTestNetwork }) => isTestNetwork)
     .sort((a, b) => a.name_long.localeCompare(b.name_long));
-
+  enabledTestNetworks.value = await networksState.getEnabeledTestNetworks();
   allTestNets.value = allNetworksTestNets;
 };
 
@@ -153,14 +140,26 @@ const getIsPinned = (network: NetworkNames) => {
   return pinnedNetworks.value.includes(network);
 };
 
+const getIsEnabled = (network: NetworkNames) => {
+  return enabledTestNetworks.value.includes(network);
+};
+
 const onTogglePin = async (networkName: string, isActive: boolean) => {
   try {
     await networksState.setNetworkStatus(networkName, isActive);
+    if (isActive && allTestNets.value.find(net => net.name === networkName)) {
+      await networksState.setTestnetStatus(networkName, isActive);
+    }
     emit('update:pinNetwork', networkName, isActive);
     await setNetworkLists();
   } catch (e) {
     console.error(e);
   }
+};
+
+const onTestnetToggle = async (networkName: string, isActive: boolean) => {
+  await networksState.setTestnetStatus(networkName, isActive);
+  await setNetworkLists();
 };
 
 const onNetworkDeleted = async (chainId: string) => {

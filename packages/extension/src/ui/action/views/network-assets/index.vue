@@ -105,13 +105,15 @@ const updateAssets = () => {
   isLoading.value = true;
   assets.value = [];
   const currentNetwork = selectedNetworkName.value;
-  props.network
-    .getAllTokenInfo(props.accountInfo.selectedAccount?.address || '')
-    .then(_assets => {
-      if (selectedNetworkName.value !== currentNetwork) return;
-      assets.value = _assets;
-      isLoading.value = false;
-    });
+  if (props.accountInfo.selectedAccount?.address) {
+    props.network
+      .getAllTokenInfo(props.accountInfo.selectedAccount?.address || '')
+      .then(_assets => {
+        if (selectedNetworkName.value !== currentNetwork) return;
+        assets.value = _assets;
+        isLoading.value = false;
+      });
+  }
 };
 const selectedAddress = computed(
   () => props.accountInfo.selectedAccount?.address || '',

@@ -190,10 +190,12 @@ const toggle = ref(null);
 const isLoading = ref(true);
 const currentVersion = __PACKAGE_VERSION__;
 const latestVersion = ref('');
+const enabledTestnetworks = ref<string[]>([]);
 
 const setActiveNetworks = async () => {
   const pinnedNetworkNames = await networksState.getPinnedNetworkNames();
   const allNetworks = await getAllNetworks();
+  enabledTestnetworks.value = await networksState.getEnabeledTestNetworks();
   pinnedNetworks.value = [];
   pinnedNetworkNames.forEach(name => {
     const network = allNetworks.find(network => network.name === name);
@@ -477,8 +479,9 @@ const setActiveCategory = async (category: NetworksCategory) => {
 const displayNetworks = computed<BaseNetwork[]>(() => {
   switch (activeCategory.value) {
     case NetworksCategory.All:
-      // TODO: FILTER OUT TESTNETS THAT ARE NOT ENABLED
-      return networks.value;
+      return networks.value.filter(net =>
+        net.isTestNetwork ? enabledTestnetworks.value.includes(net.name) : true,
+      );
     case NetworksCategory.Pinned:
       return pinnedNetworks.value;
     case NetworksCategory.New:
