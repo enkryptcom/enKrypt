@@ -5,24 +5,9 @@
     </div>
     <div ref="tooltip" class="add-network__search-wrap">
       <div class="add-network__search-add">
-        <a @click="action">
-          <slider-icon />
+        <a @click="$emit('action:customNetwork')">
+          <plus-icon />
         </a>
-      </div>
-      <div v-show="openList" class="add-network__search-list">
-        <a
-          class="add-network__search-list-item"
-          @click="$emit('action:customNetwork')"
-        >
-          <custom-network-icon /><span>Custom network</span>
-        </a>
-        <div class="add-network__search-list-item">
-          <test-network-icon /><span>Show testnets</span>
-          <Switch
-            :is-checked="false"
-            @update:check="$emit('toggle:testNetworks')"
-          />
-        </div>
       </div>
     </div>
   </div>
@@ -31,10 +16,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import BaseSearch from '@action/components/base-search/index.vue';
-import SliderIcon from '@action/icons/common/slider-icon.vue';
-import TestNetworkIcon from '@action/icons/common/test-network-icon.vue';
-import CustomNetworkIcon from '@action/icons/common/custom-network-icon.vue';
-import Switch from '@action/components/switch/index.vue';
+import PlusIcon from '@action/icons/common/plus-icon.vue';
 import { onClickOutside } from '@vueuse/core';
 
 const openList = ref(false);
@@ -48,22 +30,8 @@ defineProps({
   },
 });
 defineEmits<{
-  (e: 'toggle:testNetworks'): void;
   (e: 'action:customNetwork'): void;
 }>();
-
-const action = () => {
-  switch (openList.value) {
-    case false:
-      openList.value = true;
-      break;
-    case true:
-      openList.value = false;
-      break;
-    default:
-      console.error('No status for openList');
-  }
-};
 
 onClickOutside(tooltip, () => {
   if (openList.value) openList.value = false;
@@ -92,11 +60,10 @@ onClickOutside(tooltip, () => {
     }
 
     &-add {
-      width: 40px;
       font-size: 0;
       border-radius: 8px;
       transition: background 300ms ease-in-out;
-
+      padding: 8px;
       &:hover {
         background: @black007;
       }

@@ -6,7 +6,7 @@
         v-if="isNetworkList"
         :close="closePopup"
         :to-custom="toCustomNetwork"
-        @update:active-networks="setActiveNetworks"
+        @update:pin-network="setPinnedNetwork"
       />
       <add-custom-network v-else :close="closePopup" :back="toNetworkList" />
     </div>
@@ -22,14 +22,15 @@ const isNetworkList = ref(true);
 
 const emit = defineEmits<{
   (e: 'close:popup'): void;
-  (e: 'update:activeNetworks'): void;
+  (e: 'update:pinNetwork', network: string, isPinned: boolean): void;
 }>();
 
-const setActiveNetworks = () => {
-  emit('update:activeNetworks');
+const setPinnedNetwork = (network: string, isPinned: boolean) => {
+  emit('update:pinNetwork', network, isPinned);
 };
 
 const closePopup = () => {
+  isNetworkList.value = true;
   emit('close:popup');
 };
 
@@ -39,6 +40,7 @@ const toCustomNetwork = () => {
 
 const toNetworkList = () => {
   isNetworkList.value = true;
+  // emit('update:pinnNetworks');
 };
 </script>
 

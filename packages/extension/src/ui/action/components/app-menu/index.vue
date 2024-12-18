@@ -1,12 +1,12 @@
 <template>
   <div>
     <!-- Sort -->
-    <div>
-      <app-menu-sort :sortBy="sortBy" @update:sort="updateSort" />
-    </div>
+
     <!-- Scrollable Networks  -->
-    <div :class="['app-menu', { 'has-bg': isScrolling }]">
-      <div v-if="!!networks" class="app-menu__scroll-area" ref="scrollDiv">
+    <div :class="['networks-menu', { 'has-bg': isScrolling }]">
+      <div v-if="!!networks" class="networks-menu__scroll-area" ref="scrollDiv">
+        <app-menu-sort :sortBy="sortBy" @update:sort="updateSort" />
+
         <draggable
           v-model="searchNetworks"
           item-key="name"
@@ -29,10 +29,10 @@
             />
           </template>
         </draggable>
-        <div v-if="showMessage" class="app-menu__scroll-area__message">
+        <div v-if="showMessage" class="networks-menu__scroll-area__message">
           <p
             v-if="!searchInput && activeCategory === NetworksCategory.Pinned"
-            class="app-menu__scroll-area__message__pin"
+            class="networks-menu__scroll-area__message__pin"
           >
             Press <pin-icon /> Pin button
           </p>
@@ -138,15 +138,40 @@ const updateSort = (sort: NetworkSort) => {
  ------------------*/
 const searchNetworks = computed({
   get() {
-    return props.networks.filter(
-      net =>
-        net.name_long
-          .toLowerCase()
-          .startsWith(props.searchInput.toLowerCase()) ||
-        net.currencyName
-          .toLowerCase()
-          .startsWith(props.searchInput.toLowerCase()),
-    );
+    if (!props.searchInput && props.searchInput === '') {
+      return props.networks;
+    }
+    const beginsWithName: BaseNetwork[] = [];
+    const beginsWithSpaceName: BaseNetwork[] = [];
+    const includesName: BaseNetwork[] = [];
+    const beginsWithCurrency: BaseNetwork[] = [];
+    const includesCurrency: BaseNetwork[] = [];
+    const search = props.searchInput.toLowerCase();
+    for (const network of props.networks) {
+      const name_long = network.name_long.toLowerCase();
+      const currencyName = network.currencyName.toLowerCase();
+      //Check Name
+      if (name_long.startsWith(search)) {
+        beginsWithName.push(network);
+      } else if (name_long.includes(` ${search}`)) {
+        beginsWithSpaceName.push(network);
+      } else if (name_long.includes(search)) {
+        includesName.push(network);
+      }
+      //Check Currency
+      else if (currencyName.startsWith(search)) {
+        beginsWithCurrency.push(network);
+      } else if (currencyName.includes(search)) {
+        includesCurrency.push(network);
+      }
+    }
+    return [
+      ...beginsWithName,
+      ...beginsWithSpaceName,
+      ...includesName,
+      ...beginsWithCurrency,
+      ...includesCurrency,
+    ];
   },
   set(value: BaseNetwork[]) {
     const pinned = value.filter(net => props.pinnedNetworks.includes(net));
@@ -194,13 +219,13 @@ const getCanDrag = (network: BaseNetwork) => {
 <style lang="less">
 @import '@action/styles/theme.less';
 
-.app-menu {
+.networks-menu {
   overflow-y: auto;
   transition: background-color 0.5s ease-in-out;
   background-color: transparent;
   box-shadow: none;
   margin: 0px -12px 0px -12px;
-  padding: 1px 8px 1px 10px;
+  padding: 1px 10px 1px 10px;
   transition:
     background-color 0.4s ease-in-out,
     box-shadow 0.4s ease-in-out;
@@ -208,13 +233,14 @@ const getCanDrag = (network: BaseNetwork) => {
     position: static;
     margin: auto;
     width: 100%;
-    height: 420px;
+    height: 452px;
     display: flex;
     flex-direction: column;
     overflow-y: scroll;
     scroll-behavior: smooth;
     margin-right: -4px;
-    padding-right: 4px;
+    padding-right: 3px;
+    padding-left: 3px;
     padding-bottom: 3px;
     padding-top: 3px;
     &::-webkit-scrollbar {
