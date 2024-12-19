@@ -75,6 +75,7 @@ import { NetworkNames } from '@enkryptcom/types';
 
 const emit = defineEmits<{
   (e: 'update:pinNetwork', network: string, isPinned: boolean): void;
+  (e: 'update:testNetworkToggle'): void;
 }>();
 
 const networksState = new NetworksState();
@@ -157,9 +158,16 @@ const onTogglePin = async (networkName: string, isActive: boolean) => {
   }
 };
 
-const onTestnetToggle = async (networkName: string, isActive: boolean) => {
+const onTestnetToggle = async (
+  networkName: NetworkNames,
+  isActive: boolean,
+) => {
   await networksState.setTestnetStatus(networkName, isActive);
   await setNetworkLists();
+  if (!isActive && getIsPinned(networkName)) {
+    onTogglePin(networkName, false);
+  }
+  emit('update:testNetworkToggle');
 };
 
 const onNetworkDeleted = async (chainId: string) => {

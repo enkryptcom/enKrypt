@@ -32,7 +32,7 @@
             },
           ]"
         >
-          <pin-icon :is-pinned="isPinned" :is-active="true" />
+          <pin-icon :is-pinned="isPinned" :is-active="pinIconIsActive" />
         </p>
       </div>
       <Switch

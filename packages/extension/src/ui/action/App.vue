@@ -83,8 +83,8 @@
       v-if="addNetworkShow"
       @close:popup="addNetworkShow = !addNetworkShow"
       @update:pin-network="setIsPinnedNetwork"
+      @update:testNetworkToggle="setIsToggledTestNetwork"
     />
-
     <settings
       v-if="settingsShow"
       @close:popup="settingsShow = !settingsShow"
@@ -544,6 +544,10 @@ onClickOutside(
 );
 const setIsPinnedNetwork = async (network: string, isPinned: boolean) => {
   await networksState.setNetworkStatus(network, isPinned);
+  await setActiveNetworks();
+};
+
+const setIsToggledTestNetwork = async () => {
   await setActiveNetworks();
 };
 </script>

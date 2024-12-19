@@ -348,8 +348,9 @@ watch(
       display: none;
     }
   }
-  .test-network-icon {
-    height: 14px;
-  }
+}
+.test-network-icon {
+  height: 14px;
+  width: 14px;
 }
 </style>
