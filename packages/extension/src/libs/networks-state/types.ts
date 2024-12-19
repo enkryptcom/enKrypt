@@ -9,4 +9,9 @@ export interface NetworkStorageElement {
 export interface IState {
   networks: NetworkStorageElement[];
   newNetworksVersion: string;
+  enabledTestNetworks: NetworkStorageElement[];
+  newUsedFeatures: {
+    networks: string[];
+    swap: string[];
+  };
 }
