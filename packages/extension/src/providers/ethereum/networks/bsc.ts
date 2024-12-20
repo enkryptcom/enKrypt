@@ -23,7 +23,7 @@ const bscOptions: EvmNetworkOptions = {
   basePath: "m/44'/714'",
   NFTHandler: shNFTHandler,
   assetsInfoHandler,
-  activityHandler: wrapActivityHandler(EtherscanActivity),
+  activityHandler: wrapActivityHandler(() => Promise.resolve([])),
 };
 
 const bsc = new EvmNetwork(bscOptions);
