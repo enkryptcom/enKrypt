@@ -225,6 +225,18 @@ const hasEnoughBalance = computed(() => {
     return false;
   }
 
+  // check if user has enough balance for fees
+  if (
+    toBN(
+      toBase(
+        gasCostValues.value[selectedFee.value].nativeValue,
+        props.network.decimals,
+      ),
+    ).gt(toBN(nativeBalance.value))
+  ) {
+    return false;
+  }
+
   return toBN(selectedAsset.value.balance ?? '0').gte(
     toBN(toBase(sendAmount.value ?? '0', selectedAsset.value.decimals!)),
   );
@@ -562,8 +574,8 @@ const isInputsValid = computed<boolean>(() => {
   if (!isSendToken.value && !selectedNft.value.id) {
     return false;
   }
-  const sendAmountBigNumber = new BigNumber(sendAmount.value)
-  if (sendAmountBigNumber.isNaN()) return false
+  const sendAmountBigNumber = new BigNumber(sendAmount.value);
+  if (sendAmountBigNumber.isNaN()) return false;
   if (sendAmountBigNumber.gt(assetMaxValue.value)) return false;
   if (gasCostValues.value.REGULAR.nativeValue === '0') return false;
   if (!isNumericPositive(sendAmount.value)) return false;
