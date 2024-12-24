@@ -28,7 +28,7 @@ class API implements ProviderAPIInterface {
     return getBitcoinAddress(pubkey, this.networkInfo);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
+   
   async init(): Promise<void> {}
 
   async getRawTransaction(hash: string): Promise<string | null> {
@@ -133,7 +133,7 @@ class API implements ProviderAPIInterface {
     ret.sort((a, b) => {
       return a.value - b.value;
     });
-    return [ret.at(-1)!]; // TODO: check or filter same values
+    return ret;
   }
 
   async getUTXOs(pubkey: string): Promise<HaskoinUnspentType[]> {
@@ -145,7 +145,7 @@ class API implements ProviderAPIInterface {
         return filterOutOrdinals(
           address,
           this.networkInfo.name,
-          await this.FiroToHaskoinUTXOs(utxos, address)
+          [(await this.FiroToHaskoinUTXOs(utxos, address)).at(-1)!]
         ).then((futxos) => {
           futxos.sort((a, b) => {
             return a.value - b.value;

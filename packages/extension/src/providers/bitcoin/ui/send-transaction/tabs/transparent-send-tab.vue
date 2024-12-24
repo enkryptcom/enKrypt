@@ -23,33 +23,27 @@
     />
 
     <div class="form__container-send-input">
-      <div class="form__container-send-input-toggle">
-        <button
-          :class="!isSendSpark && 'form__container-send-input-toggle-active'"
-          @click="toggleIsSendSpark(false)"
-        >
-          To address
-        </button>
-        <button
-          :class="isSendSpark && 'form__container-send-input-toggle-active'"
-          @click="toggleIsSendSpark(true)"
-        >
-          To Spark address
-        </button>
-      </div>
-
-      <send-address-input
-        v-if="!isSendSpark"
+      <send-spark-address-input
+        v-if="network.name === 'Firo'"
         ref="addressInputTo"
         class="no-margin"
+        title="To address"
         :value="addressTo"
         :network="(network as BitcoinNetwork)"
         @update:input-address="inputAddressTo"
         @toggle:show-contacts="toggleSelectContactTo"
       />
-
+      <send-address-input
+        v-if="network.name !== 'Firo'"
+        ref="addressInputTo"
+        class="no-margin"
+        title="To address"
+        :value="addressTo"
+        :network="(network as BitcoinNetwork)"
+        @update:input-address="inputAddressTo"
+        @toggle:show-contacts="toggleSelectContactTo"
+      />
       <send-contacts-list
-        v-if="!isSendSpark"
         class="no-margin"
         :show-accounts="isOpenSelectContactTo"
         :account-info="accountInfo"
@@ -58,15 +52,6 @@
         @selected:account="selectAccountTo"
         @update:paste-from-clipboard="addressInputTo.pasteFromClipboard()"
         @close="toggleSelectContactTo"
-      />
-
-      <send-spark-address-input
-        v-if="isSendSpark"
-        ref="sparkAddressInputTo"
-        class="no-margin"
-        :value="sparkAddressInput"
-        :network="(network as BitcoinNetwork)"
-        @update:input-address="inputSparkAddressTo"
       />
     </div>
 
@@ -144,7 +129,11 @@
     <div class="send-transaction__buttons-send">
       <base-button
         :title="sendButtonTitle"
-        :click="isSendSpark ? sendSparkAction : sendAction"
+        :click="
+          !isAddress(addressTo, network.networkInfo)
+            ? sendSparkAction
+            : sendAction
+        "
         :disabled="!isInputsValid"
       />
     </div>
@@ -221,7 +210,6 @@ const loadingAsset = new BTCToken({
 });
 
 const addressInputTo = ref();
-const sparkAddressInput = ref();
 const isSendSpark = ref(false);
 const selected: string = route.params.id as string;
 const paramNFTData: NFTItem = JSON.parse(
@@ -321,17 +309,12 @@ const sendButtonTitle = computed(() => {
 });
 
 const isInputsValid = computed<boolean>(() => {
-  if (isSendSpark.value) {
-    if (!isSparkAddress(sparkAddressInput.value)) {
-      return false;
-    }
-  } else {
-    if (
-      !isAddress(addressTo.value, (props.network as BitcoinNetwork).networkInfo)
-    )
-      return false;
+  if (
+    !isSparkAddress(addressTo.value) &&
+    !isAddress(addressTo.value, (props.network as BitcoinNetwork).networkInfo)
+  ) {
+    return false;
   }
-
   if (
     props.isSendToken &&
     !isValidDecimals(sendAmount.value, selectedAsset.value.decimals!)
@@ -411,10 +394,6 @@ const inputAddressTo = (text: string) => {
   addressTo.value = text;
 };
 
-const inputSparkAddressTo = (address: string) => {
-  sparkAddressInput.value = address;
-};
-
 const toggleSelectContactFrom = (open: boolean) => {
   isOpenSelectContactFrom.value = open;
 };
@@ -447,10 +426,6 @@ const toggleSelectFee = () => {
   isOpenSelectFee.value = !isOpenSelectFee.value;
 };
 
-const toggleIsSendSpark = (value: boolean) => {
-  isSendSpark.value = value;
-};
-
 const selectFee = (type: GasPriceTypes) => {
   selectedFee.value = type;
   isOpenSelectFee.value = false;
@@ -469,8 +444,8 @@ const selectNFT = (item: NFTItemWithCollectionName) => {
 const sendSparkAction = async () => {
   const keyring = new PublicKeyRing();
   const fromAccountInfo = await keyring.getAccount(addressFrom.value);
-
   const toAmount = toBN(toBase(sendAmount.value, selectedAsset.value.decimals));
+
   router.push({
     name: RouterNames.verifySendToSpark.name,
     query: {
@@ -492,7 +467,7 @@ const sendSparkAction = async () => {
           fromAddressName: fromAccountInfo.name,
           gasFee: gasCostValues.value[selectedFee.value],
           gasPriceType: selectedFee.value,
-          toAddress: sparkAddressInput.value,
+          toAddress: addressTo.value,
         }),
         "utf8"
       ).toString("base64"),
@@ -514,7 +489,7 @@ const sendAction = async () => {
 
   if (props.isSendToken) {
     txInfo.outputs.push({
-      address: isSendSpark.value ? sparkAddressInput.value : addressTo.value,
+      address: addressTo.value,
       value: toAmount.toNumber(),
     });
   } else {
@@ -600,8 +575,8 @@ const sendAction = async () => {
 </script>
 
 <style lang="less" scoped>
-@import "~@action/styles/theme.less";
-@import "~@action/styles/custom-scroll.less";
+@import "@action/styles/theme.less";
+@import "@action/styles/custom-scroll.less";
 
 .form__container {
   display: flex;

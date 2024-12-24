@@ -1,5 +1,5 @@
 import { NetworkNames } from "@enkryptcom/types";
-import { bip44Paths } from "@src/configs";
+import { bip44Paths } from "../../configs";
 
 const supportedPaths = {
   [NetworkNames.Bitcoin]: [bip44Paths.bitcoinSegwitLedger],

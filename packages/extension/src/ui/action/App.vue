@@ -295,10 +295,7 @@ const generateNewSparkAddress = async () => {
   }
 };
 const getSparkAccountState = async (network: BaseNetwork) => {
-  if (
-    network.name === NetworkNames.Firo ||
-    network.name === NetworkNames.FiroTest
-  ) {
+  if (network.name === NetworkNames.Firo) {
     const sparkAccountResponse = await getSparkState();
     accountHeaderData.value.sparkAccount = { ...sparkAccountResponse };
   }
@@ -325,10 +322,7 @@ const setNetwork = async (network: BaseNetwork) => {
 
   let sparkAccount: SparkAccount | null = null;
 
-  if (
-    network.name === NetworkNames.Firo ||
-    network.name === NetworkNames.FiroTest
-  ) {
+  if (network.name === NetworkNames.Firo) {
     const sparkAccountResponse = await getSparkState();
     sparkAccount = { ...sparkAccountResponse };
   }

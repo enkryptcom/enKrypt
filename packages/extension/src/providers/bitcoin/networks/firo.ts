@@ -1,4 +1,5 @@
 import { NetworkNames } from "@enkryptcom/types";
+import icon from './icons/firo.svg';
 import {
   BitcoinNetwork,
   BitcoinNetworkOptions,
@@ -18,7 +19,7 @@ const firoOptions: BitcoinNetworkOptions = {
   isTestNetwork: false,
   currencyName: "FIRO",
   currencyNameLong: "Firo",
-  icon: require("./icons/firo.svg"),
+  icon,
   decimals: 8,
   node: "https://explorer.firo.org",
   coingeckoID: "zcoin",

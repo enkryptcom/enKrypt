@@ -11,7 +11,6 @@
             <close-icon />
           </a>
         </div>
-        <hardware-wallet-msg :wallet-type="account?.walletType" />
         <p class="verify-transaction__description" :class="{ popup: isPopup }">
           Double check the information and confirm transaction
         </p>
@@ -22,16 +21,15 @@
           <verify-transaction-network :network="network" />
           <verify-transaction-account
             :name="txData.fromAddressName"
-            :address="network.displayAddress(txData.fromAddress)"
+            :address="txData.fromAddress"
             :from="true"
             :network="network"
           />
           <verify-transaction-account
-            :address="network.displayAddress(txData.toAddress)"
+            :address="txData.toAddress"
             :network="network"
           />
           <verify-transaction-amount :token="txData.toToken" />
-          <verify-transaction-fee :fee="txData.gasFee" />
           {{ errorMsg }}
         </div>
       </custom-scrollbar>
@@ -77,31 +75,25 @@ import BaseButton from "@action/components/base-button/index.vue";
 import VerifyTransactionNetwork from "@/providers/common/ui/verify-transaction/verify-transaction-network.vue";
 import VerifyTransactionAccount from "@/providers/common/ui/verify-transaction/verify-transaction-account.vue";
 import VerifyTransactionAmount from "@/providers/common/ui/verify-transaction/verify-transaction-amount.vue";
-import VerifyTransactionFee from "@/providers/common/ui/verify-transaction/verify-transaction-fee.vue";
-import HardwareWalletMsg from "@/providers/common/ui/verify-transaction/hardware-wallet-msg.vue";
 import SendProcess from "@action/views/send-process/index.vue";
-import PublicKeyRing from "@/libs/keyring/public-keyring";
 import { getCurrentContext } from "@/libs/messenger/extension";
 import { DEFAULT_BTC_NETWORK, getNetworkByName } from "@/libs/utils/networks";
 import { ActivityStatus, Activity, ActivityType } from "@/types/activity";
 import ActivityState from "@/libs/activity-state";
-import { EnkryptAccount } from "@enkryptcom/types";
 import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
 import { BitcoinNetwork } from "@/providers/bitcoin/types/bitcoin-network";
 import { trackSendEvents } from "@/libs/metrics";
 import { SendEventType } from "@/libs/metrics/types";
 import { VerifyTransactionParams } from "@/providers/bitcoin/ui/types";
-import { sendToSparkAddress } from "@/libs/spark-handler";
+import { sendFromSparkAddress } from "@/libs/spark-handler";
 import { isAxiosError } from "axios";
 import { fromBase } from "@enkryptcom/utils";
 import { BaseNetwork } from "@/types/base-network";
-import { isAddress } from "@/providers/bitcoin/libs/utils";
 
 const emits = defineEmits<{
   (e: "update:spark-state-changed", network: BaseNetwork): void;
 }>();
 
-const KeyRing = new PublicKeyRing();
 const route = useRoute();
 const router = useRouter();
 const selectedNetwork: string = route.query.id as string;
@@ -112,7 +104,6 @@ const txData: VerifyTransactionParams = JSON.parse(
 const isProcessing = ref(false);
 const network = ref<BitcoinNetwork>(DEFAULT_BTC_NETWORK);
 const isSendDone = ref(false);
-const account = ref<EnkryptAccount>();
 const isPopup: boolean = getCurrentContext() === "new-window";
 const verifyScrollRef = ref<ComponentPublicInstance<HTMLElement>>();
 const isWindowPopup = ref(false);
@@ -123,10 +114,6 @@ defineExpose({ verifyScrollRef });
 onBeforeMount(async () => {
   network.value = (await getNetworkByName(selectedNetwork)!) as BitcoinNetwork;
   trackSendEvents(SendEventType.SendVerify, { network: network.value.name });
-  if (isAddress(txData.fromAddress, network.value.networkInfo)) {
-    account.value = await KeyRing.getAccount(txData.fromAddress);
-    isWindowPopup.value = account.value.isHardware;
-  }
 });
 
 const close = () => {
@@ -163,14 +150,27 @@ const sendAction = async () => {
 
   const activityState = new ActivityState();
 
-  await sendToSparkAddress(
+  await sendFromSparkAddress(
     txData.toAddress,
     fromBase(txData.toToken.amount, txData.toToken.decimals).toString()
   )
-    .then(() => {
+    .then((res) => {
       trackSendEvents(SendEventType.SendComplete, {
         network: network.value.name,
       });
+      activityState.addActivities(
+        [
+          {
+            ...txActivity,
+            ...{ transactionHash: res },
+          },
+        ],
+        {
+          address: network.value.displayAddress(txData.fromAddress),
+          network: network.value.name,
+        }
+      );
+
       isSendDone.value = true;
       if (getCurrentContext() === "popup") {
         setTimeout(() => {
@@ -187,13 +187,11 @@ const sendAction = async () => {
     })
     .catch((error) => {
       isProcessing.value = false;
-
       if (isAxiosError(error)) {
         errorMsg.value = JSON.stringify(error.response?.data.error.message);
       } else {
         errorMsg.value = JSON.stringify(error);
       }
-
       trackSendEvents(SendEventType.SendFailed, {
         network: network.value.name,
         error: error.message,
@@ -206,6 +204,7 @@ const sendAction = async () => {
       console.error("ERROR", error);
     });
 };
+
 const isHasScroll = () => {
   if (verifyScrollRef.value) {
     return verifyScrollRef.value.$el.classList.contains("ps--active-y");

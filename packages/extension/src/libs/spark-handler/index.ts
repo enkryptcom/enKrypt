@@ -26,3 +26,18 @@ export async function sendToSparkAddress(to: string, amount: string) {
     },
   ]);
 }
+
+export async function sendFromSparkAddress(
+  to: string,
+  amount: string,
+  subtractFee = false
+): Promise<string> {
+  return await callRPC<string>("spendspark", [
+    {
+      [to]: {
+        amount: Number(amount),
+        subtractFee,
+      },
+    },
+  ]);
+}
