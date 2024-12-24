@@ -41,6 +41,7 @@
       <deposit
         v-if="!!props.accountInfo.selectedAccount"
         :account="props.accountInfo.selectedAccount"
+        :spark-account="props.accountInfo.sparkAccount"
         :show-deposit="showDeposit"
         :network="network"
         :toggle="toggleDeposit"

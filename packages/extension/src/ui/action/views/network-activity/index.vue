@@ -12,7 +12,10 @@
           v-bind="$attrs"
         />
 
-        <network-activity-action v-bind="$attrs" />
+        <network-activity-action
+          v-bind="$attrs"
+          :network="props.network.name"
+        />
         <div v-if="activities.length">
           <network-activity-transaction
             v-for="(item, index) in activities"

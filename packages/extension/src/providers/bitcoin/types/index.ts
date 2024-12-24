@@ -50,6 +50,18 @@ export interface SSUnspentType {
   height: number;
   confirmations: number;
 }
+
+export interface FiroUnspentType {
+  address: string;
+  amount: number;
+  confirmations: number;
+  height: number;
+  satoshis: number;
+  scriptPubKey: string;
+  txid: string;
+  vout: number;
+}
+
 export interface HaskoinTxType {
   txid: string;
   size: number;
@@ -86,12 +98,27 @@ export interface SSTxType {
   vin: {
     txid: string;
     addresses?: string[];
+    addr: string;
     value: string;
   }[];
   vout: {
     addresses?: string[];
     value: string;
     scriptPubKey: {
+      hex: string;
+    };
+  }[];
+}
+
+export interface FiroTxType
+  extends Omit<SSTxType, "fee" | "timestamp" | "vout" | "blockHeight"> {
+  fees: number;
+  time: number;
+  blockheight: number;
+  vout: {
+    value: string;
+    scriptPubKey: {
+      addresses?: string[];
       hex: string;
     };
   }[];
