@@ -15,6 +15,7 @@
 
 <script setup lang="ts">
 import { computed, ref, onMounted } from 'vue';
+
 const isFocus = ref(false);
 const swapAmountInput = ref(null);
 
@@ -52,12 +53,15 @@ const props = defineProps({
     },
   },
 });
+
 onMounted(() => {
   if (swapAmountInput.value && props.autofocus) {
     (swapAmountInput.value as HTMLInputElement).focus();
   }
 });
+
 const emit = defineEmits(['update:value']);
+
 const textValue = computed({
   get: () => props.value,
   set: value => {
@@ -66,15 +70,24 @@ const textValue = computed({
     emit('update:value', fValue);
   },
 });
+
 const changeFocus = () => {
   isFocus.value = !isFocus.value;
   props.changeFocus(isFocus.value);
 };
+
 const onlyNumber = ($event: KeyboardEvent) => {
   const keyCode = $event.keyCode ? $event.keyCode : $event.which;
-  if ((keyCode < 48 || keyCode > 57) && keyCode !== 46) {
-    $event.preventDefault();
+  // Numeric
+  if (keyCode >= /* 0 */ 48 && keyCode <= /* 9 */ 57) {
+    return;
   }
+  // Only allow a single period
+  if (keyCode === /* '.' */ 46 && textValue.value.indexOf('.') === -1) {
+    return;
+  }
+  // Alphabetical (/non-numeric) or mulitple periods. Don't propagate change
+  $event.preventDefault();
 };
 </script>
 
