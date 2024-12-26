@@ -32,18 +32,15 @@
           { 'app-menu__link__block__drag__hovered': isHovered },
         ]"
       />
-      <p
-        v-if="showIsPinned"
+      <div
         :class="[
           'app-menu__link__block__pin',
-          {
-            'app-menu__link__block__pin__active': pinIconIsActive,
-          },
+          { 'app-menu__link__block__pin__visible': showIsPinned },
         ]"
         @click="setPinned"
       >
-        <pin-icon :is-pinned="isPinned" :is-active="pinIconIsActive" />
-      </p>
+        <pin-icon :is-pinned="props.isPinned" :is-active="pinIconIsActive" />
+      </div>
     </div>
   </a>
 </template>
@@ -85,6 +82,10 @@ const props = defineProps({
     default: () => {
       return { networks: [], swap: [] };
     },
+  },
+  index: {
+    type: Number,
+    required: true,
   },
 });
 const imageTag = ref<HTMLImageElement | null>(null);
@@ -140,7 +141,19 @@ const getAverageRGB = (imgEl: HTMLImageElement) => {
 watch(
   () => props.isActive,
   () => {
-    if (props.isActive) getAverageRGB(imageTag.value!);
+    if (props.isActive) {
+      getAverageRGB(imageTag.value!);
+      getPosition();
+    }
+  },
+);
+/**
+ * Ensure hovered state is reset when item changes order
+ */
+watch(
+  () => props.index,
+  () => {
+    isHovered.value = false;
   },
 );
 /** ------------------------
@@ -149,24 +162,12 @@ watch(
 const isHovered = ref(false);
 
 /**
- * Computed property to determine whether to show the "Pin" button.
- *
- * This property returns `true` if the network is Pinned,
- * otherwise it returns `false`.
- *
- * @returns {boolean} - `true` if the "Pin" button should be shown, `false` otherwise.
- */
-const isPinned = computed(() => {
-  return props.isPinned;
-});
-
-/**
  * Computed property to determine if the menu item should be shown as pinned.
  *
  * @returns {boolean} - Returns true if the menu item is active, or if it is either pinned or hovered.
  */
 const showIsPinned = computed(() => {
-  return props.isActive ? true : isPinned.value || isHovered.value;
+  return props.isActive ? true : props.isPinned || isHovered.value;
 });
 
 const pinIconIsActive = computed(() => {
@@ -174,12 +175,13 @@ const pinIconIsActive = computed(() => {
 });
 
 const setPinned = async () => {
-  emit('update:pinNetwork', props.network.name, !isPinned.value);
+  emit('update:pinNetwork', props.network.name, !props.isPinned);
 };
 /** ------------------------
  * Scroll
 ------------------------*/
 const target = ref<HTMLElement | null>(null);
+
 /**
  * Reactive variable to determine the sticky state of the menu item.
  * It is set to `true` if the menu item is sticky at the top, `false` if it is sticky at the bottom, and `undefined` if it is not sticky.
@@ -275,9 +277,14 @@ watch(
         padding: 5px 8px 3px 8px;
         background: transparent;
         border-radius: 24px;
+        opacity: 0;
         transition: @opacity-noBG-transition;
-        &__active {
+        &:hover {
           background: @primaryLight;
+        }
+        &__visible {
+          opacity: 100 !important;
+          transition: opacity 300ms ease-in;
         }
       }
       &__drag {

@@ -1,11 +1,13 @@
 <template>
   <div>
-    <!-- Sort -->
-
     <!-- Scrollable Networks  -->
     <div :class="['networks-menu', { 'has-bg': isScrolling }]">
       <div v-if="!!networks" class="networks-menu__scroll-area" ref="scrollDiv">
-        <app-menu-sort :sortBy="sortBy" @update:sort="updateSort" />
+        <app-menu-sort
+          v-if="activeCategory === NetworksCategory.All"
+          :sortBy="sortBy"
+          @update:sort="updateSort"
+        />
 
         <draggable
           v-model="searchNetworks"
@@ -13,16 +15,18 @@
           :animation="500"
           draggable=":not(.do-not-drag)"
         >
-          <template #item="{ element }">
+          <template #item="{ element, index }">
             <app-menu-item
               v-bind="$attrs"
+              :key="element.name"
               :network="element"
               :is-active="!!selected && element.name === selected"
               :is-pinned="getIsPinned(element.name)"
               :scroll-position="y"
               :can-drag="getCanDrag(element)"
               :new-network-tags="newNetworksWithTags"
-              @click="setNetwork(element)"
+              :index="index"
+              @click.self="setNetwork(element)"
               @update:pin-network="updatePinNetwork"
               @update:gradient="emit('update:gradient', $event)"
               :class="{
@@ -94,6 +98,7 @@ const emit = defineEmits<{
   (e: 'update:pinNetwork', network: string, isPinned: boolean): void;
   (e: 'update:gradient', data: string): void;
 }>();
+
 const newNetworksWithTags = ref<{ networks: string[]; swap: string[] }>({
   networks: [],
   swap: [],
@@ -151,16 +156,16 @@ const updateSort = (sort: NetworkSort) => {
   sortBy.value = sort;
 };
 
-// const sortNetworks = (networks: BaseNetwork[], sortBy: NetworkSort) => {
-//   return networks.sort((a, b) => {
-//     if (sortBy.name === NetworkSortName.Name) {
-//       return sortBy.direction
-//         ? a.name.localeCompare(b.name)
-//         : b.name.localeCompare(a.name);
-//     }
-//     return 0;
-//   });
-// };
+const sortNetworks = (networks: BaseNetwork[], sortBy: NetworkSort) => {
+  return networks.sort((a, b) => {
+    if (sortBy.name === NetworkSortOption.Name) {
+      return sortBy.direction
+        ? a.name.localeCompare(b.name)
+        : b.name.localeCompare(a.name);
+    }
+    return 0;
+  });
+};
 
 /** ------------------
  * Displayed Networks
@@ -168,6 +173,15 @@ const updateSort = (sort: NetworkSort) => {
 const searchNetworks = computed({
   get() {
     if (!props.searchInput && props.searchInput === '') {
+      if (props.activeCategory === NetworksCategory.All) {
+        const pinned = props.networks.filter(net =>
+          props.pinnedNetworks.includes(net),
+        );
+        const other = props.networks.filter(
+          net => !props.pinnedNetworks.includes(net),
+        );
+        return [...pinned, ...sortNetworks(other, sortBy.value)];
+      }
       return props.networks;
     }
     const beginsWithName: BaseNetwork[] = [];
