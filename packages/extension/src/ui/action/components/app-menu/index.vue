@@ -159,7 +159,7 @@ const updateSort = (sort: NetworkSort) => {
 const sortNetworks = (networks: BaseNetwork[], sortBy: NetworkSort) => {
   return networks.sort((a, b) => {
     if (sortBy.name === NetworkSortOption.Name) {
-      return sortBy.direction
+      return sortBy.direction === NetworkSortDirection.Asc
         ? a.name.localeCompare(b.name)
         : b.name.localeCompare(a.name);
     }
@@ -184,6 +184,7 @@ const searchNetworks = computed({
       }
       return props.networks;
     }
+    //Search Networks
     const beginsWithName: BaseNetwork[] = [];
     const beginsWithSpaceName: BaseNetwork[] = [];
     const includesName: BaseNetwork[] = [];
