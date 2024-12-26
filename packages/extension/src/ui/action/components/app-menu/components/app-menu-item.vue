@@ -37,7 +37,7 @@
           'app-menu__link__block__pin',
           { 'app-menu__link__block__pin__visible': showIsPinned },
         ]"
-        @click="setPinned"
+        @click.stop="setPinned"
       >
         <pin-icon :is-pinned="props.isPinned" :is-active="pinIconIsActive" />
       </div>

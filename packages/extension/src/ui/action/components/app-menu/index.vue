@@ -26,7 +26,7 @@
               :can-drag="getCanDrag(element)"
               :new-network-tags="newNetworksWithTags"
               :index="index"
-              @click.self="setNetwork(element)"
+              @click="setNetwork(element)"
               @update:pin-network="updatePinNetwork"
               @update:gradient="emit('update:gradient', $event)"
               :class="{
