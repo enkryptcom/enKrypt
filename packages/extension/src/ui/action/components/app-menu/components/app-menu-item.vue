@@ -1,5 +1,6 @@
 <template>
   <a
+    :id="network.name"
     ref="target"
     class="app-menu__link hover-transition-no-bg"
     :class="[
@@ -7,8 +8,6 @@
       { 'sticky-top': isStickyTop },
       { 'sticky-bottom': isStickyTop === false },
     ]"
-    @mouseover="isHovered = true"
-    @mouseleave="isHovered = false"
   >
     <div class="app-menu__link__block">
       <div style="position: relative">
@@ -25,21 +24,15 @@
       />
     </div>
     <div class="app-menu__link__block">
-      <DragIcon
-        v-if="canDrag"
-        :class="[
-          'app-menu__link__block__drag',
-          { 'app-menu__link__block__drag__hovered': isHovered },
-        ]"
-      />
+      <DragIcon v-if="canDrag" class="app-menu__link__block__drag" />
       <div
         :class="[
           'app-menu__link__block__pin',
-          { 'app-menu__link__block__pin__visible': showIsPinned },
+          { 'app-menu__link__block__pin__visible': props.isPinned },
         ]"
         @click.stop="setPinned"
       >
-        <pin-icon :is-pinned="props.isPinned" :is-active="pinIconIsActive" />
+        <pin-icon :is-pinned="props.isPinned" :is-active="true" />
       </div>
     </div>
   </a>
@@ -47,11 +40,12 @@
 
 <script setup lang="ts">
 import { NodeType } from '@/types/provider';
-import { PropType, ref, watch, computed, onMounted, nextTick } from 'vue';
+import { PropType, ref, watch, onMounted, nextTick } from 'vue';
 import TestNetworkIcon from '@action/icons/common/test-network-icon.vue';
 import NewIcon from '@action/icons/asset/new-icon.vue';
 import PinIcon from '@action/icons/actions/pin.vue';
 import DragIcon from '@action/icons/common/drag-icon.vue';
+
 const props = defineProps({
   network: {
     type: Object as PropType<NodeType>,
@@ -83,18 +77,19 @@ const props = defineProps({
       return { networks: [], swap: [] };
     },
   },
-  index: {
-    type: Number,
-    required: true,
-  },
 });
+
 const imageTag = ref<HTMLImageElement | null>(null);
 
 const emit = defineEmits<{
   (e: 'update:gradient', data: string): void;
   (e: 'update:pinNetwork', network: string, isPinned: boolean): void;
 }>();
-// NOTE: WHAT IS THIS?
+
+/**
+ * Function to convert the RGB values to a hex color.
+ * The color is used to set the gradient background of the menu items.
+ */
 const componentToHex = (c: number) => {
   const hex = c.toString(16);
   return hex.length == 1 ? '0' + hex : hex;
@@ -138,45 +133,40 @@ const getAverageRGB = (imgEl: HTMLImageElement) => {
     `#${componentToHex(rgb.r)}${componentToHex(rgb.g)}${componentToHex(rgb.b)}`,
   );
 };
+/**
+ * Watcher to get the average RGB value of the image and get position when the menu item is active.
+ */
 watch(
   () => props.isActive,
-  () => {
-    if (props.isActive) {
+  newval => {
+    if (newval) {
       getAverageRGB(imageTag.value!);
       getPosition();
     }
   },
 );
+
 /**
- * Ensure hovered state is reset when item changes order
+ * Watcher to recalculate position on pinned.
  */
 watch(
-  () => props.index,
-  () => {
-    isHovered.value = false;
+  () => props.isPinned,
+  async () => {
+    if (props.isActive) {
+      await nextTick();
+      getPosition();
+    }
   },
 );
+
 /** ------------------------
  * Buttons
  * ------------------------*/
-const isHovered = ref(false);
-
-/**
- * Computed property to determine if the menu item should be shown as pinned.
- *
- * @returns {boolean} - Returns true if the menu item is active, or if it is either pinned or hovered.
- */
-const showIsPinned = computed(() => {
-  return props.isActive ? true : props.isPinned || isHovered.value;
-});
-
-const pinIconIsActive = computed(() => {
-  return props.isActive || isHovered.value;
-});
 
 const setPinned = async () => {
   emit('update:pinNetwork', props.network.name, !props.isPinned);
 };
+
 /** ------------------------
  * Scroll
 ------------------------*/
@@ -196,7 +186,6 @@ const getPosition = () => {
   const height = target.value?.offsetHeight || 0;
   const offset = -height;
   const anchorTop = (target.value?.offsetTop || 0) + offset;
-
   if (props.scrollPosition > anchorTop) {
     isStickyTop.value = true;
   } else {
@@ -283,26 +272,36 @@ watch(
           background: @primaryLight;
         }
         &__visible {
-          opacity: 100 !important;
           transition: opacity 300ms ease-in;
+          svg path {
+            fill: #5f6368;
+            fill-opacity: 0.4;
+          }
+          opacity: 100 !important;
         }
       }
       &__drag {
-        max-width: 32px;
-        max-height: 24px;
-        padding: 5px 8px 3px 8px;
+        max-width: 20px;
+        max-height: 20px;
+        padding: 5px 0px 3px 0px;
         background: transparent;
         border-radius: 24px;
         opacity: 0;
         transition: opacity 0.3s ease-in;
-        &__hovered {
-          opacity: 100;
-        }
       }
     }
     &:hover {
-      .app-menu__link-drag {
-        display: block !important;
+      .app-menu__link__block__drag,
+      .app-menu__link__block__pin {
+        transition: opacity 300ms ease-in;
+        opacity: 100 !important;
+      }
+      .app-menu__link__block__pin__visible {
+        svg path {
+          fill: #684cff;
+          fill-opacity: 1;
+        }
+        opacity: 100 !important;
       }
     }
 
@@ -335,6 +334,18 @@ watch(
       &:hover {
         background: @white;
       }
+
+      .app-menu__link__block__pin {
+        transition: opacity 300ms ease-in;
+        opacity: 100;
+      }
+      .app-menu__link__block__pin__visible {
+        svg path {
+          fill: #684cff !important;
+          fill-opacity: 1;
+        }
+        opacity: 100 !important;
+      }
     }
     /* Sticky to top or bottom */
     &.sticky-top {
@@ -352,7 +363,7 @@ watch(
       top: 50%;
       margin-top: -12px;
       cursor: grab;
-      display: none;
+      opacity: 0;
     }
   }
 }

@@ -15,17 +15,15 @@
           :animation="500"
           draggable=":not(.do-not-drag)"
         >
-          <template #item="{ element, index }">
+          <template #item="{ element }">
             <app-menu-item
               v-bind="$attrs"
-              :key="element.name"
               :network="element"
               :is-active="!!selected && element.name === selected"
               :is-pinned="getIsPinned(element.name)"
               :scroll-position="y"
               :can-drag="getCanDrag(element)"
               :new-network-tags="newNetworksWithTags"
-              :index="index"
               @click="setNetwork(element)"
               @update:pin-network="updatePinNetwork"
               @update:gradient="emit('update:gradient', $event)"
