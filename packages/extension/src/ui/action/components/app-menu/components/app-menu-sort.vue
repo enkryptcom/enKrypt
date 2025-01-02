@@ -7,13 +7,16 @@
     <a
       ref="toggleSortButton"
       class="app__menu__sort__button hover-transition-no-bg"
-      @click="toggleSortMenu"
+      @click="setActiveSort(NetworkSortOption.Name)"
     >
-      <sort-btn-icon />
-      <span>{{ sortString }}</span>
-      -{{ sortBy.direction }}
+      <!-- <sort-btn-icon /> -->
+      <span class="app__menu__sort__button__text">{{ sortString }}</span>
+      <sort-direction-icon
+        :is-asc="sortBy.direction === NetworkSortDirection.Asc"
+      />
     </a>
-    <div
+    <!-- NEXT Release: -->
+    <!-- <div
       v-show="isOpenSort"
       ref="dropdownSort"
       class="app__menu__sort__dropdown"
@@ -48,21 +51,23 @@
           class="activeSvg"
         />
       </a>
-    </div>
+    </div> -->
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, PropType, computed, watch } from 'vue';
-import { onClickOutside } from '@vueuse/core';
+import { ref, PropType, computed } from 'vue';
 import {
   NetworkSort,
   NetworkSortOption,
   NetworkSortDirection,
 } from '@action/types/network-sort';
-import SortBtnIcon from '@/ui/action/icons/actions/sort/sort-btn-icon.vue';
 import SortDirectionIcon from '@/ui/action/icons/actions/sort/sort-direction-icon.vue';
-import SortActiveIcon from '@/ui/action/icons/actions/sort/sort-active-icon.vue';
+
+// Next Release Version:
+// import { onClickOutside } from '@vueuse/core';
+// import SortBtnIcon from '@/ui/action/icons/actions/sort/sort-btn-icon.vue';
+// import SortActiveIcon from '@/ui/action/icons/actions/sort/sort-active-icon.vue';
 
 const props = defineProps({
   sortBy: {
@@ -82,15 +87,17 @@ const setActiveSort = (_sort: NetworkSortOption) => {
         ? NetworkSortDirection.Desc
         : NetworkSortDirection.Asc;
   } else {
+    // Next Release Version: update this function
     newSortBy.name = _sort;
   }
   emit('update:sort', newSortBy);
 };
 
-const isOpenSort = ref(false);
-let timeout: ReturnType<typeof setTimeout> | null = null;
+/** Next Release Version: */
+// const isOpenSort = ref(false);
+// let timeout: ReturnType<typeof setTimeout> | null = null;
+// const dropdownSort = ref(null);
 
-const dropdownSort = ref(null);
 const toggleSortButton = ref(null);
 
 const sortString = computed(() => {
@@ -109,50 +116,51 @@ const sortString = computed(() => {
  * ------------------- */
 const isHovered = ref<boolean>(false);
 
-const toggleSortMenu = () => {
-  if (timeout != null) {
-    clearTimeout(timeout);
+/**Next Release Version: */
+// const toggleSortMenu = () => {
+//   if (timeout != null) {
+//     clearTimeout(timeout);
 
-    timeout = null;
-  }
-  if (isOpenSort.value) {
-    closeSortMenu();
-  } else {
-    isOpenSort.value = true;
-  }
-};
-const closeSortMenu = (_time = 100) => {
-  if (timeout != null) {
-    clearTimeout(timeout);
-  }
-  timeout = setTimeout(() => {
-    isOpenSort.value = false;
-  }, _time);
-};
-onClickOutside(
-  dropdownSort,
-  () => {
-    closeSortMenu();
-  },
-  { ignore: [toggleSortButton] },
-);
+//     timeout = null;
+//   }
+//   if (isOpenSort.value) {
+//     closeSortMenu();
+//   } else {
+//     isOpenSort.value = true;
+//   }
+// };
+// const closeSortMenu = (_time = 100) => {
+//   if (timeout != null) {
+//     clearTimeout(timeout);
+//   }
+//   timeout = setTimeout(() => {
+//     isOpenSort.value = false;
+//   }, _time);
+// };
+// onClickOutside(
+//   dropdownSort,
+//   () => {
+//     closeSortMenu();
+//   },
+//   { ignore: [toggleSortButton] },
+// );
 
-watch(isHovered, () => {
-  if (isOpenSort.value && !isHovered.value) {
-    if (timeout != null) {
-      clearTimeout(timeout);
-      timeout = null;
-    } else {
-      closeSortMenu(1000);
-    }
-  }
-  if (isOpenSort.value && isHovered.value) {
-    if (timeout != null) {
-      clearTimeout(timeout);
-      timeout = null;
-    }
-  }
-});
+// watch(isHovered, () => {
+//   if (isOpenSort.value && !isHovered.value) {
+//     if (timeout != null) {
+//       clearTimeout(timeout);
+//       timeout = null;
+//     } else {
+//       closeSortMenu(1000);
+//     }
+//   }
+//   if (isOpenSort.value && isHovered.value) {
+//     if (timeout != null) {
+//       clearTimeout(timeout);
+//       timeout = null;
+//     }
+//   }
+// });
 </script>
 
 <style lang="less">
@@ -180,6 +188,9 @@ watch(isHovered, () => {
         display: flex;
         span {
           padding-left: 4px;
+        }
+        &__text {
+          margin-right: 4px;
         }
       }
       &__dropdown {
