@@ -9,7 +9,10 @@
         class="send-contacts-list__scroll-area"
         :settings="scrollSettings({ suppressScrollX: true })"
       >
-        <div v-if="!isMyAddress" class="send-contacts-list__block">
+        <div
+          v-if="recentlySentAddresses && !isMyAddress"
+          class="send-contacts-list__block"
+        >
           <div class="send-contacts-list__buttons">
             <base-button title="Send to my address" :click="sendToMyAddress" />
 
@@ -20,7 +23,31 @@
               <paste-icon /> Paste
             </a>
           </div>
-          <h3>Recent</h3>
+          <template v-if="recentlySentAddresses.length">
+            <h3>Recent</h3>
+            <div class="send-contacts-list__list">
+              <send-address-item
+                v-for="(recentAddress, index) in recentlySentAddresses"
+                :key="index"
+                :account="{
+                  address: recentAddress,
+                  name: accountInfo.activeAccounts.find(
+                    account =>
+                      network.displayAddress(account.address) ===
+                      network.displayAddress(recentAddress),
+                  )?.name,
+                }"
+                :network="network"
+                v-bind="$attrs"
+                :is-checked="
+                  !!address &&
+                  network.displayAddress(address) ===
+                    network.displayAddress(recentAddress)
+                "
+              />
+            </div>
+          </template>
+          <h3>My accounts</h3>
           <div class="send-contacts-list__list">
             <send-address-item
               v-for="(account, index) in accountInfo.activeAccounts"
@@ -28,7 +55,11 @@
               :account="account"
               :network="network"
               v-bind="$attrs"
-              :is-checked="address == account.address"
+              :is-checked="
+                !!address &&
+                network.displayAddress(address) ===
+                  network.displayAddress(account.address)
+              "
             />
           </div>
         </div>
@@ -39,7 +70,6 @@
             </a>
             <h4>My accounts</h4>
           </div>
-
           <div class="send-contacts-list__list">
             <send-address-item
               v-for="(account, index) in accountInfo.activeAccounts"
@@ -47,7 +77,11 @@
               :account="account"
               :network="network"
               v-bind="$attrs"
-              :is-checked="address == account.address"
+              :is-checked="
+                !!address &&
+                network.displayAddress(address) ===
+                  network.displayAddress(account.address)
+              "
             />
           </div>
         </div>
@@ -57,7 +91,7 @@
 </template>
 
 <script setup lang="ts">
-import { PropType, ref } from 'vue';
+import { onMounted, PropType, ref } from 'vue';
 import SendAddressItem from './send-address-item.vue';
 import CustomScrollbar from '@action/components/custom-scrollbar/index.vue';
 import BaseButton from '@action/components/base-button/index.vue';
@@ -66,6 +100,7 @@ import scrollSettings from '@/libs/utils/scroll-settings';
 import { BaseNetwork } from '@/types/base-network';
 import PasteIcon from '@action/icons/actions/paste.vue';
 import ArrowBack from '@action/icons/common/arrow-back.vue';
+import RecentlySentAddressesState from '@/libs/recently-sent-addresses';
 
 const emit = defineEmits<{
   (e: 'update:pasteFromClipboard'): void;
@@ -74,7 +109,7 @@ const emit = defineEmits<{
 
 const isMyAddress = ref(false);
 
-defineProps({
+const props = defineProps({
   showAccounts: Boolean,
   accountInfo: {
     type: Object as PropType<AccountsHeaderData>,
@@ -88,6 +123,36 @@ defineProps({
     type: String,
     default: '',
   },
+});
+
+const recentlySentAddressesState = new RecentlySentAddressesState();
+
+const recentlySentAddresses = ref<null | string[]>(null);
+
+onMounted(async function () {
+  let timedOut = false;
+  const timeout = setTimeout(function () {
+    console.error('Timed out getting recently sent addresses');
+    recentlySentAddresses.value = [];
+    timedOut = true;
+  }, 500);
+  try {
+    const addresses = await recentlySentAddressesState.getRecentlySentAddresses(
+      props.network.name,
+    );
+    if (!timedOut) {
+      recentlySentAddresses.value = Array.from(
+        new Set(
+          addresses.map(address => props.network.displayAddress(address)),
+        ),
+      );
+    }
+  } catch (err) {
+    console.error('Error getting recently sent addresses', err);
+    recentlySentAddresses.value = [];
+  } finally {
+    clearTimeout(timeout);
+  }
 });
 
 const close = () => {

@@ -173,7 +173,7 @@ import {
 import getPriorityFees from '../libs/get-priority-fees';
 import bs58 from 'bs58';
 import SolanaAPI from '@/providers/solana/libs/api';
-import { ComputedRefSymbol } from '@vue/reactivity';
+import RecentlySentAddressesState from '@/libs/recently-sent-addresses';
 
 const props = defineProps({
   network: {
@@ -718,7 +718,14 @@ const inputAmount = (inputAmount: string) => {
   }
 };
 
+const recentlySentAddresses = new RecentlySentAddressesState();
+
 const sendAction = async () => {
+  await recentlySentAddresses.addRecentlySentAddress(
+    props.network,
+    addressTo.value,
+  );
+
   const keyring = new PublicKeyRing();
   const fromAccountInfo = await keyring.getAccount(
     addressFrom.value.toLowerCase(),
