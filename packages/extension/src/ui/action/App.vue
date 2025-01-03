@@ -207,12 +207,6 @@ const setActiveNetworks = async () => {
       network => !pinnedNetworkNames.includes(network.name),
     ),
   ];
-  // networks.value = [
-  // ...networks.value.filter(network => !network.isTestNetwork),
-  // ];
-  // if (!pinnedNetworks.value.includes(currentNetwork.value)) {
-  //   setNetwork(pinnedNetworks.value[0]);
-  // }
 };
 
 const updateNetworkOrder = (newOrder: BaseNetwork[]) => {

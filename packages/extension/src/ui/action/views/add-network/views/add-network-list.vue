@@ -172,12 +172,7 @@ const onTestnetToggle = async (
 
 const onNetworkDeleted = async (chainId: string) => {
   await customNetworksState.deleteEVMNetwork(chainId);
-
-  // allTestNets.value = await getAllNetworksAndStatus();
-  // hasMoreThanOneActiveNetwork.value =
-  //   allTestNets.value.filter(net => net.isActive).length > 1;
   await setNetworkLists();
-  //TODO: emit('update:pinNetwork', chainId, false);
   emit('update:pinNetwork', chainId, false);
 };
 

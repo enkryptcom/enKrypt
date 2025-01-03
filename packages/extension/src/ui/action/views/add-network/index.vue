@@ -42,7 +42,6 @@ const toCustomNetwork = () => {
 
 const toNetworkList = () => {
   isNetworkList.value = true;
-  // emit('update:pinnNetworks');
 };
 </script>
 
