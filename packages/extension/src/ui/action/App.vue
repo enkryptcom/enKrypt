@@ -537,12 +537,20 @@ onClickOutside(
   { ignore: [toggle] },
 );
 const setIsPinnedNetwork = async (network: string, isPinned: boolean) => {
-  await networksState.setNetworkStatus(network, isPinned);
-  await setActiveNetworks();
+  try {
+    await networksState.setNetworkStatus(network, isPinned);
+    await setActiveNetworks();
+  } catch (error) {
+    console.error('Failed to set pined network:', error);
+  }
 };
 
 const setIsToggledTestNetwork = async () => {
-  await setActiveNetworks();
+  try {
+    await setActiveNetworks();
+  } catch (error) {
+    console.error('Failed to set is toggled test network:', error);
+  }
 };
 </script>
 

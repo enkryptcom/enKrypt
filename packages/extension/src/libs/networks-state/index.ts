@@ -23,9 +23,13 @@ class NetworksState {
     });
   }
 
+  /**
+   * Pins or unpins a network on the UI.
+   * @param targetNetworkName - the name of the network to set the status of
+   * @param isActive - represents whether or not the network is pinned on the ui
+   */
   async setNetworkStatus(
     targetNetworkName: string,
-    // isActive represents whether or not the network is pinned on the ui
     isActive: boolean,
   ): Promise<void> {
     const state: IState = await this.getState();

@@ -52,6 +52,7 @@ import { NodeType } from '@/types/provider';
 import { CustomEvmNetwork } from '@/providers/ethereum/types/custom-evm-network';
 import PinIcon from '@action/icons/actions/pin.vue';
 import customNetworkIcon from '@/ui/action/icons/common/custom-network-icon.vue';
+import { NetworkNames } from '@enkryptcom/types';
 
 const isHovered = ref(false);
 
@@ -59,7 +60,7 @@ const emit = defineEmits<{
   (e: 'networkToggled', name: string, isActive: boolean): void;
   (e: 'networkDeleted', chainId: string): void;
   (e: 'update:pinNetwork', network: string, isPinned: boolean): void;
-  (e: 'testNetworkToggled', name: string, isActive: boolean): void;
+  (e: 'testNetworkToggled', name: NetworkNames, isActive: boolean): void;
 }>();
 
 const props = defineProps({

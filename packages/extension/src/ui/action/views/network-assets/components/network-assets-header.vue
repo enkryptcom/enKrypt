@@ -18,7 +18,7 @@
 @import '@action/styles/theme.less';
 .network-assets {
   &__header {
-    padding: 10px 12px 2px 12px;
+    padding: 10px 16px 2px 16px;
     position: relative;
     display: flex;
     justify-content: space-between;
@@ -34,7 +34,7 @@
       margin: 0;
     }
     &__token {
-      width: 200px;
+      width: 196px;
       p {
         padding-left: 48px;
       }

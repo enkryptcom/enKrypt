@@ -192,7 +192,7 @@ const toggleDetail = () => {
 .network-assets {
   &__token {
     height: 72px;
-    padding: 0 6px;
+    padding: 0 4px;
     position: relative;
     box-sizing: border-box;
     display: flex;
@@ -202,7 +202,7 @@ const toggleDetail = () => {
     border-radius: 10px;
     transition: background 300ms ease-in-out;
     text-decoration: none;
-    margin: 0 6px;
+    margin: 0 12px;
     cursor: pointer;
 
     &:hover {
@@ -214,7 +214,7 @@ const toggleDetail = () => {
       justify-content: flex-start;
       align-items: center;
       flex-direction: row;
-      width: 200px;
+      width: 196px;
       overflow: hidden;
 
       &.max {
