@@ -322,7 +322,7 @@ const validateFields = async () => {
 
       if (rawAmount.add(rawFee).gt(rawBalance)) {
         fieldsValidation.value.amount = false;
-        errorMsg.value = 'Insufficient funds';
+        errorMsg.value = 'Not enough balance.';
         return;
       }
 
