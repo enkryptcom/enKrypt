@@ -22,12 +22,20 @@
         @update:value="updateSearch"
         @action:custom-network="toCustom"
       />
-      <div v-if="searchInput === ''">
-        <h3 class="add-network__list-header">My custom networks</h3>
+      <div>
+        <h3
+          v-if="
+            searchInput === '' ||
+            (searchInput !== '' && displayCustomNetworks.length > 0)
+          "
+          class="add-network__list-header"
+        >
+          My custom networks
+        </h3>
         <div v-if="hasCustomNetworks">
           <add-network-item
-            v-for="(item, index) in allCustomNetworks"
-            :key="index"
+            v-for="item in displayCustomNetworks"
+            :key="item.chainID"
             :network="item as CustomEvmNetwork"
             :is-pinned="getIsPinned(item.name)"
             :is-active="true"
@@ -36,22 +44,39 @@
             @update:pin-network="onTogglePin"
           />
         </div>
-        <div v-else class="add-network__no-custom-networks">
+        <div
+          v-if="!hasCustomNetworks && searchInput === ''"
+          class="add-network__no-custom-networks"
+        >
           You can add your own custom networks.
           <span> Just press the <plus-small-icon /> button above. </span>
         </div>
-        <h3 class="add-network__list-header">Test networks</h3>
-        <add-network-item
-          v-for="item in displayTestNetworks"
-          :key="item.name"
-          :network="item"
-          :is-pinned="getIsPinned(item.name)"
-          :is-active="getIsEnabled(item.name)"
-          :is-custom-network="false"
-          @test-network-toggled="onTestnetToggle"
-          @network-deleted="onNetworkDeleted"
-          @update:pin-network="onTogglePin"
-        />
+        <div v-if="displayTestNetworks.length > 0">
+          <h3 class="add-network__list-header">Test networks</h3>
+          <add-network-item
+            v-for="item in displayTestNetworks"
+            :key="item.name"
+            :network="item"
+            :is-pinned="getIsPinned(item.name)"
+            :is-active="getIsEnabled(item.name)"
+            :is-custom-network="false"
+            @test-network-toggled="onTestnetToggle"
+            @network-deleted="onNetworkDeleted"
+            @update:pin-network="onTogglePin"
+          />
+        </div>
+        <div
+          v-if="
+            searchInput !== '' &&
+            displayTestNetworks.length === 0 &&
+            displayCustomNetworks.length === 0
+          "
+          class="add-network__no-custom-networks"
+        >
+          Network "{{ searchInput }}" not found. <br />
+          Do you want to add a custom network?
+          <span> Just press the <plus-small-icon /> button above. </span>
+        </div>
       </div>
     </custom-scrollbar>
   </div>
@@ -103,6 +128,12 @@ defineProps({
 
 const displayTestNetworks = computed<NodeType[]>(() => {
   return allTestNets.value.filter(a =>
+    a.name_long.toLowerCase().startsWith(searchInput.value.toLowerCase()),
+  );
+});
+
+const displayCustomNetworks = computed<CustomEvmNetwork[]>(() => {
+  return allCustomNetworks.value.filter(a =>
     a.name_long.toLowerCase().startsWith(searchInput.value.toLowerCase()),
   );
 });
