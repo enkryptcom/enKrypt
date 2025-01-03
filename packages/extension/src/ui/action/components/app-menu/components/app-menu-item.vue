@@ -40,7 +40,7 @@
 
 <script setup lang="ts">
 import { NodeType } from '@/types/provider';
-import { PropType, ref, watch, onMounted, nextTick } from 'vue';
+import { PropType, ref, watch, onMounted, nextTick, onUnmounted } from 'vue';
 import TestNetworkIcon from '@action/icons/common/test-network-icon.vue';
 import NewIcon from '@action/icons/asset/new-icon.vue';
 import PinIcon from '@action/icons/actions/pin.vue';
@@ -70,6 +70,7 @@ const props = defineProps({
   canDrag: {
     type: Boolean,
     required: false,
+    default: false,
   },
   newNetworkTags: {
     type: Object as PropType<{ networks: string[]; swap: string[] }>,
@@ -183,6 +184,7 @@ const isStickyTop = ref<boolean | undefined>(undefined);
  * It calculates the position based on the scroll position, direction and the offset.
  */
 const getPosition = () => {
+  if (!target.value) return;
   const height = target.value?.offsetHeight || 0;
   const offset = -height;
   const anchorTop = (target.value?.offsetTop || 0) + offset;
@@ -215,6 +217,11 @@ watch(
     }
   },
 );
+
+onUnmounted(() => {
+  // Clear any cached values or listeners
+  isStickyTop.value = undefined;
+});
 </script>
 
 <style lang="less">
