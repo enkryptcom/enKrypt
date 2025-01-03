@@ -3,11 +3,9 @@
     <div class="network-assets__header__token">
       <p>Token</p>
     </div>
-
     <div>
       <p>Last 24h</p>
     </div>
-
     <div class="network-assets__header__price">
       <p>Value</p>
     </div>
@@ -35,7 +33,6 @@
       text-transform: uppercase;
       margin: 0;
     }
-
     &__token {
       width: 200px;
       p {

@@ -125,7 +125,7 @@ const setNetworkLists = async () => {
   const allNetworksTestNets = testNetworks
     .filter(({ isTestNetwork }) => isTestNetwork)
     .sort((a, b) => a.name_long.localeCompare(b.name_long));
-  enabledTestNetworks.value = await networksState.getEnabeledTestNetworks();
+  enabledTestNetworks.value = await networksState.getEnabledTestNetworks();
   allTestNets.value = allNetworksTestNets;
 };
 

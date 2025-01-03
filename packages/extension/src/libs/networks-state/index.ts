@@ -134,7 +134,7 @@ class NetworksState {
     }
   }
 
-  async getEnabeledTestNetworks(): Promise<string[]> {
+  async getEnabledTestNetworks(): Promise<string[]> {
     await this.insertNetworksWithNewFeatures();
     const state: IState | undefined = await this.getState();
     if (state && state.enabledTestNetworks) {

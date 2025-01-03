@@ -195,7 +195,7 @@ const enabledTestnetworks = ref<string[]>([]);
 const setActiveNetworks = async () => {
   const pinnedNetworkNames = await networksState.getPinnedNetworkNames();
   const allNetworks = await getAllNetworks();
-  enabledTestnetworks.value = await networksState.getEnabeledTestNetworks();
+  enabledTestnetworks.value = await networksState.getEnabledTestNetworks();
   pinnedNetworks.value = [];
   pinnedNetworkNames.forEach(name => {
     const network = allNetworks.find(network => network.name === name);
