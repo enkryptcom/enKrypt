@@ -51,7 +51,7 @@ defineEmits<{
 
 .network-activity {
   &__action {
-    padding: 0 12px 8px 12px;
+    padding: 4px 12px 8px 12px;
     box-sizing: border-box;
 
     &-wrap {
@@ -59,7 +59,7 @@ defineEmits<{
       height: 72px;
       left: 12px;
       top: 0px;
-      background: @actionBg;
+      background: @primary007;
       border-radius: 12px;
       display: flex;
       justify-content: space-around;
