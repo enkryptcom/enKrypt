@@ -14,7 +14,7 @@
       <a
         v-show="isCustomNetwork"
         class="add-network__close"
-        @click="editNetwork"
+        @click="deleteNetwork"
       >
         <edit-icon />
       </a>
@@ -76,11 +76,10 @@ const setPinned = async () => {
 };
 
 /**
- * Edit Custom Network
+ * Delete Custom Network
  */
-const editNetwork = async () => {
+const deleteNetwork = async () => {
   const chainId = (props.network as unknown as CustomEvmNetwork).chainID;
-
   if (chainId !== undefined) {
     emit('networkDeleted', chainId);
   }
