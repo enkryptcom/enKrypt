@@ -4,7 +4,13 @@
       <img :src="token.logoURI" alt="" @error="imageLoadError" />
     </div>
     <div class="swap-token-select__info">
-      <h5>{{ token.name }}</h5>
+      <h5>
+        {{
+          token.name.length > 25
+            ? token.name.substring(0, 25) + '...'
+            : token.name
+        }}
+      </h5>
       <p>
         {{
           tokenBalance

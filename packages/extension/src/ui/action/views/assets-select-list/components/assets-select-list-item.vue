@@ -5,7 +5,13 @@
         <img :src="token.icon" @error="imageLoadError" />
       </div>
       <div class="assets-select-list__token-info-name">
-        <h4>{{ token.name }}</h4>
+        <h4>
+          {{
+            token.name.length > 25
+              ? token.name.substring(0, 25) + '...'
+              : token.name
+          }}
+        </h4>
         <p>
           {{ balance ? $filters.formatFloatingPointValue(balance).value : '~' }}
           <span>{{ token.symbol }}</span>
