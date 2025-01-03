@@ -277,7 +277,7 @@ watch(
             fill: #5f6368;
             fill-opacity: 0.4;
           }
-          opacity: 100 !important;
+          opacity: 1 !important;
         }
       }
       &__drag {
@@ -294,14 +294,14 @@ watch(
       .app-menu__link__block__drag,
       .app-menu__link__block__pin {
         transition: opacity 300ms ease-in;
-        opacity: 100 !important;
+        opacity: 1 !important;
       }
       .app-menu__link__block__pin__visible {
         svg path {
           fill: #684cff;
           fill-opacity: 1;
         }
-        opacity: 100 !important;
+        opacity: 1 !important;
       }
     }
 
@@ -327,7 +327,7 @@ watch(
       position: -webkit-sticky;
       position: sticky;
       z-index: 2;
-      opacity: 100;
+      opacity: 1;
       span {
         font-weight: 500;
       }
@@ -337,14 +337,14 @@ watch(
 
       .app-menu__link__block__pin {
         transition: opacity 300ms ease-in;
-        opacity: 100;
+        opacity: 1;
       }
       .app-menu__link__block__pin__visible {
         svg path {
           fill: #684cff !important;
           fill-opacity: 1;
         }
-        opacity: 100 !important;
+        opacity: 1 !important;
       }
     }
     /* Sticky to top or bottom */

@@ -2,6 +2,8 @@
   <!-- network list type logic -->
   <div class="network-tab__container">
     <div
+      role="tab"
+      :aria-selected="activeCategory === NetworksCategory.All"
       :class="[
         'network-tab__container-tab hover-transition-no-bg',
         activeCategory === NetworksCategory.All ? 'active' : '',
@@ -11,6 +13,8 @@
       All
     </div>
     <div
+      role="tab"
+      :aria-selected="activeCategory === NetworksCategory.Pinned"
       :class="[
         'network-tab__container-tab hover-transition-no-bg',
         activeCategory === NetworksCategory.Pinned ? 'active' : '',
@@ -20,6 +24,8 @@
       Pinned
     </div>
     <div
+      role="tab"
+      :aria-selected="activeCategory === NetworksCategory.New"
       :class="[
         'network-tab__container-tab hover-transition-no-bg',
         activeCategory === NetworksCategory.New ? 'active' : '',
@@ -52,7 +58,6 @@ const setActiveCategory = (category: NetworksCategory) => {
 <style lang="less">
 @import '@action/styles/theme.less';
 .network-tab__container {
-  padding: 6px;
   background: @black004;
   display: flex;
   justify-content: space-between;

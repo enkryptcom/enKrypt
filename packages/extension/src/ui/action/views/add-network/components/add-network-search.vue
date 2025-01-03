@@ -5,7 +5,10 @@
     </div>
     <div ref="tooltip" class="add-network__search-wrap">
       <div class="add-network__search-add">
-        <a @click="$emit('action:customNetwork')">
+        <a
+          @click="$emit('action:customNetwork')"
+          aria-label="Add Custom Network"
+        >
           <plus-icon />
         </a>
       </div>
@@ -61,15 +64,12 @@ onClickOutside(tooltip, () => {
 
     &-add {
       font-size: 0;
-      border-radius: 8px;
+      border-radius: 12px;
       transition: background 300ms ease-in-out;
       padding: 8px;
+      cursor: pointer;
       &:hover {
         background: @black007;
-      }
-
-      a {
-        cursor: pointer;
       }
     }
 

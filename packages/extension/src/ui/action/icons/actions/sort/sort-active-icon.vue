@@ -32,6 +32,6 @@ svg {
   transition: opacity 0.3s ease-in;
 }
 .active {
-  opacity: 100;
+  opacity: 1;
 }
 </style>
