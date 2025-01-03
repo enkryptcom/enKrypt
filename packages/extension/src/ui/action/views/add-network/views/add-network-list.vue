@@ -37,8 +37,8 @@
           />
         </div>
         <div v-else class="add-network__no-custom-networks">
-          You can add your own custom networks. <br />
-          Just press the <plus-small-icon /> button above.
+          You can add your own custom networks.
+          <span> Just press the <plus-small-icon /> button above. </span>
         </div>
         <h3 class="add-network__list-header">Test networks</h3>
         <add-network-item
@@ -235,7 +235,7 @@ const isHasScroll = () => {
     position: absolute;
     top: 8px;
     right: 8px;
-    border-radius: 8px;
+    border-radius: 50%;
     cursor: pointer;
     font-size: 0;
     transition: background 300ms ease-in-out;
@@ -273,8 +273,17 @@ const isHasScroll = () => {
 
   &__no-custom-networks {
     padding: 16px 0;
+    line-height: 140%;
     text-align: center;
     color: rgba(0, 0, 0, 0.38);
+    span {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      svg {
+        margin: 0 4px;
+      }
+    }
   }
 }
 </style>
