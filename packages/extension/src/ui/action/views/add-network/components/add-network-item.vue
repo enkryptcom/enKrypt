@@ -18,21 +18,9 @@
       >
         <edit-icon />
       </a>
-      <div
-        class="add-network__link__block"
-        @mouseover="isHovered = true"
-        @mouseleave="isHovered = false"
-        @click="setPinned"
-      >
-        <p
-          :class="[
-            'add-network__link__block__pin',
-            {
-              'add-network__link__block__pin__active': isHovered,
-            },
-          ]"
-        >
-          <pin-icon :is-pinned="isPinned" :is-active="pinIconIsActive" />
+      <div class="add-network__link__block" @click="setPinned">
+        <p class="add-network__link__block__pin">
+          <pin-icon :is-pinned="isPinned" :is-active="true" />
         </p>
       </div>
       <Switch
@@ -45,7 +33,7 @@
 </template>
 
 <script setup lang="ts">
-import { PropType, computed, ref } from 'vue';
+import { PropType } from 'vue';
 import Switch from '@action/components/switch/index.vue';
 import editIcon from '@/ui/action/icons/actions/edit.vue';
 import { NodeType } from '@/types/provider';
@@ -53,8 +41,6 @@ import { CustomEvmNetwork } from '@/providers/ethereum/types/custom-evm-network'
 import PinIcon from '@action/icons/actions/pin.vue';
 import customNetworkIcon from '@/ui/action/icons/common/custom-network-icon.vue';
 import { NetworkNames } from '@enkryptcom/types';
-
-const isHovered = ref(false);
 
 const emit = defineEmits<{
   (e: 'networkToggled', name: string, isActive: boolean): void;
@@ -84,9 +70,6 @@ const props = defineProps({
 /**
  * Pin Network
  */
-const pinIconIsActive = computed(() => {
-  return props.isPinned || isHovered.value;
-});
 
 const setPinned = async () => {
   emit('update:pinNetwork', props.network.name, !props.isPinned);
@@ -146,8 +129,10 @@ const addTestnet = async (value: boolean) => {
         border-radius: 24px;
         transition: @opacity-noBG-transition;
         cursor: pointer;
-        &__active {
+        filter: grayscale(1);
+        &:hover {
           background: @primaryLight;
+          filter: grayscale(0);
         }
       }
     }
