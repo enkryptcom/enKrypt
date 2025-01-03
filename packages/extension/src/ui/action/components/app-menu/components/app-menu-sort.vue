@@ -181,7 +181,6 @@ const isHovered = ref<boolean>(false);
         text-align: center;
         font-weight: 500;
         letter-spacing: 0.4;
-        border-radius: 8px;
         cursor: pointer;
         color: @black06;
         border-radius: 12px;
