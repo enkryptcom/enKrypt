@@ -6,11 +6,7 @@
       </div>
       <div class="assets-select-list__token-info-name">
         <h4>
-          {{
-            token.name.length > 25
-              ? token.name.substring(0, 25) + '...'
-              : token.name
-          }}
+          {{ $filters.truncate(token.name, 25) }}
         </h4>
         <p>
           {{ balance ? $filters.formatFloatingPointValue(balance).value : '~' }}

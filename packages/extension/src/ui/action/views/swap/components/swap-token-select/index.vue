@@ -5,11 +5,7 @@
     </div>
     <div class="swap-token-select__info">
       <h5>
-        {{
-          token.name.length > 25
-            ? token.name.substring(0, 25) + '...'
-            : token.name
-        }}
+        {{ $filters.truncate(token.name, 25) }}
       </h5>
       <p>
         {{
