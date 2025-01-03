@@ -80,7 +80,7 @@ const emit = defineEmits<{
 }>();
 
 const setActiveSort = (_sort: NetworkSortOption) => {
-  const newSortBy = props.sortBy;
+  const newSortBy = { ...props.sortBy };
   if (_sort === props.sortBy.name) {
     newSortBy.direction =
       newSortBy.direction === NetworkSortDirection.Asc
