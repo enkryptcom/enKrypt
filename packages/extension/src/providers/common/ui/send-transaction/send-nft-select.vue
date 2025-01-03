@@ -6,18 +6,10 @@
       </div>
       <div class="send-nft-select__info">
         <h5>
-          {{
-            item.name.length > 25
-              ? item.name.substring(0, 25) + '...'
-              : item.name
-          }}
+          {{ $filters.truncate(item.name, 25) }}
         </h5>
         <p>
-          {{
-            item.collectionName.length > 50
-              ? item.collectionName.substring(0, 50) + '...'
-              : item.collectionName
-          }}
+          {{ $filters.truncate(item.collectionName, 50) }}
         </p>
       </div>
 
