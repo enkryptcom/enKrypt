@@ -14,7 +14,7 @@
       <a
         v-show="isCustomNetwork"
         class="add-network__close"
-        @click="() => editNetwork"
+        @click="editNetwork"
       >
         <edit-icon />
       </a>
