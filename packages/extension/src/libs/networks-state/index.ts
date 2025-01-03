@@ -15,9 +15,19 @@ class NetworksState {
     const networks: NetworkStorageElement[] = POPULAR_NAMES.map(name => ({
       name,
     }));
-    await this.setState({ networks, newNetworksVersion: '' });
+    await this.setState({
+      networks,
+      newNetworksVersion: '',
+      enabledTestNetworks: [],
+      newUsedFeatures: { networks: [], swap: [] },
+    });
   }
 
+  /**
+   * Pins or unpins a network on the UI.
+   * @param targetNetworkName - the name of the network to set the status of
+   * @param isActive - represents whether or not the network is pinned on the ui
+   */
   async setNetworkStatus(
     targetNetworkName: string,
     isActive: boolean,
@@ -43,6 +53,16 @@ class NetworksState {
     await this.setState(state);
   }
 
+  /**
+   * Inserts networks with new features.
+   *
+   * This method first retrieves the current state and checks if the networks
+   * have been updated to the latest version. If the state and networks are defined,
+   * it filters out the networks that are not in the predefined list of networks with new features.
+   * It then maps the filtered networks to a new network item and inserts them into the valid networks.
+   * The new networks are inserted at the 6th index, or at the end if there are fewer than 6 networks.
+   * The state is then updated with the new networks and the latest version.
+   */
   async insertNetworksWithNewFeatures(): Promise<void> {
     const state: IState | undefined = await this.getState();
     if (
@@ -69,11 +89,44 @@ class NetworksState {
         .concat(fnetworkItem, validNetworks.slice(insertIdx));
       state.networks = validNetworks;
       state.newNetworksVersion = __PACKAGE_VERSION__ as string;
+      state.newUsedFeatures = { networks: [], swap: [] };
       await this.setState(state);
     }
   }
 
-  async getActiveNetworkNames(): Promise<string[]> {
+  async setUsedFeature(feature: 'networks' | 'swap', networkName: string) {
+    const state: IState | undefined = await this.getState();
+    if (state) {
+      const newUsedFeatures = state.newUsedFeatures || {
+        networks: [],
+        swap: [],
+      };
+      newUsedFeatures[feature].push(networkName);
+      await this.setState({ ...state, newUsedFeatures });
+    }
+  }
+
+  async getUsedFeatures(): Promise<IState['newUsedFeatures']> {
+    const state: IState | undefined = await this.getState();
+    if (state && state.newUsedFeatures) {
+      return state.newUsedFeatures;
+    }
+    return { networks: [], swap: [] };
+  }
+
+  /**
+   * Retrieves the names of the pinned networks.
+   *
+   * This method first ensures that networks with new features are inserted.
+   * It then attempts to retrieve the current state. If the state and its networks
+   * are defined, it maps and returns the names of the valid networks.
+   * If the state or networks are not defined, it sets the initial active networks
+   * and returns a predefined list of popular network names.
+   *
+   * Previously, the method was named `getActiveNetworks`.
+   * @returns {Promise<string[]>} A promise that resolves to an array of active network names.
+   */
+  async getPinnedNetworkNames(): Promise<string[]> {
     await this.insertNetworksWithNewFeatures();
     const state: IState | undefined = await this.getState();
     if (state && state.networks) {
@@ -85,16 +138,37 @@ class NetworksState {
     }
   }
 
+  async getEnabledTestNetworks(): Promise<string[]> {
+    await this.insertNetworksWithNewFeatures();
+    const state: IState | undefined = await this.getState();
+    if (state && state.enabledTestNetworks) {
+      const validNetworks = state.enabledTestNetworks;
+      return validNetworks.map(({ name }) => name);
+    } else {
+      this.setState(Object.assign({}, state, { enabledTestNetworks: [] }));
+      return [];
+    }
+  }
+
+  async setTestnetStatus(
+    networkName: string,
+    isEnabled: boolean,
+  ): Promise<void> {
+    const state: IState | undefined = await this.getState();
+    const enabledTestNetworks = (state.enabledTestNetworks || []).filter(
+      n => n.name !== networkName,
+    );
+    if (isEnabled) enabledTestNetworks.push({ name: networkName });
+    await this.setState({ ...state, enabledTestNetworks });
+  }
+
   async reorderNetwork(networkNames: string[]): Promise<void> {
     const state: IState | undefined = await this.getState();
     const activeNetworks: NetworkStorageElement[] = networkNames.map(name => ({
       name,
       isActive: true,
     }));
-    await this.setState({
-      networks: activeNetworks,
-      newNetworksVersion: state.newNetworksVersion,
-    });
+    await this.setState({ ...state, networks: activeNetworks });
   }
 
   async setState(state: IState): Promise<void> {

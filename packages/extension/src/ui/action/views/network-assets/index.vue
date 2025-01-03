@@ -14,6 +14,7 @@
           />
 
           <network-activity-action v-bind="$attrs" />
+          <network-assets-header v-if="!isLoading && assets.length > 0" />
           <network-assets-item
             v-for="(item, index) in assets"
             :key="index"
@@ -62,6 +63,7 @@ import { useRoute } from 'vue-router';
 import NetworkActivityTotal from '../network-activity/components/network-activity-total.vue';
 import NetworkActivityAction from '../network-activity/components/network-activity-action.vue';
 import NetworkAssetsItem from './components/network-assets-item.vue';
+import NetworkAssetsHeader from './components/network-assets-header.vue';
 import NetworkAssetsLoading from './components/network-assets-loading.vue';
 import CustomScrollbar from '@action/components/custom-scrollbar/index.vue';
 import { computed, onMounted, type PropType, ref, toRef, watch } from 'vue';
@@ -105,13 +107,15 @@ const updateAssets = () => {
   isLoading.value = true;
   assets.value = [];
   const currentNetwork = selectedNetworkName.value;
-  props.network
-    .getAllTokenInfo(props.accountInfo.selectedAccount?.address || '')
-    .then(_assets => {
-      if (selectedNetworkName.value !== currentNetwork) return;
-      assets.value = _assets;
-      isLoading.value = false;
-    });
+  if (props.accountInfo.selectedAccount?.address) {
+    props.network
+      .getAllTokenInfo(props.accountInfo.selectedAccount?.address || '')
+      .then(_assets => {
+        if (selectedNetworkName.value !== currentNetwork) return;
+        assets.value = _assets;
+        isLoading.value = false;
+      });
+  }
 };
 const selectedAddress = computed(
   () => props.accountInfo.selectedAccount?.address || '',
