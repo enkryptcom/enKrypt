@@ -76,6 +76,7 @@ class API implements ProviderAPIInterface {
         name: 'Unknown',
         symbol: 'UNKNWN',
         decimals: 18,
+        icon: undefined,
       };
     }
   };
