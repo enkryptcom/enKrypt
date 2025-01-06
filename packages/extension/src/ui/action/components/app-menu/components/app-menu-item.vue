@@ -14,8 +14,19 @@
         <img ref="imageTag" :src="network.icon" alt="" />
         <new-icon
           v-if="newNetworkTags.networks.includes(network.name)"
-          class="tag-new"
+          class="app-menu-network-tag app-menu-network-tag-new"
         />
+        <div
+          v-if="
+            !newNetworkTags.networks.includes(network.name) &&
+            newNetworkTags.swap.includes(network.name)
+          "
+          class="app-menu-network-tag app-menu-network-tag-swap"
+        >
+          <swap-added-icon
+            class="app-menu-network-tag-swap-icon"
+          ></swap-added-icon>
+        </div>
       </div>
       <span>{{ network.name_long }} </span
       ><test-network-icon
@@ -43,6 +54,7 @@ import { NodeType } from '@/types/provider';
 import { PropType, ref, watch, onMounted, nextTick, onUnmounted } from 'vue';
 import TestNetworkIcon from '@action/icons/common/test-network-icon.vue';
 import NewIcon from '@action/icons/asset/new-icon.vue';
+import SwapAddedIcon from '@/ui/action/icons/asset/swap-added-icon.vue';
 import PinIcon from '@action/icons/actions/pin.vue';
 import DragIcon from '@action/icons/common/drag-icon.vue';
 
@@ -227,16 +239,29 @@ onUnmounted(() => {
 <style lang="less">
 @import '@action/styles/theme.less';
 
-.tag-new {
-  height: 9px;
-  padding: 1px 3px 1px 3px;
+.app-menu-network-tag {
   background: rgba(0, 122, 255, 1);
   color: #fff !important;
-  border-radius: 6px;
   border: 1px solid @white;
   position: absolute;
   left: 23px;
   top: -5px;
+  &-new {
+    padding: 1px 3px 0px 3px;
+    height: 9px;
+    border-radius: 6px;
+  }
+  &-swap {
+    height: 13px;
+    width: 22px;
+    border-radius: 8px;
+    &-icon {
+      display: absolute;
+      padding-left: 2px;
+      padding-top: 1px;
+      width: 19px;
+    }
+  }
 }
 
 .app-menu {
