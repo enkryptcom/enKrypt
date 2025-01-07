@@ -1,6 +1,7 @@
 import { fileURLToPath, URL } from 'node:url';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
-import { defineConfig } from 'vite';
+import { visualizer } from 'rollup-plugin-visualizer';
+import { defineConfig, type PluginOption } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import { crx } from '@crxjs/vite-plugin';
 import chromeManifest from './src/manifest/manifest.chrome';
@@ -13,7 +14,13 @@ import transformCSInject from './configs/vite/transform-cs-inject';
 import { version } from './package.json';
 
 const BROWSER = process.env.BROWSER;
-
+const firefoxChunking = (id: string) => {
+  if (id.includes('node_modules')) {
+    const chunkName = id.match(/node_modules\/(.+?)\//);
+    if (chunkName && chunkName.length > 1) return chunkName[1].replace('@', '');
+    return 'vendor';
+  }
+};
 const getManifest = () => {
   switch (BROWSER) {
     case 'firefox':
@@ -52,6 +59,7 @@ export default defineConfig({
         : new Date().toLocaleString().replace(/\D/g, ''),
   },
   plugins: [
+    visualizer() as PluginOption,
     nodePolyfills({
       include: [
         'crypto',
@@ -97,6 +105,9 @@ export default defineConfig({
         action: 'action.html',
         onboard: 'onboard.html',
         index: 'index.html',
+      },
+      output: {
+        manualChunks: BROWSER === 'firefox' ? firefoxChunking : undefined,
       },
     },
   },

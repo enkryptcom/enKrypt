@@ -1,6 +1,6 @@
 {
   "name": "@enkryptcom/extension",
-  "version": "2.0.0",
+  "version": "2.0.2",
   "private": true,
   "type": "module",
   "scripts": {
@@ -127,6 +127,7 @@
     "prettier": "^3.3.3",
     "rimraf": "^6.0.1",
     "rollup": "^4.25.0",
+    "rollup-plugin-visualizer": "^5.12.0",
     "semver": "^7.6.3",
     "systeminformation": "^5.23.5",
     "tsup": "^8.3.5",

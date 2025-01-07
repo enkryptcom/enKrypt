@@ -451,7 +451,7 @@ const errorMsg = computed(() => {
   }
 
   if (new BigNumber(sendAmount.value).gt(assetMaxValue.value)) {
-    return `Amount exceeds maximum value.`;
+    return `Not enough balance.`;
   }
 
   return '';
@@ -562,8 +562,8 @@ const isInputsValid = computed<boolean>(() => {
   if (!isSendToken.value && !selectedNft.value.id) {
     return false;
   }
-  const sendAmountBigNumber = new BigNumber(sendAmount.value)
-  if (sendAmountBigNumber.isNaN()) return false
+  const sendAmountBigNumber = new BigNumber(sendAmount.value);
+  if (sendAmountBigNumber.isNaN()) return false;
   if (sendAmountBigNumber.gt(assetMaxValue.value)) return false;
   if (gasCostValues.value.REGULAR.nativeValue === '0') return false;
   if (!isNumericPositive(sendAmount.value)) return false;

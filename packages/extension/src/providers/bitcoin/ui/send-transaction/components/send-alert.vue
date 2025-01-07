@@ -1,7 +1,8 @@
 <template>
   <div class="send-alert">
     <alert-icon />
-    <p v-if="belowDust">Minimum amount: {{ dust }}</p>
+    <p v-if="isBalanceZero">Not enough balance.</p>
+    <p v-else-if="belowDust">Minimum amount: {{ dust }}</p>
     <p v-else-if="notEnough">
       Not enough funds. You are<br />~{{
         $filters.formatFloatingPointValue(nativeValue).value
@@ -24,6 +25,7 @@ interface IProps {
   price?: string;
   notEnough: boolean;
   belowDust: boolean;
+  isBalanceZero: boolean;
   dust: string;
 }
 
