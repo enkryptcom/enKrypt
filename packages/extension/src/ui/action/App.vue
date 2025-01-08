@@ -6,7 +6,10 @@
     <div v-show="!isLoading" ref="appMenuRef" class="app__menu">
       <!-- LOGO & TOP MENU -->
       <div class="app__menu-row" :class="{ border: networks.length > 9 }">
-        <logo-min class="app__menu-logo" />
+        <div class="app__menu-row">
+          <logo-min class="app__menu-logo" />
+          <updated-icon @click="openUpdatesDialog" class="app__menu-updated" />
+        </div>
         <div>
           <a ref="toggle" class="app__menu-link" @click="toggleMoreMenu">
             <more-icon />
@@ -97,6 +100,10 @@
       :latest-version="latestVersion"
       @close:popup="updateShow = !updateShow"
     />
+    <updates-dialog
+      v-if="updatesDialogShow"
+      @close:popup="updatesDialogShow = !updatesDialogShow"
+    />
   </div>
 </template>
 
@@ -143,6 +150,8 @@ import { AccountsHeaderData } from './types/account';
 import AddNetwork from './views/add-network/index.vue';
 import ModalRate from './views/modal-rate/index.vue';
 import Settings from './views/settings/index.vue';
+import UpdatesDialog from './views/updates/index.vue';
+import UpdatedIcon from './icons/updates/updated.vue';
 import { KadenaNetwork } from '@/providers/kadena/types/kadena-network';
 import { EnkryptProviderEventMethods, ProviderName } from '@/types/provider';
 import { onClickOutside } from '@vueuse/core';
@@ -182,6 +191,7 @@ const currentNetwork = ref<BaseNetwork>(defaultNetwork);
 const currentSubNetwork = ref<string>('');
 const kr = new PublicKeyRing();
 const addNetworkShow = ref(false);
+const updatesDialogShow = ref(false);
 const settingsShow = ref(false);
 const rateShow = ref(false);
 const updateShow = ref(false);
@@ -552,6 +562,10 @@ const setIsToggledTestNetwork = async () => {
     console.error('Failed to set is toggled test network:', error);
   }
 };
+
+const openUpdatesDialog = () => {
+  updatesDialogShow.value = true;
+};
 </script>
 
 <style lang="less">
@@ -620,6 +634,16 @@ body {
     box-shadow: inset -1px 0px 2px 0px rgba(0, 0, 0, 0.16);
     &-logo {
       margin-left: 8px;
+    }
+    &-updated {
+      height: 24px;
+      width: 90px;
+      cursor: pointer;
+      transition: 0.3s;
+      filter: brightness(1);
+      &:hover {
+        filter: brightness(0.9);
+      }
     }
 
     &-row {
