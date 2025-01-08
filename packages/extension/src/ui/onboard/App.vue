@@ -46,6 +46,7 @@ const isShowBackButton = () => {
     route.name != 'user-analytics' &&
     route.name != 'create-wallet-wallet-ready' &&
     route.name != 'restore-wallet-wallet-ready' &&
+    route.name != 'restore-wallet-backup-detected' &&
     !(route.name as string).includes('hardware-wallet')
   );
 };
@@ -54,7 +55,8 @@ const wrapClassObject = () => {
   return {
     'onboard__wrap--ready':
       route.name == 'create-wallet-wallet-ready' ||
-      route.name == 'restore-wallet-wallet-ready',
+      route.name == 'restore-wallet-wallet-ready' ||
+      route.name == 'restore-wallet-backup-detected',
     'onboard__wrap--auto-height': route.path.match(/hardware-wallet/),
   };
 };

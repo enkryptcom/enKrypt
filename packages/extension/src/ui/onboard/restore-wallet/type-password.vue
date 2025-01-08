@@ -45,7 +45,7 @@ const nextAction = () => {
     onboardInitializeWallets(store.mnemonic, store.password).then(() => {
       isInitializing.value = false;
       router.push({
-        name: routes.walletReady.name,
+        name: routes.backupDetected.name,
       });
     });
   }
