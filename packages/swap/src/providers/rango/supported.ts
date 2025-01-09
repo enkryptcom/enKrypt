@@ -1,4 +1,4 @@
-import { SupportedNetworkName, } from '../../types'
+import { SupportedNetworkName } from "../../types";
 
 export type SupportedNetworkInfo = {
   /** Standard base10 chain ID, can be obtained from `https://chainlist.org` */
@@ -179,4 +179,3 @@ export const supportedNetworkByRangoBlockchain = new Map<
     },
   ]),
 );
-
