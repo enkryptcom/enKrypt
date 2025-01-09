@@ -75,12 +75,13 @@ const DEFAULT_SOLANA_NETWORK = Solana;
 const POPULAR_NAMES = [
   NetworkNames.Bitcoin,
   NetworkNames.Ethereum,
+  NetworkNames.Solana,
   NetworkNames.Matic,
   NetworkNames.Polkadot,
   NetworkNames.Binance,
   NetworkNames.Rootstock,
   NetworkNames.Optimism,
-  NetworkNames.Kadena,
+  NetworkNames.Arbitrum,
 ];
 export {
   getAllNetworks,
