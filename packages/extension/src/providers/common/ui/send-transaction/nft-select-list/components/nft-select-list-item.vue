@@ -5,18 +5,10 @@
 
       <div class="nft-select-list__token-info-name">
         <h4>
-          {{
-            item.name.length > 40
-              ? item.name.substring(0, 40) + '...'
-              : item.name
-          }}
+          {{ $filters.truncate(item.name, 25) }}
         </h4>
         <p>
-          {{
-            item.collectionName.length > 50
-              ? item.collectionName.substring(0, 50) + '...'
-              : item.collectionName
-          }}
+          {{ $filters.truncate(item.collectionName, 50) }}
         </p>
       </div>
     </div>
