@@ -57,7 +57,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import UpdatesHeader from './components/updatesheader.vue';
+import UpdatesHeader from './components/updates-header.vue';
 import type { NetworkNames } from '@enkryptcom/types';
 import UpdatesNetwork from './components/updatesnetwork.vue';
 import news from './news.json';
