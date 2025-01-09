@@ -3,10 +3,8 @@ import SolanaAPI from '@/providers/bitcoin/libs/api';
 import { ERC20TokenInfo } from '@/providers/ethereum/types';
 
 export interface SPLTokenInfo extends ERC20TokenInfo {
-  icon: string | undefined;
-  cgId: string | undefined;
+  cgId?: string;
 }
-
 export interface SolTokenOptions extends BaseTokenOptions {
   contract: string;
 }

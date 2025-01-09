@@ -39,6 +39,7 @@
             <sparkline-down v-if="token.priceChangePercentage < 0" />
 
             {{ token.priceChangePercentage.toFixed(2) }}%
+            <span class="asset-detail-view__last-24">Last 24h</span>
           </p>
         </div>
       </div>
@@ -155,6 +156,14 @@ const close = () => {
   width: 100%;
   height: auto;
   box-sizing: border-box;
+
+  &__last-24 {
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 16px;
+    letter-spacing: 0.5px;
+    color: @grayPrimary;
+  }
 
   &__wrap {
     background: @white;

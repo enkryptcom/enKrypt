@@ -171,6 +171,7 @@ import { GenericNameResolver, CoinType } from '@/libs/name-resolver';
 import { NetworkNames } from '@enkryptcom/types';
 import { trackSendEvents } from '@/libs/metrics';
 import { SendEventType } from '@/libs/metrics/types';
+import RecentlySentAddressesState from '@/libs/recently-sent-addresses';
 
 const props = defineProps({
   network: {
@@ -222,6 +223,18 @@ const hasEnoughBalance = computed(() => {
   }
   // check if valid sendAmount.value
   if (!isNumericPositive(sendAmount.value)) {
+    return false;
+  }
+
+  // check if user has enough balance for fees
+  if (
+    toBN(
+      toBase(
+        gasCostValues.value[selectedFee.value].nativeValue,
+        props.network.decimals,
+      ),
+    ).gt(toBN(nativeBalance.value))
+  ) {
     return false;
   }
 
@@ -451,7 +464,7 @@ const errorMsg = computed(() => {
   }
 
   if (new BigNumber(sendAmount.value).gt(assetMaxValue.value)) {
-    return `Amount exceeds maximum value.`;
+    return `Not enough balance.`;
   }
 
   return '';
@@ -562,8 +575,8 @@ const isInputsValid = computed<boolean>(() => {
   if (!isSendToken.value && !selectedNft.value.id) {
     return false;
   }
-  const sendAmountBigNumber = new BigNumber(sendAmount.value)
-  if (sendAmountBigNumber.isNaN()) return false
+  const sendAmountBigNumber = new BigNumber(sendAmount.value);
+  if (sendAmountBigNumber.isNaN()) return false;
   if (sendAmountBigNumber.gt(assetMaxValue.value)) return false;
   if (gasCostValues.value.REGULAR.nativeValue === '0') return false;
   if (!isNumericPositive(sendAmount.value)) return false;
@@ -710,7 +723,14 @@ const selectFee = (type: GasPriceTypes) => {
     updateTransactionFees(Tx.value);
 };
 
+const recentlySentAddresses = new RecentlySentAddressesState();
+
 const sendAction = async () => {
+  await recentlySentAddresses.addRecentlySentAddress(
+    props.network,
+    addressTo.value,
+  );
+
   const keyring = new PublicKeyRing();
   const fromAccountInfo = await keyring.getAccount(
     addressFrom.value.toLowerCase(),

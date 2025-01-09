@@ -25,6 +25,6 @@ const solanaOptions: SolanaNetworkOptions = {
   coingeckoPlatform: CoingeckoPlatform.Solana,
 };
 
-const bitcoin = new SolanaNetwork(solanaOptions);
+const solana = new SolanaNetwork(solanaOptions);
 
-export default bitcoin;
+export default solana;
