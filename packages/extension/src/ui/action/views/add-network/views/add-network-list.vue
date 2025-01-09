@@ -22,7 +22,7 @@
         @update:value="updateSearch"
         @action:custom-network="toCustom"
       />
-      <div>
+      <div v-if="isLoaded">
         <h3
           v-if="
             searchInput === '' ||
@@ -78,6 +78,10 @@
           <span> Just press the <plus-small-icon /> button above. </span>
         </div>
       </div>
+
+      <div v-else class="add-network__loading">
+        <loader />
+      </div>
     </custom-scrollbar>
   </div>
 </template>
@@ -97,6 +101,7 @@ import { computed } from 'vue';
 import { CustomEvmNetwork } from '@/providers/ethereum/types/custom-evm-network';
 import PlusSmallIcon from '@/ui/action/icons/common/plus-small-icon.vue';
 import { NetworkNames } from '@enkryptcom/types';
+import Loader from '@action/icons/common/loader.vue';
 
 const emit = defineEmits<{
   (e: 'update:pinNetwork', network: string, isPinned: boolean): void;
@@ -160,8 +165,14 @@ const setNetworkLists = async () => {
   allTestNets.value = allNetworksTestNets;
 };
 
+/** -------------------
+ * Load all networks
+ * ------------------- */
+const isLoaded = ref(false);
+
 onBeforeMount(async () => {
   await setNetworkLists();
+  isLoaded.value = true;
 });
 
 /** -------------------
@@ -231,6 +242,13 @@ const isHasScroll = () => {
   width: 100%;
   height: auto;
   box-sizing: border-box;
+  &__loading {
+    width: 100%;
+    height: 350px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
 
   &__header {
     width: 100%;
