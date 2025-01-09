@@ -59,7 +59,7 @@
 import { computed } from 'vue';
 import UpdatesHeader from './components/updates-header.vue';
 import type { NetworkNames } from '@enkryptcom/types';
-import UpdatesNetwork from './components/updatesnetwork.vue';
+import UpdatesNetwork from './components/updates-network.vue';
 import news from './news.json';
 import { useTimeAgo } from '@vueuse/core';
 
