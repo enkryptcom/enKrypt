@@ -283,7 +283,7 @@ onMounted(() => {
 .network-activity {
   &__transaction {
     height: 64px;
-    padding: 0 8px;
+    padding: 0 4px;
     position: relative;
     box-sizing: border-box;
     display: flex;
@@ -292,7 +292,7 @@ onMounted(() => {
     flex-direction: row;
     text-decoration: none;
     cursor: pointer;
-    margin: 0 12px;
+    margin: 0 16px;
     border-radius: 10px;
     transition: background 300ms ease-in-out;
 

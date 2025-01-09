@@ -4,30 +4,17 @@
       <swap-looking-animation />
     </div>
     <div v-show="!isLoading" ref="appMenuRef" class="app__menu">
-      <logo-min class="app__menu-logo" />
-      <base-search
-        :value="searchInput"
-        :is-border="false"
-        @update:value="updateSearchValue"
-      />
-      <app-menu
-        :networks="networks"
-        :selected="route.params.id as string"
-        :search-input="searchInput"
-        @update:order="updateNetworkOrder"
-        @update:network="setNetwork"
-        @update:gradient="updateGradient"
-      />
-      <div class="app__menu-footer" :class="{ border: networks.length > 9 }">
-        <a class="app__menu-add" @click="addNetworkShow = !addNetworkShow">
-          <manage-networks-icon />
-          Manage networks
-        </a>
+      <!-- LOGO & TOP MENU -->
+      <div class="app__menu-row" :class="{ border: networks.length > 9 }">
+        <logo-min class="app__menu-logo" />
         <div>
           <a ref="toggle" class="app__menu-link" @click="toggleMoreMenu">
             <more-icon />
           </a>
           <div v-show="isOpenMore" ref="dropdown" class="app__menu-dropdown">
+            <a class="app__menu-dropdown-link" @click="otherNetworksAction">
+              <manage-networks-icon /> <span>Other networks</span>
+            </a>
             <a class="app__menu-dropdown-link" @click="lockAction">
               <hold-icon /> <span>Lock Enkrypt</span>
             </a>
@@ -37,6 +24,26 @@
           </div>
         </div>
       </div>
+      <base-search
+        :value="searchInput"
+        :is-border="false"
+        @update:value="updateSearchValue"
+      />
+      <app-menu-tab
+        :active-category="activeCategory"
+        @update:category="setActiveCategory"
+      />
+      <app-menu
+        :networks="displayNetworks"
+        :pinnedNetworks="pinnedNetworks"
+        :selected="route.params.id as string"
+        :active-category="activeCategory"
+        :search-input="searchInput"
+        @update:order="updateNetworkOrder"
+        @update:network="setNetwork"
+        @update:gradient="updateGradient"
+        @update:pin-network="setIsPinnedNetwork"
+      />
     </div>
 
     <div v-show="!isLoading" class="app__content">
@@ -73,11 +80,11 @@
     </div>
 
     <add-network
-      v-show="addNetworkShow"
+      v-if="addNetworkShow"
       @close:popup="addNetworkShow = !addNetworkShow"
-      @update:active-networks="setActiveNetworks"
+      @update:pin-network="setIsPinnedNetwork"
+      @update:testNetworkToggle="setIsToggledTestNetwork"
     />
-
     <settings
       v-if="settingsShow"
       @close:popup="settingsShow = !settingsShow"
@@ -124,6 +131,7 @@ import { useRoute, useRouter } from 'vue-router';
 import Browser from 'webextension-polyfill';
 import AccountsHeader from './components/accounts-header/index.vue';
 import AppMenu from './components/app-menu/index.vue';
+import AppMenuTab from './components/app-menu/components/app-menu-tab.vue';
 import BaseSearch from './components/base-search/index.vue';
 import NetworkMenu from './components/network-menu/index.vue';
 import MoreIcon from './icons/actions/more.vue';
@@ -144,6 +152,8 @@ import { trackBuyEvents, trackNetworkSelected } from '@/libs/metrics';
 import { getLatestEnkryptVersion } from '@action/utils/browser';
 import { gt as semverGT } from 'semver';
 import { BuyEventType, NetworkChangeEvents } from '@/libs/metrics/types';
+import { NetworksCategory } from '@action/types/network-category';
+import { newNetworks } from '@/providers/common/libs/new-features';
 
 const domainState = new DomainState();
 const networksState = new NetworksState();
@@ -156,6 +166,7 @@ const accountHeaderData = ref<AccountsHeaderData>({
   selectedAccount: null,
   activeBalances: [],
 });
+
 const isOpenMore = ref(false);
 let timeout: ReturnType<typeof setTimeout> | null = null;
 defineExpose({ appMenuRef });
@@ -163,7 +174,9 @@ const router = useRouter();
 const route = useRoute();
 const transitionName = 'fade';
 const searchInput = ref('');
+const activeCategory = ref<NetworksCategory>(NetworksCategory.All);
 const networks = ref<BaseNetwork[]>([]);
+const pinnedNetworks = ref<BaseNetwork[]>([]);
 const defaultNetwork = DEFAULT_EVM_NETWORK;
 const currentNetwork = ref<BaseNetwork>(defaultNetwork);
 const currentSubNetwork = ref<string>('');
@@ -177,25 +190,31 @@ const toggle = ref(null);
 const isLoading = ref(true);
 const currentVersion = __PACKAGE_VERSION__;
 const latestVersion = ref('');
+const enabledTestnetworks = ref<string[]>([]);
 
 const setActiveNetworks = async () => {
-  const activeNetworkNames = await networksState.getActiveNetworkNames();
-
+  const pinnedNetworkNames = await networksState.getPinnedNetworkNames();
   const allNetworks = await getAllNetworks();
-  const networksToShow: BaseNetwork[] = [];
-
-  activeNetworkNames.forEach(name => {
+  enabledTestnetworks.value = await networksState.getEnabledTestNetworks();
+  pinnedNetworks.value = [];
+  pinnedNetworkNames.forEach(name => {
     const network = allNetworks.find(network => network.name === name);
-    if (network !== undefined) networksToShow.push(network);
+    if (network !== undefined) pinnedNetworks.value.push(network);
   });
-  networks.value = networksToShow;
-
-  if (!networks.value.includes(currentNetwork.value)) {
-    setNetwork(networks.value[0]);
-  }
+  networks.value = [
+    ...pinnedNetworks.value,
+    ...allNetworks.filter(
+      network => !pinnedNetworkNames.includes(network.name),
+    ),
+  ];
 };
+
 const updateNetworkOrder = (newOrder: BaseNetwork[]) => {
-  if (searchInput.value === '') networks.value = newOrder;
+  if (searchInput.value === '') {
+    if (activeCategory.value === NetworksCategory.Pinned)
+      pinnedNetworks.value = newOrder;
+    else networks.value = newOrder;
+  }
 };
 const updateSearchValue = (newval: string) => {
   searchInput.value = newval;
@@ -272,6 +291,9 @@ onMounted(async () => {
     openOnboard();
   }
 });
+/**
+ * Update the gradient of the app menu on the active network change
+ */
 const updateGradient = (newGradient: string) => {
   //hack may be there is a better way. less.modifyVars doesnt work
   if (appMenuRef.value)
@@ -438,6 +460,37 @@ const isLocked = computed(() => {
   return route.name == 'lock-screen';
 });
 
+/**-------------------
+ * Network Categories
+ -------------------*/
+const setActiveCategory = async (category: NetworksCategory) => {
+  await setActiveNetworks();
+  activeCategory.value = category;
+};
+
+/**
+ * Display Networks
+ * Categories: All, Pinned, New
+ */
+const displayNetworks = computed<BaseNetwork[]>(() => {
+  switch (activeCategory.value) {
+    case NetworksCategory.All:
+      return networks.value.filter(net =>
+        net.isTestNetwork ? enabledTestnetworks.value.includes(net.name) : true,
+      );
+    case NetworksCategory.Pinned:
+      return pinnedNetworks.value;
+    case NetworksCategory.New:
+      return networks.value.filter(net => newNetworks.includes(net.name));
+    default:
+      return networks.value;
+  }
+});
+
+/** -------------------
+ * Menu Actions
+ * ------------------- */
+
 const lockAction = async () => {
   sendToBackgroundFromAction({
     message: JSON.stringify({
@@ -451,6 +504,10 @@ const lockAction = async () => {
 const settingsAction = () => {
   closeMoreMenu();
   settingsShow.value = !settingsShow.value;
+};
+const otherNetworksAction = () => {
+  closeMoreMenu();
+  addNetworkShow.value = !addNetworkShow.value;
 };
 const toggleMoreMenu = () => {
   if (timeout != null) {
@@ -479,6 +536,22 @@ onClickOutside(
   },
   { ignore: [toggle] },
 );
+const setIsPinnedNetwork = async (network: string, isPinned: boolean) => {
+  try {
+    await networksState.setNetworkStatus(network, isPinned);
+    await setActiveNetworks();
+  } catch (error) {
+    console.error('Failed to set pined network:', error);
+  }
+};
+
+const setIsToggledTestNetwork = async () => {
+  try {
+    await setActiveNetworks();
+  } catch (error) {
+    console.error('Failed to set is toggled test network:', error);
+  }
+};
 </script>
 
 <style lang="less">
@@ -540,34 +613,21 @@ body {
     position: absolute;
     left: 0;
     top: 0;
-    padding: 16px 12px 8px 12px;
+    padding: 8px 12px 2px 12px;
     box-sizing: border-box;
     z-index: 1;
     background: @defaultGradient;
-
+    box-shadow: inset -1px 0px 2px 0px rgba(0, 0, 0, 0.16);
     &-logo {
       margin-left: 8px;
     }
 
-    &-footer {
-      position: absolute;
-      width: 100%;
-      height: 56px;
-      bottom: 0;
-      left: 0;
-      padding: 0 12px;
-      box-sizing: border-box;
+    &-row {
+      height: 40px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       flex-direction: row;
-      background: rgba(255, 255, 255, 0.01);
-
-      &.border {
-        box-shadow:
-          0px 0px 6px -1px rgba(0, 0, 0, 0.05),
-          0px 0px 1px rgba(0, 0, 0, 0.2);
-      }
     }
 
     &-add {
@@ -626,7 +686,8 @@ body {
       border-radius: 12px;
       position: absolute;
       right: 8px;
-      bottom: 52px;
+      top: 48px;
+      z-index: 3;
 
       &-link {
         width: 100%;
