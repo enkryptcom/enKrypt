@@ -96,6 +96,7 @@
         "
         :native-symbol="network.name"
         :price="selectedAsset.price || '0'"
+        :is-balance-zero="UTXOBalance.isZero()"
         :native-value="
           fromBase(
             nativeBalanceAfterTransaction.abs().toString(),
@@ -313,8 +314,8 @@ const isInputsValid = computed<boolean>(() => {
   )
     return false;
 
-  const sendAmountBigNumber = new BigNumber(sendAmount.value)
-  if (sendAmountBigNumber.isNaN()) return false
+  const sendAmountBigNumber = new BigNumber(sendAmount.value);
+  if (sendAmountBigNumber.isNaN()) return false;
   if (sendAmountBigNumber.gt(assetMaxValue.value)) return false;
   return true;
 });
