@@ -18,7 +18,7 @@
 @import '@action/styles/theme.less';
 .network-assets {
   &__header {
-    padding: 10px 16px 2px 16px;
+    padding: 10px 20px 2px 20px;
     position: relative;
     display: flex;
     justify-content: space-between;

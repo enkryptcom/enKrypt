@@ -202,7 +202,7 @@ const toggleDetail = () => {
     border-radius: 10px;
     transition: background 300ms ease-in-out;
     text-decoration: none;
-    margin: 0 12px;
+    margin: 0 16px;
     cursor: pointer;
 
     &:hover {

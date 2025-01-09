@@ -4,11 +4,9 @@
       <a class="network-activity__action-item" @click="$emit('toggle:deposit')">
         <Deposit />Deposit
       </a>
-      <div class="network-activity__action-divider" />
       <a class="network-activity__action-item" @click="$emit('open:buyAction')">
         <Buy />Buy/Sell
       </a>
-      <div class="network-activity__action-divider" />
       <router-link
         :to="{
           name: 'send-transaction',
@@ -18,7 +16,6 @@
       >
         <Send />Send
       </router-link>
-      <div class="network-activity__action-divider" />
       <router-link
         class="network-activity__action-item"
         :to="{
@@ -51,7 +48,7 @@ defineEmits<{
 
 .network-activity {
   &__action {
-    padding: 4px 12px 8px 12px;
+    padding: 4px 16px 8px 16px;
     box-sizing: border-box;
 
     &-wrap {
@@ -59,42 +56,42 @@ defineEmits<{
       height: 72px;
       left: 12px;
       top: 0px;
-      background: @primary007;
       border-radius: 12px;
       display: flex;
-      justify-content: space-around;
+      justify-content: space-between;
       align-items: center;
       flex-direction: row;
-      padding: 4px;
-      box-sizing: border-box;
+      gap: 8px;
     }
     &-item {
+      background: @primary007;
       display: block;
       text-align: center;
       text-decoration: none;
       font-style: normal;
       font-weight: 400;
-      font-size: 14px;
-      line-height: 20px;
+      font-size: 12px;
+      line-height: 16px;
       text-align: center;
       letter-spacing: 0.5px;
       color: @primaryLabel;
       cursor: pointer;
-      height: 64px;
+      height: 72px;
       display: flex;
       justify-content: center;
       align-items: center;
       flex-direction: column;
       min-width: 100px;
       transition: background 300ms ease-in-out;
-      border-radius: 8px;
+      border-radius: 12px;
 
       &:hover {
-        background: rgba(0, 0, 0, 0.04);
+        background: @black004;
       }
 
       svg {
         margin-bottom: 0;
+        margin-bottom: 2px;
       }
     }
     &-divider {
