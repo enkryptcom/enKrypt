@@ -8,26 +8,29 @@
     </div>
 
     <div class="add-network__action">
-      <!-- <a href="#">
-        <InfoIcon />
-      </a> -->
-      <a
-        v-show="isCustomNetwork"
-        class="add-network__close"
-        @click="deleteNetwork"
-      >
-        <edit-icon />
-      </a>
       <div class="add-network__link__block" @click="setPinned">
-        <p class="add-network__link__block__pin">
-          <pin-icon :is-pinned="isPinned" :is-active="true" />
-        </p>
+        <tooltip text="Pin Network" is-top-right>
+          <div class="add-network__link__block__pin">
+            <pin-icon :is-pinned="isPinned" :is-active="true" />
+          </div>
+        </tooltip>
       </div>
-      <Switch
-        v-if="network.isTestNetwork"
-        :is-checked="isActive"
-        @update:check="addTestnet"
-      />
+      <tooltip text="Delete Custom Network" is-top-right>
+        <div
+          v-show="isCustomNetwork"
+          class="add-network__delete"
+          @click="deleteNetwork"
+        >
+          <delete-icon />
+        </div>
+      </tooltip>
+      <tooltip text="Enable Network" is-top-right>
+        <Switch
+          v-if="network.isTestNetwork"
+          :is-checked="isActive"
+          @update:check="addTestnet"
+        />
+      </tooltip>
     </div>
   </div>
 </template>
@@ -35,12 +38,13 @@
 <script setup lang="ts">
 import { PropType } from 'vue';
 import Switch from '@action/components/switch/index.vue';
-import editIcon from '@/ui/action/icons/actions/edit.vue';
+import deleteIcon from '@/ui/action/icons/actions/trash.vue';
 import { NodeType } from '@/types/provider';
 import { CustomEvmNetwork } from '@/providers/ethereum/types/custom-evm-network';
 import PinIcon from '@action/icons/actions/pin.vue';
 import customNetworkIcon from '@/ui/action/icons/common/custom-network-icon.vue';
 import { NetworkNames } from '@enkryptcom/types';
+import Tooltip from '@/ui/action/components/tooltip/index.vue';
 
 const emit = defineEmits<{
   (e: 'networkToggled', name: string, isActive: boolean): void;
@@ -205,24 +209,20 @@ const addTestnet = async (value: boolean) => {
     justify-content: flex-start;
     align-items: center;
     flex-direction: row;
-
-    a {
-      display: inline-block;
-      font-size: 0;
-      margin-right: 10px;
-    }
   }
 
-  &__close {
-    border-radius: 8px;
+  &__delete {
     cursor: pointer;
     font-size: 0;
     transition: background 300ms ease-in-out;
-    svg {
-      width: 16px;
-      height: 16px;
-    }
-
+    width: 16px;
+    height: 16px;
+    padding: 5px 8px 5px 8px;
+    margin-left: -4px;
+    background: transparent;
+    border-radius: 24px;
+    transition: @opacity-noBG-transition;
+    cursor: pointer;
     &:hover {
       background: @black007;
     }

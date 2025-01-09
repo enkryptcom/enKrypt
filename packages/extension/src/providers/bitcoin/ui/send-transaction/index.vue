@@ -96,6 +96,7 @@
         "
         :native-symbol="network.name"
         :price="selectedAsset.price || '0'"
+        :is-balance-zero="UTXOBalance.isZero()"
         :native-value="
           fromBase(
             nativeBalanceAfterTransaction.abs().toString(),
@@ -168,6 +169,7 @@ import { getTxInfo as getBTCTxInfo } from '@/providers/bitcoin/libs/utils';
 import { NFTItem, NFTItemWithCollectionName, NFTType } from '@/types/nft';
 import { trackSendEvents } from '@/libs/metrics';
 import { SendEventType } from '@/libs/metrics/types';
+import RecentlySentAddressesState from '@/libs/recently-sent-addresses';
 
 const props = defineProps({
   network: {
@@ -313,8 +315,8 @@ const isInputsValid = computed<boolean>(() => {
   )
     return false;
 
-  const sendAmountBigNumber = new BigNumber(sendAmount.value)
-  if (sendAmountBigNumber.isNaN()) return false
+  const sendAmountBigNumber = new BigNumber(sendAmount.value);
+  if (sendAmountBigNumber.isNaN()) return false;
   if (sendAmountBigNumber.gt(assetMaxValue.value)) return false;
   return true;
 });
@@ -427,7 +429,14 @@ const selectNFT = (item: NFTItemWithCollectionName) => {
   isOpenSelectNft.value = false;
 };
 
+const recentlySentAddresses = new RecentlySentAddressesState();
+
 const sendAction = async () => {
+  await recentlySentAddresses.addRecentlySentAddress(
+    props.network,
+    addressTo.value,
+  );
+
   const keyring = new PublicKeyRing();
   const fromAccountInfo = await keyring.getAccount(addressFrom.value);
   const currentFee = toBN(

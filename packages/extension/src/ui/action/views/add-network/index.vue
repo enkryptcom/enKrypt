@@ -9,7 +9,12 @@
         @update:pin-network="setPinnedNetwork"
         @update:test-network-toggle="emit('update:testNetworkToggle')"
       />
-      <add-custom-network v-else :close="closePopup" :back="toNetworkList" />
+      <add-custom-network
+        v-else
+        :close="closePopup"
+        :back="toNetworkList"
+        @update:pin-network="setPinnedNetwork"
+      />
     </div>
   </div>
 </template>

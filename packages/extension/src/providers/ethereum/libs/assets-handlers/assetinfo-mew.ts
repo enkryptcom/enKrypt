@@ -231,7 +231,6 @@ export default (
       (obj, cur) => ({ ...obj, [cur.contract]: cur }),
       {},
     );
-
     const marketData = new MarketData();
 
     const marketInfo = supportedNetworks[networkName].cgPlatform
@@ -336,7 +335,10 @@ export default (
             balancef: formatFloatingPointValue(userBalance).value,
             balanceUSD: 0,
             balanceUSDf: formatFiatValue('0').value,
-            icon: tokenInfo[unknownTokens[idx]]?.logoURI || network.icon,
+            icon:
+              tokenInfo[unknownTokens[idx]]?.logoURI ||
+              tInfo.icon ||
+              network.icon,
             name: tInfo.name,
             symbol: tInfo.symbol,
             value: '0',
@@ -350,7 +352,6 @@ export default (
         });
       });
     }
-
     return assets;
   });
 };
