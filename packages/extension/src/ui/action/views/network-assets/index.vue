@@ -14,6 +14,11 @@
           />
 
           <network-activity-action v-bind="$attrs" />
+          <div v-if="!isLoading" class="network-assets__headers">
+            <div>TOKEN</div>
+            <div>LAST 24HR</div>
+            <div>VALUE</div>
+          </div>
           <network-assets-item
             v-for="(item, index) in assets"
             :key="index"
@@ -175,6 +180,28 @@ const addCustomAsset = (asset: AssetsType) => {
   width: 100%;
   height: 100%;
   box-sizing: border-box;
+
+  &__headers {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 350px;
+    height: 21px;
+    padding: 0 20px 0 65px;
+    margin: 12px 12px 0;
+    font-size: 10px;
+    color: @black06;
+    font-weight: 500;
+    line-height: 11px;
+
+    div {
+      text-align: left;
+    }
+
+    div:nth-child(2) {
+      width: 65px;
+    }
+  }
 
   &__scroll-area {
     position: relative;
