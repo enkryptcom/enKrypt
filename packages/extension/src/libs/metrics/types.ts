@@ -1,4 +1,3 @@
-import { NetworkSortOption } from './../../ui/action/types/network-sort';
 export enum SwapEventType {
   SwapOpen = 'swap_open',
   SwapRate = 'swap_rate',
