@@ -139,6 +139,10 @@ const isValid = computed<boolean>(() => {
   return true;
 });
 
+const emit = defineEmits<{
+  (e: 'update:pinNetwork', network: string, isPinned: boolean): void;
+}>();
+
 const props = defineProps({
   close: {
     type: Function as PropType<() => void>,
@@ -274,6 +278,7 @@ const sendAction = async () => {
     customBlockExplorerUrlAddr: customNetworkOptions.blockExplorerAddr,
   });
 
+  emit('update:pinNetwork', customNetworkOptions.name, true);
   nameValue.value = '';
   symbolValue.value = '';
   chainIDValue.value = '';

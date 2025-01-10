@@ -180,28 +180,6 @@ const addCustomAsset = (asset: AssetsType) => {
   height: 100%;
   box-sizing: border-box;
 
-  &__headers {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 350px;
-    height: 21px;
-    padding: 0 20px 0 65px;
-    margin: 12px 12px 0;
-    font-size: 10px;
-    color: @black06;
-    font-weight: 500;
-    line-height: 11px;
-
-    div {
-      text-align: left;
-    }
-
-    div:nth-child(2) {
-      width: 65px;
-    }
-  }
-
   &__scroll-area {
     position: relative;
     margin: auto;
