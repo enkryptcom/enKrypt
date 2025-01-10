@@ -14,6 +14,12 @@ export enum GenericEvents {
   login_error = 'login_error',
 }
 
+export enum NetworkType {
+  Regular = 'regular',
+  Custom = 'custom',
+  Testnet = 'testnet',
+}
+
 export enum NetworkChangeEvents {
   NetworkChangePopup = 'network_change_popup',
   NetworkChangeAPI = 'network_change_api',
