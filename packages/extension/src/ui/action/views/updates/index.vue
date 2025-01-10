@@ -1,11 +1,11 @@
 <template>
-  <div class="news__container">
-    <div class="news__overlay" @click="close()" />
-    <div class="news__wrap">
+  <div class="updates__container">
+    <div class="updates__overlay" @click="close()" />
+    <div class="updates__wrap">
       <updates-header @window:close="close" />
       <div>
         <div
-          class="news__block"
+          class="updates__block"
           v-for="version in displayVersions"
           :key="version.version"
         >
@@ -14,7 +14,7 @@
               :href="version.release_link"
               target="_blank"
               aria-label="Release notes"
-              class="news__block__title"
+              class="updates__block__title"
             >
               <h3>
                 v{{ version.version }} <span> {{ getTimeAgo(version) }}</span>
@@ -44,11 +44,20 @@
             }"
           >
             Bug fixes and improvements. <br />
-            Much love to our community.
+            With love from Kosala and the entire team.
           </p>
           <a :href="version.release_link" target="_blank"
             >Full release notes
           </a>
+          <p class="updates__block__end">
+            Make sure you follow Enkrypt on Twitter (X....ugh) and let us know
+            how we can build a better crypto product for you
+            <span>
+              <a href="https://x.com/enkrypt" target="_blank"
+                >https://x.com/enkrypt</a
+              ></span
+            >
+          </p>
         </div>
       </div>
     </div>
@@ -56,43 +65,39 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, PropType } from 'vue';
 import UpdatesHeader from './components/updates-header.vue';
-import type { NetworkNames } from '@enkryptcom/types';
 import UpdatesNetwork from './components/updates-network.vue';
-import news from './news.json';
 import { useTimeAgo } from '@vueuse/core';
+import { Version } from '@/ui/action/types/updates';
 
 const emit = defineEmits<{
   (e: 'close:popup'): void;
 }>();
-const close = () => {
-  emit('close:popup');
-};
 
-interface Version {
-  version: string;
-  description?: string;
-  chains_added?: NetworkNames[];
-  swap_added?: NetworkNames[];
-  release_date: string;
-  release_link: string;
-}
-interface Releases {
-  versions: Version[];
-}
-const currentVersion = __PACKAGE_VERSION__;
-const releases = news as unknown as Releases;
-const versions = releases.versions;
+const props = defineProps({
+  currentVersion: {
+    required: true,
+    type: String,
+  },
+  versions: {
+    type: Array as PropType<Version[]>,
+  },
+});
+
+/** -------------------
+ * Versions
+ ------------------- */
 
 const displayVersions = computed(() => {
-  const index = versions.findIndex(
-    version => version.version === currentVersion,
+  if (!props.versions) return [];
+  const index = props.versions.findIndex(
+    version => version.version === props.currentVersion,
   );
   if (index === -1) {
-    return versions.slice(0, 20);
+    return props.versions.slice(0, 10);
   } else {
-    return versions.slice(index, 20);
+    return props.versions.slice(index, 10);
   }
 });
 
@@ -113,7 +118,7 @@ const getChainsTitle = (version: Version) => {
     : 'New chain added:';
 };
 /** -------------------
- * Chains Added
+ * Swap Added
  * ------------------- */
 const hasSwapAdded = (version: Version) => {
   return version.swap_added && version.swap_added.length > 0;
@@ -124,12 +129,16 @@ const getSwapTitle = (version: Version) => {
     ? 'Swap added to chains:'
     : 'Swap added to chain:';
 };
+
+const close = () => {
+  emit('close:popup');
+};
 </script>
 
 <style lang="less">
 @import '@action/styles/theme.less';
 
-.news {
+.updates {
   width: 100%;
   height: auto;
   box-sizing: border-box;

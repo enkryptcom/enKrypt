@@ -8,7 +8,11 @@
       <div class="app__menu-row" :class="{ border: networks.length > 9 }">
         <div class="app__menu-row">
           <logo-min class="app__menu-logo" />
-          <updated-icon @click="openUpdatesDialog" class="app__menu-updated" />
+          <updated-icon
+            v-if="loadedUpdates && showUpdatesBtn"
+            @click="openUpdatesDialog"
+            class="app__menu-updated"
+          />
         </div>
         <div>
           <a ref="toggle" class="app__menu-link" @click="toggleMoreMenu">
@@ -23,6 +27,15 @@
             </a>
             <a class="app__menu-dropdown-link" @click="settingsAction">
               <settings-icon /> <span>Settings</span>
+            </a>
+            <div v-if="loadedUpdates" class="app__menu-dropdown-divider"></div>
+            <a
+              v-if="loadedUpdates"
+              class="app__menu-dropdown-link"
+              @click="openUpdatesDialog"
+            >
+              <heart-icon class="app__menu-dropdown-link-heart"></heart-icon>
+              <span> Updates</span>
             </a>
           </div>
         </div>
@@ -100,9 +113,11 @@
       :latest-version="latestVersion"
       @close:popup="updateShow = !updateShow"
     />
-    <updates-dialog
-      v-if="updatesDialogShow"
-      @close:popup="updatesDialogShow = !updatesDialogShow"
+    <modal-updates
+      v-if="loadedUpdates && showUpdatesDialog"
+      :versions="releases?.versions"
+      :current-version="currentVersion"
+      @close:popup="closeUpdatesDialog"
     />
   </div>
 </template>
@@ -150,8 +165,7 @@ import { AccountsHeaderData } from './types/account';
 import AddNetwork from './views/add-network/index.vue';
 import ModalRate from './views/modal-rate/index.vue';
 import Settings from './views/settings/index.vue';
-import UpdatesDialog from './views/updates/index.vue';
-import UpdatedIcon from './icons/updates/updated.vue';
+import ModalUpdates from './views/updates/index.vue';
 import { KadenaNetwork } from '@/providers/kadena/types/kadena-network';
 import { EnkryptProviderEventMethods, ProviderName } from '@/types/provider';
 import { onClickOutside } from '@vueuse/core';
@@ -163,10 +177,16 @@ import { gt as semverGT } from 'semver';
 import { BuyEventType, NetworkChangeEvents } from '@/libs/metrics/types';
 import { NetworksCategory } from '@action/types/network-category';
 import { newNetworks } from '@/providers/common/libs/new-features';
+import UpdatesState from '@/libs/updates-state';
+import UpdatedIcon from '@/ui/action/icons/updates/updated.vue';
+import HeartIcon from '@/ui/action/icons/updates/heart.vue';
+import { getLatestEnkryptUpdates } from '@action/utils/browser';
+import { Updates } from '@/ui/action/types/updates';
 
 const domainState = new DomainState();
 const networksState = new NetworksState();
 const rateState = new RateState();
+const updatesState = new UpdatesState();
 const appMenuRef = ref(null);
 const showDepositWindow = ref(false);
 const accountHeaderData = ref<AccountsHeaderData>({
@@ -191,7 +211,6 @@ const currentNetwork = ref<BaseNetwork>(defaultNetwork);
 const currentSubNetwork = ref<string>('');
 const kr = new PublicKeyRing();
 const addNetworkShow = ref(false);
-const updatesDialogShow = ref(false);
 const settingsShow = ref(false);
 const rateShow = ref(false);
 const updateShow = ref(false);
@@ -201,7 +220,60 @@ const isLoading = ref(true);
 const currentVersion = __PACKAGE_VERSION__;
 const latestVersion = ref('');
 const enabledTestnetworks = ref<string[]>([]);
+/** -------------------
+ * Updates
+ -------------------*/
+const releases = ref<Updates | undefined>(undefined);
+const loadedUpdates = ref<boolean>(false);
+const showUpdatesBtn = ref<boolean>(false);
+const showUpdatesDialog = ref<boolean>(false);
+const stateCurrentReleaseTimestamp = ref<number>(0);
 
+const initUpdateState = async () => {
+  const currentReleaseInState = await updatesState.getCurrentRelease();
+  stateCurrentReleaseTimestamp.value =
+    await updatesState.getCurrentReleaseTimestamp();
+  if (currentReleaseInState !== currentVersion) {
+    await updatesState.setCurrentRelease(currentVersion);
+    const newReleaseTimestamp = Date.now();
+    await updatesState.setCurrentReleaseTimestamp(newReleaseTimestamp);
+    stateCurrentReleaseTimestamp.value = newReleaseTimestamp;
+  }
+};
+
+const getShowUpdatesBtn = async () => {
+  try {
+    const lastVersionViewed = await updatesState.getLastVersionViewed();
+    if (
+      lastVersionViewed === '' ||
+      (currentVersion && semverGT(currentVersion, lastVersionViewed))
+    ) {
+      const expireTimestamp = stateCurrentReleaseTimestamp.value + 12096e5; //2 weeks;
+      showUpdatesBtn.value =
+        stateCurrentReleaseTimestamp.value < expireTimestamp;
+    } else {
+      showUpdatesBtn.value = false;
+    }
+  } catch (error) {
+    console.error('Failed to get show updates button:', error);
+  }
+};
+const openUpdatesDialog = () => {
+  showUpdatesDialog.value = true;
+  updatesState.setLastVersionViewed(currentVersion);
+  showUpdatesBtn.value = false;
+  if (isOpenMore.value) {
+    closeMoreMenu();
+  }
+};
+
+const closeUpdatesDialog = () => {
+  showUpdatesDialog.value = false;
+};
+
+/** -------------------
+ * Core
+ -------------------*/
 const setActiveNetworks = async () => {
   const pinnedNetworkNames = await networksState.getPinnedNetworkNames();
   const allNetworks = await getAllNetworks();
@@ -256,6 +328,7 @@ const isKeyRingLocked = async (): Promise<boolean> => {
     tabId: await domainState.getCurrentTabId(),
   }).then(res => JSON.parse(res.result || 'true'));
 };
+
 const init = async () => {
   const curNetwork = await domainState.getSelectedNetWork();
   if (curNetwork) {
@@ -268,6 +341,7 @@ const init = async () => {
   await setActiveNetworks();
   isLoading.value = false;
 };
+
 onMounted(async () => {
   const isInitialized = await kr.isInitialized();
   if (isInitialized) {
@@ -278,6 +352,18 @@ onMounted(async () => {
         .then(() => (isLoading.value = false));
     } else {
       init();
+      try {
+        await initUpdateState();
+        releases.value = await getLatestEnkryptUpdates();
+        if (releases.value) {
+          await getShowUpdatesBtn();
+        }
+        loadedUpdates.value = true;
+      } catch (error) {
+        console.error('Failed to get latest enkrypt updates:', error);
+        loadedUpdates.value = false;
+      }
+
       setTimeout(() => {
         rateState.showPopup().then(show => {
           if (show) {
@@ -562,10 +648,6 @@ const setIsToggledTestNetwork = async () => {
     console.error('Failed to set is toggled test network:', error);
   }
 };
-
-const openUpdatesDialog = () => {
-  updatesDialogShow.value = true;
-};
 </script>
 
 <style lang="less">
@@ -713,6 +795,13 @@ body {
       top: 48px;
       z-index: 3;
 
+      &-divider {
+        height: 1px;
+        width: 90%;
+        margin: 8px;
+        background: @gray02;
+      }
+
       &-link {
         width: 100%;
         height: 48px;
@@ -723,6 +812,12 @@ body {
         cursor: pointer;
         transition: background 300ms ease-in-out;
         border-radius: 8px;
+
+        &-heart {
+          width: 18px !important;
+          height: 18px !important;
+          margin-right: 18px !important;
+        }
 
         &:hover,
         &.active {

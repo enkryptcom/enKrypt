@@ -1,5 +1,5 @@
 import Browser from 'webextension-polyfill';
-
+import { Updates } from '@/ui/action/types/updates';
 export const BROWSER_NAMES = {
   chrome: 'chrome',
   firefox: 'firefox',
@@ -57,6 +57,22 @@ export const getLatestEnkryptVersion = (): Promise<string> => {
       if (versions[browser] && browser === BROWSER_NAMES.safari)
         return versions[browser];
       return null;
+    })
+    .catch(() => null);
+};
+
+export const getLatestEnkryptUpdates = (): Promise<Updates> => {
+
+  const browser = detectBrowser();
+  const url = 'https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/configs/release-versions'
+  const fetchUrl = browser === BROWSER_NAMES.safari ? `${url}-safari.json` : `${url}.json`
+  console.log(fetchUrl)
+  return fetch(
+    fetchUrl
+  )
+    .then(res => res.json())
+    .then(releases => {
+      return releases;
     })
     .catch(() => null);
 };
