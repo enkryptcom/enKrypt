@@ -63,6 +63,8 @@ import {
   NetworkSortDirection,
 } from '@action/types/network-sort';
 import SortDirectionIcon from '@/ui/action/icons/actions/sort/sort-direction-icon.vue';
+import { trackNetworkSelected } from '@/libs/metrics';
+import { NetworkChangeEvents } from '@/libs/metrics/types';
 
 // Next Release Version:
 // import { onClickOutside } from '@vueuse/core';
@@ -90,6 +92,9 @@ const setActiveSort = (_sort: NetworkSortOption) => {
     // Next Release Version: update this function
     newSortBy.name = _sort;
   }
+  trackNetworkSelected(NetworkChangeEvents.NetworkSortOptionChanged, {
+    sortOption: newSortBy.name,
+  });
   emit('update:sort', newSortBy);
 };
 

@@ -66,6 +66,8 @@ import {
 } from '@action/types/network-sort';
 import { useScroll } from '@vueuse/core';
 import { newNetworks, newSwaps } from '@/providers/common/libs/new-features';
+import { trackNetworkSelected } from '@/libs/metrics';
+import { NetworkChangeEvents } from '@/libs/metrics/types';
 
 const networksState = new NetworksState();
 const props = defineProps({
@@ -114,6 +116,16 @@ const setNetwork = async (network: BaseNetwork) => {
       net => net !== network.name,
     );
   }
+
+  const networkType = network.isTestNetwork
+    ? 'testnet'
+    : network.isCustomNetwork
+      ? 'custom'
+      : 'regular';
+  trackNetworkSelected(NetworkChangeEvents.NetworkActiveChanged, {
+    network: network.name,
+    networkType,
+  });
   emit('update:network', network);
 };
 

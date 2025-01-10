@@ -14,23 +14,6 @@ import {
 
 const metrics = new Metrics();
 
-
-// tracks the new network ui
-const trackNewNetworkUi = (event: string, options: {
-  networkName?: NetworkNames,
-  networkType?: 'regular' | 'testnet' | 'custom',
-  networkTab?: string,
-  isPinned?: boolean,
-  sortOption?: string,
-  customRpcUrl?: string,
-  customNetworkName?: string,
-  customChainId?: string,
-  customCurrencySymbol?: string,
-  customBlockExplorerUrl?: string
-}) => {
-  metrics.track(event, options);
-}
-
 const trackGenericEvents = (event: GenericEvents) => {
   metrics.track('generic', { event });
 };
@@ -38,8 +21,20 @@ const trackGenericEvents = (event: GenericEvents) => {
 const trackNetworkSelected = (
   event: NetworkChangeEvents,
   options: {
-    provider: ProviderName;
-    network: NetworkNames
+    provider?: ProviderName;
+    network?: NetworkNames,
+    networkTab?: string,
+    networkType?: 'regular' | 'custom' | 'testnet',
+    isPinned?: boolean,
+    sortOption?: string,
+    customRpcUrl?: string,
+    customNetworkName?: string,
+    customNetworkNameLong?: string,
+    customNetworkCurrency?: string,
+    customNetworkCurrencyLong?: string,
+    customChainId?: string,
+    customBlockExplorerUrlTx?: string
+    customBlockExplorerUrlAddr?: string
   },
 ) => {
   metrics.track('network', { event, ...options });

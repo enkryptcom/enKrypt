@@ -1,3 +1,4 @@
+import { NetworkSortOption } from './../../ui/action/types/network-sort';
 export enum SwapEventType {
   SwapOpen = 'swap_open',
   SwapRate = 'swap_rate',
@@ -16,6 +17,14 @@ export enum GenericEvents {
 export enum NetworkChangeEvents {
   NetworkChangePopup = 'network_change_popup',
   NetworkChangeAPI = 'network_change_api',
+  NetworkTabsClicked = 'network_tabs_clicked',
+  NetworkPinnedStatusChanged = 'network_pinned_status_changed',
+  NetworkActiveChanged = 'network_active_changed',
+  NetworkSortOptionChanged = 'network_sort_option_changed',
+  NetworkAddCustomClicked = 'network_add_custom_clicked',
+  NetworkCustomNetworkAdded = 'network_custom_network_added',
+  NetworkDeleteCustomNetwork = 'network_delete_custom_network',
+  NetworkCustomBackButton = 'network_custom_back_button',
 }
 
 export enum BuyEventType {
