@@ -7,6 +7,7 @@ import {
   GenericEvents,
   NFTEventType,
   NetworkChangeEvents,
+  NetworkType,
   SendEventType,
   SettingEventType,
   SwapEventType,
@@ -18,13 +19,13 @@ const trackGenericEvents = (event: GenericEvents) => {
   metrics.track('generic', { event });
 };
 
-const trackNetworkSelected = (
+const trackNetwork = (
   event: NetworkChangeEvents,
   options: {
     provider?: ProviderName;
     network?: NetworkNames,
     networkTab?: string,
-    networkType?: 'regular' | 'custom' | 'testnet',
+    networkType?: NetworkType,
     isPinned?: boolean,
     sortOption?: string,
     customRpcUrl?: string,
@@ -102,7 +103,7 @@ const optOutofMetrics = (optOut: boolean) => {
 };
 
 export {
-  trackNetworkSelected,
+  trackNetwork,
   trackSwapEvents,
   trackBuyEvents,
   trackSendEvents,

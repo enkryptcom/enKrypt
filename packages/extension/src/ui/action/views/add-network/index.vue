@@ -24,7 +24,7 @@ import { ref } from 'vue';
 import AddNetworkList from './views/add-network-list.vue';
 import AddCustomNetwork from './views/add-custom-network.vue';
 
-import { trackNetworkSelected } from '@/libs/metrics';
+import { trackNetwork } from '@/libs/metrics';
 import { NetworkChangeEvents } from '@/libs/metrics/types';
 
 const isNetworkList = ref(true);
@@ -46,11 +46,11 @@ const closePopup = () => {
 
 const toCustomNetwork = () => {
   isNetworkList.value = false;
-  trackNetworkSelected(NetworkChangeEvents.NetworkAddCustomClicked, {});
+  trackNetwork(NetworkChangeEvents.NetworkAddCustomClicked, {});
 };
 
 const toNetworkList = () => {
-  trackNetworkSelected(NetworkChangeEvents.NetworkCustomBackButton, {});
+  trackNetwork(NetworkChangeEvents.NetworkCustomBackButton, {});
   isNetworkList.value = true;
 };
 </script>

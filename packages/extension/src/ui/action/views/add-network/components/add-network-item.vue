@@ -46,7 +46,7 @@ import customNetworkIcon from '@/ui/action/icons/common/custom-network-icon.vue'
 import { NetworkNames } from '@enkryptcom/types';
 import Tooltip from '@/ui/action/components/tooltip/index.vue';
 
-import { trackNetworkSelected } from '@/libs/metrics';
+import { trackNetwork } from '@/libs/metrics';
 import { NetworkChangeEvents } from '@/libs/metrics/types';
 
 const emit = defineEmits<{
@@ -88,7 +88,7 @@ const setPinned = async () => {
 const deleteNetwork = async () => {
   const chainId = (props.network as unknown as CustomEvmNetwork).chainID;
   if (chainId !== undefined) {
-    trackNetworkSelected(NetworkChangeEvents.NetworkDeleteCustomNetwork, {
+    trackNetwork(NetworkChangeEvents.NetworkDeleteCustomNetwork, {
       customChainId: chainId,
     });
     emit('networkDeleted', chainId);
