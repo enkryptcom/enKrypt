@@ -47,3 +47,13 @@ export enum DAppsEventType {
 export enum SettingEventType {
   OptOut = 'opt_out',
 }
+
+export enum UpdatesEventType {
+  UpdatesOpen = 'updates_open',
+  UpdatesClosed = 'updates_closed',
+}
+
+export enum UpdatesOpenLocation {
+  settings = 'settings',
+  logo = "logo",
+}

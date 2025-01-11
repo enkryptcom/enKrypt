@@ -10,7 +10,7 @@
           <logo-min class="app__menu-logo" />
           <updated-icon
             v-if="loadedUpdates && showUpdatesBtn"
-            @click="openUpdatesDialog"
+            @click="openUpdatesDialog(UpdatesOpenLocation.logo)"
             class="app__menu-updated"
           />
         </div>
@@ -32,7 +32,7 @@
             <a
               v-if="loadedUpdates"
               class="app__menu-dropdown-link"
-              @click="openUpdatesDialog"
+              @click="openUpdatesDialog(UpdatesOpenLocation.settings)"
             >
               <heart-icon class="app__menu-dropdown-link-heart"></heart-icon>
               <span> Updates</span>
@@ -117,6 +117,7 @@
       v-if="loadedUpdates && showUpdatesDialog"
       :versions="releases?.versions"
       :current-version="currentVersion"
+      :current-network="currentNetwork.name"
       @close:popup="closeUpdatesDialog"
     />
   </div>
@@ -171,10 +172,19 @@ import { EnkryptProviderEventMethods, ProviderName } from '@/types/provider';
 import { onClickOutside } from '@vueuse/core';
 import RateState from '@/libs/rate-state';
 import SwapLookingAnimation from '@action/icons/swap/swap-looking-animation.vue';
-import { trackBuyEvents, trackNetworkSelected } from '@/libs/metrics';
+import {
+  trackBuyEvents,
+  trackNetworkSelected,
+  trackUpdatesEvents,
+} from '@/libs/metrics';
 import { getLatestEnkryptVersion } from '@action/utils/browser';
 import { gt as semverGT } from 'semver';
-import { BuyEventType, NetworkChangeEvents } from '@/libs/metrics/types';
+import {
+  BuyEventType,
+  NetworkChangeEvents,
+  UpdatesEventType,
+  UpdatesOpenLocation,
+} from '@/libs/metrics/types';
 import { NetworksCategory } from '@action/types/network-category';
 import { newNetworks } from '@/providers/common/libs/new-features';
 import UpdatesState from '@/libs/updates-state';
@@ -258,13 +268,17 @@ const getShowUpdatesBtn = async () => {
     console.error('Failed to get show updates button:', error);
   }
 };
-const openUpdatesDialog = () => {
+const openUpdatesDialog = (_location: UpdatesOpenLocation) => {
   showUpdatesDialog.value = true;
   updatesState.setLastVersionViewed(currentVersion);
   showUpdatesBtn.value = false;
   if (isOpenMore.value) {
     closeMoreMenu();
   }
+  trackUpdatesEvents(UpdatesEventType.UpdatesOpen, {
+    network: currentNetwork.value.name,
+    location: _location,
+  });
 };
 
 const closeUpdatesDialog = () => {

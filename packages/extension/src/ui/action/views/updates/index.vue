@@ -65,11 +65,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed, PropType } from 'vue';
+import { computed, onMounted, PropType, ref } from 'vue';
 import UpdatesHeader from './components/updates-header.vue';
 import UpdatesNetwork from './components/updates-network.vue';
 import { useTimeAgo } from '@vueuse/core';
 import { Version } from '@/ui/action/types/updates';
+import { trackUpdatesEvents } from '@/libs/metrics';
+import { UpdatesEventType } from '@/libs/metrics/types';
+import { NetworkNames } from '@enkryptcom/types';
 
 const emit = defineEmits<{
   (e: 'close:popup'): void;
@@ -82,6 +85,10 @@ const props = defineProps({
   },
   versions: {
     type: Array as PropType<Version[]>,
+  },
+  currentNetwork: {
+    type: String as PropType<NetworkNames>,
+    required: true,
   },
 });
 
@@ -130,8 +137,21 @@ const getSwapTitle = (version: Version) => {
     : 'Swap added to chain:';
 };
 
+/** -------------------
+ * Close
+ * ------------------- */
+const timeOpen = ref<number>(0);
+
+onMounted(() => {
+  timeOpen.value = Date.now();
+});
 const close = () => {
   emit('close:popup');
+  const timeSinceOpen = Date.now() - timeOpen.value;
+  trackUpdatesEvents(UpdatesEventType.UpdatesClosed, {
+    network: props.currentNetwork,
+    duration: timeSinceOpen,
+  });
 };
 </script>
 
