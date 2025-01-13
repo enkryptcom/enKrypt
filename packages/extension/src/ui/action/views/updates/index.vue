@@ -104,7 +104,7 @@ const displayVersions = computed(() => {
   if (index === -1) {
     return props.versions.slice(0, 10);
   } else {
-    return props.versions.slice(index, 10);
+    return props.versions.slice(index, index + 10);
   }
 });
 

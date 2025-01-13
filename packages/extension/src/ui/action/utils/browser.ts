@@ -61,18 +61,18 @@ export const getLatestEnkryptVersion = (): Promise<string> => {
     .catch(() => null);
 };
 
-export const getLatestEnkryptUpdates = (): Promise<Updates> => {
+export const getLatestEnkryptUpdates = (): Promise<Updates | null> => {
 
   const browser = detectBrowser();
   const url = 'https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/configs/release-versions'
   const fetchUrl = browser === BROWSER_NAMES.safari ? `${url}-safari.json` : `${url}.json`
-  console.log(fetchUrl)
   return fetch(
     fetchUrl
   )
     .then(res => res.json())
-    .then(releases => {
-      return releases;
-    })
-    .catch(() => null);
+    .catch((error) => {
+      console.error('Failed to fetch updates:', error);
+      return null
+    }
+    );
 };

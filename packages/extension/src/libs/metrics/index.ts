@@ -81,7 +81,7 @@ const trackUpdatesEvents = (event: UpdatesEventType, options: {
   network: NetworkNames;
   location?: UpdatesOpenLocation;
   duration?: number;
-}) => {
+}): void => {
   metrics.track('updatesClick', { event, ...options });
 
 }

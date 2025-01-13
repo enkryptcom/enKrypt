@@ -243,7 +243,10 @@ const initUpdateState = async () => {
   const currentReleaseInState = await updatesState.getCurrentRelease();
   stateCurrentReleaseTimestamp.value =
     await updatesState.getCurrentReleaseTimestamp();
-  if (currentReleaseInState !== currentVersion) {
+  if (
+    currentReleaseInState === '' ||
+    currentReleaseInState !== currentVersion
+  ) {
     await updatesState.setCurrentRelease(currentVersion);
     const newReleaseTimestamp = Date.now();
     await updatesState.setCurrentReleaseTimestamp(newReleaseTimestamp);

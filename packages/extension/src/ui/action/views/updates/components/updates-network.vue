@@ -27,7 +27,7 @@ const props = defineProps({
 
 const resolvedImg = ref('');
 const isLoaded = ref(false);
-const networkName = ref('Unkown');
+const networkName = ref('Unknown');
 
 getNetworkByName(props.networkId)
   .then(network => {
@@ -42,7 +42,7 @@ getNetworkByName(props.networkId)
       `Failed to load image in news for: ${props.networkId}`,
       error,
     );
-    isLoaded.value = true;
+    isLoaded.value = false;
     resolvedImg.value = '';
   });
 

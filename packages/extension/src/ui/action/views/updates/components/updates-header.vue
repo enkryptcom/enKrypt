@@ -1,9 +1,14 @@
 <template>
   <div class="settings__header">
     <h2>What's New</h2>
-    <a class="settings__close" @click="$emit('window:close')">
+    <button
+      type="button"
+      class="settings__close"
+      @click="$emit('window:close')"
+      aria-label="Close what's new popup"
+    >
       <close-icon />
-    </a>
+    </button>
   </div>
 </template>
 
@@ -26,6 +31,16 @@ defineEmits<{
     box-sizing: border-box;
     padding: 24px 72px 12px 32px;
     margin-bottom: 8px;
+
+    button {
+      background: none;
+      color: inherit;
+      border: none;
+      padding: 0;
+      font: inherit;
+      cursor: pointer;
+      outline: inherit;
+    }
 
     h2 {
       font-style: normal;

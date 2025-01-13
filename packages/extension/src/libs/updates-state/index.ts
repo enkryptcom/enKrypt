@@ -14,46 +14,46 @@ class UpdatesState {
   }
 
   async getState(): Promise<IState> {
-    return this.storage.get(StorageKeys.updatesInfo);
+    const state = this.storage.get(StorageKeys.updatesInfo);
+    if (!state) {
+      const newState: IState = {
+        lastVersionViewed: '',
+        currentRelease: '',
+        currentReleaseTimestamp: 0,
+      }
+      return newState
+    }
+    return state;
   }
 
   async getLastVersionViewed(): Promise<IState['lastVersionViewed']> {
-    const state: IState | undefined = await this.getState();
-    if (state && state.lastVersionViewed) {
-      return state.lastVersionViewed;
-    }
-    return '';
+    const state: IState = await this.getState();
+    return state?.lastVersionViewed ?? '';
   }
   async setLastVersionViewed(lastVersionViewed: string): Promise<void> {
-    const state: IState | undefined = await this.getState();
+    const state: IState = await this.getState();
     const newState: IState = { ...state, lastVersionViewed }
     await this.setState(newState);
   }
 
   async getCurrentRelease(): Promise<IState['currentRelease']> {
-    const state: IState | undefined = await this.getState();
-    if (state && state.currentRelease) {
-      return state.currentRelease;
-    }
-    return ''
+    const state: IState = await this.getState();
+    return state?.currentRelease ?? '';
   }
 
   async setCurrentRelease(currentRelease: string): Promise<void> {
-    const state: IState | undefined = await this.getState();
+    const state: IState = await this.getState();
     const newState: IState = { ...state, currentRelease }
     await this.setState(newState);
   }
 
   async getCurrentReleaseTimestamp(): Promise<IState['currentReleaseTimestamp']> {
-    const state: IState | undefined = await this.getState();
-    if (state && state.currentReleaseTimestamp) {
-      return state.currentReleaseTimestamp;
-    }
-    return 0
+    const state: IState = await this.getState();
+    return state?.currentReleaseTimestamp ?? 0;
   }
 
   async setCurrentReleaseTimestamp(currentReleaseTimestamp: number): Promise<void> {
-    const state: IState | undefined = await this.getState();
+    const state: IState = await this.getState();
     const newState: IState = { ...state, currentReleaseTimestamp }
     await this.setState(newState);
   }
