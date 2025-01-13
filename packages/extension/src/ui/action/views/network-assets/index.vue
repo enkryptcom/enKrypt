@@ -21,7 +21,7 @@
             :token="item"
             :network="network"
             @update:tokens="updateAssets"
-          ></network-assets-item>
+          />
           <div
             v-show="network.customTokens && assets.length !== 0"
             class="network-assets__add-token"
@@ -37,7 +37,7 @@
         </div>
       </custom-scrollbar>
 
-      <network-assets-loading v-if="isLoading"></network-assets-loading>
+      <network-assets-loading v-if="isLoading" />
 
       <deposit
         v-if="!!props.accountInfo.selectedAccount"

@@ -58,6 +58,9 @@ import SwapAddedIcon from '@/ui/action/icons/asset/swap-added-icon.vue';
 import PinIcon from '@action/icons/actions/pin.vue';
 import DragIcon from '@action/icons/common/drag-icon.vue';
 
+import { trackNetwork } from '@/libs/metrics';
+import { NetworkChangeEvents, NetworkType } from '@/libs/metrics/types';
+
 const props = defineProps({
   network: {
     type: Object as PropType<NodeType>,
@@ -177,6 +180,16 @@ watch(
  * ------------------------*/
 
 const setPinned = async () => {
+  const networkType = props.network.isTestNetwork
+    ? NetworkType.Testnet
+    : props.network.isCustomNetwork
+      ? NetworkType.Custom
+      : NetworkType.Regular;
+  trackNetwork(NetworkChangeEvents.NetworkPinnedStatusChanged, {
+    network: props.network.name,
+    networkType: networkType,
+    isPinned: !props.isPinned,
+  });
   emit('update:pinNetwork', props.network.name, !props.isPinned);
 };
 

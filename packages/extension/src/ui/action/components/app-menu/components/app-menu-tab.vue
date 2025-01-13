@@ -40,6 +40,8 @@
 <script setup lang="ts">
 import { PropType } from 'vue';
 import { NetworksCategory } from '@action/types/network-category';
+import { trackNetwork } from '@/libs/metrics';
+import { NetworkChangeEvents } from '@/libs/metrics/types';
 
 defineProps({
   activeCategory: {
@@ -51,6 +53,9 @@ const emit = defineEmits<{
   (e: 'update:category', category: NetworksCategory): void;
 }>();
 const setActiveCategory = (category: NetworksCategory) => {
+  trackNetwork(NetworkChangeEvents.NetworkTabsClicked, {
+    networkTab: category,
+  });
   emit('update:category', category);
 };
 </script>
