@@ -7,6 +7,7 @@ import {
   GenericEvents,
   NFTEventType,
   NetworkChangeEvents,
+  NetworkType,
   SendEventType,
   SettingEventType,
   SwapEventType,
@@ -20,9 +21,24 @@ const trackGenericEvents = (event: GenericEvents) => {
   metrics.track('generic', { event });
 };
 
-const trackNetworkSelected = (
+const trackNetwork = (
   event: NetworkChangeEvents,
-  options: { provider: ProviderName; network: NetworkNames },
+  options: {
+    provider?: ProviderName;
+    network?: NetworkNames,
+    networkTab?: string,
+    networkType?: NetworkType,
+    isPinned?: boolean,
+    sortOption?: string,
+    customRpcUrl?: string,
+    customNetworkName?: string,
+    customNetworkNameLong?: string,
+    customNetworkCurrency?: string,
+    customNetworkCurrencyLong?: string,
+    customChainId?: string,
+    customBlockExplorerUrlTx?: string
+    customBlockExplorerUrlAddr?: string
+  },
 ) => {
   metrics.track('network', { event, ...options });
 };
@@ -97,7 +113,7 @@ const optOutofMetrics = (optOut: boolean) => {
 };
 
 export {
-  trackNetworkSelected,
+  trackNetwork,
   trackSwapEvents,
   trackBuyEvents,
   trackSendEvents,

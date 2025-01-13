@@ -91,6 +91,9 @@ import { toHex } from 'web3-utils';
 import CustomNetworksState from '@/libs/custom-networks-state';
 import NetworksState from '@/libs/networks-state';
 
+import { trackNetwork } from '@/libs/metrics';
+import { NetworkChangeEvents } from '@/libs/metrics/types';
+
 interface NetworkConfigItem {
   name: string;
   chain: string;
@@ -263,6 +266,18 @@ const sendAction = async () => {
 
   await customNetworksState.addCustomNetwork(customNetworkOptions);
   await networksState.setNetworkStatus(customNetworkOptions.name, true);
+
+  trackNetwork(NetworkChangeEvents.NetworkCustomNetworkAdded, {
+    customRpcUrl: customNetworkOptions.node,
+    customNetworkName: customNetworkOptions.name,
+    customNetworkNameLong: customNetworkOptions.name_long,
+    customChainId: customNetworkOptions.chainID,
+    customNetworkCurrency: customNetworkOptions.currencyName,
+    customNetworkCurrencyLong: customNetworkOptions.currencyNameLong,
+    customBlockExplorerUrlTx: customNetworkOptions.blockExplorerTX,
+    customBlockExplorerUrlAddr: customNetworkOptions.blockExplorerAddr,
+  });
+
   emit('update:pinNetwork', customNetworkOptions.name, true);
   nameValue.value = '';
   symbolValue.value = '';
