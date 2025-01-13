@@ -833,7 +833,8 @@ body {
         &-heart {
           width: 18px !important;
           height: 18px !important;
-          margin-right: 18px !important;
+          margin-right: 16px !important;
+          margin-left: 16px !important;
         }
 
         &:hover,
