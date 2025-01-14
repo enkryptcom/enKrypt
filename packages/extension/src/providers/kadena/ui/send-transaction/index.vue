@@ -127,6 +127,7 @@ import getUiPath from '@/libs/utils/get-ui-path';
 import { ProviderName } from '@/types/provider';
 import Browser from 'webextension-polyfill';
 import { ICommandResult } from '@kadena/client';
+import RecentlySentAddressesState from '@/libs/recently-sent-addresses';
 
 const props = defineProps({
   network: {
@@ -322,7 +323,7 @@ const validateFields = async () => {
 
       if (rawAmount.add(rawFee).gt(rawBalance)) {
         fieldsValidation.value.amount = false;
-        errorMsg.value = 'Insufficient funds';
+        errorMsg.value = 'Not enough balance.';
         return;
       }
 
@@ -466,7 +467,14 @@ const isDisabled = computed(() => {
   );
 });
 
+const recentlySentAddresses = new RecentlySentAddressesState();
+
 const sendAction = async () => {
+  await recentlySentAddresses.addRecentlySentAddress(
+    props.network,
+    addressTo.value,
+  );
+
   const keyring = new PublicKeyRing();
   const fromAccount = await keyring.getAccount(addressFrom.value);
   const networkApi = (await props.network.api()) as KadenaAPI;

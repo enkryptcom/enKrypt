@@ -1,30 +1,65 @@
 <template>
-  <a class="app-menu__link" :class="{ active: isActive }">
-    <img ref="imageTag" :src="network.icon" alt="" />
-    <span>{{ network.name_long }} </span
-    ><test-network-icon v-if="network.isTestNetwork" />
-    <span
-      v-if="newNetworks.includes(network.name)"
-      class="tag tag-new tag-sm shimmer"
-      >New</span
-    >
-    <span
-      v-if="newSwaps.includes(network.name)"
-      class="tag tag-swap tag-sm shimmer"
-      >Swap</span
-    >
-    <div class="app-menu__link-drag">
-      <drag-icon />
+  <a
+    :id="network.name"
+    ref="target"
+    class="app-menu__link hover-transition-no-bg"
+    :class="[
+      { active: isActive },
+      { 'sticky-top': isStickyTop },
+      { 'sticky-bottom': isStickyTop === false },
+    ]"
+  >
+    <div class="app-menu__link__block">
+      <div style="position: relative">
+        <img ref="imageTag" :src="network.icon" alt="" />
+        <new-icon
+          v-if="newNetworkTags.networks.includes(network.name)"
+          class="app-menu-network-tag app-menu-network-tag-new"
+        />
+        <div
+          v-if="
+            !newNetworkTags.networks.includes(network.name) &&
+            newNetworkTags.swap.includes(network.name)
+          "
+          class="app-menu-network-tag app-menu-network-tag-swap"
+        >
+          <swap-added-icon
+            class="app-menu-network-tag-swap-icon"
+          ></swap-added-icon>
+        </div>
+      </div>
+      <span>{{ network.name_long }} </span
+      ><test-network-icon
+        v-if="network.isTestNetwork"
+        class="test-network-icon"
+      />
+    </div>
+    <div class="app-menu__link__block">
+      <DragIcon v-if="canDrag" class="app-menu__link__block__drag" />
+      <div
+        :class="[
+          'app-menu__link__block__pin',
+          { 'app-menu__link__block__pin__visible': props.isPinned },
+        ]"
+        @click.stop="setPinned"
+      >
+        <pin-icon :is-pinned="props.isPinned" :is-active="true" />
+      </div>
     </div>
   </a>
 </template>
 
 <script setup lang="ts">
 import { NodeType } from '@/types/provider';
-import { PropType, ref, watch } from 'vue';
-import DragIcon from '@action/icons/common/drag-icon.vue';
+import { PropType, ref, watch, onMounted, nextTick, onUnmounted } from 'vue';
 import TestNetworkIcon from '@action/icons/common/test-network-icon.vue';
-import { newNetworks, newSwaps } from '@/providers/common/libs/new-features';
+import NewIcon from '@action/icons/asset/new-icon.vue';
+import SwapAddedIcon from '@/ui/action/icons/asset/swap-added-icon.vue';
+import PinIcon from '@action/icons/actions/pin.vue';
+import DragIcon from '@action/icons/common/drag-icon.vue';
+
+import { trackNetwork } from '@/libs/metrics';
+import { NetworkChangeEvents, NetworkType } from '@/libs/metrics/types';
 
 const props = defineProps({
   network: {
@@ -39,11 +74,38 @@ const props = defineProps({
       return false;
     },
   },
+  isPinned: {
+    type: Boolean,
+    required: true,
+  },
+  scrollPosition: {
+    type: Number,
+    default: 0,
+  },
+  canDrag: {
+    type: Boolean,
+    required: false,
+    default: false,
+  },
+  newNetworkTags: {
+    type: Object as PropType<{ networks: string[]; swap: string[] }>,
+    default: () => {
+      return { networks: [], swap: [] };
+    },
+  },
 });
+
 const imageTag = ref<HTMLImageElement | null>(null);
+
 const emit = defineEmits<{
   (e: 'update:gradient', data: string): void;
+  (e: 'update:pinNetwork', network: string, isPinned: boolean): void;
 }>();
+
+/**
+ * Function to convert the RGB values to a hex color.
+ * The color is used to set the gradient background of the menu items.
+ */
 const componentToHex = (c: number) => {
   const hex = c.toString(16);
   return hex.length == 1 ? '0' + hex : hex;
@@ -87,71 +149,204 @@ const getAverageRGB = (imgEl: HTMLImageElement) => {
     `#${componentToHex(rgb.r)}${componentToHex(rgb.g)}${componentToHex(rgb.b)}`,
   );
 };
+/**
+ * Watcher to get the average RGB value of the image and get position when the menu item is active.
+ */
 watch(
   () => props.isActive,
-  () => {
-    if (props.isActive) getAverageRGB(imageTag.value!);
+  newval => {
+    if (newval) {
+      getAverageRGB(imageTag.value!);
+      getPosition();
+    }
   },
 );
+
+/**
+ * Watcher to recalculate position on pinned.
+ */
+watch(
+  () => props.isPinned,
+  async () => {
+    if (props.isActive) {
+      await nextTick();
+      getPosition();
+    }
+  },
+);
+
+/** ------------------------
+ * Buttons
+ * ------------------------*/
+
+const setPinned = async () => {
+  const networkType = props.network.isTestNetwork
+    ? NetworkType.Testnet
+    : props.network.isCustomNetwork
+      ? NetworkType.Custom
+      : NetworkType.Regular;
+  trackNetwork(NetworkChangeEvents.NetworkPinnedStatusChanged, {
+    network: props.network.name,
+    networkType: networkType,
+    isPinned: !props.isPinned,
+  });
+  emit('update:pinNetwork', props.network.name, !props.isPinned);
+};
+
+/** ------------------------
+ * Scroll
+------------------------*/
+const target = ref<HTMLElement | null>(null);
+
+/**
+ * Reactive variable to determine the sticky state of the menu item.
+ * It is set to `true` if the menu item is sticky at the top, `false` if it is sticky at the bottom, and `undefined` if it is not sticky.
+ */
+const isStickyTop = ref<boolean | undefined>(undefined);
+
+/**
+ * Function to determine the position of the menu item and set its sticky state top or bottom.
+ * It calculates the position based on the scroll position, direction and the offset.
+ */
+const getPosition = () => {
+  if (!target.value) return;
+  const height = target.value?.offsetHeight || 0;
+  const offset = -height;
+  const anchorTop = (target.value?.offsetTop || 0) + offset;
+  if (props.scrollPosition > anchorTop) {
+    isStickyTop.value = true;
+  } else {
+    isStickyTop.value = false;
+  }
+};
+
+/**
+ * Ensures that selected menu items are sticky when the page is mounted.
+ */
+onMounted(() => {
+  nextTick(() => {
+    if (props.isActive) {
+      getPosition();
+    }
+  });
+});
+
+/**
+ * Watcher to update the position of the menu item when the scroll position changes.
+ */
+watch(
+  () => props.scrollPosition,
+  () => {
+    if (props.isActive) {
+      getPosition();
+    }
+  },
+);
+
+onUnmounted(() => {
+  // Clear any cached values or listeners
+  isStickyTop.value = undefined;
+});
 </script>
 
 <style lang="less">
 @import '@action/styles/theme.less';
-.tag {
-  display: inline-block;
-  padding: 0.2em 0.5em 0.3em;
-  border-radius: 8px;
-  margin: 0.25em 0.1em;
-  margin-left: 0.5em;
-}
-.tag-sm {
-  display: inline-block;
-  letter-spacing: 0.15ch;
-  font-weight: 400;
-}
-.tag-swap {
-  background: #41b883;
-  color: #35495e !important;
-}
-.tag-new {
-  background: #a481d5;
-  color: #fff !important;
-}
-.shimmer {
-  color: grey;
-  display: inline-block;
-  -webkit-mask: linear-gradient(-60deg, #000 30%, #0005, #000 70%) right/300%
-    100%;
-  background-repeat: no-repeat;
-  animation: shimmer 2.5s infinite;
-  font-size: 50px;
-  max-width: 200px;
-}
 
-@keyframes shimmer {
-  100% {
-    -webkit-mask-position: left;
+.app-menu-network-tag {
+  background: rgba(0, 122, 255, 1);
+  color: #fff !important;
+  border: 1px solid @white;
+  position: absolute;
+  left: 23px;
+  top: -5px;
+  &-new {
+    padding: 1px 3px 0px 3px;
+    height: 9px;
+    border-radius: 6px;
+  }
+  &-swap {
+    height: 13px;
+    width: 22px;
+    border-radius: 8px;
+    &-icon {
+      display: absolute;
+      padding-left: 2px;
+      padding-top: 1px;
+      width: 19px;
+    }
   }
 }
+
 .app-menu {
   &__link {
     text-decoration: none;
     display: flex;
-    justify-content: flex-start;
+    justify-content: space-between;
+    justify-self: center;
     align-items: center;
     flex-direction: row;
-    width: 100%;
-    height: 40px;
-    margin-bottom: 4px;
+    width: 97%;
+    min-height: 40px !important;
+    max-height: 40px;
+    margin-bottom: 3px;
+    margin-top: 3px;
     cursor: pointer;
     position: relative;
-
+    border-radius: 10px;
+    padding-right: 8px;
+    transition: top 1s linear;
+    transition: bottom 1s linear;
+    &:first-of-type {
+      margin-top: 0; /* Removes top margin for the first element */
+    }
+    &__block {
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      flex-direction: row;
+      gap: 4px;
+      &__pin {
+        max-width: 32px;
+        max-height: 24px;
+        padding: 5px 8px 3px 8px;
+        background: transparent;
+        border-radius: 24px;
+        opacity: 0;
+        transition: @opacity-noBG-transition;
+        &:hover {
+          background: @primaryLight;
+        }
+        &__visible {
+          transition: opacity 300ms ease-in;
+          svg path {
+            fill: #5f6368;
+            fill-opacity: 0.4;
+          }
+          opacity: 1 !important;
+        }
+      }
+      &__drag {
+        max-width: 20px;
+        max-height: 20px;
+        padding: 5px 0px 3px 0px;
+        background: transparent;
+        border-radius: 24px;
+        opacity: 0;
+        transition: opacity 0.3s ease-in;
+      }
+    }
     &:hover {
-      background: @black004;
-      border-radius: 10px;
-
-      .app-menu__link-drag {
-        display: block !important;
+      .app-menu__link__block__drag,
+      .app-menu__link__block__pin {
+        transition: opacity 300ms ease-in;
+        opacity: 1 !important;
+      }
+      .app-menu__link__block__pin__visible {
+        svg path {
+          fill: #684cff;
+          fill-opacity: 1;
+        }
+        opacity: 1 !important;
       }
     }
 
@@ -172,12 +367,38 @@ watch(
     }
 
     &.active {
-      background: @black007;
-      border-radius: 10px;
-
+      background: @white;
+      box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.16);
+      position: -webkit-sticky;
+      position: sticky;
+      z-index: 2;
+      opacity: 1;
       span {
         font-weight: 500;
       }
+      &:hover {
+        background: @white;
+      }
+
+      .app-menu__link__block__pin {
+        transition: opacity 300ms ease-in;
+        opacity: 1;
+      }
+      .app-menu__link__block__pin__visible {
+        svg path {
+          fill: #684cff !important;
+          fill-opacity: 1;
+        }
+        opacity: 1 !important;
+      }
+    }
+    /* Sticky to top or bottom */
+    &.sticky-top {
+      top: 0;
+    }
+
+    &.sticky-bottom {
+      bottom: 0;
     }
 
     &-drag {
@@ -187,8 +408,12 @@ watch(
       top: 50%;
       margin-top: -12px;
       cursor: grab;
-      display: none;
+      opacity: 0;
     }
   }
+}
+.test-network-icon {
+  height: 14px;
+  width: 14px;
 }
 </style>

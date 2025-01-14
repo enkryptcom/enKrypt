@@ -2,22 +2,14 @@
   <div class="send-nft-select__wrap">
     <a class="send-nft-select" @click="$emit('toggleSelect', item.id !== '')">
       <div class="send-nft-select__image">
-        <img v-if="item.image !== ''" :src="item.image" alt="" />
+        <img :src="item.image" alt="" @error="imageLoadError" />
       </div>
       <div class="send-nft-select__info">
         <h5>
-          {{
-            item.name.length > 25
-              ? item.name.substring(0, 25) + '...'
-              : item.name
-          }}
+          {{ $filters.truncate(item.name, 25) }}
         </h5>
         <p>
-          {{
-            item.collectionName.length > 50
-              ? item.collectionName.substring(0, 50) + '...'
-              : item.collectionName
-          }}
+          {{ $filters.truncate(item.collectionName, 50) }}
         </p>
       </div>
 
@@ -43,6 +35,7 @@
 import { PropType } from 'vue';
 import SwitchArrow from '@action/icons/header/switch_arrow.vue';
 import { NFTItemWithCollectionName } from '@/types/nft';
+import { imageLoadError } from '@/ui/action/utils/misc';
 
 defineEmits<{
   (e: 'toggleSelect', val: boolean): void;
