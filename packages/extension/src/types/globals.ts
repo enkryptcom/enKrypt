@@ -7,5 +7,6 @@ export interface EnkryptWindow {
     };
     settings: SettingsType;
   };
+  unisat?: any;
   [key: string]: any;
 }
