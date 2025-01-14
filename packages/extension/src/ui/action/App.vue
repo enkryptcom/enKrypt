@@ -6,7 +6,14 @@
     <div v-show="!isLoading" ref="appMenuRef" class="app__menu">
       <!-- LOGO & TOP MENU -->
       <div class="app__menu-row" :class="{ border: networks.length > 9 }">
-        <logo-min class="app__menu-logo" />
+        <div class="app__menu-row">
+          <logo-min class="app__menu-logo" />
+          <updated-icon
+            v-if="loadedUpdates && showUpdatesBtn"
+            @click="openUpdatesDialog(UpdatesOpenLocation.logo)"
+            class="app__menu-updated"
+          />
+        </div>
         <div>
           <a ref="toggle" class="app__menu-link" @click="toggleMoreMenu">
             <more-icon />
@@ -20,6 +27,15 @@
             </a>
             <a class="app__menu-dropdown-link" @click="settingsAction">
               <settings-icon /> <span>Settings</span>
+            </a>
+            <div v-if="loadedUpdates" class="app__menu-dropdown-divider"></div>
+            <a
+              v-if="loadedUpdates"
+              class="app__menu-dropdown-link"
+              @click="openUpdatesDialog(UpdatesOpenLocation.settings)"
+            >
+              <heart-icon class="app__menu-dropdown-link-heart"></heart-icon>
+              <span> Updates</span>
             </a>
           </div>
         </div>
@@ -97,6 +113,13 @@
       :latest-version="latestVersion"
       @close:popup="updateShow = !updateShow"
     />
+    <modal-updates
+      v-if="loadedUpdates && showUpdatesDialog"
+      :versions="releases?.versions"
+      :current-version="currentVersion"
+      :current-network="currentNetwork.name"
+      @close:popup="closeUpdatesDialog"
+    />
   </div>
 </template>
 
@@ -143,21 +166,37 @@ import { AccountsHeaderData } from './types/account';
 import AddNetwork from './views/add-network/index.vue';
 import ModalRate from './views/modal-rate/index.vue';
 import Settings from './views/settings/index.vue';
+import ModalUpdates from './views/updates/index.vue';
 import { KadenaNetwork } from '@/providers/kadena/types/kadena-network';
 import { EnkryptProviderEventMethods, ProviderName } from '@/types/provider';
 import { onClickOutside } from '@vueuse/core';
 import RateState from '@/libs/rate-state';
 import SwapLookingAnimation from '@action/icons/swap/swap-looking-animation.vue';
-import { trackBuyEvents, trackNetwork } from '@/libs/metrics';
+import {
+  trackBuyEvents,
+  trackNetwork,
+  trackUpdatesEvents,
+} from '@/libs/metrics';
 import { getLatestEnkryptVersion } from '@action/utils/browser';
 import { gt as semverGT } from 'semver';
-import { BuyEventType, NetworkChangeEvents } from '@/libs/metrics/types';
+import {
+  BuyEventType,
+  NetworkChangeEvents,
+  UpdatesEventType,
+  UpdatesOpenLocation,
+} from '@/libs/metrics/types';
 import { NetworksCategory } from '@action/types/network-category';
 import { newNetworks } from '@/providers/common/libs/new-features';
+import UpdatesState from '@/libs/updates-state';
+import UpdatedIcon from '@/ui/action/icons/updates/updated.vue';
+import HeartIcon from '@/ui/action/icons/updates/heart.vue';
+import { getLatestEnkryptUpdates } from '@action/utils/browser';
+import { Updates } from '@/ui/action/types/updates';
 
 const domainState = new DomainState();
 const networksState = new NetworksState();
 const rateState = new RateState();
+const updatesState = new UpdatesState();
 const appMenuRef = ref(null);
 const showDepositWindow = ref(false);
 const accountHeaderData = ref<AccountsHeaderData>({
@@ -191,7 +230,107 @@ const isLoading = ref(true);
 const currentVersion = __PACKAGE_VERSION__;
 const latestVersion = ref('');
 const enabledTestnetworks = ref<string[]>([]);
+/** -------------------
+ * Updates
+ -------------------*/
+const releases = ref<Updates | null>(null);
+const loadedUpdates = ref<boolean>(false);
+const showUpdatesBtn = ref<boolean>(false);
+const showUpdatesDialog = ref<boolean>(false);
+const stateCurrentReleaseTimestamp = ref<number>(0);
 
+/**
+ * Initializes the update state by performing the following actions:
+ * 1. Retrieves the current release from the state.
+ * 2. Updates the current release timestamp.
+ * 3. If the current release is empty or different from the current version in the app state,
+ *    sets the current release and updates the release timestamp.
+ * 4. Fetches the latest Enkrypt updates and sets the releases state.
+ * 5. Displays the updates button if there are new releases.
+ * 6. Sets the loadedUpdates state to true if successful, otherwise false.
+ *
+ * @async
+ * @function initUpdateState
+ * @returns {Promise<void>} A promise that resolves when the update state is initialized.
+ * @throws Will log an error message if the initialization fails.
+ */
+const initUpdateState = async () => {
+  try {
+    const currentReleaseInState = await updatesState.getCurrentRelease();
+    stateCurrentReleaseTimestamp.value =
+      await updatesState.getCurrentReleaseTimestamp();
+    if (
+      currentReleaseInState === '' ||
+      currentReleaseInState !== currentVersion
+    ) {
+      await updatesState.setCurrentRelease(currentVersion);
+      const newReleaseTimestamp = Date.now();
+      await updatesState.setCurrentReleaseTimestamp(newReleaseTimestamp);
+      stateCurrentReleaseTimestamp.value = newReleaseTimestamp;
+    }
+    releases.value = await getLatestEnkryptUpdates();
+    if (releases.value) {
+      await getShowUpdatesBtn();
+    }
+    loadedUpdates.value = true;
+  } catch (error) {
+    console.error('Failed to init update state:', error);
+    loadedUpdates.value = false;
+  }
+};
+
+/**
+ * Asynchronously determines whether to show the updates button based on the last version viewed and the current version.
+ *
+ * The function performs the following steps:
+ * 1. Retrieves the last version viewed from the updates state.
+ * 2. Checks if the last version viewed is empty or if the current version is greater than the last version viewed.
+ * 3. If the above condition is true, calculates an expiration timestamp (2 weeks from the current release timestamp).
+ * 4. Sets the `showUpdatesBtn` value to true if the current release timestamp is less than the expiration timestamp.
+ * 5. Otherwise, sets the `showUpdatesBtn` value to false.
+ *
+ * If an error occurs during the process, it logs an error message to the console.
+ *
+ * @returns {Promise<void>} A promise that resolves when the function completes.
+ */
+const getShowUpdatesBtn = async () => {
+  try {
+    const lastVersionViewed = await updatesState.getLastVersionViewed();
+    if (
+      lastVersionViewed === '' ||
+      (currentVersion && semverGT(currentVersion, lastVersionViewed))
+    ) {
+      const expireTimestamp = stateCurrentReleaseTimestamp.value + 12096e5; //2 weeks;
+      showUpdatesBtn.value =
+        stateCurrentReleaseTimestamp.value < expireTimestamp;
+    } else {
+      showUpdatesBtn.value = false;
+    }
+  } catch (error) {
+    console.error('Failed to get show updates button:', error);
+  }
+};
+
+const openUpdatesDialog = (_location: UpdatesOpenLocation) => {
+  showUpdatesDialog.value = true;
+  updatesState.setLastVersionViewed(currentVersion);
+  showUpdatesBtn.value = false;
+  if (isOpenMore.value) {
+    closeMoreMenu();
+  }
+  trackUpdatesEvents(UpdatesEventType.UpdatesOpen, {
+    network: currentNetwork.value.name,
+    location: _location,
+  });
+};
+
+const closeUpdatesDialog = () => {
+  showUpdatesDialog.value = false;
+};
+
+/** -------------------
+ * Core
+ -------------------*/
 const setActiveNetworks = async () => {
   const pinnedNetworkNames = await networksState.getPinnedNetworkNames();
   const allNetworks = await getAllNetworks();
@@ -246,6 +385,7 @@ const isKeyRingLocked = async (): Promise<boolean> => {
     tabId: await domainState.getCurrentTabId(),
   }).then(res => JSON.parse(res.result || 'true'));
 };
+
 const init = async () => {
   const curNetwork = await domainState.getSelectedNetWork();
   if (curNetwork) {
@@ -258,6 +398,7 @@ const init = async () => {
   await setActiveNetworks();
   isLoading.value = false;
 };
+
 onMounted(async () => {
   const isInitialized = await kr.isInitialized();
   if (isInitialized) {
@@ -287,6 +428,7 @@ onMounted(async () => {
         });
       }, 2000);
     }
+    initUpdateState();
   } else {
     openOnboard();
   }
@@ -621,6 +763,16 @@ body {
     &-logo {
       margin-left: 8px;
     }
+    &-updated {
+      height: 24px;
+      width: 90px;
+      cursor: pointer;
+      transition: 0.3s;
+      filter: brightness(1);
+      &:hover {
+        filter: brightness(0.9);
+      }
+    }
 
     &-row {
       height: 40px;
@@ -689,6 +841,13 @@ body {
       top: 48px;
       z-index: 3;
 
+      &-divider {
+        height: 1px;
+        width: 90%;
+        margin: 8px;
+        background: @gray02;
+      }
+
       &-link {
         width: 100%;
         height: 48px;
@@ -699,6 +858,13 @@ body {
         cursor: pointer;
         transition: background 300ms ease-in-out;
         border-radius: 8px;
+
+        &-heart {
+          width: 18px !important;
+          height: 18px !important;
+          margin-right: 16px !important;
+          margin-left: 16px !important;
+        }
 
         &:hover,
         &.active {

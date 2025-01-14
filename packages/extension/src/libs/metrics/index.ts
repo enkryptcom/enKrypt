@@ -11,6 +11,8 @@ import {
   SendEventType,
   SettingEventType,
   SwapEventType,
+  UpdatesEventType,
+  UpdatesOpenLocation
 } from './types';
 
 const metrics = new Metrics();
@@ -91,6 +93,14 @@ const trackDAppsEvents = (
   metrics.track('dapps', { event, ...options });
 };
 
+const trackUpdatesEvents = (event: UpdatesEventType, options: {
+  network: NetworkNames;
+  location?: UpdatesOpenLocation;
+  duration?: number;
+}): void => {
+  metrics.track('updatesClick', { event, ...options });
+
+}
 const optOutofMetrics = (optOut: boolean) => {
   if (!__IS_FIREFOX__) {
     metrics.setOptOut(false);
@@ -111,4 +121,5 @@ export {
   trackDAppsEvents,
   optOutofMetrics,
   trackGenericEvents,
+  trackUpdatesEvents
 };

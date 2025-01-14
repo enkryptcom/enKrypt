@@ -237,6 +237,7 @@ const disconnectFromDapp = async () => {
         height: 32px;
         margin-right: 12px;
         border-radius: 50%;
+        margin-top: 2px;
       }
       &__active-network {
         position: absolute;
