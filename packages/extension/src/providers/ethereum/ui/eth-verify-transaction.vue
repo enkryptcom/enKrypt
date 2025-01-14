@@ -73,7 +73,7 @@
           <p>
             Warning: you will allow this DApp to spend {{ approvalAmount }} of
             {{ decodedTx?.tokenName || network.currencyName }} at any time in
-            the future. Please proceed only if you are trust this DApp.
+            the future. Please proceed only if you trust this DApp.
           </p>
         </div>
       </div>
