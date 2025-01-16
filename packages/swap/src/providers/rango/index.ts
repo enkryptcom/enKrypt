@@ -311,6 +311,13 @@ class Rango extends ProviderClass {
   async init(tokenList?: TokenType[]): Promise<void> {
     logger.info(`init: Initialising against ${tokenList?.length} tokens...`);
 
+    if (!Rango.isNetworkSupportedByEnkrypt(this.network)) {
+      logger.info(
+        `init: Enkrypt does not support network on Rango: ${this.network}`,
+      );
+      return;
+    }
+
     const [rangoMeta, swaplist] = await Promise.all([
       rangoClient.meta({
         excludeNonPopulars: true,
@@ -429,10 +436,16 @@ class Rango extends ProviderClass {
     return matchingRangoBlockchain;
   }
 
+  static isNetworkSupportedByEnkrypt(
+    supportedNetworkName: SupportedNetworkName,
+  ): boolean {
+    return supportedNetworkInfoByName.has(supportedNetworkName);
+  }
+
   /**
    * Is this network supported by both enkrypt and rango?
    */
-  static isNetworkSupported(
+  static isNetworkSupportedByEnkryptAndRango(
     supportedNetworkName: SupportedNetworkName,
     rangoBlockchains: ReadonlyArray<BlockchainMeta>,
   ): boolean {

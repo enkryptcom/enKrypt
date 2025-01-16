@@ -1,6 +1,7 @@
 import icon from './icons/eth.svg';
 import { NetworkNames } from '@enkryptcom/types';
 import { EvmNetwork, EvmNetworkOptions } from '../types/evm-network';
+import wrapActivityHandler from '@/libs/activity-state/wrap-activity-handler';
 
 const holeskyOptions: EvmNetworkOptions = {
   name: NetworkNames.Holesky,
@@ -14,7 +15,7 @@ const holeskyOptions: EvmNetworkOptions = {
   currencyNameLong: 'Holesky',
   node: 'wss://nodes.mewapi.io/ws/holesky',
   icon,
-  activityHandler: () => Promise.resolve([]),
+  activityHandler: wrapActivityHandler(() => Promise.resolve([])),
 };
 
 const holesky = new EvmNetwork(holeskyOptions);

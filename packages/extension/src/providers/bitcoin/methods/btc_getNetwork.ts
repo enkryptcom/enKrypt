@@ -27,6 +27,8 @@ const method: MiddlewareFunction = function (
           return res(null, 'livenet');
         if (this.network.name === NetworkNames.BitcoinTest)
           return res(null, 'testnet');
+        if (this.network.name === NetworkNames.Litecoin)
+          return res(null, 'litecoin');
         res(null, '');
       });
   }

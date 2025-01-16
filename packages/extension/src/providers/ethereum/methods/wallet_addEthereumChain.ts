@@ -18,7 +18,7 @@ import { getAllNetworks } from '@/libs/utils/networks';
 import CustomNetworksState from '@/libs/custom-networks-state';
 import NetworksState from '@/libs/networks-state';
 import { EvmNetwork } from '../types/evm-network';
-import { trackNetworkSelected } from '@/libs/metrics';
+import { trackNetwork } from '@/libs/metrics';
 import { NetworkChangeEvents } from '@/libs/metrics/types';
 
 interface AddEthereumChainPayload {
@@ -128,7 +128,7 @@ const setExistingCustomNetwork = async (
     ) as EvmNetwork | undefined;
   }
   if (existingNetwork) {
-    trackNetworkSelected(NetworkChangeEvents.NetworkChangeAPI, {
+    trackNetwork(NetworkChangeEvents.NetworkChangeAPI, {
       provider: ProviderName.ethereum,
       network: existingNetwork.name as NetworkNames,
     });

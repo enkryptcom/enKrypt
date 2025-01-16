@@ -111,11 +111,7 @@
               fromBase(activity.value, activity.token.decimals),
             ).value
           }}
-          <span>{{
-            activity.token.symbol.length > 40
-              ? activity.token.symbol.substring(0, 40) + '...'
-              : activity.token.symbol
-          }}</span>
+          <span>{{ $filters.truncate(activity.token.symbol, 40) }}</span>
         </h4>
         <p>$ {{ $filters.formatFiatValue(getFiatValue).value }}</p>
       </div>
@@ -287,7 +283,7 @@ onMounted(() => {
 .network-activity {
   &__transaction {
     height: 64px;
-    padding: 0 8px;
+    padding: 0 4px;
     position: relative;
     box-sizing: border-box;
     display: flex;
@@ -296,7 +292,7 @@ onMounted(() => {
     flex-direction: row;
     text-decoration: none;
     cursor: pointer;
-    margin: 0 12px;
+    margin: 0 16px;
     border-radius: 10px;
     transition: background 300ms ease-in-out;
 
