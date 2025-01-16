@@ -87,7 +87,7 @@ defineProps({
     text-align: center;
     letter-spacing: 0.5px;
     color: @primaryLabel;
-    opacity: 0.38;
+    opacity: 0.6;
     transition: opacity 300ms ease-in-out;
 
     svg {
@@ -95,7 +95,7 @@ defineProps({
     }
 
     &:hover {
-      opacity: 0.6;
+      opacity: 0.9;
     }
   }
 

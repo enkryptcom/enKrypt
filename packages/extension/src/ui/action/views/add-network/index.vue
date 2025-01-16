@@ -6,9 +6,15 @@
         v-if="isNetworkList"
         :close="closePopup"
         :to-custom="toCustomNetwork"
-        @update:active-networks="setActiveNetworks"
+        @update:pin-network="setPinnedNetwork"
+        @update:test-network-toggle="emit('update:testNetworkToggle')"
       />
-      <add-custom-network v-else :close="closePopup" :back="toNetworkList" />
+      <add-custom-network
+        v-else
+        :close="closePopup"
+        :back="toNetworkList"
+        @update:pin-network="setPinnedNetwork"
+      />
     </div>
   </div>
 </template>
@@ -18,26 +24,33 @@ import { ref } from 'vue';
 import AddNetworkList from './views/add-network-list.vue';
 import AddCustomNetwork from './views/add-custom-network.vue';
 
+import { trackNetwork } from '@/libs/metrics';
+import { NetworkChangeEvents } from '@/libs/metrics/types';
+
 const isNetworkList = ref(true);
 
 const emit = defineEmits<{
   (e: 'close:popup'): void;
-  (e: 'update:activeNetworks'): void;
+  (e: 'update:pinNetwork', network: string, isPinned: boolean): void;
+  (e: 'update:testNetworkToggle'): void;
 }>();
 
-const setActiveNetworks = () => {
-  emit('update:activeNetworks');
+const setPinnedNetwork = (network: string, isPinned: boolean) => {
+  emit('update:pinNetwork', network, isPinned);
 };
 
 const closePopup = () => {
+  isNetworkList.value = true;
   emit('close:popup');
 };
 
 const toCustomNetwork = () => {
   isNetworkList.value = false;
+  trackNetwork(NetworkChangeEvents.NetworkAddCustomClicked, {});
 };
 
 const toNetworkList = () => {
+  trackNetwork(NetworkChangeEvents.NetworkCustomBackButton, {});
   isNetworkList.value = true;
 };
 </script>

@@ -1,7 +1,18 @@
 <template>
   <div class="account">
     <a class="account__info" :class="{ active: active }" @click="showAccounts">
-      <img :src="network.identicon(address)" />
+      <div class="account__info-images">
+        <img
+          :src="network.identicon(address)"
+          class="account__info-images__identicon"
+        />
+        <img
+          :src="network.icon"
+          :alt="`Active network: ${network.name}`"
+          class="account__info-images__active-network"
+        />
+      </div>
+
       <div class="account__info-name">
         <p>{{ name }}</p>
         <span>{{ $filters.replaceWithEllipsis(address, 6, 4) }}</span>
@@ -219,17 +230,31 @@ const disconnectFromDapp = async () => {
     height: 44px;
     cursor: pointer;
     transition: background 300ms ease-in-out;
+    &-images {
+      position: relative;
+      &__identicon {
+        width: 32px;
+        height: 32px;
+        margin-right: 12px;
+        border-radius: 50%;
+        margin-top: 2px;
+      }
+      &__active-network {
+        position: absolute;
+        top: -4px;
+        left: -4px;
+        height: 15px;
+        width: 15px;
+        background: @white;
+        box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.16);
+        padding: 1px;
+        border-radius: 50%;
+      }
+    }
 
     &:hover,
     &.active {
       background: @black007;
-    }
-
-    img {
-      width: 32px;
-      height: 32px;
-      margin-right: 12px;
-      border-radius: 50%;
     }
 
     &-name {
