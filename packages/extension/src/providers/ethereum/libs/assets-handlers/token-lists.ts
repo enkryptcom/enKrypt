@@ -3,6 +3,8 @@ import { CoingeckoPlatform, NetworkNames } from '@enkryptcom/types';
 import { CGToken, SupportedNetworkNames } from './types/tokenbalance-mew';
 const TOKEN_FETCH_TTL = 1000 * 60 * 60;
 const TokenList: Record<SupportedNetworkNames, string> = {
+  [NetworkNames.SyscoinNEVM]: `https://tokens.coingecko.com/${CoingeckoPlatform.Syscoin}/all.json`,
+  [NetworkNames.Rollux]: `https://tokens.coingecko.com/${CoingeckoPlatform.Rollux}/all.json`,
   [NetworkNames.Binance]: `https://tokens.coingecko.com/${CoingeckoPlatform.Binance}/all.json`,
   [NetworkNames.Ethereum]: `https://tokens.coingecko.com/${CoingeckoPlatform.Ethereum}/all.json`,
   [NetworkNames.Matic]: `https://tokens.coingecko.com/${CoingeckoPlatform.Matic}/all.json`,

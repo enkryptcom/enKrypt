@@ -5,8 +5,9 @@ export interface TokenBalance {
   balance: string;
 }
 export interface SupportedNetwork {
-  tbName: string;
+  tbName?: string;
   cgPlatform?: string;
+  bsEndpoint?: boolean;
 }
 export interface CGToken {
   chainId: `0x${string}`;
@@ -26,6 +27,8 @@ export interface ZkSyncBalanceType {
 }
 
 export type SupportedNetworkNames =
+  | NetworkNames.SyscoinNEVM
+  | NetworkNames.Rollux
   | NetworkNames.Binance
   | NetworkNames.Ethereum
   | NetworkNames.Matic
