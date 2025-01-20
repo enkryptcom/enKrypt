@@ -27,8 +27,9 @@ const getBlockscoutBalances = (
   chain: SupportedNetworkNames,
   address: string
 ): Promise<TokenBalance[]> => {
-  const nativeTokenUrl = `${NetworkEndpoints[chain]}api/v2/addresses/${address}`;
-  const tokenBalancesUrl = `${NetworkEndpoints[chain]}api/v2/addresses/${address}/tokens?type=ERC-20`;
+  const encodedAddress = encodeURIComponent(address);
+  const nativeTokenUrl = `${NetworkEndpoints[chain]}api/v2/addresses/${encodedAddress}`;
+  const tokenBalancesUrl = `${NetworkEndpoints[chain]}api/v2/addresses/${encodedAddress}/tokens?type=ERC-20`;
 
   return Promise.all([
     fetch(nativeTokenUrl).then((res) => res.json()),
@@ -39,7 +40,7 @@ const getBlockscoutBalances = (
         return Promise.reject("Error fetching balance data");
       }
 
-      if (isNaN(Number(nativeResponse.coin_balance))) {
+      if (Number.isNaN(Number(nativeResponse.coin_balance))) {
         return Promise.reject("Invalid native token balance");
       }
 
