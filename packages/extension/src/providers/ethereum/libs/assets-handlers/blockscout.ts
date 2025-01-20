@@ -35,8 +35,12 @@ const getBlockscoutBalances = (
     fetch(tokenBalancesUrl).then((res) => res.json()),
   ])
     .then(([nativeResponse, tokenResponse]: [any, TokenResponse]) => {
-      if (!nativeResponse || !tokenResponse) {
+      if (!nativeResponse?.coin_balance || !tokenResponse?.items) {
         return Promise.reject("Error fetching balance data");
+      }
+
+      if (isNaN(Number(nativeResponse.coin_balance))) {
+        return Promise.reject("Invalid native token balance");
       }
 
       // Map native token balance

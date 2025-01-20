@@ -27,8 +27,6 @@ export interface ZkSyncBalanceType {
 }
 
 export type SupportedNetworkNames =
-  | NetworkNames.SyscoinNEVM
-  | NetworkNames.Rollux
   | NetworkNames.Binance
   | NetworkNames.Ethereum
   | NetworkNames.Matic
@@ -53,6 +51,7 @@ export type SupportedNetworkNames =
   | NetworkNames.Celo
   | NetworkNames.ZkSync
   | NetworkNames.Telos
+  | NetworkNames.SyscoinNEVM
   | NetworkNames.Rollux
   | NetworkNames.Sanko
   | NetworkNames.Degen
