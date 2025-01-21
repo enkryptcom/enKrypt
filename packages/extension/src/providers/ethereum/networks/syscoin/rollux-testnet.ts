@@ -16,6 +16,7 @@ const rolluxTestOptions: EvmNetworkOptions = {
   currencyNameLong: 'Test Syscoin',
   node: 'wss://rpc-tanenbaum.rollux.com/wss',
   icon,
+  buyLink: 'https://faucet.rollux.com',
   activityHandler: wrapActivityHandler(EtherscanActivity),
 };
 

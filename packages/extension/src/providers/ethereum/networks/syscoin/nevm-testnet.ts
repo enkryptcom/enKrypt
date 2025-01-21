@@ -16,6 +16,7 @@ const syscoinNEVMTestOptions: EvmNetworkOptions = {
   currencyNameLong: 'Test Syscoin',
   node: 'wss://rpc.tanenbaum.io/wss',
   icon,
+  buyLink: 'https://faucet.syscoin.org',
   activityHandler: wrapActivityHandler(EtherscanActivity),
 };
 

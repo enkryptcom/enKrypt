@@ -20,6 +20,7 @@ const rolluxOptions: EvmNetworkOptions = {
   coingeckoPlatform: CoingeckoPlatform.Rollux,
   icon,
   assetsInfoHandler,
+  buyLink: 'https://trade.coinify.com/syscoin?defaultCryptoCurrency=SYSROLLUX&cryptoCurrencies=SYSROLLUX,SYSEVM,SYS&targetPage=buy',
   activityHandler: wrapActivityHandler(EtherscanActivity),
 };
 

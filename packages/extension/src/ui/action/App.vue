@@ -362,14 +362,27 @@ const toggleDepositWindow = () => {
   showDepositWindow.value = !showDepositWindow.value;
 };
 const openBuyPage = () => {
-  const buyLink =
-    currentNetwork.value.name === NetworkNames.KadenaTestnet
-      ? (currentNetwork.value as KadenaNetwork).options.buyLink
-      : `https://ccswap.myetherwallet.com/?to=${currentNetwork.value.displayAddress(
+  const buyLink = (() => {
+    console.log([currentNetwork.value, (currentNetwork.value as EvmNetwork).options]);
+    switch (currentNetwork.value.name) {
+      case NetworkNames.KadenaTestnet:
+        return (currentNetwork.value as KadenaNetwork).options.buyLink;
+      case NetworkNames.SyscoinNEVM:
+      case NetworkNames.Rollux:
+        return `${(currentNetwork.value as EvmNetwork).options.buyLink}&address=${currentNetwork.value.displayAddress(
+          accountHeaderData.value.selectedAccount!.address
+        )}`;
+      case NetworkNames.SyscoinNEVMTest:
+      case NetworkNames.RolluxTest:
+        return (currentNetwork.value as EvmNetwork).options.buyLink;
+      default:
+        return `https://ccswap.myetherwallet.com/?to=${currentNetwork.value.displayAddress(
           accountHeaderData.value.selectedAccount!.address,
         )}&network=${currentNetwork.value.name}&crypto=${
           currentNetwork.value.currencyName
         }&platform=enkrypt`;
+    }
+  })();
   Browser.tabs.create({
     url: buyLink,
   });
