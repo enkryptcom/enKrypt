@@ -363,7 +363,6 @@ const toggleDepositWindow = () => {
 };
 const openBuyPage = () => {
   const buyLink = (() => {
-    console.log([currentNetwork.value, (currentNetwork.value as EvmNetwork).options]);
     switch (currentNetwork.value.name) {
       case NetworkNames.KadenaTestnet:
         return (currentNetwork.value as KadenaNetwork).options.buyLink;
