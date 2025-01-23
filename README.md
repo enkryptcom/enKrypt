@@ -99,7 +99,7 @@ Enkrypt is a web3 wallet built from the ground up to support the multi-chain fut
 - Shiden
 - Shiden EVM
 - Sepolia
-- Syscoin
+- Syscoin NEVM
 - Telos EVM
 - Unique
 - Vara Network
