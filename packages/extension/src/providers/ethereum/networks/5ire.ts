@@ -1,9 +1,7 @@
 import icon from './icons/5ire.svg';
 import wrapActivityHandler from '@/libs/activity-state/wrap-activity-handler';
-import { CoingeckoPlatform, NetworkNames } from '@enkryptcom/types';
-import { EtherscanActivity } from '../libs/activity-handlers';
+import { NetworkNames } from '@enkryptcom/types';
 import { EvmNetwork, EvmNetworkOptions } from '../types/evm-network';
-import assetsInfoHandler from '@/providers/ethereum/libs/assets-handlers/assetinfo-mew';
 
 const fireOptions: EvmNetworkOptions = {
   name: NetworkNames.Fire,
@@ -18,14 +16,9 @@ const fireOptions: EvmNetworkOptions = {
   node: 'https://rpc.5ire.network',
   icon,
   coingeckoID: '5ire',
-  coingeckoPlatform: CoingeckoPlatform.Fire,
-  assetsInfoHandler,
-  activityHandler: wrapActivityHandler(EtherscanActivity),
+  activityHandler: wrapActivityHandler(() => Promise.resolve([])),
 };
 
 const fire = new EvmNetwork(fireOptions);
 
 export default fire;
-
-
-

@@ -155,5 +155,4 @@ export enum CoingeckoPlatform {
   Scroll = "scroll",
   Bitrock = "bitrock",
   Fraxtal = "fraxtal",
-  Fire = "5ire",
 }
