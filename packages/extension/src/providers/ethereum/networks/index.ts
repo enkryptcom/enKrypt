@@ -33,6 +33,7 @@ import celoNode from './celo';
 import shibNode from './shib';
 import artheraNode from './aa';
 import formTestnet from './form-testnet';
+import formNode from './form';
 import artheraTestNode from './aat';
 import syscoinNEVMTestNode from './syscoin/nevm-testnet';
 import syscoinNEVMNode from './syscoin/nevm';
@@ -61,6 +62,7 @@ import cotiDevnetNode from './coti-devnet';
 import holeskyNode from './holesky';
 import bitrockNode from './bitrock';
 import fraxtalNode from './fraxtal';
+import _5ireNode from './5ire';
 
 export default {
   sepolia: sepoliaNode,
@@ -107,6 +109,7 @@ export default {
   shib: shibNode,
   arthera: artheraNode,
   formTestnet: formTestnet,
+  form: formNode,
   artheraTest: artheraTestNode,
   syscoinNEVMTest: syscoinNEVMTestNode,
   syscoinNEVM: syscoinNEVMNode,
@@ -135,4 +138,5 @@ export default {
   holesky: holeskyNode,
   bitrock: bitrockNode,
   frax: fraxtalNode,
+  '5ire': _5ireNode,
 };

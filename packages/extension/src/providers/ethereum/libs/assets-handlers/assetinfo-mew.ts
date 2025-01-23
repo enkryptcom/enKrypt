@@ -20,7 +20,7 @@ import { EvmNetwork } from '../../types/evm-network';
 import { getKnownNetworkTokens } from './token-lists';
 import { CoingeckoPlatform, NetworkNames } from '@enkryptcom/types';
 import { NATIVE_TOKEN_ADDRESS } from '../common';
-import getBlockscoutBalances from "./blockscout";
+import getBlockscoutBalances from './blockscout';
 import getTomoBalances from './tomochain';
 import getSolBalances from './solanachain';
 import { CoinGeckoTokenMarket } from '@/libs/market-data/types';

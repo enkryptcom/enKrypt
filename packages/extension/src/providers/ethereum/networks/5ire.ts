@@ -5,7 +5,7 @@ import { EvmNetwork, EvmNetworkOptions } from '../types/evm-network';
 
 const fireOptions: EvmNetworkOptions = {
   name: NetworkNames.Fire,
-  name_long: '5ireChain',
+  name_long: '5ire Chain',
   homePage: 'https://www.5ire.org',
   blockExplorerTX: 'https://5irescan.io/tx/[[txHash]]',
   blockExplorerAddr: 'https://5irescan.io/address/[[address]]',

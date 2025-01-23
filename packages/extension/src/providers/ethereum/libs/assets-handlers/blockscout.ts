@@ -1,7 +1,7 @@
-import { SupportedNetworkNames, TokenBalance } from "./types/tokenbalance-mew";
-import { NetworkEndpoints } from "@/providers/ethereum/libs/activity-handlers/providers/etherscan/configs";
-import { NATIVE_TOKEN_ADDRESS } from "../common";
-import { numberToHex } from "web3-utils";
+import { SupportedNetworkNames, TokenBalance } from './types/tokenbalance-mew';
+import { NetworkEndpoints } from '@/providers/ethereum/libs/activity-handlers/providers/etherscan/configs';
+import { NATIVE_TOKEN_ADDRESS } from '../common';
+import { numberToHex } from 'web3-utils';
 
 interface TokenBalanceType {
   token: string;
@@ -25,23 +25,23 @@ interface TokenResponse {
 
 const getBlockscoutBalances = (
   chain: SupportedNetworkNames,
-  address: string
+  address: string,
 ): Promise<TokenBalance[]> => {
   const encodedAddress = encodeURIComponent(address);
   const nativeTokenUrl = `${NetworkEndpoints[chain]}api/v2/addresses/${encodedAddress}`;
   const tokenBalancesUrl = `${NetworkEndpoints[chain]}api/v2/addresses/${encodedAddress}/tokens?type=ERC-20`;
 
   return Promise.all([
-    fetch(nativeTokenUrl).then((res) => res.json()),
-    fetch(tokenBalancesUrl).then((res) => res.json()),
+    fetch(nativeTokenUrl).then(res => res.json()),
+    fetch(tokenBalancesUrl).then(res => res.json()),
   ])
     .then(([nativeResponse, tokenResponse]: [any, TokenResponse]) => {
       if (!nativeResponse?.coin_balance || !tokenResponse?.items) {
-        return Promise.reject("Error fetching balance data");
+        return Promise.reject('Error fetching balance data');
       }
 
       if (Number.isNaN(Number(nativeResponse.coin_balance))) {
-        return Promise.reject("Invalid native token balance");
+        return Promise.reject('Invalid native token balance');
       }
 
       // Map native token balance
@@ -52,16 +52,16 @@ const getBlockscoutBalances = (
 
       // Map token balances
       const tokenBalances: TokenBalanceType[] = Array.isArray(
-        tokenResponse?.items
+        tokenResponse?.items,
       )
         ? tokenResponse.items
             .filter(
-              (item) =>
+              item =>
                 item?.token?.address &&
-                typeof item.token.address === "string" &&
-                item.value !== undefined
+                typeof item.token.address === 'string' &&
+                item.value !== undefined,
             )
-            .map((item) => ({
+            .map(item => ({
               token: item.token.address.toLowerCase(),
               quantity: item.value,
             }))
@@ -71,14 +71,19 @@ const getBlockscoutBalances = (
       const allBalances = [nativeBalance, ...tokenBalances];
 
       // Convert to TokenBalance format
-      return allBalances.map((tb) => ({
+      return allBalances.map(tb => ({
         contract: tb.token,
         balance: numberToHex(tb.quantity), // Convert to hex format
       }));
     })
-    .catch((error) => {
-      console.error("Error fetching balances:", error);
-      throw error;
+    .catch(error => {
+      console.error('Error fetching balances:', error);
+      return [
+        {
+          contract: NATIVE_TOKEN_ADDRESS,
+          balance: '0x0',
+        },
+      ];
     });
 };
 

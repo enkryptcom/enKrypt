@@ -49,6 +49,7 @@ const NetworkEndpoints: Record<string, string> = {
   [NetworkNames.Base]: 'https://api.basescan.org/',
   [NetworkNames.Celo]: 'https://explorer.celo.org/mainnet/',
   [NetworkNames.FormTestnet]: 'https://testnet-explorer.form.network/',
+  [NetworkNames.Form]: 'https://explorer.form.network/',
   [NetworkNames.ArtheraTest]: 'https://explorer-test.arthera.net/',
   [NetworkNames.Arthera]: 'https://explorer.arthera.net/',
   [NetworkNames.SyscoinNEVMTest]: 'https://explorer.tanenbaum.io/',
