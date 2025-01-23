@@ -108,6 +108,7 @@ Enkrypt is a web3 wallet built from the ground up to support the multi-chain fut
 - ZChains
 - zkSync
 - zkSync Goerli
+- 5ireChain
 - More coming soon!
 
 Looking to add your project? [Contact us!](https://mewwallet.typeform.com/enkrypt-inquiry?typeform-source=www.enkrypt.com)
