@@ -3,6 +3,8 @@ import { CoingeckoPlatform, NetworkNames } from '@enkryptcom/types';
 import { CGToken, SupportedNetworkNames } from './types/tokenbalance-mew';
 const TOKEN_FETCH_TTL = 1000 * 60 * 60;
 const TokenList: Record<SupportedNetworkNames, string> = {
+  [NetworkNames.SyscoinNEVM]: `https://tokens.coingecko.com/${CoingeckoPlatform.Syscoin}/all.json`,
+  [NetworkNames.Rollux]: `https://tokens.coingecko.com/${CoingeckoPlatform.Rollux}/all.json`,
   [NetworkNames.Binance]: `https://tokens.coingecko.com/${CoingeckoPlatform.Binance}/all.json`,
   [NetworkNames.Ethereum]: `https://tokens.coingecko.com/${CoingeckoPlatform.Ethereum}/all.json`,
   [NetworkNames.Matic]: `https://tokens.coingecko.com/${CoingeckoPlatform.Matic}/all.json`,
@@ -26,7 +28,6 @@ const TokenList: Record<SupportedNetworkNames, string> = {
   [NetworkNames.Celo]: `https://tokens.coingecko.com/${CoingeckoPlatform.Celo}/all.json`,
   [NetworkNames.TomoChain]: `https://tokens.coingecko.com/${CoingeckoPlatform.TomoChain}/all.json`,
   [NetworkNames.Shibarium]: `https://tokens.coingecko.com/${CoingeckoPlatform.Shibarium}/all.json`,
-  [NetworkNames.Rollux]: `https://tokens.coingecko.com/${CoingeckoPlatform.Rollux}/all.json`,
   [NetworkNames.Telos]: `https://tokens.coingecko.com/${CoingeckoPlatform.Telos}/all.json`,
   [NetworkNames.Blast]: `https://tokens.coingecko.com/${CoingeckoPlatform.Blast}/all.json`,
   [NetworkNames.Sanko]: `https://tokens.coingecko.com/${CoingeckoPlatform.Sanko}/all.json`,

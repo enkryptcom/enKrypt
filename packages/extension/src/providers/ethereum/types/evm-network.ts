@@ -34,6 +34,7 @@ export interface EvmNetworkOptions {
   currencyNameLong: string;
   node: string;
   icon: string;
+  buyLink?: string | undefined;
   coingeckoID?: string;
   coingeckoPlatform?: CoingeckoPlatform;
   basePath?: string;
@@ -98,6 +99,7 @@ export class EvmNetwork extends BaseNetwork {
 
     baseOptions.customTokens = baseOptions.customTokens ?? true;
     super(baseOptions);
+    this.options = options;
 
     this.chainID = options.chainID;
     this.assetsInfoHandler = options.assetsInfoHandler;
