@@ -5,8 +5,9 @@ export interface TokenBalance {
   balance: string;
 }
 export interface SupportedNetwork {
-  tbName: string;
+  tbName?: string;
   cgPlatform?: string;
+  bsEndpoint?: boolean;
 }
 export interface CGToken {
   chainId: `0x${string}`;
@@ -50,6 +51,7 @@ export type SupportedNetworkNames =
   | NetworkNames.Celo
   | NetworkNames.ZkSync
   | NetworkNames.Telos
+  | NetworkNames.SyscoinNEVM
   | NetworkNames.Rollux
   | NetworkNames.Sanko
   | NetworkNames.Degen
