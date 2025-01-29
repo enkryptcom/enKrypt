@@ -66,10 +66,11 @@ export enum NetworkNames {
   ArtheraTest = "AATest",
   Arthera = "AA",
   FormTestnet = "FormTestnet",
+  Form = "Form",
   AssetHubDOT = "AssetHubDOT",
   AssetHubKSM = "AssetHubKSM",
-  SyscoinTest = "TSYS",
-  Syscoin = "SYS",
+  SyscoinNEVMTest = "TSYS",
+  SyscoinNEVM = "SYS",
   RolluxTest = "TRLX",
   Rollux = "RLX",
   CagaAnkara = "CagaAnkara",
@@ -96,6 +97,7 @@ export enum NetworkNames {
   Holesky = "HOLESKY",
   Bitrock = "bitrock",
   Fraxtal = "fraxtal",
+  Fire = "5ire",
 }
 
 export enum CoingeckoPlatform {

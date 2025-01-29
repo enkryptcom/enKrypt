@@ -20,6 +20,7 @@ import { EvmNetwork } from '../../types/evm-network';
 import { getKnownNetworkTokens } from './token-lists';
 import { CoingeckoPlatform, NetworkNames } from '@enkryptcom/types';
 import { NATIVE_TOKEN_ADDRESS } from '../common';
+import getBlockscoutBalances from './blockscout';
 import getTomoBalances from './tomochain';
 import getSolBalances from './solanachain';
 import { CoinGeckoTokenMarket } from '@/libs/market-data/types';
@@ -120,9 +121,13 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
     tbName: 'shib',
     cgPlatform: CoingeckoPlatform.Shibarium,
   },
+  [NetworkNames.SyscoinNEVM]: {
+    cgPlatform: CoingeckoPlatform.Syscoin,
+    bsEndpoint: true,
+  },
   [NetworkNames.Rollux]: {
-    tbName: 'rollux',
     cgPlatform: CoingeckoPlatform.Rollux,
+    bsEndpoint: true,
   },
   [NetworkNames.Telos]: {
     tbName: 'tlos',
@@ -191,6 +196,8 @@ const getTokens = (
     return getTomoBalances(chain, address);
   } else if (chain === NetworkNames.Solana) {
     return getSolBalances(network, address);
+  } else if (supportedNetworks[chain].bsEndpoint) {
+    return getBlockscoutBalances(chain, address);
   }
   let url = '';
   if (chain === NetworkNames.Ethereum || chain === NetworkNames.Binance)

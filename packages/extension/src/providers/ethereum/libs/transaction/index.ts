@@ -92,7 +92,8 @@ class Transaction {
     const { isFeeMarketNetwork, feeHistory } = await this.web3
       .getFeeHistory(6, 'latest', GAS_PERCENTILES)
       .then(history => ({
-        isFeeMarketNetwork: !!latestBlock.baseFeePerGas,
+        isFeeMarketNetwork:
+          !!latestBlock.baseFeePerGas && history.baseFeePerGas.length !== 0,
         feeHistory: history,
       }))
       .catch(() => ({
