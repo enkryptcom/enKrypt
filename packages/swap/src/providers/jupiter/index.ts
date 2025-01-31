@@ -343,8 +343,8 @@ export class Jupiter extends ProviderClass {
     if (referrerATAExists) {
       logger.info(
         `querySwapInfo: Referrer ATA already exists. No need to record additional rent fees.` +
-          ` ATA pubkey: ${referrerATAPubkey.toBase58()},` +
-          ` Source mint: ${srcMint.toBase58()}`,
+        ` ATA pubkey: ${referrerATAPubkey.toBase58()},` +
+        ` Source mint: ${srcMint.toBase58()}`,
       );
     } else {
       // The referral fee ATA account needs to be created or else we can't receive fees for this transaction
@@ -369,9 +369,9 @@ export class Jupiter extends ProviderClass {
 
       logger.info(
         `querySwapInfo: Referrer ATA does not exist. Updating transaction with instruction to create it.` +
-          ` Referral ATA pubkey: ${referrerATAPubkey.toBase58()},` +
-          ` Rent: ${extraRentFees} lamports,` +
-          ` Total Rent: ${extraRentFees} lamports`,
+        ` Referral ATA pubkey: ${referrerATAPubkey.toBase58()},` +
+        ` Rent: ${extraRentFees} lamports,` +
+        ` Total Rent: ${extraRentFees} lamports`,
       );
     }
 
@@ -381,8 +381,8 @@ export class Jupiter extends ProviderClass {
     if (dstATAExists) {
       logger.info(
         `querySwapInfo: Wallet destination mint ATA already exists. No need to record additional rent fees.` +
-          ` ATA pubkey: ${dstATAPubkey.toBase58()},` +
-          ` Destination mint: ${dstMint.toBase58()}`,
+        ` ATA pubkey: ${dstATAPubkey.toBase58()},` +
+        ` Destination mint: ${dstMint.toBase58()}`,
       );
     } else {
       const extraRentFee = await this.conn.getMinimumBalanceForRentExemption(
@@ -404,11 +404,11 @@ export class Jupiter extends ProviderClass {
 
       logger.info(
         `querySwapInfo: Wallet destination mint ATA does not exist, registering custom instruction to create it.` +
-          ` Adding ATA rent to extra transaction fees.` +
-          ` ATA pubkey: ${dstATAPubkey.toBase58()},` +
-          ` Destination mint: ${dstMint.toBase58()},` +
-          ` Rent: ${extraRentFee} lamports,` +
-          ` Total rent: ${rentFees} lamports`,
+        ` Adding ATA rent to extra transaction fees.` +
+        ` ATA pubkey: ${dstATAPubkey.toBase58()},` +
+        ` Destination mint: ${dstMint.toBase58()},` +
+        ` Rent: ${extraRentFee} lamports,` +
+        ` Total rent: ${rentFees} lamports`,
       );
     }
 
@@ -438,101 +438,116 @@ export class Jupiter extends ProviderClass {
     meta: QuoteMetaOptions,
     context?: { signal?: AbortSignal },
   ): Promise<null | ProviderQuoteResponse> {
-    if (options.toToken.networkInfo.name !== SupportedNetworkName.Solana) {
-      logger.info(
-        `getQuote: ignoring quote request to network ${options.toToken.networkInfo.name},` +
+    try {
+      //
+      if (options.toToken.networkInfo.name !== SupportedNetworkName.Solana) {
+        logger.info(
+          `getQuote: ignoring quote request to network ${options.toToken.networkInfo.name},` +
           ` cross network swaps not supported`,
+        );
+        return null;
+      }
+
+      const { jupiterQuote, rentFees, computeBudget, feePercentage } =
+        await this.querySwapInfo(options, meta, context);
+
+      // Jupiter swaps have four different kinds of fees:
+      // 1. Transaction base fees: number of signatures * lamports per signature
+      // 2. Transaction priority fees (sometimes): set via the Compute Budget program's "SetComputeUnitPrice"
+      // 3. Transaction referral fees: fees paid to MEW (97.5%) and Jupiter (2.5%) as the wallet provider
+      // 4. Rent for ATA accounts that may need to be created; the referral fee account and mint account
+
+      logger.info(
+        `getQuote: Quote inAmount: ${jupiterQuote.inAmount} ${options.fromToken.symbol}`,
       );
-      return null;
-    }
+      logger.info(
+        `getQuote: Quote outAmount: ${jupiterQuote.outAmount} ${options.toToken.symbol}`,
+      );
 
-    const { jupiterQuote, rentFees, computeBudget, feePercentage } =
-      await this.querySwapInfo(options, meta, context);
-
-    // Jupiter swaps have four different kinds of fees:
-    // 1. Transaction base fees: number of signatures * lamports per signature
-    // 2. Transaction priority fees (sometimes): set via the Compute Budget program's "SetComputeUnitPrice"
-    // 3. Transaction referral fees: fees paid to MEW (97.5%) and Jupiter (2.5%) as the wallet provider
-    // 4. Rent for ATA accounts that may need to be created; the referral fee account and mint account
-
-    logger.info(
-      `getQuote: Quote inAmount: ${jupiterQuote.inAmount} ${options.fromToken.symbol}`,
-    );
-    logger.info(
-      `getQuote: Quote outAmount: ${jupiterQuote.outAmount} ${options.toToken.symbol}`,
-    );
-
-    const result: ProviderQuoteResponse = {
-      fromTokenAmount: toBN(jupiterQuote.inAmount),
-      toTokenAmount: toBN(
-        Math.floor((1 - feePercentage) * Number(jupiterQuote.outAmount))
-          .toFixed(10)
-          .replace(/\.?0+$/, ""),
-      ),
-      totalGaslimit: computeBudget,
-      additionalNativeFees: toBN(rentFees),
-      provider: this.name,
-      quote: {
-        options,
-        meta,
+      const result: ProviderQuoteResponse = {
+        fromTokenAmount: toBN(jupiterQuote.inAmount),
+        toTokenAmount: toBN(
+          Math.floor((1 - feePercentage) * Number(jupiterQuote.outAmount))
+            .toFixed(10)
+            .replace(/\.?0+$/, ""),
+        ),
+        totalGaslimit: computeBudget,
+        additionalNativeFees: toBN(rentFees),
         provider: this.name,
-      },
-      minMax: {
-        // TODO: how can I get these limits?
-        minimumFrom: toBN("1"),
-        maximumFrom: toBN(TOKEN_AMOUNT_INFINITY_AND_BEYOND),
-        minimumTo: toBN("1"),
-        maximumTo: toBN(TOKEN_AMOUNT_INFINITY_AND_BEYOND),
-      },
-    };
+        quote: {
+          options,
+          meta,
+          provider: this.name,
+        },
+        minMax: {
+          // TODO: how can I get these limits?
+          minimumFrom: toBN("1"),
+          maximumFrom: toBN(TOKEN_AMOUNT_INFINITY_AND_BEYOND),
+          minimumTo: toBN("1"),
+          maximumTo: toBN(TOKEN_AMOUNT_INFINITY_AND_BEYOND),
+        },
+      };
 
-    return result;
+      return result;
+    } catch (err) {
+      if (!context.signal.aborted) {
+        console.error(`[Jupiter.getQuote] Error calling getQuote: ${String(err)}`);
+      }
+      return null
+    }
   }
 
   async getSwap(
     quote: SwapQuote,
     context?: { signal?: AbortSignal },
-  ): Promise<ProviderSwapResponse> {
-    const { feePercentage, jupiterQuote, base64SwapTransaction, rentFees } =
-      await this.querySwapInfo(quote.options, quote.meta, context);
+  ): Promise<null | ProviderSwapResponse> {
+    try {
+      const { feePercentage, jupiterQuote, base64SwapTransaction, rentFees } =
+        await this.querySwapInfo(quote.options, quote.meta, context);
 
-    const enkryptTransaction: SolanaTransaction = {
-      from: quote.options.fromAddress,
-      to: quote.options.toAddress,
-      serialized: base64SwapTransaction,
-      type: TransactionType.solana,
-      kind: "versioned",
-      thirdPartySignatures: [],
-    };
+      const enkryptTransaction: SolanaTransaction = {
+        from: quote.options.fromAddress,
+        to: quote.options.toAddress,
+        serialized: base64SwapTransaction,
+        type: TransactionType.solana,
+        kind: "versioned",
+        thirdPartySignatures: [],
+      };
 
-    logger.info(
-      `getSwap: Quote inAmount:  ${jupiterQuote.inAmount} ${quote.options.fromToken.symbol}`,
-    );
-    logger.info(
-      `getSwap: Quote outAmount: ${jupiterQuote.outAmount} ${quote.options.toToken.symbol}`,
-    );
+      logger.info(
+        `getSwap: Quote inAmount:  ${jupiterQuote.inAmount} ${quote.options.fromToken.symbol}`,
+      );
+      logger.info(
+        `getSwap: Quote outAmount: ${jupiterQuote.outAmount} ${quote.options.toToken.symbol}`,
+      );
 
-    const result: ProviderSwapResponse = {
-      transactions: [enkryptTransaction],
-      fromTokenAmount: toBN(jupiterQuote.inAmount),
-      toTokenAmount: toBN(
-        Math.floor((1 - feePercentage) * Number(jupiterQuote.outAmount))
-          .toFixed(10)
-          .replace(/\.?0+$/, ""),
-      ),
-      additionalNativeFees: toBN(rentFees),
-      provider: this.name,
-      slippage: quote.meta.slippage,
-      fee: feePercentage,
-      getStatusObject: async (
-        options: StatusOptions,
-      ): Promise<StatusOptionsResponse> => ({
-        options,
+      const result: ProviderSwapResponse = {
+        transactions: [enkryptTransaction],
+        fromTokenAmount: toBN(jupiterQuote.inAmount),
+        toTokenAmount: toBN(
+          Math.floor((1 - feePercentage) * Number(jupiterQuote.outAmount))
+            .toFixed(10)
+            .replace(/\.?0+$/, ""),
+        ),
+        additionalNativeFees: toBN(rentFees),
         provider: this.name,
-      }),
-    };
+        slippage: quote.meta.slippage,
+        fee: feePercentage,
+        getStatusObject: async (
+          options: StatusOptions,
+        ): Promise<StatusOptionsResponse> => ({
+          options,
+          provider: this.name,
+        }),
+      };
 
-    return result;
+      return result;
+    } catch (err) {
+      if (!context.signal.aborted) {
+        console.error(`[Jupiter.getSwap] Error calling getSwap: ${String(err)}`);
+      }
+      return null
+    }
   }
 
   async getStatus(options: StatusOptions): Promise<TransactionStatus> {
@@ -665,8 +680,7 @@ async function getJupiterTokens(abortable?: {
           default: /* noop */
         }
         throw new Error(
-          `Failed to get Jupiter tokens, HTTP response returned not-ok status ${
-            res.status
+          `Failed to get Jupiter tokens, HTTP response returned not-ok status ${res.status
           } ${res.statusText || "<no status text>"}: ${msg}`,
         );
       }
@@ -683,8 +697,7 @@ async function getJupiterTokens(abortable?: {
       if (signal?.aborted) throw signal.reason;
       if (failed) throw err;
       logger.info(
-        `getJupiterTokens: Failed to get Jupiter tokens on attempt ${backoffi + 1}/${
-          backoff.length
+        `getJupiterTokens: Failed to get Jupiter tokens on attempt ${backoffi + 1}/${backoff.length
         }: ${String(err)}`,
       );
       errRef ??= { err: err as Error };
@@ -841,8 +854,7 @@ async function getJupiterQuote(
           default: /* noop */
         }
         throw new Error(
-          `Failed to get Jupiter quote, HTTP response returned not-ok status ${
-            res.status
+          `Failed to get Jupiter quote, HTTP response returned not-ok status ${res.status
           } ${res.statusText || "<no status text>"} at url ${url}: ${msg}`,
         );
       }
@@ -859,8 +871,7 @@ async function getJupiterQuote(
       if (abortable?.signal?.aborted) throw abortable?.signal.reason;
       if (failed) throw err;
       console.warn(
-        `[getJupiterQuote] Failed to get Jupiter quote on attempt ${
-          backoffi + 1
+        `[getJupiterQuote] Failed to get Jupiter quote on attempt ${backoffi + 1
         }/${backoff.length}: ${String(err)}`,
       );
       errRef ??= { err: err as Error };
@@ -1001,8 +1012,7 @@ async function getJupiterSwap(
           default: /* noop */
         }
         throw new Error(
-          `Failed to get Jupiter swap, HTTP response returned not-ok status ${
-            res.status
+          `Failed to get Jupiter swap, HTTP response returned not-ok status ${res.status
           } ${res.statusText || "<no status text>"} at url ${url}: ${msg}`,
         );
       }
@@ -1019,8 +1029,7 @@ async function getJupiterSwap(
     } catch (err) {
       if (failed) throw err;
       logger.info(
-        `getJupiterSwap: Failed to get Jupiter swap on attempt ${backoffi + 1}/${
-          backoff.length
+        `getJupiterSwap: Failed to get Jupiter swap on attempt ${backoffi + 1}/${backoff.length
         }: ${String(err)}`,
       );
       errRef ??= { err: err as Error };
