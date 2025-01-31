@@ -439,7 +439,6 @@ export class Jupiter extends ProviderClass {
     context?: { signal?: AbortSignal },
   ): Promise<null | ProviderQuoteResponse> {
     try {
-      //
       if (options.toToken.networkInfo.name !== SupportedNetworkName.Solana) {
         logger.info(
           `getQuote: ignoring quote request to network ${options.toToken.networkInfo.name},` +
