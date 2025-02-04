@@ -89,8 +89,8 @@ const props = defineProps({
 use([SVGRenderer, LineChart, TooltipComponent, GridComponent]);
 
 const option = ref({
-  width: 32,
-  height: 32,
+  width: 48,
+  height: 20,
   color: [props.token.priceChangePercentage >= 0 ? '#80FFA5' : '#e01f43'],
   grid: { show: false, left: 0, top: 0 },
   xAxis: [
@@ -180,8 +180,8 @@ const toggleDetail = () => {
 <style lang="less">
 @import '@action/styles/theme.less';
 .chart {
-  height: 32px;
-  width: 32px;
+  height: 20px;
+  width: 48px;
 }
 .down {
   color: @error;
@@ -192,7 +192,7 @@ const toggleDetail = () => {
 .network-assets {
   &__token {
     height: 72px;
-    padding: 0 20px;
+    padding: 0 4px;
     position: relative;
     box-sizing: border-box;
     display: flex;
@@ -202,7 +202,7 @@ const toggleDetail = () => {
     border-radius: 10px;
     transition: background 300ms ease-in-out;
     text-decoration: none;
-    margin: 0 12px;
+    margin: 0 16px;
     cursor: pointer;
 
     &:hover {
@@ -214,7 +214,7 @@ const toggleDetail = () => {
       justify-content: flex-start;
       align-items: center;
       flex-direction: row;
-      width: 190px;
+      width: 196px;
       overflow: hidden;
 
       &.max {
@@ -280,8 +280,8 @@ const toggleDetail = () => {
     &-sparkline {
       text-align: center;
       img {
-        max-height: 32px;
-        max-width: 32px;
+        max-height: 20px;
+        max-width: 48px;
       }
       p {
         display: flex;
@@ -304,7 +304,7 @@ const toggleDetail = () => {
 
     &-price {
       text-align: right;
-      width: 160px;
+      width: 162px;
 
       h4 {
         font-style: normal;

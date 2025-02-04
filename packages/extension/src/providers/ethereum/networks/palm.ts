@@ -2,6 +2,7 @@ import icon from './icons/palm.svg';
 import { NetworkNames } from '@enkryptcom/types';
 import { EvmNetwork, EvmNetworkOptions } from '../types/evm-network';
 import shNFTHandler from '@/libs/nft-handlers/simplehash';
+import wrapActivityHandler from '@/libs/activity-state/wrap-activity-handler';
 
 // Palm network has an API but it seems broken (DNS won't resolve)
 // @see https://palm.chainlens.com/api/swagger-ui/index.html
@@ -20,7 +21,7 @@ const palmNetworkOptions: EvmNetworkOptions = {
   icon,
   coingeckoID: 'palm-ai',
   NFTHandler: shNFTHandler,
-  activityHandler: () => Promise.resolve([]),
+  activityHandler: wrapActivityHandler(() => Promise.resolve([])),
 };
 
 const palmNetwork = new EvmNetwork(palmNetworkOptions);
