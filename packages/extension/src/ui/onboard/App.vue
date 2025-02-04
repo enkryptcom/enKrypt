@@ -72,6 +72,7 @@ body {
   overflow: hidden;
   font-size: 0;
   font-family: 'Roboto', sans-serif;
+  overflow-y: auto;
 }
 
 .onboard {
@@ -104,6 +105,7 @@ body {
     flex-direction: row;
     align-items: center;
     justify-content: center;
+    min-height: 700px;
   }
 
   &__wrap {
