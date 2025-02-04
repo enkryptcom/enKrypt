@@ -350,9 +350,7 @@ const setActiveNetworks = async () => {
 
 const updateNetworkOrder = (newOrder: BaseNetwork[]) => {
   if (searchInput.value === '') {
-    if (activeCategory.value === NetworksCategory.Pinned)
-      pinnedNetworks.value = newOrder;
-    else networks.value = newOrder;
+    networks.value = newOrder;
   }
 };
 const updateSearchValue = (newval: string) => {
@@ -369,7 +367,7 @@ const openBuyPage = () => {
       case NetworkNames.SyscoinNEVM:
       case NetworkNames.Rollux:
         return `${(currentNetwork.value as EvmNetwork).options.buyLink}&address=${currentNetwork.value.displayAddress(
-          accountHeaderData.value.selectedAccount!.address
+          accountHeaderData.value.selectedAccount!.address,
         )}`;
       case NetworkNames.SyscoinNEVMTest:
       case NetworkNames.RolluxTest:
@@ -632,10 +630,22 @@ const displayNetworks = computed<BaseNetwork[]>(() => {
       return networks.value.filter(net =>
         net.isTestNetwork ? enabledTestnetworks.value.includes(net.name) : true,
       );
-    case NetworksCategory.Pinned:
-      return pinnedNetworks.value;
-    case NetworksCategory.New:
-      return networks.value.filter(net => newNetworks.includes(net.name));
+    case NetworksCategory.Pinned: {
+      const hasCurrentNetwork = pinnedNetworks.value.some(
+        net => net.name === currentNetwork.value.name,
+      );
+      return hasCurrentNetwork
+        ? pinnedNetworks.value
+        : [...pinnedNetworks.value, currentNetwork.value];
+    }
+    case NetworksCategory.New: {
+      const hasCurrentNetwork = newNetworks.includes(currentNetwork.value.name);
+      const newNets = networks.value.filter(net =>
+        newNetworks.includes(net.name),
+      );
+
+      return hasCurrentNetwork ? newNets : [...newNets, currentNetwork.value];
+    }
     default:
       return networks.value;
   }
