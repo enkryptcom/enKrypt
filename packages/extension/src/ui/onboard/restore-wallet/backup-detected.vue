@@ -69,7 +69,18 @@ onBeforeMount(async () => {
     });
   });
   const mainWallet = await backupState.getMainWallet();
-  backups.value = await backupState.getBackups(mainWallet.publicKey);
+  const sigHash = backupState.getBackupSigHash(mainWallet.publicKey);
+  const signature = await kr.sign(sigHash as `0x${string}`, {
+    basePath: EthereumNetworks.ethereum.basePath,
+    signerType: EthereumNetworks.ethereum.signer[0],
+    pathIndex: 0,
+    walletType: WalletType.mnemonic,
+  });
+  backups.value = await backupState.getBackups({
+    pubkey: mainWallet.publicKey,
+    signature,
+  });
+  kr.lock();
 });
 
 const selectBackup = (backup: BackupType) => {
