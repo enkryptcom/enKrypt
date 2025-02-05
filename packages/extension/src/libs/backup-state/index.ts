@@ -162,6 +162,9 @@ class BackupState {
     if (firstTime && state.lastBackupTime !== 0) {
       return true;
     }
+    if (!state.enabled) {
+      return true;
+    }
     const pkr = new PublicKeyRing();
     const allAccounts = await pkr.getAccounts();
     const mainWallet = await this.getMainWallet();
@@ -231,6 +234,7 @@ class BackupState {
           await this.setState({
             lastBackupTime: new Date().getTime(),
             userId: state.userId,
+            enabled: state.enabled,
           });
           return true;
         }
@@ -250,6 +254,7 @@ class BackupState {
       const newState: IState = {
         lastBackupTime: 0,
         userId: uuidv4(),
+        enabled: true,
       };
       await this.setState(newState);
       return newState;

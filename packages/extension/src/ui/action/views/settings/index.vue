@@ -13,6 +13,7 @@
       />
       <settings-general
         v-if="isGeneral"
+        @open:backups="backupsAction"
         @window:close="close"
         @window:back="startAction"
       />
@@ -38,6 +39,12 @@
         @window:close="close"
         @window:back="startAction"
       />
+      <settings-backups
+        v-if="isBackups"
+        v-bind="$attrs"
+        @window:close="close"
+        @window:back="generalAction"
+      />
     </div>
   </div>
 </template>
@@ -50,6 +57,7 @@ import SettingsSupport from './views/settings-support/index.vue';
 import SettingsAbout from './views/settings-about/index.vue';
 import SettingsRecovery from './views/settings-recovery/index.vue';
 import ResetWallet from '@action/views/reset-wallet/index.vue';
+import SettingsBackups from './views/settings-backups/index.vue';
 
 const isStart = ref(true);
 const isGeneral = ref(false);
@@ -57,6 +65,7 @@ const isAbout = ref(false);
 const isSupport = ref(false);
 const isPhrase = ref(false);
 const isReset = ref(false);
+const isBackups = ref(false);
 const mnemonic = ref('');
 
 const emit = defineEmits<{
@@ -72,6 +81,7 @@ const setAllToFalse = () => {
   isSupport.value = false;
   isPhrase.value = false;
   isReset.value = false;
+  isBackups.value = false;
   mnemonic.value = '';
 };
 const recoveryPhraseAction = (phrase: string) => {
@@ -102,6 +112,11 @@ const aboutAction = () => {
 const startAction = () => {
   setAllToFalse();
   isStart.value = true;
+};
+
+const backupsAction = () => {
+  setAllToFalse();
+  isBackups.value = true;
 };
 </script>
 

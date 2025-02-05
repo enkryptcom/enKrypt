@@ -7,6 +7,7 @@ export enum StorageKeys {
 export interface IState {
   lastBackupTime: number;
   userId: string;
+  enabled: boolean;
 }
 
 export interface BackupType {
