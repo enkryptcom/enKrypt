@@ -6,12 +6,23 @@ import KadenaNetworks from '@/providers/kadena/networks';
 import SolanaNetworks from '@/providers/solana/networks';
 import { NetworkNames, WalletType } from '@enkryptcom/types';
 import { getAccountsByNetworkName } from '@/libs/utils/accounts';
+import BackupState from '../backup-state';
 export const initAccounts = async (keyring: KeyRing) => {
-  const secp256k1btc = await getAccountsByNetworkName(NetworkNames.Bitcoin);
-  const secp256k1 = await getAccountsByNetworkName(NetworkNames.Ethereum);
-  const sr25519 = await getAccountsByNetworkName(NetworkNames.Polkadot);
-  const ed25519kda = await getAccountsByNetworkName(NetworkNames.Kadena);
-  const ed25519sol = await getAccountsByNetworkName(NetworkNames.Solana);
+  const secp256k1btc = (
+    await getAccountsByNetworkName(NetworkNames.Bitcoin)
+  ).filter(acc => !acc.isTestWallet);
+  const secp256k1 = (
+    await getAccountsByNetworkName(NetworkNames.Ethereum)
+  ).filter(acc => !acc.isTestWallet);
+  const sr25519 = (
+    await getAccountsByNetworkName(NetworkNames.Polkadot)
+  ).filter(acc => !acc.isTestWallet);
+  const ed25519kda = (
+    await getAccountsByNetworkName(NetworkNames.Kadena)
+  ).filter(acc => !acc.isTestWallet);
+  const ed25519sol = (
+    await getAccountsByNetworkName(NetworkNames.Solana)
+  ).filter(acc => !acc.isTestWallet);
   if (secp256k1.length == 0)
     await keyring.saveNewAccount({
       basePath: EthereumNetworks.ethereum.basePath,
@@ -51,7 +62,15 @@ export const initAccounts = async (keyring: KeyRing) => {
 export const onboardInitializeWallets = async (
   mnemonic: string,
   password: string,
-): Promise<void> => {
+): Promise<{ backupsFound: boolean }> => {
   const kr = new KeyRing();
+  const backupsState = new BackupState();
   await kr.init(mnemonic, password);
+  await kr.unlock(password);
+  const mainAccount = await kr.getNewAccount({
+    basePath: EthereumNetworks.ethereum.basePath,
+    signerType: EthereumNetworks.ethereum.signer[0],
+  });
+  const backups = await backupsState.getBackups(mainAccount.publicKey);
+  return { backupsFound: backups.length > 0 };
 };

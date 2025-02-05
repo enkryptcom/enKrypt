@@ -42,11 +42,17 @@ const isInitializing = ref(false);
 const nextAction = () => {
   if (!isDisabled.value) {
     isInitializing.value = true;
-    onboardInitializeWallets(store.mnemonic, store.password).then(() => {
+    onboardInitializeWallets(store.mnemonic, store.password).then(res => {
       isInitializing.value = false;
-      router.push({
-        name: routes.backupDetected.name,
-      });
+      if (res.backupsFound) {
+        router.push({
+          name: routes.backupDetected.name,
+        });
+      } else {
+        router.push({
+          name: routes.walletReady.name,
+        });
+      }
     });
   }
 };

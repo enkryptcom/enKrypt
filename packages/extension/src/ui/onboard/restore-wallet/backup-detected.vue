@@ -7,21 +7,26 @@
       <div class="backup-detected__backup-items-container">
         <a
           v-for="backup in backups"
-          :key="backup"
+          :key="backup.userId"
           @click="selectBackup(backup)"
           :class="[
             { selected: selectedBackup === backup },
             'backup-detected__backup-item',
           ]"
         >
-          {{ backup }}
+          {{ new Date(backup.updatedAt).toLocaleString() }}
         </a>
       </div>
     </div>
-    <base-button title="Use backup" :disabled="disabled" :click="useBackup" />
+    <base-button
+      :title="backupBtnText"
+      :disabled="backupBtnDisabled"
+      :click="useBackup"
+    />
     <base-button
       style="margin-top: 10px"
       no-background
+      :disabled="processing"
       title="Skip"
       :click="skip"
     />
@@ -29,26 +34,70 @@
 </template>
 <script setup lang="ts">
 import BaseButton from '@action/components/base-button/index.vue';
-import { computed, ref } from 'vue';
+import { computed, onBeforeMount, ref } from 'vue';
+import { useRestoreStore } from './store';
+import KeyRing from '@/libs/keyring/keyring';
+import EthereumNetworks from '@/providers/ethereum/networks';
+import { WalletType } from '@enkryptcom/types';
+import BackupState from '@/libs/backup-state';
+import { BackupType } from '@/libs/backup-state/types';
+import { useRouter } from 'vue-router';
+import { routes } from '../restore-wallet/routes';
 
-const selectedBackup = ref('');
-const disabled = computed(() => !selectedBackup.value);
-const backups = ['Backup 1', 'Backup 2', 'Backup 3'];
+const selectedBackup = ref<BackupType>();
+const backups = ref<BackupType[]>([]);
+const store = useRestoreStore();
+const router = useRouter();
+const backupState = new BackupState();
+const kr = new KeyRing();
+const password = store.password;
+const backupBtnText = ref('Use backup');
 
-const selectBackup = (backup: string) => {
-  if (selectedBackup.value === backup) {
-    selectedBackup.value = '';
-  } else {
-    selectedBackup.value = backup;
-  }
+const processing = ref(false);
+
+const backupBtnDisabled = computed(() => {
+  return !selectedBackup.value || processing.value;
+});
+onBeforeMount(async () => {
+  await kr.unlock(password);
+  await backupState.getMainWallet().catch(async () => {
+    await kr.saveNewAccount({
+      basePath: EthereumNetworks.ethereum.basePath,
+      name: 'EVM Account 1',
+      signerType: EthereumNetworks.ethereum.signer[0],
+      walletType: WalletType.mnemonic,
+    });
+  });
+  const mainWallet = await backupState.getMainWallet();
+  backups.value = await backupState.getBackups(mainWallet.publicKey);
+});
+
+const selectBackup = (backup: BackupType) => {
+  selectedBackup.value = backup;
 };
-const useBackup = () => {
-  // replace with actual functionality
-  window.close();
+const useBackup = async () => {
+  if (selectedBackup.value) {
+    backupBtnText.value = 'Restoring backup...';
+    processing.value = true;
+    await backupState
+      .restoreBackup(selectedBackup.value, password)
+      .then(() => {
+        router.push({
+          name: routes.walletReady.name,
+        });
+      })
+      .catch(() => {
+        backupBtnText.value = 'Failed to restore backup';
+        processing.value = false;
+        selectedBackup.value = undefined;
+      });
+  }
 };
 
 const skip = () => {
-  window.close();
+  router.push({
+    name: routes.walletReady.name,
+  });
 };
 </script>
 
