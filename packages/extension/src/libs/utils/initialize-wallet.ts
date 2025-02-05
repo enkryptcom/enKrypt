@@ -66,11 +66,17 @@ export const onboardInitializeWallets = async (
   const kr = new KeyRing();
   const backupsState = new BackupState();
   await kr.init(mnemonic, password);
-  await kr.unlock(password);
-  const mainAccount = await kr.getNewAccount({
-    basePath: EthereumNetworks.ethereum.basePath,
-    signerType: EthereumNetworks.ethereum.signer[0],
-  });
-  const backups = await backupsState.getBackups(mainAccount.publicKey);
-  return { backupsFound: backups.length > 0 };
+  try {
+    await kr.unlock(password);
+    const mainAccount = await kr.getNewAccount({
+      basePath: EthereumNetworks.ethereum.basePath,
+      signerType: EthereumNetworks.ethereum.signer[0],
+    });
+    const backups = await backupsState.getBackups(mainAccount.publicKey);
+    kr.lock();
+    return { backupsFound: backups.length > 0 };
+  } catch (e) {
+    console.error(e);
+    return { backupsFound: false };
+  }
 };

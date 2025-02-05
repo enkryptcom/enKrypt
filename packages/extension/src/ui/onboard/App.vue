@@ -2,11 +2,7 @@
   <div class="onboard__container">
     <logo class="onboard__logo" />
     <div class="onboard__wrap" :class="wrapClassObject()">
-      <a
-        v-if="isShowBackButton()"
-        class="onboard__back"
-        @click="$router.go(-1)"
-      >
+      <a v-if="isShowBackButton()" class="onboard__back" @click="router.go(-1)">
         <arrow-back />
       </a>
       <router-view />
@@ -14,8 +10,8 @@
 
     <div
       v-if="
-        $route.name == 'create-wallet-wallet-ready' ||
-        $route.name == 'restore-wallet-wallet-ready'
+        route.name == 'create-wallet-wallet-ready' ||
+        route.name == 'restore-wallet-wallet-ready'
       "
       class="onboard__info"
     >
@@ -35,9 +31,10 @@ import ArrowBack from '@action/icons/common/arrow-back.vue';
 import ExtensionIcon from '@action/icons/tip/extension-icon.vue';
 import OnlineIcon from '@action/icons/tip/online-icon.vue';
 import PinIcon from '@action/icons/tip/pin-icon.vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 
 const route = useRoute();
+const router = useRouter();
 
 const isShowBackButton = () => {
   return (
