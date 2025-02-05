@@ -105,8 +105,9 @@ const skip = () => {
 @import '@action/styles/theme.less';
 
 .selected {
-  background: @default;
+  background: @primary;
   border-radius: 10px;
+  color: @white;
 }
 .backup-detected {
   width: 100%;
@@ -134,16 +135,29 @@ const skip = () => {
   }
 
   &__backup-items-container {
-    height: 150px;
+    padding: 16px;
+    min-height: 150px;
+    max-height: 300px;
+    overflow-y: auto;
+    background: @white;
+    border-radius: 8px;
   }
 
   &__backup-item {
-    height: 50px;
-    padding: 0 16px;
+    // height: 50px;
+    margin: 4px;
+    padding: 16px;
     display: flex;
     font-size: 16px;
     align-items: center;
     justify-content: center;
+    cursor: pointer;
+    border: 1px solid @white;
+
+    &:hover {
+      border: 1px solid @primary;
+      border-radius: 10px;
+    }
   }
 
   &__backups {
