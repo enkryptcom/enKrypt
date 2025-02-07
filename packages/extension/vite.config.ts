@@ -32,6 +32,9 @@ const getManifest = () => {
 };
 
 export default defineConfig({
+  legacy: {
+    skipWebSocketTokenCheck: true,
+  },
   server: {
     port: 5173,
     strictPort: true,
@@ -86,7 +89,6 @@ export default defineConfig({
     preprocessorOptions: {
       less: {
         math: 'always',
-        relativeUrls: true,
         javascriptEnabled: true,
       },
     },
