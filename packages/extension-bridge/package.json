@@ -39,7 +39,7 @@
   ],
   "dependencies": {
     "nanoevents": "^9.1.0",
-    "serialize-error": "11.0.3",
+    "serialize-error": "12.0.0",
     "tiny-uid": "^1.1.2",
     "webextension-polyfill": "^0.12.0"
   },
@@ -49,7 +49,7 @@
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
     "bumpp": "^10.0.2",
-    "eslint": "^9.19.0",
+    "eslint": "^9.20.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-import-resolver-alias": "^1.1.2",

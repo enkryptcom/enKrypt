@@ -70,6 +70,7 @@ export default defineConfig({
         'http',
         'https',
         'path',
+        'os',
       ],
       protocolImports: true,
     }),
