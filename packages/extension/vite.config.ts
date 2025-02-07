@@ -101,6 +101,7 @@ export default defineConfig({
     minify: process.env.MINIFY === 'true' ? 'esbuild' : false,
     rollupOptions: {
       plugins: [],
+      external: ['fs'],
       input: {
         action: 'action.html',
         onboard: 'onboard.html',
