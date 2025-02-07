@@ -11,11 +11,13 @@ import {
 import { TOKEN_AMOUNT_INFINITY_AND_BEYOND } from "../src/utils/approvals";
 import {
   fromToken,
+  zeroxFromAddress,
   toToken,
   amount,
-  fromAddress,
   nodeURL,
 } from "./fixtures/mainnet/configs";
+
+const fromAddress = zeroxFromAddress;
 
 describe("Zerox Provider", () => {
   // @ts-ignore
