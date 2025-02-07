@@ -32,6 +32,9 @@ const getManifest = () => {
 };
 
 export default defineConfig({
+  legacy: {
+    skipWebSocketTokenCheck: true,
+  },
   server: {
     port: 5173,
     strictPort: true,
@@ -67,6 +70,7 @@ export default defineConfig({
         'http',
         'https',
         'path',
+        'os',
       ],
       protocolImports: true,
     }),
@@ -86,7 +90,6 @@ export default defineConfig({
     preprocessorOptions: {
       less: {
         math: 'always',
-        relativeUrls: true,
         javascriptEnabled: true,
       },
     },
@@ -98,6 +101,7 @@ export default defineConfig({
     minify: process.env.MINIFY === 'true' ? 'esbuild' : false,
     rollupOptions: {
       plugins: [],
+      external: ['fs'],
       input: {
         action: 'action.html',
         onboard: 'onboard.html',

@@ -37,7 +37,7 @@ import { computed, PropType, ref } from 'vue';
 import ImportAccountHeader from '../components/import-account-header.vue';
 import BaseInput from '@action/components/base-input/index.vue';
 import BaseButton from '@action/components/base-button/index.vue';
-import Wallet, { thirdparty } from 'ethereumjs-wallet';
+import { Wallet, thirdparty } from '@ethereumjs/wallet';
 import type { KeyringPair$Json } from '@polkadot/keyring/types';
 import { BaseNetwork } from '@/types/base-network';
 import { ProviderName } from '@/types/provider';
@@ -113,7 +113,7 @@ const unlock = async () => {
         props.keystorePassword,
       );
 
-      const newAddress = `0x${wallet.getAddress().toString('hex')}`;
+      const newAddress = wallet.getAddressString();
 
       if (await keyring.accountAlreadyAdded(newAddress)) {
         error.value = 'This account has already been added';
