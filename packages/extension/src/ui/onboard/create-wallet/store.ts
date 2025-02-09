@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 
-export const useOnboardStore = defineStore('restoreWallet', () => {
+export const useOnboardStore = defineStore('newWallet', () => {
   const mnemonic = ref('');
   const password = ref('');
 

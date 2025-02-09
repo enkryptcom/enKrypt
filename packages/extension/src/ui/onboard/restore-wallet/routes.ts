@@ -5,6 +5,7 @@ import PickPassword from './pick-password.vue';
 import TypePassword from './type-password.vue';
 import WalletReady from '../create-wallet/wallet-ready.vue';
 import UserAnalytics from '../user-analytics.vue';
+import BackupDetected from './backup-detected.vue';
 import { RouteRecordRaw } from 'vue-router';
 export const routes = {
   start: {
@@ -36,6 +37,11 @@ export const routes = {
     path: 'user-analytics',
     name: 'user-analytics',
     component: UserAnalytics,
+  },
+  backupDetected: {
+    path: 'backup-detected',
+    name: 'backup-detected',
+    component: BackupDetected,
   },
   walletReady: {
     path: 'wallet-ready',

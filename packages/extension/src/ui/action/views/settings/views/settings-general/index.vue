@@ -49,7 +49,7 @@
         information is collected.
       </p>
     </div>
-
+    <settings-button title="Backups" @click="$emit('open:backups')" />
     <!-- <base-select
       :select="selecTimer"
       title="Auto-lock timer"
@@ -67,6 +67,7 @@
 import { onMounted, ref } from 'vue';
 import SettingsInnerHeader from '@action/views/settings/components/settings-inner-header.vue';
 // import BaseSelect from "@action/components/base-select/index.vue";
+import SettingsButton from '@action/views/settings/components/settings-button.vue';
 import SettingsSwitch from '@action/views/settings/components/settings-switch.vue';
 import SettingsState from '@/libs/settings-state';
 import { SettingsType } from '@/libs/settings-state/types';
@@ -77,6 +78,11 @@ const isEthereumDisabled = ref(false);
 const isPolkadotjsDisabled = ref(false);
 const isUnisatEnabled = ref(true);
 const isMetricsEnabled = ref(true);
+
+defineEmits<{
+  (e: 'open:backups'): void;
+}>();
+
 onMounted(async () => {
   const allSettings: SettingsType = await settingsState.getAllSettings();
   isEthereumDisabled.value = allSettings.evm.inject.disabled;

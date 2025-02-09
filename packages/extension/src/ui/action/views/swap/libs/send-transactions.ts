@@ -75,7 +75,7 @@ const getBaseActivity = (options: ExecuteSwapOptions): Activity => {
  */
 export const executeSwap = async (
   options: ExecuteSwapOptions,
-): Promise<{ hash: string, sentAt: number }[]> => {
+): Promise<{ hash: string; sentAt: number }[]> => {
   const activityState = new ActivityState();
   const api = await options.network.api();
   if (options.networkType === NetworkType.Bitcoin) {
@@ -173,12 +173,12 @@ export const executeSwap = async (
           { address: txActivity.from, network: options.network.name },
         );
       });
-    return [{ hash, sentAt: Date.now(), }];
+    return [{ hash, sentAt: Date.now() }];
   } else if (options.networkType === NetworkType.Solana) {
     // Execute the swap on Solana
     const conn = (api as SolanaAPI).api.web3;
 
-    const solTxs: { hash: string, sentAt: number, }[] = [];
+    const solTxs: { hash: string; sentAt: number }[] = [];
 
     /** Enkrypt representation of the swap transactions */
     const enkSolTxs = options.swap.transactions as EnkryptSolanaTransaction[];
@@ -219,7 +219,7 @@ export const executeSwap = async (
               // Might need to update the block hash
               console.warn(
                 `Failed to get fee for legacy transaction while checking` +
-                ` whether to update block hash: ${String(err)}`,
+                  ` whether to update block hash: ${String(err)}`,
               );
               shouldUpdateBlockHash = true;
             }
@@ -228,7 +228,7 @@ export const executeSwap = async (
             if (shouldUpdateBlockHash) {
               console.warn(
                 `Unsigned legacy transaction might have an` +
-                ` out-of-date block hash, trying to update it...`,
+                  ` out-of-date block hash, trying to update it...`,
               );
               const backoff = [0, 500, 1_000, 2_000];
               let backoffi = 0;
@@ -238,7 +238,7 @@ export const executeSwap = async (
                   // Just continue and hope for the best with old block hash...
                   console.warn(
                     `Failed to get latest blockhash after ${backoffi} attempts,` +
-                    ` continuing with old block hash for legacy transaction...`,
+                      ` continuing with old block hash for legacy transaction...`,
                   );
                   break update_block_hash;
                 }
@@ -246,7 +246,7 @@ export const executeSwap = async (
                 if (backoffMs > 0) {
                   console.warn(
                     `Waiting ${backoffMs}ms before retrying latest block` +
-                    ` hash for legacy transaction...`,
+                      ` hash for legacy transaction...`,
                   );
                   await new Promise(res => setTimeout(res, backoffMs));
                 }
@@ -257,7 +257,7 @@ export const executeSwap = async (
                 } catch (err) {
                   console.warn(
                     `Failed to get latest blockhash on attempt` +
-                    ` ${backoffi + 1}: ${String(err)}`,
+                      ` ${backoffi + 1}: ${String(err)}`,
                   );
                 }
                 backoffi++;
@@ -330,7 +330,7 @@ export const executeSwap = async (
               // Might need to update the block hash
               console.warn(
                 `Failed to get fee for versioned transaction while checking` +
-                ` whether to update block hash: ${String(err)}`,
+                  ` whether to update block hash: ${String(err)}`,
               );
               shouldUpdateBlockHash = true;
             }
@@ -339,7 +339,7 @@ export const executeSwap = async (
             if (shouldUpdateBlockHash) {
               console.warn(
                 `Unsigned versioned transaction might have an` +
-                ` out-of-date block hash, trying to update it...`,
+                  ` out-of-date block hash, trying to update it...`,
               );
               const backoff = [0, 500, 1_000, 2_000];
               let backoffi = 0;
@@ -349,7 +349,7 @@ export const executeSwap = async (
                   // Just continue and hope for the best with old block hash...
                   console.warn(
                     `Failed to get latest blockhash after ${backoffi} attempts,` +
-                    ` continuing with old block hash for versioned transaction...`,
+                      ` continuing with old block hash for versioned transaction...`,
                   );
                   break update_block_hash;
                 }
@@ -357,7 +357,7 @@ export const executeSwap = async (
                 if (backoffMs > 0) {
                   console.warn(
                     `Waiting ${backoffMs}ms before retrying latest block` +
-                    ` hash for versioned transaction...`,
+                      ` hash for versioned transaction...`,
                   );
                   await new Promise(res => setTimeout(res, backoffMs));
                 }
@@ -368,7 +368,7 @@ export const executeSwap = async (
                 } catch (err) {
                   console.warn(
                     `Failed to get latest blockhash on attempt` +
-                    ` ${backoffi + 1}: ${String(err)}`,
+                      ` ${backoffi + 1}: ${String(err)}`,
                   );
                 }
                 backoffi++;
@@ -434,8 +434,8 @@ export const executeSwap = async (
             );
             throw new Error(
               'Failed to send Solana swap transaction: blockhash not found.' +
-              ' Too much time may have passed between the creation and sending' +
-              ' of the transaction',
+                ' Too much time may have passed between the creation and sending' +
+                ' of the transaction',
             );
           }
 
@@ -454,7 +454,7 @@ export const executeSwap = async (
         } else {
           console.error(
             `Failed to send Solana swap transaction,` +
-            ` unhandled error ${(err as Error).name}`,
+              ` unhandled error ${(err as Error).name}`,
           );
         }
         // Solana transactions can have big errors
@@ -475,7 +475,7 @@ export const executeSwap = async (
         network: options.network.name,
       });
 
-      solTxs.push({ hash: txHash, sentAt: Date.now(), });
+      solTxs.push({ hash: txHash, sentAt: Date.now() });
     }
 
     // Finished executing the swap on Solana
@@ -504,7 +504,7 @@ export const executeSwap = async (
     );
     const txs = await Promise.all(txsPromises);
     /** Hashes of transactions successfully sent & mined, in order of execution */
-    const txPromises: { hash: `0x${string}`, sentAt: number, }[] = [];
+    const txPromises: { hash: `0x${string}`; sentAt: number }[] = [];
 
     for (const txInfo of txs) {
       // Submit each transaction, in-order one-by-one
@@ -566,7 +566,7 @@ export const executeSwap = async (
             );
           }),
         );
-      txPromises.push({ hash, sentAt: Date.now(), });
+      txPromises.push({ hash, sentAt: Date.now() });
     }
     return txPromises;
   } else {

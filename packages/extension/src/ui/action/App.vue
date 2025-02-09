@@ -192,11 +192,13 @@ import UpdatedIcon from '@/ui/action/icons/updates/updated.vue';
 import HeartIcon from '@/ui/action/icons/updates/heart.vue';
 import { getLatestEnkryptUpdates } from '@action/utils/browser';
 import { Updates } from '@/ui/action/types/updates';
+import BackupState from '@/libs/backup-state';
 
 const domainState = new DomainState();
 const networksState = new NetworksState();
 const rateState = new RateState();
 const updatesState = new UpdatesState();
+const backupState = new BackupState();
 const appMenuRef = ref(null);
 const showDepositWindow = ref(false);
 const accountHeaderData = ref<AccountsHeaderData>({
@@ -369,7 +371,7 @@ const openBuyPage = () => {
       case NetworkNames.SyscoinNEVM:
       case NetworkNames.Rollux:
         return `${(currentNetwork.value as EvmNetwork).options.buyLink}&address=${currentNetwork.value.displayAddress(
-          accountHeaderData.value.selectedAccount!.address
+          accountHeaderData.value.selectedAccount!.address,
         )}`;
       case NetworkNames.SyscoinNEVMTest:
       case NetworkNames.RolluxTest:
@@ -421,6 +423,7 @@ onMounted(async () => {
         .then(() => (isLoading.value = false));
     } else {
       init();
+      backupState.backup(true).catch(console.error);
       setTimeout(() => {
         rateState.showPopup().then(show => {
           if (show) {
