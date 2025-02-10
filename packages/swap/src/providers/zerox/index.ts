@@ -70,7 +70,7 @@ const supportedNetworks: {
   },
 };
 
-const BASE_URL = "https://partners.mewapi.io/zeroxv2/";
+const BASE_URL = "https://partners.mewapi.io/zeroxv2";
 
 class ZeroX extends ProviderClass {
   tokenList: TokenType[];
@@ -154,7 +154,7 @@ class ZeroX extends ProviderClass {
       sellToken: options.fromToken.address,
       buyToken: options.toToken.address,
       sellAmount: options.amount.toString(),
-      takerAddress: options.fromAddress,
+      taker: options.fromAddress,
       slippagePercentage: (
         parseFloat(meta.slippage ? meta.slippage : DEFAULT_SLIPPAGE) / 100
       ).toString(),
@@ -190,9 +190,9 @@ class ZeroX extends ProviderClass {
         transactions.push({
           from: options.fromAddress,
           gasLimit: GAS_LIMITS.swap,
-          to: response.to,
-          value: numberToHex(response.value),
-          data: response.data,
+          to: response.transaction.to,
+          value: numberToHex(response.transaction.value),
+          data: response.transaction.data,
           type: TransactionType.evm,
         });
         if (accurateEstimate) {
