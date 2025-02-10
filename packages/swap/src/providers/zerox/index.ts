@@ -70,7 +70,7 @@ const supportedNetworks: {
   },
 };
 
-const BASE_URL = "https://partners.mewapi.io/zerox/";
+const BASE_URL = "https://partners.mewapi.io/zeroxv2/";
 
 class ZeroX extends ProviderClass {
   tokenList: TokenType[];
@@ -165,9 +165,8 @@ class ZeroX extends ProviderClass {
       affiliateAddress: feeConfig ? feeConfig.referrer : "",
     });
     return fetch(
-      `${BASE_URL}${
-        supportedNetworks[this.network].chainId
-      }/swap/v1/quote?${params.toString()}`,
+      `${BASE_URL}/swap/permit2/quote?chainId=${supportedNetworks[this.network].chainId
+      }&${params.toString()}`,
     )
       .then((res) => res.json())
       .then(async (response: ZeroXResponseType) => {
