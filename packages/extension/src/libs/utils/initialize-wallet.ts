@@ -72,14 +72,14 @@ export const onboardInitializeWallets = async (
       basePath: EthereumNetworks.ethereum.basePath,
       signerType: EthereumNetworks.ethereum.signer[0],
     });
-    const sigHash = backupsState.getBackupSigHash(mainAccount.publicKey);
+    const sigHash = backupsState.getListBackupMsgHash(mainAccount.publicKey);
     const signature = await kr.sign(sigHash as `0x${string}`, {
       basePath: EthereumNetworks.ethereum.basePath,
       signerType: EthereumNetworks.ethereum.signer[0],
       pathIndex: 0,
       walletType: WalletType.mnemonic,
     });
-    const backups = await backupsState.getBackups({
+    const backups = await backupsState.listBackups({
       pubkey: mainAccount.publicKey,
       signature,
     });

@@ -27,7 +27,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { onMounted, ref, computed } from 'vue';
+import { onMounted, ref, computed, unref } from 'vue';
 import BaseButton from '@action/components/base-button/index.vue';
 import BaseInput from '@action/components/base-input/index.vue';
 import { useRouter } from 'vue-router';
@@ -42,7 +42,7 @@ const isInitializing = ref(false);
 const nextAction = () => {
   if (!isDisabled.value) {
     isInitializing.value = true;
-    onboardInitializeWallets(store.mnemonic, store.password)
+    onboardInitializeWallets(unref(store.mnemonic), unref(store.password))
       .then(res => {
         isInitializing.value = false;
         if (res.backupsFound) {
@@ -62,7 +62,7 @@ const nextAction = () => {
   }
 };
 const isDisabled = computed(() => {
-  return typePassword.value !== store.password || isInitializing.value;
+  return typePassword.value !== unref(store.password) || isInitializing.value;
 });
 const passwordUpdated = (value: string) => {
   typePassword.value = value.trim();

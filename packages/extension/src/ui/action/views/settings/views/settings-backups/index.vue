@@ -50,7 +50,7 @@
 
 <script setup lang="ts">
 import BackupState from '@/libs/backup-state';
-import { BackupType } from '@/libs/backup-state/types';
+import { ListBackupType } from '@/libs/backup-state/types';
 import SettingsInnerHeader from '@action/views/settings/components/settings-inner-header.vue';
 import SettingsSwitch from '@action/views/settings/components/settings-switch.vue';
 import SettingsButton from '@action/views/settings/components/settings-button.vue';
@@ -59,13 +59,13 @@ import { onMounted, ref } from 'vue';
 const backupState = new BackupState();
 const isBackupsEnabled = ref(true);
 const currentUserId = ref('');
-const backups = ref<BackupType[]>([]);
+const backups = ref<ListBackupType[]>([]);
 const headers = ['userid', 'last updated', 'this', 'delete'];
 
 onMounted(async () => {
   isBackupsEnabled.value = await backupState.isBackupEnabled();
   currentUserId.value = await backupState.getUserId();
-  backups.value = await backupState.getBackups();
+  backups.value = await backupState.listBackups();
 });
 
 const toggleBackups = async (checked: boolean) => {
@@ -73,7 +73,7 @@ const toggleBackups = async (checked: boolean) => {
   if (isBackupsEnabled.value) {
     await backupState.enableBackups();
     await backupState.backup(false);
-    backups.value = await backupState.getBackups();
+    backups.value = await backupState.listBackups();
   } else {
     await backupState.disableBackups();
   }
@@ -81,7 +81,7 @@ const toggleBackups = async (checked: boolean) => {
 
 const deleteBackup = async (userId: string) => {
   await backupState.deleteBackup(userId);
-  backups.value = await backupState.getBackups();
+  backups.value = await backupState.listBackups();
 };
 </script>
 

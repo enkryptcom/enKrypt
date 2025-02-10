@@ -5,6 +5,7 @@ import {
   BackupResponseType,
   BackupType,
   IState,
+  ListBackupType,
   StorageKeys,
 } from './types';
 import PublicKeyRing from '../keyring/public-keyring';
@@ -31,6 +32,23 @@ class BackupState {
     this.storage = new BrowserStorage(InternalStorageNamespace.backupState);
   }
 
+  async #getSignature(
+    msgHash: string,
+    mainWallet: EnkryptAccount,
+  ): Promise<string> {
+    return sendUsingInternalMessengers({
+      method: InternalMethods.sign,
+      params: [msgHash, mainWallet],
+    }).then(res => {
+      if (res.error) {
+        console.error(res);
+        return null;
+      } else {
+        return JSON.parse(res.result as string);
+      }
+    });
+  }
+
   async getMainWallet(): Promise<EnkryptAccount> {
     const pkr = new PublicKeyRing();
     const allAccounts = await pkr.getAccounts();
@@ -47,17 +65,18 @@ class BackupState {
     return mainWallet;
   }
 
-  getBackupSigHash(pubkey: string): string {
+  getListBackupMsgHash(pubkey: string): string {
     const now = new Date();
     const messageToSign = `${pubkey}-GET-BACKUPS-${(now.getUTCMonth() + 1).toString().padStart(2, '0')}-${now.getUTCDate().toString().padStart(2, '0')}-${now.getUTCFullYear()}`;
     return bufferToHex(
       hashPersonalMessage(hexToBuffer(utf8ToHex(messageToSign))),
     );
   }
-  async getBackups(options?: {
+
+  async listBackups(options?: {
     signature: string;
     pubkey: string;
-  }): Promise<BackupType[]> {
+  }): Promise<ListBackupType[]> {
     let signature: string = '';
     let pubkey: string = '';
     if (options) {
@@ -66,26 +85,13 @@ class BackupState {
     } else {
       const mainWallet = await this.getMainWallet();
       pubkey = mainWallet.publicKey;
-      const msgHash = this.getBackupSigHash(mainWallet.publicKey);
-      console.log('get backups signature', msgHash, mainWallet);
-      signature = await sendUsingInternalMessengers({
-        method: InternalMethods.sign,
-        params: [msgHash, mainWallet],
-      }).then(res => {
-        if (res.error) {
-          console.error(res);
-          return null;
-        } else {
-          return JSON.parse(res.result as string);
-        }
-      });
+      const msgHash = this.getListBackupMsgHash(mainWallet.publicKey);
+      signature = await this.#getSignature(msgHash, mainWallet);
     }
     if (!signature) {
       console.error('No signature found');
       return [];
     }
-    console.log('get backups signature', signature);
-
     const rawResponse = await fetch(
       `${BACKUP_URL}backups/${pubkey}?signature=${signature}`,
       {
@@ -93,8 +99,29 @@ class BackupState {
         headers: HEADERS,
       },
     );
-    const content: BackupResponseType = await rawResponse.json();
+    const content = (await rawResponse.json()) as {
+      backups: ListBackupType[];
+    };
     return content.backups;
+  }
+
+  async getBackup(userId: string): Promise<BackupType | null> {
+    const mainWallet = await this.getMainWallet();
+    const now = new Date();
+    const messageToSign = `${userId}-GET-BACKUP-${(now.getUTCMonth() + 1).toString().padStart(2, '0')}-${now.getUTCDate().toString().padStart(2, '0')}-${now.getUTCFullYear()}`;
+    const msgHash = bufferToHex(
+      hashPersonalMessage(hexToBuffer(utf8ToHex(messageToSign))),
+    );
+    const signature = await this.#getSignature(msgHash, mainWallet);
+    const rawResponse = await fetch(
+      `${BACKUP_URL}backups/${mainWallet.publicKey}/users/${userId}?signature=${signature}`,
+      {
+        method: 'GET',
+        headers: HEADERS,
+      },
+    );
+    const content = (await rawResponse.json()) as BackupResponseType;
+    return content.backup;
   }
 
   async deleteBackup(userId: string): Promise<boolean> {
@@ -104,17 +131,7 @@ class BackupState {
     const msgHash = bufferToHex(
       hashPersonalMessage(hexToBuffer(utf8ToHex(messageToSign))),
     );
-    const signature = await sendUsingInternalMessengers({
-      method: InternalMethods.sign,
-      params: [msgHash, mainWallet],
-    }).then(res => {
-      if (res.error) {
-        console.error(res);
-        return null;
-      } else {
-        return JSON.parse(res.result as string);
-      }
-    });
+    const signature = await this.#getSignature(msgHash, mainWallet);
     if (!signature) {
       console.error('No signature found');
       return false;
@@ -129,7 +146,7 @@ class BackupState {
     )
       .then(res => res.json())
       .then(content => {
-        if (content.message === 'Ok') {
+        if ((content as { message: string }).message === 'Ok') {
           return true;
         }
         console.error(content);
@@ -137,15 +154,17 @@ class BackupState {
       });
   }
 
-  async restoreBackup(
-    backup: BackupType,
-    keyringPassword: string,
-  ): Promise<void> {
+  async restoreBackup(userId: string, keyringPassword: string): Promise<void> {
     const mainWallet = await this.getMainWallet();
     await sendUsingInternalMessengers({
       method: InternalMethods.unlock,
       params: [keyringPassword, false],
     });
+    const backup = await this.getBackup(userId);
+    if (!backup) {
+      console.error('No backup found');
+      return;
+    }
     await sendUsingInternalMessengers({
       method: InternalMethods.ethereumDecrypt,
       params: [backup.payload, mainWallet],
@@ -282,36 +301,28 @@ class BackupState {
       version: NACL_VERSION,
     });
     const msgHash = bufferToHex(hashPersonalMessage(hexToBuffer(encryptedStr)));
-    return sendUsingInternalMessengers({
-      method: InternalMethods.sign,
-      params: [msgHash, mainWallet],
-    }).then(async res => {
-      if (res.error) {
-        console.error(res);
-        return false;
-      } else {
-        const rawResponse = await fetch(
-          `${BACKUP_URL}backups/${mainWallet.publicKey}/users/${state.userId}?signature=${JSON.parse(res.result as string)}`,
-          {
-            method: 'POST',
-            headers: HEADERS,
-            body: JSON.stringify({
-              payload: encryptedStr,
-            }),
-          },
-        );
-        const content = await rawResponse.json();
-        if (content.message === 'Ok') {
-          await this.setState({
-            lastBackupTime: new Date().getTime(),
-            userId: state.userId,
-            enabled: state.enabled,
-          });
-          return true;
-        }
-        console.error(content);
-        return false;
+    return this.#getSignature(msgHash, mainWallet).then(async signature => {
+      const rawResponse = await fetch(
+        `${BACKUP_URL}backups/${mainWallet.publicKey}/users/${state.userId}?signature=${signature}`,
+        {
+          method: 'POST',
+          headers: HEADERS,
+          body: JSON.stringify({
+            payload: encryptedStr,
+          }),
+        },
+      );
+      const content = (await rawResponse.json()) as { message: string };
+      if (content.message === 'Ok') {
+        await this.setState({
+          lastBackupTime: new Date().getTime(),
+          userId: state.userId,
+          enabled: state.enabled,
+        });
+        return true;
       }
+      console.error(content);
+      return false;
     });
   }
 

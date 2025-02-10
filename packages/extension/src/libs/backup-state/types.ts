@@ -10,13 +10,17 @@ export interface IState {
   enabled: boolean;
 }
 
-export interface BackupType {
+export interface ListBackupType {
   userId: string;
-  payload: string;
   updatedAt: string;
 }
+
+export interface BackupType extends ListBackupType {
+  payload: string;
+}
+
 export interface BackupResponseType {
-  backups: BackupType[];
+  backup: BackupType;
 }
 
 export interface BackupData {

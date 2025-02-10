@@ -34,18 +34,18 @@
 </template>
 <script setup lang="ts">
 import BaseButton from '@action/components/base-button/index.vue';
-import { computed, onBeforeMount, ref } from 'vue';
+import { computed, onBeforeMount, ref, unref } from 'vue';
 import { useRestoreStore } from './store';
 import KeyRing from '@/libs/keyring/keyring';
 import EthereumNetworks from '@/providers/ethereum/networks';
 import { WalletType } from '@enkryptcom/types';
 import BackupState from '@/libs/backup-state';
-import { BackupType } from '@/libs/backup-state/types';
+import { ListBackupType } from '@/libs/backup-state/types';
 import { useRouter } from 'vue-router';
 import { routes } from '../restore-wallet/routes';
 
-const selectedBackup = ref<BackupType>();
-const backups = ref<BackupType[]>([]);
+const selectedBackup = ref<ListBackupType>();
+const backups = ref<ListBackupType[]>([]);
 const store = useRestoreStore();
 const router = useRouter();
 const backupState = new BackupState();
@@ -59,7 +59,7 @@ const backupBtnDisabled = computed(() => {
   return !selectedBackup.value || processing.value;
 });
 onBeforeMount(async () => {
-  await kr.unlock(password);
+  await kr.unlock(unref(password));
   await backupState.getMainWallet().catch(async () => {
     await kr.saveNewAccount({
       basePath: EthereumNetworks.ethereum.basePath,
@@ -69,21 +69,21 @@ onBeforeMount(async () => {
     });
   });
   const mainWallet = await backupState.getMainWallet();
-  const sigHash = backupState.getBackupSigHash(mainWallet.publicKey);
+  const sigHash = backupState.getListBackupMsgHash(mainWallet.publicKey);
   const signature = await kr.sign(sigHash as `0x${string}`, {
     basePath: EthereumNetworks.ethereum.basePath,
     signerType: EthereumNetworks.ethereum.signer[0],
     pathIndex: 0,
     walletType: WalletType.mnemonic,
   });
-  backups.value = await backupState.getBackups({
+  backups.value = await backupState.listBackups({
     pubkey: mainWallet.publicKey,
     signature,
   });
   kr.lock();
 });
 
-const selectBackup = (backup: BackupType) => {
+const selectBackup = (backup: ListBackupType) => {
   selectedBackup.value = backup;
 };
 const useBackup = async () => {
@@ -91,7 +91,7 @@ const useBackup = async () => {
     backupBtnText.value = 'Restoring backup...';
     processing.value = true;
     await backupState
-      .restoreBackup(selectedBackup.value, password)
+      .restoreBackup(selectedBackup.value.userId, unref(password))
       .then(() => {
         router.push({
           name: routes.walletReady.name,
