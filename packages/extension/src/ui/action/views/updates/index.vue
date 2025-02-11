@@ -73,6 +73,8 @@ import { Version } from '@/ui/action/types/updates';
 import { trackUpdatesEvents } from '@/libs/metrics';
 import { UpdatesEventType } from '@/libs/metrics/types';
 import { NetworkNames } from '@enkryptcom/types';
+import { useUpdatesStore } from '@/ui/action/store/updatesStore';
+import { storeToRefs } from 'pinia';
 
 const emit = defineEmits<{
   (e: 'close:popup'): void;
@@ -83,28 +85,28 @@ const props = defineProps({
     required: true,
     type: String,
   },
-  versions: {
-    type: Array as PropType<Version[]>,
-  },
   currentNetwork: {
     type: String as PropType<NetworkNames>,
     required: true,
   },
 });
+const updatesStore = useUpdatesStore();
+const { releases } = storeToRefs(updatesStore);
 
 /** -------------------
  * Versions
  ------------------- */
 
 const displayVersions = computed(() => {
-  if (!props.versions) return [];
-  const index = props.versions.findIndex(
+  if (!releases.value) return [];
+  const versions = releases.value.versions;
+  const index = versions.findIndex(
     version => version.version === props.currentVersion,
   );
   if (index === -1) {
-    return props.versions.slice(0, 10);
+    return versions.slice(0, 10);
   } else {
-    return props.versions.slice(index, index + 10);
+    return versions.slice(index, index + 10);
   }
 });
 

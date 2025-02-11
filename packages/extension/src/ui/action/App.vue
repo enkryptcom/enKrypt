@@ -9,7 +9,7 @@
         <div class="app__menu-row">
           <logo-min class="app__menu-logo" />
           <updated-icon
-            v-if="loadedUpdates && showUpdatesBtn"
+            v-if="updatesIsLoaded && showUpdatesBtn"
             @click="openUpdatesDialog(UpdatesOpenLocation.logo)"
             class="app__menu-updated"
           />
@@ -28,9 +28,12 @@
             <a class="app__menu-dropdown-link" @click="settingsAction">
               <settings-icon /> <span>Settings</span>
             </a>
-            <div v-if="loadedUpdates" class="app__menu-dropdown-divider"></div>
+            <div
+              v-if="updatesIsLoaded"
+              class="app__menu-dropdown-divider"
+            ></div>
             <a
-              v-if="loadedUpdates"
+              v-if="updatesIsLoaded"
               class="app__menu-dropdown-link"
               @click="openUpdatesDialog(UpdatesOpenLocation.settings)"
             >
@@ -114,8 +117,7 @@
       @close:popup="updateShow = !updateShow"
     />
     <modal-updates
-      v-if="loadedUpdates && showUpdatesDialog"
-      :versions="releases?.versions"
+      v-if="updatesIsLoaded && showUpdatesDialog"
       :current-version="currentVersion"
       :current-network="currentNetwork.name"
       @close:popup="closeUpdatesDialog"
@@ -187,16 +189,14 @@ import {
 } from '@/libs/metrics/types';
 import { NetworksCategory } from '@action/types/network-category';
 import { newNetworks } from '@/providers/common/libs/new-features';
-import UpdatesState from '@/libs/updates-state';
 import UpdatedIcon from '@/ui/action/icons/updates/updated.vue';
 import HeartIcon from '@/ui/action/icons/updates/heart.vue';
-import { getLatestEnkryptUpdates } from '@action/utils/browser';
-import { Updates } from '@/ui/action/types/updates';
+import { useUpdatesStore } from './store/updatesStore';
+import { storeToRefs } from 'pinia';
 
 const domainState = new DomainState();
 const networksState = new NetworksState();
 const rateState = new RateState();
-const updatesState = new UpdatesState();
 const appMenuRef = ref(null);
 const showDepositWindow = ref(false);
 const accountHeaderData = ref<AccountsHeaderData>({
@@ -233,87 +233,13 @@ const enabledTestnetworks = ref<string[]>([]);
 /** -------------------
  * Updates
  -------------------*/
-const releases = ref<Updates | null>(null);
-const loadedUpdates = ref<boolean>(false);
-const showUpdatesBtn = ref<boolean>(false);
+const updatesStore = useUpdatesStore();
+const { updatesIsLoaded, showUpdatesBtn } = storeToRefs(updatesStore);
 const showUpdatesDialog = ref<boolean>(false);
-const stateCurrentReleaseTimestamp = ref<number>(0);
-
-/**
- * Initializes the update state by performing the following actions:
- * 1. Retrieves the current release from the state.
- * 2. Updates the current release timestamp.
- * 3. If the current release is empty or different from the current version in the app state,
- *    sets the current release and updates the release timestamp.
- * 4. Fetches the latest Enkrypt updates and sets the releases state.
- * 5. Displays the updates button if there are new releases.
- * 6. Sets the loadedUpdates state to true if successful, otherwise false.
- *
- * @async
- * @function initUpdateState
- * @returns {Promise<void>} A promise that resolves when the update state is initialized.
- * @throws Will log an error message if the initialization fails.
- */
-const initUpdateState = async () => {
-  try {
-    const currentReleaseInState = await updatesState.getCurrentRelease();
-    stateCurrentReleaseTimestamp.value =
-      await updatesState.getCurrentReleaseTimestamp();
-    if (
-      currentReleaseInState === '' ||
-      currentReleaseInState !== currentVersion
-    ) {
-      await updatesState.setCurrentRelease(currentVersion);
-      const newReleaseTimestamp = Date.now();
-      await updatesState.setCurrentReleaseTimestamp(newReleaseTimestamp);
-      stateCurrentReleaseTimestamp.value = newReleaseTimestamp;
-    }
-    releases.value = await getLatestEnkryptUpdates();
-    if (releases.value) {
-      await getShowUpdatesBtn();
-    }
-    loadedUpdates.value = true;
-  } catch (error) {
-    console.error('Failed to init update state:', error);
-    loadedUpdates.value = false;
-  }
-};
-
-/**
- * Asynchronously determines whether to show the updates button based on the last version viewed and the current version.
- *
- * The function performs the following steps:
- * 1. Retrieves the last version viewed from the updates state.
- * 2. Checks if the last version viewed is empty or if the current version is greater than the last version viewed.
- * 3. If the above condition is true, calculates an expiration timestamp (2 weeks from the current release timestamp).
- * 4. Sets the `showUpdatesBtn` value to true if the current release timestamp is less than the expiration timestamp.
- * 5. Otherwise, sets the `showUpdatesBtn` value to false.
- *
- * If an error occurs during the process, it logs an error message to the console.
- *
- * @returns {Promise<void>} A promise that resolves when the function completes.
- */
-const getShowUpdatesBtn = async () => {
-  try {
-    const lastVersionViewed = await updatesState.getLastVersionViewed();
-    if (
-      lastVersionViewed === '' ||
-      (currentVersion && semverGT(currentVersion, lastVersionViewed))
-    ) {
-      const expireTimestamp = stateCurrentReleaseTimestamp.value + 12096e5; //2 weeks;
-      showUpdatesBtn.value =
-        stateCurrentReleaseTimestamp.value < expireTimestamp;
-    } else {
-      showUpdatesBtn.value = false;
-    }
-  } catch (error) {
-    console.error('Failed to get show updates button:', error);
-  }
-};
 
 const openUpdatesDialog = (_location: UpdatesOpenLocation) => {
   showUpdatesDialog.value = true;
-  updatesState.setLastVersionViewed(currentVersion);
+  updatesStore.setLastVersionViewed(currentVersion);
   showUpdatesBtn.value = false;
   if (isOpenMore.value) {
     closeMoreMenu();
@@ -369,7 +295,7 @@ const openBuyPage = () => {
       case NetworkNames.SyscoinNEVM:
       case NetworkNames.Rollux:
         return `${(currentNetwork.value as EvmNetwork).options.buyLink}&address=${currentNetwork.value.displayAddress(
-          accountHeaderData.value.selectedAccount!.address
+          accountHeaderData.value.selectedAccount!.address,
         )}`;
       case NetworkNames.SyscoinNEVMTest:
       case NetworkNames.RolluxTest:
@@ -440,7 +366,7 @@ onMounted(async () => {
         });
       }, 2000);
     }
-    initUpdateState();
+    updatesStore.init();
   } else {
     openOnboard();
   }
