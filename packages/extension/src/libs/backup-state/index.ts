@@ -246,7 +246,6 @@ class BackupState {
             }
           }
         }
-        await this.setUserId(decryptedBackup.uuid);
       }
     });
   }
@@ -352,11 +351,6 @@ class BackupState {
   async getUserId(): Promise<string> {
     const state: IState = await this.getState();
     return state.userId;
-  }
-
-  async setUserId(userId: string): Promise<void> {
-    const state: IState = await this.getState();
-    await this.setState({ ...state, userId });
   }
 
   async disableBackups(): Promise<void> {
