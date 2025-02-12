@@ -3,20 +3,16 @@
     <settings-inner-header v-bind="$attrs" :is-backups="true" />
 
     <settings-switch
-      title="Enable backups"
+      :title="`Settings backup ${isBackupsEnabled ? 'on' : 'off'}`"
       :is-checked="isBackupsEnabled"
       @update:check="toggleBackups"
     />
 
     <div class="settings__label">
-      <p>
-        Backups are currently
-        <strong>{{ isBackupsEnabled ? 'enabled' : 'disabled' }}</strong
-        >.
-      </p>
+      <p>Vince provide copy</p>
     </div>
 
-    <div v-if="isBackupsEnabled">
+    <div v-if="isBackupsEnabled" class="settings__backup">
       <div v-if="loading">
         <div class="settings__backup-header">Loading backups</div>
         <table class="settings__backup-table">
@@ -94,18 +90,17 @@
               v-for="(entity, index) in backups"
               :key="`entity-${entity.userId}-${index}`"
             >
-              <td>{{ entity.userId }}</td>
+              <td>{{ concatId(entity.userId) }}</td>
               <td>{{ formatDate(entity.updatedAt) }}</td>
               <td>
                 <span
                   :class="[
                     'settings__backup-table__status-badge',
-                    entity.userId === currentUserId
-                      ? 'settings__backup-table__status-active'
-                      : 'settings__backup-table__status-inactive',
+                    'settings__backup-table__status-active',
                   ]"
+                  v-if="entity.userId === currentUserId"
                 >
-                  {{ entity.userId === currentUserId ? 'Active' : 'Inactive' }}
+                  Active
                 </span>
               </td>
               <td>
@@ -138,7 +133,7 @@ const loading = ref(true);
 const isBackupsEnabled = ref(true);
 const currentUserId = ref('');
 const backups = ref<ListBackupType[]>([]);
-const headers = ['User ID', 'Last Updated', 'Status', 'Delete'];
+const headers = ['User ID', 'Generated', 'Status', 'Delete'];
 
 onMounted(async () => {
   isBackupsEnabled.value = await backupState.isBackupEnabled();
@@ -158,6 +153,10 @@ const toggleBackups = async (checked: boolean) => {
     await backupState.disableBackups();
   }
   loading.value = false;
+};
+
+const concatId = (userId: string) => {
+  return `${userId.slice(0, 4)}...${userId.slice(-4)}`;
 };
 
 const deleteBackup = async (userId: string) => {
@@ -182,6 +181,10 @@ const formatDate = (dateString: string) => {
 
 .settings-container {
   padding: 16px;
+}
+
+.settings__backup {
+  margin: 0 32px 12px 32px;
 }
 
 .settings__label {
@@ -219,7 +222,14 @@ const formatDate = (dateString: string) => {
   }
 
   thead {
-    background: @darkBg;
+    color: rgba(0, 0, 0, 0.6);
+    font-size: 10px;
+    font-weight: 500;
+    line-height: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin: 0;
+
     th {
       padding: 10px;
       text-align: left;
@@ -234,15 +244,8 @@ const formatDate = (dateString: string) => {
   }
 
   tbody {
-    tr {
-      &:nth-child(even) {
-        background: @primary007;
-      }
-    }
-
     td {
       padding: 10px;
-      border-bottom: 1px solid @default;
       text-align: center;
 
       &:nth-child(1) {
@@ -259,13 +262,8 @@ const formatDate = (dateString: string) => {
   }
 
   &__status-active {
-    background: #d4f5d4;
-    color: #2a7a2a;
-  }
-
-  &__status-inactive {
-    background: #fddede;
-    color: #b02a2a;
+    background: @primaryLight;
+    color: @primary;
   }
 
   &__action-button {
