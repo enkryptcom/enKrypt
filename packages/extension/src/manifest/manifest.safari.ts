@@ -1,6 +1,6 @@
 import { defineManifest, ManifestV3Export } from '@crxjs/vite-plugin';
 import { chromeManifest } from './manifest.chrome';
-const operaManifest = {
+const safariManifest = {
   ...chromeManifest,
   action: {
     default_icon: {
@@ -16,7 +16,7 @@ const operaManifest = {
     default_title: 'Enkrypt',
     default_popup: 'action.html',
   },
-  host_permissions: ['file://*/*', 'http://*/*', 'https://*/*'],
+  host_permissions: ['http://*/*', 'https://*/*'],
   permissions: [
     'storage',
     'unlimitedStorage',
@@ -27,4 +27,4 @@ const operaManifest = {
   ],
 } as ManifestV3Export;
 
-export default defineManifest(operaManifest);
+export default defineManifest(safariManifest);

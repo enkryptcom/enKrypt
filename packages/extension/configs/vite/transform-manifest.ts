@@ -1,13 +1,20 @@
 import { CrxPlugin } from '@crxjs/vite-plugin';
 
 function transFormManifest(): CrxPlugin {
+  const MATCHING_PROTOCOLS = ['file://*/*', 'http://*/*', 'https://*/*'].filter(
+    fname => {
+      if (fname === 'file://*/*' && process.env.BROWSER === 'safari')
+        return false;
+      return true;
+    },
+  );
   return {
     name: 'crx:enkrypt:transform-manifest',
     enforce: 'post',
     renderCrxManifest(manifest) {
       manifest.content_scripts = [
         {
-          matches: ['file://*/*', 'http://*/*', 'https://*/*'],
+          matches: MATCHING_PROTOCOLS,
           js: ['scripts/contentscript.js'],
           run_at: 'document_start',
           all_frames: false,
@@ -20,7 +27,7 @@ function transFormManifest(): CrxPlugin {
       ] as any;
       if (process.env.BROWSER !== 'opera' && process.env.BROWSER !== 'safari') {
         manifest.content_scripts?.push({
-          matches: ['file://*/*', 'http://*/*', 'https://*/*'],
+          matches: MATCHING_PROTOCOLS,
           js: ['scripts/inject.js'],
           run_at: 'document_start',
           all_frames: false,
@@ -42,7 +49,7 @@ function transFormManifest(): CrxPlugin {
           'scripts/*.js.map',
         ],
         use_dynamic_url: false,
-        matches: ['file://*/*', 'http://*/*', 'https://*/*'],
+        matches: MATCHING_PROTOCOLS,
       });
       return manifest;
     },
