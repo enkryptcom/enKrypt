@@ -42,7 +42,7 @@
             class="settings-container__backup-item"
           >
             <div>
-              <h4>{{ concatId(entity.userId) }}</h4>
+              <h4>{{ generateRandomNameWithSeed('_', entity.userId) }}</h4>
               <p>Last backup on: {{ formatDate(entity.updatedAt) }}</p>
             </div>
             <div class="settings-container__backup-status">
@@ -80,6 +80,7 @@ import SettingsInnerHeader from '@action/views/settings/components/settings-inne
 import SettingsSwitch from '@action/views/settings/components/settings-switch.vue';
 import deleteIcon from '@/ui/action/icons/actions/trash.vue';
 import BalanceLoader from '@action/icons/common/balance-loader.vue';
+import { generateRandomNameWithSeed } from '@enkryptcom/utils';
 
 const backupState = new BackupState();
 const loading = ref(true);
@@ -105,10 +106,6 @@ const toggleBackups = async (checked: boolean) => {
     await backupState.disableBackups();
   }
   loading.value = false;
-};
-
-const concatId = (userId: string) => {
-  return `${userId.slice(0, 12)}...${userId.slice(-4)}`;
 };
 
 const deleteBackup = async (userId: string) => {
@@ -138,7 +135,7 @@ const formatDate = (dateString: string) => {
     margin: 0 32px 12px 32px;
 
     &-container {
-      height: 288; // adding a small cutoff to let user know there's more
+      height: 288px; // adding a small cutoff to let user know there's more
       overflow-y: auto;
     }
 

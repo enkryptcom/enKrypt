@@ -14,6 +14,7 @@
             'backup-detected__backup-item',
           ]"
         >
+          {{ generateRandomNameWithSeed('_', backup.userId) }} -
           {{ new Date(backup.updatedAt).toLocaleString() }}
         </a>
       </div>
@@ -43,6 +44,7 @@ import BackupState from '@/libs/backup-state';
 import { ListBackupType } from '@/libs/backup-state/types';
 import { useRouter } from 'vue-router';
 import { routes } from '../restore-wallet/routes';
+import { generateRandomNameWithSeed } from '@enkryptcom/utils';
 
 const selectedBackup = ref<ListBackupType>();
 const backups = ref<ListBackupType[]>([]);
