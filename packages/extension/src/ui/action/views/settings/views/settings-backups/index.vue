@@ -90,7 +90,7 @@
               v-for="(entity, index) in backups"
               :key="`entity-${entity.userId}-${index}`"
             >
-              <td>{{ concatId(entity.userId) }}</td>
+              <td>{{ generateRandomNameWithSeed('_', entity.userId) }}</td>
               <td>{{ formatDate(entity.updatedAt) }}</td>
               <td>
                 <span
@@ -127,6 +127,7 @@ import SettingsInnerHeader from '@action/views/settings/components/settings-inne
 import SettingsSwitch from '@action/views/settings/components/settings-switch.vue';
 import deleteIcon from '@/ui/action/icons/actions/trash.vue';
 import BalanceLoader from '@action/icons/common/balance-loader.vue';
+import { generateRandomNameWithSeed } from '@enkryptcom/utils';
 
 const backupState = new BackupState();
 const loading = ref(true);
@@ -153,10 +154,6 @@ const toggleBackups = async (checked: boolean) => {
     await backupState.disableBackups();
   }
   loading.value = false;
-};
-
-const concatId = (userId: string) => {
-  return `${userId.slice(0, 4)}...${userId.slice(-4)}`;
 };
 
 const deleteBackup = async (userId: string) => {

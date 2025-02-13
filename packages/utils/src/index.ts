@@ -18,6 +18,7 @@ import {
   naclEncrypt,
   NACL_VERSION,
 } from "./nacl-encrypt-decrypt";
+import { generateRandomNameWithSeed } from "./random-names";
 
 const bufferToHex = (buf: Buffer | Uint8Array, nozerox = false): string =>
   nozerox
@@ -54,4 +55,5 @@ export {
   naclDecrypt,
   naclEncrypt,
   NACL_VERSION,
+  generateRandomNameWithSeed,
 };
