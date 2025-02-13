@@ -2,7 +2,6 @@ import BrowserStorage from '../common/browser-storage';
 import { POPULAR_NAMES } from '../utils/networks';
 import { InternalStorageNamespace } from '@/types/provider';
 import { IState, StorageKeys, NetworkStorageElement } from './types';
-import { newNetworks, newSwaps } from '@/providers/common/libs/new-features';
 
 class NetworksState {
   private storage: BrowserStorage;
@@ -53,47 +52,6 @@ class NetworksState {
     await this.setState(state);
   }
 
-  /**
-   * Inserts networks with new features.
-   *
-   * This method first retrieves the current state and checks if the networks
-   * have been updated to the latest version. If the state and networks are defined,
-   * it filters out the networks that are not in the predefined list of networks with new features.
-   * It then maps the filtered networks to a new network item and inserts them into the valid networks.
-   * The new networks are inserted at the 6th index, or at the end if there are fewer than 6 networks.
-   * The state is then updated with the new networks and the latest version.
-   */
-  async insertNetworksWithNewFeatures(): Promise<void> {
-    const state: IState | undefined = await this.getState();
-    if (
-      state &&
-      state.networks &&
-      state.newNetworksVersion !== __PACKAGE_VERSION__
-    ) {
-      let validNetworks = state.networks;
-      const netsWithFeatures = [
-        ...new Set([...newNetworks, ...newSwaps]),
-      ].sort();
-      const filteredNets = netsWithFeatures.filter(n => {
-        for (const vn of validNetworks) if (vn.name === n) return false;
-        return true;
-      });
-      const fnetworkItem = filteredNets.map(name => {
-        return {
-          name,
-        };
-      });
-      const insertIdx = validNetworks.length > 5 ? 5 : validNetworks.length;
-      validNetworks = validNetworks
-        .slice(0, insertIdx)
-        .concat(fnetworkItem, validNetworks.slice(insertIdx));
-      state.networks = validNetworks;
-      state.newNetworksVersion = __PACKAGE_VERSION__ as string;
-      state.newUsedFeatures = { networks: [], swap: [] };
-      await this.setState(state);
-    }
-  }
-
   async setUsedFeature(feature: 'networks' | 'swap', networkName: string) {
     const state: IState | undefined = await this.getState();
     if (state) {
@@ -127,7 +85,6 @@ class NetworksState {
    * @returns {Promise<string[]>} A promise that resolves to an array of active network names.
    */
   async getPinnedNetworkNames(): Promise<string[]> {
-    await this.insertNetworksWithNewFeatures();
     const state: IState | undefined = await this.getState();
     if (state && state.networks) {
       const validNetworks = state.networks;
@@ -139,7 +96,6 @@ class NetworksState {
   }
 
   async getEnabledTestNetworks(): Promise<string[]> {
-    await this.insertNetworksWithNewFeatures();
     const state: IState | undefined = await this.getState();
     if (state && state.enabledTestNetworks) {
       const validNetworks = state.enabledTestNetworks;
