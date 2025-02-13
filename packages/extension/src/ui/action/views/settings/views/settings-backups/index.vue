@@ -40,9 +40,12 @@
             :key="`entity-${entity.userId}-${index}`"
             class="settings-container__backup-item"
           >
-            <div class="settings-container__backup-item__name">
-              <h4>{{ generateRandomNameWithSeed(' ', entity.userId) }}</h4>
-              <p>Last backup on: {{ formatDate(entity.updatedAt) }}</p>
+            <div class="settings-container__backup-item__content">
+              <backup-identicon :hash="entity.userId" />
+              <div class="settings-container__backup-item__name">
+                <h4>{{ generateRandomNameWithSeed(' ', entity.userId) }}</h4>
+                <p>Last backup on: {{ formatDate(entity.updatedAt) }}</p>
+              </div>
             </div>
             <div class="settings-container__backup-status">
               <div v-if="entity.userId === currentUserId">
@@ -79,6 +82,7 @@ import SettingsInnerHeader from '@action/views/settings/components/settings-inne
 import SettingsSwitch from '@action/views/settings/components/settings-switch.vue';
 import deleteIcon from '@/ui/action/icons/actions/trash.vue';
 import BalanceLoader from '@action/icons/common/balance-loader.vue';
+import BackupIdenticon from './backup-identicon.vue';
 import { generateRandomNameWithSeed } from '@enkryptcom/utils';
 
 const backupState = new BackupState();
@@ -143,6 +147,15 @@ const formatDate = (dateString: string) => {
       justify-content: space-between;
       align-items: center;
       padding: 10px 0;
+
+      &__content {
+        display: flex;
+        align-items: center;
+      }
+
+      &__name {
+        margin-left: 10px;
+      }
 
       h4 {
         font-style: normal;

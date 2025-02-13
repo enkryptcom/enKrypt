@@ -14,8 +14,11 @@
             'backup-detected__backup-item',
           ]"
         >
-          {{ generateRandomNameWithSeed(' ', backup.userId) }} -
-          {{ new Date(backup.updatedAt).toLocaleString() }}
+          <backup-identicon :hash="backup.userId" />
+          <div class="backup-detected__backup-item__name">
+            <h4>{{ generateRandomNameWithSeed(' ', backup.userId) }}</h4>
+            <p>{{ formatDate(backup.updatedAt) }}</p>
+          </div>
         </a>
       </div>
     </div>
@@ -45,6 +48,7 @@ import { ListBackupType } from '@/libs/backup-state/types';
 import { useRouter } from 'vue-router';
 import { routes } from '../restore-wallet/routes';
 import { generateRandomNameWithSeed } from '@enkryptcom/utils';
+import backupIdenticon from '@/ui/action/views/settings/views/settings-backups/backup-identicon.vue';
 
 const selectedBackup = ref<ListBackupType>();
 const backups = ref<ListBackupType[]>([]);
@@ -107,6 +111,15 @@ const useBackup = async () => {
   }
 };
 
+const formatDate = (dateString: string) => {
+  const options: Intl.DateTimeFormatOptions = {
+    year: 'numeric',
+    month: 'short',
+    day: '2-digit',
+  };
+  return new Date(dateString).toLocaleDateString(undefined, options);
+};
+
 const skip = () => {
   router.push({
     name: routes.walletReady.name,
@@ -163,13 +176,33 @@ const skip = () => {
     display: flex;
     font-size: 16px;
     align-items: center;
-    justify-content: center;
     cursor: pointer;
     border: 1px solid @white;
 
     &:hover {
       border: 1px solid @primary;
       border-radius: 10px;
+    }
+
+    &__name {
+      margin-left: 10px;
+
+      h4 {
+        font-style: normal;
+        font-weight: 400;
+        font-size: 16px;
+        line-height: 24px;
+        color: #202124;
+        margin: 0 0 1px 0 !important;
+      }
+
+      p {
+        font-style: normal;
+        font-weight: 400;
+        font-size: 14px;
+        color: @tertiaryLabel;
+        margin: 0;
+      }
     }
   }
 
