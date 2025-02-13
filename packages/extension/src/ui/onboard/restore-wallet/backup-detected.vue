@@ -14,7 +14,7 @@
             'backup-detected__backup-item',
           ]"
         >
-          {{ generateRandomNameWithSeed('_', backup.userId) }} -
+          {{ generateRandomNameWithSeed(' ', backup.userId) }} -
           {{ new Date(backup.updatedAt).toLocaleString() }}
         </a>
       </div>
