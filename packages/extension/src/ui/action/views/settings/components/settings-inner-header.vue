@@ -8,7 +8,7 @@
     <h2 v-show="isSupport">Support</h2>
     <h2 v-show="isPhrase">Recovery phrase</h2>
     <h2 v-show="isReset">Reset wallet?</h2>
-    <h2 v-show="isBackups">Backups</h2>
+    <h2 v-show="isBackups">Settings backup</h2>
 
     <a class="settings__close" @click="$emit('window:close')">
       <close-icon />

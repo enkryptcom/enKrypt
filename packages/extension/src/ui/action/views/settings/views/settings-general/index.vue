@@ -49,7 +49,7 @@
         information is collected.
       </p>
     </div>
-    <settings-button title="Backups" @click="$emit('open:backups')" />
+    <settings-button title="Settings backup" @click="$emit('open:backups')" />
     <!-- <base-select
       :select="selecTimer"
       title="Auto-lock timer"

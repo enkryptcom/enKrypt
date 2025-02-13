@@ -3,10 +3,9 @@
     <settings-inner-header v-bind="$attrs" :is-backups="true" />
 
     <settings-switch
-      :title="`Settings backup ${isBackupsEnabled ? 'on' : 'off'}`"
+      :title="`Backup ${isBackupsEnabled ? 'on' : 'off'}`"
       :is-checked="isBackupsEnabled"
       @update:check="toggleBackups"
-      :has-border="false"
     />
 
     <div class="settings-container__label">
@@ -41,8 +40,8 @@
             :key="`entity-${entity.userId}-${index}`"
             class="settings-container__backup-item"
           >
-            <div>
-              <h4>{{ generateRandomNameWithSeed('_', entity.userId) }}</h4>
+            <div class="settings-container__backup-item__name">
+              <h4>{{ generateRandomNameWithSeed(' ', entity.userId) }}</h4>
               <p>Last backup on: {{ formatDate(entity.updatedAt) }}</p>
             </div>
             <div class="settings-container__backup-status">
