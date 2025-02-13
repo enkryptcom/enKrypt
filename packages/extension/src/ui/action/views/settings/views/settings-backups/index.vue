@@ -6,114 +6,67 @@
       :title="`Settings backup ${isBackupsEnabled ? 'on' : 'off'}`"
       :is-checked="isBackupsEnabled"
       @update:check="toggleBackups"
+      :has-border="false"
     />
 
-    <div class="settings__label">
+    <div class="settings-container__label">
       <p>Vince provide copy</p>
     </div>
 
-    <div v-if="isBackupsEnabled" class="settings__backup">
+    <div class="settings-container__backup">
       <div v-if="loading">
-        <div class="settings__backup-header">Loading backups</div>
-        <table class="settings__backup-table">
-          <thead>
-            <tr>
-              <th v-for="(header, i) in headers" :key="`header-${i}`">
-                {{ header }}
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>
-                <balance-loader class="settings__backup-table__loader-one" />
-              </td>
-              <td>
-                <balance-loader class="settings__backup-table__loader-one" />
-              </td>
-              <td>
-                <balance-loader class="settings__backup-table__loader-two" />
-              </td>
-              <td>
-                <balance-loader class="settings__backup-table__loader-two" />
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <balance-loader class="settings__backup-table__loader-one" />
-              </td>
-              <td>
-                <balance-loader class="settings__backup-table__loader-one" />
-              </td>
-              <td>
-                <balance-loader class="settings__backup-table__loader-two" />
-              </td>
-              <td>
-                <balance-loader class="settings__backup-table__loader-two" />
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <balance-loader class="settings__backup-table__loader-one" />
-              </td>
-              <td>
-                <balance-loader class="settings__backup-table__loader-one" />
-              </td>
-              <td>
-                <balance-loader class="settings__backup-table__loader-two" />
-              </td>
-              <td>
-                <balance-loader class="settings__backup-table__loader-two" />
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <div class="settings-container__backup-header">Fetching backups</div>
+        <div
+          v-for="(item, index) in [1, 2, 3]"
+          :key="`entity-${item}-${index}`"
+          class="settings-container__backup-item"
+        >
+          <div class="settings-container__backup-item__loading-container">
+            <balance-loader />
+            <balance-loader />
+          </div>
+          <div class="settings-container__backup-status__loading">
+            <balance-loader />
+          </div>
+        </div>
       </div>
-
       <div v-else-if="backups.length === 0">
-        <div class="settings__backup-header">No backups found</div>
+        <div class="settings-container__backup-header">No backups found</div>
       </div>
-
       <div v-else>
-        <div class="settings__backup-header">Current backups</div>
-
-        <table class="settings__backup-table">
-          <thead>
-            <tr>
-              <th v-for="(header, i) in headers" :key="`header-${i}`">
-                {{ header }}
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr
-              v-for="(entity, index) in backups"
-              :key="`entity-${entity.userId}-${index}`"
-            >
-              <td>{{ concatId(entity.userId) }}</td>
-              <td>{{ formatDate(entity.updatedAt) }}</td>
-              <td>
+        <div class="settings-container__backup-header">Current backups</div>
+        <div class="settings-container__backup-container">
+          <div
+            v-for="(entity, index) in backups"
+            :key="`entity-${entity.userId}-${index}`"
+            class="settings-container__backup-item"
+          >
+            <div>
+              <h4>{{ concatId(entity.userId) }}</h4>
+              <p>Last backup on: {{ formatDate(entity.updatedAt) }}</p>
+            </div>
+            <div class="settings-container__backup-status">
+              <div v-if="entity.userId === currentUserId">
                 <span
                   :class="[
-                    'settings__backup-table__status-badge',
-                    'settings__backup-table__status-active',
+                    'settings-container__backup-status-badge',
+                    'settings-container__backup-status-active',
                   ]"
-                  v-if="entity.userId === currentUserId"
                 >
                   Active
                 </span>
-              </td>
-              <td>
+              </div>
+              <div>
                 <div
-                  class="settings__backup-table__action-button"
+                  class="settings-container__backup-status-button"
                   @click="deleteBackup(entity.userId)"
                 >
                   <delete-icon />
                 </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -133,7 +86,6 @@ const loading = ref(true);
 const isBackupsEnabled = ref(true);
 const currentUserId = ref('');
 const backups = ref<ListBackupType[]>([]);
-const headers = ['User ID', 'Generated', 'Status', 'Delete'];
 
 onMounted(async () => {
   isBackupsEnabled.value = await backupState.isBackupEnabled();
@@ -156,7 +108,7 @@ const toggleBackups = async (checked: boolean) => {
 };
 
 const concatId = (userId: string) => {
-  return `${userId.slice(0, 4)}...${userId.slice(-4)}`;
+  return `${userId.slice(0, 12)}...${userId.slice(-4)}`;
 };
 
 const deleteBackup = async (userId: string) => {
@@ -181,93 +133,123 @@ const formatDate = (dateString: string) => {
 
 .settings-container {
   padding: 16px;
-}
 
-.settings__backup {
-  margin: 0 32px 12px 32px;
-}
+  &__backup {
+    margin: 0 32px 12px 32px;
 
-.settings__label {
-  padding: 0 48px;
-  margin-bottom: 10px;
+    &-container {
+      height: 288; // adding a small cutoff to let user know there's more
+      overflow-y: auto;
+    }
 
-  p {
+    &-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+
+      h4 {
+        font-style: normal;
+        font-weight: 400;
+        font-size: 16px;
+        line-height: 24px;
+        color: #202124;
+        margin: 0 0 1px 0;
+      }
+
+      p {
+        font-style: normal;
+        font-weight: 400;
+        font-size: 12px;
+        line-height: 16px;
+        letter-spacing: 0.5px;
+        color: #5f6368;
+        margin: 0;
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        flex-direction: row;
+      }
+
+      &__loading-container {
+        display: flex;
+        flex-direction: column;
+
+        svg {
+          &:first-child {
+            width: 150px;
+            margin-bottom: 5px;
+          }
+
+          &:last-child {
+            width: 100px;
+          }
+        }
+      }
+    }
+
+    &-status {
+      display: flex;
+      align-items: center;
+
+      &__loading {
+        svg {
+          width: 100px;
+        }
+      }
+
+      &-badge {
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: bold;
+      }
+
+      &-active {
+        color: @primary;
+      }
+
+      &-inactive {
+        color: @secondaryLabel;
+      }
+
+      &-button {
+        margin-left: 10px;
+        cursor: pointer;
+        font-size: 0;
+        transition: background 300ms ease-in-out;
+        width: 16px;
+        height: 16px;
+        padding: 5px 8px 5px 8px;
+        background: transparent;
+        border-radius: 24px;
+        transition: @opacity-noBG-transition;
+        cursor: pointer;
+        &:hover {
+          background: @black007;
+        }
+      }
+    }
+  }
+
+  &__label {
+    padding: 0 48px;
+    margin-bottom: 10px;
+
+    p {
+      font-style: normal;
+      font-weight: 400;
+      font-size: 14px;
+      color: @tertiaryLabel;
+      margin: 0;
+    }
+  }
+
+  &__backup-header {
     font-style: normal;
-    font-weight: 400;
-    font-size: 14px;
-    color: @tertiaryLabel;
-  }
-}
-
-.settings__backup-header {
-  font-style: normal;
-  font-weight: bold;
-  font-size: 16px;
-  margin: 30px 0 15px;
-}
-
-.settings__backup-table {
-  width: 100%;
-  border-collapse: collapse;
-  border-radius: 12px;
-  overflow: hidden;
-  background: @primaryBg;
-
-  &__loader-one {
-    width: 100px;
-  }
-
-  &__loader-two {
-    width: 65px;
-  }
-
-  thead {
-    color: rgba(0, 0, 0, 0.6);
-    font-size: 10px;
-    font-weight: 500;
-    line-height: 11px;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    margin: 0;
-
-    th {
-      padding: 10px;
-      text-align: left;
-      font-weight: bold;
-      text-align: center;
-      height: 30px;
-
-      &:first-child {
-        width: 150px;
-      }
-    }
-  }
-
-  tbody {
-    td {
-      padding: 10px;
-      text-align: center;
-
-      &:nth-child(1) {
-        text-align: left;
-      }
-    }
-  }
-
-  &__status-badge {
-    padding: 4px 8px;
-    border-radius: 12px;
-    font-size: 12px;
     font-weight: bold;
-  }
-
-  &__status-active {
-    background: @primaryLight;
-    color: @primary;
-  }
-
-  &__action-button {
-    cursor: pointer;
+    font-size: 16px;
+    margin: 30px 0 15px;
   }
 }
 </style>
