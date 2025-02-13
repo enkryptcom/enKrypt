@@ -101,7 +101,7 @@ export default defineConfig({
     minify: process.env.MINIFY === 'true' ? 'esbuild' : false,
     rollupOptions: {
       plugins: [],
-      external: ['fs'],
+      external: [],
       input: {
         action: 'action.html',
         onboard: 'onboard.html',
@@ -120,6 +120,7 @@ export default defineConfig({
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
       '@action': fileURLToPath(new URL('./src/ui/action', import.meta.url)),
+      fs: './configs/vite/empty.js',
     },
   },
 });
