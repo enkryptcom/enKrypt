@@ -73,7 +73,7 @@ import { Version } from '@/ui/action/types/updates';
 import { trackUpdatesEvents } from '@/libs/metrics';
 import { UpdatesEventType } from '@/libs/metrics/types';
 import { NetworkNames } from '@enkryptcom/types';
-import { useUpdatesStore } from '@/ui/action/store/updatesStore';
+import { useUpdatesStore } from '@/ui/action/store/updates-store';
 import { storeToRefs } from 'pinia';
 
 const emit = defineEmits<{

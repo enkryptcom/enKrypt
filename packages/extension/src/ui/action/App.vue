@@ -5,7 +5,10 @@
     </div>
     <div v-show="!isLoading" ref="appMenuRef" class="app__menu">
       <!-- LOGO & TOP MENU -->
-      <div class="app__menu-row" :class="{ border: networks.length > 9 }">
+      <div
+        class="app__menu-row"
+        :class="{ border: orderedNetworks.length > 9 }"
+      >
         <div class="app__menu-row">
           <logo-min class="app__menu-logo" />
           <updated-icon
@@ -48,20 +51,12 @@
         :is-border="false"
         @update:value="updateSearchValue"
       />
-      <app-menu-tab
-        :active-category="activeCategory"
-        @update:category="setActiveCategory"
-      />
+
       <app-menu
-        :networks="displayNetworks"
-        :pinnedNetworks="pinnedNetworks"
-        :selected="route.params.id as string"
-        :active-category="activeCategory"
+        :active-network="currentNetwork"
         :search-input="searchInput"
-        @update:order="updateNetworkOrder"
         @update:network="setNetwork"
         @update:gradient="updateGradient"
-        @update:pin-network="setIsPinnedNetwork"
       />
     </div>
 
@@ -98,12 +93,12 @@
       />
     </div>
 
-    <add-network
+    <!-- <add-network
       v-if="addNetworkShow"
       @close:popup="addNetworkShow = !addNetworkShow"
       @update:pin-network="setIsPinnedNetwork"
       @update:testNetworkToggle="setIsToggledTestNetwork"
-    />
+    /> -->
     <settings
       v-if="settingsShow"
       @close:popup="settingsShow = !settingsShow"
@@ -129,17 +124,12 @@
 import DomainState from '@/libs/domain-state';
 import PublicKeyRing from '@/libs/keyring/public-keyring';
 import { sendToBackgroundFromAction } from '@/libs/messenger/extension';
-import NetworksState from '@/libs/networks-state';
 import {
   getAccountsByNetworkName,
   getOtherSigners,
 } from '@/libs/utils/accounts';
 import ModalNewVersion from './views/modal-new-version/index.vue';
-import {
-  DEFAULT_EVM_NETWORK,
-  getAllNetworks,
-  getNetworkByName,
-} from '@/libs/utils/networks';
+import { DEFAULT_EVM_NETWORK, getNetworkByName } from '@/libs/utils/networks';
 import openOnboard from '@/libs/utils/open-onboard';
 import BTCAccountState from '@/providers/bitcoin/libs/accounts-state';
 import EVMAccountState from '@/providers/ethereum/libs/accounts-state';
@@ -156,7 +146,6 @@ import { useRoute, useRouter } from 'vue-router';
 import Browser from 'webextension-polyfill';
 import AccountsHeader from './components/accounts-header/index.vue';
 import AppMenu from './components/app-menu/index.vue';
-import AppMenuTab from './components/app-menu/components/app-menu-tab.vue';
 import BaseSearch from './components/base-search/index.vue';
 import NetworkMenu from './components/network-menu/index.vue';
 import MoreIcon from './icons/actions/more.vue';
@@ -165,7 +154,7 @@ import LogoMin from './icons/common/logo-min.vue';
 import ManageNetworksIcon from './icons/common/manage-networks-icon.vue';
 import SettingsIcon from './icons/common/settings-icon.vue';
 import { AccountsHeaderData } from './types/account';
-import AddNetwork from './views/add-network/index.vue';
+// import AddNetwork from './views/add-network/index.vue';
 import ModalRate from './views/modal-rate/index.vue';
 import Settings from './views/settings/index.vue';
 import ModalUpdates from './views/updates/index.vue';
@@ -187,16 +176,15 @@ import {
   UpdatesEventType,
   UpdatesOpenLocation,
 } from '@/libs/metrics/types';
-import { NetworksCategory } from '@action/types/network-category';
-import { newNetworks } from '@/providers/common/libs/new-features';
 import UpdatedIcon from '@/ui/action/icons/updates/updated.vue';
 import HeartIcon from '@/ui/action/icons/updates/heart.vue';
-import { useUpdatesStore } from './store/updatesStore';
+import { useUpdatesStore } from './store/updates-store';
+import { useNetworksStore } from './store/networks-store';
 import { storeToRefs } from 'pinia';
 
 const domainState = new DomainState();
-const networksState = new NetworksState();
 const rateState = new RateState();
+
 const appMenuRef = ref(null);
 const showDepositWindow = ref(false);
 const accountHeaderData = ref<AccountsHeaderData>({
@@ -213,9 +201,6 @@ const router = useRouter();
 const route = useRoute();
 const transitionName = 'fade';
 const searchInput = ref('');
-const activeCategory = ref<NetworksCategory>(NetworksCategory.All);
-const networks = ref<BaseNetwork[]>([]);
-const pinnedNetworks = ref<BaseNetwork[]>([]);
 const defaultNetwork = DEFAULT_EVM_NETWORK;
 const currentNetwork = ref<BaseNetwork>(defaultNetwork);
 const currentSubNetwork = ref<string>('');
@@ -229,7 +214,7 @@ const toggle = ref(null);
 const isLoading = ref(true);
 const currentVersion = __PACKAGE_VERSION__;
 const latestVersion = ref('');
-const enabledTestnetworks = ref<string[]>([]);
+
 /** -------------------
  * Updates
  -------------------*/
@@ -254,33 +239,17 @@ const closeUpdatesDialog = () => {
   showUpdatesDialog.value = false;
 };
 
+/**  -------------------
+ * Networks
+ -------------------*/
+
+const networksStore = useNetworksStore();
+const { orderedNetworks } = storeToRefs(networksStore);
+
 /** -------------------
  * Core
  -------------------*/
-const setActiveNetworks = async () => {
-  const pinnedNetworkNames = await networksState.getPinnedNetworkNames();
-  const allNetworks = await getAllNetworks();
-  enabledTestnetworks.value = await networksState.getEnabledTestNetworks();
-  pinnedNetworks.value = [];
-  pinnedNetworkNames.forEach(name => {
-    const network = allNetworks.find(network => network.name === name);
-    if (network !== undefined) pinnedNetworks.value.push(network);
-  });
-  networks.value = [
-    ...pinnedNetworks.value,
-    ...allNetworks.filter(
-      network => !pinnedNetworkNames.includes(network.name),
-    ),
-  ];
-};
 
-const updateNetworkOrder = (newOrder: BaseNetwork[]) => {
-  if (searchInput.value === '') {
-    if (activeCategory.value === NetworksCategory.Pinned)
-      pinnedNetworks.value = newOrder;
-    else networks.value = newOrder;
-  }
-};
 const updateSearchValue = (newval: string) => {
   searchInput.value = newval;
 };
@@ -313,6 +282,7 @@ const openBuyPage = () => {
   });
   trackBuyEvents(BuyEventType.BuyClick, { network: currentNetwork.value.name });
 };
+
 const isKeyRingLocked = async (): Promise<boolean> => {
   return await sendToBackgroundFromAction({
     message: JSON.stringify({
@@ -333,7 +303,7 @@ const init = async () => {
   } else {
     setNetwork(defaultNetwork);
   }
-  await setActiveNetworks();
+  await networksStore.setActiveNetworks();
   isLoading.value = false;
 };
 
@@ -536,35 +506,9 @@ const showNetworkMenu = computed(() => {
       route.name == 'dapps')
   );
 });
+
 const isLocked = computed(() => {
   return route.name == 'lock-screen';
-});
-
-/**-------------------
- * Network Categories
- -------------------*/
-const setActiveCategory = async (category: NetworksCategory) => {
-  await setActiveNetworks();
-  activeCategory.value = category;
-};
-
-/**
- * Display Networks
- * Categories: All, Pinned, New
- */
-const displayNetworks = computed<BaseNetwork[]>(() => {
-  switch (activeCategory.value) {
-    case NetworksCategory.All:
-      return networks.value.filter(net =>
-        net.isTestNetwork ? enabledTestnetworks.value.includes(net.name) : true,
-      );
-    case NetworksCategory.Pinned:
-      return pinnedNetworks.value;
-    case NetworksCategory.New:
-      return networks.value.filter(net => newNetworks.includes(net.name));
-    default:
-      return networks.value;
-  }
 });
 
 /** -------------------
@@ -616,22 +560,14 @@ onClickOutside(
   },
   { ignore: [toggle] },
 );
-const setIsPinnedNetwork = async (network: string, isPinned: boolean) => {
-  try {
-    await networksState.setNetworkStatus(network, isPinned);
-    await setActiveNetworks();
-  } catch (error) {
-    console.error('Failed to set pined network:', error);
-  }
-};
 
-const setIsToggledTestNetwork = async () => {
-  try {
-    await setActiveNetworks();
-  } catch (error) {
-    console.error('Failed to set is toggled test network:', error);
-  }
-};
+// const setIsToggledTestNetwork = async () => {
+//   try {
+//     // await setActiveNetworks();
+//   } catch (error) {
+//     console.error('Failed to set is toggled test network:', error);
+//   }
+// };
 </script>
 
 <style lang="less">

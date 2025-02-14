@@ -57,9 +57,11 @@ import NewIcon from '@action/icons/asset/new-icon.vue';
 import SwapAddedIcon from '@/ui/action/icons/asset/swap-added-icon.vue';
 import PinIcon from '@action/icons/actions/pin.vue';
 import DragIcon from '@action/icons/common/drag-icon.vue';
-
+import { useNetworksStore } from '@action/store/networks-store';
 import { trackNetwork } from '@/libs/metrics';
 import { NetworkChangeEvents, NetworkType } from '@/libs/metrics/types';
+
+const newtworkStore = useNetworksStore();
 
 const props = defineProps({
   network: {
@@ -99,7 +101,6 @@ const imageTag = ref<HTMLImageElement | null>(null);
 
 const emit = defineEmits<{
   (e: 'update:gradient', data: string): void;
-  (e: 'update:pinNetwork', network: string, isPinned: boolean): void;
 }>();
 
 /**
@@ -190,7 +191,7 @@ const setPinned = async () => {
     networkType: networkType,
     isPinned: !props.isPinned,
   });
-  emit('update:pinNetwork', props.network.name, !props.isPinned);
+  newtworkStore.setIsPinnedNetwork(props.network.name, !props.isPinned);
 };
 
 /** ------------------------

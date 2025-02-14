@@ -1,14 +1,18 @@
 <template>
   <div>
+    <app-menu-tab
+      :active-category="activeCategory"
+      @update:category="setActiveCategory"
+    />
+
     <!-- Scrollable Networks  -->
     <div :class="['networks-menu', { 'has-bg': isScrolling }]">
-      <div v-if="!!networks" class="networks-menu__scroll-area" ref="scrollDiv">
+      <div class="networks-menu__scroll-area" ref="scrollDiv">
         <app-menu-sort
           v-if="activeCategory === NetworksCategory.All"
           :sortBy="sortBy"
           @update:sort="updateSort"
         />
-
         <draggable
           v-model="searchNetworks"
           item-key="name"
@@ -19,13 +23,14 @@
             <app-menu-item
               v-bind="$attrs"
               :network="element"
-              :is-active="!!selected && element.name === selected"
+              :is-active="
+                !!activeNetwork && element.name === activeNetwork.name
+              "
               :is-pinned="getIsPinned(element.name)"
               :scroll-position="y"
               :can-drag="getCanDrag(element)"
               :new-network-tags="newNetworksWithTags"
               @click="setNetwork(element)"
-              @update:pin-network="updatePinNetwork"
               @update:gradient="emit('update:gradient', $event)"
               :class="{
                 'do-not-drag': !getCanDrag(element),
@@ -51,10 +56,10 @@
 
 <script setup lang="ts">
 import { PropType, ref, computed, onMounted } from 'vue';
+import AppMenuTab from './components/app-menu-tab.vue';
 import AppMenuItem from './components/app-menu-item.vue';
 import AppMenuSort from './components/app-menu-sort.vue';
 import draggable from 'vuedraggable';
-import NetworksState from '@/libs/networks-state';
 import { BaseNetwork } from '@/types/base-network';
 import { NetworkNames } from '@enkryptcom/types';
 import { NetworksCategory } from '@action/types/network-category';
@@ -68,34 +73,23 @@ import { useScroll } from '@vueuse/core';
 import { newNetworks, newSwaps } from '@/providers/common/libs/new-features';
 import { trackNetwork } from '@/libs/metrics';
 import { NetworkChangeEvents, NetworkType } from '@/libs/metrics/types';
+import { useNetworksStore } from '../../store/networks-store';
+import { storeToRefs } from 'pinia';
 
-const networksState = new NetworksState();
 const props = defineProps({
-  networks: {
-    type: Array as PropType<BaseNetwork[]>,
-    default: () => [],
-  },
-  selected: {
-    type: String,
-    default: '',
-  },
   searchInput: {
     type: String,
     default: '',
   },
-  pinnedNetworks: {
-    type: Array as PropType<BaseNetwork[]>,
-    default: () => [],
-  },
-  activeCategory: {
-    type: String as PropType<NetworksCategory>,
-    required: true,
+  activeNetwork: {
+    type: Object as PropType<BaseNetwork>,
   },
 });
+const networksStore = useNetworksStore();
+const { orderedNetworks, pinnedNetworks, pinnedNetworkNames } =
+  storeToRefs(networksStore);
 const emit = defineEmits<{
   (e: 'update:network', network: BaseNetwork): void;
-  (e: 'update:order', networks: BaseNetwork[]): void;
-  (e: 'update:pinNetwork', network: string, isPinned: boolean): void;
   (e: 'update:gradient', data: string): void;
 }>();
 
@@ -106,12 +100,12 @@ const newNetworksWithTags = ref<{ networks: string[]; swap: string[] }>({
 
 const setNetwork = async (network: BaseNetwork) => {
   if (newNetworks.includes(network.name)) {
-    await networksState.setUsedFeature('networks', network.name);
+    await networksStore.networksState.setUsedFeature('networks', network.name);
     newNetworksWithTags.value.networks =
       newNetworksWithTags.value.networks.filter(net => net !== network.name);
   }
   if (newSwaps.includes(network.name)) {
-    await networksState.setUsedFeature('swap', network.name);
+    await networksStore.networksState.setUsedFeature('swap', network.name);
     newNetworksWithTags.value.swap = newNetworksWithTags.value.swap.filter(
       net => net !== network.name,
     );
@@ -130,7 +124,7 @@ const setNetwork = async (network: BaseNetwork) => {
 };
 
 onMounted(async () => {
-  const usedNetworks = await networksState.getUsedFeatures();
+  const usedNetworks = await networksStore.networksState.getUsedFeatures();
   newNetworksWithTags.value.networks = newNetworks.filter(
     net => !usedNetworks.networks.includes(net),
   );
@@ -143,14 +137,16 @@ onMounted(async () => {
  * Pinned
  ------------------*/
 const getIsPinned = (network: NetworkNames) => {
-  return props.pinnedNetworks.map(pinned => pinned.name).includes(network);
+  return pinnedNetworkNames.value.includes(network);
 };
 
-/**
- *  Emits an event that network is pinned or unpinned
- * */
-const updatePinNetwork = (network: string, isPinned: boolean) => {
-  emit('update:pinNetwork', network, isPinned);
+/** ------------------
+ * Active Category
+ ------------------*/
+const activeCategory = ref<NetworksCategory>(NetworksCategory.All);
+
+const setActiveCategory = async (category: NetworksCategory) => {
+  activeCategory.value = category;
 };
 
 /** ------------------
@@ -182,17 +178,36 @@ const sortNetworks = (networks: BaseNetwork[], sortBy: NetworkSort) => {
  ------------------*/
 const searchNetworks = computed({
   get() {
+    if (!props.activeNetwork) return [];
     if (!props.searchInput && props.searchInput === '') {
-      if (props.activeCategory === NetworksCategory.All) {
-        const pinned = props.networks.filter(net =>
-          props.pinnedNetworks.includes(net),
+      //All Networks
+      if (activeCategory.value === NetworksCategory.All) {
+        const other = orderedNetworks.value.filter(
+          net => !pinnedNetworkNames.value.includes(net.name),
         );
-        const other = props.networks.filter(
-          net => !props.pinnedNetworks.includes(net),
-        );
-        return [...pinned, ...sortNetworks(other, sortBy.value)];
+        return [...pinnedNetworks.value, ...sortNetworks(other, sortBy.value)];
       }
-      return props.networks;
+      //Pinned Networks
+      else if (activeCategory.value === NetworksCategory.Pinned) {
+        const hasCurrentNetwork = pinnedNetworkNames.value.includes(
+          props.activeNetwork.name,
+        );
+        return hasCurrentNetwork
+          ? pinnedNetworks.value
+          : [...pinnedNetworks.value, props.activeNetwork];
+      }
+      //New Networks
+      else {
+        const networks = orderedNetworks.value.filter(net =>
+          newNetworks.includes(net.name),
+        );
+        const hasCurrentNetwork = networks
+          .map(network => network.name)
+          .includes(props.activeNetwork.name);
+        return hasCurrentNetwork
+          ? networks
+          : [...networks, props.activeNetwork];
+      }
     }
     //Search Networks
     const beginsWithName: BaseNetwork[] = [];
@@ -201,7 +216,7 @@ const searchNetworks = computed({
     const beginsWithCurrency: BaseNetwork[] = [];
     const includesCurrency: BaseNetwork[] = [];
     const search = props.searchInput.toLowerCase();
-    for (const network of props.networks) {
+    for (const network of orderedNetworks.value) {
       const name_long = network.name_long.toLowerCase();
       const currencyName = network.currencyName.toLowerCase();
       //Check Name
@@ -228,10 +243,12 @@ const searchNetworks = computed({
     ];
   },
   set(value: BaseNetwork[]) {
-    const pinned = value.filter(net => props.pinnedNetworks.includes(net));
-    emit('update:order', value);
-    if (props.searchInput === '') {
-      networksState.reorderNetwork(pinned.map((v: BaseNetwork) => v.name));
+    if (
+      props.searchInput === '' &&
+      activeCategory.value !== NetworksCategory.New
+    ) {
+      const pinned = value.filter(net => pinnedNetworks.value.includes(net));
+      networksStore.updateNetworkOrder(pinned.map((v: BaseNetwork) => v.name));
     }
   },
 });
@@ -247,9 +264,9 @@ const showMessage = computed(() => {
 const displayMessage = computed(() => {
   if (props.searchInput) {
     return `Network not found: '${props.searchInput}'.`;
-  } else if (props.activeCategory === NetworksCategory.New) {
+  } else if (activeCategory.value === NetworksCategory.New) {
     return 'There are no new networks.';
-  } else if (props.activeCategory === NetworksCategory.Pinned) {
+  } else if (activeCategory.value === NetworksCategory.Pinned) {
     return 'to add your favorite network here.';
   }
   return 'Networks not available.';
@@ -265,7 +282,7 @@ const getCanDrag = (network: BaseNetwork) => {
   return (
     getIsPinned(network.name) &&
     props.searchInput === '' &&
-    props.activeCategory !== NetworksCategory.New
+    activeCategory.value !== NetworksCategory.New
   );
 };
 </script>
