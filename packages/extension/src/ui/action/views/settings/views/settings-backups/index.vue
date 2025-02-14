@@ -90,19 +90,13 @@
           </div>
         </div>
       </div>
-      <div style="margin: 10px 50px">
+      <div class="settings-container__backup-delete-buttons">
         <base-button
           title="Delete"
           @click="deleteBackup(selectedBackup.userId)"
-          style="margin-top: 10px"
           red
         />
-        <base-button
-          title="Cancel"
-          @click="isDelete = false"
-          style="margin-top: 10px"
-          no-background
-        />
+        <base-button title="Cancel" @click="isDelete = false" no-background />
       </div>
     </div>
   </div>
@@ -178,6 +172,14 @@ const formatDate = (dateString: string) => {
 
   &__backup {
     margin: 0 32px 12px 32px;
+
+    &-delete-buttons {
+      margin: 65px 50px;
+
+      a {
+        margin-top: 10px;
+      }
+    }
 
     &-container {
       height: 288px; // adding a small cutoff to let user know there's more
