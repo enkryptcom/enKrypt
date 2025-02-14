@@ -50,6 +50,12 @@
       </p>
     </div>
     <settings-button title="Settings backup" @click="$emit('open:backups')" />
+    <div class="settings__label">
+      <p>
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod
+        tempor incididunt ut labore et dolore magna aliqua.
+      </p>
+    </div>
     <!-- <base-select
       :select="selecTimer"
       title="Auto-lock timer"

@@ -60,6 +60,7 @@ const password = store.password;
 const backupBtnText = ref('Use backup');
 
 const processing = ref(false);
+const loadingBackups = ref(true);
 
 const backupBtnDisabled = computed(() => {
   return !selectedBackup.value || processing.value;
@@ -87,6 +88,7 @@ onBeforeMount(async () => {
     signature,
   });
   kr.lock();
+  loadingBackups.value = false;
 });
 
 const selectBackup = (backup: ListBackupType) => {
@@ -131,7 +133,7 @@ const skip = () => {
 @import '@action/styles/theme.less';
 
 .selected {
-  background: @primary;
+  border: 1px solid @primary !important;
   border-radius: 10px;
   color: @white;
 }
@@ -170,7 +172,6 @@ const skip = () => {
   }
 
   &__backup-item {
-    // height: 50px;
     margin: 4px;
     padding: 16px;
     display: flex;

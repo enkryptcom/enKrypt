@@ -1,74 +1,108 @@
 <template>
   <div class="settings-container">
     <settings-inner-header v-bind="$attrs" :is-backups="true" />
-
-    <settings-switch
-      :title="`Backup ${isBackupsEnabled ? 'on' : 'off'}`"
-      :is-checked="isBackupsEnabled"
-      @update:check="toggleBackups"
-    />
-
-    <div class="settings-container__label">
-      <p>Vince provide copy</p>
-    </div>
-
-    <div class="settings-container__backup">
-      <div v-if="loading">
-        <div class="settings-container__backup-header">Fetching backups</div>
-        <div
-          v-for="(item, index) in [1, 2, 3]"
-          :key="`entity-${item}-${index}`"
-          class="settings-container__backup-item"
-        >
-          <div class="settings-container__backup-item__loading-container">
-            <balance-loader />
-            <balance-loader />
-          </div>
-          <div class="settings-container__backup-status__loading">
-            <balance-loader />
-          </div>
-        </div>
+    <div v-if="!isDelete">
+      <div class="settings-container__label">
+        <p>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
+          eiusmod tempor incididunt ut labore et dolore magna aliqua.
+        </p>
       </div>
-      <div v-else-if="backups.length === 0">
-        <div class="settings-container__backup-header">No backups found</div>
-      </div>
-      <div v-else>
-        <div class="settings-container__backup-header">Current backups</div>
-        <div class="settings-container__backup-container">
+      <settings-switch
+        :title="`Backup ${isBackupsEnabled ? 'on' : 'off'}`"
+        :is-checked="isBackupsEnabled"
+        @update:check="toggleBackups"
+      />
+
+      <div class="settings-container__backup">
+        <div v-if="loading">
+          <div class="settings-container__backup-header">Fetching backups</div>
           <div
-            v-for="(entity, index) in backups"
-            :key="`entity-${entity.userId}-${index}`"
+            v-for="(item, index) in [1, 2, 3]"
+            :key="`entity-${item}-${index}`"
             class="settings-container__backup-item"
           >
-            <div class="settings-container__backup-item__content">
-              <backup-identicon :hash="entity.userId" />
-              <div class="settings-container__backup-item__name">
-                <h4>{{ generateRandomNameWithSeed(' ', entity.userId) }}</h4>
-                <p>Last backup on: {{ formatDate(entity.updatedAt) }}</p>
-              </div>
+            <div class="settings-container__backup-item__loading-container">
+              <balance-loader />
+              <balance-loader />
             </div>
-            <div class="settings-container__backup-status">
-              <div v-if="entity.userId === currentUserId">
-                <span
-                  :class="[
-                    'settings-container__backup-status-badge',
-                    'settings-container__backup-status-active',
-                  ]"
-                >
-                  Active
-                </span>
+            <div class="settings-container__backup-status__loading">
+              <balance-loader />
+            </div>
+          </div>
+        </div>
+        <div v-else-if="backups.length === 0">
+          <div class="settings-container__backup-header">No backups found</div>
+        </div>
+        <div class="settings-container__backup" v-else>
+          <div class="settings-container__backup-header">Current backups</div>
+          <div class="settings-container__backup-container">
+            <div
+              v-for="(entity, index) in backups"
+              :key="`entity-${entity.userId}-${index}`"
+              class="settings-container__backup-item"
+            >
+              <div class="settings-container__backup-item__content">
+                <backup-identicon :hash="entity.userId" />
+                <div class="settings-container__backup-item__name">
+                  <h4>{{ generateRandomNameWithSeed(' ', entity.userId) }}</h4>
+                  <p>Last backup on: {{ formatDate(entity.updatedAt) }}</p>
+                </div>
               </div>
-              <div>
-                <div
-                  class="settings-container__backup-status-button"
-                  @click="deleteBackup(entity.userId)"
-                >
-                  <delete-icon />
+              <div class="settings-container__backup-status">
+                <div v-if="entity.userId === currentUserId">
+                  <span
+                    :class="[
+                      'settings-container__backup-status-badge',
+                      'settings-container__backup-status-active',
+                    ]"
+                  >
+                    Active
+                  </span>
+                </div>
+                <div>
+                  <div
+                    class="settings-container__backup-status-button"
+                    @click="showDeleteBackup(entity)"
+                  >
+                    <delete-icon />
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
+      </div>
+    </div>
+
+    <div class="settings-container__backup" v-else>
+      <div class="settings-container__backup-header">
+        Are you sure you want to delete:
+      </div>
+      <div class="settings-container__backup-item">
+        <div class="settings-container__backup-item__content">
+          <backup-identicon :hash="selectedBackup.userId" />
+          <div class="settings-container__backup-item__name">
+            <h4>
+              {{ generateRandomNameWithSeed(' ', selectedBackup.userId) }}
+            </h4>
+            <p>Last backup on: {{ formatDate(selectedBackup.updatedAt) }}</p>
+          </div>
+        </div>
+      </div>
+      <div style="margin: 10px 50px">
+        <base-button
+          title="Delete"
+          @click="deleteBackup(selectedBackup.userId)"
+          style="margin-top: 10px"
+          red
+        />
+        <base-button
+          title="Cancel"
+          @click="isDelete = false"
+          style="margin-top: 10px"
+          no-background
+        />
       </div>
     </div>
   </div>
@@ -83,6 +117,7 @@ import SettingsSwitch from '@action/views/settings/components/settings-switch.vu
 import deleteIcon from '@/ui/action/icons/actions/trash.vue';
 import BalanceLoader from '@action/icons/common/balance-loader.vue';
 import BackupIdenticon from './backup-identicon.vue';
+import BaseButton from '@action/components/base-button/index.vue';
 import { generateRandomNameWithSeed } from '@enkryptcom/utils';
 
 const backupState = new BackupState();
@@ -90,6 +125,8 @@ const loading = ref(true);
 const isBackupsEnabled = ref(true);
 const currentUserId = ref('');
 const backups = ref<ListBackupType[]>([]);
+const isDelete = ref(false);
+const selectedBackup = ref<ListBackupType | null>();
 
 onMounted(async () => {
   isBackupsEnabled.value = await backupState.isBackupEnabled();
@@ -109,6 +146,11 @@ const toggleBackups = async (checked: boolean) => {
     await backupState.disableBackups();
   }
   loading.value = false;
+};
+
+const showDeleteBackup = (backup: ListBackupType) => {
+  selectedBackup.value = backup;
+  isDelete.value = true;
 };
 
 const deleteBackup = async (userId: string) => {
