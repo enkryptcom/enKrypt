@@ -1,6 +1,44 @@
 <template>
-  <div>
+  <div ref="appMenuRef" class="app__menu">
     <!-- Networks Search  -->
+    <div class="app__menu-row" :class="{ border: orderedNetworks.length > 9 }">
+      <div class="app__menu-row">
+        <logo-min class="app__menu-logo" />
+        <updated-icon
+          v-if="updatesIsLoaded && showUpdatesBtn"
+          @click="openUpdatesDialog(UpdatesOpenLocation.logo)"
+          class="app__menu-updated"
+        />
+      </div>
+      <div>
+        <a ref="toggle" class="app__menu-link" @click="toggleMoreMenu">
+          <more-icon />
+        </a>
+        <div v-show="isOpenMore" ref="dropdown" class="app__menu-dropdown">
+          <a class="app__menu-dropdown-link" @click="otherNetworksAction">
+            <manage-networks-icon /> <span>Other networks</span>
+          </a>
+          <a
+            class="app__menu-dropdown-link"
+            @click="emit('action:lock-enkrypt')"
+          >
+            <hold-icon /> <span>Lock Enkrypt</span>
+          </a>
+          <a class="app__menu-dropdown-link" @click="settingsAction">
+            <settings-icon /> <span>Settings</span>
+          </a>
+          <div v-if="updatesIsLoaded" class="app__menu-dropdown-divider"></div>
+          <a
+            v-if="updatesIsLoaded"
+            class="app__menu-dropdown-link"
+            @click="openUpdatesDialog(UpdatesOpenLocation.settings)"
+          >
+            <heart-icon class="app__menu-dropdown-link-heart"></heart-icon>
+            <span> Updates</span>
+          </a>
+        </div>
+      </div>
+    </div>
     <base-search
       :value="searchInput"
       :is-border="false"
@@ -37,7 +75,7 @@
               :can-drag="getCanDrag(element)"
               :new-network-tags="newNetworksWithTags"
               @click="setNetwork(element)"
-              @update:gradient="emit('update:gradient', $event)"
+              @update:gradient="updateGradient"
               :class="{
                 'do-not-drag': !getCanDrag(element),
               }"
@@ -68,6 +106,13 @@ import AppMenuTab from './components/app-menu-tab.vue';
 import AppMenuItem from './components/app-menu-item.vue';
 import AppMenuSort from './components/app-menu-sort.vue';
 import BaseSearch from '@action/components/base-search/index.vue';
+import MoreIcon from '@action/icons/actions/more.vue';
+import HoldIcon from '@action/icons/common/hold-icon.vue';
+import LogoMin from '@action/icons/common/logo-min.vue';
+import ManageNetworksIcon from '@action/icons/common/manage-networks-icon.vue';
+import SettingsIcon from '@action/icons/common/settings-icon.vue';
+import UpdatedIcon from '@/ui/action/icons/updates/updated.vue';
+import HeartIcon from '@/ui/action/icons/updates/heart.vue';
 import draggable from 'vuedraggable';
 import { BaseNetwork } from '@/types/base-network';
 import { NetworkNames } from '@enkryptcom/types';
@@ -80,10 +125,19 @@ import {
 } from '@action/types/network-sort';
 import { useScroll } from '@vueuse/core';
 import { newNetworks, newSwaps } from '@/providers/common/libs/new-features';
-import { trackNetwork } from '@/libs/metrics';
-import { NetworkChangeEvents, NetworkType } from '@/libs/metrics/types';
-import { useNetworksStore } from '../../store/networks-store';
+import { trackNetwork, trackUpdatesEvents } from '@/libs/metrics';
+import {
+  NetworkChangeEvents,
+  NetworkType,
+  UpdatesEventType,
+  UpdatesOpenLocation,
+} from '@/libs/metrics/types';
+import { useNetworksStore } from '@action/store/networks-store';
+import { useUpdatesStore } from '@action/store/updates-store';
 import { storeToRefs } from 'pinia';
+import { onClickOutside } from '@vueuse/core';
+
+const appMenuRef = ref(null);
 
 const props = defineProps({
   activeNetwork: {
@@ -97,7 +151,10 @@ const { orderedNetworks, pinnedNetworks, pinnedNetworkNames } =
 
 const emit = defineEmits<{
   (e: 'update:network', network: BaseNetwork): void;
-  (e: 'update:gradient', data: string): void;
+  (e: 'show:updates-dialog'): void;
+  (e: 'show:settings-dialog'): void;
+  (e: 'action:lock-enkrypt'): void;
+  (e: 'show:other-networks-dialog'): void;
 }>();
 
 const newNetworksWithTags = ref<{ networks: string[]; swap: string[] }>({
@@ -139,6 +196,26 @@ onMounted(async () => {
     net => !usedNetworks.swap.includes(net),
   );
 });
+
+/** -------------------
+ * Updates
+ -------------------*/
+const updatesStore = useUpdatesStore();
+const { updatesIsLoaded, showUpdatesBtn } = storeToRefs(updatesStore);
+
+const openUpdatesDialog = (_location: UpdatesOpenLocation) => {
+  showUpdatesBtn.value = false;
+  if (isOpenMore.value) {
+    closeMoreMenu();
+  }
+  emit('show:updates-dialog');
+  if (props.activeNetwork) {
+    trackUpdatesEvents(UpdatesEventType.UpdatesOpen, {
+      network: props.activeNetwork.name,
+      location: _location,
+    });
+  }
+};
 
 /** ------------------
  *  Search
@@ -308,80 +385,274 @@ const getCanDrag = (network: BaseNetwork) => {
     activeCategory.value !== NetworksCategory.New
   );
 };
+
+/** ------------------
+ * More Menu
+ ------------------*/
+
+const isOpenMore = ref(false);
+const timeout = ref<ReturnType<typeof setTimeout> | null>(null);
+const dropdown = ref(null);
+const toggle = ref(null);
+
+const settingsAction = () => {
+  closeMoreMenu();
+  emit('show:settings-dialog');
+};
+
+const otherNetworksAction = () => {
+  closeMoreMenu();
+  emit('show:other-networks-dialog');
+};
+
+const toggleMoreMenu = () => {
+  if (timeout.value != null) {
+    clearTimeout(timeout.value);
+    timeout.value = null;
+  }
+  if (isOpenMore.value) {
+    closeMoreMenu();
+  } else {
+    isOpenMore.value = true;
+  }
+};
+
+const closeMoreMenu = () => {
+  if (timeout.value != null) {
+    clearTimeout(timeout.value);
+  }
+  timeout.value = setTimeout(() => {
+    isOpenMore.value = false;
+  }, 50);
+};
+
+onClickOutside(
+  dropdown,
+  () => {
+    closeMoreMenu();
+  },
+  { ignore: [toggle] },
+);
+/** ------------------
+ * Update Gradient
+ ------------------*/
+const updateGradient = (newGradient: string) => {
+  //hack may be there is a better way. less.modifyVars doesnt work
+  if (appMenuRef.value)
+    (appMenuRef.value as HTMLElement).style.background =
+      `radial-gradient(137.35% 97% at 100% 50%, rgba(250, 250, 250, 0.94) 0%, rgba(250, 250, 250, 0.96) 28.91%, rgba(250, 250, 250, 0.98) 100%), linear-gradient(180deg, ${newGradient} 80%, #684CFF 100%)`;
+};
 </script>
 
 <style lang="less">
 @import '@action/styles/theme.less';
+.app__menu {
+  width: 340px;
+  height: 600px;
+  position: absolute;
+  left: 0;
+  top: 0;
+  padding: 8px 12px 2px 12px;
+  box-sizing: border-box;
+  z-index: 1;
+  background: @defaultGradient;
+  box-shadow: inset -1px 0px 2px 0px rgba(0, 0, 0, 0.16);
+  &-logo {
+    margin-left: 8px;
+  }
+  &-updated {
+    height: 24px;
+    width: 90px;
+    cursor: pointer;
+    transition: 0.3s;
+    filter: brightness(1);
+    &:hover {
+      filter: brightness(0.9);
+    }
+  }
 
-.networks-menu {
-  overflow-y: auto;
-  transition: background-color 0.5s ease-in-out;
-  background-color: transparent;
-  box-shadow: none;
-  margin: 0px -12px 0px -12px;
-  padding: 1px 10px 1px 10px;
-  transition:
-    background-color 0.4s ease-in-out,
-    box-shadow 0.4s ease-in-out;
-  &__scroll-area {
-    position: static;
-    margin: auto;
-    width: 100%;
-    height: 452px;
+  &-row {
+    height: 40px;
     display: flex;
-    flex-direction: column;
-    overflow-y: scroll;
-    scroll-behavior: smooth;
-    margin-right: -4px;
-    padding-right: 3px;
-    padding-left: 3px;
-    padding-bottom: 3px;
-    padding-top: 3px;
-    &::-webkit-scrollbar {
-      width: 4px;
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: row;
+  }
+
+  &-add {
+    display: flex;
+    box-sizing: border-box;
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: row;
+    height: 40px;
+    padding: 10px 16px 10px 8px;
+    font-style: normal;
+    font-weight: normal;
+    font-size: 14px;
+    line-height: 20px;
+    letter-spacing: 0.25px;
+    color: @primaryLabel;
+    text-decoration: none;
+    cursor: pointer;
+    border-radius: 10px;
+    transition: background 300ms ease-in-out;
+
+    &.active,
+    &:hover {
+      background: @black007;
     }
-    &::-webkit-scrollbar-thumb {
-      background: rgba(0, 0, 0, 0.36);
-      border-radius: 20px;
+
+    svg {
+      margin-right: 8px;
     }
-    &__message {
-      padding-top: 104px;
-      height: 100%;
-      max-width: 222px;
-      margin-left: auto;
-      margin-right: auto;
-      p {
-        color: @tertiaryLabel;
+  }
+
+  &-link {
+    display: inline-block;
+    padding: 8px;
+    margin-left: 4px;
+    text-decoration: none;
+    cursor: pointer;
+    font-size: 0;
+    border-radius: 10px;
+    transition: background 300ms ease-in-out;
+
+    &.active,
+    &:hover {
+      background: @black007;
+    }
+  }
+
+  &-dropdown {
+    padding: 8px;
+    position: relative;
+    width: 172px;
+    background: @white;
+    box-shadow:
+      0px 0.5px 5px rgba(0, 0, 0, 0.039),
+      0px 3.75px 11px rgba(0, 0, 0, 0.19);
+    border-radius: 12px;
+    position: absolute;
+    right: 8px;
+    top: 48px;
+    z-index: 3;
+
+    &-divider {
+      height: 1px;
+      width: 90%;
+      margin: 8px;
+      background: @gray02;
+    }
+
+    &-link {
+      width: 100%;
+      height: 48px;
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      flex-direction: row;
+      cursor: pointer;
+      transition: background 300ms ease-in-out;
+      border-radius: 8px;
+
+      &-heart {
+        width: 18px !important;
+        height: 18px !important;
+        margin-right: 16px !important;
+        margin-left: 16px !important;
+      }
+
+      &:hover,
+      &.active {
+        background: rgba(0, 0, 0, 0.04);
+      }
+
+      svg {
+        margin-right: 12px;
+        margin-left: 12px;
+      }
+
+      span {
+        font-style: normal;
+        font-weight: 400;
         font-size: 14px;
         line-height: 20px;
-        font-weight: 400;
         letter-spacing: 0.25px;
-        text-align: end;
-        margin-top: 0px;
-        margin-bottom: 0px;
+        color: @primaryLabel;
       }
-      &__pin {
-        display: flex;
-        justify-content: center;
-        align-items: center;
+    }
+  }
+  .networks-menu {
+    overflow-y: auto;
+    transition: background-color 0.5s ease-in-out;
+    background-color: transparent;
+    box-shadow: none;
+    margin: 0px -12px 0px -12px;
+    padding: 1px 10px 1px 10px;
+    transition:
+      background-color 0.4s ease-in-out,
+      box-shadow 0.4s ease-in-out;
+    &__scroll-area {
+      position: static;
+      margin: auto;
+      width: 100%;
+      height: 448px;
+      display: flex;
+      flex-direction: column;
+      overflow-y: scroll;
+      scroll-behavior: smooth;
+      margin-right: -4px;
+      padding-right: 3px;
+      padding-left: 3px;
+      padding-bottom: 3px;
+      padding-top: 3px;
+      &::-webkit-scrollbar {
+        width: 4px;
+      }
+      &::-webkit-scrollbar-thumb {
+        background: rgba(0, 0, 0, 0.36);
+        border-radius: 20px;
+      }
+      &__message {
+        padding-top: 104px;
+        height: 100%;
+        max-width: 222px;
+        margin-left: auto;
+        margin-right: auto;
+        p {
+          color: @tertiaryLabel;
+          font-size: 14px;
+          line-height: 20px;
+          font-weight: 400;
+          letter-spacing: 0.25px;
+          text-align: end;
+          margin-top: 0px;
+          margin-bottom: 0px;
+        }
+        &__pin {
+          display: flex;
+          justify-content: center;
+          align-items: center;
 
-        svg {
-          max-width: 32px;
-          max-height: 24px;
-          padding: 4px 8px 4px 8px;
-          background: transparent;
-          border-radius: 24px;
-          background: @primaryLight;
-          margin-right: 4px;
-          margin-left: 4px;
+          svg {
+            max-width: 32px;
+            max-height: 24px;
+            padding: 4px 8px 4px 8px;
+            background: transparent;
+            border-radius: 24px;
+            background: @primaryLight;
+            margin-right: 4px;
+            margin-left: 4px;
+          }
         }
       }
     }
   }
-}
-.has-bg {
-  background-color: rgba(247, 239, 244, 1);
-  box-shadow: inset 0px 1px 2px rgba(0, 0, 0, 0.25);
-  backdrop-filter: blur(40px);
+  .has-bg {
+    background-color: rgba(247, 239, 244, 1);
+    box-shadow: inset 0px 1px 2px rgba(0, 0, 0, 0.25);
+    backdrop-filter: blur(40px);
+  }
 }
 </style>
