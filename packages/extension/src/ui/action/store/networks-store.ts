@@ -20,7 +20,7 @@ import { computed, ref } from 'vue';
  * @property {NetworksState} networksState - The state management instance for networks.
  * @property {Ref<BaseNetwork[]>} allNetworks - A reference to the list of all networks.
  * @property {Ref<string[]>} pinnedNetworkNames - A reference to the list of pinned network names.
- * @property {Ref<string[]>} enabledTestnetworks - A reference to the list of enabled test networks.
+ * @property {Ref<string[]>} enabledTestNetworks - A reference to the list of enabled test networks.
  *
  * @computed
  * @computed {ComputedRef<BaseNetwork[]>} pinnedNetworks - A computed reference to the list of pinned networks.
@@ -30,13 +30,14 @@ import { computed, ref } from 'vue';
  * @method {Function} setIsPinnedNetwork - Sets the pinned network status.
  * @method {Function} updateNetworkOrder - Updates the order of the pinned networks and refreshes the active networks.
  * @method {Function} setActiveNetworks - Fetches and sets the active networks, pinned network names, and enabled test networks.
+ * @method {Function} setTestNetStatus - Sets the test network status.
  */
 export const useNetworksStore = defineStore('useNetworksStore', () => {
 
   const networksState = new NetworksState();
   const allNetworks = ref<BaseNetwork[]>([]);
   const pinnedNetworkNames = ref<string[]>([]);
-  const enabledTestnetworks = ref<string[]>([]);
+  const enabledTestNetworks = ref<string[]>([]);
 
   /**
    * @property {ComputedRef<BaseNetwork[]>} pinnedNetworks - A computed reference to the list of pinned networks.
@@ -62,7 +63,7 @@ export const useNetworksStore = defineStore('useNetworksStore', () => {
             return false
           }
           if (network.isTestNetwork) {
-            return enabledTestnetworks.value.includes(network.name)
+            return enabledTestNetworks.value.includes(network.name)
           }
           return true;
         }
@@ -76,7 +77,7 @@ export const useNetworksStore = defineStore('useNetworksStore', () => {
   const setActiveNetworks = async () => {
     allNetworks.value = await getAllNetworks();
     pinnedNetworkNames.value = await networksState.getPinnedNetworkNames();
-    enabledTestnetworks.value = await networksState.getEnabledTestNetworks();
+    enabledTestNetworks.value = await networksState.getEnabledTestNetworks();
   };
 
   /**
@@ -90,7 +91,7 @@ export const useNetworksStore = defineStore('useNetworksStore', () => {
 
   /**
    * @method setIsPinnedNetwork - sets the pinned network status
-   * @param network - Network to be pinned or unpinned
+   * @param network - Network name to be pinned or unpinned
    * @param isPinned - Boolean value to determine if network is pinned or unpinned
    */
   const setIsPinnedNetwork = async (network: string, isPinned: boolean) => {
@@ -102,15 +103,30 @@ export const useNetworksStore = defineStore('useNetworksStore', () => {
     }
   };
 
+  /**
+   *
+   * @param network {string} - network to be updated
+   * @param status - boolean value to determine if network is enabled or disabled
+   */
+  const setTestNetStatus = async (network: string, status: boolean) => {
+    try {
+      await networksState.setTestnetStatus(network, status);
+    } catch (error) {
+      console.error('Failed to set test network status:', error);
+    }
+  };
+
+
   return {
     networksState,
     allNetworks,
     orderedNetworks,
     pinnedNetworks,
-    enabledTestnetworks,
+    enabledTestNetworks,
     pinnedNetworkNames,
     setIsPinnedNetwork,
     updateNetworkOrder,
     setActiveNetworks,
+    setTestNetStatus
   };
 });

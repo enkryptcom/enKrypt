@@ -93,12 +93,10 @@
       />
     </div>
 
-    <!-- <add-network
+    <add-network
       v-if="addNetworkShow"
       @close:popup="addNetworkShow = !addNetworkShow"
-      @update:pin-network="setIsPinnedNetwork"
-      @update:testNetworkToggle="setIsToggledTestNetwork"
-    /> -->
+    />
     <settings
       v-if="settingsShow"
       @close:popup="settingsShow = !settingsShow"
@@ -154,7 +152,7 @@ import LogoMin from './icons/common/logo-min.vue';
 import ManageNetworksIcon from './icons/common/manage-networks-icon.vue';
 import SettingsIcon from './icons/common/settings-icon.vue';
 import { AccountsHeaderData } from './types/account';
-// import AddNetwork from './views/add-network/index.vue';
+import AddNetwork from './views/add-network/index.vue';
 import ModalRate from './views/modal-rate/index.vue';
 import Settings from './views/settings/index.vue';
 import ModalUpdates from './views/updates/index.vue';
@@ -560,14 +558,6 @@ onClickOutside(
   },
   { ignore: [toggle] },
 );
-
-// const setIsToggledTestNetwork = async () => {
-//   try {
-//     // await setActiveNetworks();
-//   } catch (error) {
-//     console.error('Failed to set is toggled test network:', error);
-//   }
-// };
 </script>
 
 <style lang="less">
