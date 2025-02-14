@@ -46,15 +46,8 @@
           </div>
         </div>
       </div>
-      <base-search
-        :value="searchInput"
-        :is-border="false"
-        @update:value="updateSearchValue"
-      />
-
       <app-menu
         :active-network="currentNetwork"
-        :search-input="searchInput"
         @update:network="setNetwork"
         @update:gradient="updateGradient"
       />
@@ -144,7 +137,6 @@ import { useRoute, useRouter } from 'vue-router';
 import Browser from 'webextension-polyfill';
 import AccountsHeader from './components/accounts-header/index.vue';
 import AppMenu from './components/app-menu/index.vue';
-import BaseSearch from './components/base-search/index.vue';
 import NetworkMenu from './components/network-menu/index.vue';
 import MoreIcon from './icons/actions/more.vue';
 import HoldIcon from './icons/common/hold-icon.vue';
@@ -198,7 +190,6 @@ defineExpose({ appMenuRef });
 const router = useRouter();
 const route = useRoute();
 const transitionName = 'fade';
-const searchInput = ref('');
 const defaultNetwork = DEFAULT_EVM_NETWORK;
 const currentNetwork = ref<BaseNetwork>(defaultNetwork);
 const currentSubNetwork = ref<string>('');
@@ -248,9 +239,6 @@ const { orderedNetworks } = storeToRefs(networksStore);
  * Core
  -------------------*/
 
-const updateSearchValue = (newval: string) => {
-  searchInput.value = newval;
-};
 const toggleDepositWindow = () => {
   showDepositWindow.value = !showDepositWindow.value;
 };

@@ -27,9 +27,7 @@ const isFocus = ref(false);
 const props = defineProps({
   isBorder: {
     type: Boolean,
-    default: () => {
-      return {};
-    },
+    default: true,
   },
   value: {
     type: String,
@@ -51,7 +49,7 @@ const emit = defineEmits(['update:value']);
 
 const textValue = computed({
   get: () => props.value,
-  set: value => emit('update:value', value),
+  set: value => emit('update:value', value || ''),
 });
 </script>
 

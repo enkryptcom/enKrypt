@@ -1,10 +1,16 @@
 <template>
   <div>
+    <!-- Networks Search  -->
+    <base-search
+      :value="searchInput"
+      :is-border="false"
+      @update:value="updateSearchValue"
+    />
+    <!-- Networks Tabs  -->
     <app-menu-tab
       :active-category="activeCategory"
       @update:category="setActiveCategory"
     />
-
     <!-- Scrollable Networks  -->
     <div :class="['networks-menu', { 'has-bg': isScrolling }]">
       <div class="networks-menu__scroll-area" ref="scrollDiv">
@@ -40,7 +46,9 @@
         </draggable>
         <div v-if="showMessage" class="networks-menu__scroll-area__message">
           <p
-            v-if="!searchInput && activeCategory === NetworksCategory.Pinned"
+            v-if="
+              searchInput === '' && activeCategory === NetworksCategory.Pinned
+            "
             class="networks-menu__scroll-area__message__pin"
           >
             Press <pin-icon /> Pin button
@@ -59,6 +67,7 @@ import { PropType, ref, computed, onMounted } from 'vue';
 import AppMenuTab from './components/app-menu-tab.vue';
 import AppMenuItem from './components/app-menu-item.vue';
 import AppMenuSort from './components/app-menu-sort.vue';
+import BaseSearch from '@action/components/base-search/index.vue';
 import draggable from 'vuedraggable';
 import { BaseNetwork } from '@/types/base-network';
 import { NetworkNames } from '@enkryptcom/types';
@@ -77,17 +86,15 @@ import { useNetworksStore } from '../../store/networks-store';
 import { storeToRefs } from 'pinia';
 
 const props = defineProps({
-  searchInput: {
-    type: String,
-    default: '',
-  },
   activeNetwork: {
     type: Object as PropType<BaseNetwork>,
   },
 });
+
 const networksStore = useNetworksStore();
 const { orderedNetworks, pinnedNetworks, pinnedNetworkNames } =
   storeToRefs(networksStore);
+
 const emit = defineEmits<{
   (e: 'update:network', network: BaseNetwork): void;
   (e: 'update:gradient', data: string): void;
@@ -132,6 +139,15 @@ onMounted(async () => {
     net => !usedNetworks.swap.includes(net),
   );
 });
+
+/** ------------------
+ *  Search
+ -----------------*/
+const searchInput = ref('');
+
+const updateSearchValue = (newval: string) => {
+  searchInput.value = newval;
+};
 
 /** ------------------
  * Pinned
@@ -179,7 +195,7 @@ const sortNetworks = (networks: BaseNetwork[], sortBy: NetworkSort) => {
 const searchNetworks = computed({
   get() {
     if (!props.activeNetwork) return [];
-    if (!props.searchInput && props.searchInput === '') {
+    if (!searchInput.value && searchInput.value === '') {
       //All Networks
       if (activeCategory.value === NetworksCategory.All) {
         const other = orderedNetworks.value.filter(
@@ -215,7 +231,7 @@ const searchNetworks = computed({
     const includesName: BaseNetwork[] = [];
     const beginsWithCurrency: BaseNetwork[] = [];
     const includesCurrency: BaseNetwork[] = [];
-    const search = props.searchInput.toLowerCase();
+    const search = searchInput.value.toLowerCase();
     for (const network of orderedNetworks.value) {
       const name_long = network.name_long.toLowerCase();
       const currencyName = network.currencyName.toLowerCase();
@@ -244,7 +260,7 @@ const searchNetworks = computed({
   },
   set(value: BaseNetwork[]) {
     if (
-      props.searchInput === '' &&
+      searchInput.value === '' &&
       activeCategory.value !== NetworksCategory.New
     ) {
       const pinned = value.filter(net => pinnedNetworks.value.includes(net));
@@ -258,12 +274,19 @@ const searchNetworks = computed({
   ------------------*/
 
 const showMessage = computed(() => {
+  if (searchInput.value !== '') {
+    return searchNetworks.value.length < 1;
+  } else if (activeCategory.value === NetworksCategory.Pinned) {
+    return pinnedNetworkNames.value.length < 1;
+  } else if (activeCategory.value === NetworksCategory.New) {
+    return newNetworksWithTags.value.networks.length < 1;
+  }
   return searchNetworks.value.length < 1;
 });
 
 const displayMessage = computed(() => {
-  if (props.searchInput) {
-    return `Network not found: '${props.searchInput}'.`;
+  if (searchInput.value !== '') {
+    return `Network not found: '${searchInput.value}'.`;
   } else if (activeCategory.value === NetworksCategory.New) {
     return 'There are no new networks.';
   } else if (activeCategory.value === NetworksCategory.Pinned) {
@@ -281,7 +304,7 @@ const { isScrolling, y } = useScroll(scrollDiv, { throttle: 100 });
 const getCanDrag = (network: BaseNetwork) => {
   return (
     getIsPinned(network.name) &&
-    props.searchInput === '' &&
+    searchInput.value === '' &&
     activeCategory.value !== NetworksCategory.New
   );
 };
