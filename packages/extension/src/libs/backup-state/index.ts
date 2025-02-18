@@ -136,7 +136,6 @@ class BackupState {
       console.error('No signature found');
       return false;
     }
-    console.log('delete signature', signature);
     return fetch(
       `${BACKUP_URL}backups/${mainWallet.publicKey}/users/${userId}?signature=${signature}`,
       {
@@ -179,7 +178,6 @@ class BackupState {
         const decryptedBackup: BackupData = JSON.parse(
           JSON.parse(res.result as string),
         );
-        console.log(decryptedBackup);
         const highestPathIndex: Record<string, number> = {};
         decryptedBackup.accounts.forEach(acc => {
           const id = `${acc.basePath}###${acc.signerType}`;
@@ -188,8 +186,6 @@ class BackupState {
             highestPathIndex[id] = idx;
           }
         });
-
-        console.log(highestPathIndex);
         const getAccountByIndex = (
           accounts: Omit<EnkryptAccount, 'address' | 'publicKey'>[],
           basePath: string,
@@ -224,11 +220,9 @@ class BackupState {
               i,
             );
             if (existingAccount && newAccount) {
-              console.log('Account already exists, just renaming');
               await kr.renameAccount(existingAccount.address, newAccount.name);
               continue;
             } else if (newAccount) {
-              console.log('creating new account', newAccount);
               await kr.saveNewAccount({
                 basePath: newAccount.basePath,
                 name: newAccount.name,
@@ -236,7 +230,6 @@ class BackupState {
                 walletType: newAccount.walletType,
               });
             } else if (!newAccount) {
-              console.log('edge case shouldnt happen', newAccount);
               await kr.saveNewAccount({
                 basePath: basePath,
                 name: `New Account from backup ${i}`,

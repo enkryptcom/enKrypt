@@ -410,6 +410,7 @@ const init = async () => {
     setNetwork(defaultNetwork);
   }
   await setActiveNetworks();
+  backupState.backup(true).catch(console.error);
   isLoading.value = false;
 };
 
@@ -423,7 +424,6 @@ onMounted(async () => {
         .then(() => (isLoading.value = false));
     } else {
       init();
-      backupState.backup(true).catch(console.error);
       setTimeout(() => {
         rateState.showPopup().then(show => {
           if (show) {
