@@ -52,8 +52,8 @@
     <settings-button title="Settings backup" @click="$emit('open:backups')" />
     <div class="settings__label">
       <p>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod
-        tempor incididunt ut labore et dolore magna aliqua.
+        Save your current list of accounts across all networks, so you don't
+        need to re-generate them.
       </p>
     </div>
     <!-- <base-select

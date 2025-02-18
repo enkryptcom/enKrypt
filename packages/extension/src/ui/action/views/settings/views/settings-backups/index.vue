@@ -4,8 +4,9 @@
     <div v-if="!isDelete">
       <div class="settings-container__label">
         <p>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
-          eiusmod tempor incididunt ut labore et dolore magna aliqua.
+          Save your current list of accounts across all networks, so you don't
+          need to re-generate them when you import or restore your wallet with
+          Enkrypt. You will still need your recovery phrase.
         </p>
       </div>
       <settings-switch
@@ -171,7 +172,7 @@ const formatDate = (dateString: string) => {
   padding: 16px;
 
   &__backup {
-    margin: 0 32px 12px 32px;
+    margin: 0 16px 12px;
 
     &-delete-buttons {
       margin: 65px 50px;
@@ -182,7 +183,7 @@ const formatDate = (dateString: string) => {
     }
 
     &-container {
-      height: 288px; // adding a small cutoff to let user know there's more
+      height: 225px; // adding a small cutoff to let user know there's more
       overflow-y: auto;
     }
 
@@ -286,8 +287,8 @@ const formatDate = (dateString: string) => {
   }
 
   &__label {
-    padding: 0 48px;
-    margin-bottom: 10px;
+    padding: 0 32px;
+    margin-bottom: 27px;
 
     p {
       font-style: normal;
