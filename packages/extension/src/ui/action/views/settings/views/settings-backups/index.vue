@@ -16,7 +16,7 @@
       />
 
       <div class="settings-container__backup">
-        <div v-if="loading">
+        <div v-if="loading" class="settings-container__backup">
           <div class="settings-container__backup-header">Fetching backups</div>
           <div
             v-for="(item, index) in [1, 2, 3]"
@@ -32,7 +32,10 @@
             </div>
           </div>
         </div>
-        <div v-else-if="backups.length === 0">
+        <div
+          v-else-if="backups.length === 0"
+          class="settings-container__backup"
+        >
           <div class="settings-container__backup-header">No backups found</div>
         </div>
         <div class="settings-container__backup" v-else>
