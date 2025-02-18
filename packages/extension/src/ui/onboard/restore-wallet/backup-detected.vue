@@ -4,7 +4,10 @@
 
     <div class="backup-detected__backups">
       <h4>Please choose a backup to use:</h4>
-      <div class="backup-detected__backup-items-container">
+      <div
+        class="backup-detected__backup-items-container"
+        v-if="!loadingBackups"
+      >
         <a
           v-for="backup in backups"
           :key="backup.userId"
@@ -18,6 +21,18 @@
           <div class="backup-detected__backup-item__name">
             <h4>{{ generateRandomNameWithSeed(' ', backup.userId) }}</h4>
             <p>{{ formatDate(backup.updatedAt) }}</p>
+          </div>
+        </a>
+      </div>
+      <div class="backup-detected__backup-items-container" v-else>
+        <a
+          v-for="(backup, idx) in [1, 2, 3]"
+          :key="`entity-${backup.userId}-${idx}`"
+          class="backup-detected__backup-item-loading"
+        >
+          <div class="backup-detected__backup-item-loading__loading-container">
+            <balance-loader />
+            <balance-loader />
           </div>
         </a>
       </div>
@@ -49,6 +64,7 @@ import { useRouter } from 'vue-router';
 import { routes } from '../restore-wallet/routes';
 import { generateRandomNameWithSeed } from '@enkryptcom/utils';
 import backupIdenticon from '@/ui/action/views/settings/views/settings-backups/backup-identicon.vue';
+import BalanceLoader from '@action/icons/common/balance-loader.vue';
 
 const selectedBackup = ref<ListBackupType>();
 const backups = ref<ListBackupType[]>([]);
@@ -204,6 +220,37 @@ const skip = () => {
         color: @tertiaryLabel;
         margin: 0;
       }
+    }
+  }
+
+  &__backup-item-loading {
+    margin: 4px;
+    padding: 16px;
+    display: flex;
+    font-size: 16px;
+    align-items: center;
+    border: 1px solid @white;
+    cursor: not-allowed;
+
+    &__loading-container {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      height: 100%;
+
+      svg {
+        width: 100px;
+
+        &:first-child {
+          width: 150px;
+          margin-bottom: 5px;
+        }
+      }
+    }
+
+    &:hover {
+      border: 1px solid @white;
+      border-radius: 10px;
     }
   }
 
