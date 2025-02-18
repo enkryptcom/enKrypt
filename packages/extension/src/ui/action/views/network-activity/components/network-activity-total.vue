@@ -24,7 +24,7 @@
 
 <script setup lang="ts">
 import BalanceLoader from '@action/icons/common/balance-loader.vue';
-import { ref, watchEffect } from 'vue';
+import { onBeforeMount, ref, watchEffect } from 'vue';
 
 const props = defineProps({
   cryptoAmount: {
@@ -57,6 +57,12 @@ watchEffect(() => {
     timer = setTimeout(() => {
       assumedError.value = true;
     }, 30000);
+  }
+});
+
+onBeforeMount(() => {
+  if (timer) {
+    clearTimeout(timer);
   }
 });
 </script>
