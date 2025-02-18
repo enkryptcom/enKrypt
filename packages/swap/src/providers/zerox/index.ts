@@ -70,7 +70,7 @@ const supportedNetworks: {
   },
 };
 
-const BASE_URL = "https://partners.mewapi.io/zerox/";
+const BASE_URL = "https://partners.mewapi.io/zeroxv2";
 
 class ZeroX extends ProviderClass {
   tokenList: TokenType[];
@@ -154,7 +154,7 @@ class ZeroX extends ProviderClass {
       sellToken: options.fromToken.address,
       buyToken: options.toToken.address,
       sellAmount: options.amount.toString(),
-      takerAddress: options.fromAddress,
+      taker: options.fromAddress,
       slippagePercentage: (
         parseFloat(meta.slippage ? meta.slippage : DEFAULT_SLIPPAGE) / 100
       ).toString(),
@@ -165,9 +165,8 @@ class ZeroX extends ProviderClass {
       affiliateAddress: feeConfig ? feeConfig.referrer : "",
     });
     return fetch(
-      `${BASE_URL}${
-        supportedNetworks[this.network].chainId
-      }/swap/v1/quote?${params.toString()}`,
+      `${BASE_URL}/swap/allowance-holder/quote?chainId=${supportedNetworks[this.network].chainId
+      }&${params.toString()}`,
     )
       .then((res) => res.json())
       .then(async (response: ZeroXResponseType) => {
@@ -191,9 +190,9 @@ class ZeroX extends ProviderClass {
         transactions.push({
           from: options.fromAddress,
           gasLimit: GAS_LIMITS.swap,
-          to: response.to,
-          value: numberToHex(response.value),
-          data: response.data,
+          to: response.transaction.to,
+          value: numberToHex(response.transaction.value),
+          data: response.transaction.data,
           type: TransactionType.evm,
         });
         if (accurateEstimate) {

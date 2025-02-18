@@ -72,6 +72,7 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
   [NetworkNames.Rootstock]: {
     tbName: 'rsk',
     cgPlatform: CoingeckoPlatform.Rootstock,
+    bsEndpoint: true,
   },
   [NetworkNames.Arbitrum]: {
     tbName: 'arb',
