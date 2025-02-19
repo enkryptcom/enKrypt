@@ -156,6 +156,7 @@ const deleteBackup = async (userId: string) => {
   await backupState.deleteBackup(userId);
   backups.value = await backupState.listBackups();
   loading.value = false;
+  isDelete.value = false;
 };
 
 const formatDate = (dateString: string) => {
@@ -188,6 +189,7 @@ const formatDate = (dateString: string) => {
     &-container {
       height: 225px; // adding a small cutoff to let user know there's more
       overflow-y: auto;
+      padding-right: 10px;
     }
 
     &-item {
