@@ -5,6 +5,7 @@ import CheckPhrase from './double-check-phrase.vue';
 import WalletReady from './wallet-ready.vue';
 import UserAnalytics from '../user-analytics.vue';
 import { RouteRecordRaw } from 'vue-router';
+
 export const routes = {
   pickPassword: {
     path: 'pick-password',
