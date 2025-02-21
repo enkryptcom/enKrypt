@@ -236,9 +236,6 @@ onBeforeMount(async () => {
         }),
       );
     }
-    Tx.value.recentBlockhash = (
-      await solConnection.value.web3.getLatestBlockhash()
-    ).blockhash;
   }
   const feeMessage =
     TxType.value === 'legacy'
@@ -282,9 +279,15 @@ const approve = async () => {
   });
   const latestBlockHash = (await solConnection.value!.web3.getLatestBlockhash())
     .blockhash;
-  if (TxType.value === 'legacy') {
+  if (
+    TxType.value === 'legacy' &&
+    !(Tx.value as LegacyTransaction).recentBlockhash
+  ) {
     (Tx.value as LegacyTransaction).recentBlockhash = latestBlockHash;
-  } else {
+  } else if (
+    TxType.value !== 'legacy' &&
+    !(Tx.value as VersionedTransaction).message.recentBlockhash
+  ) {
     (Tx.value as VersionedTransaction).message.recentBlockhash =
       latestBlockHash;
   }
