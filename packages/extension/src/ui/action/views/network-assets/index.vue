@@ -51,11 +51,11 @@
         :toggle="toggleDeposit"
       />
     </div>
-
+    <!-- prettier-ignore -->
     <custom-evm-token
       v-if="showAddCustomTokens"
       :address="props.accountInfo.selectedAccount?.address!"
-      :network="props.network as EvmNetwork"
+      :network="(props.network as EvmNetwork)"
       @update:token-added="addCustomAsset"
       @update:close="toggleShowAddCustomTokens"
     ></custom-evm-token>
@@ -122,7 +122,8 @@ const updateAssets = () => {
         assets.value = _assets;
         isLoading.value = false;
       })
-      .catch(() => {
+      .catch(e => {
+        console.error(e);
         if (selectedNetworkName.value !== currentNetwork) return;
         isFetchError.value = true;
         isLoading.value = false;
