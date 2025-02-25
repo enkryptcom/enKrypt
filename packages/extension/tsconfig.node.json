@@ -25,6 +25,7 @@
     "paths": {
       "@/*": ["./src/*"],
       "@action/*": ["./src/ui/action/*"]
-    }
+    },
+    "lib": ["dom"]
   }
 }

@@ -9,9 +9,9 @@ import * as jdenticon from 'jdenticon';
 const props = defineProps<{
   hash: string;
 }>();
-const element: Ref<HTMLElement> = useTemplateRef('jdenticonHolder');
+const element: Ref<HTMLElement | null> = useTemplateRef('jdenticonHolder');
 onMounted(() => {
-  element.value.innerHTML = jdenticon.toSvg(props.hash, 200);
+  element.value!.innerHTML = jdenticon.toSvg(props.hash, 200);
 });
 </script>
 
