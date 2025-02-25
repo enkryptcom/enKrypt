@@ -1,6 +1,7 @@
 import BrowserStorage from '../common/browser-storage';
 import { InternalStorageNamespace } from '@/types/provider';
 import {
+  BackupAccountType,
   BackupData,
   BackupResponseType,
   BackupType,
@@ -187,7 +188,7 @@ class BackupState {
           }
         });
         const getAccountByIndex = (
-          accounts: Omit<EnkryptAccount, 'address' | 'publicKey'>[],
+          accounts: BackupAccountType[],
           basePath: string,
           signerType: SignerType,
           idx: number,
@@ -257,7 +258,7 @@ class BackupState {
     const backupData: BackupData = {
       accounts: allAccounts
         .filter(
-          acc => !acc.isTestWallet && acc.walletType !== WalletType.privkey,
+          acc => !acc.isTestWallet && acc.walletType === WalletType.mnemonic,
         )
         .map(acc => {
           return {
@@ -266,8 +267,6 @@ class BackupState {
             name: acc.name,
             signerType: acc.signerType,
             walletType: acc.walletType,
-            isHardware: acc.isHardware,
-            HWOptions: acc.HWOptions,
           };
         }),
       uuid: state.userId,

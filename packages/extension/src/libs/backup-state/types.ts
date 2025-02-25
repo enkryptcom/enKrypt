@@ -23,7 +23,12 @@ export interface BackupResponseType {
   backup: BackupType;
 }
 
+export type BackupAccountType = Omit<
+  EnkryptAccount,
+  'address' | 'publicKey' | 'isHardware' | 'HWOptions'
+>;
+
 export interface BackupData {
-  accounts: Omit<EnkryptAccount, 'address' | 'publicKey'>[];
+  accounts: BackupAccountType[];
   uuid: string;
 }
