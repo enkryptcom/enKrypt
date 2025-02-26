@@ -2,6 +2,7 @@ import { NATIVE_TOKEN_ADDRESS } from '@/providers/ethereum/libs/common';
 import {
   ACCOUNT_SIZE,
   AccountLayout,
+  TOKEN_2022_PROGRAM_ID,
   TOKEN_PROGRAM_ID,
 } from '@solana/spl-token';
 import {
@@ -77,8 +78,9 @@ const decodeTransaction = async (
       .accounts!.filter(a => {
         const data = Buffer.from(a!.data[0], 'base64');
         return (
-          a!.owner === TOKEN_PROGRAM_ID.toBase58() &&
-          data.length === ACCOUNT_SIZE
+          (a!.owner === TOKEN_PROGRAM_ID.toBase58() ||
+            a!.owner === TOKEN_2022_PROGRAM_ID.toBase58()) &&
+          data.length >= ACCOUNT_SIZE
         );
       })
       .map(a => {

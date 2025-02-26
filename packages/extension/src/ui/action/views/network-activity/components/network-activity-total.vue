@@ -1,7 +1,15 @@
 <template>
-  <div v-if="cryptoAmount == '~'" class="network-activity__total">
+  <div
+    v-if="cryptoAmount == '~' && !assumedError"
+    class="network-activity__total"
+  >
     <balance-loader class="network-activity__loader-one" />
     <balance-loader class="network-activity__loader-two" />
+  </div>
+  <div v-else-if="assumedError" class="network-activity__total-error">
+    <h3>
+      <span>Loading balance error. Please try again later</span>
+    </h3>
   </div>
   <div v-else class="network-activity__total">
     <h3>
@@ -16,8 +24,9 @@
 
 <script setup lang="ts">
 import BalanceLoader from '@action/icons/common/balance-loader.vue';
+import { onBeforeMount, ref, watchEffect } from 'vue';
 
-defineProps({
+const props = defineProps({
   cryptoAmount: {
     type: String,
     default: '0',
@@ -35,12 +44,42 @@ defineProps({
     default: '',
   },
 });
+
+let timer: NodeJS.Timeout | null = null;
+const assumedError = ref(false);
+
+watchEffect(() => {
+  if (timer) {
+    clearTimeout(timer);
+  }
+  // set the timer on initial change to blank
+  if (props.cryptoAmount == '~') {
+    timer = setTimeout(() => {
+      assumedError.value = true;
+    }, 30000);
+  }
+});
+
+onBeforeMount(() => {
+  if (timer) {
+    clearTimeout(timer);
+  }
+});
 </script>
 
 <style lang="less">
 @import '@action/styles/theme.less';
 
 .network-activity {
+  &__total-error {
+    padding: 0 20px 12px 20px;
+
+    h3 {
+      span {
+        color: @error;
+      }
+    }
+  }
   &__total {
     padding: 0 20px 12px 20px;
 
