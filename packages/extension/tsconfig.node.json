@@ -10,7 +10,10 @@
     "vite.config.ts",
     "vite.firefox.config.ts",
     "manifest.config.ts",
-    "manifest.firefox.config.ts"
+    "manifest.firefox.config.ts",
+    "src/**/*.ts",
+    "configs/**/*.ts",
+    "src/**/*.vue"
   ],
   "compilerOptions": {
     "composite": true,
@@ -18,6 +21,11 @@
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
     "module": "ESNext",
     "moduleResolution": "Bundler",
-    "types": ["node"]
+    "types": ["node"],
+    "paths": {
+      "@/*": ["./src/*"],
+      "@action/*": ["./src/ui/action/*"]
+    },
+    "lib": ["dom"]
   }
 }

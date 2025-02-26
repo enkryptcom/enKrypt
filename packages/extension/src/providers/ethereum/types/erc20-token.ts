@@ -21,11 +21,15 @@ export class Erc20Token extends BaseToken {
     api: EvmAPI,
     address: string,
   ): Promise<string> {
-    if (this.contract === NATIVE_TOKEN_ADDRESS) return api.getBalance(address);
+    if (this.contract === NATIVE_TOKEN_ADDRESS)
+      return api.getBalance(address.toLowerCase());
     else {
-      const contract = new api.web3.Contract(erc20 as any, this.contract);
+      const contract = new api.web3.Contract(
+        erc20 as any,
+        this.contract.toLowerCase(),
+      );
       return contract.methods
-        .balanceOf(address)
+        .balanceOf(address.toLowerCase())
         .call()
         .then((val: BNType) => {
           const balance = numberToHex(val);

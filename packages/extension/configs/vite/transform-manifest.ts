@@ -1,4 +1,4 @@
-import { CrxPlugin } from '@crxjs/vite-plugin'
+import { CrxPlugin } from '@crxjs/vite-plugin';
 
 function transFormManifest(): CrxPlugin {
   return {
@@ -17,7 +17,7 @@ function transFormManifest(): CrxPlugin {
           js: ['vendor/trezor-content-script.js'],
           run_at: 'document_start',
         },
-      ] as any
+      ] as any;
       if (process.env.BROWSER !== 'opera') {
         manifest.content_scripts?.push({
           matches: ['file://*/*', 'http://*/*', 'https://*/*'],
@@ -25,7 +25,7 @@ function transFormManifest(): CrxPlugin {
           run_at: 'document_start',
           all_frames: false,
           world: 'MAIN',
-        } as any)
+        } as any);
       }
       manifest.web_accessible_resources?.push({
         resources: [
@@ -35,9 +35,9 @@ function transFormManifest(): CrxPlugin {
         ],
         use_dynamic_url: false,
         matches: ['file://*/*', 'http://*/*', 'https://*/*'],
-      })
-      return manifest
+      });
+      return manifest;
     },
-  }
+  };
 }
-export default transFormManifest
+export default transFormManifest;

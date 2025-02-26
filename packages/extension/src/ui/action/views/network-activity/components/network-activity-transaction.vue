@@ -10,9 +10,7 @@
     >
       <div class="network-activity__transaction-info">
         <img
-          :src="
-            network.identicon(activity.isIncoming ? activity.from : activity.to)
-          "
+          :src="network.identicon(network.displayAddress((activity.isIncoming ? activity.from : activity.to)))"
           @error="imageLoadError"
         />
 

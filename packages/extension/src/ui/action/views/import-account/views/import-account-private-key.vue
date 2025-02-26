@@ -36,7 +36,7 @@ import { ref, computed, type PropType } from 'vue';
 import ImportAccountHeader from '../components/import-account-header.vue';
 import BaseButton from '@action/components/base-button/index.vue';
 import bs58 from 'bs58';
-import Wallet from 'ethereumjs-wallet';
+import { Wallet } from '@ethereumjs/wallet';
 import { bufferToHex, hexToBuffer } from '@enkryptcom/utils';
 import { type KeyPairAdd, SignerType } from '@enkryptcom/types';
 import PublicKeyRing from '@/libs/keyring/public-keyring';
@@ -93,7 +93,7 @@ const importAction = async () => {
   if (props.network.provider === ProviderName.ethereum) {
     const buffer = hexToBuffer(formattedPrivateKey.value);
     const wallet = new Wallet(buffer);
-    const newAddress = `0x${wallet.getAddress().toString('hex')}`;
+    const newAddress = wallet.getAddressString();
 
     if (await keyring.accountAlreadyAdded(newAddress)) {
       accountAlreadyExists.value = true;

@@ -4,7 +4,7 @@
       class="network-assets__token-info"
       :class="{ max: token.priceChangePercentage == 0 }"
     >
-      <img :src="token.icon" />
+      <img :src="token.icon" width="32px" height="32px" />
       <div class="network-assets__token-info-name">
         <h4 v-if="token.name.length <= 16">{{ token.name }}</h4>
         <tooltip v-else :text="token.name"
@@ -223,7 +223,8 @@ const toggleDetail = () => {
       }
 
       img {
-        max-width: 32px;
+        width: 32px;
+        height: 32px;
         margin-right: 16px;
         border-radius: 100%;
         box-shadow: inset 0px 0px 1px rgba(0, 0, 0, 0.16);

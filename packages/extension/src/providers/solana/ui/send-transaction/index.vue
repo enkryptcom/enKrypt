@@ -525,11 +525,24 @@ const updateTransactionFees = async () => {
     (!isSendToken.value && selectedNft.value.type === NFTType.SolanaToken)
   ) {
     const contract = new PublicKey(TxInfo.value.contract);
-    const associatedTokenTo = getAssociatedTokenAddressSync(contract, to);
-    const associatedTokenFrom = getAssociatedTokenAddressSync(contract, from);
+    const programId = await solConnection.value!.web3.getAccountInfo(contract);
+    const associatedTokenTo = getAssociatedTokenAddressSync(
+      contract,
+      to,
+      undefined,
+      programId!.owner,
+    );
+    const associatedTokenFrom = getAssociatedTokenAddressSync(
+      contract,
+      from,
+      undefined,
+      programId!.owner,
+    );
     const validATA = await getAccount(
       solConnection.value!.web3,
       associatedTokenTo,
+      undefined,
+      programId!.owner,
     )
       .then(() => true)
       .catch(() => false);
@@ -540,6 +553,8 @@ const updateTransactionFees = async () => {
           associatedTokenTo,
           from,
           toBN(TxInfo.value.value).toNumber(),
+          [],
+          programId!.owner,
         ),
       );
     } else {
@@ -549,6 +564,7 @@ const updateTransactionFees = async () => {
           associatedTokenTo,
           to,
           contract,
+          programId!.owner,
         ),
       );
       transaction.add(
@@ -557,6 +573,8 @@ const updateTransactionFees = async () => {
           associatedTokenTo,
           from,
           toBN(TxInfo.value.value).toNumber(),
+          [],
+          programId!.owner,
         ),
       );
       storageFee.value =

@@ -207,7 +207,7 @@ const getTokens = (
     url = `${API_ENPOINT2}${supportedNetworks[chain].tbName}/${address}?platform=enkrypt&type=internal`;
   return fetch(url)
     .then(res => res.json())
-    .then(json => {
+    .then((json: any) => {
       if (json.error)
         return Promise.reject(
           `TOKENBALANCE-MEW: ${JSON.stringify(json.error)}`,

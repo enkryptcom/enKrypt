@@ -28,7 +28,7 @@
 import { PropType } from 'vue';
 import { BaseNetwork } from '@/types/base-network';
 import DoneIcon from '@action/icons/common/done_icon.vue';
-import { EnkryptAccount } from '@enkryptcom/types';
+
 const emit = defineEmits<{
   (e: 'selected:account', address: string): void;
 }>();

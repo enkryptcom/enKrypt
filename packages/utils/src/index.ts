@@ -11,6 +11,14 @@ import { encrypt, decrypt } from "./encrypt";
 import MemoryStorage from "./memory-storage";
 import { fromBase, toBase, isValidDecimals } from "./units";
 import { DebugLogger } from "./debug-logger";
+import {
+  naclDecodeHex,
+  encryptedDataStringToJson,
+  naclDecrypt,
+  naclEncrypt,
+  NACL_VERSION,
+} from "./nacl-encrypt-decrypt";
+import { generateRandomNameWithSeed } from "./random-names";
 
 const bufferToHex = (buf: Buffer | Uint8Array, nozerox = false): string =>
   nozerox
@@ -42,4 +50,10 @@ export {
   toBase,
   isValidDecimals,
   DebugLogger,
+  naclDecodeHex,
+  encryptedDataStringToJson,
+  naclDecrypt,
+  naclEncrypt,
+  NACL_VERSION,
+  generateRandomNameWithSeed,
 };

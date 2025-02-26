@@ -20,6 +20,7 @@ import {
   isValidSolanaAddressAsync,
   solAccountExists,
   SPL_TOKEN_ATA_ACCOUNT_SIZE_BYTES,
+  TOKEN_2022_PROGRAM_ID,
   WRAPPED_SOL_ADDRESS,
 } from "../../utils/solana";
 import {
@@ -317,12 +318,16 @@ export class Jupiter extends ProviderClass {
       dstMint,
       dstTokenProgramId,
     );
+    const srcTokenProgramId = await getTokenProgramOfMint(this.conn, srcMint);
+
+    const isSrcToken2022 =
+      srcTokenProgramId.toBase58() === TOKEN_2022_PROGRAM_ID.toBase58();
 
     const swap = await getJupiterSwap(
       {
         quote,
         signerPubkey: fromPubkey,
-        referrerATAPubkey,
+        referrerATAPubkey: isSrcToken2022 ? undefined : referrerATAPubkey,
         dstATAPubkey,
       },
       { signal },
@@ -331,9 +336,6 @@ export class Jupiter extends ProviderClass {
     let tx = VersionedTransaction.deserialize(
       Buffer.from(swap.swapTransaction, "base64"),
     );
-
-    const srcTokenProgramId = await getTokenProgramOfMint(this.conn, srcMint);
-
     /** Rent from having to create ATA accounts for the wallet & mint and the referral fee holder & mint */
     let rentFees = 0;
 
@@ -346,7 +348,7 @@ export class Jupiter extends ProviderClass {
           ` ATA pubkey: ${referrerATAPubkey.toBase58()},` +
           ` Source mint: ${srcMint.toBase58()}`,
       );
-    } else {
+    } else if (!referrerATAExists && !isSrcToken2022) {
       // The referral fee ATA account needs to be created or else we can't receive fees for this transaction
       const extraRentFees = await this.conn.getMinimumBalanceForRentExemption(
         JUPITER_REFERRAL_ATA_ACCOUNT_SIZE_BYTES,
