@@ -71,6 +71,7 @@ interface HWwalletOptions {
 
 interface EnkryptAccount extends KeyRecord {
   isHardware: boolean;
+  isTestWallet?: boolean;
   HWOptions?: HWwalletOptions;
 }
 

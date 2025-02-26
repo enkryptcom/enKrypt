@@ -1,16 +1,19 @@
 <template>
   <div class="network-activity__action">
     <div class="network-activity__action-wrap">
-      <a class="network-activity__action-item" @click="$emit('toggle:deposit')">
+      <button
+        class="network-activity__action-item"
+        @click="$emit('toggle:deposit')"
+      >
         <Deposit />Deposit
-      </a>
-      <a
+      </button>
+      <button
         v-if="showExchange"
         class="network-activity__action-item"
         @click="$emit('open:buyAction')"
       >
         <Buy />Buy/Sell
-      </a>
+      </button>
       <router-link
         :to="{
           name: 'send-transaction',
@@ -68,6 +71,13 @@ defineEmits<{
       align-items: center;
       flex-direction: row;
       gap: 8px;
+      button {
+        color: inherit;
+        font: inherit;
+        cursor: pointer;
+        outline: inherit;
+        border: inherit;
+      }
     }
     &-item {
       background: @primary007;
@@ -87,7 +97,9 @@ defineEmits<{
       justify-content: center;
       align-items: center;
       flex-direction: column;
+      flex: 1;
       min-width: 100px;
+      max-width: 100%;
       transition: background 300ms ease-in-out;
       border-radius: 12px;
 
@@ -98,6 +110,10 @@ defineEmits<{
       svg {
         margin-bottom: 0;
         margin-bottom: 2px;
+      }
+      &:focus {
+        outline: -webkit-focus-ring-color auto 1px !important;
+        outline-offset: 2px !important;
       }
     }
     &-divider {

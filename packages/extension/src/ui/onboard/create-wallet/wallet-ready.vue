@@ -38,6 +38,19 @@ import InstagramIcon from '@action/icons/social/instagram-icon.vue';
 import RedditIcon from '@action/icons/social/reddit-icon.vue';
 import TwitterIcon from '@action/icons/social/twitter-icon.vue';
 import Browser from 'webextension-polyfill';
+import { useRestoreStore } from '../restore-wallet/store';
+import { useOnboardStore } from './store';
+import { onMounted } from 'vue';
+
+const onboardStore = useOnboardStore();
+const restoreStore = useRestoreStore();
+
+onMounted(() => {
+  onboardStore.setPassword('');
+  onboardStore.setMnemonic('');
+  restoreStore.setMnemonic('');
+  restoreStore.setPassword('');
+});
 
 const finishAction = () => {
   Browser.tabs

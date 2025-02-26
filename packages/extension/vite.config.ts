@@ -35,6 +35,9 @@ const getManifest = () => {
 };
 
 export default defineConfig({
+  legacy: {
+    skipWebSocketTokenCheck: true,
+  },
   server: {
     port: 5173,
     strictPort: true,
@@ -70,6 +73,7 @@ export default defineConfig({
         'http',
         'https',
         'path',
+        'os',
       ],
       protocolImports: true,
     }),
@@ -89,7 +93,6 @@ export default defineConfig({
     preprocessorOptions: {
       less: {
         math: 'always',
-        relativeUrls: true,
         javascriptEnabled: true,
       },
     },
@@ -101,6 +104,7 @@ export default defineConfig({
     minify: process.env.MINIFY === 'true' ? 'esbuild' : false,
     rollupOptions: {
       plugins: [],
+      external: [],
       input: {
         action: 'action.html',
         onboard: 'onboard.html',
@@ -119,6 +123,7 @@ export default defineConfig({
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
       '@action': fileURLToPath(new URL('./src/ui/action', import.meta.url)),
+      fs: './configs/vite/empty.js',
     },
   },
 });

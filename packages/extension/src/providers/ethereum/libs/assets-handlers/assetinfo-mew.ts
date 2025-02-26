@@ -72,6 +72,7 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
   [NetworkNames.Rootstock]: {
     tbName: 'rsk',
     cgPlatform: CoingeckoPlatform.Rootstock,
+    bsEndpoint: true,
   },
   [NetworkNames.Arbitrum]: {
     tbName: 'arb',
@@ -206,7 +207,7 @@ const getTokens = (
     url = `${API_ENPOINT2}${supportedNetworks[chain].tbName}/${address}?platform=enkrypt&type=internal`;
   return fetch(url)
     .then(res => res.json())
-    .then(json => {
+    .then((json: any) => {
       if (json.error)
         return Promise.reject(
           `TOKENBALANCE-MEW: ${JSON.stringify(json.error)}`,

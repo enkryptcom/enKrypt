@@ -50,6 +50,7 @@ export const openLink = (url: string) => {
 export const getLatestEnkryptVersion = (): Promise<string> => {
   return fetch(
     'https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/configs/versions.json',
+    { cache: "no-store" }
   )
     .then(res => res.json())
     .then(versions => {

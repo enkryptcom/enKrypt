@@ -42,7 +42,12 @@
         :address="addressTo"
         :network="network"
         @selected:account="selectAccountTo"
-        @update:paste-from-clipboard="addressInputTo.pasteFromClipboard()"
+        @update:paste-from-clipboard="
+          () => {
+            addressInputTo.pasteFromClipboard();
+            toggleSelectContactTo(false);
+          }
+        "
         @close="toggleSelectContactTo"
       />
 
