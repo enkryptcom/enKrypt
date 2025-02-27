@@ -1,6 +1,5 @@
-import KeyRing from '@enkryptcom/keyring';
 import { InternalStorageNamespace } from '@/types/provider';
-import BrowserStorage from '../common/browser-storage';
+import KeyRing from '@enkryptcom/keyring';
 import {
   EnkryptAccount,
   HWWalletAdd,
@@ -10,6 +9,7 @@ import {
   SignOptions,
   WalletType,
 } from '@enkryptcom/types';
+import BrowserStorage from '../common/browser-storage';
 export class KeyRingBase {
   #keyring: KeyRing;
   constructor() {
@@ -61,6 +61,12 @@ export class KeyRingBase {
   }
   getKeysObject(): Promise<{ [key: string]: EnkryptAccount }> {
     return this.#keyring.getKeysObject();
+  }
+  getPrivateKey(options: SignOptions) {
+    return this.#keyring.getPrivateKey(options);
+  }
+  getSavedMnemonic(password: string) {
+    return this.#keyring.getSavedMnemonic(password);
   }
   addHWAccount(account: HWWalletAdd): Promise<EnkryptAccount> {
     return this.#keyring.addHWAccount(account);

@@ -47,5 +47,11 @@
     "@ledgerhq/speculos-transport": "https://registry.yarnpkg.com/@favware/skip-dependency/-/skip-dependency-1.2.1.tgz",
     "@ledgerhq/ledger-key-ring-protocol": "https://registry.yarnpkg.com/@favware/skip-dependency/-/skip-dependency-1.2.1.tgz",
     "@amplitude/plugin-autocapture-browser@^1.0.2": "patch:@amplitude/plugin-autocapture-browser@npm%3A1.0.3#./.yarn/patches/@amplitude-plugin-autocapture-browser-npm-1.0.3-edb25bef55.patch"
+  },
+  "dependencies": {
+    "axios": "^1.8.2",
+    "buffer-reverse": "^1.0.1",
+    "ecpair": "^3.0.0-rc.0",
+    "electrum-client": "^0.0.6"
   }
 }

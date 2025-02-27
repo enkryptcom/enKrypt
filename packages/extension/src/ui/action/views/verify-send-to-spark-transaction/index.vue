@@ -70,35 +70,41 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeMount, ref, ComponentPublicInstance } from "vue";
-import { useRoute, useRouter } from "vue-router";
-import CloseIcon from "@action/icons/common/close-icon.vue";
-import BaseButton from "@action/components/base-button/index.vue";
-import VerifyTransactionNetwork from "@/providers/common/ui/verify-transaction/verify-transaction-network.vue";
-import VerifyTransactionAccount from "@/providers/common/ui/verify-transaction/verify-transaction-account.vue";
-import VerifyTransactionAmount from "@/providers/common/ui/verify-transaction/verify-transaction-amount.vue";
-import VerifyTransactionFee from "@/providers/common/ui/verify-transaction/verify-transaction-fee.vue";
-import HardwareWalletMsg from "@/providers/common/ui/verify-transaction/hardware-wallet-msg.vue";
-import SendProcess from "@action/views/send-process/index.vue";
-import PublicKeyRing from "@/libs/keyring/public-keyring";
-import { getCurrentContext } from "@/libs/messenger/extension";
-import { DEFAULT_BTC_NETWORK, getNetworkByName } from "@/libs/utils/networks";
-import { ActivityStatus, Activity, ActivityType } from "@/types/activity";
-import ActivityState from "@/libs/activity-state";
-import { EnkryptAccount } from "@enkryptcom/types";
-import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
-import { BitcoinNetwork } from "@/providers/bitcoin/types/bitcoin-network";
-import { trackSendEvents } from "@/libs/metrics";
-import { SendEventType } from "@/libs/metrics/types";
-import { VerifyTransactionParams } from "@/providers/bitcoin/ui/types";
-import { sendToSparkAddress } from "@/libs/spark-handler";
-import { isAxiosError } from "axios";
-import { fromBase } from "@enkryptcom/utils";
-import { BaseNetwork } from "@/types/base-network";
-import { isAddress } from "@/providers/bitcoin/libs/utils";
+import ActivityState from '@/libs/activity-state';
+import PublicKeyRing from '@/libs/keyring/public-keyring';
+import { getCurrentContext } from '@/libs/messenger/extension';
+import { trackSendEvents } from '@/libs/metrics';
+import { SendEventType } from '@/libs/metrics/types';
+import { getMintTxData } from '@/libs/spark-handler/getMintTxData';
+import { getTotalMintedAmount } from '@/libs/spark-handler/getTotalMintedAmount';
+import { DEFAULT_BTC_NETWORK, getNetworkByName } from '@/libs/utils/networks';
+import FiroAPI from '@/providers/bitcoin/libs/api-firo';
+import {
+  FiroWallet,
+  validator,
+} from '@/providers/bitcoin/libs/firo-wallet/firo-wallet';
+import { isAddress } from '@/providers/bitcoin/libs/utils';
+import { BitcoinNetwork } from '@/providers/bitcoin/types/bitcoin-network';
+import { VerifyTransactionParams } from '@/providers/bitcoin/ui/types';
+import HardwareWalletMsg from '@/providers/common/ui/verify-transaction/hardware-wallet-msg.vue';
+import VerifyTransactionAccount from '@/providers/common/ui/verify-transaction/verify-transaction-account.vue';
+import VerifyTransactionAmount from '@/providers/common/ui/verify-transaction/verify-transaction-amount.vue';
+import VerifyTransactionFee from '@/providers/common/ui/verify-transaction/verify-transaction-fee.vue';
+import VerifyTransactionNetwork from '@/providers/common/ui/verify-transaction/verify-transaction-network.vue';
+import { Activity, ActivityStatus, ActivityType } from '@/types/activity';
+import { BaseNetwork } from '@/types/base-network';
+import BaseButton from '@action/components/base-button/index.vue';
+import CustomScrollbar from '@action/components/custom-scrollbar/index.vue';
+import CloseIcon from '@action/icons/common/close-icon.vue';
+import SendProcess from '@action/views/send-process/index.vue';
+import { EnkryptAccount } from '@enkryptcom/types';
+import BigNumber from 'bignumber.js';
+import * as bitcoin from 'bitcoinjs-lib';
+import { ComponentPublicInstance, inject, onBeforeMount, ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 
 const emits = defineEmits<{
-  (e: "update:spark-state-changed", network: BaseNetwork): void;
+  (e: 'update:spark-state-changed', network: BaseNetwork): void;
 }>();
 
 const KeyRing = new PublicKeyRing();
@@ -106,17 +112,19 @@ const route = useRoute();
 const router = useRouter();
 const selectedNetwork: string = route.query.id as string;
 const txData: VerifyTransactionParams = JSON.parse(
-  Buffer.from(route.query.txData as string, "base64").toString("utf8")
+  Buffer.from(route.query.txData as string, 'base64').toString('utf8'),
 );
 
 const isProcessing = ref(false);
 const network = ref<BitcoinNetwork>(DEFAULT_BTC_NETWORK);
 const isSendDone = ref(false);
 const account = ref<EnkryptAccount>();
-const isPopup: boolean = getCurrentContext() === "new-window";
+const isPopup: boolean = getCurrentContext() === 'new-window';
 const verifyScrollRef = ref<ComponentPublicInstance<HTMLElement>>();
 const isWindowPopup = ref(false);
-const errorMsg = ref("");
+const errorMsg = ref('');
+
+const wasmModule = inject<WasmModule>('wasmModule');
 
 defineExpose({ verifyScrollRef });
 
@@ -130,7 +138,7 @@ onBeforeMount(async () => {
 });
 
 const close = () => {
-  if (getCurrentContext() === "popup") {
+  if (getCurrentContext() === 'popup') {
     router.go(-1);
   } else {
     window.close();
@@ -142,6 +150,85 @@ const sendAction = async () => {
   trackSendEvents(SendEventType.SendApprove, {
     network: network.value.name,
   });
+
+  const wallet = new FiroWallet();
+  await wallet.setSecret(txData.mnemonic!);
+
+  const address2Check = await wallet.getTransactionsAddresses();
+
+  const { spendableUtxos, addressKeyPairs } =
+    await wallet.getSpendableUtxos(address2Check);
+
+  if (spendableUtxos.length === 0) throw new Error('No UTXOs available!');
+
+  const amountToSendBN = new BigNumber(txData.toToken.amount);
+
+  const feeBn = new BigNumber(500);
+
+  const mintTxData = await getMintTxData({
+    wasmModule,
+    address: txData.toAddress,
+    amount: amountToSendBN.toString(),
+  });
+
+  const psbt = new bitcoin.Psbt({ network: network.value.networkInfo });
+
+  const { inputAmountBn, psbtInputs } =
+    await getTotalMintedAmount(spendableUtxos);
+
+  psbtInputs.forEach(el => {
+    psbt.addInput(el);
+  });
+
+  if (inputAmountBn.lt(amountToSendBN.plus(feeBn)))
+    throw new Error('❌ Not enough balance!');
+
+  psbt.addOutput({
+    script: Buffer.from(mintTxData?.[0]?.scriptPubKey ?? ''),
+    value: amountToSendBN.toNumber(),
+  });
+
+  const changeAmount = inputAmountBn.minus(amountToSendBN).minus(feeBn);
+
+  if (changeAmount.gt(0)) {
+    const firstUtxoAddress = spendableUtxos[0].address;
+    console.log(
+      `🔹 Sending Change (${feeBn.toNumber() / 1e8} FIRO) to ${firstUtxoAddress}`,
+    );
+    psbt.addOutput({
+      address: firstUtxoAddress!,
+      value: changeAmount.toNumber(),
+    });
+  }
+
+  for (let index = 0; index < spendableUtxos.length; index++) {
+    const utxo = spendableUtxos[index];
+    const keyPair = addressKeyPairs[utxo.address];
+
+    console.log(
+      `🔹 Signing input ${index} with key ${keyPair.publicKey.toString('hex')}`,
+    );
+
+    const Signer = {
+      sign: (hash: Uint8Array) => {
+        return Buffer.from(keyPair.sign(hash));
+      },
+      publicKey: Buffer.from(keyPair.publicKey),
+    } as unknown as bitcoin.Signer;
+
+    psbt.signInput(index, Signer);
+    console.log(`🔹 Siged input ${index}`);
+  }
+
+  if (!psbt.validateSignaturesOfAllInputs(validator)) {
+    throw new Error('Error: Some inputs were not signed!');
+  }
+
+  psbt.finalizeAllInputs();
+
+  const rawTx = psbt.extractTransaction().toHex();
+  console.log('Raw Mint Transaction:', rawTx);
+
   const txActivity: Activity = {
     from: network.value.displayAddress(txData.fromAddress),
     to: txData.toAddress,
@@ -158,21 +245,33 @@ const sendAction = async () => {
     },
     type: ActivityType.transaction,
     value: txData.toToken.amount,
-    transactionHash: "",
+    transactionHash: '',
   };
 
   const activityState = new ActivityState();
 
-  await sendToSparkAddress(
-    txData.toAddress,
-    fromBase(txData.toToken.amount, txData.toToken.decimals).toString()
-  )
-    .then(() => {
+  const api = (await network.value.api()) as unknown as FiroAPI;
+
+  api
+    .broadcastTx(rawTx)
+    .then(({ txid }) => {
       trackSendEvents(SendEventType.SendComplete, {
         network: network.value.name,
       });
+      activityState.addActivities(
+        [
+          {
+            ...txActivity,
+            ...{ transactionHash: txid },
+          },
+        ],
+        {
+          address: network.value.displayAddress(txData.fromAddress),
+          network: network.value.name,
+        },
+      );
       isSendDone.value = true;
-      if (getCurrentContext() === "popup") {
+      if (getCurrentContext() === 'popup') {
         setTimeout(() => {
           isProcessing.value = false;
           router.go(-2);
@@ -183,17 +282,8 @@ const sendAction = async () => {
           window.close();
         }, 1500);
       }
-      emits("update:spark-state-changed", network.value);
     })
-    .catch((error) => {
-      isProcessing.value = false;
-
-      if (isAxiosError(error)) {
-        errorMsg.value = JSON.stringify(error.response?.data.error.message);
-      } else {
-        errorMsg.value = JSON.stringify(error);
-      }
-
+    .catch(error => {
       trackSendEvents(SendEventType.SendFailed, {
         network: network.value.name,
         error: error.message,
@@ -203,12 +293,58 @@ const sendAction = async () => {
         address: txData.fromAddress,
         network: network.value.name,
       });
-      console.error("ERROR", error);
+
+      isProcessing.value = false;
+      errorMsg.value = JSON.stringify(error);
+      console.error('ERROR', error);
     });
+
+  // await sendToSparkAddress(
+  //   txData.toAddress,
+  //   fromBase(txData.toToken.amount, txData.toToken.decimals).toString()
+  // )
+  //   .then(() => {
+  //     trackSendEvents(SendEventType.SendComplete, {
+  //       network: network.value.name,
+  //     });
+  //     isSendDone.value = true;
+  //     if (getCurrentContext() === "popup") {
+  //       setTimeout(() => {
+  //         isProcessing.value = false;
+  //         router.go(-2);
+  //       }, 4500);
+  //     } else {
+  //       setTimeout(() => {
+  //         isProcessing.value = false;
+  //         window.close();
+  //       }, 1500);
+  //     }
+  //     emits("update:spark-state-changed", network.value);
+  //   })
+  //   .catch((error) => {
+  //     isProcessing.value = false;
+
+  //     if (isAxiosError(error)) {
+  //       errorMsg.value = JSON.stringify(error.response?.data.error.message);
+  //     } else {
+  //       errorMsg.value = JSON.stringify(error);
+  //     }
+
+  //     trackSendEvents(SendEventType.SendFailed, {
+  //       network: network.value.name,
+  //       error: error.message,
+  //     });
+  //     txActivity.status = ActivityStatus.failed;
+  //     activityState.addActivities([txActivity], {
+  //       address: txData.fromAddress,
+  //       network: network.value.name,
+  //     });
+  //     console.error("ERROR", error);
+  //   });
 };
 const isHasScroll = () => {
   if (verifyScrollRef.value) {
-    return verifyScrollRef.value.$el.classList.contains("ps--active-y");
+    return verifyScrollRef.value.$el.classList.contains('ps--active-y');
   }
 
   return false;
@@ -216,8 +352,8 @@ const isHasScroll = () => {
 </script>
 
 <style lang="less" scoped>
-@import "@action/styles/theme.less";
-@import "@action/styles/custom-scroll.less";
+@import '@action/styles/theme.less';
+@import '@action/styles/custom-scroll.less';
 
 .container {
   width: 100%;
@@ -314,7 +450,8 @@ const isHasScroll = () => {
     }
 
     &.border {
-      box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.05),
+      box-shadow:
+        0px 0px 6px rgba(0, 0, 0, 0.05),
         0px 0px 1px rgba(0, 0, 0, 0.25);
     }
 
@@ -330,8 +467,8 @@ const isHasScroll = () => {
   &__scroll-area {
     position: relative;
     margin: auto;
-    width: calc(~"100% + 53px");
-    height: calc(~"100% - 88px");
+    width: calc(~'100% + 53px');
+    height: calc(~'100% - 88px');
     margin: 0;
     padding: 0 53px 0 0 !important;
     margin-right: -53px;

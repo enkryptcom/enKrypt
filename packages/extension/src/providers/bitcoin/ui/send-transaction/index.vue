@@ -49,16 +49,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, PropType } from "vue";
-import { useRoute, useRouter } from "vue-router";
-import SendHeader from "@/providers/common/ui/send-transaction/send-header.vue";
-import { AccountsHeaderData } from "@action/types/account";
-import { BitcoinNetwork } from "@/providers/bitcoin/types/bitcoin-network";
-import { trackSendEvents } from "@/libs/metrics";
-import { SendEventType } from "@/libs/metrics/types";
-import TransparentSendTab from "./tabs/transparent-send-tab.vue";
-import SparkSendTab from "./tabs/spark-send-tab.vue";
-import { NetworkNames } from "@enkryptcom/types";
+import { trackSendEvents } from '@/libs/metrics';
+import { SendEventType } from '@/libs/metrics/types';
+import { BitcoinNetwork } from '@/providers/bitcoin/types/bitcoin-network';
+import SendHeader from '@/providers/common/ui/send-transaction/send-header.vue';
+import { AccountsHeaderData } from '@action/types/account';
+import { NetworkNames } from '@enkryptcom/types';
+import { PropType, ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import SparkSendTab from './tabs/spark-send-tab.vue';
+import TransparentSendTab from './tabs/transparent-send-tab.vue';
 
 const props = defineProps({
   network: {
@@ -75,7 +75,7 @@ const route = useRoute();
 const router = useRouter();
 const selected: string = route.params.id as string;
 const isSendToken = ref<boolean>(JSON.parse(route.params.isToken as string));
-const selectedSendTab = ref<"transparent" | "spark">("transparent");
+const selectedSendTab = ref<'transparent' | 'spark'>('transparent');
 
 const close = () => {
   trackSendEvents(SendEventType.SendDecline, {
@@ -84,7 +84,7 @@ const close = () => {
   router.go(-1);
 };
 
-const setSelectedSendTab = (activeTab: "transparent" | "spark") => {
+const setSelectedSendTab = (activeTab: 'transparent' | 'spark') => {
   selectedSendTab.value = activeTab;
 };
 

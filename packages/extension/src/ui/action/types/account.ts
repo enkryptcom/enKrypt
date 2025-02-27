@@ -10,7 +10,6 @@ export interface Account {
 
 export interface SparkAccount {
   defaultAddress: string;
-  allAddresses: string[];
   sparkBalance: {
     availableBalance: number;
     unconfirmedBalance: number;

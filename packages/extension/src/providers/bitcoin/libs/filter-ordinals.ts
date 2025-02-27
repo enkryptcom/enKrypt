@@ -1,6 +1,6 @@
 import cacheFetch from '@/libs/cache-fetch';
-import { HaskoinUnspentType } from '../types';
 import { NetworkNames } from '@enkryptcom/types';
+import { HaskoinUnspentType } from '../types';
 
 const OrdinalsEndpoint = 'https://partners.mewapi.io/ordinals/';
 const CACHE_TTL = 60 * 1000;
@@ -43,6 +43,8 @@ export const filterOutOrdinals = (
   if (!supportedNetworks.includes(networkName as NetworkNames))
     return Promise.resolve(utxos);
   return getAllOrdinals(address, networkName, []).then(ordinals => {
+    console.log({ ordinals });
+
     return utxos.filter(utxo => {
       for (const ord of ordinals) {
         const [txid, idx] = ord.output.split(':');

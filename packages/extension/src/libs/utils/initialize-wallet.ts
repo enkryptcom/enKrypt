@@ -7,11 +7,19 @@ import SolanaNetworks from '@/providers/solana/networks';
 import { NetworkNames, WalletType } from '@enkryptcom/types';
 import { getAccountsByNetworkName } from '@/libs/utils/accounts';
 export const initAccounts = async (keyring: KeyRing) => {
+  const secp256k1Firo = await getAccountsByNetworkName(NetworkNames.Firo);
   const secp256k1btc = await getAccountsByNetworkName(NetworkNames.Bitcoin);
   const secp256k1 = await getAccountsByNetworkName(NetworkNames.Ethereum);
   const sr25519 = await getAccountsByNetworkName(NetworkNames.Polkadot);
   const ed25519kda = await getAccountsByNetworkName(NetworkNames.Kadena);
   const ed25519sol = await getAccountsByNetworkName(NetworkNames.Solana);
+  if (secp256k1Firo.length == 0)
+    await keyring.saveNewAccount({
+      basePath: BitcoinNetworks.firo.basePath,
+      name: 'Firo Account 1',
+      signerType: BitcoinNetworks.firo.signer[0],
+      walletType: WalletType.mnemonic,
+    });
   if (secp256k1.length == 0)
     await keyring.saveNewAccount({
       basePath: EthereumNetworks.ethereum.basePath,

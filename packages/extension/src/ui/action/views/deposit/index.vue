@@ -120,20 +120,20 @@
 </template>
 
 <script setup lang="ts">
-import { PropType, ref, onMounted, computed, watch } from 'vue';
+import DomainState from '@/libs/domain-state';
+import { BaseNetwork, SubNetworkOptions } from '@/types/base-network';
+import { ProviderName } from '@/types/provider';
+import Notification from '@action/components/notification/index.vue';
 import CloseIcon from '@action/icons/common/close-icon.vue';
 import CopyIcon from '@action/icons/header/copy_icon.vue';
-import QrcodeVue from 'qrcode.vue';
 import { EnkryptAccount } from '@enkryptcom/types';
-import Notification from '@action/components/notification/index.vue';
-import { ProviderName } from '@/types/provider';
-import { BaseNetwork, SubNetworkOptions } from '@/types/base-network';
-import DomainState from '@/libs/domain-state';
-import { SparkAccount } from "../../types/account";
+import QrcodeVue from 'qrcode.vue';
+import { computed, onMounted, PropType, ref, watch } from 'vue';
+import { SparkAccount } from '../../types/account';
 
 const isCopied = ref(false);
 const isGenerated = ref(false);
-const activeTab = ref<"transparent" | "spark">("transparent");
+const activeTab = ref<'transparent' | 'spark'>('transparent');
 const subNetwork = ref<SubNetworkOptions | null>(null);
 
 const props = defineProps({
@@ -161,7 +161,7 @@ const props = defineProps({
 
 const emits = defineEmits<{
   (e: 'toggle:deposit'): void;
-  (e: "action:generate-new-spark"): void;
+  (e: 'action:generate-new-spark'): void;
 }>();
 
 const copy = (address: string) => {
@@ -173,12 +173,12 @@ const toggleNotification = () => {
   isCopied.value = !isCopied.value;
 };
 
-const setActiveTab = (value: "transparent" | "spark") => {
+const setActiveTab = (value: 'transparent' | 'spark') => {
   activeTab.value = value;
 };
 
 const generateNewSparkAddress = () => {
-  emits("action:generate-new-spark");
+  emits('action:generate-new-spark');
   toggleGeneratedNotification();
 };
 
@@ -198,13 +198,13 @@ onMounted(() => {
 
 watch(
   () => props.showDeposit,
-  (v) => {
+  v => {
     if (!v) {
       isCopied.value = false;
       isGenerated.value = false;
-      activeTab.value = "transparent";
+      activeTab.value = 'transparent';
     }
-  }
+  },
 );
 
 const depositCopy = computed(() => {

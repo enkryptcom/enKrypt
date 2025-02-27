@@ -495,7 +495,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@bitcoinerlab/secp256k1@npm:^1.0.5":
+"@bitcoinerlab/secp256k1@npm:^1.0.5, @bitcoinerlab/secp256k1@npm:^1.2.0":
   version: 1.2.0
   resolution: "@bitcoinerlab/secp256k1@npm:1.2.0"
   dependencies:
@@ -1686,6 +1686,7 @@ __metadata:
   resolution: "@enkryptcom/extension@workspace:packages/extension"
   dependencies:
     "@amplitude/analytics-browser": "npm:^2.11.9"
+    "@bitcoinerlab/secp256k1": "npm:^1.2.0"
     "@crxjs/vite-plugin": "npm:^2.0.0-beta.26"
     "@enkryptcom/extension-bridge": "workspace:^"
     "@enkryptcom/hw-wallets": "workspace:^"
@@ -1753,6 +1754,7 @@ __metadata:
     concurrently: "npm:^9.1.0"
     cross-env: "npm:^7.0.3"
     echarts: "npm:^5.5.1"
+    ecpair: "npm:^3.0.0-rc.0"
     eslint: "npm:^9.14.0"
     eslint-plugin-vue: "npm:^9.31.0"
     ethereum-cryptography: "npm:^2.2.1"
@@ -12714,6 +12716,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"axios@npm:^1.8.2":
+  version: 1.8.2
+  resolution: "axios@npm:1.8.2"
+  dependencies:
+    follow-redirects: "npm:^1.15.6"
+    form-data: "npm:^4.0.0"
+    proxy-from-env: "npm:^1.1.0"
+  checksum: 10/d4328758128d0602cc809a8e7627622cb7839b379eae5e4d6b9d603dd4d5fb89159985630243ec107cf5c675cd8825dba737a319dff9499f3b7688d9a69ec9ed
+  languageName: node
+  linkType: hard
+
 "b4a@npm:^1.0.1":
   version: 1.6.7
   resolution: "b4a@npm:1.6.7"
@@ -16139,6 +16152,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"ecpair@npm:^3.0.0-rc.0":
+  version: 3.0.0-rc.0
+  resolution: "ecpair@npm:3.0.0-rc.0"
+  dependencies:
+    uint8array-tools: "npm:^0.0.8"
+    valibot: "npm:^0.37.0"
+    wif: "npm:^5.0.0"
+  checksum: 10/107051ad442803540442afbba6f68388eabeb95a60c13154aa75d3c349919f5481bb315a0b3db96090e653f55e8130dc49c5916b2fb71dd7f1b7245836daf7ba
+  languageName: node
+  linkType: hard
+
 "ed25519-hd-key@npm:1.1.2":
   version: 1.1.2
   resolution: "ed25519-hd-key@npm:1.1.2"
@@ -16179,6 +16203,13 @@ __metadata:
   version: 1.5.75
   resolution: "electron-to-chromium@npm:1.5.75"
   checksum: 10/e80b5dc602227cb527583cfebef84d1fb62a8db44fdd1b516ff5f2d33687a90d221a10ae831a812609963ad138ddc80efa7675fb55b0589a629cd0cf64af5b34
+  languageName: node
+  linkType: hard
+
+"electrum-client@npm:^0.0.6":
+  version: 0.0.6
+  resolution: "electrum-client@npm:0.0.6"
+  checksum: 10/91fb2608af54b0f1a19b4abf2bdcd82257684e6c28ce0ea7580b78d5165ec18e866e216d1d13c386224b455afa473778971e0bfb4597c5776393e8a31199b9f1
   languageName: node
   linkType: hard
 
@@ -16299,7 +16330,11 @@ __metadata:
     "@commitlint/cli": "npm:^19.5.0"
     "@commitlint/config-conventional": "npm:^19.5.0"
     "@swc/core": "npm:^1.9.2"
+    axios: "npm:^1.8.2"
+    buffer-reverse: "npm:^1.0.1"
     concurrently: "npm:^9.1.0"
+    ecpair: "npm:^3.0.0-rc.0"
+    electrum-client: "npm:^0.0.6"
     husky: "npm:^9.1.6"
     node-notifier: "npm:^10.0.1"
     nodemon: "npm:^3.1.7"
@@ -29396,6 +29431,18 @@ __metadata:
   version: 3.0.1
   resolution: "v8-compile-cache-lib@npm:3.0.1"
   checksum: 10/88d3423a52b6aaf1836be779cab12f7016d47ad8430dffba6edf766695e6d90ad4adaa3d8eeb512cc05924f3e246c4a4ca51e089dccf4402caa536b5e5be8961
+  languageName: node
+  linkType: hard
+
+"valibot@npm:^0.37.0":
+  version: 0.37.0
+  resolution: "valibot@npm:0.37.0"
+  peerDependencies:
+    typescript: ">=5"
+  peerDependenciesMeta:
+    typescript:
+      optional: true
+  checksum: 10/c55132b60fa0e23b36327b263777065bfb5355dfb454393c39745659984950943ccbf5ff44010a28bcf4696200da29225af4515ac0e584e86554a8540628a579
   languageName: node
   linkType: hard
 

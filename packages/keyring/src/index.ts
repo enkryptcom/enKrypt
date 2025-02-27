@@ -1,24 +1,24 @@
+import { BitcoinSigner } from "@enkryptcom/signer-bitcoin";
+import { EthereumSigner } from "@enkryptcom/signer-ethereum";
+import { KadenaSigner } from "@enkryptcom/signer-kadena";
+import { PolkadotSigner } from "@enkryptcom/signer-polkadot";
+import { Storage } from "@enkryptcom/storage";
 import {
+  EnkryptAccount,
   Errors,
+  HWWalletAdd,
+  HWwalletType,
+  KeyPair,
+  KeyPairAdd,
+  KeyRecordAdd,
   SignerInterface,
   SignerType,
   SignOptions,
-  EnkryptAccount,
-  KeyRecordAdd,
-  HWWalletAdd,
-  HWwalletType,
-  KeyPairAdd,
   WalletType,
-  KeyPair,
 } from "@enkryptcom/types";
-import { Storage } from "@enkryptcom/storage";
-import { entropyToMnemonic, generateMnemonic, mnemonicToEntropy } from "bip39";
-import { hexToBuffer, encrypt, decrypt } from "@enkryptcom/utils";
-import { PolkadotSigner } from "@enkryptcom/signer-polkadot";
-import { EthereumSigner } from "@enkryptcom/signer-ethereum";
-import { BitcoinSigner } from "@enkryptcom/signer-bitcoin";
-import { KadenaSigner } from "@enkryptcom/signer-kadena";
+import { decrypt, encrypt, hexToBuffer } from "@enkryptcom/utils";
 import assert from "assert";
+import { entropyToMnemonic, generateMnemonic, mnemonicToEntropy } from "bip39";
 import configs from "./configs";
 import { pathParser } from "./utils";
 
@@ -167,6 +167,26 @@ class KeyRing {
     await this.#storage.set(configs.STORAGE_KEYS.PATH_INDEXES, pathIndexes);
   }
 
+  async getPrivateKey(options: SignOptions) {
+    const nextIndex = await this.#getPathIndex(options.basePath);
+
+    const keypair = await this.#signers[options.signerType].generate(
+      this.#mnemonic,
+      pathParser(options.basePath, nextIndex, options.signerType),
+    );
+
+    return { pk: keypair.privateKey, nextIndex };
+  }
+
+  async getSavedMnemonic(password: string) {
+    const encrypted = await this.#storage.get(
+      configs.STORAGE_KEYS.ENCRYPTED_MNEMONIC,
+    );
+    assert(encrypted, Errors.KeyringErrors.NotInitialized);
+    const decryptedEntropy = await decrypt(encrypted, password);
+    return entropyToMnemonic(decryptedEntropy);
+  }
+
   async sign(msgHash: string, options: SignOptions): Promise<string> {
     assert(!this.#isLocked, Errors.KeyringErrors.Locked);
     this.#resetTimeout();
@@ -196,7 +216,6 @@ class KeyRing {
   }
 
   async getEthereumEncryptionPublicKey(options: SignOptions): Promise<string> {
-    assert(!this.#isLocked, Errors.KeyringErrors.Locked);
     this.#resetTimeout();
     assert(
       !Object.values(HWwalletType).includes(

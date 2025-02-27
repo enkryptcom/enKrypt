@@ -5,13 +5,24 @@ import { fromBase } from '@enkryptcom/utils';
 import BigNumber from 'bignumber.js';
 import { BitcoinNetwork } from '../types/bitcoin-network';
 import { BTCTxInfo } from '../ui/types';
+import { inject } from 'vue';
 
-export const isSparkAddress = (address = "") => {
-  if (address.length === 144 && address.startsWith("sm1")) {
-    // TODO: hack, change in future
-    return true;
+export const isSparkAddress = (address = "", isTestNetwork = false): boolean => {
+  const wasm = inject<WasmModule>('wasmModule');
+
+  if (!wasm) {
+    console.log("Wasm not loaded");
+    return false;
   }
-  return false;
+
+  const isAddressValid = wasm.ccall(
+    "js_isValidSparkAddress",
+    "number",
+    ["string", "number"],
+    [address, !!isTestNetwork]
+  );
+  
+  return !!isAddressValid
 };
 
 const isAddress = (address: string, network: BitcoinNetworkInfo): boolean => {
