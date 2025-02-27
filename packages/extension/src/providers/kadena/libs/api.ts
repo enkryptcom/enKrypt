@@ -94,7 +94,7 @@ class API implements ProviderAPIInterface {
 
   async getBalanceAPI(account: string, chainId: string) {
     const transaction = Pact.builder
-      .execution(Pact.modules.coin['get-balance'](account))
+      .execution((Pact.modules as any).coin['get-balance'](account))
       .setMeta({ chainId: chainId as ChainId })
       .setNetworkId(this.networkId)
       .createTransaction();
