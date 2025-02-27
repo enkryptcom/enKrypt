@@ -71,7 +71,10 @@ class API implements ProviderAPIInterface {
       const error = balance.result.error as { message: string | undefined };
       const message = error.message ?? 'Unknown error retrieving balances';
       // expected error when account does not exist on a chain (balance == 0)
-      if (message.includes('row not found')) {
+      if (
+        message.includes('row not found') ||
+        message.includes('No value found in table')
+      ) {
         return toBase('0', this.decimals);
       }
       throw new Error(message);
