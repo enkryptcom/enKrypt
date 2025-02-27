@@ -1,10 +1,15 @@
 /// <reference types="vite/client" />
 
-namespace NodeJS {
-  interface ProcessEnv {
+export namespace NodeJS {
+  export interface ProcessEnv {
     BROWSER: 'chrome' | 'firefox' | 'edge' | 'opera' | 'safari';
     MINIFY: 'true' | 'false';
   }
+}
+
+declare module '*.svg' {
+  const content: string;
+  export default content;
 }
 
 declare let __PREFILL_PASSWORD__: string;

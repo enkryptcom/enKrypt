@@ -292,7 +292,9 @@ const validateFields = async () => {
       if (transactionResult.result.status !== 'success') {
         fieldsValidation.value.amount = false;
         errorMsg.value =
-          (transactionResult.result as any).error.message ||
+          ((transactionResult.result as any).error.message as string)
+            .replace(/"/g, '')
+            .replace((transactionResult as any).reqKey, '') ||
           'An error occurred';
         return;
       }
