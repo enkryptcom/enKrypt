@@ -6,7 +6,10 @@
         <p>
           Save your current list of accounts across all networks, so you don't
           need to re-generate them when you import or restore your wallet with
-          Enkrypt. You will still need your recovery phrase.
+          Enkrypt. You will still need your recovery phrase. We only back up
+          non-vital information such as account names and derivation paths. Your
+          sensitive information, like your mnemonic and private keys, is never
+          backed up.
         </p>
       </div>
       <settings-switch
@@ -85,19 +88,19 @@
       </div>
       <div class="settings-container__backup-item">
         <div class="settings-container__backup-item__content">
-          <backup-identicon :hash="selectedBackup.userId" />
+          <backup-identicon :hash="selectedBackup!.userId" />
           <div class="settings-container__backup-item__name">
             <h4>
-              {{ generateRandomNameWithSeed(' ', selectedBackup.userId) }}
+              {{ generateRandomNameWithSeed(' ', selectedBackup!.userId) }}
             </h4>
-            <p>Last backup on: {{ formatDate(selectedBackup.updatedAt) }}</p>
+            <p>Last backup on: {{ formatDate(selectedBackup!.updatedAt) }}</p>
           </div>
         </div>
       </div>
       <div class="settings-container__backup-delete-buttons">
         <base-button
           title="Delete"
-          @click="deleteBackup(selectedBackup.userId)"
+          @click="deleteBackup(selectedBackup!.userId)"
           red
         />
         <base-button title="Cancel" @click="isDelete = false" no-background />
