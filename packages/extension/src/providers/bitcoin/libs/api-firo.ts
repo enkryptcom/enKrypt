@@ -76,10 +76,10 @@ class API implements ProviderAPIInterface {
     return fetch(`${this.node}/insight-api-zcoin/addr/${address}/?noTxList=1`)
       .then((res) => res.json())
       .then(
-        (balance: { balanceSat: string; unconfirmedBalanceSat: string }) => {
+        (balance: { balanceSat: string; unconfirmedBalance: string }) => {
           if ((balance as any).message) return "0";
           return toBN(balance.balanceSat)
-            .add(toBN(balance.unconfirmedBalanceSat))
+            .add(toBN(balance.unconfirmedBalance ?? "0"))
             .toString();
         }
       )

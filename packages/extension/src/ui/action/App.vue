@@ -122,7 +122,7 @@ import { BaseNetwork } from '@/types/base-network';
 import { InternalMethods } from '@/types/messenger';
 import { EnkryptAccount, NetworkNames } from '@enkryptcom/types';
 import { fromBase } from '@enkryptcom/utils';
-import { computed, onMounted, ref } from 'vue';
+import { computed, inject, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import Browser from 'webextension-polyfill';
 import AccountsHeader from './components/accounts-header/index.vue';
@@ -147,7 +147,9 @@ import { trackBuyEvents, trackNetworkSelected } from '@/libs/metrics';
 import { getLatestEnkryptVersion } from '@action/utils/browser';
 import { gt as semverGT } from 'semver';
 import { BuyEventType, NetworkChangeEvents } from '@/libs/metrics/types';
-import { generateSparkAddress, getSparkState } from "@/libs/spark-handler";
+import { getSparkState } from '@/providers/bitcoin/libs/spark-state';
+
+const wasm = inject<WasmModule>('wasmModule')
 
 const domainState = new DomainState();
 const networksState = new NetworksState();
@@ -284,20 +286,130 @@ const updateGradient = (newGradient: string) => {
       appMenuRef.value as HTMLElement
     ).style.background = `radial-gradient(137.35% 97% at 100% 50%, rgba(250, 250, 250, 0.94) 0%, rgba(250, 250, 250, 0.96) 28.91%, rgba(250, 250, 250, 0.98) 100%), linear-gradient(180deg, ${newGradient} 80%, #684CFF 100%)`;
 };
+
 const generateNewSparkAddress = async () => {
-  const newSparkAddressResponse = await generateSparkAddress();
-  if (accountHeaderData.value.sparkAccount) {
-    accountHeaderData.value.sparkAccount.defaultAddress =
-      newSparkAddressResponse;
-    accountHeaderData.value.sparkAccount.allAddresses.push(
-      newSparkAddressResponse
+  const keyring = new PublicKeyRing();
+  const {pk, nextIndex} = await keyring.getPrivateKey(accountHeaderData.value!.selectedAccount!) 
+  const mnemonic = await keyring.getSavedMnemonic()
+  console.log({mnemonic});
+  
+  const uint8Array = new Uint8Array(pk.length / 2);
+
+  for (let i = 0; i < pk.length; i += 2) {
+    uint8Array[i / 2] = parseInt(pk[i] + pk[i + 1], 16);
+  }
+  
+  if (wasm) {
+    const keyData = uint8Array.slice(1);
+    const index = nextIndex;
+    const diversifier = 1n;
+    const is_test_network = 0;
+
+    const keyDataPtr = wasm._malloc(keyData.length);
+    wasm.HEAPU8.set(keyData, keyDataPtr);
+
+    const spendKeyDataObj = wasm.ccall(
+        "js_createSpendKeyData",
+        "number",
+        ["number", "number"],
+        [keyDataPtr, index]
     );
+
+    if (spendKeyDataObj === 0) {
+        console.error("Failed to create SpendKeyData");
+        wasm._free(keyDataPtr);
+        return;
+    }
+
+    const spendKeyObj = wasm.ccall(
+        "js_createSpendKey",
+        "number",
+        ["number"],
+        [spendKeyDataObj]
+    );
+
+    if (spendKeyObj === 0) {
+        console.error("Failed to create SpendKey");
+        wasm.ccall("js_freeSpendKeyData", null, ["number"], [spendKeyDataObj]);
+        wasm._free(keyDataPtr);
+        return;
+    }
+
+    const fullViewKeyObj = wasm.ccall(
+        "js_createFullViewKey",
+        "number",
+        ["number"],
+        [spendKeyObj]
+    );
+
+    if (fullViewKeyObj === 0) {
+        console.error("Failed to create FullViewKey");
+        wasm.ccall("js_freeSpendKey", null, ["number"], [spendKeyObj]);
+        wasm.ccall("js_freeSpendKeyData", null, ["number"], [spendKeyDataObj]);
+        wasm._free(keyDataPtr);
+        return;
+    }
+
+    const incomingViewKeyObj = wasm.ccall(
+        "js_createIncomingViewKey",
+        "number",
+        ["number"],
+        [fullViewKeyObj]
+    );
+
+    if (incomingViewKeyObj === 0) {
+        console.error("Failed to create IncomingViewKey");
+        wasm.ccall("js_freeFullViewKey", null, ["number"], [fullViewKeyObj]);
+        wasm.ccall("js_freeSpendKey", null, ["number"], [spendKeyObj]);
+        wasm.ccall("js_freeSpendKeyData", null, ["number"], [spendKeyDataObj]);
+        wasm._free(keyDataPtr);
+        return;
+    }
+
+    const addressObj = wasm.ccall(
+        "js_getAddress",
+        "number",
+        ["number", "number"],
+        [incomingViewKeyObj, diversifier]
+    );
+
+    if (addressObj === 0) {
+        console.error("Failed to get Address");
+        wasm.ccall("js_freeIncomingViewKey", null, ["number"], [incomingViewKeyObj]);
+        wasm.ccall("js_freeFullViewKey", null, ["number"], [fullViewKeyObj]);
+        wasm.ccall("js_freeSpendKey", null, ["number"], [spendKeyObj]);
+        wasm.ccall("js_freeSpendKeyData", null, ["number"], [spendKeyDataObj]);
+        wasm._free(keyDataPtr);
+        return;
+    }
+
+    const address_enc_main = wasm.ccall(
+        "js_encodeAddress",
+        "string",
+        ["number", "number"],
+        [addressObj, is_test_network]
+    );
+    console.log("Address string (main):", address_enc_main);
+
+    if (accountHeaderData.value.sparkAccount) {
+      accountHeaderData.value.sparkAccount.defaultAddress = address_enc_main;
+      // accountHeaderData.value.sparkAccount.allAddresses.push(
+      //   address_enc_main
+      // );
+    }
   }
 };
+
 const getSparkAccountState = async (network: BaseNetwork) => {
+  console.log(accountHeaderData.value);
+  
   if (network.name === NetworkNames.Firo) {
-    const sparkAccountResponse = await getSparkState();
-    accountHeaderData.value.sparkAccount = { ...sparkAccountResponse };
+    if (accountHeaderData.value.selectedAccount) {
+      const sparkAccountResponse = await getSparkState(accountHeaderData.value!.selectedAccount!);
+      if (sparkAccountResponse) {
+        accountHeaderData.value.sparkAccount = { ...sparkAccountResponse };
+      }
+    }
   }
 };
 const setNetwork = async (network: BaseNetwork) => {
@@ -323,8 +435,15 @@ const setNetwork = async (network: BaseNetwork) => {
   let sparkAccount: SparkAccount | null = null;
 
   if (network.name === NetworkNames.Firo) {
-    const sparkAccountResponse = await getSparkState();
-    sparkAccount = { ...sparkAccountResponse };
+    console.log(accountHeaderData.value);
+    if (accountHeaderData.value.selectedAccount) {
+      const sparkAccountResponse = await getSparkState(accountHeaderData.value!.selectedAccount!);
+      console.log(sparkAccountResponse);
+      
+      if (sparkAccountResponse) {
+        sparkAccount = { ...sparkAccountResponse };
+      }
+    }
   }
 
   accountHeaderData.value = {

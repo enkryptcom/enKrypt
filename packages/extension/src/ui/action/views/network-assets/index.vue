@@ -11,6 +11,9 @@
             :fiat-amount="fiatAmount"
             :symbol="network.currencyName"
             :subnetwork="props.subnetwork"
+            :network="props.network"
+            :spark-account="props.accountInfo.sparkAccount"
+            @update:spark-state="updateSparkState"
           />
 
           <network-activity-action v-bind="$attrs" />
@@ -96,6 +99,10 @@ const props = defineProps({
 const assets = ref<AssetsType[]>([]);
 const isLoading = ref(false);
 
+const emits = defineEmits<{
+  (e: "update:spark-state-changed", network: BaseNetwork): void;
+}>();
+
 const { cryptoAmount, fiatAmount } = accountInfoComposable(
   toRef(props, 'network'),
   toRef(props, 'accountInfo'),
@@ -114,6 +121,10 @@ const updateAssets = () => {
       isLoading.value = false;
     });
 };
+const updateSparkState = (network: BaseNetwork) => {
+  updateAssets()
+  emits("update:spark-state-changed", network)
+}
 const selectedAddress = computed(
   () => props.accountInfo.selectedAccount?.address || '',
 );

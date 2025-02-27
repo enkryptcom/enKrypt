@@ -196,7 +196,7 @@ const inputAmount = (inputAmount: string) => {
 };
 
 const sendAction = async () => {
-  const fromAccountAddress = props.sparkAccount.allAddresses.at(-1)!;
+  const fromAccountAddress = props.sparkAccount.defaultAddress;
 
   const toAmount = toBN(toBase(sendAmount.value, props.network.decimals));
 

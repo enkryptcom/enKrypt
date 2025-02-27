@@ -3,6 +3,7 @@ import {
   Errors,
   WalletType,
   EnkryptAccount,
+  SignOptions,
 } from '@enkryptcom/types';
 import { KeyRingBase } from './keyring';
 
@@ -146,6 +147,14 @@ class PublicKeyRing {
     }
 
     return alreadyExists;
+  }
+
+  async getPrivateKey(options: SignOptions){
+    return this.#keyring.getPrivateKey(options);
+  }
+  
+  getSavedMnemonic(){
+    return this.#keyring.getSavedMnemonic();
   }
 }
 export default PublicKeyRing;

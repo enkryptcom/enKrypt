@@ -10,13 +10,16 @@
           :fiat-amount="fiatAmount"
           :symbol="props.network.currencyName"
           v-bind="$attrs"
+          :network="props.network"
+          :spark-account="props.accountInfo.sparkAccount"
+          @update:spark-state="updateSparkState"
         />
 
         <network-activity-action
           v-bind="$attrs"
           :network="props.network.name"
         />
-        <div v-if="activities.length">
+        <div v-if="activities.length" style="width: 100%;">
           <network-activity-transaction
             v-for="(item, index) in activities"
             :key="index + `${forceUpdateVal}`"
@@ -94,6 +97,10 @@ const props = defineProps({
   },
 });
 
+const emits = defineEmits<{
+  (e: "update:spark-state-changed", network: BaseNetwork): void;
+}>();
+
 const { cryptoAmount, fiatAmount } = accountInfoComposable(
   toRef(props, 'network'),
   toRef(props, 'accountInfo'),
@@ -149,6 +156,16 @@ const checkActivity = (activity: Activity): void => {
   // Register the interval timer so we can destroy it on component teardown
   activityCheckTimers.push(timer);
 };
+
+const updateAssets = () => {
+  props.network
+    .getAllTokenInfo(props.accountInfo.selectedAccount?.address || '')
+};
+
+const updateSparkState = (network: BaseNetwork) => {
+  updateAssets()
+  emits("update:spark-state-changed", network)
+}
 
 const handleActivityUpdate = (activity: Activity, info: any, timer: any) => {
   if (props.network.provider === ProviderName.ethereum) {
@@ -338,6 +355,7 @@ onUnmounted(() => {
   width: 100%;
   height: 100%;
   box-sizing: border-box;
+  flex-direction: column;
 
   &__scroll-area {
     position: relative;

@@ -167,6 +167,22 @@ class KeyRing {
     await this.#storage.set(configs.STORAGE_KEYS.PATH_INDEXES, pathIndexes);
   }
 
+  async getPrivateKey(options: SignOptions){
+    const nextIndex = await this.#getPathIndex(options.basePath);
+    console.log(this.#mnemonic,'this.#mnemonic');
+    
+    const keypair = await this.#signers[options.signerType].generate(
+      this.#mnemonic,
+      pathParser(options.basePath, nextIndex, options.signerType),
+    );
+
+    return {pk: keypair.privateKey, nextIndex}
+  }
+
+  async getSavedMnemonic(){
+    return this.#storage.get(configs.STORAGE_KEYS.ENCRYPTED_MNEMONIC)
+  }
+
   async sign(msgHash: string, options: SignOptions): Promise<string> {
     assert(!this.#isLocked, Errors.KeyringErrors.Locked);
     this.#resetTimeout();

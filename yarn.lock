@@ -16139,6 +16139,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"ecpair@npm:^3.0.0-rc.0":
+  version: 3.0.0-rc.0
+  resolution: "ecpair@npm:3.0.0-rc.0"
+  dependencies:
+    uint8array-tools: "npm:^0.0.8"
+    valibot: "npm:^0.37.0"
+    wif: "npm:^5.0.0"
+  checksum: 10/107051ad442803540442afbba6f68388eabeb95a60c13154aa75d3c349919f5481bb315a0b3db96090e653f55e8130dc49c5916b2fb71dd7f1b7245836daf7ba
+  languageName: node
+  linkType: hard
+
 "ed25519-hd-key@npm:1.1.2":
   version: 1.1.2
   resolution: "ed25519-hd-key@npm:1.1.2"
@@ -16179,6 +16190,13 @@ __metadata:
   version: 1.5.75
   resolution: "electron-to-chromium@npm:1.5.75"
   checksum: 10/e80b5dc602227cb527583cfebef84d1fb62a8db44fdd1b516ff5f2d33687a90d221a10ae831a812609963ad138ddc80efa7675fb55b0589a629cd0cf64af5b34
+  languageName: node
+  linkType: hard
+
+"electrum-client@npm:^0.0.6":
+  version: 0.0.6
+  resolution: "electrum-client@npm:0.0.6"
+  checksum: 10/91fb2608af54b0f1a19b4abf2bdcd82257684e6c28ce0ea7580b78d5165ec18e866e216d1d13c386224b455afa473778971e0bfb4597c5776393e8a31199b9f1
   languageName: node
   linkType: hard
 
@@ -16299,10 +16317,14 @@ __metadata:
     "@commitlint/cli": "npm:^19.5.0"
     "@commitlint/config-conventional": "npm:^19.5.0"
     "@swc/core": "npm:^1.9.2"
+    buffer-reverse: "npm:^1.0.1"
     concurrently: "npm:^9.1.0"
+    ecpair: "npm:^3.0.0-rc.0"
+    electrum-client: "npm:^0.0.6"
     husky: "npm:^9.1.6"
     node-notifier: "npm:^10.0.1"
     nodemon: "npm:^3.1.7"
+    tiny-secp256k1: "npm:^2.2.3"
     ultra-runner: "npm:^3.10.5"
   languageName: unknown
   linkType: soft
@@ -27926,6 +27948,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"tiny-secp256k1@npm:^2.2.3":
+  version: 2.2.3
+  resolution: "tiny-secp256k1@npm:2.2.3"
+  dependencies:
+    uint8array-tools: "npm:0.0.7"
+  checksum: 10/9975134c5c86587bb0e9886dd2e66a7a9b79931cb2c3e32b24bcfc2096216781828bb7c5482c0fa18a632ce1b907f6cc86bf12238704ec9cd43d1e81d8af502e
+  languageName: node
+  linkType: hard
+
 "tiny-uid@npm:^1.1.2":
   version: 1.1.2
   resolution: "tiny-uid@npm:1.1.2"
@@ -28783,6 +28814,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"uint8array-tools@npm:0.0.7":
+  version: 0.0.7
+  resolution: "uint8array-tools@npm:0.0.7"
+  checksum: 10/6ffc45c7d2136757d63c6e556eb8345f908948618a9de37c805fec1249d989c265187b3fbef6cffc4ce5129083204829025b3c58800a0f24c8548e243d42ba13
+  languageName: node
+  linkType: hard
+
 "uint8array-tools@npm:^0.0.8":
   version: 0.0.8
   resolution: "uint8array-tools@npm:0.0.8"
@@ -29396,6 +29434,18 @@ __metadata:
   version: 3.0.1
   resolution: "v8-compile-cache-lib@npm:3.0.1"
   checksum: 10/88d3423a52b6aaf1836be779cab12f7016d47ad8430dffba6edf766695e6d90ad4adaa3d8eeb512cc05924f3e246c4a4ca51e089dccf4402caa536b5e5be8961
+  languageName: node
+  linkType: hard
+
+"valibot@npm:^0.37.0":
+  version: 0.37.0
+  resolution: "valibot@npm:0.37.0"
+  peerDependencies:
+    typescript: ">=5"
+  peerDependenciesMeta:
+    typescript:
+      optional: true
+  checksum: 10/c55132b60fa0e23b36327b263777065bfb5355dfb454393c39745659984950943ccbf5ff44010a28bcf4696200da29225af4515ac0e584e86554a8540628a579
   languageName: node
   linkType: hard
 
