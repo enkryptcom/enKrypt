@@ -4,6 +4,7 @@ on: [pull_request]
 
 jobs:
   buildAll:
+    name: build all
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
