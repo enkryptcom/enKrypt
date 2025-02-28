@@ -24,7 +24,7 @@ import ontEVMNode from './ontevm';
 import gnoNode from './gno';
 import avaxNode from './avax';
 import ftmNode from './ftm';
-import klayNode from './klay';
+import kaiaNode from './kaia';
 import auroraNode from './aurora';
 import puppyNode from './puppy';
 import sepoliaNode from './sepolia';
@@ -101,7 +101,7 @@ export default {
   gnosis: gnoNode,
   avax: avaxNode,
   fantom: ftmNode,
-  klaytn: klayNode,
+  kaia: kaiaNode,
   aurora: auroraNode,
   puppy: puppyNode,
   base: baseNode,

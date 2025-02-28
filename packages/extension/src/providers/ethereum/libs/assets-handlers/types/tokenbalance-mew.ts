@@ -43,7 +43,7 @@ export type SupportedNetworkNames =
   | NetworkNames.Gnosis
   | NetworkNames.Avalanche
   | NetworkNames.Fantom
-  | NetworkNames.Klaytn
+  | NetworkNames.Kaia
   | NetworkNames.Aurora
   | NetworkNames.TomoChain
   | NetworkNames.Shibarium

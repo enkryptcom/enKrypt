@@ -94,9 +94,9 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
     tbName: 'ftm',
     cgPlatform: CoingeckoPlatform.Fantom,
   },
-  [NetworkNames.Klaytn]: {
+  [NetworkNames.Kaia]: {
     tbName: 'klay',
-    cgPlatform: CoingeckoPlatform.Klaytn,
+    cgPlatform: CoingeckoPlatform.Kaia,
   },
   [NetworkNames.Aurora]: {
     tbName: 'aurora',

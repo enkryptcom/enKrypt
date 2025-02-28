@@ -25,7 +25,7 @@ export enum SupportedNetworkName {
   Gnosis = NetworkNames.Gnosis,
   Avalanche = NetworkNames.Avalanche,
   Fantom = NetworkNames.Fantom,
-  Klaytn = NetworkNames.Klaytn,
+  Kaia = NetworkNames.Kaia,
   Aurora = NetworkNames.Aurora,
   Zksync = NetworkNames.ZkSync,
   Base = NetworkNames.Base,
