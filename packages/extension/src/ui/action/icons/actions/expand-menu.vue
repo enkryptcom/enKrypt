@@ -100,6 +100,7 @@ const props = defineProps({
 });
 
 const target = ref<HTMLElement | null>(null);
+
 const isHovered = useElementHover(target);
 
 const tooltipText = computed(() => {
@@ -113,24 +114,25 @@ const tooltipText = computed(() => {
   position: relative;
   padding-top: 8px;
   padding-bottom: 8px;
-  padding-left: 15px;
-  padding-right: 15px;
+  padding-left: 11px;
+  padding-right: 11px;
   text-decoration: none;
   cursor: pointer;
   font-size: 0;
   border-radius: 10px;
   transition: background 300ms ease-in-out;
-  margin-left: -8px;
+  margin-left: -4px;
 
   &:hover {
     background: @black007;
-    padding-left: 12px;
-    padding-right: 12px;
+    padding-left: 8px;
+    padding-right: 8px;
+    margin-left: -4px;
   }
 }
 .caret {
   position: absolute;
-  right: 7px;
+  right: 2px;
   top: 15px;
 }
 svg {
