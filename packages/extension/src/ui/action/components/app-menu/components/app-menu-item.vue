@@ -11,7 +11,7 @@
     ]"
   >
     <div class="app-menu__link__block">
-      <div style="position: relative">
+      <div class="app-menu__link__logo">
         <img ref="imageTag" :src="network.icon" alt="" />
         <new-icon
           v-if="newNetworkTags.networks.includes(network.name)"
@@ -307,26 +307,13 @@ onUnmounted(() => {
     border-radius: 10px;
     transition: top 1s linear;
     transition: bottom 1s linear;
-    &__tooltip {
-      padding: 4px 8px;
-      position: absolute;
-      background: @buttonBg;
-      border: 0.5px solid rgba(0, 0, 0, 0.16);
-      box-shadow:
-        0px 1px 3px -2px rgba(0, 0, 0, 0.1),
-        0px 2px 5px rgba(0, 0, 0, 0.12);
-      border-radius: 6px;
-      font-style: normal;
-      font-weight: 400;
-      font-size: 12px;
-      line-height: 16px;
-      letter-spacing: 0.25px;
-      color: @secondaryLabel;
-      white-space: nowrap;
-      box-sizing: border-box;
-      z-index: 3;
-      transition: opacity 300ms ease-in-out;
-      top: -26px;
+    &__logo {
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      flex-direction: row;
+      gap: 8px;
+      position: relative;
     }
     &:first-of-type {
       margin-top: 0; /* Removes top margin for the first element */
@@ -404,6 +391,7 @@ onUnmounted(() => {
       position: -webkit-sticky;
       position: sticky;
       opacity: 1;
+      z-index: 2;
       span {
         font-weight: 500;
       }

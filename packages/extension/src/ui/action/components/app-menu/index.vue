@@ -617,7 +617,7 @@ const updateGradient = (newGradient: string) => {
       padding: 1px 10px 1px 10px;
     }
     &-collapse {
-      padding: 1px 6px 1px 6px;
+      padding: 1px 6px 1px 4px;
     }
     overflow-y: auto;
     transition: background-color 0.5s ease-in-out;
