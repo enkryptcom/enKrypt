@@ -104,7 +104,8 @@ class API implements ProviderAPIInterface {
         decimals: tokenResponse.result.token_info.decimals,
         icon:
           tokenResponse.result.content.files &&
-          tokenResponse.result.content.files.length > 0
+          tokenResponse.result.content.files.length > 0 &&
+          tokenResponse.result.content.files[0].uri
             ? `https://img.mewapi.io/?image=${tokenResponse.result.content.files[0].uri}`
             : undefined,
       };
