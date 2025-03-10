@@ -7,6 +7,7 @@
       { active: isActive },
       { 'sticky-top': isStickyTop },
       { 'sticky-bottom': isStickyTop === false },
+      isExpanded ? 'app-menu__link-expand' : 'app-menu__link-collapse',
     ]"
   >
     <div class="app-menu__link__block">
@@ -28,13 +29,13 @@
           ></swap-added-icon>
         </div>
       </div>
-      <span>{{ network.name_long }} </span
+      <span v-show="isExpanded">{{ network.name_long }} </span
       ><test-network-icon
         v-if="network.isTestNetwork"
         class="test-network-icon"
       />
     </div>
-    <div class="app-menu__link__block">
+    <div v-show="isExpanded" class="app-menu__link__block">
       <DragIcon v-if="canDrag" class="app-menu__link__block__drag" />
       <div
         :class="[
@@ -60,7 +61,6 @@ import DragIcon from '@action/icons/common/drag-icon.vue';
 import { useNetworksStore } from '@action/store/networks-store';
 import { trackNetwork } from '@/libs/metrics';
 import { NetworkChangeEvents, NetworkType } from '@/libs/metrics/types';
-
 const newtworkStore = useNetworksStore();
 
 const props = defineProps({
@@ -94,6 +94,10 @@ const props = defineProps({
     default: () => {
       return { networks: [], swap: [] };
     },
+  },
+  isExpanded: {
+    type: Boolean,
+    default: true,
   },
 });
 
@@ -258,7 +262,7 @@ onUnmounted(() => {
   color: #fff !important;
   border: 1px solid @white;
   position: absolute;
-  left: 23px;
+  left: 21px;
   top: -5px;
   &-new {
     padding: 1px 3px 0px 3px;
@@ -280,13 +284,20 @@ onUnmounted(() => {
 
 .app-menu {
   &__link {
+    &-expand {
+      width: 97%;
+      padding-right: 8px;
+    }
+    &-collapse {
+      width: 40px;
+    }
     text-decoration: none;
     display: flex;
     justify-content: space-between;
     justify-self: center;
     align-items: center;
     flex-direction: row;
-    width: 97%;
+
     min-height: 40px !important;
     max-height: 40px;
     margin-bottom: 3px;
@@ -294,9 +305,29 @@ onUnmounted(() => {
     cursor: pointer;
     position: relative;
     border-radius: 10px;
-    padding-right: 8px;
     transition: top 1s linear;
     transition: bottom 1s linear;
+    &__tooltip {
+      padding: 4px 8px;
+      position: absolute;
+      background: @buttonBg;
+      border: 0.5px solid rgba(0, 0, 0, 0.16);
+      box-shadow:
+        0px 1px 3px -2px rgba(0, 0, 0, 0.1),
+        0px 2px 5px rgba(0, 0, 0, 0.12);
+      border-radius: 6px;
+      font-style: normal;
+      font-weight: 400;
+      font-size: 12px;
+      line-height: 16px;
+      letter-spacing: 0.25px;
+      color: @secondaryLabel;
+      white-space: nowrap;
+      box-sizing: border-box;
+      z-index: 3;
+      transition: opacity 300ms ease-in-out;
+      top: -26px;
+    }
     &:first-of-type {
       margin-top: 0; /* Removes top margin for the first element */
     }
@@ -372,7 +403,6 @@ onUnmounted(() => {
       box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.16);
       position: -webkit-sticky;
       position: sticky;
-      z-index: 2;
       opacity: 1;
       span {
         font-weight: 500;

@@ -89,7 +89,7 @@
 </template>
 <script setup lang="ts">
 import { useElementHover } from '@vueuse/core';
-import { useTemplateRef, computed } from 'vue';
+import { ref, computed } from 'vue';
 import Tooltip from '@/ui/action/components/tooltip/index.vue';
 
 const props = defineProps({
@@ -99,8 +99,8 @@ const props = defineProps({
   },
 });
 
-const myHoverableElement = useTemplateRef<HTMLButtonElement>('target');
-const isHovered = useElementHover(myHoverableElement);
+const target = ref<HTMLElement | null>(null);
+const isHovered = useElementHover(target);
 
 const tooltipText = computed(() => {
   return props.isExpanded ? 'Collapse' : 'Expand';

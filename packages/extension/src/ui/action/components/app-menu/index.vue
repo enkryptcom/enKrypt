@@ -62,7 +62,13 @@
       @update:category="setActiveCategory"
     />
     <!-- Scrollable Networks  -->
-    <div :class="['networks-menu', { 'has-bg': isScrolling }]">
+    <div
+      :class="[
+        'networks-menu',
+        { 'has-bg': isScrolling },
+        isExpanded ? 'networks-menu-expand' : 'networks-menu-collapse',
+      ]"
+    >
       <div class="networks-menu__scroll-area" ref="scrollDiv">
         <app-menu-sort
           v-if="isExpanded && activeCategory === NetworksCategory.All"
@@ -86,6 +92,7 @@
               :scroll-position="y"
               :can-drag="getCanDrag(element)"
               :new-network-tags="newNetworksWithTags"
+              :is-expanded="isExpanded"
               @click="setNetwork(element)"
               @update:gradient="updateGradient"
               :class="{
@@ -477,7 +484,7 @@ const updateGradient = (newGradient: string) => {
   top: 0;
   padding: 8px 12px 2px 12px;
   box-sizing: border-box;
-  z-index: 1;
+  z-index: 3;
   background: @defaultGradient;
   box-shadow: inset -1px 0px 2px 0px rgba(0, 0, 0, 0.16);
 
@@ -549,7 +556,6 @@ const updateGradient = (newGradient: string) => {
 
   &-dropdown {
     padding: 8px;
-    position: relative;
     width: 172px;
     background: @white;
     box-shadow:
@@ -607,12 +613,17 @@ const updateGradient = (newGradient: string) => {
     }
   }
   .networks-menu {
+    &-expand {
+      padding: 1px 10px 1px 10px;
+    }
+    &-collapse {
+      padding: 1px 6px 1px 6px;
+    }
     overflow-y: auto;
     transition: background-color 0.5s ease-in-out;
     background-color: transparent;
     box-shadow: none;
     margin: 0px -12px 0px -12px;
-    padding: 1px 10px 1px 10px;
     transition:
       background-color 0.4s ease-in-out,
       box-shadow 0.4s ease-in-out;
