@@ -16,7 +16,7 @@ const scrollOptions: EvmNetworkOptions = {
   isTestNetwork: false,
   currencyName: 'ETH',
   currencyNameLong: 'Scroll ETH',
-  node: 'https://scroll.api.onfinality.io/public',
+  node: 'wss://scroll-rpc.publicnode.com',
   icon,
   NFTHandler: shNFTHandler,
   coingeckoID: 'ethereum',
