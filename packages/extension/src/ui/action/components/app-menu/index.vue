@@ -1,16 +1,26 @@
 <template>
-  <div ref="appMenuRef" class="app__menu">
+  <div
+    ref="appMenuRef"
+    :class="[isExpanded ? 'expand-menu' : 'collapse-menu', 'app__menu']"
+  >
     <!-- Networks Search  -->
     <div class="app__menu-row" :class="{ border: orderedNetworks.length > 9 }">
       <div class="app__menu-row">
-        <logo-min class="app__menu-logo" />
+        <logo-min v-if="isExpanded" class="app__menu-logo" />
+        <a v-else @click="isExpanded = !isExpanded">
+          <expand-menu :is-expanded="false" />
+        </a>
         <updated-icon
-          v-if="updatesIsLoaded && showUpdatesBtn"
+          v-if="isExpanded && updatesIsLoaded && showUpdatesBtn"
           @click="openUpdatesDialog(UpdatesOpenLocation.logo)"
           class="app__menu-updated"
         />
       </div>
-      <div>
+
+      <div v-if="isExpanded">
+        <a class="app__menu-link" @click="isExpanded = false">
+          <expand-menu :is-expanded="isExpanded" />
+        </a>
         <a ref="toggle" class="app__menu-link" @click="toggleMoreMenu">
           <more-icon />
         </a>
@@ -40,12 +50,14 @@
       </div>
     </div>
     <base-search
+      v-if="isExpanded"
       :value="searchInput"
       :is-border="false"
       @update:value="updateSearchValue"
     />
     <!-- Networks Tabs  -->
     <app-menu-tab
+      v-if="isExpanded"
       :active-category="activeCategory"
       @update:category="setActiveCategory"
     />
@@ -53,7 +65,7 @@
     <div :class="['networks-menu', { 'has-bg': isScrolling }]">
       <div class="networks-menu__scroll-area" ref="scrollDiv">
         <app-menu-sort
-          v-if="activeCategory === NetworksCategory.All"
+          v-if="isExpanded && activeCategory === NetworksCategory.All"
           :sortBy="sortBy"
           @update:sort="updateSort"
         />
@@ -118,6 +130,7 @@ import { BaseNetwork } from '@/types/base-network';
 import { NetworkNames } from '@enkryptcom/types';
 import { NetworksCategory } from '@action/types/network-category';
 import PinIcon from '@action/icons/actions/pin.vue';
+import ExpandMenu from '@action/icons/actions/expand-menu.vue';
 import {
   NetworkSort,
   NetworkSortOption,
@@ -196,6 +209,11 @@ onMounted(async () => {
     net => !usedNetworks.swap.includes(net),
   );
 });
+
+/** -------------------
+ * Expand/Collapse state
+ -------------------*/
+const isExpanded = defineModel<boolean>('is-expanded');
 
 /** -------------------
  * Updates
@@ -446,8 +464,13 @@ const updateGradient = (newGradient: string) => {
 
 <style lang="less">
 @import '@action/styles/theme.less';
-.app__menu {
+.expand-menu {
   width: 340px;
+}
+.collapse-menu {
+  width: 56px;
+}
+.app__menu {
   height: 600px;
   position: absolute;
   left: 0;
@@ -457,6 +480,7 @@ const updateGradient = (newGradient: string) => {
   z-index: 1;
   background: @defaultGradient;
   box-shadow: inset -1px 0px 2px 0px rgba(0, 0, 0, 0.16);
+
   &-logo {
     margin-left: 8px;
   }
@@ -511,7 +535,6 @@ const updateGradient = (newGradient: string) => {
   &-link {
     display: inline-block;
     padding: 8px;
-    margin-left: 4px;
     text-decoration: none;
     cursor: pointer;
     font-size: 0;

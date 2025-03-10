@@ -1,10 +1,17 @@
 <template>
-  <div class="app" :class="{ locked: isLocked }">
+  <div
+    :class="[
+      isExpanded ? 'expanded' : 'collapsed',
+      { locked: isLocked },
+      'app',
+    ]"
+  >
     <div v-if="isLoading" class="app__loading">
       <swap-looking-animation />
     </div>
     <div v-show="!isLoading">
       <app-menu
+        v-model:is-expanded="isExpanded"
         :active-network="currentNetwork"
         @update:network="setNetwork"
         @show:updates-dialog="setShowUpdatesDialog(true)"
@@ -14,7 +21,13 @@
       />
     </div>
 
-    <div v-show="!isLoading" class="app__content">
+    <div
+      v-show="!isLoading"
+      :class="[
+        isExpanded ? 'app__content-expand' : 'app__content-collapse',
+        'app__content',
+      ]"
+    >
       <accounts-header
         v-show="showNetworkMenu"
         :account-info="accountHeaderData"
@@ -141,6 +154,10 @@ const updateShow = ref(false);
 const isLoading = ref(true);
 const currentVersion = __PACKAGE_VERSION__;
 const latestVersion = ref('');
+/** -------------------
+ * Exapnded Menu
+ -------------------*/
+const isExpanded = ref(true);
 
 /** -------------------
  * Updates
@@ -149,7 +166,6 @@ const updatesStore = useUpdatesStore();
 const { updatesIsLoaded } = storeToRefs(updatesStore);
 const showUpdatesDialog = ref<boolean>(false);
 const setShowUpdatesDialog = (show: boolean) => {
-  console.log('setShowUpdatesDialog', show);
   showUpdatesDialog.value = show;
   if (show) {
     updatesStore.setLastVersionViewed(currentVersion);
@@ -446,9 +462,15 @@ body {
   overflow: hidden;
   font-family: 'Roboto', sans-serif;
 }
-.app {
+.collapsed {
+  width: 516px;
+}
+.expanded {
   width: 800px;
+}
+.app {
   height: 600px;
+
   overflow: hidden;
   position: relative;
   -webkit-transition:
@@ -493,7 +515,12 @@ body {
     width: 460px;
     height: 600px;
     position: relative;
-    padding-left: 340px;
+    &-expand {
+      padding-left: 340px;
+    }
+    &-collapse {
+      padding-left: 56px;
+    }
   }
 }
 .slide-left-enter-active,
