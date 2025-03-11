@@ -100,7 +100,6 @@ const props = defineProps({
 });
 
 const target = ref<HTMLElement | null>(null);
-
 const isHovered = useElementHover(target);
 
 const tooltipText = computed(() => {
