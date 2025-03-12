@@ -150,7 +150,7 @@ class ZeroX extends ProviderClass {
       // zerox doesnt allow different to address
       return Promise.resolve(null);
     const feeConfig = FEE_CONFIGS[this.name][meta.walletIdentifier];
-    const bpsFee = parseFloat((feeConfig.fee * 100).toFixed(4)) * 100;
+    const bpsFee = Math.ceil(parseFloat((feeConfig.fee * 100).toFixed(4)) * 100);
     const feeContract = options.toToken.address
     const params = new URLSearchParams({
       sellToken: options.fromToken.address,
