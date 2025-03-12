@@ -444,6 +444,7 @@ onMounted(async () => {
     initUpdateState();
   } else {
     openOnboard();
+    window.close();
   }
 });
 /**
