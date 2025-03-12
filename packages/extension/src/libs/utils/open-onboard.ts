@@ -8,7 +8,7 @@ export const openPrivacy = () => {
 };
 export default () => {
   const onboardURL = Browser.runtime.getURL('onboard.html');
-  Browser.tabs.create({
+  return Browser.tabs.create({
     url: onboardURL,
   });
 };

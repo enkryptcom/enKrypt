@@ -443,8 +443,9 @@ onMounted(async () => {
     }
     initUpdateState();
   } else {
-    openOnboard();
-    window.close();
+    openOnboard().then(() => {
+      window.close();
+    });
   }
 });
 /**
