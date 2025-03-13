@@ -1,0 +1,30 @@
+import icon from './icons/gravity.png';
+import { CoingeckoPlatform, NetworkNames } from '@enkryptcom/types';
+import { EvmNetwork, EvmNetworkOptions } from '../types/evm-network';
+import assetsInfoHandler from '@/providers/ethereum/libs/assets-handlers/assetinfo-mew';
+import shNFTHandler from '@/libs/nft-handlers/simplehash';
+import { EtherscanActivity } from '../libs/activity-handlers';
+import wrapActivityHandler from '@/libs/activity-state/wrap-activity-handler';
+
+const gravityOptions: EvmNetworkOptions = {
+  name: NetworkNames.Gravity,
+  name_long: 'Gravity',
+  homePage: 'https://gravity.xyz/',
+  blockExplorerTX: 'https://explorer.gravity.xyz/tx/[[txHash]]',
+  blockExplorerAddr: 'https://explorer.gravity.xyz/address/[[address]]',
+  chainID: '0x659',
+  isTestNetwork: false,
+  currencyName: 'G',
+  currencyNameLong: 'G',
+  coingeckoID: 'g-token',
+  node: 'https://rpc.gravity.xyz',
+  icon,
+  coingeckoPlatform: CoingeckoPlatform.Gravity,
+  NFTHandler: shNFTHandler,
+  assetsInfoHandler,
+  activityHandler: wrapActivityHandler(EtherscanActivity),
+};
+
+const gravity = new EvmNetwork(gravityOptions);
+
+export default gravity;

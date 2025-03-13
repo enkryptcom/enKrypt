@@ -63,6 +63,12 @@ import holeskyNode from './holesky';
 import bitrockNode from './bitrock';
 import fraxtalNode from './fraxtal';
 import _5ireNode from './5ire';
+import beraNode from './bera';
+import storyNode from './story';
+import gravityNode from './gravity';
+import unichainNode from './unichain';
+import abstractNode from './abstract';
+import inkNode from './inkonchain';
 
 export default {
   sepolia: sepoliaNode,
@@ -139,4 +145,10 @@ export default {
   bitrock: bitrockNode,
   frax: fraxtalNode,
   '5ire': _5ireNode,
+  bera: beraNode,
+  story: storyNode,
+  gravity: gravityNode,
+  unichain: unichainNode,
+  abstract: abstractNode,
+  ink: inkNode
 };
