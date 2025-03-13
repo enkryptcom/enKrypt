@@ -70,22 +70,34 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
     cgPlatform: CoingeckoPlatform.Canto,
   },
   [NetworkNames.Gravity]: {
+    tbName: 'gravity',
     cgPlatform: CoingeckoPlatform.Gravity,
+    bsEndpoint: true,
   },
   [NetworkNames.Abstract]: {
+    tbName: 'abs',
     cgPlatform: CoingeckoPlatform.Abstract,
+    bsEndpoint: true,
   },
   [NetworkNames.Story]: {
+    tbName: 'story',
     cgPlatform: CoingeckoPlatform.Story,
+    bsEndpoint: true,
   },
   [NetworkNames.Ink]: {
+    tbName: 'ink',
     cgPlatform: CoingeckoPlatform.Ink,
+    bsEndpoint: true,
   },
   [NetworkNames.Bera]: {
+    tbName: 'bera',
     cgPlatform: CoingeckoPlatform.Berachain,
+    bsEndpoint: true,
   },
   [NetworkNames.Unichain]: {
+    tbName: 'uni',
     cgPlatform: CoingeckoPlatform.Unichain,
+    bsEndpoint: true,
   },
   [NetworkNames.Rootstock]: {
     tbName: 'rsk',
