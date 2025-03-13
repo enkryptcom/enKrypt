@@ -12,7 +12,7 @@
       <base-button title="Sure, I'll rate it" :click="goToRate" />
       <div class="rate__button-indent"></div>
       <base-button
-        title="I have a feedback"
+        title="I have feedback"
         :no-background="true"
         :click="goToFeedback"
       />
