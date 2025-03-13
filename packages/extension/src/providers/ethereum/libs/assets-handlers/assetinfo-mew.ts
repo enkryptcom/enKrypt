@@ -72,12 +72,10 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
   [NetworkNames.Gravity]: {
     tbName: 'gravity',
     cgPlatform: CoingeckoPlatform.Gravity,
-    bsEndpoint: true,
   },
   [NetworkNames.Abstract]: {
     tbName: 'abs',
     cgPlatform: CoingeckoPlatform.Abstract,
-    bsEndpoint: true,
   },
   [NetworkNames.Story]: {
     tbName: 'story',
@@ -92,12 +90,10 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
   [NetworkNames.Bera]: {
     tbName: 'bera',
     cgPlatform: CoingeckoPlatform.Berachain,
-    bsEndpoint: true,
   },
   [NetworkNames.Unichain]: {
     tbName: 'uni',
     cgPlatform: CoingeckoPlatform.Unichain,
-    bsEndpoint: true,
   },
   [NetworkNames.Rootstock]: {
     tbName: 'rsk',

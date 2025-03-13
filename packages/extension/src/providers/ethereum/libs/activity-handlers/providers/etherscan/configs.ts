@@ -71,10 +71,7 @@ const NetworkEndpoints: Record<string, string> = {
   [NetworkNames.Scroll]: 'https://api.scrollscan.com/',
   [NetworkNames.Fraxtal]: 'https://api.fraxscan.com/',
   [NetworkNames.Story]: 'https://www.storyscan.xyz/',
-  [NetworkNames.Abstract]: 'https://abscan.org/',
-  [NetworkNames.Unichain]: 'https://uniscan.xyz/',
   [NetworkNames.Ink]: 'https://explorer.inkonchain.com/',
-  [NetworkNames.Gravity]: 'https://explorer.gravity.xyz/',
 };
 
 export { NetworkEndpoints };
