@@ -92,6 +92,7 @@
       :is-hardware="account ? account.isHardware : false"
       :is-error="isTXSendError"
       :error-message="TXSendErrorMessage"
+      :network="network"
       @update:close="close"
       @update:try-again="sendAction"
     />
@@ -134,7 +135,7 @@ import BigNumber from 'bignumber.js';
 import { defaultGasCostVals } from '@/providers/common/libs/default-vals';
 import { SwapBestOfferWarnings } from '../../types';
 import { NATIVE_TOKEN_ADDRESS } from '@/providers/ethereum/libs/common';
-import { EnkryptAccount } from '@enkryptcom/types';
+import { EnkryptAccount, NetworkNames } from '@enkryptcom/types';
 import { getNetworkByName } from '@/libs/utils/networks';
 import {
   getNetworkInfoByName,
@@ -435,7 +436,18 @@ const sendAction = async () => {
       .catch(err => {
         console.error(err);
         isTXSendError.value = true;
-        TXSendErrorMessage.value = err.error ? err.error.message : err.message;
+        const error = err.error ? err.error.message : err.message;
+        if (network.value!.name !== NetworkNames.Solana) {
+          TXSendErrorMessage.value = err.error
+            ? err.error.message
+            : err.message;
+        } else {
+          TXSendErrorMessage.value = error.includes(
+            'Transaction simulation failed',
+          )
+            ? 'Network may be busy. Please try again later.'
+            : error;
+        }
         trackSwapEvents(SwapEventType.swapFailed, {
           network: network.value!.name,
           fromToken: swapData.fromToken.name,

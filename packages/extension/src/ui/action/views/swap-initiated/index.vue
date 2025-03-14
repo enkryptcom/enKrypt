@@ -37,7 +37,9 @@
             <p>
               {{ errorMessage }}
             </p>
-            <p><a @click="$emit('update:tryAgain')">Try again</a></p>
+            <p v-if="network.name !== NetworkNames.Solana">
+              <a @click="$emit('update:tryAgain')">Try again</a>
+            </p>
             <a @click="$emit('update:close')">Cancel</a>
           </div>
         </div>
@@ -61,6 +63,8 @@ import LottieError from '@action/assets/animation/error-big.json';
 import LottieStatus from '@action/assets/animation/status.json';
 import { Vue3Lottie } from 'vue3-lottie';
 import { TokenType } from '@enkryptcom/swap';
+import { NetworkNames } from '@enkryptcom/types';
+import { BaseNetwork } from '@/types/base-network';
 
 interface IProps {
   fromToken: TokenType;
@@ -71,6 +75,7 @@ interface IProps {
   isHardware: boolean;
   isError: boolean;
   errorMessage: string;
+  network: BaseNetwork;
 }
 
 defineEmits<{
