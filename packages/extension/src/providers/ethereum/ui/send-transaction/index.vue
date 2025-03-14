@@ -255,7 +255,9 @@ const isMaxSelected = ref<boolean>(false);
 const selectedFee = ref<GasPriceTypes>(
   props.network.name === NetworkNames.Ethereum || NetworkNames.Binance
     ? GasPriceTypes.REGULAR
-    : GasPriceTypes.ECONOMY,
+    : props.network.name === NetworkNames.Fantom
+      ? GasPriceTypes.FASTEST
+      : GasPriceTypes.ECONOMY,
 );
 const gasCostValues = ref<GasFeeType>(defaultGasCostVals);
 const addressFrom = ref<string>(
