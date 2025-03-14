@@ -219,6 +219,13 @@ const hasValidDecimals = computed((): boolean => {
 const hasPositiveSendAmount = computed(() => {
   return isNumericPositive(sendAmount.value);
 });
+
+const hasLessThanFees = computed(() => {
+  return BigNumber(gasCostValues.value[selectedFee.value].nativeValue).gt(
+    fromBase(nativeBalance.value, props.network.decimals),
+  );
+});
+
 const hasEnoughBalance = computed((): boolean => {
   if (!hasValidDecimals.value) {
     return false;
@@ -226,6 +233,8 @@ const hasEnoughBalance = computed((): boolean => {
   if (!hasPositiveSendAmount.value) {
     return false;
   }
+  if (hasLessThanFees.value) return false;
+
   return toBN(selectedAsset.value.balance ?? '0').gte(
     toBN(toBase(sendAmount.value ?? '0', selectedAsset.value.decimals!)),
   );
@@ -359,6 +368,8 @@ const balanceAfterInUsd = computed(() => {
 });
 
 const errorMsg = computed(() => {
+  if (hasLessThanFees.value) return `Not enough funds for fees.`;
+
   if (!hasValidDecimals.value) {
     return `Too many decimals.`;
   }
