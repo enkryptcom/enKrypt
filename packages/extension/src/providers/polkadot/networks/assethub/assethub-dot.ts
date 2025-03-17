@@ -9,7 +9,7 @@ import wrapActivityHandler from '@/libs/activity-state/wrap-activity-handler';
 import assetHandler from '@/providers/polkadot/libs/asset-handler';
 import assets from './assets-dot';
 import { toBase } from '@enkryptcom/utils';
-import icon from '../icons/assethub.png';
+import icon from '../icons/assethub.webp';
 
 const assetHubOptions: SubstrateNetworkOptions = {
   name: NetworkNames.AssetHubDOT,
