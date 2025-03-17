@@ -10,7 +10,7 @@ const skaleOptions: SkaleParams = {
   name_long: 'CryptoBlades | SKALE',
   chainName: 'affectionate-immediate-pollux',
   chainID: '0x3d28774d',
-  icon: 'skaleCryptoBlades.png',
+  icon: 'skaleCryptoBlades.webp',
 };
 
 export const assets: ICustomSKALEAsset[] = [
