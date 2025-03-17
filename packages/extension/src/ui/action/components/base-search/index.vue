@@ -3,6 +3,7 @@
     <search-icon class="app-search__icon" />
     <input
       v-model="textValue"
+      ref="baseInput"
       type="text"
       placeholder="Search networks"
       class="app-search__input"
@@ -18,7 +19,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, ref, nextTick } from 'vue';
 import SearchIcon from '@action/icons/common/search.vue';
 import ClearIcon from '@action/icons/common/clear-icon.vue';
 
@@ -51,6 +52,17 @@ const textValue = computed({
   get: () => props.value,
   set: value => emit('update:value', value || ''),
 });
+
+/** ------------------
+ *  Set Focus
+ -----------------*/
+const baseInput = ref<HTMLInputElement | null>(null);
+const setFocus = () => {
+  nextTick(() => {
+    baseInput.value?.focus();
+  });
+};
+defineExpose({ setFocus });
 </script>
 
 <style lang="less">

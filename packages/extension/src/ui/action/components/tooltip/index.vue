@@ -27,6 +27,10 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  isTopLeft: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const onHover = (e: any) => {
@@ -72,6 +76,9 @@ const onHide = () => {
 const classObject = () => {
   if (props.isTopRight) {
     return { 'right-top': true, visible: visible.value };
+  }
+  if (props.isTopLeft) {
+    return { 'left-top': true, visible: visible.value };
   }
   const x = positionX.value;
   const y = positionY.value;
@@ -133,6 +140,11 @@ const classObject = () => {
     &.right-top {
       top: calc(~'-100% + 8px');
       right: 0;
+      transform: translateX(0) translateY(0px);
+    }
+    &.left-top {
+      top: calc(~'-100% + 12px');
+      left: 0;
       transform: translateX(0) translateY(0px);
     }
 

@@ -22,7 +22,9 @@
           <expand-menu :is-expanded="isExpanded" />
         </a>
         <a ref="toggle" class="app__menu-link" @click="toggleMoreMenu">
-          <more-icon />
+          <tooltip text="Menu">
+            <more-icon />
+          </tooltip>
         </a>
         <div v-show="isOpenMore" ref="dropdown" class="app__menu-dropdown">
           <a class="app__menu-dropdown-link" @click="otherNetworksAction">
@@ -50,11 +52,22 @@
       </div>
     </div>
     <base-search
-      v-if="isExpanded"
+      ref="searchNetworksComponent"
+      v-show="isExpanded"
       :value="searchInput"
       :is-border="false"
       @update:value="updateSearchValue"
     />
+    <tooltip text="Search Networks" is-top-left>
+      <a
+        v-show="!isExpanded"
+        class="app__menu-link app__menu-link__search-icon"
+        @click="searchOnCollapsed"
+      >
+        <search-icon />
+      </a>
+    </tooltip>
+
     <!-- Networks Tabs  -->
     <app-menu-tab
       v-if="isExpanded"
@@ -148,6 +161,7 @@ import { NetworkNames } from '@enkryptcom/types';
 import { NetworksCategory } from '@action/types/network-category';
 import PinIcon from '@action/icons/actions/pin.vue';
 import ExpandMenu from '@action/icons/actions/expand-menu.vue';
+import Tooltip from '@/ui/action/components/tooltip/index.vue';
 import {
   NetworkSort,
   NetworkSortOption,
@@ -166,6 +180,7 @@ import { useNetworksStore } from '@action/store/networks-store';
 import { useUpdatesStore } from '@action/store/updates-store';
 import { storeToRefs } from 'pinia';
 import { onClickOutside } from '@vueuse/core';
+import SearchIcon from '@action/icons/common/search.vue';
 
 const appMenuRef = ref(null);
 
@@ -259,6 +274,15 @@ const searchInput = ref('');
 
 const updateSearchValue = (newval: string) => {
   searchInput.value = newval;
+};
+
+const searchNetworksComponent = ref<InstanceType<typeof BaseSearch> | null>(
+  null,
+);
+
+const searchOnCollapsed = () => {
+  isExpanded.value = true;
+  searchNetworksComponent.value?.setFocus();
 };
 
 /** ------------------
@@ -536,7 +560,6 @@ const updateGradient = (newGradient: string) => {
       filter: brightness(0.9);
     }
   }
-
   &-row {
     height: 40px;
     display: flex;
@@ -586,6 +609,9 @@ const updateGradient = (newGradient: string) => {
     &.active,
     &:hover {
       background: @black007;
+    }
+    &__search-icon {
+      margin-left: -4px;
     }
   }
 
