@@ -58,15 +58,16 @@
       :is-border="false"
       @update:value="updateSearchValue"
     />
-    <tooltip text="Search Networks" is-top-left>
-      <a
-        v-show="!isExpanded"
-        class="app__menu-link app__menu-link__search-icon"
-        @click="searchOnCollapsed"
-      >
-        <search-icon />
-      </a>
-    </tooltip>
+    <div v-show="!isExpanded">
+      <tooltip text="Search Networks" is-top-left>
+        <a
+          class="app__menu-link app__menu-link__search-icon"
+          @click="searchOnCollapsed"
+        >
+          <search-icon />
+        </a>
+      </tooltip>
+    </div>
 
     <!-- Networks Tabs  -->
     <app-menu-tab
@@ -82,7 +83,15 @@
         isExpanded ? 'networks-menu-expand' : 'networks-menu-collapse',
       ]"
     >
-      <div class="networks-menu__scroll-area" ref="scrollDiv">
+      <div
+        :class="[
+          'networks-menu__scroll-area',
+          isExpanded
+            ? 'networks-menu__scroll-area-expand'
+            : 'networks-menu__scroll-area-collapse',
+        ]"
+        ref="scrollDiv"
+      >
         <app-menu-sort
           v-if="isExpanded && activeCategory === NetworksCategory.All"
           :sortBy="sortBy"
@@ -612,6 +621,8 @@ const updateGradient = (newGradient: string) => {
     }
     &__search-icon {
       margin-left: -4px;
+      margin-top: 4px;
+      margin-bottom: 4px;
     }
   }
 
@@ -689,10 +700,16 @@ const updateGradient = (newGradient: string) => {
       background-color 0.4s ease-in-out,
       box-shadow 0.4s ease-in-out;
     &__scroll-area {
+      &-expand {
+        height: 448px;
+      }
+      &-collapse {
+        height: 496px;
+      }
       position: static;
       margin: auto;
       width: 100%;
-      height: 448px;
+
       display: flex;
       flex-direction: column;
       overflow-y: scroll;
