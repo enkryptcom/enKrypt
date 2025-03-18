@@ -113,7 +113,7 @@
           @update:sort="updateSort"
         />
         <draggable
-          v-model="displayNetworks"
+          v-model="searchNetworks"
           item-key="name"
           :animation="500"
           draggable=":not(.do-not-drag)"
@@ -138,13 +138,6 @@
             />
           </template>
         </draggable>
-        <div v-if="maxRenderedNetworks < searchNetworks.length">
-          <div
-            v-for="n in getPlaceholderLength"
-            :key="n"
-            style="height: 40px"
-          ></div>
-        </div>
         <div
           v-if="showMessage && isExpanded"
           class="networks-menu__scroll-area__message"
@@ -167,7 +160,7 @@
 </template>
 
 <script setup lang="ts">
-import { PropType, ref, computed, onMounted, watchEffect } from 'vue';
+import { PropType, ref, computed, onMounted } from 'vue';
 import AppMenuTab from './components/app-menu-tab.vue';
 import AppMenuItem from './components/app-menu-item.vue';
 import AppMenuSort from './components/app-menu-sort.vue';
@@ -469,31 +462,6 @@ const getCanDrag = (network: BaseNetwork) => {
     activeCategory.value !== NetworksCategory.New
   );
 };
-
-const maxRenderedNetworks = ref(100);
-
-/**
- * Populate more networks on scroll
- */
-watchEffect(() => {
-  if (
-    maxRenderedNetworks.value !== searchNetworks.value.length &&
-    y.value > 0
-  ) {
-    maxRenderedNetworks.value = Math.min(
-      maxRenderedNetworks.value + 20,
-      searchNetworks.value.length,
-    );
-  }
-});
-
-const displayNetworks = computed(() => {
-  return searchNetworks.value.slice(0, maxRenderedNetworks.value);
-});
-
-const getPlaceholderLength = computed(() => {
-  return searchNetworks.value.length - maxRenderedNetworks.value;
-});
 
 /** ------------------
  * More Menu
