@@ -72,10 +72,10 @@
       :is-border="false"
       @update:value="updateSearchValue"
     />
-    <div v-show="!isExpanded" class="app__menu-search-icon">
+    <div v-show="!isExpanded">
       <tooltip text="Search Networks" is-top-left>
         <button
-          class="app__menu-link"
+          class="app__menu-link app__menu__search-icon"
           @click="searchOnCollapsed"
           aria-label="Search Networks"
         >
