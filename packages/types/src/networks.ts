@@ -98,6 +98,7 @@ export enum NetworkNames {
   Bitrock = "bitrock",
   Fraxtal = "fraxtal",
   Fire = "5ire",
+  Taraxa = "Taraxa",
 }
 
 export enum CoingeckoPlatform {
@@ -156,4 +157,5 @@ export enum CoingeckoPlatform {
   Scroll = "scroll",
   Bitrock = "bitrock",
   Fraxtal = "fraxtal",
+  Taraxa = "taraxa",
 }
