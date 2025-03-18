@@ -73,7 +73,7 @@
       @update:value="updateSearchValue"
     />
     <div v-show="!isExpanded" class="app__menu__search-icon-container">
-      <tooltip text="Search Networks" is-top-left>
+      <tooltip text="Search Networks" is-top-right teleport-to-app>
         <button
           class="app__menu-link"
           @click="searchOnCollapsed"
@@ -705,7 +705,6 @@ const updateGradient = (newGradient: string) => {
     &-collapse {
       padding: 1px 6px 1px 4px;
     }
-    overflow-y: auto;
     transition: background-color 0.5s ease-in-out;
     background-color: transparent;
     box-shadow: none;

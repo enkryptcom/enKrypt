@@ -1,10 +1,16 @@
 <template>
   <div class="tooltip" @mouseenter="onHover" @mouseleave="onHide">
     <slot />
-
-    <div v-show="show" class="tooltip__wrap" :class="classObject()">
-      {{ text }}
-    </div>
+    <teleport to="#app" :disabled="!teleportToApp">
+      <div
+        ref="tooltipRef"
+        v-show="show"
+        class="tooltip__wrap"
+        :class="classObject()"
+      >
+        {{ text }}
+      </div>
+    </teleport>
   </div>
 </template>
 
@@ -31,8 +37,17 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  isBottomRight: {
+    type: Boolean,
+    default: false,
+  },
+  teleportToApp: {
+    type: Boolean,
+    default: false,
+  },
 });
 
+const tooltipRef = ref<HTMLElement | null>(null);
 const onHover = (e: any) => {
   if (timeout != null) {
     clearTimeout(timeout);
@@ -40,9 +55,49 @@ const onHover = (e: any) => {
 
   timeout = setTimeout(() => {
     const { pageX, pageY } = e;
-
     if (!show.value) {
       show.value = true;
+      if (props.teleportToApp) {
+        if (tooltipRef.value) {
+          const topPosition = e.target.getBoundingClientRect().top + 2;
+          const bottom = e.target.getBoundingClientRect().bottom - 1;
+          if (props.isTopRight) {
+            const rightTopPosition =
+              e.target.getBoundingClientRect().width +
+              e.target.getBoundingClientRect().x -
+              10;
+            tooltipRef.value.style.top = `${topPosition}px`;
+            tooltipRef.value.style.left = `${rightTopPosition}px`;
+            tooltipRef.value.style.transform =
+              'translateX(0) translateY(-100%)';
+          } else if (props.isBottomRight) {
+            const rightBottomPosition =
+              e.target.getBoundingClientRect().width +
+              e.target.getBoundingClientRect().x -
+              4;
+            tooltipRef.value.style.top = `${bottom}px`;
+            tooltipRef.value.style.left = `${rightBottomPosition}px`;
+          } else if (props.isTopLeft) {
+            const left =
+              e.target.getBoundingClientRect().x -
+              e.target.getBoundingClientRect().width +
+              10;
+            tooltipRef.value.style.left = `${left}px`;
+            tooltipRef.value.style.top = `${topPosition}px`;
+            tooltipRef.value.style.transform =
+              'translateX(0) translateY(-100%)';
+          } else {
+            const tooltipMiddle =
+              tooltipRef.value.getBoundingClientRect().width / 2;
+            const middle =
+              e.target.getBoundingClientRect().left +
+              e.target.getBoundingClientRect().width / 2 -
+              tooltipMiddle;
+            tooltipRef.value.style.top = `${bottom}px`;
+            tooltipRef.value.style.left = `${middle}px`;
+          }
+        }
+      }
       positionX.value = pageX;
       positionY.value = pageY;
 
@@ -74,6 +129,9 @@ const onHide = () => {
 };
 
 const classObject = () => {
+  if (props.teleportToApp) {
+    return { visible: visible.value };
+  }
   if (props.isTopRight) {
     return { 'right-top': true, visible: visible.value };
   }

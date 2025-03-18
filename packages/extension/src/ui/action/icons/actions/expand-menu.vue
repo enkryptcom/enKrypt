@@ -1,5 +1,5 @@
 <template>
-  <tooltip :text="tooltipText">
+  <tooltip :text="tooltipText" teleport-to-app is-bottom-right>
     <svg
       v-if="isExpanded"
       width="24"
