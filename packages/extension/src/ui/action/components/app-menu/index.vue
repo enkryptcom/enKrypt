@@ -72,10 +72,10 @@
       :is-border="false"
       @update:value="updateSearchValue"
     />
-    <div v-show="!isExpanded">
+    <div v-show="!isExpanded" class="app__menu__search-icon-container">
       <tooltip text="Search Networks" is-top-left>
         <button
-          class="app__menu-link app__menu__search-icon"
+          class="app__menu-link"
           @click="searchOnCollapsed"
           aria-label="Search Networks"
         >
@@ -591,10 +591,10 @@ const updateGradient = (newGradient: string) => {
     align-items: center;
     flex-direction: row;
   }
-  &__search-icon {
+  &__search-icon-container {
     margin-left: -4px;
-    margin-top: 4px;
-    margin-bottom: 4px;
+    padding-top: 4px;
+    padding-bottom: 4px;
   }
   &-add {
     display: flex;
