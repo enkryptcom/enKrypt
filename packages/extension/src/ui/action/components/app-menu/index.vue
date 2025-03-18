@@ -536,7 +536,7 @@ const updateGradient = (newGradient: string) => {
   top: 0;
   padding: 8px 12px 2px 12px;
   box-sizing: border-box;
-  z-index: 3;
+  z-index: 1;
   background: @defaultGradient;
   box-shadow: inset -1px 0px 2px 0px rgba(0, 0, 0, 0.16);
 
