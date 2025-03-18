@@ -1,5 +1,5 @@
 <template>
-  <button
+  <a
     :id="network.name"
     ref="target"
     class="app-menu__button-network hover-transition-no-bg"
@@ -76,7 +76,7 @@
         <pin-icon :is-pinned="props.isPinned" :is-active="true" />
       </div>
     </div>
-  </button>
+  </a>
 </template>
 
 <script setup lang="ts">

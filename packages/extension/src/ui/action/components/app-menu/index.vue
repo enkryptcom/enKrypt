@@ -463,6 +463,7 @@ const { isScrolling, y } = useScroll(scrollDiv);
 
 const getCanDrag = (network: BaseNetwork) => {
   return (
+    isExpanded.value &&
     getIsPinned(network.name) &&
     searchInput.value === '' &&
     activeCategory.value !== NetworksCategory.New
