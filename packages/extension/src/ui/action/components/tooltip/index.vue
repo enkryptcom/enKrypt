@@ -138,12 +138,12 @@ const classObject = () => {
       transform: translateX(0) translateY(0px);
     }
     &.right-top {
-      top: calc(~'-100% + 8px');
+      top: calc(~'-100% + 2px');
       right: 0;
       transform: translateX(0) translateY(0px);
     }
     &.left-top {
-      top: calc(~'-100% + 12px');
+      top: calc(~'-100% + 2px');
       left: 0;
       transform: translateX(0) translateY(0px);
     }

@@ -7,47 +7,61 @@
     <div class="app__menu-row" :class="{ border: orderedNetworks.length > 9 }">
       <div class="app__menu-row">
         <logo-min v-if="isExpanded" class="app__menu-logo" />
-        <a v-else @click="isExpanded = !isExpanded">
+        <button
+          v-else
+          @click="isExpanded = !isExpanded"
+          aria-label="Expand Networks Menu"
+        >
           <expand-menu :is-expanded="false" />
-        </a>
+        </button>
         <updated-icon
           v-if="isExpanded && updatesIsLoaded && showUpdatesBtn"
           @click="openUpdatesDialog(UpdatesOpenLocation.logo)"
           class="app__menu-updated"
+          aria-label="Show Updates"
         />
       </div>
 
       <div v-if="isExpanded">
-        <a class="app__menu-link" @click="isExpanded = false">
+        <button
+          class="app__menu-link"
+          @click="isExpanded = false"
+          aria-label="Collapse Networks Menu"
+        >
           <expand-menu :is-expanded="isExpanded" />
-        </a>
-        <a ref="toggle" class="app__menu-link" @click="toggleMoreMenu">
+        </button>
+        <button
+          ref="toggle"
+          class="app__menu-link"
+          @click="toggleMoreMenu"
+          aria-label="View Menu"
+        >
           <tooltip text="Menu">
             <more-icon />
           </tooltip>
-        </a>
+        </button>
         <div v-show="isOpenMore" ref="dropdown" class="app__menu-dropdown">
-          <a class="app__menu-dropdown-link" @click="otherNetworksAction">
+          <button class="app__menu-dropdown-link" @click="otherNetworksAction">
             <manage-networks-icon /> <span>Other networks</span>
-          </a>
-          <a
+          </button>
+          <button
             class="app__menu-dropdown-link"
             @click="emit('action:lock-enkrypt')"
           >
             <hold-icon /> <span>Lock Enkrypt</span>
-          </a>
-          <a class="app__menu-dropdown-link" @click="settingsAction">
+          </button>
+          <button class="app__menu-dropdown-link" @click="settingsAction">
             <settings-icon /> <span>Settings</span>
-          </a>
+          </button>
           <div v-if="updatesIsLoaded" class="app__menu-dropdown-divider"></div>
-          <a
+          <button
             v-if="updatesIsLoaded"
             class="app__menu-dropdown-link"
             @click="openUpdatesDialog(UpdatesOpenLocation.settings)"
           >
             <heart-icon class="app__menu-dropdown-link-heart"></heart-icon>
             <span> Updates</span>
-          </a>
+          </button>
         </div>
       </div>
     </div>
@@ -58,14 +72,15 @@
       :is-border="false"
       @update:value="updateSearchValue"
     />
-    <div v-show="!isExpanded">
+    <div v-show="!isExpanded" class="app__menu-search-icon">
       <tooltip text="Search Networks" is-top-left>
-        <a
-          class="app__menu-link app__menu-link__search-icon"
+        <button
+          class="app__menu-link"
           @click="searchOnCollapsed"
+          aria-label="Search Networks"
         >
           <search-icon />
-        </a>
+        </button>
       </tooltip>
     </div>
 
@@ -576,7 +591,11 @@ const updateGradient = (newGradient: string) => {
     align-items: center;
     flex-direction: row;
   }
-
+  &__search-icon {
+    margin-left: -4px;
+    margin-top: 4px;
+    margin-bottom: 4px;
+  }
   &-add {
     display: flex;
     box-sizing: border-box;
@@ -618,11 +637,6 @@ const updateGradient = (newGradient: string) => {
     &.active,
     &:hover {
       background: @black007;
-    }
-    &__search-icon {
-      margin-left: -4px;
-      margin-top: 4px;
-      margin-bottom: 4px;
     }
   }
 
@@ -766,5 +780,13 @@ const updateGradient = (newGradient: string) => {
     box-shadow: inset 0px 1px 2px rgba(0, 0, 0, 0.25);
     backdrop-filter: blur(40px);
   }
+}
+button {
+  background: none;
+  color: inherit;
+  padding: inherit;
+  font: inherit;
+  cursor: pointer;
+  border: 0;
 }
 </style>
