@@ -481,8 +481,14 @@ const setTransactionFees = (tx: Transaction) => {
   return tx
     .getGasCosts()
     .then(async gasvals => {
-      const getConvertedVal = (type: GasPriceTypes) =>
+      const getConvertedVal = (type: GasPriceTypes) => {
+        if (props.network.name === NetworkNames.Fantom) {
+          return BigNumber(fromBase(gasvals[type], props.network.decimals))
+            .times(2)
+            .toString();
+        }
         fromBase(gasvals[type], props.network.decimals);
+      };
       const nativeVal = accountAssets.value[0].price || '0';
       gasCostValues.value = {
         [GasPriceTypes.ECONOMY]: {
