@@ -16,6 +16,7 @@ import {
   fromAddress,
   toAddress,
   nodeURL,
+  zeroxFromAddress,
 } from "./fixtures/mainnet/configs";
 
 describe("Swap", () => {
@@ -104,10 +105,10 @@ describe("Swap", () => {
       await enkryptSwap.initPromise;
       const quotes = await enkryptSwap.getQuotes({
         amount: amountUSDT,
-        fromAddress,
+        fromAddress: zeroxFromAddress,
         fromToken: fromTokenUSDT,
         toToken,
-        toAddress: fromAddress,
+        toAddress: zeroxFromAddress,
       });
       expect(quotes?.length).to.be.gte(4);
       const oneInceQuote = quotes.find(

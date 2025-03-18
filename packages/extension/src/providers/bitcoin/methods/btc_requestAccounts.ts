@@ -4,17 +4,21 @@ import { ProviderRPCRequest } from '@/types/provider';
 import { WindowPromise } from '@/libs/window-promise';
 import AccountState from '../libs/accounts-state';
 import { getCustomError } from '@/libs/error';
+import openOnboard from '@/libs/utils/open-onboard';
+import { throttle } from 'lodash';
+
 let isAccountAccessPending = false;
+const throttledOpenOnboard = throttle(() => openOnboard(), 10000);
 const pendingPromises: {
   payload: ProviderRPCRequest;
   res: CallbackFunction;
 }[] = [];
-const method: MiddlewareFunction = function (
+const method: MiddlewareFunction = async function (
   this: BitcoinProvider,
   payload: ProviderRPCRequest,
   res,
   next,
-): void {
+): Promise<void> {
   if (payload.method !== 'btc_requestAccounts') return next();
   else {
     if (isAccountAccessPending) {
@@ -25,6 +29,7 @@ const method: MiddlewareFunction = function (
       return;
     }
     isAccountAccessPending = true;
+    const isInitialized = await this.KeyRing.isInitialized();
     const handleRemainingPromises = () => {
       isAccountAccessPending = false;
       if (pendingPromises.length) {
@@ -38,6 +43,11 @@ const method: MiddlewareFunction = function (
     ) => {
       if (_payload.options && _payload.options.domain) {
         isAccountAccessPending = true;
+        if (!isInitialized) {
+          _res(getCustomError('Enkrypt not initialized'));
+          throttledOpenOnboard();
+          return handleRemainingPromises();
+        }
         const accountsState = new AccountState();
         accountsState
           .getApprovedAddresses(_payload.options.domain)

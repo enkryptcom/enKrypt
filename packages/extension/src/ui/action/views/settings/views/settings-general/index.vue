@@ -49,7 +49,13 @@
         information is collected.
       </p>
     </div>
-
+    <settings-button title="Settings backup" @click="$emit('open:backups')" />
+    <div class="settings__label">
+      <p>
+        Save your current list of accounts across all networks, so you don't
+        need to re-generate them.
+      </p>
+    </div>
     <!-- <base-select
       :select="selecTimer"
       title="Auto-lock timer"
@@ -67,6 +73,7 @@
 import { onMounted, ref } from 'vue';
 import SettingsInnerHeader from '@action/views/settings/components/settings-inner-header.vue';
 // import BaseSelect from "@action/components/base-select/index.vue";
+import SettingsButton from '@action/views/settings/components/settings-button.vue';
 import SettingsSwitch from '@action/views/settings/components/settings-switch.vue';
 import SettingsState from '@/libs/settings-state';
 import { SettingsType } from '@/libs/settings-state/types';
@@ -77,6 +84,11 @@ const isEthereumDisabled = ref(false);
 const isPolkadotjsDisabled = ref(false);
 const isUnisatEnabled = ref(true);
 const isMetricsEnabled = ref(true);
+
+defineEmits<{
+  (e: 'open:backups'): void;
+}>();
+
 onMounted(async () => {
   const allSettings: SettingsType = await settingsState.getAllSettings();
   isEthereumDisabled.value = allSettings.evm.inject.disabled;

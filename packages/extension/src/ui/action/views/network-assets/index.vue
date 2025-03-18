@@ -15,6 +15,10 @@
 
           <network-activity-action v-bind="$attrs" />
           <network-assets-header v-if="!isLoading && assets.length > 0" />
+          <network-assets-error
+            v-if="isFetchError"
+            :update-assets="updateAssets"
+          />
           <network-assets-item
             v-for="(item, index) in assets"
             :key="index"
@@ -47,11 +51,11 @@
         :toggle="toggleDeposit"
       />
     </div>
-
+    <!-- prettier-ignore -->
     <custom-evm-token
       v-if="showAddCustomTokens"
       :address="props.accountInfo.selectedAccount?.address!"
-      :network="props.network as EvmNetwork"
+      :network="(props.network as EvmNetwork)"
       @update:token-added="addCustomAsset"
       @update:close="toggleShowAddCustomTokens"
     ></custom-evm-token>
@@ -65,6 +69,7 @@ import NetworkActivityAction from '../network-activity/components/network-activi
 import NetworkAssetsItem from './components/network-assets-item.vue';
 import NetworkAssetsHeader from './components/network-assets-header.vue';
 import NetworkAssetsLoading from './components/network-assets-loading.vue';
+import NetworkAssetsError from './components/network-assets-error.vue';
 import CustomScrollbar from '@action/components/custom-scrollbar/index.vue';
 import { computed, onMounted, type PropType, ref, toRef, watch } from 'vue';
 import type { AssetsType } from '@/types/provider';
@@ -96,6 +101,7 @@ const props = defineProps({
 });
 const assets = ref<AssetsType[]>([]);
 const isLoading = ref(false);
+const isFetchError = ref(false);
 
 const { cryptoAmount, fiatAmount } = accountInfoComposable(
   toRef(props, 'network'),
@@ -104,6 +110,7 @@ const { cryptoAmount, fiatAmount } = accountInfoComposable(
 const selected: string = route.params.id as string;
 
 const updateAssets = () => {
+  isFetchError.value = false;
   isLoading.value = true;
   assets.value = [];
   const currentNetwork = selectedNetworkName.value;
@@ -114,6 +121,13 @@ const updateAssets = () => {
         if (selectedNetworkName.value !== currentNetwork) return;
         assets.value = _assets;
         isLoading.value = false;
+      })
+      .catch(e => {
+        console.error(e);
+        if (selectedNetworkName.value !== currentNetwork) return;
+        isFetchError.value = true;
+        isLoading.value = false;
+        assets.value = [];
       });
   }
 };

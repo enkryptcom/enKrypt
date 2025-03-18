@@ -39,11 +39,7 @@
                 }"
                 :network="network"
                 v-bind="$attrs"
-                :is-checked="
-                  !!address &&
-                  network.displayAddress(address) ===
-                    network.displayAddress(recentAddress)
-                "
+                :is-checked="isChecked(recentAddress)"
               />
             </div>
           </template>
@@ -55,11 +51,7 @@
               :account="account"
               :network="network"
               v-bind="$attrs"
-              :is-checked="
-                !!address &&
-                network.displayAddress(address) ===
-                  network.displayAddress(account.address)
-              "
+              :is-checked="isChecked(account.address)"
             />
           </div>
         </div>
@@ -77,11 +69,7 @@
               :account="account"
               :network="network"
               v-bind="$attrs"
-              :is-checked="
-                !!address &&
-                network.displayAddress(address) ===
-                  network.displayAddress(account.address)
-              "
+              :is-checked="isChecked(account.address)"
             />
           </div>
         </div>
@@ -128,6 +116,19 @@ const props = defineProps({
 const recentlySentAddressesState = new RecentlySentAddressesState();
 
 const recentlySentAddresses = ref<null | string[]>(null);
+
+const isChecked = (address: string) => {
+  try {
+    return (
+      !!props.address &&
+      props.network.displayAddress(props.address) ===
+        props.network.displayAddress(address)
+    );
+  } catch (err) {
+    console.error('Error checking if address is checked', err);
+    return false;
+  }
+};
 
 onMounted(async function () {
   let timedOut = false;

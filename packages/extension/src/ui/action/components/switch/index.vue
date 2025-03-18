@@ -1,25 +1,26 @@
 <template>
   <label class="switch">
-    <input
-      type="checkbox"
-      :checked="isChecked"
-      @click.prevent="checkLocal($event)"
-    />
+    <input type="checkbox" v-model="checkboxVal" />
     <span class="slider round" />
   </label>
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
+
 const emit = defineEmits<{
   (e: 'update:check', isChecked: boolean): void;
 }>();
-defineProps({
+const props = defineProps({
   isChecked: Boolean,
 });
 
-const checkLocal = (e: any) => {
-  emit('update:check', e.target.checked);
-};
+const checkboxVal = computed({
+  get: () => props.isChecked,
+  set: v => {
+    emit('update:check', v);
+  },
+});
 </script>
 
 <style lang="less">

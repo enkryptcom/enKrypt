@@ -1,5 +1,8 @@
 <template>
-  <div class="settings-switch">
+  <div
+    class="settings-switch"
+    :class="{ 'settings-switch-has-border': hasBorder }"
+  >
     <h5>{{ title }}</h5>
     <div class="settings-switch__switch">
       <Switch v-bind="$attrs" :is-checked="isChecked" />
@@ -23,6 +26,12 @@ defineProps({
       return false;
     },
   },
+  hasBorder: {
+    type: Boolean,
+    default: () => {
+      return true;
+    },
+  },
 });
 </script>
 
@@ -32,13 +41,11 @@ defineProps({
 .settings-switch {
   height: 48px;
   background: #ffffff;
-  margin: 0 32px 12px 32px;
+  margin: 0 32px;
   box-sizing: border-box;
-  border: 1px solid @gray02;
   box-sizing: border-box;
   border-radius: 10px;
   width: calc(~'100% - 64px');
-  padding: 12px 16px;
   display: block;
   position: relative;
   cursor: pointer;
@@ -50,6 +57,12 @@ defineProps({
 
   &:last-child {
     margin-bottom: 0;
+  }
+
+  &-has-border {
+    border: 1px solid @gray02;
+    padding: 12px 16px;
+    margin: 0 32px 12px 32px;
   }
 
   h5 {

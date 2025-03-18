@@ -20,6 +20,7 @@ import {
   isValidSolanaAddressAsync,
   solAccountExists,
   SPL_TOKEN_ATA_ACCOUNT_SIZE_BYTES,
+  TOKEN_2022_PROGRAM_ID,
   WRAPPED_SOL_ADDRESS,
 } from "../../utils/solana";
 import {
@@ -317,12 +318,16 @@ export class Jupiter extends ProviderClass {
       dstMint,
       dstTokenProgramId,
     );
+    const srcTokenProgramId = await getTokenProgramOfMint(this.conn, srcMint);
+
+    const isSrcToken2022 =
+      srcTokenProgramId.toBase58() === TOKEN_2022_PROGRAM_ID.toBase58();
 
     const swap = await getJupiterSwap(
       {
         quote,
         signerPubkey: fromPubkey,
-        referrerATAPubkey,
+        referrerATAPubkey: isSrcToken2022 ? undefined : referrerATAPubkey,
         dstATAPubkey,
       },
       { signal },
@@ -331,9 +336,6 @@ export class Jupiter extends ProviderClass {
     let tx = VersionedTransaction.deserialize(
       Buffer.from(swap.swapTransaction, "base64"),
     );
-
-    const srcTokenProgramId = await getTokenProgramOfMint(this.conn, srcMint);
-
     /** Rent from having to create ATA accounts for the wallet & mint and the referral fee holder & mint */
     let rentFees = 0;
 
@@ -346,7 +348,7 @@ export class Jupiter extends ProviderClass {
           ` ATA pubkey: ${referrerATAPubkey.toBase58()},` +
           ` Source mint: ${srcMint.toBase58()}`,
       );
-    } else {
+    } else if (!referrerATAExists && !isSrcToken2022) {
       // The referral fee ATA account needs to be created or else we can't receive fees for this transaction
       const extraRentFees = await this.conn.getMinimumBalanceForRentExemption(
         JUPITER_REFERRAL_ATA_ACCOUNT_SIZE_BYTES,
@@ -438,101 +440,119 @@ export class Jupiter extends ProviderClass {
     meta: QuoteMetaOptions,
     context?: { signal?: AbortSignal },
   ): Promise<null | ProviderQuoteResponse> {
-    if (options.toToken.networkInfo.name !== SupportedNetworkName.Solana) {
+    try {
+      if (options.toToken.networkInfo.name !== SupportedNetworkName.Solana) {
+        logger.info(
+          `getQuote: ignoring quote request to network ${options.toToken.networkInfo.name},` +
+            ` cross network swaps not supported`,
+        );
+        return null;
+      }
+
+      const { jupiterQuote, rentFees, computeBudget, feePercentage } =
+        await this.querySwapInfo(options, meta, context);
+
+      // Jupiter swaps have four different kinds of fees:
+      // 1. Transaction base fees: number of signatures * lamports per signature
+      // 2. Transaction priority fees (sometimes): set via the Compute Budget program's "SetComputeUnitPrice"
+      // 3. Transaction referral fees: fees paid to MEW (97.5%) and Jupiter (2.5%) as the wallet provider
+      // 4. Rent for ATA accounts that may need to be created; the referral fee account and mint account
+
       logger.info(
-        `getQuote: ignoring quote request to network ${options.toToken.networkInfo.name},` +
-          ` cross network swaps not supported`,
+        `getQuote: Quote inAmount: ${jupiterQuote.inAmount} ${options.fromToken.symbol}`,
       );
+      logger.info(
+        `getQuote: Quote outAmount: ${jupiterQuote.outAmount} ${options.toToken.symbol}`,
+      );
+
+      const result: ProviderQuoteResponse = {
+        fromTokenAmount: toBN(jupiterQuote.inAmount),
+        toTokenAmount: toBN(
+          Math.floor((1 - feePercentage) * Number(jupiterQuote.outAmount))
+            .toFixed(10)
+            .replace(/\.?0+$/, ""),
+        ),
+        totalGaslimit: computeBudget,
+        additionalNativeFees: toBN(rentFees),
+        provider: this.name,
+        quote: {
+          options,
+          meta,
+          provider: this.name,
+        },
+        minMax: {
+          // TODO: how can I get these limits?
+          minimumFrom: toBN("1"),
+          maximumFrom: toBN(TOKEN_AMOUNT_INFINITY_AND_BEYOND),
+          minimumTo: toBN("1"),
+          maximumTo: toBN(TOKEN_AMOUNT_INFINITY_AND_BEYOND),
+        },
+      };
+
+      return result;
+    } catch (err) {
+      if (!context.signal.aborted) {
+        console.error(
+          `[Jupiter.getQuote] Error calling getQuote: ${String(err)}`,
+        );
+      }
       return null;
     }
-
-    const { jupiterQuote, rentFees, computeBudget, feePercentage } =
-      await this.querySwapInfo(options, meta, context);
-
-    // Jupiter swaps have four different kinds of fees:
-    // 1. Transaction base fees: number of signatures * lamports per signature
-    // 2. Transaction priority fees (sometimes): set via the Compute Budget program's "SetComputeUnitPrice"
-    // 3. Transaction referral fees: fees paid to MEW (97.5%) and Jupiter (2.5%) as the wallet provider
-    // 4. Rent for ATA accounts that may need to be created; the referral fee account and mint account
-
-    logger.info(
-      `getQuote: Quote inAmount: ${jupiterQuote.inAmount} ${options.fromToken.symbol}`,
-    );
-    logger.info(
-      `getQuote: Quote outAmount: ${jupiterQuote.outAmount} ${options.toToken.symbol}`,
-    );
-
-    const result: ProviderQuoteResponse = {
-      fromTokenAmount: toBN(jupiterQuote.inAmount),
-      toTokenAmount: toBN(
-        Math.floor((1 - feePercentage) * Number(jupiterQuote.outAmount))
-          .toFixed(10)
-          .replace(/\.?0+$/, ""),
-      ),
-      totalGaslimit: computeBudget,
-      additionalNativeFees: toBN(rentFees),
-      provider: this.name,
-      quote: {
-        options,
-        meta,
-        provider: this.name,
-      },
-      minMax: {
-        // TODO: how can I get these limits?
-        minimumFrom: toBN("1"),
-        maximumFrom: toBN(TOKEN_AMOUNT_INFINITY_AND_BEYOND),
-        minimumTo: toBN("1"),
-        maximumTo: toBN(TOKEN_AMOUNT_INFINITY_AND_BEYOND),
-      },
-    };
-
-    return result;
   }
 
   async getSwap(
     quote: SwapQuote,
     context?: { signal?: AbortSignal },
-  ): Promise<ProviderSwapResponse> {
-    const { feePercentage, jupiterQuote, base64SwapTransaction, rentFees } =
-      await this.querySwapInfo(quote.options, quote.meta, context);
+  ): Promise<null | ProviderSwapResponse> {
+    try {
+      const { feePercentage, jupiterQuote, base64SwapTransaction, rentFees } =
+        await this.querySwapInfo(quote.options, quote.meta, context);
 
-    const enkryptTransaction: SolanaTransaction = {
-      from: quote.options.fromAddress,
-      to: quote.options.toAddress,
-      serialized: base64SwapTransaction,
-      type: TransactionType.solana,
-      kind: "versioned",
-      thirdPartySignatures: [],
-    };
+      const enkryptTransaction: SolanaTransaction = {
+        from: quote.options.fromAddress,
+        to: quote.options.toAddress,
+        serialized: base64SwapTransaction,
+        type: TransactionType.solana,
+        kind: "versioned",
+        thirdPartySignatures: [],
+      };
 
-    logger.info(
-      `getSwap: Quote inAmount:  ${jupiterQuote.inAmount} ${quote.options.fromToken.symbol}`,
-    );
-    logger.info(
-      `getSwap: Quote outAmount: ${jupiterQuote.outAmount} ${quote.options.toToken.symbol}`,
-    );
+      logger.info(
+        `getSwap: Quote inAmount:  ${jupiterQuote.inAmount} ${quote.options.fromToken.symbol}`,
+      );
+      logger.info(
+        `getSwap: Quote outAmount: ${jupiterQuote.outAmount} ${quote.options.toToken.symbol}`,
+      );
 
-    const result: ProviderSwapResponse = {
-      transactions: [enkryptTransaction],
-      fromTokenAmount: toBN(jupiterQuote.inAmount),
-      toTokenAmount: toBN(
-        Math.floor((1 - feePercentage) * Number(jupiterQuote.outAmount))
-          .toFixed(10)
-          .replace(/\.?0+$/, ""),
-      ),
-      additionalNativeFees: toBN(rentFees),
-      provider: this.name,
-      slippage: quote.meta.slippage,
-      fee: feePercentage,
-      getStatusObject: async (
-        options: StatusOptions,
-      ): Promise<StatusOptionsResponse> => ({
-        options,
+      const result: ProviderSwapResponse = {
+        transactions: [enkryptTransaction],
+        fromTokenAmount: toBN(jupiterQuote.inAmount),
+        toTokenAmount: toBN(
+          Math.floor((1 - feePercentage) * Number(jupiterQuote.outAmount))
+            .toFixed(10)
+            .replace(/\.?0+$/, ""),
+        ),
+        additionalNativeFees: toBN(rentFees),
         provider: this.name,
-      }),
-    };
+        slippage: quote.meta.slippage,
+        fee: feePercentage,
+        getStatusObject: async (
+          options: StatusOptions,
+        ): Promise<StatusOptionsResponse> => ({
+          options,
+          provider: this.name,
+        }),
+      };
 
-    return result;
+      return result;
+    } catch (err) {
+      if (!context.signal.aborted) {
+        console.error(
+          `[Jupiter.getSwap] Error calling getSwap: ${String(err)}`,
+        );
+      }
+      return null;
+    }
   }
 
   async getStatus(options: StatusOptions): Promise<TransactionStatus> {

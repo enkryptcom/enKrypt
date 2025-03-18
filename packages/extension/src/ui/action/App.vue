@@ -124,14 +124,15 @@ import SwapLookingAnimation from '@action/icons/swap/swap-looking-animation.vue'
 import { trackBuyEvents, trackNetwork } from '@/libs/metrics';
 import { getLatestEnkryptVersion } from '@action/utils/browser';
 import { gt as semverGT } from 'semver';
-import { BuyEventType, NetworkChangeEvents } from '@/libs/metrics/types';
 import { useUpdatesStore } from './store/updates-store';
 import { useNetworksStore } from './store/networks-store';
 import { storeToRefs } from 'pinia';
+import { BuyEventType, NetworkChangeEvents } from '@/libs/metrics/types';
+import BackupState from '@/libs/backup-state';
 
 const domainState = new DomainState();
 const rateState = new RateState();
-
+const backupState = new BackupState();
 const showDepositWindow = ref(false);
 const accountHeaderData = ref<AccountsHeaderData>({
   activeAccounts: [],
@@ -233,6 +234,7 @@ const init = async () => {
     setNetwork(defaultNetwork);
   }
   await networksStore.setActiveNetworks();
+  backupState.backup(true).catch(console.error);
   isLoading.value = false;
 };
 

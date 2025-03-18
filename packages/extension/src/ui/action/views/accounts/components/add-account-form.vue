@@ -54,6 +54,7 @@ import { sendToBackgroundFromAction } from '@/libs/messenger/extension';
 import { InternalMethods } from '@/types/messenger';
 import { EnkryptAccount, KeyRecordAdd, WalletType } from '@enkryptcom/types';
 import Keyring from '@/libs/keyring/public-keyring';
+import BackupState from '@/libs/backup-state';
 
 const isFocus = ref(false);
 const accountName = ref('');
@@ -120,6 +121,10 @@ const addAccount = async () => {
       params: [keyReq],
     }),
   }).then(() => {
+    const backupState = new BackupState();
+    backupState.backup(false).catch(() => {
+      console.error('Failed to backup');
+    });
     emit('update:init');
     emit('window:close');
   });
