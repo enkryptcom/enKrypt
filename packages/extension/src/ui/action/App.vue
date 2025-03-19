@@ -15,7 +15,12 @@
           />
         </div>
         <div>
-          <a ref="toggle" class="app__menu-link" @click="toggleMoreMenu">
+          <a
+            ref="toggle"
+            class="app__menu-link"
+            @click="toggleMoreMenu"
+            v-show="hideSomething"
+          >
             <more-icon />
           </a>
           <div v-show="isOpenMore" ref="dropdown" class="app__menu-dropdown">
@@ -232,6 +237,7 @@ const isLoading = ref(true);
 const currentVersion = __PACKAGE_VERSION__;
 const latestVersion = ref('');
 const enabledTestnetworks = ref<string[]>([]);
+const hideSomething = ref(true);
 /** -------------------
  * Updates
  -------------------*/
@@ -416,6 +422,11 @@ onMounted(async () => {
   const isInitialized = await kr.isInitialized();
   if (isInitialized) {
     const _isLocked = await isKeyRingLocked();
+    if (__IS_SAFARI__) {
+      setInterval(() => {
+        isKeyRingLocked(); // keepalive safari action window
+      }, 1000 * 5);
+    }
     if (_isLocked) {
       router
         .push({ name: 'lock-screen' })
@@ -440,11 +451,6 @@ onMounted(async () => {
           }
         });
       }, 2000);
-      setInterval(() => {
-        isKeyRingLocked().then(res => {
-          console.log('am I locked?', res);
-        });
-      }, 1000 * 5);
     }
     initUpdateState();
   } else {
