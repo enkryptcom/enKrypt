@@ -440,6 +440,11 @@ onMounted(async () => {
           }
         });
       }, 2000);
+      setInterval(() => {
+        isKeyRingLocked().then(res => {
+          console.log('am I locked?', res);
+        });
+      }, 1000 * 5);
     }
     initUpdateState();
   } else {
