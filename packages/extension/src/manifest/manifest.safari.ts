@@ -17,6 +17,10 @@ const safariManifest = {
     default_popup: 'action.html',
   },
   host_permissions: ['http://*/*', 'https://*/*'],
+  content_security_policy: {
+    extension_pages:
+      "script-src 'self' 'unsafe-eval' 'wasm-unsafe-eval'; object-src 'self'",
+  },
   permissions: [
     'storage',
     'unlimitedStorage',
