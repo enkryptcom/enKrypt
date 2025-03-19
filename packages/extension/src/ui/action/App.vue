@@ -129,6 +129,7 @@ import { useNetworksStore } from './store/networks-store';
 import { storeToRefs } from 'pinia';
 import { BuyEventType, NetworkChangeEvents } from '@/libs/metrics/types';
 import BackupState from '@/libs/backup-state';
+import MenuState from '@/libs/menu-state';
 
 const domainState = new DomainState();
 const rateState = new RateState();
@@ -158,6 +159,7 @@ const latestVersion = ref('');
 /** -------------------
  * Exapnded Menu
  -------------------*/
+const menuState = new MenuState();
 const isExpanded = ref(true);
 
 /** -------------------
@@ -268,6 +270,7 @@ onMounted(async () => {
       }, 2000);
     }
     updatesStore.init();
+    isExpanded.value = await menuState.getIsExpanded();
   } else {
     openOnboard();
   }

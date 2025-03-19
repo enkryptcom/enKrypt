@@ -9,7 +9,7 @@
         <logo-min v-if="isExpanded" class="app__menu-logo" />
         <button
           v-else
-          @click="isExpanded = !isExpanded"
+          @click="setExpanded(true)"
           aria-label="Expand Networks Menu"
         >
           <expand-menu :is-expanded="false" />
@@ -25,7 +25,7 @@
       <div v-if="isExpanded">
         <button
           class="app__menu-link"
-          @click="isExpanded = false"
+          @click="setExpanded(false)"
           aria-label="Collapse Networks Menu"
         >
           <expand-menu :is-expanded="isExpanded" />
@@ -198,6 +198,7 @@ import { useUpdatesStore } from '@action/store/updates-store';
 import { storeToRefs } from 'pinia';
 import { onClickOutside } from '@vueuse/core';
 import SearchIcon from '@action/icons/common/search.vue';
+import MenuState from '@/libs/menu-state';
 
 const appMenuRef = ref(null);
 
@@ -263,6 +264,12 @@ onMounted(async () => {
  * Expand/Collapse state
  -------------------*/
 const isExpanded = defineModel<boolean>('is-expanded');
+const menuState = new MenuState();
+
+const setExpanded = (value: boolean) => {
+  isExpanded.value = value;
+  menuState.setIsExpanded(value);
+};
 
 /** -------------------
  * Updates
@@ -298,7 +305,7 @@ const searchNetworksComponent = ref<InstanceType<typeof BaseSearch> | null>(
 );
 
 const searchOnCollapsed = () => {
-  isExpanded.value = true;
+  setExpanded(true);
   searchNetworksComponent.value?.setFocus();
 };
 
