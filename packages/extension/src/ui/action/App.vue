@@ -15,12 +15,7 @@
           />
         </div>
         <div>
-          <a
-            ref="toggle"
-            class="app__menu-link"
-            @click="toggleMoreMenu"
-            v-show="hideSomething"
-          >
+          <a ref="toggle" class="app__menu-link" @click="toggleMoreMenu">
             <more-icon />
           </a>
           <div v-show="isOpenMore" ref="dropdown" class="app__menu-dropdown">
@@ -237,7 +232,6 @@ const isLoading = ref(true);
 const currentVersion = __PACKAGE_VERSION__;
 const latestVersion = ref('');
 const enabledTestnetworks = ref<string[]>([]);
-const hideSomething = ref(true);
 /** -------------------
  * Updates
  -------------------*/
