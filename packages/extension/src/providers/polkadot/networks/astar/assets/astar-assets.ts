@@ -1,6 +1,6 @@
 import { KnownTokenDisplay } from '@/providers/polkadot/types';
 import iconACA from './icons/ACA.png';
-import iconDOT from '../../icons/polkadot.svg';
+import iconDOT from '../../icons/polkadot.webp';
 import iconLDOT from './icons/LDOT.png';
 
 const assets: KnownTokenDisplay[] = [

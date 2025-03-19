@@ -6,7 +6,7 @@ import {
 } from '../../types/substrate-network';
 import assets from './assets/pendulum-assets';
 import wrapActivityHandler from '@/libs/activity-state/wrap-activity-handler';
-import icon from '../icons/amplitude.svg';
+import icon from '../icons/amplitude.webp';
 
 const amplitudeOptions: SubstrateNetworkOptions = {
   name: NetworkNames.Amplitude,

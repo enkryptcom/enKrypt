@@ -93,8 +93,6 @@ import AddNetworkSearch from '../components/add-network-search.vue';
 import AddNetworkItem from '../components/add-network-item.vue';
 import CustomScrollbar from '@action/components/custom-scrollbar/index.vue';
 import { NodeType } from '@/types/provider';
-import { getAllNetworks } from '@/libs/utils/networks';
-import NetworksState from '@/libs/networks-state';
 import CustomNetworksState from '@/libs/custom-networks-state';
 import scrollSettings from '@/libs/utils/scroll-settings';
 import { computed } from 'vue';
@@ -102,21 +100,23 @@ import { CustomEvmNetwork } from '@/providers/ethereum/types/custom-evm-network'
 import PlusSmallIcon from '@/ui/action/icons/common/plus-small-icon.vue';
 import { NetworkNames } from '@enkryptcom/types';
 import Loader from '@action/icons/common/loader.vue';
+import { useNetworksStore } from '@action/store/networks-store';
+import { storeToRefs } from 'pinia';
 
 const emit = defineEmits<{
   (e: 'update:pinNetwork', network: string, isPinned: boolean): void;
   (e: 'update:testNetworkToggle'): void;
 }>();
 
-const networksState = new NetworksState();
 const customNetworksState = new CustomNetworksState();
 const searchInput = ref('');
 const allTestNets = ref<NodeType[]>([]);
 const scrollProgress = ref(0);
 const manageNetworkScrollRef = ref<ComponentPublicInstance<HTMLElement>>();
 const allCustomNetworks = ref<CustomEvmNetwork[]>([]);
-const pinnedNetworks = ref<string[]>([]);
-const enabledTestNetworks = ref<string[]>([]);
+const networkStore = useNetworksStore();
+const { pinnedNetworkNames, enabledTestNetworks, allNetworks } =
+  storeToRefs(networkStore);
 
 defineExpose({ manageNetworkScrollRef });
 
@@ -140,7 +140,7 @@ const displayTestNetworks = computed<NodeType[]>(() => {
 const displayCustomNetworks = computed<CustomEvmNetwork[]>(() => {
   return allCustomNetworks.value.filter(a =>
     a.name_long.toLowerCase().startsWith(searchInput.value.toLowerCase()),
-  );
+  ) as CustomEvmNetwork[];
 });
 
 const hasCustomNetworks = computed(() => {
@@ -148,8 +148,7 @@ const hasCustomNetworks = computed(() => {
 });
 
 const setNetworkLists = async () => {
-  //Get Pinned Networks
-  pinnedNetworks.value = await networksState.getPinnedNetworkNames();
+  await networkStore.setActiveNetworks();
   //Get Custom Networks
   const customs = await customNetworksState.getAllCustomEVMNetworks();
   const customNetworks = customs.map(options => {
@@ -157,12 +156,9 @@ const setNetworkLists = async () => {
   });
   allCustomNetworks.value = customNetworks;
   //Get Test Networks
-  const testNetworks = await getAllNetworks();
-  const allNetworksTestNets = testNetworks
+  allTestNets.value = allNetworks.value
     .filter(({ isTestNetwork }) => isTestNetwork)
     .sort((a, b) => a.name_long.localeCompare(b.name_long));
-  enabledTestNetworks.value = await networksState.getEnabledTestNetworks();
-  allTestNets.value = allNetworksTestNets;
 };
 
 /** -------------------
@@ -179,8 +175,8 @@ onBeforeMount(async () => {
  * Pin Actions
  * ------------------- */
 
-const getIsPinned = (network: NetworkNames) => {
-  return pinnedNetworks.value.includes(network);
+const getIsPinned = (network: string) => {
+  return pinnedNetworkNames.value.includes(network);
 };
 
 const getIsEnabled = (network: NetworkNames) => {
@@ -189,11 +185,11 @@ const getIsEnabled = (network: NetworkNames) => {
 
 const onTogglePin = async (networkName: string, isActive: boolean) => {
   try {
-    await networksState.setNetworkStatus(networkName, isActive);
     if (isActive && allTestNets.value.find(net => net.name === networkName)) {
-      await networksState.setTestnetStatus(networkName, isActive);
+      await networkStore.setTestNetStatus(networkName, isActive);
     }
-    emit('update:pinNetwork', networkName, isActive);
+    await networkStore.setIsPinnedNetwork(networkName, isActive);
+
     await setNetworkLists();
   } catch (e) {
     console.error(e);
@@ -204,18 +200,21 @@ const onTestnetToggle = async (
   networkName: NetworkNames,
   isActive: boolean,
 ) => {
-  await networksState.setTestnetStatus(networkName, isActive);
-  await setNetworkLists();
+  await networkStore.setTestNetStatus(networkName, isActive);
+
   if (!isActive && getIsPinned(networkName)) {
-    onTogglePin(networkName, false);
+    await networkStore.setIsPinnedNetwork(networkName, false);
   }
+  await setNetworkLists();
   emit('update:testNetworkToggle');
 };
 
-const onNetworkDeleted = async (chainId: string) => {
+const onNetworkDeleted = async (chainId: string, name: string) => {
+  if (getIsPinned(name)) {
+    await networkStore.setIsPinnedNetwork(name, false);
+  }
   await customNetworksState.deleteEVMNetwork(chainId);
   await setNetworkLists();
-  emit('update:pinNetwork', chainId, false);
 };
 
 const updateSearch = (value: string) => {

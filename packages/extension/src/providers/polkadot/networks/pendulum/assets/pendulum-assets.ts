@@ -1,8 +1,8 @@
 import { KnownTokenDisplay } from '@/providers/polkadot/types';
 import iconPen from '../icons/PEN.png';
 import iconAmp from '../icons/AMPE.png';
-import iconDot from '../../icons/polkadot.svg';
-import iconKsm from '../../icons/kusama.svg';
+import iconDot from '../../icons/polkadot.webp';
+import iconKsm from '../../icons/kusama.webp';
 
 const assets: KnownTokenDisplay[] = [
   {

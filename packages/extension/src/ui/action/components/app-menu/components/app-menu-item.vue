@@ -2,15 +2,25 @@
   <a
     :id="network.name"
     ref="target"
-    class="app-menu__link hover-transition-no-bg"
+    class="app-menu__button-network hover-transition-no-bg"
     :class="[
       { active: isActive },
       { 'sticky-top': isStickyTop },
       { 'sticky-bottom': isStickyTop === false },
+      isExpanded
+        ? 'app-menu__button-network-expand'
+        : 'app-menu__button-network-collapse',
     ]"
   >
-    <div class="app-menu__link__block">
-      <div style="position: relative">
+    <tooltip
+      v-if="!isExpanded"
+      :text="network.name_long"
+      is-top-right
+      teleport-to-app
+    >
+      <div
+        class="app-menu__button-network__logo app-menu__button-network__tooltip"
+      >
         <img ref="imageTag" :src="network.icon" alt="" />
         <new-icon
           v-if="newNetworkTags.networks.includes(network.name)"
@@ -28,18 +38,38 @@
           ></swap-added-icon>
         </div>
       </div>
-      <span>{{ network.name_long }} </span
+    </tooltip>
+    <div v-show="isExpanded" class="app-menu__button-network__block">
+      <div class="app-menu__button-network__logo">
+        <img ref="imageTag" :src="network.icon" alt="" />
+        <new-icon
+          v-if="newNetworkTags.networks.includes(network.name)"
+          class="app-menu-network-tag app-menu-network-tag-new"
+        />
+        <div
+          v-if="
+            !newNetworkTags.networks.includes(network.name) &&
+            newNetworkTags.swap.includes(network.name)
+          "
+          class="app-menu-network-tag app-menu-network-tag-swap"
+        >
+          <swap-added-icon
+            class="app-menu-network-tag-swap-icon"
+          ></swap-added-icon>
+        </div>
+      </div>
+      <span v-show="isExpanded">{{ network.name_long }} </span
       ><test-network-icon
         v-if="network.isTestNetwork"
         class="test-network-icon"
       />
     </div>
-    <div class="app-menu__link__block">
-      <DragIcon v-if="canDrag" class="app-menu__link__block__drag" />
+    <div v-show="isExpanded" class="app-menu__button-network__block">
+      <DragIcon v-if="canDrag" class="app-menu__button-network__block__drag" />
       <div
         :class="[
-          'app-menu__link__block__pin',
-          { 'app-menu__link__block__pin__visible': props.isPinned },
+          'app-menu__button-network__block__pin',
+          { 'app-menu__button-network__block__pin__visible': props.isPinned },
         ]"
         @click.stop="setPinned"
       >
@@ -57,9 +87,12 @@ import NewIcon from '@action/icons/asset/new-icon.vue';
 import SwapAddedIcon from '@/ui/action/icons/asset/swap-added-icon.vue';
 import PinIcon from '@action/icons/actions/pin.vue';
 import DragIcon from '@action/icons/common/drag-icon.vue';
-
+import { useNetworksStore } from '@action/store/networks-store';
 import { trackNetwork } from '@/libs/metrics';
 import { NetworkChangeEvents, NetworkType } from '@/libs/metrics/types';
+import Tooltip from '@/ui/action/components/tooltip/index.vue';
+
+const newtworkStore = useNetworksStore();
 
 const props = defineProps({
   network: {
@@ -93,13 +126,16 @@ const props = defineProps({
       return { networks: [], swap: [] };
     },
   },
+  isExpanded: {
+    type: Boolean,
+    default: true,
+  },
 });
 
 const imageTag = ref<HTMLImageElement | null>(null);
 
 const emit = defineEmits<{
   (e: 'update:gradient', data: string): void;
-  (e: 'update:pinNetwork', network: string, isPinned: boolean): void;
 }>();
 
 /**
@@ -190,7 +226,7 @@ const setPinned = async () => {
     networkType: networkType,
     isPinned: !props.isPinned,
   });
-  emit('update:pinNetwork', props.network.name, !props.isPinned);
+  newtworkStore.setIsPinnedNetwork(props.network.name, !props.isPinned);
 };
 
 /** ------------------------
@@ -257,7 +293,7 @@ onUnmounted(() => {
   color: #fff !important;
   border: 1px solid @white;
   position: absolute;
-  left: 23px;
+  left: 21px;
   top: -5px;
   &-new {
     padding: 1px 3px 0px 3px;
@@ -278,14 +314,21 @@ onUnmounted(() => {
 }
 
 .app-menu {
-  &__link {
+  &__button-network {
+    &-expand {
+      width: 97%;
+      padding-right: 8px;
+    }
+    &-collapse {
+      width: 40px;
+    }
     text-decoration: none;
     display: flex;
     justify-content: space-between;
     justify-self: center;
     align-items: center;
     flex-direction: row;
-    width: 97%;
+
     min-height: 40px !important;
     max-height: 40px;
     margin-bottom: 3px;
@@ -293,9 +336,26 @@ onUnmounted(() => {
     cursor: pointer;
     position: relative;
     border-radius: 10px;
-    padding-right: 8px;
     transition: top 1s linear;
     transition: bottom 1s linear;
+    &__tooltip {
+      min-height: 40px !important;
+      max-height: 40px;
+    }
+    &__logo {
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      flex-direction: row;
+      gap: 8px;
+      position: relative;
+      img {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        object-fit: contain;
+      }
+    }
     &:first-of-type {
       margin-top: 0; /* Removes top margin for the first element */
     }
@@ -336,12 +396,12 @@ onUnmounted(() => {
       }
     }
     &:hover {
-      .app-menu__link__block__drag,
-      .app-menu__link__block__pin {
+      .app-menu__button-network__block__drag,
+      .app-menu__button-network__block__pin {
         transition: opacity 300ms ease-in;
         opacity: 1 !important;
       }
-      .app-menu__link__block__pin__visible {
+      .app-menu__button-network__block__pin__visible {
         svg path {
           fill: #684cff;
           fill-opacity: 1;
@@ -371,8 +431,8 @@ onUnmounted(() => {
       box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.16);
       position: -webkit-sticky;
       position: sticky;
-      z-index: 2;
       opacity: 1;
+      z-index: 2;
       span {
         font-weight: 500;
       }
@@ -380,11 +440,11 @@ onUnmounted(() => {
         background: @white;
       }
 
-      .app-menu__link__block__pin {
+      .app-menu__button-network__block__pin {
         transition: opacity 300ms ease-in;
         opacity: 1;
       }
-      .app-menu__link__block__pin__visible {
+      .app-menu__button-network__block__pin__visible {
         svg path {
           fill: #684cff !important;
           fill-opacity: 1;

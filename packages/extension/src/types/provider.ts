@@ -54,6 +54,7 @@ export enum InternalStorageNamespace {
   recentlySentAddresses = 'RecentlySentAddresses',
   updatesState = 'UpdatesState',
   backupState = 'BackupState',
+  menuState = 'MenuState',
 }
 export enum EnkryptProviderEventMethods {
   persistentEvents = 'PersistentEvents',
@@ -131,7 +132,7 @@ export abstract class BackgroundProviderInterface extends EventEmitter {
 export abstract class ProviderAPIInterface {
   abstract node: string;
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  constructor(node: string, options?: unknown) {}
+  constructor(node: string, options?: unknown) { }
   abstract init(): Promise<void>;
   abstract getBalance(address: string): Promise<string>;
   abstract getTransactionStatus(

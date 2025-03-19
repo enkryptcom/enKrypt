@@ -5,7 +5,7 @@ import {
 } from '../../types/substrate-network';
 import { getActivityHandler } from './libs/activity-handler';
 import { toBN } from 'web3-utils';
-import icon from '../icons/opal.svg';
+import icon from '../icons/opal.webp';
 
 const GRAPHQL_ENDPOINT = 'https://api-opal.uniquescan.io/v1/graphql';
 

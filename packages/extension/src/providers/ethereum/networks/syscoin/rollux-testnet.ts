@@ -1,4 +1,4 @@
-import icon from '../icons/tsys_rollux.svg';
+import icon from '../icons/tsys_rollux.webp';
 import { NetworkNames } from '@enkryptcom/types';
 import { EvmNetwork, EvmNetworkOptions } from '../../types/evm-network';
 import { EtherscanActivity } from '../../libs/activity-handlers';

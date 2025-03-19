@@ -6,7 +6,7 @@ import {
 } from '../types/substrate-network';
 import { subscanActivity } from '../libs/activity-handlers';
 import wrapActivityHandler from '@/libs/activity-state/wrap-activity-handler';
-import icon from './icons/westend.svg';
+import icon from './icons/westend.webp';
 
 const wndOptions: SubstrateNetworkOptions = {
   name: NetworkNames.Westend,

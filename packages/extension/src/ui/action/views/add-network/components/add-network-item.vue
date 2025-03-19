@@ -51,7 +51,7 @@ import { NetworkChangeEvents } from '@/libs/metrics/types';
 
 const emit = defineEmits<{
   (e: 'networkToggled', name: string, isActive: boolean): void;
-  (e: 'networkDeleted', chainId: string): void;
+  (e: 'networkDeleted', chainId: string, name: string): void;
   (e: 'update:pinNetwork', network: string, isPinned: boolean): void;
   (e: 'testNetworkToggled', name: NetworkNames, isActive: boolean): void;
 }>();
@@ -91,7 +91,7 @@ const deleteNetwork = async () => {
     trackNetwork(NetworkChangeEvents.NetworkDeleteCustomNetwork, {
       customChainId: chainId,
     });
-    emit('networkDeleted', chainId);
+    emit('networkDeleted', chainId, props.network.name);
   }
 };
 

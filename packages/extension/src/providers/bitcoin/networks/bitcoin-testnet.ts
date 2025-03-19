@@ -1,4 +1,4 @@
-import icon from './icons/tbtc.svg';
+import icon from './icons/tbtc.webp';
 import { NetworkNames } from '@enkryptcom/types';
 import {
   BitcoinNetwork,

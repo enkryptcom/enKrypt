@@ -1,4 +1,4 @@
-import icon from './icons/xlayer.png';
+import icon from './icons/xlayer.webp';
 import { NetworkNames, CoingeckoPlatform } from '@enkryptcom/types';
 import { EvmNetwork, EvmNetworkOptions } from '../types/evm-network';
 import wrapActivityHandler from '@/libs/activity-state/wrap-activity-handler';
