@@ -193,6 +193,7 @@ import HeartIcon from '@/ui/action/icons/updates/heart.vue';
 import { getLatestEnkryptUpdates } from '@action/utils/browser';
 import { Updates } from '@/ui/action/types/updates';
 import BackupState from '@/libs/backup-state';
+import { useCurrencyStore, type Currency } from './views/settings/store';
 
 const domainState = new DomainState();
 const networksState = new NetworksState();
@@ -241,6 +242,9 @@ const showUpdatesBtn = ref<boolean>(false);
 const showUpdatesDialog = ref<boolean>(false);
 const stateCurrentReleaseTimestamp = ref<number>(0);
 
+const currencyStore = useCurrencyStore();
+const { setCurrencyList } = currencyStore;
+
 /**
  * Initializes the update state by performing the following actions:
  * 1. Retrieves the current release from the state.
@@ -274,6 +278,7 @@ const initUpdateState = async () => {
     if (releases.value) {
       await getShowUpdatesBtn();
     }
+    await fetchAndSetRates();
     loadedUpdates.value = true;
   } catch (error) {
     console.error('Failed to init update state:', error);
@@ -410,6 +415,25 @@ const init = async () => {
   await setActiveNetworks();
   backupState.backup(true).catch(console.error);
   isLoading.value = false;
+};
+
+const fetchAndSetRates = async () => {
+  const rates = await fetch(
+    'https://mainnet.mewwallet.dev/v2/prices/exchange-rates',
+  );
+  const ratesJson = await rates.json();
+  setCurrencyList(
+    ratesJson.filter((currency: Currency) => {
+      if (
+        currency.fiat_currency !== 'XAG' &&
+        currency.fiat_currency !== 'XAU' &&
+        currency.fiat_currency !== 'XDR' &&
+        currency.fiat_currency !== 'BTC'
+      ) {
+        return currency;
+      }
+    }),
+  );
 };
 
 onMounted(async () => {
