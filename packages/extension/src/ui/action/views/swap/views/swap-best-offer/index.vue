@@ -442,9 +442,9 @@ const sendAction = async () => {
             ? err.error.message
             : err.message;
         } else {
-          TXSendErrorMessage.value = error.includes(
-            'Transaction simulation failed',
-          )
+          TXSendErrorMessage.value = error
+            .toLowerCase()
+            .includes('simulation failed')
             ? 'Network may be busy. Please try again later.'
             : error;
         }
