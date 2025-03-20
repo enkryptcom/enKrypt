@@ -247,17 +247,19 @@ const hasEnoughBalance = computed(() => {
     toBN(toBase(sendAmount.value ?? '0', selectedAsset.value.decimals!)),
   );
 });
+
 const sendAmount = computed(() => {
-  if (amount.value && amount.value !== '') return amount.value;
+  if (isMaxSelected.value) {
+    return parseFloat(assetMaxValue.value) < 0 ? '0' : assetMaxValue.value;
+  } else if (amount.value && amount.value !== '') return amount.value;
   return '0';
 });
+
 const isMaxSelected = ref<boolean>(false);
 const selectedFee = ref<GasPriceTypes>(
   props.network.name === NetworkNames.Ethereum || NetworkNames.Binance
     ? GasPriceTypes.REGULAR
-    : props.network.name === NetworkNames.Fantom
-      ? GasPriceTypes.FASTEST
-      : GasPriceTypes.ECONOMY,
+    : GasPriceTypes.ECONOMY,
 );
 const gasCostValues = ref<GasFeeType>(defaultGasCostVals);
 const addressFrom = ref<string>(
@@ -481,14 +483,8 @@ const setTransactionFees = (tx: Transaction) => {
   return tx
     .getGasCosts()
     .then(async gasvals => {
-      const getConvertedVal = (type: GasPriceTypes) => {
-        if (props.network.name === NetworkNames.Fantom) {
-          return BigNumber(fromBase(gasvals[type], props.network.decimals))
-            .times(2)
-            .toString();
-        }
+      const getConvertedVal = (type: GasPriceTypes) =>
         fromBase(gasvals[type], props.network.decimals);
-      };
       const nativeVal = accountAssets.value[0].price || '0';
       gasCostValues.value = {
         [GasPriceTypes.ECONOMY]: {
