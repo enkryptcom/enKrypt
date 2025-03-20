@@ -177,6 +177,7 @@ import { NetworkNames } from '@enkryptcom/types';
 import { trackSendEvents } from '@/libs/metrics';
 import { SendEventType } from '@/libs/metrics/types';
 import RecentlySentAddressesState from '@/libs/recently-sent-addresses';
+import { parseCurrency } from '@/ui/action/utils/filters';
 
 const props = defineProps({
   network: {
@@ -255,7 +256,9 @@ const isMaxSelected = ref<boolean>(false);
 const selectedFee = ref<GasPriceTypes>(
   props.network.name === NetworkNames.Ethereum || NetworkNames.Binance
     ? GasPriceTypes.REGULAR
-    : GasPriceTypes.ECONOMY,
+    : props.network.name === NetworkNames.Fantom
+      ? GasPriceTypes.FASTEST
+      : GasPriceTypes.ECONOMY,
 );
 const gasCostValues = ref<GasFeeType>(defaultGasCostVals);
 const addressFrom = ref<string>(
@@ -448,9 +451,9 @@ const errorMsg = computed(() => {
   ) {
     return `Not enough funds. You are
       ~${formatFloatingPointValue(nativeBalanceAfterTransactionInHumanUnits.value).value}
-      ${props.network.currencyName} ($ ${
-        formatFiatValue(balanceAfterInUsd.value).value
-      }) short.`;
+      ${props.network.currencyName} (${parseCurrency(
+        formatFiatValue(balanceAfterInUsd.value).value,
+      )}) short.`;
   }
 
   if (!props.network.isAddress(addressTo.value) && addressTo.value !== '') {

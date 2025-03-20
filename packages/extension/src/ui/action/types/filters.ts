@@ -1,10 +1,12 @@
+
 /* eslint-disable @typescript-eslint/no-namespace */
 import {
   formatDuration,
   replaceWithEllipsis,
   formatFiatValue,
   formatFloatingPointValue,
-  truncate
+  truncate,
+  parseCurrency
 } from '../utils/filters';
 declare global {
   namespace $filters {
@@ -13,7 +15,8 @@ declare global {
       replaceWithEllipsis,
       formatFiatValue,
       formatFloatingPointValue,
-      truncate
+      truncate,
+      parseCurrency
     };
   }
 }

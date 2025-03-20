@@ -1,12 +1,12 @@
 <template>
   <div>
     <settings-inner-header v-bind="$attrs" :is-general="true" />
-    <!-- <base-select
-      :select="selecCurrency"
+    <settings-select
+      :select="selectCurrency"
       title="Currency"
-      :value="currency"
-      :list="currencyList"
-    ></base-select> -->
+      :value="currentSelectedCurrency"
+      :list="currencySymbols"
+    ></settings-select>
 
     <settings-switch
       title="Turn off Ethereum for 1 hour"
@@ -70,14 +70,17 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import SettingsInnerHeader from '@action/views/settings/components/settings-inner-header.vue';
-// import BaseSelect from "@action/components/base-select/index.vue";
+// import BaseSelect from '@action/components/base-select/index.vue';
+import SettingsSelect from '@action/views/settings/components/settings-select.vue';
 import SettingsButton from '@action/views/settings/components/settings-button.vue';
 import SettingsSwitch from '@action/views/settings/components/settings-switch.vue';
 import SettingsState from '@/libs/settings-state';
 import { SettingsType } from '@/libs/settings-state/types';
 import { optOutofMetrics } from '@/libs/metrics';
+import { useCurrencyStore } from '../../store';
+import { storeToRefs } from 'pinia';
 
 const settingsState = new SettingsState();
 const isEthereumDisabled = ref(false);
@@ -85,6 +88,9 @@ const isPolkadotjsDisabled = ref(false);
 const isUnisatEnabled = ref(true);
 const isMetricsEnabled = ref(true);
 
+const store = useCurrencyStore();
+const { setSelectedCurrency } = store;
+const { currentSelectedCurrency, currencyList } = storeToRefs(store);
 defineEmits<{
   (e: 'open:backups'): void;
 }>();
@@ -105,6 +111,9 @@ const toggleEthereumDisable = async (isChecked: boolean) => {
   await settingsState.setEVMSettings(evmSettings);
   isEthereumDisabled.value = isChecked;
 };
+const selectCurrency = async (currency: string) => {
+  setSelectedCurrency(currency);
+};
 const togglePjsDisable = async (isChecked: boolean) => {
   const subSettings = await settingsState.getSubstrateSettings();
   subSettings.injectPolkadotjs = !isChecked;
@@ -124,6 +133,12 @@ const toggleMetricsEnabled = async (isChecked: boolean) => {
   optOutofMetrics(isChecked);
   isMetricsEnabled.value = !isChecked;
 };
+
+const currencySymbols = computed(() => {
+  return currencyList.value.length > 0
+    ? currencyList.value.map(currency => currency.fiat_currency)
+    : [];
+});
 </script>
 
 <style lang="less">

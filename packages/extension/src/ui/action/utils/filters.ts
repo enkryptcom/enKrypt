@@ -1,8 +1,11 @@
+import { BigNumber } from 'bignumber.js';
 import moment from 'moment';
+import { LANG_INFO } from './currencyConfig';
 import {
   formatFiatValue,
   formatFloatingPointValue,
 } from '@/libs/utils/number-formatter';
+import { useCurrencyStore } from '../views/settings/store';
 export const replaceWithEllipsis = (
   value: string,
   keepLeft: number,
@@ -17,6 +20,19 @@ export const replaceWithEllipsis = (
   );
 };
 
+export const parseCurrency = (value: string): string => {
+  const store = useCurrencyStore();
+  const currency = store.currentSelectedCurrency;
+  const currencyCode = LANG_INFO[currency as keyof typeof LANG_INFO].locale || 'en-US';
+  const findRate = store.currencyList.find((c) => c.fiat_currency === currency);
+  const rate = findRate || { exchange_rate: 1 };
+
+  return new Intl.NumberFormat(currencyCode, {
+    style: 'currency',
+    currency: currency,
+  }).format(parseFloat(BigNumber(value).times(rate.exchange_rate).toString()));
+
+}
 
 export const truncate = (value: string, length: number): string => {
   if (!value) return '';

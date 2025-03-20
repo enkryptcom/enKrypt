@@ -18,7 +18,8 @@
         class="transaction-fee-item__block-amount"
         :class="{ down: parseFloat(diff) < 0 }"
       >
-        {{ parseFloat(diff) < 0 ? '-' : '+' }}${{ Math.abs(parseFloat(diff)) }}
+        {{ parseFloat(diff) < 0 ? '-' : '+'
+        }}{{ $filters.parseCurrency(Math.abs(parseFloat(diff))) }}
       </div>
     </div>
   </a>
