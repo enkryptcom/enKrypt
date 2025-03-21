@@ -63,6 +63,7 @@ import holeskyNode from './holesky';
 import bitrockNode from './bitrock';
 import fraxtalNode from './fraxtal';
 import _5ireNode from './5ire';
+import taraxa from './taraxa';
 
 export default {
   sepolia: sepoliaNode,
@@ -138,5 +139,6 @@ export default {
   holesky: holeskyNode,
   bitrock: bitrockNode,
   frax: fraxtalNode,
+  taraxa: taraxa,
   '5ire': _5ireNode,
 };

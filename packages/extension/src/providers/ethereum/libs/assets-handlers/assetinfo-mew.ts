@@ -186,6 +186,9 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
     tbName: '',
     cgPlatform: CoingeckoPlatform.Solana,
   },
+  [NetworkNames.Taraxa]: {
+    cgPlatform: CoingeckoPlatform.Taraxa,
+  },
 };
 
 const getTokens = (
@@ -243,15 +246,15 @@ export default (
 
     const marketInfo = supportedNetworks[networkName].cgPlatform
       ? await marketData.getMarketInfoByContracts(
-          Object.keys(balances).filter(
-            contract => contract !== NATIVE_TOKEN_ADDRESS,
-          ),
-          supportedNetworks[networkName].cgPlatform as CoingeckoPlatform,
-        )
+        Object.keys(balances).filter(
+          contract => contract !== NATIVE_TOKEN_ADDRESS,
+        ),
+        supportedNetworks[networkName].cgPlatform as CoingeckoPlatform,
+      )
       : tokens.reduce(
-          (obj, cur) => ({ ...obj, [cur.contract]: null }),
-          {} as Record<string, CoinGeckoTokenMarket | null>,
-        );
+        (obj, cur) => ({ ...obj, [cur.contract]: null }),
+        {} as Record<string, CoinGeckoTokenMarket | null>,
+      );
     if (network.coingeckoID) {
       const nativeMarket = await marketData.getMarketData([
         network.coingeckoID,
