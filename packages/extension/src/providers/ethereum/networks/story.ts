@@ -21,7 +21,7 @@ const storyOptions: EvmNetworkOptions = {
   coingeckoID: 'story-2',
   NFTHandler: shNFTHandler,
   assetsInfoHandler,
-  activityHandler: wrapActivityHandler(EtherscanActivity),
+  activityHandler: wrapActivityHandler(() => Promise.resolve([])),
 };
 
 const story = new EvmNetwork(storyOptions);
