@@ -104,6 +104,7 @@ export enum NetworkNames {
   Ink = "Ink",
   Gravity = "Gravity",
   Bera = "Bera",
+  Taraxa = "Taraxa",
 }
 
 export enum CoingeckoPlatform {
@@ -168,4 +169,5 @@ export enum CoingeckoPlatform {
   Unichain = "unichain",
   Story = "story",
   Ink = "ink",
+  Taraxa = "taraxa",
 }

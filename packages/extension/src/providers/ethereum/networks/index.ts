@@ -69,6 +69,7 @@ import gravityNode from './gravity';
 import unichainNode from './unichain';
 import abstractNode from './abstract';
 import inkNode from './inkonchain';
+import taraxa from './taraxa';
 
 export default {
   sepolia: sepoliaNode,
@@ -144,11 +145,12 @@ export default {
   holesky: holeskyNode,
   bitrock: bitrockNode,
   frax: fraxtalNode,
+  taraxa: taraxa,
   '5ire': _5ireNode,
   bera: beraNode,
   story: storyNode,
   gravity: gravityNode,
   unichain: unichainNode,
   abstract: abstractNode,
-  ink: inkNode
+  ink: inkNode,
 };

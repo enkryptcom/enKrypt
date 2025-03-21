@@ -212,6 +212,9 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
     tbName: '',
     cgPlatform: CoingeckoPlatform.Solana,
   },
+  [NetworkNames.Taraxa]: {
+    cgPlatform: CoingeckoPlatform.Taraxa,
+  },
 };
 
 const getTokens = (

@@ -7,6 +7,7 @@ const newNetworks = [
   NetworkNames.Unichain,
   NetworkNames.Bera,
   NetworkNames.Ink,
+  NetworkNames.Taraxa,
 ];
 const newSwaps: NetworkNames[] = [];
 
