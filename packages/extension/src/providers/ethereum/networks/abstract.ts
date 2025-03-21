@@ -21,7 +21,7 @@ const absOptions: EvmNetworkOptions = {
   coingeckoID: 'ethereum',
   NFTHandler: shNFTHandler,
   assetsInfoHandler,
-  activityHandler: wrapActivityHandler(EtherscanActivity),
+  activityHandler: wrapActivityHandler(() => Promise.resolve([])),
 };
 
 const abstract = new EvmNetwork(absOptions);
