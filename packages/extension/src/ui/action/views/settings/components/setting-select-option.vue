@@ -70,6 +70,7 @@ const select = () => {
       border-radius: 50%;
       overflow: hidden;
       margin-right: 12px;
+      border: 1px solid @grayPrimary;
 
       img {
         width: 60px;

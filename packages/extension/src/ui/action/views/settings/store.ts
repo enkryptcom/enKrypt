@@ -13,14 +13,28 @@ export const useCurrencyStore = defineStore('currencyStore', () => {
   const currentSelectedCurrency = ref<string>('USD');
   const currencyList = ref<Currency[]>([]);
 
-  const setCurrencyList = (list: Currency[]) => {
-    pullFromSettingsState();
-    currencyList.value = list;
-  };
-
   const pullFromSettingsState = async () => {
     const currencySettings = await settingsState.getCurrencySettings();
     currentSelectedCurrency.value = currencySettings.value;
+  }
+
+  const setCurrencyList = (list: Currency[]) => {
+    pullFromSettingsState();
+    const newList = [];
+    for (const currency of list) {
+      if (currency.fiat_currency === 'USD' || currency.fiat_currency === 'EUR' || currency.fiat_currency === 'JPY' || currency.fiat_currency === 'GBP' || currency.fiat_currency === 'KRW' || currency.fiat_currency === 'CAD') {
+        newList.unshift({
+          fiat_currency: currency.fiat_currency,
+          exchange_rate: currency.exchange_rate
+        });
+      } else {
+        newList.push({
+          fiat_currency: currency.fiat_currency,
+          exchange_rate: currency.exchange_rate
+        });
+      }
+      currencyList.value = newList;
+    };
   }
 
   const setSelectedCurrency = async (currency: string) => {
