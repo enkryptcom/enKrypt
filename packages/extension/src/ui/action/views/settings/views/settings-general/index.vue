@@ -8,10 +8,7 @@
       :list="currencySymbols"
     ></settings-select>
     <div class="settings__label">
-      <p>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Loerm ipsum
-        dolor sit amet.
-      </p>
+      <p>Select your preferred currency</p>
     </div>
 
     <settings-switch
