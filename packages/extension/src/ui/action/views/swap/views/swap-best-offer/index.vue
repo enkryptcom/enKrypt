@@ -445,7 +445,7 @@ const sendAction = async () => {
           TXSendErrorMessage.value = error
             .toLowerCase()
             .includes('simulation failed')
-            ? 'Network may be busy. Please try again later.'
+            ? 'Network may be busy. Please try again at a later time.'
             : error;
         }
         trackSwapEvents(SwapEventType.swapFailed, {
