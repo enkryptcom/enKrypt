@@ -5,12 +5,10 @@
  * managing pinned networks, and handling test networks.
  */
 
-import { defineStore } from 'pinia'
+import { defineStore } from 'pinia';
 import { BaseNetwork } from '@/types/base-network';
 import NetworksState from '@/libs/networks-state';
-import {
-  getAllNetworks,
-} from '@/libs/utils/networks';
+import { getAllNetworks } from '@/libs/utils/networks';
 import { NetworkNames } from '@enkryptcom/types';
 import { computed, ref } from 'vue';
 
@@ -33,7 +31,6 @@ import { computed, ref } from 'vue';
  * @method {Function} setTestNetStatus - Sets the test network status.
  */
 export const useNetworksStore = defineStore('useNetworksStore', () => {
-
   const networksState = new NetworksState();
   const allNetworks = ref<BaseNetwork[]>([]);
   const pinnedNetworkNames = ref<string[]>([]);
@@ -43,7 +40,12 @@ export const useNetworksStore = defineStore('useNetworksStore', () => {
    * @property {ComputedRef<BaseNetwork[]>} pinnedNetworks - A computed reference to the list of pinned networks.
    */
   const pinnedNetworks = computed<BaseNetwork[]>(() => {
-    return pinnedNetworkNames.value.map(name => allNetworks.value.find(network => network.name === name)!);
+    return allNetworks.value.filter(network => {
+      if (pinnedNetworkNames.value.includes(network.name)) {
+        return true;
+      }
+      return false;
+    });
   });
 
   /**
@@ -57,19 +59,17 @@ export const useNetworksStore = defineStore('useNetworksStore', () => {
   const orderedNetworks = computed<BaseNetwork[]>(() => {
     return [
       ...pinnedNetworks.value,
-      ...allNetworks.value.filter(
-        network => {
-          if (pinnedNetworkNames.value.includes(network.name)) {
-            return false
-          }
-          if (network.isTestNetwork) {
-            return enabledTestNetworks.value.includes(network.name)
-          }
-          return true;
+      ...allNetworks.value.filter(network => {
+        if (pinnedNetworkNames.value.includes(network.name)) {
+          return false;
         }
-      ),
+        if (network.isTestNetwork) {
+          return enabledTestNetworks.value.includes(network.name);
+        }
+        return true;
+      }),
     ];
-  })
+  });
 
   /**
    * @method setActiveNetworks - Fetches and sets the active networks, pinned network names, and enabled test networks.
@@ -116,7 +116,6 @@ export const useNetworksStore = defineStore('useNetworksStore', () => {
     }
   };
 
-
   return {
     networksState,
     allNetworks,
@@ -127,6 +126,6 @@ export const useNetworksStore = defineStore('useNetworksStore', () => {
     setIsPinnedNetwork,
     updateNetworkOrder,
     setActiveNetworks,
-    setTestNetStatus
+    setTestNetStatus,
   };
 });
