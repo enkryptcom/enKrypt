@@ -7,6 +7,12 @@
       :value="currentSelectedCurrency"
       :list="currencySymbols"
     ></settings-select>
+    <div class="settings__label">
+      <p>
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Loerm ipsum
+        dolor sit amet.
+      </p>
+    </div>
 
     <settings-switch
       title="Turn off Ethereum for 1 hour"
@@ -91,9 +97,7 @@ const isMetricsEnabled = ref(true);
 const store = useCurrencyStore();
 const { setSelectedCurrency } = store;
 const { currentSelectedCurrency, currencyList } = storeToRefs(store);
-defineEmits<{
-  (e: 'open:backups'): void;
-}>();
+defineEmits<{ (e: 'open:backups'): void }>();
 
 onMounted(async () => {
   const allSettings: SettingsType = await settingsState.getAllSettings();
@@ -104,10 +108,7 @@ onMounted(async () => {
 });
 const toggleEthereumDisable = async (isChecked: boolean) => {
   const evmSettings = await settingsState.getEVMSettings();
-  evmSettings.inject = {
-    disabled: isChecked,
-    timestamp: new Date().getTime(),
-  };
+  evmSettings.inject = { disabled: isChecked, timestamp: new Date().getTime() };
   await settingsState.setEVMSettings(evmSettings);
   isEthereumDisabled.value = isChecked;
 };

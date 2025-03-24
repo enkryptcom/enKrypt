@@ -15,7 +15,6 @@ export const useCurrencyStore = defineStore('currencyStore', () => {
 
   const setCurrencyList = (list: Currency[]) => {
     pullFromSettingsState();
-    console.log(list)
     currencyList.value = list;
   };
 
