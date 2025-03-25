@@ -108,7 +108,7 @@ import { BaseNetwork } from '@/types/base-network';
 import { InternalMethods } from '@/types/messenger';
 import { EnkryptAccount, NetworkNames } from '@enkryptcom/types';
 import { fromBase } from '@enkryptcom/utils';
-import { computed, onMounted, ref, onBeforeMount } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import Browser from 'webextension-polyfill';
 import AccountsHeader from './components/accounts-header/index.vue';
@@ -276,9 +276,7 @@ onMounted(async () => {
     openOnboard();
   }
 });
-onBeforeMount(() => {
-  menuStore.init();
-});
+
 /**
  * Update the gradient of the app menu on the active network change
  */

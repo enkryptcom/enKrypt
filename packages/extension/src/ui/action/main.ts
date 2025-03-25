@@ -4,6 +4,7 @@ import router from './router';
 import * as filters from './utils/filters';
 import Vue3Lottie from 'vue3-lottie';
 import { createPinia } from 'pinia';
+import { useMenuStore } from './store/menu-store';
 
 global.WeakMap = WeakMap;
 
@@ -17,5 +18,7 @@ const pinia = createPinia();
 app.use(router).use(Vue3Lottie, { name: 'vue3lottie' }).use(pinia);
 
 app.config.globalProperties.$filters = filters;
-
+const menuStore = useMenuStore();
+// Get isExpanded value from MenuState and set it to the store
+await menuStore.init();
 app.mount('#app');
