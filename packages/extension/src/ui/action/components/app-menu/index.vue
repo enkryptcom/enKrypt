@@ -198,7 +198,7 @@ import { useUpdatesStore } from '@action/store/updates-store';
 import { storeToRefs } from 'pinia';
 import { onClickOutside } from '@vueuse/core';
 import SearchIcon from '@action/icons/common/search.vue';
-import MenuState from '@/libs/menu-state';
+import { useMenuStore } from '@action/store/menu-store';
 
 const appMenuRef = ref(null);
 
@@ -263,12 +263,10 @@ onMounted(async () => {
 /** -------------------
  * Expand/Collapse state
  -------------------*/
-const isExpanded = defineModel<boolean>('is-expanded');
-const menuState = new MenuState();
-
+const menuStore = useMenuStore();
+const { isExpanded } = storeToRefs(menuStore);
 const setExpanded = (value: boolean) => {
-  isExpanded.value = value;
-  menuState.setIsExpanded(value);
+  menuStore.setIsExpanded(value);
 };
 
 /** -------------------

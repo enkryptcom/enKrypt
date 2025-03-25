@@ -6,12 +6,14 @@
       'app',
     ]"
   >
-    <div v-if="isLoading" class="app__loading">
+    <div
+      v-if="isLoading"
+      :class="['app__loading', isExpanded ? 'expanded' : 'collapsed']"
+    >
       <swap-looking-animation />
     </div>
     <div v-show="!isLoading">
       <app-menu
-        v-model:is-expanded="isExpanded"
         :active-network="currentNetwork"
         @update:network="setNetwork"
         @show:updates-dialog="setShowUpdatesDialog(true)"
@@ -106,7 +108,7 @@ import { BaseNetwork } from '@/types/base-network';
 import { InternalMethods } from '@/types/messenger';
 import { EnkryptAccount, NetworkNames } from '@enkryptcom/types';
 import { fromBase } from '@enkryptcom/utils';
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, onBeforeMount } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import Browser from 'webextension-polyfill';
 import AccountsHeader from './components/accounts-header/index.vue';
@@ -129,7 +131,7 @@ import { useNetworksStore } from './store/networks-store';
 import { storeToRefs } from 'pinia';
 import { BuyEventType, NetworkChangeEvents } from '@/libs/metrics/types';
 import BackupState from '@/libs/backup-state';
-import MenuState from '@/libs/menu-state';
+import { useMenuStore } from './store/menu-store';
 
 const domainState = new DomainState();
 const rateState = new RateState();
@@ -159,8 +161,8 @@ const latestVersion = ref('');
 /** -------------------
  * Exapnded Menu
  -------------------*/
-const menuState = new MenuState();
-const isExpanded = ref(true);
+const menuStore = useMenuStore();
+const { isExpanded } = storeToRefs(menuStore);
 
 /** -------------------
  * Updates
@@ -270,10 +272,12 @@ onMounted(async () => {
       }, 2000);
     }
     updatesStore.init();
-    isExpanded.value = await menuState.getIsExpanded();
   } else {
     openOnboard();
   }
+});
+onBeforeMount(() => {
+  menuStore.init();
 });
 /**
  * Update the gradient of the app menu on the active network change
@@ -495,7 +499,6 @@ body {
     height 0.3s ease-in;
 
   &__loading {
-    width: 800px;
     height: 600px;
     display: flex;
     flex-direction: row;
