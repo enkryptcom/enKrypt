@@ -9,7 +9,7 @@ import { haskoinHandler } from '../libs/activity-handlers';
 import wrapActivityHandler from '@/libs/activity-state/wrap-activity-handler';
 import BTCFeeHandler from '../libs/btc-fee-handler';
 import HaskoinAPI from '../libs/api';
-import shNFTHandler from '@/libs/nft-handlers/simplehash-ordinals';
+import shNFTHandler from '@/libs/nft-handlers/unisat-ordinals';
 
 const bitcoinOptions: BitcoinNetworkOptions = {
   name: NetworkNames.Bitcoin,

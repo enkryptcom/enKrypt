@@ -2,7 +2,7 @@ import { NFTCollection, NFTType } from '@/types/nft';
 import { NodeType } from '@/types/provider';
 import cacheFetch from '../cache-fetch';
 import { NetworkNames } from '@enkryptcom/types';
-import { GRNFTType, GRResponse } from './types/simplehash';
+import { GRNFTType, GRResponse } from './types/goldrush';
 import imgNotFound from '@action/assets/common/not-found.jpg';
 const GR_ENDPOINT = 'https://partners.mewapi.io/nftsv2/';
 const CACHE_TTL = 60 * 1000;
