@@ -1,11 +1,11 @@
 <template>
-  <div class="deposit" :class="{ show: showDeposit }">
-    <div class="deposit__overlay" @click="$emit('toggle:deposit')" />
-    <div class="deposit__wrap" :class="{ show: showDeposit }">
-      <a class="deposit__close" @click="$emit('toggle:deposit')">
-        <close-icon />
-      </a>
-
+  <app-dialog
+    v-model="openDialog"
+    width="360px"
+    is-centered
+    @close:dialog="toggleDialog"
+  >
+    <div class="deposit">
       <img class="deposit__logo" :src="network.icon" />
 
       <h2>Your {{ network.name_long }} address</h2>
@@ -50,12 +50,11 @@
         />
       </div>
     </div>
-  </div>
+  </app-dialog>
 </template>
 
 <script setup lang="ts">
-import { PropType, ref, onMounted, computed } from 'vue';
-import CloseIcon from '@action/icons/common/close-icon.vue';
+import { PropType, ref, onMounted, computed, watch } from 'vue';
 import CopyIcon from '@action/icons/header/copy_icon.vue';
 import QrcodeVue from 'qrcode.vue';
 import { EnkryptAccount } from '@enkryptcom/types';
@@ -63,6 +62,8 @@ import Notification from '@action/components/notification/index.vue';
 import { ProviderName } from '@/types/provider';
 import { BaseNetwork, SubNetworkOptions } from '@/types/base-network';
 import DomainState from '@/libs/domain-state';
+import AppDialog from '@action/components/app-dialog/index.vue';
+
 const isCopied = ref(false);
 const subNetwork = ref<SubNetworkOptions | null>(null);
 const props = defineProps({
@@ -81,7 +82,7 @@ const props = defineProps({
     default: () => false,
   },
 });
-defineEmits<{
+const emit = defineEmits<{
   (e: 'toggle:deposit'): void;
 }>();
 const copy = (address: string) => {
@@ -109,98 +110,48 @@ const depositCopy = computed(() => {
   else
     return `You can send ${props.network.currencyNameLong} to this address using ${props.network.name_long} network.`;
 });
+
+/** -------------------
+ * Open Close Dialog
+ -------------------*/
+const openDialog = ref(false);
+const toggleDialog = () => {
+  emit('toggle:deposit');
+};
+watch(
+  () => props.showDeposit,
+  () => {
+    openDialog.value = props.showDeposit;
+  },
+);
 </script>
 
 <style lang="less" scoped>
 @import '@action/styles/theme.less';
 
 .deposit {
-  width: 800px;
-  height: 600px;
-  left: -340px;
-  top: 0px;
-  position: fixed;
-  z-index: 105;
-  display: none;
-  box-sizing: border-box;
-  justify-content: center;
-  align-items: center;
-  flex-direction: row;
-
-  &.show {
-    display: flex;
+  h2 {
+    font-style: normal;
+    font-weight: 700;
+    font-size: 20px;
+    line-height: 28px;
+    letter-spacing: 0.15px;
+    color: @primaryLabel;
+    margin: 0;
   }
 
-  &__overlay {
-    background: rgba(0, 0, 0, 0.32);
-    width: 100%;
-    height: 100%;
-    left: 0px;
-    top: 0px;
-    position: absolute;
-    z-index: 106;
-  }
-
-  &__wrap {
-    width: 360px;
-    background: @white;
-    box-shadow:
-      0px 0.5px 5px rgba(0, 0, 0, 0.039),
-      0px 3.75px 11px rgba(0, 0, 0, 0.19);
-    border-radius: 12px;
-    position: relative;
-    z-index: 107;
-    overflow: hidden;
-    padding: 20px;
-    box-sizing: border-box;
-    opacity: 0;
-    visibility: hidden;
-    transition:
-      opacity 0.3s,
-      visibility 0s ease-in-out 0.3s;
-
-    &.show {
-      opacity: 1;
-      visibility: visible;
-      transition-delay: 0s;
-    }
-
-    h2 {
-      font-style: normal;
-      font-weight: 700;
-      font-size: 20px;
-      line-height: 28px;
-      letter-spacing: 0.15px;
-      color: @primaryLabel;
-      margin: 0;
-    }
-
-    p {
-      font-style: normal;
-      font-weight: 400;
-      font-size: 14px;
-      line-height: 20px;
-      letter-spacing: 0.25px;
-      color: @primaryLabel;
-      margin: 0 0 24px 0;
-    }
-  }
-
-  &__close {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 0;
-    transition: background 300ms ease-in-out;
-
-    &:hover {
-      background: @black007;
-    }
+  p {
+    font-style: normal;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 20px;
+    letter-spacing: 0.25px;
+    color: @primaryLabel;
+    margin: 0 0 24px 0;
   }
 
   &__logo {
+    object-fit: contain;
     display: block;
     height: 32px;
     width: 32px;

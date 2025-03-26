@@ -41,6 +41,10 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  isBottomLeft: {
+    type: Boolean,
+    default: false,
+  },
   teleportToApp: {
     type: Boolean,
     default: false,
@@ -86,6 +90,13 @@ const onHover = (e: any) => {
             tooltipRef.value.style.top = `${topPosition}px`;
             tooltipRef.value.style.transform =
               'translateX(0) translateY(-100%)';
+          } else if (props.isBottomLeft) {
+            const left =
+              e.target.getBoundingClientRect().x -
+              e.target.getBoundingClientRect().width +
+              10;
+            tooltipRef.value.style.left = `${left}px`;
+            tooltipRef.value.style.top = `${bottom}px`;
           } else {
             const tooltipMiddle =
               tooltipRef.value.getBoundingClientRect().width / 2;
@@ -137,6 +148,9 @@ const classObject = () => {
   }
   if (props.isTopLeft) {
     return { 'left-top': true, visible: visible.value };
+  }
+  if (props.isBottomRight) {
+    return { 'left-bottom': true, visible: visible.value };
   }
   const x = positionX.value;
   const y = positionY.value;
@@ -193,6 +207,11 @@ const classObject = () => {
     &.right-bottom {
       top: calc(~'100% + 3px');
       right: 0;
+      transform: translateX(0) translateY(0px);
+    }
+    &.left-bottom {
+      top: calc(~'100% + 3px');
+      left: 0;
       transform: translateX(0) translateY(0px);
     }
     &.right-top {

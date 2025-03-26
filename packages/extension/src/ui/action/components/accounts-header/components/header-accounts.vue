@@ -65,7 +65,7 @@
         </a>
       </tooltip>
 
-      <tooltip text="Account's QR code">
+      <tooltip text="Account's QR code" is-bottom-left>
         <a
           showDeposit
           class="account__actions--copy"
