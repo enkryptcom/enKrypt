@@ -215,6 +215,9 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
   [NetworkNames.Taraxa]: {
     cgPlatform: CoingeckoPlatform.Taraxa,
   },
+  [NetworkNames.Coti]: {
+    cgPlatform: CoingeckoPlatform.Coti,
+  },
 };
 
 const getTokens = (

@@ -8,6 +8,7 @@ const newNetworks = [
   NetworkNames.Bera,
   NetworkNames.Ink,
   NetworkNames.Taraxa,
+  NetworkNames.Coti,
 ];
 const newSwaps: NetworkNames[] = [];
 

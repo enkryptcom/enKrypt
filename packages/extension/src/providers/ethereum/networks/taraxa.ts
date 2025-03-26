@@ -2,7 +2,6 @@ import icon from './icons/tara.png';
 import wrapActivityHandler from '@/libs/activity-state/wrap-activity-handler';
 import { CoingeckoPlatform, NetworkNames } from '@enkryptcom/types';
 import { EvmNetwork, EvmNetworkOptions } from '../types/evm-network';
-import assetsInfoHandler from '@/providers/ethereum/libs/assets-handlers/assetinfo-mew';
 const taraxaOptions: EvmNetworkOptions = {
   name: NetworkNames.Taraxa,
   name_long: 'Taraxa',
@@ -17,7 +16,6 @@ const taraxaOptions: EvmNetworkOptions = {
   icon,
   coingeckoID: 'taraxa',
   coingeckoPlatform: CoingeckoPlatform.Taraxa,
-  assetsInfoHandler,
   activityHandler: wrapActivityHandler(() => Promise.resolve([])),
 };
 
