@@ -116,7 +116,6 @@ const dialogStyle = computed(() => {
     z-index: 107;
     overflow-y: scroll;
     max-height: 100%;
-    padding: 20px;
     box-sizing: border-box;
     opacity: 0;
     visibility: hidden;
@@ -159,7 +158,7 @@ const dialogStyle = computed(() => {
     cursor: pointer;
     font-size: 0;
     transition: background 300ms ease-in-out;
-
+    z-index: 108;
     &:hover {
       background: @black007;
     }

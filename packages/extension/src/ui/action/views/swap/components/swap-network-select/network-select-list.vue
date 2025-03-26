@@ -1,14 +1,14 @@
 <template>
-  <div class="assets-select-list">
-    <div class="assets-select-list__header">
+  <div class="network-select-list">
+    <div class="network-select-list__header">
       <h3>Select to Network</h3>
-      <a class="assets-select-list__close" @click="close">
+      <a class="network-select-list__close" @click="close">
         <close-icon />
       </a>
     </div>
 
     <custom-scrollbar
-      class="assets-select-list__scroll-area"
+      class="network-select-list__scroll-area"
       :settings="scrollSettings({ suppressScrollX: true })"
     >
       <network-select-list-item
@@ -49,7 +49,7 @@ const close = () => {
 @import '@action/styles/theme.less';
 @import '@action/styles/custom-scroll.less';
 
-.assets-select-list {
+.network-select-list {
   width: 100%;
   background: #ffffff;
   position: fixed;
