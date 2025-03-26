@@ -3,7 +3,7 @@ import { CoingeckoPlatform, NetworkNames } from '@enkryptcom/types';
 import { EvmNetwork, EvmNetworkOptions } from '../types/evm-network';
 import assetsInfoHandler from '@/providers/ethereum/libs/assets-handlers/assetinfo-mew';
 import wrapActivityHandler from '@/libs/activity-state/wrap-activity-handler';
-import shNFTHandler from '@/libs/nft-handlers/simplehash';
+import shNFTHandler from '@/libs/nft-handlers/goldrush';
 
 const bscOptions: EvmNetworkOptions = {
   name: NetworkNames.Binance,

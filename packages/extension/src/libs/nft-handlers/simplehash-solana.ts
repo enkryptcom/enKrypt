@@ -2,14 +2,10 @@ import { NFTCollection, NFTItem, NFTType } from '@/types/nft';
 import { NodeType } from '@/types/provider';
 import cacheFetch from '../cache-fetch';
 import { NetworkNames } from '@enkryptcom/types';
-import { SHNFTType, SHResponse, SHSolanaNFTType } from './types/simplehash';
 import imgNotFound from '@action/assets/common/not-found.jpg';
-const SH_ENDPOINT = 'https://partners.mewapi.io/nfts/';
+import { HeliusNFTType, HeliusResponse } from './types/helius';
+const HELIUS_ENDPOINT = 'https://nodes.mewapi.io/rpc/sol';
 const CACHE_TTL = 60 * 1000;
-const SolanaTokenPrograms = {
-  Bubblegum: 'BGUMAp9Gq7iTEuizy4pqaxsTyUCBK68MDfK752saRPUY',
-  Token: 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
-};
 export default async (
   network: NodeType,
   address: string,
@@ -18,76 +14,82 @@ export default async (
     [NetworkNames.Solana]: 'solana',
   };
   if (!Object.keys(supportedNetworks).includes(network.name))
-    throw new Error('Simplehash: network not supported');
-  let allItems: SHSolanaNFTType[] = [];
-  const fetchAll = (continuation?: string): Promise<void> => {
-    const query = continuation
-      ? continuation
-      : `${SH_ENDPOINT}owners_v2?chains=${
-          supportedNetworks[network.name as keyof typeof supportedNetworks]
-        }&wallet_addresses=${network.displayAddress(
-          address,
-        )}&filters=spam_score__lte=50`;
+    throw new Error('helius: network not supported');
+  let allItems: HeliusNFTType[] = [];
+  const fetchAll = (continuation = 1): Promise<void> => {
+    const query = {
+      jsonrpc: '2.0',
+      id: '1',
+      method: 'getAssetsByOwner',
+      params: {
+        ownerAddress: network.displayAddress(address),
+        page: continuation,
+        limit: 50,
+        sortBy: {
+          sortBy: 'created',
+          sortDirection: 'asc',
+        },
+        options: {
+          showUnverifiedCollections: false,
+          showCollectionMetadata: true,
+          showGrandTotal: false,
+          showFungible: false,
+          showNativeBalance: false,
+          showInscription: true,
+          showZeroBalance: true,
+        },
+      },
+    };
     return cacheFetch(
       {
-        url: query,
+        url: HELIUS_ENDPOINT,
+        post: query,
       },
       CACHE_TTL,
     ).then(json => {
-      const items: SHNFTType[] = (json.result as SHResponse).nfts;
-      allItems = allItems.concat(items as SHSolanaNFTType[]);
-      if (json.result.next) return fetchAll(json.result.next);
+      const items: HeliusNFTType[] = (json as HeliusResponse).result.items;
+      allItems = allItems.concat(items);
+      if (items.length) return fetchAll(++continuation);
     });
   };
   await fetchAll();
   if (!allItems || !allItems.length) return [];
   const collections: Record<string, NFTCollection> = {};
   allItems.forEach(item => {
-    if (!item.image_url && !item.previews.image_medium_url) return;
-    if (
-      item.extra_metadata.token_program !== SolanaTokenPrograms.Bubblegum &&
-      item.extra_metadata.token_program !== SolanaTokenPrograms.Token
-    )
-      return;
-    if (collections[item.collection.collection_id]) {
+    if (!item.content.files.length || !item.content.files[0].cdn_uri) return;
+    if (item.interface !== 'V1_NFT') return;
+    if (collections[item.id]) {
       const tItem: NFTItem = {
-        contract: item.contract_address,
-        id: item.nft_id,
-        image: item.image_url || item.previews.image_medium_url,
-        name: item.name,
-        url: item.collection.marketplace_pages.length
-          ? item.collection.marketplace_pages[0].nft_url
-          : `https://magiceden.io/item-details/${item.contract_address}`,
-        type:
-          item.extra_metadata.token_program === SolanaTokenPrograms.Bubblegum
-            ? NFTType.SolanaBGUM
-            : NFTType.SolanaToken,
+        contract: item.id,
+        id: item.id,
+        image: item.content.files[0].cdn_uri,
+        name: item.content.metadata.name || item.content.metadata.symbol,
+        url: `https://magiceden.io/item-details/${item.id}`,
+        type: item.compression.compressed
+          ? NFTType.SolanaBGUM
+          : NFTType.SolanaToken,
       };
-      collections[item.collection.collection_id].items.push(tItem);
+      collections[item.id].items.push(tItem);
     } else {
       const ret: NFTCollection = {
-        name: item.collection.name,
-        description: item.collection.description,
-        image: item.collection.image_url || imgNotFound,
-        contract: item.contract_address,
+        name: item.content.metadata.name || item.content.metadata.symbol,
+        description: item.content.metadata.description,
+        image: item.content.files[0].cdn_uri || imgNotFound,
+        contract: item.id,
         items: [
           {
-            contract: item.contract_address,
-            id: item.nft_id,
-            image: item.image_url || item.previews.image_medium_url,
-            name: item.name,
-            url: item.collection.marketplace_pages.length
-              ? item.collection.marketplace_pages[0].nft_url
-              : `https://magiceden.io/item-details/${item.contract_address}`,
-            type:
-              item.extra_metadata.token_program ===
-              SolanaTokenPrograms.Bubblegum
-                ? NFTType.SolanaBGUM
-                : NFTType.SolanaToken,
+            contract: item.id,
+            id: item.id,
+            image: item.content.files[0].cdn_uri,
+            name: item.content.metadata.name || item.content.metadata.symbol,
+            url: `https://magiceden.io/item-details/${item.id}`,
+            type: item.compression.compressed
+              ? NFTType.SolanaBGUM
+              : NFTType.SolanaToken,
           },
         ],
       };
-      collections[item.collection.collection_id] = ret;
+      collections[item.id] = ret;
     }
   });
   return Object.values(collections);
