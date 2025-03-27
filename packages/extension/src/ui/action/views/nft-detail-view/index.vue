@@ -114,17 +114,6 @@ const model = defineModel<boolean>();
   box-sizing: border-box;
 
   &__wrap {
-    // background: @white;
-    // box-shadow:
-    //   0px 3px 6px rgba(0, 0, 0, 0.039),
-    //   0px 7px 24px rgba(0, 0, 0, 0.19);
-    // border-radius: 12px;
-    // box-sizing: border-box;
-    // width: 360px;
-    // height: auto;
-    // z-index: 107;
-    // position: relative;
-    // height: auto;
     overflow-x: hidden;
     padding: 24px 32px 32px 32px;
 
