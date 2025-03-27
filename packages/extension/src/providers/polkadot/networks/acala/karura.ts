@@ -9,7 +9,7 @@ import wrapActivityHandler from '@/libs/activity-state/wrap-activity-handler';
 import ormlAssetHandler from './libs/assetinfo-orml';
 import { toBN } from 'web3-utils';
 import { toBase } from '@enkryptcom/utils';
-import icon from '../icons/karura.svg';
+import icon from '../icons/karura.webp';
 
 const karuraOptions: SubstrateNetworkOptions = {
   name: NetworkNames.Karura,

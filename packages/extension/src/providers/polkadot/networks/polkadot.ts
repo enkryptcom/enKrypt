@@ -6,7 +6,7 @@ import {
 } from '../types/substrate-network';
 import { subscanActivity } from '../libs/activity-handlers';
 import wrapActivityHandler from '@/libs/activity-state/wrap-activity-handler';
-import icon from './icons/polkadot.svg';
+import icon from './icons/polkadot.webp';
 
 const polkadotOptions: SubstrateNetworkOptions = {
   name: NetworkNames.Polkadot,

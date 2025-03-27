@@ -71,7 +71,7 @@ const setActiveCategory = (category: NetworksCategory) => {
   border-radius: 10px;
   padding: 4px;
   gap: 1px;
-  margin-top: 4px;
+  margin-top: 8px;
   margin-bottom: 4px;
 
   &-tab {

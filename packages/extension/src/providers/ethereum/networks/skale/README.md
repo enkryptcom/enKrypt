@@ -30,7 +30,7 @@ const skaleOptions: SkaleParams = {
   chainName: "new-name-chain",                              // change to your SKALE chain actual name in the network
   chainID: "0x11111111",                                    // change to your SKALE chain chainID
   isTestNetwork: true,                                      // optional param (default: false)
-  icon: "newNameChain.png"                                  // optional param - icon of your chain placed in `networks/icons` (default: "skl.png")
+  icon: "newNameChain.png"                                  // optional param - icon of your chain placed in `networks/icons` (default: "skl.webp")
 };
 
 export const assets: ICustomSKALEAsset[] = [                // optional param - array of preconfigured tokens (ETHC - is predeployed token)
@@ -46,7 +46,7 @@ export const assets: ICustomSKALEAsset[] = [                // optional param - 
     address: "0x7777777777777777777777777777777777777777",  // address of your token on SKALE chain
     coingeckoID: "ethereum",                                // coingecko platform ID of your token
     showZero: true,                                         // optional param - show token balance if balance is zero (default: false )
-    icon: "yourToken.png",                                  // optional param - icon of token placed in `networks/icons` (default: imported from coingecko or "skl.png" )
+    icon: "yourToken.png",                                  // optional param - icon of token placed in `networks/icons` (default: imported from coingecko or "skl.webp" )
     decimals: 6,                                            // optional param - decimals of token (default: 18 )
   },
 ];

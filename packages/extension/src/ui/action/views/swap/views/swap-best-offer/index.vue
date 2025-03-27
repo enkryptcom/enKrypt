@@ -60,11 +60,10 @@
         </custom-scrollbar>
 
         <transaction-fee-view
+          v-model="isOpenSelectFee"
           :fees="gasCostValues"
-          :show-fees="isOpenSelectFee"
           :selected="selectedFee"
           :is-header="true"
-          @close-popup="toggleSelectFee"
           @gas-type-changed="selectFee"
         />
       </div>

@@ -52,11 +52,10 @@
       />
 
       <assets-select-list
-        v-show="isOpenSelectToken"
+        v-model="isOpenSelectToken"
         :is-send="true"
         :assets="accountAssets"
         :is-loading="isLoadingAssets"
-        @close="toggleSelectToken"
         @update:select-asset="selectToken"
       />
 

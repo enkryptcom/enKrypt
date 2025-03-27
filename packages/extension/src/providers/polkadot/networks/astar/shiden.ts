@@ -8,7 +8,7 @@ import {
 } from '../../types/substrate-network';
 import assetHandler from '@/providers/polkadot/libs/asset-handler';
 import { toBN } from 'web3-utils';
-import icon from '../icons/shiden.png';
+import icon from '../icons/shiden.webp';
 
 const shidenOptions: SubstrateNetworkOptions = {
   name: NetworkNames.Shiden,

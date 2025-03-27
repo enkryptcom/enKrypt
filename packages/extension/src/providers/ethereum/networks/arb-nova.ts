@@ -1,4 +1,4 @@
-import icon from './icons/arbitrum-nova.png';
+import icon from './icons/arbitrum-nova.webp';
 import { CoingeckoPlatform, NetworkNames } from '@enkryptcom/types';
 import { EvmNetwork, EvmNetworkOptions } from '../types/evm-network';
 import assetsInfoHandler from '@/providers/ethereum/libs/assets-handlers/assetinfo-mew';

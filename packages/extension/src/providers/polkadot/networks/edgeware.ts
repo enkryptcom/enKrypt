@@ -6,7 +6,7 @@ import {
   SubstrateNetworkOptions,
 } from '../types/substrate-network';
 import wrapActivityHandler from '@/libs/activity-state/wrap-activity-handler';
-import icon from './icons/edgeware.svg';
+import icon from './icons/edgeware.webp';
 
 const edgewareOptions: SubstrateNetworkOptions = {
   name: NetworkNames.Edgeware,

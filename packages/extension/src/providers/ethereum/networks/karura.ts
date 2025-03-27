@@ -1,4 +1,4 @@
-import icon from './icons/karura-evm.svg';
+import icon from './icons/karura-evm.webp';
 import wrapActivityHandler from '@/libs/activity-state/wrap-activity-handler';
 import { CoingeckoPlatform, NetworkNames } from '@enkryptcom/types';
 import { EtherscanActivity } from '../libs/activity-handlers';

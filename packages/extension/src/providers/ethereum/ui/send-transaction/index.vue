@@ -58,11 +58,10 @@
       />
 
       <assets-select-list
-        v-show="isOpenSelectToken"
+        v-model="isOpenSelectToken"
         :is-send="true"
         :assets="accountAssets"
         :is-loading="isLoadingAssets"
-        @close="toggleSelectToken"
         @update:select-asset="selectToken"
       />
 
@@ -100,11 +99,10 @@
       />
 
       <transaction-fee-view
+        v-model="isOpenSelectFee"
         :fees="gasCostValues"
-        :show-fees="isOpenSelectFee"
         :selected="selectedFee"
         :is-header="true"
-        @close-popup="toggleSelectFee"
         @gas-type-changed="selectFee"
       />
 

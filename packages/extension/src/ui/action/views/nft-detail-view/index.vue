@@ -1,11 +1,6 @@
 <template>
-  <div class="nft-detail-view__container">
-    <div class="nft-detail-view__overlay" @click="close()" />
+  <app-dialog v-model="model" width="360px" is-centered @close:dialog="close">
     <div class="nft-detail-view__wrap">
-      <a class="nft-detail-view__close" @click="close()">
-        <close-icon />
-      </a>
-
       <a
         class="nft-detail-view__favorite"
         @click="favClicked(!localIsFavorite)"
@@ -40,12 +35,11 @@
         <action-menu :link="item.url" :item="item" />
       </div>
     </div>
-  </div>
+  </app-dialog>
 </template>
 
 <script setup lang="ts">
 import { onMounted, PropType, ref, computed } from 'vue';
-import CloseIcon from '@action/icons/common/close-icon.vue';
 import ActionMenu from '@action/components/action-menu/index.vue';
 import NftMoreAddToFavorite from '@action/icons/nft/nft-more-add-to-favorite.vue';
 import NftMoreDeleteFromFavorite from '@action/icons/nft/nft-more-delete-from-favorite.vue';
@@ -53,6 +47,7 @@ import { NFTItem } from '@/types/nft';
 import Notification from '@action/components/notification/index.vue';
 import { imageLoadError } from '@action/utils/misc';
 import Tooltip from '@/ui/action/components/tooltip/index.vue';
+import AppDialog from '@action/components/app-dialog/index.vue';
 
 const isFavoriteAction = ref(false);
 const localIsFavorite = ref(false);
@@ -106,6 +101,8 @@ const favClicked = (isFav: boolean) => {
 const toggleNotification = () => {
   isFavoriteAction.value = !isFavoriteAction.value;
 };
+
+const model = defineModel<boolean>();
 </script>
 
 <style lang="less">
@@ -117,17 +114,6 @@ const toggleNotification = () => {
   box-sizing: border-box;
 
   &__wrap {
-    background: @white;
-    box-shadow:
-      0px 3px 6px rgba(0, 0, 0, 0.039),
-      0px 7px 24px rgba(0, 0, 0, 0.19);
-    border-radius: 12px;
-    box-sizing: border-box;
-    width: 360px;
-    height: auto;
-    z-index: 107;
-    position: relative;
-    height: auto;
     overflow-x: hidden;
     padding: 24px 32px 32px 32px;
 

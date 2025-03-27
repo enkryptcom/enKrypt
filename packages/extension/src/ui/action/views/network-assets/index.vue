@@ -48,7 +48,7 @@
         :account="props.accountInfo.selectedAccount"
         :show-deposit="showDeposit"
         :network="network"
-        :toggle="toggleDeposit"
+        @toggle:deposit="toggleDeposit"
       />
     </div>
     <!-- prettier-ignore -->

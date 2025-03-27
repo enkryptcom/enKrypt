@@ -6,7 +6,7 @@ const skaleOptions: SkaleParams = {
   name_long: 'Nebula Gaming Hub | SKALE',
   chainName: 'green-giddy-denebola',
   chainID: '0x585eb4b1',
-  icon: 'skaleNebula.png',
+  icon: 'skaleNebula.webp',
 };
 
 export default createSkaleEvmNetwork(skaleOptions);

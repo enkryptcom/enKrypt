@@ -8,7 +8,7 @@ import {
 import { subscanActivity } from '../../libs/activity-handlers';
 import wrapActivityHandler from '@/libs/activity-state/wrap-activity-handler';
 import { toBN } from 'web3-utils';
-import icon from '../icons/acala.svg';
+import icon from '../icons/acala.webp';
 
 const acalaOptions: SubstrateNetworkOptions = {
   name: NetworkNames.Acala,

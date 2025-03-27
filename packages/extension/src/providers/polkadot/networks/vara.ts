@@ -6,7 +6,7 @@ import {
   SubstrateNetworkOptions,
 } from '../types/substrate-network';
 import wrapActivityHandler from '@/libs/activity-state/wrap-activity-handler';
-import icon from './icons/vara.svg';
+import icon from './icons/vara.webp';
 
 const varaOptions: SubstrateNetworkOptions = {
   name: NetworkNames.Vara,

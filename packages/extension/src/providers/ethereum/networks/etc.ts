@@ -1,4 +1,4 @@
-import icon from './icons/etc.svg';
+import icon from './icons/etc.webp';
 import { CoingeckoPlatform, NetworkNames } from '@enkryptcom/types';
 import { EvmNetwork, EvmNetworkOptions } from '../types/evm-network';
 import { RivetActivity } from '../libs/activity-handlers';

@@ -24,12 +24,11 @@
     />
 
     <nft-detail-view
-      v-if="isDetail"
+      v-model="isDetail"
       :item="item"
       :is-favorite="isFavorite"
       :link-action="openLink"
       v-bind="$attrs"
-      @close:popup="toggleDetail"
     />
   </div>
 </template>

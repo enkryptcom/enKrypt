@@ -3,6 +3,8 @@ import App from './App.vue';
 import router from './router';
 import * as filters from './utils/filters';
 import Vue3Lottie from 'vue3-lottie';
+import { createPinia } from 'pinia';
+import { useMenuStore } from './store/menu-store';
 
 global.WeakMap = WeakMap;
 
@@ -11,9 +13,9 @@ if (import.meta.env.DEV) {
 }
 
 const app = createApp(App);
+const pinia = createPinia();
 
-app.use(router).use(Vue3Lottie, { name: 'vue3lottie' });
+app.use(router).use(Vue3Lottie, { name: 'vue3lottie' }).use(pinia);
 
 app.config.globalProperties.$filters = filters;
-
 app.mount('#app');

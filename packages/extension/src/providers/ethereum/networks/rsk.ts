@@ -1,4 +1,4 @@
-import icon from './icons/rootstock.svg';
+import icon from './icons/rootstock.webp';
 import { CoingeckoPlatform, NetworkNames } from '@enkryptcom/types';
 import { EvmNetwork, EvmNetworkOptions } from '../types/evm-network';
 import { EtherscanActivity } from '../libs/activity-handlers';
