@@ -1,33 +1,32 @@
 <template>
-  <div class="network-select-list">
-    <div class="network-select-list__header">
-      <h3>Select to Network</h3>
-      <a class="network-select-list__close" @click="close">
-        <close-icon />
-      </a>
-    </div>
+  <app-dialog v-model="model" @close:dialog="close">
+    <div class="network-select-list">
+      <div class="network-select-list__header">
+        <h3>Select to Network</h3>
+      </div>
 
-    <custom-scrollbar
-      class="network-select-list__scroll-area"
-      :settings="scrollSettings({ suppressScrollX: true })"
-    >
-      <network-select-list-item
-        v-for="(item, index) in assets"
-        :key="index"
-        :token="item"
-        v-bind="$attrs"
-      />
-    </custom-scrollbar>
-  </div>
+      <custom-scrollbar
+        class="network-select-list__scroll-area"
+        :settings="scrollSettings({ suppressScrollX: true })"
+      >
+        <network-select-list-item
+          v-for="(item, index) in assets"
+          :key="index"
+          :token="item"
+          v-bind="$attrs"
+        />
+      </custom-scrollbar>
+    </div>
+  </app-dialog>
 </template>
 
 <script setup lang="ts">
-import CloseIcon from '@action/icons/common/close-icon.vue';
 import NetworkSelectListItem from './network-select-list-item.vue';
 import CustomScrollbar from '@action/components/custom-scrollbar/index.vue';
 import scrollSettings from '@/libs/utils/scroll-settings';
 import { PropType } from 'vue';
 import { NetworkInfo } from '@enkryptcom/swap';
+import AppDialog from '@action/components/app-dialog/index.vue';
 
 const emit = defineEmits<{
   (e: 'close', close: boolean): void;
@@ -43,6 +42,8 @@ defineProps({
 const close = () => {
   emit('close', false);
 };
+
+const model = defineModel<boolean>();
 </script>
 
 <style lang="less">
@@ -50,19 +51,6 @@ const close = () => {
 @import '@action/styles/custom-scroll.less';
 
 .network-select-list {
-  width: 100%;
-  background: #ffffff;
-  position: fixed;
-  box-shadow:
-    0px 3px 6px rgba(0, 0, 0, 0.039),
-    0px 7px 24px rgba(0, 0, 0, 0.19);
-  border-radius: 12px;
-  width: 428px;
-  height: 568px;
-  left: 356px;
-  top: 16px;
-  z-index: 12;
-
   &__header {
     position: relative;
     padding: 14px 56px 14px 16px;
@@ -74,20 +62,6 @@ const close = () => {
       line-height: 28px;
       color: @primaryLabel;
       margin: 0;
-    }
-  }
-
-  &__close {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 0;
-    transition: background 300ms ease-in-out;
-
-    &:hover {
-      background: @black007;
     }
   }
 

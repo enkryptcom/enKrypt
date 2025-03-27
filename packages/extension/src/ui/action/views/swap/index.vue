@@ -83,9 +83,8 @@
     </div>
 
     <network-select-list
-      v-if="toNetworkOpen"
+      v-model="toNetworkOpen"
       :assets="toNetworks"
-      @close="toggleToNetwork"
       @update:select-asset="selectToNetwork"
     />
 
