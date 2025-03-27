@@ -130,6 +130,7 @@ watch(
 @import '@action/styles/theme.less';
 
 .deposit {
+  padding: 20px;
   h2 {
     font-style: normal;
     font-weight: 700;
