@@ -272,6 +272,7 @@ onMounted(async () => {
       }, 2000);
     }
     updatesStore.init();
+    menuStore.init();
   } else {
     openOnboard();
   }

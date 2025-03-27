@@ -101,12 +101,11 @@
         {{ errorMsg }}
       </p>
       <transaction-fee-view
+        v-model="isOpenSelectFee"
         :fees="gasCostValues"
-        :show-fees="isOpenSelectFee"
         :selected="selectedFee"
         :is-header="true"
-        :is-popup="true"
-        @close-popup="toggleSelectFee"
+        is-popup
         @gas-type-changed="selectFee"
       />
     </template>

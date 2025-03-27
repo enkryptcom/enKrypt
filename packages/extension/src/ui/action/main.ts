@@ -18,7 +18,4 @@ const pinia = createPinia();
 app.use(router).use(Vue3Lottie, { name: 'vue3lottie' }).use(pinia);
 
 app.config.globalProperties.$filters = filters;
-const menuStore = useMenuStore();
-// Get isExpanded value from MenuState and set it to the store
-await menuStore.init();
 app.mount('#app');
