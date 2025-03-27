@@ -23,6 +23,28 @@ import { useMenuStore } from '@action/store/menu-store';
 import { storeToRefs } from 'pinia';
 import { computed } from 'vue';
 
+/**
+ * This component is a dialog that can be used to display content in a modal.
+ * It has a close button and a backdrop that can be clicked to close the dialog.
+ * The dialog can be centered or not centered.
+ * By default, it aligned to cover the right side of the screen and be the max width of the content that does not cover menu.
+ *
+ * !!! Do not use it if pinia store is not defined, as it depends on the menu store.
+ *
+ * @emits close:dialog - Emits when the dialog is closed.
+ * @model - Controls the visibility of the dialog.
+ *
+ * @example Basic Dialog
+ * <app-dialog v-model="dialogModel">
+ *    <div> hello world </div>
+ * </app-dialog>
+ * @example Centered Dialog with custom width
+ *
+ * <app-dialog v-model="dialogModel" width="500px" isCentered>
+ *    <div> hello world </div>
+ * </app-dialog>
+ *
+ */
 const props = defineProps({
   width: {
     type: String,
