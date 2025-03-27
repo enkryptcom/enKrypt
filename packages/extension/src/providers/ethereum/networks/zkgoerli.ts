@@ -3,7 +3,6 @@ import { NetworkNames } from '@enkryptcom/types';
 import { EvmNetwork, EvmNetworkOptions } from '../types/evm-network';
 import wrapActivityHandler from '@/libs/activity-state/wrap-activity-handler';
 import { EtherscanActivity } from '../libs/activity-handlers';
-import shNFTHandler from '@/libs/nft-handlers/simplehash';
 
 const zkgoerliOptions: EvmNetworkOptions = {
   name: NetworkNames.ZkSyncGoerli,
@@ -17,7 +16,6 @@ const zkgoerliOptions: EvmNetworkOptions = {
   currencyNameLong: 'zkSync Goerli',
   node: 'wss://testnet.era.zksync.dev/ws',
   icon,
-  NFTHandler: shNFTHandler,
   activityHandler: wrapActivityHandler(EtherscanActivity),
 };
 

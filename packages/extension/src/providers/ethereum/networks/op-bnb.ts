@@ -2,7 +2,6 @@ import icon from './icons/opbnb.png';
 import { CoingeckoPlatform, NetworkNames } from '@enkryptcom/types';
 import { EvmNetwork, EvmNetworkOptions } from '../types/evm-network';
 import assetsInfoHandler from '@/providers/ethereum/libs/assets-handlers/assetinfo-mew';
-import shNFTHandler from '@/libs/nft-handlers/simplehash';
 import wrapActivityHandler from '@/libs/activity-state/wrap-activity-handler';
 
 const opBnbOptions: EvmNetworkOptions = {
@@ -20,7 +19,6 @@ const opBnbOptions: EvmNetworkOptions = {
   coingeckoID: 'binancecoin',
   coingeckoPlatform: CoingeckoPlatform.OpBNB,
   assetsInfoHandler,
-  NFTHandler: shNFTHandler,
   activityHandler: wrapActivityHandler(() => Promise.resolve([])),
 };
 
