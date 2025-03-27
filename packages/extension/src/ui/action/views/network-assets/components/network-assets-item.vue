@@ -49,12 +49,11 @@
   </a>
 
   <asset-detail-view
-    v-if="isDetail"
+    v-model="isDetail"
     :token="token"
     :network="network"
     :is-custom-token="isCustomToken"
     :remove-token="removeToken"
-    @close:popup="toggleDetail"
   />
 </template>
 
