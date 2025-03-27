@@ -37,7 +37,6 @@
 </template>
 
 <script setup lang="ts">
-// import CloseIcon from '@action/icons/common/close-icon.vue';
 import AssetsSelectListItem from './components/assets-select-list-item.vue';
 import CustomScrollbar from '@action/components/custom-scrollbar/index.vue';
 import AssetsSelectListSearch from './components/assets-select-list-search.vue';

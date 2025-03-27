@@ -66,7 +66,6 @@
 <script setup lang="ts">
 import { PropType, ref } from 'vue';
 import BaseButton from '@action/components/base-button/index.vue';
-import CloseIcon from '@action/icons/common/close-icon.vue';
 import SparklineUp from '@action/icons/asset/sparkline-up.vue';
 import SparklineDown from '@action/icons/asset/sparkline-down.vue';
 import { AssetsType } from '@/types/provider';

@@ -1,19 +1,21 @@
 <template>
   <teleport to="#app">
-    <div v-if="model" :class="[defaultClass, { show: model }]">
-      <div class="app-dialog__overlay" @click="closeDialog" />
-      <div
-        class="app-dialog__wrap"
-        :class="[{ show: model }]"
-        :style="dialogStyle"
-      >
-        <a class="app-dialog__close" @click="closeDialog">
-          <close-icon />
-        </a>
+    <Transition name="modaltransition">
+      <div v-if="model" :class="[defaultClass, { show: model }]">
+        <div class="app-dialog__overlay" @click="closeDialog" />
+        <div
+          class="app-dialog__wrap"
+          :class="[{ show: model }]"
+          :style="dialogStyle"
+        >
+          <a class="app-dialog__close" @click="closeDialog">
+            <close-icon />
+          </a>
 
-        <slot />
+          <slot />
+        </div>
       </div>
-    </div>
+    </Transition>
   </teleport>
 </template>
 
@@ -100,6 +102,7 @@ const dialogStyle = computed(() => {
   align-items: center;
   flex-direction: row;
   padding: 16px;
+  transition: opacity 0.3s ease;
 
   &__expanded {
     width: 800px;
@@ -141,9 +144,7 @@ const dialogStyle = computed(() => {
     box-sizing: border-box;
     opacity: 0;
     visibility: hidden;
-    transition:
-      opacity 0.3s,
-      visibility 0s ease-in-out 0.3s;
+    transition: all 0.3s ease;
 
     &.show {
       opacity: 1;
@@ -185,5 +186,18 @@ const dialogStyle = computed(() => {
       background: @black007;
     }
   }
+}
+.modaltransition-enter-from {
+  opacity: 0;
+}
+
+.modaltransition-leave-to {
+  opacity: 0;
+}
+
+.modaltransition-enter-from .app-dialog__wrap,
+.modaltransition-leave-to .app-dialog__wrap {
+  -webkit-transform: scale(1.1);
+  transform: scale(1.1);
 }
 </style>
