@@ -17,7 +17,12 @@
     />
 
     <div v-show="!!token && Number(amount) > 0" class="swap-token-input__fiat">
-      ≈ ${{ tokenPrice ? $filters.formatFiatValue(tokenPrice).value : '~' }}
+      ≈
+      {{
+        tokenPrice
+          ? $filters.parseCurrency($filters.formatFiatValue(tokenPrice).value)
+          : '~'
+      }}
     </div>
   </div>
 </template>

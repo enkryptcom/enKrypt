@@ -43,8 +43,8 @@
     </div>
 
     <div class="network-assets__token-price">
-      <h4>${{ token.balanceUSDf }}</h4>
-      <p>@{{ token.valuef }}</p>
+      <h4>{{ $filters.parseCurrency(token.balanceUSDf) }}</h4>
+      <p>@{{ $filters.parseCurrency(token.value) }}</p>
     </div>
   </a>
 

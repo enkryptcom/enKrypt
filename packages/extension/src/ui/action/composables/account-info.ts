@@ -31,15 +31,14 @@ export default (
   const updateFiatValues = async () => {
     fiatAmount.value = defaultFiatVal;
     if (network.value.coingeckoID && cryptoAmountRaw.value != '~') {
-      fiatAmount.value = `${
-        formatFiatValue(
-          await marketData.getTokenValue(
-            cryptoAmountRaw.value,
-            network.value.coingeckoID,
-            'USD',
-          ),
-        ).value
-      } USD`;
+      fiatAmount.value = `${formatFiatValue(
+        await marketData.getTokenValue(
+          cryptoAmountRaw.value,
+          network.value.coingeckoID,
+          'USD',
+        ),
+      ).value
+        }`;
     }
   };
   watch(cryptoAmount, updateFiatValues);

@@ -17,7 +17,7 @@
     </h3>
     <p>
       <span v-if="subnetwork !== ''">Chain {{ subnetwork }} &middot;</span>
-      {{ fiatAmount }}
+      {{ $filters.parseCurrency(fiatAmount) }}
     </p>
   </div>
 </template>

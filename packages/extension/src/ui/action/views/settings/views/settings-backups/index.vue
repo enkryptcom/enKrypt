@@ -18,7 +18,7 @@
         @update:check="toggleBackups"
       />
 
-      <div class="settings-container__backup">
+      <div>
         <div v-if="loading" class="settings-container__backup">
           <div class="settings-container__backup-header">Fetching backups</div>
           <div
@@ -179,7 +179,7 @@ const formatDate = (dateString: string) => {
   padding: 16px;
 
   &__backup {
-    margin: 0 16px 12px;
+    margin: 0 32px;
 
     &-delete-buttons {
       margin: 65px 50px;
@@ -190,7 +190,7 @@ const formatDate = (dateString: string) => {
     }
 
     &-container {
-      height: 225px; // adding a small cutoff to let user know there's more
+      height: 205px; // adding a small cutoff to let user know there's more
       overflow-y: auto;
       padding-right: 10px;
     }
