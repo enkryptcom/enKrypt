@@ -5,7 +5,7 @@
       :select="selectCurrency"
       title="Currency"
       :value="currentSelectedCurrency"
-      :list="currencySymbols"
+      :list="currencyList"
     ></settings-select>
     <div class="settings__label">
       <p>Select your preferred currency</p>
@@ -131,12 +131,6 @@ const toggleMetricsEnabled = async (isChecked: boolean) => {
   optOutofMetrics(isChecked);
   isMetricsEnabled.value = !isChecked;
 };
-
-const currencySymbols = computed(() => {
-  return currencyList.value.length > 0
-    ? currencyList.value.map(currency => currency.fiat_currency)
-    : [];
-});
 </script>
 
 <style lang="less">

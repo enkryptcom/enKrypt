@@ -6,6 +6,7 @@ import SettingsState from '@/libs/settings-state';
 type Currency = {
   fiat_currency: string;
   exchange_rate: number;
+  img: string;
 }
 
 export const useCurrencyStore = defineStore('currencyStore', () => {
@@ -23,15 +24,9 @@ export const useCurrencyStore = defineStore('currencyStore', () => {
     const newList = [];
     for (const currency of list) {
       if (currency.fiat_currency === 'USD' || currency.fiat_currency === 'EUR' || currency.fiat_currency === 'JPY' || currency.fiat_currency === 'GBP' || currency.fiat_currency === 'KRW' || currency.fiat_currency === 'CAD') {
-        newList.unshift({
-          fiat_currency: currency.fiat_currency,
-          exchange_rate: currency.exchange_rate
-        });
+        newList.unshift(currency);
       } else {
-        newList.push({
-          fiat_currency: currency.fiat_currency,
-          exchange_rate: currency.exchange_rate
-        });
+        newList.push(currency);
       }
       currencyList.value = newList;
     };

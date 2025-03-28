@@ -12,7 +12,6 @@
 
 <script setup lang="ts">
 import DoneIcon from '@action/icons/common/done_icon.vue';
-import XCD from '@action/assets/fiat/XCD.svg';
 const props = defineProps({
   select: {
     type: Function,
@@ -35,7 +34,7 @@ const props = defineProps({
   flag: {
     type: String,
     default: () => {
-      return XCD;
+      return '';
     },
   },
 });

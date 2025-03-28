@@ -2,7 +2,7 @@
   <div class="base-select__container">
     <a class="base-select" @click="open">
       <div class="base-select__img-container">
-        <img :src="LANG_INFO[value].icon" width="40" height="40" />
+        <img :src="selectedIcon" width="40" height="40" />
       </div>
       <div>
         <p>{{ title }}</p>
@@ -23,10 +23,10 @@
         <setting-select-option
           v-for="(item, index) in searchedList"
           :key="index"
-          :title="item as string"
+          :title="item.fiat_currency as string"
           :select="selectLanguage"
-          :is-select="value == item"
-          :flag="returnFlag(item)"
+          :is-select="value == item.fiat_currency"
+          :flag="item.img"
         />
       </div>
     </div>
@@ -37,9 +37,7 @@
 import { ref, computed } from 'vue';
 import SwitchArrow from '@action/icons/header/switch_arrow.vue';
 import SettingSelectOption from './setting-select-option.vue';
-import { LANG_INFO } from '@/ui/action/utils/currencyConfig';
 import BaseSearch from '@/ui/action/components/base-search/index.vue';
-import XCD from '@action/assets/fiat/XCD.svg';
 
 const isOpen = ref(false);
 const searchInput = ref('');
@@ -79,6 +77,11 @@ const searchedList = computed(() => {
   return filtered;
 });
 
+const selectedIcon = computed(() => {
+  const selected = props.list.find(item => item.fiat_currency === props.value);
+  return selected ? selected.img : '';
+});
+
 const open = () => {
   isOpen.value = !isOpen.value;
 };
@@ -86,11 +89,6 @@ const open = () => {
 const selectLanguage = (value: string) => {
   props.select(value);
   isOpen.value = !isOpen.value;
-};
-
-const returnFlag = (value: string) => {
-  if (!LANG_INFO[value]) console.log(value);
-  return LANG_INFO[value]?.icon || XCD;
 };
 
 const updateSearchValue = (newval: string) => {
