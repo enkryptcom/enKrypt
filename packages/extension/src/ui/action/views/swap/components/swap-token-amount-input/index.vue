@@ -74,6 +74,7 @@ const changeFocus = (newVal: boolean) => {
   box-sizing: border-box;
   border-radius: 10px;
   position: relative;
+  background-color: @white;
 
   &.focus {
     border: 1px solid @primary;
