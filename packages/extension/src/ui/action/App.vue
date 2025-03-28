@@ -414,7 +414,7 @@ const init = async () => {
 
 const fetchAndSetRates = async () => {
   const rates = await fetch(
-    'https://qa.mewwallet.dev/v2/prices/exchange-rates?includeImages=true',
+    'https://mainnet.mewwallet.dev/v2/prices/exchange-rates?includeImages=true',
   );
   const ratesJson = await rates.json();
   setCurrencyList(
