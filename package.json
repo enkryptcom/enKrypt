@@ -32,9 +32,9 @@
     "prepare": "husky"
   },
   "devDependencies": {
-    "@commitlint/cli": "^19.8.0",
-    "@commitlint/config-conventional": "^19.8.0",
-    "@swc/core": "^1.11.9",
+    "@commitlint/cli": "^19.7.1",
+    "@commitlint/config-conventional": "^19.7.1",
+    "@swc/core": "^1.10.14",
     "concurrently": "^9.1.2",
     "husky": "^9.1.7",
     "node-notifier": "^10.0.1",

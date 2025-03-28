@@ -70,8 +70,6 @@ const NetworkEndpoints: Record<string, string> = {
   [NetworkNames.ProofOfPlayApex]: 'https://explorer.apex.proofofplay.com/',
   [NetworkNames.Scroll]: 'https://api.scrollscan.com/',
   [NetworkNames.Fraxtal]: 'https://api.fraxscan.com/',
-  [NetworkNames.Ink]: 'https://explorer.inkonchain.com/',
-  [NetworkNames.Coti]: 'https://mainnet.cotiscan.io/',
 };
 
 export { NetworkEndpoints };

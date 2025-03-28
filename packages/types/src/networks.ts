@@ -98,14 +98,6 @@ export enum NetworkNames {
   Bitrock = "bitrock",
   Fraxtal = "fraxtal",
   Fire = "5ire",
-  Story = "Story",
-  Abstract = "Abstract",
-  Unichain = "Unichain",
-  Ink = "Ink",
-  Gravity = "Gravity",
-  Bera = "Bera",
-  Taraxa = "Taraxa",
-  Coti = "Coti",
 }
 
 export enum CoingeckoPlatform {
@@ -164,12 +156,4 @@ export enum CoingeckoPlatform {
   Scroll = "scroll",
   Bitrock = "bitrock",
   Fraxtal = "fraxtal",
-  Gravity = "gravity-alpha",
-  Berachain = "berachain",
-  Abstract = "abstract",
-  Unichain = "unichain",
-  Story = "story",
-  Ink = "ink",
-  Taraxa = "taraxa",
-  Coti = "coti",
 }

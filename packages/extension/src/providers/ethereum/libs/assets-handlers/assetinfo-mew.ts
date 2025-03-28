@@ -69,32 +69,6 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
     tbName: 'canto',
     cgPlatform: CoingeckoPlatform.Canto,
   },
-  [NetworkNames.Gravity]: {
-    tbName: 'gravity',
-    cgPlatform: CoingeckoPlatform.Gravity,
-  },
-  [NetworkNames.Abstract]: {
-    tbName: 'abs',
-    cgPlatform: CoingeckoPlatform.Abstract,
-  },
-  [NetworkNames.Story]: {
-    tbName: 'story',
-    cgPlatform: CoingeckoPlatform.Story,
-    bsEndpoint: true,
-  },
-  [NetworkNames.Ink]: {
-    tbName: 'ink',
-    cgPlatform: CoingeckoPlatform.Ink,
-    bsEndpoint: true,
-  },
-  [NetworkNames.Bera]: {
-    tbName: 'bera',
-    cgPlatform: CoingeckoPlatform.Berachain,
-  },
-  [NetworkNames.Unichain]: {
-    tbName: 'uni',
-    cgPlatform: CoingeckoPlatform.Unichain,
-  },
   [NetworkNames.Rootstock]: {
     tbName: 'rsk',
     cgPlatform: CoingeckoPlatform.Rootstock,
@@ -212,12 +186,6 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
     tbName: '',
     cgPlatform: CoingeckoPlatform.Solana,
   },
-  [NetworkNames.Taraxa]: {
-    cgPlatform: CoingeckoPlatform.Taraxa,
-  },
-  [NetworkNames.Coti]: {
-    cgPlatform: CoingeckoPlatform.Coti,
-  },
 };
 
 const getTokens = (
@@ -275,15 +243,15 @@ export default (
 
     const marketInfo = supportedNetworks[networkName].cgPlatform
       ? await marketData.getMarketInfoByContracts(
-        Object.keys(balances).filter(
-          contract => contract !== NATIVE_TOKEN_ADDRESS,
-        ),
-        supportedNetworks[networkName].cgPlatform as CoingeckoPlatform,
-      )
+          Object.keys(balances).filter(
+            contract => contract !== NATIVE_TOKEN_ADDRESS,
+          ),
+          supportedNetworks[networkName].cgPlatform as CoingeckoPlatform,
+        )
       : tokens.reduce(
-        (obj, cur) => ({ ...obj, [cur.contract]: null }),
-        {} as Record<string, CoinGeckoTokenMarket | null>,
-      );
+          (obj, cur) => ({ ...obj, [cur.contract]: null }),
+          {} as Record<string, CoinGeckoTokenMarket | null>,
+        );
     if (network.coingeckoID) {
       const nativeMarket = await marketData.getMarketData([
         network.coingeckoID,

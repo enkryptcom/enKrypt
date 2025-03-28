@@ -100,7 +100,6 @@ Enkrypt is a web3 wallet built from the ground up to support the multi-chain fut
 - Shiden EVM
 - Sepolia
 - Syscoin NEVM
-- Taraxa
 - Telos EVM
 - Unique
 - Vara Network
@@ -110,12 +109,6 @@ Enkrypt is a web3 wallet built from the ground up to support the multi-chain fut
 - zkSync
 - zkSync Goerli
 - 5ireChain
-- Story
-- Abstract
-- Berachain
-- Ink Onchain
-- Unichain
-- Gravity
 - More coming soon!
 
 Looking to add your project? [Contact us!](https://mewwallet.typeform.com/enkrypt-inquiry?typeform-source=www.enkrypt.com)

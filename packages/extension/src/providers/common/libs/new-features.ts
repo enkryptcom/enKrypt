@@ -1,14 +1,10 @@
 import { NetworkNames } from '@enkryptcom/types';
 
 const newNetworks = [
-  NetworkNames.Story,
-  NetworkNames.Abstract,
-  NetworkNames.Gravity,
-  NetworkNames.Unichain,
-  NetworkNames.Bera,
-  NetworkNames.Ink,
-  NetworkNames.Taraxa,
-  NetworkNames.Coti,
+  NetworkNames.Form,
+  NetworkNames.Rollux,
+  NetworkNames.SyscoinNEVM,
+  NetworkNames.Fire,
 ];
 const newSwaps: NetworkNames[] = [];
 

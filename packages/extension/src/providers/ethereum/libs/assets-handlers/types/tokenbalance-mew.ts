@@ -65,13 +65,4 @@ export type SupportedNetworkNames =
   | NetworkNames.Mode
   | NetworkNames.OpBNB
   | NetworkNames.Scroll
-  | NetworkNames.Rari
-  | NetworkNames.Gravity
-  | NetworkNames.Unichain
-  | NetworkNames.Abstract
-  | NetworkNames.Bera
-  | NetworkNames.Ink
-  | NetworkNames.Story;
-
-
-
+  | NetworkNames.Rari;
