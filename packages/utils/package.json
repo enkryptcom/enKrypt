@@ -24,29 +24,29 @@
   "dependencies": {
     "@enkryptcom/types": "workspace:^",
     "@ethereumjs/util": "^9.1.0",
-    "@polkadot/util-crypto": "^13.3.1",
+    "@polkadot/util-crypto": "^13.4.3",
     "bip39": "^3.1.0",
     "ethereum-cryptography": "^2.2.1",
     "web3-utils": "^1.10.4"
   },
   "devDependencies": {
-    "@types/node": "^22.13.1",
+    "@types/node": "^22.13.10",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
-    "eslint": "^9.20.0",
+    "eslint": "^9.22.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-import-resolver-alias": "^1.1.2",
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-module-resolver": "^1.5.0",
-    "prettier": "^3.4.2",
+    "prettier": "^3.5.3",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
-    "tsup": "^8.3.6",
+    "tsup": "^8.4.0",
     "tweetnacl-util": "^0.15.1",
-    "typescript": "^5.7.3",
-    "typescript-eslint": "8.23.0",
-    "vitest": "^3.0.5"
+    "typescript": "^5.8.2",
+    "typescript-eslint": "8.26.1",
+    "vitest": "^3.0.8"
   },
   "repository": {
     "type": "git",

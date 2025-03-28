@@ -65,7 +65,7 @@
         </a>
       </tooltip>
 
-      <tooltip text="Account's QR code">
+      <tooltip text="Account's QR code" is-bottom-left>
         <a
           showDeposit
           class="account__actions--copy"
@@ -249,6 +249,7 @@ const disconnectFromDapp = async () => {
         box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.16);
         padding: 1px;
         border-radius: 50%;
+        object-fit: contain;
       }
     }
 

@@ -102,25 +102,22 @@
     </div>
 
     <network-select-list
-      v-if="toNetworkOpen"
+      v-model="toNetworkOpen"
       :assets="toNetworks"
-      @close="toggleToNetwork"
       @update:select-asset="selectToNetwork"
     />
 
     <assets-select-list
-      v-if="fromSelectOpened"
+      v-model="fromSelectOpened"
       :assets="fromTokens"
-      @close="toggleFromToken"
       @update:select-asset="selectTokenFrom"
     />
 
     <assets-select-list
-      v-show="toSelectOpened"
+      v-model="toSelectOpened"
       :is-select-to-token="true"
       :assets="toTokens"
       :is-loading="fetchingTokens"
-      @close="toggleToToken"
       @update:select-asset="selectTokenTo"
     />
 
