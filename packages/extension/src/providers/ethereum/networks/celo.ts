@@ -3,7 +3,6 @@ import { CoingeckoPlatform, NetworkNames } from '@enkryptcom/types';
 import { EvmNetwork, EvmNetworkOptions } from '../types/evm-network';
 import { EtherscanActivity } from '../libs/activity-handlers';
 import wrapActivityHandler from '@/libs/activity-state/wrap-activity-handler';
-import assetsInfoHandler from '@/providers/ethereum/libs/assets-handlers/assetinfo-mew';
 
 const celoOptions: EvmNetworkOptions = {
   name: NetworkNames.Celo,
@@ -19,7 +18,6 @@ const celoOptions: EvmNetworkOptions = {
   icon,
   coingeckoID: 'celo',
   coingeckoPlatform: CoingeckoPlatform.Celo,
-  assetsInfoHandler,
   activityHandler: wrapActivityHandler(EtherscanActivity),
 };
 
