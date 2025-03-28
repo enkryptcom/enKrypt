@@ -3,7 +3,7 @@
     <settings-inner-header v-bind="$attrs" :is-phrase="true" />
 
     <div class="settings__recovery-phrase-wrap">
-      <p>
+      <p class="warning">
         Please keep your recovery phrase safe. If you give it to somebody, they
         will have full control of your funds.
       </p>
@@ -29,6 +29,10 @@
           </div>
         </div>
       </div>
+      <div v-if="hasExtraWord" class="recovery-phrase__extra-word">
+        <p class="title">Extra Word:</p>
+        <p class="word">{{ props.mnemonic.extraWord }}</p>
+      </div>
     </div>
   </div>
 </template>
@@ -53,6 +57,10 @@ const secondSet = computed(() => {
   const copy = props.mnemonic.mnemonic.split(' ');
   return copy.splice(copy.length / 2);
 });
+
+const hasExtraWord = computed(() => {
+  return props.mnemonic.extraWord !== '';
+});
 </script>
 
 <style lang="less">
@@ -62,7 +70,7 @@ const secondSet = computed(() => {
   &__recovery-phrase {
     &-wrap {
       padding: 0 32px;
-      p {
+      .warning {
         font-style: normal;
         font-weight: 400;
         font-size: 16px;
@@ -118,6 +126,38 @@ const secondSet = computed(() => {
           position: absolute;
           left: 0;
           top: 11px;
+        }
+      }
+
+      &__extra-word {
+        margin-top: 28px;
+        .title {
+          font-style: normal;
+          font-weight: bold;
+          font-weight: bold;
+          font-size: 16px;
+          line-height: 24px;
+          color: @primaryLabel;
+          color: black;
+          margin-bottom: 6px;
+        }
+
+        .word {
+          font-style: normal;
+          font-weight: 400;
+          font-size: 18px;
+          line-height: 24px;
+          color: black;
+          background: @lightBg;
+          border: 1px solid rgba(95, 99, 104, 0.1);
+          box-sizing: border-box;
+          border-radius: 10px;
+          padding: 10px 16px;
+          margin: 0px;
+          display: flex;
+          flex-direction: row;
+          align-items: flex-start;
+          justify-content: start;
         }
       }
     }

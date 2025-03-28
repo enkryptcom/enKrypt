@@ -26,6 +26,7 @@
           v-model="extraWord"
           placeholder="Enter extra word"
           class="enter-recovery-phrase__extra-word__input"
+          autocomplete="off"
         />
       </div>
     </div>
