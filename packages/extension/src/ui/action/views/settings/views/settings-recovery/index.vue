@@ -35,21 +35,22 @@
 
 <script setup lang="ts">
 import SettingsInnerHeader from '@action/views/settings/components/settings-inner-header.vue';
-import { computed } from 'vue';
+import { MnemonicWithExtraWord } from '@enkryptcom/types';
+import { computed, PropType } from 'vue';
 
 const props = defineProps({
   mnemonic: {
-    type: String,
-    default: '',
+    type: Object as PropType<MnemonicWithExtraWord>,
+    default: () => ({ mnemonic: '', extraWord: '' }),
   },
 });
 
 const firstSet = computed(() => {
-  const copy = props.mnemonic.split(' ');
+  const copy = props.mnemonic.mnemonic.split(' ');
   return copy.splice(0, copy.length / 2);
 });
 const secondSet = computed(() => {
-  const copy = props.mnemonic.split(' ');
+  const copy = props.mnemonic.mnemonic.split(' ');
   return copy.splice(copy.length / 2);
 });
 </script>
