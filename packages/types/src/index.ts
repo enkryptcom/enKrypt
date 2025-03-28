@@ -31,6 +31,7 @@ enum OtherErrors {
 
 enum KeyringErrors {
   MnemonicExists = "Mnemonic already exists",
+  ExtrawordExists = "Extraword already exists",
   NotInitialized = "Key ring not initialized",
   NoPassword = "No password set",
   AddressExists = "Address already exists",
@@ -91,6 +92,11 @@ interface KeyPairAdd extends KeyPair {
   signerType: SignerType;
 }
 
+interface MnemonicWithExtraWord {
+  mnemonic: string;
+  extraWord?: string;
+}
+
 interface SignerInterface {
   sign: (
     msgHash: string,
@@ -104,7 +110,7 @@ interface SignerInterface {
     options?: unknown,
   ) => Promise<boolean>;
   generate: (
-    mnemonic: string,
+    mnemonic: MnemonicWithExtraWord,
     path: string,
     options?: unknown,
   ) => Promise<KeyPair>;
@@ -195,4 +201,5 @@ export {
   EnkryptAccount,
   HWWalletAdd,
   KeyPairAdd,
+  MnemonicWithExtraWord,
 };
