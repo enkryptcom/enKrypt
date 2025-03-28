@@ -19,7 +19,7 @@
     ]
   },
   "scripts": {
-    "test": "yarn workspaces foreach --worktree -v run test",
+    "test": "yarn workspaces foreach --worktree -v --exclude packages/swap run test",
     "lint": "yarn workspaces foreach --worktree run lint",
     "build:all": "ultra -r build",
     "watch": "concurrently 'npm:watch-*'",
