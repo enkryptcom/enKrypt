@@ -10,10 +10,11 @@ import {
   KeyPairAdd,
   WalletType,
   KeyPair,
+  MnemonicWithExtraWord,
 } from "@enkryptcom/types";
 import { Storage } from "@enkryptcom/storage";
 import { entropyToMnemonic, generateMnemonic, mnemonicToEntropy } from "bip39";
-import { hexToBuffer, encrypt, decrypt } from "@enkryptcom/utils";
+import { hexToBuffer, encrypt, decrypt, utf8ToHex } from "@enkryptcom/utils";
 import { PolkadotSigner } from "@enkryptcom/signer-polkadot";
 import { EthereumSigner } from "@enkryptcom/signer-ethereum";
 import { BitcoinSigner } from "@enkryptcom/signer-bitcoin";
@@ -29,7 +30,7 @@ class KeyRing {
 
   #signers: { [key in SignerType]: SignerInterface };
 
-  #mnemonic: string;
+  #mnemonic: MnemonicWithExtraWord;
 
   #privkeys: Record<string, string>;
 
@@ -58,16 +59,31 @@ class KeyRing {
     {
       strength = configs.MNEMONIC_STRENGTH,
       mnemonic = generateMnemonic(strength),
-    }: { strength?: number; mnemonic?: string } = {},
+      extraWord = undefined,
+    }: { strength?: number; mnemonic?: string; extraWord?: string } = {},
   ): Promise<void> {
     assert(
       !(await this.#storage.get(configs.STORAGE_KEYS.ENCRYPTED_MNEMONIC)),
       Errors.KeyringErrors.MnemonicExists,
     );
+    assert(
+      !(await this.#storage.get(configs.STORAGE_KEYS.ENCRYPTED_EXTRA_WORD)),
+      Errors.KeyringErrors.ExtrawordExists,
+    );
     assert(password, Errors.KeyringErrors.NoPassword);
     const entropy = hexToBuffer(mnemonicToEntropy(mnemonic));
     const encrypted = await encrypt(entropy, password);
     await this.#storage.set(configs.STORAGE_KEYS.ENCRYPTED_MNEMONIC, encrypted);
+    if (extraWord) {
+      const encryptedExtraword = await encrypt(
+        hexToBuffer(utf8ToHex(extraWord)),
+        password,
+      );
+      await this.#storage.set(
+        configs.STORAGE_KEYS.ENCRYPTED_EXTRA_WORD,
+        encryptedExtraword,
+      );
+    }
   }
 
   async isInitialized(): Promise<boolean> {
@@ -92,13 +108,26 @@ class KeyRing {
     return pathIndexes[basePath] + 1;
   }
 
-  async #getMnemonic(password: string): Promise<string> {
+  async #getMnemonic(password: string): Promise<MnemonicWithExtraWord> {
     const encrypted = await this.#storage.get(
       configs.STORAGE_KEYS.ENCRYPTED_MNEMONIC,
     );
     assert(encrypted, Errors.KeyringErrors.NotInitialized);
     const decryptedEntropy = await decrypt(encrypted, password);
-    return entropyToMnemonic(decryptedEntropy);
+    const encryptedExtraWord = await this.#storage.get(
+      configs.STORAGE_KEYS.ENCRYPTED_EXTRA_WORD,
+    );
+    const decryptedMnemonic = entropyToMnemonic(decryptedEntropy);
+    if (encryptedExtraWord) {
+      const decryptedExtraWord = await decrypt(encrypted, password);
+      return {
+        mnemonic: decryptedMnemonic,
+        extraWord: decryptedExtraWord.toString("utf-8"),
+      };
+    }
+    return {
+      mnemonic: decryptedMnemonic,
+    };
   }
 
   async unlockMnemonic(password: string): Promise<void> {
@@ -114,7 +143,7 @@ class KeyRing {
     });
   }
 
-  async getMnemonic(password: string): Promise<string> {
+  async getMnemonic(password: string): Promise<MnemonicWithExtraWord> {
     return this.#getMnemonic(password);
   }
 
