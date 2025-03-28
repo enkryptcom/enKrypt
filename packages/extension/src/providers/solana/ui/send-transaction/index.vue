@@ -174,6 +174,7 @@ import getPriorityFees from '../libs/get-priority-fees';
 import bs58 from 'bs58';
 import SolanaAPI from '@/providers/solana/libs/api';
 import RecentlySentAddressesState from '@/libs/recently-sent-addresses';
+import { parseCurrency } from '@/ui/action/utils/filters';
 
 const props = defineProps({
   network: {
@@ -384,9 +385,9 @@ const errorMsg = computed(() => {
   ) {
     return `Not enough funds. You are
       ~${formatFloatingPointValue(nativeBalanceAfterTransactionInHumanUnits.value).value}
-      ${props.network.currencyName} ($ ${
-        formatFiatValue(balanceAfterInUsd.value).value
-      }) short.`;
+      ${props.network.currencyName} (${parseCurrency(
+        formatFiatValue(balanceAfterInUsd.value).value,
+      )}) short.`;
   }
 
   if (

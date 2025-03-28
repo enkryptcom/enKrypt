@@ -193,6 +193,7 @@ import HeartIcon from '@/ui/action/icons/updates/heart.vue';
 import { getLatestEnkryptUpdates } from '@action/utils/browser';
 import { Updates } from '@/ui/action/types/updates';
 import BackupState from '@/libs/backup-state';
+import { useCurrencyStore, type Currency } from './views/settings/store';
 
 const domainState = new DomainState();
 const networksState = new NetworksState();
@@ -241,6 +242,9 @@ const showUpdatesBtn = ref<boolean>(false);
 const showUpdatesDialog = ref<boolean>(false);
 const stateCurrentReleaseTimestamp = ref<number>(0);
 
+const currencyStore = useCurrencyStore();
+const { setCurrencyList } = currencyStore;
+
 /**
  * Initializes the update state by performing the following actions:
  * 1. Retrieves the current release from the state.
@@ -274,6 +278,7 @@ const initUpdateState = async () => {
     if (releases.value) {
       await getShowUpdatesBtn();
     }
+    await fetchAndSetRates();
     loadedUpdates.value = true;
   } catch (error) {
     console.error('Failed to init update state:', error);
@@ -382,17 +387,12 @@ const openBuyPage = () => {
         }&platform=enkrypt`;
     }
   })();
-  Browser.tabs.create({
-    url: buyLink,
-  });
+  Browser.tabs.create({ url: buyLink });
   trackBuyEvents(BuyEventType.BuyClick, { network: currentNetwork.value.name });
 };
 const isKeyRingLocked = async (): Promise<boolean> => {
   return await sendToBackgroundFromAction({
-    message: JSON.stringify({
-      method: InternalMethods.isLocked,
-      params: [],
-    }),
+    message: JSON.stringify({ method: InternalMethods.isLocked, params: [] }),
     provider: currentNetwork.value.provider,
     tabId: await domainState.getCurrentTabId(),
   }).then(res => JSON.parse(res.result || 'true'));
@@ -410,6 +410,25 @@ const init = async () => {
   await setActiveNetworks();
   backupState.backup(true).catch(console.error);
   isLoading.value = false;
+};
+
+const fetchAndSetRates = async () => {
+  const rates = await fetch(
+    'https://qa.mewwallet.dev/v2/prices/exchange-rates?includeImages=true',
+  );
+  const ratesJson = await rates.json();
+  setCurrencyList(
+    ratesJson.filter((currency: Currency) => {
+      if (
+        currency.fiat_currency !== 'XAG' &&
+        currency.fiat_currency !== 'XAU' &&
+        currency.fiat_currency !== 'XDR' &&
+        currency.fiat_currency !== 'BTC'
+      ) {
+        return currency;
+      }
+    }),
+  );
 };
 
 onMounted(async () => {
@@ -660,9 +679,7 @@ const displayNetworks = computed<BaseNetwork[]>(() => {
 
 const lockAction = async () => {
   sendToBackgroundFromAction({
-    message: JSON.stringify({
-      method: InternalMethods.lock,
-    }),
+    message: JSON.stringify({ method: InternalMethods.lock }),
     provider: currentNetwork.value.provider,
     tabId: await domainState.getCurrentTabId(),
   });
