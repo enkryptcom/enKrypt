@@ -119,10 +119,10 @@ class KeyRing {
     );
     const decryptedMnemonic = entropyToMnemonic(decryptedEntropy);
     if (encryptedExtraWord) {
-      const decryptedExtraWord = await decrypt(encrypted, password);
+      const decryptedExtraWord = await decrypt(encryptedExtraWord, password);
       return {
         mnemonic: decryptedMnemonic,
-        extraWord: decryptedExtraWord.toString("utf-8"),
+        extraWord: decryptedExtraWord.toString("utf8"),
       };
     }
     return {
