@@ -62,7 +62,7 @@ const supportedNetworks: {
     approvalAddress: ONEINCH_APPROVAL_ADDRESS,
     chainId: "250",
   },
-  [SupportedNetworkName.Klaytn]: {
+  [SupportedNetworkName.Kaia]: {
     approvalAddress: ONEINCH_APPROVAL_ADDRESS,
     chainId: "8217",
   },
