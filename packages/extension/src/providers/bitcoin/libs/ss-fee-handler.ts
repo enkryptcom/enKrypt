@@ -23,10 +23,10 @@ const SSFeeHandler = async (
         json.average.satsPerKiloByte = json.slow.satsPerKiloByte;
       return {
         [GasPriceTypes.FASTEST]:
-          Math.ceil(json.fast.satsPerKiloByte / 1024) + 5,
-        [GasPriceTypes.FAST]: Math.ceil(json.fast.satsPerKiloByte / 1024) + 3,
+          Math.ceil(json.fast.satsPerKiloByte / 1024) + 20,
+        [GasPriceTypes.FAST]: Math.ceil(json.fast.satsPerKiloByte / 1024) + 12,
         [GasPriceTypes.REGULAR]:
-          Math.ceil(json.average.satsPerKiloByte / 1024) + 2,
+          Math.ceil(json.average.satsPerKiloByte / 1024) + 10,
         [GasPriceTypes.ECONOMY]: Math.ceil(json.slow.satsPerKiloByte / 1024),
       };
     });
