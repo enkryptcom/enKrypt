@@ -247,10 +247,14 @@ const hasEnoughBalance = computed(() => {
     toBN(toBase(sendAmount.value ?? '0', selectedAsset.value.decimals!)),
   );
 });
+
 const sendAmount = computed(() => {
-  if (amount.value && amount.value !== '') return amount.value;
+  if (isMaxSelected.value) {
+    return parseFloat(assetMaxValue.value) < 0 ? '0' : assetMaxValue.value;
+  } else if (amount.value && amount.value !== '') return amount.value;
   return '0';
 });
+
 const isMaxSelected = ref<boolean>(false);
 const selectedFee = ref<GasPriceTypes>(
   props.network.name === NetworkNames.Ethereum || NetworkNames.Binance
