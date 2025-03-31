@@ -5,7 +5,7 @@
         <h3>Select NFT to send</h3>
       </div>
 
-      <nft-select-list-search />
+      <nft-select-list-search v-model="searchNFT" />
 
       <custom-scrollbar
         class="nft-select-list__scroll-area"
@@ -59,6 +59,8 @@ const emit = defineEmits<{
   (e: 'selectNft', data: NFTItemWithCollectionName): void;
 }>();
 
+const searchNFT = defineModel<string>('');
+
 const nftCollections = ref<NFTCollection[]>([]);
 const nftList = computed(() => {
   const allItems: NFTItemWithCollectionName[] = [];
@@ -67,6 +69,16 @@ const nftList = computed(() => {
       allItems.push({ ...item, ...{ collectionName: col.name } });
     });
   });
+  if (searchNFT.value && searchNFT.value !== '') {
+    return allItems.filter(item => {
+      return (
+        item.name.toLowerCase().includes(searchNFT.value.toLowerCase()) ||
+        item.collectionName
+          .toLowerCase()
+          .includes(searchNFT.value.toLowerCase())
+      );
+    });
+  }
   return allItems;
 });
 const updateNFTList = () => {
