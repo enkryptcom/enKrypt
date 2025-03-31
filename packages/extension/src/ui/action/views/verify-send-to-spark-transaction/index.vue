@@ -75,14 +75,14 @@ import PublicKeyRing from '@/libs/keyring/public-keyring';
 import { getCurrentContext } from '@/libs/messenger/extension';
 import { trackSendEvents } from '@/libs/metrics';
 import { SendEventType } from '@/libs/metrics/types';
+import { createTempTx } from '@/libs/spark-handler/createTempTx';
+import { getFee } from '@/libs/spark-handler/getFee';
 import { getMintTxData } from '@/libs/spark-handler/getMintTxData';
 import { getTotalMintedAmount } from '@/libs/spark-handler/getTotalMintedAmount';
 import { DEFAULT_BTC_NETWORK, getNetworkByName } from '@/libs/utils/networks';
 import FiroAPI from '@/providers/bitcoin/libs/api-firo';
-import {
-  FiroWallet,
-  validator,
-} from '@/providers/bitcoin/libs/firo-wallet/firo-wallet';
+import { validator } from '@/providers/bitcoin/libs/firo-wallet/firo-wallet';
+import { PublicFiroWallet } from '@/providers/bitcoin/libs/firo-wallet/public-firo-wallet';
 import { isAddress } from '@/providers/bitcoin/libs/utils';
 import { BitcoinNetwork } from '@/providers/bitcoin/types/bitcoin-network';
 import { VerifyTransactionParams } from '@/providers/bitcoin/ui/types';
@@ -102,6 +102,8 @@ import BigNumber from 'bignumber.js';
 import * as bitcoin from 'bitcoinjs-lib';
 import { ComponentPublicInstance, inject, onBeforeMount, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+
+const wallet = new PublicFiroWallet();
 
 const emits = defineEmits<{
   (e: 'update:spark-state-changed', network: BaseNetwork): void;
@@ -151,9 +153,6 @@ const sendAction = async () => {
     network: network.value.name,
   });
 
-  const wallet = new FiroWallet();
-  await wallet.setSecret(txData.mnemonic!);
-
   const address2Check = await wallet.getTransactionsAddresses();
 
   const { spendableUtxos, addressKeyPairs } =
@@ -163,18 +162,39 @@ const sendAction = async () => {
 
   const amountToSendBN = new BigNumber(txData.toToken.amount);
 
-  const feeBn = new BigNumber(500);
-
   const mintTxData = await getMintTxData({
     wasmModule,
     address: txData.toAddress,
     amount: amountToSendBN.toString(),
+    utxos: spendableUtxos.map(({ txid, vout }) => ({
+      txHash: Buffer.from(txid),
+      vout,
+      txHashLength: txid.length,
+    })),
   });
 
   const psbt = new bitcoin.Psbt({ network: network.value.networkInfo });
 
   const { inputAmountBn, psbtInputs } =
     await getTotalMintedAmount(spendableUtxos);
+
+  // Calculate tx fee
+  const tempTx = createTempTx({
+    changeAmount: inputAmountBn.minus(amountToSendBN).minus(new BigNumber(500)),
+    network: network.value.networkInfo,
+    addressKeyPairs,
+    spendableUtxos,
+    mintValueOutput: [
+      {
+        script: Buffer.from(mintTxData?.[0]?.scriptPubKey ?? '', 'hex'),
+        value: amountToSendBN.toNumber(),
+      },
+    ],
+    inputs: psbtInputs,
+  });
+
+  const feeBn = await getFee(tempTx);
+  // End calculate fee
 
   psbtInputs.forEach(el => {
     psbt.addInput(el);
@@ -184,7 +204,7 @@ const sendAction = async () => {
     throw new Error('❌ Not enough balance!');
 
   psbt.addOutput({
-    script: Buffer.from(mintTxData?.[0]?.scriptPubKey ?? ''),
+    script: Buffer.from(mintTxData?.[0]?.scriptPubKey ?? '', 'hex'),
     value: amountToSendBN.toNumber(),
   });
 
@@ -217,7 +237,6 @@ const sendAction = async () => {
     } as unknown as bitcoin.Signer;
 
     psbt.signInput(index, Signer);
-    console.log(`🔹 Siged input ${index}`);
   }
 
   if (!psbt.validateSignaturesOfAllInputs(validator)) {
@@ -298,49 +317,6 @@ const sendAction = async () => {
       errorMsg.value = JSON.stringify(error);
       console.error('ERROR', error);
     });
-
-  // await sendToSparkAddress(
-  //   txData.toAddress,
-  //   fromBase(txData.toToken.amount, txData.toToken.decimals).toString()
-  // )
-  //   .then(() => {
-  //     trackSendEvents(SendEventType.SendComplete, {
-  //       network: network.value.name,
-  //     });
-  //     isSendDone.value = true;
-  //     if (getCurrentContext() === "popup") {
-  //       setTimeout(() => {
-  //         isProcessing.value = false;
-  //         router.go(-2);
-  //       }, 4500);
-  //     } else {
-  //       setTimeout(() => {
-  //         isProcessing.value = false;
-  //         window.close();
-  //       }, 1500);
-  //     }
-  //     emits("update:spark-state-changed", network.value);
-  //   })
-  //   .catch((error) => {
-  //     isProcessing.value = false;
-
-  //     if (isAxiosError(error)) {
-  //       errorMsg.value = JSON.stringify(error.response?.data.error.message);
-  //     } else {
-  //       errorMsg.value = JSON.stringify(error);
-  //     }
-
-  //     trackSendEvents(SendEventType.SendFailed, {
-  //       network: network.value.name,
-  //       error: error.message,
-  //     });
-  //     txActivity.status = ActivityStatus.failed;
-  //     activityState.addActivities([txActivity], {
-  //       address: txData.fromAddress,
-  //       network: network.value.name,
-  //     });
-  //     console.error("ERROR", error);
-  //   });
 };
 const isHasScroll = () => {
   if (verifyScrollRef.value) {
@@ -352,8 +328,8 @@ const isHasScroll = () => {
 </script>
 
 <style lang="less" scoped>
-@import '@action/styles/theme.less';
 @import '@action/styles/custom-scroll.less';
+@import '@action/styles/theme.less';
 
 .container {
   width: 100%;

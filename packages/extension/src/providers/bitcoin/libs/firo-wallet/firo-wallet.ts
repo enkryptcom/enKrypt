@@ -1,4 +1,6 @@
 import * as ecc from '@bitcoinerlab/secp256k1';
+import { Storage } from '@enkryptcom/storage';
+import { NetworkNames } from '@enkryptcom/types/dist';
 import axios from 'axios';
 import BigNumber from 'bignumber.js';
 import type { BIP32Interface } from 'bip32';
@@ -6,12 +8,12 @@ import * as bip32 from 'bip32';
 import * as bip39 from 'bip39';
 import * as bitcoin from 'bitcoinjs-lib';
 import ECPairFactory, { ECPairInterface } from 'ecpair';
-import firo from '../../networks/firo';
+import { PaymentType } from '../../types/bitcoin-network';
 import { Utxo } from '../../types/utxo';
-import { firoElectrum } from '../electrum-client/electrum-client';
-import { type AbstractWallet } from './abstract-wallet';
+// import { firoElectrum } from '../electrum-client/electrum-client';
 import { AnonymitySet } from './anonimity-set';
 import { BalanceData } from './balance-data';
+import configs from './configs';
 import type { LelantusCoin } from './lelantus-coin';
 import { TransactionItem } from './transaction-item';
 
@@ -42,10 +44,25 @@ export const TX_DATE_FORMAT = {
   minute: '2-digit',
 };
 
-export class FiroWallet implements AbstractWallet {
+export class FiroWallet {
+  #storage: Storage;
   secret: string | undefined = undefined;
   seed: string = '';
-  network: (typeof firo)['networkInfo'] = firo.networkInfo;
+  network = {
+    name: NetworkNames.Firo,
+    messagePrefix: '\x18Zcoin Signed Message:\n',
+    bech32: 'bc',
+    bip32: {
+      public: 0x0488b21e,
+      private: 0x0488ade4,
+    },
+    pubKeyHash: 0x52,
+    scriptHash: 0x07,
+    wif: 0xd2,
+    dustThreshold: null,
+    paymentType: PaymentType.P2PKH,
+    maxFeeRate: 5000 * 2,
+  };
   balance: number = 0;
   unconfirmed_balance: number = 0;
   _lelantus_coins_list: LelantusCoin[] = [];
@@ -82,9 +99,17 @@ export class FiroWallet implements AbstractWallet {
   gap_limit = 20;
   mint_index_gap_limit = 50;
 
+  constructor(storage: Storage) {
+    this.#storage = storage;
+  }
+
   async setSecret(secret: string): Promise<void> {
     this.secret = secret;
     this.seed = (await bip39.mnemonicToSeed(this.secret)).toString('hex');
+    await this.#storage.set(configs.STORAGE_KEYS.FIRO_WALLET_SECRET, {
+      secret,
+      seed: this.seed,
+    });
   }
 
   getSecret(): string {
@@ -96,7 +121,12 @@ export class FiroWallet implements AbstractWallet {
 
   async getSpendableUtxos(numAddresses: string[]) {
     const iterationsLimit = Math.floor(numAddresses.length / 2);
-    const seed = bip39.mnemonicToSeedSync(this.secret!);
+
+    const { secret } = await this.#storage.get(
+      configs.STORAGE_KEYS.FIRO_WALLET_SECRET,
+    );
+
+    const seed = bip39.mnemonicToSeedSync(secret!);
     const root = bip32.fromSeed(seed, this.network);
 
     const allUtxos = [];
@@ -175,6 +205,37 @@ export class FiroWallet implements AbstractWallet {
     ).div(SATOSHI);
   }
 
+  async getOnlySpendableUtxos() {
+    const address2Check = await this.getTransactionsAddresses();
+
+    const { data: utxos } = await axios.get<Utxo[]>(
+      `https://explorer.firo.org/insight-api-zcoin/addrs/${address2Check.join(',')}/utxo`,
+    );
+    return utxos.filter(el => el.confirmations > 0);
+  }
+
+  async getPublicBalance(): Promise<BigNumber> {
+    const address2Check = await this.getTransactionsAddresses();
+
+    const { data: utxos } = await axios.get<Utxo[]>(
+      `https://explorer.firo.org/insight-api-zcoin/addrs/${address2Check.join(',')}/utxo`,
+    );
+
+    const spendable = utxos.filter(el => el.confirmations > 0);
+
+    let balanceSat = 0;
+
+    spendable.forEach(el => {
+      balanceSat += el.satoshis;
+    });
+
+    await this.#storage.set(configs.STORAGE_KEYS.FIRO_WALLET_PUBLIC_BALANCE, {
+      balanceSat,
+    });
+
+    return new BigNumber(balanceSat);
+  }
+
   getUnconfirmedBalance() {
     return new BigNumber(
       this._getUnconfirmedCoins().reduce<number>(
@@ -191,7 +252,11 @@ export class FiroWallet implements AbstractWallet {
       return this._xPub;
     }
 
-    const root = bip32.fromSeed(Buffer.from(this.seed, 'hex'), this.network);
+    const { seed } = await this.#storage.get(
+      configs.STORAGE_KEYS.FIRO_WALLET_SECRET,
+    );
+
+    const root = bip32.fromSeed(Buffer.from(seed, 'hex'), this.network);
     this._xPub = root
       .deriveHardened(44)
       .deriveHardened(136)
@@ -395,7 +460,8 @@ export class FiroWallet implements AbstractWallet {
       this.external_addresses_cache[this.next_free_address_index + c] = address; // updating cache just for any case
       let txs = [];
       try {
-        txs = await firoElectrum.getTransactionsByAddress(address);
+        txs = [];
+        // txs = await firoElectrum.getTransactionsByAddress(address);
       } catch (e) {
         console.error('firo_wallet:getAddressAsync', e);
       }
@@ -426,7 +492,8 @@ export class FiroWallet implements AbstractWallet {
           address; // updating cache just for any case
         let txs = [];
         try {
-          txs = await firoElectrum.getTransactionsByAddress(address);
+          txs = [];
+          // txs = await firoElectrum.getTransactionsByAddress(address);
         } catch (e) {
           console.error('firo_wallet:getChangeAddressAsync', e);
         }
@@ -531,8 +598,9 @@ export class FiroWallet implements AbstractWallet {
     let hasChanges = false;
     const address2Check = await this.getTransactionsAddresses();
     try {
-      const fullTxs =
-        await firoElectrum.multiGetTransactionsFullByAddress(address2Check);
+      // const fullTxs =
+      //   await firoElectrum.multiGetTransactionsFullByAddress(address2Check);
+      const fullTxs = [];
       fullTxs.forEach(tx => {
         const foundTxs = this._txs_by_external_index.filter(
           item => item.txId === tx.txid,
@@ -791,15 +859,15 @@ export class FiroWallet implements AbstractWallet {
     delete this._node1;
   }
 
-  static fromJson(obj: string): FiroWallet {
-    const obj2 = JSON.parse(obj);
-    const temp: {
-      [key: string]: any;
-    } = new this();
-    for (const key2 of Object.keys(obj2)) {
-      temp[key2] = obj2[key2];
-    }
+  // static fromJson(obj: string): FiroWallet {
+  //   const obj2 = JSON.parse(obj);
+  //   const temp: {
+  //     [key: string]: any;
+  //   } = new this();
+  //   for (const key2 of Object.keys(obj2)) {
+  //     temp[key2] = obj2[key2];
+  //   }
 
-    return temp as FiroWallet;
-  }
+  //   return temp as FiroWallet;
+  // }
 }

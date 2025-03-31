@@ -291,8 +291,6 @@ const generateNewSparkAddress = async () => {
   const { pk, nextIndex } = await keyring.getPrivateKey(
     accountHeaderData.value!.selectedAccount!,
   );
-  const mnemonic = await keyring.getSavedMnemonic('Luf~k4,g');
-  console.log({ mnemonic });
 
   const uint8Array = new Uint8Array(pk.length / 2);
 
@@ -407,8 +405,6 @@ const generateNewSparkAddress = async () => {
 };
 
 const getSparkAccountState = async (network: BaseNetwork) => {
-  console.log(accountHeaderData.value);
-
   if (network.name === NetworkNames.Firo) {
     if (accountHeaderData.value.selectedAccount) {
       const sparkAccountResponse = await getSparkState(

@@ -17,7 +17,7 @@
       :disabled="isAnonymizeBtnDisabled"
       v-if="network.name === NetworkNames.Firo && sparkAccount"
       class="network-activity-total__anonymize"
-      :class="{'network-activity-total__anonymize-error': !!errorMsg}"
+      :class="{ 'network-activity-total__anonymize-error': !!errorMsg }"
       @click="anonymizeFunds()"
     >
       Anonymize funds
@@ -26,18 +26,28 @@
 </template>
 
 <script setup lang="ts">
+import ActivityState from '@/libs/activity-state';
+import MarketData from '@/libs/market-data';
+import { trackSendEvents } from '@/libs/metrics';
+import { SendEventType } from '@/libs/metrics/types';
+import { createTempTx } from '@/libs/spark-handler/createTempTx';
+import { getFee } from '@/libs/spark-handler/getFee';
+import { getMintTxData } from '@/libs/spark-handler/getMintTxData';
+import { getTotalMintedAmount } from '@/libs/spark-handler/getTotalMintedAmount';
+import FiroAPI from '@/providers/bitcoin/libs/api-firo';
+import { validator } from '@/providers/bitcoin/libs/firo-wallet/firo-wallet';
+import { PublicFiroWallet } from '@/providers/bitcoin/libs/firo-wallet/public-firo-wallet';
+import { BitcoinNetwork } from '@/providers/bitcoin/types/bitcoin-network';
+import { Activity, ActivityStatus, ActivityType } from '@/types/activity';
 import BalanceLoader from '@action/icons/common/balance-loader.vue';
-import {computed, PropType, ref,} from "vue";
-import {BaseNetwork} from "@/types/base-network.ts";
-import {NetworkNames} from "@enkryptcom/types/dist";
-import {SparkAccount} from "@action/types/account.ts";
-import {trackSendEvents} from "@/libs/metrics";
-import {SendEventType} from "@/libs/metrics/types.ts";
-import {sendToSparkAddress} from "@/libs/spark-handler";
-import {isAxiosError} from "axios";
+import { AccountsHeaderData, SparkAccount } from '@action/types/account.ts';
+import { NetworkNames } from '@enkryptcom/types/dist';
+import BigNumber from 'bignumber.js';
+import * as bitcoin from 'bitcoinjs-lib';
+import { computed, inject, PropType, ref } from 'vue';
 
 const emits = defineEmits<{
-  (e: "update:spark-state", network: BaseNetwork): void;
+  (e: 'update:spark-state', network: BitcoinNetwork): void;
 }>();
 
 const props = defineProps({
@@ -58,7 +68,7 @@ const props = defineProps({
     default: '',
   },
   network: {
-    type: Object as PropType<BaseNetwork>,
+    type: Object as PropType<BitcoinNetwork>,
     default: () => ({}),
   },
   sparkAccount: {
@@ -67,45 +77,192 @@ const props = defineProps({
       return {};
     },
   },
+  accountInfo: {
+    type: Object as PropType<AccountsHeaderData>,
+    default: () => ({}),
+  },
 });
 
-const isTransferLoading = ref(false)
-const errorMsg = ref()
+const wallet = new PublicFiroWallet();
+const wasmModule = inject<WasmModule>('wasmModule');
+
+const isTransferLoading = ref(false);
+const errorMsg = ref();
 
 const isAnonymizeBtnDisabled = computed(() => {
-  return isTransferLoading.value || Number(props.cryptoAmount) <= 0
-})
+  return isTransferLoading.value || Number(props.cryptoAmount) <= 0;
+});
 
 const anonymizeFunds = async () => {
-  errorMsg.value = undefined
+  isTransferLoading.value = true;
+  errorMsg.value = undefined;
   if (!props.sparkAccount) return;
-  try {
-    isTransferLoading.value = true
-    await sendToSparkAddress(
-      props.sparkAccount.defaultAddress,
-      props.cryptoAmount,
-    )
-    trackSendEvents(SendEventType.SendComplete, {
-      network: props.network.name,
-    });
-    emits("update:spark-state", props.network);
-  } catch (e) {
-    console.log(e, "ERROR")
-    if (isAxiosError(e)) {
-      errorMsg.value = JSON.stringify(e.response?.data.error.message);
-    } else {
-      errorMsg.value = JSON.stringify(e);
-    }
 
-    const _e = e as {message?: string}
-    trackSendEvents(SendEventType.SendFailed, {
-      network: props.network.name,
-      error: _e?.message,
+  const address2Check = await wallet.getTransactionsAddresses();
+
+  const { spendableUtxos, addressKeyPairs } =
+    await wallet.getSpendableUtxos(address2Check);
+
+  if (spendableUtxos.length === 0) throw new Error('No UTXOs available!');
+
+  const amountToSend = spendableUtxos.reduce((a, c) => {
+    return (a += c.satoshis);
+  }, 0);
+
+  const amountToSendBN = new BigNumber(amountToSend);
+
+  const mintTxData = await getMintTxData({
+    wasmModule,
+    address: props.sparkAccount.defaultAddress,
+    amount: amountToSendBN.toString(),
+    utxos: spendableUtxos.map(({ txid, vout }) => ({
+      txHash: Buffer.from(txid),
+      vout,
+      txHashLength: txid.length,
+    })),
+  });
+
+  const psbt = new bitcoin.Psbt({ network: props.network.networkInfo });
+
+  const { inputAmountBn, psbtInputs } =
+    await getTotalMintedAmount(spendableUtxos);
+
+  console.log(inputAmountBn.toString());
+
+  const tempTx = createTempTx({
+    changeAmount: inputAmountBn.minus(amountToSendBN).minus(new BigNumber(500)),
+    network: props.network.networkInfo,
+    addressKeyPairs,
+    spendableUtxos,
+    mintValueOutput: [
+      {
+        script: Buffer.from(mintTxData?.[0]?.scriptPubKey ?? '', 'hex'),
+        value: amountToSendBN.toNumber(),
+      },
+    ],
+    inputs: psbtInputs,
+  });
+
+  const feeBn = await getFee(tempTx);
+
+  psbtInputs.forEach(el => {
+    psbt.addInput(el);
+  });
+
+  psbt.addOutput({
+    script: Buffer.from(mintTxData?.[0]?.scriptPubKey ?? '', 'hex'),
+    value: amountToSendBN.minus(feeBn).toNumber(),
+  });
+
+  const changeAmount = inputAmountBn.minus(amountToSendBN).minus(feeBn);
+
+  if (changeAmount.gt(0)) {
+    const firstUtxoAddress = spendableUtxos[0].address;
+    console.log(
+      `🔹 Sending Change (${feeBn.toNumber() / 1e8} FIRO) to ${firstUtxoAddress}`,
+    );
+    psbt.addOutput({
+      address: firstUtxoAddress!,
+      value: changeAmount.toNumber(),
     });
-  } finally {
-    isTransferLoading.value = false
   }
-}
+
+  for (let index = 0; index < spendableUtxos.length; index++) {
+    const utxo = spendableUtxos[index];
+    const keyPair = addressKeyPairs[utxo.address];
+
+    console.log(
+      `🔹 Signing input ${index} with key ${keyPair.publicKey.toString('hex')}`,
+    );
+
+    const Signer = {
+      sign: (hash: Uint8Array) => {
+        return Buffer.from(keyPair.sign(hash));
+      },
+      publicKey: Buffer.from(keyPair.publicKey),
+    } as unknown as bitcoin.Signer;
+
+    psbt.signInput(index, Signer);
+  }
+
+  if (!psbt.validateSignaturesOfAllInputs(validator)) {
+    throw new Error('Error: Some inputs were not signed!');
+  }
+
+  psbt.finalizeAllInputs();
+
+  const rawTx = psbt.extractTransaction().toHex();
+  console.log('Raw Mint Transaction:', rawTx);
+
+  const fromAddress = props.accountInfo.selectedAccount?.address ?? '';
+
+  let tokenPrice = '0';
+
+  if (props.network.coingeckoID) {
+    const marketData = new MarketData();
+    await marketData
+      .getTokenPrice(props.network.coingeckoID)
+      .then(mdata => (tokenPrice = mdata || '0'));
+  }
+
+  const txActivity: Activity = {
+    from: props.network.displayAddress(fromAddress),
+    to: props.sparkAccount.defaultAddress,
+    isIncoming: false,
+    network: props.network.name,
+    status: ActivityStatus.pending,
+    timestamp: new Date().getTime(),
+    token: {
+      decimals: props.network.decimals,
+      icon: props.network.icon,
+      name: props.network.name_long,
+      symbol: props.network.currencyName,
+      price: tokenPrice,
+    },
+    type: ActivityType.transaction,
+    value: amountToSendBN.minus(feeBn).toString(),
+    transactionHash: '',
+  };
+
+  const activityState = new ActivityState();
+
+  const api = (await props.network.api()) as unknown as FiroAPI;
+
+  api
+    .broadcastTx(rawTx)
+    .then(({ txid }) => {
+      trackSendEvents(SendEventType.SendComplete, {
+        network: props.network.name,
+      });
+      activityState.addActivities(
+        [
+          {
+            ...txActivity,
+            ...{ transactionHash: txid },
+          },
+        ],
+        {
+          address: props.network.displayAddress(fromAddress),
+          network: props.network.name,
+        },
+      );
+      isTransferLoading.value = false;
+    })
+    .catch(error => {
+      trackSendEvents(SendEventType.SendFailed, {
+        network: props.network.name,
+        error: error.message,
+      });
+      txActivity.status = ActivityStatus.failed;
+      activityState.addActivities([txActivity], {
+        address: fromAddress,
+        network: props.network.name,
+      });
+
+      errorMsg.value = JSON.stringify(error);
+      console.error('ERROR', error);
+    });
+};
 </script>
 
 <style lang="less">

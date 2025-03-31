@@ -1,7 +1,6 @@
 import cacheFetch from '@/libs/cache-fetch';
 import { BTCRawInfo } from '@/types/activity';
 import { ProviderAPIInterface } from '@/types/provider';
-import { toBN } from 'web3-utils';
 import {
   BitcoinNetworkInfo,
   FiroTxType,
@@ -9,15 +8,18 @@ import {
   HaskoinUnspentType,
 } from '../types';
 import { getAddress as getBitcoinAddress } from '../types/bitcoin-network';
-import { filterOutOrdinals } from './filter-ordinals';
+import { Utxo } from '../types/utxo';
+import { PublicFiroWallet } from './firo-wallet/public-firo-wallet';
 
 class API implements ProviderAPIInterface {
   node: string;
   networkInfo: BitcoinNetworkInfo;
+  #wallet: PublicFiroWallet;
 
   constructor(node: string, networkInfo: BitcoinNetworkInfo) {
     this.node = node;
     this.networkInfo = networkInfo;
+    this.#wallet = new PublicFiroWallet();
   }
 
   public get api() {
@@ -71,15 +73,9 @@ class API implements ProviderAPIInterface {
   }
 
   async getBalance(pubkey: string): Promise<string> {
-    const address = pubkey.length < 64 ? pubkey : this.getAddress(pubkey);
-    return fetch(`${this.node}/insight-api-zcoin/addr/${address}/?noTxList=1`)
-      .then(res => res.json())
-      .then((balance: { balanceSat: string; unconfirmedBalance: string }) => {
-        if ((balance as any).message) return '0';
-        return toBN(balance.balanceSat)
-          .add(toBN(balance.unconfirmedBalance ?? '0'))
-          .toString();
-      })
+    return this.#wallet
+      .getPublicBalance()
+      .then(balance => balance.toString())
       .catch(() => '0');
   }
 
@@ -106,8 +102,6 @@ class API implements ProviderAPIInterface {
     address: string,
   ): Promise<HaskoinUnspentType[]> {
     const ret: HaskoinUnspentType[] = [];
-    console.log({ FiroUTXOs });
-
     for (const utx of FiroUTXOs) {
       try {
         const rawTxRes = (await cacheFetch({
@@ -139,23 +133,18 @@ class API implements ProviderAPIInterface {
     return ret;
   }
 
-  async getUTXOs(pubkey: string): Promise<HaskoinUnspentType[]> {
-    const address = pubkey.length < 64 ? pubkey : this.getAddress(pubkey);
-    return fetch(`${this.node}/insight-api-zcoin/addr/${address}/utxo`)
-      .then(res => {
-        return res.json();
-      })
-      .then(async (utxos: FiroUnspentType[]) => {
-        if ((utxos as any).message || !utxos.length) return [];
-        return filterOutOrdinals(address, this.networkInfo.name, [
-          (await this.FiroToHaskoinUTXOs(utxos, address)).at(-1)!,
-        ]).then(futxos => {
-          futxos.sort((a, b) => {
-            return a.value - b.value;
-          });
-          return futxos;
-        });
-      });
+  async getUTXOs(pubkey: string): Promise<Utxo[]> {
+    const spendableUtxos = await this.#wallet.getOnlySpendableUtxos();
+
+    if ((spendableUtxos as any).message || !spendableUtxos.length) return [];
+    spendableUtxos.sort((a, b) => {
+      return a.amount - b.amount;
+    });
+
+    return spendableUtxos.map(el => ({
+      ...el,
+      value: el.satoshis,
+    }));
   }
 }
 export default API;

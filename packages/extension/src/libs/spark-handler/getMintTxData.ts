@@ -1,7 +1,14 @@
+import { serializeMintContext } from './serializeMintContext';
+
 interface IArgs {
   wasmModule: WasmModule | undefined;
   address: string;
   amount: string;
+  utxos: {
+    txHash: Buffer<ArrayBuffer>;
+    vout: number;
+    txHashLength: number;
+  }[];
   memo?: string;
   isTestNetwork?: boolean;
 }
@@ -10,6 +17,7 @@ export const getMintTxData = async ({
   wasmModule,
   address,
   amount,
+  utxos,
   isTestNetwork = false,
   memo = '',
 }: IArgs) => {
@@ -45,7 +53,8 @@ export const getMintTxData = async ({
     wasmModule.HEAP32[(outputsPointerArray >> 2) + index] = outputPointer;
   });
 
-  const serialContext = new Uint8Array([0x12, 0x34, 0x56, 0x78, 0x9a, 0xbc]);
+  const { context: serialContext } = serializeMintContext(utxos);
+
   const serialContextPointer = wasmModule._malloc(serialContext.length);
   wasmModule.HEAPU8.set(serialContext, serialContextPointer);
 

@@ -9,8 +9,9 @@
           :crypto-amount="cryptoAmount"
           :fiat-amount="fiatAmount"
           :symbol="props.network.currencyName"
+          :account-info="props.accountInfo"
           v-bind="$attrs"
-          :network="props.network"
+          :network="props.network as BitcoinNetwork"
           :spark-account="props.accountInfo.sparkAccount"
           @update:spark-state="updateSparkState"
         />
@@ -19,7 +20,7 @@
           v-bind="$attrs"
           :network="props.network.name"
         />
-        <div v-if="activities.length" style="width: 100%;">
+        <div v-if="activities.length" style="width: 100%">
           <network-activity-transaction
             v-for="(item, index) in activities"
             :key="index + `${forceUpdateVal}`"
@@ -45,10 +46,10 @@
 </template>
 
 <script setup lang="ts">
-import NetworkActivityTotal from './components/network-activity-total.vue';
-import NetworkActivityAction from './components/network-activity-action.vue';
-import NetworkActivityTransaction from './components/network-activity-transaction.vue';
+import scrollSettings from '@/libs/utils/scroll-settings';
+import { BaseNetwork } from '@/types/base-network';
 import CustomScrollbar from '@action/components/custom-scrollbar/index.vue';
+import accountInfoComposable from '@action/composables/account-info';
 import {
   computed,
   onMounted,
@@ -60,31 +61,32 @@ import {
   watch,
 } from 'vue';
 import { AccountsHeaderData } from '../../types/account';
-import accountInfoComposable from '@action/composables/account-info';
-import { BaseNetwork } from '@/types/base-network';
-import scrollSettings from '@/libs/utils/scroll-settings';
+import NetworkActivityAction from './components/network-activity-action.vue';
+import NetworkActivityTotal from './components/network-activity-total.vue';
+import NetworkActivityTransaction from './components/network-activity-transaction.vue';
 
+import ActivityState from '@/libs/activity-state';
+import { BitcoinNetwork } from '@/providers/bitcoin/types/bitcoin-network';
+import EvmAPI from '@/providers/ethereum/libs/api';
 import {
   Activity,
   ActivityStatus,
   ActivityType,
   BTCRawInfo,
   EthereumRawInfo,
-  SubscanExtrinsicInfo,
-  SwapRawInfo,
   KadenaRawInfo,
   SOLRawInfo,
+  SubscanExtrinsicInfo,
+  SwapRawInfo,
 } from '@/types/activity';
-import NetworkActivityLoading from './components/network-activity-loading.vue';
 import { ProviderName } from '@/types/provider';
-import ActivityState from '@/libs/activity-state';
 import Swap, {
   SupportedNetworkName,
   TransactionStatus,
   WalletIdentifier,
 } from '@enkryptcom/swap';
-import EvmAPI from '@/providers/ethereum/libs/api';
 import type Web3Eth from 'web3-eth';
+import NetworkActivityLoading from './components/network-activity-loading.vue';
 
 const props = defineProps({
   network: {
@@ -98,7 +100,7 @@ const props = defineProps({
 });
 
 const emits = defineEmits<{
-  (e: "update:spark-state-changed", network: BaseNetwork): void;
+  (e: 'update:spark-state-changed', network: BaseNetwork): void;
 }>();
 
 const { cryptoAmount, fiatAmount } = accountInfoComposable(
@@ -158,14 +160,15 @@ const checkActivity = (activity: Activity): void => {
 };
 
 const updateAssets = () => {
-  props.network
-    .getAllTokenInfo(props.accountInfo.selectedAccount?.address || '')
+  props.network.getAllTokenInfo(
+    props.accountInfo.selectedAccount?.address || '',
+  );
 };
 
 const updateSparkState = (network: BaseNetwork) => {
-  updateAssets()
-  emits("update:spark-state-changed", network)
-}
+  updateAssets();
+  emits('update:spark-state-changed', network);
+};
 
 const handleActivityUpdate = (activity: Activity, info: any, timer: any) => {
   if (props.network.provider === ProviderName.ethereum) {

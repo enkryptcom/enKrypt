@@ -1,9 +1,8 @@
-import type { InjectedProvider as EthereumProvider } from '../providers/ethereum/types';
-import type { InjectedProvider as PolkadotProvider } from '@/providers/polkadot/types';
+import PublicKeyRing from '@/libs/keyring/public-keyring';
 import type { InjectedProvider as BitcoinProvider } from '@/providers/bitcoin/types';
 import type { InjectedProvider as KadenaProvider } from '@/providers/kadena/types';
+import type { InjectedProvider as PolkadotProvider } from '@/providers/polkadot/types';
 import type { InjectedProvider as SolanaProvider } from '@/providers/solana/types';
-import EventEmitter from 'eventemitter3';
 import {
   MiddlewareFunction,
   NetworkNames,
@@ -11,19 +10,20 @@ import {
   RPCRequestType,
   SignerType,
 } from '@enkryptcom/types';
+import EventEmitter from 'eventemitter3';
 import { RouteRecordRaw } from 'vue-router';
-import PublicKeyRing from '@/libs/keyring/public-keyring';
-import { RoutesType } from './ui';
-import { NFTCollection } from './nft';
-import { BaseNetwork } from './base-network';
-import { BaseToken } from './base-token';
+import type { InjectedProvider as EthereumProvider } from '../providers/ethereum/types';
 import {
   BTCRawInfo,
   EthereumRawInfo,
-  SubscanExtrinsicInfo,
   KadenaRawInfo,
   SOLRawInfo,
+  SubscanExtrinsicInfo,
 } from './activity';
+import { BaseNetwork } from './base-network';
+import { BaseToken } from './base-token';
+import { NFTCollection } from './nft';
+import { RoutesType } from './ui';
 
 export enum ProviderName {
   enkrypt = 'enkrypt',
@@ -51,6 +51,7 @@ export enum InternalStorageNamespace {
   tokensState = 'TokensState',
   customNetworksState = 'CustomNetworksState',
   rateState = 'RateState',
+  firoWallet = 'FiroWallet',
 }
 export enum EnkryptProviderEventMethods {
   persistentEvents = 'PersistentEvents',
@@ -153,11 +154,7 @@ export type handleOutgoingMessage = (
   message: string,
 ) => Promise<any>;
 export {
-  EthereumProvider,
-  PolkadotProvider,
-  BitcoinProvider,
-  KadenaProvider,
-  SolanaProvider,
+  BitcoinProvider, EthereumProvider, KadenaProvider, PolkadotProvider, SolanaProvider
 };
 export type Provider =
   | EthereumProvider

@@ -131,7 +131,7 @@
       <base-button title="Cancel" :click="close" :no-background="true" />
     </div>
     <div class="send-transaction__buttons-send">
-      <!-- <base-button
+      <base-button
         :title="sendButtonTitle"
         :click="
           !isAddress(addressTo, network.networkInfo)
@@ -139,24 +139,8 @@
             : sendAction
         "
         :disabled="!isInputsValid"
-      /> -->
-      <base-button
-        :title="sendButtonTitle"
-        :click="
-          !isAddress(addressTo, network.networkInfo)
-            ? toggleRequirePasswordModal
-            : sendAction
-        "
-        :disabled="!isInputsValid"
       />
     </div>
-
-    <modal-require-password
-      v-if="isOpenRequirePasswordModal"
-      v-bind="$attrs"
-      @window:close="toggleRequirePasswordModal"
-      @action:get-mnemonic="mnemonicSuccessfullyRetrieved"
-    />
   </div>
 </template>
 
@@ -190,7 +174,6 @@ import { ProviderName } from '@/types/provider';
 import { routes as RouterNames } from '@/ui/action/router';
 import { AccountsHeaderData } from '@/ui/action/types/account';
 import BaseButton from '@action/components/base-button/index.vue';
-import ModalRequirePassword from '@action/views/modal-require-password/index.vue';
 import TransactionFeeView from '@action/views/transaction-fee/index.vue';
 import { fromBase, isValidDecimals, toBase } from '@enkryptcom/utils';
 import BigNumber from 'bignumber.js';
@@ -254,20 +237,11 @@ const addressFrom = ref<string>(
 );
 const addressTo = ref<string>('');
 const isLoadingAssets = ref(true);
-const isOpenRequirePasswordModal = ref(false);
 
 onMounted(async () => {
   trackSendEvents(SendEventType.SendOpen, { network: props.network.name });
   fetchAssets().then(setBaseCosts);
 });
-
-const toggleRequirePasswordModal = () => {
-  isOpenRequirePasswordModal.value = !isOpenRequirePasswordModal.value;
-};
-
-const mnemonicSuccessfullyRetrieved = async (mnemonic: string) => {
-  sendSparkAction(mnemonic).then(toggleRequirePasswordModal);
-};
 
 const nativeBalanceAfterTransaction = computed(() => {
   if (
@@ -474,7 +448,7 @@ const selectNFT = (item: NFTItemWithCollectionName) => {
   isOpenSelectNft.value = false;
 };
 
-const sendSparkAction = async (mnemonic: string) => {
+const sendSparkAction = async () => {
   const keyring = new PublicKeyRing();
   const fromAccountInfo = await keyring.getAccount(addressFrom.value);
   const toAmount = toBN(toBase(sendAmount.value, selectedAsset.value.decimals));
@@ -501,7 +475,6 @@ const sendSparkAction = async (mnemonic: string) => {
           gasFee: gasCostValues.value[selectedFee.value],
           gasPriceType: selectedFee.value,
           toAddress: addressTo.value,
-          mnemonic,
         }),
         'utf8',
       ).toString('base64'),

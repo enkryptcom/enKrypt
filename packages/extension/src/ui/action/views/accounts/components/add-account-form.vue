@@ -47,13 +47,13 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, PropType, ref, watch } from 'vue';
-import BaseButton from '@action/components/base-button/index.vue';
-import { NodeType } from '@/types/provider';
+import Keyring from '@/libs/keyring/public-keyring';
 import { sendToBackgroundFromAction } from '@/libs/messenger/extension';
 import { InternalMethods } from '@/types/messenger';
+import { NodeType } from '@/types/provider';
+import BaseButton from '@action/components/base-button/index.vue';
 import { EnkryptAccount, KeyRecordAdd, WalletType } from '@enkryptcom/types';
-import Keyring from '@/libs/keyring/public-keyring';
+import { onMounted, PropType, ref, watch } from 'vue';
 
 const isFocus = ref(false);
 const accountName = ref('');

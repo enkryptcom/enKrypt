@@ -11,7 +11,8 @@
             :fiat-amount="fiatAmount"
             :symbol="network.currencyName"
             :subnetwork="props.subnetwork"
-            :network="props.network"
+            :network="props.network as BitcoinNetwork"
+            :account-info="props.accountInfo"
             :spark-account="props.accountInfo.sparkAccount"
             @update:spark-state="updateSparkState"
           />
@@ -62,22 +63,23 @@
 </template>
 
 <script setup lang="ts">
+import scrollSettings from '@/libs/utils/scroll-settings';
+import { BitcoinNetwork } from '@/providers/bitcoin/types/bitcoin-network';
+import { EvmNetwork } from '@/providers/ethereum/types/evm-network';
+import { BaseNetwork } from '@/types/base-network';
+import type { AssetsType } from '@/types/provider';
+import BaseButton from '@action/components/base-button/index.vue';
+import CustomScrollbar from '@action/components/custom-scrollbar/index.vue';
+import accountInfoComposable from '@action/composables/account-info';
+import Deposit from '@action/views/deposit/index.vue';
+import { computed, onMounted, type PropType, ref, toRef, watch } from 'vue';
 import { useRoute } from 'vue-router';
-import NetworkActivityTotal from '../network-activity/components/network-activity-total.vue';
+import type { AccountsHeaderData } from '../../types/account';
 import NetworkActivityAction from '../network-activity/components/network-activity-action.vue';
+import NetworkActivityTotal from '../network-activity/components/network-activity-total.vue';
+import CustomEvmToken from './components/custom-evm-token.vue';
 import NetworkAssetsItem from './components/network-assets-item.vue';
 import NetworkAssetsLoading from './components/network-assets-loading.vue';
-import CustomScrollbar from '@action/components/custom-scrollbar/index.vue';
-import { computed, onMounted, type PropType, ref, toRef, watch } from 'vue';
-import type { AssetsType } from '@/types/provider';
-import type { AccountsHeaderData } from '../../types/account';
-import accountInfoComposable from '@action/composables/account-info';
-import { BaseNetwork } from '@/types/base-network';
-import scrollSettings from '@/libs/utils/scroll-settings';
-import Deposit from '@action/views/deposit/index.vue';
-import BaseButton from '@action/components/base-button/index.vue';
-import CustomEvmToken from './components/custom-evm-token.vue';
-import { EvmNetwork } from '@/providers/ethereum/types/evm-network';
 
 const showDeposit = ref(false);
 
@@ -100,7 +102,7 @@ const assets = ref<AssetsType[]>([]);
 const isLoading = ref(false);
 
 const emits = defineEmits<{
-  (e: "update:spark-state-changed", network: BaseNetwork): void;
+  (e: 'update:spark-state-changed', network: BaseNetwork): void;
 }>();
 
 const { cryptoAmount, fiatAmount } = accountInfoComposable(
@@ -122,9 +124,9 @@ const updateAssets = () => {
     });
 };
 const updateSparkState = (network: BaseNetwork) => {
-  updateAssets()
-  emits("update:spark-state-changed", network)
-}
+  updateAssets();
+  emits('update:spark-state-changed', network);
+};
 const selectedAddress = computed(
   () => props.accountInfo.selectedAccount?.address || '',
 );
