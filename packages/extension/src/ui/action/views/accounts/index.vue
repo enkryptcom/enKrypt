@@ -101,10 +101,9 @@
   />
 
   <import-account
-    v-if="isImportAccount"
+    v-model="isImportAccount"
     v-bind="$attrs"
     :network="network"
-    @close="closeImportAccount"
   />
 </template>
 
@@ -205,9 +204,6 @@ const importAction = () => {
   setTimeout(() => {
     isImportAccount.value = true;
   }, 100);
-};
-const closeImportAccount = () => {
-  isImportAccount.value = false;
 };
 
 /*
