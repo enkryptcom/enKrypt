@@ -336,6 +336,7 @@ const displayInactive = computed(() => {
     width: 100%;
     height: 420px;
     padding-bottom: 100px !important;
+    padding-right: 8px !important;
   }
 
   &__info {
