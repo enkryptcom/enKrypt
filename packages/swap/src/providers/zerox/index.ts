@@ -56,17 +56,13 @@ const supportedNetworks: {
     approvalAddress: "0xdef1c0ded9bec7f1a1670819833240f027b25eff",
     chainId: "43114",
   },
-  [SupportedNetworkName.Fantom]: {
-    approvalAddress: "0xdef189deaef76e379df891899eb5a00a94cbc250",
-    chainId: "250",
-  },
   [SupportedNetworkName.Arbitrum]: {
     approvalAddress: "0xdef1c0ded9bec7f1a1670819833240f027b25eff",
     chainId: "42161",
   },
   [SupportedNetworkName.Base]: {
     approvalAddress: "0xdef1c0ded9bec7f1a1670819833240f027b25eff",
-    chainId: "1101",
+    chainId: "8453",
   },
 };
 
@@ -173,8 +169,9 @@ class ZeroX extends ProviderClass {
     )
       .then((res) => res.json())
       .then(async (response: ZeroXResponseType) => {
-        if (response.code) {
-          console.error(response.code, response.reason);
+        console.log(response)
+        if (response.name) {
+          console.error(response.name, response.message);
           return Promise.resolve(null);
         }
         const transactions: EVMTransaction[] = [];
