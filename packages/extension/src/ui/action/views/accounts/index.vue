@@ -95,9 +95,9 @@
 
   <delete-account-form
     v-if="isDeleteAccount"
+    v-model="isDeleteAccount"
     v-bind="$attrs"
     :account="accountToDelete"
-    @window:close="closeDeleteAccount"
   />
 
   <import-account
@@ -192,9 +192,6 @@ const deleteAccount = (accountIdx: number) => {
   setTimeout(() => {
     isDeleteAccount.value = true;
   }, 100);
-};
-const closeDeleteAccount = () => {
-  isDeleteAccount.value = false;
 };
 const importAction = () => {
   props.toggle();
