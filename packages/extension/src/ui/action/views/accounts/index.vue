@@ -83,12 +83,7 @@
     </div>
   </div>
 
-  <add-account-form
-    v-if="isAddAccount"
-    v-bind="$attrs"
-    :network="network"
-    @window:close="closeAddAccount"
-  />
+  <add-account-form v-model="isAddAccount" v-bind="$attrs" :network="network" />
 
   <rename-account-form
     v-if="isRenameAccount"
@@ -182,9 +177,7 @@ const addAccountAction = () => {
     isAddAccount.value = true;
   }, 100);
 };
-const closeAddAccount = () => {
-  isAddAccount.value = false;
-};
+
 const renameAccount = (accountIdx: number) => {
   accountToRename.value = props.accountInfo.activeAccounts[accountIdx];
   props.toggle();
