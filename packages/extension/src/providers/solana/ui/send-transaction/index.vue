@@ -68,11 +68,10 @@
       />
 
       <nft-select-list
-        v-show="isOpenSelectNft"
+        v-model="isOpenSelectNft"
         :address="addressFrom"
         :network="network"
         :selected-nft="paramNFTData"
-        @close="toggleSelectNft"
         @select-nft="selectNFT"
       />
 
