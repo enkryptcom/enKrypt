@@ -87,10 +87,10 @@
 
   <rename-account-form
     v-if="isRenameAccount"
+    v-model="isRenameAccount"
     v-bind="$attrs"
     :account="accountToRename"
     :network="network"
-    @window:close="closeRenameAccount"
   />
 
   <delete-account-form
@@ -101,8 +101,8 @@
   />
 
   <import-account
-    v-model="isImportAccount"
     v-bind="$attrs"
+    v-model="isImportAccount"
     :network="network"
   />
 </template>
@@ -184,9 +184,7 @@ const renameAccount = (accountIdx: number) => {
     isRenameAccount.value = true;
   }, 100);
 };
-const closeRenameAccount = () => {
-  isRenameAccount.value = false;
-};
+
 const deleteAccount = (accountIdx: number) => {
   accountToDelete.value = props.accountInfo.activeAccounts[accountIdx];
   props.toggle();
