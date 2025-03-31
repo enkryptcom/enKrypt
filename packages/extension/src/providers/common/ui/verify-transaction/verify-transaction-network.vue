@@ -41,6 +41,7 @@ defineProps({
     width: 32px;
     height: 32px;
     margin-right: 12px;
+    object-fit: contain;
   }
 
   &__name {
