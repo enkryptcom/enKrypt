@@ -68,6 +68,7 @@
       />
 
       <nft-select-list
+        v-if="!isSendToken"
         v-model="isOpenSelectNft"
         :address="addressFrom"
         :network="network"

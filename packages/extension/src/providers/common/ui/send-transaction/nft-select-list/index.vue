@@ -59,7 +59,7 @@ const emit = defineEmits<{
   (e: 'selectNft', data: NFTItemWithCollectionName): void;
 }>();
 
-const searchNFT = defineModel<string>('');
+const searchNFT = ref<string>('');
 
 const nftCollections = ref<NFTCollection[]>([]);
 const nftList = computed(() => {
