@@ -150,7 +150,7 @@ const classObject = () => {
     return { 'left-top': true, visible: visible.value };
   }
   if (props.isBottomRight) {
-    return { 'left-bottom': true, visible: visible.value };
+    return { 'right-bottom': true, visible: visible.value };
   }
   const x = positionX.value;
   const y = positionY.value;
