@@ -174,6 +174,7 @@ import getPriorityFees from '../libs/get-priority-fees';
 import bs58 from 'bs58';
 import SolanaAPI from '@/providers/solana/libs/api';
 import RecentlySentAddressesState from '@/libs/recently-sent-addresses';
+import { parseCurrency } from '@/ui/action/utils/filters';
 
 const props = defineProps({
   network: {
@@ -219,6 +220,13 @@ const hasValidDecimals = computed((): boolean => {
 const hasPositiveSendAmount = computed(() => {
   return isNumericPositive(sendAmount.value);
 });
+
+const hasLessThanFees = computed(() => {
+  return BigNumber(gasCostValues.value[selectedFee.value].nativeValue).gt(
+    fromBase(nativeBalance.value, props.network.decimals),
+  );
+});
+
 const hasEnoughBalance = computed((): boolean => {
   if (!hasValidDecimals.value) {
     return false;
@@ -226,6 +234,8 @@ const hasEnoughBalance = computed((): boolean => {
   if (!hasPositiveSendAmount.value) {
     return false;
   }
+  if (hasLessThanFees.value) return false;
+
   return toBN(selectedAsset.value.balance ?? '0').gte(
     toBN(toBase(sendAmount.value ?? '0', selectedAsset.value.decimals!)),
   );
@@ -359,6 +369,8 @@ const balanceAfterInUsd = computed(() => {
 });
 
 const errorMsg = computed(() => {
+  if (hasLessThanFees.value) return `Not enough funds for fees.`;
+
   if (!hasValidDecimals.value) {
     return `Too many decimals.`;
   }
@@ -373,9 +385,9 @@ const errorMsg = computed(() => {
   ) {
     return `Not enough funds. You are
       ~${formatFloatingPointValue(nativeBalanceAfterTransactionInHumanUnits.value).value}
-      ${props.network.currencyName} ($ ${
-        formatFiatValue(balanceAfterInUsd.value).value
-      }) short.`;
+      ${props.network.currencyName} (${parseCurrency(
+        formatFiatValue(balanceAfterInUsd.value).value,
+      )}) short.`;
   }
 
   if (
@@ -486,17 +498,16 @@ const updateTransactionFees = async () => {
   const to = TxInfo.value.to
     ? new PublicKey(getAddress(TxInfo.value.to))
     : from;
-  const priorityFee = (
-    await getPriorityFees(
-      new PublicKey(getAddress(TxInfo.value.from)),
-      solConnection.value!.web3,
-    )
-  ).high;
-  const transaction = new SolTransaction().add(
-    ComputeBudgetProgram.setComputeUnitPrice({
-      microLamports: priorityFee * 100,
-    }),
-  );
+  const priorityFee = (await getPriorityFees(props.network)).high;
+  const transaction = new SolTransaction();
+  if (priorityFee !== 0) {
+    transaction.add(
+      ComputeBudgetProgram.setComputeUnitPrice({
+        microLamports: priorityFee,
+      }),
+    );
+  }
+
   if (isSendToken.value && TxInfo.value.contract === NATIVE_TOKEN_ADDRESS) {
     const toBalance = await solConnection.value!.web3.getBalance(to);
     const rentExempt =
