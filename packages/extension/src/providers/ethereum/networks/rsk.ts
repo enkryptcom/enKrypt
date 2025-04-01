@@ -20,7 +20,7 @@ const rootstockOptions: EvmNetworkOptions = {
   isTestNetwork: false,
   currencyName: 'RBTC',
   currencyNameLong: 'Rootstock',
-  node: 'wss://public-node.rsk.co/websocket',
+  node: 'wss://nodes.mewapi.io/ws/rsk',
   icon,
   basePath: "m/44'/137'/0'/0",
   coingeckoID: CoingeckoPlatform.Rootstock,

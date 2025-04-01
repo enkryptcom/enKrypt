@@ -102,6 +102,8 @@ import { Activity, ActivityStatus, ActivityType } from '@/types/activity';
 import { KDAToken } from '@/providers/kadena/types/kda-token';
 import KadenaAPI from '@/providers/kadena/libs/api';
 import { KadenaNetwork } from '@/providers/kadena/types/kadena-network';
+import { trackSendEvents } from '@/libs/metrics';
+import { SendEventType } from '@/libs/metrics/types';
 
 const isSendDone = ref(false);
 const account = ref<EnkryptAccount>();
@@ -135,6 +137,7 @@ onBeforeMount(async () => {
     symbol: 'loading',
     decimals: network.value.decimals,
   });
+  trackSendEvents(SendEventType.SendVerify, { network: network.value.name });
 });
 const close = () => {
   if (getCurrentContext() === 'popup') {
@@ -146,22 +149,22 @@ const close = () => {
 
 const sendAction = async () => {
   isProcessing.value = true;
-
+  trackSendEvents(SendEventType.SendApprove, {
+    network: network.value.name,
+  });
   try {
     const transaction = await kdaToken.value!.buildTransaction!(
       txData.toAddress,
       account.value!,
       txData.TransactionData.value,
       network.value as KadenaNetwork,
-      chainId.value!,
     );
 
     const networkApi = (await network.value.api()) as KadenaAPI;
-    const transactionDescriptor = await networkApi.sendTransaction(
-      transaction,
-      chainId.value!,
-    );
-
+    const transactionDescriptor = await networkApi.sendTransaction(transaction);
+    trackSendEvents(SendEventType.SendComplete, {
+      network: network.value.name,
+    });
     const txActivity: Activity = {
       from: network.value.displayAddress(txData.fromAddress),
       to: network.value.displayAddress(txData.toAddress),
@@ -204,10 +207,14 @@ const sendAction = async () => {
     }
   } catch (error: any) {
     isProcessing.value = false;
-    console.error('error', error);
     errorMsg.value = `Error: ${
       error.message || 'Could not send the transaction'
     }`;
+    trackSendEvents(SendEventType.SendFailed, {
+      network: network.value.name,
+      error: errorMsg.value,
+    });
+    console.error('error', error);
   }
 };
 

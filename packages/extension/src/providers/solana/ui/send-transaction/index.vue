@@ -497,17 +497,16 @@ const updateTransactionFees = async () => {
   const to = TxInfo.value.to
     ? new PublicKey(getAddress(TxInfo.value.to))
     : from;
-  const priorityFee = (
-    await getPriorityFees(
-      new PublicKey(getAddress(TxInfo.value.from)),
-      solConnection.value!.web3,
-    )
-  ).high;
-  const transaction = new SolTransaction().add(
-    ComputeBudgetProgram.setComputeUnitPrice({
-      microLamports: priorityFee * 100,
-    }),
-  );
+  const priorityFee = (await getPriorityFees(props.network)).high;
+  const transaction = new SolTransaction();
+  if (priorityFee !== 0) {
+    transaction.add(
+      ComputeBudgetProgram.setComputeUnitPrice({
+        microLamports: priorityFee,
+      }),
+    );
+  }
+
   if (isSendToken.value && TxInfo.value.contract === NATIVE_TOKEN_ADDRESS) {
     const toBalance = await solConnection.value!.web3.getBalance(to);
     const rentExempt =

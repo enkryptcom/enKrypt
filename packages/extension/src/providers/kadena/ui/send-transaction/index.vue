@@ -127,6 +127,8 @@ import { ProviderName } from '@/types/provider';
 import Browser from 'webextension-polyfill';
 import { ICommandResult } from '@kadena/client';
 import RecentlySentAddressesState from '@/libs/recently-sent-addresses';
+import { trackSendEvents } from '@/libs/metrics';
+import { SendEventType } from '@/libs/metrics/types';
 
 const props = defineProps({
   network: {
@@ -179,6 +181,7 @@ const isAddress = computed(() => {
 });
 
 onMounted(() => {
+  trackSendEvents(SendEventType.SendOpen, { network: props.network.name });
   isLoadingAssets.value = true;
   fetchTokens();
 });
@@ -383,6 +386,9 @@ const fetchTokens = async () => {
 };
 
 const close = () => {
+  trackSendEvents(SendEventType.SendDecline, {
+    network: props.network.name,
+  });
   router.go(-1);
 };
 

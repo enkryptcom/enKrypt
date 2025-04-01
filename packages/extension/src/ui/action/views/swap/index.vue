@@ -180,10 +180,7 @@ const router = useRouter();
 const route = useRoute();
 const nameResolver = new GenericNameResolver();
 const props = defineProps({
-  network: {
-    type: Object as PropType<BaseNetwork>,
-    default: () => ({}),
-  },
+  network: { type: Object as PropType<BaseNetwork>, default: () => ({}) },
   accountInfo: {
     type: Object as PropType<AccountsHeaderData>,
     default: () => ({}),
@@ -219,10 +216,7 @@ const toAddressInputMeta = ref({
   identicon: (address: string) => '' as string,
   networkName: '',
 });
-const errors = ref({
-  inputAmount: '',
-  noProviders: false,
-});
+const errors = ref({ inputAmount: '', noProviders: false });
 const bestProviderQuotes = ref<ProviderQuoteResponse[]>([]);
 
 /** Receiver address (address that will be receiving the swap output) */
@@ -259,9 +253,7 @@ const swap = new EnkryptSwap({
   api,
   network: props.network.name as unknown as SupportedNetworkName,
   walletIdentifier: WalletIdentifier.enkrypt,
-  evmOptions: {
-    infiniteApproval: true,
-  },
+  evmOptions: { infiniteApproval: true },
 });
 
 onMounted(async () => {
@@ -790,6 +782,103 @@ const isDisabled = computed(() => {
   if (!bestProviderQuotes.value.length) return true;
   return false;
 });
+
+const sendAction = async () => {
+  toggleLooking();
+  const marketData = new MarketData();
+  let fromPrice: null | number;
+  if (!fromToken.value!.cgId) {
+    console.warn(
+      `Source token ${fromToken.value!.symbol} (${fromToken.value!.name})` +
+        ` ${fromToken.value!.address} has no CoinGecko ID, setting price` +
+        ` to 0`,
+    );
+    fromPrice = 0;
+  } else {
+    fromPrice = await marketData
+      .getMarketData([fromToken.value!.cgId])
+      .then(res => res[0]!.current_price);
+  }
+  let toPrice: null | number;
+  if (!toToken.value!.cgId) {
+    console.warn(
+      `Destination token ${toToken.value!.symbol} (${toToken.value!.name})` +
+        ` ${toToken.value!.address} has no CoinGecko ID, setting price` +
+        ` to 0`,
+    );
+    toPrice = 0;
+  } else {
+    toPrice = await marketData
+      .getMarketData([toToken.value!.cgId])
+      .then(res => res[0]!.current_price);
+  }
+  const localFromToken = { ...fromToken.value! };
+  const localToToken = { ...toToken.value! };
+  localFromToken.price = fromPrice ?? undefined;
+  localToToken.price = toPrice ?? undefined;
+  localFromToken.balance = bestProviderQuotes.value[0]!.fromTokenAmount;
+  localToToken.balance = bestProviderQuotes.value[0]!.toTokenAmount;
+  const swapToToken = new SwapToken(localToToken);
+  const swapFromToken = new SwapToken(localFromToken);
+  const priceDifference = BigNumber(swapFromToken.getFiatTotal())
+    .div(swapToToken.getFiatTotal())
+    .toString();
+  const tradePromises = bestProviderQuotes.value.map(q =>
+    swap.getSwap(q.quote),
+  );
+  const trades: (ProviderResponseWithStatus | null)[] = await Promise.all(
+    tradePromises,
+  ).then(responses => responses.filter(r => !!r));
+  const tradeStatusOptions = trades.map(t =>
+    t!.getStatusObject({ transactions: [] }),
+  );
+  const statusObjects = await Promise.all(tradeStatusOptions);
+  trades.forEach((t, idx) => (t!.status = statusObjects[idx]));
+  if (!trades.length) {
+    swapError.value = SwapError.NO_TRADES;
+    toggleLooking();
+    toggleSwapError();
+    return;
+  }
+  const swapData: SwapData = {
+    trades: trades as ProviderResponseWithStatus[],
+    fromToken: localFromToken,
+    toToken: localToToken,
+    priceDifference: priceDifference,
+    nativeBalance: nativeSwapToken.value!.getBalanceRaw() || toBN('0'),
+    nativePrice: nativeSwapToken.value!.getFiatValue() || 0,
+    existentialDeposit:
+      (props.network as SubstrateNetwork).existentialDeposit || toBN('0'),
+    fromAddress: props.accountInfo.selectedAccount!.address,
+    toAddress: address.value,
+  };
+  const routedRoute = router.resolve({
+    name: RouterNames.swapBestOffer.name,
+    query: {
+      id: selected,
+      swapData: Buffer.from(JSON.stringify(swapData), 'utf8').toString(
+        'base64',
+      ),
+    },
+  });
+  if (props.accountInfo.selectedAccount!.isHardware) {
+    await Browser.windows.create({
+      url: Browser.runtime.getURL(
+        getUiPath(
+          `${UIRoutes.swapVerifyHW.path}?id=${routedRoute.query.id}&swapData=${routedRoute.query.swapData}`,
+          ProviderName.enkrypt,
+        ),
+      ),
+      type: 'popup',
+      focused: true,
+      height: 600,
+      width: 460,
+    });
+    window.close();
+  } else {
+    router.push(routedRoute);
+  }
+};
 </script>
 
 <style lang="less" scoped>
