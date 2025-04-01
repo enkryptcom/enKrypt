@@ -21,6 +21,7 @@ export const replaceWithEllipsis = (
 };
 
 export const parseCurrency = (value: string): string => {
+  const parsedValue = value.replace(/,/g, '')
   const store = useCurrencyStore();
   const currency = store.currentSelectedCurrency;
   const currencyCode = LANG_INFO[currency as keyof typeof LANG_INFO].locale || 'en-US';
@@ -30,7 +31,7 @@ export const parseCurrency = (value: string): string => {
   return new Intl.NumberFormat(currencyCode, {
     style: 'currency',
     currency: currency,
-  }).format(parseFloat(BigNumber(value).times(rate.exchange_rate).toString()));
+  }).format(parseFloat(BigNumber(parsedValue).times(rate.exchange_rate).toString()));
 
 }
 
