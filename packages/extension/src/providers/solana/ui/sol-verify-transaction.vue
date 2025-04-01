@@ -226,13 +226,12 @@ onBeforeMount(async () => {
         isPriorityFeesSet = true;
     });
     const priorityFee = await getPrioritizationFees(
-      new PublicKey(network.value.displayAddress(account.value.address)),
-      solConnection.value!.web3,
+      network.value as SolanaNetwork,
     );
-    if (!isPriorityFeesSet && priorityFee) {
+    if (!isPriorityFeesSet && !!priorityFee) {
       Tx.value.add(
         ComputeBudgetProgram.setComputeUnitPrice({
-          microLamports: priorityFee.high * 100,
+          microLamports: priorityFee.high,
         }),
       );
     }

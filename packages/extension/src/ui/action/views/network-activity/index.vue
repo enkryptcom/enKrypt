@@ -147,85 +147,73 @@ const checkActivity = (activity: Activity): void => {
   activityCheckTimers.push(timer);
 };
 
+let isActivityUpdating = false;
+
+const updateActivitySync = (activity: Activity) => {
+  isActivityUpdating = true;
+  return activityState
+    .updateActivity(activity, {
+      address: activityAddress.value,
+      network: props.network.name,
+    })
+    .finally(() => {
+      isActivityUpdating = false;
+    });
+};
+
 const handleActivityUpdate = (activity: Activity, info: any, timer: any) => {
   if (props.network.provider === ProviderName.ethereum) {
     if (!info) return;
+    if (isActivityUpdating) return;
     const evmInfo = info as EthereumRawInfo;
     activity.status = evmInfo.status
       ? ActivityStatus.success
       : ActivityStatus.failed;
     activity.rawInfo = evmInfo;
-    activityState
-      .updateActivity(activity, {
-        address: activityAddress.value,
-        network: props.network.name,
-      })
-      .then(() => updateVisibleActivity(activity));
+    updateActivitySync(activity).then(() => updateVisibleActivity(activity));
   } else if (props.network.provider === ProviderName.polkadot) {
     if (!info) return;
     const subInfo = info as SubscanExtrinsicInfo;
     if (!subInfo.pending) {
+      if (isActivityUpdating) return;
       activity.status = subInfo.success
         ? ActivityStatus.success
         : ActivityStatus.failed;
       activity.rawInfo = subInfo;
-      activityState
-        .updateActivity(activity, {
-          address: activityAddress.value,
-          network: props.network.name,
-        })
-        .then(() => updateVisibleActivity(activity));
+      updateActivitySync(activity).then(() => updateVisibleActivity(activity));
     }
   } else if (props.network.provider === ProviderName.bitcoin) {
     if (!info) return;
     const btcInfo = info as BTCRawInfo;
+    if (isActivityUpdating) return;
     activity.status = ActivityStatus.success;
     activity.rawInfo = btcInfo;
-    activityState
-      .updateActivity(activity, {
-        address: activityAddress.value,
-        network: props.network.name,
-      })
-      .then(() => updateVisibleActivity(activity));
+    updateActivitySync(activity).then(() => updateVisibleActivity(activity));
   } else if (props.network.provider === ProviderName.kadena) {
     if (!info) return;
     const kadenaInfo = info as KadenaRawInfo;
+    if (isActivityUpdating) return;
     activity.status =
       kadenaInfo.result.status == 'success'
         ? ActivityStatus.success
         : ActivityStatus.failed;
     activity.rawInfo = kadenaInfo as KadenaRawInfo;
-
-    activityState
-      .updateActivity(activity, {
-        address: activityAddress.value,
-        network: props.network.name,
-      })
-      .then(() => updateVisibleActivity(activity));
+    updateActivitySync(activity).then(() => updateVisibleActivity(activity));
   } else if (props.network.provider === ProviderName.solana) {
     if (info) {
-      console.log('[[ ??? doing something ??? ]]', info);
       const solInfo = info as SOLRawInfo;
+      if (isActivityUpdating) return;
       activity.status = info.status
         ? ActivityStatus.success
         : ActivityStatus.failed;
       activity.rawInfo = solInfo;
-      activityState
-        .updateActivity(activity, {
-          address: activityAddress.value,
-          network: props.network.name,
-        })
-        .then(() => updateVisibleActivity(activity));
+      updateActivitySync(activity).then(() => updateVisibleActivity(activity));
     } else if (Date.now() > activity.timestamp + 3 * 60_000) {
       // Either our node is behind or the transaction was dropped
       // Consider the transaction expired
+      if (isActivityUpdating) return;
       activity.status = ActivityStatus.dropped;
-      activityState
-        .updateActivity(activity, {
-          address: activityAddress.value,
-          network: props.network.name,
-        })
-        .then(() => updateVisibleActivity(activity));
+      updateActivitySync(activity).then(() => updateVisibleActivity(activity));
     } else {
       return; /* Give the transaction more time to be mined */
     }
