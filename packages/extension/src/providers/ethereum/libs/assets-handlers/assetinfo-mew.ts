@@ -122,6 +122,10 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
     tbName: 'shib',
     cgPlatform: CoingeckoPlatform.Shibarium,
   },
+  [NetworkNames.Base]: {
+    tbName: 'base',
+    cgPlatform: CoingeckoPlatform.Base,
+  },
   [NetworkNames.SyscoinNEVM]: {
     cgPlatform: CoingeckoPlatform.Syscoin,
     bsEndpoint: true,

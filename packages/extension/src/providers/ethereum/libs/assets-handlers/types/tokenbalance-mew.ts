@@ -65,4 +65,5 @@ export type SupportedNetworkNames =
   | NetworkNames.Mode
   | NetworkNames.OpBNB
   | NetworkNames.Scroll
-  | NetworkNames.Rari;
+  | NetworkNames.Rari
+  | NetworkNames.Base;

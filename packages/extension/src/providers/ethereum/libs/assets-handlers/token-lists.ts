@@ -23,7 +23,7 @@ const TokenList: Record<SupportedNetworkNames, string> = {
   [NetworkNames.Gnosis]: `https://tokens.coingecko.com/${CoingeckoPlatform.Gnosis}/all.json`,
   [NetworkNames.Avalanche]: `https://tokens.coingecko.com/${CoingeckoPlatform.Avalanche}/all.json`,
   [NetworkNames.Fantom]: `https://tokens.coingecko.com/${CoingeckoPlatform.Fantom}/all.json`,
-  [NetworkNames.Klaytn]: `https://tokens.coingecko.com/${CoingeckoPlatform.Klaytn}/all.json`,
+  [NetworkNames.Kaia]: `https://tokens.coingecko.com/${CoingeckoPlatform.Klaytn}/all.json`,
   [NetworkNames.Aurora]: `https://tokens.coingecko.com/${CoingeckoPlatform.Aurora}/all.json`,
   [NetworkNames.Celo]: `https://tokens.coingecko.com/${CoingeckoPlatform.Celo}/all.json`,
   [NetworkNames.TomoChain]: `https://tokens.coingecko.com/${CoingeckoPlatform.TomoChain}/all.json`,
@@ -41,6 +41,7 @@ const TokenList: Record<SupportedNetworkNames, string> = {
   [NetworkNames.Mode]: `https://tokens.coingecko.com/${CoingeckoPlatform.Mode}/all.json`,
   [NetworkNames.OpBNB]: `https://tokens.coingecko.com/${CoingeckoPlatform.OpBNB}/all.json`,
   [NetworkNames.Scroll]: `https://tokens.coingecko.com/${CoingeckoPlatform.Scroll}/all.json`,
+  [NetworkNames.Base]: `https://tokens.coingecko.com/${CoingeckoPlatform.Base}/all.json`,
   [NetworkNames.Rari]: `https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/tokenlists/rari.json`,
 };
 
