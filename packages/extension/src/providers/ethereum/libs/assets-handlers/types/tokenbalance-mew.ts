@@ -66,4 +66,5 @@ export type SupportedNetworkNames =
   | NetworkNames.OpBNB
   | NetworkNames.Scroll
   | NetworkNames.Rari
-  | NetworkNames.Base;
+  | NetworkNames.Base
+  | NetworkNames.ImmutableZkevm;

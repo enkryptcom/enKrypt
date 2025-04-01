@@ -182,6 +182,10 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
     tbName: 'scrl',
     cgPlatform: CoingeckoPlatform.Scroll,
   },
+  [NetworkNames.ImmutableZkevm]: {
+    tbName: 'itze',
+    cgPlatform: CoingeckoPlatform.ImmutableZkevm,
+  },
   [NetworkNames.Rari]: {
     tbName: 'rari',
     cgPlatform: undefined,
