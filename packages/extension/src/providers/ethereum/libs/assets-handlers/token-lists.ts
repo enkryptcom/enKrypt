@@ -23,7 +23,7 @@ const TokenList: Record<SupportedNetworkNames, string> = {
   [NetworkNames.Gnosis]: `https://tokens.coingecko.com/${CoingeckoPlatform.Gnosis}/all.json`,
   [NetworkNames.Avalanche]: `https://tokens.coingecko.com/${CoingeckoPlatform.Avalanche}/all.json`,
   [NetworkNames.Fantom]: `https://tokens.coingecko.com/${CoingeckoPlatform.Fantom}/all.json`,
-  [NetworkNames.Kaia]: `https://tokens.coingecko.com/${CoingeckoPlatform.Klaytn}/all.json`,
+  [NetworkNames.Kaia]: `https://tokens.coingecko.com/${CoingeckoPlatform.Kaia}/all.json`,
   [NetworkNames.Aurora]: `https://tokens.coingecko.com/${CoingeckoPlatform.Aurora}/all.json`,
   [NetworkNames.Celo]: `https://tokens.coingecko.com/${CoingeckoPlatform.Celo}/all.json`,
   [NetworkNames.TomoChain]: `https://tokens.coingecko.com/${CoingeckoPlatform.TomoChain}/all.json`,
