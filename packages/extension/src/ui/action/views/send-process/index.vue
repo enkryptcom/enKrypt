@@ -1,35 +1,44 @@
 <template>
-  <div
-    class="send-process__container"
-    :class="{ popup: isWindowPopup, nopopup: !isWindowPopup }"
+  <component
+    :is="isWindowPopup ? 'div' : AppDialog"
+    v-model="model"
+    is-centered
+    width="320px"
   >
-    <div class="send-process">
-      <div class="send-process__wrap">
-        <div class="send-process__animation">
-          <send-process-animation
-            v-show="!isDone"
-            class="send-process__loading"
-          />
-          <send-checkmark-animation
-            v-show="isDone"
-            class="send-process__done"
-          />
-        </div>
-        <div class="send-process__info">
-          <send-process-amount v-if="!isNft" :token="token" />
-          <send-process-nft v-if="isNft" :item="nft" />
-          <div class="send-process__info-arrow">
-            <arrow-down />
+    <div
+      :class="{
+        'send-process__container popup': isWindowPopup,
+      }"
+    >
+      <div class="send-process">
+        <div class="send-process__wrap">
+          <div class="send-process__animation">
+            <send-process-animation
+              v-show="!isDone"
+              class="send-process__loading"
+            />
+            <send-checkmark-animation
+              v-show="isDone"
+              class="send-process__done"
+            />
           </div>
-          <send-process-account :address="toAddress" :network="network" />
+          <div class="send-process__info">
+            <send-process-amount v-if="!isNft" :token="token" />
+            <send-process-nft v-if="isNft" :item="nft" />
+            <div class="send-process__info-arrow">
+              <arrow-down />
+            </div>
+            <send-process-account :address="toAddress" :network="network" />
+          </div>
         </div>
       </div>
     </div>
-  </div>
+  </component>
 </template>
 
 <script setup lang="ts">
 import { PropType } from 'vue';
+import AppDialog from '@action/components/app-dialog/index.vue';
 import SendProcessAnimation from '@action/icons/send/send-process-animation.vue';
 import SendCheckmarkAnimation from '@action/icons/send/send-checkmark-animation.vue';
 import ArrowDown from '@action/icons/send/arrow-down.vue';
