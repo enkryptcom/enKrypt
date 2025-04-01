@@ -23,7 +23,11 @@
         <div class="transaction-fee__info">
           <div class="transaction-fee__info-amount">
             <p class="transaction-fee__info-amount-fiat">
-              ${{ $filters.formatFiatValue(fees[selected].fiatValue).value }}
+              {{
+                $filters.parseCurrency(
+                  $filters.formatFiatValue(fees[selected].fiatValue).value,
+                )
+              }}
             </p>
             <p class="transaction-fee__info-amount-crypto">
               {{
@@ -49,7 +53,7 @@
           :all-fees="fees"
           :selected="selected"
           :type="type"
-          @gas-type-changed="$emit('gasTypeChanged', type)"
+          v-bind="$attrs"
         />
       </div>
     </div>

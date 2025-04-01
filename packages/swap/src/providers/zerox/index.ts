@@ -150,16 +150,19 @@ class ZeroX extends ProviderClass {
       // zerox doesnt allow different to address
       return Promise.resolve(null);
     const feeConfig = FEE_CONFIGS[this.name][meta.walletIdentifier];
+    const bpsFee = Math.ceil(parseFloat((feeConfig.fee * 100).toFixed(4)) * 100);
+    const feeContract = options.toToken.address
     const params = new URLSearchParams({
       sellToken: options.fromToken.address,
       buyToken: options.toToken.address,
       sellAmount: options.amount.toString(),
+      swapFeeBps: bpsFee.toString(),
+      swapFeeToken: feeContract,
+      swapFeeRecipient: feeConfig ? feeConfig.referrer : "",
       taker: options.fromAddress,
       slippagePercentage: (
         parseFloat(meta.slippage ? meta.slippage : DEFAULT_SLIPPAGE) / 100
       ).toString(),
-      buyTokenPercentageFee: feeConfig ? feeConfig.fee.toString() : "0",
-      feeRecipient: feeConfig ? feeConfig.referrer : "",
       skipValidation: "true",
       enableSlippageProtection: "false",
       affiliateAddress: feeConfig ? feeConfig.referrer : "",

@@ -175,6 +175,7 @@ import { NetworkNames } from '@enkryptcom/types';
 import { trackSendEvents } from '@/libs/metrics';
 import { SendEventType } from '@/libs/metrics/types';
 import RecentlySentAddressesState from '@/libs/recently-sent-addresses';
+import { parseCurrency } from '@/ui/action/utils/filters';
 
 const props = defineProps({
   network: {
@@ -245,10 +246,14 @@ const hasEnoughBalance = computed(() => {
     toBN(toBase(sendAmount.value ?? '0', selectedAsset.value.decimals!)),
   );
 });
+
 const sendAmount = computed(() => {
-  if (amount.value && amount.value !== '') return amount.value;
+  if (isMaxSelected.value) {
+    return parseFloat(assetMaxValue.value) < 0 ? '0' : assetMaxValue.value;
+  } else if (amount.value && amount.value !== '') return amount.value;
   return '0';
 });
+
 const isMaxSelected = ref<boolean>(false);
 const selectedFee = ref<GasPriceTypes>(
   props.network.name === NetworkNames.Ethereum || NetworkNames.Binance
@@ -446,9 +451,9 @@ const errorMsg = computed(() => {
   ) {
     return `Not enough funds. You are
       ~${formatFloatingPointValue(nativeBalanceAfterTransactionInHumanUnits.value).value}
-      ${props.network.currencyName} ($ ${
-        formatFiatValue(balanceAfterInUsd.value).value
-      }) short.`;
+      ${props.network.currencyName} (${parseCurrency(
+        formatFiatValue(balanceAfterInUsd.value).value,
+      )}) short.`;
   }
 
   if (!props.network.isAddress(addressTo.value) && addressTo.value !== '') {

@@ -160,7 +160,7 @@ import { toBN } from 'web3-utils';
 import { NATIVE_TOKEN_ADDRESS } from '@/providers/ethereum/libs/common';
 import { SWAP_LOADING, SwapData } from './types';
 import SwapNetworkSelect from './components/swap-network-select/index.vue';
-import { toBase } from '@enkryptcom/utils';
+import { fromBase, toBase } from '@enkryptcom/utils';
 import { debounce } from 'lodash';
 import MarketData from '@/libs/market-data';
 import { ProviderResponseWithStatus } from './types';
@@ -503,7 +503,6 @@ const pickBestQuote = (fromAmountBN: BN, quotes: ProviderQuoteResponse[]) => {
       q.additionalNativeFees.lte(remainingBalance)
     );
   });
-
   if (!filteredQuotes.length) {
     // User can't afford any quotes or none fit their requirements
     // Show a message in the UI describing why
@@ -533,9 +532,7 @@ const pickBestQuote = (fromAmountBN: BN, quotes: ProviderQuoteResponse[]) => {
         smallestNativeFees = q.additionalNativeFees;
       }
     });
-    if (fromAmountBN.gt(fromT.getBalanceRaw())) {
-      errors.value.inputAmount = 'Insufficient funds';
-    } else if (fromAmountBN.lt(lowestMinimum)) {
+    if (fromAmountBN.lt(lowestMinimum)) {
       errors.value.inputAmount = `Amount too low`;
     } else if (fromAmountBN.gt(highestMaximum)) {
       // Swapping too many tokens
@@ -550,6 +547,11 @@ const pickBestQuote = (fromAmountBN: BN, quotes: ProviderQuoteResponse[]) => {
     }
 
     return;
+  }
+
+  // check for more errors outside of filteredQuotes not being empty
+  if (fromAmountBN.gt(fromT.getBalanceRaw())) {
+    errors.value.inputAmount = 'Insufficient funds';
   }
 
   // Sort remaining quotes descending by the amount of the dest asset to be received
@@ -777,118 +779,17 @@ const sendButtonTitle = computed(() => {
 const isDisabled = computed(() => {
   if (!fromAmount.value || fromAmount.value === '0' || errors.value.inputAmount)
     return true;
+  if (
+    BigNumber(fromAmount.value).gt(
+      fromBase(fromToken.value!.balance.toString(), fromToken.value.decimals),
+    )
+  )
+    return true;
   if (!toToken.value) return true;
   if (!address.value || !addressIsValid.value) return true;
   if (!bestProviderQuotes.value.length) return true;
   return false;
 });
-
-const sendAction = async () => {
-  toggleLooking();
-  const marketData = new MarketData();
-
-  let fromPrice: null | number;
-  if (!fromToken.value!.cgId) {
-    console.warn(
-      `Source token ${fromToken.value!.symbol} (${fromToken.value!.name})` +
-        ` ${fromToken.value!.address} has no CoinGecko ID, setting price` +
-        ` to 0`,
-    );
-    fromPrice = 0;
-  } else {
-    fromPrice = await marketData
-      .getMarketData([fromToken.value!.cgId])
-      .then(res => res[0]!.current_price);
-  }
-
-  let toPrice: null | number;
-  if (!toToken.value!.cgId) {
-    console.warn(
-      `Destination token ${toToken.value!.symbol} (${toToken.value!.name})` +
-        ` ${toToken.value!.address} has no CoinGecko ID, setting price` +
-        ` to 0`,
-    );
-    toPrice = 0;
-  } else {
-    toPrice = await marketData
-      .getMarketData([toToken.value!.cgId])
-      .then(res => res[0]!.current_price);
-  }
-
-  const localFromToken = { ...fromToken.value! };
-  const localToToken = { ...toToken.value! };
-  localFromToken.price = fromPrice ?? undefined;
-  localToToken.price = toPrice ?? undefined;
-  localFromToken.balance = bestProviderQuotes.value[0]!.fromTokenAmount;
-  localToToken.balance = bestProviderQuotes.value[0]!.toTokenAmount;
-  const swapToToken = new SwapToken(localToToken);
-  const swapFromToken = new SwapToken(localFromToken);
-  const priceDifference = BigNumber(swapFromToken.getFiatTotal())
-    .div(swapToToken.getFiatTotal())
-    .toString();
-
-  const tradePromises = bestProviderQuotes.value.map(q =>
-    swap.getSwap(q.quote),
-  );
-
-  const trades: (ProviderResponseWithStatus | null)[] = await Promise.all(
-    tradePromises,
-  ).then(responses => responses.filter(r => !!r));
-
-  const tradeStatusOptions = trades.map(t =>
-    t!.getStatusObject({
-      transactions: [],
-    }),
-  );
-
-  const statusObjects = await Promise.all(tradeStatusOptions);
-  trades.forEach((t, idx) => (t!.status = statusObjects[idx]));
-  if (!trades.length) {
-    swapError.value = SwapError.NO_TRADES;
-    toggleLooking();
-    toggleSwapError();
-    return;
-  }
-  const swapData: SwapData = {
-    trades: trades as ProviderResponseWithStatus[],
-    fromToken: localFromToken,
-    toToken: localToToken,
-    priceDifference: priceDifference,
-    nativeBalance: nativeSwapToken.value!.getBalanceRaw() || toBN('0'),
-    nativePrice: nativeSwapToken.value!.getFiatValue() || 0,
-    existentialDeposit:
-      (props.network as SubstrateNetwork).existentialDeposit || toBN('0'),
-    fromAddress: props.accountInfo.selectedAccount!.address,
-    toAddress: address.value,
-  };
-  const routedRoute = router.resolve({
-    name: RouterNames.swapBestOffer.name,
-    query: {
-      id: selected,
-      swapData: Buffer.from(JSON.stringify(swapData), 'utf8').toString(
-        'base64',
-      ),
-    },
-  });
-
-  if (props.accountInfo.selectedAccount!.isHardware) {
-    await Browser.windows.create({
-      url: Browser.runtime.getURL(
-        getUiPath(
-          `${UIRoutes.swapVerifyHW.path}?id=${routedRoute.query.id}&swapData=${routedRoute.query.swapData}`,
-          ProviderName.enkrypt,
-        ),
-      ),
-      type: 'popup',
-      focused: true,
-      height: 600,
-      width: 460,
-    });
-    window.close();
-  } else {
-    router.push(routedRoute);
-  }
-};
 </script>
 
 <style lang="less" scoped>

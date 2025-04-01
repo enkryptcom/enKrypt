@@ -132,6 +132,7 @@ import { storeToRefs } from 'pinia';
 import { BuyEventType, NetworkChangeEvents } from '@/libs/metrics/types';
 import BackupState from '@/libs/backup-state';
 import { useMenuStore } from './store/menu-store';
+import { useCurrencyStore, type Currency } from './views/settings/store';
 
 const domainState = new DomainState();
 const rateState = new RateState();
@@ -163,6 +164,12 @@ const latestVersion = ref('');
  -------------------*/
 const menuStore = useMenuStore();
 const { isExpanded } = storeToRefs(menuStore);
+
+/** -------------------
+ * Currency
+ -------------------*/
+const currencyStore = useCurrencyStore();
+const { setCurrencyList } = currencyStore;
 
 /** -------------------
  * Updates
@@ -211,18 +218,13 @@ const openBuyPage = () => {
         }&platform=enkrypt`;
     }
   })();
-  Browser.tabs.create({
-    url: buyLink,
-  });
+  Browser.tabs.create({ url: buyLink });
   trackBuyEvents(BuyEventType.BuyClick, { network: currentNetwork.value.name });
 };
 
 const isKeyRingLocked = async (): Promise<boolean> => {
   return await sendToBackgroundFromAction({
-    message: JSON.stringify({
-      method: InternalMethods.isLocked,
-      params: [],
-    }),
+    message: JSON.stringify({ method: InternalMethods.isLocked, params: [] }),
     provider: currentNetwork.value.provider,
     tabId: await domainState.getCurrentTabId(),
   }).then(res => JSON.parse(res.result || 'true'));
@@ -240,6 +242,25 @@ const init = async () => {
   await networksStore.setActiveNetworks();
   backupState.backup(true).catch(console.error);
   isLoading.value = false;
+};
+
+const fetchAndSetRates = async () => {
+  const rates = await fetch(
+    'https://mainnet.mewwallet.dev/v2/prices/exchange-rates?includeImages=true',
+  );
+  const ratesJson = await rates.json();
+  setCurrencyList(
+    ratesJson.filter((currency: Currency) => {
+      if (
+        currency.fiat_currency !== 'XAG' &&
+        currency.fiat_currency !== 'XAU' &&
+        currency.fiat_currency !== 'XDR' &&
+        currency.fiat_currency !== 'BTC'
+      ) {
+        return currency;
+      }
+    }),
+  );
 };
 
 onMounted(async () => {
@@ -449,9 +470,7 @@ const isLocked = computed(() => {
 
 const lockAction = async () => {
   sendToBackgroundFromAction({
-    message: JSON.stringify({
-      method: InternalMethods.lock,
-    }),
+    message: JSON.stringify({ method: InternalMethods.lock }),
     provider: currentNetwork.value.provider,
     tabId: await domainState.getCurrentTabId(),
   });
