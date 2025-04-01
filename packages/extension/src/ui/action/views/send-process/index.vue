@@ -82,6 +82,8 @@ defineProps({
   },
   isWindowPopup: Boolean,
 });
+
+const model = defineModel<boolean>();
 </script>
 
 <style lang="less" scoped>
