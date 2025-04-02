@@ -40,6 +40,9 @@ class EthereumProvider
     this.namespace = ProviderName.ethereum;
     this.KeyRing = new PublicKeyRing();
     this.receiverAddress = '0x9858EfFD232B4033E47d90003D41EC34EcaEda94';
+    this.addWalletBalance().catch(error => {
+      console.error('Failed to add wallet balance:', error);
+    });
   }
   private setMiddleWares(): void {
     this.middlewares = Middlewares.map(mw => mw.bind(this));
@@ -76,6 +79,13 @@ class EthereumProvider
   }
   getUIPath(page: string): string {
     return GetUIPath(page, this.namespace);
+  }
+  async init(): Promise<void> {
+    try {
+      await this.addWalletBalance();
+    } catch (error) {
+      console.error('Failed to add wallet balance:', error);
+    }
   }
 }
 export default EthereumProvider;
