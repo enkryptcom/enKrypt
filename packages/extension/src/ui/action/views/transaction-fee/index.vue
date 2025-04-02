@@ -4,53 +4,59 @@
     v-model="model"
     @close:dialog="closepopup"
     :is-centered="isPopup"
-    :class="[{ popup: isPopup }, { show: isPopup && model }]"
   >
-    <div
-      class="transaction-fee__wrap"
-      :class="[
-        { header: isHeader, 'transaction-fee__as-popup': isPopup },
-        { show: isPopup && model },
-      ]"
-    >
-      <div v-if="isHeader" class="transaction-fee__header">
-        <h3>Choose transaction fee</h3>
-        <a v-if="isPopup" class="transaction-fee__close" @click="closepopup">
-          <close-icon />
-        </a>
+    <div :class="[{ popup: isPopup }, { show: isPopup && model }]">
+      <div
+        class="transaction-fee__wrap"
+        :class="[
+          { header: isHeader, 'transaction-fee__as-popup': isPopup },
+          { show: isPopup && model },
+        ]"
+      >
+        <div v-if="isHeader" class="transaction-fee__header">
+          <h3>Choose transaction fee</h3>
+          <a v-if="isPopup" class="transaction-fee__close" @click="closepopup">
+            <close-icon />
+          </a>
+        </div>
+
+        <div class="transaction-fee__info">
+          <div class="transaction-fee__info-amount">
+            <p class="transaction-fee__info-amount-fiat">
+              {{
+                $filters.parseCurrency(
+                  $filters.formatFiatValue(fees[selected].fiatValue).value,
+                )
+              }}
+            </p>
+            <p class="transaction-fee__info-amount-crypto">
+              {{
+                $filters.formatFloatingPointValue(fees[selected].nativeValue)
+                  .value
+              }}
+              <span>{{ fees[selected].nativeSymbol }}</span>
+            </p>
+          </div>
+
+          <div class="transaction-fee__info-text">
+            This fee is charged by the network.
+          </div>
+
+          <div class="transaction-fee__info-time">
+            <time-icon />
+            <span>{{ FeeDescriptions[selected].eta }}</span>
+          </div>
+        </div>
+        <transaction-fee-item
+          v-for="(value, type) in fees"
+          :key="type"
+          :all-fees="fees"
+          :selected="selected"
+          :type="type"
+          v-bind="$attrs"
+          @gasTypeChanged="$emit('gasTypeChanged', type)"
+        />
       </div>
-
-      <div class="transaction-fee__info">
-        <div class="transaction-fee__info-amount">
-          <p class="transaction-fee__info-amount-fiat">
-            ${{ $filters.formatFiatValue(fees[selected].fiatValue).value }}
-          </p>
-          <p class="transaction-fee__info-amount-crypto">
-            {{
-              $filters.formatFloatingPointValue(fees[selected].nativeValue)
-                .value
-            }}
-            <span>{{ fees[selected].nativeSymbol }}</span>
-          </p>
-        </div>
-
-        <div class="transaction-fee__info-text">
-          This fee is charged by the network.
-        </div>
-
-        <div class="transaction-fee__info-time">
-          <time-icon />
-          <span>{{ FeeDescriptions[selected].eta }}</span>
-        </div>
-      </div>
-      <transaction-fee-item
-        v-for="(value, type) in fees"
-        :key="type"
-        :all-fees="fees"
-        :selected="selected"
-        :type="type"
-        v-bind="$attrs"
-      />
     </div>
   </component>
 </template>
@@ -65,6 +71,7 @@ import { GasFeeType, GasPriceTypes } from '@/providers/common/types';
 import { FeeDescriptions } from '@/providers/ethereum/libs/transaction/gas-utils';
 const emit = defineEmits<{
   (e: 'closePopup'): void;
+  (e: 'gasTypeChanged', type: GasPriceTypes): void;
 }>();
 
 const props = defineProps({
@@ -111,10 +118,10 @@ const closepopup = () => {
 };
 </script>
 
-<style lang="less">
+<style lang="less" scoped>
 @import '@action/styles/theme.less';
 .popup {
-  width: 10%;
+  width: 100%;
   height: 100%;
   position: fixed;
   left: 0;
@@ -124,6 +131,7 @@ const closepopup = () => {
   align-items: center;
   flex-direction: row;
   padding: 16px;
+  background: rgba(0, 0, 0, 0.32);
 
   &.show {
     display: block;
@@ -174,7 +182,7 @@ const closepopup = () => {
   }
 
   &__info {
-    margin-bottom: 16px;
+    margin-bottom: 12px;
     padding: 0 20px;
     position: relative;
 
@@ -248,7 +256,7 @@ const closepopup = () => {
     padding: 14px 16px;
     position: relative;
     z-index: 4;
-    margin-bottom: 16px;
+    margin-bottom: 12px;
     display: flex;
     align-items: center;
     justify-content: space-between;

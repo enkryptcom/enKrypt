@@ -6,10 +6,7 @@
         <h3 v-if="isSelectToToken">Select token to receive</h3>
         <h3 v-if="isSend">Select asset to send</h3>
       </div>
-
-      <assets-select-list-search
-        @update:token-search-input="updateSearchInput"
-      />
+      <assets-select-list-search v-model="searchQuery" />
 
       <custom-scrollbar
         class="assets-select-list__scroll-area"
@@ -27,8 +24,8 @@
         />
 
         <assets-select-loading
-          v-if="assets.length === 0"
-          :is-empty="assets.length === 0"
+          v-if="listedAssets.length === 0"
+          :is-empty="listedAssets.length === 0"
           :is-loading="isLoading"
         />
       </custom-scrollbar>
@@ -117,10 +114,6 @@ const listedAssets = computed(() => {
   }
 });
 
-const updateSearchInput = (newSearchQuery: string) => {
-  searchQuery.value = newSearchQuery;
-};
-
 const close = () => {
   emit('close', false);
 };
@@ -137,7 +130,7 @@ const model = defineModel<boolean>();
 
 .assets-select-list {
   width: 100%;
-  // height: 568px;
+  height: 568px;
 
   &__header {
     position: relative;

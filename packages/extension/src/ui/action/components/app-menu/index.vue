@@ -353,7 +353,7 @@ const sortNetworks = (networks: BaseNetwork[], sortBy: NetworkSort) => {
 const searchNetworks = computed({
   get() {
     if (!props.activeNetwork) return [];
-    if (!searchInput.value && searchInput.value === '') {
+    if ((!searchInput.value && searchInput.value === '') || !isExpanded.value) {
       //All Networks
       if (activeCategory.value === NetworksCategory.All) {
         const other = orderedNetworks.value.filter(

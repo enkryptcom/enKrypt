@@ -180,7 +180,7 @@ import { toBN } from 'web3-utils';
 import { NATIVE_TOKEN_ADDRESS } from '@/providers/ethereum/libs/common';
 import { SWAP_LOADING, SwapData } from './types';
 import SwapNetworkSelect from './components/swap-network-select/index.vue';
-import { toBase } from '@enkryptcom/utils';
+import { fromBase, toBase } from '@enkryptcom/utils';
 import { debounce } from 'lodash';
 import MarketData from '@/libs/market-data';
 import { ProviderResponseWithStatus } from './types';
@@ -200,10 +200,7 @@ const router = useRouter();
 const route = useRoute();
 const nameResolver = new GenericNameResolver();
 const props = defineProps({
-  network: {
-    type: Object as PropType<BaseNetwork>,
-    default: () => ({}),
-  },
+  network: { type: Object as PropType<BaseNetwork>, default: () => ({}) },
   accountInfo: {
     type: Object as PropType<AccountsHeaderData>,
     default: () => ({}),
@@ -239,10 +236,7 @@ const toAddressInputMeta = ref({
   identicon: (address: string) => '' as string,
   networkName: '',
 });
-const errors = ref({
-  inputAmount: '',
-  noProviders: false,
-});
+const errors = ref({ inputAmount: '', noProviders: false });
 const bestProviderQuotes = ref<ProviderQuoteResponse[]>([]);
 
 const fromAccount = ref<EnkryptAccount | undefined>(
@@ -282,9 +276,7 @@ const swap = new EnkryptSwap({
   api,
   network: props.network.name as unknown as SupportedNetworkName,
   walletIdentifier: WalletIdentifier.enkrypt,
-  evmOptions: {
-    infiniteApproval: true,
-  },
+  evmOptions: { infiniteApproval: true },
 });
 
 onMounted(async () => {
@@ -526,7 +518,6 @@ const pickBestQuote = (fromAmountBN: BN, quotes: ProviderQuoteResponse[]) => {
       q.additionalNativeFees.lte(remainingBalance)
     );
   });
-
   if (!filteredQuotes.length) {
     // User can't afford any quotes or none fit their requirements
     // Show a message in the UI describing why
@@ -556,9 +547,7 @@ const pickBestQuote = (fromAmountBN: BN, quotes: ProviderQuoteResponse[]) => {
         smallestNativeFees = q.additionalNativeFees;
       }
     });
-    if (fromAmountBN.gt(fromT.getBalanceRaw())) {
-      errors.value.inputAmount = 'Insufficient funds';
-    } else if (fromAmountBN.lt(lowestMinimum)) {
+    if (fromAmountBN.lt(lowestMinimum)) {
       errors.value.inputAmount = `Amount too low`;
     } else if (fromAmountBN.gt(highestMaximum)) {
       // Swapping too many tokens
@@ -573,6 +562,11 @@ const pickBestQuote = (fromAmountBN: BN, quotes: ProviderQuoteResponse[]) => {
     }
 
     return;
+  }
+
+  // check for more errors outside of filteredQuotes not being empty
+  if (fromAmountBN.gt(fromT.getBalanceRaw())) {
+    errors.value.inputAmount = 'Insufficient funds';
   }
 
   // Sort remaining quotes descending by the amount of the dest asset to be received
@@ -800,6 +794,12 @@ const sendButtonTitle = computed(() => {
 const isDisabled = computed(() => {
   if (!fromAmount.value || fromAmount.value === '0' || errors.value.inputAmount)
     return true;
+  if (
+    BigNumber(fromAmount.value).gt(
+      fromBase(fromToken.value!.balance.toString(), fromToken.value.decimals),
+    )
+  )
+    return true;
   if (!toToken.value) return true;
   if (!address.value || !addressIsValid.value) return true;
   if (!bestProviderQuotes.value.length) return true;
@@ -809,7 +809,6 @@ const isDisabled = computed(() => {
 const sendAction = async () => {
   toggleLooking();
   const marketData = new MarketData();
-
   let fromPrice: null | number;
   if (!fromToken.value!.cgId) {
     console.warn(
@@ -823,7 +822,6 @@ const sendAction = async () => {
       .getMarketData([fromToken.value!.cgId])
       .then(res => res[0]!.current_price);
   }
-
   let toPrice: null | number;
   if (!toToken.value!.cgId) {
     console.warn(
@@ -837,7 +835,6 @@ const sendAction = async () => {
       .getMarketData([toToken.value!.cgId])
       .then(res => res[0]!.current_price);
   }
-
   const localFromToken = { ...fromToken.value! };
   const localToToken = { ...toToken.value! };
   localFromToken.price = fromPrice ?? undefined;
@@ -849,21 +846,15 @@ const sendAction = async () => {
   const priceDifference = BigNumber(swapFromToken.getFiatTotal())
     .div(swapToToken.getFiatTotal())
     .toString();
-
   const tradePromises = bestProviderQuotes.value.map(q =>
     swap.getSwap(q.quote),
   );
-
   const trades: (ProviderResponseWithStatus | null)[] = await Promise.all(
     tradePromises,
   ).then(responses => responses.filter(r => !!r));
-
   const tradeStatusOptions = trades.map(t =>
-    t!.getStatusObject({
-      transactions: [],
-    }),
+    t!.getStatusObject({ transactions: [] }),
   );
-
   const statusObjects = await Promise.all(tradeStatusOptions);
   trades.forEach((t, idx) => (t!.status = statusObjects[idx]));
   if (!trades.length) {
@@ -893,7 +884,6 @@ const sendAction = async () => {
       ),
     },
   });
-
   if (props.accountInfo.selectedAccount!.isHardware) {
     await Browser.windows.create({
       url: Browser.runtime.getURL(

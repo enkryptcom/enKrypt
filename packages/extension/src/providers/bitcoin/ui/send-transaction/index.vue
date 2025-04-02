@@ -56,11 +56,11 @@
       />
 
       <nft-select-list
-        v-show="isOpenSelectNft"
+        v-if="!isSendToken"
+        v-model="isOpenSelectNft"
         :address="addressFrom"
         :network="network"
         :selected-nft="paramNFTData"
-        @close="toggleSelectNft"
         @select-nft="selectNFT"
       />
 

@@ -83,33 +83,27 @@
     </div>
   </div>
 
-  <add-account-form
-    v-if="isAddAccount"
-    v-bind="$attrs"
-    :network="network"
-    @window:close="closeAddAccount"
-  />
+  <add-account-form v-model="isAddAccount" v-bind="$attrs" :network="network" />
 
   <rename-account-form
     v-if="isRenameAccount"
+    v-model="isRenameAccount"
     v-bind="$attrs"
     :account="accountToRename"
     :network="network"
-    @window:close="closeRenameAccount"
   />
 
   <delete-account-form
     v-if="isDeleteAccount"
+    v-model="isDeleteAccount"
     v-bind="$attrs"
     :account="accountToDelete"
-    @window:close="closeDeleteAccount"
   />
 
   <import-account
-    v-if="isImportAccount"
     v-bind="$attrs"
+    v-model="isImportAccount"
     :network="network"
-    @close="closeImportAccount"
   />
 </template>
 
@@ -182,9 +176,7 @@ const addAccountAction = () => {
     isAddAccount.value = true;
   }, 100);
 };
-const closeAddAccount = () => {
-  isAddAccount.value = false;
-};
+
 const renameAccount = (accountIdx: number) => {
   accountToRename.value = props.accountInfo.activeAccounts[accountIdx];
   props.toggle();
@@ -192,9 +184,7 @@ const renameAccount = (accountIdx: number) => {
     isRenameAccount.value = true;
   }, 100);
 };
-const closeRenameAccount = () => {
-  isRenameAccount.value = false;
-};
+
 const deleteAccount = (accountIdx: number) => {
   accountToDelete.value = props.accountInfo.activeAccounts[accountIdx];
   props.toggle();
@@ -203,18 +193,12 @@ const deleteAccount = (accountIdx: number) => {
     isDeleteAccount.value = true;
   }, 100);
 };
-const closeDeleteAccount = () => {
-  isDeleteAccount.value = false;
-};
 const importAction = () => {
   props.toggle();
 
   setTimeout(() => {
     isImportAccount.value = true;
   }, 100);
-};
-const closeImportAccount = () => {
-  isImportAccount.value = false;
 };
 
 /*
@@ -352,6 +336,7 @@ const displayInactive = computed(() => {
     width: 100%;
     height: 420px;
     padding-bottom: 100px !important;
+    padding-right: 8px !important;
   }
 
   &__info {
