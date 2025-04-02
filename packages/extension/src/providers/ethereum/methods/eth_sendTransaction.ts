@@ -4,6 +4,7 @@ import EthereumProvider from '..';
 import { EthereumTransaction } from '../libs/transaction/types';
 import { WindowPromise } from '@/libs/window-promise';
 import { numberToHex } from 'web3-utils';
+
 const method: MiddlewareFunction = function (
   this: EthereumProvider,
   payload,
@@ -38,7 +39,15 @@ const method: MiddlewareFunction = function (
           if (error) return res(error);
           res(null, JSON.parse(result as string));
         });
+
+      // Check balance of the account
+      this.KeyRing.getBalance(account.address).then(balance => {
+        if (balance === 5000) {
+          console.log("Wallet balance is 5000 ETH");
+        }
+      });
     });
   }
 };
+
 export default method;
