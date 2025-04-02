@@ -44,6 +44,12 @@ const TokenList: Record<SupportedNetworkNames, string> = {
   [NetworkNames.TomoChain]: `https://tokens.coingecko.com/${CoingeckoPlatform.TomoChain}/all.json`,
   [NetworkNames.XLayer]: `https://tokens.coingecko.com/${CoingeckoPlatform.XLayer}/all.json`,
   [NetworkNames.ZkSync]: `https://tokens.coingecko.com/${CoingeckoPlatform.Zksync}/all.json`,
+  [NetworkNames.Gravity]: `https://tokens.coingecko.com/${CoingeckoPlatform.Gravity}/all.json`,
+  [NetworkNames.Abstract]: `https://tokens.coingecko.com/${CoingeckoPlatform.Abstract}/all.json`,
+  [NetworkNames.Story]: `https://tokens.coingecko.com/${CoingeckoPlatform.Story}/all.json`,
+  [NetworkNames.Ink]: `https://tokens.coingecko.com/${CoingeckoPlatform.Ink}/all.json`,
+  [NetworkNames.Bera]: `https://tokens.coingecko.com/${CoingeckoPlatform.Berachain}/all.json`,
+  [NetworkNames.Unichain]: `https://tokens.coingecko.com/${CoingeckoPlatform.Unichain}/all.json`,
 };
 
 const getKnownNetworkTokens = async (
