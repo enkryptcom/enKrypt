@@ -84,6 +84,9 @@ const select = () => {
   padding: 4px 8px;
   box-sizing: border-box;
   position: relative;
+  &:last-child {
+    margin-bottom: 4px;
+  }
 
   &__block {
     display: flex;

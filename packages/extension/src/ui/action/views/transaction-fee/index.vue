@@ -54,6 +54,7 @@
           :selected="selected"
           :type="type"
           v-bind="$attrs"
+          @gasTypeChanged="$emit('gasTypeChanged', type)"
         />
       </div>
     </div>
@@ -181,7 +182,7 @@ const closepopup = () => {
   }
 
   &__info {
-    margin-bottom: 16px;
+    margin-bottom: 12px;
     padding: 0 20px;
     position: relative;
 
@@ -255,7 +256,7 @@ const closepopup = () => {
     padding: 14px 16px;
     position: relative;
     z-index: 4;
-    margin-bottom: 16px;
+    margin-bottom: 12px;
     display: flex;
     align-items: center;
     justify-content: space-between;
