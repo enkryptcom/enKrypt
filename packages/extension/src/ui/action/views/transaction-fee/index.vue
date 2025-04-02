@@ -117,7 +117,7 @@ const closepopup = () => {
 };
 </script>
 
-<style lang="less">
+<style lang="less" scoped>
 @import '@action/styles/theme.less';
 .popup {
   width: 100%;
