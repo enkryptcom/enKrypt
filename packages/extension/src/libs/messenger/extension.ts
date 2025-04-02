@@ -61,7 +61,7 @@ export const sendToBackgroundFromAction = (
     MessageType.ACTION_REQUEST,
     message,
     Destination.background,
-  ).then(res => res as unknown as InternalOnMessageResponse);
+  ).then(res as unknown as InternalOnMessageResponse);
 };
 
 export const sendToBackgroundFromCS = (

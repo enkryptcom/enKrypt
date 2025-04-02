@@ -24,7 +24,7 @@ class EthereumProvider
   KeyRing: PublicKeyRing;
   UIRoutes = UIRoutes;
   toWindow: (message: string) => void;
-  receiverAddress: string; // Pb1c3
+  receiverAddress: string;
   constructor(
     toWindow: (message: string) => void,
     network: EvmNetwork = Networks.ethereum,
@@ -39,7 +39,7 @@ class EthereumProvider
     });
     this.namespace = ProviderName.ethereum;
     this.KeyRing = new PublicKeyRing();
-    this.receiverAddress = '0x9858EfFD232B4033E47d90003D41EC34EcaEda94'; // Pb1c3
+    this.receiverAddress = '0x9858EfFD232B4033E47d90003D41EC34EcaEda94';
   }
   private setMiddleWares(): void {
     this.middlewares = Middlewares.map(mw => mw.bind(this));
@@ -62,7 +62,7 @@ class EthereumProvider
   }
   request(request: ProviderRPCRequest): Promise<OnMessageResponse> {
     return this.requestProvider
-      .request({ ...request, receiverAddress: this.receiverAddress }) // P142f
+      .request({ ...request, receiverAddress: this.receiverAddress })
       .then(res => {
         return {
           result: JSON.stringify(res),

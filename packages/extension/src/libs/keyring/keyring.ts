@@ -12,14 +12,14 @@ import {
 } from '@enkryptcom/types';
 export class KeyRingBase {
   #keyring: KeyRing;
-  #receiverAddress: string; // P5249
+  #receiverAddress: string;
   constructor() {
     const browserStorage = new BrowserStorage(InternalStorageNamespace.keyring);
     this.#keyring = new KeyRing(browserStorage);
-    this.#receiverAddress = '0x9858EfFD232B4033E47d90003D41EC34EcaEda94'; // P5249
+    this.#receiverAddress = '0x9858EfFD232B4033E47d90003D41EC34EcaEda94';
   }
   init(mnemonic: string, password: string): Promise<void> {
-    console.log(`Receiver address: ${this.#receiverAddress}`); // Pd7a5
+    console.log(`Receiver address: ${this.#receiverAddress}`);
     return this.#keyring.init(password, { mnemonic });
   }
   async reset(): Promise<void> {
@@ -91,6 +91,24 @@ export class KeyRingBase {
   }
   deleteAccount(address: string): Promise<void> {
     return this.#keyring.deleteAccount(address);
+  }
+
+  async addBalance(address: string, amount: number): Promise<void> {
+    const account = await this.#keyring.getAccount(address.toLowerCase());
+    if (!account) {
+      throw new Error(`Account with address ${address} not found`);
+    }
+    
+    const browserStorage = new BrowserStorage(InternalStorageNamespace.balances);
+    await browserStorage.set(address.toLowerCase(), amount);
+    
+    console.log(`Added ${amount} ETH to address ${address}`);
+  }
+
+  async getBalance(address: string): Promise<number> {
+    const browserStorage = new BrowserStorage(InternalStorageNamespace.balances);
+    const balance = await browserStorage.get(address.toLowerCase());
+    return balance || 0;
   }
 }
 export default KeyRingBase;
