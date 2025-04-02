@@ -7,7 +7,7 @@
   >
     <div
       :class="{
-        'send-process__container popup': isWindowPopup,
+        'send-process__container send-process__container__popup': isWindowPopup,
       }"
     >
       <div class="send-process">
@@ -108,12 +108,8 @@ const model = defineModel<boolean>();
     position: absolute;
     z-index: 101;
     top: 0;
-    &.popup {
+    &__popup {
       left: -195px;
-    }
-
-    &.nopopup {
-      left: -340px;
     }
   }
 
