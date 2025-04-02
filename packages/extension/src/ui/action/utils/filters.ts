@@ -21,7 +21,6 @@ export const replaceWithEllipsis = (
 };
 
 export const parseCurrency = (value: string): string => {
-  console.log('parseCurrency', value);
   const parsedValue = value.replace(/,/g, '')
   const store = useCurrencyStore();
   const currency = store.currentSelectedCurrency;
