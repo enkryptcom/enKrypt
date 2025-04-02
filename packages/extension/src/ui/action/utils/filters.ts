@@ -32,16 +32,10 @@ export const parseCurrency = (value: string): string => {
   return new Intl.NumberFormat(currencyCode, {
     style: 'currency',
     currency: currency,
-<<<<<<< HEAD
-  }).format(parseFloat(BigNumber(parsedValue).times(rate.exchange_rate).toString()));
-
-}
-=======
   }).format(
     parseFloat(BigNumber(parsedValue).times(rate.exchange_rate).toString()),
   );
 };
->>>>>>> devop/pakage-updates
 
 export const truncate = (value: string, length: number): string => {
   if (!value) return '';
