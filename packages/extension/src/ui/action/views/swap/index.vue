@@ -20,6 +20,11 @@
                 :network="toNetwork"
                 @toggle:select="toggleToNetwork"
               />
+              <app-select-address
+                v-if="fromSelectedNetwork"
+                v-model:selected-address="fromSelectedAddress"
+                :network="fromSelectedNetwork"
+              ></app-select-address>
               <!-- <swap-address-input
                 ref="addressInput"
                 v-model:selected-address="fromAccount"
@@ -144,6 +149,7 @@ import SwapArrows from '@action/icons/swap/swap-arrows.vue';
 import BaseButton from '@action/components/base-button/index.vue';
 import SwapTokenAmountInput from './components/swap-token-amount-input/index.vue';
 import SwapTokenToAmount from './components/swap-token-to-amount/index.vue';
+import AppSelectAddress from '@action/components/app-select-address/index.vue';
 import AssetsSelectList from './components/swap-assets-select-list.vue';
 import NetworkSelectList from './components/swap-network-select/network-select-list.vue';
 import SwapLooking from './components/swap-loading/index.vue';
@@ -208,7 +214,13 @@ const props = defineProps({
 });
 
 const selected: string = route.params.id as string;
-
+/** -------------------
+ * From
+ -------------------*/
+const fromSelectedAddress = ref<string | undefined>(
+  props.accountInfo.selectedAccount?.address,
+);
+const fromSelectedNetwork = ref<BaseNetwork>(props.network);
 const fromTokens = ref<TokenType[]>();
 const fromToken = ref<TokenType | null>({
   name: 'Loading',
@@ -219,6 +231,9 @@ const fromToken = ref<TokenType | null>({
   type: '' as any,
 });
 const fromAmount = ref<string | null>(null);
+/** -------------------
+ * TO
+ -------------------*/
 const toNetworks = ref<NetworkInfo[]>([]);
 const toNetwork = ref<NetworkInfo | null>(null);
 const toNetworkOpen = ref(false);
@@ -966,7 +981,6 @@ const sendAction = async () => {
     position: relative;
     &__container {
       padding: 16px;
-      // background-color: green;
       background-color: @lightSurfaceBg;
       border-radius: 20px;
       flex: 1;
@@ -981,16 +995,14 @@ const sendAction = async () => {
     }
     &__row {
       display: flex;
-      justify-content: stretch;
+      justify-content: space-between;
       align-items: stretch;
       margin-bottom: 8px;
       gap: 8px;
+      & > div {
+        max-width: 190px;
+      }
     }
-    // &__test {
-    //   flex: 1;
-    //   background-color: @white;
-    //   height: 100px;
-    // }
   }
 
   &__arrows {

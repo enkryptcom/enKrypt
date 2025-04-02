@@ -1,17 +1,23 @@
 <template>
-  <a v-if="network" class="swap-network-select" @click="$emit('toggle:select')">
-    <div class="swap-network-select__image">
-      <img :src="network.logoURI" alt="" />
-    </div>
-    <div class="swap-network-select__info">
-      <h5>Network</h5>
-      <p>
-        {{ network.name }}
-      </p>
-    </div>
+  <div class="swap-network-select__container">
+    <a
+      v-if="network"
+      class="swap-network-select"
+      @click="$emit('toggle:select')"
+    >
+      <div class="swap-network-select__image">
+        <img :src="network.logoURI" alt="" />
+      </div>
+      <div class="swap-network-select__info">
+        <h5>Network</h5>
+        <p>
+          {{ network.name }}
+        </p>
+      </div>
 
-    <switch-arrow class="swap-network-select__arrow" />
-  </a>
+      <switch-arrow class="swap-network-select__arrow" />
+    </a>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -35,22 +41,22 @@ defineProps({
 <style lang="less">
 @import '@action/styles/theme.less';
 .swap-network-select {
-  height: 46px;
+  &__container {
+    flex-grow: 1;
+    width: 100%;
+  }
   background: @white;
   padding: 8px;
   box-sizing: border-box;
   border-radius: 10px;
   border: 1px solid @grey08;
-  width: 100%;
   display: flex;
   justify-content: flex-start;
   align-items: center;
   flex-direction: row;
-  position: relative;
   cursor: pointer;
   text-decoration: none;
   transition: background 300ms ease-in-out;
-  gap: 8px;
 
   &:hover {
     background: @black007;
@@ -63,12 +69,14 @@ defineProps({
     height: 32px;
     border-radius: 100%;
     overflow: hidden;
+    margin-right: 8px;
     img {
       width: 100%;
       height: 100%;
     }
   }
   &__info {
+    flex-shrink: 1;
     h5 {
       font-weight: 400;
       font-size: 12px;
@@ -82,7 +90,6 @@ defineProps({
       font-size: 14px;
       line-height: 20px;
       letter-spacing: 0.25px;
-      width: 102px;
       color: @black;
       margin: 0;
       span {
@@ -91,8 +98,8 @@ defineProps({
     }
   }
   &__arrow {
+    justify-self: end;
     margin-left: auto;
-    align-self: center;
   }
 }
 </style>
