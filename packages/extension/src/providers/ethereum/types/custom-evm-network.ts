@@ -1,7 +1,7 @@
 import { NetworkNames } from '@enkryptcom/types';
 import { EvmNetwork, EvmNetworkOptions } from './evm-network';
 import wrapActivityHandler from '@/libs/activity-state/wrap-activity-handler';
-import icon from '../networks/icons/eth.svg';
+import icon from '../networks/icons/eth.webp';
 
 export interface CustomEvmNetworkOptions {
   name: string;

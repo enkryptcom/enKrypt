@@ -32,41 +32,38 @@ import {
 } from "../../utils/approvals";
 import estimateEVMGasList from "../../common/estimateGasList";
 import { isEVMAddress } from "../../utils/common";
-
+// checked against https://0x.org/docs/developer-resources/core-concepts/contracts#allowanceholder-address
+const ZEROX_APPROVAL_ADDRESS = '0x0000000000001fF3684f28c67538d4D072C22734';
 const supportedNetworks: {
   [key in SupportedNetworkName]?: { approvalAddress: string; chainId: string };
 } = {
   [SupportedNetworkName.Ethereum]: {
-    approvalAddress: "0xdef1c0ded9bec7f1a1670819833240f027b25eff",
+    approvalAddress: ZEROX_APPROVAL_ADDRESS,
     chainId: "1",
   },
   [SupportedNetworkName.Binance]: {
-    approvalAddress: "0xdef1c0ded9bec7f1a1670819833240f027b25eff",
+    approvalAddress: ZEROX_APPROVAL_ADDRESS,
     chainId: "56",
   },
   [SupportedNetworkName.Matic]: {
-    approvalAddress: "0xdef1c0ded9bec7f1a1670819833240f027b25eff",
+    approvalAddress: ZEROX_APPROVAL_ADDRESS,
     chainId: "137",
   },
   [SupportedNetworkName.Optimism]: {
-    approvalAddress: "0xdef1abe32c034e558cdd535791643c58a13acc10",
+    approvalAddress: ZEROX_APPROVAL_ADDRESS,
     chainId: "10",
   },
   [SupportedNetworkName.Avalanche]: {
-    approvalAddress: "0xdef1c0ded9bec7f1a1670819833240f027b25eff",
+    approvalAddress: ZEROX_APPROVAL_ADDRESS,
     chainId: "43114",
   },
-  [SupportedNetworkName.Fantom]: {
-    approvalAddress: "0xdef189deaef76e379df891899eb5a00a94cbc250",
-    chainId: "250",
-  },
   [SupportedNetworkName.Arbitrum]: {
-    approvalAddress: "0xdef1c0ded9bec7f1a1670819833240f027b25eff",
+    approvalAddress: ZEROX_APPROVAL_ADDRESS,
     chainId: "42161",
   },
   [SupportedNetworkName.Base]: {
-    approvalAddress: "0xdef1c0ded9bec7f1a1670819833240f027b25eff",
-    chainId: "1101",
+    approvalAddress: ZEROX_APPROVAL_ADDRESS,
+    chainId: "8453",
   },
 };
 
@@ -150,16 +147,19 @@ class ZeroX extends ProviderClass {
       // zerox doesnt allow different to address
       return Promise.resolve(null);
     const feeConfig = FEE_CONFIGS[this.name][meta.walletIdentifier];
+    const bpsFee = Math.ceil(parseFloat((feeConfig.fee * 100).toFixed(4)) * 100);
+    const feeContract = options.toToken.address
     const params = new URLSearchParams({
       sellToken: options.fromToken.address,
       buyToken: options.toToken.address,
       sellAmount: options.amount.toString(),
+      swapFeeBps: bpsFee.toString(),
+      swapFeeToken: feeContract,
+      swapFeeRecipient: feeConfig ? feeConfig.referrer : "",
       taker: options.fromAddress,
       slippagePercentage: (
         parseFloat(meta.slippage ? meta.slippage : DEFAULT_SLIPPAGE) / 100
       ).toString(),
-      buyTokenPercentageFee: feeConfig ? feeConfig.fee.toString() : "0",
-      feeRecipient: feeConfig ? feeConfig.referrer : "",
       skipValidation: "true",
       enableSlippageProtection: "false",
       affiliateAddress: feeConfig ? feeConfig.referrer : "",
@@ -170,8 +170,8 @@ class ZeroX extends ProviderClass {
     )
       .then((res) => res.json())
       .then(async (response: ZeroXResponseType) => {
-        if (response.code) {
-          console.error(response.code, response.reason);
+        if (response.name) {
+          console.error(response.name, response.message);
           return Promise.resolve(null);
         }
         const transactions: EVMTransaction[] = [];

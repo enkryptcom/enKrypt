@@ -1,50 +1,63 @@
 <template>
-  <div class="transaction-fee" :class="{ show: showFees, popup: isPopup }">
-    <div class="transaction-fee__overlay" @click="closepopup" />
-    <div
-      class="transaction-fee__wrap"
-      :class="{ show: showFees, header: isHeader }"
-    >
-      <div v-if="isHeader" class="transaction-fee__header">
-        <h3>Choose transaction fee</h3>
+  <component
+    :is="isPopup ? 'div' : AppDialog"
+    v-model="model"
+    @close:dialog="closepopup"
+    :is-centered="isPopup"
+  >
+    <div :class="[{ popup: isPopup }, { show: isPopup && model }]">
+      <div
+        class="transaction-fee__wrap"
+        :class="[
+          { header: isHeader, 'transaction-fee__as-popup': isPopup },
+          { show: isPopup && model },
+        ]"
+      >
+        <div v-if="isHeader" class="transaction-fee__header">
+          <h3>Choose transaction fee</h3>
+          <a v-if="isPopup" class="transaction-fee__close" @click="closepopup">
+            <close-icon />
+          </a>
+        </div>
 
-        <a class="transaction-fee__close" @click="closepopup">
-          <close-icon />
-        </a>
+        <div class="transaction-fee__info">
+          <div class="transaction-fee__info-amount">
+            <p class="transaction-fee__info-amount-fiat">
+              {{
+                $filters.parseCurrency(
+                  $filters.formatFiatValue(fees[selected].fiatValue).value,
+                )
+              }}
+            </p>
+            <p class="transaction-fee__info-amount-crypto">
+              {{
+                $filters.formatFloatingPointValue(fees[selected].nativeValue)
+                  .value
+              }}
+              <span>{{ fees[selected].nativeSymbol }}</span>
+            </p>
+          </div>
+
+          <div class="transaction-fee__info-text">
+            This fee is charged by the network.
+          </div>
+
+          <div class="transaction-fee__info-time">
+            <time-icon />
+            <span>{{ FeeDescriptions[selected].eta }}</span>
+          </div>
+        </div>
+        <transaction-fee-item
+          v-for="(value, type) in fees"
+          :key="type"
+          :all-fees="fees"
+          :selected="selected"
+          :type="type"
+          v-bind="$attrs"
+        />
       </div>
-      <div class="transaction-fee__info">
-        <div class="transaction-fee__info-amount">
-          <p class="transaction-fee__info-amount-fiat">
-            ${{ $filters.formatFiatValue(fees[selected].fiatValue).value }}
-          </p>
-          <p class="transaction-fee__info-amount-crypto">
-            {{
-              $filters.formatFloatingPointValue(fees[selected].nativeValue)
-                .value
-            }}
-            <span>{{ fees[selected].nativeSymbol }}</span>
-          </p>
-        </div>
-
-        <div class="transaction-fee__info-text">
-          This fee is charged by the network.
-        </div>
-
-        <div class="transaction-fee__info-time">
-          <time-icon />
-          <span>{{ FeeDescriptions[selected].eta }}</span>
-        </div>
-      </div>
-      <transaction-fee-item
-        v-for="(value, type) in fees"
-        :key="type"
-        :all-fees="fees"
-        :selected="selected"
-        :type="type"
-        v-bind="$attrs"
-      />
     </div>
-  </div>
+  </component>
 </template>
 
 <script setup lang="ts">
@@ -52,15 +65,15 @@ import { PropType } from 'vue';
 import TransactionFeeItem from './components/transaction-fee-item.vue';
 import TimeIcon from '@action/icons/fee/time-icon.vue';
 import CloseIcon from '@action/icons/common/close-icon.vue';
-
+import AppDialog from '@action/components/app-dialog/index.vue';
 import { GasFeeType, GasPriceTypes } from '@/providers/common/types';
 import { FeeDescriptions } from '@/providers/ethereum/libs/transaction/gas-utils';
 const emit = defineEmits<{
   (e: 'closePopup'): void;
+  (e: 'gasTypeChanged', type: GasPriceTypes): void;
 }>();
 
-defineProps({
-  showFees: Boolean,
+const props = defineProps({
   fees: {
     type: Object as PropType<GasFeeType>,
     default: () => ({}),
@@ -94,43 +107,41 @@ defineProps({
     default: GasPriceTypes.ECONOMY,
   },
 });
+const model = defineModel<boolean>();
 
 const closepopup = () => {
   emit('closePopup');
+  if (props.isPopup) {
+    model.value = false;
+  }
 };
 </script>
 
-<style lang="less">
+<style lang="less" scoped>
 @import '@action/styles/theme.less';
-
-.transaction-fee {
+.popup {
   width: 100%;
   height: 100%;
-  position: absolute;
+  position: fixed;
   left: 0;
   top: 0;
   z-index: 101;
   display: none;
+  align-items: center;
+  flex-direction: row;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.32);
 
   &.show {
     display: block;
   }
+}
 
-  &.popup {
-    position: fixed;
-  }
+.transaction-fee {
+  width: 100%;
+  height: 100%;
 
-  &__overlay {
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    left: 0;
-    top: 0;
-    z-index: 102;
-  }
-
-  &__wrap {
-    position: absolute;
+  &__as-popup {
     width: 428px;
     height: auto;
     max-height: 440px;
@@ -141,21 +152,26 @@ const closepopup = () => {
       0px 3px 6px rgba(0, 0, 0, 0.039),
       0px 7px 24px rgba(0, 0, 0, 0.19);
     border-radius: 12px;
-    z-index: 103;
-    padding: 16px 0 0 0;
+    z-index: 109;
     box-sizing: border-box;
     opacity: 0;
     visibility: hidden;
     transition:
       opacity 0.3s,
       visibility 0s ease-in-out 0.3s;
-    overflow: hidden;
 
     &.show {
       opacity: 1;
       visibility: visible;
       transition-delay: 0s;
     }
+  }
+
+  &__wrap {
+    max-height: 440px;
+    padding: 16px 0 0 0;
+    box-sizing: border-box;
+    overflow: hidden;
 
     &.header {
       padding: 0;
@@ -236,10 +252,13 @@ const closepopup = () => {
     width: 100%;
     background: @white;
     box-sizing: border-box;
-    padding: 14px 84px 14px 16px;
+    padding: 14px 16px;
     position: relative;
     z-index: 4;
     margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 
     h3 {
       font-style: normal;
@@ -252,13 +271,11 @@ const closepopup = () => {
   }
 
   &__close {
-    position: absolute;
-    top: 8px;
-    right: 8px;
     border-radius: 8px;
     cursor: pointer;
     font-size: 0;
     transition: background 300ms ease-in-out;
+    z-index: 106;
 
     &:hover {
       background: @black007;

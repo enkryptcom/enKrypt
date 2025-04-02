@@ -76,7 +76,6 @@ const toggleAccounts = () => {
   position: fixed;
   width: 460px;
   height: 56px;
-  left: 340px;
   top: 0;
   background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(50px);

@@ -10,7 +10,7 @@ const skaleOptions: SkaleParams = {
   name_long: 'Razor Network | SKALE',
   chainName: 'turbulent-unique-scheat',
   chainID: '0x109b4597',
-  icon: 'skaleRazor.png',
+  icon: 'skaleRazor.webp',
 };
 
 const assets: ICustomSKALEAsset[] = [

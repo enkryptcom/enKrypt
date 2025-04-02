@@ -3,7 +3,7 @@ import { SolanaNetwork, SolanaNetworkOptions } from '../types/sol-network';
 import wrapActivityHandler from '@/libs/activity-state/wrap-activity-handler';
 import assetsInfoHandler from '@/providers/ethereum/libs/assets-handlers/assetinfo-mew';
 import shNFTHandler from '@/libs/nft-handlers/simplehash-solana';
-import icon from './icons/sol.svg';
+import icon from './icons/sol.webp';
 
 const solanaOptions: SolanaNetworkOptions = {
   name: NetworkNames.Solana,

@@ -122,6 +122,10 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
     tbName: 'shib',
     cgPlatform: CoingeckoPlatform.Shibarium,
   },
+  [NetworkNames.Base]: {
+    tbName: 'base',
+    cgPlatform: CoingeckoPlatform.Base,
+  },
   [NetworkNames.SyscoinNEVM]: {
     cgPlatform: CoingeckoPlatform.Syscoin,
     bsEndpoint: true,
@@ -177,6 +181,10 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
   [NetworkNames.Scroll]: {
     tbName: 'scrl',
     cgPlatform: CoingeckoPlatform.Scroll,
+  },
+  [NetworkNames.ImmutableZkevm]: {
+    tbName: 'itze',
+    cgPlatform: CoingeckoPlatform.ImmutableZkevm,
   },
   [NetworkNames.Rari]: {
     tbName: 'rari',

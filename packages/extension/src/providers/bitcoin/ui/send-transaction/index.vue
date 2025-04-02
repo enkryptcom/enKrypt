@@ -56,11 +56,11 @@
       />
 
       <nft-select-list
-        v-show="isOpenSelectNft"
+        v-if="!isSendToken"
+        v-model="isOpenSelectNft"
         :address="addressFrom"
         :network="network"
         :selected-nft="paramNFTData"
-        @close="toggleSelectNft"
         @select-nft="selectNFT"
       />
 
@@ -80,11 +80,10 @@
       />
 
       <transaction-fee-view
+        v-model="isOpenSelectFee"
         :fees="gasCostValues"
-        :show-fees="isOpenSelectFee"
         :selected="selectedFee"
         :is-header="true"
-        @close-popup="toggleSelectFee"
         @gas-type-changed="selectFee"
       />
 
