@@ -19,7 +19,7 @@
         :class="{ down: parseFloat(diff) < 0 }"
       >
         {{ parseFloat(diff) < 0 ? '-' : '+'
-        }}{{ $filters.parseCurrency(Math.abs(parseFloat(diff))) }}
+        }}{{ $filters.parseCurrency(Math.abs(parseFloat(diff)).toString()) }}
       </div>
     </div>
   </a>
