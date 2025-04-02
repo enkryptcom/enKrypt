@@ -1,7 +1,6 @@
 import icon from './icons/story.webp';
 import { NetworkNames } from '@enkryptcom/types';
 import { EvmNetwork, EvmNetworkOptions } from '../types/evm-network';
-import shNFTHandler from '@/libs/nft-handlers/simplehash';
 import wrapActivityHandler from '@/libs/activity-state/wrap-activity-handler';
 import assetsInfoHandler from '@/providers/ethereum/libs/assets-handlers/assetinfo-mew';
 
@@ -18,7 +17,6 @@ const storyOptions: EvmNetworkOptions = {
   node: 'https://mainnet.storyrpc.io',
   icon,
   coingeckoID: 'story-2',
-  NFTHandler: shNFTHandler,
   assetsInfoHandler,
   activityHandler: wrapActivityHandler(() => Promise.resolve([])),
 };

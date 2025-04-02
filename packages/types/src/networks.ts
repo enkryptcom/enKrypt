@@ -171,5 +171,4 @@ export enum CoingeckoPlatform {
   Story = "story",
   Ink = "ink",
   Taraxa = "taraxa",
-  Coti = "coti",
 }

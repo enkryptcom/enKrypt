@@ -2,7 +2,6 @@ import icon from './icons/abstract.webp';
 import { NetworkNames } from '@enkryptcom/types';
 import { EvmNetwork, EvmNetworkOptions } from '../types/evm-network';
 import wrapActivityHandler from '@/libs/activity-state/wrap-activity-handler';
-import shNFTHandler from '@/libs/nft-handlers/simplehash';
 import assetsInfoHandler from '@/providers/ethereum/libs/assets-handlers/assetinfo-mew';
 
 const absOptions: EvmNetworkOptions = {
@@ -18,7 +17,6 @@ const absOptions: EvmNetworkOptions = {
   node: 'https://api.mainnet.abs.xyz',
   icon,
   coingeckoID: 'ethereum',
-  NFTHandler: shNFTHandler,
   assetsInfoHandler,
   activityHandler: wrapActivityHandler(() => Promise.resolve([])),
 };

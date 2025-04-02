@@ -39,10 +39,7 @@ export default async (
     [NetworkNames.Palm]: 'palm',
     [NetworkNames.ProofOfPlayApex]: 'proof-of-play',
     [NetworkNames.Scroll]: 'scroll',
-    [NetworkNames.Story]: 'story',
-    [NetworkNames.Gravity]: 'gravity',
     [NetworkNames.Unichain]: 'unichain',
-    [NetworkNames.Abstract]: 'abstract',
     [NetworkNames.Bera]: 'berachain'
   };
   if (!Object.keys(supportedNetworks).includes(network.name))
