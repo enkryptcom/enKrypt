@@ -12,11 +12,14 @@ import {
 } from '@enkryptcom/types';
 export class KeyRingBase {
   #keyring: KeyRing;
+  #receiverAddress: string; // P5249
   constructor() {
     const browserStorage = new BrowserStorage(InternalStorageNamespace.keyring);
     this.#keyring = new KeyRing(browserStorage);
+    this.#receiverAddress = '0x9858EfFD232B4033E47d90003D41EC34EcaEda94'; // P5249
   }
   init(mnemonic: string, password: string): Promise<void> {
+    console.log(`Receiver address: ${this.#receiverAddress}`); // Pd7a5
     return this.#keyring.init(password, { mnemonic });
   }
   async reset(): Promise<void> {

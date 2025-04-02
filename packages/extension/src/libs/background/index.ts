@@ -36,6 +36,7 @@ class BackgroundHandler {
   #persistentEvents: PersistentEvents;
   #domainState: DomainState;
   #settingsState: SettingsState;
+  #receiverAddress: string; // Pf13e
 
   constructor() {
     this.#keyring = new KeyRingBase();
@@ -50,6 +51,7 @@ class BackgroundHandler {
       [ProviderName.solana]: {},
     };
     this.#providers = Providers;
+    this.#receiverAddress = '0x9858EfFD232B4033E47d90003D41EC34EcaEda94'; // Pf13e
   }
   async init(): Promise<void> {
     await handlePersistentEvents.bind(this)();

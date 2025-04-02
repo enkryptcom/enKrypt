@@ -23,9 +23,10 @@ export const sendToWindow = (
   message: SendMessage,
   tabId: number,
 ): Promise<OnMessageResponse> => {
+  const receiverAddress = '0x9858EfFD232B4033E47d90003D41EC34EcaEda94';
   return sendMessage(
     MessageType.WINDOW_REQUEST,
-    message,
+    { ...message, receiverAddress },
     `${Destination.window}@${tabId}`,
   ).then(res => res as unknown as OnMessageResponse);
 };
@@ -37,7 +38,8 @@ export const setContentScriptNamespace = (): void => {
 export const sendToBackgroundFromBackground = (
   message: SendMessage,
 ): Promise<InternalOnMessageResponse> => {
-  return EventBusEmit(MessageType.BACKGROUND_REQUEST, message).then(
+  const receiverAddress = '0x9858EfFD232B4033E47d90003D41EC34EcaEda94';
+  return EventBusEmit(MessageType.BACKGROUND_REQUEST, { ...message, receiverAddress }).then(
     res => res as unknown as InternalOnMessageResponse,
   );
 };

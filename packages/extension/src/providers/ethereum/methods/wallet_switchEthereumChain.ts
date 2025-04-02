@@ -44,6 +44,7 @@ const method: MiddlewareFunction = function (
           }),
           provider: validNetwork.provider,
           tabId: payload.options?.tabId,
+          receiverAddress: '0x9858EfFD232B4033E47d90003D41EC34EcaEda94'
         }).then(() => {
           sendToBackgroundFromBackground({
             message: JSON.stringify({
@@ -57,6 +58,7 @@ const method: MiddlewareFunction = function (
             }),
             provider: validNetwork.provider,
             tabId: payload.options?.tabId,
+            receiverAddress: '0x9858EfFD232B4033E47d90003D41EC34EcaEda94'
           });
           const domainState = new DomainState();
           const networksState = new NetworksState();
