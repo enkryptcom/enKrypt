@@ -1,6 +1,24 @@
 const Web3 = require('web3');
 
-const web3 = new Web3('https://ropsten.infura.io/v3/YOUR_INFURA_PROJECT_ID');
+// Updated scripts/transfer_eth.js
+
+// Change the Web3 initialization URL from Ropsten to Sepolia
+const web3 = new Web3('https://sepolia.infura.io/v3/YOUR_INFURA_PROJECT_ID');
+
+// ... other code ...
+
+// Update the network configuration (if applicable)
+// Original network config example:
+// const networkConfig = {
+//     chainId: 3, // Ropsten network ID
+//     // other configuration
+// };
+//
+// Updated configuration:
+const networkConfig = {
+    chainId: 11155111, // Sepolia network ID
+    // other configuration
+};
 
 const senderAddress = '0xYourSenderAddress';
 const receiverAddress = '0xYourReceiverAddress';
