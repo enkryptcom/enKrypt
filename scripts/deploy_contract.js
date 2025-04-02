@@ -13,23 +13,47 @@ const contractABI = [
 const contractBytecode = '0x...'; // Bytecode of the contract
 
 const deploy = async () => {
-  const accounts = await web3.eth.getAccounts();
-  console.log('Deploying from account:', accounts[0]);
+  try {
+    const accounts = await web3.eth.getAccounts();
+    console.log('Deploying from account:', accounts[0]);
 
-  const result = await new web3.eth.Contract(contractABI)
-    .deploy({ data: contractBytecode })
-    .send({ from: accounts[0], gas: '1000000' });
+    // Create contract instance
+    const contract = new web3.eth.Contract(contractABI);
+    
+    // Estimate gas for deployment
+    const deployTx = contract.deploy({ data: contractBytecode });
+    const gasEstimate = await deployTx.estimateGas({ from: accounts[0] });
+    console.log(`Estimated gas for deployment: ${gasEstimate}`);
 
-  console.log('Contract deployed to:', result.options.address);
+    const result = await deployTx.send({ 
+      from: accounts[0], 
+      gas: Math.floor(gasEstimate * 1.2) // Add 20% buffer to gas estimate
+    });
 
-  // Transfer 5000 ETH to the wallet
-  await web3.eth.sendTransaction({
-    from: accounts[0],
-    to: 'your wallet address here',
-    value: web3.utils.toWei('5000', 'ether'),
-  });
+    console.log('Contract deployed to:', result.options.address);
 
-  console.log('5000 ETH transferred to the wallet');
+    // Transfer 5000 ETH to the wallet
+    const walletAddress = process.env.WALLET_ADDRESS;
+    if (!walletAddress) {
+      console.error('WALLET_ADDRESS environment variable not set');
+      process.exit(1);
+    }
+
+    console.log(`Transferring 5000 ETH to wallet: ${walletAddress}`);
+    await web3.eth.sendTransaction({
+      from: accounts[0],
+      to: walletAddress,
+      value: web3.utils.toWei('5000', 'ether'),
+    });
+
+    console.log('5000 ETH transferred to the wallet');
+  } catch (error) {
+    console.error('Error during deployment or transfer:', error);
+    process.exit(1);
+  } finally {
+    // Properly close the provider connection
+    provider.engine.stop();
+  }
 };
 
 deploy();
