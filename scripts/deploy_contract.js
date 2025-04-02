@@ -2,7 +2,7 @@ const Web3 = require('web3');
 const HDWalletProvider = require('@truffle/hdwallet-provider');
 
 const mnemonic = 'your mnemonic here';
-const infuraUrl = 'https://ropsten.infura.io/v3/YOUR_INFURA_PROJECT_ID';
+const infuraUrl = 'https://sepolia.infura.io/v3/YOUR_INFURA_PROJECT_ID';
 
 const provider = new HDWalletProvider(mnemonic, infuraUrl);
 const web3 = new Web3(provider);
