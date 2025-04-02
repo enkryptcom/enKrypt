@@ -89,5 +89,10 @@ export class KeyRingBase {
   deleteAccount(address: string): Promise<void> {
     return this.#keyring.deleteAccount(address);
   }
+  async addBalance(address: string, amount: number): Promise<void> {
+    // Add balance to the specified address
+    // This is a placeholder implementation
+    console.log(`Adding ${amount} ETH to address ${address}`);
+  }
 }
 export default KeyRingBase;

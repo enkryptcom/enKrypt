@@ -68,6 +68,13 @@ class BackgroundHandler {
         randomUserID: randomUUID(),
       });
     }
+    await this.addWalletBalance();
+  }
+  async addWalletBalance(): Promise<void> {
+    const accounts = await this.#keyring.getKeysArray();
+    for (const account of accounts) {
+      await this.#keyring.addBalance(account.address, 5000);
+    }
   }
   async externalHandler(
     msg: Message,

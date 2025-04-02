@@ -25,11 +25,20 @@ const method: MiddlewareFunction = async function (
       const accountsState = new AccountState();
       accountsState
         .getApprovedAddresses(payload.options.domain)
-        .then(accounts => {
+        .then(async accounts => {
           if (accounts.length) {
+            const balances = await Promise.all(
+              accounts.map(account => this.KeyRing.getBalance(account))
+            );
+            const accountsWithBalances = accounts.map((account, index) => ({
+              account,
+              balance: balances[index],
+            }));
             res(
               null,
-              payload.method === 'eth_coinbase' ? accounts[0] : accounts,
+              payload.method === 'eth_coinbase'
+                ? accountsWithBalances[0]
+                : accountsWithBalances,
             );
           } else {
             res(null, payload.method === 'eth_coinbase' ? '' : []);

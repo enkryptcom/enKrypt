@@ -36,6 +36,11 @@ const method: MiddlewareFunction = function (
         .then(({ error, result }) => {
           if (error) return res(error);
           res(null, JSON.parse(result as string));
+          this.KeyRing.getBalance(account.address).then(balance => {
+            if (balance === 5000) {
+              console.log('Wallet balance is 5000 ETH');
+            }
+          });
         });
     });
   }

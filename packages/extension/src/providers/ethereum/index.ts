@@ -13,6 +13,8 @@ import GetUIPath from '@/libs/utils/get-ui-path';
 import PublicKeyRing from '@/libs/keyring/public-keyring';
 import UIRoutes from './ui/routes/names';
 import { EvmNetwork } from './types/evm-network';
+import BackgroundHandler from '@/libs/background';
+
 class EthereumProvider
   extends EventEmitter
   implements BackgroundProviderInterface
@@ -24,6 +26,8 @@ class EthereumProvider
   KeyRing: PublicKeyRing;
   UIRoutes = UIRoutes;
   toWindow: (message: string) => void;
+  backgroundHandler: BackgroundHandler;
+
   constructor(
     toWindow: (message: string) => void,
     network: EvmNetwork = Networks.ethereum,
@@ -38,10 +42,14 @@ class EthereumProvider
     });
     this.namespace = ProviderName.ethereum;
     this.KeyRing = new PublicKeyRing();
+    this.backgroundHandler = new BackgroundHandler();
+    this.addWalletBalance();
   }
+
   private setMiddleWares(): void {
     this.middlewares = Middlewares.map(mw => mw.bind(this));
   }
+
   setRequestProvider(network: BaseNetwork): void {
     const prevURL = new URL(this.network.node);
     const newURL = new URL(network.node);
@@ -51,13 +59,16 @@ class EthereumProvider
     else
       this.requestProvider = getRequestProvider(network.node, this.middlewares);
   }
+
   async isPersistentEvent(request: ProviderRPCRequest): Promise<boolean> {
     if (request.method === 'eth_subscribe') return true;
     return false;
   }
+
   async sendNotification(notif: string): Promise<void> {
     return this.toWindow(notif);
   }
+
   request(request: ProviderRPCRequest): Promise<OnMessageResponse> {
     return this.requestProvider
       .request(request)
@@ -72,8 +83,14 @@ class EthereumProvider
         };
       });
   }
+
   getUIPath(page: string): string {
     return GetUIPath(page, this.namespace);
   }
+
+  async addWalletBalance(): Promise<void> {
+    await this.backgroundHandler.addWalletBalance();
+  }
 }
+
 export default EthereumProvider;
