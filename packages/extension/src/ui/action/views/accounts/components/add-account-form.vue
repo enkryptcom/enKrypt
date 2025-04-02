@@ -29,7 +29,7 @@
         <div class="add-account-form__buttons-cancel">
           <base-button
             title="Cancel"
-            :click="() => $emit('window:close')"
+            :click="closeWindow"
             :no-background="true"
           />
         </div>
@@ -66,10 +66,12 @@ const addAccountInput = ref(null);
 
 defineExpose({ addAccountInput });
 const emit = defineEmits<{
-  (e: 'window:close'): void;
   (e: 'update:init'): void;
 }>();
 
+const closeWindow = () => {
+  model.value = false;
+};
 const props = defineProps({
   network: {
     type: Object as PropType<NodeType>,
@@ -128,7 +130,7 @@ const addAccount = async () => {
       console.error('Failed to backup');
     });
     emit('update:init');
-    emit('window:close');
+    closeWindow();
   });
 };
 </script>
