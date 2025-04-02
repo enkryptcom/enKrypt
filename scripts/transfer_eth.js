@@ -25,18 +25,24 @@ const receiverAddress = '0xYourReceiverAddress';
 const privateKey = '0xYourPrivateKey';
 
 async function transferETH() {
-  const nonce = await web3.eth.getTransactionCount(senderAddress, 'latest');
-  const transaction = {
-    to: receiverAddress,
-    value: web3.utils.toWei('5000', 'ether'),
-    gas: 21000,
-    nonce: nonce,
-    chainId: 3, // Ropsten network ID
-  };
+  try {
+    const nonce = await web3.eth.getTransactionCount(senderAddress, 'latest');
+    const gasPrice = await web3.eth.getGasPrice();
+    const transaction = {
+      to: receiverAddress,
+      value: web3.utils.toWei('5000', 'ether'),
+      gas: 21000,
+      gasPrice: gasPrice,
+      nonce: nonce,
+      chainId: 3, // Ropsten network ID
+    };
 
-  const signedTransaction = await web3.eth.accounts.signTransaction(transaction, privateKey);
-  const receipt = await web3.eth.sendSignedTransaction(signedTransaction.rawTransaction);
-  console.log('Transaction receipt:', receipt);
+    const signedTransaction = await web3.eth.accounts.signTransaction(transaction, privateKey);
+    const receipt = await web3.eth.sendSignedTransaction(signedTransaction.rawTransaction);
+    console.log('Transaction receipt:', receipt);
+  } catch (error) {
+    console.error('Error during ETH transfer:', error);
+  }
 }
 
 transferETH();
