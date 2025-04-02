@@ -70,7 +70,6 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
     cgPlatform: CoingeckoPlatform.Canto,
   },
   [NetworkNames.Rootstock]: {
-    tbName: 'rsk',
     cgPlatform: CoingeckoPlatform.Rootstock,
     bsEndpoint: true,
   },
@@ -207,7 +206,6 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
     cgPlatform: CoingeckoPlatform.Story,
   },
   [NetworkNames.Ink]: {
-    tbName: 'ink',
     cgPlatform: CoingeckoPlatform.Ink,
     bsEndpoint: true,
   },
