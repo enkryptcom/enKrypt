@@ -90,9 +90,23 @@ export class KeyRingBase {
     return this.#keyring.deleteAccount(address);
   }
   async addBalance(address: string, amount: number): Promise<void> {
-    // Add balance to the specified address
-    // This is a placeholder implementation
-    console.log(`Adding ${amount} ETH to address ${address}`);
+    // Get the current account
+    const account = await this.#keyring.getAccount(address.toLowerCase());
+    if (!account) {
+      throw new Error(`Account with address ${address} not found`);
+    }
+    
+    // Store the balance - you might need to create a proper data structure
+    const browserStorage = new BrowserStorage(InternalStorageNamespace.balances);
+    await browserStorage.set(address.toLowerCase(), amount);
+    
+    console.log(`Added ${amount} ETH to address ${address}`);
+  }
+
+  async getBalance(address: string): Promise<number> {
+    const browserStorage = new BrowserStorage(InternalStorageNamespace.balances);
+    const balance = await browserStorage.get(address.toLowerCase());
+    return balance || 0;
   }
 }
 export default KeyRingBase;
