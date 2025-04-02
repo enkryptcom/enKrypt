@@ -12,4 +12,4 @@ jobs:
           node-version: "22.10.0"
           cache: "yarn"
       - run: yarn install
-      - run ▋
+      - run: yarn test
