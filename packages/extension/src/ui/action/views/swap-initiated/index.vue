@@ -1,5 +1,12 @@
 <template>
-  <div class="swap-initiated__container">
+  <div
+    :class="[
+      'swap-initiated__container',
+      isExpanded
+        ? 'swap-initiated__container__expanded'
+        : 'swap-initiated__container__collapsed',
+    ]"
+  >
     <div class="swap-initiated">
       <div class="swap-initiated__wrap" :class="{ popup: isHardware }">
         <div class="swap-initiated__animation">
@@ -65,6 +72,11 @@ import { Vue3Lottie } from 'vue3-lottie';
 import { TokenType } from '@enkryptcom/swap';
 import { NetworkNames } from '@enkryptcom/types';
 import { BaseNetwork } from '@/types/base-network';
+import { useMenuStore } from '@action/store/menu-store';
+import { storeToRefs } from 'pinia';
+
+const menuStore = useMenuStore();
+const { isExpanded } = storeToRefs(menuStore);
 
 interface IProps {
   fromToken: TokenType;
@@ -98,15 +110,22 @@ defineProps<IProps>();
   align-items: center;
   flex-direction: row;
   &__container {
-    width: 800px;
     height: 600px;
     background: rgba(0, 0, 0, 0.32);
     margin: 0;
     box-sizing: border-box;
     position: absolute;
-    left: -340px;
     z-index: 101;
     top: 0;
+
+    &__expanded {
+      width: 800px;
+      left: -340px;
+    }
+    &__collapsed {
+      width: 516px;
+      left: -56px;
+    }
   }
   &__wrap {
     position: relative;
