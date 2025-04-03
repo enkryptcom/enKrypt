@@ -206,8 +206,8 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
     cgPlatform: CoingeckoPlatform.Story,
   },
   [NetworkNames.Ink]: {
+    tbName: 'ink',
     cgPlatform: CoingeckoPlatform.Ink,
-    bsEndpoint: true,
   },
   [NetworkNames.Bera]: {
     tbName: 'bera',

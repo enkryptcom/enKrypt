@@ -20,8 +20,8 @@ export const replaceWithEllipsis = (
   );
 };
 
-export const parseCurrency = (value: string): string => {
-  const parsedValue = value.replace(/,/g, '');
+export const parseCurrency = (value: string | number): string => {
+  const parsedValue = value.toString().replace(/,/g, '');
   const store = useCurrencyStore();
   const currency = store.currentSelectedCurrency;
   const currencyCode =
