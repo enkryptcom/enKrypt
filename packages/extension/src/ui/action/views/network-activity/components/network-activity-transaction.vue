@@ -73,9 +73,7 @@
           <span>{{ activity.token.symbol }}</span>
         </h4>
         <p v-show="getFiatValue.gt(0)">
-          {{
-            $filters.parseCurrency($filters.formatFiatValue(getFiatValue).value)
-          }}
+          {{ $filters.parseCurrency(getFiatValue) }}
         </p>
       </div>
     </a>
@@ -120,9 +118,7 @@
           <span>{{ $filters.truncate(activity.token.symbol, 40) }}</span>
         </h4>
         <p>
-          {{
-            $filters.parseCurrency($filters.formatFiatValue(getFiatValue).value)
-          }}
+          {{ $filters.parseCurrency(getFiatValue) }}
         </p>
       </div>
     </section>
