@@ -82,7 +82,8 @@
       </div>
     </div>
     <swap-initiated
-      v-if="isInitiated"
+      v-if="isInitiated && network"
+      v-model="isInitiated"
       :is-loading="isTXSendLoading"
       :from-token="swapData.fromToken"
       :to-token="swapData.toToken"

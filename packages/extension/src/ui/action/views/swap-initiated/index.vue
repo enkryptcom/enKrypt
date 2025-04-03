@@ -1,65 +1,74 @@
 <template>
-  <div
-    :class="[
-      'swap-initiated__container',
-      isExpanded
-        ? 'swap-initiated__container__expanded'
-        : 'swap-initiated__container__collapsed',
-    ]"
+  <component
+    :is="isHardware ? 'div' : AppDialog"
+    v-model="model"
+    @close:dialog="closePopup"
+    is-centered
+    width="320px"
   >
-    <div class="swap-initiated">
-      <div class="swap-initiated__wrap" :class="{ popup: isHardware }">
-        <div class="swap-initiated__animation">
-          <div v-if="isLoading && !isError">
-            <Vue3Lottie
-              :animation-data="LottieStatus"
-              :loop="true"
-              class="swap-initiated__loading"
-            />
-            <p v-if="isHardware">
-              Follow further instructions on your hardware wallet device
-            </p>
-          </div>
+    <teleport to="#app" :disabled="!isHardware">
+      <div
+        v-if="model"
+        class="swap-initiated"
+        :class="{ 'swap-initiated__popup': isHardware }"
+      >
+        <div v-if="isHardware" class="swap-initiated__popup__overlay"></div>
+        <div
+          class="swap-initiated__wrap"
+          :class="{ 'swap-initiated__wrap__popup': isHardware }"
+        >
+          <div class="swap-initiated__animation">
+            <div v-if="isLoading && !isError">
+              <Vue3Lottie
+                :animation-data="LottieStatus"
+                :loop="true"
+                class="swap-initiated__loading"
+              />
+              <p v-if="isHardware">
+                Follow further instructions on your hardware wallet device
+              </p>
+            </div>
 
-          <div v-if="!isLoading && !isError">
-            <Vue3Lottie
-              class="swap-initiated__loading"
-              :animation-data="LottieSwapInitiated"
-              :loop="false"
-            />
+            <div v-if="!isLoading && !isError">
+              <Vue3Lottie
+                class="swap-initiated__loading"
+                :animation-data="LottieSwapInitiated"
+                :loop="false"
+              />
 
-            <h4>Swap initiated</h4>
-            <p>
-              Once completed, {{ toToken.symbol }} will be deposited to the
-              address you specified.
-            </p>
-            <a @click="$emit('update:close')">Finish</a>
+              <h4>Swap initiated</h4>
+              <p>
+                Once completed, {{ toToken.symbol }} will be deposited to the
+                address you specified.
+              </p>
+              <a @click="closePopup">Finish</a>
+            </div>
+            <div v-if="isError">
+              <Vue3Lottie
+                class="swap-initiated__loading"
+                :animation-data="LottieError"
+                :loop="false"
+              />
+              <p>
+                {{ errorMessage }}
+              </p>
+              <p v-if="network.name !== NetworkNames.Solana">
+                <a @click="$emit('update:tryAgain')">Try again</a>
+              </p>
+              <a @click="closePopup">Cancel</a>
+            </div>
           </div>
-          <div v-if="isError">
-            <Vue3Lottie
-              class="swap-initiated__loading"
-              :animation-data="LottieError"
-              :loop="false"
-            />
-            <p>
-              {{ errorMessage }}
-            </p>
-            <p v-if="network.name !== NetworkNames.Solana">
-              <a @click="$emit('update:tryAgain')">Try again</a>
-            </p>
-            <a @click="$emit('update:close')">Cancel</a>
+          <div class="swap-initiated__info">
+            <swap-initiated-amount :token="fromToken" :amount="fromAmount" />
+            <div class="swap-initiated__info-arrow">
+              <arrow-down />
+            </div>
+            <swap-initiated-amount :token="toToken" :amount="toAmount" />
           </div>
-        </div>
-        <div class="swap-initiated__info">
-          <swap-initiated-amount :token="fromToken" :amount="fromAmount" />
-          <div class="swap-initiated__info-arrow">
-            <arrow-down />
-          </div>
-          <swap-initiated-amount :token="toToken" :amount="toAmount" />
         </div>
       </div>
-    </div>
-  </div>
+    </teleport>
+  </component>
 </template>
 
 <script setup lang="ts">
@@ -72,11 +81,7 @@ import { Vue3Lottie } from 'vue3-lottie';
 import { TokenType } from '@enkryptcom/swap';
 import { NetworkNames } from '@enkryptcom/types';
 import { BaseNetwork } from '@/types/base-network';
-import { useMenuStore } from '@action/store/menu-store';
-import { storeToRefs } from 'pinia';
-
-const menuStore = useMenuStore();
-const { isExpanded } = storeToRefs(menuStore);
+import AppDialog from '@action/components/app-dialog/index.vue';
 
 interface IProps {
   fromToken: TokenType;
@@ -90,54 +95,75 @@ interface IProps {
   network: BaseNetwork;
 }
 
-defineEmits<{
+const emit = defineEmits<{
   (e: 'update:close'): void;
   (e: 'update:tryAgain'): void;
 }>();
 
 defineProps<IProps>();
+const model = defineModel<boolean>();
+const closePopup = () => {
+  model.value = false;
+  emit('update:close');
+};
 </script>
 
 <style lang="less" scoped>
 @import '@action/styles/theme.less';
 .swap-initiated {
-  width: 100%;
-  height: 100%;
-  box-sizing: border-box;
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: row;
-  &__container {
-    height: 600px;
-    background: rgba(0, 0, 0, 0.32);
-    margin: 0;
-    box-sizing: border-box;
+  &__popup {
     position: absolute;
-    z-index: 101;
+    z-index: 100;
+    width: 100%;
+    height: 100%;
     top: 0;
-
-    &__expanded {
-      width: 800px;
-      left: -340px;
-    }
-    &__collapsed {
-      width: 516px;
-      left: -56px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    &__overlay {
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.32);
+      margin: 0;
+      box-sizing: border-box;
+      position: absolute;
+      z-index: 101;
+      top: 0;
     }
   }
+
+  // &__container {
+  //   height: 600px;
+  //   background: rgba(0, 0, 0, 0.32);
+  //   margin: 0;
+  //   box-sizing: border-box;
+  //   position: absolute;
+  //   z-index: 101;
+  //   top: 0;
+
+  //   &__expanded {
+  //     width: 800px;
+  //     left: -340px;
+  //   }
+  //   &__collapsed {
+  //     width: 516px;
+  //     left: -56px;
+  //   }
+  // }
   &__wrap {
-    position: relative;
-    background: @white;
-    width: 320px;
-    height: 432px;
-    box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.16);
-    border-radius: 12px;
-    z-index: 102;
+    &__popup {
+      position: relative;
+      background: @white;
+      width: 320px;
+      height: 432px;
+      box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.16);
+      border-radius: 12px;
+      z-index: 102;
+    }
+
     overflow: hidden;
     &.popup {
-      left: 174px;
+      // left: 174px;
     }
   }
   &__animation {
