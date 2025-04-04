@@ -13,7 +13,6 @@
           <!-- FROM NETWORK, ADDRESS, TOKEN -->
           <div class="swap__wrap__container">
             <h2>From</h2>
-
             <div class="swap__wrap__row">
               <swap-network-select
                 v-if="toNetwork"
@@ -24,19 +23,9 @@
                 v-if="fromSelectedNetwork"
                 v-model:selected-address="fromSelectedAddress"
                 :network="fromSelectedNetwork"
+                title="Swap from account"
+                :has-external-accounts="false"
               ></app-select-address>
-              <!-- <swap-address-input
-                ref="addressInput"
-                v-model:selected-address="fromAccount"
-                :value="address"
-                :is-valid-address="true"
-                :network-name="toAddressInputMeta.networkName"
-                :display-address="toAddressInputMeta.displayAddress"
-                :identicon="toAddressInputMeta.identicon"
-                is-from
-                @update:input-address="inputAddress"
-                @toggle:show-contacts="toggleSelectContact"
-              /> -->
             </div>
             <swap-token-amount-input
               v-if="fromToken"

@@ -98,8 +98,8 @@ defineProps({
     }
   }
   &__arrow {
-    justify-self: end;
     margin-left: auto;
+    min-width: 24px;
   }
 }
 </style>

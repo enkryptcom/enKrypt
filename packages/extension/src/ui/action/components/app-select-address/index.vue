@@ -1,7 +1,9 @@
 <template>
   <div class="app-select-address__container">
-    <a class="app-select-address" @click="openDialog">
+    <!-- Button -->
+    <button class="app-select-address" @click="openDialog">
       <div class="app-select-address__avatar">
+        <!-- Selected Identicon -->
         <img
           v-if="displayIdenticon"
           :src="displayIdenticon"
@@ -10,11 +12,12 @@
           height="32px"
         />
       </div>
-      <div class="app-select-address__info">
+      <!-- Selected Address -->
+      <div v-if="selectedAddress" class="app-select-address__info">
         <div v-if="displaySelectedTitle" class="title">
           {{ displaySelectedTitle }}
         </div>
-        <div v-if="selectedAddress" class="subtext">
+        <div :class="['subtext', { subtext__warning: !internalAccount }]">
           <span>
             <warning-icon
               v-if="!internalAccount"
@@ -24,22 +27,69 @@
           {{ displaySelectedSubtext }}
         </div>
       </div>
+      <div v-else class="app-select-address__no-selection">
+        Select From Address
+      </div>
       <switch-arrow class="app-select-address__arrow" />
-    </a>
+    </button>
+    <!-- Address Input Dialog-->
+    <app-dialog v-model="isOpened">
+      <div class="app-select-address__dialog">
+        <!-- Header -->
+        <div class="app-select-address__dialog__header">
+          <h1>{{ titleInbutton }}</h1>
+        </div>
+        <!-- Search -->
+        <!-- List -->
+        <div class="app-select-address__dialog__results">
+          <h2>{{ searchedTitle }}</h2>
+          <custom-scrollbar
+            class="app-select-address__dialog__scroll-area"
+            :settings="scrollSettings({ suppressScrollX: true })"
+          >
+            <address-item
+              v-for="(account, index) in displayAccounts"
+              :key="index"
+              :identicon="props.network?.identicon"
+              :account="account"
+              :address="account.address"
+              :selected="selectedAddress"
+              @selected:account="setSelectedAddress"
+            />
+          </custom-scrollbar>
+        </div>
+      </div>
+    </app-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, PropType, ref, watchEffect, onMounted } from 'vue';
 import SwitchArrow from '@action/icons/header/switch_arrow.vue';
-import { EnkryptAccount, NetworkNames } from '@enkryptcom/types';
+import { EnkryptAccount } from '@enkryptcom/types';
 import { getAccountsByNetworkName } from '@/libs/utils/accounts';
 import { BaseNetwork } from '@/types/base-network';
 import WarningIcon from '@/ui/action/icons/common/warning-icon.vue';
+import AppDialog from '@/ui/action/components/app-dialog/index.vue';
+import scrollSettings from '@/libs/utils/scroll-settings';
+import CustomScrollbar from '@action/components/custom-scrollbar/index.vue';
+import AddressItem from './components/address-item.vue';
 const props = defineProps({
   network: {
     type: Object as PropType<BaseNetwork>,
     required: true,
+  },
+  titleInbutton: {
+    type: String,
+    default: 'Select Address',
+  },
+  title: {
+    type: String,
+    default: 'Select Address',
+  },
+  hasExternalAccounts: {
+    type: Boolean,
+    default: true,
   },
 });
 
@@ -54,9 +104,7 @@ const displayAccounts = ref<EnkryptAccount[]>([]);
 
 const loadAccounts = async () => {
   isLoadingAccounts.value = true;
-  console.log(props.network);
   displayAccounts.value = await getAccountsByNetworkName(props.network.name);
-  console.log('displayAccounts', displayAccounts.value);
   isLoadingAccounts.value = false;
 };
 
@@ -113,6 +161,10 @@ const displayIdenticon = computed(() => {
   return undefined;
 });
 
+const setSelectedAddress = (address: string) => {
+  selectedAddress.value = address;
+  isOpened.value = false;
+};
 /** -------------------
  * Dialog
  -------------------*/
@@ -120,13 +172,27 @@ const isOpened = ref<boolean>(false);
 const openDialog = () => {
   isOpened.value = true;
 };
+
+const searchedTitle = computed(() => {
+  // if (props.hasExternalAccounts) {
+  //   return `My ${props.network.name} Accounts`;
+  // }
+  // return 'Select Address';
+  return `My ${props.network.name_long} Accounts`;
+});
 </script>
 
 <style lang="less" scoped>
 @import '@action/styles/theme.less';
 .app-select-address {
-  &__container {
+  button {
+    all: unset;
   }
+  &__container {
+    display: flex;
+    width: 100%;
+  }
+  width: 100%;
   background: @white;
   padding: 8px;
   box-sizing: border-box;
@@ -139,17 +205,15 @@ const openDialog = () => {
   cursor: pointer;
   text-decoration: none;
   transition: background 300ms ease-in-out;
-  // position: relative;
   text-overflow: ellipsis;
   overflow: hidden;
-  // white-space: nowrap;
   &:hover {
     background: @black007;
   }
 
   &__avatar {
     flex-basis: auto;
-    background: @white;
+    background: @grey16;
     box-shadow: inset 0px 0px 1px rgba(0, 0, 0, 0.16);
     min-width: 32px;
     height: 32px;
@@ -158,10 +222,12 @@ const openDialog = () => {
     object-fit: contain;
   }
   &__info {
-    margin-left: 8px;
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    text-align: left;
+    padding-left: 8px;
+
     .title {
       text-overflow: ellipsis;
       overflow: hidden;
@@ -184,16 +250,66 @@ const openDialog = () => {
       margin: 0;
       white-space: nowrap;
       overflow: hidden;
+      &__warning {
+        margin-left: -4px;
+      }
     }
+  }
+  &__no-selection {
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 20px;
+    letter-spacing: 0.25px;
+    color: @black06;
+    margin: 0;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    margin-left: 8px;
   }
   &__arrow {
     margin-left: auto;
+    min-width: 24px;
   }
   &__warning {
     width: 12px;
     height: 12px;
     display: inline;
     vertical-align: middle;
+    z-index: 1;
+  }
+  &__dialog {
+    height: 568px;
+    &__header {
+      padding: 14px 56px 14px 16px;
+      h1 {
+        font-style: normal;
+        font-weight: 700;
+        font-size: 20px;
+        line-height: 28px;
+        color: @primaryLabel;
+        margin: 0;
+      }
+    }
+    &__results {
+      border-top: 1px solid @gray02;
+      padding: 8px;
+      margin-top: 8px;
+      h2 {
+        font-family: Roboto;
+        font-weight: 500;
+        font-size: 14px;
+        line-height: 20px;
+        letter-spacing: 0.25px;
+        margin-left: 8px;
+      }
+    }
+    &__scroll-area {
+      position: relative;
+      margin: auto;
+      width: 100%;
+      max-height: 400px !important;
+    }
   }
 }
 </style>
