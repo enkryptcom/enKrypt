@@ -21,7 +21,8 @@ export const replaceWithEllipsis = (
 };
 
 export const parseCurrency = (value: string | number): string => {
-  const parsedValue = value.toString().replace(/,/g, '');
+  const bnValue = BigNumber(value);
+  const parsedValue = bnValue.isNaN() || bnValue.isZero() || value === undefined ? "0" : bnValue.toString().replace(/,/g, '');
   const store = useCurrencyStore();
   const currency = store.currentSelectedCurrency;
   const currencyCode =
