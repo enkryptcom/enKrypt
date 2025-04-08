@@ -267,6 +267,11 @@ onMounted(async () => {
   const isInitialized = await kr.isInitialized();
   if (isInitialized) {
     const _isLocked = await isKeyRingLocked();
+    if (__IS_SAFARI__) {
+      setInterval(() => {
+        isKeyRingLocked(); // keepalive safari action window
+      }, 1000 * 5);
+    }
     if (_isLocked) {
       router
         .push({ name: 'lock-screen' })
@@ -296,7 +301,9 @@ onMounted(async () => {
     menuStore.init();
     fetchAndSetRates();
   } else {
-    openOnboard();
+    openOnboard().then(() => {
+      window.close();
+    });
   }
 });
 
