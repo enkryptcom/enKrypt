@@ -1,5 +1,10 @@
 <template>
-  <app-dialog v-model="model" width="344px" is-centered @close="closeWindow">
+  <app-dialog
+    v-model="model"
+    width="344px"
+    is-centered
+    @close:dialog="closeWindow"
+  >
     <div class="add-account-form">
       <h3>Add new {{ network.name_long }} account</h3>
 

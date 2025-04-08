@@ -160,11 +160,7 @@ const closePopup = () => {
       border-radius: 12px;
       z-index: 102;
     }
-
     overflow: hidden;
-    &.popup {
-      // left: 174px;
-    }
   }
   &__animation {
     width: 100%;
