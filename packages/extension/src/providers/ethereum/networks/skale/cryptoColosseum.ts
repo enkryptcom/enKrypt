@@ -10,7 +10,7 @@ const skaleOptions: SkaleParams = {
   name_long: 'Crypto Rome | SKALE',
   chainName: 'haunting-devoted-deneb',
   chainID: '0x3d91725c',
-  icon: 'skaleCryptoColloseum.png',
+  icon: 'skaleCryptoColloseum.webp',
 };
 
 const assets: ICustomSKALEAsset[] = [

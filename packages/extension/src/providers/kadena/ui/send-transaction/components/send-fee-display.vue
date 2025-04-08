@@ -2,8 +2,8 @@
   <div class="send-fee-select" :class="{ swap: inSwap }">
     <div class="send-fee-select__value">
       <p v-if="fee.fiatValue" class="send-fee-select__value-fiat">
-        Fee: {{ $filters.formatFiatValue(fee.fiatValue).value }}
-        {{ fee.fiatSymbol }}
+        Fee:
+        {{ $filters.parseCurrency(fee.fiatValue) }}
       </p>
       <p v-if="fee.nativeValue" class="send-fee-select__value-crypto">
         {{ $filters.formatFloatingPointValue(fee.nativeValue).value }}

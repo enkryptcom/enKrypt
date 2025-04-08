@@ -9,6 +9,7 @@ import KadenaProvider from '..';
 import KDANetworks from '../networks';
 import { KadenaNetworks } from '../types';
 import { getNetworkInfo } from '../libs/network';
+import { trackNetwork } from '@/libs/metrics';
 
 const method: MiddlewareFunction = function (
   this: KadenaProvider,
@@ -32,6 +33,10 @@ const method: MiddlewareFunction = function (
     );
 
     if (validNetwork) {
+      trackNetwork(NetworkChangeEvents.NetworkChangeAPI, {
+        provider: validNetwork.provider,
+        network: validNetwork.name,
+      });
       sendToBackgroundFromBackground({
         message: JSON.stringify({
           method: InternalMethods.changeNetwork,

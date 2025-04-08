@@ -10,7 +10,13 @@
     >
       <div class="network-activity__transaction-info">
         <img
-          :src="network.identicon(network.displayAddress((activity.isIncoming ? activity.from : activity.to)))"
+          :src="
+            network.identicon(
+              network.displayAddress(
+                activity.isIncoming ? activity.from : activity.to,
+              ),
+            )
+          "
           @error="imageLoadError"
         />
 
@@ -67,7 +73,7 @@
           <span>{{ activity.token.symbol }}</span>
         </h4>
         <p v-show="getFiatValue.gt(0)">
-          $ {{ $filters.formatFiatValue(getFiatValue).value }}
+          {{ $filters.parseCurrency(getFiatValue) }}
         </p>
       </div>
     </a>
@@ -111,7 +117,9 @@
           }}
           <span>{{ $filters.truncate(activity.token.symbol, 40) }}</span>
         </h4>
-        <p>$ {{ $filters.formatFiatValue(getFiatValue).value }}</p>
+        <p>
+          {{ $filters.parseCurrency(getFiatValue) }}
+        </p>
       </div>
     </section>
   </section>

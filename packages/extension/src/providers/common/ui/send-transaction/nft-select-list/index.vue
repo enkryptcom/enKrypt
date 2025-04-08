@@ -1,30 +1,28 @@
 <template>
-  <div class="nft-select-list">
-    <div class="nft-select-list__header">
-      <h3>Select NFT to send</h3>
-      <a class="nft-select-list__close" @click="emit('close', false)">
-        <close-icon />
-      </a>
+  <app-dialog v-model="model">
+    <div class="nft-select-list">
+      <div class="nft-select-list__header">
+        <h3>Select NFT to send</h3>
+      </div>
+
+      <nft-select-list-search v-model="searchNFT" />
+
+      <custom-scrollbar
+        class="nft-select-list__scroll-area"
+        :settings="scrollSettings({ suppressScrollX: true })"
+      >
+        <nft-select-list-item
+          v-for="(item, index) in nftList"
+          :key="index"
+          :item="item"
+          @select-nft="emit('selectNft', $event)"
+        />
+      </custom-scrollbar>
     </div>
-
-    <nft-select-list-search />
-
-    <custom-scrollbar
-      class="nft-select-list__scroll-area"
-      :settings="scrollSettings({ suppressScrollX: true })"
-    >
-      <nft-select-list-item
-        v-for="(item, index) in nftList"
-        :key="index"
-        :item="item"
-        @select-nft="emit('selectNft', $event)"
-      />
-    </custom-scrollbar>
-  </div>
+  </app-dialog>
 </template>
 
 <script setup lang="ts">
-import CloseIcon from '@action/icons/common/close-icon.vue';
 import NftSelectListItem from './components/nft-select-list-item.vue';
 import CustomScrollbar from '@action/components/custom-scrollbar/index.vue';
 import NftSelectListSearch from './components/nft-select-list-search.vue';
@@ -39,7 +37,9 @@ import {
 } from '@/types/nft';
 import { BitcoinNetwork } from '@/providers/bitcoin/types/bitcoin-network';
 import { SolanaNetwork } from '@/providers/solana/types/sol-network';
+import AppDialog from '@action/components/app-dialog/index.vue';
 
+const model = defineModel<boolean>();
 const props = defineProps({
   network: {
     type: Object as PropType<EvmNetwork | BitcoinNetwork | SolanaNetwork>,
@@ -57,17 +57,28 @@ const props = defineProps({
 
 const emit = defineEmits<{
   (e: 'selectNft', data: NFTItemWithCollectionName): void;
-  (e: 'close', val: boolean): void;
 }>();
+
+const searchNFT = ref<string>('');
 
 const nftCollections = ref<NFTCollection[]>([]);
 const nftList = computed(() => {
   const allItems: NFTItemWithCollectionName[] = [];
   nftCollections.value.forEach(col => {
     col.items.forEach(item => {
-      allItems.push({ ...item, ...{ collectionName: col.name } });
+      allItems.push({ ...item, ...{ collectionName: col.name || '' } });
     });
   });
+  if (searchNFT.value && searchNFT.value !== '') {
+    return allItems.filter(item => {
+      return (
+        item.name.toLowerCase().includes(searchNFT.value.toLowerCase()) ||
+        item.collectionName
+          .toLowerCase()
+          .includes(searchNFT.value.toLowerCase())
+      );
+    });
+  }
   return allItems;
 });
 const updateNFTList = () => {
@@ -114,18 +125,7 @@ onMounted(() => {
 @import '@action/styles/custom-scroll.less';
 
 .nft-select-list {
-  width: 100%;
-  background: #ffffff;
-  position: fixed;
-  box-shadow:
-    0px 3px 6px rgba(0, 0, 0, 0.039),
-    0px 7px 24px rgba(0, 0, 0, 0.19);
-  border-radius: 12px;
-  width: 428px;
   height: 568px;
-  left: 356px;
-  top: 16px;
-  z-index: 12;
 
   &__header {
     position: relative;
@@ -138,19 +138,6 @@ onMounted(() => {
       line-height: 28px;
       color: @primaryLabel;
       margin: 0;
-    }
-  }
-
-  &__close {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 0;
-
-    &:hover {
-      background: @black007;
     }
   }
 

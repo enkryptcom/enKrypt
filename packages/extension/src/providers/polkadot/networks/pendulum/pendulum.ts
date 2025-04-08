@@ -6,7 +6,7 @@ import {
 } from '../../types/substrate-network';
 import assets from './assets/pendulum-assets';
 import wrapActivityHandler from '@/libs/activity-state/wrap-activity-handler';
-import icon from '../icons/pendulum.svg';
+import icon from '../icons/pendulum.webp';
 
 const pendulumOptions: SubstrateNetworkOptions = {
   name: NetworkNames.Pendulum,
