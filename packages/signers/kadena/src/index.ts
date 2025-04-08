@@ -1,12 +1,22 @@
-import { KeyPair, SignerInterface } from "@enkryptcom/types";
+import {
+  KeyPair,
+  MnemonicWithExtraWord,
+  SignerInterface,
+} from "@enkryptcom/types";
 import { bufferToHex, hexToBuffer } from "@enkryptcom/utils";
 import { mnemonicToSeedSync } from "bip39";
 import { sign as tweetSign } from "tweetnacl";
 import { derivePath } from "./libs/ed25519";
 
 export class KadenaSigner implements SignerInterface {
-  async generate(mnemonic: string, derivationPath = ""): Promise<KeyPair> {
-    const seed = bufferToHex(mnemonicToSeedSync(mnemonic), true);
+  async generate(
+    mnemonic: MnemonicWithExtraWord,
+    derivationPath = "",
+  ): Promise<KeyPair> {
+    const seed = bufferToHex(
+      mnemonicToSeedSync(mnemonic.mnemonic, mnemonic.extraWord),
+      true,
+    );
     const dPathSegments = `${derivationPath}'`.split("/");
 
     const keys = derivePath(dPathSegments.join("/"), seed);
