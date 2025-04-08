@@ -58,11 +58,10 @@
       />
 
       <assets-select-list
-        v-show="isOpenSelectToken"
+        v-model="isOpenSelectToken"
         :is-send="true"
         :assets="accountAssets"
         :is-loading="isLoadingAssets"
-        @close="toggleSelectToken"
         @update:select-asset="selectToken"
       />
 
@@ -74,11 +73,11 @@
       />
 
       <nft-select-list
-        v-show="isOpenSelectNft"
+        v-if="!isSendToken"
+        v-model="isOpenSelectNft"
         :address="addressFrom"
         :network="network"
         :selected-nft="paramNFTData"
-        @close="toggleSelectNft"
         @select-nft="selectNFT"
       />
 
@@ -100,11 +99,10 @@
       />
 
       <transaction-fee-view
+        v-model="isOpenSelectFee"
         :fees="gasCostValues"
-        :show-fees="isOpenSelectFee"
         :selected="selectedFee"
         :is-header="true"
-        @close-popup="toggleSelectFee"
         @gas-type-changed="selectFee"
       />
 
@@ -177,6 +175,7 @@ import { NetworkNames } from '@enkryptcom/types';
 import { trackSendEvents } from '@/libs/metrics';
 import { SendEventType } from '@/libs/metrics/types';
 import RecentlySentAddressesState from '@/libs/recently-sent-addresses';
+import { parseCurrency } from '@/ui/action/utils/filters';
 
 const props = defineProps({
   network: {
@@ -247,10 +246,14 @@ const hasEnoughBalance = computed(() => {
     toBN(toBase(sendAmount.value ?? '0', selectedAsset.value.decimals!)),
   );
 });
+
 const sendAmount = computed(() => {
-  if (amount.value && amount.value !== '') return amount.value;
+  if (isMaxSelected.value) {
+    return parseFloat(assetMaxValue.value) < 0 ? '0' : assetMaxValue.value;
+  } else if (amount.value && amount.value !== '') return amount.value;
   return '0';
 });
+
 const isMaxSelected = ref<boolean>(false);
 const selectedFee = ref<GasPriceTypes>(
   props.network.name === NetworkNames.Ethereum || NetworkNames.Binance
@@ -448,9 +451,9 @@ const errorMsg = computed(() => {
   ) {
     return `Not enough funds. You are
       ~${formatFloatingPointValue(nativeBalanceAfterTransactionInHumanUnits.value).value}
-      ${props.network.currencyName} ($ ${
-        formatFiatValue(balanceAfterInUsd.value).value
-      }) short.`;
+      ${props.network.currencyName} (${parseCurrency(
+        balanceAfterInUsd.value,
+      )}) short.`;
   }
 
   if (!props.network.isAddress(addressTo.value) && addressTo.value !== '') {

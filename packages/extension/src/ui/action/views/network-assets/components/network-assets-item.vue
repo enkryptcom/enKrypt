@@ -1,66 +1,67 @@
 <template>
-  <a class="network-assets__token" @click="toggleDetail()">
-    <div
-      class="network-assets__token-info"
-      :class="{ max: token.priceChangePercentage == 0 }"
-    >
-      <img :src="token.icon" width="32px" height="32px" />
-      <div class="network-assets__token-info-name">
-        <h4 v-if="token.name.length <= 16">{{ token.name }}</h4>
-        <tooltip v-else :text="token.name"
-          ><h4>{{ `${token.name.slice(0, 12)}...` }}</h4></tooltip
-        >
-        <p>
-          {{ token.balancef }}
-          <span v-if="token.symbol.length <= 6">
-            {{ token.symbol.toLowerCase() }}
-          </span>
-          <tooltip
-            v-else
-            :style="{ fontSize: '12px !important' }"
-            :text="token.symbol"
+  <div>
+    <a class="network-assets__token" @click="toggleDetail()">
+      <div
+        class="network-assets__token-info"
+        :class="{ max: token.priceChangePercentage == 0 }"
+      >
+        <img :src="token.icon" width="32px" height="32px" />
+        <div class="network-assets__token-info-name">
+          <h4 v-if="token.name.length <= 16">{{ token.name }}</h4>
+          <tooltip v-else :text="token.name"
+            ><h4>{{ `${token.name.slice(0, 12)}...` }}</h4></tooltip
           >
-            <span>{{ `${token.symbol.toLowerCase().slice(0, 7)}` }}</span>
-          </tooltip>
-        </p>
+          <p>
+            {{ token.balancef }}
+            <span v-if="token.symbol.length <= 6">
+              {{ token.symbol.toLowerCase() }}
+            </span>
+            <tooltip
+              v-else
+              :style="{ fontSize: '12px !important' }"
+              :text="token.symbol"
+            >
+              <span>{{ `${token.symbol.toLowerCase().slice(0, 7)}` }}</span>
+            </tooltip>
+          </p>
+        </div>
       </div>
-    </div>
 
-    <div
-      v-if="token.priceChangePercentage !== 0"
-      class="network-assets__token-sparkline"
-      :class="{
-        down: token.priceChangePercentage < 0,
-        up: token.priceChangePercentage >= 0,
-      }"
-    >
-      <p>
-        <sparkline-up v-if="token.priceChangePercentage >= 0" /><sparkline-down
-          v-if="token.priceChangePercentage < 0"
-        />{{ token.priceChangePercentage.toFixed(2) }}%
-      </p>
-      <v-chart class="chart" :option="option" />
-    </div>
+      <div
+        v-if="token.priceChangePercentage !== 0"
+        class="network-assets__token-sparkline"
+        :class="{
+          down: token.priceChangePercentage < 0,
+          up: token.priceChangePercentage >= 0,
+        }"
+      >
+        <p>
+          <sparkline-up
+            v-if="token.priceChangePercentage >= 0"
+          /><sparkline-down v-if="token.priceChangePercentage < 0" />{{
+            token.priceChangePercentage.toFixed(2)
+          }}%
+        </p>
+        <v-chart class="chart" :option="option" />
+      </div>
+      <div class="network-assets__token-price">
+        <h4>{{ $filters.parseCurrency(token.balanceUSDf) }}</h4>
+        <p>@{{ $filters.parseCurrency(token.value) }}</p>
+      </div>
+    </a>
 
-    <div class="network-assets__token-price">
-      <h4>${{ token.balanceUSDf }}</h4>
-      <p>@{{ token.valuef }}</p>
-    </div>
-  </a>
-
-  <asset-detail-view
-    v-if="isDetail"
-    :token="token"
-    :network="network"
-    :is-custom-token="isCustomToken"
-    :remove-token="removeToken"
-    @close:popup="toggleDetail"
-  />
+    <asset-detail-view
+      v-model="isDetail"
+      :token="token"
+      :is-custom-token="isCustomToken"
+      :remove-token="removeToken"
+    />
+  </div>
 </template>
 
 <script setup lang="ts">
 import { PropType, ref, computed, onMounted } from 'vue';
-import { CustomErc20Token } from '@/libs/tokens-state/types.ts';
+import { CustomErc20Token } from '@/libs/tokens-state/types';
 import { BaseNetwork } from '@/types/base-network';
 import SparklineUp from '@action/icons/asset/sparkline-up.vue';
 import SparklineDown from '@action/icons/asset/sparkline-down.vue';
@@ -228,6 +229,7 @@ const toggleDetail = () => {
         margin-right: 16px;
         border-radius: 100%;
         box-shadow: inset 0px 0px 1px rgba(0, 0, 0, 0.16);
+        object-fit: contain;
       }
 
       &-name {

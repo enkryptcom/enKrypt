@@ -45,11 +45,21 @@ import { onMounted } from 'vue';
 const onboardStore = useOnboardStore();
 const restoreStore = useRestoreStore();
 
+// Overwrite the string with random data before setting empty
+const secureClear = (value: string) => {
+  const array = new Uint8Array(value.length);
+  crypto.getRandomValues(array);
+  const random = String.fromCharCode(...array);
+  value = random;
+  value = '';
+  return value;
+};
+
 onMounted(() => {
-  onboardStore.setPassword('');
-  onboardStore.setMnemonic('');
-  restoreStore.setMnemonic('');
-  restoreStore.setPassword('');
+  onboardStore.setPassword(secureClear(onboardStore.password));
+  onboardStore.setMnemonic(secureClear(onboardStore.mnemonic));
+  restoreStore.setMnemonic(secureClear(onboardStore.mnemonic));
+  restoreStore.setPassword(secureClear(onboardStore.password));
 });
 
 const finishAction = () => {

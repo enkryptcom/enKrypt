@@ -3,7 +3,7 @@ import { KadenaNetwork, KadenaNetworkOptions } from '../types/kadena-network';
 import wrapActivityHandler from '@/libs/activity-state/wrap-activity-handler';
 import { kadenaScanActivity } from '../libs/activity-handlers';
 import { isValidAddress } from '../libs/network';
-import icon from './icons/kadena-kda-logo.svg';
+import icon from './icons/kadena-kda-logo.webp';
 
 const kadenaOptions: KadenaNetworkOptions = {
   name: NetworkNames.KadenaTestnet,

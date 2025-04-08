@@ -1,6 +1,5 @@
 <template>
-  <div class="import-account__container">
-    <div class="import-account__overlay" @click="close()" />
+  <app-dialog v-model="model" width="460px" is-centered>
     <div class="import-account__wrap">
       <!-- Ethereum ecosystem  -->
       <import-account-start
@@ -51,35 +50,22 @@
         @close="close"
         @back="startAction"
       />
-
-      <!-- Polkadot ecosystem  -->
-
-      <!-- <import-account-start-dot
-        v-if="isStart && isDot"
-        :to-select-account="selectAccountAction"
-        @close="close"
-      ></import-account-start-dot>
-
-      <import-account-select-account-dot
-        v-if="iSelectAccount && isDot"
-        @close="close"
-        @back="startAction"
-      ></import-account-select-account-dot> -->
     </div>
-  </div>
+  </app-dialog>
 </template>
 
 <script setup lang="ts">
 import { ref, PropType } from 'vue';
+import AppDialog from '@action/components/app-dialog/index.vue';
 import ImportAccountStart from './views/import-account-start.vue';
 import ImportAccountKeystoreFile from './views/import-account-keystore-file.vue';
 import ImportAccountPassword from './views/import-account-password.vue';
 import ImportAccountImporting from './views/import-account-importing.vue';
 import ImportAccountPrivateKey from './views/import-account-private-key.vue';
-// import ImportAccountStartDot from "./views/import-account-start-dot.vue";
-// import ImportAccountSelectAccountDot from "./views/import-account-select-account-dot.vue";
 import { BaseNetwork } from '@/types/base-network';
 import { KeyPairAdd, SignerType } from '@enkryptcom/types';
+
+const model = defineModel<boolean>();
 
 const isStart = ref(true);
 const isKeystoreFile = ref(false);
@@ -99,9 +85,6 @@ const keyPair = ref<KeyPairAdd>({
   name: '',
   signerType: SignerType.secp256k1,
 });
-const emit = defineEmits<{
-  (e: 'close'): void;
-}>();
 
 defineProps({
   network: {
@@ -122,7 +105,7 @@ const allVars = [
 ];
 
 const close = () => {
-  emit('close');
+  model.value = false;
 };
 
 const startAction = () => {
@@ -154,10 +137,6 @@ const importingAccountAction = () => {
   isImportingAccount.value = true;
 };
 
-// const selectAccountAction = () => {
-//   allVars.forEach((val) => (val.value = false));
-//   iSelectAccount.value = true;
-// };
 const updateKeystorePassword = (password: string) => {
   keystorePassword.value = password;
 };
@@ -186,48 +165,8 @@ const walletUpdate = (wallet: KeyPairAdd) => {
 @import '@action/styles/theme.less';
 
 .import-account {
-  width: 100%;
-  height: auto;
-  box-sizing: border-box;
-
   &__wrap {
-    background: @white;
-    box-shadow:
-      0px 3px 6px rgba(0, 0, 0, 0.039),
-      0px 7px 24px rgba(0, 0, 0, 0.19);
-    border-radius: 12px;
-    box-sizing: border-box;
-    width: 460px;
-    height: auto;
-    z-index: 107;
-    position: relative;
-    height: auto;
-    overflow-x: hidden;
     padding: 0 56px 56px 56px;
-  }
-
-  &__container {
-    width: 800px;
-    height: 600px;
-    left: -340px;
-    top: 0px;
-    position: absolute;
-    z-index: 105;
-    display: flex;
-    box-sizing: border-box;
-    justify-content: center;
-    align-items: center;
-    flex-direction: row;
-  }
-
-  &__overlay {
-    background: rgba(0, 0, 0, 0.32);
-    width: 100%;
-    height: 100%;
-    left: 0px;
-    top: 0px;
-    position: absolute;
-    z-index: 106;
   }
 }
 </style>

@@ -6,7 +6,7 @@ import {
 } from '../../types/substrate-network';
 import wrapActivityHandler from '@/libs/activity-state/wrap-activity-handler';
 import { toBN } from 'web3-utils';
-import icon from '../icons/quartz.svg';
+import icon from '../icons/quartz.webp';
 
 const quartzOptions: SubstrateNetworkOptions = {
   name: NetworkNames.Quartz,

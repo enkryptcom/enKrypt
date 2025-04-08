@@ -8,6 +8,7 @@ import {
   SettingsType,
   BtcSettingsType,
   EnkryptSettingsType,
+  CurrencySettingsType,
 } from './types';
 import { merge } from 'lodash';
 
@@ -71,16 +72,31 @@ class SettingsState {
   async setBtcSettings(state: BtcSettingsType): Promise<void> {
     await this.#storage.set(StorageKeys.btcState, state);
   }
+
+  async setCurrencySettings(state: CurrencySettingsType): Promise<void> {
+    await this.#storage.set(StorageKeys.currencyState, state);
+  }
+
+  async getCurrencySettings(): Promise<CurrencySettingsType> {
+    const state = await this.getStateByKey(StorageKeys.currencyState);
+    const settings: CurrencySettingsType = {
+      value: 'USD',
+    };
+    return merge(settings, state);
+  }
+
   async getAllSettings(): Promise<SettingsType> {
     const evmstate = await this.getEVMSettings();
     const substratestate = await this.getSubstrateSettings();
     const btcstate = await this.getBtcSettings();
     const enkryptState = await this.getEnkryptSettings();
+    const currencySettingsState = await this.getCurrencySettings();
     return {
       evm: evmstate,
       substrate: substratestate,
       btc: btcstate,
       enkrypt: enkryptState,
+      currencySettingsState: currencySettingsState,
       manifestVersion: Browser.runtime.getManifest().manifest_version,
     };
   }

@@ -1,4 +1,4 @@
-import icon from './icons/5ire.svg';
+import icon from './icons/5ire.webp';
 import wrapActivityHandler from '@/libs/activity-state/wrap-activity-handler';
 import { NetworkNames } from '@enkryptcom/types';
 import { EvmNetwork, EvmNetworkOptions } from '../types/evm-network';

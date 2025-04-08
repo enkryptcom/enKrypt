@@ -25,7 +25,7 @@
       v-else-if="!!token && Number(value) > 0"
       class="swap-token-input__fiat"
     >
-      ≈ ${{ $filters.formatFiatValue(tokenPrice).value }}
+      ≈ {{ $filters.parseCurrency(tokenPrice) }}
     </div>
   </div>
 </template>

@@ -1,4 +1,4 @@
-import icon from './icons/okc.svg';
+import icon from './icons/okc.webp';
 import { CoingeckoPlatform, NetworkNames } from '@enkryptcom/types';
 import { EvmNetwork, EvmNetworkOptions } from '../types/evm-network';
 import { OkcActivity } from '../libs/activity-handlers';

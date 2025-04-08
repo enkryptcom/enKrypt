@@ -70,7 +70,6 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
     cgPlatform: CoingeckoPlatform.Canto,
   },
   [NetworkNames.Rootstock]: {
-    tbName: 'rsk',
     cgPlatform: CoingeckoPlatform.Rootstock,
     bsEndpoint: true,
   },
@@ -121,6 +120,10 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
   [NetworkNames.Shibarium]: {
     tbName: 'shib',
     cgPlatform: CoingeckoPlatform.Shibarium,
+  },
+  [NetworkNames.Base]: {
+    tbName: 'base',
+    cgPlatform: CoingeckoPlatform.Base,
   },
   [NetworkNames.SyscoinNEVM]: {
     cgPlatform: CoingeckoPlatform.Syscoin,
@@ -178,6 +181,10 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
     tbName: 'scrl',
     cgPlatform: CoingeckoPlatform.Scroll,
   },
+  [NetworkNames.ImmutableZkevm]: {
+    tbName: 'itze',
+    cgPlatform: CoingeckoPlatform.ImmutableZkevm,
+  },
   [NetworkNames.Rari]: {
     tbName: 'rari',
     cgPlatform: undefined,
@@ -186,6 +193,30 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
     tbName: '',
     cgPlatform: CoingeckoPlatform.Solana,
   },
+  [NetworkNames.Gravity]: {
+    tbName: 'gravity',
+    cgPlatform: CoingeckoPlatform.Gravity,
+  },
+  [NetworkNames.Abstract]: {
+    tbName: 'abs',
+    cgPlatform: CoingeckoPlatform.Abstract,
+  },
+  [NetworkNames.Story]: {
+    tbName: 'story',
+    cgPlatform: CoingeckoPlatform.Story,
+  },
+  [NetworkNames.Ink]: {
+    tbName: 'ink',
+    cgPlatform: CoingeckoPlatform.Ink,
+  },
+  [NetworkNames.Bera]: {
+    tbName: 'bera',
+    cgPlatform: CoingeckoPlatform.Berachain,
+  },
+  [NetworkNames.Unichain]: {
+    tbName: 'uni',
+    cgPlatform: CoingeckoPlatform.Unichain,
+  }
 };
 
 const getTokens = (
@@ -243,15 +274,15 @@ export default (
 
     const marketInfo = supportedNetworks[networkName].cgPlatform
       ? await marketData.getMarketInfoByContracts(
-          Object.keys(balances).filter(
-            contract => contract !== NATIVE_TOKEN_ADDRESS,
-          ),
-          supportedNetworks[networkName].cgPlatform as CoingeckoPlatform,
-        )
+        Object.keys(balances).filter(
+          contract => contract !== NATIVE_TOKEN_ADDRESS,
+        ),
+        supportedNetworks[networkName].cgPlatform as CoingeckoPlatform,
+      )
       : tokens.reduce(
-          (obj, cur) => ({ ...obj, [cur.contract]: null }),
-          {} as Record<string, CoinGeckoTokenMarket | null>,
-        );
+        (obj, cur) => ({ ...obj, [cur.contract]: null }),
+        {} as Record<string, CoinGeckoTokenMarket | null>,
+      );
     if (network.coingeckoID) {
       const nativeMarket = await marketData.getMarketData([
         network.coingeckoID,

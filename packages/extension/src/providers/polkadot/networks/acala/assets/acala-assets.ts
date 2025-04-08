@@ -1,6 +1,6 @@
 import { KnownTokenDisplay } from '@/providers/polkadot/types';
 import iconACA from './icons/ACA.png';
-import iconDOT from '../../icons/polkadot.svg';
+import iconDOT from '../../icons/polkadot.webp';
 import iconLcDOT from './icons/LCDOT.png';
 import iconLDOT from './icons/LDOT.png';
 import iconAUSD from './icons/AUSD.png';

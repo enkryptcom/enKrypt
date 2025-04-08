@@ -18,7 +18,8 @@
         class="transaction-fee-item__block-amount"
         :class="{ down: parseFloat(diff) < 0 }"
       >
-        {{ parseFloat(diff) < 0 ? '-' : '+' }}${{ Math.abs(parseFloat(diff)) }}
+        {{ parseFloat(diff) < 0 ? '-' : '+'
+        }}{{ $filters.parseCurrency(Math.abs(parseFloat(diff)).toString()) }}
       </div>
     </div>
   </a>
@@ -83,6 +84,9 @@ const select = () => {
   padding: 4px 8px;
   box-sizing: border-box;
   position: relative;
+  &:last-child {
+    margin-bottom: 4px;
+  }
 
   &__block {
     display: flex;

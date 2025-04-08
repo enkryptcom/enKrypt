@@ -38,6 +38,7 @@
 
     <nft-detail-view
       v-if="!!detailNFT"
+      v-model="showDetail"
       :item="detailNFT"
       :is-favorite="isFavorite"
       v-bind="$attrs"
@@ -155,8 +156,12 @@ const hideClicked = async (isHidden: boolean, item: NFTItem) => {
   }
   localUpdate();
 };
+const showDetail = ref<boolean>(false);
 const toggleDetail = (item: NFTItem | null) => {
   detailNFT.value = item;
+  if (item) {
+    showDetail.value = true;
+  }
 };
 const isFavorite = computed(() => {
   if (detailNFT.value && favoriteNFTs.value.length) {

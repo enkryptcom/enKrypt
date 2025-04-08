@@ -8,7 +8,7 @@ import {
 import { subscanActivity } from '../../libs/activity-handlers';
 import wrapActivityHandler from '@/libs/activity-state/wrap-activity-handler';
 import { toBN } from 'web3-utils';
-import icon from '../icons/bifrost.svg';
+import icon from '../icons/bifrost.webp';
 
 const bifrostKusamaOptions: SubstrateNetworkOptions = {
   name: NetworkNames.BifrostKusama,
