@@ -1,5 +1,5 @@
 import { KnownTokenDisplay } from '@/providers/polkadot/types';
-import iconKAR from '../../icons/karura.svg';
+import iconKAR from '../../icons/karura.webp';
 import iconAUSD from './icons/AUSD.png';
 import iconKSM from './icons/KSM.png';
 import iconLKSM from './icons/LKSM.png';

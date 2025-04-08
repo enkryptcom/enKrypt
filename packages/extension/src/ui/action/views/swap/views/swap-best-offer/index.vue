@@ -60,11 +60,10 @@
         </custom-scrollbar>
 
         <transaction-fee-view
+          v-model="isOpenSelectFee"
           :fees="gasCostValues"
-          :show-fees="isOpenSelectFee"
           :selected="selectedFee"
           :is-header="true"
-          @close-popup="toggleSelectFee"
           @gas-type-changed="selectFee"
         />
       </div>
@@ -83,7 +82,8 @@
       </div>
     </div>
     <swap-initiated
-      v-if="isInitiated"
+      v-if="isInitiated && network"
+      v-model="isInitiated"
       :is-loading="isTXSendLoading"
       :from-token="swapData.fromToken"
       :to-token="swapData.toToken"

@@ -17,5 +17,4 @@ const pinia = createPinia();
 app.use(router).use(Vue3Lottie, { name: 'vue3lottie' }).use(pinia);
 
 app.config.globalProperties.$filters = filters;
-
 app.mount('#app');

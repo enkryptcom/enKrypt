@@ -58,11 +58,10 @@
       />
 
       <assets-select-list
-        v-show="isOpenSelectToken"
+        v-model="isOpenSelectToken"
         :is-send="true"
         :assets="accountAssets"
         :is-loading="isLoadingAssets"
-        @close="toggleSelectToken"
         @update:select-asset="selectToken"
       />
 
@@ -74,11 +73,11 @@
       />
 
       <nft-select-list
-        v-show="isOpenSelectNft"
+        v-if="!isSendToken"
+        v-model="isOpenSelectNft"
         :address="addressFrom"
         :network="network"
         :selected-nft="paramNFTData"
-        @close="toggleSelectNft"
         @select-nft="selectNFT"
       />
 
@@ -100,11 +99,10 @@
       />
 
       <transaction-fee-view
+        v-model="isOpenSelectFee"
         :fees="gasCostValues"
-        :show-fees="isOpenSelectFee"
         :selected="selectedFee"
         :is-header="true"
-        @close-popup="toggleSelectFee"
         @gas-type-changed="selectFee"
       />
 
@@ -454,7 +452,7 @@ const errorMsg = computed(() => {
     return `Not enough funds. You are
       ~${formatFloatingPointValue(nativeBalanceAfterTransactionInHumanUnits.value).value}
       ${props.network.currencyName} (${parseCurrency(
-        formatFiatValue(balanceAfterInUsd.value).value,
+        balanceAfterInUsd.value,
       )}) short.`;
   }
 

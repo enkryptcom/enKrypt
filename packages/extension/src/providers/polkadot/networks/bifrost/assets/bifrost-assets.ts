@@ -8,8 +8,8 @@ import iconZLK from './icons/ZLK.png';
 import iconUSDT from './icons/USDT.png';
 import iconTUR from './icons/TUR.png';
 import iconCRAB from './icons/CRAB.png';
-import iconDOT from '../../icons/polkadot.svg';
-import iconKSM from '../../icons/kusama.svg';
+import iconDOT from '../../icons/polkadot.webp';
+import iconKSM from '../../icons/kusama.webp';
 
 const assets: KnownTokenDisplay[] = [
   {

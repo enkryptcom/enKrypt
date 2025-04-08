@@ -6,15 +6,8 @@
         v-if="isNetworkList"
         :close="closePopup"
         :to-custom="toCustomNetwork"
-        @update:pin-network="setPinnedNetwork"
-        @update:test-network-toggle="emit('update:testNetworkToggle')"
       />
-      <add-custom-network
-        v-else
-        :close="closePopup"
-        :back="toNetworkList"
-        @update:pin-network="setPinnedNetwork"
-      />
+      <add-custom-network v-else :close="closePopup" :back="toNetworkList" />
     </div>
   </div>
 </template>
@@ -28,16 +21,9 @@ import { trackNetwork } from '@/libs/metrics';
 import { NetworkChangeEvents } from '@/libs/metrics/types';
 
 const isNetworkList = ref(true);
-
 const emit = defineEmits<{
   (e: 'close:popup'): void;
-  (e: 'update:pinNetwork', network: string, isPinned: boolean): void;
-  (e: 'update:testNetworkToggle'): void;
 }>();
-
-const setPinnedNetwork = (network: string, isPinned: boolean) => {
-  emit('update:pinNetwork', network, isPinned);
-};
 
 const closePopup = () => {
   isNetworkList.value = true;
