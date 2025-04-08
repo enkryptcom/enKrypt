@@ -66,7 +66,7 @@ const nftList = computed(() => {
   const allItems: NFTItemWithCollectionName[] = [];
   nftCollections.value.forEach(col => {
     col.items.forEach(item => {
-      allItems.push({ ...item, ...{ collectionName: col.name } });
+      allItems.push({ ...item, ...{ collectionName: col.name || '' } });
     });
   });
   if (searchNFT.value && searchNFT.value !== '') {

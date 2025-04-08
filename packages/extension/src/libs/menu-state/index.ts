@@ -14,12 +14,12 @@ class MenuState {
   }
 
   async getState(): Promise<IState> {
-    const state = this.storage.get(StorageKeys.menuState);
+    const state = await this.storage.get(StorageKeys.menuState);
     if (!state) {
       const newState: IState = {
-        isExpanded: true
-      }
-      return newState
+        isExpanded: true,
+      };
+      return newState;
     }
     return state;
   }
@@ -30,10 +30,9 @@ class MenuState {
   }
   async setIsExpanded(isExpanded: boolean): Promise<void> {
     const state: IState = await this.getState();
-    const newState: IState = { ...state, isExpanded }
+    const newState: IState = { ...state, isExpanded };
     await this.setState(newState);
   }
-
 }
 
 export default MenuState;
