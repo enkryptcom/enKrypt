@@ -12,7 +12,7 @@ const skaleOptions: SkaleParams = {
   name_long: 'BRAWL Chain | SKALE',
   chainName: 'frayed-decent-antares',
   chainID: '0x175b1806',
-  icon: 'skaleBlockBrawlers.png',
+  icon: 'skaleBlockBrawlers.webp',
   currencyName: 'BRAWL',
   currencyNameLong: 'BRAWL',
 };

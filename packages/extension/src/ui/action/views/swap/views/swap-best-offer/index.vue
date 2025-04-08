@@ -60,11 +60,10 @@
         </custom-scrollbar>
 
         <transaction-fee-view
+          v-model="isOpenSelectFee"
           :fees="gasCostValues"
-          :show-fees="isOpenSelectFee"
           :selected="selectedFee"
           :is-header="true"
-          @close-popup="toggleSelectFee"
           @gas-type-changed="selectFee"
         />
       </div>
@@ -83,7 +82,8 @@
       </div>
     </div>
     <swap-initiated
-      v-if="isInitiated"
+      v-if="isInitiated && network"
+      v-model="isInitiated"
       :is-loading="isTXSendLoading"
       :from-token="swapData.fromToken"
       :to-token="swapData.toToken"
@@ -92,6 +92,7 @@
       :is-hardware="account ? account.isHardware : false"
       :is-error="isTXSendError"
       :error-message="TXSendErrorMessage"
+      :network="network"
       @update:close="close"
       @update:try-again="sendAction"
     />
@@ -134,7 +135,7 @@ import BigNumber from 'bignumber.js';
 import { defaultGasCostVals } from '@/providers/common/libs/default-vals';
 import { SwapBestOfferWarnings } from '../../types';
 import { NATIVE_TOKEN_ADDRESS } from '@/providers/ethereum/libs/common';
-import { EnkryptAccount } from '@enkryptcom/types';
+import { EnkryptAccount, NetworkNames } from '@enkryptcom/types';
 import { getNetworkByName } from '@/libs/utils/networks';
 import {
   getNetworkInfoByName,
@@ -435,7 +436,18 @@ const sendAction = async () => {
       .catch(err => {
         console.error(err);
         isTXSendError.value = true;
-        TXSendErrorMessage.value = err.error ? err.error.message : err.message;
+        const error = err.error ? err.error.message : err.message;
+        if (network.value!.name !== NetworkNames.Solana) {
+          TXSendErrorMessage.value = err.error
+            ? err.error.message
+            : err.message;
+        } else {
+          TXSendErrorMessage.value = error
+            .toLowerCase()
+            .includes('simulation failed')
+            ? 'Network may be busy. Please try again at a later time.'
+            : error;
+        }
         trackSwapEvents(SwapEventType.swapFailed, {
           network: network.value!.name,
           fromToken: swapData.fromToken.name,

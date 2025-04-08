@@ -14,7 +14,7 @@ class UpdatesState {
   }
 
   async getState(): Promise<IState> {
-    const state = this.storage.get(StorageKeys.updatesInfo);
+    const state = await this.storage.get(StorageKeys.updatesInfo);
     if (!state) {
       const newState: IState = {
         lastVersionViewed: '',

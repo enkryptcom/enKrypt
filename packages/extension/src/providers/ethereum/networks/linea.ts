@@ -1,4 +1,4 @@
-import icon from './icons/linea.png';
+import icon from './icons/linea.webp';
 import { CoingeckoPlatform, NetworkNames } from '@enkryptcom/types';
 import { EvmNetwork, EvmNetworkOptions } from '../types/evm-network';
 import shNFTHandler from '@/libs/nft-handlers/simplehash';

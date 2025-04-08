@@ -3,8 +3,7 @@
     <div class="send-fee-select__value">
       <p class="send-fee-select__value-fiat">
         Fee:
-        {{ fee.fiatValue ? $filters.formatFiatValue(fee.fiatValue).value : '' }}
-        {{ fee.fiatSymbol ?? '' }}
+        {{ fee.fiatValue ? $filters.parseCurrency(fee.fiatValue) : '' }}
       </p>
       <p class="send-fee-select__value-crypto">
         {{

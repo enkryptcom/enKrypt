@@ -89,10 +89,9 @@ import Web3 from 'web3-eth';
 import { CustomEvmNetworkOptions } from '@/providers/ethereum/types/custom-evm-network';
 import { toHex } from 'web3-utils';
 import CustomNetworksState from '@/libs/custom-networks-state';
-import NetworksState from '@/libs/networks-state';
-
 import { trackNetwork } from '@/libs/metrics';
 import { NetworkChangeEvents } from '@/libs/metrics/types';
+import { useNetworksStore } from '@action/store/networks-store';
 
 interface NetworkConfigItem {
   name: string;
@@ -109,7 +108,7 @@ interface NetworkConfigItem {
 }
 
 const customNetworksState = new CustomNetworksState();
-const networksState = new NetworksState();
+const networksStore = useNetworksStore();
 
 const nameValue = ref<string>('');
 const nameInvalid = ref(false);
@@ -138,10 +137,6 @@ const isValid = computed<boolean>(() => {
 
   return true;
 });
-
-const emit = defineEmits<{
-  (e: 'update:pinNetwork', network: string, isPinned: boolean): void;
-}>();
 
 const props = defineProps({
   close: {
@@ -265,7 +260,7 @@ const sendAction = async () => {
   };
 
   await customNetworksState.addCustomNetwork(customNetworkOptions);
-  await networksState.setNetworkStatus(customNetworkOptions.name, true);
+  await networksStore.setIsPinnedNetwork(customNetworkOptions.name, true);
 
   trackNetwork(NetworkChangeEvents.NetworkCustomNetworkAdded, {
     customRpcUrl: customNetworkOptions.node,
@@ -278,7 +273,6 @@ const sendAction = async () => {
     customBlockExplorerUrlAddr: customNetworkOptions.blockExplorerAddr,
   });
 
-  emit('update:pinNetwork', customNetworkOptions.name, true);
   nameValue.value = '';
   symbolValue.value = '';
   chainIDValue.value = '';

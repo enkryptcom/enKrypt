@@ -10,8 +10,8 @@ export interface ZeroXResponseTransactionType {
 }
 
 export interface ZeroXResponseType {
-  code?: number;
-  reason?: string;
+  name?: string;
+  message?: string;
   buyAmount: string;
   sellAmount: string;
   transaction: ZeroXResponseTransactionType;

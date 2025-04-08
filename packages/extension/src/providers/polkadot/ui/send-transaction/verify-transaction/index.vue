@@ -66,6 +66,7 @@
 
     <send-process
       v-if="isProcessing"
+      v-model="isProcessing"
       :is-done="isSendDone"
       :is-nft="false"
       :to-address="txData.toAddress"
