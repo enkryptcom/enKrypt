@@ -161,6 +161,7 @@ const addAccount = async () => {
     line-height: 32px;
     color: @primaryLabel;
     margin: 0 0 16px 0;
+    max-width: 280px;
   }
   p {
     font-style: normal;
