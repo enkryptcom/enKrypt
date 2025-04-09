@@ -1,12 +1,5 @@
 <template>
-  <div
-    :class="[
-      isExpanded
-        ? 'lock-screen__container__expanded'
-        : 'lock-screen__container__collapsed',
-      'lock-screen__container',
-    ]"
-  >
+  <div class="lock-screen__container">
     <div
       v-show="!isForgot && !isLocked && !isUnlocking"
       class="lock-screen__wrap"
@@ -61,8 +54,6 @@ import { computed } from 'vue';
 import SwapLookingAnimation from '@action/icons/swap/swap-looking-animation.vue';
 import { trackGenericEvents } from '@/libs/metrics';
 import { GenericEvents } from '@/libs/metrics/types';
-import { useMenuStore } from '@action/store/menu-store';
-import { storeToRefs } from 'pinia';
 
 const emit = defineEmits<{
   (e: 'update:init'): void;
@@ -113,11 +104,6 @@ const resetAction = () => {
 const closeLockedAction = () => {
   isLocked.value = false;
 };
-/** -------------------
- * Exapnded State
- -------------------*/
-const menuStore = useMenuStore();
-const { isExpanded } = storeToRefs(menuStore);
 </script>
 
 <style lang="less" scoped>
@@ -128,12 +114,7 @@ const { isExpanded } = storeToRefs(menuStore);
   box-sizing: border-box;
   &__container {
     height: 600px;
-    &__collapsed {
-      width: 516px;
-    }
-    &__expanded {
-      width: 800px;
-    }
+    width: 100%;
     overflow-x: hidden;
     overflow-y: hidden;
     position: fixed;
