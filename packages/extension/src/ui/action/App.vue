@@ -1,11 +1,5 @@
 <template>
-  <div
-    :class="[
-      isExpanded ? 'expanded' : 'collapsed',
-      { locked: isLocked },
-      'app',
-    ]"
-  >
+  <div :class="[{ locked: isLocked }, 'app']">
     <div
       v-if="isLoading"
       :class="['app__loading', isExpanded ? 'expanded' : 'collapsed']"
@@ -498,7 +492,6 @@ body {
 }
 .app {
   height: 600px;
-
   overflow: hidden;
   position: relative;
   -webkit-transition:
