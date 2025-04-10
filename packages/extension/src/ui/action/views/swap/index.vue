@@ -22,7 +22,9 @@
               <app-select-address
                 v-if="fromSelectedNetwork"
                 v-model:selected-address="fromSelectedAddress"
-                :network="fromSelectedNetwork"
+                :network-name="fromSelectedNetwork.name"
+                :identicon="fromSelectedNetwork.identicon"
+                :is-valid-search-address="false"
                 title="Swap from account"
                 :has-external-accounts="false"
               ></app-select-address>

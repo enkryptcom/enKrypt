@@ -40,17 +40,36 @@
           <h1>{{ titleInbutton }}</h1>
         </div>
         <!-- Search -->
+        <div class="app-select-address__dialog__search">
+          <div class="app-select-address__avatar">
+            <img
+              v-if="searchIdenticon"
+              :src="searchIdenticon"
+              alt=""
+              width="32px"
+              height="32px"
+            />
+          </div>
+
+          <input
+            type="text"
+            v-model="search"
+            placeholder="Account name or address"
+            class="app-select-address__dialog__search__input"
+            @input="checkValidSearchAddress"
+          />
+        </div>
         <!-- List -->
         <div class="app-select-address__dialog__results">
-          <h2>{{ searchedTitle }}</h2>
           <custom-scrollbar
             class="app-select-address__dialog__scroll-area"
             :settings="scrollSettings({ suppressScrollX: true })"
           >
+            <h2>{{ myAccountsTitle }}</h2>
             <address-item
-              v-for="(account, index) in displayAccounts"
+              v-for="(account, index) in searchAccounts"
               :key="index"
-              :identicon="props.network?.identicon"
+              :identicon="props.identicon"
               :account="account"
               :address="account.address"
               :selected="selectedAddress"
@@ -66,7 +85,7 @@
 <script setup lang="ts">
 import { computed, PropType, ref, watchEffect, onMounted } from 'vue';
 import SwitchArrow from '@action/icons/header/switch_arrow.vue';
-import { EnkryptAccount } from '@enkryptcom/types';
+import { EnkryptAccount, NetworkNames } from '@enkryptcom/types';
 import { getAccountsByNetworkName } from '@/libs/utils/accounts';
 import { BaseNetwork } from '@/types/base-network';
 import WarningIcon from '@/ui/action/icons/common/warning-icon.vue';
@@ -74,11 +93,14 @@ import AppDialog from '@/ui/action/components/app-dialog/index.vue';
 import scrollSettings from '@/libs/utils/scroll-settings';
 import CustomScrollbar from '@action/components/custom-scrollbar/index.vue';
 import AddressItem from './components/address-item.vue';
+import { debounce } from 'lodash';
+import { Network } from 'bitcoinjs-lib';
+
 const props = defineProps({
-  network: {
-    type: Object as PropType<BaseNetwork>,
-    required: true,
-  },
+  // network: {
+  //   type: Object as PropType<BaseNetwork>,
+  //   required: true,
+  // },
   titleInbutton: {
     type: String,
     default: 'Select Address',
@@ -91,6 +113,18 @@ const props = defineProps({
     type: Boolean,
     default: true,
   },
+  networkName: {
+    type: String as PropType<NetworkNames>,
+    required: false,
+  },
+  identicon: {
+    type: Function,
+    default: () => '',
+  },
+  isValidSearchAddress: {
+    type: Boolean,
+    default: () => false,
+  },
 });
 
 /** -------------------
@@ -99,20 +133,24 @@ const props = defineProps({
 const selectedAddress = defineModel<string | undefined>('selected-address', {
   default: undefined,
 });
+
 const isLoadingAccounts = ref<boolean>(true);
 const displayAccounts = ref<EnkryptAccount[]>([]);
 
 const loadAccounts = async () => {
-  isLoadingAccounts.value = true;
-  displayAccounts.value = await getAccountsByNetworkName(props.network.name);
-  isLoadingAccounts.value = false;
+  if (props.networkName) {
+    isLoadingAccounts.value = true;
+    console.log('name', props.networkName);
+    displayAccounts.value = await getAccountsByNetworkName(props.networkName);
+    isLoadingAccounts.value = false;
+  }
 };
 
 onMounted(() => {
   loadAccounts();
 });
 watchEffect(() => {
-  if (props.network) {
+  if (props.networkName) {
     loadAccounts();
   }
 });
@@ -156,7 +194,7 @@ const displaySelectedSubtext = computed<string | undefined>(() => {
 });
 const displayIdenticon = computed(() => {
   if (selectedAddress.value) {
-    return props.network?.identicon(selectedAddress.value);
+    return props.identicon(selectedAddress.value);
   }
   return undefined;
 });
@@ -173,13 +211,41 @@ const openDialog = () => {
   isOpened.value = true;
 };
 
-const searchedTitle = computed(() => {
+const myAccountsTitle = computed(() => {
   // if (props.hasExternalAccounts) {
   //   return `My ${props.network.name} Accounts`;
   // }
   // return 'Select Address';
-  return `My ${props.network.name_long} Accounts`;
+  return `My ${props.networkName} Accounts`;
 });
+/** -------------------
+ * Search
+ -------------------*/
+const search = ref<string>('');
+const emit = defineEmits<{
+  (e: 'update:search', search: string): void;
+}>();
+
+const searchIdenticon = computed(() => {
+  if (search.value && props.isValidSearchAddress) {
+    return props.identicon(search.value);
+  }
+  return undefined;
+});
+
+const searchAccounts = computed(() => {
+  if (search.value) {
+    return displayAccounts.value.filter(
+      account =>
+        account.name.toLowerCase().includes(search.value.toLowerCase()) ||
+        account.address.toLowerCase().includes(search.value.toLowerCase()),
+    );
+  }
+  return displayAccounts.value;
+});
+const checkValidSearchAddress = debounce(() => {
+  emit('update:search', search.value);
+}, 200);
 </script>
 
 <style lang="less" scoped>
@@ -293,8 +359,7 @@ const searchedTitle = computed(() => {
     }
     &__results {
       border-top: 1px solid @gray02;
-      padding: 8px;
-      margin-top: 8px;
+      padding: 0 8px;
       h2 {
         font-family: Roboto;
         font-weight: 500;
@@ -306,9 +371,40 @@ const searchedTitle = computed(() => {
     }
     &__scroll-area {
       position: relative;
-      margin: auto;
       width: 100%;
       max-height: 400px !important;
+      margin: 0 0 8px 0;
+      padding: 0 !important;
+      &.ps--active-y {
+        padding-right: 0;
+      }
+    }
+    .ps__rail-y {
+      right: 0px !important;
+    }
+
+    &__search {
+      display: flex;
+      align-items: center;
+      min-height: 56px;
+      padding: 0px 16px;
+      gap: 8px;
+
+      input {
+        width: 100%;
+        height: 40px;
+        border-radius: 10px;
+        border: 0px;
+        padding: 4px;
+        border: 0 none;
+        outline: none;
+        font-style: normal;
+        font-weight: normal;
+        font-size: 14px;
+        line-height: 20px;
+        letter-spacing: 0.25px;
+        color: @primaryLabel;
+      }
     }
   }
 }
