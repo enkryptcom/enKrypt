@@ -140,7 +140,6 @@ const displayAccounts = ref<EnkryptAccount[]>([]);
 const loadAccounts = async () => {
   if (props.networkName) {
     isLoadingAccounts.value = true;
-    console.log('name', props.networkName);
     displayAccounts.value = await getAccountsByNetworkName(props.networkName);
     isLoadingAccounts.value = false;
   }
