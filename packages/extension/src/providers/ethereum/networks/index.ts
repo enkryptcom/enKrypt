@@ -71,6 +71,8 @@ import abstractNode from './abstract';
 import inkNode from './inkonchain';
 import taraxa from './taraxa';
 import coti from './coti';
+import unitZero from './unitzero';
+import unitZeroTestnet from './unitzero-testnet';
 
 export default {
   sepolia: sepoliaNode,
@@ -154,5 +156,7 @@ export default {
   unichain: unichainNode,
   abstract: abstractNode,
   ink: inkNode,
-  coti: coti
+  coti: coti,
+  unitZero: unitZero,
+  unitZeroTestnet: unitZeroTestnet
 };
