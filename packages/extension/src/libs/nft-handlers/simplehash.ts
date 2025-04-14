@@ -39,6 +39,8 @@ export default async (
     [NetworkNames.Palm]: 'palm',
     [NetworkNames.ProofOfPlayApex]: 'proof-of-play',
     [NetworkNames.Scroll]: 'scroll',
+    [NetworkNames.Unichain]: 'unichain',
+    [NetworkNames.Bera]: 'berachain'
   };
   if (!Object.keys(supportedNetworks).includes(network.name))
     throw new Error('Simplehash: network not supported');
@@ -46,9 +48,8 @@ export default async (
   const fetchAll = (continuation?: string): Promise<void> => {
     const query = continuation
       ? continuation
-      : `${SH_ENDPOINT}owners_v2?chains=${
-          supportedNetworks[network.name as keyof typeof supportedNetworks]
-        }&wallet_addresses=${address}&filters=spam_score__lte=75`;
+      : `${SH_ENDPOINT}owners_v2?chains=${supportedNetworks[network.name as keyof typeof supportedNetworks]
+      }&wallet_addresses=${address}&filters=spam_score__lte=75`;
     return cacheFetch(
       {
         url: query,

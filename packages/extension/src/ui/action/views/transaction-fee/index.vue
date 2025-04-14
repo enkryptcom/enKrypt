@@ -23,11 +23,7 @@
         <div class="transaction-fee__info">
           <div class="transaction-fee__info-amount">
             <p class="transaction-fee__info-amount-fiat">
-              {{
-                $filters.parseCurrency(
-                  $filters.formatFiatValue(fees[selected].fiatValue).value,
-                )
-              }}
+              {{ $filters.parseCurrency(fees[selected].fiatValue) }}
             </p>
             <p class="transaction-fee__info-amount-crypto">
               {{

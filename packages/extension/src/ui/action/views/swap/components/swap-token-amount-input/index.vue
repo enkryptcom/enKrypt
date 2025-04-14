@@ -11,6 +11,7 @@
       />
       <swap-token-select v-bind="$attrs" :token="token" />
     </div>
+<<<<<<< HEAD
     <div class="swap-token-input__row">
       <div v-if="errorMessage" class="swap-token-input__invalid">
         {{ errorMessage }}
@@ -30,6 +31,13 @@
         Balance:
         {{ $filters.formatFloatingPointValue(tokenBalance).value }}
       </div>
+=======
+    <div
+      v-else-if="!!token && Number(value) > 0"
+      class="swap-token-input__fiat"
+    >
+      ≈ {{ $filters.parseCurrency(tokenPrice) }}
+>>>>>>> develop
     </div>
   </div>
 </template>

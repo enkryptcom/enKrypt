@@ -33,7 +33,7 @@ import {
 import estimateEVMGasList from "../../common/estimateGasList";
 import { isEVMAddress } from "../../utils/common";
 // checked against https://0x.org/docs/developer-resources/core-concepts/contracts#allowanceholder-address
-const ZEROX_APPROVAL_ADDRESS = '0x0000000000001fF3684f28c67538d4D072C22734';
+const ZEROX_APPROVAL_ADDRESS = "0x0000000000001fF3684f28c67538d4D072C22734";
 const supportedNetworks: {
   [key in SupportedNetworkName]?: { approvalAddress: string; chainId: string };
 } = {
@@ -147,8 +147,10 @@ class ZeroX extends ProviderClass {
       // zerox doesnt allow different to address
       return Promise.resolve(null);
     const feeConfig = FEE_CONFIGS[this.name][meta.walletIdentifier];
-    const bpsFee = Math.ceil(parseFloat((feeConfig.fee * 100).toFixed(4)) * 100);
-    const feeContract = options.toToken.address
+    const bpsFee = Math.ceil(
+      parseFloat((feeConfig.fee * 100).toFixed(4)) * 100,
+    );
+    const feeContract = options.toToken.address;
     const params = new URLSearchParams({
       sellToken: options.fromToken.address,
       buyToken: options.toToken.address,
@@ -165,7 +167,8 @@ class ZeroX extends ProviderClass {
       affiliateAddress: feeConfig ? feeConfig.referrer : "",
     });
     return fetch(
-      `${BASE_URL}/swap/allowance-holder/quote?chainId=${supportedNetworks[this.network].chainId
+      `${BASE_URL}/swap/allowance-holder/quote?chainId=${
+        supportedNetworks[this.network].chainId
       }&${params.toString()}`,
     )
       .then((res) => res.json())

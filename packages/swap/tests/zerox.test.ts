@@ -23,7 +23,7 @@ describe("Zerox Provider", () => {
   // @ts-ignore
   const web3eth = new Web3Eth(nodeURL);
   const zerox = new Zerox(web3eth, SupportedNetworkName.Ethereum);
-  const ZEROX_APPROVAL = "0xdef1c0ded9bec7f1a1670819833240f027b25eff";
+  const ZEROX_APPROVAL = "0x0000000000001ff3684f28c67538d4d072c22734";
 
   if (process.env.CI) {
     // We need at-least one test otherwise vitest reports failure

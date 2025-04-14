@@ -1,5 +1,10 @@
 <template>
-  <app-dialog v-model="model" width="344px" is-centered>
+  <app-dialog
+    v-model="model"
+    width="344px"
+    is-centered
+    @close:dialog="closeWindow"
+  >
     <div class="add-account-form">
       <h3>Add new {{ network.name_long }} account</h3>
 
@@ -97,12 +102,20 @@ const setNewAccountInfo = async () => {
     }
   });
 };
-onMounted(() => {
-  setNewAccountInfo();
-  if (addAccountInput.value) {
-    (addAccountInput.value as HTMLInputElement).focus();
-  }
-});
+
+watch(
+  () => model.value,
+  async () => {
+    if (model.value) {
+      accountName.value = '';
+      setNewAccountInfo();
+      if (addAccountInput.value) {
+        (addAccountInput.value as HTMLInputElement).focus();
+      }
+    }
+  },
+);
+
 watch(accountName, async () => {
   isDisabled.value = false;
   if (accountName.value.length < 3) return (isDisabled.value = true);

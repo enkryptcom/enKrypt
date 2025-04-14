@@ -294,6 +294,7 @@ onMounted(async () => {
     }
     updatesStore.init();
     menuStore.init();
+    fetchAndSetRates();
   } else {
     openOnboard();
   }

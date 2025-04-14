@@ -2,9 +2,7 @@
   <div class="verify-transaction-fee">
     <p class="verify-transaction-fee__fiat">
       Network fee:
-      {{
-        $filters.parseCurrency($filters.formatFiatValue(fee.fiatValue).value)
-      }}
+      {{ $filters.parseCurrency(fee.fiatValue) }}
     </p>
     <p class="verify-transaction-fee__crypto">
       {{ $filters.formatFloatingPointValue(fee.nativeValue).value }}

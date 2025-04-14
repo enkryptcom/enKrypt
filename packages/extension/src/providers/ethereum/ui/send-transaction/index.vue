@@ -452,7 +452,7 @@ const errorMsg = computed(() => {
     return `Not enough funds. You are
       ~${formatFloatingPointValue(nativeBalanceAfterTransactionInHumanUnits.value).value}
       ${props.network.currencyName} (${parseCurrency(
-        formatFiatValue(balanceAfterInUsd.value).value,
+        balanceAfterInUsd.value,
       )}) short.`;
   }
 
