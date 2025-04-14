@@ -97,14 +97,14 @@ const onlyNumber = ($event: KeyboardEvent) => {
   outline: none;
   background: @white;
   margin: 0;
-  padding: 0 76px 0 16px;
+  padding: 0px 10px 0px 0;
   font-style: normal;
   font-weight: 400;
-  font-size: 34px;
+  font-size: 32px;
   line-height: 40px;
   letter-spacing: 0.25px;
   color: @primaryLabel;
-  width: 100%;
+  width: 230px;
   box-sizing: border-box;
   border: 0 none;
   -moz-appearance: textfield;
