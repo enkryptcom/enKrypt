@@ -1,7 +1,12 @@
 <template>
   <div class="app-select-address__container">
     <!-- Button -->
-    <button class="app-select-address" @click="openDialog">
+    <button
+      class="app-select-address"
+      @click="openDialog"
+      :class="{ skeleton: isLoading }"
+      :disabled="isLoading"
+    >
       <div class="app-select-address__avatar">
         <!-- Selected Identicon -->
         <img
@@ -27,9 +32,7 @@
           {{ displaySelectedSubtext }}
         </div>
       </div>
-      <div v-else class="app-select-address__no-selection">
-        Select From Address
-      </div>
+      <div v-else class="app-select-address__no-selection">Loading Address</div>
       <switch-arrow class="app-select-address__arrow" />
     </button>
     <!-- Address Input Dialog-->
@@ -87,20 +90,14 @@ import { computed, PropType, ref, watchEffect, onMounted } from 'vue';
 import SwitchArrow from '@action/icons/header/switch_arrow.vue';
 import { EnkryptAccount, NetworkNames } from '@enkryptcom/types';
 import { getAccountsByNetworkName } from '@/libs/utils/accounts';
-import { BaseNetwork } from '@/types/base-network';
 import WarningIcon from '@/ui/action/icons/common/warning-icon.vue';
 import AppDialog from '@/ui/action/components/app-dialog/index.vue';
 import scrollSettings from '@/libs/utils/scroll-settings';
 import CustomScrollbar from '@action/components/custom-scrollbar/index.vue';
 import AddressItem from './components/address-item.vue';
 import { debounce } from 'lodash';
-import { Network } from 'bitcoinjs-lib';
 
 const props = defineProps({
-  // network: {
-  //   type: Object as PropType<BaseNetwork>,
-  //   required: true,
-  // },
   titleInbutton: {
     type: String,
     default: 'Select Address',
@@ -124,6 +121,10 @@ const props = defineProps({
   isValidSearchAddress: {
     type: Boolean,
     default: () => false,
+  },
+  isLoading: {
+    type: Boolean,
+    default: () => true,
   },
 });
 
@@ -250,8 +251,9 @@ const checkValidSearchAddress = debounce(() => {
 <style lang="less" scoped>
 @import '@action/styles/theme.less';
 .app-select-address {
-  button {
-    all: unset;
+  &:focus-visible {
+    outline: none !important;
+    border-color: @primary;
   }
   &__container {
     display: flex;
@@ -263,6 +265,7 @@ const checkValidSearchAddress = debounce(() => {
   box-sizing: border-box;
   border-radius: 10px;
   border: 1px solid @grey08;
+  height: 52px;
   display: flex;
   justify-content: flex-start;
   align-items: center;
@@ -278,7 +281,7 @@ const checkValidSearchAddress = debounce(() => {
 
   &__avatar {
     flex-basis: auto;
-    background: @grey16;
+    background: @white;
     box-shadow: inset 0px 0px 1px rgba(0, 0, 0, 0.16);
     min-width: 32px;
     height: 32px;
@@ -321,11 +324,11 @@ const checkValidSearchAddress = debounce(() => {
     }
   }
   &__no-selection {
-    font-weight: 400;
-    font-size: 14px;
-    line-height: 20px;
-    letter-spacing: 0.25px;
+    font-size: 12px;
+    line-height: 16px;
+    letter-spacing: 0.5px;
     color: @black06;
+    letter-spacing: 0.25px;
     margin: 0;
     text-overflow: ellipsis;
     overflow: hidden;

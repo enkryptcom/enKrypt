@@ -1,22 +1,22 @@
 <template>
   <div class="swap-network-select__container">
-    <a
-      v-if="network"
+    <button
       class="swap-network-select"
+      :class="{ skeleton: !network }"
       @click="$emit('toggle:select')"
+      :disabled="!network"
     >
       <div class="swap-network-select__image">
-        <img :src="network.logoURI" alt="" />
+        <img v-if="network" :src="network.logoURI" alt="" />
       </div>
       <div class="swap-network-select__info">
         <h5>Network</h5>
-        <p>
+        <p v-if="network">
           {{ network.name }}
         </p>
       </div>
-
       <switch-arrow class="swap-network-select__arrow" />
-    </a>
+    </button>
   </div>
 </template>
 
@@ -31,16 +31,20 @@ defineEmits<{
 defineProps({
   network: {
     type: Object as PropType<NetworkInfo | null>,
-    default: () => {
-      return {};
-    },
   },
 });
 </script>
 
 <style lang="less">
 @import '@action/styles/theme.less';
+
 .swap-network-select {
+  flex-grow: 1;
+  width: 100%;
+  &:focus-visible {
+    outline: none !important;
+    border-color: @primary;
+  }
   &__container {
     flex-grow: 1;
     width: 100%;
@@ -50,6 +54,7 @@ defineProps({
   box-sizing: border-box;
   border-radius: 10px;
   border: 1px solid @grey08;
+  height: 52px;
   display: flex;
   justify-content: flex-start;
   align-items: center;
@@ -77,6 +82,7 @@ defineProps({
   }
   &__info {
     flex-shrink: 1;
+    text-align: left;
     h5 {
       font-weight: 400;
       font-size: 12px;
@@ -95,6 +101,11 @@ defineProps({
       span {
         font-variant: small-caps;
       }
+    }
+    &__loading {
+      width: 80px;
+      height: 20px;
+      border-radius: 20px;
     }
   }
   &__arrow {

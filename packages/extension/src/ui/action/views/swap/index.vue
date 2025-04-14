@@ -4,9 +4,9 @@
       <div v-if="!!selected" class="swap">
         <div class="swap__header">
           <h3>Swap</h3>
-          <a class="swap__close" @click="router.go(-1)">
+          <button class="swap__close" @click="router.go(-1)">
             <close-icon />
-          </a>
+          </button>
         </div>
 
         <div class="swap__wrap">
@@ -15,19 +15,18 @@
             <h2>From</h2>
             <div class="swap__wrap__row">
               <swap-network-select
-                v-if="toNetwork"
                 :network="toNetwork"
                 @toggle:select="toggleToNetwork"
               />
-              <app-select-address
-                v-if="fromSelectedNetwork"
+              <swap-address-select
                 v-model:selected-address="fromSelectedAddress"
+                :is-loading="!toNetwork || !fromSelectedAddress"
                 :network-name="fromSelectedNetwork.name"
                 :identicon="fromSelectedNetwork.identicon"
                 :is-valid-search-address="false"
                 title="Swap from account"
                 :has-external-accounts="false"
-              ></app-select-address>
+              ></swap-address-select>
             </div>
             <swap-token-amount-input
               v-if="fromToken"
@@ -40,9 +39,40 @@
               @update:value="inputAmountFrom"
             />
           </div>
-          <a class="swap__arrows"><swap-arrows /></a>
-
-          <div class="swap__wrap__container"></div>
+          <button class="swap__arrows" @click="reverseFromAndTo">
+            <swap-arrows />
+          </button>
+          <!-- TO NETWORK, ADDRESS, TOKEN -->
+          <div class="swap__wrap__container">
+            <h2>To</h2>
+            <div class="swap__wrap__row">
+              <swap-network-select
+                v-if="toNetwork"
+                :network="toNetwork"
+                @toggle:select="toggleToNetwork"
+              />
+              <swap-address-select
+                v-if="fromSelectedNetwork"
+                v-model:selected-address="fromSelectedAddress"
+                :is-loading="!toNetwork || !fromSelectedAddress"
+                :network-name="fromSelectedNetwork.name"
+                :identicon="fromSelectedNetwork.identicon"
+                :is-valid-search-address="false"
+                title="Swap from account"
+                :has-external-accounts="false"
+              ></swap-address-select>
+            </div>
+            <swap-token-amount-input
+              v-if="fromToken"
+              :value="fromAmount || ''"
+              :token="fromToken"
+              :autofocus="true"
+              :error-message="errors.inputAmount"
+              @update:input-max="setMax"
+              @toggle:select="toggleFromToken"
+              @update:value="inputAmountFrom"
+            />
+          </div>
 
           <!-- <swap-token-to-amount
             :token="toToken"
@@ -79,13 +109,13 @@
         </div>
 
         <div class="swap__buttons">
-          <div class="swap__buttons-cancel">
+          <!-- <div class="swap__buttons-cancel">
             <base-button
               title="Cancel"
               :no-background="true"
               @click="router.go(-1)"
             />
-          </div>
+          </div> -->
           <div class="swap__buttons-send">
             <base-button
               :title="sendButtonTitle"
@@ -147,6 +177,7 @@ import SwapLooking from './components/swap-loading/index.vue';
 import SwapErrorPopup from './components/swap-error/index.vue';
 import SendAddressInput from './components/send-address-input.vue';
 import SendContactsList from './components/send-contacts-list.vue';
+import SwapAddressSelect from './components/swap-address-select/index.vue';
 // import SwapAddressInput from './components/swap-address-input/index.vue';
 import { getAccountsByNetworkName } from '@/libs/utils/accounts';
 import { AccountsHeaderData } from '../../types/account';
@@ -266,6 +297,17 @@ const toSelectOpened = ref(false);
 const isLooking = ref(false);
 
 const swapMax = ref(false);
+
+const reverseFromAndTo = () => {
+  console.log('Reverse from and to');
+  // const from = fromToken.value;
+  // const to = toToken.value;
+  // fromToken.value = to;
+  // toToken.value = from;
+  // const fromAmountVal = fromAmount.value;
+  // fromAmount.value = toAmount.value;
+  // toAmount.value = fromAmountVal;
+};
 
 let api: Web3Eth | Connection;
 switch (props.network.name) {
@@ -951,9 +993,15 @@ const sendAction = async () => {
     cursor: pointer;
     font-size: 0;
     transition: background 300ms ease-in-out;
+    width: 40px;
+    height: 40px;
+    padding: 0px;
 
     &:hover {
       background: @black007;
+    }
+    &:focus-visible {
+      outline: 1px solid @primary;
     }
   }
 
@@ -966,12 +1014,11 @@ const sendAction = async () => {
     flex-direction: column;
     width: 100%;
     box-sizing: border-box;
-    height: calc(~'100% - 172px');
     overflow-y: auto;
     gap: 4px;
     position: relative;
     &__container {
-      padding: 16px;
+      padding: 12px 16px 16px 16px;
       background-color: @lightSurfaceBg;
       border-radius: 20px;
       flex: 1;
@@ -1006,20 +1053,29 @@ const sendAction = async () => {
     text-decoration: none;
     background-color: @white;
     border-radius: 12px;
-    width: 28px;
-    height: 28px;
+    width: 32px;
+    height: 32px;
     border: 1px solid @grey08;
+    box-sizing: border-box;
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translateX(-50%) translateY(-50%);
+    transition: background 300ms ease-in-out;
+    cursor: pointer;
+    &:hover {
+      background: @black007;
+    }
+    &:focus-visible {
+      outline: 1px solid @primary;
+    }
   }
 
   &__buttons {
     position: absolute;
     left: 0;
     bottom: 0;
-    padding: 32px;
+    padding: 8px 32px 32px 32px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -1028,28 +1084,28 @@ const sendAction = async () => {
     box-sizing: border-box;
     background-color: @white;
 
-    &-cancel {
-      width: 140px;
-    }
+    // &-cancel {
+    //   width: 140px;
+    // }
 
     &-send {
-      width: 248px;
+      width: 100%;
     }
   }
 
-  .send-address-input {
-    margin: 8px 0 8px 0;
-    width: 100%;
-  }
+  // .send-address-input {
+  //   margin: 8px 0 8px 0;
+  //   width: 100%;
+  // }
 }
 </style>
 
-<style lang="less">
+<!-- <style lang="less">
 .swap {
   .send-contacts-list__wrap {
-    top: 482px;
-    max-height: 114px;
-    padding: 0;
+    // top: 482px;
+    // max-height: 114px;
+    // padding: 0;
   }
 
   .send-contacts-list__scroll-area {
@@ -1070,4 +1126,4 @@ const sendAction = async () => {
     display: none;
   }
 }
-</style>
+</style> -->

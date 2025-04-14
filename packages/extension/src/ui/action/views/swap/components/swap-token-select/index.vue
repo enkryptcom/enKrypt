@@ -1,7 +1,16 @@
 <template>
-  <button v-if="!!token" class="swap-token-select" @click="open">
-    <div class="swap-token-select__image">
+  <button
+    class="swap-token-select"
+    :class="{ skeleton: !token }"
+    @click="open"
+    :disabled="!token"
+  >
+    <div
+      class="swap-token-select__image"
+      :class="{ 'swap-token-select__image__loading': !token }"
+    >
       <img
+        v-if="token"
         :src="token.logoURI"
         alt=""
         @error="imageLoadError"
@@ -10,24 +19,16 @@
       />
     </div>
     <div class="swap-token-select__info">
-      <h5>
+      <h5 v-if="token">
         {{ $filters.truncate(token.symbol, 5) }}
       </h5>
+      <div v-else class="swap-token-select__info__loading">Loading</div>
     </div>
 
     <div class="swap-token-select__arrow">
       <switch-arrow />
     </div>
   </button>
-  <a v-else class="swap-token-select" @click="open">
-    <div v-show="!token" class="swap-token-select__info">
-      <h4>Select token</h4>
-    </div>
-
-    <div class="swap-token-select__arrow">
-      <switch-arrow />
-    </div>
-  </a>
 </template>
 
 <script setup lang="ts">
@@ -41,12 +42,9 @@ const emit = defineEmits<{
   (e: 'toggle:select', isOpen: boolean): void;
 }>();
 
-const props = defineProps({
+defineProps({
   token: {
     type: Object as PropType<TokenType | null>,
-    default: () => {
-      return {};
-    },
   },
 });
 
@@ -59,6 +57,10 @@ const open = () => {
 <style lang="less">
 @import '@action/styles/theme.less';
 .swap-token-select {
+  &:focus-visible {
+    outline: none !important;
+    border: 1px solid @primary;
+  }
   height: 36px;
   background: @lightSurfaceBg;
   box-sizing: border-box;
@@ -87,10 +89,15 @@ const open = () => {
     border-radius: 100%;
     overflow: hidden;
     margin-right: 8px;
+    transition: background 300ms ease-in-out;
+
     img {
       width: 100%;
       height: 100%;
       object-fit: contain;
+    }
+    &__loading {
+      background: @white;
     }
   }
   &__info {
@@ -102,15 +109,13 @@ const open = () => {
       color: @primaryLabel;
       margin: 0;
     }
-    p {
+    &__loading {
       font-style: normal;
       font-weight: 400;
       font-size: 12px;
       line-height: 16px;
       letter-spacing: 0.5px;
       color: @secondaryLabel;
-      margin: 0;
-      width: 290px;
       span {
         font-variant: small-caps;
       }
@@ -120,7 +125,7 @@ const open = () => {
     margin-left: auto;
     width: 24px;
     height: 24px;
-    margin-right: -4px;
+    margin-right: -2px;
   }
 }
 </style>

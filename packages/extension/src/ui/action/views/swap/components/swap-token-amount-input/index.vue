@@ -2,7 +2,6 @@
   <div class="swap-token-input" :class="{ focus: isFocus }">
     <div class="swap-token-input__row">
       <swap-token-amount-input
-        v-show="!!token"
         placeholder="0.0"
         v-bind="$attrs"
         :value="value"
@@ -26,6 +25,7 @@
       </div>
       <div
         class="swap-token-input__secondary-label swap-token-input__secondary-label__balance"
+        :class="{ focus: isFocus }"
       >
         Balance:
         {{ $filters.formatFloatingPointValue(tokenBalance).value }}
@@ -47,7 +47,7 @@ defineEmits<{
 
 interface IProps {
   value: string;
-  token: TokenType;
+  token: TokenType | null;
   autofocus: boolean;
   errorMessage?: string;
 }
@@ -57,7 +57,7 @@ const props = defineProps<IProps>();
 const isFocus = ref(false);
 
 const tokenPrice = computed(() => {
-  if (props.value !== '') {
+  if (props.value !== '' && props.token) {
     const Token = new SwapToken(props.token);
     return Token.getReadableToFiat(props.value);
   }
@@ -65,6 +65,9 @@ const tokenPrice = computed(() => {
 });
 
 const tokenBalance = computed(() => {
+  if (!props.token) {
+    return 0;
+  }
   return new SwapToken(props.token).getBalanceReadable();
 });
 
@@ -77,7 +80,7 @@ const changeFocus = (newVal: boolean) => {
 @import '@action/styles/theme.less';
 .swap-token-input {
   width: 100%;
-  min-height: 100px;
+  height: 100px;
   border: 1px solid @grey08;
   box-sizing: border-box;
   border-radius: 10px;
@@ -103,11 +106,14 @@ const changeFocus = (newVal: boolean) => {
     padding-top: 8px;
     padding-left: 2px;
     &__fiat {
-      color: @tertiaryLabel;
+      color: @black06;
     }
     &__balance {
-      color: @primaryDarker;
+      color: @black06;
       margin-left: auto;
+      .focus {
+        color: @primaryDarker;
+      }
     }
   }
 
