@@ -34,7 +34,6 @@
               :token="fromToken"
               :autofocus="true"
               :error-message="errors.inputAmount"
-              @update:input-max="setMax"
               @toggle:select="toggleFromToken"
               @update:value="inputAmountFrom"
             />
@@ -66,56 +65,15 @@
               v-if="fromToken"
               :value="fromAmount || ''"
               :token="fromToken"
-              :autofocus="true"
+              :autofocus="false"
               :error-message="errors.inputAmount"
-              @update:input-max="setMax"
-              @toggle:select="toggleFromToken"
+              @toggle:select="toggleToToken"
               @update:value="inputAmountFrom"
             />
           </div>
-
-          <!-- <swap-token-to-amount
-            :token="toToken"
-            :is-finding-rate="isFindingRate"
-            :fast-list="trendingToTokens"
-            :total-tokens="toTokens.length - trendingToTokens.length"
-            :amount="toAmount"
-            :no-providers="errors.noProviders"
-            @update:select-asset="selectTokenTo"
-            @toggle:select="toggleToToken"
-          /> -->
-
-          <!-- <send-address-input
-            ref="addressInput"
-            :value="address"
-            :is-valid-address="addressIsValid"
-            :network-name="toAddressInputMeta.networkName"
-            :display-address="toAddressInputMeta.displayAddress"
-            :identicon="toAddressInputMeta.identicon"
-            @update:input-address="inputAddress"
-            @toggle:show-contacts="toggleSelectContact"
-          /> -->
-
-          <!-- <send-contacts-list
-            :show-accounts="isOpenSelectContact"
-            :accounts="toAccounts"
-            :address="address"
-            :display-address="toAddressInputMeta.displayAddress"
-            :identicon="toAddressInputMeta.identicon"
-            @selected:account="selectAccount"
-            @update:paste-from-clipboard="addressInput.pasteFromClipboard()"
-            @close="toggleSelectContact"
-          /> -->
         </div>
 
         <div class="swap__buttons">
-          <!-- <div class="swap__buttons-cancel">
-            <base-button
-              title="Cancel"
-              :no-background="true"
-              @click="router.go(-1)"
-            />
-          </div> -->
           <div class="swap__buttons-send">
             <base-button
               :title="sendButtonTitle"
@@ -169,16 +127,11 @@ import CloseIcon from '@action/icons/common/close-icon.vue';
 import SwapArrows from '@action/icons/swap/swap-arrows.vue';
 import BaseButton from '@action/components/base-button/index.vue';
 import SwapTokenAmountInput from './components/swap-token-amount-input/index.vue';
-import SwapTokenToAmount from './components/swap-token-to-amount/index.vue';
-import AppSelectAddress from '@action/components/app-select-address/index.vue';
 import AssetsSelectList from './components/swap-assets-select-list.vue';
 import NetworkSelectList from './components/swap-network-select/network-select-list.vue';
 import SwapLooking from './components/swap-loading/index.vue';
 import SwapErrorPopup from './components/swap-error/index.vue';
-import SendAddressInput from './components/send-address-input.vue';
-import SendContactsList from './components/send-contacts-list.vue';
 import SwapAddressSelect from './components/swap-address-select/index.vue';
-// import SwapAddressInput from './components/swap-address-input/index.vue';
 import { getAccountsByNetworkName } from '@/libs/utils/accounts';
 import { AccountsHeaderData } from '../../types/account';
 import { getNetworkByName } from '@/libs/utils/networks';
@@ -276,17 +229,12 @@ const toAddressInputMeta = ref({
 const errors = ref({ inputAmount: '', noProviders: false });
 const bestProviderQuotes = ref<ProviderQuoteResponse[]>([]);
 
-const fromAccount = ref<EnkryptAccount | undefined>(
-  props.accountInfo.selectedAccount!,
-);
 /** Receiver address (address that will be receiving the swap output) */
 const address = ref<string>('');
 
 /** Is the receiver address valid */
 const addressIsValid = ref(true);
 
-const isOpenSelectContact = ref<boolean>(false);
-const addressInput = ref();
 const toAccounts = ref<EnkryptAccount[]>([]);
 
 const fetchingTokens = ref(true);
@@ -299,14 +247,7 @@ const isLooking = ref(false);
 const swapMax = ref(false);
 
 const reverseFromAndTo = () => {
-  console.log('Reverse from and to');
-  // const from = fromToken.value;
-  // const to = toToken.value;
-  // fromToken.value = to;
-  // toToken.value = from;
-  // const fromAmountVal = fromAmount.value;
-  // fromAmount.value = toAmount.value;
-  // toAmount.value = fromAmountVal;
+  console.log('Reverse from and to token and amount');
 };
 
 let api: Web3Eth | Connection;
@@ -468,10 +409,6 @@ const setToTokens = () => {
   );
 };
 
-const setMax = () => {
-  fromAmount.value = new SwapToken(fromToken.value!).getBalanceReadable();
-};
-
 const inputAddress = (text: string) => {
   const debounceResolve = debounce(() => {
     nameResolver
@@ -489,10 +426,6 @@ const inputAddress = (text: string) => {
     address.value = text;
   }
   isValidToAddress();
-};
-
-const toggleSelectContact = () => {
-  isOpenSelectContact.value = !isOpenSelectContact.value;
 };
 
 /**
@@ -798,11 +731,6 @@ const inputAmountFrom = async (newVal: string) => {
   swapMax.value = false;
   errors.value.inputAmount = '';
 };
-const selectAccount = (account: string) => {
-  address.value = account;
-  isValidToAddress();
-  isOpenSelectContact.value = false;
-};
 
 const toggleToNetwork = () => {
   toNetworkOpen.value = !toNetworkOpen.value;
@@ -1084,46 +1012,9 @@ const sendAction = async () => {
     box-sizing: border-box;
     background-color: @white;
 
-    // &-cancel {
-    //   width: 140px;
-    // }
-
     &-send {
       width: 100%;
     }
   }
-
-  // .send-address-input {
-  //   margin: 8px 0 8px 0;
-  //   width: 100%;
-  // }
 }
 </style>
-
-<!-- <style lang="less">
-.swap {
-  .send-contacts-list__wrap {
-    // top: 482px;
-    // max-height: 114px;
-    // padding: 0;
-  }
-
-  .send-contacts-list__scroll-area {
-    max-height: 114px;
-    padding: 8px;
-    box-sizing: border-box;
-
-    h3 {
-      display: none;
-    }
-
-    .ps__rail-y {
-      right: 3px !important;
-    }
-  }
-
-  .send-contacts-list__buttons {
-    display: none;
-  }
-}
-</style> -->
