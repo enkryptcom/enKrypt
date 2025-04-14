@@ -212,10 +212,6 @@ const openDialog = () => {
 };
 
 const myAccountsTitle = computed(() => {
-  // if (props.hasExternalAccounts) {
-  //   return `My ${props.network.name} Accounts`;
-  // }
-  // return 'Select Address';
   return `My ${props.networkName} Accounts`;
 });
 /** -------------------

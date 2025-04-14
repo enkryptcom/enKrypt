@@ -59,7 +59,7 @@
                 :identicon="fromSelectedNetwork.identicon"
                 :is-valid-search-address="false"
                 title="Swap from account"
-                :has-external-accounts="false"
+                :has-external-accounts="true"
               ></swap-address-select>
             </div>
             <swap-token-amount-input
