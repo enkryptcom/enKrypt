@@ -15,6 +15,7 @@ const coti: EvmNetworkOptions = {
   currencyName: 'COTI',
   currencyNameLong: 'COTI',
   node: 'https://mainnet.coti.io/rpc',
+  coingeckoID: 'coti',
   icon,
   activityHandler: wrapActivityHandler(EtherscanActivity),
 };
