@@ -68,7 +68,9 @@ const resetAction = async () => {
   const keyring = new KeyRingBase();
   await keyring.reset();
   emit('action:lock');
-  openOnboard();
+  openOnboard().then(() => {
+    window.close();
+  });
 };
 </script>
 
