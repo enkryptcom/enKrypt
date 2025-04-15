@@ -1,19 +1,23 @@
 <template>
-  <a v-if="network" class="swap-token-select" @click="$emit('toggle:select')">
-    <div class="swap-token-select__image">
-      <img :src="network.logoURI" alt="" />
-    </div>
-    <div class="swap-token-select__info">
-      <h5>To Network</h5>
-      <p>
-        {{ network.name }}
-      </p>
-    </div>
-
-    <div class="swap-token-select__arrow">
-      <switch-arrow />
-    </div>
-  </a>
+  <div class="swap-network-select__container">
+    <button
+      class="swap-network-select"
+      :class="{ skeleton: !network }"
+      @click="$emit('toggle:select')"
+      :disabled="!network"
+    >
+      <div class="swap-network-select__image">
+        <img v-if="network" :src="network.logoURI" alt="" />
+      </div>
+      <div class="swap-network-select__info">
+        <h5>Network</h5>
+        <p v-if="network">
+          {{ network.name }}
+        </p>
+      </div>
+      <switch-arrow class="swap-network-select__arrow" />
+    </button>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -27,28 +31,34 @@ defineEmits<{
 defineProps({
   network: {
     type: Object as PropType<NetworkInfo | null>,
-    default: () => {
-      return {};
-    },
   },
 });
 </script>
 
 <style lang="less">
 @import '@action/styles/theme.less';
-.swap-token-select {
-  height: 54px;
-  background: #ffffff;
+
+.swap-network-select {
+  flex-grow: 1;
+  width: 100%;
+  &:focus-visible {
+    outline: none !important;
+    border-color: @primary;
+  }
+  &__container {
+    flex-grow: 1;
+    width: 100%;
+  }
+  background: @white;
+  padding: 8px;
   box-sizing: border-box;
   border-radius: 10px;
-  width: 100%;
-  padding: 16px;
-  margin-bottom: 3px;
+  border: 1px solid @grey08;
+  height: 52px;
   display: flex;
   justify-content: flex-start;
   align-items: center;
   flex-direction: row;
-  position: relative;
   cursor: pointer;
   text-decoration: none;
   transition: background 300ms ease-in-out;
@@ -58,57 +68,49 @@ defineProps({
   }
 
   &__image {
-    background: @buttonBg;
+    background: @white;
     box-shadow: inset 0px 0px 1px rgba(0, 0, 0, 0.16);
     width: 32px;
     height: 32px;
     border-radius: 100%;
     overflow: hidden;
-    margin-right: 12px;
+    margin-right: 8px;
     img {
       width: 100%;
       height: 100%;
     }
   }
   &__info {
-    h4 {
-      font-style: normal;
-      font-weight: 500;
-      font-size: 16px;
-      line-height: 24px;
-      color: @primaryLabel;
-      width: 290px;
-      margin: 0;
-    }
+    flex-shrink: 1;
+    text-align: left;
     h5 {
-      font-style: normal;
-      font-weight: 400;
-      font-size: 16px;
-      line-height: 24px;
-      color: @primaryLabel;
-      width: 290px;
-      margin: 0 0 1px 0;
-    }
-    p {
-      font-style: normal;
       font-weight: 400;
       font-size: 12px;
       line-height: 16px;
       letter-spacing: 0.5px;
-      color: @secondaryLabel;
+      color: @black06;
       margin: 0;
-      width: 290px;
+    }
+    p {
+      font-weight: 400;
+      font-size: 14px;
+      line-height: 20px;
+      letter-spacing: 0.25px;
+      color: @black;
+      margin: 0;
       span {
         font-variant: small-caps;
       }
     }
+    &__loading {
+      width: 80px;
+      height: 20px;
+      border-radius: 20px;
+    }
   }
   &__arrow {
-    position: absolute;
-    font-size: 0;
-    padding: 4px;
-    right: 8px;
-    top: 16px;
+    margin-left: auto;
+    min-width: 24px;
   }
 }
 </style>

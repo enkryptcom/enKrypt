@@ -40,6 +40,7 @@
             <more-icon />
           </tooltip>
         </button>
+        <!-- DROPDOWN MENU-->
         <div v-show="isOpenMore" ref="dropdown" class="app__menu-dropdown">
           <button class="app__menu-dropdown-link" @click="otherNetworksAction">
             <manage-networks-icon /> <span>Other networks</span>
@@ -65,6 +66,7 @@
         </div>
       </div>
     </div>
+    <!-- SEARCH-->
     <base-search
       ref="searchNetworksComponent"
       v-show="isExpanded"
@@ -83,6 +85,18 @@
         </button>
       </tooltip>
     </div>
+    <!-- Cross Chain SWAP -->
+    <button
+      v-if="isExpanded"
+      class="app__menu__cross-chain-button"
+      @click="openSwap"
+    >
+      <swap-multicolor-icon />
+      <div>
+        <p class="title">Cross Chain Swap</p>
+        <p class="subtext">Swap assets on any chains</p>
+      </div>
+    </button>
 
     <!-- Networks Tabs  -->
     <app-menu-tab
@@ -198,7 +212,9 @@ import { useUpdatesStore } from '@action/store/updates-store';
 import { storeToRefs } from 'pinia';
 import { onClickOutside } from '@vueuse/core';
 import SearchIcon from '@action/icons/common/search.vue';
+import SwapMulticolorIcon from '@action/icons/actions/swap-multicolor.vue';
 import { useMenuStore } from '@action/store/menu-store';
+import { useRoute, useRouter } from 'vue-router';
 
 const appMenuRef = ref(null);
 
@@ -524,6 +540,24 @@ const updateGradient = (newGradient: string) => {
     (appMenuRef.value as HTMLElement).style.background =
       `radial-gradient(137.35% 97% at 100% 50%, rgba(250, 250, 250, 0.94) 0%, rgba(250, 250, 250, 0.96) 28.91%, rgba(250, 250, 250, 0.98) 100%), linear-gradient(180deg, ${newGradient} 80%, #684CFF 100%)`;
 };
+
+/** ------------------
+ * Swap Button
+ ------------------*/
+const route = useRoute();
+const router = useRouter();
+const openSwap = () => {
+  try {
+    router.push({
+      name: 'swap',
+      params: {
+        id: route.params.id,
+      },
+    });
+  } catch (e) {
+    console.error('Error opening swap:', e);
+  }
+};
 </script>
 
 <style lang="less">
@@ -688,7 +722,7 @@ const updateGradient = (newGradient: string) => {
       box-shadow 0.4s ease-in-out;
     &__scroll-area {
       &-expand {
-        height: 448px;
+        height: 382px;
       }
       &-collapse {
         height: 496px;
@@ -752,6 +786,43 @@ const updateGradient = (newGradient: string) => {
     background-color: rgba(247, 239, 244, 1);
     box-shadow: inset 0px 1px 2px rgba(0, 0, 0, 0.25);
     backdrop-filter: blur(40px);
+  }
+  &__cross-chain-button {
+    background: @white;
+    box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.16);
+    padding: 8px 12px;
+    margin-top: 8px;
+    margin-bottom: 1px;
+    width: 100%;
+    border-radius: 10px;
+    display: flex;
+    gap: 12px;
+    justify-content: flex-start;
+    align-items: center;
+    transition: background 300ms ease-in-out;
+    text-align: left;
+
+    p {
+      margin: 0;
+    }
+    .title {
+      font-weight: 700;
+      font-size: 16px;
+      line-height: 20px;
+      letter-spacing: 0.15px;
+    }
+    .subtext {
+      font-weight: 400;
+      font-size: 12px;
+      line-height: 16px;
+      letter-spacing: 0.5px;
+      color: @black06;
+    }
+
+    svg {
+      width: 42px !important;
+      height: 42px !important;
+    }
   }
 }
 button {
