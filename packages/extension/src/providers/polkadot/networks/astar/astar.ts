@@ -8,7 +8,7 @@ import {
 } from '../../types/substrate-network';
 import assetHandler from '@/providers/polkadot/libs/asset-handler';
 import { toBN } from 'web3-utils';
-import icon from '../icons/astar.png';
+import icon from '../icons/astar.webp';
 
 const astarOptions: SubstrateNetworkOptions = {
   name: NetworkNames.Astar,

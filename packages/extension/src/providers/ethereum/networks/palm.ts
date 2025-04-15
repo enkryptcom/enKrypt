@@ -1,4 +1,4 @@
-import icon from './icons/palm.svg';
+import icon from './icons/palm.webp';
 import { NetworkNames } from '@enkryptcom/types';
 import { EvmNetwork, EvmNetworkOptions } from '../types/evm-network';
 import wrapActivityHandler from '@/libs/activity-state/wrap-activity-handler';

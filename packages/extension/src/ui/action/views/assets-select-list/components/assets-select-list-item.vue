@@ -15,7 +15,9 @@
       </div>
     </div>
     <div class="assets-select-list__token-price">
-      <h4>${{ price ? $filters.formatFiatValue(price).value : '~' }}</h4>
+      <h4>
+        {{ price ? $filters.parseCurrency(price) : '~' }}
+      </h4>
     </div>
   </a>
 </template>
@@ -95,6 +97,7 @@ const select = () => {
         img {
           width: 100%;
           height: 100%;
+          object-fit: contain;
         }
       }
 

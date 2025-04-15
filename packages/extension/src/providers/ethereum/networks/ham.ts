@@ -1,4 +1,4 @@
-import icon from './icons/ham.png';
+import icon from './icons/ham.webp';
 import { NetworkNames } from '@enkryptcom/types';
 import { EvmNetwork, EvmNetworkOptions } from '../types/evm-network';
 import { EtherscanActivity } from '../libs/activity-handlers';

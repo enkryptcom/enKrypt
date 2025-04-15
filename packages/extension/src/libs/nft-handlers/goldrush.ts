@@ -34,6 +34,8 @@ export default async (
     [NetworkNames.ZkSync]: 'zksync-mainnet',
     [NetworkNames.Gnosis]: 'gnosis-mainnet',
     [NetworkNames.Scroll]: 'scroll-mainnet',
+    [NetworkNames.Bera]: 'berachain-mainnet',
+    [NetworkNames.Unichain]: 'unichain-mainnet',
   };
   if (!Object.keys(supportedNetworks).includes(network.name))
     throw new Error('Goldrush: network not supported');

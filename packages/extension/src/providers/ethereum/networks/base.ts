@@ -1,9 +1,10 @@
-import icon from './icons/base.svg';
+import icon from './icons/base.webp';
 import { CoingeckoPlatform, NetworkNames } from '@enkryptcom/types';
 import { EvmNetwork, EvmNetworkOptions } from '../types/evm-network';
 import shNFTHandler from '@/libs/nft-handlers/goldrush';
 import { EtherscanActivity } from '../libs/activity-handlers';
 import wrapActivityHandler from '@/libs/activity-state/wrap-activity-handler';
+import assetsInfoHandler from '@/providers/ethereum/libs/assets-handlers/assetinfo-mew';
 
 const baseOptions: EvmNetworkOptions = {
   name: NetworkNames.Base,
@@ -21,6 +22,7 @@ const baseOptions: EvmNetworkOptions = {
   coingeckoPlatform: CoingeckoPlatform.Base,
   NFTHandler: shNFTHandler,
   activityHandler: wrapActivityHandler(EtherscanActivity),
+  assetsInfoHandler,
 };
 
 const base = new EvmNetwork(baseOptions);
