@@ -3,7 +3,6 @@ import { NetworkNames, CoingeckoPlatform } from '@enkryptcom/types';
 import { EvmNetwork, EvmNetworkOptions } from '../types/evm-network';
 import wrapActivityHandler from '@/libs/activity-state/wrap-activity-handler';
 import { EtherscanActivity } from '../libs/activity-handlers';
-import shNFTHandler from '@/libs/nft-handlers/simplehash';
 import assetsInfoHandler from '@/providers/ethereum/libs/assets-handlers/assetinfo-mew';
 
 const immutableZkEvmOptions: EvmNetworkOptions = {
@@ -20,7 +19,6 @@ const immutableZkEvmOptions: EvmNetworkOptions = {
   icon,
   coingeckoID: 'immutable-x',
   coingeckoPlatform: CoingeckoPlatform.ImmutableZkevm,
-  NFTHandler: shNFTHandler,
   assetsInfoHandler,
   activityHandler: wrapActivityHandler(EtherscanActivity),
 };

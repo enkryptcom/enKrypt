@@ -7,7 +7,7 @@ import {
   NFTCollection as MEWNFTCollection,
 } from './types/mew';
 import cacheFetch from '../cache-fetch';
-const MEW_ENDPOINT = 'https://mainnet.mewwallet.dev/v3/';
+const MEW_ENDPOINT = 'https://development.mewwallet.dev/v3/';
 const CACHE_TTL = 60 * 1000;
 const getBestImageURL = (content: ContentURL[]) => {
   const priority = [ContentRepresentation.IMAGE];

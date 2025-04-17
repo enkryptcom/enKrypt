@@ -1,7 +1,6 @@
 import icon from './icons/palm.webp';
 import { NetworkNames } from '@enkryptcom/types';
 import { EvmNetwork, EvmNetworkOptions } from '../types/evm-network';
-import shNFTHandler from '@/libs/nft-handlers/simplehash';
 import wrapActivityHandler from '@/libs/activity-state/wrap-activity-handler';
 
 // Palm network has an API but it seems broken (DNS won't resolve)
@@ -20,7 +19,6 @@ const palmNetworkOptions: EvmNetworkOptions = {
   node: 'https://palm-mainnet.public.blastapi.io',
   icon,
   coingeckoID: 'palm-ai',
-  NFTHandler: shNFTHandler,
   activityHandler: wrapActivityHandler(() => Promise.resolve([])),
 };
 
