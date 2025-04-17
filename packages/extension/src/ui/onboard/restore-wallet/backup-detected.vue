@@ -49,6 +49,17 @@
       title="Skip"
       :click="skip"
     />
+
+    <div class="backup-detected__details">
+      Enkrypt creates backups of generated user accounts, derivation paths, and
+      account names across all networks to make it easier to restore your
+      wallet.
+      <a
+        href="https://help.myetherwallet.com/en/articles/6437190-enkrypt-add-and-import-accounts-and-connect-a-hardware-wallet#h_62bd285c76"
+        target="_blank"
+        >Learn more</a
+      >
+    </div>
   </div>
 </template>
 <script setup lang="ts">
@@ -167,7 +178,7 @@ const skip = () => {
     line-height: 40px;
     letter-spacing: 0.25px;
     color: @primaryLabel;
-    margin: 0 0 24px 0;
+    margin: 0 0 12px 0;
   }
   h4 {
     font-style: normal;
@@ -176,6 +187,22 @@ const skip = () => {
     line-height: 24px;
     color: @secondaryLabel;
     margin: 0 0 8px 0;
+  }
+
+  &__details {
+    font-style: normal;
+    font-weight: 400;
+    line-height: 20px;
+    font-size: 16px;
+    color: @secondaryLabel;
+    margin-top: 10px;
+    padding: 20px;
+    border-radius: 12px;
+    background: white;
+
+    a {
+      color: @primary;
+    }
   }
 
   &__backup-items-container {
