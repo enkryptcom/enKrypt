@@ -41,11 +41,12 @@ import CloseIcon from '@action/icons/common/close-icon.vue';
 import BaseButton from '@action/components/base-button/index.vue';
 import LockScreenPasswordInput from '@action/views/lock-screen/components/lock-screen-password-input.vue';
 import KeyRingBase from '@/libs/keyring/keyring';
+import { MnemonicWithExtraWord } from '@enkryptcom/types';
 
 const emit = defineEmits<{
   (e: 'toggle:forgot'): void;
   (e: 'window:close'): void;
-  (e: 'action:recoveryPhrase', val: string): void;
+  (e: 'action:recoveryPhrase', val: MnemonicWithExtraWord): void;
 }>();
 
 const password = ref('');

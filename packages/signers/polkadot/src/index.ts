@@ -4,6 +4,7 @@ import {
   Errors,
   SignerType,
   KeyPair as KRKeyPair,
+  MnemonicWithExtraWord,
 } from "@enkryptcom/types";
 import { bufferToHex, hexToBuffer } from "@enkryptcom/utils";
 import { waitReady } from "@polkadot/wasm-crypto";
@@ -36,14 +37,15 @@ export class PolkadotSigner implements SignerInterface {
   }
 
   async generate(
-    mnemonic: string,
+    mnemonic: MnemonicWithExtraWord,
     derivationPath = "",
     options: SignOptions = { onlyJS: false },
   ): Promise<KRKeyPair> {
     await waitReady();
-    const { path, phrase, password } = keyExtractSuri(
-      `${mnemonic}${derivationPath}`,
-    );
+    const uriString = mnemonic.extraWord
+      ? `${mnemonic.mnemonic}${derivationPath}///${mnemonic.extraWord}`
+      : `${mnemonic.mnemonic}${derivationPath}`;
+    const { path, phrase, password } = keyExtractSuri(uriString);
     const seed = mnemonicToMiniSecret(
       phrase,
       password,

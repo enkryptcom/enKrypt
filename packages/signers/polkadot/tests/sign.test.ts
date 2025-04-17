@@ -7,8 +7,10 @@ import { PolkadotSigner } from "../src";
 describe("Polkadot signers", () => {
   // the tests container
 
-  const MNEMONIC =
-    "error fish boy absent drop next ice keep meadow little air include";
+  const MNEMONIC = {
+    mnemonic:
+      "error fish boy absent drop next ice keep meadow little air include",
+  };
   const MSG_HASH =
     "82ff40c0a986c6a5cfad4ddf4c3aa6996f1a7837f9c398e17e5de5cbd5a12b28";
   it("ecdsa signer should work", async () => {
