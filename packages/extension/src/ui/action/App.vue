@@ -296,7 +296,9 @@ onMounted(async () => {
     menuStore.init();
     fetchAndSetRates();
   } else {
-    openOnboard();
+    openOnboard().then(() => {
+      window.close();
+    });
   }
 });
 
