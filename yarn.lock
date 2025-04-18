@@ -1755,6 +1755,7 @@ __metadata:
     cross-env: "npm:^7.0.3"
     echarts: "npm:^5.5.1"
     ecpair: "npm:^3.0.0-rc.0"
+    electrum-client-browser: "npm:1.2.5"
     eslint: "npm:^9.14.0"
     eslint-plugin-vue: "npm:^9.31.0"
     ethereum-cryptography: "npm:^2.2.1"
@@ -16206,10 +16207,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"electrum-client@npm:^0.0.6":
-  version: 0.0.6
-  resolution: "electrum-client@npm:0.0.6"
-  checksum: 10/91fb2608af54b0f1a19b4abf2bdcd82257684e6c28ce0ea7580b78d5165ec18e866e216d1d13c386224b455afa473778971e0bfb4597c5776393e8a31199b9f1
+"electrum-client-browser@npm:1.2.5":
+  version: 1.2.5
+  resolution: "electrum-client-browser@npm:1.2.5"
+  dependencies:
+    websocket: "npm:^1.0.29"
+  checksum: 10/7984d1668132515340eaa976acfa9940ed668f750c81c017151ec029c74cd96a2dc0384c4b0c8315103e88b85cdd5e39b878a9838289a4ccab0dbac086d7e477
   languageName: node
   linkType: hard
 
@@ -16331,10 +16334,8 @@ __metadata:
     "@commitlint/config-conventional": "npm:^19.5.0"
     "@swc/core": "npm:^1.9.2"
     axios: "npm:^1.8.2"
-    buffer-reverse: "npm:^1.0.1"
     concurrently: "npm:^9.1.0"
     ecpair: "npm:^3.0.0-rc.0"
-    electrum-client: "npm:^0.0.6"
     husky: "npm:^9.1.6"
     node-notifier: "npm:^10.0.1"
     nodemon: "npm:^3.1.7"
@@ -30909,7 +30910,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"websocket@npm:^1.0.32":
+"websocket@npm:^1.0.29, websocket@npm:^1.0.32":
   version: 1.0.35
   resolution: "websocket@npm:1.0.35"
   dependencies:

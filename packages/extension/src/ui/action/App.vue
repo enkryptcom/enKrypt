@@ -68,6 +68,10 @@
         </transition>
       </router-view>
 
+      <button style="position: absolute; z-index: 999999" @click="fetchAll">
+        Click
+      </button>
+
       <network-menu
         v-show="showNetworkMenu"
         :selected="route.params.id as string"
@@ -115,6 +119,7 @@ import {
 } from '@/libs/utils/networks';
 import openOnboard from '@/libs/utils/open-onboard';
 import BTCAccountState from '@/providers/bitcoin/libs/accounts-state';
+import { PublicFiroWallet } from '@/providers/bitcoin/libs/firo-wallet/public-firo-wallet';
 import { getSparkState } from '@/providers/bitcoin/libs/spark-state';
 import EVMAccountState from '@/providers/ethereum/libs/accounts-state';
 import { MessageMethod } from '@/providers/ethereum/types';
@@ -150,6 +155,8 @@ import ModalRate from './views/modal-rate/index.vue';
 import Settings from './views/settings/index.vue';
 
 const wasm = inject<WasmModule>('wasmModule');
+
+const wallet = new PublicFiroWallet();
 
 const domainState = new DomainState();
 const networksState = new NetworksState();
@@ -246,6 +253,14 @@ const init = async () => {
   await setActiveNetworks();
   isLoading.value = false;
 };
+
+const fetchAll = async () => {
+  console.log('Loading sets');
+  const allSets = await wallet.fetchAllAnonymitySets();
+
+  console.log({ allSets });
+};
+
 onMounted(async () => {
   const isInitialized = await kr.isInitialized();
   if (isInitialized) {

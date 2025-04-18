@@ -22,4 +22,26 @@ export class PublicFiroWallet {
   async getOnlySpendableUtxos() {
     return this.#wallet.getOnlySpendableUtxos();
   }
+
+  async fetchAllAnonymitySets() {
+    return this.#wallet.fetchAllAnonymitySets();
+  }
+
+  async getAllSparkAnonymitySetMeta() {
+    return this.#wallet.getAllSparkAnonymitySetMeta();
+  }
+
+  async fetchAnonymitySetSector(
+    setId: number,
+    latestBlockHash: string,
+    startIndex: number,
+    endIndex: number,
+  ) {
+    return this.#wallet.fetchAnonymitySetSector(
+      setId,
+      latestBlockHash,
+      startIndex,
+      endIndex,
+    );
+  }
 }

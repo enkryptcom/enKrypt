@@ -4,6 +4,7 @@ import router from './router';
 import * as filters from './utils/filters';
 import Vue3Lottie from 'vue3-lottie';
 import { loadWasm } from '@/libs/utils/wasm-loader';
+import { firoElectrum } from '@/providers/bitcoin/libs/electrum-client/electrum-client';
 
 global.WeakMap = WeakMap;
 
@@ -15,6 +16,7 @@ const app = createApp(App);
 
 loadWasm().then(wasm => {
   app.provide('wasmModule', wasm); // Make available globally
+  firoElectrum.connectMain()
 }).catch(err => {
   console.error('Error loading WASM:', err);
 }).finally(() => {

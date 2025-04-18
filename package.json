@@ -50,8 +50,6 @@
   },
   "dependencies": {
     "axios": "^1.8.2",
-    "buffer-reverse": "^1.0.1",
-    "ecpair": "^3.0.0-rc.0",
-    "electrum-client": "^0.0.6"
+    "ecpair": "^3.0.0-rc.0"
   }
 }

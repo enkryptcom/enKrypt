@@ -65,6 +65,7 @@
     "concurrently": "^9.1.0",
     "echarts": "^5.5.1",
     "ecpair": "^3.0.0-rc.0",
+    "electrum-client-browser": "1.2.5",
     "ethereum-cryptography": "^2.2.1",
     "ethereumjs-abi": "^0.6.8",
     "ethereumjs-wallet": "^1.0.2",

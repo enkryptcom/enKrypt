@@ -10,7 +10,11 @@ import * as bitcoin from 'bitcoinjs-lib';
 import ECPairFactory, { ECPairInterface } from 'ecpair';
 import { PaymentType } from '../../types/bitcoin-network';
 import { Utxo } from '../../types/utxo';
-// import { firoElectrum } from '../electrum-client/electrum-client';
+import {
+  AnonymitySetMetaModel,
+  AnonymitySetModel,
+} from '../electrum-client/abstract-electrum';
+import { firoElectrum } from '../electrum-client/electrum-client';
 import { AnonymitySet } from './anonimity-set';
 import { BalanceData } from './balance-data';
 import configs from './configs';
@@ -594,83 +598,83 @@ export class FiroWallet {
     }
   }
 
-  async fetchTransactions() {
-    let hasChanges = false;
-    const address2Check = await this.getTransactionsAddresses();
-    try {
-      // const fullTxs =
-      //   await firoElectrum.multiGetTransactionsFullByAddress(address2Check);
-      const fullTxs = [];
-      fullTxs.forEach(tx => {
-        const foundTxs = this._txs_by_external_index.filter(
-          item => item.txId === tx.txid,
-        );
+  // async fetchTransactions() {
+  //   let hasChanges = false;
+  //   const address2Check = await this.getTransactionsAddresses();
+  //   try {
+  //     // const fullTxs =
+  //     //   await firoElectrum.multiGetTransactionsFullByAddress(address2Check);
+  //     const fullTxs = [];
+  //     fullTxs.forEach(tx => {
+  //       const foundTxs = this._txs_by_external_index.filter(
+  //         item => item.txId === tx.txid,
+  //       );
 
-        if (
-          foundTxs.length == 0 ||
-          (foundTxs.length == 1 &&
-            foundTxs[0].received == false &&
-            foundTxs[0].isMint == false)
-        ) {
-          const transactionItem = new TransactionItem();
-          transactionItem.address = tx.address;
-          transactionItem.txId = tx.txid;
-          if (tx.confirmations > 0) {
-            transactionItem.confirmed = tx.confirmations > 0;
-            transactionItem.date = tx.time * 1000;
-          }
+  //       if (
+  //         foundTxs.length == 0 ||
+  //         (foundTxs.length == 1 &&
+  //           foundTxs[0].received == false &&
+  //           foundTxs[0].isMint == false)
+  //       ) {
+  //         const transactionItem = new TransactionItem();
+  //         transactionItem.address = tx.address;
+  //         transactionItem.txId = tx.txid;
+  //         if (tx.confirmations > 0) {
+  //           transactionItem.confirmed = tx.confirmations > 0;
+  //           transactionItem.date = tx.time * 1000;
+  //         }
 
-          const ia = tx.inputs.reduce(
-            (acc, elm) => acc.plus(elm.value),
-            new BigNumber(0),
-          );
-          const oa = tx.outputs.reduce(
-            (acc, elm) => acc.plus(elm.value),
-            new BigNumber(0),
-          );
+  //         const ia = tx.inputs.reduce(
+  //           (acc, elm) => acc.plus(elm.value),
+  //           new BigNumber(0),
+  //         );
+  //         const oa = tx.outputs.reduce(
+  //           (acc, elm) => acc.plus(elm.value),
+  //           new BigNumber(0),
+  //         );
 
-          transactionItem.fee = ia.minus(oa).toNumber();
+  //         transactionItem.fee = ia.minus(oa).toNumber();
 
-          if (
-            tx.outputs.length === 1 &&
-            tx.outputs[0].scriptPubKey &&
-            tx.outputs[0].scriptPubKey.type === 'lelantusmint'
-          ) {
-            transactionItem.received = false;
-            transactionItem.isMint = true;
-            transactionItem.value = tx.outputs[0].value;
-          } else {
-            let sumValue: BigNumber = new BigNumber(0);
-            tx.outputs.forEach(vout => {
-              if (vout.addresses && vout.addresses.includes(tx.address)) {
-                sumValue = sumValue.plus(vout.value);
-                transactionItem.received = true;
-              }
-            });
-            transactionItem.value = sumValue.toNumber();
-          }
+  //         if (
+  //           tx.outputs.length === 1 &&
+  //           tx.outputs[0].scriptPubKey &&
+  //           tx.outputs[0].scriptPubKey.type === 'lelantusmint'
+  //         ) {
+  //           transactionItem.received = false;
+  //           transactionItem.isMint = true;
+  //           transactionItem.value = tx.outputs[0].value;
+  //         } else {
+  //           let sumValue: BigNumber = new BigNumber(0);
+  //           tx.outputs.forEach(vout => {
+  //             if (vout.addresses && vout.addresses.includes(tx.address)) {
+  //               sumValue = sumValue.plus(vout.value);
+  //               transactionItem.received = true;
+  //             }
+  //           });
+  //           transactionItem.value = sumValue.toNumber();
+  //         }
 
-          if (transactionItem.received || transactionItem.isMint) {
-            hasChanges = true;
-            this._txs_by_external_index.push(transactionItem);
-          }
-        }
-        foundTxs.forEach(foundTx => {
-          if (foundTx.confirmed === false && tx.confirmations > 0) {
-            hasChanges = true;
-            foundTx.confirmed = true;
-            foundTx.date = tx.time * 1000;
-          }
-        });
-      });
-    } catch (e) {
-      console.error('firo_wallet:fetchTransaction', e);
-    }
-    if (hasChanges) {
-      this.sortTransactions();
-    }
-    return hasChanges;
-  }
+  //         if (transactionItem.received || transactionItem.isMint) {
+  //           hasChanges = true;
+  //           this._txs_by_external_index.push(transactionItem);
+  //         }
+  //       }
+  //       foundTxs.forEach(foundTx => {
+  //         if (foundTx.confirmed === false && tx.confirmations > 0) {
+  //           hasChanges = true;
+  //           foundTx.confirmed = true;
+  //           foundTx.date = tx.time * 1000;
+  //         }
+  //       });
+  //     });
+  //   } catch (e) {
+  //     console.error('firo_wallet:fetchTransaction', e);
+  //   }
+  //   if (hasChanges) {
+  //     this.sortTransactions();
+  //   }
+  //   return hasChanges;
+  // }
 
   private sortTransactions() {
     this._txs_by_external_index.sort(
@@ -720,6 +724,7 @@ export class FiroWallet {
         anonymitySet.setId,
         anonymitySet.blockHash,
       );
+
       if (
         fetchedAnonymitySet.setHash !== '' &&
         anonymitySet.setHash !== fetchedAnonymitySet.setHash
@@ -733,6 +738,56 @@ export class FiroWallet {
       }
     }
     return hasChanges;
+  }
+
+  async fetchAllAnonymitySets() {
+    const setsMeta = await this.getAllSparkAnonymitySetMeta();
+
+    const allSets: AnonymitySetModel[] = [];
+
+    const setsPromises = setsMeta.map(async (metaItem, i) => {
+      const [firstChunk, secondChunk] = await Promise.all([
+        this.fetchAnonymitySetSector(
+          i + 1,
+          metaItem.blockHash,
+          0,
+          Math.floor(metaItem.size / 2),
+        ),
+        this.fetchAnonymitySetSector(
+          i + 1,
+          metaItem.blockHash,
+          Math.ceil(metaItem.size / 2),
+          metaItem.size,
+        ),
+      ]);
+
+      return {
+        blockHash: metaItem.blockHash,
+        setHash: metaItem.setHash,
+        coins: [...firstChunk.coins, ...secondChunk.coins],
+      };
+    });
+
+    allSets.push(...(await Promise.all(setsPromises)));
+    return allSets;
+  }
+
+  async fetchAnonymitySetSector(
+    setId: number,
+    latestBlockHash: string,
+    startIndex: number,
+    endIndex: number,
+  ): Promise<{ coins: string[][] }> {
+    return firoElectrum.getSparkAnonymitySetSector([
+      String(setId),
+      latestBlockHash,
+      String(startIndex),
+      String(endIndex),
+    ]);
+  }
+
+  async getAllSparkAnonymitySetMeta(): Promise<AnonymitySetMetaModel[]> {
+    return firoElectrum.getAllSparkAnonymitySetMeta();
   }
 
   private async fixDuplicateCoinIssue(): Promise<boolean> {
@@ -781,15 +836,15 @@ export class FiroWallet {
   }
 
   async sync(callback: () => void): Promise<void> {
-    if (await this.fetchTransactions()) {
-      callback();
-    }
+    // if (await this.fetchTransactions()) {
+    //   callback();
+    // }
 
     if (await this.fetchUsedCoins()) {
       callback();
     }
 
-    if (await this.fetchAnonymitySets()) {
+    if (await this.fetchAllAnonymitySets()) {
       callback();
     }
 
@@ -807,13 +862,13 @@ export class FiroWallet {
     callback(callbackIndex++, totalCallbacks);
     await this.getAddressAsync();
     await this.getChangeAddressAsync();
-    await this.fetchTransactions();
+    // await this.fetchTransactions();
 
     callback(callbackIndex++, totalCallbacks);
     await this.fetchUsedCoins();
 
     callback(callbackIndex++, totalCallbacks);
-    await this.fetchAnonymitySets();
+    await this.fetchAllAnonymitySets();
   }
 
   // private async fetchSpendTxs(spendTxIds: string[]): Promise<void> {

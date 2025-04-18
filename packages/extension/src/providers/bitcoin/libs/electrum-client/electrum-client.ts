@@ -1,20 +1,25 @@
-// import { ElectrumClient } from '@samouraiwallet/electrum-client';
-import { ElectrumApi } from '@nimiq/electrum-client';
+import ElectrumClient from 'electrum-client-browser';
 import {
-  BalanceModel,
+  AnonymitySetMetaModel,
   FullTransactionModel,
   TransactionModel,
-  type AbstractElectrum,
+  UsedSerialsModel,
   type AnonymitySetModel,
-  type UsedSerialsModel,
 } from './abstract-electrum';
-// @ts-ignore
-// import ElectrumClient from 'electrum-client';
-// @ts-ignore
-import reverse from 'buffer-reverse';
 
 import bitcoin from 'bitcoinjs-lib';
-import firo from '../../networks/firo';
+
+const networkInfo = {
+  messagePrefix: '\x18Zcoin Signed Message:\n',
+  bech32: 'bc',
+  bip32: {
+    public: 0x0488b21e,
+    private: 0x0488ade4,
+  },
+  pubKeyHash: 0x52,
+  scriptHash: 0x07,
+  wif: 0xd2,
+};
 
 type Peer = {
   host: string;
@@ -35,24 +40,13 @@ const hardcodedPeers: Peer[] = [
  *
  * @returns {Promise<{tcp, host}|*>}
  */
-async function getRandomHardcodedPeer(): Promise<Peer> {
+function getRandomHardcodedPeer(): Peer {
   const index = Math.ceil(hardcodedPeers.length * Math.random()) - 1;
   return hardcodedPeers[index];
 }
 
-async function getSavedPeer(): Promise<Peer | null> {
-  return { host: 'electrumx.firo.org', tcp: '50001', ssl: '50002' };
-}
-
-export default class FiroElectrum implements AbstractElectrum {
-  multiGetTransactionsFullByAddress(
-    addresses: Array<string>,
-    batchSize?: number,
-    verbose?: boolean,
-  ): Promise<Array<FullTransactionModel>> {
-    throw new Error('Method not implemented.');
-  }
-  mainClient?: ElectrumApi = undefined;
+export default class FiroElectrum {
+  mainClient?: ElectrumClient = undefined;
   mainConnected = false;
   wasConnectedAtLeastOnce = false;
   serverName = false;
@@ -64,113 +58,30 @@ export default class FiroElectrum implements AbstractElectrum {
 
   listeners: Array<() => void> = [];
 
+  private all_anonymity_sets_meta: AnonymitySetMetaModel[] = [];
+
   getLatestBlockHeight(): number {
     return this.latestBlockheight === false ? -1 : this.latestBlockheight;
   }
 
   async connectMain() {
-    let peer = await getSavedPeer();
-    if (peer === null) {
-      peer = await getRandomHardcodedPeer();
-    }
-
     try {
-      this.mainClient = new ElectrumApi({
-        endpoint: peer.host,
-        // port: Number(peer.tcp),
-        // host: peer.host,
-        // protocol: 'tcp',
-        // callbacks: {
-        //   onError: () => {
-        //     this.mainConnected = false;
-        //   },
-        // },
-        // electrumConfig: {
-        //   client: 'electrum-client-js',
-        //   version: ['1.2', '1.4'],
-        // },
-      });
-      // this.mainClient.onError = function () {
-      //   this.mainConnected = false;
-      // };
-      // const ver = await this.mainClient.connect({
-      //   client: 'firo',
-      //   version: '1.4',
-      // });
-      if (this.mainClient.versionInfo && this.mainClient.versionInfo[0]) {
-        this.serverName = !!this.mainClient.versionInfo[0];
-        this.mainConnected = true;
-        this.wasConnectedAtLeastOnce = true;
-      }
+      const peer = getRandomHardcodedPeer();
+      this.mainClient = new ElectrumClient(peer.host, 50004, 'wss');
+
+      await this.mainClient.connect('electrum-client-browser', '1.4');
+
+      this.wasConnectedAtLeastOnce = true;
     } catch (e) {
-      this.mainConnected = false;
-      console.error(
-        'electrum_wallet:connectMain',
-        JSON.stringify(peer) + ' ' + e,
-      );
+      this.mainClient = undefined;
+      console.error('electrum_wallet:connectMain', e);
+      if (!this.mainClient) {
+        console.warn('electrum_wallet:connectMain', 'retry');
+        setTimeout(() => {
+          this.connectMain();
+        }, 5000);
+      }
     }
-
-    // this.runSubscribeLoop();
-
-    // if (!this.mainConnected) {
-    //   console.warn('electrum_wallet:connectMain', 'retry');
-    //   // this.mainClient.close && this.mainClient.close();
-    //   setTimeout(() => {
-    //     this.connectMain();
-    //   }, 5000);
-    // }
-  }
-
-  // private subscribeLoop = 0;
-  // private runSubscribeLoop() {
-  //   console.log('electrum_wallet:runSubscribeLoop', 'start loop');
-  //   clearInterval(this.subscribeLoop);
-  //   this.subscribeLoop = setInterval(() => {
-  //     this.checkForSubscribe();
-  //   }, 5000) as unknown as number;
-  // }
-
-  // private checkForSubscribe() {
-  //   if (this.mainClient !== undefined && this.mainClient.status === 1) {
-  //     if (
-  //       this.mainClient.subscribe._events['blockchain.headers.subscribe'] ===
-  //       undefined
-  //     ) {
-  //       this.subscribeHeaders();
-  //     }
-  //   }
-  // }
-
-  // private async subscribeHeaders() {
-  //   this.mainClient.subscribe.on(
-  //     'blockchain.headers.subscribe',
-  //     (params: any) => {
-  //       this.onHeaderChange(params[0]);
-  //     },
-  //   );
-  //   const header = await this.mainClient.blockchainHeaders_subscribe();
-  //   if (header && header.height) {
-  //     this.onHeaderChange(header);
-  //   }
-  // }
-
-  private onHeaderChange(headerData: { height: number }) {
-    if (this.latestBlockheight !== headerData.height) {
-      this.latestBlockheight = headerData.height;
-      this.latestBlockheightTimestamp = Math.floor(+new Date() / 1000);
-
-      this.notifyListeners();
-    }
-  }
-
-  private notifyListeners() {
-    console.log(
-      'electrum_wallet:notifyListeners',
-      `listeners count ${this.listeners.length}`,
-    );
-    this.listeners.forEach(listener => {
-      listener();
-    });
   }
 
   addChangeListener(onChange: () => void): void {
@@ -183,97 +94,95 @@ export default class FiroElectrum implements AbstractElectrum {
     });
   }
 
-  async getBalanceByAddress(address: string): Promise<BalanceModel> {
-    this.checkConnection('getBalanceByAddress');
-    const script = bitcoin.address.toOutputScript(address, firo.networkInfo);
-    const hash = bitcoin.crypto.sha256(script);
+  // async getBalanceByAddress(address: string): Promise<BalanceModel> {
+  //   this.checkConnection('getBalanceByAddress');
+  //   const script = bitcoin.address.toOutputScript(address, firo.networkInfo);
+  //   const hash = bitcoin.crypto.sha256(script);
 
-    const reversedHash = Buffer.from(reverse(hash));
-    const balance = await this.mainClient.blockchainScripthash_getBalance(
-      reversedHash.toString('hex'),
-    );
-    return balance;
-  }
+  //   const reversedHash = Buffer.from(reverse(hash));
+  //   const balance = await this.mainClient?.blockchainScripthash_getBalance(
+  //     reversedHash.toString('hex'),
+  //   );
+  //   return balance;
+  // }
 
   async getTransactionsByAddress(
     address: string,
   ): Promise<Array<TransactionModel>> {
-    this.checkConnection('getTransactionsByAddress');
+    // await this.connectMain();
     const script = this.addressToScript(address);
     const hash = bitcoin.crypto.sha256(Buffer.from(script));
 
-    const reversedHash = Buffer.from(reverse(hash));
-    const history = await this.mainClient.blockchainScripthash_getHistory(
+    const reversedHash = Buffer.from(hash.reverse());
+    const history = await this.mainClient?.blockchain_scripthash_getHistory(
       reversedHash.toString('hex'),
     );
     // for (const h of history || []) {
     //   if (h.tx_hash) txhashHeightCache[h.tx_hash] = h.height; // cache tx height
     // }
-    return history;
+    return history as TransactionModel[];
   }
 
-  async multiGetTransactionsByAddress(
-    addresses: Array<string>,
-    batchsize: number = 200,
-  ): Promise<{ [address: string]: TransactionModel[] }> {
-    this.checkConnection('multiGetTransactionsByAddress');
+  // async multiGetTransactionsByAddress(
+  //   addresses: Array<string>,
+  //   batchsize: number = 200,
+  // ): Promise<{ [address: string]: TransactionModel[] }> {
+  //   this.checkConnection('multiGetTransactionsByAddress');
 
-    const ret: { [address: string]: TransactionModel[] } = {};
+  //   const ret: { [address: string]: TransactionModel[] } = {};
 
-    const chunks = splitIntoChunks(addresses, batchsize);
-    for (const chunk of chunks) {
-      const scripthashes = [];
-      const scripthash2addr: { [revHash: string]: string } = {};
-      for (const addr of chunk) {
-        const script = bitcoin.address.toOutputScript(addr, firo.networkInfo);
-        const hash = bitcoin.crypto.sha256(script);
+  //   const chunks = splitIntoChunks(addresses, batchsize);
+  //   for (const chunk of chunks) {
+  //     const scripthashes = [];
+  //     const scripthash2addr: { [revHash: string]: string } = {};
+  //     for (const addr of chunk) {
+  //       const script = bitcoin.address.toOutputScript(addr, firo.networkInfo);
+  //       const hash = bitcoin.crypto.sha256(script);
 
-        const reversedHash = Buffer.from(reverse(hash));
-        const reversedHashHex = reversedHash.toString('hex');
-        scripthashes.push(reversedHashHex);
-        scripthash2addr[reversedHashHex] = addr;
-      }
+  //       const reversedHash = Buffer.from(reverse(hash));
+  //       const reversedHashHex = reversedHash.toString('hex');
+  //       scripthashes.push(reversedHashHex);
+  //       scripthash2addr[reversedHashHex] = addr;
+  //     }
 
-      const results = [];
+  //     const results = [];
 
-      for (const sh of scripthashes) {
-        const res = await this.mainClient.blockchainScripthash_getHistory(sh);
+  //     for (const sh of scripthashes) {
+  //       const res = await this.mainClient.blockchainScripthash_getHistory(sh);
 
-        results.push(res);
-      }
+  //       results.push(res);
+  //     }
 
-      for (const history of results) {
-        if (history.error) {
-          console.warn(
-            'electrum_wallet:multiGetTransactionsByAddress',
-            history.error,
-          );
-        }
-        if (history?.result?.length > 0) {
-          ret[scripthash2addr[history.param]] = history.result;
-        }
-      }
-    }
+  //     for (const history of results) {
+  //       if (history.error) {
+  //         console.warn(
+  //           'electrum_wallet:multiGetTransactionsByAddress',
+  //           history.error,
+  //         );
+  //       }
+  //       if (history?.result?.length > 0) {
+  //         ret[scripthash2addr[history.param]] = history.result;
+  //       }
+  //     }
+  //   }
 
-    return ret;
-  }
+  //   return ret;
+  // }
 
   async getTransactionsFullByAddress(
     address: string,
   ): Promise<Array<FullTransactionModel>> {
-    this.checkConnection('getTransactionsFullByAddress');
-
     const txs = await this.getTransactionsByAddress(address);
     const ret = [];
     for (const tx of txs) {
-      const full = await this.mainClient.blockchainTransaction_get(
+      const full = await this.mainClient?.blockchain_transaction_get(
         tx.tx_hash,
         true,
       );
       full.address = address;
       for (const input of full.vin) {
         // now we need to fetch previous TX where this VIN became an output, so we can see its amount
-        const prevTxForVin = await this.mainClient.blockchainTransaction_get(
+        const prevTxForVin = await this.mainClient?.blockchain_transaction_get(
           input.txid,
           true,
         );
@@ -310,105 +219,103 @@ export default class FiroElectrum implements AbstractElectrum {
     return ret;
   }
 
-  async multiGetBalanceByAddress(
-    addresses: Array<string>,
-    batchsize: number = 200,
-  ): Promise<BalanceModel> {
-    this.checkConnection('multiGetBalanceByAddress');
+  // async multiGetBalanceByAddress(
+  //   addresses: Array<string>,
+  //   batchsize: number = 200,
+  // ): Promise<BalanceModel> {
+  //   this.checkConnection('multiGetBalanceByAddress');
 
-    const ret = new BalanceModel();
+  //   const ret = new BalanceModel();
 
-    const chunks = splitIntoChunks(addresses, batchsize);
-    for (const chunk of chunks) {
-      const scripthashes = [];
-      const scripthash2addr: Map<string, string> = new Map();
-      for (const addr of chunk) {
-        const script = bitcoin.address.toOutputScript(addr, firo.networkInfo);
-        const hash = bitcoin.crypto.sha256(script);
+  //   const chunks = splitIntoChunks(addresses, batchsize);
+  //   for (const chunk of chunks) {
+  //     const scripthashes = [];
+  //     const scripthash2addr: Map<string, string> = new Map();
+  //     for (const addr of chunk) {
+  //       const script = bitcoin.address.toOutputScript(addr, firo.networkInfo);
+  //       const hash = bitcoin.crypto.sha256(script);
 
-        const reversedHash = Buffer.from(reverse(hash));
-        const reversedHashHex = reversedHash.toString('hex');
-        scripthashes.push(reversedHashHex);
-        scripthash2addr.set(reversedHashHex, addr);
-      }
+  //       const reversedHash = Buffer.from(reverse(hash));
+  //       const reversedHashHex = reversedHash.toString('hex');
+  //       scripthashes.push(reversedHashHex);
+  //       scripthash2addr.set(reversedHashHex, addr);
+  //     }
 
-      let balances = [];
+  //     let balances = [];
 
-      balances =
-        await this.mainClient.blockchainScripthash_getBalanceBatch(
-          scripthashes,
-        );
+  //     balances =
+  //       await this.mainClient.blockchainScripthash_getBalanceBatch(
+  //         scripthashes,
+  //       );
 
-      for (const bal of balances) {
-        if (bal.error) {
-          console.warn('electrum_wallet:multiGetBalanceByAddress', bal.error);
-        }
-        ret.confirmed += +bal.result.confirmed;
-        ret.unconfirmed += +bal.result.unconfirmed;
-        ret.addresses.set(scripthash2addr.get(bal.param)!, bal.result);
-      }
-    }
-    return ret;
-  }
+  //     for (const bal of balances) {
+  //       if (bal.error) {
+  //         console.warn('electrum_wallet:multiGetBalanceByAddress', bal.error);
+  //       }
+  //       ret.confirmed += +bal.result.confirmed;
+  //       ret.unconfirmed += +bal.result.unconfirmed;
+  //       ret.addresses.set(scripthash2addr.get(bal.param)!, bal.result);
+  //     }
+  //   }
+  //   return ret;
+  // }
 
-  async multiGetHistoryByAddress(
-    addresses: Array<string>,
-    batchsize: number = 100,
-  ): Promise<Map<string, Array<FullTransactionModel>>> {
-    this.checkConnection('multiGetHistoryByAddress');
+  // async multiGetHistoryByAddress(
+  //   addresses: Array<string>,
+  //   batchsize: number = 100,
+  // ): Promise<Map<string, Array<FullTransactionModel>>> {
+  //   this.checkConnection('multiGetHistoryByAddress');
 
-    const ret: Map<string, Array<FullTransactionModel>> = new Map();
+  //   const ret: Map<string, Array<FullTransactionModel>> = new Map();
 
-    const chunks = splitIntoChunks(addresses, batchsize);
-    for (const chunk of chunks) {
-      const scripthashes = [];
-      const scripthash2addr: Map<string, string> = new Map();
-      for (const addr of chunk) {
-        const script = bitcoin.address.toOutputScript(addr, firo.networkInfo);
-        const hash = bitcoin.crypto.sha256(script);
+  //   const chunks = splitIntoChunks(addresses, batchsize);
+  //   for (const chunk of chunks) {
+  //     const scripthashes = [];
+  //     const scripthash2addr: Map<string, string> = new Map();
+  //     for (const addr of chunk) {
+  //       const script = bitcoin.address.toOutputScript(addr, firo.networkInfo);
+  //       const hash = bitcoin.crypto.sha256(script);
 
-        const reversedHash = Buffer.from(reverse(hash));
-        const reversedHashHex = reversedHash.toString('hex');
-        scripthashes.push(reversedHashHex);
-        scripthash2addr.set(reversedHashHex, addr);
-      }
+  //       const reversedHash = Buffer.from(reverse(hash));
+  //       const reversedHashHex = reversedHash.toString('hex');
+  //       scripthashes.push(reversedHashHex);
+  //       scripthash2addr.set(reversedHashHex, addr);
+  //     }
 
-      let results = [];
+  //     let results = [];
 
-      results =
-        await this.mainClient.blockchainScripthash_getHistoryBatch(
-          scripthashes,
-        );
+  //     results =
+  //       await this.mainClient.blockchainScripthash_getHistoryBatch(
+  //         scripthashes,
+  //       );
 
-      for (const history of results) {
-        if (history.error) {
-          console.warn(
-            'electrum_wallet:multiGetHistoryByAddress',
-            history.error,
-          );
-        }
-        ret.set(scripthash2addr.get(history.param)!, history.result || []);
-        for (const result of history.result || []) {
-          if (result.tx_hash) {
-            this.txhashHeightCache.set(result.tx_hash, result.height); // cache tx height
-          }
-        }
+  //     for (const history of results) {
+  //       if (history.error) {
+  //         console.warn(
+  //           'electrum_wallet:multiGetHistoryByAddress',
+  //           history.error,
+  //         );
+  //       }
+  //       ret.set(scripthash2addr.get(history.param)!, history.result || []);
+  //       for (const result of history.result || []) {
+  //         if (result.tx_hash) {
+  //           this.txhashHeightCache.set(result.tx_hash, result.height); // cache tx height
+  //         }
+  //       }
 
-        for (const hist of ret.get(scripthash2addr.get(history.param)!) || []) {
-          hist.address = scripthash2addr.get(history.param) || '';
-        }
-      }
-    }
-    return ret;
-  }
+  //       for (const hist of ret.get(scripthash2addr.get(history.param)!) || []) {
+  //         hist.address = scripthash2addr.get(history.param) || '';
+  //       }
+  //     }
+  //   }
+  //   return ret;
+  // }
 
   async multiGetTransactionByTxid(
     txids: Array<string>,
     batchsize: number = 45,
     verbose?: boolean,
   ): Promise<{ [txId: string]: string }> {
-    this.checkConnection('multiGetTransactionByTxid');
-
     // this value is fine-tuned so althrough wallets in test suite will occasionally
     // throw 'response too large (over 1,000,000 bytes', test suite will pass
     verbose = verbose !== false;
@@ -419,7 +326,9 @@ export default class FiroElectrum implements AbstractElectrum {
     const chunks = splitIntoChunks(txids, batchsize);
     for (const chunk of chunks) {
       const res = await Promise.all(
-        chunk.map(el => this.mainClient.blockchainTransaction_get(el, verbose)),
+        chunk.map(el =>
+          this.mainClient?.blockchain_transaction_get(el, verbose),
+        ),
       );
       res.forEach((el: string, index: number) => {
         ret[txids[index]] = el;
@@ -429,58 +338,54 @@ export default class FiroElectrum implements AbstractElectrum {
     return ret;
   }
 
-  async getUnspentTransactionsByAddress(
-    address: string,
-  ): Promise<Array<TransactionModel>> {
-    this.checkConnection('getUnspentTransactionsByAddress');
+  // async getUnspentTransactionsByAddress(
+  //   address: string,
+  // ): Promise<Array<TransactionModel>> {
+  //   this.checkConnection('getUnspentTransactionsByAddress');
 
-    const script = bitcoin.address.toOutputScript(address, firo.networkInfo);
-    const hash = bitcoin.crypto.sha256(script);
+  //   const script = bitcoin.address.toOutputScript(address, firo.networkInfo);
+  //   const hash = bitcoin.crypto.sha256(script);
 
-    const reversedHash = Buffer.from(reverse(hash));
-    const listUnspent = await this.mainClient.blockchainScripthash_listunspent(
-      reversedHash.toString('hex'),
-    );
-    return listUnspent;
-  }
+  //   const reversedHash = Buffer.from(reverse(hash));
+  //   const listUnspent = await this.mainClient.blockchainScripthash_listunspent(
+  //     reversedHash.toString('hex'),
+  //   );
+  //   return listUnspent;
+  // }
 
-  async multiGetUnspentTransactionsByAddress(
-    addresses: Array<string>,
-  ): Promise<{ [address: string]: TransactionModel[] }> {
-    this.checkConnection('multiGetUnspentTransactionsByAddress');
+  // async multiGetUnspentTransactionsByAddress(
+  //   addresses: Array<string>,
+  // ): Promise<{ [address: string]: TransactionModel[] }> {
+  //   const scripthashes = [];
+  //   const scripthash2addr: { [revHash: string]: string } = {};
+  //   for (const address of addresses) {
+  //     const script = bitcoin.address.toOutputScript(address, networkInfo);
+  //     const hash = bitcoin.crypto.sha256(script);
 
-    const scripthashes = [];
-    const scripthash2addr: { [revHash: string]: string } = {};
-    for (const address of addresses) {
-      const script = bitcoin.address.toOutputScript(address, firo.networkInfo);
-      const hash = bitcoin.crypto.sha256(script);
+  //     const reversedHash = Buffer.from(hash.reverse());
+  //     const reversedHashHex = reversedHash.toString('hex');
+  //     scripthashes.push(reversedHashHex);
+  //     scripthash2addr[reversedHashHex] = address;
+  //   }
+  //   const ret: { [address: string]: TransactionModel[] } = {};
 
-      const reversedHash = Buffer.from(reverse(hash));
-      const reversedHashHex = reversedHash.toString('hex');
-      scripthashes.push(reversedHashHex);
-      scripthash2addr[reversedHashHex] = address;
-    }
-    const ret: { [address: string]: TransactionModel[] } = {};
+  //   const listUnspent = await Promise.all(
+  //     scripthashes.map(sh =>
+  //       this.mainClient?.blockchain_scripthash_listunspent(sh),
+  //     ),
+  //   );
 
-    const listUnspent = await Promise.all(
-      scripthashes.map(sh =>
-        this.mainClient.blockchainScripthash_listunspent(sh),
-      ),
-    );
-
-    for (const utxo of listUnspent) {
-      if (utxo.result.length > 0) {
-        ret[scripthash2addr[utxo.param]!] = utxo.result;
-      }
-    }
-    return ret;
-  }
+  //   for (const utxo of listUnspent) {
+  //     if (utxo.result.length > 0) {
+  //       ret[scripthash2addr[utxo.param]!] = utxo.result;
+  //     }
+  //   }
+  //   return ret;
+  // }
 
   async broadcast(hex: string): Promise<string> {
-    this.checkConnection('broadcast');
-
     const broadcast: string =
-      await this.mainClient.blockchainTransaction_broadcast(hex);
+      (await this.mainClient?.blockchain_transaction_broadcast(hex)) as string;
 
     return broadcast;
   }
@@ -489,20 +394,25 @@ export default class FiroElectrum implements AbstractElectrum {
     setId: number,
     startBlockHash: string,
   ): Promise<AnonymitySetModel> {
-    this.checkConnection('getAnonymitySet');
-
-    const param = [];
-    param.push(setId + '');
-    param.push(startBlockHash);
-    const result: AnonymitySetModel = await this.mainClient.request(
-      'lelantus.getanonymityset',
-      param,
+    const params = [];
+    params.push(setId + '');
+    params.push(startBlockHash);
+    const result = await this.mainClient?.request(
+      'spark.getsparkanonymityset',
+      [setId + '', startBlockHash],
     );
-    result.blockHash = Buffer.from(result.blockHash, 'base64')
+
+    if (result instanceof Error) {
+      throw result;
+    }
+
+    const _result = result as AnonymitySetModel;
+
+    _result.blockHash = Buffer.from(_result.blockHash, 'base64')
       .reverse()
       .toString('hex');
-    result.setHash = Buffer.from(result.setHash, 'base64').toString('hex');
-    result.coins = result.coins.map(coinData => {
+    _result.setHash = Buffer.from(_result.setHash, 'base64').toString('hex');
+    _result.coins = _result.coins.map(coinData => {
       let amount = coinData[2];
       if (typeof amount !== 'number') {
         amount = Buffer.from(amount, 'base64').toString('hex');
@@ -510,101 +420,71 @@ export default class FiroElectrum implements AbstractElectrum {
       return [
         Buffer.from(coinData[0], 'base64').toString('hex'),
         Buffer.from(coinData[1], 'base64').reverse().toString('hex'),
-        amount,
-        Buffer.from(coinData[3], 'base64').reverse().toString('hex'),
+        Buffer.from(coinData[2], 'base64').reverse().toString('hex'),
       ];
     });
-    return result;
+    return _result;
   }
 
   async getLatestSetId(): Promise<number> {
-    this.checkConnection('getLatestSetId');
-
-    const result = await this.mainClient.request('lelantus.getlatestcoinid');
-    return result;
-  }
-
-  async getUsedCoinSerials(coinCount: number): Promise<UsedSerialsModel> {
-    this.checkConnection('getUsedCoinSerials');
-
-    const param = [];
-    param.push(coinCount + '');
-    const result: UsedSerialsModel = await this.mainClient.request(
-      'lelantus.getusedcoinserials',
-      param,
-    );
-    result.serials = result.serials.map(serialBase64 =>
-      Buffer.from(serialBase64, 'base64').toString('hex'),
+    const result = await this.mainClient?.request(
+      'spark.getsparklatestcoinid',
+      [],
     );
 
-    return result;
-  }
-
-  async getsparkanonymitysetmeta(params: string[]): Promise<number> {
-    this.checkConnection('getsparkanonymitysetmeta');
-
-    // const param = [];
-    // param.push(coinCount + '');
-    const result: number = await this.mainClient.request(
-      'spark.getsparkanonymitysetmeta',
-      params,
-    );
-    // result.serials = result.serials.map(serialBase64 => Buffer.from(serialBase64, "base64").toString('hex'));
-
-    return result;
-  }
-
-  async getsparkanonymitysetsector(params: string[]): Promise<number> {
-    this.checkConnection('getsparkanonymitysetsector');
-
-    // const param = [];
-    // param.push(coinCount + '');
-    const result: number = await this.mainClient.request(
-      'spark.getsparkanonymitysetsector',
-      params,
-    );
-    // result.serials = result.serials.map(serialBase64 => Buffer.from(serialBase64, "base64").toString('hex'));
-
-    return result;
-  }
-
-  async getFeeRate(): Promise<number> {
-    let peer = await getSavedPeer();
-    if (peer === null) {
-      peer = await getRandomHardcodedPeer();
+    if (result instanceof Error) {
+      throw new Error(`${result.message} 23333`);
     }
-
-    const client = await ElectrumClient.createClient({
-      port: Number(peer.tcp),
-      host: peer.host,
-      protocol: 'tcp',
-      callbacks: {
-        onError: () => {
-          this.mainConnected = false;
-        },
-      },
-      electrumConfig: {
-        client: 'electrum-client-js',
-        version: ['1.2', '1.4'],
-      },
-    });
-
-    const result = await client.blockchainEstimatefee(10);
 
     return result as number;
   }
 
-  addressToScript(address: string): string {
-    return bitcoin.address
-      .toOutputScript(address, firo.networkInfo)
-      .toString('hex');
+  async getUsedCoinSerials(coinCount: number): Promise<UsedSerialsModel> {
+    const result = await this.mainClient?.request('spark.getusedcoinstags', [
+      String(coinCount),
+    ]);
+
+    return result;
   }
 
-  private checkConnection(tag: string) {
-    if (typeof this.mainClient === 'undefined' || this.mainClient === null) {
-      console.error(`electrum_wallet:${tag}`, 'not connected');
-      throw new Error('Electrum client is not connected');
+  async getSparkAnonymitySetMeta(
+    params: string[],
+  ): Promise<AnonymitySetMetaModel> {
+    const result = await this.mainClient?.request(
+      'spark.getsparkanonymitysetmeta',
+      params,
+    );
+
+    return result;
+  }
+
+  async getAllSparkAnonymitySetMeta() {
+    if (this.all_anonymity_sets_meta.length) {
+      return this.all_anonymity_sets_meta;
     }
+    const latestSetId = await this.getLatestSetId();
+
+    const promises = Array.from({ length: latestSetId }, (_, i) =>
+      this.getSparkAnonymitySetMeta([String(i + 1)]),
+    );
+    this.all_anonymity_sets_meta = await Promise.all(promises);
+
+    return this.all_anonymity_sets_meta;
+  }
+
+  async getSparkAnonymitySetSector(
+    params: string[],
+  ): Promise<{ coins: string[][] }> {
+    const result = await this.mainClient?.request(
+      'spark.getsparkanonymitysetsector',
+      params,
+    );
+
+    return result;
+  }
+
+  addressToScript(address: string): string {
+    return bitcoin.address.toOutputScript(address, networkInfo).toString('hex');
   }
 }
 
@@ -620,4 +500,4 @@ const splitIntoChunks = function (
   return groups;
 };
 
-export const firoElectrum: AbstractElectrum = new FiroElectrum();
+export const firoElectrum = new FiroElectrum();
