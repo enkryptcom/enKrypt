@@ -36,8 +36,8 @@ class PublicKeyRing {
         isHardware: false,
         isTestWallet: true,
       };
-      allKeys['0xe5dc07bdcdb8c98850050c7f67de7e164b1ea391'] = {
-        address: '0xe5dc07bdcdb8c98850050c7f67de7e164b1ea391',
+      allKeys['0x3e4335Ad4947459bc364Ce6F55De14E9c5BF3f40'] = {
+        address: '0x3e4335Ad4947459bc364Ce6F55De14E9c5BF3f40',
         basePath: "m/44'/60'/1'/1",
         name: 'fake ledger account #3',
         pathIndex: 0,

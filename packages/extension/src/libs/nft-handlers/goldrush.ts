@@ -70,6 +70,7 @@ export default async (
         !!nft.external_data.image,
     );
     if (!firstNftWithInfo) return;
+
     const ret: NFTCollection = {
       name: item.contract_name,
       description: firstNftWithInfo.external_data.description,
@@ -80,23 +81,25 @@ export default async (
         firstNftWithInfo.external_data.image ||
         imgNotFound,
       contract: item.contract_address,
-      items: item.nft_data.map(nft => {
-        return {
-          contract: item.contract_address,
-          id: nft.token_id,
-          image:
-            nft.external_data.image_512 ||
-            nft.external_data.image_256 ||
-            nft.external_data.image_1024 ||
-            nft.external_data.image ||
-            imgNotFound,
-          name: nft.external_data.name,
-          url: getExternalURL(network, item.contract_address, nft.token_id),
-          type: item.supports_erc.includes('erc1155')
-            ? NFTType.ERC1155
-            : NFTType.ERC721,
-        };
-      }),
+      items: item.nft_data
+        .filter(nft => nft.external_data)
+        .map(nft => {
+          return {
+            contract: item.contract_address,
+            id: nft.token_id,
+            image:
+              nft.external_data.image_512 ||
+              nft.external_data.image_256 ||
+              nft.external_data.image_1024 ||
+              nft.external_data.image ||
+              imgNotFound,
+            name: nft.external_data.name,
+            url: getExternalURL(network, item.contract_address, nft.token_id),
+            type: item.supports_erc.includes('erc1155')
+              ? NFTType.ERC1155
+              : NFTType.ERC721,
+          };
+        }),
     };
     collections[item.contract_address] = ret;
   });
