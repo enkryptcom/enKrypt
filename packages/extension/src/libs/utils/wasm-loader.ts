@@ -18,6 +18,7 @@ declare global {
     _js_getRecipientScriptPubKey: (...args: any) => any;
     _js_getRecipientAmount: (...args: any) => any;
     _js_getRecipientSubtractFeeFromAmountFlag: (...args: any) => any;
+    UTF8ToString: (...args: any) => any;
     HEAPU8: Uint8Array<ArrayBufferLike>;
     HEAP8: Int8Array<ArrayBufferLike>;
     HEAP16: Int16Array<ArrayBufferLike>;

@@ -1,6 +1,7 @@
 import ElectrumClient from 'electrum-client-browser';
 import {
   AnonymitySetMetaModel,
+  BalanceModel,
   FullTransactionModel,
   TransactionModel,
   UsedSerialsModel,
@@ -94,17 +95,19 @@ export default class FiroElectrum {
     });
   }
 
-  // async getBalanceByAddress(address: string): Promise<BalanceModel> {
-  //   this.checkConnection('getBalanceByAddress');
-  //   const script = bitcoin.address.toOutputScript(address, firo.networkInfo);
-  //   const hash = bitcoin.crypto.sha256(script);
+  async getBalanceByAddress(
+    address: string,
+  ): Promise<Omit<BalanceModel, 'addresses'>> {
+    const script = bitcoin.address.toOutputScript(address, networkInfo);
+    const hash = bitcoin.crypto.sha256(script);
 
-  //   const reversedHash = Buffer.from(reverse(hash));
-  //   const balance = await this.mainClient?.blockchainScripthash_getBalance(
-  //     reversedHash.toString('hex'),
-  //   );
-  //   return balance;
-  // }
+    const reversedHash = Buffer.from(hash.reverse());
+    const balance = await this.mainClient!.blockchain_scripthash_getBalance(
+      reversedHash.toString('hex'),
+    );
+
+    return balance;
+  }
 
   async getTransactionsByAddress(
     address: string,

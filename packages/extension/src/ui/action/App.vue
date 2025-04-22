@@ -68,7 +68,10 @@
         </transition>
       </router-view>
 
-      <button style="position: absolute; z-index: 999999" @click="fetchAll">
+      <button
+        style="position: absolute; z-index: 999999; bottom: 0; left: 0"
+        @click="fetchAll"
+      >
         Click
       </button>
 
@@ -109,6 +112,10 @@ import { BuyEventType, NetworkChangeEvents } from '@/libs/metrics/types';
 import NetworksState from '@/libs/networks-state';
 import RateState from '@/libs/rate-state';
 import {
+  getIncomingViewKey,
+  getSpendKeyObj,
+} from '@/libs/spark-handler/generateSparkWallet';
+import {
   getAccountsByNetworkName,
   getOtherSigners,
 } from '@/libs/utils/accounts';
@@ -135,6 +142,7 @@ import { getLatestEnkryptVersion } from '@action/utils/browser';
 import { EnkryptAccount, NetworkNames } from '@enkryptcom/types';
 import { fromBase } from '@enkryptcom/utils';
 import { onClickOutside } from '@vueuse/core';
+import { cloneDeep } from 'lodash';
 import { gt as semverGT } from 'semver';
 import { computed, inject, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
@@ -259,6 +267,61 @@ const fetchAll = async () => {
   const allSets = await wallet.fetchAllAnonymitySets();
 
   console.log({ allSets });
+
+  const worker = new Worker(
+    new URL('./workers/sparkCoinInfoWorker.ts', import.meta.url),
+    { type: 'module' },
+  );
+
+  if (!wasm) {
+    throw new Error('Wasm not loaded');
+  }
+
+  console.log(1);
+
+  const spendKeyObj = await getSpendKeyObj(
+    wasm,
+    accountHeaderData.value.selectedAccount!,
+  );
+
+  if (!spendKeyObj || spendKeyObj === 0) {
+    throw new Error('Failed to create spendKeyObj');
+  }
+
+  const incomingViewKey = await getIncomingViewKey(wasm, spendKeyObj);
+
+  if (!incomingViewKey) {
+    throw new Error('Failed to create IncomingViewKey');
+  }
+
+  const { incomingViewKeyObj, fullViewKeyObj } = incomingViewKey;
+
+  if (!incomingViewKeyObj || incomingViewKeyObj === 0 || fullViewKeyObj === 0) {
+    throw new Error('Failed to create IncomingViewKey and fullViewKeyObj');
+  }
+
+  console.log(4);
+
+  worker.postMessage(
+    cloneDeep({
+      allSets,
+      incomingViewKeyObj,
+      fullViewKeyObj,
+    }),
+  );
+
+  worker.onmessage = ({ data }) => {
+    console.log(data, 'Data from worker');
+  };
+
+  // allSets.forEach(set => {
+  //   set.coins.forEach(coin => {
+  //     getSparkCoinInfo({
+  //       coin,
+  //       selectedAccount: accountHeaderData!.value!.selectedAccount!,
+  //     });
+  //   });
+  // });
 };
 
 onMounted(async () => {
