@@ -545,7 +545,8 @@ const fetchAssets = () => {
   isLoadingAssets.value = true;
   return props.network.getAllTokens(addressFrom.value).then(allAssets => {
     accountAssets.value = allAssets as Erc20Token[];
-    const hasParamData = tokenParamData && tokenParamData.contract;
+    const hasParamData =
+      isSendToken.value && tokenParamData && tokenParamData.contract;
     if (hasParamData) {
       const selectedToken = allAssets.find(
         asset => asset.contract === tokenParamData.contract,
