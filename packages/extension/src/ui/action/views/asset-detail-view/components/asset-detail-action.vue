@@ -10,7 +10,11 @@
       <router-link
         :to="{
           name: 'send-transaction',
-          params: { id: route.params.id, isToken: 'true' },
+          params: {
+            id: route.params.id,
+            isToken: 'true',
+            tokenData: JSON.stringify(token),
+          },
         }"
         class="asset-detail__action-item"
       >
@@ -33,13 +37,23 @@
 import Buy from '@action/icons/actions/buy.vue';
 import Send from '@action/icons/actions/send.vue';
 import Swap from '@action/icons/actions/swap.vue';
+
+import type { AssetsType } from '@/types/provider';
 import { useRoute } from 'vue-router';
+import { PropType } from 'vue';
 const route = useRoute();
 
 defineEmits<{
   (e: 'toggle:deposit'): void;
   (e: 'open:buyAction'): void;
 }>();
+
+defineProps({
+  token: {
+    type: Object as PropType<AssetsType>,
+    default: () => ({}),
+  },
+});
 </script>
 
 <style lang="less">

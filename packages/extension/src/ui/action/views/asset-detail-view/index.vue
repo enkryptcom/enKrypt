@@ -48,7 +48,11 @@
         </h4>
         <p>${{ token.balanceUSDf }}</p>
       </div>
-      <asset-detail-action @open:buy-action="openBuySell" />
+      <asset-detail-action
+        @open:buy-action="openBuySell"
+        :token="token"
+        v-if="!isCustomToken"
+      />
       <div class="asset-detail-view__token-divider" v-if="isCustomToken" />
       <div class="asset-detail-view__action" v-if="isCustomToken">
         <base-button

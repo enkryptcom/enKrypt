@@ -77,7 +77,7 @@
         v-model="isOpenSelectNft"
         :address="addressFrom"
         :network="network"
-        :selected-nft="paramNFTData"
+        :selected-nft="tokenParamData"
         @select-nft="selectNFT"
       />
 
@@ -127,7 +127,7 @@
 <script setup lang="ts">
 import { ref, onMounted, PropType, computed, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { debounce } from 'lodash';
+import { debounce, has } from 'lodash';
 import SendHeader from '@/providers/common/ui/send-transaction/send-header.vue';
 import SendAddressInput from './components/send-address-input.vue';
 import SendFromContactsList from '@/providers/common/ui/send-transaction/send-from-contacts-list.vue';
@@ -204,7 +204,7 @@ const router = useRouter();
 const nameResolver = new GenericNameResolver();
 const addressInputTo = ref();
 const selected: string = route.params.id as string;
-const paramNFTData: NFTItem = JSON.parse(
+const tokenParamData: NFTItem = JSON.parse(
   route.params.tokenData ? (route.params.tokenData as string) : '{}',
 ) as NFTItem;
 const isSendToken = ref<boolean>(JSON.parse(route.params.isToken as string));
@@ -545,7 +545,17 @@ const fetchAssets = () => {
   isLoadingAssets.value = true;
   return props.network.getAllTokens(addressFrom.value).then(allAssets => {
     accountAssets.value = allAssets as Erc20Token[];
-    selectedAsset.value = allAssets[0] as Erc20Token;
+    const hasParamData = tokenParamData && tokenParamData.contract;
+    if (hasParamData) {
+      const selectedToken = allAssets.find(
+        asset => asset.contract === tokenParamData.contract,
+      );
+      if (selectedToken) {
+        selectedAsset.value = selectedToken as Erc20Token;
+      } else {
+        selectedAsset.value = allAssets[0] as Erc20Token;
+      }
+    }
 
     isLoadingAssets.value = false;
   });
