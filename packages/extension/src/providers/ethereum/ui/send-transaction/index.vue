@@ -802,7 +802,6 @@ const toggleSelectNft = (open: boolean) => {
 };
 
 const selectNFT = (item: NFTItemWithCollectionName) => {
-  console.log('selectedNFT', item);
   selectedNft.value = item;
   if (item.contract) {
     const web3 = new Web3Eth(props.network.node);
