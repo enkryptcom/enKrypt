@@ -57,7 +57,10 @@ const updateSelection = (idx: number, val: boolean) => {
 
 const nextAction = () => {
   isInitializing.value = true;
-  onboardInitializeWallets(phrase, password).then(() => {
+  onboardInitializeWallets({
+    mnemonic: phrase,
+    password,
+  }).then(() => {
     isInitializing.value = false;
     router.push({ name: routes.walletReady.name });
   });

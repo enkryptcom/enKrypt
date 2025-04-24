@@ -4,8 +4,10 @@ import { bufferToHex } from "@enkryptcom/utils";
 import { KadenaSigner } from "../src";
 
 describe("Kadena signing", () => {
-  const MNEMONIC =
-    "vault grant math damage slight live equip turtle taxi prize phrase notice";
+  const MNEMONIC = {
+    mnemonic:
+      "vault grant math damage slight live equip turtle taxi prize phrase notice",
+  };
 
   const msg =
     "Everything should be made as simple as possible, but not simpler.";

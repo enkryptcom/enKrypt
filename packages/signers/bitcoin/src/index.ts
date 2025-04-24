@@ -1,12 +1,20 @@
 import { mnemonicToSeed } from "bip39";
-import { Errors, SignerInterface, KeyPair } from "@enkryptcom/types";
+import {
+  Errors,
+  SignerInterface,
+  KeyPair,
+  MnemonicWithExtraWord,
+} from "@enkryptcom/types";
 import { hexToBuffer, bufferToHex } from "@enkryptcom/utils";
 import { getPublicKey, verify, sign } from "@noble/secp256k1";
 import HDkey from "hdkey";
 
 export class BitcoinSigner implements SignerInterface {
-  async generate(mnemonic: string, derivationPath = ""): Promise<KeyPair> {
-    const seed = await mnemonicToSeed(mnemonic);
+  async generate(
+    mnemonic: MnemonicWithExtraWord,
+    derivationPath = "",
+  ): Promise<KeyPair> {
+    const seed = await mnemonicToSeed(mnemonic.mnemonic, mnemonic.extraWord);
     const hdkey = HDkey.fromMasterSeed(seed);
     const key = hdkey.derive(derivationPath);
     return {
