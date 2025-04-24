@@ -2,7 +2,7 @@ import icon from './icons/bera.webp';
 import { CoingeckoPlatform, NetworkNames } from '@enkryptcom/types';
 import { EvmNetwork, EvmNetworkOptions } from '../types/evm-network';
 import assetsInfoHandler from '@/providers/ethereum/libs/assets-handlers/assetinfo-mew';
-import shNFTHandler from '@/libs/nft-handlers/goldrush';
+import grNFTHandler from '@/libs/nft-handlers/goldrush';
 import wrapActivityHandler from '@/libs/activity-state/wrap-activity-handler';
 
 const beraOptions: EvmNetworkOptions = {
@@ -19,7 +19,7 @@ const beraOptions: EvmNetworkOptions = {
   node: 'https://rpc.berachain.com/',
   icon,
   coingeckoPlatform: CoingeckoPlatform.Berachain,
-  NFTHandler: shNFTHandler,
+  NFTHandler: grNFTHandler,
   assetsInfoHandler,
   activityHandler: wrapActivityHandler(() => Promise.resolve([])),
 };

@@ -15,8 +15,6 @@ const getExternalURL = (network: NodeType, contract: string, id: string) => {
     return `https://rarible.com/token/arbitrum/${contract}:${id}`;
   if (network.name === NetworkNames.Base)
     return `https://rarible.com/token/base/${contract}:${id}`;
-  if (network.name === NetworkNames.Linea)
-    return `https://rarible.com/token/base/${contract}:${id}`;
   return '';
 };
 export default async (
