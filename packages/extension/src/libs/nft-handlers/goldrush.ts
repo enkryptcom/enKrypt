@@ -22,6 +22,7 @@ export default async (
   address: string,
 ): Promise<NFTCollection[]> => {
   const supportedNetworks = {
+    [NetworkNames.Ethereum]: 'eth-mainnet',
     [NetworkNames.Matic]: 'matic-mainnet',
     [NetworkNames.Binance]: 'bsc-mainnet',
     [NetworkNames.Arbitrum]: 'arbitrum-mainnet',
@@ -41,7 +42,7 @@ export default async (
   const fetchAll = (): Promise<void> => {
     const query = `${GR_ENDPOINT}${
       supportedNetworks[network.name as keyof typeof supportedNetworks]
-    }/address/${address}/balances_nft/?no-spam=true`;
+    }/address/${address}/balances_nft/?no-spam=true&with-uncached=true`;
     return cacheFetch(
       {
         url: query,

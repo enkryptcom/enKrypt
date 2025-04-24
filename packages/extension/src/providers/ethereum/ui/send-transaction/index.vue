@@ -161,7 +161,6 @@ import erc721 from '../../libs/abi/erc721';
 import erc1155 from '../../libs/abi/erc1155';
 import { SendTransactionDataType, VerifyTransactionParams } from '../types';
 import {
-  formatFiatValue,
   formatFloatingPointValue,
   isNumericPositive,
 } from '@/libs/utils/number-formatter';
@@ -804,6 +803,20 @@ const toggleSelectNft = (open: boolean) => {
 
 const selectNFT = (item: NFTItemWithCollectionName) => {
   selectedNft.value = item;
+  if (item.contract) {
+    const web3 = new Web3Eth(props.network.node);
+    const selectedNFTContract = new web3.Contract(
+      erc1155 as any,
+      item.contract,
+    );
+    selectedNFTContract.methods
+      .supportsInterface('0xd9b67a26')
+      .call()
+      .then((is1155: boolean) => {
+        selectedNft.value.type = is1155 ? NFTType.ERC1155 : NFTType.ERC721;
+      });
+  }
+
   isOpenSelectNft.value = false;
 };
 </script>
