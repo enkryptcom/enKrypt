@@ -27,7 +27,7 @@
       <div class="backup-detected__backup-items-container" v-else>
         <a
           v-for="(backup, idx) in [1, 2, 3]"
-          :key="`entity-${backup.userId}-${idx}`"
+          :key="`entity-${backup}-${idx}`"
           class="backup-detected__backup-item-loading"
         >
           <div class="backup-detected__backup-item-loading__loading-container">

@@ -66,6 +66,7 @@ const nextAction = () => {
   store.setMnemonic(formattedMnemonic.value);
   if (hasExtraWord.value && extraWord.value && extraWord.value !== '') {
     store.setExtraWord(extraWord.value);
+    extraWord.value = '';
   }
   mnemonic.value = '';
   router.push({
