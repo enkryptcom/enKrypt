@@ -44,7 +44,7 @@
             }"
           >
             Bug fixes and improvements. <br />
-            With love from Kosala and the entire team.
+            With love from MEW Team.
           </p>
           <a :href="version.release_link" target="_blank"
             >Full release notes
