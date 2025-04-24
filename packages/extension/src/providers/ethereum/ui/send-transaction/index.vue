@@ -324,7 +324,7 @@ const TxInfo = computed<SendTransactionDataType>(() => {
       : isSendToken.value
         ? erc20Contract.methods
             .transfer(
-              addressTo.value,
+              addressTo.value.toLowerCase(),
               toBase(sendAmount.value, selectedAsset.value.decimals!),
             )
             .encodeABI()
@@ -349,7 +349,7 @@ const TxInfo = computed<SendTransactionDataType>(() => {
     chainId: props.network.chainID,
     from: addressFrom.value as `0x{string}`,
     value: value as `0x${string}`,
-    to: toAddress as `0x${string}`,
+    to: toAddress!.toLowerCase() as `0x${string}`,
     data: data as `0x${string}`,
   };
 });
@@ -520,7 +520,8 @@ const setTransactionFees = (tx: Transaction) => {
       };
       isEstimateValid.value = true;
     })
-    .catch(() => {
+    .catch(e => {
+      console.error('Error while fetching gas costs', e);
       isEstimateValid.value = false;
     });
 };
