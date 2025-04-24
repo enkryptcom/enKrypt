@@ -4,7 +4,7 @@ import { EvmNetwork, EvmNetworkOptions } from '../types/evm-network';
 import { EtherscanActivity } from '../libs/activity-handlers';
 import wrapActivityHandler from '@/libs/activity-state/wrap-activity-handler';
 import assetsInfoHandler from '@/providers/ethereum/libs/assets-handlers/assetinfo-mew';
-import shNFTHandler from '@/libs/nft-handlers/goldrush';
+import NFTHandler from '@/libs/nft-handlers/goldrush';
 
 const gnoOptions: EvmNetworkOptions = {
   name: NetworkNames.Gnosis,
@@ -21,7 +21,7 @@ const gnoOptions: EvmNetworkOptions = {
   coingeckoID: 'dai',
   coingeckoPlatform: CoingeckoPlatform.Gnosis,
   assetsInfoHandler,
-  NFTHandler: shNFTHandler,
+  NFTHandler,
   activityHandler: wrapActivityHandler(EtherscanActivity),
 };
 

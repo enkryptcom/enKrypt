@@ -4,7 +4,7 @@ import { EvmNetwork, EvmNetworkOptions } from '../types/evm-network';
 import { EtherscanActivity } from '../libs/activity-handlers';
 import wrapActivityHandler from '@/libs/activity-state/wrap-activity-handler';
 import assetsInfoHandler from '@/providers/ethereum/libs/assets-handlers/assetinfo-mew';
-import grNFTHandler from '@/libs/nft-handlers/goldrush';
+import NFTHandler from '@/libs/nft-handlers/goldrush';
 
 const avaxOptions: EvmNetworkOptions = {
   name: NetworkNames.Avalanche,
@@ -21,7 +21,7 @@ const avaxOptions: EvmNetworkOptions = {
   coingeckoID: 'avalanche-2',
   coingeckoPlatform: CoingeckoPlatform.Avalanche,
   assetsInfoHandler,
-  NFTHandler: grNFTHandler,
+  NFTHandler,
   activityHandler: wrapActivityHandler(EtherscanActivity),
 };
 
