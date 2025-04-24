@@ -11,15 +11,35 @@ export default class RateState {
     this.storage = new BrowserStorage(InternalStorageNamespace.rateState);
   }
 
-  async showPopup(): Promise<boolean> {
+  /**
+   * 
+   * @param immediate 
+   * @returns boolean
+   * 
+   * allow popup to show immediately
+   * 
+   */
+  async showPopup(immediate: boolean = false): Promise<boolean> {
     const state: IState | undefined = await this.storage.get(
       StorageKeys.rateInfo,
     );
 
     if (state) {
+      if (!state.askedAfterActivity) {
+        const now = Date.now();
+        if (state.popupTime < now) {
+          const popupTime = Date.now() + POPUP_TIME;
+          state.popupTime = popupTime;
+
+          await this.storage.set(StorageKeys.rateInfo, state);
+          return true;
+        }
+      }
+      if (immediate) {
+        return false
+      }
       if (!state.alreadyRated) {
         const now = Date.now();
-
         if (state.popupTime < now) {
           const popupTime = Date.now() + POPUP_TIME;
           state.popupTime = popupTime;
@@ -37,11 +57,11 @@ export default class RateState {
     const newState: IState = {
       popupTime,
       alreadyRated: false,
+      askedAfterActivity: immediate,
     };
 
     this.storage.set(StorageKeys.rateInfo, newState);
-
-    return false;
+    return immediate;
   }
 
   async resetPopupTimer(): Promise<void> {
