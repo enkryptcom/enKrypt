@@ -37,7 +37,7 @@ import { computed } from 'vue';
  * @model - Controls the visibility of the dialog.
  *
  * @example Basic Dialog
- * <app-dialog v-model="dialogModel">
+ * <app-dialog v-model="dialogModel" @close:dialog="closeDialogFN">
  *    <div> hello world </div>
  * </app-dialog>
  * @example Centered Dialog with custom width
