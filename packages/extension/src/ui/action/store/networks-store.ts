@@ -40,12 +40,17 @@ export const useNetworksStore = defineStore('useNetworksStore', () => {
    * @property {ComputedRef<BaseNetwork[]>} pinnedNetworks - A computed reference to the list of pinned networks.
    */
   const pinnedNetworks = computed<BaseNetwork[]>(() => {
-    return allNetworks.value.filter(network => {
-      if (pinnedNetworkNames.value.includes(network.name)) {
-        return true;
-      }
-      return false;
-    });
+    return pinnedNetworkNames.value
+      .map(name => {
+        const network = allNetworks.value.find(
+          network => network.name === name,
+        );
+        if (network) {
+          return network;
+        }
+        return null;
+      })
+      .filter(network => network !== null) as BaseNetwork[];
   });
 
   /**

@@ -161,7 +161,6 @@ import erc721 from '../../libs/abi/erc721';
 import erc1155 from '../../libs/abi/erc1155';
 import { SendTransactionDataType, VerifyTransactionParams } from '../types';
 import {
-  formatFiatValue,
   formatFloatingPointValue,
   isNumericPositive,
 } from '@/libs/utils/number-formatter';
@@ -325,7 +324,7 @@ const TxInfo = computed<SendTransactionDataType>(() => {
       : isSendToken.value
         ? erc20Contract.methods
             .transfer(
-              addressTo.value,
+              addressTo.value.toLowerCase(),
               toBase(sendAmount.value, selectedAsset.value.decimals!),
             )
             .encodeABI()
@@ -350,7 +349,7 @@ const TxInfo = computed<SendTransactionDataType>(() => {
     chainId: props.network.chainID,
     from: addressFrom.value as `0x{string}`,
     value: value as `0x${string}`,
-    to: toAddress as `0x${string}`,
+    to: toAddress!.toLowerCase() as `0x${string}`,
     data: data as `0x${string}`,
   };
 });
@@ -521,7 +520,8 @@ const setTransactionFees = (tx: Transaction) => {
       };
       isEstimateValid.value = true;
     })
-    .catch(() => {
+    .catch(e => {
+      console.error('Error while fetching gas costs', e);
       isEstimateValid.value = false;
     });
 };
@@ -804,6 +804,20 @@ const toggleSelectNft = (open: boolean) => {
 
 const selectNFT = (item: NFTItemWithCollectionName) => {
   selectedNft.value = item;
+  if (item.contract) {
+    const web3 = new Web3Eth(props.network.node);
+    const selectedNFTContract = new web3.Contract(
+      erc1155 as any,
+      item.contract,
+    );
+    selectedNFTContract.methods
+      .supportsInterface('0xd9b67a26')
+      .call()
+      .then((is1155: boolean) => {
+        selectedNft.value.type = is1155 ? NFTType.ERC1155 : NFTType.ERC721;
+      });
+  }
+
   isOpenSelectNft.value = false;
 };
 </script>

@@ -4,10 +4,10 @@
       <tooltip
         v-if="collection.name && collection.name?.length > 40"
         :text="collection.name"
-        is-top-right
+        teleport-to-app
       >
         <p>
-          {{ $filters.replaceWithEllipsis(collection.name, 40, 0) }}
+          {{ $filters.replaceWithEllipsis(collection.name, 25, 0) }}
         </p></tooltip
       >
       <p v-else>
