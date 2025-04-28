@@ -59,13 +59,15 @@ export const initAccounts = async (keyring: KeyRing) => {
       walletType: WalletType.mnemonic,
     });
 };
-export const onboardInitializeWallets = async (
-  mnemonic: string,
-  password: string,
-): Promise<{ backupsFound: boolean }> => {
+export const onboardInitializeWallets = async (options: {
+  mnemonic: string;
+  password: string;
+  extraWord?: string;
+}): Promise<{ backupsFound: boolean }> => {
   const kr = new KeyRing();
   const backupsState = new BackupState();
-  await kr.init(mnemonic, password);
+  const { mnemonic, password, extraWord } = options;
+  await kr.init({ mnemonic, password, extraWord });
   try {
     await kr.unlock(password);
     const mainAccount = await kr.getNewAccount({

@@ -2,8 +2,7 @@ import BrowserStorage from '../common/browser-storage';
 import { InternalStorageNamespace } from '@/types/provider';
 import { IState, StorageKeys } from './types';
 
-// Two weeks
-const POPUP_TIME = 1209600000;
+const POPUP_TIME = 2592000000; // 30 days
 
 export default class RateState {
   private storage: BrowserStorage;
@@ -33,6 +32,7 @@ export default class RateState {
       }
     }
 
+    // set value when state is not set
     const popupTime = Date.now() + POPUP_TIME;
     const newState: IState = {
       popupTime,

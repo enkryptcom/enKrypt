@@ -58,6 +58,7 @@ import SettingsAbout from './views/settings-about/index.vue';
 import SettingsRecovery from './views/settings-recovery/index.vue';
 import ResetWallet from '@action/views/reset-wallet/index.vue';
 import SettingsBackups from './views/settings-backups/index.vue';
+import { MnemonicWithExtraWord } from '@enkryptcom/types';
 
 const isStart = ref(true);
 const isGeneral = ref(false);
@@ -66,7 +67,7 @@ const isSupport = ref(false);
 const isPhrase = ref(false);
 const isReset = ref(false);
 const isBackups = ref(false);
-const mnemonic = ref('');
+const mnemonic = ref<MnemonicWithExtraWord>({ mnemonic: '', extraWord: '' });
 
 const emit = defineEmits<{
   (e: 'close:popup'): void;
@@ -82,9 +83,9 @@ const setAllToFalse = () => {
   isPhrase.value = false;
   isReset.value = false;
   isBackups.value = false;
-  mnemonic.value = '';
+  mnemonic.value = { mnemonic: '', extraWord: '' };
 };
-const recoveryPhraseAction = (phrase: string) => {
+const recoveryPhraseAction = (phrase: MnemonicWithExtraWord) => {
   setAllToFalse();
   isPhrase.value = true;
   mnemonic.value = phrase;

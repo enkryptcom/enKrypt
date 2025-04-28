@@ -6,8 +6,10 @@ import { PolkadotSigner } from "../src";
 
 describe("Polkadot Address generate", () => {
   // the tests container
-  const MNEMONIC =
-    "error fish boy absent drop next ice keep meadow little air include";
+  const MNEMONIC = {
+    mnemonic:
+      "error fish boy absent drop next ice keep meadow little air include",
+  };
   const PHRASE =
     "bottom drive obey lake curtain smoke basket hold race lonely fit walk";
 
@@ -36,7 +38,8 @@ describe("Polkadot Address generate", () => {
       {
         pk: "0xb69355deefa7a8f33e9297f5af22e680f03597a99d4f4b1c44be47e7a2275802",
         ss: "5GC6LfpV352HtJPySfAecb5JdePtf4R9Vq49NUU8RhzgBqgq",
-        uri: `///password`,
+        uri: ``,
+        extraword: "password",
       },
       {
         pk: "0x40b9675df90efa6069ff623b0fdfcf706cd47ca7452a5056c7ad58194d23440a",
@@ -66,7 +69,8 @@ describe("Polkadot Address generate", () => {
       {
         pk: "0x0e0d24e3e1ff2c07f269c99e2e0df8681fda1851ac42fc846ca2daaa90cd8f14",
         ss: "5CP8S23JBNXYNpJsL7ESPJBNnUZE6itcfM4EnDxEhaVEU6dT",
-        uri: `//foo/bar//42/69///password`,
+        uri: `//foo/bar//42/69`,
+        extraword: "password",
       },
       {
         pk: "0xd43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d",
@@ -76,25 +80,39 @@ describe("Polkadot Address generate", () => {
     ];
     for (const item of list) {
       for (const bool of [true, false]) {
-        const keypair = await signer.generate(PHRASE, item.uri, {
-          onlyJS: bool,
-        });
+        const keypair = await signer.generate(
+          {
+            mnemonic: PHRASE,
+            extraWord: item.extraword,
+          },
+          item.uri,
+          {
+            onlyJS: bool,
+          },
+        );
         expect(keypair.address).equals(item.ss);
+        expect(keypair.publicKey).equals(item.pk);
       }
     }
   });
   it("ecdsa addresses should work", async () => {
     const signer = new PolkadotSigner(SignerType.ecdsa);
     for (const bool of [true, false]) {
-      let keypair = await signer.generate(PHRASE, "//Alice", { onlyJS: bool });
+      let keypair = await signer.generate({ mnemonic: PHRASE }, "//Alice", {
+        onlyJS: bool,
+      });
       expect(keypair.address).equals(
         "5C7C2Z5sWbytvHpuLTvzKunnnRwQxft1jiqrLD5rhucQ5S9X",
       );
-      keypair = await signer.generate(PHRASE, "//0", { onlyJS: bool });
+      keypair = await signer.generate({ mnemonic: PHRASE }, "//0", {
+        onlyJS: bool,
+      });
       expect(keypair.address).equals(
         "5EYLKPDaH7gGuon5vesr5QX8S9c22wYvgWwdRoGj3FykwoE8",
       );
-      keypair = await signer.generate(PHRASE, "", { onlyJS: bool });
+      keypair = await signer.generate({ mnemonic: PHRASE }, "", {
+        onlyJS: bool,
+      });
       expect(keypair.address).equals(
         "5GKyBtzbxKU1qjhZrKpMiwtJj7o6jJcXbKQVtYq74DCPerXN",
       );
@@ -103,15 +121,21 @@ describe("Polkadot Address generate", () => {
   it("ed25519 addresses should work", async () => {
     const signer = new PolkadotSigner(SignerType.ed25519);
     for (const bool of [true, false]) {
-      let keypair = await signer.generate(PHRASE, "//Alice", { onlyJS: bool });
+      let keypair = await signer.generate({ mnemonic: PHRASE }, "//Alice", {
+        onlyJS: bool,
+      });
       expect(keypair.address).equals(
         "5FA9nQDVg267DEd8m1ZypXLBnvN7SFxYwV7ndqSYGiN9TTpu",
       );
-      keypair = await signer.generate(PHRASE, "//0", { onlyJS: bool });
+      keypair = await signer.generate({ mnemonic: PHRASE }, "//0", {
+        onlyJS: bool,
+      });
       expect(keypair.address).equals(
         "5HrCphkqYygSXWt9rHebqaqbfEYekhzjyjQNjZiPxpb3XsKY",
       );
-      keypair = await signer.generate(PHRASE, "", { onlyJS: bool });
+      keypair = await signer.generate({ mnemonic: PHRASE }, "", {
+        onlyJS: bool,
+      });
       expect(keypair.address).equals(
         "5DFJF7tY4bpbpcKPJcBTQaKuCDEPCpiz8TRjpmLeTtweqmXL",
       );

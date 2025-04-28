@@ -1,11 +1,5 @@
 <template>
-  <div
-    :class="[
-      isExpanded ? 'expanded' : 'collapsed',
-      { locked: isLocked },
-      'app',
-    ]"
-  >
+  <div :class="[{ locked: isLocked }, 'app']">
     <div
       v-if="isLoading"
       :class="['app__loading', isExpanded ? 'expanded' : 'collapsed']"
@@ -71,7 +65,7 @@
       @close:popup="settingsShow = !settingsShow"
       @action:lock="lockAction"
     />
-    <modal-rate v-if="rateShow" @close:popup="rateShow = !rateShow" />
+    <modal-rate v-model="rateShow" />
     <modal-new-version
       v-if="updateShow"
       :current-version="currentVersion"
@@ -505,7 +499,6 @@ body {
 }
 .app {
   height: 600px;
-
   overflow: hidden;
   position: relative;
   -webkit-transition:

@@ -225,7 +225,9 @@ const newNetworksWithTags = ref<{ networks: string[]; swap: string[] }>({
   swap: [],
 });
 
-const setNetwork = async (network: BaseNetwork) => {
+const setNetwork = async (
+  network: BaseNetwork & { isCustomNetwork: boolean },
+) => {
   if (newNetworks.includes(network.name)) {
     await networksStore.networksState.setUsedFeature('networks', network.name);
     newNetworksWithTags.value.networks =
