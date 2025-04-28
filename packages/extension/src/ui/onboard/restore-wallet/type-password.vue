@@ -42,7 +42,11 @@ const isInitializing = ref(false);
 const nextAction = () => {
   if (!isDisabled.value) {
     isInitializing.value = true;
-    onboardInitializeWallets(unref(store.mnemonic), unref(store.password))
+    onboardInitializeWallets({
+      mnemonic: unref(store.mnemonic),
+      password: unref(store.password),
+      extraWord: unref(store.extraWord),
+    })
       .then(res => {
         isInitializing.value = false;
         if (res.backupsFound) {
