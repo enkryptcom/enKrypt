@@ -71,6 +71,7 @@ const NetworkEndpoints: Record<string, string> = {
   [NetworkNames.Scroll]: 'https://api.scrollscan.com/',
   [NetworkNames.Fraxtal]: 'https://api.fraxscan.com/',
   [NetworkNames.Coti]: 'https://mainnet.cotiscan.io/',
+  [NetworkNames.Derive]: 'https://explorer.derive.xyz/',
 };
 
 export { NetworkEndpoints };

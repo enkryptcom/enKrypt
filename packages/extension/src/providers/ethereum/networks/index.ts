@@ -27,6 +27,7 @@ import ftmNode from './ftm';
 import kaiaNode from './kaia';
 import auroraNode from './aurora';
 import puppyNode from './puppy';
+import deriveNode from './derive';
 import sepoliaNode from './sepolia';
 import baseNode from './base';
 import celoNode from './celo';
@@ -154,5 +155,6 @@ export default {
   unichain: unichainNode,
   abstract: abstractNode,
   ink: inkNode,
-  coti: coti
+  coti: coti,
+  derive: deriveNode
 };
