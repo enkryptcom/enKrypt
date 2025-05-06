@@ -1,4 +1,4 @@
-declare const Module: any;
+export declare  const Module: any;
 
 declare global {
   interface WasmModule {

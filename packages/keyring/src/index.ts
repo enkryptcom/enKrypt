@@ -21,6 +21,8 @@ import assert from "assert";
 import { entropyToMnemonic, generateMnemonic, mnemonicToEntropy } from "bip39";
 import configs from "./configs";
 import { pathParser } from "./utils";
+// import * as bip32 from 'bip32';
+// import {mnemonicToSeedSync} from "bip39"
 
 class KeyRing {
   #storage: Storage;
@@ -174,6 +176,35 @@ class KeyRing {
       this.#mnemonic,
       pathParser(options.basePath, nextIndex, options.signerType),
     );
+
+    // const seed = mnemonicToSeedSync(this.#mnemonic);
+
+    // const root = bip32.fromSeed(
+    //   seed,
+    //   // {
+    //     // bech32: 'bc',
+    //     // bip32: {
+    //     //   public: 0x0488b21e,
+    //     //   private: 0x0488ade4,
+    //     // },
+    //     // pubKeyHash: 0x52,
+    //     // scriptHash: 0x07,
+    //     // wif: 0xd2,
+    //     // bech32: "tb",
+    //     // bip32: {
+    //     //   public: 0x043587cf,
+    //     //   private: 0x04358394,
+    //     // },
+    //     // pubKeyHash: 0x41,
+    //     // scriptHash: 0xb2,
+    //     // wif: 0xb9,
+    //   // }
+    // )
+
+    // const child = root.derivePath("m/44'/136'/0'/0/0");
+    //
+    // console.log('ROOT PK:', root.privateKey.toString('hex'));
+    // console.log('CHILD PK:', child.privateKey.toString('hex'));
 
     return { pk: keypair.privateKey, nextIndex };
   }

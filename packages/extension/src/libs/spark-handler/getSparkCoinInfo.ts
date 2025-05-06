@@ -1,35 +1,42 @@
-import { loadWasm } from '../utils/wasm-loader';
 import { getSerializedCoin } from './getSerializedCoin';
 
 interface IArgs {
   coin: string[];
   incomingViewKeyObj: number;
   fullViewKeyObj: number;
+  wasmModule: WasmModule;
 }
 
 export const getSparkCoinInfo = async ({
   coin,
   fullViewKeyObj,
   incomingViewKeyObj,
+  wasmModule,
 }: IArgs) => {
-  const wasmModule = await loadWasm()
   try {
     const serializedCoin = getSerializedCoin(
-      coin,
+      coin[0],
     ) as unknown as ArrayLike<number>;
-
     const serializedCoinPointer = wasmModule._malloc(serializedCoin.length);
     wasmModule.HEAPU8.set(serializedCoin, serializedCoinPointer);
+
+    const serialContext = getSerializedCoin(
+      coin[2],
+    ) as unknown as ArrayLike<number>;
+    const serialContextPointer = wasmModule._malloc(serializedCoin.length);
+    wasmModule.HEAPU8.set(serialContext, serialContextPointer);
+
+    console.log({serializedCoin})
+
     const deserializedCoinObj = wasmModule.ccall(
       'js_deserializeCoin',
       'number',
-      ['number', 'number'],
-      [serializedCoinPointer, serializedCoin.length],
+      ['number', 'number', 'number', 'number'],
+      [serializedCoinPointer, serializedCoin.length, serialContextPointer, serialContext.length],
     );
     if (!deserializedCoinObj) {
       throw new Error('Failed to deserialize coin.');
     }
-    console.log('Deserialized Coin:', deserializedCoinObj);
 
     // Example usage of `js_getMetadata`
     const metadataObj = wasmModule.ccall(
@@ -38,8 +45,11 @@ export const getSparkCoinInfo = async ({
       ['number', 'number'],
       [deserializedCoinObj, incomingViewKeyObj],
     );
+
     if (!metadataObj) {
       throw new Error('Failed to get metadata from coin.');
+    } else {
+      console.log("%c Weee", 'background: #222; color: #bada55; font-size: 28px;  >>>');
     }
     console.log('Coin Metadata:', metadataObj);
 
@@ -245,7 +255,9 @@ export const getSparkCoinInfo = async ({
       [incomingViewKeyObj],
     );
     wasmModule.ccall('js_freeFullViewKey', null, ['number'], [fullViewKeyObj]);
-  } catch (error) {
-    console.log(error);
+  } catch (error: Error | any) {
+    if (error.message !== 'Failed to get metadata from coin.')
+    console.warn(error.message);
+    return error.message ? error.message : 'Unknown error';
   }
 };

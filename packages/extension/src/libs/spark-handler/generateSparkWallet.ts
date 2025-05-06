@@ -53,11 +53,12 @@ export const getSpendKeyObj = async (
   } catch (e) {
     console.log(e);
     return 0;
-  } finally {
-    wasm.ccall('js_freeSpendKey', null, ['number'], [spendKeyObj]);
-    wasm.ccall('js_freeSpendKeyData', null, ['number'], [spendKeyDataObj]);
-    wasm._free(keyDataPtr);
   }
+  // } finally {
+  //   wasm.ccall('js_freeSpendKey', null, ['number'], [spendKeyObj]);
+  //   wasm.ccall('js_freeSpendKeyData', null, ['number'], [spendKeyDataObj]);
+  //   wasm._free(keyDataPtr);
+  // }
 };
 
 export const getIncomingViewKey = async (
@@ -89,17 +90,18 @@ export const getIncomingViewKey = async (
   } catch (error) {
     console.log(error);
 
-    return { incomingViewKeyObj: 0, fullViewKeyObj: 0 };
-  } finally {
-    wasm.ccall(
-      'js_freeIncomingViewKey',
-      null,
-      ['number'],
-      [incomingViewKeyObj],
-    );
-    wasm.ccall('js_freeFullViewKey', null, ['number'], [fullViewKeyObj]);
-    wasm.ccall('js_freeSpendKey', null, ['number'], [spendKeyObj]);
+    return {incomingViewKeyObj: 0, fullViewKeyObj: 0};
   }
+  // } finally {
+  //   wasm.ccall(
+  //     'js_freeIncomingViewKey',
+  //     null,
+  //     ['number'],
+  //     [incomingViewKeyObj],
+  //   );
+  //   wasm.ccall('js_freeFullViewKey', null, ['number'], [fullViewKeyObj]);
+  //   wasm.ccall('js_freeSpendKey', null, ['number'], [spendKeyObj]);
+  // }
 };
 
 export async function getSparkState(

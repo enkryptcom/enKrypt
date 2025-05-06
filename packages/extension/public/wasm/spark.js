@@ -1525,6 +1525,13 @@ async function createWasm() {
           return size;
         },
   write(stream, buffer, offset, length, position, canOwn) {
+          // If the buffer is located in main memory (HEAP), and if
+          // memory can grow, we can't hold on to references of the
+          // memory buffer, as they may get invalidated. That means we
+          // need to do copy its contents.
+          if (buffer.buffer === HEAP8.buffer) {
+            canOwn = false;
+          }
   
           if (!length) return 0;
           var node = stream.node;
@@ -3760,17 +3767,74 @@ async function createWasm() {
 
 
   var getHeapMax = () =>
-      HEAPU8.length;
+      // Stay one Wasm page short of 4GB: while e.g. Chrome is able to allocate
+      // full 4GB Wasm memories, the size will wrap back to 0 bytes in Wasm side
+      // for any code that deals with heap sizes, which would require special
+      // casing all heap size related code to treat 0 specially.
+      2147483648;
   
   
-  var abortOnCannotGrowMemory = (requestedSize) => {
-      abort('OOM');
+  var growMemory = (size) => {
+      var b = wasmMemory.buffer;
+      var pages = ((size - b.byteLength + 65535) / 65536) | 0;
+      try {
+        // round size grow request up to wasm page size (fixed 64KB per spec)
+        wasmMemory.grow(pages); // .grow() takes a delta compared to the previous size
+        updateMemoryViews();
+        return 1 /*success*/;
+      } catch(e) {
+      }
+      // implicit 0 return to save code size (caller will cast "undefined" into 0
+      // anyhow)
     };
   var _emscripten_resize_heap = (requestedSize) => {
       var oldSize = HEAPU8.length;
       // With CAN_ADDRESS_2GB or MEMORY64, pointers are already unsigned.
       requestedSize >>>= 0;
-      abortOnCannotGrowMemory(requestedSize);
+      // With multithreaded builds, races can happen (another thread might increase the size
+      // in between), so return a failure, and let the caller retry.
+  
+      // Memory resize rules:
+      // 1.  Always increase heap size to at least the requested size, rounded up
+      //     to next page multiple.
+      // 2a. If MEMORY_GROWTH_LINEAR_STEP == -1, excessively resize the heap
+      //     geometrically: increase the heap size according to
+      //     MEMORY_GROWTH_GEOMETRIC_STEP factor (default +20%), At most
+      //     overreserve by MEMORY_GROWTH_GEOMETRIC_CAP bytes (default 96MB).
+      // 2b. If MEMORY_GROWTH_LINEAR_STEP != -1, excessively resize the heap
+      //     linearly: increase the heap size by at least
+      //     MEMORY_GROWTH_LINEAR_STEP bytes.
+      // 3.  Max size for the heap is capped at 2048MB-WASM_PAGE_SIZE, or by
+      //     MAXIMUM_MEMORY, or by ASAN limit, depending on which is smallest
+      // 4.  If we were unable to allocate as much memory, it may be due to
+      //     over-eager decision to excessively reserve due to (3) above.
+      //     Hence if an allocation fails, cut down on the amount of excess
+      //     growth, in an attempt to succeed to perform a smaller allocation.
+  
+      // A limit is set for how much we can grow. We should not exceed that
+      // (the wasm binary specifies it, so if we tried, we'd fail anyhow).
+      var maxHeapSize = getHeapMax();
+      if (requestedSize > maxHeapSize) {
+        return false;
+      }
+  
+      // Loop through potential heap size increases. If we attempt a too eager
+      // reservation that fails, cut down on the attempted size and reserve a
+      // smaller bump instead. (max 3 times, chosen somewhat arbitrarily)
+      for (var cutDown = 1; cutDown <= 4; cutDown *= 2) {
+        var overGrownHeapSize = oldSize * (1 + 0.2 / cutDown); // ensure geometric growth
+        // but limit overreserving (default to capping at +96MB overgrowth at most)
+        overGrownHeapSize = Math.min(overGrownHeapSize, requestedSize + 100663296 );
+  
+        var newSize = Math.min(maxHeapSize, alignMemory(Math.max(requestedSize, overGrownHeapSize), 65536));
+  
+        var replacement = growMemory(newSize);
+        if (replacement) {
+  
+          return true;
+        }
+      }
+      return false;
     };
 
   var ENV = {
@@ -4147,6 +4211,8 @@ var wasmImports = {
   /** @export */
   invoke_iij,
   /** @export */
+  invoke_jii,
+  /** @export */
   invoke_jiiii,
   /** @export */
   invoke_v,
@@ -4158,6 +4224,8 @@ var wasmImports = {
   invoke_viii,
   /** @export */
   invoke_viiii,
+  /** @export */
+  invoke_viiiii,
   /** @export */
   invoke_viiiiiii,
   /** @export */
@@ -4200,11 +4268,36 @@ var _js_getRecipientScriptPubKey = Module['_js_getRecipientScriptPubKey'] = (a0)
 var _js_getRecipientScriptPubKeySize = Module['_js_getRecipientScriptPubKeySize'] = (a0) => (_js_getRecipientScriptPubKeySize = Module['_js_getRecipientScriptPubKeySize'] = wasmExports['js_getRecipientScriptPubKeySize'])(a0);
 var _js_getRecipientAmount = Module['_js_getRecipientAmount'] = (a0) => (_js_getRecipientAmount = Module['_js_getRecipientAmount'] = wasmExports['js_getRecipientAmount'])(a0);
 var _js_getRecipientSubtractFeeFromAmountFlag = Module['_js_getRecipientSubtractFeeFromAmountFlag'] = (a0) => (_js_getRecipientSubtractFeeFromAmountFlag = Module['_js_getRecipientSubtractFeeFromAmountFlag'] = wasmExports['js_getRecipientSubtractFeeFromAmountFlag'])(a0);
+var _js_deserializeCoin = Module['_js_deserializeCoin'] = (a0, a1, a2, a3) => (_js_deserializeCoin = Module['_js_deserializeCoin'] = wasmExports['js_deserializeCoin'])(a0, a1, a2, a3);
+var _js_getCoinFromMeta = Module['_js_getCoinFromMeta'] = (a0, a1) => (_js_getCoinFromMeta = Module['_js_getCoinFromMeta'] = wasmExports['js_getCoinFromMeta'])(a0, a1);
+var _js_getMetadata = Module['_js_getMetadata'] = (a0, a1) => (_js_getMetadata = Module['_js_getMetadata'] = wasmExports['js_getMetadata'])(a0, a1);
+var _js_getInputData = Module['_js_getInputData'] = (a0, a1, a2) => (_js_getInputData = Module['_js_getInputData'] = wasmExports['js_getInputData'])(a0, a1, a2);
+var _js_getInputDataWithMeta = Module['_js_getInputDataWithMeta'] = (a0, a1, a2) => (_js_getInputDataWithMeta = Module['_js_getInputDataWithMeta'] = wasmExports['js_getInputDataWithMeta'])(a0, a1, a2);
+var _js_identifyCoin = Module['_js_identifyCoin'] = (a0, a1) => (_js_identifyCoin = Module['_js_identifyCoin'] = wasmExports['js_identifyCoin'])(a0, a1);
+var _js_getIdentifiedCoinDiversifier = Module['_js_getIdentifiedCoinDiversifier'] = (a0) => (_js_getIdentifiedCoinDiversifier = Module['_js_getIdentifiedCoinDiversifier'] = wasmExports['js_getIdentifiedCoinDiversifier'])(a0);
+var _js_getIdentifiedCoinValue = Module['_js_getIdentifiedCoinValue'] = (a0) => (_js_getIdentifiedCoinValue = Module['_js_getIdentifiedCoinValue'] = wasmExports['js_getIdentifiedCoinValue'])(a0);
+var _js_getIdentifiedCoinMemo = Module['_js_getIdentifiedCoinMemo'] = (a0) => (_js_getIdentifiedCoinMemo = Module['_js_getIdentifiedCoinMemo'] = wasmExports['js_getIdentifiedCoinMemo'])(a0);
+var _js_getCSparkMintMetaHeight = Module['_js_getCSparkMintMetaHeight'] = (a0) => (_js_getCSparkMintMetaHeight = Module['_js_getCSparkMintMetaHeight'] = wasmExports['js_getCSparkMintMetaHeight'])(a0);
+var _js_getCSparkMintMetaId = Module['_js_getCSparkMintMetaId'] = (a0) => (_js_getCSparkMintMetaId = Module['_js_getCSparkMintMetaId'] = wasmExports['js_getCSparkMintMetaId'])(a0);
+var _js_getCSparkMintMetaIsUsed = Module['_js_getCSparkMintMetaIsUsed'] = (a0) => (_js_getCSparkMintMetaIsUsed = Module['_js_getCSparkMintMetaIsUsed'] = wasmExports['js_getCSparkMintMetaIsUsed'])(a0);
+var _js_getCSparkMintMetaMemo = Module['_js_getCSparkMintMetaMemo'] = (a0) => (_js_getCSparkMintMetaMemo = Module['_js_getCSparkMintMetaMemo'] = wasmExports['js_getCSparkMintMetaMemo'])(a0);
+var _js_getCSparkMintMetaDiversifier = Module['_js_getCSparkMintMetaDiversifier'] = (a0) => (_js_getCSparkMintMetaDiversifier = Module['_js_getCSparkMintMetaDiversifier'] = wasmExports['js_getCSparkMintMetaDiversifier'])(a0);
+var _js_getCSparkMintMetaValue = Module['_js_getCSparkMintMetaValue'] = (a0) => (_js_getCSparkMintMetaValue = Module['_js_getCSparkMintMetaValue'] = wasmExports['js_getCSparkMintMetaValue'])(a0);
+var _js_getCSparkMintMetaType = Module['_js_getCSparkMintMetaType'] = (a0) => (_js_getCSparkMintMetaType = Module['_js_getCSparkMintMetaType'] = wasmExports['js_getCSparkMintMetaType'])(a0);
+var _js_getCSparkMintMetaCoin = Module['_js_getCSparkMintMetaCoin'] = (a0) => (_js_getCSparkMintMetaCoin = Module['_js_getCSparkMintMetaCoin'] = wasmExports['js_getCSparkMintMetaCoin'])(a0);
+var _js_getInputCoinDataCoverSetId = Module['_js_getInputCoinDataCoverSetId'] = (a0) => (_js_getInputCoinDataCoverSetId = Module['_js_getInputCoinDataCoverSetId'] = wasmExports['js_getInputCoinDataCoverSetId'])(a0);
+var _js_getInputCoinDataIndex = Module['_js_getInputCoinDataIndex'] = (a0) => (_js_getInputCoinDataIndex = Module['_js_getInputCoinDataIndex'] = wasmExports['js_getInputCoinDataIndex'])(a0);
+var _js_getInputCoinDataValue = Module['_js_getInputCoinDataValue'] = (a0) => (_js_getInputCoinDataValue = Module['_js_getInputCoinDataValue'] = wasmExports['js_getInputCoinDataValue'])(a0);
 var _js_freeSpendKeyData = Module['_js_freeSpendKeyData'] = (a0) => (_js_freeSpendKeyData = Module['_js_freeSpendKeyData'] = wasmExports['js_freeSpendKeyData'])(a0);
 var _js_freeSpendKey = Module['_js_freeSpendKey'] = (a0) => (_js_freeSpendKey = Module['_js_freeSpendKey'] = wasmExports['js_freeSpendKey'])(a0);
 var _js_freeFullViewKey = Module['_js_freeFullViewKey'] = (a0) => (_js_freeFullViewKey = Module['_js_freeFullViewKey'] = wasmExports['js_freeFullViewKey'])(a0);
 var _js_freeIncomingViewKey = Module['_js_freeIncomingViewKey'] = (a0) => (_js_freeIncomingViewKey = Module['_js_freeIncomingViewKey'] = wasmExports['js_freeIncomingViewKey'])(a0);
 var _js_freeAddress = Module['_js_freeAddress'] = (a0) => (_js_freeAddress = Module['_js_freeAddress'] = wasmExports['js_freeAddress'])(a0);
+var _js_freeRecipientVector = Module['_js_freeRecipientVector'] = (a0) => (_js_freeRecipientVector = Module['_js_freeRecipientVector'] = wasmExports['js_freeRecipientVector'])(a0);
+var _js_freeCSparkMintMeta = Module['_js_freeCSparkMintMeta'] = (a0) => (_js_freeCSparkMintMeta = Module['_js_freeCSparkMintMeta'] = wasmExports['js_freeCSparkMintMeta'])(a0);
+var _js_freeInputCoinData = Module['_js_freeInputCoinData'] = (a0) => (_js_freeInputCoinData = Module['_js_freeInputCoinData'] = wasmExports['js_freeInputCoinData'])(a0);
+var _js_freeIdentifiedCoinData = Module['_js_freeIdentifiedCoinData'] = (a0) => (_js_freeIdentifiedCoinData = Module['_js_freeIdentifiedCoinData'] = wasmExports['js_freeIdentifiedCoinData'])(a0);
+var _js_freeCoin = Module['_js_freeCoin'] = (a0) => (_js_freeCoin = Module['_js_freeCoin'] = wasmExports['js_freeCoin'])(a0);
 var _htonl = (a0) => (_htonl = wasmExports['htonl'])(a0);
 var _htons = (a0) => (_htons = wasmExports['htons'])(a0);
 var _emscripten_builtin_memalign = (a0, a1) => (_emscripten_builtin_memalign = wasmExports['emscripten_builtin_memalign'])(a0, a1);
@@ -4361,6 +4454,17 @@ function invoke_v(index) {
   }
 }
 
+function invoke_iiiiiii(index,a1,a2,a3,a4,a5,a6) {
+  var sp = stackSave();
+  try {
+    return getWasmTableEntry(index)(a1,a2,a3,a4,a5,a6);
+  } catch(e) {
+    stackRestore(sp);
+    if (e !== e+0) throw e;
+    _setThrew(1, 0);
+  }
+}
+
 function invoke_viij(index,a1,a2,a3) {
   var sp = stackSave();
   try {
@@ -4383,6 +4487,18 @@ function invoke_iiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8) {
   }
 }
 
+function invoke_jii(index,a1,a2) {
+  var sp = stackSave();
+  try {
+    return getWasmTableEntry(index)(a1,a2);
+  } catch(e) {
+    stackRestore(sp);
+    if (e !== e+0) throw e;
+    _setThrew(1, 0);
+    return 0n;
+  }
+}
+
 function invoke_iiij(index,a1,a2,a3) {
   var sp = stackSave();
   try {
@@ -4394,10 +4510,10 @@ function invoke_iiij(index,a1,a2,a3) {
   }
 }
 
-function invoke_iiiiiii(index,a1,a2,a3,a4,a5,a6) {
+function invoke_viiiii(index,a1,a2,a3,a4,a5) {
   var sp = stackSave();
   try {
-    return getWasmTableEntry(index)(a1,a2,a3,a4,a5,a6);
+    getWasmTableEntry(index)(a1,a2,a3,a4,a5);
   } catch(e) {
     stackRestore(sp);
     if (e !== e+0) throw e;

@@ -740,12 +740,14 @@ export class FiroWallet {
     return hasChanges;
   }
 
+  async getSetsMeta() {
+    return this.getAllSparkAnonymitySetMeta();
+  }
   async fetchAllAnonymitySets() {
-    const setsMeta = await this.getAllSparkAnonymitySetMeta();
-
-    const allSets: AnonymitySetModel[] = [];
+    const setsMeta = await this.getSetsMeta();
 
     const setsPromises = setsMeta.map(async (metaItem, i) => {
+      console.log(`starting to fetch setId: ${i + 1}`);
       const [firstChunk, secondChunk] = await Promise.all([
         this.fetchAnonymitySetSector(
           i + 1,
@@ -768,8 +770,7 @@ export class FiroWallet {
       };
     });
 
-    allSets.push(...(await Promise.all(setsPromises)));
-    return allSets;
+    return await Promise.all(setsPromises) as AnonymitySetModel[]
   }
 
   async fetchAnonymitySetSector(

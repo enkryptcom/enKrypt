@@ -74,6 +74,12 @@
       >
         Click
       </button>
+      <button
+        style="position: absolute; z-index: 999999; bottom: 0; left: 100px"
+        @click="logData"
+      >
+        Log Data
+      </button>
 
       <network-menu
         v-show="showNetworkMenu"
@@ -115,6 +121,7 @@ import {
   getIncomingViewKey,
   getSpendKeyObj,
 } from '@/libs/spark-handler/generateSparkWallet';
+import { getSparkCoinInfo } from '@/libs/spark-handler/getSparkCoinInfo.ts';
 import {
   getAccountsByNetworkName,
   getOtherSigners,
@@ -127,6 +134,7 @@ import {
 import openOnboard from '@/libs/utils/open-onboard';
 import BTCAccountState from '@/providers/bitcoin/libs/accounts-state';
 import { PublicFiroWallet } from '@/providers/bitcoin/libs/firo-wallet/public-firo-wallet';
+import { chunkedEvery } from '@/providers/bitcoin/libs/firo-wallet/utils';
 import { getSparkState } from '@/providers/bitcoin/libs/spark-state';
 import EVMAccountState from '@/providers/ethereum/libs/accounts-state';
 import { MessageMethod } from '@/providers/ethereum/types';
@@ -137,14 +145,15 @@ import SolAccountState from '@/providers/solana/libs/accounts-state';
 import { BaseNetwork } from '@/types/base-network';
 import { InternalMethods } from '@/types/messenger';
 import { EnkryptProviderEventMethods, ProviderName } from '@/types/provider';
+import { IndexedDBHelper } from '@action/db/indexedDB.ts';
 import SwapLookingAnimation from '@action/icons/swap/swap-looking-animation.vue';
 import { getLatestEnkryptVersion } from '@action/utils/browser';
+import { wasmInstance } from '@action/workers/wasm/WasmInstance';
 import { EnkryptAccount, NetworkNames } from '@enkryptcom/types';
 import { fromBase } from '@enkryptcom/utils';
 import { onClickOutside } from '@vueuse/core';
-import { cloneDeep } from 'lodash';
 import { gt as semverGT } from 'semver';
-import { computed, inject, onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import Browser from 'webextension-polyfill';
 import AccountsHeader from './components/accounts-header/index.vue';
@@ -162,7 +171,7 @@ import ModalNewVersion from './views/modal-new-version/index.vue';
 import ModalRate from './views/modal-rate/index.vue';
 import Settings from './views/settings/index.vue';
 
-const wasm = inject<WasmModule>('wasmModule');
+const coinFetchDataResult = ref<Record<string, number>>({});
 
 const wallet = new PublicFiroWallet();
 
@@ -199,6 +208,8 @@ const toggle = ref(null);
 const isLoading = ref(true);
 const currentVersion = __PACKAGE_VERSION__;
 const latestVersion = ref('');
+
+const db = new IndexedDBHelper();
 
 const setActiveNetworks = async () => {
   const activeNetworkNames = await networksState.getActiveNetworkNames();
@@ -262,27 +273,45 @@ const init = async () => {
   isLoading.value = false;
 };
 
-const fetchAll = async () => {
-  console.log('Loading sets');
-  const allSets = await wallet.fetchAllAnonymitySets();
+const logData = () => {
+  console.log('coinFetchDataResult ->>', coinFetchDataResult.value);
+};
 
+const fetchAll = async () => {
+  const wasm = await wasmInstance.getInstance();
+  const spendKeyObj = await getSpendKeyObj(
+    wasm,
+    accountHeaderData.value.selectedAccount!,
+  );
+
+  const setsMeta = await wallet.getAllSparkAnonymitySetMeta();
+
+  const isUpdated = await setsMeta.every(async (setMeta, index) => {
+    const lengt = await db.getLengthOf(index);
+    console.log(setMeta.size, index);
+    return lengt === setMeta.size;
+  });
+
+  console.log('Loading sets');
+  console.log('Is updated ->>', isUpdated);
+  const allSets = []
+  // const allSets = await wallet.fetchAllAnonymitySets();
+  // const allSets = await db.readData()
+  // const allSets = isUpdated ? await db.getAllData() : await wallet.fetchAllAnonymitySets(); // todo: change to partial fetch and db update
+
+  await db.saveData(allSets);
   console.log({ allSets });
 
-  const worker = new Worker(
-    new URL('./workers/sparkCoinInfoWorker.ts', import.meta.url),
-    { type: 'module' },
-  );
+  // const worker = new SharedWorker(
+  //   new URL('./workers/sparkCoinInfoWorker.ts', import.meta.url),
+  //   { type: 'classic' },
+  // );
 
   if (!wasm) {
     throw new Error('Wasm not loaded');
   }
 
   console.log(1);
-
-  const spendKeyObj = await getSpendKeyObj(
-    wasm,
-    accountHeaderData.value.selectedAccount!,
-  );
 
   if (!spendKeyObj || spendKeyObj === 0) {
     throw new Error('Failed to create spendKeyObj');
@@ -302,17 +331,127 @@ const fetchAll = async () => {
 
   console.log(4);
 
-  worker.postMessage(
-    cloneDeep({
-      allSets,
-      incomingViewKeyObj,
-      fullViewKeyObj,
-    }),
-  );
+  try {
+    // await init();
+    // Import wasm module asynchronously
+    // Load the WASM module using the loadWasm helper
+    // TODO: Load wasm here
 
-  worker.onmessage = ({ data }) => {
-    console.log(data, 'Data from worker');
-  };
+    // const wasm = wasmInstance.getInstance();
+
+    console.log('first chunk length ->>', allSets);
+    const flatSet = allSets.flatMap(set => set);
+
+    console.log('flatSet ->>', flatSet);
+
+    const slicedSet = allSets.at(-1);
+
+    console.log('slicedSet ->>', slicedSet);
+    if (!slicedSet) {
+      return;
+    }
+
+    // const setWithFirstCoin = [{
+    //     "blockHash": "afcoNhx8OZpqIjDagV+PXMswpOkWBKyhMFOp5isvQgk=",
+    //     "setHash": "JRQ4f0nEB3I3dGBQVYQj8rptzvM8Ulci0nAJY8rSsVw=",
+    //     "coins": [[
+    //       "ACwgrzHnKO1uQze+RTsZjDFI6EJ5KmpA0lvgI+uMw/Z6AQCgGjLAp89G2/Zm+bMe7zL/sOgAaZbu254GF8h5e8Ze4QAAACAuyRMVLxgMd0cBXVHj5WMPDUAnBe3ZRG+/vuHV8kABAFIIK5I4lKqWUos+pw/C5nMdYZr0NmOQrQnx7zOOWvgEbOYZ1vhEO8r4RcnKkmMFDHF0rxkMbQDWwKwdli0IQaF/fQzZITUAr0WTiVjzI7DcXp6gEFmc7jF2I3ZIwxC7A5skxG8gF0dhMAgjoPM42l+AVPEdQN1Tu6kj0HpFYrTf0myudDU+XaASAAAAAP3eecYxAYG0Mr2zlIVQG/319YnoPkx3P7ZHm9fWgOaTKbpcHsB/OHsVngarYfP3nZO+q7ck87jVDVGmTNuZ5eQ7AQAAAAD+////",
+    //       "/d55xjEBgbQyvbOUhVAb/fX1ieg+THc/tkeb19aA5pM=",
+    //       "ulwewH84exWeBqth8/edk76rtyTzuNUNUaZM25nl5DsBAAAAAP7///8="
+    //     ]]
+    //   }]
+    //
+    //
+    // console.log({setWithFirstCoin})
+
+    allSets.forEach(set => {
+      chunkedEvery(
+        set.coins,
+        200,
+        coin => {
+          getSparkCoinInfo({
+            coin: coin,
+            fullViewKeyObj,
+            incomingViewKeyObj,
+            wasmModule: wasm,
+          }).then(result => {
+            if (typeof result === 'string') {
+              coinFetchDataResult.value[result]
+                ? (coinFetchDataResult.value[result] =
+                    coinFetchDataResult.value[result] + 1)
+                : (coinFetchDataResult.value[result] = 1);
+            } else {
+              console.log(result);
+            }
+          });
+        },
+        () => {
+          console.log(coinFetchDataResult);
+        },
+      );
+
+      // set.coins.forEach((coin, i) => {
+      //   if (i  % 1000 === 0) {
+      //     console.log(i);
+      //   }
+      //   getSparkCoinInfo({
+      //     coin: coin,
+      //     fullViewKeyObj,
+      //     incomingViewKeyObj,
+      //     wasmModule: wasm,
+      //   }).then(result => {
+      //     if (typeof result === 'string') {
+      //       coinFetchDataResult[result] !== undefined
+      //         ? (coinFetchDataResult[result] = coinFetchDataResult[result] + 1)
+      //         : (coinFetchDataResult[result] = 0);
+      //     } else {
+      //       console.log(result);
+      //     }
+      //   });
+      //
+      //   // console.log('Coin:', coin);
+      // });
+    });
+
+    // slicedSet.coins.forEach((coin, i) => {
+    //   if (i  % 1000 === 0) {
+    //     console.log(i);
+    //   }
+    //     getSparkCoinInfo({
+    //       coin: coin,
+    //       fullViewKeyObj,
+    //       incomingViewKeyObj,
+    //       wasmModule: wasm,
+    //     }).then(result => {
+    //       if (typeof result === 'string') {
+    //         coinFetchDataResult[result] !== undefined
+    //           ? (coinFetchDataResult[result] = coinFetchDataResult[result] + 1)
+    //           : (coinFetchDataResult[result] = 0);
+    //       } else {
+    //         console.log(result);
+    //       }
+    //     });
+    //
+    //     // console.log('Coin:', coin);
+    // });
+
+    // postMessage('Done');
+  } catch (error) {
+    console.log(error);
+    // postMessage('error');
+  }
+
+  // worker.postMessage(
+  //   {
+  //     allSets,
+  //     incomingViewKeyObj,
+  //     fullViewKeyObj,
+  //   }
+  // );
+  //
+  // worker.onmessage = ({ data }) => {
+  //   console.log(data, 'Data from worker');
+  // };
 
   // allSets.forEach(set => {
   //   set.coins.forEach(coin => {
@@ -365,6 +504,7 @@ const updateGradient = (newGradient: string) => {
 };
 
 const generateNewSparkAddress = async () => {
+  const wasm = await wasmInstance.getInstance();
   const keyring = new PublicKeyRing();
   const { pk, nextIndex } = await keyring.getPrivateKey(
     accountHeaderData.value!.selectedAccount!,
