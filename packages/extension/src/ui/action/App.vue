@@ -5,6 +5,10 @@
       :class="['app__loading', isExpanded ? 'expanded' : 'collapsed']"
     >
       <swap-looking-animation />
+      <div v-if="popupClosed" class="app__loading__text">
+        <h2>Close this window</h2>
+        <p>Continue the onboard on background page</p>
+      </div>
     </div>
     <div v-show="!isLoading">
       <app-menu
@@ -153,6 +157,7 @@ const updateShow = ref(false);
 const isLoading = ref(true);
 const currentVersion = __PACKAGE_VERSION__;
 const latestVersion = ref('');
+const popupClosed = ref(false);
 /** -------------------
  * Exapnded Menu
  -------------------*/
@@ -296,6 +301,7 @@ onMounted(async () => {
     fetchAndSetRates();
   } else {
     openOnboard().then(() => {
+      popupClosed.value = true;
       window.close();
     });
   }
