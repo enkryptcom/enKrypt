@@ -7,7 +7,7 @@
       <swap-looking-animation />
       <div v-if="popupClosed" class="app__loading__text">
         <h2>Close this window</h2>
-        <p>Continue the onboard on background page</p>
+        <p>Continue to onboard on the background page</p>
       </div>
     </div>
     <div v-show="!isLoading">
