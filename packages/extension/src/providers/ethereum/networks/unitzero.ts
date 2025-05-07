@@ -11,15 +11,15 @@ const unitZeroOptions: EvmNetworkOptions = {
   homePage: 'https://www.units.network/',
   blockExplorerTX: 'https://explorer.unit0.dev/tx/[[txHash]]',
   blockExplorerAddr: 'https://explorer.unit0.dev/address/[[address]]',
-  chainID: '0x15adb',
+  chainID: '0x15aeb',
   isTestNetwork: false,
   currencyName: 'UNIT0',
   currencyNameLong: 'Unit0',
   node: 'https://rpc.unit0.dev/',
   icon,
-  coingeckoID: 'units-network',
+  coingeckoID: 'unit0',
   coingeckoPlatform: CoingeckoPlatform.UnitZero,
-  activityHandler: wrapActivityHandler(EtherscanActivity),
+  activityHandler: wrapActivityHandler(() => Promise.resolve([])),
 };
 
 const unitZero = new EvmNetwork(unitZeroOptions);

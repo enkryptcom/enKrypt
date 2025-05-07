@@ -173,6 +173,5 @@ export enum CoingeckoPlatform {
   Story = "story",
   Ink = "ink",
   Taraxa = "taraxa",
-  UnitZero = "unit-zero",
-  UnitZeroTestnet = "unit-zero-testnet",
+  UnitZero = "units-network"
 }

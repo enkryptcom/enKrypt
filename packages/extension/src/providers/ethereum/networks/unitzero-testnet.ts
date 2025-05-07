@@ -16,7 +16,7 @@ const unitZeroTestnetOptions: EvmNetworkOptions = {
   currencyNameLong: 'Unit0',
   node: 'https://rpc-testnet.unit0.dev/',
   icon,
-  activityHandler: wrapActivityHandler(EtherscanActivity),
+  activityHandler: wrapActivityHandler(() => Promise.resolve([])),
 };
 
 const unitZero = new EvmNetwork(unitZeroTestnetOptions);
