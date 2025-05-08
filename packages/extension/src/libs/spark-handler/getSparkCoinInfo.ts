@@ -26,8 +26,6 @@ export const getSparkCoinInfo = async ({
     const serialContextPointer = wasmModule._malloc(serializedCoin.length);
     wasmModule.HEAPU8.set(serialContext, serialContextPointer);
 
-    console.log({serializedCoin})
-
     const deserializedCoinObj = wasmModule.ccall(
       'js_deserializeCoin',
       'number',
@@ -47,7 +45,8 @@ export const getSparkCoinInfo = async ({
     );
 
     if (!metadataObj) {
-      throw new Error('Failed to get metadata from coin.');
+      // throw new Error('Failed to get metadata from coin.');
+      return
     } else {
       console.log("%c Weee", 'background: #222; color: #bada55; font-size: 28px;  >>>');
     }
@@ -102,13 +101,13 @@ export const getSparkCoinInfo = async ({
     console.log('Identified Coin:', identifiedCoinObj);
 
     // Example usage of `js_getIdentifiedCoinDiversifier`
-    const diversifier = wasmModule.ccall(
-      'js_getIdentifiedCoinDiversifier',
-      'number',
-      ['number'],
-      [identifiedCoinObj],
-    );
-    console.log('Identified Coin Diversifier:', diversifier);
+    // const diversifier = wasmModule.ccall(
+    //   'js_getIdentifiedCoinDiversifier',
+    //   'number',
+    //   ['number'],
+    //   [identifiedCoinObj],
+    // );
+    // console.log('Identified Coin Diversifier:', diversifier);
 
     // Example usage of `js_getIdentifiedCoinValue`
     const value = wasmModule.ccall(
@@ -120,33 +119,33 @@ export const getSparkCoinInfo = async ({
     console.log('Identified Coin Value:', value);
 
     // Example usage of `js_getIdentifiedCoinMemo`
-    const memo = wasmModule.UTF8ToString(
-      wasmModule.ccall(
-        'js_getIdentifiedCoinMemo',
-        'number',
-        ['number'],
-        [identifiedCoinObj],
-      ),
-    );
-    console.log('Identified Coin Memo:', memo);
+    // const memo = wasmModule.UTF8ToString(
+    //   wasmModule.ccall(
+    //     'js_getIdentifiedCoinMemo',
+    //     'number',
+    //     ['number'],
+    //     [identifiedCoinObj],
+    //   ),
+    // );
+    // console.log('Identified Coin Memo:', memo);
 
     // Example usage of `js_getCSparkMintMetaHeight`
-    const metaHeight = wasmModule.ccall(
-      'js_getCSparkMintMetaHeight',
-      'number',
-      ['number'],
-      [metadataObj],
-    );
-    console.log('Spark Mint Meta Height:', metaHeight);
-
-    // Example usage of `js_getCSparkMintMetaId`
-    const metaId = wasmModule.ccall(
-      'js_getCSparkMintMetaId',
-      'number',
-      ['number'],
-      [metadataObj],
-    );
-    console.log('Spark Mint Meta ID:', metaId);
+    // const metaHeight = wasmModule.ccall(
+    //   'js_getCSparkMintMetaHeight',
+    //   'number',
+    //   ['number'],
+    //   [metadataObj],
+    // );
+    // console.log('Spark Mint Meta Height:', metaHeight);
+    //
+    // // Example usage of `js_getCSparkMintMetaId`
+    // const metaId = wasmModule.ccall(
+    //   'js_getCSparkMintMetaId',
+    //   'number',
+    //   ['number'],
+    //   [metadataObj],
+    // );
+    // console.log('Spark Mint Meta ID:', metaId);
 
     // Example usage of `js_getCSparkMintMetaIsUsed`
     const metaIsUsed = wasmModule.ccall(
@@ -158,24 +157,24 @@ export const getSparkCoinInfo = async ({
     console.log('Spark Mint Meta Is Used:', metaIsUsed !== 0);
 
     // Example usage of `js_getCSparkMintMetaMemo`
-    const metaMemo = wasmModule.UTF8ToString(
-      wasmModule.ccall(
-        'js_getCSparkMintMetaMemo',
-        'number',
-        ['number'],
-        [metadataObj],
-      ),
-    );
-    console.log('Spark Mint Meta Memo:', metaMemo);
+    // const metaMemo = wasmModule.UTF8ToString(
+    //   wasmModule.ccall(
+    //     'js_getCSparkMintMetaMemo',
+    //     'number',
+    //     ['number'],
+    //     [metadataObj],
+    //   ),
+    // );
+    // console.log('Spark Mint Meta Memo:', metaMemo);
 
     // Example usage of `js_getCSparkMintMetaDiversifier`
-    const metaDiversifier = wasmModule.ccall(
-      'js_getCSparkMintMetaDiversifier',
-      'number',
-      ['number'],
-      [metadataObj],
-    );
-    console.log('Spark Mint Meta Diversifier:', metaDiversifier);
+    // const metaDiversifier = wasmModule.ccall(
+    //   'js_getCSparkMintMetaDiversifier',
+    //   'number',
+    //   ['number'],
+    //   [metadataObj],
+    // );
+    // console.log('Spark Mint Meta Diversifier:', metaDiversifier);
 
     // Example usage of `js_getCSparkMintMetaValue`
     const metaValue = wasmModule.ccall(
@@ -256,7 +255,6 @@ export const getSparkCoinInfo = async ({
     );
     wasmModule.ccall('js_freeFullViewKey', null, ['number'], [fullViewKeyObj]);
   } catch (error: Error | any) {
-    if (error.message !== 'Failed to get metadata from coin.')
     console.warn(error.message);
     return error.message ? error.message : 'Unknown error';
   }

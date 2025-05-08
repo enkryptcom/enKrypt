@@ -21,8 +21,7 @@ import assert from "assert";
 import { entropyToMnemonic, generateMnemonic, mnemonicToEntropy } from "bip39";
 import configs from "./configs";
 import { pathParser } from "./utils";
-// import * as bip32 from 'bip32';
-// import {mnemonicToSeedSync} from "bip39"
+import * as bip32 from "bip32";
 
 class KeyRing {
   #storage: Storage;
@@ -169,44 +168,17 @@ class KeyRing {
     await this.#storage.set(configs.STORAGE_KEYS.PATH_INDEXES, pathIndexes);
   }
 
-  async getPrivateKey(options: SignOptions) {
-    const nextIndex = await this.#getPathIndex(options.basePath);
+  async getPrivateKey(seed: Buffer) {
+    const basePath = "m/44'/136'/0'/6/1"
+    // const nextIndex = await this.#getPathIndex(basePath);
 
-    const keypair = await this.#signers[options.signerType].generate(
-      this.#mnemonic,
-      pathParser(options.basePath, nextIndex, options.signerType),
-    );
+    const root = bip32.fromSeed(seed);
+    const child = root.derivePath(basePath);
 
-    // const seed = mnemonicToSeedSync(this.#mnemonic);
+    const privateKey = child!.privateKey!.toString("hex");
+    console.log("Private Key (hex):", privateKey);
 
-    // const root = bip32.fromSeed(
-    //   seed,
-    //   // {
-    //     // bech32: 'bc',
-    //     // bip32: {
-    //     //   public: 0x0488b21e,
-    //     //   private: 0x0488ade4,
-    //     // },
-    //     // pubKeyHash: 0x52,
-    //     // scriptHash: 0x07,
-    //     // wif: 0xd2,
-    //     // bech32: "tb",
-    //     // bip32: {
-    //     //   public: 0x043587cf,
-    //     //   private: 0x04358394,
-    //     // },
-    //     // pubKeyHash: 0x41,
-    //     // scriptHash: 0xb2,
-    //     // wif: 0xb9,
-    //   // }
-    // )
-
-    // const child = root.derivePath("m/44'/136'/0'/0/0");
-    //
-    // console.log('ROOT PK:', root.privateKey.toString('hex'));
-    // console.log('CHILD PK:', child.privateKey.toString('hex'));
-
-    return { pk: keypair.privateKey, nextIndex };
+    return { pk: privateKey, nextIndex: 1 };
   }
 
   async getSavedMnemonic(password: string) {

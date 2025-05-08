@@ -1,11 +1,9 @@
 import PublicKeyRing from '@/libs/keyring/public-keyring';
 import { loadWasm } from '@/libs/utils/wasm-loader';
 import { SparkAccount } from '@/ui/action/types/account';
-import { SignOptions } from '@enkryptcom/types';
+import {PublicFiroWallet} from "@/providers/bitcoin/libs/firo-wallet/public-firo-wallet.ts";
 
-export async function getSparkState(
-  selectedAccount: SignOptions,
-): Promise<SparkAccount | undefined> {
+export async function getSparkState(): Promise<SparkAccount | undefined> {
   // const [allAddresses, sparkBalance] = await Promise.all([
   //   callRPC<Record<number, string>>("getallsparkaddresses"),
   //   callRPC("getsparkbalance"),
@@ -24,16 +22,12 @@ export async function getSparkState(
   }
 
   const keyring = new PublicKeyRing();
+  const firoWallet = new PublicFiroWallet();
+  const seed = await firoWallet.getSecret()
 
-  const { pk, nextIndex } = await keyring.getPrivateKey(selectedAccount);
+  const { pk, nextIndex } = await keyring.getPrivateKey(seed);
 
-  const uint8Array = new Uint8Array(pk.length / 2);
-
-  for (let i = 0; i < pk.length; i += 2) {
-    uint8Array[i / 2] = parseInt(pk[i] + pk[i + 1], 16);
-  }
-
-  const keyData = uint8Array.slice(1);
+  const keyData = Buffer.from(pk, 'hex');
   const index = nextIndex;
   const diversifier = 1n;
   const is_test_network = 0;

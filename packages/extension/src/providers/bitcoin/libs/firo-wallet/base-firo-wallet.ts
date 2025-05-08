@@ -41,6 +41,10 @@ export class BaseFiroWallet {
     return this.#wallet.getAllSparkAnonymitySetMeta();
   }
 
+  getSecret() {
+    return this.#wallet.getSecret();
+  }
+
   async fetchAnonymitySetSector(
     setId: number,
     latestBlockHash: string,

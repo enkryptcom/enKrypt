@@ -27,6 +27,10 @@ export class PublicFiroWallet {
     return this.#wallet.fetchAllAnonymitySets();
   }
 
+  getSecret() {
+    return this.#wallet.getSecret();
+  }
+
   async getAllSparkAnonymitySetMeta() {
     return this.#wallet.getAllSparkAnonymitySetMeta();
   }

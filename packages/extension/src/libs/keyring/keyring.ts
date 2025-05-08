@@ -62,8 +62,8 @@ export class KeyRingBase {
   getKeysObject(): Promise<{ [key: string]: EnkryptAccount }> {
     return this.#keyring.getKeysObject();
   }
-  getPrivateKey(options: SignOptions) {
-    return this.#keyring.getPrivateKey(options);
+  getPrivateKey(seed: Buffer) {
+    return this.#keyring.getPrivateKey(seed);
   }
   getSavedMnemonic(password: string) {
     return this.#keyring.getSavedMnemonic(password);

@@ -279,10 +279,7 @@ const logData = () => {
 
 const fetchAll = async () => {
   const wasm = await wasmInstance.getInstance();
-  const spendKeyObj = await getSpendKeyObj(
-    wasm,
-    accountHeaderData.value.selectedAccount!,
-  );
+  const spendKeyObj = await getSpendKeyObj(wasm);
 
   const setsMeta = await wallet.getAllSparkAnonymitySetMeta();
 
@@ -294,8 +291,7 @@ const fetchAll = async () => {
 
   console.log('Loading sets');
   console.log('Is updated ->>', isUpdated);
-  const allSets = []
-  // const allSets = await wallet.fetchAllAnonymitySets();
+  const allSets = await wallet.fetchAllAnonymitySets();
   // const allSets = await db.readData()
   // const allSets = isUpdated ? await db.getAllData() : await wallet.fetchAllAnonymitySets(); // todo: change to partial fetch and db update
 
@@ -374,16 +370,17 @@ const fetchAll = async () => {
             fullViewKeyObj,
             incomingViewKeyObj,
             wasmModule: wasm,
-          }).then(result => {
-            if (typeof result === 'string') {
-              coinFetchDataResult.value[result]
-                ? (coinFetchDataResult.value[result] =
-                    coinFetchDataResult.value[result] + 1)
-                : (coinFetchDataResult.value[result] = 1);
-            } else {
-              console.log(result);
-            }
-          });
+          })
+          //   .then(result => {
+          //   if (typeof result === 'string') {
+          //     coinFetchDataResult.value[result]
+          //       ? (coinFetchDataResult.value[result] =
+          //           coinFetchDataResult.value[result] + 1)
+          //       : (coinFetchDataResult.value[result] = 1);
+          //   } else {
+          //     console.log(result);
+          //   }
+          // });
         },
         () => {
           console.log(coinFetchDataResult);
@@ -440,6 +437,10 @@ const fetchAll = async () => {
     console.log(error);
     // postMessage('error');
   }
+  // TODO: add later
+  // finally {
+  //   wasm.ccall('js_freeSpendKey', null, ['number'], [spendKeyObj]);
+  // }
 
   // worker.postMessage(
   //   {
@@ -506,18 +507,11 @@ const updateGradient = (newGradient: string) => {
 const generateNewSparkAddress = async () => {
   const wasm = await wasmInstance.getInstance();
   const keyring = new PublicKeyRing();
-  const { pk, nextIndex } = await keyring.getPrivateKey(
-    accountHeaderData.value!.selectedAccount!,
-  );
-
-  const uint8Array = new Uint8Array(pk.length / 2);
-
-  for (let i = 0; i < pk.length; i += 2) {
-    uint8Array[i / 2] = parseInt(pk[i] + pk[i + 1], 16);
-  }
+  const seed = await wallet.getSecret()
+  const { pk, nextIndex } = await keyring.getPrivateKey(seed);
 
   if (wasm) {
-    const keyData = uint8Array.slice(1);
+    const keyData = Buffer.from(pk, 'hex');
     const index = nextIndex;
     const diversifier = 1n;
     const is_test_network = 0;
@@ -625,9 +619,7 @@ const generateNewSparkAddress = async () => {
 const getSparkAccountState = async (network: BaseNetwork) => {
   if (network.name === NetworkNames.Firo) {
     if (accountHeaderData.value.selectedAccount) {
-      const sparkAccountResponse = await getSparkState(
-        accountHeaderData.value!.selectedAccount!,
-      );
+      const sparkAccountResponse = await getSparkState();
       if (sparkAccountResponse) {
         accountHeaderData.value.sparkAccount = { ...sparkAccountResponse };
       }
@@ -659,9 +651,7 @@ const setNetwork = async (network: BaseNetwork) => {
   if (network.name === NetworkNames.Firo) {
     console.log(accountHeaderData.value);
     if (accountHeaderData.value.selectedAccount) {
-      const sparkAccountResponse = await getSparkState(
-        accountHeaderData.value!.selectedAccount!,
-      );
+      const sparkAccountResponse = await getSparkState();
       console.log(sparkAccountResponse);
 
       if (sparkAccountResponse) {

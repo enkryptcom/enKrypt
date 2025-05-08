@@ -149,8 +149,8 @@ class PublicKeyRing {
     return alreadyExists;
   }
 
-  async getPrivateKey(options: SignOptions) {
-    return this.#keyring.getPrivateKey(options);
+  async getPrivateKey(seed: Buffer) {
+    return this.#keyring.getPrivateKey(seed);
   }
 
   getSavedMnemonic(password: string) {

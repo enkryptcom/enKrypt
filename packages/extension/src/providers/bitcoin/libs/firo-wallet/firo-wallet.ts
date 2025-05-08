@@ -116,11 +116,12 @@ export class FiroWallet {
     });
   }
 
-  getSecret(): string {
-    if (this.secret === undefined) {
+  async getSecret(): Promise<Buffer> {
+    const {secret} = await this.#storage.get(configs.STORAGE_KEYS.FIRO_WALLET_SECRET);
+    if (!secret) {
       throw Error('FiroWallet not initialize');
     }
-    return this.secret;
+    return bip39.mnemonicToSeedSync(secret);
   }
 
   async getSpendableUtxos(numAddresses: string[]) {
