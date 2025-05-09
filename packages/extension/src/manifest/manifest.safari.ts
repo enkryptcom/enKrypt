@@ -18,7 +18,8 @@ const safariManifest = {
   },
   host_permissions: ['http://*/*', 'https://*/*'],
   content_security_policy: {
-    extension_pages: "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'",
+    extension_pages:
+      "script-src 'self' 'unsafe-eval' 'wasm-unsafe-eval'; object-src 'self'",
   },
   permissions: [
     'storage',

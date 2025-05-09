@@ -5,6 +5,7 @@ import routes from './routes';
 import * as filters from '@action/utils/filters';
 import Vue3Lottie from 'vue3-lottie';
 import { createPinia } from 'pinia';
+import '@polkadot/wasm-crypto/initOnlyAsm';
 
 global.WeakMap = WeakMap;
 
