@@ -2,17 +2,20 @@
   "extends": "./tsconfig.paths.json",
   "compilerOptions": {
     "lib": ["ESNext", "dom"],
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "removeComments": true,
     "sourceMap": true,
     "target": "es5",
-    "module": "commonjs",
+    "module": "es2020",
     "outDir": "dist",
     "resolveJsonModule": true,
     "esModuleInterop": true,
-    "declaration": true
+    "declaration": true,
+    "paths": {
+      "@web3-name-sdk/core/*": ["node_modules/@web3-name-sdk/core/dist/*"]
+    },
   },
   "include": ["src/**/*.ts", "tests/**/*.ts"],
   "exclude": [

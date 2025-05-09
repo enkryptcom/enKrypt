@@ -24,6 +24,7 @@
   },
   "dependencies": {
     "@amplitude/analytics-browser": "^2.14.0",
+    "@bonfida/spl-name-service": "^3.0.10",
     "@enkryptcom/extension-bridge": "workspace:^",
     "@enkryptcom/hw-wallets": "workspace:^",
     "@enkryptcom/keyring": "workspace:^",
@@ -78,6 +79,7 @@
     "switch-ts": "^1.1.1",
     "url-parse": "^1.5.10",
     "uuid": "^11.1.0",
+    "viem": "^2.23.12",
     "vue": "^3.5.13",
     "vue-echarts": "7.0.3",
     "vue-router": "^4.5.0",

@@ -378,7 +378,11 @@ const inputAddressFrom = (text: string) => {
 const inputAddressTo = (text: string) => {
   const debounceResolve = debounce(() => {
     nameResolver
-      .resolveName(text, [props.network.name as CoinType, 'DOT', 'KSM'])
+      .resolveName(
+        text,
+        [props.network.name as CoinType, 'DOT', 'KSM'],
+        props.network?.provider as string,
+      )
       .then(resolved => {
         if (resolved) {
           addressTo.value = resolved;

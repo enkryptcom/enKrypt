@@ -404,7 +404,11 @@ const setMax = () => {
 const inputAddress = (text: string) => {
   const debounceResolve = debounce(() => {
     nameResolver
-      .resolveName(text, [props.network.name as CoinType, 'ETH'])
+      .resolveName(
+        text,
+        [props.network.name as CoinType, 'ETH'],
+        props.network?.provider as string,
+      )
       .then(resolved => {
         if (resolved) {
           inputAddress(resolved);

@@ -1,72 +1,114 @@
-import { ethers } from "ethers";
-import SID, { getSidAddress } from "@siddomains/sidjs";
-import { BaseResolver } from "../types";
+import { createWeb3Name } from "@web3-name-sdk/core";
+import { BaseResolver, CoinType } from "../types";
+import { PAYMENT_ID_CHAINS_MAP, PaymentIdChain, SIDOptions, TIMEOUT_PRESETS } from "./types";
+import { createSolName } from "@web3-name-sdk/core/solName";
+import { createPaymentIdName } from "@web3-name-sdk/core/paymentIdName";
+import { isValidPaymentId } from "./utils";
 import { getTLD } from "../utils";
-import { SIDOptions } from "./types";
+// demo: https://sdk-demo-git-main-space-id.vercel.app/
+const evm_tlds = [
+  "bnb",
+  "arb",
+  "wod",
+  "mph",
+  "g",
+  "eth",
+  "btc",
+  "burger",
+  "alien",
+  "zkf",
+  "merlin",
+  "taiko",
+  "tomo",
+  "gno",
+  "floki",
+  "ll",
+  "ip",
+  "mode",
+  "mint",
+  "manta",
+  "cake",
+  "zeta",
+  "ail",
+  "duck",
+];
 
 class SIDResolver implements BaseResolver {
   name: string;
-
-  supportedTLDs = ["bnb", "arb"];
-
+  timeout: number;
+  // The supported tlds for sid in evm and solana
+  supportedTLDs = ["sol", ...evm_tlds];
   rpc: SIDOptions;
+  solanaNameResolver: ReturnType<typeof createSolName>;
+  paymentIdNameResolver: ReturnType<typeof createPaymentIdName>;
+  web3NameResolver: ReturnType<typeof createWeb3Name>;
 
   constructor(options: SIDOptions) {
     this.rpc = options;
+    this.timeout = options.timeout || TIMEOUT_PRESETS.normal;
     this.name = "spaceid";
+    this.solanaNameResolver = createSolName({ timeout: this.timeout });
+    this.paymentIdNameResolver = createPaymentIdName();
+    this.web3NameResolver = createWeb3Name();
   }
 
-  // eslint-disable-next-line class-methods-use-this, @typescript-eslint/no-empty-function
   public async init(): Promise<void> {}
 
-  public async resolveReverseName(address: string): Promise<string | null> {
-    const bnbProvider = new ethers.providers.JsonRpcProvider({
-      url: this.rpc.node.bnb,
-      headers: {
-        "user-agent": "enkrypt/name-resolver",
-      },
+  // The PaymentId only supports getAddress resolution.
+  public async handlePaymentIdGetAddress(
+    name: string,
+    paymentIdChain?: string
+  ): Promise<string | null> {
+    return await this.paymentIdNameResolver.getAddress({
+      name,
+      chainId: PAYMENT_ID_CHAINS_MAP[paymentIdChain?.toLowerCase()] || PaymentIdChain.Ethereum,
     });
-    const sidBNB = new SID({
-      provider: bnbProvider,
-      sidAddress: getSidAddress("56"),
-    });
-    const nameBnb = await sidBNB.getName(address);
-    if (nameBnb) return nameBnb.name;
-    const arbProvider = new ethers.providers.JsonRpcProvider({
-      url: this.rpc.node.arb,
-      headers: {
-        "user-agent": "enkrypt/name-resolver",
-      },
-    });
-    const sidArb = new SID({
-      provider: arbProvider,
-      sidAddress: getSidAddress("42161"),
-    });
-    const nameArb = await sidArb.getName(address);
-    if (nameArb) return nameArb.name;
-    return null;
   }
 
-  public async resolveAddress(name: string): Promise<string | null> {
-    const provider = new ethers.providers.JsonRpcProvider({
-      url: this.rpc.node[getTLD(name)],
-      headers: {
-        "user-agent": "enkrypt/name-resolver",
-      },
-    });
-    const sid = new SID({
-      provider,
-      sidAddress: getSidAddress(getTLD(name) === "bnb" ? "56" : "42161"),
-    });
-    const address = await sid.name(name).getAddress();
-    if (parseInt(address, 16) === 0) {
+  public async resolveReverseName(address: string): Promise<string | null> {
+    try {
+      let name = await this.web3NameResolver.getDomainName({
+        timeout: this.timeout,
+        address,
+      });
+      if (!name) {
+        name = await this.solanaNameResolver.getDomainName({
+          address,
+        });
+      }
+      return name;
+    } catch (error) {
       return null;
     }
-    return address;
   }
 
+  public async resolveAddress(
+    name: string,
+    coint: CoinType,
+    paymentIdChain?: string,
+  ): Promise<string | null> {
+    if (isValidPaymentId(name)) {
+      console.log("PaymentId name", name, coint);
+      return this.handlePaymentIdGetAddress(name, paymentIdChain);
+    }
+
+    const tld = getTLD(name);
+    switch (tld) {
+      case "sol":
+        const solAddress = await this.solanaNameResolver.getAddress({
+          name,
+        });
+        return solAddress;
+      default:
+        const address = await this.web3NameResolver.getAddress(name, {
+          timeout: this.timeout,
+        });
+        return parseInt(address, 16) === 0 ? null : address;
+    }
+  }
   public isSupportedName(name: string): boolean {
-    return this.supportedTLDs.includes(getTLD(name));
+    // Compatible with TLD  and paymentId
+    return this.supportedTLDs.includes(getTLD(name)) || isValidPaymentId(name);
   }
 }
 
