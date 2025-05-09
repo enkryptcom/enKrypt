@@ -73,4 +73,5 @@ export type SupportedNetworkNames =
   | NetworkNames.Ink
   | NetworkNames.Story
   | NetworkNames.Base
-  | NetworkNames.ImmutableZkevm;
+  | NetworkNames.ImmutableZkevm
+  | NetworkNames.Conflux;
