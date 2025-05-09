@@ -49,7 +49,9 @@
   "dependencies": {
     "@ensdomains/address-encoder": "^1.1.2",
     "@siddomains/sidjs": "0.1.29",
+    "@solana/web3.js": "^1.98.0",
     "@unstoppabledomains/resolution": "^9.3.3",
+    "@web3-name-sdk/core": "^0.4.1",
     "ethers": "^5.8.0"
   }
 }

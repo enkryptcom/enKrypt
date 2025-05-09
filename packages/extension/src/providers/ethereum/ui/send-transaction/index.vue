@@ -668,7 +668,11 @@ const inputAddressFrom = (text: string) => {
 const inputAddressTo = async (text: string) => {
   const debounceResolve = debounce(() => {
     nameResolver
-      .resolveName(text, [props.network.name as CoinType, 'ETH'])
+      .resolveName(
+        text,
+        [props.network.name as CoinType, 'ETH'],
+        props.network?.provider as string,
+      )
       .then(resolved => {
         if (resolved) {
           addressTo.value = resolved;
