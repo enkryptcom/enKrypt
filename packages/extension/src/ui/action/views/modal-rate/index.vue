@@ -21,7 +21,6 @@ import AppDialog from '@action/components/app-dialog/index.vue';
 import BaseButton from '@action/components/base-button/index.vue';
 import RateState from '@/libs/rate-state';
 import { detectBrowser, BROWSER_NAMES, openLink } from '@action/utils/browser';
-import { watch } from 'vue';
 
 const model = defineModel<boolean>();
 const rateState = new RateState();
@@ -30,14 +29,6 @@ const close = async () => {
   await rateState.resetPopupTimer();
   model.value = false;
 };
-
-watch(
-  () => model.value,
-  async newValue => {
-    console.log('model.value', newValue);
-  },
-  { immediate: true },
-);
 
 const goToFeedback = async () => {
   await rateState.resetPopupTimer();
