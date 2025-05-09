@@ -109,10 +109,19 @@ import { toBN } from 'web3-utils';
 import { bufferToHex, toBase } from '@enkryptcom/utils';
 import { trackSendEvents } from '@/libs/metrics';
 import { SendEventType } from '@/libs/metrics/types';
+import RateState from '@/libs/rate-state';
+import { useRateStore } from '@action/store/rate-store';
+
+/** -------------------
+ * Rate
+ -------------------*/
+const rateStore = useRateStore();
+const { toggleRatePopup } = rateStore;
 
 const KeyRing = new PublicKeyRing();
 const route = useRoute();
 const router = useRouter();
+const rateState = new RateState();
 const selectedNetwork: string = route.query.id as string;
 const txData: VerifyTransactionParams = JSON.parse(
   Buffer.from(route.query.txData as string, 'base64').toString('utf8'),
@@ -139,6 +148,16 @@ const close = () => {
   } else {
     window.close();
   }
+};
+
+const callToggleRate = () => {
+  /**
+   * will only show the user if they haven't rated it
+   * and never been shown before
+   */
+  rateState.showPopup(true).then(show => {
+    if (show) toggleRatePopup(true);
+  });
 };
 
 const sendAction = async () => {
@@ -198,11 +217,13 @@ const sendAction = async () => {
         if (getCurrentContext() === 'popup') {
           setTimeout(() => {
             isProcessing.value = false;
+            callToggleRate();
             router.go(-2);
           }, 4500);
         } else {
           setTimeout(() => {
             isProcessing.value = false;
+            callToggleRate();
             window.close();
           }, 1500);
         }
