@@ -23,25 +23,21 @@ export default class RateState {
     const state: IState | undefined = await this.storage.get(
       StorageKeys.rateInfo,
     );
+    const now = Date.now();
+    const popupTime = Date.now() + POPUP_TIME;
 
     if (state) {
       if (!state.askedAfterActivity) {
-        const now = Date.now();
+        console.log('askedAfterActivity', state);
         if (state.popupTime < now) {
-          const popupTime = Date.now() + POPUP_TIME;
-          state.popupTime = popupTime;
+          state.askedAfterActivity = true;
 
           await this.storage.set(StorageKeys.rateInfo, state);
           return true;
         }
       }
-      if (immediate) {
-        return false
-      }
-      if (!state.alreadyRated) {
-        const now = Date.now();
+      if (!state.alreadyRated && !state.askedAfterActivity) {
         if (state.popupTime < now) {
-          const popupTime = Date.now() + POPUP_TIME;
           state.popupTime = popupTime;
 
           await this.storage.set(StorageKeys.rateInfo, state);
@@ -50,10 +46,10 @@ export default class RateState {
       } else {
         return false;
       }
+
+      if (immediate) return false
     }
 
-    // set value when state is not set
-    const popupTime = Date.now() + POPUP_TIME;
     const newState: IState = {
       popupTime,
       alreadyRated: false,

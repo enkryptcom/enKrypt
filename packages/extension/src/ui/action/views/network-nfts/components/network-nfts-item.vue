@@ -27,7 +27,6 @@
       v-model="isDetail"
       :item="item"
       :is-favorite="isFavorite"
-      :link-action="openLink"
       v-bind="$attrs"
     />
   </div>
@@ -76,22 +75,6 @@ const toggleMoreMenu = () => {
 };
 const toggleDetail = () => {
   isDetail.value = !isDetail.value;
-};
-const openLink = async () => {
-  const selectedNetwork =
-    (await domainState.getSelectedNetWork()) as NetworkNames;
-
-  let url: string | null = null;
-
-  if (selectedNetwork === NetworkNames.Optimism) {
-    url = `https://qx.app/asset/${props.item.contract}/${props.item.id}`;
-  } else {
-    url = props.item.url;
-  }
-
-  if (url) {
-    window.open(url, '_blank');
-  }
 };
 onClickOutside(
   dropdown,

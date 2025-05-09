@@ -3,7 +3,6 @@ import { NetworkNames } from '@enkryptcom/types';
 import { EvmNetwork, EvmNetworkOptions } from '../types/evm-network';
 import { EtherscanActivity } from '../libs/activity-handlers';
 import wrapActivityHandler from '@/libs/activity-state/wrap-activity-handler';
-import shNFTHandler from '@/libs/nft-handlers/simplehash';
 
 const formaOptions: EvmNetworkOptions = {
   name: NetworkNames.Forma,
@@ -18,7 +17,6 @@ const formaOptions: EvmNetworkOptions = {
   node: 'https://rpc.forma.art',
   icon,
   activityHandler: wrapActivityHandler(EtherscanActivity),
-  NFTHandler: shNFTHandler,
 };
 
 const forma = new EvmNetwork(formaOptions);

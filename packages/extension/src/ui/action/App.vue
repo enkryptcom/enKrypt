@@ -1,11 +1,5 @@
 <template>
-  <div
-    :class="[
-      isExpanded ? 'expanded' : 'collapsed',
-      { locked: isLocked },
-      'app',
-    ]"
-  >
+  <div :class="[{ locked: isLocked }, 'app']">
     <div
       v-if="isLoading"
       :class="['app__loading', isExpanded ? 'expanded' : 'collapsed']"
@@ -71,7 +65,7 @@
       @close:popup="settingsShow = !settingsShow"
       @action:lock="lockAction"
     />
-    <modal-rate v-if="isRatePopupOpen" @close:popup="toggleRatePopup(false)" />
+    <modal-rate v-model="isRatePopupOpen" />
     <modal-new-version
       v-if="updateShow"
       :current-version="currentVersion"
@@ -283,6 +277,7 @@ onMounted(async () => {
       setTimeout(() => {
         rateState.showPopup().then(show => {
           if (show) {
+            console.log('show rate popup', show);
             toggleRatePopup(true);
           } else {
             getLatestEnkryptVersion().then(version => {
@@ -507,7 +502,6 @@ body {
 }
 .app {
   height: 600px;
-
   overflow: hidden;
   position: relative;
   -webkit-transition:
