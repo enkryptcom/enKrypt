@@ -72,6 +72,7 @@ const NetworkEndpoints: Record<string, string> = {
   [NetworkNames.Fraxtal]: 'https://api.fraxscan.com/',
   [NetworkNames.Coti]: 'https://mainnet.cotiscan.io/',
   [NetworkNames.Derive]: 'https://explorer.derive.xyz/',
+  [NetworkNames.Conflux]: 'https://evmapi.confluxscan.org/',
 };
 
 export { NetworkEndpoints };
