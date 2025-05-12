@@ -19,7 +19,7 @@ const confluxOptions: EvmNetworkOptions = {
   node: 'https://evm.confluxrpc.com',
   icon,
   NFTHandler,
-  coingeckoID: 'conflux',
+  coingeckoID: 'conflux-token',
   assetsInfoHandler,
   activityHandler: wrapActivityHandler(EtherscanActivity),
 };
