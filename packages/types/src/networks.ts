@@ -108,6 +108,7 @@ export enum NetworkNames {
   Coti = "Coti",
   UnitZero = "UnitZero",
   UnitZeroTestnet = "UnitZeroTestnet",
+  Conflux = "Conflux"
 }
 
 export enum CoingeckoPlatform {
@@ -174,4 +175,5 @@ export enum CoingeckoPlatform {
   Ink = "ink",
   Taraxa = "taraxa",
   UnitZero = "units-network"
+  Conflux = "conflux"
 }

@@ -73,6 +73,7 @@ import taraxa from './taraxa';
 import coti from './coti';
 import unitZero from './unitzero';
 import unitZeroTestnet from './unitzero-testnet';
+import conflux from './conflux';
 
 export default {
   sepolia: sepoliaNode,
@@ -159,4 +160,5 @@ export default {
   coti: coti,
   unitZero: unitZero,
   unitZeroTestnet: unitZeroTestnet
+  conflux: conflux,
 };
