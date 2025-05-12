@@ -71,6 +71,8 @@ import abstractNode from './abstract';
 import inkNode from './inkonchain';
 import taraxa from './taraxa';
 import coti from './coti';
+import unitZero from './unitzero';
+import unitZeroTestnet from './unitzero-testnet';
 import conflux from './conflux';
 
 export default {
@@ -156,5 +158,7 @@ export default {
   abstract: abstractNode,
   ink: inkNode,
   coti: coti,
+  unitZero: unitZero,
+  unitZeroTestnet: unitZeroTestnet
   conflux: conflux,
 };
