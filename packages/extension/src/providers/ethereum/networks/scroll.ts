@@ -4,7 +4,7 @@ import { EvmNetwork, EvmNetworkOptions } from '../types/evm-network';
 import wrapActivityHandler from '@/libs/activity-state/wrap-activity-handler';
 import { EtherscanActivity } from '../libs/activity-handlers';
 import assetsInfoHandler from '@/providers/ethereum/libs/assets-handlers/assetinfo-mew';
-import shNFTHandler from '@/libs/nft-handlers/simplehash';
+import NFTHandler from '@/libs/nft-handlers/goldrush';
 
 const scrollOptions: EvmNetworkOptions = {
   name: NetworkNames.Scroll,
@@ -18,7 +18,7 @@ const scrollOptions: EvmNetworkOptions = {
   currencyNameLong: 'Scroll ETH',
   node: 'wss://scroll-rpc.publicnode.com',
   icon,
-  NFTHandler: shNFTHandler,
+  NFTHandler,
   coingeckoID: 'ethereum',
   assetsInfoHandler,
   activityHandler: wrapActivityHandler(EtherscanActivity),

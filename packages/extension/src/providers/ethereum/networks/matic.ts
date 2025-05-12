@@ -2,7 +2,7 @@ import icon from './icons/matic.webp';
 import { CoingeckoPlatform, NetworkNames } from '@enkryptcom/types';
 import { EvmNetwork, EvmNetworkOptions } from '../types/evm-network';
 import assetsInfoHandler from '@/providers/ethereum/libs/assets-handlers/assetinfo-mew';
-import shNFTHandler from '@/libs/nft-handlers/simplehash';
+import NFTHandler from '@/libs/nft-handlers/goldrush';
 import { EtherscanActivity } from '../libs/activity-handlers';
 import wrapActivityHandler from '@/libs/activity-state/wrap-activity-handler';
 
@@ -20,7 +20,7 @@ const maticOptions: EvmNetworkOptions = {
   icon,
   coingeckoID: 'polygon-ecosystem-token',
   coingeckoPlatform: CoingeckoPlatform.Matic,
-  NFTHandler: shNFTHandler,
+  NFTHandler,
   assetsInfoHandler,
   activityHandler: wrapActivityHandler(EtherscanActivity),
 };
