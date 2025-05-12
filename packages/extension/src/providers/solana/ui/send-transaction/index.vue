@@ -138,7 +138,6 @@ import { fromBase, toBase, isValidDecimals } from '@enkryptcom/utils';
 import { VerifyTransactionParams, SendTransactionDataType } from '../types';
 import {
   formatFloatingPointValue,
-  formatFiatValue,
   isNumericPositive,
 } from '@/libs/utils/number-formatter';
 import { routes as RouterNames } from '@/ui/action/router';
