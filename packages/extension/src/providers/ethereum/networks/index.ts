@@ -71,6 +71,7 @@ import abstractNode from './abstract';
 import inkNode from './inkonchain';
 import taraxa from './taraxa';
 import coti from './coti';
+import conflux from './conflux';
 
 export default {
   sepolia: sepoliaNode,
@@ -154,5 +155,6 @@ export default {
   unichain: unichainNode,
   abstract: abstractNode,
   ink: inkNode,
-  coti: coti
+  coti: coti,
+  conflux: conflux,
 };
