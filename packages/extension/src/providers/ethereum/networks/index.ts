@@ -159,8 +159,8 @@ export default {
   abstract: abstractNode,
   ink: inkNode,
   coti: coti,
-  derive: deriveNode
+  derive: deriveNode,
   unitZero: unitZero,
-  unitZeroTestnet: unitZeroTestnet
+  unitZeroTestnet: unitZeroTestnet,
   conflux: conflux,
 };

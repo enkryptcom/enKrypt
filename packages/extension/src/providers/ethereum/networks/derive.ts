@@ -1,7 +1,6 @@
 import icon from './icons/derive.webp';
-import { CoingeckoPlatform, NetworkNames } from '@enkryptcom/types';
+import { NetworkNames } from '@enkryptcom/types';
 import { EvmNetwork, EvmNetworkOptions } from '../types/evm-network';
-import assetsInfoHandler from '@/providers/ethereum/libs/assets-handlers/assetinfo-mew';
 import { EtherscanActivity } from '../libs/activity-handlers';
 import wrapActivityHandler from '@/libs/activity-state/wrap-activity-handler';
 
@@ -18,8 +17,6 @@ const deriveOptions: EvmNetworkOptions = {
   node: 'https://rpc.derive.xyz',
   icon,
   coingeckoID: 'derive',
-  coingeckoPlatform: CoingeckoPlatform.Derive,
-  assetsInfoHandler,
   activityHandler: wrapActivityHandler(EtherscanActivity),
 };
 
