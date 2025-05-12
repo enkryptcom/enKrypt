@@ -277,7 +277,6 @@ onMounted(async () => {
       setTimeout(() => {
         rateState.showPopup().then(show => {
           if (show) {
-            console.log('show rate popup', show);
             toggleRatePopup(true);
           } else {
             getLatestEnkryptVersion().then(version => {

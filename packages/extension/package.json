@@ -106,6 +106,7 @@
     "@types/less": "^3.0.8",
     "@types/lodash": "^4.17.16",
     "@types/node": "^22.15.17",
+    "@types/semver": "^7.7.0",
     "@types/url-parse": "^1.4.11",
     "@types/utf-8-validate": "^5.0.2",
     "@types/uuid": "^10.0.0",

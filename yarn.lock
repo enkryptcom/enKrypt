@@ -1599,6 +1599,7 @@ __metadata:
     "@types/less": "npm:^3.0.8"
     "@types/lodash": "npm:^4.17.16"
     "@types/node": "npm:^22.15.17"
+    "@types/semver": "npm:^7.7.0"
     "@types/url-parse": "npm:^1.4.11"
     "@types/utf-8-validate": "npm:^5.0.2"
     "@types/uuid": "npm:^10.0.0"
@@ -11647,6 +11648,13 @@ __metadata:
   dependencies:
     "@types/node": "npm:*"
   checksum: 10/211f823be990b55612e604d620acf0dc3bc942d3836bdd8da604269effabc86d98161e5947487b4e4e128f9180fc1682daae2f89ea7a4d9648fdfe52fba365fc
+  languageName: node
+  linkType: hard
+
+"@types/semver@npm:^7.7.0":
+  version: 7.7.0
+  resolution: "@types/semver@npm:7.7.0"
+  checksum: 10/ee4514c6c852b1c38f951239db02f9edeea39f5310fad9396a00b51efa2a2d96b3dfca1ae84c88181ea5b7157c57d32d7ef94edacee36fbf975546396b85ba5b
   languageName: node
   linkType: hard
 
