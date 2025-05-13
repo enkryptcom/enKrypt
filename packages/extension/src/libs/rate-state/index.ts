@@ -88,7 +88,7 @@ export default class RateState {
       const newState: IState = {
         alreadyRated: false,
         popupTime,
-        askedAfterActivity: state?.askedAfterActivity || true,
+        askedAfterActivity: false,
       };
 
       await this.storage.set(StorageKeys.rateInfo, newState);
