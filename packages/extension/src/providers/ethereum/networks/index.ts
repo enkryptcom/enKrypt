@@ -27,6 +27,7 @@ import ftmNode from './ftm';
 import kaiaNode from './kaia';
 import auroraNode from './aurora';
 import puppyNode from './puppy';
+import deriveNode from './derive';
 import sepoliaNode from './sepolia';
 import baseNode from './base';
 import celoNode from './celo';
@@ -72,6 +73,10 @@ import inkNode from './inkonchain';
 import taraxa from './taraxa';
 import coti from './coti';
 import hemi from './hemi';
+import cytonicTestnetNode from './cytonic-testnet';
+import unitZero from './unitzero';
+import unitZeroTestnet from './unitzero-testnet';
+import conflux from './conflux';
 
 export default {
   sepolia: sepoliaNode,
@@ -157,4 +162,10 @@ export default {
   ink: inkNode,
   coti: coti
   hemi: hemiNode
+  coti: coti,
+  cytonicTestnet: cytonicTestnetNode,
+  derive: deriveNode,
+  unitZero: unitZero,
+  unitZeroTestnet: unitZeroTestnet,
+  conflux: conflux,
 };
