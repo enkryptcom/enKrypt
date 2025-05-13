@@ -152,7 +152,7 @@ export abstract class BaseResolver {
 
   public abstract resolveReverseName(address: string): Promise<string | null>;
 
-  public abstract isSupportedName(name: string, paymentIdChain?:PaymentIdChain): boolean;
+  public abstract isSupportedName(name: string): boolean;
 }
 
 export interface NameResolverOptions {
