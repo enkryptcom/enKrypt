@@ -33,12 +33,13 @@ export default class RateState {
      * Case 2: if the user has not rated (this means that the user got asked after activity)
      *  - askedAfterActivity is already true
      *  - set popupTime to now + 30 days
+     *  - set true if user rates it, if feedback, reset the timer
      * Case 3: if the user has already rated
      *  - always return false
      * Case 4: if no state exists
      *  - create a new state with askedAfterActivity = false
      *  - set popupTime to now + 30 days
-     *  - return immediate
+     *  - return immediate (should be false at this point)
      */
 
     if (state) {
@@ -87,7 +88,7 @@ export default class RateState {
       const newState: IState = {
         alreadyRated: false,
         popupTime,
-        askedAfterActivity: false,
+        askedAfterActivity: state?.askedAfterActivity || true,
       };
 
       await this.storage.set(StorageKeys.rateInfo, newState);
