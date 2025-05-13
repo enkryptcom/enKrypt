@@ -91,7 +91,8 @@ const NetworkDetails: Record<SupportedNetworkName, NetworkInfo> = {
   },
   [SupportedNetworkName.Arbitrum]: {
     id: SupportedNetworkName.Arbitrum,
-    cgId: "ethereum",
+    cgId: "arbitrum",
+    // before it was cgId: "ethereum",
     decimals: 18,
     logoURI:
       "https://assets.coingecko.com/coins/images/16547/large/photo_2023-03-29_21.47.00.jpeg",
