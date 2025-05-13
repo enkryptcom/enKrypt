@@ -72,7 +72,6 @@ import abstractNode from './abstract';
 import inkNode from './inkonchain';
 import taraxa from './taraxa';
 import coti from './coti';
-import hemi from './hemi';
 import cytonicTestnetNode from './cytonic-testnet';
 import unitZero from './unitzero';
 import unitZeroTestnet from './unitzero-testnet';
@@ -160,8 +159,6 @@ export default {
   unichain: unichainNode,
   abstract: abstractNode,
   ink: inkNode,
-  coti: coti
-  hemi: hemiNode
   coti: coti,
   cytonicTestnet: cytonicTestnetNode,
   derive: deriveNode,
