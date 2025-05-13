@@ -72,6 +72,7 @@ import abstractNode from './abstract';
 import inkNode from './inkonchain';
 import taraxa from './taraxa';
 import coti from './coti';
+import cytonicTestnetNode from './cytonic-testnet';
 import unitZero from './unitzero';
 import unitZeroTestnet from './unitzero-testnet';
 import conflux from './conflux';
@@ -159,6 +160,7 @@ export default {
   abstract: abstractNode,
   ink: inkNode,
   coti: coti,
+  cytonicTestnet: cytonicTestnetNode,
   derive: deriveNode,
   unitZero: unitZero,
   unitZeroTestnet: unitZeroTestnet,
