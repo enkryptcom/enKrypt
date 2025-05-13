@@ -1,6 +1,10 @@
-import { EvmNetwork, EvmNetworkOptions } from "../types/evm-network";
+import icon from './icons/hemi.webp';
+import { NetworkNames } from '@enkryptcom/types';
+import { EvmNetwork, EvmNetworkOptions } from '../types/evm-network';
+import { EtherscanActivity } from '../libs/activity-handlers';
+import wrapActivityHandler from '@/libs/activity-state/wrap-activity-handler';
 
-const netOptions: EvmNetworkOptions = {
+const hemiOptions: EvmNetworkOptions = {
     name: NetworkNames.Hemi,
     name_long: 'Hemi',
     homePage: 'https://hemi.xyz/',
@@ -11,11 +15,11 @@ const netOptions: EvmNetworkOptions = {
     currencyName: 'ETH',
     currencyNameLong: 'Ethereum',
     node: 'wss://rpc.hemi.network/wsrpc',
+    coingeckoID: 'ethereum',
     icon,
-    
     activityHandler: wrapActivityHandler(EtherscanActivity),
   };
   
-  const net = new EvmNetwork(netOptions);
+  const hemi = new EvmNetwork(netOptions);
   
-  export default net;
+  export default hemi;
