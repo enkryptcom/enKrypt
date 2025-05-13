@@ -71,6 +71,7 @@ const NetworkEndpoints: Record<string, string> = {
   [NetworkNames.Scroll]: 'https://api.scrollscan.com/',
   [NetworkNames.Fraxtal]: 'https://api.fraxscan.com/',
   [NetworkNames.Coti]: 'https://mainnet.cotiscan.io/',
+  [NetworkNames.Hemi]: 'https://explorer.hemi.xyz/api',
   [NetworkNames.CytonicTestnet]: 'https://explorer-api.evm.testnet.cytonic.com/api/',
   [NetworkNames.Derive]: 'https://explorer.derive.xyz/',
   [NetworkNames.Conflux]: 'https://evmapi.confluxscan.org/',

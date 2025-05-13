@@ -106,6 +106,7 @@ export enum NetworkNames {
   Bera = "Bera",
   Taraxa = "Taraxa",
   Coti = "Coti",
+  Hemi = "Hemi",
   CytonicTestnet = "CytonicTestnet",
   Derive = "derive",
   UnitZero = "UnitZero",
