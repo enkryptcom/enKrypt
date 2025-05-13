@@ -1,5 +1,5 @@
 import { ENSOptions } from "./ens/types";
-import { PaymentIdChain, SIDOptions } from "./sid/types";
+import {  SIDOptions } from "./sid/types";
 
 export type CoinType =
   | "BTC"
