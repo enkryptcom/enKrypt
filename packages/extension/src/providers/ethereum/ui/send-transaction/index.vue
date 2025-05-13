@@ -127,7 +127,7 @@
 <script setup lang="ts">
 import { ref, onMounted, PropType, computed, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { debounce, has } from 'lodash';
+import { debounce } from 'lodash';
 import SendHeader from '@/providers/common/ui/send-transaction/send-header.vue';
 import SendAddressInput from './components/send-address-input.vue';
 import SendFromContactsList from '@/providers/common/ui/send-transaction/send-from-contacts-list.vue';
@@ -544,20 +544,19 @@ const fetchAssets = () => {
   selectedAsset.value = loadingAsset;
   isLoadingAssets.value = true;
   return props.network.getAllTokens(addressFrom.value).then(allAssets => {
-    accountAssets.value = allAssets as Erc20Token[];
+    accountAssets.value = allAssets as (Erc20Token & { contract: string })[];
     const hasParamData =
       isSendToken.value && tokenParamData && tokenParamData.contract;
     if (hasParamData) {
-      const selectedToken = allAssets.find(
+      const selectedToken = accountAssets.value.find(
         asset => asset.contract === tokenParamData.contract,
       );
       if (selectedToken) {
         selectedAsset.value = selectedToken as Erc20Token;
-      } else {
-        selectedAsset.value = allAssets[0] as Erc20Token;
       }
+    } else {
+      selectedAsset.value = allAssets[0] as Erc20Token;
     }
-
     isLoadingAssets.value = false;
   });
 };
@@ -577,6 +576,11 @@ const sendButtonTitle = computed(() => {
 });
 
 const isValidSend = computed<boolean>(() => {
+  console.log(
+    isInputsValid.value,
+    nativeBalanceAfterTransactionInBaseUnits.value.isNeg(),
+    isEstimateValid.value,
+  );
   if (!isInputsValid.value) return false;
   if (nativeBalanceAfterTransactionInBaseUnits.value.isNeg()) return false;
   if (!isEstimateValid.value) return false;

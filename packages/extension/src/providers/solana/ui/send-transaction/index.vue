@@ -446,18 +446,17 @@ const fetchAssets = () => {
   isLoadingAssets.value = true;
   return props.network.getAllTokens(addressFrom.value).then(allAssets => {
     accountAssets.value = allAssets as SOLToken[];
-    selectedAsset.value = allAssets[0] as SOLToken;
     const hasParamData =
       isSendToken.value && tokenParamData && tokenParamData.contract;
     if (hasParamData) {
-      const selectedToken = allAssets.find(
+      const selectedToken = accountAssets.value.find(
         asset => asset.contract === tokenParamData.contract,
       );
       if (selectedToken) {
         selectedAsset.value = selectedToken as SOLToken;
-      } else {
-        selectedAsset.value = allAssets[0] as SOLToken;
       }
+    } else {
+      selectedAsset.value = allAssets[0] as SOLToken;
     }
     isLoadingAssets.value = false;
   });
