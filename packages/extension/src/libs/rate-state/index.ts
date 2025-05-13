@@ -24,7 +24,7 @@ export default class RateState {
       StorageKeys.rateInfo,
     );
     const now = Date.now();
-    const popupTime = Date.now() + POPUP_TIME;
+    const popupTime = now + POPUP_TIME;
 
     /**
      * Case 1: if the user has already been asked after activity
@@ -45,11 +45,12 @@ export default class RateState {
     if (state) {
       if (!state.askedAfterActivity) {
         state.askedAfterActivity = true;
+        state.popupTime = popupTime;
 
         await this.storage.set(StorageKeys.rateInfo, state);
         return true;
       }
-      if (!state.alreadyRated) {
+      else if (!state.alreadyRated) {
         if (state.popupTime < now) {
           state.popupTime = popupTime;
 
@@ -59,14 +60,12 @@ export default class RateState {
       } else {
         return false;
       }
-
-      if (immediate) return false
     }
 
     const newState: IState = {
       popupTime,
       alreadyRated: false,
-      askedAfterActivity: immediate,
+      askedAfterActivity: false,
     };
 
     this.storage.set(StorageKeys.rateInfo, newState);
