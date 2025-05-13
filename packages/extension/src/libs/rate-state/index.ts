@@ -1,7 +1,6 @@
 import BrowserStorage from '../common/browser-storage';
 import { InternalStorageNamespace } from '@/types/provider';
 import { IState, StorageKeys } from './types';
-import { state } from '@polkadot/types/interfaces/definitions';
 
 const POPUP_TIME = 2592000000; // 30 days
 
