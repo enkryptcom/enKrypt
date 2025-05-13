@@ -71,6 +71,7 @@ import abstractNode from './abstract';
 import inkNode from './inkonchain';
 import taraxa from './taraxa';
 import coti from './coti';
+import hemi from './hemi';
 
 export default {
   sepolia: sepoliaNode,
@@ -155,4 +156,5 @@ export default {
   abstract: abstractNode,
   ink: inkNode,
   coti: coti
+  hemi: hemiNode
 };
