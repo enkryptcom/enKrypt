@@ -68,7 +68,7 @@ export default class RateState {
       askedAfterActivity: false,
     };
 
-    this.storage.set(StorageKeys.rateInfo, newState);
+    await this.storage.set(StorageKeys.rateInfo, newState);
     return immediate;
   }
 
