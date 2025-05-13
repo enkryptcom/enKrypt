@@ -18,7 +18,7 @@ class GenericNameResolver {
     let response: string | null = null;
     for (const coin of coins) {
       response = await this.nameResolver
-        .resolveAddress(name, coin)
+        .resolveAddress(name, coin, providerChain)
         .catch(() => null);
       if (response) return response;
     }
