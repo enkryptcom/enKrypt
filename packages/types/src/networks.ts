@@ -106,6 +106,7 @@ export enum NetworkNames {
   Bera = "Bera",
   Taraxa = "Taraxa",
   Coti = "Coti",
+  CytonicTestnet = "CytonicTestnet",
 }
 
 export enum CoingeckoPlatform {
