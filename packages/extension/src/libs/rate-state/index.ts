@@ -1,6 +1,7 @@
 import BrowserStorage from '../common/browser-storage';
 import { InternalStorageNamespace } from '@/types/provider';
 import { IState, StorageKeys } from './types';
+import { state } from '@polkadot/types/interfaces/definitions';
 
 const POPUP_TIME = 2592000000; // 30 days
 
@@ -95,11 +96,15 @@ export default class RateState {
   }
 
   async setRated(): Promise<void> {
-    const state: IState = {
+    const state: IState | undefined = await this.storage.get(
+      StorageKeys.rateInfo,
+    );
+    const newState: IState = {
       alreadyRated: true,
       popupTime: 0,
+      askedAfterActivity: state?.askedAfterActivity || true,
     };
 
-    await this.storage.set(StorageKeys.rateInfo, state);
+    await this.storage.set(StorageKeys.rateInfo, newState);
   }
 }
