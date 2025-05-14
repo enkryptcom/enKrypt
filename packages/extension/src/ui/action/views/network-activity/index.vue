@@ -6,6 +6,7 @@
     >
       <div class="network-activity">
         <network-activity-total
+          :isSyncing="props.isSyncing"
           :crypto-amount="cryptoAmount"
           :fiat-amount="fiatAmount"
           :symbol="props.network.currencyName"
@@ -89,6 +90,10 @@ import type Web3Eth from 'web3-eth';
 import NetworkActivityLoading from './components/network-activity-loading.vue';
 
 const props = defineProps({
+  isSyncing: {
+    type: Boolean,
+    default: false,
+  },
   network: {
     type: Object as PropType<BaseNetwork>,
     default: () => ({}),

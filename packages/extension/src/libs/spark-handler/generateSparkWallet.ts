@@ -1,7 +1,7 @@
 import PublicKeyRing from '@/libs/keyring/public-keyring';
-import { loadWasm } from '@/libs/utils/wasm-loader';
 import { SparkAccount } from '@/ui/action/types/account';
 import {PublicFiroWallet} from "@/providers/bitcoin/libs/firo-wallet/public-firo-wallet.ts";
+import {wasmInstance} from "@/libs/utils/wasm-loader.ts";
 
 export const getSpendKeyObj = async (
   wasm: WasmModule,
@@ -48,12 +48,12 @@ export const getSpendKeyObj = async (
   } catch (e) {
     console.log(e);
     return 0;
+
+    // TODO: Add later
+  } finally {
+    wasm.ccall('js_freeSpendKeyData', null, ['number'], [spendKeyDataObj]);
+    wasm._free(keyDataPtr);
   }
-  // TODO: Add later
-  // finally {
-  //   wasm.ccall('js_freeSpendKeyData', null, ['number'], [spendKeyDataObj]);
-  //   wasm._free(keyDataPtr);
-  // }
 };
 
 export const getIncomingViewKey = async (
@@ -100,7 +100,7 @@ export const getIncomingViewKey = async (
 };
 
 export async function getSparkState(): Promise<SparkAccount | undefined> {
-  const wasm = await loadWasm();
+  const wasm = await wasmInstance.getInstance();
 
   if (!wasm) {
     console.log('Wasm not loaded');

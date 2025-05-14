@@ -1,4 +1,4 @@
-import { loadWasm } from '@/libs/utils/wasm-loader';
+import { wasmInstance } from '@/libs/utils/wasm-loader';
 import { firoElectrum } from '@/providers/bitcoin/libs/electrum-client/electrum-client';
 import { createApp } from 'vue';
 import Vue3Lottie from 'vue3-lottie';
@@ -14,12 +14,16 @@ if (import.meta.env.DEV) {
 
 const app = createApp(App);
 
-loadWasm()
+app.onUnmount(() => {
+  firoElectrum.disconnect();
+});
+
+wasmInstance
+  .getInstance()
   .then(wasm => {
-    console.log(wasm);
+    firoElectrum.connectMain();
 
     app.provide('wasmModule', wasm); // Make available globally
-    firoElectrum.connectMain();
   })
   .catch(err => {
     console.error('Error loading WASM:', err);

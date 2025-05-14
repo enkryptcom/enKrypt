@@ -22,6 +22,15 @@
     >
       Anonymize funds
     </button>
+    <button
+      :disabled="isSynchronizeBtnDisabled"
+      v-if="network.name === NetworkNames.Firo && sparkAccount"
+      class="network-activity-total__sync"
+      :class="{ 'network-activity-total__anonymize-error': !!syncErrorMsg }"
+      @click="synchronize()"
+    >
+      Sync
+    </button>
   </div>
 </template>
 
@@ -44,13 +53,23 @@ import { AccountsHeaderData, SparkAccount } from '@action/types/account.ts';
 import { NetworkNames } from '@enkryptcom/types/dist';
 import BigNumber from 'bignumber.js';
 import * as bitcoin from 'bitcoinjs-lib';
-import { computed, inject, PropType, ref } from 'vue';
+import { computed, PropType, ref } from 'vue';
+import { wasmInstance } from '@/libs/utils/wasm-loader.ts';
+import {
+  getIncomingViewKey,
+  getSpendKeyObj,
+} from '@/libs/spark-handler/generateSparkWallet.ts';
+import { IndexedDBHelper } from '@action/db/indexedDB.ts';
 
 const emits = defineEmits<{
   (e: 'update:spark-state', network: BitcoinNetwork): void;
 }>();
 
 const props = defineProps({
+  isSyncing: {
+    type: Boolean,
+    default: false,
+  },
   cryptoAmount: {
     type: String,
     default: '0',
@@ -84,13 +103,19 @@ const props = defineProps({
 });
 
 const wallet = new PublicFiroWallet();
-const wasmModule = inject<WasmModule>('wasmModule');
+const db = new IndexedDBHelper();
 
 const isTransferLoading = ref(false);
 const errorMsg = ref();
+const syncErrorMsg = ref();
+const isSyncBtnDisabled = ref(false);
 
 const isAnonymizeBtnDisabled = computed(() => {
   return isTransferLoading.value || Number(props.cryptoAmount) <= 0;
+});
+
+const isSynchronizeBtnDisabled = computed(() => {
+  return isSyncBtnDisabled.value || props.isSyncing;
 });
 
 const anonymizeFunds = async () => {
@@ -98,6 +123,7 @@ const anonymizeFunds = async () => {
   errorMsg.value = undefined;
   if (!props.sparkAccount) return;
 
+  const wasmModule = await wasmInstance.getInstance();
   const address2Check = await wallet.getTransactionsAddresses();
 
   const { spendableUtxos, addressKeyPairs } =
@@ -263,6 +289,210 @@ const anonymizeFunds = async () => {
       console.error('ERROR', error);
     });
 };
+
+const synchronize = async () => {
+  try {
+    isSyncBtnDisabled.value = true;
+    syncErrorMsg.value = undefined;
+
+    const wasm = await wasmInstance.getInstance();
+    const spendKeyObj = await getSpendKeyObj(wasm);
+
+    const setsMeta = await wallet.getAllSparkAnonymitySetMeta();
+    const isDBEmpty = !(await db.readData()).length;
+
+    if (!isDBEmpty) {
+      const dbSetsMeta = await Promise.all(
+        setsMeta.map(async (setMeta, index) => {
+          return db.getLengthOf(index);
+        }),
+      );
+
+      const diff = setsMeta
+        .map((setMeta, index) => {
+          return dbSetsMeta[index] === setMeta.size
+            ? null
+            : {
+                setId: index + 1,
+                latestBlockHash: setMeta.blockHash,
+                startIndex: dbSetsMeta[index],
+                endIndex: setMeta.size,
+              };
+        })
+        .filter(Boolean) as {
+        setId: number;
+        latestBlockHash: string;
+        startIndex: number;
+        endIndex: number;
+      }[];
+
+      console.log('Loading sets');
+      console.log('diff ->>', diff);
+
+      await Promise.all(
+        diff.map(async difference => {
+          const { setId, latestBlockHash, startIndex, endIndex } = difference;
+          const set = await wallet.fetchAnonymitySetSector(
+            setId,
+            latestBlockHash,
+            startIndex,
+            endIndex,
+          );
+          console.log('set ->>', set);
+          await db.appendData(set.coins, difference.setId - 1);
+        }),
+      );
+    } else {
+      console.warn('Loading all sets...');
+      const allSets = await wallet.fetchAllAnonymitySets();
+      await db.saveData(allSets);
+    }
+
+    if (!spendKeyObj || spendKeyObj === 0) {
+      throw new Error('Failed to create spendKeyObj');
+    }
+
+    const incomingViewKey = await getIncomingViewKey(wasm, spendKeyObj);
+
+    if (!incomingViewKey) {
+      throw new Error('Failed to create IncomingViewKey');
+    }
+
+    const { incomingViewKeyObj, fullViewKeyObj } = incomingViewKey;
+
+    if (
+      !incomingViewKeyObj ||
+      incomingViewKeyObj === 0 ||
+      fullViewKeyObj === 0
+    ) {
+      throw new Error('Failed to create IncomingViewKey and fullViewKeyObj');
+    }
+
+    console.log(4);
+    isSyncBtnDisabled.value = false;
+  } catch (error) {
+    console.log(error);
+    syncErrorMsg.value = JSON.stringify(error);
+  }
+
+  // try {
+
+  // const setWithFirstCoin = [{
+  //     "blockHash": "afcoNhx8OZpqIjDagV+PXMswpOkWBKyhMFOp5isvQgk=",
+  //     "setHash": "JRQ4f0nEB3I3dGBQVYQj8rptzvM8Ulci0nAJY8rSsVw=",
+  //     "coins": [[
+  //       "ACwgrzHnKO1uQze+RTsZjDFI6EJ5KmpA0lvgI+uMw/Z6AQCgGjLAp89G2/Zm+bMe7zL/sOgAaZbu254GF8h5e8Ze4QAAACAuyRMVLxgMd0cBXVHj5WMPDUAnBe3ZRG+/vuHV8kABAFIIK5I4lKqWUos+pw/C5nMdYZr0NmOQrQnx7zOOWvgEbOYZ1vhEO8r4RcnKkmMFDHF0rxkMbQDWwKwdli0IQaF/fQzZITUAr0WTiVjzI7DcXp6gEFmc7jF2I3ZIwxC7A5skxG8gF0dhMAgjoPM42l+AVPEdQN1Tu6kj0HpFYrTf0myudDU+XaASAAAAAP3eecYxAYG0Mr2zlIVQG/319YnoPkx3P7ZHm9fWgOaTKbpcHsB/OHsVngarYfP3nZO+q7ck87jVDVGmTNuZ5eQ7AQAAAAD+////",
+  //       "/d55xjEBgbQyvbOUhVAb/fX1ieg+THc/tkeb19aA5pM=",
+  //       "ulwewH84exWeBqth8/edk76rtyTzuNUNUaZM25nl5DsBAAAAAP7///8="
+  //     ]]
+  //   }]
+  //
+  //
+  // console.log({setWithFirstCoin})
+
+  // allSets.forEach(set => {
+  //   chunkedEvery(
+  //     set.coins,
+  //     50,
+  //     coin => {
+  //       getSparkCoinInfo({
+  //         coin: coin,
+  //         fullViewKeyObj,
+  //         incomingViewKeyObj,
+  //         wasmModule: wasm,
+  //       });
+  //       //   .then(result => {
+  //       //   if (typeof result === 'string') {
+  //       //     coinFetchDataResult.value[result]
+  //       //       ? (coinFetchDataResult.value[result] =
+  //       //           coinFetchDataResult.value[result] + 1)
+  //       //       : (coinFetchDataResult.value[result] = 1);
+  //       //   } else {
+  //       //     console.log(result);
+  //       //   }
+  //       // });
+  //     },
+  //     () => {
+  //       console.log(coinFetchDataResult);
+  //     },
+  //   );
+
+  // set.coins.forEach((coin, i) => {
+  //   if (i  % 1000 === 0) {
+  //     console.log(i);
+  //   }
+  //   getSparkCoinInfo({
+  //     coin: coin,
+  //     fullViewKeyObj,
+  //     incomingViewKeyObj,
+  //     wasmModule: wasm,
+  //   }).then(result => {
+  //     if (typeof result === 'string') {
+  //       coinFetchDataResult[result] !== undefined
+  //         ? (coinFetchDataResult[result] = coinFetchDataResult[result] + 1)
+  //         : (coinFetchDataResult[result] = 0);
+  //     } else {
+  //       console.log(result);
+  //     }
+  //   });
+  //
+  //   // console.log('Coin:', coin);
+  // });
+  // });
+
+  // slicedSet.coins.forEach((coin, i) => {
+  //   if (i  % 1000 === 0) {
+  //     console.log(i);
+  //   }
+  //     getSparkCoinInfo({
+  //       coin: coin,
+  //       fullViewKeyObj,
+  //       incomingViewKeyObj,
+  //       wasmModule: wasm,
+  //     }).then(result => {
+  //       if (typeof result === 'string') {
+  //         coinFetchDataResult[result] !== undefined
+  //           ? (coinFetchDataResult[result] = coinFetchDataResult[result] + 1)
+  //           : (coinFetchDataResult[result] = 0);
+  //       } else {
+  //         console.log(result);
+  //       }
+  //     });
+  //
+  //     // console.log('Coin:', coin);
+  // });
+
+  // postMessage('Done');
+  // } catch (error) {
+  //   console.log(error);
+  //   // postMessage('error');
+  // }
+  // TODO: add later
+  // finally {
+  //   wasm.ccall('js_freeSpendKey', null, ['number'], [spendKeyObj]);
+  // }
+
+  // worker.postMessage(
+  //   {
+  //     allSets,
+  //     incomingViewKeyObj,
+  //     fullViewKeyObj,
+  //   }
+  // );
+  //
+  // worker.onmessage = ({ data }) => {
+  //   console.log(data, 'Data from worker');
+  // };
+
+  // allSets.forEach(set => {
+  //   set.coins.forEach(coin => {
+  //     getSparkCoinInfo({
+  //       coin,
+  //       selectedAccount: accountHeaderData!.value!.selectedAccount!,
+  //     });
+  //   });
+  // });
+};
 </script>
 
 <style lang="less">
@@ -271,6 +501,30 @@ const anonymizeFunds = async () => {
 .network-activity-total {
   display: flex;
   align-items: flex-start;
+
+  &__sync {
+    padding: 8px 16px;
+    margin-left: 8px;
+    outline: none;
+    cursor: pointer;
+    border-radius: 8px;
+    border: 1px solid @darkBg;
+    margin-top: 4px;
+    background: @buttonBg;
+    transition: all 300ms ease-in-out;
+
+    &:hover {
+      background: @darkBg;
+      border: 1px solid @orange01;
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+      color: @black07;
+      background: @gray01;
+      border: 1px solid @gray01;
+    }
+  }
 
   &__anonymize-error {
     border: 1px solid @error !important;

@@ -1,7 +1,7 @@
 import PublicKeyRing from '@/libs/keyring/public-keyring';
-import { loadWasm } from '@/libs/utils/wasm-loader';
 import { SparkAccount } from '@/ui/action/types/account';
 import {PublicFiroWallet} from "@/providers/bitcoin/libs/firo-wallet/public-firo-wallet.ts";
+import {wasmInstance} from "@/libs/utils/wasm-loader.ts";
 
 export async function getSparkState(): Promise<SparkAccount | undefined> {
   // const [allAddresses, sparkBalance] = await Promise.all([
@@ -14,7 +14,7 @@ export async function getSparkState(): Promise<SparkAccount | undefined> {
   //   allAddresses: Object.values(allAddresses),
   //   sparkBalance,
   // };
-  const wasm = await loadWasm();
+  const wasm = await wasmInstance.getInstance();
 
   if (!wasm) {
     console.log('Wasm not loaded');

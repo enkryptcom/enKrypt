@@ -50,6 +50,16 @@ export class IndexedDBHelper {
     });
   }
 
+  async clearData(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const store = this.getObjectStore('readwrite');
+      const request = store.delete('data');
+
+      request.onsuccess = () => resolve();
+      request.onerror = () => reject(request.error);
+    });
+  }
+
   async saveData(data: SparkDataSet[]): Promise<void> {
     return new Promise((resolve, reject) => {
       const store = this.getObjectStore('readwrite');
@@ -60,10 +70,10 @@ export class IndexedDBHelper {
     });
   }
 
-  async appendData(newItem: string[], index: number): Promise<void> {
+  async appendData(newItems: string[][], index: number): Promise<void> {
     const data = await this.readData();
     if (!data[index]) throw new Error('Invalid index');
-    data[index].coins.push(newItem);
+    data[index].coins.push(...newItems);
     await this.saveData(data);
   }
 

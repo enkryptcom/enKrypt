@@ -7,6 +7,7 @@
       >
         <div v-if="!!selected" class="network-assets">
           <network-activity-total
+            :isSyncing="props.isSyncing"
             :crypto-amount="cryptoAmount"
             :fiat-amount="fiatAmount"
             :symbol="network.currencyName"
@@ -85,6 +86,10 @@ const showDeposit = ref(false);
 
 const route = useRoute();
 const props = defineProps({
+  isSyncing: {
+    type: Boolean,
+    default: false,
+  },
   network: {
     type: Object as PropType<BaseNetwork>,
     default: () => ({}),

@@ -85,6 +85,16 @@ export default class FiroElectrum {
     }
   }
 
+  async disconnect() {
+    try {
+      await this.mainClient?.close();
+
+      this.wasConnectedAtLeastOnce = false;
+    } catch (e) {
+      console.error('electrum_wallet:disconnect', e);
+    }
+  }
+
   addChangeListener(onChange: () => void): void {
     this.listeners.push(onChange);
   }
@@ -112,7 +122,6 @@ export default class FiroElectrum {
   async getTransactionsByAddress(
     address: string,
   ): Promise<Array<TransactionModel>> {
-    // await this.connectMain();
     const script = this.addressToScript(address);
     const hash = bitcoin.crypto.sha256(Buffer.from(script));
 
