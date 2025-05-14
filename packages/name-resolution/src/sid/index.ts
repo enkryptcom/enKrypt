@@ -1,18 +1,23 @@
 import { createWeb3Name } from "@web3-name-sdk/core";
 import { BaseResolver, CoinType } from "../types";
-import { PAYMENT_ID_CHAINS_MAP, PaymentIdChain, SIDOptions, TIMEOUT_PRESETS } from "./types";
+import {
+  PAYMENT_ID_CHAINS_MAP,
+  PaymentIdChain,
+  SIDOptions,
+  TIMEOUT_PRESETS,
+} from "./types";
 import { createSolName } from "@web3-name-sdk/core/solName";
 import { createPaymentIdName } from "@web3-name-sdk/core/paymentIdName";
 import { isValidPaymentId } from "./utils";
 import { getTLD } from "../utils";
 // demo: https://sdk-demo-git-main-space-id.vercel.app/
+
 const evm_tlds = [
   "bnb",
   "arb",
   "wod",
   "mph",
   "g",
-  "eth",
   "btc",
   "burger",
   "alien",
@@ -57,11 +62,13 @@ class SIDResolver implements BaseResolver {
   // The PaymentId only supports getAddress resolution.
   public async handlePaymentIdGetAddress(
     name: string,
-    paymentIdChain?: string
+    paymentIdChain?: string,
   ): Promise<string | null> {
     return await this.paymentIdNameResolver.getAddress({
       name,
-      chainId: PAYMENT_ID_CHAINS_MAP[paymentIdChain?.toLowerCase()] || PaymentIdChain.Ethereum,
+      chainId:
+        PAYMENT_ID_CHAINS_MAP[paymentIdChain?.toLowerCase()] ||
+        PaymentIdChain.Ethereum,
     });
   }
 

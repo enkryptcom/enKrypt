@@ -138,7 +138,6 @@ import { fromBase, toBase, isValidDecimals } from '@enkryptcom/utils';
 import { VerifyTransactionParams, SendTransactionDataType } from '../types';
 import {
   formatFloatingPointValue,
-  formatFiatValue,
   isNumericPositive,
 } from '@/libs/utils/number-formatter';
 import { routes as RouterNames } from '@/ui/action/router';
@@ -697,7 +696,7 @@ const inputAddressTo = async (text: string) => {
       .resolveName(
         text,
         [props.network.name as CoinType, 'ETH'],
-        props.network?.provider as string,
+        props.network.provider as string,
       )
       .then(resolved => {
         if (resolved) {

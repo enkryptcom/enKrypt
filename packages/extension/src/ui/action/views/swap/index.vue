@@ -407,7 +407,7 @@ const inputAddress = (text: string) => {
       .resolveName(
         text,
         [props.network.name as CoinType, 'ETH'],
-        props.network?.provider as string,
+        props.network.provider as string,
       )
       .then(resolved => {
         if (resolved) {
@@ -777,7 +777,7 @@ const isDisabled = computed(() => {
     return true;
   if (
     BigNumber(fromAmount.value).gt(
-      fromBase(fromToken.value!.balance.toString(), fromToken.value.decimals),
+      fromBase(fromToken.value!.balance!.toString(), fromToken.value!.decimals),
     )
   )
     return true;

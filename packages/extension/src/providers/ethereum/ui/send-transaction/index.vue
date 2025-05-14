@@ -671,7 +671,7 @@ const inputAddressTo = async (text: string) => {
       .resolveName(
         text,
         [props.network.name as CoinType, 'ETH'],
-        props.network?.provider as string,
+        props.network.provider as string,
       )
       .then(resolved => {
         if (resolved) {

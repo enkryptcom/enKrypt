@@ -41,21 +41,22 @@ class NameResolver {
           if (name !== null) return name;
         }
         return null;
-      })
+      }),
     );
   }
 
   public async resolveAddress(
     name: string,
     coin: CoinType = "ETH",
-    paymentIdChain?: string
+    paymentIdChain?: string,
   ): Promise<string | null> {
     return this.initDone.then(() => {
-      if (this.sid.isSupportedName(name)) return this.sid.resolveAddress(name, coin, paymentIdChain);
       if (this.rns.isSupportedName(name))
         return this.rns.resolveAddress(name, coin);
       if (this.ud.isSupportedName(name))
         return this.ud.resolveAddress(name, coin);
+      if (this.sid.isSupportedName(name))
+        return this.sid.resolveAddress(name, coin, paymentIdChain);
       if (this.ens.isSupportedName(name))
         return this.ens.resolveAddress(name, coin);
 
