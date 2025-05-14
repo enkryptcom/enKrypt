@@ -57,9 +57,11 @@ export default class RateState {
           await this.storage.set(StorageKeys.rateInfo, state);
           return true;
         }
-      } else {
-        return false;
       }
+
+      // catch for it hasn't been rated but the popup time is in the future
+      // and the user has already been asked after activity
+      return false;
     }
 
     const newState: IState = {

@@ -576,11 +576,6 @@ const sendButtonTitle = computed(() => {
 });
 
 const isValidSend = computed<boolean>(() => {
-  console.log(
-    isInputsValid.value,
-    nativeBalanceAfterTransactionInBaseUnits.value.isNeg(),
-    isEstimateValid.value,
-  );
   if (!isInputsValid.value) return false;
   if (nativeBalanceAfterTransactionInBaseUnits.value.isNeg()) return false;
   if (!isEstimateValid.value) return false;
