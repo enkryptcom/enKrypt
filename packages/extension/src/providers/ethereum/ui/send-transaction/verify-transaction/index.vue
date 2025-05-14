@@ -240,7 +240,6 @@ const sendAction = async () => {
               web3
                 .sendSignedTransaction(bufferToHex(signedTx.serialize()))
                 .on('transactionHash', onHash)
-                .on('receipt', () => router.go(0))
                 .on('error', (error: any) => {
                   txActivity.status = ActivityStatus.failed;
                   activityState.addActivities([txActivity], {
