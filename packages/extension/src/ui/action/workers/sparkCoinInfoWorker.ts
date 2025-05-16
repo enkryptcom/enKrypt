@@ -1,5 +1,7 @@
-import { getSparkCoinInfo } from '@/libs/spark-handler/getSparkCoinInfo.ts';
-import { chunkedEvery } from '@/providers/bitcoin/libs/firo-wallet/utils.ts';
+import {
+  getSparkCoinInfo,
+  SparkCoinValue,
+} from '@/libs/spark-handler/getSparkCoinInfo.ts';
 import { IndexedDBHelper } from '@action/db/indexedDB.ts';
 import { wasmWorkerInstance } from '@/libs/utils/wasm-worker-loader.ts';
 import {
@@ -17,7 +19,7 @@ async function fetchAllCoinInfos(
   Module: WasmModule,
 ) {
   const allPromises: Promise<any>[] = [];
-  const finalResult = [];
+  const finalResult: SparkCoinValue[] = [];
 
   allSets.forEach(set => {
     set.coins.forEach(coin => {
@@ -29,21 +31,20 @@ async function fetchAllCoinInfos(
       }).then(res => {
         console.log(res);
         finalResult.push(res);
+        return res;
       });
 
       allPromises.push(promise);
     });
   });
 
-  console.log('allPromises.length', allPromises.length);
-  await Promise.all(allPromises);
+  await Promise.allSettled(allPromises);
 
   return finalResult;
 }
 
 addEventListener('message', async () => {
   const Module = await wasmWorkerInstance.getInstance();
-  console.log('Module', 'Module');
 
   const spendKeyObj = await getSpendKeyObj(Module);
 
@@ -65,64 +66,20 @@ addEventListener('message', async () => {
 
   const allSets = await db.readData();
 
-  console.log('allSets.length', allSets.length);
-
-  // const coinFetchDataResult: Record<string, any> = {};
-  //
-  // const promise = new Promise((resolve, reject) => {
-  //   allSets.forEach(set => {
-  //     set.coins.forEach(coin => {
-  //       getSparkCoinInfo({
-  //         coin: coin,
-  //         fullViewKeyObj,
-  //         incomingViewKeyObj,
-  //         wasmModule: Module,
-  //       }).then(result => {
-  //         if (typeof result === 'string') {
-  //           coinFetchDataResult[result]
-  //             ? (coinFetchDataResult[result] = coinFetchDataResult[result] + 1)
-  //             : (coinFetchDataResult[result] = 1);
-  //         }
-  //       });
-  //     });
-  //   });
-  //
-  //   resolve(coinFetchDataResult);
-  // });
-
-  // allSets.forEach(set => {
-  //   chunkedEvery(
-  //     set.coins,
-  //     50,
-  //     coin => {
-  //       getSparkCoinInfo({
-  //         coin: coin,
-  //         fullViewKeyObj,
-  //         incomingViewKeyObj,
-  //         wasmModule: Module,
-  //       }).then(result => {
-  //         if (typeof result === 'string') {
-  //           coinFetchDataResult[result]
-  //             ? (coinFetchDataResult[result] = coinFetchDataResult[result] + 1)
-  //             : (coinFetchDataResult[result] = 1);
-  //         }
-  //       });
-  //     },
-  //     () => {
-  //       console.log('Finished', coinFetchDataResult);
-  //     },
-  //   );
-  // });
-
   const result = await fetchAllCoinInfos(
     allSets,
     fullViewKeyObj,
     incomingViewKeyObj,
     Module,
   );
-  console.log('All coins processed:', result);
+
+  Module.ccall(
+    'js_freeIncomingViewKey',
+    null,
+    ['number'],
+    [incomingViewKeyObj],
+  );
+  Module.ccall('js_freeFullViewKey', null, ['number'], [fullViewKeyObj]);
 
   postMessage(result);
-
-  // postMessage(coinFetchDataResult);
 });

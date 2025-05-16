@@ -1,13 +1,11 @@
 import PublicKeyRing from '@/libs/keyring/public-keyring';
 import { SparkAccount } from '@/ui/action/types/account';
-import {PublicFiroWallet} from "@/providers/bitcoin/libs/firo-wallet/public-firo-wallet.ts";
-import {wasmInstance} from "@/libs/utils/wasm-loader.ts";
+import { PublicFiroWallet } from '@/providers/bitcoin/libs/firo-wallet/public-firo-wallet.ts';
+import { wasmInstance } from '@/libs/utils/wasm-loader.ts';
 
-export const getSpendKeyObj = async (
-  wasm: WasmModule,
-) => {
-  const wallet = new PublicFiroWallet()
-  const seed = await wallet.getSecret()
+export const getSpendKeyObj = async (wasm: WasmModule) => {
+  const wallet = new PublicFiroWallet();
+  const seed = await wallet.getSecret();
   let keyDataPtr;
   let spendKeyObj;
   let spendKeyDataObj;
@@ -83,20 +81,8 @@ export const getIncomingViewKey = async (
 
     return { incomingViewKeyObj, fullViewKeyObj };
   } catch (error) {
-    console.log(error);
-
-    return {incomingViewKeyObj: 0, fullViewKeyObj: 0};
+    return { incomingViewKeyObj: 0, fullViewKeyObj: 0 };
   }
-  // } finally {
-  //   wasm.ccall(
-  //     'js_freeIncomingViewKey',
-  //     null,
-  //     ['number'],
-  //     [incomingViewKeyObj],
-  //   );
-  //   wasm.ccall('js_freeFullViewKey', null, ['number'], [fullViewKeyObj]);
-  //   wasm.ccall('js_freeSpendKey', null, ['number'], [spendKeyObj]);
-  // }
 };
 
 export async function getSparkState(): Promise<SparkAccount | undefined> {
