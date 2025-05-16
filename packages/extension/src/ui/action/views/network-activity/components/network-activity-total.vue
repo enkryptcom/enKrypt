@@ -367,8 +367,6 @@ const synchronize = async () => {
     ) {
       throw new Error('Failed to create IncomingViewKey and fullViewKeyObj');
     }
-
-    console.log(4);
     isSyncBtnDisabled.value = false;
   } catch (error) {
     console.log(error);

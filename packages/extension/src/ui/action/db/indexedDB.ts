@@ -1,8 +1,4 @@
-interface SparkDataSet {
-  blockHash: string;
-  setHash: string;
-  coins: string[][];
-}
+import { AnonymitySetModel } from '@/providers/bitcoin/libs/electrum-client/abstract-electrum';
 
 export class IndexedDBHelper {
   private dbName = 'SparkDatabase';
@@ -38,7 +34,7 @@ export class IndexedDBHelper {
     return transaction.objectStore(this.storeName);
   }
 
-  async readData(): Promise<SparkDataSet[]> {
+  async readData(): Promise<AnonymitySetModel[]> {
     return new Promise((resolve, reject) => {
       const store = this.getObjectStore('readonly');
       const request = store.get('data');
@@ -60,7 +56,7 @@ export class IndexedDBHelper {
     });
   }
 
-  async saveData(data: SparkDataSet[]): Promise<void> {
+  async saveData(data: AnonymitySetModel[]): Promise<void> {
     return new Promise((resolve, reject) => {
       const store = this.getObjectStore('readwrite');
       const request = store.put(data, 'data');

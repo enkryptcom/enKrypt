@@ -160,6 +160,7 @@ import Settings from './views/settings/index.vue';
 import { wasmInstance } from '@/libs/utils/wasm-loader.ts';
 
 const wallet = new PublicFiroWallet();
+const db = new IndexedDBHelper();
 
 const domainState = new DomainState();
 const networksState = new NetworksState();
@@ -195,8 +196,6 @@ const isLoading = ref(true);
 const isSyncing = ref(false);
 const currentVersion = __PACKAGE_VERSION__;
 const latestVersion = ref('');
-
-const db = new IndexedDBHelper();
 
 const setActiveNetworks = async () => {
   const activeNetworkNames = await networksState.getActiveNetworkNames();
@@ -261,18 +260,16 @@ const init = async () => {
 };
 
 const synchronize = async () => {
+  const worker = new Worker(
+    new URL('./workers/sparkCoinInfoWorker.ts', import.meta.url),
+    { type: 'module' },
+  );
+
   try {
     console.log({ networkName: currentNetwork.value.name });
     if (currentNetwork.value.name !== NetworkNames.Firo) return;
 
     isSyncing.value = true;
-    const wasm = await wasmInstance.getInstance();
-
-    if (!wasm) {
-      throw new Error('No wasm instance found.');
-    }
-
-    const spendKeyObj = await getSpendKeyObj(wasm);
 
     const setsMeta = await wallet.getAllSparkAnonymitySetMeta();
     const isDBEmpty = !(await db.readData()).length;
@@ -324,150 +321,72 @@ const synchronize = async () => {
       await db.saveData(allSets);
     }
 
-    isSyncing.value = false;
+    // isSyncing.value = false;
+    //
+    // const spendKeyObj = await getSpendKeyObj(wasm);
+    //
+    // if (!spendKeyObj || spendKeyObj === 0) {
+    //   throw new Error('Failed to create spendKeyObj');
+    // }
+    //
+    // const incomingViewKey = await getIncomingViewKey(wasm, spendKeyObj);
+    //
+    // if (!incomingViewKey) {
+    //   throw new Error('Failed to create IncomingViewKey');
+    // }
+    //
+    // const { incomingViewKeyObj, fullViewKeyObj } = incomingViewKey;
+    //
+    // if (
+    //   !incomingViewKeyObj ||
+    //   incomingViewKeyObj === 0 ||
+    //   fullViewKeyObj === 0
+    // ) {
+    //   throw new Error('Failed to create IncomingViewKey and fullViewKeyObj');
+    // }
 
-    if (!spendKeyObj || spendKeyObj === 0) {
-      throw new Error('Failed to create spendKeyObj');
-    }
+    // const coinFetchDataResult: Record<string, any> = {};
 
-    const incomingViewKey = await getIncomingViewKey(wasm, spendKeyObj);
+    worker.postMessage('');
 
-    if (!incomingViewKey) {
-      throw new Error('Failed to create IncomingViewKey');
-    }
+    worker.onmessage = ({ data }) => {
+      console.log(data, 'Data from worker');
+      isSyncing.value = false;
+    };
 
-    const { incomingViewKeyObj, fullViewKeyObj } = incomingViewKey;
+    // const allSets = await db.readData();
 
-    if (
-      !incomingViewKeyObj ||
-      incomingViewKeyObj === 0 ||
-      fullViewKeyObj === 0
-    ) {
-      throw new Error('Failed to create IncomingViewKey and fullViewKeyObj');
-    }
+    // allSets.forEach(set => {
+    //   chunkedEvery(
+    //     set.coins,
+    //     50,
+    //     coin => {
+    //       getSparkCoinInfo({
+    //         coin: coin,
+    //         fullViewKeyObj,
+    //         incomingViewKeyObj,
+    //         wasmModule: wasm,
+    //       }).then(result => {
+    //         if (typeof result === 'string') {
+    //           coinFetchDataResult[result]
+    //             ? (coinFetchDataResult[result] =
+    //                 coinFetchDataResult[result] + 1)
+    //             : (coinFetchDataResult[result] = 1);
+    //         } else {
+    //           console.log(result);
+    //         }
+    //       });
+    //     },
+    //     () => {
+    //       console.log('Finished');
+    //     },
+    //   );
+    // });
 
-    console.log(4);
+    // console.log(coinFetchDataResult);
   } catch (error) {
     console.log(error);
   }
-
-  // try {
-
-  // const setWithFirstCoin = [{
-  //     "blockHash": "afcoNhx8OZpqIjDagV+PXMswpOkWBKyhMFOp5isvQgk=",
-  //     "setHash": "JRQ4f0nEB3I3dGBQVYQj8rptzvM8Ulci0nAJY8rSsVw=",
-  //     "coins": [[
-  //       "ACwgrzHnKO1uQze+RTsZjDFI6EJ5KmpA0lvgI+uMw/Z6AQCgGjLAp89G2/Zm+bMe7zL/sOgAaZbu254GF8h5e8Ze4QAAACAuyRMVLxgMd0cBXVHj5WMPDUAnBe3ZRG+/vuHV8kABAFIIK5I4lKqWUos+pw/C5nMdYZr0NmOQrQnx7zOOWvgEbOYZ1vhEO8r4RcnKkmMFDHF0rxkMbQDWwKwdli0IQaF/fQzZITUAr0WTiVjzI7DcXp6gEFmc7jF2I3ZIwxC7A5skxG8gF0dhMAgjoPM42l+AVPEdQN1Tu6kj0HpFYrTf0myudDU+XaASAAAAAP3eecYxAYG0Mr2zlIVQG/319YnoPkx3P7ZHm9fWgOaTKbpcHsB/OHsVngarYfP3nZO+q7ck87jVDVGmTNuZ5eQ7AQAAAAD+////",
-  //       "/d55xjEBgbQyvbOUhVAb/fX1ieg+THc/tkeb19aA5pM=",
-  //       "ulwewH84exWeBqth8/edk76rtyTzuNUNUaZM25nl5DsBAAAAAP7///8="
-  //     ]]
-  //   }]
-  //
-  //
-  // console.log({setWithFirstCoin})
-
-  // allSets.forEach(set => {
-  //   chunkedEvery(
-  //     set.coins,
-  //     50,
-  //     coin => {
-  //       getSparkCoinInfo({
-  //         coin: coin,
-  //         fullViewKeyObj,
-  //         incomingViewKeyObj,
-  //         wasmModule: wasm,
-  //       });
-  //       //   .then(result => {
-  //       //   if (typeof result === 'string') {
-  //       //     coinFetchDataResult.value[result]
-  //       //       ? (coinFetchDataResult.value[result] =
-  //       //           coinFetchDataResult.value[result] + 1)
-  //       //       : (coinFetchDataResult.value[result] = 1);
-  //       //   } else {
-  //       //     console.log(result);
-  //       //   }
-  //       // });
-  //     },
-  //     () => {
-  //       console.log(coinFetchDataResult);
-  //     },
-  //   );
-
-  // set.coins.forEach((coin, i) => {
-  //   if (i  % 1000 === 0) {
-  //     console.log(i);
-  //   }
-  //   getSparkCoinInfo({
-  //     coin: coin,
-  //     fullViewKeyObj,
-  //     incomingViewKeyObj,
-  //     wasmModule: wasm,
-  //   }).then(result => {
-  //     if (typeof result === 'string') {
-  //       coinFetchDataResult[result] !== undefined
-  //         ? (coinFetchDataResult[result] = coinFetchDataResult[result] + 1)
-  //         : (coinFetchDataResult[result] = 0);
-  //     } else {
-  //       console.log(result);
-  //     }
-  //   });
-  //
-  //   // console.log('Coin:', coin);
-  // });
-  // });
-
-  // slicedSet.coins.forEach((coin, i) => {
-  //   if (i  % 1000 === 0) {
-  //     console.log(i);
-  //   }
-  //     getSparkCoinInfo({
-  //       coin: coin,
-  //       fullViewKeyObj,
-  //       incomingViewKeyObj,
-  //       wasmModule: wasm,
-  //     }).then(result => {
-  //       if (typeof result === 'string') {
-  //         coinFetchDataResult[result] !== undefined
-  //           ? (coinFetchDataResult[result] = coinFetchDataResult[result] + 1)
-  //           : (coinFetchDataResult[result] = 0);
-  //       } else {
-  //         console.log(result);
-  //       }
-  //     });
-  //
-  //     // console.log('Coin:', coin);
-  // });
-
-  // postMessage('Done');
-  // } catch (error) {
-  //   console.log(error);
-  //   // postMessage('error');
-  // }
-  // TODO: add later
-  // finally {
-  //   wasm.ccall('js_freeSpendKey', null, ['number'], [spendKeyObj]);
-  // }
-
-  // worker.postMessage(
-  //   {
-  //     allSets,
-  //     incomingViewKeyObj,
-  //     fullViewKeyObj,
-  //   }
-  // );
-  //
-  // worker.onmessage = ({ data }) => {
-  //   console.log(data, 'Data from worker');
-  // };
-
-  // allSets.forEach(set => {
-  //   set.coins.forEach(coin => {
-  //     getSparkCoinInfo({
-  //       coin,
-  //       selectedAccount: accountHeaderData!.value!.selectedAccount!,
-  //     });
-  //   });
-  // });
 };
 
 onMounted(async () => {
@@ -624,6 +543,7 @@ const generateNewSparkAddress = async () => {
 };
 
 const getSparkAccountState = async (network: BaseNetwork) => {
+  console.log(123);
   if (network.name === NetworkNames.Firo) {
     if (accountHeaderData.value.selectedAccount) {
       const sparkAccountResponse = await getSparkState();

@@ -1,4 +1,3 @@
-import { wasmInstance } from '@/libs/utils/wasm-loader';
 import { firoElectrum } from '@/providers/bitcoin/libs/electrum-client/electrum-client';
 import { createApp } from 'vue';
 import Vue3Lottie from 'vue3-lottie';
@@ -18,21 +17,9 @@ app.onUnmount(() => {
   firoElectrum.disconnect();
 });
 
-wasmInstance
-  .getInstance()
-  .then(wasm => {
-    firoElectrum.connectMain();
+firoElectrum.connectMain().then(() => {
+  app.use(router).use(Vue3Lottie, { name: 'vue3lottie' });
 
-    app.provide('wasmModule', wasm); // Make available globally
-  })
-  .catch(err => {
-    console.error('Error loading WASM:', err);
-  })
-  .finally(() => {
-    app.use(router).use(Vue3Lottie, { name: 'vue3lottie' });
-
-    app.config.globalProperties.$filters = filters;
-    app.mount('#app');
-  });
-
-// app.mount('#app');
+  app.config.globalProperties.$filters = filters;
+  app.mount('#app');
+});

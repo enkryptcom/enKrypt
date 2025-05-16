@@ -1,7 +1,10 @@
 import PublicKeyRing from '@/libs/keyring/public-keyring';
 import { SparkAccount } from '@/ui/action/types/account';
-import {PublicFiroWallet} from "@/providers/bitcoin/libs/firo-wallet/public-firo-wallet.ts";
-import {wasmInstance} from "@/libs/utils/wasm-loader.ts";
+import { PublicFiroWallet } from '@/providers/bitcoin/libs/firo-wallet/public-firo-wallet.ts';
+import { wasmInstance } from '@/libs/utils/wasm-loader.ts';
+import { IndexedDBHelper } from '@action/db/indexedDB.ts';
+import { chunkedEvery } from '@/providers/bitcoin/libs/firo-wallet/utils.ts';
+import { getSparkCoinInfo } from '@/libs/spark-handler/getSparkCoinInfo.ts';
 
 export async function getSparkState(): Promise<SparkAccount | undefined> {
   // const [allAddresses, sparkBalance] = await Promise.all([
@@ -15,6 +18,7 @@ export async function getSparkState(): Promise<SparkAccount | undefined> {
   //   sparkBalance,
   // };
   const wasm = await wasmInstance.getInstance();
+  const db = new IndexedDBHelper();
 
   if (!wasm) {
     console.log('Wasm not loaded');
@@ -23,7 +27,7 @@ export async function getSparkState(): Promise<SparkAccount | undefined> {
 
   const keyring = new PublicKeyRing();
   const firoWallet = new PublicFiroWallet();
-  const seed = await firoWallet.getSecret()
+  const seed = await firoWallet.getSecret();
 
   const { pk, nextIndex } = await keyring.getPrivateKey(seed);
 
@@ -121,6 +125,36 @@ export async function getSparkState(): Promise<SparkAccount | undefined> {
     ['number', 'number'],
     [addressObj, is_test_network],
   );
+
+  // const allSets = await db.readData();
+  //
+  // const coinFetchDataResult: Record<string, any> = {};
+  //
+  // allSets.forEach(set => {
+  //   chunkedEvery(
+  //     set.coins,
+  //     50,
+  //     coin => {
+  //       getSparkCoinInfo({
+  //         coin: coin,
+  //         fullViewKeyObj,
+  //         incomingViewKeyObj,
+  //         wasmModule: wasm,
+  //       }).then(result => {
+  //         if (typeof result === 'string') {
+  //           coinFetchDataResult[result]
+  //             ? (coinFetchDataResult[result] = coinFetchDataResult[result] + 1)
+  //             : (coinFetchDataResult[result] = 1);
+  //         } else {
+  //           console.log(result);
+  //         }
+  //       });
+  //     },
+  //     () => {
+  //       console.log('Finished');
+  //     },
+  //   );
+  // });
 
   return {
     defaultAddress: address_enc_main,

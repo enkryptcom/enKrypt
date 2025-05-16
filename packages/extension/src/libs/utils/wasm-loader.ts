@@ -1,3 +1,5 @@
+import initSpark from './wasmModule/spark.js';
+
 export declare const Module: any;
 
 declare global {
@@ -29,35 +31,14 @@ declare global {
   }
 }
 
-function scriptExists(id: string) {
-  return document.getElementById(id);
-}
-
 async function loadWasm(): Promise<WasmModule> {
-  return new Promise((resolve, reject) => {
-    const injectedScript = scriptExists('injected-wasm-js');
+  return new Promise(async (resolve, reject) => {
+    const wasmModule = await initSpark();
 
-    if (injectedScript) {
-      injectedScript.onload = async () => {
-        if (typeof Module !== 'undefined') {
-          resolve(Module);
-        } else {
-          reject(new Error('Failed to load WASM module.'));
-        }
-      };
+    if (typeof wasmModule !== 'undefined') {
+      resolve(wasmModule);
     } else {
-      const script = document.createElement('script');
-      script.id = 'injected-wasm-js';
-      script.src = '/wasm/spark.js';
-      script.onload = async () => {
-        if (typeof Module !== 'undefined') {
-          resolve(Module);
-        } else {
-          reject(new Error('Failed to load WASM module.'));
-        }
-      };
-      script.onerror = () => reject(new Error('Failed to load WASM script.'));
-      document.body.appendChild(script);
+      reject(new Error('Failed to load WASM module.'));
     }
   });
 }
@@ -68,7 +49,6 @@ class WasmInstance {
   constructor() {
     loadWasm()
       .then(module => {
-        console.log(module);
         this.instance = module;
       })
       .catch(error => {
