@@ -85,6 +85,7 @@ const defaultClass = computed(() => {
 const dialogStyle = computed(() => {
   return {
     width: props.width,
+    'scrollbar-width': 'none',
   };
 });
 </script>

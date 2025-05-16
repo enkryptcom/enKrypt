@@ -20,7 +20,7 @@ const rootstockTestnetOptions: EvmNetworkOptions = {
   isTestNetwork: true,
   currencyName: 'tRBTC',
   currencyNameLong: 'Rootstock Testnet',
-  node: 'wss://public-node.testnet.rsk.co/websocket',
+  node: 'wss://nodes.mewapi.io/ws/rsktest',
   icon,
   basePath: "m/44'/37310'/0'/0",
   activityHandler: wrapActivityHandler(EtherscanActivity),

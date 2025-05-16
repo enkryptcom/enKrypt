@@ -77,7 +77,7 @@
         v-model="isOpenSelectNft"
         :address="addressFrom"
         :network="network"
-        :selected-nft="paramNFTData"
+        :selected-nft="tokenParamData"
         @select-nft="selectNFT"
       />
 
@@ -203,7 +203,7 @@ const router = useRouter();
 const nameResolver = new GenericNameResolver();
 const addressInputTo = ref();
 const selected: string = route.params.id as string;
-const paramNFTData: NFTItem = JSON.parse(
+const tokenParamData: NFTItem = JSON.parse(
   route.params.tokenData ? (route.params.tokenData as string) : '{}',
 ) as NFTItem;
 const isSendToken = ref<boolean>(JSON.parse(route.params.isToken as string));
@@ -544,9 +544,19 @@ const fetchAssets = () => {
   selectedAsset.value = loadingAsset;
   isLoadingAssets.value = true;
   return props.network.getAllTokens(addressFrom.value).then(allAssets => {
-    accountAssets.value = allAssets as Erc20Token[];
-    selectedAsset.value = allAssets[0] as Erc20Token;
-
+    accountAssets.value = allAssets as (Erc20Token & { contract: string })[];
+    const hasParamData =
+      isSendToken.value && tokenParamData && tokenParamData.contract;
+    if (hasParamData) {
+      const selectedToken = accountAssets.value.find(
+        asset => asset.contract === tokenParamData.contract,
+      );
+      if (selectedToken) {
+        selectedAsset.value = selectedToken as Erc20Token;
+      }
+    } else {
+      selectedAsset.value = allAssets[0] as Erc20Token;
+    }
     isLoadingAssets.value = false;
   });
 };

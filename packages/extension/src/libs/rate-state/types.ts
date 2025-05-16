@@ -5,6 +5,7 @@ export enum StorageKeys {
 export interface Rate {
   alreadyRated: boolean;
   popupTime: number;
+  askedAfterActivity: boolean;
 }
 
 export type IState = Rate;

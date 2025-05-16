@@ -157,10 +157,19 @@ import { trackSwapEvents } from '@/libs/metrics';
 import { SwapEventType } from '@/libs/metrics/types';
 import { getSolanaTransactionFees } from '../../libs/solana-gasvals';
 import { SolanaNetwork } from '@/providers/solana/types/sol-network';
+import RateState from '@/libs/rate-state';
+import { useRateStore } from '@action/store/rate-store';
+
+/** -------------------
+ * Rate
+ -------------------*/
+const rateStore = useRateStore();
+const { toggleRatePopup } = rateStore;
 
 const router = useRouter();
 const route = useRoute();
 
+const rateState = new RateState();
 const isInitiated = ref(false);
 const bestOfferScrollRef = ref<ComponentPublicInstance<HTMLElement>>();
 const scrollProgress = ref(0);
@@ -354,8 +363,10 @@ const close = () => {
     swapProvider: pickedTrade.value.provider,
   });
   if (!isWindowPopup.value) {
+    callToggleRatePopup();
     router.go(-2);
   } else {
+    callToggleRatePopup();
     window.close();
   }
 };
@@ -460,6 +471,16 @@ const sendAction = async () => {
   } else {
     console.error('No trade yet');
   }
+};
+
+const callToggleRatePopup = () => {
+  /**
+   * will only show the user if they haven't rated it
+   * and never been shown before
+   */
+  rateState.showPopup(true).then(show => {
+    if (show) toggleRatePopup(true);
+  });
 };
 
 const handleScroll = (e: any) => {

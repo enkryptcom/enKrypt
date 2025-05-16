@@ -41,13 +41,18 @@
 
       <div class="asset-detail-view__token-divider" />
 
-      <div class="asset-detail-view__token-balance">
+      <div class="asset-detail-view__token-balance" v-if="!isCustomToken">
         <h6>Balance</h6>
         <h4>
           {{ token.balancef }} <span>{{ token.symbol.toLowerCase() }}</span>
         </h4>
         <p>${{ token.balanceUSDf }}</p>
       </div>
+      <asset-detail-action
+        @open:buy-action="openBuySell"
+        :token="token"
+        v-if="!isCustomToken"
+      />
       <div class="asset-detail-view__token-divider" v-if="isCustomToken" />
       <div class="asset-detail-view__action" v-if="isCustomToken">
         <base-button
@@ -76,6 +81,7 @@ import { LineChart } from 'echarts/charts';
 import { TooltipComponent, GridComponent } from 'echarts/components';
 import VChart from 'vue-echarts';
 import AppDialog from '@action/components/app-dialog/index.vue';
+import AssetDetailAction from './components/asset-detail-action.vue';
 
 const props = defineProps({
   token: {
@@ -136,7 +142,14 @@ const option = ref({
 
 const emit = defineEmits<{
   (e: 'close:popup'): void;
+  (e: 'open:buy-action', token: AssetsType): void;
 }>();
+
+const openBuySell = () => {
+  emit('open:buy-action', props.token);
+  emit('close:popup');
+};
+
 const close = () => {
   emit('close:popup');
 };

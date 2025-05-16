@@ -55,6 +55,7 @@
       :token="token"
       :is-custom-token="isCustomToken"
       :remove-token="removeToken"
+      @open:buy-action="openBuySell"
     />
   </div>
 </template>
@@ -160,7 +161,12 @@ const isCustomToken = computed(() => {
 
 const emit = defineEmits<{
   (e: 'update:tokens'): void;
+  (e: 'open:buy-action', token: AssetsType): void;
 }>();
+
+const openBuySell = () => {
+  emit('open:buy-action', props.token);
+};
 
 const removeToken = () => {
   if (props.token.contract) {

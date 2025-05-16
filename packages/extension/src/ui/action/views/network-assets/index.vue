@@ -25,6 +25,7 @@
             :token="item"
             :network="network"
             @update:tokens="updateAssets"
+            v-bind="$attrs"
           />
           <div
             v-show="network.customTokens && assets.length !== 0"
