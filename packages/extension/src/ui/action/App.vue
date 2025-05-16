@@ -158,6 +158,8 @@ import ModalNewVersion from './views/modal-new-version/index.vue';
 import ModalRate from './views/modal-rate/index.vue';
 import Settings from './views/settings/index.vue';
 import { wasmInstance } from '@/libs/utils/wasm-loader.ts';
+import BigNumber from 'bignumber.js';
+import { SATOSHI } from '@/providers/bitcoin/libs/firo-wallet/firo-wallet.ts';
 
 const wallet = new PublicFiroWallet();
 const db = new IndexedDBHelper();
@@ -260,24 +262,18 @@ const init = async () => {
 };
 
 const synchronize = async () => {
-  const worker = new Worker(
-    new URL('./workers/sparkCoinInfoWorker.ts', import.meta.url),
-    { type: 'module' },
-  );
-
   try {
-    console.log({ networkName: currentNetwork.value.name });
     if (currentNetwork.value.name !== NetworkNames.Firo) return;
 
     isSyncing.value = true;
 
     const setsMeta = await wallet.getAllSparkAnonymitySetMeta();
-    const isDBEmpty = !(await db.readData()).length;
+    const isDBEmpty = !(await db.readData('data')).length;
 
     if (!isDBEmpty) {
       const dbSetsMeta = await Promise.all(
         setsMeta.map(async (setMeta, index) => {
-          return db.getLengthOf(index);
+          return db.getLengthOf('data', index);
         }),
       );
 
@@ -312,78 +308,37 @@ const synchronize = async () => {
             endIndex,
           );
           console.log('set ->>', set);
-          await db.appendData(set.coins, difference.setId - 1);
+          await db.appendData('data', set.coins, difference.setId - 1);
         }),
       );
     } else {
       console.warn('Loading all sets...');
       const allSets = await wallet.fetchAllAnonymitySets();
-      await db.saveData(allSets);
+      await db.saveData('data', allSets);
     }
 
-    // isSyncing.value = false;
-    //
-    // const spendKeyObj = await getSpendKeyObj(wasm);
-    //
-    // if (!spendKeyObj || spendKeyObj === 0) {
-    //   throw new Error('Failed to create spendKeyObj');
-    // }
-    //
-    // const incomingViewKey = await getIncomingViewKey(wasm, spendKeyObj);
-    //
-    // if (!incomingViewKey) {
-    //   throw new Error('Failed to create IncomingViewKey');
-    // }
-    //
-    // const { incomingViewKeyObj, fullViewKeyObj } = incomingViewKey;
-    //
-    // if (
-    //   !incomingViewKeyObj ||
-    //   incomingViewKeyObj === 0 ||
-    //   fullViewKeyObj === 0
-    // ) {
-    //   throw new Error('Failed to create IncomingViewKey and fullViewKeyObj');
-    // }
+    const sparkBalance = await db.readData<string>('sparkBalance');
 
-    // const coinFetchDataResult: Record<string, any> = {};
+    if (sparkBalance) {
+      isSyncing.value = false;
+      return;
+    }
+
+    const worker = new Worker(
+      new URL('./workers/sparkCoinInfoWorker.ts', import.meta.url),
+      { type: 'module' },
+    );
 
     worker.postMessage('');
-
     worker.onmessage = ({ data }) => {
-      console.log(data, 'Data from worker');
+      const balance = data.reduce((a: bigint, c: { value: bigint }) => {
+        a += c.value;
+        return a;
+      }, 0n);
+      const sparkBalance = new BigNumber(balance).div(SATOSHI).toString();
+      db.saveData('sparkBalance', sparkBalance);
       isSyncing.value = false;
     };
-
-    // const allSets = await db.readData();
-
-    // allSets.forEach(set => {
-    //   chunkedEvery(
-    //     set.coins,
-    //     50,
-    //     coin => {
-    //       getSparkCoinInfo({
-    //         coin: coin,
-    //         fullViewKeyObj,
-    //         incomingViewKeyObj,
-    //         wasmModule: wasm,
-    //       }).then(result => {
-    //         if (typeof result === 'string') {
-    //           coinFetchDataResult[result]
-    //             ? (coinFetchDataResult[result] =
-    //                 coinFetchDataResult[result] + 1)
-    //             : (coinFetchDataResult[result] = 1);
-    //         } else {
-    //           console.log(result);
-    //         }
-    //       });
-    //     },
-    //     () => {
-    //       console.log('Finished');
-    //     },
-    //   );
-    // });
-
-    // console.log(coinFetchDataResult);
   } catch (error) {
     console.log(error);
   }

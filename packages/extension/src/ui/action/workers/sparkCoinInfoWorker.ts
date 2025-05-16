@@ -29,7 +29,6 @@ async function fetchAllCoinInfos(
         incomingViewKeyObj,
         wasmModule: Module,
       }).then(res => {
-        console.log(res);
         finalResult.push(res);
         return res;
       });
@@ -64,7 +63,7 @@ addEventListener('message', async () => {
     throw new Error('Failed to create IncomingViewKey and fullViewKeyObj');
   }
 
-  const allSets = await db.readData();
+  const allSets = await db.readData('data');
 
   const result = await fetchAllCoinInfos(
     allSets,

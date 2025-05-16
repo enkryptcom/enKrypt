@@ -44,7 +44,10 @@ import { getFee } from '@/libs/spark-handler/getFee';
 import { getMintTxData } from '@/libs/spark-handler/getMintTxData';
 import { getTotalMintedAmount } from '@/libs/spark-handler/getTotalMintedAmount';
 import FiroAPI from '@/providers/bitcoin/libs/api-firo';
-import { validator } from '@/providers/bitcoin/libs/firo-wallet/firo-wallet';
+import {
+  SATOSHI,
+  validator,
+} from '@/providers/bitcoin/libs/firo-wallet/firo-wallet';
 import { PublicFiroWallet } from '@/providers/bitcoin/libs/firo-wallet/public-firo-wallet';
 import { BitcoinNetwork } from '@/providers/bitcoin/types/bitcoin-network';
 import { Activity, ActivityStatus, ActivityType } from '@/types/activity';
@@ -55,15 +58,7 @@ import BigNumber from 'bignumber.js';
 import * as bitcoin from 'bitcoinjs-lib';
 import { computed, PropType, ref } from 'vue';
 import { wasmInstance } from '@/libs/utils/wasm-loader.ts';
-import {
-  getIncomingViewKey,
-  getSpendKeyObj,
-} from '@/libs/spark-handler/generateSparkWallet.ts';
 import { IndexedDBHelper } from '@action/db/indexedDB.ts';
-
-const emits = defineEmits<{
-  (e: 'update:spark-state', network: BitcoinNetwork): void;
-}>();
 
 const props = defineProps({
   isSyncing: {
@@ -291,20 +286,18 @@ const anonymizeFunds = async () => {
 };
 
 const synchronize = async () => {
+  if (props.network.name !== NetworkNames.Firo) return;
   try {
     isSyncBtnDisabled.value = true;
     syncErrorMsg.value = undefined;
 
-    const wasm = await wasmInstance.getInstance();
-    const spendKeyObj = await getSpendKeyObj(wasm);
-
     const setsMeta = await wallet.getAllSparkAnonymitySetMeta();
-    const isDBEmpty = !(await db.readData()).length;
+    const isDBEmpty = !(await db.readData('data')).length;
 
     if (!isDBEmpty) {
       const dbSetsMeta = await Promise.all(
-        setsMeta.map(async (setMeta, index) => {
-          return db.getLengthOf(index);
+        setsMeta.map(async (_, index) => {
+          return db.getLengthOf('data', index);
         }),
       );
 
@@ -339,157 +332,34 @@ const synchronize = async () => {
             endIndex,
           );
           console.log('set ->>', set);
-          await db.appendData(set.coins, difference.setId - 1);
+          await db.appendData('data', set.coins, difference.setId - 1);
         }),
       );
     } else {
       console.warn('Loading all sets...');
       const allSets = await wallet.fetchAllAnonymitySets();
-      await db.saveData(allSets);
+      await db.saveData('data', allSets);
     }
 
-    if (!spendKeyObj || spendKeyObj === 0) {
-      throw new Error('Failed to create spendKeyObj');
-    }
+    const worker = new Worker(
+      new URL('../../../workers/sparkCoinInfoWorker.ts', import.meta.url),
+      { type: 'module' },
+    );
 
-    const incomingViewKey = await getIncomingViewKey(wasm, spendKeyObj);
-
-    if (!incomingViewKey) {
-      throw new Error('Failed to create IncomingViewKey');
-    }
-
-    const { incomingViewKeyObj, fullViewKeyObj } = incomingViewKey;
-
-    if (
-      !incomingViewKeyObj ||
-      incomingViewKeyObj === 0 ||
-      fullViewKeyObj === 0
-    ) {
-      throw new Error('Failed to create IncomingViewKey and fullViewKeyObj');
-    }
-    isSyncBtnDisabled.value = false;
+    worker.postMessage('');
+    worker.onmessage = ({ data }) => {
+      const balance = data.reduce((a: bigint, c: { value: bigint }) => {
+        a += c.value;
+        return a;
+      }, 0n);
+      const sparkBalance = new BigNumber(balance).div(SATOSHI).toString();
+      db.saveData('sparkBalance', sparkBalance);
+      isSyncBtnDisabled.value = false;
+    };
   } catch (error) {
     console.log(error);
     syncErrorMsg.value = JSON.stringify(error);
   }
-
-  // try {
-
-  // const setWithFirstCoin = [{
-  //     "blockHash": "afcoNhx8OZpqIjDagV+PXMswpOkWBKyhMFOp5isvQgk=",
-  //     "setHash": "JRQ4f0nEB3I3dGBQVYQj8rptzvM8Ulci0nAJY8rSsVw=",
-  //     "coins": [[
-  //       "ACwgrzHnKO1uQze+RTsZjDFI6EJ5KmpA0lvgI+uMw/Z6AQCgGjLAp89G2/Zm+bMe7zL/sOgAaZbu254GF8h5e8Ze4QAAACAuyRMVLxgMd0cBXVHj5WMPDUAnBe3ZRG+/vuHV8kABAFIIK5I4lKqWUos+pw/C5nMdYZr0NmOQrQnx7zOOWvgEbOYZ1vhEO8r4RcnKkmMFDHF0rxkMbQDWwKwdli0IQaF/fQzZITUAr0WTiVjzI7DcXp6gEFmc7jF2I3ZIwxC7A5skxG8gF0dhMAgjoPM42l+AVPEdQN1Tu6kj0HpFYrTf0myudDU+XaASAAAAAP3eecYxAYG0Mr2zlIVQG/319YnoPkx3P7ZHm9fWgOaTKbpcHsB/OHsVngarYfP3nZO+q7ck87jVDVGmTNuZ5eQ7AQAAAAD+////",
-  //       "/d55xjEBgbQyvbOUhVAb/fX1ieg+THc/tkeb19aA5pM=",
-  //       "ulwewH84exWeBqth8/edk76rtyTzuNUNUaZM25nl5DsBAAAAAP7///8="
-  //     ]]
-  //   }]
-  //
-  //
-  // console.log({setWithFirstCoin})
-
-  // allSets.forEach(set => {
-  //   chunkedEvery(
-  //     set.coins,
-  //     50,
-  //     coin => {
-  //       getSparkCoinInfo({
-  //         coin: coin,
-  //         fullViewKeyObj,
-  //         incomingViewKeyObj,
-  //         wasmModule: wasm,
-  //       });
-  //       //   .then(result => {
-  //       //   if (typeof result === 'string') {
-  //       //     coinFetchDataResult.value[result]
-  //       //       ? (coinFetchDataResult.value[result] =
-  //       //           coinFetchDataResult.value[result] + 1)
-  //       //       : (coinFetchDataResult.value[result] = 1);
-  //       //   } else {
-  //       //     console.log(result);
-  //       //   }
-  //       // });
-  //     },
-  //     () => {
-  //       console.log(coinFetchDataResult);
-  //     },
-  //   );
-
-  // set.coins.forEach((coin, i) => {
-  //   if (i  % 1000 === 0) {
-  //     console.log(i);
-  //   }
-  //   getSparkCoinInfo({
-  //     coin: coin,
-  //     fullViewKeyObj,
-  //     incomingViewKeyObj,
-  //     wasmModule: wasm,
-  //   }).then(result => {
-  //     if (typeof result === 'string') {
-  //       coinFetchDataResult[result] !== undefined
-  //         ? (coinFetchDataResult[result] = coinFetchDataResult[result] + 1)
-  //         : (coinFetchDataResult[result] = 0);
-  //     } else {
-  //       console.log(result);
-  //     }
-  //   });
-  //
-  //   // console.log('Coin:', coin);
-  // });
-  // });
-
-  // slicedSet.coins.forEach((coin, i) => {
-  //   if (i  % 1000 === 0) {
-  //     console.log(i);
-  //   }
-  //     getSparkCoinInfo({
-  //       coin: coin,
-  //       fullViewKeyObj,
-  //       incomingViewKeyObj,
-  //       wasmModule: wasm,
-  //     }).then(result => {
-  //       if (typeof result === 'string') {
-  //         coinFetchDataResult[result] !== undefined
-  //           ? (coinFetchDataResult[result] = coinFetchDataResult[result] + 1)
-  //           : (coinFetchDataResult[result] = 0);
-  //       } else {
-  //         console.log(result);
-  //       }
-  //     });
-  //
-  //     // console.log('Coin:', coin);
-  // });
-
-  // postMessage('Done');
-  // } catch (error) {
-  //   console.log(error);
-  //   // postMessage('error');
-  // }
-  // TODO: add later
-  // finally {
-  //   wasm.ccall('js_freeSpendKey', null, ['number'], [spendKeyObj]);
-  // }
-
-  // worker.postMessage(
-  //   {
-  //     allSets,
-  //     incomingViewKeyObj,
-  //     fullViewKeyObj,
-  //   }
-  // );
-  //
-  // worker.onmessage = ({ data }) => {
-  //   console.log(data, 'Data from worker');
-  // };
-
-  // allSets.forEach(set => {
-  //   set.coins.forEach(coin => {
-  //     getSparkCoinInfo({
-  //       coin,
-  //       selectedAccount: accountHeaderData!.value!.selectedAccount!,
-  //     });
-  //   });
-  // });
 };
 </script>
 

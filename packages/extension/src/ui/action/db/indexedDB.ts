@@ -34,52 +34,56 @@ export class IndexedDBHelper {
     return transaction.objectStore(this.storeName);
   }
 
-  async readData(): Promise<AnonymitySetModel[]> {
+  async readData<T = AnonymitySetModel[]>(key: string): Promise<T> {
     return new Promise((resolve, reject) => {
       const store = this.getObjectStore('readonly');
-      const request = store.get('data');
+      const request = store.get(key);
 
       request.onsuccess = () => {
-        resolve(request.result || []);
+        resolve(request.result);
       };
       request.onerror = () => reject(request.error);
     });
   }
 
-  async clearData(): Promise<void> {
+  async clearData(key: string): Promise<void> {
     return new Promise((resolve, reject) => {
       const store = this.getObjectStore('readwrite');
-      const request = store.delete('data');
+      const request = store.delete(key);
 
       request.onsuccess = () => resolve();
       request.onerror = () => reject(request.error);
     });
   }
 
-  async saveData(data: AnonymitySetModel[]): Promise<void> {
+  async saveData<T>(key: string, data: T): Promise<void> {
     return new Promise((resolve, reject) => {
       const store = this.getObjectStore('readwrite');
-      const request = store.put(data, 'data');
+      const request = store.put(data, key);
 
       request.onsuccess = () => resolve();
       request.onerror = () => reject(request.error);
     });
   }
 
-  async appendData(newItems: string[][], index: number): Promise<void> {
-    const data = await this.readData();
+  async appendData(
+    key: string,
+    newItems: string[][],
+    index: number,
+  ): Promise<void> {
+    const data = await this.readData(key);
     if (!data[index]) throw new Error('Invalid index');
     data[index].coins.push(...newItems);
-    await this.saveData(data);
+    await this.saveData(key, data);
   }
 
-  async getLength(): Promise<number> {
-    const data = await this.readData();
+  async getLength(key: string): Promise<number> {
+    const data = await this.readData(key);
     return data.reduce((sum, set) => sum + set.coins.length, 0);
   }
 
-  async getLengthOf(index: number): Promise<number> {
-    const data = await this.readData();
+  async getLengthOf(key: string, index: number): Promise<number> {
+    const data = await this.readData(key);
     if (!data[index]) throw new Error('Invalid index');
     return data[index].coins.length;
   }
