@@ -1,0 +1,68 @@
+# This file contains the fastlane.tools configuration
+# You can find the documentation at https://docs.fastlane.tools
+#
+# For a list of all available actions, check out
+#
+#     https://docs.fastlane.tools/actions
+#
+# For a list of all available plugins, check out
+#
+#     https://docs.fastlane.tools/plugins/available-plugins
+#
+
+# Uncomment the line if you want fastlane to automatically update itself
+
+before_all do
+  update_fastlane
+end
+
+desc "Prepare the macos app for build"
+lane :prepare do
+  match(
+      app_identifier: ["com.myetherwallet.enkrypt.safari","com.myetherwallet.enkrypt.safari.Extension"],
+      type: "appstore",
+      platform: "macos",
+      git_branch: "safari",
+      git_basic_authorization: Base64.strict_encode64(ENV["GIT_AUTHORIZATION"]),
+      readonly: true,
+      generate_apple_certs: false,
+      additional_cert_types:"mac_installer_distribution"
+  )
+end
+
+desc "Push a new release build to the App Store"
+lane :release do
+    manifest = read_json(
+      json_path: "../../packages/extension/dist/manifest.json"
+    )
+    increment_version_number_in_xcodeproj(version_number: manifest[:version], xcodeproj: "Enkrypt.xcodeproj")
+    increment_build_number( build_number: ENV["GITHUB_RUN_ID"], xcodeproj: "Enkrypt.xcodeproj")
+    build_mac_app(scheme: "Enkrypt", 
+      export_team_id: CredentialsManager::AppfileConfig.try_fetch_value(:team_id), 
+      destination: "generic/platform=macOS",
+      clean: true,
+      export_method: "app-store",
+      output_directory: "build",
+      installer_cert_name: ENV["INSTALLER_CERT"],
+      export_options: {
+      provisioningProfiles: { 
+         "com.myetherwallet.enkrypt.safari" => ENV["SAFARI_PROVISION"],
+         "com.myetherwallet.enkrypt.safari.Extension" => ENV["EXTENSION_PROVISION"]
+       }
+   })
+  upload_to_app_store(skip_metadata: true, skip_screenshots: true, run_precheck_before_submit: false)
+end
+
+desc "Prepare build and release build to the App Store"
+lane :buildandrelease do
+    setup_ci
+    app_store_connect_api_key(
+      key_id: ENV["API_KEY_ID"] ,
+      issuer_id: ENV["API_ISSUER_ID"],
+      key_content: ENV["API_KEY"],
+      duration: 1200, # optional (maximum 1200)
+      in_house: false # optional but may be required if using match/sigh
+    )
+    prepare()
+    release()
+end
