@@ -76,6 +76,7 @@ import cytonicTestnetNode from './cytonic-testnet';
 import unitZero from './unitzero';
 import unitZeroTestnet from './unitzero-testnet';
 import conflux from './conflux';
+import hemi from './hemi';
 
 export default {
   sepolia: sepoliaNode,
@@ -165,4 +166,5 @@ export default {
   unitZero: unitZero,
   unitZeroTestnet: unitZeroTestnet,
   conflux: conflux,
+  hemi: hemiNode,
 };
