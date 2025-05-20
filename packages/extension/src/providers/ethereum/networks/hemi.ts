@@ -4,7 +4,7 @@ import { EvmNetwork, EvmNetworkOptions } from '../types/evm-network';
 import { EtherscanActivity } from '../libs/activity-handlers';
 import wrapActivityHandler from '@/libs/activity-state/wrap-activity-handler';
 
-const hemiOptions EvmNetworkOptions = {
+const hemiOptions: EvmNetworkOptions = {
   name: NetworkNames.Hemi,
   name_long: 'Hemi',
   homePage: 'https://hemi.xyz/',

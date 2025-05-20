@@ -166,5 +166,5 @@ export default {
   unitZero: unitZero,
   unitZeroTestnet: unitZeroTestnet,
   conflux: conflux,
-  hemi: hemiNode,
+  hemi: hemi,
 };
