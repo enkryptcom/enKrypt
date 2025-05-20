@@ -169,14 +169,12 @@ class KeyRing {
   }
 
   async getPrivateKey(seed: Buffer) {
-    const basePath = "m/44'/136'/0'/6/1"
-    // const nextIndex = await this.#getPathIndex(basePath);
+    const basePath = "m/44'/136'/0'/6/1";
 
     const root = bip32.fromSeed(seed);
     const child = root.derivePath(basePath);
 
     const privateKey = child!.privateKey!.toString("hex");
-    console.log("Private Key (hex):", privateKey);
 
     return { pk: privateKey, nextIndex: 1 };
   }

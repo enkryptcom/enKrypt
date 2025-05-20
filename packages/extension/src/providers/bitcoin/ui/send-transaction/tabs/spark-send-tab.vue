@@ -14,11 +14,6 @@
       class="no-margin"
       :token="availableAsset"
     />
-    <send-token-select
-      v-if="isSendToken"
-      class="no-margin"
-      :token="unconfirmedAsset"
-    />
 
     <send-input-amount
       v-if="isSendToken"
@@ -121,19 +116,8 @@ const loadingAvailableAsset = new BTCToken({
   coingeckoID: 'zcoin',
 });
 
-const loadingUnconfirmedAsset = new BTCToken({
-  icon: props.network.icon,
-  symbol: 'Firo',
-  balance: '0',
-  price: '0',
-  name: 'Firo',
-  decimals: props.network.decimals,
-  coingeckoID: 'zcoin',
-});
-
 const addressTo = ref<string>('');
 const availableAsset = ref<BTCToken>(loadingAvailableAsset);
-const unconfirmedAsset = ref<BTCToken>(loadingUnconfirmedAsset);
 const amount = ref<string>('');
 const isMaxSelected = ref<boolean>(false);
 
@@ -162,7 +146,7 @@ const isInputsValid = computed<boolean>(() => {
     return false;
   if (
     new BigNumber(sendAmount.value).gt(
-      props.sparkAccount.sparkBalance.availableBalance,
+      new BigNumber(props.sparkAccount.sparkBalance.availableBalance),
     )
   )
     return false;
@@ -185,7 +169,7 @@ const nativeBalanceAfterTransaction = computed(() => {
 
 const assetMaxValue = computed(() => {
   return fromBase(
-    String(props.sparkAccount.sparkBalance.fullBalance),
+    String(props.sparkAccount.sparkBalance.availableBalance),
     props.network.decimals,
   );
 });
@@ -245,10 +229,6 @@ const setAsset = async () => {
     props.sparkAccount.sparkBalance.availableBalance,
   );
   availableAsset.value.name = 'Available Balance';
-  unconfirmedAsset.value.balance = String(
-    props.sparkAccount.sparkBalance.unconfirmedBalance,
-  );
-  unconfirmedAsset.value.name = 'Unconfirmed Balance';
 };
 
 const setMaxValue = () => {

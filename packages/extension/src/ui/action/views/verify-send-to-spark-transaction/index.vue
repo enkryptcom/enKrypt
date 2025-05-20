@@ -100,8 +100,9 @@ import SendProcess from '@action/views/send-process/index.vue';
 import { EnkryptAccount } from '@enkryptcom/types';
 import BigNumber from 'bignumber.js';
 import * as bitcoin from 'bitcoinjs-lib';
-import { ComponentPublicInstance, inject, onBeforeMount, ref } from 'vue';
+import { ComponentPublicInstance, onBeforeMount, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { wasmInstance } from '@/libs/utils/wasm-loader.ts';
 
 const wallet = new PublicFiroWallet();
 
@@ -125,8 +126,6 @@ const isPopup: boolean = getCurrentContext() === 'new-window';
 const verifyScrollRef = ref<ComponentPublicInstance<HTMLElement>>();
 const isWindowPopup = ref(false);
 const errorMsg = ref('');
-
-const wasmModule = inject<WasmModule>('wasmModule');
 
 defineExpose({ verifyScrollRef });
 
@@ -152,6 +151,8 @@ const sendAction = async () => {
   trackSendEvents(SendEventType.SendApprove, {
     network: network.value.name,
   });
+
+  const wasmModule = await wasmInstance.getInstance();
 
   const address2Check = await wallet.getTransactionsAddresses();
 

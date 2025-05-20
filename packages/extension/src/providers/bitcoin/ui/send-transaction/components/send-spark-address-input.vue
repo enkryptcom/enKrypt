@@ -3,7 +3,7 @@
     <div class="send-address-input__avatar">
       <img
         v-if="
-          isSparkAddress(btcAddress) ||
+          isValidSparkAddress ||
           isAddress(btcAddress, props.network.networkInfo)
         "
         :src="network.identicon(btcAddress)"
@@ -20,7 +20,7 @@
         placeholder="address"
         :style="{
           color:
-            !isSparkAddress(btcAddress) &&
+            !isValidSparkAddress &&
             !isAddress(btcAddress, props.network.networkInfo)
               ? 'red'
               : 'black',
@@ -33,22 +33,23 @@
 </template>
 
 <script setup lang="ts">
-import { PropType, ref, computed } from "vue";
-import { isAddress, isSparkAddress } from "@/providers/bitcoin/libs/utils";
-import { BitcoinNetwork } from "@/providers/bitcoin/types/bitcoin-network";
+import { computed, PropType, ref, watch } from 'vue';
+import { isAddress, isSparkAddress } from '@/providers/bitcoin/libs/utils';
+import { BitcoinNetwork } from '@/providers/bitcoin/types/bitcoin-network';
 
 const isFocus = ref<boolean>(false);
+const isValidSparkAddress = ref<boolean>(false);
 const addressInput = ref<HTMLInputElement>();
 
 const pasteFromClipboard = async () => {
   try {
     const text = await navigator.clipboard.readText();
     if (addressInput.value) {
-      addressInput.value?.focus()
-      emit("update:inputAddress", text);
+      addressInput.value?.focus();
+      emit('update:inputAddress', text);
     }
   } catch (err) {
-    console.error("Failed to read clipboard:", err);
+    console.error('Failed to read clipboard:', err);
   }
 };
 defineExpose({ addressInput, pasteFromClipboard });
@@ -57,7 +58,7 @@ const props = defineProps({
   value: {
     type: String,
     default: () => {
-      return "";
+      return '';
     },
   },
   network: {
@@ -66,30 +67,34 @@ const props = defineProps({
   },
   title: {
     type: String,
-    default: "To Spark address",
+    default: 'To Spark address',
   },
   disableDirectInput: Boolean,
 });
 const emit = defineEmits<{
-  (e: "update:inputAddress", address: string): void;
-  (e: "toggle:showContacts", show: boolean): void;
+  (e: 'update:inputAddress', address: string): void;
+  (e: 'toggle:showContacts', show: boolean): void;
 }>();
 const btcAddress = computed(() => {
   return props.value;
 });
 const address = computed({
   get: () => btcAddress.value,
-  set: (value) => emit("update:inputAddress", value),
+  set: value => emit('update:inputAddress', value),
+});
+
+watch(btcAddress, async () => {
+  isValidSparkAddress.value = await isSparkAddress(btcAddress.value);
 });
 
 const changeFocus = (val: FocusEvent) => {
-  isFocus.value = val.type === "focus";
-  if (isFocus.value) emit("toggle:showContacts", isFocus.value);
+  isFocus.value = val.type === 'focus';
+  if (isFocus.value) emit('toggle:showContacts', isFocus.value);
 };
 </script>
 
 <style lang="less">
-@import "@action/styles/theme.less";
+@import '@action/styles/theme.less';
 
 .send-address-input {
   height: 64px;
@@ -99,7 +104,7 @@ const changeFocus = (val: FocusEvent) => {
   border: 1px solid @gray02;
   box-sizing: border-box;
   border-radius: 10px;
-  width: calc(~"100% - 64px");
+  width: calc(~'100% - 64px');
   padding: 16px;
   display: flex;
   justify-content: flex-start;
@@ -109,7 +114,7 @@ const changeFocus = (val: FocusEvent) => {
 
   &.focus {
     border: 2px solid @primary;
-    width: calc(~"100% - 62px");
+    width: calc(~'100% - 62px');
     margin: 12px 31px 8px 31px;
   }
 

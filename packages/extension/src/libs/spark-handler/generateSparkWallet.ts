@@ -45,12 +45,9 @@ export const getSpendKeyObj = async (wasm: WasmModule) => {
     return spendKeyObj;
   } catch (e) {
     console.log(e);
-    return 0;
-
-    // TODO: Add later
-  } finally {
     wasm.ccall('js_freeSpendKeyData', null, ['number'], [spendKeyDataObj]);
     wasm._free(keyDataPtr);
+    return 0;
   }
 };
 
@@ -98,20 +95,22 @@ export async function getSparkState(): Promise<SparkAccount | undefined> {
 
   const spendKeyObj = await getSpendKeyObj(wasm);
 
-  if (!spendKeyObj || spendKeyObj === 0) {
+  const { incomingViewKeyObj, fullViewKeyObj } = await getIncomingViewKey(
+    wasm,
+    spendKeyObj,
+  );
+
+  if (fullViewKeyObj === 0) {
+    console.error('Failed to create FullViewKey');
+    wasm.ccall('js_freeSpendKey', null, ['number'], [spendKeyObj]);
     return;
   }
 
-  const incomingViewKey = await getIncomingViewKey(wasm, spendKeyObj);
-
-  if (!incomingViewKey) {
-    throw new Error('Failed to create IncomingViewKey');
-  }
-
-  const { incomingViewKeyObj } = incomingViewKey;
-
   if (incomingViewKeyObj === 0) {
-    throw new Error('Failed to create IncomingViewKey');
+    console.error('Failed to create IncomingViewKey');
+    wasm.ccall('js_freeFullViewKey', null, ['number'], [fullViewKeyObj]);
+    wasm.ccall('js_freeSpendKey', null, ['number'], [spendKeyObj]);
+    return;
   }
 
   const addressObj = wasm.ccall(
@@ -122,7 +121,16 @@ export async function getSparkState(): Promise<SparkAccount | undefined> {
   );
 
   if (addressObj === 0) {
-    throw new Error('Failed to get Address');
+    console.error('Failed to get Address');
+    wasm.ccall(
+      'js_freeIncomingViewKey',
+      null,
+      ['number'],
+      [incomingViewKeyObj],
+    );
+    wasm.ccall('js_freeFullViewKey', null, ['number'], [fullViewKeyObj]);
+    wasm.ccall('js_freeSpendKey', null, ['number'], [spendKeyObj]);
+    return;
   }
 
   const address_enc_main = wasm.ccall(
@@ -135,9 +143,7 @@ export async function getSparkState(): Promise<SparkAccount | undefined> {
   return {
     defaultAddress: address_enc_main,
     sparkBalance: {
-      availableBalance: 1,
-      fullBalance: 1,
-      unconfirmedBalance: 1,
+      availableBalance: '0',
     },
   };
 }

@@ -11,9 +11,7 @@ export interface Account {
 export interface SparkAccount {
   defaultAddress: string;
   sparkBalance: {
-    availableBalance: number;
-    unconfirmedBalance: number;
-    fullBalance: number;
+    availableBalance: string;
   };
 }
 

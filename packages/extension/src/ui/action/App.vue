@@ -65,6 +65,7 @@
             @action:generate-new-spark="generateNewSparkAddress"
             @open:buy-action="openBuyPage"
             @update:spark-state-changed="getSparkAccountState"
+            @update:sparkBalanceChanged="updateSparkBalance"
           />
         </transition>
       </router-view>
@@ -106,11 +107,6 @@ import { BuyEventType, NetworkChangeEvents } from '@/libs/metrics/types';
 import NetworksState from '@/libs/networks-state';
 import RateState from '@/libs/rate-state';
 import {
-  getIncomingViewKey,
-  getSpendKeyObj,
-} from '@/libs/spark-handler/generateSparkWallet';
-import { getSparkCoinInfo } from '@/libs/spark-handler/getSparkCoinInfo.ts';
-import {
   getAccountsByNetworkName,
   getOtherSigners,
 } from '@/libs/utils/accounts';
@@ -122,8 +118,6 @@ import {
 import openOnboard from '@/libs/utils/open-onboard';
 import BTCAccountState from '@/providers/bitcoin/libs/accounts-state';
 import { PublicFiroWallet } from '@/providers/bitcoin/libs/firo-wallet/public-firo-wallet';
-import { chunkedEvery } from '@/providers/bitcoin/libs/firo-wallet/utils';
-import { getSparkState } from '@/providers/bitcoin/libs/spark-state';
 import EVMAccountState from '@/providers/ethereum/libs/accounts-state';
 import { MessageMethod } from '@/providers/ethereum/types';
 import { EvmNetwork } from '@/providers/ethereum/types/evm-network';
@@ -160,6 +154,7 @@ import Settings from './views/settings/index.vue';
 import { wasmInstance } from '@/libs/utils/wasm-loader.ts';
 import BigNumber from 'bignumber.js';
 import { SATOSHI } from '@/providers/bitcoin/libs/firo-wallet/firo-wallet.ts';
+import { getSparkState } from '@/libs/spark-handler/generateSparkWallet.ts';
 
 const wallet = new PublicFiroWallet();
 const db = new IndexedDBHelper();
@@ -321,6 +316,7 @@ const synchronize = async () => {
 
     if (sparkBalance) {
       isSyncing.value = false;
+      await updateSparkBalance(currentNetwork.value);
       return;
     }
 
@@ -335,9 +331,11 @@ const synchronize = async () => {
         a += c.value;
         return a;
       }, 0n);
-      const sparkBalance = new BigNumber(balance).div(SATOSHI).toString();
+      const sparkBalance = new BigNumber(balance).toString();
       db.saveData('sparkBalance', sparkBalance);
-      isSyncing.value = false;
+      updateSparkBalance(currentNetwork.value).then(() => {
+        isSyncing.value = false;
+      });
     };
   } catch (error) {
     console.log(error);
@@ -383,6 +381,23 @@ const updateGradient = (newGradient: string) => {
   if (appMenuRef.value)
     (appMenuRef.value as HTMLElement).style.background =
       `radial-gradient(137.35% 97% at 100% 50%, rgba(250, 250, 250, 0.94) 0%, rgba(250, 250, 250, 0.96) 28.91%, rgba(250, 250, 250, 0.98) 100%), linear-gradient(180deg, ${newGradient} 80%, #684CFF 100%)`;
+};
+
+const updateSparkBalance = async (network: BaseNetwork) => {
+  if (network.name === NetworkNames.Firo) {
+    const sparkBalance = await db.readData<string>('sparkBalance');
+    if (sparkBalance && accountHeaderData.value.sparkAccount) {
+      accountHeaderData.value = {
+        ...accountHeaderData.value,
+        sparkAccount: {
+          ...(accountHeaderData.value.sparkAccount ?? {}),
+          sparkBalance: {
+            availableBalance: sparkBalance,
+          },
+        },
+      };
+    }
+  }
 };
 
 const generateNewSparkAddress = async () => {
@@ -490,15 +505,11 @@ const generateNewSparkAddress = async () => {
 
     if (accountHeaderData.value.sparkAccount) {
       accountHeaderData.value.sparkAccount.defaultAddress = address_enc_main;
-      // accountHeaderData.value.sparkAccount.allAddresses.push(
-      //   address_enc_main
-      // );
     }
   }
 };
 
 const getSparkAccountState = async (network: BaseNetwork) => {
-  console.log(123);
   if (network.name === NetworkNames.Firo) {
     if (accountHeaderData.value.selectedAccount) {
       const sparkAccountResponse = await getSparkState();
@@ -534,7 +545,6 @@ const setNetwork = async (network: BaseNetwork) => {
     await synchronize();
     if (accountHeaderData.value.selectedAccount) {
       const sparkAccountResponse = await getSparkState();
-      console.log(sparkAccountResponse);
 
       if (sparkAccountResponse) {
         sparkAccount = { ...sparkAccountResponse };

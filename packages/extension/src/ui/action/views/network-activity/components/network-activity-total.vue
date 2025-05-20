@@ -59,6 +59,7 @@ import * as bitcoin from 'bitcoinjs-lib';
 import { computed, PropType, ref } from 'vue';
 import { wasmInstance } from '@/libs/utils/wasm-loader.ts';
 import { IndexedDBHelper } from '@action/db/indexedDB.ts';
+import { BaseNetwork } from '@/types/base-network.ts';
 
 const props = defineProps({
   isSyncing: {
@@ -96,6 +97,10 @@ const props = defineProps({
     default: () => ({}),
   },
 });
+
+const emits = defineEmits<{
+  (e: 'update:spark-balance', network: BaseNetwork): void;
+}>();
 
 const wallet = new PublicFiroWallet();
 const db = new IndexedDBHelper();
@@ -352,7 +357,7 @@ const synchronize = async () => {
         a += c.value;
         return a;
       }, 0n);
-      const sparkBalance = new BigNumber(balance).div(SATOSHI).toString();
+      const sparkBalance = new BigNumber(balance).toString();
       db.saveData('sparkBalance', sparkBalance);
       isSyncBtnDisabled.value = false;
     };

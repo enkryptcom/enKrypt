@@ -5,24 +5,27 @@ import { fromBase } from '@enkryptcom/utils';
 import BigNumber from 'bignumber.js';
 import { BitcoinNetwork } from '../types/bitcoin-network';
 import { BTCTxInfo } from '../ui/types';
-import { inject } from 'vue';
+import { wasmInstance } from '@/libs/utils/wasm-loader.ts';
 
-export const isSparkAddress = (address = "", isTestNetwork = false): boolean => {
-  const wasm = inject<WasmModule>('wasmModule');
+export const isSparkAddress = async (
+  address = '',
+  isTestNetwork = false,
+): Promise<boolean> => {
+  const wasm = await wasmInstance.getInstance();
 
   if (!wasm) {
-    console.log("Wasm not loaded");
+    console.log('Wasm not loaded');
     return false;
   }
 
   const isAddressValid = wasm.ccall(
-    "js_isValidSparkAddress",
-    "number",
-    ["string", "number"],
-    [address, !!isTestNetwork]
+    'js_isValidSparkAddress',
+    'number',
+    ['string', 'number'],
+    [address, isTestNetwork],
   );
-  
-  return !!isAddressValid
+
+  return !!isAddressValid;
 };
 
 const isAddress = (address: string, network: BitcoinNetworkInfo): boolean => {
