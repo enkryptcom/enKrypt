@@ -1,11 +1,5 @@
 <template>
-  <div
-    :class="[
-      isExpanded ? 'expanded' : 'collapsed',
-      { locked: isLocked },
-      'app',
-    ]"
-  >
+  <div :class="[{ locked: isLocked }, 'app']">
     <div
       v-if="isLoading"
       :class="['app__loading', isExpanded ? 'expanded' : 'collapsed']"
@@ -71,7 +65,7 @@
       @close:popup="settingsShow = !settingsShow"
       @action:lock="lockAction"
     />
-    <modal-rate v-if="rateShow" @close:popup="rateShow = !rateShow" />
+    <modal-rate v-model="isRatePopupOpen" />
     <modal-new-version
       v-if="updateShow"
       :current-version="currentVersion"
@@ -133,6 +127,7 @@ import { BuyEventType, NetworkChangeEvents } from '@/libs/metrics/types';
 import BackupState from '@/libs/backup-state';
 import { useMenuStore } from './store/menu-store';
 import { useCurrencyStore, type Currency } from './views/settings/store';
+import { useRateStore } from './store/rate-store';
 
 const domainState = new DomainState();
 const rateState = new RateState();
@@ -154,11 +149,17 @@ const currentSubNetwork = ref<string>('');
 const kr = new PublicKeyRing();
 const addNetworkShow = ref(false);
 const settingsShow = ref(false);
-const rateShow = ref(false);
 const updateShow = ref(false);
 const isLoading = ref(true);
 const currentVersion = __PACKAGE_VERSION__;
 const latestVersion = ref('');
+
+/** -------------------
+ * Rate
+ -------------------*/
+const rateStore = useRateStore();
+const { isRatePopupOpen } = storeToRefs(rateStore);
+const { toggleRatePopup } = rateStore;
 /** -------------------
  * Exapnded Menu
  -------------------*/
@@ -276,7 +277,7 @@ onMounted(async () => {
       setTimeout(() => {
         rateState.showPopup().then(show => {
           if (show) {
-            rateShow.value = true;
+            toggleRatePopup(true);
           } else {
             getLatestEnkryptVersion().then(version => {
               if (
@@ -500,7 +501,6 @@ body {
 }
 .app {
   height: 600px;
-
   overflow: hidden;
   position: relative;
   -webkit-transition:

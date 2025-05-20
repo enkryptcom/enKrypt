@@ -109,7 +109,7 @@ body {
 
   &__wrap {
     width: 460px;
-    height: 600px;
+    height: 650px;
     background: @white;
     box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.16);
     border-radius: 12px;

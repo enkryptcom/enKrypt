@@ -110,31 +110,6 @@ const JUPITER_TOKENS_URL = "https://tokens.jup.ag/tokens?tags=verified";
  */
 const JUPITER_API_URL = "https://quote-api.jup.ag/v6/";
 
-/**
- * @see https://solscan.io/account/45ruCyfdRkWpRNGEqWzjCiXRHkZs8WXCLQ67Pnpye7Hp
- *
- * Manages referral fees
- */
-const JUPITER_REFERRAL_VAULT_PUBKEY = new PublicKey(
-  "45ruCyfdRkWpRNGEqWzjCiXRHkZs8WXCLQ67Pnpye7Hp",
-);
-
-/**
- * @see https://solscan.io/account/REFER4ZgmyYx9c6He5XfaTMiGfdLwRnkV4RPp9t9iF3
- *
- * Program targetted by instructions
- */
-const JUPITER_REFERRAL_PROGRAM_PUBKEY = new PublicKey(
-  "REFER4ZgmyYx9c6He5XfaTMiGfdLwRnkV4RPp9t9iF3",
-);
-
-/**
- * Storage of a token ATA
- *
- * Required to calculate the extra cost if the swap fee if the swap needs to create a referral fee account
- */
-const JUPITER_REFERRAL_ATA_ACCOUNT_SIZE_BYTES = 165;
-
 // Jupiter API Tokens
 
 /**
@@ -257,7 +232,7 @@ export class Jupiter extends ProviderClass {
     const referrerPubkey = new PublicKey(feeConf.referrer);
 
     /** Jupiter API requires an integer for fee bps so we must round */
-    const feeBps = Math.round(100 * feeConf.fee);
+    const feeBps = Math.round(10000 * feeConf.fee);
 
     const fromPubkey = new PublicKey(options.fromAddress);
     const toPubkey = new PublicKey(options.toAddress);
@@ -286,16 +261,6 @@ export class Jupiter extends ProviderClass {
       dstMint = new PublicKey(options.toToken.address);
     }
 
-    const referrerATAPubkey = getJupiterReferrerAssociatedTokenAccount(
-      referrerPubkey,
-      srcMint,
-    );
-
-    const referrerATAExists = await solAccountExists(
-      this.conn,
-      referrerATAPubkey,
-    );
-
     /** Jupiter API requires an integer for slippage bps so we must round */
     const slippageBps = Math.round(
       100 * parseFloat(meta.slippage || DEFAULT_SLIPPAGE),
@@ -318,6 +283,18 @@ export class Jupiter extends ProviderClass {
       dstMint,
       dstTokenProgramId,
     );
+
+    const referrerATAPubkey = getReferrerAssociatedTokenAccount(
+      referrerPubkey,
+      dstMint,
+      dstTokenProgramId,
+    );
+
+    const referrerATAExists = await solAccountExists(
+      this.conn,
+      referrerATAPubkey,
+    );
+
     const srcTokenProgramId = await getTokenProgramOfMint(this.conn, srcMint);
 
     const isSrcToken2022 =
@@ -351,19 +328,17 @@ export class Jupiter extends ProviderClass {
     } else if (!referrerATAExists && !isSrcToken2022) {
       // The referral fee ATA account needs to be created or else we can't receive fees for this transaction
       const extraRentFees = await this.conn.getMinimumBalanceForRentExemption(
-        JUPITER_REFERRAL_ATA_ACCOUNT_SIZE_BYTES,
+        SPL_TOKEN_ATA_ACCOUNT_SIZE_BYTES,
       );
 
-      // Get the instruction that creates the Jupiter referral ATA account
-      const instruction = getJupiterInitialiseReferralTokenAccountInstruction({
+      const instruction = getCreateAssociatedTokenAccountIdempotentInstruction({
         payerPubkey: fromPubkey,
-        programId: JUPITER_REFERRAL_PROGRAM_PUBKEY,
-        vaultPubkey: JUPITER_REFERRAL_VAULT_PUBKEY,
-        referralAccountPubkey: referrerPubkey,
-        referralATAPubkey: referrerATAPubkey,
-        mintPubkey: srcMint,
+        ataPubkey: referrerATAPubkey,
+        ownerPubkey: referrerPubkey,
+        mintPubkey: dstMint,
         systemProgramId: SystemProgram.programId,
-        tokenProgramId: srcTokenProgramId,
+        tokenProgramId: dstTokenProgramId,
+        associatedTokenProgramId: ASSOCIATED_TOKEN_PROGRAM_ID,
       });
 
       extraInstructions.push(instruction);
@@ -423,7 +398,6 @@ export class Jupiter extends ProviderClass {
     }
 
     const computeBudget = extractComputeBudget(tx);
-
     return {
       feePercentage: feeBps / 100,
       slippagePercentage: slippageBps / 100,
@@ -468,7 +442,7 @@ export class Jupiter extends ProviderClass {
       const result: ProviderQuoteResponse = {
         fromTokenAmount: toBN(jupiterQuote.inAmount),
         toTokenAmount: toBN(
-          Math.floor((1 - feePercentage) * Number(jupiterQuote.outAmount))
+          Math.floor((1 - feePercentage / 100) * Number(jupiterQuote.outAmount))
             .toFixed(10)
             .replace(/\.?0+$/, ""),
         ),
@@ -488,7 +462,6 @@ export class Jupiter extends ProviderClass {
           maximumTo: toBN(TOKEN_AMOUNT_INFINITY_AND_BEYOND),
         },
       };
-
       return result;
     } catch (err) {
       if (!context.signal.aborted) {
@@ -528,7 +501,7 @@ export class Jupiter extends ProviderClass {
         transactions: [enkryptTransaction],
         fromTokenAmount: toBN(jupiterQuote.inAmount),
         toTokenAmount: toBN(
-          Math.floor((1 - feePercentage) * Number(jupiterQuote.outAmount))
+          Math.floor((1 - feePercentage / 100) * Number(jupiterQuote.outAmount))
             .toFixed(10)
             .replace(/\.?0+$/, ""),
         ),
@@ -1054,119 +1027,25 @@ async function getJupiterSwap(
 /**
  * Get the referral ATA address that will receive your referral fees
  *
- * The ATA address is owned by the Jupiter referrer program which gives you the
+ * The ATA address is owned by the Token program which gives you the
  * ability to claim (withdraw) your assets. The address is specified in the swap
  * documentation https://station.jup.ag/api-v6/post-swap in the `feeAccount`
  * section
  *
- * @param referrerPubkey  Jupiter referrer acount address (from Jupiter referrer dashboard)
+ * @param referrerPubkey  Referrer acount address
  * @param mintPubkey      SPL token address
  */
-function getJupiterReferrerAssociatedTokenAccount(
+function getReferrerAssociatedTokenAccount(
   referrerPubkey: PublicKey,
   mintPubkey: PublicKey,
+  dstTokenProgramId: PublicKey,
 ): PublicKey {
-  /** `feeAccount` section of https://station.jup.ag/api-v6/post-swap */
-  const referrerAccountSeeds = [
-    Buffer.from("referral_ata"),
-    // Your referrer address that the Jupiter referral program gave you
-    referrerPubkey.toBuffer(),
-    mintPubkey.toBuffer(),
-  ];
-  const [referrerATAPubkey] = PublicKey.findProgramAddressSync(
-    referrerAccountSeeds,
-    JUPITER_REFERRAL_PROGRAM_PUBKEY,
-  );
-  return referrerATAPubkey;
-}
-
-/**
- * Links:
- * - [Jupiter Referral GitHub](https://github.com/TeamRaccoons/referral)
- * - [SDK code](https://github.com/TeamRaccoons/referral/tree/main/packages/sdk)
- * - [Program code](https://github.com/TeamRaccoons/referral/tree/main/program/programs/referral)
- * - [SDK initializeReferralTokenAccount](https://github.com/TeamRaccoons/referral/blob/1e4825087b25d59157800a571f32448e9c1e0b71/packages/sdk/src/referral.ts#L392)
- * - [IDL](https://github.com/TeamRaccoons/referral/blob/1e4825087b25d59157800a571f32448e9c1e0b71/packages/sdk/src/idl.ts#L1)
- * - [Dashboard code](https://github.com/TeamRaccoons/referral/tree/main/packages/dashboard)
- * - [InitializeReferralTokenAccount entrypoint](https://github.com/TeamRaccoons/referral/blob/1e4825087b25d59157800a571f32448e9c1e0b71/program/programs/referral/src/lib.rs#L87)
- * - [InitializeReferralTokenAccount command](https://github.com/TeamRaccoons/referral/blob/1e4825087b25d59157800a571f32448e9c1e0b71/program/programs/referral/src/instructions/initialize_referral_token_account.rs#L23)
- * - [Dashboard URL](https://referral.jup.ag/dashboard)
- *
- * Old IDL (Interface Description Language) JSON
- *
- * ```json
- *
- * {
- *   name: "initializeReferralTokenAccount",
- *   args: [],
- *   accounts: [
- *     { name: "payer"; isMut: true; isSigner: true; },
- *     { name: "project"; isMut: false; isSigner: false; },
- *     { name: "referralAccount"; isMut: false; isSigner: false; },
- *     { name: "referralTokenAccount"; isMut: true; isSigner: false; },
- *     { name: "mint"; isMut: false; isSigner: false; },
- *     { name: "systemProgram"; isMut: false; isSigner: false; },
- *     { name: "tokenProgram"; isMut: false; isSigner: false; }
- *   ],
- * }
- * ```
- */
-function getJupiterInitialiseReferralTokenAccountInstruction(params: {
-  /** Pubkey of the referrer program itself that instructions will be executed on */
-  programId: PublicKey;
-  /** Payer pubkey */
-  payerPubkey: PublicKey;
-  /** ? */
-  vaultPubkey: PublicKey;
-  /** Referrer project pubkey (your referrer address in the Jupiter console) */
-  referralAccountPubkey: PublicKey;
-  /** Jupiter ATA account for your referrer address with the SPL token address */
-  referralATAPubkey: PublicKey;
-  /** SPL token address */
-  mintPubkey: PublicKey;
-  /** Pubkey of the Solana SPL System Program */
-  systemProgramId: PublicKey;
-  /** Pubkey of the Solana SPL token program ?? TODO: WHICH ONE ?? */
-  tokenProgramId: PublicKey;
-}): TransactionInstruction {
-  const {
-    programId,
-    payerPubkey,
-    vaultPubkey,
-    referralAccountPubkey,
-    referralATAPubkey,
+  const associatedTokenTo = getSPLAssociatedTokenAccountPubkey(
+    referrerPubkey,
     mintPubkey,
-    systemProgramId,
-    tokenProgramId,
-  } = params;
-
-  // This is wrong:
-  // const hash = createHash('sha256');
-  // hash.update('initializeReferralTokenAccount');
-  // const fullHash = hash.digest();
-  // const discriminator = fullHash.slice(0, 8); // First 8 bytes of the hash
-
-  // TODO: how do we calculate this? I got it from Solscan and it seems to work
-  const discriminator = Buffer.from("7d12465f56b3ddbe", "hex");
-
-  // No data is needed, only:
-  //   1. The discriminator (similar to function selector in EVM)
-  //   2. Keys in the correct order
-  const instruction = new TransactionInstruction({
-    programId,
-    data: discriminator,
-    keys: [
-      { pubkey: payerPubkey, isSigner: true, isWritable: true },
-      { pubkey: vaultPubkey, isSigner: false, isWritable: false },
-      { pubkey: referralAccountPubkey, isSigner: false, isWritable: false },
-      { pubkey: referralATAPubkey, isSigner: false, isWritable: true },
-      { pubkey: mintPubkey, isSigner: false, isWritable: false },
-      { pubkey: systemProgramId, isSigner: false, isWritable: false },
-      { pubkey: tokenProgramId, isSigner: false, isWritable: false },
-    ],
-  });
-
-  return instruction;
+    dstTokenProgramId,
+  );
+  return associatedTokenTo;
 }
 
 function sleep(

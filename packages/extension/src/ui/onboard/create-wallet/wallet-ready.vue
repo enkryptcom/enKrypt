@@ -59,6 +59,7 @@ onMounted(() => {
   onboardStore.setMnemonic(secureClear(onboardStore.mnemonic));
   restoreStore.setMnemonic(secureClear(onboardStore.mnemonic));
   restoreStore.setPassword(secureClear(onboardStore.password));
+  restoreStore.setExtraWord(secureClear(restoreStore.extraWord));
 });
 
 const finishAction = () => {

@@ -2,7 +2,6 @@ import icon from './icons/godwoken.webp';
 import { CoingeckoPlatform, NetworkNames } from '@enkryptcom/types';
 import { EvmNetwork, EvmNetworkOptions } from '../types/evm-network';
 import assetsInfoHandler from '@/providers/ethereum/libs/assets-handlers/assetinfo-mew';
-import shNFTHandler from '@/libs/nft-handlers/simplehash';
 import { GodwokenActivity } from '../libs/activity-handlers';
 import wrapActivityHandler from '@/libs/activity-state/wrap-activity-handler';
 
@@ -20,7 +19,6 @@ const ethOptions: EvmNetworkOptions = {
   node: 'https://v1.mainnet.godwoken.io/rpc',
   icon,
   coingeckoPlatform: CoingeckoPlatform.Godwoken,
-  NFTHandler: shNFTHandler,
   assetsInfoHandler,
   activityHandler: wrapActivityHandler(GodwokenActivity),
 };
