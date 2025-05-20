@@ -29,7 +29,7 @@ class API implements ProviderAPIInterface {
 
   async init(): Promise<void> {}
   async getRawTransaction(hash: string): Promise<string | null> {
-    return fetch(`${this.node}/api/v1/tx/${hash}/raw`)
+    return fetch(`${this.node}/api/v2/tx/${hash}/raw`)
       .then(res => res.json())
       .then((tx: { hex: string; error: unknown }) => {
         if ((tx as any).error) return null;
@@ -38,7 +38,7 @@ class API implements ProviderAPIInterface {
       });
   }
   async getTransactionStatus(hash: string): Promise<BTCRawInfo | null> {
-    return fetch(`${this.node}/api/v1/tx/${hash}`)
+    return fetch(`${this.node}/api/v2/tx/${hash}`)
       .then(res => res.json())
       .then((tx: SSTxType) => {
         if ((tx as any).message) return null;
@@ -67,7 +67,7 @@ class API implements ProviderAPIInterface {
   }
   async getBalance(pubkey: string): Promise<string> {
     const address = pubkey.length < 64 ? pubkey : this.getAddress(pubkey);
-    return fetch(`${this.node}/api/v1/account/${address}`)
+    return fetch(`${this.node}/api/v2/address/${address}`)
       .then(res => res.json())
       .then((balance: { balance: string; unconfirmedBalance: string }) => {
         if ((balance as any).message) return '0';
@@ -78,7 +78,7 @@ class API implements ProviderAPIInterface {
       .catch(() => '0');
   }
   async broadcastTx(rawtx: string): Promise<boolean> {
-    return fetch(`${this.node}/api/v1/send`, {
+    return fetch(`${this.node}/api/v2/sendtx`, {
       method: 'POST',
       headers: {
         Accept: 'application/json',
@@ -124,7 +124,7 @@ class API implements ProviderAPIInterface {
 
   async getUTXOs(pubkey: string): Promise<HaskoinUnspentType[]> {
     const address = pubkey.length < 64 ? pubkey : this.getAddress(pubkey);
-    return fetch(`${this.node}/api/v1/account/${address}/utxos`)
+    return fetch(`${this.node}/api/v2/utxo/${address}`)
       .then(res => res.json())
       .then(async (utxos: SSUnspentType[]) => {
         if ((utxos as any).message || !utxos.length) return [];

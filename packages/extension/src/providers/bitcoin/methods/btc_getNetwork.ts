@@ -29,6 +29,10 @@ const method: MiddlewareFunction = function (
           return res(null, 'testnet');
         if (this.network.name === NetworkNames.Litecoin)
           return res(null, 'litecoin');
+        if (this.network.name === NetworkNames.SyscoinUTXO)
+          return res(null, 'syscoin');
+        if (this.network.name === NetworkNames.SyscoinUTXOTest)
+          return res(null, 'syscoin-testnet');
         res(null, '');
       });
   }
