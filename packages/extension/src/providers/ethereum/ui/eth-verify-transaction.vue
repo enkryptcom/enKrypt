@@ -11,7 +11,9 @@
     <template #content>
       <h2>Verify transaction</h2>
       <hardware-wallet-msg :wallet-type="account.walletType" />
+      <!--FROM-->
       <div class="provider-verify-transaction__block">
+        <p class="provider-verify-transaction__label">From</p>
         <div class="provider-verify-transaction__account">
           <img :src="identicon" />
           <div class="provider-verify-transaction__account-info">
@@ -32,9 +34,10 @@
           </div>
         </div>
       </div>
+      <!-- TX INFO -->
       <div class="provider-verify-transaction__block">
         <div class="provider-verify-transaction__info">
-          <img :src="Options.faviconURL" />
+          <img :src="Options.faviconURL" width="32px" height="32px" />
           <div class="provider-verify-transaction__info-info">
             <h4>{{ Options.domain }}</h4>
           </div>
@@ -77,12 +80,14 @@
           </p>
         </div>
       </div>
+      <!-- TO -->
       <div class="provider-verify-transaction__block">
+        <p class="provider-verify-transaction__label">To</p>
         <div class="provider-verify-transaction__account">
           <img :src="identiconTo" />
           <div class="provider-verify-transaction__account-info">
             <div>
-              <p>
+              <p class="provider-verify-transaction__account-info-to">
                 {{ decodedTx?.toAddress ?? '~' }}
               </p>
             </div>
