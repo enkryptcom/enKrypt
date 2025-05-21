@@ -77,6 +77,18 @@
           </p>
         </div>
       </div>
+      <div class="provider-verify-transaction__block">
+        <div class="provider-verify-transaction__account">
+          <img :src="identiconTo" />
+          <div class="provider-verify-transaction__account-info">
+            <div>
+              <p>
+                {{ decodedTx?.toAddress ?? '~' }}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <send-fee-select
         :in-swap="true"
@@ -183,6 +195,7 @@ const account = ref<EnkryptAccount>({
   address: '',
 } as EnkryptAccount);
 const identicon = ref<string>('');
+const identiconTo = ref<string>(network.value.identicon(''));
 const windowPromise = WindowPromiseHandler(3);
 const Options = ref<ProviderRequestOptions>({
   domain: '',
@@ -216,6 +229,9 @@ onBeforeMount(async () => {
     Request.value.params![0] as EthereumTransaction,
     network.value as EvmNetwork,
   ).then(decoded => {
+    identiconTo.value = network.value.identicon(
+      decoded.toAddress!.toLowerCase(),
+    );
     if (decoded.decoded && decoded.dataHex.startsWith(TokenSigs.approve)) {
       isApproval.value = true;
       if (
