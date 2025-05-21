@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest"
+import { describe, it, expect } from "vitest";
 import ENSResolver from "../src/ens";
 
 describe("ENS Name resolving", () => {
@@ -20,7 +20,7 @@ describe("ENS Name resolving", () => {
     });
     await resolver.init();
     const name = await resolver.resolveReverseName(
-      "0xe5dc07bdcdb8c98850050c7f67de7e164b1ea391"
+      "0xe5dc07bdcdb8c98850050c7f67de7e164b1ea391",
     );
     expect(name).to.be.eq("kvhnuke.eth");
   });
@@ -31,7 +31,7 @@ describe("ENS Name resolving", () => {
     });
     await resolver.init();
     const name = await resolver.resolveReverseName(
-      "0xe5dc07bdcdb8c98850050c7f67de7e164b1ea392"
+      "0xe5dc07bdcdb8c98850050c7f67de7e164b1ea392",
     );
     expect(name).to.be.eq(null);
     const address = await resolver.resolveAddress("sdfsfsdfsdfsdf.eth", "ETH");
