@@ -66,3 +66,7 @@ Closes all HW wallet connections
 `SignMessageRequest`: https://github.com/enkryptcom/enKrypt/blob/main/packages/hw-wallets/src/types.ts#L54  
 `SignTransactionRequest`: https://github.com/enkryptcom/enKrypt/blob/main/packages/hw-wallets/src/types.ts#L65  
 `isConnectedRequest`: https://github.com/enkryptcom/enKrypt/blob/main/packages/hw-wallets/src/types.ts#L78
+
+### Examples
+
+TO BE ADDED
