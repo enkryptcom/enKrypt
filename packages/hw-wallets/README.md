@@ -8,7 +8,7 @@
 
 #### Minimum Node version
 
-`v14.15.0`
+`node v20`
 
 #### Installation
 
