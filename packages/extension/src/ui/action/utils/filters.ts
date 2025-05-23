@@ -21,21 +21,19 @@ export const replaceWithEllipsis = (
 };
 
 export const parseCurrency = (value: string | number): string => {
-  const bnValue = BigNumber(value);
-  const parsedValue = bnValue.isNaN() || bnValue.isZero() || value === undefined ? "0" : bnValue.toString().replace(/,/g, '');
+  const raw = value.toString().replace(/[,<]/g, '');
   const store = useCurrencyStore();
   const currency = store.currentSelectedCurrency;
-  const currencyCode =
-    LANG_INFO[currency as keyof typeof LANG_INFO].locale || 'en-US';
-  const findRate = store.currencyList.find(c => c.fiat_currency === currency);
-  const rate = findRate || { exchange_rate: 1 };
+  const locale = LANG_INFO[currency as keyof typeof LANG_INFO]?.locale || 'en-US';
+  const exchangeRate = store.currencyList.find(c => c.fiat_currency === currency)?.exchange_rate || 1;
 
-  return new Intl.NumberFormat(currencyCode, {
+  const amount = new BigNumber(raw);
+  const finalValue = amount.isNaN() || amount.isZero() ? 0 : amount.times(exchangeRate).toNumber();
+
+  return new Intl.NumberFormat(locale, {
     style: 'currency',
     currency: currency,
-  }).format(
-    parseFloat(BigNumber(parsedValue).times(rate.exchange_rate).toString()),
-  );
+  }).format(finalValue);
 };
 
 export const truncate = (value: string, length: number): string => {
