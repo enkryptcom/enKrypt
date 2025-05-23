@@ -1,7 +1,7 @@
 import type { TrezorConnect as TrezorConnectType } from "@trezor/connect-web";
 
 const getTrezorConnect = async () => {
-  if (chrome.runtime) {
+  if (chrome && chrome.runtime && chrome.runtime.getPlatformInfo) {
     const TrezorConnect = (await import("@trezor/connect-webextension"))
       .default;
     await TrezorConnect.init({
