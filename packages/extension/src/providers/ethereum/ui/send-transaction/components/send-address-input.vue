@@ -71,6 +71,7 @@ const visibleAddress = computed(() => {
   if (props.network.isAddress(address))
     address = props.network.displayAddress(props.value);
   if (isFocus.value) return address;
+  if (address.length < 13) return address;
   return replaceWithEllipsis(address, 6, 6);
 });
 const address = computed({
