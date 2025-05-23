@@ -3,7 +3,6 @@ import Sparkline from '@/libs/sparkline';
 import { TokensState } from '@/libs/tokens-state';
 import { CustomErc20Token, TokenType } from '@/libs/tokens-state/types';
 import {
-  formatFiatValue,
   formatFloatingPointValue,
 } from '@/libs/utils/number-formatter';
 import { fromBase } from '@enkryptcom/utils';
@@ -151,11 +150,10 @@ export class EvmNetwork extends BaseNetwork {
         balancef: formatFloatingPointValue(fromBase(balance, this.decimals))
           .value,
         balanceUSD: nativeUsdBalance.toNumber(),
-        balanceUSDf: formatFiatValue(nativeUsdBalance.toString()).value,
+        balanceUSDf: nativeUsdBalance.toString(),
         value: nativeMarketData?.current_price?.toString() ?? '0',
-        valuef: formatFiatValue(
+        valuef:
           nativeMarketData?.current_price?.toString() ?? '0',
-        ).value,
         decimals: this.decimals,
         sparkline: nativeMarketData
           ? new Sparkline(nativeMarketData.sparkline_in_24h.price, 25)
@@ -269,11 +267,10 @@ export class EvmNetwork extends BaseNetwork {
           fromBase(token.balance ?? '0', token.decimals),
         ).times(marketInfo.current_price ?? 0);
         asset.balanceUSD = usdBalance.toNumber();
-        asset.balanceUSDf = formatFiatValue(usdBalance.toString()).value;
+        asset.balanceUSDf = usdBalance.toString();
         asset.value = marketInfo.current_price?.toString() ?? '0';
-        asset.valuef = formatFiatValue(
-          marketInfo.current_price?.toString() ?? '0',
-        ).value;
+        asset.valuef =
+          marketInfo.current_price?.toString() ?? '0';
         asset.sparkline = new Sparkline(
           marketInfo.sparkline_in_24h.price,
           25,

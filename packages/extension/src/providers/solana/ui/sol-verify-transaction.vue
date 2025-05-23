@@ -69,7 +69,7 @@
               </h4>
               <p :class="item.isNegative ? 'make-me-red' : ''">
                 {{ item.isNegative ? '-' : '' }}
-                ${{ $filters.formatFiatValue(parseFloat(item.USDval)).value }}
+                {{ $filters.parseCurrency(parseFloat(item.USDval)) }}
               </p>
             </div>
           </div>

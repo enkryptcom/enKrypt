@@ -11,14 +11,14 @@
       Not enough {{ nativeSymbol }} to pay the network<br />fee. You are ~{{
         $filters.formatFloatingPointValue(nativeValue).value
       }}
-      {{ nativeSymbol }} (${{ $filters.formatFiatValue(price).value }}) short.
+      {{ nativeSymbol }} ({{ $filters.parseCurrency(price) }}) short.
     </p>
 
     <p v-if="notEnoughtVerify" class="with-link">
       Not enough funds. You are<br />~{{
         $filters.formatFloatingPointValue(nativeValue).value
       }}
-      {{ nativeSymbol }} (${{ $filters.formatFiatValue(price).value }}) short.
+      {{ nativeSymbol }} ({{ $filters.parseCurrency(price) }}) short.
     </p>
 
     <p v-if="belowDeposit">

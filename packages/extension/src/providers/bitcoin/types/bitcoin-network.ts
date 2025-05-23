@@ -10,7 +10,6 @@ import { BitcoinNetworkInfo } from '.';
 import { payments } from 'bitcoinjs-lib';
 import { hexToBuffer, fromBase } from '@enkryptcom/utils';
 import {
-  formatFiatValue,
   formatFloatingPointValue,
 } from '@/libs/utils/number-formatter';
 import MarketData from '@/libs/market-data';
@@ -131,13 +130,12 @@ export class BitcoinNetwork extends BaseNetwork {
       balance: balance,
       balancef: formatFloatingPointValue(userBalance).value,
       balanceUSD: usdBalance.toNumber(),
-      balanceUSDf: formatFiatValue(usdBalance.toString()).value,
+      balanceUSDf: usdBalance.toString(),
       icon: this.icon,
       name: this.name_long,
       symbol: this.currencyName,
       value: marketData[0]?.current_price?.toString() ?? '0',
-      valuef: formatFiatValue(marketData[0]?.current_price?.toString() ?? '0')
-        .value,
+      valuef: marketData[0]?.current_price?.toString() ?? '0',
       contract: '',
       decimals: this.decimals,
       sparkline: marketData.length

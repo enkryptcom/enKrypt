@@ -16,7 +16,7 @@
           {{ $filters.formatFloatingPointValue(toReadable).value }}
           <span>{{ toToken.symbol }}</span>
         </h4>
-        <p>≈ {{ $filters.formatFiatValue(toTokenPrice).value }}</p>
+        <p>≈ {{ $filters.parseCurrency(toTokenPrice) }}</p>
       </div>
     </div>
     <!-- <best-offer-warning :fee-warning="true"></best-offer-warning>

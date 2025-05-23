@@ -62,9 +62,9 @@
               <span>{{ network.currencyName }}</span>
             </h4>
             <p>
-              ${{
+              {{
                 fiatValue !== '~'
-                  ? $filters.formatFiatValue(fiatValue).value
+                  ? $filters.parseCurrency(fiatValue).value
                   : fiatValue
               }}
             </p>
