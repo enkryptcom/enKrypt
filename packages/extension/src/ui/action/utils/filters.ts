@@ -29,11 +29,8 @@ export const parseCurrency = (value: string | number): string => {
 
   const amount = new BigNumber(raw);
   const finalValue = amount.isNaN() || amount.isZero() ? 0 : amount.times(exchangeRate).toNumber();
-
-  return new Intl.NumberFormat(locale, {
-    style: 'currency',
-    currency: currency,
-  }).format(finalValue);
+  const notation = BigNumber(finalValue).gt(999999) ? 'compact' : 'standard';
+  return `${amount.lt(0.0000001) ? '< ' : ''}${new Intl.NumberFormat(locale, { style: 'currency', currency: currency, notation, }).format(finalValue)}`
 };
 
 export const truncate = (value: string, length: number): string => {
@@ -53,8 +50,8 @@ export const formatDuration = (
     isoString.match(/T((\d+)H)?((\d+)M)?(([\d]+)(\.(\d+))?S)?/) ?? [];
 
   if (duration.hours() < 0)
-    return `${h.padStart(2, '0')}:${m.padStart(2, '0')}:${s.padStart(2, '0')}`;
+    return `${h.padStart(2, '0')}:${m.padStart(2, '0')}:${s.padStart(2, '0')} `;
 
-  return `${m.padStart(2, '0')}:${s.padStart(2, '0')}`;
+  return `${m.padStart(2, '0')}:${s.padStart(2, '0')} `;
 };
 export { formatFiatValue, formatFloatingPointValue };

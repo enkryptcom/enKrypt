@@ -71,8 +71,9 @@ const props = defineProps({
 
 const searchedList = computed(() => {
   if (!searchInput.value) return props.list;
+  console.log(props.list);
   const filtered = props.list.filter(item =>
-    item.includes(searchInput.value.toUpperCase()),
+    item.fiat_currency.includes(searchInput.value.toUpperCase()),
   );
   return filtered;
 });

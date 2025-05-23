@@ -7,9 +7,7 @@
       Not enough funds. You are<br />~{{
         $filters.formatFloatingPointValue(nativeValue).value
       }}
-      {{ nativeSymbol }} (${{
-        $filters.formatFiatValue(priceDifference).value
-      }}) short.
+      {{ nativeSymbol }} ({{ $filters.parseCurrency(priceDifference) }}) short.
     </p>
   </div>
 </template>
