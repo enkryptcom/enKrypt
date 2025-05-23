@@ -71,6 +71,8 @@ const props = defineProps({
   },
 });
 
+console.log(props.accountInfo);
+
 const route = useRoute();
 const router = useRouter();
 const selected: string = route.params.id as string;

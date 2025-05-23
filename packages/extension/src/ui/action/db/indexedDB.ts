@@ -66,14 +66,32 @@ export class IndexedDBHelper {
     });
   }
 
-  async appendData(
+  async appendSetData(
     key: string,
-    newItems: string[][],
     index: number,
+    input: {
+      coins: string[][],
+      setHash: string
+      blockHash: string
+    }
   ): Promise<void> {
     const data = await this.readData(key);
     if (!data[index]) throw new Error('Invalid index');
-    data[index].coins.push(...newItems);
+    data[index].blockHash = input.blockHash
+    data[index].setHash = input.setHash
+    data[index].coins = [...data[index].coins, ...input.coins];
+    await this.saveData(key, data);
+  }
+
+  async removeSector(
+    key: string,
+    index: number,
+    startIndex: number,
+    endIndex: number,
+  ): Promise<void> {
+    const data = await this.readData(key);
+    if (!data[index]) throw new Error('Invalid index');
+    data[index].coins = data[index].coins.slice(startIndex, endIndex);
     await this.saveData(key, data);
   }
 

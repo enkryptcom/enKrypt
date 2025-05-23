@@ -43,23 +43,20 @@ import { createTempTx } from '@/libs/spark-handler/createTempTx';
 import { getFee } from '@/libs/spark-handler/getFee';
 import { getMintTxData } from '@/libs/spark-handler/getMintTxData';
 import { getTotalMintedAmount } from '@/libs/spark-handler/getTotalMintedAmount';
+import { wasmInstance } from '@/libs/utils/wasm-loader.ts';
 import FiroAPI from '@/providers/bitcoin/libs/api-firo';
-import {
-  SATOSHI,
-  validator,
-} from '@/providers/bitcoin/libs/firo-wallet/firo-wallet';
+import { validator } from '@/providers/bitcoin/libs/firo-wallet/firo-wallet';
 import { PublicFiroWallet } from '@/providers/bitcoin/libs/firo-wallet/public-firo-wallet';
 import { BitcoinNetwork } from '@/providers/bitcoin/types/bitcoin-network';
 import { Activity, ActivityStatus, ActivityType } from '@/types/activity';
+import { BaseNetwork } from '@/types/base-network.ts';
+import { IndexedDBHelper } from '@action/db/indexedDB.ts';
 import BalanceLoader from '@action/icons/common/balance-loader.vue';
 import { AccountsHeaderData, SparkAccount } from '@action/types/account.ts';
 import { NetworkNames } from '@enkryptcom/types/dist';
 import BigNumber from 'bignumber.js';
 import * as bitcoin from 'bitcoinjs-lib';
 import { computed, PropType, ref } from 'vue';
-import { wasmInstance } from '@/libs/utils/wasm-loader.ts';
-import { IndexedDBHelper } from '@action/db/indexedDB.ts';
-import { BaseNetwork } from '@/types/base-network.ts';
 
 const props = defineProps({
   isSyncing: {
@@ -291,13 +288,20 @@ const anonymizeFunds = async () => {
 };
 
 const synchronize = async () => {
+  const setLoadingStatus = await db.readData<string>('setLoadingStatus');
+
+  if (setLoadingStatus && setLoadingStatus !== 'idle') {
+    return;
+  }
+
   if (props.network.name !== NetworkNames.Firo) return;
   try {
     isSyncBtnDisabled.value = true;
     syncErrorMsg.value = undefined;
+    await db.saveData('setLoadingStatus', 'pending');
 
     const setsMeta = await wallet.getAllSparkAnonymitySetMeta();
-    const isDBEmpty = !(await db.readData('data')).length;
+    const isDBEmpty = !(await db.readData('data'))?.length;
 
     if (!isDBEmpty) {
       const dbSetsMeta = await Promise.all(
@@ -306,40 +310,54 @@ const synchronize = async () => {
         }),
       );
 
-      const diff = setsMeta
-        .map((setMeta, index) => {
-          return dbSetsMeta[index] === setMeta.size
-            ? null
-            : {
-                setId: index + 1,
-                latestBlockHash: setMeta.blockHash,
-                startIndex: dbSetsMeta[index],
-                endIndex: setMeta.size,
-              };
-        })
-        .filter(Boolean) as {
+      const diff: {
         setId: number;
         latestBlockHash: string;
+        setHash: string;
         startIndex: number;
         endIndex: number;
-      }[];
+      }[] = [];
+
+      setsMeta.forEach((setMeta, index) => {
+        if (setMeta.size !== dbSetsMeta[index]) {
+          diff.push({
+            setId: index + 1,
+            latestBlockHash: setMeta.blockHash,
+            startIndex: dbSetsMeta[index],
+            endIndex: setMeta.size,
+            setHash: setMeta.setHash,
+          });
+        }
+      });
 
       console.log('Loading sets');
       console.log('diff ->>', diff);
 
-      await Promise.all(
-        diff.map(async difference => {
-          const { setId, latestBlockHash, startIndex, endIndex } = difference;
-          const set = await wallet.fetchAnonymitySetSector(
-            setId,
-            latestBlockHash,
-            startIndex,
-            endIndex,
-          );
-          console.log('set ->>', set);
-          await db.appendData('data', set.coins, difference.setId - 1);
-        }),
-      );
+      const promisesArr: Promise<void>[] = [];
+
+      diff.forEach(difference => {
+        promisesArr.push(
+          new Promise(async resolve => {
+            const { setId, latestBlockHash, startIndex, endIndex, setHash } =
+              difference;
+            const set = await wallet.fetchAnonymitySetSector(
+              setId,
+              latestBlockHash,
+              startIndex,
+              endIndex,
+            );
+            console.log('set ->>', set);
+            await db.appendSetData('data', difference.setId - 1, {
+              coins: set.coins,
+              blockHash: latestBlockHash,
+              setHash,
+            });
+            resolve();
+          }),
+        );
+      });
+
+      await Promise.all(promisesArr);
     } else {
       console.warn('Loading all sets...');
       const allSets = await wallet.fetchAllAnonymitySets();
@@ -358,11 +376,17 @@ const synchronize = async () => {
         return a;
       }, 0n);
       const sparkBalance = new BigNumber(balance).toString();
-      db.saveData('sparkBalance', sparkBalance);
-      isSyncBtnDisabled.value = false;
+      db.saveData('sparkBalance', sparkBalance)
+        .then(() => {
+          db.saveData('setLoadingStatus', 'idle');
+        })
+        .then(() => {
+          isSyncBtnDisabled.value = false;
+        });
     };
   } catch (error) {
     console.log(error);
+    db.saveData('setLoadingStatus', 'idle');
     syncErrorMsg.value = JSON.stringify(error);
   }
 };

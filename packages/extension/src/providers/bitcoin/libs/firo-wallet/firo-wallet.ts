@@ -117,7 +117,9 @@ export class FiroWallet {
   }
 
   async getSecret(): Promise<Buffer> {
-    const {secret} = await this.#storage.get(configs.STORAGE_KEYS.FIRO_WALLET_SECRET);
+    const { secret } = await this.#storage.get(
+      configs.STORAGE_KEYS.FIRO_WALLET_SECRET,
+    );
     if (!secret) {
       throw Error('FiroWallet not initialize');
     }
@@ -771,7 +773,7 @@ export class FiroWallet {
       };
     });
 
-    return await Promise.all(setsPromises) as AnonymitySetModel[]
+    return (await Promise.all(setsPromises)) as AnonymitySetModel[];
   }
 
   async fetchAnonymitySetSector(

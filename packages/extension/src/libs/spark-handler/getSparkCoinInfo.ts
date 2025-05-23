@@ -1,3 +1,4 @@
+import { IndexedDBHelper } from '@action/db/indexedDB.ts';
 import { getSerializedCoin } from './getSerializedCoin';
 
 interface IArgs {
@@ -11,6 +12,8 @@ export interface SparkCoinValue {
   value: bigint;
   isUsed: boolean;
 }
+
+const db = new IndexedDBHelper();
 
 export const getSparkCoinInfo = async ({
   coin,
@@ -109,13 +112,13 @@ export const getSparkCoinInfo = async ({
     console.log('Identified Coin:', identifiedCoinObj);
 
     // Example usage of `js_getIdentifiedCoinDiversifier`
-    // const diversifier = wasmModule.ccall(
-    //   'js_getIdentifiedCoinDiversifier',
-    //   'number',
-    //   ['number'],
-    //   [identifiedCoinObj],
-    // );
-    // console.log('Identified Coin Diversifier:', diversifier);
+    const diversifier = wasmModule.ccall(
+      'js_getIdentifiedCoinDiversifier',
+      'number',
+      ['number'],
+      [identifiedCoinObj],
+    );
+    console.log('Identified Coin Diversifier:', diversifier);
 
     const value = wasmModule.ccall(
       'js_getIdentifiedCoinValue',
@@ -144,7 +147,7 @@ export const getSparkCoinInfo = async ({
     //   [metadataObj],
     // );
     // console.log('Spark Mint Meta Height:', metaHeight);
-    //
+
     // // Example usage of `js_getCSparkMintMetaId`
     // const metaId = wasmModule.ccall(
     //   'js_getCSparkMintMetaId',
@@ -235,6 +238,18 @@ export const getSparkCoinInfo = async ({
     //   [inputDataObj],
     // );
     // console.log('Input Coin Data Value:', inputValue);
+
+    // const savedOwnCoins = await db.readData('ownCoins');
+    // await db.saveData('', [
+    //   ...savedOwnCoins,
+    //   {
+    //     diversifier,
+    //     value,
+    //     memo,
+    //     metaHeight,
+    //     metaId,
+    //   },
+    // ]);
 
     return {
       value,

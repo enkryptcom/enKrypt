@@ -106,6 +106,7 @@ import { trackBuyEvents, trackNetworkSelected } from '@/libs/metrics';
 import { BuyEventType, NetworkChangeEvents } from '@/libs/metrics/types';
 import NetworksState from '@/libs/networks-state';
 import RateState from '@/libs/rate-state';
+import { getSparkState } from '@/libs/spark-handler/generateSparkWallet.ts';
 import {
   getAccountsByNetworkName,
   getOtherSigners,
@@ -116,6 +117,7 @@ import {
   getNetworkByName,
 } from '@/libs/utils/networks';
 import openOnboard from '@/libs/utils/open-onboard';
+import { wasmInstance } from '@/libs/utils/wasm-loader.ts';
 import BTCAccountState from '@/providers/bitcoin/libs/accounts-state';
 import { PublicFiroWallet } from '@/providers/bitcoin/libs/firo-wallet/public-firo-wallet';
 import EVMAccountState from '@/providers/ethereum/libs/accounts-state';
@@ -133,6 +135,7 @@ import { getLatestEnkryptVersion } from '@action/utils/browser';
 import { EnkryptAccount, NetworkNames } from '@enkryptcom/types';
 import { fromBase } from '@enkryptcom/utils';
 import { onClickOutside } from '@vueuse/core';
+import BigNumber from 'bignumber.js';
 import { gt as semverGT } from 'semver';
 import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
@@ -151,10 +154,6 @@ import AddNetwork from './views/add-network/index.vue';
 import ModalNewVersion from './views/modal-new-version/index.vue';
 import ModalRate from './views/modal-rate/index.vue';
 import Settings from './views/settings/index.vue';
-import { wasmInstance } from '@/libs/utils/wasm-loader.ts';
-import BigNumber from 'bignumber.js';
-import { SATOSHI } from '@/providers/bitcoin/libs/firo-wallet/firo-wallet.ts';
-import { getSparkState } from '@/libs/spark-handler/generateSparkWallet.ts';
 
 const wallet = new PublicFiroWallet();
 const db = new IndexedDBHelper();
@@ -257,55 +256,75 @@ const init = async () => {
 };
 
 const synchronize = async () => {
+  const setLoadingStatus = await db.readData<string>('setLoadingStatus');
+
+  if (setLoadingStatus && setLoadingStatus !== 'idle') {
+    return;
+  }
+
   try {
     if (currentNetwork.value.name !== NetworkNames.Firo) return;
 
     isSyncing.value = true;
-
+    await db.saveData('setLoadingStatus', 'pending');
     const setsMeta = await wallet.getAllSparkAnonymitySetMeta();
-    const isDBEmpty = !(await db.readData('data')).length;
+    const isDBEmpty = !(await db.readData('data'))?.length;
 
     if (!isDBEmpty) {
       const dbSetsMeta = await Promise.all(
-        setsMeta.map(async (setMeta, index) => {
+        setsMeta.map(async (_, index) => {
           return db.getLengthOf('data', index);
         }),
       );
 
-      const diff = setsMeta
-        .map((setMeta, index) => {
-          return dbSetsMeta[index] === setMeta.size
-            ? null
-            : {
-                setId: index + 1,
-                latestBlockHash: setMeta.blockHash,
-                startIndex: dbSetsMeta[index],
-                endIndex: setMeta.size,
-              };
-        })
-        .filter(Boolean) as {
+      const diff: {
         setId: number;
         latestBlockHash: string;
+        setHash: string;
         startIndex: number;
         endIndex: number;
-      }[];
+      }[] = [];
+
+      setsMeta.forEach((setMeta, index) => {
+        if (setMeta.size !== dbSetsMeta[index]) {
+          diff.push({
+            setId: index + 1,
+            latestBlockHash: setMeta.blockHash,
+            startIndex: dbSetsMeta[index],
+            endIndex: setMeta.size,
+            setHash: setMeta.setHash,
+          });
+        }
+      });
 
       console.log('Loading sets');
       console.log('diff ->>', diff);
 
-      await Promise.all(
-        diff.map(async difference => {
-          const { setId, latestBlockHash, startIndex, endIndex } = difference;
-          const set = await wallet.fetchAnonymitySetSector(
-            setId,
-            latestBlockHash,
-            startIndex,
-            endIndex,
-          );
-          console.log('set ->>', set);
-          await db.appendData('data', set.coins, difference.setId - 1);
-        }),
-      );
+      const promisesArr: Promise<void>[] = [];
+
+      diff.forEach(difference => {
+        promisesArr.push(
+          new Promise(async resolve => {
+            const { setId, latestBlockHash, startIndex, endIndex, setHash } =
+              difference;
+            const set = await wallet.fetchAnonymitySetSector(
+              setId,
+              latestBlockHash,
+              startIndex,
+              endIndex,
+            );
+            console.log('set ->>', set);
+            await db.appendSetData('data', difference.setId - 1, {
+              coins: set.coins,
+              blockHash: latestBlockHash,
+              setHash,
+            });
+            resolve();
+          }),
+        );
+      });
+
+      await Promise.all(promisesArr);
     } else {
       console.warn('Loading all sets...');
       const allSets = await wallet.fetchAllAnonymitySets();
@@ -317,6 +336,7 @@ const synchronize = async () => {
     if (sparkBalance) {
       isSyncing.value = false;
       await updateSparkBalance(currentNetwork.value);
+      await db.saveData('setLoadingStatus', 'idle');
       return;
     }
 
@@ -333,12 +353,14 @@ const synchronize = async () => {
       }, 0n);
       const sparkBalance = new BigNumber(balance).toString();
       db.saveData('sparkBalance', sparkBalance);
-      updateSparkBalance(currentNetwork.value).then(() => {
+      updateSparkBalance(currentNetwork.value).then(async () => {
+        await db.saveData('setLoadingStatus', 'idle');
         isSyncing.value = false;
       });
     };
   } catch (error) {
     console.log(error);
+    db.saveData('setLoadingStatus', 'idle');
   }
 };
 
@@ -352,7 +374,6 @@ onMounted(async () => {
         .then(() => (isLoading.value = false));
     } else {
       init();
-      await synchronize();
       setTimeout(() => {
         rateState.showPopup().then(show => {
           if (show) {
@@ -386,7 +407,10 @@ const updateGradient = (newGradient: string) => {
 const updateSparkBalance = async (network: BaseNetwork) => {
   if (network.name === NetworkNames.Firo) {
     const sparkBalance = await db.readData<string>('sparkBalance');
+
     if (sparkBalance && accountHeaderData.value.sparkAccount) {
+      console.log('UPDATING BALANCE');
+
       accountHeaderData.value = {
         ...accountHeaderData.value,
         sparkAccount: {
