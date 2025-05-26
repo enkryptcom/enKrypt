@@ -57,11 +57,11 @@ const FEE_CONFIGS: Partial<
   // each kind of asset you want to receive fees for
   [ProviderName.jupiter]: {
     [WalletIdentifier.enkrypt]: {
-      referrer: "D5qKNm99Fbh7FAVEQp5vTgRkw7NfdtSREW2rhNPFqq5x",
+      referrer: "HXWkRK9a4H1EuBiqP4sVfFsEpd2NasoQPScoXL1NgSE2",
       fee: 0.01,
     },
     [WalletIdentifier.mew]: {
-      referrer: "AUX4AgB6rwsXudMJ3U3rPFCUajhxKbwdG149i5xeVyFq",
+      referrer: "CmrkoXWiTW37ZqUZcfJtxiKhy9eRMBQHq1nm8HpmRXH4",
       fee: 0.03,
     },
   },

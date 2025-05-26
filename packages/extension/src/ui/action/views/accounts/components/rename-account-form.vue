@@ -54,6 +54,7 @@ import BaseButton from '@action/components/base-button/index.vue';
 import { NodeType } from '@/types/provider';
 import { EnkryptAccount } from '@enkryptcom/types';
 import KeyRing from '@/libs/keyring/keyring';
+import BackupState from '@/libs/backup-state';
 
 const model = defineModel<boolean>();
 const closeWindow = () => {
@@ -103,6 +104,10 @@ const changeFocus = () => {
 const renameAccount = () => {
   isProcessing.value = true;
   keyring.renameAccount(props.account.address, accountName.value).then(() => {
+    const backupState = new BackupState();
+    backupState.backup(false).catch(() => {
+      console.error('Failed to backup');
+    });
     closeWindow();
     emit('update:init');
   });

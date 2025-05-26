@@ -4,7 +4,6 @@ import { EvmNetwork, EvmNetworkOptions } from '../types/evm-network';
 import assetsInfoHandler from '@/providers/ethereum/libs/assets-handlers/assetinfo-mew';
 import { EtherscanActivity } from '../libs/activity-handlers';
 import wrapActivityHandler from '@/libs/activity-state/wrap-activity-handler';
-import shNFTHandler from '@/libs/nft-handlers/simplehash';
 
 const maticOptions: EvmNetworkOptions = {
   name: NetworkNames.MaticZK,
@@ -20,7 +19,6 @@ const maticOptions: EvmNetworkOptions = {
   icon,
   coingeckoID: 'ethereum',
   coingeckoPlatform: CoingeckoPlatform.MaticZK,
-  NFTHandler: shNFTHandler,
   assetsInfoHandler,
   activityHandler: wrapActivityHandler(EtherscanActivity),
 };

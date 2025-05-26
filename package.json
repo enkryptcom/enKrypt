@@ -32,13 +32,13 @@
     "prepare": "husky"
   },
   "devDependencies": {
-    "@commitlint/cli": "^19.8.0",
-    "@commitlint/config-conventional": "^19.8.0",
-    "@swc/core": "^1.11.9",
+    "@commitlint/cli": "^19.8.1",
+    "@commitlint/config-conventional": "^19.8.1",
+    "@swc/core": "^1.11.24",
     "concurrently": "^9.1.2",
     "husky": "^9.1.7",
     "node-notifier": "^10.0.1",
-    "nodemon": "^3.1.9",
+    "nodemon": "^3.1.10",
     "ultra-runner": "^3.10.5"
   },
   "resolutions": {

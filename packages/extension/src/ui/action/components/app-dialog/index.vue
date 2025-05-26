@@ -37,7 +37,7 @@ import { computed } from 'vue';
  * @model - Controls the visibility of the dialog.
  *
  * @example Basic Dialog
- * <app-dialog v-model="dialogModel">
+ * <app-dialog v-model="dialogModel" @close:dialog="closeDialogFN">
  *    <div> hello world </div>
  * </app-dialog>
  * @example Centered Dialog with custom width
@@ -85,6 +85,7 @@ const defaultClass = computed(() => {
 const dialogStyle = computed(() => {
   return {
     width: props.width,
+    'scrollbar-width': 'none',
   };
 });
 </script>

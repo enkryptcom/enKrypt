@@ -2,7 +2,7 @@ import { CoingeckoPlatform, NetworkNames } from '@enkryptcom/types';
 import { SolanaNetwork, SolanaNetworkOptions } from '../types/sol-network';
 import wrapActivityHandler from '@/libs/activity-state/wrap-activity-handler';
 import assetsInfoHandler from '@/providers/ethereum/libs/assets-handlers/assetinfo-mew';
-import shNFTHandler from '@/libs/nft-handlers/simplehash-solana';
+import heliusNFTHandler from '@/libs/nft-handlers/helius-solana';
 import icon from './icons/sol.webp';
 
 const solanaOptions: SolanaNetworkOptions = {
@@ -21,7 +21,7 @@ const solanaOptions: SolanaNetworkOptions = {
   activityHandler: wrapActivityHandler(() => Promise.resolve([])),
   basePath: "m/44'/501'",
   assetsInfoHandler,
-  NFTHandler: shNFTHandler,
+  NFTHandler: heliusNFTHandler,
   coingeckoPlatform: CoingeckoPlatform.Solana,
 };
 

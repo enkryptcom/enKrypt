@@ -77,7 +77,7 @@
         v-model="isOpenSelectNft"
         :address="addressFrom"
         :network="network"
-        :selected-nft="paramNFTData"
+        :selected-nft="tokenParamData"
         @select-nft="selectNFT"
       />
 
@@ -161,7 +161,6 @@ import erc721 from '../../libs/abi/erc721';
 import erc1155 from '../../libs/abi/erc1155';
 import { SendTransactionDataType, VerifyTransactionParams } from '../types';
 import {
-  formatFiatValue,
   formatFloatingPointValue,
   isNumericPositive,
 } from '@/libs/utils/number-formatter';
@@ -204,7 +203,7 @@ const router = useRouter();
 const nameResolver = new GenericNameResolver();
 const addressInputTo = ref();
 const selected: string = route.params.id as string;
-const paramNFTData: NFTItem = JSON.parse(
+const tokenParamData: NFTItem = JSON.parse(
   route.params.tokenData ? (route.params.tokenData as string) : '{}',
 ) as NFTItem;
 const isSendToken = ref<boolean>(JSON.parse(route.params.isToken as string));
@@ -325,7 +324,7 @@ const TxInfo = computed<SendTransactionDataType>(() => {
       : isSendToken.value
         ? erc20Contract.methods
             .transfer(
-              addressTo.value,
+              addressTo.value.toLowerCase(),
               toBase(sendAmount.value, selectedAsset.value.decimals!),
             )
             .encodeABI()
@@ -350,7 +349,7 @@ const TxInfo = computed<SendTransactionDataType>(() => {
     chainId: props.network.chainID,
     from: addressFrom.value as `0x{string}`,
     value: value as `0x${string}`,
-    to: toAddress as `0x${string}`,
+    to: toAddress!.toLowerCase() as `0x${string}`,
     data: data as `0x${string}`,
   };
 });
@@ -521,7 +520,8 @@ const setTransactionFees = (tx: Transaction) => {
       };
       isEstimateValid.value = true;
     })
-    .catch(() => {
+    .catch(e => {
+      console.error('Error while fetching gas costs', e);
       isEstimateValid.value = false;
     });
 };
@@ -544,9 +544,19 @@ const fetchAssets = () => {
   selectedAsset.value = loadingAsset;
   isLoadingAssets.value = true;
   return props.network.getAllTokens(addressFrom.value).then(allAssets => {
-    accountAssets.value = allAssets as Erc20Token[];
-    selectedAsset.value = allAssets[0] as Erc20Token;
-
+    accountAssets.value = allAssets as (Erc20Token & { contract: string })[];
+    const hasParamData =
+      isSendToken.value && tokenParamData && tokenParamData.contract;
+    if (hasParamData) {
+      const selectedToken = accountAssets.value.find(
+        asset => asset.contract === tokenParamData.contract,
+      );
+      if (selectedToken) {
+        selectedAsset.value = selectedToken as Erc20Token;
+      }
+    } else {
+      selectedAsset.value = allAssets[0] as Erc20Token;
+    }
     isLoadingAssets.value = false;
   });
 };
@@ -804,6 +814,20 @@ const toggleSelectNft = (open: boolean) => {
 
 const selectNFT = (item: NFTItemWithCollectionName) => {
   selectedNft.value = item;
+  if (item.contract) {
+    const web3 = new Web3Eth(props.network.node);
+    const selectedNFTContract = new web3.Contract(
+      erc1155 as any,
+      item.contract,
+    );
+    selectedNFTContract.methods
+      .supportsInterface('0xd9b67a26')
+      .call()
+      .then((is1155: boolean) => {
+        selectedNft.value.type = is1155 ? NFTType.ERC1155 : NFTType.ERC721;
+      });
+  }
+
   isOpenSelectNft.value = false;
 };
 </script>
