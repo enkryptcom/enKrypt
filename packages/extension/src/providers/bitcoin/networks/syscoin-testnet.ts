@@ -14,9 +14,9 @@ const syscoinTestnetOptions: BitcoinNetworkOptions = {
   name: NetworkNames.SyscoinUTXOTest,
   name_long: 'Syscoin UTXO Testnet',
   homePage: 'https://syscoin.org/',
-  blockExplorerTX: 'https://explorer-blockbook-dev.syscoin.org/tx/tx/[[txHash]]',
+  blockExplorerTX: 'https://explorer-blockbook-dev.syscoin.org/tx/[[txHash]]',
   blockExplorerAddr: 'https://explorer-blockbook-dev.syscoin.org/tx/address/[[address]]',
-  isTestNetwork: false,
+  isTestNetwork: true,
   currencyName: 'TSYS',
   currencyNameLong: 'Syscoin Testnet',
   icon,
@@ -28,7 +28,7 @@ const syscoinTestnetOptions: BitcoinNetworkOptions = {
   activityHandler: wrapActivityHandler(ssHandler),
   basePath: "m/84'/57'/0'/0",
   feeHandler: () => {
-    return SSFeeHandler('https://blockbook-dev.syscoin.org/api/v1/fees');
+    return SSFeeHandler('https://blockbook-dev.syscoin.org/api/v2/fees');
   },
   networkInfo: {
     name: NetworkNames.SyscoinUTXOTest,

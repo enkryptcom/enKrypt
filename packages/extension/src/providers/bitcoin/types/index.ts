@@ -6,7 +6,8 @@ export const BitcoinNetworks = {
   livenet: NetworkNames.Bitcoin,
   testnet: NetworkNames.BitcoinTest,
   litecoin: NetworkNames.Litecoin,
-  syscoin: NetworkNames.SyscoinUTXO
+  syscoin: NetworkNames.SyscoinUTXO,
+  'syscoin-testnet': NetworkNames.SyscoinUTXOTest,
 };
 
 export interface BitcoinNetworkInfo {

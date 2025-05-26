@@ -14,7 +14,7 @@ const syscoinOptions: BitcoinNetworkOptions = {
   name: NetworkNames.SyscoinUTXO,
   name_long: 'Syscoin UTXO',
   homePage: 'https://syscoin.org/',
-  blockExplorerTX: 'https://explorer-blockbook.syscoin.org/tx/tx/[[txHash]]',
+  blockExplorerTX: 'https://explorer-blockbook.syscoin.org/tx/[[txHash]]',
   blockExplorerAddr: 'https://explorer-blockbook.syscoin.org/tx/address/[[address]]',
   isTestNetwork: false,
   currencyName: 'SYS',
@@ -28,7 +28,7 @@ const syscoinOptions: BitcoinNetworkOptions = {
   activityHandler: wrapActivityHandler(ssHandler),
   basePath: "m/84'/57'/0'/0",
   feeHandler: () => {
-    return SSFeeHandler('https://blockbook.syscoin.org/api/v1/fees');
+    return SSFeeHandler('https://blockbook.syscoin.org/api/v2/fees');
   },
   networkInfo: {
     name: NetworkNames.SyscoinUTXO,
