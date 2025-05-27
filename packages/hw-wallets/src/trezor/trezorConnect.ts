@@ -15,15 +15,15 @@ const getTrezorConnect = async () => {
     });
     return TrezorConnect as TrezorConnectType;
   } else {
-    const TrezorConnect = (await import("@trezor/connect-web")).default;
-    await TrezorConnect.init({
+    const TrezorConnect = await import("@trezor/connect-web");
+    await TrezorConnect.default.init({
       lazyLoad: true,
       manifest: {
         email: "info@enkrypt.com",
         appUrl: "http://www.myetherwallet.com",
       },
     });
-    return TrezorConnect as TrezorConnectType;
+    return TrezorConnect.default as TrezorConnectType;
   }
 };
 
