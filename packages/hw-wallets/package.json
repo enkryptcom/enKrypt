@@ -1,6 +1,6 @@
 {
   "name": "@enkryptcom/hw-wallets",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Hardware wallet manager for enkrypt",
   "type": "module",
   "main": "src/index.ts",
@@ -22,7 +22,6 @@
     "node": ">=14.15.0"
   },
   "devDependencies": {
-    "@trezor/connect-web": "^9.5.5",
     "@types/node": "^22.15.17",
     "@typescript-eslint/eslint-plugin": "^8.32.1",
     "@typescript-eslint/parser": "^8.32.1",
@@ -62,6 +61,7 @@
     "@polkadot/types": "^15.9.3",
     "@polkadot/util": "^13.4.4",
     "@trezor/connect": "^9.5.4",
+    "@trezor/connect-web": "^9.5.5",
     "@trezor/connect-webextension": "^9.5.4",
     "@zondax/ledger-substrate": "^1.1.1",
     "bitcoinjs-lib": "^6.1.7",
