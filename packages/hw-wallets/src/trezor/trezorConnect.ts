@@ -2,9 +2,8 @@ import type { TrezorConnect as TrezorConnectType } from "@trezor/connect-web";
 
 const getTrezorConnect = async () => {
   if (chrome && chrome.runtime && chrome.runtime.getPlatformInfo) {
-    const TrezorConnect = (await import("@trezor/connect-webextension"))
-      .default;
-    await TrezorConnect.init({
+    const TrezorConnect = await import("@trezor/connect-webextension");
+    await TrezorConnect.default.init({
       manifest: {
         email: "info@enkrypt.com",
         appUrl: "https://www.enkrypt.com",
@@ -13,7 +12,7 @@ const getTrezorConnect = async () => {
       connectSrc: "https://connect.trezor.io/9/",
       _extendWebextensionLifetime: true,
     });
-    return TrezorConnect as TrezorConnectType;
+    return TrezorConnect.default as TrezorConnectType;
   } else {
     const TrezorConnect = await import("@trezor/connect-web");
     await TrezorConnect.default.init({
