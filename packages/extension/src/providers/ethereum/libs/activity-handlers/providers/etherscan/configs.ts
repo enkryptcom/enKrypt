@@ -74,6 +74,7 @@ const NetworkEndpoints: Record<string, string> = {
   [NetworkNames.CytonicTestnet]: 'https://explorer-api.evm.testnet.cytonic.com/api/',
   [NetworkNames.Derive]: 'https://explorer.derive.xyz/',
   [NetworkNames.Conflux]: 'https://evmapi.confluxscan.org/',
+  [NetworkNames.Hemi]: 'https://explorer.hemi.xyz/',
 };
 
 export { NetworkEndpoints };
