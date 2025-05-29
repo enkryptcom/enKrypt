@@ -56,7 +56,7 @@ class NameResolver {
       if (this.ud.isSupportedName(name))
         return this.ud.resolveAddress(name, coin);
       if (this.sid.isSupportedName(name))
-        return this.sid.resolveAddress(name, coin, paymentIdChain);
+        return this.sid.resolveAddress(name, paymentIdChain);
       if (this.ens.isSupportedName(name))
         return this.ens.resolveAddress(name, coin);
 

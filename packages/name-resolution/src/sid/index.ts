@@ -1,5 +1,5 @@
 import { createWeb3Name } from "@web3-name-sdk/core";
-import { BaseResolver, CoinType } from "../types";
+import { BaseResolver } from "../types";
 import {
   PAYMENT_ID_CHAINS_MAP,
   PaymentIdChain,
@@ -91,14 +91,11 @@ class SIDResolver implements BaseResolver {
 
   public async resolveAddress(
     name: string,
-    coint: CoinType,
     paymentIdChain?: string,
   ): Promise<string | null> {
     if (isValidPaymentId(name)) {
-      console.log("PaymentId name", name, coint);
       return this.handlePaymentIdGetAddress(name, paymentIdChain);
     }
-
     const tld = getTLD(name);
     switch (tld) {
       case "sol":
