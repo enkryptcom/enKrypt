@@ -1,6 +1,8 @@
 import BigNumber from 'bignumber.js';
 import { toBN, toWei } from 'web3-utils';
 import { BNType, GasPriceTypes } from '@/providers/common/types';
+import rsk from '../../networks/rsk';
+import rskTestnet from '../../networks/rsk-testnet';
 import { FeeHistoryResult } from 'web3-eth';
 import { FormattedFeeHistory } from './types';
 
@@ -177,9 +179,72 @@ const FeeDescriptions = {
     eta: '30 secs',
   },
 };
+const collectiveGasConfig = {
+  [rsk.chainID]: {  // rsk mainnet
+    stakingUrl: 'https://rootstock.blockscout.com/api/v2/tokens/0x5db91e24BD32059584bbDb831A901f1199f3d459/transfers',
+    txUrl: 'https://rootstock.blockscout.com/api/v2/transactions',
+    method: 'depositAndDelegate',
+    methodId: '0xfbde32f8',
+  },
+  [rskTestnet.chainID]: { // rsk testnet
+    stakingUrl: 'https://rootstock-testnet.blockscout.com/api/v2/tokens/0xc4b091D97ad25cEa5922F09fE80711B7acbBB16f/transfers',
+    txUrl: 'https://rootstock-testnet.blockscout.com/api/v2/transactions',
+    method: 'depositAndDelegate',
+    methodId: '0xfbde32f8',
+  }
+};
+
+const safeGasForStaking = async (chainID: string, estimatedGas: number) => {
+  const gasConfig = collectiveGasConfig[chainID];
+  try {
+    const stakingResponse = await fetch(gasConfig.stakingUrl);
+    if (!stakingResponse.ok) {
+        return estimatedGas;
+    }
+    const stakingTxHistory = await stakingResponse.json();
+
+    for (const tx of stakingTxHistory.items) {
+      // find stake tx
+      if (tx.method === gasConfig.method) {
+        const txDetailsResponse = await fetch(`${gasConfig.txUrl}/${tx.transaction_hash}`);
+
+        if (!txDetailsResponse.ok) {
+          return estimatedGas;
+        }
+        const txDetail = await txDetailsResponse.json();
+        // tx must be successfull
+        if (txDetail.status === 'ok') {
+          const txGasLimit = Number(txDetail.gas_limit);
+          const txGasUsed = Number(txDetail.gas_used);
+          // if web3 estimate gas is less than previous stake tx gas used
+          // This could cause tx to fail due to less gas
+          // Bump the gas limit particularly in this case 
+          if (estimatedGas < txGasUsed) {
+            // Check if need to add buffer
+            const usedGasPercentage = txGasUsed / txGasLimit * 100;
+            if (usedGasPercentage > 80) {
+              // add a safe buffer of 30%
+              return Math.max(txGasUsed + (txGasUsed * 0.30), txGasLimit);
+            }
+            // safe buffer not required, just use gas limit 
+            return txGasLimit;
+          }
+          // safe to use max of estimate or tx gas limit
+          return Math.max(estimatedGas, txGasLimit);
+        }
+      }
+    }
+    // No previous stake tx found, just return web3 estimated gas.
+    return estimatedGas;
+  } catch {
+    return estimatedGas;
+  }
+};
 export {
   getBaseFeeBasedOnType,
   getPriorityFeeBasedOnType,
+  safeGasForStaking,
+  collectiveGasConfig,
   getGasBasedOnType,
   FeeDescriptions,
   formatFeeHistory,
