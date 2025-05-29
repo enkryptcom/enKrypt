@@ -64,7 +64,7 @@
             <p>
               {{
                 fiatValue !== '~'
-                  ? $filters.parseCurrency(fiatValue).value
+                  ? $filters.parseCurrency(fiatValue)
                   : fiatValue
               }}
             </p>
