@@ -91,11 +91,9 @@ class SIDResolver implements BaseResolver {
 
   public async resolveAddress(
     name: string,
-    coint: CoinType,
     paymentIdChain?: string,
   ): Promise<string | null> {
     if (isValidPaymentId(name)) {
-      console.log("PaymentId name", name, coint);
       return this.handlePaymentIdGetAddress(name, paymentIdChain);
     }
 
