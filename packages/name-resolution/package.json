@@ -22,6 +22,7 @@
     "node": ">=14.15.0"
   },
   "devDependencies": {
+    "@bonfida/spl-name-service": "^3.0.10",
     "@types/node": "^22.15.24",
     "@typescript-eslint/eslint-plugin": "^8.33.0",
     "@typescript-eslint/parser": "^8.33.0",
@@ -37,6 +38,7 @@
     "tsup": "^8.5.0",
     "typescript": "^5.8.3",
     "typescript-eslint": "8.33.0",
+    "viem": "^2.29.2",
     "vitest": "^3.1.4"
   },
   "repository": {
@@ -50,6 +52,7 @@
     "@ensdomains/address-encoder": "^1.1.2",
     "@siddomains/sidjs": "0.1.29",
     "@unstoppabledomains/resolution": "^9.3.3",
+    "@web3-name-sdk/core": "^0.4.1",
     "ethers": "^5.8.0"
   }
 }
