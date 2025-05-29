@@ -30,7 +30,7 @@ export const parseCurrency = (value: string | number): string => {
   const amount = new BigNumber(raw);
   const finalValue = amount.isNaN() || amount.isZero() ? 0 : amount.times(exchangeRate).toNumber();
   const notation = BigNumber(finalValue).gt(999999) ? 'compact' : 'standard';
-  return `${amount.lt(0.0000001) ? '< ' : ''}${new Intl.NumberFormat(locale, { style: 'currency', currency: currency, notation, }).format(finalValue)}`
+  return `${amount.lt(0.0000001) && amount.gt(0) ? '< ' : ''}${new Intl.NumberFormat(locale, { style: 'currency', currency: currency, notation, }).format(finalValue)}`
 };
 
 export const truncate = (value: string, length: number): string => {
