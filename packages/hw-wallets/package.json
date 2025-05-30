@@ -1,6 +1,6 @@
 {
   "name": "@enkryptcom/hw-wallets",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "Hardware wallet manager for enkrypt",
   "type": "module",
   "main": "src/index.ts",
