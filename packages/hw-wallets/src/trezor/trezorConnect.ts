@@ -14,7 +14,8 @@ const getTrezorConnect = async () => {
     });
     return TrezorConnect.default as TrezorConnectType;
   } else {
-    const TrezorConnect = await import("@trezor/connect-web");
+    const TrezorConnect = ((await import("@trezor/connect-web")) as any)
+      .default;
     await TrezorConnect.default.init({
       lazyLoad: true,
       manifest: {
