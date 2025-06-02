@@ -62,7 +62,7 @@
               <span>{{ decodedTx?.tokenName || network.currencyName }}</span>
             </h4>
             <p>
-              ${{
+              {{
                 fiatValue !== '~'
                   ? $filters.parseCurrency(fiatValue)
                   : fiatValue
