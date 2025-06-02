@@ -31,7 +31,7 @@ class TrezorSolana implements HWWalletProvider {
 
   async getAddress(options: getAddressRequest): Promise<AddressResponse> {
     if (!supportedPaths[this.network])
-      return Promise.reject(new Error("trezor-bitcoin: Invalid network name"));
+      return Promise.reject(new Error("trezor-solana: Invalid network name"));
     const res = await this.TrezorConnect.solanaGetAddress({
       path: options.pathType.path.replace(`{index}`, options.pathIndex),
       showOnTrezor: options.confirmAddress,

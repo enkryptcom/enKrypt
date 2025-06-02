@@ -15,7 +15,7 @@ import {
 import { supportedPaths, TrezorNetworkConfigs } from "./configs";
 import getTrezorConnect from "../trezorConnect";
 
-class TrezorEthereum implements HWWalletProvider {
+class TrezorBitcoin implements HWWalletProvider {
   network: NetworkNames;
   TrezorConnect: TrezorConnect;
   HDNodes: Record<string, HDKey>;
@@ -124,4 +124,4 @@ class TrezorEthereum implements HWWalletProvider {
   }
 }
 
-export default TrezorEthereum;
+export default TrezorBitcoin;
