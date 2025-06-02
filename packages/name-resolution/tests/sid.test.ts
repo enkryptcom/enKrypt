@@ -11,11 +11,7 @@ describe("SID Name resolving", () => {
       },
     });
     await resolver.init();
-    const address = await resolver.resolveAddress(
-      "spaceid.arb",
-      "ETH",
-      "ethereum",
-    );
+    const address = await resolver.resolveAddress("spaceid.arb", "ethereum");
     expect(address).to.be.eq("0xb5932a6B7d50A966AEC6C74C97385412Fb497540");
   });
 
@@ -47,7 +43,6 @@ describe("SID Name resolving", () => {
     expect(name).to.be.eq(null);
     const address = await resolver.resolveAddress(
       "sdfsfsdfsdfsdf.bnb",
-      "ETH",
       "ethereum",
     );
     expect(address).to.be.eq(null);

@@ -1,5 +1,5 @@
 import { createWeb3Name } from "@web3-name-sdk/core";
-import { BaseResolver, CoinType } from "../types";
+import { BaseResolver } from "../types";
 import {
   PAYMENT_ID_CHAINS_MAP,
   PaymentIdChain,
