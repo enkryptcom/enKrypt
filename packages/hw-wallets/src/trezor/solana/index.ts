@@ -1,4 +1,4 @@
-import TrezorConnect from "@trezor/connect-webextension";
+import type { TrezorConnect } from "@trezor/connect-web";
 import { HWwalletCapabilities, NetworkNames } from "@enkryptcom/types";
 import HDKey from "hdkey";
 import base58 from "bs58";
@@ -12,10 +12,11 @@ import {
   SolSignTransaction,
 } from "../../types";
 import { supportedPaths } from "./configs";
+import getTrezorConnect from "../trezorConnect";
 
 class TrezorSolana implements HWWalletProvider {
   network: NetworkNames;
-
+  TrezorConnect: TrezorConnect;
   HDNodes: Record<string, HDKey>;
 
   constructor(network: NetworkNames) {
@@ -24,28 +25,20 @@ class TrezorSolana implements HWWalletProvider {
   }
 
   async init(): Promise<boolean> {
-    TrezorConnect.init({
-      manifest: {
-        email: "info@enkrypt.com",
-        appUrl: "https://www.enkrypt.com",
-      },
-      transports: ["BridgeTransport", "WebUsbTransport"],
-      connectSrc: "https://connect.trezor.io/9/",
-      _extendWebextensionLifetime: true,
-    });
+    this.TrezorConnect = await getTrezorConnect();
     return true;
   }
 
   async getAddress(options: getAddressRequest): Promise<AddressResponse> {
     if (!supportedPaths[this.network])
       return Promise.reject(new Error("trezor-bitcoin: Invalid network name"));
-    const res = await TrezorConnect.solanaGetAddress({
+    const res = await this.TrezorConnect.solanaGetAddress({
       path: options.pathType.path.replace(`{index}`, options.pathIndex),
       showOnTrezor: options.confirmAddress,
     });
     return {
-      address: bufferToHex(base58.decode(res.payload.address)),
-      publicKey: bufferToHex(base58.decode(res.payload.address)),
+      address: bufferToHex(base58.decode((res.payload as any).address)),
+      publicKey: bufferToHex(base58.decode((res.payload as any).address)),
     };
   }
 
@@ -66,12 +59,12 @@ class TrezorSolana implements HWWalletProvider {
   }
 
   async signTransaction(options: SignTransactionRequest): Promise<string> {
-    return TrezorConnect.solanaSignTransaction({
+    return this.TrezorConnect.solanaSignTransaction({
       path: options.pathType.path.replace(`{index}`, options.pathIndex),
       serializedTx: (options.transaction as SolSignTransaction).solTx.toString(
         "hex",
       ),
-    }).then((result) => result.payload.signature);
+    }).then((result) => (result.payload as any).signature);
   }
 
   static getSupportedNetworks(): NetworkNames[] {
