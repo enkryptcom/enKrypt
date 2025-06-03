@@ -773,6 +773,7 @@ const sendButtonTitle = computed(() => {
 });
 
 const isDisabled = computed(() => {
+  if (!fromToken.value!.balance) return true;
   if (!fromAmount.value || fromAmount.value === '0' || errors.value.inputAmount)
     return true;
   if (
