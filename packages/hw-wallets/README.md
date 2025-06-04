@@ -40,7 +40,7 @@ Signs personal message.
 
 #### `signTransaction(options: SignTransactionRequest): Promise<string>`
 
-Signs transaction.
+Returns an RPC sign you can then add to a transaction object.
 
 #### `getSupportedPaths(options: isConnectedRequest): Promise<PathType[]>`
 
@@ -67,10 +67,6 @@ Closes all HW wallet connections
 `SignTransactionRequest`: https://github.com/enkryptcom/enKrypt/blob/main/packages/hw-wallets/src/types.ts#L65  
 `isConnectedRequest`: https://github.com/enkryptcom/enKrypt/blob/main/packages/hw-wallets/src/types.ts#L78
 
-### Notes
-
-Connection request to hardware wallet actually happens on `getAddress()` request.
-
 ### Adding more paths
 
 Navigate to `src/configs.ts` and add your new derivation path at the bottom.  
@@ -79,3 +75,11 @@ Import path in the corresponding `Trezor` provider `config.ts`.
 See `src/trezor/ethereum/configs.ts` for example.
 
 NOTE: `Ledger` can't have any paths as each paths are defined by the corresponding app.
+
+### Notes
+
+Connection request to hardware wallet actually happens on `getAddress()` request.
+
+#### For Vue devs
+
+`ref/reactive` will mess with how Vue compiles these classes because of how Vue utilizes proxies. If you want to store an instance into a ref or reactive, use [`makeRaw`](https://vuejs.org/api/reactivity-advanced#markraw).
