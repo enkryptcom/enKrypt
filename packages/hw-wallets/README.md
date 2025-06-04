@@ -70,3 +70,12 @@ Closes all HW wallet connections
 ### Notes
 
 Connection request to hardware wallet actually happens on `getAddress()` request.
+
+### Adding more paths
+
+Navigate to `src/configs.ts` and add your new derivation path at the bottom.  
+Make sure to follow the configuration in that file.  
+Import path in the corresponding `Trezor` provider `config.ts`.  
+See `src/trezor/ethereum/configs.ts` for example.
+
+NOTE: `Ledger` can't have any paths as each paths are defined by the corresponding app.
