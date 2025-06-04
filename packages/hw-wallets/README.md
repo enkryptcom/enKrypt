@@ -1,6 +1,6 @@
 # @enkryptcom/hw-wallets
 
-## v0.0.5
+## v0.0.12
 
 ## Hardware wallet manager for enkrypt
 
