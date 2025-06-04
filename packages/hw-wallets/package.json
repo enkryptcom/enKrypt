@@ -19,7 +19,7 @@
     "test": "vitest run"
   },
   "engines": {
-    "node": ">=14.15.0"
+    "node": ">=20"
   },
   "devDependencies": {
     "@types/node": "^22.15.24",
