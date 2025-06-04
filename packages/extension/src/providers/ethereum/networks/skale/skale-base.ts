@@ -8,7 +8,6 @@ import MarketData from '@/libs/market-data';
 import { fromBase } from '@enkryptcom/utils';
 import BigNumber from 'bignumber.js';
 import {
-  formatFiatValue,
   formatFloatingPointValue,
 } from '@/libs/utils/number-formatter';
 import API from '@/providers/ethereum/libs/api';
@@ -155,11 +154,11 @@ async function getPreconfiguredTokens(
       balancef: formatFloatingPointValue(fromBase(balanceAsset, assetDecimals))
         .value,
       balanceUSD: nativeAssetUsdBalance.toNumber(),
-      balanceUSDf: formatFiatValue(nativeAssetUsdBalance.toString()).value,
+      balanceUSDf: nativeAssetUsdBalance.toString(),
       value: nativeAssetMarketData[index]?.current_price?.toString() ?? '0',
-      valuef: formatFiatValue(
+      valuef:
         nativeAssetMarketData[index]?.current_price?.toString() ?? '0',
-      ).value,
+
       decimals: assetDecimals,
       sparkline: nativeAssetMarketData[index]
         ? new Sparkline(

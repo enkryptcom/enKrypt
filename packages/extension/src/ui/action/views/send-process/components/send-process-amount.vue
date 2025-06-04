@@ -8,7 +8,7 @@
         {{ fromBase(token.amount, token.decimals) }}
         <span>{{ token.symbol }}</span>
       </h4>
-      <h6>{{ $filters.formatFiatValue(token.valueUSD).value }}</h6>
+      <h6>{{ $filters.parseCurrency(token.valueUSD) }}</h6>
     </div>
   </div>
 </template>
