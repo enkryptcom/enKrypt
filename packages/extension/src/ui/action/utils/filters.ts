@@ -21,21 +21,16 @@ export const replaceWithEllipsis = (
 };
 
 export const parseCurrency = (value: string | number): string => {
-  const bnValue = BigNumber(value);
-  const parsedValue = bnValue.isNaN() || bnValue.isZero() || value === undefined ? "0" : bnValue.toString().replace(/,/g, '');
+  const raw = value.toString().replace(/[,<]/g, '');
   const store = useCurrencyStore();
   const currency = store.currentSelectedCurrency;
-  const currencyCode =
-    LANG_INFO[currency as keyof typeof LANG_INFO].locale || 'en-US';
-  const findRate = store.currencyList.find(c => c.fiat_currency === currency);
-  const rate = findRate || { exchange_rate: 1 };
+  const locale = LANG_INFO[currency as keyof typeof LANG_INFO]?.locale || 'en-US';
+  const exchangeRate = store.currencyList.find(c => c.fiat_currency === currency)?.exchange_rate || 1;
 
-  return new Intl.NumberFormat(currencyCode, {
-    style: 'currency',
-    currency: currency,
-  }).format(
-    parseFloat(BigNumber(parsedValue).times(rate.exchange_rate).toString()),
-  );
+  const amount = new BigNumber(raw);
+  const finalValue = amount.isNaN() || amount.isZero() ? 0 : amount.times(exchangeRate).toNumber();
+  const notation = BigNumber(finalValue).gt(999999) ? 'compact' : 'standard';
+  return `${amount.lt(0.0000001) && amount.gt(0) ? '< ' : ''}${new Intl.NumberFormat(locale, { style: 'currency', currency: currency, notation, }).format(finalValue)}`
 };
 
 export const truncate = (value: string, length: number): string => {
@@ -55,8 +50,8 @@ export const formatDuration = (
     isoString.match(/T((\d+)H)?((\d+)M)?(([\d]+)(\.(\d+))?S)?/) ?? [];
 
   if (duration.hours() < 0)
-    return `${h.padStart(2, '0')}:${m.padStart(2, '0')}:${s.padStart(2, '0')}`;
+    return `${h.padStart(2, '0')}:${m.padStart(2, '0')}:${s.padStart(2, '0')} `;
 
-  return `${m.padStart(2, '0')}:${s.padStart(2, '0')}`;
+  return `${m.padStart(2, '0')}:${s.padStart(2, '0')} `;
 };
 export { formatFiatValue, formatFloatingPointValue };

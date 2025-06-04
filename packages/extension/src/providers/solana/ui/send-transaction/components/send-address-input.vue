@@ -66,11 +66,13 @@ const solAddress = computed(() => {
   if (props.value) return props.network.displayAddress(props.value);
   else return props.value;
 });
+
 const address = computed({
-  get: () =>
-    isFocus.value
-      ? solAddress.value
-      : replaceWithEllipsis(solAddress.value, 6, 6),
+  get: () => {
+    if (isFocus.value) return solAddress.value;
+    if (solAddress.value.length < 13) return solAddress.value;
+    return replaceWithEllipsis(solAddress.value, 6, 6);
+  },
   set: value => emit('update:inputAddress', value),
 });
 
