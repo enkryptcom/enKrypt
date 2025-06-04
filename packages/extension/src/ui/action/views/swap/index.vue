@@ -404,7 +404,11 @@ const setMax = () => {
 const inputAddress = (text: string) => {
   const debounceResolve = debounce(() => {
     nameResolver
-      .resolveName(text, [props.network.name as CoinType, 'ETH'])
+      .resolveName(
+        text,
+        [props.network.name as CoinType, 'ETH'],
+        props.network.provider as string,
+      )
       .then(resolved => {
         if (resolved) {
           inputAddress(resolved);
@@ -769,11 +773,12 @@ const sendButtonTitle = computed(() => {
 });
 
 const isDisabled = computed(() => {
+  if (!fromToken.value!.balance) return true;
   if (!fromAmount.value || fromAmount.value === '0' || errors.value.inputAmount)
     return true;
   if (
     BigNumber(fromAmount.value).gt(
-      fromBase(fromToken.value!.balance.toString(), fromToken.value.decimals),
+      fromBase(fromToken.value!.balance!.toString(), fromToken.value!.decimals),
     )
   )
     return true;

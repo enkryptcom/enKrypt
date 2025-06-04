@@ -45,7 +45,7 @@
         <v-chart class="chart" :option="option" />
       </div>
       <div class="network-assets__token-price">
-        <h4>{{ $filters.parseCurrency(token.balanceUSDf) }}</h4>
+        <h4>{{ $filters.parseCurrency(token.balanceUSD) }}</h4>
         <p>@{{ $filters.parseCurrency(token.value) }}</p>
       </div>
     </a>

@@ -1,8 +1,8 @@
-import TrezorConnect from "@trezor/connect-webextension";
 import { getHDPath } from "@trezor/connect/lib/utils/pathUtils";
 import { HWwalletCapabilities, NetworkNames } from "@enkryptcom/types";
 import HDKey from "hdkey";
 import { bufferToHex } from "@enkryptcom/utils";
+import type { TrezorConnect } from "@trezor/connect-web";
 import {
   AddressResponse,
   BitcoinSignMessage,
@@ -13,10 +13,11 @@ import {
   SignTransactionRequest,
 } from "../../types";
 import { supportedPaths, TrezorNetworkConfigs } from "./configs";
+import getTrezorConnect from "../trezorConnect";
 
-class TrezorEthereum implements HWWalletProvider {
+class TrezorBitcoin implements HWWalletProvider {
   network: NetworkNames;
-
+  TrezorConnect: TrezorConnect;
   HDNodes: Record<string, HDKey>;
 
   constructor(network: NetworkNames) {
@@ -25,15 +26,7 @@ class TrezorEthereum implements HWWalletProvider {
   }
 
   async init(): Promise<boolean> {
-    TrezorConnect.init({
-      manifest: {
-        email: "info@enkrypt.com",
-        appUrl: "https://www.enkrypt.com",
-      },
-      transports: ["BridgeTransport", "WebUsbTransport"],
-      connectSrc: "https://connect.trezor.io/9/",
-      _extendWebextensionLifetime: true,
-    });
+    this.TrezorConnect = await getTrezorConnect();
     return true;
   }
 
@@ -42,7 +35,7 @@ class TrezorEthereum implements HWWalletProvider {
       return Promise.reject(new Error("trezor-bitcoin: Invalid network name"));
 
     if (!this.HDNodes[options.pathType.basePath]) {
-      const rootPub = await TrezorConnect.getPublicKey({
+      const rootPub = await this.TrezorConnect.getPublicKey({
         path: options.pathType.basePath,
         showOnTrezor: options.confirmAddress,
       } as any);
@@ -82,7 +75,7 @@ class TrezorEthereum implements HWWalletProvider {
     if (options.type === "bip322-simple") {
       throw new Error("trezor-bitcoin: bip322 signing not supported");
     }
-    const result = await TrezorConnect.signMessage({
+    const result = await this.TrezorConnect.signMessage({
       path: options.pathType.path.replace(`{index}`, options.pathIndex),
       message: options.message.toString("hex"),
       hex: true,
@@ -97,7 +90,7 @@ class TrezorEthereum implements HWWalletProvider {
     const addressN = getHDPath(
       options.pathType.path.replace(`{index}`, options.pathIndex),
     );
-    return TrezorConnect.signTransaction({
+    return this.TrezorConnect.signTransaction({
       coin: TrezorNetworkConfigs[this.network].symbol,
       inputs: transactionOptions.psbtTx.txInputs.map((tx) => ({
         address_n: addressN,
@@ -131,4 +124,4 @@ class TrezorEthereum implements HWWalletProvider {
   }
 }
 
-export default TrezorEthereum;
+export default TrezorBitcoin;

@@ -80,6 +80,7 @@ const address = computed({
     } catch {
       displayAddress = props.value;
     }
+    if (displayAddress.length < 13) return displayAddress;
     return isFocus.value
       ? displayAddress
       : replaceWithEllipsis(displayAddress, 6, 6);
