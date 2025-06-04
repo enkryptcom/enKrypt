@@ -67,6 +67,6 @@ Closes all HW wallet connections
 `SignTransactionRequest`: https://github.com/enkryptcom/enKrypt/blob/main/packages/hw-wallets/src/types.ts#L65  
 `isConnectedRequest`: https://github.com/enkryptcom/enKrypt/blob/main/packages/hw-wallets/src/types.ts#L78
 
-### Examples
+### Notes
 
-TO BE ADDED
+Connection request to hardware wallet actually happens on `getAddress()` request.
