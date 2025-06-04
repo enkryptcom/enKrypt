@@ -56,6 +56,7 @@
     "@ledgerhq/hw-app-eth": "^6.45.5",
     "@ledgerhq/hw-app-solana": "^7.4.1",
     "@ledgerhq/hw-transport": "^6.31.5",
+    "@ledgerhq/hw-transport-web-ble": "^6.29.5",
     "@ledgerhq/hw-transport-webusb": "^6.29.5",
     "@ledgerhq/live-common": "^34.20.0",
     "@polkadot/types": "^16.1.1",
