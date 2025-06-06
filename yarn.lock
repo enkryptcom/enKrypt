@@ -1700,8 +1700,9 @@ __metadata:
     "@ledgerhq/hw-app-eth": "npm:^6.45.5"
     "@ledgerhq/hw-app-solana": "npm:^7.4.1"
     "@ledgerhq/hw-transport": "npm:^6.31.5"
+    "@ledgerhq/hw-transport-web-ble": "npm:^6.29.5"
     "@ledgerhq/hw-transport-webusb": "npm:^6.29.5"
-    "@ledgerhq/live-common": "npm:^34.20.0"
+    "@ledgerhq/live-common": "npm:34.20.0"
     "@polkadot/types": "npm:^16.1.1"
     "@polkadot/util": "npm:^13.5.1"
     "@trezor/connect": "npm:^9.5.5"
@@ -4636,6 +4637,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@ledgerhq/devices@npm:8.4.6":
+  version: 8.4.6
+  resolution: "@ledgerhq/devices@npm:8.4.6"
+  dependencies:
+    "@ledgerhq/errors": "npm:^6.21.0"
+    "@ledgerhq/logs": "npm:^6.13.0"
+    rxjs: "npm:^7.8.1"
+    semver: "npm:^7.3.5"
+  checksum: 10/8645c556f53160246d0601af4d077fb99d09deabeed778b5ee332958cdfab6505cbe41375eb788f3e8c3255a2c0c8c7e9a65797830cb957d6eccdf11fa257c75
+  languageName: node
+  linkType: hard
+
 "@ledgerhq/devices@npm:^5.51.1":
   version: 5.51.1
   resolution: "@ledgerhq/devices@npm:5.51.1"
@@ -4982,6 +4995,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@ledgerhq/hw-transport-web-ble@npm:^6.29.5":
+  version: 6.29.6
+  resolution: "@ledgerhq/hw-transport-web-ble@npm:6.29.6"
+  dependencies:
+    "@ledgerhq/devices": "npm:8.4.6"
+    "@ledgerhq/errors": "npm:^6.21.0"
+    "@ledgerhq/hw-transport": "npm:^6.31.6"
+    "@ledgerhq/logs": "npm:^6.13.0"
+    rxjs: "npm:^7.8.1"
+  checksum: 10/ef50ca64f47971f624956bc3e3ba2dd51719900188965128286aeb9fb14bb1d1ce211541b9276a91b713e4dc104bd8ba84e90c032ae27cdbcb1c8ca45848a80f
+  languageName: node
+  linkType: hard
+
 "@ledgerhq/hw-transport-webusb@npm:^6.29.5":
   version: 6.29.5
   resolution: "@ledgerhq/hw-transport-webusb@npm:6.29.5"
@@ -5087,6 +5113,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@ledgerhq/hw-transport@npm:^6.31.6":
+  version: 6.31.6
+  resolution: "@ledgerhq/hw-transport@npm:6.31.6"
+  dependencies:
+    "@ledgerhq/devices": "npm:8.4.6"
+    "@ledgerhq/errors": "npm:^6.21.0"
+    "@ledgerhq/logs": "npm:^6.13.0"
+    events: "npm:^3.3.0"
+  checksum: 10/e05514de4de8933e90a1494c0b5e5ae1de523df21ab6fe78558122f41ee67817489b776c8c38ff31ec676991a8cdfb1800f8bb1de59c100e349b599c05dfe6eb
+  languageName: node
+  linkType: hard
+
 "@ledgerhq/ledger-cal-service@npm:^0.2.0":
   version: 0.2.0
   resolution: "@ledgerhq/ledger-cal-service@npm:0.2.0"
@@ -5124,7 +5162,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ledgerhq/live-common@npm:^34.20.0":
+"@ledgerhq/live-common@npm:34.20.0":
   version: 34.20.0
   resolution: "@ledgerhq/live-common@npm:34.20.0"
   dependencies:
@@ -5428,6 +5466,13 @@ __metadata:
   version: 5.50.0
   resolution: "@ledgerhq/logs@npm:5.50.0"
   checksum: 10/25666fe0b8b7da365d90c25e6fa39c577c27ee2b8ca5230defc90831f8afe2fdc2a3e5ccf050030083e77b859275ff488b443bf445a80bf82506676c0c481c73
+  languageName: node
+  linkType: hard
+
+"@ledgerhq/logs@npm:^6.13.0":
+  version: 6.13.0
+  resolution: "@ledgerhq/logs@npm:6.13.0"
+  checksum: 10/3ac984bdc533505359cd1d8bc74175547fcfa51fef6294a9fd832e8ea88d462a385be5cfe68ccfa1b77cd68b840243e6f79c2be66fe28f123ae57c58625edf5f
   languageName: node
   linkType: hard
 
