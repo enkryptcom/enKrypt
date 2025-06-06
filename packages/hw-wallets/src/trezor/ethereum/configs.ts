@@ -2,7 +2,7 @@ import { NetworkNames } from "@enkryptcom/types";
 import { bip44Paths } from "../../configs";
 
 const DEFAULT_PATHS = [bip44Paths.ethereum];
-const supportedPaths = {
+const networkBasedSupportedPaths = {
   [NetworkNames.Ethereum]: DEFAULT_PATHS,
   [NetworkNames.Matic]: DEFAULT_PATHS,
   [NetworkNames.Avalanche]: DEFAULT_PATHS,
@@ -28,4 +28,39 @@ const supportedPaths = {
   [NetworkNames.Telos]: DEFAULT_PATHS,
   [NetworkNames.Blast]: DEFAULT_PATHS,
 };
-export { supportedPaths };
+const ALL_SUPPORTED_PATHS = [
+  bip44Paths.ethereum,
+  bip44Paths.ethereumTestnet,
+  bip44Paths.ethereumClassic,
+  bip44Paths.rootstock,
+  Object.assign({}, bip44Paths.ethereumLedger, { label: "Ethereum - Ledger" }), // specify ledger
+  bip44Paths.ethereumLedgerLive,
+  bip44Paths.poaNetwork,
+  bip44Paths.expanse,
+  bip44Paths.ubiq,
+  bip44Paths.ellaism,
+  bip44Paths.etherGem,
+  bip44Paths.callisto,
+  bip44Paths.ethereumSocial,
+  bip44Paths.musicoin,
+  bip44Paths.goChain,
+  bip44Paths.eosClassic,
+  bip44Paths.akroma,
+  bip44Paths.etherSocialNetwork,
+  bip44Paths.pirl,
+  bip44Paths.ether1,
+  bip44Paths.atheios,
+  bip44Paths.tomoChain,
+  bip44Paths.mixBlockchain,
+  bip44Paths.iolite,
+  bip44Paths.thundercore,
+  bip44Paths.solidum,
+  bip44Paths.metadium,
+  bip44Paths.reoscChain,
+  bip44Paths.dexon,
+  bip44Paths.lightstreamsNetwork,
+  bip44Paths.mintmeComCoin,
+  bip44Paths.ethercore,
+  bip44Paths.binanceChain,
+];
+export { networkBasedSupportedPaths, ALL_SUPPORTED_PATHS };
