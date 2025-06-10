@@ -15,7 +15,7 @@ const tomoOptions: EvmNetworkOptions = {
   isTestNetwork: false,
   currencyName: 'VIC',
   currencyNameLong: 'Viction',
-  node: 'wss://ws.tomochain.com',
+  node: 'wss://ws.viction.xyz',
   icon,
   coingeckoID: 'tomochain',
   basePath: "m/44'/889'/0'/0",
