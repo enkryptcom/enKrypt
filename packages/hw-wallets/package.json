@@ -1,6 +1,6 @@
 {
   "name": "@enkryptcom/hw-wallets",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "description": "Hardware wallet manager for enkrypt",
   "type": "module",
   "main": "src/index.ts",
@@ -57,7 +57,7 @@
     "@ledgerhq/hw-app-solana": "^7.4.1",
     "@ledgerhq/hw-transport": "^6.31.5",
     "@ledgerhq/hw-transport-webusb": "^6.29.5",
-    "@ledgerhq/live-common": "^34.20.0",
+    "@ledgerhq/live-common": "34.20.0",
     "@polkadot/types": "^16.1.1",
     "@polkadot/util": "^13.5.1",
     "@trezor/connect": "^9.5.5",

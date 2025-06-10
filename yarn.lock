@@ -1701,7 +1701,7 @@ __metadata:
     "@ledgerhq/hw-app-solana": "npm:^7.4.1"
     "@ledgerhq/hw-transport": "npm:^6.31.5"
     "@ledgerhq/hw-transport-webusb": "npm:^6.29.5"
-    "@ledgerhq/live-common": "npm:^34.20.0"
+    "@ledgerhq/live-common": "npm:34.20.0"
     "@polkadot/types": "npm:^16.1.1"
     "@polkadot/util": "npm:^13.5.1"
     "@trezor/connect": "npm:^9.5.5"
@@ -5124,7 +5124,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ledgerhq/live-common@npm:^34.20.0":
+"@ledgerhq/live-common@npm:34.20.0":
   version: 34.20.0
   resolution: "@ledgerhq/live-common@npm:34.20.0"
   dependencies:
