@@ -1,42 +1,40 @@
 <template>
-  <a v-if="!!token" class="swap-token-select" @click="open">
-    <div class="swap-token-select__image">
-      <img :src="token.logoURI" alt="" @error="imageLoadError" />
+  <button
+    class="swap-token-select"
+    :class="{ skeleton: !token }"
+    @click="open"
+    :disabled="!token"
+  >
+    <div
+      class="swap-token-select__image"
+      :class="{ 'swap-token-select__image__loading': !token }"
+    >
+      <img
+        v-if="token"
+        :src="token.logoURI"
+        alt=""
+        @error="imageLoadError"
+        width="28px"
+        height="28px"
+      />
     </div>
     <div class="swap-token-select__info">
-      <h5>
-        {{ $filters.truncate(token.name, 25) }}
+      <h5 v-if="token">
+        {{ $filters.truncate(token.symbol, 5) }}
       </h5>
-      <p>
-        {{
-          tokenBalance
-            ? $filters.formatFloatingPointValue(tokenBalance).value
-            : '~'
-        }}
-        <span>{{ token.symbol }}</span>
-      </p>
+      <div v-else class="swap-token-select__info__loading">Loading</div>
     </div>
 
     <div class="swap-token-select__arrow">
       <switch-arrow />
     </div>
-  </a>
-  <a v-else class="swap-token-select" @click="open">
-    <div v-show="!token" class="swap-token-select__info">
-      <h4>Select token</h4>
-    </div>
-
-    <div class="swap-token-select__arrow">
-      <switch-arrow />
-    </div>
-  </a>
+  </button>
 </template>
 
 <script setup lang="ts">
 import { ref, PropType } from 'vue';
 import SwitchArrow from '@action/icons/header/switch_arrow.vue';
-import { computed } from 'vue';
-import { TokenType, SwapToken } from '@enkryptcom/swap';
+import { TokenType } from '@enkryptcom/swap';
 import { imageLoadError } from '@/ui/action/utils/misc';
 
 const isOpen = ref(false);
@@ -44,20 +42,10 @@ const emit = defineEmits<{
   (e: 'toggle:select', isOpen: boolean): void;
 }>();
 
-const props = defineProps({
+defineProps({
   token: {
     type: Object as PropType<TokenType | null>,
-    default: () => {
-      return {};
-    },
   },
-});
-
-const tokenBalance = computed(() => {
-  if (props.token?.balance) {
-    return new SwapToken(props.token).getBalanceReadable();
-  }
-  return null;
 });
 
 const open = () => {
@@ -69,12 +57,16 @@ const open = () => {
 <style lang="less">
 @import '@action/styles/theme.less';
 .swap-token-select {
-  height: 54px;
-  background: #ffffff;
+  &:focus-visible {
+    outline: none !important;
+    border: 1px solid @primary;
+  }
+  height: 36px;
+  background: @lightSurfaceBg;
   box-sizing: border-box;
-  border-radius: 10px;
-  width: 100%;
-  padding: 16px;
+  border-radius: 32px;
+  min-width: 99px;
+  padding: 4px;
   display: flex;
   justify-content: flex-start;
   align-items: center;
@@ -90,56 +82,50 @@ const open = () => {
 
   &__image {
     background: @buttonBg;
-    box-shadow: inset 0px 0px 1px rgba(0, 0, 0, 0.16);
-    width: 32px;
-    height: 32px;
+    box-shadow: 0px 0px 1px 0px rgba(0, 0, 0, 0.16) inset;
+    min-width: 28px;
+    max-width: 28px;
+    height: 28px;
     border-radius: 100%;
     overflow: hidden;
-    margin-right: 12px;
+    margin-right: 8px;
+    transition: background 300ms ease-in-out;
+
     img {
       width: 100%;
       height: 100%;
+      object-fit: contain;
+    }
+    &__loading {
+      background: @white;
     }
   }
   &__info {
-    h4 {
-      font-style: normal;
-      font-weight: 500;
-      font-size: 16px;
-      line-height: 24px;
-      color: @primaryLabel;
-      width: 290px;
-      margin: 0;
-    }
     h5 {
       font-style: normal;
       font-weight: 400;
       font-size: 16px;
       line-height: 24px;
       color: @primaryLabel;
-      width: 290px;
-      margin: 0 0 1px 0;
+      margin: 0;
     }
-    p {
+    &__loading {
       font-style: normal;
       font-weight: 400;
       font-size: 12px;
       line-height: 16px;
       letter-spacing: 0.5px;
       color: @secondaryLabel;
-      margin: 0;
-      width: 290px;
       span {
         font-variant: small-caps;
       }
     }
   }
   &__arrow {
-    position: absolute;
-    font-size: 0;
-    padding: 4px;
-    right: 8px;
-    top: 16px;
+    margin-left: auto;
+    width: 24px;
+    height: 24px;
+    margin-right: -2px;
   }
 }
 </style>

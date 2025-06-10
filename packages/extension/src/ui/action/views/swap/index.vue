@@ -4,73 +4,76 @@
       <div v-if="!!selected" class="swap">
         <div class="swap__header">
           <h3>Swap</h3>
-          <a class="swap__close" @click="router.go(-1)">
+          <button class="swap__close" @click="router.go(-1)">
             <close-icon />
-          </a>
+          </button>
         </div>
 
         <div class="swap__wrap">
-          <swap-token-amount-input
-            v-if="fromToken"
-            :value="fromAmount || ''"
-            :token="fromToken"
-            :autofocus="true"
-            :error-message="errors.inputAmount"
-            @update:input-max="setMax"
-            @toggle:select="toggleFromToken"
-            @update:value="inputAmountFrom"
-          />
-
-          <a class="swap__arrows"><swap-arrows /></a>
-
-          <swap-network-select
-            v-if="toNetwork"
-            :network="toNetwork"
-            @toggle:select="toggleToNetwork"
-          />
-
-          <swap-token-to-amount
-            :token="toToken"
-            :is-finding-rate="isFindingRate"
-            :fast-list="trendingToTokens"
-            :total-tokens="toTokens.length - trendingToTokens.length"
-            :amount="toAmount"
-            :no-providers="errors.noProviders"
-            @update:select-asset="selectTokenTo"
-            @toggle:select="toggleToToken"
-          />
-
-          <send-address-input
-            ref="addressInput"
-            :value="address"
-            :is-valid-address="addressIsValid"
-            :network-name="toAddressInputMeta.networkName"
-            :display-address="toAddressInputMeta.displayAddress"
-            :identicon="toAddressInputMeta.identicon"
-            @update:input-address="inputAddress"
-            @toggle:show-contacts="toggleSelectContact"
-          />
-
-          <send-contacts-list
-            :show-accounts="isOpenSelectContact"
-            :accounts="toAccounts"
-            :address="address"
-            :display-address="toAddressInputMeta.displayAddress"
-            :identicon="toAddressInputMeta.identicon"
-            @selected:account="selectAccount"
-            @update:paste-from-clipboard="addressInput.pasteFromClipboard()"
-            @close="toggleSelectContact"
-          />
+          <!-- FROM NETWORK, ADDRESS, TOKEN -->
+          <div class="swap__wrap__container">
+            <h2>From</h2>
+            <div class="swap__wrap__row">
+              <swap-network-select
+                :network="toNetwork"
+                @toggle:select="toggleToNetwork"
+              />
+              <swap-address-select
+                v-model:selected-address="fromSelectedAddress"
+                :is-loading="!toNetwork || !fromSelectedAddress"
+                :network-name="fromSelectedNetwork.name"
+                :identicon="fromSelectedNetwork.identicon"
+                :is-valid-search-address="false"
+                title="Swap from account"
+                :has-external-accounts="false"
+              ></swap-address-select>
+            </div>
+            <swap-token-amount-input
+              v-if="fromToken"
+              :value="fromAmount || ''"
+              :token="fromToken"
+              :autofocus="true"
+              :error-message="errors.inputAmount"
+              @toggle:select="toggleFromToken"
+              @update:value="inputAmountFrom"
+            />
+          </div>
+          <button class="swap__arrows" @click="reverseFromAndTo">
+            <swap-arrows />
+          </button>
+          <!-- TO NETWORK, ADDRESS, TOKEN -->
+          <div class="swap__wrap__container">
+            <h2>To</h2>
+            <div class="swap__wrap__row">
+              <swap-network-select
+                v-if="toNetwork"
+                :network="toNetwork"
+                @toggle:select="toggleToNetwork"
+              />
+              <swap-address-select
+                v-if="fromSelectedNetwork"
+                v-model:selected-address="fromSelectedAddress"
+                :is-loading="!toNetwork || !fromSelectedAddress"
+                :network-name="fromSelectedNetwork.name"
+                :identicon="fromSelectedNetwork.identicon"
+                :is-valid-search-address="false"
+                title="Swap from account"
+                :has-external-accounts="true"
+              ></swap-address-select>
+            </div>
+            <swap-token-amount-input
+              v-if="fromToken"
+              :value="fromAmount || ''"
+              :token="fromToken"
+              :autofocus="false"
+              :error-message="errors.inputAmount"
+              @toggle:select="toggleToToken"
+              @update:value="inputAmountFrom"
+            />
+          </div>
         </div>
 
         <div class="swap__buttons">
-          <div class="swap__buttons-cancel">
-            <base-button
-              title="Cancel"
-              :no-background="true"
-              @click="router.go(-1)"
-            />
-          </div>
           <div class="swap__buttons-send">
             <base-button
               :title="sendButtonTitle"
@@ -124,13 +127,11 @@ import CloseIcon from '@action/icons/common/close-icon.vue';
 import SwapArrows from '@action/icons/swap/swap-arrows.vue';
 import BaseButton from '@action/components/base-button/index.vue';
 import SwapTokenAmountInput from './components/swap-token-amount-input/index.vue';
-import SwapTokenToAmount from './components/swap-token-to-amount/index.vue';
 import AssetsSelectList from './components/swap-assets-select-list.vue';
 import NetworkSelectList from './components/swap-network-select/network-select-list.vue';
 import SwapLooking from './components/swap-loading/index.vue';
 import SwapErrorPopup from './components/swap-error/index.vue';
-import SendAddressInput from './components/send-address-input.vue';
-import SendContactsList from './components/send-contacts-list.vue';
+import SwapAddressSelect from './components/swap-address-select/index.vue';
 import { getAccountsByNetworkName } from '@/libs/utils/accounts';
 import { AccountsHeaderData } from '../../types/account';
 import { getNetworkByName } from '@/libs/utils/networks';
@@ -188,7 +189,13 @@ const props = defineProps({
 });
 
 const selected: string = route.params.id as string;
-
+/** -------------------
+ * From
+ -------------------*/
+const fromSelectedAddress = ref<string | undefined>(
+  props.accountInfo.selectedAccount?.address,
+);
+const fromSelectedNetwork = ref<BaseNetwork>(props.network);
 const fromTokens = ref<TokenType[]>();
 const fromToken = ref<TokenType | null>({
   name: 'Loading',
@@ -199,6 +206,9 @@ const fromToken = ref<TokenType | null>({
   type: '' as any,
 });
 const fromAmount = ref<string | null>(null);
+/** -------------------
+ * TO
+ -------------------*/
 const toNetworks = ref<NetworkInfo[]>([]);
 const toNetwork = ref<NetworkInfo | null>(null);
 const toNetworkOpen = ref(false);
@@ -225,8 +235,6 @@ const address = ref<string>('');
 /** Is the receiver address valid */
 const addressIsValid = ref(true);
 
-const isOpenSelectContact = ref<boolean>(false);
-const addressInput = ref();
 const toAccounts = ref<EnkryptAccount[]>([]);
 
 const fetchingTokens = ref(true);
@@ -237,6 +245,10 @@ const toSelectOpened = ref(false);
 const isLooking = ref(false);
 
 const swapMax = ref(false);
+
+const reverseFromAndTo = () => {
+  console.log('Reverse from and to token and amount');
+};
 
 let api: Web3Eth | Connection;
 switch (props.network.name) {
@@ -397,10 +409,6 @@ const setToTokens = () => {
   );
 };
 
-const setMax = () => {
-  fromAmount.value = new SwapToken(fromToken.value!).getBalanceReadable();
-};
-
 const inputAddress = (text: string) => {
   const debounceResolve = debounce(() => {
     nameResolver
@@ -422,10 +430,6 @@ const inputAddress = (text: string) => {
     address.value = text;
   }
   isValidToAddress();
-};
-
-const toggleSelectContact = () => {
-  isOpenSelectContact.value = !isOpenSelectContact.value;
 };
 
 /**
@@ -731,11 +735,6 @@ const inputAmountFrom = async (newVal: string) => {
   swapMax.value = false;
   errors.value.inputAmount = '';
 };
-const selectAccount = (account: string) => {
-  address.value = account;
-  isValidToAddress();
-  isOpenSelectContact.value = false;
-};
 
 const toggleToNetwork = () => {
   toNetworkOpen.value = !toNetworkOpen.value;
@@ -927,36 +926,89 @@ const sendAction = async () => {
     cursor: pointer;
     font-size: 0;
     transition: background 300ms ease-in-out;
+    width: 40px;
+    height: 40px;
+    padding: 0px;
 
     &:hover {
       background: @black007;
     }
+    &:focus-visible {
+      outline: 1px solid @primary;
+    }
   }
 
   &__wrap {
-    padding: 0 32px;
+    padding: 8px 20px;
+    margin: 0;
     display: flex;
-    justify-content: center;
-    align-items: center;
+    justify-content: stretch;
+    align-items: stretch;
     flex-direction: column;
     width: 100%;
     box-sizing: border-box;
-    height: calc(~'100% - 172px');
+    overflow-y: auto;
+    gap: 4px;
+    position: relative;
+    &__container {
+      padding: 12px 16px 16px 16px;
+      background-color: @lightSurfaceBg;
+      border-radius: 20px;
+      flex: 1;
+      h2 {
+        font-weight: 700;
+        font-size: 16px;
+        line-height: 20px;
+        letter-spacing: 0.15px;
+        margin-bottom: 8px;
+        margin-top: 0px;
+      }
+    }
+    &__row {
+      display: flex;
+      justify-content: space-between;
+      align-items: stretch;
+      margin-bottom: 8px;
+      gap: 8px;
+      & > div {
+        max-width: 190px;
+      }
+    }
   }
 
   &__arrows {
-    padding: 8px 0;
+    padding: 4px;
     text-align: center;
     font-size: 0;
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     text-decoration: none;
+    background-color: @white;
+    border-radius: 12px;
+    width: 32px;
+    height: 32px;
+    border: 1px solid @grey08;
+    box-sizing: border-box;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-50%);
+    transition: background 300ms ease-in-out;
+    cursor: pointer;
+    &:hover {
+      background: @black007;
+    }
+    &:focus-visible {
+      outline: 1px solid @primary;
+    }
   }
 
   &__buttons {
     position: absolute;
     left: 0;
     bottom: 0;
-    padding: 32px;
+    padding: 8px 32px 32px 32px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -965,46 +1017,9 @@ const sendAction = async () => {
     box-sizing: border-box;
     background-color: @white;
 
-    &-cancel {
-      width: 140px;
-    }
-
     &-send {
-      width: 248px;
+      width: 100%;
     }
-  }
-
-  .send-address-input {
-    margin: 8px 0 8px 0;
-    width: 100%;
-  }
-}
-</style>
-
-<style lang="less">
-.swap {
-  .send-contacts-list__wrap {
-    top: 482px;
-    max-height: 114px;
-    padding: 0;
-  }
-
-  .send-contacts-list__scroll-area {
-    max-height: 114px;
-    padding: 8px;
-    box-sizing: border-box;
-
-    h3 {
-      display: none;
-    }
-
-    .ps__rail-y {
-      right: 3px !important;
-    }
-  }
-
-  .send-contacts-list__buttons {
-    display: none;
   }
 }
 </style>

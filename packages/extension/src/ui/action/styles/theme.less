@@ -8,3 +8,15 @@
   -ms-user-select: none;
   user-select: none;
 }
+.skeleton {
+  animation: skeleton-loading 1s linear infinite alternate;
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-color: @gray01;
+  }
+  100% {
+    background-color: @lightSurfaceBg;
+  }
+}
