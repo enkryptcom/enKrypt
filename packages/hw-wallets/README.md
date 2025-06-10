@@ -74,11 +74,10 @@ Make sure to follow the configuration in that file.
 Import path in the corresponding `Trezor` provider `config.ts`.  
 See `src/trezor/ethereum/configs.ts` for example.
 
-NOTE: `Ledger` can't have any paths as each paths are defined by the corresponding app.
-
 ### Notes
 
-Connection request to hardware wallet actually happens on `getAddress()` request.
+Connection request to hardware wallet actually happens on `getAddress()` request.  
+`Ledger` can't have any paths as each paths are defined by the corresponding app.
 
 #### For Vue devs
 
