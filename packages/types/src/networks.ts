@@ -71,6 +71,8 @@ export enum NetworkNames {
   AssetHubKSM = "AssetHubKSM",
   SyscoinNEVMTest = "TSYS",
   SyscoinNEVM = "SYS",
+  SyscoinUTXO = "SYSutxo",
+  SyscoinUTXOTest = "SYSutxoTest",
   RolluxTest = "TRLX",
   Rollux = "RLX",
   CagaAnkara = "CagaAnkara",
