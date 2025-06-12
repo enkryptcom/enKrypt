@@ -55,6 +55,7 @@ export enum InternalStorageNamespace {
   updatesState = 'UpdatesState',
   backupState = 'BackupState',
   menuState = 'MenuState',
+  bannersState = "BannersState",
 }
 export enum EnkryptProviderEventMethods {
   persistentEvents = 'PersistentEvents',
