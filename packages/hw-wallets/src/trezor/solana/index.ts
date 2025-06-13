@@ -9,6 +9,7 @@ import {
   HWWalletProvider,
   PathType,
   SignTransactionRequest,
+  SignTypedMessageRequest,
   SolSignTransaction,
 } from "../../types";
 import { supportedPaths } from "./configs";
@@ -65,6 +66,12 @@ class TrezorSolana implements HWWalletProvider {
         "hex",
       ),
     }).then((result) => (result.payload as any).signature);
+  }
+
+  signTypedMessage(_request: SignTypedMessageRequest): Promise<string> {
+    return Promise.reject(
+      new Error("trezor-solana: signTypedMessage not supported"),
+    );
   }
 
   static getSupportedNetworks(): NetworkNames[] {

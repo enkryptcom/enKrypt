@@ -10,6 +10,7 @@ import {
   HWWalletProvider,
   PathType,
   SignTransactionRequest,
+  SignTypedMessageRequest,
 } from "../../types";
 import { bip32ToAddressNList } from "./utils";
 import { supportedPaths } from "./configs";
@@ -88,6 +89,12 @@ class LedgerSubstrate implements HWWalletProvider {
 
   signPersonalMessage(): Promise<string> {
     throw new Error("hw-wallet:substrate: sign Personal message not supported");
+  }
+
+  signTypedMessage(_request: SignTypedMessageRequest): Promise<string> {
+    return Promise.reject(
+      new Error("ledger-bitcoin: signTypedMessage not supported"),
+    );
   }
 
   async signTransaction(options: SignTransactionRequest): Promise<string> {

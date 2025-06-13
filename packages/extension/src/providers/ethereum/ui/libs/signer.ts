@@ -1,12 +1,21 @@
 import { InternalMethods, InternalOnMessageResponse } from '@/types/messenger';
 import { FeeMarketEIP1559Transaction, LegacyTransaction } from '@ethereumjs/tx';
-import { SignerTransactionOptions, SignerMessageOptions } from '../types';
+import {
+  SignerTransactionOptions,
+  SignerMessageOptions,
+  SignerTypedMessageOptions,
+} from '../types';
 import HWwallet from '@enkryptcom/hw-wallets';
 import { HWwalletType } from '@enkryptcom/types';
 import { fromRpcSig, hashPersonalMessage } from '@ethereumjs/util';
 import { getCustomError } from '@/libs/error';
 import { bufferToHex } from '@enkryptcom/utils';
 import sendUsingInternalMessengers from '@/libs/messenger/internal-messenger';
+import {
+  SignTypedDataVersion,
+  TypedDataUtils,
+  typedSignatureHash,
+} from '@metamask/eth-sig-util';
 
 /**
  * Sign a transaction
@@ -107,4 +116,67 @@ const MessageSigner = (
   }
 };
 
-export { TransactionSigner, MessageSigner };
+const TypedMessageSigner = (
+  options: SignerTypedMessageOptions,
+): Promise<InternalOnMessageResponse> => {
+  const { account, network, typedData, version } = options;
+  if (account.isHardware) {
+    if ((version as any) === SignTypedDataVersion.V1) {
+      return Promise.reject({
+        error: getCustomError(
+          'Hardware wallets do not support V1 typed data signing',
+        ),
+      });
+    }
+    const hwwallets = new HWwallet();
+    return hwwallets
+      .signTypedMessage({
+        domain: typedData.domain,
+        types: typedData.types,
+        primaryType: typedData.primaryType,
+        version: version,
+        message: typedData.message,
+        networkName: network.name,
+        pathIndex: account.pathIndex.toString(),
+        pathType: {
+          basePath: account.basePath,
+          path: account.HWOptions!.pathTemplate,
+        },
+        wallet: account.walletType as unknown as HWwalletType,
+      })
+      .then((res: string) => ({
+        result: JSON.stringify(res),
+      }))
+      .catch((e: any) => {
+        return Promise.reject({
+          error: getCustomError(e.message),
+        });
+      });
+  } else {
+    const version = options.version as SignTypedDataVersion;
+    const typedData = options.typedData;
+    let msgHash;
+    try {
+      if (version === SignTypedDataVersion.V1) {
+        msgHash = typedSignatureHash(typedData);
+      } else {
+        msgHash = bufferToHex(TypedDataUtils.eip712Hash(typedData, version));
+      }
+    } catch (e: any) {
+      return Promise.reject({
+        error: getCustomError(e.message),
+      });
+    }
+    return sendUsingInternalMessengers({
+      method: InternalMethods.sign,
+      params: [msgHash, account],
+    }).then(res => {
+      if (res.error) return res;
+      return {
+        result: res.result,
+      };
+    });
+  }
+};
+
+export { TransactionSigner, MessageSigner, TypedMessageSigner };

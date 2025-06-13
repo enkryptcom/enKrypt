@@ -11,6 +11,7 @@ import {
   HWWalletProvider,
   PathType,
   SignTransactionRequest,
+  SignTypedMessageRequest,
 } from "../../types";
 import { supportedPaths, TrezorNetworkConfigs } from "./configs";
 import getTrezorConnect from "../trezorConnect";
@@ -113,6 +114,12 @@ class TrezorBitcoin implements HWWalletProvider {
       if (!res.success) throw new Error((res.payload as any).error as string);
       return res.payload.serializedTx;
     });
+  }
+
+  signTypedMessage(_request: SignTypedMessageRequest): Promise<string> {
+    return Promise.reject(
+      new Error("trezor-bitcoin: signTypedMessage not supported"),
+    );
   }
 
   static getSupportedNetworks(): NetworkNames[] {

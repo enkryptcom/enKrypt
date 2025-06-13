@@ -53,6 +53,14 @@ export interface BitcoinSignMessage extends BaseRequest {
 
 export type SignMessageRequest = GenericSignMessage | BitcoinSignMessage;
 
+export interface SignTypedMessageRequest extends BaseRequest {
+  domain: Record<string, unknown>;
+  message: Record<string, unknown>;
+  types: Record<string, any>;
+  primaryType: string;
+  version: "V3" | "V4";
+}
+
 export interface BTCSignTransaction {
   rawTxs: string[];
   psbtTx: Psbt;
@@ -99,6 +107,8 @@ export abstract class HWWalletProvider {
   abstract signPersonalMessage(request: SignMessageRequest): Promise<string>;
 
   abstract signTransaction(request: SignTransactionRequest): Promise<string>;
+
+  abstract signTypedMessage(request: SignTypedMessageRequest): Promise<string>;
 
   static getSupportedNetworks(): NetworkNames[] {
     return [];

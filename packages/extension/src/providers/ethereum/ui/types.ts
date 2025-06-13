@@ -37,4 +37,11 @@ export interface SignerMessageOptions {
   account: EnkryptAccount;
 }
 
+export interface SignerTypedMessageOptions {
+  typedData: any;
+  version: 'V3' | 'V4';
+  network: BaseNetwork;
+  account: EnkryptAccount;
+}
+
 export { GasFeeInfo };

@@ -21,6 +21,7 @@ import {
   HWWalletProvider,
   PathType,
   SignTransactionRequest,
+  SignTypedMessageRequest,
 } from "../../types";
 import { supportedPaths } from "./configs";
 import ConnectToLedger from "../ledgerConnect";
@@ -203,6 +204,12 @@ class LedgerBitcoin implements HWWalletProvider {
       txArg.additionals.push("bech32");
     }
     return connection.createPaymentTransaction(txArg).then((result) => result);
+  }
+
+  signTypedMessage(_request: SignTypedMessageRequest): Promise<string> {
+    return Promise.reject(
+      new Error("ledger-bitcoin: signTypedMessage not supported"),
+    );
   }
 
   getSupportedPaths(): PathType[] {
