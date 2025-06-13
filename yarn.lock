@@ -1702,6 +1702,7 @@ __metadata:
     "@ledgerhq/hw-transport": "npm:^6.31.5"
     "@ledgerhq/hw-transport-webusb": "npm:^6.29.5"
     "@ledgerhq/live-common": "npm:^34.20.0"
+    "@metamask/eth-sig-util": "npm:^8.2.0"
     "@polkadot/types": "npm:^16.1.1"
     "@polkadot/util": "npm:^13.5.1"
     "@trezor/connect": "npm:^9.5.5"

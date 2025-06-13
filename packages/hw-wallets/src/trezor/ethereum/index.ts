@@ -11,6 +11,7 @@ import {
   PathType,
   SignMessageRequest,
   SignTransactionRequest,
+  SignTypedMessageRequest,
 } from "../../types";
 import { supportedPaths } from "./configs";
 import getTrezorConnect from "../trezorConnect";
@@ -127,6 +128,12 @@ class TrezorEthereum implements HWWalletProvider {
         hexToBuffer(result.payload.s),
       );
     });
+  }
+
+  signTypedMessage(_request: SignTypedMessageRequest): Promise<string> {
+    return Promise.reject(
+      new Error("trezor-ethereum: signTypedMessage not supported"),
+    );
   }
 
   static getSupportedNetworks(): NetworkNames[] {
