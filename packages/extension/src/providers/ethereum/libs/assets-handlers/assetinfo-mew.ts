@@ -133,6 +133,10 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
     cgPlatform: CoingeckoPlatform.Rollux,
     bsEndpoint: true,
   },
+  [NetworkNames.Sonic]: {
+    tbName: 'sonic',
+    cgPlatform: CoingeckoPlatform.Sonic,
+  },
   [NetworkNames.Telos]: {
     tbName: 'tlos',
     cgPlatform: CoingeckoPlatform.Telos,
