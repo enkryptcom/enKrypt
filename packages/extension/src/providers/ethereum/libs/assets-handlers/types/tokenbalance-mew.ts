@@ -53,6 +53,7 @@ export type SupportedNetworkNames =
   | NetworkNames.Telos
   | NetworkNames.SyscoinNEVM
   | NetworkNames.Rollux
+  | NetworkNames.Sonic
   | NetworkNames.Sanko
   | NetworkNames.Degen
   | NetworkNames.Blast

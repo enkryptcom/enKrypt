@@ -41,6 +41,7 @@ import syscoinNEVMNode from './syscoin/nevm';
 import rolluxTestNode from './syscoin/rollux-testnet';
 import rolluxNode from './syscoin/rollux';
 import cagaAnkara from './cagaAnkara';
+import sonicNode from './sonic';
 import telosNode from './tlos';
 import blastNode from './blast';
 import sankoNode from './dmt';
@@ -130,6 +131,7 @@ export default {
   rolluxTest: rolluxTestNode,
   rollux: rolluxNode,
   cagaAnkara: cagaAnkara,
+  sonic: sonicNode,
   telos: telosNode,
   blast: blastNode,
   sanko: sankoNode,
