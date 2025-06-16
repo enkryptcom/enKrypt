@@ -114,37 +114,10 @@ const approve = async () => {
   })
     .then(Resolve.value)
     .catch(Resolve.value);
-
-  // let msgHash;
-  // try {
-  //   if (version === SignTypedDataVersion.V1) {
-  //     msgHash = typedSignatureHash(typedData);
-  //   } else {
-  //     msgHash = bufferToHex(TypedDataUtils.eip712Hash(typedData, version));
-  //   }
-  // } catch (e: any) {
-  //   Resolve.value({
-  //     error: getCustomError(e.message),
-  //   });
-  // }
-  // sendToBackground({
-  //   method: InternalMethods.sign,
-  //   params: [msgHash, account.value],
-  // }).then(res => {
-  //   if (res.error) {
-  //     Resolve.value(res);
-  //   } else {
-  //     Resolve.value({
-  //       result: JSON.stringify(res.result),
-  //     });
-  //   }
-  // });
 };
 const deny = async () => {
   const { Resolve } = await windowPromise;
-  Resolve.value({
-    error: getError(ErrorCodes.userRejected),
-  });
+  Resolve.value({ error: getError(ErrorCodes.userRejected) });
 };
 </script>
 

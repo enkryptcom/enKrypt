@@ -97,10 +97,7 @@ class TrezorEthereum implements HWWalletProvider {
     if ((options.transaction as LegacyTransaction).gasPrice) {
       return this.TrezorConnect.ethereumSignTransaction({
         path: options.pathType.path.replace(`{index}`, options.pathIndex),
-        transaction: {
-          ...txObject,
-          gasPrice: bigIntToHex(tx.gasPrice),
-        },
+        transaction: { ...txObject, gasPrice: bigIntToHex(tx.gasPrice) },
       }).then((result) => {
         if (!result.success) throw new Error((result.payload as any).error);
         const rv = BigInt(parseInt(result.payload.v, 16));
@@ -132,14 +129,19 @@ class TrezorEthereum implements HWWalletProvider {
   }
 
   async signTypedMessage(request: SignTypedMessageRequest): Promise<string> {
+    const eip712Data = {
+      types: request.types,
+      primaryType: request.primaryType,
+      domain: request.domain,
+      message: request.message,
+    };
     const { domain_separator_hash, message_hash } = transformTypedData(
-      request.message as any,
+      eip712Data as any,
       true,
     );
-
     const result = await this.TrezorConnect.ethereumSignTypedData({
-      path: "m/44'/60'/0'",
-      data: request.message as any,
+      path: request.pathType.path.replace(`{index}`, request.pathIndex),
+      data: eip712Data as any,
       metamask_v4_compat: true,
       domain_separator_hash,
       message_hash,
@@ -157,6 +159,7 @@ class TrezorEthereum implements HWWalletProvider {
       HWwalletCapabilities.eip1559,
       HWwalletCapabilities.signMessage,
       HWwalletCapabilities.signTx,
+      HWwalletCapabilities.typedMessage,
     ];
   }
 }
