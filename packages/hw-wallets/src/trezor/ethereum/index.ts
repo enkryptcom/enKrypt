@@ -4,6 +4,7 @@ import { bigIntToHex, bufferToHex, hexToBuffer } from "@enkryptcom/utils";
 import { publicToAddress, toRpcSig } from "@ethereumjs/util";
 import { FeeMarketEIP1559Transaction, LegacyTransaction } from "@ethereumjs/tx";
 import type { TrezorConnect } from "@trezor/connect-web";
+import transformTypedData from "@trezor/connect-plugin-ethereum";
 import {
   AddressResponse,
   getAddressRequest,
@@ -130,10 +131,21 @@ class TrezorEthereum implements HWWalletProvider {
     });
   }
 
-  signTypedMessage(_request: SignTypedMessageRequest): Promise<string> {
-    return Promise.reject(
-      new Error("trezor-ethereum: signTypedMessage not supported"),
+  async signTypedMessage(request: SignTypedMessageRequest): Promise<string> {
+    const { domain_separator_hash, message_hash } = transformTypedData(
+      request.message as any,
+      true,
     );
+
+    const result = await this.TrezorConnect.ethereumSignTypedData({
+      path: "m/44'/60'/0'",
+      data: request.message as any,
+      metamask_v4_compat: true,
+      domain_separator_hash,
+      message_hash,
+    });
+    if (!result.success) throw new Error((result.payload as any).error);
+    return bufferToHex(hexToBuffer(result.payload.signature));
   }
 
   static getSupportedNetworks(): NetworkNames[] {

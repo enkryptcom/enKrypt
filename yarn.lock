@@ -1706,6 +1706,7 @@ __metadata:
     "@polkadot/types": "npm:^16.1.1"
     "@polkadot/util": "npm:^13.5.1"
     "@trezor/connect": "npm:^9.5.5"
+    "@trezor/connect-plugin-ethereum": "npm:^9.0.5"
     "@trezor/connect-web": "npm:^9.5.5"
     "@trezor/connect-webextension": "npm:^9.5.5"
     "@types/node": "npm:^22.15.24"
@@ -10099,6 +10100,16 @@ __metadata:
   peerDependencies:
     tslib: ^2.6.2
   checksum: 10/4f4de25f54d18fb0dc924f171ac67495a3cde5c32eeb2026882f0c3d147bb6710b4d79598cb00559179993cb016b3016a4dd2ea93ed51b275559a8c09dc2fd53
+  languageName: node
+  linkType: hard
+
+"@trezor/connect-plugin-ethereum@npm:^9.0.5":
+  version: 9.0.5
+  resolution: "@trezor/connect-plugin-ethereum@npm:9.0.5"
+  peerDependencies:
+    "@metamask/eth-sig-util": ^8.0.0
+    tslib: ^2.6.2
+  checksum: 10/94fca6e6f87bb0bcf89580b68b46bb011f4af6fbb5346fddbcc7ef9a82610a32914e1bd0a5c691ee8204438ca971fa07267659cd462ffbf5616e4245bbd9d465
   languageName: node
   linkType: hard
 

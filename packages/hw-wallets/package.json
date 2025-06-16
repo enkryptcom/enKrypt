@@ -62,6 +62,7 @@
     "@polkadot/types": "^16.1.1",
     "@polkadot/util": "^13.5.1",
     "@trezor/connect": "^9.5.5",
+    "@trezor/connect-plugin-ethereum": "^9.0.5",
     "@trezor/connect-web": "^9.5.5",
     "@trezor/connect-webextension": "^9.5.5",
     "@zondax/ledger-substrate": "^1.1.2",
