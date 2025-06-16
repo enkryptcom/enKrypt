@@ -88,7 +88,7 @@
           <div class="provider-verify-transaction__account-info">
             <div>
               <p class="provider-verify-transaction__account-info-to">
-                {{ decodedTx?.toAddress ?? '~' }}
+                {{ (decodedTx?.tokenTo || decodedTx?.toAddress) ?? '~' }}
               </p>
             </div>
           </div>
