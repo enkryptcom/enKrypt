@@ -27,7 +27,7 @@
     "localforage": "^1.10.0"
   },
   "devDependencies": {
-    "@types/node": "^24.0.3",
+    "@types/node": "^22.15.24",
     "@typescript-eslint/eslint-plugin": "^8.34.1",
     "@typescript-eslint/parser": "^8.34.1",
     "eslint": "^9.29.0",
