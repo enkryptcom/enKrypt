@@ -15,7 +15,7 @@ const ethOptions: EvmNetworkOptions = {
   isTestNetwork: false,
   currencyName: 'TLOS',
   currencyNameLong: 'Telos',
-  node: 'https://mainnet-eu.telos.net/evm',
+  node: 'https://rpc.telos.net',
   icon,
   coingeckoID: 'telos',
   coingeckoPlatform: CoingeckoPlatform.Telos,
