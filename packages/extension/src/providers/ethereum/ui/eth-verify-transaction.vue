@@ -234,9 +234,8 @@ onBeforeMount(async () => {
     Request.value.params![0] as EthereumTransaction,
     network.value as EvmNetwork,
   ).then(decoded => {
-    identiconTo.value = network.value.identicon(
-      decoded.toAddress!.toLowerCase(),
-    );
+    const realToAddress = decoded.tokenTo || decoded.toAddress;
+    identiconTo.value = network.value.identicon(realToAddress!.toLowerCase());
     if (decoded.decoded && decoded.dataHex.startsWith(TokenSigs.approve)) {
       isApproval.value = true;
       if (
