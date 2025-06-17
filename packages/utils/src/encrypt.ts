@@ -5,7 +5,7 @@ import {
   createDecipheriv,
   Cipher,
   Decipher,
-} from "node:crypto";
+} from "crypto";
 import { scrypt } from "ethereum-cryptography/scrypt";
 import { keccak256 } from "web3-utils";
 import { EncryptedData, Errors } from "@enkryptcom/types";

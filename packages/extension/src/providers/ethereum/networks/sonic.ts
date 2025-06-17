@@ -2,7 +2,6 @@ import icon from './icons/sonic.webp';
 import { CoingeckoPlatform, NetworkNames } from '@enkryptcom/types';
 import { EvmNetwork, EvmNetworkOptions } from '../types/evm-network';
 import assetsInfoHandler from '@/providers/ethereum/libs/assets-handlers/assetinfo-mew';
-import NFTHandler from '@/libs/nft-handlers/goldrush';
 import { EtherscanActivity } from '../libs/activity-handlers';
 import wrapActivityHandler from '@/libs/activity-state/wrap-activity-handler';
 
@@ -20,11 +19,10 @@ const sonicOptions: EvmNetworkOptions = {
   icon,
   coingeckoID: 'sonic-3',
   coingeckoPlatform: CoingeckoPlatform.Sonic,
-  NFTHandler,
   assetsInfoHandler,
   activityHandler: wrapActivityHandler(EtherscanActivity),
 };
 
 const sonic = new EvmNetwork(sonicOptions);
 
-export default sonic; 
+export default sonic;
