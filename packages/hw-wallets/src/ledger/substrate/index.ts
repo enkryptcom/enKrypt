@@ -93,7 +93,7 @@ class LedgerSubstrate implements HWWalletProvider {
 
   signTypedMessage(_request: SignTypedMessageRequest): Promise<string> {
     return Promise.reject(
-      new Error("ledger-bitcoin: signTypedMessage not supported"),
+      new Error("ledger-substrate: signTypedMessage not supported"),
     );
   }
 
