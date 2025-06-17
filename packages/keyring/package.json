@@ -29,15 +29,15 @@
     "@enkryptcom/storage": "workspace:^",
     "@enkryptcom/types": "workspace:^",
     "@enkryptcom/utils": "workspace:^",
-    "@polkadot/util": "^13.5.1",
+    "@polkadot/util": "^13.5.2",
     "assert": "^2.1.0",
     "bip39": "^3.1.0"
   },
   "devDependencies": {
-    "@types/node": "^22.15.24",
-    "@typescript-eslint/eslint-plugin": "^8.33.0",
-    "@typescript-eslint/parser": "^8.33.0",
-    "eslint": "^9.27.0",
+    "@types/node": "^24.0.3",
+    "@typescript-eslint/eslint-plugin": "^8.34.1",
+    "@typescript-eslint/parser": "^8.34.1",
+    "eslint": "^9.29.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-prettier": "^10.1.5",
     "eslint-import-resolver-alias": "^1.1.2",
@@ -48,8 +48,8 @@
     "tsconfig-paths": "^4.2.0",
     "tsup": "^8.5.0",
     "typescript": "^5.8.3",
-    "typescript-eslint": "8.33.0",
-    "vitest": "^3.1.4"
+    "typescript-eslint": "8.34.1",
+    "vitest": "^3.2.3"
   },
   "repository": {
     "type": "git",
