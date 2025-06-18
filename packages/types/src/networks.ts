@@ -112,6 +112,7 @@ export enum NetworkNames {
   UnitZeroTestnet = "UnitZeroTestnet",
   Conflux = "Conflux",
   Hemi = "Hemi",
+  MultiversX = "EGLD",
 }
 
 export enum CoingeckoPlatform {
@@ -179,4 +180,5 @@ export enum CoingeckoPlatform {
   Taraxa = "taraxa",
   UnitZero = "units-network",
   Conflux = "conflux",
+  MultiversX = "elrond",
 }

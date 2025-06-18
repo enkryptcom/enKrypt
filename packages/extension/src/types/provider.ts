@@ -1,9 +1,8 @@
-import type { InjectedProvider as EthereumProvider } from '../providers/ethereum/types';
-import type { InjectedProvider as PolkadotProvider } from '@/providers/polkadot/types';
+import PublicKeyRing from '@/libs/keyring/public-keyring';
 import type { InjectedProvider as BitcoinProvider } from '@/providers/bitcoin/types';
 import type { InjectedProvider as KadenaProvider } from '@/providers/kadena/types';
+import type { InjectedProvider as PolkadotProvider } from '@/providers/polkadot/types';
 import type { InjectedProvider as SolanaProvider } from '@/providers/solana/types';
-import EventEmitter from 'eventemitter3';
 import {
   MiddlewareFunction,
   NetworkNames,
@@ -11,19 +10,21 @@ import {
   RPCRequestType,
   SignerType,
 } from '@enkryptcom/types';
+import EventEmitter from 'eventemitter3';
 import { RouteRecordRaw } from 'vue-router';
-import PublicKeyRing from '@/libs/keyring/public-keyring';
-import { RoutesType } from './ui';
-import { NFTCollection } from './nft';
-import { BaseNetwork } from './base-network';
-import { BaseToken } from './base-token';
+import type { InjectedProvider as EthereumProvider } from '../providers/ethereum/types';
 import {
   BTCRawInfo,
   EthereumRawInfo,
-  SubscanExtrinsicInfo,
   KadenaRawInfo,
+  MultiversXRawInfo,
   SOLRawInfo,
+  SubscanExtrinsicInfo,
 } from './activity';
+import { BaseNetwork } from './base-network';
+import { BaseToken } from './base-token';
+import { NFTCollection } from './nft';
+import { RoutesType } from './ui';
 
 export enum ProviderName {
   enkrypt = 'enkrypt',
@@ -32,6 +33,7 @@ export enum ProviderName {
   polkadot = 'polkadot',
   kadena = 'kadena',
   solana = 'solana',
+  multiversx = 'multiversx',
 }
 export enum InternalStorageNamespace {
   keyring = 'KeyRing',
@@ -67,6 +69,7 @@ export enum ProviderType {
   bitcoin,
   kadena,
   solana,
+  multiversx,
 }
 
 export type SendMessageHandler = (
@@ -132,7 +135,7 @@ export abstract class BackgroundProviderInterface extends EventEmitter {
 export abstract class ProviderAPIInterface {
   abstract node: string;
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  constructor(node: string, options?: unknown) { }
+  constructor(node: string, options?: unknown) {}
   abstract init(): Promise<void>;
   abstract getBalance(address: string): Promise<string>;
   abstract getTransactionStatus(
@@ -143,6 +146,7 @@ export abstract class ProviderAPIInterface {
     | BTCRawInfo
     | KadenaRawInfo
     | SOLRawInfo
+    | MultiversXRawInfo
     | null
   >;
 }
@@ -157,10 +161,10 @@ export type handleOutgoingMessage = (
   message: string,
 ) => Promise<any>;
 export {
-  EthereumProvider,
-  PolkadotProvider,
   BitcoinProvider,
+  EthereumProvider,
   KadenaProvider,
+  PolkadotProvider,
   SolanaProvider,
 };
 export type Provider =
