@@ -73,6 +73,6 @@ export enum UpdatesOpenLocation {
 }
 
 export enum SolanaStakingBannerEvents {
-  SolanaWalletClicked = 'sol-staking-banner.solana-wallet.clicked',
-  NetworkListClicked = 'sol-staking-banner.network-list.clicked',
+  SolanaWalletClicked = 'sol_staking_banner.solana_wallet.clicked',
+  NetworkListClicked = 'sol_staking_banner.network_list.clicked',
 }
