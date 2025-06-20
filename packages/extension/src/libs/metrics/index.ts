@@ -116,7 +116,7 @@ const optOutofMetrics = (optOut: boolean) => {
 };
 
 const trackSolanaStakingBanner = (event: SolanaStakingBannerEvents) => {
-  metrics.track('sol-staking-banner', { event });
+  metrics.track('solStakingBanner', { event });
 };
 
 export {
