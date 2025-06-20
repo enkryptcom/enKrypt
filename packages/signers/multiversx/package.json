@@ -1,7 +1,7 @@
 {
-  "name": "@enkryptcom/keyring",
-  "version": "0.0.4",
-  "description": "Key management for enkrypt extension",
+  "name": "@enkryptcom/signer-multiversx",
+  "version": "0.0.1",
+  "description": "MultiversX blockchain signer",
   "type": "module",
   "main": "src/index.ts",
   "module": "src/index.ts",
@@ -22,19 +22,14 @@
     "node": ">=14.15.0"
   },
   "dependencies": {
-    "@enkryptcom/signer-bitcoin": "workspace:^",
-    "@enkryptcom/signer-ethereum": "workspace:^",
-    "@enkryptcom/signer-kadena": "workspace:^",
-    "@enkryptcom/signer-polkadot": "workspace:^",
-    "@enkryptcom/signer-multiversx": "workspace:^",
-    "@enkryptcom/storage": "workspace:^",
-    "@enkryptcom/types": "workspace:^",
     "@enkryptcom/utils": "workspace:^",
-    "@polkadot/util": "^13.5.1",
-    "assert": "^2.1.0",
-    "bip39": "^3.1.0"
+    "bip39": "^3.1.0",
+    "@multiversx/sdk-core": "^14.2.2"
   },
   "devDependencies": {
+    "@enkryptcom/types": "workspace:^",
+    "@polkadot/util-crypto": "^13.5.1",
+    "@types/hdkey": "^2.1.0",
     "@types/node": "^22.15.24",
     "@typescript-eslint/eslint-plugin": "^8.33.0",
     "@typescript-eslint/parser": "^8.33.0",
@@ -54,9 +49,8 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/enkryptcom/enKrypt/tree/main/packages/keyring"
+    "url": "git+https://github.com/enkryptcom/enKrypt/tree/main/packages/signers/multiversx"
   },
   "keywords": [],
-  "author": "kvhnuke",
   "license": "MIT"
 }

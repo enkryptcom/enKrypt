@@ -1,25 +1,26 @@
+import { BitcoinSigner } from "@enkryptcom/signer-bitcoin";
+import { EthereumSigner } from "@enkryptcom/signer-ethereum";
+import { KadenaSigner } from "@enkryptcom/signer-kadena";
+import { MultiversXSigner } from "@enkryptcom/signer-multiversx";
+import { PolkadotSigner } from "@enkryptcom/signer-polkadot";
+import { Storage } from "@enkryptcom/storage";
 import {
+  EnkryptAccount,
   Errors,
+  HWWalletAdd,
+  HWwalletType,
+  KeyPair,
+  KeyPairAdd,
+  KeyRecordAdd,
+  MnemonicWithExtraWord,
   SignerInterface,
   SignerType,
   SignOptions,
-  EnkryptAccount,
-  KeyRecordAdd,
-  HWWalletAdd,
-  HWwalletType,
-  KeyPairAdd,
   WalletType,
-  KeyPair,
-  MnemonicWithExtraWord,
 } from "@enkryptcom/types";
-import { Storage } from "@enkryptcom/storage";
-import { entropyToMnemonic, generateMnemonic, mnemonicToEntropy } from "bip39";
-import { hexToBuffer, encrypt, decrypt, utf8ToHex } from "@enkryptcom/utils";
-import { PolkadotSigner } from "@enkryptcom/signer-polkadot";
-import { EthereumSigner } from "@enkryptcom/signer-ethereum";
-import { BitcoinSigner } from "@enkryptcom/signer-bitcoin";
-import { KadenaSigner } from "@enkryptcom/signer-kadena";
+import { decrypt, encrypt, hexToBuffer, utf8ToHex } from "@enkryptcom/utils";
 import assert from "assert";
+import { entropyToMnemonic, generateMnemonic, mnemonicToEntropy } from "bip39";
 import configs from "./configs";
 import { pathParser } from "./utils";
 
@@ -51,6 +52,7 @@ class KeyRing {
       [SignerType.secp256k1btc]: new BitcoinSigner(),
       [SignerType.ed25519kda]: new KadenaSigner(),
       [SignerType.ed25519sol]: new KadenaSigner(),
+      [SignerType.ed25519mvx]: new MultiversXSigner(),
     };
   }
 
