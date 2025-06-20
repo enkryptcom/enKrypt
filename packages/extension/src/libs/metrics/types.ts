@@ -69,5 +69,10 @@ export enum UpdatesEventType {
 
 export enum UpdatesOpenLocation {
   settings = 'settings',
-  logo = "logo",
+  logo = 'logo',
+}
+
+export enum SolanaStakingBannerEvents {
+  SolanaWalletClicked = 'sol-staking-banner.solana-wallet.clicked',
+  NetworkListClicked = 'sol-staking-banner.network-list.clicked',
 }

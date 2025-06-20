@@ -5,7 +5,7 @@
     <div class="solana-stacking-banner__content">
       <enkrypt-staking-logo />
       <h5>Put your SOL to work — safely & easily.</h5>
-      <a href="https://staking.enkrypt.com" target="_blank" class="button"><span>Start Staking Now</span></a>
+      <a href="javascript:void(0);" @click="openStakingLink" class="button"><span>Start Staking Now</span></a>
     </div>
 
     <a class="solana-stacking-banner__close" @click="close">
@@ -17,6 +17,9 @@
 <script setup lang="ts">
 import CloseIcon from "@action/icons/common/close-icon.vue";
 import EnkryptStakingLogo from "@action/icons/common/enkrypt-staking-logo.vue";
+import { trackSolanaStakingBanner } from '@/libs/metrics';
+import { openLink } from '@action/utils/browser';
+import { SolanaStakingBannerEvents } from "@/libs/metrics/types";
 
 defineProps({
   close: {
@@ -26,6 +29,11 @@ defineProps({
     },
   },
 });
+
+const openStakingLink = async () => {
+  trackSolanaStakingBanner(SolanaStakingBannerEvents.SolanaWalletClicked);
+  openLink('https://staking.enkrypt.com');
+};
 </script>
 
 <style lang="less">
@@ -63,7 +71,8 @@ defineProps({
       font-size: 16px;
       font-style: normal;
       font-weight: 700;
-      line-height: 20px; /* 125% */
+      line-height: 20px;
+      /* 125% */
       letter-spacing: 0.15px;
       color: @primaryLabel;
       margin: 0 0 8px 0;

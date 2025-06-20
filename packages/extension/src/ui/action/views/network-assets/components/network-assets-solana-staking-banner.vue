@@ -1,8 +1,10 @@
 <template>
   <div class="network-assets-solana-staking-banner">
-    <a href="https://staking.enkrypt.com" target="_blank" class="network-assets-solana-staking-banner__wrap">
-      <img src="@action/assets/banners/solana-stacking-banner-bg.png" class="network-assets-solana-staking-banner__bg" alt="" />
-      <img src="@action/assets/banners/solana-stacking-banner-tokens-img.png" class="network-assets-solana-staking-banner__image" alt="" />
+    <a href="javascript:void(0);" @click="openStakingLink" class="network-assets-solana-staking-banner__wrap">
+      <img src="@action/assets/banners/solana-stacking-banner-bg.png" class="network-assets-solana-staking-banner__bg"
+        alt="" />
+      <img src="@action/assets/banners/solana-stacking-banner-tokens-img.png"
+        class="network-assets-solana-staking-banner__image" alt="" />
 
       <div class="network-assets-solana-staking-banner__content">
         <enkrypt-staking-logo-white class="network-assets-solana-staking-banner__content-logo" />
@@ -31,6 +33,9 @@ import CloseIconWhite from "@action/icons/common/close-icon-white.vue";
 import EnkryptStakingLogoWhite from "@action/icons/common/enkrypt-staking-logo-white.vue";
 import ConsistentRewardsIcon from "@action/icons/banners/consistent-rewards-icon.vue";
 import AttractiveAprIcon from "@action/icons/banners/attractive-apr-icon.vue";
+import { trackSolanaStakingBanner } from '@/libs/metrics';
+import { openLink } from '@action/utils/browser';
+import { SolanaStakingBannerEvents } from "@/libs/metrics/types";
 
 defineProps({
   close: {
@@ -40,6 +45,11 @@ defineProps({
     },
   },
 });
+
+const openStakingLink = async () => {
+  trackSolanaStakingBanner(SolanaStakingBannerEvents.SolanaWalletClicked);
+  openLink('https://staking.enkrypt.com');
+};
 </script>
 
 <style lang="less">
@@ -101,7 +111,8 @@ defineProps({
       font-size: 16px;
       font-style: normal;
       font-weight: 700;
-      line-height: 24px; /* 125% */
+      line-height: 24px;
+      /* 125% */
       letter-spacing: 0.15px;
       color: @white;
       margin: 0 0 1px 0;
@@ -135,7 +146,8 @@ defineProps({
         font-size: 12px;
         font-style: normal;
         font-weight: 400;
-        line-height: 16px; /* 125% */
+        line-height: 16px;
+        /* 125% */
         letter-spacing: 0.5px;
         color: @white;
         opacity: 0.7;
