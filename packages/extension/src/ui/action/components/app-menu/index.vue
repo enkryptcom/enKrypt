@@ -156,6 +156,12 @@
         </div>
       </div>
     </div>
+
+    <!-- Banners -->
+    <solana-staking-banner
+      v-if="isSolanaStackingBanner"
+      @close="closeSolanaStackingBanner"
+    />
   </div>
 </template>
 
@@ -199,6 +205,8 @@ import { storeToRefs } from 'pinia';
 import { onClickOutside } from '@vueuse/core';
 import SearchIcon from '@action/icons/common/search.vue';
 import { useMenuStore } from '@action/store/menu-store';
+import SolanaStakingBanner from './components/solana-staking-banner.vue';
+import BannersState from '@/libs/banners-state';
 
 const appMenuRef = ref(null);
 
@@ -260,6 +268,9 @@ onMounted(async () => {
   newNetworksWithTags.value.swap = newSwaps.filter(
     net => !usedNetworks.swap.includes(net),
   );
+  // if (await bannersState.showSolanaStakingBanner()) {
+  //   isSolanaStackingBanner.value = true;
+  // }
 });
 
 /** -------------------
@@ -525,6 +536,17 @@ const updateGradient = (newGradient: string) => {
   if (appMenuRef.value)
     (appMenuRef.value as HTMLElement).style.background =
       `radial-gradient(137.35% 97% at 100% 50%, rgba(250, 250, 250, 0.94) 0%, rgba(250, 250, 250, 0.96) 28.91%, rgba(250, 250, 250, 0.98) 100%), linear-gradient(180deg, ${newGradient} 80%, #684CFF 100%)`;
+};
+
+/** ------------------
+ * Banners
+ ------------------*/
+const isSolanaStackingBanner = ref(false);
+const bannersState = new BannersState();
+
+const closeSolanaStackingBanner = () => {
+  isSolanaStackingBanner.value = false;
+  bannersState.hideSolanaStakingBanner();
 };
 </script>
 
