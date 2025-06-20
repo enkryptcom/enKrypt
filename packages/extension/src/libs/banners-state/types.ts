@@ -1,8 +1,8 @@
 export enum StorageKeys {
-  bannersInfo = "banners-info",
+  bannersInfo = 'banners-info',
 }
 
 export type IState = {
-  isHideSolanStackingBanner: boolean;
-  isHideNetworkAssetSolanStackingBanner: boolean;
+  isHideSolanStakingBanner: boolean;
+  isHideNetworkAssetSolanStakingBanner: boolean;
 };

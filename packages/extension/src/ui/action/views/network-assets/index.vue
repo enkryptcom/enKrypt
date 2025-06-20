@@ -16,7 +16,7 @@
           <!-- Banners -->
           <network-assets-solana-staking-banner
             v-if="isSolanaStackingBanner && selectedNetworkName == 'SOLANA'"
-            :close="closeSolanaStackingBanner"
+            @close="closeSolanaStackingBanner"
           />
 
           <network-activity-action v-bind="$attrs" />
@@ -89,7 +89,7 @@ import BaseButton from '@action/components/base-button/index.vue';
 import CustomEvmToken from './components/custom-evm-token.vue';
 import { EvmNetwork } from '@/providers/ethereum/types/evm-network';
 import NetworkAssetsSolanaStakingBanner from './components/network-assets-solana-staking-banner.vue';
-import BannersState from "@/libs/banners-state";
+import BannersState from '@/libs/banners-state';
 
 const showDeposit = ref(false);
 
@@ -153,7 +153,7 @@ const bannersState = new BannersState();
 watch([selectedAddress, selectedNetworkName, selectedSubnetwork], updateAssets);
 onMounted(async () => {
   updateAssets();
-  if (await bannersState.showNetworkAssetsSolanaStackingBanner()) {
+  if (await bannersState.showNetworkAssetsSolanaStakingBanner()) {
     isSolanaStackingBanner.value = true;
   }
 });
@@ -187,7 +187,7 @@ const addCustomAsset = (asset: AssetsType) => {
 
 const closeSolanaStackingBanner = () => {
   isSolanaStackingBanner.value = false;
-  bannersState.hideNetworkAssetsSolanaStackingBanner();
+  bannersState.hideNetworkAssetsSolanaStakingBanner();
 };
 </script>
 

@@ -1,6 +1,6 @@
-import BrowserStorage from "../common/browser-storage";
-import { InternalStorageNamespace } from "@/types/provider";
-import { StorageKeys, IState } from "./types";
+import BrowserStorage from '../common/browser-storage';
+import { InternalStorageNamespace } from '@/types/provider';
+import { StorageKeys, IState } from './types';
 
 export default class BannersState {
   private storage: BrowserStorage;
@@ -9,67 +9,47 @@ export default class BannersState {
     this.storage = new BrowserStorage(InternalStorageNamespace.bannersState);
   }
 
-  async showSolanaStackingBanner(): Promise<boolean> {
+  private async getOrInitializeState(): Promise<IState> {
     const state: IState | undefined = await this.storage.get(
-      StorageKeys.bannersInfo
+      StorageKeys.bannersInfo,
     );
-
     if (state) {
-      return !state.isHideSolanStackingBanner;
+      return state;
     }
-
     const newState: IState = {
-      isHideSolanStackingBanner: false,
-      isHideNetworkAssetSolanStackingBanner: false,
+      isHideSolanStakingBanner: false,
+      isHideNetworkAssetSolanStakingBanner: false,
     };
-
-    this.storage.set(StorageKeys.bannersInfo, newState);
-
-    return true;
+    await this.storage.set(StorageKeys.bannersInfo, newState);
+    return newState;
   }
 
-  async showNetworkAssetsSolanaStackingBanner(): Promise<boolean> {
-    const state: IState | undefined = await this.storage.get(
-      StorageKeys.bannersInfo
-    );
-
-    if (state) {
-      return !state.isHideNetworkAssetSolanStackingBanner;
-    }
-
-    const newState: IState = {
-      isHideSolanStackingBanner: false,
-      isHideNetworkAssetSolanStackingBanner: false,
-    };
-
-    this.storage.set(StorageKeys.bannersInfo, newState);
-
-    return true;
+  async resetBanners(): Promise<void> {
+    const state = await this.getOrInitializeState();
+    state.isHideNetworkAssetSolanStakingBanner = false;
+    state.isHideSolanStakingBanner = false;
+    await this.storage.set(StorageKeys.bannersInfo, state);
   }
 
-  async hideNetworkAssetsSolanaStackingBanner() {
-    const state: IState | undefined = await this.storage.get(
-      StorageKeys.bannersInfo
-    );
-
-    const newState: IState = {
-      isHideSolanStackingBanner: state?.isHideSolanStackingBanner ?? false,
-      isHideNetworkAssetSolanStackingBanner: true,
-    };
-
-    this.storage.set(StorageKeys.bannersInfo, newState);
+  async showSolanaStakingBanner(): Promise<boolean> {
+    const state = await this.getOrInitializeState();
+    return !state.isHideSolanStakingBanner;
   }
 
-  async hideSolanaStackingBanner() {
-    const state: IState | undefined = await this.storage.get(
-      StorageKeys.bannersInfo
-    );
+  async showNetworkAssetsSolanaStakingBanner(): Promise<boolean> {
+    const state = await this.getOrInitializeState();
+    return !state.isHideNetworkAssetSolanStakingBanner;
+  }
 
-    const newState: IState = {
-      isHideSolanStackingBanner: true,
-      isHideNetworkAssetSolanStackingBanner: state?.isHideNetworkAssetSolanStackingBanner ?? false,
-    };
+  async hideNetworkAssetsSolanaStakingBanner() {
+    const state = await this.getOrInitializeState();
+    state.isHideNetworkAssetSolanStakingBanner = true;
+    await this.storage.set(StorageKeys.bannersInfo, state);
+  }
 
-    this.storage.set(StorageKeys.bannersInfo, newState);
+  async hideSolanaStakingBanner() {
+    const state = await this.getOrInitializeState();
+    state.isHideSolanStakingBanner = true;
+    this.storage.set(StorageKeys.bannersInfo, state);
   }
 }

@@ -160,7 +160,7 @@
     <!-- Banners -->
     <solana-staking-banner
       v-if="isSolanaStackingBanner"
-      :close="closeSolanaStackingBanner"
+      @close="closeSolanaStackingBanner"
     />
   </div>
 </template>
@@ -206,7 +206,7 @@ import { onClickOutside } from '@vueuse/core';
 import SearchIcon from '@action/icons/common/search.vue';
 import { useMenuStore } from '@action/store/menu-store';
 import SolanaStakingBanner from './components/solana-staking-banner.vue';
-import BannersState from "@/libs/banners-state";
+import BannersState from '@/libs/banners-state';
 
 const appMenuRef = ref(null);
 
@@ -268,9 +268,9 @@ onMounted(async () => {
   newNetworksWithTags.value.swap = newSwaps.filter(
     net => !usedNetworks.swap.includes(net),
   );
-  if (await bannersState.showSolanaStackingBanner()) {
-    isSolanaStackingBanner.value = true;
-  }
+  // if (await bannersState.showSolanaStakingBanner()) {
+  //   isSolanaStackingBanner.value = true;
+  // }
 });
 
 /** -------------------
@@ -546,7 +546,7 @@ const bannersState = new BannersState();
 
 const closeSolanaStackingBanner = () => {
   isSolanaStackingBanner.value = false;
-  bannersState.hideSolanaStackingBanner();
+  bannersState.hideSolanaStakingBanner();
 };
 </script>
 

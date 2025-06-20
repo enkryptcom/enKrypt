@@ -1,13 +1,25 @@
 <template>
   <div class="network-assets-solana-staking-banner">
-    <a href="javascript:void(0);" @click="openStakingLink" class="network-assets-solana-staking-banner__wrap">
-      <img src="@action/assets/banners/solana-stacking-banner-bg.png" class="network-assets-solana-staking-banner__bg"
-        alt="" />
-      <img src="@action/assets/banners/solana-stacking-banner-tokens-img.png"
-        class="network-assets-solana-staking-banner__image" alt="" />
+    <a
+      href="javascript:void(0);"
+      @click="openStakingLink"
+      class="network-assets-solana-staking-banner__wrap"
+    >
+      <img
+        src="@action/assets/banners/solana-stacking-banner-bg.png"
+        class="network-assets-solana-staking-banner__bg"
+        alt=""
+      />
+      <img
+        src="@action/assets/banners/solana-stacking-banner-tokens-img.png"
+        class="network-assets-solana-staking-banner__image"
+        alt=""
+      />
 
       <div class="network-assets-solana-staking-banner__content">
-        <enkrypt-staking-logo-white class="network-assets-solana-staking-banner__content-logo" />
+        <enkrypt-staking-logo-white
+          class="network-assets-solana-staking-banner__content-logo"
+        />
         <h5>Put your SOL to work — safely & easily.</h5>
         <div class="network-assets-solana-staking-banner__advantages">
           <div>
@@ -29,22 +41,21 @@
 </template>
 
 <script setup lang="ts">
-import CloseIconWhite from "@action/icons/common/close-icon-white.vue";
-import EnkryptStakingLogoWhite from "@action/icons/common/enkrypt-staking-logo-white.vue";
-import ConsistentRewardsIcon from "@action/icons/banners/consistent-rewards-icon.vue";
-import AttractiveAprIcon from "@action/icons/banners/attractive-apr-icon.vue";
+import CloseIconWhite from '@action/icons/common/close-icon-white.vue';
+import EnkryptStakingLogoWhite from '@action/icons/common/enkrypt-staking-logo-white.vue';
+import ConsistentRewardsIcon from '@action/icons/banners/consistent-rewards-icon.vue';
+import AttractiveAprIcon from '@action/icons/banners/attractive-apr-icon.vue';
 import { trackSolanaStakingBanner } from '@/libs/metrics';
 import { openLink } from '@action/utils/browser';
-import { SolanaStakingBannerEvents } from "@/libs/metrics/types";
+import { SolanaStakingBannerEvents } from '@/libs/metrics/types';
 
-defineProps({
-  close: {
-    type: Function as PropType<() => void>,
-    default: () => {
-      return null;
-    },
-  },
-});
+const emit = defineEmits<{
+  (e: 'close'): void;
+}>();
+
+const close = () => {
+  emit('close');
+};
 
 const openStakingLink = async () => {
   trackSolanaStakingBanner(SolanaStakingBannerEvents.SolanaWalletClicked);

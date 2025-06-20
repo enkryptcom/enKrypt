@@ -5,7 +5,9 @@
     <div class="solana-stacking-banner__content">
       <enkrypt-staking-logo />
       <h5>Put your SOL to work — safely & easily.</h5>
-      <a href="javascript:void(0);" @click="openStakingLink" class="button"><span>Start Staking Now</span></a>
+      <a href="javascript:void(0);" @click="openStakingLink" class="button"
+        ><span>Start Staking Now</span></a
+      >
     </div>
 
     <a class="solana-stacking-banner__close" @click="close">
@@ -15,21 +17,19 @@
 </template>
 
 <script setup lang="ts">
-import CloseIcon from "@action/icons/common/close-icon.vue";
-import EnkryptStakingLogo from "@action/icons/common/enkrypt-staking-logo.vue";
+import CloseIcon from '@action/icons/common/close-icon.vue';
+import EnkryptStakingLogo from '@action/icons/common/enkrypt-staking-logo.vue';
 import { trackSolanaStakingBanner } from '@/libs/metrics';
 import { openLink } from '@action/utils/browser';
-import { SolanaStakingBannerEvents } from "@/libs/metrics/types";
+import { SolanaStakingBannerEvents } from '@/libs/metrics/types';
 
-defineProps({
-  close: {
-    type: Function as PropType<() => void>,
-    default: () => {
-      return null;
-    },
-  },
-});
+const emit = defineEmits<{
+  (e: 'close'): void;
+}>();
 
+const close = () => {
+  emit('close');
+};
 const openStakingLink = async () => {
   trackSolanaStakingBanner(SolanaStakingBannerEvents.SolanaWalletClicked);
   openLink('https://staking.enkrypt.com');
@@ -46,7 +46,8 @@ const openStakingLink = async () => {
   left: 8px;
   bottom: 8px;
   background: #ffffff;
-  box-shadow: 0px 8px 16px -6px rgba(0, 0, 0, 0.12),
+  box-shadow:
+    0px 8px 16px -6px rgba(0, 0, 0, 0.12),
     0px 6px 8px -6px rgba(0, 0, 0, 0.12);
   border-radius: 12px;
   padding: 0 129px 0 12px;
@@ -76,7 +77,7 @@ const openStakingLink = async () => {
       letter-spacing: 0.15px;
       color: @primaryLabel;
       margin: 0 0 8px 0;
-      background: linear-gradient(to left, #14F195, #64ABF2, #9945FF);
+      background: linear-gradient(to left, #14f195, #64abf2, #9945ff);
       -webkit-background-clip: text;
       background-clip: text;
       -webkit-text-fill-color: transparent;
