@@ -50,9 +50,11 @@ const BaseTokenAssets = computed(() => {
       }),
       TokenType: asset,
     };
-    basetokens.push(
-      TokenTypeMap[asset.address || NATIVE_TOKEN_ADDRESS].baseToken,
-    );
+    if (asset.symbol !== "RBTC") {
+      basetokens.push(
+            TokenTypeMap[asset.address || NATIVE_TOKEN_ADDRESS].baseToken,
+          );
+    }
   });
   return basetokens;
 });

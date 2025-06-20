@@ -282,7 +282,7 @@ onMounted(async () => {
       });
       swapFromTokens = {
         all: swapFromTokens.all.filter(t => {
-          if (tokensWithBalance[t.address]) {
+          if (tokensWithBalance[t.address] && t.symbol !== "RBTC") {
             t.balance = toBN(tokensWithBalance[t.address]);
             return true;
           }
