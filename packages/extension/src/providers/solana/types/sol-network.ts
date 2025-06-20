@@ -7,7 +7,6 @@ import { CoingeckoPlatform, NetworkNames, SignerType } from '@enkryptcom/types';
 import createIcon from '../libs/blockies';
 import { Activity } from '@/types/activity';
 import {
-  formatFiatValue,
   formatFloatingPointValue,
 } from '@/libs/utils/number-formatter';
 import MarketData from '@/libs/market-data';
@@ -125,14 +124,13 @@ export class SolanaNetwork extends BaseNetwork {
         balance: balance,
         balancef: formatFloatingPointValue(userBalance).value,
         balanceUSD: usdBalance.toNumber(),
-        balanceUSDf: formatFiatValue(usdBalance.toString()).value,
+        balanceUSDf: usdBalance.toString(),
         icon: this.icon,
         name: this.name_long,
         symbol: this.currencyName,
         value: marketData.length ? currentPrice.toString() : '0',
-        valuef: formatFiatValue(
+        valuef:
           marketData.length ? currentPrice.toString() : '0',
-        ).value,
         contract: '',
         decimals: this.decimals,
         sparkline: marketData.length

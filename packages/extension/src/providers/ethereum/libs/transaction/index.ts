@@ -14,8 +14,12 @@ import {
   formatFeeHistory,
   getBaseFeeBasedOnType,
   getGasBasedOnType,
+  safeGasForStaking,
+  collectiveGasConfig,
   getPriorityFeeBasedOnType,
 } from './gas-utils';
+import rsk from '../../networks/rsk';
+import rskTestnet from '../../networks/rsk-testnet';
 import { Hardfork, Common } from '@ethereumjs/common';
 import { FeeMarketEIP1559Transaction, LegacyTransaction } from '@ethereumjs/tx';
 import { OPTIMISM_PRICE_ORACLE, OPTIMISM_PRICE_ORACLE_ABI } from './op-data';
@@ -101,13 +105,22 @@ class Transaction {
         feeHistory: {} as FeeHistoryResult,
       }));
     // Gets the number of transactions that they will have sent by the next pending block
-    const nonce = await this.web3.getTransactionCount(this.tx.from, 'pending');
+    const nonce = await this.web3.getTransactionCount(this.tx.from.toLowerCase(), 'pending'); // web3 rejects rootstock checksum addr so use lowercase addr
     if (!isFeeMarketNetwork) {
       // Legacy transaction
       const gasPrice = await this.web3.getGasPrice();
-      const gasLimit =
+      let gasLimit =
         this.tx.gasLimit ||
         (numberToHex(await this.estimateGas()) as `0x${string}`);
+      if (
+        [rsk.chainID, rskTestnet.chainID].includes(this.tx.chainId) &&
+        this.tx.data &&
+        this.tx.data.startsWith(collectiveGasConfig[this.tx.chainId].methodId)
+      ) {
+        gasLimit = numberToHex(
+          await safeGasForStaking(this.tx.chainId, Number(gasLimit)),
+        ) as `0x${string}`;
+      }
       const legacyTx: FinalizedLegacyEthereumTransaction = {
         to: this.tx.to || undefined,
         chainId: this.tx.chainId,

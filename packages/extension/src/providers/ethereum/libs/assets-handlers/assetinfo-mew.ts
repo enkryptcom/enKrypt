@@ -10,7 +10,7 @@ import { fromBase } from '@enkryptcom/utils';
 import { toBN } from 'web3-utils';
 import BigNumber from 'bignumber.js';
 import {
-  formatFiatValue,
+
   formatFloatingPointValue,
 } from '@/libs/utils/number-formatter';
 import API from '@/providers/ethereum/libs/api';
@@ -132,6 +132,10 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
   [NetworkNames.Rollux]: {
     cgPlatform: CoingeckoPlatform.Rollux,
     bsEndpoint: true,
+  },
+  [NetworkNames.Sonic]: {
+    tbName: 'sonic',
+    cgPlatform: CoingeckoPlatform.Sonic,
   },
   [NetworkNames.Telos]: {
     tbName: 'tlos',
@@ -278,15 +282,15 @@ export default (
 
     const marketInfo = supportedNetworks[networkName].cgPlatform
       ? await marketData.getMarketInfoByContracts(
-          Object.keys(balances).filter(
-            contract => contract !== NATIVE_TOKEN_ADDRESS,
-          ),
-          supportedNetworks[networkName].cgPlatform as CoingeckoPlatform,
-        )
+        Object.keys(balances).filter(
+          contract => contract !== NATIVE_TOKEN_ADDRESS,
+        ),
+        supportedNetworks[networkName].cgPlatform as CoingeckoPlatform,
+      )
       : tokens.reduce(
-          (obj, cur) => ({ ...obj, [cur.contract]: null }),
-          {} as Record<string, CoinGeckoTokenMarket | null>,
-        );
+        (obj, cur) => ({ ...obj, [cur.contract]: null }),
+        {} as Record<string, CoinGeckoTokenMarket | null>,
+      );
     if (network.coingeckoID) {
       const nativeMarket = await marketData.getMarketData([
         network.coingeckoID,
@@ -337,12 +341,12 @@ export default (
           balance: toBN(balances[address].balance).toString(),
           balancef: formatFloatingPointValue(userBalance).value,
           balanceUSD: usdBalance.toNumber(),
-          balanceUSDf: formatFiatValue(usdBalance.toString()).value,
+          balanceUSDf: usdBalance.toString(),
           icon: market.image,
           name: market.name,
           symbol: market.symbol,
           value: currentPrice.toString(),
-          valuef: formatFiatValue(currentPrice.toString()).value,
+          valuef: currentPrice.toString(),
           contract: address,
           decimals: tokenInfo[address].decimals,
           sparkline: new Sparkline(market.sparkline_in_24h.price, 25)
@@ -377,7 +381,7 @@ export default (
             balance: toBN(balances[unknownTokens[idx]].balance).toString(),
             balancef: formatFloatingPointValue(userBalance).value,
             balanceUSD: 0,
-            balanceUSDf: formatFiatValue('0').value,
+            balanceUSDf: '0',
             icon:
               tokenInfo[unknownTokens[idx]]?.logoURI ||
               tInfo.icon ||
@@ -385,7 +389,7 @@ export default (
             name: tInfo.name,
             symbol: tInfo.symbol,
             value: '0',
-            valuef: formatFiatValue('0').value,
+            valuef: '0',
             contract: unknownTokens[idx],
             decimals: tInfo.decimals,
             sparkline: '',

@@ -58,6 +58,7 @@ const NetworkEndpoints: Record<string, string> = {
   [NetworkNames.Rollux]: 'https://explorer.rollux.com/',
   [NetworkNames.Blast]: 'https://api.blastscan.io/',
   [NetworkNames.Sanko]: 'https://explorer.sanko.xyz/',
+  [NetworkNames.Sonic]: 'https://api.sonicscan.org/',
   [NetworkNames.Degen]: 'https://explorer.degen.tips/',
   [NetworkNames.Ham]: 'https://explorer.ham.fun/',
   [NetworkNames.ImmutableZkevm]: 'https://explorer.immutable.com/',
@@ -71,9 +72,11 @@ const NetworkEndpoints: Record<string, string> = {
   [NetworkNames.Scroll]: 'https://api.scrollscan.com/',
   [NetworkNames.Fraxtal]: 'https://api.fraxscan.com/',
   [NetworkNames.Coti]: 'https://mainnet.cotiscan.io/',
-  [NetworkNames.CytonicTestnet]: 'https://explorer-api.evm.testnet.cytonic.com/api/',
+  [NetworkNames.CytonicTestnet]:
+    'https://explorer-api.evm.testnet.cytonic.com/api/',
   [NetworkNames.Derive]: 'https://explorer.derive.xyz/',
   [NetworkNames.Conflux]: 'https://evmapi.confluxscan.org/',
+  [NetworkNames.Hemi]: 'https://explorer.hemi.xyz/',
 };
 
 export { NetworkEndpoints };

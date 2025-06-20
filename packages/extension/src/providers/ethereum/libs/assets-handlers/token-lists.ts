@@ -50,6 +50,8 @@ const TokenList: Record<SupportedNetworkNames, string> = {
   [NetworkNames.Ink]: `https://tokens.coingecko.com/${CoingeckoPlatform.Ink}/all.json`,
   [NetworkNames.Bera]: `https://tokens.coingecko.com/${CoingeckoPlatform.Berachain}/all.json`,
   [NetworkNames.Unichain]: `https://tokens.coingecko.com/${CoingeckoPlatform.Unichain}/all.json`,
+  [NetworkNames.Sonic]: `https://tokens.coingecko.com/${CoingeckoPlatform.Sonic}/all.json`,
+  [NetworkNames.Conflux]: `https://tokens.coingecko.com/${CoingeckoPlatform.Conflux}/all.json`,
 };
 
 const getKnownNetworkTokens = async (

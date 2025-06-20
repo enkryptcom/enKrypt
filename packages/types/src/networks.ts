@@ -75,6 +75,7 @@ export enum NetworkNames {
   Rollux = "RLX",
   CagaAnkara = "CagaAnkara",
   Solana = "SOLANA",
+  Sonic = "SONIC",
   Telos = "TLOS",
   Blast = "blast",
   Sanko = "sanko",
@@ -111,6 +112,7 @@ export enum NetworkNames {
   UnitZero = "UnitZero",
   UnitZeroTestnet = "UnitZeroTestnet",
   Conflux = "Conflux",
+  Hemi = "Hemi",
 }
 
 export enum CoingeckoPlatform {
@@ -154,6 +156,7 @@ export enum CoingeckoPlatform {
   Kadena = "kadena",
   Syscoin = "syscoin",
   Rollux = "rollux",
+  Sonic = "sonic",
   Telos = "telos",
   Blast = "blast",
   Sanko = "sanko",

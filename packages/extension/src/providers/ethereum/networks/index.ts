@@ -41,6 +41,7 @@ import syscoinNEVMNode from './syscoin/nevm';
 import rolluxTestNode from './syscoin/rollux-testnet';
 import rolluxNode from './syscoin/rollux';
 import cagaAnkara from './cagaAnkara';
+import sonicNode from './sonic';
 import telosNode from './tlos';
 import blastNode from './blast';
 import sankoNode from './dmt';
@@ -76,6 +77,7 @@ import cytonicTestnetNode from './cytonic-testnet';
 import unitZero from './unitzero';
 import unitZeroTestnet from './unitzero-testnet';
 import conflux from './conflux';
+import hemi from './hemi';
 
 export default {
   sepolia: sepoliaNode,
@@ -129,6 +131,7 @@ export default {
   rolluxTest: rolluxTestNode,
   rollux: rolluxNode,
   cagaAnkara: cagaAnkara,
+  sonic: sonicNode,
   telos: telosNode,
   blast: blastNode,
   sanko: sankoNode,
@@ -165,4 +168,5 @@ export default {
   unitZero: unitZero,
   unitZeroTestnet: unitZeroTestnet,
   conflux: conflux,
+  hemi: hemi,
 };

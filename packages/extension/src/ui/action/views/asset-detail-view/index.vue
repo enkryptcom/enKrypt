@@ -23,7 +23,7 @@
           v-if="token.priceChangePercentage !== 0"
           class="asset-detail-view__token-sparkline-price"
         >
-          <h4>${{ token.valuef }}</h4>
+          <h4>{{ $filters.parseCurrency(token.valuef) }}</h4>
           <p
             :class="{
               down: token.priceChangePercentage < 0,
@@ -46,7 +46,7 @@
         <h4>
           {{ token.balancef }} <span>{{ token.symbol.toLowerCase() }}</span>
         </h4>
-        <p>${{ token.balanceUSDf }}</p>
+        <p>{{ $filters.parseCurrency(token.balanceUSDf) }}</p>
       </div>
       <asset-detail-action
         @open:buy-action="openBuySell"
