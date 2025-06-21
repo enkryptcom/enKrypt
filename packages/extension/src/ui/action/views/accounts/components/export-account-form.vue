@@ -28,6 +28,9 @@
       </span>
 
       <div v-if="isDone" class="privkey">
+        <p class="warning">
+          ⚠️ Keep your private key secure. Never share it with anyone.
+        </p>
         <p class="title">Private Key:</p>
         <span class="word">{{ privKey }}</span>
       </div>
@@ -129,11 +132,9 @@ const updateKeyringPassword = (password: string) => {
     .title {
       font-style: normal;
       font-weight: bold;
-      font-weight: bold;
       font-size: 16px;
       line-height: 24px;
       color: @primaryLabel;
-      color: black;
       margin-bottom: 6px;
     }
 
@@ -156,6 +157,14 @@ const updateKeyringPassword = (password: string) => {
       text-wrap: auto;
       user-select: all;
       line-break: anywhere;
+    }
+    .warning {
+      font-style: normal;
+      font-weight: 400;
+      font-size: 16px;
+      line-height: 24px;
+      color: @error;
+      margin: 0 0 12px 0;
     }
   }
 }
