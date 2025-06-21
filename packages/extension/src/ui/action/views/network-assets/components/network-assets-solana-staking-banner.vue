@@ -1,25 +1,13 @@
 <template>
   <div class="network-assets-solana-staking-banner">
-    <a
-      href="javascript:void(0);"
-      @click="openStakingLink"
-      class="network-assets-solana-staking-banner__wrap"
-    >
-      <img
-        src="@action/assets/banners/solana-stacking-banner-bg.png"
-        class="network-assets-solana-staking-banner__bg"
-        alt=""
-      />
-      <img
-        src="@action/assets/banners/solana-stacking-banner-tokens-img.png"
-        class="network-assets-solana-staking-banner__image"
-        alt=""
-      />
+    <a href="javascript:void(0);" @click="openStakingLink" class="network-assets-solana-staking-banner__wrap">
+      <img src="@action/assets/banners/solana-stacking-banner-bg.png" class="network-assets-solana-staking-banner__bg"
+        alt="" />
+      <img src="@action/assets/banners/solana-stacking-banner-tokens-img.png"
+        class="network-assets-solana-staking-banner__image" alt="" />
 
       <div class="network-assets-solana-staking-banner__content">
-        <enkrypt-staking-logo-white
-          class="network-assets-solana-staking-banner__content-logo"
-        />
+        <enkrypt-staking-logo-white class="network-assets-solana-staking-banner__content-logo" />
         <h5>Put your SOL to work — safely & easily.</h5>
         <div class="network-assets-solana-staking-banner__advantages">
           <div>
@@ -91,7 +79,7 @@ const openStakingLink = async () => {
     position: absolute;
     left: 0;
     top: 0;
-    z-index: 1;
+    z-index: 0;
   }
 
   &__image {
@@ -99,7 +87,7 @@ const openStakingLink = async () => {
     position: absolute;
     left: 0;
     top: 0;
-    z-index: 2;
+    z-index: 1;
   }
 
   &__content {
@@ -112,7 +100,7 @@ const openStakingLink = async () => {
     position: absolute;
     left: 0;
     top: 0;
-    z-index: 3;
+    z-index: 1;
 
     &-logo {
       margin: 15px 0 1px 0;

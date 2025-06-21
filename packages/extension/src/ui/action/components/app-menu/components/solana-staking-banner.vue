@@ -5,9 +5,7 @@
     <div class="solana-stacking-banner__content">
       <enkrypt-staking-logo />
       <h5>Put your SOL to work — safely & easily.</h5>
-      <a href="javascript:void(0);" @click="openStakingLink" class="button"
-        ><span>Start Staking Now</span></a
-      >
+      <a href="javascript:void(0);" @click="openStakingLink" class="button"><span>Start Staking Now</span></a>
     </div>
 
     <a class="solana-stacking-banner__close" @click="close">
@@ -55,6 +53,7 @@ const openStakingLink = async () => {
   padding: 0 129px 0 12px;
   box-sizing: border-box;
   overflow: hidden;
+  z-index: 2;
 
   img {
     height: 128px;
