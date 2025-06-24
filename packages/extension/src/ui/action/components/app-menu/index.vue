@@ -89,7 +89,7 @@
     </div>
 
     <!-- Banners -->
-    <solana-staking-banner v-if="isSolanaStackingBanner" @close="closeSolanaStackingBanner" />
+    <solana-staking-banner v-if="isSolanaStackingBanner && isExpanded" @close="closeSolanaStackingBanner" />
   </div>
 </template>
 
@@ -196,9 +196,9 @@ onMounted(async () => {
   newNetworksWithTags.value.swap = newSwaps.filter(
     net => !usedNetworks.swap.includes(net),
   );
-  // if (await bannersState.showSolanaStakingBanner()) {
-  //   isSolanaStackingBanner.value = true;
-  // }
+  if (await bannersState.showSolanaStakingBanner()) {
+    isSolanaStackingBanner.value = true;
+  }
 });
 
 /** -------------------

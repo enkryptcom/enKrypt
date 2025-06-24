@@ -7,7 +7,7 @@
             :subnetwork="props.subnetwork" />
 
           <!-- Banners -->
-          <network-assets-solana-staking-banner v-if="!isSolanaStackingBanner && selectedNetworkName == 'SOLANA'"
+          <network-assets-solana-staking-banner v-if="isSolanaStackingBanner && selectedNetworkName == 'SOLANA'"
             @close="closeSolanaStackingBanner" />
 
           <network-activity-action v-bind="$attrs" />
