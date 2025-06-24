@@ -1,8 +1,8 @@
 <template>
-  <div class="solana-stacking-banner">
-    <img src="@action/assets/banners/solana-stacking-banner.png" alt="" />
+  <div class="solana-staking-banner">
+    <img src="@action/assets/banners/solana-staking-banner.png" alt="" />
 
-    <div class="solana-stacking-banner__content">
+    <div class="solana-staking-banner__content">
       <enkrypt-staking-logo />
       <h5>Put your SOL to work — safely & easily.</h5>
       <a href="javascript:void(0);" @click="openStakingLink" class="button"
@@ -10,7 +10,7 @@
       >
     </div>
 
-    <a class="solana-stacking-banner__close" @click="close">
+    <a class="solana-staking-banner__close" @click="close">
       <close-icon />
     </a>
   </div>
@@ -41,7 +41,7 @@ const openStakingLink = async () => {
 <style lang="less">
 @import '@action/styles/theme.less';
 
-.solana-stacking-banner {
+.solana-staking-banner {
   position: absolute;
   width: 324px;
   height: 128px;

@@ -50,6 +50,6 @@ export default class BannersState {
   async hideSolanaStakingBanner() {
     const state = await this.getOrInitializeState();
     state.isHideSolanStakingBanner = true;
-    this.storage.set(StorageKeys.bannersInfo, state);
+    await this.storage.set(StorageKeys.bannersInfo, state);
   }
 }

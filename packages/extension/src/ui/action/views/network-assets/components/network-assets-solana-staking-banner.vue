@@ -6,12 +6,12 @@
       class="network-assets-solana-staking-banner__wrap"
     >
       <img
-        src="@action/assets/banners/solana-stacking-banner-bg.png"
+        src="@action/assets/banners/solana-staking-banner-bg.png"
         class="network-assets-solana-staking-banner__bg"
         alt=""
       />
       <img
-        src="@action/assets/banners/solana-stacking-banner-tokens-img.png"
+        src="@action/assets/banners/solana-staking-banner-tokens-img.png"
         class="network-assets-solana-staking-banner__image"
         alt=""
       />
