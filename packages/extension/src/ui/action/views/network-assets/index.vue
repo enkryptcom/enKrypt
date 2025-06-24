@@ -15,8 +15,8 @@
 
           <!-- Banners -->
           <network-assets-solana-staking-banner
-            v-if="isSolanaStackingBanner && selectedNetworkName == 'SOLANA'"
-            @close="closeSolanaStackingBanner"
+            v-if="isSolanaStakingBanner && selectedNetworkName == 'SOLANA'"
+            @close="closeSolanaStakingBanner"
           />
 
           <network-activity-action v-bind="$attrs" />
@@ -143,14 +143,14 @@ const selectedNetworkName = computed(() => props.network.name);
 const selectedSubnetwork = computed(() => props.subnetwork);
 const showAddCustomTokens = ref(false);
 
-const isSolanaStackingBanner = ref(false);
+const isSolanaStakingBanner = ref(false);
 const bannersState = new BannersState();
 
 watch([selectedAddress, selectedNetworkName, selectedSubnetwork], updateAssets);
 onMounted(async () => {
   updateAssets();
   if (await bannersState.showNetworkAssetsSolanaStakingBanner()) {
-    isSolanaStackingBanner.value = true;
+    isSolanaStakingBanner.value = true;
   }
 });
 
@@ -181,8 +181,8 @@ const addCustomAsset = (asset: AssetsType) => {
   }
 };
 
-const closeSolanaStackingBanner = () => {
-  isSolanaStackingBanner.value = false;
+const closeSolanaStakingBanner = () => {
+  isSolanaStakingBanner.value = false;
   bannersState.hideNetworkAssetsSolanaStakingBanner();
 };
 </script>

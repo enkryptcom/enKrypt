@@ -159,8 +159,8 @@
 
     <!-- Banners -->
     <solana-staking-banner
-      v-if="isSolanaStackingBanner && isExpanded"
-      @close="closeSolanaStackingBanner"
+      v-if="isSolanaStakingBanner && isExpanded"
+      @close="closeSolanaStakingBanner"
     />
   </div>
 </template>
@@ -269,7 +269,7 @@ onMounted(async () => {
     net => !usedNetworks.swap.includes(net),
   );
   if (await bannersState.showSolanaStakingBanner()) {
-    isSolanaStackingBanner.value = true;
+    isSolanaStakingBanner.value = true;
   }
 });
 
@@ -541,11 +541,11 @@ const updateGradient = (newGradient: string) => {
 /** ------------------
  * Banners
  ------------------*/
-const isSolanaStackingBanner = ref(false);
+const isSolanaStakingBanner = ref(false);
 const bannersState = new BannersState();
 
-const closeSolanaStackingBanner = () => {
-  isSolanaStackingBanner.value = false;
+const closeSolanaStakingBanner = () => {
+  isSolanaStakingBanner.value = false;
   bannersState.hideSolanaStakingBanner();
 };
 </script>
