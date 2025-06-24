@@ -5,7 +5,9 @@
     <div class="solana-stacking-banner__content">
       <enkrypt-staking-logo />
       <h5>Put your SOL to work — safely & easily.</h5>
-      <a href="javascript:void(0);" @click="openStakingLink" class="button"><span>Start Staking Now</span></a>
+      <a href="javascript:void(0);" @click="openStakingLink" class="button"
+        ><span>Start Staking Now</span></a
+      >
     </div>
 
     <a class="solana-stacking-banner__close" @click="close">

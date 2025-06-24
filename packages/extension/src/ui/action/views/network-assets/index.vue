@@ -1,23 +1,48 @@
 <template>
   <div>
     <div class="container">
-      <custom-scrollbar class="network-assets__scroll-area" :settings="scrollSettings({ suppressScrollX: true })">
+      <custom-scrollbar
+        class="network-assets__scroll-area"
+        :settings="scrollSettings({ suppressScrollX: true })"
+      >
         <div v-if="!!selected" class="network-assets">
-          <network-activity-total :crypto-amount="cryptoAmount" :fiat-amount="fiatAmount" :symbol="network.currencyName"
-            :subnetwork="props.subnetwork" />
+          <network-activity-total
+            :crypto-amount="cryptoAmount"
+            :fiat-amount="fiatAmount"
+            :symbol="network.currencyName"
+            :subnetwork="props.subnetwork"
+          />
 
           <!-- Banners -->
-          <network-assets-solana-staking-banner v-if="isSolanaStackingBanner && selectedNetworkName == 'SOLANA'"
-            @close="closeSolanaStackingBanner" />
+          <network-assets-solana-staking-banner
+            v-if="isSolanaStackingBanner && selectedNetworkName == 'SOLANA'"
+            @close="closeSolanaStackingBanner"
+          />
 
           <network-activity-action v-bind="$attrs" />
           <network-assets-header v-if="!isLoading && assets.length > 0" />
-          <network-assets-error v-if="isFetchError" :update-assets="updateAssets" />
-          <network-assets-item v-for="(item, index) in assets" :key="index" :token="item" :network="network"
-            @update:tokens="updateAssets" v-bind="$attrs" />
-          <div v-show="network.customTokens && assets.length !== 0" class="network-assets__add-token">
+          <network-assets-error
+            v-if="isFetchError"
+            :update-assets="updateAssets"
+          />
+          <network-assets-item
+            v-for="(item, index) in assets"
+            :key="index"
+            :token="item"
+            :network="network"
+            @update:tokens="updateAssets"
+            v-bind="$attrs"
+          />
+          <div
+            v-show="network.customTokens && assets.length !== 0"
+            class="network-assets__add-token"
+          >
             <div class="network-assets__add-token-button">
-              <base-button title="Add custom token" :click="toggleShowAddCustomTokens" :no-background="true" />
+              <base-button
+                title="Add custom token"
+                :click="toggleShowAddCustomTokens"
+                :no-background="true"
+              />
             </div>
           </div>
         </div>
@@ -25,8 +50,13 @@
 
       <network-assets-loading v-if="isLoading" />
 
-      <deposit v-if="!!props.accountInfo.selectedAccount" :account="props.accountInfo.selectedAccount"
-        :show-deposit="showDeposit" :network="network" @toggle:deposit="toggleDeposit" />
+      <deposit
+        v-if="!!props.accountInfo.selectedAccount"
+        :account="props.accountInfo.selectedAccount"
+        :show-deposit="showDeposit"
+        :network="network"
+        @toggle:deposit="toggleDeposit"
+      />
     </div>
     <!-- prettier-ignore -->
     <custom-evm-token v-if="showAddCustomTokens" :address="props.accountInfo.selectedAccount?.address!"

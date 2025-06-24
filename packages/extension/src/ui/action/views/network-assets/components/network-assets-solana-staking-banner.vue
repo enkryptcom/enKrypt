@@ -1,13 +1,25 @@
 <template>
   <div class="network-assets-solana-staking-banner">
-    <a href="javascript:void(0);" @click="openStakingLink" class="network-assets-solana-staking-banner__wrap">
-      <img src="@action/assets/banners/solana-stacking-banner-bg.png" class="network-assets-solana-staking-banner__bg"
-        alt="" />
-      <img src="@action/assets/banners/solana-stacking-banner-tokens-img.png"
-        class="network-assets-solana-staking-banner__image" alt="" />
+    <a
+      href="javascript:void(0);"
+      @click="openStakingLink"
+      class="network-assets-solana-staking-banner__wrap"
+    >
+      <img
+        src="@action/assets/banners/solana-stacking-banner-bg.png"
+        class="network-assets-solana-staking-banner__bg"
+        alt=""
+      />
+      <img
+        src="@action/assets/banners/solana-stacking-banner-tokens-img.png"
+        class="network-assets-solana-staking-banner__image"
+        alt=""
+      />
 
       <div class="network-assets-solana-staking-banner__content">
-        <enkrypt-staking-logo-white class="network-assets-solana-staking-banner__content-logo" />
+        <enkrypt-staking-logo-white
+          class="network-assets-solana-staking-banner__content-logo"
+        />
         <h5>Put your SOL to work — safely & easily.</h5>
         <div class="network-assets-solana-staking-banner__advantages">
           <div>

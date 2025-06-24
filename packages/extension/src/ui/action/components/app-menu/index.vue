@@ -1,21 +1,41 @@
 <template>
-  <div ref="appMenuRef" :class="[isExpanded ? 'expand-menu' : 'collapse-menu', 'app__menu']">
+  <div
+    ref="appMenuRef"
+    :class="[isExpanded ? 'expand-menu' : 'collapse-menu', 'app__menu']"
+  >
     <!-- Networks Search  -->
     <div class="app__menu-row" :class="{ border: orderedNetworks.length > 9 }">
       <div class="app__menu-row">
         <logo-min v-if="isExpanded" class="app__menu-logo" />
-        <button v-else @click="setExpanded(true)" aria-label="Expand Networks Menu">
+        <button
+          v-else
+          @click="setExpanded(true)"
+          aria-label="Expand Networks Menu"
+        >
           <expand-menu :is-expanded="false" />
         </button>
-        <updated-icon v-if="isExpanded && updatesIsLoaded && showUpdatesBtn"
-          @click="openUpdatesDialog(UpdatesOpenLocation.logo)" class="app__menu-updated" aria-label="Show Updates" />
+        <updated-icon
+          v-if="isExpanded && updatesIsLoaded && showUpdatesBtn"
+          @click="openUpdatesDialog(UpdatesOpenLocation.logo)"
+          class="app__menu-updated"
+          aria-label="Show Updates"
+        />
       </div>
 
       <div v-if="isExpanded">
-        <button class="app__menu-link" @click="setExpanded(false)" aria-label="Collapse Networks Menu">
+        <button
+          class="app__menu-link"
+          @click="setExpanded(false)"
+          aria-label="Collapse Networks Menu"
+        >
           <expand-menu :is-expanded="isExpanded" />
         </button>
-        <button ref="toggle" class="app__menu-link" @click="toggleMoreMenu" aria-label="View Menu">
+        <button
+          ref="toggle"
+          class="app__menu-link"
+          @click="toggleMoreMenu"
+          aria-label="View Menu"
+        >
           <tooltip text="Menu">
             <more-icon />
           </tooltip>
@@ -24,61 +44,110 @@
           <button class="app__menu-dropdown-link" @click="otherNetworksAction">
             <manage-networks-icon /> <span>Other networks</span>
           </button>
-          <button class="app__menu-dropdown-link" @click="emit('action:lock-enkrypt')">
+          <button
+            class="app__menu-dropdown-link"
+            @click="emit('action:lock-enkrypt')"
+          >
             <hold-icon /> <span>Lock Enkrypt</span>
           </button>
           <button class="app__menu-dropdown-link" @click="settingsAction">
             <settings-icon /> <span>Settings</span>
           </button>
           <div v-if="updatesIsLoaded" class="app__menu-dropdown-divider"></div>
-          <button v-if="updatesIsLoaded" class="app__menu-dropdown-link"
-            @click="openUpdatesDialog(UpdatesOpenLocation.settings)">
+          <button
+            v-if="updatesIsLoaded"
+            class="app__menu-dropdown-link"
+            @click="openUpdatesDialog(UpdatesOpenLocation.settings)"
+          >
             <heart-icon class="app__menu-dropdown-link-heart"></heart-icon>
             <span> Updates</span>
           </button>
         </div>
       </div>
     </div>
-    <base-search ref="searchNetworksComponent" v-show="isExpanded" :value="searchInput" :is-border="false"
-      @update:value="updateSearchValue" />
+    <base-search
+      ref="searchNetworksComponent"
+      v-show="isExpanded"
+      :value="searchInput"
+      :is-border="false"
+      @update:value="updateSearchValue"
+    />
     <div v-show="!isExpanded" class="app__menu__search-icon-container">
       <tooltip text="Search Networks" is-top-right teleport-to-app>
-        <button class="app__menu-link" @click="searchOnCollapsed" aria-label="Search Networks">
+        <button
+          class="app__menu-link"
+          @click="searchOnCollapsed"
+          aria-label="Search Networks"
+        >
           <search-icon />
         </button>
       </tooltip>
     </div>
 
     <!-- Networks Tabs  -->
-    <app-menu-tab v-if="isExpanded" :active-category="activeCategory" @update:category="setActiveCategory" />
+    <app-menu-tab
+      v-if="isExpanded"
+      :active-category="activeCategory"
+      @update:category="setActiveCategory"
+    />
     <!-- Scrollable Networks  -->
-    <div :class="[
-      'networks-menu',
-      { 'has-bg': isScrolling },
-      isExpanded ? 'networks-menu-expand' : 'networks-menu-collapse',
-    ]">
-      <div :class="[
-        'networks-menu__scroll-area',
-        isExpanded
-          ? 'networks-menu__scroll-area-expand'
-          : 'networks-menu__scroll-area-collapse',
-      ]" ref="scrollDiv">
-        <app-menu-sort v-if="isExpanded && activeCategory === NetworksCategory.All" :sortBy="sortBy"
-          @update:sort="updateSort" />
-        <draggable v-model="searchNetworks" item-key="name" :animation="500" draggable=":not(.do-not-drag)">
+    <div
+      :class="[
+        'networks-menu',
+        { 'has-bg': isScrolling },
+        isExpanded ? 'networks-menu-expand' : 'networks-menu-collapse',
+      ]"
+    >
+      <div
+        :class="[
+          'networks-menu__scroll-area',
+          isExpanded
+            ? 'networks-menu__scroll-area-expand'
+            : 'networks-menu__scroll-area-collapse',
+        ]"
+        ref="scrollDiv"
+      >
+        <app-menu-sort
+          v-if="isExpanded && activeCategory === NetworksCategory.All"
+          :sortBy="sortBy"
+          @update:sort="updateSort"
+        />
+        <draggable
+          v-model="searchNetworks"
+          item-key="name"
+          :animation="500"
+          draggable=":not(.do-not-drag)"
+        >
           <template #item="{ element }">
-            <app-menu-item v-bind="$attrs" :network="element" :is-active="!!activeNetwork && element.name === activeNetwork.name
-              " :is-pinned="getIsPinned(element.name)" :scroll-position="y" :can-drag="getCanDrag(element)"
-              :new-network-tags="newNetworksWithTags" :is-expanded="isExpanded" @click="setNetwork(element)"
-              @update:gradient="updateGradient" :class="{
+            <app-menu-item
+              v-bind="$attrs"
+              :network="element"
+              :is-active="
+                !!activeNetwork && element.name === activeNetwork.name
+              "
+              :is-pinned="getIsPinned(element.name)"
+              :scroll-position="y"
+              :can-drag="getCanDrag(element)"
+              :new-network-tags="newNetworksWithTags"
+              :is-expanded="isExpanded"
+              @click="setNetwork(element)"
+              @update:gradient="updateGradient"
+              :class="{
                 'do-not-drag': !getCanDrag(element),
-              }" />
+              }"
+            />
           </template>
         </draggable>
-        <div v-if="showMessage && isExpanded" class="networks-menu__scroll-area__message">
-          <p v-if="
-            searchInput === '' && activeCategory === NetworksCategory.Pinned
-          " class="networks-menu__scroll-area__message__pin">
+        <div
+          v-if="showMessage && isExpanded"
+          class="networks-menu__scroll-area__message"
+        >
+          <p
+            v-if="
+              searchInput === '' && activeCategory === NetworksCategory.Pinned
+            "
+            class="networks-menu__scroll-area__message__pin"
+          >
             Press <pin-icon /> Pin button
           </p>
           <p>
@@ -89,7 +158,10 @@
     </div>
 
     <!-- Banners -->
-    <solana-staking-banner v-if="isSolanaStackingBanner && isExpanded" @close="closeSolanaStackingBanner" />
+    <solana-staking-banner
+      v-if="isSolanaStackingBanner && isExpanded"
+      @close="closeSolanaStackingBanner"
+    />
   </div>
 </template>
 
@@ -646,8 +718,9 @@ const closeSolanaStackingBanner = () => {
     background-color: transparent;
     box-shadow: none;
     margin: 0px -12px 0px -12px;
-    transition: background-color 0.4s ease-in-out,
-    box-shadow 0.4s ease-in-out;
+    transition:
+      background-color 0.4s ease-in-out,
+      box-shadow 0.4s ease-in-out;
 
     &__scroll-area {
       &-expand {
