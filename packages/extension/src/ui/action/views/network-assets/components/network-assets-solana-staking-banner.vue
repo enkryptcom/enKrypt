@@ -91,7 +91,7 @@ const openStakingLink = async () => {
     position: absolute;
     left: 0;
     top: 0;
-    z-index: 1;
+    z-index: 0;
   }
 
   &__image {
@@ -99,7 +99,7 @@ const openStakingLink = async () => {
     position: absolute;
     left: 0;
     top: 0;
-    z-index: 2;
+    z-index: 1;
   }
 
   &__content {
@@ -112,7 +112,7 @@ const openStakingLink = async () => {
     position: absolute;
     left: 0;
     top: 0;
-    z-index: 3;
+    z-index: 1;
 
     &-logo {
       margin: 15px 0 1px 0;

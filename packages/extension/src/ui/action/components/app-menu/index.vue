@@ -159,7 +159,7 @@
 
     <!-- Banners -->
     <solana-staking-banner
-      v-if="isSolanaStackingBanner"
+      v-if="isSolanaStackingBanner && isExpanded"
       @close="closeSolanaStackingBanner"
     />
   </div>
@@ -268,9 +268,9 @@ onMounted(async () => {
   newNetworksWithTags.value.swap = newSwaps.filter(
     net => !usedNetworks.swap.includes(net),
   );
-  // if (await bannersState.showSolanaStakingBanner()) {
-  //   isSolanaStackingBanner.value = true;
-  // }
+  if (await bannersState.showSolanaStakingBanner()) {
+    isSolanaStackingBanner.value = true;
+  }
 });
 
 /** -------------------
@@ -552,12 +552,15 @@ const closeSolanaStackingBanner = () => {
 
 <style lang="less">
 @import '@action/styles/theme.less';
+
 .expand-menu {
   width: 340px;
 }
+
 .collapse-menu {
   width: 56px;
 }
+
 .app__menu {
   height: 600px;
   position: absolute;
@@ -572,16 +575,19 @@ const closeSolanaStackingBanner = () => {
   &-logo {
     margin-left: 8px;
   }
+
   &-updated {
     height: 24px;
     width: 90px;
     cursor: pointer;
     transition: 0.3s;
     filter: brightness(1);
+
     &:hover {
       filter: brightness(0.9);
     }
   }
+
   &-row {
     height: 40px;
     display: flex;
@@ -589,11 +595,13 @@ const closeSolanaStackingBanner = () => {
     align-items: center;
     flex-direction: row;
   }
+
   &__search-icon-container {
     margin-left: -4px;
     padding-top: 4px;
     padding-bottom: 4px;
   }
+
   &-add {
     display: flex;
     box-sizing: border-box;
@@ -696,13 +704,16 @@ const closeSolanaStackingBanner = () => {
       }
     }
   }
+
   .networks-menu {
     &-expand {
       padding: 1px 10px 1px 10px;
     }
+
     &-collapse {
       padding: 1px 6px 1px 4px;
     }
+
     transition: background-color 0.5s ease-in-out;
     background-color: transparent;
     box-shadow: none;
@@ -710,13 +721,16 @@ const closeSolanaStackingBanner = () => {
     transition:
       background-color 0.4s ease-in-out,
       box-shadow 0.4s ease-in-out;
+
     &__scroll-area {
       &-expand {
         height: 448px;
       }
+
       &-collapse {
         height: 496px;
       }
+
       position: static;
       margin: auto;
       width: 100%;
@@ -730,19 +744,23 @@ const closeSolanaStackingBanner = () => {
       padding-left: 3px;
       padding-bottom: 3px;
       padding-top: 3px;
+
       &::-webkit-scrollbar {
         width: 4px;
       }
+
       &::-webkit-scrollbar-thumb {
         background: rgba(0, 0, 0, 0.36);
         border-radius: 20px;
       }
+
       &__message {
         padding-top: 114px;
         height: 100%;
         max-width: 222px;
         margin-left: auto;
         margin-right: auto;
+
         p {
           color: @tertiaryLabel;
           font-size: 14px;
@@ -753,6 +771,7 @@ const closeSolanaStackingBanner = () => {
           margin-top: 0px;
           margin-bottom: 0px;
         }
+
         &__pin {
           display: flex;
           justify-content: center;
@@ -772,12 +791,14 @@ const closeSolanaStackingBanner = () => {
       }
     }
   }
+
   .has-bg {
     background-color: rgba(247, 239, 244, 1);
     box-shadow: inset 0px 1px 2px rgba(0, 0, 0, 0.25);
     backdrop-filter: blur(40px);
   }
 }
+
 button {
   background: none;
   color: inherit;

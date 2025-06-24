@@ -59,13 +59,9 @@
       />
     </div>
     <!-- prettier-ignore -->
-    <custom-evm-token
-      v-if="showAddCustomTokens"
-      :address="props.accountInfo.selectedAccount?.address!"
-      :network="(props.network as EvmNetwork)"
-      @update:token-added="addCustomAsset"
-      @update:close="toggleShowAddCustomTokens"
-    ></custom-evm-token>
+    <custom-evm-token v-if="showAddCustomTokens" :address="props.accountInfo.selectedAccount?.address!"
+      :network="(props.network as EvmNetwork)" @update:token-added="addCustomAsset"
+      @update:close="toggleShowAddCustomTokens"></custom-evm-token>
   </div>
 </template>
 

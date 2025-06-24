@@ -55,6 +55,7 @@ const openStakingLink = async () => {
   padding: 0 129px 0 12px;
   box-sizing: border-box;
   overflow: hidden;
+  z-index: 2;
 
   img {
     height: 128px;
