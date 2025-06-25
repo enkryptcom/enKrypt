@@ -14,7 +14,7 @@ export class MultiversXSigner implements SignerInterface {
     const sdkMnemonic = Mnemonic.fromString(mnemonic.mnemonic);
 
     const dPathSegments = `${derivationPath}`.split("/");
-    const index = Number(dPathSegments.slice(-1)[0]) || 0;
+    const index = Number(dPathSegments.slice(-1)[0].replace("'", "")) || 0;
     const secretKey = sdkMnemonic.deriveKey(index, mnemonic.extraWord);
     const pubKey = secretKey.generatePublicKey();
 

@@ -23,8 +23,8 @@
   },
   "dependencies": {
     "@enkryptcom/utils": "workspace:^",
-    "bip39": "^3.1.0",
-    "@multiversx/sdk-core": "^14.2.2"
+    "@multiversx/sdk-core": "^14.2.2",
+    "bip39": "^3.1.0"
   },
   "devDependencies": {
     "@enkryptcom/types": "workspace:^",
