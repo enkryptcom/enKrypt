@@ -1,9 +1,10 @@
-import EvmAPI from '@/providers/ethereum/libs/api';
 import MarketData from '@/libs/market-data';
-import { ApiPromise } from '@polkadot/api';
 import BitcoinAPI from '@/providers/bitcoin/libs/api';
-import KadenaAPI from '@/providers/kadena/libs/api';
 import { BNType } from '@/providers/common/types';
+import EvmAPI from '@/providers/ethereum/libs/api';
+import KadenaAPI from '@/providers/kadena/libs/api';
+import MultiversXAPI from '@/providers/multiversx/libs/api';
+import { ApiPromise } from '@polkadot/api';
 
 export type TransferType = 'keepAlive' | 'all' | 'allKeepAlive' | 'transfer';
 
@@ -60,7 +61,7 @@ export abstract class BaseToken {
   }
 
   public abstract getLatestUserBalance(
-    api: EvmAPI | ApiPromise | BitcoinAPI | KadenaAPI,
+    api: EvmAPI | ApiPromise | BitcoinAPI | KadenaAPI | MultiversXAPI,
     address: string,
   ): Promise<string>;
 

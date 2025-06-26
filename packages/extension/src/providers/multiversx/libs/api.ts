@@ -13,9 +13,7 @@ class API implements ProviderAPIInterface {
     this.networkProvider = new ApiNetworkProvider(node);
   }
 
-  async init(): Promise<void> {
-    throw new Error('Method not implemented.');
-  }
+  async init(): Promise<void> {}
 
   public get api() {
     return this;
