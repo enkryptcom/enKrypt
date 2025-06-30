@@ -133,7 +133,7 @@ class Changelly extends ProviderClass {
 
       if (
         cur.enabledFrom &&
-        cur.fixRateEnabled &&
+        (cur.fixRateEnabled || cur.protocol === "RBTC") && // Allow RBTC as native currency for gas fees and swaps
         cur.token &&
         changellyToNetwork[cur.blockchain] === this.network
       ) {

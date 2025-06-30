@@ -8,6 +8,7 @@ import { LegacyTransaction, FeeMarketEIP1559Transaction } from "@ethereumjs/tx";
 import HDKey from "hdkey";
 import { bufferToHex, hexToBuffer } from "@enkryptcom/utils";
 import { RLP } from "@ethereumjs/rlp";
+import { SignTypedDataVersion, TypedDataUtils } from "@metamask/eth-sig-util";
 import {
   AddressResponse,
   getAddressRequest,
@@ -15,6 +16,7 @@ import {
   PathType,
   SignMessageRequest,
   SignTransactionRequest,
+  SignTypedMessageRequest,
 } from "../../types";
 import { supportedPaths } from "./configs";
 import ConnectToLedger from "../ledgerConnect";
@@ -136,6 +138,32 @@ class LedgerEthereum implements HWWalletProvider {
       });
   }
 
+  signTypedMessage(request: SignTypedMessageRequest): Promise<string> {
+    const messageHash = TypedDataUtils.hashStruct(
+      request.primaryType,
+      request.message,
+      request.types,
+      request.version as SignTypedDataVersion.V3 | SignTypedDataVersion.V4,
+    );
+    const domainHash = TypedDataUtils.hashStruct(
+      "EIP712Domain",
+      request.domain,
+      request.types,
+      request.version as SignTypedDataVersion.V3 | SignTypedDataVersion.V4,
+    );
+    const connection = new EthApp(this.transport);
+    return connection
+      .signEIP712HashedMessage(
+        request.pathType.path.replace(`{index}`, request.pathIndex),
+        bufferToHex(domainHash, true),
+        bufferToHex(messageHash, true),
+      )
+      .then((result) => {
+        const v = BigInt(result.v - 27);
+        return toRpcSig(v, hexToBuffer(result.r), hexToBuffer(result.s));
+      });
+  }
+
   getSupportedPaths(): PathType[] {
     return supportedPaths[this.network];
   }
@@ -158,6 +186,7 @@ class LedgerEthereum implements HWWalletProvider {
       HWwalletCapabilities.eip1559,
       HWwalletCapabilities.signMessage,
       HWwalletCapabilities.signTx,
+      HWwalletCapabilities.typedMessage,
     ];
   }
 }
