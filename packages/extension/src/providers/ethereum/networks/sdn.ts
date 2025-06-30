@@ -15,7 +15,7 @@ const sdnOptions: EvmNetworkOptions = {
   isTestNetwork: false,
   currencyName: 'SDN',
   currencyNameLong: 'Shiden',
-  node: 'wss://shiden.public.blastapi.io',
+  node: 'wss://shiden.api.onfinality.io/public-ws',
   icon,
   coingeckoID: 'shiden',
   coingeckoPlatform: CoingeckoPlatform.Shiden,
