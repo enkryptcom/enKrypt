@@ -4,6 +4,7 @@ import {
   MultiversXNetwork,
   MultiversXNetworkOptions,
 } from '../types/mvx-network';
+import icon from './icons/multiversx.webp';
 
 const multiversxOptions: MultiversXNetworkOptions = {
   name: NetworkNames.MultiversX,
@@ -14,7 +15,7 @@ const multiversxOptions: MultiversXNetworkOptions = {
   isTestNetwork: false,
   currencyName: 'EGLD',
   currencyNameLong: 'MultiversX',
-  icon: '',
+  icon,
   decimals: 18,
   node: 'https://api.multiversx.com',
   coingeckoID: 'elrond',
