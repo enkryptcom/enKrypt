@@ -18,7 +18,7 @@ export default (
   if (/^ws(s)?:\/\//i.test(url)) {
     return new WSClient(url, middlewares, options);
   }
-  throw new Error(`Unable to set requrst provider: ${url}`);
+  throw new Error(`Unable to set request provider: ${url}`);
 };
 
 export { RequestClass };
