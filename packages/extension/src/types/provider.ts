@@ -1,6 +1,7 @@
 import PublicKeyRing from '@/libs/keyring/public-keyring';
 import type { InjectedProvider as BitcoinProvider } from '@/providers/bitcoin/types';
 import type { InjectedProvider as KadenaProvider } from '@/providers/kadena/types';
+import type { InjectedProvider as MultiversXProvider } from '@/providers/multiversx/types';
 import type { InjectedProvider as PolkadotProvider } from '@/providers/polkadot/types';
 import type { InjectedProvider as SolanaProvider } from '@/providers/solana/types';
 import {
@@ -44,6 +45,7 @@ export enum InternalStorageNamespace {
   bitcoinAccountsState = 'BitcoinAccountsState',
   kadenaAccountsState = 'KadenaAccountsState',
   solanaAccountsState = 'SolanaAccountsState',
+  multiversxAccountsState = 'MultiversxAccountsState',
   activityState = 'ActivityState',
   marketData = 'MarketData',
   cacheFetch = 'CacheFetch',
@@ -164,6 +166,7 @@ export {
   BitcoinProvider,
   EthereumProvider,
   KadenaProvider,
+  MultiversXProvider,
   PolkadotProvider,
   SolanaProvider,
 };
@@ -172,7 +175,8 @@ export type Provider =
   | PolkadotProvider
   | BitcoinProvider
   | KadenaProvider
-  | SolanaProvider;
+  | SolanaProvider
+  | MultiversXProvider;
 
 export interface ProviderRequestOptions {
   url: string;

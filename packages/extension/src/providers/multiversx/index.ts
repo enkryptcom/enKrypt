@@ -18,11 +18,16 @@ class MultiversXProvider
   extends EventEmitter
   implements BackgroundProviderInterface
 {
+  override listeners(event: string | symbol): ((...args: any[]) => void)[] {
+    // Cast each Function to the expected type
+    return super.listeners(event) as ((...args: any[]) => void)[];
+  }
+
   UIRoutes = UIRoutes;
   toWindow: (message: string) => void;
   network: MultiversXNetwork;
   requestProvider: any;
-  middlewares: MiddlewareFunction[];
+  middlewares: MiddlewareFunction[] = [];
   namespace: ProviderName;
   KeyRing: PublicKeyRing;
 

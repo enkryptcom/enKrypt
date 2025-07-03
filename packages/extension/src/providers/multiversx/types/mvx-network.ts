@@ -10,6 +10,7 @@ import { AssetsType, ProviderName } from '@/types/provider';
 import { CoingeckoPlatform, NetworkNames, SignerType } from '@enkryptcom/types';
 import { fromBase } from '@enkryptcom/utils';
 import { Address } from '@multiversx/sdk-core';
+import BigNumber from 'bignumber.js';
 import API from '../libs/api';
 import { MVXToken } from './mvx-token';
 
@@ -32,10 +33,6 @@ export interface MultiversXNetworkOptions {
     network: BaseNetwork,
     address: string,
   ) => Promise<Activity[]>;
-  assetsInfoHandler?: (
-    network: BaseNetwork,
-    address: string,
-  ) => Promise<AssetsType[]>;
 }
 
 export const getAddress = (pubkey: string) => {
@@ -69,7 +66,6 @@ export class MultiversXNetwork extends BaseNetwork {
     };
     super(baseOptions);
     this.activityHandler = options.activityHandler;
-    this.assetsInfoHandler = options.assetsInfoHandler;
   }
 
   public async getAllTokens(pubkey: string): Promise<BaseToken[]> {
@@ -89,41 +85,39 @@ export class MultiversXNetwork extends BaseNetwork {
   }
 
   public async getAllTokenInfo(pubkey: string): Promise<AssetsType[]> {
-    if (this.assetsInfoHandler) {
-      return this.assetsInfoHandler(this, getAddress(pubkey));
-    } else {
-      const balance = await (await this.api()).getBalance(pubkey);
-      let marketData: (CoinGeckoTokenMarket | null)[] = [];
-      if (this.coingeckoID) {
-        const market = new MarketData();
-        marketData = await market.getMarketData([this.coingeckoID]);
-      }
-      const currentPrice = marketData.length
-        ? marketData[0]!.current_price || 0
-        : 0;
-      const userBalance = fromBase(balance, this.decimals);
-      const usdBalance = new BigNumber(userBalance).times(currentPrice);
-      const nativeAsset: AssetsType = {
-        balance: balance,
-        balancef: formatFloatingPointValue(userBalance).value,
-        balanceUSD: usdBalance.toNumber(),
-        balanceUSDf: usdBalance.toString(),
-        icon: this.icon,
-        name: this.name_long,
-        symbol: this.currencyName,
-        value: marketData.length ? currentPrice.toString() : '0',
-        valuef: marketData.length ? currentPrice.toString() : '0',
-        contract: '',
-        decimals: this.decimals,
-        sparkline: marketData.length
-          ? new Sparkline(marketData[0]!.sparkline_in_24h.price, 25).dataValues
-          : '',
-        priceChangePercentage: marketData.length
-          ? marketData[0]!.price_change_percentage_24h_in_currency
-          : 0,
-      };
-      return [nativeAsset];
+    const balance = await (await this.api()).getBalance(pubkey);
+
+    let marketData: (CoinGeckoTokenMarket | null)[] = [];
+    if (this.coingeckoID) {
+      const market = new MarketData();
+      marketData = await market.getMarketData([this.coingeckoID]);
     }
+
+    const currentPrice = marketData.length
+      ? marketData[0]!.current_price || 0
+      : 0;
+    const userBalance = fromBase(balance, this.decimals);
+    const usdBalance = new BigNumber(userBalance).times(currentPrice);
+    const nativeAsset: AssetsType = {
+      balance: balance,
+      balancef: formatFloatingPointValue(userBalance).value,
+      balanceUSD: usdBalance.toNumber(),
+      balanceUSDf: usdBalance.toString(),
+      icon: this.icon,
+      name: this.name_long,
+      symbol: this.currencyName,
+      value: marketData.length ? currentPrice.toString() : '0',
+      valuef: marketData.length ? currentPrice.toString() : '0',
+      contract: '',
+      decimals: this.decimals,
+      sparkline: marketData.length
+        ? new Sparkline(marketData[0]!.sparkline_in_24h.price, 25).dataValues
+        : '',
+      priceChangePercentage: marketData.length
+        ? marketData[0]!.price_change_percentage_24h_in_currency
+        : 0,
+    };
+    return [nativeAsset];
   }
 
   public getAllActivity(address: string): Promise<Activity[]> {

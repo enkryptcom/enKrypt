@@ -1,14 +1,15 @@
 import {
+  providerSendMessage,
   setWindowNamespace,
   windowOnMessage,
-  providerSendMessage,
 } from '@/libs/messenger/window';
-import { ProviderName, ProviderType } from '@/types/provider';
-import EthereumProvider from '@/providers/ethereum/inject';
-import PolkadotProvider from '@/providers/polkadot/inject';
 import BitcoinProvider from '@/providers/bitcoin/inject';
+import EthereumProvider from '@/providers/ethereum/inject';
 import KadenaProvider from '@/providers/kadena/inject';
+import MultiversXProvider from '@/providers/multiversx/inject';
+import PolkadotProvider from '@/providers/polkadot/inject';
 import SolanaProvider from '@/providers/solana/inject';
+import { ProviderName, ProviderType } from '@/types/provider';
 
 import { InternalMethods } from '@/types/messenger';
 
@@ -41,6 +42,11 @@ const loadInjectedProviders = () => {
   SolanaProvider(window, {
     name: ProviderName.solana,
     type: ProviderType.solana,
+    sendMessageHandler: providerSendMessage,
+  });
+  MultiversXProvider(window, {
+    name: ProviderName.multiversx,
+    type: ProviderType.multiversx,
     sendMessageHandler: providerSendMessage,
   });
 };

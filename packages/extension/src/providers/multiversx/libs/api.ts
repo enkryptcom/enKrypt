@@ -1,6 +1,7 @@
 import { MultiversXRawInfo } from '@/types/activity';
 import { ProviderAPIInterface } from '@/types/provider';
 import { Address, ApiNetworkProvider } from '@multiversx/sdk-core';
+import BigNumber from 'bignumber.js';
 import { numberToHex } from 'web3-utils';
 
 /** MultiversX API wrapper */
