@@ -126,9 +126,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, PropType, ref, watch } from 'vue';
-import moment from 'moment';
-import TransactionTimer from './transaction-timer.vue';
+import { getNetworkByName } from '@/libs/utils/networks';
 import {
   Activity,
   ActivityStatus,
@@ -136,10 +134,13 @@ import {
   SwapRawInfo,
 } from '@/types/activity';
 import { BaseNetwork } from '@/types/base-network';
-import { fromBase } from '@enkryptcom/utils';
-import { getNetworkByName } from '@/libs/utils/networks';
-import BigNumber from 'bignumber.js';
 import { imageLoadError } from '@/ui/action/utils/misc';
+import { NetworkNames } from '@enkryptcom/types';
+import { fromBase } from '@enkryptcom/utils';
+import BigNumber from 'bignumber.js';
+import moment from 'moment';
+import { computed, onMounted, PropType, ref, watch } from 'vue';
+import TransactionTimer from './transaction-timer.vue';
 const props = defineProps({
   activity: {
     type: Object as PropType<Activity>,
@@ -246,7 +247,13 @@ watch(
 );
 
 onMounted(() => {
-  date.value = moment(props.activity.timestamp).fromNow();
+  // needed because MultiversX uses timestamps in seconds
+  if (props.activity.network === NetworkNames.MultiversX) {
+    date.value = moment(props.activity.timestamp * 1000).fromNow();
+  } else {
+    date.value = moment(props.activity.timestamp).fromNow();
+  }
+
   if (
     props.activity.status === ActivityStatus.success &&
     props.activity.isIncoming
