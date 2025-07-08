@@ -125,27 +125,48 @@ export const getSwapTransactions = async (
           hasThirdPartySignatures: boolean;
         }
     )[] = (transactions as EnkryptSolanaTransaction[]).map(function (enkSolTx) {
-      switch (enkSolTx.kind) {
-        case 'legacy':
-          return {
-            kind: 'legacy',
-            hasThirdPartySignatures: enkSolTx.thirdPartySignatures.length > 0,
-            instance: SolanaLegacyTransaction.from(
-              Buffer.from(enkSolTx.serialized, 'base64'),
-            ),
-          };
-        case 'versioned':
-          return {
-            kind: 'versioned',
-            hasThirdPartySignatures: enkSolTx.thirdPartySignatures.length > 0,
-            instance: SolanaVersionedTransaction.deserialize(
-              Buffer.from(enkSolTx.serialized, 'base64'),
-            ),
-          };
-        default:
-          throw new Error(
-            `Cannot deserialize Solana transaction: Unexpected kind: ${enkSolTx.kind}`,
-          );
+      try {
+        switch (enkSolTx.kind) {
+          case 'legacy':
+            return {
+              kind: 'legacy',
+              hasThirdPartySignatures: enkSolTx.thirdPartySignatures.length > 0,
+              instance: SolanaLegacyTransaction.from(
+                Buffer.from(enkSolTx.serialized, 'base64'),
+              ),
+            };
+          case 'versioned':
+            return {
+              kind: 'versioned',
+              hasThirdPartySignatures: enkSolTx.thirdPartySignatures.length > 0,
+              instance: SolanaVersionedTransaction.deserialize(
+                Buffer.from(enkSolTx.serialized, 'base64'),
+              ),
+            };
+          default:
+            throw new Error(
+              `Cannot deserialize Solana transaction: Unexpected kind: ${enkSolTx.kind}`,
+            );
+        }
+      } catch (error) {
+        console.error(`Failed to deserialize Solana transaction:`, error);
+        console.error(
+          `Transaction data length:`,
+          Buffer.from(enkSolTx.serialized, 'base64').length,
+        );
+        console.error(`Transaction kind:`, enkSolTx.kind);
+        console.error(
+          `Transaction serialized (first 100 chars):`,
+          enkSolTx.serialized.substring(0, 100),
+        );
+
+        // If we can't deserialize the transaction, throw a more helpful error
+        throw new Error(
+          `Failed to deserialize Solana transaction from provider. ` +
+            `This may be due to incomplete transaction data from the swap provider. ` +
+            `Please try again later or contact the provider support. ` +
+            `Error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        );
       }
     });
     return solTxs;
