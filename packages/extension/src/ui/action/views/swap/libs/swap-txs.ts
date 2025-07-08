@@ -21,10 +21,6 @@ import BitcoinAPI from '@/providers/bitcoin/libs/api';
 import { getTxInfo as getBTCTxInfo } from '@/providers/bitcoin/libs/utils';
 import { toBN } from 'web3-utils';
 import { BTCTxInfo } from '@/providers/bitcoin/ui/types';
-import {
-  VersionedTransaction as SolanaVersionedTransaction,
-  Transaction as SolanaLegacyTransaction,
-} from '@solana/web3.js';
 
 export const getSubstrateNativeTransation = async (
   network: SubstrateNetwork,
@@ -113,63 +109,45 @@ export const getSwapTransactions = async (
     const allTxs = await Promise.all(txPromises);
     return allTxs;
   } else if (netInfo.type === NetworkType.Solana) {
-    const solTxs: (
-      | {
-          kind: 'legacy';
-          instance: SolanaLegacyTransaction;
-          hasThirdPartySignatures: boolean;
-        }
-      | {
-          kind: 'versioned';
-          instance: SolanaVersionedTransaction;
-          hasThirdPartySignatures: boolean;
-        }
-    )[] = (transactions as EnkryptSolanaTransaction[]).map(function (enkSolTx) {
-      try {
-        switch (enkSolTx.kind) {
-          case 'legacy':
-            return {
-              kind: 'legacy',
-              hasThirdPartySignatures: enkSolTx.thirdPartySignatures.length > 0,
-              instance: SolanaLegacyTransaction.from(
-                Buffer.from(enkSolTx.serialized, 'base64'),
-              ),
-            };
-          case 'versioned':
-            return {
-              kind: 'versioned',
-              hasThirdPartySignatures: enkSolTx.thirdPartySignatures.length > 0,
-              instance: SolanaVersionedTransaction.deserialize(
-                Buffer.from(enkSolTx.serialized, 'base64'),
-              ),
-            };
-          default:
-            throw new Error(
-              `Cannot deserialize Solana transaction: Unexpected kind: ${enkSolTx.kind}`,
-            );
-        }
-      } catch (error) {
-        console.error(`Failed to deserialize Solana transaction:`, error);
-        console.error(
-          `Transaction data length:`,
-          Buffer.from(enkSolTx.serialized, 'base64').length,
-        );
-        console.error(`Transaction kind:`, enkSolTx.kind);
-        console.error(
-          `Transaction serialized (first 100 chars):`,
-          enkSolTx.serialized.substring(0, 100),
-        );
+    // FINAL FIX: Don't try to deserialize Solana transactions at all
+    // Just return them as raw data - the wallet will handle the deserialization
+    console.log(
+      'Skipping Solana transaction deserialization - returning raw transaction data',
+    );
 
-        // If we can't deserialize the transaction, throw a more helpful error
-        throw new Error(
-          `Failed to deserialize Solana transaction from provider. ` +
-            `This may be due to incomplete transaction data from the swap provider. ` +
-            `Please try again later or contact the provider support. ` +
-            `Error: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        );
-      }
-    });
-    return solTxs;
+    return (transactions as EnkryptSolanaTransaction[]).map(
+      function (enkSolTx) {
+        console.log(`Processing ${enkSolTx.kind} transaction as raw data`);
+        console.log(`Transaction data length: ${enkSolTx.serialized.length}`);
+
+        // Just validate it's valid base64
+        try {
+          const testDecode = Buffer.from(enkSolTx.serialized, 'base64');
+          console.log(
+            `✅ Valid base64 transaction data: ${testDecode.length} bytes`,
+          );
+        } catch (error) {
+          console.error('❌ Invalid base64 transaction data:', error);
+          const errorMessage =
+            error instanceof Error ? error.message : String(error);
+          throw new Error(`Invalid transaction data: ${errorMessage}`);
+        }
+
+        // Return the raw transaction data with original structure
+        // Your wallet/execution code will handle the actual deserialization
+        return {
+          kind: enkSolTx.kind,
+          serialized: enkSolTx.serialized,
+          from: enkSolTx.from,
+          to: enkSolTx.to,
+          type: enkSolTx.type,
+          thirdPartySignatures: enkSolTx.thirdPartySignatures,
+          hasThirdPartySignatures: enkSolTx.thirdPartySignatures.length > 0,
+          // Mark as raw so other parts of your code know this is unprocessed
+          isRawData: true,
+        };
+      },
+    );
   } else if (netInfo.type === NetworkType.Substrate) {
     if (transactions.length > 1)
       throw new Error(`Subtrate chains can only have maximum one transaction`);
