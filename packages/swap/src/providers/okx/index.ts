@@ -700,13 +700,6 @@ export class OKX extends ProviderClass {
 
       // CRITICAL: Log the exact transaction data we receive
       const rawTxData = swapData.tx.data;
-      logger.info("=== OKX TRANSACTION DATA DEBUG ===");
-      logger.info(`Raw tx data length: ${rawTxData.length}`);
-      logger.info(`Raw tx data type: ${typeof rawTxData}`);
-      logger.info(`Raw tx data (first 100): ${rawTxData.substring(0, 100)}`);
-      logger.info(
-        `Raw tx data (last 100): ${rawTxData.substring(rawTxData.length - 100)}`,
-      );
 
       // Validate base64 format
       const base64Regex = /^[A-Za-z0-9+/]*={0,2}$/;
@@ -732,8 +725,6 @@ export class OKX extends ProviderClass {
           `Cannot decode transaction data as base64: ${e.message}`,
         );
       }
-
-      logger.info("=== END OKX TRANSACTION DEBUG ===");
 
       logger.info(`OKX: Successfully received swap transaction data`);
       return swapData;

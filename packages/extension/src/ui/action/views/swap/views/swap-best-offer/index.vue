@@ -310,8 +310,6 @@ onMounted(async () => {
   account.value = await KeyRing.getAccount(swapData.fromAddress);
   isWindowPopup.value = account.value.isHardware;
 
-  // 🔍 DEBUG: Log all available providers
-  console.log('=== SWAP DEBUG: All available trades ===');
   swapData.trades.forEach((trade, index) => {
     console.log(`Trade ${index + 1}:`, {
       provider: trade.provider,
@@ -323,9 +321,6 @@ onMounted(async () => {
 
   let tempBestTrade = pickedTrade.value;
   let tempFinalToFiat = 0;
-
-  // 🔍 DEBUG: Log the selection process
-  console.log('=== SWAP DEBUG: Evaluating best trade ===');
 
   for (const trade of swapData.trades) {
     const toTokenFiat = new SwapToken(swapData.toToken).getRawToFiat(
@@ -343,34 +338,13 @@ onMounted(async () => {
     const gasCostFiat = parseFloat(gasTier.fiatValue);
     const finalToFiat = toTokenFiat - gasCostFiat;
 
-    // 🔍 DEBUG: Log each trade evaluation
-    console.log(`Evaluating ${trade.provider}:`, {
-      toTokenFiat: toTokenFiat,
-      gasCostFiat: gasCostFiat,
-      finalToFiat: finalToFiat,
-      isBest: finalToFiat > tempFinalToFiat,
-    });
-
     if (finalToFiat > tempFinalToFiat) {
       tempBestTrade = trade;
       tempFinalToFiat = finalToFiat;
-      console.log(
-        `🏆 NEW BEST TRADE: ${trade.provider} with finalToFiat: ${finalToFiat}`,
-      );
     }
   }
 
   pickedTrade.value = tempBestTrade;
-
-  // 🔍 DEBUG: Log final selection
-  console.log('=== SWAP DEBUG: Final selected trade ===');
-  console.log('Selected provider:', pickedTrade.value.provider);
-  console.log('Selected trade details:', {
-    provider: pickedTrade.value.provider,
-    fromAmount: pickedTrade.value.fromTokenAmount.toString(),
-    toAmount: pickedTrade.value.toTokenAmount.toString(),
-    finalFiatValue: tempFinalToFiat,
-  });
 
   await setTransactionFees();
   isLooking.value = false;
@@ -428,17 +402,6 @@ const isDisabled = computed(() => {
 
 const sendAction = async () => {
   if (pickedTrade.value) {
-    // 🔍 DEBUG: Log the final trade being executed
-    console.log('=== SWAP DEBUG: Executing swap ===');
-    console.log('Final provider being used:', pickedTrade.value.provider);
-    console.log('Trade details:', {
-      provider: pickedTrade.value.provider,
-      fromToken: swapData.fromToken.symbol,
-      toToken: swapData.toToken.symbol,
-      fromAmount: pickedTrade.value.fromTokenAmount.toString(),
-      toAmount: pickedTrade.value.toTokenAmount.toString(),
-    });
-
     await setTransactionFees();
     isTXSendError.value = false;
     TXSendErrorMessage.value = '';
@@ -455,14 +418,6 @@ const sendAction = async () => {
       toToken: swapData.toToken,
     })
       .then(txs => {
-        // 🔍 DEBUG: Log successful swap
-        console.log('=== SWAP DEBUG: Swap completed successfully ===');
-        console.log('Provider used:', pickedTrade.value.provider);
-        console.log(
-          'Transaction hashes:',
-          txs.map(tx => tx.hash),
-        );
-
         pickedTrade.value.status!.options.transactions = txs;
         const swapRaw: SwapRawInfo = {
           fromToken: swapData.fromToken,
@@ -504,11 +459,6 @@ const sendAction = async () => {
         });
       })
       .catch(err => {
-        // 🔍 DEBUG: Log swap failure
-        console.log('=== SWAP DEBUG: Swap failed ===');
-        console.log('Provider that failed:', pickedTrade.value.provider);
-        console.log('Error:', err);
-
         console.error(err);
         isTXSendError.value = true;
         const error = err.error ? err.error.message : err.message;
@@ -570,11 +520,6 @@ const selectFee = (option: GasPriceTypes) => {
 };
 
 const selectTrade = (trade: ProviderSwapResponse) => {
-  // 🔍 DEBUG: Log when user manually selects a different trade
-  console.log('=== SWAP DEBUG: User selected trade ===');
-  console.log('Previous provider:', pickedTrade.value.provider);
-  console.log('New selected provider:', trade.provider);
-
   pickedTrade.value = trade;
   setTransactionFees();
 };

@@ -109,32 +109,9 @@ export const getSwapTransactions = async (
     const allTxs = await Promise.all(txPromises);
     return allTxs;
   } else if (netInfo.type === NetworkType.Solana) {
-    // FINAL FIX: Don't try to deserialize Solana transactions at all
-    // Just return them as raw data - the wallet will handle the deserialization
-    console.log(
-      'Skipping Solana transaction deserialization - returning raw transaction data',
-    );
-
     return (transactions as EnkryptSolanaTransaction[]).map(
       function (enkSolTx) {
-        console.log(`Processing ${enkSolTx.kind} transaction as raw data`);
-        console.log(`Transaction data length: ${enkSolTx.serialized.length}`);
-
-        // Just validate it's valid base64
-        try {
-          const testDecode = Buffer.from(enkSolTx.serialized, 'base64');
-          console.log(
-            `✅ Valid base64 transaction data: ${testDecode.length} bytes`,
-          );
-        } catch (error) {
-          console.error('❌ Invalid base64 transaction data:', error);
-          const errorMessage =
-            error instanceof Error ? error.message : String(error);
-          throw new Error(`Invalid transaction data: ${errorMessage}`);
-        }
-
         // Return the raw transaction data with original structure
-        // Your wallet/execution code will handle the actual deserialization
         return {
           kind: enkSolTx.kind,
           serialized: enkSolTx.serialized,

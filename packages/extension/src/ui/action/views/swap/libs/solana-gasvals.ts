@@ -147,18 +147,11 @@ export const getSolanaTransactionFees = async (
 
     // Handle raw transactions differently
     if ('isRawData' in tx && tx.isRawData) {
-      console.log(
-        `Processing raw transaction ${txi + 1}/${len} - using default fee estimate`,
-      );
-
       // Use a reasonable default fee for raw transactions
       // Most Solana transactions cost around 5000-10000 lamports
       const defaultFee = 10000; // 0.00001 SOL
       feesumlamp = feesumlamp.add(toBN(defaultFee));
 
-      console.log(
-        `Applied default fee ${defaultFee} lamports for raw transaction ${txi + 1}/${len}`,
-      );
       continue;
     }
 
