@@ -113,6 +113,8 @@ export enum NetworkNames {
   UnitZeroTestnet = "UnitZeroTestnet",
   Conflux = "Conflux",
   Hemi = "Hemi",
+  Massa = "Massa",
+  MassaBuildnet = "MassaBuildnet"
 }
 
 export enum CoingeckoPlatform {
@@ -181,4 +183,5 @@ export enum CoingeckoPlatform {
   Taraxa = "taraxa",
   UnitZero = "units-network",
   Conflux = "conflux",
+  Massa = "massa",
 }

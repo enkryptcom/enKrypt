@@ -3,6 +3,7 @@ import type { InjectedProvider as PolkadotProvider } from '@/providers/polkadot/
 import type { InjectedProvider as BitcoinProvider } from '@/providers/bitcoin/types';
 import type { InjectedProvider as KadenaProvider } from '@/providers/kadena/types';
 import type { InjectedProvider as SolanaProvider } from '@/providers/solana/types';
+import type { InjectedProvider as MassaProvider } from '@/providers/massa/types';
 import EventEmitter from 'eventemitter3';
 import {
   MiddlewareFunction,
@@ -24,6 +25,7 @@ import {
   KadenaRawInfo,
   SOLRawInfo,
 } from './activity';
+import { OperationStatus } from '@massalabs/massa-web3';
 
 export enum ProviderName {
   enkrypt = 'enkrypt',
@@ -32,6 +34,7 @@ export enum ProviderName {
   polkadot = 'polkadot',
   kadena = 'kadena',
   solana = 'solana',
+  massa = 'massa',
 }
 export enum InternalStorageNamespace {
   keyring = 'KeyRing',
@@ -68,6 +71,7 @@ export enum ProviderType {
   bitcoin,
   kadena,
   solana,
+  massa,
 }
 
 export type SendMessageHandler = (
@@ -144,6 +148,7 @@ export abstract class ProviderAPIInterface {
     | BTCRawInfo
     | KadenaRawInfo
     | SOLRawInfo
+    | OperationStatus
     | null
   >;
 }
@@ -163,13 +168,15 @@ export {
   BitcoinProvider,
   KadenaProvider,
   SolanaProvider,
+  MassaProvider,
 };
 export type Provider =
   | EthereumProvider
   | PolkadotProvider
   | BitcoinProvider
   | KadenaProvider
-  | SolanaProvider;
+  | SolanaProvider
+  | MassaProvider;
 
 export interface ProviderRequestOptions {
   url: string;
