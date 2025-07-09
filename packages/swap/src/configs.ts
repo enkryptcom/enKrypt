@@ -65,6 +65,16 @@ const FEE_CONFIGS: Partial<
       fee: 0.03,
     },
   },
+  [ProviderName.okx]: {
+    [WalletIdentifier.enkrypt]: {
+      referrer: "HXWkRK9a4H1EuBiqP4sVfFsEpd2NasoQPScoXL1NgSE2",
+      fee: 0.01,
+    },
+    [WalletIdentifier.mew]: {
+      referrer: "CmrkoXWiTW37ZqUZcfJtxiKhy9eRMBQHq1nm8HpmRXH4",
+      fee: 0.03,
+    },
+  },
 };
 
 const TOKEN_LISTS: {
