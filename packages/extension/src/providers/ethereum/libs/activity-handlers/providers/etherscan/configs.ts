@@ -77,6 +77,7 @@ const NetworkEndpoints: Record<string, string> = {
   [NetworkNames.Derive]: 'https://explorer.derive.xyz/',
   [NetworkNames.Conflux]: 'https://evmapi.confluxscan.org/',
   [NetworkNames.Hemi]: 'https://explorer.hemi.xyz/',
+  [NetworkNames.CoreDAO]: 'https://openapi.coredao.org/',
 };
 
 export { NetworkEndpoints };

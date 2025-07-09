@@ -225,6 +225,10 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
     tbName: 'cfx',
     cgPlatform: CoingeckoPlatform.Conflux,
   },
+  [NetworkNames.CoreDAO]: {
+    tbName: 'core',
+    cgPlatform: CoingeckoPlatform.CoreDAO,
+  },
 };
 
 const getTokens = (
