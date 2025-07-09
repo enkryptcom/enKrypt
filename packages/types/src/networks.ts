@@ -182,5 +182,5 @@ export enum CoingeckoPlatform {
   Taraxa = "taraxa",
   UnitZero = "units-network",
   Conflux = "conflux",
-  CoreDAO = "coredaoorg",
+  CoreDAO = "core",
 }
