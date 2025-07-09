@@ -228,6 +228,7 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
   [NetworkNames.CoreDAO]: {
     tbName: 'core',
     cgPlatform: CoingeckoPlatform.CoreDAO,
+    bsEndpoint: true,
   },
 };
 
